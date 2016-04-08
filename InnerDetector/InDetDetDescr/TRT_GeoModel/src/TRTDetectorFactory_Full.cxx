@@ -47,6 +47,8 @@
 #include "CLHEP/Vector/TwoVector.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "DetDescrConditions/AlignableTransformContainer.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include <vector>
@@ -66,7 +68,8 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * at
 						 bool DC2CompatibleBarrelCoordinates,
 						 int overridedigversion,
 						 bool alignable,
-						 bool doXenonArgonMixture)
+						 bool doArgon,
+             bool doKrypton)
   : InDetDD::DetectorFactoryBase(athenaComps), 
     m_detectorManager(0), 
     m_materialManager(0),
@@ -77,7 +80,8 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * at
     m_alignable(alignable),
     m_sumSvc("TRT_StrawStatusSummarySvc","InDetTRTStrawStatusSummarySvc"),
     m_strawsvcavailable(0),
-    m_doXenonArgonMixture(doXenonArgonMixture)
+    m_doArgon(doArgon),
+    m_doKrypton(doKrypton)
 { 
 m_sumSvc=m_summarySvc;
 }
@@ -136,17 +140,18 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   m_materialManager = new InDetMaterialManager("TRT_MaterialManager", getAthenaComps());
   m_materialManager->addScalingTable(parameterInterface->scalingTable());
 
-
   //---------------------- Check if the folder TRT/Cond/StatusHT is in place ------------------------//
   m_strawsvcavailable = false;
-  m_strawsvcavailable = detStore()->contains<TRTCond::StrawStatusMultChanContainer>("/TRT/Cond/StatusHT") ; 
+  if (m_doArgon || m_doKrypton){
+  	m_strawsvcavailable = detStore()->contains<TRTCond::StrawStatusMultChanContainer>("/TRT/Cond/StatusHT");
+	m_strawsvcavailable &= (m_sumSvc->getStrawStatusHTContainer() != nullptr);
+  }
   msg(MSG::DEBUG) << "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable << endreq ;
   if (!m_strawsvcavailable) msg(MSG::WARNING) << "The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" << endreq;
-  if (!m_doXenonArgonMixture) {
-	msg(MSG::WARNING) << "Tool setup will force to use full xenon configuration" << endreq;
-	m_strawsvcavailable = false;	
-  }
+  if (!m_doArgon  )	msg(MSG::WARNING) << "Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endreq;
+  if (!m_doKrypton)	msg(MSG::WARNING) << "Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endreq;
   
+ 
   //---------------------- Initialize ID Helper ------------------------------------//
 
   // Initialize the ID helper:
@@ -273,51 +278,88 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   const int AlignmentLevelSubWheel  = 1; // Level 2 in endcap. Not used in barrel
   const int AlignmentLevelModule    = 2; // Level 2 in barrel. Deprecated (wheel level) in endcap.
   const int AlignmentLevelTop       = 3; // Level 1
-  if (m_alignable) {
-    m_detectorManager->addFolder("/TRT/Align");
-    m_detectorManager->addChannel("/TRT/Align/TRT", AlignmentLevelTop, InDetDD::global);
 
-    if (barrelPresent) {
-      m_detectorManager->addChannel("/TRT/Align/B0",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/B1",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/B2",  AlignmentLevelModule, InDetDD::global);
+  if (m_alignable) {
+    InDetDD::AlignFolderType AlignFolder = getAlignFolderType();
+    m_detectorManager->addAlignFolderType(AlignFolder);
+
+    if (AlignFolder==InDetDD::static_run1){
+      m_detectorManager->addFolder("/TRT/Align");
+      m_detectorManager->addChannel("/TRT/Align/TRT", AlignmentLevelTop, InDetDD::global);
+
+      if (barrelPresent) {
+        m_detectorManager->addChannel("/TRT/Align/B0",  AlignmentLevelModule, InDetDD::global);
+        m_detectorManager->addChannel("/TRT/Align/B1",  AlignmentLevelModule, InDetDD::global);
+        m_detectorManager->addChannel("/TRT/Align/B2",  AlignmentLevelModule, InDetDD::global);
+      }
+      if (endcapABPlusPresent) { // EndcapA
+        m_detectorManager->addChannel("/TRT/Align/L2A", AlignmentLevelSubWheel, InDetDD::global);
+      }
+      if (endcapABMinusPresent) {// EndcapC
+        m_detectorManager->addChannel("/TRT/Align/L2C", AlignmentLevelSubWheel, InDetDD::global);
+      }
     }
-    if (endcapABPlusPresent) { // EndcapA
+
+    if (AlignFolder==InDetDD::timedependent_run2){
+      m_detectorManager->addGlobalFolder("/TRT/AlignL1/TRT");
+      m_detectorManager->addChannel("/TRT/AlignL1/TRT", AlignmentLevelTop, InDetDD::global);
+      m_detectorManager->addFolder("/TRT/AlignL2");
+
+      if (barrelPresent) {
+        m_detectorManager->addChannel("/TRT/AlignL2/B0",  AlignmentLevelModule, InDetDD::global);
+        m_detectorManager->addChannel("/TRT/AlignL2/B1",  AlignmentLevelModule, InDetDD::global);
+        m_detectorManager->addChannel("/TRT/AlignL2/B2",  AlignmentLevelModule, InDetDD::global);
+      }
+
+      if (endcapABPlusPresent) { // EndcapA 
+        m_detectorManager->addChannel("/TRT/AlignL2/L2A", AlignmentLevelSubWheel, InDetDD::global);
+      }
+      if (endcapABMinusPresent) {// EndcapC 
+        m_detectorManager->addChannel("/TRT/AlignL2/L2C", AlignmentLevelSubWheel, InDetDD::global);
+      }
+    }
+
+    // Matthias: Is this obsolete? No clear answer from alignment group january 2016
+    // Commented for now
+    /*if (endcapABPlusPresent) { // EndcapA
       m_detectorManager->addChannel("/TRT/Align/A0",  AlignmentLevelModule, InDetDD::global);
       m_detectorManager->addChannel("/TRT/Align/A1",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A2",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A3",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A4",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A5",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A6",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A7",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A8",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A9",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A10", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A11", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A12", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A13", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/L2A", AlignmentLevelSubWheel, InDetDD::global);
-    }
-    if (endcapABMinusPresent) {// EndcapC
-      m_detectorManager->addChannel("/TRT/Align/C0",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C1",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C2",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C3",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C4",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C5",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C6",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C7",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C8",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C9",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C10", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C11", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C12", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C13", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/L2C", AlignmentLevelSubWheel, InDetDD::global);
-    }
+      m_detectorManager->addChannel("/TRT/Align/A2",  AlignmentLevelModule, InDetDD::global);   
+      m_detectorManager->addChannel("/TRT/Align/A3",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A4",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A5",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A6",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A7",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A8",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A9",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A10", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A11", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A12", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A13", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/L2A", AlignmentLevelSubWheel, InDetDD::global);   
+    }                                                                                             
+    if (endcapABMinusPresent) {// EndcapC                                                         
+      m_detectorManager->addChannel("/TRT/Align/C0",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C1",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C2",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C3",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C4",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C5",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C6",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C7",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C8",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C9",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C10", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C11", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C12", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C13", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/L2C", AlignmentLevelSubWheel, InDetDD::global);   
+      }*/
+
+    // Unchanged in Run1 and new Run2 schema                                                     
     m_detectorManager->addSpecialFolder("/TRT/Calib/DX");
   }
+                                               
   
 
   // Interface to conditions
@@ -677,8 +719,21 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
     double activeGasZPositionNormalStraws, activeGasZPositionStrawsWithLargeDeadRegion;
 	//AALONSO, create the Argon Straws
-    GeoPhysVol* pHoleForMixedStrawAR                    = makeStraw(activeGasZPositionNormalStraws, false, true);
-    GeoPhysVol* pHoleForMixedStrawWithLargeDeadRegionAR = makeStraw(activeGasZPositionStrawsWithLargeDeadRegion,true, true);
+    GeoPhysVol* pHoleForMixedStrawAR                    = nullptr;
+    GeoPhysVol* pHoleForMixedStrawWithLargeDeadRegionAR = nullptr;
+    if (m_doArgon)
+      {
+      pHoleForMixedStrawAR                    = makeStraw(activeGasZPositionNormalStraws, false, GM_ARGON);
+      pHoleForMixedStrawWithLargeDeadRegionAR = makeStraw(activeGasZPositionStrawsWithLargeDeadRegion,true, GM_ARGON);
+      }
+    // and krypton straws
+    GeoPhysVol* pHoleForMixedStrawKR                    = nullptr;
+    GeoPhysVol* pHoleForMixedStrawWithLargeDeadRegionKR = nullptr;
+    if (m_doKrypton)
+      {
+      pHoleForMixedStrawKR                    = makeStraw(activeGasZPositionNormalStraws, false, GM_KRYPTON);
+      pHoleForMixedStrawWithLargeDeadRegionKR = makeStraw(activeGasZPositionStrawsWithLargeDeadRegion,true, GM_KRYPTON);
+      }
 
     // The barrel straw (including the "hole" in the radiator around it):
     GeoPhysVol* pHoleForMixedStraw = makeStraw(activeGasZPositionNormalStraws);
@@ -739,8 +794,12 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       if (!radMat) radMat = m_materialManager->getMaterial("trt::FibreRadiator");
 
       lRad = new GeoLogVol(radName, sRad, radMat);
-      GeoPhysVol     * pRad = new GeoPhysVol(lRad);
-      GeoPhysVol     * pRadAR = new GeoPhysVol(lRad);
+      GeoPhysVol *pRad   = nullptr;
+      GeoPhysVol *pRadAR = nullptr;
+      GeoPhysVol *pRadKR = nullptr;
+      pRad = new GeoPhysVol(lRad);
+      if (m_doArgon  ) pRadAR = new GeoPhysVol(lRad);
+      if (m_doKrypton) pRadKR = new GeoPhysVol(lRad);
 
       //---------------------------------------------------------------------------------------------------------------
       // Place the cooling tubes in the Radiator
@@ -754,6 +813,20 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       pRad->add(pCoolingTube);
       pRad->add(xCool2);
       pRad->add(pCoolingTube);
+      if (m_doArgon)
+        {
+        pRadAR->add(xCool1);
+        pRadAR->add(pCoolingTube);
+        pRadAR->add(xCool2);
+        pRadAR->add(pCoolingTube);
+        }
+      if (m_doKrypton)
+        {
+        pRadKR->add(xCool1);
+        pRadKR->add(pCoolingTube);
+        pRadKR->add(xCool2);
+        pRadKR->add(pCoolingTube);
+        }
 
       //----------------------------------------------------------------------------------------------------------------
       // Parameterize all of the straws and put them within the radiator.
@@ -828,36 +901,46 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	//AALONSO
       GeoSerialTransformer *serialTransformer = NULL;
       GeoSerialTransformer *serialTransformerAR = NULL;  //Ruslan
+      GeoSerialTransformer *serialTransformerKR = NULL;  //Artem
 
-      //  if (iABC==0)	// LAYER 0!!
-                serialTransformerAR=new GeoSerialTransformer(pHoleForMixedStrawAR, &tx2, m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
-     //   else
-                serialTransformer=new GeoSerialTransformer(pHoleForMixedStraw,   &tx2, m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
+      serialTransformer     = new GeoSerialTransformer(pHoleForMixedStraw,   &tx2, m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
+      if (m_doArgon)
+        serialTransformerAR = new GeoSerialTransformer(pHoleForMixedStrawAR, &tx2, m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
+      if (m_doKrypton)
+        serialTransformerKR = new GeoSerialTransformer(pHoleForMixedStrawKR, &tx2, m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
 
       //GeoSerialTransformer *serialTransformer=new GeoSerialTransformer(pHoleForMixedStraw, &tx2,
       //							       m_data->barrelNumberOfStrawsInModule[iABC]-nStrawsWithLargeDeadRegion);
 
       GeoSerialTransformer *serialTransformerDead = NULL;
       GeoSerialTransformer *serialTransformerDeadAR = NULL;
+      GeoSerialTransformer *serialTransformerDeadKR = NULL;
       //if (iABC==0) serialTransformerDead = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegionAR, &tx2Dead,
       //							    nStrawsWithLargeDeadRegion);
-      serialTransformerDead = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegion, &tx2Dead,
-								    nStrawsWithLargeDeadRegion);
-      serialTransformerDeadAR = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegionAR, &tx2Dead,
-								    nStrawsWithLargeDeadRegion);
+      serialTransformerDead     = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegion  , &tx2Dead,
+								      nStrawsWithLargeDeadRegion);
+      if (m_doArgon)
+        serialTransformerDeadAR = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegionAR, &tx2Dead,
+                      nStrawsWithLargeDeadRegion);
+      if (m_doKrypton)
+        serialTransformerDeadKR = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegionKR, &tx2Dead,
+                      nStrawsWithLargeDeadRegion);
 
       //if (iABC==0) serialTransformerDead = new GeoSerialTransformer(pHoleForMixedStrawWithLargeDeadRegion, &tx2Dead,
 	//							    nStrawsWithLargeDeadRegion);
      
       
       pRad->add(new GeoSerialIdentifier(0));
-      pRadAR->add(new GeoSerialIdentifier(0));
+      if (m_doArgon  ) pRadAR->add(new GeoSerialIdentifier(0));
+      if (m_doKrypton) pRadKR->add(new GeoSerialIdentifier(0));
       if (iABC==0) {
-	pRad->add(serialTransformerDead);
-        pRadAR->add(serialTransformerDeadAR);
+        pRad->add(serialTransformerDead);
+        if (m_doArgon  ) pRadAR->add(serialTransformerDeadAR);
+        if (m_doKrypton) pRadKR->add(serialTransformerDeadKR);
       }
-        pRad->add(serialTransformer);
-        pRadAR->add(serialTransformerAR);
+      pRad->add(serialTransformer);
+      if (m_doArgon  ) pRadAR->add(serialTransformerAR);
+      if (m_doKrypton) pRadKR->add(serialTransformerKR);
 
       // Adds one straw from each layer (reformulate..) (should be done via m_data from database)
       double oldx=-999*CLHEP::cm, oldz=-999*CLHEP::cm;
@@ -936,18 +1019,38 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	// In barrel frame (generally the same as the global frame)
 	m_detectorManager->addAlignableTransform(AlignmentLevelModule, idModule, xfx1, pShell, pBarrelVol);
 
-        Identifier TRT_Identifier ;
+  Identifier TRT_Identifier;
 	// Add the substructure here:
 	pShell->add(new GeoIdentifierTag(iABC));
-        TRT_Identifier = idHelper->straw_id(1, iMod, iABC, 1, 1);
-        // Ruslan: insert radiators with Ar-straws 
-        if (m_strawsvcavailable && (m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good)) {
-         msg(MSG::DEBUG) << "Marking Argon straws from /TRT/Cond/StatusHT:"<< endmsg; 
-         msg(MSG::DEBUG) << idHelper->print_to_string(TRT_Identifier) << endmsg; 
-	 pShell->add(pRadAR);
-        } else {
-	 pShell->add(pRad);
-        }
+  TRT_Identifier = idHelper->straw_id(1, iMod, iABC, 1, 1);
+  int strawStatusHT = TRTCond::StrawStatus::Good;
+  if (m_strawsvcavailable && (m_doArgon || m_doKrypton)) strawStatusHT = m_sumSvc->getStatusHT(TRT_Identifier);
+  ActiveGasMixture agm = DecideGasMixture(strawStatusHT);
+
+  // Ruslan: insert radiators with Ar-straws
+  // Artem: same for Kr
+  switch (agm)
+    {
+    case GM_ARGON:
+      msg(MSG::DEBUG) << "Marking Argon straws from /TRT/Cond/StatusHT:\t"
+                      << idHelper->print_to_string(TRT_Identifier) << endmsg; 
+      pShell->add(pRadAR);
+      break;
+    case GM_KRYPTON:
+      msg(MSG::DEBUG) << "Marking Krypton straws from /TRT/Cond/StatusHT:\t"
+                      << idHelper->print_to_string(TRT_Identifier) << endmsg;
+      pShell->add(pRadKR);
+      break;
+    case GM_XENON:
+      msg(MSG::DEBUG) << "Marking Xenon straws from /TRT/Cond/StatusHT:\t"
+                      << idHelper->print_to_string(TRT_Identifier) << endmsg;
+      pShell->add(pRad);
+      break;
+    default:
+      msg(MSG::FATAL) << "Unexpected gas mixture: " << agm << endmsg; 
+      throw std::runtime_error("Unexpected gas mixture");
+      return;
+    }
 
 	//-------------------------------------------------------------------//
 	//                                                                   //
@@ -1139,8 +1242,13 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     GeoPhysVol* pOuterSupportA = new GeoPhysVol(lOuterSupportA);
 
     // Straw plane
-    GeoFullPhysVol* pStrawPlaneA_Ar 	= makeStrawPlane(firstIndexOfA, true);
-    GeoFullPhysVol* pStrawPlaneA 	= makeStrawPlane(firstIndexOfA);
+    GeoFullPhysVol* pStrawPlaneA_Kr 	= nullptr;
+    GeoFullPhysVol* pStrawPlaneA_Ar 	= nullptr;
+    if (m_doKrypton)
+      pStrawPlaneA_Kr	= makeStrawPlane(firstIndexOfA, GM_KRYPTON);
+    if (m_doArgon)
+      pStrawPlaneA_Ar = makeStrawPlane(firstIndexOfA, GM_ARGON);
+    GeoFullPhysVol* pStrawPlaneA      = makeStrawPlane(firstIndexOfA);
     // pStrawPlaneA->ref();
 
     //TK:
@@ -1249,19 +1357,37 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		  phiPlane +=  deltaPhiForStrawsA;
 		}
 
-        Identifier TRT_Identifier ;
-	int bar_ec = (iiSide) ? -2 : +2;
-        TRT_Identifier = idHelper->straw_id(bar_ec, 1, iiWheel, 1, 1);
-        // Ruslan: insert plane with Ar-straws
-        if (m_strawsvcavailable && (m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good)) {
-            msg(MSG::DEBUG) << "Marking Argon straws from /TRT/Cond/StatusHT:"<< endmsg;
-            msg(MSG::DEBUG) << idHelper->print_to_string(TRT_Identifier) << endmsg;
-		childPlane = pStrawPlaneA_Ar->clone(); 
-        } else {
-		childPlane = pStrawPlaneA->clone();	
-        }
+    Identifier TRT_Identifier;
+    int bar_ec = (iiSide) ? -2 : +2;
+    TRT_Identifier = idHelper->straw_id(bar_ec, 1, iiWheel, 1, 1);
+    int strawStatusHT = TRTCond::StrawStatus::Good;
+    if (m_strawsvcavailable && (m_doArgon || m_doKrypton)) strawStatusHT = m_sumSvc->getStatusHT(TRT_Identifier);
+    ActiveGasMixture agm = DecideGasMixture(strawStatusHT);
 
-        
+    // Ruslan: insert plane with Ar-straws
+    // Artem: same for Kr
+    switch (agm)
+      {
+      case GM_ARGON:
+        msg(MSG::DEBUG) << "Marking Argon straws from /TRT/Cond/StatusHT:\t"
+                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        childPlane = pStrawPlaneA_Ar->clone(); 
+        break;
+      case GM_KRYPTON:
+        msg(MSG::DEBUG) << "Marking Krypton straws from /TRT/Cond/StatusHT:\t"
+                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        childPlane = pStrawPlaneA_Kr->clone();
+        break;
+      case GM_XENON:
+        msg(MSG::DEBUG) << "Marking Xenon straws from /TRT/Cond/StatusHT:\t"
+                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        childPlane = pStrawPlaneA->clone();
+        break;
+      default:
+        msg(MSG::FATAL) << "Unexpected gas mixture: " << agm << endmsg; 
+        throw std::runtime_error("Unexpected gas mixture");
+        return;
+      }
 
 
 		xfPlane = new GeoTransform(HepGeom::TranslateZ3D(m_data->endCapLayerZPositionA[iiPlane] - m_data->endCapLengthOfWheelsA/2)*HepGeom::RotateZ3D(phiPlane));
@@ -1472,8 +1598,13 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     GeoPhysVol* pOuterSupportB = new GeoPhysVol(lOuterSupportB);
 
     // Straw plane
-    GeoFullPhysVol* pStrawPlaneB_Ar = makeStrawPlane(firstIndexOfB,true);
-    GeoFullPhysVol* pStrawPlaneB = makeStrawPlane(firstIndexOfB);
+    GeoFullPhysVol* pStrawPlaneB_Kr = nullptr;
+    GeoFullPhysVol* pStrawPlaneB_Ar = nullptr;
+    if (m_doKrypton)
+      pStrawPlaneB_Kr = makeStrawPlane(firstIndexOfB,GM_KRYPTON);
+    if (m_doArgon)
+      pStrawPlaneB_Ar = makeStrawPlane(firstIndexOfB,GM_ARGON);
+    GeoFullPhysVol* pStrawPlaneB    = makeStrawPlane(firstIndexOfB);
 //    pStrawPlaneB->ref();
 
     // Radiators
@@ -1538,17 +1669,37 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 		  m_detectorManager->addAlignableTransform(AlignmentLevelSubWheel, idSubModule, xfAlignableModule, pWheelB); 	    
 		}
 
-        Identifier TRT_Identifier ;
-	int bar_ec = (iiSide) ? -2 : +2;
-        TRT_Identifier = idHelper->straw_id(bar_ec, 1, iiWheel, 1, 1);
-         //Ruslan: insert plane with Ar-straws
-         if (m_strawsvcavailable && (m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good)) {
-         msg(MSG::DEBUG) << "Marking Argon straws from /TRT/Cond/StatusHT:"<< endmsg;
-         msg(MSG::DEBUG) << idHelper->print_to_string(TRT_Identifier) << endmsg;
-         childPlane = pStrawPlaneB_Ar->clone();
-         } else {
-         childPlane = pStrawPlaneB->clone();
-         }
+    Identifier TRT_Identifier;
+    int bar_ec = (iiSide) ? -2 : +2;
+    TRT_Identifier = idHelper->straw_id(bar_ec, 1, iiWheel, 1, 1);
+    int strawStatusHT = TRTCond::StrawStatus::Good;
+    if (m_strawsvcavailable && (m_doArgon || m_doKrypton)) strawStatusHT = m_sumSvc->getStatusHT(TRT_Identifier);
+    ActiveGasMixture agm = DecideGasMixture(strawStatusHT);
+
+    //Ruslan: insert plane with Ar-straws
+    //Artem: same for Kr
+    switch (agm)
+      {
+      case GM_ARGON:
+        msg(MSG::DEBUG) << "Marking Argon straws from /TRT/Cond/StatusHT:\t"
+                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        childPlane = pStrawPlaneB_Ar->clone();
+        break;
+      case GM_KRYPTON:
+        msg(MSG::DEBUG) << "Marking Krypton straws from /TRT/Cond/StatusHT:\t"
+                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        childPlane = pStrawPlaneB_Kr->clone();
+        break;
+      case GM_XENON:
+        msg(MSG::DEBUG) << "Marking Xenon straws from /TRT/Cond/StatusHT:\t"
+                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        childPlane = pStrawPlaneB->clone();
+        break;
+      default:
+        msg(MSG::FATAL) << "Unexpected gas mixture: " << agm << endmsg; 
+        throw std::runtime_error("Unexpected gas mixture");
+        return;
+      }
         
 //		childPlane = pStrawPlaneB->clone();
 		
@@ -2129,7 +2280,7 @@ const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, CLHEP::Hep
 
 //
 //GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion /*= false*/ ) const {
-GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion /*= false*/, bool isArgon ) const {
+GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion /*= false*/, ActiveGasMixture gasMixture) const {
 
   double lengthOfInnerDeadRegion= hasLargeDeadRegion ? m_data->barrelLengthOfLargeDeadRegion : m_data->lengthOfDeadRegion ;
   double lengthOfActiveGas = (m_data->barrelLengthOfStraw-m_data->barrelLengthOfTwister)/2.0 - m_data->lengthOfDeadRegion - lengthOfInnerDeadRegion;
@@ -2151,19 +2302,23 @@ GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, boo
   // Dead regions:
   GeoShape   *sDeadRegion = new GeoTube(m_data->outerRadiusOfWire , m_data->innerRadiusOfStraw , m_data->lengthOfDeadRegion/2 );
   GeoLogVol  *lDeadRegion = NULL;
-  if (m_strawsvcavailable &&  isArgon) 		lDeadRegion = new GeoLogVol("DeadRegion_Ar", sDeadRegion, m_materialManager->getMaterial("trt::ArCO2O2"));
-  //if (isArgon) 		lDeadRegion = new GeoLogVol("DeadRegion", sDeadRegion, m_materialArCO2);
-  else		 	lDeadRegion = new GeoLogVol("DeadRegion", sDeadRegion, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt:XeCO2CF4" : "trt::XeCO2O2")));
-  //GeoLogVol  *lDeadRegion = new GeoLogVol("DeadRegion", sDeadRegion, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt::XeCO2CF4" : "trt::XeCO2O2")));
+  if (gasMixture == GM_ARGON) 
+    lDeadRegion = new GeoLogVol("DeadRegion_Ar", sDeadRegion, m_materialManager->getMaterial("trt::ArCO2O2"));
+  else if (gasMixture == GM_KRYPTON)
+    lDeadRegion = new GeoLogVol("DeadRegion_Kr", sDeadRegion, m_materialManager->getMaterial("trt::KrCO2O2"));
+  else
+    lDeadRegion = new GeoLogVol("DeadRegion", sDeadRegion, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt:XeCO2CF4" : "trt::XeCO2O2")));
   GeoPhysVol *pDeadRegion = new GeoPhysVol(lDeadRegion);
 
   // InnerDeadRegions, part II:
   GeoShape  * sInnerDeadRegion = new GeoTube(m_data->outerRadiusOfWire , m_data->innerRadiusOfStraw, lengthOfInnerDeadRegion/2 );
   GeoLogVol * lInnerDeadRegion = NULL;
-  if (isArgon && m_strawsvcavailable)		lInnerDeadRegion = new GeoLogVol("InnerDeadRegion_Ar", sInnerDeadRegion, m_materialManager->getMaterial("trt::ArCO2O2"));
-  //if (isArgon)		lInnerDeadRegion = new GeoLogVol("InnerDeadRegion", sInnerDeadRegion, m_materialArCO2);
-  else 			lInnerDeadRegion = new GeoLogVol("InnerDeadRegion", sInnerDeadRegion, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt:XeCO2CF4" : "trt::XeCO2O2")));
-  //GeoLogVol * lInnerDeadRegion = new GeoLogVol("InnerDeadRegion", sInnerDeadRegion, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt::XeCO2CF4" : "trt::XeCO2O2")));
+  if (gasMixture == GM_ARGON)
+    lInnerDeadRegion = new GeoLogVol("InnerDeadRegion_Ar", sInnerDeadRegion, m_materialManager->getMaterial("trt::ArCO2O2"));
+  else if(gasMixture == GM_KRYPTON)
+    lInnerDeadRegion = new GeoLogVol("InnerDeadRegion_Kr", sInnerDeadRegion, m_materialManager->getMaterial("trt::KrCO2O2"));
+  else
+    lInnerDeadRegion = new GeoLogVol("InnerDeadRegion", sInnerDeadRegion, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt:XeCO2CF4" : "trt::XeCO2O2")));
   GeoPhysVol* pInnerDeadRegion = new GeoPhysVol(lInnerDeadRegion);
 
   // Twisters:
@@ -2182,10 +2337,12 @@ GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, boo
   // Gas for mixed straws, part I:
   GeoTube      *sGasMA    = new GeoTube(m_data->outerRadiusOfWire  , m_data->innerRadiusOfStraw,lengthOfActiveGas/2.0);
   GeoLogVol * lGasMA = NULL;
-  if (isArgon && m_strawsvcavailable)  lGasMA    = new GeoLogVol("GasMA_Ar", sGasMA, m_materialManager->getMaterial( "trt::ArCO2O2"));
-  //if (isArgon)  lGasMA    = new GeoLogVol("GasMA", sGasMA, m_materialArCO2);
-  else          lGasMA    = new GeoLogVol("GasMA", sGasMA, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt:XeCO2CF4" : "trt::XeCO2O2")));
-  //GeoLogVol    *lGasMA    = new GeoLogVol("GasMA", sGasMA, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt::XeCO2CF4" : "trt::XeCO2O2")));
+  if (gasMixture == GM_ARGON)
+    lGasMA = new GeoLogVol("GasMA_Ar", sGasMA, m_materialManager->getMaterial("trt::ArCO2O2"));
+  else if (gasMixture == GM_KRYPTON)
+    lGasMA = new GeoLogVol("GasMA_Kr", sGasMA, m_materialManager->getMaterial("trt::KrCO2O2"));
+  else
+    lGasMA = new GeoLogVol("GasMA", sGasMA, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt:XeCO2CF4" : "trt::XeCO2O2")));
   GeoNameTag   *nGasMAPos = new GeoNameTag("GasMAPos");
   GeoTransform *xGasMAPos = new GeoTransform(HepGeom::RotateY3D(M_PI)*HepGeom::TranslateZ3D(-posA));//the rotation of pi is to... digitization (TK)
   GeoNameTag   *nGasMANeg = new GeoNameTag("GasMANeg");
@@ -2246,7 +2403,7 @@ GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, boo
 ///////////////////////////////// makeStrawPlane /////////////////////////////////
 //
 //GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w) const {
-GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, bool isArgon) const {
+GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, ActiveGasMixture gasMixture) const {
   // -----------------------------------------------------------------------------------//
   //                                                                                    //
   // There are twelve straw planes; however there are only two kinds, one for sector    //
@@ -2254,47 +2411,34 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, bool isArgon)
   // In order to economize, we shall only create two planes.                            //
   // -----------------------------------------------------------------------------------//
 
-  static GeoFullPhysVol *type1Plane=NULL, *type2Plane=NULL, *type1PlaneAr=NULL, *type2PlaneAr=NULL;
+  static GeoFullPhysVol *type1Plane=NULL, *type2Plane=NULL, *type1PlaneAr=NULL, *type2PlaneAr=NULL, *type1PlaneKr=NULL, *type2PlaneKr=NULL;
   size_t nstraws=0;
 
   //A and B wheels have similar straw planes, but the C wheels are different.
   //  const size_t firstIndexOfC = 15; //hardcoded
   const size_t firstIndexOfC = 14; //hardcoded
 
- if (!isArgon){
-   if (w>=firstIndexOfC) {
-    // Look above *type2Plane=NULL
-     if (type2Plane!=NULL) {
-       return type2Plane;
-     }
-     nstraws=m_data->endcapNumberOfStrawsInStrawLayer_CWheels;
-   } 
-   else {
-     // Look above *type1Plane=NULL
-    if (type1Plane!=NULL) {
-       return type1Plane;
-     }
-     nstraws=m_data->endcapNumberOfStrawsInStrawLayer_AWheels;
-     //Check here that (m_data->endcapNumberOfStrawsInStrawLayer_AWheels == m_data->endcapNumberOfStrawsInStrawLayer_BWheels) !!
-   }
+  GeoFullPhysVol *&cur_type1Plane = (gasMixture == GM_KRYPTON) ? type1PlaneKr :
+                                    (gasMixture == GM_ARGON  ) ? type1PlaneAr :
+                                                                 type1Plane;
+  GeoFullPhysVol *&cur_type2Plane = (gasMixture == GM_KRYPTON) ? type2PlaneKr :
+                                    (gasMixture == GM_ARGON  ) ? type2PlaneAr :
+                                                                 type2Plane;
+
+  if (w>=firstIndexOfC) {
+    if (cur_type2Plane!=NULL) {
+      return cur_type2Plane;
+    }
+    nstraws=m_data->endcapNumberOfStrawsInStrawLayer_CWheels;
+  } 
+  else {
+    if (cur_type1Plane!=NULL) {
+      return cur_type1Plane;
+    }
+    nstraws=m_data->endcapNumberOfStrawsInStrawLayer_AWheels;
+    //Check here that (m_data->endcapNumberOfStrawsInStrawLayer_AWheels == m_data->endcapNumberOfStrawsInStrawLayer_BWheels) !!
   }
-  else{ 
-   if (w>=firstIndexOfC) {
-     // Look above *type2PlaneAr=NULL
-     if (type2PlaneAr!=NULL) {
-       return type2PlaneAr;
-     }
-     nstraws=m_data->endcapNumberOfStrawsInStrawLayer_CWheels;
-   } 
-   else {
-     // Look above *type1PlaneAr=NULL
-     if (type1PlaneAr!=NULL) {
-       return type1PlaneAr;
-     }
-     nstraws=m_data->endcapNumberOfStrawsInStrawLayer_AWheels;
-     //Check here that (m_data->endcapNumberOfStrawsInStrawLayer_AWheels == m_data->endcapNumberOfStrawsInStrawLayer_BWheels) !!
-   }
-  }
+
   double MultiplierForStrawLength = 0.999;//TK: update... to avoid conflicts? should be 0.9999??
 
   double ldead     = m_data->lengthOfDeadRegion;
@@ -2356,20 +2500,24 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, bool isArgon)
   //   (Function TRTConstructionOfTube::ConstructAndPosition #2)
   GeoTube    *sGas = new GeoTube (r0,r1,(Length-2*ldead)/2);
   GeoLogVol  *lGas = NULL;
-  if (isArgon && m_strawsvcavailable)  	lGas =	new GeoLogVol("Gas_Ar", sGas, m_materialManager->getMaterial("trt::ArCO2O2"));
-  //if (isArgon)  	lGas =	new GeoLogVol("Gas", sGas, m_materialArCO2);
-  else 			lGas =	new GeoLogVol("Gas", sGas, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt::XeCO2CF4" : "trt::XeCO2O2")));
-  //GeoLogVol  *lGas = new GeoLogVol("Gas", sGas, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt::XeCO2CF4" : "trt::XeCO2O2")));
+  if (gasMixture == GM_ARGON)
+    lGas = new GeoLogVol("Gas_Ar", sGas, m_materialManager->getMaterial("trt::ArCO2O2"));
+  else if (gasMixture == GM_KRYPTON)
+    lGas = new GeoLogVol("Gas_Kr", sGas, m_materialManager->getMaterial("trt::KrCO2O2"));
+  else
+    lGas = new GeoLogVol("Gas", sGas, m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt::XeCO2CF4" : "trt::XeCO2O2")));
   GeoPhysVol *pGas = new GeoPhysVol(lGas);
   pStraw->add(pGas);
 
   // Dead region :
   GeoTube *sDeadRegion    = new GeoTube(r0,r1,ldead/2);
   GeoLogVol *lDeadRegion  = NULL;
-  if (isArgon && m_strawsvcavailable)          lDeadRegion = new GeoLogVol("DeadRegion_Ar",sDeadRegion,m_materialManager->getMaterial("trt::ArCO2O2"))	;
-  //if (isArgon)          lDeadRegion = new GeoLogVol("DeadRegion",sDeadRegion, m_materialArCO2)	;
-  else 			lDeadRegion = new GeoLogVol("DeadRegion",sDeadRegion,m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt::XeCO2CF4" : "trt::XeCO2O2")));
-  //GeoLogVol *lDeadRegion  = new GeoLogVol("DeadRegion",sDeadRegion,m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt::XeCO2CF4" : "trt::XeCO2O2")));
+  if (gasMixture == GM_ARGON)
+    lDeadRegion = new GeoLogVol("DeadRegion_Ar",sDeadRegion,m_materialManager->getMaterial("trt::ArCO2O2"));
+  else if (gasMixture == GM_KRYPTON)
+    lDeadRegion = new GeoLogVol("DeadRegion_Kr",sDeadRegion,m_materialManager->getMaterial("trt::KrCO2O2"));
+  else
+    lDeadRegion = new GeoLogVol("DeadRegion",sDeadRegion,m_materialManager->getMaterial((m_useOldActiveGasMixture ? "trt::XeCO2CF4" : "trt::XeCO2O2")));
   GeoPhysVol *pDeadRegion = new GeoPhysVol(lDeadRegion);
 
   GeoTransform *xDeadPos = new GeoTransform(HepGeom::TranslateZ3D(+(Length/2-ldead/2)));
@@ -2388,28 +2536,63 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, bool isArgon)
 
   // Look above *type2Plane=NULL
   if (w>=firstIndexOfC && type2Plane!=NULL) {
-    if (isArgon){
-	    type2PlaneAr=pStrawPlane;
-	    return type2PlaneAr;
-    }
-    else{
-	    type2Plane=pStrawPlane;
-	    return type2Plane;
-    }
+    cur_type2Plane=pStrawPlane;
+    return cur_type2Plane;
   }
   else {
-    if (isArgon){
-      type1PlaneAr=pStrawPlane;
-      return type1PlaneAr;
-    }
-    else{ 
-      type1Plane=pStrawPlane;
-      return type1Plane;
-    }
+    cur_type1Plane=pStrawPlane;
+    return cur_type1Plane;
   }
 
 }
 
 
+TRTDetectorFactory_Full::ActiveGasMixture TRTDetectorFactory_Full::DecideGasMixture(int strawStatusHT)
+  {
+  ActiveGasMixture return_agm = GM_XENON;
+  if (m_strawsvcavailable && m_doArgon && (strawStatusHT == TRTCond::StrawStatus::Dead ||
+                                           strawStatusHT == TRTCond::StrawStatus::Argon))
+    return_agm = GM_ARGON;
+  else if (m_strawsvcavailable && m_doKrypton && (strawStatusHT == TRTCond::StrawStatus::Krypton))
+    return_agm = GM_KRYPTON;
+  else if (m_strawsvcavailable && strawStatusHT != TRTCond::StrawStatus::Xenon &&
+                                  strawStatusHT != TRTCond::StrawStatus::Good &&
+                                  strawStatusHT != TRTCond::StrawStatus::Dead &&
+                                  strawStatusHT != TRTCond::StrawStatus::Argon &&
+                                  strawStatusHT != TRTCond::StrawStatus::Krypton &&
+                                  strawStatusHT != TRTCond::StrawStatus::EmulateArgon &&
+                                  strawStatusHT != TRTCond::StrawStatus::EmulateKrypton)
+    {
+    msg(MSG::FATAL) << "Unexpected StatusHT value: " << strawStatusHT << endmsg; 
+    throw std::runtime_error("Unexpected StatusHT value");
+    }
+  return return_agm; 
+  }
+
+// Determine which alignment folders are loaded to decide if we register old or new folders    
+InDetDD::AlignFolderType TRTDetectorFactory_Full::getAlignFolderType() const
+{
+
+  bool static_folderStruct = false;
+  bool timedep_folderStruct = false;
+  if (detStore()->contains<CondAttrListCollection>("/TRT/AlignL1/TRT") &&
+      detStore()->contains<AlignableTransformContainer>("/TRT/AlignL2") ) timedep_folderStruct = true;
+
+  if (detStore()->contains<AlignableTransformContainer>("/TRT/Align") ) static_folderStruct = true;
+
+  if (static_folderStruct && !timedep_folderStruct){
+    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endreq;
+    return InDetDD::static_run1;
+  }
+  else if (!static_folderStruct && timedep_folderStruct){
+    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endreq;
+    return InDetDD::timedependent_run2;
+  }
+  else if (static_folderStruct && timedep_folderStruct){
+    throw std::runtime_error("Old and new alignment folders are loaded at the same time! This should not happen!");
+  }
+  else return InDetDD::none;
+
+}
 
 //////////////////////////////////////////////////////////////////////////////////

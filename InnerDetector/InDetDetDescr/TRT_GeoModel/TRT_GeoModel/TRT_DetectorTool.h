@@ -56,7 +56,8 @@ public:
     ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
     ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // added for Argon
  
-    bool m_doXenonArgonMixture ;  
+    bool m_doArgonMixture;
+    bool m_doKryptonMixture;
  
     const InDetDD::TRT_DetectorManager * m_manager;
     InDetDD::AthenaComps * m_athenaComps;
