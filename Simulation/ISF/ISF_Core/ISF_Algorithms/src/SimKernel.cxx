@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // ISF_Algs includes
-#include "ISF_Algorithms/SimKernel.h"
+#include "SimKernel.h"
 // ISF_Event includes
 #include "ISF_Event/ISFParticle.h"
 // ISF_Interfaces includes
