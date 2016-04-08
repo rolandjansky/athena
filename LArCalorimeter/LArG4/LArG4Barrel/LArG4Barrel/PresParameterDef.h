@@ -2,25 +2,25 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
- G4double cmm;
- G4double smallLength,bigLength;
+ G4double m_cmm;
+ G4double m_smallLength,m_bigLength;
  
- G4double anode_th,cathode_th,larheight;
+ G4double m_anode_th,m_cathode_th,m_larheight;
 
- G4double mod[8][6];
+ G4double m_mod[8][6];
 
- G4double prep1_th,prep2_th, shell_th,prot_th;
+ G4double m_prep1_th,m_prep2_th, m_shell_th,m_prot_th;
  
- G4double  mech_clear,rail_th,rail_pos,rail_width;
+ G4double  m_mech_clear,m_rail_th,m_rail_pos,m_rail_width;
 
- G4double mb_th,mb_width,mb_length;
+ G4double m_mb_th,m_mb_width,m_mb_length;
 
- G4double widthFront,heightIn,heightOut;
+ G4double m_widthFront,m_heightIn,m_heightOut;
 
- G4double rMinPresamplerMother,rMaxPresamplerMother,PresamplerMother_length;
+ G4double m_rMinPresamplerMother,m_rMaxPresamplerMother,m_PresamplerMother_length;
 
 //GU add phimin and phi span as parameters
 
- G4double Phi_min,Phi_span;
+ G4double m_Phi_min,m_Phi_span;
   
- G4int nsectors,nbsectors;
+ G4int m_nsectors,m_nbsectors;

@@ -7,8 +7,8 @@
 
 // A first pass at determing hit cell ID in the LAr barrel presampler.
 
-#ifndef __LArBarrelPresamplerCalculator_H__
-#define __LArBarrelPresamplerCalculator_H__
+#ifndef LARG4BARREL_LARBARRELPRESAMPLERCALCULATOR_H
+#define LARG4BARREL_LARBARRELPRESAMPLERCALCULATOR_H
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArVCalculator.h"
@@ -87,9 +87,9 @@ private:
   PsMap* m_psmap;
 
   // RUN Options
-  bool IflCur;
+  bool m_IflCur;
 
-  const LArG4BirksLaw *birksLaw;
+  const LArG4BirksLaw *m_birksLaw;
 
   // Store the out-of-time cut from the description:
   G4float m_OOTcut;

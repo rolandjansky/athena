@@ -23,6 +23,7 @@ apply_pattern installed_library
 
 private
 use CxxUtils         CxxUtils-*          Control
+use AthenaKernel     AthenaKernel-*      Control
 use StoreGate        StoreGate-*         Control
 use GaudiInterface   GaudiInterface-*    External
 use LArG4RunControl  LArG4RunControl-*   LArCalorimeter/LArG4
