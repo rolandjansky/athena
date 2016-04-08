@@ -14,7 +14,7 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenParticle.h"
 #include "McParticleEvent/TruthParticle.h"
-#include "TruthUtils/PIDUtils.h"
+#include "TruthUtils/PIDHelpers.h"
 
 #include <iostream>
 #include <cmath>

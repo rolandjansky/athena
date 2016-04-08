@@ -24,8 +24,8 @@ using Gaudi::Units::GeV;
 TruthParticleFakerTool::TruthParticleFakerTool (const std::string& type,
                                                 const std::string& name,
                                                 const IInterface* parent)
-  : BlockFillerTool<HepMC::GenParticle> (type, name, parent),
-    m_n(0)
+  : BlockFillerTool<HepMC::GenParticle> (type, name, parent)
+    //m_n(0)
 {
   // Avoid coverity warnings
   m_do_E = true;

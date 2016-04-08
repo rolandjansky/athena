@@ -18,9 +18,9 @@ namespace D3PD {
 
  
 PileUpInfoAssociatorTool::PileUpInfoAssociatorTool(const std::string& type, const std::string& name, const IInterface* parent)
-  : Base(type,name,parent),
-    m_pevt_time(0),
-    m_pevt_index(0)
+  : Base(type,name,parent)
+    //m_pevt_time(0),
+    //m_pevt_index(0)
 {}
 
 StatusCode PileUpInfoAssociatorTool::reset(const PileUpEventInfo &p){
