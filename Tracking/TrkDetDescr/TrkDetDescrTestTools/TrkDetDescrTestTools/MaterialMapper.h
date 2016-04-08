@@ -275,6 +275,7 @@ namespace Trk {
         mutable float         m_mappedPathTimesRho;                                     //!< total mapped path * density
         mutable float         m_unmappedPathInX0;                                       //!< total path in x0 in these events lost        
         mutable int           m_mapped[TRKDETDESCRTOOLS_MAXSTEPS];                      //!< mapped or not mapped
+        mutable float         m_materialAccumPathInX0[TRKDETDESCRTOOLS_MAXSTEPS];       //!< accumulated path length in x0
         mutable float         m_materialStepPathInX0[TRKDETDESCRTOOLS_MAXSTEPS];        //!< step path in x0
         mutable float         m_materialStepPathInL0[TRKDETDESCRTOOLS_MAXSTEPS];        //!< step path in l0
         mutable float         m_materialStepPathTimesRho[TRKDETDESCRTOOLS_MAXSTEPS];    //!< step path times rho
