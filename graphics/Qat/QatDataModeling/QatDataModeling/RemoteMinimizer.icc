@@ -1,0 +1,270 @@
+//---------------------------------------------------------------------------//
+//                                                                           //
+// This file is part of the Pittsburgh Visualization System (PVS)            //
+//                                                                           //
+// Copyright (C) 2004 Joe Boudreau, University of Pittsburgh                 //
+//                                                                           //
+//  This program is free software; you can redistribute it and/or modify     //
+//  it under the terms of the GNU General Public License as published by     //
+//  the Free Software Foundation; either version 2 of the License, or        //
+//  (at your option) any later version.                                      //
+//                                                                           //
+//  This program is distributed in the hope that it will be useful,          //
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of           //
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            //
+//  GNU General Public License for more details.                             //
+//                                                                           //
+//  You should have received a copy of the GNU General Public License        //
+//  along with this program; if not, write to the Free Software              //
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307     //
+// --------------------------------------------------------------------------//
+
+
+#include "CLHEP/GenericFunctions/AbsFunctional.hh"
+#include "CLHEP/GenericFunctions/Parameter.hh"
+#include "QatDataModeling/ObjectiveFunction.h"
+typedef void   (*minuitCallback) (int    & npar,           // which par is changing?
+				  double * gradient,       // my gradient calculation
+				  double & functionValue,  // the function value
+				  double * xValue,         // parameters
+				  int    & iFlag,          // what to do flag.
+				  void   * );              // unused pointer
+
+
+extern "C" void mninit_ (int &, int &, int &);
+extern "C" void mnseti_ (char * string, int size);
+extern "C" void mnparm_ (int &, const char *, double &, double &, double &, double &, int &, int);
+extern "C" void mncomd_ (minuitCallback, char *, int &, void *, int);
+extern "C" void mnpout_ (int &, const char *, double &, double &, double &, double &, int &, int);
+extern "C" void mnstat_ (double &, double &, double &, int &, int &, int &);
+extern "C" void mnemat_ (double *, int &); 
+
+template <class Q> RemoteMinimizer<Q> * RemoteMinimizer<Q>::This = NULL;
+
+template <class Q> inline RemoteMinimizer<Q>::RemoteMinimizer(Q * query, bool verbose)
+  :query(query),
+  _fcnMin(0.0),
+  _status(0),
+  _verbose(verbose)   
+{
+}
+
+template <class Q> inline void RemoteMinimizer<Q>::addParameter(Genfun::Parameter * par, double * parLoc) {
+
+  // add the parameter to the list:
+  _parList.push_back(par);
+
+  // add a new parameter location
+  _parLocList.push_back(parLoc);
+
+  // resize the error matrix:
+  _errorList = CLHEP::HepSymMatrix(_parList.size(),0);
+  
+  // create a new Vector, longer.
+  CLHEP::HepVector tmp(_parList.size());
+  
+  // Copy data there, adding one more datum:
+  for (int i=0;i<_valList.num_row();i++) tmp[i]=_valList[i];
+  tmp[_valList.num_row()]=par->getValue();
+
+  // And set the value list equal to that.
+  _valList=tmp;
+  
+}
+
+
+template <class Q> inline RemoteMinimizer<Q>::~RemoteMinimizer() {
+}
+
+
+template <class Q> inline void RemoteMinimizer<Q>::minimize() {
+
+  This=this;
+
+  if ( ((_socketList.size()==0) ) && _objectiveList.size()==0 )return;
+  unsigned int DIM=_parList.size();
+  //
+  // Initialize:
+  //
+  int status;
+  int fInputUnit=0,fOutputUnit=0,fSaveUnit=0;
+  const char * title = "Embedded minimizer";
+  mninit_(fInputUnit,fOutputUnit, fSaveUnit);
+  mnseti_((char *) title, sizeof(title));
+  if (!_verbose) {
+    const char *printLevelCommand="SET PRINT -1";
+    mncomd_(_worldWideCallback,(char *) printLevelCommand, status, 0,12 );
+  }
+  // 
+  // Declare all of the parameters:
+  //
+  for (unsigned int i=0; i<DIM;i++) {
+    int number = i+1;
+    double startingValue =_parList[i]->getValue();
+    double step          = (_parList[i]->getUpperLimit()-_parList[i]->getLowerLimit())/100.0;
+    double bnd1          =_parList[i]->getLowerLimit();
+    double bnd2          =_parList[i]->getUpperLimit();
+    int error;
+    mnparm_ ( number, 
+	      _parList[i]->getName().c_str(), 
+	      startingValue,
+	      step,
+	      bnd1,
+	      bnd2,
+	      error,
+	      _parList[i]->getName().size());
+  }
+  //
+  // Flush the world-wide-buffer and minimize this functional w.r.t its parameters.
+  //
+  const char *minimizeCommand="MINIMIZE";
+  mncomd_(_worldWideCallback,(char *) minimizeCommand, status, 0, sizeof(minimizeCommand));
+
+  for (unsigned int i=0;i<DIM;i++) {
+    char name[11];
+    int I=i+1, iinternal=0;
+    double value=0, error=0, bnd1=0, bnd2=0;
+    mnpout_(I,name,value, error, bnd1, bnd2, iinternal, 10);
+    name[10]=0;
+    _valList[i]=value;
+  }
+
+  // Get function minimum:
+  double estDistance, errdef;
+  int npari, nparx;
+  mnstat_(_fcnMin, estDistance, errdef, npari, nparx, _status);
+
+  double *emat = new double [DIM*DIM];
+  int IDIM=DIM;
+  mnemat_(emat,IDIM);
+  for (unsigned int i=0;i<DIM;i++) {
+    for (unsigned int j=0;j<DIM;j++) {
+      _errorList[i][j]=emat[i*DIM+j];
+    }
+  }
+  delete [] emat;
+
+  // Do this so that nobody else can screw it up:
+
+}
+
+
+template <class Q> inline void RemoteMinimizer<Q>::addStatistic (const ObjectiveFunction *objective) {
+  _objectiveList.push_back(objective);
+}
+
+
+template <class Q> inline void RemoteMinimizer<Q>::_worldWideCallback(int    & npar,            // which par is changing?
+								   double * /*gradient*/,      // my gradient calculation
+								   double & functionValue, // the function value
+								   double * xValue,        // parameters
+								   int    & iFlag,         // what to do flag.
+								   void   * /*vp*/)
+{
+  switch (iFlag) {
+    
+  case 4: // value of 4:
+    for (int i=0;i<npar;i++) {
+      This->_parList[i]->setValue(xValue[i]);
+      *This->_parLocList[i]=xValue[i];
+    }
+
+    functionValue=0;
+    
+    // Get FCN from the remote server
+    for (unsigned int i=0;i<This->_socketList.size(); i++) {
+      double f;
+      (*This->_socketList[i]) << 1;     // Ask for an FCN calculation
+      (*This->_socketList[i]) << *This->query;  // Send along the parameters
+      (*This->_socketList[i]) >> f;       // Read back the response.
+      functionValue += f; 
+    }
+    // Add Gaussian constraints, if any
+    for (unsigned int j=0;j<This->_objectiveList.size();j++) {
+      functionValue += (*(This->_objectiveList)[j])();
+    }
+    // for debug:
+    break;
+  default:
+    std::cerr << "Warning.  _worldWideCallback called back with flag of " << iFlag << std::endl;
+    break;
+  }
+}
+
+
+// Get the parameter value:
+template <class Q> inline double RemoteMinimizer<Q>::getValue(const Genfun::Parameter *par) const {
+  for (unsigned int i=0;i<_parList.size();i++) {
+    if (_parList[i]==par) {
+      return _valList[i];
+    }
+  }
+  std::cerr << "Error in RemoteMinimizer<Q>::getValue.  Parameter not found" << std::endl;
+  return 0;
+}
+
+// Get the parameter error:
+template <class Q> inline double RemoteMinimizer<Q>::getError(const Genfun::Parameter *ipar, const Genfun::Parameter *jpar) const {
+  
+  int iIndex=-1, jIndex=-1;
+  
+  for (unsigned int i=0;i<_parList.size();i++) {
+    if (_parList[i]==ipar) {
+      iIndex=i;
+    }
+  }
+  
+  if (iIndex!=-1) {
+    if (jpar) {
+      for (unsigned int j=0;j<_parList.size();j++) {
+	if (_parList[j]==jpar) {
+	  jIndex=j;
+	}
+      }
+    }
+    else {
+      jIndex=iIndex;
+    }
+  }
+  
+  if (iIndex !=-1 && jIndex!=-1) return _errorList[iIndex][jIndex];
+  std::cerr << "Error in RemoteMinimizer<Q>::getError.  Parameter not found" << std::endl;
+  return 0;
+}
+
+
+template <class Q> inline double RemoteMinimizer<Q>::getFunctionValue() const {
+  return _fcnMin;
+}
+
+template <class Q> inline int RemoteMinimizer<Q>::getStatus() const {
+  return _status;
+}
+
+template <class Q> inline CLHEP::HepVector RemoteMinimizer<Q>::getValues() const {
+  return _valList;
+}
+
+template <class Q> inline CLHEP::HepSymMatrix RemoteMinimizer<Q>::getErrorMatrix()  const {
+  return _errorList;
+}
+
+
+template <class Q> inline unsigned int RemoteMinimizer<Q>::getNumParameters() const {
+  return _parList.size();
+}
+
+template <class Q> inline Genfun::Parameter * RemoteMinimizer<Q>::getParameter(unsigned int i)  {
+  return _parList[i];
+}
+
+ 
+  
+template <class Q> inline const Genfun::Parameter * RemoteMinimizer<Q>::getParameter(unsigned int i) const {
+  return _parList[i];
+}
+
+template <class Q> inline void RemoteMinimizer<Q>::addSocket(ClientSocket * socket) 
+{
+  _socketList.push_back(socket);
+}
