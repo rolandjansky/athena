@@ -21,8 +21,8 @@ namespace Muon {
 
     /** access to tool interface */
     static const InterfaceID& interfaceID();
-    
-    virtual StatusCode findMSvertices(std::vector<Tracklet>& tracklets) = 0;    
+
+    virtual StatusCode findMSvertices(std::vector<Tracklet>& tracklets, std::vector<MSVertex*>& vertices) = 0;
 
   };
   
