@@ -39,6 +39,7 @@ class TrigMissingET{
   TrigMissingET();
 /** constructor (input is number of auxiliary components; if n==0 is like default) */
   TrigMissingET(unsigned char n); //<! 
+  TrigMissingET(std::vector< TrigMissingEtComponent >&& compVec);
 /** destructor */
   ~TrigMissingET();
 
