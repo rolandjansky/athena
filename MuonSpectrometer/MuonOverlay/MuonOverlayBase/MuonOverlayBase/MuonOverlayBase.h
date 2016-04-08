@@ -26,7 +26,7 @@ class MuonOverlayBase : public IDC_OverlayBase  {
 public:
   
   MuonOverlayBase(const std::string &name, ISvcLocator *pSvcLocator)
-    : IDC_OverlayBase(name, pSvcLocator)
+    : IDC_OverlayBase(name, pSvcLocator), m_copyObjects(0)
   {}
 
   template<class TypeToBeCopied> 

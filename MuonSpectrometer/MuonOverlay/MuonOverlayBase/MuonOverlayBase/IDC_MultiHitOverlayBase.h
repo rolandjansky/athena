@@ -49,7 +49,7 @@ class IDC_MultiHitOverlayBase : public OverlayAlgBase  {
 public:
   
   IDC_MultiHitOverlayBase(const std::string &name, ISvcLocator *pSvcLocator)
-    : OverlayAlgBase(name, pSvcLocator)
+    : OverlayAlgBase(name, pSvcLocator), m_copyObjects(0)
   {}
 
   /**
