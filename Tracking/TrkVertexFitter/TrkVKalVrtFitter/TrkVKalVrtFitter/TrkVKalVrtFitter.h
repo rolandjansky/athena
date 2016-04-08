@@ -15,7 +15,8 @@
 //
 #include  "VxVertex/VxCandidate.h"
 #include  "xAODTracking/Vertex.h" 
-#include  "xAODTracking/NeutralParticle.h" 
+#include  "xAODTracking/NeutralParticleContainer.h" 
+#include  "xAODTracking/TrackParticleContainer.h" 
 #include  "TrkParameters/TrackParameters.h" 
 #include  "TrkNeutralParameters/NeutralParameters.h"
 #include  "VxVertex/ExtendedVxCandidate.h"
@@ -126,22 +127,22 @@ namespace Trk{
 //
 //  Cascade fitter interface
 //
-        VertexID startVertex(const  std::vector<const TrackParticleBase*> & list,
+        VertexID startVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
 				   double massConstraint = 0.);
  
-        VertexID  nextVertex(const  std::vector<const TrackParticleBase*> & list,
+        VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
 				   double massConstraint = 0.);
  
-        VertexID  nextVertex(const  std::vector<const TrackParticleBase*> & list,
+        VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
 		             const  std::vector<VertexID> precedingVertices,
 				   double massConstraint = 0.);
         VxCascadeInfo * fitCascade(const Vertex * primVertex = 0, bool FirstDecayAtPV = false );
 
         StatusCode  addMassConstraint(VertexID Vertex,
-                                      const std::vector<const TrackParticleBase*> & tracksInConstraint,
+                                      const std::vector<const xAOD::TrackParticle*> & tracksInConstraint,
                                       const std::vector<VertexID> verticesInConstraint, 
 				      double massConstraint );
 
@@ -219,7 +220,7 @@ namespace Trk{
         void setCascadeCnstPrec(double);
         void setCnstType(int);
         void setIterations(int, double);
-        void setVertexForConstraint(RecVertex & );
+        void setVertexForConstraint(const RecVertex & );
         void setVertexForConstraint(double,double,double);
         void setCovVrtForConstraint(double,double,double,
                                   double,double,double);
@@ -309,7 +310,7 @@ namespace Trk{
 //  Cascade related stuff
 //
       int m_cascadeSize;
-      std::vector<const TrackParticleBase*> m_partListForCascade;
+      std::vector<const xAOD::TrackParticle*> m_partListForCascade;
       std::vector< std::vector<int> >    m_vertexDefinition;             // track indices for vertex;
       std::vector< std::vector<int> >     m_cascadeDefinition;           // cascade structure
       std::vector<double>  m_partMassForCascade;

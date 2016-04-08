@@ -6,9 +6,7 @@
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkVKalVrtFitter/VKalVrtAtlas.h"
 #include "TrkVKalVrtFitter/VxCascadeInfo.h"
-#include "TrkTrack/LinkToTrack.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "VxVertex/ExtendedVxCandidate.h"
 #include "TrkVKalVrtCore/TrkVKalUtils.h"
 //-------------------------------------------------
@@ -78,7 +76,7 @@ namespace Trk {
 //
 //----------------------------------------------------------------------------------------
 
-VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const TrackParticleBase*> & list,
+VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                        const  std::vector<double>& particleMass,
 	  			       const  double massConstraint)
 {
@@ -144,7 +142,7 @@ int TrkVKalVrtFitter::getCascadeNDoF() const
 //
 // Next vertex in cascade
 //
-VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const TrackParticleBase*> & list,
+VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                       const  std::vector<double>& particleMass,
 	  		              const  double massConstraint)
 {
@@ -187,7 +185,7 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const TrackParticleBase
 //
 // Next vertex in cascade
 //
-VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const TrackParticleBase*> & list,
+VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                       const  std::vector<double>& particleMass,
 		                      const  std::vector<VertexID> precedingVertices,
 	  		              const  double massConstraint)
@@ -334,8 +332,18 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
     StatusCode sc;
     std::vector<const TrackParameters*> baseInpTrk;
     if(m_firstMeasuredPoint){               //First measured point strategy
-       std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
-       for (i_ntrk = m_partListForCascade.begin(); i_ntrk < m_partListForCascade.end(); ++i_ntrk) baseInpTrk.push_back(GetFirstPoint(*i_ntrk));
+       std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
+       //for (i_ntrk = m_partListForCascade.begin(); i_ntrk < m_partListForCascade.end(); ++i_ntrk) baseInpTrk.push_back(GetFirstPoint(*i_ntrk));
+       unsigned int indexFMP;
+       for (i_ntrk = m_partListForCascade.begin(); i_ntrk < m_partListForCascade.end(); ++i_ntrk) {
+	  if ((*i_ntrk)->indexOfParameterAtPosition(indexFMP, xAOD::FirstMeasurement)){
+            if(msgLvl(MSG::DEBUG))msg()<< "FirstMeasuredPoint on track is discovered. Use it."<<'\n';
+	    baseInpTrk.push_back(new CurvilinearParameters((*i_ntrk)->curvilinearParameters(indexFMP)));
+          }else{
+            if(msgLvl(MSG::INFO))msg()<< "No FirstMeasuredPoint on track in CascadeFitter. Stop fit"<<'\n';
+            return 0;
+          }	      
+       }
        sc=CvtTrackParameters(baseInpTrk,ntrk);
        if(sc.isFailure()){ntrk=0; sc=CvtTrackParticle(m_partListForCascade,ntrk);}
     }else{
@@ -725,6 +733,10 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        tmpXAODVertex->setCovariance(floatErrMtx);
        std::vector<VxTrackAtVertex> xaodVTAV=tmpXAODVertex->vxTrackAtVertex();
        xaodVTAV.swap(*tmpVTAV);
+       for(int itvk=0; itvk<(int)xaodVTAV.size(); itvk++) {
+          ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( m_partListForCascade[itvk] );
+          tmpXAODVertex->addTrackAtVertex(TEL,1.);
+       }
        xaodVrtList.push_back(tmpXAODVertex);              //VK Save xAOD::Vertex
 //
 //---- Save and clean
@@ -785,7 +797,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
  
  
 StatusCode  TrkVKalVrtFitter::addMassConstraint(VertexID Vertex,
-                                 const std::vector<const TrackParticleBase*> & tracksInConstraint,
+                                 const std::vector<const xAOD::TrackParticle*> & tracksInConstraint,
                                  const std::vector<VertexID> pseudotracksInConstraint, 
 				 double massConstraint )
 {
