@@ -225,7 +225,7 @@ TBCaloCoordinate::read_table_position()
     const EventInfo* eventInfo;
     StatusCode sc = StoreGate::pointer()->retrieve(eventInfo);
     if ( !sc.isFailure()) {
-      const EventID* myEventID=eventInfo->event_ID();
+      EventID* myEventID=eventInfo->event_ID();
       m_runNumber=myEventID->run_number();
 
       m_firstevt = 1;
