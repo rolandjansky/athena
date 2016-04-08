@@ -111,8 +111,8 @@ private:
     double					m_validZ;
 
     // counters
-    int						m_countExtrapolations;
-    int						m_countRKSwitches;
+    unsigned long long				m_countExtrapolations;
+    unsigned long long				m_countRKSwitches;
     
 };
 
