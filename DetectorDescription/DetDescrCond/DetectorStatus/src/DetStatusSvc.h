@@ -7,14 +7,14 @@
 // DetStatusSvc.h - concrete implementation of service managing detector status
 // Richard Hawkings, started 13/12/06
 
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGate.h"
 #include "DetectorStatus/IDetStatusSvc.h"
 
 class StoreGateSvc;
 class DetStatusMap;
 
-class DetStatusSvc : public virtual IDetStatusSvc, public virtual Service
+class DetStatusSvc : public virtual IDetStatusSvc, public virtual AthService
 {
   template <class TYPE> class SvcFactory;
 

@@ -12,7 +12,7 @@
 
 
 DetStatusAlg::DetStatusAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    :Algorithm   (name, pSvcLocator),
+    :AthAlgorithm   (name, pSvcLocator),
      m_log       (msgSvc(), name),
      par_print(false),par_veto(false),
      m_count(0),m_nveto(0)
