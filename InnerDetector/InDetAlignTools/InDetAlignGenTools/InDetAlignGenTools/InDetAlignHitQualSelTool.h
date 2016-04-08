@@ -80,7 +80,20 @@ class InDetAlignHitQualSelTool : virtual public IInDetAlignHitQualSelTool, publi
   It is caculated in the local xz frame to ensure that the only the angle component 
   perpendicular to the strips is considered. It is defined w/r/t the local z-axis. */
   float m_maxIncidAngle ;
-  // "infrastructure" members
+ 
+  // acceptIBLHits -> if true, IBL hits are accepted if they satisfy the quality selection criteria.
+  // if false, IBL hits are always rejected  
+  bool m_acceptIBLHits ;
+
+  // acceptPixelHits -> if true, pixel hits are accepted if they satisfy the quality selection criteria.
+  // if false, pixel hits are always rejected  
+  bool m_acceptPixelHits ;
+
+  // acceptSCTHits -> if true, SCT hits are accepted if they satisfy the quality selection criteria.
+  // if false, SCT hits are always rejected  
+  bool m_acceptSCTHits ;
+
+ // "infrastructure" members
  
   const InDetDD::PixelDetectorManager*   m_PIXManager ; //!< to get pixel phi and eta identifiers
   const InDetDD::SCT_DetectorManager*    m_SCTManager ; //!< to get strip numbers
