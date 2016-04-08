@@ -10,7 +10,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #ifndef IPATTRACKFOLLOWER_SILICONCLUSTERMAP_H
-# define IPATTRACKFOLLOWER_SILIONCLUSTERMAP_H
+# define IPATTRACKFOLLOWER_SILICONCLUSTERMAP_H
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
