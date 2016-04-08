@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 705183 2015-11-02 06:26:40Z steinber $ -->
+<!-- $Id: selection.xml 708124 2015-11-16 13:24:22Z steinber $ -->
 <lcgdict>
 
   <!-- V1 dictionaries: -->
@@ -50,6 +50,7 @@
 
   <class name="ElementLink<xAOD::TriggerTowerContainer_v2 >" />
   <class name="std::vector<ElementLink<xAOD::TriggerTowerContainer_v2> >" />
+  <class name="std::vector< std::vector<short> >" />
 
  <!-- MBTSModules -->
   <class name="DataLink<xAOD::MBTSModuleContainer_v1>" />

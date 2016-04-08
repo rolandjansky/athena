@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODForwardDict.h 704515 2015-10-29 15:08:30Z azemla $
+// $Id: xAODForwardDict.h 708124 2015-11-16 13:24:22Z steinber $
 #ifndef XAODFORWARD_XAODFORWARDDICT_H
 #define XAODFORWARD_XAODFORWARDDICT_H
 
@@ -62,12 +62,12 @@ namespace{
 
       ElementLink<xAOD::ZdcModuleContainer_v1> zdc_l3;
       std::vector<ElementLink<xAOD::ZdcModuleContainer_v1> > zdc_l4;
-      std::vector<std::vector<ElementLink<xAOD::ZdcModuleContainer_v1> > >
-         zdc_l5;
+      std::vector<std::vector<ElementLink<xAOD::ZdcModuleContainer_v1> > > zdc_l5;
 
      //must also instantiate the element links used by any aux containers
-     ElementLink< xAOD::TriggerTowerContainer > zdc_16;
-     std::vector< ElementLink< xAOD::TriggerTowerContainer > > zdc_17;
+     ElementLink< xAOD::TriggerTowerContainer > zdc_l6;
+     std::vector< ElementLink< xAOD::TriggerTowerContainer > > zdc_l7;
+     std::vector< std::vector<short> > zdc_l8;
 
      //and for mbtsmodule
      xAOD::MBTSModuleContainer_v1 mbts_c1;
