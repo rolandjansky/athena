@@ -5,7 +5,7 @@
 #ifndef BremsstrahlungStrategy_H
 #define BremsstrahlungStrategy_H
 
-#include "MCTruth/TruthStrategy.h"
+#include "MCTruthBase/TruthStrategy.h"
 class BremsstrahlungStrategy: public TruthStrategy {
 public:
 	BremsstrahlungStrategy(const std::string);

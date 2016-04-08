@@ -5,7 +5,7 @@
 #ifndef DecayStrategy_H
 #define DecayStrategy_H
 
-#include "MCTruth/TruthStrategy.h"
+#include "MCTruthBase/TruthStrategy.h"
 class DecayStrategy: public TruthStrategy {
 public:
 	DecayStrategy(const std::string);
