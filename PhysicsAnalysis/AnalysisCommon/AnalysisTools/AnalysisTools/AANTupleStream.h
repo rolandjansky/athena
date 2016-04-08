@@ -144,8 +144,8 @@ private:
   std::vector<std::string> m_membersNames;
 
   /// for string branches
-  static const unsigned int c_maxLengthOfStrings = 5000;
-  char m_tokenCString[c_maxLengthOfStrings];
+  static const unsigned int s_maxLengthOfStrings = 5000;
+  char m_tokenCString[s_maxLengthOfStrings];
 };
 
 #endif

@@ -345,7 +345,11 @@ StatusCode AANTupleStream::execute()
 void AANTupleStream::writeAttributeListSpecification()
 {
   // go to the root dir of output file
-  TDirectory::TContext save (0);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,0)
+  TDirectory::TContext save;
+#else
+  TDirectory::TContext save(0);
+#endif
   gDirectory->cd((m_fileName+":/").c_str());
 
   AttributeListLayout all;
@@ -381,7 +385,11 @@ void AANTupleStream::setupTree()
     }
 
   // go to the root dir of output file
-  TDirectory::TContext save (0);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,0)
+  TDirectory::TContext save;
+#else
+  TDirectory::TContext save(0);
+#endif
   gDirectory->cd((m_fileName+":/").c_str());
   
   // instantiate TTree
@@ -517,7 +525,7 @@ bool AANTupleStream::writeTokenAttrList( const std::string& token, const coral::
       if (attIter->specification().type() == typeid(std::string))
 	{
 	  const std::string& str = attIter->data<std::string>();
-	  if( str.length()+1 >= c_maxLengthOfStrings )
+	  if( str.length()+1 >= s_maxLengthOfStrings )
 	    {
 	      throw std::runtime_error("String is too long : RootCollection::pool2Root<std::string>"); 
 	    }

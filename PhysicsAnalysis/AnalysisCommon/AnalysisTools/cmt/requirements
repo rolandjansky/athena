@@ -31,7 +31,7 @@ end_private
 
 # Create a dual_use library rather than a component library because the lcgdict pattern
 # within the cmake builds doesn't work with component libraries
-apply_pattern dual_use_library files=*.cxx
+apply_pattern named_dual_use_library library=AthAnalysisTools files=*.cxx
 ####library AthAnalysisTools *.cxx components/*.cxx
 ####apply_pattern dual_use_library files=*.cxx
 
@@ -42,5 +42,5 @@ private
 
 use AtlasReflex  AtlasReflex-*  External -no_auto_imports
 
-apply_pattern lcgdict dict=AnalysisTools selectionfile=selection.xml \
+apply_pattern lcgdict dict=AthAnalysisTools selectionfile=selection.xml \
         headerfiles="../AnalysisTools/AnalysisToolsDict.h"
