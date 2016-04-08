@@ -208,7 +208,7 @@ void InDetServMatBuilderToolSLHC::addServiceVolume( const ServiceVolume& vol)
 		  << " with " << vol.materials().size() << " materials" << endreq;
 
   InDetDD::ServiceVolume * param = new InDetDD::ServiceVolume;
-  //  std::unique_ptr<InDetDD::ServiceVolume>  param( new InDetDD::ServiceVolume); 
+  //std::unique_ptr<InDetDD::ServiceVolume> param (new InDetDD::ServiceVolume); This doesn't work for some reason...
   std::vector<std::string> linearComponents;
   std::vector<double>      linWeights;
 
@@ -253,6 +253,7 @@ void InDetServMatBuilderToolSLHC::addServiceVolume( const ServiceVolume& vol)
     addService(param);
     //    addService(param.release()); 
   }
+  else delete param;
 }
 
 std::string InDetServMatBuilderToolSLHC::addPrefix( const std::string& prefix, const std::string& name) const
