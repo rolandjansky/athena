@@ -1,0 +1,29 @@
+package RecExRecoTest
+ 
+author  David Rousseau <rousseau@lal.in2p3.fr> 
+author  Rolf Seuster   <seuster AT cern.ch> 
+
+branches run
+
+# put here the uses of the packages which need to be reached by cmt broadcast
+# Packages to be reached by cmt broadcast should be used either directly
+#
+# (the package should appear when typing cmt show uses) 
+
+use AtlasPolicy AtlasPolicy-*
+
+use AtlasReconstructionRunTime AtlasReconstructionRunTime-*
+
+private
+
+use TestPolicy          TestPolicy-*
+apply_pattern validate_xml
+
+end_private
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+macro RecExRecoTest_TestConfiguration "../test/RecExRecoTest_TestConfiguration.xml"
+
+apply_pattern declare_runtime extras="../test/RecExRecoTest_TestConfiguration.xml ../python/PostProcessRecoRTTTests.py ../python/PostProcessIgprofWeb.py slurpRecoRTTTests.pl dumpPoolFileInchunks.sh diffPoolFilesRERT.sh run_memleak_rert.sh"

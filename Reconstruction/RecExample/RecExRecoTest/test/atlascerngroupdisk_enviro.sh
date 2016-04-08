@@ -1,0 +1,3 @@
+
+export STAGE_HOST=castoratlast3
+export STAGE_SVCCLASS=atlascerngroupdisk
