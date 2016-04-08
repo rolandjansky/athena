@@ -37,7 +37,7 @@ TrigFTK_VxPrimary::TrigFTK_VxPrimary(const std::string &n, ISvcLocator *pSvcLoc)
     m_DataProviderSvc("TrigFTK_DataProviderSvc",n),
     m_useRawTracks(false),
     m_useRefittedTracks(false),
-    m_getVertexContainer(false),
+    m_getVertexContainer(true),
     m_trackType(ftk::ConvertedTrackType),
     m_vertexContainerName("HLT_PrimVertexFTK"),
     m_vxContainerName("HLT_PrimVxFTK")
@@ -119,9 +119,18 @@ HLT::ErrorCode TrigFTK_VxPrimary::hltExecute(const HLT::TriggerElement*, HLT::Tr
     msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endreq;
   
   if (m_getVertexContainer) {
+
     
-    xAOD::VertexContainer* theVertexContainer = m_DataProviderSvc->getVertexContainer(m_useRefittedTracks);
-    
+    xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer();
+    xAOD::VertexAuxContainer	theVertexAux;
+    theVertexContainer->setStore(&theVertexAux);
+
+    StatusCode sc = m_DataProviderSvc->getVertexContainer( theVertexContainer, m_useRefittedTracks);
+
+    if (sc != StatusCode::SUCCESS) {
+      msg() << MSG::DEBUG << " Error getting VertexContainer StatusCode is " << sc << endreq;
+    }
+
     if ( HLT::OK !=  attachFeature(outputTE, theVertexContainer, m_vertexContainerName) ) {
       msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
       
