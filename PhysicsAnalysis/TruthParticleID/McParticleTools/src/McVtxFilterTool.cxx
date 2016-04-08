@@ -343,6 +343,7 @@ void McVtxFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
     if ( 0 == mother ) {
       mother = new HepMC::GenParticle;
       mother->set_momentum( (*parent)->momentum() );
+      mother->set_generated_mass( (*parent)->generated_mass() );
       mother->set_pdg_id( (*parent)->pdg_id() );
       mother->set_status( (*parent)->status() );
       mother->set_flow( (*parent)->flow() );
@@ -369,6 +370,7 @@ void McVtxFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
       } else {
 	daughter = new HepMC::GenParticle;
 	daughter->set_momentum( (*child)->momentum() );
+   daughter->set_generated_mass( (*child)->generated_mass() );
 	daughter->set_pdg_id( (*child)->pdg_id() );
 	daughter->set_status( (*child)->status() );
 	daughter->set_flow( (*child)->flow() );
