@@ -80,11 +80,11 @@ ParticleLinks_PERS*
 ParticleLinksCnv<Container>::createPersistent(ParticleLinks<Container>* transCont)
 {
     MsgStream msg( this->msgSvc(), typeid(this).name() );
-  msg << MSG::DEBUG << "::createPersistent called" << endmsg;
+  msg << MSG::DEBUG << "::createPersistent called" << endreq;
   ParticleLinksCnv_p1<Container> cnv;
   ParticleLinks_PERS *persObj = cnv.createPersistent(transCont, msg);
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
   return persObj; 
 }
 
@@ -92,7 +92,7 @@ template<class Container>
 ParticleLinks<Container>* ParticleLinksCnv<Container>::createTransient() 
 {
    MsgStream msg( this->msgSvc(), "ParticleLinksConverter" );
-  msg << MSG::DEBUG << "::createTansient called" << endmsg;
+  msg << MSG::DEBUG << "::createTansient called" << endreq;
 
    ParticleLinks<Container> *transObj = 0;
 
@@ -106,7 +106,7 @@ ParticleLinks<Container>* ParticleLinksCnv<Container>::createTransient()
        std::auto_ptr<ParticleLinks_PERS> persObj (Base_t::template poolReadObject<ParticleLinks_PERS>());
        ParticleLinksCnv_p1<Container> cnv;
        transObj = cnv.createTransient( persObj.get(), msg );
-       msg << MSG::DEBUG << "::createTransient [Success]" << endmsg;
+       msg << MSG::DEBUG << "::createTransient [Success]" << endreq;
    } else {
        throw std::runtime_error("Unsupported persistent version of ParticleLinks");
    }

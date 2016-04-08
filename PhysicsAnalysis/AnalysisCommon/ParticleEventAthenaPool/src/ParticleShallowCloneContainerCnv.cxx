@@ -46,7 +46,7 @@ ParticleShallowCloneContainerCnv::createPersistent( ParticleShallowCloneContaine
   ParticleShallowCloneContainerCnv_p1 cnv;
   ParticleShallowCloneContainer_PERS *persObj = cnv.createPersistent( transCont, msg );
 
-  if (msgLvl(MSG::DEBUG)) msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
   return persObj; 
 }
 

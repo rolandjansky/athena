@@ -51,7 +51,7 @@ INav4MomToTrackParticleAssocsCnv::createPersistent( INav4MomToTrackParticleAssoc
 
   INav4MomToTrackParticleAssocs_PERS *persObj = m_tpConverter_p1.createPersistent( transCont, log );
   
-  log << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
+  log << MSG::DEBUG << "::createPersistent [Success]" << endreq;
   return persObj; 
 }
 
