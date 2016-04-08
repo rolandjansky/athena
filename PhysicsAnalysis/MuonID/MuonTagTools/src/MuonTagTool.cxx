@@ -10,7 +10,7 @@ Purpose : create a collection of MuonTag
 *****************************************************************************/
 
 #include "GaudiKernel/Property.h"
-
+#include "AthContainers/ConstDataVector.h"
 #include "xAODMuon/MuonContainer.h"
 #include "MuonTagTools/MuonTagTool.h"
 #include "xAODTracking/VertexContainer.h"
@@ -39,6 +39,9 @@ MuonTagTool::MuonTagTool (const std::string& type, const std::string& name,
   
   /** Muon AOD Container Name */
   declareProperty("Container",          m_containerNames);
+
+  /** Muon MET input container name*/
+  declareProperty("MuonMETContainerName",   m_muon_met_container_name);
   
   /** selection cut of Pt */
   declareProperty("EtCut",              m_cut_Et = 6.0*CLHEP::GeV);
@@ -86,8 +89,8 @@ MuonTagTool::MuonTagTool (const std::string& type, const std::string& name,
   declareProperty("LooseTrackOnlyIsolation",m_loose_trackonly_isolation);
   declareProperty("LooseIsolation",         m_loose_isolation);
   declareProperty("TightIsolation",         m_tight_isolation);
-  declareProperty("GradientLooseIsolation", m_gradient_isolation);
-  declareProperty("GradientIsolation",      m_gradient_loose_isolation);
+  declareProperty("GradientLooseIsolation", m_gradient_loose_isolation);
+  declareProperty("GradientIsolation",      m_gradient_isolation);
 
   declareInterface<MuonTagTool>( this );
 }
@@ -228,6 +231,10 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
     xAOD::MuonContainer::const_iterator cm_it     = muonContainer->begin();
     xAOD::MuonContainer::const_iterator cm_it_end = muonContainer->end();
     
+    // create a new copy for MET calculation
+    ConstDataVector< xAOD::MuonContainer >* selectedMuons = new ConstDataVector< xAOD::MuonContainer >( SG::VIEW_ELEMENTS );
+    ATH_CHECK( evtStore()->record( selectedMuons, m_muon_met_container_name ) );
+
     /** loop over the muon container */
     for ( ; cm_it != cm_it_end ; ++cm_it) {
       
@@ -237,7 +244,12 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
       /** use the muon selector tool to get the tightness */
 
       my_quality = m_muon_selection_tool->getQuality(**cm_it);
+      
 
+      /** Fill the Muon MET input container only if the muons are medium */
+      if(my_quality <= xAOD::Muon::Medium &&  m_muon_selection_tool->passedIDCuts(**cm_it)){
+	selectedMuons->push_back( *cm_it );
+      }
       /** preselection for tag writing is "loose" and we apply a pt cut*/
       if ( (*cm_it)->pt() > m_cut_Et && ( my_quality <= xAOD::Muon::Loose ) ) {
         ATH_MSG_DEBUG ("-> Muon passes preselection");
@@ -550,8 +562,8 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
     if(m_loose_trackonly_isolation->accept(**muonItr))tightness |= (1 << 24);
     if(m_loose_isolation->accept(**muonItr))          tightness |= (1 << 25);
     if(m_tight_isolation->accept(**muonItr))          tightness |= (1 << 26);
-    if(m_gradient_loose_isolation->accept(**muonItr)) tightness |= (1 << 27);
-    if(m_gradient_isolation->accept(**muonItr))       tightness |= (1 << 28);
+    if(m_gradient_isolation->accept(**muonItr))       tightness |= (1 << 27);
+    if(m_gradient_loose_isolation->accept(**muonItr)) tightness |= (1 << 28);
 
     /** varying levels of tighness cuts - to be defined and implemented */
     

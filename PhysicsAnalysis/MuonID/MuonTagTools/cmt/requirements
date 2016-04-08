@@ -15,7 +15,7 @@ private
 
 use xAODTracking	xAODTracking-*				Event/xAOD
 use AnalysisUtils	AnalysisUtils-*				PhysicsAnalysis/AnalysisCommon
-
+use AthContainers       AthContainers-*				Control 
 apply_pattern dual_use_library files=*.cxx
 
 apply_pattern declare_joboptions files="*.py"
