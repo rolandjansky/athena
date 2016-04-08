@@ -16,12 +16,6 @@
 #include "G4EventManager.hh"
 #include "G4ThreeVector.hh"
 
-// athena includes
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h"
-
 // all the LAr calculators
 #include "LArG4Code/LArVCalculator.h"
 #include "LArG4Barrel/LArBarrelCalculator.h"
@@ -38,14 +32,13 @@
 // For MC Truth information:
 #include "GeneratorObjects/McEventCollection.h"
 
-static TestActionShowerLib ts1("TestActionShowerLib");
-
-TestActionShowerLib::TestActionShowerLib(std::string s)
-  : FADS::UserAction(s),
-    m_current_calculator(0),
-    m_current_solid(0),
-    m_current_transform(0),
-    m_calculator_EMECIW(0), m_calculator_EMECOW(0), m_storeGateSvc("StoreGateSvc", s), m_eventSteps(0)
+TestActionShowerLib::TestActionShowerLib(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent),
+														     m_current_calculator(0),
+														     m_current_solid(0),
+														     m_current_transform(0),
+														     m_calculator_EMECIW(0),
+														     m_calculator_EMECOW(0),
+														     m_eventSteps(0)
 {
 #ifdef _myDEBUG_
   G4cout << "#########################################" << G4endl
@@ -58,21 +51,7 @@ TestActionShowerLib::~TestActionShowerLib()
 {
 }
 
-TestActionShowerLib::StoreGateSvc_t TestActionShowerLib::storeGateSvc() const
-{
-  //
-  // Connect to StoreGate:
-  //
-  if ( !m_storeGateSvc ) {
-    StatusCode sc = m_storeGateSvc.retrieve();
-    if (sc.isFailure()) {
-      throw std::runtime_error("TestActionShowerLib: cannot retrieve StoreGateSvc");
-    }
-  }
-  return m_storeGateSvc;
-}
-
-void TestActionShowerLib::BeginOfEventAction(const G4Event* )
+void TestActionShowerLib::BeginOfEvent(const G4Event* )
 {
 
   // init calculator
@@ -94,7 +73,7 @@ void TestActionShowerLib::BeginOfEventAction(const G4Event* )
   return;
 }
 
-void TestActionShowerLib::EndOfEventAction(const G4Event* )
+void TestActionShowerLib::EndOfEvent(const G4Event* )
 {
 
 #ifdef _myDEBUG_
@@ -140,9 +119,9 @@ void TestActionShowerLib::EndOfEventAction(const G4Event* )
   // Put eventSteps into event store
   //
   std::string location("EventSteps");
-  StatusCode sc = storeGateSvc()->record( m_eventSteps, location, true );
+  StatusCode sc = evtStore()->record( m_eventSteps, location, true );
   if( sc.isFailure() ) {
-    G4cout << "Error: Couldn't store EventSteps object in event store at location: " << location << G4endl;
+    ATH_MSG_ERROR("Error: Couldn't store EventSteps object in event store at location: " << location);
   } else {
 #ifdef _myDEBUG_
     G4cout << "TestActionShowerLib::EndOfEventAction: Stored EventSteps object (size: " << m_eventSteps->size() << ")"
@@ -153,7 +132,7 @@ void TestActionShowerLib::EndOfEventAction(const G4Event* )
   return;
 }
 
-void TestActionShowerLib::BeginOfRunAction(const G4Run* )
+void TestActionShowerLib::BeginOfRun(const G4Run* )
 {
 #ifdef _myDEBUG_
   G4cout << "#########################################" << G4endl
@@ -172,7 +151,7 @@ void TestActionShowerLib::BeginOfRunAction(const G4Run* )
   return;
 }
 
-void TestActionShowerLib::EndOfRunAction(const G4Run* )
+void TestActionShowerLib::EndOfRun(const G4Run* )
 {
 
   if (m_calculator_EMECIW != 0) {
@@ -194,7 +173,7 @@ void TestActionShowerLib::EndOfRunAction(const G4Run* )
   return;
 }
 
-void TestActionShowerLib::SteppingAction(const G4Step* aStep)
+void TestActionShowerLib::Step(const G4Step* aStep)
 {
 	bool emptydet = (m_eventSteps->detector[0] == '\0'); //empty string. man, i hate pure C!
 	if (emptydet) { //give name to the detector, set calculator, transformation and G4Solid for the whole shower
@@ -327,4 +306,17 @@ void TestActionShowerLib::SteppingAction(const G4Step* aStep)
   }
 
   return;
+}
+
+
+StatusCode TestActionShowerLib::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

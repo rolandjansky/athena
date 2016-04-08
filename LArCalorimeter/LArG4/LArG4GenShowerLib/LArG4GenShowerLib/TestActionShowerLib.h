@@ -11,9 +11,8 @@
 #include <vector>
 
 // athena simulation includes
-#include "FadsActions/UserAction.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
+
+#include "G4AtlasTools/UserActionBase.h"
 
 // forward declarations in namespaces
 namespace ShowerLib {
@@ -39,30 +38,31 @@ class G4AffineTransform;
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Sasha Glazov, DESY Hamburg, Germany
    *
-   * @version \$Id: TestActionShowerLib.h 498105 2012-04-27 11:38:03Z gsedov $
+   * @version \$Id: TestActionShowerLib.h 664021 2015-04-30 10:17:27Z disimone $
    *
    */
 
-class TestActionShowerLib: public FADS::UserAction {
+class TestActionShowerLib final: public UserActionBase {
 
  public:
 
   //! default constructor
-  TestActionShowerLib(std::string s);
+  TestActionShowerLib(const std::string& type, const std::string& name, const IInterface* parent);
 
   ~TestActionShowerLib();
 
   //! run code at begin of event
-  void BeginOfEventAction(const G4Event*);
+  void BeginOfEvent(const G4Event*) override;
   //! run code at end of event
-  void EndOfEventAction(const G4Event*);
+  void EndOfEvent(const G4Event*) override;
   //! run code at begin of run
-  void BeginOfRunAction(const G4Run*);
+  void BeginOfRun(const G4Run*) override;
   //! run code at end of event
-  void EndOfRunAction(const G4Run*);
+  void EndOfRun(const G4Run*) override;
   //! run code after each step
-  void SteppingAction(const G4Step*);
+  void Step(const G4Step*) override;
 
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
  private:
 
@@ -76,10 +76,6 @@ class TestActionShowerLib: public FADS::UserAction {
   LArVCalculator* m_calculator_EMECIW;            //!< pointer to EMEC inner wheel calculator
   LArVCalculator* m_calculator_EMECOW;            //!< pointer to EMEC outer wheel calculator
   
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  StoreGateSvc_t m_storeGateSvc;                  //!< pointer to StoreGate service
-  //! return pointer to StoreGate service
-  StoreGateSvc_t storeGateSvc() const;
 
   ShowerLib::StepInfoCollection* m_eventSteps;    //!< collection of StepInfo
 

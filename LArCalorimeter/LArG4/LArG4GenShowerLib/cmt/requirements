@@ -3,36 +3,36 @@ package LArG4GenShowerLib
 author S. Glazov
 author W. Ehrenfeld <wolfgang.ehrenfeld@desy.de>
 
-use AtlasPolicy         AtlasPolicy-*
-use	CLIDSvc	            CLIDSvc-*               Control
-use AtlasCLHEP          AtlasCLHEP-*            External
+public
 use AthenaBaseComps     AthenaBaseComps-*       Control
-use FadsActions         FadsActions-*           Simulation/G4Sim/FADS
+use AtlasPolicy         AtlasPolicy-*
+use AtlasCLHEP          AtlasCLHEP-*            External
+use CLIDSvc             CLIDSvc-*               Control
 use DataModel           DataModel-*             Control
-
 use GaudiInterface      GaudiInterface-*        External
-use StoreGate           StoreGate-*             Control
+use G4AtlasTools        G4AtlasTools-*          Simulation/G4Atlas
 
 private
-
 use AtlasROOT           AtlasROOT-*             External
-use Geant4              Geant4-*                External
 use EventInfo           EventInfo-*             Event
-use GeoModelInterfaces  GeoModelInterfaces-*    DetectorDescription/GeoModel
+use Geant4              Geant4-*                External
 use GeneratorObjects    GeneratorObjects-*      Generators
+use GeoModelInterfaces  GeoModelInterfaces-*    DetectorDescription/GeoModel
 use LArG4Barrel         LArG4Barrel-*           LArCalorimeter/LArG4
 use LArG4Code           LArG4Code-*             LArCalorimeter/LArG4
 use LArG4EC             LArG4EC-*               LArCalorimeter/LArG4
 use LArG4FCAL           LArG4FCAL-*             LArCalorimeter/LArG4
 use LArG4HEC            LArG4HEC-*              LArCalorimeter/LArG4
 use LArG4ShowerLib      LArG4ShowerLib-*        LArCalorimeter/LArG4
-use FadsPhysics         FadsPhysics-*           Simulation/G4Sim/FADS
-
-
 end_private
 
-library LArG4GenShowerLib *.cxx -s=components *.cxx
-apply_pattern component_library
+# Convert from a pure component library to a dual_use library because the lcgdict pattern
+# doesn't work with the former when building with cmake. This does expose the clients to
+# an additional installed library, but with the default as-needed linkopts this is harmless
+# apart from a slight increase in the build time.
+apply_pattern dual_use_library files=*.cxx
+#library LArG4GenShowerLib *.cxx -s=components *.cxx
+#apply_pattern component_library
 
 apply_pattern declare_scripts files="-s=../share *.py"
 
@@ -43,4 +43,5 @@ private
 #apply_tag notAsNeeded
 use AtlasReflex           AtlasReflex-*          External -no_auto_imports
 apply_pattern lcgdict dict=LArG4GenShowerLib selectionfile=selection.xml \
-	headerfiles="../LArG4GenShowerLib/LArG4GenShowerLibDict.h"
+        headerfiles="../LArG4GenShowerLib/LArG4GenShowerLibDict.h"
+end_private
