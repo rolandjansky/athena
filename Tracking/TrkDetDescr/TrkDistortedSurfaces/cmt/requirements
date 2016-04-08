@@ -17,6 +17,9 @@ library TrkDistortedSurfaces *.cxx
 apply_pattern installed_library
 
 private
+use AtlasReflex   AtlasReflex-*   	External -no_auto_imports
+apply_pattern lcgdict dict=TrkDistortedSurfaces selectionfile=selection.xml headerfiles="../TrkDistortedSurfaces/TrkDistortedSurfacesDict.h"
+
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
 
