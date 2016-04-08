@@ -39,6 +39,10 @@ egammaMonToolBase::egammaMonToolBase(const std::string & type, const std::string
                                                                       
   declareProperty("EgTrigger", m_Trigger, "Name of Trigger in express stream");
 
+  // mutiple usage of the tool requires a configurable name for Groups
+
+  declareProperty("EgGroupExtension", m_GroupExtension="", "Name of Group Extension");
+
   m_region.resize(NREGION,"");
   m_region[BARREL]="BARREL";
   m_region[CRACK]="CRACK";
@@ -52,7 +56,6 @@ egammaMonToolBase::egammaMonToolBase(const std::string & type, const std::string
 egammaMonToolBase::~egammaMonToolBase()
 {
   ATH_MSG_DEBUG("egammaMonToolBase::~egammaMonToolBase()");
-
 }
 
 StatusCode egammaMonToolBase::initialize()
