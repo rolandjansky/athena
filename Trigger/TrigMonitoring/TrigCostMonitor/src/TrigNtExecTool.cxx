@@ -73,15 +73,15 @@ void Trig::TrigNtExecTool::SetSteer(const HLT::TrigSteer *ptr)
   
   if(m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2) { 
     m_keyExten = "HLT_TrigOperationalInfoCollection_OPI_extended_L2";
-    m_fallBackKey = "HLT_OPI_extended_L2"; // Provide some backward compatability
+    m_fallBackKey = "HLT_OPI_extended_L2"; // Provide some backward compatibility
   }
   if(m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::EF) { 
     m_keyExten = "HLT_TrigOperationalInfoCollection_OPI_extended_EF";
-    m_fallBackKey = "HLT_OPI_extended_EF"; // Provide some backward compatability
+    m_fallBackKey = "HLT_OPI_extended_EF"; // Provide some backward compatibility
   }
   if(m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::HLT) { 
     m_keyExten = "HLT_TrigOperationalInfoCollection_OPI_extended_HLT";
-    m_fallBackKey = "HLT_OPI_extended_HLT"; // Provide some backward compatability
+    m_fallBackKey = "HLT_OPI_extended_HLT"; // Provide some backward compatibility
   }
 
 }
@@ -164,9 +164,14 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
            const TrigOperationalInfoCollection &ovec)
 {
   //
-  // Extract timing information for one CHAIN step (single TrigOperationalInfo object)
+  // Extract timing information for (now)ALL CHAINS and SIGNATUES from a single execution (concatenated in a single TrigOperationalInfo object)
   //
+
+  // Separate back out into sequences
+  std::vector<std::vector<std::string> > signatureStringInfo;
+  std::vector<std::vector<float> > signatureFloatInfo;
   
+  // We usually have two of these, one for first pass and one for second pass (resurrection)
   for(unsigned int itoi = 0; itoi < ovec.size(); ++itoi) {
     const TrigOperationalInfo *tinfo = ovec[itoi];
     if(!tinfo)
@@ -175,6 +180,7 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
       continue;
     }
     
+    // In 2016 we won't just get on signature here - we will get ALL signature. Need to split it back into single signature
     const std::pair<std::vector<std::string>, std::vector<float> > vp = tinfo -> infos();
     const std::vector<std::string> &svec = vp.first;
     const std::vector<float>       &fvec = vp.second;
@@ -184,6 +190,48 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
       ATH_MSG_WARNING("Mismatched vector sizes");
       continue;
     }
+
+    std::vector<std::string>::const_iterator chainStart = svec.end();
+    std::vector<float>::const_iterator floatStart = fvec.end();
+
+    std::vector<float>::const_iterator fkey = fvec.begin();
+    for (std::vector<std::string>::const_iterator ikey = svec.begin(); ikey < svec.end(); ++ikey) {  
+
+      if ( ikey->compare(0, 3, "CHA") == 0 ) {
+        if (chainStart == svec.end()) {
+          chainStart = ikey; // Got first instance
+          floatStart = fkey;
+        } else { // Got first instance of next seq. - gather everything between chainStart and one-back from here
+          // create new vector
+          signatureStringInfo.push_back( std::vector<std::string>(chainStart,ikey) );
+          signatureFloatInfo.push_back( std::vector<float>(floatStart,fkey) );
+          // set new starting 
+          chainStart = ikey;
+          floatStart = fkey;
+          if(m_printOPI) ATH_MSG_INFO(": FP BREAK HERE");
+        }
+      }
+
+      if(m_printOPI) ATH_MSG_INFO(": FP TOI[" << *ikey << "]=" << *fkey);
+
+      if (ikey+1 == svec.end()) { // If penultimate entry, also push the end
+        signatureStringInfo.push_back( std::vector<std::string>(chainStart,ikey+1) );
+        signatureFloatInfo.push_back( std::vector<float>(floatStart,fkey+1) );
+      }
+      
+      ++fkey;
+    }
+
+  } // For all TrigOperationalInfo
+
+
+
+  // For each SIGNATURE vector
+
+  for (unsigned int signature = 0; signature < signatureStringInfo.size(); ++signature) { 
+
+    const std::vector<std::string> &svec = signatureStringInfo.at(signature);
+    const std::vector<float>       &fvec = signatureFloatInfo.at(signature); 
     
     if(m_printOPI)
       ATH_MSG_INFO("Printing TOI with " << svec.size() << " entries");
@@ -380,7 +428,7 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
       ReadSeq(event, *chainIter, read_vec, 0);
     }
     else {
-      ATH_MSG_WARNING("Missing configiration for chain step");
+      ATH_MSG_WARNING("Missing configuration for chain step");
     }
   }
 }
