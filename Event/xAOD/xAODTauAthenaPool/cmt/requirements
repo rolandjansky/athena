@@ -1,5 +1,5 @@
 package xAODTauAthenaPool
-# $Id: requirements 740443 2016-04-14 23:23:19Z griffith $
+# $Id: requirements 694852 2015-09-15 08:40:39Z dkirchme $
 
 author Michel Janus <janus@cern.ch>
 
@@ -26,14 +26,10 @@ use xAODTau          xAODTau-*          Event/xAOD
 apply_pattern poolcnv typesWithNamespace="xAOD::TauJetContainer \
                                           xAOD::TauJetAuxContainer \
                                           xAOD::DiTauJetContainer \
-                                          xAOD::DiTauJetAuxContainer \
-                                          xAOD::TauTrackContainer \
-                                          xAOD::TauTrackAuxContainer" \
+                                          xAOD::DiTauJetAuxContainer" \
                       files="-s=${xAODTau_root}/xAODTau \
                              TauJetContainer.h \
                              TauJetAuxContainer.h \
                              DiTauJetContainer.h \
-                             DiTauJetAuxContainer.h \
-                             TauTrackContainer.h \
-                             TauTrackAuxContainer.h" \
+                             DiTauJetAuxContainer.h" \
                       cnv_pfx="xAOD"
