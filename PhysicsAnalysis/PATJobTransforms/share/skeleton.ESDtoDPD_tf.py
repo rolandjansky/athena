@@ -35,11 +35,6 @@ from PATJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
 
 
-from PATJobTransforms.OutputsMgr import outputsMgr,magicKey
-for key in dir(runArgs):
-    if key.startswith(magicKey):
-        outputsMgr.addOutput(key,getattr(runArgs,key))
-
 rec.OutputFileNameForRecoStep="ESDtoDPD"
 
 ## Input
@@ -164,11 +159,6 @@ if hasattr(runArgs,"preExec"):
 if hasattr(runArgs,"preInclude"): 
     for fragment in runArgs.preInclude:
         include(fragment)
-
-# temporary hack (proper fix would be to cleanly protect all DESD building code against missing trigger)
-if not rec.doTrigger:
-    rec.doDPD.set_Value_and_Lock(False)
-    rec.DPDMakerScripts.set_Value_and_Lock([])
 
 #========================================================
 # Central topOptions (this is one is a string not a list)
