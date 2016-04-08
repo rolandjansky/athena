@@ -36,194 +36,177 @@ Description: Tool to get the calculated MC pileup weight.
 #include <TRandom3.h>
 
 
-ClassImp(Root::TPileupReweighting)
+ClassImp(CP::TPileupReweighting)
 
 
 //=============================================================================
 // Constructor
 //=============================================================================
-Root::TPileupReweighting::TPileupReweighting(const char* name) :
+CP::TPileupReweighting::TPileupReweighting(const char* name) :
   TNamed(name,"notitle"), 
    m_SetWarnings(true),m_debugging(false),
-   m_countingMode(true),m_defaultChannel(0),m_unrepresentedDataAction(0),m_isInitialized(false),m_lumiVectorIsLoaded(false),
-   m_dataScaleFactorX(1.),m_dataScaleFactorY(1.),m_dataScaleFactorZ(1.),
-   m_mcScaleFactorX(1.),m_mcScaleFactorY(1.),m_mcScaleFactorZ(1.),
-   m_nextPeriodNumber(1),m_ignoreFilePeriods(false),m_metadatatree(0),m_unrepDataTolerance(0.05),m_doGlobalDataWeight(false)
+   m_countingMode(true),m_unrepresentedDataAction(0),m_isInitialized(false),m_lumiVectorIsLoaded(false),
+   m_dataScaleFactorX(1.),m_dataScaleFactorY(1.),
+   m_mcScaleFactorX(1.),m_mcScaleFactorY(1.),
+   m_nextPeriodNumber(1),m_ignoreFilePeriods(false),m_metadatatree(0),m_unrepDataTolerance(0.05),m_doGlobalDataWeight(false),m_lumicalcRunNumberOffset(0), m_emptyHistogram(0), m_random3(0)
 {
    m_random3 = new TRandom3(0);
    m_random3->SetSeed(1);
-   //load the default pileup histogram binning
-   //this is now done in the periodConfig (2012-05-09). We start with no default so that the default is picked up from the prw file
-   //m_emptyHistograms["pileup"] = new TH1D("pileup_default","pileup_default",100,0,50);
-   //m_emptyHistograms["pileup"]->SetDirectory(0);
-   //set the lumi vector to size=11
-   m_integratedLumiVector.resize(11,0.);
+
+   //create the global period 
+   m_periods[-1] = new Period(-1,0,9999999,0/* the global default channel*/);
 
    //MC12ab merger by default
-   MergeMCRunNumbers(195847,195848);
+   //RemapPeriod(195848,195847);
 }
 
-Double_t Root::TPileupReweighting::GetIntegratedLumiFraction(Int_t mcRunNumber, UInt_t start, UInt_t end) {
-   if(!m_isInitialized) {
-      Error("GetIntegratedLumiFraction", "Please initialize the tool before retrieving lumi fractions");
-      throw std::runtime_error("Throwing 1");
-   }
-   if(!m_lumiVectorIsLoaded) {
-      Error("GetIntegratedLumiFraction","No Lumicalc file loaded, so no lumi fraction possible, returning 0");
-      return 0;
-   }
-   //check if the runNumber has been reassigned
-   if(m_mcRemappings.find(mcRunNumber)!=m_mcRemappings.end()) mcRunNumber=m_mcRemappings[mcRunNumber];
-   auto& dataMap = periodTotals["pileup"][-1];
-   const std::map<Int_t, Double_t>::const_iterator it = dataMap.find(mcRunNumber);
-   if(it==dataMap.end() || it->second == 0) { 
-      if(m_SetWarnings) Warning("GetIntegratedLumiFraction","%d has no associated lumi. Returning 0",mcRunNumber);
-      return 0; /*throw 33;*/
-   }
-   //loop over assigned runs, if in range then include in numerator 
-   double total = 0;
-   auto& mcMap = dataPeriodRunTotals["pileup"][mcRunNumber];
-   std::map<UInt_t, Double_t>::const_iterator itend = mcMap.end();
-   for(std::map<UInt_t, Double_t>::const_iterator it2 = mcMap.begin(); it2 != itend; ++it2) {
-      if(it2->first >= start && it2->first <= end) total += it2->second;
-   }
 
-   return total / it->second;
-}
-
-Double_t Root::TPileupReweighting::GetIntegratedLumiFraction(Int_t mcRunNumber, Double_t mu, UInt_t start, UInt_t end) {
-   if(!m_isInitialized) {
-      Error("GetIntegratedLumiFraction", "Please initialize the tool before retrieving lumi fractions");
-      throw std::runtime_error("Throwing 1");
-   }
-   if(!m_lumiVectorIsLoaded) {
-      Error("GetIntegratedLumiFraction","No Lumicalc file loaded, so no lumi fraction possible, returning 0");
-      return 0;
-   }
-   //check if the runNumber has been reassigned
-   if(m_mcRemappings.find(mcRunNumber)!=m_mcRemappings.end()) mcRunNumber=m_mcRemappings[mcRunNumber];
-
-   //determine the mubin
-   TH1* hist = m_emptyHistograms["pileup"];
-   if(!hist) { Error("GetIntegratedLumiFraction", "Cannot do this without a lumicalc file!"); return 0; }
-   Int_t muBin = hist->FindFixBin(mu);
-
-   //get the total lumi of this mcRunNumber with this mu - (was stored in the run=0 slot of the map)
-   //check that this mcRunNumber actually has some lumi with this mu
-   auto& dataMap = dataPeriodBinnedRunTotals["pileup"];
-   std::map<UInt_t, std::map<Int_t, std::map<UInt_t, Double_t> > >::iterator myMap1 = dataMap.find(muBin);
-   if(myMap1 == dataMap.end()) {
-      //no lumi with this mu
-      return 0;
-   }
-   std::map<Int_t, std::map<UInt_t, Double_t> >::iterator myMap2 = myMap1->second.find(mcRunNumber);
-   if(myMap2 == myMap1->second.end()) {
-      //no lumi with this mu in this mcRunNumber
-      return 0;
-   }
-   //loop over assigned runs, if in range then include in numerator 
-   double total = 0;
-   std::map<UInt_t, Double_t>::const_iterator itend = myMap2->second.end();
-   for(std::map<UInt_t, Double_t>::const_iterator it2 = myMap2->second.begin(); it2 != itend; ++it2) {
-      if(it2->first >= start && it2->first <= end) total += it2->second;
-   }
-
-   return total / myMap2->second[0];
-}
-
-Double_t Root::TPileupReweighting::GetIntegratedLumi(UInt_t start, UInt_t end) {
-   //look through dataPeriodRunTotals["pileup"][-1] for runs inside the given period
-   double total = 0; 
-   auto& dataMap = dataPeriodRunTotals["pileup"][-1];
-   std::map<UInt_t, Double_t>::const_iterator itend = dataMap.end();
-   for(std::map<UInt_t, Double_t>::const_iterator it2 = dataMap.begin(); it2 != itend; ++it2) {
-      if(it2->first >= start && it2->first <= end) total += it2->second;
-   }
-   return total/1E6;
-}
-
-Double_t Root::TPileupReweighting::GetIntegratedLumi(Int_t periodNumber, UInt_t start, UInt_t end) {
-   //look through dataPeriodRunTotals["pileup"][periodNumber] for runs inside the given period
-   double total = 0; 
-   auto& dataMap = dataPeriodRunTotals["pileup"][periodNumber];
-   std::map<UInt_t, Double_t>::const_iterator itend = dataMap.end();
-   for(std::map<UInt_t, Double_t>::const_iterator it2 = dataMap.begin(); it2 != itend; ++it2) {
-      if(it2->first >= start && it2->first <= end) total += it2->second;
-   }
-   return total/1E6;
-}
 
 //=============================================================================
 // Destructor
 //=============================================================================
-Root::TPileupReweighting::~TPileupReweighting() {
+CP::TPileupReweighting::~TPileupReweighting() {
    delete m_random3; 
-   //delete all histograms
-   for(std::map<TString, std::map<Int_t,std::map<Int_t, TH1*> > >::iterator it0=m_inputHistograms.begin();it0!=m_inputHistograms.end();++it0) {
-      for(std::map<Int_t,std::map<Int_t, TH1*> >::iterator it1=it0->second.begin();it1!=it0->second.end();++it1) {
-         for(std::map<Int_t, TH1*>::iterator it2=it1->second.begin();it2!=it1->second.end();++it2) {
-            if(it2->second) delete it2->second;
-         }
-         it1->second.clear();
-      }
-      it0->second.clear();
-   }
-   m_inputHistograms.clear();
-   if(m_debugging) Info("destructor","Deleting primary distributions");
-   for(std::map<TString, std::map<Int_t,std::map<Int_t, TH1D*> > >::iterator it0=primaryDistributions.begin();it0!=primaryDistributions.end();++it0) {
-      for(std::map<Int_t,std::map<Int_t, TH1D*> >::iterator it1=it0->second.begin();it1!=it0->second.end();++it1) {
-         for(std::map<Int_t, TH1D*>::iterator it2=it1->second.begin();it2!=it1->second.end();++it2) {
-            if(it2->second) {
-               if(m_debugging) { Info("destructor","weight=%s chan=%d run=%d",it0->first.Data(),it1->first,it2->first);
-                  Info("destructor","Deleting %s",it2->second->GetName());
-               }
-               delete it2->second;
-            }
-         }
-         it1->second.clear();
-      }
-      it0->second.clear();
-   }
-   primaryDistributions.clear();
-   if(m_debugging) Info("destructor","Deleting secondary distributions");
-   for(std::map<TString, std::map<Int_t,std::map<Int_t, TH2D*> > >::iterator it0=secondaryDistributions.begin();it0!=secondaryDistributions.end();++it0) {
-      for(std::map<Int_t,std::map<Int_t, TH2D*> >::iterator it1=it0->second.begin();it1!=it0->second.end();++it1) {
-         for(std::map<Int_t, TH2D*>::iterator it2=it1->second.begin();it2!=it1->second.end();++it2) {
-            if(it2->second) {
-               if(m_debugging) { Info("destructor","weight=%s chan=%d run=%d",it0->first.Data(),it1->first,it2->first);
-                  Info("destructor","Deleting %s",it2->second->GetName());
-               }
-               delete it2->second;
-            }
-         }
-         it1->second.clear();
-      }
-      it0->second.clear();
-   }
-   secondaryDistributions.clear();
-   if(m_debugging) Info("destructor","Deleting trigger primary distributions");
-   for(std::map<TString, std::map<Int_t, TH1D*> >::iterator it0=m_triggerPrimaryDistributions.begin();it0!=m_triggerPrimaryDistributions.end();++it0) {
-      for(std::map<Int_t, TH1D*>::iterator it=it0->second.begin();it!=it0->second.end();++it) {
-         if(it->second) {
-            if(m_debugging) { Info("destructor","trigger=%s run=%d",it0->first.Data(),it->first);
-               Info("destructor","Deleting %s",it->second->GetName());
-            }
-            delete it->second;
-         }
-      }
-      it0->second.clear();
-   }
-   m_triggerPrimaryDistributions.clear();
-   
 }
 
-Int_t Root::TPileupReweighting::UsePeriodConfig(const TString configName) {
+void CP::TPileupReweighting::RemapPeriod(Int_t periodNumber1, Int_t periodNumber2) {
+   //check if periodNumber2 exists
+   if(m_periods.find(periodNumber2)==m_periods.end()) {
+      m_periods[periodNumber2] = new Period(periodNumber2,0,0,m_periods[-1]->defaultChannel);
+   }
+   m_periods[periodNumber1] = m_periods[periodNumber2];
+}
+
+void CP::TPileupReweighting::SetDefaultChannel(Int_t channel, Int_t periodNumber) {
+   //check if periodNumber2 exists
+   if(m_periods.find(periodNumber)==m_periods.end()) {
+      m_periods[periodNumber] = new Period(periodNumber,0,0,channel);
+   } else {
+      m_periods[periodNumber]->SetDefaultChannel(channel); 
+   }
+}
+
+
+Int_t CP::TPileupReweighting::SetBinning(Int_t nbinsx, Double_t* xbins, Int_t nbinsy, Double_t* ybins) {
+   if(m_emptyHistogram) { delete m_emptyHistogram; }
+   if(nbinsy>0) m_emptyHistogram = new TH2D("default","default",nbinsx,xbins,nbinsy,ybins);
+   else m_emptyHistogram = new TH1D("default","default",nbinsx,xbins);
+   m_emptyHistogram->SetDirectory(0);
+   return 0;
+}
+Int_t CP::TPileupReweighting::SetUniformBinning(Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup) {
+   std::vector<double> xbins(nbinsx+1);
+   std::vector<double> ybins(nbinsy+1);
+   for(int i=0;i<nbinsx+1;i++) xbins[i] = xlow + i*(xup-xlow)/nbinsx;
+   for(int i=0;i<nbinsy+1;i++) ybins[i] = ylow + i*(yup-ylow)/nbinsy;
+   return SetBinning(nbinsx,&xbins[0],nbinsy,&ybins[0]);
+}
+Int_t CP::TPileupReweighting::SetBinning(TH1* hist) {
+   if(!hist) return -1;
+   if(m_emptyHistogram) { delete m_emptyHistogram; }
+   m_emptyHistogram = dynamic_cast<TH1*>(hist->Clone("default"));
+   m_emptyHistogram->SetDirectory(0);
+   return 0;
+}
+
+Int_t CP::TPileupReweighting::GetDefaultChannel(Int_t mcRunNumber) {
+   return m_periods[mcRunNumber]->defaultChannel;
+}
+
+
+Double_t CP::TPileupReweighting::GetIntegratedLumi(const TString& trigger) { 
+   if(!m_isInitialized) { Info("GetIntegratedLumi","Initializing the subtool.."); Initialize(); }
+   if(!m_lumiVectorIsLoaded) {
+      Error("GetIntegratedLumi","No Lumicalc file loaded, so cannot get integrated lumi, returning 0");
+      return 0;
+   }
+   if(trigger=="" || trigger=="None") return GetSumOfEventWeights(-1)/1E6; 
+   //check the triggerPrimaryDistributions in the global period, if not present, build it
+   Period* global = m_periods[-1];
+   if(global->triggerHists.find(trigger)==global->triggerHists.end()) {
+      //try to do a subtrigger calculation we need to reopen all the lumicalc files and do the fiddily prescaled luminosity calculation
+      //will throw errors if can't
+      CalculatePrescaledLuminosityHistograms(trigger);
+   }
+   return global->triggerHists[trigger]->Integral(0,global->triggerHists[trigger]->GetNbinsX()+1)/1E6;
+}
+
+
+
+Double_t CP::TPileupReweighting::GetIntegratedLumi(Int_t periodNumber, UInt_t start, UInt_t end) {
+   if(!m_isInitialized) { Info("GetIntegratedLumi","Initializing the subtool.."); Initialize(); }
+   //look through dataPeriodRunTotals["pileup"][periodNumber] for runs inside the given period
+   double total = 0; 
+   for(auto run : m_periods[periodNumber]->runNumbers) {
+      if(run >= start && run <= end) total += m_runs[run].inputHists["None"]->GetSumOfWeights();
+   }
+   return total*1E-6;
+}
+
+Double_t CP::TPileupReweighting::GetLumiBlockIntegratedLumi(Int_t runNumber, UInt_t lb) {
+   if(!m_isInitialized) { Info("GetIntegratedLumi","Initializing the subtool.."); Initialize(); }
+   if(m_runs.find(runNumber)==m_runs.end()) return 0.;
+   auto& run = m_runs[runNumber];
+
+   if(run.lumiByLbn.find(lb)==run.lumiByLbn.end()) return 0.;
+   return run.lumiByLbn[lb].first*1E-6;
+}
+
+Float_t CP::TPileupReweighting::GetLumiBlockMu(Int_t runNumber, UInt_t lb) {
+   if(!m_isInitialized) { Info("GetLumiBlockMu","Initializing the subtool.."); Initialize(); }
+   if(m_runs.find(runNumber)==m_runs.end()) return 0.;
+   auto& run = m_runs[runNumber];
+
+   if(run.lumiByLbn.find(lb)==run.lumiByLbn.end()) return 0.;
+   return run.lumiByLbn[lb].second;
+}
+
+Double_t CP::TPileupReweighting::GetIntegratedLumiFraction(Int_t periodNumber, UInt_t start, UInt_t end) {
+   if(!m_isInitialized) { Info("GetIntegratedLumiFraction","Initializing the subtool.."); Initialize(); }
+
+   if(!m_lumiVectorIsLoaded) {
+      Error("GetIntegratedLumiFraction","No Lumicalc file loaded, so no lumi fraction possible, returning 0");
+      return 0;
+   }
+   //total lumi in period is given by sumOfWeights[-1]
+   double total = m_periods[periodNumber]->sumOfWeights[-1];
+   //go through associated runs, adding up lumi from all within start and end (inclusive)
+   double numer(0);
+   for(auto run : m_periods[periodNumber]->runNumbers) {
+      if(run >= start && run <= end) numer += m_runs[run].inputHists["None"]->GetSumOfWeights();
+   }
+   return numer / total;
+}
+
+Double_t CP::TPileupReweighting::GetIntegratedLumiFraction(Int_t periodNumber, Double_t mu, UInt_t start, UInt_t end) {
+   if(!m_isInitialized) { Info("GetIntegratedLumiFraction","Initializing the subtool.."); Initialize(); }
+   if(!m_lumiVectorIsLoaded) {
+      Error("GetIntegratedLumiFraction","No Lumicalc file loaded, so no lumi fraction possible, returning 0");
+      return 0;
+   }
+   //determine the mubin
+   if(!m_emptyHistogram) { Error("GetIntegratedLumiFraction", "Cannot do this without a lumicalc file!"); return 0; }
+   Int_t muBin = m_emptyHistogram->FindFixBin(mu);
+   //the total mu in this bin in this period is given by the triggerHist = "None" hist 
+   double total = m_periods[periodNumber]->triggerHists["None"]->GetBinContent(muBin);
+   //loop over assigned runs, if in range then include in numerator 
+   double numer = 0;
+   for(auto run : m_periods[periodNumber]->runNumbers) {
+      if(run >= start && run <= end) numer += m_runs[run].muDist->GetBinContent(muBin);
+   }
+
+   return numer / total;
+}
+
+
+
+Int_t CP::TPileupReweighting::UsePeriodConfig(const TString configName) {
    if(configName=="MC11a") {
       AddPeriod(180164, 177986,180481); //associates mc runnumber 180164 with data period 177986 to 180481 (period B-D)
       AddPeriod(183003, 180614,184169); //period E-H
       AddPeriod(185649, 185353,186934); //period I-K1. For I-K you would change the last number to 187815
       AddPeriod(185761, 186935,191933); //everything else. Thanks Ellie!
-      AddBinning("pileup",100,0,50);
+      SetUniformBinning(100,0,50);
       Info("UsePeriodConfig","Using MC11a Period configuration");
       return 0;
    } else if(configName=="MC11b" || configName=="MC11c") {
@@ -231,192 +214,150 @@ Int_t Root::TPileupReweighting::UsePeriodConfig(const TString configName) {
       AddPeriod(183003, 180614, 184169);
       AddPeriod(186169, 185353, 187815);
       AddPeriod(189751, 188902, 191933);
-      AddBinning("pileup",100,0,50);
+      SetUniformBinning(100,0,50);
       Info("UsePeriodConfig","Using MC11b/c Period configuration");
       return 0;
    } else if(configName=="MC12a") {
       AddPeriod(195847,200804,216432);
       //mc12a binning is in integer values of mu
-      AddBinning("pileup",50,-0.5,49.5);
+
+      if(m_emptyHistogram && (m_emptyHistogram->GetNbinsX()!=50 || fabs(m_emptyHistogram->GetXaxis()->GetBinLowEdge(1)+0.5)>0.01|| fabs(m_emptyHistogram->GetXaxis()->GetBinUpEdge(50)-49.5)>0.01) ) {
+         Error("UsePeriodConfig","Cannot use MC12a, an incompatible config has already been set up");
+         throw std::runtime_error("Throwing 13: Cannot use MC14, an incompatible config has already been set up");
+         return -1;
+      }
+
+      SetUniformBinning(50,-0.5,49.5);
       Info("UsePeriodConfig","Using MC12a Period configuration");
       return 0;
    } else if(configName=="MC12b") {
       AddPeriod(195848,200804,216432);
       //mc12b binning is in integer values of mu
-      AddBinning("pileup",50,-0.5,49.5);
+
+      if(m_emptyHistogram && (m_emptyHistogram->GetNbinsX()!=50 || fabs(m_emptyHistogram->GetXaxis()->GetBinLowEdge(1)+0.5)>0.01|| fabs(m_emptyHistogram->GetXaxis()->GetBinUpEdge(50)-49.5)>0.01) ) {
+         Error("UsePeriodConfig","Cannot use MC12b, an incompatible config has already been set up");
+         throw std::runtime_error("Throwing 13: Cannot use MC14, an incompatible config has already been set up");
+         return -1;
+      }
+
+      SetUniformBinning(50,-0.5,49.5);
       Info("UsePeriodConfig","Using MC12b Period configuration");
       return 0;
    } else if(configName=="MC12ab") {
       AddPeriod(195847,200804,216432);
-      //disable warnings temporarily for next AddPeriod, as we know we are causing a conflict
-      bool tmp = m_SetWarnings; 
-      m_SetWarnings=false;
       AddPeriod(195848,200804,216432);
-      m_SetWarnings = tmp;
+
+      if(m_emptyHistogram && (m_emptyHistogram->GetNbinsX()!=50 || fabs(m_emptyHistogram->GetXaxis()->GetBinLowEdge(1)+0.5)>0.01|| fabs(m_emptyHistogram->GetXaxis()->GetBinUpEdge(50)-49.5)>0.01) ) {
+         Error("UsePeriodConfig","Cannot use MC12ab, an incompatible config has already been set up");
+         throw std::runtime_error("Throwing 13: Cannot use MC14, an incompatible config has already been set up");
+         return -1;
+      }
+
       //mc12a/b binning is in integer values of mu
-      AddBinning("pileup",50,-0.5,49.5);
+      SetUniformBinning(50,-0.5,49.5);
       Info("UsePeriodConfig","Using MC12ab Period configuration");
       return 0;
-   } else if(configName=="MC14") {
+   } else if(configName=="MC14_8TeV") {
       AddPeriod(212272,200804,216432);
-      AddBinning("pileup",50,-0.5,49.5);
-      Info("UsePeriodConfig","Using MC14 Period configuration");
+      if(m_emptyHistogram && (m_emptyHistogram->GetNbinsX()!=50 || fabs(m_emptyHistogram->GetXaxis()->GetBinLowEdge(1)+0.5)>0.01 || fabs(m_emptyHistogram->GetXaxis()->GetBinUpEdge(50)-49.5)>0.01) ) {
+         Error("UsePeriodConfig","Cannot use MC14_8TeV, an incompatible config has already been set up");
+         throw std::runtime_error("Throwing 13: Cannot use MC14_8TeV, an incompatible config has already been set up");
+         return -1;
+      }
+      SetUniformBinning(50,-0.5,49.5);
+      Info("UsePeriodConfig","Using MC14_8TeV Period configuration");
+      return 0;
+   } else if(configName=="MC14_13TeV") {
+      AddPeriod(222222,222222,999999);
+      if(m_emptyHistogram && (m_emptyHistogram->GetNbinsX()!=100 || fabs(m_emptyHistogram->GetXaxis()->GetBinLowEdge(1)+0.5)>0.01|| fabs(m_emptyHistogram->GetXaxis()->GetBinUpEdge(100)-99.5)>0.01) ) {
+         Error("UsePeriodConfig","Cannot use MC14_13TeV, an incompatible config has already been set up");
+         throw std::runtime_error("Throwing 13: Cannot use MC14_13TeV, an incompatible config has already been set up");
+         return -1;
+      }
+      SetUniformBinning(100,-0.5,99.5);
+      Info("UsePeriodConfig","Using MC14_13TeV Period configuration");
+      return 0;
+   } else if(configName=="MC15") {
+      AddPeriod(222510,222222,999999);
+      AddPeriod(222525,222222,999999);
+      if(m_emptyHistogram && (m_emptyHistogram->GetNbinsX()!=100 || fabs(m_emptyHistogram->GetXaxis()->GetBinLowEdge(1))>0.01 || fabs(m_emptyHistogram->GetXaxis()->GetBinUpEdge(100)-100.)>0.01) ) {
+         Error("UsePeriodConfig","Cannot use MC15, an incompatible config has already been set up");
+         throw std::runtime_error("Throwing 13: Cannot use MC15, an incompatible config has already been set up");
+         return -1;
+      }
+      SetUniformBinning(100,0,100); //Thanks Eric </sarcasm>
+      Info("UsePeriodConfig","Using MC15 Period configuration");
       return 0;
    }
    Error("UsePeriodConfig","Unrecognized period config");
    return -1;
 }
 
-std::vector<Double_t> Root::TPileupReweighting::getIntegratedLumiVector() { 
-   if(!m_lumiVectorIsLoaded) {
-      Error("getIntegratedLumiVector","The vector has not been filled. You must AddDataDistribution, using the iLumiCalc file, to fill it");
-      throw std::runtime_error("Throwing 99");
-   }
-   if(!m_isInitialized) {
-      Error("getIntegratedLumiVector","Please initialize the tool before retrieving the lumi vector");
-      throw std::runtime_error("Throwing 1");
-   }
-   return m_integratedLumiVector; 
-}
 
 ///returns a PeriodID. These count up from 1
-Int_t Root::TPileupReweighting::AddPeriod(Int_t mcRunNumber, UInt_t start, UInt_t end) {
-   if(m_isInitialized) {
-      Error("AddPeriod","You cannot AddPeriod after initializing the tool. Reorder your code!");
-      throw std::runtime_error("Throwing 1: You cannot AddPeriod after initializing the tool. Reorder your code!");
+Int_t CP::TPileupReweighting::AddPeriod(Int_t periodNumber, UInt_t start, UInt_t end) {
+   //you can add more periods only in counting mode, but they must not be with subperiods!
+
+   if(m_isInitialized && !m_countingMode) {
+      Error("AddPeriod","You cannot AddPeriod after initializing the tool, except when in config file generating mode. Reorder your code!");
+      throw std::runtime_error("Throwing 1: You cannot AddPeriod after initializing the tool, except when in config file generating mode. Reorder your code!");
    }
-   //check if this period is already defined
-   for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::iterator periods=m_periods[mcRunNumber].begin();periods!=m_periods[mcRunNumber].end();++periods) {
-      std::pair<UInt_t,UInt_t>& period = periods->second;
-      if(period.first == start && period.second==end) {
-         return 0;
-      } else if(start>=period.first && end<=period.second) {
-         //fully contained in existing period, just print a warning
-         Warning("AddPeriod","Period (%d,%d,%d) fully contained within existing period (%d,%d,%d). Doing nothing.",mcRunNumber,start,end,mcRunNumber,period.first,period.second);
-         return 0;
-      } else if(start==period.first && end==999999) {
-         //special case where we are 'extending' the period to infinity. This is a kludge to make old config files hadded to new ones work
-         Warning("AddPeriod","Extending period [%d,%d] to infinity. I hope this only happened because you are using an old prw config file (made pre 00-02-10)",period.first,period.second);
-         period.second = 999999;
-         return 0;
-      } else if((start <= period.second && start >= period.first) || (end <= period.second && end >= period.first) ) {
-         //overlaps with existing period. reject this Add
-         Error("AddPeriod","(%d,%d,%d) overlaps with existing period setup",mcRunNumber,start,end);
-         throw std::runtime_error("Throwing 2: (%d,%d,%d) overlaps with existing period setup");
-      }
-   } 
-   //check if the period being added conflicts with a period in another mcRunNumber... we just print a warning at this stage... not sure if it is a problem...
-   for(std::map<Int_t, std::map<Int_t, std::pair<UInt_t,UInt_t> > >::iterator periodRuns=m_periods.begin();periodRuns!=m_periods.end();++periodRuns) {
-      if(periodRuns->first==mcRunNumber) continue; //already checked this one
-      for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::iterator periods=periodRuns->second.begin();periods!=periodRuns->second.end();++periods) {
-         std::pair<UInt_t,UInt_t>& period = periods->second;
-         //if the period start and end match perfectly and this is a registered mc merger, then no warning
-         if(start==period.first && end==period.second && m_mcMerges.find(periodRuns->first)!=m_mcMerges.end()&& m_mcMerges[periodRuns->first].find(periodRuns->first)!=m_mcMerges[periodRuns->first].end() && m_mcMerges[periodRuns->first][periodRuns->first]==mcRunNumber) continue;
-         if(start==period.first && end==period.second && m_mcMerges.find(mcRunNumber)!=m_mcMerges.end()&& m_mcMerges[mcRunNumber].find(mcRunNumber)!=m_mcMerges[mcRunNumber].end() && m_mcMerges[mcRunNumber][mcRunNumber]==periodRuns->first) continue;
-         if((start <= period.second && start >= period.first) || (end <= period.second && end >= period.first) ) {
-            //overlaps with existing period. show a warning
-            if(m_SetWarnings) Warning("AddPeriod","(%d,%d,%d) conflicts with existing period setup (%d,%d,%d)",mcRunNumber,start,end,periodRuns->first,period.first,period.second);
-         }
-      }
-   } 
-   std::pair<UInt_t,UInt_t> thePair; thePair.first=start;thePair.second=end;
-   m_periods[mcRunNumber][m_nextPeriodNumber] = thePair;
-   //also put this in a handy backmapping for getting this period's periodWeight and mc distributions (uses same ones) 
-   m_periodToMCRun[m_nextPeriodNumber]=mcRunNumber;
-   m_nextPeriodNumber++;
-   return m_nextPeriodNumber-1;
+
+   if(m_periods.find(periodNumber)==m_periods.end()) {
+      m_periods[periodNumber] = new Period(periodNumber,start,end,m_periods[-1]->defaultChannel);
+      return periodNumber;
+   }
+
+   //if period exists but both start and end are zero, then just assign that
+   Period* p = m_periods[periodNumber];
+
+   if(p->subPeriods.size() == 0 && p->start==0 && p->end==0) { p->start=start; p->end=end; return periodNumber; }
+
+   //check if period already contained (i.e. same period or one of the existing subperiods) ... if it is, do nothing 
+   if(p->start==start && p->end==end) return periodNumber;
+   for(auto pp : p->subPeriods) {
+      if(pp->start==start && pp->end==end) return pp->id;
+   }
+
+   //if get here, and in counting mode, this isn't allowed! .. i.e. we can't have subperiods
+   if(m_isInitialized && m_countingMode) {
+      Error("AddPeriod","You cannot have subperiods when in Config File Generating mode");
+      throw std::runtime_error("Throwing 44: In Config File Generating mode, but detected subperiods in the period definition. This is not allowed.");
+   }
+
+   //if period is already defined, we create a new period with start and end, and assign our period to this one 
+   //also create a new period for the existing period configuration of this period 
+
+   if(p->subPeriods.size()==0) {
+      while(m_periods.find(m_nextPeriodNumber) != m_periods.end()) m_nextPeriodNumber++;
+      m_periods[m_nextPeriodNumber] = new Period(m_nextPeriodNumber,p->start,p->end,p->defaultChannel);
+      p->subPeriods.push_back(m_periods[m_nextPeriodNumber]);
+      p->start = 0; p->end=0;
+   }
+
+   while(m_periods.find(m_nextPeriodNumber) != m_periods.end()) m_nextPeriodNumber++;
+   m_periods[m_nextPeriodNumber] = new Period(m_nextPeriodNumber,start,end, p->defaultChannel);
+   p->subPeriods.push_back(m_periods[m_nextPeriodNumber]);
+
+   return m_nextPeriodNumber;
 }
 
-Int_t Root::TPileupReweighting::GetPeriodNumber(Int_t mcRunNumber, UInt_t start, UInt_t end) {
-   //try to locate this period number in the map 
-   for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::iterator periods=m_periods[mcRunNumber].begin();periods!=m_periods[mcRunNumber].end();++periods) {
-      std::pair<UInt_t,UInt_t> period = periods->second;
-      if(period.first == start && period.second==end) {
-         return periods->first;
-      } 
-   } 
-   return -1;
-}
 
-Int_t Root::TPileupReweighting::GetFirstFoundPeriodNumber(UInt_t runNumber) {
-   //try to locate this period number in the map 
-   for(std::map<Int_t,std::map<Int_t, std::pair<UInt_t,UInt_t> > >::iterator it = m_periods.begin();it!=m_periods.end();++it) {
-      for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::iterator periods=it->second.begin();periods!=it->second.end();++periods) {
-         std::pair<UInt_t,UInt_t> period = periods->second;
-         if(period.first <= runNumber && period.second>=runNumber) {
-            return periods->first;
-         } 
-      } 
+Int_t CP::TPileupReweighting::GetFirstFoundPeriodNumber(UInt_t runNumber) {
+   //go through periods, first period that includes this runNumber wins!
+   //otherwise it returns the 'global period number': -1
+   for(auto period : m_periods) {
+      if(period.second->id==-1) continue;
+      if(period.second->contains(runNumber)) return period.second->id;
    }
    return -1;
-}
-
-Int_t Root::TPileupReweighting::GetPeriodNumber(Int_t mcRunNumber, UInt_t runNumber) {
-   //try to locate this period number in the map 
-   for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::iterator periods=m_periods[mcRunNumber].begin();periods!=m_periods[mcRunNumber].end();++periods) {
-      std::pair<UInt_t,UInt_t> period = periods->second;
-      if(period.first <= runNumber && period.second>=runNumber) {
-         return periods->first;
-      } 
-   } 
-   return -1;
-}
-
-Int_t Root::TPileupReweighting::AddBinning(const TString weightName,Int_t nbinsx, Double_t* xbins) {
-   if(m_emptyHistograms.find(weightName)!=m_emptyHistograms.end()) {
-        delete m_emptyHistograms[weightName];
-   }
-   m_emptyHistograms[weightName] = new TH1D(weightName+"_default","default",nbinsx,xbins);
-   m_emptyHistograms[weightName]->SetDirectory(0);
-   return 0;
-}
-Int_t Root::TPileupReweighting::AddBinning(const TString weightName,Int_t nbinsx, Double_t xlow, Double_t xup) {
-   if(m_emptyHistograms.find(weightName)!=m_emptyHistograms.end()) {
-        delete m_emptyHistograms[weightName];
-   }
-   m_emptyHistograms[weightName] = new TH1D(weightName+"_default","default",nbinsx,xlow,xup);
-   m_emptyHistograms[weightName]->SetDirectory(0);
-   return 0;
-}
-Int_t Root::TPileupReweighting::AddBinning(const TString weightName,Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup) {
-   if(m_emptyHistograms.find(weightName)!=m_emptyHistograms.end()) {
-        delete m_emptyHistograms[weightName];
-   }
-   m_emptyHistograms[weightName] = new TH2D(weightName+"_default","default",nbinsx,xlow,xup,nbinsy,ylow,yup);
-   m_emptyHistograms[weightName]->SetDirectory(0);
-   return 0;
-}
-
-Int_t Root::TPileupReweighting::AddBinning(const TString weightName,TH1* hist) {
-   if(!hist) return -1;
-   if(m_emptyHistograms.find(weightName)!=m_emptyHistograms.end()) {
-        delete m_emptyHistograms[weightName];
-   }
-   m_emptyHistograms[weightName] = dynamic_cast<TH1*>(hist->Clone(weightName+"_default"));
-   m_emptyHistograms[weightName]->SetDirectory(0);
-   return 0;
-}
-
-Int_t Root::TPileupReweighting::GetDefaultChannel(Int_t mcRunNumber) {
-   if(m_defaultChannelsByMCRunNumber.find(mcRunNumber)!=m_defaultChannelsByMCRunNumber.end()) return m_defaultChannelsByMCRunNumber[mcRunNumber];
-   else return m_defaultChannel; 
-}
-
-
-//combine run number's histograms, periods, everything, then remove trace of second run number
-void Root::TPileupReweighting::MergeMCRunNumbers(Int_t mcRunNumber1, Int_t mcRunNumber2, Int_t newMCRunNumber) {
-   if(m_isInitialized) {
-      Error("MergeMCRunNumbers","You cannot MergeMCRunNumbers after initializing the tool. Reorder your code!");
-      throw std::runtime_error("Throwing 5: You cannot MergeMCRunNumbers after initializing the tool. Reorder your code!");
-   }
-   if(newMCRunNumber==0) newMCRunNumber=mcRunNumber1;
-   m_mcMerges[newMCRunNumber][mcRunNumber1]=mcRunNumber2;
 
 }
 
-TH1* Root::TPileupReweighting::CloneEmptyHistogram(const TString weightName, Int_t runNumber, Int_t channelNumber) {
 
-   TString s(weightName);
+TH1* CP::TPileupReweighting::CloneEmptyHistogram(Int_t runNumber, Int_t channelNumber) {
+
+   TString s("pileup");
    if(channelNumber>=0) {
       s += "_chan"; s += channelNumber;
    } else {
@@ -424,12 +365,12 @@ TH1* Root::TPileupReweighting::CloneEmptyHistogram(const TString weightName, Int
    }
    s+="_run"; s+= runNumber;
    //get the empty histogram
-   if(m_emptyHistograms.find(weightName)==m_emptyHistograms.end()) {
-      Error("CloneEmptyHistogram","There is no binning info for weight %s - use AddBinning or load a prw config file (This usually means you need to call AddConfigFile BEFORE AddLumiCalcFile)",weightName.Data());
-      throw std::runtime_error("Throwing 47: There is no binning info - use AddBinning or load a prw config file (This usually means you need to call AddConfigFile BEFORE AddLumiCalcFile)");
+   if(!m_emptyHistogram) {
+      Error("CloneEmptyHistogram","There is no binning info - use SetBinning/SetUniformBinning or load a prw config file (This usually means you need to call AddConfigFile BEFORE AddLumiCalcFile)");
+      throw std::runtime_error("Throwing 47: There is no binning info - use SetBinning/SetUniformBinning or load a prw config file (This usually means you need to call AddConfigFile BEFORE AddLumiCalcFile)");
    }
 
-   TH1* out = dynamic_cast<TH1*>(m_emptyHistograms[weightName]->Clone(s));
+   TH1* out = dynamic_cast<TH1*>(m_emptyHistogram->Clone(s));
    out->SetTitle(s);
    out->SetDirectory(0); //take ownership
    out->SetEntries(0);
@@ -437,7 +378,7 @@ TH1* Root::TPileupReweighting::CloneEmptyHistogram(const TString weightName, Int
 
 }
 
-Int_t Root::TPileupReweighting::GenerateMetaDataFile(const TString fileName,const TString channelBranchName) {
+Int_t CP::TPileupReweighting::GenerateMetaDataFile(const TString fileName,const TString channelBranchName) {
 
    TTree inTree("in","in");
    inTree.ReadFile(fileName);
@@ -481,7 +422,7 @@ Int_t Root::TPileupReweighting::GenerateMetaDataFile(const TString fileName,cons
       return 0;
 }
 
-Int_t Root::TPileupReweighting::AddMetaDataFile(const TString fileName,const TString channelBranchName) {
+Int_t CP::TPileupReweighting::AddMetaDataFile(const TString fileName,const TString channelBranchName) {
    TDirectory* origDir = gDirectory;
    TTree* tmp = 0;
    TFile* rootFile = 0;
@@ -547,7 +488,7 @@ Int_t Root::TPileupReweighting::AddMetaDataFile(const TString fileName,const TSt
    return 0;
 }
 
-TTree* Root::TPileupReweighting::GetMetaDataTree() {
+TTree* CP::TPileupReweighting::GetMetaDataTree() {
    if(m_metadatatree) delete m_metadatatree;
    m_metadatatree = new TTree(TString(this->GetName())+"MetaData",TString(this->GetName())+"MetaData");
    m_metadatatree->SetDirectory(0);
@@ -572,7 +513,7 @@ TTree* Root::TPileupReweighting::GetMetaDataTree() {
    data["SumOfEventWeights"]=0.;
    m_metadatatree->Branch("SumOfEventWeights",&(data["SumOfEventWeights"]));
    //and add to channels list any channels that have events 
-   auto& myMap = globalNumberOfEntries["pileup"];
+   auto& myMap = m_periods[-1]->sumOfWeights;
    for(std::map<Int_t,Double_t>::iterator it=myMap.begin();it!=myMap.end();++it) {
       if(it->first>=0 && it->second>0.) channels[it->first]=true;
    }
@@ -587,16 +528,16 @@ TTree* Root::TPileupReweighting::GetMetaDataTree() {
                data[it2->first]=0.;
                Warning("GetMetaDataTree","Channel %d does not have MetaData %s",it->first,(it2->first).Data());
             } else {
-               data[it2->first]=globalNumberOfEntries["pileup"][channel];
+               data[it2->first]=m_periods[-1]->numberOfEntries[channel];
             }
          } else if(it2->first=="SumOfEventWeights") {
             //check for this in globalTotals 
-            auto& myMap2 = globalTotals["pileup"];
+            auto& myMap2 = m_periods[-1]->sumOfWeights;
             if(myMap2.find(channel)==myMap2.end()) {
                data[it2->first]=0.;
                Warning("GetMetaDataTree","Channel %d does not have MetaData %s",it->first,(it2->first).Data());
             } else {
-               data[it2->first]=globalTotals["pileup"][channel];
+               data[it2->first]=m_periods[-1]->sumOfWeights[channel];
             }
          } else {
             auto& myMap2 = m_metadata[it2->first];
@@ -618,11 +559,14 @@ TTree* Root::TPileupReweighting::GetMetaDataTree() {
    return m_metadatatree;
 }
 
-Int_t Root::TPileupReweighting::AddDistribution(TH1* hist, Int_t runNumber, Int_t channelNumber) {
-   return AddDistribution(hist,"pileup",runNumber,channelNumber);
-}
 
-void Root::TPileupReweighting::AddDistributionTree(TTree *tree, TFile *file) {
+
+
+
+
+
+
+void CP::TPileupReweighting::AddDistributionTree(TTree *tree, TFile *file) {
 
    bool isMC=true;
    //should have the standard structure 
@@ -668,9 +612,6 @@ void Root::TPileupReweighting::AddDistributionTree(TTree *tree, TFile *file) {
       tree->GetEntry(i);
       TString sHistName(histName);
       TString weightName(customName);
-      if(hasDefaultsBranch) {
-         if(isDefaultForRunNumber) m_defaultChannelsByMCRunNumber[runNbr]=channel;
-      }
       if(loadedHistos.find(sHistName)==loadedHistos.end()) {
          loadedHistos[sHistName]=true;
          if(!m_ignoreFilePeriods && isMC) {
@@ -681,145 +622,97 @@ void Root::TPileupReweighting::AddDistributionTree(TTree *tree, TFile *file) {
          }
          //load the histogram
          TH1 *histo = (TH1*)file->Get( sHistName );
+         if(!histo) histo = (TH1*)file->Get( TString::Format("%sPileupReweighting/%s",m_prwFilesPathPrefix.c_str(),sHistName.Data()) ); //try from subdir
          if(!histo) {
             Error("AddDistributionTree","Unable to find the histogram %s in the File %s",sHistName.Data(),file->GetName());
             throw std::runtime_error("Throwing 21");
          }
          //add it to the histograms 
-         AddDistribution(histo, weightName, runNbr, channel);
+         AddDistribution(histo, runNbr, channel);
+         //we also add it to the global count, if this isn't data 
+         if(channel>=0) AddDistribution(histo,-1,channel);
+      }
+      if(hasDefaultsBranch) {
+         if(isDefaultForRunNumber && m_periods.find(runNbr)!=m_periods.end()) m_periods[runNbr]->defaultChannel=channel;
       }
    }
 
 }
 
 //data is signalled by a negative channel number
-Int_t Root::TPileupReweighting::AddDistribution(TH1* hist,const TString weightName,  Int_t runNumber, Int_t channelNumber) {
+Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t channelNumber) {
 
    if(m_isInitialized) {
       Error("AddDistribution","You cannot AddDistribution after initializing the tool. Reorder your code!");
       throw std::runtime_error("Throwing 5: You cannot AddLumiCalcFile after initializing the tool. Reorder your code!");
    }
 
-   
-   //std::map<Int_t,TH1*>& inputHistograms = (channelNumber>=0) ? m_inputMCHistograms[weightName][channelNumber] : m_inputDataHistograms[weightName];
-   std::map<Int_t,TH1*>& inputHistograms = m_inputHistograms[weightName][channelNumber];
+   if(channelNumber>=0 && !m_periods[runNumber]) {
+      Error("AddDistribution","Unrecognised periodNumber: %d .. please use AddPeriod to define a period",runNumber);
+      throw std::runtime_error("Throwing 6: Unrecognised periodNumber. Please use AddPeriod to define a period");
+   }
 
-   //check if we need to create an empty histogram 
-   if(inputHistograms.find(runNumber) == inputHistograms.end()) {
+   TH1*& inputHist = (channelNumber<0) ? m_runs[runNumber].inputHists["None"] : m_periods[runNumber]->inputHists[channelNumber];
+
+   if(!inputHist) {
       //if no emptyHistogram specified, we will use this histogram as the structure for the empty;
-      if(m_emptyHistograms.find(weightName)==m_emptyHistograms.end()) {
-         TString s = weightName; s+= "_default";
+      if(!m_emptyHistogram) {
          //check if the input histogram is a TH1D or not. We like TH1D, not yucky TH1F
          if(strcmp(hist->IsA()->GetName(),"TH1D")==0 || strcmp(hist->IsA()->GetName(),"TH2D")==0) {
-            m_emptyHistograms[weightName] = dynamic_cast<TH1*>(hist->Clone(s));
+            m_emptyHistogram = dynamic_cast<TH1*>(hist->Clone("default"));
          } else {
             //check dimensionality
             if(hist->GetDimension()==1) {
                std::vector<Double_t> binsX;
                for(int i=0;i<=hist->GetNbinsX();i++) binsX.push_back(hist->GetXaxis()->GetBinLowEdge(i+1));
                TH1D tmpHist("tmpHist","tmpHist",binsX.size()-1,&binsX[0]);
-               m_emptyHistograms[weightName] = dynamic_cast<TH1*>(tmpHist.Clone(s));
+               m_emptyHistogram = dynamic_cast<TH1*>(tmpHist.Clone("default"));
             } else if(hist->GetDimension()==2) {
                std::vector<Double_t> binsX;std::vector<Double_t> binsY;
                for(int i=0;i<=hist->GetNbinsX();i++) binsX.push_back(hist->GetXaxis()->GetBinLowEdge(i+1));
                for(int i=0;i<=hist->GetNbinsY();i++) binsY.push_back(hist->GetYaxis()->GetBinLowEdge(i+1));
                TH2D tmpHist("tmpHist","tmpHist",binsX.size()-1,&binsX[0],binsY.size()-1,&binsY[0]);
-               m_emptyHistograms[weightName] = dynamic_cast<TH1*>(tmpHist.Clone(s));
-            } else if(hist->GetDimension()==3) {
-               std::vector<Double_t> binsX;std::vector<Double_t> binsY;std::vector<Double_t> binsZ;
-               for(int i=0;i<=hist->GetNbinsX();i++) binsX.push_back(hist->GetXaxis()->GetBinLowEdge(i+1));
-               for(int i=0;i<=hist->GetNbinsY();i++) binsY.push_back(hist->GetYaxis()->GetBinLowEdge(i+1));
-               for(int i=0;i<=hist->GetNbinsZ();i++) binsZ.push_back(hist->GetZaxis()->GetBinLowEdge(i+1));
-               TH3D tmpHist("tmpHist","tmpHist",binsX.size()-1,&binsX[0],binsY.size()-1,&binsY[0],binsZ.size()-1,&binsZ[0]);
-               m_emptyHistograms[weightName] = dynamic_cast<TH1*>(tmpHist.Clone(s));
+               m_emptyHistogram = dynamic_cast<TH1*>(tmpHist.Clone("default"));
             } else {
                Error("AddDistribution","Unknown input histogram dimensionality: %d",hist->GetDimension());
                throw std::runtime_error("Throwing 98");
             }
          }
-         m_emptyHistograms[weightName]->Reset();//clear the histogram
-         m_emptyHistograms[weightName]->SetEntries(0);
-         m_emptyHistograms[weightName]->SetDirectory(0);
+         m_emptyHistogram->Reset();m_emptyHistogram->SetEntries(0);m_emptyHistogram->SetDirectory(0);//clear the histogram
       }
-      inputHistograms[runNumber] = CloneEmptyHistogram(weightName,runNumber,channelNumber);
+      inputHist = CloneEmptyHistogram(runNumber,channelNumber);
+
    }
+
+
    //iterator over bins of histogram, filling the TH1 stored in the data map
-   Double_t numEntries = inputHistograms[runNumber]->GetEntries();
-   Int_t bin,binx,biny,binz;
-   for(binz=1; binz<=hist->GetNbinsZ(); binz++) {
-      for(biny=1; biny<=hist->GetNbinsY(); biny++) {
-         for(binx=1; binx<=hist->GetNbinsX(); binx++) {
-            bin = hist->GetBin(binx,biny,binz);
-            Double_t value = hist->GetBinContent(bin);
-            Double_t x = hist->GetXaxis()->GetBinCenter(binx);
-            Double_t y = hist->GetYaxis()->GetBinCenter(biny);
-            Double_t z = hist->GetZaxis()->GetBinCenter(binz);
-            //shift x,y,z by the MCScaleFactors as appropriate 
-            if(channelNumber>=0) {x *= m_mcScaleFactorX; y *= m_mcScaleFactorY; z *= m_mcScaleFactorZ;}
-            else { x *= m_dataScaleFactorX; y *= m_dataScaleFactorY; z *= m_dataScaleFactorZ; }
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,28,0)
-            Int_t inBin = inputHistograms[runNumber]->FindFixBin(x,y,z);
-#else
-             Int_t inBin = inputHistograms[runNumber]->GetXaxis()->FindFixBin(x);
-#endif
-            Double_t inValue = inputHistograms[runNumber]->GetBinContent(inBin);
-            inputHistograms[runNumber]->SetBinContent(inBin,inValue+value);
-         }
+   Double_t numEntries = inputHist->GetEntries();
+   Int_t bin,binx,biny;
+   for(biny=1; biny<=hist->GetNbinsY(); biny++) {
+      for(binx=1; binx<=hist->GetNbinsX(); binx++) {
+         bin = hist->GetBin(binx,biny);
+         Double_t value = hist->GetBinContent(bin);
+         Double_t x = hist->GetXaxis()->GetBinCenter(binx);
+         Double_t y = hist->GetYaxis()->GetBinCenter(biny);
+         //shift x,y,z by the MCScaleFactors as appropriate 
+         if(channelNumber>=0) {x *= m_mcScaleFactorX; y *= m_mcScaleFactorY;}
+         else { x *= m_dataScaleFactorX; y *= m_dataScaleFactorY; }
+         Int_t inBin = inputHist->FindFixBin(x,y);
+         Double_t inValue = inputHist->GetBinContent(inBin);
+         inputHist->SetBinContent(inBin,inValue+value);
       }
    }
+
    //also keep track of the number of entries 
    //SetBinContent screws with the entry count, so had to record it before the loops above
-   inputHistograms[runNumber]->SetEntries(numEntries+hist->GetEntries());
+   inputHist->SetEntries(numEntries+hist->GetEntries());
    m_countingMode=false;
    return 0;
 
 } 
 
-Int_t Root::TPileupReweighting::AddDistributionFromFile(const TString fileName, const TString histName, const TString weightName, Int_t runNumber, Int_t channelNumber) {
-   if(m_isInitialized) {
-      Error("AddDistributionFromFile","You cannot AddDistributionFromFile after initializing the tool. Reorder your code!");
-      throw std::runtime_error("Throwing 5: You cannot AddLumiCalcFile after initializing the tool. Reorder your code!");
-   }
 
-    // Cache the current directory in the root file
-   TDirectory* origDir = gDirectory;
-   // Load the data ROOT file
-   TFile* rootFile = TFile::Open( fileName, "READ" );
-   if ( rootFile->IsZombie() ) {
-      Error("AddConfigFile","Could not open file: %s",fileName.Data());
-      std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName;
-      throw std::runtime_error(toThrow);
-   } else {
-      //decide if this is a histogram or a ttree 
-      if(!rootFile->Get(histName)) {
-         Error("AddDistributionFromFile","Could not find object %s in file %s",histName.Data(),fileName.Data());
-         throw std::runtime_error("Throwing 7");
-      }
-      if(rootFile->Get(histName)->InheritsFrom("TH1")) {
-         TH1 *tmp = (TH1*)rootFile->Get( histName );
-         //tmp->SetDirectory(0);//take ownership 
-         AddDistribution(tmp, weightName, runNumber, channelNumber);
-      } else {
-         Error("AddDistributionFromFile","%s is not a Histogram",histName.Data());
-         throw std::runtime_error("Throwing 8");
-      }
-   }
-   m_countingMode=false;
-
-   delete rootFile;
-
-   // Return to the original ROOT directory
-   gDirectory = origDir;
-
-   return 0;
-
-}
-
-Int_t Root::TPileupReweighting::AddDistributionFromFile(const TString fileName, const TString histName, Int_t runNumber, Int_t channelNumber) {
-   return AddDistributionFromFile(fileName,histName,"pileup",runNumber,channelNumber);
-}
-
-Int_t Root::TPileupReweighting::AddLumiCalcFile(const TString fileName, const TString trigger) {
+Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString fileName, const TString trigger) {
 
    if(m_isInitialized) {
       Error("AddLumiCalcFile","You cannot AddLumiCalcFile after initializing the tool. Reorder your code!");
@@ -839,44 +732,48 @@ Int_t Root::TPileupReweighting::AddLumiCalcFile(const TString fileName, const TS
          m_lumicalcFiles[trigger] = fileName;
          if(trigger=="None") {
             Info("AddLumiCalcFile","Adding LumiMetaData (scale factor=%f)...",m_dataScaleFactorX);
+            //structure expected is as given by iLumiCalc:
+            //   RunNbr, AvergeInteractionPerXing, IntLumi
+            UInt_t runNbr=0;Float_t intLumi=0;UInt_t lbn=0;TBranch *b_runNbr=0;TBranch *b_intLumi=0;TBranch *b_lbn=0;
+            Float_t mu=0.; TBranch *b_mu=0;
+            if(tmp->SetBranchAddress("RunNbr",&runNbr,&b_runNbr)!=0) {
+               Error("AddLumiCalcFile","Could not find RunNbr branch in Data TTree");throw std::runtime_error("Could not find RunNbr branch in Data TTree");
+            }
+            if(tmp->SetBranchAddress("AvergeInteractionPerXing",&mu,&b_mu)!=0) {
+               Error("AddLumiCalcFile","Could not find AvergeInteractionPerXing branch in Data TTree");throw std::runtime_error("Could not find AvergeInteractionPerXing branch in Data TTree");
+            }
+            if(tmp->SetBranchAddress("IntLumi",&intLumi,&b_intLumi)!=0) {
+               Error("AddLumiCalcFile","Could not find IntLumi branch in Data TTree");throw std::runtime_error("Could not find IntLumi branch in Data TTree");
+            }
+            if(tmp->SetBranchAddress("LBStart",&lbn,&b_lbn)!=0) {
+               Error("AddLumiCalcFile","Could not find LBStart branch in Data TTree");throw std::runtime_error("Could not find LBStart branch in Data TTree");
+            }
+            long nEntries = tmp->GetEntries();
+   
+            for(long i=0;i<nEntries;i++) {
+               b_runNbr->GetEntry(i);b_intLumi->GetEntry(i);b_mu->GetEntry(i);
+               runNbr += m_lumicalcRunNumberOffset;
+               //save the lumi by run and lbn 
+               b_lbn->GetEntry(i);
+   
+               Run& r = m_runs[runNbr];
+               //rescale the mu value 
+               mu *= m_dataScaleFactorX;
+               if(trigger=="None") {r.lumiByLbn[lbn].first += intLumi; r.lumiByLbn[lbn].second = mu;}
+               //fill into input data histograms 
+               //check if we need to create an empty histogram 
+               
+               if(r.inputHists.find(trigger) == r.inputHists.end()) {
+                  r.inputHists[trigger] = CloneEmptyHistogram(runNbr,-1);
+               }
+               r.inputHists[trigger]->Fill(mu,intLumi);
+            }
+            m_countingMode=false;
+            m_lumiVectorIsLoaded=true;
          } else {
             Info("AddLumiCalcFile","Adding LumiMetaData for DataWeight (trigger=%s) (scale factor=%f)...",trigger.Data(),m_dataScaleFactorX);
          }
-         //structure expected is as given by iLumiCalc:
-         //   RunNbr, AvergeInteractionPerXing, IntLumi
-         UInt_t runNbr=0;Float_t intLumi=0;UInt_t lbn=0;TBranch *b_runNbr=0;TBranch *b_intLumi=0;TBranch *b_lbn=0;
-         Float_t mu=0.; TBranch *b_mu=0;
-         if(tmp->SetBranchAddress("RunNbr",&runNbr,&b_runNbr)!=0) {
-            Error("AddLumiCalcFile","Could not find RunNbr branch in Data TTree");throw std::runtime_error("Could not find RunNbr branch in Data TTree");
-         }
-         if(tmp->SetBranchAddress("AvergeInteractionPerXing",&mu,&b_mu)!=0) {
-            Error("AddLumiCalcFile","Could not find AvergeInteractionPerXing branch in Data TTree");throw std::runtime_error("Could not find AvergeInteractionPerXing branch in Data TTree");
-         }
-         if(tmp->SetBranchAddress("IntLumi",&intLumi,&b_intLumi)!=0) {
-            Error("AddLumiCalcFile","Could not find IntLumi branch in Data TTree");throw std::runtime_error("Could not find IntLumi branch in Data TTree");
-         }
-         if(tmp->SetBranchAddress("LBStart",&lbn,&b_lbn)!=0) {
-            Error("AddLumiCalcFile","Could not find LBStart branch in Data TTree");throw std::runtime_error("Could not find LBStart branch in Data TTree");
-         }
-         long nEntries = tmp->GetEntries();
-         //std::map<Int_t, TH1*>& histograms = m_inputDataHistograms["pileup"];
-         std::map<Int_t, TH1*>& histograms = (trigger=="None") ? m_inputHistograms["pileup"][-1] : m_triggerInputHistograms[trigger];
-         for(long i=0;i<nEntries;i++) {
-            b_runNbr->GetEntry(i);b_intLumi->GetEntry(i);b_mu->GetEntry(i);
-            //save the lumi by run and lbn 
-            b_lbn->GetEntry(i);
-            m_lumiByRunAndLbn[runNbr][lbn] = intLumi;
-            //rescale the mu value 
-            mu *= m_dataScaleFactorX;
-            //fill into input data histograms 
-            //check if we need to create an empty histogram 
-            if(histograms.find(runNbr) == histograms.end()) {
-               histograms[runNbr] = CloneEmptyHistogram("pileup",runNbr,-1);
-            }
-            histograms[runNbr]->Fill(mu,intLumi);
-         }
-         m_countingMode=false;
-         m_lumiVectorIsLoaded=true;
+         
       }
    }
 
@@ -888,7 +785,7 @@ Int_t Root::TPileupReweighting::AddLumiCalcFile(const TString fileName, const TS
    return 0;
 }
 
-Int_t Root::TPileupReweighting::AddConfigFile(const TString fileName) {
+Int_t CP::TPileupReweighting::AddConfigFile(const TString fileName) {
 
    //open the file and look for config TTrees 
    //recognised TTrees are: ChannelMetaData, MCPileupReweighting, MCCustomReweighting, DataCustomReweighting
@@ -907,19 +804,37 @@ Int_t Root::TPileupReweighting::AddConfigFile(const TString fileName) {
       throw std::runtime_error(toThrow);
    } else {
       //try to get the the known TTrees 
-      TTree *tmp = (TTree*)rootFile->Get( "MCPileupReweighting" );
+      TTree *tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"MCPileupReweighting").c_str() );
       if(tmp) {
          Info("AddConfigFile","Adding MCPileupReweighting...");
          AddDistributionTree(tmp,rootFile);
          m_countingMode=false;
       }
-      tmp = 0;tmp = (TTree*)rootFile->Get( "MCCustomReweighting" );
+      tmp = 0;tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"MCCustomReweighting").c_str() );
       if(tmp) {
          Info("AddConfigFile","Adding MCCustomReweighting...");
          AddDistributionTree(tmp,rootFile);
          m_countingMode=false;
       }
-      tmp = 0;tmp = (TTree*)rootFile->Get( "DataCustomReweighting" );
+      tmp = 0;tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"DataCustomReweighting").c_str() );
+      if(tmp) {
+         Info("AddConfigFile","Adding DataCustomReweighting...");
+         AddDistributionTree(tmp,rootFile);
+         m_countingMode=false;
+      }
+      tmp=0; tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"PileupReweighting/MCPileupReweighting").c_str() ); //allow trees in the PileupReweighting dir instead
+      if(tmp) {
+         Info("AddConfigFile","Adding MCPileupReweighting...");
+         AddDistributionTree(tmp,rootFile);
+         m_countingMode=false;
+      }
+      tmp = 0;tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"PileupReweighting/MCCustomReweighting").c_str() );
+      if(tmp) {
+         Info("AddConfigFile","Adding MCCustomReweighting...");
+         AddDistributionTree(tmp,rootFile);
+         m_countingMode=false;
+      }
+      tmp = 0;tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"PileupReweighting/DataCustomReweighting").c_str() );
       if(tmp) {
          Info("AddConfigFile","Adding DataCustomReweighting...");
          AddDistributionTree(tmp,rootFile);
@@ -935,573 +850,660 @@ Int_t Root::TPileupReweighting::AddConfigFile(const TString fileName) {
    return 0;
 }
 
-void Root::TPileupReweighting::AddDataDistribution(const TString& dataRootFileName,
-                    const TString& dataRootHistName,Int_t runNumber) {
-   Warning("AddDataDistribution","Method Depricated. Please use either AddConfigFile or AddDistributionFromFile");
-   if(dataRootHistName=="LumiMetaData") AddLumiCalcFile(dataRootFileName);
-   else AddDistributionFromFile(dataRootFileName,dataRootHistName,"pileup",runNumber,-1);
-}
-
-void Root::TPileupReweighting::AddMCDistribution(const TString& mcRootFileName,
-                    const TString& mcRootHistName, int runNumber, int channelNumber) {
-   Warning("AddMCDistribution","Method Depricated. Please use either AddConfigFile or AddDistributionFromFile");
-   if(mcRootHistName=="MCPileupReweighting") AddConfigFile(mcRootFileName);
-   else AddDistributionFromFile(mcRootFileName,mcRootHistName,"pileup",runNumber,channelNumber);
-}
-
-void Root::TPileupReweighting::AddCustomDataDistribution(const TString& customRootFileName,
-                    const TString& customRootHistName, TString customName, int runNumber) {
-   Warning("AddCustomDataDistribution","Method Depricated. Please use either AddConfigFile or AddDistributionFromFile");
-   if(customRootHistName=="DataCustomReweighting") AddConfigFile(customRootFileName);
-   else AddDistributionFromFile(customRootFileName,customRootHistName,customName,runNumber,-1);
-}
-
-
-void Root::TPileupReweighting::AddCustomMCDistribution(const TString& customRootFileName,
-                    const TString& customRootHistName, TString customName, int runNumber, int channelNumber) {
-   Warning("AddCustomMCDistribution","Method Depricated. Please use either AddConfigFile or AddDistributionFromFile");
-   if(customRootHistName=="MCCustomReweighting") AddConfigFile(customRootFileName);
-   else AddDistributionFromFile(customRootFileName,customRootHistName,customName,runNumber,channelNumber);
-}
-
-
-//channelNumber=-1 is data
-Int_t Root::TPileupReweighting::FactorizeDistribution(TH1* hist, const TString weightName, 
-                           Int_t channelNumber, Int_t periodNumber,bool includeInMCRun,bool includeInGlobal)   {
-
-   //determine which mc runNumber this periodNumber is assigned to 
-   Int_t mcRunNumber = m_periodToMCRun[periodNumber];
-
-   if(includeInGlobal) {
-      globalTotals[weightName][channelNumber] += hist->GetSumOfWeights();
-      globalNumberOfEntries[weightName][channelNumber] += hist->GetEntries();
-   }
-   if(includeInMCRun) {
-      periodTotals[weightName][channelNumber][mcRunNumber] += hist->GetSumOfWeights();
-      //initialize the corresponding data value if necessary
-      if(periodTotals[weightName][-1].find(mcRunNumber)==periodTotals[weightName][-1].end()) {
-         periodTotals[weightName][-1][mcRunNumber]=0;
-      }
-   }
-   periodTotals[weightName][channelNumber][periodNumber] += hist->GetSumOfWeights();
-
-   //initialize the corresponding data value if necessary
-   auto& dataMap = periodTotals[weightName][-1];
-   if(dataMap.find(periodNumber)==dataMap.end()) {
-      dataMap[periodNumber]=0;
-   }
-
-   //add to the primary/secondary/tertiary histograms
-   if(hist->InheritsFrom("TH3")) {
-      //not supported yet 
-      Error("initialize","3d not supported yet");throw 40;
-   } else if(hist->InheritsFrom("TH2")) {
-      TH2* histo2d = dynamic_cast<TH2*>(hist);
-      //project out and add that to primary 
-      TH1D* proj = histo2d->ProjectionX();
-      if(!primaryDistributions[weightName][channelNumber][periodNumber]) {
-         //need to make a copy
-         TH1D* projCopy = dynamic_cast<TH1D*>(proj->Clone(proj->GetName()));
-         projCopy->SetDirectory(0);
-         primaryDistributions[weightName][channelNumber][periodNumber] = projCopy;
-         //initialize the corresponding data histogram if necessary
-         if(!primaryDistributions[weightName][-1][periodNumber]) {
-            TH1D* projEmpty = dynamic_cast<TH1D*>(proj->Clone(proj->GetName()));
-            projEmpty->Reset();
-            projEmpty->SetDirectory(0);
-            primaryDistributions[weightName][-1][periodNumber]=projEmpty;
-         }
-      } else {
-         primaryDistributions[weightName][channelNumber][periodNumber]->Add(proj);
-      }
-      if(!secondaryDistributions[weightName][channelNumber][periodNumber]) {
-         secondaryDistributions[weightName][channelNumber][periodNumber] = dynamic_cast<TH2D*>(CloneEmptyHistogram(weightName,periodNumber,channelNumber));
-         //initialize the corresponding data histogram if necessary
-         if(!secondaryDistributions[weightName][-1][periodNumber]) {
-            secondaryDistributions[weightName][-1][periodNumber]=dynamic_cast<TH2D*>(CloneEmptyHistogram(weightName,periodNumber,-1));
-         }
-      }
-      secondaryDistributions[weightName][channelNumber][periodNumber]->Add(hist);
-
-      if(includeInMCRun) {
-         if(!primaryDistributions[weightName][channelNumber][mcRunNumber]) {
-            //need to make a copy for the run number, to avoid double deleting
-            TH1D* projCopy = dynamic_cast<TH1D*>(proj->Clone(proj->GetName()));
-            projCopy->SetDirectory(0);
-            primaryDistributions[weightName][channelNumber][mcRunNumber] = projCopy;
-            //initialize the corresponding data histogram if necessary
-            if(!primaryDistributions[weightName][-1][mcRunNumber]) {
-               TH1D* projEmpty = dynamic_cast<TH1D*>(proj->Clone(proj->GetName()));
-               projEmpty->Reset();
-               projEmpty->SetDirectory(0);
-               primaryDistributions[weightName][-1][mcRunNumber]=projEmpty;
-            }
-         } else {
-            primaryDistributions[weightName][channelNumber][mcRunNumber]->Add(proj);
-         }
-         if(!secondaryDistributions[weightName][channelNumber][mcRunNumber]) {
-            secondaryDistributions[weightName][channelNumber][mcRunNumber] = dynamic_cast<TH2D*>(CloneEmptyHistogram(weightName,mcRunNumber,channelNumber));
-            //initialize the corresponding data histogram if necessary
-            if(!secondaryDistributions[weightName][-1][mcRunNumber]) {
-               secondaryDistributions[weightName][-1][mcRunNumber]=dynamic_cast<TH2D*>(CloneEmptyHistogram(weightName,mcRunNumber,-1));
-            }
-         }
-         secondaryDistributions[weightName][channelNumber][mcRunNumber]->Add(hist);
-      }
-      delete proj;
-
-   } else {
-      //regular 1D distribution 
-      if(!primaryDistributions[weightName][channelNumber][periodNumber]) {
-         primaryDistributions[weightName][channelNumber][periodNumber] = dynamic_cast<TH1D*>(CloneEmptyHistogram(weightName,periodNumber,channelNumber));
-         //initialize the corresponding data histogram if necessary
-         if(!primaryDistributions[weightName][-1][periodNumber]) {
-            primaryDistributions[weightName][-1][periodNumber]=dynamic_cast<TH1D*>(CloneEmptyHistogram(weightName,periodNumber,-1));
-         }
-      }
-      primaryDistributions[weightName][channelNumber][periodNumber]->Add(hist);
-      if(includeInMCRun) {
-         if(!primaryDistributions[weightName][channelNumber][mcRunNumber]) {
-            primaryDistributions[weightName][channelNumber][mcRunNumber] = dynamic_cast<TH1D*>(CloneEmptyHistogram(weightName,mcRunNumber,channelNumber));
-            //initialize the corresponding data histogram if necessary
-            if(!primaryDistributions[weightName][-1][mcRunNumber]) {
-               primaryDistributions[weightName][-1][mcRunNumber]=dynamic_cast<TH1D*>(CloneEmptyHistogram(weightName,mcRunNumber,-1));
-            }
-         }
-         primaryDistributions[weightName][channelNumber][mcRunNumber]->Add(hist);
-      }
-   }
-
-   return 0;
-}
-
-//=============================================================================
-// Initialization
-//=============================================================================
-Int_t Root::TPileupReweighting::initialize( const TString dataRootFileName,
-                                          const TString dataRootHistName,
-                                          const TString mcRootFileName,
-                                          const TString mcRootHistName, int runNumber, int channel )
-{
-   if(dataRootFileName != "") {
-      AddMCDistribution(mcRootFileName,mcRootHistName,runNumber,channel);
-      AddDataDistribution(dataRootFileName,dataRootHistName,runNumber);
-      if(m_periods.size()==0) {
-         Info("initialize","No Periods have been defined. I'm guessing you are doing old-style reweighting");
-         Info("initialize","Creating dummy period and ignoring unrepresented data issues");
-         AddPeriod(0,0,0); //assign mcRunNumber 0 to data runNumber 0-0.
-         SetUnrepresentedDataAction(2);
-      }
-   }
-   return Initialize();
-}
-
-Int_t Root::TPileupReweighting::Initialize() {
+Int_t CP::TPileupReweighting::Initialize() {
 
    //Need to calculate a period weight for each period
    //Need a reweighting histogram for each period 
    //for merged mc run numbers, we must generate or modify the existing mc distributions 
 
 
-   //1. Deal with the registered mc mergers 
-   std::map<Int_t, bool> newMCRuns; //records if new mcRunNumbers have been created by merging
-   for(std::map<Int_t, std::map<Int_t, Int_t> >::iterator mergers = m_mcMerges.begin();mergers != m_mcMerges.end();++mergers) {
-      for(std::map<Int_t,Int_t>::iterator mergePair = (mergers->second).begin();mergePair!=(mergers->second).end();++mergePair) {
-         Int_t run1 = mergePair->first;
-         Int_t run2 = mergePair->second;
-         Int_t runOut = mergers->first;
-         if(run1==runOut) {
-            if(m_debugging) Info("Initialize","Merging %d into %d",run2,run1);
-            //merging run2 directly in to run1. 
-            //just combine run2 and run1 mc histos, and clear empty the run2 histograms 
-            for(std::map<TString, std::map<Int_t, std::map<Int_t,TH1*> > >::iterator mcHistos = m_inputHistograms.begin();mcHistos!=m_inputHistograms.end();++mcHistos) {
-               TString weightName = mcHistos->first;
-               for(std::map<Int_t, std::map<Int_t,TH1*> >::iterator channels = mcHistos->second.begin();channels!=mcHistos->second.end();++channels) {
-                  if((channels->first)<0) continue; //skip data channels
-                  if(channels->second.find(run2)!=channels->second.end()) {
-                     if(channels->second.find(run1)!=channels->second.end()) {
-                        channels->second[run1]->Add(channels->second[run2]);
-                     } else {
-                        channels->second[run1] = CloneEmptyHistogram(weightName,run1,channels->first);
-                        channels->second[run1]->Add(channels->second[run2]);
-                     }
-                     channels->second[run2]->Reset();
-                  }
-               }
-            }
-            //merge the periods that were assigned 
-            //combine the periods
-            if(m_periods.find(run2)!=m_periods.end()) {
-               for(std::map<Int_t,std::pair<UInt_t,UInt_t> >::iterator periods2 = m_periods[run2].begin();periods2!=m_periods[run2].end();++periods2) {
-                  AddPeriod(run1,periods2->second.first,periods2->second.second);
-               }
-               m_periods.erase(run2);
-            }
-            //and remap run2 in to run1 
-            m_mcRemappings[run2]=run1;
-         } else {
-            //merging run1 and run2 in to a new run (run3).
-            newMCRuns[runOut]=true;
-            for(std::map<TString, std::map<Int_t, std::map<Int_t,TH1*> > >::iterator mcHistos = m_inputHistograms.begin();mcHistos!=m_inputHistograms.end();++mcHistos) {
-               TString weightName = mcHistos->first;
-               for(std::map<Int_t, std::map<Int_t,TH1*> >::iterator channels = mcHistos->second.begin();channels!=mcHistos->second.end();++channels) {
-                  if((channels->first)<0) continue;
-                  if(channels->second.find(run2)!=channels->second.end()) {
-                     if(channels->second.find(runOut)!=channels->second.end()) {
-                        channels->second[runOut]->Add(channels->second[run2]);
-                     } else {
-                        channels->second[runOut] = CloneEmptyHistogram(weightName,runOut,channels->first);
-                        channels->second[runOut]->Add(channels->second[run2]);
-                     }
-                  }
-                  if(channels->second.find(run1)!=channels->second.end()) {
-                     if(channels->second.find(runOut)!=channels->second.end()) {
-                        channels->second[runOut]->Add(channels->second[run1]);
-                     } else {
-                        channels->second[runOut] = CloneEmptyHistogram(weightName,runOut,channels->first);
-                        channels->second[runOut]->Add(channels->second[run1]);
-                     }
-                  }
-               }
-            }
-            //merge the periods that were assigned, but do not clear the period assignment 
-            if(m_periods.find(run2)!=m_periods.end()) {
-               for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::iterator periods2 = m_periods[run2].begin();periods2!=m_periods[run2].end();++periods2) {
-                  AddPeriod(runOut,periods2->second.first,periods2->second.second);
-               }
-            }
-            if(m_periods.find(run1)!=m_periods.end()) {
-               for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::iterator periods2 = m_periods[run1].begin();periods2!=m_periods[run1].end();++periods2) {
-                  AddPeriod(runOut,periods2->second.first,periods2->second.second);
-               }
-            }
-         }
-      }
-   } 
 
    //print out the period assignments if in debug mode 
    if(m_debugging) {
-      for(std::map<Int_t,std::map<Int_t, std::pair<UInt_t,UInt_t> > >::iterator mcruns = m_periods.begin();mcruns!=m_periods.end();++mcruns) {
-         Info("Initialize","MCRunNumber %d has following periods:",mcruns->first);
-         for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::iterator periods = mcruns->second.begin();periods!=mcruns->second.end();++periods) {
-            Info("Initialize","  PeriodNumber %d: %d - %d",periods->first,periods->second.first,periods->second.second);
-         }
-      }
+      PrintPeriods();
    }
 
-   //Factorize the MC distributions to build up the totals and primary/seconday/tertiary distributions
-   for(std::map<TString, std::map<Int_t, std::map<Int_t,TH1*> > >::iterator mcHistos = m_inputHistograms.begin();mcHistos!=m_inputHistograms.end();++mcHistos) {
-      TString weightName = mcHistos->first;
-      for(std::map<Int_t, std::map<Int_t,TH1*> >::iterator channels = mcHistos->second.begin();channels!=mcHistos->second.end();++channels) {
-         Int_t channel = channels->first;
-         if(channel<0) continue;
-         for(std::map<Int_t,TH1*>::iterator mcruns = channels->second.begin();mcruns!=channels->second.end();++mcruns) {
-            Int_t mcRunNum = mcruns->first;
-            //all the periods associated to the mcrun will get the same distribution 
-            //only include the first subperiod in the totals and mcrunnum's distributions
-            //and only include genuine mcrunnums (not ones generated in mergers) in global totals
-            bool isFirst = true;
-            for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::iterator period = m_periods[mcRunNum].begin(); period!=m_periods[mcRunNum].end();++period) {
-               FactorizeDistribution(mcruns->second,weightName,channel,period->first,isFirst,isFirst&&(!newMCRuns[mcRunNum]));
-               isFirst=false;
-            }
-         }
-      }
-   }
 
-   //build any trigger "data weight" histograms. Have one for each period, for each trigger
-   for(std::map<Int_t, std::map<Int_t,std::pair<UInt_t,UInt_t> > >::iterator runPeriods = m_periods.begin();runPeriods != m_periods.end();++runPeriods) {
-      for(std::map<Int_t,std::pair<UInt_t,UInt_t> >::iterator period = runPeriods->second.begin();period!=runPeriods->second.end();++period) {
-         Int_t periodNumber = period->first;
-         UInt_t pStart = period->second.first; UInt_t pEnd = period->second.second;
-         if(m_inputHistograms.find("pileup")==m_inputHistograms.end()) continue; //need the "None" unprescaled mu distribution
-         std::map<Int_t,TH1*> unprescaledDataHists = m_inputHistograms["pileup"][-1];
-         m_triggerPrimaryDistributions["None"][periodNumber] = dynamic_cast<TH1D*>(CloneEmptyHistogram("pileup",periodNumber,-1));
-         //loop over runs and see if we have corresponding in the unprescaled data map
-         for(UInt_t r=pStart;r<=pEnd;r++) {
-            if(unprescaledDataHists.find(r)!=unprescaledDataHists.end()) {
-               if(unprescaledDataHists[r]) m_triggerPrimaryDistributions["None"][periodNumber]->Add(unprescaledDataHists[r]);
-            }
-            //also now look for trigger input histograms
-            for(std::map<TString, std::map<Int_t, TH1*> >::iterator triggerDists = m_triggerInputHistograms.begin();triggerDists!=m_triggerInputHistograms.end();++triggerDists) {
-               if(m_triggerPrimaryDistributions[triggerDists->first][periodNumber]==0) {
-                  m_triggerPrimaryDistributions[triggerDists->first][periodNumber] = dynamic_cast<TH1D*>(CloneEmptyHistogram("pileup",periodNumber,-1));
-                  Info("Initialize","Created Data Weight Histogram for [%s,%d]",triggerDists->first.Data(),periodNumber);
-               }
-               if(triggerDists->second.find(r)!=triggerDists->second.end()) {
-                  if(triggerDists->second[r]) {
-                     m_triggerPrimaryDistributions[triggerDists->first][periodNumber]->Add(triggerDists->second[r]);
-                     delete triggerDists->second[r]; triggerDists->second[r]=0;
-                  }
-               }
-            }
-         }
-      }
-   }
-
-   std::map<TString,Double_t> unrepData;
-   std::map<TString,std::map<Int_t,Bool_t> > doneRun; //keeps record of which data runs have been included in the global totals
-
-   for(std::map<Int_t, std::map<Int_t,std::pair<UInt_t,UInt_t> > >::iterator runPeriods = m_periods.begin();runPeriods != m_periods.end();++runPeriods) {
-      Int_t thisMCRunNumber = runPeriods->first;
-      for(std::map<Int_t,std::pair<UInt_t,UInt_t> >::iterator period = runPeriods->second.begin();period!=runPeriods->second.end();++period) {
-         Int_t periodNumber = period->first;
-         UInt_t pStart = period->second.first; UInt_t pEnd = period->second.second;
-         //for(std::map<TString,std::map<Int_t,TH1*> >::iterator dataHists = m_inputDataHistograms.begin();dataHists!=m_inputDataHistograms.end();++dataHists) {
-         for(std::map<TString,std::map<Int_t,std::map<Int_t,TH1*> > >::iterator dataHists = m_inputHistograms.begin();dataHists!=m_inputHistograms.end();++dataHists) {
-            TString weightName = dataHists->first;
-            //get list of loaded runs associated to this period 
-            std::vector<UInt_t> associatedRuns;
-            //std::map<Int_t,TH1*> hists = m_inputDataHistograms[weightName];
-            std::map<Int_t,TH1*> hists = (dataHists->second)[-1];
-            //look for loaded runs
-            for(UInt_t run=pStart;run<=pEnd;run++) {
-               if(hists.find(run)!=hists.end() && hists[run]) {
-                  associatedRuns.push_back(run);
-               }
-            }
-            //loop over data runs in this period and build up the data distributions
-            for(std::vector<UInt_t>::iterator run = associatedRuns.begin();run!=associatedRuns.end();++run) {
-               TH1* thisHist = hists[*run];
-               //look for unrepresented data in any of the bins of any of the corresponding channels
-               for(std::map<Int_t,std::map<Int_t,TH1*> >::iterator channels=m_inputHistograms[weightName].begin();channels!=m_inputHistograms[weightName].end();++channels) {
-                  if((channels->first)<0) continue; //skip data channels
-                  if((channels->second)[thisMCRunNumber]) {
-                     Int_t bin,binx,biny,binz;
-                     for(binz=1; binz<=thisHist->GetNbinsZ(); binz++) {
-                        for(biny=1; biny<=thisHist->GetNbinsY(); biny++) {
-                           for(binx=1; binx<=thisHist->GetNbinsX(); binx++) {
-                              bin = thisHist->GetBin(binx,biny,binz);
-                              Double_t value = thisHist->GetBinContent(bin);
-                              if(value==0.) continue;
-                              Double_t mcValue = (channels->second)[thisMCRunNumber]->GetBinContent(bin);
-                              if(mcValue==0. && !m_badbins[weightName][*run][bin]) { //we don't want to double-count as we loop over channels 
-                                 //unrepresented data bin 
-                                 m_badbins[weightName][*run][bin]=true;
-                                 unrepData[weightName] += value;
-                                 if(m_unrepresentedDataAction==0 || m_debugging) {
-                                    if(m_debugging) Error("Initialize","Unrepresented data at coords [%f,%f,%f] caused by mcrun %d in channel %d",thisHist->GetXaxis()->GetBinCenter(binx),thisHist->GetYaxis()->GetBinCenter(biny),thisHist->GetZaxis()->GetBinCenter(binz),thisMCRunNumber,channels->first);
-                                 }
-                                 if(m_unrepresentedDataAction==1) thisHist->SetBinContent(bin,0);
-                              }
-                           }
-                        }
-                     }
-                  }
-               }
-                  dataPeriodRunTotals[weightName][periodNumber][*run] += thisHist->GetSumOfWeights(); //for random runnumber
-                  dataPeriodRunTotals[weightName][thisMCRunNumber][*run] += thisHist->GetSumOfWeights(); //for random runnumber
-                  //also record the binned totals - wont this use up loads of memory!!?? Do only for "pileup" weight then
-                  if(weightName=="pileup") {
-                     for(int binNum=0;binNum<=thisHist->GetNbinsX();++binNum) {
-                        if(thisHist->GetBinContent(binNum)==0) continue;
-                        dataPeriodBinnedRunTotals["pileup"][binNum][periodNumber][*run]+=thisHist->GetBinContent(binNum);
-                        dataPeriodBinnedRunTotals["pileup"][binNum][thisMCRunNumber][*run]+=thisHist->GetBinContent(binNum);
-                        //keep track of totals in the run=0 slot - used by GetRandomRunNumber
-                        dataPeriodBinnedRunTotals["pileup"][binNum][periodNumber][0]+=thisHist->GetBinContent(binNum);
-                        dataPeriodBinnedRunTotals["pileup"][binNum][thisMCRunNumber][0]+=thisHist->GetBinContent(binNum);
-                     }
-                  }
-                  //don't double-count the runs. we track the run totals in dataPeriodRunTotals["pileup"][-1]
-                  auto& dataMap = dataPeriodRunTotals["pileup"][-1];
-                  if(weightName=="pileup" && dataMap.find(*run)==dataMap.end()) {
-                     dataMap[*run]=thisHist->GetSumOfWeights();
-                     int lumiVectorPosition = -1;
-                     int runNbr = *run;
-                     if(runNbr>=177986&&runNbr<=178109) lumiVectorPosition=0;//period B
-                     else if(runNbr>=179710&&runNbr<=180481) lumiVectorPosition=1;//period D
-                     else if(runNbr>=180614&&runNbr<=180776) lumiVectorPosition=2;//period E
-                     else if(runNbr>=182013&&runNbr<=182519) lumiVectorPosition=3;//period F
-                     else if(runNbr>=182726&&runNbr<=183462) lumiVectorPosition=4;//period G
-                     else if(runNbr>=183544&&runNbr<=184169) lumiVectorPosition=5;//period H
-                     else if(runNbr>=185353&&runNbr<=186493) lumiVectorPosition=6;//period I
-                     else if(runNbr>=186516&&runNbr<=186755) lumiVectorPosition=7;//period J
-                     else if(runNbr>=186873&&runNbr<=187815) lumiVectorPosition=8;//period K
-                     else if(runNbr>=188902&&runNbr<=190343) lumiVectorPosition=9; //period L
-                     else if(runNbr>=190503&&runNbr<=191933) lumiVectorPosition=10; //period M
-                     if(lumiVectorPosition>=0) { m_integratedLumiVector[lumiVectorPosition]+=(thisHist->GetSumOfWeights())/1E6; }
-                  }
-                  //we will manage the global total addition here... to prevent double counting when config file loaded overlapping periods
-                  //NOTE: May want to check at AddConfigFile stage if config file contains conflicting period config.... need to decide if it is ok or not!!??
-                  if(!doneRun[weightName][*run]) {
-                     globalTotals[weightName][-1] += thisHist->GetSumOfWeights();
-                     globalNumberOfEntries[weightName][-1] += thisHist->GetEntries();
-                     doneRun[weightName][*run] = true;
-                  }
-                  //factorize out the distribution and add it to existing distributions
-                  //include this distribution in the mcRunNumber distribution and in the global total (only if mcRunNumber is a genuine run num. Don't want to double-count)
-                  FactorizeDistribution(thisHist,weightName,-1,periodNumber,true,false/* !newMCRuns[thisMCRunNumber]*/);
-            } //end loop over data in period
-         } //loop over weights
-      } //loop over periods in mcrun
-   } //loop over mcruns
-
-   //we should also check if there are any data runs that are not covered by the period assignments 
-   for(std::map<TString, std::map<Int_t,std::map<Int_t, TH1*> > >::iterator weights=m_inputHistograms.begin();weights!=m_inputHistograms.end();++weights) {
-      Double_t ignoredData = 0;
-      if(weights->second.find(-1)==weights->second.end()) continue; //no data
-      auto& dataMap = weights->second[-1];
-      for(std::map<Int_t,TH1*>::iterator runs = dataMap.begin();runs!=dataMap.end();++runs) {
-         //look for period assignment for run 
-         Int_t periodNum=-1;
-         for(std::map<Int_t, std::map<Int_t, std::pair<UInt_t,UInt_t> > >::iterator mcruns = m_periods.begin();mcruns!=m_periods.end();++mcruns) {
-            for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::iterator periods=mcruns->second.begin();periods!=mcruns->second.end();++periods) {
-               if((UInt_t)runs->first >= periods->second.first && (UInt_t)runs->first <= periods->second.second) {
-                  periodNum = periods->first;break;
-               }
-            }
-            if(periodNum!=-1) break;
-         }
-         if(periodNum==-1) {
-            //this run isn't assigned to a period. Give warning 
-            Warning("Initialize","%s weight contains loaded data in run %d that is not covered by period assignments",weights->first.Data(),runs->first);
-            ignoredData += (runs->second)->GetSumOfWeights();
-         }
-      }
-      if(ignoredData>0.) Warning("Initialize", "Period Assignments missed %f data in %s weight",ignoredData,weights->first.Data());
-   }
-
-   bool displayOptions = false;
-   bool toleranceViolated = false;
-   for(std::map<TString,Double_t>::iterator it=unrepData.begin();it!=unrepData.end();++it) {
-      if(it->second>0.) {
-            //check if unrepresented data violates tolerance criteria, regardless of action mode 
-           if((it->second/globalTotals[it->first][-1]) > m_unrepDataTolerance) {
-               Error("Initialize", "%s weight has %f%% unrepresented data, which suggests something is wrong with your prw config. Try EnableDebugging(true) to investigate",it->first.Data(),100.*it->second/globalTotals[it->first][-1]);
-               toleranceViolated=true;
-           }
-           if(m_unrepresentedDataAction==0 || m_debugging) {
-               Error("Initialize","%s weight has %f%% unrepresented data",it->first.Data(),100.*it->second/globalTotals[it->first][-1]);
-               //sweep back over the bad bins and add up the unrepresented data grouped by channel
-               std::map<Int_t,Double_t> unrepChannelTotals;
-               for(std::map<Int_t, std::map<Int_t, Bool_t> >::iterator badRuns=m_badbins[it->first].begin();badRuns!=m_badbins[it->first].end();++badRuns) {
-                  //find out which mcrunNum this run belongs to 
-                  Int_t mcrunNum=-1;
-                  for(std::map<Int_t, std::map<Int_t, std::pair<UInt_t,UInt_t> > >::iterator mcruns = m_periods.begin();mcruns!=m_periods.end();++mcruns) {
-                     for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::iterator periods=mcruns->second.begin();periods!=mcruns->second.end();++periods) {
-                        if((UInt_t)badRuns->first >= periods->second.first && (UInt_t)badRuns->first <= periods->second.second) {
-                           mcrunNum = mcruns->first;break;
-                        }
-                     }
-                     if(mcrunNum!=-1) break;
-                  }
-                  //now sweep over mc channels and check this periodNum for the bad bins 
-                  for(std::map<Int_t, std::map<Int_t, TH1*> >::iterator channels=m_inputHistograms[it->first].begin();channels!=m_inputHistograms[it->first].end();++channels) {
-                     if(channels->first < 0) continue;
-                     for(std::map<Int_t, Bool_t>::iterator bins=badRuns->second.begin();bins!=badRuns->second.end();++bins) {
-                        if(bins->second && (channels->second)[mcrunNum]->GetBinContent(bins->first)==0.) {
-                           //found one of the bad bins. 
-                           unrepChannelTotals[channels->first] += m_inputHistograms[it->first][-1][badRuns->first]->GetBinContent(bins->first);
-                        }
-                     }
-                  }
-               }
-               //display the results of the scan 
-               for(std::map<Int_t,Double_t>::iterator badChans = unrepChannelTotals.begin();badChans!=unrepChannelTotals.end();++badChans) {
-                  if(m_unrepresentedDataAction!=0 && (badChans->second*100./it->second)<0.000001) continue; //don't display the tiny channel errors if just debugging
-                  //quickly count up the number of entries in this channel
-                  long nEntries(0);
-                  for(std::map<Int_t,TH1*>::iterator cIt = m_inputHistograms[it->first][badChans->first].begin();cIt!=m_inputHistograms[it->first][badChans->first].end();++cIt) {
-                     nEntries += cIt->second->GetEntries();
-                  }
-                  Error("Initialize","   Channel %d has %f%% of the unrepresented (nEntries=%ld)",badChans->first,badChans->second*100./it->second,nEntries);
-               }
-               if(m_unrepresentedDataAction==0) displayOptions=true;
-           } else if(m_unrepresentedDataAction==1) {
-               Warning("Initialize","%s weight has %f%% unrepresented data. This was removed (UnrepresentedDataAction=1)",it->first.Data(),100.*it->second/(globalTotals[it->first][-1]+it->second));
-           } else if(m_unrepresentedDataAction==2) {
-               Warning("Initialize","%s weight has %f%% unrepresented data. This was kept in (UnrepresentedDataAction=2)",it->first.Data(),100.*it->second/(globalTotals[it->first][-1]));
-           }
-      }
-   }
-
-   if(toleranceViolated) {
-      Error("Initialize","Some channel had over %f%% of unrepresented data. You should fix your prw file",m_unrepDataTolerance*100.);
-      throw std::runtime_error("Throwing exception 222: Some channel had too much unrepresented data. You should fix your prw file");
-   }
-
-   if(displayOptions) {
-      Error("Initialize","Exiting. You must decide how to proceed...");
-      Error("Initialize","1) use AddPeriod or MergeMCRunNumbers to redefine the mc periods to include this data. You should not need to regenerate your mc config file");
-      Error("Initialize","2) use SetUnrepresentedDataAction(1) to remove this data from the weight calculations. You should also veto such data events (using IsUnrepresentedData(..,..) method)");
-      Error("Initialize","3) use SetUnrepresentedDataAction(2) to leave this data in the calculation. I hope you know what you're doing!!");
-      throw std::runtime_error("Throwing exception 22: Unrepresented data exists. Make a choice how to handle this. See err log for details");
-   }
-
-   if(m_debugging) Info("Initialize","Normalizing 1D histograms...");
-   //now that all the distributions are built. Normalize them all 
-   for(std::map<TString, std::map<Int_t, std::map<Int_t, TH1D*> > >::iterator weights=primaryDistributions.begin();weights!=primaryDistributions.end();++weights) {
-      for(std::map<Int_t, std::map<Int_t, TH1D*> >::iterator channels=weights->second.begin();channels!=weights->second.end();++channels) {
-         for(std::map<Int_t,TH1D*>::iterator mcrunsAndPeriods=channels->second.begin();mcrunsAndPeriods!=channels->second.end();++mcrunsAndPeriods) {
-            normalizeHistogram(mcrunsAndPeriods->second);
-         }
-      }
-   }
-   if(m_debugging) Info("Initialize","Normalizing 2D histograms...");
-   for(std::map<TString, std::map<Int_t, std::map<Int_t, TH2D*> > >::iterator weights=secondaryDistributions.begin();weights!=secondaryDistributions.end();++weights) {
-      for(std::map<Int_t, std::map<Int_t, TH2D*> >::iterator channels=weights->second.begin();channels!=weights->second.end();++channels) {
-         for(std::map<Int_t,TH2D*>::iterator mcrunsAndPeriods=channels->second.begin();mcrunsAndPeriods!=channels->second.end();++mcrunsAndPeriods) {
-            normalizeHistogram(mcrunsAndPeriods->second);
-         }
-      }
-   }
-
-   if(m_debugging) Info("Initialize","Deleting input histograms...");
-   //to save space, delete all the input histograms 
-   for(std::map<TString, std::map<Int_t,std::map<Int_t, TH1*> > >::iterator it0=m_inputHistograms.begin();it0!=m_inputHistograms.end();++it0) {
-      for(std::map<Int_t,std::map<Int_t, TH1*> >::iterator it1=it0->second.begin();it1!=it0->second.end();++it1) {
-         for(std::map<Int_t, TH1*>::iterator it2=it1->second.begin();it2!=it1->second.end();++it2) {
-            delete it2->second;
-         }
-         it1->second.clear();
-      }
-      it0->second.clear();
-   }
-   m_inputHistograms.clear();
-   if(m_debugging) Info("Initialize","...Done");
-   //if no input histograms were added, we are in counting mode
    if(m_countingMode) {
       Info("Initialize","In Config File Generating mode. Remember to call WriteToFile!");
+      //need to check no periods have subperiods, this is not allowed in counting mode 
+      for(auto period : m_periods) {
+         if(period.second->subPeriods.size()!=0) {
+            Error("Initialize","You cannot have subperiods when in Config File Generating mode");
+            throw std::runtime_error("Throwing 44: In Config File Generating mode, but detected subperiods in the period definition. This is not allowed.");
+         }
+      }
      //histograms are instantiated in the event loop as the channels occur
-      //but since we are here, check that the user has at least defined some periods
-      if(m_periods.size()==0) {
-         Error("Initialize", "In Config File Generating mode, but no periods have been defined. This makes no sense!? Define some periods please (with AddPeriod method)!");
-         throw std::runtime_error("Throwing 43: In Config File Generating mode, but no periods have been defined. This makes no sense!? Define some periods please (with AddPeriod method)!");
+      //can delay period definition here
+      //but since we are here, check that the user has at least defined some periods .. i.e. 
+//       if(m_periods.size()==1) {
+//          Error("Initialize", "In Config File Generating mode, but no periods have been defined. This makes no sense!? Define some periods please (with AddPeriod method)!");
+//          throw std::runtime_error("Throwing 43: In Config File Generating mode, but no periods have been defined. This makes no sense!? Define some periods please (with AddPeriod method)!");
+//       }
+      m_isInitialized=true;
+      return 0;
+   }
+
+
+   //go through all periods, use inputHists to populate the primary and secondary dists, and fill sumOfWeights and numberOfEntries
+   for(auto period : m_periods) {
+      if(period.first != period.second->id) continue; //skips remappings 
+      for(auto& inputHist : period.second->inputHists) {
+         int channel = inputHist.first;
+         TH1* hist = inputHist.second;
+         period.second->sumOfWeights[channel] += hist->GetSumOfWeights();
+         period.second->numberOfEntries[channel] += hist->GetEntries();
+         if(hist->GetDimension()==1) {
+            period.second->primaryHists[channel] = dynamic_cast<TH1D*>(CloneEmptyHistogram(period.first,channel));
+            period.second->primaryHists[channel]->Add(hist);
+         }
+      }
+      //also add all runs that belong to us ... only do the "None" trigger
+      for(auto& run : m_runs) {
+         if(!period.second->contains(run.first)) continue;
+         if(run.second.inputHists.find("None") == run.second.inputHists.end()) continue;
+         //add to list of runNumbers for this period 
+         period.second->runNumbers.push_back(run.first);
+         TH1* hist = run.second.inputHists["None"];
+
+         //sweep over bins, checking for unrepresented data and acting accordingly 
+         Int_t bin,binx,biny;
+         for(biny=1; biny<=hist->GetNbinsY(); biny++) {
+            for(binx=1; binx<=hist->GetNbinsX(); binx++) {
+               bin = hist->GetBin(binx,biny);
+               Double_t value = hist->GetBinContent(bin);
+               if(value==0.) continue;
+               //loop over channels, check for zero in this bin  ... only need to do if we haven't checked ourselves 
+               if(period.second->inputBinRedirect.find(bin) == period.second->inputBinRedirect.end()) {
+                  for(auto& inputHist : period.second->inputHists) {
+                     if(inputHist.first<0) continue; //skips data
+                     Double_t mcValue = (inputHist.second)->GetBinContent(bin);
+                     if(mcValue==0.) { 
+                        if(m_unrepresentedDataAction!=0 && m_debugging) Info("Initialize","Unrepresented data at coords [%f,%f] caused by periodNumber %d in channel %d",hist->GetXaxis()->GetBinCenter(binx),hist->GetYaxis()->GetBinCenter(biny),period.first,inputHist.first);
+                        //if we are doing unrepaction=2, just set to 'not the bin number'. if we are doing action=3, find the nearest good bin 
+                        if(m_unrepresentedDataAction==0) {period.second->inputBinRedirect[bin] = bin-1;Error("Initialize","Unrepresented data at coords [%f,%f] caused by periodNumber %d in channel %d",hist->GetXaxis()->GetBinCenter(binx),hist->GetYaxis()->GetBinCenter(biny),period.first,inputHist.first);}
+                        if(m_unrepresentedDataAction==1||m_unrepresentedDataAction==2) period.second->inputBinRedirect[bin] = bin-1;
+                        else if(m_unrepresentedDataAction==3) period.second->inputBinRedirect[bin] = GetNearestGoodBin(period.first, bin);
+                        break;
+                     }
+                  }
+                  if(period.second->inputBinRedirect.find(bin) == period.second->inputBinRedirect.end()) period.second->inputBinRedirect[bin] = bin; //a good bin 
+               }
+               //if is a bad bin, act accordingly 
+               if(period.second->inputBinRedirect[bin] != bin) {
+                  run.second.badBins[bin]=value;
+                  if(m_unrepresentedDataAction==1) {
+                     //remove this data. we have to remember to do this for the trigger data too if this is the pileup weight
+                     hist->SetBinContent(bin,0);
+                     //also modify the m_inputTriggerHistograms ... 
+                     for(auto& triggerDists : run.second.inputHists) triggerDists.second->SetBinContent(bin,0);
+                  } else if(m_unrepresentedDataAction==3) {
+                     //reassign the content to that bin 
+                     hist->SetBinContent(period.second->inputBinRedirect[bin],hist->GetBinContent(period.second->inputBinRedirect[bin])+hist->GetBinContent(bin));
+                     hist->SetBinContent(bin,0);
+                     //also modify the m_inputTriggerHistograms ... 
+                     for(auto& triggerDists : run.second.inputHists) {
+                        triggerDists.second->SetBinContent(period.second->inputBinRedirect[bin],triggerDists.second->GetBinContent(period.second->inputBinRedirect[bin])+triggerDists.second->GetBinContent(bin));
+                        triggerDists.second->SetBinContent(bin,0);
+                     }
+                   }
+                }
+            }
+         }
+         //create the period's 'data' hist if necessary 
+         if( hist->GetDimension()==1 ) {
+              if(!period.second->primaryHists[-1] )  {
+                  period.second->primaryHists[-1] = dynamic_cast<TH1D*>(CloneEmptyHistogram(period.first,-1));
+                  period.second->triggerHists["None"] = dynamic_cast<TH1D*>(CloneEmptyHistogram(period.first,-1)); //this will remain unnormalized, unlike the 'primaryHist'
+               }
+         }
+         else if( hist->GetDimension()==2 ) {
+            if(!period.second->secondaryHists[-1] ) {
+               period.second->secondaryHists[-1] =  dynamic_cast<TH2D*>(CloneEmptyHistogram(period.first,-1));
+               period.second->primaryHists[-1] = period.second->secondaryHists[-1]->ProjectionX(); period.second->primaryHists[-1]->SetDirectory(0);
+               period.second->primaryHists[-1]->Reset();
+               period.second->triggerHists["None"] = static_cast<TH1D*>(period.second->primaryHists[-1]->Clone("triggerHist"));
+               period.second->triggerHists["None"]->SetDirectory(0);
+            }
+            
+         }
+
+      }
+
+   }
+
+   Double_t unrepData(0);
+   //count up the unrepresented data, indexed by channel 
+
+   for(auto& run : m_runs) {
+      for(auto& b : run.second.badBins) {
+         if(!b.second) continue;
+         int bin = b.first;
+         unrepData += b.second;
+         //find out which channel in which period caused this bad bin!
+         std::map<Int_t, bool> doneChannels;
+         for(auto& period : m_periods) {
+            if(period.first != period.second->id) continue;
+            if(!period.second->contains(run.first)) continue;
+            for(auto& inHist : period.second->inputHists) {
+               if(inHist.first<0) continue; //skips any data hists (shouldn't happen really)
+               if((inHist.second)->GetBinContent(bin)==0) { period.second->unrepData[inHist.first] += b.second; } //store unrep data by period too, because will use in GetUnrepresentedFraction 
+               if(doneChannels[inHist.first]) continue; //dont doublecount the data if the channel was to blame across multiple periods
+               if((inHist.second)->GetBinContent(bin)==0) {unrepDataByChannel[inHist.first] += b.second;doneChannels[inHist.first]=true;}
+            }
+         }
       }
    }
+
+   //now that all periods and runs have been checked, with redirects set up where necessary, we actually accumulate the data across the runs 
+   //we should also check if there are any data runs that are not covered by the period assignments 
+
+   double ignoredData(0);
+   for(auto& run : m_runs) {
+      bool covered(false);
+      TH1* hist = run.second.inputHists["None"];
+      for(auto& period : m_periods) {
+         if(!period.second->contains(run.first)) continue;
+         if(period.first!=-1) covered=true; //don't count the global period
+         if(hist->GetDimension()==1) {
+            period.second->primaryHists[-1]->Add(hist);
+            period.second->triggerHists["None"]->Add(hist);
+         } else if(hist->GetDimension()==2) {
+            period.second->secondaryHists[-1]->Add(hist);
+            TH1* proj = ((TH2*)hist)->ProjectionX();
+            period.second->primaryHists[-1]->Add(proj);
+            period.second->triggerHists["None"]->Add(proj);
+            delete proj;
+         }
+         period.second->sumOfWeights[-1] += hist->GetSumOfWeights();
+         period.second->numberOfEntries[-1] += hist->GetEntries();
+      }
+      if(!covered && m_periods.size()>1) {
+         Warning("Initialize","loaded data in run %d that is not covered by period assignments",run.first);
+         ignoredData += hist->GetSumOfWeights();
+      } 
+   }
+   double totalData =  (m_unrepresentedDataAction==1) ? (m_periods[-1]->sumOfWeights[-1]+unrepData) : m_periods[-1]->sumOfWeights[-1];
+
+   if(ignoredData>0.) Warning("Initialize", "Period Assignments missed %f%% data",100.*ignoredData/totalData);
+
+
+
+   if(unrepData) {
+      double frac = unrepData/totalData;
+      if( frac  > m_unrepDataTolerance) {
+               Error("Initialize", "%f%% unrepresented data, which suggests something is wrong with your prw config. Try EnableDebugging(true) to investigate",100.* (unrepData/m_periods[-1]->sumOfWeights[-1]));
+      }
+      if(m_unrepresentedDataAction==1) {
+         Warning("Initialize","has %f%% unrepresented data. This was removed (UnrepresentedDataAction=1)",100.*frac);
+      }  else if(m_unrepresentedDataAction==2) {
+         Warning("Initialize","has %f%% unrepresented data. This was kept in (UnrepresentedDataAction=2)",100.*frac);
+      } else if(m_unrepresentedDataAction==3) {
+         Warning("Initialize","has %f%% unrepresented data. This was reassigned (UnrepresentedDataAction=3)",100.*frac);
+      } else if(m_unrepresentedDataAction==0) {
+         Error("Initialize","has %f%% unrepresented data:",100.*frac);
+         //print the report of which channels caused it 
+         for(auto& it : unrepDataByChannel) {
+            Error("Initialize","   Channel %d caused %f%% of the unrepresented data (nEntries=%d)",it.first,100.*it.second/unrepData,m_periods[-1]->numberOfEntries[it.first]);
+         }
+         Error("Initialize","Exiting. You must decide how to proceed...");
+         Error("Initialize","1) use AddPeriod or RemapPeriod to redefine the mc periods to include this data. You should not need to regenerate your mc config file");
+         Error("Initialize","2) use SetUnrepresentedDataAction(1) to remove this data from the weight calculations. You should also veto such data events (using IsUnrepresentedData(..,..) method)");
+         Error("Initialize","3) use SetUnrepresentedDataAction(2) to leave this data in the calculation. I hope you know what you're doing!!");
+         Error("Initialize","4) use SetUnrepresentedDataAction(3) to reassign the data to the nearest representable bin");
+         throw std::runtime_error("Throwing exception 22: Unrepresented data exists. Make a choice how to handle this. See err log for details");
+      }
+      //if get here, through the exception if frac is bad
+      if( frac  > m_unrepDataTolerance) {
+         throw std::runtime_error("Throwing exception 222: Some channel had too much unrepresented data. You should fix your prw file");
+      }
+   }
+
+
+   if(m_debugging) Info("Initialize","Normalizing histograms and cleaning up...");
+   //now that all the distributions are built. Normalize them all 
+   for(auto period : m_periods) {
+      if(period.first != period.second->id) continue;
+      for(auto pHist : period.second->primaryHists) {
+         normalizeHistogram(pHist.second);
+      }
+      for(auto pHist : period.second->secondaryHists) {
+         normalizeHistogram(pHist.second);
+      }
+      for(auto pHist : period.second->inputHists) {
+         delete pHist.second;
+      }
+      period.second->inputHists.clear();
+   }
+
+   //we keep the inputHists for data, because can use that to do random run numbers based on mu
+
+   if(m_debugging) Info("Initialize","...Done");
+   //if no input histograms were added, we are in counting mode
+   
 
    m_isInitialized=true;
    
   return 0;
 }
 
-Bool_t Root::TPileupReweighting::IsUnrepresentedData(const TString weightName, Int_t runNumber, Float_t x, Float_t y, Float_t z) {
-   if(m_emptyHistograms.find(weightName)==m_emptyHistograms.end()) {
-      Error("IsUnrepresentedData", "Unknown weight %s", weightName.Data());
-      throw std::runtime_error("Throwing 23: Unknown weight");
+//loop over the mc histograms, find bin closest to given bin that is "ok" (has all nonzero)
+//0 = ok bin, 1 = bad bin, 2 = out of range bin
+Int_t CP::TPileupReweighting::IsBadBin(Int_t periodNumber, Int_t bin) {
+
+   if(bin<0) return 2; //out of range 
+
+   Period* p = m_periods[periodNumber];
+   for(auto& inHist : p->inputHists) {
+      int channelNumber = inHist.first;
+      if(channelNumber<0) continue; //skip data hists 
+      if(bin > (inHist.second->GetNbinsX()+2)*(inHist.second->GetNbinsY()+2)*(inHist.second->GetNbinsZ()+2)) return 2; //definitely out of range by this point!
+      if(inHist.second->GetBinContent(bin)==0) return 1;
    }
-   TH1* hist = m_emptyHistograms[weightName];
-   Int_t bin = hist->GetXaxis()->FindFixBin(x);
-   if(hist->GetDimension()==2) {
-      Int_t biny = hist->GetYaxis()->FindFixBin(y);
-      Int_t nx = hist->GetXaxis()->GetNbins()+2;
-      bin += nx*biny;
-   }
-   if(hist->GetDimension()==3) {
-      Int_t biny = hist->GetYaxis()->FindFixBin(y);
-      Int_t nx = hist->GetXaxis()->GetNbins()+2;
-      Int_t ny = hist->GetYaxis()->GetNbins()+2;
-      Int_t binz = hist->GetZaxis()->FindFixBin(z);
-      bin += nx*(biny+ny*binz);
-   }
-   return m_badbins[weightName][runNumber][bin];
+   return 0;
+
 }
 
-Bool_t Root::TPileupReweighting::IsUnrepresentedData(Int_t runNumber, Float_t x, Float_t y, Float_t z) {
-   return IsUnrepresentedData("pileup",runNumber,x,y,z);
+//loop over the mc histograms, find bin closest to given bin that is "ok" (has all nonzero)
+Int_t CP::TPileupReweighting::GetNearestGoodBin(Int_t thisMCRunNumber, Int_t bin) {
+
+   int binDistance = 1;
+   do {
+      int res1 = IsBadBin(thisMCRunNumber,bin+binDistance);
+      if(!res1) return bin+binDistance;
+      int res2 = IsBadBin(thisMCRunNumber,bin-binDistance);
+      if(!res2) return bin-binDistance;
+      if(res1==2 && res2==2) { //run out of bins 
+         Error("GetNearestGoodBin", "None of the bins are good!!??");
+         return -1;
+      }
+      binDistance++;
+   } while(true); //scary!
+
+   return -1;
+
 }
 
-Int_t Root::TPileupReweighting::WriteToFile(const TString fname) {
+Double_t CP::TPileupReweighting::GetUnrepresentedDataFraction(Int_t periodNumber,Int_t channel) {
+
+  //return unrepDataByChannel[channel]/GetSumOfEventWeights(-1); //the denominator is equivalent to asking for the total data!
+
+
+   Period* p = m_periods[periodNumber];
+   if(!p) {
+      Error("GetUnrepresentedDataFraction","Unrecognised periodNumber: %d",periodNumber);
+      throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+   }
+
+   //look for channel through sumOfWeights - because if the channel has no unrepData, it will have no entry in the unrepData map
+   if(p->sumOfWeights.find(channel) == p->sumOfWeights.end()) channel = m_periods[periodNumber]->defaultChannel;
+
+
+   if(p->sumOfWeights.find(channel) == p->sumOfWeights.end()) {
+      Error("GetUnrepresentedDataFraction","Unrecognised channel: %d",channel);
+      throw std::runtime_error("GetUnrepresentedDataFraction: Unrecognised channel");
+   }
+
+   return p->unrepData[channel]/p->sumOfWeights[-1];
+
+}
+
+
+
+UInt_t CP::TPileupReweighting::GetRandomRunNumber(Int_t periodNumber) {
+   if(!m_isInitialized) { Info("GetRandomRunNumber","Initializing the subtool.."); Initialize(); }
+   if(m_countingMode) { return 0; } //do nothing when in counting mode
+
+   Period* p = m_periods[periodNumber];
+   if(!p) {
+      Error("GetRandomRunNumber","Unrecognised periodNumber: %d",periodNumber);
+      throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+   }
+
+   double lumi = p->sumOfWeights[-1] * m_random3->Rndm();
+
+   //go through the runs assigned to this period ... 
+   double lumiSum=0;
+   for(auto runNum : p->runNumbers) {
+      lumiSum += m_runs[runNum].inputHists["None"]->GetSumOfWeights();
+      if(lumiSum >= lumi) return runNum;
+   }
+   Error("GetRandomRunNumber","overran integrated luminosity for periodNumber=%d",periodNumber);
+   throw std::runtime_error("Throwing 46.1: overran integrated luminosity for GetRandomRunNumber");
+   return 0;
+}
+
+UInt_t CP::TPileupReweighting::GetRandomRunNumber(Int_t periodNumber, Double_t x) {
+   if(!m_isInitialized) { Info("GetRandomRunNumber","Initializing the subtool.."); Initialize(); }
+   if(m_countingMode) { return 0; } //do nothing when in counting mode
+
+   Period* p = m_periods[periodNumber];
+   if(!p) {
+      Error("GetRandomRunNumber","Unrecognised periodNumber: %d",periodNumber);
+      throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+   }
+
+   int bin = m_emptyHistogram->FindFixBin(x);
+
+   double lumi = p->primaryHists[-1]->GetBinContent(bin) * p->sumOfWeights[-1] * m_random3->Rndm();
+
+   if(!lumi) { return 0; } //no lumi with that mu
+
+
+   //go through the runs assigned to this period ... 
+   double lumiSum=0;
+   for(auto runNum : p->runNumbers) {
+      lumiSum += m_runs[runNum].inputHists["None"]->GetBinContent(bin);
+      if(lumiSum >= lumi) return runNum;
+   }
+   Error("GetRandomRunNumber","overran integrated luminosity for periodNumber=%d",periodNumber);
+   throw std::runtime_error("Throwing 46.1: overran integrated luminosity for GetRandomRunNumber");
+   return 0;
+}
+
+UInt_t CP::TPileupReweighting::GetRandomLumiBlockNumber(UInt_t runNumber) {
+   if(!m_isInitialized) {Info("GetRandomLumiBlockNumber","Initializing the subtool.."); Initialize(); }
+   if(m_countingMode) { return 0; } //do nothing when in counting mode
+
+   double lumi = GetIntegratedLumi(runNumber,runNumber) * m_random3->Rndm() * 1E6 /* dont forget the lumi was divided by a million to get to pb */; 
+   double lumisum = 0.;
+
+   for(auto& lbn : m_runs[runNumber].lumiByLbn) {
+      if(m_unrepresentedDataAction==1 && IsUnrepresentedData(runNumber,lbn.second.second)) continue; //skip over bad lumi 
+      lumisum += lbn.second.first;
+      if(lumisum >= lumi) return lbn.first;
+   }
+   Error("GetRandomLumiBlockNumber","overran integrated luminosity for RunNumber=%d",runNumber);
+   throw std::runtime_error("Throwing 46: overran integrated luminosity for runNumber");
+   return 0;
+}
+
+//only considers periods assigned directly!
+Int_t CP::TPileupReweighting::GetRandomPeriodNumber(Int_t periodNumber) {
+   if(!m_isInitialized) { Info("GetRandomPeriodNumber","Initializing the subtool.."); Initialize(); }
+   if(m_countingMode) { return 0; } //do nothing when in counting mode
+
+   Period* p = m_periods[periodNumber];
+   if(!p) {
+      Error("GetRandomPeriodNumber","Unrecognised periodNumber: %d",periodNumber);
+      throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+   }
+
+   //if no subperiods, we just return ourselves 
+   if(p->subPeriods.size()==0) return p->id;
+
+   //need the total lumi of this period
+   double lumi = p->sumOfWeights[-1] * m_random3->Rndm();
+
+   //loop over subPeriods .. 
+   double lumiSum=0;
+   for(auto subp : p->subPeriods) {
+      lumiSum += subp->sumOfWeights[-1];
+      if(lumiSum >= lumi) return subp->id;
+   }
+
+   Error("GetRandomPeriodNumber","overran integrated luminosity for periodNumber=%d",periodNumber);
+   throw std::runtime_error("Throwing 46.1: overran integrated luminosity for GetRandomPeriodNumber");
+   return 0;
+
+}
+
+Bool_t CP::TPileupReweighting::IsUnrepresentedData(Int_t runNumber, Float_t x, Float_t y) {
+   int bin = m_emptyHistogram->FindFixBin(x,y);
+   return ( m_runs[runNumber].badBins[bin] );
+}
+
+//this method builds a file get can be friended to a TTree with a prw-hash branch
+Bool_t CP::TPileupReweighting::MakeWeightTree(TString channelNumbers, TString outFile, TString hashBranch, TString weightBranch) {
+   if(!m_isInitialized) { Info("MakeWeightTree","Initializing the subtool.."); Initialize(); }
+   TH1* hist = m_emptyHistogram;
+   if(!hist) {
+      Error("MakeWeightTree","Tool not configured properly ... please report this!");
+      throw std::runtime_error("Throwing 47: Tool not configured properly ... please report this!");
+   }
+
+   //loop over given channels, and loop over all periods (except the global period) and get the pileup weight in each case for each bin 
+   TFile f1(outFile,"RECREATE");
+
+   TTree* outTree = new TTree("prwTree","prwTree");
+   ULong64_t prwHash(0);Float_t weight(0.);
+   outTree->Branch(hashBranch,&prwHash);
+   outTree->Branch(weightBranch,&weight);
+
+   TObjArray *tx = channelNumbers.Tokenize(",");
+   for (Int_t i = 0; i < tx->GetEntries(); i++) {
+      int channelNumber = ((TObjString *)(tx->At(i)))->String().Atoi();
+      if(channelNumber>999999 || channelNumber<0) { 
+         Error("MakeWeightTree","ChannelNumber can not be bigger than 999999 or less than 0 ... got %d",channelNumber);
+         f1.Close();
+         return 0;
+      }
+      for(auto& period : m_periods) {
+         if(period.first==-1) continue;
+         int periodNumber = period.first;
+         for(int i=1;i<=hist->GetNbinsX();i++) {
+            double x = hist->GetXaxis()->GetBinCenter(i);
+            for(int j=1;j<=hist->GetNbinsY();j++) {
+               double y = hist->GetYaxis()->GetBinCenter(j);
+               weight = GetCombinedWeight(periodNumber,channelNumber,x,y);
+               prwHash = GetPRWHash(periodNumber,channelNumber,x,y);
+               outTree->Fill();
+            }
+         }
+
+      }
+   }
+
+   outTree->BuildIndex(hashBranch.Data());
+   outTree->Write();
+   f1.Close();
+
+   Info("MakeWeightTree","Successfully wrote prwTree to %s",outFile.Data());
+
+   return true;
+}
+
+ULong64_t CP::TPileupReweighting::GetPRWHash(Int_t periodNumber, Int_t channelNumber, Float_t x, Float_t y) {
+   if(!m_isInitialized) { Info("GetPRWHash","Initializing the subtool.."); Initialize(); }
+   TH1* hist = m_emptyHistogram;
+   if(!hist) {
+      Error("GetPRWHash","Tool not configured properly ... please report this!");
+      throw std::runtime_error("Throwing 47: Tool not configured properly ... please report this!");
+   }
+
+   ULong64_t out = hist->FindFixBin(x,y);
+   out += (unsigned long)(channelNumber)*10000000000;
+   out += (unsigned long)(periodNumber)*10000;
+
+   return out;
+
+}
+
+Float_t CP::TPileupReweighting::GetCombinedWeight(Int_t periodNumber, Int_t channelNumber, Float_t x, Float_t y) {
+   if(!m_isInitialized) { Info("GetCombinedWeight","Initializing the subtool.."); Initialize(); }
+   if(m_countingMode) return 0.;
+   if(m_countingMode) {
+      Error("GetCombinedWeight","You cannot get a weight when in config file generating mode. Please use FillWeight method");
+      throw std::runtime_error("Throwing 2: You cannot get a weight when in config file generating mode. Please use FillWeight method");
+   }
+   //decide how many dimensions this weight has - use the emptyHistogram to tell... 
+   TH1* hist = m_emptyHistogram;
+   if(!hist) {
+      Error("GetCombinedWeight","Tool not configured properly ... please report this!");
+      throw std::runtime_error("Throwing 47: Tool not configured properly ... please report this!");
+   }
+
+   Float_t out = GetPeriodWeight(periodNumber,channelNumber)*GetPrimaryWeight(periodNumber,channelNumber,x);
+   if(hist->GetDimension()>1) out *= GetSecondaryWeight(periodNumber,channelNumber,x,y);
+   
+   return out;
+}
+
+Float_t CP::TPileupReweighting::GetPeriodWeight(Int_t periodNumber, Int_t channelNumber) {
+   //= L_A/L / N_A/N  
+   if(!m_isInitialized) { Info("GetPeriodWeight","Initializing the subtool.."); Initialize(); }
+   if(m_countingMode) return 0.;
+
+   Period* p = m_periods[periodNumber];
+   if(!p) {
+      Error("GetPeriodWeight","Unrecognised periodNumber: %d",periodNumber);
+      throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+   }
+   if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) channelNumber = p->defaultChannel;
+
+   double n_a = p->sumOfWeights[channelNumber];
+   double n = m_periods[-1]->sumOfWeights[channelNumber];
+
+   double l_a = p->sumOfWeights[-1];
+   double l = m_periods[-1]->sumOfWeights[-1];
+
+   return (l_a/l) / (n_a/n);
+}
+
+Float_t CP::TPileupReweighting::GetPrimaryWeight(Int_t periodNumber, Int_t channelNumber,Float_t x) {
+   //= L_i/L_A / N_i/N_A .. primaryHists have already been normalized
+   if(!m_isInitialized) { Info("GetPrimaryWeight","Initializing the subtool.."); Initialize(); }
+   if(m_countingMode) return 0.;
+
+   Period* p = m_periods[periodNumber];
+   if(!p) {
+      Error("GetPrimaryWeight","Unrecognised periodNumber: %d",periodNumber);
+      throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+   }
+   int oChanNumber = channelNumber;
+   if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) channelNumber = p->defaultChannel;
+
+   if(!p->primaryHists[channelNumber]) {
+      Error("GetPrimaryWeight","Unrecognised channelNumber: %d",oChanNumber);
+      throw std::runtime_error("Throwing 2: Unrecognised channelNumber");
+   }
+
+   int bin = p->primaryHists[channelNumber]->FindFixBin(x);
+
+   double n = p->primaryHists[channelNumber]->GetBinContent(bin);
+
+   if(!p->primaryHists[-1]) {
+      Error("GetPrimaryWeight","No data loaded for period %d. Did you forget to load a lumicalc file or data config file?",periodNumber);
+      throw std::runtime_error("Throwing 3: No data loaded. Did you forget to load a lumicalc file or data config file?");
+   }
+
+   double l = p->primaryHists[-1]->GetBinContent(bin);
+
+   return l/n;
+}
+
+Float_t CP::TPileupReweighting::GetSecondaryWeight(Int_t periodNumber, Int_t channelNumber,Float_t x,Float_t y) {
+   //= L_j/L_i / N_j/N_i .. secondary hists have already been normalized
+   if(!m_isInitialized) { Info("GetSecondaryWeight","Initializing the subtool.."); Initialize(); }
+   if(m_countingMode) return 0.;
+
+   Period* p = m_periods[periodNumber];
+   if(!p) {
+      Error("GetSecondaryWeight","Unrecognised periodNumber: %d",periodNumber);
+      throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+   }
+   if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) channelNumber = p->defaultChannel;
+   int bin = p->secondaryHists[channelNumber]->FindFixBin(x,y);
+   double n = p->secondaryHists[channelNumber]->GetBinContent(bin);
+   double l = p->secondaryHists[-1]->GetBinContent(bin);
+
+   return l/n;
+}
+
+Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, TString trigger) {
+   //special mu-independent version of GetDataWeight. Will just use the global luminosity
+   m_doGlobalDataWeight=true;
+   double out = GetDataWeight(runNumber, trigger, 0);
+   m_doGlobalDataWeight=false;
+   return out;
+}
+
+Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, TString trigger, Double_t x) {
+
+   if(!m_isInitialized) { Info("GetDataWeight","Initializing the subtool.."); Initialize(); }
+   if(m_countingMode) return 0.;
+   if(m_countingMode) {
+      Error("GetDataWeight","You cannot get a weight when in config file generating mode. Please use FillWeight method");
+      throw std::runtime_error("GetDataWeight: You cannot get a weight when in config file generating mode. Please use FillWeight method");
+   }
+   //determine which period this run number is in
+   Int_t periodNumber = GetFirstFoundPeriodNumber(runNumber);
+
+   Period* p = m_periods[periodNumber];
+   if(!p) {
+      Error("GetDataWeight","Unrecognised periodNumber: %d",periodNumber);
+      throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+   }
+
+   //see if we already made this trigger hist 
+   
+
+   if(p->triggerHists.find(trigger)==p->triggerHists.end()) {
+      //try to do a subtrigger calculation we need to reopen all the lumicalc files and do the fiddily prescaled luminosity calculation
+      //will throw errors if can't
+      CalculatePrescaledLuminosityHistograms(trigger);
+   }
+   TH1D* denomHist = p->triggerHists[trigger];
+   if(denomHist==0) {
+      Error("GetDataWeight","Could not find trigger %s in period %d",trigger.Data(),p->id);
+      throw std::runtime_error("GetDataWeight: Could not find trigger");
+   }
+   TH1D* numerHist = p->triggerHists["None"];
+   if(numerHist==0) {
+      Error("GetDataWeight","Could not find unprescaled trigger in period %d",p->id);
+      throw std::runtime_error("GetDataWeight: Could not find unprescaled trigger. Please AddLumiCalc with a 'None' trigger");
+   }
+   
+   if(m_doGlobalDataWeight) return numerHist->Integral(0,numerHist->GetNbinsX()+1)/denomHist->Integral(0,denomHist->GetNbinsX()+1);
+
+   Int_t bin=numerHist->FindFixBin(x);
+   return numerHist->GetBinContent(bin)/denomHist->GetBinContent(bin);
+
+}
+
+//fills the appropriate inputHistograms
+Int_t CP::TPileupReweighting::Fill(Int_t runNumber,Int_t channelNumber,Float_t w,Float_t x, Float_t y) {
+   if(!m_isInitialized) { Info("Fill","Initializing the subtool.."); Initialize(); }
+   //should only be given genuine mcRunNumbers if mc (channel>=0). We don't fill periodNumber distributions 
+
+   TH1* hist = 0;
+
+   //get the period if mc, get the data run if data 
+   if(channelNumber>=0) {
+      if(m_periods.find(runNumber)==m_periods.end()) {
+         Error("Fill","Unrecognised runNumber: %d.  Check your period configuration (AddPeriod or UsePeriodConfig)",runNumber);
+         throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+      }
+      Period* p = m_periods[runNumber];
+      if(!p) {
+         Error("Fill","Unrecognised runNumber: %d.  Check your period configuration (AddPeriod or UsePeriodConfig) ... but should never have got here so please report this!",runNumber);
+         throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+      }
+      if(p->inputHists.find(channelNumber)==p->inputHists.end()) {
+         //need to create my period histogram 
+         p->inputHists[channelNumber] = CloneEmptyHistogram(runNumber,channelNumber);
+      }
+      hist = p->inputHists[channelNumber];
+   } else {
+      Run& r = m_runs[runNumber];
+      if(r.inputHists["None"]==0) r.inputHists["None"]=CloneEmptyHistogram(runNumber,channelNumber);
+      hist = r.inputHists["None"];
+   }
+
+   if(!hist) {
+      Error("Fill","Unknown [run,channel] = [%d,%d]",runNumber,channelNumber);
+      throw std::runtime_error("Throwing 45: Fill:: Unknown [run,channel] ");
+   }
+
+   if(hist->GetDimension()==1) {
+      return hist->Fill(x,w);
+   } else if(hist->GetDimension()==2) {
+      return (static_cast<TH2*>(hist))->Fill(x,y,w);
+   } 
+   return -1;
+}
+
+Int_t CP::TPileupReweighting::WriteToFile(const TString fname) {
    
    if(!m_countingMode) {Warning("WriteToFile","Not in counting mode, so no file will be written");return 0;}
 
@@ -1511,108 +1513,81 @@ Int_t Root::TPileupReweighting::WriteToFile(const TString fname) {
    TString filename = fname;
    filename += (filename=="") ? TString(this->GetName()) + ".prw.root" : "";
    
-   //loop over the weights. "pileup" gets it own MCPileupReweighting ttree. 
+   //loop over the weights. "pileup" gets it own MCPileupReweighting ttree. ... since we got rid of weightNames in this version, everything goes in MCPileupReweighting now!
    //data goes in to DataCustomReweighting. other goes in to MCCustomReweighting 
-
    TFile* outFile = TFile::Open(filename,"RECREATE");
    Int_t r = WriteToFile(outFile);
    outFile->Close();
    return r;
 }
 
-Int_t Root::TPileupReweighting::WriteToFile(TFile* outFile) {
+
+Int_t CP::TPileupReweighting::WriteToFile(TFile* outFile) {
+   if(!m_countingMode) {Warning("WriteToFile","Not in counting mode, so no file will be written");return 0;}
+
    TDirectory* origDir = gDirectory;
 
    outFile->cd();
 
    TTree *outTreeMC=0;
-   TTree *outTreeCustomMC=0;
    TTree *outTreeData=0;
-   TTree *outTreeCustomData=0;
-   TTree *outTree = 0;//points to tree currently being written to
    Int_t channel = 0;UInt_t runNumber = 0; 
    std::vector<UInt_t>* pStarts = 0;std::vector<UInt_t>* pEnds = 0;
-   Char_t histName[150];Char_t customName[150];
+   Char_t histName[150];
 
-   bool lastChannelWasData = true;
 
-   for(std::map<TString, std::map<Int_t, std::map<Int_t, TH1*> > >::iterator weights=m_inputHistograms.begin();weights!=m_inputHistograms.end();++weights) {
-      TString weightName = weights->first;
-      strcpy(customName,weightName);
-      if(outTree) {
-         outTree=0;
+   //loop over periods ... periods only get entry in table if they have an input histogram 
+   for(auto period : m_periods) {
+      if(period.first != period.second->id) continue; //skips redirects 
+      runNumber = period.first;
+      pStarts = new std::vector<UInt_t>;pEnds = new std::vector<UInt_t>;
+      if(period.second->subPeriods.size()==0) { 
+         pStarts->push_back(period.second->start); pEnds->push_back(period.second->end); 
       }
-      for(std::map<Int_t, std::map<Int_t, TH1*> >::iterator channels=weights->second.begin();channels!=weights->second.end();++channels) {
-         channel = channels->first;
-         if(lastChannelWasData&&channel>=0) {
-            if(outTree) {outTree=0;}
-            lastChannelWasData=false;
-         }
-         if(channel<0) lastChannelWasData=true;
-         if(weightName=="pileup") {
-            if(channel>=0 && !outTree) {
-               if(!outTreeMC) {
-                  outTreeMC = new TTree("MCPileupReweighting","MCPileupReweighting");
-                  outTreeMC->Branch("Channel",&channel);
-                  outTreeMC->Branch("RunNumber",&runNumber);
-                  outTreeMC->Branch("PeriodStarts",&pStarts);
-                  outTreeMC->Branch("PeriodEnds",&pEnds);
-                  outTreeMC->Branch("HistName",&histName,"HistName/C");
-               }
-               outTree = outTreeMC;
-            } else if(channel<0 && !outTree) {
-               if(!outTreeData) {
-                  outTreeData = new TTree("DataPileupReweighting","DataPileupReweighting");
-                  outTreeData->Branch("RunNumber",&runNumber);
-                  outTreeData->Branch("HistName",&histName,"HistName/C");
-               }
-               outTree = outTreeData;
-            }
-         } else {
-            if(channel>=0 && !outTree) {
-               if(!outTreeCustomMC) {
-                  outTreeCustomMC = new TTree("MCCustomReweighting","MCCustomReweighting");
-                  outTreeCustomMC->Branch("CustomName",&customName,"CustomName/C");
-                  outTreeCustomMC->Branch("Channel",&channel);
-                  outTreeCustomMC->Branch("RunNumber",&runNumber);
-                  outTreeCustomMC->Branch("PeriodStarts",&pStarts);
-                  outTreeCustomMC->Branch("PeriodEnds",&pEnds);
-                  outTreeCustomMC->Branch("HistName",&histName,"HistName/C");
-               }
-               outTree = outTreeCustomMC;
-            } else if(channel<0 && !outTree) {
-               if(!outTreeCustomData) {
-                  outTreeCustomData = new TTree("DataCustomReweighting","DataCustomReweighting");
-                  outTreeCustomData->Branch("CustomName",&customName,"CustomName/C");
-                  outTreeCustomData->Branch("RunNumber",&runNumber);
-                  outTreeCustomData->Branch("HistName",&histName,"HistName/C");
-               }
-               outTree = outTreeCustomData;
-            }
-         }
-         for(std::map<Int_t, TH1*>::iterator runs=channels->second.begin();runs!=channels->second.end();++runs) {
-            runNumber = runs->first;
-            if(!lastChannelWasData) { //load periods only for mc 
-               pStarts = new std::vector<UInt_t>;pEnds = new std::vector<UInt_t>;
-               auto& myMap = m_periods[runNumber];
-               for(std::map<Int_t,std::pair<UInt_t,UInt_t> >::iterator periods=myMap.begin();periods!=myMap.end();++periods) {
-                  pStarts->push_back(periods->second.first);pEnds->push_back(periods->second.second);
-               }
-            }
-            strcpy(histName,runs->second->GetName());
-            outTree->Fill();
-            runs->second->Write();
-            if(!lastChannelWasData) { //delete periods only for mc 
-               delete pStarts;delete pEnds;
-            }
+      else {
+         for(auto subp : period.second->subPeriods) {
+            pStarts->push_back(subp->start); pEnds->push_back(subp->end);
          }
       }
+      for(auto inHist : period.second->inputHists) {
+         channel = inHist.first;
+         TH1* hist = inHist.second;
+         strcpy(histName,hist->GetName());
+         hist->Write();
+
+         if(!outTreeMC) {
+            outTreeMC = new TTree("MCPileupReweighting","MCPileupReweighting");
+            outTreeMC->Branch("Channel",&channel);
+            outTreeMC->Branch("RunNumber",&runNumber);
+            outTreeMC->Branch("PeriodStarts",&pStarts);
+            outTreeMC->Branch("PeriodEnds",&pEnds);
+            outTreeMC->Branch("HistName",&histName,"HistName/C");
+         }
+         outTreeMC->Fill();
+      }
+      delete pStarts; delete pEnds;
    }
+
+   //loop over data 
+   for(auto& run : m_runs) {
+      runNumber = run.first;
+      if(run.second.inputHists.find("None")==run.second.inputHists.end()) continue;
+
+      TH1* hist = run.second.inputHists["None"];
+      strcpy(histName,hist->GetName());
+      hist->Write();
+      if(!outTreeData) {
+         outTreeData = new TTree("DataPileupReweighting","DataPileupReweighting");
+         outTreeData->Branch("RunNumber",&runNumber);
+         outTreeData->Branch("HistName",&histName,"HistName/C");
+      }
+      outTreeData->Fill();
+   }
+
+
    //write the non-zero ttrees 
    if(outTreeMC) {outTreeMC->Write();delete outTreeMC;outTreeMC=0;}
    if(outTreeData) {outTreeData->Write();delete outTreeData;outTreeData=0;}
-   if(outTreeCustomMC) {outTreeCustomMC->Write();delete outTreeCustomMC;outTreeCustomMC=0;}
-   if(outTreeCustomData) {outTreeCustomData->Write();delete outTreeCustomData;outTreeCustomData=0;}
 
 
    Info("WriteToFile", "Successfully generated config file: %s",outFile->GetName());
@@ -1623,397 +1598,11 @@ Int_t Root::TPileupReweighting::WriteToFile(TFile* outFile) {
    return 0;
 }
 
-Double_t Root::TPileupReweighting::GetDataWeight(Int_t runNumber, TString trigger) {
-   //special mu-independent version of GetDataWeight. Will just use the global luminosity
-   m_doGlobalDataWeight=true;
-   double out = GetDataWeight(runNumber, trigger, 0);
-   m_doGlobalDataWeight=false;
-   return out;
-}
-
-Double_t Root::TPileupReweighting::GetDataWeight(Int_t runNumber, TString trigger, Double_t x) {
-   if(!m_isInitialized) { Error("GetDataWeight","Tool is not initialized"); return 0;}
-   if(m_countingMode) return 0.;
-   if(m_countingMode) {
-      Error("GetDataWeight","You cannot get a weight when in config file generating mode. Please use FillWeight method");
-      throw std::runtime_error("GetDataWeight: You cannot get a weight when in config file generating mode. Please use FillWeight method");
-   }
-   //determine which mc run number this is
-   Int_t periodNumber = GetFirstFoundPeriodNumber(runNumber);
-   if(periodNumber==-1) {
-      Error("GetDataWeight","Could not find corresponding period for runNumber %d",runNumber);
-      throw std::runtime_error("GetDataWeight: Could not find period for runNumber");
-   }
-   if(m_triggerPrimaryDistributions.find(trigger)==m_triggerPrimaryDistributions.end()) {
-      //try to do a subtrigger calculation we need to reopen all the lumicalc files and do the fiddily prescaled luminosity calculation
-      //will throw errors if can't
-      CalculatePrescaledLuminosityHistograms(trigger);
-   }
-   TH1D* denomHist = m_triggerPrimaryDistributions[trigger][periodNumber];
-   if(denomHist==0) {
-      Error("GetDataWeight","Could not find trigger %s",trigger.Data());
-      throw std::runtime_error("GetDataWeight: Could not find trigger");
-   }
-   TH1D* numerHist = m_triggerPrimaryDistributions["None"][periodNumber];
-   if(numerHist==0) {
-      Error("GetDataWeight","Could not find unprescaled trigger");
-      throw std::runtime_error("GetDataWeight: Could not find unprescaled trigger. Please AddLumiCalc with a 'None' trigger");
-   }
-
-   if(m_doGlobalDataWeight) return numerHist->Integral(0,numerHist->GetNbinsX()+1)/denomHist->Integral(0,denomHist->GetNbinsX()+1);
-
-   Int_t bin=numerHist->FindFixBin(x);
-   return numerHist->GetBinContent(bin)/denomHist->GetBinContent(bin);
-
-}
-
-/** random runnumber method for people who want to use custom reweighting config files to determine the random numbers */
-/** But weightName defaults to "pileup" for people who are happy to use the standard config */
-UInt_t Root::TPileupReweighting::GetRandomRunNumber(Int_t mcRunNumber, TString weightName) {
-   if(!m_isInitialized) { Error("GetRandomRunNumber","Tool is not initialized"); return 0;}
-   if(m_countingMode) { return 0; } //do nothing when in counting mode
-   //check if the runNumber has been reassigned
-   if(m_mcRemappings.find(mcRunNumber)!=m_mcRemappings.end()) mcRunNumber=m_mcRemappings[mcRunNumber];
-   auto& dataMap = periodTotals[weightName][-1];
-   const std::map<Int_t, Double_t>::const_iterator it = dataMap.find(mcRunNumber);
-   if(it==dataMap.end()|| it->second == 0) { 
-      if(m_SetWarnings) Warning("GetRandomRunNumber","%d has no associated custom data. Returning 0",mcRunNumber);
-      return 0; /*throw 33;*/
-   }
-   double lumi = it->second * m_random3->Rndm();
-    double lumisum = 0.;
-    auto& mcMap = dataPeriodRunTotals[weightName][mcRunNumber];
-    std::map<UInt_t, Double_t>::const_iterator itend = mcMap.end();
-    for(std::map<UInt_t, Double_t>::const_iterator it2 = mcMap.begin(); it2 != itend; ++it2)
-      {
-	lumisum += it2->second;
-	if (lumisum >= lumi)
-	  return it2->first;
-      }
-    Error("GetRandomRunNumber","overran integrated luminosity for mcRunNumber=%d in custom weight=%s",mcRunNumber,weightName.Data());
-     throw std::runtime_error("Throwing 46.1: overran integrated luminosity for mcRunNumber in custom weight");
-    return 0;
-}
-
-///return random run numbers but only for runs where the mu is present. If the mu has no associated data, returns 0
-UInt_t Root::TPileupReweighting::GetRandomRunNumber(Int_t mcRunNumber, Double_t mu) {
-   if(!m_isInitialized) { Error("GetRandomRunNumber","Tool is not initialized"); return 0;}
-   if(m_countingMode) { return 0; } //do nothing when in counting mode
-
-   //determine the mubin
-   TH1* hist = m_emptyHistograms["pileup"];
-   if(!hist) { Error("GetRandomRunNumber", "Cannot do this without a lumicalc file!"); return 0; }
-   Int_t muBin = hist->FindFixBin(mu);
-
-   //check if the runNumber has been reassigned
-   if(m_mcRemappings.find(mcRunNumber)!=m_mcRemappings.end()) mcRunNumber=m_mcRemappings[mcRunNumber];
-
-   //check that this mcRunNumber actually has some lumi with this mu
-   std::map<UInt_t, std::map<Int_t, std::map<UInt_t, Double_t> > >::iterator myMap1 = dataPeriodBinnedRunTotals["pileup"].find(muBin);
-   if(myMap1 == dataPeriodBinnedRunTotals["pileup"].end()) {
-      //no lumi with this mu
-      return 0;
-   }
-   std::map<Int_t, std::map<UInt_t, Double_t> >::iterator myMap2 = myMap1->second.find(mcRunNumber);
-   if(myMap2 == myMap1->second.end()) {
-      //no lumi with this mu in this mcRunNumber
-      return 0;
-   }
-
-   //the total lumi is stored in the run=0 slot of this map
-   double lumi = myMap2->second[0] * m_random3->Rndm();
-    double lumisum = 0.;
-    std::map<UInt_t, Double_t>::const_iterator itend = myMap2->second.end();
-    for(std::map<UInt_t, Double_t>::const_iterator it2 = myMap2->second.begin(); it2 != itend; ++it2)
-      {
-         //skip case of it2->first=0 (which is the total lumi)
-         if(it2->first==0) continue;
-	lumisum += it2->second;
-	if (lumisum >= lumi)
-	  return it2->first;
-      }
-    Error("GetRandomRunNumber","overran integrated luminosity for mcRunNumber=%d, mubin=%d",mcRunNumber,muBin);
-     throw std::runtime_error("Throwing 46: overran integrated luminosity for mcRunNumber");
-    return 0;
-}
-
-Int_t Root::TPileupReweighting::GetRandomPeriodNumber(Int_t mcRunNumber) {
-   if(!m_isInitialized) { Error("GetRandomPeriodNumber","Tool is not initialized"); return 0;}
-   if(m_countingMode) { return 0; } //do nothing when in counting mode
-   //check if the runNumber has been reassigned
-   if(m_mcRemappings.find(mcRunNumber)!=m_mcRemappings.end()) mcRunNumber=m_mcRemappings[mcRunNumber];
-   
-   if(m_periods.find(mcRunNumber)==m_periods.end()) {
-      Error("GetRandomPeriodNumber","Unknown MC RunNumber: %d",mcRunNumber);
-      throw std::runtime_error("Throwing 46: Unknown MC RunNumber");
-   }
-
-   //if this runnumber has only one period, return itself
-   if(m_periods[mcRunNumber].size()==1) {
-      return mcRunNumber;
-   }
-
-   const std::map<Int_t, Double_t>::const_iterator it = periodTotals["pileup"][-1].find(mcRunNumber);
-   if(it==periodTotals["pileup"][-1].end()) { 
-      if(m_SetWarnings) Warning("GetRandomPeriodNumber","%d has no associated lumi. Returning 0",mcRunNumber);
-      return 0; /*throw 33;*/
-   }
-   Double_t lumi = it->second * m_random3->Rndm();
-   Double_t lumisum = 0.;
-   for(std::map<Int_t, std::pair<UInt_t,UInt_t> >::const_iterator it2 = m_periods[mcRunNumber].begin(); it2 != m_periods[mcRunNumber].end(); ++it2) {
-      lumisum += periodTotals["pileup"][-1][it2->first];
-      if (lumisum >= lumi)
-	  return it2->first;
-      }
-    Error("GetRandomPeriodNumber","overran integrated luminosity for mcRunNumber=%d",mcRunNumber);
-     throw std::runtime_error("Throwing 46: overran integrated luminosity for mcRunNumber");
-    return 0;
-}
-
-UInt_t Root::TPileupReweighting::GetRandomLumiBlockNumber(UInt_t runNumber) {
-   if(!m_isInitialized) { Error("GetRandomRunNumber","Tool is not initialized"); return 0;}
-   if(m_countingMode) { return 0; } //do nothing when in counting mode
-
-   double lumi = GetIntegratedLumi(runNumber,runNumber) * m_random3->Rndm();
-   double lumisum = 0.;
-   std::map<UInt_t, std::map<UInt_t, Double_t> >::iterator it = m_lumiByRunAndLbn.find(runNumber);
-   if(it==m_lumiByRunAndLbn.end()) {
-      Error("GetRandomLumiBlockNumber","Unknown run number: %d",runNumber);
-      throw std::runtime_error("Throwing 46.1: Unknown Run number");
-   }
-   std::map<UInt_t, Double_t>::const_iterator itend = it->second.end();
-   for(std::map<UInt_t, Double_t>::const_iterator it2 = it->second.begin(); it2 != itend; ++it2) {
-      lumisum += it2->second;
-      if (lumisum >= lumi) return it2->first;
-   }
-   Error("GetRandomLumiBlockNumber","overran integrated luminosity for RunNumber=%d",runNumber);
-   throw std::runtime_error("Throwing 46: overran integrated luminosity for runNumber");
-   return 0;
-}
-
-Float_t Root::TPileupReweighting::getPileupWeight(Float_t mu, Int_t runNumber, Int_t channel ) {
-   if(!m_isInitialized) { Error("getPileupWeight","Tool is not initialized"); return 0;}
-   if(m_SetWarnings) Warning("getPileupWeight","Depricated. Please use GetCombinedWeight(runNumber,channelNumber,mu)");
-   return GetCombinedWeight(runNumber,channel,mu);
-}
-
-Float_t Root::TPileupReweighting::GetCombinedWeight(const TString weightName, Int_t periodNumber, Int_t channelNumber, Float_t x, Float_t y, Float_t /*z*/) {
-   if(!m_isInitialized) { Error("GetCombinedWeight","Tool is not initialized"); return 0;}
-   if(m_countingMode) return 0.;
-   if(m_countingMode) {
-      Error("GetCombinedWeight","You cannot get a weight when in config file generating mode. Please use FillWeight method");
-      throw std::runtime_error("Throwing 2: You cannot get a weight when in config file generating mode. Please use FillWeight method");
-   }
-   //decide how many dimensions this weight has - use the emptyHistogram to tell... 
-   TH1* hist = m_emptyHistograms[weightName];
-   if(!hist) {
-      Error("GetCombinedWeight","Weight not recognised: %s",weightName.Data());
-      throw std::runtime_error("Throwing 47: Weight not recognised");
-   }
-
-   //get the PeriodWeight for the associated runNumber - NOTE: Delayed implementing ... see Recipe H... check dependence... 09/11/2012 - looks like H was wrong to apply IntegratedLumiFraction and old CombinedWeight... since old CombinedWeight used the periodNumber's periodWeight, which appears to include the fraction already
-   Int_t mcRunNumber = periodNumber;
-   std::map<Int_t,Int_t>::iterator it = m_periodToMCRun.find(periodNumber);
-   if(it!=m_periodToMCRun.end()) mcRunNumber = it->second;
-   Float_t out = GetPeriodWeight(weightName,mcRunNumber/*periodNumber*/,channelNumber)*GetPrimaryWeight(weightName,periodNumber,channelNumber,x);
-   if(hist->GetDimension()>1) out *= GetSecondaryWeight(weightName,periodNumber,channelNumber,x,y);
-   //if(hist->GetDimension()>2) out *= GetTertiaryWeight(weightName,periodNumber,channelNumber,x,y,z);
-
-   return out;
-}
-
-Float_t Root::TPileupReweighting::GetPeriodWeight(const TString weightName, Int_t periodNumber, Int_t channelNumber) {
-   if(!m_isInitialized) { Error("GetPeriodWeight","Tool is not initialized"); return 0;}
-   if(m_countingMode) return 0.;
-   //check if the runNumber has been reassigned
-   //only do this for mc, never for data
-   Int_t inPeriodNumber = periodNumber; //hold for getting the default channel if necessary
-   if(channelNumber>=0) {
-      if(m_mcRemappings.find(periodNumber)!=m_mcRemappings.end()) periodNumber=m_mcRemappings[periodNumber];
-   }
-
-   auto& dataMap = periodTotals[weightName][-1];
-   if(dataMap.find(periodNumber)==dataMap.end()) {
-      Error("GetPeriodWeight","Unrecognised periodNumber/mcRunNumber: %d",periodNumber);
-      throw std::runtime_error("Throwing 1: Unrecognised periodNumber/mcRunNumber");
-   }
-
-   Double_t data = dataMap[periodNumber];
-   Double_t totalData = globalTotals[weightName][-1];
-
-   if(totalData==0.) {
-      Error("GetPeriodWeight","No data for weight %s",weightName.Data());
-      throw std::runtime_error("Throwing 2: No data for weight");
-   }
-
-   auto& mcMap = periodTotals[weightName];
-   if(mcMap.find(channelNumber)==mcMap.end()) {
-      //use the default
-      if(mcMap.find(GetDefaultChannel(inPeriodNumber))==mcMap.end()) {
-         Error("GetPeriodWeight","Unrecognised channel %d and no default found: %d",channelNumber,GetDefaultChannel(inPeriodNumber));
-         throw std::runtime_error("Throwing 3: Unrecognised channel");
-      } 
-      channelNumber=GetDefaultChannel(inPeriodNumber);
-   }
-   if(mcMap[channelNumber].find(periodNumber)==mcMap[channelNumber].end()) {
-      Error("GetPeriodWeight","Unrecognised periodNumber/mcRunNumber %d in channelNumber %d",periodNumber,channelNumber);
-      throw std::runtime_error("Throwing 1: Unrecognised periodNumber/mcRunNumber");
-   }
-
-   Double_t mc = mcMap[channelNumber][periodNumber];
-   Double_t totalMC = globalTotals[weightName][channelNumber];
-
-   if(totalMC==0.) {
-      if(m_SetWarnings) Warning("GetPeriodWeight","No mc for weight '%s' in channelNumber %d",weightName.Data(),channelNumber);
-      return 0.;
-   }
-   if(mc==0.) {
-      if(m_SetWarnings) Warning("GetPeriodWeight","No mc for weight '%s' in channelNumber %d and periodNumber/runNumber %d",weightName.Data(),channelNumber,periodNumber);
-      return 0.;
-   }
-
-   return (data/totalData) / (mc/totalMC) ;
-
-}
-
-Float_t Root::TPileupReweighting::GetPrimaryWeight(const TString weightName, Int_t periodNumber, Int_t channelNumber, Float_t x) {
-   if(!m_isInitialized) { Error("GetPrimaryWeight","Tool is not initialized"); return 0;}
-   if(m_countingMode) return 0.;
-   //check if the runNumber has been reassigned
-   //only do this for mc, never for data
-   Int_t inPeriodNumber = periodNumber;
-   if(channelNumber>=0) {
-      if(m_mcRemappings.find(periodNumber)!=m_mcRemappings.end()) periodNumber=m_mcRemappings[periodNumber];
-   }
-
-   //determine bin number 
-   TH1D* data = primaryDistributions[weightName][-1][periodNumber];
-   if(!data) {
-      Error("GetPrimaryWeight","Unrecognised periodNumber/mcRunNumber: %d",periodNumber);
-      throw std::runtime_error("Throwing 4: Unrecognised periodNumber/mcRunNumber");
-   }
-   if(primaryDistributions[weightName].find(channelNumber)==primaryDistributions[weightName].end()) {
-      //try switching to default channel 
-      if(primaryDistributions[weightName].find(GetDefaultChannel(inPeriodNumber))==primaryDistributions[weightName].end()) {
-         Error("GetPrimaryWeight","Unrecognised channelNumber %d, and no distribution found for defaultChannel %d",channelNumber,GetDefaultChannel(inPeriodNumber));
-         throw std::runtime_error("Throwing 5: Unrecognised channelNumber");
-      }
-      channelNumber=GetDefaultChannel(inPeriodNumber);
-   }
-   TH1D* mc = primaryDistributions[weightName][channelNumber][periodNumber];
-   if(!mc) {
-      Error("GetPrimaryWeight","Unable to find distribution for [%s,%d,%d]",weightName.Data(),channelNumber,periodNumber);
-      throw std::runtime_error("Throwing 6: Unable to find distribution");
-   }
-
-   //MC10b correction
-   if ( fabs(x - 100.0) < 0.00001 && mc->GetXaxis()->GetXmax() < 99.0 ) x = 0.0;
-
-   Int_t bin = data->GetXaxis()->FindFixBin(x);
-
-   if(mc->GetBinContent(bin)==0.) {
-      if(m_SetWarnings) Warning("GetPrimaryWeight","No mc for weight '%s' in channelNumber=%d, periodNumber/runNumber=%d,x=%f",weightName.Data(),channelNumber,periodNumber,x);
-      return 0.;
-   }
-
-   return (data->GetBinContent(bin)/mc->GetBinContent(bin));
-}
-
-Float_t Root::TPileupReweighting::GetSecondaryWeight(const TString weightName, Int_t periodNumber, Int_t channelNumber,Float_t x, Float_t y) {
-   if(!m_isInitialized) { Error("GetSecondaryWeight","Tool is not initialized"); return 0;}
-   if(m_countingMode) return 0.;
-   //check if the runNumber has been reassigned
-   //only do this for mc, never for data
-   Int_t inPeriodNumber = periodNumber;
-   if(channelNumber>=0) {
-      if(m_mcRemappings.find(periodNumber)!=m_mcRemappings.end()) periodNumber=m_mcRemappings[periodNumber];
-   }
-
-   //determine bin number 
-   TH2D* data = secondaryDistributions[weightName][-1][periodNumber];
-   if(!data) {
-      Error("GetSecondaryWeight","Unrecognised periodNumber/mcRunNumber: %d",periodNumber);
-      throw std::runtime_error("Throwing 4: Unrecognised periodNumber/mcRunNumber");
-   }
-   if(secondaryDistributions[weightName].find(channelNumber)==secondaryDistributions[weightName].end()) {
-      //try switching to default channel 
-      if(secondaryDistributions[weightName].find(GetDefaultChannel(inPeriodNumber))==secondaryDistributions[weightName].end()) {
-         Error("GetSecondaryWeight","Unrecognised channelNumber %d, and no distribution found for defaultChannel %d",channelNumber,GetDefaultChannel(inPeriodNumber));
-         throw std::runtime_error("Throwing 5: Unrecognised channelNumber");
-      }
-      channelNumber=GetDefaultChannel(inPeriodNumber);
-   }
-   TH2D* mc = secondaryDistributions[weightName][channelNumber][periodNumber];
-   if(!mc) {
-      Error("GetSecondaryWeight","Unable to find distribution for [%s,%d,%d]",weightName.Data(),channelNumber,periodNumber);
-      throw std::runtime_error("Throwing 6: Unable to find distribution");
-   }
-   Int_t nx = data->GetXaxis()->GetNbins()+2;
-   Int_t binx = data->GetXaxis()->FindFixBin(x);
-   Int_t biny = data->GetYaxis()->FindFixBin(y);
-   Int_t bin = binx + nx*biny;
-
-   if(mc->GetBinContent(bin)==0.) {
-      if(m_SetWarnings) Warning("GetSecondaryWeight","No mc for weight '%s' in channelNumber %d and periodNumber/runNumber %d",weightName.Data(),channelNumber,periodNumber);
-      return 0.;
-   }
-
-   return (data->GetBinContent(bin)/mc->GetBinContent(bin));
-
-}
-
-Int_t Root::TPileupReweighting::Fill(Int_t runNumber,Int_t channelNumber,Float_t w, Float_t x, Float_t y, Float_t z) {
-   return Fill("pileup",runNumber,channelNumber,w,x,y,z);
-}
-
-//fills the appropriate inputHistograms
-Int_t Root::TPileupReweighting::Fill(const TString weightName,Int_t runNumber,Int_t channelNumber,Float_t w,Float_t x, Float_t y, Float_t z) {
-   if(!m_isInitialized) { Error("Fill","Tool is not initialized!"); return 0;}
-   //should only be given genuine mcRunNumbers if mc (channel>=0). We don't fill periodNumber distributions 
-   if(channelNumber>=0) {
-      //if(m_mcRemappings.find(runNumber)!=m_mcRemappings.end()) runNumber=m_mcRemappings[runNumber]; //- no remappings in fill mode!
-
-      //also check that channel histograms exist for all defined periods. If not, define them 
-      if(m_inputHistograms[weightName].find(channelNumber)==m_inputHistograms[weightName].end()) {
-         //loop over mcruns, get empty histogram for each 
-         for(std::map<Int_t,std::map<Int_t, std::pair<UInt_t,UInt_t> > >::iterator it=m_periods.begin();it!=m_periods.end();++it) {
-            m_inputHistograms[weightName][channelNumber][it->first] = CloneEmptyHistogram(weightName,it->first,channelNumber);
-         }
-         //must create histograms for the merged run numbers as well, as config files are made without merging the numbers
-         //only do it if the remapping has some actual period assignments though!
-         for(std::map<Int_t,Int_t>::iterator it=m_mcRemappings.begin();it!=m_mcRemappings.end();++it) {
-            if(m_periods.find(it->second) == m_periods.end()) continue; ///added this line in july 2014... need to check doesnt break MC12ab
-            m_inputHistograms[weightName][channelNumber][it->first] = CloneEmptyHistogram(weightName,it->first,channelNumber);
-         }
-      }
-   } else {
-      //create histograms for data too, only for this particular run
-      if(m_inputHistograms[weightName][channelNumber].find(runNumber)==m_inputHistograms[weightName][channelNumber].end()) {
-         m_inputHistograms[weightName][channelNumber][runNumber] = CloneEmptyHistogram(weightName,runNumber,channelNumber);
-      }
-   }
-
-   TH1* hist = m_inputHistograms[weightName][channelNumber][runNumber];
-
-   if(!hist) {
-      Error("Fill","Unknown [weight,run,channel] = [%s,%d,%d]",weightName.Data(),runNumber,channelNumber);
-      throw std::runtime_error("Throwing 45: Fill:: Unknown [weight,run,channel] ");
-   }
-
-   if(hist->GetDimension()==1) {
-      return hist->Fill(x,w);
-   } else if(hist->GetDimension()==2) {
-      return (static_cast<TH2*>(hist))->Fill(x,y,w);
-   } else if(hist->GetDimension()==3) {
-      return (static_cast<TH3*>(hist))->Fill(x,y,z,w);
-   }
-   return -1;
-}
 
 //=============================================================================
 // Method to calculate the ratio histogram
 //=============================================================================
-void Root::TPileupReweighting::normalizeHistogram(TH1* hist){
+void CP::TPileupReweighting::normalizeHistogram(TH1* hist){
    // normalize the data histogram based on which sort of histogram it is
    if(hist){ 
       if(hist->InheritsFrom("TH3")) {
@@ -2056,7 +1645,7 @@ void Root::TPileupReweighting::normalizeHistogram(TH1* hist){
 
 
 //This allows PROOF to merge the generated histograms before the WriteToFile or WriteCustomToFile calls
-Int_t Root::TPileupReweighting::Merge(TCollection *coll) {
+Int_t CP::TPileupReweighting::Merge(TCollection *coll) {
    if(!coll) return 0;
    if(coll->IsEmpty()) return 0;
 
@@ -2066,27 +1655,32 @@ Int_t Root::TPileupReweighting::Merge(TCollection *coll) {
    while( ( obj = next() ) ) {
 
       // Check that the element is of the right type:
-      Root::TPileupReweighting* vobj = dynamic_cast< Root::TPileupReweighting* >( obj );
+      CP::TPileupReweighting* vobj = dynamic_cast< CP::TPileupReweighting* >( obj );
       if( ! vobj ) {
          Error( "Merge", "Unknown object type encountered: %s",obj->ClassName() );
          return 0;
       }
 
-      //merge the inputHistograms 
-      for(std::map<TString, std::map<Int_t,std::map<Int_t, TH1*> > >::iterator weights=vobj->GetInputHistograms().begin();weights!=vobj->GetInputHistograms().end();++weights) {
-         TString weightName = weights->first;
-         for(std::map<Int_t,std::map<Int_t, TH1*> >::iterator channels=weights->second.begin();channels!=weights->second.end();++channels) {
-            Int_t channel = channels->first;
-            for(std::map<Int_t, TH1*>::iterator runs=channels->second.begin();runs!=channels->second.end();++runs) {
-               Int_t run=runs->first;
-               if(runs->second) {
-                  if(m_inputHistograms[weightName][channel][run]) {
-                     m_inputHistograms[weightName][channel][run]->Add(runs->second);
-                  } else {
-                     m_inputHistograms[weightName][channel][run] = dynamic_cast<TH1*>(runs->second->Clone(runs->second->GetName()));
-                     m_inputHistograms[weightName][channel][run]->SetDirectory(0);
-                  }
-               }
+      //merge the inputHistograms ... all the periods should be identical 
+      for(auto period : vobj->m_periods) {
+         if(period.first != period.second->id) continue;
+         for(auto& iHist : period.second->inputHists) {
+            if(GetInputHistogram(period.first,iHist.first)==0) {
+               m_periods[period.first]->inputHists[iHist.first] = dynamic_cast<TH1*>(iHist.second->Clone(iHist.second->GetName()));
+               m_periods[period.first]->inputHists[iHist.first]->SetDirectory(0);
+            } else {
+               GetInputHistogram(period.first,iHist.first)->Add(iHist.second);
+            }
+         }
+      }
+      //also must remember to merge the runs too (where the data is held)
+      for(auto& run : vobj->m_runs) {
+         for(auto& iHist : run.second.inputHists) {
+            if(m_runs[run.first].inputHists[iHist.first]==0) {
+               m_runs[run.first].inputHists[iHist.first] = dynamic_cast<TH1*>(iHist.second->Clone(iHist.second->GetName()));
+               m_runs[run.first].inputHists[iHist.first]->SetDirectory(0);
+            } else {
+               m_runs[run.first].inputHists[iHist.first]->Add(iHist.second);
             }
          }
       }
@@ -2096,7 +1690,7 @@ Int_t Root::TPileupReweighting::Merge(TCollection *coll) {
 }
 
 
-void Root::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TString trigger) {
+void CP::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TString trigger) {
    //check if this is a composite trigger (user has provided OR of triggers that are passed before prescale)
    
    TString triggerCopy = trigger; triggerCopy.ReplaceAll(" ",""); triggerCopy.ReplaceAll("&&","&");triggerCopy.ReplaceAll("||","|");
@@ -2107,25 +1701,6 @@ void Root::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TStr
    }
 
    std::vector<TString> subTriggers;
-
-/*
-   int fStart=0;int nextSep=trigger.Index(',');
-   while(nextSep>=0) {
-      TString subTrigger = trigger(fStart,nextSep-fStart);
-      if(m_triggerPrimaryDistributions.find(subTrigger)==m_triggerPrimaryDistributions.end()) {
-         Error("GetDataWeight","Could not find subTrigger %s in composite trigger set: %s",subTrigger.Data(),trigger.Data());
-         throw std::runtime_error("Could not find sub-trigger");
-      }
-      subTriggers.push_back(subTrigger);
-      fStart = nextSep+1;
-      nextSep = trigger.Index(',',fStart);
-   }
-   subTriggers.push_back(trigger(fStart,trigger.Length()-fStart)); //don't forget the last one
-   if(subTriggers.size()==0) {
-      Error("GetDataWeight","Could not find trigger %s",trigger.Data());
-      throw std::runtime_error("Could not find trigger");
-   }
-*/
 
    t->getTriggers(subTriggers); //fills the vector
 
@@ -2172,6 +1747,7 @@ void Root::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TStr
             long nEntries = tmp->GetEntries();
             for(long i=0;i<nEntries;i++) {
                b_runNbr->GetEntry(i);b_L1Presc->GetEntry(i);b_L2Presc->GetEntry(i);b_L3Presc->GetEntry(i);b_lbn->GetEntry(i);
+               runNbr += m_lumicalcRunNumberOffset;
                //save the prescale by run and lbn 
                //if(runNbr==215643) Info("...","prescale in [%d,%d] = %f %f %f", runNbr,lbn,ps1,ps2,ps3);
                if(ps1>0&&ps2>0&&ps3>0) prescaleByRunAndLbn[*it][runNbr][lbn] = ps1*ps2*ps3;
@@ -2212,6 +1788,7 @@ void Root::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TStr
             b_runNbr->GetEntry(i);b_intLumi->GetEntry(i);b_mu->GetEntry(i);
             b_lbn->GetEntry(i);
 
+            runNbr += m_lumicalcRunNumberOffset;
             //for each subtrigger, lookup prescale, and calculate pFactor 
 /*
             double pFactor(1);
@@ -2227,12 +1804,23 @@ void Root::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TStr
 
             //Info("...","prescale in [%d,%d] = %f", runNbr,lbn,1./pFactor);
 
-            Int_t periodNumber = GetFirstFoundPeriodNumber(runNbr);
-            if(m_triggerPrimaryDistributions[trigger].find(periodNumber) == m_triggerPrimaryDistributions[trigger].end()) {
-               m_triggerPrimaryDistributions[trigger][periodNumber] = dynamic_cast<TH1D*>(CloneEmptyHistogram("pileup",periodNumber,-1));
-               Info("CalculatePrescaledLuminosityHistograms","Created Data Weight Histogram for [%s,%d]",trigger.Data(),periodNumber);
+            int bin = m_emptyHistogram->FindFixBin(mu*m_dataScaleFactorX);
+
+            //add into all periods that contain this runNbr 
+            for(auto p : m_periods) {
+               if(p.first != p.second->id) continue; //skips remappings 
+               if(!p.second->contains(runNbr)) continue;
+               std::map<TString,TH1D*>& triggerHists = p.second->triggerHists;
+               if(triggerHists.find(trigger) == triggerHists.end()) {
+                  triggerHists[trigger] = dynamic_cast<TH1D*>(CloneEmptyHistogram(p.first,-1));
+                  if(m_debugging) Info("CalculatePrescaledLuminosityHistograms","Created Data Weight Histogram for [%s,%d]",trigger.Data(),p.first);
+               }
+                //check if we were about to fill a bad bin ... if we are, we either skipp the fill (unrep action=1) or redirect (unrep action=3)
+               if( (m_unrepresentedDataAction==1) && p.second->inputBinRedirect[bin]!=bin) { } //do nothing
+               else if( (m_unrepresentedDataAction==3) ) triggerHists[trigger]->Fill(triggerHists[trigger]->GetBinCenter(p.second->inputBinRedirect[bin]), intLumi*pFactor);
+               else triggerHists[trigger]->Fill(mu*m_dataScaleFactorX,intLumi*pFactor);
+               
             }
-            m_triggerPrimaryDistributions[trigger][periodNumber]->Fill(mu*m_dataScaleFactorX,intLumi*pFactor);
          }
       }
    }
@@ -2248,8 +1836,8 @@ void Root::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TStr
 
 }
 
-Root::TPileupReweighting::CompositeTrigger* Root::TPileupReweighting::makeTrigger(TString s) {
-   Info("makeTrigger","Doing %s",s.Data());
+CP::TPileupReweighting::CompositeTrigger* CP::TPileupReweighting::makeTrigger(TString s) {
+   if(m_debugging) Info("makeTrigger","Doing %s",s.Data());
    //find the first operand
    TString oper1; CompositeTrigger* cOper1 = 0;
    if(s.BeginsWith("(")) {
@@ -2275,8 +1863,9 @@ Root::TPileupReweighting::CompositeTrigger* Root::TPileupReweighting::makeTrigge
       i++;
    }
 
+
    if(op==0) {
-      if(m_triggerPrimaryDistributions.find(s)==m_triggerPrimaryDistributions.end()) {
+      if(m_lumicalcFiles.find(s)==m_lumicalcFiles.end()) {
          Error("GetDataWeight","Could not find subTrigger %s",s.Data());
          return 0;
       }
@@ -2306,12 +1895,12 @@ Root::TPileupReweighting::CompositeTrigger* Root::TPileupReweighting::makeTrigge
    if(j==s.Length()+1 && op==2) { //no more OR found, set oper2 to remainder 
       if(cOper1) out->trig1=cOper1;  
       else {oper1=s(0,i); out->trig1=makeTrigger(oper1); }
-      TString oper2 = s(i+1,s.Length()); Info("makeTrigger","Found & %s %s",oper1.Data(),oper2.Data());
+      TString oper2 = s(i+1,s.Length()); if(m_debugging) Info("makeTrigger","Found & %s %s",oper1.Data(),oper2.Data());
       out->trig2 = makeTrigger(oper2); if(out->trig2==0) { delete out; return 0; } 
       return out;
    } else if(op==1) {   //found an OR, set oper1 to everything up to this 
       
-      oper1 = s(0,j); TString oper2 = s(j+1,s.Length()); Info("makeTrigger","Found & then | %s %s",oper1.Data(),oper2.Data());
+      oper1 = s(0,j); TString oper2 = s(j+1,s.Length()); if(m_debugging) Info("makeTrigger","Found & then | %s %s",oper1.Data(),oper2.Data());
       if(cOper1) delete cOper1;
       out->op=op; //updates to an OR
       out->trig1=makeTrigger(oper1); if(out->trig1==0) { delete out; return 0; }
@@ -2323,28 +1912,5 @@ Root::TPileupReweighting::CompositeTrigger* Root::TPileupReweighting::makeTrigge
    return 0;
 }
 
-Double_t Root::TPileupReweighting::GetIntegratedLumi(TString trigger) { 
-   if(!m_isInitialized) {
-      Error("GetIntegratedLumi", "Please initialize the tool before retrieving the total lumi");
-      throw std::runtime_error("Throwing 1");
-   }
-   if(!m_lumiVectorIsLoaded) {
-      Error("GetIntegratedLumi","No Lumicalc file loaded, so cannot get integrated lumi, returning 0");
-      return 0;
-   }
-   if(trigger=="") return globalTotals["pileup"][-1]/1E6; 
-   else { //check the triggerPrimaryDistributions, if not present, build it
-      if(m_triggerPrimaryDistributions.find(trigger)==m_triggerPrimaryDistributions.end()) {
-         //try to do a subtrigger calculation we need to reopen all the lumicalc files and do the fiddily prescaled luminosity calculation
-         //will throw errors if can't
-         CalculatePrescaledLuminosityHistograms(trigger);
-      }
-      //loop over all periods and sum up lumi 
-      Double_t out =0;
-      for(std::map<Int_t, TH1D*>::iterator it=m_triggerPrimaryDistributions[trigger].begin(); it!= m_triggerPrimaryDistributions[trigger].end(); ++it) {
-         out += it->second->Integral(0,it->second->GetNbinsX()+1);
-      }
-      return out;
-   }
-}
+
 
