@@ -1,0 +1,78 @@
+package MinimalRunTime
+
+author Christian Arnault  <arnault@lal.in2p3.fr>
+author David Quarrie      <David.Quarrie@cern.ch>
+
+# This package sets up the runtime environment for an Athena-based
+# application.
+
+include_path none
+
+#---------------------------------------------------------------------
+# This line is necessary to ensure that the Atlas policies and patterns
+# are enforced and available. It also sets up the correct CMTPATH for
+# Gaudi & LCGCMT etc.
+use AtlasPolicy AtlasPolicy-* -no_auto_imports
+
+#---------------------------------------------------------------------
+# Setup the minimal environment for Athena
+use AthenaCommon   AthenaCommon-*   Control -no_auto_imports
+use AthenaKernel   AthenaKernel-*   Control -no_auto_imports
+use AthenaServices AthenaServices-* Control -no_auto_imports
+use CLIDSvc        CLIDSvc-*        Control -no_auto_imports
+use DataModel      DataModel-*      Control -no_auto_imports
+use SGTools        SGTools-*        Control -no_auto_imports
+use StoreGate      StoreGate-*      Control -no_auto_imports
+
+use DetDescrCnvSvc    DetDescrCnvSvc-00-* DetectorDescription -no_auto_imports
+use IdDictDetDescrCnv IdDictDetDescrCnv-* DetectorDescription -no_auto_imports
+
+# The startup of the IOVSvc appears to be hard-wired into athena.py 
+# for now, so the following is necessary
+use IOVSvc IOVSvc-* Control -no_auto_imports
+
+# Assume the McEventSelector by default
+use McEventSelector McEventSelector-* Generators -no_auto_imports
+
+#---------------------------------------------------------------------
+# Setup the runtime environment for minimal Gaudi packages
+use GaudiInterface     GaudiInterface-*     External -no_auto_imports
+
+use GaudiAlg      v* -no_auto_imports
+use GaudiAud      v* -no_auto_imports
+use GaudiKernel   v* -no_auto_imports
+use GaudiPython   v* -no_auto_imports
+use GaudiSvc      v* -no_auto_imports
+use PartPropSvc   v* -no_auto_imports
+use RootHistCnv   v* -no_auto_imports
+                                     
+#---------------------------------------------------------------------
+# Setup the runtime environment for minimal external packages
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+# Wait for AtlasPOOL to be cleaned up before adding.
+#use AtlasPOOL  AtlasPOOL-*   External -no_auto_imports
+use AtlasCOOL   AtlasCOOL-*   External -no_auto_imports
+use AtlasOracle AtlasOracle-* External -no_auto_imports
+use AtlasRELAX  AtlasRELAX-*  External -no_auto_imports
+use AtlasReflex AtlasReflex-* External -no_auto_imports
+use AtlasCORAL  AtlasCORAL-*  External -no_auto_imports
+
+
+#---------------------------------------------------------------------
+# Setup the runtime environment for minimal LCGCMT packages. These are
+# forced to be setup at CERN in order to ensure that they are included
+# in the kit.
+#use AtlasShift  AtlasShift-*  External -no_auto_imports
+use AtlasDCACHE AtlasDCACHE-* External -no_auto_imports
+#use AtlasDPM    AtlasDPM-*    External -no_auto_imports
+
+
+#---------------------------------------------------------------------
+# Setup the runtime environment for db authenticaion 
+use AtlasAuthentication AtlasAuthentication-* Database/ConnectionManagement -no_auto_imports
+
+#---------------------------------------------------------------------
+# Define post-installation actions for installation from the distribution
+# kit
+macro MinimalRunTime_pacman_post_install ". setup.sh; cmt build library_links"
+
