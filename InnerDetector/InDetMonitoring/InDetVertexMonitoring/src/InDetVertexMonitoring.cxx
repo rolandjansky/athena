@@ -110,7 +110,7 @@ StatusCode InDetVertexMonitoring::fillHistograms()
     return StatusCode::FAILURE;
   }  
   
-  int lumiBlock=0;
+  //  int lumiBlock=0;
 
   const xAOD::EventInfo*  p_evt = 0;
   sc = m_storeGate->retrieve(p_evt);
@@ -119,7 +119,7 @@ StatusCode InDetVertexMonitoring::fillHistograms()
      return StatusCode::FAILURE;
   }   
 
-  lumiBlock = p_evt->lumiBlock(); 
+  //  lumiBlock = p_evt->lumiBlock(); 
   int n_vtx = Vertexes->size()-1;
 
   for (const xAOD::Vertex* vtx : (*Vertexes) ) {
