@@ -50,7 +50,11 @@ namespace xAODMaker {
     virtual StatusCode initialize();
 
     /// Function that fills an existing xAOD::ElectronContainer (xaod or xaodForward can be NULL)
-    virtual StatusCode convert( const DataVector<egamma>* aod,
+    virtual StatusCode convert( const egammaContainer* aod,
+				xAOD::ElectronContainer* xaod ) const;
+
+    /// Function that fills an existing xAOD::ElectronContainer (xaod or xaodForward can be NULL)
+    virtual StatusCode convert( const egammaContainer* aod,
 				xAOD::ElectronContainer* xaod,
 				xAOD::ElectronContainer* xaodFrwd) const;
   private:

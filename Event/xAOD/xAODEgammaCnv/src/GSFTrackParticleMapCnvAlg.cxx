@@ -88,7 +88,7 @@ namespace xAODMaker {
     xAOD::TrackParticleContainer::const_iterator xaod = xaodContainerGSF->begin();
     xAOD::TrackParticleContainer::const_iterator xaodEnd = xaodContainerGSF->end();
     
-    for ( ; aod != aodEnd, xaod != xaodEnd; ++aod, ++xaod){
+    for ( ; aod != aodEnd && xaod != xaodEnd; ++aod, ++xaod){
       Rec::TrackParticleContainer associatedElems(SG::VIEW_ELEMENTS);    
 
       if ( !trkassocs->assocs(*aod, associatedElems) ){

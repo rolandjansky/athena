@@ -53,7 +53,7 @@ namespace xAODMaker {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode PhotonCnvTool::convert( const DataVector<egamma>* aod,
+  StatusCode PhotonCnvTool::convert( const egammaContainer* aod,
 				     xAOD::PhotonContainer* xaod ) const
   {
 
@@ -183,21 +183,28 @@ namespace xAODMaker {
 
   void PhotonCnvTool::setLinks(const egamma& aodph, xAOD::Photon& xaodph) const {
     // Need to reset links from old CaloCluster to xAOD::CaloCluster
-    ElementLink<xAOD::CaloClusterContainer> newclusterElementLink;
+    std::string clusterContainerName;
     
     //Change link depending on the photon author
     //Topo seeded photons
     if( aodph.author(egammaParameters::AuthorCaloTopo35)) {
-      newclusterElementLink.resetWithKeyAndIndex( m_caloClustersTopo, aodph.clusterElementLink().index()  );
+      clusterContainerName = m_caloClustersTopo;
     }
     //Standard photons
     else if (aodph.author(egammaParameters::AuthorPhoton | egammaParameters::AuthorRConv)) { 
-      newclusterElementLink.resetWithKeyAndIndex( m_caloClusters, aodph.clusterElementLink().index()  );
+      clusterContainerName = m_caloClusters;
     } 
     // others (trigger)
     else { 
-      newclusterElementLink.resetWithKeyAndIndex( m_caloClustersOther, aodph.clusterElementLink().index()  );
+      clusterContainerName = m_caloClustersOther;
     } 
+
+    // If EL name not set, use the original name.
+    if (clusterContainerName.empty())
+      clusterContainerName = aodph.clusterElementLink().dataID();
+    ElementLink<xAOD::CaloClusterContainer> newclusterElementLink;
+    newclusterElementLink.resetWithKeyAndIndex( clusterContainerName,
+                                                aodph.clusterElementLink().index()  );
 
     std::vector< ElementLink< xAOD::CaloClusterContainer > > linksToClusters;
     linksToClusters.push_back(newclusterElementLink);
@@ -225,8 +232,12 @@ namespace xAODMaker {
   }
   
   ElementLink<xAOD::VertexContainer> PhotonCnvTool::getNewLink(const ElementLink<VxContainer>& oldLink, const std::string& name) const{
+    std::string linkname = name;
+    // If not set, use same name as in original link.
+    if (linkname.empty())
+      linkname = oldLink.dataID();
     ElementLink<xAOD::VertexContainer> newLink;
-    newLink.resetWithKeyAndIndex( name, oldLink.index() );
+    newLink.resetWithKeyAndIndex( linkname, oldLink.index() );
     // std::cout<<"Old link is "<<(oldLink.isValid()?"VALID":"INVALID")
     //          <<" and new link (pointing to"<<name<<") is "<<(newLink.isValid()?"VALID":"INVALID")<<std::endl;
     return newLink;

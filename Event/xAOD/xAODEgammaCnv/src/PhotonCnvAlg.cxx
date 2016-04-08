@@ -42,9 +42,9 @@ namespace xAODMaker {
   StatusCode PhotonCnvAlg::execute() {
 
     // Retrieve the AOD particles:
-    const PhotonContainer* aod = evtStore()->tryConstRetrieve<PhotonContainer>(m_aodContainerName); 
+    const egammaContainer* aod = evtStore()->tryConstRetrieve<egammaContainer>(m_aodContainerName); 
     if (!aod) { 
-      ATH_MSG_WARNING("No PhotonCollection with key " << m_aodContainerName << " found. Do nothing."); 
+      ATH_MSG_WARNING("No egammaContainer with key " << m_aodContainerName << " found. Do nothing."); 
       return StatusCode::SUCCESS; 
     }
     ATH_MSG_DEBUG( "Retrieved particles with key: " << m_aodContainerName );

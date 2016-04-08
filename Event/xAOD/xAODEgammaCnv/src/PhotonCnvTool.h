@@ -47,7 +47,7 @@ namespace xAODMaker {
     virtual StatusCode initialize();
     
     /// Function that fills an existing xAOD::PhotonContainer
-    virtual StatusCode convert( const DataVector<egamma>* aod,
+    virtual StatusCode convert( const egammaContainer* aod,
 				xAOD::PhotonContainer* xaod) const;
     
   private:
