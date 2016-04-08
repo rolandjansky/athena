@@ -1,0 +1,7 @@
+package PyParticleTools
+
+author Tadashi.Maeno <Tadashi.Maeno@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+
+apply_pattern declare_python_modules files="*.py"
