@@ -6,9 +6,9 @@
 
 namespace Trk {
 
-  static TrackParametersIdHelper m_helper;
+  TrackParametersIdHelper TrackParametersIdentificationHelper::m_helper;
 
-  static TrackParametersIdentifier getIdentifier( const Trk::TrackParameters& pars ) {
+  TrackParametersIdentifier TrackParametersIdentificationHelper::getIdentifier( const Trk::TrackParameters& pars ) {
     const CurvilinearParameters* cpars = dynamic_cast<const CurvilinearParameters*>(&pars);
     if( cpars) return getIdentifier(*cpars);
     return m_helper.encodeInValidIdentifier();
