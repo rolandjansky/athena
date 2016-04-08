@@ -42,14 +42,14 @@ for i in range(len(trtElements1)):
             else:
                 trtTransCan[1].cd()
             line.SetLineColor(kGreen+1)
-            line.DrawArrow(trt_x1,trt_y2,trt_x1+TRASL_FACTOR*(trt_x1-trt_x2),trt_y1+TRASL_FACTOR*(trt_y1-trt_y2),0.01,"") 
+            line.DrawArrow(trt_x1,trt_y1,trt_x1+TRASL_FACTOR*(trt_x2-trt_x1),trt_y1+TRASL_FACTOR*(trt_y2-trt_y1),0.01,"") 
 
             IDTransCan.cd()
             if trt_z1 < 0:
-                line.SetLineColor(kGreen+1)
+                line.SetLineColor(kGreen-2)
             else:
-                line.SetLineColor(kYellow+1)
-            line.DrawArrow(trt_x1,trt_y2,trt_x1+TRASL_FACTOR*(trt_x1-trt_x2),trt_y1+TRASL_FACTOR*(trt_y1-trt_y2),0.01,"") 
+                line.SetLineColor(kGreen+2)
+            line.DrawArrow(trt_x1,trt_y1,trt_x1+TRASL_FACTOR*(trt_x2-trt_x1),trt_y1+TRASL_FACTOR*(trt_y2-trt_y1),0.01,"") 
 
             # Save values for later drawing
             trt_lay = trtElements1[i][1] 
@@ -102,7 +102,7 @@ for i in range(len(trtElements1)):
                         theseCans[1].cd()
 
                     line.SetLineColor(kGreen+1)
-                    line.DrawArrow(trt_x1,trt_y2,trt_x1+TRASL_FACTOR*(trt_x1-trt_x2),trt_y1+TRASL_FACTOR*(trt_y1-trt_y2),0.01,"")    
+                    line.DrawArrow(trt_x1,trt_y1,trt_x1+TRASL_FACTOR*(trt_x2-trt_x1),trt_y1+TRASL_FACTOR*(trt_y2-trt_y1),0.01,"")    
 
 
     # Endcap A

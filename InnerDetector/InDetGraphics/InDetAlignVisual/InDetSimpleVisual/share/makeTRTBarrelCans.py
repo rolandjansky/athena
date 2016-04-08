@@ -58,11 +58,11 @@ for mod in x1_Aside:
     dyC = (y2_Cside[mod] - y2)/z1_Aside[mod]/2
 
         
-    line.SetLineColor(kGreen+1)
+    line.SetLineColor(kGreen-2)
     line.SetLineWidth(3)
     line.DrawArrow(x1,y1,x1+ROTXY_FACTOR*(dxA),y1+ROTXY_FACTOR*(dyA),0.01,"-")
 
-    line.SetLineColor(kYellow+1)
+    line.SetLineColor(kGreen+2)
     line.SetLineWidth(3)
     line.DrawArrow(x1,y1,x1+ROTXY_FACTOR*(dxC),y1+ROTXY_FACTOR*(dyC),0.01,"-") 
 
