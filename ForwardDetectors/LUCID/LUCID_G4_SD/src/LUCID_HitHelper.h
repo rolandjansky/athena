@@ -5,19 +5,26 @@
 #ifndef LUCID_HITIDHELPER
 #define LUCID_HITIDHELPER 1
 
+// Athena includes
 #include "HitManagement/HitIdHelper.h"
+
+// Geant4 includes
 #include "globals.hh"
-#include <cmath>
 #include "G4Step.hh"
-#include "G4VTouchable.hh"
 #include "G4TouchableHistory.hh"
+#include "G4VTouchable.hh"
+
+// CLHEP includes
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
+// STL includes
+#include <cmath>
+
 class LUCID_HitHelper: HitIdHelper {
-  
+
  public:
-  
+
   LUCID_HitHelper(){}
   ~LUCID_HitHelper(){}
 
@@ -28,9 +35,9 @@ class LUCID_HitHelper: HitIdHelper {
 
   inline double GetWaveLength(double energy) const { return 2.*M_PI*CLHEP::hbarc/(CLHEP::eV*CLHEP::nm)/energy; }
   inline double GetEnergy    (double lambda) const { return 2.*M_PI*CLHEP::hbarc/(CLHEP::eV*CLHEP::nm)/lambda; }
-  
+
   int GetVolNumber(G4String) const;
-  int GetTubNumber(G4Step* ) const;  
+  int GetTubNumber(G4Step* ) const;
 };
 
 #endif
