@@ -11,7 +11,7 @@
 
 #include "TrigInDetAnalysisUtils/TrigTrackSelector.h"
 
-  //  TrigTrackSelector( bool (*selector)(const TrigInDetAnalysis::Track*)=NULL ) : TrackSelector(selector) {  } 
+  //  TrigTrackSelector( bool (*selector)(const TIDA::Track*)=NULL ) : TrackSelector(selector) {  } 
 TrigTrackSelector::TrigTrackSelector( TrackFilter* selector ) : 
     TrackSelector(selector), m_id(0), xBeam(0), yBeam(0), zBeam(0),
     m_first(true), m_correctTrkTracks(false) {  } 
@@ -54,6 +54,7 @@ void TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDe
 	unsigned multiPattern = 0;
 
 	double chi2    = track->chi2();
+	double dof     = 0; /// not definied ofr TrigInDetTracks
 
 	bool truth = false;
 	int match_barcode = -1;
@@ -67,7 +68,7 @@ void TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDe
 	}
 	
 	
-	TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(  eta,  phi,  z0,  d0,  pT, chi2, 
+	TIDA::Track* t = new TIDA::Track(  eta,  phi,  z0,  d0,  pT, chi2, dof, 
 								     deta, dphi, dz0, dd0, dpT, 
 								     nBlayerHits, nPixelHits, nSctHits, nSiHits, 
 								     nStrawHits, nTrHits, 
@@ -171,8 +172,10 @@ void TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
 
       const Trk::FitQuality *quality   = track->fitQuality();
       double chi2 = quality->chiSquared();
-
+      double dof  = quality->numberDoF();
+      
       unsigned bitmap = 0;
+
       
       unsigned long id = (unsigned long)track;
 
@@ -212,7 +215,7 @@ void TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
 
       // Create and save Track
       
-      TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2,
+      TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, chi2, dof,
 								 deta, dphi, dz0, dd0, dpT,
 								 nBlayerHits, nPixelHits, nSctHits, nSiHits,
 								 nStrawHits, nTrHits, bitmap, 0,
@@ -286,20 +289,20 @@ void TrigTrackSelector::selectTrack( const TruthParticle& track ) { selectTrack(
 
 // add a TruthParticle 
 void TrigTrackSelector::selectTrack( const TruthParticle* track ) { 
-    TrigInDetAnalysis::Track* t = makeTrack( track, m_id );
+    TIDA::Track* t = makeTrack( track, m_id );
      if ( t && !addTrack(t) ) delete t;
 }
 
 
 // make a TIDA::Track from a GenParticle 
-TrigInDetAnalysis::Track* TrigTrackSelector::makeTrack( const HepMC::GenParticle* track ) { 
+TIDA::Track* TrigTrackSelector::makeTrack( const HepMC::GenParticle* track ) { 
     unsigned long id = (unsigned long)track;
     TruthParticle t = TruthParticle(track); 
     return  makeTrack( &t, id );
 }
 
 // make a TIDA::Track from a TruthParticle 
-TrigInDetAnalysis::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned long tid ) { 
+TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned long tid ) { 
   
     if ( track==0 ) return 0; 
     if ( track->status() != 1 ) return 0;   /// check for final state
@@ -488,7 +491,7 @@ TrigInDetAnalysis::Track* TrigTrackSelector::makeTrack( const TruthParticle* tra
     
 
 
-    TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, 0,
+    TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, 0, 0,
 							       0, 0, 0, 0, 0,
 							       0, 0, 0, 0,
 							       0, 0, 0, 0,
@@ -621,12 +624,14 @@ void TrigTrackSelector::selectTrack( const Trk::Track* track ) {
 	}
 
 	unsigned long id = (unsigned long)track;
-	double chi2 =  0.;
+	double chi2 = 0;
+	double dof  = 0; 
 	//const Trk::FitQuality *quality   = dynamic_cast<const Trk::FitQuality*>(track->fitQuality());
 	const Trk::FitQuality *quality   = (track->fitQuality());
 	if(quality==0) std::cerr << "Could not create FitQuality  - Track will likely fail hits requirements" << std::endl;
 	else{
             chi2 = quality->chiSquared();          
+	    dof  = quality->numberDoF();
 	}
 
 	int trackAuthor = -1;
@@ -660,7 +665,7 @@ void TrigTrackSelector::selectTrack( const Trk::Track* track ) {
 		  << std::endl;
   #endif	
 	// Create and save Track      
-	TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2,
+	TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, chi2, dof,
 								   deta, dphi, dz0, dd0, dpT,
 								   nBlayerHits, nPixelHits, nSctHits, nSiHits,
 								   nStrawHits, nTrHits, bitmap, 0,
@@ -708,7 +713,7 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       double pT    = measPer->pt(); 
       double eta   = measPer->eta();
       double phi   = measPer->phi0();
-      double z0    = measPer->z0() + zBeam;  /// temporarily remove interaction mean z position
+      double z0    = measPer->z0() + measPer->vz();  /// Grrrrr remove interaction mean z position!!!
       double d0    = measPer->d0();
 
       double theta = measPer->theta();
@@ -730,7 +735,8 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       double dpT  = 0; 
 
 
-      if ( xBeam!=0 || yBeam!=0 ) correctToBeamline( z0, dz0, d0, dd0, theta, phi );
+      /// don't correct xaod tracks to the beamline
+      //      if ( xBeam!=0 || yBeam!=0 ) correctToBeamline( z0, dz0, d0, dd0, theta, phi );
       
 
       double sintheta = std::sin(theta);
@@ -764,19 +770,49 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       track->summaryValue( _nTrtHits, xAOD::numberOfTRTHighThresholdHits);
       int nTrtHits  = _nTrtHits;
       
-      int nSiHits     = nPixelHits + nSctHits;
 
       uint8_t _expectBL  = 0;
       track->summaryValue( _expectBL, xAOD::expectBLayerHit);
 
       bool expectBL = ( _expectBL ? true : false );
 
+
+      /// holes 
+
+      uint8_t _sctholes  = 0;
+      track->summaryValue( _sctholes, xAOD::numberOfSCTHoles);
+
+      uint8_t _pixholes  = 0;
+      track->summaryValue( _pixholes, xAOD::numberOfPixelHoles);
+
+      /// cheat !! pack the holes into the hits
+      /// so that eg int pixelholes() { return npix/1000; } 
+      ///            int  pixelhits() { return npix%1000; }
+
+      nSctHits   += 1000*_sctholes;
+      nPixelHits += 1000*_pixholes;
+
+      /// get the total number of holes as well
+      int nSiHits     = nPixelHits + nSctHits;
+
+      /// fit quality
+
       double chi2 = track->chiSquared();
+      double dof  = track->numberDoF();
       
       unsigned long id = (unsigned long)track;
 
-      unsigned bitmap = 0;
+      unsigned bitmap = track->hitPattern();
 
+
+
+      double xbeam = track->vx(); 
+      double ybeam = track->vy(); 
+      double zbeam = track->vz(); 
+      
+      if ( xbeam!=getBeamX() || ybeam!=getBeamY() || zbeam!=getBeamZ() ) setBeamline( xbeam, ybeam, zbeam );
+	
+     
 
 #if 0
 #ifndef XAOD_STANDALONE
@@ -784,8 +820,8 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
 
       static int hpmap[20] = { 0, 1, 2,  7, 8, 9,  3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
 
-      //      const Trk::Track*          _track =  track->track();
-      const Trk::Track*          _track =  track->track().getDataPtr();
+      //      const Trk::Track*    _track =  track->track();
+      const Trk::Track*   _track =  track->track().getDataPtr();
       if ( _track ) { 
       
 	/// This is Soooo isHit, xAOD::TrackParticle::track() is supposed to produce a 
@@ -850,21 +886,22 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
 		<< "\tpT="  << pT // << "\t( " << 1/qoverp << ")"
 		<< "\td0="  << d0
 		<< "\tNsi=" << nSiHits 
-		<< "\tNtrt=" << nTrtHits 
-		<< "\tNstr=" << nStrawHits
+	//		<< "\tNtrt=" << nTrtHits 
+	//		<< "\tNstr=" << nStrawHits
 		<< "\tfitter=" << fitter
 		<< "\tauthor=" << trackAuthor
+		<< "\tVTX x " << track->vx() << "\ty " << track->vy() << "\tz " << track->vz() 
 		<< std::endl;
 #endif	
 
       // Create and save Track
       
-      TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2,
-								 deta, dphi, dz0, dd0, dpT,
-								 nBlayerHits, nPixelHits, nSctHits, nSiHits,
-								 nStrawHits, nTrtHits, bitmap, 0,
-								 trackAuthor,
-								 expectBL, id) ;  
+      TIDA::Track* t = new TIDA::Track( eta,   phi,  z0,  d0,  pT, chi2, dof,
+		 		        deta,  dphi, dz0, dd0, dpT,
+				        nBlayerHits, nPixelHits, nSctHits, nSiHits,
+				        nStrawHits,  nTrtHits,   bitmap, 0,
+				        trackAuthor,
+				        expectBL, id) ;  
 
       //      std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
       
@@ -900,15 +937,15 @@ void TrigTrackSelector::correctToBeamline( double& z0,    double& dz0,
     
     /// make sure that users have set the beamline parameters
     
-    if ( m_first ) { 
-      if ( xBeam==0 && yBeam==0 ) { 
-	std::cerr << "TrigTrackSelector::correctToBeamline() WARNING -- Beamline set to (0,0) -- WARNING" << std::endl;  
-      }
-      //      else { 
-      //	std::cout << "TrigTrackSelector::correctToBeamline() Beamline set to " << xBeam << " " << yBeam << std::endl;  
-      //    }
-      m_first = false;
-    }
+    //   if ( m_first ) { 
+    //     if ( xBeam==0 && yBeam==0 ) { 
+    //	    std::cerr << "TrigTrackSelector::correctToBeamline() WARNING -- Beamline set to (0,0) -- WARNING" << std::endl;  
+    //     }
+    //     else { 
+    //	   std::cout << "TrigTrackSelector::correctToBeamline() Beamline set to " << xBeam << " " << yBeam << std::endl;  
+    //     }
+    //     m_first = false;
+    //   }
     
     
     //      double theta = 2*std::atan( exp( (-1)*eta ) );

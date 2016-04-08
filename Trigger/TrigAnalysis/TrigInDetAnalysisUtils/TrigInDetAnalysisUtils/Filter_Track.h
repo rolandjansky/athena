@@ -28,6 +28,10 @@
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
+/// sadly need to include a root dependency, but no matter - the TIDA::Track 
+/// class itself inherets from TObject already, so perhaps the boat has sailed 
+/// on that concern long ago
+#include "TMath.h"
 
 
 // generic selection cut selection function 
@@ -38,20 +42,25 @@ public:
   
   Filter_Track( double etaMax,  double d0Max,  double z0Max,   double  pTMin,  
 		int  minPixelHits, int minSctHits, int minSiHits, int minBlayerHits,  
-		int minStrawHits, int minTrHits ) :
+		int minStrawHits, int minTrHits, double prob=0, 
+		int maxPixelHoles=20, int maxSctHoles=20, int maxSiHoles=20 ) :
     m_etaMax(etaMax), m_d0Max(d0Max),  m_z0Max(z0Max),  m_pTMin(pTMin), 
     m_minPixelHits(minPixelHits),   m_minSctHits(minSctHits),     m_minSiHits(minSiHits),   
-    m_minBlayerHits(minBlayerHits), m_minStrawHits(minStrawHits), m_minTrHits(minTrHits) 
+    m_minBlayerHits(minBlayerHits), m_minStrawHits(minStrawHits), m_minTrHits(minTrHits),
+    m_maxPixelHoles(maxPixelHoles), m_maxSctHoles(maxSctHoles), m_maxSiHoles(maxSiHoles),
+    m_prob(prob)
   { } 
 
-  bool select(const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* =0 ) { 
+  bool select(const TIDA::Track* t, const TIDARoiDescriptor* =0 ) { 
     // Select track parameters
     bool selected = true;
     if ( std::fabs(t->eta())>m_etaMax || std::fabs(t->a0())>m_d0Max || std::fabs(t->z0())>m_z0Max || std::fabs(t->pT())<m_pTMin ) selected = false;
     // Select track silicon hit content
     if( t->pixelHits()<m_minPixelHits || t->sctHits()<m_minSctHits || t->siHits()<m_minSiHits || t->bLayerHits()<m_minBlayerHits ) selected = false;
+    if( t->pixelHoles()>m_maxPixelHoles || t->sctHoles()>m_maxSctHoles || (t->pixelHoles()+t->sctHoles())>m_maxSiHoles ) selected = false; 
     // Select track trt hit content
     if( t->strawHits()<m_minStrawHits || t->trHits()<m_minTrHits ) selected = false;
+    if( m_prob>0 && TMath::Prob( t->chi2(), t->dof() )<m_prob ) selected = false;
     return selected;
   } 
 
@@ -70,7 +79,12 @@ private:
   int  m_minBlayerHits;
   int  m_minStrawHits;
   int  m_minTrHits;
-  
+
+  int  m_maxPixelHoles;
+  int  m_maxSctHoles;
+  int  m_maxSiHoles;
+
+  double  m_prob;
 };
 
 

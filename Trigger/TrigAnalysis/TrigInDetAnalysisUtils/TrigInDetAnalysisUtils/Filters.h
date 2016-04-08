@@ -7,7 +7,7 @@
 #include "TrigInDetAnalysisUtils/Filter_etaPT.h"
 #include "TrigInDetAnalysisUtils/Filter_TrackQuality.h"
 
-#include "TrigInDetAnalysis/TrackVertex.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 
 #include "TDirectory.h"
 
@@ -15,7 +15,7 @@
 
 class Filter_True : public TrackFilter {  
  public:
-  bool select( const TrigInDetAnalysis::Track* /*t*/, const TIDARoiDescriptor* /*r=0*/ ) { return true; }
+  bool select( const TIDA::Track* /*t*/, const TIDARoiDescriptor* /*r=0*/ ) { return true; }
 }; 
 
 
@@ -24,7 +24,7 @@ class Filter_Author : public TrackFilter {
 
  Filter_Author(const int& author) : m_author(author) { } 
 
-  bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* /*r=0*/ ) {
+  bool select( const TIDA::Track* t, const TIDARoiDescriptor* /*r=0*/ ) {
     if ( t->author()>m_author ) return false;
     return true; 
   }
@@ -43,7 +43,7 @@ class Filter_pdgId : public TrackFilter {
 
  Filter_pdgId(const unsigned int& pdgId) : m_pdgId(pdgId) { } 
 
-  bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* /*r=0*/ ) {
+  bool select( const TIDA::Track* t, const TIDARoiDescriptor* /*r=0*/ ) {
     //Author stores pdgId
     if (std::abs(t->author())!=m_pdgId) return false;
     return true; 
@@ -61,7 +61,7 @@ class Filter_pdgIdpTeta : public TrackFilter {
 
  Filter_pdgIdpTeta(const unsigned int& pdgId, double etaMax, double  pTMin) : m_pdgId(pdgId), m_etaMax(etaMax), m_pTMin(pTMin)  { } 
 
-  bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* /*r=0*/ ) {
+  bool select( const TIDA::Track* t, const TIDARoiDescriptor* /*r=0*/ ) {
     //Author stores pdgId
     if (std::abs(t->author())!=m_pdgId || std::fabs(t->eta())>m_etaMax || std::fabs(t->pT())<m_pTMin) return false;
     return true; 
@@ -83,7 +83,7 @@ class Filter_Bound : public TrackFilter {
  Filter_Bound(const double &eta_max, const double &pT_min, const double &pT_max) : m_pT_max(pT_max),
     m_pT_min(pT_min), 
     m_eta_max(eta_max) {}
-  bool select ( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* /*r=0*/) {
+  bool select ( const TIDA::Track* t, const TIDARoiDescriptor* /*r=0*/) {
     if (fabs(t->eta()) > m_eta_max) return false;
     if (fabs(t->pT()) > m_pT_max) return false;
     if (fabs(t->pT()) < m_pT_min) return false;
@@ -148,17 +148,17 @@ class Filter_Vertex : public TrackFilter {
 
   } 
 
-  void setVertex(const TrackVertex& v) { 
+  void setVertex(const TIDA::Vertex& v) { 
     m_v.clear();
     m_v.push_back(v);
   } 
 
-  void setVertex(const std::vector<TrackVertex>& vv) { 
+  void setVertex(const std::vector<TIDA::Vertex>& vv) { 
     m_v.clear();
     m_v = vv;
   } 
 
-  bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* /*r=0*/ ) {
+  bool select( const TIDA::Track* t, const TIDARoiDescriptor* /*r=0*/ ) {
     /// calculate z, d0 with respect 
     /// to vertex and then cut on them 
 
@@ -198,7 +198,7 @@ class Filter_Vertex : public TrackFilter {
   double m_d0Cut;
   double m_z0Cut;
 
-  std::vector<TrackVertex> m_v;
+  std::vector<TIDA::Vertex> m_v;
 
 }; 
 
@@ -212,7 +212,7 @@ class Filter_Combined : public TrackFilter {
 
   void setRoi( TIDARoiDescriptor* r ) { m_roi = r; } 
 
-  bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* r=0 ) {
+  bool select( const TIDA::Track* t, const TIDARoiDescriptor* r=0 ) {
     //    std::cout << this << "\tfilter1 " << mf1->select(t,r) << "\tfilter2 " << mf2->select(t,r) << "\troi " << m_roi << std::endl; 
 
     if ( r!=0 ) m_roi = r;

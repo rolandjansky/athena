@@ -33,27 +33,27 @@ public:
   ~TrackMatchDeltaR() { } 
 
   //  virtual void match( const std::vector<Track*>& ref, const std::vector<Track*>& test ) { 
-  virtual void match(const std::vector<TrigInDetAnalysis::Track*>& s1, 
-		     const std::vector<TrigInDetAnalysis::Track*>& s2 ) 
+  virtual void match(const std::vector<TIDA::Track*>& s1, 
+		     const std::vector<TIDA::Track*>& s2 ) 
   {
     clear();
     
-    const std::vector<TrigInDetAnalysis::Track*>& ref  = s1; 
-    const std::vector<TrigInDetAnalysis::Track*>& test = s2;
+    const std::vector<TIDA::Track*>& ref  = s1; 
+    const std::vector<TIDA::Track*>& test = s2;
 
     // loop over reference tracks
     for ( int i=ref.size() ; i-- ; ) {
       
-      TrigInDetAnalysis::Track* reftrack = ref[i];
+      TIDA::Track* reftrack = ref[i];
       
       //  find the closest track
-      TrigInDetAnalysis::Track* tmptrack = NULL;
+      TIDA::Track* tmptrack = NULL;
       double R2min = 0;
 
       // loop over test tracks
       for ( int j=test.size() ; j-- ; ) { 
 
-	TrigInDetAnalysis::Track* testtrack = test[j];
+	TIDA::Track* testtrack = test[j];
 
 	double R2tmp = deltaR2( reftrack, testtrack );
 
@@ -66,8 +66,8 @@ public:
 
       // is this inside the delta R specification?
       if ( tmptrack && R2min<mR2 ) { 
-	mmatched.insert(    track_map::value_type(reftrack,tmptrack) );
-	mrevmatched.insert( track_map::value_type(tmptrack,reftrack) );
+	mmatched.insert(    map_type::value_type(reftrack,tmptrack) );
+	mrevmatched.insert( map_type::value_type(tmptrack,reftrack) );
 	
 	std::cout << "\t\tSUTT matched " << *reftrack  << "\t -> \t" << *tmptrack << "\tDr=" << R2min << std::endl; 
       }
@@ -75,7 +75,7 @@ public:
   }
    
 
-  virtual double deltaR2( const TrigInDetAnalysis::Track* reftrack, const TrigInDetAnalysis::Track* testtrack ) {
+  virtual double deltaR2( const TIDA::Track* reftrack, const TIDA::Track* testtrack ) {
     double deta = reftrack->eta()-testtrack->eta();
     double dphi = reftrack->phi()-testtrack->phi();
     if ( dphi> M_PI ) dphi-=2*M_PI;

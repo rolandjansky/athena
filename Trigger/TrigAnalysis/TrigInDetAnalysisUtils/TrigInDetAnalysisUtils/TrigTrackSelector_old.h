@@ -52,13 +52,13 @@
 
 // namspace TrigInDetAnalysis {
 
-// class TrigTrackSelector : public TrigInDetAnalysis::TrackSelector<TrigInDetAnalysis::Track> { 
+// class TrigTrackSelector : public TIDA::TrackSelector<TIDA::Track> { 
 
 class TrigTrackSelector : public TrackSelector { 
 
 public:
 
-  //  TrigTrackSelector( bool (*selector)(const TrigInDetAnalysis::Track*)=NULL ) : TrackSelector(selector) {  } 
+  //  TrigTrackSelector( bool (*selector)(const TIDA::Track*)=NULL ) : TrackSelector(selector) {  } 
   TrigTrackSelector( TrackFilter* selector ) : TrackSelector(selector), m_id(0) {  } 
 
   virtual void clear() { for ( unsigned i=mtracks.size() ; i-- ; ) delete mtracks[i]; mtracks.clear(); }   
@@ -111,7 +111,7 @@ public:
 	}
 	
 	
-	TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(  eta,  phi,  z0,  d0,  pT, chi2, 
+	TIDA::Track* t = new TIDA::Track(  eta,  phi,  z0,  d0,  pT, chi2, 
 								     deta, dphi, dz0, dd0, dpT, 
 								     nBlayerHits, nPixelHits, nSctHits, nSiHits, 
 								     nStrawHits, nTrHits, 
@@ -243,7 +243,7 @@ public:
 
       // Create and save Track
       
-      TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2,
+      TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, chi2,
 								 deta, dphi, dz0, dd0, dpT,
 								 nBlayerHits, nPixelHits, nSctHits, nSiHits,
 								 nStrawHits, nTrHits, bitmap, 0,
@@ -317,20 +317,20 @@ public:
 
   // add a TruthParticle 
   void selectTrack( const TruthParticle* track ) { 
-    TrigInDetAnalysis::Track* t = makeTrack( track, m_id );
+    TIDA::Track* t = makeTrack( track, m_id );
      if ( t && !addTrack(t) ) delete t;
   }
 
 
   // make a TIDA::Track from a GenParticle 
-  static TrigInDetAnalysis::Track* makeTrack( const HepMC::GenParticle* track ) { 
+  static TIDA::Track* makeTrack( const HepMC::GenParticle* track ) { 
     unsigned long id = (unsigned long)track;
     TruthParticle t = TruthParticle(track); 
     return  makeTrack( &t, id );
   }
 
   // make a TIDA::Track from a TruthParticle 
-  static TrigInDetAnalysis::Track* makeTrack( const TruthParticle* track, unsigned long tid=0 ) { 
+  static TIDA::Track* makeTrack( const TruthParticle* track, unsigned long tid=0 ) { 
 
     if ( track==0 ) return 0; 
 
@@ -521,7 +521,7 @@ public:
     
 
 
-    TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, 0,
+    TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, 0,
 							       0, 0, 0, 0, 0,
 							       0, 0, 0, 0,
 							       0, 0, 0, 0,
@@ -671,7 +671,7 @@ public:
 		  << std::endl;
   #endif	
 	// Create and save Track      
-	TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track(eta, phi, z0, d0, pT, chi2,
+	TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, chi2,
 								   deta, dphi, dz0, dd0, dpT,
 								   nBlayerHits, nPixelHits, nSctHits, nSiHits,
 								   nStrawHits, nTrHits, bitmap, 0,

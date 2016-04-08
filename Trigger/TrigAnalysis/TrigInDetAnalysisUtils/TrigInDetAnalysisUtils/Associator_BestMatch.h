@@ -20,84 +20,26 @@
 #include "TrigInDetAnalysis/TrackAssociator.h"
 #include "TrigInDetAnalysis/Track.h"
 
+#include "TrigInDetAnalysisUtils/BestMatcher.h"
 
 
-class Associator_MatcherBase : public TrackAssociator {
 
-public:
-
-  Associator_MatcherBase(const std::string& name, double d) : 
-    TrackAssociator(name), md(d) 
-  { } 
-
-  virtual ~Associator_MatcherBase() { } 
-
-  //  virtual void match( const std::vector<TrigInDetAnalysis::Track*>& ref, const std::vector<TrigInDetAnalysis::Track*>& test ) { 
-  virtual void match(const std::vector<TrigInDetAnalysis::Track*>& s1, 
-                     const std::vector<TrigInDetAnalysis::Track*>& s2 ) 
-  {
-    clear();
-    
-    const std::vector<TrigInDetAnalysis::Track*>& ref  = s1; 
-    const std::vector<TrigInDetAnalysis::Track*>& test = s2;
-    // loop over reference tracks
-    for ( int i=ref.size() ; i-- ; ) {
-      
-      TrigInDetAnalysis::Track* reftrack = ref[i];
-      
-      //  find the closest track
-      TrigInDetAnalysis::Track* tmptrack = NULL;
-
-      double dmin = 0;
-
-      // loop over test tracks
-      for ( int j=test.size() ; j-- ; ) { 
-
-	TrigInDetAnalysis::Track* testtrack = test[j];
-
-        double d = distance( reftrack, testtrack );
-
-        // found a close track
-        if ( tmptrack==NULL ||  d<dmin ) { 
-          dmin = d;
-          tmptrack = testtrack;
-        } 
-      }
-
-      // is this inside the delta R specification?
-      if ( tmptrack && dmin<md ) { 
-        mmatched.insert(    track_map::value_type(reftrack,tmptrack) );
-        mrevmatched.insert( track_map::value_type(tmptrack,reftrack) );
-        
-        std::cout << "\t\tmatched " << *reftrack  << "\t -> \t" << *tmptrack << "\tDr=" << dmin << std::endl; 
-      }
-    }
-  }
-   
-
-  virtual double distance( TrigInDetAnalysis::Track* t0, TrigInDetAnalysis::Track* t1 ) = 0;
-
-
-private:
-
-  double md;
-
-};
+typedef BestMatcher<TIDA::Track> Associator_BestMatcher;
 
 
 
 
-class Associator_DeltaRMatcher : public Associator_MatcherBase { 
+class Associator_DeltaRMatcher : public Associator_BestMatcher { 
 
 public:
 
   Associator_DeltaRMatcher(const std::string& name, double d) : 
-    Associator_MatcherBase(name, d) 
+    Associator_BestMatcher(name, d) 
   { } 
   
   virtual ~Associator_DeltaRMatcher() { } 
 
-  double distance( TrigInDetAnalysis::Track* t0,  TrigInDetAnalysis::Track* t1 ) {
+  double distance( const TIDA::Track* t0,  const TIDA::Track* t1 ) const {
     double deta = t0->eta()-t1->eta();
     double dphi = t0->phi()-t1->phi();    
     if ( dphi> M_PI ) dphi-=2*M_PI; 
@@ -110,155 +52,6 @@ public:
 
 
 
-
-
-class Associator_BestMatcher : public TrackAssociator {
-
-protected:
-
-  class matched { 
-    
-  public:
-    
-    matched(double d, int i, int j) : md(d), mmatch(std::pair<int,int>(i,j)) { } 
-    
-    double d() const { return md; } 
-    
-    std::pair<int, int> pair() const { return mmatch; }
-    
-    int first()  const { return mmatch.first; } 
-    int second() const { return mmatch.second; } 
-    
-    bool operator<(const matched& a) const { return d()<a.d(); }
-    bool operator>(const matched& a) const { return d()>a.d(); }
-    bool operator==(const matched& a) const { return  d()==a.d(); } 
-    bool operator!=(const matched& a) const { return  d()!=a.d(); } 
-    
-  private:
-    double              md;
-    std::pair<int, int> mmatch; 
-  };
-
-public:
-
-  Associator_BestMatcher(const std::string& name, double d) : 
-    TrackAssociator(name), md(d) 
-  { 
-    //    std::cout << "Associator_BestMatcher::Associator_BestMatcher() " << name << "\td = " << md << std::endl; 
-  } 
-  
-  virtual ~Associator_BestMatcher() { } 
-  
-  
-  //  virtual void match( const std::vector<TrigInDetAnalysis::Track*>& ref, const std::vector<TrigInDetAnalysis::Track*>& test ) { 
-  virtual void match(const std::vector<TrigInDetAnalysis::Track*>& ref, 
-                     const std::vector<TrigInDetAnalysis::Track*>& test ) 
-  {
-    clear();
-    
-    std::map<int,int> matched = matcher( ref, test);
-
-    std::map<int,int>::iterator  mitr = matched.begin();
-    while ( mitr!=matched.end() ) {
-      mmatched.insert(    track_map::value_type( ref[mitr->first],   test[mitr->second]) );
-      mrevmatched.insert( track_map::value_type( test[mitr->second], ref[mitr->first] ) );
-      mitr++;
-    }  
-   
-  }
-   
-
-  virtual double distance( TrigInDetAnalysis::Track* t0, TrigInDetAnalysis::Track* t1 ) = 0;
-
-
-protected:
-
-
-  template<typename Tp>
-  std::map<int, int>  matcher( const std::vector<Tp*>& ref, const std::vector<Tp*>& test) { 
-    //				double (*distance_func)(Tp*, Tp*), double dr) { 
-    
-    /// inserting into a multimatch sorts them into order 
-    /// as they are added so you get the list of best 
-    /// matches imediately 
-    
-    std::multiset<matched> m;
-    
-    for (unsigned int i=0 ; i<ref.size() ; i++ ) { 
-      
-      for (unsigned int j=0 ; j<test.size() ; j++ ) { 
-	double d = distance(ref[i], test[j]);          
-	if ( d<md ){  
-	  m.insert( matched(d, i, j) ); 
-	}
-      }
-    }
-    
-    /// now go through from best to worst, adding to another
-    /// sorted set only the matches that do not use tracks
-    /// already used by a better matching pair already found
-    
-    // lookup of tracks already used
-    std::set<int> refind;
-    std::set<int> testind;
-    
-    // set of unique track pairings
-    std::multiset<matched> unique;
-    
-    std::multiset<matched>::iterator mitr = m.begin();
-    
-    double chi2 = 0;
-    
-    while ( mitr!=m.end() ) { 
-      
-      //    std::cout << "new match " << *mitr << "\t" <<  ref[mitr->first()] << "   " << test[mitr->second()] << std::endl;
-      
-      int rind = mitr->first();
-      int tind = mitr->second();
-      
-      std::set<int>::iterator ritr = refind.find(rind);
-      std::set<int>::iterator titr = testind.find(tind);
-      
-      /// has either track from this track pair already been used...
-      if ( ritr==refind.end() && titr==testind.end() ) { 
-	unique.insert( *mitr );
-	refind.insert(rind);
-	testind.insert(tind);
-	chi2 += (mitr->d()*mitr->d());
-      } 
-      
-      mitr++;
-    }
-    
-    //    std::cout << "chi2 of matches " << chi2 << std::endl;
-   
-    /// hooray!! now print out the answer, make a map etc
-    /// this isn't technically needed, could just use the 
-    /// set of "matched" objects, but hey ho 
-    
-    //  std::cout << "\nmatched" << std::endl; 
-    
-    std::map<int, int> matches;
-    
-    mitr = unique.begin();
-    while ( mitr!=unique.end() ) {
-      matches.insert( std::map<int, int>::value_type( mitr->first(), mitr->second() ) );
-      //   std::cout << "\tbest match " << *mitr << "\t" <<  ref[mitr->first()] << "\t" << test[mitr->second()] << std::endl;
-      mitr++;
-    }  
-    
-    return matches;
-    
-  }
-
-
-protected:
-
-  double md;
-
-};
-
-
 class Associator_SecondBestpTMatcher : public Associator_BestMatcher {
 
 public:
@@ -269,7 +62,7 @@ public:
 
   virtual ~Associator_SecondBestpTMatcher() { }
 
-  double distance( TrigInDetAnalysis::Track* t0, TrigInDetAnalysis::Track* t1 ) {
+  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
     double dpT = fabs( t0->pT()/1000 - t1->pT()/1000 );
     //std::cout << "pT dist = " << dpT << "    dpT / pT = " << dpT/fabs(t0->pT()/1000) << std::endl;
     return dpT/(fabs(t0->pT()/1000));
@@ -289,7 +82,7 @@ public:
 
   virtual ~Associator_BestDeltaRMatcher() { } 
 
-  double distance( TrigInDetAnalysis::Track* t0, TrigInDetAnalysis::Track* t1 ) {
+  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
     double deta = t0->eta()-t1->eta();
     double dphi = t0->phi()-t1->phi();    
     if ( dphi> M_PI ) dphi-=2*M_PI; 
@@ -321,7 +114,7 @@ public:
 
   virtual ~Associator_BestDeltaRZMatcher() { } 
 
-  double distance( TrigInDetAnalysis::Track* t0, TrigInDetAnalysis::Track* t1 ) {
+  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
     double deta = t0->eta()-t1->eta();
     double dphi = t0->phi()-t1->phi(); if ( dphi> M_PI ) dphi-=2*M_PI;  if ( dphi<-M_PI ) dphi+=2*M_PI;
     double dzed = t0->z0()-t1->z0();    
@@ -362,7 +155,7 @@ public:
 
   virtual ~Associator_BestDeltaRZSinThetaMatcher() { } 
 
-  double distance( TrigInDetAnalysis::Track* t0, TrigInDetAnalysis::Track* t1 ) {
+  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
     double theta = 2*std::atan(std::exp(-t1->eta()));
 
     double deta = t0->eta()-t1->eta();
@@ -402,7 +195,7 @@ public:
 
   virtual ~Associator_BestSigmaMatcher() { } 
 
-  double distance( TrigInDetAnalysis::Track* t0, TrigInDetAnalysis::Track* t1 ) {
+  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
     double deta = t1->eta()-t0->eta();
     double dphi = t1->phi()-t0->phi(); 
     if ( dphi> M_PI ) dphi-=2*M_PI;  
@@ -435,11 +228,6 @@ protected:
 
 
 
-
-
-
-
-
 class Associator_BestDeltaPhiMatcher : public Associator_BestMatcher { 
 
 public:
@@ -450,7 +238,7 @@ public:
 
   virtual ~Associator_BestDeltaPhiMatcher() { } 
 
-  double distance( TrigInDetAnalysis::Track* t0, TrigInDetAnalysis::Track* t1 ) {
+  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
     double dphi = t0->phi()-t1->phi();    
     if ( dphi> M_PI ) dphi-=2*M_PI; 
     if ( dphi<-M_PI ) dphi+=2*M_PI;

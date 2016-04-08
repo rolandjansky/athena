@@ -15,10 +15,10 @@
 #include "xAODMuon/Muon.h"
 #include "xAODTau/TauJet.h"
        
-namespace TrigInDetAnalysis {
-  bool IsGoodOffline(const xAOD::Electron& elec, const unsigned int selection = 0); 
-  bool IsGoodOffline(const xAOD::Muon& muon); 
-  bool IsGoodOffline(const xAOD::TauJet& tau, bool doThreeProng = false, double tauEtCutOffline = 0.0);
+namespace TIDA {
+  bool isGoodOffline(const xAOD::Electron& elec, const unsigned int selection = 0); 
+  bool isGoodOffline(const xAOD::Muon& muon); 
+  bool isGoodOffline(const xAOD::TauJet& tau, bool doThreeProng = false, double tauEtCutOffline = 0.0);
 }
 
 #else 
@@ -26,10 +26,11 @@ namespace TrigInDetAnalysis {
 #include "egammaEvent/Electron.h"
 #include "muonEvent/Muon.h"
 #include "tauEvent/TauJet.h"
-namespace TrigInDetAnalysis {	
-  bool IsGoodOffline(const Analysis::Electron& elec); 
-  bool IsGoodOffline(const Analysis::Muon& muon); 	
-  bool IsGoodOffline(const Analysis::TauJet& tau, bool doThreeProng = false, double tauEtCutOffline = 0.0);
+
+namespace TIDA {	
+  bool isGoodOffline(const Analysis::Electron& elec); 
+  bool isGoodOffline(const Analysis::Muon& muon); 	
+  bool isGoodOffline(const Analysis::TauJet& tau, bool doThreeProng = false, double tauEtCutOffline = 0.0);
 }
 #endif
 

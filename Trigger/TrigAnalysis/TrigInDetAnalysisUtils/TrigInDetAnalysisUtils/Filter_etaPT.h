@@ -31,7 +31,7 @@ public:
     //    std::cout << "Filter_etaPT::Filter_etaPT() : etaMax " << m_etaMax << "\tpTMin " << m_pTMin << std::endl;
   } 
 
-  bool select(const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* =0 ) { 
+  bool select(const TIDA::Track* t, const TIDARoiDescriptor* =0 ) { 
     // Select track parameters
     bool selected = true;
     if ( std::fabs(t->eta())>m_etaMax || std::fabs(t->pT())<m_pTMin ) selected = false;
