@@ -6,6 +6,7 @@
 #define __TRIG_TRT_DETELROAD_TOOL_H__
 
 #include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace Trk {
@@ -21,7 +22,7 @@ class TrigTRT_DetElementRoad;
 class TrigTRT_TrackExtensionGeometry;
 class TrigMagneticFieldTool;
 
-class TrigTRT_DetElementRoadTool : public AlgTool {
+class TrigTRT_DetElementRoadTool : public AthAlgTool {
 public:
 
   TrigTRT_DetElementRoadTool( const std::string& type, 

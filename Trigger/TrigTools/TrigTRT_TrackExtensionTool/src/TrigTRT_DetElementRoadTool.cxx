@@ -6,7 +6,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "Identifier/IdentifierHash.h" 
-#include "StoreGate/StoreGate.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrigTRT_TrackExtensionTool/TrigTRT_TrackExtensionGeometry.h"
@@ -25,7 +24,7 @@ const InterfaceID& TrigTRT_DetElementRoadTool::interfaceID() {
 TrigTRT_DetElementRoadTool::TrigTRT_DetElementRoadTool( const std::string& type, 
 					    const std::string& name, 
 					    const IInterface* parent )
-  : AlgTool(type, name, parent), m_trigFieldTool("TrigMagneticFieldTool") {
+  : AthAlgTool(type, name, parent), m_trigFieldTool("TrigMagneticFieldTool") {
 
   declareInterface< TrigTRT_DetElementRoadTool>( this );
   declareProperty( "TrigFieldTool", m_trigFieldTool, "TrigMagneticFieldTool");
@@ -45,14 +44,7 @@ StatusCode TrigTRT_DetElementRoadTool::initialize()  {
 
   log << MSG::INFO << name() << " in initialize" << endreq;
 
-  StoreGateSvc* detStore; 
-  StatusCode sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) 
-    { 
-      log << MSG::ERROR << name() <<" failed to get detStore" << endreq;
-      return sc;
-    }
-  sc=detStore->retrieve(m_trtMgr,"TRT");
+  StatusCode sc=detStore()->retrieve(m_trtMgr,"TRT");
   if (sc.isFailure()) 
     {
       log << MSG::ERROR << name() << "failed to get TRT Manager" << endreq;
@@ -63,9 +55,9 @@ StatusCode TrigTRT_DetElementRoadTool::initialize()  {
       log << MSG::DEBUG << name() << "Got TRT Manager" << endreq;
     }
 
-  sc = AlgTool::initialize(); 
+  sc = AthAlgTool::initialize(); 
 
-  if (detStore->retrieve(m_trtHelper, "TRT_ID").isFailure()) {
+  if (detStore()->retrieve(m_trtHelper, "TRT_ID").isFailure()) {
      log << MSG::FATAL << "Could not get TRT ID helper" << endreq;
      return StatusCode::FAILURE;  
   }
@@ -92,7 +84,7 @@ StatusCode TrigTRT_DetElementRoadTool::finalize()
       delete m_trtGeo;
       m_trtGeo=NULL;
     }
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 

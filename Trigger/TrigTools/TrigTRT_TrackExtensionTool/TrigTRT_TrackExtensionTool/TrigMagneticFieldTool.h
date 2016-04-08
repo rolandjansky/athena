@@ -6,14 +6,14 @@
 #define __TRIG_MAGNETICFIELD_TOOL_H__
 
 #include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 namespace MagField {	
 	class IMagFieldSvc;
 }
 
-class TrigMagneticFieldTool : public AlgTool 
+class TrigMagneticFieldTool : public AthAlgTool 
 {
  public:
 

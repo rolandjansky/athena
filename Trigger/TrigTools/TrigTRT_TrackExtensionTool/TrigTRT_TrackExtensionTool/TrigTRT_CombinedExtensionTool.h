@@ -6,6 +6,7 @@
 #define __TRIG_TRT_COMBINED_EXTENSION_TOOL_H__
 
 #include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigInDetToolInterfaces/ITrigTRT_TrackExtensionTool.h"
@@ -41,7 +42,7 @@ class TrigMagneticFieldTool;
 class TrigTRT_Trajectory;
 
 
-class TrigTRT_CombinedExtensionTool: public AlgTool, virtual public ITrigTRT_TrackExtensionTool
+class TrigTRT_CombinedExtensionTool: public AthAlgTool, virtual public ITrigTRT_TrackExtensionTool
 {
  public:
   TrigTRT_CombinedExtensionTool( const std::string&, const std::string&, const IInterface* );
@@ -94,8 +95,6 @@ private:
 
   ToolHandle<ITrigTRT_DriftCircleProviderTool> m_trtDataProvider;
 
-  StoreGateSvc*       m_StoreGate;
-  StoreGateSvc*       m_detStore;
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
   ToolHandle<TrigTRT_DetElementRoadTool> m_trtRoadBuilder;
   ToolHandle<TrigMagneticFieldTool> m_trigFieldTool;
