@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigNavSlimming.py 657472 2015-03-27 22:40:44Z ssnyder $
+# $Id: TrigNavSlimming.py 657471 2015-03-27 22:40:36Z ssnyder $
 #
 # The singleton in this module can be used to slim the trigger navigation
 # in jobs running on MC AODs. MC AODs of the future (R18) will have their
@@ -50,8 +50,8 @@ def singleton( cls ):
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 657472 $
-# $Date: 2015-03-27 23:40:44 +0100 (Fri, 27 Mar 2015) $
+# $Revision: 657471 $
+# $Date: 2015-03-27 23:40:36 +0100 (Fri, 27 Mar 2015) $
 @singleton
 class TrigNavSlimming( Configured ):
 
