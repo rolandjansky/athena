@@ -2,11 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
-class MTHelloWorld : public Algorithm {
+class MTHelloWorld : public AthAlgorithm {
 public:
   MTHelloWorld (const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode initialize();
@@ -18,7 +18,6 @@ public:
   virtual StatusCode stop();
   
 private:
-  MsgStream m_log;
   IntegerProperty      m_myInt;
   BooleanProperty      m_myBool;
   DoubleProperty       m_myDouble;
