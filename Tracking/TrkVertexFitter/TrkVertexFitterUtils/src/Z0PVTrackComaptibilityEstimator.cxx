@@ -11,6 +11,7 @@
 
 #include "TrkParameters/TrackParameters.h"
 
+#include "VxVertex/VxContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
 
@@ -54,64 +55,56 @@ namespace Trk{
   } 
 
 
-
-  bool Z0PVTrackCompatibilityEstimator::isCompatible(const xAOD::TrackParticle* track,
-                                                     const xAOD::VertexContainer* primaryVertexContainer, unsigned int index) const{
-
-    return isCompatible( &(track->perigeeParameters()), primaryVertexContainer, index );
+  bool Z0PVTrackCompatibilityEstimator::isCompatible(const Trk::Track* track,
+						     const VxContainer* primaryVertexContainer, unsigned int index) const{
+    
+    return isCompatible( track->perigeeParameters(), primaryVertexContainer, index ); 
   }
 
-  bool Z0PVTrackCompatibilityEstimator::isCompatible(const TrackParameters* track,
-						     const xAOD::VertexContainer* primaryVertexContainer, unsigned int index) const{
+  
+  bool Z0PVTrackCompatibilityEstimator::isCompatible(const Trk::TrackParticleBase* track,
+						     const VxContainer* primaryVertexContainer, unsigned int index) const{
     
-    // TODO: do we want to doRemoval here? (I have it as false for now) 
-    const ImpactParametersAndSigma* ip =  m_ipEstimator->estimate(track, track, (*primaryVertexContainer)[index], false);
+    return isCompatible( &(track->definingParameters()), primaryVertexContainer, index);
+  }
+  
+  bool Z0PVTrackCompatibilityEstimator::isCompatible(const TrackParameters* track,
+						     const VxContainer* primaryVertexContainer, unsigned int index) const{
+    
+    
+    const ImpactParametersAndSigma* ip =  m_ipEstimator->estimate(track, track, (*primaryVertexContainer)[index]);
     
     bool pileup = false;
   
     double sumptPV = 0;
     
-    /*
     for(std::vector<Trk::VxTrackAtVertex*>::const_iterator track = 
 	  (*primaryVertexContainer)[index]->vxTrackAtVertex()->begin();
 	track != (*primaryVertexContainer)[index]->vxTrackAtVertex()->end(); ++track){
       
       sumptPV += (*track)->initialPerigee()->momentum().perp();
     }
-    */
-
-    // TODO: perhaps calculate sumptPV using VxTracksAtVertex in xAOD::Vertex? -David S.
-    for(unsigned int i = 0; i < (*primaryVertexContainer)[index]->nTrackParticles(); ++i){
-
-      sumptPV += (*primaryVertexContainer)[index]->trackParticle(i)->perigeeParameters().momentum().perp();
-    }
-
+    
     for(unsigned int i = 0; i < primaryVertexContainer->size(); i++){
       
       double sumpt = 0.;
       
       if( i != index &&
-	  (*primaryVertexContainer)[i]->vertexType() != xAOD::VxType::NoVtx ){
-        /*
+	  (*primaryVertexContainer)[i]->vertexType() != Trk::NoVtx ){
+      
 	for(std::vector<Trk::VxTrackAtVertex*>::const_iterator track = 
 	      (*primaryVertexContainer)[i]->vxTrackAtVertex()->begin();
 	    track != (*primaryVertexContainer)[i]->vxTrackAtVertex()->end(); ++track){
 	
 	  sumpt += (*track)->initialPerigee()->momentum().perp();
 	}
-	*/
-
-        // TODO: perhaps calculate sumptPV using VxTracksAtVertex in xAOD::Vertex? -David S.
-        for(unsigned int itrk = 0; itrk < (*primaryVertexContainer)[i]->nTrackParticles(); ++itrk){
-
-          sumpt += (*primaryVertexContainer)[i]->trackParticle(itrk)->perigeeParameters().momentum().perp();
-        }
-	double vxReach = 
-	  std::abs((*primaryVertexContainer)[i]->position().z()
-		   - (*primaryVertexContainer)[index]->position().z()) * sumpt / (sumpt + sumptPV);
 	
-	if(std::abs(ip->IPz0 + (*primaryVertexContainer)[index]->position().z() -
-		    (*primaryVertexContainer)[i]->position().z()) < vxReach){
+	double vxReach = 
+	  std::abs((*primaryVertexContainer)[i]->recVertex().position().z()
+		   - (*primaryVertexContainer)[index]->recVertex().position().z()) * sumpt / (sumpt + sumptPV);
+	
+	if(std::abs(ip->IPz0 + (*primaryVertexContainer)[index]->recVertex().position().z() -
+		    (*primaryVertexContainer)[i]->recVertex().position().z()) < vxReach){
 	  
 	  pileup = true;
 	}

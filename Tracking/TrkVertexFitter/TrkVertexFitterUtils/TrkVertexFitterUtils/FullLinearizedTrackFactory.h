@@ -34,14 +34,6 @@
    *
    * @author Kirill Prokofiev (University of Sheffield)
    * @author N. Giacinto Piacquadio (for the Freiburg Group)
-   *
-   * -----------------------------------------
-   * Changes:
-   *
-   * David Shope <david.richard.shope@cern.ch> (2016-06-01)
-   *
-   *   EDM Migration to xAOD - replace Trk::Vertex with Amg::Vector3D
-   *
    */
 
 namespace MagField {
@@ -51,6 +43,7 @@ namespace MagField {
 namespace Trk
 {
   class IExtrapolator;
+  class Vertex;
   class Track;
 
    
@@ -81,7 +74,7 @@ namespace Trk
     *  Produces a new PerigeeLinearizedState and stores its pointer as a private  
     *  member of VxTrackAtVertex
     */
-    void linearize(VxTrackAtVertex & theTrack,const Amg::Vector3D & linPoint) const;
+    void linearize(VxTrackAtVertex & theTrack,const Vertex & linPoint) const;
     
     /**
      * Linearization method:
@@ -89,7 +82,7 @@ namespace Trk
      * Creates a new PerigeeLinearizedTrackState and returns its pointer.
      */
     LinearizedTrack * linearizedTrack(const TrackParameters *param, 
-			              const Amg::Vector3D & linPoint) const;
+			              const Vertex & linPoint) const;
 
     /**
       * Linearization method:
@@ -97,7 +90,7 @@ namespace Trk
       * Creates a new PerigeeLinearizedTrackState and returns its pointer.
       */
     LinearizedTrack * linearizedTrack(const NeutralParameters *param,
-                                      const Amg::Vector3D & linPoint) const;
+                                      const Vertex & linPoint) const;
     
     
   private:
