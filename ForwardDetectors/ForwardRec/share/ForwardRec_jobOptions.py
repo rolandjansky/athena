@@ -13,12 +13,14 @@ if (rec.doLucid):
 #  include ( "ZdcRec/ZdcRec_jobOptions.py" )
 
 if DetFlags.makeRIO.ZDC_on() and not rec.doWriteBS() : 
-    try:
-        from ZdcRec.ZdcRawChannelGetter import ZdcRawChannelGetter
-        ZdcRawChannelGetter()
-    except Exception:
-        treatException("Problem with ZdcRawChannelGetter. Switched off.")
-        DetFlags.makeRIO.ZDC_setOff()
+  try:
+      #from ZdcRec.ZdcRawChannelGetter import ZdcRawChannelGetter
+      #ZdcRawChannelGetter()
+    from ZdcRec.ZdcModuleGetter import ZdcModuleGetter
+    ZdcModuleGetter()
+  except Exception:
+    treatException("Problem with ZdcModuleGetter. Switched off.")
+    DetFlags.makeRIO.ZDC_setOff()
 
 if rec.doAlfa() and rec.doESD():
     if DetFlags.readRDOBS.ALFA_on():
