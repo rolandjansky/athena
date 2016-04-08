@@ -45,8 +45,8 @@ namespace TrigMatch {
       // In newer ones, we access the track container
       // Try the newer method first, and fall back to the legacy method it doesn't work
 
-      TrigMuonEFInfoTrackContainer *leftTrackContainer  = left->TrackContainer();
-      TrigMuonEFInfoTrackContainer *rightTrackContainer = right->TrackContainer();
+      const TrigMuonEFInfoTrackContainer *leftTrackContainer  = left->TrackContainer();
+      const TrigMuonEFInfoTrackContainer *rightTrackContainer = right->TrackContainer();
 
       if( ( ! leftTrackContainer ) || leftTrackContainer->empty() ||
           ( ! rightTrackContainer ) || rightTrackContainer->empty() ) {
@@ -54,7 +54,8 @@ namespace TrigMatch {
          // if no track container, try the legacy methods
          // check if we can use the legacy track methods
          if( left->hasLegacyTrack() && right->hasLegacyTrack() ) {
-            TrigMuonEFTrack *left_trk = 0, *right_trk = 0;
+            const TrigMuonEFTrack* left_trk = 0;
+            const TrigMuonEFTrack* right_trk = 0;
             switch( trackToUse() ) {
             case TrigMatch::useSpectrometerTrack:
                left_trk  = left->legacySpectrometerTrack();

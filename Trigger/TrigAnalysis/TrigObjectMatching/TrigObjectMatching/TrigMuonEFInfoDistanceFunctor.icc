@@ -27,13 +27,13 @@ float TrigMatch::TrigMuonEFInfoHelper::calculateInfoDistance( const TrigMuonEFIn
    // In newer ones, we access the track container
    // Try the newer method first, and fall back to the legacy method it doesn't work
 
-   TrigMuonEFInfoTrackContainer *trackContainer = t->TrackContainer();
+   const TrigMuonEFInfoTrackContainer *trackContainer = t->TrackContainer();
 
    if( ! trackContainer || trackContainer->empty() ) {
       // if no track container, try the legacy methods
       // check if we can use the legacy track methods
       if( t->hasLegacyTrack() ) {
-         TrigMuonEFTrack *trk = 0;
+         const TrigMuonEFTrack *trk = 0;
          switch( trackToUse() ) {
          case TrigMatch::useSpectrometerTrack:
             trk = t->legacySpectrometerTrack();
@@ -60,8 +60,8 @@ float TrigMatch::TrigMuonEFInfoHelper::calculateInfoDistance( const TrigMuonEFIn
    }
 
    // if we're here, we should use the track container tracks
-   TrigMuonEFInfoTrackContainer::iterator iter = trackContainer->begin();
-   TrigMuonEFInfoTrackContainer::iterator iterEnd = trackContainer->end();
+   TrigMuonEFInfoTrackContainer::const_iterator iter = trackContainer->begin();
+   TrigMuonEFInfoTrackContainer::const_iterator iterEnd = trackContainer->end();
 
    float minDr = -1.;
 
