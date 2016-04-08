@@ -11,7 +11,7 @@
 #ifndef MuonResonanceTool_H
 #define MuonResonanceTool_H
 
-#define MURESETABINS 4
+#define MURESETABINS 7
 #define TRACKBINS 3
 #define SYSBINS 11
 
