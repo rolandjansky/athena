@@ -25,6 +25,13 @@
 LArG4H8CalibSDTool::LArG4H8CalibSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArH8CalibrationHits")
+  , m_barCrySD (nullptr)
+  , m_bpInSD (nullptr)
+  , m_bpDeadSD (nullptr)
+  //, m_bpModSD (nullptr)
+  , m_barInSD (nullptr)
+  , m_barDeadSD (nullptr)
+  , m_uninstSD (nullptr)
 {
     declareProperty("BarrelCryDeadVolumes",m_barCryVolumes);
     declareProperty("BarrelPreInactiveVolumes",m_bpInVolumes);
