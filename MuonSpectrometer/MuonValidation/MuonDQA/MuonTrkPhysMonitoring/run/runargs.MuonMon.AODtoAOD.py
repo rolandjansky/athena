@@ -56,7 +56,7 @@ runArgs = RunArguments()
 runArgs.maxEvents = 500
  
 # Input file that contains AODs
-runArgs.inputFile = ["/afs/cern.ch/work/r/rrosten/public/testxAOD/AOD.testxAOD.root"]
+runArgs.inputFile = ["/afs/cern.ch/work/r/rrosten/testxAOD/AOD.testxAOD.root"]
   
 # Basic string
 #runArgs.AMITag = 'f414'
