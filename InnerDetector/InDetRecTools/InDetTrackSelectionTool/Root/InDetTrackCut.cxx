@@ -812,6 +812,146 @@ bool InDet::MinEProbHTCut::result() const
   }
   return m_accessor->getValue() >= m_minValue;
 }
+// ---------------- EtaDependentSiliconHitsCut ----------------
+InDet::EtaDependentSiliconHitsCut::EtaDependentSiliconHitsCut(InDet::InDetTrackSelectionTool* tool,
+						    std::vector<Double_t> eta, std::vector<Int_t> hits)
+  : InDet::TrackCut(tool)
+  , m_etaCutoffs(eta)
+  , m_siHitCuts(hits)
+  , m_etaAccessor(nullptr)
+  , m_sctAccessor(nullptr)
+  , m_pixAccessor(nullptr)
+  , m_sctDeadAccessor(nullptr)
+  , m_pixDeadAccessor(nullptr)
+{
+}
+
+StatusCode InDet::EtaDependentSiliconHitsCut::initialize()
+{
+  ATH_CHECK( TrackCut::initialize() );
+
+  if (m_etaCutoffs.size() != m_siHitCuts.size()) {
+    ATH_MSG_ERROR( "Eta cutoffs and Silicon hit cuts must be the same size" );
+    return StatusCode::FAILURE;
+  }
+  for (size_t i_cuts = 0; i_cuts<m_etaCutoffs.size()-1; ++i_cuts) {
+    if (std::fabs(m_etaCutoffs.at(i_cuts)) >= std::fabs(m_etaCutoffs.at(i_cuts+1))) {
+      ATH_MSG_ERROR( "Eta cutoffs must be increasing" );
+      return StatusCode::FAILURE;
+    }
+  }
+
+  ATH_CHECK( getAccessor("eta", m_etaAccessor) );
+  std::string sctHits = "summaryType" + std::to_string(xAOD::numberOfSCTHits);
+  std::string pixHits = "summaryType" + std::to_string(xAOD::numberOfPixelHits);
+  std::string sctDead = "summaryType" + std::to_string(xAOD::numberOfSCTDeadSensors);
+  std::string pixDead = "summaryType" + std::to_string(xAOD::numberOfPixelDeadSensors);
+
+  ATH_CHECK( getAccessor(sctHits, m_sctAccessor) );
+  m_sctAccessor->setSummaryType(xAOD::numberOfSCTHits);
+  ATH_CHECK( getAccessor(pixHits, m_pixAccessor) );
+  m_pixAccessor->setSummaryType(xAOD::numberOfPixelHits);
+  ATH_CHECK( getAccessor(sctDead, m_sctDeadAccessor) );
+  m_sctDeadAccessor->setSummaryType(xAOD::numberOfSCTDeadSensors);
+  ATH_CHECK( getAccessor(pixDead, m_pixDeadAccessor) );
+  m_pixDeadAccessor->setSummaryType(xAOD::numberOfPixelDeadSensors);
+  return StatusCode::SUCCESS;
+}
+bool InDet::EtaDependentSiliconHitsCut::result() const
+{
+  if (!m_sctAccessor) {
+    ATH_MSG_WARNING( "SCT hits accessor not valid. Track will not pass." );
+    return false;
+  }
+  if (!m_pixAccessor) {
+    ATH_MSG_WARNING( "Pixel hits accessor not valid. Track will not pass." );
+    return false;
+  }
+  if (!m_sctDeadAccessor) {
+    ATH_MSG_WARNING( "SCT Deadsensors accessor not valid. Track will not pass." );
+    return false;
+  }
+  if (!m_pixDeadAccessor) {
+    ATH_MSG_WARNING( "Pixel Deadsensors accessor not valid. Track will not pass." );
+    return false;
+  }
+  if (!m_etaAccessor) {
+    ATH_MSG_WARNING( "eta accessor not valid. Track will not pass." );
+    return false;
+  }
+  static int cutVecSize = m_etaCutoffs.size();
+  for (int i_etabin = cutVecSize-1; i_etabin >= 0; --i_etabin) {
+    if (std::fabs(m_etaAccessor->getValue()) >= std::fabs(m_etaCutoffs.at(i_etabin))
+	&& (m_sctAccessor->getValue() + m_pixAccessor->getValue() + m_sctDeadAccessor->getValue() + m_pixDeadAccessor->getValue() < m_siHitCuts.at(i_etabin))) 
+      {return false;}
+    
+  }
+  return true;
+}
+
+// ---------------- PtDependentSctHitsCut ----------------
+InDet::PtDependentSctHitsCut::PtDependentSctHitsCut(InDet::InDetTrackSelectionTool* tool,
+						    std::vector<Double_t> pt, std::vector<Int_t> sct)
+  : InDet::TrackCut(tool)
+  , m_ptCutoffs(pt)
+  , m_sctHitCuts(sct)
+  , m_ptAccessor(nullptr)
+  , m_sctAccessor(nullptr)
+  , m_sctDeadAccessor(nullptr)
+{
+}
+
+StatusCode InDet::PtDependentSctHitsCut::initialize()
+{
+  ATH_CHECK( TrackCut::initialize() );
+
+  if (m_ptCutoffs.size() != m_sctHitCuts.size()) {
+    ATH_MSG_ERROR( "Pt cutoffs and SCT hit cuts must be the same size" );
+    return StatusCode::FAILURE;
+  }
+  for (size_t i_cuts = 0; i_cuts<m_ptCutoffs.size()-1; ++i_cuts) {
+    if (m_ptCutoffs.at(i_cuts) >= m_ptCutoffs.at(i_cuts+1)) {
+      ATH_MSG_ERROR( "Pt cutoffs must be increasing" );
+      return StatusCode::FAILURE;
+    }
+  }
+
+  ATH_CHECK( getAccessor("pt", m_ptAccessor) );
+  std::string sctHits = "summaryType" + std::to_string(xAOD::numberOfSCTHits);
+  std::string sctDead = "summaryType" + std::to_string(xAOD::numberOfSCTDeadSensors);
+  ATH_CHECK( getAccessor(sctHits, m_sctAccessor) );
+  m_sctAccessor->setSummaryType(xAOD::numberOfSCTHits);
+  ATH_CHECK( getAccessor(sctDead, m_sctDeadAccessor) );
+  m_sctDeadAccessor->setSummaryType(xAOD::numberOfSCTDeadSensors);
+
+  return StatusCode::SUCCESS;
+}
+
+bool InDet::PtDependentSctHitsCut::result() const
+{
+  if (!m_sctAccessor) {
+    ATH_MSG_WARNING( "SCT hits accessor not valid. Track will not pass." );
+    return false;
+  }
+  if (!m_sctDeadAccessor) {
+    ATH_MSG_WARNING( "SCT dead hits accessor not valid. Track will not pass." );
+    return false;
+  }
+  if (!m_ptAccessor) {
+    ATH_MSG_WARNING( "pt accessor not valid. Track will not pass." );
+    return false;
+  }
+  static int cutVecSize = m_ptCutoffs.size();
+  for (int i_ptbin = cutVecSize-1; i_ptbin >= 0; --i_ptbin) {
+    if (m_ptAccessor->getValue() >= m_ptCutoffs.at(i_ptbin)
+	&& (m_sctAccessor->getValue() + m_sctDeadAccessor->getValue()
+	    < m_sctHitCuts.at(i_ptbin))) {
+      return false;
+    }
+  }  
+  return true;
+}
+
 
 #ifndef XAOD_ANALYSIS
 // ---------------- MinSiHitsModTopBottomCut ----------------
