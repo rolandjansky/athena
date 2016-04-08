@@ -51,10 +51,9 @@
 
 #include "TrkTrack/TrackInfo.h"
 
+
 #include <vector>
 #include <ext/algorithm>
-
-
 
 // constructor
 
@@ -62,8 +61,7 @@ Trk::DistributedKalmanFilter::DistributedKalmanFilter(const std::string& t,const
 						      const IInterface* p) :
   AthAlgTool(t,n,p),
   m_ROTcreator("Trk::RIO_OnTrackCreator/RIO_OnTrackCreator"),
-  m_extrapolator("Trk::Extrapolator/Extrapolator"),
-  m_idHelper(nullptr),
+  m_extrapolator("Trk::Extrapolator/Extrapolator"), 
   m_MagFieldSvc("AtlasFieldSvc",this->name())
 {
   // AlgTool stuff
@@ -90,17 +88,35 @@ Trk::DistributedKalmanFilter::~DistributedKalmanFilter()
 // initialize
 StatusCode Trk::DistributedKalmanFilter::initialize()
 {
-  //StatusCode s = AthAlgTool::finalize();  
+  StatusCode s = AthAlgTool::finalize();  
 
-  ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
+  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
+    msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq; 
+    return StatusCode::FAILURE;
+  }  
 
-  ATH_CHECK( m_MagFieldSvc.retrieve());
-  
-  ATH_CHECK(m_ROTcreator.retrieve());
-  
-  ATH_CHECK(m_extrapolator.retrieve());
-  
-  ATH_MSG_VERBOSE( "initialize() successful in Trk::DistributedKalmanFilter");
+  s = m_MagFieldSvc.retrieve();
+  if(s.isFailure()) {
+    msg(MSG::FATAL)<<"Could not find Athena MagFieldService "<<endreq;
+    return s; 
+  }
+
+  s=m_ROTcreator.retrieve();
+  if (s.isFailure()) 
+    {
+      msg(MSG::FATAL)<<"Could not get ROTcreator "<<m_ROTcreator<<endreq;
+      return s;
+    }
+
+  s=m_extrapolator.retrieve();
+  if (s.isFailure()) 
+    {
+      msg(MSG::FATAL)<<"Could not get extrapolator tool:"<<m_extrapolator<<endreq;
+      return s;
+    }
+
+  msg(MSG::INFO) << "initialize() successful in Trk::DistributedKalmanFilter"
+      << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -109,9 +125,9 @@ StatusCode Trk::DistributedKalmanFilter::initialize()
 StatusCode Trk::DistributedKalmanFilter::finalize()
 {
   // init message stream
-  //StatusCode sc = AthAlgTool::finalize();
-  ATH_MSG_VERBOSE(" finalize() successful in Trk::DistributedKalmanFilter" );	
-  return StatusCode::SUCCESS;
+  StatusCode sc = AthAlgTool::finalize();
+  msg(MSG::INFO) << " finalize() successful in Trk::DistributedKalmanFilter" << endreq;	
+  return sc;
 }
 
 
@@ -127,30 +143,33 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&       inputTrack
                                               const RunOutlierRemoval runOutlier,
                                               const ParticleHypothesis matEffects) const
 {
-  msg(MSG::VERBOSE) << "--> enter DistributedKalmanFilter::fit(Track,,)" << endmsg;
+  msg(MSG::VERBOSE) << "--> enter DistributedKalmanFilter::fit(Track,,)" << endreq;
   
   // protection against track not having any parameters
   if (inputTrack.trackParameters()->empty()) {
-    ATH_MSG_ERROR( "need estimated track parameters near "<< "origin, reject fit" );
-    return nullptr;
+    msg(MSG::ERROR) << "need estimated track parameters near "
+	<< "origin, reject fit" << endreq;
+    return 0;
   }
   // protection against not having RIO_OnTracks
   if (inputTrack.measurementsOnTrack()->empty()) {
-    ATH_MSG_ERROR( "try to refit track with empty "<< "vec<RIO_OnTrack>, reject fit" );
-    return nullptr;
+    msg(MSG::ERROR) << "try to refit track with empty "
+	<< "vec<RIO_OnTrack>, reject fit" << endreq;
+    return 0;
   }
 	
   // create PrepRawData subset
   PrepRawDataSet prepRDColl;
 
   // collect PrepRawData pointers from input track ROTs
-  msg(MSG::VERBOSE) << "extract PrepRawDataSet from Track" << endmsg;
+  msg(MSG::VERBOSE) << "extract PrepRawDataSet from Track" << endreq;
   DataVector<const MeasurementBase>::const_iterator it    = inputTrack.measurementsOnTrack()->begin();
   DataVector<const MeasurementBase>::const_iterator itEnd = inputTrack.measurementsOnTrack()->end(); 
   for ( ; it!=itEnd; ++it) {
     if (!(*it)) 
       {
-	      ATH_MSG_WARNING( "This track contains empty MeasurementBase "<< "objects! Skipped this MB.." );  
+	msg(MSG::WARNING) << "This track contains empty MeasurementBase "
+	    << "objects! Skipped this MB.." << endreq;  
       } 
     else 
       {
@@ -158,7 +177,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&       inputTrack
 	const PrepRawData* prepRD = (testROT) ? (testROT)->prepRawData() : 0;
 	if (!prepRD) {
 	  msg(MSG::WARNING) << "RIO_OnTrack->prepRawRata() "
-	      << "returns no object, ignore... " << endmsg;
+	      << "returns no object, ignore... " << endreq;
 	} else { prepRDColl.push_back( prepRD );  }
       }
   }
@@ -166,7 +185,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&       inputTrack
 						     minTrkPar()));
 							
   // fit set of PrepRawData using main method, start with first Track Parameter in inputTrack
-  msg(MSG::VERBOSE) << "call fit(PRDSet,TP,,)" << endmsg;
+  msg(MSG::VERBOSE) << "call fit(PRDSet,TP,,)" << endreq;
   return fit(prepRDColl,*minPar,runOutlier,matEffects);
 }
 
@@ -958,15 +977,15 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
   bool badTrack=false;
 
   msg(MSG::VERBOSE) << "--> entering DistributedKalmanFilter::fit"
-      << "(PrepRawDataSet,TrackParameters,,)" << endmsg;
+      << "(PrepRawDataSet,TrackParameters,,)" << endreq;
 	
   // protection, if empty PrepRawDataSet
   if (prepRDColl.empty()) {
-    msg(MSG::ERROR) << "try to fit empty vec<PrepRawData>, reject fit" << endmsg;
+    msg(MSG::ERROR) << "try to fit empty vec<PrepRawData>, reject fit" << endreq;
     return 0;
   }
-  if (runOutlier) msg(MSG::VERBOSE) << "-> Outlier removal switched on" << endmsg;
-  if (matEffects!=nonInteracting) msg(MSG::VERBOSE) << "-> Material Effects switched on" << endmsg;
+  if (runOutlier) msg(MSG::VERBOSE) << "-> Outlier removal switched on" << endreq;
+  if (matEffects!=nonInteracting) msg(MSG::VERBOSE) << "-> Material Effects switched on" << endreq;
 
 
   // 0. Sort PRD set
@@ -978,12 +997,12 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
   if(!is_sorted(inputPRDColl.begin(),inputPRDColl.end(),*compareHits)) 
     sort(inputPRDColl.begin(), inputPRDColl.end(), *compareHits);
   delete compareHits;
-  msg(MSG::VERBOSE)<<" List of sorted PRDs: "<<endmsg;      
+  msg(MSG::VERBOSE)<<" List of sorted PRDs: "<<endreq;      
   for(PrepRawDataSet::const_iterator prdIt=inputPRDColl.begin();prdIt!=inputPRDColl.end();prdIt++) 
     {
       if(!(*prdIt)->detectorElement()) continue;
       msg(MSG::VERBOSE)<<m_idHelper->print_to_string((*prdIt)->identify())<<" radius= "<<
-	(*prdIt)->detectorElement()->surface((*prdIt)->identify()).center().mag()<<endmsg;
+	(*prdIt)->detectorElement()->surface((*prdIt)->identify()).center().mag()<<endreq;
     }
 
   // 1. Create initial track state:
@@ -991,7 +1010,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
   pP=dynamic_cast<const Perigee*>(&estimatedParametersNearOrigine);
   if(pP==NULL)
     {
-      msg(MSG::DEBUG) << " fit needs perigee parameters - creating it" << endmsg;
+      msg(MSG::DEBUG) << " fit needs perigee parameters - creating it" << endreq;
       /*
       const Trk::TrackParameters* pTP=m_extrapolator->extrapolate(estimatedParametersNearOrigine, perSurf,
 								  Trk::oppositeMomentum, false, matEffects);
@@ -1003,7 +1022,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
       pP=dynamic_cast<const Perigee*>(pTP);
       if(pP==NULL)
 	{
-	  msg(MSG::ERROR) << "failed to create perigee parameters, reject fit" << endmsg;
+	  msg(MSG::ERROR) << "failed to create perigee parameters, reject fit" << endreq;
 	  return 0;
 	}
     }
@@ -1017,23 +1036,23 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
   if (matEffects==Trk::nonInteracting) 
     {
       pTS->m_setScatteringMode(0);
-      msg(MSG::VERBOSE) << "-> Multiple Scattering treatment switched off" << endmsg;
+      msg(MSG::VERBOSE) << "-> Multiple Scattering treatment switched off" << endreq;
     }
   else 
     {
       if ((matEffects==Trk::pion)||(matEffects==Trk::muon))      
 	{
 	  pTS->m_setScatteringMode(1);
-	  msg(MSG::VERBOSE) << "-> Multiple Scattering treatment switched on" << endmsg;
+	  msg(MSG::VERBOSE) << "-> Multiple Scattering treatment switched on" << endreq;
 	}
       else 
 	{
 	  if (matEffects==Trk::electron)  
 	    {
 	      pTS->m_setScatteringMode(2);
-	      msg(MSG::VERBOSE) << "-> Multiple Scattering and Bremm treatments switched on" << endmsg;
+	      msg(MSG::VERBOSE) << "-> Multiple Scattering and Bremm treatments switched on" << endreq;
 	    }
-	  else msg(MSG::WARNING) << "Material setting " << matEffects << "not supported !" << endmsg;
+	  else msg(MSG::WARNING) << "Material setting " << matEffects << "not supported !" << endreq;
 	}
     }
 
@@ -1049,7 +1068,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
     {
       if((*prdIt)->detectorElement()==NULL)
 	{
-	  msg(MSG::WARNING) << " PrepRawData has no detector element - drop it" << endmsg;
+	  msg(MSG::WARNING) << " PrepRawData has no detector element - drop it" << endreq;
 	  continue;
 	} 
       Identifier ID=(*prdIt)->identify();
@@ -1145,11 +1164,11 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
 	      continue;
 	    }
 	}
-      msg(MSG::WARNING) << " PrepRawData is neither identified nor supported !" << endmsg;
+      msg(MSG::WARNING) << " PrepRawData is neither identified nor supported !" << endreq;
       msg(MSG::WARNING)<<"RIO ID prints as "
-	  << m_idHelper->print_to_string(ID)<<endmsg;
+	  << m_idHelper->print_to_string(ID)<<endreq;
     }
-  msg(MSG::VERBOSE) << " Number of nodes/surfaces created: "<< m_pvpNodes->size()<<"/"<<m_pvpSurfaces->size()<<endmsg;
+  msg(MSG::VERBOSE) << " Number of nodes/surfaces created: "<< m_pvpNodes->size()<<"/"<<m_pvpSurfaces->size()<<endreq;
 
   // 3. Sort vector of filtering nodes according to their distances from the perigee point
 
@@ -1163,11 +1182,11 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
     if(runOutlier)
     {
       int nOutl=m_findOutliers(outlCut);
-      msg(MSG::VERBOSE) << nOutl <<" outliers removed "<<endmsg;
+      msg(MSG::VERBOSE) << nOutl <<" outliers removed "<<endreq;
 
       if((nOutl*1.0/m_pvpNodes->size())>0.3)
 	{
-	  msg(MSG::VERBOSE) <<" two many outliers - bad track "<<endmsg;
+	  msg(MSG::VERBOSE) <<" two many outliers - bad track "<<endreq;
 	  badTrack=true;
 	}
       if((nOutl!=0)&&(!badTrack))
@@ -1176,7 +1195,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
 	  m_runForwardKalmanFilter(pInitState);
 	  m_runSmoother();
 	  nOutl=m_findOutliers(outlCut);
-	  msg(MSG::VERBOSE) << nOutl <<" new outliers found "<<endmsg;
+	  msg(MSG::VERBOSE) << nOutl <<" new outliers found "<<endreq;
 	}
     }
     if((nAmbHits!=0)&&(!badTrack))
@@ -1203,7 +1222,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
 	  " qOverP="
 	    <<pMP->parameters()[Trk::qOverP]<<
 	  " pT="<<sin(pMP->parameters()[Trk::theta])/
-	  pMP->parameters()[Trk::qOverP]<<endmsg;
+	  pMP->parameters()[Trk::qOverP]<<endreq;
 	
 	DataVector<const TrackStateOnSurface>* pvTS = new DataVector<const TrackStateOnSurface>;
 	pvTS->clear();
@@ -1231,9 +1250,9 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
 		  }
 	      }
 	  }
-	msg(MSG::DEBUG) <<"Total Chi2: "<<chi2<<" DoF="<<ndof<<endmsg;
+	msg(MSG::DEBUG) <<"Total Chi2: "<<chi2<<" DoF="<<ndof<<endreq;
 	Trk::FitQuality* pFQ=new Trk::FitQuality(chi2,ndof);
-	msg(MSG::DEBUG) <<pvTS->size()<<" new RIO_OnTrack(s) created"<<endmsg; 
+	msg(MSG::DEBUG) <<pvTS->size()<<" new RIO_OnTrack(s) created"<<endreq; 
 	TrackInfo info(TrackInfo::DistributedKalmanFilter,matEffects);
 	fittedTrack = new Track(info,pvTS,pFQ);
       }
@@ -1244,7 +1263,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
   }
   else
     {
-      msg(MSG::WARNING) <<"Extrapolation failed "<<endmsg;
+      msg(MSG::WARNING) <<"Extrapolation failed "<<endreq;
       fittedTrack=NULL;
     }
   m_deleteNodes();
@@ -1260,7 +1279,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::MeasurementSet&    inpu
                                               const Trk::ParticleHypothesis matEffects) const                                
 {
   if (inputRotColl.empty()) {
-    msg(MSG::ERROR) << "try to fit empty vec<MeasurementBase>, reject fit" << endmsg;
+    msg(MSG::ERROR) << "try to fit empty vec<MeasurementBase>, reject fit" << endreq;
     return NULL;
   }
 
@@ -1273,7 +1292,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::MeasurementSet&    inpu
       if(!(*it))
 	{
 	  msg(MSG::WARNING) << "This track contains empty MeasurementBase "
-	      << "objects! Skipped this MB.." << endmsg;
+	      << "objects! Skipped this MB.." << endreq;
 	} 
       else 
 	{
@@ -1282,7 +1301,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::MeasurementSet&    inpu
 	  if (!prepRD) 
 	    {
 	      msg(MSG::WARNING) << "RIO_OnTrack->prepRawRata() "
-		  << "returns no object, ignore... " << endmsg;
+		  << "returns no object, ignore... " << endreq;
 	    } 
 	  else 
 	    {
@@ -1299,18 +1318,18 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&  inputTrack,
 					      const Trk::ParticleHypothesis matEffects) const
 {
 
-  msg(MSG::VERBOSE) << "--> enter DistributedKalmanFilter::fit(Track,easurementSet,)" << endmsg;
+  msg(MSG::VERBOSE) << "--> enter DistributedKalmanFilter::fit(Track,easurementSet,)" << endreq;
   
   // protection against track not having any parameters
   if (inputTrack.trackParameters()->empty()) {
     msg(MSG::ERROR) << "need estimated track parameters near "
-	<< "origin, reject fit" << endmsg;
+	<< "origin, reject fit" << endreq;
     return 0;
   }
   // protection against not having RIO_OnTracks
   if (inputTrack.measurementsOnTrack()->empty()) {
     msg(MSG::ERROR) << "try to refit track with empty "
-	<< "vec<RIO_OnTrack>, reject fit" << endmsg;
+	<< "vec<RIO_OnTrack>, reject fit" << endreq;
     return 0;
   }
 	
@@ -1318,14 +1337,14 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&  inputTrack,
   PrepRawDataSet prepRDColl;
 
   // collect PrepRawData pointers from input track ROTs
-  msg(MSG::VERBOSE) << "extract PrepRawDataSet from Track" << endmsg;
+  msg(MSG::VERBOSE) << "extract PrepRawDataSet from Track" << endreq;
   DataVector<const MeasurementBase>::const_iterator it    = inputTrack.measurementsOnTrack()->begin();
   DataVector<const MeasurementBase>::const_iterator itEnd = inputTrack.measurementsOnTrack()->end(); 
   for ( ; it!=itEnd; ++it) {
     if (!(*it)) 
       {
 	msg(MSG::WARNING) << "This track contains empty MeasurementBase "
-	    << "objects! Skipped this MB.." << endmsg;  
+	    << "objects! Skipped this MB.." << endreq;  
       } 
     else 
       {
@@ -1333,7 +1352,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&  inputTrack,
 	const PrepRawData* prepRD = (testROT) ? (testROT)->prepRawData() : 0;
 	if (!prepRD) {
 	  msg(MSG::WARNING) << "RIO_OnTrack->prepRawRata() "
-	      << "returns no object, ignore... " << endmsg;
+	      << "returns no object, ignore... " << endreq;
 	} else { prepRDColl.push_back( prepRD );  }
       }
   }
@@ -1348,7 +1367,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&  inputTrack,
       if(!(*it))
 	{
 	  msg(MSG::WARNING) << "This track contains empty MeasurementBase "
-	      << "objects! Skipped this MB.." << endmsg;
+	      << "objects! Skipped this MB.." << endreq;
 	} 
       else 
 	{
@@ -1357,7 +1376,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&  inputTrack,
 	  if (!prepRD) 
 	    {
 	      msg(MSG::WARNING) << "RIO_OnTrack->prepRawRata() "
-		  << "returns no object, ignore... " << endmsg;
+		  << "returns no object, ignore... " << endreq;
 	    } 
 	  else 
 	    {
@@ -1378,21 +1397,21 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::RIO_OnTrackSet&   input
 					      const Trk::ParticleHypothesis     matEffects) const
 {
     msg(MSG::VERBOSE) << "--> entering DistributedKalmanFilter::fit"
-        << "(RIO_OnTrackSet,TrackParameters,,)" << endmsg;
+        << "(RIO_OnTrackSet,TrackParameters,,)" << endreq;
 
     // protection, if empty RIO_OnTrackSet
     if (inputRotColl.empty()) {
         msg(MSG::ERROR) << "try to fit track+vec<ROT> with empty "
-            << "extended vec<RIO_OnTrack>, reject fit" << endmsg;
+            << "extended vec<RIO_OnTrack>, reject fit" << endreq;
         return 0;
     }
 
-    if (runOutlier) msg(MSG::VERBOSE) << "-> Outlier removal switched on" << endmsg;
-    if (matEffects!=Trk::nonInteracting) msg(MSG::VERBOSE) << "-> Material Effects switched on" << endmsg;
+    if (runOutlier) msg(MSG::VERBOSE) << "-> Outlier removal switched on" << endreq;
+    if (matEffects!=Trk::nonInteracting) msg(MSG::VERBOSE) << "-> Material Effects switched on" << endreq;
 
     // for the time being, disintegrate ROTSet back to PrepRawData set.
     msg(MSG::VERBOSE) << "copy & downgrade ROTSet into PRDset - "
-        << "this is improvised." << endmsg;
+        << "this is improvised." << endreq;
     PrepRawDataSet prepRDColl;
 
     RIO_OnTrackSet::const_iterator it    = inputRotColl.begin();
@@ -1402,14 +1421,14 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::RIO_OnTrackSet&   input
         const PrepRawData* prepRD = ((*it)->prepRawData());
         if (!prepRD) {
             msg(MSG::WARNING) << "RIO_OnTrack->prepRawRata() "
-                << "returns no object, ignore... " << endmsg;
+                << "returns no object, ignore... " << endreq;
         } else {
             prepRDColl.push_back( prepRD );
         }
     }
 							
     // fit set of PrepRawData using main method, start with first Track Parameter in inputTrack
-    msg(MSG::VERBOSE) << "call fit(PRDSet,TP,,)" << endmsg;
+    msg(MSG::VERBOSE) << "call fit(PRDSet,TP,,)" << endreq;
     return fit(prepRDColl,estimatedParametersNearOrigine,runOutlier,matEffects);
 }
 
