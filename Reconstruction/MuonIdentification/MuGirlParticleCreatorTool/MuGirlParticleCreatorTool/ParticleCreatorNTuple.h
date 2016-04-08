@@ -24,7 +24,7 @@ public:
     StatusCode fillEventInfo(unsigned nRunNumber, unsigned nEventNumber);
     StatusCode fill(const CandidateSummary* pSummary,
                     bool doTruth,
-                    ToolHandle<IPerformanceTruthTool> pTruthTool);
+                    const ToolHandle<IPerformanceTruthTool> &pTruthTool);
 
 private:
     void reset();
