@@ -1,0 +1,34 @@
+package TRT_StandaloneTrackFinder
+
+author Thomas Koffas <Thomas.Koffas@cern.ch>
+
+private
+
+use TrkParameters                TrkParameters-*               Tracking/TrkEvent
+#TRT segment to track tool
+use InDetRecToolInterfaces       InDetRecToolInterfaces-*      InnerDetector/InDetRecTools
+
+#use TrkPseudoMeasurementOnTrack  TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
+#use InDetIdentifier              InDetIdentifier-*             InnerDetector/InDetDetDescr
+#use InDetRIO_OnTrack             InDetRIO_OnTrack-*            InnerDetector/InDetRecEvent
+#use TrkToolInterfaces            TrkToolInterfaces-*           Tracking/TrkTools
+#use TrkExInterfaces              TrkExInterfaces-*             Tracking/TrkExtrapolation
+#use TrkFitterInterfaces          TrkFitterInterfaces-*         Tracking/TrkFitter
+#use MagFieldInterfaces           MagFieldInterfaces-*          MagneticField
+
+use TrkEventPrimitives           TrkEventPrimitives-*          Tracking/TrkEvent
+
+public
+
+use AtlasPolicy AtlasPolicy-*
+use GaudiInterface               GaudiInterface-*              External 
+use AthenaBaseComps              AthenaBaseComps-*             Control
+use TrkTrack                     TrkTrack-*                    Tracking/TrkEvent
+use TrkSegment                   TrkSegment-*                  Tracking/TrkEvent
+
+library TRT_StandaloneTrackFinder *.cxx components/*.cxx 
+apply_pattern component_library
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
