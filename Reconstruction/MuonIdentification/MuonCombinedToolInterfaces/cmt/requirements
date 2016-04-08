@@ -13,6 +13,7 @@ use xAODTracking       xAODTracking-*        Event/xAOD
 use xAODMuon           xAODMuon-*            Event/xAOD
 use xAODCaloEvent      xAODCaloEvent-*       Event/xAOD
 use CaloEvent          CaloEvent-*           Calorimeter
+use MuonLayerEvent     MuonLayerEvent-*      MuonSpectrometer/MuonReconstruction/MuonRecEvent
 
 # Declare this package as a cmake metalibrary in order to allow its clients to access the
 # libraries and header files from packages that this one depends on. Transparent to CMT.
