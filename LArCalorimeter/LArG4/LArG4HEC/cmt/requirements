@@ -24,8 +24,8 @@ apply_pattern installed_library
 #=======================================================
 private
 
-#macro_append LArG4HEC_cppflags  "  -O -Wno-unused"
-#macro_append LArG4HEC_cppflags  " -g -O0"
+macro_append LArG4HEC_cppflags  "  -O -Wno-unused"
+macro_append LArG4HEC_cppflags  " -g -O0"
 
 use GaudiInterface     GaudiInterface-*     External
 use AthenaKernel       AthenaKernel-*       Control
