@@ -15,6 +15,9 @@ use GeneratorObjects	 GeneratorObjects-*	   Generators
 private
 use AthenaKernel     AthenaKernel-*        Control
 use AthAllocators    AthAllocators-*       Control
+
+use HepMCWeightSvc  HepMCWeightSvc-* Generators
+
 end_private
 
 branches doc src GeneratorObjectsTPCnv

@@ -4,10 +4,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// McEventCollectionCnv_p2.cxx 
+// McEventCollectionCnv_p2.cxx
 // Implementation file for class McEventCollectionCnv_p2
 // Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 
 
 // STL includes
@@ -19,48 +19,45 @@
 
 #if 0
 namespace {
-// helper method to compute the number of particles and vertices in a
-// whole McEventCollection
-std::pair<unsigned int,unsigned int> 
-nbrParticlesAndVertices( const McEventCollection* mcEvents ) {
-  unsigned int nParts = 0;
-  unsigned int nVerts = 0;
-  const McEventCollection::const_iterator itrEnd = mcEvents->end();
-  for ( McEventCollection::const_iterator itr = mcEvents->begin();
-	itr != itrEnd;
-	++itr ) {
-    nParts += (*itr)->particles_size();
-    nVerts += (*itr)->vertices_size();
-  }
+  // helper method to compute the number of particles and vertices in a
+  // whole McEventCollection
+  std::pair<unsigned int,unsigned int>
+  nbrParticlesAndVertices( const McEventCollection* mcEvents ) {
+    unsigned int nParts = 0;
+    unsigned int nVerts = 0;
+    const McEventCollection::const_iterator itrEnd = mcEvents->end();
+    for ( McEventCollection::const_iterator itr = mcEvents->begin();
+          itr != itrEnd;
+          ++itr ) {
+      nParts += (*itr)->particles_size();
+      nVerts += (*itr)->vertices_size();
+    }
 
-  return std::make_pair( nParts, nVerts );
-}
+    return std::make_pair( nParts, nVerts );
+  }
 }
 #endif
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
+// Public methods:
+///////////////////////////////////////////////////////////////////
 
 // Constructors
 ////////////////
 McEventCollectionCnv_p2::McEventCollectionCnv_p2() :
-  Base_t( ),
-  m_pool( new HepMC::DataPool )
+  Base_t( )
 {}
 
 McEventCollectionCnv_p2::McEventCollectionCnv_p2( const McEventCollectionCnv_p2& rhs ) :
-  Base_t( rhs ),
-  m_pool( new HepMC::DataPool )
+  Base_t( rhs )
 {}
 
-McEventCollectionCnv_p2& 
+McEventCollectionCnv_p2&
 McEventCollectionCnv_p2::operator=( const McEventCollectionCnv_p2& rhs )
 {
   if ( this != &rhs ) {
     Base_t::operator=( rhs );
-    m_pool = new HepMC::DataPool;
-  } 
+  }
   return *this;
 }
 
@@ -69,53 +66,43 @@ McEventCollectionCnv_p2::operator=( const McEventCollectionCnv_p2& rhs )
 
 McEventCollectionCnv_p2::~McEventCollectionCnv_p2()
 {
-  delete m_pool; m_pool = 0;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
+///////////////////////////////////////////////////////////////////
+// Const methods:
 ///////////////////////////////////////////////////////////////////
 
 void McEventCollectionCnv_p2::persToTrans( const McEventCollection_p2* persObj,
-					   McEventCollection* transObj, 
-					   MsgStream& msg ) 
+                                           McEventCollection* transObj,
+                                           MsgStream& msg )
 {
   msg << MSG::DEBUG << "Loading McEventCollection from persistent state..."
       << endreq;
 
   // elements are managed by DataPool
   transObj->clear(SG::VIEW_ELEMENTS);
-
-  static bool first = true;
-  if ( first ) {
-    first = false;
-    m_pool->evt.reserve (   20 );
-    m_pool->vtx.reserve ( 1000 );
-    m_pool->part.reserve( 1000 );
+  HepMC::DataPool datapools;
+  const unsigned int nVertices = persObj->m_genVertices.size();
+  if ( datapools.vtx.capacity() - datapools.vtx.allocated() < nVertices ) {
+    datapools.vtx.reserve( datapools.vtx.allocated() + nVertices );
   }
-
-  {
-    const unsigned int nVertices = persObj->m_genVertices.size();
-    if ( m_pool->vtx.capacity() - m_pool->vtx.allocated() < nVertices ) {
-      m_pool->vtx.reserve( m_pool->vtx.allocated() + nVertices );
-    }
-    const unsigned int nParts = persObj->m_genParticles.size();
-    if ( m_pool->part.capacity() - m_pool->part.allocated() < nParts ) {
-      m_pool->part.reserve( m_pool->part.allocated() + nParts );
-    }
+  const unsigned int nParts = persObj->m_genParticles.size();
+  if ( datapools.part.capacity() - datapools.part.allocated() < nParts ) {
+    datapools.part.reserve( datapools.part.allocated() + nParts );
   }
-
   const unsigned int nEvts = persObj->m_genEvents.size();
-  if ( m_pool->evt.capacity() - m_pool->evt.allocated() < nEvts ) {
-    m_pool->evt.reserve( m_pool->evt.allocated() + nEvts );
+  if ( datapools.evt.capacity() - datapools.evt.allocated() < nEvts ) {
+    datapools.evt.reserve( datapools.evt.allocated() + nEvts );
   }
+  DataPool<HepMC::GenEvent>& poolOfEvents = datapools.evt;
+
   transObj->reserve( nEvts );
   const std::vector<GenEvent_p2>::const_iterator itrEnd = persObj->m_genEvents.end();
   for ( std::vector<GenEvent_p2>::const_iterator itr = persObj->m_genEvents.begin();
-	itr != itrEnd;
-	++itr ) {
+        itr != itrEnd;
+        ++itr ) {
     const GenEvent_p2& persEvt = *itr;
-    HepMC::GenEvent * genEvt        = m_pool->evt.nextElementPtr();
+    HepMC::GenEvent * genEvt        = poolOfEvents.nextElementPtr();
     genEvt->m_signal_process_id     = persEvt.m_signalProcessId;
     genEvt->m_event_number          = persEvt.m_eventNbr;
     genEvt->m_event_scale           = persEvt.m_eventScale;
@@ -129,22 +116,23 @@ void McEventCollectionCnv_p2::persToTrans( const McEventCollection_p2* persObj,
     genEvt->m_pdf_info = 0;         //> not available at that time...
 
     transObj->push_back( genEvt );
-    
-    // create a temporary map associating the barcode of an end-vtx to its 
+
+    // create a temporary map associating the barcode of an end-vtx to its
     // particle.
     // As not all particles are stable (d'oh!) we take 50% of the number of
     // particles as an initial size of the hash-map (to prevent re-hash)
     ParticlesMap_t partToEndVtx( (persEvt.m_particlesEnd-
-				  persEvt.m_particlesBegin)/2 );
-    
+                                  persEvt.m_particlesBegin)/2 );
+
     // create the vertices
     const unsigned int endVtx = persEvt.m_verticesEnd;
     for ( unsigned int iVtx= persEvt.m_verticesBegin; iVtx != endVtx; ++iVtx ) {
-      genEvt->add_vertex( createGenVertex( *persObj, 
-					   persObj->m_genVertices[iVtx], 
-					   partToEndVtx ) );
+      genEvt->add_vertex( createGenVertex( *persObj,
+                                           persObj->m_genVertices[iVtx],
+                                           partToEndVtx,
+                                           &datapools ) );
     } //> end loop over vertices
-    
+
     // set the signal process vertex
     const int sigProcVtx = persEvt.m_signalProcessVtx;
     if ( sigProcVtx != 0 ) {
@@ -154,15 +142,15 @@ void McEventCollectionCnv_p2::persToTrans( const McEventCollection_p2* persObj,
     // connect particles to their end vertices
     const ParticlesMap_t::iterator endItr = partToEndVtx.end();
     for ( ParticlesMap_t::iterator p = partToEndVtx.begin();
-	  p != endItr;
-	  ++p ) {
+          p != endItr;
+          ++p ) {
       HepMC::GenVertex* decayVtx = genEvt->barcode_to_vertex( p->second );
       if ( decayVtx ) {
-	decayVtx->add_particle_in( p->first );
+        decayVtx->add_particle_in( p->first );
       } else {
-	msg << MSG::ERROR
-	    << "GenParticle points to null end vertex !!"
-	    << endreq;
+        msg << MSG::ERROR
+            << "GenParticle points to null end vertex !!"
+            << endreq;
       }
     }
   } //> end loop over m_genEvents
@@ -173,9 +161,9 @@ void McEventCollectionCnv_p2::persToTrans( const McEventCollection_p2* persObj,
   return;
 }
 
-void McEventCollectionCnv_p2::transToPers( const McEventCollection*, 
-					   McEventCollection_p2*, 
-					   MsgStream& msg ) 
+void McEventCollectionCnv_p2::transToPers( const McEventCollection*,
+                                           McEventCollection_p2*,
+                                           MsgStream& msg )
 {
   msg << MSG::DEBUG << "Creating persistent state of McEventCollection..."
       << endreq;
@@ -190,20 +178,21 @@ void McEventCollectionCnv_p2::transToPers( const McEventCollection*,
   return;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
+// Non-const methods:
+///////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
+// Protected methods:
+///////////////////////////////////////////////////////////////////
 
-HepMC::GenVertex* 
+HepMC::GenVertex*
 McEventCollectionCnv_p2::createGenVertex( const McEventCollection_p2& persEvt,
-					  const GenVertex_p2& persVtx,
-					  ParticlesMap_t& partToEndVtx ) const
+                                          const GenVertex_p2& persVtx,
+                                          ParticlesMap_t& partToEndVtx, HepMC::DataPool* datapools ) const
 {
-  HepMC::GenVertex * vtx = m_pool->vtx.nextElementPtr();
+  DataPool<HepMC::GenVertex>& poolOfVertices = datapools->vtx;
+  HepMC::GenVertex * vtx = poolOfVertices.nextElementPtr();
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
   vtx->m_position.setZ( persVtx.m_z );
@@ -213,32 +202,35 @@ McEventCollectionCnv_p2::createGenVertex( const McEventCollection_p2& persEvt,
   vtx->m_id      = persVtx.m_id;
   vtx->m_weights.m_weights.reserve( persVtx.m_weights.size() );
   vtx->m_weights.m_weights.assign ( persVtx.m_weights.begin(),
-				    persVtx.m_weights.end() );
+                                    persVtx.m_weights.end() );
   vtx->m_event   = 0;
   vtx->m_barcode = persVtx.m_barcode;
-  
+
   // handle the in-going (orphans) particles
   const unsigned int nPartsIn = persVtx.m_particlesIn.size();
   for ( unsigned int i = 0; i != nPartsIn; ++i ) {
-     createGenParticle( persEvt.m_genParticles[persVtx.m_particlesIn[i]], 
-			partToEndVtx );
+    createGenParticle( persEvt.m_genParticles[persVtx.m_particlesIn[i]],
+                       partToEndVtx,
+                       datapools );
   }
-  
+
   // now handle the out-going particles
   const unsigned int nPartsOut = persVtx.m_particlesOut.size();
   for ( unsigned int i = 0; i != nPartsOut; ++i ) {
-     vtx->add_particle_out( createGenParticle( persEvt.m_genParticles[persVtx.m_particlesOut[i]],
-					       partToEndVtx ) );
+    vtx->add_particle_out( createGenParticle( persEvt.m_genParticles[persVtx.m_particlesOut[i]],
+                                              partToEndVtx,
+                                              datapools ) );
   }
 
   return vtx;
 }
 
-HepMC::GenParticle* 
+HepMC::GenParticle*
 McEventCollectionCnv_p2::createGenParticle( const GenParticle_p2& persPart,
-					    ParticlesMap_t& partToEndVtx ) const
+                                            ParticlesMap_t& partToEndVtx, HepMC::DataPool* datapools ) const
 {
-  HepMC::GenParticle* p    = m_pool->part.nextElementPtr();
+  DataPool<HepMC::GenParticle>& poolOfParticles = datapools->part;
+  HepMC::GenParticle* p    = poolOfParticles.nextElementPtr();
   p->m_momentum.setPx( persPart.m_px  );
   p->m_momentum.setPy( persPart.m_py  );
   p->m_momentum.setPz( persPart.m_pz  );
@@ -254,8 +246,8 @@ McEventCollectionCnv_p2::createGenParticle( const GenParticle_p2& persPart,
   // fillin' the flow
   const unsigned int nFlow = persPart.m_flow.size();
   for ( unsigned int iFlow= 0; iFlow != nFlow; ++iFlow ) {
-    p->m_flow.set_icode( persPart.m_flow[iFlow].first, 
-			 persPart.m_flow[iFlow].second );
+    p->m_flow.set_icode( persPart.m_flow[iFlow].first,
+                         persPart.m_flow[iFlow].second );
   }
 
   if ( persPart.m_endVtx != 0 ) {
