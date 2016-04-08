@@ -62,7 +62,7 @@ public:
   StatusCode calcLumi();
 
   // retrieve the details of the calculation as a TTree table
-  TTree * getLumiTree(){ return LumiTree; }
+  TTree * getLumiTree(){ return m_LumiTree; }
 
   StatusCode stop();
 
@@ -85,7 +85,7 @@ private:
 
   //  StoreGateSvc* p_inputstore; // input metadata store
   //  StoreGateSvc* p_metadatastore; // metadata store
-  ITHistSvc * tHistSvc;
+  ITHistSvc * m_tHistSvc;
 
   // Configurable Properties
   StringArrayProperty m_triggers;
@@ -109,7 +109,7 @@ private:
   LumiCalculator * m_lumicalc;
 
   // A TTree to bookkeep the calculation
-  TTree * LumiTree;
+  TTree * m_LumiTree;
   bool m_recordTTree;
 
   // Bookkeep if file is partially read

@@ -51,7 +51,7 @@ LumiCalcSvc::LumiCalcSvc(const std::string& name,
   //  p_metadatastore(0),
   m_pMetaDataStore ("StoreGateSvc/MetaDataStore",      name),
   m_pInputStore    ("StoreGateSvc/InputMetaDataStore", name),
-  tHistSvc(0),
+  m_tHistSvc(0),
   m_sourcedb("COOLONL_TRIGGER/OFLP200"),
   m_parlumiestfolder("/TRIGGER/LUMI/LBLEST"),
   m_parlumilvl1folder("/TRIGGER/LUMI/LVL1COUNTERS"),
@@ -82,7 +82,7 @@ LumiCalcSvc::LumiCalcSvc(const std::string& name,
 
   m_lumicalc = new LumiCalculator();
 
-  LumiTree = NULL;
+  m_LumiTree = NULL;
 }
 
 //===========================================================================
@@ -132,21 +132,21 @@ StatusCode LumiCalcSvc::initialize(){
 
 
   /// Initialize histogram service
-  sc = service("THistSvc", tHistSvc);
+  sc = service("THistSvc", m_tHistSvc);
   if (!sc.isSuccess()) {
     log << MSG::ERROR << "Unable to retrieve pointer to THistSvc!" << endreq;
     return(sc);
   }
 
   /// Create TTree
-  LumiTree = new TTree("LumiMetaData","LumiMetaData");
-  sc=tHistSvc->regTree("/AANT/Lumi",LumiTree);
+  m_LumiTree = new TTree("LumiMetaData","LumiMetaData");
+  sc=m_tHistSvc->regTree("/AANT/Lumi",m_LumiTree);
   if(!sc.isSuccess()){
     log << MSG::ERROR << "Cannot register TTree" << endreq;
     return(sc);
   }
 
-  m_lumicalc->setTree(LumiTree);
+  m_lumicalc->setTree(m_LumiTree);
   
 
   return sc;
@@ -184,9 +184,9 @@ StatusCode LumiCalcSvc::doDbQuery(StoreGateSvc_t sg) {
   MsgStream log(msgSvc(), name());
   StatusCode status = StatusCode::SUCCESS;
     
-  doRecordTree(true);// record history to LumiTree TTree
+  doRecordTree(true);// record history to m_LumiTree TTree
   StoreGateSvc_t store = sg;
-  LumiTree=m_lumicalc->getTree();
+  m_LumiTree=m_lumicalc->getTree();
 
   if (!m_triggers.value().empty() && !m_lbcnames.value().empty()) {
     // collect trigger names
@@ -307,7 +307,7 @@ StatusCode LumiCalcSvc::stop(){
 //===========================================================================
 void LumiCalcSvc::printTree(){
 
-  if(LumiTree != NULL)LumiTree->Scan("*");
+  if(m_LumiTree != NULL)m_LumiTree->Scan("*");
 
 }
 

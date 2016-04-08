@@ -5,7 +5,7 @@
 /** Modified from @file ReadMeta.cxx
  *  @brief The LumiBlockMetaDataTool reads luminosity metadata from input files and transfers it to output files
  *  @author Marjorie Shapiro <mdshapiro@lbl.gov> based on work from Peter van Gemmeren <gemmeren@anl.gov> 
- *  $Id: LumiBlockMetaDataTool.cxx 710869 2015-11-26 09:56:15Z will $
+ *  $Id: LumiBlockMetaDataTool.cxx 716108 2015-12-29 03:49:11Z ssnyder $
  **/
 
 #include "LumiBlockComps/LumiBlockMetaDataTool.h"
@@ -399,33 +399,33 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
   /*
   if (m_storexmlfiles) {
     if(piovComplete->size()>0) {
-       TString _version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
-       std::map<TString,TString> _metadata;
-       _metadata["complete"]=TString("complete");
+       TString this_version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
+       std::map<TString,TString> metadata;
+       metadata["complete"]=TString("complete");
        TString complete   = m_converter->GetSuggestedName(*piovComplete);
        TString subname = "complete"+complete;
        TString filename = "LumiBlockMetaData_" + subname + ".xml";
-       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovComplete,_metadata,_version);
+       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovComplete,metadata,this_version);
        m_converter->CreateXMLFile(*pgrl,filename.Data());
     }
     if(piovUnfinished->size()>0) {
-       TString _version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
-       std::map<TString,TString> _metadata;
-       _metadata["complete"]=TString("unfinished");
+       TString this_version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
+       std::map<TString,TString> metadata;
+       metadata["complete"]=TString("unfinished");
        TString unfinished   = m_converter->GetSuggestedName(*piovUnfinished);
        TString subname = "unfinished"+unfinished;
        TString filename = "LumiBlockMetaData_" + subname + ".xml";
-       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovUnfinished,_metadata,_version);
+       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovUnfinished,metadata,this_version);
        m_converter->CreateXMLFile(*pgrl,filename.Data());
     }
     if(piovSuspect->size()>0) {
-       TString _version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
-       std::map<TString,TString> _metadata;
-       _metadata["suspect"]=TString("suspect");
+       TString this_version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc 
+       std::map<TString,TString> metadata;
+       metadata["suspect"]=TString("suspect");
        TString suspect   = m_converter->GetSuggestedName(*piovSuspect);
        TString subname = "suspect"+suspect;
        TString filename = "LumiBlockMetaData_" + subname + ".xml";
-       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovSuspect,_metadata,_version);
+       Root::TGoodRunsList* pgrl = m_converter->GetGRLObject(*piovSuspect,metadata,this_version);
        m_converter->CreateXMLFile(*pgrl,filename.Data());
     }
 
@@ -437,7 +437,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 }
 
 const TString
-LumiBlockMetaDataTool::getGRLString( const TString& grlname ) const
+LumiBlockMetaDataTool::getGRLString( const TString& /*grlname*/ ) const
 {
   /*
   std::vector< Root::TGoodRunsList >::const_iterator itr = m_grlcollection->find( grlname );
