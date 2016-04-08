@@ -396,6 +396,9 @@ def _py_init_ClassIDSvc():
 
     # load the AthenaInternal::getClid helper method
     cppyy.makeNamespace('AthenaInternal')
+    # Really make sure that dictionaries are loaded.
+    # Needed this with 20.7.X-VAL.
+    cppyy.gbl.AthenaInternal.ROOT6_AthenaPython_WorkAround_Dummy
     _getClid = cppyy.gbl.AthenaInternal.getClid
     
     # retrieve the IClassIDSvc class
