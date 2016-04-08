@@ -28,7 +28,7 @@ class IJetUncertaintiesTool : virtual public asg::IAsgTool
         virtual std::string getPath()         const = 0;
         virtual std::string getAnalysisFile() const = 0;
         virtual float       getRefMu()        const = 0;
-        virtual unsigned    getRefNPV()       const = 0;
+        virtual float       getRefNPV()       const = 0;
 
         // Retrieve component information
         virtual size_t      getNumComponents() const = 0;
