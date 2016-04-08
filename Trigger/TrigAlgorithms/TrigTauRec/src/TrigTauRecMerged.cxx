@@ -679,6 +679,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	if(m_beamSpotSvc) m_tauEventData.setObject("Beamspot", ptrBeamspot);
 	if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
 
+
 	//-------------------------------------------------------------------------
 	// eventInitialize tauRec colls
 	//-------------------------------------------------------------------------
@@ -900,6 +901,15 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	    }
 	    
 	  }
+
+
+	  //
+	  // Set NUMVERTICES Aux variable
+	  //
+
+	  static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
+	  acc_nVertex(*p_tau) = avg_mu;
+
 
 
 	  msg() << MSG::DEBUG << "REGTEST: Roi: " << roiDescriptor->roiId()
