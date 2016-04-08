@@ -692,7 +692,7 @@ Trk::Track* Trk::KalmanFitter::fit(const Trk::MeasurementSet&   inputMeasSet,
     // make output track from the internal trajectory:
     Track* fittedTrack = makeTrack(fitQual,*startPar,&kalMec, this_eta, NULL);
     m_trajectory.clear();
-    if (!fittedTrack && fitQual) delete fitQual;
+    if (!fittedTrack) delete fitQual;
     return fittedTrack;
   } else {
     if (fitQual) delete fitQual;
