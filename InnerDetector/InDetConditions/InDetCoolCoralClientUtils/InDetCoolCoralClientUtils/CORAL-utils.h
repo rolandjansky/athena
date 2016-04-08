@@ -31,7 +31,8 @@
     std::istringstream _is_ (my_string); \
     size_t _new_size_, _k_; \
     _is_ >> _new_size_; \
-    __typeof__ (my_vector[0]) _tmp_; \
+    if (_new_size_ >9000000) {throw std::out_of_range("bad array limit in CORAL-utils.h");}\
+     __typeof__ (my_vector[0]) _tmp_; \
     my_vector.clear(); \
     for (_k_ = 0; _k_ < _new_size_; _k_ ++) { \
         _is_ >> _tmp_; \
@@ -43,7 +44,8 @@ template <typename T>
 bool FromString(T &aValue, const std::string &aStr)
 {
   std::stringstream ss(aStr);
-  return ss >> aValue;
+  ss >> aValue;
+  return !ss.fail();
 }
 
 template <typename T>
