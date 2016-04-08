@@ -20,7 +20,7 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "EventInfo/EventInfo.h"
 #include <vector>
-using namespace std;
+
 
 namespace D3PD {
 
@@ -40,19 +40,19 @@ public:
   virtual SubDetHitStatistics::SubDetType findSubDetType(Identifier id);
 
 private:
-  vector<vector<int> >* m_truth_barcode;
-  vector<int>* m_truth_nMDT;
-  vector<int>* m_truth_nRPC;
-  vector<int>* m_truth_nTGC;
-  vector<int>* m_truth_nCSC;
-  vector<int>* m_noise_nMDT;
-  vector<int>* m_noise_nRPC;
-  vector<int>* m_noise_nTGC;
-  vector<int>* m_noise_nCSC;
-  vector<int>* m_common_nMDT;
-  vector<int>* m_common_nRPC;
-  vector<int>* m_common_nTGC;
-  vector<int>* m_common_nCSC;
+  std::vector<std::vector<int> >* m_truth_barcode;
+  std::vector<int>* m_truth_nMDT;
+  std::vector<int>* m_truth_nRPC;
+  std::vector<int>* m_truth_nTGC;
+  std::vector<int>* m_truth_nCSC;
+  std::vector<int>* m_noise_nMDT;
+  std::vector<int>* m_noise_nRPC;
+  std::vector<int>* m_noise_nTGC;
+  std::vector<int>* m_noise_nCSC;
+  std::vector<int>* m_common_nMDT;
+  std::vector<int>* m_common_nRPC;
+  std::vector<int>* m_common_nTGC;
+  std::vector<int>* m_common_nCSC;
 
   const AtlasDetectorID *m_idHelper;
   ToolHandle<Trk::IDetailedMuonPatternTruthBuilder> m_truthTool;

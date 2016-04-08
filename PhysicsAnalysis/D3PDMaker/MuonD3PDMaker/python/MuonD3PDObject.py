@@ -13,7 +13,7 @@ from D3PDMakerCoreComps.SimpleAssociation import SimpleAssociation
 from D3PDMakerCoreComps.IndexAssociation  import IndexAssociation
 from D3PDMakerConfig.D3PDMakerFlags       import D3PDMakerFlags
 from D3PDMakerCoreComps.ContainedVectorMultiAssociation import ContainedVectorMultiAssociation
-import TrigMuonD3PDMaker
+#import TrigMuonD3PDMaker
 import TruthD3PDMaker
 
 from RecExConfig.RecFlags import rec

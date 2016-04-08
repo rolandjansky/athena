@@ -23,6 +23,9 @@
 #include "CxxUtils/make_unique.h"
 
 
+using namespace std;
+
+
 namespace D3PD {
   
   
