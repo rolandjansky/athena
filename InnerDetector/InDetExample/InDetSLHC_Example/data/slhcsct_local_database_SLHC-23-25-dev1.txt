@@ -126,7 +126,7 @@ SSctBrlLayer#0:LADDERTYPE 1
 // Stave layout. 0 is module based. 1 is stave based
 SSctBrlLayer#0:STAVELAYOUT 1
 // Stereo of inner side (mrad). Only used if STAVELAYOUT is 1
- SctBrlLayer#0:STEREOINNER -20  //--- To be checked.  Could also gain back a bit of z resolution with (0, 40) to (-40, 0)
+SSctBrlLayer#0:STEREOINNER -20  //--- To be checked.  Could also gain back a bit of z resolution with (0, 40) to (-40, 0)
 // Stereo of outer side (mrad). Only used if STAVELAYOUT is 1
 SSctBrlLayer#0:STEREOOUTER 20
 //NUMBER OF MODULES IN PHI [?] //--- fix this vs. R
@@ -135,13 +135,13 @@ SSctBrlLayer#0:SKISPERLAYER 28
 // Make this a factor 10 thinner than thickness in spreadsheet
 // and increase density by factor of 10.
 //INNER RADIUS OF SUPPORT CYLINDER (mm)
-SSctBrlServPerLayer#1:SUPPORTCYLINNERRAD 363.0
+SSctBrlServPerLayer#0:SUPPORTCYLINNERRAD 363.0
 //OUTER RADIUS OF SUPPORT CYLINDER (mm)
-SSctBrlServPerLayer#1:SUPPORTCYLOUTERRAD 383.0
+SSctBrlServPerLayer#0:SUPPORTCYLOUTERRAD 383.0
 //SUPPORT CYLINDER MATERIAL
-SSctBrlServPerLayer#1:SUPPORTCYLMATERIAL sct::CFiberSupport
+SSctBrlServPerLayer#0:SUPPORTCYLMATERIAL sct::CFiberSupport
 //FACTOR BY WHICH THE CF DENSITY IS INCREASED
-SSctBrlServPerLayer#1:MATSCALEFACTOR 0.45
+SSctBrlServPerLayer#0:MATSCALEFACTOR 0.45
 //SCT LAYER NUMBER (start from 0) 0
 
 /////////////////
@@ -192,7 +192,7 @@ SSctBrlLayer#2:TILT 10
 //MEASUREMENT TYPE (STEREO SIGN)
 SSctBrlLayer#2:STEREOSIGN -1
 //Ladder type (index in SctBrlLadder table)
-SSctBrlLayer#2:LADDERTYPE 1
+SSctBrlLayer#2:LADDERTYPE 0
 // Stave layout. 0 is module based. 1 is stave based
 SSctBrlLayer#2:STAVELAYOUT 1
 // Stereo of inner side (mrad). Only used if STAVELAYOUT is 1
@@ -226,7 +226,7 @@ SSctBrlLayer#3:TILT 10
 //MEASUREMENT TYPE (STEREO SIGN)
 SSctBrlLayer#3:STEREOSIGN 1
 //Ladder type (index in SctBrlLadder table)
-SSctBrlLayer#3:LADDERTYPE 1
+SSctBrlLayer#3:LADDERTYPE 0
 // Stave layout. 0 is module based. 1 is stave based
 SSctBrlLayer#3:STAVELAYOUT 1
 // Stereo of inner side (mrad). Only used if STAVELAYOUT is 1
@@ -1543,11 +1543,11 @@ SSctFwdGeneral:INTERMEDIATERADIUS 500
 //ENDCAP OUTER RADIUS (mm)
 SSctFwdGeneral:OUTERRADIUS 980
 //ENDCAP Z MIN (mm)
-SSctFwdGeneral:ZMIN 1326
+SSctFwdGeneral:ZMIN 1423   // Preserve inner buffer of (1415-1326)mm wrt innermost disc
 //ENDCAP Z INTERMEDIATE (mm)
-SSctFwdGeneral:ZINTERMEDIATE 1346
+SSctFwdGeneral:ZINTERMEDIATE 1443   // Keep 20mm higher than ZMIN
 //ENDCAP Z MAX (mm)
-SSctFwdGeneral:ZMAX 3200
+SSctFwdGeneral:ZMAX 3200   // Untouched since outermost ring position unchanged
 //
 //END OF FWD PARAMETERS
 //SCT_FWD_PARAMETERS_END 
