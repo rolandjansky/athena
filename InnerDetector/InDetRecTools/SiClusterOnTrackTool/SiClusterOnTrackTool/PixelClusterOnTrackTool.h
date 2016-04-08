@@ -16,7 +16,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
+#include "GaudiKernel/IIncidentListener.h"
 
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
@@ -26,16 +26,14 @@
 #include "TrkParameters/TrackParameters.h"
 //#include "InDetIdentifier/PixelID.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "TrkAmbiguityProcessor/dRMap.h"
 
 //#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 //#include "PixelConditionsTools/IModuleDistortionsTool.h"
 
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
 class PixelID;
 class IPixelOfflineCalibSvc;
 class IModuleDistortionsTool;
-
+class IIncidentSvc;
 class StoreGateSvc;
 class IBLParameterSvc;
 
@@ -66,7 +64,7 @@ namespace InDet {
 
 
   class PixelClusterOnTrackTool: 
-        public AthAlgTool, virtual public Trk::IRIO_OnTrackCreator
+        public AthAlgTool, virtual public Trk::IRIO_OnTrackCreator,  virtual public IIncidentListener
 {
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -79,15 +77,14 @@ public:
                           const IInterface*);
   virtual ~PixelClusterOnTrackTool ();
   //! AlgTool initialisation
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize();
   //! AlgTool termination
-  virtual StatusCode finalize  () override;
+  virtual StatusCode finalize  ();
   
-  
+  /** handle for incident service */
+  void handle(const Incident& inc) ;
  
   void correctBow(const Identifier&, Amg::Vector2D& locpos, const double tanphi, const double taneta) const;
-
-  double splineIBLPullX(float x, int layer) const;
 
   /** @brief produces a PixelClusterOnTrack (object factory!).
 
@@ -112,8 +109,8 @@ public:
   virtual const InDet::PixelClusterOnTrack* correct
     (const Trk::PrepRawData&, const Trk::TrackParameters&, 
      const InDet::PixelClusterStrategy) const;
-
      
+
   ///////////////////////////////////////////////////////////////////
   // Private methods:
   ///////////////////////////////////////////////////////////////////
@@ -127,7 +124,6 @@ public:
   // double getEndcapPhiError(int etasize, int phisize) const;
   // double getEndcapEtaError(int etasize, int phisize) const;
   
-  void FillFromDataBase() const;
 
   ///////////////////////////////////////////////////////////////////
   // Private data:
@@ -136,7 +132,7 @@ public:
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
   ToolHandle<Trk::IRIO_OnTrackErrorScalingTool> m_errorScalingTool;
   ServiceHandle<IPixelOfflineCalibSvc>          m_calibSvc        ;
-  StoreGateSvc*                                 m_detStore        ;
+
   /* ME: Test histos have nothing to do with production code, use a flag
     IHistogram1D* m_h_Resx;
     IHistogram1D* m_h_Resy;
@@ -174,36 +170,22 @@ public:
   
   /** Enable NN based calibration (do only if NN calibration is applied) **/
   mutable bool                      m_applyNNcorrection;
-  mutable bool                      m_applydRcorrection;
   bool				    m_NNIBLcorrection;
   bool				    m_IBLAbsent;
   
   /** NN clusterizationi factory for NN based positions and errors **/
   ToolHandle<NnClusterizationFactory>                   m_NnClusterizationFactory;
   ServiceHandle<StoreGateSvc>                           m_storeGate;            //!< Event store
+  ServiceHandle<IIncidentSvc>                           m_incidentSvc;          //!< IncidentSvc to catch begin of event and end of envent
   ServiceHandle<IBLParameterSvc>                        m_IBLParameterSvc;
-
-
-  SG::ReadHandleKey<InDet::DRMap>                      m_dRMap;      //!< the actual dR map         
-  std::string                                          m_dRMapName;
-  
+  mutable const InDet::PixelGangedClusterAmbiguities*   m_splitClusterMap;      //!< the actual split map         
+  std::string                                           m_splitClusterMapName;  //!< split cluster ambiguity map
   bool                                                  m_doNotRecalibrateNN;
   bool                                                  m_noNNandBroadErrors;
 	
 	/** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
   bool                      m_usingTIDE_Ambi;
-  SG::ReadHandleKey<InDet::PixelGangedClusterAmbiguities>    m_splitClusterHandle; 
-  mutable std::vector< std::vector<float> > m_fX, m_fY, m_fB, m_fC, m_fD;
-  
-  //moved from static to member variable
-  static constexpr int nbinphi=9;
-  static constexpr int nbineta=6;
-  double calphi[nbinphi];
-  double caleta[nbineta][3];
-  double calerrphi[nbinphi][3];
-  double calerreta[nbineta][3];
-  double phix[nbinphi+1];
-  double etax[nbineta+1];
+
 };
 
 } // end of namespace InDet
