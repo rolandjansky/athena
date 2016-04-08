@@ -22,6 +22,10 @@
 #include "MuonSimData/CscSimDataCollection.h"
 
 #include "EventInfo/PileUpEventInfo.h"  /*SubEvent*/
+
+#include "xAODEventInfo/EventInfo.h"             // NEW EDM
+#include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
+
 #include "PileUpTools/PileUpToolBase.h"
 
 using namespace MuonGM;
@@ -51,31 +55,33 @@ public:
 
   ~CscDigitizationTool();
   
-  StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
-  StatusCode finalize();
+  virtual StatusCode finalize()  override final;
 
   // PileUpTool methods...
   ///called at the end of the subevts loop. Not (necessarily) able to access subEvents
-  virtual StatusCode mergeEvent();
+  virtual StatusCode mergeEvent()  override final;
   
   ///called for each active bunch-crossing to process current subEvents. bunchXing is in ns
-  virtual StatusCode processBunchXing(int bunchXing,
-                              PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                              PileUpEventInfo::SubEvent::const_iterator eSubEvents);
+  virtual  StatusCode processBunchXing(
+                                int bunchXing,
+                                SubEventIterator bSubEvents,
+                                SubEventIterator eSubEvents
+                                ) override final;
 
   /// return false if not interested in  certain xing times (in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   //  virtual bool toProcess(int bunchXing) const;
-  virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/);
+  virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/)  override final;
  
   /// alternative interface which uses the PileUpMergeSvc to obtain
   /// all the required SubEvents.
-  virtual StatusCode processAllSubEvents();
+  virtual StatusCode processAllSubEvents()  override final;
 
   /// Used by CscDigitBuilder. Just calls processAllSubEvents -
   /// leaving for back-compatibility (IMuonDigitizationTool)
-  StatusCode digitize();
+  virtual StatusCode digitize()  override final;
 
 public: //possibly these should be private?
   StatusCode FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap, //csc_newmap& data_SampleMapOddPhase,

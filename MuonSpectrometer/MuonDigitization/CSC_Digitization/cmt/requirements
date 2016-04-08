@@ -23,6 +23,7 @@ use CscCalibTools               CscCalibTools-*         MuonSpectrometer/MuonCal
 use MuonReadoutGeometry         MuonReadoutGeometry-*   MuonSpectrometer/MuonDetDescr
 
 use PileUpTools                 PileUpTools-*           Control
+use xAODEventInfo       	xAODEventInfo-*    	Event/xAOD 
 use GaudiInterface		GaudiInterface-* 	External
 
 use EventInfo           EventInfo-*          Event

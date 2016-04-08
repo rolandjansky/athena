@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Authorg: Ketevi A. Assamagan
+// Author: Ketevi A. Assamagan
 // BNL, October 27 2003
 // Digitization algorithm for the CSC hits
 #include "MuonReadoutGeometry/MuonDetectorManager.h" 
@@ -660,45 +660,45 @@ StatusCode CscDigitizationTool::getNextEvent() // This is applicable to non-Pile
 
 
 ///////////////////////////
-StatusCode CscDigitizationTool::processBunchXing(int /*bunchXing*/,
-						 PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-						 PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-  //  m_seen.push_back(std::make_pair(std::distance(bSubEvents,eSubEvents), bunchXing));
-  // create a new hits collection
-  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
-  while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->pSubEvtSG); // this is for specific one collection for iEvt ....
-    const EventInfo* pEI(0);
-    if (seStore.retrieve(pEI).isSuccess()) {
-      ATH_MSG_VERBOSE( "SubEvt EventInfo from StoreGate " << seStore.name() << "  : "
-                       << " time offset: " << iEvt->time()
-                       << " event: " << pEI->event_ID()->event_number()
-                       << " run: " << pEI->event_ID()->run_number());
-      //FIXME << " contents: \n" << seStore.dump());
-    }
+StatusCode CscDigitizationTool::processBunchXing(int bunchXing,
+                                                 SubEventIterator bSubEvents,
+                                                 SubEventIterator eSubEvents)
+{
+  ATH_MSG_DEBUG("CscDigitizationTool::processBunchXing() " << bunchXing);
+  SubEventIterator iEvt = bSubEvents;
+  while (iEvt != eSubEvents)
+    {
+      StoreGateSvc& seStore = *(iEvt->ptr()->evtStore());
+      ATH_MSG_VERBOSE( "SubEvt StoreGate " << seStore.name() << " :"
+                       << " bunch crossing : " << bunchXing
+                       << " time offset : " << iEvt->time()
+                       << " event number : " << iEvt->ptr()->eventNumber()
+                       << " run number : " << iEvt->ptr()->runNumber());
+      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
 
-    PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-    const CSCSimHitCollection* seHitColl = 0;
-    if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) { // CSC_HITS
-      ATH_MSG_ERROR ("SubEvent CSCSimHitCollection not found in StoreGate " << seStore.name());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_VERBOSE ("CSCSimHitCollection found with " << seHitColl->size() << " hits");
-    //Copy Hit Collection
-    CSCSimHitCollection* cscHitColl = new CSCSimHitCollection(m_inputObjectName);
-    CSCSimHitCollection::const_iterator i = seHitColl->begin();
-    CSCSimHitCollection::const_iterator e = seHitColl->end();
-    // Read hits from this collection
-    for (; i!=e; ++i) {
-      cscHitColl->Emplace(*i);
-    }
-    m_thpcCSC->insert(thisEventIndex, cscHitColl);
-    //store these for deletion at the end of mergeEvent
-    m_cscHitCollList.push_back(cscHitColl);
-    //John's Hacks END
-    ++iEvt;
-  }//  while (iEvt != eSubEvents) {
- 
+      const CSCSimHitCollection* seHitColl(nullptr);
+      if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess())
+        { // CSC_HITS
+          ATH_MSG_ERROR ("SubEvent CSCSimHitCollection not found in StoreGate " << seStore.name());
+          return StatusCode::FAILURE;
+        }
+      ATH_MSG_VERBOSE ("CSCSimHitCollection found with " << seHitColl->size() << " hits");
+      //Copy Hit Collection
+      CSCSimHitCollection* cscHitColl = new CSCSimHitCollection(m_inputObjectName);
+      CSCSimHitCollection::const_iterator i = seHitColl->begin();
+      CSCSimHitCollection::const_iterator e = seHitColl->end();
+      // Read hits from this collection
+      for (; i!=e; ++i)
+        {
+          cscHitColl->Emplace(*i);
+        }
+      m_thpcCSC->insert(thisEventIndex, cscHitColl);
+      //store these for deletion at the end of mergeEvent
+      m_cscHitCollList.push_back(cscHitColl);
+      //John's Hacks END
+      ++iEvt;
+    }//  while (iEvt != eSubEvents) {
+
   return StatusCode::SUCCESS;
 }
 
