@@ -25,11 +25,11 @@ class CscCalibReportPed : public CscCalibReportBase
 {
   private:
     //Pedestal amplitude histograms
-    DataVector<TH1I> * pedAmpHists;
-    DataVector< DataVector<TH1I> > * sampHists;
-    DataVector<TH1I> * bitHists;
-    DataVector<TH2F> * bitCorrelation;
-    std::vector<int> * onlineTHoldTests;
+    DataVector<TH1I> * m_pedAmpHists;
+    DataVector< DataVector<TH1I> > * m_sampHists;
+    DataVector<TH1I> * m_bitHists;
+    DataVector<TH2F> * m_bitCorrelation;
+    std::vector<int> * m_onlineTHoldTests;
 
   public:
 

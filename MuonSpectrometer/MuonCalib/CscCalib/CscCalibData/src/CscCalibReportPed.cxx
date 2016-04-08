@@ -11,77 +11,77 @@
 
 /* default constructor */
 CscCalibReportPed::CscCalibReportPed() : 
-    pedAmpHists(NULL),
-    sampHists(NULL),
-    bitHists(NULL),
-    bitCorrelation(NULL),
-    onlineTHoldTests(NULL)
+    m_pedAmpHists(NULL),
+    m_sampHists(NULL),
+    m_bitHists(NULL),
+    m_bitCorrelation(NULL),
+    m_onlineTHoldTests(NULL)
 { }
 
 /* full constructor */
 CscCalibReportPed::CscCalibReportPed(std::string label) :  
     CscCalibReportBase::CscCalibReportBase(label),
-    pedAmpHists(NULL),
-    sampHists(NULL),
-    bitHists(NULL),
-    bitCorrelation(NULL),
-    onlineTHoldTests(NULL)
+    m_pedAmpHists(NULL),
+    m_sampHists(NULL),
+    m_bitHists(NULL),
+    m_bitCorrelation(NULL),
+    m_onlineTHoldTests(NULL)
 { }
 
 CscCalibReportPed::~CscCalibReportPed()
 {
-    delete pedAmpHists;
-    delete bitHists;
-    delete bitCorrelation;
-    delete onlineTHoldTests;
+    delete m_pedAmpHists;
+    delete m_bitHists;
+    delete m_bitCorrelation;
+    delete m_onlineTHoldTests;
 }
 
 void CscCalibReportPed::setPedAmpHists(DataVector<TH1I> * somePedAmpHists)
 {
-    pedAmpHists = somePedAmpHists;
+    m_pedAmpHists = somePedAmpHists;
 }
         
 void CscCalibReportPed::setSampHists(DataVector< DataVector<TH1I> > * someSampHists) 
 {
-  sampHists = someSampHists;
+  m_sampHists = someSampHists;
 }
 
 void CscCalibReportPed::setBitHists(DataVector<TH1I> * someBitHists)
 {
-    bitHists = someBitHists;
+    m_bitHists = someBitHists;
 }
 
 void CscCalibReportPed::setBitCorrelation(DataVector<TH2F> * somebitCorrelation)
 {
-    bitCorrelation = somebitCorrelation;
+    m_bitCorrelation = somebitCorrelation;
 }
 
 const DataVector<TH1I> * CscCalibReportPed::getPedAmpHists() const
 {
-    return pedAmpHists;
+    return m_pedAmpHists;
 }
 
 const DataVector<DataVector<TH1I> > * CscCalibReportPed:: getSampHists() const
 {
-  return sampHists;
+  return m_sampHists;
 }
 
 const DataVector<TH1I> * CscCalibReportPed::getBitHists() const
 {
-    return bitHists;
+    return m_bitHists;
 }
 
 const DataVector<TH2F> * CscCalibReportPed::getBitCorrelation() const
 {
-    return bitCorrelation;
+    return m_bitCorrelation;
 }
 
 //**setOnlineTHoldTests*///
 void CscCalibReportPed::setOnlineTHoldTests(std::vector<int> * onlineTests){
-  onlineTHoldTests = onlineTests;
+  m_onlineTHoldTests = onlineTests;
 }
 
 /**setOnlineTholdTests - contains number of times a channel's sample went above online threshold*/
 const std::vector<int> * CscCalibReportPed::getOnlineTHoldTests() const{
-  return onlineTHoldTests;
+  return m_onlineTHoldTests;
 }

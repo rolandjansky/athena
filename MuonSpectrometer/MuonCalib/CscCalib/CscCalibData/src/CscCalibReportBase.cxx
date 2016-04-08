@@ -11,7 +11,7 @@ CscCalibReportBase::CscCalibReportBase()
 {}
 
 CscCalibReportBase::CscCalibReportBase(std::string aLabel) : 
-    label(aLabel)
+    m_label(aLabel)
 {}
 
 CscCalibReportBase::~CscCalibReportBase()
@@ -19,12 +19,12 @@ CscCalibReportBase::~CscCalibReportBase()
 
 void CscCalibReportBase::setLabel( const string & aLabel)
 {
-    label = aLabel;
+    m_label = aLabel;
 }
 
 string CscCalibReportBase::getLabel() const
 {
-    return label;
+    return m_label;
 }
 
 

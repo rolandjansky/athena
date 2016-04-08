@@ -14,48 +14,48 @@
 
 /* default constructor */
 CscCalibReportSlope::CscCalibReportSlope() : 
-  calGraphs(NULL),
-    bitHists(NULL),
-  //deadChanges(NULL),
-  ampProfs(NULL),
-  pulsedChambers(NULL),
-  fitResults(NULL)
+  m_calGraphs(NULL),
+    m_bitHists(NULL),
+  //m_deadChanges(NULL),
+  m_ampProfs(NULL),
+  m_pulsedChambers(NULL),
+  m_fitResults(NULL)
 { }
 
 /* full constructor */
 CscCalibReportSlope::CscCalibReportSlope(std::string label) :  
   CscCalibReportBase::CscCalibReportBase(label),
-  calGraphs(NULL),
-  //deadChanges(NULL),
-    bitHists(NULL),
-  ampProfs(NULL),
-  pulsedChambers(NULL),
-  fitResults(NULL)
+  m_calGraphs(NULL),
+  //m_deadChanges(NULL),
+    m_bitHists(NULL),
+  m_ampProfs(NULL),
+  m_pulsedChambers(NULL),
+  m_fitResults(NULL)
 { }
 
 CscCalibReportSlope::~CscCalibReportSlope()
 {
   //Datavector, so it will delete its own contents
-  delete calGraphs;
+  delete m_calGraphs;
 
-  delete bitHists;
+  delete m_bitHists;
 
   //Doesn't contain pointers, so this is also safe
-  //delete deadChanges;
+  //delete m_deadChanges;
 
-  delete ampProfs;
-  delete pulsedChambers;
-  delete fitResults;
+  delete m_ampProfs;
+  delete m_pulsedChambers;
+  delete m_fitResults;
   /*
   //ampProfs needs to have contents explicitly deleted.
   if(ampProfs)
   {
-    std::map<int,TProfile*>::iterator profItr = ampProfs->begin();
-    std::map<int,TProfile*>::iterator profEnd = ampProfs->end();
+    std::map<int,TProfile*>::iterator profItr = m_ampProfs->begin();
+    std::map<int,TProfile*>::iterator profEnd = m_ampProfs->end();
     for(;profItr != profEnd; profItr++)
       delete profItr->second;
-    delete ampProfs;
-    delete pulsedChambers;
+    delete m_ampProfs;
+    delete m_pulsedChambers;
   }
   */
 }
@@ -63,72 +63,72 @@ CscCalibReportSlope::~CscCalibReportSlope()
 
 void CscCalibReportSlope::setBitHists(DataVector<TH1I> * someBitHists)
 {
-    bitHists = someBitHists;
+    m_bitHists = someBitHists;
 }
 
 const DataVector<TH1I> * CscCalibReportSlope::getBitHists() const
 {
-    return bitHists;
+    return m_bitHists;
 }
 
 void CscCalibReportSlope::setCalGraphs(DataVector<TGraphErrors> * someCalGraphs)
 {
-  if(calGraphs)
+  if(m_calGraphs)
     std::cout << "CscCalibReportSlope  WARNING      Writing over already existing calGraphs in report!" << std::endl;
     
-  calGraphs = someCalGraphs;
+  m_calGraphs = someCalGraphs;
 }
 
 const DataVector<TGraphErrors> * CscCalibReportSlope::getCalGraphs() const
 {
-  return calGraphs;
+  return m_calGraphs;
 }
 
 
 /*void CscCalibReportSlope::setDeadChanges( std::set<CscCalibReportSlope::bitChange> * someDeadChanges )
 {
-  if(deadChanges)
+  if(m_deadChanges)
     std::cout << "CscCalibReportSlope  WARNING       Attempt was made to write over already existing dead changes in report" << std::endl;
 
-  deadChanges = someDeadChanges;
+  m_deadChanges = someDeadChanges;
 }*/
 
 void CscCalibReportSlope::setAmpProfs( std::map<int,TProfile *> * someAmpProfs )
 {
-  if(ampProfs)
+  if(m_ampProfs)
     std::cout << "CscCalibReportSlope  WARNING        writing over already existing dead changes in report" << std::endl;
-  ampProfs = someAmpProfs;
+  m_ampProfs = someAmpProfs;
 }
 
 /*
 const std::set<CscCalibReportSlope::bitChange> * CscCalibReportSlope::getDeadChanges() const
 {
-  return deadChanges;
+  return m_deadChanges;
 }*/
 
 void CscCalibReportSlope::setFitResults( std::vector<float> * someFitResults){
-  fitResults = someFitResults;
+  m_fitResults = someFitResults;
 }
 
 const std::map<int,TProfile*> * CscCalibReportSlope::getAmpProfs() const
 {
-  return ampProfs;
+  return m_ampProfs;
 }
 
 void CscCalibReportSlope::setPulsedChambers( std::set<int> * somePulsedChambers)
 {
-  if(pulsedChambers)
+  if(m_pulsedChambers)
     std::cout << "CscCalibReportSlope WARNING     Writing over previously existing pulsed chambers" << std::endl;
-  pulsedChambers = somePulsedChambers;
+  m_pulsedChambers = somePulsedChambers;
 }
     
 
 const std::set<int> * CscCalibReportSlope::getPulsedChambers() const
 {
-  return pulsedChambers;
+  return m_pulsedChambers;
 }
 
 const std::vector<float> * CscCalibReportSlope::getFitResults() const{
-  return fitResults;
+  return m_fitResults;
 }
 
