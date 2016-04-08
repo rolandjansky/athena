@@ -12,7 +12,9 @@ use MuonSegment  MuonSegment-*  MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonPattern  MuonPattern-*  MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use Identifier Identifier-* DetectorDescription
 use TrkParameters TrkParameters-* Tracking/TrkEvent
+use TrkToolInterfaces TrkToolInterfaces-*       Tracking/TrkTools
 use AthenaBaseComps            AthenaBaseComps-*               Control
+use TrkToolInterfaces TrkToolInterfaces-* Tracking/TrkTools
 
 private
 
@@ -31,7 +33,6 @@ use TrkPseudoMeasurementOnTrack TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
 
 use TrkExInterfaces TrkExInterfaces-* Tracking/TrkExtrapolation
 use TrkSurfaces TrkSurfaces-* Tracking/TrkDetDescr
-use TrkToolInterfaces TrkToolInterfaces-* Tracking/TrkTools
 
 use MuonRIO_OnTrack  MuonRIO_OnTrack-*  MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonRecToolInterfaces MuonRecToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonRecTools
