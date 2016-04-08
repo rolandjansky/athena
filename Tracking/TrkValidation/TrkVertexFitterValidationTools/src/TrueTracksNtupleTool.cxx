@@ -35,20 +35,14 @@ Trk::TrueTracksNtupleTool::TrueTracksNtupleTool(
         AthAlgTool(t,n,p),
         m_ntupleFileName("/NTUPLES"),
         m_ntupleDirName("VtxFitterValidation"),
-        m_ntupleTreeName("TrueTracks"),
-        tree(nullptr),
-        m_prod_x(nullptr),
-        m_prod_y(nullptr),
-        m_prod_z(nullptr),
-        m_particle_id(nullptr),
-        m_parent_id(nullptr),
-        m_num_trks{}
+        m_ntupleTreeName("TrueTracks")
 {
+
     declareInterface<ITrueTracksValidationNtupleTool>(this);
     // Declare the properties
-    declareProperty("NtupleFileName",			 m_ntupleFileName,	"Ntuple file handle");
-    declareProperty("NtupleDirectoryName", m_ntupleDirName,	"directory name for ntuple tree");
-    declareProperty("NtupleTreeName",			 m_ntupleTreeName,	"Name of the track ntuple tree");
+    declareProperty("NtupleFileName",			m_ntupleFileName,	"Ntuple file handle");
+    declareProperty("NtupleDirectoryName",		m_ntupleDirName,	"directory name for ntuple tree");
+    declareProperty("NtupleTreeName",			m_ntupleTreeName,	"Name of the track ntuple tree");
 }
 
 // destructor
@@ -68,7 +62,7 @@ StatusCode Trk::TrueTracksNtupleTool::initialize() {
     status=service("THistSvc",hist_svc);
     if(status.isFailure())
     {
-	     msg(MSG::ERROR) << "Could not find HistService" << endmsg;
+	     msg(MSG::ERROR) << "Could not find HistService" << endreq;
 	     return status;
     }
 
@@ -77,7 +71,7 @@ StatusCode Trk::TrueTracksNtupleTool::initialize() {
     std::string fullNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTreeName;
     status = hist_svc->regTree(fullNtupleName, tree);
     if (status.isFailure()) {
-	      msg (MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
+	      msg (MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endreq;
 	      return status;
     }
 
@@ -106,7 +100,7 @@ StatusCode Trk::TrueTracksNtupleTool::initialize() {
 ///////////////////////////////////////
 StatusCode Trk::TrueTracksNtupleTool::finalize() {
 
-    msg(MSG::DEBUG) << "start finalize() in " << name() << endmsg;
+    msg(MSG::DEBUG) << "start finalize() in " << name() << endreq;
     return StatusCode::SUCCESS;
 }
 
@@ -116,7 +110,7 @@ StatusCode Trk::TrueTracksNtupleTool::finalize() {
 
 StatusCode Trk::TrueTracksNtupleTool::fillTrueTracksInfo(const TrackCollection& trk_coll, const TrackTruthCollection& trk_true_coll) const {
 
-    if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "in fillTrueTracksInfo(vxTrackAtVertex)"  << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "in fillTrueTracksInfo(vxTrackAtVertex)"  << endreq;
 
     StatusCode status;
    //fill track info
@@ -131,7 +125,7 @@ StatusCode Trk::TrueTracksNtupleTool::fillTrueTracksInfo(const TrackCollection& 
          const ElementLink<TrackCollection> tracklink2=tracklink;
          TrackTruthCollection::const_iterator found = trk_true_coll.find(tracklink2);
          if (found == trk_true_coll.end()) {
-            if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << " truth is missing" << endmsg;
+            if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << " truth is missing" << endreq;
          } else {  
              TrackTruth trk_truth=found->second;
              const HepMC::GenParticle * particle;
@@ -149,7 +143,7 @@ StatusCode Trk::TrueTracksNtupleTool::fillTrueTracksInfo(const TrackCollection& 
 
        }//end loop over tracks
    } else {
-     if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "No tracks in the Track Collection!!" << endmsg;
+     if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "No tracks in the Track Collection!!" << endreq;
    }
    
    tree->Fill();

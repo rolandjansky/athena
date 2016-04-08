@@ -45,60 +45,16 @@ Trk::BasicVtxValidationNtupleTool::BasicVtxValidationNtupleTool(
         m_ntupleDirName("VtxFitterValidation"),
         m_ntupleTreeName("EventInfo"),
         m_ntupleVtxTreeName("VxCandidate"),
-        m_ntupleTrkAtVxTreeName("TrueTracksAtVertex"),
-        // see: http://atlas-computing.web.cern.ch/atlas-computing/projects/qa/draft_guidelines-0.2.html
-        tree(nullptr),           //should be m_tree
-        vtx_tree(nullptr),       //should be m_vtxTree
-        trk_at_vxtree(nullptr),  //should be m_trkAtVxTree
-        m_lastEventNumber{},
-        m_runNumber{},
-        m_eventNumber{},
-        m_numVertices{},
-        m_x{},
-        m_y{},
-        m_z{},
-        m_err_x{},
-        m_err_y{},
-        m_err_z{},
-        m_chi2{},
-        m_chi2prob{},
-        m_numTracksPerVertex{},
-        m_numTracks{},
-        m_d0(nullptr),
-        m_z0(nullptr),
-        m_phi0(nullptr),
-        m_theta(nullptr),
-        m_qOverP(nullptr),
-        m_err_d0(nullptr),
-        m_err_z0(nullptr),
-        m_err_phi0(nullptr),
-        m_err_theta(nullptr),
-        m_err_qOverP(nullptr),
-        m_chi2_per_track(nullptr),
-        m_initial_d0(nullptr),
-        m_initial_z0(nullptr),
-        m_initial_phi0(nullptr),
-        m_initial_theta(nullptr),
-        m_initial_qOverP(nullptr),
-        m_err_initial_d0(nullptr),
-        m_err_initial_z0(nullptr),
-        m_err_initial_phi0(nullptr),
-        m_err_initial_theta(nullptr),
-        m_err_initial_qOverP(nullptr),
-        m_vxprod_x(nullptr),
-        m_vxprod_y(nullptr),
-        m_vxprod_z(nullptr),
-        m_vxparticle_id(nullptr),
-        m_vxparent_id(nullptr),
-        m_vxnum_trks{}
+        m_ntupleTrkAtVxTreeName("TrueTracksAtVertex")
 {
+
     declareInterface<IVtxValidationNtupleTool>(this);
     // Declare the properties
     declareProperty("NtupleFileName",		      m_ntupleFileName,	       "Ntuple file handle");
-    declareProperty("NtupleDirectoryName",	  m_ntupleDirName,	       "Directory name for ntuple tree");
+    declareProperty("NtupleDirectoryName",	      m_ntupleDirName,	       "Directory name for ntuple tree");
     declareProperty("NtupleTreeName",		      m_ntupleTreeName,	       "Name of the event info ntuple tree");
-    declareProperty("NtupleVtxTreeName",	    m_ntupleVtxTreeName,     "Name of the vtx ntuple tree");
-    declareProperty("NtupleTrkAtVxTreeName",	m_ntupleTrkAtVxTreeName, "Name of the tracks at vertex ntuple tree");
+    declareProperty("NtupleVtxTreeName",	      m_ntupleVtxTreeName,     "Name of the vtx ntuple tree");
+    declareProperty("NtupleTrkAtVxTreeName",	      m_ntupleTrkAtVxTreeName, "Name of the tracks at vertex ntuple tree");
 }
 
 // destructor
@@ -118,7 +74,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
     status=service("THistSvc",hist_svc);
     if(status.isFailure())
     {
-	    msg (MSG::ERROR) <<  "Could not find HistService" << endmsg;
+	    msg (MSG::ERROR) <<  "Could not find HistService" << endreq;
 	    return status;
     }
 
@@ -127,7 +83,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
     std::string fullNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTreeName;
     status = hist_svc->regTree(fullNtupleName, tree);
     if (status.isFailure()) {
-	     msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
+	     msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endreq;
 	     return status;
     }
     //registering the vtx tree --> VxCandidate info
@@ -135,7 +91,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
     std::string fullVtxNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleVtxTreeName;
     status = hist_svc->regTree(fullVtxNtupleName, vtx_tree);
     if (status.isFailure()) {
-	    msg(MSG::ERROR) << "Unable to register TTree : " << fullVtxNtupleName << endmsg;
+	    msg(MSG::ERROR) << "Unable to register TTree : " << fullVtxNtupleName << endreq;
 	    return status;
     }
     //registering the true trackAtVertex tree
@@ -143,7 +99,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
     std::string fullTrkAtVxNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTrkAtVxTreeName;
     status = hist_svc->regTree(fullTrkAtVxNtupleName, trk_at_vxtree);
     if (status.isFailure()) {
-	    msg(MSG::ERROR) << "Unable to register TTree : " << fullTrkAtVxNtupleName << endmsg;
+	    msg(MSG::ERROR) << "Unable to register TTree : " << fullTrkAtVxNtupleName << endreq;
 	    return status;
     }
     //event info tree
@@ -244,7 +200,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
 ///////////////////////////////////////
 StatusCode Trk::BasicVtxValidationNtupleTool::finalize() {
 
-    msg(MSG::DEBUG) << "start finalize() in " << name() << endmsg;
+    msg(MSG::DEBUG) << "start finalize() in " << name() << endreq;
     return StatusCode::SUCCESS;
 }
 
@@ -254,7 +210,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::finalize() {
 
 StatusCode Trk::BasicVtxValidationNtupleTool::fillVxCandidateData (const Trk::VxCandidate& vxCandidate) const {
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "in fillVxCandidateData(vxCandidate)"  << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "in fillVxCandidateData(vxCandidate)"  << endreq;
     //vertex position & errors
     m_x = vxCandidate.recVertex().position()[0];
     m_y = vxCandidate.recVertex().position()[1];
@@ -358,7 +314,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillVxCandidateData (const Trk::Vx
 
 StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Trk::VxCandidate& vxCandidate, const TrackCollection& trk_coll, const TrackTruthCollection& trk_true_coll) const {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillTrueTrackAtVertexInfo(VxCandidate)"  << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillTrueTrackAtVertexInfo(VxCandidate)"  << endreq;
 
     StatusCode status;
 
@@ -382,7 +338,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Tr
         const ElementLink<TrackCollection> tracklink2=tracklink;
         TrackTruthCollection::const_iterator found = trk_true_coll.find(tracklink2);
         if (found == trk_true_coll.end()) {
-          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " truth is missing" << endmsg;
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " truth is missing" << endreq;
         }
         else { 
             TrackTruth trk_truth=found->second;
@@ -404,7 +360,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Tr
       }// loop over all tracks
       m_vxnum_trks = numTracksPerVertex;
     } else { 
-       if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "VxCandidate without tracks!!" << endmsg; 
+       if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "VxCandidate without tracks!!" << endreq; 
        return 0; 
     }
     
@@ -426,7 +382,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillEventInfo(int& numRecVtx) cons
     // reset Vtx counter if new event
    const xAOD::EventInfo* eventInfo;
    if ((evtStore()->retrieve(eventInfo)).isFailure()) { 
-     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve event info" << endmsg; }
+     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve event info" << endreq; }
 
    if (m_lastEventNumber!=eventInfo->eventNumber())  m_lastEventNumber = eventInfo->eventNumber();
    m_eventNumber = eventInfo->eventNumber();

@@ -39,16 +39,7 @@ Trk::McEventNtupleTool::McEventNtupleTool(
         m_radiusCut(50.5),
         m_zPosCut(150.),
         m_radiusRes(0.044),
-        m_zPosRes(0.221),
-        vtx_tree(nullptr),
-        quark_tree(nullptr),
-        m_numTrueVertices{},
-        m_true_pri_x{},
-        m_true_pri_y{},
-        m_true_pri_z{},
-        m_true_sec_x(nullptr),
-        m_true_sec_y(nullptr),
-        m_true_sec_z(nullptr)
+        m_zPosRes(0.221)
 {
 
     declareInterface<IMcEventNtupleTool>(this);
@@ -80,7 +71,7 @@ StatusCode Trk::McEventNtupleTool::initialize() {
     status=service("THistSvc",hist_svc);
     if(status.isFailure())
     {
-	    msg(MSG::ERROR) << "Could not find HistService" << endmsg;
+	    msg(MSG::ERROR) << "Could not find HistService" << endreq;
 	    return status;
     }
 
@@ -89,7 +80,7 @@ StatusCode Trk::McEventNtupleTool::initialize() {
     std::string fullMcNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleMcTreeName;
     status = hist_svc->regTree(fullMcNtupleName, vtx_tree);
     if (status.isFailure()) {
-	   msg(MSG::ERROR) << "Unable to register TTree : " << fullMcNtupleName << endmsg;
+	   msg(MSG::ERROR) << "Unable to register TTree : " << fullMcNtupleName << endreq;
 	   return status;
     }
 
@@ -114,7 +105,7 @@ StatusCode Trk::McEventNtupleTool::initialize() {
 ///////////////////////////////////////
 StatusCode Trk::McEventNtupleTool::finalize() {
 
-    msg(MSG::DEBUG) << "start finalize() in " << name() << endmsg;
+    msg(MSG::DEBUG) << "start finalize() in " << name() << endreq;
     return StatusCode::SUCCESS;
 }
 
