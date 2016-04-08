@@ -113,7 +113,26 @@ RoIData_Muon::RoIData_Muon(int create) :
 
 
   //muComb
-  MuComb_sigmaPt = 0;
+  MuComb_sigmaPt=0.0;
+  MuComb_ID_algo=0.0;
+  MuComb_ID_pt=0.0;
+  MuComb_ID_ept=0.0;
+  MuComb_ID_eta=0.0;
+  MuComb_ID_eeta=0.0;
+  MuComb_ID_phi0=0.0;
+  MuComb_ID_ephi0=0.0;
+  MuComb_ID_z0=0.0;
+  MuComb_ID_ez0=0.0;
+  MuComb_ID_a0=0.0;
+  MuComb_ID_ea0=0.0;
+  MuComb_ID_chi2=0.0;
+  MuComb_ID_nPIX=0;
+  MuComb_ID_nSCT=0;
+  MuComb_ID_hitPattern=0;
+  MuComb_ID_nStrawHits=0;
+  MuComb_ID_nStraw=0;
+  MuComb_ID_nStrawTime=0;
+  MuComb_ID_nTRHits=0;
 
   //L2IDtracks
   ID_algo.clear();

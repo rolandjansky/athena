@@ -16,7 +16,9 @@ TrigEventInfo::TrigEventInfo () :
   timens(0),
   BCID(0),
   detectormask0(0),
-  detectormask1(0)
+  detectormask1(0), 
+  level1TriggerType(0), 
+  level1TriggerInfo()
 {
 }
 

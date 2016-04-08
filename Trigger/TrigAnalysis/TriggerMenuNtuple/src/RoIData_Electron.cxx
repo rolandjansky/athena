@@ -14,8 +14,43 @@ using namespace std;
 RoIData_Electron::RoIData_Electron(int create) : 
   RoIData(create), 
   L2CaloChains(0),L2IDChains(0),L2ElectronChains(0),
+  EFegammaChains(0), 
   EMCluster(false), EMClusterEt(0.0), EMClusterEta(0.0), EMClusterPhi(0.0),
   EFegamma(false), EFegammaPt(0.0), EFegammaEta(0.0), EFegammaPhi(0.0) {
+  L2_E=0.0;
+  L2_Et=0.0;
+  L2_eta=0.0;
+  L2_phi=0.0;
+
+  /*** TrigElectron ***/
+  L2_charge=0;
+  L2_Ethad1=0.0;
+  L2_Eratio=0.0;
+  L2_reta=0.0;
+  L2_trackclusterdeta=0.0;
+  L2_trackclusterdphi=0.0;
+  L2_Etoverpt=0.0;
+  L2_trackpt=0.0;
+  L2_trackalgo=TrigInDetTrack::NULLID;
+
+  EF_E=0.0;
+  EF_Et=0.0;
+  EF_eta=0.0;
+  EF_phi=0.0;
+  EF_charge=0;
+  EF_Ethad1=0.0;               //EMShower
+  EF_Ethad=0.0;
+  EF_rphiallcalo=0.0;
+  EF_E233=0.0;
+  EF_E237=0.0;
+  EF_E277=0.0;
+  EF_f1=0.0;
+  EF_Emins1=0.0;
+  EF_fside=0.0;
+  EF_Emax2=0.0;
+  EF_ws3=0.0;
+  EF_stot=0.0;
+  EF_weta2=0.0;
 }
 
 RoIData_Electron::~RoIData_Electron() {
