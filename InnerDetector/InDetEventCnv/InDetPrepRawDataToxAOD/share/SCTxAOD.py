@@ -39,8 +39,6 @@ prefixName = ""
 ### Setup decorators tools
 #################
 
-
-
 from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
 xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD( name = "xAOD_SCT_PrepDataToxAOD")
     ## Content steering Properties (default value shown as comment)
@@ -55,6 +53,13 @@ if (printSctDxAODConf):
     print xAOD_SCT_PrepDataToxAOD
     print xAOD_SCT_PrepDataToxAOD.properties()
 
+from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_RawDataToxAOD
+xAOD_SCT_RawDataToxAOD = SCT_RawDataToxAOD( name = "xAOD_SCT_RawDataToxAOD")
+xAOD_SCT_RawDataToxAOD.OutputLevel = INFO
+topSequence += xAOD_SCT_RawDataToxAOD
+if printSctDxAODConf:
+    print xAOD_SCT_RawDataToxAOD
+    print xAOD_SCT_RawDataToxAOD.properties()
 
 
 #################
@@ -176,6 +181,10 @@ SCTVALIDStream.AddItem("xAOD::ElectronContainer#Electrons")
 SCTVALIDStream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
 SCTVALIDStream.AddItem("xAOD::TrackParticleContainer#GSFTrackParticles")
 SCTVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux."+excludedAuxData)
+
+# Add SCT raw-data-objects
+SCTVALIDStream.AddItem("xAOD::SCTRawHitValidationContainer#*")
+SCTVALIDStream.AddItem("xAOD::SCTRawHitValidationAuxContainer#*")
 
 # Add truth-related information
 if dumpTruthInfo:
