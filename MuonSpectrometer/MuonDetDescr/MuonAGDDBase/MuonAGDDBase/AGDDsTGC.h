@@ -13,7 +13,7 @@
 
 
 
-class AGDDsTGC: public sTGCDetectorDescription, AGDDVolume {
+class AGDDsTGC: public sTGCDetectorDescription, public AGDDVolume {
 public:
     AGDDsTGC(std::string s);
 

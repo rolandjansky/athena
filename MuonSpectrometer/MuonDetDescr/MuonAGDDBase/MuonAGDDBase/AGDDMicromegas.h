@@ -13,7 +13,7 @@
 
 
 
-class AGDDMicromegas: public MMDetectorDescription, AGDDVolume {
+class AGDDMicromegas: public MMDetectorDescription, public AGDDVolume {
 public:
     AGDDMicromegas(std::string s);
 
