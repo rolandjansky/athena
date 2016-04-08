@@ -17,24 +17,35 @@ using std::endl;
 int main() {
   const string myname = "hello: ";
   cout << myname << "Begin." << endl;
-  cout << myname << "Check failure:" << endl;
-  ATH_CHECK(StatusCode::FAILURE);
-  cout << myname << "End of failure check" << endl;
   AsgHelloTool htool("myhello");
-  htool.setProperty("Message", "Hello from ASG.");
-  htool.setProperty("OutputLevel", MSG::DEBUG);
+  ASG_CHECK_SA( "hello", htool.setProperty("Message", "Hello from ASG.") );
+  ASG_CHECK_SA( "hello", htool.setProperty("OutputLevel", MSG::DEBUG) );
   cout << myname << "Initialize" << endl;
-  ATH_CHECK(htool.initialize());
+  ASG_CHECK_SA( "hello", htool.initialize());
   cout << myname << "Show properties" << endl;
   htool.print();
+  cout << myname << "Extract property" << endl;
+  const string* msg = htool.getProperty< string >( "Message" );
+  if( ! msg ) {
+     cout << myname << "Couldn't extract property from the tool" << endl;
+     return 1;
+  }
+  htool.getProperty< string >( "UnknownProperty" );
+  htool.getProperty< int >( "Message" );
+  cout << myname << "The \"Message\" property of the tool: " << *msg << endl;
   cout << myname << "Run 10 times" << endl;
   string line = "---------------------------------------------------";
   cout << line << endl;
   for ( int i=0; i<10; ++i ) {
-    if ( i == 3 ) htool.setProperty("OutputLevel", MSG::INFO);
+     if ( i == 3 ) {
+        ASG_CHECK_SA( "hello", htool.setProperty("OutputLevel", MSG::INFO) );
+     }
     htool.talk();
   }
   cout << line << endl;
+  cout << myname << "Check failure:" << endl;
+  ASG_CHECK_SA( "hello", StatusCode::FAILURE);
+  cout << myname << "End of failure check" << endl;
   cout << myname << "End." << endl;
   return 0;
 }

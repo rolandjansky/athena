@@ -13,18 +13,20 @@
 #include "AsgTools/AsgTool.h"
 
 class AsgHelloTool
-: virtual public asg::AsgTool,
+: public asg::AsgTool,
   virtual public IAsgHelloTool {
 ASG_TOOL_CLASS(AsgHelloTool, IAsgHelloTool)
 
 public:
 
-  AsgHelloTool(std::string myname);
+  AsgHelloTool( const std::string& myname );
 
-  void print() const;
+  virtual StatusCode initialize();
+
+  virtual void print() const;
 
   // Display the message recorded as property "Message"
-  int talk() const;
+  virtual int talk() const;
 
 private:
 

@@ -3,6 +3,7 @@
 #include "AsgExampleAlgorithm.h"
 #include "GaudiKernel/Property.h"
 #include "AsgExampleTools/IAsgHelloTool.h"
+#include "AsgTools/AsgTool.h"
 
 using std::string;
 
@@ -35,6 +36,23 @@ StatusCode AsgExampleAlgorithm::initialize() {
   for ( unsigned int itool=0; itool<ntool; ++itool ) {
     ATH_MSG_INFO("    " << m_asgtools[itool]->name());
     m_asgtools[itool]->print();
+    // Get the tool's message property:
+    const asg::AsgTool* tool =
+       dynamic_cast< const asg::AsgTool* >( m_asgtools[ itool ].operator->() );
+    if( ! tool ) {
+       ATH_MSG_ERROR( "The received tool is not an AsgTool?!?" );
+       return StatusCode::FAILURE;
+    }
+    const std::string* msg = tool->getProperty< std::string >( "Message" );
+    if( ! msg ) {
+       ATH_MSG_WARNING( "Couldn't get the \"Message\" property of tool "
+                        << tool->name() );
+    } else {
+       ATH_MSG_INFO( "    Its \"Message\" property: " << *msg );
+    }
+    // Try some invalid retrievals, for fun:
+    tool->getProperty< std::string >( "UnknownProperty" );
+    tool->getProperty< int >( "Message" );
   }
   return StatusCode::SUCCESS;
 }
