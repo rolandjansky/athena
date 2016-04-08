@@ -20,7 +20,10 @@ DetFlags.pixel_setOff()
 DetFlags.detdescr.pixel_setOn()
 #InDetFlags.doiPatRec             = False
 InDetFlags.doTrackSegmentsPixel  = False
+InDetFlags.doTrackSegmentsPixelPrdAssociation = False
 InDetFlags.doMonitoringPixel     = False
+InDetFlags.doPixelClusterSplitting = False
+InDetFlags.doTIDE_Ambi = False
 # End
 
 EOF
