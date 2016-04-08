@@ -1,0 +1,8 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+inline int KtJetTable::getNJets() const {
+  return m_jets.size();
+}
+
