@@ -305,9 +305,7 @@ def getFolderTag(db, folderPath, globalTag):
                 if not globalTag.startswith("OFLCOND"):
                    if globalTag.startswith("RUN"):
                       globalTag='OFLCOND-'+globalTag
-                   else:
-                      globalTag='OFLCOND-RUN12-SDR-31'
-                log.info("Using Simulation global tag \'%s\'" % globalTag)
+                      log.info("Using Simulation global tag \'%s\'" % globalTag)
             elif 'COMP200' in db or 'RUN1' in db:
                 schema='COOLOFL_TILE/COMP200'
                 if globalTag!='UPD1' and globalTag!='UPD4' and ('UPD1' in globalTag or 'UPD4' in globalTag or 'COND' not in globalTag):
