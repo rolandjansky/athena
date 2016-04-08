@@ -103,7 +103,7 @@ namespace TrkDriftCircleMath {
 //       std::cout << "  DCOnTrack::OnTrack " << std::endl;
     }else{
 
-      if( dline < 14.6 ){
+      if( dline < m_tubeRadius ){
 	if( res < 0. || dcOnTrack.DriftCircle::state() == DriftCircle::LateHit ){
 	  dcOnTrack.state( DCOnTrack::OutOfTime );
 	  ++m_outOfTimes;
@@ -115,13 +115,13 @@ namespace TrkDriftCircleMath {
 	}
 	++m_passedTubes;
       }else{
-	if(  dline < 29.2 ) {
+	if(  dline < m_closeByCut ) {
 	  dcOnTrack.state( DCOnTrack::CloseDC );
 	  ++m_closeHits;
 	}else{
 	  dcOnTrack.state( DCOnTrack::OutsideRoad );
 	}
-	if( dline < 60. ) {
+	if( dline < m_showerCut ) {
 	  ++m_showerHits;
 	}	
       }

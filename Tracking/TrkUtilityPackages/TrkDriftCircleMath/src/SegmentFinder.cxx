@@ -65,10 +65,10 @@ namespace TrkDriftCircleMath {
     if( m_debugLevel > 0 ){
       std::cout << " drop summary " << std::endl;
       for( unsigned int i=0;i<m_dropDepthMax+1;++i ){
-	std::cout << " Accepted " << m_dropDepthAcceptCounts[i] << std::endl;
+	      std::cout << " Accepted " << m_dropDepthAcceptCounts[i] << std::endl;
       }
       for( unsigned int i=0;i<m_dropDepthMax;++i ){
-	std::cout << " Rejected " << m_dropDepthRejectCounts[i] << std::endl;
+	      std::cout << " Rejected " << m_dropDepthRejectCounts[i] << std::endl;
       }
     }
   }
@@ -429,7 +429,8 @@ namespace TrkDriftCircleMath {
     if(m_debugLevel >= 3) {
       std::cout << " refitting segments " << std::endl;
     }
-
+    
+    
     for( SegCit it=segs.begin();it!=segs.end();++it ){
 
       Segment segment = *it; 
@@ -451,7 +452,7 @@ namespace TrkDriftCircleMath {
 	  // if the segment was accepted without dropping we still have to refit it 
      
 	  // find all hits within cut-off
-	  m_matchWithLine.set( it->line(), m_deltaCut, MatchDCWithLine::Pull );
+	  m_matchWithLine.set( it->line(), m_deltaCut, MatchDCWithLine::Pull, tubeRadius() );
 	  bool usePrecise = segment.hasT0Shift();
 	  const DCOnTrackVec& hitsOnLine = m_matchWithLine.match( it->dcs(), 0, m_recoverMdtHits, usePrecise );
 	  
@@ -641,7 +642,7 @@ namespace TrkDriftCircleMath {
 	  Segment& newSegment = segs.back();
 
 	  // find all hits within cut-off
-	  m_matchWithLine.set( newSegment.line(), 0.7*m_deltaCut, MatchDCWithLine::Pull );
+	  m_matchWithLine.set( newSegment.line(), 0.7*m_deltaCut, MatchDCWithLine::Pull, tubeRadius() );
 	  bool usePrecise = newSegment.hasT0Shift();
 	  DCOnTrackVec hitsOnLine = m_matchWithLine.match( newSegment.dcs(), &selection, m_recoverMdtHits, usePrecise );
 
@@ -670,7 +671,7 @@ namespace TrkDriftCircleMath {
 	      segs.pop_back(); // remove segment from vector
 	      continue;
 	    }else{
-	      m_matchWithLine.set( m_fitter->result().line(), 0.7*m_deltaCut, MatchDCWithLine::Pull );
+	      m_matchWithLine.set( m_fitter->result().line(), 0.7*m_deltaCut, MatchDCWithLine::Pull, tubeRadius() );
 	      usePrecise = m_fitter->result().hasT0Shift();
 	      hitsOnLine = m_matchWithLine.match( m_fitter->result().dcs(), &selection, m_recoverMdtHits, usePrecise );
 	      newSegment = m_fitter->result();
@@ -884,7 +885,7 @@ namespace TrkDriftCircleMath {
 	}
 	continue;
       }
-      m_matchWithLine.set( *lit, m_roadWidth, MatchDCWithLine::Road );
+      m_matchWithLine.set( *lit, m_roadWidth, MatchDCWithLine::Road, tubeRadius() );
       const DCOnTrackVec& hitsOnLine = m_matchWithLine.match( dcs );
 
       if( m_matchWithLine.hitsOnTrack() <= 2 ) {
