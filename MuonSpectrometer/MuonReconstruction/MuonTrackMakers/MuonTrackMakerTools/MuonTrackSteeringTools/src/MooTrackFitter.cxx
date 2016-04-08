@@ -2330,8 +2330,10 @@ namespace Muon {
     indexIdMap.reserve( seg.containedMeasurements().size() );
 
     unsigned index = 0;
+    float tubeRadius=14.6;
     std::vector<const Trk::MeasurementBase*>::const_iterator it = seg.containedMeasurements().begin();
     std::vector<const Trk::MeasurementBase*>::const_iterator it_end = seg.containedMeasurements().end();
+    ATH_MSG_DEBUG("loop through hits for segment");
     for(  ;it!=it_end;++it){
 
       const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(*it);
@@ -2348,6 +2350,9 @@ namespace Muon {
         ATH_MSG_WARNING(" error aborting not detEl found ");
         break;
       }
+
+      ATH_MSG_DEBUG("detector element of station type "<<detEl->getStationType());
+      if(detEl->getStationType().compare("BME")==0) tubeRadius=7.1;
 
       // calculate local AMDB position
       Amg::Vector3D locPos = gToStation*mdt->prepRawData()->globalPosition();
@@ -2400,7 +2405,7 @@ namespace Muon {
     }else{
       ATH_MSG_DEBUG(" removed single hit, not using it in fit " );
 
-      TrkDriftCircleMath::MatchDCWithLine matchDC(segment.line(),5.,TrkDriftCircleMath::MatchDCWithLine::Pull);
+      TrkDriftCircleMath::MatchDCWithLine matchDC(segment.line(),5.,TrkDriftCircleMath::MatchDCWithLine::Pull,tubeRadius);
       const TrkDriftCircleMath::DCOnTrackVec& matchedDCs = matchDC.match(segment.dcs());
 
       for( TrkDriftCircleMath::DCOnTrackCit dcit = matchedDCs.begin();dcit!=matchedDCs.end();++dcit ){
