@@ -28,6 +28,7 @@ use InDetRawData             InDetRawData-*             InnerDetector/InDetRawEv
 use EventInfo                EventInfo-*                Event
 use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
 use AtlasCLHEP               AtlasCLHEP-*               External
+use PixelGeoModel            PixelGeoModel-*            InnerDetector/InDetDetDescr
 
 public
 

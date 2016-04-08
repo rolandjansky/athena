@@ -7,6 +7,7 @@
 #include "PixelConditionsData/SpecialPixelMap.h"
 #include "PixelConditionsServices/ISpecialPixelMapSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
+#include "PixelConditionsServices/ISpecialPixelMapSvc.h"
 
 // geometry
 #include "InDetIdentifier/PixelID.h"
@@ -213,38 +214,35 @@ StatusCode PixMapOverlayWriter::execute(){
 
     for(std::map<std::string, std::vector<int> >::const_iterator module = m_frontends.begin();
 	module != m_frontends.end(); ++module){
+
+      unsigned int modid_parsed= std::atoi((module->first).c_str());
+
+      IdentifierHash moduleHash = m_pixelID->wafer_hash(Identifier(modid_parsed));
       
       try{
-	if(db->objectType(module->first) == "MODULE"){
 
-	  IdentifierHash moduleHash = 
-	    m_pixelID->wafer_hash(Identifier(std::atoi(db->findAlias(module->first, "HASHID").c_str())));
-
-	  if( moduleHash < m_pixelID->wafer_hash_max() ){
+	if( moduleHash < m_pixelID->wafer_hash_max() ){
 
 	    for( std::vector<int>::const_iterator frontend = module->second.begin();
 		 frontend != module->second.end(); ++frontend ){
 	    
 	      if( (*frontend) >= 0 && (*frontend) < 16 ){
 		
+		(*spm)[moduleHash]->setchipsPerModule( m_specialPixelMapSvc->getChips(moduleHash) );
 		(*spm)[moduleHash]->setChipStatus( (*frontend), m_moduleStatus);
+
 	      }
 	      else{
 		ATH_MSG_ERROR( "Frontend index out of range: " << module->second
 			       << ", ignoring this frontend index" );
 	      }
-	    }
-	  }
+	    } //for
+	  } //if 2
 	  else{
 	    ATH_MSG_ERROR( "Module hash out of range: " << moduleHash 
 			   << ", ignoring this module hash" );
 	  }
-	}
-	else{
-	  ATH_MSG_ERROR( module->first << " is of type " << db->objectType(module->first) 
-			 << " (expected MODULE), ignoring this object ID" );
-	}
-      }
+      }//try
       catch(...){
 	ATH_MSG_ERROR( "Unable to look up type of object " << module->first
 		       << ", ignoring this object ID" );
