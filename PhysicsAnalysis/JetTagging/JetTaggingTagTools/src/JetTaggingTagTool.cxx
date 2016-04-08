@@ -27,7 +27,7 @@ Purpose : create a Flavor Tagging Event Tag - a word to encode Flavor Tagging sp
 /** the constructor */
 JetTaggingTagTool::JetTaggingTagTool (const std::string& type, const std::string& name, 
     const IInterface* parent) : 
-    AlgTool( type, name, parent ) {
+    AthAlgTool( type, name, parent ) {
 
   /** AOD Container Names */
   declareProperty("JetContainer",    m_jetContainerName = "AntiKt4H1TopoJets");
@@ -42,13 +42,6 @@ JetTaggingTagTool::JetTaggingTagTool (const std::string& type, const std::string
 StatusCode JetTaggingTagTool::initialize() {
   MsgStream mLog(msgSvc(), name());
   mLog << MSG::DEBUG << "in intialize()" << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-    return sc;
-  }
 
   return StatusCode::SUCCESS;
 }
