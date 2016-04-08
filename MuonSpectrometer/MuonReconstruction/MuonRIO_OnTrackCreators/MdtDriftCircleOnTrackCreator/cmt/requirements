@@ -27,10 +27,6 @@ use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetD
 use  Identifier                 Identifier-*                    DetectorDescription
 use  MuonIdHelpers              MuonIdHelpers-*                 MuonSpectrometer
 
-# Remove the automatically defined -DATLAS macro definition for cmake because of a clash with an enum.
-# This probably needs to be revisited, but is transparent to CMT.
-apply_pattern cmake_add_command command="remove_definitions(-DATLAS)"
-
 public
 library MdtDriftCircleOnTrackCreator *.cxx components/*.cxx
 apply_pattern component_library
