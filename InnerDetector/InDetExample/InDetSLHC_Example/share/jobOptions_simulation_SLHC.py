@@ -4,7 +4,8 @@
 #--------------------------------------------------------------
 
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag = "OFLCOND-MC12-ITK-27-00"
+globalflags.ConditionsTag = "OFLCOND-MC15c-SDR-06"
+
 
 include("InDetSLHC_Example/preInclude.SLHC.py")
 
@@ -22,6 +23,7 @@ simFlags.load_atlas_flags()
 simFlags.SimLayout='ATLAS-P2-ITK-01-00-00_VALIDATION'
 simFlags.SimLayout.set_On() 
 simFlags.EventFilter.set_On()
+simFlags.RunNumber=240000
 
 ## Algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
