@@ -1,0 +1,59 @@
+package UserAnalysisUtils
+
+author Ketevi A. Assamagan <Ketevi@bnl.gov>
+
+use AtlasPolicy         AtlasPolicy-*
+
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use GaudiInterface		GaudiInterface-*		External
+
+use TrkSegment			TrkSegment-*			Tracking/TrkEvent
+use egammaEvent			egammaEvent-*			Reconstruction/egamma
+use muonEvent			muonEvent-*			Reconstruction/MuonIdentification
+use tauEvent			tauEvent-*			Reconstruction
+use Particle			Particle-*			Reconstruction
+use VxVertex             	VxVertex-*                  	Tracking/TrkEvent
+use MissingETEvent		MissingETEvent-*		Reconstruction
+use CaloEvent			CaloEvent-*			Calorimeter
+use JetEvent			JetEvent-*			Reconstruction/Jet
+
+use NavFourMom			NavFourMom-*			Event
+
+use AnalysisTools		AnalysisTools-*			PhysicsAnalysis/AnalysisCommon
+
+
+private
+use AtlasCLHEP			AtlasCLHEP-*			External
+
+public
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_joboptions files="*.py"
+
+apply_tag  ROOTBasicLibs
+apply_tag  ROOTMathLibs
+apply_tag  ROOTSTLDictLibs
+apply_tag  ROOTGraphicsLibs
+apply_tag  ROOTTableLibs
+
+# old stuff - obsolete. leave for a while
+#use AtlasROOT			AtlasROOT-*			External
+#use MuonSegment         	MuonSegment-*	        	MuonSpectrometer/MuonReconstruction/MuonRecEvent
+#use McParticleEvent		McParticleEvent-*		PhysicsAnalysis/TruthParticleID
+#use TrkEventPrimitives  	TrkEventPrimitives-*		Tracking/TrkEvent
+#use AnalysisTriggerEvent	AnalysisTriggerEvent-*		PhysicsAnalysis/AnalysisTrigger
+#use InDetPrepRawData		InDetPrepRawData-*		InnerDetector/InDetRecEvent
+#use MuonPrepRawData		MuonPrepRawData-*		MuonSpectrometer/MuonReconstruction/MuonRecEvent
+
+#use MissingET			MissingET-*			Reconstruction
+#use CBNT_Utils			CBNT_Utils-*			Reconstruction
+#use CaloUtils			CaloUtils-*			Calorimeter
+#use MuonIDEvent			MuonIDEvent-*		PhysicsAnalysis/MuonID
+
+#use CLIDSvc             	CLIDSvc-*       	     	Control
+#use StoreGate           	StoreGate-*   	                Control
+#use Navigation			Navigation-*			Control
+
+
+
