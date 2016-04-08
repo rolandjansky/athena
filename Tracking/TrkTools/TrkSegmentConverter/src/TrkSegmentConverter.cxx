@@ -59,10 +59,10 @@ StatusCode Trk::TrkSegmentConverter::initialize()
   
   sc = m_extrapolator.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
     return StatusCode::FAILURE;
   }else{
-    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
   }
 
   if(m_useFitter){
@@ -156,13 +156,13 @@ Trk::Track* Trk::TrkSegmentConverter::convertWithFitter(const Trk::Segment& segm
 //================ Convert using brute force =======================================
 Trk::Track* Trk::TrkSegmentConverter::convertBruteForce(const Trk::Segment& tS)
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Transforming the TRT segment into a track..." << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Transforming the TRT segment into a track..." << endreq;
 
   DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
 
   //Get the track segment fit quality. If not there drop segment
   const Trk::FitQuality* fq = tS.fitQuality() ? tS.fitQuality()->clone() : 0;
-  //if(!fq) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Segment has no fit quality!Discard..." << endmsg; return 0;}
+  //if(!fq) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Segment has no fit quality!Discard..." << endreq; return 0;}
 
   //Get the track segment information and build the initial track parameters
   const Amg::VectorX& p = tS.localParameters();
@@ -170,9 +170,9 @@ Trk::Track* Trk::TrkSegmentConverter::convertBruteForce(const Trk::Segment& tS)
   *ep = tS.localCovariance();
   const Trk::TrackParameters* segPar = tS.associatedSurface().createTrackParameters(p(0),p(1),p(2),p(3),p(4),ep);
   if(segPar){
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial TRT Segment Parameters for refitting " << (*segPar) << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial TRT Segment Parameters for refitting " << (*segPar) << endreq;
   }else{
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not get initial TRT segment parameters! " << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not get initial TRT segment parameters! " << endreq;
     return 0;
   }
 
@@ -186,7 +186,7 @@ Trk::Track* Trk::TrkSegmentConverter::convertBruteForce(const Trk::Segment& tS)
       Trk::PerigeeSurface perigeeSurface(perigeePosition);
       const Trk::TrackParameters* parm = m_extrapolator->extrapolate(*segPar, perigeeSurface);
       const Trk::Perigee* perParm = dynamic_cast<const Trk::Perigee*>(parm); 
-      if(!perParm) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to build perigee parameters.Discard..." << endmsg; delete ntsos; return 0;}
+      if(!perParm) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to build perigee parameters.Discard..." << endreq; delete ntsos; return 0;}
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
       seg_tsos = new Trk::TrackStateOnSurface(0,perParm,0,0,typePattern);
