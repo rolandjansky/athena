@@ -72,7 +72,7 @@ MuonFixedId IdToFixedIdTool::idToFixedId(const Identifier& id) const
   m_fixedId.clear();
 
   if( !(p_MdtIdHelper->is_muon(id)) ){
-    ATH_MSG_INFO(" MuonIdentifier doesn't correspond to a muon ");
+    ATH_MSG_DEBUG(" MuonIdentifier doesn't correspond to a muon ");
   } else {
     //setting the Muon specific fields
     done = m_fixedId.setStationName( m_fixedId.stationStringToFixedStationNumber( p_MdtIdHelper->stationNameString( p_MdtIdHelper->stationName( id ) ) ) );
