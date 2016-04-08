@@ -8,6 +8,7 @@ if ('doSim' in dir()) and doSim:
     doTileOpt  = False
     doTileOF1 = False
     doTileOpt2 = False
+    doTileQIE = False
     doTileOptATLAS = False
     doTileMF = False
     doTileFit  = False
@@ -44,6 +45,11 @@ if not 'doTileOpt2' in dir():
     doTileOpt2 = jobproperties.TileRecFlags.doTileOpt2()
 else:
     jobproperties.TileRecFlags.doTileOpt2 = doTileOpt2
+    
+if not 'doTileQIE' in dir():
+    doTileQIE = jobproperties.TileRecFlags.doTileQIE()
+else:
+    jobproperties.TileRecFlags.doTileQIE = doTileQIE
 
 if not 'doTileOptATLAS' in dir():
     doTileOptATLAS = jobproperties.TileRecFlags.doTileOptATLAS()
