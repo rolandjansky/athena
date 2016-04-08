@@ -172,6 +172,33 @@ StatusCode MdtVsRpcRawDataValAlg::initialize(){
 
   rpc_event_inarea=0;
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
+  
+  imdt_station      =0;
+  imdt_eta          =0;
+  imdt_phi          =0;
+  imdt_multi        =0;
+  imdt_layer        =0;
+  imdt_wire         =0;
+  imdt_wirez        =0;
+  imdt_nmaxtubes    =0;
+  imdt_multi_near   =0;
+  stripzmin         =0;
+  stripzmax         =0;
+  pitch             =0;
+  wirezmax          =0;
+  wirezmin          =0;
+  foundmin          =0;
+  NtubesPerLayerlast=0;
+  z                 =0;
+  m_nColl           =0;
+  m_nPrd            =0;
+  m_nClus           =0;
+  m_nCollmdt        =0;
+  m_nPrdmdt         =0;
+  MDTvsRPCNbinz     =0;
+  MDTvsRPCNbinx     =0;
+  N_RpcHitdblPhi1   =0;
+  N_RpcHitdblPhi2   =0;
  
   return StatusCode::SUCCESS;
 }
