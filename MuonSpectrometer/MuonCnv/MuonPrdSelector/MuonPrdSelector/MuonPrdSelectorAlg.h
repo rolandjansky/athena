@@ -11,7 +11,7 @@
 #define MUONPRDSELECTORALG_H
 
 // Base class
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/DataHandle.h"
 //#include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
@@ -47,7 +47,7 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-class MuonPrdSelectorAlg : public Algorithm  {
+class MuonPrdSelectorAlg : public AthAlgorithm  {
  public:
   MuonPrdSelectorAlg(const std::string &name,ISvcLocator *pSvcLocator); //!< Athena algorithm constructor
 
@@ -70,7 +70,6 @@ class MuonPrdSelectorAlg : public Algorithm  {
   StatusCode selectCSCs() ; //!< selects the hits from CSCcollections
 
 
-  StoreGateSvc* m_StoreGate ;  
   const MuonGM::MuonDetectorManager*  m_detMgr;
 
   const MdtIdHelper*  m_mdtIdHelper;

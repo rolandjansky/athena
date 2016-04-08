@@ -16,9 +16,13 @@
 //Tool to impliment a set of cuts on an Identifier, and then determine if a given ID is in that set
 
 MuonIdCutTool::MuonIdCutTool(const std::string& t,const std::string& n,const IInterface* p)  :  
-  AlgTool(t,n,p),
-  
-  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
+  AthAlgTool(t,n,p),
+  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
+  m_detMgr(nullptr),
+  m_rpcIdHelper(nullptr),
+  m_tgcIdHelper(nullptr),
+  m_cscIdHelper(nullptr),
+  m_mdtIdHelper(nullptr)
 {
   declareInterface<IMuonIdCutTool>(this);
   
@@ -73,54 +77,20 @@ MuonIdCutTool::~MuonIdCutTool() {
 }
 
 StatusCode MuonIdCutTool::initialize() {
-  m_log = new MsgStream(msgSvc(),name());
-  
-  // Retrieve tool to help with identifiers
-  StatusCode sc = m_idToFixedIdTool.retrieve();
-  if (sc.isSuccess()){
-    *m_log<<MSG::INFO << "Retrieved " << m_idToFixedIdTool << endreq;
-  }else{
-    *m_log<<MSG::FATAL<<"Could not get " << m_idToFixedIdTool <<endreq; 
-    return sc;
-  }
-  
-  
-  // Retrieve StoreGate
-  sc=service("StoreGateSvc",m_StoreGate);
-  if (sc.isFailure()) {
-    *m_log << MSG::WARNING << "StoreGate service not found !" << endreq;
-    return StatusCode::FAILURE;
+  ATH_CHECK( m_idToFixedIdTool.retrieve() );
+
+  if (detStore()->retrieve(m_detMgr).isFailure()) {
+    ATH_MSG_INFO( "Could not find the MuonReadoutGeometry Manager" );
   } 
-  
-  // Retrieve DetectorStore
-  StoreGateSvc* detStore = 0;
-  sc = service( "DetectorStore", detStore );
-  if (sc.isFailure()) {
-    *m_log <<MSG::FATAL << "Could not get DetectorStore"<<endreq;
-  }
-  
-  // retrieve MuonDetectorManager
-  std::string managerName="Muon";
-  sc=detStore->retrieve(m_detMgr);
-  if (sc.isFailure()) {
-    *m_log << MSG::INFO << "Could not find the MuonReadoutGeometry Manager: "
-	   << managerName << " ! " << endreq;
-  } 
-  // initialize MuonIdHelpers
-  if (m_detMgr) {
+  else {
     m_mdtIdHelper = m_detMgr->mdtIdHelper();
     m_cscIdHelper = m_detMgr->cscIdHelper();
     m_rpcIdHelper = m_detMgr->rpcIdHelper();
     m_tgcIdHelper = m_detMgr->tgcIdHelper();
-  } else {
-    m_mdtIdHelper = 0;
-    m_cscIdHelper = 0;
-    m_rpcIdHelper = 0;
-    m_tgcIdHelper = 0;
   }
   
   if (!m_cutStationName && !m_cutStationRegion && !m_cutEta && !m_cutPhi && !m_cutEE){
-    *m_log << MSG::WARNING << "MuonIdCutTool invoked with no cuts performed"  << endreq;
+    ATH_MSG_WARNING( "MuonIdCutTool invoked with no cuts performed"   );
   }
 
   //interpret EEL cuts
@@ -128,7 +98,7 @@ StatusCode MuonIdCutTool::initialize() {
   
   for(int i=0;i<max;i++){
     std::string cut = m_EELList[i];
-    *m_log << MSG::DEBUG << "EEL String: "  << cut << endreq;
+    ATH_MSG_DEBUG( "EEL String: "  << cut  );
     size_t length = cut.size();
     size_t loc = cut.find('/');
     if (loc!=std::string::npos){
@@ -137,8 +107,8 @@ StatusCode MuonIdCutTool::initialize() {
       int eta = atoi(etaString.c_str());
       int sector = atoi(sectorString.c_str());
 
-      *m_log << MSG::DEBUG << "EEL eta/phi string: "<< etaString << " " << sectorString << endreq;
-      *m_log << MSG::DEBUG << "EEL eta/phi int: "<< eta << " " << sector << endreq;
+      ATH_MSG_DEBUG( "EEL eta/phi string: "<< etaString << " " << sectorString  );
+      ATH_MSG_DEBUG( "EEL eta/phi int: "<< eta << " " << sector  );
 
   
       if(fabs(eta) > 0 && fabs(eta) < 3 && sector > 0 && sector < 17){
@@ -146,28 +116,25 @@ StatusCode MuonIdCutTool::initialize() {
 	m_EELsector.push_back(sector);
       
       } else {
-	*m_log << MSG::WARNING << "Improper EEL Cut Selected, this cut is skipped"  << endreq;
+	ATH_MSG_WARNING( "Improper EEL Cut Selected, this cut is skipped"   );
       }
 
     } else {
-      *m_log << MSG::WARNING << "Improperly formated EEL Cut Selected, this cut is skipped"  << endreq;
+      ATH_MSG_WARNING( "Improperly formated EEL Cut Selected, this cut is skipped"   );
     }
   }
 
   for(unsigned int i=0; i < m_EELeta.size();i++){
-    *m_log << MSG::DEBUG << "Eta: " << m_EELeta[i] << " Sector: " << m_EELsector[i] << endreq;
+    ATH_MSG_DEBUG( "Eta: " << m_EELeta[i] << " Sector: " << m_EELsector[i]  );
   }
 
-  
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode MuonIdCutTool::finalize(){
-  
-  
-  *m_log << MSG::DEBUG << "Finalize Called" << endreq;
-  
+StatusCode MuonIdCutTool::finalize()
+{
+  ATH_MSG_DEBUG( "Finalize Called"  );
   return StatusCode::SUCCESS;
 }
 
@@ -177,22 +144,21 @@ bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
   
   //some checks to see if the tool is configured in a state that makes sense 
   if (m_cutStationName && m_cutStationRegion){
-    *m_log << MSG::WARNING << "MuonIdCutTool invoked with both Region Cuts and Station name cuts.Are you sure this is what you want?"
-	   << endreq;
+    ATH_MSG_WARNING( "MuonIdCutTool invoked with both Region Cuts and Station name cuts.Are you sure this is what you want?");
   }
 
   if (m_cutSubstation){
     if ((m_mdtMultilayerList.size() != m_mdtStationNameList.size()) || (m_tgcGasGapList.size() != m_tgcStationNameList.size()) ){
-      *m_log << MSG::WARNING << "Station and Substation cuts lists should match in length, no cut perfomed"  << endreq;
+      ATH_MSG_WARNING( "Station and Substation cuts lists should match in length, no cut perfomed"   );
       return false;
     }
     else if ((m_rpcDoubletRList.size() != m_rpcStationNameList.size()) || ((m_rpcGasGapList.size() != m_rpcStationNameList.size()) && m_rpcGasGapList.size() !=0 )){
-      *m_log << MSG::WARNING << "Station and Substation cuts lists should match in length, no cut perfomed"  << endreq;
+      ATH_MSG_WARNING( "Station and Substation cuts lists should match in length, no cut perfomed"   );
       return false;
     }
   } 
 
-  //*m_log << MSG::DEBUG << "isCut called, give hit ID:" << ID  << endreq;
+  //ATH_MSG_DEBUG( "isCut called, give hit ID:" << ID   );
   
   std::vector<int> cutList; //this will chose the correct cut list (StationName or Station Region)
   const MuonIdHelper * pIdHelper = 0; //this will end up pointing to the correct technology IdHelper
@@ -201,23 +167,22 @@ bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
   //determine technology
   if (m_mdtIdHelper->is_mdt(ID)){
     pIdHelper = m_mdtIdHelper;
-    *m_log << MSG::DEBUG << "ID is an MDT"  << endreq;
+    ATH_MSG_DEBUG( "ID is an MDT"   );
   }
   else if (m_cscIdHelper->is_csc(ID)){
     pIdHelper = m_cscIdHelper;
-    *m_log << MSG::DEBUG << "ID is an CSC"  << endreq;
+    ATH_MSG_DEBUG( "ID is an CSC"   );
   } 
   else if (m_rpcIdHelper->is_rpc(ID)){
     pIdHelper = m_rpcIdHelper;
-    *m_log << MSG::DEBUG << "ID is an RPC"  << endreq;
+    ATH_MSG_DEBUG( "ID is an RPC"   );
   } 
   else if (m_tgcIdHelper->is_tgc(ID)){
     pIdHelper = m_tgcIdHelper;
-    *m_log << MSG::DEBUG << "ID is a TGC"  << endreq;
+    ATH_MSG_DEBUG( "ID is a TGC"   );
   } 
   else{
-    *m_log << MSG::ERROR << "Failure to determine technology type of ID#, returning false" 
-	   << endreq;
+    ATH_MSG_ERROR( "Failure to determine technology type of ID#, returning false" );
     return false;
   }
 
@@ -226,10 +191,10 @@ bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
 
   int sector = FindSector(staName,staPhi);
 
-  // *m_log << MSG::DEBUG << "Phi Station is " << staPhi
-  // << " and Station name is " << staName << endreq;
+  // ATH_MSG_DEBUG( "Phi Station is " << staPhi
+  // << " and Station name is " << staName  );
   
-  //*m_log << MSG::DEBUG << "Phi Sector is " << sector << endreq;
+  //ATH_MSG_DEBUG( "Phi Sector is " << sector  );
   
 
   //Routine for cutting all EES and some EEL chambers
@@ -258,21 +223,20 @@ bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
       cutList = m_tgcRegionList;
     } 
     else{
-      *m_log << MSG::ERROR << "Failure to determine technology type of ID#, returning false" 
-	     << endreq;
+      ATH_MSG_ERROR( "Failure to determine technology type of ID#, returning false"  );
       return false;
     }
     
     int listSize = cutList.size();
     for (int i=0; i<listSize;i++){                      
-      *m_log << MSG::DEBUG << "Region " << pIdHelper->stationRegion(ID) 
-	     << " compared with " << cutList[i] << endreq;
+      ATH_MSG_DEBUG( "Region " << pIdHelper->stationRegion(ID) 
+                     << " compared with " << cutList[i]  );
       if( cutList[i] == pIdHelper->stationRegion(ID)){
-	*m_log << MSG::DEBUG << "Return True" << endreq;
+	ATH_MSG_DEBUG( "Return True"  );
 	return true;
       }
     }
-    *m_log << MSG::DEBUG << "Passes Region Cut" << endreq;
+    ATH_MSG_DEBUG( "Passes Region Cut"  );
   }
 
     
@@ -293,15 +257,14 @@ bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
       cutList = m_tgcStationNameList;
     } 
     else{
-      *m_log << MSG::ERROR << "Failure to determine technology type of ID#, returning false" 
-	     << endreq;
+      ATH_MSG_ERROR( "Failure to determine technology type of ID#, returning false"  );
       return false;
     }
 
     int listSize = cutList.size();
     for (int i=0; i<listSize;i++){
-      *m_log << MSG::DEBUG << "Station Name " << pIdHelper->stationName(ID) <<  " compared with " 
-	     <<cutList[i]   << endreq;
+      ATH_MSG_DEBUG( "Station Name " << pIdHelper->stationName(ID) <<  " compared with " 
+                     <<cutList[i]    );
       if( cutList[i] == pIdHelper->stationName(ID)){
 	if (!m_cutSubstation){
 	  return true;
@@ -310,23 +273,23 @@ bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
 	else {  //proceed with more specific cuts
 
 	  if (m_mdtIdHelper->is_mdt(ID)){
-	    *m_log << MSG::DEBUG << "MDT multilayer " <<m_mdtIdHelper->multilayer(ID)
-	           <<  " compared with " << m_mdtMultilayerList[i]  << endreq;
+	    ATH_MSG_DEBUG( "MDT multilayer " <<m_mdtIdHelper->multilayer(ID)
+                           <<  " compared with " << m_mdtMultilayerList[i]   );
 	    if(m_mdtMultilayerList[i] == m_mdtIdHelper->multilayer(ID))
 	      return true;
 	  }
 
 
 	  else if (m_rpcIdHelper->is_rpc(ID)){
-	    *m_log << MSG::DEBUG << "RPC doublet R " <<m_rpcIdHelper->doubletR(ID)
-	           <<  " compared with " << m_rpcDoubletRList[i]  << endreq;
+	    ATH_MSG_DEBUG( "RPC doublet R " <<m_rpcIdHelper->doubletR(ID)
+                           <<  " compared with " << m_rpcDoubletRList[i]   );
 	    if( m_rpcDoubletRList[i] == m_rpcIdHelper->doubletR(ID) ){
 	      if (m_rpcGasGapList.size() == 0){
 		return true;
 	      }
 	      else {
-		*m_log << MSG::DEBUG << "RPC gasgap " <<m_rpcIdHelper->gasGap(ID)
-		       <<  " compared with " << m_rpcGasGapList[i]  << endreq;
+		ATH_MSG_DEBUG( "RPC gasgap " <<m_rpcIdHelper->gasGap(ID)
+                               <<  " compared with " << m_rpcGasGapList[i]   );
 		if (m_rpcGasGapList[i] == m_rpcIdHelper->gasGap(ID))
 		  return true;
 	      }
@@ -336,8 +299,8 @@ bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
 	  
 	      
 	  else if (m_tgcIdHelper->is_tgc(ID)){
-	    *m_log << MSG::DEBUG << "TGC gasgap " <<m_tgcIdHelper->gasGap(ID)
-	           <<  " compared with " << m_tgcGasGapList[i]  << endreq;
+	    ATH_MSG_DEBUG( "TGC gasgap " <<m_tgcIdHelper->gasGap(ID)
+                           <<  " compared with " << m_tgcGasGapList[i]   );
 	    if (m_tgcGasGapList[i] == m_tgcIdHelper->gasGap(ID))
 	      return true;
 	  }
@@ -365,10 +328,10 @@ bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
     int sector = FindSector(staName,staPhi);
     phi = sector;
     
-    *m_log << MSG::DEBUG << "Phi Station is " << staPhi
-	   << " and Station name is " << staName << endreq;
+    ATH_MSG_DEBUG( "Phi Station is " << staPhi
+                   << " and Station name is " << staName  );
     
-    *m_log << MSG::DEBUG << "Phi Sector is " << sector << endreq;
+    ATH_MSG_DEBUG( "Phi Sector is " << sector  );
     
     //Is it tgc?
     if (m_tgcIdHelper->is_tgc(ID)){
@@ -424,8 +387,8 @@ bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
     if(m_cutEta){
       etapass = false;
       for (int i=0; i<etaListSize;i++){
-	*m_log << MSG::DEBUG << "Eta Station " << pIdHelper->stationEta(ID) 
-	       << " compared with list to keep " << genEtaList[i] << endreq;
+	ATH_MSG_DEBUG( "Eta Station " << pIdHelper->stationEta(ID) 
+                       << " compared with list to keep " << genEtaList[i]  );
 	if( genEtaList[i] == pIdHelper->stationEta(ID))
 	  etapass = true;
       }
@@ -435,8 +398,8 @@ bool MuonIdCutTool::isCut(Identifier ID) { //false indicates all cuts are passed
       phipass = false;
       
       for (int i=0; i<phiListSize;i++){
-	*m_log << MSG::DEBUG << "Phi Station " << phi 
-	       << " compared with list to keep " << genPhiList[i] << endreq;
+	ATH_MSG_DEBUG( "Phi Station " << phi 
+                       << " compared with list to keep " << genPhiList[i]  );
 	if( genPhiList[i] == phi)
 	  phipass = true;
       }

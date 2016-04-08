@@ -8,7 +8,7 @@
 #include "MuonPrdSelector/IMuonIdCutTool.h"
 
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "Identifier/Identifier.h"
@@ -37,7 +37,7 @@ namespace MuonGM {
 
       For more details look at the mainpage of this package.
   */
-class MuonIdCutTool :  virtual public IMuonIdCutTool, public AlgTool   {
+class MuonIdCutTool :  virtual public IMuonIdCutTool, public AthAlgTool   {
   
 
   public:
@@ -98,15 +98,12 @@ class MuonIdCutTool :  virtual public IMuonIdCutTool, public AlgTool   {
 
 
     ToolHandle<MuonCalib::IIdToFixedIdTool>        m_idToFixedIdTool;     //<! tool to assist with Identifiers
-    StoreGateSvc * m_StoreGate ; 
     const MuonGM::MuonDetectorManager *  m_detMgr;
 
     const RpcIdHelper*                  m_rpcIdHelper;
     const TgcIdHelper*                  m_tgcIdHelper;
     const CscIdHelper*                  m_cscIdHelper;
     const MdtIdHelper*                  m_mdtIdHelper;
-
-    MsgStream* m_log;
 
     std::vector<int> m_EELeta;
     std::vector<int> m_EELsector;
