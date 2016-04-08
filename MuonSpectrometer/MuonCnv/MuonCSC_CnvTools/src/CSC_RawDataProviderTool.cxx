@@ -23,6 +23,8 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 
 //================ Constructor =================================================
 
@@ -153,21 +155,21 @@ StatusCode Muon::CSC_RawDataProviderTool::initialize()
     m_activeStore->setStore( &*evtStore() );
   if( has_bytestream || m_containerKey != "CSCRDO" )
   {
-    CscRawDataContainer* m_container = 
+    CscRawDataContainer* container = 
     Muon::MuonRdoContainerAccess::retrieveCscRaw(m_containerKey);
 	    
     // create and register the container only once
-    if(m_container==0)
+    if(container==0)
     {
       try {
-        m_container = new CscRawDataContainer(idHelper->module_hash_max());
+        container = new CscRawDataContainer(idHelper->module_hash_max());
       } catch(std::bad_alloc) {
         ATH_MSG_FATAL ( "Could not create a new CSC RDO container!");
         return StatusCode::FAILURE;
       }
 
       // record the container for being used by the convert method
-      if( Muon::MuonRdoContainerAccess::record(m_container, m_containerKey, serviceLocator(), m_log, &*evtStore())
+      if( Muon::MuonRdoContainerAccess::record(container, m_containerKey, serviceLocator(), m_log, &*evtStore())
           .isFailure() ) {
                                                //                                               (&*m_storeGateSvc)).isFailure() )
         ATH_MSG_FATAL ( "Recording of container " << m_containerKey
@@ -210,13 +212,9 @@ StatusCode Muon::CSC_RawDataProviderTool::convert(const std::vector<IdentifierHa
   std::vector< uint32_t > robIds;
   
   for (unsigned int i=0; i<rdoIdhVect.size(); ++i) {
-    Identifier Id;
-    if (idHelper->get_id(rdoIdhVect[i], Id, &cscContext)) {
-      ATH_MSG_WARNING ( "Unable to get CSC Identifier from collection hash id " );
-      continue;
-    }
-    const Identifier cscId = Id;
-    robIds.push_back(m_hid2re.getRodID(cscId));
+    uint32_t rob_id = 0xffff;
+    m_cabling->hash2RobFull(rdoIdhVect[i],rob_id);
+    robIds.push_back(rob_id);
   }
   m_robDataProvider->getROBData(robIds, vecOfRobf);
   ATH_MSG_VERBOSE ( "Number of ROB fragments " << vecOfRobf.size() );

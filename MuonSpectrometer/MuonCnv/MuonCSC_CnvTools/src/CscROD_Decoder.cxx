@@ -15,6 +15,10 @@
 
 #include <algorithm> 
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ; 
+using OFFLINE_FRAGMENTS_NAMESPACE::PointerType ; 
+using eformat::helper::SourceIdentifier; 
+
 /** constructor */ 
 Muon::CscROD_Decoder::CscROD_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )

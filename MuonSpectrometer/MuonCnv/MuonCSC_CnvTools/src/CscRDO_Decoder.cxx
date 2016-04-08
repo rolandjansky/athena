@@ -60,8 +60,8 @@ StatusCode Muon::CscRDO_Decoder::initialize()
   ATH_MSG_DEBUG (" Initialization is done!");
   
   /** initialize CSC Id Helper :: it is needed now! */
-  rodReadOut.set(m_cscHelper);
-  rodReadOut.setChamberBitVaue(1);
+  m_rodReadOut.set(m_cscHelper);
+  m_rodReadOut.setChamberBitVaue(1);
 
   
   return StatusCode::SUCCESS;
@@ -76,15 +76,15 @@ void Muon::CscRDO_Decoder::getDigit(const CscRawData * rawData,
   uint32_t address = rawData->address();
 
   // initialize some parameters
-  rodReadOut.setParams(m_timeOffset, m_samplingTime, m_signalWidth);
+  m_rodReadOut.setParams(m_timeOffset, m_samplingTime, m_signalWidth);
 
-  adc = rodReadOut.findCharge( rawData->samples(), time);
+  adc = m_rodReadOut.findCharge( rawData->samples(), time);
 
   // now decode the endcoded fragments 
   // find the Identifier and charge
-  rodReadOut.setAddress(address);
-  moduleId   = rodReadOut.decodeAddress();
-  channelId  = rodReadOut.decodeAddress(moduleId);
+  m_rodReadOut.setAddress(address);
+  moduleId   = m_rodReadOut.decodeAddress();
+  channelId  = m_rodReadOut.decodeAddress(moduleId);
 }
 
 
@@ -95,11 +95,11 @@ Identifier Muon::CscRDO_Decoder::stationIdentifier(const CscRawData * rawData) c
   uint32_t address = rawData->address();
 
   // initialize some parameters
-  rodReadOut.setParams(m_timeOffset, m_samplingTime, m_signalWidth);
+  m_rodReadOut.setParams(m_timeOffset, m_samplingTime, m_signalWidth);
 
   /** now decode the endcoded fragments find the Identifiers */
-  rodReadOut.setAddress(address);
-  return rodReadOut.decodeAddress();
+  m_rodReadOut.setAddress(address);
+  return m_rodReadOut.decodeAddress();
 }
 
 Identifier Muon::CscRDO_Decoder::channelIdentifier(const CscRawData * rawData, int j) const
@@ -108,17 +108,17 @@ Identifier Muon::CscRDO_Decoder::channelIdentifier(const CscRawData * rawData, i
   uint32_t address = rawData->address();
 
   // initialize some parameters
-  rodReadOut.setParams(m_timeOffset, m_samplingTime, m_signalWidth);
+  m_rodReadOut.setParams(m_timeOffset, m_samplingTime, m_signalWidth);
 
   /** now decode the endcoded fragments find the Identifiers */
-  rodReadOut.setAddress(address);
-  Identifier moduleId   = rodReadOut.decodeAddress();
+  m_rodReadOut.setAddress(address);
+  Identifier moduleId   = m_rodReadOut.decodeAddress();
   
   ATH_MSG_DEBUG ( " CscRDO_Decoder OUTPUT ::: " << m_cscCalibTool->getDetDescr() << "  "
                   << m_timeOffset << "  " << m_samplingTime << " " << m_signalWidth << " "
                   << m_cscHelper << "  " << m_detdescr << "  " << address << "   "
                   << moduleId << " " << j );
 
-  return rodReadOut.decodeAddress(moduleId, j);
+  return m_rodReadOut.decodeAddress(moduleId, j);
 }
 

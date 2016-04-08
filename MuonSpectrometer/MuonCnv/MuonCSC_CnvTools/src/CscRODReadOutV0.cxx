@@ -9,15 +9,15 @@ CscRODReadOutV0::CscRODReadOutV0() : m_cscHelper(0), m_sourceID(0),
   m_moduleType(0), m_rodId(0), m_subDetectorId(0), m_amp1(0), m_amp2(0),
   m_amp3(0), m_amp4(0), m_address(0) {  
 
-  TIME_OFFSET     = 46.825;  // ns
-  SIGNAL_WIDTH    = 16.08;   // ns
-  SAMPLING_TIME   = 50.0;    // ns
-  Z0              = 9.394;   // time bin at the maximum 
+  m_TIME_OFFSET     = 46.825;  // ns
+  m_SIGNAL_WIDTH    = 16.08;   // ns
+  m_SAMPLING_TIME   = 50.0;    // ns
+  m_Z0              = 9.394;   // time bin at the maximum 
                              // obtained by setting the derivative = 0
                              // this gives 2 solutions: Z0=9.394 and 16.606
                              // 9.394 is for positive amplitude
 
-  NUMBER_OF_INTEGRATION = 12;
+  m_NUMBER_OF_INTEGRATION = 12;
 
   // conversion factor from ee charge to ADC count
   // assuming for now 1 ADC count = 0.32 femtoCoulomb!
@@ -37,8 +37,8 @@ CscRODReadOutV0::CscRODReadOutV0() : m_cscHelper(0), m_sourceID(0),
   */
 
 
-  CHARGE_TO_ADC_COUNT = (0.32e-15) / (1.602e-19); 
-  m_norm = signal(Z0);
+  m_CHARGE_TO_ADC_COUNT = (0.32e-15) / (1.602e-19); 
+  m_norm = signal(m_Z0);
 
 }
 
@@ -73,7 +73,7 @@ double CscRODReadOutV0::findCharge() {
   // the sampling times
   double time[N_SAMPLE];
   for (int i=0; i<N_SAMPLE; i++)
-    time[i] = (i+1)*SAMPLING_TIME + TIME_OFFSET;
+    time[i] = (i+1)*m_SAMPLING_TIME + m_TIME_OFFSET;
 
   // the corresponding amplitudes
   uint16_t amp[N_SAMPLE];
