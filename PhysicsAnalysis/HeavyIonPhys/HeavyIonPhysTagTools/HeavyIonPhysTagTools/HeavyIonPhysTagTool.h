@@ -15,9 +15,8 @@ Purpose : build the HeavyIonPhys Tag object - AnalysisTag.h.
           For example encoding the results of hypotheses on different channels
 *****************************************************************************/
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TagEvent/TagFragmentCollection.h"
 
 #include <map>
@@ -25,7 +24,7 @@ Purpose : build the HeavyIonPhys Tag object - AnalysisTag.h.
 /** Interface ID for HeavyIonPhysTagTool*/  
 static const InterfaceID IID_HeavyIonPhysTagTool("HeavyIonPhysTagTool", 1, 0);
 
-class HeavyIonPhysTagTool : public AlgTool {
+class HeavyIonPhysTagTool : public AthAlgTool {
 
 public:
   
@@ -51,10 +50,6 @@ private:
   /** Properties */
   std::string m_jetContainerName;
   double m_jetPtCut;
-
-  /** Event Store */
-  StoreGateSvc* m_storeGate;
-
  };
 
 #endif // HEAVYIONPHYSTAGTOOL_H
