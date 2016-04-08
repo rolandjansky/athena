@@ -291,8 +291,8 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 		  std::vector<Identifier>::const_iterator it_end = vec.end();
 		  for(;it!=it_end;++it) {
 		    Identifier offId = (*it);
-		    CaloDetDescrElement* caloDDE = 0;
-		    caloDDE = caloMgr->get_element(offId);
+		    const CaloDetDescrElement* caloDDE = 
+                      caloMgr->get_element(offId);
 		    double rho  =caloDDE->r_raw();
 		    double cDrho=caloDDE->dr();
 		    double z    =caloDDE->z_raw();
