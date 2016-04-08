@@ -6,8 +6,10 @@
 # It reads conditions from two sources (COOL and/or sqlite),
 # compares values and dumps to the file difference, if it is above
 # specified threshould
+# Update: Yuri Smirnov 01/28/2016: folder tag protection added including
+# not only short (reduced) tag names, but also full tag names/paths
 #
-#=== examles of foleder/tag names
+#=== examples of folder/tag names
 #folderPath = "/TILE/OFL02/CALIB/CES"
 #folderPath = "/TILE/OFL02/TIME/CHANNELOFFSET/PHY"
 #folderPath = "/TILE/OFL02/NOISE/SAMPLE"
@@ -141,12 +143,26 @@ if sqlfn2 == 'none':
 else:
     db2 = TileCalibTools.openDb('SQLITE', instance2, 'READONLY',schema2,sqlfn2)
 
-if tag:
+#if tag:
+#    folderTag = TileCalibUtils.getFullTag(folderPath, tag)
+#else:
+#    folderTag = ""
+#if tag2:
+#    folderTag2 = TileCalibUtils.getFullTag(folderPath2, tag2)
+#else:
+#    folderTag2 = ""
+
+if tag.startswith('TileO'):
+    folderTag = tag
+elif tag:
     folderTag = TileCalibUtils.getFullTag(folderPath, tag)
 else:
     folderTag = ""
-if tag2:
-    folderTag2 = TileCalibUtils.getFullTag(folderPath2, tag2)
+
+if tag2.startswith('TileO'):
+    folderTag2 = tag2
+elif tag2:
+    folderTag2 = TileCalibUtils.getFullTag(folderPath, tag2)
 else:
     folderTag2 = ""
 

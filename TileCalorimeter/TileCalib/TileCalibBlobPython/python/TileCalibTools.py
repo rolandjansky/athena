@@ -17,6 +17,7 @@ ROOT.gInterpreter.EnableAutoLoading()
 import cx_Oracle
 from PyCool import cool
 import time, types, re, sys, os
+import urllib2
 #import PyCintex
 try:
    # ROOT5
@@ -67,17 +68,13 @@ LASPARTCHAN = 43
 def getLastRunNumber(partition=""):
     """
     Return the run number of last run taken in the pit
-    if partition name is not empty, max run number taken with given TDAQ partition is returned
     """
-    connection=cx_Oracle.connect(dsn="ATLR",user="atlas_run_number_r",password="-Run.Num@rEaDeR-x-12")
-    con=connection.cursor()
-    sql="SELECT MAX(RUNNUMBER) FROM ATLAS_RUN_NUMBER.RUNNUMBER"
-    if len(partition):
-        sql += (" WHERE PARTITIONNAME='%s'" % partition)
-    con.execute(sql)
-    data=con.fetchall()
-    connection.close()
-    return data[0][0]
+    try:
+        response = urllib2.urlopen("http://atlas-service-db-runlist.web.cern.ch/atlas-service-db-runlist/cgi-bin/latestRun.py")
+        data = response.read().split()
+    except:
+        data=[]
+    return int(data[0]) if len(data) else 222222
 
 #
 #______________________________________________________________________
@@ -308,9 +305,7 @@ def getFolderTag(db, folderPath, globalTag):
                 if not globalTag.startswith("OFLCOND"):
                    if globalTag.startswith("RUN"):
                       globalTag='OFLCOND-'+globalTag
-                   else:
-                      globalTag='OFLCOND-RUN12-SDR-31'
-                log.info("Using Simulation global tag \'%s\'" % globalTag)
+                      log.info("Using Simulation global tag \'%s\'" % globalTag)
             elif 'COMP200' in db or 'RUN1' in db:
                 schema='COOLOFL_TILE/COMP200'
                 if globalTag!='UPD1' and globalTag!='UPD4' and ('UPD1' in globalTag or 'UPD4' in globalTag or 'COND' not in globalTag):
