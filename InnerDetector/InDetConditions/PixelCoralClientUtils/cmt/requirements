@@ -27,7 +27,7 @@ use AtlasCORAL AtlasCORAL-* External
 private
 use AtlasCOOL AtlasCOOL-* External
 
-macro_append Boost_linkopts "$(Boost_linkopts_filesystem) $(Boost_linkopts_system) "
+# macro_append Boost_linkopts "$(Boost_linkopts_filesystem) $(Boost_linkopts_system) "
 #============================================================================
 # Shared library
 #============================================================================

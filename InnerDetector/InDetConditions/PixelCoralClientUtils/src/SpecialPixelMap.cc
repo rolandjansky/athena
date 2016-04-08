@@ -1367,7 +1367,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = pixel_eta_index / mcolumns + mch/2;
 	 column = pixel_eta_index % mcolumns;
 	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
-	 else{
+	 else if(ng>0){
 	   for(int k=0; k<ng; ++k){ 
 	     if(pixel_phi_index ==(mrowsrdo+k))row = mrowsrdo+1 -2*(ng-k);
 	   }
@@ -1377,7 +1377,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = mch/2 - (1 + pixel_eta_index / mcolumns);
 	 column = mcolumns - (1+pixel_eta_index % mcolumns);
 	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows-1 - pixel_phi_index;
-	 else{
+	 else if(ng>0){
 	   for(int k = 0; k<ng; ++k){
 	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
 	   }
@@ -1396,7 +1396,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = mch/2 - (1+pixel_eta_index / mcolumns);
 	 column = mcolumns - (1+pixel_eta_index % mcolumns);
 	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
-	 else{
+	 else if(ng>0){
 	   for(int k=0; k<ng; ++k){ 
 	     if(pixel_phi_index ==(mrowsrdo+k)) row = mrowsrdo+1 -2*(ng-k);
 	   }
@@ -1406,7 +1406,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = pixel_eta_index / mcolumns + mch/2;
 	 column = pixel_eta_index % mcolumns;
 	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows - 1 - pixel_phi_index;
-	 else{
+	 else if(ng>0){
 	   for(int k = 0; k<ng; ++k){
 	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
 	   }
@@ -1418,7 +1418,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = mch/2 -(1 + pixel_eta_index / mcolumns);
 	 column = mcolumns - (1 + pixel_eta_index % mcolumns);
 	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows - 1 - pixel_phi_index;
-	 else{
+	 else if(ng>0){
 	   for(int k = 0; k<ng; ++k){
 	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
 	   }
@@ -1428,7 +1428,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = pixel_eta_index / mcolumns + mch/2;
 	 column = pixel_eta_index % mcolumns;
 	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
-	 else{ 
+	 else if(ng>0){ 
 	   for(int k=0; k<ng; ++k){ 
 	     if(pixel_phi_index ==(mrowsrdo+k)) row = mrowsrdo+1 -2*(ng-k);
 	   }
