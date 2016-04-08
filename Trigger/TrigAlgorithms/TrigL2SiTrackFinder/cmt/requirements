@@ -24,6 +24,9 @@ use TrigSteeringEvent           TrigSteeringEvent-*     Trigger/TrigEvent
 # Tracking
 use TrkTrack		        TrkTrack-* 		Tracking/TrkEvent
 
+use IRegionSelector             IRegionSelector-*       DetectorDescription
+# use RegionSelector            RegionSelector-*        DetectorDescription
+# use RoiDescriptor             RoiDescriptor-*         DetectorDescription   
 
 
 # =====================================================================
@@ -41,8 +44,6 @@ use TrigSiSpacePointTool	TrigSiSpacePointTool-*	Trigger/TrigTools
 use TrigTimeAlgs		TrigTimeAlgs-*		Trigger/TrigTools
 
 use StoreGate			StoreGate-*		Control
-use IRegionSelector             IRegionSelector-*       DetectorDescription
-# use RegionSelector              RegionSelector-*        DetectorDescription
 
 use InDetBeamSpotService        InDetBeamSpotService-*  InnerDetector/InDetConditions
 use TrigInDetToolInterfaces     TrigInDetToolInterfaces-*  Trigger/TrigTools
