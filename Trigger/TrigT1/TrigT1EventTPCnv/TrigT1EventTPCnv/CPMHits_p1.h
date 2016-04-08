@@ -19,8 +19,6 @@
 #ifndef CPMHits_p1_H
 #define CPMHits_p1_H
   
-#include "AthenaPoolUtilities/TPObjRef.h"
-#include "TrigT1CaloEvent/CPMHits.h"
   
 /** T/P separation for TrigT1Calo::CPMHits class */
 

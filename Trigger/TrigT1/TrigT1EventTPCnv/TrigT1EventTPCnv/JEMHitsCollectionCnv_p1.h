@@ -11,7 +11,7 @@
 #include "TrigT1EventTPCnv/JEMHitsCollection_p1.h"
 #include "TrigT1EventTPCnv/JEMHitsCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for JEMHits and JEMHits_p1

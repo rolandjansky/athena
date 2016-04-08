@@ -26,13 +26,8 @@ void CTP_RDOCnv_p2::persToTrans( const CTP_RDO_p2* persObj, CTP_RDO* transObj,
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state..." << endreq;
 
-   transObj->m_dataWords        = persObj->m_dataWords;
-   transObj->m_l1AcceptPosition = persObj->m_l1AcceptPosition;
-
-   // set m_activeBunch to default value (see constructor)
-
-   // calculate from data size (CTP_RDO::TIME_WORDS = 2, CTP_RDO::DAQ_WORDS_PER_BUNCH = 6+8+8+8)
-   transObj->m_numberOfBunches = (transObj->m_dataWords.size() - 2)/(6+8+8+8);
+   *transObj = CTP_RDO (0, persObj->m_dataWords);
+   transObj->setL1AcceptBunchPosition (persObj->m_l1AcceptPosition);
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state [OK]" << endreq;
 
@@ -54,8 +49,8 @@ void CTP_RDOCnv_p2::transToPers( const CTP_RDO* transObj, CTP_RDO_p2* persObj,
    // not needed, will be taken as default
    // persObj->m_activeBunch     = transObj->m_activeBunch;
 
-   persObj->m_l1AcceptPosition = transObj->m_l1AcceptPosition;
-   persObj->m_dataWords        = transObj->m_dataWords;
+   persObj->m_l1AcceptPosition = transObj->getL1AcceptBunchPosition();
+   persObj->m_dataWords        = transObj->getDataWords();
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of CTP_RDO [OK]" << endreq;
 

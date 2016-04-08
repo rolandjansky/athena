@@ -19,8 +19,6 @@
 #ifndef CMMEtSums_p1_H
 #define CMMEtSums_p1_H
   
-#include "AthenaPoolUtilities/TPObjRef.h"
-#include "TrigT1CaloEvent/CMMEtSums.h"
   
 /** T/P separation for TrigT1Calo::CMMEtSums class */
 

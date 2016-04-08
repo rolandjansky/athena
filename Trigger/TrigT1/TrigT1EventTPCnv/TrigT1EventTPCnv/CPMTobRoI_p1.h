@@ -19,8 +19,6 @@
 #ifndef CPMTobRoI_p1_H
 #define CPMTobRoI_p1_H
   
-#include "AthenaPoolUtilities/TPObjRef.h"
-#include "TrigT1CaloEvent/CPMTobRoI.h"
   
 /** T/P separation for TrigT1Calo::CPMTobRoI class */
 

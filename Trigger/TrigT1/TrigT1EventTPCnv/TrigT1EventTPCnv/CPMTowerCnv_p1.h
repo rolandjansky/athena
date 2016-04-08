@@ -4,10 +4,13 @@
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
+// Trigger include(s):
+#include "TrigT1CaloEvent/CPMTower.h"
+
 // Local include(s):
 #include "TrigT1EventTPCnv/CPMTower_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for CPMTower and CPMTower_p1
@@ -17,13 +20,13 @@ using namespace LVL1;
  *          to do the T/P conversion before/after writing/reading the CPMTower
  *          object.
  */
-class CPMTowerCnv_p1 : public T_AthenaPoolTPCnvBase< CPMTower, CPMTower_p1 > {
+class CPMTowerCnv_p1 : public T_AthenaPoolTPCnvBase< LVL1::CPMTower, CPMTower_p1 > {
 
 public:
   CPMTowerCnv_p1() : m_CPMTowerCnv(0) {}
 
-  virtual void persToTrans( const CPMTower_p1* persObj, CPMTower* transObj, MsgStream &log );
-  virtual void transToPers( const CPMTower* transObj, CPMTower_p1* persObj, MsgStream &log );
+  virtual void persToTrans( const CPMTower_p1* persObj, LVL1::CPMTower* transObj, MsgStream &log );
+  virtual void transToPers( const LVL1::CPMTower* transObj, CPMTower_p1* persObj, MsgStream &log );
 
 protected:
   CPMTowerCnv_p1 *m_CPMTowerCnv ;

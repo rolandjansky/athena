@@ -11,7 +11,7 @@
 #include "TrigT1EventTPCnv/CMXCPTobCollection_p1.h"
 #include "TrigT1EventTPCnv/CMXCPTobCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for CMXCPTob and CMXCPTob_p1

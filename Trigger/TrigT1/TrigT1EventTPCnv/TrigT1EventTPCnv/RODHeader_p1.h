@@ -20,8 +20,6 @@
 #define RODHeader_P1_H
 
 #include <vector>
-#include "TrigT1CaloEvent/RODHeader.h"
-#include "AthenaPoolUtilities/TPObjRef.h"
 
 // Forward declaration of the convertor
 //class RODHeaderCnv_p1;

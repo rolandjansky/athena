@@ -7,7 +7,7 @@
 #include "TrigT1EventTPCnv/JEMEtSumsCollection_tlp1.h"
 #include "TrigT1EventTPCnv/JEMEtSumsCollectionCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for JEMEtSums and JEMEtSums_p1

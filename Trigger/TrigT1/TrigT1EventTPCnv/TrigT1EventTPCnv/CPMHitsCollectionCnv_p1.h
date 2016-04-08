@@ -11,7 +11,7 @@
 #include "TrigT1EventTPCnv/CPMHitsCollection_p1.h"
 #include "TrigT1EventTPCnv/CPMHitsCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for CPMHits and CPMHits_p1

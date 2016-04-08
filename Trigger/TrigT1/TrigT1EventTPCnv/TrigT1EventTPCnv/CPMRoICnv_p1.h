@@ -22,20 +22,23 @@
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
+// Trigger include(s):
+#include "TrigT1CaloEvent/CPMRoI.h"
+
 // Local include(s):
 #include "TrigT1EventTPCnv/CPMRoI_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /** T/P convertor for TrigT1Calo CPMRoI class */
 
-class CPMRoICnv_p1 : public T_AthenaPoolTPCnvBase< CPMRoI, CPMRoI_p1 > {
+class CPMRoICnv_p1 : public T_AthenaPoolTPCnvBase< LVL1::CPMRoI, CPMRoI_p1 > {
 
 public:
   CPMRoICnv_p1() : m_CPMRoICnv(0) {}
 
-  virtual void persToTrans( const CPMRoI_p1* persObj, CPMRoI* transObj, MsgStream &log );
-  virtual void transToPers( const CPMRoI* transObj, CPMRoI_p1* persObj, MsgStream &log );
+  virtual void persToTrans( const CPMRoI_p1* persObj, LVL1::CPMRoI* transObj, MsgStream &log );
+  virtual void transToPers( const LVL1::CPMRoI* transObj, CPMRoI_p1* persObj, MsgStream &log );
 
 protected:
   CPMRoICnv_p1 *m_CPMRoICnv ;

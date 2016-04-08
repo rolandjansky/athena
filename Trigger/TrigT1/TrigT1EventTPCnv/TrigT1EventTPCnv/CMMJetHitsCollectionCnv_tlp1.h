@@ -7,7 +7,7 @@
 #include "TrigT1EventTPCnv/CMMJetHitsCollection_tlp1.h"
 #include "TrigT1EventTPCnv/CMMJetHitsCollectionCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for CMMJetHits and CMMJetHits_p1

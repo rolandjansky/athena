@@ -7,7 +7,7 @@
 #include "TrigT1EventTPCnv/JetElementCollection_tlp1.h"
 #include "TrigT1EventTPCnv/JetElementCollectionCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for JetElement and JetElement_p1

@@ -19,8 +19,6 @@
 #ifndef CMXCPHits_p1_H
 #define CMXCPHits_p1_H
   
-#include "AthenaPoolUtilities/TPObjRef.h"
-#include "TrigT1CaloEvent/CMXCPHits.h"
   
 /** T/P separation for TrigT1Calo::CMXCPHits class */
 

@@ -4,10 +4,13 @@
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
+// Trigger include(s):
+#include "TrigT1CaloEvent/RODHeader.h"
+
 // Local include(s):
 #include "TrigT1EventTPCnv/RODHeader_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for RODHeader and RODHeader_p1
@@ -17,13 +20,13 @@ using namespace LVL1;
  *          to do the T/P conversion before/after writing/reading the RODHeader
  *          object.
  */
-class RODHeaderCnv_p1 : public T_AthenaPoolTPCnvBase< RODHeader, RODHeader_p1 > {
+class RODHeaderCnv_p1 : public T_AthenaPoolTPCnvBase< LVL1::RODHeader, RODHeader_p1 > {
 
 public:
   RODHeaderCnv_p1() : m_RODHeaderCnv(0) {}
 
-  virtual void persToTrans( const RODHeader_p1* persObj, RODHeader* transObj, MsgStream &log );
-  virtual void transToPers( const RODHeader* transObj, RODHeader_p1* persObj, MsgStream &log );
+  virtual void persToTrans( const RODHeader_p1* persObj, LVL1::RODHeader* transObj, MsgStream &log );
+  virtual void transToPers( const LVL1::RODHeader* transObj, RODHeader_p1* persObj, MsgStream &log );
 
 protected:
   RODHeaderCnv_p1 *m_RODHeaderCnv ;

@@ -26,17 +26,8 @@ void MuCTPI_RDOCnv_p1::persToTrans( const MuCTPI_RDO_p1* persObj, MuCTPI_RDO* tr
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting MuCTPI_RDO from persistent state..." << endreq;
 
-   transObj->m_candidateMultiplicity.clear();
-   for( std::vector< uint32_t >::const_iterator it = persObj->m_candidateMultiplicity.begin();
-        it != persObj->m_candidateMultiplicity.end(); ++ it ) {
-      transObj->m_candidateMultiplicity.push_back( *it );
-   }
-
-   transObj->m_dataWord.clear();
-   for( std::vector< uint32_t >::const_iterator it = persObj->m_dataWord.begin();
-        it != persObj->m_dataWord.end(); ++ it ) {
-      transObj->m_dataWord.push_back( *it );
-   }
+   *transObj = MuCTPI_RDO (persObj->m_candidateMultiplicity,
+                           persObj->m_dataWord);
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting MuCTPI_RDO from persistent state [OK]" << endreq;
 
@@ -53,17 +44,8 @@ void MuCTPI_RDOCnv_p1::transToPers( const MuCTPI_RDO* transObj, MuCTPI_RDO_p1* p
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of MuCTPI_RDO..." << endreq;
 
-   persObj->m_candidateMultiplicity.clear();
-   for( std::vector< uint32_t >::const_iterator it = transObj->m_candidateMultiplicity.begin();
-        it != transObj->m_candidateMultiplicity.end(); ++ it ) {
-      persObj->m_candidateMultiplicity.push_back( *it );
-   }
-
-   persObj->m_dataWord.clear();
-   for( std::vector< uint32_t >::const_iterator it = transObj->m_dataWord.begin();
-        it != transObj->m_dataWord.end(); ++ it ) {
-      persObj->m_dataWord.push_back( *it );
-   }
+   persObj->m_candidateMultiplicity = transObj->getAllCandidateMultiplicities();
+   persObj->m_dataWord = transObj->dataWord();
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of MuCTPI_RDO [OK]" << endreq;
 

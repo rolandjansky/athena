@@ -19,8 +19,6 @@
 #ifndef CMXCPTob_p1_H
 #define CMXCPTob_p1_H
   
-#include "AthenaPoolUtilities/TPObjRef.h"
-#include "TrigT1CaloEvent/CMXCPTob.h"
   
 /** T/P separation for TrigT1Calo::CMXCPTob class */
 

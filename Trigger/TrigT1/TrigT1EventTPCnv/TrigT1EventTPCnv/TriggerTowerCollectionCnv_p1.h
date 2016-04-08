@@ -11,7 +11,7 @@
 #include "TrigT1EventTPCnv/TriggerTowerCollection_p1.h"
 #include "TrigT1EventTPCnv/TriggerTowerCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for TriggerTower and TriggerTower_p1

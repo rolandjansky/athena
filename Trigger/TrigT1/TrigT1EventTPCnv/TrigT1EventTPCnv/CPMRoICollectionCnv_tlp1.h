@@ -7,7 +7,7 @@
 #include "TrigT1EventTPCnv/CPMRoICollection_tlp1.h"
 #include "TrigT1EventTPCnv/CPMRoICollectionCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for CPMRoI and CPMRoI_p1

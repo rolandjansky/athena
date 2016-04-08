@@ -7,7 +7,7 @@
 #include "TrigT1EventTPCnv/RODHeaderCollection_tlp1.h"
 #include "TrigT1EventTPCnv/RODHeaderCollectionCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for RODHeader and RODHeader_p1

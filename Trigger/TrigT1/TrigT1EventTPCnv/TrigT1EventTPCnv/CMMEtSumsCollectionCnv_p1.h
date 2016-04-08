@@ -11,7 +11,7 @@
 #include "TrigT1EventTPCnv/CMMEtSumsCollection_p1.h"
 #include "TrigT1EventTPCnv/CMMEtSumsCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for CMMEtSums and CMMEtSums_p1

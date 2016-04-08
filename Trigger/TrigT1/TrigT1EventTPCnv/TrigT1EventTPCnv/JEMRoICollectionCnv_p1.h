@@ -11,7 +11,7 @@
 #include "TrigT1EventTPCnv/JEMRoICollection_p1.h"
 #include "TrigT1EventTPCnv/JEMRoICnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for JEMRoI and JEMRoI_p1

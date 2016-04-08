@@ -7,7 +7,7 @@
 #include "TrigT1EventTPCnv/JEMTobRoICollection_tlp1.h"
 #include "TrigT1EventTPCnv/JEMTobRoICollectionCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for JEMTobRoI and JEMTobRoI_p1
