@@ -113,7 +113,7 @@ namespace Analysis {
     declareProperty("useZIPSignForPosNeg" , m_useZIPSignForPosNeg = false);
     declareProperty("use2DSignForIP3D"    , m_use2DSignForIP3D    = false);
     declareProperty("useD0SignForZ0"      , m_useD0SignForZ0      = false);
-    declareProperty("RejectBadTracks"     , m_RejectBadTracks     = false);
+    declareProperty("RejectBadTracks"     , m_RejectBadTracks     = true);
     declareProperty("SignWithSvx"         , m_SignWithSvx         = false);
     declareProperty("checkOverflows"      , m_checkOverflows      = false);
     declareProperty("useForcedCalibration", m_doForcedCalib       = false);
