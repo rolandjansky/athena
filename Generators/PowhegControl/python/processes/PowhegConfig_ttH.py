@@ -43,3 +43,5 @@ class PowhegConfig_ttH(PowhegConfig_base) :
     ## Override defaults
     self.minlo        = -1
     self.topdecaymode = 00000 #22222 - decaying tops not supported at the moment
+
+    self.populate_default_strings()

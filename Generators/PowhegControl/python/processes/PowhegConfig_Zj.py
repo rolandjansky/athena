@@ -46,3 +46,5 @@ class PowhegConfig_Zj(PowhegConfig_base) :
     self.bornktmin   = 5.0
     self.mass_Z_low  = 60.0
     self.mass_Z_high = 2.0 * self.beam_energy
+
+    self.populate_default_strings()

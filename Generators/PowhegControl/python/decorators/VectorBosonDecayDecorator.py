@@ -17,4 +17,4 @@ class VectorBosonDecayDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'vdecaymode', 1, desc='(Normal, default 1) 1:e, 2:mu, 3: tau; (Dark matter, default -1) 1:V-mediated fermionic DM; 2:A-mediated fermionic DM;-1, -2 for full theory (mediator mass and width needed)' )
+    self.decorated.add_parameter( 'vdecaymode', 1, default='{0}', desc='(1:e, 2:mu, 3: tau). (DM 1:V-mediated fermionic DM; 2:A-mediated fermionic DM;-1, -2 for full theory)' )
