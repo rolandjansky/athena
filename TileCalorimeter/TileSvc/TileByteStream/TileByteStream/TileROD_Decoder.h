@@ -167,7 +167,14 @@ class TileROD_Decoder: public AthAlgTool {
         m_list_of_masked_drawers.push_back(vec[i]);
     }
 
+    void setUseFrag0 (bool f) { m_useFrag0 = f; }
+    void setUseFrag1 (bool f) { m_useFrag1 = f; }
+    void setUseFrag4 (bool f) { m_useFrag4 = f; }
+    void setUseFrag5Raw (bool f) { m_useFrag5Raw = f; }
+    void setUseFrag5Reco (bool f) { m_useFrag5Reco = f; }
+
   private:
+    friend class TileHid2RESrcID;
 
     typedef std::vector<TileCell *> pCellVec;
     typedef std::vector<TileDigits *> pDigiVec;

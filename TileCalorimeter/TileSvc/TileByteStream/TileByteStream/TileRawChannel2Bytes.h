@@ -94,21 +94,21 @@ inline int TileRawChannel2Bytes::gain(short s) const {
 
 inline float TileRawChannel2Bytes::amplitude(short s) const {
   // s >>= AMPLITUDE_SHIFT;
-  float a = (s & AMPLITUDE_RANGE) / AMPLITUDE_FACTOR;
+  float a = (s & AMPLITUDE_RANGE) * (1./AMPLITUDE_FACTOR);
   if (s & AMPLITUDE_SIGN) a = -a;
   return a;
 }
 
 inline float TileRawChannel2Bytes::time(short s) const {
   // s >>= TIME_SHIFT;
-  float t = (s & TIME_RANGE) / TIME_FACTOR;
+  float t = (s & TIME_RANGE) * (1./TIME_FACTOR);
   if (s & TIME_SIGN) t = -t;
   return t;
 }
 
 inline float TileRawChannel2Bytes::quality(short s) const {
   // s >>= QUALITY_SHIFT;
-  float q = (s & QUALITY_RANGE) / QUALITY_FACTOR;
+  float q = (s & QUALITY_RANGE) * (1./QUALITY_FACTOR);
   if (s & QUALITY_SIGN) q = -q;
   return q;
 }
