@@ -31,7 +31,7 @@ namespace Genfun {
   // Dimensionality:
   unsigned int AtlasBComponent::dimensionality() const { return 3;}
   
-  double AtlasBComponent::operator () (double) const { throw "Invalid parameter!"; return 0; }   
+  double AtlasBComponent::operator () (double) const { throw "Invalid parameter!"; }   
 
   double AtlasBComponent::operator () (const Argument & a) const {
     static MagField::IMagFieldSvc * magFieldSvcQuick=0;
