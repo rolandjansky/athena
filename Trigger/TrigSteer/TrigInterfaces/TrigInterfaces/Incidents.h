@@ -135,22 +135,22 @@ namespace HLT { namespace Incidents {
   inline
   const std::string& EventTimeout::type()
   {
-    static const std::string _type("EventTimeout");
-    return _type;
+    static const std::string typ("EventTimeout");
+    return typ;
   }
   
   inline
   const std::string& UpdateHLTPrescales::type()
   {
-    static const std::string _type("UpdateHLTPrescales");
-    return _type;
+    static const std::string typ("UpdateHLTPrescales");
+    return typ;
   }
 
   inline
   const std::string& UpdateAfterFork::type()
   {
-    static const std::string _type("UpdateAfterFork");
-    return _type;
+    static const std::string typ("UpdateAfterFork");
+    return typ;
   }
 
   //<<<<<<<<<<< INLINE MEMBER FUNCTIONS

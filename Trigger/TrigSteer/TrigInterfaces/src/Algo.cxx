@@ -4,13 +4,8 @@
 
 #include <sstream>
 
-#include "GaudiKernel/ListItem.h"
-
 #include "TrigInterfaces/AlgoConfig.h"
 #include "TrigNavigation/TriggerElement.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ThreadGaudi.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
@@ -18,8 +13,10 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "TrigInterfaces/Algo.h"
+#include "StoreGate/StoreGateSvc.h"
 
 using namespace HLT;
+using namespace std;
 
 
 namespace localns {
@@ -37,8 +34,6 @@ Algo::Algo(const std::string& name, ISvcLocator* pSvcLocator)
     m_monitoringStarted(false),
     m_ecMapSize(0),    
     m_doAuditors(false),
-    m_msg( new MsgStream( msgSvc(), name) ),
-    m_msgLvl( m_msg->level() ),
     m_timerSvc(0),
     m_totalTime(0),
     m_monitors(this)
@@ -107,12 +102,6 @@ TrigTimer* Algo::totalTimeTimer() const {
 
 StatusCode Algo::initialize()
 {
-
-  // reset OutputLevel
-  m_msg->setLevel(outputLevel());
-  m_msgLvl = outputLevel();
-
-
   map<string,string>::const_iterator mitr(m_errorCodeMap.begin());
   map<string,string>::const_iterator mend(m_errorCodeMap.end());
   while ( mitr!=mend ) {
@@ -243,11 +232,6 @@ StatusCode Algo::finalize()
 {
   // call initialize from derived class:
   HLT::ErrorCode stat = hltFinalize();
-
-  if (m_msg) {
-    delete m_msg;
-    m_msg = 0;
-  }
 
   if (stat != HLT::OK) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
