@@ -77,7 +77,9 @@ namespace InDet
   }//end of loop definig the center of a cluster
   msg(MSG::DEBUG)<<"Z center is: "<<z_center<<" for  tracks: "<<cluster_size<<endreq;
   
-  z_center = z_center/cluster_size;
+  if(cluster_size != 0) {
+    z_center = z_center/cluster_size;
+  }
    
 //discarding outlying tracks
   for(std::vector<const Trk::Track*>::const_iterator i = inb; i != ine; ++i)
@@ -151,7 +153,9 @@ namespace InDet
   }//end of loop definig the center of a cluster
   msg(MSG::DEBUG)<<"Z center is: "<<z_center<<" for  tracks: "<<cluster_size<<endreq;
   
-  z_center = z_center/cluster_size;
+  if(cluster_size != 0) {
+    z_center = z_center/cluster_size;
+  }
 
   msg(MSG::DEBUG)<<"Looping over the cluster" <<endreq;
 
@@ -223,7 +227,9 @@ namespace InDet
 	       }//end of loop definig the center of a cluster
 	     msg(MSG::DEBUG)<<"Z center is: "<<z_center<<" for  tracks: "<<cluster_size<<endreq;
 	     
-	     z_center = z_center/cluster_size;
+	     if(cluster_size != 0) {
+	       z_center = z_center/cluster_size;
+	     }
 	     
 	     msg(MSG::DEBUG)<<"Looping over the cluster" <<endreq;
 	     
