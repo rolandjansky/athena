@@ -27,7 +27,8 @@ IPCMat::IPCMat(IMessageSvc *msgSvc)
     m_msgid(0),
     m_name("GlobAlign::IPCMat"),
     m_log(new MsgStream(msgSvc,name()))
-{ }
+{ 
+}
 
 
 const std::string& IPCMat::name() const {
@@ -309,6 +310,7 @@ StatusCode IPCMat::write(const std::string ipcname, bool isMatrix){
 
   ipcmat_msgp.mtype = isMatrix ? M_WRITE_M : M_WRITE_V;
   strncpy(ipcmat_msgp.data.fname, ipcname.c_str(), sizeof(ipcmat_msgp.data.fname));
+  ipcmat_msgp.data.fname[sizeof(ipcmat_msgp.data.fname) - 1] = '\0';
 
   if (msgsnd(m_msgid, &ipcmat_msgp, sizeof(ipcmat_msgp)-sizeof(long), IPC_NOWAIT) < 0) {
     *m_log << MSG::ERROR << "ipcmats: line: " <<  __LINE__

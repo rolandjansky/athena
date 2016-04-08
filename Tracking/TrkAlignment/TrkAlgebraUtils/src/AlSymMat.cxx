@@ -465,8 +465,6 @@ double AlSymMat::determinant()
     deter = deter*A[I][I];
 
   return deter;
-
-  return 0.;
 }
 
 //______________________________________________________________________________

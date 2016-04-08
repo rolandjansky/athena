@@ -69,8 +69,9 @@ class IPCMat {
   std::string  m_name;
   MsgStream* m_log;
 
- struct MsgBuf {
+  struct MsgBuf {
     long mtype;
+  MsgBuf(): mtype(255){}
     union
     {
       char fname[100];
