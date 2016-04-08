@@ -42,6 +42,35 @@ namespace InDet {
 				   std::vector<TrackStateOnBLayerInfo>& infoList)  const=0;
 
 
+    virtual bool expectHitInInnermostPixelLayer(const Trk::TrackParticleBase*, bool recompute=false) const=0;
+    virtual bool expectHitInInnermostPixelLayer(const Trk::Track*, bool recompute=false) const=0;
+    virtual bool expectHitInInnermostPixelLayer(const Trk::TrackParameters* trackpar) const=0;
+
+    virtual const Trk::ResidualPull* innermostPixelLayerHitResidual(const Trk::Track* ) const=0;
+    virtual const Trk::ResidualPull* innermostPixelLayerHitResidual(const Trk::TrackParticleBase*) const=0;
+ 
+    virtual bool getTrackStateOnInnermostPixelLayerInfo(const Trk::TrackParticleBase*, 
+				   std::vector<TrackStateOnBLayerInfo>& infoList)  const=0;
+    virtual bool getTrackStateOnInnermostPixelLayerInfo(const Trk::Track*, 
+				   std::vector<TrackStateOnBLayerInfo>& infoList)  const=0;
+    virtual bool getTrackStateOnInnermostPixelLayerInfo(const Trk::TrackParameters* trackpar, 
+				   std::vector<TrackStateOnBLayerInfo>& infoList)  const=0;
+
+    virtual bool expectHitInNextToInnermostPixelLayer(const Trk::TrackParticleBase*, bool recompute=false) const=0;
+    virtual bool expectHitInNextToInnermostPixelLayer(const Trk::Track*, bool recompute=false) const=0;
+    virtual bool expectHitInNextToInnermostPixelLayer(const Trk::TrackParameters* trackpar) const=0;
+    
+    virtual const Trk::ResidualPull* nextToInnermostPixelLayerHitResidual(const Trk::Track* ) const=0;
+    virtual const Trk::ResidualPull* nextToInnermostPixelLayerHitResidual(const Trk::TrackParticleBase*) const=0;
+    
+    virtual bool getTrackStateOnNextToInnermostPixelLayerInfo(const Trk::TrackParticleBase*, 
+							std::vector<TrackStateOnBLayerInfo>& infoList)  const=0;
+    virtual bool getTrackStateOnNextToInnermostPixelLayerInfo(const Trk::Track*, 
+							std::vector<TrackStateOnBLayerInfo>& infoList)  const=0;
+    virtual bool getTrackStateOnNextToInnermostPixelLayerInfo(const Trk::TrackParameters* trackpar, 
+							std::vector<TrackStateOnBLayerInfo>& infoList)  const=0;
+
+
   };
   
   

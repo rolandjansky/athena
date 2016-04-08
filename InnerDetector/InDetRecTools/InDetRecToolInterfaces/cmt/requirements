@@ -19,3 +19,7 @@ use TrkParticleBase      TrkParticleBase-*      Tracking/TrkEvent
 use InDetPrepRawData     InDetPrepRawData-*     InnerDetector/InDetRecEvent
 use xAODTracking         xAODTracking-*         Event/xAOD
 use xAODCaloEvent        xAODCaloEvent-*        Event/xAOD
+
+# Declare this package as a metalibrary for cmake in order to allow its clients access to
+# libraries and header files from packages this one depends on. Transparent to CMT
+apply_pattern cmake_add_command command=metalibrary

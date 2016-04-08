@@ -12,6 +12,7 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "InDetPrepRawData/PixelClusterSplitProb.h"
+#include "TrkParameters/TrackParameters.h"
 
 namespace InDet
 {
@@ -36,6 +37,10 @@ namespace InDet
     
             /** take one, give many */
             virtual InDet::PixelClusterSplitProb splitProbability(const InDet::PixelCluster& origCluster ) const = 0;
+
+            /** take one, give many */
+            virtual InDet::PixelClusterSplitProb splitProbability(const InDet::PixelCluster& origCluster, const Trk::TrackParameters&  trackParameters ) const = 0;
+
   };
 }
 #endif
