@@ -24,7 +24,7 @@ class RPCsimuDigit: public RPCdigit
 
     public:
     RPCsimuDigit(int,unsigned int, int [3],float [4]);
-    RPCsimuDigit(int,unsigned int, int [3],float [4],const RPCGeometry*);
+    //    RPCsimuDigit(int,unsigned int, int [3],float [4],const RPCGeometry*);
     RPCsimuDigit(const RPCsimuDigit&);
     ~RPCsimuDigit() {}
 

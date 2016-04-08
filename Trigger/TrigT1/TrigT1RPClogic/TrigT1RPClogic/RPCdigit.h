@@ -9,7 +9,7 @@
 
 #include "TrigT1RPClogic/RPCtrigDataObject.h"
 #include "MuonCablingTools/RPCdecoder.h"
-#include "RPCgeometry/RPCGeometry.h"
+//#include "RPCgeometry/RPCGeometry.h"
 #include "TrigT1RPClogic/MuonSimuTrack.h"
 
 class RPCdigit : public RPCtrigDataObject
@@ -26,17 +26,21 @@ class RPCdigit : public RPCtrigDataObject
     float m_station_radius;
     float m_station_phi;
     
-    const RPCGeometry* m_rpcgeo;
+    //const RPCGeometry* m_rpcgeo;  
+    const int* m_rpcgeo;  // NEEDED TO AVOID MYSTERYOUS CRASH !, TO BE DEBUGGED AND REMOVED 
 
     std::list<unsigned int> m_codes;
 
     public:
     RPCdigit();
     RPCdigit(std::string,int,unsigned int, float vec[4]);
+        
+    /*
     RPCdigit(std::string,int,unsigned int, float vec[4],
              const RPCGeometry* rpcgeo);
     RPCdigit(std::string,int,std::list<unsigned int>,float, 
              const RPCGeometry* rpcgeo);
+    */
     RPCdigit(const RPCdigit&);
     virtual ~RPCdigit() {}
    
@@ -45,7 +49,7 @@ class RPCdigit : public RPCtrigDataObject
     bool operator==(const RPCdigit&) const;
 
     const RPCdecoder& decoding(void) const {return m_coding;}
-    const RPCGeometry* rpcgeo(void) const {return m_rpcgeo;}
+    //const RPCGeometry* rpcgeo(void) const {return m_rpcgeo;}
     const std::list<unsigned int> codes(void) const {return m_codes;}
 
     float time (void)      const {return m_time;}
@@ -63,8 +67,9 @@ class RPCdigit : public RPCtrigDataObject
     bool station_eta(float&) const;
     bool station_phi(float&) const;
 
-    bool set_to_chamber(const int rpc_index);
-
+    
+    //bool set_to_chamber(const int rpc_index);
+   
     virtual int particle_code(void) const {return 0;}
     virtual int process_type(void)  const {return 0;}
     virtual int track_number(void)  const {return 0;}

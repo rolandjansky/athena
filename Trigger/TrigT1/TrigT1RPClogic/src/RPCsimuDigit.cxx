@@ -4,7 +4,7 @@
 
 #include "TrigT1RPClogic/RPCsimuDigit.h"
 #include "TrigT1RPClogic/RPCsimuData.h"
-
+/*
 RPCsimuDigit::RPCsimuDigit(int number,unsigned int code,int parameters[3],
                      float vector[4],const RPCGeometry* rpcgeo) :
                      RPCdigit("Simulated RPC digit",number,code,vector,rpcgeo),
@@ -16,6 +16,7 @@ RPCsimuDigit::RPCsimuDigit(int number,unsigned int code,int parameters[3],
     //Insert code for xyz, time and radius decoding
     //Match the xyz decoding with the simulated xyz position
 }
+*/
 
 RPCsimuDigit::RPCsimuDigit(int number,unsigned int code,int parameters[3],
                      float vector[4]) :

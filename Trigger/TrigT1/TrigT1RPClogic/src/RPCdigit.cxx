@@ -23,7 +23,7 @@ RPCdigit::RPCdigit() :
     m_station_radius = 0;
     m_station_phi = -1.;
     
-    m_rpcgeo = 0;
+    //m_rpcgeo = 0;
     m_codes.clear();  
 }
 
@@ -39,7 +39,7 @@ RPCdigit::RPCdigit(std::string name,int number,unsigned int code,float vec[4]):
     m_y = vec[2];
     m_z = vec[3];
     
-    m_rpcgeo = 0;    
+    //m_rpcgeo = 0;    
     
     m_station_radius = 0.;
     m_station_phi = -1.;
@@ -47,7 +47,7 @@ RPCdigit::RPCdigit(std::string name,int number,unsigned int code,float vec[4]):
     m_codes.clear();  
 }
 
-
+/*
 RPCdigit::RPCdigit(std::string name,int number,unsigned int code,float vec[4],
                    const RPCGeometry* rpcgeo):
     RPCtrigDataObject(number,name)
@@ -131,7 +131,7 @@ RPCdigit::set_to_chamber(const int rpc_index)
     }
     return false;
 }
-
+*/
 
 RPCdigit::RPCdigit(const RPCdigit& digit) :
     RPCtrigDataObject(digit.number(),digit.name())
@@ -143,8 +143,10 @@ RPCdigit::RPCdigit(const RPCdigit& digit) :
     m_x = digit.x();
     m_y = digit.y();
     m_z = digit.z();
+
+    //m_rpcgeo =0 ;
     
-    m_rpcgeo = digit.rpcgeo();
+    //m_rpcgeo = digit.rpcgeo();
     
     if(!digit.station_radius(m_station_radius)) m_station_radius = 0.;
     if(!digit.station_phi(m_station_phi)) m_station_phi = 0.;
@@ -164,7 +166,10 @@ RPCdigit RPCdigit::operator = (const RPCdigit& digit)
     m_y = digit.y();
     m_z = digit.z();
 
-    m_rpcgeo = digit.rpcgeo();
+    //m_rpcgeo=0;
+    
+    //    m_rpcgeo = digit.rpcgeo();
+
     
     if(!digit.station_radius(m_station_radius)) m_station_radius = 0.;
     if(!digit.station_phi(m_station_phi)) m_station_phi = 0.;

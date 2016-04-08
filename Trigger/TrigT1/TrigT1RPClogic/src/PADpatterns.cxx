@@ -8,11 +8,12 @@
 #include "TrigT1RPClogic/PADpatterns.h"
 
 
-PADpatterns::PADpatterns(int sector,int pad,unsigned long int debug) : 
+PADpatterns::PADpatterns(int sector, int pad,const IRPCcablingSvc* cablingSvc,unsigned long int debug) : 
     RPCtrigDataObject(0,"PAD patterns"),m_sector(sector),m_pad_id(pad),
     m_debug(debug) 
 {
     m_pad = 0;
+    m_cabling=cablingSvc;
 }
 
 PADpatterns::PADpatterns(const PADpatterns& PAD) : 
@@ -22,7 +23,7 @@ PADpatterns::PADpatterns(const PADpatterns& PAD) :
     m_pad_id = PAD.pad_id();
     m_debug  = PAD.debug();
     m_cma_patterns = PAD.cma_patterns();
-
+    m_cabling=PAD.cabling();
     m_pad = 0;
 }
 
@@ -41,6 +42,7 @@ PADpatterns::operator=(const PADpatterns& PAD)
     m_debug  = PAD.debug();
     m_cma_patterns.clear();
     m_cma_patterns = PAD.cma_patterns();
+    m_cabling=PAD.cabling();
     m_pad = 0;
     return *this;
 }
@@ -104,6 +106,29 @@ PADpatterns::create_hardware(void)
         
     m_pad = new Pad(0,0,m_debug,subsystem,logic_sector,m_pad_id,1,oldSimulation);
 
+    //M.Corradi 8/1/2015 get Pad configuration Parameters 
+    bool  eta_and_phi, feet_on;
+    unsigned short int cma_mask, feet_th0, feet_th1, feet_th2 ;
+
+    if (m_cabling->give_Pad_Parameters((unsigned short int)m_sector,
+                                       (unsigned short int)m_pad_id,
+                                       feet_on,eta_and_phi,cma_mask,
+                                       feet_th0,feet_th1,feet_th2)){
+        m_pad->setFeetOn(feet_on);
+        m_pad->setFeetThresholds(0,feet_th0);
+        m_pad->setFeetThresholds(1,feet_th1);
+        m_pad->setFeetThresholds(2,feet_th2);
+        // m_pad->display(1);
+        // MASK AND eta_and_phi to be implemented
+        
+    }else {
+        DISP << "Could not retrieve Pad Parameters"
+             << "m_ector , m_pad_id = " << m_sector << "," << m_pad_id
+             << std::endl;
+        DISP_ERROR;
+    }
+    
+        
     while(cma != m_cma_patterns.end())
     {
         Matrix*  low_pt_matrix = (*cma)->give_low_pt_matrix();

@@ -5,6 +5,7 @@
 #include "TrigT1RPClogic/RPCrawDigit.h"
 #include "TrigT1RPClogic/RPCrawData.h"
 
+/*
 RPCrawDigit::RPCrawDigit(int number,std::list<unsigned int> code,float time,
                          const RPCGeometry* rpcgeo) :
                            RPCdigit("Raw RPC digit",number,code,time,rpcgeo),
@@ -13,6 +14,15 @@ RPCrawDigit::RPCrawDigit(int number,std::list<unsigned int> code,float time,
     //Insert code for xyz, time and radius decoding
     //Match the xyz decoding with the simulated xyz position
 }
+*/
+
+RPCrawDigit::RPCrawDigit(int number,unsigned int code,float xyz[4])
+                          : RPCdigit("Raw RPC digit",number,code,xyz),
+                           m_data(0)
+{
+
+}
+
 
 RPCrawDigit::RPCrawDigit(const RPCrawDigit& digit) : RPCdigit(digit)
 {

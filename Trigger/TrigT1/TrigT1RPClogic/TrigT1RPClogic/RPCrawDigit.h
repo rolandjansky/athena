@@ -18,7 +18,8 @@ class RPCrawDigit: public RPCdigit
     const RPCrawData* m_data;
 
     public:
-    RPCrawDigit(int,std::list<unsigned int>,float,const RPCGeometry*);
+    RPCrawDigit(int,unsigned int, float [4]);
+    //RPCrawDigit(int,std::list<unsigned int>,float,const RPCGeometry*);
     RPCrawDigit(const RPCrawDigit&);
     ~RPCrawDigit() {}
 
