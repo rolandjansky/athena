@@ -64,7 +64,7 @@ from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags import globalflags
 
 
-# globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')   #Fabrizio
+globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')   #Fabrizio
 globalflags.DataSource.set_Value_and_Lock('data')
 if globalflags.DataSource() == 'data':
     if cosmicRun:
@@ -115,7 +115,8 @@ from AtlasGeoModel import GeoModelInit
 # Run Moore
 muonRecFlags.doMoore = moore #### SET VIA COMMAND LINE IN THE TRF
 # Run Muonboy
-muonRecFlags.doMuonboy = (mboy or standalone) #### SET VIA COMMAND LINE IN THE TRF
+#muonRecFlags.doMuonboy = (mboy or standalone) #### SET VIA COMMAND LINE IN THE TRF
+muonRecFlags.doMuonboy = mboy
 #NOTE: In 17.2 the 3rd chain cannot run w/o muonboy.
 #turn on/off track reconstruction
 muonRecFlags.doSegmentsOnly = segOnly #### SET VIA COMMAND LINE IN THE TRF
@@ -133,6 +134,7 @@ muonRecFlags.doCalib = False
 muonRecFlags.doCalibNtuple = True 
 muonRecFlags.calibNtupleOutput=NtupleFile ##### SET VIA COMMAND LINE IN THE TRF
 muonRecFlags.calibNtupleSegments = True
+muonRecFlags.calibNtupleTracks = True
 
 # Switch off the T0 fit (on by default for data)
 #muonRecFlags.doSegmentT0Fit = False
@@ -145,6 +147,14 @@ if muonRecFlags.doRPCs:
        DetFlags.makeRIO.RPC_setOn()
 if muonRecFlags.doTGCs:
        DetFlags.makeRIO.TGC_setOn()
+
+#Set up new cabling. 
+from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingSvc
+#svcMgr += MuonMDT_CablingSvc(name="MuonMDT_CablingSvc", false , false)
+#svcMgr.MuonMDT_CablingSvc.doCalStreamInit=True
+svcMgr += MuonMDT_CablingSvc(name="MuonMDT_CablingSvc", UseOldCabling=False, ForcedUse=False, doCalStreamInit=True)
+#svcMgr.MuonMDT_CablingSvc.doCalStreamInit=True
+print 'skeleton: setting doCalStreamInit true'
 
 include("MuonRecExample/MuonRDO_to_PRD_jobOptions.py")
    
@@ -197,8 +207,8 @@ except AttributeError:
 svcMgr += CfgMgr.MessageSvc( Format = "% F%50W%S%7W%R%T %0W%M",
                                  defaultLimit=1000000, OutputLevel =INFO)
 
-if not mboy and not segOnly and hasattr(topSequence.MuonCalibExtraTreeAlg, "Track2MELocation"):
-        topSequence.MuonCalibExtraTreeAlg.Track2MELocation=""
+#if not mboy and not segOnly and hasattr(topSequence.MuonCalibExtraTreeAlg, "Track2MELocation"):
+#        topSequence.MuonCalibExtraTreeAlg.Track2MELocation=""
   
 from AthenaCommon.ConfigurationShelve import saveToAscii
 saveToAscii("config.txt")
