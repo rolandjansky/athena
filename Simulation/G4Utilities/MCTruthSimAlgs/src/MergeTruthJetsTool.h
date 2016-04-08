@@ -36,10 +36,9 @@ public:
   virtual StatusCode mergeEvent() override final;
   ///called for each active bunch-crossing to process current SubEvents
   /// bunchXing is in ns
-  virtual StatusCode
-    processBunchXing(int bunchXing,
-                     PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                     PileUpEventInfo::SubEvent::const_iterator eSubEvents) override final;
+  virtual StatusCode processBunchXing(int bunchXing,
+                                      SubEventIterator bSubEvents,
+                                      SubEventIterator eSubEvents) override final;
   ///Merge the Truth JetContainers using the PileUpMergeSvc
   virtual StatusCode processAllSubEvents() override final;
 

@@ -38,8 +38,8 @@ public:
   ///called for each active bunch-crossing to process current SubEvents
   /// bunchXing is in ns
   virtual StatusCode processBunchXing(int bunchXing,
-                                      PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                                      PileUpEventInfo::SubEvent::const_iterator eSubEvents) override final;
+                                      SubEventIterator bSubEvents,
+                                      SubEventIterator eSubEvents) override final;
   /// return false if not interested in  certain xing times (in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   // virtual bool toProcess(int bunchXing) const;

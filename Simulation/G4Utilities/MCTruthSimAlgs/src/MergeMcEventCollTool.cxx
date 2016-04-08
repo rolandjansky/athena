@@ -274,12 +274,14 @@ StatusCode MergeMcEventCollTool::processAllSubEvents() {
 }
 
 StatusCode MergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
-                                                  PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                                                  PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
+                                                SubEventIterator bSubEvents,
+                                                SubEventIterator eSubEvents)
+{
+  ATH_MSG_VERBOSE ( "processBunchXing()" );
+  SubEventIterator iEvt(bSubEvents);
   //loop over the McEventCollections (each one assumed to containing exactly one GenEvent) of the various input events
   while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->pSubEvtSG);
+    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
     const McEventCollection *pMEC(NULL);
     //FIXME Should I be using m_truthCollKey in the retrieve method?
     if (!seStore.retrieve(pMEC, m_truthCollKey.value()).isSuccess()) {
