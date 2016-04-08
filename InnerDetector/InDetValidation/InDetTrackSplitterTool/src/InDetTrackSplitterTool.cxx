@@ -856,8 +856,15 @@ void InDet::InDetTrackSplitterTool::splitTracks(TrackCollection const* inputTrac
 bool InDet::InDetTrackSplitterTool::trackIsCandidate(Trk::Track const& inputTrack) const{
   if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In trackIsCandidate."<< endreq;
   Trk::Perigee const* trackPerigee = inputTrack.perigeeParameters();
-  Trk::Perigee const* measuredperigee = dynamic_cast<Trk::Perigee const*>( trackPerigee );
-  double const m_d0 = measuredperigee->parameters()[Trk::d0];
+  
+  if (!trackPerigee)
+    {
+      msg(MSG::WARNING) << "Found track with invalid perigee parameters. Not splitting." << endreq; 
+      return false;
+    }
+    
+  //Trk::Perigee const* measuredperigee = dynamic_cast<Trk::Perigee const*>( trackPerigee );
+  double const m_d0 = trackPerigee->parameters()[Trk::d0];
 
   if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "do is: "<<  m_d0 << endreq;
 
