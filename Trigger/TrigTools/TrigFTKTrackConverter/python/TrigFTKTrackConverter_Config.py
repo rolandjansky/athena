@@ -63,14 +63,13 @@ from TrigFTKTrackConverter.TrigFTKTrackConverterConf import  TrigFTKUncertiantyT
 class ConfiguredTrigFTKUncertiantyTool(TrigFTKUncertiantyTool) :
     def __init__(self, name = "ConfiguredTrigFTKUncertiantyTool"):
         TrigFTKUncertiantyTool.__init__(self, name) 
-        #from AthenaCommon.AppMgr import ToolSvc 
-        #if TrackFitter is None : 
-        #    from TrkDistributedKalmanFilter.DistributedKalmanFilter_Config import ConfiguredDistributedKalmanFilter
-        #    myTrackFitter = ConfiguredDistributedKalmanFilter()
-        #    ToolSvc += myTrackFitter
-        #    self.DoFit = DoTrackFit
-        #    self.TrackFitter = myTrackFitter
         
-    
+
+from TrigFTKTrackConverter.TrigFTKTrackConverterConf import  TrigFTKClusterConverterTool
+
+class ConfiguredTrigFTKTool(TrigFTKClusterConverterTool):
+    def __init__(self, name = "ConfiguredTrigFTKClusterConverterTool"):
+        TrigFTKClusterConverterTool.__init__(self, name) 
+
 
 
