@@ -26,7 +26,7 @@ class TRTSensitiveDetector : public G4VSensitiveDetector
   friend class TRTProcessingOfEndCapHits;
 
  public:
-  TRTSensitiveDetector(const std::string& name, const std::string& hitCollectionName);
+  TRTSensitiveDetector(const std::string& name, const std::string& hitCollectionName, int setVerboseLevel=0);
   ~TRTSensitiveDetector() { /* don't own any of the pointers... */ }
 
   void Initialize(G4HCofThisEvent*) override final;
@@ -45,12 +45,18 @@ class TRTSensitiveDetector : public G4VSensitiveDetector
   //FIXME all class variables should have an "m_" prefix.
 
   ///Configuration paremeters
-  int printMessages;
+  int printMessages; // FIXME not used anywhere?
   int hitsWithZeroEnergyDeposit;
   G4VProcess* phot;
   double energyThreshold;
   double probabilityThreshold;
   double energyDepositCorrection;
+  double energyThresholdKr;
+  double probabilityThresholdKr;
+  double energyDepositCorrectionKr;
+  double energyThresholdAr;
+  double probabilityThresholdAr;
+  double energyDepositCorrectionAr;
   double boundaryZ;
 
   ///Properties of current TRTUncompressedHit, set by
@@ -78,6 +84,10 @@ class TRTSensitiveDetector : public G4VSensitiveDetector
   TRTProcessingOfBarrelHits* pProcessingOfBarrelHits;
   TRTProcessingOfEndCapHits* pProcessingOfEndCapHits;
 
+  // Gas switches
+  G4Material *pMaterialXe;
+  G4Material *pMaterialKr;
+  G4Material *pMaterialAr;
 };
 
 #endif //TRT_G4_SD_TRTSensitiveDetector_h
