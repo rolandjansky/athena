@@ -32,5 +32,5 @@ apply_pattern component_library
 library MuonLayerSegmentMakerTools *.cxx components/*.cxx
 
 private
-macro cppdebugflags '$(cppdebugflags_s)'
-macro_remove componentshr_linkopts "-Wl,-s"
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
