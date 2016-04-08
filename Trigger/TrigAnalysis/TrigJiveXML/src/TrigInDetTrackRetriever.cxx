@@ -26,7 +26,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode TrigInDetTrackRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode TrigInDetTrackRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     const DataHandle<TrigInDetTrackCollection> firstColl;
     const DataHandle<TrigInDetTrackCollection> lastColl;

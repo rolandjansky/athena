@@ -53,6 +53,7 @@ namespace JiveXML {
     m_allL1 = m_trigDec->getChainGroup("L1_.*");
     m_allL2 = m_trigDec->getChainGroup("L2_.*");
     m_allEF = m_trigDec->getChainGroup("EF_.*");
+    m_allHLT = m_trigDec->getChainGroup("HLT_.*");
 
     return StatusCode::SUCCESS;
   }
@@ -76,19 +77,29 @@ namespace JiveXML {
       // Make sure the item is not empty
       // (can this actually happen ?!?
       if ( (*itemItr).empty() ) continue;
-
-      //Output debug info
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  * item : name=" << (*itemItr) 
-	  << "; result = " << (m_trigDec->isPassed((*itemItr)) ? "passed" : "failed") 
-	  << "; prescale = " <<  m_trigDec->getPrescale((*itemItr)) << endreq;
     
+      // too many triggers in data15, write only non-prescaled
+      if ( m_trigDec->getPrescale(*itemItr) != 1. ){  continue; }
+
+      std::string myItem = (*itemItr);
+      //Output debug info
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  * item : name=" << myItem 
+	  << "; result = " << (m_trigDec->isPassed((*itemItr)) ? "passed" : "failed") 
+	  << "; prescale = " <<  m_trigDec->getPrescale((*itemItr))  << endreq ;
+      // replace HLT with EF (as AtlantisJava doesn't know 'HLT'):
+      if ( myItem.find("HLT",0) != std::string::npos){ 
+	myItem.replace(0,4,"EF_");
+        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << (*itemItr) << " renamed into: " << myItem
+   	  << endreq ;
+      }
+
       // prescale: see TWiki page TrigDecisionTool15
 
       //Only add passed items
       if ( m_trigDec->isPassed((*itemItr)) ) { 
 
         //Add item to list
-        m_itemList += "-" + (*itemItr); 
+        m_itemList += "-" + myItem; 
 
         // prescale factor
         m_prescaleList += "-" + DataType(  m_trigDec->getPrescale(*itemItr) ).toString(); 
@@ -108,11 +119,11 @@ namespace JiveXML {
 
   /**
    * Retrieve all trigger info
-   * - item lists for L1, L2 and EF
-   * - prescale lists for L1, L2 and EF
-   * - passed flags for L1, L2 and EF
+   * - item lists for L1, L2 and EF, data15: HLT instead of L2,EF
+   * - prescale lists for L1, L2 and EF, data15: HLT instead of L2,EF
+   * - passed flags for L1, L2 and EF, data15: HLT instead of L2,EF
    **/
-  StatusCode LVL1ResultRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode LVL1ResultRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "retrieve()" << endreq;
@@ -124,6 +135,8 @@ namespace JiveXML {
     std::string prescaleListL2="";
     std::string itemListEF="";
     std::string prescaleListEF="";
+    std::string itemListHLT="";
+    std::string prescaleListHLT="";
 
     //Get L1
     getItemLists( m_allL1, itemListL1, prescaleListL1 ).ignore();
@@ -143,8 +156,14 @@ namespace JiveXML {
     int flagEFPassed = m_allEF->isPassed();
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Decision : EventFilter " << ((flagEFPassed)? "passed":"failed") << endreq;
 
+    //Get HLT
+    getItemLists( m_allHLT, itemListHLT, prescaleListHLT ).ignore();
+    //Summarize HLT result
+    int flagHLTPassed = m_allHLT->isPassed();
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Decision : HLT " << ((flagHLTPassed)? "passed":"failed") << endreq;
+
     //Do not write trigger info if we failed to obtain any of it
-    if ((itemListL1=="empty") && (itemListL2=="empty") && (itemListEF=="empty")){
+    if ((itemListL1=="empty") && (itemListL2=="empty") && (itemListEF=="empty") && (itemListHLT=="empty") ){
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "All item lists empty, will not write out any data" << endreq;
       return StatusCode::SUCCESS;
     }
@@ -156,10 +175,13 @@ namespace JiveXML {
     DataVect prescaleListL2Vec;    prescaleListL2Vec.push_back( DataType( prescaleListL2 ));
     DataVect itemListEFVec;        itemListEFVec.push_back( DataType( itemListEF ));
     DataVect prescaleListEFVec;    prescaleListEFVec.push_back( DataType( prescaleListEF ));
-    DataVect passedTrigger;        passedTrigger.push_back(DataType( flagEFPassed )); //this is just a duplicate
+    DataVect itemListHLTVec;       itemListHLTVec.push_back( DataType( itemListHLT )); 
+    DataVect prescaleListHLTVec;   prescaleListHLTVec.push_back( DataType( prescaleListHLT ));
+    DataVect passedTrigger;        passedTrigger.push_back(DataType( flagHLTPassed )); //this is just a duplicate
     DataVect passedL1;             passedL1.push_back(DataType( flagL1Passed )); 
     DataVect passedL2;             passedL2.push_back(DataType( flagL2Passed ));
-    DataVect passedEF;             passedEF.push_back(DataType( flagEFPassed ));
+    DataVect passedEF;             passedEF.push_back(DataType( flagHLTPassed )); // temporary.
+    DataVect passedHLT;            passedHLT.push_back(DataType( flagHLTPassed ));
     // placeholders only ! For backwards compatibility.
     // Trigger energies moved to TriggerInfoRetriever
     DataVect energySumEt; energySumEt.push_back(DataType( -1. ) );
@@ -173,12 +195,12 @@ namespace JiveXML {
     dataMap["prescaleListL1"] = prescaleListL1Vec;
     dataMap["itemListL2"] = itemListL2Vec;
     dataMap["prescaleListL2"] = prescaleListL2Vec;
-    dataMap["itemListEF"] = itemListEFVec;
-    dataMap["prescaleListEF"] = prescaleListEFVec;
+    dataMap["itemListEF"] = itemListHLTVec; // temporary. AtlantisJava doesn't know 'HLT' yet. jpt 23Jun15
+    dataMap["prescaleListEF"] = prescaleListHLTVec;
     dataMap["passedTrigger"] = passedTrigger;
     dataMap["passedL1"] = passedL1;
-    dataMap["passedL2"] = passedL2;
-    dataMap["passedEF"] = passedEF;
+    dataMap["passedL2"] = passedHLT; // temporary. AtlantisJava doesn't know 'HLT' yet. jpt 23Jun15
+    dataMap["passedEF"] = passedHLT; // temporary. AtlantisJava doesn't know 'HLT' yet. jpt 23Jun15
     dataMap["energySumEt"] = energySumEt;
     dataMap["energyEx"] = energyEx;
     dataMap["energyEy"] = energyEy;

@@ -27,7 +27,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode MuonROIRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode MuonROIRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     const LVL1_ROI * roi;
     

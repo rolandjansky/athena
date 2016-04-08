@@ -32,7 +32,7 @@ namespace JiveXML {
    * - sum ADC energies if requested
    * - fill arrays and write out
    */
-  StatusCode LVL1TrigTowerRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode LVL1TrigTowerRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //Retrieve trigger towers
     const DataVector<LVL1::TriggerTower>* TTVector;

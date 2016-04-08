@@ -35,7 +35,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode TrigSiSpacePointRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode TrigSiSpacePointRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     const TrigSiSpacePointContainer* pCont;
 

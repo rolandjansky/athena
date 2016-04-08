@@ -23,7 +23,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode CTPDecisionRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode CTPDecisionRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     DataVect itemListL1Vec;
     DataVect prescaleListL1Vec;

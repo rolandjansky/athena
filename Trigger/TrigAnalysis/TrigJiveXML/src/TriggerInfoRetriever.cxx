@@ -28,7 +28,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode TriggerInfoRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode TriggerInfoRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
 // retrieve TriggerInfo
     const EventInfo* eventInfo;

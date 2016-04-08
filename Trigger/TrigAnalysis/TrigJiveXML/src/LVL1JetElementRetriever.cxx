@@ -27,7 +27,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode LVL1JetElementRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode LVL1JetElementRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     // taken from TrigT1Calo/Tester.cxx
     

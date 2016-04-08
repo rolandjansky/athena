@@ -26,7 +26,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode xAODTrigDecisionRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode xAODTrigDecisionRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
   DataVect test;
 

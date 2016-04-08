@@ -31,7 +31,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode EmTauROIRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode EmTauROIRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " retrieving" <<
      ( m_readCPM ? " from CPMRoIs (ACR) " : " EmTauROI (LVL1_ROI) ") << endreq;

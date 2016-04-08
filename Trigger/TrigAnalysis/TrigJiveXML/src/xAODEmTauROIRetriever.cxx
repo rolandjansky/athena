@@ -28,7 +28,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode xAODEmTauROIRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode xAODEmTauROIRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
   DataVect phi;
   DataVect eta; 

@@ -28,7 +28,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode xAODJetROIRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode xAODJetROIRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
   DataVect phi;
   DataVect eta; 

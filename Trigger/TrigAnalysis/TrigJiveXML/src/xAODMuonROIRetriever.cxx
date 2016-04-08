@@ -28,7 +28,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode xAODMuonROIRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode xAODMuonROIRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
   //// which of those two option is working:
 

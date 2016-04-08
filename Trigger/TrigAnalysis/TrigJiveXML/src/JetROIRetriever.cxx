@@ -31,7 +31,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode JetROIRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode JetROIRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " retrieving" <<
     ( m_readJEM ? " from JEMRoIs (ACR) " : " JetROI (LVL1_ROI) ") << endreq;

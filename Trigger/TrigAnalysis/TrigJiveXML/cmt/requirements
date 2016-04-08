@@ -17,6 +17,7 @@ use TrigSteeringEvent   TrigSteeringEvent-*     Trigger/TrigEvent
 use TrigT1Interfaces      TrigT1Interfaces-*      Trigger/TrigT1
 
 use xAODTrigger           xAODTrigger-*           Event/xAOD
+use xAODTrigL1Calo        xAODTrigL1Calo-*        Event/xAOD
 
 use EventInfo             EventInfo-*             Event
 use GaudiInterface        GaudiInterface-*        External
