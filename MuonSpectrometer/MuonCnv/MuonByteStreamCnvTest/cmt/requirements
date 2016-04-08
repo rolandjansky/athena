@@ -4,15 +4,14 @@ author Ketevi A. Assamagan <ketevi@bnl.gov>
 author Stefano Rosati <Stefano.Rosati@cern.ch>
 
 public
-use  AtlasPolicy                AtlasPolicy-*                   
-use  CscCalibTools              CscCalibTools-*                 MuonSpectrometer/MuonCalib/CscCalib
+use  AtlasPolicy                AtlasPolicy-*
 use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  CscCalibTools              CscCalibTools-*                 MuonSpectrometer/MuonCalib/CscCalib
 use  GaudiInterface             GaudiInterface-*                External
 use  MuonDigToolInterfaces      MuonDigToolInterfaces-*         MuonSpectrometer/MuonDigitization
 use  MuonReadoutGeometry        MuonReadoutGeometry-*           MuonSpectrometer/MuonDetDescr
 use  MuonRDO                    MuonRDO-*                       MuonSpectrometer
 use  RPCcablingInterface        RPCcablingInterface-*           MuonSpectrometer/MuonCablings
-#use  RPCgeometry                RPCgeometry-*                   MuonSpectrometer/MuonCablings
 use  StoreGate                  StoreGate-*                     Control
 use  TrigT1RPChardware          TrigT1RPChardware-*             Trigger/TrigT1
 use  TrigT1RPClogic             TrigT1RPClogic-*                Trigger/TrigT1
@@ -33,4 +32,4 @@ use  TGCcablingInterface        TGCcablingInterface-*           MuonSpectrometer
 public
 apply_pattern dual_use_library files="*.cxx"
 apply_pattern declare_joboptions files="*.py"
-
+apply_pattern declare_python_modules files="*.py"
