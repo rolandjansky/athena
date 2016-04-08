@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionCnvTool.h 582803 2014-02-12 15:58:23Z krasznaa $
+// $Id: TrigDecisionCnvTool.h 688265 2015-08-08 16:31:45Z stelzer $
 #ifndef XAODTRIGGERCNV_TRIGDECISIONCNVTOOL_H
 #define XAODTRIGGERCNV_TRIGDECISIONCNVTOOL_H
 
@@ -25,6 +25,7 @@ extern "C" {
 
 // Local include(s):
 #include "xAODTriggerCnv/ITrigDecisionCnvTool.h"
+#include "EventInfo/TriggerInfo.h"
 
 namespace xAODMaker {
 
@@ -36,8 +37,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 582803 $
-    * $Date: 2014-02-12 16:58:23 +0100 (Wed, 12 Feb 2014) $
+    * $Revision: 688265 $
+    * $Date: 2015-08-08 18:31:45 +0200 (Sat, 08 Aug 2015) $
     */
    class TrigDecisionCnvTool : public AthAlgTool,
                                public virtual ITrigDecisionCnvTool {
@@ -52,7 +53,8 @@ namespace xAODMaker {
 
       /// Function filling an xAOD::TrigDecision object with information
       virtual StatusCode convert( const TrigDec::TrigDecision* aod,
-                                  xAOD::TrigDecision* xaod );
+                                  xAOD::TrigDecision* xaod,
+                                  const TriggerInfo* level1TriggerInfo );
 
    private:
       /// Function setting the status of one bit in a bitset
