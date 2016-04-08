@@ -182,9 +182,11 @@ HLT::ErrorCode PRD_TrigMultiTruthMaker::hltExecute(const HLT::TriggerElement*,
 
   // work on TRT
   if(!m_TRTDriftCircleContainerName.empty() && !m_simDataMapNameTRT.empty() ) {
-    const InDet::TRT_DriftCircleContainer* trtContainer;
+    const InDet::TRT_DriftCircleContainer* trtContainer= 0;
     // retrieve TRT DriftCircle container
-    sc = store()->retrieve(trtContainer, m_TRTDriftCircleContainerName);
+    if (store()->contains<InDet::TRT_DriftCircleContainer>(m_TRTDriftCircleContainerName)){
+      sc = store()->retrieve(trtContainer, m_TRTDriftCircleContainerName);
+    }
     if (sc.isFailure() || !trtContainer){
       if(outputLevel <= MSG::DEBUG)
 	msg() << MSG::DEBUG << "TRT DriftCircle Container NOT found"<< endreq;
