@@ -8,12 +8,12 @@
 // information via the DetStatusSvc
 // Richard Hawkings, started 18/12/06
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 
 class IDetStatusSvc;
 
-class DetStatusAlg: public Algorithm {
+class DetStatusAlg: public AthAlgorithm {
  public:
   DetStatusAlg(const std::string& name, ISvcLocator* pSvcLocator);
   ~DetStatusAlg();

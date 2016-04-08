@@ -14,7 +14,7 @@
 #include "DetStatusSvc.h"
 
 DetStatusSvc::DetStatusSvc(const std::string& name, ISvcLocator* svc) :
-  Service(name,svc),
+  AthService(name,svc),
   par_conddbfolder("/GLOBAL/DETSTATUS/LBSUMM"),
   par_detreqs(""),
   m_sgkey("DetectorStatus")
