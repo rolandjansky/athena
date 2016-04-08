@@ -12,8 +12,8 @@ include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 # EventStorage Input
 ByteStreamInputSvc =  svcMgr.ByteStreamInputSvc
 
-ByteStreamInputSvc.FullFileName = \
-["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"]
+ByteStreamInputSvc.FullFileName = ["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"]
+#ByteStreamInputSvc.FullFileName = \
 #["/tmp/leite/test_map/data_test.00146536.calibration_map.daq.RAW._lb0000._ROSEventBuilder._0001.data"]
 #["/castor/cern.ch/grid/atlas/DAQ/2009/00115405/physics_ZDCStream/" + \
 #"data09_cos.00115405.physics_ZDCStream.daq.RAW._lb0000._SFO-1._0064.data"]
@@ -22,11 +22,13 @@ ByteStreamInputSvc.FullFileName = \
 
 from AthenaCommon.GlobalFlags import GlobalFlags
 #GlobalFlags.InputFormat.set_bytestream()
+GlobalFlags.InputFormat = "bytestream"
 
 
 from AthenaCommon.JobProperties import jobproperties
 #jobproperties.Global.DetDescrVersion="ATLAS-CSC-01-02-00"
 #jobproperties.Global.DetDescrVersion="ATLAS-CSC-02-00-00"
+jobproperties.Global.DetDescrVersion="ATLAS-GEO-18-01-01"
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -45,7 +47,6 @@ ByteStreamCnvSvc.InitCnvs += [  "ZdcDigitsCollection"]
 theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
 from ZdcByteStream.ZdcByteStreamConf import ZdcByteStreamTool
-from ZdcByteStream.ZdcByteStreamConf import ZdcByteStreamTester
 
 ToolSvc=Service("ToolSvc")
 ToolSvc += ZdcByteStreamTool("ZdcByteStreamTool")
@@ -59,7 +60,7 @@ MessageSvc.OutputLevel      = 2
 # Event related parameters
 #--------------------------------------------------------------
 # Number of events to be processed (default is 10)
-theApp.EvtMax = 1000
+theApp.EvtMax = 10
 #--------------------------------------------------------------
 # Algorithms Private Options
 #--------------------------------------------------------------
@@ -70,9 +71,15 @@ theApp.EvtMax = 1000
 AthenaEventLoopMgr = Service ("AthenaEventLoopMgr")
 AthenaEventLoopMgr.OutputLevel=2
 
-theApp.TopAlg+=["ZdcByteStreamTester"]
-ZdcByteStreamTester=Algorithm("ZdcByteStreamTester")
+#theApp.TopAlg+=["ZdcByteStreamTester"]
+#ZdcByteStreamTester=Algorithm("ZdcByteStreamTester")
+
 #ZdcByteStreamTester.ZdcDigitsCollectionLocation = "ZdcDigitsCollection"
+
+from AthenaCommon.AlgSequence import AlgSequence
+job = AlgSequence()
+from ZdcByteStream.ZdcByteStreamConf import ZdcByteStreamTester
+job += ZdcByteStreamTester("ZdcByteStreamTester")
 
 from AthenaCommon.AppMgr import theAuditorSvc
 from AthenaCommon.ConfigurableDb import getConfigurable

@@ -3,18 +3,11 @@
 */
 
 /*
- * ZdcByteStreamTester.cxx
+ * ZdcByteStreamRawDataV2.cxx
  *
- *  Created on: Jun 29, 2009
- *      Author: leite
+ *  Updated: October 2015
+ *  Author: Peter Steinberg (peter.steinberg@bnl.gov)
  *
- *  Based on Athena Algorithm this class must provide 3 methods:
- *
- *  ZdcByteStreamTester::initialize   (run once at run start)
- *  ZdcByteStreamTester::execute      (run for every event)
- *  ZdcByteStreamTester::finalize     (run one at run end)
- *
- *  plus some helpers
  */
 
 #include <utility>
@@ -28,17 +21,18 @@
 #include "ZdcEvent/ZdcDigitsCollection.h"
 
 #include "ZdcByteStream/ZdcDefs.h"
-#include "ZdcByteStream/ZdcByteStreamTester.h"
+#include "ZdcByteStream/ZdcByteStreamRawDataV2.h"
+#include "ZdcByteStream/ZdcToString.h"
 
 #ifndef PACKAGE_VERSION
 #define PACKAGE_VERSION "unknown"
 #endif
 
 //==================================================================================================
-ZdcByteStreamTester::ZdcByteStreamTester(const std::string& name, ISvcLocator* pSvcLocator) :
+ZdcByteStreamRawDataV2::ZdcByteStreamRawDataV2(const std::string& name, ISvcLocator* pSvcLocator) :
 	AthAlgorithm(name, pSvcLocator)
 {
-	declareProperty("ZdcDigitsLocation", m_ZdcDigitsLocation = ZdcDefs::ZdcDigitsLocation);
+	declareProperty("ZdcTriggerTowerContainerLocation", m_ZdcTriggerTowerContainerLocation = ZdcDefs::ZdcTriggerTowerContainerLocation);
 	declareProperty("ForceSlicesLUT", m_forceSlicesLut = 0);
 	declareProperty("ForceSlicesFADC", m_forceSlicesFadc = 0);
 }
@@ -46,14 +40,14 @@ ZdcByteStreamTester::ZdcByteStreamTester(const std::string& name, ISvcLocator* p
 
 
 //==================================================================================================
-ZdcByteStreamTester::~ZdcByteStreamTester()
+ZdcByteStreamRawDataV2::~ZdcByteStreamRawDataV2()
 {
 }
 //==================================================================================================
 
 
 //==================================================================================================
-StatusCode ZdcByteStreamTester::initialize()
+StatusCode ZdcByteStreamRawDataV2::initialize()
 {
 	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION
 			<< endreq;
@@ -64,23 +58,24 @@ StatusCode ZdcByteStreamTester::initialize()
 
 
 //==================================================================================================
-StatusCode ZdcByteStreamTester::execute()
+StatusCode ZdcByteStreamRawDataV2::execute()
 {
 	if (!msgLvl(MSG::INFO)) return StatusCode::SUCCESS;
 	msg(MSG::INFO);
 
-	/// The collection must be already somewhere
-	/// otherwise just skip this
-	/// TODO keep record somewhere of this type of error?
-
 	//ZdcDigitsCollection* ttCollection = 0;
-	const DataHandle<ZdcDigitsCollection> ttCollection;
-	StatusCode sc = evtStore()->retrieve(ttCollection, m_ZdcDigitsCollectionLocation);
+	const DataHandle<xAOD::TriggerTowerContainer> ttCollection;
+
+	msg(MSG::DEBUG) << "Looking for ZDC trigger tower container at " << m_ZdcTriggerTowerContainerLocation << endreq;
+
+	StatusCode sc = evtStore()->retrieve(ttCollection, m_ZdcTriggerTowerContainerLocation);
 	if (sc.isFailure() || !ttCollection || ttCollection->empty())
 	{
 		msg() << "No Zdc Digits found" << endreq;
 		return StatusCode::SUCCESS;
 	}
+
+	msg(MSG::DEBUG) << ZdcToString(*ttCollection) << endreq;
 
 	return StatusCode::SUCCESS;
 }
@@ -88,7 +83,7 @@ StatusCode ZdcByteStreamTester::execute()
 
 
 //==================================================================================================
-StatusCode ZdcByteStreamTester::finalize()
+StatusCode ZdcByteStreamRawDataV2::finalize()
 {
 
 	return StatusCode::SUCCESS;
@@ -98,9 +93,9 @@ StatusCode ZdcByteStreamTester::finalize()
 
 //==================================================================================================
 //FIXME There is no such thing like ZdcDigitsMap
-void ZdcByteStreamTester::printZdcDigits() const
+void ZdcByteStreamRawDataV2::printZdcTriggerTowers() const
 {
-	msg() << "Number of ZdcDigits = " << m_ZdcDigitsMap.size() << endreq;
+  //msg() << "Number of ZdcDigits = " << m_ZdcDigitsMap.size() << endreq;
 // 	ZdcDigitsMap::const_iterator mapIter = m_ZdcDigitsMap.begin();
 // 	ZdcDigitsMap::const_iterator mapEnd = m_ZdcDigitsMap.end();
 }
@@ -108,7 +103,7 @@ void ZdcByteStreamTester::printZdcDigits() const
 
 
 //==================================================================================================
-void ZdcByteStreamTester::printVec(const std::vector<int>& vec) const
+void ZdcByteStreamRawDataV2::printVec(const std::vector<int>& vec) const
 {
 	std::vector<int>::const_iterator pos;
 	for (pos = vec.begin(); pos != vec.end(); ++pos)
@@ -123,7 +118,7 @@ void ZdcByteStreamTester::printVec(const std::vector<int>& vec) const
 /* REMOVE
 
  // Set up trigger tower map
- void ZdcByteStreamTester::setupZdcDigitsMap(const ZdcDigitsCollection* const ttCollection)
+ void ZdcByteStreamRawDataV2::setupZdcDigitsMap(const ZdcDigitsCollection* const ttCollection)
  {
  m_ZdcDigitsMap.clear();
  ZdcDigitsCollection::const_iterator pos  = ttCollection->begin();

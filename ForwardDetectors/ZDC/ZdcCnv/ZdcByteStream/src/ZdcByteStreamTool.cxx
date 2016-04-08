@@ -50,11 +50,11 @@ ZdcByteStreamTool::ZdcByteStreamTool(const std::string& type,
 										      const std::string& name,
 										      const IInterface* parent) :
 			AthAlgTool(type, name, parent),
-			m_version(1),
-			m_compVers(4),
+			//m_version(1),
+			//m_compVers(4),
 			m_channels(64),
 			m_crates(8),
-			m_modules(16),
+			//m_modules(16),
 			m_subDetector(eformat::FORWARD_ZDC),
 			m_srcIdMap(0),
 			//m_towerKey(0),
@@ -573,10 +573,10 @@ StatusCode ZdcByteStreamTool::convert( const IROBDataProviderSvc::VROBFRAG& robF
 
 //==================================================================================================
 // Conversion of ZDCCollection to bytestream
-StatusCode ZdcByteStreamTool::convert( const ZdcDigitsCollection* const ttCollection,
-				       RawEventWrite* const re)
+StatusCode ZdcByteStreamTool::convert( const ZdcDigitsCollection* const /*ttCollection*/,
+				       RawEventWrite* const /*re*/)
 {
-	if (re) ttCollection->size();
+        //if (re) ttCollection->size();
 	//See PpmByteStreamTool for a implementation
 	return StatusCode::SUCCESS;
 }

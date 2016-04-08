@@ -137,6 +137,11 @@ void ZdcPpmSubBlock::fillPpmData(const int chan, const std::vector<int>& lut,
   const int sliceF = slicesFadc();
   const int slices = sliceL + sliceF;
   const int chanPerSubBlock = channelsPerSubBlock();
+  if (chanPerSubBlock == 0) {
+    setUnpackErrorCode(ZdcSubBlock::UNPACK_FORMAT);
+    m_datamap.clear();
+    return;
+  }
   int dataSize = m_datamap.size();
   if (dataSize == 0) {
     dataSize = slices * chanPerSubBlock;
@@ -172,7 +177,11 @@ void ZdcPpmSubBlock::ppmData(const int chan, std::vector<int>& lut,
   bcidFadc.clear();
   const int sliceL = slicesLut();
   const int sliceF = slicesFadc();
-  int beg = (chan % channelsPerSubBlock()) * (sliceL + sliceF);
+  const int chans = channelsPerSubBlock();
+  if (chans == 0) {
+    return;
+  }
+  int beg = (chan % chans) * (sliceL + sliceF);
   int end = beg + sliceL;
   if (size_t(end + sliceF) <= m_datamap.size()) {
     for (int pos = beg; pos < end; ++pos) {
