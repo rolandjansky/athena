@@ -122,6 +122,9 @@ private:
   float m_sigOffset;
   float m_sigSlope;
   float m_sigQuadr;
+  float m_sigOffset_feb;
+  float m_sigSlope_feb;
+  float m_sigQuadr_feb;
 
 };
 
