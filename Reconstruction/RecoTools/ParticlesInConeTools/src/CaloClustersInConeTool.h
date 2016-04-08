@@ -12,47 +12,53 @@
 #include "IParticlesLookUpTable.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "SGTools/CLASS_DEF.h"
+#include "GaudiKernel/IIncidentListener.h"
+ 
+class IIncidentSvc;
  
 namespace xAOD {
 
-  class CaloClustersInConeTool: public AthAlgTool, virtual public ICaloClustersInConeTool {
+  class CaloClustersInConeTool: public AthAlgTool, virtual public ICaloClustersInConeTool, virtual public IIncidentListener {
   public:
     /** constructor */
     CaloClustersInConeTool(const std::string& type, const std::string& name, const IInterface* parent);
 
     /** destructor */
-    virtual ~CaloClustersInConeTool(void); 
+    ~CaloClustersInConeTool(void); 
   
     /** initialize */
-    virtual StatusCode initialize() override;
+    StatusCode initialize();
 
     /** finalize */
-    virtual StatusCode finalize() override;
+    StatusCode finalize();
 
     /**ICaloClustersInConeTool interface */    
-    virtual bool particlesInCone( float eta, float phi, float dr, std::vector< const CaloCluster*>& output ) const override;
+    bool particlesInCone( float eta, float phi, float dr, std::vector< const CaloCluster*>& output );
 
     /**ICaloClustersInConeTool interface */    
-    virtual bool particlesInCone( float eta, float phi, float dr, std::vector< ElementLink<CaloClusterContainer> >& output ) const override;
+    bool particlesInCone( float eta, float phi, float dr, std::vector< ElementLink<CaloClusterContainer> >& output );
 
-    typedef IParticlesLookUpTable<CaloCluster> LookUpTable;
+    /** incident to clear cache at end of the event */
+    void handle(const Incident& inc);
 
   private:
     // init look-up table
-    const LookUpTable* getTable() const;
+    bool initLookUp();
 
     /** retrieve id track particles */
     const CaloClusterContainer* retrieveCaloClusterContainer() const; 
 
     /** ID track collection name */
     std::string m_caloClusterLocation;
+    
+    /** look-up table */
+    IParticlesLookUpTable<CaloCluster> m_lookUpTable;
+
+    /** incident service */
+    ServiceHandle< IIncidentSvc >      m_incidentSvc;
   };
 
 }	// end of namespace
-
-
-CLASS_DEF( xAOD::CaloClustersInConeTool::LookUpTable, 192366895, 0 )
 
 #endif
 

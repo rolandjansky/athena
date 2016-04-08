@@ -8,14 +8,16 @@
 //  (c) ATLAS software
 //////////////////////////////////////////////////////////////////////////////
 
+//<<<<<< INCLUDES                                                       >>>>>>
 #include "CaloClustersInConeTool.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
 
 namespace xAOD {
  
+  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
+
   CaloClustersInConeTool::CaloClustersInConeTool (const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent)
+    :	AthAlgTool(type, name, parent),
+        m_incidentSvc("IncidentSvc",name)
   {
     declareInterface<ICaloClustersInConeTool>(this);
     declareProperty("CaloClusterLocation",m_caloClusterLocation = "CaloCalTopoClusters");
@@ -24,12 +26,26 @@ namespace xAOD {
   CaloClustersInConeTool::~CaloClustersInConeTool()
   {}
 
+  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
+
   StatusCode CaloClustersInConeTool::initialize() {
+     // call handle in case of EndEvent
+    ATH_CHECK(m_incidentSvc.retrieve());
+    m_incidentSvc->addListener( this, IncidentType::EndEvent );
+
     return StatusCode::SUCCESS;
   }
 
   StatusCode CaloClustersInConeTool::finalize() {
     return StatusCode::SUCCESS;
+  }
+
+  void CaloClustersInConeTool::handle(const Incident& inc) {
+    // Only clear cache for EndEvent incident
+    if (inc.type()  == IncidentType::EndEvent){
+      ATH_MSG_DEBUG(" clearing cache at end of event " );
+      m_lookUpTable.clear();
+    }  
   }
 
   const CaloClusterContainer* CaloClustersInConeTool::retrieveCaloClusterContainer() const {
@@ -49,33 +65,27 @@ namespace xAOD {
     return caloClusters;
   }
 
-  const CaloClustersInConeTool::LookUpTable*
-  CaloClustersInConeTool::getTable() const
-  {
-    const std::string tableName = name() + "LookUpTable";
-    SG::ReadHandle<LookUpTable> rh (tableName);
-    if (rh.isValid())
-      return &*rh;
-
-    const CaloClusterContainer* caloClusters = retrieveCaloClusterContainer();
-    if( !caloClusters ) return nullptr;
-    auto lut = std::make_unique<LookUpTable>();
-    lut->init(*caloClusters);
-    SG::WriteHandle<LookUpTable> wh (tableName);
-    return wh.put (std::move (lut), true);
+  bool CaloClustersInConeTool::initLookUp() {
+    if( !m_lookUpTable.isInitialized() ){
+      /// retrieve track particles
+      const CaloClusterContainer* caloClusters = retrieveCaloClusterContainer();
+      if( !caloClusters ) return false;
+      m_lookUpTable.init(*caloClusters);
+    }
+    return true;
   }
 
-  bool CaloClustersInConeTool::particlesInCone( float eta, float phi, float dr, std::vector< const CaloCluster*>& output ) const {
+  bool CaloClustersInConeTool::particlesInCone( float eta, float phi, float dr, std::vector< const CaloCluster*>& output ) {
     /// initialize if needed
-    const LookUpTable* lut = getTable();
+    if(!initLookUp() ) return false;
 
-    return lut->iParticlesInCone( eta, phi, dr, output );
+    return m_lookUpTable.iParticlesInCone( eta, phi, dr, output );
   }
 
-  bool CaloClustersInConeTool::particlesInCone( float eta, float phi, float dr, std::vector< ElementLink<CaloClusterContainer> >& output ) const {
+  bool CaloClustersInConeTool::particlesInCone( float eta, float phi, float dr, std::vector< ElementLink<CaloClusterContainer> >& output ) {
     /// initialize if needed
-    const LookUpTable* lut = getTable();
+    if(!initLookUp() ) return false;
     
-    return lut->iParticlesInCone( eta, phi, dr, output );
+    return m_lookUpTable.iParticlesInCone( eta, phi, dr, output );
   }
 }	// end of namespace

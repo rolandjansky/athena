@@ -12,44 +12,47 @@
 #include "IParticlesLookUpTable.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "SGTools/CLASS_DEF.h"
+#include "GaudiKernel/IIncidentListener.h"
+ 
+class IIncidentSvc;
  
 namespace xAOD {
 
-  class TrackParticlesInConeTool: public AthAlgTool, virtual public ITrackParticlesInConeTool {
+  class TrackParticlesInConeTool: public AthAlgTool, virtual public ITrackParticlesInConeTool, virtual public IIncidentListener {
   public:
     /** constructor */
     TrackParticlesInConeTool(const std::string& type, const std::string& name, const IInterface* parent);
 
     /** destructor */
-    virtual ~TrackParticlesInConeTool(void); 
+    ~TrackParticlesInConeTool(void); 
   
     /** initialize */
-    virtual StatusCode initialize() override;
+    StatusCode initialize();
 
     /** finalize */
-    virtual StatusCode finalize() override;
+    StatusCode finalize();
 
     /**ITrackParticlesInConeTool interface */    
-    virtual
-    bool particlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) const override;
+    bool particlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output );
 
-    typedef IParticlesLookUpTable<TrackParticle> LookUpTable;
+    /** incident to clear cache at end of the event */
+    void handle(const Incident& inc);
 
   private:
-    // init look-up table
-    const LookUpTable* getTable() const;
-
     /** retrieve id track particles */
     const TrackParticleContainer* retrieveTrackParticleContainer() const; 
 
     /** ID track collection name */
     std::string m_indetTrackParticleLocation;
+    
+    /** look-up table */
+    IParticlesLookUpTable<TrackParticle> m_lookUpTable;
+
+    /** incident service */
+    ServiceHandle< IIncidentSvc >        m_incidentSvc;
   };
 
 }	// end of namespace
-
-CLASS_DEF( xAOD::TrackParticlesInConeTool::LookUpTable, 134433981, 0 )
 
 #endif
 
