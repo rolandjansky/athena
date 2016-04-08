@@ -7,10 +7,11 @@ use GaudiInterface      GaudiInterface-*     External
 use EventPrimitives     EventPrimitives-*    Event
 use GeoPrimitives       GeoPrimitives-*      DetectorDescription
 use TrkEventPrimitives  TrkEventPrimitives-* Tracking/TrkEvent
-use DataModel           DataModel-*          Control
 
 private
-use AtlasReflex   AtlasReflex-*   External -no_auto_imports
+use AthContainers       AthContainers-*      Control
+
+use AtlasReflex         AtlasReflex-*        External -no_auto_imports
 
 # Pattern to build the dict lib. User should create a single header
 # file: <package>Dict.h which includes all other .h files. See MissingETDict
@@ -18,5 +19,7 @@ use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 # classes to be added to the dictionary, and which fields are
 # transient. It should be put in ../<package> dir and is conventionally called
 # selection.xml.
-# apply_pattern lcgdict dict=TrkMeasurementBase selectionfile=selection.xml headerfiles="../TrkMeasurementBase/TrkMeasurementBaseDict.h"
+apply_pattern lcgdict dict=TrkMeasurementBase selectionfile=selection.xml headerfiles="../TrkMeasurementBase/TrkMeasurementBaseDict.h"
 
+# To make the package behave correctly with CMake:
+apply_pattern cmake_add_command command=metalibrary
