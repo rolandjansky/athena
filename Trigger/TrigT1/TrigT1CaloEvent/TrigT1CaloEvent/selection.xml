@@ -26,4 +26,24 @@
   <class name="std::vector<LVL1::JetElement*>" />
   <class name="LVL1::JetElement"/>
 
+  <class name="LVL1::CMMRoI"/>
+  <class name="LVL1::CMMCPHits"/>
+  <class name="CMMCPHitsCollection"/>
+  <class name="LVL1::CMMEtSums"/>
+  <class name="CMMEtSumsCollection"/>
+  <class name="LVL1::CMMJetHits"/>
+  <class name="CMMJetHitsCollection"/>
+  <class name="LVL1::CPMHits"/>
+  <class name="CPMHitsCollection"/>
+  <class name="LVL1::CPMRoI"/>
+  <class name="CPMRoICollection"/>
+  <class name="LVL1::CPMTower"/>
+  <class name="CPMTowerCollection"/>
+  <class name="LVL1::JEMEtSums"/>
+  <class name="JEMEtSumsCollection"/>
+  <class name="LVL1::JEMHits"/>
+  <class name="JEMHitsCollection"/>
+  <class name="LVL1::JEMRoI"/>
+  <class name="JEMRoICollection"/>
+
 </lcgdict>

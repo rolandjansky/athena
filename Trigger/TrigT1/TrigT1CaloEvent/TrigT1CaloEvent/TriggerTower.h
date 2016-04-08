@@ -58,21 +58,25 @@ public:
     TriggerTower( double phi, double eta, unsigned int key);
     
     TriggerTower( double phi, double eta, unsigned int key,
-                  std::vector<int>& em_digits, std::vector<int>& em_et,
-		  std::vector<int>& em_digits_bcid, std::vector<int>& em_bcid, 
+                  const std::vector<int>& em_digits,
+                  const std::vector<int>& em_et,
+		  const std::vector<int>& em_digits_bcid,
+                  const std::vector<int>& em_bcid, 
 		  int em_error, int em_peak, int em_adc_peak,
-                  std::vector<int>& had_digits, std::vector<int>& had_et,
-		  std::vector<int>& had_digits_bcid, std::vector<int>& had_bcid, 
+                  const std::vector<int>& had_digits,
+                  const std::vector<int>& had_et,
+		  const std::vector<int>& had_digits_bcid,
+                  const std::vector<int>& had_bcid, 
 		  int had_error, int had_peak, int had_adc_peak);
 /** Destructor */
     virtual ~TriggerTower();
 
 /** Methods to fill towers with digits, calibrated ET vectors and status flags*/
-    void addEM(std::vector<int>& digits, std::vector<int>& et, 
-               std::vector<int>& digits_bcid, std::vector<int>& bcid, 
+    void addEM(const std::vector<int>& digits, const std::vector<int>& et, 
+               const std::vector<int>& digits_bcid, const std::vector<int>& bcid, 
 	       int error, int peak, int adc_peak);
-    void addHad(std::vector<int>& digits, std::vector<int>& et, 
-                std::vector<int>& digits_bcid, std::vector<int>& bcid, 
+    void addHad(const std::vector<int>& digits, const std::vector<int>& et, 
+                const std::vector<int>& digits_bcid, const std::vector<int>& bcid, 
 		int error, int peak, int adc_peak);
 /** Methods to specify location of tower */
     void setCoord(double eta, double phi);

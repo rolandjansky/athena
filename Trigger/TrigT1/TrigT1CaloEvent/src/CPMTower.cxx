@@ -43,8 +43,11 @@ LVL1::CPMTower::CPMTower::CPMTower(double phi, double eta):
 }
 /** constructs a trigger tower and sets everything */
 LVL1::CPMTower::CPMTower::CPMTower(double phi, double eta,
-                    std::vector<int>& em_et,std::vector<int>& em_error,
-		    std::vector<int>& had_et,std::vector<int>& had_error, int peak):
+                                   const std::vector<int>& em_et,
+                                   const std::vector<int>& em_error,
+                                   const std::vector<int>& had_et,
+                                   const std::vector<int>& had_error,
+                                   int peak):
 	m_em_energy(em_et),
         m_had_energy(had_et),
 	m_em_error(em_error),
@@ -59,8 +62,12 @@ CPMTower::~CPMTower(){
 }
 
 /** Method for filling tower data */
-void LVL1::CPMTower::fill(std::vector<int>& em_et,std::vector<int>& em_error, 
-                          std::vector<int>& had_et,std::vector<int>& had_error, int peak) { 
+void LVL1::CPMTower::fill(const std::vector<int>& em_et,
+                          const std::vector<int>& em_error, 
+                          const std::vector<int>& had_et,
+                          const std::vector<int>& had_error,
+                          int peak)
+{ 
   m_em_energy = em_et;
   m_em_error = em_error;
   m_had_energy = had_et;

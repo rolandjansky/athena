@@ -8,9 +8,19 @@
 #include "TrigT1CaloEvent/CMXCPTob.h"
 #include "TrigT1CaloEvent/CMXCPHits.h"
 #include "TrigT1CaloEvent/CPMTobRoI.h"
+#include "TrigT1CaloEvent/CMMCPHitsCollection.h"
+#include "TrigT1CaloEvent/CMMEtSumsCollection.h"
+#include "TrigT1CaloEvent/CMMJetHitsCollection.h"
+#include "TrigT1CaloEvent/CMMRoI.h"
+#include "TrigT1CaloEvent/CPMHitsCollection.h"
+#include "TrigT1CaloEvent/CPMRoICollection.h"
+#include "TrigT1CaloEvent/CPMTowerCollection.h"
+#include "TrigT1CaloEvent/JEMEtSumsCollection.h"
+#include "TrigT1CaloEvent/JEMHitsCollection.h"
+#include "TrigT1CaloEvent/JEMRoICollection.h"
 
 
-struct temp {
+struct TrigT1CaloEventDict {
   DataVector<LVL1::TriggerTower > m_Trig;
   DataVector<LVL1::CPMTower> m_CpmTrig;
   DataVector<LVL1::JetElement> m_JetTrig;
