@@ -293,24 +293,86 @@ StatusCode
 SCT_DetectorTool::registerCallback( StoreGateSvc* detStore)
 {
 
+  StatusCode sc = StatusCode::FAILURE;
   if (m_alignable) {
-    std::string folderName = "/Indet/Align";
-    if (detStore->contains<AlignableTransformContainer>(folderName)) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
-      const DataHandle<AlignableTransformContainer> atc;
-      return detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
-    } else {
-      msg(MSG::ERROR) << "Unable to register callback on AlignableTransformContainer with folder " 
-	  << folderName << ", Alignment disabled!" << endreq;
-      return StatusCode::FAILURE;
+
+    {
+      std::string folderName = "/Indet/AlignL1/ID";
+      if (detStore->contains<CondAttrListCollection>(folderName)) {
+	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+	const DataHandle<CondAttrListCollection> calc;
+	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+	// We don't expect this to fail as we have already checked that the detstore contains the object.                          
+	if (ibltmp.isFailure()) {
+	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+	} else {
+	  sc =  StatusCode::SUCCESS;
+	}
+      } else {
+        msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+        //return StatusCode::FAILURE; 
+      }
+
+      folderName = "/Indet/AlignL2/SCT";
+      if (detStore->contains<CondAttrListCollection>(folderName)) {
+	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+	const DataHandle<CondAttrListCollection> calc;
+	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+	// We don't expect this to fail as we have already checked that the detstore contains the object.                          
+	if (ibltmp.isFailure()) {
+	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+	} else {
+	  sc =  StatusCode::SUCCESS;
+	}
+      } else {
+	msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+        //return StatusCode::FAILURE;  
+      }
+
+      folderName = "/Indet/AlignL3";
+      if (detStore->contains<AlignableTransformContainer>(folderName)) {
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+	const DataHandle<AlignableTransformContainer> atc;
+	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+	if(sctmp.isFailure()) {
+	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+	} else {
+        sc =  StatusCode::SUCCESS;
+	}
+      }
+      else {
+	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
+			<< folderName << endreq;
+	//return StatusCode::FAILURE;                                                         
+      }
     }
+
+
+    {
+      std::string folderName = "/Indet/Align";
+      if (detStore->contains<AlignableTransformContainer>(folderName)) {
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+	const DataHandle<AlignableTransformContainer> atc;
+	StatusCode sctmp =  detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+	if(sctmp.isFailure()) {
+	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+	} else {
+	  sc =  StatusCode::SUCCESS;
+	}
+      } else {
+	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder " 
+			<< folderName << ", Alignment disabled (only if no Run2 scheme is loaded)!" << endreq;
+	//return StatusCode::FAILURE; 
+      }
+    }
+
   } else {
     msg(MSG::INFO) << "Alignment disabled. No callback registered" << endreq;
     // We return failure otherwise it will try and register
-    // a GeoModelSvc callback associated with this callback.
-
+    // a GeoModelSvc callback associated with this callback. 
     return StatusCode::FAILURE;
   }
+  return sc;
 }
   
 StatusCode 
