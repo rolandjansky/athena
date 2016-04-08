@@ -8,11 +8,9 @@ atlas_subdir( FileCatalog )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Database/APR/POOLCore
-                          Control/AthenaBaseComps
                           PRIVATE
-                          GaudiKernel
                           AtlasTest/TestTools
-                          )
+                          GaudiKernel )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
@@ -20,10 +18,10 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 # Component(s) in the package:
 atlas_add_library( FileCatalog
                    src/*.cpp
-                   PUBLIC_HEADERS FileCatalog 
+                   PUBLIC_HEADERS FileCatalog
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} POOLCore GaudiKernel AthenaBaseComps
-                   PRIVATE_LINK_LIBRARIES TestTools )
+                   LINK_LIBRARIES ${CORAL_LIBRARIES} POOLCore
+                   PRIVATE_LINK_LIBRARIES TestTools GaudiKernel )
 
 atlas_add_test( FCEntry_test
                 SOURCES

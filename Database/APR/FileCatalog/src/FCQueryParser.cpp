@@ -4,9 +4,10 @@
 
 #include "FileCatalog/FCQueryParser.h"
 #include <locale>
+//#include <string>
 #include <algorithm>
+//#include <iostream>
 #include <iterator>
-
 namespace pool {
   struct toUpper{
     toUpper(const std::locale& l):loc(l){}
