@@ -13,7 +13,7 @@ using xAOD::EventInfo;
 
 BackgroundWordTest::BackgroundWordTest(const std::string& name,
                                  ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator)
+  AthAlgorithm(name,pSvcLocator)
 {
 }
 
@@ -28,18 +28,7 @@ BackgroundWordTest::~BackgroundWordTest()
 
 StatusCode BackgroundWordTest::initialize()
 {
-  MsgStream logStr(messageService(),name());
-
-  logStr << MSG::INFO << "In initialize()" << endreq;
-
-  StatusCode sc;
-
-  sc = service( "StoreGateSvc", m_storeGate);
-  if( sc.isFailure() ) {
-    logStr << MSG::FATAL << "Unable to locate the eventStore" << endreq;
-    return sc;
-  } 
-
+  ATH_MSG_INFO( "In initialize()" );
   return StatusCode::SUCCESS;  
 }
 
@@ -47,39 +36,33 @@ StatusCode BackgroundWordTest::initialize()
 
 StatusCode BackgroundWordTest::execute()
 {
-  StatusCode sc = StatusCode::SUCCESS;
-   MsgStream msg(messageService(), name());   
-   msg << MSG::DEBUG << "Executing " << name() << endreq;
-
    ///////////////////////// 
    // get the EventInfo
    /////////////////////////
    const EventInfo * eventInfo = 0;
-   if (m_storeGate->retrieve( eventInfo ).isFailure() ) {
-     msg << MSG::ERROR << "  Could not retrieve EventInfo object" << endreq;      
-     return StatusCode::FAILURE;
-   }
+   ATH_CHECK( evtStore()->retrieve( eventInfo ) );
+
    ////////////////////////////////////////
    // printout the final background word
    ///////////////////////////////////////
-   msg<<MSG::DEBUG << "Summary of background word contents:"<< endreq;
-   msg<<MSG::DEBUG << "MBTSTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo)<< endreq;
-   msg<<MSG::DEBUG << "MBTSTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol)<< endreq;
-   msg<<MSG::DEBUG << "MBTSBeamVeto: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto)<< endreq;
-   msg<<MSG::DEBUG << "LArECTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo)<< endreq;
-   msg<<MSG::DEBUG << "LArECTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol)<< endreq;
-   msg<<MSG::DEBUG << "PixMultiplicityHuge: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixMultiplicityHuge)<< endreq;
-   msg<<MSG::DEBUG << "PixSPNonEmpty: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty)<< endreq;
-   msg<<MSG::DEBUG << "SCTMultiplicityHuge: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTMultiplicityHuge)<< endreq;
-   msg<<MSG::DEBUG << "SCTSPNonEmpty: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty)<< endreq;
-   msg<<MSG::DEBUG << "CSCTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo)<< endreq;
-   msg<<MSG::DEBUG << "CSCTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol)<< endreq;
-   msg<<MSG::DEBUG << "BCMTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo)<< endreq;
-   msg<<MSG::DEBUG << "BCMTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol)<< endreq;
-   msg<<MSG::DEBUG << "BCMBeamVeto: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto)<< endreq;
-   msg<<MSG::DEBUG << "MuonTimingCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol)<< endreq;
-   msg<<MSG::DEBUG << "MuonTimingCosmic: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic)<< endreq;
-   msg<<MSG::DEBUG << "LUCIDBeamVeto: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto)<< endreq;
+   ATH_MSG_DEBUG( "Summary of background word contents:");
+   ATH_MSG_DEBUG( "MBTSTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo));
+   ATH_MSG_DEBUG( "MBTSTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol));
+   ATH_MSG_DEBUG( "MBTSBeamVeto: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto));
+   ATH_MSG_DEBUG( "LArECTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo));
+   ATH_MSG_DEBUG( "LArECTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol));
+   ATH_MSG_DEBUG( "PixMultiplicityHuge: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixMultiplicityHuge));
+   ATH_MSG_DEBUG( "PixSPNonEmpty: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty));
+   ATH_MSG_DEBUG( "SCTMultiplicityHuge: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTMultiplicityHuge));
+   ATH_MSG_DEBUG( "SCTSPNonEmpty: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty));
+   ATH_MSG_DEBUG( "CSCTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo));
+   ATH_MSG_DEBUG( "CSCTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol));
+   ATH_MSG_DEBUG( "BCMTimeDiffHalo: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo));
+   ATH_MSG_DEBUG( "BCMTimeDiffCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol));
+   ATH_MSG_DEBUG( "BCMBeamVeto: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto));
+   ATH_MSG_DEBUG( "MuonTimingCol: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol));
+   ATH_MSG_DEBUG( "MuonTimingCosmic: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic));
+   ATH_MSG_DEBUG( "LUCIDBeamVeto: "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto));
    //
 
    return StatusCode::SUCCESS;
@@ -89,11 +72,7 @@ StatusCode BackgroundWordTest::execute()
 
 StatusCode BackgroundWordTest::finalize() {
 
-  MsgStream logStr(messageService(),name());
-
-  logStr << MSG::INFO << "In finalize()" << endreq;
-
+  ATH_MSG_INFO( "In finalize()" );
   return StatusCode::SUCCESS;
-
 }
 

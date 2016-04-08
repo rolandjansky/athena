@@ -190,13 +190,13 @@ StatusCode BackgroundWordFiller::execute() {
 	 else
 	   m_bitcntvec[EventInfo::HaloClusterShape]++; 
        }
-       if( beamBackgroundData->GetNumOneSidedLoose() > m_HaloNumOneSidedLoose_Cut ){
+       if( beamBackgroundData->GetNumNoTimeLoose() > m_HaloNumOneSidedLoose_Cut ){
 	 if( eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::HaloMuonOneSided)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonOneSided] << endreq;
 	 else
 	   m_bitcntvec[EventInfo::HaloMuonOneSided]++;
        }
-       if( beamBackgroundData->GetNumTwoSided() > m_HaloNumTwoSided_Cut ){
+       if( beamBackgroundData->GetNumTwoSidedNoTime() > m_HaloNumTwoSided_Cut ){
 	 if( eventInfo->setEventFlagBit(EventInfo::Background,EventInfo::HaloMuonTwoSided)==false)
 	   msg(MSG::WARNING) << "Failed to set EventInfo Background word bit " << m_bitnamevec[EventInfo::HaloMuonTwoSided] << endreq;
 	 else
