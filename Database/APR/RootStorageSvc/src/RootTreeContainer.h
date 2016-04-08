@@ -38,9 +38,8 @@ class TClass;
 namespace pool  { 
 
   // Forward declaration
-  class DbColumn;
-  class RootDatabase;
-  class IClassHandler;
+   class DbColumn;
+   class RootDatabase;
    class AuxStoreAPR;
 
   /** @class RootTreeContainer RootTreeContainer.h src/RootTreeContainer.h
@@ -69,13 +68,13 @@ namespace pool  {
       void*             object;
       void*             buffer;
       const DbColumn*   column;
-      IClassHandler*    handler;
       // extra variables used by Aux dynamic
       size_t            rows_written = 0;
       int               aux_storehdl_IFoffset = -1;
       int               aux_iostore_IFoffset = -1;
       bool              is_basic_type = false;
       bool              written = false;
+      bool              aux_type_different = false;
       
       BranchDesc()
             : clazz(0), 
@@ -83,23 +82,20 @@ namespace pool  {
               leaf(0),
               object(0),
               buffer(0),
-              column(0),
-              handler(0)
+              column(0)
       {}
       
       BranchDesc( TClass* cl, 
                   TBranch* b,
                   TLeaf* l,
                   void* o,
-                  const DbColumn* c,
-                  IClassHandler* h)
+                  const DbColumn* c)
             : clazz(cl), 
               branch(b),
               leaf(l),
               object(0),
               buffer(o),
-              column(c),
-              handler(h) 
+              column(c)
       {}
       // difference for branch.setAddress() for objects and basic types, used by Aux dynamic 
       void*     objectAddr() { return is_basic_type? object : &object; }
@@ -256,6 +252,9 @@ namespace pool  {
     /// Read entry from an AUX branch into data buffer
     DbStatus readAuxBranch(TBranch& branch, void* data, long long entry);
 
+    /// Read entry from an AUX branch into data buffer corresponding to type 'tinf'
+    DbStatus readAuxBranch(TBranch& branch, void* data, const std::type_info *tinf, long long entry);
+    
     /// Create TBranch for a basic type (ROOT type notation given in the leafname)
     void createBasicAuxBranch(const std::string& branchname,
                               const std::string& leafname,

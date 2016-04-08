@@ -62,8 +62,6 @@ namespace pool  {
     virtual DbStatus destroyObject(TransactionStack::value_type& entry);
     /// Commit single entry to container
     virtual DbStatus writeObject(TransactionStack::value_type& entry);
-    /// Commit single entry to container
-    virtual DbStatus updateObject(TransactionStack::value_type& entry);
   public:
     /// Standard constructor
     RootKeyContainer(IOODatabase* idb);

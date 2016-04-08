@@ -13,37 +13,20 @@
 #include "RootOODb.h"
 #include "RootDatabase.h"
 #include "RootDomain.h"
-#include "RootClassLoader.h"
 #include "RootKeyContainer.h"
 #include "RootTreeContainer.h"
 #include "StorageSvc/DbInstanceCount.h"
 
-#include <memory>
-
 using namespace pool;
-
-static RootClassLoader* _classLoader()  {
-  static std::unique_ptr<RootClassLoader> ldr;
-  if ( 0 == ldr.get() )  {
-    ldr = std::unique_ptr<RootClassLoader>(new RootClassLoader);
-  }
-  return ldr.get();
-}
-
-#ifndef HAVE_GAUDI_PLUGINSVC
-//namespace pool {  void* createLoader()  {    return _classLoader();  }    }
-#endif
 
 /// Standard Constructor
 RootOODb::RootOODb(void* ctxt) : OODatabaseImp(ctxt, ROOT_StorageType)  {
   DbInstanceCount::increment(this);
-  setClassLoader(_classLoader());
 }
 
 /// Standard Constructor
 RootOODb::RootOODb(void* ctxt, DbType typ) : OODatabaseImp(ctxt, typ)   {
   DbInstanceCount::increment(this);
-  setClassLoader(_classLoader());
 }
 
 /// Standard Destructor

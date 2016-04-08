@@ -14,18 +14,17 @@
 #include "StorageSvc/DbColumn.h"
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DataCallBack.h"
-#include "StorageSvc/IClassLoader.h"
-#include "StorageSvc/IClassHandler.h"
 #include "RootDataPtr.h"
 #include "RootCallEnv.h"
 #include "TBuffer.h"
 #include "TClass.h"
+
 using namespace pool;
 
-RootCallEnv::RootCallEnv(IClassLoader* ldr,DataCallBack* cb,RootDataPtr& ctxt)
-: loader(ldr), call(cb), context(ctxt)
-{     
-}
+RootCallEnv::RootCallEnv(DataCallBack* cb,RootDataPtr& ctxt)
+      : call(cb), context(ctxt)
+{}
+
 
 void RootCallEnv::read(TBuffer& R__b)   {
   int icol;
@@ -43,17 +42,14 @@ void RootCallEnv::read(TBuffer& R__b)   {
       if ( sc.isSuccess() )   {
         const std::string& typ = (*k)->typeName();
         unsigned char bool_buf;
-        IClassHandler* hnd = 0;
         int size = 0;
+        TClass* cl = 0;
         switch ( (*k)->typeID() ) {
         case DbColumn::POINTER:
         case DbColumn::ANY:
-          hnd = loader->handler(typ, true);
-          if ( hnd ) hnd->onLoad(p.ptr);
-          if ( 0 != hnd && 0 != hnd->nativeClass() )  {
-            TClass* cl = (TClass*)hnd->nativeClass();
+          cl = TClass::GetClass(typ.c_str());
+          if( cl )  {
             cl->ReadBuffer(R__b, q.ptr = cl->New());
-            hnd->onLoad(q.ptr);
           }
           *p.pptr = q.tobj;
           break;
@@ -137,17 +133,15 @@ void RootCallEnv::write(TBuffer& R__b)    {
       DbStatus sc = call->bind(DataCallBack::PUT, *k, icol, user.ptr, &p.ptr);
       const std::string& typ = (*k)->typeName();
       if ( sc.isSuccess() )   {
-        IClassHandler* hnd = 0;
+        TClass* cl = 0;
         switch ( (*k)->typeID() ) {
         case DbColumn::POINTER:
         case DbColumn::ANY:
-          hnd = loader->handler(typ, true);
-          if ( 0 != hnd && 0 != hnd->nativeClass() )  {
-            hnd->onSave(p.ptr);
-            TClass* cl = (TClass*)hnd->nativeClass();
-            cl->WriteBuffer(R__b, p.tobj);
-          }
-          break;
+           cl = TClass::GetClass(typ.c_str());
+           if( cl ) {
+              cl->WriteBuffer(R__b, p.tobj);
+           }
+           break;
         case DbColumn::BLOB:
           R__b << p.blobSize();
           R__b.WriteFastArray(p.blobData(),p.blobSize());
