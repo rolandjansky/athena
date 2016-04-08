@@ -9,7 +9,12 @@ use  AthContainers              AthContainers-*                 Control
 use  AthLinks                   AthLinks-*                      Control
 use  xAODBase                   xAODBase-*                      Event/xAOD
 use  xAODCore                   xAODCore-*                      Event/xAOD
+use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
+use  xAODJet                    xAODJet-*                       Event/xAOD
 use  xAODMissingET              xAODMissingET-*                 Event/xAOD
+use  xAODMuon                   xAODMuon-*                      Event/xAOD
+use  xAODTau                    xAODTau-*                       Event/xAOD
+use  xAODTruth                  xAODTruth-*                     Event/xAOD
 
 private
 use  AtlasROOT                  AtlasROOT-*                     External

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticle_v1.cxx 643631 2015-02-02 16:52:33Z kkoeneke $
+// $Id: CompositeParticle_v1.cxx 654494 2015-03-16 17:16:37Z kkoeneke $
 
 // standard includes
 #include <math.h>       /* remainder and M_PI */
@@ -34,7 +34,7 @@ namespace xAOD {
   static SG::AuxElement::Accessor< float > accPx( "px" );
   static SG::AuxElement::Accessor< float > accPy( "py" );
   static SG::AuxElement::Accessor< float > accPz( "pz" );
-  static SG::AuxElement::Accessor< float > accE( "e" );
+  static SG::AuxElement::Accessor< float > accE(  "e"  );
 
 
   double CompositeParticle_v1::pt() const {
@@ -169,285 +169,117 @@ namespace xAOD {
   //     information from constituents.
   //
 
-  // Get the delta-phi between two constituents (missingET is at index=-1)
-  double CompositeParticle_v1::deltaPhi( int constitAIdx, int constitBIdx ) const
-  {
-    // Defaul values
-    double phiA(0.0);
-    double phiB(0.0);
-
-    // Get the constituent number A
-    if ( constitAIdx >= 0 ) {
-      const xAOD::IParticle* part = this->constituent(constitAIdx);
-      if ( !part ) {
-        // This should not be... throw an error.
-        throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaPhi for constituent number A");
-        return 0.0;
+  CompositeParticle_v1::FourMom_t
+  CompositeParticle_v1::p4( const std::vector<int>& partIndices ) const {
+    CompositeParticle_v1::FourMom_t fourMom(0.0, 0.0, 0.0, 0.0);
+    // If the given vector of indices is an empty vector, run over all particles
+    if ( partIndices.empty() ) {
+      // Sum up the 4-momenta of all constituents
+      std::size_t nParts = this->nParts();
+      for ( std::size_t i=0; i<nParts; ++i ) {
+        const xAOD::IParticle* part = this->part(i);
+        if (!part) {
+          throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!");
+        }
+        fourMom += part->p4();
       }
-      phiA = part->phi();
-    }
-    else if ( constitAIdx == -1 ) { // Now, we need to check for missingET
+      // Also add the 4-momentum of the missingET
       const xAOD::MissingET* met = this->missingET();
-      if ( !met ) {
-        // This should not be... throw an error.
-        throw std::runtime_error("Got a zero pointer to an xAOD::MissingET when calling deltaPhi for constituent number A");
-        return 0.0;
+      if (met) {
+        double px = met->mpx();
+        double py = met->mpy();
+        fourMom += CompositeParticle_v1::FourMom_t( px, py, 0.0, std::sqrt(px*px+py*py) );
       }
-      phiA = met->phi();
     }
     else {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a non-valid first index when calling deltaPhi");
-      return 0.0;
-    }
-
-    // Get the constituent number B
-    if ( constitBIdx >= 0 ) {
-      const xAOD::IParticle* part = this->constituent(constitBIdx);
-      if ( !part ) {
-        // This should not be... throw an error.
-        throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaPhi for constituent number B");
-        return 0.0;
+      for ( int i : partIndices ) {
+        if ( i == -1 ) {
+          const xAOD::MissingET* met = this->missingET();
+          double px = met->mpx();
+          double py = met->mpy();
+          fourMom += CompositeParticle_v1::FourMom_t( px, py, 0.0, std::sqrt(px*px+py*py) );
+        }
+        else if ( i < 0 ) {
+          throw std::runtime_error("Got a negative index which is not -1");
+        }
+        else {
+          const xAOD::IParticle* part = this->part(i);
+          if ( !part ) {
+            throw std::runtime_error("Got a zero pointer to an xAOD::IParticle");
+          }
+          fourMom += part->p4();
+        }
       }
-      phiB = part->phi();
     }
-    else if ( constitBIdx == -1 ) { // Now, we need to check for missingET
-      const xAOD::MissingET* met = this->missingET();
-      if ( !met ) {
-        // This should not be... throw an error.
-        throw std::runtime_error("Got a zero pointer to an xAOD::MissingET when calling deltaPhi for constituent number B");
-        return 0.0;
-      }
-      phiB = met->phi();
-    }
-    else {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a non-valid second index when calling deltaPhi");
-      return 0.0;
-    }
-
-    return -remainder( -phiA + phiB, 2*M_PI );
+    return fourMom;
   }
 
 
-  // Get the delta-eta between two constituents
-  double CompositeParticle_v1::deltaEta( int constitAIdx, int constitBIdx ) const
-  {
-    // Check that we got valid indices
-    if ( constitAIdx < 0 || constitBIdx < 0 ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a negative index... this should not happen");
-      return 0.0;
-    }
-
-    // Defaul values
-    double etaA(0.0);
-    double etaB(0.0);
-
-    // Get the constituent number A
-    const xAOD::IParticle* partA = this->constituent(constitAIdx);
-    if ( !partA ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number A");
-      return 0.0;
-    }
-    etaA = partA->eta();
-
-    // Get the constituent number B
-    const xAOD::IParticle* partB = this->constituent(constitBIdx);
-    if ( !partB ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number B");
-      return 0.0;
-    }
-    etaB = partB->eta();
-
-    return etaA - etaB;
+  double CompositeParticle_v1::pt( const std::vector<int>& partIndices ) const {
+    return (this->p4(partIndices)).Pt();
   }
 
-
-
-  // Get the delta-rapidity between two constituents
-  double CompositeParticle_v1::deltaRapidity( int constitAIdx, int constitBIdx ) const
-  {
-    // Check that we got valid indices
-    if ( constitAIdx < 0 || constitBIdx < 0 ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a negative index... this should not happen");
-      return 0.0;
-    }
-
-    // Defaul values
-    double yA(0.0);
-    double yB(0.0);
-
-    // Get the constituent number A
-    const xAOD::IParticle* partA = this->constituent(constitAIdx);
-    if ( !partA ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number A");
-      return 0.0;
-    }
-    yA = partA->rapidity();
-
-    // Get the constituent number B
-    const xAOD::IParticle* partB = this->constituent(constitBIdx);
-    if ( !partB ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number B");
-      return 0.0;
-    }
-    yB = partB->rapidity();
-
-    return yA - yB;
+  double CompositeParticle_v1::eta( const std::vector<int>& partIndices ) const {
+    return (this->p4(partIndices)).Eta();
   }
 
-
-
-  // Get the deltaR-squared between two constituents
-  // Is useRapidity=true, then the true rapidity will be used. Otherwise,
-  // the pseudorapidity eta will be used.
-  double CompositeParticle_v1::deltaR2( int constitAIdx, int constitBIdx, bool useRapidity ) const
-  {
-    // Check that we got valid indices
-    if ( constitAIdx < 0 || constitBIdx < 0 ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a negative index... this should not happen");
-      return 0.0;
-    }
-
-    // Defaul values
-    double deltaPhi(0.0);
-    double deltaRap(0.0);
-
-    // Get deltaPhi
-    deltaPhi = this->deltaPhi( constitAIdx, constitBIdx );
-
-    // Get the other part (either deltaEta or deltaRapidity)
-    if (useRapidity) {
-      deltaRap = this->deltaRapidity( constitAIdx, constitBIdx );
-    }
-    else {
-      deltaRap = this->deltaEta( constitAIdx, constitBIdx );
-    }
-
-    return deltaPhi*deltaPhi + deltaRap*deltaRap;
+  double CompositeParticle_v1::phi( const std::vector<int>& partIndices ) const {
+    return (this->p4(partIndices)).Phi();
   }
 
-
-
-  // Get the deltaR between two constituents
-  // Is useRapidity=true, then the true rapidity will be used. Otherwise,
-  // the pseudorapidity eta will be used.
-  double CompositeParticle_v1::deltaR( int constitAIdx, int constitBIdx, bool useRapidity ) const
-  {
-    double deltaR2 = this->deltaR2(constitAIdx, constitBIdx, useRapidity);
-    return std::sqrt(deltaR2);
+  double CompositeParticle_v1::m( const std::vector<int>& partIndices ) const {
+    return (this->p4(partIndices)).M();
   }
 
-
-  /// Get the delta-|\vec{p}| between two constituents
-  double CompositeParticle_v1::deltaAbsP( int constitAIdx, int constitBIdx ) const
-  {
-    // Check that we got valid indices
-    if ( constitAIdx < 0 || constitBIdx < 0 ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a negative index... this should not happen");
-      return 0.0;
-    }
-
-    // Defaul values
-    double absPA(0.0);
-    double absPB(0.0);
-
-    // Get the constituent number A
-    const xAOD::IParticle* partA = this->constituent(constitAIdx);
-    if ( !partA ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number A");
-      return 0.0;
-    }
-    absPA = (partA->p4()).P();
-
-    // Get the constituent number B
-    const xAOD::IParticle* partB = this->constituent(constitBIdx);
-    if ( !partB ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number B");
-      return 0.0;
-    }
-    absPB = (partB->p4()).P();
-
-    return absPA - absPB;
+  double CompositeParticle_v1::p( const std::vector<int>& partIndices ) const {
+    return (this->p4(partIndices)).P();
   }
 
+  double CompositeParticle_v1::e( const std::vector<int>& partIndices ) const {
+    return (this->p4(partIndices)).E();
+  }
 
+  double CompositeParticle_v1::rapidity( const std::vector<int>& partIndices ) const {
+    return (this->p4(partIndices)).Rapidity();
+  }
 
-  /// Get the delta-|\vec{p_T}| between two constituents
-  double CompositeParticle_v1::deltaAbsPt( int constitAIdx, int constitBIdx ) const
-  {
-    // Check that we got valid indices
-    if ( constitAIdx < 0 || constitBIdx < 0 ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a negative index... this should not happen");
-      return 0.0;
-    }
+  double CompositeParticle_v1::px( const std::vector<int>& partIndices ) const {
+    return (this->p4(partIndices)).Px();
+  }
 
-    // Defaul values
-    double absPtA(0.0);
-    double absPtB(0.0);
+  double CompositeParticle_v1::py( const std::vector<int>& partIndices ) const {
+    return (this->p4(partIndices)).Py();
+  }
 
-    // Get the constituent number A
-    const xAOD::IParticle* partA = this->constituent(constitAIdx);
-    if ( !partA ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number A");
-      return 0.0;
-    }
-    absPtA = partA->pt();
+  double CompositeParticle_v1::pz( const std::vector<int>& partIndices ) const {
+    return (this->p4(partIndices)).Pz();
+  }
 
-    // Get the constituent number B
-    const xAOD::IParticle* partB = this->constituent(constitBIdx);
-    if ( !partB ) {
-      // This should not be... throw an error.
-      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number B");
-      return 0.0;
-    }
-    absPtB = partB->pt();
-
-    return absPtA - absPtB;
+  double CompositeParticle_v1::et( const std::vector<int>& partIndices ) const{
+    return (this->p4(partIndices)).Et();
   }
 
 
 
   // Get the transverse mass.
   // Specify which calculation method to use as an optional additional argument.
-  double CompositeParticle_v1::mt( MT::Method method ) const
+  double CompositeParticle_v1::mt( const std::vector<int>& partIndices, MT::Method method ) const
   {
     // Use the different calculation methods, depending on the given input
     if ( method == xAOD::CompositeParticle_v1::MT::DEFAULT ) {
       // Calculate m_T according to the ATLAS Higgs->WW publication
       // from 2014/2015 (http://arxiv.org/pdf/1412.2641v1.pdf, page 3)
 
-      // Get all the visible constituents and sum up their 4-momenta
-      xAOD::IParticle::FourMom_t fourMom;
-      const std::size_t nConstits( this->nConstituents() );
-      for ( std::size_t i=0; i<nConstits; ++i ) {
-        const xAOD::IParticle* part = this->constituent(i);
-        if ( !part ) {
-          // This should not be... throw an error.
-          throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling mt");
-          return -999.0;
-        }
-        fourMom += part->p4();
-      }
+      // Get all the visible constituents and sum up their 4-momenta.
+      // If the user provides as one of these indices a -1, then missingET will
+      // also be used... THIS WILL GIVE WRONG RESULTS!
+      xAOD::CompositeParticle_v1::FourMom_t fourMom( this->p4(partIndices) );
 
       // Get the missing e_T
       const xAOD::MissingET* metObj = this->missingET();
       if ( !metObj ) {
         // This should not be... throw an error.
         throw std::runtime_error("Got a zero pointer to an xAOD::MissingET when calling mt");
-        return -9999.0;
       }
       double mpx( metObj->mpx() );
       double mpy( metObj->mpy() );
@@ -466,7 +298,6 @@ namespace xAOD {
       if ( part1 < part2 ) {
         // This should not be... throw an error.
         throw std::runtime_error("Got an invalid mt calculation");
-        return -99999.0;
       }
       return std::sqrt( part1 - part2 );
     }
@@ -485,25 +316,102 @@ namespace xAOD {
 
 
   /////////////////////////////////////////////////////////////////////////////
+  // Begin: Functions returning variables that are calculated from
+  //        information from constituents (not only using their 4-momenta).
+
+  float CompositeParticle_v1::weight( const std::vector<std::string>& varNames,
+                                      const std::vector<int>& partIndices ) const {
+    // Default return value
+    float weight(1.0);
+    // Iterate over each variable name
+    for ( const std::string& varName : varNames ) {
+      // Protect against empty strings
+      if ( varName.empty() ) { continue; }
+      const xAOD::IParticle::ConstAccessor<float> varAcc(varName);
+      // If the given vector of indices is an empty vector, run over all particles
+      if ( partIndices.empty() ) {
+        weight *= this->weightHelper( this, varAcc );
+      }
+      else {
+        // If we have specific indices given, we will only look there
+        for ( int i : partIndices ) {
+          if ( i == -1 ) {
+            const xAOD::MissingET* met = this->missingET();
+            if ( met && varAcc.isAvailable(*met) ) { weight *= varAcc(*met); }
+            continue;
+          }
+          else if ( i < 0 ) {
+            throw std::runtime_error("Got a negative index which is not -1");
+          }
+          else {
+            const xAOD::IParticle* part = this->part(i);
+            weight *= this->weightHelper( part, varAcc );
+          }
+        }
+      } // End: if/else partIndices.empty()
+    } // End: Loop over variable names
+    return weight;
+  }
+
+
+
+  // This is a private helper method
+  float CompositeParticle_v1::weightHelper( const xAOD::IParticle* part,
+                                            const xAOD::IParticle::ConstAccessor<float>& varAcc ) const {
+    if (!part) {
+      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!");
+    }
+    if ( varAcc.isAvailable(*part) ) {
+      return varAcc(*part);
+    }
+    if ( part->type() != xAOD::Type::CompositeParticle ) {
+      // We didn't find the weight variable for this particle and we cannot
+      // iterate further down into the constituent tree (as it ends here).
+      return 1.0;
+    }
+    // We have a CompositeParticle, but it doesn't have its own weight variable
+    // of the given name. Thus, we search in all of its constituents for the weight.
+    const xAOD::CompositeParticle_v1* compPart = static_cast<const xAOD::CompositeParticle_v1*>(part);
+    float weight(1.0);
+    std::size_t nParts = compPart->nParts();
+    for ( std::size_t i=0; i<nParts; ++i ) {
+      const xAOD::IParticle* part = compPart->part(i);
+      weight *= this->weightHelper( part, varAcc );
+    }
+    const xAOD::MissingET* met = compPart->missingET();
+    if ( met && varAcc.isAvailable(*met) ) { weight *= varAcc(*met); }
+    return weight;
+  }
+
+
+  // End: Functions returning variables that are calculated from
+  //       information from constituents (not only using their 4-momenta).
+  /////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+  /////////////////////////////////////////////////////////////////////////////
   //
   //     Functions implementing handling of constituents
   //
 
   // Get the accessor for the vector of element links to the constituents
   static SG::AuxElement::Accessor< xAOD::IParticleLinkContainer >
-              constitLinksAcc( "constituentLinks" );
+              partLinksAcc( "partLinks" );
 
 
 
   void
-  CompositeParticle_v1::addConstituent( const xAOD::IParticle* part, bool updateFourMom ) {
+  CompositeParticle_v1::addPart( const xAOD::IParticle* part, bool updateFourMom ) {
     // Check if we have a valid pointer
     if ( !part ) {
       // This should not be... throw an error.
       throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when adding constituent!");
       return;
     }
-    xAOD::IParticleLinkContainer& constitLinks = constitLinksAcc( *this );
+    xAOD::IParticleLinkContainer& constitLinks = partLinksAcc( *this );
 
     // Update the four-momentum of this composite particle, if requested
     if ( updateFourMom ) {
@@ -526,14 +434,13 @@ namespace xAOD {
 
 
   void
-  CompositeParticle_v1::addConstituent( const IParticleLink& partLink, bool updateFourMom ) {
+  CompositeParticle_v1::addPart( const IParticleLink& partLink, bool updateFourMom ) {
     // Check if we have a valid ElementLink
     if ( ! partLink.isValid() ) {
       // This should not be... throw an error.
       throw std::runtime_error("Got an invalid ElementLink when adding constituent!");
-      return;
     }
-    xAOD::IParticleLinkContainer& constitLinks = constitLinksAcc( *this );
+    xAOD::IParticleLinkContainer& constitLinks = partLinksAcc( *this );
 
     // Update the four-momentum of this composite particle, if requested
     if ( updateFourMom ) {
@@ -549,28 +456,27 @@ namespace xAOD {
 
 
   void
-  CompositeParticle_v1::addConstituents( const xAOD::IParticleLinkContainer& partLinkCont,
-                                         bool updateFourMom  ) {
+  CompositeParticle_v1::addParts( const xAOD::IParticleLinkContainer& partLinkCont,
+                                  bool updateFourMom  ) {
     for ( xAOD::IParticleLinkContainer::const_iterator
             constitItr = partLinkCont.begin(),
             constitItrEnd = partLinkCont.end();
           constitItr != constitItrEnd;
           ++constitItr ) {
       const xAOD::IParticleLink& currentLink = *constitItr;
-      this->addConstituent( currentLink, updateFourMom );
+      this->addPart( currentLink, updateFourMom );
     }
     return;
   }
 
 
 
-  void CompositeParticle_v1::removeConstituent( const xAOD::IParticle* part,
-                                                bool updateFourMom ) {
+  void CompositeParticle_v1::removePart( const xAOD::IParticle* part,
+                                         bool updateFourMom ) {
     // Check if we have a valid pointer
     if ( !part ) {
       // This should not be... throw an error.
       throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when adding constituent!");
-      return;
     }
 
     // Add the ElementLink of the given particle and pass it on
@@ -580,22 +486,21 @@ namespace xAOD {
     if ( !partCont ) {
       throw std::runtime_error( "ERROR: Could not find the container for the particle when adding constituent" );
     }
-    this->removeConstituent( IParticleLink( *partCont, partIdx ), updateFourMom );
+    this->removePart( IParticleLink( *partCont, partIdx ), updateFourMom );
     return;
   }
 
 
 
   void
-  CompositeParticle_v1::removeConstituent( const xAOD::IParticleLink& partLink,
-                                           bool updateFourMom ) {
+  CompositeParticle_v1::removePart( const xAOD::IParticleLink& partLink,
+                                    bool updateFourMom ) {
     // Check if we have a valid ElementLink
     if ( ! partLink.isValid() ) {
       // This should not be... throw an error.
       throw std::runtime_error("Got an invalid ElementLink when adding constituent!");
-      return;
     }
-    xAOD::IParticleLinkContainer& constitLinks = constitLinksAcc( *this );
+    xAOD::IParticleLinkContainer& constitLinks = partLinksAcc( *this );
 
     // Find the constituent particle that should be removed
     for ( xAOD::IParticleLinkContainer::iterator
@@ -649,7 +554,6 @@ namespace xAOD {
     if ( !met ) {
       // This should not be... throw an error.
       throw std::runtime_error("Got a zero pointer to xAOD::MissingET when adding it!");
-      return;
     }
 
     // Update the four-momentum of this composite particle, if requested
@@ -727,7 +631,7 @@ namespace xAOD {
 
   bool
   CompositeParticle_v1::contains( const xAOD::IParticle* part ) const {
-    const xAOD::IParticleLinkContainer& constitLinks = this->constituentLinks();
+    const xAOD::IParticleLinkContainer& constitLinks = this->partLinks();
     for ( xAOD::IParticleLinkContainer::const_iterator
             constitItr = constitLinks.begin(),
             constitItrEnd = constitLinks.end();
@@ -746,7 +650,7 @@ namespace xAOD {
 
   bool
   CompositeParticle_v1::contains( const xAOD::IParticleLink& partLink ) const {
-    const xAOD::IParticleLinkContainer& constitLinks = this->constituentLinks();
+    const xAOD::IParticleLinkContainer& constitLinks = this->partLinks();
     for ( xAOD::IParticleLinkContainer::const_iterator
             constitItr = constitLinks.begin(),
             constitItrEnd = constitLinks.end();
@@ -761,53 +665,363 @@ namespace xAOD {
   }
 
 
-  std::size_t CompositeParticle_v1::nConstituents() const {
-    if( constitLinksAcc.isAvailable( *this ) ) {
-      return constitLinksAcc( *this ).size();
+  std::size_t CompositeParticle_v1::nParts() const {
+    if( partLinksAcc.isAvailable( *this ) ) {
+      return partLinksAcc( *this ).size();
     }
     return 0;
   }
 
 
+
+// Define a pre-processor macro for the implementations of all these methods
+#define NUM_PARTS( FUNCNAME, OBJTYPE )                                                      \
+  std::size_t CompositeParticle_v1::FUNCNAME() const {                                      \
+    std::size_t n(0);                                                                       \
+    std::size_t nParts = this->nParts();                                                    \
+    for ( std::size_t i=0; i<nParts; ++i ) {                                                \
+      const xAOD::IParticle* part = this->part(i);                                          \
+      if (!part) { throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!"); } \
+      if ( part->type() == xAOD::Type::OBJTYPE ) { n += 1; }                                \
+    }                                                                                       \
+    return n;                                                                               \
+  }
+
+  NUM_PARTS(nCompParts,CompositeParticle)
+  NUM_PARTS(nPhotons,Photon)
+  NUM_PARTS(nElectrons,Electron)
+  NUM_PARTS(nMuons,Muon)
+  NUM_PARTS(nTaus,Tau)
+
+  std::size_t CompositeParticle_v1::nLeptons() const {
+    return this->nElectrons() + this->nMuons() + this->nTaus();
+  }
+
+  NUM_PARTS(nJets,Jet)
+  NUM_PARTS(nTruthParts,TruthParticle)
+
+
+
+
+
   const xAOD::IParticle*
-  CompositeParticle_v1::constituent( std::size_t index ) const {
-    if ( index >= this->nConstituents() ) {
+  CompositeParticle_v1::part( std::size_t index ) const {
+    if ( index >= this->nParts() ) {
        return 0;
-	  }
-	  const xAOD::IParticleLink & constitLink = constituentLink( index );
-	  if ( ! constitLink.isValid() ) {
-	     return 0;
-	  }
-	  return *constitLink;
+    }
+    const xAOD::IParticleLink & constitLink = partLink( index );
+    if ( ! constitLink.isValid() ) {
+       return 0;
+    }
+    return *constitLink;
   }
 
 
   const xAOD::IParticleLink&
-  CompositeParticle_v1::constituentLink( std::size_t index ) const {
-    if ( index >= this->nConstituents() ) {
-	     static const xAOD::IParticleLink dummy;
-	     return dummy;
+  CompositeParticle_v1::partLink( std::size_t index ) const {
+    if ( index >= this->nParts() ) {
+       static const xAOD::IParticleLink dummy;
+       return dummy;
     }
-    return constituentLinks()[ index ];
+    return partLinks()[ index ];
   }
 
 
 
   AUXSTORE_OBJECT_SETTER_AND_GETTER( CompositeParticle_v1,
                                      xAOD::IParticleLinkContainer,
-                                     constituentLinks,
-                                     setConstituentLinks )
+                                     partLinks,
+                                     setPartLinks )
+
+
+  template<typename CONTTYPE>
+  ConstDataVector<CONTTYPE>* CompositeParticle_v1::parts() const {
+    // Create the return object
+    ConstDataVector<CONTTYPE>* outCont = new ConstDataVector<CONTTYPE>(SG::VIEW_ELEMENTS);
+
+    std::size_t nParts = this->nParts();
+    for ( std::size_t i=0; i<nParts; ++i ) {
+      const xAOD::IParticle* part = this->part(i);
+      if (!part) {
+        delete outCont;
+        throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!");
+      }
+      typename ConstDataVector<CONTTYPE>::const_pointer typePart
+        = dynamic_cast<typename ConstDataVector<CONTTYPE>::const_pointer>(part);
+      if (typePart) {
+        outCont->push_back(typePart);
+      }
+    }
+    return outCont;
+  }
+
+
+
+  xAOD::CompositeParticle_v1*
+  CompositeParticle_v1::compPart( const std::vector<int>& partIndices,
+                                  const std::vector<int>& otherPartIndices,
+                                  bool updateFourMom ) const {
+    xAOD::CompositeParticle_v1* compPart = new CompositeParticle_v1();
+    compPart->makePrivateStore();
+    for ( int i : partIndices ) {
+      if ( i == -1 ) {
+        compPart->setMissingET( this->missingET(), updateFourMom );
+      }
+      else if ( i >= 0 ) {
+        const xAOD::IParticleLink& pLink = this->partLink( static_cast<std::size_t>(i) );
+        compPart->addPart( pLink, updateFourMom );
+      }
+      else {
+        throw std::runtime_error("Got a non-valid index");
+      }
+    }
+    for ( int i : otherPartIndices ) {
+      if ( i >= 0 ) {
+        const xAOD::IParticleLink& pLink = this->otherPartLink( static_cast<std::size_t>(i) );
+        compPart->addPart( pLink, updateFourMom );
+      }
+      else {
+        throw std::runtime_error("Got a non-valid index for an other particle");
+      }
+    }
+    return compPart;
+  }
+
+
+
 
   // End: Functions implementing handling of constituents
   /////////////////////////////////////////////////////////////////////////////
 
 
 
+
+  /////////////////////////////////////////////////////////////////////////////
+  //
+  //     Functions implementing handling of other constituents
+  //
+
+  // Get the accessor for the vector of element links to the other constituents
+  static SG::AuxElement::Accessor< xAOD::IParticleLinkContainer >
+              otherPartLinksAcc( "otherPartLinks" );
+
+
+
+  void
+  CompositeParticle_v1::addOtherPart( const xAOD::IParticle* part ) {
+    // Check if we have a valid pointer
+    if ( !part ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when adding constituent!");
+    }
+    xAOD::IParticleLinkContainer& otherPartLinks = otherPartLinksAcc( *this );
+
+    // Add the given ElementLink as a constituent of this composite particle
+    const std::size_t partIdx = part->index();
+    const xAOD::IParticleContainer* partCont =
+      dynamic_cast<const xAOD::IParticleContainer*>(part->container());
+    if ( !partCont ) {
+      throw std::runtime_error( "ERROR: Could not find the container for the particle when adding constituent" );
+    }
+    otherPartLinks.push_back( IParticleLink( *partCont, partIdx ) );
+    return;
+  }
+
+
+
+  void
+  CompositeParticle_v1::addOtherPart( const IParticleLink& partLink ) {
+    // Check if we have a valid ElementLink
+    if ( ! partLink.isValid() ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got an invalid ElementLink when adding constituent!");
+    }
+    xAOD::IParticleLinkContainer& otherPartLinks = otherPartLinksAcc( *this );
+
+    // Add the given ElementLink as a constituent of this composite particle
+    otherPartLinks.push_back( partLink );
+    return;
+  }
+
+
+  void
+  CompositeParticle_v1::addOtherParts( const xAOD::IParticleLinkContainer& partLinkCont ) {
+    for ( xAOD::IParticleLinkContainer::const_iterator
+            constitItr = partLinkCont.begin(),
+            constitItrEnd = partLinkCont.end();
+          constitItr != constitItrEnd;
+          ++constitItr ) {
+      const xAOD::IParticleLink& currentLink = *constitItr;
+      this->addOtherPart( currentLink );
+    }
+    return;
+  }
+
+
+
+  void CompositeParticle_v1::removeOtherPart( const xAOD::IParticle* part ) {
+    // Check if we have a valid pointer
+    if ( !part ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when adding constituent!");
+    }
+
+    // Add the ElementLink of the given particle and pass it on
+    const std::size_t partIdx = part->index();
+    const xAOD::IParticleContainer* partCont =
+      dynamic_cast<const xAOD::IParticleContainer*>(part->container());
+    if ( !partCont ) {
+      throw std::runtime_error( "ERROR: Could not find the container for the particle when adding constituent" );
+    }
+    this->removeOtherPart( IParticleLink( *partCont, partIdx ) );
+    return;
+  }
+
+
+
+  void
+  CompositeParticle_v1::removeOtherPart( const xAOD::IParticleLink& partLink ) {
+    // Check if we have a valid ElementLink
+    if ( ! partLink.isValid() ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got an invalid ElementLink when adding constituent!");
+    }
+    xAOD::IParticleLinkContainer& otherPartLinks = otherPartLinksAcc( *this );
+
+    // Find the constituent particle that should be removed
+    for ( xAOD::IParticleLinkContainer::iterator
+            constitItr = otherPartLinks.begin(),
+            constitItrEnd = otherPartLinks.end();
+          constitItr != constitItrEnd;
+          ++constitItr ) {
+      const xAOD::IParticleLink& currentLink = *constitItr;
+      if ( partLink == currentLink ) {
+        // Remove the found link
+        otherPartLinks.erase( constitItr );
+        return;
+      }
+    }
+    return;
+  }
+
+
+
+  bool
+  CompositeParticle_v1::containsOther( const xAOD::IParticle* part ) const {
+    const xAOD::IParticleLinkContainer& otherPartLinks = this->otherPartLinks();
+    for ( xAOD::IParticleLinkContainer::const_iterator
+            constitItr = otherPartLinks.begin(),
+            constitItrEnd = otherPartLinks.end();
+          constitItr != constitItrEnd;
+          ++constitItr ) {
+      const xAOD::IParticleLink& currentLink = *constitItr;
+      if ( ! currentLink.isValid() ) continue;
+      const xAOD::IParticle* currentPart = *currentLink;
+      if ( part == currentPart ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  bool
+  CompositeParticle_v1::containsOther( const xAOD::IParticleLink& partLink ) const {
+    const xAOD::IParticleLinkContainer& otherPartLinks = this->otherPartLinks();
+    for ( xAOD::IParticleLinkContainer::const_iterator
+            constitItr = otherPartLinks.begin(),
+            constitItrEnd = otherPartLinks.end();
+          constitItr != constitItrEnd;
+          ++constitItr ) {
+      const xAOD::IParticleLink& currentLink = *constitItr;
+      if ( partLink == currentLink ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  std::size_t CompositeParticle_v1::nOtherParts() const {
+    if( otherPartLinksAcc.isAvailable( *this ) ) {
+      return otherPartLinksAcc( *this ).size();
+    }
+    return 0;
+  }
+
+
+
+// Define a pre-processor macro for the implementations of all these methods
+#define NUM_OTHERPARTS( FUNCNAME, OBJTYPE )                                                 \
+  std::size_t CompositeParticle_v1::FUNCNAME() const {                                      \
+    std::size_t n(0);                                                                       \
+    std::size_t nParts = this->nOtherParts();                                               \
+    for ( std::size_t i=0; i<nParts; ++i ) {                                                \
+      const xAOD::IParticle* part = this->otherPart(i);                                     \
+      if (!part) { throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!"); } \
+      if ( part->type() == xAOD::Type::OBJTYPE ) { n += 1; }                                \
+    }                                                                                       \
+    return n;                                                                               \
+  }
+
+  NUM_OTHERPARTS(nOtherCompParts,CompositeParticle)
+  NUM_OTHERPARTS(nOtherPhotons,Photon)
+  NUM_OTHERPARTS(nOtherElectrons,Electron)
+  NUM_OTHERPARTS(nOtherMuons,Muon)
+  NUM_OTHERPARTS(nOtherTaus,Tau)
+
+  std::size_t CompositeParticle_v1::nOtherLeptons() const {
+    return this->nOtherElectrons() + this->nOtherMuons() + this->nOtherTaus();
+  }
+
+  NUM_OTHERPARTS(nOtherJets,Jet)
+  NUM_OTHERPARTS(nOtherTruthParts,TruthParticle)
+
+
+
+
+  const xAOD::IParticle*
+  CompositeParticle_v1::otherPart( std::size_t index ) const {
+    if ( index >= this->nOtherParts() ) {
+       return 0;
+    }
+    const xAOD::IParticleLink & otherPartLink = this->otherPartLink( index );
+    if ( ! otherPartLink.isValid() ) {
+       return 0;
+    }
+    return *otherPartLink;
+  }
+
+
+  const xAOD::IParticleLink&
+  CompositeParticle_v1::otherPartLink( std::size_t index ) const {
+    if ( index >= this->nOtherParts() ) {
+       static const xAOD::IParticleLink dummy;
+       return dummy;
+    }
+    return otherPartLinks()[ index ];
+  }
+
+
+
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CompositeParticle_v1,
+                                     xAOD::IParticleLinkContainer,
+                                     otherPartLinks,
+                                     setOtherPartLinks )
+
+  // End: Functions implementing handling of other constituents
+  /////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
   void CompositeParticle_v1::toPersistent() {
-    if( constitLinksAcc.isAvailableWritable( *this ) ) {
+    if( partLinksAcc.isAvailableWritable( *this ) ) {
       for ( xAOD::IParticleLinkContainer::iterator
-              itr = constitLinksAcc( *this ).begin(),
-              itrEnd = constitLinksAcc( *this ).end();
+              itr = partLinksAcc( *this ).begin(),
+              itrEnd = partLinksAcc( *this ).end();
             itr != itrEnd;
             ++itr ) {
         itr->toPersistent();

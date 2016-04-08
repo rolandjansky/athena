@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticleAuxContainer_v1.h 637086 2014-12-19 16:02:19Z kkoeneke $
+// $Id: CompositeParticleAuxContainer_v1.h 650425 2015-02-27 16:33:21Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLEAUXCONTAINER_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLEAUXCONTAINER_V1_H
 
@@ -27,7 +27,7 @@ namespace xAOD {
   /// @author Karsten Koeneke <karsten.koeneke@cern.ch>
   ///
   /// $Revsision$
-  /// $Date: 2014-12-19 17:02:19 +0100 (Fri, 19 Dec 2014) $
+  /// $Date: 2015-02-27 17:33:21 +0100 (Fri, 27 Feb 2015) $
   ///
   class CompositeParticleAuxContainer_v1 : public AuxContainerBase {
 
@@ -56,7 +56,7 @@ namespace xAOD {
 
     /// @name Links
     /// @{
-    std::vector< xAOD::IParticleLinkContainer >            constituentLinks;
+    std::vector< xAOD::IParticleLinkContainer >            partLinks;
     std::vector< ElementLink< xAOD::MissingETContainer > > missingETLink;
     /// @}
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticle_v1.h 641075 2015-01-22 16:12:10Z kkoeneke $
+// $Id: CompositeParticle_v1.h 654497 2015-03-16 17:43:50Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 
@@ -13,10 +13,17 @@
 #include <vector>
 
 // xAOD include(s):
+#include "AthContainers/ConstDataVector.h"
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
 #include "AthLinks/ElementLink.h"
 #include "xAODMissingET/MissingET.h"
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/Photon.h"
+#include "xAODMuon/Muon.h"
+#include "xAODTau/TauJet.h"
+#include "xAODJet/Jet.h"
+#include "xAODTruth/TruthParticle.h"
 
 // Local include(s):
 #include "xAODParticleEvent/IParticleLink.h"
@@ -31,8 +38,8 @@ namespace xAOD {
   /// e.g., a Z boson that consists out of two muons.
   /// @author Karsten Koeneke <karsten.koeneke@cern.ch>
   ///
-  /// $Revision: 641075 $
-  /// $Date: 2015-01-22 17:12:10 +0100 (Thu, 22 Jan 2015) $
+  /// $Revision: 654497 $
+  /// $Date: 2015-03-16 18:43:50 +0100 (Mon, 16 Mar 2015) $
   ///
   class CompositeParticle_v1 : public IParticle {
 
@@ -118,32 +125,41 @@ namespace xAOD {
 
     /// @name Functions returning variables that are calculated from 4-momentum
     ///       information from constituents.
+    ///       The 4-momentum is calculated as the sum of 4-momenta of all the
+    ///       constituent particles whos indices are given in the vector.
+    ///       If one of the indices is -1, then missingET will also be used
+    ///       with pz=0 and E=sqrt(mpx*mpx + mpy*mpy).
     /// @{
 
-    /// Get the delta-phi between two constituents (missingET is at index=-1)
-    double deltaPhi( int constitAIdx = 0, int constitBIdx = 1 ) const;
+    /// The total 4-momentum
+    FourMom_t p4( const std::vector<int>& partIndices ) const;
 
-    /// Get the delta-eta between two constituents
-    double deltaEta( int constitAIdx = 0, int constitBIdx = 1 ) const;
 
-    /// Get the delta-reapidity between two constituents
-    double deltaRapidity( int constitAIdx = 0, int constitBIdx = 1 ) const;
+    /// The transverse momentum (\f$p_T\f$)
+    double pt( const std::vector<int>& partIndices ) const;
+    /// The pseudorapidity (\f$\eta\f$)
+    double eta( const std::vector<int>& partIndices ) const;
+    /// The azimuthal angle (\f$\phi\f$)
+    double phi( const std::vector<int>& partIndices ) const;
+    /// The invariant mass
+    double m( const std::vector<int>& partIndices ) const;
+    /// The total 3-momentum
+    double p( const std::vector<int>& partIndices ) const;
+    /// The total energy
+    double e( const std::vector<int>& partIndices ) const;
+    /// The true rapidity (y)
+    double rapidity( const std::vector<int>& partIndices ) const;
 
-    /// Get the deltaR-squared between two constituents.
-    /// Is useRapidity=true, then the true rapidity will be used. Otherwise,
-    /// the pseudorapidity eta will be used.
-    double deltaR2( int constitAIdx = 0, int constitBIdx = 1, bool useRapidity=true ) const;
+    /// Get the px momentum component
+    double px( const std::vector<int>& partIndices ) const;
+    /// Get the py momentum component
+    double py( const std::vector<int>& partIndices ) const;
+    /// Get the pz momentum component
+    double pz( const std::vector<int>& partIndices ) const;
+    /// The transverse energy (\f$e_T\f$)
+    /// Note that this differs from (\f$p_T\f$) for massive particles.
+    double et( const std::vector<int>& partIndices ) const;
 
-    /// Get the deltaR between two constituents.
-    /// Is useRapidity=true, then the true rapidity will be used. Otherwise,
-    /// the pseudorapidity eta will be used.
-    double deltaR( int constitAIdx = 0, int constitBIdx = 1, bool useRapidity=true ) const;
-
-    /// Get the delta-|\vec{p}| between two constituents
-    double deltaAbsP( int constitAIdx = 0, int constitBIdx = 1 ) const;
-
-    /// Get the delta-|\vec{p_T}| between two constituents
-    double deltaAbsPt( int constitAIdx = 0, int constitBIdx = 1 ) const;
 
 
     /// Define the enumeration of calculation methods for the transverse mass
@@ -155,9 +171,84 @@ namespace xAOD {
 
     /// Get the transverse mass.
     /// Specify which calculation method to use as an optional additional argument.
-    double mt( MT::Method method=MT::DEFAULT ) const;
+    double mt( const std::vector<int>& partIndices, MT::Method method=MT::DEFAULT ) const;
+
+
+    /// Get the transverse mass with only one constituent particle.
+    /// Specify which calculation method to use as an optional additional argument.
+    /// This specialization to the above method is needed since ROOT 6.02 doesn't
+    /// yet support C++11 in the TFormula stuff with JIT compilation, see:
+    /// https://sft.its.cern.ch/jira/browse/ROOT-5083
+    inline double mt( int partIndexA, int partIndexB=-2, MT::Method method=MT::DEFAULT ) const {
+      if ( partIndexB==-2 ) {
+        return this->mt( std::vector<int>{partIndexA}, method );
+      }
+      return this->mt( std::vector<int>{partIndexA, partIndexB}, method );
+    }
 
     /// @}
+
+
+
+
+    /// @name Functions returning variables that are calculated from
+    ///       information from constituents (not only using their 4-momenta).
+    /// @{
+
+    /// Get the weight for this @c xAOD::CompositeParticle by providing a vector of
+    /// variable names that will be looked for. These variables, if found, are
+    /// assumed to be of type float and to hold a multiplicative weight variable.
+    /// If a given variable name is not found for this @c xAOD::CompositeParticle,
+    /// then, the whole constituent tree will be searched for iteratively. The
+    /// same variable name can be found and used for several constituents. But if
+    /// a @c xAOD::CompositeParticle has that variable, the iterative search
+    /// will not look into the constituents of that @c xAOD::CompositeParticle.
+    /// The second, optional, argument is a list of indices such that one can
+    /// restrict the variable name search to only the given constituent particles.
+    float weight( const std::vector<std::string>& varNames,
+                  const std::vector<int>& partIndices={} ) const;
+
+
+    /// Get the weight for this @c xAOD::CompositeParticle.
+    /// This specialization to the above method is needed since ROOT 6.02 doesn't
+    /// yet support C++11 in the TFormula stuff with JIT compilation, see:
+    /// https://sft.its.cern.ch/jira/browse/ROOT-5083
+    inline float weight( const std::string& varNameA ) const {
+      return this->weight( std::vector<std::string>{varNameA} );
+    }
+    inline float weight( const std::string& varNameA,
+                         const std::string& varNameB ) const {
+      return this->weight( std::vector<std::string>{varNameA,varNameB} );
+    }
+    inline float weight( const std::string& varNameA,
+                         const std::string& varNameB,
+                         const std::string& varNameC ) const {
+      return this->weight( std::vector<std::string>{varNameA,varNameB,varNameC} );
+    }
+    inline float weight( const std::string& varNameA,
+                         const std::string& varNameB,
+                         const std::string& varNameC,
+                         const std::string& varNameD ) const {
+      return this->weight( std::vector<std::string>{varNameA,varNameB,varNameC,varNameD} );
+    }
+    inline float weight( const std::string& varNameA,
+                         const std::string& varNameB,
+                         const std::string& varNameC,
+                         const std::string& varNameD,
+                         const std::string& varNameE ) const {
+      return this->weight( std::vector<std::string>{varNameA,varNameB,varNameC,varNameD,varNameE} );
+    }
+
+
+  private:
+    /// This is a private helper method to calculate the weight
+    float weightHelper( const xAOD::IParticle* part,
+                        const xAOD::IParticle::ConstAccessor<float>& varAcc ) const;
+
+  public:
+    /// @}
+
+
 
 
     /// @name Functions implementing handling of constituents
@@ -166,20 +257,18 @@ namespace xAOD {
     /// @brief Add a particle as an additional constituent.
     ///        Note that the 4-momentum of this CompositeParticle
     ///        will be updated accordingly, if updateFourMom=true.
-    void addConstituent( const xAOD::IParticle* part,
-                         bool updateFourMom=true );
+    void addPart( const xAOD::IParticle* part, bool updateFourMom=true );
 
     /// @brief Add a particle as an additional constituent.
     ///        Note that the 4-momentum of this CompositeParticle
     ///        will be updated accordingly, if updateFourMom=true.
-    void addConstituent( const xAOD::IParticleLink& partLink,
-                         bool updateFourMom=true );
+    void addPart( const xAOD::IParticleLink& partLink, bool updateFourMom=true );
 
     /// @brief Add many constituents at the same time
     ///        Note that the 4-momentum of this CompositeParticle
     ///        will be updated accordingly, if updateFourMom=true.
-    void addConstituents( const xAOD::IParticleLinkContainer& partLinkCont,
-                          bool updateFourMom=true );
+    void addParts( const xAOD::IParticleLinkContainer& partLinkCont,
+                   bool updateFourMom=true );
 
     /// @brief Remove a particle as a constituent from this
     ///        CompostiteParticle.
@@ -187,8 +276,7 @@ namespace xAOD {
     ///        will be updated accordingly, if updateFourMom=true.
     ///        If the given IParticle is not already a constituent
     ///        of this CompositeParticle, nothing happens
-    void removeConstituent( const xAOD::IParticle* part,
-                            bool updateFourMom=true );
+    void removePart( const xAOD::IParticle* part, bool updateFourMom=true );
 
     /// @brief Remove a particle as a constituent from this
     ///        CompostiteParticle.
@@ -196,8 +284,7 @@ namespace xAOD {
     ///        will be updated accordingly, if updateFourMom=true.
     ///        If the given IParticle is not already a constituent
     ///        of this CompositeParticle, nothing happens
-    void removeConstituent( const xAOD::IParticleLink& partLink,
-                            bool updateFourMom=true );
+    void removePart( const xAOD::IParticleLink& partLink, bool updateFourMom=true );
 
 
 
@@ -227,36 +314,261 @@ namespace xAOD {
 
     /// Number of constituent particles.
     /// Note that MissingET is NOT counted as a constituent in this context
-    std::size_t nConstituents() const;
-
-    /// Number of constituent particles (same as above).
     std::size_t nParts() const;
 
-    /// Get the constituent IParticle number i
-    const xAOD::IParticle* constituent( std::size_t index = 0 ) const;
+    /// Number of constituent CompositeParticles.
+    std::size_t nCompParts() const;
 
-    /// Get the constituent IParticle number i (same as above)
+    /// Number of constituent photons.
+    std::size_t nPhotons() const;
+
+    /// Number of constituent electrons.
+    std::size_t nElectrons() const;
+
+    /// Number of constituent muons.
+    std::size_t nMuons() const;
+
+    /// Number of constituent taus.
+    std::size_t nTaus() const;
+
+    /// Number of constituent leptons (electrons, muons, and taus).
+    std::size_t nLeptons() const;
+
+    /// Number of constituent jets.
+    std::size_t nJets() const;
+
+    /// Number of constituent xAOD::TruthParticles.
+    std::size_t nTruthParts() const;
+
+
+    /// Get the constituent IParticle number i
     const xAOD::IParticle* part( std::size_t index = 0 ) const;
+
+    /// Get the constituent IParticle number i as an ElementLink
+    const xAOD::IParticleLink& partLink( std::size_t index = 0 ) const;
+
+    /// Get all constituents in one go
+    const xAOD::IParticleLinkContainer& partLinks() const;
+
+
+    /// Method to return a DataVector<T>, e.g., a MuonContainer, for all the
+    /// constituent particles, e.g., of type xAOD::Muon, that this CompositeParticle
+    /// has. This DataVector be a simple SG::VIEW_ELEMENTS container, i.e., it
+    /// does NOT own the elements, e.g., muons, but has simple pointers to them.
+    /// However, the user is still required to take care of its memory management
+    /// by either recording it to StoreGate (and thus transfering ownership), or
+    /// by deleting this view-container when done with it.
+    template<typename CONTTYPE>
+    ConstDataVector<CONTTYPE>* parts( ) const;
+
+
+
+    /// Get a CompositeParticle that is build on the fly from the constituent
+    /// particles associated to the indices given (missingET is at index=-1).
+    /// If the second list of idices is given, also the "other" particles will
+    /// be used in building this CompositeParticle.
+    xAOD::CompositeParticle_v1* compPart( const std::vector<int>& partIndices,
+                                          const std::vector<int>& otherPartIndices=std::vector<int>{},
+                                          bool updateFourMom=true ) const;
+
+
+    /// Get a CompositeParticle that is build on the fly from the constituent
+    /// particles associated to the indices given (missingET is at index=-1).
+    /// This specialization to the above method is needed since ROOT 6.02 doesn't
+    /// yet support C++11 in the TFormula stuff with JIT compilation, see:
+    /// https://sft.its.cern.ch/jira/browse/ROOT-5083
+    xAOD::CompositeParticle_v1* compPart( int partIndexA, int partIndexB, int partIndexC=-2,
+                                          bool updateFourMom=true ) const {
+      if ( partIndexC==-2 ) {
+        return this->compPart( std::vector<int>{partIndexA, partIndexB}, std::vector<int>{}, updateFourMom );
+      }
+      return this->compPart( std::vector<int>{partIndexA, partIndexB, partIndexC}, std::vector<int>{}, updateFourMom );
+    }
+
 
     /// Get the constituent number i as a CompositeParticle.
     /// If the cast to CompositeParticle fails for a constituent, a null pointer is returned.
     const xAOD::CompositeParticle_v1* compPart( std::size_t index = 0 ) const;
 
-    /// Get the constituent IParticle number i as an ElementLink
-    const xAOD::IParticleLink& constituentLink( std::size_t index = 0 ) const;
+    /// Get the constituent number i as a Photon.
+    /// If the cast to Photon fails for a constituent, a null pointer is returned.
+    const xAOD::Photon* photon( std::size_t index = 0 ) const;
 
-    /// Get all constituents in one go
-    const xAOD::IParticleLinkContainer& constituentLinks() const;
+    /// Get the constituent number i as an Electron.
+    /// If the cast to Electron fails for a constituent, a null pointer is returned.
+    const xAOD::Electron* electron( std::size_t index = 0 ) const;
+
+    /// Get the constituent number i as an Muon.
+    /// If the cast to Muon fails for a constituent, a null pointer is returned.
+    const xAOD::Muon* muon( std::size_t index = 0 ) const;
+
+    /// Get the constituent number i as a tau.
+    /// If the cast to tau fails for a constituent, a null pointer is returned.
+    const xAOD::TauJet* tau( std::size_t index = 0 ) const;
+
+    /// Get the constituent number i as a Jet.
+    /// If the cast to Jet fails for a constituent, a null pointer is returned.
+    const xAOD::Jet* jet( std::size_t index = 0 ) const;
+
+    /// Get the constituent number i as a TruthParticle.
+    /// If the cast to TruthParticle fails for a constituent, a null pointer is returned.
+    const xAOD::TruthParticle* truthPart( std::size_t index = 0 ) const;
 
     /// The constituent iterators are missing for the moment
 
+    /// @}
+
+
+
+    /// @name Functions implementing handling of other constituents. These
+    ///       other particles are stored separetely from the main constituent
+    ///       particles. They will NOT be used to determine the four-momentum
+    ///       of this CompositeParticle. And they will NOT be used for determining
+    ///       the weight (and other properties) of this CompositeParticle.
+    ///       The main idea is that these other particles can be used for keeping
+    ///       track of, e.g., a third lepton to veto on, or sub-threshold jets.
+    /// @{
+
+    /// @brief Add a particle as an additional other constituent.
+    void addOtherPart( const xAOD::IParticle* part );
+
+    /// @brief Add a particle as an additional other constituent.
+    void addOtherPart( const xAOD::IParticleLink& partLink );
+
+    /// @brief Add many other constituents at the same time
+    void addOtherParts( const xAOD::IParticleLinkContainer& partLinkCont );
+
+
+    /// @brief Remove a particle as an other constituent from this
+    ///        CompostiteParticle.
+    void removeOtherPart( const xAOD::IParticle* part );
+
+    /// @brief Remove a particle as an other constituent from this
+    ///        CompostiteParticle.
+    void removeOtherPart( const xAOD::IParticleLink& partLink );
+
+
+
+    /// Check if a given xAOD::IParticle is an other constituent
+    bool containsOther( const xAOD::IParticle* part         ) const;
+    /// Check if a given xAOD::IParticle is an other constituent
+    bool containsOther( const xAOD::IParticleLink& partLink ) const;
+
+
+    /// Number of other constituent particles.
+    std::size_t nOtherParts() const;
+
+    /// Number of other constituent CompositeParticles.
+    std::size_t nOtherCompParts() const;
+
+    /// Number of other constituent photons.
+    std::size_t nOtherPhotons() const;
+
+    /// Number of other constituent electrons.
+    std::size_t nOtherElectrons() const;
+
+    /// Number of other constituent muons.
+    std::size_t nOtherMuons() const;
+
+    /// Number of other constituent taus.
+    std::size_t nOtherTaus() const;
+
+    /// Number of other constituent leptons (electrons, muons, and taus).
+    std::size_t nOtherLeptons() const;
+
+    /// Number of other constituent jets.
+    std::size_t nOtherJets() const;
+
+    /// Number of other constituent xAOD::TruthParticles.
+    std::size_t nOtherTruthParts() const;
+
+
+    /// Get the other constituent IParticle number i
+    const xAOD::IParticle* otherPart( std::size_t index = 0 ) const;
+
+    /// Get the other constituent IParticle number i as an ElementLink
+    const xAOD::IParticleLink& otherPartLink( std::size_t index = 0 ) const;
+
+    /// Get all other constituents in one go
+    const xAOD::IParticleLinkContainer& otherPartLinks() const;
+
+
+    /// Get the other constituent number i as a CompositeParticle.
+    /// If the cast to CompositeParticle fails for a constituent, a null pointer is returned.
+    const xAOD::CompositeParticle_v1* otherCompPart( std::size_t index = 0 ) const;
+
+    /// Get the other constituent number i as a Photon.
+    /// If the cast to Photon fails for a constituent, a null pointer is returned.
+    const xAOD::Photon* otherPhoton( std::size_t index = 0 ) const;
+
+    /// Get the other constituent number i as an Electron.
+    /// If the cast to Electron fails for a constituent, a null pointer is returned.
+    const xAOD::Electron* otherElectron( std::size_t index = 0 ) const;
+
+    /// Get the other constituent number i as an Muon.
+    /// If the cast to Muon fails for a constituent, a null pointer is returned.
+    const xAOD::Muon* otherMuon( std::size_t index = 0 ) const;
+
+    /// Get the other constituent number i as a tau.
+    /// If the cast to tau fails for a constituent, a null pointer is returned.
+    const xAOD::TauJet* otherTau( std::size_t index = 0 ) const;
+
+    /// Get the other constituent number i as a Jet.
+    /// If the cast to Jet fails for a constituent, a null pointer is returned.
+    const xAOD::Jet* otherJet( std::size_t index = 0 ) const;
+
+    /// Get the other constituent number i as a TruthParticle.
+    /// If the cast to TruthParticle fails for a constituent, a null pointer is returned.
+    const xAOD::TruthParticle* otherTruthPart( std::size_t index = 0 ) const;
+
+    /// The constituent iterators are missing for the moment
+
+    /// @}
+
+
+    /// @name Functions implementing read-only access to auxdata (for python).
+    ///       This specialization is needed since ROOT 6.02 doesn't
+    ///       yet support C++11 in the TFormula stuff with JIT compilation, see:
+    ///       https://sft.its.cern.ch/jira/browse/ROOT-5083
+    /// @{
+
+    /// Access to get a variable of type bool (actually, it is stored using type char)
+    inline bool getBool( const std::string& varName ) const {
+      return static_cast<bool>( this->auxdata<char>(varName) );
+    }
+
+    /// Access to get a variable of type int
+    inline int getInt( const std::string& varName ) const {
+      return this->auxdata<int>(varName);
+    }
+
+    /// Access to get a variable of type unsigned int
+    inline unsigned int getUInt( const std::string& varName ) const {
+      return this->auxdata<unsigned int>(varName);
+    }
+
+    /// Access to get a variable of type float
+    inline float getFloat( const std::string& varName ) const {
+      return this->auxdata<float>(varName);
+    }
+
+    /// Access to get a variable of type double
+    inline double getDouble( const std::string& varName ) const {
+      return this->auxdata<double>(varName);
+    }
+
+
+    /// @}
 
 
   protected:
     /// @brief Set all constituents in one go.
     ///        Warning: This is meant for usage internal to this class only
     ///        because no addition of the constituent properties will be done!
-    void setConstituentLinks( const xAOD::IParticleLinkContainer& constitLinks );
+    void setPartLinks( const xAOD::IParticleLinkContainer& constitLinks );
+
+    /// @brief Set all other constituents in one go.
+    void setOtherPartLinks( const xAOD::IParticleLinkContainer& otherPartLinks );
 
 
   public:
@@ -279,30 +591,144 @@ namespace xAOD {
 
 // Inline methods
 inline
-std::size_t
-xAOD::CompositeParticle_v1::nParts() const
-{
-  return this->nConstituents();
-}
-
-
-inline
-const xAOD::IParticle*
-xAOD::CompositeParticle_v1::part( std::size_t index ) const
-{
-  return this->constituent(index);
-}
-
-
-inline
 const xAOD::CompositeParticle_v1*
 xAOD::CompositeParticle_v1::compPart( std::size_t index ) const
 {
-  const xAOD::IParticle* ipart = this->constituent(index);
+  const xAOD::IParticle* ipart = this->part(index);
   if ( ipart->type() != xAOD::Type::CompositeParticle ){ return 0; }
   return static_cast<const xAOD::CompositeParticle_v1*>(ipart);
 }
 
+
+inline
+const xAOD::Photon*
+xAOD::CompositeParticle_v1::photon( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->part(index);
+  if ( ipart->type() != xAOD::Type::Photon ){ return 0; }
+  return static_cast<const xAOD::Photon*>(ipart);
+}
+
+
+inline
+const xAOD::Electron*
+xAOD::CompositeParticle_v1::electron( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->part(index);
+  if ( ipart->type() != xAOD::Type::Electron ){ return 0; }
+  return static_cast<const xAOD::Electron*>(ipart);
+}
+
+
+inline
+const xAOD::Muon*
+xAOD::CompositeParticle_v1::muon( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->part(index);
+  if ( ipart->type() != xAOD::Type::Muon ){ return 0; }
+  return static_cast<const xAOD::Muon*>(ipart);
+}
+
+
+inline
+const xAOD::TauJet*
+xAOD::CompositeParticle_v1::tau( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->part(index);
+  if ( ipart->type() != xAOD::Type::Tau ){ return 0; }
+  return static_cast<const xAOD::TauJet*>(ipart);
+}
+
+
+inline
+const xAOD::Jet*
+xAOD::CompositeParticle_v1::jet( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->part(index);
+  if ( ipart->type() != xAOD::Type::Jet ){ return 0; }
+  return static_cast<const xAOD::Jet*>(ipart);
+}
+
+
+inline
+const xAOD::TruthParticle*
+xAOD::CompositeParticle_v1::truthPart( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->part(index);
+  if ( ipart->type() != xAOD::Type::TruthParticle ){ return 0; }
+  return static_cast<const xAOD::TruthParticle*>(ipart);
+}
+
+
+
+inline
+const xAOD::CompositeParticle_v1*
+xAOD::CompositeParticle_v1::otherCompPart( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->otherPart(index);
+  if ( ipart->type() != xAOD::Type::CompositeParticle ){ return 0; }
+  return static_cast<const xAOD::CompositeParticle_v1*>(ipart);
+}
+
+
+inline
+const xAOD::Photon*
+xAOD::CompositeParticle_v1::otherPhoton( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->otherPart(index);
+  if ( ipart->type() != xAOD::Type::Photon ){ return 0; }
+  return static_cast<const xAOD::Photon*>(ipart);
+}
+
+
+inline
+const xAOD::Electron*
+xAOD::CompositeParticle_v1::otherElectron( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->otherPart(index);
+  if ( ipart->type() != xAOD::Type::Electron ){ return 0; }
+  return static_cast<const xAOD::Electron*>(ipart);
+}
+
+
+inline
+const xAOD::Muon*
+xAOD::CompositeParticle_v1::otherMuon( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->otherPart(index);
+  if ( ipart->type() != xAOD::Type::Muon ){ return 0; }
+  return static_cast<const xAOD::Muon*>(ipart);
+}
+
+
+inline
+const xAOD::TauJet*
+xAOD::CompositeParticle_v1::otherTau( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->otherPart(index);
+  if ( ipart->type() != xAOD::Type::Tau ){ return 0; }
+  return static_cast<const xAOD::TauJet*>(ipart);
+}
+
+
+inline
+const xAOD::Jet*
+xAOD::CompositeParticle_v1::otherJet( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->otherPart(index);
+  if ( ipart->type() != xAOD::Type::Jet ){ return 0; }
+  return static_cast<const xAOD::Jet*>(ipart);
+}
+
+
+inline
+const xAOD::TruthParticle*
+xAOD::CompositeParticle_v1::otherTruthPart( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->otherPart(index);
+  if ( ipart->type() != xAOD::Type::TruthParticle ){ return 0; }
+  return static_cast<const xAOD::TruthParticle*>(ipart);
+}
 
 
 

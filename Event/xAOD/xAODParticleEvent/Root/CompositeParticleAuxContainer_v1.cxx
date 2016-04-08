@@ -20,7 +20,7 @@ namespace xAOD {
     AUX_VARIABLE( charge );
     AUX_VARIABLE( pdgId );
 
-    AUX_VARIABLE( constituentLinks );
+    AUX_VARIABLE( partLinks );
     AUX_VARIABLE( missingETLink );
 
   }

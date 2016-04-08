@@ -4,9 +4,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODParticleEventDict.h 637086 2014-12-19 16:02:19Z kkoeneke $
+// $Id: xAODParticleEventDict.h 649922 2015-02-26 12:20:50Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_XAODPARTICLEEVENTDICT_H
 #define XAODPARTICLEEVENT_XAODPARTICLEEVENTDICT_H
+
+// Needed to successfully generate the dictionary in standalone mode:
+#if defined(__GCCXML__) and not defined(EIGEN_DONT_VECTORIZE)
+#   define EIGEN_DONT_VECTORIZE
+#endif // __GCCXML__
 
 
 // STL
