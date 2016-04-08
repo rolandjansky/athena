@@ -90,7 +90,7 @@ pattern sercnv \
   macro        <package><libtag>SerCnv_shlibflags      "$(componentshr_linkopts) -L$(bin) $(use_linkopts) $(use_dict_linkopts) " ; \
   macro        dummy_for_library                "<library>" ; \
   macro_append <package>_named_libraries        " <package><libtag>SerCnv " ; \
-  apply_pattern generate_rootmap library=<package><libtag>SerCnv group=<group> ; \
+  apply_pattern generate_componentslist library=<package><libtag>SerCnv group=<group> ; \
   macro_append <package>_joboptions ' -s=../sercnv<libtag> *.py ' ; \
   macro_append install_pool_joboptions_dependencies " <package><libtag>SerCnv" ; \
   document data_installer install_pool_joboptions prefix=jobOptions "-s=../sercnv<libtag> *.py"
