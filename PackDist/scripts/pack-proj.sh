@@ -407,6 +407,54 @@ cd $OLDPWD || { error "cd" $FUNCNAME; return 1; }
 rm -f $tmppltfms || return 0
 }
 
+_prep_extern_debuginfo_list ()
+{
+#
+# Parameters: 'project-release-directory' 'project' 'release' 'exps-file'
+#                                                                         'debuginfo-file'
+#
+[ $# -eq 5 ] || { error "Wrong number of arguments: $#" $FUNCNAME; return 1; }
+
+local tmpptns=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; return 1; }
+awk '
+BEGIN { FS = "\0" }
+{ if ($3 != "") sfxs[$3] = 1 }
+END { for (sfx in sfxs) print "*"sfx }
+' "$4" <&- >> $tmpptns || { error "awk" $FUNCNAME; return 1; }
+
+[ -s $tmpptns ] || { >| $5; return 0; }
+
+local _expr
+_expr="${noleaf:+-noleaf} $(_gen_expr $tmpptns) -fprint $5" || return 1
+
+cd $1/${cntnr[1]}${cntnr[0]}/${verdir}cmt || { error "cd" $FUNCNAME; return 1; }
+local installarea_prefix
+installarea_prefix=$(cmt show macro_value ${2}_installarea_prefix) || { error "cmt" $FUNCNAME; return 1; }
+cd $OLDPWD || { error "cd" $FUNCNAME; return 1; }
+
+cd $(dirname $(dirname $1)) || { error "cd" $FUNCNAME; return 1; }
+local projdir
+if [ $2 == AtlasRelease ]; then
+#    projdir=dist
+    projdir=$(basename $(dirname $1))
+else
+    projdir=$2
+fi
+set -f
+    find ${projdir}/$3/${installarea_prefix} $_expr || { error "find" $FUNCNAME; return 1; }
+set +f
+cd $OLDPWD || { error "cd" $FUNCNAME; return 1; }
+
+[ -s $5 ] || info "No extern_debuginfo: $1 $2 $3" $FUNCNAME
+
+if [ "$PACKPROJDEBUG" ]; then
+    echo "extern_debuginfo:" >&2
+    cat $5 >&2
+fi
+
+rm -f $tmpptns || return 0
+}
+
 _clean ()
 {
 #
@@ -541,10 +589,22 @@ cd $OLDPWD || { error "cd" $FUNCNAME; return 1; }
 _symlinks ()
 {
 #
-# Parameters: 'project-release-directory' 'project' 'release' ['exps-file']
+# Usage: _symlinks [OPTION]... 'project-release-directory' 'project' 'release' ['exps-file']
 #
+#  -I   relink  symbolic links to external debuginfo files
+#
+local debuginfo
+OPTIND=1
+while getopts "I" opt; do
+    case $opt in
+	I) debuginfo=yes ;;
+	\?) error "Invalid option: -${OPTARG}" $FUNCNAME; return 1 ;;
+	:) error "Argument required for option: -${OPTARG}" $FUNCNAME; return 1 ;;
+    esac
+done
+
+shift $(($OPTIND - 1))
 [ $# -eq 3 -o $# -eq 4 ] || { error "Wrong number of arguments: $#" $FUNCNAME; return 1; }
-#[ $# -eq 3 ] || { error "Wrong number of arguments: $#" $FUNCNAME; return 1; }
 local tmperr=$(mktemp -t tmp.XXXXXXXXXX) || return 1
 local projdir
 
@@ -557,7 +617,7 @@ fi
 
 [ -d $tmpdir/${projdir}/$3 ] || return 0
 
-$scriptdir/relink.py -S $1 -H ${projdir}/$3 ${4:+-X ${4}} $tmpdir/${projdir}/$3 >/dev/null 2>|$tmperr ||
+$scriptdir/relink.py -S $1 -H ${projdir}/$3 ${4:+-X ${4}} ${debuginfo:+-I} $tmpdir/${projdir}/$3 >/dev/null 2>|$tmperr ||
 { [ -s $tmperr ] && cat $tmperr >&2
 error "$scriptdir/relink.py" $FUNCNAME; return 1; }
 
@@ -1168,9 +1228,10 @@ _requires ()
 #                                                             (bin src doc noarch debuginfo)
 #                                                                  'container'
 #                                                             (container-name [access-path])
-#                                                                      ['exps-file']
+#                                                                      ['exps-file'
+#                                                                          ['binreq-file']]
 #
-[ $# -eq 5 -o $# -eq 6 ] || { error "Wrong number of arguments: $#" $FUNCNAME; return 1; }
+[ $# -eq 5 -o $# -eq 6 -o $# -eq 7 ] || { error "Wrong number of arguments: $#" $FUNCNAME; return 1; }
 #[ $# -eq 4 -o $# -eq 5 ] || { error "Wrong number of arguments: $#" $FUNCNAME; return 1; }
 local name cmtverfile cmtver
 local -a proj
@@ -1263,6 +1324,14 @@ fi
 
 elif [ $4 == src ]; then
     echo $(_mkname $2 $3 noarch) $2 $3
+
+elif [ $4 == debuginfo ]; then
+    if [ $# -eq 7 ]; then
+awk '
+{ if (NF == 4) print $4, $2, $3 }
+' "$7" <&- || { error "awk" $FUNCNAME; return 1; }
+    fi
+
 fi
 }
 
@@ -1303,7 +1372,6 @@ else
 fi
 
 cd $1/${cntnr[1]}${cntnr[0]}/${verdir}cmt || { error "cd" $FUNCNAME; return 1; }
-
 info "`date`\tdirectory:\n`pwd`" $FUNCNAME
 
 #    cmd="externcache=${externcache} patchdir=${patchdir} overwrite=${overwrite} tmppatch=${tmppatch} cmt -quiet broadcast ${selected:+-select='${selected}'} - ${scriptdir}/pack-extern.sh"
@@ -1326,7 +1394,7 @@ info "`date`\tdirectory:\n`pwd`" $FUNCNAME
 #     [ $retval -eq 0 ] && cat $tmpout | grep -v '^#'
 
 #info "`date`" $FUNCNAME
-cd $OLDPWD
+cd $OLDPWD || { error "cd" $FUNCNAME; return 1; }
 rm -f $tmpout
 return $retval
 }
@@ -1473,9 +1541,11 @@ ${tmpbin} ${tmpsrc} ${tmpdoc} ${tmpnoarch} \
 ${tmpdirs} ${tmpdebuginfo} || return 1
 
 local tmpreq=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; return 1; }
+local tmpreqbin=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; return 1; }
 
 if [ "${relocate:-}" = yes ]; then
     local tmpexps=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; return 1; }
+    local tmpexterndebuginfo=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; return 1; }
 fi
 
 local tmppre=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; return 1; }
@@ -1486,16 +1556,33 @@ local tmppreun=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; return
 local pltfm name cmtver
 local -a cntnr
 local verdir
+local do_debuginfo
 
-#if [ -s "$4" ]; then requires=$4; else requires=${tmpreq}; fi
+if [ "${debuginfo}" = yes ] && [ -n "${debuginfosuffix:-}" ] && [ "${mode:-}" != dbg ]; then
+    do_debuginfo=yes
+else
+    unset do_debuginfo
+fi
 
 for pltfm in bin src doc noarch debuginfo; do
-    [ ${pltfm} == doc -a "${docfiles}" != yes ] && continue
-    [ ${pltfm} = debuginfo ] && [ "${debuginfo}" != yes -o "${mode:-}" = dbg ] && continue
-    name=$(_mkname ${2} ${3} ${pltfm}) || return 1
-    [ ${pltfm} == bin ] && echo $name $2 $3
+    [ ${pltfm} = doc ] && [ "${docfiles}" != yes ] && continue
+    [ ${pltfm} = debuginfo ] && [ "${do_debuginfo:-}" != yes ] && continue
 
-    _requires ${1} ${2} ${3} ${pltfm} "${4:-}" ${tmpexps:-} >|${tmpreq} || return 1
+    name=$(_mkname ${2} ${3} ${pltfm}) || return 1
+
+    if [ ${pltfm} = bin ]; then
+	echo $name $2 $3
+    fi
+
+    if [ ${pltfm} != debuginfo ]; then
+	_requires ${1} ${2} ${3} ${pltfm} "${4:-}" ${tmpexps:-} >|${tmpreq} || return 1
+    else
+	_requires ${1} ${2} ${3} ${pltfm} "${4:-}" "${tmpexps:-}" $tmpreqbin >|${tmpreq} || return 1
+    fi
+    if [ ${pltfm} = bin ] && [ "${do_debuginfo:-}" = yes ]; then
+	cat $tmpreq >>$tmpreqbin || { error "cat" $FUNCNAME; return 1; }
+    fi
+
 #    _requires ${1} ${2} ${3} ${pltfm} ${4:+"$4"} >|${tmpreq} || return 1
 #if [ -f "${tmpexps:-}" ]; then
 #    cat ${tmpexps:-} >&2 || { error "cat" $FUNCNAME; return 1; }
@@ -1504,6 +1591,10 @@ for pltfm in bin src doc noarch debuginfo; do
 #     if [ -f ${projcache}/kits/$name.tar.gz -a "${upgrade}" != yes ]; then
 # 	info "Existing ${projcache}/kits/$name.tar.gz will not be overwritten" $FUNCNAME
 #     else
+    if [ ${pltfm} = debuginfo ] && [ -f "${tmpexps:-}" ]; then
+	_prep_extern_debuginfo_list ${1} ${2} ${3} "${tmpexps:-}" ${tmpexterndebuginfo} || return 1
+    fi
+
     if [ -f ${projcache}/cache/$name.pacman -a "${upgrade}" != yes ]; then
 	info "Existing ${projcache}/cache/$name.pacman will not be overwritten" $FUNCNAME
 	if [ "${verify}" == yes ]; then
@@ -1521,6 +1612,8 @@ for pltfm in bin src doc noarch debuginfo; do
 	if [ ${pltfm} = bin ]; then
 	    eval _copy -X ${tmpdebuginfo} ${1} ${2} ${3} \${tmp${pltfm}} || return 1
 #	    eval _copy -x \\*${debuginfosuffix} ${1} ${2} ${3} \${tmp${pltfm}} || return 1
+	elif [ ${pltfm} = debuginfo ]; then
+	    eval _copy ${1} ${2} ${3} \${tmp${pltfm}} ${tmpexterndebuginfo} || return 1
 	else
 	    eval _copy ${1} ${2} ${3} \${tmp${pltfm}} || return 1
 	fi
@@ -1528,24 +1621,23 @@ for pltfm in bin src doc noarch debuginfo; do
 	    _install_dirs ${tmpdirs} || return 1
 # 	    _copy -n ${1} ${2} ${3} ${tmpdirs} || return 1
 	fi
-	_symlinks  ${1} ${2} ${3} ${tmpexps:-} || return 1
-#	_symlinks  ${1} ${2} ${3} || return 1
+	if [ ${pltfm} = debuginfo ] || [ "${mode:-}" = dbg ]; then
+	    _symlinks -I ${1} ${2} ${3} ${tmpexps:-} || return 1
+	else
+	    _symlinks ${1} ${2} ${3} ${tmpexps:-} || return 1
+	fi
 	_tar ${2} ${3} ${name} || return 1
 	if [ ${pltfm} == noarch ]; then
 	    _patch ${2} ${3} ${name} || return 1
 	fi
-#	_requires ${1} ${2} ${3} ${pltfm} ${4:+"$4"} >|${tmpreq}
+
 	if [ ${pltfm} == bin ]; then
-	    #_requires ${1} ${2} ${3} ${pltfm} >>$requires
             # need assign the right value to cmtver
-	    cmtver=$(awk '$2 == "CMT" { print $3; exit }' ${tmpreq}) || return 1
-	    #cmtver=$(awk '$2 == "CMT" { print $3; exit }' $requires) || return 1
+	    cmtver=$(awk '$2 == "CMT" { print $3; exit }' ${tmpreq}) || { error "awk" $FUNCNAME; return 1; }
 	    _pre ${1} ${2} ${3} >|${tmppre} || return 1
 	    _post ${1} ${2} ${3} >|${tmppost} || return 1
 	    _pacman ${name} ${tmpreq} ${tmppost} ${tmppre} || return 1
-	    #_pacman ${name} ${requires} ${tmppost} ${tmppre}
 	else
-	    #_requires ${1} ${2} ${3} ${pltfm} >|${tmpreq}
 	    _pacman ${name} ${tmpreq} || return 1
 	fi
     fi
@@ -1553,7 +1645,8 @@ for pltfm in bin src doc noarch debuginfo; do
 done
 rm -f ${tmpbin} ${tmpsrc} ${tmpdoc} ${tmpnoarch} \
 ${tmpdirs} ${tmpdebuginfo} \
-${tmpreq} ${tmpexps:-} ${tmppost} ${tmppre} ${tmppreun} || return 0
+${tmpreq} ${tmpexps:-} ${tmppost} ${tmppre} ${tmppreun} \
+${tmpreqbin} ${tmpexterndebuginfo} || return 0
 }
 
 ##################################### main ##########################################

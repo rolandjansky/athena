@@ -94,16 +94,16 @@ _mkname ()
 {
 #
 # Parameters: 'package' 'version' ['platform']
+#                                 (bin noarch debuginfo)
 #
 [ $# -eq 2 -o $# -eq 3 ] || { error "Wrong number of arguments: $#" $FUNCNAME; return 1; }
 
-#if [ "$3" == bin -o -z "$3" ]; then
-
 if [ $# -eq 2 -o "$3" == bin ]; then
-    sed -e 's/[-.]/_/g' -e "s/${1}_${1}/${1}/" <<<${1}_${2}_${CMTCONFIG}
+    sed -e 's/[-.]/_/g' -e "s/${1}_${1}/${1}/" <<<${1}_${2}_${CMTCONFIG} || { error "sed" $FUNCNAME; return 1; }
+elif [ $3 = debuginfo ]; then
+    sed -e 's/[-.]/_/g' -e "s/${1}_${1}/${1}/" <<<${1}_${2}_${CMTCONFIG}_debuginfo || { error "sed" $FUNCNAME; return 1; }
 else
-    sed -e 's/[-.]/_/g' -e "s/${1}_${1}/${1}/" <<<${1}_${2}_${3}
-    #sed 's/[-.]/_/g' <<<${1}_${2}_${3}
+    sed -e 's/[-.]/_/g' -e "s/${1}_${1}/${1}/" <<<${1}_${2}_${3} || { error "sed" $FUNCNAME; return 1; }
 fi
 }
 
@@ -112,6 +112,11 @@ _bad_symlinks ()
 #
 # Parameters: [FILE...]
 # Print on the standard output broken symlinks paths (format: 'path:' 'error message')
+# The error message format is different at least with find (GNU findutils) 4.4.2 (SLC6),
+# e.g,
+# find: File system loop detected; `dst/l_cur' is part of the same file system loop as `dst'.
+
+# better not to rely on it
 #
 find "$@" -follow 2>&1 >/dev/null | sed 's/^find:[ ]*//'
 # -L option is not supported by GNU find version 4.1.20 (SL4)
@@ -169,6 +174,7 @@ _tar_extern ()
 #
 # Parameters: 'name'
 #
+[ $# -eq 1 ] || { error "Wrong number of arguments: $#" $FUNCNAME; return 1; }
 
 local n=${#src[*]}
 [ $n -gt 0 ] || return 0
@@ -193,8 +199,12 @@ local fpath=${externcache}/kits/${1}.tar
 ${tar_cmd} ${tar_basic_opts} -cf ${fpath} -T /dev/null 1>&2 ||
 { error "${tar_cmd}" $FUNCNAME; return 1; }
 
+local empty_sum=$(sha1sum ${fpath}) || { error "sha1sum" $FUNCNAME; return 1; }
+
 cd ${tempcopydir} || { error "cd" $FUNCNAME; return 1; }
 #local n=${#src[*]}
+
+[ "${mode:-}" != dbg ] || unset debuginfo_suffix
 
 for (( i=0 ; i!=n ; i++ )) ; do
     #s=$(echo ${src[$i]} | sed 's#/\+$##')
@@ -218,7 +228,9 @@ for (( i=0 ; i!=n ; i++ )) ; do
 	    fi
 
 	    ${tar_cmd} ${tar_basic_opts} -hrf ${fpath} \
-		-X $scriptdir/extern-junk.ptn ${exclude_objfiles:+--exclude='*.o'} -X $tmperr \
+		-X $tmperr \
+		-X $scriptdir/extern-junk.ptn ${exclude_objfiles:+--exclude='*.o'} \
+		${debuginfo_suffix:+--exclude='*'${debuginfo_suffix}} \
 		$d 1>&2 || { error "${tar_cmd}" $FUNCNAME; continue; }
 
 	    rm -f $tmperr
@@ -228,10 +240,12 @@ for (( i=0 ; i!=n ; i++ )) ; do
 	    ln -sf $s $d || { error "ln" $FUNCNAME; continue; }
 	    ${tar_cmd} ${tar_basic_opts} --no-recursion -hrf ${fpath} \
 		-X $scriptdir/extern-junk.ptn ${exclude_objfiles:+--exclude='*.o'} \
+		${debuginfo_suffix:+--exclude='*'${debuginfo_suffix}} \
 		$d 1>&2 || { error "${tar_cmd}" $FUNCNAME; continue; }
 	    find $d/ ${noleaf:+-noleaf} -mindepth 1 -maxdepth 1 | \
 		${tar_cmd} ${tar_basic_opts} -rf ${fpath} -T - \
 		-X $scriptdir/extern-junk.ptn ${exclude_objfiles:+--exclude='*.o'} \
+		${debuginfo_suffix:+--exclude='*'${debuginfo_suffix}} \
 		1>&2 || { error "${tar_cmd}" $FUNCNAME; continue; }
 # 	    find $d/ ${noleaf:+-noleaf} -mindepth 1 -maxdepth 1 | xargs \
 # 		${tar_cmd} ${tar_basic_opts} -rf ${fpath} \
@@ -247,6 +261,7 @@ for (( i=0 ; i!=n ; i++ )) ; do
 	    ln -sf $(dirname $s) $(dirname $d) || { error "ln" $FUNCNAME; continue; }
 	    ${tar_cmd} ${tar_basic_opts} -rf ${fpath} \
 		-X $scriptdir/extern-junk.ptn ${exclude_objfiles:+--exclude='*.o'} \
+		${debuginfo_suffix:+--exclude='*'${debuginfo_suffix}} \
 		$d 1>&2 || { error "${tar_cmd}" $FUNCNAME; continue; }
 
 	    [ -h $s ] &&
@@ -263,10 +278,12 @@ for (( i=0 ; i!=n ; i++ )) ; do
  	    ln -sf $s $d || { error "ln" $FUNCNAME; continue; }
 	    ${tar_cmd} ${tar_basic_opts} --no-recursion -hrf ${fpath} \
 		-X $scriptdir/extern-junk.ptn ${exclude_objfiles:+--exclude='*.o'} \
+		${debuginfo_suffix:+--exclude='*'${debuginfo_suffix}} \
 		$d 1>&2 || { error "${tar_cmd}" $FUNCNAME; continue; }
 	    find $d/ ${noleaf:+-noleaf} ${follow:+-follow} -mindepth 1 -maxdepth 1 | \
 		${tar_cmd} ${tar_basic_opts} -rf ${fpath} -T - \
 		-X $scriptdir/extern-junk.ptn ${exclude_objfiles:+--exclude='*.o'} \
+		${debuginfo_suffix:+--exclude='*'${debuginfo_suffix}} \
 		1>&2 || { error "${tar_cmd}" $FUNCNAME; continue; }
 # 	    find $d/ ${noleaf:+-noleaf} -mindepth 1 -maxdepth 1 | xargs \
 # 		${tar_cmd} ${tar_basic_opts} -rf ${fpath} \
@@ -282,6 +299,126 @@ for (( i=0 ; i!=n ; i++ )) ; do
 
 done
 cd $OLDPWD
+
+local payload_sum=$(sha1sum ${fpath}) || { error "sha1sum" $FUNCNAME; return 1; }
+if [ "$empty_sum" = "$payload_sum" ]; then
+    info "Nothing to include: $fpath" $FUNCNAME
+    rm -f ${fpath} || { error "rm" $FUNCNAME; return 1; }
+    return 0
+fi
+
+gzip -vf ${fpath} >&2 || {
+rm -f ${fpath}
+error "gzip" $FUNCNAME; return 1; }
+}
+
+_tar_extern_debuginfo ()
+{
+#
+# Parameters: 'name'
+#
+[ $# -eq 1 ] || { error "Wrong number of arguments: $#" $FUNCNAME; return 1; }
+
+[ -n "${debuginfo_suffix-}" ] || return 0
+
+local n=${#src[*]}
+[ $n -gt 0 ] || return 0
+if [ ${uname} = Linux ]; then
+    local tar_basic_opts="-v --owner=root --group=root --mode=u=rwX,go=rX --no-anchored --wildcards"
+    noleaf=yes
+#    group=yes
+else
+    local tar_basic_opts="-v"
+    unset noleaf
+#    unset group
+fi
+
+local tar_cmd=tar
+#local tar_basic_opts="-v --owner=root ${group:+--group=root} --mode=u=rwX,go=rX --no-anchored --wildcards"
+#local tar_basic_opts="-v --owner=root --group=root --mode=u=rwX,go=rX --no-anchored --wildcards"
+#local tar_basic_opts="-v --owner=root --group=root --mode=u=rwX,go=rX"
+
+local fpath=${externcache}/kits/${1}.tar
+
+# create an empty archive to append to
+${tar_cmd} ${tar_basic_opts} -cf ${fpath} -T /dev/null 1>&2 ||
+{ error "${tar_cmd}" $FUNCNAME; return 1; }
+
+local empty_sum=$(sha1sum ${fpath}) || { error "sha1sum" $FUNCNAME; return 1; }
+
+cd ${tempcopydir} || { error "cd" $FUNCNAME; return 1; }
+#local n=${#src[*]}
+
+rm -rf ${tempcopydir}/*
+for (( i=0 ; i!=n ; i++ )) ; do
+    #s=$(echo ${src[$i]} | sed 's#/\+$##')
+    local s=$(sed 's#/\+$##' <<<${src[$i]}) || { error "sed" $FUNCNAME; return 1; }
+    local d=$(sed 's#/\+$##' <<<${dst[$i]}) || { error "sed" $FUNCNAME; return 1; }
+
+ 	[ -f $s -o -d $s ] || { error "$(stat -L $s 2>&1)" $FUNCNAME; continue; }
+
+ 	if [ "${follow_symlinks}" ]; then
+	    warn "Following symlinks to pack '$s' as '$d'" $FUNCNAME
+	    mkdir -p $(dirname $d) || { error "mkdir" $FUNCNAME; continue; }
+	    ln -sfn $s $d || { error "ln" $FUNCNAME; continue; }
+
+	    local tmperr=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; continue; }
+	    _bad_symlinks $s >|$tmperr
+	    if [ -s $tmperr ]; then
+		{ error "Symlinks cannot be followed:" $FUNCNAME; cat $tmperr 1>&2; }
+	    fi
+
+	    local tmplist=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; continue; }
+	    find -L $d ${noleaf:+-noleaf} -name "*$debuginfo_suffix" -fprint $tmplist 2>/dev/null
+	    ${tar_cmd} ${tar_basic_opts} -hrf ${fpath} -T $tmplist 1>&2 ||
+	    { error "${tar_cmd}" $FUNCNAME; continue; }
+
+	    if [ "$PACKEXTERNDBG" ]; then
+		echo "extern_debuginfo:" >&2
+		cat $tmplist >&2
+	    fi
+	    rm -f $tmperr $tmplist
+ 	elif [ -f $s ]; then
+	    [[ $d == *$debuginfo_suffix ]] || continue
+ 	    [ . != $(dirname $d) ] ||
+	    { error "Cowardly refusing to pack '$s' as '$d' - no top directory" $FUNCNAME; continue; }
+
+	    mkdir -p $(dirname $(dirname $d)) || { error "mkdir" $FUNCNAME; continue; }
+	    ln -sfn $(dirname $s) $(dirname $d) || { error "ln" $FUNCNAME; continue; }
+	    ${tar_cmd} ${tar_basic_opts} -rf ${fpath} \
+		$d 1>&2 || { error "${tar_cmd}" $FUNCNAME; continue; }
+
+	    [ -h $s ] &&
+	    warn "Symlink $s -> $(readlink $s) packed as '$d'" $FUNCNAME
+ 	else
+            if [ -h $s ]; then
+		warn "Following symlink $s -> $(readlink $s) to pack as '$d'" $FUNCNAME
+	    fi
+ 	    mkdir -p $(dirname $d) || { error "mkdir" $FUNCNAME; continue; }
+ 	    ln -sfn $s $d || { error "ln" $FUNCNAME; continue; }
+
+	    local tmplist=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; continue; }
+	    find -H $d ${noleaf:+-noleaf} -name "*$debuginfo_suffix" -fprint $tmplist ||
+	    { error "find" $FUNCNAME; continue; }
+	    ${tar_cmd} ${tar_basic_opts} -rf ${fpath} -T $tmplist 1>&2 ||
+	    { error "${tar_cmd}" $FUNCNAME; continue; }
+
+	    if [ "$PACKEXTERNDBG" ]; then
+		echo "extern_debuginfo:" >&2
+		cat $tmplist >&2
+	    fi
+	    rm -f $tmplist
+ 	fi
+
+done
+cd $OLDPWD
+
+local payload_sum=$(sha1sum ${fpath}) || { error "sha1sum" $FUNCNAME; return 1; }
+if [ "$empty_sum" = "$payload_sum" ]; then
+    info "Nothing to include: $fpath" $FUNCNAME
+    rm -f ${fpath} || { error "rm" $FUNCNAME; return 1; }
+    return 0
+fi
 
 gzip -vf ${fpath} >&2 || {
 rm -f ${fpath}
@@ -428,10 +565,13 @@ info "destination:\n'${dst[*]}'" $FUNCNAME
 [ ${#src[*]} -eq ${#dst[*]} ] ||
 { error "source # ${#src[*]}, destination # ${#dst[*]}" $FUNCNAME; exit 1; }
 
+debuginfo_suffix=$(cmt -q -tag_add=PACK,ATLAS show macro_value ${package}_debuginfo_suffix)
+
 if [ $# -eq 1 ] && [ -f "${1}" ]; then
     n=${#src[*]}
     for (( i=0 ; i!=n ; i++ )) ; do
-	echo ${src[$i]} ${dst[$i]} >>"${1}"
+	printf '%s\0%s\0%s\n' "${src[$i]}" "${dst[$i]}" "${debuginfo_suffix}" >>"${1}"
+#	echo ${src[$i]} ${dst[$i]} >>"${1}"
     done
 fi
 
@@ -474,9 +614,6 @@ if [ -n "$export_paths" ] && [[ ${CMTCONFIG} == *dbg* ]] && [[ "${dst[*]}" != *d
     { error "sed" $FUNCNAME; exit 1; }
 fi
 
-name=`_mkname $package $version $platform`
-echo $name ${package} ${version}
-
 if [ -n "$export_paths" ] && [[ ${CMTCONFIG} == *dbg* ]] && [ -z ${platform} ]; then
     n=${#src[*]}
     for (( i=0 ; i!=n ; i++ )) ; do
@@ -485,7 +622,8 @@ if [ -n "$export_paths" ] && [[ ${CMTCONFIG} == *dbg* ]] && [ -z ${platform} ]; 
             # Pack dbg mode ONLY into external dbg tarball
             #
 	    [ -f "${tmpreq:-}" ] || tmpreq=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; exit 1; }
-	    _add_opt_dep ${name} ${tmpreq} || exit 1
+	    _add_opt_dep $(_mkname $package $version $platform) ${tmpreq} || exit 1
+	    # _add_opt_dep ${name} ${tmpreq} || exit 1
 	    info "Skipped non-debug path: ${dst[$i]}" $FUNCNAME
 	    unset src[$i] dst[$i]
 	fi
@@ -497,47 +635,69 @@ if [ -n "$export_paths" ] && [[ ${CMTCONFIG} == *dbg* ]] && [ -z ${platform} ]; 
 fi
 
 follow_symlinks=`cmt -q -tag_add=PACK show macro_value ${package}_follow_symlinks`
-
-# if [ -f ${externcache}/kits/$name.tar.gz -a "${overwrite}" != yes ]; then
-#     info "Existing ${externcache}/kits/$name.tar.gz will not be overwritten" $FUNCNAME
-#fpath=${externcache}/kits/$name.tar.gz
-fpath=${externcache}/cache/$name.pacman
-if [ -f $fpath -a "${overwrite}" != yes ]; then
-
-    info "Existing $fpath will not be overwritten" $FUNCNAME
-
-    if [ "${verify}" = yes ]; then
-	spath=${externcache}/kits/$name.tar.gz
-	if [ -f $spath -a -n "${src[*]}" ]; then
-	    newer ${follow_symlinks:+-L} -p $spath ${src[*]}
-	elif [ -f $spath -a -z "${src[*]}" ]; then
-	    warn "$spath: No 'export_paths' to verify" $FUNCNAME
-	elif [ ! -f $spath -a -n "${src[*]}" ]; then
-	    error "$spath: No such file" $FUNCNAME
-	fi
-    fi
-
-else
-
-#follow_symlinks=`cmt -tag_add=PACK show macro_value ${package}_follow_symlinks`
 include_objfiles=`cmt -q -tag_add=PACK show macro_value ${package}_include_objfiles`
 if [ -n "$include_objfiles" ]; then
     unset exclude_objfiles
 else
     exclude_objfiles=yes
 fi
-
-tempcopydir=$(mktemp -d -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; exit 1; }
-
-_tar_extern $name || { rm -rf $tempcopydir; exit 1; }
-#_pacman $name
-_pacman ${name} ${tmpreq} || { rm -rf $tempcopydir; exit 1; }
-
-/bin/rm -rf $tempcopydir
-
+if [ -n "$export_paths" ] &&
+    [ "${debuginfo}" = yes ] && [ -n "${debuginfo_suffix}" ] && [[ ${CMTCONFIG} != *dbg* ]]; then
+    do_debuginfo=yes
+else
+    unset do_debuginfo
 fi
 
-#exit 0
+if [ "${do_debuginfo:-}" = yes ]; then
+# name=`_mkname $package $version $platform`
+    if [ -n "${platform:-}" ]; then
+	platform_debuginfo=${platform}_debuginfo
+	[ "${platform}" != noarch ] ||
+	warn "${package}_platform set to noarch and ${package}_debuginfo_suffix to non-empty" $FUNCNAME
+    fi
+    echo "$(_mkname $package $version $platform)" "$package" "$version" "$(_mkname $package $version ${platform_debuginfo:-${CMTCONFIG}_debuginfo})" || exit 1
+    # echo "$(_mkname $package $version $platform)" "$package" "$version" "$(_mkname $package $version ${platform_debuginfo:-debuginfo})" || exit 1
+else
+    echo "$(_mkname $package $version $platform)" "$package" "$version" || exit 1
+fi
 
-#info "$(date)" $FUNCNAME
-[ ! -f $PACKRPM/bin/pack-rpm-extern.sh ] || . $PACKRPM/bin/pack-rpm-extern.sh
+for pltfm in bin debuginfo; do
+    [ ${pltfm} = debuginfo ] && [ "${do_debuginfo:-}" != yes ] && continue
+
+    if [ ${pltfm} = bin ]; then
+	name=$(_mkname $package $version $platform) || exit 1
+    elif [ ${pltfm} = debuginfo ]; then
+	name=$(_mkname $package $version ${platform_debuginfo:-${CMTCONFIG}_debuginfo}) || exit 1
+	# name=$(_mkname $package $version ${platform_debuginfo:-debuginfo}) || exit 1
+    fi
+
+    fpath=${externcache}/cache/$name.pacman
+    if [ -f $fpath -a "${overwrite}" != yes ]; then
+	
+	info "Existing $fpath will not be overwritten" $FUNCNAME
+	
+	if [ "${verify}" = yes ]; then
+	    spath=${externcache}/kits/$name.tar.gz
+	    if [ -f $spath -a -n "${src[*]}" ]; then
+		newer ${follow_symlinks:+-L} -p $spath ${src[*]}
+	    elif [ -f $spath -a -z "${src[*]}" ]; then
+		warn "$spath: No 'export_paths' to verify" $FUNCNAME
+	    elif [ ! -f $spath -a -n "${src[*]}" ]; then
+		error "$spath: No such file" $FUNCNAME
+	    fi
+	fi
+	
+    else
+
+	tempcopydir=$(mktemp -d -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; exit 1; }
+	if [ ${pltfm} = bin ]; then
+	    _tar_extern $name || { \rm -rf $tempcopydir; exit 1; }
+	elif [ ${pltfm} = debuginfo ]; then
+	    _tar_extern_debuginfo ${name} || { \rm -rf $tempcopydir; exit 1; }
+	fi
+	_pacman ${name} ${tmpreq:-} || { \rm -rf $tempcopydir; exit 1; }
+	\rm -rf $tempcopydir
+
+    fi
+    [ ! -f $PACKRPM/bin/pack-rpm-extern.sh ] || . $PACKRPM/bin/pack-rpm-extern.sh || exit 1
+done
