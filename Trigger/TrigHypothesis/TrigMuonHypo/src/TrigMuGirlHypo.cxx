@@ -125,12 +125,12 @@ HLT::ErrorCode TrigMuGirlHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   if(trackCont != NULL){
     for (TrigMuonEFInfoContainer::const_iterator tr = trackCont->begin();tr != trackCont->end(); tr++)
       {
-	TrigMuonEFInfo* eInfo = (*tr);
-	TrigMuonEFInfoTrackContainer* trI=eInfo->TrackContainer();
+	const TrigMuonEFInfo* eInfo = (*tr);
+	const TrigMuonEFInfoTrackContainer* trI=eInfo->TrackContainer();
 	msg() << MSG::DEBUG << "Track container size: " <<  trI->size() << endreq;
 	for (TrigMuonEFInfoTrackContainer::const_iterator  Ir= trI->begin();Ir != trI->end(); Ir++)
 	  {
-	    TrigMuonEFInfoTrack* muonInfo = (*Ir);
+	    const TrigMuonEFInfoTrack* muonInfo = (*Ir);
 	    TrigMuonEFCbTrack* trC = muonInfo->CombinedTrack(); //also TrigMuGirl track      
 	    
 	    

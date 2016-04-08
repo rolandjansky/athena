@@ -245,7 +245,7 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const xAOD::MuonContainer*>
          }
        }
        const double ZERO_LIMIT_FOR_CHARGE = 1e-4;
-       if( fabs(charge1[i])<ZERO_LIMIT_FOR_CHARGE || fabs(charge2[i])<ZERO_LIMIT_FOR_CHARGE ) {
+       if( std::abs(charge1[i])<ZERO_LIMIT_FOR_CHARGE || std::abs(charge2[i])<ZERO_LIMIT_FOR_CHARGE ) {
          if(m_doDebug) msg() << MSG::DEBUG << "   ...-> charge info not available" << endreq;
          if( m_muExtrRequireSameSign ) {
            if(m_doDebug) msg() << MSG::DEBUG << "   ...-> but same sign check is required. cannot judge overlap -> return with false" << endreq;
