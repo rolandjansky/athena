@@ -99,5 +99,5 @@ Point::print (void) const
     {
 	std::cout << "       ";
     }
-    std::cout << std::endl;
+    std::cout << std::resetiosflags(std::ios::fixed) << std::endl;
 }

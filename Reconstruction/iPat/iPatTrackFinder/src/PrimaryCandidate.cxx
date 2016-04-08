@@ -21,11 +21,30 @@
 
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
-PrimaryCandidate::PrimaryCandidate (ToolHandle<IFinderConfiguration>	tolerances,
+PrimaryCandidate::PrimaryCandidate (ToolHandle<IFinderConfiguration>&	tolerances,
 				    const Amg::Vector3D&		vertexRegionCentre)
-    :  m_cacheValid	(false),
-       m_tolerances	(tolerances),
-       m_vertex		(vertexRegionCentre)
+    :	m_inBarrel		(false),
+	m_outerPosition 	(Amg::Vector3D(0.,0.,0.)),
+	m_outerR		(0.),  
+	m_outerPhi		(0.), 
+	m_outerZ		(0.),
+	m_innerPosition		(Amg::Vector3D(0.,0.,0.)),
+	m_innerR		(0.),
+	m_innerPhi		(0.),
+	m_innerZ		(0.),
+	m_cacheValid		(false),
+	m_etaTolerance		(0.),
+	m_phiTolerance		(0.),
+	m_tolerances		(tolerances),
+	m_phi0			(0.),
+	m_phiSlope		(0.),
+	m_cosPhi		(0.),
+	m_cotTheta		(0.),
+	m_inversePt		(0.),
+	m_sinPhi		(0.),
+	m_transverseImpact	(0.),
+	m_vertex       		(vertexRegionCentre),
+	m_z			(0.)
 {}
 
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>

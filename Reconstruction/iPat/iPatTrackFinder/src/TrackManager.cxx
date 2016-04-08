@@ -743,22 +743,18 @@ void
 TrackManager::insertInTrackList (Track* track)
 {
     // order list by abs_pt apart from fast_segments which go at the end
-    track_iterator t1 = m_trackList->begin();
-    track_iterator t2 = m_trackList->end();
-    if (track->status() == fast_segment)
+    if (track->status() == fast_segment || m_trackList->empty())
     {
 	m_trackList->push_back(track);
 	return;
     }
 
-    while (t1 != t2 && (**(--t2)).status() == fast_segment) ;
-    ++t2;
+    track_iterator  t	= m_trackList->begin();
+    while (t != m_trackList->end()
+	   && (**t).status() != fast_segment
+	   && (**t).perigee_parameters().abs_pt() > track->perigee_parameters().abs_pt()) ++t;
 
-    while (t1 != t2
-	   && (**t1).perigee_parameters().abs_pt() > track->perigee_parameters().abs_pt())
-	++t1;
-
-    m_trackList->insert(t1,track);
+    m_trackList->insert(t,track);
 }
 
 bool
