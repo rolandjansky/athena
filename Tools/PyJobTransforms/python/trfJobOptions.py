@@ -5,7 +5,7 @@
 # @brief Contains functions related Athena Job Options files 
 # @details Generates runArgs JobOptions and interfaces with skeleton
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfJobOptions.py 697822 2015-10-01 11:38:06Z graemes $
+# @version $Id: trfJobOptions.py 726763 2016-02-29 11:07:55Z mavogel $
 # 
 
 import os
@@ -113,6 +113,7 @@ class JobOptionsTemplate(object):
                     # Add the input event count, if we know it
                     if dataArg.isCached(metadataKeys = ['nentries']):
                         print >>runargsFile, '{0}.input{1}FileNentries = {2!r}'.format(self._runArgsName, dataType, dataArg.nentries)
+                    print >>runargsFile, "{0}.{1}FileIO = {2!r}".format(self._runArgsName, dataType, self._exe.conf.dataDictionary[dataType].io) 
                 
                 print >>runargsFile, os.linesep, "# Output data"
                 for dataType, dataArg in output.iteritems():
@@ -173,12 +174,18 @@ class JobOptionsTemplate(object):
                                                          'from AthenaMP.AthenaMPFlags import jobproperties as AthenaMPJobProps',
                                                          'AthenaMPJobProps.AthenaMPFlags.WorkerTopDir="{0}"'.format(self._exe._athenaMPWorkerTopDir),
                                                          'AthenaMPJobProps.AthenaMPFlags.OutputReportFile="{0}"'.format(self._exe._athenaMPFileReport),
+                                                         'AthenaMPJobProps.AthenaMPFlags.EventOrdersFile="{0}"'.format(self._exe._athenaMPEventOrdersFile),
                                                          'AthenaMPJobProps.AthenaMPFlags.CollectSubprocessLogs=True'
                                                          ))
                     if self._exe._athenaMPStrategy:
                         # Beware of clobbering a non default value (a feature used by EventService)
                         print >>runargsFile, 'if AthenaMPJobProps.AthenaMPFlags.Strategy.isDefault():'
                         print >>runargsFile, '\tAthenaMPJobProps.AthenaMPFlags.Strategy="{0}"'.format(self._exe._athenaMPStrategy)
+                    if self._exe._athenaMPReadEventOrders:
+                        if os.path.isfile(self._exe._athenaMPEventOrdersFile):
+                            print >>runargsFile, 'AthenaMPJobProps.AthenaMPFlags.ReadEventOrders=True'
+                        else:
+                            raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_EXEC_RUNARGS_ERROR"), "Failed to find file: {0} required by athenaMP option: --athenaMPUseEventOrders true".format(self._exe._athenaMPEventOrdersFile))
                 msg.info('Successfully wrote runargs file {0}'.format(self._runArgsFile))
                 
             except (IOError, OSError) as e:

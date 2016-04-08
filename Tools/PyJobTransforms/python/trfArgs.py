@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 697822 2015-10-01 11:38:06Z graemes $
+#  @version $Id: trfArgs.py 725567 2016-02-22 17:38:18Z mavogel $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -58,8 +58,10 @@ def addStandardTrfArgs(parser):
 #  some special transforms).
 def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True):
     parser.defineArgGroup('Athena', 'General Athena Options')
-    parser.add_argument('--athenaopts', group = 'Athena', type=argFactory(trfArgClasses.argList, splitter=' ', runarg=False), metavar='OPT1 OPT2 OPT3', 
-                        help='Extra options to pass to athena. Will split on spaces. Options starting with "-" must be given as --athenaopts=\'--opt1 --opt2[=foo] ...\'') 
+    parser.add_argument('--athenaopts', group = 'Athena', type=argFactory(trfArgClasses.argSubstepList, splitter=' ', runarg=False), nargs="+", metavar='substep:ATHENAOPTS', 
+                        help='Extra options to pass to athena. Opts will split on spaces. '
+                        'Multiple substep options can be given with --athenaopts=\'sutbstep1:--opt1 --opt2[=foo] ...\' \'substep2:--opt3\''
+                        'Without substep specified, options will be used for all substeps.') 
     parser.add_argument('--command', '-c', group = 'Athena', type=argFactory(trfArgClasses.argString, runarg=False), metavar='COMMAND', 
                         help='Run %(metavar)s before all else')
     parser.add_argument('--athena', group = 'Athena', type=argFactory(trfArgClasses.argString, runarg=False), metavar='ATHENA',
@@ -75,7 +77,8 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
                         help='Python code to execute after main job options are included (can be optionally limited to a single substep)')
     parser.add_argument('--postInclude', group = 'Athena', type=argFactory(trfArgClasses.argSubstepList, splitter=','), nargs='+',
                         metavar='substep:POSTINCLUDE',
-                        help='Python configuration fragment to include after main job options (can be optionally limited to a single substep). Will split on commas: frag1.py,frag2.py is understood.')
+                        help='Python configuration fragment to include after main job options (can be optionally limited ' 
+                        'to a single substep). Will split on commas: frag1.py,frag2.py is understood.')
     parser.add_argument('--maxEvents', group='Athena', type=argFactory(trfArgClasses.argSubstepInt, defaultSubstep=maxEventsDefaultSubstep), 
                         nargs='+', metavar='substep:maxEvents',
                         help='Set maximum events for each processing step (default substep is "{0}")'.format(maxEventsDefaultSubstep))
@@ -96,15 +99,15 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
                         help='Set the AthenaMP scheduling strategy for a particular substep. Default is unset, '
                         'except when n_inputFiles = n_workers, when it is "FileScheduling" (useful for '
                         'ephemeral outputs).')
+    parser.add_argument('--athenaMPUseEventOrders', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=False),
+                        metavar='BOOL', group='Athena',
+                        help='Force AthenaMP to read event numbers from event orders files')
     if addValgrind:
         addValgrindArguments(parser)
 
 ## @brief Add Valgrind options
 def addValgrindArguments(parser):
-    parser.defineArgGroup(
-        'Valgrind',
-        'General Valgrind Options'
-    )
+    parser.defineArgGroup('Valgrind', 'General Valgrind Options')
     parser.add_argument(
         '--valgrind',
         group = 'Valgrind',
@@ -116,20 +119,17 @@ def addValgrindArguments(parser):
         help = 'Enable Valgrind'
     )
     parser.add_argument(
-        '--valgrindbasicopts',
+        '--valgrindDefaultOpts',
         group = 'Valgrind',
         type = argFactory(
-            trfArgClasses.argList,
-            splitter = ',',
+            trfArgClasses.argBool,
             runarg = False
         ),
-        metavar = 'OPT1,OPT2,OPT3', 
-        help = 'Basic options passed to Valgrind when running Athena. ' +
-        'Options starting with "-" must be given as ' +
-        '--valgrindopts=\'--opt1=foo,--opt2=bar,...\''
+        metavar = "substep:BOOL",
+        help = 'Enable default Valgrind options'
     )
     parser.add_argument(
-        '--valgrindextraopts',
+        '--valgrindExtraOpts',
         group = 'Valgrind',
         type = argFactory(
             trfArgClasses.argList,
@@ -504,9 +504,9 @@ def addValidationArguments(parser):
 def addTriggerArguments(parser, addTrigFilter=True):
     parser.defineArgGroup('Trigger', 'Trigger Related Options')
     parser.add_argument('--triggerConfig',
-                        type=argFactory(trfArgClasses.argSubstep, defaultSubstep="RAWtoESD", separator='='), 
+                        type=argFactory(trfArgClasses.argSubstep, defaultSubstep="RDOtoRDOTrigger", separator='='), 
                         metavar='substep=triggerConf',
-                        help='Trigger configuration string (substep aware argument - default is to run trigger in RAWtoESD step, '
+                        help='Trigger configuration string (substep aware argument - default is to run trigger in RDOtoRDOTrigger step, '
                         'use syntax SUBSTEP=TRIGCONF if you want to run trigger somewhere else). '
                         'N.B. This argument uses EQUALS (=) to separate the substep name from the value.', 
                         group='Trigger')
