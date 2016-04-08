@@ -20,22 +20,67 @@
 
 #include <iostream>
 
-static G4HitFilter ts1("G4HitFilter");
-
-G4HitFilter::G4HitFilter(std::string s):
-  FADS::UserAction(s),
-  m_storeGate(0),
+G4HitFilter::G4HitFilter(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent),
+  m_volumenames(),
   m_ntot(0),
   m_npass(0),
-  m_init(false),
   m_hitContainers(){
+
+  declareProperty("VolumeNames",m_volumenames);
+  
 }
 
-void G4HitFilter::BeginOfEventAction(const G4Event*){
-  if(!m_init) ParseProperties();
+StatusCode G4HitFilter::initialize(){
+
+  if(m_volumenames.size()==0){
+
+    ATH_MSG_ERROR("No hit containers declared");
+    return StatusCode::FAILURE;
+
+  }
+
+  int hitType = 999;
+
+  for(auto vol: m_volumenames){
+    if(vol == "BCMHits") hitType = SI;
+    else if(vol == "BLMHits") hitType = SI;
+    else if(vol == "CSC_Hits") hitType = CSC;
+    else if(vol == "LArCalibrationHitActive") hitType = CALOCALIB;
+    else if(vol == "LArCalibrationHitDeadMaterial") hitType = CALOCALIB;
+    else if(vol == "LArCalibrationHitInactive") hitType = CALOCALIB;
+    else if(vol == "LArHitEMB") hitType = LAR;
+    else if(vol == "LArHitEMEC") hitType = LAR;
+    else if(vol == "LArHitFCAL") hitType = LAR;
+    else if(vol == "LArHitHEC") hitType = LAR;
+    else if(vol == "LucidSimHitsVector") hitType = LUCID;
+    else if(vol == "MBTSHits") hitType = TILE;
+    else if(vol == "MDT_Hits") hitType = MDT;
+    else if(vol == "PixelHits") hitType = SI;
+    else if(vol == "RPC_Hits") hitType = RPC;
+    else if(vol == "SCT_Hits") hitType = SI;
+    else if(vol == "TGC_Hits") hitType = TGC;
+    else if(vol == "TRTUncompressedHits") hitType = TRT;
+    else if(vol == "TileHitVec") hitType = TILE;
+
+
+    if(hitType==999){
+
+      ATH_MSG_ERROR("unknown hit tipe"<<vol);
+      return StatusCode::FAILURE;
+
+    }
+    
+    m_hitContainers.push_back(std::make_pair(hitType,vol));
+
+
+  }
+
+  return StatusCode::SUCCESS;
+
 }
 
-void G4HitFilter::EndOfEventAction(const G4Event*){
+
+void G4HitFilter::EndOfEvent(const G4Event*){
   unsigned int counter = 0;
   
   m_ntot++;
@@ -45,62 +90,52 @@ void G4HitFilter::EndOfEventAction(const G4Event*){
   for(;itr!=itr_end;++itr) {
     if((*itr).first == CALOCALIB) {
       const CaloCalibrationHitContainer *cont = 0;
-      StatusCode sc = m_storeGate->retrieve(cont, (*itr).second);
-      if(sc.isFailure() || !cont) continue;
+      if(evtStore()->retrieve(cont, (*itr).second).isFailure() || !cont) continue;
       counter += cont->size();
     }
     else if((*itr).first == CSC) {
       const CSCSimHitCollection *cont = 0;
-      StatusCode sc = m_storeGate->retrieve(cont, (*itr).second);
-      if(sc.isFailure() || !cont) continue;
+      if(evtStore()->retrieve(cont, (*itr).second).isFailure() || !cont) continue;
       counter += cont->size();
     }
     else if((*itr).first == LAR) {
       const LArHitContainer *cont = 0;
-      StatusCode sc = m_storeGate->retrieve(cont, (*itr).second);
-      if(sc.isFailure() || !cont) continue;
+      if(evtStore()->retrieve(cont, (*itr).second).isFailure() || !cont) continue;
       counter += cont->size();
     }
     else if((*itr).first == LUCID) {
       const LUCID_SimHitCollection *cont = 0;
-      StatusCode sc = m_storeGate->retrieve(cont, (*itr).second);
-      if(sc.isFailure() || !cont) continue;
+      if(evtStore()->retrieve(cont, (*itr).second).isFailure() || !cont) continue;
       counter += cont->size();
     }
     else if((*itr).first == MDT) {
       const MDTSimHitCollection *cont = 0;
-      StatusCode sc = m_storeGate->retrieve(cont, (*itr).second);
-      if(sc.isFailure() || !cont) continue;
+      if(evtStore()->retrieve(cont, (*itr).second).isFailure() || !cont) continue;
       counter += cont->size();
     }
     else if((*itr).first == RPC) {
       const RPCSimHitCollection *cont = 0;
-      StatusCode sc = m_storeGate->retrieve(cont, (*itr).second);
-      if(sc.isFailure() || !cont) continue;
+      if(evtStore()->retrieve(cont, (*itr).second).isFailure() || !cont) continue;
       counter += cont->size();
     }
     else if((*itr).first == SI) {
       const SiHitCollection *cont = 0;
-      StatusCode sc = m_storeGate->retrieve(cont, (*itr).second);
-      if(sc.isFailure() || !cont) continue;
+      if(evtStore()->retrieve(cont, (*itr).second).isFailure() || !cont) continue;
       counter += cont->size();
     }
     else if((*itr).first == TGC) {
       const TGCSimHitCollection *cont = 0;
-      StatusCode sc = m_storeGate->retrieve(cont, (*itr).second);
-      if(sc.isFailure() || !cont) continue;
+      if(evtStore()->retrieve(cont, (*itr).second).isFailure() || !cont) continue;
       counter += cont->size();
     }
     else if((*itr).first == TILE) {
       const TileHitVector *cont = 0;
-      StatusCode sc = m_storeGate->retrieve(cont, (*itr).second);
-      if(sc.isFailure() || !cont) continue;
+      if(evtStore()->retrieve(cont, (*itr).second).isFailure() || !cont) continue;
       counter += cont->size();
     }
     else if((*itr).first == TRT) {
       const TRTUncompressedHitCollection *cont = 0;
-      StatusCode sc = m_storeGate->retrieve(cont, (*itr).second);
-      if(sc.isFailure() || !cont) continue;
+      if(evtStore()->retrieve(cont, (*itr).second).isFailure() || !cont) continue;
       counter += cont->size();
     }
     else {
@@ -112,66 +147,30 @@ void G4HitFilter::EndOfEventAction(const G4Event*){
   }
 
   if (counter==0){
-    std::cout << "G4HitFilter: failing the event" << std::endl;
+    ATH_MSG_INFO("G4HitFilter: failing the event");
     G4RunManager::GetRunManager()->AbortEvent();
   } 
   else {
-    std::cout << "G4HitFilter: passing the event" << std::endl;
+    ATH_MSG_INFO("G4HitFilter: passing the event");
     m_npass++;
   }
 }
 
-void G4HitFilter::BeginOfRunAction(const G4Run*){
-  if (!m_init) ParseProperties();
+
+StatusCode G4HitFilter::finalize() {
+  ATH_MSG_INFO("processed "<< m_ntot <<" events, "<< m_npass<<" events passed filter ");
+  return StatusCode::SUCCESS;
 }
 
-void G4HitFilter::ParseProperties(){
-  std::map<std::string, std::string>::iterator itr = theProperties.begin();
-  std::map<std::string, std::string>::iterator itr_end = theProperties.end();
-  int hitType = 999;
-  for(;itr!=itr_end;++itr) {
-    if((*itr).first.find("VolumeName") != std::string::npos) {
 
-      // To avoid string comparison during the event loop, store the
-      // container type in an index.
-      if((*itr).second == "BCMHits") hitType = SI;
-      else if((*itr).second == "BLMHits") hitType = SI;
-      else if((*itr).second == "CSC_Hits") hitType = CSC;
-      else if((*itr).second == "LArCalibrationHitActive") hitType = CALOCALIB;
-      else if((*itr).second == "LArCalibrationHitDeadMaterial") hitType = CALOCALIB;
-      else if((*itr).second == "LArCalibrationHitInactive") hitType = CALOCALIB;
-      else if((*itr).second == "LArHitEMB") hitType = LAR;
-      else if((*itr).second == "LArHitEMEC") hitType = LAR;
-      else if((*itr).second == "LArHitFCAL") hitType = LAR;
-      else if((*itr).second == "LArHitHEC") hitType = LAR;
-      else if((*itr).second == "LucidSimHitsVector") hitType = LUCID;
-      else if((*itr).second == "MBTSHits") hitType = TILE;
-      else if((*itr).second == "MDT_Hits") hitType = MDT;
-      else if((*itr).second == "PixelHits") hitType = SI;
-      else if((*itr).second == "RPC_Hits") hitType = RPC;
-      else if((*itr).second == "SCT_Hits") hitType = SI;
-      else if((*itr).second == "TGC_Hits") hitType = TGC;
-      else if((*itr).second == "TRTUncompressedHits") hitType = TRT;
-      else if((*itr).second == "TileHitVec") hitType = TILE;
-      else {
-	std::cerr << "G4HitFilter: error unknown HitContainer type." << std::endl;
-	continue;
-      }
-      m_hitContainers.push_back(std::make_pair(hitType,(*itr).second));
-    }
+StatusCode G4HitFilter::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
   }
-
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  StatusCode status = svcLocator->service("StoreGateSvc", m_storeGate);
-  if (status.isFailure()){
-    std::cout<< "G4HitFilter: BeginOfRunAction could not access StoreGateSvc!"<<std::endl;
-  }
-
-  m_init=true;
+  return StatusCode::SUCCESS;
 }
-void G4HitFilter::EndOfRunAction(const G4Run*) {
-  std::cout<<"G4HitFilter: processed "<< m_ntot <<" events, "<< m_npass<<" events passed filter "<<std::endl;
-}
-
-void G4HitFilter::SteppingAction(const G4Step*){;}
-
