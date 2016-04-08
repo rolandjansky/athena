@@ -19,7 +19,7 @@
 // ISF includes
 #include "ISF_Interfaces/IParticleHelper.h"
 // Barcode includes
-#include "BarcodeEvent/Barcode.h"
+#include "BarcodeInterfaces/Barcode.h"
 
 // forward declarations
 namespace Barcode {
@@ -29,7 +29,7 @@ namespace Barcode {
 namespace ISF {
 
     class ISFParticle;
-    class TruthBinding;
+    class ITruthBinding;
     
   /** @class ParticleHelper
   
@@ -56,7 +56,7 @@ namespace ISF {
                                    double pTime,
                                    const ISFParticle &parent,
                                    Barcode::ParticleBarcode bc,
-                                   TruthBinding* tBinding = nullptr) const override final;
+                                   ITruthBinding* tBinding = 0) const;
 
       /** Create a new particle */
       ISFParticle* createParticle( const Amg::Vector3D& x,
@@ -67,7 +67,7 @@ namespace ISF {
                                    double pTime,
                                    const ISFParticle &parent,
                                    Barcode::ParticleBarcode bc,
-                                   TruthBinding* tBinding = nullptr) const override final;
+                                   ITruthBinding* tBinding = 0) const;
 
       /** Create a new particle */
       ISFParticle* createParticle( const HepGeom::Point3D<double>& x,
@@ -78,19 +78,19 @@ namespace ISF {
                                    double pTime,
                                    const ISFParticle &parent,
                                    Barcode::ParticleBarcode bc,
-                                   TruthBinding* tBinding = nullptr) const override final;
+                                   ITruthBinding* tBinding = 0) const;
 
       /** An updated particle (e.g. after transport) */
       ISFParticle* updatedParticle( const ISFParticle& origIsp,
                                     const Amg::Vector3D& updatedPos,
                                     const Amg::Vector3D& updatedMom,
-                                    double deltaTime = 0.) const override final;
+                                    double deltaTime = 0.) const;
       
       /** An updated particle (e.g. after transport) */
       ISFParticle* updatedParticle( const ISFParticle& origIsp,
                                     const HepGeom::Point3D<double>&  updatedPos,
                                     const HepGeom::Vector3D<double>& updatedMom,
-                                    double deltaTime = 0.) const override final;
+                                    double deltaTime = 0.) const;
 
 	private:
 	    

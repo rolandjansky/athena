@@ -14,7 +14,7 @@
 // ISF includes
 #include "ISF_Interfaces/IParticleFilter.h"
 // Barcode Includes
-#include "BarcodeEvent/Barcode.h"
+#include "BarcodeInterfaces/Barcode.h"
 
 namespace ISF {
 
