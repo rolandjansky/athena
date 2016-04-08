@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 
 
 // 23-feb-2005
@@ -267,7 +268,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
       }
 
       double deta    = 0.1;
-      int    neta    = (int)((emax-emin)/deta+0.001);
+      int    neta    = (int)((emax-emin)*(1./deta)+0.001);
       depth_in[0] = zmin;
       depth_out[0] = zmax;
       CaloCell_ID::CaloSample sample = CaloCell_ID::TileGap3;
@@ -484,7 +485,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
                 // come out to ~ 1e-14, the exact value varying depending
                 // on platform.  For reproducibility, force very small
                 // numbers to 0.
-                if (abs(z) < 1e-8 * CLHEP::mm) z = 0;
+                if (std::abs(z) < 1e-8 * CLHEP::mm) z = 0;
 
                 double dz = 0.5 * fabs(cell_dim->getZMax(0)     // special 
                                        -cell_dim->getZMin(0)    // calculations
@@ -663,6 +664,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 			  {
 			    double deltax = 38.7*std::cos(25.3125*CLHEP::deg); 
 			    double pstan  = std::tan(25.3125*CLHEP::deg);
+                            double inv_pstan = 1. / pstan;
 			    if ( ( 15 == tower ) )
 			      {
 				if ( iRow < 2 ) 
@@ -688,7 +690,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 				rowVolume  = (radMax  + radMin) * Radius2HL;
 				rowVolume += 2.*deltax + (radMax + radMin - 2.*radMin0 )* pstan ;
 				rowVolume *= 0.5 * (radMax - radMin) ;
-				rowVolume -= 0.5 * std::pow( deltax + (radMax - radMin0) * pstan - radMax * Radius2HL, 2) / pstan;
+				rowVolume -= 0.5 * std::pow( deltax + (radMax - radMin0) * pstan - radMax * Radius2HL, 2) * inv_pstan;
 				rowVolume *= deltaZ;
 			      }
 
@@ -924,6 +926,7 @@ void TileDetDescrManager::add_cellDim(int section, int side, int tower, int samp
 TileCellDim* TileDetDescrManager::get_cell_dim(const Identifier& cell_id) const
 {
   int section = m_tile_id->section(cell_id);
+  if (section == Tile_Base_ID::AUXDET) return NULL;
   int side = m_tile_id->side(cell_id);
   int tower = m_tile_id->tower(cell_id);
   int sample = m_tile_id->sample(cell_id);

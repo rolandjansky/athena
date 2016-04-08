@@ -257,54 +257,53 @@ class TileDddbManager
   // fields of tile switches
   bool addPlatesToCell() const;
   int  Ushape()  const;
-
  private:
 
-  IRDBRecordset_ptr tiglob;
-  IRDBRecordset_ptr timod;
-  IRDBRecordset_ptr tile;
-  IRDBRecordset_ptr tilb;
-  IRDBRecordset_ptr tigr;
-  IRDBRecordset_ptr scnt;
-  IRDBRecordset_ptr tifg;
-  IRDBRecordset_ptr ticg;
-  IRDBRecordset_ptr ticl;
-  IRDBRecordset_ptr cuts;
-  IRDBRecordset_ptr saddle;
-  IRDBRecordset_ptr tileSwitches; 
+  IRDBRecordset_ptr m_tiglob;
+  IRDBRecordset_ptr m_timod;
+  IRDBRecordset_ptr m_tile;
+  IRDBRecordset_ptr m_tilb;
+  IRDBRecordset_ptr m_tigr;
+  IRDBRecordset_ptr m_scnt;
+  IRDBRecordset_ptr m_tifg;
+  IRDBRecordset_ptr m_ticg;
+  IRDBRecordset_ptr m_ticl;
+  IRDBRecordset_ptr m_cuts;
+  IRDBRecordset_ptr m_saddle;
+  IRDBRecordset_ptr m_tileSwitches; 
  
 
-  unsigned int n_tiglob;
-  unsigned int n_timod;
-  unsigned int n_tilb;
-  unsigned int n_tigr;
-  unsigned int n_scnt;
-  unsigned int n_tifg;
-  unsigned int n_ticg;
-  unsigned int n_ticl;
-  unsigned int EnvNum;
-  unsigned int EnvSize;
-  unsigned int EnvBegin;
-  unsigned int n_cuts;
-  unsigned int n_saddle;
-  unsigned int n_tileSwitches;
+  unsigned int m_n_tiglob;
+  unsigned int m_n_timod;
+  unsigned int m_n_tilb;
+  unsigned int m_n_tigr;
+  unsigned int m_n_scnt;
+  unsigned int m_n_tifg;
+  unsigned int m_n_ticg;
+  unsigned int m_n_ticl;
+  unsigned int m_EnvNum;
+  unsigned int m_EnvSize;
+  unsigned int m_EnvBegin;
+  unsigned int m_n_cuts;
+  unsigned int m_n_saddle;
+  unsigned int m_n_tileSwitches;
  
-  const IRDBRecord* currentTileGlob;
-  const IRDBRecord* currentTileMod;
-  const IRDBRecord* currentSection;
-  const IRDBRecord* currentGird;
-  const IRDBRecord* currentScin;
-  const IRDBRecord* currentTifg;
-  const IRDBRecord* currentTicg;
-  const IRDBRecord* currentTicl;
-  const IRDBRecord* currentCuts;
-  const IRDBRecord* currentSaddle;
+  const IRDBRecord* m_currentTileGlob;
+  const IRDBRecord* m_currentTileMod;
+  const IRDBRecord* m_currentSection;
+  const IRDBRecord* m_currentGird;
+  const IRDBRecord* m_currentScin;
+  const IRDBRecord* m_currentTifg;
+  const IRDBRecord* m_currentTicg;
+  const IRDBRecord* m_currentTicl;
+  const IRDBRecord* m_currentCuts;
+  const IRDBRecord* m_currentSaddle;
 
-  int currentTiclInd;   // Index of current TICL structure
+  int m_currentTiclInd;   // Index of current TICL structure
 
-  std::string mTag;
-  std::string mNode;
-  std::vector<unsigned int> mModTypes;
+  std::string m_tag;
+  std::string m_node;
+  std::vector<unsigned int> m_modTypes;
   void FillModTypes();
 
   bool m_verbose;

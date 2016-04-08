@@ -54,6 +54,12 @@ class TileDetDescrManager : public GeoVDetectorManager
   typedef calo_element_vec::size_type		        calo_element_vec_size;
   typedef calo_element_vec::const_iterator		calo_element_const_iterator;
 
+  typedef std::map <unsigned int, TileDetDescrRegion*,  std::less<unsigned int> >  tile_region_map;
+  typedef std::map <unsigned int, CaloDetDescriptor*,   std::less<int> >           scalo_descr_map;
+  typedef std::map <unsigned int, CaloDetDescriptor*,   std::less<unsigned int> >   calo_descr_map;
+  typedef std::map <unsigned int, CaloDetDescrElement*, std::less<unsigned int> > calo_element_map;
+  typedef std::map <unsigned int, TileCellDim*, std::less<unsigned int> >             cell_dim_map;
+
   // --------------- TYPEDEFS
 
   TileDetDescrManager(TileDddbManager_ptr dbManager, MsgStream *log);
@@ -76,7 +82,9 @@ class TileDetDescrManager : public GeoVDetectorManager
 
   //  Access to Tile Regions
   TileDetDescrRegion* find_tile_region(const Identifier& region_id) const    // Region find()
-    { return (*m_tile_region_map.find(region_id.get_identifier32().get_compact())).second; }
+    { tile_region_map::const_iterator it = m_tile_region_map.find(region_id.get_identifier32().get_compact());
+      if (it != m_tile_region_map.end() ) return (*it).second; else return NULL;
+    }
   
   tile_region_const_iterator tile_region_begin() const                       // Region begin()
     { return m_tile_region_vec.begin(); }
@@ -110,7 +118,9 @@ class TileDetDescrManager : public GeoVDetectorManager
     { return m_calo_descr_vec.size(); }
 
   CaloDetDescriptor* get_calo_descriptor(CaloCell_ID::CaloSample sample, int side) const //
-    { return (*m_calo_descr_map.find((int)sample*side)).second; }
+    { scalo_descr_map::const_iterator it = m_calo_descr_map.find((int)sample*side);
+      if (it != m_calo_descr_map.end() ) return (*it).second; else return NULL;
+    }
 
 
   //  Access to Tile Modules
@@ -127,7 +137,9 @@ class TileDetDescrManager : public GeoVDetectorManager
     { return m_tile_module_vec[(unsigned int)module_hash]; }
 
   CaloDetDescriptor* get_module_element(const Identifier& module_id) const        // GetElement (ID)
-    { return (*m_tile_module_map.find(module_id.get_identifier32().get_compact())).second; }
+    { calo_descr_map::const_iterator it = m_tile_module_map.find(module_id.get_identifier32().get_compact()); 
+      if (it != m_tile_module_map.end() ) return (*it).second; else return NULL;
+    }
 
 
   //  Access to Tile Cells
@@ -147,7 +159,9 @@ class TileDetDescrManager : public GeoVDetectorManager
     { return m_tile_cell_vec[(unsigned int)cell_hash]; }
 
   CaloDetDescrElement* get_cell_element(const Identifier& cell_id) const          // GetCell (ID)
-    { return (*m_tile_cell_map.find(cell_id.get_identifier32().get_compact())).second; }
+    { calo_element_map::const_iterator it = m_tile_cell_map.find(cell_id.get_identifier32().get_compact());
+      if (it != m_tile_cell_map.end() ) return (*it).second; else return NULL; 
+    }
 
 
   // Access TileCellDim-s
@@ -189,12 +203,6 @@ class TileDetDescrManager : public GeoVDetectorManager
 
   // DB Manager
   TileDddbManager_ptr m_dbManager;
-
-  typedef std::map <unsigned int, TileDetDescrRegion*,  std::less<unsigned int> >  tile_region_map;
-  typedef std::map <unsigned int, CaloDetDescriptor*,   std::less<int> >           scalo_descr_map;
-  typedef std::map <unsigned int, CaloDetDescriptor*,   std::less<unsigned int> >   calo_descr_map;
-  typedef std::map <unsigned int, CaloDetDescrElement*, std::less<unsigned int> > calo_element_map;
-  typedef std::map <unsigned int, TileCellDim*, std::less<unsigned int> >             cell_dim_map;
 
   bool m_elements_created;
 
