@@ -13,6 +13,7 @@
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 #include "IRegionSelector/IRoiDescriptor.h"
+#include "RoiDescriptor/RoiDescriptor.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkFitterUtils/FitterTypes.h"
@@ -145,6 +146,18 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_barrelOnly(false),
   m_barrelMaxCotTheta(2.)
 {
+  m_pixelBarrelPhiOffsets.reserve(4);
+  m_pixelBarrelEtaOffsets.reserve(4);
+  m_pixelEndCapPhiOffsets.reserve(3);
+  m_pixelEndCapEtaOffsets.reserve(3);
+  for (int ib=0; ib<4; ib++) {
+    m_pixelBarrelPhiOffsets.push_back(0.); 
+    m_pixelBarrelEtaOffsets.push_back(0.);
+  }
+  for (int ie=0; ie<3; ie++) {
+    m_pixelEndCapPhiOffsets.push_back(0.); 
+    m_pixelEndCapEtaOffsets.push_back(0.);
+  }
   declareProperty("TrackCollectionName",m_trackCacheName);
   declareProperty("TrackParticleContainerName",m_trackParticleCacheName);
   declareProperty("VxContainerName",m_VxContainerCacheName);
@@ -173,6 +186,10 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("UseViewContainers",m_useViewContainers);
   declareProperty("BarrelOnly",m_useViewContainers);
   declareProperty("BarrelMaxCotTheta",m_barrelMaxCotTheta);
+  declareProperty("PixelBarrelPhiOffsets", m_pixelBarrelPhiOffsets," Pixel Barrel Phi Offsets in mm" );
+  declareProperty("PixelBarrelEtaOffsets", m_pixelBarrelEtaOffsets," Pixel Barrel Eta Offsets in mm" );
+  declareProperty("PixelEndCapPhiOffsets", m_pixelEndCapPhiOffsets," Pixel EndCap Phi Offsets in mm" );
+  declareProperty("PixelEndCapEtaOffsets", m_pixelEndCapEtaOffsets," Pixel EndCap Eta Offsets in mm" );
 }
 
 FTK_DataProviderSvc::~FTK_DataProviderSvc(){
@@ -226,7 +243,10 @@ StatusCode FTK_DataProviderSvc::initialize() {
 
   ATH_MSG_INFO( "Correcting for FTK training beamspot at x " <<  m_trainingBeamspotX <<" y " << 	m_trainingBeamspotY
       << " z " <<  m_trainingBeamspotZ << " TiltX " << m_trainingBeamspotTiltX << "TiltY " << m_trainingBeamspotTiltY );
-
+  ATH_MSG_INFO( " Pixel Barrel Phi Offsets (pixels): " << m_pixelBarrelPhiOffsets);
+  ATH_MSG_INFO( " Pixel Barrel Eta Offsets (pixels): " << m_pixelBarrelEtaOffsets);
+  ATH_MSG_INFO( " Pixel EndCap Phi Offsets (pixels): " << m_pixelEndCapPhiOffsets);
+  ATH_MSG_INFO( " Pixel EndCap Eta Offsets (pixels): " << m_pixelEndCapEtaOffsets);
 
   return StatusCode::SUCCESS;
 
@@ -1510,14 +1530,18 @@ InDet::PixelCluster* FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelC
       " Row(phi): " <<  raw_pixel_cluster.getRowCoord() << " Col(eta): " << raw_pixel_cluster.getColCoord() <<
       " RowWidth: " << raw_pixel_cluster.getRowWidth() << " ColWidth: " << raw_pixel_cluster.getColWidth());
 
-  if (m_pixelId->barrel_ec(wafer_id)==0) {
-    if (m_pixelId->layer_disk(wafer_id)==0) {
+  unsigned int layer = m_pixelId->layer_disk(wafer_id);
+  bool isBarrel = (m_pixelId->barrel_ec(wafer_id)==0);
+
+
+  if (isBarrel) {
+    if (layer==0) {
       ATH_MSG_VERBOSE( " IBL ");
     } else {
-      ATH_MSG_VERBOSE( " Pixel Barrel layer  " << m_pixelId->layer_disk(wafer_id));
+      ATH_MSG_VERBOSE( " Pixel Barrel layer  " << layer);
     }
   } else {
-    ATH_MSG_VERBOSE( " Pixel Endcap layer  " << m_pixelId->layer_disk(wafer_id));
+    ATH_MSG_VERBOSE( " Pixel Endcap layer  " << layer);
   }
   ATH_MSG_VERBOSE( " Module rows= " << design->rows() << " phiPitch= " << design->phiPitch() << " width= " << design->width() );
   ATH_MSG_VERBOSE( " columns = " << design->columns() << " etaPitch= " << design->etaPitch() <<  " length " << design->length());
@@ -1527,9 +1551,10 @@ InDet::PixelCluster* FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelC
 
   const InDetDD::SiCellId cell(phiIndex, etaIndex);
 
+  ATH_MSG_VERBOSE( " created cell with phiIndex, etaIndex " << cell.phiIndex() << ", " << cell.etaIndex());
 
 
-  if(m_pixelId->barrel_ec(wafer_id)!=0 && m_pixelId->layer_disk(wafer_id)==0 && phiIndex==0 && etaIndex==0) { // ***temp hack - remove bad hits
+  if( (!isBarrel)&& layer==0 && phiIndex==0 && etaIndex==0) { // ***temp hack - remove bad hits
     ATH_MSG_DEBUG( "FTK_DataProviderSvc::createPixelCluster: Invalid Cell barrel_ec=0 layer_disk=0, phiIndex= "
         << phiIndex << "etaIndex= "<< etaIndex);
     return nullptr;
@@ -1542,19 +1567,62 @@ InDet::PixelCluster* FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelC
 
   const InDetDD::SiLocalPosition cellLocalPosition(pixelDetectorElement->rawLocalPositionOfCell(cell));
 
-  double phiOffset = (raw_pixel_cluster.getRowCoord() - (float) phiIndex) *  design->phiPitch();
-  double etaOffset = (raw_pixel_cluster.getColCoord() - (float) etaIndex) *  design->etaPitch();
+  // Get decimal part of pixel position. 0.5 coresponds to the centre of the pixel. Subtract 0.5 to get the offset from the pixel centre.
+  double phiOffset = (raw_pixel_cluster.getRowCoord() - (float) phiIndex-0.5) *  design->phiPitch();
+  double etaOffset = (raw_pixel_cluster.getColCoord() - (float) etaIndex-0.5) *  design->etaPitch();
+  
+  if (isBarrel)  {
+    phiOffset += m_pixelBarrelPhiOffsets[layer];
+    etaOffset += m_pixelBarrelEtaOffsets[layer];
+  } else {
+    phiOffset += m_pixelEndCapPhiOffsets[layer];
+    etaOffset += m_pixelEndCapEtaOffsets[layer];
+  }
+
+
+  ATH_MSG_VERBOSE( "cellLocalPosition.xPhi() " << cellLocalPosition.xPhi() << " cellLocalPosition.xEta() " << cellLocalPosition.xEta());
+
+  //  double shift = pixelDetectorElement->getLorentzCorrection();
+  double shift = 0; // Lorentz shift is included in the cluster position returned by FTK
+
+  if (isBarrel) {
+    if (layer==0) {
+      ATH_MSG_VERBOSE( " IBL                 cluster phi width " << raw_pixel_cluster.getRowWidth() << " (clustercentre-cellcentre): " <<  
+		       (raw_pixel_cluster.getRowCoord() - (float) phiIndex - 0.5) << " * " << 
+		       design->phiPitch() << " + " << m_pixelBarrelPhiOffsets[layer] << " =  " << phiOffset << " - Lorentz shift ("<< pixelDetectorElement->getLorentzCorrection()<<
+		       ") =" << phiOffset -pixelDetectorElement->getLorentzCorrection());
+      ATH_MSG_VERBOSE( " IBL                 cluster eta width " << raw_pixel_cluster.getColWidth() << " (clustercentre-cellcentre): " <<  
+		       (raw_pixel_cluster.getColCoord() - (float) etaIndex - 0.5) << " * " << 
+		       design->etaPitch() << " + " << m_pixelBarrelEtaOffsets[layer] << " =  " << etaOffset);
+    } else {
+      ATH_MSG_VERBOSE( " Pixel Barrel layer  " << m_pixelId->layer_disk(wafer_id)<< " cluster phi width " << raw_pixel_cluster.getRowWidth() << 
+		       " (clustercentre-cellcentre): " <<  (raw_pixel_cluster.getRowCoord() - (float) phiIndex - 0.5) << " * " << design->phiPitch() << 
+		       " + " << m_pixelBarrelPhiOffsets[layer] << " =  " << phiOffset << " - Lorentz shift ("<< pixelDetectorElement->getLorentzCorrection()<<
+		       ") = " << phiOffset-pixelDetectorElement->getLorentzCorrection());
+      ATH_MSG_VERBOSE( " Pixel Barrel layer  " << m_pixelId->layer_disk(wafer_id)<< " cluster eta width " << raw_pixel_cluster.getColWidth() << 
+		       " (clustercentre-cellcentre): " <<  (raw_pixel_cluster.getColCoord() - (float) etaIndex - 0.5) << " * " << design->etaPitch() << 
+		       " + " << m_pixelBarrelEtaOffsets[layer] << " =  " << etaOffset);
+    }
+  } else {
+    ATH_MSG_VERBOSE( " Pixel Endcap layer  " << m_pixelId->layer_disk(wafer_id)<< " cluster phi width " << raw_pixel_cluster.getRowWidth() << 
+		     " (clustercentre-cellcentre): " <<  (raw_pixel_cluster.getRowCoord() - (float) phiIndex - 0.5) << " * " << design->phiPitch() << 
+		     " + " << m_pixelEndCapPhiOffsets[layer] << " =  " << phiOffset<< " Lorentz shift ("<< pixelDetectorElement->getLorentzCorrection()<<
+		       ") = " << phiOffset-pixelDetectorElement->getLorentzCorrection());
+    ATH_MSG_VERBOSE( " Pixel Endcap layer  " << m_pixelId->layer_disk(wafer_id)<< " cluster eta width " << raw_pixel_cluster.getColWidth() << 
+		     " (clustercentre-cellcentre): " <<  (raw_pixel_cluster.getColCoord() - (float) etaIndex - 0.5) << " * " << design->etaPitch() << 
+		     " + " << m_pixelEndCapEtaOffsets[layer] << " =  " << etaOffset);
+  }
+  
 
   double phiPos = cellLocalPosition.xPhi() + phiOffset;
   double etaPos = cellLocalPosition.xEta() + etaOffset;
-  ATH_MSG_VERBOSE( "FTK_DataProviderSvc::createPixelCluster: local coordinates phiPos, etaPos "<<  phiPos << ", " << etaPos);
+  ATH_MSG_VERBOSE( "Cluster position phiPos, etaPos "<<  phiPos << ", " << etaPos);
 
   //InDetDD::SiLocalPosition silPos(phiPos, etaPos);// use the converted positions in mm !!!
   //InDetDD::SiCellId cell =  design->cellIdOfPosition(silPos);
   int phi_index = cell.phiIndex();
   int eta_index = cell.etaIndex();
 
-  ATH_MSG_VERBOSE( " created cell with phiIndex, etaIndex " << cell.phiIndex() << ", " << cell.etaIndex());
 
   Identifier pixel_id = m_pixelId->pixel_id(wafer_id, phi_index, eta_index);
 
@@ -1570,13 +1638,15 @@ InDet::PixelCluster* FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelC
   double etaW = design->widthFromColumnRange(colMin, colMax-1);
   double phiW = design->widthFromRowRange(rowMin, rowMax-1);
 
+  ATH_MSG_VERBOSE("phiW = design->widthFromRowRange("<<rowMin<<","<<rowMax-1<<") = " << phiW);
+  ATH_MSG_VERBOSE("etaW = design->widthFromRowRange("<<colMin<<","<<colMax-1<<") = " << etaW);
+
   InDet::SiWidth siWidth(Amg::Vector2D(phiWidth,etaWidth),Amg::Vector2D(phiW,etaW));
 
-  double shift = pixelDetectorElement->getLorentzCorrection();
   Amg::Vector2D position(phiPos+shift,etaPos);
 
   ATH_MSG_VERBOSE("FTK_DataProviderSvc::createPixelCluster: local coordinates phiPos, etaPos"<<  phiPos+shift << ", " << etaPos << " includes Lorentz shift " << shift);
-  ATH_MSG_VERBOSE(" phiwidth " << phiWidth << " etawidth " <<  etaWidth << " siWidth.phiR() " << siWidth.phiR() << " siWidth.z() " << siWidth.z());
+  ATH_MSG_VERBOSE(" FTK cluster phiwidth " << phiWidth << " etawidth " <<  etaWidth << " siWidth.phiR() " << siWidth.phiR() << " siWidth.z() " << siWidth.z());
 
   // bool blayer = pixelDetectorElement->isBlayer();
 
