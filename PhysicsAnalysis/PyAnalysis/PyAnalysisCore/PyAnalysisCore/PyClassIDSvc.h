@@ -27,7 +27,7 @@ struct PyClassIDSvc
     if (!pSvc)
       {
 	MsgStream log(Athena::getMessageSvc(), "PyClassIDSvc");
-	log << MSG::ERROR << "could not get ClassIDSvc" << endmsg;
+	log << MSG::ERROR << "could not get ClassIDSvc" << endreq;
 	return "";
       }
     
@@ -36,7 +36,7 @@ struct PyClassIDSvc
     if (sc.isFailure())
       {
 	MsgStream log(Athena::getMessageSvc(), "PyClassIDSvc");
-	log << MSG::ERROR << "could not get TypeName for " << id << endmsg;
+	log << MSG::ERROR << "could not get TypeName for " << id << endreq;
       }
     return name;
   }

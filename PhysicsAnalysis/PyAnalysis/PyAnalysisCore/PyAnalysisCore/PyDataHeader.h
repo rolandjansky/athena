@@ -31,7 +31,7 @@ public:
     StoreGateSvc *pSvc = 0;
     StatusCode sc = Gaudi::svcLocator()->service("StoreGateSvc", pSvc);
     if (sc.isFailure())
-      log << MSG::ERROR << "could not get StoreGateSvc" << endmsg;
+      log << MSG::ERROR << "could not get StoreGateSvc" << endreq;
     else
       {
 	// retrieve DataHeader
@@ -39,7 +39,7 @@ public:
 	const DataHandle<DataHeader> ending; 
 	sc = pSvc->retrieve(beg,ending);
 	if (sc.isFailure() || beg==ending)
-	  log << MSG::ERROR << "could not get DataHeader" << endmsg;
+	  log << MSG::ERROR << "could not get DataHeader" << endreq;
 	else
 	  {
 	    // cache DataHeaderElement
@@ -56,7 +56,7 @@ public:
     m_classIDSvc = 0;
     sc = Gaudi::svcLocator()->service("ClassIDSvc", m_classIDSvc);
     if (sc.isFailure())
-      log << MSG::ERROR << "could not get ClassIDSvc" << endmsg;
+      log << MSG::ERROR << "could not get ClassIDSvc" << endreq;
   }
 
   virtual ~PyDataHeader () {}
@@ -83,7 +83,7 @@ public:
 	if (sc.isFailure()) 
 	  {
 	    MsgStream log(Athena::getMessageSvc(), "PyDataHeader");
-	    log << MSG::ERROR << "could not get TypeName for " << *itCLID << endmsg;
+	    log << MSG::ERROR << "could not get TypeName for " << *itCLID << endreq;
 	    return "";
 	  }
 	// select non-symlink
