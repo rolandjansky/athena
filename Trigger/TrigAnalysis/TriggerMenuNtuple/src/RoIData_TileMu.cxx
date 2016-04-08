@@ -86,6 +86,7 @@ RoIData_TileMu::RoIData_TileMu(int create) :
   MuonEFCB_matchChi2 = 0;
   MuonEFCB_nSCT = 0;
   MuonEFCB_nPIX = 0;
+  MuonEFCB_nTRT=0;
 }
 
 RoIData_TileMu::~RoIData_TileMu() {
