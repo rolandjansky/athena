@@ -251,6 +251,7 @@ namespace TRTCond
       char* tmp = abi::__cxa_demangle(typeid(this).name(),0,&len,&s);
       std::string error = std::string(tmp) + std::string(" is empty!!");
       throw std::runtime_error( error );
+      return dummyVal();
     }
     return this->front()->get() ;
     //return operator[]( 0 )->set( t ) ;// m_default ;
@@ -298,6 +299,7 @@ namespace TRTCond
       char* tmp = abi::__cxa_demangle(typeid(this).name(),0,&len,&s);
       std::string error = std::string(tmp) + std::string(" is empty!!");
       throw std::runtime_error( error );
+      return ContainerWithValue(this->front(),&dummyVal());
     }
     return ContainerWithValue(this->front(),&(this->front()->get())) ;
   }
