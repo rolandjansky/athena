@@ -36,6 +36,6 @@ use Particle            Particle-*              Reconstruction
 use egammaEvent         egammaEvent-*           Reconstruction/egamma
 
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports
-apply_pattern lcgdict dict=AnalysisUtils selectionfile=selection.xml headerfiles="..\/AnalysisUtils/AnalysisUtilsDict.h"
+apply_pattern lcgdict dict=AnalysisUtils selectionfile=selection.xml headerfiles="../AnalysisUtils/AnalysisUtilsDict.h"
 
 end_private

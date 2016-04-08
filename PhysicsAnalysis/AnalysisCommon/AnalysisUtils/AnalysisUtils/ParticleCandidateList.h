@@ -41,7 +41,7 @@ class ParticleCandidateList
   ///\name list typedefs: it behaves like a std::list<PDG::pidType>
   //@{
   typedef PDG::pidType& reference;
-  typedef const reference const_reference;
+  typedef const PDG::pidType& const_reference;
   typedef std::list<PDG::pidType>::iterator iterator;
   typedef std::list<PDG::pidType>::const_iterator const_iterator;
   typedef std::list<PDG::pidType>::size_type size_type;

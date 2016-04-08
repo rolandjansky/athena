@@ -33,7 +33,7 @@ public:
                      const IInterface* parent )
     : AthAlgTool( type, name, parent ),
       AraAlgToolWrapper< KinematicSelectorCore > ( type, name, parent )  
-  {AthAlgTool::declareInterface< KinematicSelectorCore >(this); };
+  {/*AthAlgTool::declareInterface< KinematicSelectorCore >(this);*/}
 
 };
 

@@ -3,8 +3,9 @@
 */
 
 #include "AnalysisUtils/ParticleBaseSelector.h"
+#include "AthenaKernel/Units.h"
 
-using CLHEP::GeV;
+using Athena::Units::GeV;
 using namespace std;
 
 ParticleBaseSelector::ParticleBaseSelector(const std::string& name,  ISvcLocator* pSvcLocator):
@@ -18,12 +19,12 @@ ParticleBaseSelector::ParticleBaseSelector(const std::string& name,  ISvcLocator
 StatusCode ParticleBaseSelector::initialize()
 {
   // print parameters in SelectorBase
-  StatusCode sc = SelectorBase<ParticleBaseSelector>::initialize();
+  ATH_CHECK( SelectorBase<ParticleBaseSelector>::initialize() );
 
   // print parameters in ParticleBaseSelector
-  (*mLog)<< MSG::INFO<<", PtMin="<<m_Emin;
-  (*mLog)<< MSG::INFO<<", PtMax="<<m_Emax;
-  return sc;
+  ATH_MSG_INFO(", PtMin="<<m_Emin );
+  ATH_MSG_INFO(", PtMax="<<m_Emax );
+  return StatusCode::SUCCESS;
 }
 
 bool ParticleBaseSelector::accept(const ParticleBaseLink& link){
