@@ -22,8 +22,7 @@ apply_pattern declare_joboptions files="*.py"
 
 
 # LArG4SD links against this library
-library CaloG4Sim
-apply_pattern dual_use_library files=*.cc *.cxx
+apply_pattern dual_use_library files="*.cc *.cxx"
 
 
 #=======================================================
