@@ -168,7 +168,7 @@ pool::RelationalCollection::RelationalCollection::open()
   if( isOpen() ) return;
 
   // Get connection service.
-  auto_ptr<coral::ConnectionService> connectionService( new coral::ConnectionService() );
+  unique_ptr<coral::ConnectionService> connectionService( new coral::ConnectionService() );
   coral::MessageStream log( "pool::RelationalCollection::open" );
   // Retrieve a connection handle.
   bool readOnly = ( m_mode == pool::ICollection::READ );
@@ -891,7 +891,7 @@ initialize()
         const string init_procedure = "POOL_COLLECTION_INIT";
         bool procedureExists( false );
         try {
-           std::auto_ptr<coral::IQuery> query( m_session->schema("SYS").newQuery() );
+           std::unique_ptr<coral::IQuery> query( m_session->schema("SYS").newQuery() );
            coral::AttributeList        output;
            output.extend( "count(*)", "int");
            query->addToOutputList("count(*)");
@@ -1380,7 +1380,7 @@ retrieveColumnDescriptions( const std::string& fragmentName,
 
   // Retrieve column names and types for this fragment and insert into collection description object.
   coral::ITable& descriptionsTable = nominalSchema.tableHandle( RelationalCollectionNames::nameOfCollectionDescriptionsTable() );
-  std::auto_ptr<coral::IQuery>         descQuery( descriptionsTable.newQuery() );
+  std::unique_ptr<coral::IQuery>         descQuery( descriptionsTable.newQuery() );
   descQuery->addToOutputList( RelationalCollectionNames::collectionVariableNameVariableInCollectionDescriptionsTable() );
   descQuery->addToOutputList( RelationalCollectionNames::collectionVariableTypeVariableInCollectionDescriptionsTable() );
   descQuery->addToOutputList( RelationalCollectionNames::collectionVariableMaxSizeVariableInCollectionDescriptionsTable() );
@@ -1484,7 +1484,7 @@ pool::RelationalCollection::RelationalCollection::
 createLinkIdToTokenKeyMaps( const std::string& fragmentName )
 {
   // Query the links table.
-  auto_ptr<coral::IQuery> query( m_session->nominalSchema().newQuery() );
+  unique_ptr<coral::IQuery> query( m_session->nominalSchema().newQuery() );
   query->addToTableList( m_linksTableNameForCollectionFragmentName[fragmentName] );
 
   // Select all columns from links table and order by link ID.
@@ -2221,7 +2221,7 @@ pool::RelationalCollection::RelationalCollection::
 retrieveFragmentTableNames( const std::string& fragmentName )
 {
    // Retrieve data and links table names for this collection fragment and insert in private maps.
-   std::auto_ptr<coral::IQuery> query(
+   std::unique_ptr<coral::IQuery> query(
       m_session->nominalSchema().tableHandle( RelationalCollectionNames::nameOfCollectionHeadersTable() ).newQuery() );
 
    query->addToOutputList( RelationalCollectionNames::dataTableNameVariableInCollectionHeadersTable() );
