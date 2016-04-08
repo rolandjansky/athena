@@ -196,25 +196,35 @@ namespace MyAnalysis {
   //Destructor
   Analysis::~Analysis()
   {
-    ATH_MSG_DEBUG( "Analysis destructor called"  );
+    MsgStream log( messageService(), name() ) ;
+    log << MSG::DEBUG << "Analysis destructor called" << endreq;
   }
   //__________________________________________________________________________
   StatusCode Analysis::initialize()
   {
     
-    ATH_MSG_DEBUG("Analysis initialize()"  );
+    MsgStream log( messageService(), name() );
+    log << MSG::DEBUG <<"Analysis initialize()" << endreq;
 
     //retrieve ID helpers 
-    ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
+    StatusCode sc = detStore()->retrieve( m_caloIdMgr );
+    if (sc.isFailure()) {
+     std::cout << "Unable to retrieve CaloIdMgr in LArHitEMap " << std::endl;
+     return false;
+    }
     m_larem_id   = m_caloIdMgr->getEM_ID();
     m_calodm_id  = m_caloIdMgr->getDM_ID();
 
 //  retrieve CaloDetDescrMgr 
-    ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+    sc = detStore()->retrieve(m_calodetdescrmgr);
+    if (sc.isFailure()) {
+       std::cout << "Unable to retrieve CaloDetDescrMgr in LArHitEMap " << std::endl;
+       return false;
+    }
 
 // initialize hit list
     if (m_check) {
-       int ncellem=m_larem_id->channel_hash_max();
+       int m_ncellem=m_larem_id->channel_hash_max();
        CellInfo cell0;
        cell0.bec=0;
        cell0.sampling=0;
@@ -225,10 +235,10 @@ namespace MyAnalysis {
        cell0.Eraw=-9999.;
        cell0.Ecell=-9999.;
        cell0.identifier=0;
-       m_CellListEM.resize(ncellem,cell0);
+       CellListEM.resize(m_ncellem,cell0);
 
        const CaloDetDescrElement* calodde=0;
-       for (int i=0;i<ncellem;i++){
+       for (int i=0;i<m_ncellem;i++){
          IdentifierHash idHash=i;
          Identifier id=m_larem_id->channel_id(idHash);
          int BvsEC=abs(m_larem_id->barrel_ec(id));
@@ -247,17 +257,29 @@ namespace MyAnalysis {
          mycell.Eraw=-9999.;
          mycell.Ecell=-9999.;
          mycell.identifier=id;
-         m_CellListEM[idHash]=mycell;
+         CellListEM[idHash]=mycell;
        }
     }   // m_check
 
-    IToolSvc* toolSvc = nullptr;
-    ATH_CHECK( service( "ToolSvc",toolSvc  ) );
-    ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_cablingService) );
-    ATH_CHECK( service("THistSvc",m_thistSvc) );
+    IToolSvc* toolSvc;
+    StatusCode status   = service( "ToolSvc",toolSvc  );
+    if(status.isFailure()) {
+      std::cout << " MyAnalysis failed to locate ToolSvc " << std::endl;
+      return StatusCode::FAILURE;
+    }
+    status=toolSvc->retrieveTool("LArCablingService",m_cablingService);
+    if (status.isFailure()) {
+      std::cout << "MyAnalysis cannot locate cabling service " << std::endl;
+      return StatusCode::FAILURE;
+    }
+
+    status = service("THistSvc",m_thistSvc);
+    if (status.isFailure()) {
+        std::cout << " failed to get THistSvc" << std::endl;
+        return StatusCode::FAILURE;
+    } 
     std::cout << " retrieved THistSvc" << std::endl;
 
-    StatusCode sc;
     m_hist_etraw_emb_s0 = new TH1D("m_hist_etraw_emb_s0","E EMB S0",4000,-100.,100.);
     sc = m_thistSvc->regHist("/file1/analysis/m_hist_etraw_emb_s0",m_hist_etraw_emb_s0);
     m_hist_etraw_emb_s1 =  new TH1D("m_hist_etraw_emb_s1","E EMB S1",4000,-100.,100.);
@@ -410,8 +432,8 @@ namespace MyAnalysis {
    
     sc = m_thistSvc->regTree("/file1/analysis",m_ntuple);
    
-    ATH_MSG_INFO( " histos booked and registred "  );
-    ATH_MSG_INFO("size of LArHit " << sizeof(LArHit)  );
+    log << MSG::INFO << " histos booked and registred " << endreq;
+    log << MSG::INFO <<"size of LArHit " << sizeof(LArHit) << endreq;
 
 
   if (m_useTriggerTime) {
@@ -423,13 +445,14 @@ namespace MyAnalysis {
      ListItem theTool(m_triggerTimeToolName.value());
      sc = p_toolSvc->retrieveTool(theTool.type(), theTool.name(),algtool);
      if (sc.isFailure()) {
-       ATH_MSG_ERROR( "Unable to find tool for " << m_triggerTimeToolName.value()  );
+        log << MSG::ERROR
+               << "Unable to find tool for " << m_triggerTimeToolName.value() << endreq;
         m_triggerTimeTool = 0;
      }
      else {
         m_triggerTimeTool=dynamic_cast<ITriggerTime*>(algtool);
-        ATH_MSG_INFO( "retrieved TriggerTime tool: "
-                      << m_triggerTimeToolName.value()  );
+        log << MSG::INFO << "retrieved TriggerTime tool: "
+               << m_triggerTimeToolName.value() << endreq;
      }
   }
 
@@ -442,7 +465,8 @@ namespace MyAnalysis {
   //__________________________________________________________________________
   StatusCode Analysis::finalize()
   {
-    ATH_MSG_DEBUG("Analysis finalize()"  );
+    MsgStream log( messageService(), name() );
+    log << MSG::DEBUG <<"Analysis finalize()" << endreq;
     return StatusCode::SUCCESS; 
   }
   
@@ -451,7 +475,8 @@ namespace MyAnalysis {
   {
     //.............................................
     
-    ATH_MSG_DEBUG( "Analysis execute()"  );
+    MsgStream log( messageService(), name() );
+    log << MSG::DEBUG << "Analysis execute()" << endreq;
 
 //    m_lar_dd_man = LArDetDescrManager::instance();
 //    const AtlasDetectorID* atlasID = m_lar_dd_man->get_em_id();
@@ -462,12 +487,19 @@ namespace MyAnalysis {
 
    if (m_nevt==-1) {
     std::cout << "retrieving fsampl from detStore " << std::endl;
-    ATH_CHECK( detStore()->retrieve(m_dd_fSampl) );
+    StatusCode sc = detStore()->retrieve(m_dd_fSampl);
+    if (sc.isFailure() || !m_dd_fSampl)
+    {
+      log << MSG::ERROR
+             << "Unable to retrieve ILArfSampl from DetectorStore"
+             << endreq;
+      return StatusCode::FAILURE;
+    }
 
-    int ncell=m_CellListEM.size();
+    int ncell=CellListEM.size();
     std::cout << " start loop over cells " << std::endl;
     for (int i=0;i<ncell;i++) {
-       Identifier id= m_CellListEM[i].identifier;
+       Identifier id= CellListEM[i].identifier;
        int isamp=m_larem_id->sampling(id);
        int ieta=m_larem_id->eta(id);
        int region=m_larem_id->region(id);
@@ -484,16 +516,16 @@ namespace MyAnalysis {
 
 
    if ((m_nevt%100)==1)
-     ATH_MSG_INFO( " ***** Event " << m_nevt  );
+      log << MSG::INFO << " ***** Event " << m_nevt << endreq;
 
 // reset E list to 0
    if (m_check) {
-    int ncell=m_CellListEM.size();
+    int ncell=CellListEM.size();
     for(int i=0;i<ncell;i++) {
-       m_CellListEM[i].Ehit=0.;
-       m_CellListEM[i].Thit=0.;
-       m_CellListEM[i].Eraw=-9999.;
-       m_CellListEM[i].Ecell=-9999.;
+       CellListEM[i].Ehit=0.;
+       CellListEM[i].Thit=0.;
+       CellListEM[i].Eraw=-9999.;
+       CellListEM[i].Ecell=-9999.;
     }
    }
 
@@ -514,18 +546,18 @@ namespace MyAnalysis {
   int nhit_tot=0;
   int nhit_ot=0;
   if (m_hit) {
-    std::vector <std::string> HitContainer;
-    HitContainer.push_back("LArHitEMB");
-    HitContainer.push_back("LArHitEMEC");
-    HitContainer.push_back("LArHitHEC");
-    HitContainer.push_back("LArHitFCAL");
-    ATH_MSG_DEBUG( "HitContainer.size " << HitContainer.size()  );
-    for (unsigned int iHitContainer=0;iHitContainer<HitContainer.size();iHitContainer++)
+    std::vector <std::string> m_HitContainer;
+    m_HitContainer.push_back("LArHitEMB");
+    m_HitContainer.push_back("LArHitEMEC");
+    m_HitContainer.push_back("LArHitHEC");
+    m_HitContainer.push_back("LArHitFCAL");
+    log << MSG::DEBUG << "m_HitContainer.size " << m_HitContainer.size() << endreq;
+    for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
     {
     const LArHitContainer* hit_container ;
-    if(evtStore()->retrieve(hit_container,HitContainer[iHitContainer])
+    if(evtStore()->retrieve(hit_container,m_HitContainer[iHitContainer])
             .isFailure()) {
-        ATH_MSG_WARNING( " cannot retrieve hit container "  );
+        log << MSG::WARNING << " cannot retrieve hit container " << endreq;
       }  
       else
       {
@@ -566,8 +598,8 @@ namespace MyAnalysis {
                idHash = m_larem_id->channel_hash(cellID);
                double hit_time = hit->time() - trigtime;
                if (std::fabs(hit_time)<25.) {
-                m_CellListEM[idHash].Ehit += hit->energy();
-                m_CellListEM[idHash].Thit += hit->energy()*hit_time;
+                CellListEM[idHash].Ehit += hit->energy();
+                CellListEM[idHash].Thit += hit->energy()*hit_time;
                }
              }
              int sampl = m_larem_id->sampling(cellID);
@@ -583,19 +615,19 @@ namespace MyAnalysis {
                etot_hit_e[sampl]+=hit->energy();
 
              if (std::fabs(hit->energy())>1000.)  {
-               ATH_MSG_INFO( " Hit  " << m_larem_id->show_to_string(cellID)
-                             << " ieta/iphi/isampl/E/t " << m_larem_id->eta(cellID) 
-                             << " " << m_larem_id->phi(cellID) << " " << 
-                             m_larem_id->sampling(cellID) << " " << hit->energy() 
-                             << " " << hit->time()  );
+               log << MSG::INFO << " Hit  " << m_larem_id->show_to_string(cellID)
+                 << " ieta/iphi/isampl/E/t " << m_larem_id->eta(cellID) 
+                 << " " << m_larem_id->phi(cellID) << " " << 
+                 m_larem_id->sampling(cellID) << " " << hit->energy() 
+                 << " " << hit->time() << endreq;
              }
           }     // lar_em
         }        // loop over hits
-        ATH_MSG_DEBUG( " number of hits found " << ihit  );
+        log << MSG::DEBUG << " number of hits found " << ihit << endreq;
       }           // container found in storegate
     }             // loop over hit containers
 //   log << MSG::INFO << " Total number of LAr hits " << nhit_tot << " "
-//                  << nhit_ot << endmsg;
+//                  << nhit_ot << endreq;
    double xhit = (double) nhit_tot;
    m_hist_nhitlar->Fill(xhit);
  }    //  m_hit true
@@ -615,7 +647,9 @@ namespace MyAnalysis {
       int nn=0;
       if (m_doTruth) {
         if ( evtStore()->retrieve(mcCollptr).isFailure() ) {
-          ATH_MSG_WARNING( "cannot retrieve McEventCollection  without Key" );
+             log << MSG::WARNING 
+             << "cannot retrieve McEventCollection  without Key"
+             << endreq;
         } 
         else
         {
@@ -635,8 +669,8 @@ namespace MyAnalysis {
                e_true = part->momentum().e();
                eta_true = part->momentum().pseudoRapidity();
                phi_true = part->momentum().phi();
-               ATH_MSG_INFO( " true particle found " << part->pdg_id() << " " <<
-                             e_true << " " << eta_true << " " << phi_true  );
+               log << MSG::INFO << " true particle found " << part->pdg_id() << " " <<
+                e_true << " " << eta_true << " " << phi_true << endreq;
                HepMC::GenVertex* vertex = part->end_vertex();
                if (vertex) {
                   m_xconv = vertex->point3d().x();
@@ -675,13 +709,15 @@ namespace MyAnalysis {
     const CaloCellContainer* cell_container;
     if(evtStore()->retrieve(cell_container,"AllCalo").isFailure())
     {
-      ATH_MSG_INFO( " Could not get pointer to Cell Container " );
+      log << MSG::INFO
+          << " Could not get pointer to Cell Container " 
+          << endreq;
     } 
     else
     {
       CaloCellContainer::const_iterator first_cell = cell_container->begin();
       CaloCellContainer::const_iterator end_cell   = cell_container->end();
-      ATH_MSG_DEBUG( "*** Start loop over CaloCells in Myanalysis"  );
+      log << MSG::DEBUG << "*** Start loop over CaloCells in Myanalysis" << endreq;
       for (; first_cell != end_cell; ++first_cell)
       {
         Identifier cellID = (*first_cell)->ID();
@@ -691,7 +727,7 @@ namespace MyAnalysis {
          if (m_check) {
            IdentifierHash idHash=0;
            idHash = m_larem_id->channel_hash(cellID);
-           m_CellListEM[idHash].Ecell = energy;
+           CellListEM[idHash].Ecell = energy;
           }
          int sampl=m_larem_id->sampling(cellID);
          etot_cell[sampl]+=energy;
@@ -701,9 +737,9 @@ namespace MyAnalysis {
           double phi = (*first_cell)->phi();
           double eta0 = (*first_cell)->caloDDE()->eta_raw();
           double phi0 = (*first_cell)->caloDDE()->phi_raw();
-          ATH_MSG_INFO( "Cell " << m_larem_id->show_to_string(cellID)
-                        << " eta/phi/energy " << eta << " " << eta0 << " " << phi << " "
-                        << phi0 << " " << energy  );
+          log << MSG::INFO << "Cell " << m_larem_id->show_to_string(cellID)
+                    << " eta/phi/energy " << eta << " " << eta0 << " " << phi << " "
+                    << phi0 << " " << energy << endreq;
         }
         int sampling = (*first_cell)->caloDDE()->getSampling();
         if (sampling==CaloCell_ID::TileGap3) std::cout << "   *** found tile gap cells in cell list" << std::endl;
@@ -720,10 +756,13 @@ namespace MyAnalysis {
     const LArRawChannelContainer* rawchannel_container;
     if(evtStore()->retrieve(rawchannel_container,"LArRawChannels").isFailure())
     {
-      ATH_MSG_INFO( " Could not get  LArRawChannel container" );
+     log << MSG::INFO
+        << " Could not get  LArRawChannel container"
+        << endreq;
     } else
     {
-     ATH_MSG_INFO( "*** Stat loop over LArRawChannel in Myanalysis"  );
+     log << MSG::INFO
+         << "*** Stat loop over LArRawChannel in Myanalysis" << endreq;
      LArRawDetSelector  selObj;
      selObj.setDet(m_id);
      // LArRawDetSelector::const_iterator f_cell =
@@ -748,7 +787,7 @@ if (!selObj.select(hit)) continue;
         if (m_check) {
          IdentifierHash idHash=0;
          idHash = m_larem_id->channel_hash(cellID);
-         m_CellListEM[idHash].Eraw = energy;
+         CellListEM[idHash].Eraw = energy;
         }
         int sampl=m_larem_id->sampling(cellID);
 //GU only barrel
@@ -760,16 +799,16 @@ if (!selObj.select(hit)) continue;
        if (std::fabs(energy)>10000. && m_larem_id->is_lar_em(cellID) ) {
         double time=(double)hit->time();      // time in ps from RawChannel
         double chi2=(double)hit->quality();   // chi2 from RawChannel
-        ATH_MSG_INFO( " RawChannel ieta/iphi/isampl/E/t" 
-                      << " " << m_larem_id->eta(cellID)
-                      << " " << m_larem_id->phi(cellID) 
-                      << " " << m_larem_id->sampling(cellID) 
-                      << " " << energy << " " << time << " " << chi2  );
+        log << MSG::INFO  << " RawChannel ieta/iphi/isampl/E/t" 
+                 << " " << m_larem_id->eta(cellID)
+                 << " " << m_larem_id->phi(cellID) 
+                 << " " << m_larem_id->sampling(cellID) 
+                 << " " << energy << " " << time << " " << chi2 << endreq;
        }
 
 
      }
-     ATH_MSG_INFO( "number of EM raw Channels " << nraw  );
+     log << MSG::INFO << "number of EM raw Channels " << nraw << endreq;
     }
 
   }  
@@ -801,22 +840,22 @@ if (!selObj.select(hit)) continue;
 
 
   if (m_calhit)  {
-    std::vector <std::string> CalibrationHitContainer;
-    CalibrationHitContainer.push_back("LArCalibrationHitActive");
-    CalibrationHitContainer.push_back("LArCalibrationHitDeadMaterial");
-    CalibrationHitContainer.push_back("LArCalibrationHitInactive");
-    CalibrationHitContainer.push_back("TileCalibHitActiveCell");
-    CalibrationHitContainer.push_back("TileCalibHitInactiveCell");
-    CalibrationHitContainer.push_back("TileCalibHitDeadMaterial");
-    ATH_MSG_INFO( "CalibrationHitContainer.size " 
-                  << CalibrationHitContainer.size()  );
-    for (unsigned int iHitContainer=0;iHitContainer<CalibrationHitContainer.size();
+    std::vector <std::string> m_CalibrationHitContainer;
+    m_CalibrationHitContainer.push_back("LArCalibrationHitActive");
+    m_CalibrationHitContainer.push_back("LArCalibrationHitDeadMaterial");
+    m_CalibrationHitContainer.push_back("LArCalibrationHitInactive");
+    m_CalibrationHitContainer.push_back("TileCalibHitActiveCell");
+    m_CalibrationHitContainer.push_back("TileCalibHitInactiveCell");
+    m_CalibrationHitContainer.push_back("TileCalibHitDeadMaterial");
+    log << MSG::INFO << "m_CalibrationHitContainer.size " 
+                     << m_CalibrationHitContainer.size() << endreq;
+    for (unsigned int iHitContainer=0;iHitContainer<m_CalibrationHitContainer.size();
           iHitContainer++)
     {
       const CaloCalibrationHitContainer* calocalibrationhit_container ;
-      if(evtStore()->retrieve(calocalibrationhit_container,CalibrationHitContainer[iHitContainer])
+      if(evtStore()->retrieve(calocalibrationhit_container,m_CalibrationHitContainer[iHitContainer])
         .isFailure()) {
-        ATH_MSG_INFO( " cannot retrieve calo calibration hit container "  );
+          log << MSG::INFO << " cannot retrieve calo calibration hit container " << endreq;
       }  
       else
       {
@@ -922,9 +961,9 @@ if (!selObj.select(hit)) continue;
         }     // loop over hits
       }       // container found
     }         // loop over calo calibration hit containers
-    ATH_MSG_INFO( "Etot calibration hits " << etot_cal    
-                  << " " << ecal[0] << " " << ecal[1] << " " << ecal[2] << " " << ecal[3]
-                  );
+    log << MSG::INFO << "Etot calibration hits " << etot_cal    
+        << " " << ecal[0] << " " << ecal[1] << " " << ecal[2] << " " << ecal[3]
+        << endreq;
     m_hist_cal0->Fill(ecal[0]);
     m_hist_cal1->Fill(ecal[1]);
     m_hist_cal2->Fill(ecal[2]);
@@ -935,18 +974,18 @@ if (!selObj.select(hit)) continue;
 // loop over cells and compare energies
 
   if (m_check) {
-   int ncell=m_CellListEM.size();
+   int ncell=CellListEM.size();
    for (int i=0;i<ncell;i++) {
-    double ehit=m_CellListEM[i].Ehit; 
-    double thit=m_CellListEM[i].Thit;
-    double eraw=m_CellListEM[i].Eraw; 
-    double ecell=m_CellListEM[i].Ecell; 
-    int sampling=m_CellListEM[i].sampling;
-    int calotype=m_CellListEM[i].bec;
-    double eta=fabs(m_CellListEM[i].eta);
+    double ehit=CellListEM[i].Ehit; 
+    double thit=CellListEM[i].Thit;
+    double eraw=CellListEM[i].Eraw; 
+    double ecell=CellListEM[i].Ecell; 
+    int sampling=CellListEM[i].sampling;
+    int calotype=CellListEM[i].bec;
+    double eta=fabs(CellListEM[i].eta);
     if ((ehit > 10000. || eraw > 60000.) && calotype==0)  {    // 20 MeV cut
-      ATH_MSG_INFO( "calo/samp/eta " << calotype << " " << sampling << " " << eta
-                    << " energies Hit/Raw/Cell " << ehit << " " << eraw << " " << ecell << " " << thit  );
+     log << MSG::INFO << "calo/samp/eta " << calotype << " " << sampling << " " << eta
+     << " energies Hit/Raw/Cell " << ehit << " " << eraw << " " << ecell << " " << thit << endreq;
     }   // cut on Ehit
 //    double et = eraw/cosh(eta);
     if (ehit < 0.0001) {  // no true energy in this cell
@@ -993,8 +1032,8 @@ if (!selObj.select(hit)) continue;
 // build identifier and find hash id
        Identifier myid = m_larem_id->channel_id(iside,sampling,ireg,jeta,kphi);
        IdentifierHash hid = m_larem_id->channel_hash(myid);
-       if (/*hid>=0 &&*/ hid < m_CellListEM.size())
-         sume+=m_CellListEM[hid].Ecell;
+       if (/*hid>=0 &&*/ hid < CellListEM.size())
+         sume+=CellListEM[hid].Ecell;
       }
      }
 // sampling 1
@@ -1005,8 +1044,8 @@ if (!selObj.select(hit)) continue;
      for (int jeta=ietas1;jeta<ietas2;jeta++) {
       Identifier myid = m_larem_id->channel_id(iside,sampling,ireg,jeta,jphi);
       IdentifierHash hid = m_larem_id->channel_hash(myid);
-      if (/*hid>=0 &&*/ hid < m_CellListEM.size())
-         sume+=m_CellListEM[hid].Ecell;
+      if (/*hid>=0 &&*/ hid < CellListEM.size())
+         sume+=CellListEM[hid].Ecell;
      }
 // sampling 0
      sampling=0;
@@ -1014,8 +1053,8 @@ if (!selObj.select(hit)) continue;
      jphi=iphi/4;
      Identifier myid = m_larem_id->channel_id(iside,sampling,ireg,jeta,jphi);
      IdentifierHash hid = m_larem_id->channel_hash(myid);
-     if (/*hid>=0 &&*/ hid < m_CellListEM.size())
-       sume+=m_CellListEM[hid].Ecell;
+     if (/*hid>=0 &&*/ hid < CellListEM.size())
+       sume+=CellListEM[hid].Ecell;
 
 // goes to Et
      sume = sume/cosh(eta);
@@ -1053,21 +1092,21 @@ if (!selObj.select(hit)) continue;
     const CaloClusterContainer* cluster_container;
     if(evtStore()->retrieve(cluster_container,"LArClusterEM")
         .isFailure()) {
-      ATH_MSG_INFO( " cannot retrieve cluster container "  );
+        log << MSG::INFO << " cannot retrieve cluster container " << endreq;
     }  
     else
     {   
       CaloClusterContainer::const_iterator clus_iter;
-      ATH_MSG_INFO( " start loop over clusters "  );
+      log << MSG::INFO << " start loop over clusters " << endreq;
       for(clus_iter=cluster_container->begin();
         clus_iter != cluster_container->end();clus_iter++)
       {
          const CaloCluster* clus = (*clus_iter);
 //       clus->print();
-         ATH_MSG_INFO( " **** Cluster E   " << clus->energy() << "  Et=" 
-                       << clus->et() << " " 
-                       << " eta/phi " << clus->eta() << " " << clus->phi() 
-                       << " phi2nd " << clus->phiSample(CaloSampling::EMB2)  );
+         log <<MSG::INFO << " **** Cluster E   " << clus->energy() << "  Et=" 
+              << clus->et() << " " 
+              << " eta/phi " << clus->eta() << " " << clus->phi() 
+              << " phi2nd " << clus->phiSample(CaloSampling::EMB2) << endreq;
          m_nt_eclus=clus->energy();
          m_nt_eclus0 = clus->eSample(CaloSampling::PreSamplerB);
          m_nt_eclus1 = clus->eSample(CaloSampling::EMB1);
@@ -1101,22 +1140,22 @@ if (!selObj.select(hit)) continue;
 // 5x5 photons
     if(evtStore()->retrieve(cluster_container,"LArClusterEMgam")
         .isFailure()) {
-      ATH_MSG_INFO( " cannot retrieve cluster container "  );
+        log << MSG::INFO << " cannot retrieve cluster container " << endreq;
     }  
     else
     {   
       CaloClusterContainer::const_iterator clus_iter;
-      ATH_MSG_INFO( " start loop over gamma 5x5 clusters "  );
+      log << MSG::INFO << " start loop over gamma 5x5 clusters " << endreq;
       for(clus_iter=cluster_container->begin();
         clus_iter != cluster_container->end();clus_iter++)
       {
          const CaloCluster* clus = (*clus_iter);
 //       clus->print();
          m_nt_eclusg = clus->energy();
-         ATH_MSG_INFO( " **** Cluster E   " << clus->energy() << "  Et="
-                       << clus->et() << " " 
-                       << " eta/phi " << clus->eta() << " " << clus->phi()  
-                       << " phi2nd " << clus->phiSample(CaloSampling::EMB2)  );
+         log <<MSG::INFO << " **** Cluster E   " << clus->energy() << "  Et="
+              << clus->et() << " " 
+              << " eta/phi " << clus->eta() << " " << clus->phi()  
+              << " phi2nd " << clus->phiSample(CaloSampling::EMB2) << endreq;
           if (std::fabs(clus->eta())<1.475) {
            m_nt_etaclusg551 =  clus->etaSample(CaloSampling::EMB1);
            m_nt_etaclusg552 =  clus->etaSample(CaloSampling::EMB2);
@@ -1130,19 +1169,19 @@ if (!selObj.select(hit)) continue;
 // 3x5
     if(evtStore()->retrieve(cluster_container,"LArClusterEM35")
         .isFailure()) {
-      ATH_MSG_INFO( " cannot retrieve cluster container 35"  );
+        log << MSG::INFO << " cannot retrieve cluster container 35" << endreq;
     }  
     else
     {   
       CaloClusterContainer::const_iterator clus_iter;
-      ATH_MSG_INFO( " start loop over clusters "  );
+      log << MSG::INFO << " start loop over clusters " << endreq;
       for(clus_iter=cluster_container->begin();
         clus_iter != cluster_container->end();clus_iter++)
       {
        const CaloCluster* clus = (*clus_iter);
-       ATH_MSG_INFO( " **** Cluster E35 " << clus->energy() << "  Et=" 
-                     << clus->et() << " " 
-                     << " eta/phi " << clus->eta() << " " << clus->phi()  );
+       log <<MSG::INFO << " **** Cluster E35 " << clus->energy() << "  Et=" 
+            << clus->et() << " " 
+            << " eta/phi " << clus->eta() << " " << clus->phi() << endreq;
        m_nt_eclus35 = clus->energy();
        m_nt_eclus350 = clus->eSample(CaloSampling::PreSamplerB);
        m_nt_eclus351 = clus->eSample(CaloSampling::EMB1);
@@ -1162,19 +1201,19 @@ if (!selObj.select(hit)) continue;
 // 3x5 photons
     if(evtStore()->retrieve(cluster_container,"LArClusterEMgam35")
         .isFailure()) {
-      ATH_MSG_INFO( " cannot retrieve cluster container gam35"  );
+        log << MSG::INFO << " cannot retrieve cluster container gam35" << endreq; 
     }  
     else
     {  
       CaloClusterContainer::const_iterator clus_iter;
-      ATH_MSG_INFO( " start loop over clusters "  );
+      log << MSG::INFO << " start loop over clusters " << endreq;
       for(clus_iter=cluster_container->begin();
         clus_iter != cluster_container->end();clus_iter++)
       {
        const CaloCluster* clus = (*clus_iter);
-       ATH_MSG_INFO( " **** Cluster E35 " << clus->energy() << "  Et="
-                     << clus->et() << " "
-                     << " eta/phi " << clus->eta() << " " << clus->phi()  );
+       log <<MSG::INFO << " **** Cluster E35 " << clus->energy() << "  Et="
+            << clus->et() << " "
+            << " eta/phi " << clus->eta() << " " << clus->phi() << endreq;
        m_nt_eclusg35 = clus->energy();
        if (std::fabs(clus->eta())<1.475) {
         m_nt_etaclusg351 = clus->etaSample(CaloSampling::EMB1);
@@ -1190,19 +1229,19 @@ if (!selObj.select(hit)) continue;
 // 3x7
     if(evtStore()->retrieve(cluster_container,"LArClusterEM37")
         .isFailure()) {
-      ATH_MSG_INFO( " cannot retrieve cluster container 37"  );
+        log << MSG::INFO << " cannot retrieve cluster container 37" << endreq;
     }  
     else
     {   
       CaloClusterContainer::const_iterator clus_iter;
-      ATH_MSG_INFO( " start loop over clusters "  );
+      log << MSG::INFO << " start loop over clusters " << endreq;
       for(clus_iter=cluster_container->begin();
         clus_iter != cluster_container->end();clus_iter++)
       {
        const CaloCluster* clus = (*clus_iter);
-       ATH_MSG_INFO( " **** Cluster E37 " << clus->energy() << "  Et=" 
-                     << clus->et() << " " 
-                     << " eta/phi " << clus->eta() << " " << clus->phi()  );
+       log <<MSG::INFO << " **** Cluster E37 " << clus->energy() << "  Et=" 
+            << clus->et() << " " 
+            << " eta/phi " << clus->eta() << " " << clus->phi() << endreq;
         m_nt_eclus37 = clus->energy();
         if (std::fabs(clus->eta())<1.475) {
           m_nt_etaclus371 = clus->etaSample(CaloSampling::EMB1);
@@ -1218,19 +1257,19 @@ if (!selObj.select(hit)) continue;
 // 3x7 gam
     if(evtStore()->retrieve(cluster_container,"LArClusterEMgam37")
         .isFailure()) {
-      ATH_MSG_INFO( " cannot retrieve cluster container gam37"  );
+        log << MSG::INFO << " cannot retrieve cluster container gam37" << endreq;
     }
     else
     {
       CaloClusterContainer::const_iterator clus_iter;
-      ATH_MSG_INFO( " start loop over clusters "  );
+      log << MSG::INFO << " start loop over clusters " << endreq;
       for(clus_iter=cluster_container->begin();
         clus_iter != cluster_container->end();clus_iter++)
       {
        const CaloCluster* clus = (*clus_iter);
-       ATH_MSG_INFO( " **** Cluster E37 " << clus->energy() << "  Et="
-                     << clus->et() << " "
-                     << " eta/phi " << clus->eta() << " " << clus->phi()  );
+       log <<MSG::INFO << " **** Cluster E37 " << clus->energy() << "  Et="
+            << clus->et() << " "
+            << " eta/phi " << clus->eta() << " " << clus->phi() << endreq;
         m_nt_eclusg37 = clus->energy();
         if (std::fabs(clus->eta())<1.475) {
           m_nt_etaclusg371 = clus->etaSample(CaloSampling::EMB1);
