@@ -5,7 +5,6 @@
 #ifndef AFP_SIDSimHitCollection_h
 #define AFP_SIDSimHitCollection_h
 
-
 #include "AFP_SimEv/AFP_SIDSimHit.h"
 #include "HitManagement/AtlasHitsVector.h"
 
@@ -22,3 +21,4 @@ CLASS_DEF(AFP_SIDSimHitCollection, 211112378, 1) // from where the number is com
 #endif //__CINT__
 
 #endif //AFP_SIDSimHitCollection_h
+
