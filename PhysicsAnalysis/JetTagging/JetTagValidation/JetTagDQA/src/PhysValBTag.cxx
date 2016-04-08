@@ -45,7 +45,8 @@ namespace JetTagDQA {
     m_antiKt3PV0TrackJetPlots(0, "BTag/AntiKt3PV0TrackJets/", "antiKt3PV0TrackJets"),
     m_antiKt4PV0TrackJetPlots(0, "BTag/AntiKt4PV0TrackJets/", "antiKt4PV0TrackJets"),
     m_antiKt4EMTopoPlots     (0, "BTag/AntiKt4EMTopo/"      , "antiKt4EMTopo"),
-    m_antiKt4LCTopoPlots     (0, "BTag/AntiKt4LCTopo/"      , "antiKt4LCTopo")
+    m_antiKt4LCTopoPlots     (0, "BTag/AntiKt4LCTopo/"      , "antiKt4LCTopo"),
+    m_nevents(0)
   {
 
     declareProperty( "isData", m_isData );
@@ -141,7 +142,7 @@ namespace JetTagDQA {
         int label(1000);
         //double dR(1000);
 
-        if(jet->pt() > 20000 && abs(jet->eta()) < 2.5){
+        if(jet->pt() > 20000 && std::abs(jet->eta()) < 2.5){
           (plot_i->second).fill(jet);
 
 	  if(!m_isData) {

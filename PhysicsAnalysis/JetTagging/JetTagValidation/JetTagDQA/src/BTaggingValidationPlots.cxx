@@ -55,6 +55,18 @@ namespace JetTagDQA{
 		m_track_sigd0	 = Book1D("d0Sig", "d_{0} Significance of BTagTrackToJetAssociator -> "+ m_sParticleType +"; d_{0} / #sigma_{d_{0}} ;Events", 60, -3, 3);
 		m_track_sigz0    = Book1D("z0Sig", "z_{0} Significance of BTagTrackToJetAssociator -> "+ m_sParticleType +"; z_{0} / #sigma_{z_{0}} ;Events", 100, -0.5, 0.5);
 
+		//ANDREA --- Store IPTag track grading/category
+		m_IP3D_trackGrading = Book1D("IP3DgradeOfTracks","IP3D grade of Tracks "+m_sParticleType,12,-0.5,11.5);
+		m_IP2D_trackGrading = Book1D("IP2DgradeOfTracks","IP2D grade of Tracks "+m_sParticleType,12,-0.5,11.5);
+		m_tmpD0 = Book1D("IP3D_valD0wrtPVofTracks","IP3D valD0 wrt PV of Tracks "+m_sParticleType,200,-2,2);
+		m_tmpZ0 = Book1D("IP3D_valZ0wrtPVofTracks","IP3D valZ0 wrt PV of Tracks "+m_sParticleType,100,-0.5,0.5);
+		m_tmpD0sig = Book1D("IP3D_sigD0wrtPVofTracks","IP3D sigD0 wrt PV of Tracks "+m_sParticleType,200,-2,2);
+		m_tmpZ0sig = Book1D("IP3D_sigZ0wrtPVofTracks","IP3D sigZ0 wrt PV of Tracks "+m_sParticleType,200,-2,2);
+		m_tmpIP3DBwgt = Book1D("IP3D_weightBofTracks","IP3D weight B of Tracks"+m_sParticleType,200,-2,2);
+		m_tmpIP3DUwgt = Book1D("IP3D_weightUofTracks","IP3D weight U of Tracks"+m_sParticleType,200,-2,2);
+		m_tmpIP2DBwgt = Book1D("IP2D_weightBofTracks","IP2D weight B of Tracks"+m_sParticleType,200,-2,2);
+		m_tmpIP2DUwgt = Book1D("IP2D_weightUofTracks","IP2D weight U of Tracks"+m_sParticleType,200,-2,2);	
+
 	}
 	
 	void BTaggingValidationPlots::fill(const xAOD::BTagging* btag){
@@ -135,7 +147,7 @@ namespace JetTagDQA{
 			sigma_d0         = sqrt(tmpTrk->definingParametersCovMatrixVec().at(0)); 
 			sigma_z0         = sqrt(tmpTrk->definingParametersCovMatrixVec().at(2));
 			//std::cout<<"****************** d0 = "<< d0 <<" and sigma_d0 = "<< sigma_d0 <<std::endl;
-			if(sigma_d0<=0 || sigma_z0<=0) std::cout<<"********************** IP error = or < 0 !!!"<<std::cout;
+			if(sigma_d0<=0 || sigma_z0<=0) std::cout<<"********************** IP error = or < 0 !!!"<<std::endl;
 
 			if(label == 5) {
 				m_track_d0     ->Fill(d0);
@@ -146,6 +158,33 @@ namespace JetTagDQA{
 		}	
 		//ANDREA --- Store tracking quantities
 
+		//ANDREA --- IPTag categories
+		std::vector<int>      tmpGrading   = bjet->auxdata<std::vector<int> >("IP3D_gradeOfTracks");
+		std::vector<int>      tmpGrading2  = bjet->auxdata<std::vector<int> >("IP2D_gradeOfTracks");
+		int IP3D_trackSize    = tmpGrading .size();
+		int IP2D_trackSize    = tmpGrading2.size();
+		m_IP3D_trackGrading   ->Fill( IP3D_trackSize );
+		m_IP2D_trackGrading   ->Fill( IP2D_trackSize );
+
+		std::vector<float> tmpD0       = bjet->auxdata<std::vector<float> >("IP3D_valD0wrtPVofTracks");
+       	        std::vector<float> tmpZ0       = bjet->auxdata<std::vector<float> >("IP3D_valZ0wrtPVofTracks");
+	        std::vector<float> tmpD0sig    = bjet->auxdata<std::vector<float> >("IP3D_sigD0wrtPVofTracks");
+	        std::vector<float> tmpZ0sig    = bjet->auxdata<std::vector<float> >("IP3D_sigZ0wrtPVofTracks");
+		for( unsigned int i=0; i<tmpD0   .size(); i++) m_tmpD0   ->Fill(tmpD0.at(i));
+		for( unsigned int i=0; i<tmpZ0   .size(); i++) m_tmpZ0   ->Fill(tmpZ0.at(i));
+		for( unsigned int i=0; i<tmpD0sig.size(); i++) m_tmpD0sig->Fill(tmpD0sig.at(i));
+		for( unsigned int i=0; i<tmpZ0sig.size(); i++) m_tmpZ0sig->Fill(tmpZ0sig.at(i));
+	
+	        std::vector<float> tmpIP3DBwgt = bjet->auxdata<std::vector<float> >("IP3D_weightBofTracks");
+	        std::vector<float> tmpIP3DUwgt = bjet->auxdata<std::vector<float> >("IP3D_weightUofTracks");
+	        std::vector<float> tmpIP2DBwgt = bjet->auxdata<std::vector<float> >("IP2D_weightBofTracks");
+	        std::vector<float> tmpIP2DUwgt = bjet->auxdata<std::vector<float> >("IP2D_weightUofTracks");
+
+		for( unsigned int i=0; i<tmpIP3DBwgt   .size(); i++) m_tmpIP3DBwgt  ->Fill(tmpIP3DBwgt.at(i));
+		for( unsigned int i=0; i<tmpIP3DUwgt   .size(); i++) m_tmpIP3DUwgt  ->Fill(tmpIP3DUwgt.at(i));
+		for( unsigned int i=0; i<tmpIP2DBwgt   .size(); i++) m_tmpIP2DBwgt  ->Fill(tmpIP2DBwgt.at(i));
+		for( unsigned int i=0; i<tmpIP2DUwgt   .size(); i++) m_tmpIP2DUwgt  ->Fill(tmpIP2DUwgt.at(i));
+		//ANDREA --- IPTag categories
 
 		int nGTinSvx(1000);
 		int nIP3DTracks(1000);
@@ -176,7 +215,7 @@ namespace JetTagDQA{
                         nGTinSvx0 = -1;
                 }
 
-                if(jet->pt() > 20000 && abs(jet->eta()) < 2.5){
+                if(jet->pt() > 20000 && std::abs(jet->eta()) < 2.5){
 			//std::cout << "IP3D weight of jet: " << btag->IP3D_loglikelihoodratio() << std::endl;
                   	if(label == 5) m_truthPt_b->Fill(jet->pt()/GeV);
                   	if(label == 0) m_truthPt_u->Fill(jet->pt()/GeV);
@@ -372,7 +411,7 @@ namespace JetTagDQA{
 		else if(recoName.find("_c_") < recoName.length()) hTruth = (TH1 *) m_truthPt_c->Clone();
 		else if(recoName.find("_tau_") < recoName.length()) hTruth = (TH1 *) m_truthPt_tau->Clone();
 		else if(recoName.find("_u_") < recoName.length()) hTruth = (TH1 *) m_truthPt_u->Clone();
-		if (hTruth->GetNbinsX() != hReco->GetNbinsX() || hTruth->Integral() == 0) return;
+		if (!hTruth || hTruth->GetNbinsX() != hReco->GetNbinsX() || hTruth->Integral() == 0) return;
 		else{
 			for (int bin_i=1; bin_i<= hTruth->GetNbinsX(); ++bin_i){ 
 				if(hTruth->GetBinContent(bin_i) == 0) continue;
@@ -407,7 +446,7 @@ namespace JetTagDQA{
 		  if(bEffName.find(*tag_iter+"_") < 1) pBEff = (TProfile *) (m_eff_profiles.find(*tag_iter+"_b_eff_weight")->second)->Clone();
 			//std::cout << "name of used b-eff histo " << pBEff->GetName() << "\t name of used l-eff histo " << pLEff->GetName() << std::endl; }
 		}
-		if (pBEff->GetNbinsX() != pLEff->GetNbinsX()) return;
+		if (!pBEff || pBEff->GetNbinsX() != pLEff->GetNbinsX()) return;
 		else{
 			for (int bin_i=1; bin_i<= pBEff->GetNbinsX(); ++bin_i){ 
 				double eff = pBEff->GetBinContent(bin_i);

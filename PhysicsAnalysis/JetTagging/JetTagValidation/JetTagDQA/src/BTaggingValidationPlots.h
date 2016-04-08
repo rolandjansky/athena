@@ -33,7 +33,7 @@ namespace JetTagDQA{
 		// Reco only information
 		std::string m_sParticleType;
 
-		TH1* m_truthLabel;
+		TH1* m_truthLabel = nullptr;
 //		TH1* m_GAFinalHadronLabel;
 //		TH1* m_GAInitialHadronLabel;
 //		TH1* m_GAFinalPartonLabel;
@@ -43,36 +43,47 @@ namespace JetTagDQA{
 //		TH1* m_GAFinalPartonC_dR;
 //		TH1* m_GAFinalHadronTau_dR;
 
-		TH1* m_truthPt_b;
-		TH1* m_truthPt_u;
-		TH1* m_truthPt_c;
-		TH1* m_truthPt_tau;
+		TH1* m_truthPt_b = nullptr;
+		TH1* m_truthPt_u = nullptr;
+		TH1* m_truthPt_c = nullptr;
+		TH1* m_truthPt_tau = nullptr;
 
-		TH1* m_IP3D_pb;
-		TH1* m_IP3D_pc;
-		TH1* m_IP3D_pu;
+		TH1* m_IP3D_pb = nullptr;
+		TH1* m_IP3D_pc = nullptr;
+		TH1* m_IP3D_pu = nullptr;
 
-		TH1* m_SV1_pb;
-		TH1* m_SV1_pc;
-		TH1* m_SV1_pu;
+		TH1* m_SV1_pb = nullptr;
+		TH1* m_SV1_pc = nullptr;
+		TH1* m_SV1_pu = nullptr;
 		
-		TH1* m_SV1_NGTinSvx;
-		TH1* m_SV0_NGTinSvx;
-		TH1* m_IP3D_nTracks;
-		TH1* m_IP2D_nTracks;
+		TH1* m_SV1_NGTinSvx = nullptr;
+		TH1* m_SV0_NGTinSvx = nullptr;
+		TH1* m_IP3D_nTracks = nullptr;
+		TH1* m_IP2D_nTracks = nullptr;
 
-		TH1* m_e;
-		TH1* m_pt;
-	      	TH1* m_eta;
-	      	TH1* m_phi;
+		TH1* m_e = nullptr;
+		TH1* m_pt = nullptr;
+	      	TH1* m_eta = nullptr;
+	      	TH1* m_phi = nullptr;
 
 		//ANDREA --- Store tranking info
-		TH1* m_track_d0;
-		TH1* m_track_z0;
-		TH1* m_track_sigd0;
-		TH1* m_track_sigz0;
+		TH1* m_track_d0 = nullptr;
+		TH1* m_track_z0 = nullptr;
+		TH1* m_track_sigd0 = nullptr;
+		TH1* m_track_sigz0 = nullptr;
 
-
+		//ANDREA -- IPTag categories
+		TH1* m_IP3D_trackGrading = nullptr;
+		TH1* m_IP2D_trackGrading = nullptr;
+		TH1* m_tmpD0 = nullptr;
+		TH1* m_tmpZ0 = nullptr;
+		TH1* m_tmpD0sig = nullptr;
+		TH1* m_tmpZ0sig = nullptr;
+		TH1* m_tmpIP3DBwgt = nullptr;
+		TH1* m_tmpIP3DUwgt = nullptr;
+		TH1* m_tmpIP2DBwgt = nullptr;
+		TH1* m_tmpIP2DUwgt = nullptr;
+		
 		std::vector<std::string> m_taggers;
 		std::map<std::string, int> m_truthLabels;
 		std::map<std::string, double> m_IP3D_workingPoints;
