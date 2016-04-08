@@ -6,6 +6,8 @@
 #define __TRIG_COMBINATORIAL_SETTINGS_H__
 
 class IRoiDescriptor;
+#include <vector>
+#include "TrigInDetPattRecoEvent/TrigInDetSiLayer.h"
 
 typedef struct TrigCombinatorialSettings {
 public:
@@ -45,6 +47,7 @@ public:
   int m_nMaxPhiSlice;
   unsigned int m_maxTripletBufferLength;
   const IRoiDescriptor* roiDescriptor;
+  std::vector<TRIG_INDET_SI_LAYER> m_layerGeometry;
 } TRIG_COMBINATORIAL_SETTINGS;
 
 
