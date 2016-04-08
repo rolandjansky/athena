@@ -7,7 +7,7 @@
 
 #ifndef LVL1_STANDALONE
 
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "MuonCablingServers/ICallBackRPCcablingServerSvc.h"
 
@@ -16,7 +16,7 @@ class ITagInfoMgr;
 
 
 
-class RPCcablingServerSvc : public Service, 
+class RPCcablingServerSvc : public AthService, 
                             virtual public IRPCcablingServerSvc, virtual public ICallBackRPCcablingServerSvc 
 {
     private:

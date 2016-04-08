@@ -7,14 +7,13 @@
 
 #ifndef LVL1_STANDALONE
 
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
-class StoreGateSvc;
 class ITagInfoMgr;
 
 
-class TGCcablingServerSvc : public Service, 
+class TGCcablingServerSvc : public AthService, 
                             virtual public ITGCcablingServerSvc
 {
    private:

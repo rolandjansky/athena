@@ -13,7 +13,7 @@
 
 
 RPCcablingServerSvc::RPCcablingServerSvc(const std::string& name, ISvcLocator* sl) : 
-  Service( name, sl ),
+  AthService( name, sl ),
   m_tagsCompared(false),
   m_pDetStore(0),
   m_tagInfoMgr(0)
@@ -35,9 +35,8 @@ RPCcablingServerSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
     { 
         *ppvIF = dynamic_cast<IRPCcablingServerSvc*>(this); 
     } else { 
-        MsgStream log(messageService(), name());
-        log << MSG::DEBUG << name() << " cannot found the interface!" <<endreq;
-        return Service::queryInterface(riid, ppvIF); 
+        ATH_MSG_DEBUG ( name() << " cannot found the interface!" );
+        return AthService::queryInterface(riid, ppvIF); 
     }
 
     addRef();
@@ -47,25 +46,16 @@ RPCcablingServerSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
 StatusCode
 RPCcablingServerSvc::initialize() {
 
+    ATH_MSG_DEBUG ( "initializing ..." );
+
+    ATH_CHECK( AthService::initialize() );
+    ATH_CHECK( service("DetectorStore", m_pDetStore ) );
+
     StatusCode sc;
-    MsgStream log(messageService(), name());
-    log << MSG::DEBUG << "initializing ..." << endreq;
-
-    sc = Service::initialize();
-    if ( sc.isFailure() ) return sc;
-
-    // get DetectorStore
-    sc = service("DetectorStore", m_pDetStore );  
-    if (sc.isFailure()) {
-        log << MSG::FATAL << "DetectorStore service not found!" << endreq;
-        return sc;
-    } 
-
-
-
     if(m_forcedUse) { 
 	// Selected cabling is used without comparison 
         m_tagsCompared = true;
+        sc = StatusCode::SUCCESS;
     } 
     else 
     { 
@@ -76,7 +66,7 @@ RPCcablingServerSvc::initialize() {
 	// get the key
 	sc = service("TagInfoMgr", m_tagInfoMgr);
 	if(sc.isFailure() || m_tagInfoMgr==0) {
-	    log << MSG::WARNING << " Unable to locate TagInfoMgr service" << endreq; 
+          ATH_MSG_WARNING ( " Unable to locate TagInfoMgr service" );
 	} else {
 	    tagInfoKey = m_tagInfoMgr->tagInfoKey();
 	}
@@ -86,17 +76,15 @@ RPCcablingServerSvc::initialize() {
                                tagInfoH, 
                                tagInfoKey) 
            != StatusCode::SUCCESS) {
-            log << MSG::WARNING 
-            << "Cannot register compareTags function for key "  << tagInfoKey << endreq;
+          ATH_MSG_WARNING 
+            ( "Cannot register compareTags function for key "  << tagInfoKey );
         } else {
-            log << MSG::DEBUG 
-            << "Registered compareTags callback for key: " << tagInfoKey << endreq;
+          ATH_MSG_DEBUG 
+            ( "Registered compareTags callback for key: " << tagInfoKey );
         }
     }
 
-
-    log << MSG::DEBUG << "... done!" << endreq;
-
+    ATH_MSG_DEBUG ( "... done!" );
     return sc;
 }
 
@@ -108,15 +96,13 @@ RPCcablingServerSvc::finalize() {
 StatusCode 
 RPCcablingServerSvc::giveCabling(const IRPCcablingSvc*& cabling) const {
 
-    StatusCode sc;
-    MsgStream log(messageService(), name());
-    log << MSG::DEBUG << "requesting instance of RPCcabling" << endreq;
+    ATH_MSG_DEBUG ( "requesting instance of RPCcabling" );
 
     cabling = 0;
     
     if (!isConfigured()) {
-	log << MSG::INFO << "Tring to get an instance of the RPC cablingSvc with autoconfiguration requested but tags have not been compared yet - it may happen that inconsistencies are found later on "<<endreq;
-	log << MSG::INFO << "setting of conf. flags is: Atlas = "<<m_atlas<<" forcedUse = "<<m_forcedUse<<" useMuonRPC_CablingSvc = "<<m_useMuonRPC_CablingSvc<<endreq;
+        ATH_MSG_INFO ( "Tring to get an instance of the RPC cablingSvc with autoconfiguration requested but tags have not been compared yet - it may happen that inconsistencies are found later on ");
+	ATH_MSG_INFO ( "setting of conf. flags is: Atlas = "<<m_atlas<<" forcedUse = "<<m_forcedUse<<" useMuonRPC_CablingSvc = "<<m_useMuonRPC_CablingSvc);
 	//	sc = StatusCode::RECOVERABLE;
 	//	return sc;
     }    
@@ -124,13 +110,7 @@ RPCcablingServerSvc::giveCabling(const IRPCcablingSvc*& cabling) const {
     
     //if(m_atlas) {
     //sc = service((m_useMuonRPC_CablingSvc ? "MuonRPC_CablingSvc" : "RPCcablingSvc"),cabling,true);
-    sc = service("MuonRPC_CablingSvc",cabling,true);
-    if ( sc != StatusCode::SUCCESS ) {
-        MsgStream log(messageService(), name());
-        log << MSG::ERROR << "Cannot retrieve the instance of RPCcabling"
-            << endreq;
-        return sc; 
-    }
+    ATH_CHECK( service("MuonRPC_CablingSvc",cabling,true) );
 
     //} else {
     //	sc = service("RPCcablingSimSvc",cabling,true);
@@ -143,7 +123,7 @@ RPCcablingServerSvc::giveCabling(const IRPCcablingSvc*& cabling) const {
     //}
 
     
-    log << MSG::DEBUG <<"Retrieved RPC cabling svc "<<endreq;
+    ATH_MSG_DEBUG ("Retrieved RPC cabling svc ");
     return StatusCode::SUCCESS;
 }
 
@@ -156,25 +136,23 @@ RPCcablingServerSvc::isAtlas() const {
 StatusCode 
 RPCcablingServerSvc::compareTags(IOVSVC_CALLBACK_ARGS)
 {
-    MsgStream log(messageService(), name());
-    StatusCode sc;
     
-    log << MSG::INFO << "compareTags() callback triggered" << endreq;
+    ATH_MSG_INFO ( "compareTags() callback triggered" );
     
     // Get TagInfo and retrieve tags
     const TagInfo* tagInfo = 0;
-    sc= m_pDetStore->retrieve(tagInfo);
+    StatusCode sc= m_pDetStore->retrieve(tagInfo);
     
     std::string cablingType;
     
     if (sc.isFailure() || tagInfo==0) {
-        log << MSG::INFO
-        << "No TagInfo in DetectorStore while attempting to compare tags" 
-        << endreq;
+      ATH_MSG_INFO
+        ( "No TagInfo in DetectorStore while attempting to compare tags" 
+          );
     } else {
         tagInfo->findInputTag("RPC_CablingType", cablingType);        
-        log << MSG::INFO 
-        << "RPC_CablingType from TagInfo: " << cablingType << endreq;
+        ATH_MSG_INFO 
+          ( "RPC_CablingType from TagInfo: " << cablingType );
 	
 	if(cablingType=="") {
             // assume it is SIM in case the call-back is active
@@ -184,9 +162,10 @@ RPCcablingServerSvc::compareTags(IOVSVC_CALLBACK_ARGS)
         
 	// check cablingType
         if (cablingType != "MuonRPC_Cabling"){
-            log<< MSG::ERROR <<"RPC_CablingType from TagInfo is "
-               << cablingType << "  , incompatible with present cabling package MuonRPC_Cabling"<<endreq;
-            return StatusCode::FAILURE;
+          ATH_MSG_ERROR( "RPC_CablingType from TagInfo is "
+                         << cablingType
+                         << "  , incompatible with present cabling package MuonRPC_Cabling" );
+          return StatusCode::FAILURE;
         }
     }
     m_tagsCompared=true;

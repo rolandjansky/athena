@@ -19,7 +19,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 TGCcablingServerSvc::TGCcablingServerSvc(const std::string& name, ISvcLocator* sl) : 
-Service( name, sl ),
+AthService( name, sl ),
 m_pDetStore(0), 
 m_tagInfoMgr(0), 
 m_tagsCompared(false)
@@ -37,9 +37,8 @@ TGCcablingServerSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
     { 
         *ppvIF = dynamic_cast<ITGCcablingServerSvc*>(this); 
     } else { 
-        MsgStream log(messageService(), name());
-        log << MSG::DEBUG << name() << " cast to Service Interface" <<endreq;
-        return Service::queryInterface(riid, ppvIF); 
+        ATH_MSG_DEBUG ( name() << " cast to Service Interface" );
+        return AthService::queryInterface(riid, ppvIF); 
     }
     
     addRef();
@@ -49,28 +48,18 @@ TGCcablingServerSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
 StatusCode
 TGCcablingServerSvc::initialize() 
 {
+    ATH_MSG_DEBUG ( "initializing ..." );
     
-    StatusCode sc;
+    ATH_CHECK( AthService::initialize() );
+    ATH_CHECK( service("DetectorStore", m_pDetStore ) );
     
-    MsgStream log(messageService(), name());
-    log << MSG::DEBUG << "initializing ..." << endreq;
-    
-    sc = Service::initialize();
-    if ( sc.isFailure() ) return sc;
-    
-    // get DetectorStore
-    sc = service("DetectorStore", m_pDetStore );  
-    if (sc.isFailure()) {
-        log << MSG::FATAL << "DetectorStore service not found!" << endreq;
-        return sc;
-    } 
     // **** **** **** TagInfo **** **** ****
     const DataHandle<TagInfo> tagInfoH;
     std::string tagInfoKey = "";
     // get the key
-    sc = service("TagInfoMgr", m_tagInfoMgr);
+    StatusCode sc = service("TagInfoMgr", m_tagInfoMgr);
     if(sc.isFailure() || m_tagInfoMgr==0) {
-        log << MSG::WARNING << " Unable to locate TagInfoMgr service" << endreq; 
+        ATH_MSG_WARNING ( " Unable to locate TagInfoMgr service" );
     } else {
         tagInfoKey = m_tagInfoMgr->tagInfoKey();
     }
@@ -84,16 +73,15 @@ TGCcablingServerSvc::initialize()
                                tagInfoH, 
                                tagInfoKey) 
            != StatusCode::SUCCESS) {
-            log << MSG::WARNING 
-            << "Cannot register compareTags function for key "  << tagInfoKey << endreq;
+          ATH_MSG_WARNING 
+            ( "Cannot register compareTags function for key "  << tagInfoKey );
         } else {
-            log << MSG::DEBUG 
-            << "Registered compareTags callback for key: " << tagInfoKey << endreq;
+          ATH_MSG_DEBUG 
+            ( "Registered compareTags callback for key: " << tagInfoKey );
         }
     }
     
-    log << MSG::DEBUG << "... done!" << endreq;
-    
+    ATH_MSG_DEBUG ( "... done!" );
     return sc;
 }
 
@@ -104,34 +92,19 @@ TGCcablingServerSvc::finalize() {
 
 StatusCode
 TGCcablingServerSvc::giveCabling(const ITGCcablingSvc*& cabling) const {
-    StatusCode sc;
-    MsgStream log(messageService(), name());
-    log << MSG::DEBUG << "requesting instance of TGCcabling" << endreq;
+    ATH_MSG_DEBUG ( "requesting instance of TGCcabling" );
     
     if (!this->isConfigured()) {
-        log<<MSG::ERROR<<"The tagsCompared callback has not yet happened! Taking default configuration ("<< (m_atlas ? "12-fold cabling." : "8-fold cabling")
-        <<" Move this call to execute() / beginRun() to get rid of this WARNING message (or set the forcedUse property to True)"<<endreq;
+        ATH_MSG_ERROR("The tagsCompared callback has not yet happened! Taking default configuration ("<< (m_atlas ? "12-fold cabling." : "8-fold cabling")
+                      <<" Move this call to execute() / beginRun() to get rid of this WARNING message (or set the forcedUse property to True)");
     }
     
     cabling = 0;
     
     if(m_atlas) {
-        sc = service((m_useMuonTGC_CablingSvc ? "MuonTGC_CablingSvc" : "TGCcabling12Svc"),cabling,true);
-        MsgStream log(messageService(), name());
-        if ( sc != StatusCode::SUCCESS ) {
-            MsgStream log(messageService(), name());
-            log << MSG::ERROR << "Cannot retrieve the instance of TGCcabling12"
-	        << endreq;
-            return sc; 
-        }
+        ATH_CHECK( service((m_useMuonTGC_CablingSvc ? "MuonTGC_CablingSvc" : "TGCcabling12Svc"),cabling,true) );
     } else {
-        sc = service("TGCcablingSvc",cabling,true);
-        if ( sc != StatusCode::SUCCESS ) {
-            MsgStream log(messageService(), name());
-            log << MSG::ERROR << "Cannot retrieve the instance of TGCcabling"
-	        << endreq; 
-            return sc; 
-        }
+        ATH_CHECK(  service("TGCcablingSvc",cabling,true) );
     }
 
     return StatusCode::SUCCESS;
@@ -142,8 +115,8 @@ TGCcablingServerSvc::isAtlas() const {
     MsgStream log(messageService(), name());
     
     if (!this->isConfigured()) {
-        log<<MSG::ERROR<<"The tagsCompared callback has not yet happened! Taking default configuration ("<< (m_atlas ? "12-fold cabling." : "8-fold cabling")
-        <<" Move this call to execute() / beginRun() to get rid of this WARNING message (or set the forcedUse property to True)"<<endreq;
+      ATH_MSG_ERROR("The tagsCompared callback has not yet happened! Taking default configuration ("<< (m_atlas ? "12-fold cabling." : "8-fold cabling")
+                    <<" Move this call to execute() / beginRun() to get rid of this WARNING message (or set the forcedUse property to True)");
     }
     return m_atlas;
 }
@@ -156,27 +129,25 @@ TGCcablingServerSvc::isConfigured() const {
 StatusCode 
 TGCcablingServerSvc::compareTags(IOVSVC_CALLBACK_ARGS)
 {
-    MsgStream log(msgSvc(), name());
-    StatusCode sc;
     bool tagMatch = true;  
     
-    log << MSG::INFO << "compareTags() callback triggered" << endreq;
+    ATH_MSG_INFO ( "compareTags() callback triggered" );
     
     // Get TagInfo and retrieve tags
     const TagInfo* tagInfo = 0;
-    sc= m_pDetStore->retrieve(tagInfo);
+    StatusCode sc= m_pDetStore->retrieve(tagInfo);
     
     std::string cablingType;
     
     if (sc.isFailure() || tagInfo==0) {
-        log << MSG::INFO
-        << "No TagInfo in DetectorStore while attempting to compare tags" 
-        << endreq;
+      ATH_MSG_INFO
+        ( "No TagInfo in DetectorStore while attempting to compare tags" 
+          );
     } else {
         tagInfo->findInputTag("TGC_CablingType", cablingType);
         
-        log << MSG::INFO 
-        << "TGC_CablingType from TagInfo: " << cablingType << endreq;
+        ATH_MSG_INFO 
+          ( "TGC_CablingType from TagInfo: " << cablingType );
 	
 	if(cablingType=="") {
             // assume it is 8-fold in case the call-back is active
@@ -204,28 +175,28 @@ TGCcablingServerSvc::compareTags(IOVSVC_CALLBACK_ARGS)
             m_atlas = true;
         }
         
-        log << MSG::INFO 
-        << "TGC_CablingType : " << cablingType << " is mismatched "
-        << "with TGCcablingServerSvc configuration of "<< cablingName << ". "
-        << "m_atlas flag is flipped to " << (m_atlas ? "true" : "false") << "." 
-        << endreq; 
-        log << MSG::INFO 
-        << "If you definitely want to use " << cablingName << ", " 
-        << "please add the following lines in your jobOptions \n\n" 
-        << "  from MuonCablingServers.MuonCablingServersConf import TGCcablingServerSvc \n"
-        << "  ServiceMgr += TGCcablingServerSvc() \n"
-        << "  theApp.CreateSvc += [ \"TGCcablingServerSvc\" ] \n"
-        << "  ServiceMgr.TGCcablingServerSvc.Atlas=" << (!m_atlas ? "True" : "False") << " \n" 
-        << "  ServiceMgr.TGCcablingServerSvc.forcedUse=True \n"
-        << "  ServiceMgr.TGCcablingServerSvc.useMuonTGC_CablingSvc=True \n"
-        << "  from TGC_CondCabling.TGC_CondCablingConf import TGCCablingDbTool \n"
-        << "  ToolSvc += TGCCablingDbTool() \n"
-        << "  from IOVDbSvc.CondDB import conddb \n"
-        << "  conddb.addFolderSplitMC('TGC','/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA') \n"
-        << endreq;
+        ATH_MSG_INFO 
+          ( "TGC_CablingType : " << cablingType << " is mismatched "
+            << "with TGCcablingServerSvc configuration of "<< cablingName << ". "
+            << "m_atlas flag is flipped to " << (m_atlas ? "true" : "false") << "." 
+            );
+        ATH_MSG_INFO 
+          ( "If you definitely want to use " << cablingName << ", " 
+            << "please add the following lines in your jobOptions \n\n" 
+            << "  from MuonCablingServers.MuonCablingServersConf import TGCcablingServerSvc \n"
+            << "  ServiceMgr += TGCcablingServerSvc() \n"
+            << "  theApp.CreateSvc += [ \"TGCcablingServerSvc\" ] \n"
+            << "  ServiceMgr.TGCcablingServerSvc.Atlas=" << (!m_atlas ? "True" : "False") << " \n" 
+            << "  ServiceMgr.TGCcablingServerSvc.forcedUse=True \n"
+            << "  ServiceMgr.TGCcablingServerSvc.useMuonTGC_CablingSvc=True \n"
+            << "  from TGC_CondCabling.TGC_CondCablingConf import TGCCablingDbTool \n"
+            << "  ToolSvc += TGCCablingDbTool() \n"
+            << "  from IOVDbSvc.CondDB import conddb \n"
+            << "  conddb.addFolderSplitMC('TGC','/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA') \n"
+            );
     }
     
-    log << MSG::INFO << "compareTags() callback determined that the cabling is "<< cablingType << endreq;
+    ATH_MSG_INFO ( "compareTags() callback determined that the cabling is "<< cablingType );
 
     m_tagsCompared=true;
     return StatusCode::SUCCESS;
