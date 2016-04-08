@@ -37,7 +37,7 @@ namespace LArG4 {
 
     public:
       // Standard implementation of a singleton pattern.
-      static PresamplerGeometry* GetInstance();
+      static const PresamplerGeometry* GetInstance();
       virtual ~PresamplerGeometry();
 
       // 15-Jan-2002 WGS: A "lookup" function for detector measurements,
@@ -50,11 +50,11 @@ namespace LArG4 {
 	EndcapPresamplerHalfThickness,
 	EndcapPresamplerZpositionInMother
       };
-      G4double GetValue(const kValue);
+      G4double GetValue(const kValue) const;
       
       // This is the "meat" of this class: calculate the identifier
       // given a G4Step.
-      LArG4Identifier CalculateIdentifier( const G4Step* );
+      LArG4Identifier CalculateIdentifier( const G4Step* ) const;
 
     protected:
       // Constructor is protected according to the singleton pattern.

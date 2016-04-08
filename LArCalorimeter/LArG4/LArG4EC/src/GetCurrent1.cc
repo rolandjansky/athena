@@ -19,7 +19,7 @@ static inline int signof(double a){ return (a == 0.) ? 0: (a < 0 ? -1: 1); }
 
 using namespace LArG4::EC;
 
-G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4double edep)
+G4double EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, const G4ThreeVector &P2, G4double edep) // need to make const
 {
 /*
 	FILE *F = fopen("test1.dat", "w");
@@ -32,8 +32,8 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 			a[2] = z;
 //			std::cout << "(" << z << ", " << x << ") " << DistanceToTheNeutralFibre(a) << std::endl;
 			for(int s = -1; s <= 1; s ++){
-//				std::cout << "\t" << s << " " << m_electrode_calculator->AmplitudeOfSurface(a, s) << std::endl;
-				fprintf(F, " %f", m_electrode_calculator->AmplitudeOfSurface(a, s));
+//				std::cout << "\t" << s << " " << elc()->AmplitudeOfSurface(a, s) << std::endl;
+				fprintf(F, " %f", elc()->AmplitudeOfSurface(a, s));
 			}
 //		}
 		fprintf(F, "\n");
@@ -49,9 +49,8 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 
 	G4int gaperr = 0;
 
-	std::pair<G4int, G4int> gap1, gap2;
-	gap2 = GetPhiGapAndSide(P2);
-	gap1 = GetPhiGapAndSide(P1);
+	const std::pair<G4int, G4int> gap2 = lwc()->GetPhiGapAndSide(P2);
+	const std::pair<G4int, G4int> gap1 = lwc()->GetPhiGapAndSide(P1);
 //	gap1.first = PhiGapNumberForWheel(gap1.first);
 //	gap2.first = PhiGapNumberForWheel(gap2.first);
 
@@ -74,10 +73,10 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 	// <<CosPhiGap<<" "<<SinPhiGap<<std::endl;
 	//<<<JT
 
-	G4double step = (P2 - P1).mag();
-	G4int nofstep = G4int(step / GridSize) + 1;  // step is divided to substeps
+	const G4double step = (P2 - P1).mag();
+	const G4int nofstep = G4int(step / GridSize) + 1;  // step is divided to substeps
 	G4double current = 0.;                          //current to be returned
-	G4double step_current = edep / nofstep / AverageCurrent; // base current for each step
+	const G4double step_current = edep / nofstep / AverageCurrent; // base current for each step
 
 //std::cout << "gap1: " << gap1.first << ", " << gap1.second
 //          << "; gap2: " << gap2.first << ", " << gap2.second << std::endl;
@@ -87,9 +86,8 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 
 	for(G4int i = 0; i < nofstep; ++ i){
 		G4double ds = (i + 0.5) / nofstep;
-		static G4ThreeVector Pe, Pa;
-		Pe = P1 * (1. - ds) + P2 * ds;
-		Pa = Pe;
+		G4ThreeVector Pe = P1 * (1. - ds) + P2 * ds;
+		G4ThreeVector Pa = Pe;
 //std::cout << "step " << i << std::endl;
 //std::cout << "\tpoint (" << Pe.x() << ", " << Pe.y() << ", " << Pe.z() << ")" << std::endl;
 
@@ -102,14 +100,14 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 		TransformWheeltoFieldMap(vstep, vmap);  //get corresponding point in Map
 
 		//JT.>>> 
-		G4double rvstep2=vstep[0]*vstep[0]+vstep[1]*vstep[1] ;
-		G4double rforalpha=sqrt( rvstep2-vmap[1]*vmap[1] );
-		G4double gap=HalfLArGapSize(rforalpha,rforalpha);// LAr gap at the straight section on the fieldmap
-		G4double yshift_on_map  =    rforalpha*M_PI/m_NumberOfFans-(FanAbsThickness+FanEleThickness)/2.;
-		G4double yshift_on_wheel=sqrt(rvstep2)*M_PI/m_NumberOfFans-(FanAbsThickness+FanEleThickness)/2.;
-		G4double cylgapcorr=yshift_on_wheel/yshift_on_map; // scale difference between plane and cylindrical surface
+		const G4double rvstep2=vstep[0]*vstep[0]+vstep[1]*vstep[1] ;
+		const G4double rforalpha=sqrt( rvstep2-vmap[1]*vmap[1] );
+		const G4double gap=HalfLArGapSize(rforalpha,rforalpha);// LAr gap at the straight section on the fieldmap
+		const G4double yshift_on_map  =    rforalpha*M_PI/lwc()->GetNumberOfFans()-(FanAbsThickness+FanEleThickness)/2.;
+		const G4double yshift_on_wheel=sqrt(rvstep2)*M_PI/lwc()->GetNumberOfFans()-(FanAbsThickness+FanEleThickness)/2.;
+		const G4double cylgapcorr=yshift_on_wheel/yshift_on_map; // scale difference between plane and cylindrical surface
 		/*
-		std::cout<< " GetCurrent1**Nabs="<<m_NumberOfFans<<" absthick="<<FanAbsThickness<<" elethick="<<FanEleThickness
+		std::cout<< " GetCurrent1**Nabs="<<lwc()->GetNumberOfFans()<<" absthick="<<FanAbsThickness<<" elethick="<<FanEleThickness
 			 <<" cylgapcorr-1="<<cylgapcorr-1
 			 <<" ZinHalfWave="<<ZinHalfWave<<" HalfWaveNumber="<<HalfWaveNumber
 			 <<std::endl;
@@ -118,23 +116,25 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 
 //std::cout << "\tvmap: (" << vmap[0] << ", " << vmap[1] << ", " << vmap[2] << ")" << std::endl;
 
-		G4double HV_value = get_HV_value(Pe, gap1);
+		const G4double HV_value = get_HV_value(Pe, gap1);
 
-		G4double dte = m_electrode_calculator->DistanceToTheNearestFan(Pe);
+		int Pe_fan = 0;
+		const G4double dte = elc()->DistanceToTheNearestFan(Pe, Pe_fan);
 		G4int side = signof(dte);
-		G4double dta = DistanceToTheNearestFan(Pa);
+		int Pa_fan = 0;
+		const G4double dta = lwc()->DistanceToTheNearestFan(Pa, Pa_fan);
 //std::cout << "\tdte: " << dte << ", dta: " << dta << std::endl;
 //std::cout << "\tPe: (" << Pe.x() << ", " << Pe.y() << ", " << Pe.z() << ")" << std::endl;
 //std::cout << "\tPa: (" << Pa.x() << ", " << Pa.y() << ", " << Pa.z() << ")" << std::endl;
 
-		static const G4double suppression_range = ElectrodeFanHalfThickness + CHC_Esr;
+		const G4double suppression_range = ElectrodeFanHalfThickness + CHC_Esr;
 		if(fabs(dte) < suppression_range){
 //			std::cout << " S";
 			continue; //skip point if too close to the electrode
 		}
 
-		G4double agap = fabs(dte) - ElectrodeFanHalfThickness
-		              + fabs(dta) - m_FanHalfThickness;   //correction to electrode suppression not to
+		const G4double agap = fabs(dte) - ElectrodeFanHalfThickness
+		              + fabs(dta) - lwc()->GetFanHalfThickness();   //correction to electrode suppression not to
 		G4double suppression = agap / (agap - CHC_Esr); // change av. signal in the gap
 		if(suppression < 0.) suppression = 1.;
 //std::cout << "\tagap: " << agap << ", suppression: " << suppression << std::endl;
@@ -156,8 +156,8 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 
 		//JT>>>>>G4double fold_angle = M_PI - 2. * parameterized_slant_angle(Pe.r());
 
-		G4double fold_angle = M_PI - 2. * parameterized_slant_angle(rforalpha); //<<<JT
-		G4double fold_angle_deg=fold_angle/M_PI*180.;  //<<<JT
+		const G4double fold_angle = M_PI - 2. * lwc()->parameterized_slant_angle(rforalpha); //<<<JT
+		const G4double fold_angle_deg=fold_angle/M_PI*180.;  //<<<JT
 
 		for(G4int j = 1; j < n_layers; ++ j){
 			if(fold_angle_deg > ChCollWheelType->FoldinAngleOfLayers[j]){
@@ -197,21 +197,21 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 //          << " " << ChCollWheelType->RadiusOfLayers[irlayer+1]
 //		  << " " << ChCollWheelType->RadiusOfLayers[irlayer] << std::endl;
 
-			G4double a_e = m_electrode_calculator->AmplitudeOfSurface(Pe, side);
-			G4double a_a = AmplitudeOfSurface(Pa, signof(dta));
+			const G4double a_e = elc()->AmplitudeOfSurface(Pe, side, Pe_fan);
+			const G4double a_a = lwc()->AmplitudeOfSurface(Pa, signof(dta), Pa_fan);
 //std::cout << "\ta_e: " << a_e << ", a_a: " << a_a << std::endl;
 
-			G4double x_e = fabs(Pe.x() - a_e);
-			G4double x_a = fabs(Pa.x() - a_a);
+			const G4double x_e = fabs(Pe.x() - a_e);
+			const G4double x_a = fabs(Pa.x() - a_a);
 
 			//check geom. err condition if point is outside of LAr gap
 			if(gaperr > -100 && (x_e < 0. || x_a < 0.)) gaperr -= 100;
 
 
-			G4double z1 = Pe.z() - m_StraightStartSection;
-			G4int nhwave = G4int(z1 / m_HalfWaveLength);
+			const G4double z1 = Pe.z() - lwc()->GetStraightStartSection();
+			G4int nhwave = G4int(z1 / lwc()->GetHalfWaveLength());
 			if(nhwave < 0) nhwave = 0;
-			if(nhwave >= m_NumberOfHalfWaves) nhwave = m_NumberOfHalfWaves - 1;
+			if(nhwave >= lwc()->GetNumberOfHalfWaves()) nhwave = lwc()->GetNumberOfHalfWaves() - 1;
 			if((nhwave % 2) == 1) side = -side;
 
 			// get relative y coordinate
@@ -227,7 +227,7 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 
 // get corresponding y coordinates on the radial layers
 // where the weight is to be taken from;
-			G4double shift = m_StraightStartSection;
+			G4double shift = lwc()->GetStraightStartSection();
 			if(PointFoldMapArea != 0) shift += WaveLength;
 			SetHalfWave(shift + vmap[2]);
 //std::cout << "\tPointFoldMapArea: " << PointFoldMapArea << ", SetHalfWave(" << shift + vmap[2] << ")" << std::endl;
@@ -244,8 +244,8 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 			else if(side > 0) pos_up = Ylimits[2] * (1. - yratio) + Ylimits[3] * yratio;
 
 // get weights from the maps of lower and upper layer
-			G4double w_low = GetWeightfromFieldMap(irlayer, vmap[2], pos_low);
-			G4double w_up = GetWeightfromFieldMap(irlayer + 1, vmap[2], pos_up);
+			const G4double w_low = GetWeightfromFieldMap(irlayer, vmap[2], pos_low);
+			const G4double w_up = GetWeightfromFieldMap(irlayer + 1, vmap[2], pos_up);
 
 // get the interpolated normalized Efield alias cur
 			cur = w_low * (1. - dr) + w_up * dr;
@@ -264,11 +264,11 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 
 		// JT>>const G4double &gap = agap;
 
-		G4double efield = cur * (HV_value * CLHEP::volt) / (gap * CLHEP::mm) / (CLHEP::kilovolt / CLHEP::cm);
-			efield = efield/cylgapcorr;  //<<JT
-		G4double substep_current =  step_current * cur / gap * IonReco(efield) *
-				   DriftVelo(LArTemperature_av, efield) * suppression;
-		substep_current = substep_current / cylgapcorr; //  <<JT
+		const G4double efield = cur * (HV_value * CLHEP::volt) / (gap * CLHEP::mm) / (CLHEP::kilovolt / CLHEP::cm) /cylgapcorr;
+		//	efield = efield/cylgapcorr;  //<<JT // DM division by cylgapcorr combined to prev. line
+		const G4double substep_current =  step_current * cur / gap * IonReco(efield) *
+				   DriftVelo(LArTemperature_av, efield) * suppression / cylgapcorr;
+		//substep_current = substep_current / cylgapcorr; //  <<JT // DM division by cylgapcorr combined to prev. line
  
 //		if(birksLaw){
 //			current += (*birksLaw)(substep_current, step/nofstep/cm, efield);
@@ -302,12 +302,11 @@ G4double EnergyCalculator::GetCurrent1(G4ThreeVector &P1, G4ThreeVector &P2, G4d
 G4double EnergyCalculator::get_HV_value(
 		       const G4ThreeVector& p, const std::pair<G4int, G4int> &gap) const
 {
-	G4int atlas_side = m_AtlasZside > 0? 0: 1;
+	const G4int atlas_side = (lwc()->GetAtlasZside() > 0) ? 0 : 1;
 
-	static G4ThreeVector p1;
-	p1 = p;
-	p1[2] += m_dElecFocaltoWRP + m_dWRPtoFrontFace;
-	G4double eta = p1.pseudoRapidity();
+	G4ThreeVector p1 ( p );
+	p1[2] += lwc()->GetElecFocaltoWRP() + lwc()->GetdWRPtoFrontFace();
+	const G4double eta = p1.pseudoRapidity();
 	G4int eta_section = -1;
 	for(G4int i = 1; i <= NofEtaSection; ++ i){
 	  if(eta <= HV_Etalim[i]){
@@ -319,12 +318,12 @@ G4double EnergyCalculator::get_HV_value(
 
 	//assert(eta_section >= 0 && eta_section < NofEtaSection);
 
-	G4int e_side = 0;              //left side of electrode(small phi)
-	if(gap.second > 0) e_side = 1; //(right side of e large phi)
+                  /*(right side of e large phi)*/   /*left side of electrode(small phi)*/
+	const G4int e_side = (gap.second > 0) ?   1   :    0;              
 
-	G4int first_electrode = HV_Start_phi[atlas_side][eta_section][e_side];
+	const G4int first_electrode = HV_Start_phi[atlas_side][eta_section][e_side];
 
-	if(first_electrode < 0 || first_electrode >= m_NumberOfFans){
+	if(first_electrode < 0 || first_electrode >= lwc()->GetNumberOfFans()){
 		(*m_msg) << MSG::FATAL
 		       << " get_HV_value: first_electrode number is out of range"
 			   << endreq;
@@ -332,10 +331,10 @@ G4double EnergyCalculator::get_HV_value(
 			    "get_HV_value: first_electrode number is out of range");
 	}
 
-	G4int e_index = PhiGapNumberForWheel(gap.first) - first_electrode;
-	if(e_index < 0) e_index += m_NumberOfFans;
-	G4int &phi_section = e_index;
-/*	G4int nofelectrodesinphisection = m_NumberOfFans / NofPhiSections;//24(8) for outer(inner) wheel
+	G4int e_index = lwc()->PhiGapNumberForWheel(gap.first) - first_electrode;
+	if(e_index < 0) e_index += lwc()->GetNumberOfFans();
+	const G4int &phi_section = e_index;
+/*	G4int nofelectrodesinphisection = lwc()->GetNumberOfFans() / NofPhiSections;//24(8) for outer(inner) wheel
 	G4int phi_section = e_index / nofelectrodesinphisection;
 
 	if(phi_section < 0 || phi_section >= NofPhiSections){
