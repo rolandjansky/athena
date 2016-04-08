@@ -10,7 +10,7 @@ namespace InDet {
 
   class PixelIDLayerComp{
   public:
-    PixelIDLayerComp() {}
+    PixelIDLayerComp(): m_pixelId(0) {}
     PixelIDLayerComp(const PixelID* pixelId) : m_pixelId(pixelId) {}
     bool operator() (Identifier id1, Identifier id2){
 
@@ -43,14 +43,13 @@ namespace InDet {
       if(!id1_is_barrel && id2_is_barrel){
 	return false;
       }
-      if(id1_is_barrel && !id2_is_barrel){
-	return true;
-      }
-
-      // ATH_MSG_WARNING("Really shouldn't be here: Cannot compare pixel layers!");
-      return false;
-
+      
+      //remaining possibility is if(id1_is_barrel && !id2_is_barrel), remove 'if' statement to make coverity happy, otherwise complains about logically dead code
+      return true;
+      
+      
     }
+
     void SetPixelIDSvc(PixelID* pixelId) { m_pixelId = pixelId; }
   private:
     const PixelID * m_pixelId;

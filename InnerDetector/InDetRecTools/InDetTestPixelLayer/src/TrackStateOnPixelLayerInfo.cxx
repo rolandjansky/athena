@@ -23,7 +23,7 @@ namespace InDet {
     m_phi= -99999;
     m_distToModEdgePhi= -99999;
     m_distToModEdgeEta= -99999;
-
+    m_goodFrac = -99999;
   }
 
   InDet::TrackStateOnPixelLayerInfo::~TrackStateOnPixelLayerInfo(){

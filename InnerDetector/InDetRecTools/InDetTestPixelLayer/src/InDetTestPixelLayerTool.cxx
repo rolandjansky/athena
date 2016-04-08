@@ -640,7 +640,14 @@ namespace InDet {
       Identifier id = trkParam->associatedSurface().associatedDetectorElement()->identify();
       pixelLayerInfo.moduleId(id);
 
+      
       const InDetDD::SiDetectorElement* sielem = dynamic_cast<const InDetDD::SiDetectorElement*>(trkParam->associatedSurface().associatedDetectorElement());
+      
+      if(!sielem){
+	ATH_MSG_WARNING("Failed to cast TrackParameters associated surface to SiDetectorElement");
+	return false;
+      }
+      
       const Amg::Vector2D& locPos = trkParam->localPosition();
       Identifier holeId_c =sielem->identifierOfPosition(locPos);
       pixelLayerInfo.pixelId(holeId_c);
@@ -807,6 +814,12 @@ namespace InDet {
     // now, check to see that phitol and etatol extend at least beyond the current pixel
     const InDetDD::SiDetectorElement* sielem = 
       dynamic_cast<const InDetDD::SiDetectorElement*>(trkParam->associatedSurface().associatedDetectorElement());
+
+    if(!sielem){
+      ATH_MSG_WARNING("Failed to cast TrackParameters associated surface to SiDetectorElement");
+      return false;
+    }
+
     const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&sielem->design());
     if(design){
       phitol = std::max(phitol, design->phiPitch()+1e-6);
