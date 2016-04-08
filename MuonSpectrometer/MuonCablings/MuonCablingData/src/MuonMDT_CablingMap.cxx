@@ -42,6 +42,12 @@ MuonMDT_CablingMap::~MuonMDT_CablingMap()
   delete m_chamberToROD;
   delete m_RODToChamber;
   delete m_listOfROD;
+  for( auto it : *m_listOfMezzanineTypes) {
+     if( it.second != NULL ) {
+       delete (it.second);
+       it.second = NULL;
+     }
+  }
   delete m_listOfMezzanineTypes;
 }
 
