@@ -11,7 +11,7 @@
 #include "TileConditions/TileCondProxyWrapper.h"
 #include "TileConditions/ITileCondToolOfc.h"
 
-static bool first = true;
+
 //
 //____________________________________________________________________
 static const InterfaceID IID_TileCondToolOfcCool("TileCondToolOfcCool", 1, 0);
@@ -32,6 +32,7 @@ TileCondToolOfcCool::TileCondToolOfcCool(const std::string& type, const std::str
     , m_Phamin(0)
     , m_Phamax(0)
     , m_NSamples(0)
+    , m_first(true)
 {
   declareInterface<TileCondToolOfcCool>(this);
   declareInterface<ITileCondToolOfc>(this);
@@ -80,8 +81,8 @@ const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int draw
     throw TileCalib::IndexOutOfRange("TileCondToolOfcCool::getOfcWeights", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
   }
 
-  if (first) {
-    first = false;
+  if (m_first) {
+    m_first = false;
     m_NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
     m_NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
     m_NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
@@ -112,8 +113,8 @@ int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx
     throw TileCalib::IndexOutOfRange("TileCondToolOfcCool::getOfcWeights", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
   }
 
-  if (first) {
-    first = false;
+  if (m_first) {
+    m_first = false;
     m_NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
     m_NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
     m_NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
