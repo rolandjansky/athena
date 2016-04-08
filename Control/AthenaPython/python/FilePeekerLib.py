@@ -5,7 +5,7 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__version__= "$Revision: 627236 $"
+__version__= "$Revision: 668532 $"
 __author__ = "Sebastien Binet"
 __doc__ = "provide components to peek into pool files"
 
@@ -13,17 +13,20 @@ __doc__ = "provide components to peek into pool files"
 import AthenaPython.PyAthena as PyAthena
 StatusCode = PyAthena.StatusCode
 
-# MN: make Coral.AttributeList work in Coral3/ROOT6
+# MN/sss: make Coral.AttributeList work in Coral3/ROOT6/gcc5
 from PyCool import coral
-try:
-    getattr(coral.Attribute, 'data<std::basic_string<char> >')
-    #MN: use coral.Attribute.data<std::basic_string<char> >() if defined  (ROOT6)
-    def attr_str_data(attr):
-        return getattr(attr, 'data<std::basic_string<char> >') ()
-    # if not defined, use the old one (ROOT5) 
-except AttributeError:
-    def attr_str_data(attr):
-        return getattr(attr, 'data<std::string>') ()
+_attribute_methods = dir(coral.Attribute)
+_methnames = ['data<std::__cxx11::basic_string<char> >',
+              'data<std::basic_string<char> >',
+              'data<std::string>']
+for _m in _methnames:
+    if _m in _attribute_methods:
+        _attribute_getdata = _m
+        break
+else:
+    raise Exception("Can't find data method in Attribute")
+def attr_str_data(attr):
+    return getattr(attr, _attribute_getdata) ()
 
 
 ### helper functions ----------------------------------------------------------
@@ -333,7 +336,7 @@ class FilePeeker(PyAthena.Alg):
         _info(' - lumiblocks: %s', data['lumi_block'])
         _info(' - evt types: %s', data['evt_type'])
         _info(' - item list: %s', len(data['eventdata_items']))
-        _info(' - processing tags: %s', data['stream_names'])
+        _info(' - stream names: %s', data['stream_names'])
         _info(' - stream tags: %s', data['stream_tags'])
         _info(' - geometry: %s', data['geometry'])
         _info(' - conditions tag: %s', data['conditions_tag'])
@@ -563,6 +566,12 @@ class FilePeeker(PyAthena.Alg):
         if not 'det_descr_tags' in peeked_data:
             peeked_data['det_descr_tags'] = {}
             
+        # eventless simulated DAOD files
+        if not self._begin_run_flag:
+            if taginfo and taginfo.get('project_name',None) == 'IS_SIMULATION':
+                peeked_data['evt_type'] = ('IS_SIMULATION', 'IS_ATLAS', 'IS_PHYSICS')
+            if '/Simulation/Parameters' in metadata:
+                peeked_data['run_number'] = [metadata.get('/Simulation/Parameters').get('RunNumber',None)]
         #######################################################################
         ## return early if no further processing needed...
         if peek_evt_data == False:
@@ -679,7 +688,7 @@ class FilePeeker(PyAthena.Alg):
                 taginfo = mergeMultipleDict(v)
             if taginfo:
                 # we want to keep the AtlasRelease from when the file was produced
-                atlas_release = peeked_data.get('det_descr_tags', taginfo)
+                atlas_release = metadata.get('/TagInfo', taginfo)
                 atlas_release = atlas_release.get('AtlasRelease',
                                                   taginfo['AtlasRelease'])
                 taginfo['AtlasRelease'] = atlas_release

@@ -106,8 +106,8 @@ Svc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 
 const InterfaceID& 
 Svc::interfaceID() { 
-  static const InterfaceID _IID("PyAthena::Svc", 1, 0);
-  return _IID; 
+  static const InterfaceID IID("PyAthena::Svc", 1, 0);
+  return IID; 
 }
 
 StatusCode

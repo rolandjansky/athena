@@ -72,8 +72,8 @@ StatusCode Tool::finalize()
 
 const InterfaceID& 
 Tool::interfaceID() { 
-  static const InterfaceID _IID("PyAthena::Tool", 1, 0);
-  return _IID; 
+  static const InterfaceID IID("PyAthena::Tool", 1, 0);
+  return IID; 
 }
 
 StatusCode
