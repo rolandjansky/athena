@@ -81,6 +81,19 @@ static std::string dir2String(const Amg::Vector3D& dir)
     return oss.str();
 }
 
+static inline double getFirstPointZ(const Muon::Fit2D::PointArray& points)
+{
+    for (auto pPoint : points)
+    {
+        if (!pPoint->bExclude)
+        {
+            auto pRIO = static_cast<const Muon::MuonClusterOnTrack*>(pPoint->pData);
+            return pRIO->globalPosition().z();
+        }
+    }
+    return 0.0;
+}
+
 std::vector<const Muon::MuonSegment*>*
 TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
                                  const std::vector< std::vector< const Muon::MdtDriftCircleOnTrack* > >&,
@@ -102,8 +115,6 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
     const MuonGM::TgcReadoutElement* pReadoutElement =
     dynamic_cast<const MuonGM::TgcReadoutElement*>(rios.front()->detectorElement());
     if (!pReadoutElement) return 0;
-    double baseZ = pReadoutElement->center().z();
-//    bool bIsInner = pReadoutElement->stationType()[1] == '4';
 
     std::set<std::string> rhoStations, phiStations;
     int iHit = 0;
@@ -167,6 +178,8 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
 //                << rhoPoints.size() <<" eta points" << std::endl;
             fit.fitPoint(rhoPoints, m_fExclChi2, msgLvl(MSG::DEBUG), rhoSimpleStats);
             fit.fitPoint(phiPoints, m_fExclChi2, msgLvl(MSG::DEBUG), phiSimpleStats);
+            double baseZ = getFirstPointZ(rhoPoints);
+            ATH_MSG_DEBUG("    baseZ=" << baseZ);
             ATH_MSG_DEBUG("Rho: " << rhoSimpleStats.toString() );
             ATH_MSG_DEBUG("Phi: " << phiSimpleStats.toString() );
             pos[0]=rhoSimpleStats.fMean;
@@ -179,6 +192,8 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
         }
         else
         {
+            double baseZ = getFirstPointZ(rhoPoints);
+            ATH_MSG_DEBUG("    baseZ=" << baseZ);
             double rho, rhoErr, phi, phiErr, z = baseZ;
             fit.fitLine(rhoPoints, m_fExclChi2, msgLvl(MSG::DEBUG), rhoLinStats);
             ATH_MSG_DEBUG("Rho: " << rhoLinStats.toString());
