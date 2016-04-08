@@ -26,8 +26,8 @@ Mdt::Mdt(Component* ss, std::string lVName): DetectorElement(ss->name)
    longWidth = s->dx2;
    thickness = s->GetThickness();
    length = s->dy;
-   component = s;
-   component->cutoutTubeXShift = 0.;
+   m_component = s;
+   m_component->cutoutTubeXShift = 0.;
    layer = new MultiLayer(s->name);
    layer->logVolName = lVName;
    layer->cutoutNsteps = 0;
@@ -169,14 +169,14 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
 
     // Pass information to multilayer and MdtComponent
     layer->cutoutNsteps = Nsteps;
-    component->cutoutTubeXShift = 0.;
+    m_component->cutoutTubeXShift = 0.;
     for (int i = 0; i < 5; i++) {
       layer->cutoutNtubes[i] = cutoutNtubes[i];
       layer->cutoutTubeLength[i] = cutoutTubeLength[i];
       layer->cutoutFullLength[i] = cutoutFullLength[i];
       layer->cutoutXtubes[i] = cutoutXtubes[i];
       layer->cutoutYmax[i] = cutoutYmax[i];
-      if (!cutoutFullLength[i]) component->cutoutTubeXShift = cutoutXtubes[i];
+      if (!cutoutFullLength[i]) m_component->cutoutTubeXShift = cutoutXtubes[i];
       // For now assume multiple cutouts have same width and take only the last value 
     }
     

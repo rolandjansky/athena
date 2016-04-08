@@ -37,7 +37,7 @@ public:
    inline void setFineClashFixingFlag(int value);
 
    MuonChamber(Station *s);
-   GeoVPhysVol* build(MuonDetectorManager* m_manager, int ieta, int iphi, bool is_mirrored, bool& isAssembly);
+   GeoVPhysVol* build(MuonDetectorManager* manager, int ieta, int iphi, bool is_mirrored, bool& isAssembly);
    void print();
 
 private:
@@ -46,11 +46,11 @@ private:
    void setMdtReadoutGeom(MdtReadoutElement* re, const MdtComponent* cc,
                           const Position& p);
    void setRpcReadoutGeom(RpcReadoutElement* re, const RpcComponent* cc,
-                          const Position& p, std::string geomVers, MuonDetectorManager* m_manager);
+                          const Position& p, std::string geomVers, MuonDetectorManager* manager);
    void setTgcReadoutGeom(TgcReadoutElement* re, const TgcComponent* cc,
                           const Position& p, std::string geomVers, std::string statname);
 
-   Station* station;
+   Station* m_station;
    IMessageSvc* m_msgSvc;
    int m_enableFineClashFixing;
 };

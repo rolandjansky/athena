@@ -33,7 +33,7 @@ Tgc::Tgc(Component* ss): DetectorElement(ss->name),
   irad(0.), orad(0.), dphi(0.)
 {
   TgcComponent* s = (TgcComponent*)ss;
-  component = s;
+  m_component = s;
   width = s->dx1;
   longWidth = s->dx2;
   length = s->dy;
@@ -270,7 +270,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
               double yposleft = yposCentre[iBS] - t->pitchButton[0]/2.
                      + (lengthActive/2.-t->pitchButton[1]/2.*isupz)*tan(angleTiltButton[iBS]);
               CLHEP::Hep3Vector vtransBS;
-              vtransBS.set(0., yposleft + t->pitchButton[0]*fabs(isupz%2),
+              vtransBS.set(0., yposleft + t->pitchButton[0]*std::abs(isupz%2),
                            t->pitchButton[1]/2.*isupz);
               sGasVolume = &(sGasVolume->subtract( (*stubesup) << HepGeom::Transform3D(rotY,vtransBS)));
             }

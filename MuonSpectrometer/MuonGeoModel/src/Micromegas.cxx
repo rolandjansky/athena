@@ -31,7 +31,7 @@ namespace MuonGM {
 Micromegas::Micromegas(Component* ss): DetectorElement(ss->name)
 {
   MicromegasComponent* s = (MicromegasComponent*)ss;
-  component = s;
+  m_component = s;
   width = s->dx1;
   longWidth = s->dx2;
   length = s->dy;
@@ -81,7 +81,7 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
   									
   
   logVolName=name;
-  if (!(component->subType).empty()) logVolName+=("-"+component->subType);
+  if (!(m_component->subType).empty()) logVolName+=("-"+m_component->subType);
   const GeoMaterial* mtrd = matManager->getMaterial("sct::PCB");
   GeoLogVol* ltrd = new GeoLogVol(logVolName, strd, mtrd);
   GeoFullPhysVol* ptrd = new GeoFullPhysVol(ltrd);

@@ -37,7 +37,7 @@ public:
   void print();
 
 private:
-  CscComponent* component;
+  CscComponent* m_component;
   Csc & operator=(const Csc &right);
   Csc(const Csc&);
 };

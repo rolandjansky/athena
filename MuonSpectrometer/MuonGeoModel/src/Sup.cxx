@@ -30,7 +30,7 @@ Sup::Sup(Component* ss): DetectorElement(ss->name)
   SUP* sup = (SUP*)mysql->GetTechnology(s->name);
   thickness = sup->thickness;
   alThickness = sup->alThickness;
-  component = s;  // questo 'component' serve!
+  m_component = s;  // questo 'component' serve!
 }
 
 
@@ -193,7 +193,7 @@ GeoVPhysVol* Sup::build(int cutoutson,
 
         GeoLogVol         *lsup   = new GeoLogVol("SupModule", ssup, msup);
         psup   = new GeoPhysVol(lsup);
-        if(name.substr(3,2)=="2") // SUP2
+        if(name.substr(3,1)=="2") // SUP2
         {
             std::cout<<" recognised as type 2"<<std::endl;
             // never used (coverity 12157): ssup = & ((*ssup) << HepGeom::RotateY3D( 180.*CLHEP::deg ));

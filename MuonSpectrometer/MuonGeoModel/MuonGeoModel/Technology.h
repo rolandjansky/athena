@@ -13,7 +13,7 @@ namespace MuonGM {
 
 class Technology {
 protected:
-	std::string name;
+	std::string m_name;
 public:
 	double thickness;
 	Technology(std::string s);

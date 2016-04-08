@@ -32,7 +32,7 @@ namespace MuonGM {
 sTGC::sTGC(Component* ss): DetectorElement(ss->name)
 {
   sTGCComponent* s = (sTGCComponent*)ss;
-  component = s;
+  m_component = s;
   width = s->dx1;
   longWidth = s->dx2;
   yCutout= s->yCutout;
@@ -96,7 +96,7 @@ GeoFullPhysVol* sTGC::build(int minimalgeo, int , std::vector<Cutout*> )
 									
 
   logVolName=name;
-  if (!(component->subType).empty()) logVolName+=("-"+component->subType);
+  if (!(m_component->subType).empty()) logVolName+=("-"+m_component->subType);
   const GeoMaterial* mtrd = matManager->getMaterial("std::G10");
   GeoLogVol* ltrd = new GeoLogVol(logVolName, strd, mtrd);
   GeoFullPhysVol* ptrd = new GeoFullPhysVol(ltrd);

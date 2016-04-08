@@ -32,7 +32,7 @@ public:
    void print();
 
 private:
-   SupComponent* component;
+   SupComponent* m_component;
 };
 
 } // namespace MuonGM

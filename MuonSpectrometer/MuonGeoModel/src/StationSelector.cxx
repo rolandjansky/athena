@@ -23,20 +23,20 @@ StationSelector::StationSelector(std::string filename)
 	  std::istringstream line(buffer);
 	  std::string key;
 	  line>>key;
-          //std::cout<<" station selector - key "<<key<<std::endl;
-	  selector.push_back(key);
+          //std::cout<<" station m_selector - key "<<key<<std::endl;
+	  m_selector.push_back(key);
 	}
 	MYSQL *mysql=MYSQL::GetPointer();
 	StationIterator it;
 	for (it=mysql->StationBegin();it!=mysql->StationEnd();it++)
 	{
-		if (select(it)) theMap[(*it).first]=(*it).second;
+		if (select(it)) m_theMap[(*it).first]=(*it).second;
 	}
 }
-StationSelector::StationSelector(std::vector<std::string> s):selector(s)
+StationSelector::StationSelector(std::vector<std::string> s):m_selector(s)
 {
 	MYSQL *mysql=MYSQL::GetPointer();
-        //        std::cout<<" Station selector:: MYSQL found at "<<mysql<<std::endl;
+        //        std::cout<<" Station m_selector:: MYSQL found at "<<mysql<<std::endl;
         
         //mysql->PrintAllStations();
         //mysql->PrintTechnologies();
@@ -44,16 +44,16 @@ StationSelector::StationSelector(std::vector<std::string> s):selector(s)
 	StationIterator it;
 	for (it=mysql->StationBegin();it!=mysql->StationEnd();it++)
 	{
-		if (select(it)) theMap[(*it).first]=(*it).second;
+		if (select(it)) m_theMap[(*it).first]=(*it).second;
 	}
 }
 StationIterator StationSelector::begin()
 {
-	return theMap.begin();
+	return m_theMap.begin();
 }
 StationIterator StationSelector::end() 
 {
-	return theMap.end();
+	return m_theMap.end();
 }
 
 bool StationSelector::select(StationIterator it)
@@ -61,14 +61,14 @@ bool StationSelector::select(StationIterator it)
 	MsgStream log(Athena::getMessageSvc(), "MuonGeoModel");
 	std::string name=(*it).second->GetName();
 	int selFlag=m_selectType;
-	if (selector[0]=="*") selFlag=1;  // override JO choice for general configuration
+	if (m_selector[0]=="*") selFlag=1;  // override JO choice for general configuration
 	//std::cout <<"select "<<name<<" "<<std::endl;
 	
 	if (selFlag==1) 
 	{
-	  for (unsigned int k=0;k<selector.size();k++)
+	  for (unsigned int k=0;k<m_selector.size();k++)
 	  {
-	     std::string sel=selector[k];
+	     std::string sel=m_selector[k];
 	     if (sel.size()<=name.size()) 
 	     {
 		   bool myflag=true;
@@ -86,9 +86,9 @@ bool StationSelector::select(StationIterator it)
 	}
 	else if (selFlag==2)
 	{
-	  for (unsigned int k=0;k<selector.size();k++)
+	  for (unsigned int k=0;k<m_selector.size();k++)
 	  {
-	     std::string sel=selector[k];
+	     std::string sel=m_selector[k];
 		 
 		 if (sel.size()!=name.size()) continue;   // require exact match 
 	     

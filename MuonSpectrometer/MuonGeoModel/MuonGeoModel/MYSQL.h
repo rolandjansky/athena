@@ -111,14 +111,14 @@ public:
 
 // singleton
 private:
-    static MYSQL* thePointer;
+    static MYSQL* s_thePointer;
     MYSQL();
-    std::map<int, std::string> allocatedpos;
-    std::map<std::string, int> allocPos;
-    std::map<std::string, Station* > stations;
-    std::map<std::string,Technology* > technologies;
-    std::map<std::string, TgcReadoutParams* > tgcReadouts;
-    TgcReadoutParams *tgcReadout[NTgcReadouts];
+    std::map<int, std::string> m_allocatedpos;
+    std::map<std::string, int> m_allocPos;
+    std::map<std::string, Station* > m_stations;
+    std::map<std::string,Technology* > m_technologies;
+    std::map<std::string, TgcReadoutParams* > m_tgcReadouts;
+    TgcReadoutParams *m_tgcReadout[NTgcReadouts];
     std::string m_geometry_version; //from our job-option 
     std::string m_layout_name;      //from nova 
     std::string m_DBMuonVersion;    //name of the MuonVersion table-collection in Oracle
@@ -134,56 +134,56 @@ private:
 void MYSQL::addAllocpos(int i, std::string str)
 {
     //    std::cout<<" trying to declare pos. at key "<<i<<" for station "<<str<<std::endl;
-    allocatedpos[i]= str;
+    m_allocatedpos[i]= str;
     //    std::cout<<" declaring pos. at key "<<i<<" allocated to station "<<str<<std::endl;
 }
 AllocposIterator MYSQL::AllocposEnd() 
 {
-    return allocatedpos.end();
+    return m_allocatedpos.end();
 }
 AllocposIterator MYSQL::AllocposBegin()
 {
-    return allocatedpos.begin();
+    return m_allocatedpos.begin();
 }
 AllocposIterator MYSQL::AllocposFind(int i)
 {
-    return allocatedpos.find(i);
+    return m_allocatedpos.find(i);
 }
 std::string MYSQL::AllocposFindName(int i)
 {
-    AllocposIterator it = allocatedpos.find(i);
+    AllocposIterator it = m_allocatedpos.find(i);
     // imt fix in case key is wrong:
-    if (it != allocatedpos.end())
+    if (it != m_allocatedpos.end())
       return (*it).second;
     else
       return "ERROR: bad key!";
 }
 StationIterator MYSQL::StationBegin()
 {
-    return stations.begin();
+    return m_stations.begin();
 }
 StationIterator MYSQL::StationEnd()
 {
-    return stations.end();
+    return m_stations.end();
 }
 TgcReadParsIterator MYSQL::TgcRParsBegin()
 {
-    return tgcReadouts.begin();
+    return m_tgcReadouts.begin();
 }
 
 TgcReadParsIterator MYSQL::TgcRParsend()
 {
-    return tgcReadouts.end();
+    return m_tgcReadouts.end();
 }
 
 int MYSQL::NStations()
 {
-    return stations.size();
+    return m_stations.size();
 }
 
 int MYSQL::NTgcReadTypes()
 {
-    return tgcReadouts.size();
+    return m_tgcReadouts.size();
 }
 int MYSQL::allocPosBuildValue(int subtype, int cutout)
 {
@@ -191,20 +191,20 @@ int MYSQL::allocPosBuildValue(int subtype, int cutout)
 }
 allocPosIterator MYSQL::allocPosBegin()
 {
-    return allocPos.begin();
+    return m_allocPos.begin();
 }
 allocPosIterator MYSQL::allocPosEnd()
 {
-    return allocPos.end();
+    return m_allocPos.end();
 }
 allocPosIterator MYSQL::allocPosFind(std::string key)
 {
-    return allocPos.find(key);
+    return m_allocPos.find(key);
 }
 int MYSQL::allocPosFindSubtype(std::string key)
 {
     int subtype = 0;
-    allocPosIterator it = allocPos.find(key);
+    allocPosIterator it = m_allocPos.find(key);
     if (it != allocPosEnd())
     {
         return allocPosFindSubtype(it);
@@ -221,7 +221,7 @@ int MYSQL::allocPosFindSubtype(allocPosIterator it)
 int MYSQL::allocPosFindCutout(std::string key)
 {
     int cutout = 0;
-    allocPosIterator it = allocPos.find(key);
+    allocPosIterator it = m_allocPos.find(key);
     if (it != allocPosEnd())
     {
         return allocPosFindCutout(it);
@@ -239,11 +239,11 @@ int MYSQL::allocPosFindCutout(allocPosIterator it)
 
 void MYSQL::addallocPos(std::string key, int value)
 {
-    allocPos[key]= value;    
+    m_allocPos[key]= value;    
 }
 void MYSQL::addallocPos(std::string key, int subtype, int cutout)
 {
-    allocPos[key]= allocPosBuildValue(subtype, cutout);
+    m_allocPos[key]= allocPosBuildValue(subtype, cutout);
 }
 void MYSQL::setGeometryVersion(std::string s)
 {

@@ -62,6 +62,7 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
       m_cachingFlag(1),
       m_enableMdtDeformations(0),
       m_enableMdtAsBuiltParameters(0),
+      m_altMdtAsBuiltFile(""),
       m_condDataTool(),
       m_manager(0)
 {
@@ -97,7 +98,9 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
     declareProperty("AlternateCscIntAlignFile"		, m_altCscIntAlinesFile);
     //
     declareProperty("EnableMdtDeformations"		, m_enableMdtDeformations = 0);
+    //
     declareProperty("EnableMdtAsBuiltParameters"	, m_enableMdtAsBuiltParameters = 0);
+    declareProperty("AlternateAsBuiltParamAlignFile"    , m_altMdtAsBuiltFile);
     //
     declareProperty("TheMuonAlignmentTool",     m_condDataTool,      "a Tool to read from the condDB and save in StoreGate" );
     // THESE ALLOW TO RESET THE MUON SWITCHES IN THE oracle TABLES:
@@ -246,13 +249,12 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
 
         msg(MSG::DEBUG)<<" m_altAsztFile: "<<m_altAsztFile<<endreq;
         // use ascii file to read in ASZT parameters
-        if (m_altAsztFile != "" || m_altCscIntAlinesFile != "" ) 
-	{
-	    if (m_altAsztFile != "" )
-		altAsciiDBMap.insert(std::make_pair("ASZT",m_altAsztFile));  	
-	    if (m_altCscIntAlinesFile != "") 
-		altAsciiDBMap.insert(std::make_pair("IACSC",m_altCscIntAlinesFile));  	
-        }
+	if (m_altAsztFile != "" )
+	  altAsciiDBMap.insert(std::make_pair("ASZT",m_altAsztFile));  	
+	if (m_altCscIntAlinesFile != "") 
+	  altAsciiDBMap.insert(std::make_pair("IACSC",m_altCscIntAlinesFile));  	
+	if (m_altMdtAsBuiltFile != "") 
+	  altAsciiDBMap.insert(std::make_pair("XAMDT",m_altMdtAsBuiltFile));  	
     }
   
   
@@ -495,9 +497,9 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
 StatusCode
 MuonDetectorTool::clear(StoreGateSvc* detStore)
 {
-  SG::DataProxy* _proxy = detStore->proxy(ClassID_traits<MuonGM::MuonDetectorManager>::ID(),m_manager->getName());
-  if(_proxy) {
-    _proxy->reset();
+  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<MuonGM::MuonDetectorManager>::ID(),m_manager->getName());
+  if(proxy) {
+    proxy->reset();
     m_manager = 0;
   }
   return StatusCode::SUCCESS;
@@ -657,6 +659,19 @@ StatusCode MuonDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	umem = GeoPerfUtils::getMem();
 	ucpu = float(GeoPerfUtils::getCpu()/100.);
 	geoModelStats <<"At MuonDetectorTool::align method after manager->updateDeformations   \t SZ= " <<umem << " Kb \t Time = " << ucpu << " seconds  ---- \t DeltaM = "<<umem-mem<<" \t Delta T ="<<ucpu - cpu << std::endl;
+	mem = umem;
+	cpu = ucpu;
+    }
+
+    sc = m_manager->updateAsBuiltParams(m_condDataTool->AsBuiltContainer());
+    if (sc.isFailure()) msg(MSG::ERROR)<<"Unable to updateAsBuiltParams"<<endreq;
+    else msg(MSG::DEBUG)<<"updateAsBuiltParams DONE"<<endreq;
+
+    if (m_dumpMemoryBreakDown)
+    {
+	umem = GeoPerfUtils::getMem();
+	ucpu = float(GeoPerfUtils::getCpu()/100.);
+	geoModelStats <<"At MuonDetectorTool::align method after manager->updateAsBuiltParams   \t SZ= " <<umem << " Kb \t Time = " << ucpu << " seconds  ---- \t DeltaM = "<<umem-mem<<" \t Delta T ="<<ucpu - cpu << std::endl;
 	mem = umem;
 	cpu = ucpu;
     }
