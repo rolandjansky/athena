@@ -45,8 +45,7 @@ IOVDbMetaDataTool::IOVDbMetaDataTool(const std::string& type,
         m_newRunNumber(0),
         m_oldRunNumber(0),
         m_minRunNumber(0),
-        m_maxRunNumber(0),
-        m_modifyFolders(false)
+        m_maxRunNumber(0)
 {
     // Declare additional interface
     declareInterface<IIOVDbMetaDataTool>(this);
