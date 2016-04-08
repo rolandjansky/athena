@@ -59,7 +59,7 @@ int  TrigInDetVxInJetTool::SelGoodTrigTrack( const std::vector<const TrigInDetTr
     if ((*i_ntrk)->HitPattern()) BLayHits = ((*i_ntrk)->HitPattern() & 0x1) ? 1 : 0;
     if(PixelHits < 0 ) PixelHits=0; 
     if(SctHits   < 0 ) SctHits=0; 
-    if(BLayHits  < 0 ) BLayHits=0;
+    //if(BLayHits  < 0 ) BLayHits=0;
     ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
     if (ImpactSignif == -9999.0) continue;
     double ImpactA0=Impact[0];  
