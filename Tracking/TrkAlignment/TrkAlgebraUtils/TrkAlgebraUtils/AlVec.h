@@ -66,8 +66,8 @@ class AlVec {
   inline double* ptrData() const;
 
  protected:
-  int m_size;
-  double* m_ptr_data;
+  int _size;
+  double* ptr_data;
   std::string m_pathbin;
   std::string m_pathtxt;
 
@@ -82,39 +82,39 @@ class AlVec {
 // inline methods:
 
 inline int AlVec::size() const {
-  return m_size;
+  return _size;
 }
 
 inline double* AlVec::ptrData() const {
-  return m_ptr_data;
+  return ptr_data;
 }
 
 inline double& AlVec::operator[](int i) {
   if( i < 0 ) {
     std::cerr << "AlVec: Index < zero! " << std::endl;
-    return m_ptr_data[0];
+    return ptr_data[0];
   }
 
-  if( i >= m_size ) {
+  if( i >= _size ) {
     std::cerr << "AlVec: Index too large! " << std::endl;
-    return m_ptr_data[0];
+    return ptr_data[0];
   }
 
-  return *(m_ptr_data+i);
+  return *(ptr_data+i);
 }
 
 inline const double& AlVec::operator[](int i) const {
   if( i < 0 ) {
     std::cerr << "AlVec: Index < zero! " << std::endl;
-    return m_ptr_data[0];
+    return ptr_data[0];
   }
 
-  if( i >= m_size ) {
+  if( i >= _size ) {
     std::cerr << "AlVec: Index too large! " << std::endl;
-    return m_ptr_data[0];
+    return ptr_data[0];
   }
 
-  return *(m_ptr_data+i);
+  return *(ptr_data+i);
 }
 
 } // end namespace Trk
