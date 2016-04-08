@@ -51,3 +51,5 @@ class PowhegConfig_jjj(PowhegConfig_base) :
     self.bornsuppfact   = 1000.0
     self.doublefsr      = 1
     self.withdamp       = 1
+
+    self.populate_default_strings()

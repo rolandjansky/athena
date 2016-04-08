@@ -10,14 +10,15 @@ from ..utility import LHEHandler, ProcessHandling
 from xml.etree import ElementTree
 import glob, mmap, os, shutil
 
+## Convenience function to set up an instance of the reweighting class
 def afterburner_NNLO_reweighting(configurator) :
   reweighter = AfterburnerNNLOReweighting( configurator )
   reweighter.run_NNLO_executable()
   reweighter.postprocess_NNLO_events()
 
 
+## Handler for reweighting functions
 class AfterburnerNNLOReweighting :
-  '''Handler for reweighting functions'''
 
   def __init__(self, configurator) :
     self._logger = configurator.logger
@@ -30,11 +31,11 @@ class AfterburnerNNLOReweighting :
     self._NNLO_output_weights = configurator.NNLO_output_weights
     self._nominal_group_name = [ x[1] for x in configurator.fixed_parameters if x[0] == 'lhrwgt_group_name' ][0]
 
-    ## Strip comment strings from input LHEF file - reweighter will crash otherwise
+    # Strip comment strings from input LHEF file - reweighter will crash otherwise
     self._logger.info( 'Removing comments from input LHE file' )
     os.system( "sed -i 's/\!.*$//g' {0}".format( self._LHEF_name ) )
 
-    ## Construct weight descriptor sets for consistent ordering
+    # Construct weight descriptor sets for consistent ordering
     self._logger.info( 'Constructing list of weights' )
     self._NNLO_weight_descriptors = []
     for idx, (weight_ID, weight_description) in enumerate( sorted( self._NNLO_output_weights.items() ), start=4001 ) :
@@ -57,6 +58,7 @@ class AfterburnerNNLOReweighting :
           self._logger.warning( '{0} does not exist!'.format( NNLO_reweighting_file_name ) )
 
 
+  ## Run the NNLO executable
   def run_NNLO_executable(self) :
     # Run NNLOPS
     if 'nnlopsreweighter' in self._NNLO_executable  :
@@ -85,18 +87,19 @@ class AfterburnerNNLOReweighting :
       shutil.move( 'pwgevents.lhe-nnlo', 'pwgevents.lhe.nnlo' )
 
 
+  ## Postprocessing for NNLOPS and DYNNLO events
   def postprocess_NNLO_events(self) :
-    ## Postprocessing for NNLOPS and DYNNLO events
     shutil.move( self._LHEF_name, '{0}.native'.format(self._LHEF_name) )
     self._logger.info( 'Reformatting NNLO reweighting output' )
-    ## Run NNLOPS
+    # Run NNLOPS
     if 'nnlopsreweighter' in self._NNLO_executable  :
       self.postprocess_NNLOPS_events()
-    ## Run DYNNLO
+    # Run DYNNLO
     elif 'minnlo' in self._NNLO_executable  :
       self.postprocess_DYNNLO_events()
 
 
+  ## Determine the path to the appropriate executable
   def get_executable( self, powheg_executable ) :
     process = powheg_executable.split('/')[-2]
     if process == 'HJ' : relative_path = 'nnlopsreweighter'
@@ -105,30 +108,32 @@ class AfterburnerNNLOReweighting :
     return powheg_executable.replace('pwhg_main',relative_path)
 
 
+  ## Construct the argument list needed by DYNNLOPS reweighter
   def construct_DYNNLO_argument_list(self) :
     DYNNLO_top_files = self._NNLO_reweighting_inputs.values()
     return [ self._NNLO_executable, 'pwgevents.lhe', len(DYNNLO_top_files) ] + DYNNLO_top_files
 
 
+  ## Construct the run card needed by NNLOPSreweighter
   def construct_NNLOPS_runcard(self) :
     self._logger.info( 'Constructing NNLOPS run card' )
-    ## Prepare the nnlopsreweighter runcard
+    # Prepare the nnlopsreweighter runcard
     with open( 'nnlopsreweighter.input', 'wb' ) as f :
-      ## Name of the input LHE file
+      # Name of the input LHE file
       f.write( "lhfile {0}\n\n".format(self._LHEF_name) )
 
-      ## Weights present in the lhfile: #mtinf, mt, mtmb, mtmb-bminlo
-      ## a line with: 'nnlofiles' followed by a quoted label and the name of a HNNLO output file.
+      # Weights present in the lhfile: #mtinf, mt, mtmb, mtmb-bminlo
+      # a line with: 'nnlofiles' followed by a quoted label and the name of a HNNLO output file.
       f.write( "nnlofiles\n" )
       for label, NNLO_reweighting_file_name in self._NNLO_reweighting_inputs.items() :
         f.write( "'{0}' {1}\n".format( label, NNLO_reweighting_file_name ) )
       f.write( "\n" )
 
-      ## NNLOPS weights, in LHEv3 format: can be grouped as prefered with arbitrary IDs
-      ## Description line tells reweighter how to calculate weights:
-      ##  *) loops through the weight IDs in the LHEF file and through the labels of the nnlofiles.
-      ##  *) if description contains a weight-label and an nnlofile-label:
-      ##     - compute new weight by reweighting the corresponding weights in the input file with the result from the nnlofile
+      # NNLOPS weights, in LHEv3 format: can be grouped as prefered with arbitrary IDs
+      # Description line tells reweighter how to calculate weights:
+      #  *) loops through the weight IDs in the LHEF file and through the labels of the nnlofiles.
+      #  *) if description contains a weight-label and an nnlofile-label:
+      #     - compute new weight by reweighting the corresponding weights in the input file with the result from the nnlofile
       f.write( "<initrwgt>\n" )
       f.write( "<weightgroup name='NNLOPS'>\n" )
       for idx, weight_ID, weight_description in NNLOPS_weight_descriptors :

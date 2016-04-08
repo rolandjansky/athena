@@ -46,3 +46,5 @@ class PowhegConfig_jj(PowhegConfig_base) :
     self.par_2gsupp = 5
     self.par_diexp  = 4
     self.par_dijexp = 4
+
+    self.populate_default_strings()

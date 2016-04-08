@@ -47,3 +47,5 @@ class PowhegConfig_DMV(PowhegConfig_base) :
     self.vdecaymode   = -1
     self.runningscale = 3
     self.minlo        = -1
+
+    self.populate_default_strings()
