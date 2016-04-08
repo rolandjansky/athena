@@ -63,7 +63,7 @@ public:
 	void CreateVolume(AGDDVolume*);
 	void CreateComposition(AGDDComposition*);
 
-	void SetMotherVolume(GeoPhysVol *v) {mother=v;}
+	void SetMotherVolume(GeoPhysVol *v) {m_mother=v;}
 	void BuildAllVolumes();
 	void BuildFromSection(std::string);
 	void BuildFromVolume(std::string);
@@ -71,7 +71,7 @@ public:
 //	std::map<std::string, GeoFullPhysVol*>* GetMSdetectors() const;
 
 private:
-	GeoPhysVol *mother;
+	GeoPhysVol *m_mother;
 	
 	GeoMaterial* GetMMMaterial(std::string);
 

@@ -38,15 +38,15 @@ public:
   
   	void setFileCurrentlyParsed(std::string set)
   	{
-   		fileCurrentlyParsed = set;
+   		m_fileCurrentlyParsed = set;
   	}
 
 private:
-  	HepTool::Evaluator     fCalc;
-  	ConstantsTable         fCTable;
-  	PhysicalConstantsTable fPCTable;
-  	std::string fileCurrentlyParsed;
-  	std::vector<std::string> real_vars;
+  	HepTool::Evaluator     m_calc;
+  	ConstantsTable         m_CTable;
+  	PhysicalConstantsTable m_PCTable;
+  	std::string m_fileCurrentlyParsed;
+  	std::vector<std::string> m_real_vars;
 };
 
 #endif // GDML_EXPRESSION_EVALUATOR_H
