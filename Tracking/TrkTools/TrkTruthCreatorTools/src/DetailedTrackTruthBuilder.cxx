@@ -22,6 +22,7 @@
 #include <map>
 #include <queue>
 #include <list>
+#include <limits>
 
 #include <iostream>
 #include <iterator>
@@ -126,8 +127,8 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 	//std::cout<<"Got SubDetType = "<<subdet<<" for "<< (*i)->begin()->first <<std::endl;
 	
 	if(subdet != SubDetHitStatistics::NUM_SUBDETECTORS) {
-	  orderedPRD_Truth[subdet] = *i;
-	  addToInverseMultiMap(&inverseTruth, **i);
+          orderedPRD_Truth[subdet] = *i;
+          makeTruthToRecMap(inverseTruth,**i);
 	}
 	else {
 	  ATH_MSG_WARNING("Got unknown SubDetType in prdTruth ");
@@ -253,7 +254,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 	    for(iprdt i = range.first; i!= range.second; i++) {
 	      
 	      
-	      const HepMC::GenParticle* pa = (*i).second.cptr(); if(!pa || pa->pdg_id() == 999) continue; 
+	      const HepMC::GenParticle* pa = (*i).second.cptr(); if(!pa) { continue; }
 	      
 	      if(!i->second.isValid()) {
 		ATH_MSG_WARNING("Unexpected invalid HepMcParticleLink in PRD_MultiTruthCollection");
@@ -406,9 +407,26 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 						     truthStat) ));
   }
 
+
   ATH_MSG_VERBOSE("addTrack(): #sprouts = "<<sprouts.size()<<", output->size() = "<<output->size());
 }
-
+//================================================================
+void DetailedTrackTruthBuilder::makeTruthToRecMap( PRD_InverseTruth& result, const PRD_MultiTruthCollection& rec2truth) {
+  // invert the map from Identifier (reco hit) to HepMcParticleLink,
+  // to allow lookup of all Identifiers produced by a given HepMcParticleLink.
+  // the result is only used in countPRDsOnTruth. since that code ignores
+  // geantinos, don't bother to sort the geantinos here.
+  for( auto i : rec2truth ) {
+    // i.first = Identifier
+    // i.second = HepMcParticleLink
+    const HepMC::GenParticle* pa = i.second.cptr();
+    if( !pa ) { continue; } // skip noise
+    if( pa->barcode()==std::numeric_limits<int32_t>::max() &&
+        pa->pdg_id()==999 ) { continue; } // skip geantinos
+    result.insert(std::make_pair(i.second, i.first));
+  }
+}
+  
 //================================================================
 SubDetHitStatistics DetailedTrackTruthBuilder::countPRDsOnTruth(const TruthTrajectory& traj,
 								const PRD_InverseTruth& inverseTruth)
@@ -416,8 +434,16 @@ SubDetHitStatistics DetailedTrackTruthBuilder::countPRDsOnTruth(const TruthTraje
   // Different particles from the same TruthTrajectory can contribute to the same cluster.
   // We should be careful to avoid double-counting in such cases.
 
+
   SubDetPRDs prds;
   for(TruthTrajectory::const_iterator p = traj.begin(); p != traj.end(); ++p) {
+    // if this is a geantino (pile-up truth reduction), then we would
+    // sum over hits from all particles that arise from this pile-up
+    // collision. the result is useless. don't do it.
+    // in release 20, geantinos have
+    //   barcode==std::numeric_limits<int32_t>::max()
+    //   pdg_id==999
+    if( (*p)->pdg_id()==999 ) { continue; } 
     typedef PRD_InverseTruth::const_iterator iter;
     std::pair<iter,iter> range = inverseTruth.equal_range(*p);
     for(iter i = range.first; i != range.second; ++i) {
