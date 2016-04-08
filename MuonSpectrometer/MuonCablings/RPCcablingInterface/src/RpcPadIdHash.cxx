@@ -23,9 +23,7 @@
 
 
 // default contructor 
-RpcPadIdHash::RpcPadIdHash (IRPCcablingSvc* cabling /*= nullptr*/)
-  : m_cabling (cabling)
-{
+RpcPadIdHash::RpcPadIdHash( ) {
 
   IMessageSvc*  msgSvc;
   ISvcLocator* svcLoc = Gaudi::svcLocator( );
@@ -38,25 +36,23 @@ RpcPadIdHash::RpcPadIdHash (IRPCcablingSvc* cabling /*= nullptr*/)
   
   MsgStream log(msgSvc, "RpcPadIdHash" );
 
-  log << MSG::DEBUG << "Into RpcPadIdHash Constructor " << endmsg; 
+  log << MSG::DEBUG << "Into RpcPadIdHash Constructor " << endreq; 
 
-  if (!m_cabling) {
-    // initialize RPC cabling service
-    const IRPCcablingServerSvc* RpcCabGet = 0;
-    sc = svcLoc->service("RPCcablingServerSvc", RpcCabGet, true);
-    if (sc != StatusCode::SUCCESS ) 
-    {
+  // initialize RPC cabling service
+  const IRPCcablingServerSvc* RpcCabGet = 0;
+  sc = svcLoc->service("RPCcablingServerSvc", RpcCabGet, true);
+  if (sc != StatusCode::SUCCESS ) 
+  {
       throw GaudiException("Cannot retrieve the RPCcabling server",
-                           "RpcPadIdHash::RpcPadIdHash( )", StatusCode::FAILURE);
-    }
+                         "RpcPadIdHash::RpcPadIdHash( )", StatusCode::FAILURE);
+  }
 
-    sc = RpcCabGet->giveCabling(m_cabling);
-    if (sc != StatusCode::SUCCESS ) 
-    {
-      throw GaudiException("Cannot retrieve the RPCcabling from the server",
-                           "RpcPadIdHash::RpcPadIdHash( )", StatusCode::FAILURE);
-      
-    }
+  sc = RpcCabGet->giveCabling(m_cabling);
+  if (sc != StatusCode::SUCCESS ) 
+  {
+     throw GaudiException("Cannot retrieve the RPCcabling from the server",
+                         "RpcPadIdHash::RpcPadIdHash( )", StatusCode::FAILURE);
+
   }
 
   for(int side=0;side<2;++side)
@@ -80,10 +76,10 @@ RpcPadIdHash::RpcPadIdHash (IRPCcablingSvc* cabling /*= nullptr*/)
     if( m_int2id.size() != index.hash()+1 )
     {
         log << MSG::FATAL << "Inconsistence between PAD hash and RpcPadIdHash"
-	    << endmsg;
-	log << MSG::FATAL << index << endmsg;
+	    << endreq;
+	log << MSG::FATAL << index << endreq;
 	log << MSG::FATAL << "Position into RpcPadIdHash map is " 
-	    << m_int2id.size() - 1 << endmsg;
+	    << m_int2id.size() - 1 << endreq;
 	    
 	throw GaudiException("Cannot build the map for RpcPadIdHash ",
                          "RpcPadIdHash::RpcPadIdHash( )", StatusCode::FAILURE);
@@ -94,7 +90,7 @@ RpcPadIdHash::RpcPadIdHash (IRPCcablingSvc* cabling /*= nullptr*/)
     
     if( rod > 15 )
     {
-        log << MSG::FATAL << "RPC ROD greater than 15" << endmsg;
+        log << MSG::FATAL << "RPC ROD greater than 15" << endreq;
 	throw GaudiException("Cannot build the map for Rod2Hash ",
                          "RpcPadIdHash::RpcPadIdHash( )", StatusCode::FAILURE);
     }
@@ -107,7 +103,7 @@ RpcPadIdHash::RpcPadIdHash (IRPCcablingSvc* cabling /*= nullptr*/)
  }
 
   log << MSG::DEBUG << "Number of valid RPC Pad IDs " << m_int2id.size() 
-      << endmsg ; 
+      << endreq ; 
   
   m_size = m_int2id.size(); 
 }

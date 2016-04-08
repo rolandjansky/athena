@@ -434,8 +434,7 @@ CMAparameters::showDt(ostream& stream) const
     if(!m_pivot)
     {
         stream << endl << "Low Pt and Hi Pt not yet connected!" << endl;
-        for(int i=0;i<80;++i) stream << (char)finish;
-        stream << endl;
+        for(int i=0;i<80;++i) stream << (char)finish; stream << endl;
         return;
     }
 
@@ -468,8 +467,7 @@ CMAparameters::showDt(ostream& stream) const
     delete [] disphi;
 
     stream << endl;
-    for(int i=0;i<80;++i) stream << (char)finish;
-    stream << endl;
+    for(int i=0;i<80;++i) stream << (char)finish; stream << endl;
 }
 
 void

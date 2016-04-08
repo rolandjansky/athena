@@ -27,8 +27,7 @@ class RpcPadIdHash  {
 
   typedef Identifier ID; 
 
-  // Service may be passed in explicitly for testing purposes.
-  RpcPadIdHash (IRPCcablingSvc* cabling = nullptr);
+  RpcPadIdHash ();
   virtual ~RpcPadIdHash() { };
 
   /**Convert ID to int */
