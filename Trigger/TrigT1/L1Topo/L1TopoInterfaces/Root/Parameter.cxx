@@ -28,6 +28,9 @@ Parameter::Parameter( const string & name,
 {}
 
 
+namespace TCS {
+
+
 std::ostream &
 operator<<(std::ostream &o, const TCS::Parameter & p) {
   
@@ -44,4 +47,7 @@ operator<<(std::ostream &o, const TCS::Parameter & p) {
   }
   
   return o;
+}
+
+
 }

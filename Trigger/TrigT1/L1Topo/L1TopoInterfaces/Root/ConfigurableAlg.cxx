@@ -5,14 +5,66 @@
 
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 #include "L1TopoCommon/Exception.h"
+#include "L1TopoInterfaces/IL1TopoHistSvc.h"
+
+#include "TH1.h"
 #include <iostream>
 
 using namespace std;
 using namespace TCS;
 
 
+/**
+ * The implementation class
+ *
+ */
+class ConfigurableAlg::ConfigurableAlgImpl {
+public:
+   ConfigurableAlgImpl(const std::string & name) :
+      m_name(name)
+   {}
+
+   ~ConfigurableAlgImpl() {
+      for( auto h : m_localHistStore )
+         delete h;
+   }
+   
+   void setL1TopoHistSvc(shared_ptr<IL1TopoHistSvc> histSvc) {
+      m_histSvc = histSvc;
+   }
+
+   void registerHist(TH1 * h) {
+      // histograms in the L1Topo framework are put in a algorith specific folder
+      string newHistName = m_name + "/" + h->GetName();
+      h->SetName(newHistName.c_str());
+
+      if( m_histSvc ) {
+         m_histSvc->registerHist(h);
+      } else {
+         m_localHistStore.push_back(h);
+      }
+   }
+   
+private:
+
+   std::string m_name;
+
+   // histogram service
+   shared_ptr<IL1TopoHistSvc> m_histSvc;
+
+   // store histograms locally if no hist service is available
+   vector<TH1 *> m_localHistStore;
+
+};
+
+
+
+
+
+
 ConfigurableAlg::ConfigurableAlg(const  std::string & name, AlgType algType) :
    TrigConfMessaging(name),
+   m_impl(new ConfigurableAlgImpl(name)),
    m_name(name),
    m_parameters(name),
    m_algType(algType)
@@ -77,14 +129,28 @@ ConfigurableAlg::parameter(const std::string & parameterName, unsigned int selec
 }
 
 
+/**
+ * forwarding public interface
+ **/
 
-
-std::ostream &
-operator<<(std::ostream & o, const TCS::ConfigurableAlg & alg) {
-
-   o << "algorithm '" << alg.fullname() << "'" << endl;
-   o << alg.parameters();
-   return o;
-
+void ConfigurableAlg::setL1TopoHistSvc(std::shared_ptr<IL1TopoHistSvc> histSvc) {
+   m_impl->setL1TopoHistSvc(histSvc);
 }
 
+void ConfigurableAlg::registerHist(TH1 * h) {
+   m_impl->registerHist(h);
+}
+
+
+namespace TCS {
+
+   std::ostream &
+   operator<<(std::ostream & o, const TCS::ConfigurableAlg & alg) {
+
+      o << "algorithm '" << alg.fullname() << "'" << endl;
+      o << alg.parameters();
+      return o;
+
+   }
+
+}

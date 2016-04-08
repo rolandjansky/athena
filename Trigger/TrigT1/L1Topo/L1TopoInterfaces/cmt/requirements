@@ -3,6 +3,7 @@ package L1TopoInterfaces
 # General dependencies
 use  DetCommonPolicy    *
 use  Boost              *      LCG_Interfaces
+use  ROOT               *      LCG_Interfaces
 
 # Trigger dependencies
 use TrigConfBase        *      Trigger/TrigConfiguration
