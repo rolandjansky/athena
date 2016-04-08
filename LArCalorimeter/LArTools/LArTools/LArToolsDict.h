@@ -14,9 +14,6 @@
 #ifndef LARTOOLS_LARTOOLSDICT_H
 # define LARTOOLS_LARTOOLSDICT_H
 
-#include "LArTools/LArCablingService.h"
-#include "LArTools/LArSuperCellCablingTool.h"
-#include "LArTools/LArHVCablingTool.h"
 #include "LArTools/LArMCSymTool.h"
 
 #endif // LARTOOLS_LARTOOLSDICT_H

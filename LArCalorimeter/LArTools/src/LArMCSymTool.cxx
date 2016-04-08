@@ -3,7 +3,7 @@
 */
 
 #include "LArTools/LArMCSymTool.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CaloIdentifier/LArID.h"
 
