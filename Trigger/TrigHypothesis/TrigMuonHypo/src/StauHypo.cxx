@@ -113,9 +113,9 @@ HLT::ErrorCode StauHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // convert units since Muonfeature is in GeV
   double mCand = 0;
   double BetaCand = pMuon->beta();
-  if ( fabsf(pMuon->pt()) > (m_ptThreshold/CLHEP::GeV)&& BetaCand < m_betaMax) {
+  if ( std::abs(pMuon->pt()) > (m_ptThreshold/CLHEP::GeV)&& BetaCand < m_betaMax) {
     double theta = 2.*atan(exp(-pMuon->etaMS())); //should be turned into codes
-    double pCand = fabsf(pMuon->pt())/sin(theta)*CLHEP::GeV;
+    double pCand = std::abs(pMuon->pt())/sin(theta)*CLHEP::GeV;
     mCand = pCand * sqrt(1.-BetaCand*BetaCand)/BetaCand; // should be turned into code
     if (mCand > m_mMin) result = true;
   }
