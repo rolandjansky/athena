@@ -78,7 +78,7 @@ C              report function value and status
         DCMAX = 1.
         DC = MIN(DCOVAR,DCMAX) * 100.
         WRITE (ISYSWR,908) CHEDM,ISTRAT,DC
-  908   FORMAT (21X,'EDM=',A,'  STRATEGY=',I1,'  Error Matrix',
+  908   FORMAT (21X,'EDM=',A,'  STRATEGY=',I1,'  ERROR MATRIX',
      +     ' UNCERTAINTY=',F5.1,'%')
       ENDIF
 C
