@@ -1,26 +1,25 @@
 package LarCrate
 
-author Franck Martin 
-
-use AtlasPolicy            AtlasPolicy-*
-use AtlasDoxygen           AtlasDoxygen-*               Tools
-
-use FadsGeometry           FadsGeometry-*               Simulation/G4Sim/FADS
-use FadsXMLParser          FadsXMLParser-*              Simulation/G4Sim/FADS
-use TileG4DetDescr         TileG4DetDescr-*             TileCalorimeter/TileG4/TileAncillary
+use AtlasPolicy         AtlasPolicy-*
+use AtlasDoxygen        AtlasDoxygen-*          Tools
 
 private
 
-use Geant4                 Geant4-*                     External
-use AtlasXercesC           AtlasXercesC-*               External
-use GaudiInterface         GaudiInterface-*             External
-use FadsMaterial           FadsMaterial-*               Simulation/G4Sim/FADS
+use AtlasCLHEP          AtlasCLHEP-*            External
+use GaudiInterface      GaudiInterface-*        External
+use Geant4              Geant4-*                External
+use GeoModelInterfaces  GeoModelInterfaces-*    DetectorDescription/GeoModel
+use GeoModelKernel      GeoModelKernel-*        DetectorDescription/GeoModel
+use Geo2G4              Geo2G4-*                Simulation/G4Utilities
+use G4AtlasTools        G4AtlasTools-*          Simulation/G4Atlas
+use StoreGate           StoreGate-*             Control
 
 end_private
 
-library LarCrate ../src/*.cc
+library LarCrate *.cxx components/*.cxx
 
 apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
 
 apply_pattern declare_runtime_extras extras="larcrate.dtd \
                                              larcrate.xml \
@@ -31,6 +30,6 @@ apply_pattern declare_runtime_extras extras="larcrate.dtd \
 #=======================================================
 private
 
-macro_append DOXYGEN_FILE_PATTERNS    " *.hh *.cc "
+macro_append DOXYGEN_FILE_PATTERNS    " *.h *.cxx "
 
 end_private
