@@ -7,25 +7,18 @@ manager Zdenek Hubacek <Zdenek.Hubacek@cern.ch>
 #Copy from RecAthenaPool, who knows what is really needed??...
 private
 
-#use CLIDSvc              CLIDSvc-*       Control
-use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 use GaudiInterface       GaudiInterface-*           External
-#use StoreGate            StoreGate-*                Control
-use ISF_Event            ISF_Event-*                Simulation/ISF/ISF_Core
+use ISF_FastCaloSimEvent ISF_FastCaloSimEvent-*     Simulation/ISF/ISF_FastCaloSim
 
 public
 
-use AtlasPolicy          AtlasPolicy-* 
+use AtlasPolicy          AtlasPolicy-*
 use AtlasSealCLHEP       AtlasSealCLHEP-*           Database -no_auto_imports
 use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
 
 
 branches isfAthenaPool src
 
-macro        isfAthenaPool_poolCnvTypes ""
-macro_append isfAthenaPool_poolCnvTypes "ISF_FCS_Parametrization::FCS_StepInfo "
-macro_append isfAthenaPool_poolCnvTypes "ISF_FCS_Parametrization::FCS_StepInfoCollection "
-
-apply_pattern poolcnv typesWithNamespace=$(isfAthenaPool_poolCnvTypes) \
-   files=" -s=${ISF_Event_root}/ISF_Event FCS_StepInfoCollection.h "
-
+apply_pattern poolcnv typesWithNamespace="ISF_FCS_Parametrization::FCS_StepInfo \
+                                          ISF_FCS_Parametrization::FCS_StepInfoCollection" \
+   files=" -s=${ISF_FastCaloSimEvent_root}/ISF_FastCaloSimEvent FCS_StepInfoCollection.h "
