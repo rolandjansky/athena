@@ -29,7 +29,7 @@ private:
 public:
 
   /* default constructor */
-  CscCalibData() {}
+  CscCalibData() : m_idHash(0) {}
 
   /* full constructor */
   CscCalibData(int hashId, std::vector<float> calibConst) :

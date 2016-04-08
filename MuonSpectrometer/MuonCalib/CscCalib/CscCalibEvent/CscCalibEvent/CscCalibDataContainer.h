@@ -16,7 +16,6 @@
 #include <string>
 
 #include "CscCalibEvent/CscCalibDataCollection.h"
-#include "CscCalibEvent/CscCalibDataIdHash.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
 #include "CLIDSvc/CLASS_DEF.h"
