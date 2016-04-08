@@ -43,7 +43,7 @@ class TileMuToNtuple: public AthAlgorithm {
 
     NTuple::Tuple* m_ntuplePtr;
     int m_ntupleID;
-    int max_ntag;
+    int m_maxNtag;
     int m_close;
     std::string m_ntupleLoc;
 
@@ -53,7 +53,7 @@ class TileMuToNtuple: public AthAlgorithm {
     NTuple::Matrix<float> m_energy;
     NTuple::Array<float> m_quality;
 
-    std::string m_TileMuContainer;
+    std::string m_tileMuContainer;
 
 };
 
