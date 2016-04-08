@@ -66,7 +66,7 @@ StatusCode sTGCDigitVariables::fillVariables()
     int channelTypeMax   = m_sTgcIdHelper->channelTypeMax(Id);
     int channelMin       = m_sTgcIdHelper->channelMin(Id);
     int channelMax       = m_sTgcIdHelper->channelMax(Id);
-
+    int channelType      = m_sTgcIdHelper->channelType(Id);
 
     ATH_MSG_DEBUG(     "sTGC Digit Offline id:  Station Name [" << stName << " ]"
                       << " Station Eta ["  << stationEta      << "]"
@@ -112,6 +112,7 @@ StatusCode sTGCDigitVariables::fillVariables()
       m_NSWsTGC_dig_channelPosY->push_back( cpos.y() );
    }
 
+   m_NSWsTGC_dig_channel_type->push_back(channelType);
    m_NSWsTGC_dig_stationName->push_back(stName);
    m_NSWsTGC_dig_stationEta->push_back(stationEta);
    m_NSWsTGC_dig_stationPhi->push_back(stationPhi);
