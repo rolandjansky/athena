@@ -9,7 +9,8 @@
 TrigBSExtraction::TrigBSExtraction(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_navigationForEF("HLT::Navigation/Navigation", this),
-    m_navigationForL2("HLT::Navigation/NavigationForL2", this)
+    m_navigationForL2("HLT::Navigation/NavigationForL2", this),
+    m_nav(0)
 {
   
   declareProperty("L2ResultKey",     m_l2ResultKey = "HLTResult_L2");

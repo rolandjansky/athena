@@ -441,7 +441,7 @@ StatusCode TrigBStoxAODTool::rewireNavigation(HLT::Navigation* nav) {
 	if(iselement)   newTypeClid = it->second->xAODElementClid();
 	if(iscontainer) newTypeClid = it->second->xAODContainerClid();
 
-	HLTNavDetails::IHolder* newholder = nav->m_featuresByLabel[newTypeClid][oldholder->label()];
+	HLTNavDetails::IHolder* newholder = nav->m_holderstorage.getHolder<HLTNavDetails::IHolder>(newTypeClid,oldholder->label());
 	
        	if(!newholder){
 	  ATH_MSG_WARNING("could not find new holder for xAOD clid " <<  newTypeClid << " and label " << oldholder->label());
