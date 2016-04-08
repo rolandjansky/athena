@@ -48,6 +48,13 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_nhistogram             = 0                 ;
   m_zhistogram             = 0                 ;
   m_phistogram             = 0                 ;
+  m_nseedsTotal            = 0                 ;
+  m_ntracksTotal           = 0                 ;
+  m_neventsTotal           = 0                 ;
+  m_neventsTotalV          = 0                 ;
+  m_problemsTotal          = 0                 ; 
+  m_problemsTotalV         = 0                 ; 
+  m_zstep                  = 0                 ;
 
   // SiSPSeededTrackFinder steering parameters
   //
