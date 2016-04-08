@@ -5,12 +5,15 @@ author Tadashi Maeno        <Tadashi.Maeno@cern.ch>
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
 use AtlasPolicy		 AtlasPolicy-*
-use GaudiInterface       GaudiInterface-01-*        External
-use AthenaPoolCnvSvc     AthenaPoolCnvSvc-00-*      Database/AthenaPOOL
-use AthenaPoolUtilities  AthenaPoolUtilities-00-*   Database/AthenaPOOL
+use GaudiInterface       GaudiInterface-*        External
+use AthenaPoolUtilities  AthenaPoolUtilities-*   Database/AthenaPOOL
 
-use AnalysisTriggerEvent AnalysisTriggerEvent-00-*  PhysicsAnalysis/AnalysisTrigger
+
+private
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*      Database/AthenaPOOL
+use AnalysisTriggerEvent AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
 use AnalysisTriggerEventTPCnv AnalysisTriggerEventTPCnv-*                 PhysicsAnalysis/AnalysisTrigger
+end_private
 
 apply_pattern poolcnv files="-s=${AnalysisTriggerEvent_root}/AnalysisTriggerEvent \
                                   CTP_Decision.h \
