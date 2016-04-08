@@ -5,6 +5,7 @@ author Walter Lampl
 
 use AtlasPolicy     AtlasPolicy-*
 use GaudiInterface  GaudiInterface-*      External
+use AthenaBaseComps AthenaBaseComps-*     Control
 use CaloConditions  CaloConditions-*      Calorimeter
 use CaloIdentifier  CaloIdentifier-*      Calorimeter
 

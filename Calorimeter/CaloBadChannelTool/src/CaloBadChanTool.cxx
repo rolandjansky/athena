@@ -9,55 +9,38 @@
 
 CaloBadChanTool::CaloBadChanTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent) :
-  AlgTool( type, name, parent),
+  AthAlgTool( type, name, parent),
   m_larBCT("LArBadChanTool"),
-  m_tileBCT("TileBadChanTool"),
-  m_log(NULL)
+  m_tileBCT("TileBadChanTool")
 {
   declareInterface<ICaloBadChanTool>(this);
 }
 
 
 CaloBadChanTool::~CaloBadChanTool() {
-  delete m_log;
 }
 
 StatusCode CaloBadChanTool::initialize()
 {
-  StatusCode sc;
-  m_log= new MsgStream(msgSvc(),name());
+  ATH_MSG_DEBUG ("in initialize()" );
 
-  (*m_log) <<MSG::DEBUG <<"in initialize()" <<endreq;
-
-  sc=m_larBCT.retrieve();
+  StatusCode sc=m_larBCT.retrieve();
   if (sc.isFailure()) {
-    (*m_log) << MSG::WARNING << "Unable to get LArBadChanTool: no LAr bad channel info will be provided " << endreq;
+    ATH_MSG_WARNING ( "Unable to get LArBadChanTool: no LAr bad channel info will be provided " );
   }
   else 
-    (*m_log) << MSG::DEBUG << "LArBadChanTool retrieved" << endreq;
+    ATH_MSG_DEBUG ( "LArBadChanTool retrieved" );
 
 
   sc=m_tileBCT.retrieve();
   if (sc.isFailure()) {
-    (*m_log) << MSG::WARNING << "Unable to get TileBadChannelTool: no Tile bad channel info will be provided " << endreq;
+    ATH_MSG_WARNING ( "Unable to get TileBadChannelTool: no Tile bad channel info will be provided " );
   }
   else 
-    (*m_log) << MSG::DEBUG << "TileBadChannelTool retrieved" << endreq;
+    ATH_MSG_DEBUG ( "TileBadChannelTool retrieved" );
 
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if (!sc.isSuccess() || 0 == detStore)  {
-    (*m_log) <<MSG::ERROR <<"Could not find DetStore" <<endreq;
-    return StatusCode::FAILURE;
-  }
-  sc = detStore->retrieve(m_caloID, "CaloCell_ID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get Calo_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-	
+  ATH_CHECK( detStore()->retrieve(m_caloID, "CaloCell_ID") );
   return StatusCode::SUCCESS;
-
 }
 
 CaloBadChannel CaloBadChanTool::caloStatus(Identifier id) const{

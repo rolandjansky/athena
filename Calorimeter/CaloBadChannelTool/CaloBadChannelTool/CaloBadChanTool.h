@@ -5,14 +5,14 @@
 #ifndef CaloBadChanTool_H
 #define CaloBadChanTool_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloConditions/ICaloBadChanTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
 //static const InterfaceID IID_CaloBadChanTool("CaloBadChanTool", 1 , 0); 
 
-class CaloBadChanTool : public AlgTool,
+class CaloBadChanTool : public AthAlgTool,
 			public ICaloBadChanTool {
 public:
 
@@ -30,9 +30,7 @@ private:
 
   ToolHandle<ICaloBadChanTool> m_larBCT;
   ToolHandle<ICaloBadChanTool> m_tileBCT;
-  MsgStream* m_log;
   const CaloCell_ID* m_caloID;
-
 };
 
 #endif
