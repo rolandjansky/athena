@@ -47,18 +47,18 @@ namespace InDet {
     const VxContainer *vxc;
     if(HLT::OK != getFeature(outputTE, vxc, m_VxContName)) 
     {
-      msg() << MSG::ERROR << "Internal error in the navigation structure during retrieval of the VxContainer with key: " << m_VxContName << ". Do nothing." << endmsg;
+      msg() << MSG::ERROR << "Internal error in the navigation structure during retrieval of the VxContainer with key: " << m_VxContName << ". Do nothing." << endreq;
       return HLT::NAV_ERROR;
     }
     if(!vxc)
     {
-      msg() << MSG::ERROR << "No VxContainer with key: " << m_VxContName << " found. Do nothing." << endmsg;
+      msg() << MSG::ERROR << "No VxContainer with key: " << m_VxContName << " found. Do nothing." << endreq;
       return HLT::NAV_ERROR;
     }
     
     const xAOD::TrackParticleContainer *xtpc;
     if(HLT::OK != getFeature(outputTE, xtpc)){
-      msg() << MSG::ERROR << "No xAOD::TrackParticleContainer - cannot create links" << endmsg;
+      msg() << MSG::ERROR << "No xAOD::TrackParticleContainer - cannot create links" << endreq;
       return HLT::NAV_ERROR;
     } 
 
@@ -71,7 +71,7 @@ namespace InDet {
     // Create the xAOD objects:
     auto itr = vxc->begin();
     auto end = vxc->end();
-    const Trk::VxCandidate* vtx;
+    Trk::VxCandidate* vtx;
     Trk::VxCandidate dummyVxCandidate(Trk::RecVertex(Amg::Vector3D::Zero(), AmgSymMatrix(3)::Zero()), std::vector<Trk::VxTrackAtVertex*>());
     dummyVxCandidate.setVertexType(Trk::NoVtx);
     for( ; itr != end; ++itr ) 
@@ -119,20 +119,20 @@ namespace InDet {
     // Save xAOD vertices:
     if ( HLT::OK !=  attachFeature(outputTE, xaod, m_xVxContName) ) 
     {
-      msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
+      msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
       return HLT::NAV_ERROR;
     }
     else 
     {
       if(outputLevel <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Stored xAOD::Vertex container" << endmsg;      
+        msg() << MSG::DEBUG << "Stored xAOD::Vertex container" << endreq;      
     }
     return HLT::OK;
   }
 
   HLT::ErrorCode TrigVertexxAODCnv::hltFinalize()
   {
-     msg() << MSG::DEBUG << "finalize() success" << endmsg;
+     msg() << MSG::DEBUG << "finalize() success" << endreq;
      return HLT::OK;
   }
 } // namespace InDet
