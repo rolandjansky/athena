@@ -263,12 +263,15 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
       #
 
 
-      from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorToolWithSummary,InDetTrigParticleCreatorToolFTF
+      from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorToolWithSummary, \
+          InDetTrigParticleCreatorToolFTF,InDetTrigParticleCreatorToolWithSummaryTRTPid
 
       creatorTool = InDetTrigParticleCreatorToolWithSummary
 
       if "_FTF" in name:
         creatorTool = InDetTrigParticleCreatorToolFTF
+      elif "_IDTrig" in name and type=="electron":
+        creatorTool = InDetTrigParticleCreatorToolWithSummaryTRTPid
 
       self.ParticleCreatorTool = creatorTool
 
