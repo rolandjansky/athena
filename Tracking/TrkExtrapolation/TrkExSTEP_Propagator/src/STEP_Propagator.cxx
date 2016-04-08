@@ -23,8 +23,8 @@
 //#include "TrkEventPrimitives/Vector.h"
 #include "TrkExUtils/IntersectionSolution.h"
 #include "TrkExUtils/RungeKuttaUtils.h"
-#include "TrkEventPrimitives/CurvilinearUVT.h"
-#include "TrkEventPrimitives/JacobianCurvilinearToLocal.h"
+//#include "TrkEventPrimitives/CurvilinearUVT.h"
+//#include "TrkEventPrimitives/JacobianCurvilinearToLocal.h"
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkExInterfaces/ITimedMatEffUpdator.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -884,8 +884,37 @@ const Trk::TrackParameters*
     return 0;
   }
 
-  // Common transformation for all surfaces (angles and momentum)
-  double localp[5]; rungeKuttaUtils.transformGlobalToLocal(&targetSurface,errorPropagation,P,localp,Jacobian);
+  double localp[5];
+  // output in curvilinear parameters 
+  if (returnCurv || ty==Trk::Surface::Cone)  {
+
+    rungeKuttaUtils.transformGlobalToLocal(P,localp);
+    Amg::Vector3D gp(P[0],P[1],P[2]);
+   
+    if ( boundaryCheck && !targetSurface.isOnSurface(gp) ) {
+      if (trackParameters != &inputTrackParameters) delete trackParameters;
+      return 0;    
+    }
+
+    if ( !errorPropagation || !trackParameters->covariance() ) {
+      if (trackParameters != &inputTrackParameters) delete trackParameters;
+      return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4]);
+    }
+
+    double useless[2];
+    rungeKuttaUtils.transformGlobalToCurvilinear( true, P, useless, Jacobian);
+    AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(
+      Jacobian, *trackParameters->covariance());
+
+    if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(path)>0. ) 
+      covarianceContribution( trackParameters, path, fabs( 1./P[6]), measurementCovariance);
+
+    if (trackParameters != &inputTrackParameters) delete trackParameters;
+    return new Trk::CurvilinearParameters(gp,localp[2],localp[3],localp[4],measurementCovariance); 
+  }
+
+  // Common transformation for all surfaces 
+  rungeKuttaUtils.transformGlobalToLocal(&targetSurface,errorPropagation,P,localp,Jacobian);
   
   if (boundaryCheck) {
     Amg::Vector2D localPosition( localp[0], localp[1]);
@@ -895,15 +924,11 @@ const Trk::TrackParameters*
     }
   }
 
-  // ATH_MSG_DEBUG(" hit surface with momentum " <<  fabs( 1./trackParameters->parameters()[Trk::qOverP]) );
+  const Trk::TrackParameters* onTargetSurf = targetSurface.createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],0); 
 
   if ( !errorPropagation || !trackParameters->covariance() ) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
-    if (returnCurv || ty==Trk::Surface::Cone)  {
-      Amg::Vector3D gp(P[0],P[1],P[2]);
-      return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4]);
-    }
-    return targetSurface.createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],0); 
+    return onTargetSurf; 
   }
 
   //Errormatrix is included. Use Jacobian to calculate new covariance
@@ -911,19 +936,14 @@ const Trk::TrackParameters*
     Jacobian, *trackParameters->covariance());
 
   //Calculate multiple scattering and straggling covariance contribution.
-  if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(path)>0. ) {
-    // ST covariance matrix in curvilinear representation
-    covarianceContribution( trackParameters, path, fabs( 1./P[6]), measurementCovariance);
-  }
+  if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(path)>0. ) 
+      covarianceContribution( trackParameters, path, onTargetSurf, measurementCovariance);
+  delete onTargetSurf;                   // the covariance matrix can be just added instead of recreating ?
 
   //Create new error matrix
   //Trk::ErrorMatrix* errorMatrix = new Trk::ErrorMatrix( measurementCovariance);
 
   if (trackParameters != &inputTrackParameters) delete trackParameters;
-  if (returnCurv || ty==Trk::Surface::Cone)  {
-    Amg::Vector3D gp(P[0],P[1],P[2]);
-    return new Trk::CurvilinearParameters(gp,localp[2],localp[3],localp[4],measurementCovariance);
-  }
   return targetSurface.createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],measurementCovariance); 
 }
 
@@ -1074,7 +1094,10 @@ const Trk::TrackParameters*
     while ( iSol != solutions.end() ) {  
       if ( targetSurfaces[*iSol].first->isOnSurface(gp,targetSurfaces[*iSol].second ,0.001,0.001) ) {
 	if (!solution) {
-	  rungeKuttaUtils.transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,P,localp,Jacobian);
+          if (returnCurv || targetSurfaces[*iSol].first->type()==Trk::Surface::Cone) {
+	    rungeKuttaUtils.transformGlobalToLocal(P, localp);
+	    rungeKuttaUtils.transformGlobalToCurvilinear(errorPropagation,P,localp,Jacobian); 
+          } else rungeKuttaUtils.transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,P,localp,Jacobian);
 	  solution = true;
         }
         valid_solutions.push_back( *iSol );
@@ -1096,36 +1119,42 @@ const Trk::TrackParameters*
     smear(localp[2],localp[3],trackParameters,radDist);
   }
 
+  const Trk::TrackParameters* onTargetSurf = (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone) ? 
+    0 : targetSurfaces[solutions[0]].first->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],0);
+
   if (!errorPropagation) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
       Amg::Vector3D gp(P[0],P[1],P[2]);
       return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4]);
     }
-    return targetSurfaces[solutions[0]].first->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],0); 
+    return onTargetSurf;
   }
 
-  // Errormatrix is included. Use Jacobian to calculate new covariance
-  // use curvilinear representation
-  double useless[2];
-  rungeKuttaUtils.transformGlobalToCurvilinear( true, P, useless, Jacobian);
+  //Errormatrix is included. Use Jacobian to calculate new covariance
   AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(
-		       Jacobian, *trackParameters->covariance());
+    Jacobian, *trackParameters->covariance());
+
 
   //Calculate multiple scattering and straggling covariance contribution.
   if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
-    covarianceContribution( trackParameters, totalPath, fabs( 1./P[6]), measurementCovariance);
+    if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  
+      covarianceContribution( trackParameters, totalPath, fabs( 1./P[6]), measurementCovariance);
+    else {
+      covarianceContribution( trackParameters, totalPath, onTargetSurf, measurementCovariance);
+    }
   }
 
   if (trackParameters != &inputTrackParameters) delete trackParameters;
   if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
-    //AmgSymMatrix(5)* errorMatrix = new Trk::ErrorMatrix( measurementCovariance);
     Amg::Vector3D gp(P[0],P[1],P[2]);
     return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4], measurementCovariance);
   }
 
-  return targetSurfaces[solutions[0]].first->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],measurementCovariance); 
-
+  delete onTargetSurf;          // the covariance matrix can be just added instead of recreating ?
+  return targetSurfaces[solutions[0]].first->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],
+								   measurementCovariance); 
+  
 }
 
 
@@ -1187,8 +1216,6 @@ bool
     }
     if (m_matstates || errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*fabs(distanceStepped),
 					    m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
-    if (m_material && m_material->x0()!=0.) m_combinedThickness += distanceStepped/m_material->x0(); 
-
     //Calculate new distance to target
     previousDistance = fabs( distanceToTarget);
     distanceToTarget = distance( surfaceType, targetSurface, P, distanceEstimationSuccessful);
@@ -1207,6 +1234,8 @@ bool
 
     if (steps++ > m_maxSteps) return false; //Too many steps, something is wrong
   }
+
+  if (m_material && m_material->x0()!=0.) m_combinedThickness += fabs(path)/m_material->x0(); 
 
   //Use Taylor expansions to step the remaining distance (typically microns).
   path = path + distanceToTarget;
@@ -1399,7 +1428,7 @@ bool
 					      m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
       
       if (m_material && m_material->x0()!=0.) {
-	m_combinedThickness += distanceStepped/m_material->x0(); 
+	m_combinedThickness += propDir*distanceStepped/m_material->x0(); 
       }
       
       return false;
@@ -1423,7 +1452,7 @@ bool
     if (m_matstates||errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*fabs(distanceStepped),
 					    m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
     if (m_material && m_material->x0()!=0.) {
-      m_combinedThickness += distanceStepped/m_material->x0(); 
+      m_combinedThickness += propDir*distanceStepped/m_material->x0(); 
     }
 
     if (absPath > maxPath) return false;
@@ -2229,44 +2258,45 @@ double Trk::STEP_Propagator::dgdlambda( double l) const
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::STEP_Propagator::covarianceContribution( const Trk::TrackParameters*  trackParameters,
-                                                         double                 path,
-							 double                 finalMomentum,
-                                                         const Amg::Transform3D&  surfaceRotation,
-							 AmgSymMatrix(5)*       measurementCovariance) const
+                                                   double                       path,
+						   const Trk::TrackParameters*  targetParms,
+						   AmgSymMatrix(5)*       measurementCovariance) const
 {
   if (m_material->zOverAtimesRho()==0) return; 
   if (m_material->x0()==0 || m_material->averageZ()==0) return; 
 
   // kinematics
-  double mom = trackParameters->parameters().mag();
-  double particleMass = s_particleMasses.mass[m_particle]; //Get particle mass from ParticleHypothesis
-  double totalMomentumLoss = finalMomentum - mom;
+  //double mom = trackParameters->parameters().mag();
+  double finalMomentum = targetParms->parameters().mag();
+  //double particleMass = s_particleMasses.mass[m_particle]; //Get particle mass from ParticleHypothesis
+  //double totalMomentumLoss = finalMomentum - mom;
 
   // first update to make sure all material counted
   updateMaterialEffects(finalMomentum, sin(trackParameters->momentum().theta()), path );
 
   //Set up curvilinear system in the direction of the initial momentum
-  Trk::CurvilinearUVT curvilinearUVT( trackParameters->momentum().normalized());
+  //Trk::CurvilinearUVT curvilinearUVT( trackParameters->momentum().normalized());
 
-  //Set up local system at the target surface
-  Amg::Vector3D localX( surfaceRotation(0,0), surfaceRotation(1,0), surfaceRotation(2,0) );
-  Amg::Vector3D localY( surfaceRotation(0,1), surfaceRotation(1,1), surfaceRotation(2,1) );
-  Amg::Vector3D localZ( surfaceRotation(0,2), surfaceRotation(1,2), surfaceRotation(2,2) );
-
-  //Calculate jacobian for transformation from curvilinear to local system at the target surface
-  Trk::JacobianCurvilinearToLocal jacobianCurvToLocal( curvilinearUVT, localX, localY, localZ);
+  Trk::RungeKuttaUtils rungeKuttaUtils;
+  double Jac[21];
+  rungeKuttaUtils.jacobianTransformCurvilinearToLocal(*targetParms,Jac);
 
   //Calculate tranformation contributions when going from the curvilinear to the local system at the target surface
-  double E = sqrt( finalMomentum*finalMomentum + particleMass*particleMass);
-  double dLambdads = -trackParameters->charge()*(totalMomentumLoss/fabs(path))*E/std::pow(finalMomentum, 3);
-
-  jacobianCurvToLocal(4,1) = -(curvilinearUVT.curvU().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
-  jacobianCurvToLocal(4,2) = -(curvilinearUVT.curvV().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
+  //takes into accout change of path/eloss for tilted target plane
+  //commented till recalculated for all surface types
+  // double E = sqrt( finalMomentum*finalMomentum + particleMass*particleMass);
+  // double dLambdads = -trackParameters->charge()*(totalMomentumLoss/fabs(path))*E/std::pow(finalMomentum, 3);
+  // jacobianCurvToLocal(4,0) = -(curvilinearUVT.curvU().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
+  // jacobianCurvToLocal(4,1) = -(curvilinearUVT.curvV().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
 
   //Transform multiple scattering and straggling covariance from curvilinear to local system
-  AmgSymMatrix(5) localMSCovariance = (m_combinedCovariance+m_covariance).similarity( jacobianCurvToLocal);
+  AmgSymMatrix(5)* localMSCov = rungeKuttaUtils.newCovarianceMatrix(
+      Jac, m_combinedCovariance+m_covariance );
+
   //Add measurement errors and multiple scattering + straggling covariance
-  *measurementCovariance += localMSCovariance;
+  *measurementCovariance += *localMSCov;
+
+  delete localMSCov; 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2316,7 +2346,8 @@ void Trk::STEP_Propagator::dumpMaterialEffects( const Trk::CurvilinearParameters
     Trk::ScatteringAngles* sa = new Trk::ScatteringAngles(0.,0.,sqrt(m_covariance(2,2)), sqrt(m_covariance(3,3)));    
   
     Trk::CurvilinearParameters* cvlTP = parms->clone();
-    Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(m_combinedThickness,sa,eloss,cvlTP->associatedSurface());          
+    Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(m_combinedThickness,sa,eloss,cvlTP->associatedSurface());   
+       
     m_matstates->push_back(new TrackStateOnSurface(0,cvlTP,0,mefot));
   }
 
@@ -2377,7 +2408,7 @@ void Trk::STEP_Propagator::updateMaterialEffects( double mom, double sinTheta,do
 
   bool useCache = m_extrapolationCache? true : false;
   if(useCache)  {
-    double dX0 =  m_combinedThickness - pathAbs/matX0;
+    double dX0 =  fabs(m_combinedThickness) - pathAbs/matX0;
     if(dX0<0) dX0 = 0.;
     if(m_extrapolationCache->x0tot()>0) cumulatedX0 = m_extrapolationCache->x0tot() + dX0;
     //   ATH_MSG_DEBUG (" cumulatedX0 " << cumulatedX0 << " cache X0 " << m_extrapolationCache->x0tot() << " m_combinedThickness " 

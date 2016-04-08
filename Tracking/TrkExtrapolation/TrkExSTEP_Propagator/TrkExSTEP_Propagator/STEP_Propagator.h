@@ -391,8 +391,7 @@ namespace Trk {
     void
       covarianceContribution( const Trk::TrackParameters*  trackParameters,
                                     double                 path,
-				    double                 finalMomentum,
-                                    const Amg::Transform3D&  surfaceRotation,
+			      const Trk::TrackParameters*  targetParms,
                                     AmgSymMatrix(5)* measurementCovariance) const;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
