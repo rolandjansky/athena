@@ -56,11 +56,9 @@ class sTgcDigitMaker {
   sTgcDigitCollection* executeDigi(const GenericMuonSimHit* hit, const float globalHitTime);
 
   //Declaring the Message method for further use
-  MsgStream& msg(const MSG::Level lvl) const ;
-  //Declaring the Method providing Verbosity Level
-  bool msgLevel(const MSG::Level lvl) const;
-  void setMessageLevel(const MSG::Level lvl) const;
-
+  MsgStream& msg(const MSG::Level lvl) const { return m_msg << lvl ; }
+  bool msgLvl(const MSG::Level lvl) const { return m_msg.get().level() <= lvl ; }
+  void setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); return; }
   //====== for private
  private:
 
@@ -173,8 +171,9 @@ class sTgcDigitMaker {
   double m_CrossTalk;
   double m_noiseFactor;
 
+ protected:
   //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg = Athena::MsgStreamMember("sTgcDigitMaker");
   
 };
 

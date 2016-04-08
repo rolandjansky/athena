@@ -275,29 +275,25 @@ StatusCode sTgcDigitizationTool::prepareEvent(unsigned int nInputEvents) {
 }
 /*******************************************************************************/
 StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing, 
-						  PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-						  PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
+						  SubEventIterator bSubEvents,
+						  SubEventIterator eSubEvents) {
   
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::in processBunchXing()" );
   if(!m_thpcsTGC) {
     m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
   }
 
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
+  SubEventIterator iEvt = bSubEvents;
   //loop on event and sub-events for the current bunch Xing
   for (; iEvt!=eSubEvents; ++iEvt) {
-    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
+    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
     PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-    const EventInfo* pEI = 0;
-    if (seStore.retrieve(pEI).isSuccess()) {
-      ATH_MSG_VERBOSE( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-		       << " bunch crossing : " << bunchXing
-		       << " time offset : " << iEvt->time()
-		       << " event number : " << pEI->event_ID()->event_number()
-		       << " run number : " << pEI->event_ID()->run_number() );
-    }
-	   
-    const GenericMuonSimHitCollection* seHitColl = 0;
+    ATH_MSG_VERBOSE( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
+                     << " bunch crossing : " << bunchXing
+                     << " time offset : " << iEvt->time()
+                     << " event number : " << iEvt->ptr()->eventNumber()
+                     << " run number : " << iEvt->ptr()->runNumber() );
+    const GenericMuonSimHitCollection* seHitColl(nullptr);
     if (!seStore.retrieve(seHitColl,m_inputHitCollectionName).isSuccess()) {
       ATH_MSG_ERROR ( "SubEvent sTGC SimHitCollection not found in StoreGate " << seStore.name() );
       return StatusCode::FAILURE;
@@ -564,9 +560,9 @@ StatusCode sTgcDigitizationTool::doDigitization() {
       Amg::Vector3D LPOS = SURF_WIRE.transform().inverse() * HPOS;
 
       double scale = 0.;
-      if (abs(abs(LOCAL_Z.x())-1.)<1e-5 && abs(LOCAL_Z.y())<1e-5 && abs(LOCAL_Z.z())<1e-5)      scale = -LPOS.x() / LOCDIRE.x();
-      else if (abs(LOCAL_Z.x())<1e-5 && abs(abs(LOCAL_Z.y())-1.)<1e-5 && abs(LOCAL_Z.z())<1e-5) scale = -LPOS.y() / LOCDIRE.y();
-      else if (abs(LOCAL_Z.x())<1e-5 && abs(LOCAL_Z.y())<1e-5 && abs(abs(LOCAL_Z.z())-1.)<1e-5) scale = -LPOS.z() / LOCDIRE.z();
+      if (std::abs(std::abs(LOCAL_Z.x())-1.)<1e-5 && std::abs(LOCAL_Z.y())<1e-5 && std::abs(LOCAL_Z.z())<1e-5)      scale = -LPOS.x() / LOCDIRE.x();
+      else if (std::abs(LOCAL_Z.x())<1e-5 && std::abs(std::abs(LOCAL_Z.y())-1.)<1e-5 && std::abs(LOCAL_Z.z())<1e-5) scale = -LPOS.y() / LOCDIRE.y();
+      else if (std::abs(LOCAL_Z.x())<1e-5 && std::abs(LOCAL_Z.y())<1e-5 && std::abs(std::abs(LOCAL_Z.z())-1.)<1e-5) scale = -LPOS.z() / LOCDIRE.z();
       else msg(MSG::ERROR) << " Wrong scale! " << endreq;
 
       Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;
@@ -801,7 +797,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         if(!kept) continue; 
         else if(readLevel==2 && kept<2) continue;
         else if(readLevel==1 && kept==1) {
-          if(abs(it_digit->first - neighborOnTime)>m_timeJitterElectronicsStrip*3.) continue; // 3 sigma ~ 99.7%
+          if(std::abs(it_digit->first - neighborOnTime)>m_timeJitterElectronicsStrip*3.) continue; // 3 sigma ~ 99.7%
         }
 
         float newDigitTime = it_digit->first;
