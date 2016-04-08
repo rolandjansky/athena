@@ -29,24 +29,6 @@
 
 #include <unistd.h>
 
-
-inline std::string getDriver() {
-  char *dn=getenv("QAT_IO_DRIVER");
-  if (dn) {
-    return std::string(dn);
-  }
-  else {
-    char *cmt=getenv("CMTPATH");
-    if (cmt) {
-      return "RootDriver";
-    }
-    else {
-      return "HDF5Driver";
-    }
-  }
-}
-
-
 // The I/O Loader
 IOLoader loader;
 
@@ -248,7 +230,7 @@ PresenterApplication::PresenterApplication (QWidget *parent)
   :QMainWindow(parent), c(new Clockwork())
 {
   c->ui.setupUi(this);
-  c->driver=loader.ioDriver(getDriver());
+  c->driver=loader.ioDriver("RootDriver");
   if (!c->driver) {
     // Do not throw error at this point.
   }
@@ -273,7 +255,6 @@ PresenterApplication::PresenterApplication (QWidget *parent)
       QDir dir(libraryPath.at(i));
       QStringList entryList=dir.entryList();
       for (int e=0;e<entryList.size();e++) {
-#ifndef __APPLE__
 	if (entryList.at(e).contains(".so")) {
 	  QString entry=entryList.at(e);
 	  QString trunc0=entry.remove(0,6);   // Strip off "libQat"
@@ -284,18 +265,6 @@ PresenterApplication::PresenterApplication (QWidget *parent)
 	  QAction *action=c->ui.menuSystems->addAction(system, this, SLOT(loadSystem()));
 	  action->setObjectName(system);
 	}
-#else 
-	if (entryList.at(e).contains(".dylib")) {
-	  QString entry=entryList.at(e);
-	  QString trunc0=entry.remove(0,6);   // Strip off "libQat"
-	  QString suffix=".dylib";
-	  QString system=trunc0.remove(suffix);
-	  QString extraDotsIndicatingVersion=".";
-	  if (system.indexOf(extraDotsIndicatingVersion)!=-1) continue;
-	  QAction *action=c->ui.menuSystems->addAction(system, this, SLOT(loadSystem()));
-	  action->setObjectName(system);
-	}
-#endif
       }
     }
   }
@@ -394,11 +363,9 @@ void PresenterApplication::loadSystem(const std::string & system)
     
     for (int i=0;i<libraryPaths.size();i++) {
       QString path=libraryPaths.at(i);
-#ifndef __APPLE__
+      
       QString libraryName = path + QString("/libQat") + systemName + QString(".so");
-#else
-      QString libraryName = path + QString("/libQat") + systemName + QString(".dylib");
-#endif
+      
       QPluginLoader piloader(libraryName);
       piloader.load();
       
@@ -410,9 +377,8 @@ void PresenterApplication::loadSystem(const std::string & system)
       
       instance = piloader.instance();
       if (instance) {
-        c->loadMap[system]=instance; //should presumably be here
-	      break;
-	      //c->loadMap[system]=instance; unreachable code
+	break;
+	c->loadMap[system]=instance;
       }
     }
   }

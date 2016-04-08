@@ -260,10 +260,9 @@ bool QatTabWidget::tabCloseActivatePrevious() const
 
 int QatTabWidget::tabBarWidthForMaxChars( int /*maxLength*/ )
 {
-  int hframe; //, overlap; // overlap not used so far...
-  
+  int hframe, overlap;
   hframe  = tabBar()->style()->pixelMetric( QStyle::PM_TabBarTabHSpace, 0L, tabBar() );
-  //overlap = tabBar()->style()->pixelMetric( QStyle::PM_TabBarTabOverlap, 0L, tabBar() ); // not used so far...
+  overlap = tabBar()->style()->pixelMetric( QStyle::PM_TabBarTabOverlap, 0L, tabBar() );
 
   QFontMetrics fm = tabBar()->fontMetrics();
   int x = 0;
@@ -274,10 +273,9 @@ int QatTabWidget::tabBarWidthForMaxChars( int /*maxLength*/ )
 
     int lw = fm.width( newTitle );
     int iw = 0;
-    if ( !tabBar()->tabIcon( i ).isNull() ){
+    if ( !tabBar()->tabIcon( i ).isNull() )
       iw = tabBar()->tabIcon( i ).pixmap( style()->pixelMetric( QStyle::PM_SmallIconSize ), QIcon::Normal ).width() + 4;
-    }
-    x += ( tabBar()->style()->sizeFromContents( QStyle::CT_TabBarTab, 0L,
+      x += ( tabBar()->style()->sizeFromContents( QStyle::CT_TabBarTab, 0L,
            QSize( qMax( lw + hframe + iw, QApplication::globalStrut().width() ), 0 ),
            this ) ).width();
   }
