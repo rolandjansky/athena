@@ -189,56 +189,56 @@ class IOVDbSvc : public virtual IIOVCondDbSvc,
 
   // job option parameters
   // default database connection
-  std::string         par_defaultConnection;
+  std::string         m_par_defaultConnection;
   //  IOVDbSvc global tag
-  std::string                    par_globalTag;
+  std::string                    m_par_globalTag;
   // production database instance, used to cross-check global tag
-  std::string par_dbinst;
+  std::string m_par_dbinst;
   //  a list of folders to preload
-  std::vector<std::string>            par_folders;
+  std::vector<std::string>            m_par_folders;
   //  a list of overriding tags definitions
-  std::vector<std::string>            par_overrideTags;
+  std::vector<std::string>            m_par_overrideTags;
   //  a list of folders to write to file meta data
-  std::vector<std::string>           par_foldersToWrite;    
+  std::vector<std::string>           m_par_foldersToWrite;    
   //  a flag to trigger the connections management
-  BooleanProperty                par_manageConnections;
+  BooleanProperty                m_par_manageConnections;
   //  a flag to manage pool connections
-  BooleanProperty                par_managePoolConnections;
+  BooleanProperty                m_par_managePoolConnections;
   // flag to dump SG keys at end of first event
-  bool par_dumpkeys;
+  bool m_par_dumpkeys;
   //  a global force run number
-  IntegerProperty                par_forceRunNumber;
+  IntegerProperty                m_par_forceRunNumber;
   //  a global force lumiblock number
-  IntegerProperty                par_forceLumiblockNumber;
+  IntegerProperty                m_par_forceLumiblockNumber;
   // a global force timestamp
-  IntegerProperty par_forceTimestamp;
+  IntegerProperty m_par_forceTimestamp;
   //  max number of pool files open allowed
-  IntegerProperty                par_maxNumPoolFiles;
+  IntegerProperty                m_par_maxNumPoolFiles;
   // timestampslop - backdata timestamp IOVs by this many seconds
-  FloatProperty                  par_timeStampSlop;
+  FloatProperty                  m_par_timeStampSlop;
   // force larger numbers of runs to be cached
-  IntegerProperty par_cacheRun;
+  IntegerProperty m_par_cacheRun;
   // force larger timeranges to be cached (seconds)
-  IntegerProperty par_cacheTime;
+  IntegerProperty m_par_cacheTime;
   // cache alignment - divide cache into N slices and align queries on slice
   // should be useful to improve Frontier cache hit rate
-  UnsignedIntegerProperty par_cacheAlign;
+  UnsignedIntegerProperty m_par_cacheAlign;
   // online mode flag to ignore missing channels outside cache range
-  BooleanProperty par_onlineMode;
+  BooleanProperty m_par_onlineMode;
   // check to ensure global/HVS tags are locked (for production)
-  BooleanProperty par_checklock;
+  BooleanProperty m_par_checklock;
 
   // internal parameters  
   // handles to other services and tools
-  ServiceHandle<IIOVSvc>         h_IOVSvc;
-  ServiceHandle<StoreGateSvc>    h_sgSvc;
-  ServiceHandle<StoreGateSvc>    h_detStore;
-  ServiceHandle<StoreGateSvc>    h_metaDataStore;
-  ServiceHandle<IAddressCreator> h_persSvc;   
-  ServiceHandle<IClassIDSvc>     h_clidSvc;
-  ServiceHandle<IPoolSvc>        h_poolSvc;
-  ToolHandle<IIOVDbMetaDataTool> h_metaDataTool;
-  ServiceHandle<ITagInfoMgr>     h_tagInfoMgr;
+  ServiceHandle<IIOVSvc>         m_h_IOVSvc;
+  ServiceHandle<StoreGateSvc>    m_h_sgSvc;
+  ServiceHandle<StoreGateSvc>    m_h_detStore;
+  ServiceHandle<StoreGateSvc>    m_h_metaDataStore;
+  ServiceHandle<IAddressCreator> m_h_persSvc;   
+  ServiceHandle<IClassIDSvc>     m_h_clidSvc;
+  ServiceHandle<IPoolSvc>        m_h_poolSvc;
+  ToolHandle<IIOVDbMetaDataTool> m_h_metaDataTool;
+  ServiceHandle<ITagInfoMgr>     m_h_tagInfoMgr;
   // message stream
   MsgStream* m_log;
         
