@@ -60,7 +60,7 @@ class CaloDmCell
     inline float energyTotal() const { return m_energy_total; }
     inline int dmAreaN() const { return m_dmarea_n; }
 
-    inline void SetAreaN(int _dm_area) { m_dmarea_n = _dm_area; }
+    inline void SetAreaN(int dm_area) { m_dmarea_n = dm_area; }
 
     std::vector<short > m_cls_index;
     std::vector<double > m_cls_energy;

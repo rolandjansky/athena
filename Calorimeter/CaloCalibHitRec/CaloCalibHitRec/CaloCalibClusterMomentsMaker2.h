@@ -254,7 +254,7 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
   float m_energyMinCalib;
   float m_apars_alpha;
   float m_apars_r0;
-  double m_showerScale;
+  //double m_showerScale;
   int m_MatchDmType;
 
   double angle_mollier_factor(double x);

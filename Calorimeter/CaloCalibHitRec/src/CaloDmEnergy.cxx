@@ -260,11 +260,11 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
   /* ******************************************************
   Step1: assignment of DM hits to clusters direct neighbours cells
   ****************************************************** */
-  int m_nc=0;
+  int nc=0;
   for(xAOD::CaloClusterContainer::const_iterator ic=theClusters->begin(); ic != theClusters->end(); ic++){
-    if(m_nc < m_max_cluster){
+    if(nc < m_max_cluster){
       const xAOD::CaloCluster *cluster =(*ic);
-      if(cluster->e() > m_apars_clust_min_ener && v_cluster_calib_energy[m_nc] > m_apars_clust_min_ecalib) {
+      if(cluster->e() > m_apars_clust_min_ener && v_cluster_calib_energy[nc] > m_apars_clust_min_ecalib) {
         int cell_indx=0;
         CaloClusterCellLink::const_iterator it_cell = cluster->cell_begin();
         CaloClusterCellLink::const_iterator it_cell_end = cluster->cell_end();
@@ -302,8 +302,8 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
               // yes, this CaloDmCell exists, lets add current cluster,cell info to this CaloDmCell
               int ipos = dmCell->m_cls_index.size()-1;
               // storing for each DmCell list of clusters and they appropriate sampling energies
-              if( ipos==-1 || dmCell->m_cls_index[ipos] != m_nc) {
-                dmCell->m_cls_index.push_back(m_nc); 
+              if( ipos==-1 || dmCell->m_cls_index[ipos] != nc) {
+                dmCell->m_cls_index.push_back(nc); 
                 dmCell->m_cls_energy.push_back(cell_energy);
               } else {
                 dmCell->m_cls_energy[ipos] += cell_energy;
@@ -315,11 +315,11 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
           cell_dmnei.clear();
           cell_indx++;
         }
-      } // cluster->energy() > m_apars_clust_min_ener && v_cluster_calib_energy[m_nc] > m_apars_clust_min_ecalib
+      } // cluster->energy() > m_apars_clust_min_ener && v_cluster_calib_energy[nc] > m_apars_clust_min_ecalib
     } else {
       break;
     }
-    m_nc++;
+    nc++;
   } // loop over clusters
 
 
@@ -330,25 +330,25 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
     CaloDmCell *dmCell = (*it);
     if( !dmCell->m_cls_index.size() ){ // DM cells assigned to clusters by previous procedure will be skipped
        xAOD::CaloClusterContainer::const_iterator ic;
-      m_nc=0;
+      nc=0;
       for(ic=theClusters->begin(); ic != theClusters->end(); ic++){
         const xAOD::CaloCluster *cluster = (*ic);
-        if(m_nc < m_max_cluster){
-          if(cluster->e() > m_apars_clust_min_ener && v_cluster_calib_energy[m_nc] > m_apars_clust_min_ecalib) {
+        if(nc < m_max_cluster){
+          if(cluster->e() > m_apars_clust_min_ener && v_cluster_calib_energy[nc] > m_apars_clust_min_ecalib) {
 
             double smp_energy = 0.0, distance = 1000.0;
             get_distance_cluster_dmcell(cluster, dmCell, smp_energy, distance);
             if(smp_energy > 0.0 && distance < m_apars_cone_cut) {
               double dmClsEnerFun = pow(smp_energy,m_apars_alpha)*exp(-distance/m_apars_r0);
-              dmCell->m_cls_index.push_back(m_nc);
+              dmCell->m_cls_index.push_back(nc);
               dmCell->m_cls_energy.push_back(dmClsEnerFun);
               dmCell->m_sum_cls_energy += dmClsEnerFun;
             }
-          } // cluster->energy() > m_apars_clust_min_ener && v_cluster_calib_energy[m_nc] > m_apars_clust_min_ecalib
+          } // cluster->energy() > m_apars_clust_min_ener && v_cluster_calib_energy[nc] > m_apars_clust_min_ecalib
         } else {
           break;
         }
-        m_nc++;
+        nc++;
       } // loop over clusters
     } // dmCell->m_cls_index.size() == 0
   } // loop over DM cells
@@ -371,7 +371,7 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
             << " dmCell->m_cls_energy[i_cls]: " << dmCell->m_cls_energy[i_cls]
             << " i_cls: " << i_cls
             << " dmCell->energyTotal(): " << dmCell->energyTotal()
-            << " v_cluster_calib_energy[i_cls]: " << v_cluster_calib_energy[m_nc]
+            << " v_cluster_calib_energy[i_cls]: " << v_cluster_calib_energy[nc]
             << std::endl;
       }
       m_dmcls_area_etotal[cls_indx][DMA_ALL] += (*it)->energyTotal()*dm_weight;
@@ -452,9 +452,9 @@ int CaloDmEnergy::make_dmcell_vector(std::vector<const CaloCalibrationHitContain
   m_CaloDmCellContainer.clear();
   m_CaloDmCellContainer.resize(m_caloDM_ID->lar_zone_hash_max() + m_caloDM_ID->tile_zone_hash_max(), 0);
 
-  int m_dmhit_n = 0;
-  int m_dmhit_ntotal = 0;
-  int m_dmcell_n = 0;
+  int dmhit_n = 0;
+  int dmhit_ntotal = 0;
+  int dmcell_n = 0;
   for (std::vector<const CaloCalibrationHitContainer * >::const_iterator itCont=v_dmcchc.begin();itCont!=v_dmcchc.end();itCont++) {
     const CaloCalibrationHitContainer* hitContainer= (*itCont);
     CaloCalibrationHitContainer::const_iterator it;
@@ -464,7 +464,7 @@ int CaloDmEnergy::make_dmcell_vector(std::vector<const CaloCalibrationHitContain
       m_dmsum_nonem += (*it)->energyNonEM();
       m_dmsum_invisible += (*it)->energyInvisible();
       m_dmsum_escaped += (*it)->energyEscaped();
-      if(m_dmhit_n < m_max_dmhit) {
+      if(dmhit_n < m_max_dmhit) {
         Identifier id  = (*it)->cellID();
         // Check ID for validity
         if (m_id_helper->is_lar_dm(id) || m_id_helper->is_tile_dm(id)) {
@@ -485,24 +485,24 @@ int CaloDmEnergy::make_dmcell_vector(std::vector<const CaloCalibrationHitContain
             CaloDmCell *cell = new CaloDmCell((*it), m_caloDmDescrManager->get_element(id), m_caloDmDescrManager->get_dm_region(id));
             cell->SetAreaN(narea);
             m_CaloDmCellContainer[id_hash] = cell;
-            m_dmcell_n++;
+            dmcell_n++;
             // otherwise add energies into existing hits
           } else{
             CaloDmCell *cell = m_CaloDmCellContainer[id_hash];
             cell->Add( (*it) );
           }
-          m_dmhit_n++;
+          dmhit_n++;
         } else {
           log << MSG::WARNING<<"CaloDmEnergy::process() -> Alien identifier "
               << m_id_helper->show_to_string(id)
               << " in container '" << (*itCont)->Name()
               << "'." << endreq ;
         } // is lar_id, tile_id
-      }// m_dmhit_n < m_max_dmhit
-      if(m_dmhit_ntotal == m_max_dmhit) {
+      }// dmhit_n < m_max_dmhit
+      if(dmhit_ntotal == m_max_dmhit) {
         log << MSG::WARNING<<"CaloDmEnergy::process() -> Number of DM calibration hits exceed " << m_max_dmhit << endreq;
       }
-      m_dmhit_ntotal++;
+      dmhit_ntotal++;
     } // loop over hits 
   } // loop over containers
 
@@ -531,11 +531,11 @@ int CaloDmEnergy::get_key(Identifier id) const
 /* ****************************************************************************
 Return number of DM area for given DM cell
 **************************************************************************** */
-int CaloDmEnergy::get_area(Identifier id, float _eta) const
+int CaloDmEnergy::get_area(Identifier id, float eta_in) const
 {
   int nsmp=DMA_UNCLASS;
   int key=get_key(id);
-  float eta = fabs(_eta);
+  float eta = fabs(eta_in);
 
   //   if(key == 4202 || key == 4203) nsmp=DMA_HEC0_AZIMUTH;
   //   if(key == 4212 || key == 4213) nsmp=DMA_HEC1_AZIMUTH;
@@ -651,10 +651,11 @@ int CaloDmEnergy::get_calo_deta_dphi(Identifier &id_cel, double &deta_cel, doubl
     float ssize[3]={48.713928, 55.425625, 70.148056}; // cell area in mm*mm for fcal1-3
     float z = fabs(theCDDE->z());
     float volume = theCDDE->volume();
-    float N = volume/ssize[nfcal]/(450.0); // number of tubes for given FCAL cell, 450. it's fcal length
+    float N = volume/(ssize[nfcal]*450.0); // number of tubes for given FCAL cell, 450. it's fcal length
     float dr = sqrt(N)*dsize[nfcal]; // cell size
-    dphi_cel = (dr/z)*sinh(eta_cel);
-    deta_cel = (dr/z)*cosh(eta_cel);
+    float dr_z = dr/z;
+    dphi_cel = dr_z*sinh(eta_cel);
+    deta_cel = dr_z*cosh(eta_cel);
     if( eta_cel < 3.3) deta_cel *= 1.5;
   } else if ( (CaloCell_ID::SUBCALO) subcalo == CaloCell_ID::LARHEC && eta_cel > 3.1) {
     deta_cel *= 1.5;

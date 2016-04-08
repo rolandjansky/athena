@@ -59,10 +59,10 @@ CalibHitToCaloCell::CalibHitToCaloCell(std::string name, ISvcLocator* pSvcLocato
      m_caloCell_Em(""), m_caloCell_NonEm(""),
      m_caloCell_ID(0),
      m_caloDM_ID(0),
-     m_tile_ID(0),
-     m_larEm_ID(0),
-     m_larHec_ID(0),
-     m_larFcal_ID(0),
+     //m_tile_ID(0),
+     //m_larEm_ID(0),
+     //m_larHec_ID(0),
+     //m_larFcal_ID(0),
      m_caloDDMgr(0),
      m_nchan(0)
 

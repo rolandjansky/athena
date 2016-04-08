@@ -67,10 +67,10 @@ private:
 
     const CaloCell_ID*  m_caloCell_ID;
     const CaloDM_ID*    m_caloDM_ID;
-    const TileID*       m_tile_ID;
-    const LArEM_ID*     m_larEm_ID;
-    const LArHEC_ID*    m_larHec_ID;
-    const LArFCAL_ID*   m_larFcal_ID;
+    //const TileID*       m_tile_ID;
+    //const LArEM_ID*     m_larEm_ID;
+    //const LArHEC_ID*    m_larHec_ID;
+    //const LArFCAL_ID*   m_larFcal_ID;
 
     const CaloDetDescrManager*   m_caloDDMgr;
 

@@ -287,7 +287,9 @@ void CalibHitIDCheck::check(int l_cnt) {
         return;
       }
     break;
-    
+
+  default:
+    return;
   }
 
  

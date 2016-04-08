@@ -76,7 +76,7 @@ CaloCalibClusterMomentsMaker2::CaloCalibClusterMomentsMaker2(const std::string& 
     m_energyMinCalib(20*MeV),
     m_apars_alpha(0.5),
     m_apars_r0(0.2),
-    m_showerScale(25*cm),
+    //m_showerScale(25*cm),
     m_MatchDmType(kMatchDmLoose)
 {
   declareInterface<CaloClusterCollectionProcessor> (this);
@@ -563,9 +563,10 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
                       }
                     }
                     if ( hitClusNorm > 0 ) {
+                      const double inv_hitClusNorm = 1. / hitClusNorm;
                       for(unsigned int i_cls=0; i_cls<hitClusIndex.size(); i_cls++){
                         int iClus = hitClusIndex[i_cls];
-                        double w = hitClusEffEnergy[i_cls]/hitClusNorm;
+                        double w = hitClusEffEnergy[i_cls] * inv_hitClusNorm;
                         engCalibOut[ii][iClus] += w*(*chIter)->energyTotal();
                     }
                   }
@@ -669,9 +670,10 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
 
               // now we have to calculate weight for assignment hit energy to cluster
               if(hitClusNorm >0.0) {
+                const double inv_hitClusNorm = 1. / hitClusNorm;
                 for(unsigned int i_cls=0; i_cls<hitClusIndex.size(); i_cls++){
                   int iClus = hitClusIndex[i_cls];
-                  double dm_weight = hitClusEffEnergy[i_cls]/hitClusNorm;
+                  double dm_weight = hitClusEffEnergy[i_cls] * inv_hitClusNorm;
                   if(dm_weight > 1.0 || dm_weight < 0.0 ){
                     std::cout << "CaloCalibClusterMomentsMaker2::execute() ->Error! Strange weight " <<  dm_weight<< std::endl;
                     std::cout << hitClusEffEnergy[i_cls] << " " << hitClusNorm << std::endl;
@@ -804,19 +806,7 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
           break;
         }
 
-        std::set<xAOD::CaloCluster::MomentType>::const_iterator mAODIter;
-        std::set<xAOD::CaloCluster::MomentType>::const_iterator mAODIterEnd = m_momentsAOD.end();
-        mAODIter = m_momentsAOD.find(vMomentsIter->second);
-        if ( mAODIter == mAODIterEnd ) {
-          theCluster->insertMoment(vMomentsIter->second, myMoments[iMoment]);
-          // log << MSG::DEBUG << "Storing Moment <" << vMomentsIter->first
-          //     << "> in ESD only" << endreq;
-        }
-        else {
-          theCluster->insertMoment(vMomentsIter->second, myMoments[iMoment]);
-          // log << MSG::DEBUG << "Storing Moment <" << vMomentsIter->first
-          //     << "> in AOD" << endreq;
-        }
+        theCluster->insertMoment(vMomentsIter->second, myMoments[iMoment]);
       }
     }
   }
@@ -851,7 +841,7 @@ double CaloCalibClusterMomentsMaker2::angle_mollier_factor(double x)
   }else{
     ff = atan(5.0*0.95/(505./tanh(eta)));
   }
-  return ff/atan(5.0*1.7/200.0);
+  return ff*(1./atan(5.0*1.7/200.0));
 }
 
 

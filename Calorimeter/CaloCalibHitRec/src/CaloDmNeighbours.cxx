@@ -53,7 +53,7 @@ CaloDmNeighbours::CaloDmNeighbours(const CaloDmDescrManager *dmMgr)
     m_caloCell_ID(0),
     m_larFcal_ID(0),
     m_larHec_ID(0),
-    id_helper(0)
+    m_id_helper(0)
 {
   m_caloDmDescrManager = dmMgr;
   m_DmNeighboursFileName = "DeadMaterialCaloNeighbours.dat";
@@ -114,7 +114,7 @@ int CaloDmNeighbours::initialize(std::string DmNeighboursFileName)
     return 1;
   }
 
-  sc = m_detStore->retrieve(id_helper);
+  sc = m_detStore->retrieve(m_id_helper);
   if (sc.isFailure()) {
     log << MSG::ERROR
         << "Unable to retrieve AtlasDetectorID helper from DetectorStore" << endreq;
@@ -153,10 +153,10 @@ int CaloDmNeighbours::getNeighbours_DmHitsForCaloCell(const Identifier &cell_id,
   const CaloDetDescrElement* theCDDE = m_caloDetDescrManager->get_element(cell_id);
   if (!theCDDE) return 1;
   float cell_eta = theCDDE->eta();
-  int neta=int((cell_eta - CALOMAP_ETA_MIN)/CALOMAP_DETA);
+  int neta=int((cell_eta - CALOMAP_ETA_MIN)*(1./CALOMAP_DETA));
   if(neta>=CALOMAP_NETA || neta <0) {
     std::cout << " ERROR! Wrong neta" << std::endl;
-    std::cout << "     " << id_helper->show_to_string(cell_id)
+    std::cout << "     " << m_id_helper->show_to_string(cell_id)
         << " csmp: " << m_caloCell_ID->calo_sample(cell_id)
         << " eta: " << theCDDE->eta()
         << " phi: " << theCDDE->phi()
@@ -182,7 +182,7 @@ int CaloDmNeighbours::getNeighbours_DmHitsForCaloCell(const Identifier &cell_id,
       }
       std::cout << "        we got: "
           << " dm_hash_id: " << dm_hash_id
-          << " " << id_helper->show_to_string(id) << std::endl;
+          << " " << m_id_helper->show_to_string(id) << std::endl;
 #endif
     }else{
 #ifdef DEBUG
@@ -304,6 +304,9 @@ StatusCode CaloDmNeighbours::unfold_neighbours(std::string &MySourceString, std:
 //      << " xPhi: " << xPhi << " " << int(xPhi) << std::endl;
 //  std::cout << "XXX" << std::endl;
 
+  const float inv_xPhi = 1. / xPhi;
+  const float inv_xEta = 1. / xEta;
+
   for(Range::identifier_factory it1 = MySourceRange.factory_begin(); it1!=MySourceRange.factory_end(); ++it1){
     ExpandedIdentifier idExpSource = *it1;
     Identifier idSource;
@@ -314,8 +317,8 @@ StatusCode CaloDmNeighbours::unfold_neighbours(std::string &MySourceString, std:
     for(Range::identifier_factory it2 = MyTargetRange.factory_begin(); it2!=MyTargetRange.factory_end(); ++it2){
       ExpandedIdentifier idExpTarget = *it2;
       if(copysign(1,idExpSource[indxSideSource]) != idExpTarget[indxSideTarget] ) continue;
-      int phiCalc = MySourceRange[indxPhiSource].get_minimum() + int((idExpTarget[indxPhiTarget] - MyTargetRange[indxPhiTarget].get_minimum())/xPhi);
-      int etaCalc = MySourceRange[indxEtaSource].get_minimum() + int((idExpTarget[indxEtaTarget] - MyTargetRange[indxEtaTarget].get_minimum())/xEta);
+      int phiCalc = MySourceRange[indxPhiSource].get_minimum() + int((idExpTarget[indxPhiTarget] - MyTargetRange[indxPhiTarget].get_minimum())*inv_xPhi);
+      int etaCalc = MySourceRange[indxEtaSource].get_minimum() + int((idExpTarget[indxEtaTarget] - MyTargetRange[indxEtaTarget].get_minimum())*inv_xEta);
 //      std::cout << "Candidate: " << (std::string)idExpTarget << std::endl;
 //      std::cout << " phiCalc: " << phiCalc << " etaCalc:" << etaCalc << std::endl;
       if( (phiCalc != idExpSource[indxPhiSource]) || (etaCalc != idExpSource[indxEtaSource]) ) continue;
@@ -335,7 +338,7 @@ StatusCode CaloDmNeighbours::unfold_neighbours(std::string &MySourceString, std:
 //    for(std::vector<IdentifierHash >::iterator it=m_DmNeighbourLArVector[idHashSource].begin(); it!=m_DmNeighbourLArVector[idHashSource].end(); it++){
 //      IdentifierHash hash_id = (*it);
 //      Identifier id= m_caloCell_ID->cell_id(hash_id);
-//      std::cout << " " << id_helper->show_to_string(id);
+//      std::cout << " " << m_id_helper->show_to_string(id);
 //    }
 //    std::cout << std::endl;
   } // loop over source identifiers
@@ -400,7 +403,7 @@ int CaloDmNeighbours::get_id(ExpandedIdentifier &idExp, Identifier &id, Identifi
     } else if (m_caloDM_ID->is_tile(id)) {
       hash_id = m_caloDM_ID->tile_zone_hash(id);
     } else {
-      std::cout << "CaloDmNeighbours::get_id() -> Error! Wrong expanded dead material identifier " << (std::string)idExp << std::cout << std::endl;
+      std::cout << "CaloDmNeighbours::get_id() -> Error! Wrong expanded dead material identifier " << (std::string)idExp  << std::endl;
       return 1;
     }
 
@@ -514,7 +517,7 @@ StatusCode CaloDmNeighbours::load_neighbours(std::string DmNeighboursFileName)
   char sep ='/';
   for(unsigned int i=0; i<m_caloDM_ID->lar_zone_hash_max(); i++) {
     if( !m_DmNeighbourLArVector[i].size()) continue;
-    std::cout << id_helper->show_to_string(m_caloDM_ID->lar_zone_id(i),0,sep) << "  ";
+    std::cout << m_id_helper->show_to_string(m_caloDM_ID->lar_zone_id(i),0,sep) << "  ";
     for(unsigned int j=0; j<m_DmNeighbourLArVector[i].size(); j++){
       IdentifierHash hash_id = m_DmNeighbourLArVector[i][j];
       Identifier id = m_caloCell_ID->cell_id(hash_id);
@@ -555,7 +558,7 @@ int CaloDmNeighbours::generate_neighbour_file()
 //     
 //     CaloDmDescrManager::DmRegion *myRegion = dmManager->get_dm_region(dmhit_id);
 //     if(!myRegion->m_CaloSampleNeighbours.size()) continue;
-// //     std::cout << id_helper->show_to_string(dmhit_id);
+// //     std::cout << m_id_helper->show_to_string(dmhit_id);
 // //     std::cout << " key: " << myRegion->m_key 
 // //         << " eta: " << myRegion->m_eta_min << " " << myRegion->m_eta_max
 // //         << " size: " << myRegion->m_CaloSampleNeighbours.size()
@@ -570,7 +573,7 @@ int CaloDmNeighbours::generate_neighbour_file()
 //     float dmhit_deta = dmhit_element->deta();
 //     float dmhit_dphi = dmhit_element->dphi();
 //     
-// /*      std::cout << id_helper->show_to_string(dmhit_id) 
+// /*      std::cout << m_id_helper->show_to_string(dmhit_id) 
 //     << " dm_eta: " << dmhit_eta << " " << dmhit_deta << " dm_phi: " << dmhit_phi << " " << dmhit_dphi
 //           << std::endl;
 //       continue;    */
@@ -633,7 +636,7 @@ int CaloDmNeighbours::generate_neighbour_file()
 //         calo_deta = theCDDE->deta();
 //         calo_dphi = theCDDE->dphi();
 //       }else{
-//         std::cout << "CaloDmNeighbours::generate_neighbour_file() -> Warning, no CDDE" << id_helper->show_to_string(calo_id) << std::endl; 
+//         std::cout << "CaloDmNeighbours::generate_neighbour_file() -> Warning, no CDDE" << m_id_helper->show_to_string(calo_id) << std::endl; 
 //       }
 //     // since deat, dphi for FCAL cells are absent, lets imagine they approximate values
 //       if ( (CaloCell_ID::SUBCALO) m_caloCell_ID->sub_calo(calo_id) == CaloCell_ID::LARFCAL && theCDDE) {
@@ -672,7 +675,7 @@ int CaloDmNeighbours::generate_neighbour_file()
 //       double phi_diff = calo_phi - dmhit_phi;
 //       if(phi_diff > M_PI) phi_diff=phi_diff-2.*M_PI;
 //       if(phi_diff < -M_PI) phi_diff=phi_diff+2.*M_PI;
-// /*      std::cout << id_helper->show_to_string(dmhit_id) << " " << id_helper->show_to_string(calo_id) 
+// /*      std::cout << m_id_helper->show_to_string(dmhit_id) << " " << m_id_helper->show_to_string(calo_id) 
 //       << " dm_eta: " << dmhit_eta << " " << dmhit_deta << " dm_phi: " << dmhit_phi << " " << dmhit_dphi
 //       << " eta: " << calo_eta << " " << calo_deta << " phi: " << calo_phi << " " << calo_dphi
 //       << " d: " << phi_diff << " " << fabs(dmhit_eta-calo_eta) << std::endl;*/
@@ -691,10 +694,10 @@ int CaloDmNeighbours::generate_neighbour_file()
 //     Identifier dmhit_id = m_caloDM_ID->lar_zone_id(i_hit);
 //     //if(m_caloDM_ID->phi(dmhit_id) != 0) continue;
 //     if(!m_DmNeighbourLArVector[i_hit].size()) continue;
-//     //std::cout << id_helper->show_to_string(dmhit_id,0,'/') << "  ";
-//     /*    range.build(id_helper->show_to_string(dmhit_id,0,'/'));*/
+//     //std::cout << m_id_helper->show_to_string(dmhit_id,0,'/') << "  ";
+//     /*    range.build(m_id_helper->show_to_string(dmhit_id,0,'/'));*/
 //     Range range;
-//     ExpandedIdentifier dmhit_expId(id_helper->show_to_string(dmhit_id,0,'/'));
+//     ExpandedIdentifier dmhit_expId(m_id_helper->show_to_string(dmhit_id,0,'/'));
 //     for(unsigned int i_field = 0; i_field<dmhit_expId.fields(); i_field++){
 //       Range::field myfield;
 //       myfield.add_value(dmhit_expId[i_field]);
@@ -708,9 +711,9 @@ int CaloDmNeighbours::generate_neighbour_file()
 //     std::cout << (std::string)range << "  ";
 //     for(unsigned int i_calo=0; i_calo<m_DmNeighbourLArVector[i_hit].size(); i_calo++){
 //       Identifier calo_id = m_caloCell_ID->cell_id(m_DmNeighbourLArVector[i_hit][i_calo]);
-// /*      std::cout << " " << id_helper->show_to_string(calo_id,0,'/');*/
+// /*      std::cout << " " << m_id_helper->show_to_string(calo_id,0,'/');*/
 //       Range range;
-//       ExpandedIdentifier calo_expId(id_helper->show_to_string(calo_id,0,'/'));
+//       ExpandedIdentifier calo_expId(m_id_helper->show_to_string(calo_id,0,'/'));
 //       for(unsigned int i_field = 0; i_field<dmhit_expId.fields(); i_field++){
 //         Range::field myfield;
 //         myfield.add_value(calo_expId[i_field]);
@@ -745,8 +748,8 @@ int CaloDmNeighbours::make_CaloSample2DmRegion_map()
     const CaloDmRegion *myRegion = (*it);
     for(unsigned int i=0; i<myRegion->m_CaloSampleNeighbours.size(); i++){
       int csmp = myRegion->m_CaloSampleNeighbours[i];
-      int neta_min = int((myRegion->m_CaloSampleEtaMin[i] - CALOMAP_ETA_MIN)/CALOMAP_DETA+0.00001);
-      int neta_max = int((myRegion->m_CaloSampleEtaMax[i] - CALOMAP_ETA_MIN)/CALOMAP_DETA+0.00001);
+      int neta_min = int((myRegion->m_CaloSampleEtaMin[i] - CALOMAP_ETA_MIN)*(1./CALOMAP_DETA)+0.00001);
+      int neta_max = int((myRegion->m_CaloSampleEtaMax[i] - CALOMAP_ETA_MIN)*(1./CALOMAP_DETA)+0.00001);
       if(neta_max< 0 || neta_max >CALOMAP_NETA || neta_min < 0 || neta_min >CALOMAP_NETA || neta_min >=neta_max ) {
         std::cout << " CaloDmNeighbours::make_CaloSample2DmRegion_map() -> ERROR! Wrong parameters "
             << " etaMin: " << myRegion->m_CaloSampleEtaMin[i]
@@ -778,7 +781,7 @@ int CaloDmNeighbours::make_CaloSample2DmRegion_map()
           id_hash -= m_caloDM_ID->lar_zone_hash_max();
           id = m_caloDM_ID->tile_zone_id(id_hash);
         }
-        std::cout << id_helper->show_to_string(id) << " ";
+        std::cout << m_id_helper->show_to_string(id) << " ";
       }
       std::cout << std::endl;
     }

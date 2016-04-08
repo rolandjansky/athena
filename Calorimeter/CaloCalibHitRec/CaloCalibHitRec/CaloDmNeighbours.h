@@ -66,7 +66,7 @@ class CaloDmNeighbours {
     const CaloCell_ID*    m_caloCell_ID;
     const LArFCAL_ID*   m_larFcal_ID;
     const LArHEC_ID*    m_larHec_ID;
-    const AtlasDetectorID* id_helper;
+    const AtlasDetectorID* m_id_helper;
 
     std::vector<std::vector<std::vector<const CaloDmRegion * > > > m_CaloSample2DmRegion;
     std::vector<std::vector<IdentifierHash > > m_DmNeighbourLArVector;
