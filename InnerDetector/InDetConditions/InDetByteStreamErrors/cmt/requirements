@@ -1,0 +1,14 @@
+package InDetByteStreamErrors
+
+author Nick Barlow <Nick.Barlow@cern.ch>
+author Florian Hirsch <Florian.Hirsch@cern.ch>
+author Paul Keener <Paul.Keener@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+use Identifier           Identifier-*               DetectorDescription
+use AtlasReflex          AtlasReflex-*              External - no_auto_imports
+use CLIDSvc              CLIDSvc-*                  Control
+use DataModel            DataModel-*                Control
+
+apply_pattern lcgdict dict=InDetByteStreamErrors selectionfile=selection.xml headerfiles="../InDetByteStreamErrors/InDetByteStreamErrorsDict.h"
+
