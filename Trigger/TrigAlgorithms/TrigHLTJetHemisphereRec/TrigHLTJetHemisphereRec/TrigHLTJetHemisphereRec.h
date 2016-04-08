@@ -39,8 +39,8 @@ class TrigHLTJetHemisphereRec: public HLT::FexAlgo {
 
   // Timing:
 
-  ITrigTimerSvc*            m_timersvc;
-  std::vector<TrigTimer*>   m_timers;
+  TrigTimer* m_totalTimer;
+  TrigTimer* m_hemiFindingTimer;
  
 private:
 
