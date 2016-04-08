@@ -12,6 +12,8 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArTools/LArCablingService.h"
 
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "GaudiKernel/IToolSvc.h"

@@ -13,6 +13,9 @@
 #include "LArTools/LArCablingService.h"
 #include "CaloIdentifier/TileID.h"
 
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
+
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TNtuple.h"
