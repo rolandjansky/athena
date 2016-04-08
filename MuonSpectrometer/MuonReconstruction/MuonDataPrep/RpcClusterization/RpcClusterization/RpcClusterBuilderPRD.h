@@ -6,7 +6,7 @@
 #define RpcClusterBuilderPRD_H
 
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/DataHandle.h"
 #include "Identifier/Identifier.h"
 //#include "CLHEP/Geometry/Point3D.h"
@@ -29,7 +29,7 @@ class RpcIdHelper;
 using namespace std;
 using namespace MuonGM;
 
-class RpcClusterBuilderPRD:public Algorithm {
+class RpcClusterBuilderPRD:public AthAlgorithm {
 
 public:
 

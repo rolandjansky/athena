@@ -38,7 +38,9 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 
 RpcClusterBuilderPRD::RpcClusterBuilderPRD(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator) {
+  AthAlgorithm(name, pSvcLocator), m_temp_coll(NULL), m_rpcClusterContainer(NULL),
+  m_activeStore(NULL), m_EvtStore(NULL), m_muonMgr(NULL), m_rpcId(NULL)
+{
 
   // Declare the properties
     declareProperty("InputCollectionName",  m_colKeyIn = "RPC_Measurements");  // StoreGate key for RPC clusters
@@ -49,22 +51,19 @@ RpcClusterBuilderPRD::RpcClusterBuilderPRD(const std::string& name, ISvcLocator*
 
 StatusCode RpcClusterBuilderPRD::initialize(){
 
-  MsgStream log(msgSvc(), name());
-            
-
   StatusCode sc;
 
   // Store Gate active store
   sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
   if (sc != StatusCode::SUCCESS ) {
-    log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
+    ATH_MSG_ERROR(" Cannot get ActiveStoreSvc ");
     return sc ;
   }
 
   // Store Gate transient event store
   sc = serviceLocator()->service("StoreGateSvc", m_EvtStore);
   if (sc != StatusCode::SUCCESS ) {
-    log << MSG::ERROR << " Cannot get StoreGateSvc " << endreq;
+    ATH_MSG_ERROR(" Cannot get StoreGateSvc ");
     return sc ;
   }
 
@@ -72,13 +71,13 @@ StatusCode RpcClusterBuilderPRD::initialize(){
   StoreGateSvc* detStore=0;
   sc = serviceLocator()->service("DetectorStore", detStore);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+    ATH_MSG_FATAL("DetectorStore service not found !");
     return sc;
   } 
   
   sc = detStore->retrieve( m_muonMgr );
   if (sc.isFailure()) {
-      log << MSG::ERROR << " Cannot retrieve MuonGeoModel " << endreq;
+      ATH_MSG_ERROR(" Cannot retrieve MuonGeoModel ");
       return sc;
   }
   
@@ -97,8 +96,6 @@ StatusCode RpcClusterBuilderPRD::initialize(){
 
 StatusCode RpcClusterBuilderPRD::execute() {
  
-  static  MsgStream log(msgSvc(), name());
-
   StatusCode sc;
 
   m_rpcClusterContainer = new  Muon::RpcPrepDataContainer(m_rpcId->module_hash_max()); 
@@ -106,14 +103,14 @@ StatusCode RpcClusterBuilderPRD::execute() {
   //  m_rpcClusterContainer->cleanup();
   sc = m_EvtStore->record(m_rpcClusterContainer,m_colKey);
   if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot record RPC Cluster Container " << endreq;
+    ATH_MSG_ERROR(" Cannot record RPC Cluster Container ");
     return StatusCode::FAILURE;
   }
 
 
   sc=fill_rpcClusterContainer();
 
-  if(sc.isFailure()) log<<MSG::WARNING<<"couldn't build clusters for this event"<<endreq;
+  if(sc.isFailure()) ATH_MSG_WARNING("couldn't build clusters for this event");
 
   // try to retrieve the collection just created and print it out
   //  if (!sc.isFailure())
@@ -125,9 +122,6 @@ StatusCode RpcClusterBuilderPRD::execute() {
 
 StatusCode RpcClusterBuilderPRD::finalize() {
  
-  MsgStream log(msgSvc(), name());
-
- 
    //delete m_digit_position;
 
    return StatusCode::SUCCESS;
@@ -137,13 +131,11 @@ StatusCode RpcClusterBuilderPRD::finalize() {
 StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
 
   StatusCode sc;
-  MsgStream log(msgSvc(), name());
-
 
   const Muon::RpcPrepDataContainer* container;
   sc = m_EvtStore->retrieve(container,m_colKeyIn);
   if (sc.isFailure()) {
-    log << MSG::WARNING << " Cannot retrieve RPC Digit Container with key " << m_colKeyIn.c_str()<<endreq;
+    ATH_MSG_WARNING(" Cannot retrieve RPC Digit Container with key " << m_colKeyIn.c_str() );
     return StatusCode::SUCCESS;
   }
 
@@ -152,7 +144,7 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
 
   //  sc = m_EvtStore->retrieve(rpcCollection, lastCollection);
   //  if (sc.isFailure()) {
-  //  log << MSG::ERROR << " Cannot retrieve RPC Digit collections "<<endreq;
+  //  ATH_MSG_ERROR(" Cannot retrieve RPC Digit collections ");
   //  return StatusCode::SUCCESS;
   // }
   
@@ -172,11 +164,10 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
       IdentifierHash rpcHashId; 	 
       
       if (m_rpcId->get_hash(elementId, rpcHashId, &rpcContext)) { 	 
-	log << MSG::ERROR << "Unable to get RPC hash id from CSC PreDataCollection collection id" 	 
-	    << "context begin_index = " << rpcContext.begin_index() 	 
-	    << " context end_index  = " << rpcContext.end_index() 	 
-	    << " the identifier is " 	 
-	    << endreq; 	 
+	ATH_MSG_ERROR("Unable to get RPC hash id from CSC PreDataCollection collection id"
+	    << "context begin_index = " << rpcContext.begin_index()
+	    << " context end_index  = " << rpcContext.end_index()
+	    << " the identifier is "); 	 
 	elementId.show(); 	 
       } 	 
       
@@ -202,9 +193,8 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
 
     sc = m_rpcClusterContainer->addCollection(m_coll_vect[k], m_coll_vect[k]->identifyHash());
     if (sc.isFailure()) 
-      log << MSG::ERROR 
-	  << "Couldn't record RpcPrepDataCollection with key=" << m_colKey
-	  << " in StoreGate!" << endreq;
+      ATH_MSG_ERROR("Couldn't record RpcPrepDataCollection with key=" << m_colKey
+	  << " in StoreGate!");
 
   }
 
@@ -212,9 +202,8 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
     
 //     sc = m_rpcClusterContainer->addCollection(*coll_begin, (*coll_begin)->identifyHash());
 //     if (sc.isFailure()) 
-//       log << MSG::ERROR 
-// 	  << "Couldn't record RpcPrepDataCollection with key=" << m_colKey
-// 	  << " in StoreGate!" << endreq;
+//       ATH_MSG_ERROR("Couldn't record RpcPrepDataCollection with key=" << m_colKey
+// 	  << " in StoreGate!");
     
 //   }
   
@@ -224,9 +213,6 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
 }
 
 int RpcClusterBuilderPRD::buildPatterns(const Muon::RpcPrepDataCollection* rpcCollection) {
-
-
-  MsgStream log(msgSvc(), name());
 
   // here we loop over the digits in the collection and fill the patterns
 
@@ -284,8 +270,6 @@ int RpcClusterBuilderPRD::buildPatterns(const Muon::RpcPrepDataCollection* rpcCo
 
 void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
 
-  MsgStream log(msgSvc(), name());
-  
   // loop over existing patterns
 
   map<Identifier, pattern >::iterator patt_it=m_digits.begin();
@@ -491,8 +475,6 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
 
 void RpcClusterBuilderPRD::push_back(Muon::RpcPrepData *& newCluster){
 
-
-  static  MsgStream log(msgSvc(), name());
   //  StatusCode status = StatusCode::SUCCESS;
   
   m_temp_coll->push_back(newCluster);
@@ -505,11 +487,10 @@ void RpcClusterBuilderPRD::push_back(Muon::RpcPrepData *& newCluster){
 //    if (!m_EvtStore->contains<Muon::RpcPrepDataCollection>(key)) {
 //       IdentifierHash rpcHashId;
 //       if (m_rpcId->get_hash(elementId, rpcHashId, &rpcContext)) {
-//          log << MSG::ERROR << "Unable to get RPC hash id from RPC PreDataCollection collection id" 
+//          ATH_MSG_ERROR("Unable to get RPC hash id from RPC PreDataCollection collection id" 
 // 	     << "context begin_index = " << rpcContext.begin_index()
 // 	     << " context end_index  = " << rpcContext.end_index()
-// 	     << " the identifier is "
-// 	     << endreq;
+// 	     << " the identifier is ");
 //          elementId.show();
 //       }
 //       Muon::RpcPrepDataCollection * newCollection = new Muon::RpcPrepDataCollection(rpcHashId);
@@ -517,16 +498,14 @@ void RpcClusterBuilderPRD::push_back(Muon::RpcPrepData *& newCluster){
 //       newCollection->push_back(newCluster);
 //       status = m_rpcClusterContainer->addCollection(newCollection, newCollection->identify());
 //       if (status.isFailure()) 
-//          log << MSG::ERROR 
-// 	     << "Couldn't record RpcPrepdataCollection with key=" << key 
-// 	     << " in StoreGate!" << endreq;
+//          ATH_MSG_ERROR("Couldn't record RpcPrepdataCollection with key=" << key 
+// 	     << " in StoreGate!");
 //    } else {  
 //       Muon::RpcPrepDataCollection * oldCollection;
 //       status = m_EvtStore->retrieve(oldCollection, key);
 //       if (status.isFailure())
-// 	 log << MSG::ERROR 
-// 	     << "Couldn't retrieve RpcDigitCollection with key=" 
-// 	     << key << " from StoreGate!" << endreq;
+// 	   ATH_MSG_ERROR("Couldn't retrieve RpcDigitCollection with key=" 
+// 	     << key << " from StoreGate!");
 //       oldCollection->push_back(newCluster);
 //    }
 }
@@ -534,14 +513,13 @@ void RpcClusterBuilderPRD::push_back(Muon::RpcPrepData *& newCluster){
 StatusCode RpcClusterBuilderPRD::retrieve_rpcClusterContainer() const {
 
   StatusCode sc;
-  static  MsgStream log(msgSvc(), name());
 
   typedef Muon::RpcPrepDataCollection::const_iterator cluster_iterator;
 
   const Muon::RpcPrepDataContainer* PRDcontainer;
   sc = m_EvtStore->retrieve(PRDcontainer,m_colKey);
   if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve RPC PrepData Cluster Container " << endreq;
+    ATH_MSG_ERROR(" Cannot retrieve RPC PrepData Cluster Container ");
     return StatusCode::FAILURE;
   }
 
@@ -550,25 +528,25 @@ StatusCode RpcClusterBuilderPRD::retrieve_rpcClusterContainer() const {
                                  ++container_iterator) {
 
     const Muon::RpcPrepDataCollection* collection = *container_iterator;
-    log << MSG::INFO << "Size of the collection is " << collection->size() << endreq;
+    ATH_MSG_INFO("Size of the collection is " << collection->size() );
     if (collection->size() > 0) {
-       log << MSG::INFO << "**************************************************************" << endreq;
+       ATH_MSG_INFO("**************************************************************");
        cluster_iterator beginCluster = collection->begin();
        cluster_iterator endCluster   = collection->end();
        for ( ; beginCluster!=endCluster; ++beginCluster) {
           const Muon::RpcPrepData* cluster = *beginCluster;
           Amg::Vector3D position = cluster->globalPosition();
-          log << MSG::INFO << "RPC Cluster ID, Position (mm), size = " 
+          ATH_MSG_INFO("RPC Cluster ID, Position (mm), size = " 
 	      << m_rpcId->show_to_string(cluster->identify()) << " ["
 	      << setiosflags(ios::fixed) << setprecision(3) << setw(12) << position.x() 
 	      << setiosflags(ios::fixed) << setprecision(3) << setw(12) << position.y() 
 	      << setiosflags(ios::fixed) << setprecision(3) << setw(12) << position.z() 
 	    //  << setiosflags(ios::fixed) << setprecision(3) << setw(12) << cluster->width()
 	      << setiosflags(ios::fixed) << setprecision(3) << setw(12) << cluster->rdoList().size()
-	      << " ]" <<  endreq; 
+	      << " ]"); 
        }
-       log << MSG::INFO << "Number of Clusters in the collection is " << collection->size() << endreq;
-       log << MSG::INFO << "**************************************************************" << endreq;
+       ATH_MSG_INFO("Number of Clusters in the collection is " << collection->size() );
+       ATH_MSG_INFO("**************************************************************");
     }
  } 
 
