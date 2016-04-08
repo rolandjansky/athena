@@ -38,7 +38,6 @@ use TestTools      TestTools-*        AtlasTest -no_auto_imports
 use StoreGate	   StoreGate-*	      Control
 use AtlasCppUnit   AtlasCppUnit-*     External  -no_auto_imports
 apply_pattern CppUnit name=cppUnit_mcVtxFilterTest files="-s=${McParticleUtils_root}/test McVtxFilterTest_CppUnit.cxx"
-macro_append HepPDT_linkopts " -lHepPID"
 
 apply_pattern declare_python_modules files="*.py"
 end_private
