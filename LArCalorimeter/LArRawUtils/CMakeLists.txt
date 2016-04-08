@@ -19,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Calorimeter/CaloTriggerTool
                           DetectorDescription/AtlasDetDescr
-                          LArCalorimeter/LArCabling )
+                          LArCalorimeter/LArTools )
 
 # Component(s) in the package:
 atlas_add_library( LArRawUtilsLib
