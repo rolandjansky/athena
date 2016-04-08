@@ -2,14 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MCBunchCrossingTool.cxx 780643 2016-10-27 03:39:39Z ssnyder $
+// $Id: MCBunchCrossingTool.cxx 618331 2014-09-24 11:55:26Z krasznaa $
 
 // System include(s):
 #include <cstdlib>
-#include <functional>
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
+#include "CxxUtils/hashtable.h"
 
 // DB include(s):
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -29,8 +29,6 @@ namespace Trig {
                                              const std::string& name,
                                              const IInterface* /*parent*/ )
       : BunchCrossingToolBase( name ),
-        m_isConfigured(false),
-        m_id(),
         m_incidentSvc( "IncidentSvc", name ) {
 
       // Declare the interfaces provided by the tool:
@@ -316,7 +314,7 @@ namespace Trig {
          if( *itr == MC_DIGI_PARAM ) run_update = true;
          msg() << *itr;
       }
-      msg() << endmsg;
+      msg() << endreq;
       // If that's not the key that we received after all, let's just return
       // silently...
       if( ! run_update ) return StatusCode::SUCCESS;
@@ -410,7 +408,7 @@ namespace Trig {
       // Print the configuration to give some feedback to the user:
       printConfig();
       m_isConfigured = true;
-      m_id = static_cast< configid_type >( std::hash< std::string >()( sbunches ) );
+      m_id = static_cast< configid_type >( SG::hash< std::string >()( sbunches ) );
       REPORT_MESSAGE( MSG::DEBUG ) << "ID assigned to configuration: "
                                    << m_id;
 
