@@ -36,6 +36,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_pixelId(0),
   m_sctId(0),
   m_IBLMode(0),
+  m_ITkMode(false),
   m_pmap_path(""),
   m_pmap(0x0),
   m_rmap_path(""),
@@ -101,6 +102,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   declareProperty("OutFileName",m_outpath);
   declareProperty("HitInputTool",m_hitInputTool);
   declareProperty("IBLMode",m_IBLMode);
+  declareProperty("ITkMode",m_ITkMode);
   declareProperty("PixelCablingSvc", m_pix_cabling_svc);
   declareProperty("ISCT_CablingSvc",m_sct_cabling_svc);
 
@@ -146,6 +148,7 @@ StatusCode FTKRegionalWrapper::initialize()
 
   // FTK library global setup variables
   FTKSetup::getFTKSetup().setIBLMode(m_IBLMode);
+  FTKSetup::getFTKSetup().setITkMode(m_ITkMode);
 
   log << MSG::INFO << "Read the logical layer definitions" << endreq;
   // Look for the main plane-map
@@ -187,7 +190,15 @@ StatusCode FTKRegionalWrapper::initialize()
   }
 
   // Retrieve pixel cabling service
-  if (m_pix_cabling_svc.retrieve().isFailure()) {
+  if( m_ITkMode ) {
+    // Pixel Cabling database not ready
+    // Ignore this error but make sure everything that uses the cabling database is off
+    log << MSG::WARNING << "ITkMode is set to True --> not loading Pixel Cabling Svc" << endreq;
+    if( m_DumpTestVectors || m_EmulateDF ) {
+      log << MSG::FATAL << "PixelCabling not initialized so m_DumpTestVectors and m_EmulateDF must both be set to false!" << endreq;
+      return StatusCode::FAILURE;
+    }
+  } else if (m_pix_cabling_svc.retrieve().isFailure()) {
     log << MSG::FATAL << "Failed to retrieve tool " << m_pix_cabling_svc << endreq;
     return StatusCode::FAILURE;
   } else {
@@ -195,7 +206,15 @@ StatusCode FTKRegionalWrapper::initialize()
   }
   
   // Retrieve sct cabling service
-  if (m_sct_cabling_svc.retrieve().isFailure()) {
+  if( m_ITkMode ) {
+    // SCT Cabling database not ready
+    // Ignore this error but make sure everything that uses the cabling database is off
+    log << MSG::WARNING << "ITkMode is set to True --> not loading SCT Cabling Svc" << endreq;
+    if( m_DumpTestVectors || m_EmulateDF ) {
+      log << MSG::FATAL << "SCT_Cabling not initialized so m_DumpTestVectors and m_EmulateDF must both be set to false!" << endreq;
+      return StatusCode::FAILURE;
+    }
+  } else if (m_sct_cabling_svc.retrieve().isFailure()) {
     log << MSG::FATAL << "Failed to retrieve tool " << m_sct_cabling_svc << endreq;
     return StatusCode::FAILURE;
   } else {
@@ -205,67 +224,6 @@ StatusCode FTKRegionalWrapper::initialize()
   if (!m_SaveRawHits && !m_SaveHits) {
       log << MSG::FATAL << "At least one hit format has to be saved: FTKRawHit or FTKHit" << endl;
       return StatusCode::FAILURE;
-  }
-
-  /*
-   * prepare the output structure to store the hits and the other information
-   */
-
-  // create the output files
-  log << MSG::INFO << "Creating output file: "  << m_outpath << endreq;
-  m_outfile = TFile::Open(m_outpath.c_str(),"recreate");
-
-  // create a TTree to store event information
-  m_evtinfo = new TTree("evtinfo","Events info");
-  m_evtinfo->Branch("RunNumber",&m_run_number,"RunNumber/I");
-  m_evtinfo->Branch("EventNumber",&m_event_number,"EventNumber/I");
-
-  m_evtinfo->Branch("LB",&m_LB,"LB/I");
-  m_evtinfo->Branch("BCID",&m_BCID,"BCID/I");
-  m_evtinfo->Branch("ExtendedLevel1ID",&m_extendedLevel1ID,"ExtendedLevel1ID/I");
-  m_evtinfo->Branch("Level1TriggerType",&m_level1TriggerType,"Level1TriggerType/I");
-  m_evtinfo->Branch("Level1TriggerInfo",&m_level1TriggerInfo);
-  m_evtinfo->Branch("AverageInteractionsPerCrossing",&m_averageInteractionsPerCrossing,"AverageInteractionsPerCrossing/F");
-  m_evtinfo->Branch("ActualInteractionsPerCrossing",&m_actualInteractionsPerCrossing,"ActualInteractionsPerCrossing/F");  
-
-
-  // create and populate the TTree
-  m_hittree = new TTree("ftkhits","Raw hits for the FTK simulation");
-  m_hittree_perplane = new TTree("ftkhits_perplane","Raw hits for the FTK simulation");
-  
-  // prepare a branch for each tower
-  m_ntowers = m_rmap->getNumRegions();
-
-  if (m_SaveRawHits) { // Save FTKRawHit data
-    m_original_hits = new vector<FTKRawHit>[m_ntowers];
-    if (m_SavePerPlane) { m_original_hits_per_plane = new vector<FTKRawHit>*[m_ntowers]; }
-    
-    for (int ireg=0;ireg!=m_ntowers;++ireg) { // towers loop
-      m_hittree->Branch(Form("RawHits%d.",ireg),&m_original_hits[ireg], 32000, 1);
-      
-      if (m_SavePerPlane) {
-        m_original_hits_per_plane[ireg] = new vector<FTKRawHit>[m_nplanes];
-        for (int iplane=0;iplane!=m_nplanes;++iplane) { // planes loop
-          m_hittree_perplane->Branch(Form("RawHits_t%d_p%d.",ireg,iplane),&m_original_hits_per_plane[ireg][iplane],32000, 1);
-        }
-      }
-    } // end towers loop
-  }
-
-  if (m_SaveHits) {
-    m_logical_hits = new vector<FTKHit>[m_ntowers];
-    if (m_SavePerPlane) { m_logical_hits_per_plane = new vector<FTKHit>*[m_ntowers]; }
-    
-    for (int ireg=0;ireg!=m_ntowers;++ireg) { // towers loop
-      m_hittree->Branch(Form("Hits%d.",ireg),&m_logical_hits[ireg], 32000, 1);
-
-      if (m_SavePerPlane) {
-        m_logical_hits_per_plane[ireg] = new vector<FTKHit>[m_nplanes];
-        for (int iplane=0;iplane!=m_nplanes;++iplane) { // planes loop
-          m_hittree_perplane->Branch(Form("Hits_t%d_p%d.",ireg,iplane), &m_logical_hits_per_plane[ireg][iplane],32000, 1);
-        }
-      }
-    } // end towers loop
   }
 
   // This part retrieves the neccessary pixel/SCT Id helpers. They are intialized by the StoreGateSvc
@@ -420,8 +378,85 @@ StatusCode FTKRegionalWrapper::initialize()
   return StatusCode::SUCCESS;
 }
 
+StatusCode FTKRegionalWrapper::initOutputFile() {
+  /*
+   * prepare the output structure to store the hits and the other information
+   */
+
+  MsgStream log(msgSvc(), name());
+  log << MSG::INFO << "FTKRegionalWrapper::initOutputFile()" << endreq;
+
+  // create the output files
+  log << MSG::INFO << "Creating output file: "  << m_outpath << endreq;
+  m_outfile = TFile::Open(m_outpath.c_str(),"recreate");
+
+  // create a TTree to store event information
+  m_evtinfo = new TTree("evtinfo","Events info");
+  m_evtinfo->Branch("RunNumber",&m_run_number,"RunNumber/I");
+  m_evtinfo->Branch("EventNumber",&m_event_number,"EventNumber/I");
+
+  m_evtinfo->Branch("LB",&m_LB,"LB/I");
+  m_evtinfo->Branch("BCID",&m_BCID,"BCID/I");
+  m_evtinfo->Branch("ExtendedLevel1ID",&m_extendedLevel1ID,"ExtendedLevel1ID/I");
+  m_evtinfo->Branch("Level1TriggerType",&m_level1TriggerType,"Level1TriggerType/I");
+  m_evtinfo->Branch("Level1TriggerInfo",&m_level1TriggerInfo);
+  m_evtinfo->Branch("AverageInteractionsPerCrossing",&m_averageInteractionsPerCrossing,"AverageInteractionsPerCrossing/F");
+  m_evtinfo->Branch("ActualInteractionsPerCrossing",&m_actualInteractionsPerCrossing,"ActualInteractionsPerCrossing/F");  
+
+
+  // create and populate the TTree
+  m_hittree = new TTree("ftkhits","Raw hits for the FTK simulation");
+  m_hittree_perplane = new TTree("ftkhits_perplane","Raw hits for the FTK simulation");
+  
+  // prepare a branch for each tower
+  m_ntowers = m_rmap->getNumRegions();
+
+  if (m_SaveRawHits) { // Save FTKRawHit data
+    m_original_hits = new vector<FTKRawHit>[m_ntowers];
+    if (m_SavePerPlane) { m_original_hits_per_plane = new vector<FTKRawHit>*[m_ntowers]; }
+    
+    for (int ireg=0;ireg!=m_ntowers;++ireg) { // towers loop
+      m_hittree->Branch(Form("RawHits%d.",ireg),&m_original_hits[ireg], 32000, 1);
+      
+      if (m_SavePerPlane) {
+        m_original_hits_per_plane[ireg] = new vector<FTKRawHit>[m_nplanes];
+        for (int iplane=0;iplane!=m_nplanes;++iplane) { // planes loop
+          m_hittree_perplane->Branch(Form("RawHits_t%d_p%d.",ireg,iplane),&m_original_hits_per_plane[ireg][iplane],32000, 1);
+        }
+      }
+    } // end towers loop
+  }
+
+  if (m_SaveHits) {
+    m_logical_hits = new vector<FTKHit>[m_ntowers];
+    if (m_SavePerPlane) { m_logical_hits_per_plane = new vector<FTKHit>*[m_ntowers]; }
+    
+    for (int ireg=0;ireg!=m_ntowers;++ireg) { // towers loop
+      m_hittree->Branch(Form("Hits%d.",ireg),&m_logical_hits[ireg], 32000, 1);
+
+      if (m_SavePerPlane) {
+        m_logical_hits_per_plane[ireg] = new vector<FTKHit>[m_nplanes];
+        for (int iplane=0;iplane!=m_nplanes;++iplane) { // planes loop
+          m_hittree_perplane->Branch(Form("Hits_t%d_p%d.",ireg,iplane), &m_logical_hits_per_plane[ireg][iplane],32000, 1);
+        }
+      }
+    } // end towers loop
+  }
+  return StatusCode::SUCCESS;
+}
+
 StatusCode FTKRegionalWrapper::execute()
 {
+
+  // moved here for compatibilty with multithreaded athena
+  if (m_outfile == 0) {
+    StatusCode sc = initOutputFile();
+    if(sc.isFailure()) {
+      ATH_MSG_WARNING("Did not initialize output file and trees correctly!");
+    }
+  }
+
+
   // retrieve the pointer to the datainput object
   FTKDataInput *datainput = m_hitInputTool->reference();
 
@@ -450,6 +485,7 @@ StatusCode FTKRegionalWrapper::execute()
   m_actualInteractionsPerCrossing = datainput->actualInteractionsPerCrossing();
   m_level1TriggerType = datainput->level1TriggerType();
   m_level1TriggerInfo = datainput->level1TriggerInfo();
+  m_extendedLevel1ID = datainput->extendedLevel1ID();
 
   if (std::find(m_L1ID_to_save.begin(), m_L1ID_to_save.end(), m_level1TriggerType) == m_L1ID_to_save.end() 
       && m_L1ID_to_save.size() != 0)
@@ -600,7 +636,15 @@ StatusCode FTKRegionalWrapper::execute()
 
   for (;ihit!=ihitE;++ihit) { // hit loop
     const FTKRawHit &currawhit = *ihit;
-   
+
+    if( m_ITkMode ) {
+      // In the ITk geometry, some of the plane IDs are -1 if the layers are not yet being used.
+      // This causes the code in this hit loop to crash. As a workaround for the moment, we currently
+      // skip over hits in layers that are not included in the FTK geometry, with plane = -1
+      if( m_pmap->getMap( currawhit.getHitType() , !(currawhit.getBarrelEC()==0) , currawhit.getLayer() ).getPlane() == -1 )
+	continue;
+    }
+    
     //cout << "Hit " << currawhit.getHitType() << ": " << currawhit.getEventIndex() << " " << currawhit.getBarcode() << endl;
     // calculate the equivalent hit
     FTKHit hitref = currawhit.getFTKHit(m_pmap);
@@ -938,8 +982,11 @@ StatusCode FTKRegionalWrapper::finalize()
     m_FTKSCTCluContainer->release();
   }
 
-  // close the output files
-  m_outfile->Write();
-  m_outfile->Close();
+  // close the output files, but check that it exists (for athenaMP)
+  if (m_outfile) {
+    m_outfile->Write();
+    m_outfile->Close();
+  }
+
   return StatusCode::SUCCESS;
 }

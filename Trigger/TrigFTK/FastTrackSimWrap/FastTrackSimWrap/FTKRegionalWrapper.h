@@ -46,6 +46,7 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
+  StatusCode initOutputFile();
 
 private:
   ToolHandle<FTK_SGHitInputI> m_hitInputTool; // input handler
@@ -65,6 +66,7 @@ private:
 
   // variables to manage the distribution of the hits
   int m_IBLMode; //  global FTK setup variable to handle IBL
+  bool m_ITkMode; //  global FTK setup variable to toggle ITk geometry
   std::string m_pmap_path; //  path of the PMAP file
   FTKPlaneMap *m_pmap; //  pointer to the pmap object
 
@@ -117,8 +119,8 @@ private:
   float m_actualInteractionsPerCrossing;
   int m_LB;
   int m_BCID;
-  int m_extendedLevel1ID;
-  int m_level1TriggerType;
+  unsigned int m_extendedLevel1ID;
+  unsigned int m_level1TriggerType;
   std::vector<unsigned int> m_level1TriggerInfo;
 
   TTree *m_trackstree;
