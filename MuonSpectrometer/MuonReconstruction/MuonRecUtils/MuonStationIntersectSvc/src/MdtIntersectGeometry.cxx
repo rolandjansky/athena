@@ -21,6 +21,35 @@ namespace Muon{
     init();
   }
 
+  MdtIntersectGeometry::MdtIntersectGeometry(const MdtIntersectGeometry &right) {
+    m_chid = right.m_chid;
+    m_transform = right.m_transform;
+    m_intersect = right.m_intersect;
+    m_mdtGeometry = new TrkDriftCircleMath::MdtChamberGeometry();
+    *m_mdtGeometry = *right.m_mdtGeometry;
+    m_detElMl0 = right.m_detElMl0;
+    m_detElMl1 = right.m_detElMl1;
+    m_detMgr = right.m_detMgr;
+    m_mdtSummarySvc = right.m_mdtSummarySvc;
+    m_mdtIdHelper = right.m_mdtIdHelper;
+  }
+
+  MdtIntersectGeometry& MdtIntersectGeometry::operator=(const MdtIntersectGeometry& right) {
+    if (this!=&right) {
+      m_chid = right.m_chid;
+      m_transform = right.m_transform;
+      m_intersect = right.m_intersect;
+      if(m_mdtGeometry) delete m_mdtGeometry;
+      m_mdtGeometry = new TrkDriftCircleMath::MdtChamberGeometry(*right.m_mdtGeometry);
+      m_detElMl0 = right.m_detElMl0;
+      m_detElMl1 = right.m_detElMl1;
+      m_detMgr = right.m_detMgr;
+      m_mdtSummarySvc = right.m_mdtSummarySvc;
+      m_mdtIdHelper = right.m_mdtIdHelper;
+    }
+    return *this;
+  } 
+
   MdtIntersectGeometry::~MdtIntersectGeometry(){
     delete m_mdtGeometry;
   }

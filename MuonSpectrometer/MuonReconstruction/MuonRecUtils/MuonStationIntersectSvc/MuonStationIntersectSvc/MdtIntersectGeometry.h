@@ -26,7 +26,8 @@ namespace Muon {
   class MdtIntersectGeometry : public MuonIntersectGeometry {
   public:
     MdtIntersectGeometry( const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr, IMDTConditionsSvc* mdtSummarySvc );
-    
+    MdtIntersectGeometry(const MdtIntersectGeometry &right);
+    MdtIntersectGeometry & operator=(const MdtIntersectGeometry &right);
     ~MdtIntersectGeometry();
 
     const MuonStationIntersect& intersection( const Amg::Vector3D& pos, const Amg::Vector3D& dir) const;
