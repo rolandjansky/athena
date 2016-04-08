@@ -1,9 +1,9 @@
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 # input
-athenaCommonFlags.PoolRDOInput = runArgs.inputRDOFile
-athenaCommonFlags.BSRDOInput = runArgs.inputBS_TRIG_OLDFile
+athenaCommonFlags.PoolRDOInput      = runArgs.inputRDOFile
+athenaCommonFlags.BSRDOInput        = runArgs.inputBS_TRIGFile
 # output
-athenaCommonFlags.PoolRDOOutput = runArgs.outputRDO_TRIG_OLDFile
+athenaCommonFlags.PoolRDOOutput     = runArgs.outputRDO_TRIGFile
 
 include("TrigSimTransforms/MergingEventLoopMgr_TriggerBSandRDOtoRDO.py")

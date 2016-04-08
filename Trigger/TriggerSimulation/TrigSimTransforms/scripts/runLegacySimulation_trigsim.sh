@@ -1,37 +1,34 @@
-#!/bin/sh
-
 WORKDIR=${1:-bs2trigbs}
 
-echo "Simulation workdir: "$WORKDIR
+echo "Digitization workdir: "$WORKDIR
 rm -rf $WORKDIR
 mkdir $WORKDIR
 cd $WORKDIR
 
-INPUTBS="../rdo2bs/digiBS.data"
+export INPUTBS="../tmpfiles/tmp.BS_OLD"
 
-OUTPUTBS="trigBS.data"
+export OUTPUTBS="trigBS.data"
 
-GEOMTAG="ATLAS-GEO-21-02-02"
-CONDTAG="OFLCOND-MC12b-SDR-01"
-#CONDTAG="OFLCOND-RUN12-SDR-25"
-#GEOMTAG="ATLAS-R1-2012-02-00-00"  # crashes
-TRIGCONFIG='all=MCRECO:DB:TRIGGERDBMC_RUN1:325,142,266'
-ASETUP="b2tb:17.2.11.2,slc5"
+export DIGICON="OFLCOND-MC12b-SDR-01"
+export DIGIGEO="ATLAS-GEO-21-02-02"
 
 echo "Input file : "$INPUTBS
 echo "Output     : "$OUTPUTBS
 echo
-echo "Conditions : "$CONDTAG
-echo "Geometry   : "$GEOMTAG
-echo "Trigger    : "$TRIGCONFIG
+echo "Conditions : "$DIGICON
+echo "Geometry   : "$DIGIGEO
 echo
 
-test -n "$ASETUP" && ASETUP="--asetup \"$ASETUP\""
+#get_files -jo TrigSimTransforms/athena_BStoBS_Example.py
 
-eval TrigAndReco_tf.py --inputBS_OLDFile $INPUTBS --outputBS_TRIG_OLDFile $OUTPUTBS \
-    --imf false \
-    --triggerConfig $TRIGCONFIG \
-    --geometryVersion "b2tb:$GEOMTAG" --conditionsTag "b2tb:$CONDTAG" \
-    --copyJO "b2tb:TrigSimTransforms/skeleton.BStoTRIGBS.py" \
-    $ASETUP \
-    > log  2>&1
+#athena.py athena_BStoBS_Example.py 2>&1 > BStoTrigBS.log
+
+TrigAndReco_tf.py --inputBS_OLDFile $INPUTBS --outputBS_TRIGFile $OUTPUTBS \
+--imf false \
+--asetup "b2tb:--testarea=/afs/cern.ch/user/s/stelzer/legacySimulation/SimRelease AtlasProduction,17.2.11.2,slc5"  --triggerConfig 'all=MCRECO:DB:TRIGGERDBMC:325,142,266' \
+--geometryVersion "b2tb:ATLAS-GEO-21-02-02" --conditionsTag "b2tb:OFLCOND-MC12b-SDR-01" \
+> log  2>&1
+
+
+
+

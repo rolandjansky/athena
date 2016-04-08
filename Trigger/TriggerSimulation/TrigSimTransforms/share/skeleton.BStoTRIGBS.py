@@ -135,9 +135,8 @@ theTileRawChannelToTTL1.TileRawChannelContainer = "TileRawChannelCnt"
 theTileRawChannelToTTL1.TileTTL1Container = "TileTTL1Cnt"
 theTileRawChannelToTTL1.maskBadChannels = True
 
-# this causes "dupe ignored" error message
-# from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
-# topSequence += LVL1__TrigT1MBTS()
+from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
+topSequence += LVL1__TrigT1MBTS()
 
 topSequence.DoBCM = True
 topSequence.DoBPTX = True
@@ -149,7 +148,7 @@ ConfigureFromListOfKeys(rec.AutoConfiguration())
 
 # setting input and output from runArgs
 athenaCommonFlags.BSRDOInput.set_Value_and_Lock( runArgs.inputBS_OLDFile )
-athenaCommonFlags.BSRDOOutput.set_Value_and_Lock( runArgs.outputBS_TRIG_OLDFile )
+athenaCommonFlags.BSRDOOutput.set_Value_and_Lock( runArgs.outputBS_TRIGFile )
 
 athenaCommonFlags.FilesInput =  runArgs.inputBS_OLDFile
 globalflags.InputFormat = 'bytestream' 
@@ -540,8 +539,8 @@ MessageSvc = svcMgr.MessageSvc
 MessageSvc.Format = "% F%48W%S%7W%R%T %0W%M"
 MessageSvc.debugLimit = 100000
 
-# commenting-out, this causes ERROR message "No variables to be monitored"
-# topSequence.TrigSteer_L2.muFast_900GeV.AthenaMonTools = PrivateToolHandleArray(['TrigGenericMonitoringTool/TrigmuFastOnlineMonitoring', 'TrigGenericMonitoringTool/TrigmuFastCosmicMonitoring', 'TrigTimeHistTool/Time'])
+
+topSequence.TrigSteer_L2.muFast_900GeV.AthenaMonTools = PrivateToolHandleArray(['TrigGenericMonitoringTool/TrigmuFastValidationMonitoring','TrigGenericMonitoringTool/TrigmuFastOnlineMonitoring','TrigGenericMonitoringTool/TrigmuFastCosmicMonitoring','TrigTimeHistTool/Time'])
 
 defaultOptions = {}
 defaultOptions['setModifiers']=[#Common modifiers for MC and data
