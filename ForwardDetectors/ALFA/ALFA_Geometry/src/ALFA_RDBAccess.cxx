@@ -8,6 +8,9 @@
 
 ALFA_RDBAccess::ALFA_RDBAccess()
 {
+	m_fiberGeometry=NULL;
+	m_alfaParams=NULL;
+	m_svcLocator=NULL;
 }
 
 ALFA_RDBAccess::~ALFA_RDBAccess()
