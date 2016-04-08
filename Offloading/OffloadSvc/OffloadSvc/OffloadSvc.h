@@ -19,10 +19,12 @@
 #include <chrono>
 #include <mutex>
 #include <condition_variable>
+#include <memory>
 
 // FrameWork includes
 #include "AthenaBaseComps/AthService.h"
-
+#include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ServiceHandle.h"
 // OffloadManagerSvc includes
 #include "OffloadSvc/IOffloadSvc.h"
 #include "yampl/SocketFactory.h"
@@ -33,8 +35,9 @@ template <class TT> class SvcFactory;
 namespace APE{
   class BufferContainer;
 }
+class IIncidentSvc;
 
-class OffloadSvc : virtual public IOffloadSvc, public AthService{ 
+class OffloadSvc : virtual public IOffloadSvc, public AthService,public virtual IIncidentListener{ 
 protected:
   friend class SvcFactory<OffloadSvc>;
 
@@ -65,11 +68,9 @@ public:
   /////////////////////////////////////////////////////////////////// 
   static const InterfaceID& interfaceID();
 
-  // /** The very important message of the day
-  //  */
-  // StatusCode qotd( std::string& quote );
-  virtual StatusCode sendData(std::unique_ptr<APE::BufferContainer> &buff, int &token);
+  virtual StatusCode sendData(std::unique_ptr<APE::BufferContainer> &buff, int &token,bool requiresResponse=true);
   virtual StatusCode receiveData(std::unique_ptr<APE::BufferContainer> &buff, int token, int timeOut=-1);
+  virtual void handle(const Incident &);
   /////////////////////////////////////////////////////////////////// 
   // Private methods: 
   /////////////////////////////////////////////////////////////////// 
@@ -77,7 +78,8 @@ private:
 
   /// Default constructor: 
   OffloadSvc();
-
+  bool openCommChannel(bool postFork=false);
+  bool closeCommChannel(bool preFork=false);
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
@@ -91,15 +93,18 @@ private:
     size_t uploadSize;
     size_t downloadSize;
   };
-
-  std::string m_connName;
+  std::string m_connType;
+  std::string m_commChannelSend;
+  std::string m_commChannelRecv;
+  bool m_useUID;
   bool m_isConnected;
   std::map<int,OffloadSvc::TransferStats> m_stats;
-  yampl::ISocket *m_mySocket,*m_downSock;
+  std::shared_ptr<yampl::ISocket> m_sendSock,m_recvSock;
   std::queue<int> m_tokens;
   int m_maxTokens;
   std::condition_variable m_tCond;
   std::mutex m_cMutex;
+
 }; 
 
 /// I/O operators
