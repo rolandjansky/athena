@@ -1194,7 +1194,6 @@ pool::CollectionDescription::addCollectionFragment( const std::string& fragmentN
      }
      else     {
 	std::string errorMsg = "Cannot find parent collection fragment of collection fragment `" + fragmentName + "'.";
-        delete fragment;
 	throw pool::Exception ( errorMsg,
 				"CollectionDescription::addCollectionFragment",
 				"CollectionBase" );
