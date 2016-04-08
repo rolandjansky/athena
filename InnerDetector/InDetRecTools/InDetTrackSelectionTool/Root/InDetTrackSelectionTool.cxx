@@ -136,6 +136,13 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
 		  "Minimum High Threshold electron probability");
   declareProperty("eProbHTonlyForXe", m_eProbHTonlyForXe,
 		  "Flag whether to apply the eProbabilityHT cut only when all TRT hits are Xenon");
+
+  declareProperty("vecEtaCutoffsForSiHitsCut", m_vecEtaCutoffsForSiHitsCut,
+		  "Minimum eta cutoffs for each Silicon hit cut");
+  declareProperty("vecMinNSiHitsAboveEta", m_vecMinNSiHitsAboveEta, "Minimum Silicon hits above each eta cutoff");
+  declareProperty("vecPtCutoffsForSctHitsCut", m_vecPtCutoffsForSctHitsCut,
+		  "Minimum pt cutoffs for each SCT hits");
+  declareProperty("vecMinNSctHitsAbovePt", m_vecMinNSctHitsAbovePt, "Minimum SCT hits above each pt cutoff");
 #ifndef XAOD_ANALYSIS
   declareProperty("minNSiHitsMod", m_minNSiHitsMod);
   declareProperty("minNSiHitsModTop", m_minNSiHitsModTop);
@@ -169,7 +176,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
   }
 
   // Greet the user:
-  ATH_MSG_INFO( "Initializing Track Selection Tool..." );
+  ATH_MSG_INFO( "Initializing track selection tool." );
   ATH_CHECK( asg::AsgTool::initialize() );
 
   // if the CutLevel string is set to something recognizable,
@@ -568,6 +575,45 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     }
   }
 
+  if (!m_vecEtaCutoffsForSiHitsCut.empty() || !m_vecMinNSiHitsAboveEta.empty()) {
+    auto cutSize = m_vecEtaCutoffsForSiHitsCut.size();
+    if (cutSize != m_vecMinNSiHitsAboveEta.size()) {
+      ATH_MSG_ERROR( "Eta cutoffs and Silicon hit cuts must be vectors of the same length." );
+      return StatusCode::FAILURE;
+    }
+    for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
+      ATH_MSG_INFO( "  for " << m_vecEtaCutoffsForSiHitsCut.at(i_cut)
+		    << " < eta < " << m_vecEtaCutoffsForSiHitsCut.at(i_cut+1)
+		    << " ,Silicon hits >= " << m_vecMinNSiHitsAboveEta.at(i_cut) );
+    }
+    ATH_MSG_INFO( "  for eta > " << m_vecEtaCutoffsForSiHitsCut.at(cutSize-1)
+		    << " ,Silicon hits >= " << m_vecMinNSiHitsAboveEta.at(cutSize-1) );
+    auto siHitCut = make_unique<EtaDependentSiliconHitsCut>
+      (this, m_vecEtaCutoffsForSiHitsCut, m_vecMinNSiHitsAboveEta);
+    m_trackCuts["SiHits+Deadsensors"].push_back(std::move(siHitCut));
+  }
+
+
+
+  if (!m_vecPtCutoffsForSctHitsCut.empty() || !m_vecMinNSctHitsAbovePt.empty()) {
+    auto cutSize = m_vecPtCutoffsForSctHitsCut.size();
+    if (cutSize != m_vecMinNSctHitsAbovePt.size()) {
+      ATH_MSG_ERROR( "Pt cutoffs and SCT hit cuts must be vectors of the same length." );
+      return StatusCode::FAILURE;
+    }
+    for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
+      ATH_MSG_INFO( "  for " << m_vecPtCutoffsForSctHitsCut.at(i_cut)
+		    << " < pt < " << m_vecPtCutoffsForSctHitsCut.at(i_cut+1)
+		    << " MeV,\tSCT hits >= " << m_vecMinNSctHitsAbovePt.at(i_cut) );
+    }
+    ATH_MSG_INFO( "  for pt > " << m_vecPtCutoffsForSctHitsCut.at(cutSize-1)
+		    << " MeV,\t\tSCT hits >= " << m_vecMinNSctHitsAbovePt.at(cutSize-1) );
+    auto sctCut = make_unique<PtDependentSctHitsCut>
+      (this, m_vecPtCutoffsForSctHitsCut, m_vecMinNSctHitsAbovePt);
+    m_trackCuts["SctHits"].push_back(std::move(sctCut));
+  }
+
+
   // initialize the cuts and set up the TAccept object
   for (const auto& cutFamily : m_trackCuts) {
     for (const auto& cut : cutFamily.second) {
@@ -902,6 +948,11 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
       m_minNSiHitsModTop = -1;
       m_minNSiHitsModBottom = -1;
 #endif
+      m_vecEtaCutoffsForSiHitsCut.clear();
+      m_vecMinNSiHitsAboveEta.clear();
+     
+      m_vecPtCutoffsForSctHitsCut.clear();
+      m_vecMinNSctHitsAbovePt.clear();
     }
     break;
   case CutLevel::Loose :
@@ -960,7 +1011,37 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     if (overwrite || m_maxD0 >= LOCAL_MAX_DOUBLE) m_maxD0 = 1.5;
     if (overwrite || m_maxZ0SinTheta >= LOCAL_MAX_DOUBLE) m_maxZ0SinTheta = 1.5;
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
-    if (overwrite || m_minPt < 0.) m_minPt = 500.;
+    if (overwrite || m_minPt < 0.) m_minPt = 500.0;
+    break;
+  case CutLevel::HILoose:
+    // HILoose is similar to MinBias, but not identical
+    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
+    if (overwrite || m_useMinBiasInnermostLayersCut >= 0) m_useMinBiasInnermostLayersCut = 1;
+    if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 1;
+    if (overwrite || (m_vecPtCutoffsForSctHitsCut.empty()
+		      && m_vecMinNSctHitsAbovePt.empty())) {
+      m_vecPtCutoffsForSctHitsCut = {0.0, 300.0, 400.0};
+      m_vecMinNSctHitsAbovePt = {2, 4, 6};
+    }
+    if (overwrite || m_maxD0 >= LOCAL_MAX_DOUBLE) m_maxD0 = 1.5;
+    if (overwrite || m_maxZ0SinTheta >= LOCAL_MAX_DOUBLE) m_maxZ0SinTheta = 1.5;
+    break;
+  case CutLevel::HITight:
+    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    // HITight is like HILoose but we require 8 SCT hits and 2 pixel hits
+    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
+    if (overwrite || m_useMinBiasInnermostLayersCut >= 0) m_useMinBiasInnermostLayersCut = 1;
+    if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 2;
+    if (overwrite || (m_vecPtCutoffsForSctHitsCut.empty()
+		      && m_vecMinNSctHitsAbovePt.empty())) {
+      m_vecPtCutoffsForSctHitsCut = {0.0, 300.0, 400.0};
+      m_vecMinNSctHitsAbovePt = {4, 6, 8};
+    }
+    if (overwrite || m_maxD0 >= LOCAL_MAX_DOUBLE) m_maxD0 = 1.0;
+    if (overwrite || m_maxZ0SinTheta >= LOCAL_MAX_DOUBLE) m_maxZ0SinTheta = 1.0;
+    if (overwrite || m_maxChiSqperNdf >= LOCAL_MAX_DOUBLE) m_maxChiSqperNdf = 6.0;
     break;
   default:
     ATH_MSG_ERROR("CutLevel not recognized. Cut selection will remain unchanged.");
@@ -978,5 +1059,7 @@ InDet::InDetTrackSelectionTool::s_mapCutLevel =
     {"TightPrimary", InDet::CutLevel::TightPrimary},
     {"LooseMuon", InDet::CutLevel::LooseMuon},
     {"LooseElectron", InDet::CutLevel::LooseElectron},
-    {"MinBias", InDet::CutLevel::MinBias}
+    {"MinBias", InDet::CutLevel::MinBias},
+    {"HILoose", InDet::CutLevel::HILoose},
+    {"HITight", InDet::CutLevel::HITight}
   };

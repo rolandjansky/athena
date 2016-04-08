@@ -109,7 +109,7 @@ int main( int argc, char* argv[] ) {
    unique_ptr< TFile > outFile(new TFile("IDTrackSelectionToolTestOut.root", "RECREATE"));
    Info( APP_NAME, "Creating output file %s", outFile->GetName() );
 
-   const vector<string> cutNames = {"NoCut", "Loose", "LoosePrimary", "TightPrimary", "LooseMuon", "LooseElectron", "MinBias"}; // these are names of pre-defined selections
+   const vector<string> cutNames = {"NoCut", "Loose", "LoosePrimary", "TightPrimary", "LooseMuon", "LooseElectron", "MinBias", "HILoose", "HITight"}; // these are names of pre-defined selections
    const vector<string> otherCutNames = {"IP", "IPSigma", "IPSignificance"}; // other configurations we will define manually
    std::map<string, unique_ptr<TrkSelTool> > selToolMap;
    std::map<string, unique_ptr<HistFamily> > histFamilyMap;
@@ -146,7 +146,8 @@ int main( int argc, char* argv[] ) {
      
      const xAOD::VertexContainer* vertices = nullptr;
      CHECK( static_cast<StatusCode>(event.retrieve( vertices, "PrimaryVertices" )) );
-     const auto it_pv = std::find_if(vertices->cbegin(), vertices->cend(), [](const xAOD::Vertex* vtx)
+     const auto it_pv = std::find_if(vertices->cbegin(), vertices->cend(),
+				     [](const xAOD::Vertex* vtx)
 				     {return vtx->vertexType() == xAOD::VxType::PriVtx;});
      const xAOD::Vertex* primaryVertex = (it_pv == vertices->cend()) ? nullptr : *it_pv;
      if (primaryVertex == nullptr) Warning( APP_NAME, "No primary vertex found." );

@@ -407,6 +407,43 @@ namespace InDet {
     std::shared_ptr<eProbabilityHTAccessor> m_accessor;
   }; // class MinEProbHT
   
+ // ---------------- EtaDependentSiliconHitsCut ----------------
+  class EtaDependentSiliconHitsCut : public virtual TrackCut {
+  public:
+    EtaDependentSiliconHitsCut(InDetTrackSelectionTool*, std::vector<Double_t> eta, std::vector<Int_t> hits);
+    void setEta(std::vector<Double_t> eta) {m_etaCutoffs = eta;}
+    void setHits(std::vector<Int_t> hits) {m_siHitCuts = hits;}
+    virtual StatusCode initialize();
+    virtual bool result() const;
+  private:
+    std::vector<Double_t> m_etaCutoffs;
+    std::vector<Int_t> m_siHitCuts;
+    std::shared_ptr< FuncAccessor< double, &xAOD::TrackParticle::eta> > m_etaAccessor;
+    std::shared_ptr<SummaryAccessor> m_sctAccessor;
+    std::shared_ptr<SummaryAccessor> m_pixAccessor;
+    std::shared_ptr<SummaryAccessor> m_sctDeadAccessor;
+    std::shared_ptr<SummaryAccessor> m_pixDeadAccessor;
+  } ;
+
+
+  // ---------------- PtDependentSctHitsCut ----------------
+  // this cut could in principle be constructed out of others,
+  //   but it might not be so clean.
+  // maybe as a FuncSummaryValueCut if the lambda function capture of the vectors works in a performant manner
+  class PtDependentSctHitsCut : public virtual TrackCut {
+  public:
+    PtDependentSctHitsCut(InDetTrackSelectionTool*, std::vector<Double_t> pt, std::vector<Int_t> sct);
+    void setPt(std::vector<Double_t> pt) {m_ptCutoffs = pt;}
+    void setSct(std::vector<Int_t> sct) {m_sctHitCuts = sct;}
+    virtual StatusCode initialize();
+    virtual bool result() const;
+  private:
+    std::vector<Double_t> m_ptCutoffs;
+    std::vector<Int_t> m_sctHitCuts;
+    std::shared_ptr< FuncAccessor< double, &xAOD::TrackParticle::pt> > m_ptAccessor;
+    std::shared_ptr<SummaryAccessor> m_sctAccessor;
+    std::shared_ptr<SummaryAccessor> m_sctDeadAccessor;
+  };
 
 #ifndef XAOD_ANALYSIS
   // ---------------- MinSiHitsModTopBottomCut ----------------

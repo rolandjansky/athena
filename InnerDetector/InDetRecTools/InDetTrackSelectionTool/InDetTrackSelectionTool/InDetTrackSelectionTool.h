@@ -164,6 +164,11 @@ namespace InDet {
     Int_t m_minNSiHitsModTop = -1; //!< Min number of Si hits on top half (pixel counting twice)
     Int_t m_minNSiHitsModBottom = -1; //!< Min number of Si hits on bottom half (pixel counting twice)
 #endif
+    std::vector< Double_t > m_vecEtaCutoffsForSiHitsCut; //!< Above each of these eta levels a new SCT hits + pix hits will be applied
+    std::vector< Int_t > m_vecMinNSiHitsAboveEta; //!< the minimum Si hits above each eta level
+
+    std::vector< Double_t > m_vecPtCutoffsForSctHitsCut; //!< Above each of these pT levels a new SCT hits + dead sensors will be applied
+    std::vector< Int_t > m_vecMinNSctHitsAbovePt; //!< the minimum SCT hits above each pt level
 
     /// Object used to store the last decision
     mutable Root::TAccept m_accept; //!< Object that stores detailed selection information
