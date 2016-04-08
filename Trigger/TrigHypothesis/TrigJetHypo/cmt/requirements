@@ -29,18 +29,11 @@ use	CaloInterface		CaloInterface-*		Calorimeter
 
 #apply_pattern cmake_add_command command="find_package(tdaq-common)"
 
-apply_pattern dual_use_library files="*.cxx TrigHLTJetHypoHelpers/*.cxx"
+apply_pattern dual_use_library files="*.cxx"
 
 apply_pattern declare_runtime
 apply_pattern declare_joboptions files="jobOfragment_*.py TriggerConfig_*.py"
 apply_pattern declare_python_modules files="*.py"
-
-# remove tests due to coverity complaints
-# application TrigHLTJetHypoTests TrigHLTJetHypoTests.cxx
-# macro_append  TrigHLTJetHypoTests_dependencies TrigJetHypoLib
-
-#application TrigHLTJetHypoUnitTests TrigHLTJetHypoUnitTests.cxx
-#macro_append  TrigHLTJetHypoUnitTests_dependencies TrigJetHypoLib
 
 #macro_append TrigJetHypo_shlibflags " $(tdaqc_linkopts) -lhltinterface"
 #macro_append    AtlasCxxPolicy_pp_cppflags      ""      AtlasHLT_scripts "-DONLINEIS"
@@ -64,3 +57,4 @@ use	CaloGeoHelpers		CaloGeoHelpers-*	Calorimeter
 use 	TDAQCPolicy		*
 macro_append TrigJetHypoLib_shlibflags " $(tdaqc_linkopts) -lhltinterface"
 
+apply_pattern cmake_add_command command="find_package( tdaq-common COMPONENTS hltinterface )"

@@ -8,7 +8,6 @@ from TrigJetHypo.TrigJetHypoConf import TrigL2HTFullScanHypo
 from TrigJetHypo.TrigJetHypoConf import TrigL2HTAllTE 
 from TrigJetHypo.TrigJetHypoConf import TrigEFJetHypo
 #from TrigJetHypo.TrigJetHypoConf import TrigEFJetHypo_RF
-from TrigJetHypo.TrigJetHypoConf import TrigHLTJetHypo
 from TrigJetHypo.TrigJetHypoConf import TrigEFJetHypoNoise
 from LArCellRec.LArCellRecConf import LArNoisyROTool
 
@@ -185,32 +184,6 @@ class EFJetHypoBase (TrigEFJetHypo):
 #        self.EMfCleaningThreshold = 0.95
 
         
-class HLTJetHypoBase (TrigHLTJetHypo):
-    __slots__ = []
-    def __init__(self, name):
-        super( HLTJetHypoBase, self ).__init__( name )
-
-        from TrigJetHypo.TrigJetHypoMonitoring import TrigEFJetHypoValidationMonitoring, TrigEFJetHypoOnlineMonitoring, TrigEFJetHypoCosmicMonitoring
-        validation = TrigEFJetHypoValidationMonitoring()
-        online = TrigEFJetHypoOnlineMonitoring()
-        cosmic = TrigEFJetHypoCosmicMonitoring()
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("EFJetHypo_Time")
-
-        self.AthenaMonTools = [ time, validation, online, cosmic ]
-        
-        # switch on basic cleaning by default for all chains
-        #self.doBasicCleaning = True
-        self.n90CleaningThreshold = 2
-        self.presamplerCleaningThreshold = 0.9
-        self.negativeECleaningThreshold = -60e3    # 60 GeV
-        self.qmeanCleaningThreshold = 0.8
-        self.HECQCleaningThreshold = 0.5
-        self.HECfCleaningThreshold = 0.5
-        self.LArQCleaningThreshold = 0.8
-        self.EMfCleaningThreshold = 0.95
-
         
 class L2JetHypo (L2JetHypoBase):
     __slots__ = []
@@ -379,18 +352,6 @@ class EFCentFullScanMultiJetHypo (EFJetHypoBase):
 #        self.etaMaxcut = etaMax
 #        self.Multiplicitycut = multiplicity
 #        self.EtThresholds=ef_thrs
-        
-
-class HLTJetHypo (HLTJetHypoBase):
-    __slots__ = []
-    def __init__(self, name = "HLTJetHypo",ef_thr=20*GeV,multiplicity=2, ef_thrs=[],etaMin=0,etaMax=3.2):
-        super( HLTJetHypoBase, self ).__init__( name )
-
-        self.Etcut = ef_thr
-        self.etaMincut = etaMin
-        self.etaMaxcut = etaMax
-        self.Multiplicitycut = multiplicity
-        self.EtThresholds=ef_thrs
         
 
 class EFFullScanMultiJetHypo_noJetCut (EFJetHypo):
