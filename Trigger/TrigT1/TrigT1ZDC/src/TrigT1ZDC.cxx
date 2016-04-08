@@ -18,6 +18,7 @@ namespace LVL1 {
 
   TrigT1ZDC::TrigT1ZDC(const std::string& name,
 		       ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator), 
+						  m_zdcMakeHisto(0),
 						  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
 						  m_zdcContainerName("ZDC"),
 						  m_threshold_c(-1),
@@ -25,6 +26,9 @@ namespace LVL1 {
 						  m_cablestart_a(-1),
 						  m_cablestart_c(-1),	
 						  m_cablestart_ac(-1),	
+						  m_passedA(0),
+						  m_passedC(0),
+						  m_passedAC(0),
 						  m_badDataFound(false)
   {
     declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
@@ -38,13 +42,14 @@ namespace LVL1 {
   StatusCode TrigT1ZDC::initialize() {
      if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Initialising" << endreq;
 
+    StatusCode sc;
 
-     if(Algorithm::initialize().isFailure()) {
+     sc = Algorithm::initialize();
+    if (sc.isFailure()) {
        if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize Algorithm base class." << endreq;
-       return StatusCode::FAILURE;
+       return sc;
     }
 
-    StatusCode sc;
 
     // Connect to the Detector Store to retrieve ZDC identifier helper.
     sc = detStore().retrieve();
@@ -146,7 +151,7 @@ namespace LVL1 {
     sc =  service("PartPropSvc", partPropSvc, true);
     if (sc.isFailure()) {
       msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endreq;
-      return StatusCode::FAILURE;
+      return sc;
     }
 
     return StatusCode::SUCCESS;
@@ -170,7 +175,7 @@ namespace LVL1 {
       sc = evtStore()->retrieve(mcEventCollection, m_mcEventCollectionKey);
       if( sc.isFailure()  || !mcEventCollection ) {
         if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Error retrieving " << m_mcEventCollectionKey << endreq;
-        return StatusCode::FAILURE;
+        return sc;
       }
     
       // Loop over MC GenParticles contained in McEventCollection
@@ -283,7 +288,7 @@ namespace LVL1 {
     sc=evtStore()->record(zdcCTP, containerName, false);
     if(sc.isFailure()) {
       if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to register " << containerName << endreq;
-      return StatusCode::FAILURE;
+      return sc;
     } 
     else if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << containerName << " registered successfully "

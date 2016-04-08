@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "TrigConfigSvc/ILVL1ConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include <string>
 
 
