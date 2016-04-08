@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+<atn/>
+
+<kv/>                
+
+<rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+  <!-- AUTHORS: Antonio Limosani (antonio.limosani AT cern.ch) -->
+  <rttContactPerson>Antonio.Limosani AT cern.ch</rttContactPerson>
+  <mailto>Antonio.Limosani@cern.ch</mailto>
+  <refRelease>15.0.0</refRelease>
+  
+  <jobList>
+    <classification>
+      <displayClass>OfflineValidation</displayClass>
+      <displayProcess>Reco</displayProcess>
+      <displayComponent>Athena-Core</displayComponent>
+    </classification>
+
+
+     <jobTransform userJobId="RAWtoAOD_MC_q221_AthMemoryAuditor_tcmalloc">
+      <doc>RAW to AOD tcmalloc</doc>
+      <jobTransformJobName>RAWtoESD_MC_AthMemoryAuditor_stdcmalloc</jobTransformJobName>
+      <jobTransformCmd>
+	Reco_tf.py --inputHITSFile='/afs/cern.ch/atlas/project/rig/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1' --outputESDFile=myESD.pool.root --outputESDFile=myAOD.pool.root --maxEvents=25 --AMI q221 --preExec='rec.doMemoryAuditor=True';  
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+     <jobTransform userJobId="RAWtoAOD_MC_q221_AthMemoryAuditor_stdcmalloc">
+      <doc>RAW to AOD stdcmalloc</doc>
+      <jobTransformJobName>RAWtoESD_MC_AthMemoryAuditor_stdcmalloc</jobTransformJobName>
+      <jobTransformCmd>
+	Reco_tf.py --inputHITSFile='/afs/cern.ch/atlas/project/rig/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1' --outputESDFile=myESD.pool.root --outputESDFile=myAOD.pool.root --maxEvents=25 --AMI q221 --preExec='rec.doMemoryAuditor=True'  --athenaopts='--stdcmalloc';  
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+     <jobTransform userJobId="RAWtoAOD_Data_q431_AthMemoryAuditor_tcmalloc">
+      <doc>RAW to AOD tcmalloc</doc>
+      <jobTransformJobName>RAWtoESD_MC_AthMemoryAuditor_stdcmalloc</jobTransformJobName>
+      <jobTransformCmd>
+	Reco_tf.py --inputHITSFile='/afs/cern.ch/atlas/project/rig/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1' --outputESDFile=myESD.pool.root --outputESDFile=myAOD.pool.root --maxEvents=25 --AMI q431 --preExec='rec.doMemoryAuditor=True';  
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+     <jobTransform userJobId="RAWtoAOD_Data_q431_AthMemoryAuditor_stdcmalloc">
+      <doc>RAW to AOD stdcmalloc</doc>
+      <jobTransformJobName>RAWtoESD_MC_AthMemoryAuditor_stdcmalloc</jobTransformJobName>
+      <jobTransformCmd>
+	Reco_tf.py --inputHITSFile='/afs/cern.ch/atlas/project/rig/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1' --outputESDFile=myESD.pool.root --outputESDFile=myAOD.pool.root --maxEvents=25 --AMI q431 --preExec='rec.doMemoryAuditor=True'  --athenaopts='--stdcmalloc';  
+      </jobTransformCmd>
+      <group>Valgrind_JobTransforms</group>
+      <queue>long</queue>
+    </jobTransform>
+
+
+    <!-- ENDE -->
+  </jobList>
+  
+  <jobGroups>
+    <jobGroup name="Valgrind_JobTransforms" parent="Top">
+      <keepFilePattern>*.root</keepFilePattern>
+      <keepFilePattern>*log*</keepFilePattern>
+      <keepFilePattern>*.log.gz</keepFilePattern>
+      <keepFilePattern>*.txt</keepFilePattern>
+      <keepFilePattern>*.py</keepFilePattern>
+      <keepFilePattern>*.eps</keepFilePattern>
+      <keepFilePattern>*.jpg</keepFilePattern>
+      <keepFilePattern>*.html</keepFilePattern>
+      <keepFilePattern>html/*.html</keepFilePattern>
+      <keepFilePattern>processed/*.eps</keepFilePattern>
+      <keepFilePattern>valgrind.*</keepFilePattern>
+      <keepFilePattern>callgrind.*</keepFilePattern>
+      <keepFilePattern>massif.*</keepFilePattern>
+      <keepFilePattern displayColor="blue">processed/*.htm</keepFilePattern>
+      <keepFilePattern displayColor="green" info="The main report">Report.html</keepFilePattern>
+      <keepFilePattern>processed/*.gif</keepFilePattern>
+      <keepFilePattern>rec.pkg.pkl</keepFilePattern>
+      <keepFilePattern>rec.pkl</keepFilePattern>
+      <keepFilePattern>log.RAWtoESD</keepFilePattern>
+      <keepFilePattern>log.ESDtoAOD</keepFilePattern>
+      <auxFilePattern>memConsumption.C</auxFilePattern>
+      <auxFilePattern>historyNightlies.C</auxFilePattern>
+      <auxFilePattern>processValgrindOutput.sh</auxFilePattern>
+      <auxFilePattern>dhat-postprocess.pl</auxFilePattern>
+
+      
+      <test position="1" runInAtlasEnv="yes">
+        <modulename>PostProcessValgrind</modulename>
+        <testname>PostProcessValgrind</testname>
+      </test>
+
+
+      <testToRemove>
+        <jobGroupName>Top</jobGroupName>
+        <testidentifier>CheckFileRunner0</testidentifier>
+      </testToRemove>
+    </jobGroup>
+    
+  </jobGroups>
+  
+</rtt>
+
+</unifiedTestConfiguration>
