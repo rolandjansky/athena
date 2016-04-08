@@ -14,10 +14,9 @@ namespace xAOD{
     
     TrigRNNOutput_v1::TrigRNNOutput_v1(): SG::AuxElement()
     {
-        // no things to be done!
     }
    
-    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (TrigRNNOutput_v1, long , RoIword, setRoIword)
+    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (TrigRNNOutput_v1, long , RoIword, setRoiWord)
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (TrigRNNOutput_v1, float , et, setEt)
     AUXSTORE_OBJECT_SETTER_AND_GETTER(TrigRNNOutput_v1, std::vector<float>, decision, setDecision)
 
@@ -25,5 +24,6 @@ namespace xAOD{
         static Accessor< std::vector<float> > acc( "decision" );
         acc(*this).push_back(d);
     }
+
 
 }// namespace xAOD 

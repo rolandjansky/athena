@@ -6,11 +6,13 @@
 #ifndef XAODTRIGRINGER_VERSIONS_TRIGRNNOUTPUT_V1_H
 #define XAODTRIGRINGER_VERSIONS_TRIGRNNOUTPUT_V1_H
 
+// System include(s):
+extern "C" {
+  #include <stdint.h>
+}
+
 // xAOD include(s):
 #include "AthContainers/AuxElement.h"
-
-//#include "CLIDSvc/CLASS_DEF.h"
-//#include "GaudiKernel/MsgStream.h"
 
 // std
 #include <vector>
@@ -19,28 +21,29 @@
 namespace xAOD{   
   class TrigRNNOutput_v1 : public SG::AuxElement{
        
-  public:
-  
+  public:  
     /**
      * Class default constructor
      */
     TrigRNNOutput_v1();
       
     /** Acessor methods **/
-    const std::vector<float>& decision() const; // expand to more outputs!
-    //float decision() const;
-    
+    const std::vector<float>& decision() const; 
     long  RoIword() const;
     float et() const;
     
     void setDecision(const std::vector<float> &d);
     void setDecision(float d);
-    
-    void setRoIword(long w); // hold the roiword
+    void setRoiWord(long w);
     void setEt(float e);
+
   };
 } // namespace xAOD
 
-#endif // XAODTRIGRINGER_VERSIONS_TRIGRNNOUTPUT_V1_H
+#include "xAODCore/BaseInfo.h"
+SG_BASE( xAOD::TrigRNNOutput_v1, SG::AuxElement );
+
+
+#endif
 
 
