@@ -138,8 +138,10 @@ bool HistogramUtils::AxisDetails::isEmpty() const {
 /// default constructor of a TH1 tool
 HistogramUtils::HistogramToolTH1::HistogramToolTH1(const std::string& type, const std::string& name, const IInterface* parent) :
   AthHistogramTool(type,name,parent),
-  m_parserX(0),
-  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
+  m_parserX(0)
+#ifndef XAOD_ANALYSIS
+  , m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
+#endif
 {
   declareInterface<IAthHistogramTool>( this );
   
@@ -151,8 +153,10 @@ HistogramUtils::HistogramToolTH1::HistogramToolTH1(const std::string& type, cons
 HistogramUtils::HistogramToolTH2::HistogramToolTH2(const std::string& type, const std::string& name, const IInterface* parent) :
   AthHistogramTool(type,name,parent),
   m_parserX(0),
-  m_parserY(0),
-  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
+  m_parserY(0)
+#ifndef XAOD_ANALYSIS
+  , m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
+#endif
 {
   declareInterface<IAthHistogramTool>( this );
   
@@ -166,8 +170,10 @@ HistogramUtils::HistogramToolTH3::HistogramToolTH3(const std::string& type, cons
   AthHistogramTool(type,name,parent),
   m_parserX(0),
   m_parserY(0),
-  m_parserZ(0),
-  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
+  m_parserZ(0)
+#ifndef XAOD_ANALYSIS
+  , m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
+#endif
 {
   declareInterface<IAthHistogramTool>( this );
   
@@ -226,7 +232,9 @@ StatusCode HistogramUtils::HistogramToolTH1::initialize(){
   
   // initialize proxy loaders for expression parsing
   ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
+#ifndef XAOD_ANALYSIS
   proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
+#endif
   proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
   proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
   
@@ -342,7 +350,9 @@ StatusCode HistogramUtils::HistogramToolTH2::initialize(){
   
   // initialize proxy loaders for expression parsing
   ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
+#ifndef XAOD_ANALYSIS
   proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
+#endif
   proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
   proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
   
@@ -541,7 +551,9 @@ StatusCode HistogramUtils::HistogramToolTH3::initialize(){
   
   // initialize proxy loaders for expression parsing
   ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
+#ifndef XAOD_ANALYSIS
   proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
+#endif
   proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
   proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
   

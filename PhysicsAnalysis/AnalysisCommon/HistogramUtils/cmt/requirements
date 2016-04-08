@@ -11,7 +11,8 @@ use  AtlasROOT                  AtlasROOT-*                     External
 use  ExpressionEvaluation       ExpressionEvaluation-*          PhysicsAnalysis/CommonTools
 use  GaudiInterface             GaudiInterface-*                External
 use  PATCore                    PATCore-*                       PhysicsAnalysis/AnalysisCommon
-use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+use_unless pkg=TrigDecisionTool tag=ManaCore ver=* root=Trigger/TrigAnalysis
+#use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
 end_private
 
 

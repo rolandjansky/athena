@@ -27,7 +27,9 @@
 #include "PATCore/IAthHistogramTool.h"
 
 #include "ExpressionEvaluation/ExpressionParser.h"
+#ifndef XAOD_ANALYSIS
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#endif
 
 namespace HistogramUtils {
 
@@ -55,7 +57,9 @@ namespace HistogramUtils {
     AxisDetails m_axisX;
     
     ExpressionParsing::ExpressionParser *m_parserX;
+#ifndef XAOD_ANALYSIS
     ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
+#endif
 
   public:
     HistogramToolTH1(const std::string& type, const std::string& name, const IInterface* parent);
@@ -75,7 +79,9 @@ namespace HistogramUtils {
 
     ExpressionParsing::ExpressionParser *m_parserX;
     ExpressionParsing::ExpressionParser *m_parserY;
+#ifndef XAOD_ANALYSIS
     ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
+#endif
 
   public:
     HistogramToolTH2(const std::string& type, const std::string& name, const IInterface* parent);
@@ -97,7 +103,9 @@ namespace HistogramUtils {
     ExpressionParsing::ExpressionParser *m_parserX;
     ExpressionParsing::ExpressionParser *m_parserY;
     ExpressionParsing::ExpressionParser *m_parserZ;
+#ifndef XAOD_ANALYSIS
     ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
+#endif
 
   public:
     HistogramToolTH3(const std::string& type, const std::string& name, const IInterface* parent);
