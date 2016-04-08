@@ -35,6 +35,7 @@ class PhotonCnvPlots:public PlotBase {
       TH1* nVtx;
       TH1* convR;
       TH2* convRvsEta;
+      TH2* convRvsType;
       TH1* convType;
       TH1* convDeltaEta;
       TH1* convDeltaPhi;

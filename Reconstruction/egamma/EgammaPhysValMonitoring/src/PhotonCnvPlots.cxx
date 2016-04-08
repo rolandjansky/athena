@@ -30,7 +30,8 @@ void PhotonCnvPlots::initializePlots(){
   nVtx = Book1D("nVtx","Number of vertexes"+ m_sParticleType + ";nVtx;Events", 10, -0.5, 9.5);
   convR = Book1D("convR", "Radius Of conversion vertex" + m_sParticleType + ";convR;Conversions", 1200,0.,1200.);
   convRvsEta = Book2D("convRvsEta", "Radius Of conversion vertex vs #eta" + m_sParticleType + ";convR;#eta", 1200,0.,1200., 1000.,-5.,5.);
-  convType = Book1D("convType", "Conversion Type"+ m_sParticleType + ";convType;Conversions", 5, -0.5, 4.5);
+  convRvsType = Book2D("convRvsType", "Radius Of conversion vertex vs Type" + m_sParticleType + ";convR;Type", 1200,0.,1200., 7.,-.5,6.5);
+  convType = Book1D("convType", "Conversion Type"+ m_sParticleType + ";convType;Conversions", 7, -0.5, 6.5);
   convDeltaEta = Book1D("convDeltaEta","Conversion #Delta #eta"+ m_sParticleType +";#eta; Conversions ", 100,-0.5,0.5);
   convDeltaPhi = Book1D("ConvDeltaPhi","Conversion #Delta #varphi"+ m_sParticleType +";#varphi; Conversions ",100 ,-0.5,0.5);
 }
@@ -61,6 +62,7 @@ void PhotonCnvPlots::initializePlots(){
 
    convR->Fill(vtxRad);
    convRvsEta->Fill(vtxRad,photon.eta());
+   convRvsType->Fill(vtxRad,cvtype);
    m_oKinIsoPlots.fill(photon);
 
 

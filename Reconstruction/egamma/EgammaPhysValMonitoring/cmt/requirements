@@ -20,8 +20,9 @@ use AtlasROOT           AtlasROOT-*             External
 use xAODTruth           xAODTruth-*             Event/xAOD
 use xAODEgamma          xAODEgamma-*            Event/xAOD 
 use xAODPrimitives      xAODPrimitives-*        Event/xAOD
+use xAODEventInfo       xAODEventInfo-*		Event/xAOD
 use TrkValHistUtils     TrkValHistUtils-*       Tracking/TrkValidation
-use  MCTruthClassifier  MCTruthClassifier-*     PhysicsAnalysis 
+use MCTruthClassifier   MCTruthClassifier-*     PhysicsAnalysis 
 end_private
 
 
@@ -38,5 +39,4 @@ library EgammaPhysValMonitoring *.cxx components/*.cxx
 
 apply_pattern component_library
 end_private
-
 

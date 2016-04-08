@@ -32,7 +32,8 @@ class ElectronValidationPlots:public PlotBase {
       TH1* author;
       TProfile* res_et;
       TProfile* res_eta;
-
+      TH1* pt_ratio;
+      TH2* matrix;
 
  private:
       virtual void initializePlots();

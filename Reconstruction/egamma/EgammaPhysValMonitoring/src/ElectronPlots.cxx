@@ -31,6 +31,9 @@ ElectronPlots::ElectronPlots(PlotBase* pParent, std::string sDir,
 							m_oKinIsoLoosePPPlots(this, "IsoLoosePP/KinPlots/", "LoosePP "+ sParticleType +"   Electron"),
 							m_oKinIsoMediumPPPlots(this, "IsoMediumPP/KinPlots/", "MediumPP "+ sParticleType +"   Electron"),
 							m_oKinIsoTightPPPlots(this, "IsoTightPP/KinPlots/", "TightPP "+ sParticleType +"   Electron"),
+							m_oKinIsoLHLoosePlots(this, "IsoLHLoose/KinPlots/", "LHLoose "+ sParticleType +"   Electron"),
+                                                        m_oKinIsoLHMediumPlots(this, "IsoLHMedium/KinPlots/", "LHMedium "+ sParticleType +"   Electron"),
+                                                        m_oKinIsoLHTightPlots(this, "IsoLHTight/KinPlots/", "LHTight "+ sParticleType +"   Electron"),
 						        nParticles(0),
 							nTypeParticles(0),
 							m_sParticleType(sParticleType)
@@ -73,8 +76,24 @@ void ElectronPlots::initializePlots(){
     m_oKinIsoTightPPPlots.fill(electron);
 
   }
+ bool val_LHloose=false;
+  electron.passSelection(val_LHloose, "LHLoose");
+  if(val_LHloose) {
+    m_oKinIsoLHLoosePlots.fill(electron);
+  }
 
-}
+  bool val_LHmed=false;
+  electron.passSelection(val_LHmed, "LHMedium");
+  if(val_LHmed) {
+    m_oKinIsoLHMediumPlots.fill(electron);
+  }
+
+  bool val_LHtight=false;
+  electron.passSelection(val_LHtight, "LHTight");
+  if(val_LHtight) {
+    m_oKinIsoLHTightPlots.fill(electron);
+  }
+  }
 
 
 }

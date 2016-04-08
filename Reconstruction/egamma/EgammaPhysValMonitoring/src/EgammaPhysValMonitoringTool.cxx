@@ -73,6 +73,9 @@ StatusCode EgammaPhysValMonitoringTool::initialize()
   ATH_CHECK(ManagedMonitorToolBase::initialize());
   ATH_CHECK(m_truthClassifier.retrieve());  
 
+  m_eventCounter = 0;
+  is_MC = false;
+
   return StatusCode::SUCCESS;
 }
 
@@ -106,8 +109,27 @@ StatusCode EgammaPhysValMonitoringTool::bookHistograms()
 StatusCode EgammaPhysValMonitoringTool::fillHistograms()
 //-------------------------------------------------------------------
 {
+
+  m_eventCounter++;
+  //----------------------------
+  // Event information
+  //--------------------------- 
+  if (m_eventCounter == 1){
+    const xAOD::EventInfo* eventInfo = 0;
+    ATH_CHECK(evtStore()->retrieve(eventInfo));
+
+    unsigned int RunNumber = eventInfo->runNumber();
+
+    cout << "RunNumber = " << RunNumber << endl;
+    if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
+    	cout << "Running on Simulation!!!" << endl;
+        is_MC = true;
+    }
+  }
   ATH_MSG_INFO ("Filling hists " << name() << "...");
  
+  if(is_MC){// return StatusCode::SUCCESS;
+
   //filling truth iso (prompt) particles from egammaTruthParticles container (containing only iso particles)
   m_truthParticles = evtStore()->retrieve< const xAOD::TruthParticleContainer >( m_egammaTruthContainerName );
   if (!m_truthParticles) {
@@ -126,7 +148,8 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
     if (abs(truthParticle->pdgId()) == 22 && truthParticle->status() == 1 && truthParticle->barcode() < 1000000){
       m_oPhotonValidationPlots.m_oTruthIsoPlots.fill(*truthParticle);
       //-- filling conversions
-      const xAOD::TruthParticle* tmp = xAOD::TruthHelpers::getTruthParticle( *truthParticle );
+      const xAOD::TruthParticle* tmp = xAOD::TruthHelpers::getTruthParticle( *truthParticle ); //20.7.0.1
+//      const xAOD::TruthParticle* tmp = xAOD::EgammaHelpers::getTruthParticle( truthParticle ); 
       bool isTrueConv = false;
       float trueR = -999;
       float truthEta = -999;
@@ -134,9 +157,10 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
         float x = tmp->decayVtx()->x();
         float y = tmp->decayVtx()->y();
         trueR = sqrt( x*x + y*y );
-	truthEta = tmp->eta();
       }
+      truthEta = tmp->eta();
 
+//      if( trueR>=0 && trueR<800 ) isTrueConv = true;//rel19
       isTrueConv = xAOD::EgammaHelpers::isTrueConvertedPhoton(tmp);//rel20
       m_oPhotonValidationPlots.convTruthR->Fill(trueR);
       m_oPhotonValidationPlots.convTruthRvsEta->Fill(trueR,truthEta);
@@ -236,8 +260,10 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
 	}//end cuts on truth
   } // -- end photons
  
+ } 
 } 
- 
+
+
   //---------Electrons----------------------
   if(!fillRecoElecHistograms()) {
     ATH_MSG_ERROR ("Filling reco elecectron hists  failed " << name() << "...");
@@ -253,6 +279,7 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
     ATH_MSG_ERROR ("Filling reco photon  hists  failed " << name() << "...");
     return StatusCode::FAILURE;
   }
+
 
   return StatusCode::SUCCESS;
 }
@@ -276,29 +303,30 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoElecHistograms()
     bool isElecPrompt=false;
 
     if(!(electron->isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON))) continue;
-    
+
     if(electron->isAvailable <int>("truthType")) {
       MCTruthPartClassifier::ParticleType type = (MCTruthPartClassifier::ParticleType) electron->auxdata<int>("truthType");
       if(type==MCTruthPartClassifier::IsoElectron) {isElecPrompt=true;
-      
 	//fill energy scale
-	const xAOD::TruthParticle* thePart = xAOD::TruthHelpers::getTruthParticle(*electron);
-	  if(thePart&&thePart->pt()*0.001>20.) {
+	const xAOD::TruthParticle* thePart = xAOD::TruthHelpers::getTruthParticle(*electron); // 20.7.X.Y.I
+//	const xAOD::TruthParticle* thePart = xAOD::EgammaHelpers::getTruthParticle(electron);
+	  if(thePart) {
             float EtLin = (electron->pt()-thePart->pt())/thePart->pt();
 	    m_oElectronValidationPlots.res_et->Fill(thePart->pt()*0.001,EtLin);
 	    m_oElectronValidationPlots.res_eta->Fill(thePart->eta(),EtLin);
+	    m_oElectronValidationPlots.matrix->Fill(electron->pt()*0.001,thePart->pt()*0.001);
+	    m_oElectronValidationPlots.pt_ratio->Fill(thePart->pt()*0.001,electron->pt()/thePart->pt());
            }else {
 	cout<<"Truth particle associated not in egamma truth collection"<<endl;
              }
-
-
 	}
       
-    } else if(Match(electron,11)!=0 ) isElecPrompt=true;
+    } else if(is_MC){ if(Match(electron,11)!=0 ) isElecPrompt=true;}
     
     
     m_oElectronValidationPlots.fill(*electron,isElecPrompt);
-    if(electron->author()&xAOD::EgammaParameters::AuthorElectron)   numofele++;
+    if(electron->author()&xAOD::EgammaParameters::AuthorElectron||
+       electron->author()&xAOD::EgammaParameters::AuthorAmbiguous)   numofele++;
     
   } 
   
@@ -324,7 +352,8 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoFrwdElecHistograms()
   for(const auto frwdelectron : *ElectronsFrwd){
     if(!(frwdelectron->isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON))) continue;
     bool isElecPrompt=false;
-    if(Match(frwdelectron,11)!=0 ) isElecPrompt=true;
+    if(is_MC)
+    if((Match(frwdelectron,11)!=0 )) isElecPrompt=true;
     
     m_oElectronValidationPlots.fill(*frwdelectron,isElecPrompt);
     numoffrwdele++;
@@ -356,13 +385,13 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms()
   for(auto photon : *Photons){
     bool isPhotPrompt=false;
     if(!(photon->isGoodOQ (xAOD::EgammaParameters::BADCLUSPHOTON))) continue;
-    
-    if(photon->isAvailable <int>("truthType")) {
+      if(photon->isAvailable <int>("truthType")) {
       MCTruthPartClassifier::ParticleType type = (MCTruthPartClassifier::ParticleType) photon->auxdata<int>("truthType");
       if(type==MCTruthPartClassifier::IsoPhoton) {isPhotPrompt=true;
       
 	//fill energy scale
-	const xAOD::TruthParticle* thePart = xAOD::TruthHelpers::getTruthParticle(*photon);
+ 	const xAOD::TruthParticle* thePart = xAOD::TruthHelpers::getTruthParticle(*photon);//20.7.X.Y.I
+//	const xAOD::TruthParticle* thePart = xAOD::EgammaHelpers::getTruthParticle(photon);
 	  if(thePart&&thePart->pt()*0.001>20.) {
             float EtLin = (photon->pt()-thePart->pt())/thePart->pt();
 	    m_oPhotonValidationPlots.res_et->Fill(thePart->pt()*0.001,EtLin);
@@ -376,8 +405,8 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms()
           }
        }
 
-    } else if(Match(photon,22)!=0 ) isPhotPrompt=true;    
-
+    } else if(is_MC){if(Match(photon,22)!=0 ) isPhotPrompt=true;}    
+    
     m_oPhotonValidationPlots.fill(*photon, isPhotPrompt);
 
     if(photon->author()&xAOD::EgammaParameters::AuthorPhoton)           numofPhot++;
