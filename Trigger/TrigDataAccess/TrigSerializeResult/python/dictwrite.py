@@ -9,59 +9,20 @@ doxAODonly=False
 bs_filename = 'bs-streamerinfos.root'
 
 import ROOT
-from ROOT import TClass, TFile
-import cppyy
+from ROOT import TFile
 
-try:
-  cppyy.Cintex
-  has_cintex = True
-  print "Cintex detected, assuming ROOT 5"
-except:
-  has_cintex = False
-  print "Aassuming ROOT 6 or newer"
-  print "ROOT 6 NOT SUPPORTED YET!!!   contact Marcin.Nowak"
-  sys.exit(-1)
+import StreamerInfoGenerator
+SIG = StreamerInfoGenerator.StreamerInfoGenerator()
 
-if has_cintex:  
-  cppyy.Cintex.Enable()
-  #Cintex.SetDebug(7)
-  import StreamerInfoGenerator
+"""
+MN: NOTE about xAOD containers in ROOT5 
+For an xAOD container like xAOD::HIEventShapeContainer_v1
+you need to either:
+a) use the real class name:  DataVector<xAOD::HIEventShape_v2>
+b) have a real class in the 'objects' list BEFORE the typedef
+   (so the dict library gets loaded and the typedefs resolved)
+"""
 
-
-from TriggerJobOpts.TriggerEDM import EDMDetails
-
-objects = ['ElementLink_p1<unsigned int>',
-           'TauRecDetails_p1',
-           'ParticleBase_p1',
-           'AthenaBarCode_p1',
-           'Trk::TrackParticleBase_p1',
-           'TauJet_p3',
-           'TrigMuonEFInfoContainer_tlp1'
-           ]
-
-objects = ['TrigMuonEFInfoContainer_tlp1']
-#objects = ['TrigElectron_p2', 'TrigPhoton_p2','TrigEMCluster_p2','DataLink_p1']
-#objects = ['TrigEMClusterContainer_tlp1','TrigSpacePointCountsCollection_tlp1','TrigSpacePointCounts_p3']
-objects = ['TrigTauClusterContainer_tlp1']
-objects = ['P4PtEtaPhiM_p1']
-objects = ['TrigSpacePointCountsCollection_tlp1']
-objects = ['P4IPtCotThPhiM_p1']
-objects = ['TrigMuonEFInfoContainer_tlp1']
-objects = ['TauCommonDetails_p1']
-objects = ['P4PxPyPzE_p1']
-objects = ['TrigT2JetContainer_p1', 'TrigT2Jet_p1', 'TrigEMClusterContainer_tlp1','TrigCaloCluster_p1', 'egammaContainer_p1', 'P4EEtaPhiM_p1']
-objects = ['TrigT2MbtsBitsContainer_p1','TrigEMClusterContainer_p1','TrigTauClusterContainer_tlp1','TrigTauCluster_p1','TrigEMCluster_p1','TrigEMClusterContainer_p1', 'TrigTauClusterContainer_p1']
-objects = ['TrigMuonEF_p1']
-objects = ['TrackSummaryCnv_p1','MuonTrackSummaryCnv_p1','Rec::TrackParticleContainer_tlp1','Trk::TrackParticleBase_p1','Trk::TrackSummary_p1']
-objects = ['P4EEtaPhiM_p1']
-objects = ['TrigTauCluster_p2']
-objects = ['TrigTauClusterContainer_tlp1']
-objects = []
-objects = ['ElementLinkVector_p1<unsigned int>::ElementRef']
-objects += ['ElementLinkVector_p1<std::string>::ElementRef']
-objects += ['MuonFeature_p3']
-objects = []
-objects = ['xAOD::TrigTrackCountsAuxContainer']
 
 objects = [
 'xAOD::TrigEMCluster_v1',
@@ -111,8 +72,8 @@ objects = [
 'xAOD::PhotonAuxContainer_v1',
 'xAOD::TrigBphysContainer_v1',
 'xAOD::TrigBphysAuxContainer_v1',
-'xAOD::TrigT2MbtsBits_v1',
 'xAOD::TrigT2MbtsBitsAuxContainer_v1',
+'xAOD::TrigT2MbtsBitsContainer_v1',
 'xAOD::TrigSpacePointCountsContainer_v1',
 'xAOD::TrigSpacePointCountsAuxContainer_v1',
 'xAOD::TrigVertexCountsContainer_v1',
@@ -135,17 +96,21 @@ objects = [
 'xAOD::BTaggingContainer_v1',
 'xAOD::BTaggingAuxContainer_v1',
 'xAOD::BTagVertexContainer_v1',
-'xAOD::BTagVertexAuxContainer_v1'
+'xAOD::BTagVertexAuxContainer_v1',
+'xAOD::HIEventShapeAuxContainer_v2',
+'xAOD::HIEventShapeContainer_v2',
+'xAOD::TrigT2ZdcSignalsAuxContainer_v1',
+'xAOD::TrigT2ZdcSignalsContainer_v1'
 ]
-
 
 from collections import defaultdict
 streamerChecksums = defaultdict(set)
 print "Reading streamerinfos from", bs_filename
 file = TFile(bs_filename, 'UPDATE')
 streamer_n = 0
-for i in file.GetStreamerInfoList():
-    if i.GetName() != 'listOfRules':
+if  file.GetStreamerInfoList():
+  for i in file.GetStreamerInfoList():
+     if i.GetName() != 'listOfRules':
         # print i.GetName(), "%x" % i.GetCheckSum()
         streamerChecksums[i.GetName()].add( i.GetCheckSum() )
         streamer_n += 1
@@ -153,15 +118,15 @@ print "Read", streamer_n, 'streamers for', len(streamerChecksums), 'types'
 print
 
 if doEDM:
+  from TriggerJobOpts.TriggerEDM import EDMDetails
   for item in EDMDetails.keys():
     pers = EDMDetails[item]['persistent']
     objects.append(pers)
 
-a = StreamerInfoGenerator.StreamerInfoGenerator()
 for pers in objects:
-    a.inspect(pers)
+    SIG.inspect(pers)
     print
-fulllist = a.classlist 
+fulllist = SIG.classlist 
 print fulllist
 print '*******************************'
 
@@ -212,29 +177,9 @@ for item in fulllist:
 
 print 'Wrote', types_new, 'types'
 print 'Skipped', types_exist, ' existing types'
-print 'Errors with', types_bad, ' types'
-#print 'experimental'
-#rclass =   ROOT.gROOT.GetClass('TrigTauCluster_p2')
-#ROOT.gROOT.RemoveClass(rclass)
-
-#cl1 = ROOT.gROOT.GetClass('ElementLinkVector_p1<unsigned int>::ElementRef')
-#si = cl1.GetStreamerInfo()
-#print 'aa:',cl1.GetName(), si.Sizeof(), si.GetCheckSum()
+print 'Problems with', types_bad + len(SIG.problemclasses), ' types'
+for t in SIG.problemclasses:
+  print '    ', t
 
 
-#  } else {
-#    TFile f("aaa.root");
-#    f.ls();
-#    TIter nextkey(f.GetListOfKeys());
-#    TKey *key;
-#    while (key = (TKey*)nextkey()) {
-#       TrigMuonEFInfoContainer_tlp1 *p = (TrigMuonEFInfoContainer_tlp1*)key->ReadObj();
-#       std::cout << p << std::endl;
-#       if (p)
-# 	std::cout << p->m_MuonEFTrack.size() << std::endl;
-#    }
-#  }
 
-#  cout << tc4->GetStreamerInfo()->Sizeof() << " " << tc4->GetStreamerInfo()->GetCheckSum() << endl;
-
-# }
