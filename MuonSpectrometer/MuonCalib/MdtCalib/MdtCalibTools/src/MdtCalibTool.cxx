@@ -29,7 +29,7 @@
 namespace MuonCalib {
 
   MdtCalibTool::MdtCalibTool(const std::string& t, const std::string& n, const IInterface* p) : 
-    AlgTool(t,n,p),
+    AthAlgTool(t,n,p),
     m_mdtCalibTool("MuonCalib::MdtCalibNtupleMakerTool"),
     m_segmentSelectorTool("MuonCalib::SimpleMdtSegmentSelectorTool"),
     m_regionSelector("MuonCalib::AtlasRegionSelectorTool")

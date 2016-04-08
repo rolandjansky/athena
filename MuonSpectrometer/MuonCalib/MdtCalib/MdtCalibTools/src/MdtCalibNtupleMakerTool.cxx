@@ -16,7 +16,7 @@ namespace MuonCalib {
   MdtCalibNtupleMakerTool::MdtCalibNtupleMakerTool(const std::string& t, 
 						   const std::string& n,
 						   const IInterface* p) 
-    :  AlgTool(t,n,p)
+    :  AthAlgTool(t,n,p)
   {
     declareInterface< IMdtCalibTool >(this) ;
   }

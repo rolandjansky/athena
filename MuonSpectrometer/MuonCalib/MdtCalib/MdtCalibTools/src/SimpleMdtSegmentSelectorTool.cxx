@@ -11,7 +11,7 @@ namespace MuonCalib {
   SimpleMdtSegmentSelectorTool::SimpleMdtSegmentSelectorTool(const std::string& t, 
 							     const std::string& n, 
 							     const IInterface* p) :
-    AlgTool(t,n,p)
+    AthAlgTool(t,n,p)
   {
     declareInterface< IMdtSegmentSelectorTool >(this) ;
 

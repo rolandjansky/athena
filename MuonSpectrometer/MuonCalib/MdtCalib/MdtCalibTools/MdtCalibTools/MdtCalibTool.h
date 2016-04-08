@@ -26,7 +26,8 @@
 #define MUONCALIB_MDTCALIBTOOL_H
 
 // Gaudi
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonCalibITools/IMuonCalibTool.h"
@@ -60,7 +61,7 @@ namespace MuonCalib {
 
    @author Niels.Van.Eldik@cern.ch, 
 */
-  class MdtCalibTool : public AlgTool, virtual public IMuonCalibTool {
+  class MdtCalibTool : public AthAlgTool, virtual public IMuonCalibTool {
   public:
   /**AlgTool constructor */
   MdtCalibTool(const std::string&,const std::string&,const IInterface*);

@@ -16,7 +16,7 @@
 #define MUONCALIB_SIMPLEPATTERNSELECTORTOOL_H
 
 // Gaudi
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "MdtCalibITools/IPatternSelectorTool.h"
 
@@ -31,7 +31,7 @@ namespace MuonCalib {
    
    @author Niels.Van.Eldik@cern.ch, 
 */
-  class SimplePatternSelectorTool : public AlgTool, virtual public IPatternSelectorTool {
+  class SimplePatternSelectorTool : public AthAlgTool, virtual public IPatternSelectorTool {
   
   public:
     /**AlgTool constructor */
