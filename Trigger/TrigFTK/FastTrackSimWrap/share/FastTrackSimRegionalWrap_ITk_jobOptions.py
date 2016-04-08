@@ -4,41 +4,33 @@
 #
 #==============================================================
 
-# Helper function from transforms 
-from PyJobTransforms.trfUtils import findFile
-pmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12Libl.pmap')
-print "Using PMAP:", pmap_path
-rmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12Libl.tmap')
-print "Using RMAP:", rmap_path
-
-
 from AthenaCommon.AlgSequence import AlgSequence
 theJob = AlgSequence()
-
 
 from FastTrackSimWrap.FastTrackSimWrapConf import FTKRegionalWrapper
 if hasattr(runArgs,"outputNTUP_FTKIPFile") :
     OutputNTUP_FTKIPFile = runArgs.outputNTUP_FTKIPFile
 else :
-    OutputNTUP_FTKIPFile = "ftksim_64Towers_wrap.root"
+    OutputNTUP_FTKIPFile = "ftksim_ITk_wrap.root"
 
 from AthenaCommon.AppMgr import ToolSvc
 
 from TrigFTKSim.TrigFTKSimConf import FTK_SGHitInput
-FTKSGInput = FTK_SGHitInput( maxEta= 3.2, minPt= 0.8*GeV)
+FTKSGInput = FTK_SGHitInput(maxEta=3.0, minPt=4*GeV)
 FTKSGInput.OutputLevel = DEBUG
 FTKSGInput.ReadTruthTracks = True
+FTKSGInput.DoOutFileRawHits = False
 
 ToolSvc += FTKSGInput
 
 print "Output file", OutputNTUP_FTKIPFile
 wrapper = FTKRegionalWrapper(OutputLevel = DEBUG, 
-                             PMapPath = pmap_path,
-                             RMapPath = rmap_path,
+                             PMapPath = 'maps/raw_l1track.pmap',
+                             RMapPath = 'maps/raw_l1track.tmap',
                              OutFileName = OutputNTUP_FTKIPFile)
-wrapper.IBLMode = 1
+wrapper.IBLMode = 0
+wrapper.ITkMode = True
 wrapper.HitInputTool = FTKSGInput
-#wrapper.Clustering = True
 theJob += wrapper
 
 print theJob

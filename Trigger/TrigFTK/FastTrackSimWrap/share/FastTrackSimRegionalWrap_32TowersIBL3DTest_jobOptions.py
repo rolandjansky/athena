@@ -6,9 +6,9 @@
 
 # Helper function from transforms 
 from PyJobTransforms.trfUtils import findFile
-pmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12Libl.pmap')
+pmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12LiblHW3D.pmap')
 print "Using PMAP:", pmap_path
-rmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12Libl.tmap')
+rmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12Libl32TmodB_3D_t13.tmap')
 print "Using RMAP:", rmap_path
 
 
@@ -20,7 +20,7 @@ from FastTrackSimWrap.FastTrackSimWrapConf import FTKRegionalWrapper
 if hasattr(runArgs,"outputNTUP_FTKIPFile") :
     OutputNTUP_FTKIPFile = runArgs.outputNTUP_FTKIPFile
 else :
-    OutputNTUP_FTKIPFile = "ftksim_64Towers_wrap.root"
+    OutputNTUP_FTKIPFile = "ftksim_32Towers_wrap.root"
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -36,9 +36,8 @@ wrapper = FTKRegionalWrapper(OutputLevel = DEBUG,
                              PMapPath = pmap_path,
                              RMapPath = rmap_path,
                              OutFileName = OutputNTUP_FTKIPFile)
-wrapper.IBLMode = 1
+wrapper.IBLMode = 2
 wrapper.HitInputTool = FTKSGInput
-#wrapper.Clustering = True
 theJob += wrapper
 
 print theJob

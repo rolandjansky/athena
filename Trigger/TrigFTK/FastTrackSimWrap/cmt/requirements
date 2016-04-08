@@ -35,6 +35,10 @@ use TrkToolInterfaces          TrkToolInterfaces-*        Tracking/TrkTools
 use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
 #use Boost                     v*                         LCG_Interfaces
 use AtlasBoost		       AtlasBoost-*		  External
+use TrigFTKToolInterfaces     TrigFTKToolInterfaces-*     Trigger/TrigTools
+use TrigFTKTrackConverter     TrigFTKTrackConverter-*     Trigger/TrigTools
+use InDetIdentifier            InDetIdentifier-*          InnerDetector/InDetDetDescr
+
 #use dcache_client             v*                         LCG_Interfaces
 
 private 
@@ -45,7 +49,6 @@ use EventInfo                  EventInfo-*                Event
 use HepPDT                     v*                         LCG_Interfaces
 use IdDict                     IdDict-*                   DetectorDescription
 use InDetBeamSpotService       InDetBeamSpotService-*     InnerDetector/InDetConditions
-use InDetIdentifier            InDetIdentifier-*          InnerDetector/InDetDetDescr
 use InDetRawData               InDetRawData-*             InnerDetector/InDetRawEvent
 use InDetReadoutGeometry       InDetReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetSimData               InDetSimData-*             InnerDetector/InDetRawEvent
