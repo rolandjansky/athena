@@ -5,6 +5,7 @@
 #include "LArRecConditions/LArBadChannelParser.h"
 
 #include <sstream>
+#include <algorithm>
 
 LArBadChannelParser::LArBadChannelParser(
   const std::string& file, MsgStream* const log, 
