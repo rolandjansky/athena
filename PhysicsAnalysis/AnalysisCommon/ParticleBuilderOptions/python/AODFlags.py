@@ -48,20 +48,6 @@ class egammaTrackSlimmer(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-
-class ThinGeantTruth(JobProperty):
-    """ If True, add ThinGeantTruth
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-class ThinNegativeEnergyCaloClusters(JobProperty):
-    """ If True, add ThinNegativeEnergyCaloClusters
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
     
 class Muon(JobProperty):
     """ If True, add Muon
@@ -273,8 +259,6 @@ jobproperties.add_Container(AODFlagsContainer)
 # I want always the following flags in the AOD container  
 _list_AOD=[ \
     Photon,Electron,egammaTrackSlimmer, \
-    ThinGeantTruth, \
-    ThinNegativeEnergyCaloClusters, \
     Muon,MuonTrackSlimmer, \
     Tau,TauTrackSlimmer, \
     TrackParticleSlimmer, TrackParticleLastHitAndPerigeeSlimmer, \
