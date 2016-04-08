@@ -128,7 +128,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
     m_detElements.clear();
 
  // If the container was not retrieved earlier, try the RdoToPrepData tool
-    if (m_pPrepDataContainer == NULL)
+    if (m_pPrepDataContainer == NULL && m_pMuGirl->doDecoding())
     {
         std::vector<IdentifierHash> inhash, outhash;
         inhash.push_back(pChamber->hashId());
@@ -150,13 +150,13 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
     {
         int nHits = 0;
         Muon::TgcPrepDataContainer::const_iterator itColl = m_pPrepDataContainer->indexFind(pChamber->hashId());
-        if (itColl == m_pPrepDataContainer->end())
+        if (itColl == m_pPrepDataContainer->end() && m_pMuGirl->doDecoding())
         {
             std::vector<IdentifierHash> inhash, outhash;
             inhash.push_back(pChamber->hashId());
             if (m_pMuGirl->tgcRdoToPrepDataTool().empty())
                 return 0;
-            if (m_pMuGirl->doDecoding() && m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
+            if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
                 itColl = m_pPrepDataContainer->indexFind(outhash.front());
         }
         if (itColl != m_pPrepDataContainer->end())
@@ -175,13 +175,13 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
         }
     }
     std::string m_sPrepDataPrior = m_sPrepDataCollection+"PriorBC";
-    if (m_pPrepDataContainerP == NULL)
+    if (m_pPrepDataContainerP == NULL && m_pMuGirl->doDecoding())
     {
         std::vector<IdentifierHash> inhash, outhash;
         inhash.push_back(pChamber->hashId());
         // If conversion failed, then there are clearly no hits, so return 0.
         if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
-            if (m_pMuGirl->doDecoding() && m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
+            if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
                 m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataPrior << endreq;
         // If conversion succeeds, then we must be able to get the container, so try it now.
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerP, m_sPrepDataPrior).isFailure() ||
@@ -192,12 +192,12 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
     {
         int nHits = 0;
         Muon::TgcPrepDataContainer::const_iterator itColl = m_pPrepDataContainerP->indexFind(pChamber->hashId());
-        if (itColl == m_pPrepDataContainerP->end())
+        if (itColl == m_pPrepDataContainerP->end() && m_pMuGirl->doDecoding())
         {
             std::vector<IdentifierHash> inhash, outhash;
             inhash.push_back(pChamber->hashId());
             if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
-                if (m_pMuGirl->doDecoding() && m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
+                if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
                     itColl = m_pPrepDataContainerP->indexFind(outhash.front());
         }
         if (itColl != m_pPrepDataContainerP->end())
@@ -214,13 +214,13 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
         }
     }
     std::string m_sPrepDataNext = m_sPrepDataCollection+"NextBC";
-    if (m_pPrepDataContainerN == NULL)
+    if (m_pPrepDataContainerN == NULL && m_pMuGirl->doDecoding())
     {
         std::vector<IdentifierHash> inhash, outhash;
         inhash.push_back(pChamber->hashId());
         // If conversion failed, then there are clearly no hits, so return 0.
         if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
-            if (m_pMuGirl->doDecoding() && m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
+            if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
                 m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataNext << endreq;
         // If conversion succeeds, then we must be able to get the container, so try it now.
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerN, m_sPrepDataNext).isFailure() ||
@@ -231,12 +231,12 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
     {
         int nHits = 0;
         Muon::TgcPrepDataContainer::const_iterator itColl = m_pPrepDataContainerN->indexFind(pChamber->hashId());
-        if (itColl == m_pPrepDataContainerN->end())
+        if (itColl == m_pPrepDataContainerN->end() && m_pMuGirl->doDecoding())
         {
             std::vector<IdentifierHash> inhash, outhash;
             inhash.push_back(pChamber->hashId());
                 if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
-                    if (m_pMuGirl->doDecoding() && m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
+                    if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
                         itColl = m_pPrepDataContainerN->indexFind(outhash.front());
         }
         if (itColl != m_pPrepDataContainerN->end())

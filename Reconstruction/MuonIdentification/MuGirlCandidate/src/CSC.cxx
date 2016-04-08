@@ -84,7 +84,7 @@ unsigned CSC::prepData(Chamber* pChamber, PrepDataList& array)
 
     array.clear();
 
-    if (m_pPrepDataContainer == NULL)
+    if (m_pPrepDataContainer == NULL && m_pMuGirl->doDecoding())
     {
         std::vector<IdentifierHash> inhash, outhash;
         inhash.push_back(pChamber->hashId());
@@ -93,13 +93,13 @@ unsigned CSC::prepData(Chamber* pChamber, PrepDataList& array)
         // If conversion failed, then there are clearly no hits, so return 0.
         if (m_pMuGirl->cscRdoToPrepDataTool().empty())
             return 0;
-        if (m_pMuGirl->doDecoding() && m_pMuGirl->cscRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
+        if (m_pMuGirl->cscRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
         {
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
                 m_pMuGirl->msg(MSG::DEBUG) << "cscRdoToPrepDataTool()->decode() failed!" << endreq;
             return 0;
         }
-        if (m_pMuGirl->doDecoding() && m_pMuGirl->cscClusterProviderTool()->getClusters(inhash, outhash).isFailure())
+        if (m_pMuGirl->cscClusterProviderTool()->getClusters(inhash, outhash).isFailure())
         {
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
                 m_pMuGirl->msg(MSG::DEBUG) << "cscRdoToPrepDataTool()->getClusters() failed!" << endreq;
@@ -117,15 +117,15 @@ unsigned CSC::prepData(Chamber* pChamber, PrepDataList& array)
     {
         Muon::CscPrepDataContainer::const_iterator itColl = m_pPrepDataContainer->indexFind(pChamber->hashId());
         // If the container does not have a collection for this chamber, try the RdoToPrepData tool
-        if (itColl == m_pPrepDataContainer->end())
+        if (itColl == m_pPrepDataContainer->end() && m_pMuGirl->doDecoding())
         {
             std::vector<IdentifierHash> inhash, outhash;
             inhash.push_back(pChamber->hashId());
             if (m_pMuGirl->cscRdoToPrepDataTool().empty())
                 return 0;
-            if (m_pMuGirl->doDecoding() && m_pMuGirl->cscRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
+            if (m_pMuGirl->cscRdoToPrepDataTool()->decode(inhash, outhash).isSuccess() && !outhash.empty())
                 itColl = m_pPrepDataContainer->indexFind(outhash.front());
-            if (m_pMuGirl->doDecoding() && m_pMuGirl->cscClusterProviderTool()->getClusters(inhash, outhash).isSuccess() && !outhash.empty())
+            if (m_pMuGirl->cscClusterProviderTool()->getClusters(inhash, outhash).isSuccess() && !outhash.empty())
                 itColl = m_pPrepDataContainer->indexFind(outhash.front());
         }
         if (itColl != m_pPrepDataContainer->end())
