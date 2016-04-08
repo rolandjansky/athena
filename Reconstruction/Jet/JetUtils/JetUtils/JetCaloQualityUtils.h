@@ -82,31 +82,31 @@ namespace jet {
   /* @brief Compute the minimal number of cells containing at least threshold% of the jet energy*/
   class JetCalcnLeadingCells: virtual public JetCaloCalculator {
   protected:
-    std::vector<double> cell_energies;
-    double sumE_cells;
-    double threshold;
+    std::vector<double> m_cell_energies;
+    double m_sumE_cells;
+    double m_threshold;
 
-    JETCALCFUNCDECL( JetCalcnLeadingCells, JetAttribute::N90Constituents, threshold = 0.9;);
+    JETCALCFUNCDECL( JetCalcnLeadingCells, JetAttribute::N90Constituents, m_threshold = 0.9;);
   };
 
 
   /* @brief Compute Out-Of-Time energy fraction */
   class JetCalcOutOfTimeEnergyFraction: virtual public JetCaloCalculator {
   protected:
-    double sumE,sumE_OOT;
+    double m_sumE,m_sumE_OOT;
   public:
     double timecut;
     bool onlyPosEnergy;
-    JETCALCFUNCDECL( JetCalcOutOfTimeEnergyFraction, JetAttribute::OotFracCells10, timecut = 10; onlyPosEnergy=false;sumE=0;);
+    JETCALCFUNCDECL( JetCalcOutOfTimeEnergyFraction, JetAttribute::OotFracCells10, timecut = 10; onlyPosEnergy=false;m_sumE=0;);
   };
 
   /* @brief Compute the jet timing information from calorimeter*/
 
   class JetCalcTimeCells: virtual public JetCaloCalculator {
   protected:
-    double time,norm;
+    double m_time,m_norm;
 
-    JETCALCFUNCDECL( JetCalcTimeCells, JetAttribute::Timing, norm=0; );
+    JETCALCFUNCDECL( JetCalcTimeCells, JetAttribute::Timing, m_norm=0; );
 
   };
 
@@ -114,23 +114,23 @@ namespace jet {
   /* @brief Compute the jet average quality factor */
   class JetCalcAverageLArQualityF: virtual public JetCaloCalculator {
   protected:  
-    double qf,norm;
-    bool useTile;
-    JETCALCFUNCDECL( JetCalcAverageLArQualityF, JetAttribute::AverageLArQF, useTile=false; norm=0;);
+    double m_qf,m_norm;
+    bool m_useTile;
+    JETCALCFUNCDECL( JetCalcAverageLArQualityF, JetAttribute::AverageLArQF, m_useTile=false; m_norm=0;);
 
   };
 
   /* @brief Compute the jet quality factor information*/
   class JetCalcQuality: virtual public JetCaloCalculator {
   protected:
-    double totE, badE;
+    double m_totE, m_badE;
 
   public:
     int LArQualityCut;
     int TileQualityCut; // =254
     bool includeTile, includeLAr;
 
-    JETCALCFUNCDECL( JetCalcQuality, JetAttribute::LArQuality, includeTile = false;includeLAr=true; LArQualityCut=4000 ; TileQualityCut=254; totE=0; badE=0;);
+    JETCALCFUNCDECL( JetCalcQuality, JetAttribute::LArQuality, includeTile = false;includeLAr=true; LArQualityCut=4000 ; TileQualityCut=254; m_totE=0; m_badE=0;);
   };
 
 
@@ -152,26 +152,26 @@ namespace jet {
   /* @brief total negative energy in a jet*/
   class JetCalcNegativeEnergy: virtual public JetCaloCalculator {
   protected:
-    double totE;
-    double totSig ; // cluster level calculation
+    double m_totE;
+    double m_totSig ; // cluster level calculation
 
-    JETCALCFUNCDECL( JetCalcNegativeEnergy, JetAttribute::NegativeE, totE=0; totSig=0; );
+    JETCALCFUNCDECL( JetCalcNegativeEnergy, JetAttribute::NegativeE, m_totE=0; m_totSig=0; );
   };
 
   /* @brief total negative energy in a jet*/
   class JetCalcCentroid: virtual public JetCaloCalculator {
   protected:
-    double totE, centroid_x, centroid_y, centroid_z;
+    double m_totE, m_centroid_x, m_centroid_y, m_centroid_z;
 
 
-    JETCALCFUNCDECL( JetCalcCentroid, JetAttribute::CentroidR, totE=0; );
+    JETCALCFUNCDECL( JetCalcCentroid, JetAttribute::CentroidR, m_totE=0; );
   };
 
   /// Fraction of Bad energy in jet. From cluster moment ENG_BAD_CELLS
   class JetCalcBadCellsFrac : virtual public JetCaloCalculator {
   protected:
-    double totE;
-    double badE;
+    double m_totE;
+    double m_badE;
     JETCALCFUNCDECL( JetCalcBadCellsFrac, JetAttribute::BchCorrCell, setName("BchCorrCell"););
     
   };
