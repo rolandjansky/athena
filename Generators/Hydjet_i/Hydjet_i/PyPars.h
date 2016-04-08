@@ -25,46 +25,46 @@ public:
     void 	init	(void);
 
     // return common array lengths
-    inline int lenMstp() const {return _lenMstp;}
-    inline int lenParp() const {return _lenParp;}
-    inline int lenMsti() const {return _lenMsti;}
-    inline int lenPari() const {return _lenPari;}
+    inline int lenMstp() const {return s_lenMstp;}
+    inline int lenParp() const {return s_lenParp;}
+    inline int lenMsti() const {return s_lenMsti;}
+    inline int lenPari() const {return s_lenPari;}
 
 private: 
 
     // Lengths of the COMMONS
-    static const int _lenMstp = 200;
-    static const int _lenParp = 200;
-    static const int _lenMsti = 200;
-    static const int _lenPari = 200;
+    static const int s_lenMstp = 200;
+    static const int s_lenParp = 200;
+    static const int s_lenMsti = 200;
+    static const int s_lenPari = 200;
 
     struct PYPARS;
     friend struct PYPARS;
 
     struct PYPARS
     {
-	int 	mstp[_lenMstp];
-	double	parp[_lenParp];
-	int 	msti[_lenMsti];
-	double	pari[_lenPari];
+	int 	mstp[s_lenMstp];
+	double	parp[s_lenParp];
+	int 	msti[s_lenMsti];
+	double	pari[s_lenPari];
     };
 
-    int _dummy;
-    double _realdummy;
-    static PYPARS* _pypars;
+    int m_dummy;
+    double m_realdummy;
+    static PYPARS* s_pypars;
 };
 
 // set pointer to zero at start
-PyPars::PYPARS* PyPars::_pypars =0;
+PyPars::PYPARS* PyPars::s_pypars =0;
 
 inline void
 PyPars::init(void)
-{ if (!_pypars) _pypars = static_cast<PYPARS*>(pypars_address_()); }
+{ if (!s_pypars) s_pypars = static_cast<PYPARS*>(pypars_address_()); }
 
 inline 
 PyPars::PyPars() 
-    : _dummy		(-999),
-      _realdummy	(-999.)
+    : m_dummy		(-999),
+      m_realdummy	(-999.)
 {}
 
 inline 
@@ -75,32 +75,32 @@ inline int&
 PyPars::mstp	(int n)
 {
     init(); // check COMMON is initialized
-    if(n < 1 || n > lenMstp()) return _dummy;
-    return _pypars->mstp[n-1];
+    if(n < 1 || n > lenMstp()) return m_dummy;
+    return s_pypars->mstp[n-1];
 }
 
 inline double&
 PyPars::parp	(int n)
 {
     init(); // check COMMON is initialized
-    if(n < 1 || n > lenParp()) return _realdummy;
-    return _pypars->parp[n-1];
+    if(n < 1 || n > lenParp()) return m_realdummy;
+    return s_pypars->parp[n-1];
 }
 
 inline int&
 PyPars::msti	(int n)
 {
     init(); // check COMMON is initialized
-    if(n < 1 || n > lenMsti()) return _dummy;
-    return _pypars->msti[n-1];
+    if(n < 1 || n > lenMsti()) return m_dummy;
+    return s_pypars->msti[n-1];
 }
 
 inline double&
 PyPars::pari	(int n)
 {
     init(); // check COMMON is initialized
-    if(n < 1 || n > lenPari()) return _realdummy;
-    return _pypars->pari[n-1];
+    if(n < 1 || n > lenPari()) return m_realdummy;
+    return s_pypars->pari[n-1];
 }
 
 #endif

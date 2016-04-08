@@ -39,15 +39,15 @@ private:
       int        ianglu;
     };
 
-    static PYQPAR* _pyqpar;
+    static PYQPAR* s_pyqpar;
 };
 
 // set pointer to zero at start
-PyqPar::PYQPAR* PyqPar::_pyqpar =0;
+PyqPar::PYQPAR* PyqPar::s_pyqpar =0;
 
 inline void
 PyqPar::init(void)
-{ if (!_pyqpar) _pyqpar = static_cast<PYQPAR*>(pyqpar_address_()); }
+{ if (!s_pyqpar) s_pyqpar = static_cast<PYQPAR*>(pyqpar_address_()); }
 
 // Constructor
 inline
@@ -63,35 +63,35 @@ inline double&
 PyqPar::t0	(void)
 {
     init();
-    return _pyqpar->t0;
+    return s_pyqpar->t0;
 }
 
 inline double&
 PyqPar::tau0	(void)
 {
     init();
-    return _pyqpar->tau0;
+    return s_pyqpar->tau0;
 }
 
 inline int&
 PyqPar::nf	(void)
 {
     init();
-    return _pyqpar->nf;
+    return s_pyqpar->nf;
 }
 
 inline int&
 PyqPar::ienglu	(void)
 {
     init();
-    return _pyqpar->ienglu;
+    return s_pyqpar->ienglu;
 }
 
 inline int&
 PyqPar::ianglu	(void)
 {
     init();
-    return _pyqpar->ianglu;
+    return s_pyqpar->ianglu;
 }
 
 #endif

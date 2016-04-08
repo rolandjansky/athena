@@ -19,6 +19,10 @@ use TruthUtils       TruthUtils-*          Generators
 use GeneratorObjects GeneratorObjects-*    Generators
 end_private
 
+# Add cmake-specific dependencies (transparent to CMT)
+apply_pattern cmake_add_dependency package=Generators/GeneratorFortranCommon
+apply_pattern cmake_add_command command="find_package(Hijing)"
+
 ## For storing HI event parameters
 #use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 #use AtlasPOOL            AtlasPOOL-*            External
