@@ -4,7 +4,6 @@
 
 #include "xercesc/util/XercesDefs.hpp"
 #include "xercesc/sax/ErrorHandler.hpp"
-#include "GaudiKernel/MsgStream.h"
 #include <iostream>
 
 //using namespace xercesc;
@@ -17,7 +16,7 @@ public:
     // -----------------------------------------------------------------------
     //  Constructors and Destructor
     // -----------------------------------------------------------------------
-  XMLDOMErrorMessanger(MsgStream&);
+  XMLDOMErrorMessanger();
     
 
     ~XMLDOMErrorMessanger()
@@ -45,12 +44,9 @@ public:
     //      method. Its used by the main code to suppress output if there are
     //      errors.
     // -----------------------------------------------------------------------
-  bool    fSawErrors;
-  
-  MsgStream&    msg;
+    bool    fSawErrors;
 };
 
-   
 inline bool XMLDOMErrorMessanger::getSawErrors() const
 {
     return fSawErrors;

@@ -4,9 +4,6 @@
 
 #include <string>
 #include <vector>
-
-#include "GaudiKernel/MsgStream.h"
-
 namespace pool {
 
   class XMLQueryHandle{
@@ -14,7 +11,7 @@ namespace pool {
   public:
 
     enum WildStatus {NONE, START, END, MIDDLE};
-    XMLQueryHandle(MsgStream&);
+    XMLQueryHandle();
     
     void init(const std::string& query);
     const std::string& subquery(int i);
@@ -31,8 +28,7 @@ namespace pool {
     std::vector<std::string> m_value;
     std::vector<WildStatus>  m_wild;
     unsigned int  m_nq;
-  
-    MsgStream&    msg;
+
   };
 
 } //ns pool 

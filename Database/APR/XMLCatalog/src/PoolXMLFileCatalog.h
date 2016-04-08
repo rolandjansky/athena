@@ -10,7 +10,6 @@
 #include <vector>
 #include <map>
 
-#include "AthenaBaseComps/AthMessaging.h"
 
 #include "xercesc/dom/DOMDocument.hpp"
 #include "xercesc/dom/DOMNode.hpp"
@@ -42,9 +41,11 @@ namespace pool {
   */
 
 
-  class PoolXMLFileCatalog: public AthMessaging
-  {
-   public:
+
+
+  class PoolXMLFileCatalog {
+
+  public:
     
     enum FileNameType { PFNAME, LFNAME };
     enum PFNStatus {NOTEXISTS,REGISTERED};
@@ -253,8 +254,6 @@ namespace pool {
 
     std::string getfiletype(const std::string& pfn);
 
-    const std::string& connection() const { return m_file; }
-    
   private:
     typedef xercesc::DOMNode DOMNode;
     typedef xercesc::DOMDocument DOMDocument;
@@ -315,7 +314,6 @@ namespace pool {
   private:
     static int NumberOfIstances;
     std::string m_file;
-    std::string m_basename;
     
   private:
     unsigned int nmeta;

@@ -4,23 +4,29 @@
 
 #ifndef POOL_XMLMETADATACATALOG_H
 #define POOL_XMLMETADATACATALOG_H
-
 #include "FileCatalog/FCMetaImpl.h"
 #include "FileCatalog/FCBuf.h"
 
-#include "AthenaBaseComps/AthMessaging.h"
+#ifdef HAVE_GAUDI_PLUGINSVC
+#include "Gaudi/PluginService.h"
+#endif
+#include "GAUDI_VERSION.h"
 
-
-namespace pool
-{
+namespace pool {
 class FCImpl;
 class MetaDataEntry;
 class PoolXMLFileCatalog;
 class XMLFileCatalog;
-
-class XMLMetaDataCatalog: public FCMetaImpl, public AthMessaging
-{
+class XMLMetaDataCatalog: public FCMetaImpl{
  public:
+#ifdef HAVE_GAUDI_PLUGINSVC
+  #if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+    typedef Gaudi::PluginService::Factory<FCMetaImpl*, FCImpl*> Factory;
+  #else  
+    typedef Gaudi::PluginService::Factory1<FCMetaImpl*, FCImpl*> Factory;
+  #endif
+#endif
+
   /// Defsult Constructor
   XMLMetaDataCatalog( FCImpl* fc );
   /// Virtual Destructor

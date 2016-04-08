@@ -4,11 +4,13 @@
 
 #ifndef POOL_XMLFILECATALOG_H
 #define POOL_XMLFILECATALOG_H
-
 #include "FileCatalog/FCImpl.h"
 #include "FileCatalog/FCBuf.h"
 
-#include "AthenaBaseComps/AthMessaging.h"
+#ifdef HAVE_GAUDI_PLUGINSVC
+#include "Gaudi/PluginService.h"
+#endif
+#include "GAUDI_VERSION.h"
 
 namespace pool { 
 
@@ -22,10 +24,15 @@ namespace pool {
 
 class PoolXMLFileCatalog;
 class XMLMetaDataCatalog; 
-
-class XMLFileCatalog: public FCImpl, public AthMessaging
-{
+class XMLFileCatalog: public FCImpl{
  public:
+#ifdef HAVE_GAUDI_PLUGINSVC
+  #if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+    typedef Gaudi::PluginService::Factory<FCImpl*> Factory;
+  #else  
+    typedef Gaudi::PluginService::Factory0<FCImpl*> Factory;
+  #endif
+#endif
   /**Default constructor.
    */
   XMLFileCatalog();

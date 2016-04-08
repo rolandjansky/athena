@@ -2,18 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: XMLFunctionality_test.cxx 780038 2016-10-24 13:04:52Z mnowak $
+//$Id: XMLFunctionality_test.cxx 458056 2011-09-09 13:34:50Z mnowak $
 /*
   CPPUnit test of XML Catalog.
   Author: Zhen Xie
 */
 #include<cppunit/extensions/HelperMacros.h>
 #include<cstdlib>
-
+#ifndef POOL_MYSQLFILECATALOG_H
 #include "XMLCatalog/XMLFileCatalog.h"
+#endif
 #include "FileCatalog/IFCAction.h"
-
-
 using namespace pool;
 
 class XMLtest: public CppUnit::TestFixture{
@@ -115,5 +114,4 @@ public:
    
 };
 CPPUNIT_TEST_SUITE_REGISTRATION(XMLtest);
-
-#include "CppUnit_testdriver.cxx"
+#include<CppUnit_testdriver.cpp>

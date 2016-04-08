@@ -3,6 +3,7 @@
 */
 
 #include "XMLQueryHandle.h"
+#include "CoralBase/MessageStream.h"
 
 namespace pool {
   inline std::string
@@ -53,16 +54,17 @@ namespace pool {
 }
 
 
-pool::XMLQueryHandle::XMLQueryHandle(MsgStream& _msg)
-      : m_nq(0),
-        msg(_msg) 
+pool::XMLQueryHandle::XMLQueryHandle()
+  : m_nq(0)
 {
 }
   
   
 void
-pool::XMLQueryHandle::init(const std::string& query)
-{
+pool::XMLQueryHandle::init(const std::string& query){
+
+  coral::MessageStream xmllog( "XMLQueryHandle");
+
   std::vector<std::string> squ;
   std::string subquery;
   std::string tmp=query;
@@ -106,18 +108,20 @@ pool::XMLQueryHandle::init(const std::string& query)
       
       size_t ftoken = subquery.find(' ');
       if (ftoken == subquery.npos){
-         msg << MSG::WARNING <<"query =("<<subquery <<") is not supported"<<endmsg;
-         m_nq--;
-         break;
+        xmllog<< coral::Warning <<"query =("<<subquery
+              <<") is not supported"<<coral::MessageStream::endmsg;
+        m_nq--;
+        break;
       }        
       
       std::string buff1 = trimmer(subquery.substr(ftoken+1,subquery.npos));
       
       size_t stoken = buff1.find(' ');
       if (trimmer(buff1.substr(0,stoken)) != "like"){
-         msg << MSG::WARNING  <<"query =("<<subquery <<") is not supported"<<endmsg;
-         m_nq--;
-         break;
+        xmllog<< coral::Warning <<"query =("<<subquery
+              <<") is not supported"<<coral::MessageStream::endmsg;
+        m_nq--;
+        break;
       }        
       m_attrib.push_back(trimmer(subquery.substr(0,ftoken)));
       m_comman.push_back(trimmer(buff1.substr(0,stoken)));
