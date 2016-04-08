@@ -32,16 +32,15 @@
 // MuonCalib //
 #include "MuonCalibStandAloneBase/CalibSegmentPreparationTool.h"
 #include "MdtCalibData/BFieldCorFunc.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 namespace MuonCalib {
 
-class BFieldCorrectionUpdateTool : public AlgTool,
-                                virtual public CalibSegmentPreparationTool {
-
-public:
-// Constructor //
-    BFieldCorrectionUpdateTool(const std::string & t,
-                                const std::string & n, const IInterface *p);
+class BFieldCorrectionUpdateTool : public AthAlgTool, virtual public CalibSegmentPreparationTool {
+  public:
+    // Constructor //
+    BFieldCorrectionUpdateTool(const std::string &t,
+			       const std::string &n, const IInterface *p);
     ///< Constructor of the tool.
 
     ~BFieldCorrectionUpdateTool(void);
@@ -50,16 +49,16 @@ public:
 // Methods //
 // methods required by the base classes //
     StatusCode initialize(void);
-                            ///< initialization of the tool
+    ///< initialization of the tool
     StatusCode finalize(void);
                             ///< finalization of the tool
     void prepareSegments(
-                     const MuonCalibEvent *& /*event*/,
-                    std::map<NtupleStationId, MuonCalibSegment *> & segments);
-                            ///< Method to add the Lorentz effect to the
-                            ///< measured drift times.
+      const MuonCalibEvent *& /*event*/,
+      std::map<NtupleStationId, MuonCalibSegment *> & segments);
+    ///< Method to add the Lorentz effect to the
+    ///< measured drift times.
 
-private:
+  private:
     std::string m_rt_file_name; // name of the r-t files to be used for the
                                  // B field correction
     IRtRelation *m_rt; // pointer to the reference r-t relationship at B=0
@@ -70,6 +69,5 @@ private:
 
 };
 
-}
-
+}  //namespace MuonCalib
 #endif

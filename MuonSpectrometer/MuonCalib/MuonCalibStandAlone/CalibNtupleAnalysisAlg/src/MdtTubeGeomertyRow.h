@@ -10,12 +10,11 @@
 namespace MuonCalib {
 
 class MdtTubeGeomertyRow {
-
-	public:
-		UInt_t tube_id;
-		Float_t pos_x, pos_y, pos_z;
+ public:
+  UInt_t tube_id;
+  Float_t pos_x, pos_y, pos_z;
 };
 
-}
+}  //namespace MuonCalib 
 
 #endif

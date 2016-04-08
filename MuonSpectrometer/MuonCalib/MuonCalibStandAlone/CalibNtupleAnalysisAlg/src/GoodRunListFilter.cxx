@@ -13,33 +13,21 @@
 #include "MuonCalibEventBase/MuonCalibEventInfo.h"
 namespace MuonCalib {
 
+GoodRunListFilter::GoodRunListFilter(const std::string &t, const std::string &n, const IInterface *p): AthAlgTool(t, n, p) {
+  declareProperty("GoodRunListTool", m_good_runlist_tool);
+  declareInterface< CalibSegmentPreparationTool >(this);
+}
 
-GoodRunListFilter :: GoodRunListFilter(const std::string & t, const std::string & n, const IInterface *p): AlgTool(t, n, p)
-	{
-	declareProperty("GoodRunListTool", m_good_runlist_tool);
-	declareInterface< CalibSegmentPreparationTool >(this);
-	}
+StatusCode GoodRunListFilter::initialize(void) {
+  ATH_CHECK( m_good_runlist_tool.retrieve() );
+  return StatusCode::SUCCESS;
+}
 
-
-StatusCode GoodRunListFilter :: initialize(void)
-	{
-	MsgStream log(msgSvc(), name());
-	StatusCode sc=m_good_runlist_tool.retrieve();
-	if(!sc.isSuccess())
-		{
-		log << MSG::FATAL <<"Failed to retrieve GoodRunListTool!"<<endreq;
-		return sc;
-		}
-	return sc;
-	}
-
-void GoodRunListFilter :: prepareSegments(const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> & segments)
-	{
-	const MuonCalibEventInfo &event_info=event->eventInfo();
-	if(!m_good_runlist_tool->passRunLB(event_info.runNumber(), event_info.lumiBlock()))
-		{
-		segments.clear();
-		}
-	}
+void GoodRunListFilter::prepareSegments(const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
+  const MuonCalibEventInfo &event_info=event->eventInfo();
+  if(!m_good_runlist_tool->passRunLB(event_info.runNumber(), event_info.lumiBlock())) {
+    segments.clear();
+  }
+}
 
 } //namespace MuonCalib

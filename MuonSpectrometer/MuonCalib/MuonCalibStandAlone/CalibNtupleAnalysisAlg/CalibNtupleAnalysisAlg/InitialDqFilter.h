@@ -6,6 +6,7 @@
 #define MuonCalib__InitialDqFilter_h
 
 //Gaudi
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 //MuonCalibStandAloneBase
@@ -14,31 +15,31 @@
 //c- c++
 #include "set"
 
+class RegionSelectionSvc;
 
 namespace MuonCalib {
 
-class InitialDqFilter: public AlgTool, virtual public CalibSegmentPreparationTool
-	{
-	public:
+class InitialDqFilter: public AthAlgTool, virtual public CalibSegmentPreparationTool {
+  public:
 //=========================constructor==========================================
-		InitialDqFilter(const std::string & t, const std::string & n, const IInterface *p);
-		inline ~InitialDqFilter() {}
+    InitialDqFilter(const std::string &t, const std::string &n, const IInterface *p);
+    inline ~InitialDqFilter() {}
 //=========================public member functions==============================
-	//initialize and finalize
-		StatusCode initialize(void);
-		inline StatusCode finalize(void)
-			{
-			return StatusCode :: SUCCESS;
-			}
-	//load event
-		void prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> & segments);
-	private:
+    //initialize and finalize
+    StatusCode initialize(void);
+    inline StatusCode finalize(void) {
+      return StatusCode :: SUCCESS;
+    }
+    //load event
+    void prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> & segments);
+  private:
 //=========================private data=========================================
-	//location of initial dq file - jo
-		std::string m_initial_dq_path;
-	//list of suppressed tubes
-		std::set<MuonFixedId> m_suppressed_tubes;
-	};
+    //location of initial dq file - jo
+    std::string m_initial_dq_path;
+    //list of suppressed tubes
+    std::set<MuonFixedId> m_suppressed_tubes;
+    ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
+  };
 
 } //namespace MuonCalib
 #endif
