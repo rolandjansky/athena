@@ -8,7 +8,7 @@
 
 #include <string>
 #include "GaudiKernel/StatusCode.h"
-#include "LArTools/LArSuperCellCablingTool.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 
 // Forward delcarations

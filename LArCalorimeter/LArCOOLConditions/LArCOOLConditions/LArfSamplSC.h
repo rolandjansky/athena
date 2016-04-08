@@ -32,7 +32,7 @@ public:
   virtual const float& FSAMPL(const Identifier& id) const; 
   
 private:
-  static const float errorcode;
+  //static const float errorcode;
 
 };
 

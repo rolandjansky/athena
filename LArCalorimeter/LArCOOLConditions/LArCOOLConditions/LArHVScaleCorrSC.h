@@ -32,7 +32,7 @@ public:
   virtual const float& HVScaleCorr(const Identifier& id) const; 
 
 private:
-  static const float errorcode;
+  //static const float errorcode;
 
 };
 

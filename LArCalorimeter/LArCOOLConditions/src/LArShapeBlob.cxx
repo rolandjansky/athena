@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArShapeBlob.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 LArShapeBlob::LArShapeBlob():
   m_nChannels(0),

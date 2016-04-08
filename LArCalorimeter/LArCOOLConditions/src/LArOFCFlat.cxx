@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArOFCFlat.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 LArOFCFlat::LArOFCFlat():
   m_nChannels(0),

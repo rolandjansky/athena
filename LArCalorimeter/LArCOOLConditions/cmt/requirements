@@ -12,7 +12,7 @@ use GaudiInterface      GaudiInterface-*          External
 
 use LArIdentifier       LArIdentifier-*           LArCalorimeter
 use LArElecCalib        LArElecCalib-*            LArCalorimeter
-use LArTools            LArTools-*                LArCalorimeter
+use LArCabling          LArCabling-*              LArCalorimeter
 
 use Identifier          Identifier-*              DetectorDescription
 #use CaloIdentifier      CaloIdentifier-*          Calorimeter
