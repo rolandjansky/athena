@@ -22,7 +22,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Kernel.h"
-#include "GaudiKernel/PropertyCallbackFunctor.h"
+//#include "GaudiKernel/PropertyCallbackFunctor.h"
 #include "GaudiKernel/PropertyVerifier.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventInfo.h"
