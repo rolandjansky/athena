@@ -19,7 +19,9 @@ class CaloBadChannel {
   CaloBadChannel(const CaloBadChannel& rBad) {m_word=rBad.m_word;}
   CaloBadChannel(const CaloBadChannel* pBad) {m_word=pBad->m_word;}
   CaloBadChannel& operator= (const CaloBadChannel& rBad) {
-    m_word = rBad.m_word;
+    if (this != &rBad) {
+      m_word = rBad.m_word;
+    }
     return *this;
   }
 

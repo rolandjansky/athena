@@ -28,7 +28,7 @@ public:
   };
 
   //** Default Constructor
-  CaloHadWeight() {};
+  CaloHadWeight();
 
   CaloHadWeight(const int   & nBinEta, 
 		const float & MinEta, 
