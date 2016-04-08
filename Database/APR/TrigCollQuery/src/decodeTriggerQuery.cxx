@@ -5,13 +5,13 @@
 #include "TrigCollQuery/TrigCollQuery.h"
 
 #include <iostream>
-using namespace std;
-
 #include <libgen.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <cstdlib>
 #include <algorithm>
+
+using namespace std;
 
 string          app;
 TrigCollQuery   queryRemapper;

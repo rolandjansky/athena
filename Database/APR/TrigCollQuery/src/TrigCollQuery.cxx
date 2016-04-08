@@ -13,8 +13,6 @@
 #include <set>
 #include <iomanip>
 
-using namespace std;
-
 
 const std::string TriggerPassed( "TriggerPassed" );
 const std::string TriggerNotPassed( "TriggerNotPassed" );
@@ -49,13 +47,13 @@ const std::string MapFileName( "ChainTagMap" );
 const std::string RunNumberAttribute( "RunNumber" );
 
 
-class SyntaxError : public runtime_error {
+class SyntaxError : public std::runtime_error {
 public:
   SyntaxError() : std::runtime_error("Syntax error in the trigger condition")
   {}
 };
 
-class UnknownTrigger : public runtime_error {
+class UnknownTrigger : public std::runtime_error {
 public:
   UnknownTrigger( const std::string& msg )
         :  std::runtime_error( std::string("Unknown trigger name: ") + msg )
@@ -118,7 +116,7 @@ typedef boost::tokenizer<boost::char_separator<char> > Tizer;
 std::string
 TrigCollQuery::triggerQueryRemap( const std::string& query, const std::string& tech )
 {
-   string mappedQuery;
+  std::string mappedQuery;
    boost::char_separator<char> sep("", " |&!(,)");
    Tizer tizer( query, sep );
 
@@ -130,9 +128,9 @@ TrigCollQuery::triggerQueryRemap( const std::string& query, const std::string& t
          bool useHighBits = ( *token != TriggerPassedLowbits && *token != TriggerNotPassedLowbits );
          if( ++token == tizer.end() || *token != "(" ) throw SyntaxError();
 
-         vector<string> triggers_vec;
-         string         triggers_str;
-         string         trigsep;
+         std::vector<std::string> triggers_vec;
+         std::string         triggers_str;
+         std::string         trigsep;
          // collect trigger names used in this operator
 	 do {
             if( ++token == tizer.end() ) throw SyntaxError();
@@ -148,7 +146,7 @@ TrigCollQuery::triggerQueryRemap( const std::string& query, const std::string& t
          }
 	 mappedQuery += " (";
          bool   firstPass = true;
-         for( vector<string>::const_iterator trigger = triggers_vec.begin(), end = triggers_vec.end();
+         for( std::vector<std::string>::const_iterator trigger = triggers_vec.begin(), end = triggers_vec.end();
               trigger != end; ++trigger )
          {
             TrigValRangeVect trigValRangeVect;
@@ -237,7 +235,7 @@ TrigCollQuery::makeTrigValRangeVect( const std::string& trigger, bool useHighBit
       trigValRangeVect[ trigValRangeVect.size()-1 ].endrun = 99999999;
    }
 	    
-   string wordName;
+   std::string wordName;
    if( trigger.compare(0, 3, L1prefix) == 0 ) {
       wordName = (m_useCTPWord? L1word_old : L1word );
       useHighBits = false;
@@ -253,7 +251,7 @@ TrigCollQuery::makeTrigValRangeVect( const std::string& trigger, bool useHighBit
    // convert (triggerName, bit position) to (attributeName, bitpos) 
    for( TrigValRangeVect::iterator it = trigValRangeVect.begin(), end = trigValRangeVect.end();
         it != end; ++it ) {
-      ostringstream stream;
+      std::ostringstream stream;
       stream << wordName << unsigned(it->bitPosition/32);
       it->attributeName = stream.str();
       it->bitPosition = (it->bitPosition % 32) + (useHighBits? 32 : 0);
@@ -275,13 +273,13 @@ void	TrigCollQuery::queryRuns( const std::string& runs )
 
    for( Tizer::iterator token = tizer.begin(); token != tizer.end(); ++token ) { 
       size_t  dash_idx =  token->find('-');
-      if( dash_idx != string::npos ) {
+      if( dash_idx != std::string::npos ) {
 	 int startrun = atoi(token->c_str());
 	 int endrun = ( dash_idx+1 >= token->size() ? 99999999 : atoi( token->substr( dash_idx+1 ).c_str() ) );
-	 m_runs.push_back( pair<int,int>(startrun, endrun) );
+	 m_runs.push_back( std::pair<int,int>(startrun, endrun) );
       } else {
 	 int run = atoi(token->c_str());
-	 m_runs.push_back( pair<int,int>(run, run) );
+	 m_runs.push_back( std::pair<int,int>(run, run) );
       }
       // cout<< "** Run range: " << m_runs.back().first << ", " << m_runs.back().second <<  endl;
    }
@@ -307,10 +305,10 @@ std::string	TrigCollQuery::runNumberColumn( const std::string& column )
 
 void TrigCollQuery::readTriggerMap( std::string filename )
 {
-   const string logName = "TrigCollQuery";
+   const std::string logName = "TrigCollQuery";
    if( m_runs.empty() ) queryRuns("1-99999999"); 
 
-   string xmlpath;
+   std::string xmlpath;
    if( !m_triggerMapDir.empty() ) {
       // Athena property, if set, overrides environment
       xmlpath = m_triggerMapDir;
@@ -327,13 +325,13 @@ void TrigCollQuery::readTriggerMap( std::string filename )
    Tizer::iterator path;
    boost::regex const 	xmlmap_filenameRE( ".*"+MapFileName+"_(\\d{8})-(\\d{8})\\.xml$");
    for( path = paths.begin(); path != paths.end(); ++path ) {
-      set<string>  files;
+      std::set<std::string>  files;
       // Fill "files" with filenames in the given element of XMLPATH
       boost::cmatch what;
       if( *path == "http" ) {
 	 ++path;
 	 if( path == paths.end() ) break;
-	 readWebDir( string("http:")+*path, files );
+	 readWebDir( std::string("http:")+*path, files );
       } else {
 	 const std::string  dirpath( *path + "/" + XMLDir );
 	 DIR *d = opendir( dirpath.c_str() );
@@ -352,7 +350,7 @@ void TrigCollQuery::readTriggerMap( std::string filename )
 	 }
       }
       
-      set<string>::const_iterator fi = files.begin();
+      std::set<std::string>::const_iterator fi = files.begin();
       while( fi != files.end() ) {
 	 if( boost::regex_match(fi->c_str(), what, xmlmap_filenameRE) ) {
 	    TriggerRunMap *trm = new TriggerRunMap;
@@ -363,7 +361,7 @@ void TrigCollQuery::readTriggerMap( std::string filename )
 	       if( ri->first <= trm->endrun && ri->second >= trm->startrun ) {
 		  // cout << " parsing:  "  << *fi << ":  RUNS: " << trm->startrun << "-" << trm->endrun << endl;
 		  if( parseXML( *fi, trm->triggerPos ) ) {
-		     cerr << logName << " Failed reading trigger map file " << *fi << endl;
+		     std::cerr << logName << " Failed reading trigger map file " << *fi << std::endl;
 		     delete trm;  trm = 0;
 		  } else {
 		     m_triggerMapVect.push_back( trm );
@@ -377,13 +375,13 @@ void TrigCollQuery::readTriggerMap( std::string filename )
       if( files.size() )   break;  // read only one location
    }
    if( m_triggerMapVect.empty() ) {
-      cout << logName << " Warning: Failed to retrieve run-dependent trigger mapping information for the given run range" << endl
-	   << " Looking for the old (static and possibly obsolete) trigger map file" << endl;
+     std::cout << logName << " Warning: Failed to retrieve run-dependent trigger mapping information for the given run range" << std::endl
+               << " Looking for the old (static and possibly obsolete) trigger map file" << std::endl;
 
       if( !filename.size() )
 	 filename =  XMLDir + "/" + MapFileName + ".xml";
       struct stat  statbuf;
-      string       fullpath;
+      std::string       fullpath;
       for( path = paths.begin(); path != paths.end(); ++path ) {
 	 fullpath = *path + "/" + filename;
 	 if( 0 == stat( fullpath.c_str(), &statbuf ) ) {
@@ -392,8 +390,8 @@ void TrigCollQuery::readTriggerMap( std::string filename )
 	 }
       }
       if( path == paths.end() ) {
-	 cerr << logName << " Warning: File " << filename << " not found in " << xmlpath << endl;
-	 cerr << logName << " No trigger mapping information available - trigger queries will not work" << endl;
+         std::cerr << logName << " Warning: File " << filename << " not found in " << xmlpath << std::endl;
+	 std::cerr << logName << " No trigger mapping information available - trigger queries will not work" << std::endl;
 	 return;	
       }
       TriggerRunMap *trm = new TriggerRunMap;
@@ -401,11 +399,11 @@ void TrigCollQuery::readTriggerMap( std::string filename )
       trm->endrun = 99999999;
 
       if( !parseXML( fullpath, trm->triggerPos ) ) {
-	 cout << logName << " XML trigger map " << fullpath << " read in " << endl;
+	 std::cout << logName << " XML trigger map " << fullpath << " read in " << std::endl;
 	 m_triggerMapVect.push_back( trm );
       } else {
 	 delete trm;
-	 cerr << logName << " Error reading XML trigger map! " << fullpath << endl;
+	 std::cerr << logName << " Error reading XML trigger map! " << fullpath << std::endl;
       }
    }
 }
@@ -414,13 +412,13 @@ void TrigCollQuery::readTriggerMap( std::string filename )
 
 
 
-const string      DocType = "TAGMAP";
-const string      LevelElementName = "LEVEL";
-const string      LevelAttributeName = "level";
+const std::string      DocType = "TAGMAP";
+const std::string      LevelElementName = "LEVEL";
+const std::string      LevelAttributeName = "level";
 
-const string      TriggerElementName = "MAPELEMENT";
-const string      TriggerAttributeName = "chainname";
-const string      BitAttributeName = "tagindex";
+const std::string      TriggerElementName = "MAPELEMENT";
+const std::string      TriggerAttributeName = "chainname";
+const std::string      BitAttributeName = "tagindex";
 
 
 
@@ -478,7 +476,7 @@ std::string  TrigCollQuery::addTriggerCondition( const TrigValRange& trigValRang
    //cout << "Adding condition for " << trigValRange.attributeName << " bit " << trigValRange.bitPosition << endl;
    uint64_t 	mask = (1ULL << trigValRange.bitPosition);
    
-   string nextOper, logicAnd, logicOr, logicEquals, comparison, bitAndOperation;
+   std::string nextOper, logicAnd, logicOr, logicEquals, comparison, bitAndOperation;
    if( tech == "RelationalCollection" ) {
       logicAnd = sql_logicAndStr;
       logicOr  = sql_logicOrStr;
@@ -493,7 +491,7 @@ std::string  TrigCollQuery::addTriggerCondition( const TrigValRange& trigValRang
       bitAndOperation =  "(" + trigValRange.attributeName + root_bitAndStr;
    }
 
-   ostringstream out;
+   std::ostringstream out;
    // add AND between different triggers
    if( !firstPass && firstRange < 2 )     out << logicAnd;
    // add OR between run ranges for the same trigger
@@ -528,8 +526,8 @@ std::string  TrigCollQuery::addTriggerCondition( const TrigValRange& trigValRang
    // Finally the real bitwise AND operation for the trigger
    out << nextOper << bitAndOperation;
    // give the mask in hex to avoid sign issues in ROOT
-   if( tech == "RootCollection" ) out << hex << "0x";
-   out << mask << ")" << dec << comparison << " 0) ";
+   if( tech == "RootCollection" ) out << std::hex << "0x";
+   out << mask << ")" << std::dec << comparison << " 0) ";
 
    // else throw std::runtime_error(string("Unknown collection technology: ") + tech); 
    return out.str();                            
@@ -542,10 +540,10 @@ int  TrigCollQuery::parseXML( const std::string& xmlfilename, TriggerMap& trigMa
 
    if( !initXML() )     return 1;
 
-   std::auto_ptr<XercesDOMParser> parser( new XercesDOMParser() );
+   std::unique_ptr<XercesDOMParser> parser( new XercesDOMParser() );
    parser->setDoSchema( false );
    parser->setValidationScheme(XercesDOMParser::Val_Never);    
-   auto_ptr<ErrorHandler> eh( new HandlerBase() );
+   std::unique_ptr<ErrorHandler> eh( new HandlerBase() );
    parser->setErrorHandler( eh.get() );
 
    try {
@@ -566,7 +564,7 @@ int  TrigCollQuery::parseXML( const std::string& xmlfilename, TriggerMap& trigMa
             if( toNative(currentElement->getTagName()) == LevelElementName ) {
                // Already tested node as type element and of name "ApplicationSettings".
                // Read attributes of element "ApplicationSettings".
-               string level = toNative( currentElement->getAttribute( fromNative(LevelAttributeName).c_str()) );
+               std::string level = toNative( currentElement->getAttribute( fromNative(LevelAttributeName).c_str()) );
 
                DOMNodeList *triggerlist = currentNode->getChildNodes();
                for( XMLSize_t t = 0; t < triggerlist->getLength(); ++t ) {
@@ -575,10 +573,10 @@ int  TrigCollQuery::parseXML( const std::string& xmlfilename, TriggerMap& trigMa
                      // Found node which is an Element. Re-cast node as element
                      DOMElement* currentElement = static_cast< xercesc::DOMElement* >( currentNode );
                      if( toNative(currentElement->getTagName()) == TriggerElementName )  {
-                        string trigger = toNative( currentElement->getAttribute( fromNative(TriggerAttributeName).c_str() ) );
-                        string bit = toNative( currentElement->getAttribute( fromNative(BitAttributeName).c_str() ) );
+                        std::string trigger = toNative( currentElement->getAttribute( fromNative(TriggerAttributeName).c_str() ) );
+                        std::string bit = toNative( currentElement->getAttribute( fromNative(BitAttributeName).c_str() ) );
                         // cout << "Trigger: " << chainname << " bit=" << bit << endl;
-                        istringstream bitnumber( bit );
+                        std::istringstream bitnumber( bit );
                         bitnumber >> trigMap[ trigger ];
                      }
                   }
@@ -591,19 +589,19 @@ int  TrigCollQuery::parseXML( const std::string& xmlfilename, TriggerMap& trigMa
 
    }
    catch (const XMLException& toCatch) {
-      cout << "Error! Exception: " << toNative(toCatch.getMessage()) << endl;
+      std::cout << "Error! Exception: " << toNative(toCatch.getMessage()) << std::endl;
    }
    catch (const DOMException& toCatch) {
-      cout << "Error! Exception: " << toNative(toCatch.getMessage()) << endl;
+      std::cout << "Error! Exception: " << toNative(toCatch.getMessage()) << std::endl;
    }
    catch( const SAXException &e ) {
-      cout << "Error! Exception: " << toNative(e.getMessage()) << endl;
+      std::cout << "Error! Exception: " << toNative(e.getMessage()) << std::endl;
    }
-   catch( exception &e ) {
-      cout << "Exception cought: " << e.what() << endl;
+   catch( std::exception &e ) {
+      std::cout << "Exception cought: " << e.what() << std::endl;
    }
    catch(...) {
-      cout << "Unexpected Exception " << endl ;
+      std::cout << "Unexpected Exception " << std::endl ;
    }
    return -1;      
 }
@@ -611,11 +609,11 @@ int  TrigCollQuery::parseXML( const std::string& xmlfilename, TriggerMap& trigMa
 
 
 
-int  TrigCollQuery::readWebDir( const std::string& _url, set<string>& files )
+int  TrigCollQuery::readWebDir( const std::string& url_in, std::set<std::string>& files )
 {
    if( !initXML() )     return 1;
 
-   string url( _url );
+   std::string url( url_in );
    if( url[ url.size()-1 ] != '/' )
       url += '/';
    try {
@@ -624,11 +622,11 @@ int  TrigCollQuery::readWebDir( const std::string& _url, set<string>& files )
       try {
 	 dircont = dir.makeStream ();
       }catch( const XMLException& e) {
-	 cout << toNative(e.getMessage()) << endl;
+	 std::cout << toNative(e.getMessage()) << std::endl;
 	 return -1;
       }
       
-      vector<XMLByte>	buff;
+      std::vector<XMLByte>	buff;
       int		iniBuffSize = 20000;
       buff.resize( iniBuffSize );
 
@@ -640,7 +638,7 @@ int  TrigCollQuery::readWebDir( const std::string& _url, set<string>& files )
 	 if( rb == 0 )
 	    break;
 	 if( buff.size() > 10*1024*1024 ) {
-	    cerr << "Exceeded 10MB while reading from " << url << " Trigger configuration may be incomplete" << endl;
+	    std::cerr << "Exceeded 10MB while reading from " << url << " Trigger configuration may be incomplete" << std::endl;
 	    break;
 	 }
 	 buff.resize( buff.size() + rb );
@@ -651,7 +649,7 @@ int  TrigCollQuery::readWebDir( const std::string& _url, set<string>& files )
       const char *start = (char*)&buff[0], *end = (char*)&buff[ buff.size() ];
       boost::match_flag_type flags = boost::match_default; 
       while( regex_search( start, end, what, xmlmap_filenameRE, flags))  {
-	 string filename( what[1].first, what[1].second );
+	 std::string filename( what[1].first, what[1].second );
 	 filename = url + filename;
 	 files.insert( filename );
 	 // cout << " > "  << "found:" << filename << endl;
@@ -665,19 +663,19 @@ int  TrigCollQuery::readWebDir( const std::string& _url, set<string>& files )
       return 0;
    }
    catch (const XMLException& toCatch) {
-      cout << "Error! Exception: " << toNative(toCatch.getMessage()) << endl;
+      std::cout << "Error! Exception: " << toNative(toCatch.getMessage()) << std::endl;
    }
    catch (const DOMException& toCatch) {
-      cout << "Error! Exception: " << toNative(toCatch.getMessage()) << endl;
+      std::cout << "Error! Exception: " << toNative(toCatch.getMessage()) << std::endl;
    }
    catch( const SAXException &e ) {
-      cout << "Error! Exception: " << toNative(e.getMessage()) << endl;
+      std::cout << "Error! Exception: " << toNative(e.getMessage()) << std::endl;
    }
-   catch( exception &e ) {
-      cout << "Exception cought: " << e.what() << endl;
+   catch( std::exception &e ) {
+      std::cout << "Exception cought: " << e.what() << std::endl;
    }
    catch(...) {
-      cout << "Unexpected Exception " << endl ;
+      std::cout << "Unexpected Exception " << std::endl ;
    }
    return -1;      
 }
@@ -691,7 +689,7 @@ int  TrigCollQuery::readWebDir( const std::string& _url, set<string>& files )
 
 
 /// Read trigger bit mappings for triggers present in the query (only)
-void TrigCollQuery::WSQueryTriggerPositions( const string& triggers, bool useHighBits )
+void TrigCollQuery::WSQueryTriggerPositions( const std::string& triggers, bool useHighBits )
 {
    m_triggerRangesMap.clear();
    
@@ -701,17 +699,17 @@ void TrigCollQuery::WSQueryTriggerPositions( const string& triggers, bool useHig
          m_certpath = m_keypath = proxy;
       } else {
          // check the default proxy location
-         ostringstream px;
+         std::ostringstream px;
          px << "/tmp/x509up_u" << getuid();
          if( access(px.str().c_str(), R_OK) )
-            throw runtime_error( "Certificate path not specified and X509_USER_PROXY not set (run voms-proxy-init)" );
+            throw std::runtime_error( "Certificate path not specified and X509_USER_PROXY not set (run voms-proxy-init)" );
          m_certpath = m_keypath = px.str();
       }
    }
 //   if( m_dataPeriod.empty() )
 //      throw runtime_error( "Project (data period/MC) not set" );
    
-   string command = string("curl -s -S --key ") + m_keypath + " --sslv3 --cert " + m_certpath
+   std::string command = std::string("curl -s -S --key ") + m_keypath + " --sslv3 --cert " + m_certpath
       + " -k --url \"" + m_triggerWebService
       + "?trignms=" + triggers
       + "&runrange=" + m_runsStr
@@ -721,12 +719,12 @@ void TrigCollQuery::WSQueryTriggerPositions( const string& triggers, bool useHig
       + "\" 2>&1";
 
    if( m_outputLevel ) {
-      cout << " --------  executing command:" << endl << command << endl;
+      std::cout << " --------  executing command:" << std::endl << command << std::endl;
    }
 
    FILE* fp = popen(command.c_str(), "r");
-   if( !fp )  throw runtime_error("Failed to execute CURL command: " + command);
-   string output;
+   if( !fp )  throw std::runtime_error("Failed to execute CURL command: " + command);
+   std::string output;
    const size_t readsize(1000);
    char buffer[readsize+1];
    size_t readbytes = 0;
@@ -737,26 +735,26 @@ void TrigCollQuery::WSQueryTriggerPositions( const string& triggers, bool useHig
    } while( readbytes == readsize );
    
    if( ferror(fp) ) {
-      throw runtime_error("reading CURL output: " + output);
+      throw std::runtime_error("reading CURL output: " + output);
    }
    int rc = pclose(fp);
    if( rc ) {
-      cerr << "Error executing the CURL commnad: " << command << endl
-           << "pclose() returned code 0x" << hex << rc << endl;    
-      throw runtime_error("executing the CURL commnad: " + output);
+      std::cerr << "Error executing the CURL command: " << command << std::endl
+                << "pclose() returned code 0x" << std::hex << rc << std::endl;    
+      throw std::runtime_error("executing the CURL commnad: " + output);
    }
    // cout << "------------  CURL output:" << endl << output << endl;
 
-   if( output.find("404 Not Found") != string::npos )
-      throw runtime_error(output); 
+   if( output.find("404 Not Found") != std::string::npos )
+      throw std::runtime_error(output); 
 
-   if( !initXML() )    throw runtime_error("XML init failed");
+   if( !initXML() )    throw std::runtime_error("XML init failed");
    MemBufInputSource    xmlSource((const XMLByte*)output.c_str(), output.length(), "id");
 
-   std::auto_ptr<XercesDOMParser> parser( new XercesDOMParser() );
+   std::unique_ptr<XercesDOMParser> parser( new XercesDOMParser() );
    parser->setDoSchema( false );
    parser->setValidationScheme(XercesDOMParser::Val_Never);    
-   auto_ptr<ErrorHandler> eh( new HandlerBase() );
+   std::unique_ptr<ErrorHandler> eh( new HandlerBase() );
    parser->setErrorHandler( eh.get() );
 
    try {
@@ -767,10 +765,10 @@ void TrigCollQuery::WSQueryTriggerPositions( const string& triggers, bool useHig
       
       DOMElement* elementRoot = doc->getDocumentElement();
       if( !elementRoot )
-         throw runtime_error( "empty XML document" );
-      string rootTagName = toNative(elementRoot->getTagName());
+         throw std::runtime_error( "empty XML document" );
+      std::string rootTagName = toNative(elementRoot->getTagName());
       if( rootTagName == "ERROR" )
-         throw runtime_error( output );
+         throw std::runtime_error( output );
       
       DOMNodeList *nodelist = elementRoot->getChildNodes();
       for( XMLSize_t xx = 0; xx < nodelist->getLength(); ++xx )
@@ -782,7 +780,7 @@ void TrigCollQuery::WSQueryTriggerPositions( const string& triggers, bool useHig
             // cout << ">>  Tag Name:" << toNative(currentElement->getTagName()) << endl;
             if( toNative(currentElement->getTagName()) == "trigger" ) {
                // Read attributes of element 
-               string triggerName = toNative( currentElement->getAttribute( fromNative("name").c_str()) );
+               std::string triggerName = toNative( currentElement->getAttribute( fromNative("name").c_str()) );
                DOMNodeList *triggernodes = currentNode->getChildNodes();
                for( XMLSize_t t = 0; t < triggernodes->getLength(); ++t ) {
                   DOMNode* currentNode = triggernodes->item(t);
@@ -790,7 +788,7 @@ void TrigCollQuery::WSQueryTriggerPositions( const string& triggers, bool useHig
                      DOMElement* currentElement = static_cast< xercesc::DOMElement* >( currentNode );
                      // cout << ">>     Tag Name:" << toNative(currentElement->getTagName()) << endl;
                      if( toNative(currentElement->getTagName()) == "run" )  {
-                        istringstream runNumberStr( toNative( currentElement->getAttribute( fromNative("number").c_str()) ) );
+                        std::istringstream runNumberStr( toNative( currentElement->getAttribute( fromNative("number").c_str()) ) );
                         unsigned long long runNumber;
                         runNumberStr >> runNumber;
                         DOMNodeList *runnodes = currentNode->getChildNodes();
@@ -800,12 +798,12 @@ void TrigCollQuery::WSQueryTriggerPositions( const string& triggers, bool useHig
                               DOMElement* currentElement = static_cast< xercesc::DOMElement* >( currentNode );
                               // cout << ">>        Tag Name:" << toNative(currentElement->getTagName()) << endl;
                               if( toNative(currentElement->getTagName()) == "decoded_trigger" )  {
-                                 string word = toNative( currentElement->getAttribute( fromNative("word").c_str() ) );
+                                 std::string word = toNative( currentElement->getAttribute( fromNative("word").c_str() ) );
                                  if( word == "undefined" )
                                     continue;
                                  if( word == "unknown" )
-                                    throw runtime_error(string("Unknown trigger: ") + triggerName);
-                                 istringstream bitstr( toNative( currentElement->getAttribute( fromNative("bit").c_str() ) ) ); 
+                                    throw std::runtime_error(std::string("Unknown trigger: ") + triggerName);
+                                 std::istringstream bitstr( toNative( currentElement->getAttribute( fromNative("bit").c_str() ) ) ); 
                                  unsigned bitpos = 0;
                                  bitstr >> bitpos;
                                  // cout << "Trigger " << triggerName << " run=" << runNumber << "  word=" << word << " bit=" << bitpos << endl;
@@ -833,13 +831,13 @@ void TrigCollQuery::WSQueryTriggerPositions( const string& triggers, bool useHig
 
    }
    catch (const XMLException& toCatch) {
-      throw runtime_error(string("XML Exception: ") + toNative(toCatch.getMessage()) );
+      throw std::runtime_error(std::string("XML Exception: ") + toNative(toCatch.getMessage()) );
    }
    catch (const DOMException& toCatch) {
-      throw runtime_error(string("XML DOM Exception: ") + toNative(toCatch.getMessage()) );
+      throw std::runtime_error(std::string("XML DOM Exception: ") + toNative(toCatch.getMessage()) );
    }
    catch( const SAXException &e ) {
-      throw runtime_error(string("XML SAX Exception: ") + toNative(e.getMessage()) );
+      throw std::runtime_error(std::string("XML SAX Exception: ") + toNative(e.getMessage()) );
    }
 }
    
@@ -854,7 +852,7 @@ bool TrigCollQuery::initXML()
 	 XMLPlatformUtils::Initialize();
       }
       catch (const XMLException& toCatch) {
-	 cerr << "Error during initialization! :" << toNative(toCatch.getMessage()) << endl;
+	 std::cerr << "Error during initialization! :" << toNative(toCatch.getMessage()) << std::endl;
       }
       m_xmlInitialized = true;
    }
