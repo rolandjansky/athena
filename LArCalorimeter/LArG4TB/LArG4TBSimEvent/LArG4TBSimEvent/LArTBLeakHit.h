@@ -20,7 +20,7 @@ class LArTBLeakHit
 {
  public:
      LArTBLeakHit(){;};
-     LArTBLeakHit(int d){dir = d;};
+     LArTBLeakHit(int d){m_dir = d;};
      LArTBLeakHit(int dir, int pcode, float ekin, float etot);
      LArTBLeakHit(const LArTBLeakHit &right);
 //     ~LArTBLeakHit(){;};
@@ -35,34 +35,34 @@ class LArTBLeakHit
 
 //Set- Get- methods
  // energy deposit
-     inline void SetEkin(double ed) { ekin = ed; }
-     inline void AddEkin(double ed) { ekin += ed; }
-     inline double GetEkin() { return ekin; }
-     inline void SetEtot(double ed) { etot = ed; }
-     inline void AddEtot(double ed) { etot += ed; }
-     inline double GetEtot() { return etot; }
+     inline void SetEkin(double ed) { m_ekin = ed; }
+     inline void AddEkin(double ed) { m_ekin += ed; }
+     inline double GetEkin() { return m_ekin; }
+     inline void SetEtot(double ed) { m_etot = ed; }
+     inline void AddEtot(double ed) { m_etot += ed; }
+     inline double GetEtot() { return m_etot; }
 
  // particle code
-     inline void SetCode(int cod) { pcode = cod; }
-     inline int GetCode() { return pcode; }
+     inline void SetCode(int cod) { m_pcode = cod; }
+     inline int GetCode() { return m_pcode; }
 
  // position
-     inline void SetPos(CLHEP::Hep3Vector p) { pos = p; }
-     inline CLHEP::Hep3Vector GetPos() { return pos; }
+     inline void SetPos(const CLHEP::Hep3Vector& p) { m_pos = p; }
+     inline CLHEP::Hep3Vector GetPos() { return m_pos; }
 
  // leakage direction
-     inline void SetDir(int d) { dir = d; }
-     inline int GetDir() { return dir; }
+     inline void SetDir(int d) { m_dir = d; }
+     inline int GetDir() { return m_dir; }
 
  private:
-     double ekin;     // kinetic energy of stopped particle
-     double etot;     // total energy       -"-
-     int    pcode;    // particle code, special codes for: deuterium 9001
+     double m_ekin;   // kinetic energy of stopped particle
+     double m_etot;   // total energy       -"-
+     int    m_pcode;  // particle code, special codes for: deuterium 9001
                         //                                   tritium   9002
                         //                                   alpha     9003
                         //                                   He3       9004
-     CLHEP::Hep3Vector pos; // absolute position of hit
-     int    dir;      // leakage direction encoding
+     CLHEP::Hep3Vector m_pos; // absolute position of hit
+     int    m_dir;     // leakage direction encoding
                         // 1,2     EMEC     x<0, x>0
                         // 3     EMEC down
                         // 4,5   EMEC back    -"-

@@ -18,7 +18,7 @@ class LArTBWarmTCHit
 {
  public:
      LArTBWarmTCHit(){;};
-     LArTBWarmTCHit(int ad, double en){addr = ad; energy = en; };
+     LArTBWarmTCHit(int ad, double en){m_addr = ad; m_energy = en; };
      LArTBWarmTCHit(const LArTBWarmTCHit &right);
 //     ~LArTBWarmTCHit(){;};
 
@@ -32,17 +32,17 @@ class LArTBWarmTCHit
 
 //Set- Get- methods
  // energy deposit
-     inline void SetEnergy(double ed) { energy = ed; }
-     inline void AddEnergy(double ed) { energy += ed; }
-     inline double GetEnergy() { return energy; }
+     inline void SetEnergy(double ed) { m_energy = ed; }
+     inline void AddEnergy(double ed) { m_energy += ed; }
+     inline double GetEnergy() { return m_energy; }
 
  // address
-     inline void SetAddr(int d) { addr = d; }
-     inline int GetAddr() { return addr; }
+     inline void SetAddr(int d) { m_addr = d; }
+     inline int GetAddr() { return m_addr; }
 
  private:
-     int     addr;   // Address: 
-     double  energy;
+     int     m_addr;   // Address: 
+     double  m_energy;
 };
 
 typedef std::vector<LArTBWarmTCHit> LArTBWarmTCHitsCollection;
