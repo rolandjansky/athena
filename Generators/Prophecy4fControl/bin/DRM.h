@@ -77,7 +77,7 @@ class DRM{
 		 TLorentzVector sum_daugh_rest_init);
 
   /* Set Particles Mass */
-  std::pair<double,double> SetParticleMass(double *ID);
+  std::pair<double,double> SetParticleMass(long *ID);
 
   /* Check if File Exists */
   bool FileExists(std::string filename);
@@ -96,15 +96,15 @@ class DRM{
   static constexpr double m_MuonMass     = 0.10566;
   static constexpr double m_ElectronMass = 0.00051;
   static constexpr double m_TauMass      = 1.777;
-  static const int m_ElectronID      = 11;
-  static const int m_MuonID          = 13;
-  static const int m_TauID           = 15;
-  static const int m_ZID             = 23;
-  static const int m_HiggsID         = 25;
-  static const int m_PhotonID        = 22;
-  static const int m_NeutrinoEl      = 12;
-  static const int m_NeutrinoMu      = 14;
-  static const int m_NeutrinoTau     = 16;
+  static const long m_ElectronID      = 11;
+  static const long m_MuonID          = 13;
+  static const long m_TauID           = 15;
+  static const long m_ZID             = 23;
+  static const long m_HiggsID         = 25;
+  static const long m_PhotonID        = 22;
+  static const long m_NeutrinoEl      = 12;
+  static const long m_NeutrinoMu      = 14;
+  static const long m_NeutrinoTau     = 16;
   
 };
 #endif

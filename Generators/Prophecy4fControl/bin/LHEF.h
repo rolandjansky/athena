@@ -505,7 +505,7 @@ struct XSecInfo : public TagBase {
   /**
    * Intitialize default values.
    */
-  XSecInfo(): neve(-1), maxweight(1.0), meanweight(1.0), negweights(false), 
+  XSecInfo(): neve(-1), totxsec(-1.0), maxweight(1.0), meanweight(1.0), negweights(false), 
 	      varweights(false) {}
 
   /**
@@ -1376,29 +1376,31 @@ public:
    * Assignment operator.
    */
   HEPRUP & operator=(const HEPRUP & x) {
-    attributes = x.attributes;
-    contents = x.contents;
-    IDBMUP = x.IDBMUP;
-    EBMUP = x.EBMUP;
-    PDFGUP = x.PDFGUP;
-    PDFSUP = x.PDFSUP;
-    IDWTUP = x.IDWTUP;
-    NPRUP = x.NPRUP;
-    XSECUP = x.XSECUP;
-    XERRUP = x.XERRUP;
-    XMAXUP = x.XMAXUP;
-    LPRUP = x.LPRUP;
-    xsecinfo = x.xsecinfo;
-    cuts = x.cuts;
-    ptypes = x.ptypes;
-    procinfo = x.procinfo;
-    mergeinfo = x.mergeinfo;
-    generators = x.generators;
-    weightgroup = x.weightgroup;
-    weightinfo = x.weightinfo;
-    junk = x.junk;
-    version = x.version;
-    weightmap = x.weightmap;
+    if(this!=&x){
+      attributes = x.attributes;
+      contents = x.contents;
+      IDBMUP = x.IDBMUP;
+      EBMUP = x.EBMUP;
+      PDFGUP = x.PDFGUP;
+      PDFSUP = x.PDFSUP;
+      IDWTUP = x.IDWTUP;
+      NPRUP = x.NPRUP;
+      XSECUP = x.XSECUP;
+      XERRUP = x.XERRUP;
+      XMAXUP = x.XMAXUP;
+      LPRUP = x.LPRUP;
+      xsecinfo = x.xsecinfo;
+      cuts = x.cuts;
+      ptypes = x.ptypes;
+      procinfo = x.procinfo;
+      mergeinfo = x.mergeinfo;
+      generators = x.generators;
+      weightgroup = x.weightgroup;
+      weightinfo = x.weightinfo;
+      junk = x.junk;
+      version = x.version;
+      weightmap = x.weightmap;
+    }
     return *this;
   }
 
@@ -1420,6 +1422,9 @@ public:
     }
     resize();
 
+    if (NPRUP < 0 || NPRUP > 1000000)
+      throw std::runtime_error("Unreasonable NPRUP "
+			       "in Les Houches Event File.");
     for ( int i = 0; i < NPRUP; ++i ) {
       if ( !( iss >> XSECUP[i] >> XERRUP[i] >> XMAXUP[i] >> LPRUP[i] ) ) {
       throw std::runtime_error("Could not parse processes in init block "
@@ -1428,36 +1433,36 @@ public:
     }
 
     for ( int i = 1, N = tags.size(); i < N; ++i ) {
-      const XMLTag & tag = *tags[i];
+      const XMLTag & tag2 = *tags[i];
 
-      if ( tag.name.empty() ) junk += tag.contents;
+      if ( tag2.name.empty() ) junk += tag2.contents;
 
-      if ( tag.name == "initrwgt" ) {
-	for ( int j = 0, M = tag.tags.size(); j < M; ++j ) {
-	  if ( tag.tags[j]->name == "weightgroup" )
-	    weightgroup.push_back(WeightGroup(*tag.tags[j], weightgroup.size(),
+      if ( tag2.name == "initrwgt" ) {
+	for ( int j = 0, M = tag2.tags.size(); j < M; ++j ) {
+	  if ( tag2.tags[j]->name == "weightgroup" )
+	    weightgroup.push_back(WeightGroup(*tag2.tags[j], weightgroup.size(),
 					      weightinfo));
-	  if ( tag.tags[j]->name == "weight" )
-	    weightinfo.push_back(WeightInfo(*tag.tags[j]));
+	  if ( tag2.tags[j]->name == "weight" )
+	    weightinfo.push_back(WeightInfo(*tag2.tags[j]));
 	  
 	}
       }
-      if ( tag.name == "weightinfo" ) {
-	weightinfo.push_back(WeightInfo(tag));
+      if ( tag2.name == "weightinfo" ) {
+	weightinfo.push_back(WeightInfo(tag2));
       }
-      if ( tag.name == "weightgroup" ) {
-	weightgroup.push_back(WeightGroup(tag, weightgroup.size(),
+      if ( tag2.name == "weightgroup" ) {
+	weightgroup.push_back(WeightGroup(tag2, weightgroup.size(),
 					  weightinfo));
       }
-      if ( tag.name == "xsecinfo" ) {
-	xsecinfo = XSecInfo(tag);
+      if ( tag2.name == "xsecinfo" ) {
+	xsecinfo = XSecInfo(tag2);
       }
-      if ( tag.name == "generator" ) {
-	generators.push_back(Generator(tag));
+      if ( tag2.name == "generator" ) {
+	generators.push_back(Generator(tag2));
       }
-      else if ( tag.name == "cutsinfo" ) {
-	for ( int j = 0, M = tag.tags.size(); j < M; ++j ) {
-	  XMLTag & ctag = *tag.tags[j];
+      else if ( tag2.name == "cutsinfo" ) {
+	for ( int j = 0, M = tag2.tags.size(); j < M; ++j ) {
+	  XMLTag & ctag = *tag2.tags[j];
 	  
 	  if ( ctag.name == "ptype" ) {
 	    std::string tname = ctag.attr["name"];
@@ -1469,12 +1474,12 @@ public:
 	    cuts.push_back(Cut(ctag, ptypes));
 	}
       }
-      else if ( tag.name == "procinfo" ) {
-	ProcInfo proc(tag);
+      else if ( tag2.name == "procinfo" ) {
+	ProcInfo proc(tag2);
 	procinfo[proc.iproc] = proc;
       }
-      else if ( tag.name == "mergeinfo" ) {
-	MergeInfo merge(tag);
+      else if ( tag2.name == "mergeinfo" ) {
+	MergeInfo merge(tag2);
 	mergeinfo[merge.iproc] = merge;
       }
 
@@ -1834,30 +1839,32 @@ public:
    * left untouched.
    */
   HEPEUP & setEvent(const HEPEUP & x) {
-    NUP = x.NUP;
-    IDPRUP = x.IDPRUP;
-    XWGTUP = x.XWGTUP;
-    XPDWUP = x.XPDWUP;
-    SCALUP = x.SCALUP;
-    AQEDUP = x.AQEDUP;
-    AQCDUP = x.AQCDUP;
-    IDUP = x.IDUP;
-    ISTUP = x.ISTUP;
-    MOTHUP = x.MOTHUP;
-    ICOLUP = x.ICOLUP;
-    PUP = x.PUP;
-    VTIMUP = x.VTIMUP;
-    SPINUP = x.SPINUP;
-    heprup = x.heprup;
-    namedweights = x.namedweights;
-    weights = x.weights;
-    pdfinfo = x.pdfinfo;
-    PDFGUPsave = x.PDFGUPsave;
-    PDFSUPsave = x.PDFSUPsave;
-    clustering = x.clustering;
-    scales = x.scales;
-    junk = x.junk;
-    currentWeight = x.currentWeight;
+    if(this!=&x){
+      NUP = x.NUP;
+      IDPRUP = x.IDPRUP;
+      XWGTUP = x.XWGTUP;
+      XPDWUP = x.XPDWUP;
+      SCALUP = x.SCALUP;
+      AQEDUP = x.AQEDUP;
+      AQCDUP = x.AQCDUP;
+      IDUP = x.IDUP;
+      ISTUP = x.ISTUP;
+      MOTHUP = x.MOTHUP;
+      ICOLUP = x.ICOLUP;
+      PUP = x.PUP;
+      VTIMUP = x.VTIMUP;
+      SPINUP = x.SPINUP;
+      heprup = x.heprup;
+      namedweights = x.namedweights;
+      weights = x.weights;
+      pdfinfo = x.pdfinfo;
+      PDFGUPsave = x.PDFGUPsave;
+      PDFSUPsave = x.PDFSUPsave;
+      clustering = x.clustering;
+      scales = x.scales;
+      junk = x.junk;
+      currentWeight = x.currentWeight;
+    }
     return *this;
   }
 
@@ -1865,10 +1872,12 @@ public:
    * Assignment operator.
    */
   HEPEUP & operator=(const HEPEUP & x) {
-    clear();
-    setEvent(x);
-    subevents = x.subevents;
-    isGroup = x.isGroup;
+    if (this != &x) {
+      clear();
+      setEvent(x);
+      subevents = x.subevents;
+      isGroup = x.isGroup;
+    }
     return *this;
   }
 
@@ -1913,6 +1922,9 @@ public:
     if ( !( iss >> NUP >> IDPRUP >> XWGTUP >> SCALUP >> AQEDUP >> AQCDUP ) )
       throw std::runtime_error("Failed to parse event in Les Houches file.");
 
+    if (NUP < 0 || NUP > 10000000)
+      throw std::runtime_error("Unreasonable NUP in Les Houches file.");
+
     resize();
 
     // Read all particle lines.
@@ -1940,11 +1952,11 @@ public:
       weights[i].second =  &heprup->weightinfo[i - 1];
 
     for ( int i = 1, N = tags.size(); i < N; ++i ) {
-      XMLTag & tag = *tags[i];
+      XMLTag & tag2 = *tags[i];
 
-      if ( tag.name.empty() ) junk += tag.contents;
+      if ( tag2.name.empty() ) junk += tag2.contents;
 
-      if ( tag.name == "weights" ) {
+      if ( tag2.name == "weights" ) {
 	weights.resize(heprup->nWeights(),
 		       std::make_pair(XWGTUP, (WeightInfo*)(0)));
 	weights.front().first = XWGTUP;
@@ -1952,34 +1964,34 @@ public:
 	  weights[i].second =  &heprup->weightinfo[i - 1];
 	double w = 0.0;
 	int i = 0;
-	std::istringstream iss(tag.contents);
+	std::istringstream iss(tag2.contents);
 	while ( iss >> w )
 	  if ( ++i < int(weights.size()) )
 	    weights[i].first = w;
 	  else
 	    weights.push_back(std::make_pair(w, (WeightInfo*)(0)));
       }
-      if ( tag.name == "weight" ) {
-	namedweights.push_back(Weight(tag));
+      if ( tag2.name == "weight" ) {
+	namedweights.push_back(Weight(tag2));
       }
-      if ( tag.name == "rwgt" ) {
-	for ( int j = 0, M = tag.tags.size(); j < M; ++j ) {
-	  if ( tag.tags[j]->name == "wgt" ) {
-	    namedweights.push_back(Weight(*tag.tags[j]));
+      if ( tag2.name == "rwgt" ) {
+	for ( int j = 0, M = tag2.tags.size(); j < M; ++j ) {
+	  if ( tag2.tags[j]->name == "wgt" ) {
+	    namedweights.push_back(Weight(*tag2.tags[j]));
 	  }
 	}
       }
-      else if ( tag.name == "clustering" ) {
-	for ( int j = 0, M= tag.tags.size(); j < M; ++j ) {
-	  if ( tag.tags[j]->name == "clus" )
-	    clustering.push_back(Clus(*tag.tags[j]));
+      else if ( tag2.name == "clustering" ) {
+	for ( int j = 0, M= tag2.tags.size(); j < M; ++j ) {
+	  if ( tag2.tags[j]->name == "clus" )
+	    clustering.push_back(Clus(*tag2.tags[j]));
 	}
       }
-      else if ( tag.name == "pdfinfo" ) {
-	pdfinfo = PDFInfo(tag, SCALUP);
+      else if ( tag2.name == "pdfinfo" ) {
+	pdfinfo = PDFInfo(tag2, SCALUP);
       }
-      else if ( tag.name == "scales" ) {
-	scales = Scales(tag, SCALUP);
+      else if ( tag2.name == "scales" ) {
+	scales = Scales(tag2, SCALUP);
       }
 
     }
@@ -2122,8 +2134,8 @@ public:
   double totalWeight(int i = 0) const {
     if ( subevents.empty() ) return weight(i);
     double w = 0.0;
-    for ( int i = 0, N = subevents.size(); i < N; ++i )
-      w += subevents[i]->weight(i);
+    for ( int j = 0, N = subevents.size(); j < N; ++j )
+      w += subevents[j]->weight(i);
     return w;
   }
 
@@ -2221,9 +2233,9 @@ public:
     if ( i == 0 ) {
       reset();
       weights = subevents[0]->weights;
-      for ( int i = 1, N = subevents.size(); i < N; ++i )
+      for ( int k = 1, N = subevents.size(); k < N; ++k )
 	for ( int j = 0, M = weights.size(); j < M; ++j )
-	  weights[j].first += subevents[i]->weights[j].first;
+	  weights[j].first += subevents[k]->weights[j].first;
       currentWeight = 0;
     } else {
       setEvent(*subevents[i - 1]);
@@ -2452,7 +2464,7 @@ public:
    * @param is the stream to read from.
    */
   Reader(std::istream & is)
-    : file(is) {
+    : m_file(is) {
     init();
   }
 
@@ -2467,7 +2479,7 @@ public:
    * @param filename the name of the file to read from.
    */
   Reader(std::string filename)
-    : intstream(filename.c_str()), file(intstream) {
+    : m_intstream(filename.c_str()), m_file(m_intstream) {
     init();
   }
 
@@ -2504,37 +2516,37 @@ private:
 	// all following lines to headerBlock until we hit the end of
 	// it.
 	readingHeader = true;
-	headerBlock = currentLine + "\n";
+	headerBlock = m_currentLine + "\n";
       }
       else if ( currentFind("<init>") ) {
 	// We have hit the init block
 	readingInit = true;
-	initComments = currentLine + "\n";
+	initComments = m_currentLine + "\n";
       }
       else if ( currentFind("</header>") ) {
 	// The end of the header block. Dump this line as well to the
 	// headerBlock and we're done.
 	readingHeader = false;
-	headerBlock += currentLine + "\n";
+	headerBlock += m_currentLine + "\n";
       }
       else if ( readingHeader ) {
 	// We are in the process of reading the header block. Dump the
 	// line to haderBlock.
-	headerBlock += currentLine + "\n";
+	headerBlock += m_currentLine + "\n";
       }
       else if ( readingInit ) {
 	// Here we found a comment line. Dump it to initComments.
-	initComments += currentLine + "\n";
+	initComments += m_currentLine + "\n";
       }
       else {
 	// We found some other stuff outside the standard tags.
-	outsideBlock += currentLine + "\n";
+	outsideBlock += m_currentLine + "\n";
       }
     }
     if ( !currentFind("</init>") )
       	throw std::runtime_error("Found incomplete init tag in "
 				 "Les Houches file.");
-    initComments += currentLine + "\n";
+    initComments += m_currentLine + "\n";
     std::vector<XMLTag*> tags = XMLTag::findXMLTags(initComments);
     for ( int i = 0, N = tags.size(); i < N; ++i )
       if ( tags[i]->name == "init" ) {
@@ -2566,20 +2578,20 @@ public:
     // Keep reading lines until we hit the end of an event or event group.
     while ( getline() ) {
       if ( inEvent ) {
-	eventLines += currentLine + "\n";
+	eventLines += m_currentLine + "\n";
 	if ( inEvent == 1 && currentFind("</event>") ) break;
 	if ( inEvent == 2 && currentFind("</eventgroup>") ) break;
       }
       else if ( currentFind("<eventgroup") ) {
-	eventLines += currentLine + "\n";
+	eventLines += m_currentLine + "\n";
 	inEvent = 2;
       }
       else if ( currentFind("<event") ) {
-	eventLines += currentLine + "\n";
+	eventLines += m_currentLine + "\n";
 	inEvent = 1;
       }
       else {
-	outsideBlock += currentLine + "\n";
+	outsideBlock += m_currentLine + "\n";
       }
     }
     if ( inEvent == 1 && !currentFind("</event>") ) return false;
@@ -2606,14 +2618,14 @@ protected:
    * Used internally to read a single line from the stream.
    */
   bool getline() {
-    return ( std::getline(file, currentLine) );
+    return ( std::getline(m_file, m_currentLine).good() );
   }
 
   /**
    * @return true if the current line contains the given string.
    */
   bool currentFind(std::string str) const {
-    return currentLine.find(str) != std::string::npos;
+    return m_currentLine.find(str) != std::string::npos;
   }
 
 protected:
@@ -2622,18 +2634,18 @@ protected:
    * A local stream which is unused if a stream is supplied from the
    * outside.
    */
-  std::ifstream intstream;
+  std::ifstream m_intstream;
 
   /**
    * The stream we are reading from. This may be a reference to an
-   * external stream or the internal intstream.
+   * external stream or the internal m_intstream.
    */
-  std::istream & file;
+  std::istream & m_file;
 
   /**
    * The last line read in from the stream in getline().
    */
-  std::string currentLine;
+  std::string m_currentLine;
 
 public:
 
@@ -2722,20 +2734,20 @@ public:
    * @param os the stream where the event file is written.
    */
   Writer(std::ostream & os)
-    : file(os) {  }
+    : m_file(os) {  }
 
   /**
    * Create a Writer object giving a filename to write to.
    * @param filename the name of the event file to be written.
    */
   Writer(std::string filename)
-    : intstream(filename.c_str()), file(intstream) {}
+    : m_intstream(filename.c_str()), m_file(m_intstream) {}
 
   /**
    * The destructor writes out the final XML end-tag.
    */
   ~Writer() {
-    file << "</LesHouchesEvents>" << std::endl;
+    m_file << "</LesHouchesEvents>" << std::endl;
   }
 
   /**
@@ -2767,29 +2779,29 @@ public:
 
     // Write out the standard XML tag for the event file.
     if ( heprup.version == 3 )
-      file << "<LesHouchesEvents version=\"3.0\">\n";
+      m_file << "<LesHouchesEvents version=\"3.0\">\n";
     else if ( heprup.version == 2 )
-      file << "<LesHouchesEvents version=\"2.0\">\n";
+      m_file << "<LesHouchesEvents version=\"2.0\">\n";
     else
-      file << "<LesHouchesEvents version=\"1.0\">\n";
+      m_file << "<LesHouchesEvents version=\"1.0\">\n";
 
 
-    file << std::setprecision(8);
+    m_file << std::setprecision(8);
 
     using std::setw;
 
     std::string headerBlock = headerStream.str();
     if ( headerBlock.length() ) {
       if ( headerBlock.find("<header>") == std::string::npos )
-	file << "<header>\n";
+	m_file << "<header>\n";
       if ( headerBlock[headerBlock.length() - 1] != '\n' )
 	headerBlock += '\n';
-      file << headerBlock;
+      m_file << headerBlock;
       if ( headerBlock.find("</header>") == std::string::npos )
-	file << "</header>\n";
+	m_file << "</header>\n";
     }
 
-    heprup.print(file);
+    heprup.print(m_file);
 
   }
 
@@ -2797,7 +2809,7 @@ public:
    * Write the current HEPEUP object to the stream;
    */
   void writeEvent() {
-    hepeup.print(file);
+    hepeup.print(m_file);
   }
       
 protected:
@@ -2806,13 +2818,13 @@ protected:
    * A local stream which is unused if a stream is supplied from the
    * outside.
    */
-  std::ofstream intstream;
+  std::ofstream m_intstream;
 
   /**
    * The stream we are writing to. This may be a reference to an
-   * external stream or the internal intstream.
+   * external stream or the internal m_intstream.
    */
-  std::ostream & file;
+  std::ostream & m_file;
 
 public:
 
