@@ -61,9 +61,10 @@ ZdcDigits::ZdcDigits( const HWIdentifier& HWid,
 void ZdcDigits::print() const
 {
 
-  std::cout << "Trying to print ZdcDigits" << std::endl;
+  std::cout << "Trying to print() ZdcDigits" << std::endl;
   
   //std::cout << (std::string) (*(ZdcRawData *)this);
+  //std::cout << "ID=" << identify() << std::endl;
   //std::cout << std::setiosflags( std::ios::fixed );
   //std::cout << std::setiosflags( std::ios::showpoint );
   //std::cout << std::setprecision(2);
@@ -105,6 +106,8 @@ ZdcDigits::operator std::string() const
   std::ostringstream text(std::ostringstream::out);
   
   text << (std::string) (*(ZdcRawData *)this);
+  //std::cout << "IDo=" << identify() << std::endl;
+
   text << std::setiosflags( std::ios::fixed );
   text << std::setiosflags( std::ios::showpoint );
   text << std::setprecision(2);
@@ -123,21 +126,61 @@ ZdcDigits::operator std::string() const
 
 void ZdcDigits::set_digits_gain0_delay0(const std::vector<int>& v)
 {
-  m_digits_gain0_delay0 = std::vector<int>(v); // just copy it
+  m_digits_gain0_delay0 = v; // just copy it
 }
 
 void ZdcDigits::set_digits_gain0_delay1(const std::vector<int>& v)
 {
-  m_digits_gain0_delay1 = std::vector<int>(v); // just copy it
+  m_digits_gain0_delay1 = v; // just copy it
 }
 
 void ZdcDigits::set_digits_gain1_delay0(const std::vector<int>& v)
 {
-  m_digits_gain1_delay0 = std::vector<int>(v); // just copy it
+  m_digits_gain1_delay0 = v; // just copy it
 }
 
 void ZdcDigits::set_digits_gain1_delay1(const std::vector<int>& v)
 {
-  m_digits_gain1_delay1 = std::vector<int>(v); // just copy it
+  m_digits_gain1_delay1 = v; // just copy it
+}
+
+void ZdcDigits::set_digits_gain0_delay0(const std::vector<uint16_t>& v)
+{
+  m_digits_gain0_delay0.clear();
+  m_digits_gain0_delay0.resize(v.size());
+  for (size_t i=0;i<v.size();i++)
+    {
+      m_digits_gain0_delay0.at(i) = v.at(i); // just copy it
+    }
+}
+
+void ZdcDigits::set_digits_gain0_delay1(const std::vector<uint16_t>& v)
+{
+  m_digits_gain0_delay1.clear();
+  m_digits_gain0_delay1.resize(v.size());
+  for (size_t i=0;i<v.size();i++)
+    {
+      m_digits_gain0_delay1.at(i) = v.at(i); // just copy it
+    }
+}
+
+void ZdcDigits::set_digits_gain1_delay0(const std::vector<uint16_t>& v)
+{
+  m_digits_gain1_delay0.clear();
+  m_digits_gain1_delay0.resize(v.size());
+  for (size_t i=0;i<v.size();i++)
+    {
+      m_digits_gain1_delay0.at(i) = v.at(i); // just copy it
+    }
+}
+
+void ZdcDigits::set_digits_gain1_delay1(const std::vector<uint16_t>& v)
+{
+  m_digits_gain1_delay1.clear();
+  m_digits_gain1_delay1.resize(v.size());
+  for (size_t i=0;i<v.size();i++)
+    {
+      m_digits_gain1_delay1.at(i) = v.at(i); // just copy it
+    }
 }
 

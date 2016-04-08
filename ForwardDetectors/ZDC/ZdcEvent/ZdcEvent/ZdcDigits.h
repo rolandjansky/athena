@@ -22,6 +22,7 @@
 #define ZDCEVENT_ZDCDIGITS_H
 
 #include "ZdcEvent/ZdcRawData.h"
+#include <stdint.h>
 
 class ZdcDigits : public ZdcRawData
 {
@@ -49,6 +50,10 @@ public:
     void set_digits_gain0_delay1(const std::vector<int>& v);
     void set_digits_gain1_delay0(const std::vector<int>& v);
     void set_digits_gain1_delay1(const std::vector<int>& v);
+    void set_digits_gain0_delay0(const std::vector<uint16_t>& v);
+    void set_digits_gain0_delay1(const std::vector<uint16_t>& v);
+    void set_digits_gain1_delay0(const std::vector<uint16_t>& v);
+    void set_digits_gain1_delay1(const std::vector<uint16_t>& v);
 
     inline const std::vector<int>&  get_digits_gain0_delay0(void)  const { return m_digits_gain0_delay0; }
     inline const std::vector<int>&  get_digits_gain0_delay1(void)  const { return m_digits_gain0_delay1; }
