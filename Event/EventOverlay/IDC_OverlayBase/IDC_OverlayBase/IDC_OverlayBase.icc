@@ -37,16 +37,16 @@ namespace Overlay {
 
   //================================================================
   template<class Collection>
-  void mergeCollectionsNew(Collection *data_coll, Collection *mc_coll, IDC_OverlayBase *parent) {
+  void mergeCollectionsNew(Collection *mc_coll, Collection *data_coll, IDC_OverlayBase *parent) {
     
-    if(data_coll->identify() != mc_coll->identify()) {
+    if(mc_coll->identify() != data_coll->identify()) {
       std::ostringstream os;
       os<<"mergeCollectionsNew<generic>(): collection Id mismatch";
       parent->msg(MSG::FATAL)<<os.str()<<endreq;
       throw std::runtime_error(os.str());
     }
 
-    const Identifier idColl = data_coll->identify();
+    const Identifier idColl = mc_coll->identify();
 
     // ----------------------------------------------------------------
     // debug
@@ -55,7 +55,7 @@ namespace Overlay {
       first_time = false;
       parent->msg(MSG::INFO)<<"IDC_OverlayBase::mergeCollectionsNew(): "
 			    <<"generic code is called for "
-			    <<typeid(*data_coll).name() 
+			    <<typeid(*mc_coll).name() 
 			    <<endreq;
     }
   
@@ -72,10 +72,10 @@ namespace Overlay {
     mc_coll->swap(mc);
 
     // Just an alias
-    Collection *output = data_coll;
+    Collection *output = mc_coll;
   
     //################################################################
-    // Merge by copying ptrs from data and mc to data_coll
+    // Merge by copying ptrs from data and mc to mc_coll
 
     typename Collection::size_type idata = 0;
     typename Collection::size_type imc = 0;
@@ -85,28 +85,28 @@ namespace Overlay {
       // The RDO that goes to the output at the end of this step.
       typename Collection::base_value_type *p_rdo(0);
     
-      if(idata == data.size()) {
-	// just copy the remaining MC inputs
-	mc.swapElement(imc++, 0, p_rdo);
-      }
-      else if(imc == mc.size()) {
-	//just copy the remaining data digits
+      if(imc == mc.size()) {
+	// just copy the remaining data inputs
 	data.swapElement(idata++, 0, p_rdo);
+      }
+      else if(idata == data.size()) {
+	//just copy the remaining MC digits
+	mc.swapElement(imc++, 0, p_rdo);
       }
       else {
 	// Need to decide which one goes first.  
 	// See comments in TRTDigitization.cxx about the assumption that id1<id2 <=> hash1<hash2
-	if( data[idata]->identify() < mc[imc]->identify() ) {
-	  data.swapElement(idata++, 0, p_rdo);
-	}
-	else if(mc[imc]->identify() < data[idata]->identify()) {
+	if( mc[imc]->identify() < data[idata]->identify() ) {
 	  mc.swapElement(imc++, 0, p_rdo);
+	}
+	else if(data[idata]->identify() < mc[imc]->identify()) {
+	  data.swapElement(idata++, 0, p_rdo);
 	}
 	else {
 	  // The hits are on the same channel.
 	  typename Collection::base_value_type *p2(0);
-	  mc.swapElement(imc++, 0, p2);
-	  data.swapElement(idata++, 0, p_rdo);
+	  data.swapElement(idata++, 0, p2);
+	  mc.swapElement(imc++, 0, p_rdo);
 	  Overlay::mergeChannelData(*p_rdo, *p2, parent);
 	  delete p2;
 	}
@@ -121,8 +121,8 @@ namespace Overlay {
 
 //================================================================
 template<class Collection>
-void IDC_OverlayBase::mergeCollections(Collection *data_coll, 
-				       Collection *mc_coll)
+void IDC_OverlayBase::mergeCollections(Collection *mc_coll, 
+				       Collection *data_coll)
 {
   DataVector<typename Collection::base_value_type> data;
   data_coll->swap(data);
@@ -131,10 +131,10 @@ void IDC_OverlayBase::mergeCollections(Collection *data_coll,
   mc_coll->swap(mc);
 
   // Just an alias
-  Collection *output = data_coll;
+  Collection *output = mc_coll;
   
   //################################################################
-  // Merge by copying ptrs from data and mc to data_coll
+  // Merge by copying ptrs from data and mc to mc_coll
 
   typename Collection::size_type idata = 0;
   typename Collection::size_type imc = 0;
@@ -164,8 +164,8 @@ void IDC_OverlayBase::mergeCollections(Collection *data_coll,
       else {
 	// The hits are on the same channel.
 	typename Collection::base_value_type *p2(0);
-	mc.swapElement(imc++, 0, p2);
-	data.swapElement(idata++, 0, p_rdo);
+	data.swapElement(idata++, 0, p2);
+	mc.swapElement(imc++, 0, p_rdo);
 	Overlay::mergeChannelData(*p_rdo, *p2, this);
 	delete p2;
       }
