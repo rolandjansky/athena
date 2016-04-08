@@ -39,6 +39,38 @@
 // STL
 #include <map>
 
+namespace {
+  template <class T>
+  class PtrVectorWrapper 
+  {
+  public:
+    PtrVectorWrapper () 
+      : m_ptr(new std::vector<const T *>)
+    {
+    }
+    
+    ~PtrVectorWrapper() {
+      if (m_ptr) {
+	for (const T *elm : *m_ptr ) {
+	  delete elm;
+	}
+	m_ptr->clear();
+      }
+    }
+    std::vector<const T *> &operator*() { return *m_ptr; }
+    const std::vector<const T *> &operator*() const { return *m_ptr; }
+    
+    std::vector<const T *> *operator->() { return m_ptr.get(); }
+    const std::vector<const T *> *operator->() const { return m_ptr.get(); }
+    
+    std::vector<const T *> *release() { return m_ptr.release(); }
+    
+  private:
+    std::unique_ptr<std::vector<const T *> > m_ptr;
+  };
+  
+}
+
 // constructor
 InDet::TRT_LayerBuilder::TRT_LayerBuilder(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
@@ -111,7 +143,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::TRT_LayerBuilder::cylindr
 
   ATH_MSG_DEBUG( "Building cylindrical layers for the TRT " );
 
-  std::unique_ptr<std::vector< const Trk::CylinderLayer* > > barrelLayers( new std::vector< const Trk::CylinderLayer* > );
+  PtrVectorWrapper<Trk::CylinderLayer> barrelLayers;
 
   // get Numerology and Id HElper
   const InDetDD::TRT_Numerology* trtNums = m_trtMgr->getNumerology();
@@ -441,8 +473,6 @@ const std::vector< const Trk::DiscLayer* >* InDet::TRT_LayerBuilder::discLayers(
 
   ATH_MSG_DEBUG( "Building disc-like layers for the TRT " );
 
-  std::unique_ptr<std::vector< const Trk::DiscLayer* > > endcapLayers(new std::vector<const Trk::DiscLayer*>);
-
   const InDetDD::TRT_Numerology* trtNums = m_trtMgr->getNumerology();
   // get the TRT ID Helper
   const TRT_ID* trtIdHelper = 0;
@@ -490,6 +520,9 @@ const std::vector< const Trk::DiscLayer* >* InDet::TRT_LayerBuilder::discLayers(
       ATH_MSG_WARNING( "fullDiscBounds do not exist ... aborting and returning 0 !" );
       return 0;
   }
+
+  PtrVectorWrapper<Trk::DiscLayer> endcapLayers;
+
   // the BinUtility for the material
   Trk::BinnedLayerMaterial* layerMaterial = 0;
   // -- material with 1D binning

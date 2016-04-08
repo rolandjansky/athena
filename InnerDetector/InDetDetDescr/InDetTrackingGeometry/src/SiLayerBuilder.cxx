@@ -881,7 +881,15 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
         if (m_pixelCase)
             olDescriptor = new InDet::PixelOverlapDescriptor;
         //else olDescriptor = new  InDet::SCT_OverlapDescriptor;
-	else olDescriptor = new  InDet::DiscOverlapDescriptor(currentBinnedArray, singleBinUtils);
+	else {
+	  std::vector<Trk::BinUtility*>* BinUtils = new std::vector<Trk::BinUtility*>;
+	  if (singleBinUtils) {
+	    std::vector<Trk::BinUtility*>::iterator binIter = singleBinUtils->begin();
+	    for ( ; binIter != singleBinUtils->end(); ++binIter)
+	      BinUtils->push_back((*binIter)->clone());
+	  }
+	  olDescriptor = new  InDet::DiscOverlapDescriptor(currentBinnedArray, BinUtils);
+	}
         
         // layer creation
         Trk::DiscLayer* activeLayer = new Trk::DiscLayer(activeLayerTransform,
