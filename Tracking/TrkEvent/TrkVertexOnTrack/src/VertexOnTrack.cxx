@@ -27,6 +27,16 @@ Trk::VertexOnTrack::VertexOnTrack( const LocalParameters& locpars,
 }
 
 
+Trk::VertexOnTrack::VertexOnTrack( const LocalParameters& locpars,
+                                   const Amg::MatrixX& locerr,
+                                   Trk::SurfaceUniquePtrT<const PerigeeSurface> assocSurf) :
+  Trk::MeasurementBase(locpars,locerr),
+  m_associatedSurface(assocSurf.release()),
+  m_globalPosition(0)
+{
+}
+
+
 // Constructor with parameters:
 Trk::VertexOnTrack::VertexOnTrack( const Trk::RecVertex& rvertex,
                                    const Trk::Perigee& perigee ) throw (GaudiException) :
