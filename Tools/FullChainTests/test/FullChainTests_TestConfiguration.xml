@@ -79,7 +79,7 @@
               <doc>digireco</doc>
               <jobTransformJobName>MinBias_digi_Reco_trf</jobTransformJobName>
               <jobTransformCmd>
-                fct_trf.py --config=$AtlasArea/Tools/FullChainTests/test/digireco_MC12.cfg --runDigi --runReco
+                fct_trf.py --config=$AtlasBaseDir/AtlasOffline/$AtlasVersion/Tools/FullChainTests/test/digireco_MC12.cfg --runDigi --runReco
               </jobTransformCmd>
               <group>FCTTransform</group>
               <queue>long</queue>
