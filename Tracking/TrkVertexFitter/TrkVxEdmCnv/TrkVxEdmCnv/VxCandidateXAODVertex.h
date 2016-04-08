@@ -59,12 +59,12 @@ class VxCandidateXAODVertex
   /**
    * Convert xAOD::Vertex to a VxCandidate. Return object is own by the clients.
    */
-  virtual StatusCode createVxCandidate(xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex);
+  virtual StatusCode createVxCandidate(const xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex);
 
   /**
    * Convert a VxCandidate to a VxVertex. Return object is own by the clients.
    */
-  virtual StatusCode createXAODVertex(Trk::VxCandidate &vxVertex, xAOD::Vertex* &xAODVx);
+  virtual StatusCode createXAODVertex(const Trk::VxCandidate &vxVertex, xAOD::Vertex* &xAODVx);
 
   /** Convert a VxContainer to a xAOD::VertexContainer with its own aux store.
    * @param vxContainer input @c VxContainer object
@@ -72,14 +72,14 @@ class VxCandidateXAODVertex
    * @param xAODAuxContainer output @c xAOD::VertexAuxContainer object
    * @param xAODContainerName output container key, will be used to store it in StoreGate if provided
    */
-  virtual StatusCode createXAODVertexContainer(VxContainer &vxContainer, 
+  virtual StatusCode createXAODVertexContainer(const VxContainer &vxContainer, 
 					       xAOD::VertexContainer* &xAODVxContainer, xAOD::VertexAuxContainer* &xAODVxAuxContainer, 
 					       std::string xAODContainerName="");
 
   /**
    * Convert a xAOD::VertexContainer to a VxContainer
    */
-  virtual StatusCode createVxContainer(xAOD::VertexContainer &xAODVxContainer, VxContainer* &vxContainer, std::string vxCandidateContainerName="");
+  virtual StatusCode createVxContainer(const xAOD::VertexContainer &xAODVxContainer, VxContainer* &vxContainer, std::string vxCandidateContainerName="");
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
