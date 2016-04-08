@@ -89,8 +89,8 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
   DataVector<const TrackStateOnSurface>* trackStates = new DataVector<const TrackStateOnSurface>;
 
   // These variables are filled with pointers
-  const TrackStateOnSurface* firstValidIDTSOS(0),* lastValidIDTSOS(0),* firstValidMSTSOS(0),* lastValidMSTSOS(0),* lastIDMeasTSOS(0);
-  TrackStateOnSurface *copiedIDtsosWithMeas(0);
+  const TrackStateOnSurface* firstValidIDTSOS(0),* lastValidIDTSOS(0),* firstValidMSTSOS(0),* lastValidMSTSOS(0)/**,* lastIDMeasTSOS(0)**/;
+  /**TrackStateOnSurface *copiedIDtsosWithMeas(0); **/
   
   if (m_keepParameters)
   {
@@ -110,9 +110,7 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
     }
   }
   
-  // if (lastValidIDTSOS) //std::cout<<"Found a lastValidIDTSOS: "<<*lastValidIDTSOS<<std::endl;
-  // if (lastValidMSTSOS) //std::cout<<"Found a lastValidMSTSOS: "<<*lastValidMSTSOS<<std::endl;
-
+ 
 
   // If m_keepParameters is true, then we want to keep the first and last parameters of ID & MS. 
   const Trk::MeasurementBase* rot = 0;
@@ -204,7 +202,7 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
         if ( (*itTSoS)->trackParameters() != 0) keepParameter=true;
         //std::cout<<"*** Entering ID - keeping parameter"<<std::endl;
       }
-
+			/** coverity 13545
       // Check if we're no longer in ID, 
       if (!isIDmeas && !lastValidIDTSOS && lastIDMeasTSOS ) {
         lastValidIDTSOS=lastIDMeasTSOS;
@@ -214,12 +212,10 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
         } else {
           ATH_MSG_DEBUG("Last ID measurement didn't have a track parameter!");
           msg(MSG::DEBUG)<<*lastIDMeasTSOS<<endreq;
-        }
-        
-        //std::cout<<"*** Leaving ID - adding parameter to last ID Meas"<<std::endl;
-        
+        }        
       }
-
+    **/
+    
     // entering MS? 
       if (isMSmeas && !firstValidMSTSOS ) {
         firstValidMSTSOS=*itTSoS;
@@ -238,7 +234,6 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
     if (keepParameter) {
       parameters=(*itTSoS)->trackParameters()->clone(); // make sure we add a new parameter by cloning
       if ((*itTSoS)->type(TrackStateOnSurface::Perigee))  typePattern.set(TrackStateOnSurface::Perigee);
-      //std::cout<<"Keeping this TSOS & its parameter: "<<(**itTSoS)<<std::endl;
     }
 
     // It'd be nice if there was a way to access the bitset directly, so instead of the below I could
@@ -257,19 +252,16 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
     if (rot!=0 || parameters!=0) {
       newTSOS = new Trk::TrackStateOnSurface(rot, parameters, 0, 0, typePattern);
       trackStates->push_back( newTSOS );
-    } else {
-      // Outlier, but we're not keeping them.
-      delete newTSOS; newTSOS=0;
-      continue;
-    }
-
+    } 
+    /** coverity 13544
     if (isIDmeas && copiedIDtsosWithMeas) {
        copiedIDtsosWithMeas = newTSOS; // Keep track unless we need to add parameter to it, if it turns out to have been last ID TSOS
        lastIDMeasTSOS=*itTSoS;
      }
+     **/
   }       
 
-  Trk::Track* newTrack = new Track(Trk::TrackInfo(track.info()),
+  Trk::Track* newTrack = new Trk::Track(Trk::TrackInfo(track.info()),
     trackStates,
     track.fitQuality()->clone()
     );
