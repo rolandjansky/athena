@@ -20,11 +20,6 @@
 #include <assert.h>
 
 
-#ifdef __GNUC__
-# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
-
 /*- data ------------------------------------------------------------------- */
 
 /* holder to locate this shared library */
@@ -55,10 +50,9 @@ static struct hhh_HashTable *gTraceInfo  = 0;
 static struct hhh_HashTable *gPushBacks = 0;
 static struct hhh_NameSet {
    char **names;
-   unsigned int *lens;
    unsigned int size;
    unsigned int capacity;
-} gIgnoreNames, gIgnoreCallNames, gTraceNames;
+} gIgnoreNames, gTraceNames;
 static struct hhh_HashTable *gOldTracers[ hhh_MAX_CHECKPOINTS + 1 ];
 
 /* for free statistics */
@@ -93,7 +87,6 @@ struct hhh_HashTable *hhh_getTraceInfo() {
 /* - helpers for dealing with sets of names -------------------------------- */
 static void hhh_NameSet_construct( struct hhh_NameSet *nameset, unsigned int size ) {
    nameset->names = (char**)malloc( sizeof(char*)*size );
-   nameset->lens = (unsigned int*)malloc( sizeof(unsigned int)*size );
    nameset->size = 0;
    nameset->capacity = size;
 }
@@ -104,9 +97,7 @@ static void hhh_NameSet_destroy( struct hhh_NameSet *nameset ) {
    for ( i = 0; i < nameset->size; i++ )
       free( nameset->names[i] );
    free( nameset->names );
-   free( nameset->lens );
    nameset->names = 0; nameset->capacity = 0; nameset->size = 0;
-   nameset->lens = 0;
 }
 
 static void hhh_NameSet_Add( struct hhh_NameSet *nameset, const char *name ) {
@@ -115,15 +106,11 @@ static void hhh_NameSet_Add( struct hhh_NameSet *nameset, const char *name ) {
    if ( nameset->size >= nameset->capacity ) {
       nameset->names =
          (char**)realloc( nameset->names, sizeof(char*)*nameset->capacity*2 );
-      nameset->lens =
-         (unsigned int*)realloc( nameset->lens, sizeof(unsigned int)*nameset->capacity*2 );
       nameset->capacity *= 2;
    }
 
-   unsigned int len = strlen( name );
-   name_cp = (char*)malloc( len + 1 );
+   name_cp = (char*)malloc( strlen( name ) + 1 );
    strcpy( name_cp, name );
-   nameset->lens[ nameset->size ] = len;
    nameset->names[ nameset->size++ ] = name_cp;
 }
 
@@ -245,24 +232,6 @@ static void hhh_report( void ) {
             }
          }
 
-         {
-           StackElement* elt;
-           for (elt = STACK_HANDLE_ELEMENT (summary->leak->handle);
-                !STACK_ELEMENT_IS_ROOT(elt);
-                elt = STACK_ELEMENT_PARENT (elt))
-           {
-             const char* s = hhh_getSymbol( *elt );
-             int iname;
-             for ( iname = 0; iname < gIgnoreCallNames.size; ++iname ) {
-               if ( strncmp (s, gIgnoreCallNames.names[iname], gIgnoreCallNames.lens[iname]) == 0 )
-               {
-                 ignore = 1;
-                 break;
-               }
-             }
-           }
-         }
-
          if ( pos )
             free( sub );
          sub = 0;
@@ -272,7 +241,7 @@ static void hhh_report( void ) {
          long leakSize = summary->count * summary->leak->size;
          if ( ! ignore ) {
             nreports += 1;
-            fprintf( gReportStream, "%u leak%s (total %ld bytes), originating in:\n",
+            fprintf( gReportStream, "%d leak%s (total %ld bytes), originating in:\n",
                      summary->count, (summary->count == 1 ? "" : "s"),
                      leakSize );
             
@@ -290,7 +259,7 @@ static void hhh_report( void ) {
       hhh_NameSet_print( gReportStream, &gTraceNames, " for " );
       fprintf( gReportStream, ":\n" );
 
-      fprintf( gReportStream, "   detected %u unique leak%s\n",
+      fprintf( gReportStream, "   detected %d unique leak%s\n",
                nuniq, (nuniq == 1 ? "" : "s" ) );
             
       fprintf( gReportStream, "   detected %d non-unique leak%s (total %ld bytes reported)\n",
@@ -299,7 +268,7 @@ static void hhh_report( void ) {
 
       if ( (nuniq - nreports) != 0 )
          fprintf( gReportStream,
-                  "   ignored %u unique leak%s using %u filter%s (total %ld bytes ignored)\n",
+                  "   ignored %d unique leak%s using %d filter%s (total %ld bytes ignored)\n",
                   nuniq - nreports, ( nuniq - nreports == 1 ? "" : "s" ),
                   gIgnoreNames.size, ( gIgnoreNames.size == 1 ? "" : "s"),
                   ignoredLeakSize);
@@ -342,11 +311,6 @@ static void trace( const char *name ) {
 /* _________________________________________________________________________ */
 static void ignore( const char *name ) {
    hhh_NameSet_Add( &gIgnoreNames, name );
-}
-
-/* _________________________________________________________________________ */
-static void ignoreCall( const char *name ) {
-   hhh_NameSet_Add( &gIgnoreCallNames, name );
 }
 
 /* _________________________________________________________________________ */
@@ -560,17 +524,11 @@ static void captureTrace( void *result, long size, int isrealloc ) {
             continue;
 
          if ( gFlags & LEAK_CHECK ) {
-         /* force lookup of symbols, such that they are cached */
-            if ( ! ( gFlags & QUICK ) && i+1 < tcount ) {
-              for ( j = i+1; j < tcount; j++ ) {
-                hhh_getSymbol( addresses[j] );
-              }
-            }
-
          /* save full traceback info */
             b = hhh_MemoryTrace_new();
             if ( b == 0 ) {
                hhh_Hooks_stop();
+               free( addresses );
                fprintf( stderr, "Hephaestus ERROR: MemoryTrace_new allocation failed ... tracing stopped\n" );
                return;
             }
@@ -580,11 +538,16 @@ static void captureTrace( void *result, long size, int isrealloc ) {
                                         tcount - responsible );
 
             hhh_HashTable_insert( gTraceInfo, result, b );
+
+         /* force lookup of symbols, such that they are cached */
+            if ( ! ( gFlags & QUICK ) && i+1 < tcount ) {
+               for ( j = i+1; j < tcount; j++ ) hhh_getSymbol( addresses[j] );
+            }
          }
 
          if ( gFlags & PROFILE ) {
             if ( ! gProfileStream ) {
-               (void)remove( "hephaestus.prof" );
+               remove( "hephaestus.prof" );
                gProfileStream = popen( "gzip -f >> hephaestus.prof", "w" );
             }
 
@@ -848,7 +811,6 @@ static void setup() {
    gPushBacks   = hhh_HashTable_new( hhh_HASHTABLE_MINSIZE );
    hhh_NameSet_construct( &gTraceNames, 2 );
    hhh_NameSet_construct( &gIgnoreNames, 10 );
-   hhh_NameSet_construct( &gIgnoreCallNames, 10 );
 
    gOldTracers[ hhh_MAX_CHECKPOINTS ] = 0;
 
@@ -878,14 +840,14 @@ static void teardown() {
       if ( gFlags & PROFILE ) {
 
          if ( gSymbolFileName ) {
-            (void)remove( gSymbolFileName );
+            remove( gSymbolFileName );
             cmd = (char*)malloc( 16+strlen( gSymbolFileName )+1 );
             sprintf( cmd, "gzip -f >> %s.symb", gSymbolFileName );
             fsymbols = popen( cmd, "w" );
             free( cmd );
             free( gSymbolFileName ); gSymbolFileName = 0;
          } else {
-            (void)remove( "hephaestus.symb" );
+            remove( "hephaestus.symb" );
             fsymbols  = popen( "gzip -f >> hephaestus.symb", "w" );
          }
 
@@ -898,7 +860,6 @@ static void teardown() {
          pclose( gProfileStream );
 
       hhh_NameSet_destroy( &gIgnoreNames );
-      hhh_NameSet_destroy( &gIgnoreCallNames );
       hhh_NameSet_destroy( &gTraceNames );
 
       hhh_HashTable_delete( gPushBacks,  &free ); gPushBacks = 0;
@@ -954,7 +915,6 @@ static PyObject* hep_##fname( PyObject* unused, PyObject* args ) {            \
 
 CPPTOPYTHONWITHSTRING( trace )
 CPPTOPYTHONWITHSTRING( ignore )
-CPPTOPYTHONWITHSTRING( ignoreCall )
 
 /* _________________________________________________________________________ */
 #define CPPTOPYTHONWITHINT( fname )                                           \
@@ -1005,8 +965,6 @@ static PyObject* hep_outstream( PyObject* unused, PyObject* args ) {
       fclose( gReportStream );
 
    fd = dup( fileno( fp ) );
-   if (fd < 0)
-     return 0;
 
    gReportStream = fdopen( fd, "w" );
 
@@ -1028,7 +986,7 @@ static PyObject* hep_profname( PyObject* unused, PyObject* args ) {
 // remove file if it already exists
    filename = (char*)malloc( 5+strlen(name)+1 );
    sprintf( filename, "%s.prof", name );
-   (void)remove( filename );
+   remove( filename );
    free( filename );
 
 // open a pipe to gzip onto the new file
@@ -1099,7 +1057,6 @@ static PyMethodDef gMemoryTrackerMethods[] = {
    { (char*)"atexit",    (PyCFunction)hep_atexit,    METH_VARARGS, (char*)"atexit handler" },
    { (char*)"trace",     (PyCFunction)hep_trace,     METH_VARARGS, (char*)"trace given filter" },
    { (char*)"ignore",    (PyCFunction)hep_ignore,    METH_VARARGS, (char*)"ignore in report" },
-   { (char*)"ignoreCall",(PyCFunction)hep_ignoreCall,METH_VARARGS, (char*)"ignore in report anywhere in trace" },
    { (char*)"configure", (PyCFunction)hep_configure, METH_VARARGS, (char*)"set configuration flags" },
    { (char*)"outstream", (PyCFunction)hep_outstream, METH_VARARGS, (char*)"set new outstream" },
    { (char*)"depth",     (PyCFunction)hep_depth,     METH_VARARGS, (char*)"set large trace depth" },

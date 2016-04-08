@@ -11,7 +11,6 @@
 
 
 /* _________________________________________________________________________ */
-#if 0
 static char *strrstr( const char *s1, const char *s2 ) {
 /* Kent Irwin, irwin@leland.stanford.edu */
    const char *sc2, *psc1, *ps1;
@@ -32,7 +31,6 @@ static char *strrstr( const char *s1, const char *s2 ) {
 
    return (char*)NULL;
 }
-#endif
 
 
 /* - use an arena for alloction of traces ---------------------------------- */
@@ -58,7 +56,6 @@ struct hhh_MemoryTrace *hhh_MemoryTrace_new() {
 
       if ( gPool == NULL ) {
          fprintf( stderr, "Hephaestus ERROR: memory allocation failed in MemoryTrace_new\n" );
-         pthread_mutex_unlock( &gPoolLock );
          return NULL;
       }
 
@@ -105,7 +102,7 @@ void hhh_MemoryTrace_initialize( struct hhh_MemoryTrace *mt, long size,
 const char* hhh_MemoryTrace_getType( struct hhh_MemoryTrace *mt )
 {
    return 0;
-#if 0
+
 /* get the type that was newed, if available */
    int i;
    void *ctor;
@@ -121,7 +118,6 @@ const char* hhh_MemoryTrace_getType( struct hhh_MemoryTrace *mt )
    }
 
    return s2;
-#endif
 }
 
 /* _________________________________________________________________________ */

@@ -47,7 +47,6 @@ static struct hhh_Cell *hhh_Cell_new() {
 
       if ( gPool == NULL ) {
          fprintf( stderr, "Hephaestus ERROR: memory allocation failed in Cell_new\n" );
-         pthread_mutex_unlock( &gPoolLock );
          return NULL;
       }
 
@@ -93,7 +92,7 @@ struct hhh_HashTable *hhh_HashTable_new( unsigned long minsize )
    pthread_mutex_init( &ht->lock, NULL );
 
 /* select proper prime for size, based on minimum requested size */
-   for ( i = 0; i < nprimes-1; i++ ) {
+   for ( i = 0; i < nprimes; i++ ) {
       if ( minsize < primes[i] )
          break;
    }
@@ -122,9 +121,6 @@ static int hhh_HashTable_expand( struct hhh_HashTable *ht )
          break;
       }
    }
-
-   if (size == 0)
-     return 0;
 
    newtable = (struct hhh_Cell**)calloc( size, sizeof(struct hhh_Cell*) );
    if ( ! newtable )
