@@ -13,7 +13,7 @@ double GlobalTimeFitter::GTFit( MuonCalibSegment * seg ) {
 
   double timeShift ;
   float tdcmin=1000000;
-  double timeoffset ;
+  double timeoffset=0.;
   int stepf,stepff[13],stepl,stepr,dtt,dttbuono(0);
 //  double abuona,bbuona,chibuo,chi2r,chi2l;
 //  double aoutr,aoutl,boutr,boutl;
