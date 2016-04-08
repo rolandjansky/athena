@@ -150,7 +150,7 @@ StatusCode ZeeOnESD::initialize() {
 /// Finalize - delete any memory allocation from the heap
 
 StatusCode ZeeOnESD::finalize() {
-  MsgStream mLog( msgSvc(), name() );
+  MsgStream mLog( messageService(), name() );
   
   return StatusCode::SUCCESS;
 
@@ -161,16 +161,16 @@ StatusCode ZeeOnESD::finalize() {
 
 StatusCode ZeeOnESD::execute() {
 
-  MsgStream mLog( msgSvc(), name() );
+  MsgStream mLog( messageService(), name() );
 
-  mLog << MSG::DEBUG << "execute()" << endmsg;
+  mLog << MSG::DEBUG << "execute()" << endreq;
 
   StatusCode sc = StatusCode::SUCCESS;
 
   /// do the Z->ee reconstruction on ESD
   sc = zee_on_esd();
   if ( sc.isFailure() ) {
-    mLog << MSG::FATAL << "Z->ee reconstruction on ESD failed" << endmsg;
+    mLog << MSG::FATAL << "Z->ee reconstruction on ESD failed" << endreq;
     return StatusCode::FAILURE;
   }
 
