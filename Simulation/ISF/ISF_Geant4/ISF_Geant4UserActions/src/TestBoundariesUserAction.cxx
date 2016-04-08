@@ -15,11 +15,7 @@
 
 using namespace iGeant4;
 
-static TestBoundariesUserAction phk("TestBoundariesUserAction");
- 
-void TestBoundariesUserAction::BeginOfEventAction(const G4Event* /*anEvent*/){}
-void TestBoundariesUserAction::EndOfEventAction(const G4Event* /*anEvent*/){}
-void TestBoundariesUserAction::BeginOfRunAction(const G4Run* /*aRun*/)
+void TestBoundariesUserAction::BeginOfRun(const G4Run* /*aRun*/)
 {
   file = TFile::Open("points.root","RECREATE");
   tree = new TTree("points","points");
@@ -31,10 +27,10 @@ void TestBoundariesUserAction::BeginOfRunAction(const G4Run* /*aRun*/)
   tree->Branch("enter",&data.enter,"enter/O");
   tree->Branch("exit",&data.exit,"exit/O");
   tree->Branch("leave",&data.leave,"leave/O");
-
-
+  return;
 }
-void TestBoundariesUserAction::EndOfRunAction(const G4Run* /*aRun*/)
+
+void TestBoundariesUserAction::EndOfRun(const G4Run* /*aRun*/)
 {
   tree->Write();
   file->Close();
@@ -43,8 +39,8 @@ void TestBoundariesUserAction::EndOfRunAction(const G4Run* /*aRun*/)
   tree=0;
 }
 
-TestBoundariesUserAction::TestBoundariesUserAction(std::string s): 
-  FADS::UserAction(s),
+TestBoundariesUserAction::TestBoundariesUserAction(const std::string& type, const std::string& name, const IInterface* parent):
+  UserActionBase(type,name,parent),
   file(0), tree(0)
 {
   sel["Atlas::Atlas"]=0;
@@ -56,14 +52,14 @@ TestBoundariesUserAction::TestBoundariesUserAction(std::string s):
 }
 
 
-void TestBoundariesUserAction::SteppingAction(const G4Step* aStep)
+void TestBoundariesUserAction::Step(const G4Step* aStep)
 {
   G4StepPoint * preStep = aStep->GetPreStepPoint();
 
   G4StepPoint *postStep = aStep->GetPostStepPoint();
 
   if (!preStep || !postStep) {
-    std::cout<<"TestBoundariesUserAction Error something missing"<<std::endl;
+    ATH_MSG_ERROR("TestBoundariesUserAction Error something missing");
     return;
   }
 
@@ -93,15 +89,15 @@ void TestBoundariesUserAction::SteppingAction(const G4Step* aStep)
   if (preTH) {
     int preN=preTH->GetHistoryDepth();
     if (preN>0) preLV= preTH->GetVolume(preN-1)->GetLogicalVolume();
-  }  
+  }
 
-  
+
   G4LogicalVolume*    postLV=0;
   if (postStep->GetPhysicalVolume())
     postLV=postStep->GetPhysicalVolume()->GetLogicalVolume();
   if (postTH) {
     int postN=postTH->GetHistoryDepth();
-    if (postN>0) postLV=  postTH->GetVolume(postN-1)->GetLogicalVolume();  
+    if (postN>0) postLV=  postTH->GetVolume(postN-1)->GetLogicalVolume();
   }
 
   if (postLV!=preLV) {
@@ -116,11 +112,11 @@ void TestBoundariesUserAction::SteppingAction(const G4Step* aStep)
       //      std::cout<<"preLV  :"<<preStepPointName<<"\n";
       SMap::const_iterator it=sel.find(preStepPointName);
       if (it!=sel.end()) {
-	//startedInVolume=true;
-	data.volume=it->second;
-	data.Reset();
-	data.exit=true;
-	if (tree) tree->Fill();
+        //startedInVolume=true;
+        data.volume=it->second;
+        data.Reset();
+        data.exit=true;
+        if (tree) tree->Fill();
       }
     }
     if (postLV) {
@@ -128,23 +124,34 @@ void TestBoundariesUserAction::SteppingAction(const G4Step* aStep)
       //      std::cout<<"postLV :"<<postStepPointName<<"\n";
       SMap::const_iterator it=sel.find(postStepPointName);
       if (it!=sel.end()) {
-	//startedInVolume=true;
-	data.volume=it->second;
-	data.Reset();
-	data.enter=true;
-	if (tree) tree->Fill();
+        //startedInVolume=true;
+        data.volume=it->second;
+        data.Reset();
+        data.enter=true;
+        if (tree) tree->Fill();
       }
     }
     else {
       //      std::cout<<"postLV :   ---\n";
       //leftWorld=true;
-	data.volume=0;
-	data.Reset();
-	data.leave=true;
-	if (tree) tree->Fill();
+        data.volume=0;
+        data.Reset();
+        data.leave=true;
+        if (tree) tree->Fill();
     }
 
   }
 
 }
 
+StatusCode TestBoundariesUserAction::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
+}
