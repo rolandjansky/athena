@@ -592,7 +592,7 @@ namespace InDet
 
       if (msgLvl(MSG::VERBOSE)) msg() <<  "PV position " << primaryVertexRecVertex.position().x() << " " << primaryVertexRecVertex.position().y() << " " << primaryVertexRecVertex.position().z() << endreq;
 
-       const Trk::TrackParameters* myMeasuredPerigee;
+       const Trk::TrackParameters* myMeasuredPerigee=nullptr;
       
       if (trkCastedLinkTPBase)
       {
