@@ -20,9 +20,12 @@ DECLARE_ALGORITHM_FACTORY( L1CaloTriggerTowerSelector )
 DECLARE_ALGORITHM_FACTORY( L1CaloPprPhos4ShapeMaker )
 DECLARE_ALGORITHM_FACTORY( L1CaloPprMonitoring )
 
+#include "../L1CaloDumpRampData.h"
+DECLARE_ALGORITHM_FACTORY( L1CaloDumpRampData )
 
 DECLARE_FACTORY_ENTRIES( TrigT1CaloCalibUtils )
 {
+  DECLARE_ALGORITHM( L1CaloDumpRampData );
   DECLARE_ALGORITHM( L1CaloHVCorrectionsForDB )
   DECLARE_ALGORITHM( L1CaloHVDummyContainers )
   DECLARE_ALGORITHM( L1CaloLinearCalibration )
@@ -33,4 +36,3 @@ DECLARE_FACTORY_ENTRIES( TrigT1CaloCalibUtils )
   DECLARE_ALGORITHM( L1CaloPprPhos4ShapeMaker )
   DECLARE_ALGORITHM( L1CaloPprMonitoring )
 }
-

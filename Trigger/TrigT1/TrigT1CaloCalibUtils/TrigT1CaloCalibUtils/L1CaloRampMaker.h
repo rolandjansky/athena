@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -6,33 +8,30 @@
 #define L1CALORAMPMAKER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "Identifier/Identifier.h"
-#include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
+
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
-#include "TrigT1CaloCalibConditions/L1CaloPprLutContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainerRun2.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainer.h"
+
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+
 #include <string>
 #include <map>
-
+#include <memory>
 
 // forward declarations
-class StoreGateSvc;
+class Identifier;
 class L1CaloCondSvc;
 class CaloLVL1_ID;
-// class L1CaloCells2TriggerTowers;
 class L1CaloRampDataContainer;
 class L1CaloRampMaker;
-// class L1CaloLArTowerEnergy;
-// class TriggerTowerTools;
-
 namespace LVL1{
-  class IL1CaloCells2TriggerTowers;
-  class IL1CaloLArTowerEnergy;
   class IL1CaloOfflineTriggerTowerTools;
+  class IL1TriggerTowerTool;
+  class IL1CaloxAODOfflineTriggerTowerTools;
 }
-
 
 /**
  * The L1CaloRampMaker creates a set of L1CaloRampData objects.
@@ -51,9 +50,7 @@ class L1CaloRampMaker : public AthAlgorithm
 
  private:
     // properties
-    std::string m_triggerTowerCollectionName; // name of transient TriggerTower container
-    std::string m_caloCellContainerName; // name of transient CaloCell container.
-    std::string m_l1CaloCells2TriggerTowersToolName;
+    std::string m_triggerTowerContainerName; // name of transient TriggerTower container
     std::string m_outputFolderName;
     std::string m_gainStrategyFolder;
     std::map<int, int> m_specialChannelRange; // upper limit for coolIds (sick TBB)
@@ -70,40 +67,36 @@ class L1CaloRampMaker : public AthAlgorithm
     int m_fadcSaturationCut; // cut on FADC counts
     double m_tileSaturationCut; // cut on Tile TT Et in GeV
     ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; // Handle to L1TriggerTowerTool.
-    ToolHandle<TileBeamInfoProvider> m_beamInfo; // Handle to TileBeamInfoProvider for CISPAR info.
+    ToolHandle<LVL1::IL1CaloxAODOfflineTriggerTowerTools> m_xAODTTTools;
+    ToolHandle<LVL1::IL1CaloOfflineTriggerTowerTools> m_jmTools;
+    ServiceHandle<L1CaloCondSvc> m_condSvc;
 
     unsigned int m_nEvent;
     bool m_firstEvent;
 
-    StoreGateSvc *m_storeGate;
-    StoreGateSvc *m_detStore;
-    L1CaloCondSvc *m_condSvc;
-
     const CaloLVL1_ID *m_lvl1Helper;
-//     L1CaloCells2TriggerTowers *m_cells2tt;
-//     TriggerTowerTools* m_jmTools;
 
-    ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
-    ToolHandle<LVL1::IL1CaloOfflineTriggerTowerTools> m_jmTools;
-
-    L1CaloRampDataContainer *m_rampDataContainer;
-    L1CaloPprLutContainer *m_pprLutContainer;
+    std::unique_ptr<L1CaloRampDataContainer> m_rampDataContainer;
+    L1CaloPprConditionsContainerRun2 *m_pprLutContainer;
     L1CaloPprDisabledChannelContainer *m_pprDisabledChannelContainer;
-//     L1CaloLArTowerEnergy *m_larEnergy;
-    ToolHandle<LVL1::IL1CaloLArTowerEnergy> m_larEnergy;
 
     // private functions
-    void setupRampDataContainer(const TriggerTowerCollection* triggerTowerCollection);
-    double getTriggerTowerEnergy(const std::vector<int>& adc, const Identifier& id, unsigned int coolId, double eta);
-    double getCaloEnergy(const Identifier& id, const TriggerTower* tt);
-    
+    void setupRampDataContainer(const xAOD::TriggerTowerContainer* triggerTowerContainer);
+    double getTriggerTowerEnergy(const xAOD::TriggerTower* tt);
+    double getCaloEnergy(const xAOD::TriggerTower* tt);
+    void checkProvenance(const xAOD::TriggerTower* tt);
 
     // stores coolid vs. number of failed ofc iterations
     std::map<unsigned int, std::pair<unsigned int, double> > m_mapBadOFCIteration;
-    void checkProvenance(const Identifier& ttId, unsigned int coolid);
 
-    std::map<L1CaloPprLutContainer::eCoolFolders, std::string> m_pprLutContainerFolderMap;
+    std::map<L1CaloPprConditionsContainerRun2::eCoolFolders, std::string> m_pprLutContainerFolderMap;
     std::map<L1CaloPprDisabledChannelContainer::eCoolFolders, std::string> m_pprDisabledChannelContainerFolderMap;
+
+    struct DBInfo {
+      unsigned int pedValue;
+      bool disabledChannel;
+    };
+    std::map<uint32_t, DBInfo> m_tempDBInfo;
 };
 
 #endif //L1CALORAMPMAKER_H
