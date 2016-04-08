@@ -571,8 +571,8 @@ namespace MuonCalib {
       fi.adc_par[1] = par[2] ;
       fi.adc_err[0] = errpar[1] ;
       fi.adc_err[1] = errpar[2] ;
-      if( ndof != 0. ) fi.adc_chi2 = chi2/ndof;
-      else             fi.adc_chi2 = -1;
+      if(std::abs(ndof)==0) {fi.adc_chi2 = -1;}
+      else { fi.adc_chi2 = chi2/static_cast<float>(ndof);}
     }
   }
 
