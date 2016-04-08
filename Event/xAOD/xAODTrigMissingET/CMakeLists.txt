@@ -30,4 +30,3 @@ atlas_add_dictionary( xAODTrigMissingETDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore AthLinks xAODTrigMissingET
                       EXTRA_FILES Root/dict/*.cxx )
 
-
