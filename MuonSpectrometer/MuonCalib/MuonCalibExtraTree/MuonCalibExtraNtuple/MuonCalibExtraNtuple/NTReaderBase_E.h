@@ -15,15 +15,14 @@
 
 /**
    @class NTReaderBase_E
-   Extended version of NTReaderBase, making it capable of holding variables from the extended Branches too.
+   Extended version of NTReaderBase, making it capable to hold variables of the extended Branches too.
    
    @author Zdenko.Van.Kesteren@cern.ch
 */
 
-namespace MuonCalib {
-
-  class NTReaderBase_E : virtual public NTReaderBase {
-  public :
+namespace MuonCalib{
+  class NTReaderBase_E : virtual public NTReaderBase{
+    public :
       
     // Declaration of leaf types
     Int_t           ctp_nTriggerInfo;
@@ -176,7 +175,6 @@ namespace MuonCalib {
     Float_t         trkHit_posX[3000];
     Float_t         trkHit_posY[3000];
     Float_t         trkHit_posZ[3000];
-    Float_t         trkHit_driftTime[3000];
     Float_t         trkHit_driftRadius[3000];
     Float_t         trkHit_error[3000];
     Float_t         trkHit_resi[3000];
@@ -196,6 +194,7 @@ namespace MuonCalib {
     
     bool            hasTrkSegs;
 
+
     NTReaderBase_E(TTree *tree=0);               //!< default constructor, opening directory SegmentNtuple.root:/PatternNtupleMaker/Segments
     virtual ~NTReaderBase_E();                   //!< destructor
     virtual Int_t    Cut(Long64_t entry);        //!< empty routine
@@ -208,3 +207,4 @@ namespace MuonCalib {
   };
 } //namespace MuonCalib
 #endif
+
