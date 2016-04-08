@@ -84,6 +84,8 @@ public:
     /** Copy Constructor */
     TruthTau(const TruthTau& truthtau);
 
+    TruthTau& operator= (const TruthTau& truthtau) = delete;
+
 //    /**
 //    * Full constructor. 
 //    *
