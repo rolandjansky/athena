@@ -1,0 +1,8 @@
+package ParticleBuilderOptions
+
+author Tadashi Maeno       <Tadashi.Maeno@cern.ch>
+
+use AtlasPolicy		AtlasPolicy-*
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="__init__.py AODFlags.py"
