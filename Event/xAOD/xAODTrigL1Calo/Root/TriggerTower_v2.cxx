@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTower_v2.cxx 700710 2015-10-15 10:46:15Z morrisj $
+// $Id: TriggerTower_v2.cxx 700709 2015-10-15 10:45:46Z morrisj $
 
 // EDM includes(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
