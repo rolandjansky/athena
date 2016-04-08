@@ -21,15 +21,17 @@
 #include "VxJetVertex/TwoTrackVerticesInJet.h"
 
 #include "VxVertex/VxCandidate.h"
-
 #include "TrkParticleBase/TrackParticleBase.h"
+
+
+   
 
 namespace Trk 
 {
   
   TwoTrackVerticesInJet::TwoTrackVerticesInJet() {}
 
-  TwoTrackVerticesInJet::TwoTrackVerticesInJet(const std::vector<const xAOD::Vertex*> & twoTrackVertices,
+  TwoTrackVerticesInJet::TwoTrackVerticesInJet(const std::vector<const VxCandidate*> & twoTrackVertices,
                                                const std::vector<const TrackParticleBase*> & neutralTrackOfVertex)
           :
       m_twoTrackVertices(twoTrackVertices),
@@ -46,23 +48,23 @@ namespace Trk
   
   TwoTrackVerticesInJet::TwoTrackVerticesInJet(const TwoTrackVerticesInJet& rhs)         
   {
-
-    std::vector<const xAOD::Vertex*>::const_iterator vxBegin=rhs.m_twoTrackVertices.begin();
-    std::vector<const xAOD::Vertex*>::const_iterator vxEnd=rhs.m_twoTrackVertices.end();
+    
+    std::vector<const VxCandidate*>::const_iterator vxBegin=rhs.m_twoTrackVertices.begin();
+    std::vector<const VxCandidate*>::const_iterator vxEnd=rhs.m_twoTrackVertices.end();
 
     std::vector<const TrackParticleBase*>::const_iterator neuBegin=rhs.m_neutralTrackOfVertex.begin();
     std::vector<const TrackParticleBase*>::const_iterator neuEnd=rhs.m_neutralTrackOfVertex.end();
 
 
-    for (std::vector<const xAOD::Vertex*>::const_iterator vxIter=vxBegin;
+    for (std::vector<const VxCandidate*>::const_iterator vxIter=vxBegin;
          vxIter!=vxEnd;++vxIter) 
     {
       if (*vxIter!=0)
       {
-        const xAOD::Vertex* thisPtr=*vxIter;
-        //const xAOD::Vertex* newVertex=thisPtr->clone();
-        const xAOD::Vertex* newVertex = new xAOD::Vertex(*thisPtr);
-        m_twoTrackVertices.push_back(newVertex);
+        const VxCandidate* thisPtr=*vxIter;
+        const VxCandidate* newVxCandidate=thisPtr->clone();
+        m_twoTrackVertices.push_back(newVxCandidate);
+
       }
     }
 
@@ -86,22 +88,21 @@ namespace Trk
       m_twoTrackVertices.clear();
       m_neutralTrackOfVertex.clear();
       
-      std::vector<const xAOD::Vertex*>::const_iterator vxBegin=rhs.m_twoTrackVertices.begin();
-      std::vector<const xAOD::Vertex*>::const_iterator vxEnd=rhs.m_twoTrackVertices.end();
+      std::vector<const VxCandidate*>::const_iterator vxBegin=rhs.m_twoTrackVertices.begin();
+      std::vector<const VxCandidate*>::const_iterator vxEnd=rhs.m_twoTrackVertices.end();
       
       std::vector<const TrackParticleBase*>::const_iterator neuBegin=rhs.m_neutralTrackOfVertex.begin();
       std::vector<const TrackParticleBase*>::const_iterator neuEnd=rhs.m_neutralTrackOfVertex.end();
       
       
-      for (std::vector<const xAOD::Vertex*>::const_iterator vxIter=vxBegin;
+      for (std::vector<const VxCandidate*>::const_iterator vxIter=vxBegin;
            vxIter!=vxEnd;++vxIter) 
       {
         if (*vxIter!=0)
         {
-          const xAOD::Vertex* thisPtr=*vxIter;
-          //const xAOD::Vertex* newVertex=thisPtr->clone();
-          const xAOD::Vertex* newVertex = new xAOD::Vertex(*thisPtr);
-          m_twoTrackVertices.push_back(newVertex);
+          const VxCandidate* thisPtr=*vxIter;
+          const VxCandidate* newVxCandidate=thisPtr->clone();
+          m_twoTrackVertices.push_back(newVxCandidate);
         }
       }
       
@@ -120,7 +121,7 @@ namespace Trk
   }
   
      
-  void TwoTrackVerticesInJet::setTwoTrackVertices(std::vector<const xAOD::Vertex*> & twoTrackVertices)
+  void TwoTrackVerticesInJet::setTwoTrackVertices(std::vector<const VxCandidate*> & twoTrackVertices)
   {
     deleteAll(m_twoTrackVertices);
     m_twoTrackVertices=twoTrackVertices;
@@ -132,7 +133,7 @@ namespace Trk
     m_neutralTrackOfVertex=neutralTrackOfVertex;
   }
 
-  const std::vector<const xAOD::Vertex*> & TwoTrackVerticesInJet::getTwoTrackVertice() const {
+  const std::vector<const VxCandidate*> & TwoTrackVerticesInJet::getTwoTrackVertice() const {
     return m_twoTrackVertices;
   }
   
@@ -142,12 +143,12 @@ namespace Trk
   }
   
 
-  void TwoTrackVerticesInJet::deleteAll(std::vector<const xAOD::Vertex*> & twoTrackVertices)
+  void TwoTrackVerticesInJet::deleteAll(std::vector<const VxCandidate*> & twoTrackVertices)
   {
-    std::vector<const xAOD::Vertex*>::iterator vxBegin=twoTrackVertices.begin();
-    std::vector<const xAOD::Vertex*>::iterator vxEnd=twoTrackVertices.end();
-
-    for (std::vector<const xAOD::Vertex*>::iterator vxIter=vxBegin;
+    std::vector<const VxCandidate*>::iterator vxBegin=twoTrackVertices.begin();
+    std::vector<const VxCandidate*>::iterator vxEnd=twoTrackVertices.end();
+    
+    for (std::vector<const VxCandidate*>::iterator vxIter=vxBegin;
          vxIter!=vxEnd;++vxIter) 
     {
       if (*vxIter!=0)
@@ -160,10 +161,10 @@ namespace Trk
   
   void TwoTrackVerticesInJet::deleteAll(std::vector<const TrackParticleBase*> & neutralTrackOfVertex)
   {
-
+    
     std::vector<const TrackParticleBase*>::iterator mapBegin=neutralTrackOfVertex.begin();
     std::vector<const TrackParticleBase*>::iterator mapEnd=neutralTrackOfVertex.end();
-
+    
     for (std::vector<const TrackParticleBase*>::iterator mapIter=mapBegin;
          mapIter!=mapEnd;
          mapIter++)

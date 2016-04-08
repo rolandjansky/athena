@@ -21,4 +21,7 @@
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 
+#include "DataModel/ElementLink.h"
+
+
 #endif

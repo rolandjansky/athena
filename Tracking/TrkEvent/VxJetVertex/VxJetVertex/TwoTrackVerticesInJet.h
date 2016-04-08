@@ -30,13 +30,12 @@
 #include <vector>
 #include <map>
 
-#include "xAODTracking/Vertex.h"
-
 namespace Trk
 {
   class TrackParticleBase;
   class VxCandidate;
 }
+
 
 namespace Trk 
 {
@@ -65,7 +64,7 @@ namespace Trk
      * (every neutral track in the second vector MUST correspond to a two track vertex 
      * in the first vector)
      */                               
-    TwoTrackVerticesInJet(const std::vector<const xAOD::Vertex*> & twoTrackVertices,
+    TwoTrackVerticesInJet(const std::vector<const VxCandidate*> & twoTrackVertices,
                           const std::vector<const TrackParticleBase*> & neutralTrackOfVertex);
     
     /**
@@ -77,7 +76,7 @@ namespace Trk
     /**
      * Set the two track vertices (takes ownership of pointers)
      */
-    void setTwoTrackVertices(std::vector<const xAOD::Vertex*> & twoTrackVertices);
+    void setTwoTrackVertices(std::vector<const VxCandidate*> & twoTrackVertices);
 
 
     /**
@@ -88,7 +87,7 @@ namespace Trk
     /**
      * Get the two track vertices (please do not delete the pointers)
      */
-    const std::vector<const xAOD::Vertex *> & getTwoTrackVertice() const ;
+    const std::vector<const VxCandidate*> & getTwoTrackVertice() const ;
 
 
     /**
@@ -99,9 +98,9 @@ namespace Trk
    private:
 
     void deleteAll(std::vector<const TrackParticleBase*> & neutralTrackOfVertex);
-    void deleteAll(std::vector<const xAOD::Vertex*> & twoTrackVertices);
+    void deleteAll(std::vector<const VxCandidate*> & twoTrackVertices);
 
-    std::vector<const xAOD::Vertex*> m_twoTrackVertices;
+    std::vector<const VxCandidate*> m_twoTrackVertices;
     std::vector<const TrackParticleBase*> m_neutralTrackOfVertex;
   };
   
