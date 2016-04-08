@@ -50,6 +50,6 @@ namespace MuonCalib {
     IMdtWireSagCorFunc*    m_wireSag;
   };
 
-}
+}  //namespace MuonCalib
 
 #endif

@@ -23,6 +23,6 @@ This typedef representing:
 It is a DataVector. It can be saved to storegate.
 */
 typedef DataVector<MuonCalib::MdtRtRelation> MdtRtRelationCollection;
-CLASS_DEF(MdtRtRelationCollection , 1270996316 , 1 )
+CLASS_DEF(MdtRtRelationCollection, 1270996316, 1 )
 
 #endif

@@ -43,7 +43,7 @@ parameterized as support points to a cubic spline
 */
 
 
-  class RtSpline : public IRtRelation {
+class RtSpline : public IRtRelation {
 
   private:
     // Spline Class//
@@ -53,7 +53,6 @@ parameterized as support points to a cubic spline
     /** initialization method */
     void _init(void);
     
-
   public:
     // Constructors
     /** initialization constructor,
@@ -64,19 +63,17 @@ parameterized as support points to a cubic spline
     ParVec[1 + 2n] = y coordinate of n_th support point
 
     */
-
-    explicit RtSpline(const ParVec& vec) : IRtRelation(vec) {
-	_init();
-	}
+    explicit RtSpline(const ParVec &vec) : IRtRelation(vec) {
+      _init();
+    }
 	
     ~RtSpline();
 
     // Methods //
     // methods required by the base classes //
-    inline std::string name(void) const
-    	{
-	return "RtSpline";
-	}
+    inline std::string name(void) const	{
+      return "RtSpline";
+    }
     
                                       //!< get the class name
     double radius(double t) const;
@@ -93,6 +90,6 @@ parameterized as support points to a cubic spline
     double tUpper(void) const; 
                                       //!< get the upper drift-time bound
   };
-}
+}  //namespace MuonCalib
 
 #endif

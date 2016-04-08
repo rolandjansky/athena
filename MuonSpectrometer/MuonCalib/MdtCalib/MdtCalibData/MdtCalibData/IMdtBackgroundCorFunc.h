@@ -22,6 +22,6 @@ class IMdtBackgroundCorFunc : public CalibFunc {
   virtual double correction(double t, double bgRate ) const = 0;
 };
 
-}
+}  //namespace MuonCalib
 
 #endif

@@ -25,6 +25,6 @@ class MdtBackgroundCorFunc0 : public IMdtBackgroundCorFunc {
   }
 };
 
-}
+}  //namespace MuonCalib
 
 #endif

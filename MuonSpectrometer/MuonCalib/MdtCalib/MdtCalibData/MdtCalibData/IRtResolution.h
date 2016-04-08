@@ -23,6 +23,6 @@ class IRtResolution : public CalibFunc {
     virtual double resolution( double t, double bgRate = 0.0 ) const = 0;
 };
 
-}
+}  //namespace MuonCalib
 
 #endif

@@ -51,6 +51,6 @@ Factory to create instances of correction functions
   
   };
 
-}
+}  //namespace MuonCalib
 
 #endif

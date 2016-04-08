@@ -22,6 +22,6 @@ class IMdtSlewCorFunc : public CalibFunc {
   virtual double correction(double t, double adc) const = 0;
 };
 
-}
+}  //namespace MuonCalib
 
 #endif

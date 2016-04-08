@@ -22,6 +22,6 @@ class IMdtTempCorFunc : public CalibFunc {
   virtual double correction(double t, double temp) const = 0;
 };
 
-}
+}  //namespace MuonCalib
 
 #endif

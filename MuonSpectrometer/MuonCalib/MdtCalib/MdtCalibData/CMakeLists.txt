@@ -1,0 +1,29 @@
+################################################################################
+# Package: MdtCalibData
+################################################################################
+
+# Declare the package name:
+atlas_subdir( MdtCalibData )
+
+# Declare the package's dependencies:
+atlas_depends_on_subdirs( PUBLIC
+                          Control/CLIDSvc
+                          Control/DataModel
+                          Control/SGTools
+                          Event/EventPrimitives
+                          MuonSpectrometer/MuonCalib/MuonCalibUtils/MuonCalibMath
+                          PRIVATE
+                          Control/AthenaKernel
+                          GaudiKernel )
+
+# External dependencies:
+find_package( ROOT COMPONENTS Hist Core Tree MathCore RIO pthread Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+
+# Component(s) in the package:
+atlas_add_library( MdtCalibData
+                   src/*.cxx
+                   PUBLIC_HEADERS MdtCalibData
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES DataModel SGTools EventPrimitives MuonCalibMath
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel )
+

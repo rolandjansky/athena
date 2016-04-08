@@ -20,8 +20,8 @@ namespace MuonCalib {
     ~MdtRtRelation();
     inline const IRtRelation*   rt() const { return m_rt; }    //!< rt relation
     inline const IRtResolution* rtRes() const { return m_rtRes; } //!< resolution 
-    inline const TrRelation *tr() const { return m_tr; } //!< t(r) relationship
-    inline const float & t0Global() const { return m_t0; }      //!< global t0
+    inline const TrRelation *tr() const { return m_tr; }       //!< t(r) relationship
+    inline const float & t0Global() const { return m_t0; }     //!< global t0
   private:
     IRtRelation* m_rt;
     IRtResolution* m_rtRes;
@@ -34,6 +34,6 @@ namespace MuonCalib {
 
   };
 
-}
+}   //namespace MuonCalib
 
 #endif

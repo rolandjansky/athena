@@ -20,19 +20,17 @@ namespace MuonCalib{
   
   class RtRelationLookUp : public IRtRelation {
   public:
-    explicit RtRelationLookUp( const ParVec& vec ) : IRtRelation(vec) 
-    {
+    explicit RtRelationLookUp( const ParVec &vec ) : IRtRelation(vec) {
       if( vec.size() < 4 ){
-         t_min=9e9;
-	 bin_size=1.0; //will be always out of range
+	t_min=9e9;
+	bin_size=1.0; //will be always out of range
 	std::cout << "RtRelationLookUp ERROR <to few parameters> " << std::endl;
       }else{
 	t_min = par(0);
 	bin_size = par(1);
-	if (bin_size==0)
-		{
-	std::cout << "RtRelationLookUp ERROR <bin size=0> " << std::endl;
-		}
+	if (bin_size==0) {
+	  std::cout << "RtRelationLookUp ERROR <bin size=0> " << std::endl;
+	}
       }
     }
     
@@ -55,9 +53,9 @@ namespace MuonCalib{
     double t_minus_tmin(t-t_min);
     double rel=t_minus_tmin/bin_size;
     if (rel<static_cast<double>(INT_MIN))
-    	return INT_MIN;
+      return INT_MIN;
     if (rel>static_cast<double>(INT_MAX))
-    	return INT_MAX;
+      return INT_MAX;
     return static_cast<int>(rel); }
     
     // take offset due to t_min and binsize into account
@@ -70,8 +68,7 @@ namespace MuonCalib{
     double bin_size;
   };
 
-  inline
-  double RtRelationLookUp::radius( double t ) const {
+  inline double RtRelationLookUp::radius( double t ) const {
 
     // get best matching bin in rt range
     int bin = binInRtRange( t );
@@ -91,8 +88,7 @@ namespace MuonCalib{
     return r >= 0 ? r : 0;
   }
 
-  inline
-  double RtRelationLookUp::driftvelocity( double t ) const {
+  inline double RtRelationLookUp::driftvelocity( double t ) const {
 
     // get best matching bin in rt range
     int bin = binInRtRange( t );
@@ -109,8 +105,7 @@ namespace MuonCalib{
     return v;
   }
   
-  inline
-  int RtRelationLookUp::binInRtRange( double t) const {
+  inline int RtRelationLookUp::binInRtRange( double t) const {
     // get bin 
     int bin = getBin( t );
 
@@ -123,17 +118,13 @@ namespace MuonCalib{
     return bin;
   }
 
-inline double RtRelationLookUp::tLower(void) const
-	{
-	return t_min;
-	}
+  inline double RtRelationLookUp::tLower(void) const {
+    return t_min;
+  }
 	
-inline double RtRelationLookUp::tUpper(void) const
-	{
-	return t_min + bin_size * rtBins();
-	}
+  inline double RtRelationLookUp::tUpper(void) const {
+    return t_min + bin_size * rtBins();
+  }
   
-  
-  
-}
+}  //namespace MuonCalib
 #endif

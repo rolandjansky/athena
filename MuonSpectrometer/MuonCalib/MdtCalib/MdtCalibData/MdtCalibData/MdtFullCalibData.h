@@ -5,7 +5,6 @@
 #ifndef MUONCALIB_MDTFULLCALIBDATA_H
 #define MUONCALIB_MDTFULLCALIBDATA_H
 
-
 namespace MuonCalib {
 
   class MdtCorFuncSet;
@@ -22,6 +21,6 @@ namespace MuonCalib {
       : corrections(cor), rtRelation(rt), tubeCalib(tub) {}
   };
   
-}
+}  //namespace MuonCalib
 
 #endif

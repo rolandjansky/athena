@@ -62,34 +62,28 @@
 
 namespace MuonCalib {
 
-    class WireSagCorFunc : public IMdtWireSagCorFunc
-    {
-    public:
+class WireSagCorFunc : public IMdtWireSagCorFunc {
+  public:
 
-        explicit WireSagCorFunc(const CalibFunc::ParVec & params)
-            : IMdtWireSagCorFunc(params) {
-            init(params);
-        }
+    explicit WireSagCorFunc(const CalibFunc::ParVec & params)
+      : IMdtWireSagCorFunc(params) {
+      init(params);
+    }
 
-        /// class name
+    /// class name
+    std::string name() const;
 
-        std::string name() const;
+    /// correction function
+    double correction(double signedDriftRadius, double effectiveSag) const;
 
-        /// correction function
+  private:
+    /// data members
+    std::vector<double> m_params; // could eventually be used to pass coefficients
 
-        double correction(double signedDriftRadius, double effectiveSag) const;
+    /// initialization method
+    void init(const CalibFunc::ParVec & params);
+  };
 
-    private:
-
-        /// data members
-
-        std::vector<double> m_params; // could eventually be used to pass coefficients
-
-        /// initialization method
-
-	void init(const CalibFunc::ParVec & params);
-    };
-
-}
+}  //namespace MuonCalib
 
 #endif // MDTCALIBDATA_WIRESAGCORFUNC_H
