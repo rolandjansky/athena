@@ -7,12 +7,7 @@
 // Author: Marjorie Shapiro <mdshapiro@lbl.gov>
 ///////////////////////////////////////////////////////////////////
 
-#define private public
-#define protected public
 #include "LumiBlockData/LB_IOVRange.h"
-#undef private
-#undef protected
-
 #include "LumiBlockTPCnv/LumiBlockRangeCnv_p1.h"
 
 void LumiBlockRangeCnv_p1::transToPers(const LB_IOVRange* trans, LumiBlockRange_p1* pers, MsgStream &) {
@@ -20,13 +15,10 @@ void LumiBlockRangeCnv_p1::transToPers(const LB_IOVRange* trans, LumiBlockRange_
   pers->m_stop = (trans->stop()).re_time();
 }
 
-void LumiBlockRangeCnv_p1::persToTrans(const LumiBlockRange_p1* pers, LB_IOVRange* trans, MsgStream &) {
-  
-  (trans->m_start).m_status = IOVTime::RUN_EVT;
-  (trans->m_start).setRETime(pers->m_start);
-  (trans->m_start).m_status = IOVTime::RUN_EVT;
-  (trans->m_stop).setRETime(pers->m_stop);
-  trans->m_NumExpected = 0;
-  trans->m_NumSeen = 0;
-
+void LumiBlockRangeCnv_p1::persToTrans(const LumiBlockRange_p1* pers, LB_IOVRange* trans, MsgStream &)
+{
+  IOVTime tstart, tstop;
+  tstart.setRETime (pers->m_start);
+  tstop.setRETime (pers->m_stop);
+  *trans = LB_IOVRange (tstart, tstop);
 }

@@ -18,13 +18,13 @@
 DECLARE_TPCNV_FACTORY(LumiBlockRangeCnv_p1,
                       LB_IOVRange,
                       LumiBlockRange_p1,
-                      Athena::TPCnvVers::Current)
+                      Athena::TPCnvVers::Old)
                       
 DECLARE_NAMED_TPCNV_FACTORY(LumiBlockCollectionCnv_p1,
                             LumiBlockCollectionCnv_p1,
                             LumiBlockCollection,
                             LumiBlockCollection_p1,
-                            Athena::TPCnvVers::Current)
+                            Athena::TPCnvVers::Old)
 
 DECLARE_TPCNV_FACTORY(LumiBlockRangeCnv_p2,
                       LB_IOVRange,
