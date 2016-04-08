@@ -116,10 +116,48 @@ TrigT2HistoPrmVtxBase::~TrigT2HistoPrmVtxBase() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-TrigT2HistoPrmVtxBase TrigT2HistoPrmVtxBase::operator=(const TrigT2HistoPrmVtxBase &rhs)
+TrigT2HistoPrmVtxBase& TrigT2HistoPrmVtxBase::operator=(const TrigT2HistoPrmVtxBase &rhs)
 {
-  TrigT2HistoPrmVtxBase temp(rhs);
-  return temp;
+  if (this == &rhs)
+    return *this;
+
+  //this->m_log = rhs.m_log;
+  this->m_logLvl = rhs.m_logLvl;
+  this->zPrmVtx = rhs.zPrmVtx;
+  this->zPrmVtxSigmaAll = rhs.zPrmVtxSigmaAll;
+  this->zPrmVtxSigma2Trk = rhs.zPrmVtxSigma2Trk;
+  this->nTrackVtx = rhs.nTrackVtx;
+  this->nVtxFound = rhs.nVtxFound;
+  this->m_totTracks = rhs.m_totTracks;
+  this->m_totTracks_All = rhs.m_totTracks_All;
+  this->m_totSelTracks = rhs.m_totSelTracks;
+  this->m_totSelTracks_All = rhs.m_totSelTracks_All;
+  this->m_algo = rhs.m_algo;
+  this->m_nBins = rhs.m_nBins;
+  this->m_useBeamSpot = rhs.m_useBeamSpot;
+  this->m_useEtaPhiTrackSel = rhs.m_useEtaPhiTrackSel;
+  this->m_l2TrkSelChi2 = rhs.m_l2TrkSelChi2;
+  this->m_l2TrkSelBLayer = rhs.m_l2TrkSelBLayer;
+  this->m_l2TrkSelSiHits = rhs.m_l2TrkSelSiHits;
+  this->m_l2TrkSelD0 = rhs.m_l2TrkSelD0;
+  this->m_l2TrkSelPt = rhs.m_l2TrkSelPt;
+  this->m_efTrkSelChi2 = rhs.m_efTrkSelChi2;
+  this->m_efTrkSelBLayer = rhs.m_efTrkSelBLayer;
+  this->m_efTrkSelPixHits = rhs.m_efTrkSelBLayer;
+  this->m_efTrkSelSiHits = rhs.m_efTrkSelSiHits;
+  this->m_efTrkSelD0 = rhs.m_efTrkSelD0;
+  this->m_efTrkSelPt = rhs.m_efTrkSelPt;
+  this->m_xBeamSpot = rhs.m_xBeamSpot;
+  this->m_yBeamSpot = rhs.m_yBeamSpot;
+  this->m_zBeamSpot = rhs.m_zBeamSpot;
+  this->m_xBeamSpotSigma = rhs.m_xBeamSpotSigma;
+  this->m_yBeamSpotSigma = rhs.m_yBeamSpotSigma;
+  this->m_zBeamSpotSigma = rhs.m_zBeamSpotSigma;
+
+  if (this->m_hisVtx) delete m_hisVtx;
+  this->m_hisVtx = new HistoVertexHelper(*rhs.m_hisVtx);
+
+  return *this;
 }
 
 
@@ -239,9 +277,13 @@ bool TrigT2HistoPrmVtxBase::efTrackSel(const xAOD::TrackParticle*& track, unsign
   uint8_t nPix  = 0;  
   uint8_t nSCT  = 0; 
 
+  uint8_t expBL  = 0;
+  track->summaryValue(expBL, xAOD::expectBLayerHit);
+
   track->summaryValue(nBlay, xAOD::numberOfBLayerHits);
   track->summaryValue(nPix,  xAOD::numberOfPixelHits);
   track->summaryValue(nSCT,  xAOD::numberOfSCTHits);
+
 
   //nBlay = nBlay*2;
   //nPix  = nPix*2; 
@@ -279,7 +321,8 @@ bool TrigT2HistoPrmVtxBase::efTrackSel(const xAOD::TrackParticle*& track, unsign
     m_listCutApplied.push_back(3);
     return false;
   }
-  if (nBlay < m_efTrkSelBLayer) {
+  //  if (nBlay < m_efTrkSelBLayer) {
+  if (expBL && (nBlay < m_efTrkSelBLayer) ){
     if (m_logLvl <= MSG::VERBOSE)
       m_log << MSG::VERBOSE << "    track is not selected (missing b-layer hit)" << endreq;
 

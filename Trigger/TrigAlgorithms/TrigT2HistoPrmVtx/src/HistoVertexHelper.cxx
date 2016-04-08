@@ -65,13 +65,21 @@ HistoVertexHelper::HistoVertexHelper(const HistoVertexHelper &other)
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-HistoVertexHelper HistoVertexHelper::operator=(const HistoVertexHelper &rhs) 
+HistoVertexHelper& HistoVertexHelper::operator=(const HistoVertexHelper &rhs) 
 {
-  HistoVertexHelper temp(rhs.m_N, rhs.m_min, rhs.m_max);
+  if (this == &rhs)
+    return *this;
+
+  this->m_N = rhs.m_N;
+  this->m_min = rhs.m_min;
+  this->m_max = rhs.m_max;
+  if (this->m_zCoord) delete[] this->m_zCoord; 
+  this->m_zCoord = new int[rhs.m_N+1]; 
+  reset();
   for (int i = 0; i < rhs.m_N; ++i) {
-    temp.m_zCoord[i] = rhs.m_zCoord[i];
+    this->m_zCoord[i] = rhs.m_zCoord[i];
   }
-  return temp;
+  return *this;
 }
 
 
