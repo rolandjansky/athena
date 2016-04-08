@@ -44,16 +44,16 @@
 //
 // This class manages the ionisation process for a magnetic monopole
 // it inherites from G4VContinuousDiscreteProcess via G4VEnergyLossProcess.
-// Magnetic charge of the monopole should be defined in the constructor of 
-// the process, unless it is assumed that it is classic Dirac monopole with 
+// Magnetic charge of the monopole should be defined in the constructor of
+// the process, unless it is assumed that it is classic Dirac monopole with
 // the charge 67.5*eplus. The name of the particle should be "monopole".
 //
 
 // -------------------------------------------------------------------
 //
 
-#ifndef G4mplAtlasIonisation_h
-#define G4mplAtlasIonisation_h 1
+#ifndef MONOPOLE_G4mplAtlasIonisation_h
+#define MONOPOLE_G4mplAtlasIonisation_h 1
 
 #include "G4VEnergyLossProcess.hh"
 #include "globals.hh"
@@ -79,13 +79,13 @@ public:
 protected:
 
   std::vector<G4DynamicParticle*>*  SecondariesPostStep(
-                                   G4VEmModel*,
-                             const G4MaterialCutsCouple*,
-                             const G4DynamicParticle*,
-                                   G4double&);
+                                                        G4VEmModel*,
+                                                        const G4MaterialCutsCouple*,
+                                                        const G4DynamicParticle*,
+                                                        G4double&);
 
   virtual void InitialiseEnergyLossProcess(const G4ParticleDefinition*,
-					   const G4ParticleDefinition*);
+                                           const G4ParticleDefinition*);
 
 private:
 
@@ -108,18 +108,18 @@ inline G4bool G4mplAtlasIonisation::IsApplicable(const G4ParticleDefinition& p)
   //  G4String lowPartName = (p.GetParticleName()).toLower();
 
   //  return ((p.GetParticleName() == "monopole") || (p.GetParticleName() == "monopolebar"));
-return  ( (lowPartName.contains("monopole")) || 
-	  (lowPartName.contains("dyon")) );
+  return  ( (lowPartName.contains("monopole")) ||
+            (lowPartName.contains("dyon")) );
 }
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 inline std::vector<G4DynamicParticle*>* G4mplAtlasIonisation::SecondariesPostStep(
-                                                  G4VEmModel*,
-                                            const G4MaterialCutsCouple*,
-                                            const G4DynamicParticle*,
-                                                  G4double&)
+                                                                                  G4VEmModel*,
+                                                                                  const G4MaterialCutsCouple*,
+                                                                                  const G4DynamicParticle*,
+                                                                                  G4double&)
 {
   return 0;
 }

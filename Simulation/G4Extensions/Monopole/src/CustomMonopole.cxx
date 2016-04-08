@@ -45,7 +45,7 @@ CustomMonopole::CustomMonopole(
  : G4ParticleDefinition( aName,mass,width,charge,iSpin,iParity,
            iConjugation,iIsospin,iIsospin3,gParity,pType,
            lepton,baryon,encoding,stable,lifetime,decaytable )
- , magCharge(0.)
+ , m_magCharge(0.)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -56,7 +56,7 @@ CustomMonopole::~CustomMonopole()
 void CustomMonopole::PrintMonopoleInfo() const
 {    G4cout << "CustomMonopole Info: m(GeV)= " << this->GetPDGMass()/CLHEP::GeV
             << " Qel= " << this->GetPDGCharge()/CLHEP::eplus
-            << " Qmag= " << magCharge/CLHEP::eplus
+            << " Qmag= " << m_magCharge/CLHEP::eplus
             << G4endl;
 }
 
@@ -86,14 +86,14 @@ void CustomMonopole::PrintMonopoleInfo() const
 // {
 
 //   if(!theMonopole) {
-//     magCharge = eplus*mCharge*0.5/fine_structure_const;
+//     m_magCharge = eplus*mCharge*0.5/fine_structure_const;
 //     theMonopole = new CustomMonopole( aName,mass,width,charge,iSpin,iParity,
 //                                    iConjugation,iIsospin,iIsospin3,gParity,pType,
 //                                    lepton,baryon,encoding,stable,lifetime,decaytable);
 
 //     G4cout << "Monopole is created: m(GeV)= " << theMonopole->GetPDGMass()/GeV
 //         << " Qel= " << theMonopole->GetPDGCharge()/eplus
-//         << " Qmag= " << magCharge/eplus
+//         << " Qmag= " << m_magCharge/eplus
 //         << G4endl;
 //   }
 

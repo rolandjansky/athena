@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4mplAtlasIonisationWithDeltaModel.cxx 684372 2015-07-20 15:34:53Z jchapman $
+// $Id: G4mplAtlasIonisationWithDeltaModel.cxx 729653 2016-03-14 15:55:47Z jchapman $
 // GEANT4 tag $Name: geant4-09-03-ref-00 $
 //
 // -------------------------------------------------------------------
@@ -63,6 +63,7 @@
 #include "G4ParticleChangeForLoss.hh"
 #include "G4Electron.hh"
 #include "G4DynamicParticle.hh"
+#include "G4Version.hh"
 // CLHEP headers
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -89,7 +90,7 @@ G4mplAtlasIonisationWithDeltaModel::G4mplAtlasIonisationWithDeltaModel(G4double 
   fParticleChange = 0;
   theElectron = G4Electron::Electron();
   G4cout << "### Monopole ionisation model with d-electron production, Gmag= "
-       << magCharge/CLHEP::eplus << G4endl;
+         << magCharge/CLHEP::eplus << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -261,7 +262,7 @@ G4mplAtlasIonisationWithDeltaModel::SampleSecondaries(std::vector<G4DynamicParti
     (deltaMomentum * totMomentum);
   if(cost > 1.0) { cost = 1.0; }
 
-  //  to << deltaKinEnergy << "  " << deltaMomentum << endl;
+  //  to << deltaKinEnergy << "  " << deltaMomentum << G4endl;
 
   const G4double sint = std::sqrt((1.0 - cost)*(1.0 + cost));
 
@@ -289,13 +290,26 @@ G4mplAtlasIonisationWithDeltaModel::SampleSecondaries(std::vector<G4DynamicParti
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 G4double G4mplAtlasIonisationWithDeltaModel::SampleFluctuations(
+#if G4VERSION_NUMBER > 1009
+                                                                const G4MaterialCutsCouple* material,
+                                                                const G4DynamicParticle* dp,
+                                                                G4double tmax,
+                                                                G4double length,
+                                                                G4double meanLoss
+#else
                                                                 const G4Material* material,
                                                                 const G4DynamicParticle* dp,
                                                                 G4double& tmax,
                                                                 G4double& length,
-                                                                G4double& meanLoss)
+                                                                G4double& meanLoss
+#endif
+                                                                )
 {
+#if G4VERSION_NUMBER > 1009
+  G4double siga = Dispersion(material->GetMaterial(),dp,tmax,length);
+#else
   G4double siga = Dispersion(material,dp,tmax,length);
+#endif
   G4double loss = meanLoss;
   siga = std::sqrt(siga);
   const G4double twomeanLoss = meanLoss + meanLoss;
@@ -319,8 +333,14 @@ G4double G4mplAtlasIonisationWithDeltaModel::SampleFluctuations(
 G4double
 G4mplAtlasIonisationWithDeltaModel::Dispersion(const G4Material* material,
                                                const G4DynamicParticle* dp,
+#if G4VERSION_NUMBER > 1009
+                                               G4double tmax,
+                                               G4double length
+#else
                                                G4double& tmax,
-                                               G4double& length)
+                                               G4double& length
+#endif
+                                               )
 {
   G4double siga = 0.0;
   const G4double tau   = dp->GetKineticEnergy()/mass;
