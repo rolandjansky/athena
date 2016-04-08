@@ -47,7 +47,6 @@ namespace InDet
   static const int OFF_UpperLim = 4;
   static const int OFF_LowerLim = 8;
 
-
  BaseTRTPIDCalculator(AthAlgTool & p, int size, const char * name):parent(p),
     my_name(name),
     BLOB_SIZE(size),

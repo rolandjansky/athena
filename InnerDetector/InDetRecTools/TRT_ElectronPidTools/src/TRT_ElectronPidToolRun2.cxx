@@ -61,7 +61,6 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   m_trtId(0),
   m_minTRThits(5),
   m_bremFitterEnabled(false),
-  m_OccupancyUsedInPID(false),
   ToTcalc(*(new ToTcalculator(*this))),
   HTcalc(*(new HTcalculator(*this))),
   m_TRTdEdxTool("TRT_ToT_dEdx"),
@@ -74,11 +73,11 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   //declareProperty("PropertyName", m_propertyName);
   declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
   declareProperty("BremfitterEnabled", m_bremFitterEnabled);
-  declareProperty("OccupancyUsedInPID", m_OccupancyUsedInPID);    // DEPRECATED!!!! 
   declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
   declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);
   declareProperty("isData", m_DATA = true);
   declareProperty("TRTStrawSummarySvc",    m_TRTStrawSummarySvc);
+  declareProperty("OccupancyUsedInPID", m_OccupancyUsedInPID=true);
 }
 
 
@@ -135,8 +134,6 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
     ATH_MSG_DEBUG("Failed to retrieve ToT dE/dx tool " << m_TRTdEdxTool);
   else
     ATH_MSG_DEBUG("Retrieved tool " << m_TRTdEdxTool);
-
-  ATH_MSG_WARNING("DEPRECATED flag OccupancyUsedInPID set to " << m_OccupancyUsedInPID);
 
   if ( m_LocalOccTool.retrieve().isFailure() ){
     ATH_MSG_WARNING("Failed retrieve Local Occ tool " << m_LocalOccTool << " the tool will not be called!!!" );

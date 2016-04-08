@@ -161,7 +161,15 @@ float InDet::TRT_ElectronPidToolRun2::HTcalculator::getProbHT(
   // ----------------------------------------------
   float correctionSL, correctionZR, correctionTW;
   float mass = m_particlemasses.mass[hypothesis];
-  float correctionPGOG = pHTvsPGOG(TrtPart, GasType, pTrk, mass, Occupancy);
+  float correctionPGOG=-999.;
+  if (GasType==1 &&  TrtPart==2) { 
+    //estimate EB argon straws as follows:
+    // estimate pHT using EA argon straws (GasType=1, TrtPart=1)
+    // estimate correction factors using EB xenon straws (GasType=0, TrtPart=2)
+    correctionPGOG = pHTvsPGOG(1, GasType, pTrk, mass, Occupancy);
+    GasType = 0;
+  }
+  else correctionPGOG = pHTvsPGOG(TrtPart, GasType, pTrk, mass, Occupancy);
   if (fabs(mass-0.511) < 0.1) {      // Electron! OK, ugly way but works...
     correctionSL = m_CpHT_B_Zee_SL_new[GasType][TrtPart].GetValue(StrawLayer);
     correctionZR = m_CpHT_B_Zee_ZR_new[GasType][TrtPart].GetValue(ZR);
@@ -590,8 +598,10 @@ StatusCode InDet::TRT_ElectronPidToolRun2::HTcalculator::ReadVectorDB( const Dat
    	 if (m_CpHT_B_Zmm_OR_new              [j][i].check(j,i) != StatusCode::SUCCESS) 	return StatusCode::FAILURE;
 	}
    } 
-
+   
    HasBeenInitialized=1;
+   UpperLimit=0.0;
+   LowerLimit=0.0;
    parent.msg(MSG::INFO) <<  "TRT PID HT Vector DB loaded: " << endmsg;
    return StatusCode::SUCCESS;
 }
@@ -618,6 +628,9 @@ void InDet::TRT_ElectronPidToolRun2::HTcalculator::setDefaultCalibrationConstant
   if (m_datainplace) return;  // Just to load 1 time
   parent.msg(MSG::ERROR) << "Looks like HT PID DB is NOT available, so lets set hard-coded PID calibration constants. Derived from Run1 Data Zee and Zmumu 50 ns. FIXME!!"<<endmsg;
   HasBeenInitialized=1;
+
+  UpperLimit=0.0;
+  LowerLimit=0.0;
 
 // Expanding to a 2D fit (gamma,occupancy) for three types of gases: Xenon, Argon, Krypton:
 // ----------------------------------------------------------------------------------------
