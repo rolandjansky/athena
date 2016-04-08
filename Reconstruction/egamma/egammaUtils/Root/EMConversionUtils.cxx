@@ -96,14 +96,13 @@ namespace EMConversionUtils {
       Amg::Vector3D pos(myCandidate->position().x(),myCandidate->position().y(),myCandidate->position().z()); 
       const Trk::PerigeeSurface   surface(pos); 
       //Construct the photon neutral parameters as neutral perigee
-      const Trk::NeutralPerigee* neutPar =  const_cast<Trk::NeutralPerigee*>
-	(surface.createParameters<5,Trk::Neutral>(  
+      const Trk::NeutralPerigee* neutPar = surface.createParameters<5,Trk::Neutral>(  
 						  0.0 ,
 						  0.0, 
 						  sum_mom.phi(),
 						  sum_mom.theta(),
 						  inv_p,
-						  eM));
+						  eM);
       return neutPar;
     } else {
       return 0;
