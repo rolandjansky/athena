@@ -25,8 +25,8 @@ AlignCondAthTest::AlignCondAthTest(const std::string& name, ISvcLocator* pSvcLoc
 StatusCode AlignCondAthTest::initialize(){
 //
 
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endmsg;
+   MsgStream log(messageService(), name());
+   log << MSG::INFO << "in initialize()" << endreq;
    StatusCode sc ;
 //
 
@@ -34,7 +34,7 @@ StatusCode AlignCondAthTest::initialize(){
    if (!sc.isSuccess() || 0 == p_MuonAlignmentDbSvc) {
      log << MSG::ERROR
          << "::initialize "
-         << "Could not find MuonAlignmentDbSvc" << endmsg;
+         << "Could not find MuonAlignmentDbSvc" << endreq;
     return( StatusCode::FAILURE );
    }
 //
@@ -46,8 +46,8 @@ StatusCode AlignCondAthTest::initialize(){
 StatusCode AlignCondAthTest::execute() {
 //
 
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << " AlignCondAthTest in execute()" << endmsg;
+   MsgStream log(messageService(), name());
+   log << MSG::INFO << " AlignCondAthTest in execute()" << endreq;
 
   return StatusCode::SUCCESS;
 //
@@ -56,8 +56,8 @@ StatusCode AlignCondAthTest::execute() {
 StatusCode AlignCondAthTest::finalize() {
 //
 
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in finalize()" << endmsg;
+   MsgStream log(messageService(), name());
+   log << MSG::INFO << "in finalize()" << endreq;
 //
   return StatusCode::SUCCESS;
 //
