@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+  <atn/>
+  <kv/>
+
+  <rtt xmlns="http://atlas-project-rtt-results.web.cern.ch/atlas-project-rtt-results/">
+  <!-- <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt"> -->
+    <rttContactPerson>Takashi Yamanaka (Takashi.Yamanaka@NOSPAM.cern.ch)</rttContactPerson>
+    <mailto>Takashi.Yamanaka@NOSPAM.cern.ch</mailto>
+    <refRelease>16.5.0</refRelease>
+
+    <jobList>
+
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simul</displayProcess>
+        <displayComponent>Det-Combined</displayComponent>
+      </classification>
+
+                 <jobTransform userJobId="singlepiTest_Simul">
+                   <doc>Test of simulation of singlepi only</doc>
+                   <jobTransformJobName>singlepiTest_AtlasG4_trf</jobTransformJobName>
+                   <jobTransformCmd>
+                     AtlasG4_tf.py --inputEVNTFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/fastsimulation/rtt/evgen/valid1.107406.singlepart_singlepi7.evgen.EVNT.e603/EVNT.172322._000001.pool.root.1 --outputHITSFile=singlepi.HITS.pool.root --maxEvents=2 --skipEvents=0 --preInclude=SimulationJobOptions/preInclude.FastIDKiller.py --geometryVersion=ATLAS-GEO-18-01-03 --conditionsTag=OFLCOND-SDR-BS7T-05-12 --randomSeed=50 --physicsList=QGSP_BERT --DataRunNumber=107406
+                   </jobTransformCmd>
+                   <group>FastSimulationTestsTransform</group>
+                   <queue>medium</queue>
+                 </jobTransform>
+
+                 <jobTransform userJobId="singlepiTest_Merge">
+                   <doc>Test of merge of singlepi HITS</doc>
+                   <jobTransformJobName>singlepiTest_Merging_trf</jobTransformJobName>
+                   <jobTransformCmd>
+                     HITSMerge_tf.py --inputHITSFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/fastsimulation/rtt/valid1.107406.singlepart_singlepi7.simul.HITS.e603_a0001.pool.root --outputHITS_MRGFile=singlepi.HITS.merge.pool.root --maxEvents=2 --skipEvents=0 --geometryVersion=ATLAS-GEO-18-01-03 --conditionsTag=OFLCOND-SDR-BS7T-05-12 --postInclude=FastCaloSimHit/postInclude.AF2FilterHitItems.py,FastSimulationJobTransforms/jobConfig.FastCaloSim_ID_cuts.py,FastSimulationJobTransforms/jobConfig.egamma_lateral_shape_tuning.config19.py --preInclude=FastSimulationJobTransforms/jobConfig.v14_Parametrisation.py,FastCaloSimHit/preInclude.AF2Hit.py --postExec='from AthenaCommon.AppMgr import ServiceMgr as svcMgr;svcMgr.StatusCodeSvc.AbortOnError=False'
+                   </jobTransformCmd>
+                   <group>FastSimulationTestsTransform</group>
+                   <queue>medium</queue>
+                 </jobTransform>
+
+                 <jobTransform userJobId="singlepiTest_Digi">
+                   <doc>Test of AtlfastII digitization of singlepi</doc>
+                   <jobTransformJobName>singlepiTest_Digi_trf</jobTransformJobName>
+                   <jobTransformCmd>
+                     DigiMReco_trf.py inputHitsFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/fastsimulation/rtt/hits/valid1.107406.singlepart_singlepi7.simul.HITS.e603_a0001.merge.pool.root outputESDFile=singlepi.ESD.pool.root outputAODFile=singlepi.AOD.pool.root outputNTUP_SMWZFile=singlepi.NTUP_SMWZ.pool.root triggerConfigByRun="{180164:\"MCRECO:DB:TRIGGERDBMC:308,134,246\",183003:\"MCRECO:DB:TRIGGERDBMC:308,134,246\",186169:\"MCRECO:DB:TRIGGERDBMC:308,134,246\",189751:\"MCRECO:DB:TRIGGERDBMC:310,139,252\"}" maxEvents=2 preInclude_h2r=SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_mc11b.py postInclude_h2r=FastSimulationJobTransforms/postInclude.AF2DigiSetContainerNames.py preExec_h2r='from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"]' postExec_h2r='ToolSvc.LArAutoCorrTotalToolDefault.NMinBias=0' preExec_r2e='rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.energy.set_Value_and_Lock(3500*Units.GeV);muonRecFlags.writeSDOs=True;from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' preExec_e2a='TriggerFlags.AODEDMSet="AODSLIM";rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.energy.set_Value_and_Lock(3500*Units.GeV);muonRecFlags.writeSDOs=True' RunNumber=107406 autoConfiguration=everything conditionsTag=OFLCOND-SDR-BS7T-05-24 outputRDOFile=tmpRDO.pool.root geometryVersion=ATLAS-GEO-18-01-01 numberOfCavernBkg=0 DataRunNumber=-1 jobNumber=20 digiSeedOffset1=20 digiSeedOffset2=20 cavernHitsFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/fastsimulation/rtt/hits/valid1.107406.singlepart_singlepi7.simul.HITS.e603_a0001.merge.pool.root
+                   </jobTransformCmd>
+                   <group>FastSimulationTestsTransformResult</group>
+                   <queue>medium</queue>
+                 </jobTransform>
+
+      <chain>
+        <chainName>TTbarFastSimulationChainJob</chainName>
+          <sequential>
+            <chainElement>
+              <!-- Run Simulation ID only -->
+              <jobTransform userJobId="ttbar_Simul">
+                <doc>Simulation of ttbar ID only</doc>
+                <jobTransformJobName>ttbar_AtlasG4_trf</jobTransformJobName>
+                <jobTransformCmd>
+                  AtlasG4_tf.py --inputEVNTFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/fastsimulation/rtt/evgen/valid1.105200.T1_McAtNlo_Jimmy.evgen.EVNT.e603/EVNT.167154._000001.pool.root.2 --outputHITSFile=ttbar.HITS.pool.root --maxEvents=10 --skipEvents=0 --preInclude=SimulationJobOptions/preInclude.FastIDKiller.py --geometryVersion=ATLAS-GEO-18-01-03 --conditionsTag=OFLCOND-SDR-BS7T-05-12 --randomSeed=50 --physicsList=QGSP_BERT --DataRunNumber=105200
+                </jobTransformCmd>
+                <group>FastSimulationTestsTransform</group>
+                <queue>medium</queue>
+              </jobTransform>
+              <chainfileout>ttbar.HITS.pool.root</chainfileout>
+            </chainElement>
+
+            <chainElement>
+              <!-- Merge HITS file -->
+              <jobTransform userJobId="ttbar_Merge">
+                <doc>Merging of ttbar HITS file</doc>
+                <jobTransformJobName>ttbar_Merge_trf</jobTransformJobName>
+                <jobTransformCmd>
+                  HITSMerge_tf.py --inputHITSFile=ttbar.HITS.pool.root --outputHITS_MRGFile=ttbar.HITS.merge.pool.root --maxEvents=10 --skipEvents=0 --geometryVersion=ATLAS-GEO-18-01-03 --conditionsTag=OFLCOND-SDR-BS7T-05-12 --postInclude=FastCaloSimHit/postInclude.AF2FilterHitItems.py,FastSimulationJobTransforms/jobConfig.FastCaloSim_ID_cuts.py,FastSimulationJobTransforms/jobConfig.egamma_lateral_shape_tuning.config19.py --preInclude=FastSimulationJobTransforms/jobConfig.v14_Parametrisation.py,FastCaloSimHit/preInclude.AF2Hit.py --postExec='from AthenaCommon.AppMgr import ServiceMgr as svcMgr;svcMgr.StatusCodeSvc.AbortOnError=False'
+                </jobTransformCmd>
+                <group>FastSimulationTestsTransform</group>
+                <chaindataset_info>
+                  <jobTransformData/>
+                  <chaindatasetName>ttbar.HITS.pool.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/fastsimulation/rtt/hits/ttbar.HITS.pool.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
+                <queue>medium</queue>
+              </jobTransform>
+              <chainfileout>ttbar.HITS.merge.pool.root</chainfileout>
+            </chainElement>
+
+            <chainElement>
+              <!-- Run Digitization -->
+              <jobTransform userJobId="ttbar_Digi">
+                <doc>AtlfastII digitization of ttbar</doc>
+                <jobTransformJobName>ttbar_Digi_trf</jobTransformJobName>
+                <jobTransformCmd>
+                  DigiMReco_trf.py inputHitsFile=ttbar.HITS.merge.pool.root outputESDFile=ttbar.ESD.pool.root outputAODFile=ttbar.AOD.pool.root outputNTUP_SMWZFile=ttbar.NTUP_SMWZ.pool.root triggerConfigByRun="{180164:\"MCRECO:DB:TRIGGERDBMC:308,134,246\",183003:\"MCRECO:DB:TRIGGERDBMC:308,134,246\",186169:\"MCRECO:DB:TRIGGERDBMC:308,134,246\",189751:\"MCRECO:DB:TRIGGERDBMC:310,139,252\"}" maxEvents=2 preInclude_h2r=SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_mc11b.py postInclude_h2r=FastSimulationJobTransforms/postInclude.AF2DigiSetContainerNames.py preExec_h2r='from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"]' postExec_h2r='ToolSvc.LArAutoCorrTotalToolDefault.NMinBias=0' preExec_r2e='rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.energy.set_Value_and_Lock(3500*Units.GeV);muonRecFlags.writeSDOs=True;from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False' preExec_e2a='TriggerFlags.AODEDMSet="AODSLIM";rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.energy.set_Value_and_Lock(3500*Units.GeV);muonRecFlags.writeSDOs=True' RunNumber=107406 autoConfiguration=everything conditionsTag=OFLCOND-SDR-BS7T-05-24 outputRDOFile=tmpRDO.pool.root geometryVersion=ATLAS-GEO-18-01-01 numberOfCavernBkg=0 DataRunNumber=-1 jobNumber=20 digiSeedOffset1=20 digiSeedOffset2=20 cavernHitsFile=ttbar.HITS.merge.pool.root
+                </jobTransformCmd>
+                <group>FastSimulationTestsTransformResult</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>ttbar.HITS.merge.pool.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/fastsimulation/rtt/hits/ttbar.HITS.merge.pool.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
+                <queue>medium</queue>
+              </jobTransform>
+            </chainElement>
+          </sequential>
+        </chain>
+
+
+      </jobList>
+
+
+      <jobGroups>
+
+        <jobGroup name="FastSimulationTestsTransform" parent="Transform">
+        </jobGroup>
+
+        <jobGroup name="FastSimulationTestsTransformResult" parent="Transform">
+          <keepFilePattern>*.ps</keepFilePattern>
+          <keepFilePattern>*.log</keepFilePattern>
+          <keepFilePattern>*.txt</keepFilePattern>
+          <keepFilePattern>*.eps</keepFilePattern>
+          <keepFilePattern>*.gif</keepFilePattern>
+          <keepFilePattern>*.png</keepFilePattern>
+          <keepFilePattern>*.root</keepFilePattern>
+          <keepFilePattern>*.html</keepFilePattern>
+
+          <auxFilePattern>FastSimulation*.C</auxFilePattern>
+          <auxFilePattern>FastSimulation*.h</auxFilePattern>
+          <action position="1">
+            <modulename>RttLibraryTools</modulename>
+            <testname>ROOTMacroRunner</testname>
+            <arg>
+              <argname>macro</argname>
+              <argvalue>FastSimulationMakePlots.C</argvalue>
+            </arg>
+            <arg>
+              <argname>macroArg</argname>
+              <argvalue>"*.NTUP.root"</argvalue>
+            </arg>
+          </action>
+        </jobGroup>
+
+      </jobGroups>
+   </rtt>
+
+</unifiedTestConfiguration>
