@@ -343,6 +343,10 @@ GeoTransform *  VolumeBuilder::getPlacement(int iElement, int iCopy)
   // NB. Corrected for placement in endcaps
   double zpos = param.zposition() - m_zcenter;
 
+  // Shift along Z axis ( IBL shift )
+  double zshift = param.zShift();
+  zpos += zshift;
+
   // Check if we need to rotate around Y axis.
   bool rotateAroundY = false;
   if (param.needsRotation()) { // zpos will always be negative in this case

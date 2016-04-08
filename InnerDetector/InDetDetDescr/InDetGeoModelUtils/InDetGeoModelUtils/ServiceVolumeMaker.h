@@ -42,6 +42,7 @@ namespace InDetDD {
     std::string phiStep() const {return m_phiStep;}
     std::string radialDiv() const {return m_radialDiv;}
     std::string volId() const {return m_volId;}
+    std::string shiftFlag() const {return m_shiftFlag;}
     
     void set_rmin        (const std::string & s) {m_rmin = s;}
     void set_rmax        (const std::string & s) {m_rmax = s;}
@@ -61,9 +62,11 @@ namespace InDetDD {
     void set_phiStep     (const std::string & s) {m_phiStep = s;}
     void set_radialDiv   (const std::string & s) {m_radialDiv = s;}
     void set_volId       (const std::string & s) {m_volId = s;}
+    void set_shiftFlag       (const std::string & s) {m_shiftFlag = s;}
     
     bool simple() const {return m_rmin2.empty();}
     bool has_volId() const {return !m_volId.empty();}
+    bool has_shiftFlag() const {return !m_shiftFlag.empty();}
     bool has_shapeType() const {return !m_shapeType.empty();}
     bool has_width() const {return !m_width.empty();}
     bool has_radial() const {return !m_radialDiv.empty();}
@@ -88,6 +91,8 @@ namespace InDetDD {
     std::string m_phiStep;
     std::string m_radialDiv;
     std::string m_volId;
+    std::string m_shiftFlag;
+
   };
 
   class ServiceVolumeMakerMgr {
@@ -109,9 +114,11 @@ namespace InDetDD {
     int    repeat(int index) const;
     int    radialDiv(int index) const;
     int    volId(int index) const;
+    int    shiftFlag(int index) const;
     std::string shapeType(int index) const;
     std::string volName(int index) const;
     std::string materialName(int index) const;
+    std::vector<double> readLayerShift() const;
     
     unsigned int numElements() const;
 
@@ -120,6 +127,7 @@ namespace InDetDD {
     
   private:
     IRDBRecordset_ptr m_table;
+    IRDBRecordset_ptr m_layer;
     ServiceVolumeSchema m_schema;
     const InDetDD::AthenaComps * m_athenaComps;
   };
@@ -139,6 +147,7 @@ namespace InDetDD {
     std::string m_label;
     ServiceVolumeMakerMgr * m_mgr;    
     std::vector<const ServiceVolume *> m_services;
+    std::vector<double> m_layerShift;
   };
 } // end namespace
 
