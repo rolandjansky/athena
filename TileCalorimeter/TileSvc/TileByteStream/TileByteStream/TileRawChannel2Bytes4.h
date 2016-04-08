@@ -119,12 +119,12 @@ inline float TileRawChannel2Bytes4::amplitude(unsigned int w) const {
 }
 
 inline float TileRawChannel2Bytes4::time(unsigned int w) const {
-  float t = (((w >> TIME_SHIFT4) & TIME_RANGE4) - TIME_OFFSET4) / TIME_FACTOR4;
+  float t = (((w >> TIME_SHIFT4) & TIME_RANGE4) - TIME_OFFSET4) * (1./TIME_FACTOR4);
   return t;
 }
 
 inline float TileRawChannel2Bytes4::quality(unsigned int w) const {
-  float q = (((w >> QUALITY_SHIFT4) & QUALITY_RANGE4) - QUALITY_OFFSET4) / QUALITY_FACTOR4;
+  float q = (((w >> QUALITY_SHIFT4) & QUALITY_RANGE4) - QUALITY_OFFSET4) * (1./QUALITY_FACTOR4);
   return q;
 }
 

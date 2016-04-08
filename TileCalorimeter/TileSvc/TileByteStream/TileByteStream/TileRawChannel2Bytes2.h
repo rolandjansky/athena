@@ -96,18 +96,18 @@ inline int TileRawChannel2Bytes2::gain(unsigned int w) const {
 }
 
 inline float TileRawChannel2Bytes2::amplitude(unsigned int w) const {
-  float a = ((w >> AMPLITUDE_SHIFT2) & AMPLITUDE_RANGE2) / AMPLITUDE_FACTOR2 - AMPLITUDE_OFFSET2;
+  float a = ((w >> AMPLITUDE_SHIFT2) & AMPLITUDE_RANGE2) * (1. / AMPLITUDE_FACTOR2) - AMPLITUDE_OFFSET2;
   if (a < AMPLITUDE_MINVALUE) a += 2 * AMPLITUDE_OFFSET2;
   return a;
 }
 
 inline float TileRawChannel2Bytes2::time(unsigned int w) const {
-  float t = ((w >> TIME_SHIFT2) & TIME_RANGE2) / TIME_FACTOR2 - TIME_OFFSET2;
+  float t = ((w >> TIME_SHIFT2) & TIME_RANGE2) * (1./TIME_FACTOR2) - TIME_OFFSET2;
   return t;
 }
 
 inline float TileRawChannel2Bytes2::quality(unsigned int w) const {
-  float q = ((w >> QUALITY_SHIFT2) & QUALITY_RANGE2) / QUALITY_FACTOR2 - QUALITY_OFFSET2;
+  float q = ((w >> QUALITY_SHIFT2) & QUALITY_RANGE2) * (1./QUALITY_FACTOR2) - QUALITY_OFFSET2;
   return q;
 }
 
