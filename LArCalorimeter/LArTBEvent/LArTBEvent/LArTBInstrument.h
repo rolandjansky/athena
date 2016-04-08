@@ -5,8 +5,8 @@
 #ifndef LARTBINSTRUMENT_H
 #define LARTBINSTRUMENT_H
 
-#include "AthContainers/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "DataModel/DataVector.h"
+#include "CLIDSvc/CLASS_DEF.h"
 
 #include<vector>
 
