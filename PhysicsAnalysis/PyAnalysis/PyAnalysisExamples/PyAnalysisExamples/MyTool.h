@@ -13,13 +13,13 @@
 # undef _XOPEN_SOURCE
 #endif
 #include "Python.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class MyObj;
 
 namespace AthPyEx {
 
-class MyTool : public AlgTool
+class MyTool : public AthAlgTool
 {
 public:
 
@@ -27,7 +27,7 @@ public:
    */
   MyTool ( const std::string& type, const std::string& name,
 	   const IInterface* parent )
-    : AlgTool(type,name,parent),
+    : AthAlgTool(type,name,parent),
       m_A(0),
       m_self(0)
     {}

@@ -5,15 +5,14 @@
 #ifndef PYANALYSISEXAMPLES_MYSELECTIONALG_H
 #define PYANALYSISEXAMPLES_MYSELECTIONALG_H
 
-class StoreGateSvc;
 class MyCutClass;
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 namespace AthPyEx {
 class MyTool;
 
-class MySelectionAlg : public Algorithm
+class MySelectionAlg : public AthAlgorithm
 {
 public:
   MySelectionAlg(const std::string& name, ISvcLocator* pSvcLocator);
@@ -24,8 +23,6 @@ public:
   StatusCode finalize();
 
 private:
-  StoreGateSvc *m_StoreGate;
-
   double      m_ThrPT;
   std::string m_NewKey;
   std::string m_ContainerKey;
