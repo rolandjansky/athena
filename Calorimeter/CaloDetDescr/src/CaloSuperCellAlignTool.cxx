@@ -53,7 +53,7 @@ const CaloDetDescriptor* get_descriptor (Identifier reg_id,
     return mgr->get_descriptor (reg_id);
   }
 
-  BOOST_FOREACH (CaloDetDescriptor* d, mgr->tile_descriptors_range()) {
+  BOOST_FOREACH (const CaloDetDescriptor* d, mgr->tile_descriptors_range()) {
     if (d->identify() == reg_id) return d;
   }
   return 0;

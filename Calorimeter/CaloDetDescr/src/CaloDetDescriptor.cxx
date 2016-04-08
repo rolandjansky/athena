@@ -35,10 +35,13 @@ CaloDetDescriptor::CaloDetDescriptor(const Identifier& id,
   // -- m_calo_sign
   if (m_is_tile)
     m_calo_sign = m_calo_helper->side(id);
-  else if (m_calo_helper->pos_neg(id) == 0)
-    m_calo_sign = 0;
-  else
-    m_calo_sign = (int)(m_calo_helper->pos_neg(id)/fabs(m_calo_helper->pos_neg(id)));
+  else {
+    int posneg = m_calo_helper->pos_neg(id);
+    if (posneg == 0) 
+      m_calo_sign = 0;
+    else
+      m_calo_sign = (int)(posneg/std::abs(posneg));
+  }
 
   // -- m_layer
   m_layer = (layer != CaloCell_ID::NOT_VALID) ? layer : m_calo_helper->sampling(id);

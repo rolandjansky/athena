@@ -259,7 +259,7 @@ class CaloDetDescrManager_Base
   /** @brief the only client is CaloCellList class 
    */
    void cellsInZone(double eta_min, double eta_max, double phi_min,
-                     double phi_max, CaloDetDescriptor* descr,
+                     double phi_max, const CaloDetDescriptor* descr,
                      std::vector<IdentifierHash> & cell_list) const;
 
   /** @brief return true if direction eta,phi crosses ANY of the corresponding descriptors

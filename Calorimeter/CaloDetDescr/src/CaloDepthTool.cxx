@@ -555,10 +555,7 @@ CaloDepthTool::flat(const CaloCell_ID::CaloSample sample, const int side )
 
   radius = m_default;
 
-  std::vector <CaloDetDescriptor*>::const_iterator  first = m_calo_dd->calo_descriptors_begin();
-  std::vector <CaloDetDescriptor*>::const_iterator  last = m_calo_dd->calo_descriptors_end();
-  for (; first != last; ++first) {
-    CaloDetDescriptor* reg = *first;
+  for (const CaloDetDescriptor* reg : m_calo_dd->calo_descriptors_range()) {
     if (reg) {
       if ( reg->getSampling(0) == sample && reg->calo_sign()*side > 0) {
 	std::vector<double> depth;
@@ -617,10 +614,7 @@ CaloDepthTool::depth(const CaloCell_ID::CaloSample sample, const int side )
 
   radius = m_default;
     
-  std::vector <CaloDetDescriptor*>::const_iterator  first = m_calo_dd->calo_descriptors_begin();
-  std::vector <CaloDetDescriptor*>::const_iterator  last = m_calo_dd->calo_descriptors_end();
-  for (; first != last; ++first) {
-    CaloDetDescriptor* reg = *first;
+  for (const CaloDetDescriptor* reg : m_calo_dd->calo_descriptors_range()) {
     if (reg) {
       if ( reg->getSampling(0) == sample && reg->calo_sign()*side > 0) {
 	std::vector<double> depth;
@@ -643,7 +637,7 @@ CaloDepthTool::get_entrance_radius(CaloCell_ID::CaloSample sample,
 
   if (!m_calo_dd) return m_default;
 
-  CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
+  const CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
   if (!elt) return m_default;
   return (elt->r()-elt->dr());
 }
@@ -654,7 +648,7 @@ CaloDepthTool::get_entrance_z(CaloCell_ID::CaloSample sample,
 {
   if (!m_calo_dd) return m_default;
 
-  CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
+  const CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
   if (!elt) return m_default;
   return (elt->z()-(elt->z()<0?-elt->dz():elt->dz()));
 }
@@ -665,7 +659,7 @@ CaloDepthTool::get_middle_radius(CaloCell_ID::CaloSample sample,
 {
   if (!m_calo_dd) return m_default;
 
-  CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
+  const CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
   if (!elt) return m_default;
   return elt->r();
 }
@@ -676,7 +670,7 @@ CaloDepthTool::get_middle_z(CaloCell_ID::CaloSample sample,
 {
   if (!m_calo_dd) return m_default;
 
-  CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
+  const CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
   if (!elt) return m_default;
   return elt->z();
 }
@@ -687,7 +681,7 @@ CaloDepthTool::get_exit_radius(CaloCell_ID::CaloSample sample,
 {
   if (!m_calo_dd) return m_default;
 
-  CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
+  const CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
   if (!elt) return m_default;
   return (elt->r()+elt->dr());
 }
@@ -698,7 +692,7 @@ CaloDepthTool::get_exit_z(CaloCell_ID::CaloSample sample,
 {
   if (!m_calo_dd) return m_default;
 
-  CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
+  const CaloDetDescrElement* elt = m_calo_dd->get_element(sample, eta, phi);
   if (!elt) return m_default;
   return (elt->z()+(elt->z()<0?-elt->dz():elt->dz()));
 }

@@ -62,7 +62,7 @@ class EMBDetectorElement : public CaloDetDescrElement
   EMBDetectorElement(const IdentifierHash subcaloHash,
 		     const IdentifierHash onl1,
 		     const IdentifierHash onl2,
-		     CaloDetDescriptor* descriptor,
+		     const CaloDetDescriptor* descriptor,
 		     EMBCellConstLink& embCell,
 		     const EMBDetectorRegion* embRegion,
 		     bool isTestBeam);
@@ -132,7 +132,7 @@ class EMECDetectorElement : public CaloDetDescrElement
   EMECDetectorElement(const IdentifierHash subcaloHash,
 		      const IdentifierHash onl1,
 		      const IdentifierHash onl2,
-		      CaloDetDescriptor* descriptor,
+		      const CaloDetDescriptor* descriptor,
 		      EMECCellConstLink& emecCell,
 		      const EMECDetectorRegion* emecRegion,
 		      bool isTestBeam);
@@ -205,7 +205,7 @@ class HECDetectorElement : public CaloDetDescrElement
   HECDetectorElement(const IdentifierHash subcaloHash,
 		     const IdentifierHash onl1,
 		     const IdentifierHash onl2,
-		     CaloDetDescriptor* descriptor,
+		     const CaloDetDescriptor* descriptor,
 		     HECCellConstLink& hecCell,
 		     const HECDetectorRegion* hecRegion,
 		     bool isTestBeam);
@@ -277,7 +277,7 @@ class FCALDetectorElement : public CaloDetDescrElement
   FCALDetectorElement(const IdentifierHash subcaloHash,
 		      const IdentifierHash onl1,
 		      const IdentifierHash onl2,
-		      CaloDetDescriptor* descriptor,
+		      const CaloDetDescriptor* descriptor,
 		      const FCALTile* fcalTile,
 		      const FCALModule* fcalModule,
 		      bool isTestBeam);
@@ -341,7 +341,7 @@ class TileDetectorElement : public CaloDetDescrElement
   TileDetectorElement(const IdentifierHash subcaloHash,
 		      const IdentifierHash onl1,
 		      const IdentifierHash onl2,
-		      CaloDetDescriptor* descriptor);
+		      const CaloDetDescriptor* descriptor);
 
   /** @brief set raw cylindric coordinates
    */
@@ -429,7 +429,7 @@ public:
    * @param descriptor Descriptor for this element.
    */
   CaloSuperCellDetectorElement(const IdentifierHash subcaloHash,
-                               CaloDetDescriptor* descriptor)
+                               const CaloDetDescriptor* descriptor)
     : CaloDetDescrElement (subcaloHash, 0, 0, descriptor) {}
 
 

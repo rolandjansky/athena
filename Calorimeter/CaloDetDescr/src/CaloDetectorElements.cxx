@@ -20,18 +20,19 @@ void fcal_deta_dphi (const CaloDetDescrElement& elt,
                      float& dphi)
 {
   // half width of fcal cells
-  double Dx = 0.5 * elt.dx();
-  double Dy = 0.5 * elt.dy();
-  double phi = elt.phi();
-  double r = elt.r();
-  double dxcphi = Dx*cos(phi);
-  double dxsphi = Dx*sin(phi);
-  double dycphi = Dy*cos(phi);
-  double dysphi = Dy*sin(phi);
+  const double Dx = 0.5 * elt.dx();
+  const double Dy = 0.5 * elt.dy();
+  const double phi = elt.phi();
+  const double r = elt.r();
+  const double dxcphi = Dx*cos(phi);
+  const double dxsphi = Dx*sin(phi);
+  const double dycphi = Dy*cos(phi);
+  const double dysphi = Dy*sin(phi);
   // approximate width orthogonal to radial vector
-  double DrT = sqrt(dxsphi*dxsphi+dycphi*dycphi);
+  const double DrT = sqrt(dxsphi*dxsphi+dycphi*dycphi);
   // total width in phi
-  dphi = 2.*DrT/r;
+  const double inv_r = 1. / r;
+  dphi = 2.*DrT * inv_r;
 
   // extension in radius
   double dr = sqrt(dxcphi*dxcphi+dysphi*dysphi);
@@ -42,8 +43,8 @@ void fcal_deta_dphi (const CaloDetDescrElement& elt,
   // cosh(eta)*deta = df
   // deta = df / cosh(eta) = df / sqrt(1+f*f)
   // to avoid overlaps between cells, assume a plane geometry with dz =0
-  double f=elt.z()/r;
-  double df  = elt.z()*dr/(r*r);
+  double f=elt.z() * inv_r;
+  double df  = elt.z()*dr*inv_r*inv_r;
   deta = 2.*std::abs(df) /sqrt(f*f+1.);
 }
 
@@ -56,7 +57,7 @@ void fcal_deta_dphi (const CaloDetDescrElement& elt,
 EMBDetectorElement::EMBDetectorElement(const IdentifierHash subcaloHash,
 				       const IdentifierHash onl1,
 				       const IdentifierHash onl2,
-				       CaloDetDescriptor* descriptor,
+				       const CaloDetDescriptor* descriptor,
 				       EMBCellConstLink& embCell,
 				       const EMBDetectorRegion* embRegion,
 				       bool isTestBeam):
@@ -111,11 +112,13 @@ void EMBDetectorElement::init_description(const CaloElementPositionShift* posShi
 
   if (r>0) {
     const double big_r = std::sqrt(globalAbsCoords.x()*globalAbsCoords.x()+globalAbsCoords.y()*globalAbsCoords.y()+globalAbsCoords.z()*globalAbsCoords.z());
-    m_eta     = static_cast<float> (-log((big_r-globalAbsCoords.z())/r));
-    m_sinTh = static_cast<float> (r/big_r);
-    m_cosTh = static_cast<float> (globalAbsCoords.z()/big_r);
-    m_cosPhi=globalAbsCoords.x()/r;
-    m_sinPhi=globalAbsCoords.y()/r;
+    const double inv_big_r = 1. / big_r;
+    const double inv_r = 1. / r;
+    m_eta     = static_cast<float> (-log((big_r-globalAbsCoords.z()) * inv_r));
+    m_sinTh = static_cast<float> (r * inv_big_r);
+    m_cosTh = static_cast<float> (globalAbsCoords.z() * inv_big_r);
+    m_cosPhi=globalAbsCoords.x() * inv_r;
+    m_sinPhi=globalAbsCoords.y() * inv_r;
   } 
   else  {
     m_eta  = 0.;
@@ -165,7 +168,7 @@ int EMBDetectorElement::getLayer() const
 EMECDetectorElement::EMECDetectorElement(const IdentifierHash subcaloHash,
 					 const IdentifierHash onl1,
 					 const IdentifierHash onl2,
-					 CaloDetDescriptor* descriptor,
+					 const CaloDetDescriptor* descriptor,
 					 EMECCellConstLink& emecCell,
 					 const EMECDetectorRegion* emecRegion,
 					 bool isTestBeam):
@@ -233,11 +236,13 @@ void EMECDetectorElement::init_description(bool isTestBeam, const CaloElementPos
 
   if (r>0) {
     const double big_r = std::sqrt(globalAbsCoords.x()*globalAbsCoords.x()+globalAbsCoords.y()*globalAbsCoords.y()+globalAbsCoords.z()*globalAbsCoords.z());
-    m_eta     = static_cast<float> (-log((big_r-globalAbsCoords.z())/r));
-    m_sinTh = static_cast<float> (r/big_r);
-    m_cosTh = static_cast<float> (globalAbsCoords.z()/big_r);
-    m_cosPhi=globalAbsCoords.x()/r;
-    m_sinPhi=globalAbsCoords.y()/r;
+    const double inv_big_r = 1. / big_r;
+    const double inv_r = 1. /r;
+    m_eta     = static_cast<float> (-log((big_r-globalAbsCoords.z()) * inv_r));
+    m_sinTh = static_cast<float> (r * inv_big_r);
+    m_cosTh = static_cast<float> (globalAbsCoords.z() * inv_big_r);
+    m_cosPhi=globalAbsCoords.x() * inv_r;
+    m_sinPhi=globalAbsCoords.y() * inv_r;
   } 
   else  {
     m_eta  = 0.;
@@ -295,7 +300,7 @@ int EMECDetectorElement::getLayer() const
 HECDetectorElement::HECDetectorElement(const IdentifierHash subcaloHash,
 				       const IdentifierHash onl1,
 				       const IdentifierHash onl2,
-				       CaloDetDescriptor* descriptor,
+				       const CaloDetDescriptor* descriptor,
 				       HECCellConstLink& hecCell,
 				       const HECDetectorRegion* hecRegion,
 				       bool isTestBeam):
@@ -365,11 +370,13 @@ void HECDetectorElement::init_description(bool isTestBeam, const CaloElementPosi
 
   if (r>0) {
     const double big_r = std::sqrt(globalAbsCoords.x()*globalAbsCoords.x()+globalAbsCoords.y()*globalAbsCoords.y()+globalAbsCoords.z()*globalAbsCoords.z());
-    m_eta     = static_cast<float> (-log((big_r-globalAbsCoords.z())/r));
-    m_sinTh = static_cast<float> (r/big_r);
-    m_cosTh = static_cast<float> (globalAbsCoords.z()/big_r);
-    m_cosPhi=globalAbsCoords.x()/r;
-    m_sinPhi=globalAbsCoords.y()/r;
+    const double inv_r = 1. / r;
+    const double inv_big_r = 1. / big_r;
+    m_eta     = static_cast<float> (-log((big_r-globalAbsCoords.z()) * inv_r));
+    m_sinTh = static_cast<float> (r * inv_big_r);
+    m_cosTh = static_cast<float> (globalAbsCoords.z() * inv_big_r);
+    m_cosPhi=globalAbsCoords.x() * inv_r;
+    m_sinPhi=globalAbsCoords.y() * inv_r;
   } 
   else  {
     m_eta  = 0.;
@@ -433,7 +440,7 @@ int HECDetectorElement::getLayer() const
 FCALDetectorElement::FCALDetectorElement(const IdentifierHash subcaloHash,
 					 const IdentifierHash onl1,
 					 const IdentifierHash onl2,
-					 CaloDetDescriptor* descriptor,
+					 const CaloDetDescriptor* descriptor,
 					 const FCALTile* fcalTile,
 					 const FCALModule* fcalModule,
 					 bool isTestBeam):
@@ -504,11 +511,13 @@ void FCALDetectorElement::init_description(bool isTestBeam, const CaloElementPos
 
   if (r>0) {
     const double big_r = std::sqrt(globalAbsCoords.x()*globalAbsCoords.x()+globalAbsCoords.y()*globalAbsCoords.y()+globalAbsCoords.z()*globalAbsCoords.z());
-    m_eta     = static_cast<float> (-log((big_r-globalAbsCoords.z())/r));
-    m_sinTh = static_cast<float> (r/big_r);
-    m_cosTh = static_cast<float> (globalAbsCoords.z()/big_r);
-    m_cosPhi=globalAbsCoords.x()/r;
-    m_sinPhi=globalAbsCoords.y()/r;
+    const double inv_big_r = 1. / big_r;
+    const double inv_r = 1. / r;
+    m_eta     = static_cast<float> (-log((big_r-globalAbsCoords.z()) * inv_r));
+    m_sinTh = static_cast<float> (r * inv_big_r);
+    m_cosTh = static_cast<float> (globalAbsCoords.z() * inv_big_r);
+    m_cosPhi=globalAbsCoords.x() * inv_r;
+    m_sinPhi=globalAbsCoords.y() * inv_r;
   } 
   else  {
     m_eta  = 0.;
@@ -570,7 +579,7 @@ int FCALDetectorElement::getLayer() const
 TileDetectorElement::TileDetectorElement(const IdentifierHash subcaloHash,
 					 const IdentifierHash onl1,
 					 const IdentifierHash onl2,
-					 CaloDetDescriptor* descriptor):
+					 const CaloDetDescriptor* descriptor):
   CaloDetDescrElement(subcaloHash,onl1,onl2,descriptor)
 {
 }
@@ -952,21 +961,23 @@ CaloSuperCellDetectorElement::updateFCAL
   m_phi_raw = atan2 (y_raw, x_raw);
   m_phi = atan2 (y, x);
 
-  double r_raw = hypot (x_raw, y_raw);
-  double r = hypot (x, y);
+  const double r_raw = hypot (x_raw, y_raw);
+  const double r = hypot (x, y);
+  const double inv_r = 1. / r;
 
   m_r_raw = r_raw;
   m_r = r;
 
-  double big_r = sqrt (x*x + y*y + z*z);
-  double big_r_raw = sqrt (x_raw*x_raw + y_raw*y_raw + z_raw*z_raw);
+  const double big_r = sqrt (x*x + y*y + z*z);
+  const double big_r_raw = sqrt (x_raw*x_raw + y_raw*y_raw + z_raw*z_raw);
+  const double inv_big_r = 1. / big_r;
 
-  m_eta = -log ((big_r - z) / r);
+  m_eta = -log ((big_r - z) * inv_r);
   m_eta_raw = -log ((big_r_raw - z_raw) / r_raw);
-  m_sinTh = r / big_r;
-  m_cosTh = z / big_r;
-  m_cosPhi = x / r;
-  m_sinPhi = y / r;
+  m_sinTh = r * inv_big_r;
+  m_cosTh = z * inv_big_r;
+  m_cosPhi = x * inv_r;
+  m_sinPhi = y * inv_r;
 
   if (m_r>0.) {
     // estimate deta,dphi of Fcal cells

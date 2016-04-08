@@ -111,6 +111,9 @@ void CaloSuperCellIDTool::initIDMap ()
       float cell_etamax = cell_etamin +
         cell_etasize*(cell_ietamax - cell_ietamin + 1);
 
+      float inv_cell_etasize = 1. / cell_etasize;
+      float inv_cell_phisize = 1. / cell_phisize;
+
       // Find all overlapping supercell regions in the same sampling
       // and make table entries.  HEC supercells are summed
       // over samplings, so don't make sampling requirements there.
@@ -136,8 +139,8 @@ void CaloSuperCellIDTool::initIDMap ()
             IDMapElt elt;
             elt.m_cell_reg = cell_helper->calo_region_hash (cell_reg);
             elt.m_sc_reg = sc_helper->calo_region_hash (sc_reg);
-            elt.m_etadiv = int (sc_etasize / cell_etasize + 0.1);
-            elt.m_phidiv = int (sc_phisize / cell_phisize + 0.1);
+            elt.m_etadiv = int (sc_etasize * inv_cell_etasize + 0.1);
+            elt.m_phidiv = int (sc_phisize * inv_cell_phisize + 0.1);
 
             if (sub_calo == CaloCell_ID::LARHEC) {
               // FIXME: Shouldn't have to special-case this.
@@ -149,13 +152,14 @@ void CaloSuperCellIDTool::initIDMap ()
               elt.m_sc_ieta_adj   = sc_ietamin;
             }
 
-            elt.m_cell_ietamin = int ((etamin - cell_etamin) / cell_etasize +
+            elt.m_cell_ietamin = int ((etamin - cell_etamin) * inv_cell_etasize +
                                       cell_ietamin + 0.1);
-            elt.m_cell_ietamax = int ((etamax - cell_etamin) / cell_etasize +
+            elt.m_cell_ietamax = int ((etamax - cell_etamin) * inv_cell_etasize +
                                       cell_ietamin - 0.1);
-            elt.m_sc_ietamin = int ((etamin - sc_etamin) / sc_etasize +
+            const float inv_sc_etasize = 1. / sc_etasize;
+            elt.m_sc_ietamin = int ((etamin - sc_etamin) * inv_sc_etasize +
                                     sc_ietamin + 0.1);
-            elt.m_sc_ietamax = int ((etamax - sc_etamin) / sc_etasize +
+            elt.m_sc_ietamax = int ((etamax - sc_etamin) * inv_sc_etasize +
                                     sc_ietamin - 0.1);
 
             addMapEntry (elt);

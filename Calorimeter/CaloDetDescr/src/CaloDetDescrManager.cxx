@@ -11,7 +11,6 @@
 //<doc><file>	$Id: CaloDetDescrManager.cxx,v 1.69 2009-03-03 14:34:12 gunal Exp $
 //<version>	$Name: not supported by cvs2svn $
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 // Calo includes
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -192,7 +191,7 @@ CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
 
   while (!inCell && niter<3) {
 
-    CaloDetDescriptor* reg = get_descriptor(subCalo,sampling_or_module,barrel,eta2,phi2);
+    const CaloDetDescriptor* reg = get_descriptor(subCalo,sampling_or_module,barrel,eta2,phi2);
     if (!reg) return 0;
 
     if (reg->is_lar_fcal()) return get_element_FCAL(reg,eta,phi);
@@ -268,7 +267,7 @@ CaloDetDescrManager_Base::get_element(CaloCell_ID::CaloSample sample,
 
     while (!inCell && niter<3) {
 
-      CaloDetDescriptor* reg = get_descriptor(sample,eta2,phi2);
+      const CaloDetDescriptor* reg = get_descriptor(sample,eta2,phi2);
       if ( ! reg ) return elt;
 
       if (reg->is_lar_fcal()) return get_element_FCAL(reg,eta2,phi2);      
@@ -357,7 +356,7 @@ CaloDetDescrManager_Base::get_element_raw(CaloCell_ID::CaloSample sample,
 
     while (!inCell && niter<3) {
 
-      CaloDetDescriptor* reg = get_descriptor_raw(sample,eta2,phi2);
+      const CaloDetDescriptor* reg = get_descriptor_raw(sample,eta2,phi2);
       if ( ! reg ) return elt;
       //std::cout << " get_element_raw: found region   calo etamin,etamax " << reg->calo_eta_min() << " " << reg->calo_eta_max() << std::endl;
 
@@ -431,7 +430,6 @@ CaloDetDescrManager_Base::get_element_FCAL(const CaloDetDescriptor* descr,
                                            double phi) const
 {
   CaloDetDescrElement* elt=0;
-  static CaloPhiRange _range;
 
   //std::cout << " in get_element_FCAL " << descr->reg_min() << " " << descr->reg_max() <<  " eta,phi " << eta << " " << phi << std::endl;
   if (eta < (descr->reg_min()-0.01) || eta > (descr->reg_max()+0.01) ) return elt;
@@ -447,7 +445,7 @@ CaloDetDescrManager_Base::get_element_FCAL(const CaloDetDescriptor* descr,
        caloCellHash = m_cell_id->calo_cell_hash(cellId);
        elt2 = get_element (caloCellHash);
        double deta = (eta-elt2->eta());
-       double dphi = _range.diff(phi,elt2->phi());
+       double dphi = CaloPhiRange::diff(phi,elt2->phi());
        double dr = (deta*deta+dphi*dphi);
        if (dr<drmax) {
           drmax=dr;
@@ -468,7 +466,6 @@ CaloDetDescrManager_Base::get_element_FCAL_raw(const CaloDetDescriptor* descr,
                                                double phi) const
 {
   CaloDetDescrElement* elt=0;
-  static CaloPhiRange _range;
 
   //std::cout << " in get_element_FCAL " << descr->reg_min() << " " << descr->reg_max() <<  " eta,phi " << eta << " " << phi << std::endl;
   if (std::fabs(eta) < (descr->calo_eta_min()-0.01) || std::fabs(eta) > (descr->calo_eta_max()+0.01) ) return elt;
@@ -484,7 +481,7 @@ CaloDetDescrManager_Base::get_element_FCAL_raw(const CaloDetDescriptor* descr,
        caloCellHash = m_cell_id->calo_cell_hash(cellId);
        elt2 = get_element (caloCellHash);
        double deta = (eta-elt2->eta_raw());
-       double dphi = _range.diff(phi,elt2->phi_raw());
+       double dphi = CaloPhiRange::diff(phi,elt2->phi_raw());
        double dr = (deta*deta+dphi*dphi);
        if (dr<drmax) {
           drmax=dr;
@@ -754,7 +751,7 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
 
   // For LAr use the descriptors :
   for ( unsigned int i=0; i<m_descr_vec.size(); i++ ) {
-    CaloDetDescriptor* reg = m_descr_vec[i];
+    const CaloDetDescriptor* reg = m_descr_vec[i];
     if ( reg ) {
       cellsInZone(eta_min, eta_max, phi_min, phi_max, reg, one_list);
       if (cell_list.empty())
@@ -784,7 +781,7 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
   if ( subCalo != CaloCell_ID::TILE ) {
 
     for ( unsigned int i=0; i<m_descr_vec.size(); i++ ) {
-      CaloDetDescriptor* reg = m_descr_vec[i];
+      const CaloDetDescriptor* reg = m_descr_vec[i];
       if ( reg )
         if ( subCalo == reg->getSubCalo() ) {
           cellsInZone(eta_min, eta_max, phi_min, phi_max, reg, one_list);
@@ -799,7 +796,7 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
   } else {
 
     // For Tiles loop on elements :
-    CaloDetDescrElement* tile_elt;
+    const CaloDetDescrElement* tile_elt;
     for ( unsigned int i = m_subCalo_min[subCalo];
           i < m_subCalo_max[subCalo]; i++ ) {
       tile_elt = m_element_vec[i];
@@ -808,9 +805,8 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
         if ( tile_elt->eta()+tile_elt->deta()/2. > eta_min &&
              tile_elt->eta()-tile_elt->deta()/2. < eta_max) {
  
-          static CaloPhiRange _range;
-          double dphi1 = _range.diff(tile_elt->phi()+tile_elt->dphi()/2.,phi_min);
-          double dphi2 = _range.diff(phi_max,tile_elt->phi()-tile_elt->dphi()/2);
+          double dphi1 = CaloPhiRange::diff(tile_elt->phi()+tile_elt->dphi()/2.,phi_min);
+          double dphi2 = CaloPhiRange::diff(phi_max,tile_elt->phi()-tile_elt->dphi()/2);
 
           if(dphi1 >=0.  && dphi2 >= 0.)  {
 	     if (cell_list.empty()) {
@@ -849,7 +845,7 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
        sample != CaloCell_ID::TileExt2    ) {
 
     for ( unsigned int i=0; i<m_descr_vec.size(); i++ ) {
-      CaloDetDescriptor* reg = m_descr_vec[i];
+      const CaloDetDescriptor* reg = m_descr_vec[i];
       if ( reg )
         // this works only for LAr, for Tiles the sampling depends on the
         // cell
@@ -867,7 +863,7 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
 
     // For Tiles loop on elements :
     int nb = CaloCell_ID::TILE;
-    CaloDetDescrElement* tile_elt;
+    const CaloDetDescrElement* tile_elt;
 
     for ( unsigned int i = m_subCalo_min[nb]; i < m_subCalo_max[nb]; i++ ) {
       tile_elt = m_element_vec[i];
@@ -877,9 +873,8 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
           if ( tile_elt->eta()+tile_elt->deta()/2. > eta_min &&
                tile_elt->eta()-tile_elt->deta()/2. < eta_max) {
  
-            static CaloPhiRange _range; 
-            double dphi1 = _range.diff(tile_elt->phi()+tile_elt->dphi()/2.,phi_min);
-            double dphi2 = _range.diff(phi_max,tile_elt->phi()-tile_elt->dphi()/2);
+            double dphi1 = CaloPhiRange::diff(tile_elt->phi()+tile_elt->dphi()/2.,phi_min);
+            double dphi2 = CaloPhiRange::diff(phi_max,tile_elt->phi()-tile_elt->dphi()/2);
 
             if(dphi1 >=0.  && dphi2 >= 0.)  {
                if (cell_list.empty()) {
@@ -913,7 +908,7 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
   std::vector<IdentifierHash> one_list;
 
   for ( unsigned int i=0; i<m_descr_vec.size(); i++ ) {
-    CaloDetDescriptor* reg = m_descr_vec[i];
+    const CaloDetDescriptor* reg = m_descr_vec[i];
     if ( reg ) {
       Identifier regId = reg->identify();
       if ( subCalo == reg->getSubCalo() &&
@@ -947,7 +942,7 @@ CaloDetDescrManager_Base::cellsInZone(double eta, double phi, int ncell_eta,
   if ( subCalo != CaloCell_ID::TILE ) {
 
     for ( unsigned int i=0; i<m_descr_vec.size(); i++ ) {
-      CaloDetDescriptor* reg = m_descr_vec[i];
+      const CaloDetDescriptor* reg = m_descr_vec[i];
       if ( reg ) {
         Identifier regId = reg->identify();
         if ( subCalo == reg->getSubCalo() &&
@@ -965,7 +960,7 @@ CaloDetDescrManager_Base::cellsInZone(double eta, double phi, int ncell_eta,
           for ( unsigned int i = 0; i<one_list.size(); i++ ){
             // I know that cellsInZone catches more cells than needed
             // => look and cut
-            CaloDetDescrElement* elt = get_element (one_list[i]);
+            const CaloDetDescrElement* elt = get_element (one_list[i]);
             double elt_eta = elt->eta();
             double elt_phi = elt->phi();
             if ( barrel == elt->is_lar_em_barrel() )
@@ -982,7 +977,7 @@ CaloDetDescrManager_Base::cellsInZone(double eta, double phi, int ncell_eta,
     // For Tiles loop on elements :
     // loosy logic. since I do not know the grannularity in the
     // region, I use the one of each element. Hum...
-    CaloDetDescrElement* tile_elt;
+    const CaloDetDescrElement* tile_elt;
     for ( unsigned int i = m_subCalo_min[subCalo];
           i < m_subCalo_max[subCalo]; i++ ) {
       tile_elt = m_element_vec[i];
@@ -994,9 +989,8 @@ CaloDetDescrManager_Base::cellsInZone(double eta, double phi, int ncell_eta,
            tile_elt->eta()-tile_elt->deta()/2. < eta_max) {
           phi_min = phi-wphi*tile_elt->dphi();
           phi_max = phi+wphi*tile_elt->dphi();
-          static CaloPhiRange _range;
-          double dphi1 = _range.diff(tile_elt->phi()+tile_elt->dphi()/2.,phi_min);
-          double dphi2 = _range.diff(phi_max,tile_elt->phi()-tile_elt->dphi()/2);
+          double dphi1 = CaloPhiRange::diff(tile_elt->phi()+tile_elt->dphi()/2.,phi_min);
+          double dphi2 = CaloPhiRange::diff(phi_max,tile_elt->phi()-tile_elt->dphi()/2);
 
           if(dphi1 >=0. && dphi2 >= 0. ) {
 	    if (cell_list.empty()) {
@@ -1016,7 +1010,7 @@ CaloDetDescrManager_Base::cellsInZone(double eta, double phi, int ncell_eta,
 
 void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
                                            double phi_min, double phi_max,
-                                           CaloDetDescriptor* descr,
+                                           const CaloDetDescriptor* descr,
                                            std::vector<IdentifierHash> & cell_list) const
 {
 
@@ -1034,7 +1028,7 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
       Identifier regId = descr->identify();
       Identifier cellId;
       IdentifierHash caloCellHash;
-      CaloDetDescrElement* elt;
+      const CaloDetDescrElement* elt;
       IdentifierHash prevHash(0);
       // std::cout <<"    neta,nphi " << descr->n_eta() << " " << descr->n_phi() << std::endl;
       for (int ieta=0; ieta<descr->n_eta(); ieta++) {
@@ -1049,9 +1043,8 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
                 if ( elt->eta()+elt->deta()/2. > eta_min &&
                      elt->eta()-elt->deta()/2. < eta_max) {
 
-                   static CaloPhiRange _range;
-                   double dphi1 = _range.diff(elt->phi()+elt->dphi()/2.,phi_min);
-                   double dphi2 = _range.diff(phi_max,elt->phi()-elt->dphi()/2);
+                   double dphi1 = CaloPhiRange::diff(elt->phi()+elt->dphi()/2.,phi_min);
+                   double dphi2 = CaloPhiRange::diff(phi_max,elt->phi()-elt->dphi()/2);
 
                    if(dphi1 >=0.  && dphi2 >= 0.)  {
                      cell_list.push_back(caloCellHash);
@@ -1143,14 +1136,13 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
   //      module the min/max channel numbers will be -1 => mess in loops
   //      ==> reduce the window size to the module size
 
-    CaloPhiRange _phirange;
 
-    double zone_phi_min = _phirange.fix (phi_min);
-    double zone_phi_max = _phirange.fix (phi_max);
+    double zone_phi_min = CaloPhiRange::fix (phi_min);
+    double zone_phi_max = CaloPhiRange::fix (phi_max);
 
     //    *** *** *** TEST BEAM!!! *** *** ***
     if (m_lar_geometry == "H8" || m_lar_geometry == "H6") {
-      double margin = descr->dphi()/10.;
+      double margin = descr->dphi()*0.1;
 
       // FIXME : ideal values are used here, this should NOT be !!!!
 
@@ -1172,7 +1164,7 @@ void CaloDetDescrManager_Base::cellsInZone(double eta_min, double eta_max,
     Identifier regId = descr->identify();
     Identifier cellId;
     IdentifierHash caloCellHash;
-    CaloDetDescrElement* elt;
+    const CaloDetDescrElement* elt;
 
   
     /* 
@@ -1324,7 +1316,7 @@ const
   {
     for(unsigned int i=0; i<m_tile_descr_vec.size(); i++)
     {
-      CaloDetDescriptor* reg = m_tile_descr_vec[i];
+      const CaloDetDescriptor* reg = m_tile_descr_vec[i];
 
       if(reg && reg->getSampling(0) == sample)
       {
@@ -1344,7 +1336,7 @@ const
   {
     for(unsigned int i=0; i<m_tile_descr_vec.size(); i++)
     {
-      CaloDetDescriptor* reg = m_tile_descr_vec[i];
+      const CaloDetDescriptor* reg = m_tile_descr_vec[i];
 
       if(reg && reg->getSampling(0) == sample)
       {
@@ -1361,7 +1353,7 @@ const
   }
   else {
     for ( unsigned int i=0; i<m_descr_vec.size(); i++ ) {
-      CaloDetDescriptor* reg = m_descr_vec[i];
+      const CaloDetDescriptor* reg = m_descr_vec[i];
       if ( reg ) {
         if ( reg->getSampling(0) == sample ) {
           if ( reg->eta_channel(eta) >=0 && reg->phi_channel(phi) >=0) result = true;
@@ -1581,8 +1573,9 @@ const CaloDetDescrManager* CaloDetDescrManager::instance()
 	  s_instance = const_cast<CaloDetDescrManager*>(theMgr);
 	}
       } 
-      else 
+      else {
 	log << MSG::ERROR << "Could not locate DetectorStore" << endreq;
+      }
     }
     else
     {
@@ -1629,8 +1622,9 @@ const CaloSuperCellDetDescrManager* CaloSuperCellDetDescrManager::instance()
 	  s_instance = const_cast<CaloSuperCellDetDescrManager*>(theMgr);
 	}
       } 
-      else 
+      else {
 	log << MSG::ERROR << "Could not locate DetectorStore" << endreq;
+      }
     }
     else
     {
