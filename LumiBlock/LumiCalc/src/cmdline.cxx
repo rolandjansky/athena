@@ -146,7 +146,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->online_flag = 0;
   args_info->lumichannel_arg = 0;
   args_info->lumichannel_orig = NULL;
-  args_info->lumimethod_arg = gengetopt_strdup ("ATLAS_PREFERRED");
+  args_info->lumimethod_arg = gengetopt_strdup ("");
   args_info->lumimethod_orig = NULL;
   args_info->trigger_arg = NULL;
   args_info->trigger_orig = NULL;

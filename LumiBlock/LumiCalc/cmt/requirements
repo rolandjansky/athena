@@ -11,6 +11,7 @@ use AtlasCORAL 			AtlasCORAL-* 	     External
 use AtlasROOT                   AtlasROOT-*          External
 use LumiBlockData               LumiBlockData-*      LumiBlock
 use GoodRunsLists		GoodRunsLists-*	     DataQuality
+use xAODLuminosity              xAODLuminosity-*     Event/xAOD
 
 private
 use CoraCool   			CoraCool-*   		Database -no_auto_imports
@@ -22,12 +23,12 @@ use AtlasPOOL                   AtlasPOOL-*             External
 public
 
 # Create a named installed library
-library LumiBlockCoolQuery CoolQuery.cxx LumiBlockCollectionConverter.cxx LumiCalculator.cxx ReplicaSorter.cxx
+library LumiBlockCoolQuery CoolQuery.cxx LumiBlockRangeContainerConverter.cxx LumiCalculator.cxx ReplicaSorter.cxx LumiBlockCollectionConverter.cxx
 #apply_pattern component_library
 apply_pattern named_installed_library library=LumiBlockCoolQuery
 
 # Create a binary executable
-application iLumiCalc iLumiCalc.cxx cmdline.cxx CoolQuery.cxx LumiBlockCollectionConverter.cxx LumiCalculator.cxx ReplicaSorter.cxx
+application iLumiCalc iLumiCalc.cxx cmdline.cxx CoolQuery.cxx LumiBlockRangeContainerConverter.cxx LumiCalculator.cxx ReplicaSorter.cxx
 macro_append iLumiCalc_dependencies " LumiBlockCoolQuery"
 apply_tag ROOTCintexLibs
 
