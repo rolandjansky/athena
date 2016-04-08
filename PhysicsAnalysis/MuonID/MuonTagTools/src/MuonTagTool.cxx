@@ -22,7 +22,6 @@ Purpose : create a collection of MuonTag
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include <sstream>
-#include <cmath>
 
 
 /** the constructor */
@@ -279,7 +278,7 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
           double d0=0,z0=0;
           getMuonImpactParameter (*cm_it, d0, z0);
           
-          if ( std::abs(d0) > m_maxD0preselection ) {
+          if ( abs(d0) > m_maxD0preselection ) {
             ATH_MSG_DEBUG ("-> Muon fails impact veto, ha d0 = " << d0 << " mm, for cosmics, reject it");
             continue;
           } else {
@@ -716,11 +715,11 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
 
     /** insert momentum balance */
         
-    float momentumBal = 0.0;
-    if(! muon.parameter(momentumBal, xAOD::Muon::momentumBalanceSignificance)){
+    float m_momentumBal = 0.0;
+    if(! muon.parameter(m_momentumBal, xAOD::Muon::momentumBalanceSignificance)){
       ATH_MSG_WARNING("momentumBalanceSignificance not retrieved!");
     }      
-    muonTagCol.insert( m_momBalStr[i], momentumBal );
+    muonTagCol.insert( m_momBalStr[i], m_momentumBal );
   }
 
   /** insert the number of loose muons */
