@@ -56,3 +56,5 @@ x86_64-mac106-gcc42-opt
 x86_64-mac106-gcc42-dbg
 x86_64-slc6-clang37-opt
 x86_64-slc6-clang37-dbg
+x86_64-slc6-clang38-opt
+x86_64-slc6-clang38-dbg

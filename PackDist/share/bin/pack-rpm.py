@@ -6,8 +6,8 @@ based on meta-data provided and from a tarball built
 by the PackDist package.
 """
 
-__version__ = '0.11.0'
-__date__ = 'Thu Dec 06 2012'
+__version__ = '0.12.0'
+__date__ = 'Tue Mar 15 2016'
 __author__  = 'Grigori Rybkine <Grigori.Rybkine@cern.ch>'
 
 #
@@ -280,17 +280,23 @@ if not sourcedir:
 source0 = os.path.join(sourcedir, name + '.tar.gz')
 if os.path.isfile(source0):
     if len(sys.argv) > 7 and sys.argv[6] and sys.argv[7]: # external software paths
-        src = sys.argv[6].split()
-        dst = sys.argv[7].split()
-        paths = ''
-        for f in zip(src, dst):
-            if not (os.path.isfile(f[0]) or os.path.isdir(f[0])):
-                error("%s: No such file or directory" % f[0])
-                retval += 1
-            paths += os.path.join('%{prefix}', f[1]) + '\n'
-        if paths:
-            spec = spec.replace('%defattr(-,root,root,-)\n',
-                                '%defattr(-,root,root,-)\n' + paths)
+        if NPVA[3].endswith('_debuginfo'):
+            cmd = 'find . -noleaf \\( \\! -type d -o -empty \\) -print >|$RPM_BUILD_DIR/files.txt\n'
+            cmd += '%{__sed} -i "s#^\\.#%%{prefix}#" $RPM_BUILD_DIR/files.txt\n'
+            spec = spec.replace('%{_fixperms} .\n', '%{_fixperms} .\n' + cmd)
+            spec = spec.replace('%files', '%files -f files.txt')
+        else:
+            src = sys.argv[6].split()
+            dst = sys.argv[7].split()
+            paths = ''
+            for f in zip(src, dst):
+                if not (os.path.isfile(f[0]) or os.path.isdir(f[0])):
+                    error("%s: No such file or directory" % f[0])
+                    retval += 1
+                paths += os.path.join('%{prefix}', f[1]) + '\n'
+            if paths:
+                spec = spec.replace('%defattr(-,root,root,-)\n',
+                                    '%defattr(-,root,root,-)\n' + paths)
 
     elif len(NPVA) > 3: # projects, settings
         if NPVA[3] == 'bin':
@@ -299,7 +305,8 @@ if os.path.isfile(source0):
             spec = spec.replace('%{_fixperms} .\n', '%{_fixperms} .\n' + cmd)
             spec = spec.replace('%files', '%files -f files.txt')
         elif NPVA[3] == 'debuginfo':
-            cmd = 'find . -noleaf -name "*' + os.getenv('debuginfosuffix') + '" -print >|$RPM_BUILD_DIR/files.txt\n'
+            cmd = 'find . -noleaf \\( \\! -type d -o -empty \\) -print >|$RPM_BUILD_DIR/files.txt\n'
+            # cmd = 'find . -noleaf -name "*' + os.getenv('debuginfosuffix') + '" -print >|$RPM_BUILD_DIR/files.txt\n'
             cmd += '%{__sed} -i "s#^\\.#%%{prefix}#" $RPM_BUILD_DIR/files.txt\n'
             spec = spec.replace('%{_fixperms} .\n', '%{_fixperms} .\n' + cmd)
             spec = spec.replace('%files', '%files -f files.txt')

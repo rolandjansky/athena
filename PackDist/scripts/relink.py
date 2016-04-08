@@ -3,11 +3,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 """File: relink.py
 
-Developed against Python 2.2
+Developed against Python 2.3
 """
 
-__version__ = '0.7.0'
-__date__ = 'Fri Sep 26 2014'
+__version__ = '0.9.0'
+__date__ = 'Tue Mar 15 2016'
 __author__  = 'Grigori Rybkine <Grigori.Rybkine@cern.ch>'
 
 import os, sys
@@ -40,7 +40,7 @@ def commonhead(list1, list2):
     return list1[:c + 1]
 
 #def relink(path, v = False):
-def relink(path, Arg = (None, False)):
+def relink(path, Arg = (None, True, False)):
     """Convert absolute link `path' (within current directory, to file in PROJ_SRC) to relative link.
     
     Current directory is a copy of (a part of) PROJ_SRC.
@@ -52,7 +52,8 @@ def relink(path, Arg = (None, False)):
     if not os.path.islink(path): return
 
     exps = Arg[0]
-    v = Arg[1]
+    debuginfo = Arg[1]
+    v = Arg[2]
 
     path = os.path.normpath(path)
     s = os.readlink(path)
@@ -158,15 +159,20 @@ def relink(path, Arg = (None, False)):
                 if exps:
                     dst = exps.destination(srcpath)
                     if dst:
-                        upl = [os.pardir for i in xrange(len(hatpath.split(os.sep)) - 1)]
-                        src = os.path.join(os.path.join(*upl), dst)
                         os.remove(path)
-                        try:
-                            os.symlink(src, path)
-                        except (IOError, os.error), why:
-                            print >> sys.stderr, 'Cannot symlink %s -> %s: %s' % (`hatpath`, `src`, str(why))
+                        if not dst[1] or debuginfo:
+                        # if not dst[1] or DEBUGINFO == 'yes' or MODE == 'dbg':
+                            upl = [os.pardir for i in xrange(len(hatpath.split(os.sep)) - 1)]
+                            src = os.path.join(os.path.join(*upl), dst[0])
+                            try:
+                                os.symlink(src, path)
+                            except (IOError, os.error), why:
+                                print >> sys.stderr, 'Cannot symlink %s -> %s: %s' % (`hatpath`, `src`, str(why))
+                            else:
+                                if v: print 'symlinked', `hatpath`, '->', `src`
                         else:
-                            if v: print 'symlinked', `hatpath`, '->', `src`
+                            print 'debuginfo:', hatpath, '->', s
+                            if v: print 'removed', `hatpath`
                     else:
                         print >> sys.stderr, 'not_exported:', srcpath
                         os.remove(path);
@@ -180,8 +186,7 @@ def relink(path, Arg = (None, False)):
                 os.remove(path);
                 if v: print >> sys.stderr, 'removed', `hatpath`
 
-#def doTree(top = cwd(), v = True):
-def doTree(top = cwd(), v = (None, True)):
+def doTree(top = cwd(), v = (None, True, True)):
     global PROJ_SRC, PROJ_HAT
     PROJ_SRC = os.path.normpath(os.path.join(cwd(), os.environ['projsrc']))
     PROJ_HAT = os.path.normpath(os.environ['projhat'])
@@ -214,75 +219,71 @@ def doTree(top = cwd(), v = (None, True)):
 
 class ExportPaths(object):
     def __init__(self, path):
-            f = open(path)
-            self.paths = {}
+        self.paths = {}
+        f = open(path, 'U')
+        try:
             for l in f:
-                i = l.split()
-                assert len(i) == 2, '%s: %s: Wrong line format' % (path, `l`)
+	        # expected line format: <src>\0<dst>\0<debuginfo_suffix>\n
+                i = l[:-1].split('\0')
+                assert len(i) == 3, '%s: %s: Wrong line format' % (path, `l`)
                 r = os.path.realpath(i[0])
-                i = [os.path.normpath(p) for p in i]
+                i[0], i[1] = [os.path.normpath(p) for p in (i[0], i[1])]
                 assert os.path.realpath(i[0]) == r, '%s (%s): Ambiguous export path' % (i[0], i[1])
-                # i[0] = os.path.realpath(i[0])
-                # i[1] = os.path.normpath(i[1])
+                if i[2] == '': i[2] = '\0' # null character '\0' does not appear in file paths
 
-                for (_r, s), d in self.paths.iteritems():
+                for (_r, s), (d, suf) in self.paths.iteritems():
                     if r == _r:
                         if i[0] == s and i[1] == d:
                             print >>sys.stderr, '%s (%s): Duplicate export path' % (i[0], i[1])
                         else:
                             print >>sys.stderr, '%s (%s), %s (%s): Redundant export paths' % \
                               (i[0], i[1], s, d)
-                self.paths[(r, i[0])] = i[1]
-                # if i[0] in self.paths:
-                #     if i[1] == self.paths[i[0]]:
-                #         print >>sys.stderr, '%s %s: Duplicate export path' % \
-                #               (i[0], i[1])
-                #     else:
-                #         print >>sys.stderr, '%s %s, %s: Redundant export paths' % \
-                #               (i[0], self.paths[i[0]], i[1])
-                # self.paths[i[0]] = i[1]
+
+                self.paths[(r, i[0])] = (i[1], i[2])
+        finally:
             f.close()
 
     def destination(self, path):
         rpathl = os.path.realpath(path).lstrip(os.sep).split(os.sep)
         pathl = os.path.normpath(path).lstrip(os.sep).split(os.sep)
-        for (r, s), d in self.paths.iteritems():
+        for (r, s), (d, suf) in self.paths.iteritems():
             # first try with real paths
             rl = r.lstrip(os.sep).split(os.sep)
             head = commonhead(rl, rpathl)
 #            print >>sys.stderr, 'destination: %s %s: %s' % \
 #                  (str(rl), str(rpathl), str(head))
             if len(rl) == len(head):
-                return os.path.join(*(d.split(os.sep) + rpathl[len(rl):]))
+                return (os.path.join(*(d.split(os.sep) + rpathl[len(rl):])), rpathl[-1].endswith(suf))
             elif len(rpathl) == len(head):
                 dl = d.lstrip(os.sep).split(os.sep)
                 if len(dl) + len(rpathl) - len(rl) > 0:
-                    return os.path.join(*dl[:len(dl) + len(rpathl) - len(rl)])
+                    return (os.path.join(*dl[:len(dl) + len(rpathl) - len(rl)]), False)
             # then try with normalized paths
             sl = s.lstrip(os.sep).split(os.sep)
             head = commonhead(sl, pathl)
 #            print >>sys.stderr, 'destination: %s %s: %s' % \
 #                  (str(sl), str(pathl), str(head))
             if len(sl) == len(head):
-                return os.path.join(*(d.split(os.sep) + pathl[len(sl):]))
+                return (os.path.join(*(d.split(os.sep) + pathl[len(sl):])), pathl[-1].endswith(suf))
             elif len(pathl) == len(head):
                 dl = d.lstrip(os.sep).split(os.sep)
                 if len(dl) + len(pathl) - len(sl) > 0:
-                    return os.path.join(*dl[:len(dl) + len(pathl) - len(sl)])
+                    return (os.path.join(*dl[:len(dl) + len(pathl) - len(sl)]), False)
         return None
 
 def main(argv=[__name__]):
     self = os.path.basename(argv[0])
     try:
         opts, args = getopt.getopt(argv[1:],
-                                   "hS:H:X:",
-                                   ["help", "version", "project-src=", "project-hat=",
+                                   "hIS:H:X:",
+                                   ["help", "version", "debuginfo", "project-src=", "project-hat=",
                                     "export-paths-from="])
     except getopt.error, e:
         print >>sys.stderr, '%s: %s' % (self, str(e))
         print >>sys.stderr, "Try '%s --help' for more information." % self
         return 1
 
+    debuginfo = False
     for o, v in opts:
         if o in ("-h", "--help"):
             print sys.modules[__name__].__doc__
@@ -291,6 +292,8 @@ def main(argv=[__name__]):
             print '%s %s (%s)' % (self, __version__, __date__)
             print '%sWritten by %s.' % (os.linesep, __author__)
             return 0
+        elif o in ("-I", "--debuginfo"):
+            debuginfo = True
         elif o in ("-S", "--project-src"):
             os.environ['projsrc'] = v.rstrip(os.sep)
         elif o in ("-H", "--project-hat"):
@@ -304,9 +307,9 @@ def main(argv=[__name__]):
 #        return 1
 
     try:
-        Arg = (export_paths, True)
+        Arg = (export_paths, debuginfo, True)
     except NameError:
-        Arg = (None, True)
+        Arg = (None, debuginfo, True)
 
 #    print >> sys.stderr, Arg
 #    return 17
