@@ -183,6 +183,9 @@ class MuonHoughHisto2D
   /** set bin content of binnumber corresponding to coordinates */
   void setBinContent(int binx, int biny,double value);
 
+  MuonHoughHisto2D & operator=(const MuonHoughHisto2D &right);
+  MuonHoughHisto2D(const MuonHoughHisto2D&);
+
 };
 
 inline int MuonHoughHisto2D::fill(double x,double y, double w){

@@ -37,7 +37,11 @@ class MuonHoughTransformer_rzcosmics: public MuonHoughTransformer
   double* m_cosphisec;
   double* m_theta_in_grad;
   double* m_sintheta;
-  double* m_costheta;  
+  double* m_costheta;
+
+  MuonHoughTransformer_rzcosmics & operator=(const MuonHoughTransformer_rzcosmics &right);
+  MuonHoughTransformer_rzcosmics(const MuonHoughTransformer_rzcosmics&);
+
 };
 
 #endif // MUONHOUGHPATTERNEVENT_MUONHOUGHTRANSFORMER_RZCOSMICS_H

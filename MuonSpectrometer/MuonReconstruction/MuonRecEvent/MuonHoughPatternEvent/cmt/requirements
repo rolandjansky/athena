@@ -17,6 +17,9 @@ public
 
 branches MuonHoughPatternEvent src
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist)"
+
 library MuonHoughPatternEvent *.cxx
 apply_pattern installed_library
 

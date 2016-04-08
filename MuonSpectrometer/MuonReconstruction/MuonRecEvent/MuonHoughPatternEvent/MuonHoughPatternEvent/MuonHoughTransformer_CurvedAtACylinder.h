@@ -32,6 +32,10 @@ class MuonHoughTransformer_CurvedAtACylinder : public MuonHoughTransformer
   /** array that stores the inverse curvatures that are scanned */
   double* m_invcurvature;
   double* m_weightcurvature;
+
+  MuonHoughTransformer_CurvedAtACylinder & operator=(const MuonHoughTransformer_CurvedAtACylinder &right);
+  MuonHoughTransformer_CurvedAtACylinder(const MuonHoughTransformer_CurvedAtACylinder&);
+
 };
 
 inline int MuonHoughTransformer_CurvedAtACylinder::sector(MuonHoughHit* hit)const{return hit->phiSector();}
