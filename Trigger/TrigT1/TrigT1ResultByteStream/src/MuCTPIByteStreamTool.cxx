@@ -2,17 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-// Gaudi/Athena include(s):
-#include "GaudiKernel/MsgStream.h"
-
-// Trigger include(s):
+#include "TrigT1ResultByteStream/MuCTPIByteStreamTool.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
 
-// Local include(s):
-#include "TrigT1ResultByteStream/MuCTPIByteStreamTool.h"
 
-/// Unique interface ID of the tool that identifies it to the framweork
+// Unique interface ID of the tool that identifies it to the framweork
 static const InterfaceID IID_IMuCTPIByteStreamTool( "MuCTPIByteStreamTool", 1, 1 );
 
 /**
@@ -29,7 +23,7 @@ const InterfaceID & MuCTPIByteStreamTool::interfaceID() {
  */
 MuCTPIByteStreamTool::MuCTPIByteStreamTool( const std::string& type, const std::string& name,
                                             const IInterface* parent )
-    : AlgTool( type, name, parent ), m_srcIdMap( 0 ) {
+    : AthAlgTool( type, name, parent ), m_srcIdMap( 0 ) {
 
   declareInterface<MuCTPIByteStreamTool>( this );
 }
@@ -68,8 +62,7 @@ StatusCode MuCTPIByteStreamTool::finalize() {
  */
 StatusCode MuCTPIByteStreamTool::convert( const MuCTPI_RDO* result, RawEventWrite* re ) {
 
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "executing convert() from RDO to ROBFragment" << endreq;
+  ATH_MSG_DEBUG("executing convert() from RDO to ROBFragment");
 
   // Clear Event Assembler
   m_fea.clear();
@@ -83,7 +76,7 @@ StatusCode MuCTPIByteStreamTool::convert( const MuCTPI_RDO* result, RawEventWrit
   // get the ROD data container to be filled
   theROD = m_fea.getRodData( rodId );
 
-  log << MSG::VERBOSE << " Dumping MuCTPI words:" << endreq;
+  ATH_MSG_VERBOSE(" Dumping MuCTPI words:");
 
   // fill Candidate Multiplicity
   const std::vector< uint32_t >& multiWord = result->getAllCandidateMultiplicities();
@@ -91,8 +84,8 @@ StatusCode MuCTPIByteStreamTool::convert( const MuCTPI_RDO* result, RawEventWrit
   std::vector< uint32_t >::const_iterator it_e = multiWord.end();
   for( ; it != it_e; ++it ) {
     theROD->push_back( *it );
-    log << MSG::VERBOSE << "     0x" << MSG::hex << std::setfill( '0' )
-        << std::setw( 8 )  << ( *it ) << " (candidate multiplicity)" << endreq;
+    ATH_MSG_VERBOSE("     0x" << MSG::hex << std::setfill( '0' )
+        << std::setw( 8 )  << ( *it ) << " (candidate multiplicity)");
   }
   
   // fill Data Words
@@ -101,13 +94,13 @@ StatusCode MuCTPIByteStreamTool::convert( const MuCTPI_RDO* result, RawEventWrit
   it_e = dataWord.end();
   for( ; it != it_e; ++it ) {
     theROD->push_back( *it );
-    log << MSG::VERBOSE << "     0x" << MSG::hex << std::setfill( '0' )
-        << std::setw( 8 )  << ( *it ) << " (candidate word)" << endreq;
+    ATH_MSG_VERBOSE("     0x" << MSG::hex << std::setfill( '0' )
+        << std::setw( 8 )  << ( *it ) << " (candidate word)");
   }
 
   // Now fill full event
-  log << MSG::DEBUG << "Now filling the event with the MuCTPI fragment" << endreq;
-  m_fea.fill( re, log );
+  ATH_MSG_DEBUG("Now filling the event with the MuCTPI fragment");
+  m_fea.fill( re, msg() );
 
   return StatusCode::SUCCESS;
 }
@@ -118,8 +111,7 @@ StatusCode MuCTPIByteStreamTool::convert( const MuCTPI_RDO* result, RawEventWrit
  */
 StatusCode MuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RDO*& result ) {
 
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "executing convert() from ROBFragment to RDO" << endreq;
+  ATH_MSG_DEBUG("executing convert() from ROBFragment to RDO");
 
   // Source ID of MIROD
   const uint32_t miRodId = m_srcIdMap->getRodID();
@@ -130,15 +122,15 @@ StatusCode MuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RDO*& result )
   // check BC ID
   const uint32_t bcId = rob->rod_bc_id();
 
-  log << MSG::DEBUG << " expected ROD sub-detector ID: " << std::hex << miRodId 
-      << " ID found: " << std::hex << rodId << std::dec << endreq;  
+  ATH_MSG_DEBUG(" expected ROD sub-detector ID: " << std::hex << miRodId 
+      << " ID found: " << std::hex << rodId << std::dec);  
 
   if( rodId == miRodId || rodId == 0x7501 ) {
 
-    log << MSG::VERBOSE << " ROD Header BCID " << bcId << ", dumping MuCTPI words:" << endreq;
+    ATH_MSG_VERBOSE(" ROD Header BCID " << bcId << ", dumping MuCTPI words:");
     if( rodId == 0x7501 ) {
-      log << MSG::DEBUG << " Deprecated ROD source id found: " 
-          << std::hex << rodId << std::dec << endreq;
+      ATH_MSG_DEBUG(" Deprecated ROD source id found: " 
+          << std::hex << rodId << std::dec);
     }
 
     // For generality let's declare the data pointer like this. Altough it's
@@ -146,7 +138,7 @@ StatusCode MuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RDO*& result )
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType it_data;
     rob->rod_data( it_data );
     const uint32_t ndata = rob->rod_ndata();
-    log << MSG::VERBOSE << " number of data words: " << ndata << endreq;
+    ATH_MSG_VERBOSE(" number of data words: " << ndata);
 
     // candidate multiplicity
     std::vector< uint32_t > candidateMultiplicity;
@@ -155,12 +147,12 @@ StatusCode MuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RDO*& result )
     for( uint32_t i = 0; i < ndata; ++i, ++it_data ) {
       if( *it_data >> MuCTPI_RDO::MULT_WORD_FLAG_SHIFT ) {
         candidateMultiplicity.push_back( static_cast< uint32_t >( *it_data ) );
-        log << MSG::VERBOSE << "     0x" << MSG::hex << std::setw( 8 ) << std::setfill( '0' )
-            << ( *it_data ) << " (candidate multiplicity)" << endreq;
+        ATH_MSG_VERBOSE("     0x" << MSG::hex << std::setw( 8 ) << std::setfill( '0' )
+            << ( *it_data ) << " (candidate multiplicity)");
       } else {
         dataWord.push_back( static_cast< uint32_t >( *it_data ) );
-        log << MSG::VERBOSE << "     0x" << MSG::hex << std::setw( 8 ) << std::setfill( '0' )
-            << ( *it_data ) << " (candidate word)" << endreq;
+        ATH_MSG_VERBOSE("     0x" << MSG::hex << std::setw( 8 ) << std::setfill( '0' )
+            << ( *it_data ) << " (candidate word)");
       }
     }
 
@@ -170,6 +162,6 @@ StatusCode MuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RDO*& result )
 
   }
 
-  log << MSG::ERROR << "Wrong ROD ID found in the MuCTPI ROB fragment!" << endreq;
+  ATH_MSG_ERROR("Wrong ROD ID found in the MuCTPI ROB fragment!");
   return StatusCode::FAILURE;
 }

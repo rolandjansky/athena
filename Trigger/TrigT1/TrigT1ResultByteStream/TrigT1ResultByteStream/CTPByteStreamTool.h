@@ -8,7 +8,7 @@
 #define TRIGT1RESULTBYTESTREAM_CTPBYTESTREAMTOOL_H
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
@@ -31,7 +31,7 @@ class MsgStream;
  *  @author David Berge
  *    @date $Date: 2007-12-14 15:33:07 $
  */
-class CTPByteStreamTool : public AlgTool {
+class CTPByteStreamTool : public AthAlgTool {
 
 private:
   typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF;

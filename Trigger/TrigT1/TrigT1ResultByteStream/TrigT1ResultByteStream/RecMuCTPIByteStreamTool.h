@@ -8,14 +8,12 @@
 #define TRIGT1RESULTBYTESTREAM_RECMUCTPIBYTESTREAMTOOL_H
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "ByteStreamData/RawEvent.h"
 
 // Trigger include(s):
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
-//#include "TrigConfigSvc/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // Forward declaration(s):
@@ -36,7 +34,7 @@ class MuCTPISrcIdMap;
  *  @author Christian Ohm
  *    @date $Date: 2008-05-08 21:42:35 $
  */
-class RecMuCTPIByteStreamTool : public AlgTool {
+class RecMuCTPIByteStreamTool : public AthAlgTool {
 
 private:
   typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF;

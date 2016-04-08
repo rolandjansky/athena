@@ -11,18 +11,15 @@
 #include <vector>
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "ByteStreamData/RawEvent.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 
 // Trigger include(s):
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
-//#include "TrigConfigSvc/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // Forward declaration(s):
@@ -42,7 +39,7 @@ namespace ROIB {
  *  @author Attila Krasznahorkay
  *    @date $Date: 2008-05-08 21:42:35 $
  */
-class RecRoIBResultByteStreamTool : public AlgTool {
+class RecRoIBResultByteStreamTool : public AthAlgTool {
 
   typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType DataType;
 

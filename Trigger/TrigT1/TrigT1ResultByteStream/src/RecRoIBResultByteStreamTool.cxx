@@ -30,7 +30,7 @@ const InterfaceID& RecRoIBResultByteStreamTool::interfaceID( ) {
 RecRoIBResultByteStreamTool::RecRoIBResultByteStreamTool( const std::string& type,
                                                           const std::string& name,
                                                           const IInterface* parent )
-  : AlgTool( type, name, parent ),
+  : AthAlgTool( type, name, parent ),
     m_detectorStore( "DetectorStore", name ),
     m_rpcRoISvc( LVL1::ID_RecRpcRoiSvc, name ),
     m_tgcRoISvc( LVL1::ID_RecTgcRoiSvc, name ),
@@ -54,26 +54,18 @@ RecRoIBResultByteStreamTool::~RecRoIBResultByteStreamTool() {
  */
 StatusCode RecRoIBResultByteStreamTool::initialize() {
 
-  MsgStream log( msgSvc(), name() );
-
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = m_detectorStore.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't initialise the base class!" << endreq;
-    return sc;
-  }
-
-  sc = m_detectorStore.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Couldn't access DetectorStore" << endreq;
+    ATH_MSG_FATAL("Couldn't access DetectorStore");
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to DetectorStore" << endreq;
+    ATH_MSG_DEBUG("Connected to DetectorStore");
   }
   
   /// Connect to the LVL1ConfigSvc for the trigger configuration:
   sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to Lvl1ConfigSvc." << endreq;
+    ATH_MSG_ERROR("Couldn't connect to Lvl1ConfigSvc.");
   } else {
     /// Load the threshold vectors
     std::vector<TrigConf::TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
@@ -92,20 +84,20 @@ StatusCode RecRoIBResultByteStreamTool::initialize() {
 
   sc = m_rpcRoISvc.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::WARNING << "Couldn't access RPC RecMuonRoISvc" << endreq;
-    log << MSG::WARNING << "Muon coordinates will be zero!" << endreq;
+    ATH_MSG_WARNING("Couldn't access RPC RecMuonRoISvc");
+    ATH_MSG_WARNING("Muon coordinates will be zero!");
     m_muRoISvcPresent = false;
   } else {
-    log << MSG::DEBUG << "Connected to RPC RecMuonRoISvc" << endreq;
+    ATH_MSG_DEBUG("Connected to RPC RecMuonRoISvc");
   }
 
   sc = m_tgcRoISvc.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::WARNING << "Couldn't access TGC RecMuonRoISvc" << endreq;
-    log << MSG::WARNING << "Muon coordinates will be zero!" << endreq;
+    ATH_MSG_WARNING("Couldn't access TGC RecMuonRoISvc");
+    ATH_MSG_WARNING("Muon coordinates will be zero!");
     m_muRoISvcPresent = false;
   } else {
-    log << MSG::DEBUG << "Connected to TGC RecMuonRoISvc" << endreq;
+    ATH_MSG_DEBUG("Connected to TGC RecMuonRoISvc");
   }
 
   return StatusCode::SUCCESS;
@@ -116,8 +108,5 @@ StatusCode RecRoIBResultByteStreamTool::initialize() {
  * The function finalises the base class.
  */
 StatusCode RecRoIBResultByteStreamTool::finalize() {
-
-  StatusCode sc = AlgTool::finalize();
-  return sc;
-
+  return StatusCode::SUCCESS;
 }

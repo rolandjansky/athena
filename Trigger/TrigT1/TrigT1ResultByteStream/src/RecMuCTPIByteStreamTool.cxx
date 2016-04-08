@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-// Gaudi/Athena include(s):
-#include "GaudiKernel/MsgStream.h"
-
 #include "ByteStreamData/RawEvent.h"
 
 // Trigger include(s):
@@ -40,7 +36,7 @@ const InterfaceID& RecMuCTPIByteStreamTool::interfaceID() {
  */
 RecMuCTPIByteStreamTool::RecMuCTPIByteStreamTool( const std::string& type, const std::string& name,
                                                   const IInterface* parent )
-  : AlgTool( type, name, parent ), m_srcIdMap( 0 ), m_cnvSvcPresent( true ),
+  : AthAlgTool( type, name, parent ), m_srcIdMap( 0 ), m_cnvSvcPresent( true ),
     m_detectorStore( "DetectorStore", name ),
     m_rpcRoISvc( LVL1::ID_RecRpcRoiSvc, name ),
     m_tgcRoISvc( LVL1::ID_RecTgcRoiSvc, name ),
@@ -63,48 +59,46 @@ RecMuCTPIByteStreamTool::~RecMuCTPIByteStreamTool() {
  */
 StatusCode RecMuCTPIByteStreamTool::initialize() {
 
-  MsgStream log( msgSvc(), name() );
-
   m_srcIdMap = new MuCTPISrcIdMap;
   m_cnvSvcPresent = true;
 
   StatusCode sc = AlgTool::initialize();
   if( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't initialise the base class!" << endreq;
+    ATH_MSG_ERROR("Couldn't initialise the base class!");
     return sc;
   }
   
   sc = m_detectorStore.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't access DetectorStore" << endreq;
+    ATH_MSG_ERROR("Couldn't access DetectorStore");
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to DetectorStore" << endreq;
+    ATH_MSG_DEBUG("Connected to DetectorStore");
   }
   
   sc = m_rpcRoISvc.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::WARNING << "Couldn't access RPC RecMuonRoISvc" << endreq;
+    ATH_MSG_WARNING("Couldn't access RPC RecMuonRoISvc");
     m_cnvSvcPresent = false;
   } else {
-    log << MSG::DEBUG << "Connected to RPC RecMuonRoISvc" << endreq;
+    ATH_MSG_DEBUG("Connected to RPC RecMuonRoISvc");
   }
 
   sc = m_tgcRoISvc.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::WARNING << "Couldn't access TGC RecMuonRoISvc" << endreq;
+    ATH_MSG_WARNING("Couldn't access TGC RecMuonRoISvc");
     m_cnvSvcPresent = false;
   } else {
-    log << MSG::DEBUG << "Connected to TGC RecMuonRoISvc" << endreq;
+    ATH_MSG_DEBUG("Connected to TGC RecMuonRoISvc");
   }
 
   m_configSvcPresent = true;
   sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to Lvl1ConfigSvc." << endreq;
+    ATH_MSG_ERROR("Couldn't connect to Lvl1ConfigSvc.");
     m_configSvcPresent = false;
   } else {
-    log << MSG::DEBUG << "Connected to Lvl1ConfigSvc" << endreq;
+    ATH_MSG_DEBUG("Connected to Lvl1ConfigSvc");
   }
     
   return StatusCode::SUCCESS;
@@ -127,8 +121,7 @@ StatusCode RecMuCTPIByteStreamTool::finalize() {
  */
 StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& result ) {
 
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "executing convert() from ROBFragment to RIO" << endreq;
+  ATH_MSG_DEBUG("executing convert() from ROBFragment to RIO");
 
   //
   // config retrieval via Lvl1ConfigSvc
@@ -164,22 +157,22 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType it_statusData;
     rob->rod_status( it_statusData );
     
-    log << MSG::VERBOSE << " Dumping CTP ROD fragment Header data:" << endreq;
-    log << MSG::VERBOSE << "Source ID            0x" << MSG::hex << rodId << MSG::dec << endreq;
-    log << MSG::VERBOSE << "BCID                 0x" << MSG::hex << bcid << MSG::dec 
-        << " (dec " << bcid << ")" << endreq;
-    log << MSG::VERBOSE << "Detector event type  0x" << MSG::hex << detev_type 
-        << MSG::dec << " (dec " << detev_type << ")" << endreq;
-    log << MSG::VERBOSE << "Level-1 ID           0x" << MSG::hex << lvl1_id << MSG::dec 
-        << " (dec " << lvl1_id << ")" << endreq;
-    log << MSG::VERBOSE << "Level-1 type         0x" << MSG::hex << lvl1_type << MSG::dec 
-        << " (dec " << lvl1_type << ")" << endreq;
-    log << MSG::VERBOSE << "Run number             " << run_no << endreq;
-    log << MSG::VERBOSE << "Number of data words   " << ndata << endreq;
-    log << MSG::VERBOSE << "Number of status words " << endreq;
+    ATH_MSG_VERBOSE(" Dumping CTP ROD fragment Header data:");
+    ATH_MSG_VERBOSE("Source ID            0x" << MSG::hex << rodId << MSG::dec);
+    ATH_MSG_VERBOSE("BCID                 0x" << MSG::hex << bcid << MSG::dec 
+        << " (dec " << bcid << ")");
+    ATH_MSG_VERBOSE("Detector event type  0x" << MSG::hex << detev_type 
+        << MSG::dec << " (dec " << detev_type << ")");
+    ATH_MSG_VERBOSE("Level-1 ID           0x" << MSG::hex << lvl1_id << MSG::dec 
+        << " (dec " << lvl1_id << ")");
+    ATH_MSG_VERBOSE("Level-1 type         0x" << MSG::hex << lvl1_type << MSG::dec 
+        << " (dec " << lvl1_type << ")");
+    ATH_MSG_VERBOSE("Run number             " << run_no);
+    ATH_MSG_VERBOSE("Number of data words   " << ndata);
+    ATH_MSG_VERBOSE("Number of status words ");
     for ( uint32_t i = 0; i < nstatus; ++i , ++it_statusData) {
-      log << MSG::VERBOSE << "Status word # " << i << ": 0x" << MSG::hex << (*it_statusData) << MSG::dec
-          << " (dec " << (*it_statusData) << ")" << endreq;      
+      ATH_MSG_VERBOSE("Status word # " << i << ": 0x" << MSG::hex << (*it_statusData) << MSG::dec
+          << " (dec " << (*it_statusData) << ")");      
       muCTPI_RIO->headerStatusWords().push_back( static_cast<uint32_t>( *it_statusData ) );
     }
     muCTPI_RIO->headerSourceId(rodId);
@@ -191,7 +184,7 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
     muCTPI_RIO->headerNumberDataWords(ndata);
     muCTPI_RIO->headerNumberStatusWords(nstatus);
 
-    log << MSG::DEBUG << "  Dumping MuCTPI words:" << endreq;
+    ATH_MSG_DEBUG("  Dumping MuCTPI words:");
 
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType it_data;
     rob->rod_data( it_data );
@@ -207,8 +200,8 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
     
     it_data+=(nMultWords-1)/2;//Goes to the central BC of the RO window
 
-    log << MSG::DEBUG << "     0x" << MSG::hex << std::setw( 8 ) << *it_data
-        << " (candidate multiplicity)" << endreq;
+    ATH_MSG_DEBUG("     0x" << MSG::hex << std::setw( 8 ) << *it_data
+        << " (candidate multiplicity)");
 
     // candidate multiplicities
     uint16_t sum[ MuCTPI_RIO::N_SUM ];
@@ -225,7 +218,7 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
     // data words
     for( uint32_t i = nMultWords; i < ndata; ++i, ++it_data ) {
 
-      log << MSG::DEBUG << "     0x" << MSG::hex << std::setw( 8 ) << *it_data << endreq;
+      ATH_MSG_DEBUG("     0x" << MSG::hex << std::setw( 8 ) << *it_data);
 
       // extract BCID
       const uint32_t tmpWord = static_cast<uint32_t>( *it_data ); // The two types are the same right now, but it might change.
@@ -239,8 +232,8 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
       // make RoI word
       uint32_t roiWord = ( tmpWord & 0x00003FFF ) + ( ( tmpWord & 0x03FE0000 ) >> 3 );
 
-      log << MSG::DEBUG << MSG::hex << std::setw( 8 ) << *it_data
-          << " : ROI=" << std::setw( 8 ) << roiWord << endreq;
+      ATH_MSG_DEBUG(MSG::hex << std::setw( 8 ) << *it_data
+          << " : ROI=" << std::setw( 8 ) << roiWord);
 
       // reconstruct
       LVL1::RecMuonRoI thisRoI( roiWord, m_cnvSvcPresent ? m_rpcRoISvc.operator->() : 0,
@@ -270,8 +263,8 @@ StatusCode RecMuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RIO*& resul
 
   } else {
   
-    log << MSG::WARNING << "Expected source ID 0x" << MSG::hex << miRodId << " but found 0x" 
-        << rodId << MSG::dec << endreq;
+    ATH_MSG_WARNING("Expected source ID 0x" << MSG::hex << miRodId << " but found 0x" 
+        << rodId << MSG::dec);
     return StatusCode::FAILURE;
   
   }

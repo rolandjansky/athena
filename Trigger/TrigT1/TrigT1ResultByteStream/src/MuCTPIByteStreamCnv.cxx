@@ -225,6 +225,10 @@ StatusCode MuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
   StatusCode sc = m_tool->convert( ROBData( *it ).getROBFragment(), result );
   if( sc.isFailure() ) {
     log << MSG::ERROR << " Failed to create Objects: " << *( pBS_Addr->par() ) << endreq;
+    if (result!=0){
+      delete result;
+      result=0;
+    }
     return sc;
   }
   pObj = SG::asStorable( result ) ;

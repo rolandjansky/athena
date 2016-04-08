@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-// Gaudi/Athena include(s):
-#include "GaudiKernel/MsgStream.h"
-
 // CTP data format include(s):
 #include "CTPfragment/CTPfragment.h"
 #include "CTPfragment/CTPdataformat.h"
@@ -34,7 +30,7 @@ const InterfaceID& CTPByteStreamTool::interfaceID() {
  */
 CTPByteStreamTool::CTPByteStreamTool( const std::string& type, const std::string& name,
                                       const IInterface* parent )
-  : AlgTool( type, name, parent ), m_srcIdMap( 0 ) {
+  : AthAlgTool( type, name, parent ), m_srcIdMap( 0 ) {
   
   declareInterface< CTPByteStreamTool >( this );
 }
@@ -51,20 +47,16 @@ CTPByteStreamTool::~CTPByteStreamTool() {
  * and initialises the base class.
  */
 StatusCode CTPByteStreamTool::initialize() {
-
   m_srcIdMap = new CTPSrcIdMap();
-  return AlgTool::initialize();
-
+  return StatusCode::SUCCESS;
 }
 
 /**
  * The function deletes the CTPSrcIdMap object and finalises the base class.
  */
 StatusCode CTPByteStreamTool::finalize() {
-
   delete m_srcIdMap;
-  return AlgTool::finalize();
-
+  return StatusCode::SUCCESS;
 }
 
 
@@ -75,7 +67,7 @@ StatusCode CTPByteStreamTool::finalize() {
 StatusCode CTPByteStreamTool::convert( const CTP_RDO* result, RawEventWrite* re ) {
 
   MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "executing convert() from RDO to ROBFragment" << endreq;
+  ATH_MSG_DEBUG("executing convert() from RDO to ROBFragment");
 
   //get CTP version
   unsigned int ctpVersionNumber = result->getCTPVersionNumber();
@@ -97,12 +89,12 @@ StatusCode CTPByteStreamTool::convert( const CTP_RDO* result, RawEventWrite* re 
   // Source ID of CTP
   const uint32_t rodId = m_srcIdMap->getRodID();
 
-  log << MSG::DEBUG << " ROD ID:" << MSG::hex << rodId << endreq;
+  ATH_MSG_DEBUG(" ROD ID:" << MSG::hex << rodId);
 
   // get the ROD data container to be filled
   theROD = m_fea.getRodData( rodId );
 
-  log << MSG::VERBOSE << " Dumping CTP words:" << endreq;
+  ATH_MSG_VERBOSE(" Dumping CTP words:");
 
   // fill Data Words
   const std::vector< uint32_t >& vDataWords = result->getDataWords();
@@ -110,11 +102,11 @@ StatusCode CTPByteStreamTool::convert( const CTP_RDO* result, RawEventWrite* re 
   std::vector< uint32_t >::const_iterator end = vDataWords.end();
   for( ; it != end; ++it ) {
     theROD->push_back( *it );
-    log << MSG::VERBOSE << "     0x" << MSG::hex << std::setw( 8 )  << ( *it ) << endreq;
+    ATH_MSG_VERBOSE("     0x" << MSG::hex << std::setw( 8 )  << ( *it ));
   }
 
   // Now fill full event
-  log << MSG::DEBUG << "Now filling the event with the CTP fragment" << endreq;
+  ATH_MSG_DEBUG("Now filling the event with the CTP fragment");
   m_fea.fill( re, log );
 
   return StatusCode::SUCCESS;
@@ -128,17 +120,17 @@ StatusCode CTPByteStreamTool::convert( const CTP_RDO* result, RawEventWrite* re 
 StatusCode CTPByteStreamTool::convert( const ROBF* rob, CTP_RDO*& result ) {
 
   MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "executing convert() from ROBFragment to RDO" << endreq;
+  ATH_MSG_DEBUG("executing convert() from ROBFragment to RDO");
   
   const uint32_t ctpRodId = m_srcIdMap->getRodID();
   const uint32_t rodId = rob->rod_source_id();
 
-  log << MSG::DEBUG << " expected ROD sub-detector ID: " << std::hex << ctpRodId 
-      << " ID found: " << std::hex << rodId << std::dec << endreq;  
+  ATH_MSG_DEBUG(" expected ROD sub-detector ID: " << std::hex << ctpRodId 
+      << " ID found: " << std::hex << rodId << std::dec);  
 
   if ( rodId == ctpRodId ) {
 
-    log << MSG::VERBOSE << " Dumping CTP words:" << endreq;
+    ATH_MSG_VERBOSE(" Dumping CTP words:");
 
     // For generality let's declare the data pointer like this. Altough it's
     // unlikely to ever change from being a pointer to uint32_t-s.
@@ -150,7 +142,7 @@ StatusCode CTPByteStreamTool::convert( const ROBF* rob, CTP_RDO*& result ) {
     std::vector<uint32_t> vDataWords;
     for ( uint32_t i = 0; i < ndata; ++i, ++it_data ) {
       vDataWords.push_back( static_cast<uint32_t>( *it_data ) );
-      log << MSG::VERBOSE << "     0x" << MSG::hex << std::setw( 8 )  << *it_data << endreq;
+      ATH_MSG_VERBOSE("     0x" << MSG::hex << std::setw( 8 )  << *it_data);
     }
 
     // create CTP RDO
@@ -168,6 +160,6 @@ StatusCode CTPByteStreamTool::convert( const ROBF* rob, CTP_RDO*& result ) {
     return StatusCode::SUCCESS;
   }
 
-  log << MSG::ERROR << "Wrong ROD ID found in the CTP ROB fragment!" << endreq;
+  ATH_MSG_ERROR("Wrong ROD ID found in the CTP ROB fragment!");
   return StatusCode::FAILURE;
 }

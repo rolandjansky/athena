@@ -7,8 +7,7 @@
 #ifndef TRIGT1RESULTBYTESTREAM_MUCTPIBYTESTREAMTOOL_H
 #define TRIGT1RESULTBYTESTREAM_MUCTPIBYTESTREAMTOOL_H
 
-// Gaudi/Athena include(s):
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
@@ -32,7 +31,7 @@ class MuCTPI_RDO;
  *  @author Attila Krasznahorkay
  *    @date $Date: 2007-12-14 15:33:08 $
  */
-class MuCTPIByteStreamTool : public AlgTool {
+class MuCTPIByteStreamTool : public AthAlgTool {
 
 private:
   typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF;
