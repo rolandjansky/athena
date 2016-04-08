@@ -80,7 +80,6 @@
 #include "TrigCaloEvent/TrigT2Jet.h"
 #include "TrigCaloEvent/TrigTauCluster.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "AthenaKernel/Units.h"
 
 #include <algorithm>
 #include <math.h>
@@ -92,8 +91,6 @@
 
 using namespace Analysis;
 using namespace Rec;
-using namespace Trig;
-using Athena::Units::GeV;
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// Constructor
@@ -106,34 +103,8 @@ AnalysisSkeleton::AnalysisSkeleton(const std::string& name, ISvcLocator* pSvcLoc
   m_analysisOverlapCheckingTool( "UserAnalysisOverlapCheckingTool" ),
   m_analysisOverlapRemovalTool( "UserAnalysisOverlapRemovalTool" ),
   m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
-  m_aan_FinalLepEtSum(0),
-  m_aan_FinalElEtSum(0),
-  m_aan_FinalMuEtSum(0),
-  m_aan_NumTopQ(0),
-  m_aan_pTtop1(0),
-  m_aan_pTtop2(0),
-  m_aan_Trig_efJet_et(0),
-  m_aan_Trig_efJet_eta(0),
-  m_aan_Trig_efJet_phi(0),
-  m_aan_Trig_l2Jet_et(0),
-  m_aan_Trig_l2Jet_eta(0),
-  m_aan_Trig_l2Jet_phi(0),
-  m_aan_Trig_l1Jet_et88(0),
-  m_aan_Trig_l1Jet_eta(0),
-  m_aan_Trig_l1Jet_phi(0),
   m_doTrigger(true),
-  m_investigateChain("EF_tau16i_loose_2j23"),
-  m_eventNr(0),
-  m_all(nullptr),
-  m_allL1(nullptr),
-  m_allL2(nullptr),
-  m_allEF(nullptr),
-  m_runNumber(0),
-  m_eventNumber(0),
-  m_eventTime(0),
-  m_lumiBlock(0),
-  m_bCID(0),
-  m_eventWeight(0)
+  m_investigateChain("EF_tau16i_loose_2j23")
 {
 
   /** switches to control the analysis through job options */
@@ -168,10 +139,10 @@ AnalysisSkeleton::AnalysisSkeleton(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("MissingETCut",m_missingETCut=20.0*CLHEP::GeV);
 
   /** is this AtlFast */
-  declareProperty("IsAtlFastData",m_isAtlFastData=false);
+  declareProperty("IsAtlFastData",m_isAtlFastData="False");
 
   // is this MC or not?
-  declareProperty("DoTruth",m_doTruth=false);
+  declareProperty("DoTruth",m_doTruth="False");
 
   /** count number of jets with ET > min value - for SUSY studies */
   declareProperty("SusyJetMinEt", m_SusyJetMinEt = 50*CLHEP::GeV);
@@ -888,18 +859,21 @@ StatusCode AnalysisSkeleton::analysisPreparation() {
   /** loop over Electrons from the AOD and see which pass the recommended electron selection 
       These selections are defined in m_analysisSelectionTool - to be changed if necessary */
   const ElectronContainer* elecTES = 0;
-  ATH_CHECK( evtStore()->retrieve( elecTES, m_electronContainerName) );
+  StatusCode sc=evtStore()->retrieve( elecTES, m_electronContainerName);
+  if( sc.isFailure()  ||  !elecTES ) {
+     ATH_MSG_WARNING("No AOD electron container found in TDS");
+  }
   ElectronContainer::const_iterator elecItr  = elecTES->begin();
   ElectronContainer::const_iterator elecItrE = elecTES->end();
   for (; elecItr != elecItrE; ++elecItr) {
-    bool passedSelection = m_analysisSelectionTool->isSelected( *elecItr );
-    if ( passedSelection ) ATH_MSG_DEBUG("Found a potential good Electron ");
+     bool passedSelection = m_analysisSelectionTool->isSelected( *elecItr );
+     if ( passedSelection ) ATH_MSG_DEBUG("Found a potential good Electron ");
   }
 
   /** do analysis preparation using the AnalysisPreparationTool
       selections based or recommended selections from performance groups  
       The tool outputs various containers of pre-selected objects */
-  StatusCode sc = m_analysisPreparationTool->execute();
+  sc = m_analysisPreparationTool->execute();
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("AnalysisPreparation Failed - selection ");
     return StatusCode::SUCCESS;
@@ -907,18 +881,12 @@ StatusCode AnalysisSkeleton::analysisPreparation() {
 
   /** get the pre-selected Electrons - given by the AnalysisPreparationTool */
   const ElectronContainer* preselectedElecTES = m_analysisPreparationTool->selectedElectrons();
-  if ( !preselectedElecTES ) {
-    ATH_MSG_ERROR("Selected Electrons Not Found");
-    return StatusCode::FAILURE;
-  }
+  if ( !preselectedElecTES ) ATH_MSG_WARNING("Selected Electrons Not Found");
   ATH_MSG_DEBUG("Pre-selected Electrons successfully retrieved - size is " << preselectedElecTES->size() << " electrons ");
 
   /** get the pre-selected Muons - given by the AnalysisPreparationTool */
   const MuonContainer* preselectedMuonTES = m_analysisPreparationTool->selectedMuons();
-  if ( !preselectedMuonTES ) {
-    ATH_MSG_ERROR( "Selected Muons Not Found ");
-    return StatusCode::FAILURE;
-  }
+  if ( !preselectedMuonTES )ATH_MSG_WARNING( "Selected Muons Not Found ");
   ATH_MSG_DEBUG( "Pre-selected Muons successfully retrieved - size is " << preselectedMuonTES->size() << " muons ");
 
   /** Check if the leading Electron and the Leadign Muon overlap or not */
@@ -963,10 +931,7 @@ StatusCode AnalysisSkeleton::bjetInfo() {
       As a check first get the container after selection cuts, but BEFORE Overlap Removal */
 
   const JetCollection* selectedJetTES = m_analysisPreparationTool->selectedJets();
-  if ( !selectedJetTES ) {
-    ATH_MSG_ERROR( "Selected Particle Jets Not Found ");
-    return StatusCode::FAILURE;
-  }
+  if ( !selectedJetTES ) ATH_MSG_WARNING( "Selected Particle Jets Not Found ");
   else ATH_MSG_DEBUG( "Selected Jets successfully retrieved - size is " << selectedJetTES->size() << " jets ");
   // 
   const JetCollection* finalStateJetTES = m_analysisOverlapRemovalTool->finalStateJets();
@@ -989,7 +954,7 @@ StatusCode AnalysisSkeleton::bjetInfo() {
 			(*jetItr_sel)->e());
 
     m_h_jet_eta_beforeOR->Fill(p4.pseudoRapidity());
-    m_h_jet_et_beforeOR->Fill(p4.et()/GeV);
+    m_h_jet_et_beforeOR->Fill(p4.et()/1000.);
 
     /** get b-tagging info */
 
@@ -1019,7 +984,7 @@ StatusCode AnalysisSkeleton::bjetInfo() {
 			(*jetItr_fin)->e());
 
     m_h_jet_eta_afterOR->Fill(p4.pseudoRapidity());
-    m_h_jet_et_afterOR->Fill(p4.et()/GeV);
+    m_h_jet_et_afterOR->Fill(p4.et()/1000.);
 
     /** get b-tagging info */
 
@@ -1223,7 +1188,7 @@ StatusCode AnalysisSkeleton::SusyStudies() {
     m_aan_FinalElEtCone20->push_back(etisol);
     
     /** isEM cut already picks out isolated electrons, so this is just a sanity check */
-    if(etisol<10*GeV) sum_elET += (*felecItr)->pt();
+    if(etisol/1000.<10) sum_elET += (*felecItr)->pt();
   }
 
 
@@ -1261,7 +1226,7 @@ StatusCode AnalysisSkeleton::SusyStudies() {
     m_aan_FinalMuMatChi2->push_back((*fmuonItr)->matchChi2());
 
     /** require bestMatch, chi2 and isolation cuts */
-    if((*fmuonItr)->bestMatch()==1 && (*fmuonItr)->matchChi2() <100. && etIsol < 10*GeV) sum_muET +=(*fmuonItr)->pt();
+    if((*fmuonItr)->bestMatch()==1 && (*fmuonItr)->matchChi2() <100. && etIsol/1000. < 10) sum_muET +=(*fmuonItr)->pt();
 
   }
 
