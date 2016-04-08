@@ -150,6 +150,8 @@ namespace LVL1 {
 						  << ", read threshold in mV of " << hwThresholdValue << endreq;
 	 }
 	 m_cablestart_c = (*th_itr)->cableStart();
+	 if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CableStart: " << m_cablestart_c;
+	 if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ", CableEnd: " << (*th_itr)->cableEnd() << endreq;
       }
 
       // Get the discriminator threshold settings (multiplicity input) for the A side.
@@ -166,11 +168,12 @@ namespace LVL1 {
 	 					 << ", read threshold in mV of " << hwThresholdValue << endreq;
 	 }
 	 m_cablestart_a = (*th_itr)->cableStart();
+	 if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CableStart: " << m_cablestart_a;
+	 if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ", CableEnd: " << (*th_itr)->cableEnd() << endreq;
       }
       
     }
 
-/*
     // Get level 1 MBTS threshold settings from the level 1
     // configuration service for the discriminators on the single
     // inputs.  There are 32 physical discriminator inputs these can
@@ -182,52 +185,49 @@ namespace LVL1 {
     th_itr = thresholds.begin();
     th_itr_end = thresholds.end();
     std::string thrname;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Size of MbtssiThresholdValueVector: " << thresholds.size() << endreq;
     for(;th_itr!=th_itr_end;th_itr++) {
       m_singleCounterInputs = true;
       thrname = (*th_itr)->name();
 
-      if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Single input threshold name " << thrname << endreq;
       // Get the discriminator threshold settings (single inputs) for the C side.
       if(thrname.find("MBTS_C")==0 && thrname.size()>6) {
 	// figure out module number from threshold name
-	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Single input threshold name " << thrname << endreq;
+	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Single input threshold name " << thrname;
 	thrname.replace(thrname.find("MBTS_C"),6,"");
-	thrname.replace(thrname.find("full"),4,"");
 	size_t module = boost::lexical_cast<size_t,std::string>(thrname);
-        if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Single input threshold name converts to Moduel number" << module << endreq;
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO) << " converts to Moduel number " << module;
 	if(module >= m_thresholds_c.size()) {
+	   if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << endreq;
 	   if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Module number " << module << " on side C out of range" << endreq;
 	} else {
 	   m_thresholds_c[module] = (*th_itr)->triggerThresholdValue(0, 0)->ptcut();
 	   m_cablestarts_c[module] = (*th_itr)->cableStart();
-	   if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Threshold name " << (*th_itr)->name() 
-						<< ", module number " << module << endreq;
-	   if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Single input side C, counter " << module
-						<< ", read threshold in mV of " << m_thresholds_c[module] << endreq;
+	   if(msgLvl(MSG::INFO)) msg(MSG::INFO) << ", read threshold in mV of " << m_thresholds_c[module] << endreq;
+	   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CableStart: " << m_cablestarts_c[module];
+	   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ", CableEnd: " << (*th_itr)->cableEnd() << endreq;
 	}
       }
+
       // Get the discriminator threshold settings (single inputs) for the A side.
       else if(thrname.find("MBTS_A")==0 && thrname.size()>6) {
 	// figure out module number from threshold name
-
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Single input threshold name " << thrname << endreq;
+	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Single input threshold name " << thrname;
 	thrname.replace(thrname.find("MBTS_A"),6,"");
-	thrname.replace(thrname.find("full"),4,"");
 	size_t module = boost::lexical_cast<size_t,std::string>(thrname);
-        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Single input threshold name converts to Moduel number" << module << endreq;
+        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ", moduel number " << module;
 	if(module >= m_thresholds_a.size()) {
+	   if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << endreq;
 	   if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Module number " << module << " on side A out of range" << endreq;
 	} else {
 	   m_thresholds_a[module] = (*th_itr)->triggerThresholdValue(0, 0)->ptcut();
 	   m_cablestarts_a[module] = (*th_itr)->cableStart();
-	   if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Threshold name " << (*th_itr)->name() 
-						<< ", module number " << module << endreq;
-	   if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Single input side A, counter " << module
-						<< ", read threshold in mV of " << m_thresholds_a[module] << endreq;
+	   if(msgLvl(MSG::INFO)) msg(MSG::INFO) << ", read threshold in mV of " << m_thresholds_a[module] << endreq;
+	   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CableStart: " << m_cablestarts_a[module];
+	   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ", CableEnd: " << (*th_itr)->cableEnd() << endreq;
 	}
       }
     }
-*/
 
 
     // MBTS_A, MBTS_C or MBTS_A, MBTS_C, MBTS_0, MBTS_1,...,MBTS_15 are used.
@@ -434,11 +434,11 @@ namespace LVL1 {
 	
 	// Add the trigger bit to the correct trigger word
 	if(detSide == -1) { // EBC
-	  single_triggers_C += (1<<(thresholdIndex));
+	  single_triggers_C += (1<<m_cablestarts_c[thresholdIndex]);
 	  triggersEBC++; // Increment the number of EBC triggers
 	}
 	else if (detSide == 1) { // EBA
-	  single_triggers_A += (1<<(thresholdIndex));
+	  single_triggers_A += (1<<m_cablestarts_a[thresholdIndex]);
 	  triggersEBA++; // Increment the number of EBA triggers.
 	}
 
@@ -459,10 +459,13 @@ namespace LVL1 {
     MbtsCTP *mbtsACTP = new MbtsCTP(cableWordA);
     MbtsCTP *mbtsCCTP = new MbtsCTP(cableWordC);
 
-    //mbtsACTP->dump();
-    //mbtsCCTP->dump();
-    if(MSG::DEBUG)  msg(MSG::DEBUG) << " mbtsACTP:  " << mbtsACTP->print() << endreq;
-    if(MSG::DEBUG)  msg(MSG::DEBUG) << " mbtsCCTP:  " << mbtsCCTP->print() << endreq;
+    // Methods used in CTPsimulation are added for testing
+    if(MSG::DEBUG)  msg(MSG::DEBUG) << " mbtsA cable " << mbtsACTP->print() << endreq;
+    if(MSG::DEBUG)  msg(MSG::DEBUG) << " (in CTPSimulation) mbtsA cable word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << mbtsACTP->cableWord0() << endreq;
+    if(MSG::DEBUG)  msg(MSG::DEBUG) << " (in CTPSimulation) Mult of mbtsA is: "<< static_cast<int>( (mbtsACTP->cableWord0() >> m_cablestart_a) & static_cast<unsigned int>( pow( 2, 3 ) - 1 ) ) << endreq;
+    if(MSG::DEBUG)  msg(MSG::DEBUG) << " mbtsC cable " << mbtsCCTP->print() << endreq;
+    if(MSG::DEBUG)  msg(MSG::DEBUG) << " (in CTPSimulation) mbtsC cable word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << mbtsCCTP->cableWord0() << endreq;
+    if(MSG::DEBUG)  msg(MSG::DEBUG) << " (in CTPSimulation) Mult of mbtsC is: "<< static_cast<int>( (mbtsCCTP->cableWord0() >> m_cablestart_c) & static_cast<unsigned int>( pow( 2, 3 ) - 1 ) ) << endreq;
 
     std::string containerNameA = DEFAULT_MbtsACTPLocation;
     std::string containerNameC = DEFAULT_MbtsCCTPLocation;
