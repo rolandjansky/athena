@@ -16,10 +16,10 @@ static LArAutoCorrSubsetCnv_p1   TPconverter;
 LArAutoCorrSubset_p1*
 LArAutoCorrCompleteCnv::createPersistent (LArAutoCorrTransType* transObj)
 {
-    MsgStream log(msgSvc(), "LArAutoCorrCompleteCnv" ); 
-    //log << MSG::DEBUG << "LArAutoCorrComplete write" << endmsg;
+    MsgStream log(messageService(), "LArAutoCorrCompleteCnv" ); 
+    //log << MSG::DEBUG << "LArAutoCorrComplete write" << endreq;
     LArAutoCorrPersType* persObj = TPconverter.createPersistent( transObj, log );
-    //log << MSG::DEBUG << "Success" << endmsg;
+    //log << MSG::DEBUG << "Success" << endreq;
     return persObj; 
 }
 
@@ -31,20 +31,20 @@ LArAutoCorrCompleteCnv::createTransient ()
     if( compareClassGuid(p1_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
         std::auto_ptr< LArAutoCorrSubset_p1 > col_vect( poolReadObject< LArAutoCorrSubset_p1 >() );
-        MsgStream log(msgSvc(), "LArAutoCorrCompleteCnv" ); 
-        //log << MSG::INFO << "Reading LArAutoCorrSubset_p1" << endmsg; 
+        MsgStream log(messageService(), "LArAutoCorrCompleteCnv" ); 
+        //log << MSG::INFO << "Reading LArAutoCorrSubset_p1" << endreq; 
         return TPconverter.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation
 
-        MsgStream log(msgSvc(), "LArAutoCorrCompleteCnv" ); 
-        log << MSG::DEBUG << "Reading LArAutoCorrSubset (original)" << endmsg; 
+        MsgStream log(messageService(), "LArAutoCorrCompleteCnv" ); 
+        log << MSG::DEBUG << "Reading LArAutoCorrSubset (original)" << endreq; 
 
         std::auto_ptr< LArConditionsSubset<LArAutoCorrP> > subset ( poolReadObject< LArConditionsSubset<LArAutoCorrP> >() );
         // Here we must convert from LArAutoCorrP to LArAutoCorrP1
         
-        log << MSG::DEBUG << "subset ptr " << subset.get() << endmsg; 
+        log << MSG::DEBUG << "subset ptr " << subset.get() << endreq; 
 
         return (createTransient(subset.get()));
 
@@ -56,8 +56,8 @@ LArConditionsSubset<LArAutoCorrP1>*
 LArAutoCorrCompleteCnv::createTransient(LArConditionsSubset<LArAutoCorrP>* orig)
 {
 
-    MsgStream log(msgSvc(), "LArAutoCorrCompleteCnv" ); 
-    log << MSG::DEBUG << "LArAutoCorrCompleteCnv::createTransient orig " << orig << endmsg; 
+    MsgStream log(messageService(), "LArAutoCorrCompleteCnv" ); 
+    log << MSG::DEBUG << "LArAutoCorrCompleteCnv::createTransient orig " << orig << endreq; 
 
     LArConditionsSubset<LArAutoCorrP1>* result = new LArConditionsSubset<LArAutoCorrP1>();
     
@@ -79,7 +79,7 @@ LArAutoCorrCopy::copyOldtoNew(const LArConditionsSubset<LArAutoCorrP>* oldAutoCo
     unsigned int nCorrs      = oldAutoCorr->m_correctionVec.size();
 
     //log << MSG::DEBUG << "LArAutoCorrCompleteCnv::createTransient oldAutoCorr 1, nFebs, nCorrs " 
-    //    << nFebs << " " << nCorrs << endmsg; 
+    //    << nFebs << " " << nCorrs << endreq; 
 
     // Copy conditions
 
@@ -104,7 +104,7 @@ LArAutoCorrCopy::copyOldtoNew(const LArConditionsSubset<LArAutoCorrP>* oldAutoCo
         }
     }
 
-    // log << MSG::DEBUG << "LArAutoCorrCompleteCnv::createTransient oldAutoCorr 2 " << oldAutoCorr << endmsg; 
+    // log << MSG::DEBUG << "LArAutoCorrCompleteCnv::createTransient oldAutoCorr 2 " << oldAutoCorr << endreq; 
 
     // Copy corrections
     newAutoCorr->m_correctionVec.resize(nCorrs);

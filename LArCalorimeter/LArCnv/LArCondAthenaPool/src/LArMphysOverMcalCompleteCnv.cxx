@@ -27,20 +27,20 @@ LArMphysOverMcalCompleteCnv::createTransient ()
   else if( compareClassGuid(p1_guid) ) {
     // using auto_ptr ensures deletion of the persistent object
     std::auto_ptr< LArMphysOverMcalSubset_p1 > col_vect( poolReadObject< LArMphysOverMcalSubset_p1 >() );
-    MsgStream log(msgSvc(), "LArMphysOverMcalCompleteCnv" ); 
-    //log << MSG::INFO << "Reading LArMphysOverMcalSubset_p1" << endmsg; 
+    MsgStream log(messageService(), "LArMphysOverMcalCompleteCnv" ); 
+    //log << MSG::INFO << "Reading LArMphysOverMcalSubset_p1" << endreq; 
     return TPconverter.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(p0_guid) ) {
     // subset from before TP separation
     
-    MsgStream log(msgSvc(), "LArMphysOverMcalCompleteCnv" ); 
-    log << MSG::DEBUG << "Reading LArMphysOverMcalSubset (original)" << endmsg; 
+    MsgStream log(messageService(), "LArMphysOverMcalCompleteCnv" ); 
+    log << MSG::DEBUG << "Reading LArMphysOverMcalSubset (original)" << endreq; 
     
     std::auto_ptr< LArConditionsSubset<LArMphysOverMcalP> > subset ( poolReadObject< LArConditionsSubset<LArMphysOverMcalP> >() );
     // Here we must convert from LArMphysOverMcalP to LArMphysOverMcalP1
     
-    log << MSG::DEBUG << "subset ptr " << subset.get() << endmsg; 
+    log << MSG::DEBUG << "subset ptr " << subset.get() << endreq; 
     
     return (createTransient(subset.get()));
     
@@ -51,8 +51,8 @@ LArMphysOverMcalCompleteCnv::createTransient ()
 LArConditionsSubset<LArSingleFloatP>* 
 LArMphysOverMcalCompleteCnv::createTransient(LArConditionsSubset<LArMphysOverMcalP>* orig)
 {
-    MsgStream log(msgSvc(), "LArMphysOverMcalCompleteCnv" ); 
-    log << MSG::DEBUG << "LArMphysOverMcalCompleteCnv::createTransient orig " << orig << endmsg; 
+    MsgStream log(messageService(), "LArMphysOverMcalCompleteCnv" ); 
+    log << MSG::DEBUG << "LArMphysOverMcalCompleteCnv::createTransient orig " << orig << endreq; 
 
     LArConditionsSubset<LArSingleFloatP>* result = new LArConditionsSubset<LArSingleFloatP>();
     

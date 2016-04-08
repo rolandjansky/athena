@@ -17,10 +17,10 @@ static LArPedestalMCCnv_p1   TPconverter;
 LArPedestalMC_p1*
 LArPedestalMCCnv::createPersistent (LArPedestalMCTransType* transObj)
 {
-    MsgStream log(msgSvc(), "LArPedestalMCCnv" ); 
-    //log << MSG::DEBUG << "LArPedestalMC write" << endmsg;
+    MsgStream log(messageService(), "LArPedestalMCCnv" ); 
+    //log << MSG::DEBUG << "LArPedestalMC write" << endreq;
     LArPedestalMCPersType* persObj = TPconverter.createPersistent( transObj, log );
-    //log << MSG::DEBUG << "Success" << endmsg;
+    //log << MSG::DEBUG << "Success" << endreq;
     return persObj; 
 }
 
@@ -32,15 +32,15 @@ LArPedestalMCCnv::createTransient ()
     if( compareClassGuid(p1_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
         std::auto_ptr< LArPedestalMC_p1 > col_vect( poolReadObject< LArPedestalMC_p1 >() );
-        MsgStream log(msgSvc(), "LArPedestalMCCnv" ); 
-        //log << MSG::INFO << "Reading LArPedestalMC_p1" << endmsg; 
+        MsgStream log(messageService(), "LArPedestalMCCnv" ); 
+        //log << MSG::INFO << "Reading LArPedestalMC_p1" << endreq; 
         return TPconverter.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation
 
-        MsgStream log(msgSvc(), "LArPedestalMCCnv" ); 
-        log << MSG::INFO << "Reading LArPedestalMC (original)" << endmsg; 
+        MsgStream log(messageService(), "LArPedestalMCCnv" ); 
+        log << MSG::INFO << "Reading LArPedestalMC (original)" << endreq; 
 
         LArPedestalMC* peds =  poolReadObject< LArPedestalMC >();
 

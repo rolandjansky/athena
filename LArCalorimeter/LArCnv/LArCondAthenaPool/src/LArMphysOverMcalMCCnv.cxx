@@ -27,14 +27,14 @@ LArMphysOverMcalMCCnv::createTransient ()
   else if( compareClassGuid(p1_guid) ) {
     // using auto_ptr ensures deletion of the persistent object
     std::auto_ptr< LArMphysOverMcalSubset_p1 > col_vect( poolReadObject< LArMphysOverMcalSubset_p1 >() );
-    MsgStream log(msgSvc(), "LArMphysOverMcalMCCnv" ); 
-    //log << MSG::INFO << "Reading LArMphysOverMcalSubset_p1" << endmsg; 
+    MsgStream log(messageService(), "LArMphysOverMcalMCCnv" ); 
+    //log << MSG::INFO << "Reading LArMphysOverMcalSubset_p1" << endreq; 
     return TPconverter.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(p0_guid) ) {
     // subset from before TP separation    
-    MsgStream log(msgSvc(), "LArMphysOverMcalMCCnv" ); 
-    log << MSG::DEBUG << "Reading LArMphysOverMcalSubset (original)" << endmsg; 
+    MsgStream log(messageService(), "LArMphysOverMcalMCCnv" ); 
+    log << MSG::DEBUG << "Reading LArMphysOverMcalSubset (original)" << endreq; 
     
     std::auto_ptr< LArConditionsSubset<LArMphysOverMcalP> > subset ( poolReadObject< LArConditionsSubset<LArMphysOverMcalP> >() );
     // Here we must convert from LArMphysOverMcalP to LArMphysOverMcalP1
@@ -46,8 +46,8 @@ LArMphysOverMcalMCCnv::createTransient ()
 
 LArConditionsSubset<LArSingleFloatP>* 
 LArMphysOverMcalMCCnv::createTransient(LArConditionsSubset<LArMphysOverMcalP>* orig){
-    MsgStream log(msgSvc(), "LArMphysOverMcalMCCnv" ); 
-    log << MSG::DEBUG << "LArMphysOverMcalMCCnv::createTransient orig " << orig << endmsg; 
+    MsgStream log(messageService(), "LArMphysOverMcalMCCnv" ); 
+    log << MSG::DEBUG << "LArMphysOverMcalMCCnv::createTransient orig " << orig << endreq; 
 
     LArConditionsSubset<LArSingleFloatP>* result = new LArConditionsSubset<LArSingleFloatP>();
     LArSingleFloatUpdater copier;
