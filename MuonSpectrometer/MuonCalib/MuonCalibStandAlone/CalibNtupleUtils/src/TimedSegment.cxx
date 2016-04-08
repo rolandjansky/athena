@@ -49,7 +49,7 @@ namespace MuonCalib {
     : m_segment(0) ,  m_segment_original(0) 
     , m_time(tseg.time()) ,  m_sigma_time(tseg.sigmaTime()){
       
-	std::cout << "calling cpy-constr timedsegment "<< std::cout ;      
+	std::cout << "calling cpy-constr timedsegment "<< std::endl ;      
       m_segment = new MuonCalibSegment( *tseg.segment() );
       m_segment_original = new MuonCalibSegment( *tseg.originalSegment() );
 
@@ -62,7 +62,7 @@ namespace MuonCalib {
 	setSigmaTimeHit(i, tseg.sigmaTimeHit(i) );      
 	++i;
       }    
-      std::cout << "done" <<std::cout;
+      std::cout << "done" <<std::endl;
     }
 
   TimedSegment& TimedSegment::operator=( const TimedSegment& rhs ){

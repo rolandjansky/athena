@@ -75,8 +75,8 @@ class HistHandler{
   Float_t     m_min, m_max;     //!< common min/max value of the histograms in HistHandler
   Int_t       m_binY;           //!< common binsize of the (yaxis of the) histograms in HistHandler
   Float_t     m_minY, m_maxY;   //!< common min/max value of the (yaxis of the) histograms in HistHandler
-  histMap     myMap;            //!< map of 1D histograms used internally
-  hist2Map    my2Map;           //!< map of 2D histograms used internally
+  histMap     m_myMap;          //!< map of 1D histograms used internally
+  hist2Map    m_my2Map;         //!< map of 2D histograms used internally
   const HistSetting* m_setting; //!< graphical settings of the histograms
 };
 

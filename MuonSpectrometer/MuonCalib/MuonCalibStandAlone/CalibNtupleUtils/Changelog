@@ -1,3 +1,11 @@
+2016-02-15 Jochen Meyer <jomeyer@mail.cern.ch>
+	* fix of CppCheck defects
+	* Tagged as CalibNtupleUtils-00-00-25
+
+2016-01-26 Jochen Meyer <jomeyer@mail.cern.ch>
+	* Comply with ATLAS naming conventions
+	* Tagged as CalibNtupleUtils-00-00-24
+
 2015-05-12 Jochen Meyer <jomeyer@mail.cern.ch>
 	* addressing coverity defect 12434 (again)
 	* copy-paste bug fix
