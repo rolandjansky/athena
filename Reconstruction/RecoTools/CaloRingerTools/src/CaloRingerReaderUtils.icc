@@ -1,0 +1,104 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: CaloRingerReaderUtils.icc 732386 2016-03-25 03:21:48Z ssnyder $
+#ifndef CALORINGERTOOLS_CALORINGERREADERUTILS_ICC
+#define CALORINGERTOOLS_CALORINGERREADERUTILS_ICC
+
+#include <vector>
+#include <exception>
+
+// Kernel includes:
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ToolHandle.h"
+
+// Interface includes:
+#include "CaloRingerTools/ICaloRingsBuilder.h"
+
+// xAOD includes:
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloRings/CaloRingsContainer.h"
+#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
+
+#include "CaloRingerTools/ICaloRingerInputReader.h"
+
+namespace Ringer {
+
+// =====================================================================================
+template<typename particle_t>
+void BuildCaloRingsFctor<particle_t>::displayLoopingMessage() const {
+  if (m_msg.level() <= MSG::DEBUG ){
+    std::string str = ((m_particle_has_cluster)?" (with cluster access) ":
+                                                " (without cluster access) ");
+    m_msg << MSG::DEBUG << " ---------- Reading " 
+        << m_particle_name << str << " candidate"
+        << ++this->m_part_counter << "/" << this->m_part_size
+        << " ----------- " << endreq;
+  }
+}
+
+
+// =====================================================================================
+template< typename particle_t >
+void BuildCaloRingsFctor<particle_t>::operator() ( particle_t *part ) const
+{
+
+  displayLoopingMessage();
+
+  // Retrieve clusters element links:
+  const std::vector< ElementLink< xAOD::CaloClusterContainer > > &clustersLinks = 
+    part->caloClusterLinks();
+
+  // Make CaloRings ElementLink Holder:
+  xAOD::CaloRingsLinks clRingsLinks;
+
+  if ( m_particle_has_cluster ) {
+    // We'll assume to have one CaloRings for each cluster, reserve memory for
+    // it:
+    clRingsLinks.reserve( clustersLinks.size() );
+
+    unsigned int cl_counter = 0;
+
+    // Loop over them to build CaloRings:
+    for ( const auto& clusLink : clustersLinks) {
+
+      m_msg << MSG::DEBUG << "Reading particle cluster " << ++cl_counter << "/" 
+        << clustersLinks.size() << endreq;
+
+      // This cluster CaloRings:
+      ElementLink<xAOD::CaloRingsContainer> ringsEL;
+
+      if (this->m_builder->execute( **clusLink, ringsEL ).isFailure()){
+        throw std::runtime_error("Error while executing CaloRings builder.");
+      }
+
+      // Push it back:
+      clRingsLinks.push_back( ringsEL );
+
+    }
+
+  } else {
+
+    // The CaloRings ElementLink:
+    ElementLink<xAOD::CaloRingsContainer> ringsEL;
+
+    if (m_builder->execute( *part, ringsEL ).isFailure()){
+      throw std::runtime_error("Error while executing CaloRings builder.");
+    }
+
+    // Push it back:
+    clRingsLinks.push_back( ringsEL );
+  }
+
+  // Decorate particle with CaloRings:
+  xAOD::getCaloRingsDecorator()->operator()( *part ) = clRingsLinks;
+
+}
+
+
+} // namespace Ringer
+
+#endif // CALORINGERTOOLS_RINGERREADERUTILS_ICC
+
+// vim: filetype=cpp:

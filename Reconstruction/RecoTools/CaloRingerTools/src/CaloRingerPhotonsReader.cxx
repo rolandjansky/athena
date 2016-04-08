@@ -1,0 +1,92 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: CaloRingerPhotonsReader.cxx 667886 2015-05-18 17:26:59Z wsfreund $
+// =============================================================================
+#include "CaloRingerPhotonsReader.h"
+
+#include <algorithm>
+
+namespace Ringer {
+
+// =============================================================================
+CaloRingerPhotonsReader::CaloRingerPhotonsReader(const std::string& type,
+                                 const std::string& name,
+                                 const ::IInterface* parent)
+  : CaloRingerInputReader(type, name, parent),
+  m_clRingsBuilderPhotonFctor(0)
+{
+
+  // declare interface
+  declareInterface<ICaloRingerPhotonsReader>(this);
+
+  // @brief Electron selectors.
+  declareProperty("PhotonSelectors", m_ringerSelectors,
+      "The ASG Photon Selectors.");
+
+  // Result names for each asg selector
+  declareProperty("ResultNames", m_ringerSelectorResultNames, 
+      "The ASG Selectors result names.");
+}
+
+// =============================================================================
+CaloRingerPhotonsReader::~CaloRingerPhotonsReader()
+{ 
+  if(m_clRingsBuilderPhotonFctor) delete m_clRingsBuilderPhotonFctor;
+}
+
+// =============================================================================
+StatusCode CaloRingerPhotonsReader::initialize()
+{
+
+  CHECK( CaloRingerInputReader::initialize() );
+
+  if ( m_builderAvailable ) {
+    // Initialize our fctor 
+    m_clRingsBuilderPhotonFctor = 
+      new BuildCaloRingsFctor<xAOD::Photon>(
+          m_crBuilder, 
+          msg() );
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+StatusCode CaloRingerPhotonsReader::finalize()
+{
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+StatusCode CaloRingerPhotonsReader::execute()
+{
+
+  ATH_MSG_DEBUG("Entering " << name() << " execute.");
+
+  // Retrieve photons 
+  if ( evtStore()->retrieve(m_container, m_inputKey).isFailure() )
+  {
+    ATH_MSG_ERROR("Cannot retrieve photon container " << m_inputKey );
+    return StatusCode::FAILURE;
+  }
+
+
+  if ( m_builderAvailable ) {
+    m_clRingsBuilderPhotonFctor->prepareToLoopFor(m_container->size());
+
+    // loop over our particles:
+    std::for_each( 
+        m_container->begin(), 
+        m_container->end(), 
+        *m_clRingsBuilderPhotonFctor );
+  }
+
+
+  return StatusCode::SUCCESS;
+
+}
+
+} // namespace Ringer
+
