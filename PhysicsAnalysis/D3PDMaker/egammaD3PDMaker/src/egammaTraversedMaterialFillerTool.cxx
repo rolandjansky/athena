@@ -121,7 +121,9 @@ namespace D3PD {
       if (p2 && p2->pT() > parameters->pT()) parameters = p2;
     }
 
+    if(parameters){
     CHECK( fill (p, *parameters) );
+    }
     return StatusCode::SUCCESS;
   }
 

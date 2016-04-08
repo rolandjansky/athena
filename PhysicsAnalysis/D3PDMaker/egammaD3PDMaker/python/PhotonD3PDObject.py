@@ -338,8 +338,8 @@ ConversionVertexTrackParticleAssociation.defineBlock (
     D3PDMakerCoreComps.AuxDataFillerTool,
     Vars = ['eProbabilityComb',
             'eProbabilityHT',
-            'eProbabilityToT',
-            'eProbabilityBrem'])
+            'eProbabilityToT < float:0',
+            'eProbabilityBrem < float:0'])
 ConversionVertexTrackParticleAssociation.defineBlock (
     10, 'ConversionTrackFitQuality',
     D3PDMakerCoreComps.AuxDataFillerTool,
