@@ -17,7 +17,6 @@
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/IIntersector.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -50,10 +49,8 @@ MaterialAllocator::MaterialAllocator (const std::string&	type,
 	m_spectrometerExtrapolator	("Trk::Extrapolator/AtlasExtrapolator"),
 	m_trackingGeometrySvc		("TrackingGeometrySvc/AtlasTrackingGeometrySvc",name),
 	m_trackingVolumesSvc		("Trk::TrackingVolumesSvc/TrackingVolumesSvc",name),
-        m_stepPropagator                ("Trk::STEP_Propagator/AtlasSTEP_Propagator"),
 	m_aggregateMaterial		(true),
-	m_allowReordering		(false),
-        m_useStepPropagator             (1),
+	m_allowReordering		(true),
 	m_maxWarnings			(10),
 	m_materialMaxGap		(2.0 *Gaudi::Units::meter),
 	m_orderingTolerance		(1.  *Gaudi::Units::mm),
@@ -77,17 +74,9 @@ MaterialAllocator::MaterialAllocator (const std::string&	type,
     declareProperty("TrackingVolumesSvc",		m_trackingVolumesSvc);
     declareProperty("AggregateMaterial",	       	m_aggregateMaterial);
     declareProperty("AllowReordering",		       	m_allowReordering);
-
-    // m_useStepPropagator 0 means not used (so Intersector used)
-    // 1 Intersector not used and StepPropagator used with FullField
-    // 2 StepPropagator with FastField propagation
-    // 99 debug mode where both are ran with FullField
-
-    declareProperty("UseStepPropagator",		m_useStepPropagator);
     declareProperty("OrderingTolerance",       		m_orderingTolerance);
     declareProperty("MaxNumberOfWarnings",		m_maxWarnings,
 		    "Maximum number of permitted WARNING messages per message type.");
-    
 }
 
 MaterialAllocator::~MaterialAllocator (void)
@@ -168,17 +157,7 @@ MaterialAllocator::initialize()
 	m_indetVolume		= new Volume(
 	    m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
     }
-   
-    if (m_useStepPropagator > 0 && m_stepPropagator.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve Svc " <<  m_stepPropagator );
-        return StatusCode::FAILURE;
-    }
-
-// Field for StepPropagator
-    m_stepField = Trk::MagneticFieldProperties(Trk::FullField);
-    if(m_useStepPropagator==2)  m_stepField = Trk::MagneticFieldProperties(Trk::FastField);
- 
+    
     return StatusCode::SUCCESS;
 }
 
@@ -205,13 +184,12 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
     // nothing to do if starting with vertex measurement
     if (measurements.front()->isVertex())
     {
+	if (msgLvl(MSG::DEBUG))
+	{
+	    ATH_MSG_VERBOSE(" addLeadingMaterial: " );
+	    printMeasurements(measurements);
+	}
 	return;
-    }
-
-    if (msgLvl(MSG::DEBUG))
-    {
-      ATH_MSG_DEBUG(" start of addLeadingMaterial: " );
-      printMeasurements(measurements);
     }
 
     // fitted momentum at perigee - ignoring leading material effects
@@ -496,38 +474,11 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 
 		if (leadingScatterers++ || ! firstMeasurementSurface)
 		{
-
-                    if( m_useStepPropagator==99) { 
-                      const TrackSurfaceIntersection* newIntersectionSTEP =
-                        m_stepPropagator->intersectSurface((**r).trackParameters()->associatedSurface(),
-                                                           intersection,
-                                                           qOverP,
-                                                           Trk::MagneticFieldProperties(Trk::FullField),
-                                                           Trk::muon);
-		      intersection	=
+		    intersection	=
 			m_intersector->intersectSurface((**r).trackParameters()->associatedSurface(),
 							intersection,
 							qOverP);
-                      if(newIntersectionSTEP&&intersection) {
-//                       double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
-//                       std::cout << " iMat 1 distance STEP and Intersector " << dist << std::endl;
-//                       if(dist>10.) std::cout << " iMat 1 ALARM distance STEP and Intersector " << dist << std::endl;
-                       delete newIntersectionSTEP;
-                      } else {
-//                        if(intersection) std::cout << " iMat 1 ALARM STEP did not intersect! " << std::endl;
-                      }
-                    } else {
-		      intersection	= m_useStepPropagator>=1?
-                        m_stepPropagator->intersectSurface((**r).trackParameters()->associatedSurface(),
-                                                           intersection,
-                                                           qOverP,
-                                                           m_stepField,
-                                                           Trk::muon):
-			m_intersector->intersectSurface((**r).trackParameters()->associatedSurface(),
-							intersection,
-							qOverP);
-                    }
- 
+		    
 		    // quit if tracking problem
 		    if (! intersection)
 		    {
@@ -582,9 +533,6 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 			}
 		    }
 		}
-
-	        ATH_MSG_DEBUG(" push_front(leadingMeas) ");
-
 		measurements.push_front(leadingMeas);
 		
 		// update momentum for energy loss
@@ -605,35 +553,9 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 	// final step to give intersection at perigee surface plus memory management
 	if (leadingMeas)
 	{
-            if( m_useStepPropagator==99) { 
-              const TrackSurfaceIntersection* newIntersectionSTEP =
-                 m_stepPropagator->intersectSurface(perigee->associatedSurface(),
-                                                    intersection,
-                                                    qOverP,
-                                                    Trk::MagneticFieldProperties(Trk::FullField),
-                                                    Trk::muon);
-	      intersection = m_intersector->intersectSurface(perigee->associatedSurface(),
+	    intersection	= m_intersector->intersectSurface(perigee->associatedSurface(),
 								  intersection,
 								  qOverP);
-              if(newIntersectionSTEP&&intersection) {
-//                double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
-//                std::cout << " iMat 2 distance STEP and Intersector " << dist << std::endl;
-//                if(dist>10.) std::cout << " iMat 2 ALARM distance STEP and Intersector " << dist << std::endl;
-                delete newIntersectionSTEP;
-              } else {
-//                if(intersection) std::cout << " iMat 2 ALARM STEP did not intersect! " << std::endl;
-              }
-            } else {
-		 intersection	= m_useStepPropagator>=1?
-                 m_stepPropagator->intersectSurface(perigee->associatedSurface(),
-                                                    intersection,
-                                                    qOverP,
-                                                    m_stepField,
-                                                    Trk::muon):
-	      	 m_intersector->intersectSurface(perigee->associatedSurface(),
-								  intersection,
-								  qOverP);
-            } 
 	}
 	else
 	{
@@ -1062,21 +984,7 @@ MaterialAllocator::reallocateMaterial (std::list<FitMeasurement*>&	measurements,
     double mass = ParticleMasses().mass[Trk::muon];
     MsgStream log(msgSvc(), name());
     const TrackParameters* trackParameters = parameters.trackParameters(log, *measurements.back());
-
-// protect the momentum to avoid excessive Eloss
-    Amg::VectorX parameterVector = trackParameters->parameters();
-    double Emax = 50000.;
-    if(parameterVector[Trk::qOverP]==0.) {
-       parameterVector[Trk::qOverP] = 1./Emax;
-    } else {
-       if(std::abs(parameterVector[Trk::qOverP])*Emax < 1) parameterVector[Trk::qOverP] = trackParameters->charge()/Emax;
-    }              
-
-// correct track parameters for high momentum track (otherwise Eloss is too large)
-    trackParameters = (trackParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
-                                                              parameterVector[Trk::loc2],parameterVector[Trk::phi],
-                                                              parameterVector[Trk::theta],parameterVector[Trk::qOverP],0);
-
+    //    std::list<Trk::FitMeasurement*>::reverse_iterator start = measurements.rbegin();
     for (std::list<Trk::FitMeasurement*>::reverse_iterator r = measurements.rbegin();
 	 r != measurements.rend();
 	 ++r)
@@ -1216,7 +1124,7 @@ MaterialAllocator::addSpectrometerDelimiters (std::list<FitMeasurement*>&	measur
 // 	if (preBreak) msg() << " preBreak ";
 // 	if (postBreak) msg() << " postBreak ";
 // 	if ((**m).isDrift()) msg() << " isDrift ";
-// 	msg() << endmsg;
+// 	msg() << endreq;
 // 	///////
 	
 	if (postBreak && previous)
@@ -1360,36 +1268,9 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 		Amg::Vector3D offset				=  intersection->direction()*tolerance;
 		CurvilinearUVT uvt(intersection->direction());
 		PlaneSurface plane(intersection->position() - offset,uvt);
-
-                if( m_useStepPropagator==99) { 
-                  const TrackSurfaceIntersection* newIntersectionSTEP =
-                    m_stepPropagator->intersectSurface(plane,
-                                                       intersection,
-                                                       qOverP,
-                                                       Trk::MagneticFieldProperties(Trk::FullField),
-                                                       Trk::muon);
-		  intersection = m_intersector->intersectSurface(plane,
+		intersection		= m_intersector->intersectSurface(plane,
 									  intersection,
 									  qOverP);
-                  if(newIntersectionSTEP&&intersection) {
-//                    double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
-//                    std::cout << " iMat 3 distance STEP and Intersector " << dist << std::endl;
-//                    if(dist>10.) std::cout << " iMat 3 ALARM distance STEP and Intersector " << dist << std::endl;
-                    delete newIntersectionSTEP;
-                  } else  {
-//                    if(intersection) std::cout << " iMat 3 ALARM STEP did not intersect! " << std::endl;
-                  }
-                } else {
-		  intersection	= m_useStepPropagator>=1?
-                    m_stepPropagator->intersectSurface(plane,
-                                                       intersection,
-                                                       qOverP,
-                                                       m_stepField,
-                                                       Trk::muon):
-		    m_intersector->intersectSurface(plane,
-		  				    intersection,
-						    qOverP);
-                }
 		Amg::Vector2D localPos;
 		if (intersection
 		    && plane.globalToLocal(intersection->position(),
@@ -1428,8 +1309,6 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 	if (parameters != &startParameters)	delete parameters;
 	return;
     }
-
-    ATH_MSG_WARNING( " indetMaterial: ALARM no material found on track");
     
     // allocate indet material from TrackingGeometry
     Amg::Vector3D endPosition	= endIndetMeasurement->intersection(FittedTrajectory).position();
@@ -1632,8 +1511,6 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 
     // secondly: insert remaining material between measurement layers
     m = measurements.begin();
-    int im = 0;
-    ATH_MSG_VERBOSE(" measurements.size() " << measurements.size() << " surfaces.size() " <<  surfaces.size() <<  " indetMaterial->size() " << indetMaterial->size());
     std::vector<const Surface*>::const_iterator r = surfaces.begin();
     for (s = indetMaterial->begin(); s != indetMaterialEnd; ++s)
     {
@@ -1646,39 +1523,19 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 	    ++r;
 	    continue;
 	}
-
+		
 	double distance = startDirection.dot((**s).trackParameters()->position() - startPosition);
-
-	ATH_MSG_VERBOSE("	startPosition " << startPosition.perp() << " z " << startPosition.z());
-	ATH_MSG_VERBOSE("	(**m).intersection(FittedTrajectory).position() measurement position r " << (**m).intersection(FittedTrajectory).position().perp() << " z " << (**m).intersection(FittedTrajectory).position().z() );
-	ATH_MSG_VERBOSE("	(**s).trackParameters()->position() material surface position r " << (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z());
-	ATH_MSG_VERBOSE(" distance material surface " <<  distance);
- 
-        bool endIndet = false; 	
 	while (distance > startDirection.dot((**m).intersection(FittedTrajectory).position() - startPosition))
 	{
 	    if (*m == endIndetMeasurement)
 	    {
-		if (*m != measurements.back()) {
-                  ++m;
-                  ++im;
-                  ATH_MSG_VERBOSE(" measurements.back() im " << im);
-                }
-                ATH_MSG_VERBOSE(" break im " << im);
-                endIndet = true;
+		if (*m != measurements.back()) ++m;
 		break;
 	    }
-	    if (*m != measurements.back()) {
-	      ++m;
-              ++im;
-              ATH_MSG_VERBOSE(" loop im " << im << "	(**m).intersection(FittedTrajectory).position() measurement position r " << (**m).intersection(FittedTrajectory).position().perp() << " z " << (**m).intersection(FittedTrajectory).position().z() );
-            } else {
-              break;
-            } 
+	    ++m;
 	}
-	ATH_MSG_VERBOSE(" im " << im << " distance measurement " <<  startDirection.dot((**m).intersection(FittedTrajectory).position() - startPosition) );
-	ATH_MSG_VERBOSE(" (**m).intersection(FittedTrajectory).position() measurement position r " << (**m).intersection(FittedTrajectory).position().perp() << " z " << (**m).intersection(FittedTrajectory).position().z() ); 	
-
+	
+	
 	m = measurements.insert(m,new FitMeasurement((**s).materialEffectsOnTrack(),
 						     ParticleMasses().mass[particleHypothesis],
 						     (**s).trackParameters()->position()));
@@ -1688,20 +1545,7 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 	    0.);
 	(**m).intersection(FittedTrajectory,intersection);
 	(**m).qOverP((**s).trackParameters()->parameters()[Trk::qOverP]);
-        ATH_MSG_VERBOSE(" successfull insertion ");
-        if(endIndet) --m; 
     }
-
-    m = measurements.begin();
-    im = 0;
-    for (; m != measurements.end(); ++m)
-      {
-	if (! leadingDelimiter && (**m).isOutlier())		continue;
-	
-	Amg::Vector3D position		= (**m).intersection(FittedTrajectory).position();
-        ++im;
-        ATH_MSG_VERBOSE(" im " << im << " position R " << position.perp() << " z " << position.z());  
-      }
 
     // memory management
     deleteMaterial(indetMaterial);
@@ -1816,7 +1660,7 @@ MaterialAllocator::materialAggregation (const std::vector<const TrackStateOnSurf
 // 		if (distance2 > distance || distance1 < 0.)
 // 		{
 // 		    // 		    msg() << "  distance out of bounds: range " << distance
-// 		    // 			   << " to " << 0. << endmsg;
+// 		    // 			   << " to " << 0. << endreq;
 // 		}
 // 		else
 // 		{
@@ -2074,7 +1918,7 @@ MaterialAllocator::materialAggregation (std::list<FitMeasurement*>&	measurements
 		if (distance2 > distance || distance1 < 0.)
 		{
 // 		    msg() << "  distance out of bounds: range " << distance
-// 			  << " to " << 0. << endmsg;
+// 			  << " to " << 0. << endreq;
 		}
 		else
 		{
@@ -2135,7 +1979,7 @@ MaterialAllocator::materialAggregation (std::list<FitMeasurement*>&	measurements
 // 					  << fractionBefore
 // 					  << "   fraction after "
 // 					  << std::setw(6) << std::setprecision(2)
-// 					  << fractionAfter << endmsg );
+// 					  << fractionAfter << endreq );
 			    position			=
 				fractionBefore*before->intersection(FittedTrajectory).position() +
 				fractionAfter*after->intersection(FittedTrajectory).position();
@@ -2294,7 +2138,7 @@ MaterialAllocator::materialAggregation (std::list<FitMeasurement*>&	measurements
 		      << std::setw(9)  << std::setprecision(4) << (**m).position().phi()
 		      << std::setw(10) << std::setprecision(1) << (**m).position().z();
 	    }
-	    msg() << endmsg;
+	    msg() << endreq;
 	}
     }
 
@@ -2430,14 +2274,14 @@ MaterialAllocator::printMeasurements(std::list<FitMeasurement*>&	measurements) c
 		  << (**m).intersection(FittedTrajectory).direction().phi()
 		  << std::setw(9)  << std::setprecision(4)
 		  << (**m).intersection(FittedTrajectory).direction().theta()
-		  << endmsg;
+		  << endreq;
 	}
 	else
 	{
 	    msg() << std::setprecision(1) << (**m).position().perp()
 		  << std::setw(9)  << std::setprecision(4) << (**m).position().phi()
 		  << std::setw(10) << std::setprecision(1) << (**m).position().z()
-		  << std::setw(5)  << (**m).numberDoF() << endmsg;
+		  << std::setw(5)  << (**m).numberDoF() << endreq;
 	}
     }
 
@@ -2472,79 +2316,23 @@ MaterialAllocator::spectrometerMaterial (std::list<FitMeasurement*>&	measurement
     Amg::Vector3D startDirection	= startParameters.momentum().unit();
     Amg::Vector3D startPosition		= startParameters.position();
     bool haveMaterial			= false;
-    bool haveLeadingMaterial		= false;
-    bool reorderMS			= false;
-    bool reorderID			= false;
-    bool firstMSHit			= false;
-    double previousDistance		= 0.;
-    double previousDistanceR		= 0.;
-    double previousDistanceZ		= 0.;
-    double minDistanceID		= 0.;
-    double minDistanceMS		= 0.;
-    double minRDistanceMS		= 0.;
-    double minZDistanceMS		= 0.;
+    bool reorder			= false;
+    double previousDistance		= -m_orderingTolerance;
     std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
     for ( ; m != measurements.end(); ++m)
     {
 	Amg::Vector3D position			= (**m).intersection(FittedTrajectory).position();
-	Amg::Vector3D positionSurf		= (**m).surface()->center();
-	Amg::Vector3D positionMst		= startPosition;
-        if((**m).measurementBase()) positionMst = (**m).measurementBase()->globalPosition();
+	if (m_calorimeterVolume->inside(position))	continue;
 	double distance				= startDirection.dot(position - startPosition);
-	double distanceR			= sqrt((positionMst.x() - startPosition.x())*(positionMst.x() - startPosition.x()) + (positionMst.y() - startPosition.y())*(positionMst.y() - startPosition.y()));
-	double distanceZ			= (positionMst.z() - startPosition.z());
-        if(startDirection.z()<0) distanceZ = -distanceZ; 
-	if (!m_calorimeterVolume->inside(position) || !m_calorimeterVolume->inside(positionSurf)) {	
-	  if (distance - previousDistance < -m_orderingTolerance) {
-      	    reorderMS = true;
-            if(distance - previousDistance<minDistanceMS) {
-              minDistanceMS = distance-previousDistance ;
-              minRDistanceMS = distanceR-previousDistanceR;
-              minZDistanceMS = distanceZ-previousDistanceZ;
-            }
-          }
-	  if ((**m).isScatterer())			haveMaterial = true;
-          if ((**m).measurementBase()&&!firstMSHit) {
-             firstMSHit = true;
-          }
- 	  if ((**m).isScatterer()&&!firstMSHit)		haveLeadingMaterial = true;
-        } else {
-	  if (distance - previousDistance < -m_orderingTolerance) {
-      	    reorderID = true;
-            if(distance - previousDistance<minDistanceID) minDistanceID = distance-previousDistance ;
-          }
-        }
-        previousDistance                        = distance;
-        previousDistanceZ                       = distanceZ;
-        previousDistanceR                       = distanceR;
+	if (distance < previousDistance)		reorder = true;
+	previousDistance			= distance - m_orderingTolerance;
+	if ((**m).isScatterer())			haveMaterial = true;
     }
 
-    if(reorderMS&&(minRDistanceMS>-m_orderingTolerance||minZDistanceMS>-m_orderingTolerance)) {
-
-//    3D distance of the intersection is problematic but the R or Z distance of the measurementBase is fine 
-//    we should not reorder 
-
-      reorderMS = false;
-    }
-
-//    if(!m_allowReordering) {
-      if (reorderMS&&fabs(minDistanceMS)>-2.) ATH_MSG_DEBUG( " reorder MS part of track with minimum distance " << minDistanceMS << " minRDistanceMS " << minRDistanceMS << " minZDistanceMS " << minZDistanceMS);
-      if (reorderID&&fabs(minDistanceID)>-2.) ATH_MSG_DEBUG( " reorder ID part of track with minimum distance " << minDistanceID);
-//    }
-
-    if(reorderMS||reorderID) {
-     if (msgLvl(MSG::DEBUG)) printMeasurements(measurements); 
-    }
-
-    if (!haveLeadingMaterial&&haveMaterial) {
-      ATH_MSG_WARNING( " MS part of track has no leading material in front of first MS hit ");
-    }  
-
-    if (reorderMS)    	orderMeasurements(measurements,startDirection,startPosition);
+    if (reorder)    	orderMeasurements(measurements,startDirection,startPosition);
 
     // nothing to do if spectrometer material already exists
     if (haveMaterial)	return;
-    ATH_MSG_DEBUG( " spectrometerMaterial: ALARM no material found on track can happen for MuGirl");
 
     // material has to be added: need inner and outer TrackParameters
     FitMeasurement* innerMeasurement	= 0;
@@ -2665,22 +2453,6 @@ MaterialAllocator::spectrometerMaterial (std::list<FitMeasurement*>&	measurement
     double endSpectrometerDistance	= startDirection.dot(
 	measurements.back()->intersection(FittedTrajectory).position() - startPosition);
     const std::vector<const TrackStateOnSurface*>* spectrometerMaterial = 0;
-
-// protect the momentum to avoid excessive Eloss
-
-    Amg::VectorX parameterVector = endParameters->parameters();
-    double Emax = 50000.;
-    if(parameterVector[Trk::qOverP]==0.) {
-       parameterVector[Trk::qOverP] = 1./Emax;
-    } else {
-       if(std::abs(parameterVector[Trk::qOverP])*Emax < 1) parameterVector[Trk::qOverP] = endParameters->charge()/Emax;
-    }              
-
-// correct track parameters for high momentum track (otherwise Eloss is too large)
-    endParameters = (endParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
-                                                              parameterVector[Trk::loc2],parameterVector[Trk::phi],
-                                                              parameterVector[Trk::theta],parameterVector[Trk::qOverP],0);
-
     if (entranceParameters)
     {
 	const Surface& entranceSurface	= entranceParameters->associatedSurface();

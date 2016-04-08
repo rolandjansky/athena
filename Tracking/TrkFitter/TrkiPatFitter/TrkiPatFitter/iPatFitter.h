@@ -21,7 +21,6 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackInfo.h"
-#include "TrkGeometry/MagneticFieldProperties.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -36,7 +35,6 @@ class FitProcedure;
 class FitProcedureQuality;
 class FitQuality;    
 class IIntersector;
-class IPropagator;
 class IMaterialAllocator;
 class MaterialEffectsBase;
 class PerigeeSurface;
@@ -141,21 +139,16 @@ private:
     // print TSOS on a track (debugging aid)
     void	printTSOS (const Track&) const;
 
-    void	refit(const Track&		track,
-		      const RunOutlierRemoval	runOutlier,
-		      const ParticleHypothesis	particleHypothesis) const;
-    
     // configurables (tools and options)
     bool						m_aggregateMaterial;
     bool						m_asymmetricCaloEnergy;
-    bool						m_eigenMatrixTreatment;
+    bool						m_extendedDebug;
     bool						m_fullCombinedFit;
     bool						m_lineFit;
     double						m_lineMomentum;
-    mutable ToolHandle<IMaterialAllocator>		m_materialAllocator;
-    mutable ToolHandle<IIntersector>			m_rungeKuttaIntersector;
+    ToolHandle<IMaterialAllocator>			m_materialAllocator;
+    ToolHandle<IIntersector>				m_rungeKuttaIntersector;
     ToolHandle<IIntersector>				m_solenoidalIntersector;
-    ToolHandle<IPropagator>				m_stepPropagator;
     ToolHandle<IIntersector>				m_straightLineIntersector;
     ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
 
@@ -163,25 +156,14 @@ private:
     double						m_orderingTolerance;
     unsigned						m_maxWarnings;
 
-    // configurables for validation purposes
-    bool						m_constrainedAlignmentEffects;
-    bool						m_extendedDebug;
-    int 						m_forcedRefitsForValidation;
-    int 						m_maxIterations;
-    int 						m_useStepPropagator;
-    
     // constants 
     Trk::Volume*					m_calorimeterVolume;
     Trk::Volume*					m_indetVolume;
-    Trk::MagneticFieldProperties                        m_stepField; 
-
+ 
     // counters
     mutable unsigned					m_countFitAttempts;
     mutable unsigned					m_countGoodFits;
     mutable unsigned					m_countIterations;
-    mutable unsigned					m_countRefitAttempts;
-    mutable unsigned					m_countGoodRefits;
-    mutable unsigned					m_countRefitIterations;
 
     // count warnings
     mutable MessageHelper*				m_messageHelper;
