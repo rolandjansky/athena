@@ -8,24 +8,21 @@
 // c - c++
 #include "string"
 
-
 //athena
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h" 
-
-// AtlasCore //
-#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ServiceHandle.h" 
 
 //MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/CalibSegmentPreparationTool.h"
+#include "MdtCalibIOSvc/MdtCalibInputSvc.h"
 
 // segment preparation tools
 
 class MdtCalibOutputDbSvc;
-class MdtCalibInputSvc;
 /**
-@calss CalibNtupleAnalysis
-Portage of the calibration_programme as an Athena Algorithm
+@class CalibNtupleAnalysis
+Port of the calibration_programme as an Athena Algorithm
 Read calibration N-tuples and performs the calibration of the MDT chambers
 */
 
@@ -35,40 +32,39 @@ class RegionSelectionSvc;
 namespace MuonCalib {
 class NtupleCalibrationTool;
 
-class CalibNtupleAnalysisAlg2 : public Algorithm
-	{
+class CalibNtupleAnalysisAlg2 : public AthAlgorithm {
 //===========================================
-	public:
+ public:
 /** Algorithm Constructor */
-	CalibNtupleAnalysisAlg2(const std::string& name, ISvcLocator* pSvcLocator);
+  CalibNtupleAnalysisAlg2(const std::string& name, ISvcLocator* pSvcLocator);
 /** Algorithm destrucrtor*/
-	~CalibNtupleAnalysisAlg2();
+  ~CalibNtupleAnalysisAlg2();
 /** Is called at the beginning of the analysis */
-	StatusCode initialize();
+  StatusCode initialize();
 /** execute function NOTE: This will read all events at once*/
-	StatusCode execute();	
+  StatusCode execute();	
 /** finalize functions */
-	StatusCode finalize();
+  StatusCode finalize();
 //============================================
-	private:	
+ private:	
 //! segment preparation tools
-	ToolHandleArray<CalibSegmentPreparationTool>  m_seg_prep_tool_handles;
-	ToolHandle<NtupleCalibrationTool> m_calib_tool_handle;
+  ToolHandleArray<CalibSegmentPreparationTool>  m_seg_prep_tool_handles;
+  ToolHandle<NtupleCalibrationTool> m_calib_tool_handle;
 //! number of segments to process
-	int m_num_segments;
+  int m_num_segments;
 //!output db service
-	MdtCalibOutputDbSvc *p_dbservice;
+  ServiceHandle<MdtCalibOutputDbSvc> m_dbservice;
 //! calibration input service
-	MdtCalibInputSvc *p_calib_input_svc;
+  ServiceHandle<MdtCalibInputSvc> m_calib_input_svc;
 //! Calibration tool
-	NtupleCalibrationTool *p_calib_tool;
+  NtupleCalibrationTool *p_calib_tool;
 //! Crash job, if no segments are read
-	bool m_crash_if_no_segments;
+  bool m_crash_if_no_segments;
 //! stored segments
-	std::vector<MuonCalibSegment *> m_stored_segment;
+  std::vector<MuonCalibSegment *> m_stored_segment;
 //!internal event counter
-	int m_eventnumber;
-	};
-}
+  int m_eventnumber;
+};
 
+}  //namespace MuonCalib
 #endif

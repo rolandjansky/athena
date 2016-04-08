@@ -19,9 +19,6 @@
 #include <iostream>
 #include <fstream>
 
-// Gaudi //
-#include "GaudiKernel/MsgStream.h"
-
 // MuonCalib //
 #include "MdtCalibData/RtSpline.h"
 #include "CalibNtupleAnalysisAlg/BFieldCorrectionUpdateTool.h"
@@ -38,31 +35,26 @@ using namespace MuonCalib;
 //:::::::::::::::::
 //:: CONSTRUCTOR ::
 //:::::::::::::::::
-
 BFieldCorrectionUpdateTool::BFieldCorrectionUpdateTool(
-                                    const std::string & t,
-                                    const std::string & n,
-                                    const IInterface * p) : AlgTool(t, n, p) {
+                                    const std::string &t,
+                                    const std::string &n,
+                                    const IInterface *p) : AthAlgTool(t, n, p) {
 
 /////////////////
 // JOB OPTIONS //
 /////////////////
-
-    m_rt_file_name = string("truth_rt.dat");
-    declareProperty("rtFile", m_rt_file_name);
+  m_rt_file_name = string("truth_rt.dat");
+  declareProperty("rtFile", m_rt_file_name);
 
 ///////////////////////
 // DECLARE INTERFACE //
 ///////////////////////
-
-    declareInterface< CalibSegmentPreparationTool >(this);
+  declareInterface< CalibSegmentPreparationTool >(this);
 
 ////////////////////
 // RESET POINTERS //
 ////////////////////
-
     m_rt = 0;
-
 }
 
 //*****************************************************************************
@@ -70,7 +62,6 @@ BFieldCorrectionUpdateTool::BFieldCorrectionUpdateTool(
 //::::::::::::::::
 //:: DESTRUCTOR ::
 //::::::::::::::::
-
 BFieldCorrectionUpdateTool::~BFieldCorrectionUpdateTool(void) {
 }
 
@@ -79,59 +70,45 @@ BFieldCorrectionUpdateTool::~BFieldCorrectionUpdateTool(void) {
 //:::::::::::::::::::::::
 //:: METHOD initialize ::
 //:::::::::::::::::::::::
-
 StatusCode BFieldCorrectionUpdateTool::initialize(void) {
 
 /////////////
 // OBJECTS //
 /////////////
 
-    MsgStream log(msgSvc(), name()); // message service
-
 /////////////
 // MESSAGE //
 /////////////
-
-    log << MSG::INFO << "Initializing tool..." << endreq;
+  ATH_MSG_INFO( "Initializing tool..." );
 
 /////////////////////////////////////////////////////////////////
 // READ r-t RELATIONSHIP AND INITIALIZE THE B-FIELD CORRECTION //
 /////////////////////////////////////////////////////////////////
+  if (!initialize_BFieldCorFunc()) {
+    ATH_MSG_FATAL( "Could not initialize the magnetic field correction!" );
+    return StatusCode::FAILURE;
+  }
 
-    if (!initialize_BFieldCorFunc()) {
-        log << MSG::FATAL
-            << "Could not initialize the magnetic field correction!"
-            << endreq;
-        return StatusCode::FAILURE;
-    }
-
-
-    return StatusCode::SUCCESS;
-
-}
+  return StatusCode::SUCCESS;
+}  //end BFieldCorrectionUpdateTool::initialize
 
 //*****************************************************************************
 
 //:::::::::::::::::::::
 //:: METHOD finalize ::
 //:::::::::::::::::::::
-
 StatusCode BFieldCorrectionUpdateTool::finalize(void) {
 
 /////////////
 // OBJECTS //
 /////////////
 
-    MsgStream log(msgSvc(), name()); // message service
-
 /////////////
 // MESSAGE //
 /////////////
+  ATH_MSG_INFO( "Finalizing tool..." );
 
-    log << MSG::INFO << "Finalizing tool..." << endreq;
-
-    return StatusCode::SUCCESS;
-
+  return StatusCode::SUCCESS;
 }
 
 //*****************************************************************************
@@ -139,7 +116,6 @@ StatusCode BFieldCorrectionUpdateTool::finalize(void) {
 //::::::::::::::::::::::::::::
 //:: METHOD prepareSegments ::
 //::::::::::::::::::::::::::::
-
 void BFieldCorrectionUpdateTool::prepareSegments(
                     const MuonCalibEvent *& /*event*/,
                     std::map<NtupleStationId, MuonCalibSegment *> & segments) {
@@ -148,85 +124,76 @@ void BFieldCorrectionUpdateTool::prepareSegments(
 // LOOP OVER THE SEGMENTS AND THEIR HITS TO ADD THE LORENTZ ANGLE EFFECT TO //
 // THE MEASURED DRIFT TIMES                                                 //
 //////////////////////////////////////////////////////////////////////////////
+  for (std::map<NtupleStationId, MuonCalibSegment *> :: iterator it=
+	 segments.begin(); it!= segments.end(); it++) {
 
-    for (std::map<NtupleStationId, MuonCalibSegment *> :: iterator it=
-                                segments.begin(); it!= segments.end(); it++) {
-
-        for (unsigned int k=0; k<it->second->mdtHOT().size(); k++) {
-		    MdtCalibHitBase *hit = it->second->mdtHOT()[k];
-	            hit->setDriftTime(hit->driftTime()+
-                                m_corr_func->correction_to_B(hit->driftTime(),
-                                hit->bFieldPara(), hit->bFieldPerp()));
-        }
-
+    for (unsigned int k=0; k<it->second->mdtHOT().size(); k++) {
+      MdtCalibHitBase *hit = it->second->mdtHOT()[k];
+      hit->setDriftTime(hit->driftTime() +
+        m_corr_func->correction_to_B(hit->driftTime(), hit->bFieldPara(), hit->bFieldPerp()));
     }
 
-    return;
+  }
 
-}
+  return;
+}   //end BFieldCorrectionUpdateTool::prepareSegments
 
 //*****************************************************************************
 
 //:::::::::::::::::::::::::::::::::::::
 //:: METHOD initialize_BFieldCorFunc ::
 //:::::::::::::::::::::::::::::::::::::
-
 bool BFieldCorrectionUpdateTool::initialize_BFieldCorFunc(void) {
 
 /////////////
 // OBJECTS //
 /////////////
-
-    MsgStream log(msgSvc(), name()); // message service
-    ifstream rt_file;
-    char s[255]; // auxiliary character pointer
-    double dummy; // auxiliary double
-    vector<double> r,t; // entries in the r-t table
-    vector<double> B_corr_param(2);
+  ifstream rt_file;
+  char s[255]; // auxiliary character pointer
+  double dummy; // auxiliary double
+  vector<double> r,t; // entries in the r-t table
+  vector<double> B_corr_param(2);
 
 //////////////////////////////////////////////
 // OPEN THE r-t FILE AND READ THE r-t TABLE //
 //////////////////////////////////////////////
 
 // check that the file exists //
-    rt_file.open(m_rt_file_name.c_str());
-    if (rt_file.fail()) {
-        log << MSG::FATAL << "Could not open file '" << m_rt_file_name << "'!"
-            << endreq;
-        return false;
-    }
+  rt_file.open(m_rt_file_name.c_str());
+  if (rt_file.fail()) {
+    ATH_MSG_FATAL( "Could not open file '" << m_rt_file_name << "'!" );
+    return false;
+  }
 
 // read the file //
-    rt_file.getline(s, 255);
+  rt_file.getline(s, 255);
 
-    while (!rt_file.eof()) {
-        rt_file >> dummy;
-        if (rt_file.eof()) {
-            break;
-        }
-        r.push_back(dummy);
-        rt_file >> dummy; t.push_back(dummy);
-        rt_file >> dummy;
+  while (!rt_file.eof()) {
+    rt_file >> dummy;
+    if (rt_file.eof()) {
+      break;
     }
+    r.push_back(dummy);
+    rt_file >> dummy; t.push_back(dummy);
+    rt_file >> dummy;
+  }
 
 // create a spline r-t relationship //
-    vector<double> param(2*r.size());
-    for (unsigned int k=0; k<r.size(); k++) {
-        param[2*k] = t[k];
-        param[2*k+1] = r[k];
-    }
+  vector<double> param(2*r.size());
+  for (unsigned int k=0; k<r.size(); k++) {
+    param[2*k] = t[k];
+    param[2*k+1] = r[k];
+  }
 
-    m_rt = new RtSpline(param);
+  m_rt = new RtSpline(param);
 
 ////////////////////////////////////////////
 // CREATE THE B FIELD CORRECTION FUNCTION //
 ////////////////////////////////////////////
+  B_corr_param[0] = 3080.0;
+  B_corr_param[1] = 0.11;
 
-    B_corr_param[0] = 3080.0;
-    B_corr_param[1] = 0.11;
-
-    m_corr_func = new BFieldCorFunc("high", B_corr_param, m_rt);
-
+  m_corr_func = new BFieldCorFunc("high", B_corr_param, m_rt);
+  
     return true;
-
-}
+}  //end BFieldCorrectionUpdateTool::initialize_BFieldCorFunc

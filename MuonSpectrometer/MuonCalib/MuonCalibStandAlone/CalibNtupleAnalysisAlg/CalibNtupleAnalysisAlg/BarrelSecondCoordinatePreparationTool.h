@@ -28,17 +28,16 @@
 
 // MuonCalib //
 #include "MuonCalibStandAloneBase/CalibSegmentPreparationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 // AtlasCore //
-class StoreGateSvc;
-//#include "StoreGate/StoreGateSvc.h"
 // AtlasConditions //
 
 //CLHEP
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
 
-namespace MuoinGM{
+namespace MuoinGM {
 
 class MuonDetectorManager;
 
@@ -48,49 +47,44 @@ namespace MuonCalib {
 
 class IIdToFixedIdTool;
 class MuonCalibRawRpcHit;
-class BarrelSecondCoordinatePreparationTool : public AlgTool,
-                                virtual public CalibSegmentPreparationTool {
+class BarrelSecondCoordinatePreparationTool : public AthAlgTool, virtual public CalibSegmentPreparationTool {
 
-public:
+ public:
 // Constructor //
-    BarrelSecondCoordinatePreparationTool(const std::string & t,
-                                  const std::string & n, const IInterface *p);
-    ///< Constructor of the tool.
+  BarrelSecondCoordinatePreparationTool(const std::string &t,
+    const std::string &n, const IInterface *p); 
 
-    ~BarrelSecondCoordinatePreparationTool(void);
-    ///< Destructor of the tool.
+// Destructor //
+  ~BarrelSecondCoordinatePreparationTool(void); 
 
 // Methods //
 // methods required by the base classes //
-    StatusCode initialize(void);
-                             ///< initialization of the tools
-    StatusCode finalize(void);
+  StatusCode initialize(void);
+  ///< initialization of the tools
+  StatusCode finalize(void);
                             ///< finalization of the tool
-    void prepareSegments(
-                const MuonCalibEvent *& event,
-                std::map<NtupleStationId, MuonCalibSegment *> & segments);
-                            ///< Method to calculate the second coordinate of 
-                            ///< MDT hits in the barrel based on RPC hits.
-                            ///< \param event Current event (contains raw hits
-                            ///<              and other useful objects).
-                            ///> \param segments Vector of segments to be
-                            ///>                 prepared.
+  void prepareSegments(
+    const MuonCalibEvent *& event,
+    std::map<NtupleStationId, MuonCalibSegment *> & segments);
+  ///< Method to calculate the second coordinate of 
+  ///< MDT hits in the barrel based on RPC hits.
+  ///< \param event Current event (contains raw hits
+  ///<              and other useful objects).
+  ///> \param segments Vector of segments to be
+  ///>                 prepared.
 
-	bool handleRPChits(MuonCalibSegment & MDT_segment,
-				std::vector<MuonCalibRawRpcHit *> & raw_hits);
+  bool handleRPChits(MuonCalibSegment & MDT_segment,
+    std::vector<MuonCalibRawRpcHit *> & raw_hits);
 
-	int rpcFit(std::vector<CLHEP::HepVector> & RPC_hits, std::vector<int> in_sect, 
-				std::vector<int> num_same,
-				double max_r, CLHEP::HepVector &tr_par, double &angle_err);
+  int rpcFit(std::vector<CLHEP::HepVector> & RPC_hits, std::vector<int> in_sect, 
+    std::vector<int> num_same, double max_r, CLHEP::HepVector &tr_par, double &angle_err);
 
-private:
-	StoreGateSvc *m_detStore; // pointer to the detector store
-	const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
-						     // detector manager
-	const MuonCalib::IIdToFixedIdTool *m_id_tool; // identifier converter
+ private:
+  const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon detector manager
+  const MuonCalib::IIdToFixedIdTool *m_id_tool; // identifier converter
 
-	FILE* m_rpcHitsFile; //File to store RPC entries
-	bool write_rpc_hits;
+  FILE* m_rpcHitsFile; //File to store RPC entries
+  bool write_rpc_hits;
 
 //    RPCTrackAssociator m_RPC_track_associator; // tool for the determination of
                                                // the second coordinates of MDT
@@ -98,6 +92,5 @@ private:
 
 };
 
-}
-
+}  //namespace MuonCalib  
 #endif
