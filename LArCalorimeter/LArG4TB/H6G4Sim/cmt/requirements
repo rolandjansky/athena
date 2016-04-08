@@ -9,28 +9,16 @@ use AtlasSimulationRunTime     AtlasSimulationRunTime-* -no_auto_imports
 
 use GeneratorModules    GeneratorModules-*              Generators -no_auto_imports
 
-#use G4SimAlg            G4SimAlg-00-*                   Simulation/G4Sim -no_auto_imports
-
-use G4DetectorEnvelopes G4DetectorEnvelopes-*           Simulation/G4Utilities -no_auto_imports
 use G4Field             G4Field-*                       Simulation/G4Utilities -no_auto_imports
 use G4PhysicsLists      G4PhysicsLists-*                Simulation/G4Utilities -no_auto_imports
-#  use G4Generators        G4Generators-00-*            Simulation/G4Utilities -no_auto_imports
 use G4UserActions       G4UserActions-*                 Simulation/G4Utilities -no_auto_imports
 
 #  use the all Atlas sub-detector packages 
 use LArDetMgrDetDescrCnv LArDetMgrDetDescrCnv-* LArCalorimeter/LArCnv -no_auto_imports
 
-use G4DetectorEnvelopes G4DetectorEnvelopes-*                 Simulation/G4Utilities -no_auto_imports
-
-# geometry info
-
-#  use LArG4TBH6           LArG4TBH6-*                        LArCalorimeter/LArG4TB -no_auto_imports
-#use TileG4Sim           TileG4Sim-*                        TileCalorimeter/TileG4 -no_auto_imports
-
 # SD packages
 
 # AthenaPool stuff
-#use AthenaSealSvc           AthenaSealSvc-*             Control -no_auto_imports
 use AthenaPoolUtilities     AthenaPoolUtilities-*       Database/AthenaPOOL -no_auto_imports
 use AthenaPoolCnvSvc        AthenaPoolCnvSvc-*                Database/AthenaPOOL -no_auto_imports
 use EventSelectorAthenaPool EventSelectorAthenaPool-*   Database/AthenaPOOL -no_auto_imports
