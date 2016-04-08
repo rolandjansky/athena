@@ -3,7 +3,7 @@
 */
 
 #include "G4AtlasUtilities/BeamEffectTransformation.h"
-#include "FadsRun/RandomNrCenter.h"
+#include "FadsKinematics/RandomNrCenter.h"
 #include "FadsKinematics/GeneratorCenter.h"
 
 #include "GaudiKernel/Bootstrap.h"

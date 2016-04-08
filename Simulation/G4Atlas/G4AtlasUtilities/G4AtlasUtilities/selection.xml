@@ -1,10 +1,4 @@
 <lcgdict>
-   <class name="ResizeableBoxEnvelope"/>
-   <class name="ResizeableTubsEnvelope"/>
-   <class name="GenericPCONEnvelope"/>
-   <class name="DefSvcEnvelope"/>
-   <class name="GenericPGONEnvelope"/>
-
    <class name="FADS::ManipulatorBase"/>
    <class name="FADS::ParticleManipulator"/>
    <class name="FADS::VertexManipulator"/>

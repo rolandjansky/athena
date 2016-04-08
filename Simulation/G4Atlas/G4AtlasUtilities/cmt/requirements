@@ -1,7 +1,6 @@
 package G4AtlasUtilities
 
-branches src cmt
-
+public
 use AtlasPolicy             AtlasPolicy-*
 use AtlasCLHEP              AtlasCLHEP-*            External
 use AthenaKernel            AthenaKernel-*          Control
@@ -9,16 +8,13 @@ use FadsKinematics          FadsKinematics-*        Simulation/G4Sim/FADS
 use Geant4                  Geant4-*                External
 
 private
-#use AthenaBaseComps         AthenaBaseComps-*       Control
+use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
+use AtlasReflex             AtlasReflex-*           External
 use EventInfo               EventInfo-*             Event
+use GaudiInterface          GaudiInterface-*        External
+use InDetBeamSpotService    InDetBeamSpotService-*  InnerDetector/InDetConditions
 use SGTools                 SGTools-*               Control
 use StoreGate               StoreGate-*             Control
-use AtlasReflex             AtlasReflex-*           External
-use GaudiInterface          GaudiInterface-*        External
-use FadsRun                 FadsRun-*               Simulation/G4Sim/FADS
-use G4DetectorEnvelopes     G4DetectorEnvelopes-*   Simulation/G4Utilities
-use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
-use InDetBeamSpotService    InDetBeamSpotService-*  InnerDetector/InDetConditions
 end_private
 
 # Add direct dependencey against Eigen for cmake in order to avoid the indirect dependency
@@ -39,5 +35,5 @@ apply_pattern lcgdict dict=G4AtlasUtilities \
     headerfiles="../G4AtlasUtilities/G4AtlasUtilitiesDict.h" \
     selectionfile=selection.xml
 
-macro_prepend G4AtlasUtilitiesDict_shlibflags " -lG4DetectorEnvelopes -lG4AtlasUtilities "
+macro_prepend G4AtlasUtilitiesDict_shlibflags " -lG4AtlasUtilities "
 end_private
