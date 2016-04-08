@@ -31,14 +31,14 @@ PixelSiliconConditionsSvc::PixelSiliconConditionsSvc(const std::string& name, IS
   m_pixman(0),
   m_pixid(0),
   m_useGeoModel(false),
-  m_checkGeoModel(true),
+  m_checkGeoModel(false),
   m_forceUseGeoModel(false)
 {
 
   m_defaultTemperature = -5.;
   m_defaultBiasVoltage = 150.;
   m_defaultDepletionVoltage = 80.;
-  m_useDBForHV = false;
+  m_useDBForHV = true;
   m_useDBForTemperature = true;
 
   declareProperty("Temperature", m_defaultTemperature, "Default temperature in Celcius."); 

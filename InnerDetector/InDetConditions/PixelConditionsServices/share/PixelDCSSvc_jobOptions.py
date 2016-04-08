@@ -52,12 +52,15 @@ conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATE")
 # So we relaxe the FSM requirements: Accept state = ON and status = WARNING
 #
 
+# temporarily workaround incomplete conditions data for MC
+#  by only enabling the usage of dcs in the pixel conditions summary service for data
+isData = (globalflags.DataSource == 'data')
 if hasattr(ServiceMgr,'PixelConditionsSummarySvc'):
-    ServiceMgr.PixelConditionsSummarySvc.UseDCS =  True
+    ServiceMgr.PixelConditionsSummarySvc.UseDCS =  isData
     ServiceMgr.PixelConditionsSummarySvc.IsActiveStates = [ 'READY', 'ON' ]
     ServiceMgr.PixelConditionsSummarySvc.IsActiveStatus = [ 'OK', 'WARNING' ]
 else :
     from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
-    ServiceMgr += PixelConditionsSummarySvc( UseDCS = True )
+    ServiceMgr += PixelConditionsSummarySvc( UseDCS = isData )
     ServiceMgr.PixelConditionsSummarySvc.IsActiveStates = [ 'READY', 'ON' ]
     ServiceMgr.PixelConditionsSummarySvc.IsActiveStatus = [ 'OK', 'WARNING' ]
