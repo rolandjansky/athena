@@ -32,6 +32,9 @@ def getMC12EntryLayerFilter(name="ISF_MC12EntryLayerFilter", **kwargs):
     from ISF_Tools.ISF_ToolsConf import ISF__GenericBarcodeFilter
     return ISF__GenericBarcodeFilter(name, **kwargs)
 
+def getMC12LLPEntryLayerFilter(name="ISF_MC12LLPEntryLayerFilter", **kwargs):
+    return getMC12EntryLayerFilter(name, **kwargs)
+
 def getMC12PlusEntryLayerFilter(name="ISF_MC12PlusEntryLayerFilter", **kwargs):
     return getMC12EntryLayerFilter(name, **kwargs)
 
