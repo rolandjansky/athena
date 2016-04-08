@@ -431,6 +431,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
           // Variables to hold matches found for this PRD
           vector<Muon::TgcPrepData*> *thisTPDmatches;
 	  thisTPDmatches = 0;
+	  if(thisTPDmatches->size()>0) thisTPDmatches->clear();
           int thisTPDlayerMatches[9] = {0,0,0,0,0,0,0,0,0}; 
           
           // Get position variables
