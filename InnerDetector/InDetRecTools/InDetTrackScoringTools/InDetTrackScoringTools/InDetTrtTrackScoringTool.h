@@ -37,28 +37,28 @@ class InDetTrtTrackScoringTool : virtual public Trk::ITrackScoringTool, public A
 public:
   InDetTrtTrackScoringTool(const std::string&,const std::string&,const IInterface*);
   virtual ~InDetTrtTrackScoringTool ();
-  virtual StatusCode initialize() override;
-  virtual StatusCode finalize  () override;
+  virtual StatusCode initialize();
+  virtual StatusCode finalize  ();
   /** create a score based on how good the passed track is*/
-  virtual Trk::TrackScore score( const Trk::Track& track, const bool suppressHoleSearch ) const override;
+  Trk::TrackScore score( const Trk::Track& track, const bool suppressHoleSearch );
 
   /** create a score based on how good the passed TrackSummary is*/
-  virtual Trk::TrackScore simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSum ) const override;
+  Trk::TrackScore simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSum );
   
-  Trk::TrackScore TRT_ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSum ) const;
+  Trk::TrackScore TRT_ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSum );
 	
 private:
 
   void setupTRT_ScoreModifiers();
   
   /** Decide whether standalone TRT tracks pass the minimum hit requirement. */
-  bool isGoodTRT(const Trk::Track&) const;
+  bool isGoodTRT(const Trk::Track&);
   
   /**ID TRT helper*/
   const TRT_ID* m_trtId;
   
   //these are used for ScoreModifiers 
-  int m_maxSigmaChi2, m_maxLogProb, m_maxTrtRatio, m_maxTrtFittedRatio;
+  int m_maxSigmaChi2, m_maxTRT_Hits, m_maxLogProb, m_maxTrtRatio, m_maxTrtFittedRatio;
   
   std::vector<double> m_factorSigmaChi2, m_factorLogProb, m_factorTrtRatio, m_factorTrtFittedRatio;
   
@@ -82,13 +82,12 @@ private:
 
   
   /** cuts for selecting good tracks*/
-  int    m_minTRTonTrk;      //!< minimum number of TRT hits
-  double m_maxEta;           //!< maximal Eta cut
-  double m_ptmin;            //!< Minimum Pt
+  int    m_minTRTonTrk;   //!< minimum number of TRT hits
+  double m_maxEta;        //!< maximal Eta cut
+  bool m_fieldOn;         //!< do we have field on ?
+  double m_ptmin;         //!< Minimum Pt
   bool   m_parameterization; //!< use parameterization to cut instead of custom cut  
-  bool   m_oldLogic;         //!< use old transition hit logic
-  double m_minTRTprecision;  //!< minimum fraction of TRT precision hits
-
+  bool   m_oldLogic;      //!< use old transition hit logic
 };
 
 

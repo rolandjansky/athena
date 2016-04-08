@@ -19,23 +19,20 @@
 #include <vector>
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "TrkCaloClusterROI/CaloClusterROI.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
-
 
 //---------------------------------------------------------------------------------------------------------------------
 
 InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
-              const std::string& n,
-              const IInterface*  p ) :
+						  const std::string& n,
+						  const IInterface*  p ) :
   AthAlgTool(t,n,p),
   m_trkSummaryTool("Trk::TrackSummaryTool"),
   m_selectortool("InDet::InDetTrtDriftCircleCutTool"),
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
   m_iBeamCondSvc("BeamCondSvc",n),
-  m_magFieldSvc("AtlasFieldSvc",n)
+  m_magFieldSvc("AtlasFieldSvc",n), 
+  m_fieldOn(true),
+  m_holesearch(false)
 {
   declareInterface<Trk::ITrackScoringTool>(this);
   
@@ -71,39 +68,32 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("SummaryTool" ,      m_trkSummaryTool);
   declareProperty("DriftCircleCutTool",m_selectortool );
   declareProperty("BeamPositionSvc",   m_iBeamCondSvc );
-  declareProperty("MagFieldSvc",       m_magFieldSvc);
-  
-  declareProperty("maxRPhiImpEM",      m_maxRPhiImpEM  = 50.  );
-  declareProperty("doEmCaloSeed",      m_useEmClusSeed = true );
-  declareProperty("minPtEM",           m_minPtEm      = 5000. ); // in MeV
-  declareProperty("phiWidthEM",        m_phiWidthEm   = 0.075 );
-  declareProperty("etaWidthEM",        m_etaWidthEm   = 0.05  );
-  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName);  
+  declareProperty("MagFieldSvc", m_magFieldSvc);
 
   //set values for scores
-  m_summaryTypeScore[Trk::numberOfPixelHits]            =  20;
+  m_summaryTypeScore[Trk::numberOfPixelHits]	        =  20;
   m_summaryTypeScore[Trk::numberOfPixelSharedHits]      = -10;  // NOT USED --- a shared hit is only half the weight
-  m_summaryTypeScore[Trk::numberOfPixelHoles]           = -10;  // a hole is bad
-  m_summaryTypeScore[Trk::numberOfBLayerHits]           =  10;  // addition for being b-layer
+  m_summaryTypeScore[Trk::numberOfPixelHoles]	        = -10;  // a hole is bad
+  m_summaryTypeScore[Trk::numberOfBLayerHits]	        =  10;  // addition for being b-layer
   m_summaryTypeScore[Trk::numberOfBLayerSharedHits]     =  -5;  // NOT USED --- a shared hit is only half the weight
-  m_summaryTypeScore[Trk::numberOfGangedPixels]         =  -5;  // decrease for being ganged
-  m_summaryTypeScore[Trk::numberOfGangedFlaggedFakes]   = -10;  // decrease for being ganged fake
-  m_summaryTypeScore[Trk::numberOfSCTHits]              =  10;  // half of a pixel, since only 1dim
+  m_summaryTypeScore[Trk::numberOfGangedPixels]	        =  -5;  // decrease for being ganged
+  m_summaryTypeScore[Trk::numberOfGangedFlaggedFakes]	= -10;  // decrease for being ganged fake
+  m_summaryTypeScore[Trk::numberOfSCTHits]	        =  10;  // half of a pixel, since only 1dim
   m_summaryTypeScore[Trk::numberOfSCTSharedHits]        =  -5;  // NOT USED -- a shared hit is only half the weight
-  m_summaryTypeScore[Trk::numberOfSCTHoles]             =  -5;  // a hole is bad !
+  m_summaryTypeScore[Trk::numberOfSCTHoles]	        =  -5;  // a hole is bad !
   m_summaryTypeScore[Trk::numberOfSCTDoubleHoles]       = -15;  // a double hole is even worse !
-  m_summaryTypeScore[Trk::numberOfTRTHits]              =   1;  // 10 straws ~ 1 SCT
+  m_summaryTypeScore[Trk::numberOfTRTHits]	        =   1;  // 10 straws ~ 1 SCT
   m_summaryTypeScore[Trk::numberOfTRTHighThresholdHits] =   0;  // addition for being TR
   m_summaryTypeScore[Trk::numberOfOutliersOnTrack]      =  -1;  // -ME- TRT oulier should not kill 5 TRT on track (was -5)
   
   // scoring for Muons not needed
-  m_summaryTypeScore[Trk::numberOfMdtHits]    = 0;   
-  m_summaryTypeScore[Trk::numberOfTgcPhiHits] = 0; 
-  m_summaryTypeScore[Trk::numberOfTgcEtaHits] = 0;
-  m_summaryTypeScore[Trk::numberOfCscPhiHits] = 0;     
-  m_summaryTypeScore[Trk::numberOfCscEtaHits] = 0;
-  m_summaryTypeScore[Trk::numberOfRpcPhiHits] = 0;
-  m_summaryTypeScore[Trk::numberOfRpcEtaHits] = 0;
+  m_summaryTypeScore[Trk::numberOfMdtHits]	= 0;   
+  m_summaryTypeScore[Trk::numberOfTgcPhiHits]	= 0; 
+  m_summaryTypeScore[Trk::numberOfTgcEtaHits]	= 0;
+  m_summaryTypeScore[Trk::numberOfCscPhiHits]	= 0;     
+  m_summaryTypeScore[Trk::numberOfCscEtaHits]	= 0;
+  m_summaryTypeScore[Trk::numberOfRpcPhiHits]	= 0;
+  m_summaryTypeScore[Trk::numberOfRpcEtaHits]	= 0;
   
 }
 
@@ -122,48 +112,47 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
   
   sc = m_trkSummaryTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endreq;
     return StatusCode::FAILURE;
   } else 
-    msg(MSG::DEBUG) << "Retrieved tool " << m_trkSummaryTool << endmsg;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_trkSummaryTool << endreq;
   
   sc = m_extrapolator.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
     return StatusCode::FAILURE;
   } else 
-    msg(MSG::DEBUG) << "Retrieved tool " << m_extrapolator << endmsg;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_extrapolator << endreq;
   
   // Get segment selector tool
   //
   if(m_selectortool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endmsg;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endmsg;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endreq;
   }
 
   sc = m_iBeamCondSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::DEBUG) << "Could not find BeamCondSvc." << endmsg;
+    msg(MSG::DEBUG) << "Could not find BeamCondSvc." << endreq;
     return StatusCode::FAILURE;
   }
 
   sc =  m_magFieldSvc.retrieve();
   if (sc.isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endreq;
     return StatusCode::FAILURE;
   } 
   else {
-    msg(MSG::DEBUG) << "Retrieved " << m_magFieldSvc << endmsg;
+    msg(MSG::DEBUG) << "Retrieved " << m_magFieldSvc << endreq;
   }
 
   if (m_useAmbigFcn && m_useTRT_AmbigFcn) {
-    msg(MSG::FATAL) << "Both on, normal ambi funciton and the one for back tracking, configuration problem, not recoverable" << endmsg;
+    msg(MSG::FATAL) << "Both on, normal ambi funciton and the one for back tracking, configuration problem, not recoverable" << endreq;
     return StatusCode::FAILURE;
   }
-  
-  
+
   if (m_useAmbigFcn || m_useTRT_AmbigFcn) setupScoreModifiers();
   
   return StatusCode::SUCCESS;
@@ -179,8 +168,10 @@ StatusCode InDet::InDetAmbiScoringTool::finalize()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Trk::TrackScore InDet::InDetAmbiScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const
+Trk::TrackScore InDet::InDetAmbiScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch )
 {
+  m_holesearch = !suppressHoleSearch;
+
   const Trk::TrackSummary* summary;
   if ( suppressHoleSearch) {
     ATH_MSG_DEBUG ("Get summary for new Track, suppress HoleSearch");
@@ -201,7 +192,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::score( const Trk::Track& track, con
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary ) const
+Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary )
 {
   int numPixel          = trackSummary.get(Trk::numberOfPixelHits);
   int numSCT            = trackSummary.get(Trk::numberOfSCTHits);
@@ -233,8 +224,8 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     if (track.fitQuality()) {
       ATH_MSG_DEBUG ("numberDoF = "<<track.fitQuality()->numberDoF());
       if (track.fitQuality()->numberDoF() < m_minNDF) {
-        ATH_MSG_DEBUG ("track numberDoF < "<<m_minNDF<<", reject it");
-        return Trk::TrackScore(0);
+	ATH_MSG_DEBUG ("track numberDoF < "<<m_minNDF<<", reject it");
+	return Trk::TrackScore(0);
       }
     }
     // Number of double Holes
@@ -254,7 +245,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of Pixel Holes
     if ( numPixelHoles>=0 ) {
       if (numPixelHoles > m_maxPixelHoles ) {
-        ATH_MSG_DEBUG ("Track has "<< numPixelHoles <<" Pixel  holes, reject it!");
+	ATH_MSG_DEBUG ("Track has "<< numPixelHoles <<" Pixel  holes, reject it!");
         return Trk::TrackScore(0);
       }
     }
@@ -317,32 +308,25 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
 
   const Trk::Perigee*extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm ); 
   if (!extrapolatedPerigee) {
-      msg(MSG::WARNING) << "Extrapolation of perigee failed, this should never happen" << endmsg;
+      msg(MSG::WARNING) << "Extrapolation of perigee failed, this should never happen" << endreq;
       delete parm;
       return Trk::TrackScore(0);
   }
   
   ATH_MSG_VERBOSE ("extrapolated perigee: "<<*extrapolatedPerigee);
+
+  //if (fabs(extrapolatedPerigee->parameters()[Trk::d0]*extrapolatedPerigee->sinTheta()) > m_maxRPhiImp) {
+  if (fabs(extrapolatedPerigee->parameters()[Trk::d0]) > m_maxRPhiImp) {
+    ATH_MSG_DEBUG ("Track Rphi impact > "<<m_maxRPhiImp<<", reject it");
+    delete extrapolatedPerigee;
+    return Trk::TrackScore(0);
+  }
+  //if (fabs(extrapolatedPerigee->parameters()[Trk::z0]*extrapolatedPerigee->sinTheta()) > m_maxZImp) {
   if (fabs(extrapolatedPerigee->parameters()[Trk::z0]) > m_maxZImp) {
     ATH_MSG_DEBUG ("Track Z impact > "<<m_maxZImp<<", reject it");
     delete extrapolatedPerigee;
     return Trk::TrackScore(0);
   }
-
-  double maxD0 = m_maxRPhiImp;
-  if(m_useEmClusSeed) {
-    const ROIInfoVec* info = getInfo();
-    if (isEmCaloCompatible( track, info ) ) 
-      maxD0 = m_maxRPhiImpEM;
-  }
-  if (fabs(extrapolatedPerigee->parameters()[Trk::d0]) > maxD0) {
-    ATH_MSG_DEBUG ("Track Rphi impact > "<<m_maxRPhiImp<<", reject it");
-    delete extrapolatedPerigee;
-    return Trk::TrackScore(0);
-  }
-
-
-
   delete extrapolatedPerigee;
 
   //
@@ -358,7 +342,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     return ambigScore(track,trackSummary);
 
   } else {
-  
+
     //
     // use classical score
     //
@@ -369,17 +353,17 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
       int value = trackSummary.get(static_cast<Trk::SummaryType>(i));
       //value is -1 if undefined.
       if (value>0) { 
-        score+=m_summaryTypeScore[i]*value; 
-        ATH_MSG_DEBUG ("\tType ["<<i<<"], value \t= "<<value<<"], score \t="<<score);
+	score+=m_summaryTypeScore[i]*value; 
+	ATH_MSG_DEBUG ("\tType ["<<i<<"], value \t= "<<value<<"], score \t="<<score);
       }
     }
     // --- prob(chi2,NDF), protect for chi2 <= 0
     if (track.fitQuality()!=0 && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
       double p = 1.0-Genfun::CumulativeChiSquare(track.fitQuality()->numberDoF())(track.fitQuality()->chiSquared());
       if ( p > 0 )
-        score += log10( p );
+	score += log10( p );
       else
-        score -= 50;
+	score -= 50;
     }    
     
     return score;
@@ -389,7 +373,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
 
 //---------------------------------------------------------------------------------------------------------------------
 
-Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary ) const
+Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSummary ) 
 {
   //
   // --- start with bonus for high pt tracks
@@ -407,12 +391,12 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
     int iPixHoles = trackSummary.get(Trk::numberOfPixelHoles);
     if ( iPixHoles > -1 && m_maxPixHoles > 0) {
       if (iPixHoles > m_maxPixHoles) {
-        prob /= (iPixHoles - m_maxPixHoles + 1); // holes are bad ! 
-        iPixHoles = m_maxPixHoles;
+	prob /= (iPixHoles - m_maxPixHoles + 1); // holes are bad ! 
+	iPixHoles = m_maxPixHoles;
       }
       prob *= m_factorPixHoles[iPixHoles];
       ATH_MSG_DEBUG ("Modifier for " << iPixHoles << " Pixel holes: "<<m_factorPixHoles[iPixHoles]
-         << "  New score now: " << prob);
+		     << "  New score now: " << prob);
     }  
   }
 
@@ -421,23 +405,23 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
     int iSCT_Holes = trackSummary.get(Trk::numberOfSCTHoles);
     if (iSCT_Holes > -1 && m_maxSCT_Holes > 0) {
       if (iSCT_Holes > m_maxSCT_Holes) {
-        prob /= (iSCT_Holes - m_maxSCT_Holes + 1); // holes are bad ! 
-        iSCT_Holes = m_maxSCT_Holes;
+	prob /= (iSCT_Holes - m_maxSCT_Holes + 1); // holes are bad ! 
+	iSCT_Holes = m_maxSCT_Holes;
       }
       prob *= m_factorSCT_Holes[iSCT_Holes];
       ATH_MSG_DEBUG ("Modifier for " << iSCT_Holes << " SCT holes: "<<m_factorSCT_Holes[iSCT_Holes]
-         << "  New score now: " << prob);
+		     << "  New score now: " << prob);
     }
     // --- SCT double holes
     int iDblHoles = trackSummary.get(Trk::numberOfSCTDoubleHoles);
     if (iDblHoles > -1 && m_maxDblHoles > 0) {
       if (iDblHoles > m_maxDblHoles) {
-        prob /= (iDblHoles - m_maxDblHoles + 1); // holes are bad !
-        iDblHoles = m_maxDblHoles;
+	prob /= (iDblHoles - m_maxDblHoles + 1); // holes are bad !
+	iDblHoles = m_maxDblHoles;
       }
       prob *= m_factorDblHoles[iDblHoles];
       ATH_MSG_DEBUG ("Modifier for " << iDblHoles << " double holes: "<<m_factorDblHoles[iDblHoles]
-         << "  New score now: " << prob);
+		     << "  New score now: " << prob);
     }
   }
   //
@@ -453,46 +437,48 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
     int iPixLay = trackSummary.get(Trk::numberOfContribPixelLayers);
     if (iPixLay > -1 && m_maxPixLay > 0) {
       if (iPixLay > m_maxPixLay) {
-        prob *= (iPixLay - m_maxPixLay + 1); // layers are good !
-        iPixLay = m_maxPixLay;
+	prob *= (iPixLay - m_maxPixLay + 1); // layers are good !
+	iPixLay = m_maxPixLay;
       }
       prob *= m_factorPixLay[iPixLay];
       ATH_MSG_DEBUG ("Modifier for " << iPixLay << " Pixel layers: "<<m_factorPixLay[iPixLay]
-         << "  New score now: " << prob);
+		     << "  New score now: " << prob);
+
+	//      }
     }
 
     // --- Pixel hits
     int pixelHits = trackSummary.get(Trk::numberOfPixelHits);
     if (pixelHits > -1 && m_maxPixelHits > 0) {
       if (pixelHits > m_maxPixelHits) {
-        prob *= (pixelHits - m_maxPixelHits + 1); // hits are good ! 
-        pixelHits = m_maxPixelHits;
+	prob *= (pixelHits - m_maxPixelHits + 1); // hits are good ! 
+	pixelHits = m_maxPixelHits;
       }
       prob *= m_factorPixelHits[pixelHits];
       ATH_MSG_DEBUG ("Modifier for " << pixelHits << " Pixel hits: "<<m_factorPixelHits[pixelHits]
-         << "  New score now: " << prob);
+		     << "  New score now: " << prob);
     }
     // --- Pixel blayer hits
     int bLayerHits = trackSummary.get(Trk::numberOfBLayerHits);
     if (bLayerHits > -1 && m_maxB_LayerHits > 0) {
       if (bLayerHits > m_maxB_LayerHits) {
-        prob *= (bLayerHits - m_maxB_LayerHits + 1); // hits are good !
-        bLayerHits = m_maxB_LayerHits;
+	prob *= (bLayerHits - m_maxB_LayerHits + 1); // hits are good !
+	bLayerHits = m_maxB_LayerHits;
       }
       prob *= m_factorB_LayerHits[bLayerHits];
       ATH_MSG_DEBUG ("Modifier for " << bLayerHits << " b-layer hits: "<<m_factorB_LayerHits[bLayerHits]
-         << "  New score now: " << prob);
+		     << "  New score now: " << prob);
     }
     // --- Pixel Ganged fakes
     int pixelGangedFakes = trackSummary.get(Trk::numberOfGangedFlaggedFakes);
     if (pixelGangedFakes > -1 && m_maxGangedFakes > 0) {
       if (pixelGangedFakes > m_maxGangedFakes) {
-        prob /= (pixelGangedFakes - m_maxGangedFakes + 1); // ganged are bad !
-        pixelGangedFakes = m_maxGangedFakes;
+	prob /= (pixelGangedFakes - m_maxGangedFakes + 1); // ganged are bad !
+	pixelGangedFakes = m_maxGangedFakes;
       }
       prob *= m_factorGangedFakes[pixelGangedFakes];
       ATH_MSG_DEBUG ("Modifier for " << pixelGangedFakes << " ganged fakes hits: "<<m_factorGangedFakes[pixelGangedFakes]
-         << "  New score now: " << prob);
+		     << "  New score now: " << prob);
     }
   }
 
@@ -506,7 +492,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
     }
     prob *= m_factorHits[iHits]; 
     ATH_MSG_DEBUG ("Modifier for " << iHits << " Sihits: "<<m_factorHits[iHits]
-       << "  New score now: " << prob);
+		   << "  New score now: " << prob);
   }
 
   //
@@ -520,17 +506,17 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
     double nTrtExpected = 30.;
     nTrtExpected = m_selectortool->minNumberDCs(const_cast<const Trk::TrackParameters*>(track.trackParameters()->front()));
     ATH_MSG_DEBUG ("Expected number of TRT hits: " << nTrtExpected << " for eta: "
-       << fabs(track.trackParameters()->front()->eta()));
+		   << fabs(track.trackParameters()->front()->eta()));
     double ratio = (nTrtExpected != 0) ? iTRT_Hits / nTrtExpected : 0;
     if (ratio > m_boundsTrtRatio[m_maxTrtRatio]) ratio = m_boundsTrtRatio[m_maxTrtRatio];
     for (int i=0; i<m_maxTrtRatio; ++i) {
       if ( m_boundsTrtRatio[i] < ratio && ratio <= m_boundsTrtRatio[i+1]) {
-        prob*= m_factorTrtRatio[i];
-        ATH_MSG_DEBUG ("Modifier for " << iTRT_Hits << " TRT hits (ratio " << ratio
-                 << ") is : "<< m_factorTrtRatio[i] << "  New score now: " << prob);
-        break;
+	prob*= m_factorTrtRatio[i];
+	ATH_MSG_DEBUG ("Modifier for " << iTRT_Hits << " TRT hits (ratio " << ratio
+		       << ") is : "<< m_factorTrtRatio[i] << "  New score now: " << prob);
+	break;
       }
-    } 
+    }	
   }
   //
   if ( iTRT_Hits > 0 && iTRT_Outliers >= 0 && m_maxTrtFittedRatio > 0) {
@@ -538,12 +524,12 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
     if (fitted > m_boundsTrtFittedRatio[m_maxTrtFittedRatio]) fitted = m_boundsTrtFittedRatio[m_maxTrtFittedRatio];
     for (int i=0; i<m_maxTrtFittedRatio; ++i) {
       if (fitted <= m_boundsTrtFittedRatio[i+1]) {
-        prob*= m_factorTrtFittedRatio[i];
-        ATH_MSG_DEBUG ("Modifier for TRT fitted ratio of " << fitted
-                 << " is : "<< m_factorTrtFittedRatio[i] << "  New score now: " << prob);
-        break;
+	prob*= m_factorTrtFittedRatio[i];
+	ATH_MSG_DEBUG ("Modifier for TRT fitted ratio of " << fitted
+		       << " is : "<< m_factorTrtFittedRatio[i] << "  New score now: " << prob);
+	break;
       }
-    } 
+    }	
   }
 
   // is this a track from the pattern or a fitted track ?
@@ -559,7 +545,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
       double fac   = 1. / log10 (10. + 10. * chi2 / indf); // very soft chi2 
       prob        *= fac;
       ATH_MSG_DEBUG ("Modifier for chi2 = " << chi2 << " and NDF = " << indf
-         << " is : "<< fac << "  New score now: " << prob);
+		     << " is : "<< fac << "  New score now: " << prob);
 
     }
   }
@@ -576,57 +562,57 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
       // --- first the chi2 prob
       //
       if (m_useLogProbBins) {
-        double p = TMath::Prob(chi2,ndf);
-        if (p > 0.) {
-          p = log(p);
-          if ( m_boundsLogProb[0] < p  && p <= m_boundsLogProb[m_maxLogProb] ) {
-            for (int ii=0; ii<m_maxLogProb; ++ii) {
-              if ( m_boundsLogProb[ii]<p && p<=m_boundsLogProb[ii+1] ) {
-          prob *= m_factorLogProb[ii];
-          ATH_MSG_DEBUG ("Modifier for " << p << " prob.-log.: "<< m_factorLogProb[ii]
-                   << "  New score now: " << prob);
-          break;
-              }
-            }
-          } else if ( p < m_boundsLogProb[0] ) { 
-            prob *= m_factorLogProb[0];
-            ATH_MSG_DEBUG ("Modifier for " << p << " prob.-log.: "<< m_factorLogProb[0]
-               << "  New score now: " << prob);
-          } else {
-            prob *= m_factorLogProb[m_maxLogProb-1];
-            ATH_MSG_DEBUG ("Modifier for " << p << " prob.-log.: "<< m_factorLogProb[m_maxLogProb-1]
-               << "  New score now: " << prob);
-          }
-        }
+	double p = TMath::Prob(chi2,ndf);
+	if (p > 0.) {
+	  p = log(p);
+	  if ( m_boundsLogProb[0] < p  && p <= m_boundsLogProb[m_maxLogProb] ) {
+	    for (int ii=0; ii<m_maxLogProb; ++ii) {
+	      if ( m_boundsLogProb[ii]<p && p<=m_boundsLogProb[ii+1] ) {
+		prob *= m_factorLogProb[ii];
+		ATH_MSG_DEBUG ("Modifier for " << p << " prob.-log.: "<< m_factorLogProb[ii]
+			       << "  New score now: " << prob);
+		break;
+	      }
+	    }
+	  } else if ( p < m_boundsLogProb[0] ) { 
+	    prob *= m_factorLogProb[0];
+	    ATH_MSG_DEBUG ("Modifier for " << p << " prob.-log.: "<< m_factorLogProb[0]
+			   << "  New score now: " << prob);
+	  } else {
+	    prob *= m_factorLogProb[m_maxLogProb-1];
+	    ATH_MSG_DEBUG ("Modifier for " << p << " prob.-log.: "<< m_factorLogProb[m_maxLogProb-1]
+			   << "  New score now: " << prob);
+	  }
+	}
       }
 
       //
       // --- special variable for bad chi2 distribution
       //
       if (m_useSigmaChi2) {
-        int sigmaChi2times100 = trackSummary.get(Trk::standardDeviationOfChi2OS);
-        if (sigmaChi2times100 > 0) {
-          double  testvar = double(sigmaChi2times100)/100. - sqrt(2.*chi2/ndf);
-          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "sigma chi2 = " << testvar << endmsg;
-          if ( testvar< m_boundsSigmaChi2[0] ) {
-            prob *= m_factorSigmaChi2[0];
-            ATH_MSG_DEBUG ("Modifier for " << testvar << " sigma chi2: "<< m_factorSigmaChi2[0]
-               << "  New score now: " << prob);
-          } else if (m_boundsSigmaChi2[m_maxSigmaChi2] <= testvar) {
-            prob *= m_factorSigmaChi2[m_maxSigmaChi2-1];
-            ATH_MSG_DEBUG ("Modifier for " << testvar << " sigma chi2: "<< m_factorSigmaChi2[m_maxSigmaChi2-1]
-               << "  New score now: " << prob);
-          } else {
-            for (int i = 0 ; i<m_maxSigmaChi2 ; ++i ) {
-              if ( m_boundsSigmaChi2[i]<=testvar && testvar<m_boundsSigmaChi2[i+1] ) {
-          prob *= m_factorSigmaChi2[i];
-          ATH_MSG_DEBUG ("Modifier for " << testvar << " sigma chi2: "<< m_factorSigmaChi2[i]
-                   << "  New score now: " << prob);
-          break;
-              }
-            }
-          }
-        }
+	int sigmaChi2times100 = trackSummary.get(Trk::standardDeviationOfChi2OS);
+	if (sigmaChi2times100 > 0) {
+	  double  testvar = double(sigmaChi2times100)/100. - sqrt(2.*chi2/ndf);
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "sigma chi2 = " << testvar << endreq;
+	  if ( testvar< m_boundsSigmaChi2[0] ) {
+	    prob *= m_factorSigmaChi2[0];
+	    ATH_MSG_DEBUG ("Modifier for " << testvar << " sigma chi2: "<< m_factorSigmaChi2[0]
+			   << "  New score now: " << prob);
+	  } else if (m_boundsSigmaChi2[m_maxSigmaChi2] <= testvar) {
+	    prob *= m_factorSigmaChi2[m_maxSigmaChi2-1];
+	    ATH_MSG_DEBUG ("Modifier for " << testvar << " sigma chi2: "<< m_factorSigmaChi2[m_maxSigmaChi2-1]
+			   << "  New score now: " << prob);
+	  } else {
+	    for (int i = 0 ; i<m_maxSigmaChi2 ; ++i ) {
+	      if ( m_boundsSigmaChi2[i]<=testvar && testvar<m_boundsSigmaChi2[i+1] ) {
+		prob *= m_factorSigmaChi2[i];
+		ATH_MSG_DEBUG ("Modifier for " << testvar << " sigma chi2: "<< m_factorSigmaChi2[i]
+			       << "  New score now: " << prob);
+		break;
+	      }
+	    }
+	  }
+	}
       }
     }
   }
@@ -741,7 +727,7 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
     m_maxPixLay = maxPixLay;
     for (int i=0; i<=m_maxPixLay; ++i) m_factorPixLay.push_back(goodPixLay[i]/fakePixLay[i]);
   }
-  
+	
   //
   // --- number of Pixel Ganged Fakes
   //
@@ -759,11 +745,11 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   // --- NewTracking and BackTracking
   const int maxHits = 19; // there is a min cut on this anyway !
   const double goodSiHits[maxHits+1] = { 0.001 , 0.002 , 0.003 , 0.004 , 0.01 , 0.01 , 0.01 ,
-           0.015 , 0.02 , 0.06 , 0.1  , 0.3  , 0.2   , 0.50 , 0.055,
-           0.03  , 0.015  , 0.010  , 0.002  , 0.0005 };
+					 0.015 , 0.02 , 0.06 , 0.1  , 0.3  , 0.2   , 0.50 , 0.055,
+					 0.03  , 0.015  , 0.010  , 0.002  , 0.0005 };
   const double fakeSiHits[maxHits+1] = { 1.0   , 1.0   , 1.0   , 1.0   , 0.5 , 0.25  , 0.15 ,
-           0.20  , 0.1  , 0.2  , 0.08 , 0.07 , 0.035 , 0.08 , 0.008,
-           0.004 , 0.0015 , 0.0008 , 0.0001 , 0.00001 };
+					 0.20  , 0.1  , 0.2  , 0.08 , 0.07 , 0.035 , 0.08 , 0.008,
+					 0.004 , 0.0015 , 0.0008 , 0.0001 , 0.00001 };
   // put it into the private members
   m_maxHits = maxHits;
   for (int i=0; i<=m_maxHits; ++i) m_factorHits.push_back(goodSiHits[i]/fakeSiHits[i]);
@@ -848,129 +834,49 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   if (msgLvl(MSG::VERBOSE)) { 
     
     for (int i=0; i<=m_maxPixHoles; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel holes: " << m_factorPixHoles[i] <<endmsg;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel holes: " << m_factorPixHoles[i] <<endreq;
     
     for (int i=0; i<=m_maxSCT_Holes; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " SCT holes: " << m_factorSCT_Holes[i] <<endmsg;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " SCT holes: " << m_factorSCT_Holes[i] <<endreq;
     
     for (int i=0; i<=m_maxDblHoles; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " double SCT holes: " << m_factorDblHoles[i] <<endmsg;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " double SCT holes: " << m_factorDblHoles[i] <<endreq;
     
     for (int i=0; i<=m_maxPixLay; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel layers: " << m_factorPixLay[i] <<endmsg;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel layers: " << m_factorPixLay[i] <<endreq;
     
     for (int i=0; i<=m_maxB_LayerHits; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " b-layer hits: " << m_factorB_LayerHits[i] <<endmsg;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " b-layer hits: " << m_factorB_LayerHits[i] <<endreq;
     
     for (int i=0; i<=m_maxPixelHits; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel hits: " << m_factorPixelHits[i] <<endmsg;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " Pixel hits: " << m_factorPixelHits[i] <<endreq;
     
     for (int i=0; i<=m_maxGangedFakes; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " ganged fakes: " << m_factorGangedFakes[i] <<endmsg;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " ganged fakes: " << m_factorGangedFakes[i] <<endreq;
     
     for (int i=0; i<=m_maxHits; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << i << " Si hits: " << m_factorHits[i] <<endmsg;
+      msg(MSG::VERBOSE) << "Modifier for " << i << " Si hits: " << m_factorHits[i] <<endreq;
     
     for (int i=0; i<m_maxTrtRatio; ++i)
       msg(MSG::VERBOSE) << "Modifier for " << m_boundsTrtRatio[i] << " < TRT ratio  < "
-      << m_boundsTrtRatio[i+1] <<"  : " <<m_factorTrtRatio[i] <<endmsg;
+			<< m_boundsTrtRatio[i+1] <<"  : " <<m_factorTrtRatio[i] <<endreq;
     
     for (int i=0; i<m_maxTrtFittedRatio; ++i)
       msg(MSG::VERBOSE) << "Modifier for " << m_boundsTrtFittedRatio[i] << " < TRT fitted ratio  < "
-      << m_boundsTrtFittedRatio[i+1] <<"  : " <<m_factorTrtFittedRatio[i] <<endmsg;
+			<< m_boundsTrtFittedRatio[i+1] <<"  : " <<m_factorTrtFittedRatio[i] <<endreq;
     
     // only if used
     for (int i=0; i<m_maxLogProb; ++i)
       msg(MSG::VERBOSE) << "Modifier for " << m_boundsLogProb[i] << " < log(P)  < "
-      << m_boundsLogProb[i+1] <<"  : " <<m_factorLogProb[i] <<endmsg;
+			<< m_boundsLogProb[i+1] <<"  : " <<m_factorLogProb[i] <<endreq;
     
     // only if used
     for (int i=0; i<m_maxSigmaChi2; ++i)
       msg(MSG::VERBOSE) << "Modifier for " << m_boundsSigmaChi2[i] << " < sigma(chi2) - sqrt(2chi2)  < " << m_boundsSigmaChi2[i+1]
-      <<"  : " <<m_factorSigmaChi2[i] <<endmsg;
+			<<"  : " <<m_factorSigmaChi2[i] <<endreq;
   }
 
 }
 
-
-const InDet::InDetAmbiScoringTool::ROIInfoVec*
-InDet::InDetAmbiScoringTool::getInfo() const
-{
-  std::string roiname = name() + "ROIInfoVec";
-  SG::ReadHandle<ROIInfoVec> rh (roiname);
-  if (rh.isValid())
-    return rh.cptr();
-
-  const CaloClusterROI_Collection* calo = nullptr;
-  StatusCode sc = evtStore()->retrieve(calo,m_inputEmClusterContainerName);
-
-  if(sc == StatusCode::SUCCESS && calo) {
-    auto info = std::make_unique<ROIInfoVec>();
-    for( const Trk::CaloClusterROI* ccROI : *calo) {
-      if( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){ 
-        continue;
-      }  
-      info->emplace_back( ccROI->globalPosition().phi(),
-                          ccROI->globalPosition().perp(),
-                          ccROI->globalPosition().z() );
-    }
-
-    SG::WriteHandle<ROIInfoVec> wh (roiname);
-    return wh.put (std::move(info), true);
-  }
-
-  return nullptr;
-}
-
-
-//==========================================================================================
-bool InDet::InDetAmbiScoringTool::isEmCaloCompatible(const Trk::Track& track,
-                                                     const ROIInfoVec* info) const
-{
-
-
-  const Trk::TrackParameters * Tp = track.trackParameters()->front();
-  
-  
-  //Switch to the track parameters of the first measurment instead of the perigee parameters 
-  ATH_MSG_VERBOSE ("--> Looping over TSOS's");
-  for (auto tsos : *track.trackStateOnSurfaces() ) {
-    // get measurment from TSOS
-    auto meas = tsos->measurementOnTrack();
-    auto tp = tsos->trackParameters();
-    // if we do not have a measurement, we should just mark it
-    if (!meas || !tp) {
-      continue;
-    } else {
-      Tp = tp;
-      break;
-    }
-  }
-  
-  
-  
-  const double pi = M_PI, pi2 = 2.*M_PI;
-  if(!info || info->empty()) return false;
-
-  double F = Tp->momentum().phi();
-  double E = Tp->momentum().eta();
-  double R = Tp->position().perp();
-  double Z = Tp->position().z();
-
-  for (const ROIInfo& i : *info) {
-    double df = fabs(F-(i.emF));
-    if(df > pi        ) df = fabs(pi2-df);
-    if(df < m_phiWidthEm) {
-      //Correct eta of cluster to take into account the z postion of the track
-      double newZ   = i.emZ - Z;
-      double newR   = i.emR - R;
-      double newEta =  atanh( newZ / sqrt( newR*newR + newZ*newZ ) );
-      double de = fabs(E-newEta);
-       
-      if(de < m_etaWidthEm) return true;
-    }
-  }
-  return false;
-}
 
 

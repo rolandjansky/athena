@@ -9,12 +9,10 @@ atlas_subdir( InDetTrackScoringTools )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/SGTools
                           GaudiKernel
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
-                          Control/StoreGate
                           DetectorDescription/GeoPrimitives
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetIdentifier
@@ -25,10 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkEvent/TrkCaloClusterROI )
-
-
+                          Tracking/TrkExtrapolation/TrkExInterfaces )
 
 # External dependencies:
 find_package( CLHEP )
@@ -42,7 +37,7 @@ atlas_add_component( InDetTrackScoringTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrkEventPrimitives TrkToolInterfaces GeoPrimitives InDetIdentifier InDetRIO_OnTrack InDetRecToolInterfaces MagFieldInterfaces TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrkTrackSummary TrkExInterfaces TrkCaloClusterROI)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrkEventPrimitives TrkToolInterfaces GeoPrimitives InDetIdentifier InDetRIO_OnTrack InDetRecToolInterfaces MagFieldInterfaces TrkParameters TrkPseudoMeasurementOnTrack TrkTrack TrkTrackSummary TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetTrackScoringTools )
