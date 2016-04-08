@@ -101,17 +101,9 @@ if rec.doTrigger():
         ToolSvc.L1JetTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
         ToolSvc.L1EmTauTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
-        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__EmTauTrigger
-        a3 = LVL1__EmTauTrigger("EmTauTrigger")
-        a3.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-
         from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__TriggerTowerMaker
         a4 = LVL1__TriggerTowerMaker("TriggerTowerMaker")
         a4.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
-
-        from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__ROD
-        a5 = LVL1__ROD("ROD")
-        a5.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
         if not hasattr(ToolSvc,'L1EtTools'):
             from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1EtTools
