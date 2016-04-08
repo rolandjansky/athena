@@ -34,5 +34,7 @@ use TRT_ConditionsData   TRT_ConditionsData-*   InnerDetector/InDetConditions
 use CLIDSvc              CLIDSvc-*              Control
 use SGTools              SGTools-*              Control
 
+use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
+
 apply_pattern dual_use_library files=*.cxx
 

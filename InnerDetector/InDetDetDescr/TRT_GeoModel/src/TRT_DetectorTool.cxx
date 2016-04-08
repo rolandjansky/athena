@@ -127,7 +127,8 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
 
 	// Check if the new switches exists:
     //bool result = true;
-    try {
+    if ((m_doArgonMixture == 1) ||( m_doKryptonMixture == 1) ){
+     try {
       if(!switches->isFieldNull( "DOARGONMIXTURE")) {
         if      ( switches->getInt("DOARGONMIXTURE") == 0) m_doArgonMixture = 0;
         else if ( switches->getInt("DOARGONMIXTURE") == 1) m_doArgonMixture = 1;
@@ -141,12 +142,12 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
       } else {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Parameter DOKRYPTONMIXTURE not available, m_doKryptonMixture= " << m_doKryptonMixture << endreq;
       }
-    }
-    catch(std::runtime_error& ex) {
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Exception caught: " << ex.what() << endreq;
-     // result = false;
      }
-
+      catch(std::runtime_error& ex) {
+       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Exception caught: " << ex.what() << endreq;
+       // result = false;
+      }
+    }
     if (!switches->isFieldNull("VERSIONNAME")) {
       versionName                    	= switches->getString("VERSIONNAME");
     }
@@ -208,7 +209,7 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
 					  m_overridedigversion,
 					  m_alignable,
 					  m_doArgonMixture,
-            m_doKryptonMixture
+					  m_doKryptonMixture
     );
     theTRTFactory.create(world);
     m_manager=theTRTFactory.getDetectorManager();
@@ -243,6 +244,42 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
 
   if (m_alignable) {
 
+    // Regular alignment new shema   
+    {
+      std::string folderName = "/TRT/AlignL1/TRT";
+      if (detStore->contains<CondAttrListCollection>(folderName)) {
+        msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+        const DataHandle<CondAttrListCollection> calc;
+        StatusCode trttmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+        // We don't expect this to fail as we have already checked that the detstore contains the object. 
+        if (trttmp.isFailure()) {
+          msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+        } else {
+          sc =  StatusCode::SUCCESS;
+        }
+      } else {
+        msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+        //return StatusCode::FAILURE;
+      }
+
+      folderName = "/TRT/AlignL2";
+      if (detStore->contains<AlignableTransformContainer>(folderName)) {
+        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+        const DataHandle<AlignableTransformContainer> atc;
+        StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+        if(sctmp.isFailure()) {
+          msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+        } else {
+          sc =  StatusCode::SUCCESS;
+        }
+      }
+      else {
+	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
+                          << folderName <<  endreq;
+        //return StatusCode::FAILURE;
+      }
+    }
+
 
     // Regular alignment
     {
@@ -258,8 +295,8 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
 	  sc =  StatusCode::SUCCESS;
 	}
       } else {
-	msg(MSG::ERROR) << "Unable to register callback on AlignableTransformContainer with folder "
-	    << folderName << ", Alignments disabled!" << endreq;
+	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
+			  << folderName << ", Alignments disabled! (Only if no Run2 schema is loaded)" << endreq;
       }
     }
 
