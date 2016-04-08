@@ -70,7 +70,7 @@ namespace LArG4 {
       std::vector<G4double> m_energies;
 
       // Geometry calculator
-      PresamplerGeometry* m_geometryCalculator;
+      const PresamplerGeometry* m_geometryCalculator;
 
       // Energy calculator
       CaloG4::SimulationEnergies m_energyCalculator;

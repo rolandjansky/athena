@@ -605,7 +605,7 @@ void EnergyCalculator::PrepareFieldMap(void){
 
   (*m_msg) << MSG::INFO
 	 << "PrepareFieldMap for solidtype = "
-	 << LArWheelCalculatorTypeString(m_type)
+	 << LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
 	 << endreq;
 
   nlayer = ChCollWheelType->NumberOfRadialLayer; // should be the same for Fold0 and Fold1
@@ -622,10 +622,10 @@ void EnergyCalculator::PrepareFieldMap(void){
 
 	if(foldtype == 0) {  //normal fold
           minz=ChCollFoldType->MinZofLayer[i];
-          maxz=m_QuarterWaveLength;
+          maxz=lwc()->GetQuarterWaveLength();
           ncol=G4int( (maxz-minz)/GridSize+1.1 );
           ChCollFoldType->NofColofLayer[i]=ncol;
-          ChCollFoldType->MaxZofLayer[i]=m_QuarterWaveLength;
+          ChCollFoldType->MaxZofLayer[i]=lwc()->GetQuarterWaveLength();
 	}
 
         ipnt=-1;  // new counter for numbering the selected points
@@ -651,7 +651,7 @@ void EnergyCalculator::PrepareFieldMap(void){
 	      if(w<0.00001){  // check weight in the file
 		  if(FieldMapVersion != "v00") wx=0.; // new map
                   else{                               // old map
-		    SetHalfWave(m_StraightStartSection+WaveLength+z);
+		    SetHalfWave(lwc()->GetStraightStartSection()+WaveLength+z);
 		    PointFoldMapArea=1;
 		    SetYlimitsofPhigapinFieldMap(i);
      		    if((y>=Ylimits[0] && y<=Ylimits[1]) ||
@@ -691,15 +691,12 @@ void EnergyCalculator::PrepareFieldMap(void){
 
 // ****************************************************************************
 G4double EnergyCalculator::GetHV_Value_ChColl_Wheel(
-		       const G4ThreeVector& p, G4int phigap, G4int phihalfgap){
+		       const G4ThreeVector& p, G4int phigap, G4int phihalfgap) const{
 // ****************************************************************************
-    G4int atlasside = m_AtlasZside;
-    if(atlasside>0) atlasside=0;
-    else atlasside=1;
+    const G4int atlasside = (lwc()->GetAtlasZside() > 0) ? 0 : 1;
 
-    G4ThreeVector pforeta= G4ThreeVector
-      (p.x(),p.y(),p.z()+m_dElecFocaltoWRP+m_dWRPtoFrontFace);
-    G4double eta=pforeta.pseudoRapidity();
+    const G4ThreeVector pforeta= G4ThreeVector(p.x(),p.y(),p.z()+lwc()->GetElecFocaltoWRP()+lwc()->GetdWRPtoFrontFace());
+    const G4double eta=pforeta.pseudoRapidity();
     G4int etasection=-1;
     for(G4int i=1;i<=NofEtaSection;++i){
       if(eta<=HV_Etalim[i]) {etasection=i-1;break;}
@@ -707,28 +704,23 @@ G4double EnergyCalculator::GetHV_Value_ChColl_Wheel(
 
     if(!(etasection>=0 && etasection <=NofEtaSection-1)) throw std::runtime_error("Index out of range");
     //assert(etasection>=0 && etasection <=NofEtaSection-1);
+                               /*(right side of e large phi)*/ /*left side of electrode(small phi)*/
+    const G4int electrodeside = (phihalfgap%2 == 0 ) ?   1   :   0  ;  
 
-    G4int  electrodeside=0;                 //left side of electrode(small phi)
-    if(phihalfgap%2 == 0 ) electrodeside=1; //(right side of e large phi)
+    const G4int firstelectrode=HV_Start_phi[atlasside][etasection][electrodeside];
 
-    G4int firstelectrode=HV_Start_phi[atlasside][etasection][electrodeside];
-
-    if(!( firstelectrode>=0 && firstelectrode<= m_NumberOfFans-1)){
-        (*m_msg) << MSG::FATAL
-	       <<" GetCurrent:Electrode number is out of range"
-               << endreq;
-	G4Exception("EnergyCalculator", "ElectrodeOutOfRange", FatalException,"GetCurrent: Electrode number is out of range");
+    if(!( firstelectrode>=0 && firstelectrode<= lwc()->GetNumberOfFans()-1)){
+		(*m_msg) << MSG::FATAL <<" GetCurrent:Electrode number is out of range" << endreq;
+		G4Exception("EnergyCalculator", "ElectrodeOutOfRange", FatalException, "GetCurrent: Electrode number is out of range");
     }
     G4int electrodeindex=(phigap-1)-firstelectrode;
-    if(electrodeindex<0) electrodeindex=electrodeindex+m_NumberOfFans;
-    G4int nofelectrodesinphisection=m_NumberOfFans/NofPhiSections;//24(8) for outer(inner) wheel
-    G4int phisection=electrodeindex/nofelectrodesinphisection;
+    if(electrodeindex<0) electrodeindex=electrodeindex+lwc()->GetNumberOfFans();
+    const G4int nofelectrodesinphisection=lwc()->GetNumberOfFans()/NofPhiSections;//24(8) for outer(inner) wheel
+    const G4int phisection=electrodeindex/nofelectrodesinphisection;
 
     if(!(phisection>=0 && phisection<=NofPhiSections-1)){
-        (*m_msg) << MSG::FATAL
-	       <<" GetCurrent::Electrode number is out of range"
-               << endreq;
-	G4Exception("EnergyCalculator", "ElectrodeOutOfRange", FatalException,"GetCurrent: Electrode number is out of range");
+		(*m_msg) << MSG::FATAL <<" GetCurrent::Electrode number is out of range" << endreq;
+		G4Exception("EnergyCalculator", "ElectrodeOutOfRange", FatalException,"GetCurrent: Electrode number is out of range");
     }
 
     G4double HV_value= HV_Values[atlasside][etasection][electrodeside][phisection];
@@ -745,25 +737,25 @@ void EnergyCalculator::TransFromBarrtoWheel(G4double vb[], G4double v[]){
 // v : point coord. in the Wheel's system (extended in - and + z direction)
 // ellenorizni, hogy p.phi()  0-2pi kozott valtozik-e!!
 
-  G4ThreeVector pb=G4ThreeVector(vb[0],vb[1],vb[2]);
-  v[2]=m_WheelThickness+m_dWRPtoFrontFace*0.5-vb[2];
-  G4double rb   = pb.perp();
-  G4double phib = pb.phi();                     // local phi coord. of a point in the PhiDiv
+  const G4ThreeVector pb=G4ThreeVector(vb[0],vb[1],vb[2]);
+  v[2]=lwc()->GetWheelThickness()+lwc()->GetdWRPtoFrontFace()*0.5-vb[2];
+  const G4double rb   = pb.perp();
+  const G4double phib = pb.phi();                     // local phi coord. of a point in the PhiDiv
   G4double phi_inb = PhiStartOfPhiDiv + phib;  //PhiStartOfPhiDiv defined in FindIdentifier!!
                                              // it is the phi pos. of the PhiDiv in the Barrette system
                                            //phi_inb is the point's phi coord. in the BArrette volume
                                           // it can be bigger than 2pi!
-  if(m_type == OuterAbsorberWheel ){
+  if(lwc()->type() == LArWheelCalculator::OuterAbsorberWheel ){
     if(phi_inb<0.)      phi_inb=  phi_inb + CLHEP::twopi;
     if(phi_inb>CLHEP::twopi) phi_inb=  phi_inb - CLHEP::twopi;
     phi_inb = CLHEP::twopi - phi_inb;     //now:phi_inb is the  phi coord in the Wheel's system
   }
-  else if(m_type == OuterAbsorberModule) {
+  else if(lwc()->type() == LArWheelCalculator::OuterAbsorberModule) {
     phi_inb = CLHEP::pi - phi_inb;        //now:phi_inb is the  point's phi coord in the Wheel's system;
   }else{                             // the transfromation is different bec. the back support
                                      // positioned with an extra rotation into the Mother
 
-    (*m_msg) << MSG::FATAL <<" ERROR: TransFromBarrtoWheel: m_type is unknown"
+    (*m_msg) << MSG::FATAL <<" ERROR: TransFromBarrtoWheel: type("<<LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())<<") is unknown"
 	   <<endreq;
   }
 
@@ -773,7 +765,7 @@ void EnergyCalculator::TransFromBarrtoWheel(G4double vb[], G4double v[]){
 
 // **********************************************************************
 G4double EnergyCalculator::GetCurrent(
-	     G4double StartofStep[],G4double EndofStep[],G4double edep){
+	     G4double StartofStep[],G4double EndofStep[],G4double edep) { // need to make const
 // **********************************************************************
   G4double v1b[3],v2b[3],vstepb[3]/*,vstepx[3]*/,hvpoint[3];
   G4double current/*,z1,z2*/,v1[3],v2[3],vstep[3],vmap[3];//,vmid[3],vmidmap[3];
@@ -791,7 +783,7 @@ G4double EnergyCalculator::GetCurrent(
   tol=0.1*CLHEP::mm; // tolerance for geom. check
   gaperr=0;
 
-  if(m_isBarrette){
+  if(lwc()->GetisBarrette()){
     for(i=0;i<3;++i){
       v1b[i]=StartofStep[i];
       v2b[i]=EndofStep[i];
@@ -828,7 +820,7 @@ G4double EnergyCalculator::GetCurrent(
   r=sqrt(v1[0]*v1[0]+v1[1]*v1[1]);
   r=sqrt(r*r-vmap[1]*vmap[1]);
 
-  shift = m_StraightStartSection;
+  shift = lwc()->GetStraightStartSection();
   if(PointFoldMapArea != 0) shift += WaveLength;
   SetHalfWave(shift+vmap[2]);
   SetYlimitsofPhigapinWheel(r,r); // get the y limits of LAr gap
@@ -857,14 +849,14 @@ G4double EnergyCalculator::GetCurrent(
      for(j=0;j<3;++j){
        vstep[j]=v1[j]*(1.-ds)+v2[j]*ds;    // get the middle point of substep
        hvpoint[j]=vstep[j];                // hvpoint is always in local coord. Wheel or PhiDiv)
-       if(m_isBarrette){
-	 vstepb[j]=v1b[j]*(1.-ds)+v2b[j]*ds;
-	 hvpoint[j]=vstepb[j];
+       if(lwc()->GetisBarrette()){
+		  vstepb[j]=v1b[j]*(1.-ds)+v2b[j]*ds;
+		  hvpoint[j]=vstepb[j];
        }
      }
 
      G4double HV_value;
-     if(m_isBarrette)
+     if(lwc()->GetisBarrette())
        HV_value=GetHV_Value_Barrett(
                 G4ThreeVector(hvpoint[0],hvpoint[1],hvpoint[2]));
      else
@@ -888,11 +880,11 @@ G4double EnergyCalculator::GetCurrent(
      rvstep   =sqrt(vstep[0]*vstep[0]+vstep[1]*vstep[1]);
      rforalpha=sqrt(rvstep*rvstep-vmap[1]*vmap[1]); // radius in the electrode system
      gap=HalfLArGapSize(rforalpha,rforalpha);       // gapsize in the straight section
-     yshift_on_map  = rforalpha*M_PI/m_NumberOfFans-(FanAbsThickness+FanEleThickness)/2.;
-     yshift_on_wheel=    rvstep*M_PI/m_NumberOfFans-(FanAbsThickness+FanEleThickness)/2.;
+     yshift_on_map  = rforalpha*M_PI/lwc()->GetNumberOfFans()-(FanAbsThickness+FanEleThickness)/2.;
+     yshift_on_wheel=    rvstep*M_PI/lwc()->GetNumberOfFans()-(FanAbsThickness+FanEleThickness)/2.;
      cylgapcorr=yshift_on_wheel/yshift_on_map; // scale difference between plane and cylindrical surface
      /*
-     std::cout<< " GetCurrent0**Nabs="<<m_NumberOfFans<<" absthick="<<FanAbsThickness
+     std::cout<< " GetCurrent0**Nabs="<<lwc()->GetNumberOfFans()<<" absthick="<<FanAbsThickness
 	      <<" elethick="<<FanEleThickness
 	      <<" cylgapcorr-1="<<cylgapcorr-1
 	      <<" ZinHalfWave="<<ZinHalfWave<<" HalfWaveNumber="<<HalfWaveNumber
@@ -927,7 +919,7 @@ G4double EnergyCalculator::GetCurrent(
 
 // get  Ylimits  limiting the LAr gap along the y axis;
 
-       shift = m_StraightStartSection;
+       shift = lwc()->GetStraightStartSection();
        if(PointFoldMapArea != 0) shift += WaveLength;
        SetHalfWave(shift+vmap[2]);
        SetYlimitsofPhigapinWheel(rforalpha,rforalpha);
@@ -1174,8 +1166,8 @@ G4double EnergyCalculator::GetWeightfromFieldMap(
 // ***********************************************************
 void EnergyCalculator::SetFoldArea(G4double zinwheel){
 // ***********************************************************
-  if(zinwheel > m_StraightStartSection+m_QuarterWaveLength*0.5 &&
-     zinwheel < m_WheelThickness-m_StraightStartSection-m_QuarterWaveLength*0.5){
+  if(zinwheel > lwc()->GetStraightStartSection()+lwc()->GetQuarterWaveLength()*0.5 &&
+     zinwheel < lwc()->GetWheelThickness()-lwc()->GetStraightStartSection()-lwc()->GetQuarterWaveLength()*0.5){
     PointFoldMapArea=1;
     ChCollFoldType=&(ChCollWheelType->Fold1);
   }
@@ -1191,9 +1183,9 @@ void EnergyCalculator::SetHalfWave(G4double zinwheel){
 //  G4cout<<"***SetHalfWave zin="<<zinwheel<<G4endl;
 
   G4double z;
-  z=zinwheel-m_StraightStartSection;
-  HalfWaveNumber  =int((z+m_QuarterWaveLength)/m_HalfWaveLength);
-  ZinHalfWave=z-HalfWaveNumber*m_HalfWaveLength;
+  z=zinwheel - lwc()->GetStraightStartSection();
+  HalfWaveNumber  =int((z+lwc()->GetQuarterWaveLength())/lwc()->GetHalfWaveLength());
+  ZinHalfWave=z-HalfWaveNumber*lwc()->GetHalfWaveLength();
   SignofZinHalfWave=+1;
   if(ZinHalfWave<0.) SignofZinHalfWave=-1;
   SignofSlopeofHalfWave=-1;
@@ -1242,12 +1234,12 @@ void EnergyCalculator::SetYlimitsofPhigapinFieldMap(G4int ilayer){
 
   alpha=ChCollWheelType->FoldinAngleOfLayers[ilayer] / CLHEP::rad * CLHEP::deg;
   //s=sin(alpha/2.);
-  halfgap=ChCollWheelType->RadiusOfLayers[ilayer]*CLHEP::pi/m_NumberOfFans; //half of y distance
+  halfgap=ChCollWheelType->RadiusOfLayers[ilayer]*CLHEP::pi/lwc()->GetNumberOfFans(); //half of y distance
 
-  Ylimits[3]=YofSurface(alpha,m_FanFoldRadius,-FanAbsThickness)+halfgap;
-  Ylimits[2]=YofSurface(alpha,m_FanFoldRadius,+FanEleThickness);
-  Ylimits[1]=YofSurface(alpha,m_FanFoldRadius,-FanEleThickness);
-  Ylimits[0]=YofSurface(alpha,m_FanFoldRadius,+FanAbsThickness)-halfgap;
+  Ylimits[3]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-FanAbsThickness)+halfgap;
+  Ylimits[2]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+FanEleThickness);
+  Ylimits[1]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-FanEleThickness);
+  Ylimits[0]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+FanAbsThickness)-halfgap;
 }
 
 // ******************************************************************
@@ -1265,17 +1257,17 @@ void EnergyCalculator::SetYlimitsofPhigapinWheel(
 
   alpha=FoldingAngle(rforalpha);
   //s=sin(alpha*0.5);
-  halfgap=rforpoint*CLHEP::pi/m_NumberOfFans; //half of y distance between 2 abs.
+  halfgap=rforpoint*CLHEP::pi/lwc()->GetNumberOfFans(); //half of y distance between 2 abs.
 
-  Ylimits[3]=YofSurface(alpha,m_FanFoldRadius,-FanAbsThickness)+halfgap;
-  Ylimits[2]=YofSurface(alpha,m_FanFoldRadius,+FanEleThickness);
-  Ylimits[1]=YofSurface(alpha,m_FanFoldRadius,-FanEleThickness);
-  Ylimits[0]=YofSurface(alpha,m_FanFoldRadius,+FanAbsThickness)-halfgap;
+  Ylimits[3]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-FanAbsThickness)+halfgap;
+  Ylimits[2]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+FanEleThickness);
+  Ylimits[1]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-FanEleThickness);
+  Ylimits[0]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+FanAbsThickness)-halfgap;
 }
 
 
 // ***********************************************************
-void EnergyCalculator::GetPhiGap(G4double SpacePoint[]){
+void EnergyCalculator::GetPhiGap(G4double SpacePoint[]){  // need to make const
 // ***********************************************************
 // inp: x,y of SpacePoint defined in the Wheel's system
 // outp: gap number(=1,2,..NumberOfFans);
@@ -1301,14 +1293,14 @@ void EnergyCalculator::GetPhiGap(G4double SpacePoint[]){
   // fan 1 positioned at phi=0. One iteration gives precise result.
   // It was checked by solving exact equations.
 
-  y0=YofNeutralFibre(FoldingAngle(r),m_FanFoldRadius);
+  y0=YofNeutralFibre(FoldingAngle(r),lwc()->GetFanFoldRadius());
   r =sqrt(r2-y0*y0); // this is an approximation, based on 2 conditons:
                         // surface tangent in the transvrsal plane is almost
                         // pointing to the beamline,
                         // (rold-rnew)/rold << 1.
-  y0=YofNeutralFibre(FoldingAngle(r),m_FanFoldRadius);
+  y0=YofNeutralFibre(FoldingAngle(r),lwc()->GetFanFoldRadius());
   phiCross=atan(y0/r);  //-pi<phi<+pi; // asin is used in Dice - it is a bug
-  phiCross=phiCross-m_FanStepOnPhi/2.;
+  phiCross=phiCross-lwc()->GetFanStepOnPhi()/2.;
   if(phiCross<0.) phiCross=CLHEP::twopi+phiCross;
                  //position of the crossing point
                  //on the neutral fibre of the left absorber of the first gap
@@ -1318,20 +1310,20 @@ void EnergyCalculator::GetPhiGap(G4double SpacePoint[]){
                                 //at the same radius
   assert (dphi>=0. && dphi<=CLHEP::twopi);
 
-  phigap=int(dphi/m_FanStepOnPhi)+1;
-  assert(phigap>=1 && phigap<=m_NumberOfFans);
+  phigap=int(dphi/lwc()->GetFanStepOnPhi())+1;
+  assert(phigap>=1 && phigap<=lwc()->GetNumberOfFans());
 
-  phihalfgap=int(2.*dphi/m_FanStepOnPhi)+1;
-  assert(phihalfgap>=1 && phihalfgap<=2*m_NumberOfFans);
+  phihalfgap=int(2.*dphi/lwc()->GetFanStepOnPhi())+1;
+  assert(phihalfgap>=1 && phihalfgap<=2*lwc()->GetNumberOfFans());
 
   PhiGapNumber=phigap;
   PhiHalfGapNumber=phihalfgap;
-  phi=(phigap-1)*m_FanStepOnPhi;
+  phi=(phigap-1)*lwc()->GetFanStepOnPhi();
   CosPhiGap=cos(phi);
   SinPhiGap=sin(phi);
 }
 // ***********************************************************************************
-G4double EnergyCalculator::YofSurface(G4double alpha,G4double rho,G4double thickness){
+G4double EnergyCalculator::YofSurface(G4double alpha,G4double rho,G4double thickness) const {
 // ***********************************************************************************
 // compute y coord of of the fan surface 
 //
@@ -1350,48 +1342,48 @@ G4double EnergyCalculator::YofSurface(G4double alpha,G4double rho,G4double thick
 //               <0 --> compute y of the lower surface
 
 
-  G4double alp=alpha/2.;
-  G4double s=sin(alp);    //sin(alpha/2.)
-  G4double c=cos(alp);    //cos(alpha/2.)
-  G4double t=s/c;         //tan(alpha/2);
-  G4double tb=(1.-s)/c;   //tan(beta); beta=0.5*(90-alpha/2);
-  G4double th=thickness/2.;
+  const G4double alp=alpha/2.;
+  const G4double s=sin(alp);    //sin(alpha/2.)
+  const G4double c=cos(alp);    //cos(alpha/2.)
+  const G4double t=s/c;         //tan(alpha/2);
+  const G4double tb=(1.-s)/c;   //tan(beta); beta=0.5*(90-alpha/2);
+  const G4double th=thickness/2.;
   
   if(HalfWaveNumber==0){                  //0.th 'halfwave'
 
-    G4double zminoffirstfold   = -rho*tb;
-    G4double zmaxoffirstfold   = -rho*tb+(rho-th)*tb*(1.+s);
-    G4double zminofsecondfold  =  m_QuarterWaveLength-(rho+th)*c;
+    const G4double zminoffirstfold   = -rho*tb;
+    const G4double zmaxoffirstfold   = -rho*tb+(rho-th)*tb*(1.+s);
+    const G4double zminofsecondfold  =  lwc()->GetQuarterWaveLength()-(rho+th)*c;
     
     if(ZinHalfWave<=zminoffirstfold) return th;
     if(ZinHalfWave<=zmaxoffirstfold) return rho-sqrt( pow((rho-th),2)-pow((ZinHalfWave+rho*tb),2) );
     if(ZinHalfWave<=zminofsecondfold)return ZinHalfWave/t+th/s;
-    return (m_QuarterWaveLength*c-rho)/s + sqrt( pow((rho+th),2)-pow((ZinHalfWave-m_QuarterWaveLength),2));
+    return (lwc()->GetQuarterWaveLength()*c-rho)/s + sqrt( pow((rho+th),2)-pow((ZinHalfWave-lwc()->GetQuarterWaveLength()),2));
     
   } // end of first fold
   
-  else if(HalfWaveNumber==m_NumberOfHalfWaves){ //last 'halfwave'
+  else if(HalfWaveNumber==lwc()->GetNumberOfHalfWaves()){ //last 'halfwave'
     
-    G4double zmaxoflastfold=rho*tb;
-    G4double zminoflastfold=rho*tb-(rho+th)*tb*(1.+s);
-    G4double zmaxofpreviousfold=-m_QuarterWaveLength+(rho-th)*c;
+    const G4double zmaxoflastfold=rho*tb;
+    const G4double zminoflastfold=rho*tb-(rho+th)*tb*(1.+s);
+    const G4double zmaxofpreviousfold=-lwc()->GetQuarterWaveLength()+(rho-th)*c;
     
     if(ZinHalfWave>=zmaxoflastfold)     return th;
     if(ZinHalfWave>=zminoflastfold)     return -rho+sqrt( pow((rho+th),2)-pow((ZinHalfWave-rho*tb),2) );
     if(ZinHalfWave>=zmaxofpreviousfold) return ZinHalfWave/t+th/s;
-    return -(m_QuarterWaveLength*c-rho)/s-sqrt( pow((rho-th),2)-pow((ZinHalfWave+m_QuarterWaveLength),2) );
+    return -(lwc()->GetQuarterWaveLength()*c-rho)/s-sqrt( pow((rho-th),2)-pow((ZinHalfWave+lwc()->GetQuarterWaveLength()),2) );
     
   } // end of last fold
   
-  else if(HalfWaveNumber>0 && HalfWaveNumber<m_NumberOfHalfWaves){
+  else if(HalfWaveNumber>0 && HalfWaveNumber<lwc()->GetNumberOfHalfWaves()){
     
-    G4double sn=SignofZinHalfWave*SignofSlopeofHalfWave; 
-    G4double z2= -m_QuarterWaveLength+(rho-SignofSlopeofHalfWave*th)*c;
-    G4double z3=  m_QuarterWaveLength-(rho+SignofSlopeofHalfWave*th)*c;
+    const G4double sn=SignofZinHalfWave*SignofSlopeofHalfWave; 
+    const G4double z2= -lwc()->GetQuarterWaveLength()+(rho-SignofSlopeofHalfWave*th)*c;
+    const G4double z3=  lwc()->GetQuarterWaveLength()-(rho+SignofSlopeofHalfWave*th)*c;
 
     if(ZinHalfWave<=z2 || z3<=ZinHalfWave) 
-      return sn*(m_QuarterWaveLength*c-rho)/s+
-	     sn*sqrt( pow((rho+sn*th),2)-pow((ZinHalfWave-SignofZinHalfWave*m_QuarterWaveLength),2) );
+      return sn*(lwc()->GetQuarterWaveLength()*c-rho)/s+
+	     sn*sqrt( pow((rho+sn*th),2)-pow((ZinHalfWave-SignofZinHalfWave*lwc()->GetQuarterWaveLength()),2) );
     
     if(z2<=ZinHalfWave && ZinHalfWave<=z3) return SignofSlopeofHalfWave*ZinHalfWave/t+th/s;
      
@@ -1403,7 +1395,7 @@ G4double EnergyCalculator::YofSurface(G4double alpha,G4double rho,G4double thick
 }
 
 // **********************************************************
-G4double EnergyCalculator::FoldingAngle(G4double radius){
+G4double EnergyCalculator::FoldingAngle(G4double radius) const {
 // **********************************************************
   // inp:  radius in [mm]
   // outp:  angle in [radian]
@@ -1418,25 +1410,22 @@ G4double EnergyCalculator::FoldingAngle(G4double radius){
   //    is present as well, however it is smaller by a factor of 2.
   //    In case of 'medium' radia the fitted parameters are ok.
 
-	return CLHEP::pi - 2. * parameterized_slant_angle(radius);
+	return CLHEP::pi - 2. * lwc()->parameterized_slant_angle(radius);
 }
 // ***************************************************************
-G4double  EnergyCalculator::HalfLArGapSizeOld(G4double radius){
+G4double  EnergyCalculator::HalfLArGapSizeOld(G4double radius) const {
 // ***************************************************************
-  G4double alpha,s,halfgap;
-  alpha=FoldingAngle(radius);
-  s=sin(alpha *0.5);
-  halfgap=CLHEP::pi*radius/m_NumberOfFans*s-(FanAbsThickness+FanEleThicknessOld)*0.5;
+  const G4double alpha=FoldingAngle(radius);
+  const G4double s=sin(alpha *0.5);
+  const G4double halfgap=CLHEP::pi*radius/lwc()->GetNumberOfFans()*s-(FanAbsThickness+FanEleThicknessOld)*0.5;
   return halfgap;
 }
 // ***************************************************************
-G4double  EnergyCalculator::HalfLArGapSize
-  (G4double rforpoint,G4double rforalpha){
+G4double  EnergyCalculator::HalfLArGapSize(G4double rforpoint,G4double rforalpha) const {
 // ***************************************************************
-  G4double alpha,s,halfgap;
-  alpha=FoldingAngle(rforalpha);
-  s=sin(alpha/2.);
-  halfgap=CLHEP::pi*rforpoint/m_NumberOfFans*s-(FanAbsThickness+FanEleThickness)/2.;
+  const G4double alpha=FoldingAngle(rforalpha);
+  const G4double s=sin(alpha/2.);
+  const G4double halfgap=CLHEP::pi*rforpoint/lwc()->GetNumberOfFans()*s-(FanAbsThickness+FanEleThickness)/2.;
   return halfgap;
 }
 

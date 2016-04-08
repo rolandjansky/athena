@@ -217,7 +217,7 @@ namespace LArG4 {
           // 5123.5 5209
         }
 ///* ---------------------------------------------------------------------- */
-//static int ifirst=1;
+//s tatic int ifirst=1; // not a thread-safe !!!
 //if(ifirst){
 //ifirst=0;
 //std::cout
@@ -247,19 +247,19 @@ namespace LArG4 {
 
 	  // Calculate the mid-point of the step, and the simple geometry variables.
 
-	  G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
-	  G4StepPoint* post_step_point = a_step->GetPostStepPoint();
+	  const G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
+	  const G4StepPoint* post_step_point = a_step->GetPostStepPoint();
 
-	  G4ThreeVector startPoint = pre_step_point->GetPosition();
-	  G4ThreeVector endPoint   = post_step_point->GetPosition();
-	  G4ThreeVector p = (startPoint + endPoint) * 0.5;
+	  const G4ThreeVector startPoint = pre_step_point->GetPosition();
+	  const G4ThreeVector endPoint   = post_step_point->GetPosition();
+	  const G4ThreeVector p = (startPoint + endPoint) * 0.5;
 
-	  G4double rho = p.perp();
-	  G4double eta = fabs( p.pseudoRapidity() );
+	  const G4double rho = p.perp();
+	  const G4double eta = fabs( p.pseudoRapidity() );
 	  G4double phi = p.phi(); 
 	  if ( phi < 0. ) phi += 2.*M_PI; // Normalize for phiBin calculation
 
-	  G4double absZ = fabs(p.z());
+	  const G4double absZ = fabs(p.z());
 
 	  // subdet = +/-4    "+" or " -" according to sign of Z in World coorinate
 	  G4int subdet = ( p.z() > 0.) ? 4 : -4;
@@ -394,7 +394,7 @@ namespace LArG4 {
 #endif
 #if defined (DEBUG_VOLUMES) || defined (DEBUG_HITS)
 	      static const G4int messageMax = 10;
-	      static G4int messageCount = 0;
+	      static G4int messageCount = 0; // exists only if debug activated
 	      if ( messageCount++ < messageMax )
 		{
 		  std::cout << "LArG4::EndcapCryostat::CalibrationLArCalculator::Process"

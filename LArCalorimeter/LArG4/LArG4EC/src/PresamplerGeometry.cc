@@ -50,9 +50,9 @@ namespace LArG4 {
 
     // Standard implementation of a singleton pattern.
 
-    PresamplerGeometry* PresamplerGeometry::GetInstance()
+    const PresamplerGeometry* PresamplerGeometry::GetInstance()
     {
-      static PresamplerGeometry instance;
+      static PresamplerGeometry instance; // used as const after initialization
       return &instance;
     }
 
@@ -78,11 +78,11 @@ namespace LArG4 {
       
       // Obtain the geometry version information:
       
-      std::string AtlasVersion = geoModel->atlasVersion();
-      std::string LArVersion = geoModel->LAr_VersionOverride();
+      const std::string AtlasVersion = geoModel->atlasVersion();
+      const std::string LArVersion = geoModel->LAr_VersionOverride();
       
-      std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-      std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+      const std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
+      const std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
       
       pAccessSvc->connect();
       // Note Presampler Lives In DB under "cryostats"..
@@ -112,44 +112,43 @@ namespace LArG4 {
     }
 
 
-    G4double PresamplerGeometry::GetValue(const kValue a_valueType)
+    G4double PresamplerGeometry::GetValue(const kValue a_valueType) const
     {
       // Look up a value based on name.
-      switch (a_valueType)
-	{
-	case rMinEndcapPresampler:
-	  //return 1231.74 * mm;
-	  return  c->rMinEndcap;
-	  break;
-	case rMaxEndcapPresampler:
-	  //return 1701.98 * mm;
-	  return  c->rMaxEndcap;
-	  break;
-	  // At nominal (zShift=0) endcap position absolute z-coordinates:
-	  // of the faces of the EndcapPresampler
-	case zEndcapPresamplerFrontFace:
-      //return 3622. * mm;
-	  return c->zEndcapFrontFace;
-	  break;
-	case zEndcapPresamplerBackFace:
-	  //return 3626. * mm;
-	  return c->zEndcapBackFace;
-	  break;
-	case EndcapPresamplerHalfThickness:
-	  //return ( GetValue(zEndcapPresamplerBackFace) - GetValue(zEndcapPresamplerFrontFace) ) / 2.;
-	  return  c->halfThickness;
-	  break;
-	case EndcapPresamplerZpositionInMother:
-	  // between cold wall center and presampler center which is at
-	  // 3624 mm nominal (zShift=0) absolute position
-	  return c->zPosInMother;
-	  break;
-	default:
-	  G4cerr << "LArEndcapPresamplerCalculator::GetValue -- type '"
-		 << a_valueType
-		 << "' not recognized; using zero" << G4endl;
-	  return 0.;
-	}
+	  switch (a_valueType) {
+		case rMinEndcapPresampler:
+		  //return 1231.74 * mm;
+		  return  c->rMinEndcap;
+		  break;
+		case rMaxEndcapPresampler:
+		  //return 1701.98 * mm;
+		  return  c->rMaxEndcap;
+		  break;
+		  // At nominal (zShift=0) endcap position absolute z-coordinates:
+		  // of the faces of the EndcapPresampler
+		case zEndcapPresamplerFrontFace:
+		  //return 3622. * mm;
+		  return c->zEndcapFrontFace;
+		  break;
+		case zEndcapPresamplerBackFace:
+		  //return 3626. * mm;
+		  return c->zEndcapBackFace;
+		  break;
+		case EndcapPresamplerHalfThickness:
+		  //return ( GetValue(zEndcapPresamplerBackFace) - GetValue(zEndcapPresamplerFrontFace) ) / 2.;
+		  return  c->halfThickness;
+		  break;
+		case EndcapPresamplerZpositionInMother:
+		  // between cold wall center and presampler center which is at
+		  // 3624 mm nominal (zShift=0) absolute position
+		  return c->zPosInMother;
+		  break;
+		default:
+		  G4cerr << "LArEndcapPresamplerCalculator::GetValue -- type '"
+			<< a_valueType
+			<< "' not recognized; using zero" << G4endl;
+		  return 0.;
+	  }
     }
 
 
@@ -174,7 +173,7 @@ namespace LArG4 {
       {   2,      0,      0,      40,     60  ,    11,       0,     63 };
 
 
-    LArG4Identifier PresamplerGeometry::CalculateIdentifier(const G4Step* a_step)
+    LArG4Identifier PresamplerGeometry::CalculateIdentifier(const G4Step* a_step) const
     {
       // Given a G4Step, find the sampling, region, eta bin, and phi bin
       // in the LAr EMEC presampler associated with that point.
@@ -184,11 +183,11 @@ namespace LArG4 {
       // checks via asserts.
 
       // Find the mid-point of the current step.
-      G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
-      G4StepPoint* post_step_point = a_step->GetPostStepPoint();
-      G4ThreeVector startPoint = pre_step_point->GetPosition();
-      G4ThreeVector endPoint   = post_step_point->GetPosition();
-      G4ThreeVector p = (startPoint + endPoint) * 0.5;
+      const G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
+      const G4StepPoint* post_step_point = a_step->GetPostStepPoint();
+      const G4ThreeVector startPoint = pre_step_point->GetPosition();
+      const G4ThreeVector endPoint   = post_step_point->GetPosition();
+      const G4ThreeVector p = (startPoint + endPoint) * 0.5;
 
       // Get local coordinates in the Endcap Presampler system
       // independently how it was positioned into
@@ -197,18 +196,17 @@ namespace LArG4 {
       //               HyperNews/public/get/geometry/17/1.html
       // and J.Toth's GetTopTransform in LArWheelCalculator.cc
 
-      const G4AffineTransform transformation =
-	pre_step_point->GetTouchable()->GetHistory()->GetTopTransform();
+      const G4AffineTransform transformation = pre_step_point->GetTouchable()->GetHistory()->GetTopTransform();
 
-      G4ThreeVector startPointinLocal = transformation.TransformPoint(startPoint);
-      G4ThreeVector   endPointinLocal = transformation.TransformPoint  (endPoint);
-      G4ThreeVector          pinLocal =(startPointinLocal+endPointinLocal)*0.5;
+      const G4ThreeVector startPointinLocal = transformation.TransformPoint(startPoint);
+      const G4ThreeVector   endPointinLocal = transformation.TransformPoint  (endPoint);
+      const G4ThreeVector          pinLocal =(startPointinLocal+endPointinLocal)*0.5;
 
-      G4ThreeVector pForCell(pinLocal.x(), pinLocal.y(), pinLocal.z()
+      const G4ThreeVector pForCell(pinLocal.x(), pinLocal.y(), pinLocal.z()
                              + GetValue(zEndcapPresamplerFrontFace)
                              + GetValue(EndcapPresamplerHalfThickness));
       //  pForCell.z() > 0 by definition (pinLocal.z() from -2 to +2)
-      G4double eta=pForCell.pseudoRapidity();
+      const G4double eta=pForCell.pseudoRapidity();
       G4double phi=pForCell.phi();
       if (phi < 0.) phi += 2.*M_PI;
 
