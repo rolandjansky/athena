@@ -3,6 +3,7 @@
 */
 
 #include "HadronicRecoilData/ConeBuilder.h"
+#include <iostream>
 
 namespace HadronicRecoil {
   
@@ -16,8 +17,22 @@ namespace HadronicRecoil {
     bool hasOverlap = true;
     TRandom3 m_rnd(seed);
 
+    int nloops = 0;
+
     while( hasOverlap )
       {
+	// This is a trick to prevent infinite loops
+        //std::cout << "n loops = " << nloops << std::endl;
+	++nloops;
+	
+	if( nloops>1000 ){
+
+	  std::cout << "WARNING: HadronicRecoilData/ConeBuilder. No UE correction because of possible infinity loop" << std::endl;
+
+	  Cone* rndCone = new Cone( -999. , -999, 0.);
+	  return rndCone;
+	}
+	
 	// Phi is generated randomly
 	phi = m_rnd.Uniform( -(M_PI-radius/2.), M_PI-radius/2.);
 

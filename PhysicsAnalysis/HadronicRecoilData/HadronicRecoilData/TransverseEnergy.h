@@ -24,6 +24,19 @@ class TransverseEnergy
   /** copy constructor */
   TransverseEnergy( const TransverseEnergy& transEn );
 
+  /** assignment operator */
+  TransverseEnergy &operator=(TransverseEnergy const &transEn)
+    {
+      if(this != &transEn)
+	{
+	  this->TransverseEnergy::~TransverseEnergy();
+	  
+	  new(this) TransverseEnergy(transEn);
+	}
+
+	return *this;
+    };
+  
   /** add metod */
   void Add( double etx, double ety, double etsum, double scaleFactor=1. );
 

@@ -21,6 +21,8 @@ TransverseEnergy::~TransverseEnergy()
 TransverseEnergy::TransverseEnergy(double etx, double ety, double etsum)
   :m_etx(etx),
    m_ety(ety),
+   m_et(0.),
+   m_phi(0.),
    m_etsum(etsum)
 {
   // et and phi are calculated from etx and ety
