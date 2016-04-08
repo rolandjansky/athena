@@ -10,7 +10,6 @@
 
 # import the Extrapolator configurable
 from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__RobustTrackingGeometryBuilder
-from AthenaCommon.DetFlags import DetFlags
 
 # define the class
 class ConfiguredInDetTrackingGeometryBuilder( InDet__RobustTrackingGeometryBuilder ):
@@ -43,89 +42,86 @@ class ConfiguredInDetTrackingGeometryBuilder( InDet__RobustTrackingGeometryBuild
         # @TODO put DetFlags isOn here, but make sure that this is really when the detector is not built        
         
         # PIXEL building
-        if DetFlags.pixel_on():
-          from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__SiLayerBuilder
-          PixelLayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'PixelLayerBuilder')
-          PixelLayerBuilder.PixelCase 	       = True
-          PixelLayerBuilder.Identification       = 'Pixel'
-          PixelLayerBuilder.SiDetManagerLocation = 'Pixel'
-          # additionall layers - handle with care !
-          PixelLayerBuilder.BarrelAdditionalLayerRadii      = [ 130 ]   # The PST
-          PixelLayerBuilder.BarrelAdditionalLayerType       = [ 0 ]     # -- will shift volume boundary to PST
-          PixelLayerBuilder.EndcapAdditionalLayerPositionsZ = [ -1900. , 1900. ] # DBM
-          PixelLayerBuilder.EndcapAdditionalLayerType       = [  1 , 1 ] # DBM
-          # Pixel barrel specifications
-          PixelLayerBuilder.BarrelLayerBinsZ     = TrkDetFlags.PixelBarrelLayerMaterialBinsZ()
-          PixelLayerBuilder.BarrelLayerBinsPhi   = TrkDetFlags.PixelBarrelLayerMaterialBinsPhi()
-          PixelLayerBuilder.EndcapLayerBinsR     = TrkDetFlags.PixelEndcapLayerMaterialBinsR()
-          PixelLayerBuilder.EndcapLayerBinsPhi   = TrkDetFlags.PixelEndcapLayerMaterialBinsPhi()
-          
-          # set the layer association
-          PixelLayerBuilder.SetLayerAssociation  = setLayerAssociation
-          # output level
-          PixelLayerBuilder.OutputLevel         = TrkDetFlags.PixelBuildingOutputLevel()
-          # the binning type of the layers   
-          PixelLayerBinning = 2
-          # add it to tool service
-          ToolSvc += PixelLayerBuilder
-          # put them to the caches
-          layerbuilders += [ PixelLayerBuilder ]
-          binnings      += [ PixelLayerBinning ]
-          colors        += [ 3 ]
-       
-        if DetFlags.SCT_on():
-          # SCT building
-          SCT_LayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'SCT_LayerBuilder')
-          SCT_LayerBuilder.PixelCase                       = False
-          SCT_LayerBuilder.Identification                  = 'SCT'
-          SCT_LayerBuilder.SiDetManagerLocation            = 'SCT'
-          # additionall layers - handle with care !
-          SCT_LayerBuilder.EndcapAdditionalLayerPositionsZ = [ -2850 , 2850 ] 
-          SCT_LayerBuilder.EndcapAdditionalLayerType       = [  0 , 0 ] 
-          # SCT barrel specifications
-          SCT_LayerBuilder.BarrelLayerBinsZ                = TrkDetFlags.SCT_BarrelLayerMaterialBinsZ()
-          SCT_LayerBuilder.BarrelLayerBinsPhi              = TrkDetFlags.SCT_BarrelLayerMaterialBinsPhi()
-          # SCT endcap specifications                          
-          SCT_LayerBuilder.EndcapLayerBinsR                = TrkDetFlags.SCT_EndcapLayerMaterialBinsR()
-          SCT_LayerBuilder.EndcapLayerBinsPhi              = TrkDetFlags.SCT_EndcapLayerMaterialBinsPhi()
-          SCT_LayerBuilder.EndcapComplexRingBinning        = TrkDetFlags.SCT_EndcapLayerDynamicRings()
-          # set the layer association                   
-          SCT_LayerBuilder.SetLayerAssociation             = setLayerAssociation        
-          # output level                                 
-          SCT_LayerBuilder.OutputLevel                     = TrkDetFlags.SCT_BuildingOutputLevel()
-          # the binning type of the layer     
-          SCT_LayerBinning = 2
-          # SCT -> ToolSvc                             
-          ToolSvc += SCT_LayerBuilder                       
-          # put them to the caches
-          layerbuilders += [ SCT_LayerBuilder ]
-          binnings      += [ SCT_LayerBinning ]
-          colors        += [ 4 ]
+        from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__SiLayerBuilder
+        PixelLayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'PixelLayerBuilder')
+        PixelLayerBuilder.PixelCase 	       = True
+        PixelLayerBuilder.Identification       = 'Pixel'
+        PixelLayerBuilder.SiDetManagerLocation = 'Pixel'
+        # additionall layers - handle with care !
+        PixelLayerBuilder.BarrelAdditionalLayerRadii      = [ 130 ]   # The PST
+        PixelLayerBuilder.BarrelAdditionalLayerType       = [ 0 ]     # -- will shift volume boundary to PST
+        PixelLayerBuilder.EndcapAdditionalLayerPositionsZ = [ -1900. , 1900. ] # DBM
+        PixelLayerBuilder.EndcapAdditionalLayerType       = [  1 , 1 ] # DBM
+        # Pixel barrel specifications
+        PixelLayerBuilder.BarrelLayerBinsZ     = TrkDetFlags.PixelBarrelLayerMaterialBinsZ()
+        PixelLayerBuilder.BarrelLayerBinsPhi   = TrkDetFlags.PixelBarrelLayerMaterialBinsPhi()
+        PixelLayerBuilder.EndcapLayerBinsR     = TrkDetFlags.PixelEndcapLayerMaterialBinsR()
+        PixelLayerBuilder.EndcapLayerBinsPhi   = TrkDetFlags.PixelEndcapLayerMaterialBinsPhi()
         
-        if DetFlags.TRT_on():                                                      
-          from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__TRT_LayerBuilder
-          TRT_LayerBuilder = InDet__TRT_LayerBuilder(name=namePrefix+'TRT_LayerBuilder')
-          # TRT barrel specifications
-          TRT_LayerBuilder.ModelBarrelLayers  = TrkDetFlags.TRT_BarrelModelLayers()
-          TRT_LayerBuilder.BarrelLayerBinsZ   = TrkDetFlags.TRT_BarrelLayerMaterialBinsZ()
-          TRT_LayerBuilder.BarrelLayerBinsPhi = TrkDetFlags.TRT_BarrelLayerMaterialBinsPhi()
-          # SCT endcap specifications                     
-          TRT_LayerBuilder.ModelEndcapLayers  = TrkDetFlags.TRT_EndcapModelLayers()
-          TRT_LayerBuilder.EndcapLayerBinsR   = TrkDetFlags.TRT_EndcapLayerMaterialBinsR()
-          TRT_LayerBuilder.EndcapLayerBinsPhi = TrkDetFlags.TRT_EndcapLayerMaterialBinsPhi()                
-          # set the binning from bi-aequidistant to arbitrary for complex TRT volumes
-          TRT_LayerBinning = 1        
-          if buildTrtStrawLayers or TrkDetFlags.TRT_BuildStrawLayers() :
-             TRT_LayerBinning = 2
-             TRT_LayerBuilder.ModelLayersOnly = False
-          # output level
-          TRT_LayerBuilder.OutputLevel        = TrkDetFlags.TRT_BuildingOutputLevel()
-          # TRT -> ToolSvc                      
-          ToolSvc += TRT_LayerBuilder
-          # put them to the caches
-          layerbuilders += [ TRT_LayerBuilder ]
-          binnings      += [ TRT_LayerBinning ]
-          colors        += [ 5 ]
+        # set the layer association
+        PixelLayerBuilder.SetLayerAssociation  = setLayerAssociation
+        # output level
+        PixelLayerBuilder.OutputLevel         = TrkDetFlags.PixelBuildingOutputLevel()
+        # the binning type of the layers   
+        PixelLayerBinning = 2
+        # add it to tool service
+        ToolSvc += PixelLayerBuilder
+        # put them to the caches
+        layerbuilders += [ PixelLayerBuilder ]
+        binnings      += [ PixelLayerBinning ]
+        colors        += [ 3 ]
+        
+        # SCT building
+        SCT_LayerBuilder = InDet__SiLayerBuilder(name=namePrefix+'SCT_LayerBuilder')
+        SCT_LayerBuilder.PixelCase                       = False
+        SCT_LayerBuilder.Identification                  = 'SCT'
+        SCT_LayerBuilder.SiDetManagerLocation            = 'SCT'
+        # additionall layers - handle with care !
+        SCT_LayerBuilder.EndcapAdditionalLayerPositionsZ = [ -2850 , 2850 ] 
+        SCT_LayerBuilder.EndcapAdditionalLayerType       = [  0 , 0 ] 
+        # SCT barrel specifications
+        SCT_LayerBuilder.BarrelLayerBinsZ                = TrkDetFlags.SCT_BarrelLayerMaterialBinsZ()
+        SCT_LayerBuilder.BarrelLayerBinsPhi              = TrkDetFlags.SCT_BarrelLayerMaterialBinsPhi()
+        # SCT endcap specifications                          
+        SCT_LayerBuilder.EndcapLayerBinsR                = TrkDetFlags.SCT_EndcapLayerMaterialBinsR()
+        SCT_LayerBuilder.EndcapLayerBinsPhi              = TrkDetFlags.SCT_EndcapLayerMaterialBinsPhi()
+        SCT_LayerBuilder.EndcapComplexRingBinning        = TrkDetFlags.SCT_EndcapLayerDynamicRings()
+        # set the layer association                   
+        SCT_LayerBuilder.SetLayerAssociation             = setLayerAssociation        
+        # output level                                 
+        SCT_LayerBuilder.OutputLevel                     = TrkDetFlags.SCT_BuildingOutputLevel()
+        # the binning type of the layer     
+        SCT_LayerBinning = 2
+        # SCT -> ToolSvc                             
+        ToolSvc += SCT_LayerBuilder                       
+        # put them to the caches
+        layerbuilders += [ SCT_LayerBuilder ]
+        binnings      += [ SCT_LayerBinning ]
+        colors        += [ 4 ]
+                                                          
+        from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__TRT_LayerBuilder
+        TRT_LayerBuilder = InDet__TRT_LayerBuilder(name=namePrefix+'TRT_LayerBuilder')
+        # TRT barrel specifications
+        TRT_LayerBuilder.ModelBarrelLayers  = TrkDetFlags.TRT_BarrelModelLayers()
+        TRT_LayerBuilder.BarrelLayerBinsZ   = TrkDetFlags.TRT_BarrelLayerMaterialBinsZ()
+        TRT_LayerBuilder.BarrelLayerBinsPhi = TrkDetFlags.TRT_BarrelLayerMaterialBinsPhi()
+        # SCT endcap specifications                     
+        TRT_LayerBuilder.ModelEndcapLayers  = TrkDetFlags.TRT_EndcapModelLayers()
+        TRT_LayerBuilder.EndcapLayerBinsR   = TrkDetFlags.TRT_EndcapLayerMaterialBinsR()
+        TRT_LayerBuilder.EndcapLayerBinsPhi = TrkDetFlags.TRT_EndcapLayerMaterialBinsPhi()                
+        # set the binning from bi-aequidistant to arbitrary for complex TRT volumes
+        TRT_LayerBinning = 1        
+        if buildTrtStrawLayers or TrkDetFlags.TRT_BuildStrawLayers() :
+           TRT_LayerBinning = 2
+           TRT_LayerBuilder.ModelLayersOnly = False
+        # output level
+        TRT_LayerBuilder.OutputLevel        = TrkDetFlags.TRT_BuildingOutputLevel()
+        # TRT -> ToolSvc                      
+        ToolSvc += TRT_LayerBuilder
+        # put them to the caches
+        layerbuilders += [ TRT_LayerBuilder ]
+        binnings      += [ TRT_LayerBinning ]
+        colors        += [ 5 ]
         
         
         # helpers for the InDetTrackingGeometry Builder : layer array creator
