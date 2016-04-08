@@ -37,7 +37,7 @@ ReadTBLArDigits::~ReadTBLArDigits()
 
 StatusCode ReadTBLArDigits::initialize()
 { MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "Initialize" << endmsg;
+  log << MSG::INFO << "Initialize" << endreq;
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
   m_fcalId=caloIdMgr->getFCAL_ID();
@@ -45,19 +45,19 @@ StatusCode ReadTBLArDigits::initialize()
   IToolSvc* toolSvc;
   StatusCode sc=service( "ToolSvc",toolSvc  );
   if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve ToolSvc" << endmsg;
+      log << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
       return StatusCode::FAILURE;
     }
 
   sc=toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
   if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
+      log << MSG::ERROR << "Unable to retrieve LArCablingService" << endreq;
       return StatusCode::FAILURE;
     }
 
   sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endmsg;
+    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -68,7 +68,7 @@ StatusCode ReadTBLArDigits::initialize()
 
   NTupleFilePtr file1(ntupleSvc(),"/NTUPLES/FILE1");
   if (!file1)
-    {log << MSG::ERROR << "Booking of NTuple failed" << endmsg;
+    {log << MSG::ERROR << "Booking of NTuple failed" << endreq;
     return StatusCode::FAILURE;
    }
   NTuplePtr nt(ntupleSvc(),"/NTUPLES/FILE1/LARDIGITS");
@@ -76,88 +76,88 @@ StatusCode ReadTBLArDigits::initialize()
     nt=ntupleSvc()->book("/NTUPLES/FILE1/LARDIGITS",CLID_ColumnWiseTuple,"LArDigits");
   }
   if (!nt)
-    {log << MSG::ERROR << "Booking of NTuple failed" << endmsg;
+    {log << MSG::ERROR << "Booking of NTuple failed" << endreq;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("icell",m_cellIndex,0,3600);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Cell Index' failed" << endmsg;
+    {log << MSG::ERROR << "addItem 'Cell Index' failed" << endreq;
      return StatusCode::FAILURE;
     }
 
   //sc=nt->addItem("layer",m_layer,0,4);
   sc=nt->addItem("layer",m_cellIndex,m_layer);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Layer' failed" << endmsg;
+    {log << MSG::ERROR << "addItem 'Layer' failed" << endreq;
      return StatusCode::FAILURE;
     }
 
   //sc=nt->addItem("ieta",m_eta,0,510);
   sc=nt->addItem("ieta",m_cellIndex,m_eta);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Eta' failed" << endmsg;
+    {log << MSG::ERROR << "addItem 'Eta' failed" << endreq;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("iphi",m_cellIndex,m_phi);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Phi' failed" << endmsg;
+    {log << MSG::ERROR << "addItem 'Phi' failed" << endreq;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("barrel_ec",m_cellIndex,m_barrel_ec);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'barrel_ec' failed" << endmsg;
+    {log << MSG::ERROR << "addItem 'barrel_ec' failed" << endreq;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("pos_neg",m_cellIndex,m_pos_neg);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'pos_neg' failed" << endmsg;
+    {log << MSG::ERROR << "addItem 'pos_neg' failed" << endreq;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("FT",m_cellIndex,m_FT);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'FT' failed" << endmsg;
+    {log << MSG::ERROR << "addItem 'FT' failed" << endreq;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("slot",m_cellIndex,m_slot);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'slot' failed" << endmsg;
+    {log << MSG::ERROR << "addItem 'slot' failed" << endreq;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("channel",m_cellIndex,m_channel);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'channel' failed" << endmsg;
+    {log << MSG::ERROR << "addItem 'channel' failed" << endreq;
      return StatusCode::FAILURE;
     }
 
   sc=nt->addItem("gain",m_cellIndex,m_gain);
   if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Gain' failed" << endmsg;
+    {log << MSG::ERROR << "addItem 'Gain' failed" << endreq;
      return StatusCode::FAILURE;
     }  
   
   sc=nt->addItem("NSamples",m_Nsamples,0,32);
   if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem 'sampleIndex' failed" << endmsg;
+    log << MSG::ERROR << "addItem 'sampleIndex' failed" << endreq;
     return StatusCode::FAILURE;
   }
   
   sc=nt->addItem("Samples",m_cellIndex,m_samples,32);
   //sc=nt->addItem("Samples",m_cellIndex,m_samples,m_Nsamples);
   if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem failed" << endmsg;
+    log << MSG::ERROR << "addItem failed" << endreq;
     return StatusCode::FAILURE;
   }
   
   m_ntuplePtr=nt;
   m_count=0;
-  log << MSG::INFO << "======== ReadTBLArDigits initialize successfully ========" << endmsg;
+  log << MSG::INFO << "======== ReadTBLArDigits initialize successfully ========" << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -166,26 +166,26 @@ StatusCode ReadTBLArDigits::execute()
 {MsgStream log(msgSvc(), name());
  m_count++; 
  StatusCode sc; 
- log << MSG::DEBUG << "======== executing event "<< m_count << " ========" << endmsg;
- log << MSG::DEBUG << "Retrieving TBLArDigitContainer. Key= " << m_containerKey << endmsg; 
+ log << MSG::DEBUG << "======== executing event "<< m_count << " ========" << endreq;
+ log << MSG::DEBUG << "Retrieving TBLArDigitContainer. Key= " << m_containerKey << endreq; 
  TBLArDigitContainer* larDigitCont;
  if (m_containerKey.size())
    sc = evtStore()->retrieve(larDigitCont ,m_containerKey);
  else
    sc = evtStore()->retrieve(larDigitCont);
  if (sc.isFailure()) 
-   {log << MSG::FATAL << " Cannot read TBLArDigitContainer from StoreGate! key=" << m_containerKey << endmsg;
+   {log << MSG::FATAL << " Cannot read TBLArDigitContainer from StoreGate! key=" << m_containerKey << endreq;
     return StatusCode::FAILURE;
    }
  
 
  if (m_outfile.is_open()) {
-   log << MSG::DEBUG << "Sorting digits" << endmsg; 
+   log << MSG::DEBUG << "Sorting digits" << endreq; 
    SortDigits sortDigits(m_onlineHelper);
    std::sort(larDigitCont->begin(),larDigitCont->end(),sortDigits);
  }
  
- log << MSG::DEBUG << "Finished sorting" << endmsg; 
+ log << MSG::DEBUG << "Finished sorting" << endreq; 
  unsigned cellCounter=0;
  TBLArDigitContainer::const_iterator it=larDigitCont->begin();
  TBLArDigitContainer::const_iterator it_end=larDigitCont->end();
@@ -193,14 +193,14 @@ StatusCode ReadTBLArDigits::execute()
    m_Nsamples=(*it)->samples().size();
  else                       
    m_Nsamples=0;
- log << MSG::DEBUG << "Now loop over digits" << endmsg; 
+ log << MSG::DEBUG << "Now loop over digits" << endreq; 
  for (;it!=it_end;it++) {
    HWIdentifier chid=(*it)->hardwareID();
-   log << MSG::DEBUG << "Get offline ID" << endmsg; 
+   log << MSG::DEBUG << "Get offline ID" << endreq; 
    const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
    const std::vector<short>& vSamples=(*it)->samples();
    m_cellIndex=cellCounter;
-   log << MSG::DEBUG << "Now find eta/phi (EM only right now)" << endmsg; 
+   log << MSG::DEBUG << "Now find eta/phi (EM only right now)" << endreq; 
    if (m_emId->is_lar_em(id)) {
      m_eta[m_cellIndex]=m_emId->eta(id); 
      m_phi[m_cellIndex]=m_emId->phi(id);
@@ -218,7 +218,7 @@ StatusCode ReadTBLArDigits::execute()
      m_phi[m_cellIndex]=0;
      m_layer[m_cellIndex]=0;
    }
-   log << MSG::DEBUG << "Store identifier arrays" << endmsg;
+   log << MSG::DEBUG << "Store identifier arrays" << endreq;
    m_barrel_ec[m_cellIndex]=m_onlineHelper->barrel_ec(chid);
    m_pos_neg[m_cellIndex] = m_onlineHelper->pos_neg(chid);
    m_FT[m_cellIndex] = m_onlineHelper->feedthrough(chid);
@@ -226,7 +226,7 @@ StatusCode ReadTBLArDigits::execute()
    m_channel[m_cellIndex]   = m_onlineHelper->channel(chid);
    m_gain[m_cellIndex]=(*it)->gain();
    
-   log << MSG::DEBUG << "Loop over samples" << endmsg; 
+   log << MSG::DEBUG << "Loop over samples" << endreq; 
    int nSamples=vSamples.size();
    for (int i=0;i<nSamples && i<32;i++)
      m_samples[m_cellIndex][i]=vSamples[i];
@@ -248,7 +248,7 @@ StatusCode ReadTBLArDigits::execute()
  }
  sc=ntupleSvc()->writeRecord(m_ntuplePtr);
  if (sc!=StatusCode::SUCCESS) {
-   log << MSG::ERROR << "writeRecord failed" << endmsg;
+   log << MSG::ERROR << "writeRecord failed" << endreq;
    return StatusCode::FAILURE;
  }
  
@@ -261,6 +261,6 @@ StatusCode ReadTBLArDigits::finalize()
 { MsgStream log(msgSvc(), name());
   if (m_outfile.is_open()) 
     m_outfile.close();
-  log << MSG::INFO << "finalize ReadTBLArDigits" << endmsg;
+  log << MSG::INFO << "finalize ReadTBLArDigits" << endreq;
   return StatusCode::SUCCESS;
 }
