@@ -7,7 +7,7 @@
 /**CscCoolTest - simple algorithm to test reading out parameters from the csc cool database using 
 the CscCoolStrSvc getParameter method.  Can be used to test the auto-updating of the local cache withing
 CscCoolStrSvc*/
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/DataHandle.h"
@@ -30,7 +30,7 @@ CscCoolStrSvc*/
 
 class CscIdHelper;
 
-class CscCoolTest: public Algorithm
+class CscCoolTest: public AthAlgorithm
 {
 	public: 
 		CscCoolTest(const std::string& name, ISvcLocator* pSvcLocator);

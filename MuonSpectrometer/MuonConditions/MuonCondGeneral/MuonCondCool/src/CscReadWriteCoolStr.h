@@ -11,7 +11,7 @@
 #include <string>
 #include <fstream>
 #include <istream>
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/DataHandle.h"
@@ -38,7 +38,7 @@ namespace MuonCalib {
     CscReadWriteCoolStr is the main algorithm, and controls the program flow.
    */
 
-  class CscReadWriteCoolStr: public Algorithm
+  class CscReadWriteCoolStr: public AthAlgorithm
   {
     public:
       CscReadWriteCoolStr(const std::string& name, ISvcLocator* pSvcLocator);

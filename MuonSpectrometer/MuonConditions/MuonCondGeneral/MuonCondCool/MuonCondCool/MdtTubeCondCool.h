@@ -9,7 +9,7 @@
 
 
 #include <string>
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/DataHandle.h"
@@ -24,7 +24,7 @@ class CSMid;
 namespace MuonCalib {
 class MdtICoolStrSvc;
 
-class MdtTubeCondCool: public Algorithm
+class MdtTubeCondCool: public AthAlgorithm
 {
  public:
   MdtTubeCondCool(const std::string& name, ISvcLocator* pSvcLocator);

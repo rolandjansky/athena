@@ -24,9 +24,10 @@ using namespace std;
 using namespace MuonCalib; //So we don't need to type MuonCalib:: in front of CscCondParType::
 
 CscCoolTest::CscCoolTest(const std::string& name, 
-    ISvcLocator* pSvcLocator) :Algorithm(name,pSvcLocator),
+    ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),
                                m_log(msgSvc(),name),
-                               p_cscCoolStrSvc(0)
+                               p_cscCoolStrSvc(0),
+                               m_cscId(0)
 {
 
   declareProperty("StripHash",m_stripHash = 800);

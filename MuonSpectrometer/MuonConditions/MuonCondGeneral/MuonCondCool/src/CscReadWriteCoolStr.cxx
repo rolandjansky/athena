@@ -26,7 +26,7 @@ using namespace std;
 namespace MuonCalib {
 
   CscReadWriteCoolStr::CscReadWriteCoolStr(const std::string& name, 
-      ISvcLocator* pSvcLocator) :Algorithm(name,pSvcLocator),
+      ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),
                                  m_log(msgSvc(),name),
                                  p_detstore(0),
                                  m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc",name),
@@ -35,7 +35,8 @@ namespace MuonCalib {
                                  m_read(false),
                                  m_ofile("output.cal"),
                                  m_outFileType("04-00"),
-                                 m_condDataContainer(NULL)
+                                 m_condDataContainer(NULL),
+                                 m_cscId(0)
   {
     // declare properties
 

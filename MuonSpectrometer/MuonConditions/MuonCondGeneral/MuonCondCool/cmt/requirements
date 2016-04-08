@@ -16,7 +16,7 @@ use GaudiInterface  		GaudiInterface-*  		External
 use StoreGate       		StoreGate-*       		Control
 #use DataModel			DataModel-00-*			Control
 #use CLIDSvc			CLIDSvc-00-*			Control
-
+use AthenaBaseComps	        AthenaBaseComps-*	        Control
 use MuonCondData        MuonCondData-*                  MuonSpectrometer/MuonConditions/MuonCondGeneral
 
 #use Identifier			Identifier-00-*			DetectorDescription

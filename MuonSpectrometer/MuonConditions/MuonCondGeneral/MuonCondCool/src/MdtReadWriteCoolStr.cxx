@@ -16,7 +16,7 @@
 namespace MuonCalib {
 
 MdtReadWriteCoolStr::MdtReadWriteCoolStr(const std::string& name, 
-  ISvcLocator* pSvcLocator) :Algorithm(name,pSvcLocator),
+  ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),
    m_log(msgSvc(),name),
    p_detstore(0),
    p_coolsvc(0),
@@ -207,8 +207,10 @@ void MdtReadWriteCoolStr::loadData() {
     if (i==4) region= pch;
     if (i==5) ntubesc= pch;
     m_log  << MSG::INFO<< "region:" << region << endreq;
-    m_log  << MSG::INFO<< "eta:" << eta << endreq;
-    m_log  << MSG::INFO<< "phi:" << phi << endreq;
+    if( eta != NULL ) m_log  << MSG::INFO<< "eta:" << eta << endreq;
+    else m_log  << MSG::INFO<< "eta: NULL" << endreq;
+    if( phi != NULL ) m_log  << MSG::INFO<< "phi:" << phi << endreq;
+    else m_log  << MSG::INFO<< "phi: NULL" << endreq;
   }
   
   int ntubes =atoi(ntubesc);

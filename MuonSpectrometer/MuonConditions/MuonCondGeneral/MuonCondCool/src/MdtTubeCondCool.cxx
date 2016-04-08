@@ -16,10 +16,12 @@
 namespace MuonCalib {
 
 MdtTubeCondCool::MdtTubeCondCool(const std::string& name, 
-  ISvcLocator* pSvcLocator) :Algorithm(name,pSvcLocator),
+  ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),
    m_log(msgSvc(),name),
    p_detstore(0),
+   m_storeGate(0),
    p_coolsvc(0),
+   m_mdtDeadTubeStatusContainer(0),
    m_done(false),
    par_read(false),
    par_extract(false),

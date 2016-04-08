@@ -7,7 +7,7 @@
 
 
 #include <string>
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/DataHandle.h"
@@ -19,7 +19,7 @@ namespace MuonCalib {
 
 class ITriggerCoolSvc;
 
-class TriggerCool: public Algorithm
+class TriggerCool: public AthAlgorithm
 {
  public:
 

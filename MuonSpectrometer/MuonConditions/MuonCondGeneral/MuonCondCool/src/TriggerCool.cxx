@@ -10,7 +10,7 @@
 
 namespace MuonCalib {
 TriggerCool::TriggerCool(const std::string& name, 
-  ISvcLocator* pSvcLocator) :Algorithm(name,pSvcLocator),
+  ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),
    m_log(msgSvc(),name),
    p_detstore(0),
    p_coolsvc(0),

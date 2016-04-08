@@ -9,7 +9,7 @@
 
 
 #include <string>
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/DataHandle.h"
@@ -20,7 +20,7 @@ class StoreGateSvc;
 namespace MuonCalib {
 class RpcICoolStrSvc;
 
-class RpcReadWriteCoolStr: public Algorithm
+class RpcReadWriteCoolStr: public AthAlgorithm
 {
  public:
   RpcReadWriteCoolStr(const std::string& name, ISvcLocator* pSvcLocator);
