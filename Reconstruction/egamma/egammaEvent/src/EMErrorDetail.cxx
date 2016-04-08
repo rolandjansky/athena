@@ -20,7 +20,7 @@
 #include <cmath>
 
 
-const double DEFAULT_MOMENTUM = 1e11;
+//const double DEFAULT_MOMENTUM = 1e11;
 
 EMErrorDetail::EMErrorDetail() : egDetail() { }
 

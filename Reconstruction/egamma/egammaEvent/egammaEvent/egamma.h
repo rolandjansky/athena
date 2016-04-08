@@ -148,6 +148,7 @@ class egamma
   const egDetail* detail (int i) const;
   /** @brief ElementLink for detail i*/
   ElementLink<egDetailContainer> detailElementLink (int i) const;
+  const ElementLinkVector<egDetailContainer>& detailElementLinkVector() const;
   /** @brief name of detail i*/
   std::string detailName (int i) const;
   /** @brief number of details in egamma object*/
@@ -159,12 +160,14 @@ class egamma
 
   /** @brief element link to trackParticle*/
   ElementLink<Rec::TrackParticleContainer> trackParticleElementLink(unsigned int index = 0) const;
+  const ElementLinkVector<Rec::TrackParticleContainer>& trackParticleElementLinkVector() const;
   /** @brief element link to cluster*/
-  ElementLink<CaloClusterContainer> clusterElementLink() const;
+  const ElementLink<CaloClusterContainer>& clusterElementLink() const;
   /** @brief element link to conversion*/
   ElementLink<VxContainer> conversionElementLink(unsigned int index = 0) const;
+  const ElementLinkVector<VxContainer>& conversionElementLinkVector() const;
   /** @brief element link to rings*/
-  ElementLink<CaloRingsContainer> ringsElementLink() const;
+  const ElementLink<CaloRingsContainer>& ringsElementLink() const;
 
   /** @brief access to PID information, as double to work for IsEM 
       and all possible weights as likelihood */
@@ -176,6 +179,9 @@ class egamma
   void setDetail(const egDetailContainer*, const egDetail*); 
   /** @brief set detailElementLink */
   void setDetailElementLink(const ElementLink<egDetailContainer>& link); 
+
+  void setDetailElementLinkVector(const ElementLinkVector<egDetailContainer>& v); 
+  void setDetailElementLinkVector(ElementLinkVector<egDetailContainer>&& v); 
 
   /** @brief set particle ID */
   void set_pid(egPID* );
@@ -219,6 +225,9 @@ class egamma
   /** @brief Reset Track Particle */
   void resetTrackParticle(unsigned int index = 0);
 
+  void setTrackParticleElementLinkVector(const ElementLinkVector<Rec::TrackParticleContainer>& v);
+  void setTrackParticleElementLinkVector(ElementLinkVector<Rec::TrackParticleContainer>&& v);
+
   /** @brief  Set Conversion */
   void setConversion(const VxContainer *, int) ;
   /** @brief  Set Conversion */
@@ -227,6 +236,9 @@ class egamma
   void setConversionElementLink(const ElementLink<VxContainer>& link);
   /** @brief  Reset Conversion */
   void resetConversion(unsigned int index = 0);
+
+  void setConversionElementLinkVector(const ElementLinkVector<VxContainer>& link);
+  void setConversionElementLinkVector(ElementLinkVector<VxContainer>&& link);
 
   /** @brief Reconstruction Author  */
   unsigned int author() const {return m_author; }

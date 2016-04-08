@@ -383,7 +383,7 @@ const CaloRings*  egamma::rings() const
   return (m_rings.isValid()) ? *m_rings : 0;
 }
 
-ElementLink<CaloRingsContainer> egamma::ringsElementLink() const 
+const ElementLink<CaloRingsContainer>& egamma::ringsElementLink() const 
 { 
   //
   // methods to access RingerRings ElementLink
@@ -431,7 +431,7 @@ unsigned int egamma::nConversions() const
 }
 
 // ==========================================================
-ElementLink<CaloClusterContainer> egamma::clusterElementLink() const 
+const ElementLink<CaloClusterContainer>& egamma::clusterElementLink() const 
 { 
   return m_cluster;
 }
@@ -447,6 +447,13 @@ ElementLink<Rec::TrackParticleContainer> egamma::trackParticleElementLink(unsign
 }
 
 // ==========================================================
+const ElementLinkVector<Rec::TrackParticleContainer>&
+egamma::trackParticleElementLinkVector() const 
+{ 
+  return m_trackParticle;
+}
+
+// ==========================================================
 ElementLink<VxContainer> egamma::conversionElementLink(unsigned int index) const 
 { 
   if(index < m_conversion.size()){
@@ -454,6 +461,13 @@ ElementLink<VxContainer> egamma::conversionElementLink(unsigned int index) const
   }else{
     return ElementLink<VxContainer>();
   }
+}
+
+// ==========================================================
+const ElementLinkVector<VxContainer>&
+egamma::conversionElementLinkVector() const 
+{ 
+  return m_conversion;
 }
 
 // ==========================================================
@@ -539,6 +553,20 @@ egamma::setTrackParticleElementLink (const ElementLink<Rec::TrackParticleContain
 }
 
 // ==========================================================
+void 
+egamma::setTrackParticleElementLinkVector (const ElementLinkVector<Rec::TrackParticleContainer>& v) 
+{ 
+  m_trackParticle = v;
+}
+
+// ==========================================================
+void 
+egamma::setTrackParticleElementLinkVector (ElementLinkVector<Rec::TrackParticleContainer>&& v) 
+{ 
+  m_trackParticle = std::move(v);
+}
+
+// ==========================================================
 void egamma::resetConversion(unsigned int index)
 {
   if(index < m_conversion.size()){
@@ -570,6 +598,20 @@ egamma::setConversionElementLink (const ElementLink<VxContainer>& link)
 }
 
 // ==========================================================
+void
+egamma::setConversionElementLinkVector (const ElementLinkVector<VxContainer>& v) 
+{ 
+  m_conversion = v;
+}
+
+// ==========================================================
+void
+egamma::setConversionElementLinkVector (ElementLinkVector<VxContainer>&& v) 
+{ 
+  m_conversion = std::move(v);
+}
+
+// ==========================================================
 // methods to save the pointer to the different data objects in e/g data class
 void egamma::setDetail(const egDetailContainer* cont, 
 			      const egDetail* ptr) 
@@ -584,6 +626,22 @@ void
 egamma::setDetailElementLink(const ElementLink<egDetailContainer>& link) 
 { 
   m_egDetails.push_back( link );
+} 
+
+
+// ==========================================================
+void
+egamma::setDetailElementLinkVector(const ElementLinkVector<egDetailContainer>& v) 
+{ 
+  m_egDetails = v;
+} 
+
+
+// ==========================================================
+void
+egamma::setDetailElementLinkVector(ElementLinkVector<egDetailContainer>&& v) 
+{ 
+  m_egDetails = std::move(v);
 } 
 
 
@@ -820,6 +878,12 @@ ElementLink<egDetailContainer> egamma::detailElementLink (int i) const
   if (i < 0 || i >= (int)m_egDetails.size())
     return ElementLink<egDetailContainer>();
   return m_egDetails[i];
+}
+
+// ==========================================================
+const ElementLinkVector<egDetailContainer>& egamma::detailElementLinkVector () const
+{
+  return m_egDetails;
 }
 
 // ==========================================================

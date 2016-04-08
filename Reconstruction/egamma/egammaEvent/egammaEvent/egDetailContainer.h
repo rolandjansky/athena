@@ -26,7 +26,7 @@ class egDetailContainer : public DataVector<egDetail>
  private:
 
   /** wether it owns or not the cel SG::OWN_ELEMENTS or VIEW_ELEMENTS */
-  SG::OwnershipPolicy  m_ownPolicy ;
+  //SG::OwnershipPolicy  m_ownPolicy ;
 
 };
 

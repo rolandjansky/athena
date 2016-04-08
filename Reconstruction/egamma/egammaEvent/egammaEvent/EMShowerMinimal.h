@@ -349,7 +349,7 @@ inline void EMShowerMinimal::set_fracs1(double x)   {  m_fracs1=x  ;}
 inline void EMShowerMinimal::set_emaxs1(double x)   {  m_emaxs1=x  ;} 
 // replace old set method due to navigation, use set_Cluster now in algos
 // inline void EMShowerMinimal::set_caloClus(const CaloCluster* x)      {  m_caloClus=x   ;} 
-inline void EMShowerMinimal::set_caloClus( const CaloCluster* x) {  m_caloClus.setElement(const_cast<CaloCluster*>(x)); }
+inline void EMShowerMinimal::set_caloClus( const CaloCluster* x) {  m_caloClus.setElement(x); }
 inline void EMShowerMinimal::set_Cluster(CaloClusterContainer *pCont, int index)  {
     m_caloClus.toIndexedElement( *pCont, index);
   }
