@@ -421,7 +421,7 @@ void TrigInDetVxInJetTool::Select2TrVrt(std::vector<const Track*>     & Selected
                                         std::vector<const Track*>     & ListSecondTracks) {
 
   StatusCode sc;
-  sc.isSuccess();
+  sc.setChecked();
   Amg::Vector3D FitVertex, vDist;
   std::vector<double> ErrorMatrix,Chi2PerTrk,VKPerigee,CovPerigee;
   std::vector< std::vector<double> > TrkAtVrt; 
@@ -609,27 +609,27 @@ void TrigInDetVxInJetTool::Select2TrVrt(std::vector<const Track*>     & Selected
         //  Creation on V0 tracks
         //
         if(BadTracks){
-          std::vector<double> InpMass;
+          std::vector<double> _InpMass;
           m_fitSvc->setDefault();                     //Reset VKalVrt settings
           m_fitSvc->setMomCovCalc(1);                 //Total momentum and its covariance 
 		                                              //matrix are calculated
 		  if( BadTracks == 1 ) {  // K0 case
-		    InpMass.push_back(m_massPi);InpMass.push_back(m_massPi);
-            m_fitSvc->setMassInputParticles( InpMass );
+		    _InpMass.push_back(m_massPi);_InpMass.push_back(m_massPi);
+            m_fitSvc->setMassInputParticles( _InpMass );
             m_fitSvc->setMassForConstraint(m_massK0);
             m_fitSvc->setCnstType(1);       // Set mass  constraint
           }
 		  if( BadTracks == 2 ) {  // Lambda case
             if( fabs(1./TrkAtVrt[0][2]) > fabs(1./TrkAtVrt[1][2]) ) {
-              InpMass.push_back(m_massP);InpMass.push_back(m_massPi);
-            }else{  InpMass.push_back(m_massPi);InpMass.push_back(m_massP); }
-            m_fitSvc->setMassInputParticles( InpMass );
+              _InpMass.push_back(m_massP);_InpMass.push_back(m_massPi);
+            }else{  _InpMass.push_back(m_massPi);_InpMass.push_back(m_massP); }
+            m_fitSvc->setMassInputParticles( _InpMass );
             m_fitSvc->setMassForConstraint(m_massLam);
             m_fitSvc->setCnstType(1);       // Set mass  constraint
           }
 		  if( BadTracks == 3 ) {  // Gamma case
-		    InpMass.push_back(m_massE);InpMass.push_back(m_massE);
-            m_fitSvc->setMassInputParticles( InpMass );
+		    _InpMass.push_back(m_massE);_InpMass.push_back(m_massE);
+            m_fitSvc->setMassInputParticles( _InpMass );
             m_fitSvc->setCnstType(12);       // Set 3d angular constraint
           }
           m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z()); 
