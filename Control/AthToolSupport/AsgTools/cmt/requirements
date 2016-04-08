@@ -1,5 +1,5 @@
 package AsgTools
-# $Id: requirements 628154 2014-11-13 12:30:13Z krasznaa $
+# $Id: requirements 649187 2015-02-24 08:46:57Z krasznaa $
 
 author David Adams
 
@@ -17,7 +17,7 @@ use IOVDbDataModel IOVDbDataModel-* Database
 # Build a library:
 library AsgTools "../Root/MsgLevel.cxx ../Root/AsgTool.cxx \
                   ../Root/AsgMetadataTool.cxx ../Root/AsgMessaging.cxx \
-                  *.cxx"
+                  ../Root/ToolStore.cxx *.cxx"
 apply_pattern installed_library
 
 private

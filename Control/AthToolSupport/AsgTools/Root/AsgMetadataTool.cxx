@@ -1,4 +1,4 @@
-// $Id: AsgMetadataTool.cxx 618296 2014-09-24 08:31:16Z krasznaa $
+// $Id: AsgMetadataTool.cxx 670266 2015-05-27 15:11:30Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
@@ -17,6 +17,13 @@
 #   include "xAODRootAccessInterfaces/TActiveEvent.h"
 #   include "xAODRootAccess/TEvent.h"
 #endif // ASGTOOL_STANDALONE
+
+#ifdef ASGTOOL_ATHENA
+namespace IncidentType {
+   /// Incident in Athena, emitted when metadata should be written out
+   static const std::string MetaDataStop = "MetaDataStop";
+} // namespace IncidentType
+#endif // ASGTOOL_ATHENA
 
 namespace asg {
 
@@ -48,6 +55,27 @@ namespace asg {
       // Register the tool for callbacks:
       if( event->addListener( this ).isFailure() ) {
          ATH_MSG_ERROR( "Couldn't register the tool for xAOD callbacks" );
+      }
+#elif defined(ASGTOOL_ATHENA)
+      // Declare the interface implemented by this base class:
+      declareInterface< IIncidentListener >( this );
+#endif // Environment selection
+   }
+
+   AsgMetadataTool::~AsgMetadataTool() {
+
+#ifdef ASGTOOL_STANDALONE
+      // Try to access the active TEvent:
+      xAOD::TVirtualEvent* vevent = xAOD::TActiveEvent::event();
+      xAOD::TEvent* event = dynamic_cast< xAOD::TEvent* >( vevent );
+      // If we didn't succeed, fine. No need to complain about it...
+      if( event ) {
+         // But if there is a TEvent, then let's try to de-register from it
+         // properly.
+         if( event->removeListener( this ).isFailure() ) {
+            ATH_MSG_WARNING( "Active xAOD::TEvent didn't have a callback for "
+                             "this tool" );
+         }
       }
 #endif // ASGTOOL_STANDALONE
    }
@@ -85,6 +113,7 @@ namespace asg {
       // Set up the right callbacks:
       incSvc->addListener( this, IncidentType::BeginEvent, 0, true );
       incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
+      incSvc->addListener( this, IncidentType::MetaDataStop, 70, true );
 
       // Let the base class do its thing:
       ATH_CHECK( AlgTool::sysInitialize() );
@@ -111,6 +140,11 @@ namespace asg {
             ATH_MSG_FATAL( "Failed to call beginEvent()" );
             throw std::runtime_error( "Couldn't call beginEvent()" );
          }
+      } else if( inc.type() == IncidentType::MetaDataStop ) {
+         if( metaDataStop().isFailure() ) {
+            ATH_MSG_FATAL( "Failed to call metaDataStop()" );
+            throw std::runtime_error( "Couldn't call metaDataStop()" );
+         }
       } else {
          ATH_MSG_WARNING( "Unknown incident type received: " << inc.type() );
       }
@@ -129,6 +163,14 @@ namespace asg {
    /// Dummy implementation that can be overridden by the derived tool.
    ///
    StatusCode AsgMetadataTool::beginEvent() {
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   /// Dummy implementation that can be overridden by the derived tool.
+   ///
+   StatusCode AsgMetadataTool::metaDataStop() {
 
       // Return gracefully:
       return StatusCode::SUCCESS;

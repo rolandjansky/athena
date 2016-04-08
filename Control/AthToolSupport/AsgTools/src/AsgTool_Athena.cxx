@@ -8,6 +8,7 @@
 
 // Make the private members of AlgTool public so
 // we can set the type.
+#include <sstream>
 #define private public
 #include "GaudiKernel/AlgTool.h"
 #undef private

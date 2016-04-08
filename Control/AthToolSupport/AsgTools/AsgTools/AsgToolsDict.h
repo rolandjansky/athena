@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgToolsDict.h 634085 2014-12-05 16:42:38Z ssnyder $
+// $Id: AsgToolsDict.h 649187 2015-02-24 08:46:57Z krasznaa $
 #ifndef ASGTOOLS_ASGTOOLSDICT_H
 #define ASGTOOLS_ASGTOOLSDICT_H
 
@@ -11,6 +11,8 @@
 #include "AsgTools/IAsgTool.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
+#include "AsgTools/AsgMessaging.h"
+#include "AsgTools/ToolStore.h"
 
 // The following is only needed for standalone usage. In Athena the
 // setProperty(...) function(s) come(s) from the AlgTool base class, with all

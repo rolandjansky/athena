@@ -1,4 +1,4 @@
-// $Id: ToolStore.cxx 620407 2014-10-07 13:40:28Z krasznaa $
+// $Id: ToolStore.cxx 649189 2015-02-24 08:59:46Z krasznaa $
 
 // System include(s):
 #include <map>
@@ -7,6 +7,12 @@
 // Local include(s):
 #include "AsgTools/ToolStore.h"
 #include "AsgTools/MsgStreamMacros.h"
+
+// Create a simple version of the MSGSTREAM_REPORT_PREFIX macro for Athena:
+#ifdef ASGTOOL_ATHENA
+#   define MSGSTREAM_REPORT_PREFIX              \
+   __FILE__ << ":" << __LINE__ << ": "
+#endif // ASGTOOL_ATHENA
 
 /// Helper macro for printing nicely formatted error messages
 #define TOOLSTORE_ERROR( FNC, MSG )             \
@@ -72,8 +78,10 @@ namespace asg {
                           "Received an empty name" );
       }
 
+#ifdef ASGTOOL_STANDALONE
       // Set the tool's name to the specified one:
       ptool->setName( name );
+#endif // ASGTOOL_STANDALONE
 
       // Register the tool using the other function:
       return put( ptool );

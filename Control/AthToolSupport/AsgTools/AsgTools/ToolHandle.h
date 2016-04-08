@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ToolHandle.h 612816 2014-08-21 12:03:06Z krasznaa $
+// $Id: ToolHandle.h 659434 2015-04-08 11:53:27Z krasznaa $
 #ifndef ASGTOOLS_TOOLHANDLE_H
 #define ASGTOOLS_TOOLHANDLE_H
 
@@ -17,6 +17,40 @@
 // Local include(s):
 #include "AsgTools/StatusCode.h"
 
+/// Non-templated base class for the ToolHandle types
+///
+/// This base class takes care of implementing all the functionality of
+/// ToolHandle that doesn't depend on the template parameter of the class.
+/// Making the built binaries a bit smaller, and faster.
+///
+/// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+///
+/// $Revision: 659434 $
+/// $Date: 2015-04-08 13:53:27 +0200 (Wed, 08 Apr 2015) $
+///
+class ToolHandleBase {
+
+public:
+   /// Constructor with a type/name string
+   ToolHandleBase( const std::string& typeAndName = "" );
+
+   /// Return the type/name string specified by the user
+   const std::string& typeAndName() const;
+   /// Return the tool's type name
+   const std::string& type() const;
+   /// Return the tool's instance name
+   const std::string& name() const;
+
+protected:
+   /// The type/name string specified in the constructor
+   std::string m_typeAndName;
+   /// The type name of the target tool
+   std::string m_type;
+   /// The instance name of the target tool
+   std::string m_name;
+
+}; // class ToolHandleBase
+
 /// Partial re-implementation of Gaudi's ToolHandle class
 ///
 /// This class can be used in a dual-use tool to find other dual-use tools
@@ -25,11 +59,11 @@
 /// @author David Adams <dladams@bnl.gov>
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 612816 $
-/// $Date: 2014-08-21 14:03:06 +0200 (Thu, 21 Aug 2014) $
+/// $Revision: 659434 $
+/// $Date: 2015-04-08 13:53:27 +0200 (Wed, 08 Apr 2015) $
 ///
 template< class T >
-class ToolHandle {
+class ToolHandle : public ToolHandleBase {
 
 public:
    /// A convenience type declaration
@@ -40,9 +74,6 @@ public:
 
    /// Constructor from a tool name.
    ToolHandle( const std::string& toolname );
-
-   /// Return the tool's name
-   const std::string& name() const;
 
    /// Dereferencing operator
    T& operator*() const;
@@ -60,8 +91,6 @@ public:
 private:
    /// Pointer to the tool
    mutable T* m_ptool;
-   /// The name of the tool
-   std::string m_toolname;
 
 }; // class ToolHandle
 
