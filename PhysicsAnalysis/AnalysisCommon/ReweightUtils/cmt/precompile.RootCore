@@ -1,0 +1,73 @@
+#!/bin/bash
+
+RCPACKAGENAME=ReweightUtils
+ECHO="echo -e"
+
+DIRECTORY=${PWD%/*}
+
+# rm $DIRECTORY/Root/*~ $DIRECTORY/Root/\#*\# $DIRECTORY/$RCPACKAGENAME/*~ $DIRECTORY/$RCPACKAGENAME/\#*\#
+
+DEFINITIONS=$DIRECTORY/Root/definitions.h
+
+if [ ! -f $DEFINITIONS ]; then
+    $ECHO "#define SVNVERSION \""$(svnversion 2>/dev/null || $ECHO "unknown")"\"" > $DEFINITIONS
+    $ECHO "#define ROOTVERSION \""$(root-config --version)"\"" >> $DEFINITIONS
+    $ECHO "#define GCCVERSION \""$(gcc -dumpversion)"\"" >> $DEFINITIONS
+    LIBXMLPATH_ORIG=$(find $(g++ --print-search-dirs | grep libraries | sed -e 's/^[ ]*libraries:[ ]*=//' -e 's/:/ /g') -name 'libxml2.*so' 2>/dev/null | head -1)
+    LIBXMLPATH=$(cd ${LIBXMLPATH_ORIG%/*} && pwd)/${LIBXMLPATH_ORIG##*/}
+    if [ -n "$LIBXMLPATH" ]; then
+  $ECHO "#define LIBXMLPATH \""$LIBXMLPATH"\"" >> $DEFINITIONS
+    fi
+    #   if which rc &>/dev/null; then
+    # if rc version 2>/dev/null | grep -q xAODRootAccess &> /dev/null ; then
+    #     echo "#define ASG_RELEASE 1" >> $DEFINITIONS;
+    # fi
+    # fi
+    $ECHO "#ifdef ROOTCORE_PACKAGE_xAODRootAccess\n#define ASG_RELEASE 1\n#endif" >> $DEFINITIONS;
+    if [ $(which exiftool &>/dev/null; echo $?) -eq 0 ]; then
+  $ECHO "#define EXIFTOOLPATH \""$(which exiftool 2>/dev/null)"\"" >> $DEFINITIONS ;
+    fi
+fi
+
+LOCALS=$DIRECTORY/Root/locals.h
+
+if [ ! -f $LOCALS ]; then
+    touch $LOCALS
+fi
+
+LINKDEF=$DIRECTORY/Root/LinkDef.h
+
+if [ ! -f $LINKDEF ]; then
+    $ECHO "//this is an automatically generated -*- c++ -*- file - EDITS WILL BE LOST!" > $LINKDEF
+    $ECHO "#ifndef __${RCPACKAGENAME}DICT__\n#define __${RCPACKAGENAME}DICT__" >> $LINKDEF
+    for FILE in $(ls $DIRECTORY/${RCPACKAGENAME}/|egrep -v "LinkDef|^_|tpp|~|#"); do
+  $ECHO "#include \"${RCPACKAGENAME}/$FILE\"" >> $LINKDEF;
+    done
+    $ECHO "\n\n#ifdef __CINT__\n\n\n#pragma link off all globals;\n#pragma link off all classes;\n#pragma link off all functions;\n#pragma link C++ nestedclass;\n#pragma link C++ nestedtypedef;\n" >> $LINKDEF
+    for CLASS in $(find $DIRECTORY/${RCPACKAGENAME}/*.h | xargs egrep -h "^[ ]*class[ ]*[A-Za-z0-9]+[ ]*[:{]" | egrep -v "//[ ]*nested" | sed -e 's/.*class[ ]*\([A-Za-z0-9]*\)[ ]*.*/\1/g'); do
+  $ECHO "#pragma link C++ class $CLASS+;" >> $LINKDEF;
+    done
+    for FILES in $(ls $DIRECTORY/${RCPACKAGENAME}/*.add) ; do
+  cat $FILES | grep -v "//" >>$LINKDEF ;
+    done
+    for NAMESPACE in $(find $DIRECTORY/${RCPACKAGENAME}/*.h | xargs egrep -h "^[ ]*namespace[ ]*[A-Za-z0-9]+[ ]" | grep -v "EXCLUDE" | sed -e 's/.*namespace[ ]*\([A-Za-z0-9]*\)[ ]*.*/\1/g'); do
+  $ECHO "#pragma link C++ namespace $NAMESPACE;" >> $LINKDEF;
+    done
+    for TYPEDEF in $(find $DIRECTORY/${RCPACKAGENAME}/*.h | xargs egrep -h "^[ ]*typedef[ ]*[A-Za-z0-9]+[ ]" | sed -e 's/.*typedef[ ]*[A-Za-z0-9]*[ ]*\([A-Za-z0-9]*\)[ ]*.*/\1/g'); do
+  $ECHO  "#pragma link C++ typedef $TYPEDEF;" >> $LINKDEF;
+    done
+    $ECHO "\n#endif\n#endif\n" >> $LINKDEF
+fi
+
+PYCLASSES=$DIRECTORY/python/__init__.py
+if [ ! -f $PYCLASSES ]; then
+    $ECHO "# this is an automatically generated file" > $PYCLASSES
+    cat $DIRECTORY/python/ReweightUtils.py >> $PYCLASSES
+    for CLASS in $(find $DIRECTORY/${RCPACKAGENAME}/*.h  | grep -v AP | xargs egrep -h "^[ ]*class[ ]*[A-Za-z0-9]+[ ]*[:{]" | egrep -v "//[ ]*nested" | sed -e 's/.*class[ ]*\([A-Za-z0-9]*\)[ ]*.*/\1/g'); do
+       echo $CLASS"=ROOT."$CLASS >> $PYCLASSES
+    done
+    for NAMESPACE in $(find $DIRECTORY/${RCPACKAGENAME}/*.h | xargs egrep -h "^[ ]*namespace[ ]*[A-Za-z0-9]+[ ]" | grep -v xAOD | grep -v AP | sed -e 's/.*namespace[ ]*\([A-Za-z0-9]*\)[ ]*.*/\1/g'); do
+       echo $NAMESPACE"=ROOT."$NAMESPACE >> $PYCLASSES
+    done
+fi
+

@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <ReweightUtils/McEventWeight.h>
+#include <ReweightUtils/WeightsAgregator.h>
 #include <ReweightUtils/APWeightEntry.h>
 #include <ReweightUtils/APReweightBase.h>
 #include <ReweightUtils/APReweight.h>
@@ -18,6 +20,8 @@
 #pragma link off all functions;
 #pragma link C++ nestedclass;
 
+#pragma link C++ class McEventWeight+;
+#pragma link C++ class WeightsAgregator+;
 #pragma link C++ class APWeightEntry+;
 #pragma link C++ class APReweightBase+;
 #pragma link C++ class APReweight+;
