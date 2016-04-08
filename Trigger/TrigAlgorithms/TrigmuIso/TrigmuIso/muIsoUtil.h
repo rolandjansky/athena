@@ -17,19 +17,6 @@
 
 namespace muIsoUtil {
 
-  ///Consistency checks for Tile cal region
-  /*!
-  * \param const int    opt
-  * \param const double phi
-  */
-  double check_tileregion(const int opt, const double phi);
-
-  ///Weight for LAr outer ring
-  double  normaLAr(double eta);
-
-  ///Weight for Tile outer ring
-  double  normaTile(double eta);
-
   ///SGExtrapolator Functions
 
   ///Return deltaEta between eta@MS entrance and eta@Calo entrance
