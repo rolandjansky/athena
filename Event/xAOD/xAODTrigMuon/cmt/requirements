@@ -19,6 +19,7 @@ apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Physics)"
 
 library xAODTrigMuon ../Root/*.cxx
 apply_pattern installed_library
+apply_pattern do_genCLIDDB library=xAODTrigMuon
 
 private
 

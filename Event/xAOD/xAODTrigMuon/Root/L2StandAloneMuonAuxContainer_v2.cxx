@@ -2,14 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuonAuxContainer_v1.cxx 706292 2015-11-06 05:33:24Z ssnyder $
+// $Id: L2StandAloneMuonAuxContainer_v2.cxx 661304 2015-04-18 04:31:23Z mishitsu $
 
 // Local include(s):
-#include "xAODTrigMuon/versions/L2StandAloneMuonAuxContainer_v1.h"
+#include "xAODTrigMuon/versions/L2StandAloneMuonAuxContainer_v2.h"
 
 namespace xAOD {
 
-   L2StandAloneMuonAuxContainer_v1::L2StandAloneMuonAuxContainer_v1()
+   L2StandAloneMuonAuxContainer_v2::L2StandAloneMuonAuxContainer_v2()
       : AuxContainerBase() {
 
       AUX_VARIABLE( pt );
@@ -33,10 +33,6 @@ namespace xAOD {
       AUX_VARIABLE( endcapBeta );
       AUX_VARIABLE( endcapRadius );
 
-      AUX_VARIABLE( slopeInner );
-      AUX_VARIABLE( interceptInner );
-      AUX_VARIABLE( deltaR );
-
       AUX_VARIABLE( etaMap );
       AUX_VARIABLE( phiMap );
       AUX_VARIABLE( etaBin );
@@ -46,6 +42,9 @@ namespace xAOD {
       AUX_VARIABLE( isRpcFailure );
 
       AUX_VARIABLE( deltaPt );
+      AUX_VARIABLE( deltaPtParm1 );
+      AUX_VARIABLE( deltaPtParm2 );
+      AUX_VARIABLE( deltaPtParm3 );
       AUX_VARIABLE( deltaEta );
       AUX_VARIABLE( deltaPhi );
 
@@ -71,16 +70,16 @@ namespace xAOD {
       AUX_VARIABLE( roiSector );
       AUX_VARIABLE( roiNumber );
       AUX_VARIABLE( roiThreshold );
-      //AUX_VARIABLE( roiEta );
-      //AUX_VARIABLE( roiPhi );
-      regAuxVar ("roiEtaUint", roiEta);
-      regAuxVar ("roiPhiUint", roiPhi);
+      AUX_VARIABLE( roiEta );
+      AUX_VARIABLE( roiPhi );
 
+      AUX_VARIABLE( tgcPt );
       AUX_VARIABLE( ptBarrelRadius );
       AUX_VARIABLE( ptBarrelSagitta );
       AUX_VARIABLE( ptEndcapAlpha );
       AUX_VARIABLE( ptEndcapBeta );
       AUX_VARIABLE( ptEndcapRadius );
+      AUX_VARIABLE( ptCSC );
 
       AUX_VARIABLE( chamberType1Normal );
       AUX_VARIABLE( chamberType1Overlap );
@@ -108,8 +107,6 @@ namespace xAOD {
       AUX_VARIABLE( etaMaxNormal );
       AUX_VARIABLE( etaMaxOverlap );
 
-      AUX_VARIABLE( tgcPt );
-
       AUX_VARIABLE( tgcInnEta );
       AUX_VARIABLE( tgcInnPhi );
       AUX_VARIABLE( tgcInnR );
@@ -135,85 +132,71 @@ namespace xAOD {
       AUX_VARIABLE( tgcMidPhiChi2 );
       AUX_VARIABLE( tgcMidPhiN );
 
-      AUX_VARIABLE( rpc1x );
-      AUX_VARIABLE( rpc1y );
-      AUX_VARIABLE( rpc1z );
+      AUX_VARIABLE( rpcFitInnPhi );
+      AUX_VARIABLE( rpcFitInnSlope );
+      AUX_VARIABLE( rpcFitInnOffset );
 
-      AUX_VARIABLE( rpc2x );
-      AUX_VARIABLE( rpc2y );
-      AUX_VARIABLE( rpc2z );
+      AUX_VARIABLE( rpcFitMidPhi );
+      AUX_VARIABLE( rpcFitMidSlope );
+      AUX_VARIABLE( rpcFitMidOffset );
 
-      AUX_VARIABLE( rpc3x );
-      AUX_VARIABLE( rpc3y );
-      AUX_VARIABLE( rpc3z );
+      AUX_VARIABLE( rpcFitOutPhi );
+      AUX_VARIABLE( rpcFitOutSlope );
+      AUX_VARIABLE( rpcFitOutOffset );
 
-      AUX_VARIABLE( extensionCapacity );
-      AUX_VARIABLE( robCapacity );
-      AUX_VARIABLE( csmCapacity );
-      AUX_VARIABLE( lvl1EmuCapacity );
       AUX_VARIABLE( rpcHitsCapacity );
       AUX_VARIABLE( tgcHitsCapacity );
       AUX_VARIABLE( mdtHitsCapacity );
+      AUX_VARIABLE( cscHitsCapacity );
 
-      AUX_VARIABLE( extension0 );
-      AUX_VARIABLE( extension1 );
-      AUX_VARIABLE( extension2 );
-      AUX_VARIABLE( extension3 );
-      AUX_VARIABLE( extension4 );
-      AUX_VARIABLE( extension5 );
-      AUX_VARIABLE( extension6 );
-      AUX_VARIABLE( extension7 );
-      AUX_VARIABLE( extension8 );
-      AUX_VARIABLE( extension9 );
+      AUX_VARIABLE( rpcHitLayer );
+      AUX_VARIABLE( rpcHitMeasuresPhi );
+      AUX_VARIABLE( rpcHitX );
+      AUX_VARIABLE( rpcHitY );
+      AUX_VARIABLE( rpcHitZ );
+      AUX_VARIABLE( rpcHitTime );
+      AUX_VARIABLE( rpcHitDistToEtaReadout );
+      AUX_VARIABLE( rpcHitDistToPhiReadout );
+      AUX_VARIABLE( rpcHitStationName );
 
-      AUX_VARIABLE( lvl1Emulation );    
-
-      AUX_VARIABLE( robId );
-      AUX_VARIABLE( removedRobId );
-
-      AUX_VARIABLE( csmId );
-      AUX_VARIABLE( csmSize );
-      AUX_VARIABLE( csmError );
-      AUX_VARIABLE( removedCsmId );
-
-      AUX_VARIABLE( padHitOnlineId );
-      AUX_VARIABLE( padHitCode );
-      AUX_VARIABLE( padHitX );
-      AUX_VARIABLE( padHitY );
-      AUX_VARIABLE( padHitZ );
-      AUX_VARIABLE( padHitR );
-      AUX_VARIABLE( padHitP );
-
-      AUX_VARIABLE( tgcInnRhoHitPhi );
-      AUX_VARIABLE( tgcInnRhoHitR );
-      AUX_VARIABLE( tgcInnRhoHitZ );
-      AUX_VARIABLE( tgcInnRhoHitWidth );
-      AUX_VARIABLE( tgcInnRhoHitInSeg );
-      AUX_VARIABLE( tgcInnPhiHitPhi );
-      AUX_VARIABLE( tgcInnPhiHitR );
-      AUX_VARIABLE( tgcInnPhiHitZ );
-      AUX_VARIABLE( tgcInnPhiHitWidth );
-      AUX_VARIABLE( tgcInnPhiHitInSeg );
-      AUX_VARIABLE( tgcMidRhoHitPhi );
-      AUX_VARIABLE( tgcMidRhoHitR );
-      AUX_VARIABLE( tgcMidRhoHitZ );
-      AUX_VARIABLE( tgcMidRhoHitWidth );
-      AUX_VARIABLE( tgcMidRhoHitInSeg );
-      AUX_VARIABLE( tgcMidPhiHitPhi );
-      AUX_VARIABLE( tgcMidPhiHitR );
-      AUX_VARIABLE( tgcMidPhiHitZ );
-      AUX_VARIABLE( tgcMidPhiHitWidth );
-      AUX_VARIABLE( tgcMidPhiHitInSeg );
+      AUX_VARIABLE( tgcHitEta );
+      AUX_VARIABLE( tgcHitPhi );
+      AUX_VARIABLE( tgcHitR );
+      AUX_VARIABLE( tgcHitZ );
+      AUX_VARIABLE( tgcHitWidth );
+      AUX_VARIABLE( tgcHitStationNum );
+      AUX_VARIABLE( tgcHitIsStrip );
+      AUX_VARIABLE( tgcHitBCTag );
+      AUX_VARIABLE( tgcHitInRoad );
 
       AUX_VARIABLE( mdtHitOnlineId );
-      AUX_VARIABLE( mdtHitOfflineId );
-      AUX_VARIABLE( mdtHitChamber );
+      AUX_VARIABLE( mdtHitIsOutlier );
+      AUX_VARIABLE( mdtHitChamberId );
       AUX_VARIABLE( mdtHitR );
       AUX_VARIABLE( mdtHitZ );
+      AUX_VARIABLE( mdtHitPhi );
       AUX_VARIABLE( mdtHitResidual );
       AUX_VARIABLE( mdtHitTime );
       AUX_VARIABLE( mdtHitSpace );
       AUX_VARIABLE( mdtHitSigma );
+
+      AUX_VARIABLE( cscHitIsOutlier );
+      AUX_VARIABLE( cscHitChamberId );
+      AUX_VARIABLE( cscHitStationName );
+      AUX_VARIABLE( cscHitStationEta );
+      AUX_VARIABLE( cscHitStationPhi );
+      AUX_VARIABLE( cscHitChamberLayer );
+      AUX_VARIABLE( cscHitWireLayer );
+      AUX_VARIABLE( cscHitMeasuresPhi );
+      AUX_VARIABLE( cscHitStrip );
+      AUX_VARIABLE( cscHitEta );
+      AUX_VARIABLE( cscHitPhi );
+      AUX_VARIABLE( cscHitR );
+      AUX_VARIABLE( cscHitZ );
+      AUX_VARIABLE( cscHitCharge );
+      AUX_VARIABLE( cscHitTime );
+      AUX_VARIABLE( cscHitResidual );
+
    }
 
 } // namespace xAOD

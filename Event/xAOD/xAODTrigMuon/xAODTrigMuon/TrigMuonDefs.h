@@ -16,15 +16,18 @@ namespace L2MuonParameters
 
     /// Define chamber types and locations                                                                                            
     enum Chamber {
-      BarrelInner  = 0, ///< Inner station in the barrel spectrometer                                                                 
-      BarrelMiddle = 1, ///< Middle station in the barrel spectrometer                                                                
-      BarrelOuter  = 2, ///< Outer station in the barrel spectrometer                                                                 
-      EndcapInner  = 3, ///< Inner station in the endcap spectrometer                                                                 
-      EndcapMiddle = 4, ///< Middle station in the endcap spectrometer                                                                
-      EndcapOuter  = 5, ///< Outer station in the endcap spectrometer                                                                 
-      EndcapExtra  = 6, ///< Extra station in the endcap spectrometer                                                                 
-      CSC          = 7, ///< CSC measurement point                                                                                    
-      MaxChamber   = 8  ///< Number of measurement point definitions                                                                  
+      BarrelInner  = 0, ///< Inner station in the barrel spectrometer
+      BarrelMiddle = 1, ///< Middle station in the barrel spectrometer
+      BarrelOuter  = 2, ///< Outer station in the barrel spectrometer
+      EndcapInner  = 3, ///< Inner station in the endcap spectrometer
+      EndcapMiddle = 4, ///< Middle station in the endcap spectrometer
+      EndcapOuter  = 5, ///< Outer station in the endcap spectrometer
+      EndcapExtra  = 6, ///< Extra station in the endcap spectrometer
+      CSC          = 7, ///< CSC measurement point
+      BEE          = 8, ///< BEE measurement point
+      BME          = 9, ///< BME measurement point
+      Backup       = 10, ///< Backup
+      MaxChamber   = 11  ///< Number of measurement point definitions
     };
 
     ///  Define algoriths ID                                                                                                          
