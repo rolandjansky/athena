@@ -386,11 +386,8 @@ void Deserializer::restore(QTreeWidget *treeWidget){
     //   QTreeWidgetItem *item = treeWidget->topLevelItem(i);
 
 
-    if (!item){ 
-      mismatch=true;
-    } else{
-      restore(item, mismatch,s0,s1); //item gets dereferenced in restore
-    }
+    if (!item) mismatch=true;
+    restore(item, mismatch,s0,s1);
     if (c->buffer->atEnd()) break;
     if (mismatch) i--;
     
