@@ -38,9 +38,7 @@ def getStreamRDO_ItemList(log):
                 StreamRDO_ItemList+=["PRD_MultiTruthCollection#*"]
         if DetFlags.writeRDOPool.Muon_on():
             StreamRDO_ItemList+=["CscSimDataCollection#CSC_SDO"]
-            StreamRDO_ItemList+=["MuonSimDataCollection#MDT_SDO"]
-            StreamRDO_ItemList+=["MuonSimDataCollection#RPC_SDO"]
-            StreamRDO_ItemList+=["MuonSimDataCollection#TGC_SDO"]
+            StreamRDO_ItemList+=["MuonSimDataCollection#*"]
     # Forward Detector Output
     if DetFlags.digitize.Lucid_on():
         if DetFlags.writeRDOPool.Lucid_on():
