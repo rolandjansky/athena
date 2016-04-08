@@ -81,13 +81,13 @@ CaloCellVolumes::CaloCellVolumes(ISvcLocator* svcLocator):
 
   std::string LArTag = rdbAccessSvc->getChildTag("LAr",detectorKey.tag(),detectorKey.node());
 
-  geometryLayout = "Atlas";
+  m_geometryLayout = "Atlas";
   if(LArTag.find("H8")!=std::string::npos) 
-    geometryLayout = "H8";
+    m_geometryLayout = "H8";
   else if(LArTag.find("H6")!=std::string::npos) 
-    geometryLayout = "H6";
+    m_geometryLayout = "H6";
   else if(LArTag.find("G3")!=std::string::npos)
-    geometryLayout = "G3";
+    m_geometryLayout = "G3";
 
   rdbAccessSvc->disconnect();
 
@@ -104,7 +104,7 @@ CaloCellVolumes::CaloCellVolumes(ISvcLocator* svcLocator):
     int phi = currentRec->getInt("PHI");
 
     Identifier channelID;
-    if(geometryLayout != "H6" || subcalo == CaloCell_ID::LARFCAL) {
+    if(m_geometryLayout != "H6" || subcalo == CaloCell_ID::LARFCAL) {
       channelID = m_calocell_id->cell_id (subcalo, posneg, sampling, region, eta, phi);
     } else {
       Identifier reg_id =  m_calocell_id->region_id(subcalo, posneg, sampling, region);
@@ -146,7 +146,7 @@ double CaloCellVolumes::CellVolume(Identifier cell_id)
       int region = m_calocell_id->region(cell_id);
       int eta = m_calocell_id->eta(cell_id);
     
-      if(geometryLayout != "H6") {
+      if(m_geometryLayout != "H6") {
 	volId = m_calocell_id->cell_id(subCalo, posneg, sampling, region, eta, 0);
       } else {
 	Identifier reg_id =  m_calocell_id->region_id(subCalo, posneg, sampling, region);

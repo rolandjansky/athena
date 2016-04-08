@@ -35,7 +35,7 @@ public:
   virtual ~CaloCellVolumes();
 
   double CellVolume(Identifier cell_id);
-  inline std::string layout() { return geometryLayout; }
+  inline std::string layout() { return m_geometryLayout; }
 
   // For FCAL cell volumes which are calculated on the fly
   double getFcalTubeSpacing(int sampling);
@@ -46,7 +46,7 @@ private:
   const CaloCell_ID* m_calocell_id ;
   ISvcLocator* m_svcLocator;
   CaloCellVolumeVector m_cellVolumes;  
-  std::string geometryLayout;
+  std::string m_geometryLayout;
 
   // map fcal samplings on tube spacings
   typedef std::map<int, double, std::less<int> > TubeSpacingMap;
