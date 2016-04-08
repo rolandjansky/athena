@@ -45,7 +45,7 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(   const ComponentHelpe
     , m_jetType(jetType)
     , m_analysisFileName(analysisRootFileName)
     , m_path(path)
-    , m_absEta(CompParametrization::IsAbsEta(component.parametrization))
+    , m_absEta(CompParametrization::isAbsEta(component.parametrization))
     , m_BjetAccessor("IsBjet")
     , m_NjetAccessor("Njet")
     , m_gluonFractionHists()
@@ -95,16 +95,16 @@ FlavourUncertaintyComponent::~FlavourUncertaintyComponent()
     m_gluonFractionErrorHists.clear();
 }
 
-StatusCode FlavourUncertaintyComponent::Initialize(const std::vector<TString>& histNames, TFile* histFile)
+StatusCode FlavourUncertaintyComponent::initialize(const std::vector<TString>& histNames, TFile* histFile)
 {
     std::vector<TString> validHistNames;
-    return Initialize(histNames,validHistNames,histFile);
+    return initialize(histNames,validHistNames,histFile);
 }
 
-StatusCode FlavourUncertaintyComponent::Initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile)
+StatusCode FlavourUncertaintyComponent::initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile)
 {
     // Call the base class first
-    if (UncertaintyComponent::Initialize(histNames,validHistNames,histFile).isFailure())
+    if (UncertaintyComponent::initialize(histNames,validHistNames,histFile).isFailure())
         return StatusCode::FAILURE;
     
     // Ensure that the number of histograms matches what is expected for Flavour components
@@ -151,7 +151,7 @@ StatusCode FlavourUncertaintyComponent::Initialize(const std::vector<TString>& h
     // Now read the analysis input histograms if this is not a bJES component
     if (m_flavourType != FlavourComp::bJES)
     {
-        TFile* analysisFile = utils::ReadRootFile(m_analysisFileName,m_path);
+        TFile* analysisFile = utils::readRootFile(m_analysisFileName,m_path);
         if (!analysisFile || analysisFile->IsZombie())
         {
             ATH_MSG_ERROR("Cannot open analysis histogram file: " << m_analysisFileName.Data());
@@ -243,9 +243,9 @@ StatusCode FlavourUncertaintyComponent::Initialize(const std::vector<TString>& h
         // Initialize the histograms
         for (size_t iHist = 0; iHist < m_gluonFractionHists.size(); ++iHist)
         {
-            if (m_gluonFractionHists.at(iHist)->Initialize(analysisFile).isFailure())
+            if (m_gluonFractionHists.at(iHist)->initialize(analysisFile).isFailure())
                 return StatusCode::FAILURE;
-            if (m_gluonFractionErrorHists.at(iHist)->Initialize(analysisFile).isFailure())
+            if (m_gluonFractionErrorHists.at(iHist)->initialize(analysisFile).isFailure())
                 return StatusCode::FAILURE;
         }
 
@@ -268,13 +268,13 @@ bool FlavourUncertaintyComponent::getValidity(const xAOD::Jet& jet, const xAOD::
     // Histograms to consider varies by flavour type
     // Start with the standard histograms
     for (size_t iHisto = 0; iHisto < m_histos.size(); ++iHisto)
-        if (!m_histos.at(iHisto)->getValidity(jet.pt()/1.e3,m_absEta ? fabs(jet.eta()) : jet.eta()))
+        if (!m_histos.at(iHisto)->getValidity(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta()))
             return false;
 
     // Now do analysis histograms
     for (size_t iHisto = 0; iHisto < m_gluonFractionHists.size(); ++iHisto)
-        if (!m_gluonFractionHists.at(iHisto)->getValidity(jet.pt()/1.e3,m_absEta ? fabs(jet.eta()) : jet.eta()) || 
-            !m_gluonFractionErrorHists.at(iHisto)->getValidity(jet.pt()/1.e3,m_absEta ? fabs(jet.eta()) : jet.eta()) )
+        if (!m_gluonFractionHists.at(iHisto)->getValidity(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta()) || 
+            !m_gluonFractionErrorHists.at(iHisto)->getValidity(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta()) )
             return false;
     
     return true;
@@ -301,7 +301,7 @@ double FlavourUncertaintyComponent::getUncertainty(const xAOD::Jet& jet, const x
         return unc;
     }
     
-    return m_splitNumber == 0 ? unc : unc*getSplitFactorLinear(m_histos.at(0),jet);
+    return m_splitNumber == 0 ? unc : unc*getSplitFactor(m_histos.at(0),jet);
 }
 
 double FlavourUncertaintyComponent::getUncertainty(const UncertaintyHistogram*, const xAOD::Jet&, const xAOD::EventInfo&) const
@@ -330,8 +330,8 @@ double FlavourUncertaintyComponent::getFlavourResponseUncertainty(const xAOD::Je
     //      dR(q) = JES uncertainty (measured in gamma/Z+jet)
     //      dR(g) = JES uncertainty (+) additional gluon response component
     //  component to be added to JES uncertainty: 
-    //      fg*dR(gluon response modeling uncertainty)
-    //      where gluon response modeling uncertainty is taken as difference between gluon response in Pythia and Herwig++
+    //      fg*dR(gluon response modelling uncertainty)
+    //      where gluon response modelling uncertainty is taken as difference between gluon response in Pythia and Herwig++
     
     // Check if this is a b-jet
     if (isBjet(jet))
@@ -353,7 +353,7 @@ double FlavourUncertaintyComponent::getFlavourResponseUncertainty(const xAOD::Je
     if (checkNjetsInput(nJets).isFailure())
         return JESUNC_ERROR_CODE;
 
-    const double pT  = jet.pt()/1.e3;
+    const double pT  = jet.pt()*m_energyScale;
     const double eta = m_absEta ? fabs(jet.eta()) : jet.eta();
     
     // return the uncertainty
@@ -393,7 +393,7 @@ double FlavourUncertaintyComponent::getFlavourCompositionUncertainty(const xAOD:
     if (checkNjetsInput(nJets).isFailure())
         return JESUNC_ERROR_CODE;
 
-    const double pT  = jet.pt()/1.e3;
+    const double pT  = jet.pt()*m_energyScale;
     const double eta = m_absEta ? fabs(jet.eta()) : jet.eta();
     
     //calculating the sample response:
@@ -424,7 +424,7 @@ double FlavourUncertaintyComponent::getBJESUncertainty(const xAOD::Jet& jet, con
     // Ensure this is a b-jet
     if (!isBjet(jet))
         return 0;
-    return m_histos.at(0)->getUncertainty(jet.pt()/1.e3,m_absEta ? fabs(jet.eta()) : jet.eta());
+    return m_histos.at(0)->getUncertainty(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
 }
 
 
@@ -506,13 +506,13 @@ StatusCode FlavourUncertaintyComponent::readNjetsHistograms(std::vector<Uncertai
 
 StatusCode FlavourUncertaintyComponent::getNjetFromKey(const TString& key, int& nJets) const
 {
-    std::vector<TString> tokens = utils::Vectorize<TString>(key,"_");
+    std::vector<TString> tokens = utils::vectorize<TString>(key,"_");
     if (tokens.size() > 2 && tokens.at(tokens.size()-1).Contains("nJet",TString::kIgnoreCase))
     {
         TString nJetStr = tokens.at(tokens.size()-1).ReplaceAll("nJet","");
         nJetStr = nJetStr.ReplaceAll("njet","");
         nJetStr = nJetStr.ReplaceAll("Njet","");
-        if (!utils::GetTypeObjFromString<int>(nJetStr,nJets))
+        if (!utils::getTypeObjFromString<int>(nJetStr,nJets))
         {
             ATH_MSG_ERROR("Found nJets histogram, but failed to parse the index: " << key.Data());
             return StatusCode::FAILURE;

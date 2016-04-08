@@ -53,7 +53,9 @@ int main(int argc, char **argv) {
   if (argc<3) error("Need to specify JES and MJES configs as arguments"); 
   _JESconfig = argv[1];
   Str mJES = argv[2];
-  
+ 
+  std::cout << "String argv[2] is " << mJES << std::endl;
+ 
   printf("\n================================================\n");
   printf("  Creating JES uncertainty plots for configs\n    %s\n    %s\n",
 	 _JESconfig.Data(),mJES.Data());
@@ -327,5 +329,48 @@ void DrawJEScomp(HistV nps, StrV compNames, Str msg, double var, bool vsPt) {
   else      DrawText(Form("#it{p}_{T}^{jet} = %.0f GeV",var),kBlack,0.8);
   
   DrawText("#bf{"+_JESconfig+"}",kViolet-6,0.98,0.14);
+}
+
+// Add a new DrawJEScomp to compare new to old.
+void DrawJEScompToOld(HistV nps, StrV compNames, Str msg, double var, bool vsPt, HistV compTot, StrV compCompNames) {
+
+  TH1D *tot = AddInQuad(nps);
+  TH1D *compTot = AddInQuad(compTot); 
+  if (compNames.back()=="bJES") tot=AddInQuadButOne(nps);
+  if (compCompNames.back()=="bJES") compTot=AddInQuadButOne(compTot);
+ 
+  // Add cross-hatched version with the new uncertainties
+  // and keep violet for old uncertainties.
+  // Let black band indicate edge of old uncertainties and green band indicate edge of new.
+  if (vsPt) {
+    DrawPtHisto(compTot,var,"",kBlack,1,1);
+    DrawPtHisto(tot,var,"",kGreen,1,1);
+  } else {
+    DrawVsEtaHisto(compTot,var,"",kBlack,1,1);
+    DrawVsEtaHisto(tot,var,"",kGreen,1,1);
+  }
+  compTot->SetFillColor(590); compTot->Draw("histFsame"); //tot->Draw("sameLaxis");
+  tot->SetFillColor(kGreen); tot->SetFillStyle(3004); tot->Draw("histFsame");
+
+  for (int i=0;i<nps.size();++i)
+    if (vsPt) DrawPtHisto(nps[i],var,"samel",getCol(i),getLS(i));
+    else      DrawVsEtaHisto(nps[i],var,"samel",getCol(i),getLS(i));
+  
+  //double legx=0.5, legy=0.84, dy=0.045; DrawAtlasLabel(true);
+  double legx=0.56, legy=0.90, dy=0.045;
+  DrawFillLabel("Total uncertainty",legx,legy,tot);
+  for (int i=0;i<nps.size();++i) {
+    if (compNames[i]=="bJES")
+      DrawLineLabel(compNames[i]+" (not incl. in total)",legx,legy-=dy,nps[i]);
+    else
+      DrawLineLabel(compNames[i],legx,legy-=dy,nps[i]);
+  }
+  DrawText(GetJetDesc(_jetAlgo),kBlack,0.905);
+  DrawText(msg,kBlack,0.855);
+  if (vsPt) DrawText(Form("#eta = %.1f",var),kBlack,0.8);
+  else      DrawText(Form("#it{p}_{T}^{jet} = %.0f GeV",var),kBlack,0.8);
+  
+  DrawText("#bf{"+_JESconfig+"}",kViolet-6,0.98,0.14);
+
 }
 

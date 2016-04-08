@@ -46,17 +46,17 @@ PtUncertaintyComponent* PtUncertaintyComponent::clone() const
 
 bool PtUncertaintyComponent::getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getValidity(jet.pt()/1.e3);
+    return histo->getValidity(jet.pt()*m_energyScale);
 }
 
 double PtUncertaintyComponent::getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getUncertainty(jet.pt()/1.e3);
+    return histo->getUncertainty(jet.pt()*m_energyScale);
 }
 
 bool PtUncertaintyComponent::getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getValidUncertainty(unc,jet.pt()/1.e3);
+    return histo->getValidUncertainty(unc,jet.pt()*m_energyScale);
 }
 
 } // end jet namespace

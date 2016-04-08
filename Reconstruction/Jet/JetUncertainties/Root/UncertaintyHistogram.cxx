@@ -7,6 +7,7 @@
 
 #include "TObject.h"
 #include "TFile.h"
+#include "TAxis.h"
 #include "TH3.h"
 #include "TH3F.h"
 #include "TH3D.h"
@@ -76,7 +77,7 @@ UncertaintyHistogram::~UncertaintyHistogram()
     JESUNC_SAFE_DELETE(m_validHisto);
 }
 
-StatusCode UncertaintyHistogram::Initialize(TFile* histFile)
+StatusCode UncertaintyHistogram::initialize(TFile* histFile)
 {
     // Ensure it wasn't already initialized
     if (m_isInit)
@@ -268,9 +269,6 @@ bool UncertaintyHistogram::getValidUncertainty(double& unc, const float var1, co
 
 double UncertaintyHistogram::readHisto(const TH1* histo, const float var1, const float var2, const float var3, const bool interpolate) const
 {
-    static int numWarn   = 0;
-    const int maxNumWarn = 100;
-    
     // Ensure the component was initialized
     if (!m_isInit)
     {
@@ -286,63 +284,24 @@ double UncertaintyHistogram::readHisto(const TH1* histo, const float var1, const
         return JESUNC_ERROR_CODE;
     }
 
-    // First dimension, always applicable
-    const double lowX  = histo->GetXaxis()->GetBinLowEdge(1);
-    const double highX = histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1);
-    float valX = var1;
-    if (valX < lowX || valX >= highX)
-    {
-        if (++numWarn < maxNumWarn)
-            ATH_MSG_WARNING(Form("First variable value is %f, outside of the x axis range of (%f,%f) for %s.  Using closest valid value.  (Only first %d instances printed, this is %d)",valX,lowX,highX,getFullName().Data(),maxNumWarn,numWarn+1));
-
-        if (valX < lowX)
-            valX = lowX;
-        else
-            valX = (1.0-1.e-4)*highX;
-    }
-
+    // Check first dimension boundaries, always applicable
+    const float valX = checkBoundaries(histo->GetXaxis(),histo->GetNbinsX(),var1);
     if (m_nDim == 1)
     {
         if (interpolate) return Interpolate(histo,valX);
         else             return histo->GetBinContent(FindBin(histo->GetXaxis(),valX));
     }
 
-    // Second dimension, if applicable
-    const double lowY  = histo->GetYaxis()->GetBinLowEdge(1);
-    const double highY = histo->GetYaxis()->GetBinLowEdge(histo->GetNbinsY()+1);
-    float valY = var2;
-    if (valY < lowY || valY >= highY)
-    {
-        if (++numWarn < maxNumWarn)
-            ATH_MSG_WARNING(Form("Second variable value is %f, outside of the y axis range of (%f,%f) for %s.  Using closest valid value.  (Only first %d instances printed, this is %d)",valY,lowY,highY,getFullName().Data(),maxNumWarn,numWarn+1));
-
-        if (valY < lowY)
-            valY = lowY;
-        else
-            valY = (1.0-1.e-4)*highY;
-    }
-
+    // Check second dimension boundaries, if applicable
+    const float valY = checkBoundaries(histo->GetYaxis(),histo->GetNbinsY(),var2);
     if (m_nDim == 2)
     {
         if (interpolate) return Interpolate(histo,valX,valY);
         else             return histo->GetBinContent(FindBin(histo->GetXaxis(),valX),FindBin(histo->GetYaxis(),valY));
     }
 
-    // Third dimension, if applicable
-    const double lowZ  = histo->GetZaxis()->GetBinLowEdge(1);
-    const double highZ = histo->GetZaxis()->GetBinLowEdge(histo->GetNbinsZ()+1);
-    float valZ = var3;
-    if (valZ < lowZ || valZ >= highZ)
-    {
-        if (++numWarn < maxNumWarn)
-            ATH_MSG_WARNING(Form("Third variable value is %f, outside of the z axis range of (%f,%f) for %s.  Using closest valid value.  (Only first %d instances printed, this is %d)",valZ,lowZ,highZ,getFullName().Data(),maxNumWarn,numWarn+1));
-
-        if (valZ < lowZ)
-            valZ = lowZ;
-        else
-            valZ = (1.0-1.e-4)*highZ;
-    }
-
+    // Check third dimension boundaries, if applicable
+    const float valZ = checkBoundaries(histo->GetZaxis(),histo->GetNbinsZ(),var3);
     if (interpolate) return Interpolate(histo,valX,valY,valZ);
     return histo->GetBinContent(FindBin(histo->GetXaxis(),valX),FindBin(histo->GetYaxis(),valY),FindBin(histo->GetZaxis(),valZ));
 }
@@ -369,6 +328,33 @@ double UncertaintyHistogram::readUncertaintyHisto(const float var1, const float 
     return readHisto(m_uncHisto,var1,var2,var3,m_interpolate);
 }
 
+
+float UncertaintyHistogram::checkBoundaries(const TAxis* axis, const int numBins, const float valInput) const
+{
+    const static int maxNumWarn = 0; //100
+    static int       numWarn    = 0;
+    
+    // Bins are structured for [lowEdge,highEdge)
+    // As such, do not need to worry about equality sign for low edge
+    // However, do need to check equality sign for high edge
+    // High edge is expected and supported (no warning needed)
+    float val = valInput;
+    const double lowVal  = axis->GetBinLowEdge(1);
+    const double highVal = axis->GetBinLowEdge(numBins+1);
+    if (val < lowVal || val >= highVal)
+    {
+        if (val != highVal && ++numWarn < maxNumWarn)
+            ATH_MSG_WARNING(Form("Variable value is %f, outside of the axis range of (%f,%f) for %s.  Using closest valid value.  (Only first %d instances printed, this is %d)",val,lowVal,highVal,getFullName().Data(),maxNumWarn,numWarn));
+    
+        // Watch for the boundary sign (controls the scale factor)
+        if (val < lowVal)
+            val = lowVal>0  ? (1.0+1.e-4)*lowVal  : (1.0-1.e-4)*lowVal;
+        else
+            val = highVal>0 ? (1.0-1.e-4)*highVal : (1.0+1.e-4)*highVal;
+    }
+
+    return val;
+}
 
 double UncertaintyHistogram::Interpolate(const TH1* histo, const double x) const
 {
@@ -402,81 +388,6 @@ double UncertaintyHistogram::Interpolate(const TH1* histo, const double x, const
 {
     // Call the unified method for consistency
     return Interpolate2D(histo,x,y);
-    
-    /*
-    // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TH1, TH2, and TH3 Interpolate methods
-    // This is done because I want a const version of interpolation, and none of the methods require modification of the histogram
-    // Probable reason is that FindBin isn't const, but there should be a const version...
-    const TAxis* fXaxis = histo->GetXaxis();
-    const TAxis* fYaxis = histo->GetYaxis();
-
-    Double_t f=0;
-    Double_t x1=0,x2=0,y1=0,y2=0;
-    Double_t dx,dy;
-    Int_t bin_x = FindBin(fXaxis,x);
-    Int_t bin_y = FindBin(fYaxis,y);
-    if(bin_x<1 || bin_x>histo->GetNbinsX() || bin_y<1 || bin_y>histo->GetNbinsY()) {
-       Error("Interpolate","Cannot interpolate outside histogram domain. (x: %f vs [%f,%f], y: %f vs [%f,%f])",x,fXaxis->GetBinLowEdge(1),fXaxis->GetBinLowEdge(histo->GetNbinsX()+1),y,fYaxis->GetBinLowEdge(1),fYaxis->GetBinLowEdge(histo->GetNbinsY()+1));
-       return 0;
-    }
-    Int_t quadrant = 0; // CCW from UR 1,2,3,4
-    // which quadrant of the bin (bin_P) are we in?
-    dx = fXaxis->GetBinUpEdge(bin_x)-x;
-    dy = fYaxis->GetBinUpEdge(bin_y)-y;
-    if (dx<=fXaxis->GetBinWidth(bin_x)/2 && dy<=fYaxis->GetBinWidth(bin_y)/2)
-    quadrant = 1; // upper right
-    if (dx>fXaxis->GetBinWidth(bin_x)/2 && dy<=fYaxis->GetBinWidth(bin_y)/2)
-    quadrant = 2; // upper left
-    if (dx>fXaxis->GetBinWidth(bin_x)/2 && dy>fYaxis->GetBinWidth(bin_y)/2)
-    quadrant = 3; // lower left
-    if (dx<=fXaxis->GetBinWidth(bin_x)/2 && dy>fYaxis->GetBinWidth(bin_y)/2)
-    quadrant = 4; // lower right
-    switch(quadrant) {
-    case 1:
-       x1 = fXaxis->GetBinCenter(bin_x);
-       y1 = fYaxis->GetBinCenter(bin_y);
-       x2 = fXaxis->GetBinCenter(bin_x+1);
-       y2 = fYaxis->GetBinCenter(bin_y+1);
-       break;
-    case 2:
-       x1 = fXaxis->GetBinCenter(bin_x-1);
-       y1 = fYaxis->GetBinCenter(bin_y);
-       x2 = fXaxis->GetBinCenter(bin_x);
-       y2 = fYaxis->GetBinCenter(bin_y+1);
-       break;
-    case 3:
-       x1 = fXaxis->GetBinCenter(bin_x-1);
-       y1 = fYaxis->GetBinCenter(bin_y-1);
-       x2 = fXaxis->GetBinCenter(bin_x);
-       y2 = fYaxis->GetBinCenter(bin_y);
-       break;
-    case 4:
-       x1 = fXaxis->GetBinCenter(bin_x);
-       y1 = fYaxis->GetBinCenter(bin_y-1);
-       x2 = fXaxis->GetBinCenter(bin_x+1);
-       y2 = fYaxis->GetBinCenter(bin_y);
-       break;
-    }
-    Int_t bin_x1 = FindBin(fXaxis,x1);
-    if(bin_x1<1) bin_x1=1;
-    Int_t bin_x2 = FindBin(fXaxis,x2);
-    if(bin_x2>histo->GetNbinsX()) bin_x2=histo->GetNbinsX();
-    Int_t bin_y1 = FindBin(fYaxis,y1);
-    if(bin_y1<1) bin_y1=1;
-    Int_t bin_y2 = FindBin(fYaxis,y2);
-    if(bin_y2>histo->GetNbinsY()) bin_y2=histo->GetNbinsY();
-    Int_t bin_q22 = histo->GetBin(bin_x2,bin_y2);
-    Int_t bin_q12 = histo->GetBin(bin_x1,bin_y2);
-    Int_t bin_q11 = histo->GetBin(bin_x1,bin_y1);
-    Int_t bin_q21 = histo->GetBin(bin_x2,bin_y1);
-    Double_t q11 = histo->GetBinContent(bin_q11);
-    Double_t q12 = histo->GetBinContent(bin_q12);
-    Double_t q21 = histo->GetBinContent(bin_q21);
-    Double_t q22 = histo->GetBinContent(bin_q22);
-    Double_t d = 1.0*(x2-x1)*(y2-y1);
-    f = 1.0*q11/d*(x2-x)*(y2-y)+1.0*q21/d*(x-x1)*(y2-y)+1.0*q12/d*(x2-x)*(y-y1)+1.0*q22/d*(x-x1)*(y-y1);
-    return f;
-    */
 }
 
 double UncertaintyHistogram::Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis, const int yAxis, const int otherDimBin) const
@@ -648,28 +559,6 @@ double UncertaintyHistogram::Interpolate(const TH1* histo, const double x, const
     const TAxis* fYaxis = histo->GetYaxis();
     const TAxis* fZaxis = histo->GetZaxis();
 
-    // Does not work for edge cases!
-    //Int_t ubx = FindBin(fXaxis,x);
-    //if ( x < fXaxis->GetBinCenter(ubx) ) ubx -= 1;
-    //Int_t obx = ubx + 1;
-    //
-    //Int_t uby = FindBin(fYaxis,y);
-    //if ( y < fYaxis->GetBinCenter(uby) ) uby -= 1;
-    //Int_t oby = uby + 1;
-    //
-    //Int_t ubz = FindBin(fZaxis,z);
-    //if ( z < fZaxis->GetBinCenter(ubz) ) ubz -= 1;
-    //Int_t obz = ubz + 1;
-    //
-    //printf("ubx,obx = %d,%d | uby,oby = %d,%d | ubz,obz = %d,%d\n",ubx,obx,uby,oby,ubz,obz);
-    //printf("max x = %d, y = %d, z = %d\n",fXaxis->GetNbins(),fYaxis->GetNbins(),fZaxis->GetNbins());
-
-    //if (ubx <=0 || uby <=0 || ubz <= 0 ||
-    //    obx > fXaxis->GetNbins() || oby > fYaxis->GetNbins() || obz > fZaxis->GetNbins() ) {
-    //   Error("Interpolate","Cannot interpolate outside histogram domain. (x: %f vs [%f,%f], y: %f vs [%f,%f], z: %f vs [%f,%f])",x,fXaxis->GetBinLowEdge(1),fXaxis->GetBinLowEdge(histo->GetNbinsX()+1),y,fYaxis->GetBinLowEdge(1),fYaxis->GetBinLowEdge(histo->GetNbinsY()+1),z,fZaxis->GetBinLowEdge(1),fZaxis->GetBinLowEdge(histo->GetNbinsZ()+1));
-    //   return 0;
-    //}
-
     // Find the bin by bin edges
     Int_t ubx = FindBin(fXaxis,x);
     Int_t uby = FindBin(fYaxis,y);
@@ -721,53 +610,6 @@ double UncertaintyHistogram::Interpolate(const TH1* histo, const double x, const
         else if (ubx == obx)
             return Interpolate2D(histo,y,z,2,3,ubx);
         
-        // Below method also works, but is *much* more slow
-        
-        /*
-        // Get a modifiable copy of the histogram
-        TH3* input = dynamic_cast<TH3*>(histo->Clone());
-        if (!input)
-        {
-            Error("Interpolate","Failed to get a modifiable copy of input histo (boundary case)");
-            return 0;
-        }
-
-        // Change the axis range to the bin in question and project
-        // Note that projection axes are ordered backward for some reason
-        TH1* projection = NULL;
-        if (ubz == obz)
-        {
-            input->GetZaxis()->SetRange(ubz,ubz);
-            projection = input->Project3D("yx");
-        }
-        else if (uby == oby)
-        {
-            input->GetYaxis()->SetRange(uby,uby);
-            projection = input->Project3D("zx");
-        }
-        else if (ubx == obx)
-        {
-            input->GetXaxis()->SetRange(ubx,ubx);
-            projection = input->Project3D("zy");
-        }
-        if (!projection)
-        {
-            Error("Interpolate","Failed to get a projection in the %s direction (boundary case)",ubz==obz?"XY":uby==oby?"XZ":ubx==obx?"YZ":"UNKNOWN");
-            return 0;
-        }
-
-        double result = 0;
-        if (ubz == obz)
-            result = Interpolate(projection,x,y);
-        else if (uby == oby)
-            result = Interpolate(projection,x,z);
-        else if (ubx == obx)
-            result = Interpolate(projection,y,z);
-
-        delete projection;
-        delete input;
-        return result;
-        */
     }
     
     // Not a boundary case, resume normal ROOT::TH3::Interpolate()

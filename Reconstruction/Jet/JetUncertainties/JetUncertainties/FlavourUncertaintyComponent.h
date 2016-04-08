@@ -24,8 +24,8 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         FlavourUncertaintyComponent(const FlavourUncertaintyComponent& toCopy);
         virtual FlavourUncertaintyComponent* clone() const;
         virtual ~FlavourUncertaintyComponent();
-        virtual StatusCode Initialize(const std::vector<TString>& histNames, TFile* histFile);
-        virtual StatusCode Initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile);
+        virtual StatusCode initialize(const std::vector<TString>& histNames, TFile* histFile);
+        virtual StatusCode initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile);
 
         // Extra information retrieval methods
         virtual FlavourComp::TypeEnum   getFlavourType() const  { return m_flavourType; }

@@ -6,7 +6,6 @@ public
 
 use AtlasPolicy         AtlasPolicy-*
 
-use AtlasBoost          AtlasBoost-*        External
 use AtlasROOT           AtlasROOT-*         External
 
 use AsgTools            AsgTools-*          Control/AthToolSupport
@@ -32,10 +31,9 @@ end_private
 
 
 
-# Declare the library
-library JetUncertainties ../Root/*.cxx components/*.cxx
-
-apply_pattern component_library
+# Declare the library (this is dual_use since the lcgdict patern doesn't work with a pure component
+# library when cmake is used for the build)
+apply_pattern dual_use_library files="../Root/*.cxx"
 
 # Install the jobOptions
 apply_pattern declare_joboptions files=*.py
@@ -45,6 +43,7 @@ apply_pattern declare_joboptions files=*.py
 apply_pattern generic_declare_for_link files="../share/JES_2011/Final/*.config ../share/JES_2011/Final/*.root" kind=calib prefix=share/JetUncertainties/JES_2011/Final name=JES_2011_Final
 apply_pattern generic_declare_for_link files="../share/JES_2012/Moriond2013/*.config ../share/JES_2012/Moriond2013/*.root" kind=calib prefix=share/JetUncertainties/JES_2012/Moriond2013 name=JES_2012_Moriond2013
 apply_pattern generic_declare_for_link files="../share/JES_2012/Final/*.config ../share/JES_2012/Final/*.root" kind=calib prefix=share/JetUncertainties/JES_2012/Final name=JES_2012_Final
+apply_pattern generic_declare_for_link files="../share/JES_2015/Prerec/*.config ../share/JES_2015/Prerec/*.root" kind=calib prefix=share/JetUncertainties/JES_2015/Prerec name=JES_2015_Prerec
 apply_pattern generic_declare_for_link files="../share/UJ_2012/*.config ../share/UJ_2012/*.root" kind=calib prefix=share/JetUncertainties/UJ_2012 name=UJ_2012
 apply_pattern generic_declare_for_link files="../share/analysisInputs/*.root" kind=calib prefix=share/JetUncertainties/analysisInputs name=analysisInputs
 

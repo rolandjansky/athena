@@ -34,9 +34,12 @@ UncertaintyComponent::UncertaintyComponent(const std::string& name)
     , m_category(CompCategory::UNKNOWN)
     , m_corrType(CompCorrelation::UNKNOWN)
     , m_scaleVar(CompScaleVar::UNKNOWN)
+    , m_energyScale(1)
     , m_interpolate(true)
+    , m_groupNum(-1)
     , m_splitNumber(0)
     , m_histos()
+    , m_isReducible(false)
 {
     JESUNC_NO_DEFAULT_CONSTRUCTOR;
 }
@@ -49,14 +52,17 @@ UncertaintyComponent::UncertaintyComponent(const ComponentHelper& component)
     , m_category(component.category)
     , m_corrType(component.correlation)
     , m_scaleVar(component.scaleVar)
+    , m_energyScale(component.energyScale)
     , m_interpolate(component.interpolate)
-    , m_splitNumber(0)
+    , m_groupNum(component.group)
+    , m_splitNumber(component.splitNum)
     , m_histos()
+    , m_isReducible(component.reducible)
 {
     ATH_MSG_DEBUG(Form("Creating UncertaintyComponent named %s",m_name.Data()));
     if (m_category == CompCategory::UNKNOWN)
         ATH_MSG_FATAL("UNKNOWN category for UncertaintyComponent named " << m_name.Data());
-    // Acceptible to not exist if it's only one component, check during Initialize()
+    // Acceptible to not exist if it's only one component, check during initialize()
     //if (m_corrType == CompCorrelation::UNKNOWN)
     //    ATH_MSG_FATAL(Form("UNKNOWN correlation for UncertaintyComponent named %s",m_name.Data()));
     if (m_scaleVar == CompScaleVar::UNKNOWN)
@@ -71,9 +77,12 @@ UncertaintyComponent::UncertaintyComponent(const UncertaintyComponent& toCopy)
     , m_category(toCopy.m_category)
     , m_corrType(toCopy.m_corrType)
     , m_scaleVar(toCopy.m_scaleVar)
+    , m_energyScale(toCopy.m_energyScale)
     , m_interpolate(toCopy.m_interpolate)
+    , m_groupNum(toCopy.m_groupNum)
     , m_splitNumber(toCopy.m_splitNumber)
     , m_histos()
+    , m_isReducible(toCopy.m_isReducible)
 {
     for (size_t iHist = 0; iHist < toCopy.m_histos.size(); ++iHist)
         m_histos.push_back(new UncertaintyHistogram(*toCopy.m_histos.at(iHist)));
@@ -87,34 +96,13 @@ UncertaintyComponent::~UncertaintyComponent()
     m_histos.clear();
 }
 
-StatusCode UncertaintyComponent::SetSplitFactor(const int splitCompNumber)
-{
-    // Must set this before initialization
-    if (m_isInit)
-    {
-        ATH_MSG_ERROR("Component is already initialized, this must be set before initialization");
-        return StatusCode::FAILURE;
-    }
-
-    // Must be a recognized value
-    if (splitCompNumber < 0 || splitCompNumber > 2)
-    {
-        ATH_MSG_ERROR("Asked for split number " << splitCompNumber << ", which is unrecognized (expected 0, 1, or 2)");
-        return StatusCode::FAILURE;
-    }
-
-    m_splitNumber = splitCompNumber;
-    ATH_MSG_DEBUG("Set split factor of " << m_name.Data() << " to " << m_splitNumber);
-    return StatusCode::SUCCESS;
-}
-
-StatusCode UncertaintyComponent::Initialize(const std::vector<TString>& histNames, TFile* histFile)
+StatusCode UncertaintyComponent::initialize(const std::vector<TString>& histNames, TFile* histFile)
 {
     std::vector<TString> validHistNames;
-    return Initialize(histNames,validHistNames,histFile);
+    return initialize(histNames,validHistNames,histFile);
 }
 
-StatusCode UncertaintyComponent::Initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile)
+StatusCode UncertaintyComponent::initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile)
 {
     // Prevent double-initialization
     if (m_isInit)
@@ -163,7 +151,7 @@ StatusCode UncertaintyComponent::Initialize(const std::vector<TString>& histName
             m_histos.push_back(new UncertaintyHistogram(histNames.at(iHisto),"",m_interpolate));
         else
             m_histos.push_back(new UncertaintyHistogram(histNames.at(iHisto),validHistNames.at(iHisto),m_interpolate));
-        if (m_histos.back()->Initialize(histFile).isFailure())
+        if (m_histos.back()->initialize(histFile).isFailure())
             return StatusCode::FAILURE;
     }
     
@@ -177,7 +165,31 @@ StatusCode UncertaintyComponent::Initialize(const std::vector<TString>& histName
 
 //////////////////////////////////////////////////
 //                                              //
-//  Validitty and uncertainty retrieval         //
+//  Methods to test for special cases           //
+//                                              //
+//////////////////////////////////////////////////
+
+bool UncertaintyComponent::isAlwaysZero() const
+{
+    if (!m_isInit)
+    {
+        ATH_MSG_ERROR("Cannot call method before initialization, component: "<<m_name.Data());
+        return false;
+    }
+
+    for (size_t iHisto = 0; iHisto < m_histos.size(); ++iHisto)
+    {
+        const TH1* histo = m_histos.at(iHisto)->getHisto();
+        if (fabs(histo->GetMinimum()) > 1.e-5 || fabs(histo->GetMaximum()) > 1.e-5)
+            return false;
+    }
+    return true;
+}
+
+
+//////////////////////////////////////////////////
+//                                              //
+//  Validity and uncertainty retrieval          //
 //                                              //
 //////////////////////////////////////////////////
 
@@ -194,7 +206,7 @@ double UncertaintyComponent::getUncertainty(const xAOD::Jet& jet, const xAOD::Ev
 {
     // Simple if it's just one histogram
     if (m_histos.size() == 1)
-        return getUncertainty(m_histos.at(0),jet,eInfo) * (m_splitNumber == 0 ? 1 : getSplitFactorLinear(m_histos.at(0),jet));
+        return getUncertainty(m_histos.at(0),jet,eInfo) * (m_splitNumber == 0 ? 1 : getSplitFactor(m_histos.at(0),jet));
 
     // Quad sum or linear sum depending on correlation type specified
     double unc = 0;
@@ -215,7 +227,7 @@ double UncertaintyComponent::getUncertainty(const xAOD::Jet& jet, const xAOD::Ev
         return JESUNC_ERROR_CODE;
     }
 
-    return m_splitNumber == 0 ? unc : unc*getSplitFactorLinear(m_histos.at(0),jet);
+    return m_splitNumber == 0 ? unc : unc*getSplitFactor(m_histos.at(0),jet);
 }
 
 bool UncertaintyComponent::getValidUncertainty(double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
@@ -254,29 +266,103 @@ bool UncertaintyComponent::getValidUncertainty(double& unc, const xAOD::Jet& jet
         ATH_MSG_ERROR(Form("Unexpected correlation type for %s",m_name.Data()));
         return false;
     }
-    if (m_splitNumber > 0)
-        unc *= getSplitFactorLinear(m_histos.at(0),jet);
+    if (m_splitNumber)
+        unc *= getSplitFactor(m_histos.at(0),jet);
 
     return true;
 }
 
-double UncertaintyComponent::getSplitFactorLinear(const UncertaintyHistogram* histo, const xAOD::Jet& jet) const
+double UncertaintyComponent::getSplitFactor(const UncertaintyHistogram* uncHisto, const xAOD::Jet& jet) const
 {
-    // Straight line in log(pT) from 0 to 1
-    // y = mx+b
-    // m = 1/[log(max)-log(min)]
-    // x = log(min) --> b = -m*log(min)
+    double splitFactor = 1;
+    const TH1* histo = uncHisto->getHisto();
 
-    const double minPt = histo->getHisto()->GetXaxis()->GetBinLowEdge(1);
-    const double maxPt = histo->getHisto()->GetXaxis()->GetBinLowEdge(histo->getHisto()->GetNbinsX()+1);
-    const double valPt = jet.pt();
+    if (m_splitNumber == 1 || m_splitNumber == -1)
+    {
+        // Straight line in log(pT) from 0 to 1
+        // y = mx+b
+        // m = 1/[log(max)-log(min)]
+        // x = log(min) --> b = -m*log(min)
 
-    const double slope = 1./(log(maxPt)-log(minPt));
-    const double intercept = -slope*log(minPt);
+        const double minPt = histo->GetXaxis()->GetBinLowEdge(1);
+        const double maxPt = histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1);
+        const double valPt = jet.pt()*m_energyScale;
 
-    const double factor = slope*log(valPt <= minPt ? minPt+1.e-3 : valPt >= maxPt ? maxPt-1.e-3 : valPt)+intercept;
-    
-    return m_splitNumber == 1 ? factor : sqrt(1-factor*factor);
+        const double slope = 1./(log(maxPt)-log(minPt));
+        const double intercept = -slope*log(minPt);
+
+        splitFactor = slope*log(valPt <= minPt ? minPt+1.e-3 : valPt >= maxPt ? maxPt-1.e-3 : valPt)+intercept;
+    }
+    else if (m_splitNumber == 2 || m_splitNumber == -2)
+    {
+        // Straight line in |eta| from 0 to 1
+        // y = mx + b
+        // m = 1/(max - min)
+        // x = min --> b = -m*min
+        const double minEta = 0;
+        const double maxEta = 4.5;
+        const double absEta = fabs(jet.eta());
+
+        const double slope = 1./(maxEta - minEta);
+        const double intercept = -slope*minEta;
+
+        splitFactor = slope*(absEta <= minEta ? minEta+1.e-3 : absEta >= maxEta ? maxEta-1.e-3 : absEta)+intercept;
+    }
+    else if (m_splitNumber == 3 || m_splitNumber == -3)
+    {
+        // Increasing with log(pT) and increasing with |eta|
+        // z = mx + ny + c
+        // z(min,min) = 0
+        // z(max,max) = 1
+        // Linear in both dimensions means need factor of 1/2 in a single dimension
+        // m = 0.5/[log(maxPt)-log(minPt)]
+        // n = 0.5/(maxEta - minEta)
+        // c = -minPt*m - minEta*n
+        // 2*z = (logx-logxmin)/(logxmax-logxmin) + (y-ymin)/(ymax-ymin)
+        const double minPt = histo->GetXaxis()->GetBinLowEdge(1);
+        const double maxPt = histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1);
+        const double valPt = jet.pt()*m_energyScale;
+
+        const double minEta = 0;
+        const double maxEta = 4.5;
+        const double absEta = fabs(jet.eta());
+
+        const double slopePt = 1./(log(maxPt)-log(minPt));
+        const double slopeEta = 1./(maxEta-minEta);
+        
+        const double fixedPt  = valPt <= minPt ? minPt+1.e-3 : valPt >= maxPt ? maxPt - 1.e-3 : valPt;
+        const double fixedEta = absEta <= minEta ? minEta+1.e-3 : absEta >= maxEta ? maxEta-1.e-3 : absEta;
+
+        splitFactor = (slopePt*(log(fixedPt)-log(minPt)) + slopeEta*(fixedEta-minEta))/2.;
+    }
+    else if (m_splitNumber == 4 || m_splitNumber == -4)
+    {
+        // Increasing with log(pT) and decreasing with |eta|
+        // See description above, follows similarly
+        // 2*z = (logx-logxmin)/(logxmax-logxmin) + (ymax-y)/(ymax-ymin)
+        const double minPt = histo->GetXaxis()->GetBinLowEdge(1);
+        const double maxPt = histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1);
+        const double valPt = jet.pt()*m_energyScale;
+
+        const double minEta = 0;
+        const double maxEta = 4.5;
+        const double absEta = fabs(jet.eta());
+
+        const double slopePt = 1./(log(maxPt)-log(minPt));
+        const double slopeEta = 1./(maxEta-minEta);
+        
+        const double fixedPt  = valPt <= minPt ? minPt+1.e-3 : valPt >= maxPt ? maxPt - 1.e-3 : valPt;
+        const double fixedEta = absEta <= minEta ? minEta+1.e-3 : absEta >= maxEta ? maxEta-1.e-3 : absEta;
+
+        splitFactor = (slopePt*(log(fixedPt)-log(minPt)) + slopeEta*(maxEta-fixedEta))/2.;
+    }
+
+
+    // Now check if this is the functional part or the complementary part
+    if (m_splitNumber < 0)
+        splitFactor = sqrt(1-splitFactor*splitFactor);
+
+    return splitFactor;
 }
 
 } // end jet namespace

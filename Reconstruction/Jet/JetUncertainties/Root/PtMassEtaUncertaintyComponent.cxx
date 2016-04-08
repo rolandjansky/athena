@@ -23,7 +23,7 @@ PtMassEtaUncertaintyComponent::PtMassEtaUncertaintyComponent(const std::string& 
 
 PtMassEtaUncertaintyComponent::PtMassEtaUncertaintyComponent(const ComponentHelper& component)
     : UncertaintyComponent(component)
-    , m_absEta(CompParametrization::IsAbsEta(component.parametrization))
+    , m_absEta(CompParametrization::isAbsEta(component.parametrization))
 {
     ATH_MSG_DEBUG(Form("Creating PtMassEtaUncertaintyComponent named %s",m_name.Data()));
 }
@@ -49,17 +49,17 @@ PtMassEtaUncertaintyComponent* PtMassEtaUncertaintyComponent::clone() const
 
 bool PtMassEtaUncertaintyComponent::getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getValidity(jet.pt()/1.e3,jet.m()/jet.pt(),m_absEta ? fabs(jet.eta()) : jet.eta());
+    return histo->getValidity(jet.pt()*m_energyScale,jet.m()/jet.pt(),m_absEta ? fabs(jet.eta()) : jet.eta());
 }
 
 double PtMassEtaUncertaintyComponent::getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getUncertainty(jet.pt()/1.e3,jet.m()/jet.pt(),m_absEta ? fabs(jet.eta()) : jet.eta());
+    return histo->getUncertainty(jet.pt()*m_energyScale,jet.m()/jet.pt(),m_absEta ? fabs(jet.eta()) : jet.eta());
 }
 
 bool PtMassEtaUncertaintyComponent::getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getValidUncertainty(unc,jet.pt()/1.e3,jet.m()/jet.pt(),m_absEta ? fabs(jet.eta()) : jet.eta());
+    return histo->getValidUncertainty(unc,jet.pt()*m_energyScale,jet.m()/jet.pt(),m_absEta ? fabs(jet.eta()) : jet.eta());
 }
 
 } // end jet namespace
