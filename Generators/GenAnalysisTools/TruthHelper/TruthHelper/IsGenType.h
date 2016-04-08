@@ -22,8 +22,6 @@ namespace TruthHelper {
 
     IsGenType(const IsGenType& src);
 
-    IsGenType& operator= (const IsGenType& rhs);
-
     GenIMCselector* create() const;
 
     bool operator()(const HepMC::GenParticle* const p ) const;

@@ -12,11 +12,6 @@ namespace TruthHelper {
     return p->status() == m_stat;
   }
 
-  IsStatus& IsStatus::operator=(const IsStatus& rhs){
-    m_stat = rhs.m_stat;
-    return *this;
-}
-
 
   GenIMCselector* IsStatus::create() const {
     return new IsStatus(*this);

@@ -24,8 +24,6 @@ namespace TruthHelper {
       : GenIMCselector(), m_stat(rhs.m_stat)
     { }
 
-    IsStatus& operator=(const IsStatus& rhs);
-
     GenIMCselector* create() const;
 
     bool operator()(const HepMC::GenParticle* const p ) const;
