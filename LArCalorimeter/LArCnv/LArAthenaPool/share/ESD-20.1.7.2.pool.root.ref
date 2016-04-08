@@ -1,0 +1,50 @@
+Event index 0
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 1
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 2
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 3
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 4
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 5
+--> LArNoisyROSummary
+  noisy febs ['0x3bb0000000000000']
+
+
+Event index 6
+--> LArNoisyROSummary
+  noisy febs ['0x3ab0000000000000', '0x3b18000000000000']
+
+
+Event index 7
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 8
+--> LArNoisyROSummary
+  noisy febs ['0x3a80000000000000', '0x3ab0000000000000', '0x3bb0000000000000', '0x3a18000000000000', '0x3b18000000000000', '0x3a50000000000000', '0x3b50000000000000']
+
+
+Event index 9
+--> LArNoisyROSummary
+  noisy febs []
+
+

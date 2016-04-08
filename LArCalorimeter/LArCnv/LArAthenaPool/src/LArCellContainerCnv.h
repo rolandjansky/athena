@@ -27,7 +27,7 @@ public:
     virtual StatusCode initialize();
 
     /// Extend base-class conversion method to modify when reading in
-    virtual StatusCode     PoolToDataObject(DataObject*& pObj,const std::string &token);
+    virtual StatusCode     PoolToDataObject(DataObject*& pObj, const Token* token);
 
 private:
     /// Save CaloDDMgr for initializing LArCells

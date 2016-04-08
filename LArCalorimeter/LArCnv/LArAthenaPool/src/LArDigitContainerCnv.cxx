@@ -9,8 +9,8 @@
 
 LArDigitContainerCnv::LArDigitContainerCnv(ISvcLocator* svcLoc) : 
   LArDigitContainerCnvBase(svcLoc),
-  p0_guid("B15FFDA0-206D-4062-8B5F-582A1ECD5502"),
-  p1_guid("F1876026-CDFE-4110-AA59-E441BAA5DE44")
+  m_p0_guid("B15FFDA0-206D-4062-8B5F-582A1ECD5502"),
+  m_p1_guid("F1876026-CDFE-4110-AA59-E441BAA5DE44")
 {}
 
 
@@ -27,12 +27,12 @@ LArDigitContainerPERS* LArDigitContainerCnv::createPersistent(LArDigitContainer*
 
 LArDigitContainer* LArDigitContainerCnv::createTransient() {
    MsgStream log(messageService(), "LArDigitContainerCnv" );
-   if (compareClassGuid(p0_guid)) {
+   if (compareClassGuid(m_p0_guid)) {
      log << MSG::DEBUG << "Read version p0 of LArDigitContainer. GUID=" 
 	 << m_classID.toString() << endreq;
      return poolReadObject<LArDigitContainer>();
    }
-   else if (compareClassGuid(p1_guid)) {
+   else if (compareClassGuid(m_p1_guid)) {
      log << MSG::DEBUG << "Reading LArDigitContainer_p1. GUID=" 
 	 << m_classID.toString() << endreq;
      LArDigitContainer* trans=new LArDigitContainer();

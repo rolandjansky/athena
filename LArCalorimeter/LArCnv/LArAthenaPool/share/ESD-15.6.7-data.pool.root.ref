@@ -1,0 +1,80 @@
+Event index 0
+--> LArDigitContainer_EMClust
+--> LArDigitContainer_Thinned
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 1
+--> LArDigitContainer_EMClust
+--> LArDigitContainer_Thinned
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 2
+--> LArDigitContainer_EMClust
+--> LArDigitContainer_Thinned
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 3
+--> LArDigitContainer_EMClust
+--> LArDigitContainer_Thinned
+   0x3a80490000000000 0 [988, 992, 1057, 1118, 1083, 1038, 1015]
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 4
+--> LArDigitContainer_EMClust
+--> LArDigitContainer_Thinned
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 5
+--> LArDigitContainer_EMClust
+--> LArDigitContainer_Thinned
+   0x3b50270000000000 0 [965, 967, 1024, 1063, 1043, 1007, 992]
+   0x3a18360000000000 0 [956, 956, 1030, 1068, 1019, 983, 971]
+   0x3a50320000000000 0 [993, 991, 1102, 1155, 1092, 1035, 1010]
+   0x3a80220000000000 0 [958, 960, 1040, 1099, 1065, 1020, 998]
+   0x3a80230000000000 0 [952, 953, 1009, 1044, 1025, 1004, 979]
+   0x3a806c0000000000 0 [1006, 1012, 1087, 1130, 1099, 1063, 1038]
+   0x3b32710000000000 0 [969, 985, 1342, 1842, 1287, 657, 444]
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 6
+--> LArDigitContainer_EMClust
+--> LArDigitContainer_Thinned
+   0x3a506c0000000000 0 [985, 987, 1074, 1116, 1077, 1040, 1017]
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 7
+--> LArDigitContainer_EMClust
+--> LArDigitContainer_Thinned
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 8
+--> LArDigitContainer_EMClust
+--> LArDigitContainer_Thinned
+--> LArNoisyROSummary
+  noisy febs []
+
+
+Event index 9
+--> LArDigitContainer_EMClust
+--> LArDigitContainer_Thinned
+   0x3b1c360000000000 1 [1005, 993, 1028, 1086, 1060, 1024, 996]
+--> LArNoisyROSummary
+  noisy febs []
+
+
