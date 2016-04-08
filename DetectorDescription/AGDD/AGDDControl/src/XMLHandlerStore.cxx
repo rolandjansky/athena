@@ -7,7 +7,9 @@
 
 #include <iostream>
 
-XMLHandlerStore* XMLHandlerStore::theStore=0;
+using namespace xercesc;
+
+XMLHandlerStore* XMLHandlerStore::s_theStore=0;
 
 XMLHandlerStore::XMLHandlerStore()
 {
@@ -15,8 +17,8 @@ XMLHandlerStore::XMLHandlerStore()
 
 XMLHandlerStore* XMLHandlerStore::GetHandlerStore()
 {
-	if (!theStore) theStore=new XMLHandlerStore;
-	return theStore;
+	if (!s_theStore) s_theStore=new XMLHandlerStore;
+	return s_theStore;
 }
 
 void XMLHandlerStore::RegisterHandler(XMLHandler* handler)

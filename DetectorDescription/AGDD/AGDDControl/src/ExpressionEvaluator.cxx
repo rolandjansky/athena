@@ -20,29 +20,29 @@ using namespace CLHEP;
 
 ExpressionEvaluator::ExpressionEvaluator()
 {
-  fCalc.clear();
-  fCalc.setStdMath();                 // set standard constants and functions
-  //fCalc.setSystemOfUnits();           // set SI units
+  m_calc.clear();
+  m_calc.setStdMath();                 // set standard constants and functions
+  //m_calc.setSystemOfUnits();           // set SI units
   // Set Geant4 system of units
-  fCalc.setSystemOfUnits(1.e+3, 1./1.60217733e-25, 1.e+9, 1./1.60217733e-10,1.0, 1.0, 1.0);
-  fileCurrentlyParsed = "";
+  m_calc.setSystemOfUnits(1.e+3, 1./1.60217733e-25, 1.e+9, 1./1.60217733e-10,1.0, 1.0, 1.0);
+  m_fileCurrentlyParsed = "";
 }
 
 ExpressionEvaluator::~ExpressionEvaluator()
 {
-  fCTable.clear();
-  fPCTable.clear();
-  fCalc.clear();
+  m_CTable.clear();
+  m_PCTable.clear();
+  m_calc.clear();
 }
 
 bool ExpressionEvaluator::RegisterConstant( std::string& c, double v )
 {
   double value = v;
 
-  if( fCalc.status() != HepTool::Evaluator::OK )
+  if( m_calc.status() != HepTool::Evaluator::OK )
   {
     std::cerr << "Expression evaluator:: Error registering constant " << c << std::endl;
-    fCalc.print_error();
+    m_calc.print_error();
     std::cout << std::endl;
     return false;
   }
@@ -69,16 +69,16 @@ bool ExpressionEvaluator::RegisterArray( std::string& c, std::vector<double> v)
 
 bool ExpressionEvaluator::RegisterVariable( const std::string& var_name, double value)
 {
- real_vars.push_back(var_name);
- fCalc.setVariable( var_name.c_str(), value );
+ m_real_vars.push_back(var_name);
+ m_calc.setVariable( var_name.c_str(), value );
  return true;
 }
 
 bool ExpressionEvaluator::is_real_variable(const std::string& var_name)
 {
  
- std::vector<std::string>::iterator start = real_vars.begin();
- std::vector<std::string>::iterator end = real_vars.end();
+ std::vector<std::string>::iterator start = m_real_vars.begin();
+ std::vector<std::string>::iterator end = m_real_vars.end();
  std::vector<std::string>::iterator iter;
 
  iter = find(start, end, var_name);
@@ -102,7 +102,7 @@ bool ExpressionEvaluator::is_delimiter(char c)
 double ExpressionEvaluator::EvaluateString(const std::string& str)
 {
  std::string str_mod = str;
-// if(fileCurrentlyParsed != "")
+// if(m_fileCurrentlyParsed != "")
 // {
   const char* c_str_mod = str.c_str(); //string to be modified with file namespace! 
   std::vector<int> variable_ends;  //variable names to be changed
@@ -141,14 +141,14 @@ double ExpressionEvaluator::EvaluateString(const std::string& str)
    }
 //  }// variable ends stored in vector
   std::string::size_type shift = 0;
-  std::string::size_type ns_length = fileCurrentlyParsed.size();
+  std::string::size_type ns_length = m_fileCurrentlyParsed.size();
   for(unsigned int i=0; i<variable_ends.size(); i++)
   {
-   str_mod.insert(shift+variable_ends[i],fileCurrentlyParsed);
+   str_mod.insert(shift+variable_ends[i],m_fileCurrentlyParsed);
    shift += ns_length;
   }
  }
- double result = fCalc.evaluate( str_mod.c_str() );
+ double result = m_calc.evaluate( str_mod.c_str() );
  return result;
 }
 /*********************************************************************************************************/
@@ -169,11 +169,11 @@ bool ExpressionEvaluator::RegisterPhysConstant( std::string& c, std::string valu
   double dvalue      = EvaluateString( expr );
 //  double unit_value = EvaluateString( unit );
 
-  if( fCalc.status() != HepTool::Evaluator::OK )
+  if( m_calc.status() != HepTool::Evaluator::OK )
   {
     std::cerr << "Expression evaluator:: Error registering quantity "
               << c << std::endl;
-    fCalc.print_error();
+    m_calc.print_error();
     std::cout << std::endl;
     return false;
   }
@@ -190,10 +190,10 @@ bool ExpressionEvaluator::RegisterExpression( std::string& name, std::string tex
   expr += ")";
   double value = EvaluateString( expr );
 
-  if( fCalc.status() != HepTool::Evaluator::OK )
+  if( m_calc.status() != HepTool::Evaluator::OK )
   {
     std::cerr << "Expression evaluator:: Error registering expression " << name << std::endl;
-    fCalc.print_error();
+    m_calc.print_error();
     std::cout << std::endl;
     return false;
   }
@@ -282,16 +282,16 @@ double ExpressionEvaluator::Eval( const char* expr_mod )
   }
 //  std::cout<<"***************** "<<expr<<std::endl;
   double result = EvaluateString( expr );
-  if( fCalc.status() != HepTool::Evaluator::OK )
+  if( m_calc.status() != HepTool::Evaluator::OK )
   {
     std::cerr << expr << std::endl;
     //std::cerr << "------";
-    for (int i=0; i<fCalc.error_position(); i++)
+    for (int i=0; i<m_calc.error_position(); i++)
     {
       std::cerr << "-";
     }
     std::cerr << "^\a" << std::endl;
-    fCalc.print_error();
+    m_calc.print_error();
     std::cerr << std::endl;
   }
   return result;

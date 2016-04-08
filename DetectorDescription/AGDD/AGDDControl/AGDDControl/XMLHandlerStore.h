@@ -12,7 +12,7 @@ class XMLHandler;
 
 #include <xercesc/dom/DOM.hpp>
 
-using namespace xercesc;
+//using namespace xercesc;
 
 typedef std::map<std::string,XMLHandler*,std::less<std::string> > handlerStore;
 
@@ -20,11 +20,11 @@ class XMLHandlerStore:public handlerStore {
 public:
 	static XMLHandlerStore* GetHandlerStore();
 	void RegisterHandler(XMLHandler*);
-	XMLHandler* GetHandler(DOMNode *);
-	void Handle(DOMNode *);
+	XMLHandler* GetHandler(xercesc::DOMNode *);
+	void Handle(xercesc::DOMNode *);
 private:
 	XMLHandlerStore();
-	static XMLHandlerStore *theStore;
+	static XMLHandlerStore *s_theStore;
 };
 
 #endif

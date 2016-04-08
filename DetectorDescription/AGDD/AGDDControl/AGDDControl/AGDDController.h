@@ -37,35 +37,35 @@ public:
 	
 	void UseGeoModelDetector(std::string);
 	
-	void Locked(bool b) {locked=b;}
-	bool Locked() {return locked;}
+	void Locked(bool b) {m_locked=b;}
+	bool Locked() {return m_locked;}
 	
-	void DisableSections(bool b) {disableSections=b;}
-	bool DisableSections() {return disableSections;}
+	void DisableSections(bool b) {m_disableSections=b;}
+	bool DisableSections() {return m_disableSections;}
 private:
 	
 	AGDDController();
-	AGDDController(const AGDDController& c):theParser(c.theParser),theBuilder(c.theBuilder) {;}
+	AGDDController(const AGDDController& c):m_theParser(c.m_theParser),m_theBuilder(c.m_theBuilder) {;}
 	AGDDController& operator=(const AGDDController& c) 
 	{
 		if (this!=&c) {
-			theParser=c.theParser;
-			theBuilder=c.theBuilder;
+			m_theParser=c.m_theParser;
+			m_theBuilder=c.m_theBuilder;
 		}
 		return *this;
 	}
-	IAGDDParser *theParser;
-	AGDDBuilder* theBuilder;
+	IAGDDParser *m_theParser;
+	AGDDBuilder* m_theBuilder;
 	
-	std::vector<std::string> filesToParse;
-	std::vector<std::string> sectionsToBuild;
-	std::vector<std::string> volumesToBuild;
-	std::vector<std::string> structuresToBuild;
+	std::vector<std::string> m_filesToParse;
+	std::vector<std::string> m_sectionsToBuild;
+	std::vector<std::string> m_volumesToBuild;
+	std::vector<std::string> m_structuresToBuild;
 	
-	bool locked;
-	bool disableSections;
+	bool m_locked;
+	bool m_disableSections;
 	
-	int printLevel;
+	int m_printLevel;
 };
 
 #endif

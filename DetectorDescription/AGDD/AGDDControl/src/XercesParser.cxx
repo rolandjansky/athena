@@ -28,18 +28,18 @@ DOMNode* XercesParser::currentElement=0;
 
 XercesParser::~XercesParser()
 {
-	delete parser;
-	parser=0;
+	delete m_parser;
+	m_parser=0;
 	Finalize();
 }
 
-XercesParser::XercesParser():IAGDDParser(),doc(0),parser(0),initialized(false)
+XercesParser::XercesParser():IAGDDParser(),m_doc(0),m_parser(0),m_initialized(false)
 {
 //	std::cout<<"+++++++++++> Xerces Parser being created!" <<std::endl;
 //	AGDDController::GetController()->SetParser(this);
 //	std::cout<<"exiting constructor"<<std::endl;
 }
-XercesParser::XercesParser(std::string s):IAGDDParser(s),doc(0),parser(0),initialized(false)
+XercesParser::XercesParser(std::string s):IAGDDParser(s),m_doc(0),m_parser(0),m_initialized(false)
 {
 //	std::cout<<"+++++++++++> Xerces Parser being created!" <<std::endl;
 //	AGDDController::GetController()->SetParser(this);
@@ -48,19 +48,19 @@ XercesParser::XercesParser(std::string s):IAGDDParser(s),doc(0),parser(0),initia
 bool XercesParser::ParseFile(std::string s)
 {
 //	std::cout<<"+++++++++++> Xerces Parser parsing file "<<s <<std::endl;
-	fileName=s;
+        fileName=s;
 	s=PathResolver::find_file(s,"XMLPATH",PathResolver::RecursiveSearch);
 	if (s.empty())
 		std::cout<<" something wrong, could not find XML file "<<s<<std::endl;
 	else
 	{
 //		std::cout<<" loading file "<<s<<std::endl;
-		if (!initialized) Initialize();
-        parser = new XercesDOMParser;
+		if (!m_initialized) Initialize();
+        m_parser = new XercesDOMParser;
         bool errorsOccured = false;
     	try
     	{
-        	parser->parse(s.c_str());
+        	m_parser->parse(s.c_str());
     	}
     	catch (const OutOfMemoryException&)
     	{
@@ -92,7 +92,7 @@ bool XercesParser::ParseFile(std::string s)
         	XERCES_STD_QUALIFIER cerr << "An error occurred during parsing\n " << XERCES_STD_QUALIFIER endl;
         	errorsOccured = true;
     	}  
-		doc=parser->getDocument();
+		m_doc=m_parser->getDocument();
 		return errorsOccured;
 	}
 
@@ -113,12 +113,12 @@ bool XercesParser::ParseString(std::string s)
 	const char* str=s.c_str();
 	static const char* memBufID="prodInfo";
 	MemBufInputSource* memBuf = new MemBufInputSource((const XMLByte*)str,strlen(str),memBufID,false);
-    parser = new XercesDOMParser;
+    m_parser = new XercesDOMParser;
     bool errorsOccured = false;
-	if (!initialized) Initialize();
+	if (!m_initialized) Initialize();
     try
     {
-    	parser->parse(*memBuf);
+    	m_parser->parse(*memBuf);
     }
     catch (const OutOfMemoryException&)
     {
@@ -150,7 +150,7 @@ bool XercesParser::ParseString(std::string s)
     	XERCES_STD_QUALIFIER cerr << "An error occurred during parsing\n " << XERCES_STD_QUALIFIER endl;
     	errorsOccured = true;
     }  
-	doc=parser->getDocument();
+	m_doc=m_parser->getDocument();
 	return errorsOccured;
 }
 bool XercesParser::ParseStringAndNavigate(std::string s)
@@ -164,14 +164,14 @@ bool XercesParser::ParseStringAndNavigate(std::string s)
 
 void XercesParser::navigateTree()
 {
-	if (!doc) 
+	if (!m_doc) 
 	{
 		std::cout<<" something is wrong! no document set!"<<std::endl;
 		std::cout<<" doing nothing!"<<std::endl;
 		return;
 	}
 	DOMNode* node = 0;
-	node = dynamic_cast<DOMNode*>(doc->getDocumentElement());
+	node = dynamic_cast<DOMNode*>(m_doc->getDocumentElement());
 	if( !node ) throw;
 	currentElement=node;
 	elementLoop(node);
@@ -252,13 +252,13 @@ bool XercesParser::Initialize()
              	<< XERCES_STD_QUALIFIER endl;
         	return 1;
     	}
-		initialized=true;
+		m_initialized=true;
 	return 0;
 }
 
 bool XercesParser::Finalize()
 {
 	XMLPlatformUtils::Terminate();
-	initialized=false;
+	m_initialized=false;
 	return 0;
 }
