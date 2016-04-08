@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id:$
+// $Id: xAODL2StandAloneMuonContainerCnv_v1.cxx 707606 2015-11-12 19:59:49Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
