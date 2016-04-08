@@ -30,12 +30,15 @@ TEST SUCCEEDED : copy in container : jet Width identical
 
  ---------------- testConstituents  
 TEST SUCCEEDED : size of JetConstituentVector : 2==2
+TEST SUCCEEDED :  identical constituent retrieved from JetConstituent object
    Pt    finding scale     uncalconstit scale
 40000     36000    28000
 TEST SUCCEEDED : identical constituents from JetConstituentVector at 0
 TEST SUCCEEDED :  stlVec and constituent Pt identical at  0
+TEST SUCCEEDED :  stlVec and constituent raw constit ptr identical at  0
 TEST SUCCEEDED : identical constituents from JetConstituentVector at 1
 TEST SUCCEEDED :  stlVec and constituent Pt identical at  1
+TEST SUCCEEDED :  stlVec and constituent raw constit ptr identical at  1
 TEST SUCCEEDED : identical constituent sum
 TEST SUCCEEDED : identical 1st  constituent
 TEST SUCCEEDED : identical 2nd  constituent

@@ -16,8 +16,9 @@
 // xAOD include(s):
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
-
+#ifndef SIMULATIONBASE
 #include "xAODBTagging/BTaggingContainer.h"
+#endif //SIMULATIONBASE
 
 // Local include(s):
 //#include "xAODJet/JetConstituentIterator.h"
@@ -42,7 +43,7 @@ namespace xAOD {
   /// The Jet class provides 4 main features :
   ///   - list of constituents. This list is build by the jet finding algorithm and is the physical definition of the jet object. Methods are provided to set and access constituents as IParticle objects.
   ///   - 4-momentum. Accessed through the inherited IParticle interface. A Jet 4-mom is not necessarily the sum of its constituents 4-mom (for ex. if a calibration has been applied).
-  ///   - Signal States : Jets can hold several other 4-momentum representing various calibration states (primaliry used for calo jets). See also P4SignalState
+  ///   - Signal States : Jets can hold several other 4-momentum representing various calibration states (primarily used for calo jets). See also P4SignalState
   ///   - Attributes : depending on its "type"  several other attributes can be added to a jet.
   ///      - numbers, vector of numbers : access through the get/setAttribute functions
   ///      - other IParticles : dedicated functions are provided get/setAssociatedParticles (because of internal I/O details)
@@ -51,8 +52,8 @@ namespace xAOD {
   /// @author Pierre-Antoine Delsart <delsart@in2p3.fr>
   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
   ///
-  /// $Revision: 631914 $
-  /// $Date: 2014-11-28 17:08:50 +0100 (Fri, 28 Nov 2014) $
+  /// $Revision: 675972 $
+  /// $Date: 2015-06-17 15:07:55 +0200 (Wed, 17 Jun 2015) $
   ///
   class Jet_v1 : public IParticle {
 
@@ -227,14 +228,14 @@ namespace xAOD {
     /// Set  number by enum
     template<class T>
     void setAttribute( AttributeID type, const T& value );
-
+#ifndef SIMULATIONBASE
     /// Access to the associated btagging object
     const BTagging* btagging() const;
     /// Access to the associated btagging object
     const ElementLink< BTaggingContainer >& btaggingLink() const;
     /// Access to btagging objects
     void setBTaggingLink( const ElementLink< BTaggingContainer>& el );
-
+#endif
 
     /// @}
     ////////////////////////////////////////////////////////    

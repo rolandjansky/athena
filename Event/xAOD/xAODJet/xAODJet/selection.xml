@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 615417 2014-09-06 13:36:06Z delsart $ -->
+<!-- $Id: selection.xml 658646 2015-04-02 10:29:26Z delsart $ -->
 <lcgdict>
 
   <!-- Jet_v1 dictionaries: -->
@@ -44,6 +44,12 @@
   <class name="std::pair<std::string,std::vector<std::vector<float> > >" />
   
 
+  <class name="xAOD::JetAttribute" />
+
+
+  <!-- <class name="std::vector<const xAOD::IParticle* >" />  Is this
+       existing somehwere else ?  -->
+
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->
   <exclusion>
@@ -52,5 +58,6 @@
     <class name="DataVector<xAOD::IParticle>" />
     <class pattern="ElementLink<DataVector<xAOD::IParticle*" />
   </exclusion>
+
 
 </lcgdict>

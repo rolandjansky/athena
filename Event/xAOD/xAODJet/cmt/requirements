@@ -14,8 +14,8 @@ use AtlasROOT     AtlasROOT-*     External
 # EDM package(s):
 use xAODBase      xAODBase-*      Event/xAOD
 use xAODCore      xAODCore-*      Event/xAOD
-use xAODTrigger   xAODTrigger-*      Event/xAOD
-use xAODBTagging   xAODBTagging-*      Event/xAOD
+use_ifndef pplist="SIMULATIONBASE" pkg="Event/xAOD/xAODTrigger"
+use_ifndef pplist="SIMULATIONBASE" pkg="Event/xAOD/xAODBTagging"
 
 # We need the GenVector library:
 apply_tag ROOTGenVectorLibs
@@ -30,7 +30,7 @@ private
 
 use AtlasReflex   AtlasReflex-*   External
 use xAODCaloEvent   xAODCaloEvent-*      Event/xAOD
-use xAODPFlow       xAODPFlow-*          Event/xAOD
+use_ifndef pplist="SIMULATIONBASE" pkg="Event/xAOD/xAODPFlow"
 use CxxUtils        CxxUtils-*           Control
 use SGTools        SGTools-*           Control
 
@@ -40,3 +40,5 @@ apply_pattern lcgdict dict=xAODJet selectionfile=selection.xml \
 
 use TestTools      TestTools-*         AtlasTest 
 apply_pattern UnitTest_run unit_test=xAODJet_Jet
+
+apply_pattern do_genCLIDDB library=xAODJet

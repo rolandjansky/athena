@@ -5,8 +5,9 @@
 #include <cmath>
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#ifndef SIMULATIONBASE
 #include "xAODPFlow/PFO.h"
-
+#endif //SIMULATIONBASE
 
 namespace xAOD {
 
@@ -46,12 +47,14 @@ namespace xAOD {
           return;
         } 
       }
+#ifndef SIMULATIONBASE
       case Type::ParticleFlow: {
         const xAOD::PFO *pfo = dynamic_cast<const xAOD::PFO*>(part);
         if(pfo->ptEM()!=0) constit.SetCoordinates( pfo->ptEM(), pfo->etaEM(), pfo->phiEM(), pfo->mEM() );
         else constit.SetCoordinates( 0, 1, 1, 0 ); // To avoid Warnings from root.
         return;
       }
+#endif //SIMULATIONBASE
       default: 
         break;// fall back on default kinematics
       }
@@ -108,6 +111,7 @@ namespace xAOD {
   JetConstituent JetConstituentVector::at(size_t i) const { 
     JetConstituent c; 
     fillJetConstituent(*(m_elVector->at(i)), c , m_sigState);
+    c.m_part = *(m_elVector->at(i));
     return c;
   }
 
@@ -124,7 +128,10 @@ namespace xAOD {
   std::vector<JetConstituent> JetConstituentVector::asSTLVector(){
     size_t N = size();
     std::vector<JetConstituent> vec(N);
-    for ( size_t i=0;i<N;i++ ) fillJetConstituent( *(m_elVector->at(i)) , vec[i], m_sigState );
+    for ( size_t i=0;i<N;i++ ) {
+      fillJetConstituent( *(m_elVector->at(i)) , vec[i], m_sigState ); 
+      vec[i].m_part = *(m_elVector->at(i));
+    }
     return vec;
   }
 

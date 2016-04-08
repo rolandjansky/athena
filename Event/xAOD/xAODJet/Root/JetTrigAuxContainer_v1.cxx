@@ -3,7 +3,7 @@
 */
 
 
-
+#ifndef SIMULATIONBASE
 // Local include(s):
 #include "xAODJet/versions/JetTrigAuxContainer_v1.h"
 
@@ -23,3 +23,4 @@ namespace xAOD {
    }
 
 } // namespace xAOD
+#endif //SIMULATIONBASE
