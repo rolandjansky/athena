@@ -21,6 +21,8 @@ JetTagSVInfoPlusFillerTool::JetTagSVInfoPlusFillerTool
       m_finder (*this, "SVInfoPlus", true)
 {
   declareProperty("AddNormDist", m_addNormDist=false);
+  book().ignore(); // Avoid coverity warnings.
+  m_norm_dist = nullptr;
 }
   
 

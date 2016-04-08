@@ -19,6 +19,7 @@ JetTagMultiSVInfoPlusFillerTool::JetTagMultiSVInfoPlusFillerTool
     : BlockFillerTool<Jet> (type, name, parent),
       m_finder (*this, "MultiSVInfoPlus", true)
 {
+  book().ignore(); // Avoid coverity warnings.
 }
   
 

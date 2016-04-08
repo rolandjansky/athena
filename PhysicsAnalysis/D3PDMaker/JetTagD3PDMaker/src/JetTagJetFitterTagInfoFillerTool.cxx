@@ -20,6 +20,7 @@ JetTagJetFitterTagInfoFillerTool::JetTagJetFitterTagInfoFillerTool
     : BlockFillerTool<Jet> (type, name, parent),
       m_finder (*this, "JetFitterTagInfo")
 {
+  book().ignore();  // Avoid coverity warnings.
 }
   
 

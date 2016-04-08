@@ -22,8 +22,8 @@ JetTagSoftMuonInfoMuonAssociationTool::JetTagSoftMuonInfoMuonAssociationTool
       m_muItr(0),
       m_muEnd(0)
 {
-
   declareProperty("FillVariables", m_fillVariables=true);
+  book().ignore(); // Avoid coverity warnings.
 }
 
 

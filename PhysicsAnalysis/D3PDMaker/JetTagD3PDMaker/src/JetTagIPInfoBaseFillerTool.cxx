@@ -20,6 +20,7 @@ JetTagIPInfoBaseFillerTool::JetTagIPInfoBaseFillerTool
     : BlockFillerTool<Jet> (type, name, parent),
       m_finder (*this, "IP2D")
 {
+  book().ignore();  // Avoid coverity warnings.
 }
   
 

@@ -19,6 +19,7 @@ JetTagJetFitterGenericTagInfoFillerTool::JetTagJetFitterGenericTagInfoFillerTool
     : BlockFillerTool<Jet> (type, name, parent),
       m_finder (*this, "JetFitterCharm")
 {
+  book().ignore();  // Avoid coverity warnings.
 }
   
 

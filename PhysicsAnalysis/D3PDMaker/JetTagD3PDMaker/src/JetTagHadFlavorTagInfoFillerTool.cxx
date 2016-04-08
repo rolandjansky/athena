@@ -20,6 +20,7 @@ JetTagHadFlavorTagInfoFillerTool::JetTagHadFlavorTagInfoFillerTool
     : BlockFillerTool<Jet> (type, name, parent),
       m_finder (*this, "GbbNN")
 {
+  book().ignore();  // Avoid coverity warnings.
 }
   
 

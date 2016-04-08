@@ -20,6 +20,7 @@ JetTagJetProbInfoBaseFillerTool::JetTagJetProbInfoBaseFillerTool
     : BlockFillerTool<Jet> (type, name, parent),
       m_finder (*this, "JetProb")
 {
+  book().ignore();  // Avoid coverity warnings.
 }
   
 

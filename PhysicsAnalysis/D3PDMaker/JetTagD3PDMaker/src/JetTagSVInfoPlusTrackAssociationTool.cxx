@@ -18,6 +18,7 @@ JetTagSVInfoPlusTrackAssociationTool::JetTagSVInfoPlusTrackAssociationTool
    const IInterface* parent)
     : MultiAssociationTool<Jet,Rec::TrackParticle>(type, name, parent),
       m_finder (*this, "SVInfoPlus", true),
+      m_svInfoPlus(nullptr),
       m_trkItr(0),
       m_trkEnd(0)
 {

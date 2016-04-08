@@ -21,6 +21,7 @@ JetTagSoftElecInfoegammaAssociationTool::JetTagSoftElecInfoegammaAssociationTool
       m_egEnd(0)
 {
   declareProperty("FillVariables", m_fillVariables=true); 
+  book().ignore(); // Avoid coverity warnings.
 }
 
 

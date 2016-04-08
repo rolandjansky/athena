@@ -15,10 +15,11 @@
 #define JetTagD3PDMaker_JetTagPixelModuleGetterTool_H
 
 #include "D3PDMakerUtils/ObjGetterTool.h" 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+
 
 namespace InDetDD{
   class PixelDetectorManager;
-  class SiDetectorElementCollection;
 }
 
 namespace D3PD { 

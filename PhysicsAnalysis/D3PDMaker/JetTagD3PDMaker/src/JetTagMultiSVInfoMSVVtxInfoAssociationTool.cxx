@@ -17,6 +17,7 @@ JetTagMultiSVInfoMSVVtxInfoAssociationTool::JetTagMultiSVInfoMSVVtxInfoAssociati
    const IInterface* parent)
     : MultiAssociationTool<Jet,Analysis::MSVVtxInfo>(type, name, parent),
       m_finder (*this, "MultiSVInfoPlus", true),
+      m_mSVInfoPlus(nullptr),
       m_vtxItr(0),
       m_vtxEnd(0)
 {

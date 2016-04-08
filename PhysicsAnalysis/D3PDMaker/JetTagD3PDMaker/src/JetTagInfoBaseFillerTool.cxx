@@ -24,6 +24,12 @@ JetTagInfoBaseFillerTool::JetTagInfoBaseFillerTool
   declareProperty("AddPC", m_addPc=false);
   declareProperty("AddPTau", m_addPtau=false);
   declareProperty("AddWeight", m_addWeight=false);
+
+  book().ignore();  // Avoid coverity warnings.
+  m_pc = nullptr;
+  m_ptau = nullptr;
+  m_weight = nullptr;
+  m_isValid = nullptr;
 }
   
 

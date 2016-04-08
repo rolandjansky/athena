@@ -22,6 +22,7 @@ JetTagIPInfoPlusTrackAssociationTool::JetTagIPInfoPlusTrackAssociationTool
       m_trkEnd (0)
 {
   declareProperty("FillVariables", m_fillVariables=true);
+  book().ignore();  // Avoid coverity warnings.
 }
 
 
