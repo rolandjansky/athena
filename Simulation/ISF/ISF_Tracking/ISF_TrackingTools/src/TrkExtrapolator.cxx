@@ -118,10 +118,7 @@ ISF::ISFParticle* ISF::TrkExtrapolator::extrapolate( const ISF::ISFParticle &par
                                                        particle.charge(),
                                                        particle.pdgCode(),
                                                        particle.timeStamp(),
-                                                       particle,
-						       particle.barcode(),
-						       particle.truthBinding(),
-						       particle.getParticleLink());
+                                                       particle );
   
   // cleanup
   delete extrapolatedPars;
