@@ -33,7 +33,7 @@ CaloCoolIdTool::initialize()
 {
   StatusCode sc=detStore()->retrieve(m_calo_id,"CaloCell_ID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrive CaloCell_ID" << endmsg;
+    msg(MSG::ERROR) << "Failed to retrive CaloCell_ID" << endreq;
     return sc;
   }
 
@@ -89,6 +89,6 @@ CaloCoolIdTool::getCoolChannelId(unsigned int cellHash, unsigned int& subHash) c
   
   //=== we should never go here
 
-  msg(MSG::ERROR) << "cellHash is neither LAr nor Tile, something is deeply wrong" << endmsg;
+  msg(MSG::ERROR) << "cellHash is neither LAr nor Tile, something is deeply wrong" << endreq;
   std::abort();
 }
