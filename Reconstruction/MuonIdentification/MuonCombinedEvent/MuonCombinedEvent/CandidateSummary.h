@@ -27,8 +27,9 @@ namespace MuGirlNS
 //typedef std::vector<const Muon::MuonSegment*> MuonSegmentList;
 class Intersection;
 
-struct CandidateSummary
+class CandidateSummary
 {
+public:
     bool startFromMF;
     bool startFromEF;
     bool startFromBetaRefit;
