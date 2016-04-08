@@ -12,8 +12,6 @@
 // 
 // ********************************************************************
 
-#include "GaudiKernel/MsgStream.h"
- 
 #include "TrigCaloEvent/TrigTauCluster.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigTauTracksInfo.h"
@@ -23,7 +21,7 @@
 #include "TrigT2Tau/T2TauTrkRadiusTool.h"
 
 T2TauTrkRadiusTool::T2TauTrkRadiusTool(const std::string & type, const std::string & name, 
-                   const IInterface* parent): AlgTool(type, name, parent){
+                   const IInterface* parent): AthAlgTool(type, name, parent){
   declareInterface<IAlgToolTau>(this);
   /** PT Cut for tracks */
   declareProperty("TrackPTCut",        m_pTCut   = 1.0 * CLHEP::GeV);
@@ -39,41 +37,34 @@ T2TauTrkRadiusTool::~T2TauTrkRadiusTool(){
  
 
 StatusCode T2TauTrkRadiusTool::initialize(){
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::DEBUG << "in initialize()" << endreq;
-  log << MSG::DEBUG << "REGTEST: Will consider tracks with pT>" << m_pTCut 
-      << " within dR<" << m_coneCut << "from cluster" 
-      << endreq;
-  if ( m_dZ0Max > 0 ) log << MSG::DEBUG << "REGTEST: and with |DeltaZ0|<" << m_dZ0Max << endreq;
-  else                log << MSG::DEBUG << "REGTEST: and with no |DeltaZ0| selection" << endreq;
+  ATH_MSG_DEBUG( "in initialize()" );
+  ATH_MSG_DEBUG( "REGTEST: Will consider tracks with pT>" << m_pTCut 
+                 << " within dR<" << m_coneCut << "from cluster" );
+  if ( m_dZ0Max > 0 )
+    ATH_MSG_DEBUG( "REGTEST: and with |DeltaZ0|<" << m_dZ0Max );
+  else
+    ATH_MSG_DEBUG( "REGTEST: and with no |DeltaZ0| selection" );
 
   return StatusCode::SUCCESS;
 }
 
  
 StatusCode T2TauTrkRadiusTool::finalize(){
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode T2TauTrkRadiusTool::execute(const TrigTauCluster *pTrigTauCluster,
 				      const TrigTauTracksInfo * pTracks,
 				      TrigTau& pTrigTau){
-  MsgStream log(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel(name());
-
-
   //Get tracks
   if( pTracks==0 || pTracks->trackCollection() == 0 || pTrigTauCluster == 0  ) {
-    if( outputLevel <=  MSG::DEBUG )
-        log << MSG::DEBUG << " Pointer to cluster or tracks is zero" << endreq;
+    ATH_MSG_DEBUG( " Pointer to cluster or tracks is zero" );
     return StatusCode::SUCCESS;
   }
 
   if( pTracks->trackCollection()->begin() == pTracks->trackCollection()->end() ) {
-    log << MSG::DEBUG << " Empty track container" << endreq;
+    ATH_MSG_DEBUG( " Empty track container" );
     return StatusCode::SUCCESS;
   }
 
@@ -96,10 +87,8 @@ StatusCode T2TauTrkRadiusTool::execute(const TrigTauCluster *pTrigTauCluster,
       ldTrkZ0 = (*itr)->param()->z0();
     }
   }
-  if (outputLevel <= MSG::DEBUG) 
-      log << MSG::DEBUG 
-          << "REGTEST: found leading track with pt=" << ldTrkPt 
-          << " and Z0=" << ldTrkZ0 << endreq;
+  ATH_MSG_DEBUG( "REGTEST: found leading track with pt=" << ldTrkPt 
+                 << " and Z0=" << ldTrkZ0 );
 
 
   //calculate track radius
@@ -108,16 +97,11 @@ StatusCode T2TauTrkRadiusTool::execute(const TrigTauCluster *pTrigTauCluster,
   itr = pTracks->trackCollection()->begin();//re-start the loop
   for (;itr!=itr_last;++itr) {
 
-    if (outputLevel <= MSG::DEBUG) {
-      unsigned int algoId = (*itr)->algorithmId();
-      log << MSG::DEBUG 
-          << "REGTEST: PT of the track:" <<(*itr)->param()->pT() 
-          //<< ", Z0="  << (*itr)->param()->z0()
-          //<< ", dZ0=" << (*itr)->param()->z0() - ldTrkZ0
-          //<< ", dR="  << dr
-          <<" (track algo=" << algoId << ")" 
-          <<endreq;
-    }
+    ATH_MSG_DEBUG( "REGTEST: PT of the track:" <<(*itr)->param()->pT() 
+                   //<< ", Z0="  << (*itr)->param()->z0()
+                   //<< ", dZ0=" << (*itr)->param()->z0() - ldTrkZ0
+                   //<< ", dR="  << dr
+                   <<" (track algo=" << (*itr)->algorithmId() << ")"  );
     
     //ptMin selection
     float pt = fabs( (*itr)->param()->pT());
@@ -147,11 +131,8 @@ StatusCode T2TauTrkRadiusTool::execute(const TrigTauCluster *pTrigTauCluster,
   if (scalarPtSum > 0.01 )    pTrigTau.setTrkAvgDist(dRPtWeighted / scalarPtSum);
   else                        pTrigTau.setTrkAvgDist(-111.);
 
-  if (outputLevel <= MSG::DEBUG) 
-      log << MSG::DEBUG 
-          << "REGTEST: scalarPtSum=" << scalarPtSum
-          << " trkAvgDist=" << pTrigTau.trkAvgDist() 
-          << endreq;  
+  ATH_MSG_DEBUG( "REGTEST: scalarPtSum=" << scalarPtSum
+                 << " trkAvgDist=" << pTrigTau.trkAvgDist() );
   
   //big success!!
   return StatusCode::SUCCESS;

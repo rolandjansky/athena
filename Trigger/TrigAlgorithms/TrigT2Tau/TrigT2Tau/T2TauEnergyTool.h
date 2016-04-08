@@ -15,14 +15,14 @@
 #define TRIGT2TAU_T2TAUENERGYTOOL_H
  
 #include "TrigT2Tau/IAlgToolTau.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class TrigTauCluster;
 class TrigTauTracksInfo;
 class TrigTau;
 
 /** Tool which sets EtCalibCluster of TrigTau candidate */
-class T2TauEnergyTool: public IAlgToolTau, public AlgTool{
+class T2TauEnergyTool: public IAlgToolTau, public AthAlgTool{
   public:
   /** constructor */
     T2TauEnergyTool(const std::string & type, const std::string & name, 

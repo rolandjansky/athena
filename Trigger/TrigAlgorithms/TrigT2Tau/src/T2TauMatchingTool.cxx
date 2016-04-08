@@ -11,8 +11,6 @@
 // 
 // ********************************************************************
 
-#include "GaudiKernel/MsgStream.h"
- 
 #include "TrigCaloEvent/TrigTauCluster.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigTauTracksInfo.h"
@@ -22,7 +20,7 @@
 #include "TrigT2Tau/T2TauMatchingTool.h"
 
 T2TauMatchingTool::T2TauMatchingTool(const std::string & type, const std::string & name, 
-                   const IInterface* parent): AlgTool(type, name, parent){
+                   const IInterface* parent): AthAlgTool(type, name, parent){
   declareInterface<IAlgToolTau>(this);
 /** PT Cut for tracks */
   declareProperty("TrackPTCut",m_pTCut = 1. *CLHEP::GeV);
@@ -34,36 +32,30 @@ T2TauMatchingTool::~T2TauMatchingTool(){
 }
  
 StatusCode T2TauMatchingTool::initialize(){
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in initialize()" << endreq;
-  log << MSG::DEBUG << "REGTEST: Will consider tracks with pT > " << m_pTCut 
-      << " within dR <" << m_coneCut << " from cluster " << endreq;
+  ATH_MSG_DEBUG( "in initialize()" );
+  ATH_MSG_DEBUG( "REGTEST: Will consider tracks with pT > " << m_pTCut 
+                 << " within dR <" << m_coneCut << " from cluster " );
   return StatusCode::SUCCESS;
 }
  
 StatusCode T2TauMatchingTool::finalize(){
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode T2TauMatchingTool::execute(const TrigTauCluster *pTrigTauCluster,
 				      const TrigTauTracksInfo * pTracks,
 				      TrigTau& pTrigTau){
-  MsgStream log(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel(name());
-
   if( pTracks==0 || pTracks->trackCollection() == 0 || pTrigTauCluster == 0  )
     {
-      if( outputLevel <=  MSG::DEBUG )
-	log << MSG::DEBUG << " Pointer to cluster or tracks is zero, nothing to match" << endreq;
+      ATH_MSG_DEBUG( " Pointer to cluster or tracks is zero, nothing to match" );
       return StatusCode::SUCCESS;
     }
 
   if( pTracks->trackCollection()->begin() == pTracks->trackCollection()->end() ) 
    {
-      log << MSG::DEBUG << " Empty track container, nothing to match" << endreq;
-      return StatusCode::SUCCESS;
+     ATH_MSG_DEBUG( " Empty track container, nothing to match" );
+     return StatusCode::SUCCESS;
    }
 
   double eta = pTrigTauCluster->eta();
@@ -79,12 +71,8 @@ StatusCode T2TauMatchingTool::execute(const TrigTauCluster *pTrigTauCluster,
    
   for (;itr!=itr_last;++itr) {
 
-    if (outputLevel <= MSG::DEBUG) 
-      {
-	unsigned int algoId = (*itr)->algorithmId();
-	log << MSG::DEBUG << "PT of the track:" <<(*itr)->param()->pT() 
-	    <<" (track algo=" << algoId << ")"<<endreq;
-      }
+    ATH_MSG_DEBUG( "PT of the track:" <<(*itr)->param()->pT() 
+                   <<" (track algo=" << (*itr)->algorithmId() << ")");
 
     TrigInDetTrackHelper trackHelper((*itr)->param());
     double phic=0, etac=0;
@@ -94,8 +82,7 @@ StatusCode T2TauMatchingTool::execute(const TrigTauCluster *pTrigTauCluster,
 
     trackHelper.extrapolate(RCAL, ZCAL, phic,etac);
     
-    if (outputLevel <= MSG::DEBUG) 
-      log << MSG::DEBUG << "extrapolated track eta/phi=" << etac <<"/"<< phic<< endreq;
+    ATH_MSG_DEBUG( "extrapolated track eta/phi=" << etac <<"/"<< phic);
     
     // Deal with angle diferences greater than Pi
     double TDphi =  phic - phi;
@@ -118,7 +105,7 @@ StatusCode T2TauMatchingTool::execute(const TrigTauCluster *pTrigTauCluster,
     
   }
   
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Number of accepted tracks" << ntracks << endreq;  
+  ATH_MSG_DEBUG( "Number of accepted tracks" << ntracks );
   
   pTrigTau.setZvtx((*itrHigh)->param()->z0());
   pTrigTau.setErr_Zvtx((*itrHigh)->param()->ez0());

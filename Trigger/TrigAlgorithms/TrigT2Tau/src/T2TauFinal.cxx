@@ -292,7 +292,7 @@ HLT::ErrorCode T2TauFinal::hltExecute(const HLT::TriggerElement* inputTE,
   // 
   // Get L1 RoiDescriptor
   const TrigRoiDescriptor* roiL1Descriptor = 0;
-  HLT::ErrorCode tmpStatus = getFeature(inputTE, roiL1Descriptor,"initialRoI");
+  /*HLT::ErrorCode tmpStatus =*/ getFeature(inputTE, roiL1Descriptor,"initialRoI");
 
 //   if(roiL1Descriptor){
 //     m_EtaL1         =  roiL1Descriptor->eta();

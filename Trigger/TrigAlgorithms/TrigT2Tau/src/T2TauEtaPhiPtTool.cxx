@@ -11,8 +11,6 @@
 // 
 // ********************************************************************
 
-#include "GaudiKernel/MsgStream.h"
- 
 #include "TrigCaloEvent/TrigTauCluster.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigTauTracksInfo.h"
@@ -22,7 +20,7 @@
 #include "FourMom/P4PxPyPzE.h"
 
 T2TauEtaPhiPtTool::T2TauEtaPhiPtTool(const std::string & type, const std::string & name, 
-                   const IInterface* parent): AlgTool(type, name, parent){
+                   const IInterface* parent): AthAlgTool(type, name, parent){
 declareInterface<IAlgToolTau>(this);
 }
  
@@ -30,23 +28,18 @@ T2TauEtaPhiPtTool::~T2TauEtaPhiPtTool(){
 }
  
 StatusCode T2TauEtaPhiPtTool::initialize(){
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in initialize()" << endreq;
+  ATH_MSG_DEBUG( "in initialize()" );
   return StatusCode::SUCCESS;
 }
  
 StatusCode T2TauEtaPhiPtTool::finalize(){
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode T2TauEtaPhiPtTool::execute(const TrigTauCluster *pTrigTauCluster,
 				    const TrigTauTracksInfo* pTracksInfo,
 				    TrigTau& pTrigTau){
-  MsgStream log(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel(name());
-  
   //static const double pimassSqr = 19479.7849 ; //139.57**2
 
   float px = 0;
@@ -64,15 +57,13 @@ StatusCode T2TauEtaPhiPtTool::execute(const TrigTauCluster *pTrigTauCluster,
     e  += pTracksInfo->e();
     if( e < 0 ) {
       e = 1 ; // if we keep it negative then values will be reverted afterwards.
-      log << MSG::WARNING << " found TrigTauTracksInfo with negative energy " << e << " set it to 1 MeV"<< endreq;
+      ATH_MSG_WARNING( " found TrigTauTracksInfo with negative energy " << e << " set it to 1 MeV");
     }
 
-    if (outputLevel <= MSG::DEBUG) {
-      log << MSG::DEBUG << " adding tracks with  eta=" <<  pTracksInfo->eta()
-	  << ", phi="<< pTracksInfo->phi() 
-	  << ", pt= " << pTracksInfo->pt() 
-	  << ", m="<< pTracksInfo->m() << endreq;
-    }
+    ATH_MSG_DEBUG( " adding tracks with  eta=" <<  pTracksInfo->eta()
+                   << ", phi="<< pTracksInfo->phi() 
+                   << ", pt= " << pTracksInfo->pt() 
+                   << ", m="<< pTracksInfo->m() );
     eta =  pTracksInfo->eta();
     phi =  pTracksInfo->phi();
   }
@@ -86,8 +77,7 @@ StatusCode T2TauEtaPhiPtTool::execute(const TrigTauCluster *pTrigTauCluster,
 
       if( eFlow < 0 ) {
 	eFlow = 1 ; // if we keep it negative then values will be reverted afterwards.
-	if (outputLevel <= MSG::DEBUG) 
-	  log << MSG::DEBUG << "EM[0,2] is negative " << eFlow << " set it to 1 MeV"<< endreq;
+        ATH_MSG_DEBUG( "EM[0,2] is negative " << eFlow << " set it to 1 MeV");
       }
 
       etFlow = eFlow/ cosh(pTrigTauCluster->eta() ) ;
@@ -97,10 +87,9 @@ StatusCode T2TauEtaPhiPtTool::execute(const TrigTauCluster *pTrigTauCluster,
       pz += etFlow*sinh(pTrigTauCluster->eta() );
 
       e += eFlow;
-      if (outputLevel <= MSG::DEBUG) 	
-	log << MSG::DEBUG << " Cluster position eta=" <<pTrigTauCluster->eta()
-	    << ", phi="<< pTrigTauCluster->phi()
-	    << " Et="<<pTrigTauCluster->et() << " EM[0,2] Et="<< etFlow << endreq;
+      ATH_MSG_DEBUG( " Cluster position eta=" <<pTrigTauCluster->eta()
+                     << ", phi="<< pTrigTauCluster->phi()
+                     << " Et="<<pTrigTauCluster->et() << " EM[0,2] Et="<< etFlow );
 
       //if et is 0 in both cases, then tracks must be missing, and perhaps calo calibration failed.
       // so take cluster position in this case, is only its can still make some sense..
@@ -134,7 +123,7 @@ StatusCode T2TauEtaPhiPtTool::execute(const TrigTauCluster *pTrigTauCluster,
     pTrigTau.setPhi(phi);
 
     if( fabs(eta+100.)<1.e-10 && fabs(phi)<1.e-10) {
-      log << MSG::ERROR << " found a L2 tau RoI with no tracks and with no cluster - what is going on??" << endreq;
+      ATH_MSG_ERROR( " found a L2 tau RoI with no tracks and with no cluster - what is going on??" );
       return StatusCode::FAILURE;
     }
 
@@ -156,14 +145,11 @@ StatusCode T2TauEtaPhiPtTool::execute(const TrigTauCluster *pTrigTauCluster,
 
 
 
-  if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "pt (trks+EM[0-2])=" << pTrigTau.pt() 
-	<< " eta/phi (trks+clus) = " << pTrigTau.eta() << "/" << pTrigTau.phi() << endreq;
-    log << MSG::DEBUG << "EtOverPtLeadTrk =" << pTrigTau.etOverPtLeadTrk() << endreq;
-  }
-  if(  pTrigTauCluster == 0 && pTracksInfo==0 && outputLevel <= MSG::DEBUG) 
-    log << MSG::WARNING << " No track neither cluster information is present" << endreq;
-    
+  ATH_MSG_DEBUG( "pt (trks+EM[0-2])=" << pTrigTau.pt() 
+                 << " eta/phi (trks+clus) = " << pTrigTau.eta() << "/" << pTrigTau.phi() );
+  ATH_MSG_DEBUG( "EtOverPtLeadTrk =" << pTrigTau.etOverPtLeadTrk() );
+  if(  pTrigTauCluster == 0 && pTracksInfo==0) 
+    ATH_MSG_WARNING( " No track neither cluster information is present" );
 
   return StatusCode::SUCCESS; 
 }

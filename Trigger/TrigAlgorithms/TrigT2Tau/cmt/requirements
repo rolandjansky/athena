@@ -1,14 +1,17 @@
 package TrigT2Tau
 
-use     AtlasPolicy             AtlasPolicy-01-*
-use     GaudiInterface          GaudiInterface-01-*     External
-use     TrigCaloEvent           TrigCaloEvent-00-*      Trigger/TrigEvent
+use     AtlasPolicy             AtlasPolicy-*
+use     GaudiInterface          GaudiInterface-*        External
+use     AthenaBaseComps         AthenaBaseComps-*       Control
+use     TrigCaloEvent           TrigCaloEvent-*         Trigger/TrigEvent
 use     TrigInDetEvent          TrigInDetEvent-*        Trigger/TrigEvent
 use     TrigSteeringEvent       TrigSteeringEvent-*     Trigger/TrigEvent
 use     TrigParticle            TrigParticle-*          Trigger/TrigEvent
 use     TrigInterfaces          TrigInterfaces-*        Trigger/TrigSteer
-use     TrigTimeAlgs            TrigTimeAlgs-*          Trigger/TrigTools
+
+private
 use     FourMom                 FourMom-*               Event
+end_private
 
  
  
