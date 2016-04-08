@@ -99,9 +99,6 @@ namespace InDet
 //extrapolator
   declareProperty("Extrapolator",m_extrapolator);   
   
-  m_trkFilter    = 0;
-  m_sortingTool  = 0;
-  m_cleaningTool = 0;
  }//end of constructor
  
  DivisiveMultiSeedFinder::~DivisiveMultiSeedFinder()
