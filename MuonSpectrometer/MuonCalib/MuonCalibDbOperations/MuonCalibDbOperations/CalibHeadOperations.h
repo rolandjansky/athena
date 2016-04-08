@@ -11,36 +11,31 @@
 
 
 namespace coral {
-class IQuery;
-class AttributeList;
+  class IQuery;
+  class AttributeList;
 }
 
 namespace MuonCalib {
 
 class CalibDbConnection;
 
-
-class CalibHeadOperations
-	{
-	public:
+class CalibHeadOperations {
+ public:
 //=====================constructor - destructor=================================
-		CalibHeadOperations(CalibDbConnection & db_conn);
-		inline virtual ~CalibHeadOperations()
-			{
-			}
+  CalibHeadOperations(CalibDbConnection & db_conn);
+  inline virtual ~CalibHeadOperations()	{}
 //=====================publlic member functions=================================
-	//Get latest HeadId
-		int GetLatestHeadId() const;
-	//Get header information
-		bool GetHeadInfo(int &head_id, int & lowrun, int &uprun, int &lowtime, int &uptime);
-	//Open data connection for given head_id. head_id=-1 => Get latest header
-		CalibDbConnection * GetDataConnection(int head_id=-1, bool write=false, const std::string & writer_connection="", const std::string & writer_user="", const std::string & writer_password="");
+  //Get latest HeadId
+  int GetLatestHeadId() const;
+  //Get header information
+  bool GetHeadInfo(int &head_id, int & lowrun, int &uprun, int &lowtime, int &uptime);
+  //Open data connection for given head_id. head_id=-1 => Get latest header
+  CalibDbConnection * GetDataConnection(int head_id=-1, bool write=false, const std::string & writer_connection="", const std::string & writer_user="", const std::string & writer_password="");
 //=====================private data members=====================================
-	private:
-	//connections
-		CalibDbConnection *m_meta_connection;
-	};//class
-
+ private:
+  //connections
+  CalibDbConnection *m_meta_connection;
+};//class
 
 } //namespace MuonCalib
 

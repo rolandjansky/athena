@@ -3,8 +3,10 @@
 import getopt
 import sys
 import os
+import CalibDbDefaults
 
-cool_database_string='COOLOFL_MDT/COMP200'
+cool_database_string = CalibDbDefaults.cool_database_string
+dbname = CalibDbDefaults.cool_dbname
 t0_cool_folder=None
 rt_cool_folder=None
 cool_tag='CURRENT'
@@ -19,7 +21,7 @@ optlist, args = getopt.gnu_getopt(sys.argv, 'hs:o:r:t:')
 for opt, oa in optlist:
 	if opt=='-s':
 		if oa[-2:]=='db':
-			cool_database_string = 'sqlite://;schema=' + oa + ';dbname=COMP200'
+			cool_database_string = 'sqlite://;schema=' + oa + ';dbname=' + dbname
 			cool_tag=''
 		else:
 			cool_database_string = oa

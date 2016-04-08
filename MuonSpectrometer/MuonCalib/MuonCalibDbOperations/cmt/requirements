@@ -29,7 +29,8 @@ macro_append MuonCalibDbOperationsLib_shlibflags " -lz"
 
 private
 
-apply_pattern declare_scripts files="CalibDbCompareRT.py CalibDbCompareT0.py CalibDbDump.py CalibCoolCompareT0.py CalibCoolCompareRT.py CalibDbCool2Calib.py"
+apply_pattern declare_scripts files="CalibDbCompareRT.py CalibDbCompareT0.py CalibDbDump.py CalibCoolCompareT0.py CalibCoolCompareRT.py CalibDbCool2Calib.py calibdata.py"
+apply_pattern declare_python_modules files="CalibDbDefaults.py CalibDbInfo.py CalibDataClass.py"
 
 apply_tag NEEDS_CORAL_BASE
 apply_tag NEEDS_COOL_FACTORY 

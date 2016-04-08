@@ -9,7 +9,7 @@ MuonCalib__gCalibrationSourceConfigs = []
 
 class MuonCalib__CalibrationSourceConfig:
 
-	__working_schemata={'MP': "ATLAS_MUONCALIB_MPI_META", 'RM': "ATLAS_MUONCALIB_RM_META", 'UM': "ATLAS_MUONCALIB_UM_META"}
+	__working_schemata={'MP': "ATLAS_MUONCALIBR_MPI", 'RM': "ATLAS_MUONCALIBR_RM", 'UM': "ATLAS_MUONCALIBR_UM"}
 
 	def __init__(self, site_name, head_id, region="", store_rt=True, store_t0=True):
 		
@@ -17,7 +17,8 @@ class MuonCalib__CalibrationSourceConfig:
 			print "FATAL: unknown site name ", site_name
 			print "FATAL: must be one of", self.__working_schemata.keys()
 			sys.exit(1)
-	
+			
+		self.UserName="ATLAS_MUONCALIBR_READER"
 		self.SiteName=site_name
 		self.HeadID=head_id
 		self.Region=region
@@ -33,7 +34,7 @@ class MuonCalib__CalibrationSourceConfig:
 	def GenCalibrationSource(self, reader_passwd):
 		source=MuonCalib__MuonCalibDbCalibrationSource(self.__name)	
 		source.WorkingSchema = self.__working_schemata[self.SiteName]
-		source.UserName = "ATLAS_MUONCALIB_READER"
+		source.UserName = self.UserName
 		if hasattr(self, "ReaderPassword"):
 			source.Password = self.ReaderPassword
 		else:
@@ -50,7 +51,7 @@ class MuonCalib__CalibrationSourceConfig:
 		if hasattr(self, "ConnectionString"):
 			source.ConnectionString = self.ConnectionString
 		else:
-			source.ConnectionString =  "oracle://ATLAS_MUON/ATLAS_MUONCALIB_READER"
+			source.ConnectionString =  "oracle://ATLAS_MUON/" + source.UserName 
 		return source
 			
 	def GetTime(self, reader_cursor):

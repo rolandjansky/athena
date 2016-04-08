@@ -11,26 +11,35 @@ MuonCalib__gCalibrationTargetConfigs = []
 class MuonCalib__CalibrationTargetConfig:
 
 	def __init__(self, FolderType="T0"):
-		if not FolderType in ["T0", "RT"]:
-			print "FATAL Folder type must be 'T0' or 'RT'"
+		if not FolderType in ["T0", "RT", "T0BLOB", "RTBLOB"]:
+			print "FATAL Folder type must be 'T0[BLOB]' or 'RT[BLOB]'"
 			sys.exit(1)
 
 #set defaults
+
+		# Default None for all FolderTypes
+		self.Tag=None
+
 		if FolderType=="T0":
 			self.__is_t0=True
+			self.Compress=False
 			self.Folder = "/MDT/T0"
-			self.Tag=None
-			self.Compress=False
-		else:
+		elif FolderType == "T0BLOB":
+			self.__is_t0=True
+			self.Compress=True
+			self.Folder = "/MDT/T0BLOB"
+		if FolderType=="RT":
 			self.__is_t0=False
-			self.Folder = "/MDT/RT"
-			self.Tag=None
 			self.Compress=False
+			self.Folder = "/MDT/RT"
+		elif FolderType == "RTBLOB":
+			self.__is_t0=False
+			self.Compress=True
+			self.Folder = "/MDT/RTBLOB"
 		
 		MuonCalib__gCalibrationTargetConfigs.append(self)
-		
 
-	def ResolveGlobalTag(self, tag, dbstring="COOLOFL_MDT/COMP200"):
+	def ResolveGlobalTag(self, tag, dbstring="COOLOFL_MDT/CONDBR2"):
 		if self.Tag:
 			print "INFO Tag for", self.Folder, "already set to", self.Tag
 			print "INFO Not resolving global tag"
