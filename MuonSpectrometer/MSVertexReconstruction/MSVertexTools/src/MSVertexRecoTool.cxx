@@ -37,12 +37,12 @@ namespace Muon {
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator") {
     declareInterface<IMSVertexRecoTool>(this);
     
-    declareProperty("xAODVertexContainer",xAODContainerName="MSDisplacedVertex");//name of SG container
+    declareProperty("xAODVertexContainer",m_xAODContainerName="MSDisplacedVertex");//name of SG container
 
     // nominal phi angle for tracklets
     declareProperty("TrackPhiAngle",m_TrackPhiAngle = 0.0);
     // chi^2 probability cut
-    declareProperty("VxChi2Probability",VxChi2ProbCUT = 0.05);
+    declareProperty("VxChi2Probability",m_VxChi2ProbCUT = 0.05);
     // distance between two adjacent planes
     declareProperty("VertexPlaneDist",m_VxPlaneDist = 200.);
     // position of last radial plane
@@ -109,7 +109,7 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
     
-    PI = 3.1415927;
+    m_PI = 3.1415927;
     
     return StatusCode::SUCCESS;
   }
@@ -131,14 +131,14 @@ namespace Muon {
 
       //create xAOD::vertex - the container needs to be created for every event
       xAOD::VertexContainer* xAODVxContainer = new xAOD::VertexContainer();
-      if(evtStore()->record(xAODVxContainer,xAODContainerName).isFailure()) {
-	ATH_MSG_WARNING("Failed to record the xAOD::VertexContainer with key " << xAODContainerName);
+      if(evtStore()->record(xAODVxContainer,m_xAODContainerName).isFailure()) {
+	ATH_MSG_WARNING("Failed to record the xAOD::VertexContainer with key " << m_xAODContainerName);
 	return StatusCode::FAILURE;
       }
       
       xAOD::VertexAuxContainer* aux = new xAOD::VertexAuxContainer();
-      if(evtStore()->record(aux,xAODContainerName+"Aux.").isFailure()) {
-	ATH_MSG_WARNING("Failed to record the xAOD::VertexAuxContainer with key " << xAODContainerName);
+      if(evtStore()->record(aux,m_xAODContainerName+"Aux.").isFailure()) {
+	ATH_MSG_WARNING("Failed to record the xAOD::VertexAuxContainer with key " << m_xAODContainerName);
 	return StatusCode::FAILURE;
       }
       
@@ -345,17 +345,17 @@ namespace Muon {
           for(int jcl=0; jcl<ncluster; ++jcl) {
               float dEta = trkClu[icl].eta - trkClu0[jcl].eta;
               float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
-              while(fabs(dPhi) > PI) {
-                  if(dPhi < 0) dPhi += 2*PI;
-                  else dPhi -= 2*PI;
+              while(fabs(dPhi) > m_PI) {
+                  if(dPhi < 0) dPhi += 2*m_PI;
+                  else dPhi -= 2*m_PI;
               }
-              if(fabs(dEta) < 0.7 && fabs(dPhi) < PI/3.) {
+              if(fabs(dEta) < 0.7 && fabs(dPhi) < m_PI/3.) {
                   ntracks++;
                   trkClu[icl].eta = trkClu[icl].eta - dEta/ntracks;
                   trkClu[icl].phi = trkClu[icl].phi - dPhi/ntracks;
-                  while(fabs(trkClu[icl].phi) > PI) {
-                      if(trkClu[icl].phi > 0) trkClu[icl].phi -= 2*PI;
-                      else trkClu[icl].phi += 2*PI;
+                  while(fabs(trkClu[icl].phi) > m_PI) {
+                      if(trkClu[icl].phi > 0) trkClu[icl].phi -= 2*m_PI;
+                      else trkClu[icl].phi += 2*m_PI;
                   }
               }
           }//end jcl loop
@@ -377,12 +377,12 @@ namespace Muon {
                   float dEta = fabs(trkClu[icl].eta - trkClu0[jcl].eta);
                   float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
 
-                  while(fabs(dPhi) > PI) {
-                      if(dPhi < 0) dPhi += 2*PI;
-                      else dPhi -= 2*PI;
+                  while(fabs(dPhi) > m_PI) {
+                      if(dPhi < 0) dPhi += 2*m_PI;
+                      else dPhi -= 2*m_PI;
                   }
 
-                  if(dEta < 0.7 && fabs(dPhi) < PI/3.) {
+                  if(dEta < 0.7 && fabs(dPhi) < m_PI/3.) {
                       eta_avg += trkClu0[jcl].eta;
                       cosPhi_avg += cos(trkClu0[jcl].phi);
                       sinPhi_avg += sin(trkClu0[jcl].phi);
@@ -426,11 +426,11 @@ namespace Muon {
       for(std::vector<Tracklet>::iterator trkItr=tracks.begin(); trkItr!=tracks.end(); ++trkItr) {
           float dEta = fabs(BestCluster.eta - trkItr->globalPosition().eta());
           float dPhi = BestCluster.phi - trkItr->globalPosition().phi();
-          while(fabs(dPhi) > PI) {
-              if(dPhi < 0) dPhi += 2*PI;
-              else dPhi -= 2*PI;
+          while(fabs(dPhi) > m_PI) {
+              if(dPhi < 0) dPhi += 2*m_PI;
+              else dPhi -= 2*m_PI;
           }
-          if(dEta < 0.7 && fabs(dPhi) < PI/3.) BestCluster.tracks.push_back( (*trkItr) );
+          if(dEta < 0.7 && fabs(dPhi) < m_PI/3.) BestCluster.tracks.push_back( (*trkItr) );
           else unusedTracks.push_back( (*trkItr) );
       }
       //return the best cluster and the unused tracklets
@@ -487,9 +487,9 @@ namespace Muon {
     aveR = aveR/(float)tracklets.size();
 
     float avePhi = atan2(aveY,aveX);
-    while(fabs(avePhi) > PI) {
-      if(avePhi < 0) avePhi += 2*PI;
-      else avePhi -= 2*PI;
+    while(fabs(avePhi) > m_PI) {
+      if(avePhi < 0) avePhi += 2*m_PI;
+      else avePhi -= 2*m_PI;
     }
 
     //calculate the two angles (theta & phi)
@@ -606,8 +606,8 @@ namespace Muon {
     std::vector<float> ExtrapZ[MAXPLANES], dlength[MAXPLANES];//extrapolated position & uncertainty
     std::vector<std::pair<unsigned int, unsigned int> > UsedTracks[MAXPLANES];
     std::vector<bool> ExtrapSuc[MAXPLANES];//did the extrapolation succeed?
-    std::vector<MSVertex*> m_vertices;
-    m_vertices.reserve(nplanes);
+    std::vector<MSVertex*> vertices;
+    vertices.reserve(nplanes);
 
     //total uncertainty at each plane
     std::vector<float> sigmaZ[MAXPLANES];
@@ -737,7 +737,7 @@ namespace Muon {
         zLoF = tmpzLoF/posWeight;
         zpossigma = tmpzpossigma;
         float testChi2 = TMath::Prob(tmpchi2,tmpnTrks-1);
-        if(testChi2 < VxChi2ProbCUT) blacklist[iworst] = true;
+        if(testChi2 < m_VxChi2ProbCUT) blacklist[iworst] = true;
         else {
 	  Chi2 = tmpchi2;
 	  Chi2Prob = testChi2;
@@ -786,8 +786,8 @@ namespace Muon {
           }
         }
       }
-      Amg::Vector3D m_position(Rpos[k]*cos(avePhi),Rpos[k]*sin(avePhi),zLoF);
-      m_vertices.push_back( new MSVertex(1,m_position,vxTrackParticles,Chi2Prob,Chi2,0,0,0) );
+      Amg::Vector3D position(Rpos[k]*cos(avePhi),Rpos[k]*sin(avePhi),zLoF);
+      vertices.push_back( new MSVertex(1,position,vxTrackParticles,Chi2Prob,Chi2,0,0,0) );
     }//end loop on Radial planes
 
     //delete the perigeebase
@@ -797,25 +797,25 @@ namespace Muon {
     }
 
     //return an empty vertex in case none were reconstructed
-    if(m_vertices.size() == 0) {
+    if(vertices.size() == 0) {
       return;
     }
 
     //loop on the vertex candidates and select the best based on max n(tracks) and max chi^2 probability
     unsigned int bestVx(0);
-    for(unsigned int k=1; k<m_vertices.size(); ++k) {
-      if(m_vertices[k]->getChi2Probability() < VxChi2ProbCUT || m_vertices[k]->getNTracks() < 3) continue; 
-      if(m_vertices[k]->getNTracks() < m_vertices[bestVx]->getNTracks()) continue;
-      if(m_vertices[k]->getNTracks() == m_vertices[bestVx]->getNTracks() && m_vertices[k]->getChi2Probability() < m_vertices[bestVx]->getChi2Probability()) continue;
+    for(unsigned int k=1; k<vertices.size(); ++k) {
+      if(vertices[k]->getChi2Probability() < m_VxChi2ProbCUT || vertices[k]->getNTracks() < 3) continue; 
+      if(vertices[k]->getNTracks() < vertices[bestVx]->getNTracks()) continue;
+      if(vertices[k]->getNTracks() == vertices[bestVx]->getNTracks() && vertices[k]->getChi2Probability() < vertices[bestVx]->getChi2Probability()) continue;
       bestVx = k;
     }
-    vtx = m_vertices[bestVx]->clone();
+    vtx = vertices[bestVx]->clone();
     //cleanup
-    for(std::vector<MSVertex*>::iterator it=m_vertices.begin(); it!=m_vertices.end(); ++it) {
+    for(std::vector<MSVertex*>::iterator it=vertices.begin(); it!=vertices.end(); ++it) {
       delete (*it);
       (*it) = 0;
     }
-    m_vertices.clear();
+    vertices.clear();
 
     return;
   }
@@ -1088,14 +1088,14 @@ namespace Muon {
     
     //create xAOD::vertex - the container needs to be created for every event
     xAOD::VertexContainer* xAODVxContainer = new xAOD::VertexContainer();
-    if(evtStore()->record(xAODVxContainer,xAODContainerName).isFailure()) {
-      ATH_MSG_WARNING("Failed to record the xAOD::VertexContainer with key " << xAODContainerName);
+    if(evtStore()->record(xAODVxContainer,m_xAODContainerName).isFailure()) {
+      ATH_MSG_WARNING("Failed to record the xAOD::VertexContainer with key " << m_xAODContainerName);
       return StatusCode::FAILURE;
     }
     
     xAOD::VertexAuxContainer* aux = new xAOD::VertexAuxContainer();
-    if(evtStore()->record(aux,xAODContainerName+"Aux.").isFailure()) {
-      ATH_MSG_WARNING("Failed to record the xAOD::VertexAuxContainer with key " << xAODContainerName);
+    if(evtStore()->record(aux,m_xAODContainerName+"Aux.").isFailure()) {
+      ATH_MSG_WARNING("Failed to record the xAOD::VertexAuxContainer with key " << m_xAODContainerName);
       return StatusCode::FAILURE;
     }
     
@@ -1181,8 +1181,8 @@ namespace Muon {
 	    float rpcEta = (*rpcItr)->globalPosition().eta();
 	    float rpcPhi = (*rpcItr)->globalPosition().phi();
 	    float dphi = phi - rpcPhi;
-	    if(dphi > PI) dphi -= 2*PI;
-	    else if(dphi < -PI) dphi += 2*PI;
+	    if(dphi > m_PI) dphi -= 2*m_PI;
+	    else if(dphi < -m_PI) dphi += 2*m_PI;
 	    float deta = eta - rpcEta;
 	    float DR = sqrt(sq(deta)+sq(dphi));
 	    if(DR < 0.6) {
@@ -1210,8 +1210,8 @@ namespace Muon {
 	    float tgcEta = (*tgcItr)->globalPosition().eta();
 	    float tgcPhi = (*tgcItr)->globalPosition().phi();
 	    float dphi = phi - tgcPhi;
-	    if(dphi > PI) dphi -= 2*PI;
-	    else if(dphi < -PI) dphi += 2*PI;
+	    if(dphi > m_PI) dphi -= 2*m_PI;
+	    else if(dphi < -m_PI) dphi += 2*m_PI;
 	    float deta = eta - tgcEta;
 	    float DR = sqrt(sq(deta)+sq(dphi));
 	    if(DR < 0.6) {
@@ -1260,8 +1260,8 @@ namespace Muon {
       float deta = fabs(MSRecoVx->getPosition().eta() - ChamberCenter.eta());
       if(deta > 0.6) continue;
       float dphi = MSRecoVx->getPosition().phi() - ChamberCenter.phi();
-      if(dphi > PI) dphi -= 2*PI;
-      else if(dphi < -PI) dphi += 2*PI;
+      if(dphi > m_PI) dphi -= 2*m_PI;
+      else if(dphi < -m_PI) dphi += 2*m_PI;
       if( fabs(dphi) > 0.6 ) continue;
       int nChHits(0);
       Identifier id = (*mdt)->identify();
@@ -1292,8 +1292,8 @@ namespace Muon {
         float rpcEta = (*rpcItr)->globalPosition().eta();
         float rpcPhi = (*rpcItr)->globalPosition().phi();
         float dphi = MSRecoVx->getPosition().phi() - rpcPhi;
-        if(dphi > PI) dphi -= 2*PI;
-        else if(dphi < -PI) dphi += 2*PI;
+        if(dphi > m_PI) dphi -= 2*m_PI;
+        else if(dphi < -m_PI) dphi += 2*m_PI;
         float deta = MSRecoVx->getPosition().eta() - rpcEta;
         float DR = sqrt(sq(deta)+sq(dphi));
         if(DR < 0.6) nrpc++;
@@ -1311,8 +1311,8 @@ namespace Muon {
         float tgcEta = (*tgcItr)->globalPosition().eta();
         float tgcPhi = (*tgcItr)->globalPosition().phi();
         float dphi = MSRecoVx->getPosition().phi() - tgcPhi;
-        if(dphi > PI) dphi -= 2*PI;
-        else if(dphi < -PI) dphi += 2*PI;
+        if(dphi > m_PI) dphi -= 2*m_PI;
+        else if(dphi < -m_PI) dphi += 2*m_PI;
         float deta = MSRecoVx->getPosition().eta() - tgcEta;
         float DR = sqrt(sq(deta)+sq(dphi));
         if(DR < 0.6) ntgc++;
