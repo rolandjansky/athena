@@ -2,6 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+//#include "GeoModelSvc/IGeoModelSvc.h"
+//#include "GeoModelSvc/GeoModelExperiment.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -133,17 +137,26 @@ StatusCode ALFA_DetectorTool::create( StoreGateSvc* detStore )
 { 
   MsgStream log(msgSvc(), name()); 
   
-  log << MSG::INFO << "Building ALFA_ geometry" << endmsg;
+  log << MSG::INFO << "Building ALFA_ geometry" << endreq;
 
   if(((eMetrologyType)m_Config.GeometryConfig.eRPMetrologyGeoType)==EMT_SWCORRECTIONS){
 	  CHECK(m_iovSvc.retrieve());
   }
 
+  // Retrieve GeoModel Svc
+  IGeoModelSvc *geoModel;
+  StatusCode sc = service("GeoModelSvc",geoModel);
+  if (sc.isFailure()) 
+  {
+    log << MSG::FATAL << "Could not locate GeoModelSvc" << endreq;
+    return StatusCode::FAILURE;
+  }
+    
   // Retrieve GeoModel Experiment
   GeoModelExperiment * theExpt; 
   if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) 
   { 
-    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endmsg; 
+    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endreq; 
     return StatusCode::FAILURE; 
   } 
   
@@ -154,10 +167,10 @@ StatusCode ALFA_DetectorTool::create( StoreGateSvc* detStore )
     // Get pointer to the RDBAccessSvc
     // Use this pointer later for Geometry DB access
     IRDBAccessSvc* raccess = 0;
-    StatusCode sc = service("RDBAccessSvc",raccess);
+    sc = service("RDBAccessSvc",raccess);
     if(sc.isFailure()) 
     {
-      log << MSG::FATAL << "Could not locate RDBAccessSvc" << endmsg;
+      log << MSG::FATAL << "Could not locate RDBAccessSvc" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -197,7 +210,7 @@ StatusCode ALFA_DetectorTool::create( StoreGateSvc* detStore )
     
     if (sc.isFailure()) 
     {
-      log << MSG::ERROR << "Could not register ALFA_ detector manager" << endmsg;
+      log << MSG::ERROR << "Could not register ALFA_ detector manager" << endreq;
       return StatusCode::FAILURE; 
     }
     return StatusCode::SUCCESS;
@@ -215,13 +228,13 @@ StatusCode ALFA_DetectorTool::registerCallback(StoreGateSvc* detStore)
 		const DataHandle<CondAttrListCollection> DataPtr;
 		sc=detStore->regFcn(&IGeoModelTool::align,dynamic_cast<IGeoModelTool*>(this), DataPtr, COOLFOLDER_DETSWCORR, true);
 		if(sc!=StatusCode::SUCCESS){
-		  msg(MSG::ERROR) << "Cannot register COOL callback for folder '"<<COOLFOLDER_DETSWCORR <<"'" << endmsg;
+		  msg(MSG::ERROR) << "Cannot register COOL callback for folder '"<<COOLFOLDER_DETSWCORR <<"'" << endreq;
 		}
 		else
-		  msg(MSG::INFO) << "Call-back to ALFA_DetectorTool::align() against folder "<< COOLFOLDER_DETSWCORR <<" registered "<<endmsg;
+		  msg(MSG::INFO) << "Call-back to ALFA_DetectorTool::align() against folder "<< COOLFOLDER_DETSWCORR <<" registered "<<endreq;
 	}
 	else{
-	  msg(MSG::INFO) <<  "No callback registed" << endmsg;
+	  msg(MSG::INFO) <<  "No callback registed" << endreq;
 	  sc=StatusCode::FAILURE;
 	}
 
@@ -246,7 +259,7 @@ StatusCode ALFA_DetectorTool::align(IOVSVC_CALLBACK_ARGS)
 			const GeoFullPhysVol* pPhysRPBox=pStPhysRPBox->getPhysVol();
 			const HepGeom::Transform3D& xf= pPhysRPBox->getAbsoluteTransform();
 
-			msg(MSG::INFO) << "Translation of RPBOX: "<< xf.getTranslation() << endmsg;
+			msg(MSG::INFO) << "Translation of RPBOX: "<< xf.getTranslation() << endreq;
 		}
 
 		if(detStore()->retrieve(listAttrColl,COOLFOLDER_DETSWCORR )==StatusCode::SUCCESS){
@@ -264,11 +277,11 @@ StatusCode ALFA_DetectorTool::align(IOVSVC_CALLBACK_ARGS)
 			if(sc.isSuccess()){
 				const GeoFullPhysVol* pPhysRPBox=pStPhysRPBox->getPhysVol();
 				const HepGeom::Transform3D& xf= pPhysRPBox->getAbsoluteTransform();
-				msg(MSG::INFO) << "Translation of RPBOX after update: "<< xf.getTranslation() << endmsg;
+				msg(MSG::INFO) << "Translation of RPBOX after update: "<< xf.getTranslation() << endreq;
 			}
 		}
 		else{
-			msg(MSG::ERROR) << "Folder '"<<"/FWD/ALFA/position_calibration"<<"' not found" << endmsg;
+			msg(MSG::ERROR) << "Folder '"<<"/FWD/ALFA/position_calibration"<<"' not found" << endreq;
 			sc=StatusCode::FAILURE;
 		}
 	}

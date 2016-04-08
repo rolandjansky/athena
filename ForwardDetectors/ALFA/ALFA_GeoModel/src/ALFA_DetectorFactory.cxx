@@ -133,13 +133,13 @@ bool ALFA_DetectorFactory::ReadGeometry(bool bAlignCorrections)
 	}
 
 		if((bRes=m_pGeoReader->Initialize(&m_Config.GeometryConfig,EFCS_CLADDING))==true){
-		LogStream<<MSG::INFO<<"Geometry successfully initialized"<<endmsg;
+		LogStream<<MSG::INFO<<"Geometry successfully initialized"<<endreq;
 		m_pGeoReader->GetListOfExistingRPotIDs(&m_ListExistingRPots);
 	}
 	else
 	{
 		bRes=false;
-		LogStream<<MSG::FATAL<<"Cannot initialize geometry"<<endmsg;
+		LogStream<<MSG::FATAL<<"Cannot initialize geometry"<<endreq;
 		throw GaudiException(" Could not load geometry ", "ALFA_DetectorFactory::ReadGeometry", StatusCode::FAILURE);
 	}
 
@@ -180,10 +180,10 @@ void ALFA_DetectorFactory::SaveGeometry()
 				}
 				sprintf(szFilename,"%sgeometry_MD_RP-%s.txt",szPrefix,m_pGeoReader->GetRPotLabel(*iterRPName));
 				m_pGeoReader->StoreReconstructionGeometry(*iterRPName, EFT_FIBERMD, szFilename);
-				LogStream<<MSG::INFO<<"The MD fiber geometry was stored in the "<<szFilename<<" file"<<endmsg;
+				LogStream<<MSG::INFO<<"The MD fiber geometry was stored in the "<<szFilename<<" file"<<endreq;
 			}
 			else{
-				LogStream<<MSG::INFO<<"Unknown MD fiber geometry of the RPot "<<m_pGeoReader->GetRPotLabel(*iterRPName)<<" file"<<endmsg;
+				LogStream<<MSG::INFO<<"Unknown MD fiber geometry of the RPot "<<m_pGeoReader->GetRPotLabel(*iterRPName)<<" file"<<endreq;
 			}
 
 			//OD fibers
@@ -205,17 +205,17 @@ void ALFA_DetectorFactory::SaveGeometry()
 				}
 				sprintf(szFilename,"%sgeometry_OD_RP-%s.txt",szPrefix,m_pGeoReader->GetRPotLabel(*iterRPName));
 				m_pGeoReader->StoreReconstructionGeometry(*iterRPName, EFT_FIBEROD, szFilename);
-				LogStream<<MSG::INFO<<"The OD fiber geometry was stored in the "<<szFilename<<" file"<<endmsg;
+				LogStream<<MSG::INFO<<"The OD fiber geometry was stored in the "<<szFilename<<" file"<<endreq;
 			}
 			else{
-				LogStream<<MSG::INFO<<"Unknown OD fiber geometry of the RPot "<<m_pGeoReader->GetRPotLabel(*iterRPName)<<" file"<<endmsg;
+				LogStream<<MSG::INFO<<"Unknown OD fiber geometry of the RPot "<<m_pGeoReader->GetRPotLabel(*iterRPName)<<" file"<<endreq;
 			}
 		}
 
 		//save RP geometry params
 		sprintf(szFilename,"geometryinfo_MD_RP-%s.txt",m_pGeoReader->GetRPotLabel(*iterRPName));
 		m_pGeoReader->SaveRPGeometryParams(*iterRPName, szFilename);
-		LogStream<<MSG::INFO<<"RP geometry info was stored in the "<<szFilename<<" file"<<endmsg;
+		LogStream<<MSG::INFO<<"RP geometry info was stored in the "<<szFilename<<" file"<<endreq;
 	}
 }
 
@@ -478,7 +478,7 @@ void ALFA_DetectorFactory::ConstructAlfaStations(map<eAStationName,ALFAPHYSVOLUM
 	eAStation=EASN_B7L1;
 	m_pGeoReader->GetASPosParams(&AStationParams,eAStation);
 	sprintf(szLabel,"ALFA_%s",AStationParams.szLabel);
-	LogStream<<MSG::INFO<<"Create ALFA station "<<szLabel<<endmsg;
+	LogStream<<MSG::INFO<<"Create ALFA station "<<szLabel<<endreq;
 	pPhysAlfaBox=new GeoFullPhysVol(pLogAlfaBox);
 	//TransAlfaBox=HepGeom::Translate3D(AStationParams.IdealMainPoint[0], AStationParams.IdealMainPoint[1], AStationParams.IdealMainPoint[2]);
 	pWorld->add(new GeoNameTag(szLabel));
@@ -496,7 +496,7 @@ void ALFA_DetectorFactory::ConstructAlfaStations(map<eAStationName,ALFAPHYSVOLUM
 	eAStation=EASN_A7L1;
 	m_pGeoReader->GetASPosParams(&AStationParams,eAStation);
 	sprintf(szLabel,"ALFA_%s",AStationParams.szLabel);
-	LogStream<<MSG::INFO<<"Create ALFA station "<<szLabel<<endmsg;
+	LogStream<<MSG::INFO<<"Create ALFA station "<<szLabel<<endreq;
 	pPhysAlfaBox=new GeoFullPhysVol(pLogAlfaBox);
 	//TransAlfaBox=HepGeom::Translate3D(AStationParams.IdealMainPoint[0], AStationParams.IdealMainPoint[1], AStationParams.IdealMainPoint[2]);
 	pWorld->add(new GeoNameTag(szLabel));
@@ -514,7 +514,7 @@ void ALFA_DetectorFactory::ConstructAlfaStations(map<eAStationName,ALFAPHYSVOLUM
 	eAStation=EASN_A7R1;
 	m_pGeoReader->GetASPosParams(&AStationParams,eAStation);
 	sprintf(szLabel,"ALFA_%s",AStationParams.szLabel);
-	LogStream<<MSG::INFO<<"Create ALFA station "<<szLabel<<endmsg;
+	LogStream<<MSG::INFO<<"Create ALFA station "<<szLabel<<endreq;
 	pPhysAlfaBox=new GeoFullPhysVol(pLogAlfaBox);
 	//TransAlfaBox=HepGeom::Translate3D(AStationParams.IdealMainPoint[0], AStationParams.IdealMainPoint[1], AStationParams.IdealMainPoint[2]);
 	pWorld->add(new GeoNameTag(szLabel));
@@ -532,7 +532,7 @@ void ALFA_DetectorFactory::ConstructAlfaStations(map<eAStationName,ALFAPHYSVOLUM
 	eAStation=EASN_B7R1;
 	m_pGeoReader->GetASPosParams(&AStationParams,eAStation);
 	sprintf(szLabel,"ALFA_%s",AStationParams.szLabel);
-	LogStream<<MSG::INFO<<"Create ALFA station "<<szLabel<<endmsg;
+	LogStream<<MSG::INFO<<"Create ALFA station "<<szLabel<<endreq;
 	pPhysAlfaBox=new GeoFullPhysVol(pLogAlfaBox);
 	//TransAlfaBox=HepGeom::Translate3D(AStationParams.IdealMainPoint[0], AStationParams.IdealMainPoint[1], AStationParams.IdealMainPoint[2]);
 	pWorld->add(new GeoNameTag(szLabel));
@@ -578,7 +578,7 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	pWorld->add(new GeoTransform(TransTube));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
-	LogStream<<MSG::INFO<<"ALFA_Beampipe01: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]+ALFASTATIONHSIZEZ+ALFAEDGEBEAMPIPEHLENGTH<<endmsg;
+	LogStream<<MSG::INFO<<"ALFA_Beampipe01: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]+ALFASTATIONHSIZEZ+ALFAEDGEBEAMPIPEHLENGTH<<endreq;
 
 	strcpy(szLabel,"ALFA_Beampipe02");
 	strcpy(szLabel2,"ALFA_Beampipe02Fill");
@@ -601,7 +601,7 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	pWorld->add(new GeoTransform(TransTube));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
-	LogStream<<MSG::INFO<<"ALFA_Beampipe02: hlength="<<fInnerTubeHLength<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-fInnerTubeHLength<<endmsg;
+	LogStream<<MSG::INFO<<"ALFA_Beampipe02: hlength="<<fInnerTubeHLength<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-fInnerTubeHLength<<endreq;
 
 	strcpy(szLabel,"ALFA_Beampipe03");
 	strcpy(szLabel2,"ALFA_Beampipe03Fill");
@@ -622,7 +622,7 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	pWorld->add(new GeoTransform(TransTube));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
-	LogStream<<MSG::INFO<<"ALFA_Beampipe03: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-ALFAEDGEBEAMPIPEHLENGTH<<endmsg;
+	LogStream<<MSG::INFO<<"ALFA_Beampipe03: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-ALFAEDGEBEAMPIPEHLENGTH<<endreq;
 
 	strcpy(szLabel,"ALFA_Beampipe04");
 	strcpy(szLabel2,"ALFA_Beampipe04Fill");
@@ -643,7 +643,7 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	pWorld->add(new GeoTransform(TransTube));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
-	LogStream<<MSG::INFO<<"ALFA_Beampipe04: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]+ALFASTATIONHSIZEZ+ALFAEDGEBEAMPIPEHLENGTH<<endmsg;
+	LogStream<<MSG::INFO<<"ALFA_Beampipe04: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]+ALFASTATIONHSIZEZ+ALFAEDGEBEAMPIPEHLENGTH<<endreq;
 
 	strcpy(szLabel,"ALFA_Beampipe05");
 	strcpy(szLabel2,"ALFA_Beampipe05Fill");
@@ -666,7 +666,7 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	pWorld->add(new GeoTransform(TransTube));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
-	LogStream<<MSG::INFO<<"ALFA_Beampipe02: hlength="<<fInnerTubeHLength<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-fInnerTubeHLength<<endmsg;
+	LogStream<<MSG::INFO<<"ALFA_Beampipe02: hlength="<<fInnerTubeHLength<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-fInnerTubeHLength<<endreq;
 
 	strcpy(szLabel,"ALFA_Beampipe06");
 	strcpy(szLabel2,"ALFA_Beampipe06Fill");
@@ -687,7 +687,7 @@ void ALFA_DetectorFactory::ConstructBeampipe(GeoPhysVol* pWorld)
 	pWorld->add(new GeoTransform(TransTube));
 	pWorld->add(pPhysTube2);
 	m_pDetectorManager->addTreeTop(pPhysTube2);
-	LogStream<<MSG::INFO<<"ALFA_Beampipe06: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-ALFAEDGEBEAMPIPEHLENGTH<<endmsg;
+	LogStream<<MSG::INFO<<"ALFA_Beampipe06: hlength="<<ALFAEDGEBEAMPIPEHLENGTH<<", z="<<AStationParams01.IdealMainPoint[2]-ALFASTATIONHSIZEZ-ALFAEDGEBEAMPIPEHLENGTH<<endreq;
 }
 
 void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
@@ -698,14 +698,14 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 	list<eRPotName>::const_iterator iterRPName;
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_DetectorFactory::create");
 
-	LogStream<<MSG::INFO<<"ALFA_DetectorFactory::buildALFA_RP"<<endmsg;
-	LogStream<<MSG::DEBUG<<"Build ALFA Roman Pot"<<endmsg;
+	LogStream<<MSG::INFO<<"ALFA_DetectorFactory::buildALFA_RP"<<endreq;
+	LogStream<<MSG::DEBUG<<"Build ALFA Roman Pot"<<endreq;
 
 	// Create ALFA_ Detector Manager
 	m_pDetectorManager= new ALFA_DetectorManager();
 	// Retrieve material manager
 	if (m_pDetectorStore->retrieve(m_pMaterialManager, std::string("MATERIALS"))!=StatusCode::SUCCESS){
-		LogStream<<MSG::INFO<<"Could not load material manager"<<endmsg;
+		LogStream<<MSG::INFO<<"Could not load material manager"<<endreq;
 		return;
 	}
 	else{
@@ -721,10 +721,10 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 
 	//create geometry reader & inicialize wafer data object
 	if(ReadGeometry()==true){
-		LogStream<<MSG::INFO<<"Geometry loaded successfully"<<endmsg;
+		LogStream<<MSG::INFO<<"Geometry loaded successfully"<<endreq;
 	}
 	else{
-		LogStream<<MSG::INFO<<"Could not load geometry"<<endmsg;
+		LogStream<<MSG::INFO<<"Could not load geometry"<<endreq;
 		return;
 	}
 	
@@ -763,7 +763,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 	map<eAStationName,ALFAPHYSVOLUME> mapActiveStations;
 	ConstructAlfaStations(&mapActiveStations, pWorld);
 	if(m_Config.bConstructBeampipe) ConstructBeampipe(pWorld);
-	//LogStream<<MSG::INFO<<"MARK1"<<endmsg;
+	//LogStream<<MSG::INFO<<"MARK1"<<endreq;
 	
 	for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();iterRPName++)
 	{	
@@ -785,7 +785,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 		pPhysAlfaBox->add(new GeoNameTag(szLabel));
 		pPhysAlfaBox->add(pAlTransRPBox);
 		pPhysAlfaBox->add(pPhysRPBox);
-		//LogStream<<MSG::INFO<<"MARK3"<<endmsg;
+		//LogStream<<MSG::INFO<<"MARK3"<<endreq;
 
 		//create RP Air
 		sprintf(szLabel,"LogRPAir[%02d]",eRPName);
@@ -797,7 +797,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 		pPhysRPBox->add(new GeoNameTag(szLabel));
 		pPhysRPBox->add(new GeoTransform(TransRPAir));
 		pPhysRPBox->add(pPhysRPAir);
-		//LogStream<<MSG::INFO<<"MARK4"<<endmsg;
+		//LogStream<<MSG::INFO<<"MARK4"<<endreq;
 
 		//create Trigger
 		sprintf(szLabel,"LogTrigger[%02d]",eRPName);
@@ -808,7 +808,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 		pPhysRPAir->add(pAlTransDetInRPMainPoint);
 		pPhysRPAir->add(new GeoTransform(HepGeom::Translate3D(-22.0*CLHEP::mm,-31.325*CLHEP::mm,11.3*CLHEP::mm)));
 		pPhysRPAir->add(pPhysObj);
-		//LogStream<<MSG::INFO<<"MARK5"<<endmsg;
+		//LogStream<<MSG::INFO<<"MARK5"<<endreq;
 
 		//create RP Support
 		sprintf(szLabel,"LogRPSupport[%02d]",eRPName);
@@ -819,7 +819,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 		pPhysRPAir->add(pAlTransDetInRPMainPoint);
 		pPhysRPAir->add(new GeoTransform(HepGeom::Translate3D(0.0*CLHEP::mm,85.475*CLHEP::mm,-28.5*CLHEP::mm)));
 		pPhysRPAir->add(pPhysObj);
-		//LogStream<<MSG::INFO<<"MARK6"<<endmsg;
+		//LogStream<<MSG::INFO<<"MARK6"<<endreq;
 
 		//create G10 Shapes
 		sprintf(szLabel,"LogG10Substrate[%02d]",eRPName);
@@ -844,14 +844,14 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 			pPhysRPAir->add(new GeoTransform(HepGeom::Translate3D(0.0*CLHEP::mm,5.975*CLHEP::mm,(-17.5+i*2)*CLHEP::mm)));
 			pPhysRPAir->add(pPhysObj);
 		}
-		//LogStream<<MSG::INFO<<"MARK7"<<endmsg;
+		//LogStream<<MSG::INFO<<"MARK7"<<endreq;
 
 		//create Claddings & Fibers
 		TransTot=TransAlfaBox*RPosParams.RPTransformInStation*TransRPAir*RPosParams.DetTransformInMainPoint;
 		
 		ConstructUFiberCladdings(eRPName,pPhysRPAir,TransTot, pAlTransDetInRPMainPoint);
 		ConstructVFiberCladdings(eRPName,pPhysRPAir,TransTot, pAlTransDetInRPMainPoint);
-		//LogStream<<MSG::INFO<<"MARK8"<<endmsg;
+		//LogStream<<MSG::INFO<<"MARK8"<<endreq;
 
 		//create OD Plates
 		for(i=0;i<ODPLATESCNT;i++){
@@ -864,11 +864,11 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 			pPhysRPAir->add(new GeoTransform(HepGeom::Translate3D(0.0*CLHEP::mm,-0.175*CLHEP::mm,(15+i*2)*CLHEP::mm)));
 			pPhysRPAir->add(pPhysObj);
 		}
-		//LogStream<<MSG::INFO<<"MARK9"<<endmsg;
+		//LogStream<<MSG::INFO<<"MARK9"<<endreq;
 		
 		//create OD Claddings & Fibers
 		ConstructODFiberCladdings(eRPName,pPhysRPAir,TransTot, pAlTransDetInRPMainPoint);
-		//LogStream<<MSG::INFO<<"MARK10"<<endmsg;
+		//LogStream<<MSG::INFO<<"MARK10"<<endreq;
 
 		//store alignable transforms -----------------------------------------------------------------
 		sprintf(szLabel,"StRPBox[%02d]",eRPName);
@@ -887,7 +887,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 		if(!sc.isSuccess()) throw std::runtime_error("Cannot store alignable record");
 	}
 	
-	LogStream<<MSG::INFO<<"ALFA detector successfully created."<<endmsg;
+	LogStream<<MSG::INFO<<"ALFA detector successfully created."<<endreq;
 
 	if(m_eRequestedMetrologyType==EMT_NOMINAL || m_eRequestedMetrologyType==EMT_METROLOGY)
 	{
@@ -1315,29 +1315,29 @@ void ALFA_DetectorFactory::ConstructODFibers00(const eRPotName eRPName, const in
 		/*
 		if(eRPName==ERPN_A7L1U && eFType==EFT_ODFIBERU0){
 			TransPoint=MotherTransform*HepGeom::Point3D<float>(0.0*CLHEP::mm,0.0*CLHEP::mm,0.0*CLHEP::mm);
-			LogStream<<MSG::INFO<<"(U0) Trans Mother only="<<setprecision(10)<<TransPoint<<endmsg;
+			LogStream<<MSG::INFO<<"(U0) Trans Mother only="<<setprecision(10)<<TransPoint<<endreq;
 
 			TransPoint=TransODCladding*HepGeom::Point3D<float>(0.0*CLHEP::mm,0.0*CLHEP::mm,0.0*CLHEP::mm);
-			LogStream<<MSG::INFO<<"(U0) Trans Cladding only="<<setprecision(10)<<TransPoint.z()<<endmsg;
+			LogStream<<MSG::INFO<<"(U0) Trans Cladding only="<<setprecision(10)<<TransPoint.z()<<endreq;
 
 			TransPoint=MotherTransform*TransODCladding*HepGeom::Point3D<float>(0.0*CLHEP::mm,0.0*CLHEP::mm,0.0*CLHEP::mm);
-			LogStream<<MSG::INFO<<"(U0) Trans Mother+Cladding only ="<<setprecision(10)<<TransPoint.z()<<endmsg;
+			LogStream<<MSG::INFO<<"(U0) Trans Mother+Cladding only ="<<setprecision(10)<<TransPoint.z()<<endreq;
 
 			TransPoint=TransODCladding*TransODFiber*HepGeom::Point3D<float>(0.0*CLHEP::mm,0.0*CLHEP::mm,0.0*CLHEP::mm);
-			LogStream<<MSG::INFO<<"(U0) Trans Cladding+fiber only ="<<setprecision(10)<<TransPoint.z()<<endmsg;
+			LogStream<<MSG::INFO<<"(U0) Trans Cladding+fiber only ="<<setprecision(10)<<TransPoint.z()<<endreq;
 		}
 		if(eRPName==ERPN_A7L1U && eFType==EFT_ODFIBERV0){
 			TransPoint=MotherTransform*HepGeom::Point3D<float>(0.0*CLHEP::mm,0.0*CLHEP::mm,0.0*CLHEP::mm);
-			LogStream<<MSG::INFO<<"(V0) Trans Mother only="<<setprecision(10)<<TransPoint<<endmsg;
+			LogStream<<MSG::INFO<<"(V0) Trans Mother only="<<setprecision(10)<<TransPoint<<endreq;
 
 			TransPoint=TransODCladding*HepGeom::Point3D<float>(0.0*CLHEP::mm,0.0*CLHEP::mm,0.0*CLHEP::mm);
-			LogStream<<MSG::INFO<<"(V0) Trans Cladding only="<<setprecision(10)<<TransPoint.z()<<endmsg;
+			LogStream<<MSG::INFO<<"(V0) Trans Cladding only="<<setprecision(10)<<TransPoint.z()<<endreq;
 
 			TransPoint=MotherTransform*TransODCladding*HepGeom::Point3D<float>(0.0*CLHEP::mm,0.0*CLHEP::mm,0.0*CLHEP::mm);
-			LogStream<<MSG::INFO<<"(V0) Trans Mother+Cladding only ="<<setprecision(10)<<TransPoint.z()<<endmsg;
+			LogStream<<MSG::INFO<<"(V0) Trans Mother+Cladding only ="<<setprecision(10)<<TransPoint.z()<<endreq;
 
 			TransPoint=TransODCladding*TransODFiber*HepGeom::Point3D<float>(0.0*CLHEP::mm,0.0*CLHEP::mm,0.0*CLHEP::mm);
-			LogStream<<MSG::INFO<<"(V0) Trans Cladding+fiber only="<<setprecision(10)<<TransPoint.z()<<endmsg;
+			LogStream<<MSG::INFO<<"(V0) Trans Cladding+fiber only="<<setprecision(10)<<TransPoint.z()<<endreq;
 		}*/
 		
 		if (eFType==EFT_ODFIBERU0)
@@ -1775,7 +1775,7 @@ HepGeom::Transform3D ALFA_DetectorFactory::UserTransformInStation(eRPotName eRPN
 			structUserTransform.vecTranslation = CLHEP::Hep3Vector(m_Config.vecTransformInStationB7R1L[4], m_Config.vecTransformInStationB7R1L[5], m_Config.vecTransformInStationB7R1L[6]);
 			break;
 		default:
-			LogStream << MSG::WARNING << "Unknown Roman pot, station transformation will be set to default (zero) values" << endmsg;
+			LogStream << MSG::WARNING << "Unknown Roman pot, station transformation will be set to default (zero) values" << endreq;
 			structUserTransform.fAngle = 0.0;
 			structUserTransform.vecRotation = CLHEP::Hep3Vector(0.0, 0.0, 0.0);
 			structUserTransform.vecTranslation = CLHEP::Hep3Vector(0.0, 0.0, 0.0);
@@ -1851,7 +1851,7 @@ HepGeom::Transform3D ALFA_DetectorFactory::UserTransformInDetector(eRPotName eRP
 			structUserTransform.vecTranslation = CLHEP::Hep3Vector(m_Config.vecTransformInDetectorB7R1L[4], m_Config.vecTransformInDetectorB7R1L[5], m_Config.vecTransformInDetectorB7R1L[6]);
 			break;
 		default:
-			LogStream << MSG::WARNING << "Unknown Roman pot, detector transformation will be set to default (zero) values" << endmsg;
+			LogStream << MSG::WARNING << "Unknown Roman pot, detector transformation will be set to default (zero) values" << endreq;
 			structUserTransform.fAngle = 0.0;
 			structUserTransform.vecRotation = CLHEP::Hep3Vector(0.0, 0.0, 0.0);
 			structUserTransform.vecTranslation = CLHEP::Hep3Vector(0.0, 0.0, 0.0);
@@ -1909,7 +1909,7 @@ HepGeom::Point3D<double> ALFA_DetectorFactory::Point3DInDetector(eRPotName eRPNa
 			Point = HepGeom::Point3D<double>(m_Config.pointTransformInDetectorB7R1L[0], m_Config.pointTransformInDetectorB7R1L[1], m_Config.pointTransformInDetectorB7R1L[2]);
 			break;
 		default:
-			LogStream << MSG::WARNING << "Unknown Roman pot, transformation point will be set to default (zero) value" << endmsg;
+			LogStream << MSG::WARNING << "Unknown Roman pot, transformation point will be set to default (zero) value" << endreq;
 	}
 
 	return Point;
