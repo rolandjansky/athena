@@ -42,6 +42,7 @@ class DetStatusMap : public DataObject {
   MsgStream& toOutputStream(MsgStream& os) const;
 
  private:
+  friend class DetStatusMapCnv_p1;
 
   class PairSort {
   public:
@@ -79,7 +80,7 @@ inline void DetStatusMap::clear() { m_statmap.clear(); }
 
 inline void DetStatusMap::add(const std::string& name, const DetStatus& status)
 { 
-  m_statmap.push_back( DetStatusPair(name, status) ) ;
+  m_statmap.emplace_back( name, status ) ;
   std::sort( m_statmap.begin() , m_statmap.end() , PairSort() );
 }
 

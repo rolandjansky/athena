@@ -56,6 +56,8 @@ class DetCondCFloat {
   void print2() const;
 
  private:
+  friend class DetCondCFloatCnv_p1;
+
   int m_size;
   std::string m_tag;
   typedef std::less<Identifier> lessp;

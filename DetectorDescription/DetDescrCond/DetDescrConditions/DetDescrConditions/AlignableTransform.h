@@ -18,10 +18,8 @@
 #include <algorithm>
 #include "Identifier/Identifier.h"
 #include "CLHEP/Geometry/Transform3D.h"
-
-#ifndef CLIDSVC_CLASSDEF_H
 #include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "boost/range/iterator_range.hpp"
 
 class AlignableTransform {
  public:
@@ -46,29 +44,35 @@ class AlignableTransform {
 
   // const and non-const iterator definitions
   typedef std::vector<AlignTransMember>::const_iterator AlignTransMem_citr;
+  typedef boost::iterator_range<AlignTransMem_citr> AlignTransMem_crange;
   AlignTransMem_citr begin() const;
   AlignTransMem_citr end() const;
+  AlignTransMem_crange range() const;
   typedef std::vector<AlignTransMember>::iterator AlignTransMem_itr;
+  typedef boost::iterator_range<AlignTransMem_itr> AlignTransMem_range;
   AlignTransMem_itr mbegin();
   AlignTransMem_itr mend();
+  AlignTransMem_range mrange();
   // return pointer to particular module
   AlignTransMem_citr findIdent(const Identifier& ident) const;
   AlignTransMem_itr findIdent(const Identifier& ident);
   // return tag name for AlignableTransform
   const std::string& tag() const;
+  size_t size() const;
 
   // add a new member to the AlignableTransform
-  void add(Identifier ident,HepGeom::Transform3D trans);
+  void add(const Identifier& ident,const HepGeom::Transform3D& trans);
   // reset the specified transform
-  bool update(const Identifier ident,const HepGeom::Transform3D trans);
+  bool update(const Identifier& ident,const HepGeom::Transform3D& trans);
   // tweak, i.e. combine new transform with that already existing
-  bool tweak(const Identifier ident,const HepGeom::Transform3D trans);
+  bool tweak(const Identifier& ident,const HepGeom::Transform3D& trans);
   void print() const;
   void print2() const;
   // sort transform vector, to be called after adding new transforms
   void sortv();
 
  private:
+  friend class AlignableTransformCnv_p1;
   std::string m_tag;
   std::vector<AlignTransMember> m_vec;
 };
@@ -98,11 +102,15 @@ inline AlignableTransform::AlignTransMem_citr
    AlignableTransform::begin() const { return m_vec.begin();}
 inline AlignableTransform::AlignTransMem_citr
    AlignableTransform::end() const { return m_vec.end();}
+inline AlignableTransform::AlignTransMem_crange
+   AlignableTransform::range() const { return AlignTransMem_crange(begin(), end()); }
 
 inline AlignableTransform::AlignTransMem_itr
    AlignableTransform::mbegin() { return m_vec.begin();}
 inline AlignableTransform::AlignTransMem_itr
    AlignableTransform::mend() { return m_vec.end();}
+inline AlignableTransform::AlignTransMem_range
+   AlignableTransform::mrange() { return AlignTransMem_range(mbegin(), mend()); }
 
 inline AlignableTransform::AlignTransMem_citr
   AlignableTransform::findIdent(const Identifier& ident) const {
@@ -122,6 +130,8 @@ inline AlignableTransform::AlignTransMem_itr
 }
 
 inline const std::string& AlignableTransform::tag() const {return m_tag;}
+
+inline size_t AlignableTransform::size() const {return m_vec.size();}
 
 inline void AlignableTransform::sortv() { 
    sort(m_vec.begin(),m_vec.end()); }

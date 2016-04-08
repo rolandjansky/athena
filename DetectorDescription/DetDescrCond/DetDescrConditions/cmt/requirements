@@ -7,11 +7,12 @@ package DetDescrConditions
 author Richard Hawkings <richard.hawkings@cern.ch>
 
 use AtlasPolicy     AtlasPolicy-*
-use GaudiInterface  GaudiInterface-01-*   External
-use CLIDSvc         CLIDSvc-00-*          Control
-use Identifier      Identifier-00-*       DetectorDescription
-use AtlasCLHEP      AtlasCLHEP-00-*       External
-use AthenaPoolUtilities AthenaPoolUtilities-00-* Database/AthenaPOOL
+use GaudiInterface  GaudiInterface-*     External
+use CLIDSvc         CLIDSvc-*            Control
+use Identifier      Identifier-*         DetectorDescription
+use AtlasCLHEP      AtlasCLHEP-*         External
+use AtlasBoost      AtlasBoost-*         External
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 
 apply_pattern installed_library
 library DetDescrConditions  \
@@ -20,7 +21,7 @@ library DetDescrConditions  \
            DetCondKeyTrans.cxx DetStatus.cxx DetStatusMap.cxx
 
 private 
-use AtlasReflex	AtlasReflex-00-*	 External -no_auto_imports
+use AtlasReflex	AtlasReflex-*	 External -no_auto_imports
 
 apply_pattern lcgdict dict=DetDescrConditions selectionfile=selection.xml headerfiles="../DetDescrConditions/DetDescrConditionsDict.h" 
 
