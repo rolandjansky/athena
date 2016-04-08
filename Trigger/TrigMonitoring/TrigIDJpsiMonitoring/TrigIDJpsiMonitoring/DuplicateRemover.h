@@ -35,7 +35,7 @@ public:
   virtual ~DuplicateRemover() { }
 
   void muonMaker( Trig::FeatureContainer::combination_const_iterator dItr, std::string chain,
-                  ToolHandle<Trig::TrigDecisionTool>* m_tool, unsigned int &m_trigDefs) {
+                  ToolHandle<Trig::TrigDecisionTool>* tool, unsigned int &trigDefs) {
 
 
     //    std::cout << "START REMOVER" << std::endl;
@@ -47,7 +47,7 @@ public:
 
     //cout << "duplicate remover -- get features..." << endl;
 
-    std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = dItr->get<TrigRoiDescriptor>("forID", m_trigDefs);//TrigDefs::Physics); 
+    std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = dItr->get<TrigRoiDescriptor>("forID", trigDefs);//TrigDefs::Physics); 
 
     //cout << "duplicate remover -- get init rois..." << endl;
     if(initRois.empty()) initRois = dItr->get<TrigRoiDescriptor>("", TrigDefs::Physics); 
@@ -69,9 +69,9 @@ public:
     }
 
     //cout << "duplicate remover -- get tag muons..." << endl;
-    std::vector< Trig::Feature< TrigMuonEFInfoContainer > > tagmuons = dItr->get< TrigMuonEFInfoContainer >("MuonEFInfo", m_trigDefs, tagTE);
+    std::vector< Trig::Feature< TrigMuonEFInfoContainer > > tagmuons = dItr->get< TrigMuonEFInfoContainer >("MuonEFInfo", trigDefs, tagTE);
     //cout << "duplicate remover -- get probe muons..." << endl;
-    std::vector< Trig::Feature< TrigMuonEFInfoContainer > > probemuons = dItr->get< TrigMuonEFInfoContainer >("MuonEFInfo", m_trigDefs, probeTE);
+    std::vector< Trig::Feature< TrigMuonEFInfoContainer > > probemuons = dItr->get< TrigMuonEFInfoContainer >("MuonEFInfo", trigDefs, probeTE);
 
     //cout << "duplicate remover -- done, try again?" << endl;
     ///if they've got size 0, it's probably because we're running on data or MC 11; if just 0 probes, probably MC12
@@ -105,7 +105,7 @@ public:
     int probeRoiID = 0;
     int tagRoiID = 0;
 
-    std::vector<const TrigRoiDescriptor*> m_rois;
+    std::vector<const TrigRoiDescriptor*> rois;
 
     for( unsigned roiIt1 = 0; roiIt1 < probemuons.size(); roiIt1++ ){
 
@@ -113,10 +113,10 @@ public:
       const TrigMuonEFInfoContainer* trigMuon1 = trackFeature1.cptr();
       TrigMuonEFInfoContainer::const_iterator muonItr1  = trigMuon1->begin();
       if (muonItr1==trigMuon1->end()) continue;
-      TrigMuonEFInfo* muoninfo1 = (*muonItr1);
+      const TrigMuonEFInfo* muoninfo1 = (*muonItr1);
 
       ///ROI associated with this Feature
-      Trig::Feature<TrigRoiDescriptor> trackroi1 = (*m_tool)->ancestor<TrigRoiDescriptor>(trackFeature1, "forID");
+      Trig::Feature<TrigRoiDescriptor> trackroi1 = (*tool)->ancestor<TrigRoiDescriptor>(trackFeature1, "forID");
       const TrigRoiDescriptor* roid1 = trackroi1.cptr();
       TIDARoiDescriptor roiInfo1 = TIDARoiDescriptorBuilder(*roid1);
       /*      std::cout << "\nROI probe eta0 = " << roiInfo1.eta() << " phi0 = " << roiInfo1.phi() << " zed0 = " << roiInfo1.zed()
@@ -125,7 +125,7 @@ public:
 	      << std::endl;*/
       probeRoiID = roid1->roiId();
 
-      m_rois.push_back(roid1);
+      rois.push_back(roid1);
 
       if( !initRois.empty() ){
 
@@ -137,20 +137,20 @@ public:
 
         if( muoninfo1->hasTrack() ){
 	  
-	  TrigMuonEFInfoTrackContainer* tc1 = muoninfo1->TrackContainer();
+	  const TrigMuonEFInfoTrackContainer* tc1 = muoninfo1->TrackContainer();
 
 	  bool selected = false;
 
 	  for( TrigMuonEFInfoTrackContainer::const_iterator trackItr = tc1->begin(); trackItr != tc1->end(); trackItr++){
 
-	    TrigMuonEFInfoTrack* muonInfo1 = (*trackItr);
+	    const TrigMuonEFInfoTrack* muonInfo1 = (*trackItr);
 
 	    if( muonInfo1->hasExtrapolatedTrack() ){
 
 	      TrigMuonEFTrack* eTrack1 = muonInfo1->ExtrapolatedTrack();
 
 	      ///tmp
-	      //			Trig::Feature<TrigRoiDescriptor> trackroi1 = (*m_tool)->ancestor<TrigRoiDescriptor>(trackFeature1);
+	      //			Trig::Feature<TrigRoiDescriptor> trackroi1 = (*tool)->ancestor<TrigRoiDescriptor>(trackFeature1);
 	      //			const TrigRoiDescriptor* roid1 = trackroi1.cptr();
 	      //			std::cout << "\n!!!Probe!!! probe1 RoI eta = " << roid1->eta() << " phi = " << roid1->phi() 
 	      //				  << " probe pt = " << eTrack1->pt() << std::endl;
@@ -166,9 +166,9 @@ public:
 		  Trig::Feature< TrigMuonEFInfoContainer > trackFeature2 = probemuons.at(roiIt2);
 		  const TrigMuonEFInfoContainer* trigMuon2 = trackFeature2.cptr();
 		  TrigMuonEFInfoContainer::const_iterator muonItr2  = trigMuon2->begin();
-		  TrigMuonEFInfo* muoninfo2 = (*muonItr2);
+		  const TrigMuonEFInfo* muoninfo2 = (*muonItr2);
 
-		  Trig::Feature<TrigRoiDescriptor> trackroi2 = (*m_tool)->ancestor<TrigRoiDescriptor>(trackFeature2);
+		  Trig::Feature<TrigRoiDescriptor> trackroi2 = (*tool)->ancestor<TrigRoiDescriptor>(trackFeature2);
 		  const TrigRoiDescriptor* roid2 = trackroi2.cptr();
 		  TIDARoiDescriptor roiInfo2 = TIDARoiDescriptorBuilder(*roid2);
 
@@ -179,18 +179,18 @@ public:
 
 		    if( muoninfo2->hasTrack() ){
 		    
-		      TrigMuonEFInfoTrackContainer* tc2 = muoninfo2->TrackContainer();
+		      const TrigMuonEFInfoTrackContainer* tc2 = muoninfo2->TrackContainer();
 	  
 		      for( TrigMuonEFInfoTrackContainer::const_iterator trackItr = tc2->begin(); trackItr != tc2->end(); trackItr++){
 	  
-			TrigMuonEFInfoTrack* muonInfo2 = (*trackItr);
+			const TrigMuonEFInfoTrack* muonInfo2 = (*trackItr);
 	  
 			if( muonInfo2->hasExtrapolatedTrack() ){
 
 			  TrigMuonEFTrack* eTrack2 = muonInfo2->ExtrapolatedTrack();
 
 			  ///tmp
-			  //			Trig::Feature<TrigRoiDescriptor> trackroi2 = (*m_tool)->ancestor<TrigRoiDescriptor>(trackFeature2);
+			  //			Trig::Feature<TrigRoiDescriptor> trackroi2 = (*tool)->ancestor<TrigRoiDescriptor>(trackFeature2);
 			  //			const TrigRoiDescriptor* roid2 = trackroi2.cptr();
 			  //			std::cout << "\n!!!Probe!!! probe2 RoI eta = " << roid2->eta() << " phi = " << roid2->phi0() 
 			  //				  << " probe pt = " << eTrack2->pt() << std::endl;
@@ -282,10 +282,10 @@ public:
     //int iroi = 0;
     for( unsigned roiIt1 = 0; roiIt1 < tagmuons.size(); roiIt1++ ){
       Trig::Feature< TrigMuonEFInfoContainer > trackFeature1 = tagmuons.at(roiIt1);
-      Trig::Feature<TrigRoiDescriptor> trackroi1 = (*m_tool)->ancestor<TrigRoiDescriptor>(trackFeature1, "");
+      Trig::Feature<TrigRoiDescriptor> trackroi1 = (*tool)->ancestor<TrigRoiDescriptor>(trackFeature1, "");
       const TrigRoiDescriptor* roid1 = trackroi1.cptr();
-      m_rois.push_back(roid1);
-      //cout <<iroi++ << "m_rois: " << m_rois.back() << endl;
+      rois.push_back(roid1);
+      //cout <<iroi++ << "rois: " << rois.back() << endl;
     }
     
     for( unsigned roiIt1 = 0; roiIt1 < tagmuons.size(); roiIt1++ ){
@@ -298,10 +298,10 @@ public:
       Trig::Feature< TrigMuonEFInfoContainer > trackFeature1 = tagmuons.at(roiIt1);
       const TrigMuonEFInfoContainer* trigMuon1 = trackFeature1.cptr();
       TrigMuonEFInfoContainer::const_iterator muonItr1  = trigMuon1->begin();
-      TrigMuonEFInfo* muoninfo1 = (*muonItr1);
+      const TrigMuonEFInfo* muoninfo1 = (*muonItr1);
 
       ///ROI associated with this Feature
-      Trig::Feature<TrigRoiDescriptor> trackroi1 = (*m_tool)->ancestor<TrigRoiDescriptor>(trackFeature1, "");
+      Trig::Feature<TrigRoiDescriptor> trackroi1 = (*tool)->ancestor<TrigRoiDescriptor>(trackFeature1, "");
       const TrigRoiDescriptor* roid1 = trackroi1.cptr();
       TIDARoiDescriptor roiInfo1 = TIDARoiDescriptorBuilder(*roid1);
       /*                  std::cout << "\nROI tag eta0 = " << roiInfo1.eta() << " phi0 = " << roiInfo1.phi() << " zed0 = " << roiInfo1.zed()
@@ -320,13 +320,13 @@ public:
 		*/
 	if( muoninfo1->hasTrack() ){
 	  
-	  TrigMuonEFInfoTrackContainer* tc1 = muoninfo1->TrackContainer();
+	  const TrigMuonEFInfoTrackContainer* tc1 = muoninfo1->TrackContainer();
 
 	  bool selected = false;
 
 	  for( TrigMuonEFInfoTrackContainer::const_iterator trackItr = tc1->begin(); trackItr != tc1->end(); trackItr++){
 
-	    TrigMuonEFInfoTrack* muonInfo1 = (*trackItr);
+	    const TrigMuonEFInfoTrack* muonInfo1 = (*trackItr);
 	  
 	    if( muonInfo1->hasCombinedTrack() ){
 
@@ -339,12 +339,12 @@ public:
 		int index = 0;
 		double deltar = 0.;
 		double temp = 9999.;
-		for(unsigned i=0; i<m_rois.size(); i++){
+		for(unsigned i=0; i<rois.size(); i++){
 		  const Rec::TrackParticle* idComp = eTrack1->getIDTrackParticle();
-		  //double roiEtaHalfWidth = m_rois[i]->etaHalfWidth();
-		  //double roiPhiHalfWidth = m_rois[i]->phiHalfWidth();
-		  double roiEta = m_rois[i]->eta();
-		  double roiPhi = m_rois[i]->phi();
+		  //double roiEtaHalfWidth = rois[i]->etaHalfWidth();
+		  //double roiPhiHalfWidth = rois[i]->phiHalfWidth();
+		  double roiEta = rois[i]->eta();
+		  double roiPhi = rois[i]->phi();
 		  double deltaPhi1 = 0.;
 		  if(idComp) deltaPhi1 = idComp->phi() - roiPhi;
 		  else deltaPhi1 = eTrack1->phi() - roiPhi;
@@ -368,11 +368,11 @@ public:
 			      tagRoiID = probeRoiID;
 			      }*/
 		}
-		//		std::cout << "Chose index " << index << " with deltar " << temp << " m_rois.size " << m_rois.size() << std::endl;
-		tagRoiID = m_rois[index]->roiId();
+		//		std::cout << "Chose index " << index << " with deltar " << temp << " rois.size " << rois.size() << std::endl;
+		tagRoiID = rois[index]->roiId();
 	      }
 	      ///tmp
-	      //			Trig::Feature<TrigRoiDescriptor> trackroi1 = (*m_tool)->ancestor<TrigRoiDescriptor>(trackFeature1);
+	      //			Trig::Feature<TrigRoiDescriptor> trackroi1 = (*tool)->ancestor<TrigRoiDescriptor>(trackFeature1);
 	      //			const TrigRoiDescriptor* roid1 = trackroi1.cptr();
 	      //			std::cout << "\n!!!Tag!!! tag1 RoI eta = " << roid1->eta() << " phi = " << roid1->phi0() 
 	      //				  << " tag pt = " << eTrack1->pt() << std::endl;
@@ -385,9 +385,9 @@ public:
 		Trig::Feature< TrigMuonEFInfoContainer > trackFeature2 = tagmuons.at(roiIt2);
 		const TrigMuonEFInfoContainer* trigMuon2 = trackFeature2.cptr();
 		TrigMuonEFInfoContainer::const_iterator muonItr2  = trigMuon2->begin();
-		TrigMuonEFInfo* muoninfo2 = (*muonItr2);
+		const TrigMuonEFInfo* muoninfo2 = (*muonItr2);
 
-		Trig::Feature<TrigRoiDescriptor> trackroi2 = (*m_tool)->ancestor<TrigRoiDescriptor>(trackFeature2);
+		Trig::Feature<TrigRoiDescriptor> trackroi2 = (*tool)->ancestor<TrigRoiDescriptor>(trackFeature2);
 		const TrigRoiDescriptor* roid2 = trackroi2.cptr();
 		TIDARoiDescriptor roiInfo2 = TIDARoiDescriptorBuilder(*roid2);
 
@@ -398,18 +398,18 @@ public:
 
 		  if( muoninfo2->hasTrack() ){
 
-		    TrigMuonEFInfoTrackContainer* tc2 = muoninfo2->TrackContainer();
+		    const TrigMuonEFInfoTrackContainer* tc2 = muoninfo2->TrackContainer();
 	  
 		    for( TrigMuonEFInfoTrackContainer::const_iterator trackItr = tc2->begin(); trackItr != tc2->end(); trackItr++){
 	  
-		      TrigMuonEFInfoTrack* muonInfo2 = (*trackItr);
+		      const TrigMuonEFInfoTrack* muonInfo2 = (*trackItr);
 	  
 		      if( muonInfo2->hasCombinedTrack() ){
 
 			TrigMuonEFCbTrack* eTrack2 = muonInfo2->CombinedTrack();
 
 			///tmp
-			//			Trig::Feature<TrigRoiDescriptor> trackroi2 = (*m_tool)->ancestor<TrigRoiDescriptor>(trackFeature2);
+			//			Trig::Feature<TrigRoiDescriptor> trackroi2 = (*tool)->ancestor<TrigRoiDescriptor>(trackFeature2);
 			//			const TrigRoiDescriptor* roid2 = trackroi2.cptr();
 			//			std::cout << "!!!Tag!!! tag2 RoI eta = " << roid2->eta() << " phi = " << roid2->phi0() 
 			//				  << " tag pt = " << eTrack2->pt() << std::endl;
