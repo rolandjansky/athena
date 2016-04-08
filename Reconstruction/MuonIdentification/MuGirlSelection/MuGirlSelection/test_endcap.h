@@ -12,7 +12,7 @@ namespace MuGirlNS
 {
 class test_endcap {
 public:
-   test_endcap() {}
+   test_endcap() : input0(-999.), input1(-999.), input2(-999.), input3(-999.), input4(-999.), input5(-999.), input6(-999.), input7(-999.) {}
    ~test_endcap() {}
    double value(int index,double in0,double in1,double in2,double in3,double in4,double in5,double in6,double in7);
 private:
