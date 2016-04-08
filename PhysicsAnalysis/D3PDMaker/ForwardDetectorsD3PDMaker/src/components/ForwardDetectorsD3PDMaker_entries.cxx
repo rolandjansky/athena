@@ -1,4 +1,4 @@
-// $Id: ForwardDetectorsD3PDMaker_entries.cxx 574223 2013-12-06 13:38:47Z nozka $
+// $Id: ForwardDetectorsD3PDMaker_entries.cxx 597942 2014-05-20 12:31:43Z nozka $
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -8,6 +8,7 @@
 #include "../ZdcDigitsFillerTool.h"
 #include "../ZdcRecoFillerTool.h"
 
+#include "../AlfaHitCollectionFillerTool.h"
 #include "../AlfaEventHeaderFillerTool.h"
 #include "../AlfaTrackingDataFillerTool.h"
 #include "../AlfaTruthInfoFillerTool.h"
@@ -25,6 +26,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, ZdcFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, ZdcDigitsFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, ZdcRecoFillerTool )
 
+DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, AlfaHitCollectionFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, AlfaEventHeaderFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, AlfaTrackingDataFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, AlfaTruthInfoFillerTool )
@@ -43,6 +45,7 @@ DECLARE_FACTORY_ENTRIES( ForwardDetectorsD3PDMaker ) {
   DECLARE_NAMESPACE_TOOL( D3PD, ZdcDigitsFillerTool )
   DECLARE_NAMESPACE_TOOL( D3PD, ZdcRecoFillerTool )
   
+  DECLARE_NAMESPACE_TOOL( D3PD, AlfaHitCollectionFillerTool )
   DECLARE_NAMESPACE_TOOL( D3PD, AlfaEventHeaderFillerTool )
   DECLARE_NAMESPACE_TOOL( D3PD, AlfaTrackingDataFillerTool )
   DECLARE_NAMESPACE_TOOL( D3PD, AlfaTruthInfoFillerTool )

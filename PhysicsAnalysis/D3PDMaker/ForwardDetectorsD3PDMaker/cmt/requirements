@@ -21,8 +21,9 @@ use ZdcIdentifier       ZdcIdentifier-*          ForwardDetectors/ZDC
 use ZdcConditions       ZdcConditions-*          ForwardDetectors/ZDC
 
 #ALFA dependencies
+use ALFA_SimEv      ALFA_SimEv-*             ForwardDetectors/ALFA
 use ALFA_CLinkEv	ALFA_CLinkEv-*	     	 ForwardDetectors/ALFA
-use ALFA_GloRecEv       ALFA_GloRecEv-*          ForwardDetectors/ALFA/ALFA_RecEv
+use ALFA_GloRecEv   ALFA_GloRecEv-*          ForwardDetectors/ALFA/ALFA_RecEv
 
 #AFP dependencies
 use AFP_SimEv           AFP_SimEv-*              ForwardDetectors/AFP
