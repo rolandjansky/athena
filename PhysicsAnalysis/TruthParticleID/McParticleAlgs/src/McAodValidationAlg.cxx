@@ -80,14 +80,14 @@ StatusCode McAodValidationAlg::initialize()
   // initializing pseudo-random generator with the seed
   ATH_MSG_INFO
     ("Initializing pseudo-random generator..." 
-     << endmsg
+     << endreq
      << "\tseed= " << m_seed);
   std::srand( m_seed );
   
   // retrieve the list of validation tools
   if ( !m_valTools.retrieve().isSuccess() ) {
     ATH_MSG_ERROR
-      ("Could not retrieve McAod validation tools !!" << endmsg
+      ("Could not retrieve McAod validation tools !!" << endreq
        << " [" << m_valTools << "]");
     return StatusCode::FAILURE;
   }

@@ -59,8 +59,7 @@ for cont in inputTPContainer:
     job += builder
 
 
-if ( (objKeyStore.isInInput( "McEventCollection", "GEN_AOD" ) or
-      objKeyStore.isInInput( "McEventCollection", "TruthEvent" )) and
-     not objKeyStore.isInInput( "xAOD::TruthEventContainer", "TruthEvents" ) ):
+if ( objKeyStore.isInInput( "McEventCollection", "GEN_AOD" ) or
+     objKeyStore.isInInput( "McEventCollection", "TruthEvent" ) ):
     from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
     job += xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD")
