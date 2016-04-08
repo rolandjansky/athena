@@ -480,7 +480,7 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       HWIdentifier hwid=(*it)->adc_HWID();  
       int gain   = m_tileHWID->adc(hwid);      // low=0 high=1    
       float ofctime = (*it)->time();
-      if(ofctime!=0.0 and abs(ofctime-15.0)<30.)
+      if(ofctime!=0.0 and std::abs(ofctime-15.0)<30.)
         avg_time[ros][gain]->Push(ofctime);
     } 
   } // Now we have the average time per partition for this event
