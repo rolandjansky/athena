@@ -26,7 +26,7 @@ class LArCalibParamsCnv : public LArCalibParamsCnvBase
   virtual ~LArCalibParamsCnv();
 
   //Overload PoolToDataObject with custom implementation
-  virtual StatusCode PoolToDataObject(DataObject*& pObj, const std::string& token);
+  virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token);
 };
 
 

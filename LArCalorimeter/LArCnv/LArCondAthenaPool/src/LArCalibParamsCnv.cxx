@@ -18,7 +18,7 @@ LArCalibParamsCnv::~LArCalibParamsCnv()
 
 
 /// Extend base-class conversion method
-StatusCode LArCalibParamsCnv::PoolToDataObject(DataObject*& pObj, const std::string& token) {
+StatusCode LArCalibParamsCnv::PoolToDataObject(DataObject*& pObj, const Token* token) {
   StatusCode sc;
   sc=LArCalibParamsCnvBase::PoolToDataObject(pObj,token);
   if (sc.isFailure()) return sc;

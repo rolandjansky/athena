@@ -8,11 +8,7 @@
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
  */
 
-#define private public
-#define protected public
 #include "LArRawConditions/LArPedestalMC.h"
-#undef private
-#undef protected
 #include "LArPedestalMCCnv.h"
 #include "LArCondTPCnv/LArPedestalMCCnv_p1.h"
 

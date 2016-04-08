@@ -55,7 +55,7 @@ LArConditionsSubset<LArSingleFloatP>* LArSingleFloatConverter<TransientClass>::c
     MsgStream log(this->messageService(), "LArSingleFloatCompleteCnv" );
     LArSingleFloatSubset_p1* p;
     LArConditionsSubset<LArSingleFloatP>* t;
-    if(this->poolToObject( this->m_token,p).isFailure() ) {
+    if(this->poolToObject(this->m_i_poolToken,p).isFailure() ) { // Token is passed via pointer member
       throw std::runtime_error("POOL read failed");
     }
     t=m_TPconverter.createTransient(p,log);
