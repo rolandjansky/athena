@@ -32,7 +32,7 @@ using namespace ROOT;
 
 
 AthenaRootStreamerSvc::AthenaRootStreamerSvc(const std::string& name, ISvcLocator* pSvcLocator)
-      : Service(name, pSvcLocator),
+      : AthService(name, pSvcLocator),
 	m_streamerMap()
 {
    declareProperty( "Streamers", m_streamerClassNames );
@@ -46,12 +46,7 @@ AthenaRootStreamerSvc::~AthenaRootStreamerSvc()
 
 StatusCode AthenaRootStreamerSvc::initialize()
 {
-   MsgStream log(msgSvc(), name());
-
-   if( !Service::initialize().isSuccess() ) {
-      log << MSG::ERROR << "Can not initialize Service base class." << endreq;
-      return StatusCode::FAILURE;
-   }
+   ATH_CHECK( AthService::initialize() );
 
    pool::DbSession	session;
    // initialize the session
@@ -61,19 +56,19 @@ StatusCode AthenaRootStreamerSvc::initialize()
    // this loads the ROOT storage service plugin and
    // initializes POOL/ROOT class loader needed by GetClass()
    if( ! session.db(pool::ROOT_StorageType) ) {
-      log << MSG::ERROR << "Failed to open POOL/ROOT session" << endreq;
+      ATH_MSG_ERROR ( "Failed to open POOL/ROOT session" );
       return StatusCode::FAILURE;
    }
-   log << MSG::INFO << "POOL/ROOT class loader initialized" << endreq;
+   ATH_MSG_INFO ( "POOL/ROOT class loader initialized" );
    session.close();
    
    StatusCode status = StatusCode::SUCCESS;
    if( m_streamerClassNames.value().size() ) {
-      log << MSG::INFO << m_streamerClassNames.value().size() << " ROOT streamers declared" <<  endreq;
+      ATH_MSG_INFO ( m_streamerClassNames.value().size() << " ROOT streamers declared" );
 
       std::vector< std::string >::const_iterator i = m_streamerClassNames.value().begin();
       while( i !=  m_streamerClassNames.value().end() ) {
-	 log << MSG::INFO << "  - Streamer name:" << *i << endreq;
+         ATH_MSG_INFO ( "  - Streamer name:" << *i );
 	 if( AddStreamer( *i++ ).isFailure() )
 	    status = StatusCode::FAILURE; 
       }
@@ -98,7 +93,7 @@ StatusCode AthenaRootStreamerSvc::finalize()
    // do NOT delete the streamers created by the service - they are owned by TClass
    m_streamerMap.clear();
 
-   return Service::finalize(); 
+   return AthService::finalize(); 
 }
 
 
@@ -108,7 +103,7 @@ StatusCode AthenaRootStreamerSvc::queryInterface(const InterfaceID& riid, void**
      *ppvInterface = dynamic_cast<AthenaRootStreamerSvc*>(this);
    } else {
       // Interface is not directly available: try out a base class
-      return(Service::queryInterface(riid, ppvInterface));
+      return(AthService::queryInterface(riid, ppvInterface));
    }
    addRef();
    return(StatusCode::SUCCESS);
@@ -138,8 +133,8 @@ StatusCode AthenaRootStreamerSvc::AddStreamer(const std::string& converter_class
       MsgStream log(msgSvc(), name());
       streamer_class = RootType( converter_classname );
       if( ! streamer_class ) {
-         log << MSG::ERROR << "Could not find <" << converter_classname
-             << "> in the dictionary, and autoloading failed" << endreq;
+         ATH_MSG_ERROR ( "Could not find <" << converter_classname
+                         << "> in the dictionary, and autoloading failed" );
          return(StatusCode::FAILURE);
       }
       log << MSG::DEBUG << "Loaded dictionary for class " << converter_classname
@@ -159,7 +154,6 @@ StatusCode AthenaRootStreamerSvc::AddStreamer(const std::string& converter_class
 
 StatusCode AthenaRootStreamerSvc::AddStreamer(T_AthenaRootConverterBase *converter, bool adopt)
 {
-   MsgStream log(msgSvc(), name());
    const std::string	&classname = converter->ClassName();
    if (m_streamerMap.find(classname) == m_streamerMap.end()) {
       // no streamer for this class yet
@@ -167,14 +161,14 @@ StatusCode AthenaRootStreamerSvc::AddStreamer(T_AthenaRootConverterBase *convert
    }
    AthenaRootConverterHandle *convH = new AthenaRootConverterHandle(converter);
    if( m_streamerMap[classname]->AddConverter(convH).isFailure() ) {
-      log << MSG::ERROR << "ROOT Streamer for "  << classname
-	  << " already has a converter for checksum = "
-	  << converter->StreamerChecksum() << endreq;
+      ATH_MSG_ERROR ( "ROOT Streamer for "  << classname
+                      << " already has a converter for checksum = "
+                      << converter->StreamerChecksum() );
       return(StatusCode::FAILURE);
    }
-   log << MSG::INFO << "ROOT Streamer for " << classname
-       << " added converter for checksum = "
-       << converter->StreamerChecksum() << endreq;
+   ATH_MSG_INFO ( "ROOT Streamer for " << classname
+                  << " added converter for checksum = "
+                  << converter->StreamerChecksum() );
 
    if( adopt ) {
       return AdoptStreamerForClass( classname );
@@ -185,18 +179,17 @@ StatusCode AthenaRootStreamerSvc::AddStreamer(T_AthenaRootConverterBase *convert
 
 
 StatusCode AthenaRootStreamerSvc::AdoptStreamerForClass(const std::string& class_name) {
-   MsgStream log(msgSvc(), name());
    if (m_streamerMap.find(class_name) == m_streamerMap.end()) {
-      log << MSG::ERROR << "Attemt to adopt streamer for "
-	      << class_name
-	      << " with has no converters defined" << endreq;
+      ATH_MSG_ERROR ( "Attemt to adopt streamer for "
+                      << class_name
+                      << " with has no converters defined" );
       return(StatusCode::FAILURE);
    }
    if (m_streamerMap[class_name]->Adopt().isSuccess()) {
-      log << MSG::INFO << "Adopted streamer for class " << class_name << endreq;
-      return(StatusCode::SUCCESS);
+     ATH_MSG_INFO ( "Adopted streamer for class " << class_name );
+     return(StatusCode::SUCCESS);
    }
-   log << MSG::ERROR << "Failed to adopt streamer for " << class_name << endreq;
+   ATH_MSG_ERROR ( "Failed to adopt streamer for " << class_name );
    return(StatusCode::FAILURE);
 }
 
@@ -204,12 +197,11 @@ StatusCode AthenaRootStreamerSvc::AdoptStreamerForClass(const std::string& class
 
 StatusCode AthenaRootStreamerSvc::AdoptAllStreamers()
 {
-   MsgStream log(msgSvc(), name());
    StatusCode	sc = StatusCode::SUCCESS;
    for(StreamerMap::iterator i = m_streamerMap.begin();
        i != m_streamerMap.end();  i++ ) {
       if( i->second->Adopt().isFailure() ) {
-	 log << MSG::INFO << "Failed to adopt streamer for class " << i->first << endreq;
+         ATH_MSG_INFO ( "Failed to adopt streamer for class " << i->first );
 	 sc = StatusCode::FAILURE;
       }
    }

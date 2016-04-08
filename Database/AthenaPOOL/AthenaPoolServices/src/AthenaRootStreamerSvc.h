@@ -13,7 +13,7 @@
 
 #include "AthenaPoolServices/IAthenaRootStreamerSvc.h"
 
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "DataModelRoot/RootType.h"
 
 #include <map>
@@ -30,7 +30,7 @@ namespace pool {
 }
 
 class AthenaRootStreamerSvc :  public virtual IAthenaRootStreamerSvc,
-                               public virtual Service
+                               public AthService
 {
 public: 
    /// Standard Service Constructor

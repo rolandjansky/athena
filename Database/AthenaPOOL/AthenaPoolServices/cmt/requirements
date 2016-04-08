@@ -8,6 +8,7 @@ use GaudiInterface        GaudiInterface-*         External
 private
 use AtlasPOOL             AtlasPOOL-*              External
 use DataModelRoot         DataModelRoot-*          Control
+use AthenaBaseComps       AthenaBaseComps-*        Control
 use AtlasROOT             AtlasROOT-*              External
 
 apply_pattern declare_joboptions files="*.py"
