@@ -63,6 +63,13 @@ void FWD_CONFIGURATION::clear()
     vp1Compatibility = false;
     buildTCL4 = false;
     buildTCL6 = false;
+    ALFAInNewPosition = false;
+    newPosB7L1 = 245656.77*CLHEP::mm;
+    newPosB7R1 = -245656.11*CLHEP::mm;
+    posAFPL1 = 204500*CLHEP::mm;
+    posAFPL2 = 212675*CLHEP::mm;
+    posAFPR1 = -204500*CLHEP::mm;
+    posAFPL2 = -212675*CLHEP::mm;
 }
 
 
@@ -109,6 +116,16 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
     GeoMaterial *vacuum = materialManager->getMaterial(matName);
     m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,vacuum));
 
+    // water
+    matName = "water";
+    GeoMaterial *water = new GeoMaterial("H20", 1.0*CLHEP::gram/CLHEP::cm3);
+    GeoElement *hydrogen = new GeoElement("Hydrogen","H",1.0, 1.010);
+    GeoElement *oxygen   = new GeoElement("Oxygen",  "O", 8.0, 16.0);
+    water->add(hydrogen,0.11);
+    water->add(oxygen,0.89);
+    water->lock();
+    m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,water));
+
     // elements
     const GeoElement* C  = materialManager->getElement("Carbon");
     const GeoElement* N  = materialManager->getElement("Nitrogen");
@@ -133,6 +150,14 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
     copper->add(const_cast<GeoElement*> (Cu),1.0);
     copper->lock();
     m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,copper));
+
+    // Tungsten for TCL6
+    matName = "Tungsten";
+    const GeoElement* W = materialManager->getElement("Wolfram");
+    GeoMaterial *tungsten = new GeoMaterial("Tungsten", 19.25*CLHEP::g/CLHEP::cm3);
+    tungsten->add(const_cast<GeoElement*> (W),1.0);
+    tungsten->lock();
+    m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,tungsten));
 
     // GlidCop AL15 copper -- aproximate composition (trace impurities (< 0.01 wt. %) not included)
     // source: http://www-ferp.ucsd.edu/LIB/PROPS/compcu15.html
@@ -225,7 +250,7 @@ void ForwardRegionGeoModelFactory::constructElements(GeoPhysVol *fwrPhys,std::ve
         // get start and end points defined in JO
         HepGeom::Point3D<double> pointMagStart;
         HepGeom::Point3D<double> pointMagEnd;
-        m_properties->getMagTransforms(loadedDataFile[i][name],beam,pointMagStart,pointMagEnd);
+        if(m_properties.retrieve().isSuccess()) m_properties->getMagTransforms(loadedDataFile[i][name],beam,pointMagStart,pointMagEnd);
 
         // are points defined (non-zero)? If not, shifts will not apply
         bool pointsDefined = !(pointMagStart.distance2() == 0 || pointMagEnd.distance2() == 0);
@@ -315,7 +340,7 @@ void ForwardRegionGeoModelFactory::constructElements(GeoPhysVol *fwrPhys,std::ve
             else if(m_Config.buildTCL4 && loadedDataFile[i][name] == "VCDSS.4R1.B") // TCL4 collimator
                 insertTCLElement(loadedDataFile[i][name], x, y, z, fwrPhys, (beam == 1 ? m_Config.TCL4JawDistB1O : m_Config.TCL4JawDistB2O), (beam == 1 ? m_Config.TCL4JawDistB1I : m_Config.TCL4JawDistB2I));
             else if(m_Config.buildTCL6 && loadedDataFile[i][name] == "TCL6") // TCL6 collimator
-                insertTCLElement(loadedDataFile[i][name], x, y, z, fwrPhys, (beam == 1 ? m_Config.TCL6JawDistB1O : m_Config.TCL6JawDistB2O), (beam == 1 ? m_Config.TCL6JawDistB1I : m_Config.TCL6JawDistB2I));
+                insertTCLElement(loadedDataFile[i][name], x, y, z, fwrPhys, (beam == 1 ? m_Config.TCL6JawDistB1O : m_Config.TCL6JawDistB2O), (beam == 1 ? m_Config.TCL6JawDistB1I : m_Config.TCL6JawDistB2I), true);
 
             // aproximate rest by circular apperture
             else
@@ -391,19 +416,19 @@ void ForwardRegionGeoModelFactory::create(GeoPhysVol *world)
 
   // cut out slots for ALFA
   const GeoTube     *alfa    = new GeoTube(0, 2*CLHEP::m, 500*CLHEP::mm);
-  HepGeom::Transform3D shiftAlfaL1 = HepGeom::Translate3D(0,0,237398*CLHEP::mm);
-  HepGeom::Transform3D shiftAlfaR1 = HepGeom::Translate3D(0,0,-237418*CLHEP::mm);
-  HepGeom::Transform3D shiftAlfaL2 = HepGeom::Translate3D(0,0,241538*CLHEP::mm);
-  HepGeom::Transform3D shiftAlfaR2 = HepGeom::Translate3D(0,0,-241558*CLHEP::mm);
+  HepGeom::Transform3D shiftAlfaL1 = HepGeom::Translate3D(0,0,237388*CLHEP::mm);
+  HepGeom::Transform3D shiftAlfaR1 = HepGeom::Translate3D(0,0,-237408*CLHEP::mm);
+  HepGeom::Transform3D shiftAlfaL2 = HepGeom::Translate3D(0,0,(m_Config.ALFAInNewPosition ? m_Config.newPosB7L1 : 241528*CLHEP::mm));
+  HepGeom::Transform3D shiftAlfaR2 = HepGeom::Translate3D(0,0,(m_Config.ALFAInNewPosition ? m_Config.newPosB7R1 :-241548*CLHEP::mm));
   const GeoShapeSubtraction& fwrTube2 = fwrTube1.subtract((*alfa)<<shiftAlfaL1).subtract((*alfa)<<shiftAlfaL2).subtract((*alfa)<<shiftAlfaR1).subtract((*alfa)<<shiftAlfaR2);
 
   // cut out slots for AFP
   const GeoTube     *afp    = new GeoTube(0, 2.5*CLHEP::m, 280*CLHEP::mm);
   const GeoTube     *afp2    = new GeoTube(0, 2.5*CLHEP::m, 580*CLHEP::mm);
-  HepGeom::Transform3D shiftAfpL1 = HepGeom::Translate3D(0,0,204500*CLHEP::mm);
-  HepGeom::Transform3D shiftAfpR1 = HepGeom::Translate3D(0,0,-204500*CLHEP::mm);
-  HepGeom::Transform3D shiftAfpL2 = HepGeom::Translate3D(0,0,212675*CLHEP::mm);
-  HepGeom::Transform3D shiftAfpR2 = HepGeom::Translate3D(0,0,-212675*CLHEP::mm);
+  HepGeom::Transform3D shiftAfpL1 = HepGeom::Translate3D(0,0,m_Config.posAFPL1);
+  HepGeom::Transform3D shiftAfpR1 = HepGeom::Translate3D(0,0,m_Config.posAFPR1);
+  HepGeom::Transform3D shiftAfpL2 = HepGeom::Translate3D(0,0,m_Config.posAFPL2);
+  HepGeom::Transform3D shiftAfpR2 = HepGeom::Translate3D(0,0,m_Config.posAFPR2);
   const GeoShapeSubtraction& fwrTube = fwrTube2.subtract((*afp)<<shiftAfpL1).subtract((*afp)<<shiftAfpR1).subtract((*afp2)<<shiftAfpL2).subtract((*afp2)<<shiftAfpR2);
 
 
