@@ -1,9 +1,10 @@
-// $Id: xAODTriggerCnv_entries.cxx 651874 2015-03-05 14:16:19Z krasznaa $
+// $Id: xAODTriggerCnv_entries.cxx 683356 2015-07-16 09:20:14Z will $
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 // Local include(s):
+#ifndef XAOD_ANALYSIS
 #include "../MuonRoICnvTool.h"
 #include "../MuonRoICnvAlg.h"
 #include "../JetRoICnvTool.h"
@@ -22,9 +23,11 @@
 
 #include "../TrigNavigationCnvTool.h"
 #include "../TrigNavigationCnvAlg.h"
+#endif
 
-#include "../TriggerMenuMetaDataTool.h"
+#include "xAODTriggerCnv/TriggerMenuMetaDataTool.h"
 
+#ifndef XAOD_ANALYSIS
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, MuonRoICnvTool )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, MuonRoICnvAlg )
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, JetRoICnvTool )
@@ -43,11 +46,12 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, BunchConfCnvAlg )
 
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigNavigationCnvTool )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigNavigationCnvAlg )
+#endif
 
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TriggerMenuMetaDataTool )
 
 DECLARE_FACTORY_ENTRIES( xAODAnalysisTriggerCnv ) {
-
+#ifndef XAOD_ANALYSIS
    DECLARE_NAMESPACE_TOOL( xAODMaker, MuonRoICnvTool )
    DECLARE_NAMESPACE_ALGORITHM( xAODMaker, MuonRoICnvAlg )
    DECLARE_NAMESPACE_TOOL( xAODMaker, JetRoICnvTool )
@@ -66,7 +70,7 @@ DECLARE_FACTORY_ENTRIES( xAODAnalysisTriggerCnv ) {
 
    DECLARE_NAMESPACE_TOOL( xAODMaker, TrigNavigationCnvTool )
    DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigNavigationCnvAlg )
-
+#endif
    DECLARE_NAMESPACE_TOOL( xAODMaker, TriggerMenuMetaDataTool )
 
 }

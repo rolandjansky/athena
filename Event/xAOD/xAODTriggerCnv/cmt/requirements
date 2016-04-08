@@ -1,5 +1,5 @@
 package xAODTriggerCnv
-# $Id: requirements 689392 2015-08-14 12:14:19Z stelzer $
+# $Id: requirements 688265 2015-08-08 16:31:45Z stelzer $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -11,6 +11,8 @@ use GaudiInterface         GaudiInterface-*         External
 
 # EDM package(s):
 use xAODTrigger            xAODTrigger-*            Event/xAOD
+
+use AsgTools AsgTools-* Control/AthToolSupport
 
 private
 
@@ -38,7 +40,10 @@ use TrigAnalysisInterfaces TrigAnalysisInterfaces-* Trigger/TrigAnalysis
 end_private
 
 # Declare the library:
-library xAODTriggerCnv *.cxx components/*.cxx
+
+macro what_to_compile "*.cxx ../Root/*.cxx components/*.cxx" AthAnalysisBase "../Root/*.cxx components/*.cxx"
+
+library xAODTriggerCnv $(what_to_compile)
 apply_pattern component_library
 
 # Install the additional files:
