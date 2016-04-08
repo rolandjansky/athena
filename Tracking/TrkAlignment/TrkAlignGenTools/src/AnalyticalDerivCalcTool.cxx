@@ -734,12 +734,33 @@ namespace Trk {
       projR[AlignModule::BowY]  = 0;    
       projR[AlignModule::BowZ]  = 0;
 
+      /** for L16 in local stave frame 
       //Bowing Parameterised by a 2nd order polynomial   
       const double localy = refPos.y();
       // stave length in the IBL -- we will see if there a more generic way of doing this
       const double  y0y0  = 366.5*366.5;
       //  refPos.y() should be the y position along in the AlignModule Frame
-      projR[AlignModule::BowX] = Rxx * ( localy*localy - y0y0 ) / y0y0;
+      //      projR[AlignModule::BowX] = Rxx * ( localy*localy - y0y0 ) / y0y0;
+      projR[AlignModule::BowX] = -Rxx * ( localy*localy ) / y0y0;   // change the bowing base
+      **/
+      
+      /** for L11 in global frame
+      //Bowing Parameterised by a 2nd order polynomial                                                                         
+      const double localz = refPos.z();                                                                                         
+      // stave length in the IBL -- we will see if there a more generic way of doing this                             
+      const double  z0z0  = 366.5*366.5;                                                                       
+      //  refPos.z() should be the z position along in the AlignModule Frame
+      projR[AlignModule::BowX] = -projR[AlignModule::RotZ] / refPos.perp() * ( localz*localz - z0z0 ) / z0z0;
+      **/
+
+
+      /** try a generic formula:  **/
+      const double localz = alignTSOS->trackParameters()->position().z(); // - globalToAlignFrameTranslation().z();  // the last term to be doublechecked!
+      // stave length in the IBL -- we will see if there is a more generic way of doing this
+      const double  z0z0  = 366.5*366.5;
+
+      projR[AlignModule::BowX] = ( localz*localz - z0z0) / z0z0;    // this formula should work for both L11 ans L16, sign to be checked!
+
 
       // prepare derivatives w.r.t. the vertex position:
       Amg::Vector3D RxLoc(Rxx, Ryx, Rzx);
