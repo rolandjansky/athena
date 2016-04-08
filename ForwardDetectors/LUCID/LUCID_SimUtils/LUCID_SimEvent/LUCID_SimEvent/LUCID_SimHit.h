@@ -22,8 +22,8 @@ class LUCID_SimHit  {
   LUCID_SimHit();
   LUCID_SimHit(const LUCID_SimHit&);
   LUCID_SimHit(short tubeID, 
-	       int   track,
 	       int   pdgCode,
+	       int   track,
 	       int   genVolume,
 	       float stepStartPosX,
 	       float stepStartPosY,
