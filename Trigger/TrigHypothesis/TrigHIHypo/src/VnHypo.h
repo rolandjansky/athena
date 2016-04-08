@@ -27,11 +27,12 @@ private:
   float m_qn_passing;
   int   m_icent;
   int   m_icent_passing;
-
+  std::vector<int > m_decision;
   //Configuration
   //  int m_ThresholdVnBin;
   int m_FlowHarmonic;
   
-  double m_q0xShift; // shifts
-  double m_q0yShift;
+  //double m_q0xShift; // shifts
+  //double m_q0yShift;
+  bool m_upperLimit;
 };
