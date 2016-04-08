@@ -753,17 +753,6 @@ AtlasDetectorID::show_to_string (Identifier id,
 
     if (is_indet(id)) {
         dict = m_indet_dict;
-#ifndef __IDENTIFIER_64BIT__
-        if(compact.extract(0, MAX_BIT) == MAX_BIT) {
-            Identifier::value_type comp = compact.get_compact();
-            comp = comp - 1;
-            comp = (comp << 1) & ALL_BITS;
-            compact = comp;
-            prefix << m_INDET_ID;
-            prefix << m_PIXEL_ID;
-            result  = "InnerDetector.Pixel";
-        }
-#endif /* __IDENTIFIER_64BIT__ */
     }
     else if (is_lar(id)) {
         dict = m_lar_dict;
@@ -850,17 +839,6 @@ AtlasDetectorID::print_to_string        (Identifier id,
 
         if (is_indet(id)) {
             dict = m_indet_dict;
-#ifndef __IDENTIFIER_64BIT__
-            if(compact.extract(0, MAX_BIT) == MAX_BIT) {
-                Identifier::value_type comp = compact.get_compact();
-                comp = comp - 1;
-                comp = (comp << 1) & ALL_BITS;
-                compact = comp;
-                prefix << m_INDET_ID;
-                prefix << m_PIXEL_ID;
-                result = "InnerDetector.Pixel";
-            }
-#endif /* __IDENTIFIER_64BIT__ */
         }
         else if (is_lar(id)) {
             dict = m_lar_dict;

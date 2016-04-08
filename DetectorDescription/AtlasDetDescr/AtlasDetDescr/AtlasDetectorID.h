@@ -606,20 +606,7 @@ AtlasDetectorID::zdc_field_value          () const {return (m_ZDC_ID);}
 inline bool               
 AtlasDetectorID::is_indet       (Identifier id) const
 {
-#ifdef __IDENTIFIER_64BIT__
     return (m_det_impl.unpack(id) == m_INDET_ID);
-#else /* __IDENTIFIER_64BIT__ */
-    bool result = false;
-    // Special case: pixel id has max bit set, if so remove extra high bit
-    if(id.extract(0, MAX_BIT) == MAX_BIT && id.extract(0, PIXEL_MASK) > 0) {
-        result = true;
-    }
-    else {
-        // Not a pixel id, may be a pixel wafer id or sct/trt
-        result = (m_det_impl.unpack(id) == m_INDET_ID);
-    }
-    return result;
-#endif /* __IDENTIFIER_64BIT__ */
 }
 
 inline bool               
@@ -697,20 +684,9 @@ inline bool
 AtlasDetectorID::is_pixel       (Identifier id) const
 {
     bool result = false;
-#ifndef __IDENTIFIER_64BIT__
-    // Special case: pixel id has max bit set, if so remove extra high bit
-    if(id.extract(0, MAX_BIT) == MAX_BIT && id.extract(0, PIXEL_MASK) > 0) {
-        result = true;
+    if(is_indet(id)) {
+        result = (m_indet_part_impl.unpack(id) == m_PIXEL_ID);
     }
-    else {
-	// Not a pixel id, may be a pixel wafer id
-#endif
-	if(is_indet(id)) {
-	    result = (m_indet_part_impl.unpack(id) == m_PIXEL_ID);
-	}
-#ifndef __IDENTIFIER_64BIT__
-    }
-#endif
     return result;
 }
 
