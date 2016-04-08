@@ -18,7 +18,6 @@
 #include "TError.h"
 #include "TFunction.h"
 #include "TInterpreter.h"
-#include "TApplication.h"
 #include "TMethod.h"
 #include "TMethodArg.h"
 #include "TROOT.h"
@@ -48,22 +47,6 @@ static inline const std::string UnqualifiedTypeName( const std::string name )
 {
     return TClassEdit::ShortType(
          TClassEdit::CleanType( name.c_str(), 1 ).c_str(), 5 );
-}
-
-namespace {
-// MN:  Without creating TApplication ROOT autoloading does not work
-   static const char* argv[] = { "RootType", "-b" };
-   static int initialized(false);
-   // use initialized to prevent recursive entry from TApplication Xtor
-   inline void InitROOT()   
-   {
-      if( !initialized && !gApplication ) {
-         int argc = 2;
-         static  TApplication dummy(argv[0], &argc, (char**)argv);
-         gApplication = &dummy;
-      }
-      //gDebug=1;
-   }
 }
 
 
@@ -501,10 +484,8 @@ TScopeAdapter::TScopeAdapter( const std::string& name, Bool_t load, Bool_t quiet
 {
    // Bool_t load = kTRUE; Bool_t quiet = kFALSE;  // MN: move to parameters later
    const string anonnmsp("(anonymous)");
-   InitROOT();
 
    // cout << "INFO: RootType::RootType() creating for type=" << name << endl;
-
    Int_t oldEIL = gErrorIgnoreLevel;
    if( quiet )  gErrorIgnoreLevel = 3000;
 
@@ -547,7 +528,6 @@ TScopeAdapter::TScopeAdapter( const std::string& name, Bool_t load, Bool_t quiet
 //____________________________________________________________________________
 TScopeAdapter::TScopeAdapter( const std::type_info &typeinfo )      
 {
-   InitROOT();
    fClass = TClassRef( TClass::GetClass(typeinfo) );   // MN: is that right?
    if( fClass.GetClass() ) {
       fName = fClass->GetName();

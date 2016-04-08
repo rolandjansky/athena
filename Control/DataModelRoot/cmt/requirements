@@ -4,7 +4,7 @@ author Marcin Nowak
 
 use AtlasPolicy           AtlasPolicy-*
 use AtlasROOT             AtlasROOT-*           External
-use AtlasReflex           AtlasReflex-*         External -no_auto_import
+use AtlasReflex           AtlasReflex-*         External -no_auto_imports
 
 # Add cmake compatibility (doesn't do anything on CMT side of things)
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Cintex)"
