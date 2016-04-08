@@ -12,7 +12,9 @@ library TrigTopoEventTPCnv *.cxx
 apply_pattern tpcnv_library
 
 private
-use AtlasReflex		 AtlasReflex-*		    External
+use AtlasReflex		 AtlasReflex-*		External
+use AtlasCLHEP           AtlasCLHEP-*           External
+use GaudiInterface       GaudiInterface-*       External
 use AthenaKernel         AthenaKernel-*         Control
 
 # Create a dictionary for the persistent representation 
@@ -24,3 +26,8 @@ apply_pattern lcgdict dict=TrigTopoEventTPCnv \
   headerfiles="../TrigTopoEventTPCnv/TrigTopoEventTPCnvDict.h"
 
 end_private
+
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=ElectronMuonTopoInfoCnv_p1
