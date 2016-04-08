@@ -4,7 +4,7 @@
 
 #include "AmdcCore/AmdcsimrecAccess.h"
  
-Amdcsimrec* AmdcsimrecAccess::p_Amdcsimrec = 0;
+Amdcsimrec* AmdcsimrecAccess::s_Amdcsimrec = 0;
 
 AmdcsimrecAccess::AmdcsimrecAccess(){}
 AmdcsimrecAccess::~AmdcsimrecAccess(){}
@@ -12,12 +12,12 @@ AmdcsimrecAccess::~AmdcsimrecAccess(){}
 // Get
 Amdcsimrec* AmdcsimrecAccess::GetAmdcsimrec(){
 
-//  if (!p_Amdcsimrec){
+//  if (!s_Amdcsimrec){
 //   std::cout << " AmdcsimrecAccess::GetAmdcsimrec "
 //             << " can not access Amdcsimrec "
 //	     << std::endl;
 //  }
-  return p_Amdcsimrec;
+  return s_Amdcsimrec;
 
 }
  
@@ -25,10 +25,10 @@ Amdcsimrec* AmdcsimrecAccess::GetAmdcsimrec(){
 void AmdcsimrecAccess::SetAmdcsimrec(Amdcsimrec* pAmdcsimrec){
 
 //std::cout << " AmdcsimrecAccess::SetAmdcsimrec " << std::endl;
-  p_Amdcsimrec = pAmdcsimrec;
+  s_Amdcsimrec = pAmdcsimrec;
 
 }
  
 // Reset
-void AmdcsimrecAccess::ResetAmdcsimrec(){p_Amdcsimrec = 0;}
+void AmdcsimrecAccess::ResetAmdcsimrec(){s_Amdcsimrec = 0;}
  

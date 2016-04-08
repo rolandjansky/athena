@@ -8,56 +8,56 @@ AmdcAlineStore::AmdcAlineStore(){ m_Active = 0 ; }
 AmdcAlineStore::~AmdcAlineStore(){}
 
 // Reset the Store
-void AmdcAlineStore::Reset(){AmdcAlineSet.clear();}
+void AmdcAlineStore::Reset(){m_AmdcAlineSet.clear();}
  
 // Print Out the Store
 void AmdcAlineStore::PrintSummary() const
 {
 
- std::cout << " AmdcAlineStore size is " << AmdcAlineSet.size() << std::endl;
+ std::cout << " AmdcAlineStore size is " << m_AmdcAlineSet.size() << std::endl;
 
 }
 void AmdcAlineStore::Print(std::ostream* out) const
 {
 
-  int TheSize = AmdcAlineSet.size();
+  int TheSize = m_AmdcAlineSet.size();
   if ( TheSize==0 ){
    *out << " AmdcAlineStore is empty " << std::endl;
   }
   for (int Index= 0 ; Index <TheSize ; Index++){
-   AmdcAlineSet[Index].Print(out);
+   m_AmdcAlineSet[Index].Print(out);
   }   
   
 }
 void AmdcAlineStore::Print() const
 {
 
-  int TheSize = AmdcAlineSet.size();
+  int TheSize = m_AmdcAlineSet.size();
   if ( TheSize==0 ){
    std::cout << " AmdcAlineStore is empty " << std::endl;
   }
   for (int Index= 0 ; Index <TheSize ; Index++){
-   AmdcAlineSet[Index].Print();
+   m_AmdcAlineSet[Index].Print();
   }   
   
 }
 
 // Add a AmdcAline
-void AmdcAlineStore::Add(AmdcAline ToBeAdded){AmdcAlineSet.push_back(ToBeAdded);}
+void AmdcAlineStore::Add(AmdcAline ToBeAdded){m_AmdcAlineSet.push_back(ToBeAdded);}
  
 // Nber of AmdcAline
-int AmdcAlineStore::NberOfObjects() const{return AmdcAlineSet.size();}
+int AmdcAlineStore::NberOfObjects() const{return m_AmdcAlineSet.size();}
  
 // Get a Pointer on a AmdcAline of Nber AmdcAlineNber
 const AmdcAline* AmdcAlineStore::GetAmdcAline(int AmdcAlineNber) const{
  const AmdcAline* ToBeReturned = 0 ;
  if (AmdcAlineNber < 0 || AmdcAlineNber > NberOfObjects()) return ToBeReturned;
- return &AmdcAlineSet[AmdcAlineNber];
+ return &m_AmdcAlineSet[AmdcAlineNber];
 }
 AmdcAline* AmdcAlineStore::GetAmdcAlineForUpdate(int AmdcAlineNber){
  AmdcAline* ToBeReturned = 0 ;
  if (AmdcAlineNber < 0 || AmdcAlineNber > NberOfObjects()) return ToBeReturned;
- return &AmdcAlineSet[AmdcAlineNber];
+ return &m_AmdcAlineSet[AmdcAlineNber];
 }
 
 void AmdcAlineStore::SetActive(int Active_i){m_Active = Active_i;}
@@ -66,27 +66,27 @@ int  AmdcAlineStore::GetActive(){return m_Active;}
 // Sort the Store
 void AmdcAlineStore::Sort(){
 
-  int TheSize = AmdcAlineSet.size();
+  int TheSize = m_AmdcAlineSet.size();
   if ( TheSize == 0 ) return ;
   
   std::vector<AmdcAline>  AmdcAlineSetTEMP ;
   AmdcAlineSetTEMP.clear();
   
   
-  int jtyp_Max = AmdcAlineSet[1].Getjtyp() ;
-  int jtyp_Min = AmdcAlineSet[1].Getjtyp() ;
-  int jff_Max  = AmdcAlineSet[1].Getjff()  ;
-  int jff_Min  = AmdcAlineSet[1].Getjff()  ;
-  int jzz_Max  = AmdcAlineSet[1].Getjzz()  ;
-  int jzz_Min  = AmdcAlineSet[1].Getjzz()  ;
-  int job_Max  = AmdcAlineSet[1].Getjob()  ;
-  int job_Min  = AmdcAlineSet[1].Getjob()  ;
+  int jtyp_Max = m_AmdcAlineSet[1].Getjtyp() ;
+  int jtyp_Min = m_AmdcAlineSet[1].Getjtyp() ;
+  int jff_Max  = m_AmdcAlineSet[1].Getjff()  ;
+  int jff_Min  = m_AmdcAlineSet[1].Getjff()  ;
+  int jzz_Max  = m_AmdcAlineSet[1].Getjzz()  ;
+  int jzz_Min  = m_AmdcAlineSet[1].Getjzz()  ;
+  int job_Max  = m_AmdcAlineSet[1].Getjob()  ;
+  int job_Min  = m_AmdcAlineSet[1].Getjob()  ;
 
   for (int Index= 0 ; Index <TheSize ; Index++){
-    int jtyp = AmdcAlineSet[Index].Getjtyp() ;
-    int jff  = AmdcAlineSet[Index].Getjff()  ;
-    int jzz  = AmdcAlineSet[Index].Getjzz()  ;
-    int job  = AmdcAlineSet[Index].Getjob()  ;
+    int jtyp = m_AmdcAlineSet[Index].Getjtyp() ;
+    int jff  = m_AmdcAlineSet[Index].Getjff()  ;
+    int jzz  = m_AmdcAlineSet[Index].Getjzz()  ;
+    int job  = m_AmdcAlineSet[Index].Getjob()  ;
     if ( jtyp > jtyp_Max ) jtyp_Max = jtyp ;
     if ( jtyp < jtyp_Min ) jtyp_Min = jtyp ;
     if ( jff  > jff_Max  ) jff_Max  = jff  ;
@@ -102,23 +102,23 @@ void AmdcAlineStore::Sort(){
   for (int JZZ  = jzz_Min  ; JZZ  <= jzz_Max  ; JZZ++  ){
   for (int JOB  = job_Min  ; JOB  <= job_Max  ; JOB++  ){
     int Index  =getData(JTYP,JFF,JZZ,JOB) ;
-    if ( Index != -1 ) AmdcAlineSetTEMP.push_back(AmdcAlineSet[Index]) ;
+    if ( Index != -1 ) AmdcAlineSetTEMP.push_back(m_AmdcAlineSet[Index]) ;
   }
   }   
   }   
   }
   
   
-  if (AmdcAlineSet.size() !=  AmdcAlineSetTEMP.size()){
+  if (m_AmdcAlineSet.size() !=  AmdcAlineSetTEMP.size()){
     std::cout << " AmdcAlineStore::Sort "
-              << " Probleme AmdcAlineSet.size() !=  AmdcAlineSetTEMP.size() "
+              << " Probleme m_AmdcAlineSet.size() !=  AmdcAlineSetTEMP.size() "
               << std::endl ;
   }
   
-  AmdcAlineSet.clear();
+  m_AmdcAlineSet.clear();
   TheSize = AmdcAlineSetTEMP.size();
   for (int Index= 0 ; Index <TheSize ; Index++){
-    AmdcAlineSet.push_back(AmdcAlineSetTEMP[Index]) ;
+    m_AmdcAlineSet.push_back(AmdcAlineSetTEMP[Index]) ;
   }
      
 }
@@ -126,12 +126,12 @@ void AmdcAlineStore::Sort(){
 int AmdcAlineStore::getData(int JTYP,int JFF,int JZZ,int JOB){
   int ToBeReturned = -1;
   
-  int TheSize = AmdcAlineSet.size();
+  int TheSize = m_AmdcAlineSet.size();
   for (int Index= 0 ; Index <TheSize ; Index++){
-    if (AmdcAlineSet[Index].Getjtyp() == JTYP){
-    if (AmdcAlineSet[Index].Getjff()  == JFF ){
-    if (AmdcAlineSet[Index].Getjzz()  == JZZ ){
-    if (AmdcAlineSet[Index].Getjob()  == JOB ){
+    if (m_AmdcAlineSet[Index].Getjtyp() == JTYP){
+    if (m_AmdcAlineSet[Index].Getjff()  == JFF ){
+    if (m_AmdcAlineSet[Index].Getjzz()  == JZZ ){
+    if (m_AmdcAlineSet[Index].Getjob()  == JOB ){
       ToBeReturned = Index ;
       break ;
     }
