@@ -18,6 +18,8 @@
 
 namespace Trk
 {
+  class VxCandidate;
+
   static const InterfaceID IID_IVertexWeightCalculator("IVertexWeightCalculator", 1, 0);
 
   /**
@@ -26,13 +28,6 @@ namespace Trk
 
    For more detailed information, take a look at the header file of the actual
    implementation files.
-
-   ---------------------------------------------------
-   Changes:
-
-   David Shope <david.richard.shope@cern.ch> (2016-06-01)
-
-     EDM Migration to xAOD - remove method using VxCandidate
 
   */
 
@@ -44,6 +39,9 @@ namespace Trk
 
        /** AlgTool interface methods */
        static const InterfaceID& interfaceID() { return IID_IVertexWeightCalculator; };
+
+       /** Interface for Track with starting point */
+       virtual double estimateSignalCompatibility(const VxCandidate& vertex) = 0;
 
        /** Interface for @c xAOD::Vertex */
        virtual double estimateSignalCompatibility(const xAOD::Vertex& vertex) = 0;

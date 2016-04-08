@@ -19,6 +19,8 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 
+class VxContainer;
+
 namespace Trk
 {
 
@@ -30,13 +32,6 @@ namespace Trk
 
    For more detailed information, take a look at the header file of the actual
    implementation files.
-
-   -----------------------------------------
-   Changes:
-
-   David Shope <david.richard.shope@cern.ch> (2016-04-26)
-
-     EDM Migration to xAOD - remove method using VxCandidate
 
   */
 
@@ -50,6 +45,9 @@ namespace Trk
        /** AlgTool interface methods */
        static const InterfaceID& interfaceID() { return IID_IVertexCollectionSortingTool; };
 
+
+       /** Interface for Track with starting point */
+       virtual VxContainer* sortVxContainer(const VxContainer& MyVxCont) = 0;
 
        /** Interface for xAOD::VertexContainer.
 	* A new container and auxiliary store is returned.

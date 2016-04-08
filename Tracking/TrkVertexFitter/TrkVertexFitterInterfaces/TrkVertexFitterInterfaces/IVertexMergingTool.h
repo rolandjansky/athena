@@ -18,6 +18,8 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 
+class VxContainer;
+
 namespace Trk
 {
 
@@ -30,13 +32,6 @@ namespace Trk
    For more detailed information, take a look at the header file of the actual
    implementation files.
 
-   -----------------------------------------
-   Changes:
-
-   David Shope <david.richard.shope@cern.ch> (2016-04-26)
-
-     EDM Migration to xAOD - remove method using VxCandidate
-
   */
 
   class IVertexMergingTool : virtual public IAlgTool {
@@ -47,6 +42,9 @@ namespace Trk
 
     /** AlgTool interface methods */
     static const InterfaceID& interfaceID() { return IID_IVertexMergingTool; };
+
+    /** Interface for VxContainer */
+    virtual VxContainer* mergeVxContainer(const VxContainer& MyVxCont) = 0;
 
     /** Interface for xAOD vertices **/
     virtual std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) = 0;
