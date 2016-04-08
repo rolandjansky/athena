@@ -72,6 +72,7 @@ class CaloClusterROI_Selector : public AthAlgorithm
   //
   // All booleans
   //
+  bool                              m_CheckEMsamples;
   bool                              m_CheckHadronicEnergy;
   bool                              m_CheckReta;
   //

@@ -82,6 +82,7 @@ InDet::CaloClusterROI_Selector::CaloClusterROI_Selector(const std::string& name,
   //
   // Other properties.
   //
+  declareProperty("CheckEMSamples",                         m_CheckEMsamples =true);
   declareProperty("CheckHadronicEnergy",                    m_CheckHadronicEnergy=true);
   declareProperty("CheckReta",                              m_CheckReta=true);
   //
@@ -198,13 +199,13 @@ StatusCode InDet::CaloClusterROI_Selector::execute()
   if(  evtStore()->contains<xAOD::CaloClusterContainer>(m_inputClusterContainerName)) {  
     sc = evtStore()->retrieve(inputClusterContainer,  m_inputClusterContainerName);
     if( sc.isFailure() ) {
-      ATH_MSG_ERROR("Input EM Cluster not retrived but found " << m_inputClusterContainerName);
+      ATH_MSG_ERROR("Input Cluster not retrived but found " << m_inputClusterContainerName);
       ATH_MSG_DEBUG("Locking ROI container  and returning");
       evtStore()->setConst(ccROI_Collection).ignore();
       return StatusCode::SUCCESS;
     }
   } else { 
-    ATH_MSG_INFO("No input EM Cluster container found " << m_inputClusterContainerName);
+    ATH_MSG_INFO("No input Cluster container found " << m_inputClusterContainerName);
     ATH_MSG_DEBUG("Locking ROI container  and returning");
     evtStore()->setConst(ccROI_Collection).ignore();
     return StatusCode::SUCCESS;
@@ -264,7 +265,7 @@ StatusCode InDet::CaloClusterROI_Selector::execute()
 bool InDet::CaloClusterROI_Selector::PassClusterSelection(const xAOD::CaloCluster* cluster ,  const CaloCellContainer* cellcoll)
 {
  
-  if( !m_egammaCheckEnergyDepositTool->checkFractioninSamplingCluster(cluster ) ) {
+  if( m_CheckEMsamples && !m_egammaCheckEnergyDepositTool->checkFractioninSamplingCluster( cluster ) ) {
     ATH_MSG_DEBUG("Cluster failed sample check: dont make ROI");
     return false;
   }
