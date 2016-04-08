@@ -132,7 +132,7 @@ void TrigEMCluster::setRings(const RingerRingsContainer &ring_con, unsigned int 
 	}
 }
 
-void TrigEMCluster::setRings(ElementLink<RingerRingsContainer>& ringsLink)
+void TrigEMCluster::setRings(const ElementLink<RingerRingsContainer>& ringsLink)
 {
   m_rings = ringsLink;
 }

@@ -27,6 +27,11 @@
 #include "TrigCaloEvent/TrigRNNOutput.h"
 #include "TrigCaloEvent/TrigRNNOutputContainer.h"
 
+// These packages are referenced only by generated sercnv code, which leads
+// to spurious checkreq warnings.  Add references here to get rid of those.
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
+
 
 void dummy_function_for_TrigCaloEvent_which_forces_dictionaries_generation ( /*
 									     DataVector<TrigMissingET> a,
