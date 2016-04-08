@@ -1,0 +1,49 @@
+from Evaluate      import Evaluate, getText
+from xml.dom.ext   import PrettyPrint
+from RTTpath       import RTTpath
+from XMLTools      import xslRef, prependXSLRef
+from makeRTTDOM    import makeRTTDOM
+from PageXMLWriter import PageXMLWriter
+import os.path
+
+class Page4XMLWriter(PageXMLWriter):
+   def __init__(self, tester, logger):
+
+      PageXMLWriter.__init__(self, tester, logger)
+      self.absXSLLoc = os.path.join(self.absXSLDir, 'page4.xsl')
+      self.doms  = {}
+
+   def update(self, package, updatedMinders):
+      self.logger.debug('Page4XMLWriter: start update')
+      rttDocEl = self.tester.summaryDocument.documentElement
+      overviewNode = Evaluate('overview', rttDocEl)[0]
+      minders   = Evaluate('package/minder', rttDocEl)
+      minders   = [m for m in minders if Evaluate('identifiedName/text()', m) in updatedMinders]
+      [self.createPage(overviewNode, minder) for minder in minders]
+      self.logger.debug('Page4XMLWriter: end update')
+
+
+   def createPage(self, overview, minder):
+
+      self.logger.debug('Page4XMLWriter: start createPage')
+      doc   = makeRTTDOM('RTTpage4')
+      docEl = doc.documentElement
+      docEl.appendChild(doc.importNode(overview, True))
+      docEl.appendChild(doc.importNode(minder,   True))
+	      
+      absPageLoc = str(RTTpath(
+         Evaluate('resultsPath/text()', minder),
+         'page4.xml'))
+
+      prependXSLRef(xslRef(self.absXSLLoc, absPageLoc), doc)
+
+      of = open(absPageLoc,'w')
+      PrettyPrint(doc,of)
+      of.close()
+
+
+      doc.unlink()
+      # print '=========page4 loc ========',absPageLoc
+      self.logger.debug('Wrote out page4.xml to %s' % absPageLoc)
+      self.logger.debug('Page4XMLWriter: end createPage')
+ 

@@ -1,0 +1,80 @@
+##Retrieves reference file from RTT database
+
+import anydbm, logging,os
+from dataFiles2String import dataFiles2String
+from os.path import join
+
+logger=logging.getLogger('rtt')
+
+class DBFileRetriever:
+    def __init__(self, jDescriptor):
+        self.jDescriptor = jDescriptor
+
+        
+    def writeRefFile(self, file):
+        "copy file from the data base to the run directory"
+
+        dbHandle    = anydbm.open(self.jDescriptor.paths.refDB, 'c')
+        
+        
+        key = [unicode(self.jDescriptor.refRelease),
+                   unicode(self.jDescriptor.paths.build),
+                   unicode(self.jDescriptor.paths.branch),
+                   unicode(self.jDescriptor.paths.runType),
+                   unicode(self.jDescriptor.name),
+                   dataFiles2String(self.jDescriptor),
+                   unicode(file)]
+            
+
+            
+        refFileName = join(self.jDescriptor.runPath,'refFile_'+file)
+        
+            
+        try:
+            refFile = dbHandle[key.__repr__()]
+            logger.debug("Found reference file in DB")
+            logger.debug("DataBase at: "+self.jDescriptor.paths.refDB)    
+            logger.debug("key = "+key.__repr__())
+            open(refFileName, 'w').write(refFile)
+            
+        except KeyError:
+            logger.warning("NO reference file found in DB")
+            logger.warning("DataBase at: "+self.jDescriptor.paths.refDB)    
+            logger.warning("key = "+key.__repr__())
+            
+        dbHandle.close()
+        
+        return refFileName
+
+
+    def storeFileInDB(self, file):
+        
+        key = [unicode(self.jDescriptor.paths.release),
+                   unicode(self.jDescriptor.paths.build),
+                   unicode(self.jDescriptor.paths.branch),
+                   unicode(self.jDescriptor.paths.runType),
+                   unicode(self.jDescriptor.name),
+                   dataFiles2String(self.jDescriptor),
+                   unicode(file)]
+        try:
+            dbHandle = anydbm.open(self.jDescriptor.paths.refDB, 'c')
+            tFile    = join(self.jDescriptor.runPath,file)
+        
+            rFile    = open(tFile,'r+b').read()
+            rFile    = str(rFile)
+            keyString= key.__repr__()
+            
+            logger.debug("storing file :"+str(file))
+            logger.debug("Key :"+key.__repr__())
+            
+            dbHandle[keyString]=rFile
+            
+            #dbHandle[key.__repr__()]=file
+            #dbHandle.close()
+        except:
+            logger.error('Error in storing file in DB: Key ='+key.__repr__())
+        
+        dbHandle.close()
+
+
+    

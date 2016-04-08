@@ -1,0 +1,248 @@
+Paths - created in Tester and passed to TestRun.__init__
+for all TR subclasses
+
+TestRun/__init__
+self.paths = paths !
+paths.package
+paths.confFile
+paths.resultsDirs['resBase/build/branch/runType/release']
+paths.mode
+paths.build
+paths.release
+self.paths.workDirs['workBase/']
+
+TestRun.makeLog
+self.paths.logDir
+
+TestRun.checkFreeSpace
+paths.site
+
+TestRun.checkForUserShutDownSignal
+paths.resultsDirs['resBase/']
+
+TestRun.getJobStatsForEmail
+m in self.jobMinders:
+m.jDescriptor.paths.paths.package
+m.jDescriptor.paths.paths.package
+
+TestRun.__str__
+self.paths
+
+
+UnifiedConfigurationTestRun.setKitsAndJobs
+SuperParser.parse(self.paths)
+
+UnifiedConfigurationTestRun.closeDown
+self.jobMinders[0].jDescriptor.paths.mailTo
+self.jobMinders[0].jDescriptor.paths.package
+self.jobMinders[0].jDescriptor.paths.confFile
+
+UnifiedConfigurationTestRun.makeRunDirectories
+self.paths.package
+
+UnifiedConfigurationTestRun.run
+self.paths.mode
+self.paths.platform
+self.paths.runTyp
+self.paths.kitID
+
+FailureTestRun.__init__
+paths.package
+self.paths = paths
+
+
+===============================
+
+SuperParser.parse
+paths.mailTo     = 
+paths.refRelease =
+JobMaker.(jobListElement, paths)
+
+==================================
+JobMaker.__init__
+self.paths       = paths
+
+JobMaker.makeWatcherDescs
+descriptorFactory('Watcher', self.paths)
+
+UnifiedConfigurationJobMaker.makeWorkerDescs
+JobsXMLReader.makeJobDescriptors(self.element, self.paths)
+self.paths.rttKitTest
+self.paths.release
+
+============================
+descriptorFactory
+ clonedPaths = deepcopy(paths)  !!
+
+AthenaJobDescriptor
+paths.refRelease
+paths.installPath
+
+ReleaseJobDescriptor,
+self.paths            = paths
+
+
+Descriptor.__init__
+self.paths          = paths !
+paths.mode 
+
+Descriptor.setRunPath
+self.paths.workDirs['workBase/build/branch/runType/release']
+self.paths.workDirs[curWorkKey] = 
+self.paths.workDirs['workBase/build/branch/runType/release/jobGroup/jobName/SN']
+Descriptor.makeDBKey
+self.paths.build
+
+
+Descriptor.__str__
+self.paths.__str__
+
+
+WatcherJobDescriptor
+WorkerJobDescriptor
+ Descriptor.__init__(self, paths)
+
+JobsXMLReader.removeNoNightlyJobs
+paths.release
+
+
+JobsXMLReader.makeJobDescriptors
+ 
+handleAthenaJobs       (paths, athenaTags)
+handleRuleCheckerJobs  (paths, rulecheckerTags)
+handleQAmetricsJobs    (paths, qametricsTags)
+handleKitValidationJobs(paths, kitvalidationTags)
+handleMonitoringJobs   (paths, monitoringTags)
+handleRTTMonitoringJobs(paths, rttMonitoringTags)
+
+JobsXMLReader.handleAthenaJobs
+str(paths)
+handleAthenaJob(paths, job)
+
+JobsXMLReader.handleAthenaJob
+descriptorFactory('Athena', paths)
+
+JobsXMLReader.handleRuleCheckerJobs
+handleRuleCheckerJob(paths, job)
+
+JobsXMLReader.handleRuleCheckerJob(paths, job)
+descriptorFactory('Release', paths)
+handleRCEntryPoints(paths, job.getElementsByTagName("package"))
+
+JobsXMLReader. handleRCEntryPoints(paths, entryPointTags)
+rulecheckerAll(paths)
+rulecheckerSelected(paths, entryPoints)
+
+JobsXMLReader.(paths, entryPoints):
+getNewEntryPoints(paths, ep)
+
+JobsXMLReader.getNewEntryPoints(paths, entryPoint)
+CMTtools.writeTopCMTRequirementsFile(paths, epList)
+paths.workDirs['workBase/']
+UseToPackage(paths.releasePath)
+
+JobsXMLReader.rulecheckerAll(paths)
+CMTtools.writeTopCMTRequirementsFile(paths, ['AtlasRelease'])
+paths.workDirs['workBase/']
+UseToPackage(paths.releasePath) 
+
+
+JobsXMLReader.countSrcFiles(paths, package)
+paths.releasePath
+srcFileCounter(pathToCMTFile, paths)
+
+JobsXMLReader.handleKitValidationJob(paths, job)
+descriptorFactory('KitValidation', paths)
+
+JobsXMLReader.handleMonitoringJob(paths, job)
+descriptorFactory('Monitor', paths)
+
+
+================================
+Explicit
+
+Each TestRun gets a new Paths
+explicit use
+
+paths.package
+paths.confFile
+paths.resultsDirs['resBase/build/branch/runType/release']
+paths.mode
+paths.build
+paths.release
+self.paths.workDirs['workBase/']
+self.paths.logDir
+paths.site
+
+UnifiedConfigurationTestRun
+self.paths.platform
+self.paths.runType
+self.paths.kitID
+
+
+
+The paths object is expanded in SuperParser to enclude 
+paths.mailTo     = 
+paths.refRelease =
+
+
+is then passed on to the JobMaker classes which explitily ise
+
+self.paths.rttKitTest
+self.paths.release
+ 
+and pass to descriptorFactory and JobsXMLReader.makeJobDescriptors
+
+descriptorFactory deep copies the Paths obj
+
+and creates descriptors. These explicitly use
+
+paths.refRelease
+paths.installPath
+paths.mode 
+self.paths.workDirs['workBase/build/branch/runType/release']
+self.paths.workDirs[curWorkKey] = 
+self.paths.workDirs['workBase/build/branch/runType/release/jobGroup/jobName/SN']self.paths.build
+paths.__str__
+
+
+JobsXMLReader explicitly uses
+paths.workDirs['workBase/']
+paths.releasePath
+
+------------------
+Explicit use with no overlaps
+
+TestRun
+
+paths.package
+paths.confFile
+paths.resultsDirs['resBase/build/branch/runType/release']
+paths.mode
+paths.build
+paths.release
+self.paths.workDirs['workBase/']
+self.paths.logDir
+paths.site
+self.paths.platform
+self.paths.runType
+self.paths.kitID
+
+Added in SuperParser
+paths.mailTo     = 
+paths.refRelease =
+
+In JobMaker
+self.paths.rttKitTest
+
+In Descriptors
+deepCopy, then uses  
+
+paths.refRelease
+paths.installPath
+paths.workDirs['workBase/']
+self.paths.workDirs['workBase/build/branch/runType/release']
+self.paths.workDirs[curWorkKey] = 
+self.paths.workDirs['workBase/build/branch/runType/release/jobGroup/jobName/SN']
+paths.__str__
+paths.releasePath

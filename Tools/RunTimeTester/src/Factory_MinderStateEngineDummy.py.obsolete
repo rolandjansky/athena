@@ -1,0 +1,38 @@
+from Factory_BaseClass                 import Factory
+from ErrorMinderStateEngine            import ErrorMinderStateEngine
+from ContainerMinderStateEngine        import ContainerMinderStateEngine
+from MinderStateEngineDummy            import MinderStateEngineDummy
+
+from exc2string2                       import exc2string2
+from RTTSException                     import RTTCodingError
+
+class MinderStateEngineFactory(Factory):
+  def __init__(self, logger):
+    Factory.__init__(self, logger, self.__class__.__name__)
+    
+    self.dict = {
+      'LinuxInteractiveJobMinder': MinderStateEngineDummy,
+      'Minder':                    MinderStateEngineDummy, 
+      'ErrorJobMinder':            ErrorMinderStateEngine,
+      'BatchJobMinder':            MinderStateEngineDummy, 
+      'LSFBatchJobMinder':         MinderStateEngineDummy, 
+      'ContainerMinder':           ContainerMinderStateEngine,
+      'SequentialMinder':          ContainerMinderStateEngine,
+      'ParallelMinder':            ContainerMinderStateEngine,
+      'ChainJobMinder':            ContainerMinderStateEngine,
+      'PseudoJobMinder':           MinderStateEngineDummy,
+      'WorkerMinder':              MinderStateEngineDummy
+      }
+
+  def create(self, minder, state='queued'): 
+
+    key = minder.__class__.__name__
+
+    try:
+      engine =  self.dict[key](minder, state)
+    except:
+      msg = 'MinderStateEngineFactory: Cannot create a State engine for minder type %s\nTraceback:\n' % (key, exc2string2())
+      print msg
+      raise RTTCodingError(msg)
+
+    return engine

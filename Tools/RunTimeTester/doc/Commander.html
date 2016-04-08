@@ -1,0 +1,132 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module Commander</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>Commander</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/Commander.py">/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/Commander.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="Commander.html#Commander">Commander</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="Commander.html#DummyCommander">DummyCommander</a>
+</font></dt><dt><font face="helvetica, arial"><a href="Commander.html#LSFBatchCommander">LSFBatchCommander</a>
+</font></dt><dt><font face="helvetica, arial"><a href="Commander.html#LinuxBatchCommander">LinuxBatchCommander</a>
+</font></dt><dt><font face="helvetica, arial"><a href="Commander.html#LinuxInteractiveCommander">LinuxInteractiveCommander</a>
+</font></dt><dt><font face="helvetica, arial"><a href="Commander.html#PBSCommander">PBSCommander</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Commander">class <strong>Commander</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#Commander">Commander</a>&nbsp;-&nbsp;a&nbsp;base&nbsp;class&nbsp;that&nbsp;issues&nbsp;commands&nbsp;to&nbsp;the&nbsp;operating&nbsp;system.<br>
+Derived&nbsp;classe&nbsp;overide&nbsp;the&nbsp;commands&nbsp;to&nbsp;allow&nbsp;for&nbsp;differences&nbsp;due&nbsp;to<br>
+different&nbsp;mode&nbsp;values.<br>
+&nbsp;<br>
+Commands:&nbsp;&nbsp;athena<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Commander-submitCommand"><strong>submitCommand</strong></a>(self, jDescriptor)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="DummyCommander">class <strong>DummyCommander</strong></a>(<a href="Commander.html#Commander">Commander</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="DummyCommander-submitCommand"><strong>submitCommand</strong></a>(self, jDescriptor)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="LSFBatchCommander">class <strong>LSFBatchCommander</strong></a>(<a href="Commander.html#Commander">Commander</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Commands&nbsp;for&nbsp;runing&nbsp;on&nbsp;the&nbsp;LSF&nbsp;batch&nbsp;queues&nbsp;at&nbsp;CERN.<br>
+Switched&nbsp;off&nbsp;mailing&nbsp;Peter<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="LSFBatchCommander-submitCommand"><strong>submitCommand</strong></a>(self, jDescriptor)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="LinuxBatchCommander">class <strong>LinuxBatchCommander</strong></a>(<a href="Commander.html#Commander">Commander</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Commands&nbsp;for&nbsp;running&nbsp;on&nbsp;Linux&nbsp;using&nbsp;the&nbsp;batch&nbsp;command.<br>
+Does&nbsp;not&nbsp;work&nbsp;because&nbsp;I&nbsp;could&nbsp;not&nbsp;make&nbsp;the&nbsp;linux&nbsp;batch&nbsp;command&nbsp;work.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="LinuxBatchCommander-submitCommand"><strong>submitCommand</strong></a>(self, jDescriptor)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="LinuxInteractiveCommander">class <strong>LinuxInteractiveCommander</strong></a>(<a href="Commander.html#Commander">Commander</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Commands&nbsp;for&nbsp;running&nbsp;interactively&nbsp;(foreground)&nbsp;on&nbsp;Linux<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="LinuxInteractiveCommander-submitCommand"><strong>submitCommand</strong></a>(self, jDescriptor)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="PBSCommander">class <strong>PBSCommander</strong></a>(<a href="Commander.html#Commander">Commander</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Commands&nbsp;for&nbsp;running&nbsp;jobs&nbsp;on&nbsp;the&nbsp;UCL&nbsp;HEP&nbsp;PBS&nbsp;queues<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="PBSCommander-submitCommand"><strong>submitCommand</strong></a>(self, jDescriptor)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-commanderFactory"><strong>commanderFactory</strong></a>(mode)</dt><dd><tt>Returns&nbsp;a&nbsp;<a href="#Commander">Commander</a>&nbsp;instance&nbsp;according&nbsp;to&nbsp;mode</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>logger</strong> = &lt;logging.Logger instance&gt;</td></tr></table>
+</body></html>

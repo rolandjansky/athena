@@ -1,0 +1,154 @@
+<dsns>
+   <!-- EGAMMA TESTS -->
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0000.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0000.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0001.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0001.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0002.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0002.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0003.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0003.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0004.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0004.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0005.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0005.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0006.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0006.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0007.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0007.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0008.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0008.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0009.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0009.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0010.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0010.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0011.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0011.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0012.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0012.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0013.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0013.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0014.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0014.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0015.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0015.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0016.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0016.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0017.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0017.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0018.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0018.root</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/user/c/costanzo/validation/data/dc2val.e_e100_eta25.006005.g4dig/dc2val.e_e100_eta25.006005.g4dig.0019.root</logical>
+      <physical>/local_disk/data/dc2val.e_e100_eta25.006005.g4dig.0019.root</physical>
+   </dsn>
+   
+   <!-- ATLFAST TESTS -->
+   <dsn>
+      <logical>/castor/cern.ch/atlas/project/dc1/simul/data/001002/dc1.001002.simul.0001.test.h130_4e.zebra</logical>
+      <physical>/unix/atlas/AtlasTests/Data/dc1.001002.simul.0001.test.h130_4e.zebra</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/atlas/project/dc1/simul/dc1.001003.simul.redig/data/dc1.001003.simul.redig._00001.test.h130_2e2mu.zebra</logical>
+      <physical>/unix/atlas/AtlasTests/Data/dc1.001003.simul.redig._00001.test.h130_2e2mu.zebra</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/atlas/project/dc1/simul/data/001004/dc1.001004.simul.0001.test.h130_2gam.zebra</logical>
+      <physical>/unix/atlas/AtlasTests/Data/dc1.001004.simul.0001.test.h130_2gam.zebra</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/atlas/project/dc1/simul/data/001005/dc1.001005.simul.0001.test.h130_4mu.zebra</logical>
+      <physical>/unix/atlas/AtlasTests/Data/dc1.001005.simul.0001.test.h130_4mu.zebra</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>jet_25</logical> <!-- do not know the castor name -->
+      <physical>/unix/atlas/AtlasTests/Data/dc1.002001.simul.0001.hlt.pythia_jet_25.zebra</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>/castor/cern.ch/atlas/project/dc1/lumi02/002046/data/dc1.002046.lumi02.00001.hlt.Z_ee.zebra</logical>
+      <physical>/unix/atlas/AtlasTests/Data/dc1.002046.lumi02.00001.hlt.Z_ee.zebra</physical>
+   </dsn>
+   
+   <!-- JIVEXMLTESTS -->
+   <dsn>
+      <logical>/castor/cern.ch/atlas/project/dc2/preprod/g4dig805/dc2.002885.pyt_z_ee.g4dig805/data/dc2.002885.pyt_z_ee.g4dig805._0001.pool.root</logical>
+      <physical>/local_disk/data/dc2.002885.pyt_z_ee.g4dig805._0001.pool.root</physical>
+   </dsn>
+   <!-- TRIGGER TESTS -->
+   <dsn>
+      <logical>dc1.001003.simul.redig.00001.test.h130_2e2mu_extract.zebra</logical><!-- Simon George gives this with $ATLFASTTEST stuck in front -->
+      <physical>/local_disk/data/dc1.001003.simul.redig.00001.test.h130_2e2mu_extract.zebra</physical>
+   </dsn>
+   
+   <dsn>
+      <logical>dc1.001003.simul.redig.00001.test.h130_2e2mu_extract.re</logical><!-- Simon George gives this with $ATLFASTTEST stuck in front -->
+      <physical>/local_disk/data/dc1.001003.simul.redig.00001.test.h130_2e2mu_extract.re</physical>
+   </dsn>
+   <dsn>
+      <logical>/castor/cern.ch/atlas/project/dc2/preprod/evgen804/dc2.002898.pyt_h120_gamgam.evgen804/data/dc2.002898.pyt_h120_gamgam.evgen804._0001.pool.root</logical>
+      <physical>/local_disk/data/dc2.002898.pyt_h120_gamgam.evgen804._0001.pool.root</physical>
+   </dsn>
+   
+</dsns>

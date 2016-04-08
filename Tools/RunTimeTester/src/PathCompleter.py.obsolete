@@ -1,0 +1,102 @@
+"""
+PathCompleter  builds paths to a file from a release and  package.
+
+"""
+
+import os, re
+from os.path import join
+from os.path import exists
+
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+class PathCompleter:
+    def __init__(self):
+        pass
+        
+    def versionDir(self, package, paths):
+        "returns path to CMT added directory (ie package-xx-yy-zz) "
+
+        path = join(paths.releasePath,package)
+        #
+        # have to jump across the version directory (ie package-xx-yy-zz)
+        # that lies on the path
+        #
+        version = os.listdir(path)[0]
+        path = join(path, version)
+        #return '*'
+        return path
+
+    def fileFromReleasedFile(self, package, file, paths):
+        "returns path to file in a release"
+        
+        path = join(self.versionDir(package, paths), file)
+        logger.debug("path = "+ path)
+        return path
+    
+    def releaseAreaCMTfile(self, package, paths):
+        """
+        returns path to the cmt directory given release and 
+        package name
+        """
+
+        cmtDir = ''
+
+        # The directory to look for is /xx/xxx/x/xx/package-ab-cd-ef/cmt
+
+        for root, dirs, files in os.walk(paths.releasePath):
+            for dir in dirs:
+                if dir.find('-') != -1:
+                    if dir.find(package) != -1:
+                        if  'cmt' in os.listdir(os.path.join(root,dir)):
+                            cmtDir = os.path.join(root,dir,'cmt')
+                            break
+                    else:
+                        break
+            if cmtDir != '': break
+
+        return cmtDir
+    def releaseAreaCMTfile2(self, package, paths):
+        """
+        returns path to the cmt directory given release and 
+        package name
+
+        Timing tests show that releaseAreaCMTfile2 is a little faster than releaseAreaCMTfile
+        """ 
+
+        cmtDir = ''
+
+        # The directory to look for is /xx/xxx/x/xx/package-ab-cd-ef/cmt
+
+        # compPattern=re.compile(package+'-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]')
+        
+        for root, dirs, files in os.walk(paths.releasePath):
+            for dir in dirs:
+                if dir == package:
+                    cmtDir = os.path.join(root, os.listdir(os.path.join(root,dir))[0], 'cmt')
+                    if exists(cmtDir):
+                        return cmtdir
+                    else:
+                        return ""
+        return ''
+
+if __name__ == '__main__':
+    from Paths import Paths
+    from time import time
+    
+    pc=PathCompleter()
+    paths = Paths()
+    paths.releasePath = '/afs/cern.ch/atlas/software/dist/10.0.0'
+
+    start = time()
+    # print pc.releaseAreaCMTfile('AtlfastEvent', paths)
+    end = time()
+    print 'time to run v1 = ',str(end-start)
+
+    start = time()
+    print pc.releaseAreaCMTfile2('AtlfastEvent', paths)
+    end = time()
+    print 'time to run v2 = ',str(end-start)

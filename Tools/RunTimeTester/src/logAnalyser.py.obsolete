@@ -1,0 +1,89 @@
+#! /usr/bin/python
+import os, sys
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+class LogAnalyser:
+    """
+    reads in a list of strings, and files for the presence
+    of these strings. Write counts to an html file
+    """
+    def __init__(self):
+        
+        
+        self.strings={
+            'INFO Application Manager Finalized succes'                     :0,
+            'FATAL Application configuration failed'                        :0,
+            'WARNING Failed to load modules: GaudiAlg'                      :0,
+            'libGaudiAlg.so: cannot open shared object file: No such file'  :0,
+            'RecExCommon/CBNT_jobOptions.txt missing'                       :0,
+            'RecExCommon/RecExCommon_jobOptions.txt missing'                :0,
+            'FATAL EventSelector not found'                                 :0,
+            'JobOptionsSvc       ERROR'                                     :0,
+            'xKalmanppAthena/xKalman_jobOptions.txt missing'                :0
+        }
+
+        print "seeking for the following strings:"
+        for string in self.strings.keys():
+            print string
+
+        self.nLogFiles = 0
+            
+
+    def findStrings(self, dir=os.curdir):
+        for file in os.listdir(dir):
+            if os.path.isfile(file):
+                if file.find('.log')==-1: continue
+                self.nLogFiles = self.nLogFiles+1
+                for line in open(file, 'r').readlines():
+                    for string in self.strings:
+                        if not line.find(string)==-1:
+                            self.strings[string]=self.strings[string]+1
+
+                        
+    def printPage(self):             
+        html1 = """ 
+        <!DOCTYPE html PUBLIC
+        "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n
+        <html>
+        <head>
+        </head>
+        <body>
+        <center>
+        <h2>String Counts - """+os.getcwd()+"""</h2>
+        </center>
+        <p>
+        <center><table BORDER=\"1\" CELLSPACING=\"1\" CELLPADDING=\"4\">\n
+        Number of log files processed: """+str(self.nLogFiles)+"""\n
+        <tr><td>String</td><td>Occurences</td></tr>
+        """
+        
+        html2=""
+        for key in self.strings.keys():
+            line = "<tr><td>"+key+"</td><td>"
+            line = line+str(self.strings[key])+"</td></tr>\n"
+            html2=html2+line
+            
+        html3="""
+        </table>
+        </p>
+        </body>
+        </html
+        """
+        ofile=open('counts.html','w', 0777)
+        ofile.write(html1)
+        ofile.write(html2)
+        ofile.write(html3)
+        ofile.close()
+
+    
+if __name__ == "__main__":
+    stringsFileName = "./logStrings.txt"
+    la = LogAnalyser()
+    la.findStrings()
+    la.printPage()
+    

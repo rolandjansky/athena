@@ -1,0 +1,914 @@
+from TestSuiteChecker     import Checker
+from TestSuiteGlobals     import *
+
+from RunTimer             import RunTimer
+from RTTConfigParser      import RTTConfiguration
+from Paths                import NoPackagePaths, Paths
+from Paths                import PathsForTestRun, PathsForDescriptors
+from GetUserConfigData    import GetUserConfigData
+from DataSetCatalog       import DataSetCatalog
+from JobGroupKits         import JobGroupKits
+from Tools                import unique
+from exc2string           import exc2string
+
+
+
+# ----- RTT SRC IMPORTS -----
+
+from TestRun                    import TestRun, UnifiedConfigurationTestRun
+from SuperParser                import SuperParser
+from Factory_CmtLines           import CmtLinesFactory
+from Factory_Commander          import CommanderFactory
+from Factory_DirectoryMaker     import DirectoryMakerFactory
+from Factory_JobDescriptor      import DescriptorFactory
+from Factory_JobMaker           import JobMakerFactory
+from Factory_Minder             import MinderFactory
+from Factory_ScriptWriter       import ScriptWriterFactory
+from Factory_TestRun            import TestRunFactory
+from Factory_SiteSpecifics      import SiteSpecificsFactory
+from Factory_RunTimer           import RunTimerFactory
+from Factory_UserStuffRetriever import UserStuffRetrieverFactory
+# from Factory_FindInstalledDirs  import FindInstalledDirsFactory
+from Factory_HardCoded          import HardCodedFactory
+from Factory_Legals             import LegalsFactory
+from Factory_PathNameBuilder    import PathNameBuilderFactory
+from Tester                     import Tester
+from validateXMLFile            import validateXMLFile    
+from NICOS                      import NICOS
+from RTTDateTime                import RTTDateTime
+from requirementsWriter         import requirementsWriter
+from ModuleLoader               import ModuleLoader
+
+import Geneology
+import Tools
+import Tools2
+import JobGroupsParser
+import HTMLWriter
+
+# ----- TEST SUITE IMPORTS -----
+from TestSuiteRefDicts       import *
+from TestSuiteGlobals        import *
+from TestSuiteChecker        import Checker
+# from TestSuiteLogging        import loggerOff, loggerOn
+# ----- PYTHON IMPORTS -----
+
+import time, sys, os, copy
+import sys, xml.dom.minidom
+
+# ==================================================================
+
+from TestSuiteGlobals import getGlobalStats
+globalStats = getGlobalStats()
+
+class TestSuiteTests:
+    def  __init__(self, fixtures, logger, handler):
+
+        self.testTopLevelRTTFile   = fixtures['testTopLevelRTTFile']
+        self.testTopLevelJobGroup  = fixtures['testTopLevelJobGroup']
+        
+        self.testRunTimerTime      = fixtures['testRunTimerTime']
+        self.testRTTtagBeingTested = fixtures['testRTTtagBeingTested']
+        self.testInstallArea       = fixtures['testInstallArea']
+        self.testPackage           = fixtures['testPackage']
+        
+        self.testPackageConfFile   = fixtures['testPackageConfFile']
+        self.testLogDir            = fixtures['testLogDir']
+        self.testTesterLogDir      = fixtures['testTesterLogDir']
+        self.testSuiteScratchPath  = fixtures['testSuiteScratchPath']
+        
+        coreTests = [
+            ]
+
+
+
+        nonCoreTests = [
+            self.testTimer,
+            self.testRTTConfiguration,
+            self.testNoPackagePaths,
+            self.testGetUserConfigData,
+            self.testCVSPackage,
+            self.testPaths,
+            self.testDataSetCatalog,
+            self.testJobGroupKits,
+            self.testPathsForTestRun,
+            self.testPathsForDescriptors,
+            self.testAthenaJobDescriptor,
+            self.testJobGroupsParser,
+            self.testSuperParser,
+            self.testDescriptorFactory,
+            self.testDirectoryMakerFactory,
+            self.testScriptWriterFactory,
+            self.testTestRunFactory,
+            self.testJobMakerFactory,
+            self.testCmtLinesFactory,
+            self.testCommanderFactory,
+            self.testMinderFactory,
+            self.testSiteSpecificsFactory,
+            self.testRunTimerFactory,
+            self.testUserStuffRetrieverFactory,
+            self.testUserStuffRetriever,
+            # self.testFindInstalledDirsFactory,
+            self.testHardCodedFactory,
+            self.testHardCoded,
+            self.testLegalsFactory,
+            self.testLegals,
+            self.testNICOS,
+            self.testMindersBySuperParser,
+            self.testValidateXMLFile,
+            self.testTools,
+            self.testTools2,
+            self.testHTMLWriter,
+            self.testPage2Writer,
+            self.testRequirementsWriter,
+            self.testUserStuffRetriever,
+            self.testTester,
+            self.testPathNameBuilder,
+            self.testGeneology,
+            self.testModuleLoader
+            ]
+
+
+        nTests = len(coreTests)+len(nonCoreTests)
+        print 'Number of functions to test: %d' % nTests
+        # self.coreTests    = unique(coreTests)
+        self.coreTests    = coreTests
+        self.nonCoreTests = nonCoreTests
+        self.runOrder     = copy.copy(self.coreTests)
+        
+        self.runOrder.extend(self.nonCoreTests)
+
+
+        self.status = {}
+
+        self.runTests(self.coreTests)
+
+        self.cache = {}
+
+        self.logger      = logger
+        self.handler     = handler
+        self.loggerBlock = 0
+
+        globalStats.reset()
+        
+        print 'End TestSuite initialise'
+        
+    def loggerOff(self):
+        self.loggerBlock += 1
+        self.logger.removeHandler(self.handler)
+    def loggerOn(self):
+        self.loggerBlock -= 1
+        if self.loggerBlock == 0:
+            self.logger.addHandler(self.handler)    
+
+    def runNonCoreTests(self):
+        self.runTests(self.nonCoreTests)
+
+    def runTests(self, tests):
+        for t in tests:
+            try:
+                self.logger.debug('\n\n spacer line')
+                self.logger.debug( '%s start ---------------------' % t.__name__)
+                msg = t.__name__
+                status = t()
+            except Exception, e:
+                self.logger.debug( str(e) )
+                self.logger.debug( exc2string(sys.exc_info()))
+                print str(e) 
+                print exc2string(sys.exc_info())
+                status = 'exploded'
+            
+            self.status[t] = status
+            self.logger.info(status)
+            print '%45s %10s ' %(t.__name__, status)
+            self.logger.debug( '%s end   --------------------' % t.__name__)
+            # print msg, status
+
+    def allTestsPassed(self):
+        return not [f for f in self.status.keys() if (self.status[f]) == 'exploded']
+    
+    def __str__(self):
+
+        badTests = [f for f in self.status.keys() if (self.status[f])[1]< (self.status[f])[0]]
+        explodedTests = [f for f in self.status.keys() if (self.status[f]) == 'exploded']
+        str = '\n\n Test Results\n============\n\n'
+        for f in self.runOrder:
+            str+= '%35s %s\n' % (f.__name__, self.status.setdefault(f, 'notRun'))
+
+        if badTests:
+            str += '\n\n Functions that failed some tests:\n'
+            for s in badTests:
+                str += '%s\n' % s.__name__
+        if explodedTests:
+            str += '\n\n Functions that raised exceptions:\n'
+            for s in explodedTests:
+                str += '%s\n' % s.__name__
+        if not badTests:
+            if not explodedTests:
+                str += '\n\n All tests passed\n'
+        return str
+    # ==================================================================
+    
+    def fromCache(self, f):
+        result = self.cache.get(f, None)
+        if result: return result
+        result = self.cache.setdefault(f, f())
+        return result
+
+    
+    # ==================================================================
+    
+    def makeTimer(self):
+        timer = RunTimer(self.testRunTimerTime, self.logger)
+        return timer
+
+    # ==================================================================
+    
+    def testTimer(self):
+        timer =  self.fromCache(self.makeTimer)
+        checker = Checker()
+        checker('timerMax', timer.maxProcessTime)
+        checker.inRange(timer.remaining(), (0, timer.maxProcessTime))
+        time.sleep(timer.maxProcessTime+1)
+        checker.inRange(timer.remaining(), (0, timer.maxProcessTime))    
+        return checker.results()
+
+    # ==================================================================
+    
+    def makeRTTConfiguration(self):
+        rttConfig = RTTConfiguration(self.testTopLevelRTTFile)
+        return rttConfig
+
+    # ==================================================================
+    
+    def testRTTConfiguration(self):
+        rttConfig =  self.fromCache(self.makeRTTConfiguration)
+        # print '****', configDict
+        configDict = rttConfig.config
+        ignoreKeys = ['jobGroupConfig', 'resultsBasePath', 'dataSetCatalog']
+        ignoreKeys.extend(['refDB', 'workBasePath', 'confFiles'])
+        checker = Checker()
+        checker.dictCmp('refConfigDict', configDict, ignoreKeys)
+        return checker.results()
+    
+    # ==================================================================
+
+    def makeNoPackagePaths(self):
+        self.loggerOff()
+        rttConfig = self.fromCache(self.makeRTTConfiguration)
+        timer      = self.makeTimer()
+        self.loggerOn()
+        paths      = NoPackagePaths(self.testRTTtagBeingTested,
+                                    rttConfig, timer, self.testLogDir,
+                                    self.logger)
+        return paths
+    def testNoPackagePaths(self):
+        paths =  self.fromCache(self.makeNoPackagePaths)
+        checker = Checker()
+        ignore = ['workDirs', 'dataSetCatalog', 'refDB', 'resultsDirs']
+        ignore.extend(['logDir', 'rttTagBeingRun', 'hardCoded'])
+        checker.dictCmp('refNoPackagePathsDict', paths.__dict__, ignore)
+        return checker.results()
+    # ==================================================================
+    def makeGetUserConfigData(self):
+        self.loggerOff()
+        rttConfig = self.fromCache(self.makeRTTConfiguration)
+        paths      = self.fromCache(self.makeNoPackagePaths)
+        self.loggerOn()
+        return GetUserConfigData(rttConfig, paths)
+    def testGetUserConfigData(self):
+        dict = self.fromCache(self.makeGetUserConfigData).userConfigData()
+        checker = Checker()
+        checker.dictCmp('refUserConfigData', dict, ['UnifiedConfiguration'])
+        return checker.results()
+    # ==================================================================
+    def makeCVSPackage(self):
+        self.loggerOff()
+        ucd = self.fromCache(self.makeGetUserConfigData)
+        packages = ucd.userConfigData()
+        self.loggerOn()
+        package = packages[0]
+        return package
+    def testCVSPackage(self):
+        package = self.fromCache(self.makeCVSPackage)
+        checker = Checker()
+        ignore = ['pathToXMLfile']
+        checker.dictCmp('refCVSPackageDict', package.__dict__, ignore)
+        return checker.results()
+    # ==================================================================
+    def makePaths(self):
+        self.loggerOff()
+        rttConfig  = self.fromCache(self.makeRTTConfiguration)
+        timer      = self.fromCache(self.makeTimer)
+        package    = self.fromCache(self.makeCVSPackage)
+        userConfig = self.fromCache(self.makeGetUserConfigData)
+        self.loggerOn()
+        paths =  Paths(rttConfig,
+                       self.testRTTtagBeingTested,
+                       timer,
+                       self.testLogDir,
+                       package,
+                       userConfig.packageInfo('RunTimeTester'),
+                       self.logger)
+        # start kludge: these areas are not set in Paths because
+        # the real existence of the shareArea and installArea is tested
+        # before setting. Force them to junk directories for testing.
+        paths.shareArea   = self.testInstallArea
+        paths.installArea = self.testInstallArea
+        # end kludge
+        return paths
+    def testPaths(self):
+        paths =  self.fromCache(self.makePaths)
+        ignore = ['distArea', 'workDirs', 'dataSetCatalog', 'refDB',
+                  'resultsDirts', 'resultsBasePath', 'confFile', 'logDir',
+                  'installArea', 'shareArea', 'resultsDirs', 'hardCoded',
+                  'rttLibToolsPath','rttTagBeingRun', 'dirFinder']
+        checker = Checker()
+        checker.dictCmp('refPathsDict', paths.__dict__, ignore)
+        return checker.results()
+    # ==================================================================
+    def makePathsForTestRun(self):
+        self.loggerOff()
+        paths = self.fromCache(self.makePaths)
+        self.loggerOn()
+        nPaths = PathsForTestRun(paths)
+        return nPaths
+    # ==================================================================
+    def testPathsForTestRun(self):
+        self.fromCache(self.makePathsForTestRun)
+        return Checker().results()
+    # ==================================================================
+    def makePathsForDescriptors(self):
+        self.loggerOff()
+        paths = self.fromCache(self.makePaths)
+        self.loggerOn()
+        nPaths = PathsForDescriptors(paths)
+        return nPaths
+    # ==================================================================
+    def testPathsForDescriptors(self):
+        self.fromCache(self.makePathsForDescriptors)
+        return Checker().results()
+    # ==================================================================
+    def makeDataSetCatalog(self):
+        paths = self.fromCache(self.makePaths)
+        return DataSetCatalog(self.logger, paths)
+    # ==================================================================
+    def testDataSetCatalog(self):
+        catalog = self.fromCache(self.makeDataSetCatalog)
+        checker = Checker()
+        checker('refDataSetLen', len(catalog.catalog.keys()))
+        return checker.results()
+    # ==================================================================
+    def makeJobGroupKits(self):
+        self.loggerOff()
+        rttKits  = JobGroupsParser.parseJobGroups(self.testTopLevelJobGroup)
+        userKits = JobGroupsParser.parseJobGroups(self.testPackageConfFile)
+        self.loggerOn()
+        JobGroupKits(rttKits, userKits)
+    def testJobGroupKits(self):
+        self.fromCache(self.makeJobGroupKits)
+        jobGroupKits = JobGroupKits()
+        checker = Checker()
+        checker('refNKits', len(jobGroupKits.getAllKits()))
+        return checker.results()
+    # ==================================================================
+    def makeAthenaJobDescriptor(self):
+        self.loggerOff()
+        paths = self.fromCache(self.makePaths)
+        self.loggerOn()
+        desc = self.fromCache(
+            self.makeDescriptorFactory).create('Athena',paths)
+        desc.setGroup('AthenaAtlfast')
+        desc.package = 'TestAtlfast'
+        desc.setJobOptions('TestAtlfastOptions.py')
+        return desc
+    def testAthenaJobDescriptor(self):
+        desc =  self.fromCache(self.makeAthenaJobDescriptor)
+        checker = Checker()
+        dict = desc.__dict__
+        # remove paths (platform dependant) and logs (job creation order dependant)
+        ignoreKeys = ['paths', 'reporter', 'runPath', 'installArea', 'resPath',
+                      'elog', 'log', 'jobSerialNumber', 'logger']
+        checker.dictCmp ('refAthenaDescriptorDict',dict, ignoreKeys)
+        return checker.results()
+    # ==================================================================
+    def makeJobGroupsParser(self):
+        kits = JobGroupsParser.parseJobGroups(
+            self.testPackageConfFile)
+        return kits
+    def testJobGroupsParser(self):
+        kits = self.fromCache(self.makeJobGroupsParser)
+        return Checker().results()
+    # ==================================================================
+    def makeSuperParser(self):
+        sp = SuperParser(self.testPackageConfFile, self.logger)
+        return sp
+    def testSuperParser(self):
+        superParser = self.fromCache(self.makeSuperParser)
+        return Checker().results()
+    # ==================================================================
+    def makeMindersBySuperParser(self):
+        self.loggerOff()
+        paths = self.fromCache(self.makePaths)
+        sp    = self.fromCache(self.makeSuperParser)
+        self.loggerOn()
+        minders = sp.parse(paths)
+        return minders
+    def testMindersBySuperParser(self):
+        minders = self.fromCache(self.makeMindersBySuperParser)
+        checker = Checker()
+        checker('nMindersBySuperParser',          len(minders))
+        if minders:
+            m = minders[0]
+            checker('nActionsBySuperParser',          len(m.actions))
+            checker('nUserDefinedTestsBySuperParser', len(m.userDefinedTests))
+            checker('nStringsToFilesBySuperParser',   len(m.stringsToFiles))
+            checker('nAsciiRefFilesBySuperParser',    len(m.asciiRefFiles))
+            checker('nBinRefFilesBySuperParser',      len(m.binRefFiles))
+            checker('nChecksBySuperParser',           len(m.checks))
+            checker('nKeepFilePatternsBySuperParser', len(m.keepFilePatterns))
+            checker('nPostScriptsBySuperParser',      len(m.postScripts))
+            checker('nAuxFilePatternsBySuperParser',  len(m.auxFilePatterns))
+            
+            checker('jobWeightBySuperParser',         m.jobWeight)
+            
+        return checker.results()
+    # ==================================================================
+    def makeDescriptorFactory(self):
+        factory = DescriptorFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testDescriptorFactory(self):
+        factory = self.fromCache(self.makeDescriptorFactory)
+        self.loggerOff()
+        paths = self.fromCache(self.makePathsForDescriptors)
+        self.loggerOn()
+        [factory.create(name, paths) for name in factory.keys()] 
+        
+        return Checker().results()
+    # ==================================================================
+    def makeDirectoryMakerFactory(self):
+        factory = DirectoryMakerFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testDirectoryMakerFactory(self):
+        factory = self.fromCache(self.makeDirectoryMakerFactory)
+        self.loggerOff()
+        paths = self.fromCache(self.makePaths)
+        self.loggerOn()
+        dirMaker = factory.create(paths)
+        minder = self.fromCache(self.makeMinder)
+        dirMaker.makeJobGroupDirs(minder)
+            
+        
+        return Checker().results()
+    # ==================================================================
+    def makeUserStuffRetrieverFactory(self):
+        factory = UserStuffRetrieverFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testUserStuffRetrieverFactory(self):
+        factory = self.fromCache(self.makeUserStuffRetrieverFactory)
+        return Checker().results()
+    # ----------------------------------------------------------------
+    def makeUserStuffRetriever(self):
+        self.loggerOff()
+        factory = self.fromCache(self.makeUserStuffRetrieverFactory)
+        paths      = self.fromCache(self.makeNoPackagePaths)
+        rttConfig  = self.fromCache(self.makeRTTConfiguration)
+        substring  = '_TestConfiguration'
+        legals = self.fromCache(self.makeLegals)
+        self.loggerOn()
+
+        obj = factory.create(paths.releaseType,
+                             paths,
+                             substring,
+                             rttConfig)
+        
+        return obj
+    # ----------------------------------------------------------------
+    def testUserStuffRetriever(self):
+        usr = self.fromCache(self.makeUserStuffRetriever)
+        usr.userStuff()
+                
+        return Checker().results()
+    # ==================================================================
+    # def makeFindInstalledDirsFactory(self):
+    #     factory = FindInstalledDirsFactory(logger)
+    #     return factory
+    # ----------------------------------------------------------------
+    # def testFindInstalledDirsFactory(self):
+    #    factory = self.fromCache(self.makeFindInstalledDirsFactory)
+    #    self.loggerOff()
+    #    paths      = self.fromCache(self.makeNoPackagePaths)
+    #    self.loggerOn()
+    #    releasePath = paths.releasePath 
+    #    runType     = paths.runType 
+    #    
+    #
+    #   locals = [True, False]
+    #    findInstalleds = []
+    #    for mode in factory.keys():
+    #        for local in locals:
+    #            findInstalleds.append(factory.create(mode,
+    #                                                 local,
+    #                                                 releasePath,
+    #                                                 runType))   
+    #        [f.findOptionsPaths() for f in findInstalleds]
+    #    [f.findSharePaths()   for f in findInstalleds]
+    #   
+    #    return Checker().results()
+    # ==================================================================
+    def makeHardCodedFactory(self):
+        factory = HardCodedFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testHardCodedFactory(self):
+        factory = self.fromCache(self.makeHardCodedFactory)                
+        return Checker().results()
+    # ==================================================================
+    def makeHardCoded(self):
+        factory = HardCodedFactory(self.logger)
+        paths   = self.fromCache(self.makePaths)
+        return factory.create(paths.releaseType, paths.runType)
+    # ----------------------------------------------------------------
+    def testHardCoded(self):
+        checker = Checker()
+        hardCoded = self.fromCache(self.makeHardCoded)
+        hardCoded.platform()
+        hardCoded.installAreaDirName()
+        hardCoded.AFS_release_string()
+        hardCoded.AFS_kit_string()
+        hardCoded.platform()
+
+        hardCoded.distArea()
+        checker.assertTrue(os.path.exists(hardCoded.distArea()))
+        
+        legals   = self.fromCache(self.makeLegals)
+        branches = legals.vals('branch')
+        dirs = [hardCoded.nightlyStamp(b) for b in branches]
+        [checker.assertTrue(os.path.exists(d)) for d in dirs]
+
+        [hardCoded.branchToWebPageText(b) for b in branches]
+
+        
+        for build in legals.vals('build'):
+            [hardCoded.nicosNightlyWebPageURL((b, build)) for b in branches]
+                
+        for release in legals.vals('releases'):
+            for build in legals.vals('build'):
+                hardCoded.nicosNumberedWebPageURL(release, build)
+        
+                
+        return checker.results()
+    # ==================================================================
+    def makeLegalsFactory(self):
+        factory = LegalsFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testLegalsFactory(self):
+        factory = self.fromCache(self.makeLegalsFactory)
+                
+        return Checker().results()
+    # ==================================================================
+    def makeLegals(self):
+        self.loggerOff()
+        factory     = LegalsFactory(self.logger)
+        paths       = self.fromCache(self.makePaths)
+        hardCoded   = self.fromCache(self.makeHardCoded)
+        self.loggerOn()
+        return factory.create(paths.releaseType,
+                              paths.originalBranch,
+                              hardCoded)
+    # ----------------------------------------------------------------
+    def testLegals(self):
+        self.fromCache(self.makeLegals)
+        return Checker().results()
+    # ==================================================================
+    def makeNICOS(self):
+        self.loggerOff()
+        paths = self.fromCache(self.makePaths)
+        self.loggerOn()
+        nicos = NICOS(paths)
+        return nicos
+    # ----------------------------------------------------------------
+    def testNICOS(self):
+        nicos = self.fromCache(self.makeNICOS)
+        nicosDate = nicos.getReleaseDate()
+        nicos.isLatestNightly()
+
+        date = RTTDateTime(time.time())
+        nicos.toNICOSdateLink(date)
+
+        return Checker().results()
+    # ==================================================================
+    def makeScriptWriterFactory(self):
+        factory = ScriptWriterFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testScriptWriterFactory(self):
+        factory = self.fromCache(self.makeScriptWriterFactory)
+        self.loggerOff()
+        descFactory  = self.fromCache(self.makeDescriptorFactory)
+        self.loggerOn()
+        desc = descFactory.create(
+            'Athena',
+            self.fromCache(self.makePathsForDescriptors))
+        for name in factory.keys():
+            desc.setGroup(name)
+            factory.create(desc)
+        
+        return Checker().results()
+    # ==================================================================
+    def makeTestRunFactory(self):
+        factory = TestRunFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testTestRunFactory(self):
+        factory = self.fromCache(self.makeTestRunFactory)
+        self.loggerOff()
+        paths           = self.fromCache(self.makePaths)
+        pathsForTestRun = self.fromCache(self.makePathsForTestRun)
+        # dm              = self.fromCache(self.makeDirectoryMakerFactory
+        #                                  ).create(paths)
+        timer           = self.fromCache(self.makeTimer)
+        p2Writer        = self.fromCache(self.makePage2Writer)
+        self.loggerOn()
+        for name in factory.keys():
+            tr = factory.create(name,
+                                pathsForTestRun,
+        #                        dm,
+                                timer,
+                                p2Writer)
+
+            # if tr == None:
+            #    raise "TestRunFactory returned NoneType"
+        
+        
+        return Checker().results()
+    # ==================================================================
+    def makeJobMakerFactory(self):
+        factory = JobMakerFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testJobMakerFactory(self):
+        factory = self.fromCache(self.makeJobMakerFactory)
+        self.loggerOff()
+        paths = self.fromCache(self.makePaths)
+        dom = xml.dom.minidom.parse(self.testPackageConfFile)
+        self.loggerOn()
+        jobListElement = dom.getElementsByTagName('jobList')[0]
+
+        jobMaker = factory.create('UnifiedConfiguration',
+                                  jobListElement,
+                                  paths)
+
+        # return jobMaker
+        return Checker().results()
+    # ==================================================================
+    def makeCmtLinesFactory(self):
+        factory = CmtLinesFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testCmtLinesFactory(self):
+        fctry = self.fromCache(self.makeCmtLinesFactory)
+        self.loggerOff()
+        paths = self.fromCache(self.makePaths)
+        desc = self.fromCache(self.makeAthenaJobDescriptor)
+        legals = self.fromCache(self.makeLegals)
+        self.loggerOn()
+        
+        cmtLineObj = fctry.create(paths.releaseType)
+        cmtLineObj(desc)
+        
+        return Checker().results()
+    
+    # ==================================================================
+    def makeCommanderFactory(self):
+        factory = CommanderFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testCommanderFactory(self):
+        factory = self.fromCache(self.makeCommanderFactory)
+        legals = self.fromCache(self.makeLegals)
+
+        [factory.create(mode) for mode in factory.keys()]
+        commanders = [factory.create(mode) for mode in legals.vals('mode')]
+
+        desc = self.fromCache(self.makeAthenaJobDescriptor)
+        [c.submitCommand(desc) for c in commanders]
+        return Checker().results()
+    
+    # ==================================================================
+    def makeMinderFactory(self):
+        factory = MinderFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def makeMinder(self):
+        factory = self.fromCache(self.makeMinderFactory)
+        self.loggerOff()
+        
+        desc = self.fromCache(self.makeAthenaJobDescriptor)
+        paths = self.fromCache(self.makePaths)
+        commander = self.fromCache(
+            self.makeCommanderFactory).create(paths.mode)
+        self.loggerOn()
+        cmd = commander.submitCommand(desc)
+
+        minder = factory.create(desc, cmd)
+
+        return minder
+    # ----------------------------------------------------------------
+    def testMinderFactory(self):
+        minder = self.fromCache(self.makeMinder)
+        return Checker().results()
+    
+    # ==================================================================
+    def makeSiteSpecificsFactory(self):
+        factory = SiteSpecificsFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testSiteSpecificsFactory(self):
+        factory = self.fromCache(self.makeSiteSpecificsFactory)
+        legals = self.fromCache(self.makeLegals)
+        [factory.create(name) for name in factory.keys()]
+        [factory.create(name) for name in legals.vals('site')]
+        
+        return Checker().results()
+    # ==================================================================
+    def makeRunTimerFactory(self):
+        factory = RunTimerFactory(self.logger)
+        return factory
+    # ----------------------------------------------------------------
+    def testRunTimerFactory(self):
+        factory = self.fromCache(self.makeRunTimerFactory)
+        legals = self.fromCache(self.makeLegals)
+
+        isNightly = True
+        [factory.create(isNightly, name) for name in factory.keys()]
+        [factory.create(isNightly, name) for name in legals.vals('branch')]
+        
+        isNightly = False
+        [factory.create(isNightly, name) for name in factory.keys()]
+        [factory.create(isNightly, name) for name in legals.vals('branch')]
+        
+        return Checker().results()
+    # ==================================================================
+    def testListDir(self):
+        pass
+    # ==================================================================
+    def makeTester(self):
+        obj = Tester(self.testRTTtagBeingTested,
+                     self.testTopLevelRTTFile,
+                     os.path.dirname(self.testTesterLogDir),
+                     self.logger,
+                     'Test')
+        return obj
+    # ----------------------------------------------------------------
+    def testTester(self):
+        self.fromCache(self.makeTester)
+        return Checker().results()
+    # ==================================================================
+    def makePathNameBuilder(self):
+        self.loggerOff()
+        paths = self.fromCache(self.makePaths)
+        self.loggerOn()
+        obj = PathNameBuilderFactory(self.logger).create(paths.releaseType,
+                                                    paths.rttConfig,
+                                                    paths.hardCoded,
+                                                    paths.legals,
+                                                    paths.siteSpecificsObj)
+        return obj
+    # ----------------------------------------------------------------
+    def testPathNameBuilder(self):
+        self.fromCache(self.makePathNameBuilder)
+        return Checker().results()
+    # ==================================================================
+    def makePage2Writer(self):
+        self.loggerOff()
+        paths = self.fromCache(self.makeNoPackagePaths)
+        self.loggerOn()
+        obj = HTMLWriter.Page2Writer(paths, self.testRTTtagBeingTested, True)
+        return obj
+    # ----------------------------------------------------------------
+    def testPage2Writer(self):
+        self.fromCache(self.makePage2Writer)
+        return Checker().results()
+    # ==================================================================
+    def makeModuleLoader(self):
+        self.loggerOff()
+        paths = self.fromCache(self.makePaths)
+        self.loggerOn()
+        pathToModule = str(paths.rttLibToolsPath)
+        obj = ModuleLoader('RttLibraryTools', pathToModule, self.logger)
+        return obj
+    # ----------------------------------------------------------------
+    def testModuleLoader(self):
+        self.fromCache(self.makeModuleLoader)
+        return Checker().results()
+    # ==================================================================
+    def testValidateXMLFile(self):
+        validateXMLFile(self.testPackageConfFile)
+        return Checker().results()
+    # ==================================================================
+    def testGeneology(self):
+        ok  = Geneology.TreeTest(self.logger)
+        checker = Checker()
+        checker.assertTrue(ok)
+        self.fromCache(self.makeJobGroupKits)
+        jobGroupKits = JobGroupKits().getAllKits()
+        Geneology.KitTest(self.logger, jobGroupKits)
+        return checker.results()
+    # ==================================================================
+    def testTools(self):
+        # pass
+        # checker = Checker()
+
+        # version = Tools.getPackageTag('./TestSuiteFixtures/Package')
+        # checker('packageVersion', version)
+
+        # dirSnapOK = Tools.dirSnapShot('.')
+        # checker('dirSnapOK', dirSnapOK)
+
+        # path = './junk.txt'
+        # f = open(path, 'w')
+        # f.write('test\n')
+        # f.close
+        # iOwn = Tools.pathIsOwnedByMe(path)
+        # checker.assertTrue(iOwn)
+        # os.remove(path)
+        
+        # path = './junk.txt'
+        # f = open(path, 'w')
+        # f.write('test\n')
+        # f.close
+        # permToSet = '0777'
+        # permSet = Tools.changePerm(path, permToSet)
+        # checker.assertTrue(permSet == permToSet)
+        # os.remove(path)
+
+        
+        
+        return Checker().results()
+    # ==================================================================
+    def testTools2(self):
+
+        self.loggerOff()
+        legals = self.fromCache(self.makeLegals)
+        self.loggerOn()
+
+        releases = legals.vals('releases')
+        [Tools2.isValidReleaseNumber(rel) for rel in releases]
+        
+        Tools2.releaseNumberComponents('11.0.0')
+        
+        Tools2.fixSortBranches(['N.0.X','10.0.X','N.X.0','Numbered'])
+        Tools2.fixSortBranches(['10.0.X','N.0.X','N.X.0','Numbered'])
+
+        Tools2.getFileOrDirTimeStamp(self.testSuiteScratchPath)
+        Tools2.getFileOrDirTimeStamp(
+            os.path.join(self.testSuiteScratchPath, 'status.txt'))
+
+        paths = self.fromCache(self.makePaths)
+        resBase = paths.resultsDirs['resBase/']
+        Tools2.getAllResultDirs(resBase, legals)
+
+        resPath = self.testSuiteScratchPath
+        job = 'TGCDigitValidationOptions_RTT'
+        Tools2.jobStatusFromFile(job, resPath)
+
+        Tools2.makeReleaseDictionary(resPath, legals)
+        
+        return Checker().results()
+
+    # ==================================================================
+
+    def testHTMLWriter(self):
+        HTMLWriter.writePage1(self.fromCache(self.makePaths))
+        htmlFile = os.path.join(self.testSuiteScratchPath,
+                             'Results',
+                             'RTTpage1.html')
+        size = -1
+        if os.path.exists(htmlFile):
+            size = os.stat(htmlFile).st_size
+
+        checker = Checker()
+        checker('RTTpage1Size', size)
+        return checker.results()
+        
+    # ==================================================================
+
+    def testRequirementsWriter(self):
+        self.loggerOff()
+        desc = self.fromCache(self.makeAthenaJobDescriptor)
+        self.loggerOn()
+        distArea = desc.paths.hardCoded.distArea()
+        release  = desc.paths.release
+        runPath  = desc.runPath
+        runType  = desc.paths.runType
+        
+        requirementsWriter(distArea,
+                           release,
+                           runPath,
+                           runType)
+
+        return Checker().results()

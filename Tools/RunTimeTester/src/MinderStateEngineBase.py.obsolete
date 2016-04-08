@@ -1,0 +1,130 @@
+"""
+Common poll method for all state engines
+"""
+
+
+import time
+from State          import State
+from exc2string2    import exc2string2         
+from RTTSException  import RTTCodingError
+
+from MethodTimer import MethodTimer
+
+class MinderStateEngineBase(MethodTimer):
+    """
+    Empty state machine. This will be stepped by calls to poll(),
+    and will end up in state = success. Different behaviour is obtained
+    by subclassing the xxxTest and xxxAction methods.
+    """
+
+    def __init__(self, minder, state='queued'):
+        MethodTimer.__init__(self)
+        self.state  = State(state)
+        self.minder = minder
+        self.logger = minder.logger
+
+        # operator close down is handled externally due high
+        # disk io traffic if done by the minder
+        self.operatorCloseDownFlag = False
+        self.checkMinderFunctions()
+        
+    # -----------------------------------------------
+        
+    def checkMinderFunctions(self):
+        mustHave = self.functionsMinderMustHave()
+        doesntHave = [f for f in mustHave if not hasattr(self.minder, f)]
+        if doesntHave:
+            msg = '%s does not have the following required functions %s' % (self.minder.__class__.__name__, str(doesntHave))
+            raise RTTCodingError(msg)
+        
+    # -----------------------------------------------
+        
+    def functionsMinderMustHave(self):
+        return ['setOperatorCloseDown', 'setDone']
+
+    def unlink(self):
+        del self.minder
+        
+    def poll(self):
+        """
+        makes status transitions by calling the fromXXX
+        methods, according to the current status.
+        returns True if job is active, False otherwise
+        """
+
+        # >= 1 checks are run if the job finishes.
+        # this returned in a list of statuses.
+        # the first one determines if the job ran
+        #
+        
+
+        stateOnEntry = self.state.state
+        jobName = self.minder.identifiedName
+        m = 'start poll(): Minder %s for job %s found in  state %s' % (self.__class__.__name__,
+                                                                       jobName,
+                                                                       stateOnEntry)
+        self.logger.debug(m)
+        
+        #if stateOnEntry == 'done':
+        #    return
+        
+        if self.operatorCloseDownFlag:
+            self.operatorCloseDownFlag = False
+            self.state.set('operatorCloseDown')            
+            jobName = self.minder.identifiedName
+            m = 'Forcing state transition (%s, %s): %s -> operatorCloseDown, calling back' % (self.__class__.__name__,
+                                                                                              jobName,
+                                                                                              stateOnEntry)
+            stateOnEntry = self.state.state
+            self.logger.info(m)
+
+        self.dispatcher[stateOnEntry]()
+        currentState = self.state.state
+
+        if stateOnEntry != currentState:
+
+            # make an DOM document for the minder and call back
+            # (presumably to the testRun)
+
+            jobName = self.minder.identifiedName
+            m = 'State transition detected (%s, %s): %s -> %s, calling back' % (self.__class__.__name__,
+                                                                                jobName,
+                                                                                stateOnEntry,
+                                                                                currentState)
+            self.logger.info(m)
+            startT = time.time()
+
+            try:
+                # self.minder.xmlConverter.update()
+                self.minder.xmlConverter.makeSummaryReport()
+            except:
+                m='Error on calling back to TestRun:\n%s' % exc2string2()
+                self.logger.error(m)
+                
+            diffT = time.time() - startT
+            # self.minder.sumTimeToUpdate += diffT
+            # self.minder.nUpdates      += 1
+            # m = 'Job %s completed the call back in %d seconds.' % (
+            #    self.minder.identifiedName,diffT)
+            # self.logger.info(m)
+            # recursive call  move the job through states that take no time
+            # to complete
+            self.poll()
+
+
+    def fromOperatorCloseDown(self):
+        # m = '%s: operatorCloseDown.' % self.minder.identifiedName
+        # self.logger.info(m)
+        self.minder.setOperatorCloseDown()
+        self.state.set('done')
+
+    def fromDone(self):
+        # self.minder.xmlConverter.update()
+        self.minder.xmlConverter.makeSummaryReport()
+        self.minder.setDone()
+
+        
+        
+
+    def queueOperatorCloseDown(self):
+        self.operatorCloseDownFlag = True

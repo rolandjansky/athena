@@ -1,0 +1,365 @@
+"""
+RTTmon - a program to monitor RTT jobs.                  PS; Hopital Cantonal; 21/10/04
+
+Sends a signal to the RTT to initiate data flow from the RTT to RTTmon.
+Data is sent via xmlrpc. RTT is a server, RTTmon is a client.
+
+Data is extracted from JobMinders to NameAndStatus (a convenience only);
+A list of instances of NameAndStatus is pickeled  before transmission, and
+unpickled in RTTmon.
+
+RTTmon uses TCL/Tkinter to display the jobs names as Label widgets. The
+name of the job is shown as a Tkinter Label. The job status is shown by the
+color of the label.
+
+Updates can be obtained by hitting the update button.
+
+Auto updating is run on a separate thread to prevent the RTTmon from locking
+once the suto update loop is entered.
+"""
+import time, os, signal, pipes, pickle, popen2, sys, threading
+from Tkinter import *
+from xmlrpclib import ServerProxy
+import sys, profile
+
+#from logging import Logger,DEBUG, INFO,  WARNING, ERROR, CRITICAL
+from logging import Logger, debug, info,  warning, error, critical 
+import logging
+
+RTTcurrent="/Users/peter/RTT/RTT/Tools/RunTimeTester/RunTimeTester-00-00-18/src"
+sys.path.append(RTTcurrent)
+
+from NameAndStatus import NameAndStatus
+
+
+class RTTmon(Frame):
+    # Class variable to allow stopping of the thread running auto updates.
+
+
+    def __init__(self, master=None):
+        """Initialises:
+        - top level TCL frame,
+        - server proxy as data source.
+        - logging system
+        Directly calls run() to start RTTmon."""
+
+        
+        Frame.__init__(self, master)
+        
+        self.log = logging.getLogger('rtt')
+        formatter = logging.Formatter('%(asctime)s %(filename)s, %(lineno)s, %(levelname)s %(message)s','%d%b%y %H:%M:%S')
+        hdlr = logging.FileHandler('./RTTmon.log')
+        hdlr.setFormatter(formatter)
+        # self.log.addHandler(hdlr) 
+        
+        hdlr = logging.StreamHandler()
+        hdlr.setFormatter(formatter)
+        hdlr.setLevel(logging.DEBUG)
+        self.log.addHandler(hdlr)
+
+        self.log.setLevel(logging.DEBUG)
+        
+
+        self.log.info('Run RTTmon with pythonw if on a Mac ')
+        self.colors={'queued': 'blue',
+                    'running': 'yellow',
+                    'success': 'green',
+                    'error':   'red'
+                    }
+        self.labelDict={}
+        self.pid=0
+        self.procString='python2.3 run.py'
+        self.findRTT()
+        self.server = ServerProxy("http://localhost:8000") # local server
+        self.autoRun = False
+        self.run()
+    
+
+    def more(self):
+        "Obtain a single dose of fresh data"
+
+        try:
+            info         = self.getJobs()
+        except Exception, e:
+            self.log.info('Could not retieve info from RTT: is RTT running?')
+            return
+        jobs         = info.jobs
+        self.msg     = info.msg
+
+        # self.makeJobFrames(jobs)
+
+        # sometimes RTTmon is running before all jobs were launched.
+        # allow for these to be picked up at a later pass.
+        newJobs = []
+        for job in jobs:
+             name = job.name
+             if name not in self.labelDict.keys():
+                 msg = 'unknown job, '+str(name)+str(self.labelDict.keys())
+                 self.log.info(msg)
+                 newJobs.append(job)
+             else:
+                 
+                 label=self.labelDict[name]
+                 label['bg']=self.colors[job.status]
+
+        self.frames.append(self.makeJobFrames(newJobs))
+        self.pack(expand=YES, fill=BOTH)
+        
+
+        msgs = info.msg.split('::')
+
+        for label, text in zip(self.testerStats, msgs): label['text']=text
+             
+        self.update()
+        self.log.debug('more(), end')
+    def autoSampleOn(self):
+        """Sets global flag autoRun to run auto sampling(ie endless loop
+        that updates the diplay at regular intervals. Instantatiates
+        AutoSample to access threading library, and  starts the loop.
+        Exits only if some other thread resets autoRun"""
+        
+        lock = threading.Lock()
+        lock.acquire()
+        self.autoRun=True
+        lock.release()
+
+        self.log.debug('switching autoRun to '+str(self.autoRun))
+
+        
+    def autoSampleOff(self):
+        "callback function - switches off  auto updating flag"
+        lock =threading.Lock()
+        lock.acquire()
+        self.autoRun=False
+        lock.release()
+
+        self.log.debug('switching autoRun to '+str(self.autoRun))
+
+    def quit(self):
+        "callback function: shats down the RTT"
+        
+        Frame.quit(self)
+        logging.shutdown()
+        
+    def topLine(self):
+        "Sets up top line of the display: control buttons and color map"
+        
+        frame = Frame(self)
+        Button(frame, text='quit',   command=self.quit).pack(side='right')
+        Button(frame, text='update', command=self.more).pack(side='right')
+        
+        self.var = IntVar()
+        localAutoRun = self.autoRun
+        self.var.set(int(localAutoRun))
+        Radiobutton(frame,
+                    text='auto on',
+                    command=self.autoSampleOn,
+                    variable=self.var,
+                    value=1).pack(side='right')
+        
+        cAutoRunBar = str(int(not localAutoRun))
+        Radiobutton(frame,
+                    text='auto off',
+                    command=self.autoSampleOff,
+                    variable=self.var,
+                    value=0).pack(side='right')
+        
+        for state in self.colors.keys():
+            Label(frame, text=state, fg='black', bg=self.colors[state]).pack(side='left')
+        frame.pack(side='top', fill='x')
+        
+    def secondLine(self):
+        "Sets up top line of the display: control buttons and color map"
+
+        self.testerStats = []
+        lines = self.msg.split('::')
+        for line in lines:
+            frame = Frame(self)
+            frame.pack(fill='x')
+            l = Label(frame, text=line, fg='white',bg='black')
+            l.pack(side='left', fill='x')
+            self.testerStats.append(l)
+        # spacer for esthetics
+        frame = Frame(self)
+        frame.pack(fill='x')
+        l= Label(frame, text='', fg='white',bg='black')
+        l.pack(anchor='w',fill='x')
+        self.testerStats.append(l)
+    
+    def makeJobFrames(self, jobs):
+        """Makes, packs and retruns the frames for each line. The frames
+        are returned so the can be reset during updates"""
+        
+        lineNo        =  0 
+        labelCount    =  0
+        labelsPerLine = 30
+        lines = {}
+        # split jobs into groups labelsPerLine long
+        for job in jobs:
+            
+            if labelCount != labelsPerLine:
+                lines.setdefault(lineNo,[]).append(job)
+                labelCount +=1
+            else:
+                lineNo     += 1
+                labelCount  = 0
+
+        # a function used to create labels, and pack into a frame
+        # and into a dictionary for later use (updating)
+        def layout(frame, jobs, dict):
+            frame = Frame(frame, bg='black')
+            for job in jobs:
+
+
+                l = Label(frame)
+                l["text"]=str(job.name)
+                l["bg"]=self.colors[job.status]
+                l["fg"]='black'
+                l.pack(side='left', padx=1, pady=1)
+
+                # store in dictionary to ease updating
+                dict[job.name] = l
+                frame.pack(fill='x', expand=YES)
+            return frame
+            
+        return [layout(self, lines[line], self.labelDict) for line in lines.keys()]
+            
+
+    def createWidgets(self, info):
+        """Calls topLine to the display top line. Display the job statuses
+        as color coded labels"""
+
+        jobs     = info.jobs
+        self.msg = info.msg
+        self.topLine()
+        self.secondLine()
+        self.frames = []
+        self.frames.append(self.makeJobFrames(jobs))
+        # make and pack a frame per line 
+
+        # mod   = 0
+        # modcount = 0
+        # for job in jobs:
+        #     
+        #     
+        #     if mod == 3:
+        #         mod = 0
+        #         modcount+=1
+        #         cFrame.pack(fill='x')
+        #         
+        #     if mod == 0:
+        #         self.frames.append(Frame(self,bg='black'))
+        #         cFrame=self.frames[modcount]
+        #         
+        #         
+        #     mod=mod+1
+        #     stat=job.status.primary()
+        #     l = Label(cFrame)
+        #     l["text"]=job.name
+        #     l["bg"]=self.colors[stat]
+        #     l["fg"]='black'
+        #     l.pack(side='left',padx=3, pady=3, fill='x')
+
+        # store in dictionary to ease updating
+        #     self.labelDict[job.name] = l
+        # self.frames[modcount].pack(fill='x',expand=YES)
+
+    def getJobs(self):
+        "Ask the server for a list of NameAndStatus instances."
+
+        self.log.debug( 'asking for jobs..')
+        info = pickle.loads(self.server.sendJobs())
+
+        self.log.debug('Dumping jobs:')
+        self.log.debug(str(reduce(lambda x, y:x+y,
+                                  [job.dumps() for job in info.jobs],
+                                  ' ')+'\n'))
+        return info
+
+    def findRTT(self):
+        """Find the pid number of the RTT - guess what the procs line
+        will look like"""
+        
+        self.log.debug( 'findRTT....')
+        pidFile = 'RTT.pid'
+        
+        if os.path.exists(pidFile):
+            ifile = open(pidFile,'r')
+            self.pid = int(ifile.read())
+            ifile.close()
+            stdout, stdin = popen2.popen2('ps -A')
+            procs = stdout.readlines()
+            def procId(p):
+                return p.split()[0]
+            
+            pids = [procId for p in procs if p.find(self.procString) != -1]
+            if self.pid not in pids:
+                self.log.error('RTT does not appear to be running')
+                self.log.error('perhaps pid = '+str(self.pid)+' is stale?')
+                self.pid = 0
+        else:
+            self.pid = 0
+            self.log.info('could not find the file with the RTT pid '+pidFile)
+
+        # while not  self.pid:
+        #    procsCmd = 'ps -af | grep run.py'
+        #    self.log.debug('procs cmd = '+procsCmd)
+        #    stdout, stdin = popen2.popen2(procsCmd)
+        #    procs = stdout.readlines()
+
+        #     def procId(p):
+        #        return p.split()[0]
+        #    
+        #    pids = [procId for p in procs if p.find(self.procString) != -1]
+        #    pids.sort()
+        #    self.log.debug('pids: '+str(pids))
+        #    
+        #    if len(pids) > 1:
+        #        self.pid = pids[0]
+        #        break
+        #    else:
+        #        self.log.debug( 'waiting for '+str(self.procString)+' process....')
+        #        time.sleep(2)
+
+    def autoUpdateLoop(self):
+        """Checks the auto update flag.
+        If True:asks server for new status info. Schedules itself
+        to run later."""
+
+        self.log.debug('autoRun = '+str(self.autoRun))
+        
+        self.log.debug('entering autosampling')
+        if self.autoRun:
+            self.more()
+            self.log.debug('autoSampled')
+        else:
+            self.log.debug('not auto sampling')
+
+        self.after(30000, self.autoUpdateLoop)
+
+    def run(self):
+        "run the RTT, ending up in the infinite mainloop"
+        
+        self.log.debug('--------------client ---------')
+        while 1:
+            try:
+                info = self.getJobs()
+                break
+            except Exception, v:
+                self.log.info( 'could not connect: is the server up?')
+                self.log.info( str(v))
+                time.sleep(2)
+
+        self.pack(expand=YES, fill=BOTH)
+        self.createWidgets(info)
+        #self.master.maxsize(1000,1000)
+        self.master.title("RTTmon")
+        # as = RTTmon.AutoSample(self)
+        # as.start()
+        self.autoUpdateLoop()
+        self.mainloop()
+
+
+if __name__ == '__main__':
+    print 'calling displayer'
+    profile.run('mon=RTTmon()')

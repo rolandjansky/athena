@@ -1,0 +1,19 @@
+from ShellCommand           import ShellCommand
+from Factory_CMTConfigurer  import CMTConfigurerFactory
+
+def setupCMTForNonLocalRun(parametersForCMT, logger):
+    # Not necessary if this is a local run
+    if not parametersForCMT.localRttRun:
+        factory = CMTConfigurerFactory(logger)
+        cmtConfigurer = factory.create(parametersForCMT)
+        cmtConfigurer.makeHomeCMTDir()
+        
+        nlines = -1 # do not limit the number of lines
+        cmds = [cmtConfigurer.configure()]
+        shellCom = ShellCommand(cmds, logger, nlines)
+        reply = shellCom.getReply()
+        m = 'Reply on configuring CMT: %s' % str(reply)
+        logger.debug(m)
+        
+        statusText = 'initialise - made CMT directories'
+        logger.info(statusText)

@@ -1,0 +1,177 @@
+import anydbm, os.path, sys
+from xml.dom.ext        import PrettyPrint
+from xml.dom.minidom    import parseString, parse
+from Tools              import mkdirIfNew
+from Evaluate           import Evaluate, getText
+from makeRTTDOM         import makeRTTDOM
+from RTTXMLFileSelector import RTTXMLFileSelector
+from RTTpath            import RTTpath
+from exc2string2        import exc2string2
+from PageXMLWriter      import PageXMLWriter
+from StringIO           import StringIO
+
+from XMLTools           import xslRef, prependXSLRef, relPath
+
+
+class Page1XMLWriter(PageXMLWriter):
+    def __init__(self, dbPath, key, tester, logger):
+
+        PageXMLWriter.__init__(self, tester, logger)
+
+        docEl = self.tester.summaryDocument.documentElement
+        resRunTypeDir   = Evaluate('overview/page1Dir/text()', docEl)
+        self.absPageLoc = os.path.join(resRunTypeDir, 'page1.xml')
+        self.absXSLLoc  = os.path.join(self.absXSLDir, 'page1.xsl')
+
+        self.document = None
+        self.createEmptyXMLDoc()
+
+        self.dbPath = str(dbPath)
+        
+        try:
+            # del key['release']
+            del key['targetCMTCONFIG']
+            del key['time']
+        except:
+            pass
+
+        self.key = key
+        
+        selectedData = RTTXMLFileSelector(self.dbPath,
+                                          self.key,
+                                          self.logger)
+
+    
+        nDBfiles = len(selectedData.keys())
+        m = 'Page1XMLWriter: selected %d runs from DB.' % nDBfiles
+        self.logger.info(m)
+        def makeDoms(key, xml):
+            
+            try:
+                dbDocument = parseString(xml)
+            except:
+                m  = 'Unable to parse moni DB entry with key %s \n' % str(key)
+                m += 'Skipping this value (it will not show up on page1.xml)\n'
+                m += exc2string2() + '\n'
+                self.logger.error(m)
+                dbDocument = None
+
+            return dbDocument
+
+        # get past and present summaries (present is also in the DB)
+        doms = [makeDoms(key,value) for key,value in selectedData.items()]
+        self.doms = [d for d in doms if not d is None]
+        self.doms.append(self.tester.summaryDocument)
+
+        self.selectSummaries()
+        self.logger.info('Number of doms in list after selection: %d' % len(self.doms))
+        return
+        
+    def createEmptyXMLDoc(self):
+        if self.document: self.document.unlink()
+        self.document     = makeRTTDOM('RTTpage1')
+        prependXSLRef(xslRef(self.absXSLLoc, self.absPageLoc),  self.document)
+
+    def selectSummaries(self):
+        '''remove undesired entries - allow only the most recent dom per targetCMTCONFIG
+        for a given release'''
+
+        domsByCMTCONFIG = {}
+
+        [domsByCMTCONFIG.setdefault(Evaluate('overview/targetCMTCONFIG/text()', d.documentElement), []).append(d)
+         for d in self.doms]
+        
+        for item in domsByCMTCONFIG.items():
+            domList = [(Evaluate('overview/startTime2/text()', d.documentElement), d) for d in item[1]]
+            domList.sort()
+            domsByCMTCONFIG[item[0]] = domList[-1]
+
+        self.doms = [dom  for (time, dom) in domsByCMTCONFIG.values()]
+        
+    def update(self, package=None, updatedMinders=None):
+
+        # self.logger.debug('Page1XMLWriter: start update')
+
+        # make a document that will hold information for runs read from
+        # the4 database.
+
+        # Calculate the page2 paths, check if they exist, and make relative
+        ndom = 0
+        #for d in doms:
+        #    temp = StringIO()
+        #    PrettyPrint(d, temp)
+        #    m = 'dump for dom %d\n%s' % (ndom, temp.getvalue())
+        #    self.logger.debug(m)
+        #    ndom += 1
+                                         
+        page2Paths = [(d, Evaluate('overview/resReleaseDir', d.documentElement)[0])
+                      for d in self.doms]
+        page2Paths = [(d, os.path.join(getText(p), 'page2.xml'))
+                      for d,p in page2Paths]
+
+        self.logger.debug('Page2 locations:\n%s' % str([str(p) for p in page2Paths]))
+        page2Paths = [(d,p) for d,p in page2Paths if os.path.exists(p)]
+
+        page2Paths = [(d,relPath(self.absPageLoc, p)) for d, p in page2Paths]
+
+
+        # transfer the relevant information to the page1 document
+        overviewNodes = [self.makeOverviewNode(p) for p in page2Paths]
+
+        #toRemove = self.document.documentElement.childNodes
+        #[self.document.documentElement.removeChild(n) for n in toRemove]
+        self.createEmptyXMLDoc()        
+        
+        [self.document.documentElement.appendChild(p) for p in overviewNodes]        
+
+        npage2 = len(page2Paths)
+
+            
+        m = 'Page1XMLWriter: %d files from DB, %d pages2 found' % (len(self.doms),
+                                                                   npage2)
+        self.logger.info(m)
+        of = open(self.absPageLoc, 'w')
+        PrettyPrint(self.document, of)
+        of.close()
+
+
+        
+        # self.logger.info('Wrote out page1.xml to %s' % str(self.absPageLoc))
+
+        # self.logger.debug('Page1XMLWriter: end update')
+
+    def makeOverviewNode(self, (srcDom, page2loc)):
+
+        locationNode = self.document.createElement('page2location')
+        textNode     = self.document.createTextNode(page2loc)
+        locationNode.appendChild(textNode)
+
+        overviewNode = Evaluate('overview', srcDom.documentElement)[0]
+        overviewNode = self.document.importNode(overviewNode, True)
+        overviewNode.appendChild(locationNode)
+        return overviewNode
+        
+    def finalise(self): self.update()
+
+if __name__== '__main__':
+    # This allows a the xml files required for the web display to be
+    # run manually.
+
+
+    class Logger:
+        def error(self, text): print text
+    # The full path to the database file with the xml files for the RTT runs/
+    dbPath = '/local_disk/sherwood/RTT02/moniFile.db'
+
+    # The directory in which to pace the page1 xml files. The xml files for
+    # subsequent pages will be placed in subdirectories labelled by branch.
+    page1Dir   = '/local_disk/sherwood/RTT02/Junk'
+    page2Dir   = '/local_disk/sherwood/RTT02/Junk'
+
+    # Supply a dictionary the has the selection parameters, e.g. the branch.
+    # The entries of the key will compared against the entries in the
+    # dictionary which is used to store the xml file in the db.
+    
+    key    = {u'originalBranch': 'N.X.0'}
+
+    rsr = Page1XMLWriter(dbPath, page1Dir, page2Dir, key, Logger())

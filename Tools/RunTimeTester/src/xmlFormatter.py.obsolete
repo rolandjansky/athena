@@ -1,0 +1,46 @@
+import string
+import sys
+
+def process(fn,of):
+    lines = open(fn, 'r').readlines()
+    ofile = open(of, 'w')
+    nblank = 0
+    delta  = 3
+    for line in lines:
+
+        if line.find('<?') != -1:
+            print 'skipping xml version line'
+            ofile.write(string.strip(line)+'\n')
+            continue
+        
+        if line.find('DOCTYPE') != -1:
+            print 'skipping DTD line'
+            ofile.write(string.strip(line)+'\n')
+            continue
+        
+        nblankprev=nblank
+        
+        nstart  = string.count(line, '<')
+        nstop1  = string.count(line, '</')
+        nstop2 = string.count(line, '/>')
+        ncomnt = string.count(line, '<!')
+        nblank += (nstart-2*nstop1-nstop2-ncomnt)*delta
+
+        # print nstart, nstop1, nstop2, nblank
+        nline = string.strip(line)+'\n'
+        # print len(nline)
+        if nblank < nblankprev:
+            nnline = string.rjust(nline, len(nline)+nblank)
+        else:
+            nnline = string.rjust(nline, len(nline)+nblankprev)
+        ofile.write(nnline)
+        # print nnline
+
+if __name__ == '__main__':
+    fn = sys.argv[1]
+    of = 'new_'+fn
+    print 'formatting ',fn
+    print 'formatted file is',of
+    process(fn, of)
+    print 'done'
+    

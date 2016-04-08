@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dt">
+
+<unifiedTestConfiguration>
+   
+   <atn/>
+   <kv/>
+   <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+      <rttContactPerson>RTT team (rtt AT hep (dot) ucl.ac dot uk)</rttContactPerson>
+      <refRelease>10.0.0</refRelease>
+      
+      <jobList>
+
+          <rttselftest/>
+
+      </jobList>
+      
+      <jobGroups>
+         
+         
+       <jobGroup name="RTTSelfTest" parent="Top">
+         <keepFilePattern>*.txt</keepFilePattern>
+         <keepFilePattern>Fixtures*</keepFilePattern>
+         <binRefFile>testHist.root</binRefFile>
+
+         <auxFilePattern>testHist.cxx</auxFilePattern>
+
+         <test>
+            <modulename>RttLibraryTools</modulename>
+            <testname>ROOTMacroRunner</testname>
+            <arg>
+              <argname>macro</argname>
+              <argvalue>testHist.cxx</argvalue>
+            </arg>
+         </test>
+
+         <test>
+            <modulename>RttLibraryTools</modulename>
+            <testname>RTTExplosion0</testname>
+            <arg>
+              <argname>fixtureDir</argname>
+              <argvalue>TestSuite0/Fixtures0</argvalue>
+            </arg>
+         </test>
+         <test>
+            <modulename>RttLibraryTools</modulename>
+            <testname>RTTExplosion0</testname>
+            <arg>
+              <argname>fixtureDir</argname>
+              <argvalue>TestSuite0/Fixtures1</argvalue>
+            </arg>
+         </test>
+         <test>
+            <modulename>RttLibraryTools</modulename>
+            <testname>RTTExplosion0</testname>
+            <arg>
+              <argname>fixtureDir</argname>
+              <argvalue>TestSuite0/Fixtures2</argvalue>
+            </arg>
+         </test>
+         <test>
+            <modulename>RttLibraryTools</modulename>
+            <testname>RTTExplosion0</testname>
+            <arg>
+              <argname>fixtureDir</argname>
+              <argvalue>TestSuite0/Fixtures3</argvalue>
+            </arg>
+         </test>
+         <logChecker class="SimpleLogChecker">
+            <searchString>Creating cleanup scripts</searchString>
+         </logChecker>
+      </jobGroup>
+
+         <jobGroup name="RuleChecker" parent="Top">
+            
+            <keepFilePattern>*.viol</keepFilePattern>
+            <keepFilePattern>*.i</keepFilePattern>
+            <keepFilePattern>srcFileInfo.txt</keepFilePattern>
+            <keepFilePattern>*.xml</keepFilePattern>
+            <keepFilePattern>*.html</keepFilePattern>
+            
+            <storeInDatabasePattern>*.xml</storeInDatabasePattern>
+            <test>
+               <modulename>RuleCheckerLibraryTools</modulename>
+               <testname>Viol2XMLLocal</testname>
+            </test>
+
+            <logChecker class="SimpleLogChecker">
+               <searchString>rulechecker ok.</searchString>
+            </logChecker>
+
+         </jobGroup>
+
+         <jobGroup name="RuleCheckerWatcher" parent="Top">
+
+            <keepFilePattern>*.html</keepFilePattern>
+            <test>
+               <modulename>RuleCheckerLibraryTools</modulename>
+               <testname>RuleCheckerWatcherSummary</testname>
+            </test>            
+            <summary>RuleCheckerSummary.html</summary>
+
+         </jobGroup>
+         
+         
+         <jobGroup name="PBSTest" parent="Top"/>
+         
+         <jobGroup name="KitValidation" parent="Top">
+            
+            <keepFilePattern>Summary.results</keepFilePattern>
+
+            <checker class="SimpleLogChecker">
+               <searchString>Validation [</searchString>
+               <vetoString>[FAILED]</vetoString>
+            </checker>
+            
+            <test>
+               <modulename>RttLibraryTools</modulename>
+               <testname>FileGrepper</testname>
+               
+               <arg>
+                  <argname>inputFile</argname>
+                  <argvalue>*_log</argvalue>
+               </arg>
+
+               <arg>               
+                  <argname>outputFile</argname>
+                  <argvalue>Summary.results</argvalue>
+               </arg>
+
+               <arg>               
+                  <argname>searchList</argname>
+                  <argvalue>PASSED,FAILED</argvalue>
+               </arg>
+               
+               <arg>
+                  <argname>vetoList</argname>
+                  <argvalue>DEBUG</argvalue>
+               </arg>
+               
+               
+            </test>
+            
+            
+            
+            <logChecker class="SimpleLogChecker">
+               <searchString>Validation [</searchString>
+            </logChecker>
+         </jobGroup>
+                  
+      </jobGroups>
+   </rtt>
+</unifiedTestConfiguration>

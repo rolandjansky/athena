@@ -1,0 +1,234 @@
+//##############################################################
+// AtlfastDoNotTouch
+// To be changed by experts only
+//##############################################################
+Atlfast.members = {
+//    Global Event Data:
+        "Atlfast::GlobalEventDataMaker/GlobalEventDataMaker",
+// 
+//    Make calorimeter cell map for the event:
+        "Atlfast::CellMaker/CellMaker", 
+//
+        "Atlfast::TrackMaker/TrackMaker",
+
+//    Make clusters based on  cells
+        "Atlfast::ClusterMaker/ClusterMaker",
+//
+//    Make electrons 
+        "Atlfast::DefaultReconstructedParticleMaker/ElectronMaker",
+//
+//    Make photons
+        "Atlfast::DefaultReconstructedParticleMaker/PhotonMaker",
+//
+//    Make muons 
+	"Atlfast::DefaultReconstructedParticleMaker/MuonMaker",
+//
+//    Find Associations between eor gamma and clusters 
+//	"Atlfast::Associator/Associator",
+//
+//    Sort the electrons into isolated and non-isolated
+	"Atlfast::Isolator/ElectronIsolator",
+//
+//    Sort the photons into isolated and non-isolated
+        "Atlfast::Isolator/PhotonIsolator",
+//
+//    Sort the muons into isolated and non-isolated
+        "Atlfast::Isolator/MuonIsolator",
+//
+//    Make Jets
+        "Atlfast::JetMaker/JetMaker",
+//
+//    Correct Jets
+        "Atlfast::AtlfastB/AtlfastB",
+//
+//    Make event header
+        "Atlfast::EventHeaderMaker/EventHeaderMaker"
+};
+//---------------------------
+// Locations not to be touched
+//---------------------------
+// Cell Maker 
+CellMaker.InputLocation		= "/Event/McEventCollection";
+CellMaker.OutputLocation        = "/Event/AtlfastCells"; 
+//-------------
+//Cluster Maker
+//-------------
+//Cluster Maker
+ClusterMaker.ProcessCells       = true;
+ClusterMaker.ProcessTracks      = false;
+ClusterMaker.InputCellLocation  = "/Event/AtlfastCells";
+ClusterMaker.InputTrackLocation = "/Event/AtlfastTracks";
+ClusterMaker.OutputLocation     = "/Event/AtlfastClusters";
+ClusterMaker.UnusedCellLocation	= "/Event/AtlfastUnusedCells";
+//------------
+// Track Maker
+//------------
+TrackMaker.MC_eventLocation  = "/Event/McEventCollection";
+TrackMaker.OutputLocation    = "/Event/AtlfastTracks"; 
+//------------
+// Track Dumper
+//------------
+TrackDumper.InputLocation     = "/Event/AtlfastTracks"; 
+//------------------
+// Particles Makers
+//------------------
+// electron 
+ElectronMaker.OutputLocation               = "/Event/AtlfastElectrons";
+ElectronMaker.MC_eventLocation		   = "/Event/McEventCollection";
+//muon
+MuonMaker.OutputLocation                   = "/Event/AtlfastMuons";
+MuonMaker.MC_eventLocation		   = "/Event/McEventCollection";
+//photon
+PhotonMaker.OutputLocation                 = "/Event/AtlfastPhotons";
+PhotonMaker.MC_eventLocation		   = "/Event/McEventCollection";
+//----------
+// Jet Maker
+//----------
+JetMaker.InputLocation                     = "/Event/AtlfastClusters";
+JetMaker.OutputLocation                    = "/Event/AtlfastJets";
+JetMaker.MuonLocation                      = "/Event/AtlfastNonIsolatedMuons";
+JetMaker.MissingMomentumLocation	   = "/Event/AtlfastMissingMomentum";
+JetMaker.McTruthLocation		   = "/Event/McEventCollection";
+JetMaker.UnusedCellLocation		   = "/Event/AtlfastUnusedCells";
+//----------
+// AtlfastB
+//----------
+AtlfastB.InputLocation                     = "/Event/AtlfastJets";
+AtlfastB.OutputLocation                    = "/Event/AtlfastBJets";
+//-------------------
+// Event Header Maker 
+//------------------- 
+EventHeaderMaker.MissingMomentumLocation  = "/Event/AtlfastMissingMomentum";
+EventHeaderMaker.ElectronLocation	  = "/Event/AtlfastIsolatedElectrons";
+EventHeaderMaker.PhotonLocation		  = "/Event/AtlfastIsolatedPhotons";
+EventHeaderMaker.IsolatedMuonLocation     = "/Event/AtlfastIsolatedMuons";
+EventHeaderMaker.NonIsolatedMuonLocation  = "/Event/AtlfastNonIsolatedMuons";
+EventHeaderMaker.JetLocation              = "/Event/AtlfastJets";
+EventHeaderMaker.McTruthLocation          = "/Event/McEventCollection";
+EventHeaderMaker.OutputLocation           = "/Event/AtlfastEventHeader";
+//----------
+// Isolators
+//----------
+// electron
+ElectronIsolator.InputLocation             = "/Event/AtlfastElectrons";
+ElectronIsolator.IsolatedOutputLocation    = "/Event/AtlfastIsolatedElectrons";
+ElectronIsolator.NonIsolatedOutputLocation = "/Event/AtlfastNonIsolatedElectrons";
+ElectronIsolator.CellLocation              = "/Event/AtlfastCells";
+ElectronIsolator.Clusterlocation           = "/Event/AtlfastClusters";
+//photon
+PhotonIsolator.InputLocation               = "/Event/AtlfastPhotons";
+PhotonIsolator.IsolatedOutputLocation      = "/Event/AtlfastIsolatedPhotons";
+PhotonIsolator.NonIsolatedOutputLocation   = "/Event/AtlfastNonIsolatedPhotons";
+PhotonIsolator.CellLocation                = "/Event/AtlfastCells";
+PhotonIsolator.ClusterLocation             = "/Event/AtlfastClusters";
+//muon
+MuonIsolator.InputLocation                 = "/Event/AtlfastMuons";
+MuonIsolator.IsolatedOutputLocation        = "/Event/AtlfastIsolatedMuons";
+MuonIsolator.NonIsolatedOutputLocation     = "/Event/AtlfastNonIsolatedMuons";
+MuonIsolator.CellLocation                  = "/Event/AtlfastCells";
+MuonIsolator.ClusterLocation               = "/Event/AtlfastClusters";
+MuonIsolator.RClusterMatch                 = 0.0;
+//---------------------
+// StandardNtuple Maker 
+//--------------------- 
+StandardNtupleMaker.JetLocation		    = "/Event/AtlfastJets";
+StandardNtupleMaker.ElectronLocation	    = "/Event/AtlfastIsolatedElectrons";
+StandardNtupleMaker.IsolatedMuonLocation    = "/Event/AtlfastIsolatedMuons";
+StandardNtupleMaker.NonIsolatedMuonLocation = "/Event/AtlfastNonIsolatedMuons";
+StandardNtupleMaker.PhotonLocation	    = "/Event/AtlfastIsolatedPhotons";
+StandardNtupleMaker.McTruthLocation         = "/Event/McEventCollection";
+StandardNtupleMaker.EventHeaderLocation     = "/Event/AtlfastEventHeader";
+//-------------------------
+// FinalStateParticleDumper 
+//-------------------------
+FinalStateParticleDumper.InputLocation	= "/Event/McEventCollection";
+//-------
+//Dumpers
+//-------
+ElectronDumper.InputLocation               = "/Event/AtlfastElectrons";
+//
+MuonDumper.InputLocation                   = "/Event/AtlfastMuons";
+//
+IsolatedElectronDumper.InputLocation       = "/Event/AtlfastIsolatedElectrons";
+//
+PhotonDumper.InputLocation                 = "/Event/AtlfastPhotons";
+//
+IsolatedPhotonDumper.InputLocation         = "/Event/AtlfastIsolatedPhotons";
+//-----------------------
+//StandardHistogram Maker
+//-----------------------
+StandardHistogramMaker.ElectronLocation    = "/Event/AtlfastElectrons";
+StandardHistogramMaker.PhotonLocation      = "/Event/AtlfastPhotons";
+StandardHistogramMaker.IsolatedElectronLocation = "/Event/AtlfastIsolatedElectrons";
+StandardHistogramMaker.IsolatedPhotonLocation   = "/Event/AtlfastIsolatedPhotons";
+StandardHistogramMaker.CellLocation        = "/Event/AtlfastCells";
+StandardHistogramMaker.ClusterLocation     = "/Event/AtlfastClusters";
+//
+ElectronHistogramMaker.InputLocation       = "/Event/AtlfastElectrons";
+ElectronHistogramMaker.McTruthLocation     = "/Event/McEventCollection";
+ElectronHistogramMaker.ParticleType        = 11;
+//
+PhotonHistogramMaker.InputLocation         = "/Event/AtlfastPhotons";
+PhotonHistogramMaker.McTruthLocation       = "/Event/McEventCollection";
+PhotonHistogramMaker.ParticleType          = 22;
+//
+MuonHistogramMaker.InputLocation           = "/Event/AtlfastMuons";
+MuonHistogramMaker.McTruthLocation         = "/Event/McEventCollection";
+MuonHistogramMaker.ParticleType            = 13;
+//----------
+//SimpleTest
+//----------
+SimpleTest1.AtlfastEventLocation           = "/Event/Atlfast" ;
+SimpleTest1.JetLocation                    = "/Event/AtlfastJets";
+SimpleTest1.ElectronLocation               = "/Event/AtlfastIsolatedElectrons";
+SimpleTest1.IsolatedMuonLocation           = "/Event/AtlfastIsolatedMuons";
+SimpleTest1.NonIsolatedMuonLocation        = "/Event/AtlfastNonIsolatedMuons";
+SimpleTest1.PhotonLocation                 = "/Event/AtlfastIsolatedPhotons";
+//SimpleTest1.TrackLocation                  = "/Event/AtlfastTracks";
+SimpleTest1.McTruthLocation                = "/Event/McEventCollection";
+SimpleTest1.TriggerLocation                = "/Event/AtlfastTrigger";
+SimpleTest1.EventHeaderLocation            = "/Event/AtlfastEventHeader";
+SimpleTest1.outputLocation                 = "/Event/SimpleTest1";
+//
+SimpleTest2.AtlfastEventLocation           = "/Event/Atlfast" ;
+SimpleTest2.JetLocation                    = "/Event/AtlfastJets";
+SimpleTest2.ElectronLocation               = "/Event/AtlfastIsolatedElectrons";
+SimpleTest2.IsolatedMuonLocation           = "/Event/AtlfastIsolatedMuons";
+SimpleTest2.NonIsolatedMuonLocation        = "/Event/AtlfastNonIsolatedMuons";
+SimpleTest2.PhotonLocation                 = "/Event/AtlfastIsolatedPhotons";
+//SimpleTest2.TrackLocation                  = "/Event/AtlfastTracks";
+SimpleTest2.McTruthLocation                = "/Event/McEventCollection";
+SimpleTest2.TriggerLocation                = "/Event/AtlfastTrigger";
+SimpleTest2.EventHeaderLocation            = "/Event/AtlfastEventHeader";
+SimpleTest2.outputLocation                 = "/Event/SimpleTest2";
+//----------
+//CellDumper
+//----------
+CellDumper.inputLocation                   = "/Event/AtlfastCells";
+//------------------------
+//FinalStateParticleDumper
+//------------------------
+FinalStateParticleDumper.inputLocation     = "/Event/McEventCollection";
+//----------
+//SimpleDiff
+//----------
+SimpleDiff.inputLocation1                  = "/Event/SimpleTest1";
+SimpleDiff.inputLocation2                  = "/Event/SimpleTest2";
+//----------
+//Associator
+//----------
+Associator.ElectronLocation                = "/Event/AtlfastElectrons";
+Associator.PhotonLocation                  = "/Event/AtlfastPhotons"; 
+Associator.MuonLocation                    = "/Event/AtlfastMuons";   
+Associator.ClusterLocation                 = "/Event/AtlfastClusters";
+Associator.JetLocation                     = "/Event/AtlfastJets";
+Associator.AssocElectronLocation           = "/Event/AtlfastAssocElectrons";
+Associator.AssocPhotonLocation             = "/Event/AtlfastAssocPhotons";
+Associator.AssocMuonLocation               = "/Event/AtlfastAssocMuons";
+//--------------------------
+// End of DoNotTouch options
+//-------------------------- 
+
+
+
+

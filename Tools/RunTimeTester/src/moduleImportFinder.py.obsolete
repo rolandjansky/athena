@@ -1,0 +1,107 @@
+import os
+from formatCollection import formatCollection
+
+class Imports:
+    def __init__(self, maxRecursion=25):
+        files = os.listdir('.')
+        files = [f for f in files if f.endswith('.py')]
+        # print files
+        self.dict = {}
+        for file in files:
+            self.dict[file] = self.findFrom(file)
+
+        self.indent = ''
+        self.istep = '   '
+        self.recurs = 0
+        self.maxrecurs = maxRecursion
+        # print self.dict
+    def findFrom(self,file):
+        # print 'findFrom: handling file %s' % file
+        lines = open(file, 'r').readlines()
+        lines = [l.strip() for l in lines]
+        def fromSelector(l):
+            if len(l.split())<2: return False
+            if l.split()[0] != 'from': return False
+            if l.find('import')<0: return False
+            return True
+        
+        def importSelector(l):
+            if len(l.split())<2: return False
+            if not l.startswith('import'): return False
+            return True
+        
+
+        linesFrom = [l for l in lines if l.startswith('from')]
+        linesFrom = [l for l in linesFrom if fromSelector(l)]
+        froms     = [l.split()[1] for l in linesFrom]
+
+        linesImport = [l for l in lines if l.startswith('import')]
+        linesImport = [l for l in linesImport if importSelector(l)]
+        linesImport = [l[len('import '):] for l in linesImport]
+
+        imports = []
+        [imports.extend(l.split(',')) for l in linesImport]
+        imports = [imp.strip() for imp in imports]
+        imports = [imp for imp in imports if os.path.exists(os.path.join(
+            os.getcwd(), imp+'.py'))]
+        
+        # print formatCollection(lines)
+        froms.extend(imports)
+        return froms
+
+    def whoImports(self, file):
+        if file.endswith('.py'):
+            file = file[:-3]
+        imports = [a for a in self.dict.keys() if file in self.dict[a]]
+        # print '\n\nthe following imports %s:\n' % file
+        return  imports
+
+    def ifunc(self,p):
+        self.recurs += 1
+        # print self.recurs
+        if self.recurs>self.maxrecurs:
+            return
+        self.indent += self.istep
+        print self.recurs, self.indent,p
+        p2 = self.whoImports(p)
+        # print p2
+        if not p2: print self.indent,'===end'
+        for pp in p2:
+                self.ifunc(pp)
+        self.indent = self.indent[:-len(self.istep)]
+        self.recurs -= 1
+
+    def chain(self, file):
+        print '\nChain for import of %s\n' % file
+        pp = self.whoImports(file)
+        for p in pp:
+            print ' '
+            self.ifunc(p)
+            self.recurs = 0
+
+    def chain2(self, file):
+        '\nChain for import of %s' % file
+        p1  = self.whoImports(file)
+        self.indent = ''
+        self.istep = '    '
+        for p in p1:
+            print self.indent,p
+            p2  = self.whoImports(p)
+            for pp in p2:
+                self.indent += self.istep
+                print self.indent, pp
+                p3 = self.whoImports(pp)
+                for ppp in  p3:
+                    self.indent += self.istep
+                    print self.indent, ppp
+                    self.indent = self.indent[:-len(self.istep)]
+                self.indent = self.indent[:-len(self.istep)]
+                    
+            
+        
+if __name__ == '__main__':
+    importee = 'DirMaker'
+    maxRecursion = 1
+    imps = Imports(maxRecursion)
+    imps.chain(importee)
+

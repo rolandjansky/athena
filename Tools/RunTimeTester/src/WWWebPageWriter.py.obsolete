@@ -1,0 +1,387 @@
+# This class acts as the entrance to the system that writes out the xml files
+# used to generate web pages.
+# It manages incomoming summaries, establishes if the web summary is more recent than
+# others with the same parameter set.
+#
+# It then wraps most recent the summaries into a DOM document and passes them to PageWriter.
+# the document is destroyed after the web pages have been written.
+#
+
+import os, types, string
+import time
+import page0DefaultFiles
+
+from PageWriter import Page1Writer
+from xml.dom.minidom            import parseString, parse
+
+from Evaluate  import Evaluate
+from listFiles import listFiles
+from XMLTools  import relPath
+
+from exc2string2 import exc2string2
+# print level: current settings are at 1, 10, 100. 0 = silent.
+debug = 10
+
+def setPageLocations(dom):
+
+    def makeShorterPath(path, backup):
+
+        while backup:
+            backup -= 1
+            path, tail = os.path.split(path)
+
+        return path
+
+
+    # hardcode the location of page 2.
+    # original idea was to have the source of all path info
+    # from minder results paths. Does not work as some packages (vetoed eg)
+    # have no minders.
+
+    absPage2Path = os.path.join(Evaluate('overview/resReleaseDir/text()', dom.documentElement), 'page2.xml')
+    
+    # absPage1Path = os.path.join(makeShorterPath(absPage2Path, 3), 'page1.xml')
+    # absPage0Path = os.path.join(makeShorterPath(absPage1Path,4), 'page0.xml')
+
+    absPage1Path = os.path.join(makeShorterPath(absPage2Path, 6), 'page1.xml')
+
+    # print 'absPage1Path',absPage1Path
+    # print absPage0Path
+    # relPage0Page1Path = relPath(absPage0Path, absPage1Path)
+    relPage1Page2Path = relPath(absPage1Path, absPage2Path)
+
+
+    newPaths = [
+        # ('absPage0Path',      absPage0Path),
+        ('absPage1Path',      absPage1Path),
+        ('absPage2Path',      absPage2Path),
+        # ('relPage0Page1Path', relPage0Page1Path),
+        ('relPage1Page2Path', relPage1Page2Path)
+        ]
+
+    addedPaths = []
+    addedPaths.extend(newPaths)
+
+    # for p in newPaths: print '%20s: %s' % p
+    
+    on = Evaluate('overview', dom.documentElement)[0]
+
+    def createPathNode(name, path, dom):
+        el = dom.createElement(name)
+        el.appendChild(dom.createTextNode(path))
+        return el
+    
+    [on.appendChild(createPathNode(name, path, dom)) for name, path in newPaths]
+
+    
+    packageNodes = dom.getElementsByTagName('package')
+    for pn in packageNodes:
+        minderNodes = pn.getElementsByTagName('minder')
+        
+        # sometimes package has no minder eg when package in vetoed
+        # page 3 contains the list of pointers to all the page4s (jobs) for
+        # a package.
+        if not minderNodes: continue
+
+        def findPackageLocation(minderNode):
+            path = Evaluate('resultsPath/text()', minderNode)
+            path = makeShorterPath(path, 3)
+            return path
+        
+        packageLocations = [findPackageLocation(mn) for mn in minderNodes]
+        # print pn.toxml()
+        # assert len(packageLocations)>0
+
+            
+        absPage3Path = packageLocations[0]
+        for p in packageLocations: assert absPage3Path == p
+
+        absPage3Path = os.path.join(absPage3Path, 'page3.xml')
+        relPage2Page3Path = relPath(absPage2Path, absPage3Path)
+        newPaths = [
+            ('absPage3Path',      absPage3Path),
+            ('relPage2Page3Path', relPage2Page3Path)
+            ]
+        [pn.appendChild(createPathNode(name, path, dom)) for name, path in newPaths]
+        addedPaths.extend(newPaths)
+
+        for mn in minderNodes:
+            absPage4Path = Evaluate('resultsPath/text()', mn)
+            absPage4Path = os.path.join(absPage4Path, 'page4.xml')
+            relPage3Page4Path = relPath(absPage3Path, absPage4Path)
+            mn.appendChild(createPathNode('relPage3Page4Location', relPage3Page4Path, dom))
+
+
+    return addedPaths
+         
+    
+class SummaryLocationKey:
+    def __init__(self, path):
+        self.keyType = 'relativePath'
+        self.key     = path
+
+def setupSummaryDict(topDir, summaryListFileName):
+    """
+    set up a dictionary of location: document pairs
+    location is  a general concept, here represented by a relative path
+
+    the locations of the summary files are stored in the file summaryFilePaths.txt
+    for rapid access. If this file does not exist, the file system is searched
+    for the summaryFiles.
+    """
+    fn = 'summaryFilePaths.txt'
+
+    if os.path.exists(fn):
+        summaryPaths=open(fn, 'r').readlines()
+        summaryPaths = [s.strip() for s in summaryPaths]
+        # print 'read %d locations from %s' % (len(summaryPaths), fn)
+    else:
+        summaryPaths =  listFiles(topDir, 'RTTSummary.xml')
+        of = open(summaryListFileName, 'w')
+        [of.write('%s\n' % l) for l in summaryPaths]
+        of.close()
+
+    summaryPaths = [s for s in summaryPaths if os.path.exists(s)]
+    # print 'len summaryPaths', len(summaryPaths)
+    return summaryPaths
+
+import mutex
+
+accessLock = mutex.mutex()
+
+class WebPageWriterBase:
+    def __init__(self, resBaseDir, initTables, writePages):
+
+        #logger.debug('WebPageWriter __init__ start')
+
+        self.totPageUpdates = 0
+        self.summaryListFileName = os.path.join(os.getcwd(), 'summaryFilePaths.txt')
+
+        self.docs = [] # path names to summary files
+        self.doms = {} # identifier to dom mapping
+
+        # On request, look for all summary files below resBaseDir
+        if initTables: self.docs = setupSummaryDict(resBaseDir, self.summaryListFileName)
+        
+        self.resBaseDir = resBaseDir
+        self.writer = self.makeWriter()
+        # ensure that some enssential web files are present
+        
+        filesToWrite = {
+            'messageOfTheDay.js':        page0DefaultFiles.messageOfTheDay,
+            'RTTpage1_LinksAtTopOfPage.js': page0DefaultFiles.RTTpage1_LinksAtTopOfPage
+            }
+
+        def writeOut((fn, text), resBase):
+            fullPath = os.path.join(resBase, fn)
+            if os.path.exists(fullPath): return
+            of = open(fullPath,'w')
+            of.write(text)
+            of.close()
+
+        [writeOut(item, resBaseDir) for item in filesToWrite.items()]
+
+        self.updates = []
+
+        ndocs = len(self.docs)
+        ndoc  = 0
+        for s in self.docs:
+            ndoc += 1
+            print 'processing  %s' % (s)
+            self.internalUpdateSingleSummary(s, writePages)
+            print '%d/%d pages complete: last = %s' % (ndoc, ndocs, s)
+
+    def internalUpdateSingleSummary(self, pathToSummaryFile, writePage):
+
+        
+        try:
+            xmlSummary = parse(pathToSummaryFile)
+            # print '\n %s::internalUpdateSingleSummary - parsed string from file\n  %s' % (self.__class__.__name__,
+            #                                                                              pathToSummaryFile)
+        except:
+            print exc2string2()
+            # print open(pathToSummaryFile, 'r').read()
+            print 'could not parse string from file %s' % pathToSummaryFile
+            return 1
+        
+        identifier = Evaluate('overview/startTime1/text()', xmlSummary.documentElement).strip()
+
+        argdict = {'packagesToUpdate':   [],
+                   'mindersToUpdate':    [],
+                   'cmttargetsToUpdate': [],
+                   'writePages':         writePage,
+                   'identifier':         identifier,
+                   'xmlSummary':         xmlSummary,
+                   'xmlSummaryLocation': pathToSummaryFile,
+                   'finalise':           True
+                   }
+
+        self.doms[identifier] = xmlSummary
+        self.update(argdict)
+
+        # self.router.deregisterSummary(identifier)
+        return 0
+    
+    def updateSingleSummary(self, pathToSummaryFile):
+        'Method to force reading from summary from given path and to write webPages'
+        rc = self.internalUpdateSingleSummary(pathToSummaryFile, True)
+        if rc !=0: return rc
+        
+        try:
+            of = open(self.summaryListFileName, 'r')
+        except:
+            return 2
+
+        lines = of.readlines()
+        of.close()
+        found = False
+        for l in lines:
+            if l.startswith(pathToSummaryFile):
+                of.close()
+                return 0
+
+        lines.append(pathToSummaryFile+'\n')
+        
+
+        text =string.join(lines)
+
+        try:
+            of = open(self.summaryListFileName, 'w')
+        except:
+            return 3
+
+        of.write(text)        
+        of.close()
+        return 0
+    
+    def update(self, dict):
+        if debug>=50: print time.ctime(), 'WebPageWriter start update'
+        startTime = time.ctime()
+        timePair = (startTime,0)
+        self.updates.append(timePair)
+        accessLock.lock(self.lockedUpdate, dict)
+
+        timePair = (startTime,time.ctime())
+        self.updates[-1] = timePair
+        if debug >=50: print time.ctime(), 'WebPageWriter ends update'
+        
+        return 0
+    
+    def lockedUpdate(self, dict):
+        if debug>=100: print 'start lockedUpdate'
+
+        document = dict['xmlSummary']
+        if isinstance(document, types.StringTypes): # strings passed from Tester, DOMS from __init__
+            try:
+                document           = parseString(dict['xmlSummary'])
+            except:
+                if debug >= 10: print dict['xmlSummary']
+
+            
+        xmlSummaryLocation = relPath(self.resBaseDir, dict['xmlSummaryLocation'])
+        packagesToUpdate   = dict['packagesToUpdate']
+        mindersToUpdate    = dict['mindersToUpdate']
+        cmttargetsToUpdate = dict['cmttargetsToUpdate']
+        writePages         = dict['writePages']
+        summaryIdentifier  = dict['identifier']
+        finalise           = dict.get('finalise', False)
+
+
+        # print 'Calling setPageLocations start'
+        try:
+            npaths = setPageLocations(document)
+        except:
+            print 'Error setting path locations'
+        # else:
+        #    for np in npaths: print np
+
+        # print document.toxml()
+
+        # print 'Calling setPageLocations end'
+                
+        self.doms[summaryIdentifier] = document
+
+        de = document.documentElement
+        overviewNode = Evaluate('overview', de)[0]
+        # Some pages containing the overview node have the lifetime of the server.
+        # Once a document is processed, it is deleted to avoid running out of memory.
+        # The overview node needs to be cloned to avoid its destruction while in a live page
+        clonedOverview =overviewNode.cloneNode(True)
+        nupdates = self.writer.update(cmttargetsToUpdate, packagesToUpdate, mindersToUpdate, writePages,
+            xmlSummaryLocation, clonedOverview, de)
+
+        self.totPageUpdates += nupdates
+        if debug >= 10: print 'WebPageWriter: pages updated  this doc: %d total %d' % (nupdates, self.totPageUpdates)
+        if finalise:
+            if debug >= 20: print 'Deregistration starts'
+            self.writer.deregisterChildren()
+            document.unlink()
+            del self.doms[summaryIdentifier]
+        
+        accessLock.unlock()
+        return 0
+
+    def getDocs(self):
+        if self.docs: return self.docs
+        return 0
+
+    def countDoms(self):
+        print len(self.doms)
+        return 0
+
+    def getOutputDir(self): return self.resBaseDir
+
+    def areYouAlive(self): return 'yes'
+    
+    def dumpTable(self):
+        # return '\n---- WebPageWriter Tables ---\n\n%s\n\n%s\n\n%s\n\n%s\n\n' % (
+        #    str(self.page0Table),
+        #    str(self.page1Table),
+        #    str(self.page2Table),
+        #    str(self.page3Table)
+        #    )
+        counts = {}
+        s = str(self.updates) + '\n\n' + self.writer.dump(0, counts)
+        s += '\n\ncounts by page type \n\n'
+
+        ks = counts.keys()
+        ks.sort()
+        for k in ks:
+            s += '%10s %d\n' % (k, counts[k])
+        print s
+        return 0
+
+class WebPageWriter(WebPageWriterBase):
+    def __init__(self, resBaseDir, initTables=True, writePages=False):
+
+
+        if debug>=100: print 'WebPageWriter: start construction: initTable:', initTables,'writePages:',writePages
+        ### self.writerClass = Page0Writer
+        
+        WebPageWriterBase.__init__(self, resBaseDir, initTables, writePages)
+
+        if debug>=100: print 'WebPageWriter: construction complete'
+
+    def makeWriter(self):
+        # return Page0Writer(self.resBaseDir, 'Top', None, None)
+        return Page1Writer(self.resBaseDir, 'Top')
+
+if __name__ == '__main__':
+    from xml.dom.minidom import parse
+    import sys
+    
+    resBaseDir = '/afs/cern.ch/atlas/project/RTT/data/brinick/Results'
+
+    # dict = {
+    #    'keyDocList':        docList,
+    #    'cmtTargetToUpdate': [],
+    #    # 'packageToUpdate':   ['BPhysValidation'],
+    #    'packageToUpdate':   [],
+    #    'mindersToUpdate':   []
+    #    }
+
+    writer = WebPageWriter(resBaseDir,True)
+
+    
+    print writer.dumpTable()
+    

@@ -1,0 +1,93 @@
+import time
+
+class TimeHist:
+    def __init__(self, nchan=10):
+        self.data = []
+        self.nchan = nchan
+        self.dist = {}
+        self.tdist = []
+        self.minVal = 0.
+        self.maxVal = 0.
+        self.step   = 1.
+        
+        [self.dist.setdefault(i,0) for i in range(self.nchan)]
+        
+    def newPoint(self, data):
+        self.data.append( (data, time.time()) )
+
+    def histVals(self):
+        self.setBinWidth()
+        self.zeroDist()
+        if len(self.data) < 2: return str
+        
+        for d in self.data:
+            ichan  = int((d[0]-self.minVal)/self.step)
+            self.dist[ichan] =  self.dist[ichan]+1
+
+    def setBinWidth(self):
+        data = [d[0] for d in self.data]        
+        self.minVal = min(data)
+        self.maxVal = max(data)
+        width = self.maxVal-self.minVal
+        self.step = width/float(self.nchan-1)
+        if self.step == 0.: self.step = 1.
+
+        print self.minVal, self.maxVal, self.step
+
+    def histTimes(self):
+        self.setBinWidth()
+        self.tdist = []
+        if len(self.data) < 2: return str
+
+        for d in self.data:
+            ichan  = int((d[0]-self.minVal)/self.step)
+            t =  time.strftime("%d %b %Y %H:%M:%S", time.gmtime(d[1])),
+            self.tdist.append( (t, ichan*'x') )
+
+    def header(self):
+        str = '\n\nmin: %s max: %s bin width: %s\n\n' % (self.minVal,
+                                                       self.maxVal,
+                                                       self.step )
+        return str
+        
+    def valueDistToString(self):
+        str = self.header()
+        if len(self.data) < 2: return str
+        
+        for i in range(self.nchan):
+            line = int(self.dist[i])*'x'
+            str +=  '%f5: %s\n' % ((self.minVal+float(i)*self.step),line)
+
+        return str
+    
+    def timeDistToString(self):
+        str = self.header()
+        if len(self.data) < 2: return str
+
+        for point in self.data:
+            ichan  = int((point[0]-self.minVal)/self.step)
+            line = ichan*'x'
+            t = time.strftime("%d %b %Y %H:%M:%S", time.gmtime(point[1]))
+            str += '%s: %s\n' % (t,line)
+
+        return str
+    def zeroDist(self):
+        for key in self.dist.keys(): self.dist[key]=0.
+        
+    def valuesPlot(self):
+        self.histVals()
+        return self.valueDistToString()
+    def timesPlot(self):
+        self.histTimes()
+        return self.timeDistToString()
+if __name__ == '__main__':
+    hist = TimeHist()
+    data = [1,2,2,3,4,5,6,7,8, 8, 8, 5, 2]
+    for d in data:
+        
+        hist.newPoint(d)
+        time.sleep(0.5)
+        
+    print hist.valuesPlot()
+    print hist.timesPlot()
+    

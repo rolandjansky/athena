@@ -1,0 +1,59 @@
+import os
+from os.path import join
+
+
+def qaMetrics2OnePage(iDir, oDir):
+    " make a page of links to all the QAmetrics results html files"
+
+    oFileName = 'qaResultsOnePage.html'
+    ofn = join(oDir,oFileName)
+    ofile = open(ofn, 'w')
+
+    ofile.write('<html>\n')
+
+    for file in os.listdir(oDir):
+        if file.find('QAmetrics') != -1 and file.find('metrics.html') != -1:
+            line = '<a href=\"'+file+'\">'+file+'</a><br/>\n'
+            ofile.write(line)
+                        
+    ofile.write('</html>\n')
+
+    return oFileName
+
+def myArgs():
+	""" Returns directories containing viol files and results"""
+
+	iDir = '/Users/peter/Scratch'
+	oDir ='./Results'
+
+	if len(sys.argv) <= 1 or len(sys.argv) > 3:
+		print """Assuming defaults:
+		Viol files in """+iDir+""" 
+		Results in """ +oDir
+	elif len(sys.argv) > 2:
+		iDir = sys.argv[2]
+		
+	if len(sys.argv) > 1 :
+		oDir = sys.argv[1]
+
+
+	if not os.path.exists(iDir):
+		print 'No Viol directory:stopping '
+		sys.exit()
+	if not os.path.exists(oDir):
+		print 'No Results directory: stopping '
+		sys.exit()
+
+
+	return (iDir, oDir)
+
+if __name__ == '__main__':
+	"""
+	usage:
+	python  qaMetricsToOnePage.py iDir, oDir:
+        assumes results in oDir, input htmlfiles in iDir
+	
+	if arg(s) are missing, defaults are printed and used.
+	"""
+	iDir, oDir = myArgs()
+	qaMetrics2OnePage(iDir, oDir)

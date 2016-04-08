@@ -1,0 +1,92 @@
+"""
+SuperParser parses the RTT part of the unfied test configuration file for
+job groups and jobs. The two actions are delegated to other hander modules.
+"""
+
+from JobGroupKits           import JobGroupKits
+from exc2string2            import exc2string2
+from XMLTools               import getText
+from Tools                  import sendMail
+from Factory_JobsXMLReader  import JobsXMLReaderFactory
+from JobMaker               import JobMaker
+
+import sys
+
+#from MethodTracer        import MetaTracer
+#__metaclass__ = MetaTracer
+
+# -------------------------------------------------------------------------
+
+class SuperParser:
+
+    def __init__(self, packageXMLfile, logger):
+        self.packageXMLfile = packageXMLfile
+        self.logger = logger
+        
+    def parse(self, paths):
+        """Returns a list of all minders (RTT, RTTpilot and ATN)"""
+
+        rttElement = self.packageXMLfile['rtt[0]']
+
+        try:
+            paths.mailTo   = self.packageXMLfile['rtt/mailto[0]/text()']
+        except:
+            # no mailto tag
+            paths.mailTo = ''
+
+        jobListElement  = self.packageXMLfile['rtt/jobList[0]']
+        try:
+            atnElement  = self.packageXMLfile['atn[0]']
+        except IndexError:
+            atnElement = None
+            
+        factory  = JobsXMLReaderFactory(self.logger)
+        if not factory:
+            self.logger.error('Could not make a JobsXMLReader factory')
+            return []
+
+        def makeMinders((mode, element), paths):
+            try:
+                xmlReader = factory.create(mode, element, paths)
+            except Exception, e:
+                msg  = 'Exception while parsing package xml file'
+                msg += 'mode: %s package %s \n' % (mode, paths.package)
+                msg += exc2string2() 
+                self.logger.error(msg)
+                return []
+
+            try:
+                jobMaker = JobMaker(xmlReader, paths, self.logger)
+                # the jobMaker object makes the minders in its __init__
+                # instantiate the jobMaker class
+                jobMinders  = jobMaker.jobMinders
+                self.logger.debug('Made %d jobs' % len(jobMinders))
+                return jobMinders
+            except:
+                msg  = 'Exception while parsing package xml file '
+                msg += 'mode: %s package %s \n' % (mode, paths.package)
+                msg += exc2string2() 
+                self.logger.error(msg)
+                return []
+
+        # Always prcocess RTT jobs
+        modes = {paths.mode: jobListElement} # to make RTT and RTTpilot jobs
+
+        # process ATN if requested
+        if paths.atnPilotJobs:
+            if atnElement: modes['ATN'] = atnElement 
+        
+        jobMinders = []
+        [jobMinders.extend(makeMinders(m, paths)) for m in modes.items()]
+
+        # remove pilot jobs if they are NOT requested
+        if not paths.rttPilotJobs:
+            jobMinders = [j for j in jobMinders if not j.jDescriptor.rttPilotJob]
+
+        self.logger.debug('No of kits %d' % JobGroupKits().nKits())
+        self.logger.debug('No of jobs %d' % len(jobMinders))
+        return jobMinders
+
+
+if __name__ == "__main__":
+    pass

@@ -1,0 +1,107 @@
+
+<RTTSummary>
+  <overview>
+    <topProject>AtlasProduction</topProject>
+    <latestUpdateTime2>1245225611.93</latestUpdateTime2>
+    <cmtConfig>i686-slc4-gcc34-opt</cmtConfig>
+    <releaseType>project</releaseType>
+    <site>CERNslc4</site>
+    <releaseName>14.5.0</releaseName>
+    <statusText>09/06/17@10:00: jobs succ/done/tot: 1/1/1</statusText>
+    <otherProject>
+    </otherProject>
+    <runType>build</runType>
+    <latestUpdateTime1>09/06/17@10:00</latestUpdateTime1>
+    <resBaseDir>/afs/cern.ch/atlas/project/RTT/data/peter/NewTest/RTTTest/testsuites/helloworld/Results</resBaseDir>
+    <endTime1>09/06/17@10:00</endTime1>
+    <endTime2>1245225611.91</endTime2>
+    <RTTLibVersion>RunTimeTester-00-02-65</RTTLibVersion>
+    <resReleaseDir>/afs/cern.ch/atlas/project/RTT/data/peter/NewTest/RTTTest/testsuites/helloworld/Results/14.5.0/build/i686-slc4-gcc34-opt/offline</resReleaseDir>
+    <startTime2>1245225289.61</startTime2>
+    <startTime1>09/06/17@09:54</startTime1>
+    <nPackages>1</nPackages>
+    <nPackagesAllJobsOK>1</nPackagesAllJobsOK>
+    <originalBranch>dev</originalBranch>
+    <nicosDate2>1228275841</nicosDate2>
+    <RTTSrcVersion>RunTimeTester-00-02-65</RTTSrcVersion>
+    <nicosDate1>2008/12/03 03:44:01</nicosDate1>
+    <release>14.5.0</release>
+  </overview>
+  <package>
+    <nPPSuccessInPackage>0</nPPSuccessInPackage>
+    <nTestsSuccessInPackage>0</nTestsSuccessInPackage>
+    <nJobsTotalPackage>1</nJobsTotalPackage>
+    <nJobsSuccessInPackage>1</nJobsSuccessInPackage>
+    <packageName>AthExHelloWorld</packageName>
+    <nJobsInPackage>1</nJobsInPackage>
+    <nJobsOpCloseInPackage>0</nJobsOpCloseInPackage>
+    <nTestsFailureInPackage>0</nTestsFailureInPackage>
+    <containerPackage>Control/AthenaExamples/AthExHelloWorld</containerPackage>
+    <nTimeOutsInPackage>0</nTimeOutsInPackage>
+    <phase>rttMainJobPhase</phase>
+    <packageTag>AthExHelloWorld-01-01-01</packageTag>
+    <nJobsDoneInPackage>1</nJobsDoneInPackage>
+    <nTestsInPackage>0</nTestsInPackage>
+    <nBatchErrorsInPackage>0</nBatchErrorsInPackage>
+    <nJobsFailureInPackage>0</nJobsFailureInPackage>
+    <nPPFailureInPackage>0</nPPFailureInPackage>
+    <nRetriesInPackage>0</nRetriesInPackage>
+    <packageStatus>done</packageStatus>
+    <minder>
+      <nUserTests>0</nUserTests>
+      <jobDocURL>http://cern.ch</jobDocURL>
+      <resultsPath>/afs/cern.ch/atlas/project/RTT/data/peter/NewTest/RTTTest/testsuites/helloworld/Results/14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0</resultsPath>
+      <batchStatus>DONE</batchStatus>
+      <jobDisplayName>
+      </jobDisplayName>
+      <cpuTime2000>75</cpuTime2000>
+      <jobID>0</jobID>
+      <chainLength>1</chainLength>
+      <state>done</state>
+      <postProcessingResult>no tests</postProcessingResult>
+      <jobGroup>AthenaHelloWorld</jobGroup>
+      <identifiedName>HelloWorldOptions0</identifiedName>
+      <status>success</status>
+      <chainSuccesses>1</chainSuccesses>
+      <mem>18MB</mem>
+      <stateHistory>[('queued', '09/06/17 09:57'), ('running', '09/06/17 09:57'), ('postProcessingQueued', '09/06/17 09:58'), ('postProcessingRunning', '09/06/17 09:59'), ('done', '09/06/17 09:59')]</stateHistory>
+      <jobDocString>blah</jobDocString>
+      <hashString>1079629659</hashString>
+      <nRetries>0</nRetries>
+      <cpuTime>28</cpuTime>
+      <jobName>HelloWorldOptions</jobName>
+      <vmem>297MB</vmem>
+      <nUserActions>3</nUserActions>
+      <exitStatus>Unknown</exitStatus>
+      <processingResult>success</processingResult>
+      <wallTime>Unobtainable</wallTime>
+      <datasets/>
+      <missingDatasets/>
+      <archivers/>
+      <sUserTests>0</sUserTests>
+      <deliveredkeepfiles>
+        <baseKeepFileDir>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0</baseKeepFileDir>
+        <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/RTTtests.db</keepfile_newstyle>
+        <keepfile_newstyle info='The script submitted to the batch machine' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/runScript.sh</keepfile_newstyle>
+        <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/postprocessing.warning.log</keepfile_newstyle>
+        <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/postProcessorScript.sh</keepfile_newstyle>
+        <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/postprocessing.info.log</keepfile_newstyle>
+        <keepfile_newstyle info='ls -altF command on run directory before and after athena command' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/lsaltF.txt</keepfile_newstyle>
+        <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/postprocessing.debug.log</keepfile_newstyle>
+        <keepfile_newstyle info='Shows all the environmental variables set' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/env.log</keepfile_newstyle>
+        <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/postProcessor.log</keepfile_newstyle>
+        <keepfile_newstyle info='Job options called with the athena command' md5sum='' displayColor='#cc3333'>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/AthExHelloWorld/HelloWorldOptions.py</keepfile_newstyle>
+        <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/postprocessing.error.log</keepfile_newstyle>
+        <keepfile_newstyle info='cmt show uses command on package cmt dir' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/cmtShowUses.log</keepfile_newstyle>
+        <keepfile_newstyle info='Marker emitted at the end of the job' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/JobCompleteMarker.txt</keepfile_newstyle>
+        <keepfile_newstyle info='WARNING,ERROR and FATAL messages from job log' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/ERROR.log</keepfile_newstyle>
+        <keepfile_newstyle info='Package XML test configuration file' md5sum='' displayColor='#cc3333'>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/package.xml</keepfile_newstyle>
+        <keepfile_newstyle info='Job Log file' md5sum='' displayColor='#cc3333'>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/HelloWorldOptions/0/HelloWorldOptions0_log</keepfile_newstyle>
+      </deliveredkeepfiles>
+      <errors/>
+      <done/>
+      <checkResults/>
+      <testResults/>
+    </minder>
+  </package>
+</RTTSummary>

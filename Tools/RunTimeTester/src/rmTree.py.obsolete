@@ -1,0 +1,22 @@
+#!/usr/bin/python
+import os, sys
+
+from os.path import join, isdir, isfile, islink
+
+def rmTree(top):
+    for file in os.listdir(top):
+        path=join(top, file)
+        if islink(path):
+            os.remove(path)
+        elif isfile(path):
+            # os.chmod(path, 0777)
+            os.remove(path)
+        elif isdir(path):
+            rmTree(path)
+
+    os.rmdir(top)
+
+if __name__ == "__main__":
+
+    for dname in sys.argv[1:]: rmTree(dname)
+                          

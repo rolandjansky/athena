@@ -1,0 +1,98 @@
+from Paths                     import NoPackagePaths
+from RunTimer                 import RunTimer
+from RTTConfigParser          import RTTConfiguration
+from GetUserConfigData        import GetUserConfigData
+from Evaluate                 import Evaluate
+from makeRTTDOM               import makeRTTDOM
+from ParametersForCMT         import ParametersForCMT
+from Factory_CMTConfigurer    import CMTConfigurerFactory
+from ShellCommand             import ShellCommand
+
+
+import os, logging, xml.dom.minidom
+from LoggerSetup import setupLoggers
+
+
+# logFileDir = '/local_disk/sherwood/RTT02'
+logFileDir = '/afs/cern.ch/atlas/project/RTT/data/peter/logs/JobIdentifier'
+logFileDir = setupLoggers(logFileDir)
+logger = logging.getLogger('rtt')
+
+confFile = '/afs/cern.ch/atlas/project/RTT/data/peter/cfg/example.xml'
+rttConfig = RTTConfiguration(confFile)
+RTTSrcDir = os.getcwd()
+RTTLibDir = os.path.join(RTTSrcDir,'../share')
+print rttConfig
+
+summaryDocument    = makeRTTDOM('RTTSummary')
+parametersForCMT   = ParametersForCMT(rttConfig, logger)
+
+
+
+class ConfigFileDumper:
+    def __init__(self):
+
+        factory = CMTConfigurerFactory(logger)
+        configurer = factory.create(parametersForCMT)
+        configurer.makeHomeCMTDir()
+        cmd  = configurer.configure()
+        ShellCommand([cmd], logger)
+
+        
+        paths = NoPackagePaths(RTTSrcDir,
+                               RTTLibDir,                               
+                               rttConfig,
+                               RunTimer(1, logger),
+                               logFileDir,
+                               summaryDocument.createElement,
+                               summaryDocument.createTextNode,
+                               parametersForCMT,
+                               logger)
+        
+
+        getUserConfigData  = GetUserConfigData(rttConfig, paths)
+        self.packages           = getUserConfigData.userConfigData()
+        
+        msg = 'CFD: packages: %s' % str([p.name for p in self.packages])
+        logger.debug(msg)
+
+        self.paths = paths
+
+    def dumpConfig(self):
+        
+        for p in self.packages:
+            print '\n========== %s ==============\n\n' % p.name
+            print open(p.pathToTestConfig,'r').read()
+
+
+
+def parseXML(path):
+    try:
+        return  xml.dom.minidom.parse(path)
+    except:
+        print 'parse unsuccessful for ', path
+        return None
+
+
+class PetersConfigFileDumper(ConfigFileDumper):
+    def __init__(self):
+        ConfigFileDumper.__init__(self)
+
+        fn = '%s_%s' % (rttConfig.get('cmtConfig'), rttConfig.get('release'))
+        of = open(fn, 'w')
+        for p in self.packages:
+            msg = ('package %s:  hash: %i' %(p.name,hash(open(p.pathToTestConfig,'r').read())))
+            of.write(msg+'\n')
+            logger.debug(msg)
+
+        for p in self.packages:
+            of.write(p.pathToTestConfig+'\n')
+
+        of.close()
+            
+
+if __name__ == '__main__':
+
+
+    pd = PetersConfigFileDumper()
+    pd.dumpConfig()

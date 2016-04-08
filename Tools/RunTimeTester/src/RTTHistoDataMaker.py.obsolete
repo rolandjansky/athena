@@ -1,0 +1,79 @@
+from makeRTTDOM         import makeRTTDOM
+from RTTXMLFileSelector import RTTXMLFileSelector
+from Evaluate           import Evaluate, getText
+from xml.dom.minidom    import parseString
+from xml.dom.ext        import PrettyPrint
+from exc2string2        import exc2string2
+from StringIO           import StringIO
+
+import time, sys
+
+def getSummedData(key, dom, tagPaths, logger):
+
+    def getTagContent(xpath, key, dom):
+        tags = Evaluate(xpath, dom.documentElement)
+
+        if not tags:
+            #temp = StringIO()
+            #PrettyPrint(dom, temp)
+            m = 'Unable to find XML path %s in moni DB entry with key %s\n' % (xpath, str(key))
+            
+            logger.info(m)
+            return 0.
+        
+        data = [float(getText(tag)) for tag in tags]
+        sum = reduce(lambda x,y: x+y, data, 0)
+        return sum
+
+    point = []
+    [point.append(getTagContent(tag, key, dom)) for tag in tagPaths]
+    return point
+        
+
+def  RTTHistoDataMaker(dbPath, selector, nDays, tagpaths, logger):
+
+    # returns a dictionary whose keys are matching DB keys, values = db values
+    matchingDataDict = RTTXMLFileSelector(str(dbPath), selector, logger)
+    
+    nSecs = nDays*24*60*60
+    t0    = time.time()-nSecs
+
+    doms = []
+
+    items =  matchingDataDict.items()
+    logger.info('No of points found in db: %d' % len(items))
+        
+    for key,value in  items:
+        logger.debug('parsing file with key %s' % str(key))
+        try:
+            dom = parseString(value)
+        except:
+            logger.error('Error trying to parseString in RTTHistoDataMaker. Key with unparseable value: %s' % str(key))
+            logger.error(exc2string2())
+        else:
+            item = (key,dom)
+            doms.append(item)
+
+    logger.debug('No of doms recovered from db: %d' % len(doms))
+    doms = [d for d in doms
+            if float(getText(Evaluate('overview/nicosDate2', d[1].documentElement)[0]))>t0]
+
+    points = [getSummedData(d[0], d[1],tagpaths, logger) for d in doms]
+    logger.debug('No of doms selected: %d' % len(points))
+
+    return points
+
+
+if __name__ == '__main__':
+    
+    class Logger:
+        def error(self, text): print text
+    # The full path to the database file with the xml files for the RTT runs/
+    dbPath = '/local_disk/sherwood/RTT02/moniFile.db'
+
+    
+    key    = {'originalBranch': u'N.X.0'}
+    tagpaths = ['nicosDate2','nJobs', 'nJobsOK']
+    days = 7
+    points =  RTTHistoDataMaker(dbPath, key, days, tagpaths, Logger())
+    print points

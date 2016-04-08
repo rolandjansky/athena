@@ -1,0 +1,190 @@
+"""State Engine for PBSJobMinders: extends WorkerJobMinderStateEngine
+
+overrides: fromQueued
+           fromQueuedTest
+           fromRunning
+
+removes transitions
+
+
+adds state transitions
+
+queued   -> pbsError
+running  -> retry
+retry    -> queued
+pbsError -> done
+"""
+
+from WorkerMinderStateEngine  import WorkerMinderStateEngine
+from exc2string2              import exc2string2
+
+import os
+
+class BatchMinderStateEngine(WorkerMinderStateEngine):
+    'Overrides for Batch'
+    
+    def __init__(self, minder, state='queued'):
+        WorkerMinderStateEngine.__init__(self, minder, state)
+
+        newDispatcher = {
+            'retry':      self.fromRetry,
+            'batchError': self.fromBatchError,
+            'timedOut':   self.fromTimedOut
+            }
+        self.dispatcher.update(newDispatcher)
+
+        
+    # -----------------------------------------------
+
+    def functionsMinderMustHave(self):
+        return ['fire', 'checkJobSubmissionWasOK', 'checkForWallTimeTimeOut', 'jobIsRunning',
+                'checkForLogFileTimeOut', 'retryTest', 'doPostProcessing', 'cleanSpace',
+                'audit', 'prepareForRetry', 'stopJob', 'handleBatchError', 'areLogFilesInRunDir']
+    # -----------------------------------------------
+
+    def fromQueuedTest(self): assert(False) # base method refused
+            
+    # -----------------------------------------------
+    
+    def fromQueued(self):
+
+
+        self.minder.fire('runScript')
+                    
+        if not self.minder.checkJobSubmissionWasOK():
+            self.state.set('batchError')
+            return
+
+
+        self.state.set('running')
+        # othewise stay in 'queued'
+
+    # -----------------------------------------------
+
+    def fromRunning(self):
+        "Running is complete if the log files have returned"
+
+        id  = self.minder.pid
+        name = self.minder.identifiedName
+
+        if self.minder.checkForWallTimeTimeOut():
+            self.logger.warning('BatchMinderStateEngine: wall time timeout %s %s' % (name, id) )
+            self.state.set('timedOut')
+            return
+
+
+
+        # query if job is in batch queue
+        queryOK, inBatch = self.minder.jobIsRunning()
+        # give up if the query failed
+        self.logger.debug('BatchMinderStateEngine: check if job is running job %s %s' % (name, id))
+        if not queryOK:
+            self.logger.debug('BatchMinderStateEngine: batch query failed job %s %s' % (name, id) )
+            self.state.set('batchError')
+            return
+
+        # if the job is still running, no state transition.
+        if inBatch:
+            self.logger.debug('BatchMinderStateEngine: job is running %s %s' % (name, id) )
+            self.whileRunningActions()
+            return
+        
+        self.logger.debug('BatchMinderStateEngine: job not seen in batch %s %s' % (name, id) )
+        # are the log files visible?
+        if not self.minder.areLogFilesInRunDir():
+            self.logger.debug('BatchMinderStateEngine: no log file seen %s %s' % (name, id) )
+            if self.minder.checkForLogFileTimeOut():
+                self.logger.warning('BatchMinderStateEngine: no log file seen, timed out %s %s' % (name, id) )
+                self.state.set('timedOut')
+                return
+            # waiting for log files to return: no state change
+            return
+
+        self.logger.debug('BatchMinderStateEngine: log file seen %s %s' % (name, id) )
+
+        self.fromRunningActions() # must perform log checks before retry test.
+
+        self.logger.debug('BatchMinderStateEngine: actions complete %s %s' % (name, id) )
+
+        if self.minder.retryTest():
+            self.logger.debug('BatchMinderStateEngine: setting retry %s %s' % (name, id) )
+            self.state.set('retry')
+            return
+
+        self.logger.debug('BatchMinderStateEngine: starting postprocessing %s %s' % (name, id) )
+
+        if self.minder.doPostProcessing():
+            self.state.set('postProcessingQueued')
+            return
+
+        self.logger.debug('BatchMinderStateEngine: pp complete, setting done %s %s' % (name, id) )
+
+        self.minder.cleanSpace()
+        
+        self.state.set('done')
+        
+    # -------------------------------------------------------------------------
+
+    def whileRunningActions(self):
+        try:
+            self.minder.audit()
+        except:
+            self.logger.error('exception during auditing: %s' % exc2string2())
+
+    # -------------------------------------------------------------------------
+
+    def fromRunningActions(self):
+        self.minder.audit()
+        dirList = os.listdir(self.minder.runPath)
+        self.logger.debug('Run dir contents at the end of running state %s' % str(dirList))
+        WorkerMinderStateEngine.fromRunningActions(self)
+        
+        
+    # -------------------------------------------------------------------------
+    
+    def fromRetry(self):
+
+        # the presence of the log files signals the end of the running
+        # phase - remove the files,and ensure they are copied to the
+        # results web pages.
+
+        self.minder.prepareForRetry()
+        self.state.set('queued')
+        
+    # -----------------------------------------------
+        
+    def fromTimedOut(self):
+        'A marker state'
+
+        #if self.minder.doPostProcessing():
+        #    self.state.set('postProcessingQueued')
+        #    return
+
+        id  = self.minder.pid
+        name = self.minder.identifiedName
+        self.logger.info('Job timed out, remove from batch %s %s' % (id, name)) 
+        self.minder.stopJob()
+        self.state.set('done')
+        
+        
+    # -----------------------------------------------
+        
+    def fromBatchError(self):
+        self.minder.handleBatchError()
+        self.state.set('done')
+        
+    def fromOperatorCloseDown(self):
+        self.minder.stopJob()
+        WorkerMinderStateEngine.fromOperatorCloseDown(self)
+
+    def fromPostProcessingRunning(self):
+        
+        id  = self.minder.pid
+        name = self.minder.identifiedName
+
+        if self.minder.checkForWallTimeTimeOut():
+            self.logger.warning('BatchMinderStateEngine: wall time timeout %s %s' % (name, id) )
+            self.state.set('timedOut')
+            return
+
+        WorkerMinderStateEngine.fromPostProcessingRunning(self)

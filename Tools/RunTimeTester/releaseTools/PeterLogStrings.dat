@@ -1,0 +1,11 @@
+/afs/cern.ch/atlas/project/RTT/prod/SLC3/logs/logfiles_20feb_15:43
+#/afs/cern.ch/atlas/project/RTT/prod/Peter/logs/logfiles_15feb_20:45
+#RTT.log;*.log
+*
+exceptions.MemoryError
+MemFree:
+leaving TestRun run
+operator close
+transition detected
+exception
+Fatal error

@@ -1,0 +1,12 @@
+#! /usr/local/bin/python
+"""
+Formats and time stamps  debug statements
+"""
+
+from Timer            import timer
+
+
+def dbgFf(fName, text):
+    line = timer()+" "+fName+": "+str(text)
+    print line
+    

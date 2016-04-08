@@ -1,0 +1,10 @@
+# functions to determine if a job is an Athena job
+from getInheritanceHeirarchy import getInheritanceHeirarchy
+
+def isAthenaDescriptor(desc):
+    baseClasses = getInheritanceHeirarchy(desc)
+    if 'AthenaJobDescriptor' in baseClasses: return True
+    return False
+
+def isAthenaMinder(minder):
+    return isAthenaDescriptor(minder.jDescriptor)

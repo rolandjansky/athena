@@ -1,0 +1,111 @@
+from Timer import timer
+"""
+A class to hold status information.
+Contains two statuses: primay and secondary.
+Primary status    = job monitor status
+Secondary status  = check status (for, eg regression tests).
+A time of every set operation is noted.
+"""
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+
+class Status:
+    def __init__(self, status):
+        self.primaryLegals = [
+            'unborn',
+            'queued',
+            'running',
+            'error',
+            'success',
+            'timedOut',
+            'PBSfatalError',
+            'operatorCloseDown',
+            'rttTimeOutCloseDown'
+            ]
+        self.secondaryLegals = ['error', 'success','n/a']
+        self.statuses= [status,'']
+        self.timeStamp = timer()
+
+    def status(self):
+        totStatus=''
+        for status in self.statuses:
+            totStatus=totStatus+' '+status
+
+        return totStatus
+
+    def set(self, status):
+
+        if not status in self.primaryLegals:
+            print 'Cannot set Status object with illegal state %s! Ignoring request...' % str(status)
+            return
+
+        if(self.statuses[0]!=status):
+            self.statuses[0] = status
+            self.timeStamp = timer()
+
+    def setPrimary(self, status):
+
+        self.set(status)
+        
+    def setSecondary(self, status):
+        
+        if not status in self.secondaryLegals:
+            print 'Status object, illegal set, balking '+status
+            return
+        
+        if(self.statuses[1] != status):
+            self.statuses[1] = status
+            self.timeStamp = timer()
+
+    def setList(self, statusList):
+        if len(statusList)>2:
+            print 'Status object, too many inputs, balking '+len(statusList)
+            return
+
+        if len(statusList)>0: self.setPrimary(statusList[0])
+        if len(statusList)>1: self.setSecondary(statusList[1])
+            
+
+    def isFailedPrimaryStatus(self):
+        return self.primary() in ['error','timedOut']
+
+    def isFailedSecondaryStatus(self):
+        return self.secondary()=='error'
+
+    def primary(self):
+        stat = self.statuses[0]
+        # logger.debug('Primary status is: ' + str(stat))
+        return stat
+    
+    def secondary(self):
+        return self.statuses[1]
+
+    def time(self):
+        return self.timeStamp
+    
+
+#class PackageStatus:
+#    def __init__(self):
+#        self.initState              = 'initialised'
+#        self.activeState            = 'processing'
+#        self.doneState              = 'completed'
+#        self.failureState           = 'abandoned'
+#        self.current                = self.initState
+#
+#    def init(self):
+#        self.current = self.initState
+#
+#    def ongoing(self):
+#        self.current = self.activeState
+#
+#    def failure(self):
+#        self.current = self.failureState
+#
+#    def done(self):
+#        self.current = self.doneState
+#
+#    def get(self):
+#        return self.current

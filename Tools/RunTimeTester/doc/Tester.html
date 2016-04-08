@@ -1,0 +1,177 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module Tester</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>Tester</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/Tester.py">/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/Tester.py</a></font></td></tr></table>
+    <p><tt>A&nbsp;Giant&nbsp;class&nbsp;which&nbsp;does&nbsp;everything&nbsp;in&nbsp;its&nbsp;constructor&nbsp;!??!<br>
+Does&nbsp;roughly&nbsp;the&nbsp;following:<br>
+&nbsp;<br>
+1.&nbsp;Reads&nbsp;the&nbsp;RTT&nbsp;configuration&nbsp;file,&nbsp;which&nbsp;is&nbsp;used&nbsp;to&nbsp;set&nbsp;up&nbsp;a&nbsp;large&nbsp;number<br>
+&nbsp;&nbsp;&nbsp;of&nbsp;paths&nbsp;and&nbsp;other&nbsp;variables<br>
+&nbsp;<br>
+2.&nbsp;Uses&nbsp;factory&nbsp;method&nbsp;to&nbsp;set&nbsp;up&nbsp;a&nbsp;Commander&nbsp;(mode&nbsp;specific&nbsp;commands)<br>
+&nbsp;<br>
+3.&nbsp;Deletes&nbsp;existing&nbsp;&nbsp;run&nbsp;directories<br>
+&nbsp;<br>
+4.&nbsp;Reads&nbsp;the&nbsp;Jobs&nbsp;configuration&nbsp;file&nbsp;-&nbsp;this&nbsp;sets&nbsp;up&nbsp;a&nbsp;list&nbsp;of&nbsp;Job&nbsp;Descriptors<br>
+&nbsp;&nbsp;&nbsp;(one&nbsp;JobDescriptor&nbsp;per&nbsp;job)<br>
+&nbsp;&nbsp;&nbsp;JobDescriptors&nbsp;contain&nbsp;info&nbsp;about&nbsp;a&nbsp;job.&nbsp;They&nbsp;also&nbsp;create&nbsp;a&nbsp;run&nbsp;directory&nbsp;for<br>
+&nbsp;&nbsp;&nbsp;thir&nbsp;job.<br>
+&nbsp;<br>
+5.&nbsp;Submit&nbsp;the&nbsp;jobs.&nbsp;One&nbsp;JobMinder&nbsp;per&nbsp;job&nbsp;is&nbsp;created.&nbsp;JobMinders&nbsp;incoporate&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;JobDescriptor,&nbsp;and&nbsp;then&nbsp;monitor&nbsp;the&nbsp;progress&nbsp;of&nbsp;the&nbsp;job.<br>
+&nbsp;<br>
+6.&nbsp;A&nbsp;poll&nbsp;command&nbsp;is&nbsp;periodically&nbsp;sent&nbsp;to&nbsp;the&nbsp;JobMinders.&nbsp;These&nbsp;check&nbsp;their&nbsp;job&nbsp;status.<br>
+&nbsp;&nbsp;&nbsp;This&nbsp;status&nbsp;is&nbsp;interogated,&nbsp;and&nbsp;html&nbsp;pages&nbsp;are&nbsp;updated&nbsp;with&nbsp;new&nbsp;status&nbsp;info.<br>
+&nbsp;<br>
+7.&nbsp;After&nbsp;all&nbsp;jobs&nbsp;have&nbsp;completed&nbsp;perform&nbsp;cleanp&nbsp;activities</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="HTMLWriter.html">HTMLWriter</a><br>
+<a href="Reporter.html">Reporter</a><br>
+<a href="anydbm.html">anydbm</a><br>
+</td><td width="25%" valign=top><a href="copy.html">copy</a><br>
+<a href="logging.html">logging</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="signal.html">signal</a><br>
+<a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="__builtin__.html#object">__builtin__.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="Tester.html#Tester">Tester</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Tester">class <strong>Tester</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Tester-__init__"><strong>__init__</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-badConfFilePath"><strong>badConfFilePath</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-badRTTtag"><strong>badRTTtag</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-basicCleanUp"><strong>basicCleanUp</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-blackList"><strong>blackList</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-cleanUp"><strong>cleanUp</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-configureMonitorMinders"><strong>configureMonitorMinders</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createDirectoryMaker"><strong>createDirectoryMaker</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createFailureTestRun"><strong>createFailureTestRun</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createGlobalRunTimer"><strong>createGlobalRunTimer</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createInitialWebPages"><strong>createInitialWebPages</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createKits"><strong>createKits</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createLegals"><strong>createLegals</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createNICOS"><strong>createNICOS</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createNoPackagePaths"><strong>createNoPackagePaths</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createRunSummariser"><strong>createRunSummariser</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createStatusLogger"><strong>createStatusLogger</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createTestRun"><strong>createTestRun</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-createTestRuns"><strong>createTestRuns</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-doMonitoringOutput"><strong>doMonitoringOutput</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-doRunSummariserOutput"><strong>doRunSummariserOutput</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-doTimingOutput"><strong>doTimingOutput</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-execute"><strong>execute</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-executeTestRuns"><strong>executeTestRuns</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-finalise"><strong>finalise</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-findNightlyRelease"><strong>findNightlyRelease</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-fullCleanUp"><strong>fullCleanUp</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-getTestRunMonitorData"><strong>getTestRunMonitorData</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-getTestRunTimes"><strong>getTestRunTimes</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-inform"><strong>inform</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-initVariables"><strong>initVariables</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-initialise"><strong>initialise</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-makeLog"><strong>makeLog</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-monitorDataToFile"><strong>monitorDataToFile</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-onSignal"><strong>onSignal</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-permissionsCleanUp"><strong>permissionsCleanUp</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-readTopLevelConfigFile"><strong>readTopLevelConfigFile</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-rttRunHasTimedOut"><strong>rttRunHasTimedOut</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-statusLogCleanUp"><strong>statusLogCleanUp</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-statusLogCleanUpOnly"><strong>statusLogCleanUpOnly</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-thisNightlyRunWasStartedYesterday"><strong>thisNightlyRunWasStartedYesterday</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-updateWebPage2"><strong>updateWebPage2</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-validateInputParams"><strong>validateInputParams</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-webPagesCleanUp"><strong>webPagesCleanUp</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<dl><dt><a name="Tester-xmlFromMonDict"><strong>xmlFromMonDict</strong></a> = traced_f(*a, **k)</dt></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>__dict__</strong> = &lt;dictproxy object&gt;<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dl>
+
+<dl><dt><strong>__weakref__</strong> = &lt;attribute '__weakref__' of 'Tester' objects&gt;<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;<a href="__builtin__.html#object">object</a>&nbsp;(if&nbsp;defined)</tt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>globalReporter</strong> = &lt;Reporter.GlobalReporter instance&gt;</td></tr></table>
+</body></html>

@@ -1,0 +1,45 @@
+from RTTHistoDataMaker import RTTHistoDataMaker
+
+class RTTHistoDataOut:
+    def __init__(self, outfilename, dbPath, selector, days, tagpaths, logger):
+        self.fn       = outfilename
+        self.dbPath   = dbPath
+        self.selector = selector # dict with database key (a dict) to match on retrieval
+        self.days     = days    # get data for the last number of days
+        self.tagpaths = tagpaths  # points to plot
+        self.logger   = logger
+
+    def update(self):
+
+        points = RTTHistoDataMaker(self.dbPath, self.selector, self.days, self.tagpaths, self.logger)
+
+        
+        def pointToString(point):
+            s = ''
+            for d in point:
+                s += '%d ' % d
+            s += '\n'
+            return s
+
+        spoints = [pointToString(point) for point in points]
+        self.logger.debug('RTTHistoDataOut: writing out %d points' % len(spoints))
+        
+        of = open(self.fn, 'w')
+        [of.write(point) for point in spoints]
+        of.close()
+        
+if __name__ == '__main__':
+
+        
+    class Logger:
+        def error(self, text): print text
+    # The full path to the database file with the xml files for the RTT runs/
+    dbPath = '/local_disk/sherwood/RTT02/moniFile.db'
+
+    
+    key    = {'originalBranch': u'N.X.0'}
+    tagpaths = ['nicosDate2','nJobs', 'nJobsOK']
+    days = 8
+
+    rho = RTTHistoDataOut('./junkData.dat', dbPath,  key, days, tagpaths, Logger())
+    rho.update()

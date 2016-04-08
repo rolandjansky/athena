@@ -1,0 +1,25 @@
+#!/usr/local/bin/python
+class NameAndStatus:
+    def __init__(self, name, status):
+        self.name = name
+        self.status = status
+    def __getinit__(self):
+        return (self.name, self.status)
+    def dump(self):
+        print self.dumps()
+
+    def dumps(self):
+        s=''
+        s+='-------------------------\n'
+        s+='name   = '+str(self.name)+'\n'
+        s+='status = '+self.status+'\n'
+
+        return s
+
+class MonitorFood:
+    def __init__(self, msg, jobs):
+        self.msg  = msg
+        self.jobs = jobs
+
+    def __getinit__(self):
+        return(self.msg, self.jobs)

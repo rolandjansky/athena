@@ -1,0 +1,46 @@
+import types
+    
+def wrapMethod(f, list, name):
+    def wrapped_f(object, *a, **k):
+        print '%s: self.asciiRefFiles %s' % (name, str(list))
+        result = f(object, *a, **k)
+        print '%s: self.asciiRefFiles %s' % (name, str(list))
+        return result
+    return wrapped_f
+
+def wrapMethods(dict, classname, list):
+    # print 'wrapMethods starting for %s' % classname
+    for f in dict:
+        # print f, object.__class__.__dict__[f]
+        m = dict[f]
+        if isinstance(m, types.FunctionType):
+            # print 'wrapping ', m
+            dict[f] = wrapMethod(m, list, '%s.%s'%(classname,f))
+    print 'wrapMethods ending for %s' % classname
+        
+
+
+def wrapObjectMethods(object):
+    print 'wrapObjectMethods start'
+    # print 'wrapObjectMethods 10'
+    name = object.__class__.__name__
+    # print 'wrapObjectMethods 12'
+    list = object.__dict__.get('asciiRefFiles', None)
+    # print 'wrapObjectMethods 20'
+    
+    if list:
+        print 'wrapObjectMethods: %s object has ref files' % name
+    else:
+        print 'wrapObjectMethods: %s object has no ref files' % name
+
+    # print 'wrapObjectMethods 30'
+    # object
+    dict = object.__class__.__dict__
+    # print 'object class dictionary', dict
+    wrapMethods(dict, name, list)
+
+    # and its bases (should be recursive)
+
+    for base in object.__class__.__bases__:
+        wrapMethods(base.__dict__, base.__name__, list)
+        

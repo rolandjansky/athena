@@ -1,0 +1,46 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+from Factory_BaseClass             import Factory
+from MinderToXML2                  import MinderToXML
+from LinuxInteractiveMinderToXML2  import LinuxInteractiveMinderToXML
+from NullXMLConverter              import NullXMLConverter
+from ContainerXMLConverter         import ContainerXMLConverter
+from ErrorMinderToXML              import ErrorMinderToXML
+
+from RTTSException                 import RTTCodingError
+from exc2string2                   import exc2string2
+
+class XMLConverterFactory(Factory):
+  def __init__(self, logger):
+    Factory.__init__(self, logger, self.__class__.__name__)
+    
+    self.dict = {
+      'LinuxInteractiveJobMinder': LinuxInteractiveMinderToXML,# eventually should be renamed and replace MinderToXML
+      'LSFBatchJobMinder':         MinderToXML,
+      'Minder':                    MinderToXML,
+      'ErrorJobMinder':            ErrorMinderToXML,
+      'BatchJobMinder':            MinderToXML,
+      'LSFBatchJobMinder':         MinderToXML,
+      'ContainerMinder':           ContainerXMLConverter,
+      'SequentialMinder':          ContainerXMLConverter,
+      'ParallelMinder':            ContainerXMLConverter,
+      'ChainJobMinder':            ContainerXMLConverter,
+      'PseudoJobMinder':           MinderToXML,
+      'WorkerMinder':              MinderToXML
+      }
+
+  def create(self, minder): 
+
+    key = minder.__class__.__name__
+
+    try:
+      converter =  self.dict[key](minder)
+    except Exception, e:
+      msg = 'MinderStateEngineFactory: Cannot create an XML converter for minder type %s Reason: %s\nTraceback\n%s ' % (key,
+                                                                                                                        str(e),
+                                                                                                                        exc2string2()
+                                                                                                                        )
+      print msg
+      raise RTTCodingError(msg)
+
+    return converter

@@ -1,0 +1,482 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module ScriptWriter</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>ScriptWriter</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/ScriptWriter.py">/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/ScriptWriter.py</a></font></td></tr></table>
+    <p><tt><a href="#ScriptWriter">ScriptWriter</a>&nbsp;write&nbsp;is&nbsp;a&nbsp;base&nbsp;class&nbsp;for&nbsp;writing&nbsp;shell&nbsp;scripts&nbsp;to&nbsp;run&nbsp;the&nbsp;jobs.<br>
+The&nbsp;shell&nbsp;scripts&nbsp;are&nbsp;typically&nbsp;written&nbsp;to&nbsp;a&nbsp;run&nbsp;directory,&nbsp;and&nbsp;are&nbsp;submitted&nbsp;to&nbsp;a<br>
+queue&nbsp;from&nbsp;there.<br>
+&nbsp;<br>
+The&nbsp;base&nbsp;class&nbsp;provides&nbsp;a&nbsp;default&nbsp;implementation.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="ScriptWriter.html#PBSTestScriptWriter">PBSTestScriptWriter</a>
+</font></dt><dt><font face="helvetica, arial"><a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="ScriptWriter.html#RecExCommonScriptWriter">RecExCommonScriptWriter</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="ScriptWriter.html#JiveXMLScriptWriter">JiveXMLScriptWriter</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="ScriptWriter.html#TrigReleaseIDScriptWriter">TrigReleaseIDScriptWriter</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="ScriptWriter.html#TrigReleaseCaloScriptWriter">TrigReleaseCaloScriptWriter</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="ScriptWriter.html#TriggerReleaseScriptWriter">TriggerReleaseScriptWriter</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="ScriptWriter.html#KitValidationScriptWriter">KitValidationScriptWriter</a>
+</font></dt><dt><font face="helvetica, arial"><a href="ScriptWriter.html#MonitoringScriptWriter">MonitoringScriptWriter</a>
+</font></dt><dt><font face="helvetica, arial"><a href="ScriptWriter.html#NullScriptWriter">NullScriptWriter</a>
+</font></dt><dt><font face="helvetica, arial"><a href="ScriptWriter.html#QAmetricsScriptWriter">QAmetricsScriptWriter</a>
+</font></dt><dt><font face="helvetica, arial"><a href="ScriptWriter.html#RTTSelfTestScriptWriter">RTTSelfTestScriptWriter</a>
+</font></dt><dt><font face="helvetica, arial"><a href="ScriptWriter.html#RTTTrivialJobScriptWriter">RTTTrivialJobScriptWriter</a>
+</font></dt><dt><font face="helvetica, arial"><a href="ScriptWriter.html#RuleCheckerScriptWriter">RuleCheckerScriptWriter</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="AthenaScriptWriter">class <strong>AthenaScriptWriter</strong></a>(<a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="AthenaScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt><dd><tt>Provides&nbsp;a&nbsp;run&nbsp;script&nbsp;for&nbsp;Athena&nbsp;jobs</tt></dd></dl>
+
+<dl><dt><a name="AthenaScriptWriter-athenaCommand"><strong>athenaCommand</strong></a>(self, release<font color="#909090">=830</font>)</dt><dd><tt>Command&nbsp;for&nbsp;running&nbsp;athena.&nbsp;from&nbsp;about&nbsp;8.2.0,&nbsp;packages&nbsp;started&nbsp;switching&nbsp;to<br>
+using&nbsp;python&nbsp;scripts&nbsp;to&nbsp;run&nbsp;athena.</tt></dd></dl>
+
+<dl><dt><a name="AthenaScriptWriter-checkExtension"><strong>checkExtension</strong></a>(self, option)</dt></dl>
+
+<dl><dt><a name="AthenaScriptWriter-commandLineFlags"><strong>commandLineFlags</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="AthenaScriptWriter-commandLineOptionLabel"><strong>commandLineOptionLabel</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="AthenaScriptWriter-jobOptionsFile"><strong>jobOptionsFile</strong></a>(self)</dt><dd><tt>Returns&nbsp;the&nbsp;path&nbsp;to&nbsp;the&nbsp;job&nbsp;options&nbsp;file&nbsp;that&nbsp;is&nbsp;to&nbsp;be<br>
+tacked&nbsp;on&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;athena&nbsp;command.<br>
+---&nbsp;If&nbsp;DC1&nbsp;or&nbsp;dataless&nbsp;job:&nbsp;just&nbsp;return&nbsp;the&nbsp;job&nbsp;options&nbsp;passed&nbsp;in&nbsp;&lt;options&gt;&nbsp;tag<br>
+---&nbsp;If&nbsp;DC2&nbsp;or&nbsp;BS&nbsp;data:&nbsp;return&nbsp;an&nbsp;RTT&nbsp;created&nbsp;job&nbsp;options&nbsp;that&nbsp;'includes'&nbsp;the<br>
+user&nbsp;one&nbsp;in&nbsp;the&nbsp;&lt;options&gt;&nbsp;tag&nbsp;but&nbsp;then&nbsp;adds&nbsp;the&nbsp;data&nbsp;in&nbsp;the&nbsp;&lt;dataset&gt;&nbsp;tag(s)<br>
+to&nbsp;the&nbsp;appropriate&nbsp;Python&nbsp;class&nbsp;(DC2&nbsp;=&nbsp;EventSelector.InputCollections,<br>
+BS&nbsp;=&nbsp;ByteStreamEventStorageInputSvc.FullFileName).</tt></dd></dl>
+
+<dl><dt><a name="AthenaScriptWriter-jobOptionsListHandler"><strong>jobOptionsListHandler</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="AthenaScriptWriter-lsatlF"><strong>lsatlF</strong></a>(self, when)</dt></dl>
+
+<dl><dt><a name="AthenaScriptWriter-poolInsertString"><strong>poolInsertString</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="AthenaScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt><dd><tt>Default&nbsp;shell&nbsp;script&nbsp;for&nbsp;running&nbsp;a&nbsp;job.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="JiveXMLScriptWriter">class <strong>JiveXMLScriptWriter</strong></a>(<a href="ScriptWriter.html#RecExCommonScriptWriter">RecExCommonScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="ScriptWriter.html#JiveXMLScriptWriter">JiveXMLScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#RecExCommonScriptWriter">RecExCommonScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="JiveXMLScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<hr>
+Methods inherited from <a href="ScriptWriter.html#RecExCommonScriptWriter">RecExCommonScriptWriter</a>:<br>
+<dl><dt><a name="JiveXMLScriptWriter-G3flag"><strong>G3flag</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="JiveXMLScriptWriter-athenaCommand"><strong>athenaCommand</strong></a>(self, release<font color="#909090">=830</font>)</dt><dd><tt>add&nbsp;in&nbsp;flags&nbsp;to&nbsp;run&nbsp;on&nbsp;DC1</tt></dd></dl>
+
+<dl><dt><a name="JiveXMLScriptWriter-commandLineFlags"><strong>commandLineFlags</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="JiveXMLScriptWriter-dataSet"><strong>dataSet</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="JiveXMLScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt></dl>
+
+<hr>
+Methods inherited from <a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a>:<br>
+<dl><dt><a name="JiveXMLScriptWriter-checkExtension"><strong>checkExtension</strong></a>(self, option)</dt></dl>
+
+<dl><dt><a name="JiveXMLScriptWriter-commandLineOptionLabel"><strong>commandLineOptionLabel</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="JiveXMLScriptWriter-jobOptionsFile"><strong>jobOptionsFile</strong></a>(self)</dt><dd><tt>Returns&nbsp;the&nbsp;path&nbsp;to&nbsp;the&nbsp;job&nbsp;options&nbsp;file&nbsp;that&nbsp;is&nbsp;to&nbsp;be<br>
+tacked&nbsp;on&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;athena&nbsp;command.<br>
+---&nbsp;If&nbsp;DC1&nbsp;or&nbsp;dataless&nbsp;job:&nbsp;just&nbsp;return&nbsp;the&nbsp;job&nbsp;options&nbsp;passed&nbsp;in&nbsp;&lt;options&gt;&nbsp;tag<br>
+---&nbsp;If&nbsp;DC2&nbsp;or&nbsp;BS&nbsp;data:&nbsp;return&nbsp;an&nbsp;RTT&nbsp;created&nbsp;job&nbsp;options&nbsp;that&nbsp;'includes'&nbsp;the<br>
+user&nbsp;one&nbsp;in&nbsp;the&nbsp;&lt;options&gt;&nbsp;tag&nbsp;but&nbsp;then&nbsp;adds&nbsp;the&nbsp;data&nbsp;in&nbsp;the&nbsp;&lt;dataset&gt;&nbsp;tag(s)<br>
+to&nbsp;the&nbsp;appropriate&nbsp;Python&nbsp;class&nbsp;(DC2&nbsp;=&nbsp;EventSelector.InputCollections,<br>
+BS&nbsp;=&nbsp;ByteStreamEventStorageInputSvc.FullFileName).</tt></dd></dl>
+
+<dl><dt><a name="JiveXMLScriptWriter-jobOptionsListHandler"><strong>jobOptionsListHandler</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="JiveXMLScriptWriter-lsatlF"><strong>lsatlF</strong></a>(self, when)</dt></dl>
+
+<dl><dt><a name="JiveXMLScriptWriter-poolInsertString"><strong>poolInsertString</strong></a>(self)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="KitValidationScriptWriter">class <strong>KitValidationScriptWriter</strong></a>(<a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="KitValidationScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt><dd><tt>Obtain&nbsp;information&nbsp;pertaining&nbsp;to&nbsp;the&nbsp;job</tt></dd></dl>
+
+<dl><dt><a name="KitValidationScriptWriter-kitValidationCommand"><strong>kitValidationCommand</strong></a>(self)</dt><dd><tt>Command&nbsp;for&nbsp;running&nbsp;KitValidation.</tt></dd></dl>
+
+<dl><dt><a name="KitValidationScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt><dd><tt>Default&nbsp;shell&nbsp;script&nbsp;for&nbsp;running&nbsp;a&nbsp;job.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="MonitoringScriptWriter">class <strong>MonitoringScriptWriter</strong></a>(<a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="MonitoringScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<dl><dt><a name="MonitoringScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="NullScriptWriter">class <strong>NullScriptWriter</strong></a>(<a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="NullScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<dl><dt><a name="NullScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="PBSTestScriptWriter">class <strong>PBSTestScriptWriter</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="PBSTestScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<dl><dt><a name="PBSTestScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="QAmetricsScriptWriter">class <strong>QAmetricsScriptWriter</strong></a>(<a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="QAmetricsScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<dl><dt><a name="QAmetricsScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="RTTSelfTestScriptWriter">class <strong>RTTSelfTestScriptWriter</strong></a>(<a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="RTTSelfTestScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<dl><dt><a name="RTTSelfTestScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt><dd><tt>Checkout&nbsp;head&nbsp;version&nbsp;of&nbsp;RTT.&nbsp;This&nbsp;will&nbsp;be&nbsp;shipped&nbsp;back&nbsp;to&nbsp;the<br>
+machine&nbsp;running&nbsp;RTT&nbsp;&nbsp;Scripts,&nbsp;where&nbsp;Test&nbsp;Suite&nbsp;can&nbsp;be&nbsp;run&nbsp;as&nbsp;an<br>
+RTT&nbsp;test.&nbsp;Dont&nbsp;run&nbsp;TestSuite&nbsp;on&nbsp;the&nbsp;batch&nbsp;machine&nbsp;to&nbsp;avoid<br>
+requiring&nbsp;Python&nbsp;on&nbsp;that&nbsp;machine.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="RTTTrivialJobScriptWriter">class <strong>RTTTrivialJobScriptWriter</strong></a>(<a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="RTTTrivialJobScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<dl><dt><a name="RTTTrivialJobScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt><dd><tt>Checkout&nbsp;head&nbsp;version&nbsp;of&nbsp;RTT.&nbsp;This&nbsp;will&nbsp;be&nbsp;shipped&nbsp;back&nbsp;to&nbsp;the<br>
+machine&nbsp;running&nbsp;RTT&nbsp;&nbsp;Scripts,&nbsp;where&nbsp;Test&nbsp;Suite&nbsp;can&nbsp;be&nbsp;run&nbsp;as&nbsp;an<br>
+RTT&nbsp;test.&nbsp;Dont&nbsp;run&nbsp;TestSuite&nbsp;on&nbsp;the&nbsp;batch&nbsp;machine&nbsp;to&nbsp;avoid<br>
+requiring&nbsp;Python&nbsp;on&nbsp;that&nbsp;machine.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="RecExCommonScriptWriter">class <strong>RecExCommonScriptWriter</strong></a>(<a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Script&nbsp;to&nbsp;run&nbsp;RecExCommon.<br>
+This&nbsp;needs&nbsp;to&nbsp;perform&nbsp;various&nbsp;RecExCommon&nbsp;tasks.<br>
+Also,&nbsp;for&nbsp;reading&nbsp;DC1&nbsp;data,&nbsp;the&nbsp;ZEBRA&nbsp;.P&nbsp;link,&nbsp;which&nbsp;was&nbsp;set&nbsp;when&nbsp;the<br>
+run&nbsp;directories&nbsp;were&nbsp;setup,&nbsp;needs&nbsp;to&nbsp;be&nbsp;protected&nbsp;because&nbsp;the&nbsp;REC&nbsp;tasks<br>
+will&nbsp;overwrite&nbsp;it.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="ScriptWriter.html#RecExCommonScriptWriter">RecExCommonScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="RecExCommonScriptWriter-G3flag"><strong>G3flag</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="RecExCommonScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<dl><dt><a name="RecExCommonScriptWriter-athenaCommand"><strong>athenaCommand</strong></a>(self, release<font color="#909090">=830</font>)</dt><dd><tt>add&nbsp;in&nbsp;flags&nbsp;to&nbsp;run&nbsp;on&nbsp;DC1</tt></dd></dl>
+
+<dl><dt><a name="RecExCommonScriptWriter-commandLineFlags"><strong>commandLineFlags</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="RecExCommonScriptWriter-dataSet"><strong>dataSet</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="RecExCommonScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt></dl>
+
+<hr>
+Methods inherited from <a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a>:<br>
+<dl><dt><a name="RecExCommonScriptWriter-checkExtension"><strong>checkExtension</strong></a>(self, option)</dt></dl>
+
+<dl><dt><a name="RecExCommonScriptWriter-commandLineOptionLabel"><strong>commandLineOptionLabel</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="RecExCommonScriptWriter-jobOptionsFile"><strong>jobOptionsFile</strong></a>(self)</dt><dd><tt>Returns&nbsp;the&nbsp;path&nbsp;to&nbsp;the&nbsp;job&nbsp;options&nbsp;file&nbsp;that&nbsp;is&nbsp;to&nbsp;be<br>
+tacked&nbsp;on&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;athena&nbsp;command.<br>
+---&nbsp;If&nbsp;DC1&nbsp;or&nbsp;dataless&nbsp;job:&nbsp;just&nbsp;return&nbsp;the&nbsp;job&nbsp;options&nbsp;passed&nbsp;in&nbsp;&lt;options&gt;&nbsp;tag<br>
+---&nbsp;If&nbsp;DC2&nbsp;or&nbsp;BS&nbsp;data:&nbsp;return&nbsp;an&nbsp;RTT&nbsp;created&nbsp;job&nbsp;options&nbsp;that&nbsp;'includes'&nbsp;the<br>
+user&nbsp;one&nbsp;in&nbsp;the&nbsp;&lt;options&gt;&nbsp;tag&nbsp;but&nbsp;then&nbsp;adds&nbsp;the&nbsp;data&nbsp;in&nbsp;the&nbsp;&lt;dataset&gt;&nbsp;tag(s)<br>
+to&nbsp;the&nbsp;appropriate&nbsp;Python&nbsp;class&nbsp;(DC2&nbsp;=&nbsp;EventSelector.InputCollections,<br>
+BS&nbsp;=&nbsp;ByteStreamEventStorageInputSvc.FullFileName).</tt></dd></dl>
+
+<dl><dt><a name="RecExCommonScriptWriter-jobOptionsListHandler"><strong>jobOptionsListHandler</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="RecExCommonScriptWriter-lsatlF"><strong>lsatlF</strong></a>(self, when)</dt></dl>
+
+<dl><dt><a name="RecExCommonScriptWriter-poolInsertString"><strong>poolInsertString</strong></a>(self)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="RuleCheckerScriptWriter">class <strong>RuleCheckerScriptWriter</strong></a>(<a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="RuleCheckerScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<dl><dt><a name="RuleCheckerScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt><dd><tt>CMT&nbsp;stuff&nbsp;needed&nbsp;to&nbsp;run&nbsp;RuleChecker&nbsp;once&nbsp;a&nbsp;directory&nbsp;is&nbsp;checked&nbsp;out.<br>
+Empirically,&nbsp;I&nbsp;find&nbsp;gmake&nbsp;has&nbsp;to&nbsp;be&nbsp;run&nbsp;before&nbsp;gmake&nbsp;rulechecker,<br>
+I&nbsp;think&nbsp;because&nbsp;the&nbsp;include&nbsp;files&nbsp;need&nbsp;to&nbsp;be&nbsp;installed.<br>
+&nbsp;<br>
+Temporarily&nbsp;(14/7/04)&nbsp;I&nbsp;also&nbsp;need&nbsp;to&nbsp;check&nbsp;out&nbsp;CodeCheck.<br>
+Hopefully&nbsp;this&nbsp;will&nbsp;be&nbsp;unecessary&nbsp;soon.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ScriptWriter">class <strong>ScriptWriter</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt><dd><tt>Common&nbsp;stuff&nbsp;for&nbsp;all&nbsp;Scriptwriters&nbsp;-&nbsp;use&nbsp;Descriptor&nbsp;base&nbsp;path</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="TrigReleaseCaloScriptWriter">class <strong>TrigReleaseCaloScriptWriter</strong></a>(<a href="ScriptWriter.html#TrigReleaseIDScriptWriter">TrigReleaseIDScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="ScriptWriter.html#TrigReleaseCaloScriptWriter">TrigReleaseCaloScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#TrigReleaseIDScriptWriter">TrigReleaseIDScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="TrigReleaseCaloScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<hr>
+Methods inherited from <a href="ScriptWriter.html#TrigReleaseIDScriptWriter">TrigReleaseIDScriptWriter</a>:<br>
+<dl><dt><a name="TrigReleaseCaloScriptWriter-dataSet"><strong>dataSet</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TrigReleaseCaloScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt></dl>
+
+<hr>
+Methods inherited from <a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a>:<br>
+<dl><dt><a name="TrigReleaseCaloScriptWriter-athenaCommand"><strong>athenaCommand</strong></a>(self, release<font color="#909090">=830</font>)</dt><dd><tt>Command&nbsp;for&nbsp;running&nbsp;athena.&nbsp;from&nbsp;about&nbsp;8.2.0,&nbsp;packages&nbsp;started&nbsp;switching&nbsp;to<br>
+using&nbsp;python&nbsp;scripts&nbsp;to&nbsp;run&nbsp;athena.</tt></dd></dl>
+
+<dl><dt><a name="TrigReleaseCaloScriptWriter-checkExtension"><strong>checkExtension</strong></a>(self, option)</dt></dl>
+
+<dl><dt><a name="TrigReleaseCaloScriptWriter-commandLineFlags"><strong>commandLineFlags</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TrigReleaseCaloScriptWriter-commandLineOptionLabel"><strong>commandLineOptionLabel</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TrigReleaseCaloScriptWriter-jobOptionsFile"><strong>jobOptionsFile</strong></a>(self)</dt><dd><tt>Returns&nbsp;the&nbsp;path&nbsp;to&nbsp;the&nbsp;job&nbsp;options&nbsp;file&nbsp;that&nbsp;is&nbsp;to&nbsp;be<br>
+tacked&nbsp;on&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;athena&nbsp;command.<br>
+---&nbsp;If&nbsp;DC1&nbsp;or&nbsp;dataless&nbsp;job:&nbsp;just&nbsp;return&nbsp;the&nbsp;job&nbsp;options&nbsp;passed&nbsp;in&nbsp;&lt;options&gt;&nbsp;tag<br>
+---&nbsp;If&nbsp;DC2&nbsp;or&nbsp;BS&nbsp;data:&nbsp;return&nbsp;an&nbsp;RTT&nbsp;created&nbsp;job&nbsp;options&nbsp;that&nbsp;'includes'&nbsp;the<br>
+user&nbsp;one&nbsp;in&nbsp;the&nbsp;&lt;options&gt;&nbsp;tag&nbsp;but&nbsp;then&nbsp;adds&nbsp;the&nbsp;data&nbsp;in&nbsp;the&nbsp;&lt;dataset&gt;&nbsp;tag(s)<br>
+to&nbsp;the&nbsp;appropriate&nbsp;Python&nbsp;class&nbsp;(DC2&nbsp;=&nbsp;EventSelector.InputCollections,<br>
+BS&nbsp;=&nbsp;ByteStreamEventStorageInputSvc.FullFileName).</tt></dd></dl>
+
+<dl><dt><a name="TrigReleaseCaloScriptWriter-jobOptionsListHandler"><strong>jobOptionsListHandler</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TrigReleaseCaloScriptWriter-lsatlF"><strong>lsatlF</strong></a>(self, when)</dt></dl>
+
+<dl><dt><a name="TrigReleaseCaloScriptWriter-poolInsertString"><strong>poolInsertString</strong></a>(self)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="TrigReleaseIDScriptWriter">class <strong>TrigReleaseIDScriptWriter</strong></a>(<a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="ScriptWriter.html#TrigReleaseIDScriptWriter">TrigReleaseIDScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="TrigReleaseIDScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<dl><dt><a name="TrigReleaseIDScriptWriter-dataSet"><strong>dataSet</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TrigReleaseIDScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt></dl>
+
+<hr>
+Methods inherited from <a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a>:<br>
+<dl><dt><a name="TrigReleaseIDScriptWriter-athenaCommand"><strong>athenaCommand</strong></a>(self, release<font color="#909090">=830</font>)</dt><dd><tt>Command&nbsp;for&nbsp;running&nbsp;athena.&nbsp;from&nbsp;about&nbsp;8.2.0,&nbsp;packages&nbsp;started&nbsp;switching&nbsp;to<br>
+using&nbsp;python&nbsp;scripts&nbsp;to&nbsp;run&nbsp;athena.</tt></dd></dl>
+
+<dl><dt><a name="TrigReleaseIDScriptWriter-checkExtension"><strong>checkExtension</strong></a>(self, option)</dt></dl>
+
+<dl><dt><a name="TrigReleaseIDScriptWriter-commandLineFlags"><strong>commandLineFlags</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TrigReleaseIDScriptWriter-commandLineOptionLabel"><strong>commandLineOptionLabel</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TrigReleaseIDScriptWriter-jobOptionsFile"><strong>jobOptionsFile</strong></a>(self)</dt><dd><tt>Returns&nbsp;the&nbsp;path&nbsp;to&nbsp;the&nbsp;job&nbsp;options&nbsp;file&nbsp;that&nbsp;is&nbsp;to&nbsp;be<br>
+tacked&nbsp;on&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;athena&nbsp;command.<br>
+---&nbsp;If&nbsp;DC1&nbsp;or&nbsp;dataless&nbsp;job:&nbsp;just&nbsp;return&nbsp;the&nbsp;job&nbsp;options&nbsp;passed&nbsp;in&nbsp;&lt;options&gt;&nbsp;tag<br>
+---&nbsp;If&nbsp;DC2&nbsp;or&nbsp;BS&nbsp;data:&nbsp;return&nbsp;an&nbsp;RTT&nbsp;created&nbsp;job&nbsp;options&nbsp;that&nbsp;'includes'&nbsp;the<br>
+user&nbsp;one&nbsp;in&nbsp;the&nbsp;&lt;options&gt;&nbsp;tag&nbsp;but&nbsp;then&nbsp;adds&nbsp;the&nbsp;data&nbsp;in&nbsp;the&nbsp;&lt;dataset&gt;&nbsp;tag(s)<br>
+to&nbsp;the&nbsp;appropriate&nbsp;Python&nbsp;class&nbsp;(DC2&nbsp;=&nbsp;EventSelector.InputCollections,<br>
+BS&nbsp;=&nbsp;ByteStreamEventStorageInputSvc.FullFileName).</tt></dd></dl>
+
+<dl><dt><a name="TrigReleaseIDScriptWriter-jobOptionsListHandler"><strong>jobOptionsListHandler</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TrigReleaseIDScriptWriter-lsatlF"><strong>lsatlF</strong></a>(self, when)</dt></dl>
+
+<dl><dt><a name="TrigReleaseIDScriptWriter-poolInsertString"><strong>poolInsertString</strong></a>(self)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="TriggerReleaseScriptWriter">class <strong>TriggerReleaseScriptWriter</strong></a>(<a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="ScriptWriter.html#TriggerReleaseScriptWriter">TriggerReleaseScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a></dd>
+<dd><a href="ScriptWriter.html#ScriptWriter">ScriptWriter</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="TriggerReleaseScriptWriter-__init__"><strong>__init__</strong></a>(self, jDescriptor)</dt></dl>
+
+<dl><dt><a name="TriggerReleaseScriptWriter-dataSet"><strong>dataSet</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TriggerReleaseScriptWriter-runScript"><strong>runScript</strong></a>(self)</dt></dl>
+
+<hr>
+Methods inherited from <a href="ScriptWriter.html#AthenaScriptWriter">AthenaScriptWriter</a>:<br>
+<dl><dt><a name="TriggerReleaseScriptWriter-athenaCommand"><strong>athenaCommand</strong></a>(self, release<font color="#909090">=830</font>)</dt><dd><tt>Command&nbsp;for&nbsp;running&nbsp;athena.&nbsp;from&nbsp;about&nbsp;8.2.0,&nbsp;packages&nbsp;started&nbsp;switching&nbsp;to<br>
+using&nbsp;python&nbsp;scripts&nbsp;to&nbsp;run&nbsp;athena.</tt></dd></dl>
+
+<dl><dt><a name="TriggerReleaseScriptWriter-checkExtension"><strong>checkExtension</strong></a>(self, option)</dt></dl>
+
+<dl><dt><a name="TriggerReleaseScriptWriter-commandLineFlags"><strong>commandLineFlags</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TriggerReleaseScriptWriter-commandLineOptionLabel"><strong>commandLineOptionLabel</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TriggerReleaseScriptWriter-jobOptionsFile"><strong>jobOptionsFile</strong></a>(self)</dt><dd><tt>Returns&nbsp;the&nbsp;path&nbsp;to&nbsp;the&nbsp;job&nbsp;options&nbsp;file&nbsp;that&nbsp;is&nbsp;to&nbsp;be<br>
+tacked&nbsp;on&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;athena&nbsp;command.<br>
+---&nbsp;If&nbsp;DC1&nbsp;or&nbsp;dataless&nbsp;job:&nbsp;just&nbsp;return&nbsp;the&nbsp;job&nbsp;options&nbsp;passed&nbsp;in&nbsp;&lt;options&gt;&nbsp;tag<br>
+---&nbsp;If&nbsp;DC2&nbsp;or&nbsp;BS&nbsp;data:&nbsp;return&nbsp;an&nbsp;RTT&nbsp;created&nbsp;job&nbsp;options&nbsp;that&nbsp;'includes'&nbsp;the<br>
+user&nbsp;one&nbsp;in&nbsp;the&nbsp;&lt;options&gt;&nbsp;tag&nbsp;but&nbsp;then&nbsp;adds&nbsp;the&nbsp;data&nbsp;in&nbsp;the&nbsp;&lt;dataset&gt;&nbsp;tag(s)<br>
+to&nbsp;the&nbsp;appropriate&nbsp;Python&nbsp;class&nbsp;(DC2&nbsp;=&nbsp;EventSelector.InputCollections,<br>
+BS&nbsp;=&nbsp;ByteStreamEventStorageInputSvc.FullFileName).</tt></dd></dl>
+
+<dl><dt><a name="TriggerReleaseScriptWriter-jobOptionsListHandler"><strong>jobOptionsListHandler</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="TriggerReleaseScriptWriter-lsatlF"><strong>lsatlF</strong></a>(self, when)</dt></dl>
+
+<dl><dt><a name="TriggerReleaseScriptWriter-poolInsertString"><strong>poolInsertString</strong></a>(self)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-libLineCalculator"><strong>libLineCalculator</strong></a>(siteSpecifics, mode)</dt><dd><tt>This&nbsp;function&nbsp;calculates&nbsp;the&nbsp;LD_LIBRARY_PATH&nbsp;line.<br>
+This&nbsp;line&nbsp;will&nbsp;be&nbsp;placed&nbsp;in&nbsp;a&nbsp;shell&nbsp;script&nbsp;that&nbsp;will&nbsp;be&nbsp;run&nbsp;using<br>
+Popen4.<br>
+&nbsp;<br>
+The&nbsp;explicit&nbsp;value&nbsp;of&nbsp;LD_LIBRARY_PATH&nbsp;is&nbsp;written&nbsp;out&nbsp;so&nbsp;the&nbsp;file<br>
+can&nbsp;be&nbsp;run&nbsp;by&nbsp;hand&nbsp;under&nbsp;the&nbsp;same&nbsp;conditions&nbsp;that&nbsp;the&nbsp;p4open&nbsp;object<br>
+sees.</tt></dd></dl>
+ <dl><dt><a name="-writeToDir"><strong>writeToDir</strong></a>(script)</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>logger</strong> = &lt;logging.Logger instance&gt;</td></tr></table>
+</body></html>

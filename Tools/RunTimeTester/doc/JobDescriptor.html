@@ -1,0 +1,77 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module JobDescriptor</title>
+<style type="text/css"><!--
+TT { font-family: lucidatypewriter, lucida console, courier }
+--></style></head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>JobDescriptor</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-10/src/JobDescriptor.py">/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-10/src/JobDescriptor.py</a></font></td></tr></table>
+    <p><tt>Class&nbsp;that&nbsp;stocks&nbsp;information&nbsp;about&nbsp;jobs&nbsp;to&nbsp;be&nbsp;run.&nbsp;One&nbsp;instance&nbsp;per&nbsp;job&nbsp;is&nbsp;created.<br>
+Responsible&nbsp;for&nbsp;setting&nbsp;up&nbsp;the&nbsp;run&nbsp;directory&nbsp;for&nbsp;a&nbsp;job.&nbsp;Eventually&nbsp;becomes&nbsp;a&nbsp;data&nbsp;member<br>
+of&nbsp;JobMinder.</tt></p>
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="GlobalDebugFlag.html">GlobalDebugFlag</a><br>
+</td><td width="25%" valign=top><a href="anydbm.html">anydbm</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="shutil.html">shutil</a><br>
+</td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="JobDescriptor.html#JobDescriptor">JobDescriptor</a>
+</font></dt></dl>
+ 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="JobDescriptor">class <strong>JobDescriptor</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2>&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="JobDescriptor-__init__"><strong>__init__</strong></a>(self, jobOptions, package, jobGroup, queue)</dt></dl>
+
+<dl><dt><a name="JobDescriptor-dump"><strong>dump</strong></a>(self)</dt><dd><tt>Dumps&nbsp;out&nbsp;jobname</tt></dd></dl>
+
+<dl><dt><a name="JobDescriptor-setupRunDir"><strong>setupRunDir</strong></a>(self, paths, build)</dt><dd><tt>Creates&nbsp;run&nbsp;dirctory&nbsp;(path&nbsp;calculated&nbsp;from&nbsp;release,&nbsp;build,<br>
+job&nbsp;options&nbsp;file&nbsp;name..)<br>
+Copies&nbsp;needed&nbsp;files&nbsp;to&nbsp;it<br>
+Sets&nbsp;u-p&nbsp;the&nbsp;ZEBRA&nbsp;link.<br>
+Uses&nbsp;ScriptWirter&nbsp;to&nbsp;write&nbsp;a&nbsp;run&nbsp;script&nbsp;to&nbsp;it.</tt></dd></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dl>
+
+<dl><dt><strong>__module__</strong> = 'JobDescriptor'</dl>
+
+<dl><dt><strong>jobIdentifier</strong> = 0</dl>
+
+<dl><dt><strong>lDbg</strong> = 1</dl>
+
+</td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><strong>__file__</strong> = './JobDescriptor.pyc'<br>
+<strong>__name__</strong> = 'JobDescriptor'</td></tr></table>
+</body></html>

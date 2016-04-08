@@ -1,0 +1,227 @@
+#! /usr/bin/python
+
+"""
+Standalone script to generate job option files for Atlfast using a template
+script, and passing in parameters to sepcigy AF options.
+Author: P Sherwood, using work of J. Couchman
+"""
+
+import os,time,sys,shutil, string
+from os.path import join
+
+class JobOptionsGenerator:
+
+    def __init__(self, shareDir):
+        self.shareDir     = shareDir
+        self.joNames      = []
+        self.doAtlfast    = True
+        self.doGenerators = False
+
+    def makeAll(self):
+        if self.doAtlfast: self.joNames = self.joNames+ self.makeAtlfast()
+        if self.doGenerators: self.joNames = self.joNames+ self.makeGenerators()
+
+        longJo = 0
+        longGp = 0
+        for tokens in self.joNames:
+
+            jo=tokens[0]
+            if len(jo)>longJo: longJo = len(jo)
+
+            
+            group=tokens[1]
+            if len(group)>longGp: longGp=len(group)
+
+        longJo=longJo+3
+        longGp=longGp+3
+        
+        
+        jobList = open(join(self.shareDir, "JJJobs.cfg"),"w")
+
+        for tokens in self.joNames:
+            jon=string.ljust(tokens[0], longJo)
+            gpn=string.ljust(tokens[1], longGp)
+            jobList.write(jon+gpn+"short\n")
+        
+    
+    def makeAtlfast(self):
+        "create jobOptions files, and write out a config table for Atlfast"
+        physicsProcess = ["pythia_ele",
+                          "pythia_mu",
+                          "pythia_tau",
+                          "pythia_qcd",
+                          "pythia_ttbar",
+                          "pythia_whbb",
+                          "isajet_default",
+                          "herwig_default",
+                          "zebra_default"
+                          ]
+
+        smearing      = ["false","true"]
+        luminosity    = ["low", "high"] #1 is low, 2 is high
+        jetBuilder    = ["cone","kt","shared"]
+        clusterWith   = ["cells","tracks"]
+        # Not yet done:
+        #        for a in physicsprocess:
+        #            self.allFlags.append("atlfast_"+a+"_shower")
+        #            self.allFlags.append("atlfast_"+a+"_false_low_Cone_cells")
+        aCouple = ["pythia_default","zebra_default"]
+
+        # substitutions -
+        # 
+        # a dictionary which gives value for string that occurs
+        # in the template jobOptions files., This value is to be  are to be
+        # substituted in the template jo file to give a jo file.
+        
+
+        substitutions = {}
+        config        = []
+        joNames       = []
+        for a in aCouple:
+            for b in  smearing:
+                for c in luminosity:
+                    for d in jetBuilder:
+                        for e in clusterWith:
+                            substitutions["PROCESS"]           = a
+                            substitutions["SMEARING"]          = b
+                            if c=="low":
+                                substitutions["LUMINOSITY"]    = 1
+                            else:
+                                substitutions["LUMINOSITY"]    = 2
+                            
+                            substitutions["CLUSTERSTRATEGY"]   = d
+                            if e=="cells":
+                                substitutions["CLUSTERCELLS"]  = "true"
+                                substitutions["CLUSTERTRACKS"] = "false"
+                            elif e=="tracks":
+                                substitutions["CLUSTERCELLS"]  = "true"
+                                substitutions["CLUSTERTRACKS"] = "false"
+
+                            else:
+                                print " makeAtlfastConfigTable(): error"
+                                sys.exit()
+                                
+                            flags                   = a+"_"+b+"_"+c+"_"+d+"_"+e
+                            substitutions["FLAGS"]  = flags
+                                    
+        
+                            joName = "Atlfast_"+flags
+                            joContent = self.makeJobOptions(substitutions,
+                                                            "jobOptionsAF.tpl")
+                            open(join(self.shareDir,joName+".txt"),"w").write(
+                                joContent)
+
+                            joNames.append([joName, "Atlfast"])
+    
+        return joNames
+    
+# =============================================================================
+
+    def makeGenerators(self):
+        "create jobOptions files"
+        physicsProcess = ["pythia_ele",
+                          "pythia_mu",
+                          "pythia_tau",
+                          "pythia_qcd",
+                          "pythia_ttbar",
+                          "pythia_whbb",
+                          "isajet_default",
+                          "herwig_default",
+                          "zebra_default"
+                          ]
+        
+        substitutions = {}
+        joNames       = []
+        
+        for a in physicsProcess:
+            substitutions["FLAGS"] = a
+        
+            joName = "Generators_"+a
+            joContent = self.makeJobOptions(substitutions, "jobOptionsG.tpl")
+            open(join(self.shareDir, joName, ".txt", "w").write(joContent))
+            joNames.append([joName,"  Generators"])
+                            
+# =============================================================================
+
+    def makeJobOptions(self, subs, jobOptions):
+
+        joContent = open(join(self.shareDir, jobOptions)).read()
+
+        for key in subs.keys():
+            joContent = joContent.replace("!$"+key+"$!",str(subs[key]))
+
+
+        return joContent
+
+# ===============================
+########################################################################
+#class JobOptions_Generator code has migrated to the appropriate
+# Descriptor PS 20/9/06
+########################################################################
+
+#class JobOptions_Generator:
+#    def __init__(self):
+#        pass
+#
+#    def jobOptions(self,jobOptions,jDescriptor):
+#        if not jDescriptor.hasData(): return jobOptions
+#        
+#        fileStringList = []
+#        fileStringList.append("include(\"" + jobOptions + "\")\n")
+#        fileStringList.append(self.datasetCommand(jDescriptor)+'\n' )
+#        newJobOptionFile = join(jDescriptor.runPath,"RTTjobOptions.py")
+#        joFile = open(newJobOptionFile,"w").writelines(fileStringList)
+#
+#        return newJobOptionFile                       
+#            
+#    def datasetCommand(self,jd):
+#        import string
+#        
+#        s = ''
+#
+#        for datasetType in jd.datasets.keys():
+#            for ds in jd.datasets[datasetType]:                
+#                s += str(ds.whichAthenaList()) + ' += [\"'+string.replace(ds.name, '/castor/','rfio:/castor/')+'\"]\n'    
+#            s = string.replace(s[:-1],'+=', '=', 1) # remove final carriage return and convert first '+=' to '+'
+#            
+#        return s
+#
+#
+#
+# class JobOptions_GeneratorGrid(JobOptions_Generator):
+#     def __init__(self):
+#         JobOptions_Generator.__init__(self)
+#
+#    def datasetCommand(self,jd):
+#        import string
+#        
+#        s = ''
+#
+#        for datasetType in jd.datasets.keys():
+#            for ds in jd.datasets[datasetType]:
+#                name = os.path.basename(ds.name)
+#                s += str(ds.whichAthenaList()) +' += [\"'+string.replace(
+#                    name, '/castor/','rfio:/castor/')+'\"]\n'
+#                
+#            # remove final carriage return and convert first '+=' to '+'    
+#            s = string.replace(s[:-1],'+=', '=', 1) 
+#        
+#        return s
+#
+#    def jobOptions(self,jobOptions,jDescriptor):
+#        jobOptions = os.path.basename(jobOptions)
+#
+#        if not jDescriptor.hasData(): return jobOptions
+#        
+#        fileStringList = []
+#        fileStringList.append("include(\"" + jobOptions + "\")\n")
+#        fileStringList.append(self.datasetCommand(jDescriptor)+'\n' )
+#        newJobOptionFile = join(jDescriptor.runPath,"RTTjobOptions.py")
+#        joFile = open(newJobOptionFile,"w").writelines(fileStringList)
+#
+#        return newJobOptionFile
+#
+#if __name__ == "__main__":
+#    g = JobOptionsGenerator("../share")
+#    g.makeAll()
+

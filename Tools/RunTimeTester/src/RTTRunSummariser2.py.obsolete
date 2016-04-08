@@ -1,0 +1,297 @@
+"""
+A class to provide an aml file summary of an RTT run
+"""
+import os, string, copy, anydbm, fnmatch
+from time import localtime, strftime, time
+from Evaluate import Evaluate
+from Tools import changePerm
+
+from getInheritanceHeirarchy import isWorkerMinder, isWatcherMinder
+import threading
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+class RTTRunSummariserCallBackHandler:
+    """
+    Call back handler to allow (eg) minders to initiate an update
+    the monitoring plots.
+    """
+    
+    def __init__(self, tester):
+
+        self.updateEvery = 10
+        self.updateCount = 0
+        self.tester      = tester
+        
+        minders = []
+        [minders.extend(tr.jobMinders) for tr in tester.testRuns]
+        [m.setRunSummaryCallBackHandler(self) for m in minders]
+        
+    def update(self, importance):
+        if importance != 'high':
+            self.updateCount += 1
+            if self.updateCount != self.updateEvery:
+                return False # not yet time for low level update
+            else:
+                self.updateCount = 0 # reset and proceed with update
+                
+        return self.tester.updateMonitors()
+
+def sum(list):
+    try:
+        floats = [float(l) for l in list]
+    except:
+        return  0
+
+    sum = 0
+    for f in floats: sum += f
+
+    return sum
+
+class RTTRunSummariser:
+    def __init__(self, tester):
+
+        self.tester     = tester
+        self.outputDir  = tester.paths.resultsDirs['packages']
+
+        self.nJobs                = 0
+        self.nPackages            = 0
+        self.nTests               = 0
+        self.nTestsPassed         = 0
+
+        self.nJobsByPackage        = {}
+        self.nJobsDoneByPackage    = {}
+        self.nJobsOpCloseByPackage = {}
+        self.nJobsSuccByPackage    = {}
+        self.nJobsFailByPackage    = {}
+        self.nTestsSuccByPackage   = {}
+        self.nTestsFailByPackage   = {}
+        self.nPPSuccByPackage      = {}
+        self.nPPFailByPackage      = {}
+        self.nRetriesByPackage     = {}
+        self.nJobsTOByPackage      = {}
+        self.nTestsByPackage       = {}
+        self.jobsByPackage         = {}
+
+
+    def dirWithSummaries(self): return self.outputDir
+
+
+    def update(self, package, updatedMinders):
+        # need the dummy arg so we can run via mutex.lock (why do we need thew arg??)
+        logger.info('Update method starts for RTTRunSummariser')
+        document = self.tester.summaryDocument
+        if document is None:
+            logger.info('Tester summary document unavailable, returning')
+            return
+        docElement = document.documentElement
+        
+        # self.minders = []
+        # [self.minders.extend(tr.jobMinders) for tr in self.testRuns]
+
+        
+        self.nPackages = len(Evaluate('package',docElement))
+        self.nJobs = sum(Evaluate('package/nJobsInPackage/text()',docElement))
+
+
+        self.nTests = sum(
+            Evaluate('package/nTestsInPackage/text()', docElement))
+
+        
+        
+        self.nJobsByPackage        = {}
+        self.nJobsDoneByPackage    = {}
+        self.nJobsOpCloseByPackage = {}
+        self.nJobsSuccByPackage    = {}
+        self.nJobsFailByPackage    = {}
+        self.nPPSuccByPackage      = {}
+        self.nPPFailByPackage      = {}
+        self.nTestsSuccByPackage   = {}
+        self.nTestsFailByPackage   = {}
+        self.nRetriesByPackage     = {}
+        self.nJobsTOByPackage      = {}
+        self.nTestsByPackage       = {}
+        
+        
+
+        self.nTestsPassed   = sum(Evaluate('package/nTestsOKInPackage/text()',
+                                           docElement))
+
+        packageNodes = Evaluate('package', docElement)
+
+        for n in packageNodes:
+            name = Evaluate('packageName/text()', n).strip()
+            
+            self.nJobsByPackage[name]        = int(Evaluate('nJobsInPackage/text()', n))
+            self.nJobsDoneByPackage[name]    = int(Evaluate('nJobsDoneInPackage/text()', n))
+            self.nJobsOpCloseByPackage[name] = int(Evaluate('nJobsOpCloseInPackage/text()', n))
+            self.nJobsSuccByPackage[name]    = int(Evaluate('nJobsSuccessInPackage/text()', n))
+            self.nJobsFailByPackage[name]    = int(Evaluate('nJobsFailureInPackage/text()', n))
+            self.nPPSuccByPackage[name]      = int(Evaluate('nPPSuccessInPackage/text()', n))
+            self.nPPFailByPackage[name]      = int(Evaluate('nPPFailureInPackage/text()', n))
+            self.nTestsSuccByPackage[name]   = int(Evaluate('nTestsSuccessInPackage/text()', n))
+            self.nTestsFailByPackage[name]   = int(Evaluate('nTestsFailureInPackage/text()', n))
+            self.nRetriesByPackage[name]     = int(Evaluate('nRetriesInPackage/text()', n))
+            self.nJobsTOByPackage[name]      = int(Evaluate('nTimeOutsInPackage/text()', n))
+            self.nTestsByPackage[name]       = int(Evaluate('nTestsInPackage/text()', n))
+        
+
+        self.summaryToFile()
+        logger.info('Update method ends for RTTRunSummariser')
+
+
+
+    def finalise(self): pass
+    
+    def stringToFile(self, string, fn):
+
+        filePath = os.path.join(self.outputDir, fn)
+        file = open(filePath, 'w')
+        os.chmod(filePath, 02755)
+        file.write(string)
+        # try:
+        file.close()
+        #except:
+        #    print 'Error closing filepath',filePath
+
+        logger.debug('wrote %s' % filePath)
+
+    def summaryToFile(self):
+        self.stringToFile(self.__str__(),     'RTTSummary.txt')
+
+    def info(self):
+
+        # self.update()
+        timestring = strftime("%d %b %Y %H:%M:%S", localtime())
+
+
+        de = self.tester.summaryDocument
+        if de is None:
+            m = 'RTTSummariser: Tester summary doc is None, returning'
+            self.logger.info(m)
+            return
+        
+        de = self.tester.summaryDocument.documentElement
+        on = Evaluate('overview', de)[0]
+        
+        simpleInfo = (
+            ('time                 ', timestring),
+            ('time2                ', time()),
+            ('NICOStime            ', Evaluate('nicosDate1/text()',     on)),
+            ('NICOStime2           ', Evaluate('nicosDate2/text()',     on)),
+            ('rttSrcDir            ', Evaluate('rttSrcDir/text()',      on)),
+            ('rttLibDir            ', Evaluate('rttLibDir/text()',      on)),
+            ('release              ', Evaluate('release/text()',        on)),
+            ('refRelease           ', Evaluate('refRelease/text()',     on)),
+            ('runType              ', Evaluate('runType/text()',        on)),
+            ('cmtConfig            ', Evaluate('cmtConfig/text()',      on)),
+            ('branch               ', Evaluate('originalBranch/text()', on)),
+            ('nPackages            ', self.nPackages),
+            )
+        
+
+        label = string.ljust('totalRTT', 30)
+
+        def sumList(list):
+            sum = 0
+            for l in list: sum += int(l)
+            return sum
+        
+        totalInfo = (label,
+                     sumList(self.nJobsByPackage.values()),
+                     sumList(self.nRetriesByPackage.values()),
+                     sumList(self.nJobsTOByPackage.values()),
+                     sumList(self.nJobsSuccByPackage.values()),
+                     sumList(self.nJobsFailByPackage.values()),
+                     sumList(self.nJobsOpCloseByPackage.values()),
+                     sumList(self.nJobsDoneByPackage.values()),
+                     sumList(self.nTestsByPackage.values()),
+                     sumList(self.nTestsSuccByPackage.values())
+                     )
+        justifiedKeys = [string.ljust(k, 30) for k in self.nJobsByPackage.keys()]
+        jobGroupInfo  = zip(
+            justifiedKeys,
+            self.nJobsByPackage.values(),
+            self.nRetriesByPackage.values(),
+            self.nJobsTOByPackage.values(),
+            self.nJobsSuccByPackage.values(),
+            self.nJobsFailByPackage.values(),
+            self.nJobsOpCloseByPackage.values(),
+            self.nJobsDoneByPackage.values(),
+            self.nTestsByPackage.values(),
+            self.nTestsFailByPackage.values()
+            )
+
+        return simpleInfo, totalInfo, jobGroupInfo
+
+    
+    def __str__(self):
+
+        timestring = strftime("%d %b %Y %H:%M:%S", localtime())
+
+        simpleInfo, totalInfo, jobGroupInfo = self.info()
+
+        line = '-'*40+'\n'
+        s  = line
+        s += '|'+string.center('RunTimeTester RunSummary', 28)+'|\n'
+        s += '|'+string.center('%20s' % timestring, 28)       +'|\n'
+        s += line
+        s += '\n'
+
+        for item in simpleInfo:
+            s+='%20s    %40s\n' % item
+            
+        s += '\n'
+        s += 'Counts by Group:\n\n'
+        spacer = ' '*30
+        s += '%s%s%s%s%s%s%s%s%s%s\n' % (string.ljust('Package',     30),
+                                         string.rjust('Jobs',        10),
+                                         string.rjust('Job',         10),
+                                         string.rjust('Job',         10),
+                                         string.rjust('Jobs',        10),
+                                         string.rjust('Jobs',        10),
+                                         string.rjust('Operator',    10),
+                                         string.rjust('Process',     10),
+                                         string.rjust('Tests',       10),
+                                         string.rjust('Tests',       10)
+                                         )
+        s += '%s%s%s%s%s%s%s%s%s%s\n\n' % (string.ljust('name',      30),
+                                           string.rjust('submitted', 10),
+                                           string.rjust('retries',   10),
+                                           string.rjust('timeouts',  10),
+                                           string.rjust('success',   10),
+                                           string.rjust('fail',      10),
+                                           string.rjust('closeDown', 10),
+                                           string.rjust('complete',  10),
+                                           string.rjust('total',     10),
+                                           string.rjust('pass',      10) )
+        
+
+        logger.debug("No of job groups %d" % len(self.nJobsByPackage.keys()))
+        fString = '%30s%10d%10d%10d%10d%10d%10d%10d%10d%10d\n'
+        s+= fString % totalInfo
+        for group in jobGroupInfo:
+            s+=fString % group
+
+        return s
+
+if __name__ == '__main__':
+    oDir = '/local_disk/sherwood'
+
+    from xml.dom.minidom import parse
+    class A:
+        def __init__(self):
+            self.resultsDirs = {'packages':'/afs/cern.ch/atlas/project/RTT/Results/rel_3/dev/build/i686-slc3-gcc323-opt/RTTSummary.xml'}
+    class Tester:
+        def __init__(self, paths):
+            self.summaryDocument = parse('/afs/cern.ch/atlas/project/RTT/Results/rel_3/dev/build/i686-slc3-gcc323-opt/RTTSummary.xml')
+            self.paths = paths
+    s = RTTRunSummariser(Tester(A()))
+    s.update()
+
+
+        
+    
+        

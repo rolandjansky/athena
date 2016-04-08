@@ -1,0 +1,6 @@
+def listTransfer(dest, kit, label):
+    
+    kitlist = kit.getItem(label) # list might be None
+    orilist = getattr(dest, label, [])
+    if kitlist: orilist.extend(kitlist)
+    setattr(dest, label, orilist)

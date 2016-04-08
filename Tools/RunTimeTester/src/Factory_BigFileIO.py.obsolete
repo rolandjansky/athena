@@ -1,0 +1,26 @@
+"""
+This module bundles the RTT factory functions.
+These functions are written as classes to help write test code.
+"""
+
+
+from Factory_BaseClass     import Factory
+from BigFileIO   import BigFileIO, CERNBigFileIO
+
+class BigFileIOFactory(Factory):
+  def __init__(self, logger):
+    Factory.__init__(self, logger, self.__class__.__name__)
+    
+    self.dict = {
+      'CERNslc4':  CERNBigFileIO
+      }
+    
+  def create(self, paths, doNothing=True): 
+    key = paths.site
+    self.logger.debug('BigFileFactory: grabbing key: %s' % key)
+    if key in self.dict:
+      inst = self.dict[key](paths, doNothing)
+      self.logger.debug('Key in dict: returning inst class: %s' % inst.__class__.__name__)
+      return inst
+    else:
+      return BigFileIO(paths, doNothing)

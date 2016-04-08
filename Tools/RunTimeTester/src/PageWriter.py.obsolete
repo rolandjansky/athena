@@ -1,0 +1,636 @@
+# Write out web page xml files for the RTT
+# Input is a single XML file which stores the RTT summary xml files
+# Structure of the code:
+# 5 page writer classes: Page0Writer,..,Page4Writer, all derived from PageWriter.
+# The Page(n)Writer receives information in its update() method (supplied by the base class PageWriter) in the form of an document node,
+# extracts the subnodes in the getSubNodes method, and instantiates the corresponding number of Page(n+1)Writers. Page(n)Writer can
+# find the location of the n+1 generation pages by asking the writers.
+# at the end of the method a call is made to writepage to write out the xml. In this way the order of writing out pages is
+# 4,3,2,1,0. The lifetime of the writer objects is the lifetime of the update method in Page0Writer.
+#
+# Page0Writer is different from the other page writers in that it deals with muliple summaries (bundled together into a single
+# document to allow processing with similar codee). All pages are initialised with the overview node of the document they will deal
+# with. A single overview node makes no sense in the case of page0writer and page1writer, which get a None object instead.
+#
+from Evaluate   import Evaluate
+from RTTpath    import RTTpath
+from makeRTTDOM import makeRTTDOM
+from XMLTools   import xslRef, prependXSLRef, relPath
+
+import os.path, string
+
+# print level: current settings are at 100. 0 = silent.
+debug = 0
+
+class SummaryLocationInterpreter:
+    """
+    useless C++-like interface
+    This class is acts as a reminder that location
+    is a general concept (place in database, url, unix file path.
+    Derived classes know how to handle specific representations of location
+
+    These classes are used to make the page names. The names are currently only
+    used to indentifiy the page for debug purposes.
+    """
+    def __init__(self): return
+    def linkedPageName(self): return ''
+    def writeTo(self):
+        'path to write current page to'
+        return ''
+    
+class SummaryPathInterpreter(SummaryLocationInterpreter):
+    """
+    location is implemented as a relative path. The code knows
+    how to interpret the path. In this case, it knows how
+    with parts of the path to use as pointers to the next page.
+    the pointer values are set in derived classes
+
+    Note that the location is not used to find the summary file,
+    rather information is extracted from the path.
+    """
+    
+    def __init__(self, location):
+        SummaryLocationInterpreter.__init__(self)
+
+
+        # if not os.path.isabs(location):
+        #    print location
+
+        # print location
+
+        # assert False
+
+        self.tokens = location.split('/')
+
+    def linkedPageName(self):
+        # return string.join(self.tokens[self.minIndex:self.maxIndex], '')
+
+        path = ''                      
+        for t in self.tokens[self.minIndex:self.maxIndex]:
+            path = os.path.join(path, t)
+        return path
+
+class Page0PathInterpreter(SummaryPathInterpreter):
+    """
+    provide pointers into the location path to point from page 0
+    to page 1
+    """
+
+    def __init__(self, summaryLocation):
+        self.minIndex = 1
+        self.maxIndex = 4
+        self.nextPage = 'page1.xml'
+        SummaryPathInterpreter.__init__(self, summaryLocation)
+
+
+class Page1PathInterpreter(SummaryPathInterpreter):
+    """
+    provide pointers into the location path to point from page 1
+    to page 2
+    """
+    
+    def __init__(self, summaryLocation):
+        # self.minIndex = 4
+        # self.maxIndex = 5
+        self.minIndex = 1
+        self.maxIndex = 6
+        self.nextPage = 'page2.xml'
+        SummaryPathInterpreter.__init__(self, summaryLocation)
+
+
+    def writeTo(self):
+        path = ''
+        for t in self.tokens[1:4]:
+            path = os.path.join(path, t)
+            # print path
+        return path
+
+class PageWriterBase:
+    def __init__(self, resBaseDir, name):
+        # print 'Constructor %s for page %s' %(self.__class__.__name__, name) 
+        self.resBaseDir      = resBaseDir       # paths to XSLT files
+        self.absXSLDir       = resBaseDir       # paths to XSLT files
+        self.absXSLLoc       = os.path.normpath(os.path.join(self.absXSLDir, self.xslFile))
+        self.name            = name             # a path-like string> ends up on the web page.
+        self.writerClass     = None             # class for child writers
+        self.childWriters    = {}               # location (where written) to page writer mapping
+                                                # the dictionary ensures there is only one such writer
+
+    
+        # print 'Constructor ends %s for page %s' %(self.__class__.__name__, name) 
+
+
+        
+    def dump(self, ngen, counts):
+        ngen += 1
+        tab = '   '*ngen
+        relLoc = relPath(self.resBaseDir, self.location)
+        s = '\n%s%s %s\n%s%s\n\n' % (tab,
+                                     self.__class__.__name__,
+                                     self.name,
+                                     tab,
+                                     relLoc)
+        #s+=  'from dump: no of children %d\n' % len(self.childWriters.keys())
+        for c in self.childWriters.values():
+            s += c.dump(ngen, counts)
+
+        cn = self.__class__.__name__
+        try:
+            counts[cn]+=1
+        except:
+            counts[cn]=1
+            
+        return s
+
+    def writePage(self, doc):
+        # occasionnally WPC has a permission denied problem.
+        # not sure why: perhaps temp AFS problem. Hence this retry solution.
+        thereAreProblems = True
+        attempts = 0
+        while attempts < 5 and thereAreProblems:
+            try:
+                self._writePage(doc)
+                thereAreProblems = False
+            except:
+                print "Attempt %d: PageWriterBase._writePage() threw an exception" % attempts
+                print exc2string2()
+                attempts += 1
+                time.sleep(10)
+
+    def _writePage(self, doc):
+        """
+        write out the page for a job.
+        """
+
+        if debug >= 50: print 'writing page %s::%s:\n    %s' % (self.__class__.__name__, self.name, self.location)
+        of = open(self.location,'w')
+        of.write(doc.toprettyxml('   '))
+        of.close()
+
+        doc.unlink()
+
+
+    def registerChild(self, childWriter):
+        """
+        childWriter passed in is a candidate: it is refused
+        if there is already a writer existing at this location.
+        otherwise children with same location (but presumably
+        different offspring) eliminarte each other.
+        """
+        cn = childWriter.__class__.__name__
+        writer = self.childWriters.setdefault(childWriter.location, childWriter)
+        # if cn in ['Page1Writer','Page2Writer','Page1Writer']:
+        #    print 'registering child of class',cn
+        #    print '--start dict---'
+        #    print self.childWriters
+        #    print '--end dict---'
+        # print 'registered child at location', childWriter.location
+        return writer
+    def deregisterChildren(self):
+        """
+        pages are deregistered if the cummary file no longer needs updating
+        to conserve memory
+        This base version passes the command on to the children - some
+        classes never take action on the commands. Others do so in
+        overrides.
+        """
+    
+        for c in self.childWriters.values(): c.deregisterChildren()
+
+
+class MultipleSummaryPageWriter(PageWriterBase):
+    """
+    Base class for pages that handle more than 1 summary file.
+    """
+    def __init__(self, resBaseDir, name):
+        PageWriterBase.__init__(self, resBaseDir, name)
+        
+    def update(self, cmttargets, packages, minders, writePages, summaryLocation, overviewForChild, nodeForChild):
+        """
+        cmttargets list of values to be updated
+        package    list of values to be updated
+        minders    list of values to be updated
+        write      flag to enable page writing (not always fone at init for the system)
+        """
+
+
+        if debug>=55: print '\nupdate start for', self.__class__.__name__, self.name
+        # if there are to be linked pages, make a new writer for each new location
+        writer = self.makeWriter(summaryLocation, overviewForChild, nodeForChild)
+        if debug >= 100: print '\nupdate made writer', writer.__class__.__name__
+
+        if debug >= 100: print '%s registering  writer %s' % (self.name, writer.name)
+        # use this writer as a child only of there is not an older one at this location
+        writer = self.registerChild(writer)
+        # write out the linked pages
+        # print 'registered, about to update'
+        nupdates = writer.update(cmttargets, packages, minders, writePages, summaryLocation, overviewForChild, nodeForChild)+1
+
+        # write out the current page
+        doc = self.composePage(overviewForChild, nodeForChild)
+
+
+        if writePages: self.writePage(doc)
+        if debug>30: print 'path to write to:', self.location
+                
+        doc.unlink()
+        # print '\nupdate end for', self.__class__.__name__
+        if debug>=55: print '\nupdate ends for', self.__class__.__name__, self.name
+
+        if debug>=40: print 'nupdates: ', nupdates, self.__class__.__name__
+        return nupdates
+    
+class SingleSummaryPageWriter(PageWriterBase):
+    def __init__(self, resBaseDir, name):
+        PageWriterBase.__init__(self, resBaseDir, name)
+
+        
+    def getSubNodes(self, cmttargets, packages, minders, nodeToSplit):
+        """
+        Get the minder nodes which will geneate the page4 files linked from page3.
+        """
+        # example - page 4: terminal page, pathToSubNodes = ''
+        pathToSubNodes = self.getXPathToSubNodes()
+        if not pathToSubNodes: return []
+        
+        # example: page 3 - pathToSubNodes = 'minder', ie the relative xpath from package to minder nodes
+        allNodes = Evaluate(pathToSubNodes, nodeToSplit)
+        # print 'name', self.name
+        # print 'pathToSubNodes', pathToSubNodes
+        # print 'no of subNodes', len(allNodes)
+        # if len(allNodes) == 0:
+        #    print self.node.nodeName
+        #    print self.node.toxml()
+        #    assert False
+        
+        # example: page3  - [ (<identifiedName>, <minder)....]
+        # create a 'path' like name to be able to identify the children of the node in the PageTable
+        def makeWriterName(parentName, nodeNamePath, node):
+            nodeName  = parentName+'/'
+            nodeName +=  Evaluate(nodeNamePath, a).strip()
+            return nodeName
+        
+        allNodes = [(makeWriterName(self.name, self.getUpdatedNodeName(), a), a) for a in allNodes]
+
+        # example: page 3 - absence of a list of updated minder identified names  means take all (init from db)
+        #                   otherwise get the list of identified names for the updated minders for this package
+        
+        updated = self.getUpdatedNodeNameValues(cmttargets, packages, minders)
+        if updated:
+            # evaluate the end of the name path - this has to match the update information.
+            # example: page3 - keep only the minder nodes that correspond to the updated identified names
+
+            
+
+            nodes = [(name, node) for name, node in allNodes if Evaluate(self.getUpdatedNodeName(), node) in updated]
+
+
+            if debug>= 100:
+                # m = '%s::%s subnodes:\n' % (self.__class__.__name__,self.name)
+                for name, node in nodes:
+                    m += '   %s\n ' % name
+                print m
+
+                print updated
+            
+            if not len(nodes) == len(updated):
+                print nodeToSplit.toprettyxml('   ')
+                assert False
+
+            return nodes
+        else:
+
+            if debug>=100:
+                m = '%s::%s subnodes:\n' % (self.__class__.__name__,self.name)
+                for name, node in allNodes:
+                    m += '   %s\n ' % name
+                print m
+
+            return allNodes
+        
+    def update(self, cmttargets, packages, minders, writePages, summaryLocation,
+               overviewForChild, nodeForChild):
+
+
+        # path to RTTSummary.xml relative to resBase.
+        # Used to caculate self.name
+        self.summaryLocation = summaryLocation
+        
+        'package and minders are hints for subnode selection'
+        if debug>=100: print '\nupdate start for', self.__class__.__name__
+
+        # print '\nupdate start for', self.__class__.__name__
+        # find all the nodes for linked pages
+        subNodes  = self.getSubNodes(cmttargets, packages, minders, nodeForChild)
+        if debug>=100: print self.name,': no of subnodes', len(subNodes)
+        
+        # if there are to be linked pages, make a new writer for each new location
+        nupdates = 0
+        if self.writerClass:
+            for name, subnode in subNodes:
+                writer = self.writerClass(self.resBaseDir, name, overviewForChild, subnode)
+                if writer.location == '': continue # vetoed packages have no place to write to. xslt handles these cases.
+
+                writer = self.registerChild(writer)
+
+                nupdates += writer.update(cmttargets, packages, minders, writePages, summaryLocation, overviewForChild, subnode)+1
+
+        # write out the current page
+        doc = self.composePage(overviewForChild, nodeForChild)
+        if writePages: self.writePage(doc)
+        doc.unlink()
+        # print '\nupdate end for', self.__class__.__name__
+
+        if debug>=40:  print 'nupdates: ', nupdates, self.__class__.__name__
+        return nupdates
+    
+    def deregisterChildren(self):
+        """
+        pages are deregistered if the cummary file no longer needs updating
+        to conserve memory
+        """
+        PageWriterBase.deregisterChildren(self)
+        for c in self.childWriters.keys(): del self.childWriters[c]
+
+
+
+class Page4Writer(SingleSummaryPageWriter):
+    def __init__(self, resBaseDir, name, overviewNode, node):
+        'node is a minder node'
+        self.xslFile = 'page4.xsl'
+        SingleSummaryPageWriter.__init__(self, resBaseDir, name)
+
+        # location - where the page is to be written.
+        # Bind as is needed by parent page
+        self.location  = self.getLocation(node)
+
+
+    def getLocation(self, node):
+        location = os.path.join(Evaluate('resultsPath/text()', node).strip(), 'page4.xml')
+        assert os.path.isabs(location)
+        return location
+
+    def getXPathToSubNodes(self): return ''
+
+    def getUpdatedNodeName(self): return ''
+
+    def getUpdatedNodeNameValues(self, cmttargets, packageTargets, minderTargets): return []
+
+    def composePage(self, overviewNode, node):
+        # self.logger.debug('Page4XMLWriter: start createPage')
+        doc   = makeRTTDOM('RTTpage4')
+        docEl = doc.documentElement
+        docEl.appendChild(doc.importNode(overviewNode, True))
+        docEl.appendChild(doc.importNode(node, True))
+
+        # print self.location
+        prependXSLRef(xslRef(self.absXSLLoc, self.location), doc)
+        # print self.location
+        # assert False
+        
+        return doc
+
+
+class Page3Writer(SingleSummaryPageWriter):
+    """
+    recieves a package node, passes minder nodes to Page4Writer
+    """
+    def __init__(self, resBaseDir, name, overviewNode, node):
+        'node is a package node'
+        
+        self.xslFile = 'page3.xsl'
+        SingleSummaryPageWriter.__init__(self, resBaseDir, name)
+        self.writerClass = Page4Writer
+
+        # location - where the page is to be written.
+        # Bind as is needed by parent page
+        self.location  = self.getLocation(node)
+        self.relPathFromParent = Evaluate('relPage2Page3Path/text()', node)
+
+
+
+    def getLocation(self, node):
+        # location = os.path.join(Evaluate('resReleaseDir/text()', overviewNode).strip(),
+        #                        Evaluate('packageName/text()', node).strip(),
+        #                        'page3.xml')
+        location = Evaluate('absPage3Path/text()', node)
+        # print 'location: ',location
+        # print node.toxml()
+        # vetoed packages have no location
+        if location != '': assert os.path.isabs(location)
+
+        return location
+
+    def getXPathToSubNodes(self): return 'minder'
+
+    def getUpdatedNodeName(self): return 'identifiedName/text()'
+
+    def getUpdatedNodeNameValues(self, cmttargets, packageTargets, minderTargets): return minderTargets
+    def composePage(self, overviewNode, node):
+        """
+        write out the page3 and call update for page4 objects for a package.
+        """
+        # self.logger.debug('Page4XMLWriter: start createPage')
+        doc   = makeRTTDOM('RTTpage3')
+        docEl = doc.documentElement
+        docEl.appendChild(doc.importNode(overviewNode,    True))
+        docEl.appendChild(doc.importNode(node, True))
+
+        prependXSLRef(xslRef(self.absXSLLoc, self.location), doc)
+
+        return doc
+
+
+
+
+class Page2Writer(SingleSummaryPageWriter):
+    """
+    recieves a summary node, passes package nodes to Page3Writer
+    """
+
+    def __init__(self, resBaseDir, name, overviewNode, node):
+        'node is the full summary document'
+        
+        self.xslFile = 'page2.xsl'
+
+        SingleSummaryPageWriter.__init__(self, resBaseDir, name)
+        self.writerClass = Page3Writer
+        # location - where the page is to be written.
+        # Bind as is needed by parent page
+        self.location  = self.getLocation(overviewNode)
+        self.relPathFromParent = Evaluate('relPage1Page2Path/text()', overviewNode)
+
+    def update(self, cmttargets, packages, minders, writePages, summaryLocation,
+               overviewForChild, nodeForChild):
+
+        self.overviewNode = overviewForChild # needed by Page 1
+        nupdates = SingleSummaryPageWriter.update(self, cmttargets, packages, minders, writePages, summaryLocation,
+                                           overviewForChild, nodeForChild)
+
+        if debug>=40:  print 'nupdates: ', nupdates, self.__class__.__name__
+
+        return nupdates # number of updated pages
+    
+    def getLocation(self, overviewNode):
+        # location = os.path.join(Evaluate('resReleaseDir/text()', overviewNode).strip(),
+        #                              'page2.xml') 
+        location = Evaluate('absPage2Path/text()', overviewNode)
+
+        assert os.path.isabs(location)
+        return location
+
+
+    def getXPathToSubNodes(self): return 'package'
+
+    def getUpdatedNodeName(self): return 'packageName/text()'
+
+    def getUpdatedNodeNameValues(self, cmttargets, packageTargets, minderTargets): return packageTargets
+        
+    def composePage(self, overviewNode, node):
+        
+        doc   = makeRTTDOM('RTTSummary')
+        docEl = doc.documentElement
+        [docEl.appendChild(doc.importNode(n, True)) for n in node.childNodes]
+        # print self.location
+        xslRefNode = prependXSLRef(xslRef(self.absXSLLoc, self.location), doc)
+        # print self.location
+        #  assert False
+
+        return doc
+
+
+
+
+class Page1Writer(MultipleSummaryPageWriter):
+    """
+    recieves a RelBranchType node, passes summary nodes to Page2Writer
+    """
+    # def __init__(self, resBaseDir, name, overviewNode, node):
+    def __init__(self, resBaseDir, name):
+        'node is RelBranchType'
+
+        # page0 has no overview node - it deals with
+        # more than one doms, and a single overview node makes no sens.
+        # the overview node passed in is None, and needs to be set here
+        # so it can be transmitted down to other page writers
+        self.xslFile = 'page1.xsl'
+        MultipleSummaryPageWriter.__init__(self, resBaseDir, name)
+        # location - where the page is to be written.
+        # Bind as is needed by parent page
+        try:
+            self.location  = self.getLocation()
+        except:
+            print "Page1Writer::getLocation error. Node = \n%s"  % node.toprettyxml()
+        # self.relPathFromParent = Evaluate('relPage0Page1Path/text()', overviewNode)
+
+    # def getLocation(self, overviewNode):
+    def getLocation(self):
+
+        location =  os.path.join(self.resBaseDir, 'page1.xml')
+
+
+        # location = Evaluate('absPage1Path/text()', overviewNode)
+
+        assert os.path.isabs(location)
+        return location
+
+
+    def composePage(self, overviewnode, node):
+
+        doc   = makeRTTDOM('RTTpage1')
+        docEl = doc.documentElement
+
+        for w in self.childWriters.values():
+
+            # inport page2 overview and location into the current document
+
+            relPathToPage2 = w.relPathFromParent
+            relPathToSummXML = os.path.join(os.path.dirname(relPathToPage2), 'RTTSummary.xml')
+            
+            on = doc.importNode(w.overviewNode, True)
+            el = doc.createElement('relPage1Page2Path')
+            el2 = doc.createElement('relPathToSummaryXML')
+            el.appendChild(doc.createTextNode(relPathToPage2))
+            el2.appendChild(doc.createTextNode(relPathToSummXML))
+            on.appendChild(el)
+            on.appendChild(el2)
+            docEl.appendChild(on)
+
+        prependXSLRef(xslRef(self.absXSLLoc, self.location), doc)
+
+
+        # print 'Page1.compose start: doc:'
+        # print doc.toprettyxml('   ')
+        # print 'Page1.compose: end'
+
+        return doc
+
+    def makeWriter(self, summaryLocation, overviewNode, node):
+        
+        summaryPathInterpreter = Page1PathInterpreter(summaryLocation)
+
+        pageName = string.join([self.name, summaryPathInterpreter.linkedPageName()], '/')
+        return Page2Writer(self.resBaseDir, pageName, overviewNode, node)
+
+class Page0Writer(MultipleSummaryPageWriter):
+    """
+    receives a packedSummaries node, passes CMTCONFIG to Page1Writer
+    """
+
+    def __init__(self, resBaseDir, name, overviewNode, node):
+        
+        self.xslFile = 'page0.xsl'
+        MultipleSummaryPageWriter.__init__(self, resBaseDir, name)
+        # location - where the page is to be written.
+        # Bind as is needed by parent page
+        self.location  = self.getLocation()
+
+
+    def getLocation(self):
+        # self.location =  os.path.join(Evaluate('resBaseDir/text()', self.overviewNode).strip(),
+        #                              'page0.xml')
+        location =  os.path.join(self.resBaseDir, 'page0.xml')
+        assert os.path.isabs(location)
+        return location
+
+
+    def composePage(self, overviewNode, node):
+        doc   = makeRTTDOM('RTTpage0')
+        docEl = doc.documentElement
+
+        # for w in registeredWriters:
+        for w in self.childWriters.values():
+            p1name = doc.createElement('page1Name')
+
+            # remove self.name for the front of the writers' names
+            p1name.appendChild(doc.createTextNode(w.name[len(self.name):]))
+            page1  = doc.createElement('page1')
+            page1.appendChild(p1name)
+
+            el = doc.createElement('relPage0Page1Path')
+            el.appendChild(doc.createTextNode(w.relPathFromParent))
+            page1.appendChild(el)
+
+            docEl.appendChild(page1)
+        
+        prependXSLRef(xslRef(self.absXSLLoc, self.location), doc)
+
+
+        return doc
+
+    def makeWriter(self, summaryLocation, overviewNode, node):
+        summaryPathInterpreter = Page0PathInterpreter(summaryLocation)
+        pageName = string.join([self.name, summaryPathInterpreter.linkedPageName()], '/')
+        return Page1Writer(self.resBaseDir, pageName, overviewNode, node)
+
+    def update(self, cmttargets, packages, minders, writePages, summaryLocation, overviewNode, de):
+        nupdates = MultipleSummaryPageWriter.update(self, cmttargets, packages, minders,
+                                         writePages, summaryLocation, overviewNode, de)
+        if debug>=40:  print 'nupdates: ', nupdates, self.__class__.__name__
+        
+        return nupdates # number of updated pages
+        
+
+
+if __name__ == '__main__':
+    pass

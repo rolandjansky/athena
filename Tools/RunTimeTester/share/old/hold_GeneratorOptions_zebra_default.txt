@@ -1,0 +1,11 @@
+#include "AthenaCommon/Atlas_ZebraTDR.UnixStandardJob.txt"
+//ApplicationMgr.EvtSel = "FILE ZEBRA.P";
+ApplicationMgr.EvtSel = "EventSelector";
+EventSelector.dataSetNames = {"Y01606.1"} ;
+ApplicationMgr.DLLs += { "GenzModule"};
+Generator.Members += { "GenzModule"};
+EventSelector.calos = false;                        
+EventSelector.muons = false;                        
+EventSelector.trt   = false;
+EventSelector.sct   = false;
+EventSelector.pixel = false;

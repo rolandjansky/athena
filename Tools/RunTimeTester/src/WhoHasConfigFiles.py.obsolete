@@ -1,0 +1,74 @@
+#! /usr/local/bin/python
+
+
+from RTTConfigParser             import rttConfiguration
+from Paths                       import NoPackagePaths
+from RunTimer                    import RunTimer
+from formatCollection            import formatCollection
+from findRTThome                 import findRTThome
+from UserStuffRetriever          import UserStuffRetrieverBase
+from xml.parsers.xmlproc         import xmlproc, xmlval
+
+import getopt, sys, logging, os.path
+
+def handleSubstring(subString, paths, confDict):
+    usr = UserStuffRetriever(paths, subString, confDict)
+    fnames = usr.userStuff()
+    
+    logger.info('fnames')
+    logger.info(fnames)
+    
+    status = {}
+    for fname in fnames:
+        finfo = {}
+        if os.path.exists(fname):
+            finfo['exists']='Yes'
+        else:
+            finfo['exists']='No'
+            finfo['valid'] ='NA'
+            continue
+        
+        try:
+            validator = xmlval.XMLValidator()
+            validator.parse_resource(fname)
+            finfo['valid'] = 'Yes'
+        except Exception, e:
+            finfo['valid'] = 'No'
+                
+        status[fname] = finfo
+
+        logger.info('status')
+        logger.info(status)
+        print
+        print 'file name substring =',subString
+        if status:
+            print 'file','exists','valid'
+            for fn in status:
+                finfo = status[fn]
+                print finfo['exists'],finfo['valid']
+            else:
+                print 'No configuration files found from the release'
+
+if __name__ == '__main__':
+
+    from setupLoggerForDebug import setupLoggerForDebug
+    setupLoggerForDebug('INFO')
+    logger = logging.getLogger()
+    
+    (basePath, confFile, srcDir) = findRTThome()
+    print 'config file: ', confFile
+    print 'source dir:  ', srcDir
+      
+    confDict = rttConfiguration(confFile)
+    paths      = NoPackagePaths(confDict, basePath, RunTimer(60*60*20))
+    # paths.dump()
+    
+    # subString = '_RTT_things'
+
+    subStrings  = ['_TestConfiguration', '_RTT', '_ReleaseTest']
+    
+    print 'config file used    =',confFile
+    print 'release             =',paths.release
+    print 'branch              =',paths.branch
+    for string in subStrings:
+        handleSubstring(string, paths, confDict)

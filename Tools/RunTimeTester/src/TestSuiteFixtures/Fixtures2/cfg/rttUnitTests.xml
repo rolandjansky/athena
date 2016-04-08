@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rttconfig SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/RTT.dtd">
+
+
+<!-- <!DOCTYPE rttconfig SYSTEM "RTT.dtd"> -->
+<rttconfig>
+   <mode>PBS</mode>
+   <release>11.3.0</release>
+   <refRelease>11.0.0</refRelease>
+   <build>opt</build>
+   <branch>N.X.0</branch>
+   <runType>
+      <releaseRun/>
+   </runType>
+   <workBasePath>TESTSUITESCRATCH/Work</workBasePath>
+   <resultsBasePath>TESTSUITESCRATCH/Results</resultsBasePath>
+   <site>CERN</site>
+   <dataSetCatalog>TESTSUITESCRATCH/xml/rttUnitTestDataSetCatalog.xml</dataSetCatalog>
+   <jobGroupConfig>TESTSUITESCRATCH/xml/rttUnitTestTopLevelJobGroup.xml</jobGroupConfig>
+   <refDB>
+      <file>TESTSUITESCRATCH/rttUnitTestRefFile.db</file>
+      <enable>1</enable>
+   </refDB>
+   <moniDB>
+      <file>TESTSUITESCRATCH/rttUnitTestMoniFile.db</file>
+      <enable>1</enable>
+   </moniDB>
+
+
+   <confFileSrc>
+      <installedConfFiles/>
+   </confFileSrc>
+
+   <!-- <packageAccept>HelloWorld</packageAccept> -->
+   <!-- <packageVeto>TestAtlfast</packageVeto> -->
+<!--   <testMode>NoNewRunDirs</testMode> -->
+   <maxTime>
+      <hours>1</hours>
+   </maxTime>
+   <releaseType>project</releaseType>
+</rttconfig>

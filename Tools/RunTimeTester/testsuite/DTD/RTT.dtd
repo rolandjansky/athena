@@ -1,0 +1,95 @@
+<!ELEMENT rttconfig (mode,                release,             refRelease,  
+                     cmtConfig,           branch,              runType,
+                     topProject,          otherProject?,       distArea,
+                     workBasePath,        resultsBasePath,     resultsBaseURL,
+                     site,                dataSetCatalog,      jobGroupConfig,    
+                     pathToVetoFile?,     dCubeCfgFile?,    
+                     confFileSrc, 
+                     packageAccept*,      packageVeto*,        webpageBranchVeto*,
+                     testMode?,           maxTime?,            versionDir?,  
+                     libToolsLoc?,        confFileSuffix?,    
+                     rttKitTest?,         releaseType?,        rttPilotJobs?,
+                     atnPilotJobs?,       concurrent?,         disableMailTo?,    devRun?, 
+                     deleteNonKeepFiles?, archive*,            chainStoreBasePath)>
+    
+   <!ELEMENT mode                   (#PCDATA)>
+   <!ELEMENT release                (#PCDATA)>
+   <!ELEMENT refRelease             (#PCDATA)>
+   <!ELEMENT cmtConfig              (#PCDATA)>
+   <!ELEMENT branch                 (#PCDATA)>
+   <!ELEMENT runType                (releaseRun | kitRun)>
+   <!ELEMENT topProject             (#PCDATA)>  
+   <!ELEMENT otherProject           (#PCDATA)>  
+   <!ELEMENT distArea               (#PCDATA)>
+   <!ELEMENT workBasePath           (#PCDATA)>
+   <!ELEMENT resultsBasePath        (#PCDATA)>
+   <!ELEMENT resultsBaseURL         (#PCDATA)>
+   <!ELEMENT site                   (#PCDATA)>
+   <!ELEMENT dataSetCatalog         (#PCDATA)>
+   <!ELEMENT jobGroupConfig         (#PCDATA)>
+   <!ELEMENT pathToVetoFile         (#PCDATA)>
+   <!ELEMENT dCubeCfgFile           (#PCDATA)>
+   <!ELEMENT chainStoreBasePath     (#PCDATA)>
+   <!ELEMENT confFileSrc            (  (rttProvides,  
+                                         localConfFiles?, 
+                                         installedConfFiles?) |
+                                       (rttProvides?, 
+                                         localConfFiles,  
+                                         installedConfFiles?) |
+                                       (rttProvides?, 
+                                         localConfFiles?, 
+                                         installedConfFiles) )>
+
+   <!ELEMENT rttRun                 EMPTY>
+   <!ELEMENT tctRun                 EMPTY>
+   <!ELEMENT fctRun                 EMPTY>
+
+   <!ELEMENT releaseRun             EMPTY>
+   <!ELEMENT kitRun                 (installArea)>
+   <!ELEMENT installArea            (#PCDATA)>
+   <!ELEMENT rttProvides            (packageConfFile+)>
+      <!ELEMENT packageConfFile     (package, pathToFile, cmtpath, version,
+                                     installArea, shareArea)>
+         <!ELEMENT package          (#PCDATA)>
+         <!ELEMENT pathToFile       (#PCDATA)>
+         <!ELEMENT cmtpath          (#PCDATA)>
+         <!ELEMENT version          (#PCDATA)>
+         <!ELEMENT shareArea        (#PCDATA)>
+   <!ELEMENT localConfFiles         (userHomeCmtDir, testProjectCmtDir)>
+   <!ELEMENT installedConfFiles     EMPTY>
+   <!ELEMENT packageAccept          (#PCDATA)>
+   <!ELEMENT packageVeto            (#PCDATA)>
+   <!ELEMENT webpageBranchVeto      (#PCDATA)>
+   <!ELEMENT testMode               (#PCDATA)>
+   <!ELEMENT maxTime                ((hours, minutes?) | minutes)>
+      <!ELEMENT hours               (#PCDATA)>
+      <!ELEMENT minutes             (#PCDATA)>
+   <!ELEMENT versionDir             (#PCDATA)>
+   <!ELEMENT libToolsLoc            (#PCDATA)>
+   <!ELEMENT confFileSuffix         (#PCDATA)>
+   <!ELEMENT rttKitTest             EMPTY>   
+   <!ELEMENT releaseType            (#PCDATA)> 
+   <!ELEMENT rttPilotJobs               EMPTY>
+   <!ELEMENT atnPilotJobs               EMPTY>
+   <!ELEMENT userHomeCmtDir         (#PCDATA)> 
+   <!ELEMENT testProjectCmtDir      (#PCDATA)> 
+   <!ELEMENT concurrent             (wpcServer)>
+   <!ELEMENT wpcServer            (#PCDATA)>
+   <!ELEMENT disableMailTo              EMPTY>
+   <!ELEMENT devRun                     EMPTY>
+   <!ELEMENT deleteNonKeepFiles         EMPTY>
+
+   <!ELEMENT archive                (type,base,nvers,condition+)>
+     <!ELEMENT type                    (#PCDATA)>
+     <!ELEMENT base                    (#PCDATA)>
+     <!ELEMENT nvers                   (#PCDATA)>
+     <!ELEMENT condition               (size?,name?,parentdir?)>
+        <!ELEMENT size                  (gt|lt|(gt,lt))>
+           <!ELEMENT gt                   (#PCDATA)>
+           <!ELEMENT lt                   (#PCDATA)> 
+        <!ELEMENT name                  (is+|isnot+|(is+,isnot+))>
+           <!ELEMENT is                   (#PCDATA)>
+           <!ELEMENT isnot                (#PCDATA)>
+        <!ELEMENT parentdir             (is+|isnot+|(is+,isnot+))>
+
+  

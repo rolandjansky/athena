@@ -1,0 +1,16 @@
+#! /usr/bin/python
+"""
+Short script that is used to start the RTT.
+Could be run from a cron job.
+User specifies the location of the RTT scripts, and the location of the
+two configuration files.
+"""
+
+from Tester import Tester
+
+if __name__ == "__main__":
+    Tester(
+        "/afs/cern.ch/user/s/simmons/ATLAS/work/RTT_latest/Tools/RunTimeTester/RunTimeTester-00-00-15/src",
+        "/afs/cern.ch/user/s/simmons/ATLAS/work/RTT_latest/Tools/RunTimeTester/RunTimeTester-00-00-15/src/cfg.cfg"
+        )
+

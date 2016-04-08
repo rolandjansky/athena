@@ -1,0 +1,28 @@
+<!--
+   file: DCubeForRTTCfg.xml 
+   brief: DCubeClient for AtlasRTT ini file 
+   author: Krzysztof Daniel Ciba
+   date: Sep 4, 2007
+
+   * Oct 23, 2007 - cibak - switch to root 5.17/04
+   * Apr 10, 2008 - cibak - switch to root 5.19/02, python 2.5, DCubeServer-00-00-10
+                            
+-->
+<init version="3.1.4.1.5">
+
+<!-- environment presettings -->
+<!-- version of binaries to use, by default slc4_amd64_gcc34 --> 
+<bin>slc4_amd64_gcc34</bin>
+<!-- ROOT -->
+<root version="5.19.02">/afs/cern.ch/sw/lcg/external/root</root>
+<!-- PYTHON -->
+<python version="2.5">/afs/cern.ch/sw/lcg/external/Python</python>
+
+<!-- runtime parameters -->
+<!-- base directory with reference files -->
+<ref_dir>/afs/cern.ch/atlas/project/RTT/Results/reference/</ref_dir>
+<!-- base directory with dcube server installation --> 
+<server>/afs/cern.ch/atlas/project/RTT/Results/dcube/DCubeServer-00-00-13/</server>
+
+</init>
+<!-- end of dcube_for_rtt.xml file -->

@@ -1,0 +1,19 @@
+"""
+A base class for page writers
+"""
+import os.path
+from Evaluate    import Evaluate, getText
+import xml.dom.ext, sys
+class PageXMLWriter:
+    def __init__(self, tester, logger):
+        self.tester = tester
+        self.logger = logger
+
+        document= self.tester.summaryDocument
+        docEl = document.documentElement
+        # xml.dom.ext.PrettyPrint(document, sys.stdout)
+        node = Evaluate('overview/resBaseDir', docEl)[0]
+        self.absXSLDir = getText(node)
+
+    def finalise(self): pass
+    

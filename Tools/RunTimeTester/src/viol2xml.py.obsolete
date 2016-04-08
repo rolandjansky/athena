@@ -1,0 +1,632 @@
+#! /usr/local/bin/python
+"""
+PS 9/04
+
+viol2XML.py
+scripts to relook for viol files in a directory,
+find which rules have been violated, and write out an xml file with the
+information. The xml file is converted to an html file for display.
+
+The scripts assume that all the viol files are in the same directory,
+and that the file name is xxxx_packagename_sourefilename.viol.
+However some care has been taking to isolate these details to the begiing of
+the script to ease adaption if the circumstances change.
+"""
+
+import sys, re, os, fnmatch
+
+from xml.sax.handler import ContentHandler
+import xml.sax
+
+from string import *
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+def packageName(fullPath):
+	(head,tail) = os.path.split(fullPath)
+	return tail
+
+
+def getFileName(fullPath):
+    m = re.search("[^/]*viol", fullPath)
+    m = re.search("[^.]*", m.group(0))
+    fn = m.group(0)
+    return fn
+
+def getPackageName(fullPath):
+    for item in split(fullPath,'/'):
+        pn="Unknown"
+        pn = re.search("^.*-..-..-..", item)
+        if pn:
+            pn = pn.group(0)
+            break
+    return pn
+
+
+                
+def getViolations(vRules):
+
+    violations = {}
+
+    for rule in vRules:
+        
+        if violations.has_key(rule):
+            violations[rule] = violations[rule]+1
+        else:
+            violations[rule]  = 1
+
+    return violations
+            
+def writeViolatedRules(ofile, violations):
+    
+    for rule in violations.keys():
+        ofile.write('        <violation>\n')
+        ofile.write('          <rule>'+rule+'</rule>\n')
+        ofile.write('          <count>')
+        ofile.write("%s" % violations[rule])
+        ofile.write('</count>\n')
+        ofile.write('        </violation>\n')
+        
+true = 1
+false = 0
+
+ruleNames = [
+    'NF1', 'NF2',
+    'NM1',
+    'NI1', 'NI2',
+    'NC1', 'NC2', 'NC3', 'NC4', 'NC5','NC6', 'NC7', 'NC8', 'NC9',
+    'CO1', 'CO2', 'CO3', 'CO4', 'CO5',
+    'CF1', 'CF2', 'CF3', 'CF4', 'CF5',
+    'CL1', 'CL2', 'CL3', 'CL4', 'CL5', 'CL6', 'CL7', 'CL8', 'CL9', 'CL10', 'CL11', 
+    'CC1', 'CC2', 'CC3', 'CC4',
+    'CI1', 'CI2', 'CI3', 'CI4', 'CI5', 'CI6', 'CI7', 'CI8', 'CI9', 'CI10',
+    'CN1', 'CN2', 'CN3', 'CN4',
+    'CS1', 'CS2',
+    'CB1', 'CB2', 'CB3', 'CB4', 'CB5',
+    'CE1', 'CE2',
+    'CH1', 'CH2', 'CH3', 'CH4', 'CH5',
+    'CA1', 'CA2', 'CA3', 'CA4', 'CA5', 'CA6', 'CA7', 'CA8', 'CA9', 'CA10',
+    'CA11', 'CA12', 'CA13', 'CA14',
+    'CR1', 'CR2', 'CR3', 'CR4',
+    'CP1', 'CP2', 'CP3', 'CP4', 'CP5','CP6', 'CP7', 'CP8', 'CP9', 'CP10','CP11',
+    'CP12', 
+    'CT1', 'CT2', 'CT3', 'CT4',
+    'SG1', 'SG2', 'SG3', 'SG4', 'SG5', 'SG6', 'SG7', 'SG8',
+    'SC1', 'SC2', 'SC3', 'SC4'
+    ]
+
+def makeViolDict():
+    vd = {}
+    for rule in ruleNames:
+        vd[rule]=0
+    return vd
+        
+class PackageViolation:
+	"A class built around a dictionaries cotaining violation counts."
+	
+	#def __init__(self, package, vFiles, vDir):
+	def __init__(self, package, vFiles):
+		""" initialise with:
+		- package name
+		- a list of viol files for this package.
+		"""
+		self.vFiles      = vFiles
+		self.package     = package
+		self.vDicts      = self.makeDicts()
+		self.numberOfViols = 0
+		# make a list of rules that are violated (one entry
+		# per violation)
+		self.makeDicts()
+
+	def makeDicts(self):
+		"""
+		Returns a dictionary of dictionaries.
+		Outer dictionary keyed on the viol file names.
+		entry is a dictionary with key rule, entry violation count
+		"""		
+		dicts = {}
+		for file in self.vFiles:
+			dict=makeViolDict()
+			
+			rules = self.getViolatedRules(file)
+				
+		    
+			for rule in rules:
+				dict[rule] = 1+dict[rule]
+				    
+
+			dicts[file]=dict
+		
+		return dicts
+
+	def getViolatedRules(self, vFile):
+		"""
+		Return a list of violations for source file processed by
+		RuleChecker.
+		"""
+		
+		vRules = []
+
+		# fullPath = os.path.join(self.vDir, vFile)
+		
+		file=open(vFile, 'r')
+
+		for line in file.readlines():
+			m = re.search("RULE ", line)
+			
+			if m:
+				words = splitfields(line, ' ')
+				vRules.append(words[1])
+		return vRules
+
+	def getViolationDictionaries(self):
+		return self.vDicts
+                
+        
+	def dump(self):
+		print "dump"
+		print "   package:  ",self.package
+
+		for file in self.vDicts:
+			print "      file: ", file
+			for rule in self.vDicts[file]:
+				print "      rule: ", rule,'   counts: ',self.vDicts[file][rule]
+	
+
+class ZeroSupressedViolations(PackageViolation):
+	def violatedRules(self):
+		rules = {}
+		
+		for rule in self.violations:
+			if self.violations[rule] > 0:
+				rules[rule] = self.violations[rule]
+                
+		return rules
+        
+class AllViolations(PackageViolation):
+	def violatedRules(self):
+		return self.violations
+    
+class XMLwriter:
+
+	def __init__(self, rDir):
+		# path offset to the results directory
+		self.rDirectory = rDir
+		
+		self.fileName = os.path.join(self.rDirectory,
+					     'RuleChecker.xml')
+		ofile = ofile=open(self.fileName,'w')
+		ofile.write('<?xml version="1.0" ?>\n')
+		ofile.write(
+			'<?xml-stylesheet href="../big.xsl" type="application/xml"?>\n')
+		ofile.write('<rulechecker>\n')
+		ofile.close()
+
+
+	def process(self, package, vDicts, srcInfo, fFiles):
+		self.processPackage(package, srcInfo, fFiles)
+		
+		for file in vDicts.keys():
+			self.processFile(file)
+			self.processDict(vDicts[file])
+			self.processFileEnd()
+
+		self.processPackageEnd()
+
+	def processPackage(self, pn, srcInfo, failedList):
+		ofile=open(self.fileName, 'a')
+		ofile.write('  <package>\n')
+		ofile.write('    <packagename>'+pn+'</packagename>\n')
+		ofile.write('    <nsrcfiles>'+srcInfo[0]+'</nsrcfiles>\n')
+		ofile.write('    <srcFileList>'+srcInfo[1]+'</srcFileList>\n')
+		for file in failedList:
+			ofile.write('    <failed>'+file+'</failed>\n')
+			
+		ofile.close()
+
+	def processPackageEnd(self):
+		ofile=open(self.fileName, 'a')
+		ofile.write('  </package>\n')
+		ofile.close()
+
+	def processFile(self, file):
+		ofile=open(self.fileName, 'a')
+		ofile.write('    <file>\n')
+		ofile.write('      <filename>'+file+'</filename>\n')
+		ofile.close()
+
+	def processFileEnd(self):
+		ofile=open(self.fileName, 'a')
+		ofile.write('    </file>\n')
+		ofile.close()
+
+	def processDict(self, dict):
+		ofile=open(self.fileName, 'a')
+		for rule in dict:
+			ofile.write('      <rule>\n')
+			ofile.write('         <label>'+rule+'</label>\n')
+			ofile.write('         <count>'+str(dict[rule])+'</count>\n')
+			ofile.write('      </rule>\n')
+
+		ofile.close()
+		
+		
+	def close(self):
+		ofile=open(self.fileName, 'a')
+		
+		ofile.write('</rulechecker>\n')
+		ofile.close()
+
+
+
+def find(pattern, startdir=os.curdir):
+	matches = []
+	os.path.walk(startdir, findvisitor, (matches, pattern))
+	matches.sort
+	return matches
+
+def findvisitor( (matches, pattern), thisdir, nameshere):
+	for name in nameshere:
+		if fnmatch.fnmatch(name, pattern):
+			fullpath = os.path.join(thisdir, name)
+			matches.append(fullpath)
+        
+
+def myArgs():
+	""" Returns directories containing viol files and results"""
+
+	vDir = '/unix/www/html/atlas/atlfast/NightlyTestsDev2/opt/N.X.0/release/10.2.0'
+	rDir ='/unix/www/html/atlas/atlfast/NightlyTestsDev2/opt/N.X.0/release/10.2.0'
+
+	if len(sys.argv) <= 1 or len(sys.argv) > 3:
+		mess =  'Assuming defaults:\n'
+		mess += 'Viol files in '+vDir+'\n'
+		mess += 'Results in ' +rDir+'\n'
+	elif len(sys.argv) > 2:
+		vDir = sys.argv[2]
+		
+	if len(sys.argv) > 1 :
+		rDir = sys.argv[1]
+
+
+	if not os.path.exists(vDir):
+		logger.error('No Viol directory:stopping ')
+		sys.exit()
+	if not os.path.exists(rDir):
+		logger.error('No Results directory: stopping ')
+		sys.exit()
+
+
+	return (vDir, rDir)
+
+
+class HTMLwriter(ContentHandler):
+
+	def __init__(self, htmlFile):
+
+
+		self.process={
+			'packagename':   self.handlePackageName,
+			# 'releasepath':   self.handleReleasePath,
+			'srcFileList':   self.handleSrcFileList,
+			'nsrcfiles':     self.handleNSrcFiles,
+			'failed':        self.handleFailed,
+			'filename':      self.handleFileName,
+			'label':         self.handleLabel,
+			'count':         self.handleCount
+			}
+
+		self.nViolations = {}
+
+		self.nPackages = 0
+		self.totalViolations = {}
+
+		self.fileName = htmlFile
+		ofile = open(self.fileName, 'w')
+
+		
+		ofile.write('<html>\n')
+		ofile.write(' <head>\n')
+		ofile.write('   <title>RuleChecker Results</title>\n')
+		ofile.write('  </head>\n')
+		ofile.write('  <body>\n')
+		ofile.write('    <h2>RuleChecker Results</h2>\n')
+		ofile.close()
+
+
+
+	def startElement(self, name, attributes):
+
+		if name in self.process.keys():
+			# print 'will process tag ', name
+			self.charsToProcess = True
+			self.what = name
+		elif name == 'file':
+			# print 'will process tag ', name
+			self.charsToProcess = False
+			self.startFileHandler()
+		elif name == 'package':
+			self.nPackages += 1
+			# print 'will process tag ', name
+		else:
+			self.charsToProcess = False
+			# print 'will not process tag ', name
+
+
+		
+		
+	def endElement(self, name):
+		
+		self.charsToProcess = False
+		if name == 'file': self.endFileHandler()
+
+
+
+	def handlePackageName(self, text):
+		
+		ofile = open(self.fileName, 'a')
+		ofile.write('    <h3>Package: '+text+'</h3>\n')
+		ofile.close()
+
+	def handleNSrcFiles(self, text):
+		
+		ofile = open(self.fileName, 'a')
+		ofile.write('    <h3>No of cxx files: '+text+'</h3>\n')
+		ofile.close()
+		
+	
+	def handleReleasePath(self, text):
+		
+		ofile = open(self.fileName, 'a')
+		ofile.write('    <h3>release path: '+text+'</h3>\n')
+		ofile.close()
+		
+	def handleSrcFileList(self, text):
+		
+		ofile = open(self.fileName, 'a')
+		ofile.write('    <h3>source files: '+text+'</h3>\n')
+		ofile.close()
+		
+	
+	def handleFailed(self, text):
+		
+		ofile = open(self.fileName, 'a')
+		ofile.write('    <h4>failed file: '+text+'</h4>\n')
+		ofile.close()
+		
+	
+	def handleFileName(self, text):
+
+		ofile = open(self.fileName, 'a')
+		ofile.write('    <h4>File: '+text+'</h4>\n')
+		ofile.close()
+	
+		
+		
+	def startFileHandler(self):
+		self.nViolations.clear()
+
+	def endFileHandler(self):
+
+		self.dictToTableData(self.nViolations)
+
+
+			
+			
+	def dictToTableData(self, dict):
+		ofile = open(self.fileName, 'a')
+		ofile.write('    <table border=2>\n')	
+		ofile.write('      <tr>\n')
+
+		for key in dict.keys():
+			if dict[key] == 0:
+				del dict[key]
+
+		s = ''
+		for label in dict.keys():
+			s += '        <td>'+label+'</td>\n'
+		s+='      </tr>\n'
+			
+		for label in dict.keys():
+
+			s +=  '        <td>'
+			s += str(dict[label])
+			s += '</td>\n'
+
+	
+		ofile.write(s)
+		
+		ofile.write('      </tr>\n')		
+		ofile.write('    </table>\n')	
+	
+		
+		ofile.close()
+	def handleLabel(self, text):
+		self.label = text
+
+	def handleCount(self, text):
+		count  = int(text)
+		k = self.label
+		self.nViolations[k] = count+self.nViolations.get(k,0)
+		self.totalViolations[k] = count+self.totalViolations.get(k,0)
+		
+	def characters(self, text):
+
+		if self.charsToProcess: self.process[self.what](text)
+
+	def close(self):
+		ofile = open(self.fileName, 'a')
+
+		s = '   <h3>Summary</h3>'
+		s +=  '  Number of packages processed = '
+		s += str(self.nPackages)
+		s += '<br>\n'
+
+		
+		ofile.write(s)
+		ofile.write('  Total Number of Violations:<br>\n')
+		ofile.close()
+		
+		self.dictToTableData(self.totalViolations)
+
+		ofile = open(self.fileName, 'a')
+		ofile.write('  </body>\n')
+		ofile.write('</html>\n')
+		ofile.close()
+	
+
+def getNSrcFiles(vDir):
+	"""Constructs and returns a disctionary of viol files
+	keyed on the package name
+	
+	Assumes all viol files are in the same directory.
+	The package name is extracted  from the files name
+
+	The viol files are called RuleChecker_<package>_<file>.viol
+	"""
+
+	packageNSrcFiles = {}
+	logger.critical(vDir)
+	for file in os.listdir(vDir):
+		logger.critical('files in viol dir')
+		logger.critical(file)
+		if file.find('srcFileInfo') != -1:
+			sp=file.split('_')
+			lines = open(os.path.join(vDir,file), 'r').readlines()
+			nFiles = lines[0].strip()
+			lines = [line.strip() for line in lines[1:]]
+			srcFiles = reduce(lambda: x+y+' ', lines)
+			packageNSrcFiles[sp[1]] = (srcFiles, nFiles)
+
+	return packageNSrcFiles
+
+#writer = BigTableWriter()
+
+
+#path = "/afs/cern.ch/atlas/software/dist/rulechecker"
+
+def getViolFileDictionary(vDir):
+	"""Constructs and returns a disctionary of viol files
+	keyed on the package name
+	
+	Assumes all viol files are in the same directory.
+	The package name is extracted  from the files name
+
+	The viol files are called RuleChecker_<package>_<file>.viol
+	"""
+
+	packageVFiles = {}
+	for file in os.listdir(vDir):
+	
+		if file.find('.viol') != -1:
+			sp=file.split('_')
+			fullpath=os.path.join(vDir,file)
+		
+			packageVFiles.setdefault(sp[1],[]).append(fullpath)
+
+	return packageVFiles
+
+#writer = BigTableWriter()
+
+
+#path = "/afs/cern.ch/atlas/software/dist/rulechecker"
+
+
+def normalize_whitespace(text):
+	return ' '.join(text.split())
+		
+def isFailedViolFile(fn):
+	text = open(fn, 'r').read()
+	if text.find('Was expecting') == -1: return False
+	return True
+
+def getFailedVFiles(packageVFiles):
+	"Find the viol files with text indicating a crash "
+	failedViolFiles = {}
+	for package in packageVFiles:
+		vfiles = packageVFiles[package]
+		failedViolFiles[package]=[file for file in vfiles if isFailedViolFile(file)]
+	return failedViolFiles
+
+def removeFailedVFiles(allFiles, failedFiles):
+	for package in failedFiles:
+		for file in failedFiles[package]: allFiles[package].remove(file)
+
+def viol2xml(vDir, rDir):
+
+	logger.critical('vdir = '+vDir)
+	logger.critical('rdir = '+rDir)
+
+	doXML  = True
+	doHTML = True
+	
+	# find the viol file directory and results directories
+
+	# all the viol files for all the packages are in the directory vDir.
+	# construct a dictionay of viol files (full paths) for each package
+	packageVFiles      = getViolFileDictionary(vDir)
+	failedVFiles       = getFailedVFiles(packageVFiles)
+	removeFailedVFiles(packageVFiles, failedVFiles)
+	
+		
+	packageNSrcFiles = getNSrcFiles(vDir)
+
+	# For each leaf package:
+	#   Make a Writer object:
+	#      Write package tags
+	#   Process all the viol files:
+	#       Write source file tags
+	#       Write error counts
+
+	if doXML:
+		writer = XMLwriter(rDir)
+		
+		for package in packageVFiles:
+			# make a PackageViolation object for each package.
+			# this objects keeps track of the error counts.
+			all = AllViolations(package, packageVFiles[package])
+			
+			# all.dump()
+			
+			# Write the error counts to an xml file
+			# with the necesaary packagename and filename tags
+
+			logger.critical(str(packageNSrcFiles))
+			srcInfo = packageNSrcFiles[package]
+			fFiles  = failedVFiles[package] 
+			writer.process(package,
+				       all.getViolationDictionaries(),
+				       srcInfo,
+				       fFiles)
+
+		# write the closing tags to the xml file
+		writer.close()
+
+	htmlFile = ''
+	if doHTML:
+		# convert the xml file to html file.
+
+		htmlFile = 'RuleChecker.html'
+		writer = HTMLwriter(os.path.join(rDir,htmlFile))
+		parser = xml.sax.make_parser()
+		
+		parser.setContentHandler(writer)
+		
+		xmlFile = os.path.join(rDir, 'RuleChecker.xml')
+		parser.parse(xmlFile)
+		
+		writer.close()
+		return htmlFile
+				
+if __name__ == '__main__':
+	"""
+	usage:
+	python viol2XML rDir, vDir: assumes results in rDir, viol files in vDir
+	
+	if arg(s) are missing, defaults are printed and used.
+	"""
+	vDir, rDir = myArgs()
+	viol2xml(vDir, rDir)

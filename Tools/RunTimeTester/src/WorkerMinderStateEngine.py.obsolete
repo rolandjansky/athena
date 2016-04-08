@@ -1,0 +1,30 @@
+"""State Engine for WorkerJobMinders.
+
+overrides of the method fromRunning to include log checking.
+
+"""
+
+from MinderStateEngine  import MinderStateEngine
+
+class WorkerMinderStateEngine(MinderStateEngine):
+    
+    def __init__(self, workerminder, state='queued'):
+        MinderStateEngine.__init__(self, workerminder, state)
+        
+    # -----------------------------------------------
+
+    def fucntionsMinderMustHave(self):
+        return  ['fire', 'checkLog']
+
+    # -----------------------------------------------
+    
+    def fromQueued(self):
+        self.minder.fire('runScript')
+        self.state.set('running')
+
+    # -----------------------------------------------
+    
+    def fromRunningActions(self):
+        self.minder.checkLog()
+        MinderStateEngine.fromRunningActions(self)
+

@@ -1,0 +1,23 @@
+import gc
+
+def dump_garbage():
+
+    gc.collect()
+    print gc.garbage
+    msg ='Garbage:\n'
+    for x in gc.garbage:
+        s = str(x)
+        if len(s) > 80: s = s[:77]+'...'
+        msg+= '%s\n   %s' % (type(x), s)
+
+    return msg
+
+
+if __name__ == '__main__':
+    gc.enable()
+    gc.set_debug(gc.DEBUG_LEAK)
+    l = []
+    l.append(l)
+    del l
+
+    print dump_garbage()

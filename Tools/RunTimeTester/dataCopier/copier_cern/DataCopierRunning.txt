@@ -1,0 +1,114 @@
+Introduction
+---------------------------------------------------------------------------------------------------
+The RTT data copier is a set of scripts which scan a given release for 
+configuration files from which it collects the datasets. It then compares 
+the datasets requested with those available in the catalog. If any new data 
+are found, it copies these to a local disk and updates the catalog. At the 
+end of the process, it writes a report to a specified directory.
+
+Features
+========
+
+The data copier uses two configuration files:
+ - An RTT top level configuration file
+ - A copier specific configuration file
+to know what actions it needs to perform.
+
+A sample RTT top level configuration file is available at
+http://www.hep.ucl.ac.uk/atlas/AtlasTesting/RTTUserGuide/RTTUserGuide.html
+Go to section on LocalRunning and install the setup files as indicated.
+Please read the RTT documentation at
+http://www.hep.ucl.ac.uk/atlas/AtlasTesting  
+if you need more information on this configuration file and the RTT
+
+A sample copier specific configuration file looks like:
+
+<?xml version="1.0"?>
+
+<dsmcfg>
+   <mode>active</mode>
+   <datasetCatalog>/afs/user/scratch0/Tools/RunTimeTester/dataCopier/copier_cern/cfg/rttDatasetCatalog.xml</datasetCatalog>
+   <rttsrc>/afs/cern.ch/user/e/enzuobon/scratch0/Tools/RunTimeTester/src</rttsrc>
+   <rttLibDir>/afs/cern.ch/atlas/project/RTT/prod/Tools/RunTimeTester/share</rttLibDir>
+   <logDir>/afs/cern.ch/user/e/enzuobon/scratch0</logDir>
+   <reportDir>/afs/cern.ch/user/e/enzuobon/scratch0</reportDir>
+   <rttcfg>/afs/cern.ch/atlas/project/RTT/prod/cfg/nightlyForCopier_i686-slc4-gcc34-opt.xml</rttcfg>
+   <datasetDir>/castor/cern.ch/user/e/enzuobon</datasetDir>
+   <stageArea>/afs/cern.ch/atlas/project/RTT/data/eric</stageArea>
+</dsmcfg>
+
+The mode tag in the copier config can take values: 
+'active' and 'passive'
+'passive' is meant to simulate the copying while 
+'active' will actually do the copying
+
+Running
+=======
+
+For the copier to copy data over the grid to a local disk,
+the user needs to have a valid grid proxy. If you do not have 
+a grid certificate, please look at the following sites which 
+contain grid registration information.
+http://www.hep.ucl.ac.uk/escience/gridintro.shtml
+http://lcg.web.cern.ch/LCG/users/registration/registration.html
+
+To verify if your grid proxy is alive, do
+
+grid-proxy-info
+
+If no proxy is available, do 
+
+grid-proxy-init
+
+then enter password as requested.
+
+If you have not checked out the RTT yet, check it out now
+
+cmt co Tools/RunTimeTester 
+
+will get you the head version
+
+Set up the RTT so that you are able to run jobs. It is advisable to try
+running some short jobs like HelloWorld to make sure RTT machinery is OK.
+
+Now prepare a copier configuration file similar to the one shown above.
+
+To launch the copier, cd to the directory where you downloaded the RTT 
+and do
+
+python Tools/RunTimeTester/dataCopier/copier_cern/src/DatasetManager.py  </my/copier/config/file>
+
+
+The production cron table entry to run on nightlies are:
+ /afs/cern.ch/atlas/project/RTT/prod/launch/runDataCopier_val.sh > /afs/cern.ch/user/r/rtt/copier_val.log
+ /afs/cern.ch/atlas/project/RTT/prod/launch/runDataCopier_bugfix.sh >/afs/cern.ch/user/r/rtt/copier_bugfix.log
+ /afs/cern.ch/atlas/project/RTT/prod/launch/runDataCopier.sh >/afs/cern.ch/user/r/rtt/copier.log
+
+
+If all goes well, you see a screen similar to an RTT start-up screen.
+
+When the process terminates, go the <reportDir> and examine the report.
+
+Also verify new data were added to the catalog, if any were found.
+
+If data were copied from the grid, verify that there were no broken copies in 
+<datasetDir>/<dq2dataset>
+
+
+
+Some sources of problems
+ - invalid or no grid proxy ==> cannot download grid files
+ - insufficient destination disk space
+
+--------------------------------------------------------------------------------------------------------
+Note:
+CERN: the copier copies files available on the grid through grid  
+commands. The destination is always castor.
+No copies are performed for requests for files already on castor: the  
+data copier only adds an entry to the catalogue with the same logical  
+and physical name.
+
+UCL: copies are performed for for files located on the grid, afs or  
+castor. The destination is a local UCL disk.
+
+ 

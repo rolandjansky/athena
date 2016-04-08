@@ -1,0 +1,7 @@
+class PseudoLogger:
+    def debug(self, str): print 'DEBUG: ',str
+    def info(self, str): print 'INFO: ',str
+    def warning(self, str): print str
+    def error(self, str): print str
+    def critical(self, str): print str
+    

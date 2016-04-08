@@ -1,0 +1,42 @@
+"""
+This module bundles the RTT factory functions.
+These functions are written as classes to help write test code.
+"""
+
+from exc2string2          import exc2string2
+from Factory_BaseClass    import Factory
+from TestRun              import UnifiedConfigurationTestRun, FailureTestRun
+
+# -------------------------------------------------------------------------
+# TestRun Factory
+# -------------------------------------------------------------------------
+
+class TestRunFactory(Factory):
+  def __init__(self, logger):
+    Factory.__init__(self, logger, self.__class__.__name__)
+
+  def create(self, cvsPackage, packageName, paths, rttRunStartTime, closeDownKeyMaker, logger):
+    if not cvsPackage.runJobs:
+      self.logger.warning('Package %s instantaiting FailureTestRun due to RTT operator veto' % packageName)
+      return FailureTestRun(packageName, paths, rttRunStartTime, closeDownKeyMaker, logger, 'RTT operator veto', True)
+
+    if not cvsPackage.noError():
+      m = 'Package %s instantaiting FailureTestRun due to CVS package error: %s' % (packageName,
+                                                                                    cvsPackage.errorMessage)
+      self.logger.warning(m)
+      return FailureTestRun(packageName, paths, rttRunStartTime, closeDownKeyMaker, logger, cvsPackage.errorMessage, False)
+          
+    try:
+      tr = UnifiedConfigurationTestRun(packageName, paths, rttRunStartTime, closeDownKeyMaker, logger, '')
+    except Exception, e:
+      self.logger.warning('Failed to make a TestRun for package %s' % paths.package)
+      # eText = exc2string2()
+      self.logger.warning(exc2string2())
+      self.logger.warning('Replacing with a Failure TestRun')
+      text  = 'Package rejected!\n'
+      text += str(e)
+      return FailureTestRun(packageName, paths, rttRunStartTime, closeDownKeyMaker, logger, '', False)
+    else:
+      self.logger.debug('Instantiated a TestRun for package %s' % paths.package)
+      return tr
+

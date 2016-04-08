@@ -1,0 +1,130 @@
+import os.path,os, shutil, fnmatch, anydbm, sys
+from popen2 import Popen4
+from Tools import pathIsOwnedByMe, changePerm
+from RTTpath import RTTpath
+from shellCommand import shellCommand
+from formatCollection import formatCollection
+
+from Factory_SiteSpecifics import SiteSpecificsFactory
+from exc2string import exc2string
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+
+class RTTRunMonitor:
+    #    def __init__(self, dirWithSummaries, pathToMacro, site):
+    def __init__(self, dirWithSummaries, pathToMacro, paths):
+        self.dws         = str(dirWithSummaries)
+        self.paths       = paths
+        #        self.theSite     = site
+        self.macroName   = 'rttSummaryMacro.cxx'
+        self.pathToMacro = str(RTTpath(pathToMacro,self.macroName))
+
+        if not os.path.exists(self.pathToMacro):
+            msg = 'Unable to run the RTT run monitor macro! It does not exist in given area: ' +str(self.pathToMacro)
+            logger.error(msg)
+            raise Exception, msg
+        
+    # --------------------------------------------------------------------
+    
+    def createMonitoringPlots(self):
+        holddir = os.getcwd()
+        os.chdir(self.dws)
+        logger.debug('createMonitoringPlots: about to cwd to %s to run summary macro ' % self.dws)
+        self.copyMacroToCurrentDir()
+        logger.debug('createMonitoringPlots: about to call  runSummaryMacro')
+        self.runSummaryMacro()
+        logger.debug('createMonitoringPlots: returning to ori dir')
+        os.chdir(holddir)
+        logger.debug('createMonitoringPlots: done')
+
+    # --------------------------------------------------------------------
+
+    def copyMacroToCurrentDir(self):
+        src = self.pathToMacro
+        dest = os.path.join(os.getcwd(),os.path.basename(self.pathToMacro))
+        shutil.copy(src,dest)
+        print 'copyMacroToCurrentDir changing perm on %s to 0775' % dest
+        nperm = changePerm(dest, 0775)
+        print 'copyMacroToCurrentDir new perm %s' % nperm
+        
+    # --------------------------------------------------------------------
+    
+    def runSummaryMacro(self):
+        #        rootCmd         = SiteSpecificsFactory(logger).create(self.theSite).rootCommand()
+        macroName           = os.path.basename(self.pathToMacro) + '+'
+        #cmd             = rootCmd +' '+macro
+
+        cmds = self.ROOTenvSetupAndLaunch()
+        cmd = cmds['localSetupScriptCmd'] + cmds['releaseSetupScriptCmd'] + cmds['launchRootCmd'] + macroName
+        
+        logger.info('running rttSummaryMacro.cxx from %s ' % os.getcwd())
+        logger.info('cmd : '+cmd)
+
+        try:
+
+            sumMacroReply = shellCommand([cmd])
+
+            logger.info('RTT run monitoring, root command output \n' + formatCollection(sumMacroReply))
+            
+        except Exception, e:
+            msg = 'Unable to successfully run the summary macro: ' + str(self.pathToMacro)
+            logger.error(msg)
+            logger.error(exc2string(sys.exc_info()))
+            logger.error(str(e))
+            raise Exception, msg
+    
+    # --------------------------------------------------------------------
+    
+    def copyPSFiles(self, src, dest):
+        logger.info('Copying monitoring plots from '+src+' to '+dest)
+        for file in os.listdir(src):
+            if fnmatch.fnmatch(file, '*.ps'):
+                logger.info("found file "+ file)
+                srcFile = os.path.join(src, file)
+                desFile = os.path.join(dest, file)
+                shutil.copyfile(srcFile, desFile)
+                
+                changePerm(str(desFile),0775)
+
+    # --------------------------------------------------------------------
+    
+    def ROOTenvSetupAndLaunch(self):        
+        info = {}
+        aDir = os.path.join(self.paths.hardCoded.distBase,self.paths.hardCoded.nightlyPathFragment[self.paths.branch])
+        sendToDevNull = ' >& /dev/null;'
+        
+        if self.paths.releaseType=='project':
+            pathToLocalSetupScript = os.path.join(self.paths.workDirs['workBase/'],'cmtHome/setup.sh')
+            localScriptTags = ' -tag=opt,AtlasOffline,' + str(self.paths.release)
+            atlasOfflineRunTimeDir = os.path.join(aDir,'AtlasOffline',self.paths.release,'AtlasOfflineRunTime/')        
+            pathToAtlasOfflineRunTimeSetupScript = os.path.join(atlasOfflineRunTimeDir,'cmt/setup.sh')
+        else:
+            pathToLocalSetupScript = os.path.join(self.paths.workDirs['workBase/'],'setup.sh')
+            localScriptTags        = ' -tag=opt'
+            atlasOfflineRunTimeDir = os.path.join(aDir,self.paths.release,'AtlasOfflineRunTime/')
+            pathToAtlasOfflineRunTimeSetupScript = os.path.join(atlasOfflineRunTimeDir,
+                                                                os.listdir(atlasOfflineRunTimeDir)[0],
+                                                                'cmt/setup.sh')
+
+
+        info['localSetupScriptCmd']   = 'source ' + pathToLocalSetupScript + localScriptTags + sendToDevNull
+        info['releaseSetupScriptCmd'] = 'source ' + pathToAtlasOfflineRunTimeSetupScript + sendToDevNull
+        info['launchRootCmd']         = 'root -b -q '
+        return info
+
+    #def storeSummaryXML(file):
+    #    monDB  = anydbm.open('MonitoringDB.db', 'c')
+    #    key    = getKey()
+    #    monDB[key]= file
+        
+
+
+if __name__ == "__main__":
+    logger.info('RTT Monitoring')
+    rttMon = RTTRunMonitor('/home/en/RTT/Tools/RunTimeTester/RunTimeTester-00-00-72/src')
+
+    rttMon.createMonitoringPlots()

@@ -1,0 +1,79 @@
+#! /usr/local/bin/python
+"""
+Some kind of attempt to convert Together C++ output to python...
+"""
+
+import sys
+import os
+import re
+
+for iname in sys.argv[1:]:
+    head = iname.split(".")[0]
+    oname=head+".py"
+    print "inp file = "+iname
+    print "out file = "+oname
+    ifile = open(iname, "r")
+    ofile = open(oname, "w")
+
+    ofile.write("#! /usr/local/bin/python")
+    for line in ifile.readlines():
+        if line.find("Together")!=-1:
+            nline=""
+        elif line.find("#ifndef")!=-1:
+            nline=""
+        elif line.find("#define")!=-1:
+            nline=""
+        elif line.find("#endif")!=-1:
+            nline=""
+        elif line.find("public:")!=-1:
+            nline=""
+        elif line.find("private:")!=-1:
+            nline=""
+        elif line.find("};")!=-1:
+            nline=""
+        elif line.find("#include")!=-1:
+            tokens = line.split('"')
+            token=tokens[1]
+            tokens=token.split(".")
+            nline="from "+tokens[0]+" import "+tokens[0]+"\n"
+        elif line.find("/**")!=-1:
+            nline=""
+        elif line.find("*/")!=-1:
+            nline=""
+        elif line.find("* ")!=-1:
+            tokens = line.split("*")
+            nline ="# "
+            if len(tokens)!=1: nline=nline+tokens[1]
+            nline = nline+"\n"
+        elif line.find("class ")!=-1:
+            tokens =line.split()
+            nline="class "+tokens[1]+":"
+        elif line.find(");")!=-1:
+            start=line.find("(")
+            end=line.find(")")
+            args=line[start+1:end]
+
+            
+            tokens=line.split()
+            if len(tokens)==1:
+                funName=tokens[0][:tokens[0].find("(")]
+                if(args != ""):
+                    nline="def __init__(self, "+args+"):\n   pass\n"
+                else:
+                    nline="def __init__(self):\n   pass\n"
+            else:
+                funName=tokens[1][:tokens[1].find("(")]
+                if(args != ""):
+                    nline= "def "+funName+"(self,"+args+"):\n   pass\n"
+                else:
+                    nline= "def "+funName+"(self):\n   pass\n"
+        elif line.find("List<")!=-1:
+            tokens=line.split(">")
+            nline="list "+tokens[1]+"\n"
+        else:
+            nline=line
+
+        print "old line: "+line
+        print "new line: "+nline
+        if nline != "": ofile.write(nline)
+        

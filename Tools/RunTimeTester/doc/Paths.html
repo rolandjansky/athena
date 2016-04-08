@@ -1,0 +1,143 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module Paths</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>Paths</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/Paths.py">/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/Paths.py</a></font></td></tr></table>
+    <p><tt>#&nbsp;from&nbsp;siteSpecificsFactory&nbsp;import&nbsp;siteSpecificsFactory</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="Reporter.html">Reporter</a><br>
+<a href="copy.html">copy</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+<a href="string.html">string</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="Paths.html#NoPackagePaths">NoPackagePaths</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="Paths.html#Paths">Paths</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="Paths.html#PathsForDescriptors">PathsForDescriptors</a>
+</font></dt><dt><font face="helvetica, arial"><a href="Paths.html#PathsForTestRun">PathsForTestRun</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="NoPackagePaths">class <strong>NoPackagePaths</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#Paths">Paths</a>&nbsp;is&nbsp;a&nbsp;bag&nbsp;object&nbsp;of&nbsp;random&nbsp;bits&nbsp;and&nbsp;pieces.<br>
+It&nbsp;is&nbsp;instantiated&nbsp;using&nbsp;information&nbsp;from&nbsp;various&nbsp;sources,&nbsp;but&nbsp;mainly<br>
+from&nbsp;the&nbsp;top&nbsp;level&nbsp;RTT&nbsp;configuration&nbsp;file,&nbsp;This&nbsp;raw&nbsp;information&nbsp;is&nbsp;read&nbsp;in<br>
+via&nbsp;a&nbsp;parser&nbsp;which&nbsp;puts&nbsp;into&nbsp;the&nbsp;rttConfig&nbsp;object&nbsp;&nbsp;passed&nbsp;to&nbsp;this&nbsp;class.<br>
+The&nbsp;constructor&nbsp;manipulates&nbsp;the&nbsp;information&nbsp;so&nbsp;that&nbsp;it&nbsp;is&nbsp;useful&nbsp;to&nbsp;the<br>
+rest&nbsp;of&nbsp;the&nbsp;program.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="NoPackagePaths-__init__"><strong>__init__</strong></a>(self, rttTagBeingRun, rttConfig, timer, logDir, logger)</dt><dd><tt>rttConfig&nbsp;is&nbsp;an&nbsp;object&nbsp;containing&nbsp;of&nbsp;parameters&nbsp;obtained&nbsp;by&nbsp;reading&nbsp;the<br>
+top&nbsp;level&nbsp;configuration&nbsp;file.<br>
+&nbsp;<br>
+This&nbsp;constructor&nbsp;constructs&nbsp;a&nbsp;number&nbsp;of&nbsp;paths.</tt></dd></dl>
+
+<dl><dt><a name="NoPackagePaths-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>#------------------------------------------------------------------------</tt></dd></dl>
+
+<dl><dt><a name="NoPackagePaths-createResultsDirDictionary"><strong>createResultsDirDictionary</strong></a>(self, resBase)</dt><dd><tt>Sets&nbsp;up&nbsp;a&nbsp;dictionary&nbsp;containing&nbsp;the&nbsp;various&nbsp;paths&nbsp;concerned&nbsp;with<br>
+results.<br>
+e.g.&nbsp;&lt;resBase&gt;/opt/N.0.X/10.0.1/kit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;resBase&gt;/opt/N.0.X/10.0.1/release</tt></dd></dl>
+
+<dl><dt><a name="NoPackagePaths-createWorkDirDictionary"><strong>createWorkDirDictionary</strong></a>(self, workBase)</dt></dl>
+
+<dl><dt><a name="NoPackagePaths-dump"><strong>dump</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="NoPackagePaths-dumpHeader"><strong>dumpHeader</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="NoPackagePaths-updateWithNightlyRelease"><strong>updateWithNightlyRelease</strong></a>(self, release)</dt><dd><tt>Update&nbsp;paths.release,&nbsp;rttConfig&nbsp;and&nbsp;the&nbsp;work/res&nbsp;dirs&nbsp;with&nbsp;the&nbsp;found<br>
+(by&nbsp;Tester.findNightlyRelease:&nbsp;which&nbsp;calls&nbsp;this&nbsp;method)&nbsp;latest&nbsp;nightly&nbsp;release.<br>
+Until&nbsp;this&nbsp;point&nbsp;self.<strong>release</strong>&nbsp;=&nbsp;'nightly'.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Paths">class <strong>Paths</strong></a>(<a href="Paths.html#NoPackagePaths">NoPackagePaths</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Paths-__init__"><strong>__init__</strong></a>(self, rttConfig, rttTagBeingRun, timer, logDir, cvsPackage, rttPackage, logger)</dt></dl>
+
+<dl><dt><a name="Paths-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Paths-checkPath"><strong>checkPath</strong></a>(self, path)</dt><dd><tt>#------------------------------------------------------------------------</tt></dd></dl>
+
+<dl><dt><a name="Paths-dumpHeader"><strong>dumpHeader</strong></a>(self)</dt></dl>
+
+<hr>
+Methods inherited from <a href="Paths.html#NoPackagePaths">NoPackagePaths</a>:<br>
+<dl><dt><a name="Paths-createResultsDirDictionary"><strong>createResultsDirDictionary</strong></a>(self, resBase)</dt><dd><tt>Sets&nbsp;up&nbsp;a&nbsp;dictionary&nbsp;containing&nbsp;the&nbsp;various&nbsp;paths&nbsp;concerned&nbsp;with<br>
+results.<br>
+e.g.&nbsp;&lt;resBase&gt;/opt/N.0.X/10.0.1/kit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;resBase&gt;/opt/N.0.X/10.0.1/release</tt></dd></dl>
+
+<dl><dt><a name="Paths-createWorkDirDictionary"><strong>createWorkDirDictionary</strong></a>(self, workBase)</dt></dl>
+
+<dl><dt><a name="Paths-dump"><strong>dump</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Paths-updateWithNightlyRelease"><strong>updateWithNightlyRelease</strong></a>(self, release)</dt><dd><tt>Update&nbsp;paths.release,&nbsp;rttConfig&nbsp;and&nbsp;the&nbsp;work/res&nbsp;dirs&nbsp;with&nbsp;the&nbsp;found<br>
+(by&nbsp;Tester.findNightlyRelease:&nbsp;which&nbsp;calls&nbsp;this&nbsp;method)&nbsp;latest&nbsp;nightly&nbsp;release.<br>
+Until&nbsp;this&nbsp;point&nbsp;self.<strong>release</strong>&nbsp;=&nbsp;'nightly'.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="PathsForDescriptors">class <strong>PathsForDescriptors</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="PathsForDescriptors-__init__"><strong>__init__</strong></a>(self, paths)</dt></dl>
+
+<dl><dt><a name="PathsForDescriptors-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="PathsForTestRun">class <strong>PathsForTestRun</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="PathsForTestRun-__init__"><strong>__init__</strong></a>(self, paths)</dt></dl>
+
+<dl><dt><a name="PathsForTestRun-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>globalReporter</strong> = &lt;Reporter.GlobalReporter instance&gt;</td></tr></table>
+</body></html>

@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+                                                                                                                                                             
+                                                                                                                                                             
+<unifiedTestConfiguration>
+<atn/>
+<kv/>
+<rtt  xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+   <refRelease>10.0.0</refRelease>
+   <jobList>
+       <athena>
+          <!-- <rttKitTestJob/> -->
+          <options>Atlfast_POOL_False_low_cone_cells.py</options>
+          <package>Simulation/Atlfast/TestAtlfast</package>
+          <group>Atlfast</group>
+          <queue>short</queue>
+          <dataset>/castor/cern.ch/atlas/project/dc2/preprod/evgen804/dc2.002898.pyt_h120_gamgam.evgen804/data/dc2.002898.pyt_h120_gamgam.evgen804._0001.pool.root</dataset>
+          <asciiRefFile>outFile_simpleTest.txt</asciiRefFile>
+       </athena>
+   </jobList>
+
+<jobGroups>
+      <jobGroup name="AthenaAtlfast" parent="Athena">
+          
+         <keepFilePattern>histo.hbook</keepFilePattern>
+         <keepFilePattern>ntuple.root</keepFilePattern>
+         <keepFilePattern>nonIsolatedElectron.ps</keepFilePattern>
+         <keepFilePattern>nonIsolatedElectron_regression.ps</keepFilePattern>
+         <keepFilePattern>isolatedElectron.ps</keepFilePattern>
+         <keepFilePattern>isolatedElectron_regression.ps</keepFilePattern>
+         <keepFilePattern>nonIsolatedPhoton.ps</keepFilePattern>
+         <keepFilePattern>nonIsolatedPhoton_regression.ps</keepFilePattern>
+         <keepFilePattern>isolatedPhoton.ps</keepFilePattern>
+         <keepFilePattern>isolatedPhoton_regression.ps</keepFilePattern>
+         <keepFilePattern>nonIsolatedMuon.ps</keepFilePattern>
+         <keepFilePattern>isolatedMuon.ps</keepFilePattern>
+         <keepFilePattern>cells.ps</keepFilePattern>
+         <keepFilePattern>clusters.ps</keepFilePattern>
+         <keepFilePattern>jets.ps</keepFilePattern>
+         <keepFilePattern>bjets.ps</keepFilePattern>
+         <keepFilePattern>eventHeader1.ps</keepFilePattern>
+         <keepFilePattern>eventHeader2.ps</keepFilePattern>
+         <keepFilePattern>*_simpleTest.txt</keepFilePattern>
+ 
+ 
+         <!--<asciiRefFile>outFile_simpleTest.txt</asciiRefFile> -->
+          
+         <binRefFile>histo.hbook</binRefFile>
+          
+         <checker class="AtlfastRegressionChecker"/>
+          
+         <auxFilePattern>Atlfast*.dat</auxFilePattern>
+         <auxFilePattern>*.tab</auxFilePattern>
+         <auxFilePattern>PDG*</auxFilePattern>
+         <auxFilePattern>atlfast.C</auxFilePattern>
+     
+      </jobGroup>
+       
+   </jobGroups>
+</rtt>
+</unifiedTestConfiguration>

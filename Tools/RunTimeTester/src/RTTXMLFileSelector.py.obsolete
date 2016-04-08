@@ -1,0 +1,98 @@
+import anydbm, os.path, sys
+from xml.dom.ext     import PrettyPrint
+from Tools           import mkdirIfNew
+from StringIO        import StringIO
+from Evaluate        import getText
+
+def keyToDict(strList):
+    # ks is a list of a (string repr of a list of name val tuples) 
+    dict = {}
+    list  = eval(strList)
+    for l in list: dict[l[0]] = l[1]
+    return dict
+
+def isSubDict(selectorKey, key):
+    # checks if the all elements of the selectorKey
+    # are present in key and have the same values
+    # key can have more entries than selectorKey
+
+    
+    dict = {}
+    try:
+        for k in selectorKey.keys(): dict[k] = key[k]
+    except KeyError:
+        # dict passed  in has an element not in the dict used
+        # as the db key.
+        return False 
+         
+    
+    # check the values match
+    for k in selectorKey.keys():
+        if dict[k] != selectorKey[k]: return False
+
+    return True
+
+def  RTTXMLFileSelector(dbPath, selectorKey, logger, mustHave=['originalBranch']):
+    dbPath     = str(dbPath)
+
+    for m in mustHave:
+        if m not in selectorKey:
+            msg = 'Missing critical entry in key: %s: %s' % (m,
+                                                            str(selectorKey))
+            logger.error(msg)
+            return {}
+
+        
+    # bombs if opened without exist check and 'c' option
+    if os.path.exists(dbPath):
+        monidb = anydbm.open(dbPath, 'r')
+        logger.debug('RTTXMLFileSelector: opened db %s, has %d keys' %(dbPath, len(monidb.keys())))
+    else:
+        logger.error('RTTXMLFileSelector: cannot open db at ' %(dbPath))
+        return {}
+
+    # the db key is a stringed list of name val tuples
+    # convert it to a dictionary in preparartion for selction,
+    # and grab the data as well.
+    dbkeys = [(k, keyToDict(k))  for k in monidb.keys()]
+    logger.debug('RTTXMLFileSelector: found %d keys in database' %len(dbkeys))
+    # selectedData = [monidb[k[0]] for k in dbkeys if isSubDict(selectorKey, k[1])]
+
+    matchingKeys = [k for k in dbkeys if isSubDict(selectorKey, k[1])]
+    logger.debug('RTTXMLFileSelector: found %d matching keys in database' %len(matchingKeys))
+    logger.debug('selectorKey: %s' % str(selectorKey))
+    for k, k1 in dbkeys:
+        logger.debug('db Key: %s' % str(k1))
+
+    dict = {}
+    for keyTuple in matchingKeys:
+        key   = keyTuple[0]
+        value = monidb[key]
+        dict[key] = value
+
+    monidb.close()
+    # return a dict of matching keys and their values
+    logger.debug('returning %d files' % len(dict.keys()))
+    return dict
+        
+if __name__== '__main__':
+    # This allows a the xml files required for the web display to be
+    # run manually.
+
+
+    class Logger:
+        def error(self, text): print text
+    # The full path to the database file with the xml files for the RTT runs/
+    dbpath = '/local_disk/sherwood/RTT02/moniFile.db'
+
+    key    = {'originalBranch': u'N.X.0'}
+    keys   =  RTTXMLFileSelector(dbpath, key, Logger())
+
+    assert(len(keys) == 1)
+
+    key    = {'originalBranch': u'N.X.0'}
+    keys   = RTTXMLFileSelector(dbpath, key, Logger())
+    try:
+        assert(len(keys) == 0)
+    except AssertionError:
+        print 'OK'

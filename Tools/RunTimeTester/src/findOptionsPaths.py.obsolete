@@ -1,0 +1,50 @@
+import os, os.path
+from os.path import join
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+def findOptionsPaths(codeStatus, releasePath):
+    """
+    Returns a list of paths to be used to find option files.
+    The most local path is given first, so in locating option files
+    the path should be traversed from beginning to end.
+
+    The function checks the codestatus variable to determine
+    if local Install areas might exist. If the variable is set to
+    'checkedOut', it slices $CMTPATH, and checks for the existence of
+    Install areas. If these are found it adds them to the list.
+    If the codestatus is 'Installed' the options are looked for in the release
+    jobOptions directory.
+    """
+
+    optionsPaths = []
+    
+    if codeStatus == 'CheckedOut':
+        if 'CMTPATH' in os.environ.keys():
+            cmtpaths = os.environ['CMTPATH'].split(':')
+            cmtpaths = [join(path,'InstallArea/jobOptions') for path in cmtpaths]
+            cmtpaths = [path for path in cmtpaths if os.path.exists(path)]
+            optionsPaths.extend(cmtpaths)
+        optionsPaths.append(join(releasePath, 'InstallArea/jobOptions'))
+    else:   
+        optionsPaths.append(join(releasePath, 'InstallArea/jobOptions'))
+
+    
+    return optionsPaths
+
+if __name__ == '__main__':
+    "Test function"
+
+    import sys
+    if  'CMTPATH' not in os.environ.keys():
+        print 'run home CMT setup.sh before this test'
+        sys.exit()
+    codeStatuses=['Installed', 'CheckedOut']
+    for status in codeStatuses:
+        print findOptionsPaths(status, '/afs/cern.ch/atlas/software/dist/8.4.0')
+                       
+        
+        

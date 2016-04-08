@@ -1,0 +1,584 @@
+from Tools        import mkdirIfNew, rmdirMkdir, changePerm
+import Tools2
+
+#===== RTT MODULES =====
+from requirementsWriter      import requirementsWriter
+from JobGroupKits            import JobGroupKits
+# from scriptWriterFactory     import scriptWriterFactory
+from Factory_ScriptWriter    import ScriptWriterFactory
+from PathCompleter           import PathCompleter
+from releaseToNum            import releaseToNum
+from dataFiles2String        import dataFiles2String
+from getInheritanceHeirarchy import getInheritanceHeirarchy
+from formatCollection        import formatCollection
+from exc2string              import exc2string
+#===== PYTHON MODULES ==
+import os, shutil, shelve, sys
+from os.path              import join, splitext
+
+"""
+A class to make Work, Results and Run directories.
+
+User             calls: makeDirs
+makeDirs         calls: makeBaseDirs - sets up non minder dependent parts of
+                                work and results directory tree
+
+User             calls: makeJobGroupDirs - extracts results and working
+                                           directory names (minder dependent)
+                                           
+
+makeJobGroupDirs calls: createJobGroupDir - for each of [resDir, workDir]
+                                            to actually create the directory
+
+                 calls: setupRunDir
+"""
+
+# -------------------------------------------------------------------------
+# import logging
+# logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+import Reporter
+globalReporter = Reporter.getGlobalReporter()
+# -------------------------------------------------------------------------
+
+class DirectoryMaker:
+    def __init__(self, paths, logger):
+        self.logger = logger
+        self.paths = paths
+        self.makeDirs()
+
+    def setLogger(self, logger): self.logger = logger
+    
+    def makeDirs(self):
+        try:
+            # create base directories for work directory and results
+            # directory trees
+            self.makeBaseDirs() 
+
+            # to permit signal in Tester to know if directories have been made
+            self.status =  True
+        except Exception, e:
+            msg = 'Error making directories:\n%s' % str(e)
+            self.logger.error(exc2string(sys.exc_info()))
+            
+            globalReporter.couldNotMakeDirectoriesError(e)
+    
+    def makeBaseDirs(self):
+        """
+        Function for creating empty results directories.
+        
+        paths.resPath:      Directory to hold results
+        paths.workBuildRel  Last directory in the work heirarchy which
+        is not job specific.
+        """
+
+        mkdirIfNew(self.paths.resultsDirs['resBase/build/branch/runType'])
+        rmdirMkdir(self.paths.resultsDirs['resBase/build/branch/runType/release'])
+        mkdirIfNew(self.paths.workDirs['workBase/build/branch/runType'])
+        rmdirMkdir(self.paths.workDirs['workBase/build/branch/runType/release'])
+
+    def createJobGroupDir(self, jMinder, pathToDirectory):
+        """
+        create run and results directory trees. This function is sometimes
+        overridden by a null function in derived classes.
+        """
+
+        try:
+            rmdirMkdir(pathToDirectory)
+            self.logger.debug('making '+pathToDirectory)
+        except Exception, e:
+            errmsg = exc2string(sys.exc_info())
+            self.logger.error(errmsg)
+            jMinder.jDescriptor.reporter.createJobGroupDirError(errmsg)
+            jMinder.jDescriptor.reporter.writeReport()
+
+            descList.remove(desc)
+
+
+    def makeJobGroupDirs(self, jMinder):
+
+        path = jMinder.jDescriptor.runPath
+        self.createJobGroupDir(jMinder,path)
+        self.logger.debug('Making run directory %s', path)
+        self.setupRunDir(jMinder, path)
+
+        path = jMinder.jDescriptor.resPath
+        self.logger.debug('Making results directory %s', path)
+        self.createJobGroupDir(jMinder,path)
+        
+    def setupRunDir(self, jMinder, runPath):
+
+        
+        """
+        Creates run directory (obtained from the descriptor)
+        
+        Uses JobGroupKits to establish what is needed to be copied to it.
+        Uses ScriptWriter to write a run script to it.
+        """
+        self.logger.info("entering setupRunDir")
+        jDescriptor = jMinder.jDescriptor
+        self.logger.debug("setupRunDir processing: "+jDescriptor.identifiedName)
+
+        os.chdir(runPath)
+        
+        self.logger.debug("writing requirements to  "+os.getcwd())
+        paths      = jDescriptor.paths
+        distArea   = paths.hardCoded.distArea()
+        relRelease = paths.hardCoded.relativeRelease(paths.branch,
+                                                     paths.release)
+        runType    = paths.runType
+        open("requirements","w").write(
+            requirementsWriter(distArea, relRelease, runPath, runType))
+        #
+        # If the following two lines were done in separate os.system calls, the
+        # second would fail as it would not know about the env variables of the
+        # first.
+        #
+        # os.system(
+        #    "source /afs/cern.ch/sw/contrib/CMT/v1r16p20040701/mgr/setup.sh;cmt config")os.system(
+        # os.system(
+        #   "source /afs/cern.ch/sw/contrib/CMT/v1r14p20031120/mgr/setup.sh;cmt config")
+
+        nightly,relNum = releaseToNum(jDescriptor.paths.release)
+        if nightly or relNum >=870:
+            #            os.system("source /afs/cern.ch/sw/contrib/CMT/v1r16p20040901/mgr/setup.sh;cmt config")
+            os.system("source /afs/cern.ch/sw/contrib/CMT/v1r18p20050501/mgr/setup.sh;cmt config")
+            
+        else:
+            os.system(
+                "source /afs/cern.ch/sw/contrib/CMT/v1r14p20031120/mgr/setup.sh;cmt config")
+        
+
+            self.logger.debug("   asking ScriptWriter to write run script")
+    
+        #        runScriptWriter = scriptWriterFactory(jDescriptor)
+        runScriptWriter = ScriptWriterFactory(self.logger).create(jDescriptor)
+        jDescriptor.dump()
+        
+        scr = runScriptWriter.runScript()
+    
+
+        #######################################################################
+        # handle aux files (= files needed in the run dir to run the job)
+        #######################################################################
+
+        self.logger.debug("copying auxilliary files")  
+
+        # copy the files
+        for file in jMinder.auxFiles:
+            shutil.copy(file, runPath)
+            fileName = os.path.basename(file)
+            changePerm(join(runPath,fileName),0777)
+            
+        #######################################################################
+        # handle ref files
+        #######################################################################
+
+        self.logger.debug("copying reference files")  
+        self.logger.debug(jDescriptor.paths.refDB)
+        self.retrieveRefFiles(jMinder)
+
+        #######################################################################
+        # The following block copies files from  the release to the new run directory.
+        # The files tp copy are listed in a file in the RTT share area (!?!).
+        #######################################################################
+
+        # aux = open(join(jDescriptor.paths.sharePath, "auxFiles.txt"), "r")
+        
+        # pc = PathCompleter()
+        # for line in aux.readlines():
+        #     tokens  = line.split()
+        #     package = tokens[0]
+        #     file    = tokens[1]
+        #     fn      = pc.fileFromReleasedFile(package, file, jDescriptor.paths)
+        #    if os.path.exists(fn):
+        #        shutil.copy(fn, runPath)
+            
+        #        fileName = os.path.basename(fn)
+        #        os.chmod(join(runPath,fileName),0777)
+        
+        #        self.logger.debug("copied "+fn+" to "+runPath)
+        #    else:
+        #        self.logger.debug(fn + "was not copied to runPath") #remove if statement later
+        
+        #######################################################################
+        # handle aux files desguised as string in the kit
+        #######################################################################
+
+        kit = JobGroupKits().kit(jDescriptor.jobGroup)
+
+        for  item in kit.getItem('stringsToFiles'):
+            filename = item[0]
+            string = item[1]
+            file = open(join(runPath, filename), 'w')
+            file.write(string)
+            file.close()
+
+
+        #
+        # Now perform tasks specific to the different descriptors
+        #
+
+        baseClasses = getInheritanceHeirarchy(jDescriptor)
+        if 'AthenaJobDescriptor' in baseClasses:
+            self.athenaSetUp(jDescriptor)
+
+        if 'WatcherJobDescriptor' in baseClasses:
+            self.watcherSetUp(jMinder)
+            
+        if 'WorkerJobDescriptor' in baseClasses:
+            self.workerSetUp(jMinder)
+
+        if 'ReleaseJobDescriptor' in baseClasses:
+            self.releaseSetUp(jDescriptor)
+            
+        self.logger.info("returning from setupRunDir()")
+
+
+    def releaseSetUp(self, jDescriptor):
+        of = open('srcFileInfo.txt','w')
+        of.write(str(jDescriptor.nSrcFiles)+'\n')
+        of.write(formatCollection(jDescriptor.srcFileList)+'\n')
+        of.close()
+
+    def writeOptionToRunDir(self,option, jDescriptor):
+        ext         = option[-3:]
+        if ext     != '.py':
+            option  = option+'.py'
+        dest = join(jDescriptor.runPath, option)      
+        src  = join(jDescriptor.paths.installArea,
+                    'jobOptions',
+                    jDescriptor.package,
+                    option)  
+        try:
+            shutil.copyfile(src, dest)
+        except Exception, e:
+            self.logger.error(str(e))
+
+    def athenaSetUp(self, jDescriptor):
+        # dataLink = createDataLink(runPath,jDescriptor)
+        # Create the Zebra.P link only of there is DC1 data for the job
+        if jDescriptor.hasDataSet:
+            if jDescriptor.isDC1data:
+                msg ="creating soft link to data set: "+jDescriptor.DC1dataSet
+                self.logger.debug(msg)
+                dataLink = 'ZEBRA.P'
+                if os.path.exists(dataLink): os.remove(dataLink)
+                os.symlink(jDescriptor.DC1dataSet, dataLink)
+                # elif jDescriptor.isBSdata:
+                # msg ="creating soft link to data set: "+jDescriptor.BSdataSet
+                # self.logger.debug(msg)
+                # dataLink = 'RawEvent.re'
+                # if os.path.exists(dataLink): os.remove(dataLink)
+                # os.symlink(jDescriptor.BSdataSet, dataLink)
+
+        if len(jDescriptor.furtherJobOptions)>0:
+            self.logger.debug('further options '+str(jDescriptor.furtherJobOptions))
+            self.logger.debug('Writing futher options to runDir')
+            for option in jDescriptor.furtherJobOptions:              
+                self.writeOptionToRunDir(option, jDescriptor)
+
+    def watcherSetUp(self, jMinder):
+        workerRunPaths = [minder.jDescriptor.runPath for minder in jMinder.jobsToWatch]
+        histsFile = open(join(jMinder.jDescriptor.runPath,'histLocation.txt'),'w')
+        [histsFile.write(path+'\n') for path in workerRunPaths]
+        histsFile.close()
+
+    def workerSetUp(self, jMinder):
+        
+        self.logger.debug("writing requirements to  "+os.getcwd())
+        paths      = jMinder.jDescriptor.paths
+        distArea   = paths.hardCoded.distArea()
+        relRelease = paths.hardCoded.relativeRelease(paths.branch,
+                                                     paths.release)
+        runPath    = jMinder.jDescriptor.runPath
+        runType    = paths.runType
+
+        open("requirements","w").write(requirementsWriter(distArea,
+                                                          relRelease,
+                                                          runPath,
+                                                          runType))
+        #
+        # If the following two lines were done in separate os.system calls, the
+        # second would fail as it would not know about the env variables of the
+        # first.
+        #
+        os.system(
+           "source /afs/cern.ch/sw/contrib/CMT/v1r16p20040701/mgr/setup.sh;cmt config")
+        # os.system(
+        #   "source /afs/cern.ch/sw/contrib/CMT/v1r14p20031120/mgr/setup.sh;cmt config")
+
+        release =  jMinder.jDescriptor.paths.release
+        nightly,relNum = releaseToNum(release)
+        if nightly or relNum >=870:
+            cmd  = 'source '
+            cmd += '/afs/cern.ch/sw/contrib/CMT/v1r18p20050501/mgr/setup.sh;'
+            cmd += 'cmt config'
+            os.system(cmd)
+
+                
+        else:
+            cmd  = 'source '
+            cmd += '/afs/cern.ch/sw/contrib/CMT/v1r14p20031120/mgr/setup.sh;'
+            cmd += 'cmt config'
+            os.system(cmd)
+        #
+
+        self.logger.debug("asking ScriptWriter to write run script")
+        # method has been truncated?
+            
+
+    # --------------------------------------------------------------------------
+
+    def createDataLink(self, runPath, jDescriptor):
+        """ return the appropriate run directory name for the soft link to the data,
+        depending on whether the latter is DC1 or DC2"""
+    
+        if jDescriptor.isDC1data:
+            link = "ZEBRA.P"
+            self.logger.debug('createDataLink: ' + jDescriptor.DC1dataSet + " is DC1 data")
+            #        elif jDescriptor.isBSdata:
+            #link ="RawEvent.re"
+            #self.logger.debug('createDataLink: ' + jDescriptor.DC1dataSet + " is BS data")
+        else:
+            self.logger.debug('createDataLink: ' + jDescriptor.DC1dataSet + " is DC2 data")
+            return link
+
+    # --------------------------------------------------------------------------
+    
+    def writeRefFiles(self, dbHandle, minder):
+        "copy file from the data base to the run directory"
+
+        
+        # kit = jobGroupKitFactory(jDescriptor.jobGroup)
+
+        files = []
+        files.extend(minder.asciiRefFiles)
+        files.extend(minder.binRefFiles)
+        
+        # files = jDescriptor.asciiRefFiles
+        # files.extend(kit.asciiRefFiles)
+        # files.extend(jDescriptor.binRefFiles)
+        # files.extend(kit.binRefFiles)
+
+        jDescriptor = minder.jDescriptor
+        
+        for file in files:
+
+            
+            # By default the makeDBkey method constucts the key using the same branch
+            # value as jDescriptor.paths.release.
+            #
+            # ----- Consequence 1:
+            #          If you run a nightly (branch = N.0.X or N.X.0) and want to regress
+            #          against a numbered release (branch = Numbered) you're in trouble.
+            #          When the key was stored it would have been stored with 'Numbered'
+            #          and now you're trying to access with branch = N.0.X/N.X.0. So it
+            #          must be set to 'Numbered'
+            #
+            # ----- Consequence 2:
+            #          If you're running a Numbered release and want to regress against a nightly
+            #          release, you can't. Why?  Well, what branch do you pass: N.0.X or N.X.0? 
+            
+            theBranch = jDescriptor.paths.branch
+            if Tools2.isValidReleaseNumber(jDescriptor.refRelease):
+                theBranch = 'Numbered'
+                
+            key = minder.makeDBKey(jDescriptor.refRelease, theBranch, file)
+
+            #            key = minder.makeDBKey(jDescriptor.refRelease, file)
+            refFileName = join(jDescriptor.runPath,'refFile_'+file)
+        
+            
+            try:
+                refFile = dbHandle[key.__repr__()]
+                self.logger.debug("Found reference file in DB")
+                self.logger.debug("DataBase at: "+jDescriptor.paths.refDB)    
+                self.logger.debug("key = "+key.__repr__())
+                open(refFileName, 'w').write(refFile)
+            except KeyError:
+                self.logger.warning("NO reference file found in DB")
+                self.logger.warning("DataBase at: "+jDescriptor.paths.refDB)    
+                self.logger.warning("key = "+key.__repr__())
+                reporter = jDescriptor.reporter
+                reporter.failedDBKeyFindError(jDescriptor.paths.refDB,key.__repr__())
+        
+    # --------------------------------------------------------------------------
+
+    def retrieveRefFiles(self, minder):
+        descriptor = minder.jDescriptor
+        try:            
+            dbHandle = shelve.open(descriptor.paths.refDB, 'r')
+            self.writeRefFiles(dbHandle, minder)
+            m  = 'Succesful retrieval from reference'
+            m += ' database %s' % descriptor.paths.refDB
+            self.logger.debug(m)
+
+        except Exception, e:
+            m = 'Error opening reference database %s' % descriptor.paths.refDB
+            self.logger.error(m)
+            self.logger.error("Error :"+str(e))
+            self.logger.error(exc2string(sys.exc_info()))
+        #except shelve.error:
+        #    reporter = jDescriptor.reporter
+        #    reporter.failedDBConnectError(jDescriptor.paths.refDB)
+        #    self.logger.debug("Could not open reference file dbm "+jDescriptor.paths.refDB)
+        
+# --------------------------------------------------------------------------
+"""A class to make Results directory, but not Run or Work directories.
+   Run directory will be set up however!
+   testMode : NoNewRunDirs"""
+
+class NoWorkDirCreation(DirectoryMaker):
+    def __init__(self, paths, logger):
+        DirectoryMaker.__init__(self, paths, logger)
+
+    def makeWorkDirs(self):
+        self.logger.info('Not creating Work directores')
+
+    def createRunDir(self, jMinder, runPath):
+        self.logger.info('Not creating run directory '+runPath)
+
+# --------------------------------------------------------------------------
+"""A class to make Results directory, but not Run or Work directories
+   testMode: NoNewDirs"""
+
+class DummyDirectoryMaker(DirectoryMaker):
+    def __init__(self, paths, logger):
+        DirectoryMaker.__init__(self, paths, logger)
+
+    def makeWorkDirs(self):
+        self.logger.info('Not creating Work directores')
+
+    def createRunDir(self, jMinder, runPath):
+        self.logger.info('Not creating run directory '+runPath)
+
+
+    def makeJobGroupDirs(self, jMinder):
+        self.logger.info('Not setting up the run directory')
+
+        dir = self.paths.resultsDirs['resBase/build/branch/runType/release']
+        msg = 'Not creating the results directory %s' % dir
+        self.logger.info(msg)
+
+
+# --------------------------------------------------------------------------
+"A class that only uses full setupRunDir, rest is dummy"
+
+class SpecificJobWorkDirMaker(DirectoryMaker):
+    def __init__(self, paths, logger):
+        DirectoryMaker.__init__(self, paths, logger)
+
+    def makeWorkDirs(self):
+        self.logger.info('Not creating Work directores')
+
+    def makeResultsDirs(self):
+        self.logger.info('Not creating the results directory '+self.paths.resultsDirs['resBase/build/branch/runType/release'])
+        
+    def rmAllJobResultsFiles(self,minder):
+        startsWith = minder.jDescriptor.identifiedName
+        foundOne = False
+        jobSerialNum = 1
+        for file in os.listdir(minder.jDescriptor.paths.resultsDirs['resBase/build/branch/runType/release']):
+            serial = getJobSerialNumber(file)
+            if serial > jobSerialNum:
+                jobSerialNum = serial
+                
+            if file.find(startsWith)!=-1 or file.find(startsWith[:-1]+'.py'):
+                os.remove(join(minder.jDescriptor.paths.resultsDirs['resBase/build/branch/runType/release'],file))
+                foundOne = True
+
+        # there were no such files in the results area
+        # i.e. maybe serial number wrong due to different jobs conf file
+        if not foundOne and getJobSerialNumber(startsWith) <= jobSerialNum:
+            globalReporter.differentXMLFileThanBeforeError()
+            sys.exit()
+
+class DirectoryMakerProject(DirectoryMaker):
+    def __init__(self, paths, logger):
+        DirectoryMaker.__init__(self, paths, logger)
+
+    def setupRunDir(self, jMinder, runPath):
+        
+        """
+        Creates run directory (obtained from the descriptor)
+        
+        Uses JobGroupKits to establish what is needed to be copied to it.
+        Uses ScriptWriter to write a run script to it.
+
+        This version does not write a requirements file into the run
+        directory.
+        """
+        self.logger.info("DirectroyMakerProject: entering setupRunDir")
+        jDescriptor = jMinder.jDescriptor
+        self.logger.debug("setupRunDir processing: "+jDescriptor.identifiedName)
+
+        os.chdir(runPath)
+
+        self.logger.debug("SetupRunDir: calling ScriptWriter")
+    
+        runScriptWriter = ScriptWriterFactory(self.logger).create(jDescriptor)
+        
+        scr = runScriptWriter.runScript()
+    
+
+        #######################################################################
+        # handle aux files (= files needed in the run dir to run the job)
+        #######################################################################
+
+        self.logger.debug("copying auxilliary files")  
+
+        # copy the files
+        for file in jMinder.auxFiles:
+            shutil.copy(file, runPath)
+            fileName = os.path.basename(file)
+            changePerm(join(runPath,fileName),0777)
+            
+        #######################################################################
+        # handle ref files
+        #######################################################################
+
+        self.logger.debug("copying reference files")  
+        self.logger.debug(jDescriptor.paths.refDB)
+        self.retrieveRefFiles(jMinder)
+
+        #######################################################################
+        # handle aux files desguised as string in the kit
+        #######################################################################
+
+        kit = JobGroupKits().kit(jDescriptor.jobGroup)
+
+        for  item in kit.getItem('stringsToFiles'):
+            filename = item[0]
+            string = item[1]
+            file = open(join(runPath, filename), 'w')
+            file.write(string)
+            file.close()
+
+
+        #
+        # Now perform tasks specific to the different descriptors
+        #
+
+        baseClasses = getInheritanceHeirarchy(jDescriptor)
+        if 'AthenaJobDescriptor' in baseClasses:
+            self.athenaSetUp(jDescriptor)
+
+        if 'WatcherJobDescriptor' in baseClasses:
+            self.watcherSetUp(jMinder)
+            
+        if 'WorkerJobDescriptor' in baseClasses:
+            # self.workerSetUp(jMinder)
+            pass
+
+        if 'ReleaseJobDescriptor' in baseClasses:
+            self.releaseSetUp(jDescriptor)
+            
+        self.logger.info("returning from setupRunDir()")
+
+
+
+# --------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    pass

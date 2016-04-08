@@ -1,0 +1,151 @@
+import os.path
+import xml.dom.ext
+from Tools2             import isValidReleaseNumber
+from makeRTTDOM         import makeRTTDOM
+from XMLTools           import xslRef, relPath, prependXSLRef
+from Evaluate           import getText, Evaluate
+from PageXMLWriter      import PageXMLWriter
+from Factory_Legals     import LegalsFactory
+
+import page0DefaultFiles
+
+class Page0XMLWriter(PageXMLWriter):
+
+    """
+    Page0XMLWriter collects together all information needed for Page0 into a DOM document,
+    and writes it out to the specified pag0.xml path.
+
+    The information includes the page1 locations. These are found by guessing: possible locatations
+    are given, and these are checked for the existence of page1.xml files.
+    """
+
+    
+    def __init__(self, tester, logger):
+        PageXMLWriter.__init__(self, tester, logger)
+        import xml.dom.ext, sys
+        docEl = self.tester.summaryDocument.documentElement
+
+        node = Evaluate('overview/resBaseDir', docEl)[0]
+        self.absPageLoc  = os.path.join(getText(node), 'page0.xml')
+        self.absXSLLoc   = os.path.join(self.absXSLDir, 'page0.xsl')
+
+
+        self.document = None
+        self.document = makeRTTDOM('RTTpage0')
+        prependXSLRef(xslRef(self.absXSLLoc, self.absPageLoc), self.document) 
+
+        factory = LegalsFactory(logger)
+        legals  = factory.create(tester.paths.releaseType, tester.paths.originalBranch, tester.paths.hardCoded)
+
+        self.possiblePage1Locations = []
+
+        # get legal names of nightly builds
+        nightlyNames = legals.legals['nightliesInRelease']
+        releaseNames = []
+        for branch in legals.legals['branch']:
+            releaseNames.extend([os.path.join(n,branch) for n in nightlyNames])
+
+        # now add in numbered releases
+        numberedBuilds = [f for f in os.listdir(self.absXSLDir)
+                          if os.path.isdir(os.path.join(self.absXSLDir,f)) and isValidReleaseNumber(f)]
+        
+        releaseNames.extend(numberedBuilds)
+                
+        for release in releaseNames:
+            for runType in legals.legals['runType']:                
+                self.possiblePage1Locations.append('%s/%s' % (release, runType))
+
+        self.createEmptyXMLDoc()
+
+        filesToWrite = {
+            'currentStatusN0X.js':       page0DefaultFiles.currentStatusN0X,
+            'currentStatusNX0.js':       page0DefaultFiles.currentStatusNX0,
+            'messageOfTheDay.js':        page0DefaultFiles.messageOfTheDay,
+            'page0.html':                page0DefaultFiles.page0,
+            'page0.noTopFrame.html':     page0DefaultFiles.page0_noTopFrame,
+            'status.html':               page0DefaultFiles.status,
+            'page0.xsl':                 page0DefaultFiles.page0XSL,
+            'page1.xsl':                 page0DefaultFiles.page1XSL,
+            'page2.xsl':                 page0DefaultFiles.page2XSL,
+            'page3.xsl':                 page0DefaultFiles.page3XSL,
+            'page4.xsl':                 page0DefaultFiles.page4XSL,
+            'RTTpage1_LinksAtTopOfPage.js': page0DefaultFiles.RTTpage1_LinksAtTopOfPage
+            }
+
+        def writeOut((fn, text), resBase):
+            fullPath = os.path.join(resBase, fn)
+            if os.path.exists(fullPath): return
+            of = open(fullPath,'w')
+            of.write(text)
+            of.close()
+
+        [writeOut(item, self.absXSLDir) for item in filesToWrite.items()]
+        self.update()
+
+    def createEmptyXMLDoc(self):
+        if self.document: self.document.unlink()
+        self.document     = makeRTTDOM('RTTpage0')
+        prependXSLRef(xslRef(self.absXSLLoc, self.absPageLoc),  self.document)
+        
+    def update(self, package=None, updatedMinders=None):
+
+        # self.logger.debug('Page0XMLWriter: start update')
+        p1 = 'page1.xml'
+        p1Locations = {}
+        
+        def fillDict(location, dict):
+            p1location = os.path.join(self.absXSLDir, location, p1)
+            # a location relative to resbase is provided because
+            # the string representing the location will be used by
+            # page0,html which MUST be located in resbase. The browser
+            # will then correctly use the relative path to page1.xml
+            p1relloc   = os.path.join(location, p1)
+            if os.path.exists(p1location): dict[location] = p1relloc
+            
+        [fillDict(l, p1Locations) for l in self.possiblePage1Locations]
+
+
+
+        #toRemove = self.document.documentElement.childNodes
+        #[self.document.documentElement.removeChild(n) for n in toRemove]
+        self.createEmptyXMLDoc()
+        
+        [self.addNode(p) for p in p1Locations.items()]
+
+
+
+        of = open(self.absPageLoc, 'w')
+        xml.dom.ext.PrettyPrint(self.document, of)
+        of.close()
+
+        # self.logger.info('Wrote out page0.xml to %s' % str(self.absPageLoc))
+        # self.logger.debug('Page0XMLWriter: end update')
+                        
+
+
+    def addNode(self, (name, location)):
+
+
+        n = self.document.createElement('page1')
+
+        n.appendChild(self.makeNode('page1Name',     name,   ) )
+        n.appendChild(self.makeNode('page1Location', location) ) 
+
+        self.document.documentElement.appendChild(n)
+
+    def makeNode(self, name, text):
+            
+        try:
+            tn = self.document.createTextNode(text)
+        except xml.dom.InvalidCharacterErr:
+            tn = self.document.createTextNode('invalid text')
+            
+        n  = self.document.createElement(name)
+        
+        n.appendChild(tn)
+
+        return n
+
+if __name__ == '__main__':
+    writer = Page0XMLWriter('/afs/cern.ch/user/s/sherwood/public/RTT/Results')
+    writer.update()

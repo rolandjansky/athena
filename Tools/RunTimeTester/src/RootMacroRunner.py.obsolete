@@ -1,0 +1,446 @@
+"""
+Functions to run after a jobs have completed. Organised by job group
+"""
+
+import os, time, re
+from popen2 import Popen4
+
+# from siteSpecificsFactory import siteSpecificsFactory
+from Factory_SiteSpecifics    import SiteSpecificsFactory
+from TextExtractor import TextExtractor
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+class SitePostScripts:
+	
+	def setSiteSpecifics(self, site):
+		logger.debug('setting site specific env on :' + site )
+		
+	        # siteSpec = siteSpecificsFactory(site)
+	        siteSpec = SiteSpecificsFactory().create(site)
+		os.environ['LD_LIBRARY_PATH'] = siteSpec.libs()
+		os.environ['ROOTSYS']         = siteSpec.rootSys()
+	        #os.chdir(self.runPath)
+                #script(self.jDescriptor.paths.site)
+		
+	setSiteSpecifics=classmethod(setSiteSpecifics)
+
+
+class ArtemisPostScript(SitePostScripts):
+
+	psLabel = 'site'
+	
+	def run(self, site):
+		
+		"run some root macros"
+		logger.debug('running postscript  on ' +site)
+		
+		SitePostScripts.setSiteSpecifics(site)
+
+		# rootCommand = siteSpecificsFactory(site).rootCommand()
+	        rootCommand = SiteSpecificsFactory().create(site).rootCommand()
+		rootCommand = rootCommand+' artemis.C'
+		os.system(rootCommand)
+
+	run = classmethod(run)
+
+class AtlfastPostScript(SitePostScripts):
+
+	psLabel = 'site'
+	
+	def run(self, site):
+		
+		"run some root macros"
+	       
+		logger.debug('running postscript  on ' +site)
+		logger.info('Current working directory: '+ os.getcwd())
+		SitePostScripts.setSiteSpecifics(site)
+	
+		# rootCommand = siteSpecificsFactory(site).rootCommand()
+	        rootCommand = SiteSpecificsFactory().create(site).rootCommand()
+		rootCommand = rootCommand+' atlfast.C'
+
+		logger.info( "atlfastPostScript root command: "+rootCommand)
+
+		#os.system(rootCommand)
+		runMacro = Popen4(rootCommand)
+		logger.info('root command output: \n'+ runMacro.fromchild.read())
+
+	run = classmethod(run)
+
+class EgammaPostScript(SitePostScripts):
+
+	psLabel = 'site'
+	
+	def run(self,site):
+
+		"run some root macros"
+		
+		
+		logger.debug('running postscript  on ' +site)
+		logger.debug('Current working directory: '+os.getcwd())
+
+		SitePostScripts.setSiteSpecifics(site)
+	
+		# rootCommand = siteSpecificsFactory(site).rootCommand()
+	        rootCommand = SiteSpecificsFactory().create(site).rootCommand()
+	
+		macroCommand = rootCommand+' egamma_hist.C\(\\"ntuple.root\\"\)'
+		logger.info("egammaPostScript root command: "+macroCommand)
+		#os.system(macroCommand)
+		runMacro =Popen4(macroCommand)
+		logger.info('root command output: \n'+ runMacro.fromchild.read() )
+		runMacro.wait()
+		
+		macroCommand  = rootCommand
+		macroCommand += ' egammaHistsToPostScript.C\('
+		macroCommand += '\\"cluster_validation.hist\\",'
+		macroCommand += '\\"refFile_cluster_validation.hist\\",'
+		macroCommand += '\\"cluster_validation.ps\\"'
+		macroCommand += '\)'
+		logger.info("egammaPostScript root command: "+macroCommand)
+		#os.system(macroCommand)
+		runMacro =Popen4(macroCommand)
+		logger.info('root command output: \n'+runMacro.fromchild.read())
+		runMacro.wait()
+	
+	
+		macroCommand  = rootCommand
+		macroCommand += ' egammaHistsToPostScript.C\('
+		macroCommand += '\\"softE_validation.hist\\",'
+		macroCommand += '\\"refFile_softE_validation.hist\\",'
+		macroCommand += '\\"softE_validation.ps\\"'
+		macroCommand += '\)'
+		logger.info("egammaPostScript root command: "+macroCommand)
+		#os.system(macroCommand)
+		runMacro =Popen4(macroCommand)
+		logger.info('root command output:\n'+runMacro.fromchild.read())
+		runMacro.wait()
+		
+		macroCommand  = rootCommand
+		macroCommand += ' egammaHistsToPostScript.C\('
+		macroCommand += '\\"eGamma_validation.hist\\",'
+		macroCommand += '\\"refFile_eGamma_validation.hist\\",'
+		macroCommand += '\\"eGamma_validation.ps\\"'
+		macroCommand += '\)'
+		logger.info("egammaPostScript root command: "+macroCommand)
+		#os.system(macroCommand)
+		
+		runMacro =Popen4(macroCommand)
+		logger.info('root command output \n'+runMacro.fromchild.read())
+		runMacro.wait()
+
+
+	run = classmethod(run)
+
+class EgammaWatcherPostScript(SitePostScripts):
+
+	psLabel = 'site'
+
+	def run(self,site):
+		"run some root macros"
+	
+		logger.debug('running postscript  on ' +site)
+
+		logger.debug('Current Work Dir: ' +os.getcwd())  #watcher run directory
+
+		SitePostScripts.setSiteSpecifics(site)
+		
+		# rootCommand = siteSpecificsFactory(site).rootCommand()
+	        rootCommand = SiteSpecificsFactory().create(site).rootCommand()
+
+	
+	        macroCommand = rootCommand+' histAdder.C\(\\"cluster_validation.hist\\"\)'
+	       	logger.info("egammaWatcherPostScript root command: "+macroCommand)
+	       	#os.system(macroCommand)
+
+		runMacro =Popen4(macroCommand)
+		logger.info('root command output \n'+runMacro.fromchild.read())
+		runMacro.wait()
+	
+		macroCommand = rootCommand+' histAdder.C\(\\"softE_validation.hist\\"\)'
+		logger.info("egammaWatcherPostScript root command: "+macroCommand)
+		#os.system(macroCommand)
+
+		runMacro =Popen4(macroCommand)
+		logger.info('root command output \n'+runMacro.fromchild.read())
+		runMacro.wait()
+	
+		macroCommand = rootCommand+' histAdder.C\(\\"eGamma_validation.hist\\"\)'
+		logger.info("egammaWatcherPostScript root command: "+macroCommand)
+		#os.system(macroCommand)
+
+		runMacro =Popen4(macroCommand)
+		logger.info('root command output \n'+runMacro.fromchild.read())
+		runMacro.wait()
+	
+	
+	
+	
+		macroCommand  = rootCommand
+		macroCommand += ' egammaHistsToPostScript.C\('
+		macroCommand += '\\"cluster_validation.hist\\",'
+		macroCommand += '\\"refFile_cluster_validation.hist\\",'
+		macroCommand += '\\"cluster_validation.ps\\"'
+		macroCommand += '\)'
+		logger.info("egammaPostScript root command: "+macroCommand)
+		#os.system(macroCommand)
+
+		runMacro =Popen4(macroCommand)
+		logger.info('root command output \n'+runMacro.fromchild.read())
+		runMacro.wait()
+	
+	
+		macroCommand  = rootCommand
+		macroCommand += ' egammaHistsToPostScript.C\('
+		macroCommand += '\\"softE_validation.hist\\",'
+		macroCommand += '\\"refFile_softE_validation.hist\\",'
+		macroCommand += '\\"softE_validation.ps\\"'
+		macroCommand += '\)'
+		logger.info("egammaPostScript root command: "+macroCommand)
+		#os.system(macroCommand)
+
+		runMacro =Popen4(macroCommand)
+		logger.info('root command output \n'+runMacro.fromchild.read())
+		runMacro.wait()
+	
+		macroCommand  = rootCommand
+		macroCommand += ' egammaHistsToPostScript.C\('
+		macroCommand += '\\"eGamma_validation.hist\\",'
+		macroCommand += '\\"refFile_eGamma_validation.hist\\",'
+		macroCommand += '\\"eGamma_validation.ps\\"'
+		macroCommand += '\)'
+		logger.info("egammaPostScript root command: "+macroCommand)
+		#os.system(macroCommand)
+
+		runMacro =Popen4(macroCommand)
+		logger.info('root command output \n'+runMacro.fromchild.read())
+		runMacro.wait()
+	
+	
+	run =classmethod(run)
+
+class HelloWorldPostScript:
+
+	psLabel = 'site'
+	
+	def run(self, site):
+		"Nothing needs to be done"
+
+		logger.debug('running postscript  on ' +site)
+
+	run = classmethod(run)
+
+class JiveXMLPostScript:
+
+	psLabel = 'log'
+	
+	def run(self, logFile):
+		# logFile is the absolute path the the logFile in the run directory
+		"Extract lines from log and store in logExtract"
+
+                logger.info( "JiveXML PostScript")
+		logger.debug('running  postscript  on ' +logFile)
+
+		head, tail = os.path.split(logFile)
+		outFile = os.path.join(head,'logExtract.txt')
+		testStrings=['EventData2XML        INFO ',
+                     'EventData2XML     WARNING ']
+		te = TextExtractor(testStrings, logFile, outFile)
+		te.extract()
+
+	run = classmethod(run) 
+
+
+class RecExCommonPostScript:
+	
+	psLabel = 'log'
+	
+	def run(self, logFile):
+		# logFile is the absolute path the the logFile in the run directory
+		"Extract lines from log and store in logExtract"
+
+                logger.info( "RecExCommon PostScript")
+		logger.debug('running  postscript  on ' +logFile)
+
+		head, tail = os.path.split(logFile)
+		outFile = os.path.join(head,'logExtract.txt')
+
+		testStrings=["\.\.\.only second half of the job",
+			     "CBNT_Audit                       INFO End of initialization : Total Virtual memory",
+			     "CBNT_Audit                       INFO After finalise:  virtual memory VSIZE",
+			     "CBNT_Audit                       INFO Total Virtual memory",
+			     "ChronoStatSvc                    INFO Time User   : Tot"]
+		te = TextExtractor(testStrings, logFile, outFile)
+		te.extract()
+
+		outFile = os.path.join(head,'memoryLeak.txt')
+
+		testStrings=["\.\.\.only second half of the job"]
+		te = TextExtractor(testStrings, logFile, outFile)
+		te.extract()
+					
+	run = classmethod(run) 
+
+		
+class QaMetricsToHTML(SitePostScripts):
+
+	psLabel ='site'
+	
+	def run(self,site=None):
+		"""Script to convert metrics txt file to html.
+		No longer neededd: Together has an html format option
+		that works better
+		"""		
+
+		logger.debug('running postscript  on ' +site)
+
+		SitePostScripts.setSiteSpecifics(site)
+
+		import sys
+	
+	
+		lines = open('metrics.txt','r').readlines()
+	
+		if len(lines)==0: sys.exit(0)
+	
+	
+		headers=lines[0].split()
+		headerLine='      '
+		for header in headers:
+			headerLine=headerLine+'<th>'+header+'</th>'
+			headerLine = headerLine+'\n'
+
+			oline = '      <tr>'
+			for line in lines[1:]:
+				entries=line.split()
+				for entry in entries:
+					oline=oline+'<td>'+entry+'</td>'
+					oline = oline+'\n'
+					oline = oline+'</tr>'
+    
+					ofile = open('metrics.html','w')
+					ofile.write('<html>\n')
+					ofile.write('  <body>\n')
+					ofile.write('    <h2>QA metrics</h2>\n')
+					ofile.write('    <table>\n')
+
+					ofile.write('    <tr>\n')
+					ofile.write(headerLine)
+					ofile.write('    </tr>\n')
+					ofile.write('    <tr>\n')
+					ofile.write(oline)
+    
+					ofile.write('    </tr>\n')
+
+
+
+					ofile.write('    </table>\n')
+					ofile.write('  </body>\n')
+					ofile.write('</html>\n')
+    
+					ofile.close()
+			run = classmethod(run)
+
+class TrigReleasePostScript:
+
+	psLabel = 'log'
+	
+	def run(self, logFile):
+		'logFile is the absolute path the the logFile in the run directory'
+
+		logger.debug("Running TriggerRelease PostScripts")
+
+		head, tail  = os.path.split(logFile)
+		outFile1    = os.path.join(head, 'errorLog.txt')
+		testString1 = ['FATAL', 'ERROR']         
+		te         = TextExtractor(testString1, logFile, outFile1)
+		te.vetoExtract()                #error log
+
+	run = classmethod(run)
+
+class TrigReleasePostScript1:
+
+	psLabel = 'log'
+	
+	def run(self, logFile):
+		"Create log extracts needed for regression tests"
+
+		# logFile is the absolute path the the logFile in the run directory
+		logger.debug("Running TriggerRelease PostScripts")
+
+		head, tail = os.path.split(logFile)
+		outFile1   = os.path.join(head, 'idscan.reference')
+		outFile2   = os.path.join(head, 'sitrack.reference')
+		 
+		testString1 = ["^IdScan.*.REGTEST"]           #regular expressions
+		testString2 = ["^SiTrack.*.REGTEST"]          #determining lines to 
+                                                      
+		te1 = TextExtractor(testString1, logFile, outFile1)
+		te2 = TextExtractor(testString2, logFile, outFile2)
+
+	        #Files for regression tests
+		te1.extract()                 
+		te2.extract()
+
+	run = classmethod(run)
+
+class TrigReleasePostScript2:
+
+	psLabel = 'log'
+	
+	def run(self, logFile):
+		"Create log extracts needed for regression tests"
+
+		logger.debug("Running TriggerRelease PostScripts")
+
+		head, tail = os.path.split(logFile)
+		# logFile is the absolute path the the logFile in the run directory
+		outFile1   = os.path.join(head, 't2calo.reference')
+		#outFile2   = os.path.join(head, 't2calo_readBS.reference')
+		 
+		testString = ["^T2Calo.*.REGTEST"]            #regular expressions
+		                                              #determining lines to 
+                                                      
+		te1 = TextExtractor(testString, logFile, outFile1)
+		#te2 = TextExtractor(testString, logFile, outFile2)
+
+	        #Files for regression tests
+		te1.extract()                 
+		#te2.extract()
+
+	run = classmethod(run)
+
+
+class TrigReleasePostScript3:
+	
+        psLabel = 'log'
+	
+	def run(self, logFile):
+		"Create log extracts needed for regression tests"
+		
+		logger.debug("Running TriggerRelease PostScripts")
+
+		head, tail = os.path.split(logFile)
+		# logFile is the absolute path the the logFile in the run directory
+		outFile1   = os.path.join(head, 'idscan_readBS.reference')
+		outFile2   = os.path.join(head, 'sitrack_readBS.reference')
+		 
+		testString1 = ["^IdScan.*.REGTEST"]           #regular expressions
+		testString2 = ["^SiTrack.*.REGTEST"]          #determining lines to 
+                                                      
+		te1 = TextExtractor(testString1, logFile, outFile1)
+		te2 = TextExtractor(testString2, logFile, outFile2)
+
+	        #Files for regression tests
+		te1.extract()                 
+		te2.extract()
+
+	run = classmethod(run)
+		
+
+if __name__ == "__main__":
+	pass

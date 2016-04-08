@@ -1,0 +1,42 @@
+class BlackLister:
+    def __init__(self,testRuns):
+        # first entry=smallest offender, last entry=worst offender
+        self.blackList = ['AthenaCaloRecEx','AthenaCaloDigEx','AthenaCaloSimEx','RuleChecker','AthenaMissingET']
+        self.tr = testRuns
+
+    def punish(self):
+        punished = []
+        for group in self.blackList:
+            for tr in self.tr:
+                if group in tr.groupsInTestRun():
+                    punished.append(tr)
+                    break
+
+        finalList = [tr for tr in self.tr if tr not in punished]
+        finalList.extend(punished)
+        return finalList
+                
+#-------- TESTS ---------------
+
+if __name__ == '__main__':
+    class Blah:
+        def __init__(self,groups,name):
+            self.groups = groups
+            self.name = name
+            
+        def groupsInTestRun(self):
+            return self.groups
+        
+                
+    testRuns = [Blah([u'AthenaAtlfast'],'Atlfast'),
+                Blah([u'AthenaMissingET'],'MissingET'),
+                Blah([u'AthenaG4AtlasApps'],'G4AtlasApps'),
+                Blah([u'AthenaInDetRTT'],'InDetRTT'),
+                Blah([u'AthenaCaloRecEx'],'CaloRec'),
+                Blah(['RuleChecker', 'KitValidation', 'RuleCheckerWatcher'],'RC'),
+                ]
+    
+    print [b.name for b in testRuns]
+    testRuns = BlackLister(testRuns).punish()
+    print [b.name for b in testRuns]
+    

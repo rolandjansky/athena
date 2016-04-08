@@ -1,0 +1,46 @@
+"""
+This module bundles the RTT factory functions.
+These functions are written as classes to help write test code.
+"""
+
+from exc2string           import exc2string
+
+from Factory_BaseClass    import Factory
+from DirectoryMaker       import *
+
+# -------------------------------------------------------------------------
+# DirectoryMaker Factory
+# -------------------------------------------------------------------------
+
+class DirectoryMakerFactory(Factory):
+  def __init__(self, logger):
+    Factory.__init__(self, logger, self.__class__.__name__)
+    
+    
+    self.dict = {
+      'NoNewDirs':    DummyDirectoryMaker,
+      'NoNewRunDirs': NoWorkDirCreation,
+      'project':      DirectoryMakerProject,
+      'monolithic':   DirectoryMaker
+      }
+    
+    
+  def create(self, paths):
+    "Factory for contructing JobMinders"
+    
+    # no checks on legality of mode - that should be done in pathsMaker,
+    # and this dictionary should conform to that.
+    
+    mode = paths.testMode
+    if mode in self.dict.keys():
+      return self.dict[mode](paths, self.logger)
+
+    mode = paths.releaseType
+    if mode in self.dict.keys():
+      return self.dict[mode](paths, self.logger)
+
+    msg  = 'Cannot tell which DirectoryMaker to construct '
+    msg += 'testMode = %s releaseType = %s' % (paths.testMode,
+                                               paths.releaseType)
+
+    self.logger.error(msg)

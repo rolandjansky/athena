@@ -1,0 +1,200 @@
+"""
+class Minder. Top of the Minder Heirarchy.
+
+- Takes care of the state machine. This is a mixture of
+a status object and a dispatcher.
+
+The state machine  has states: queued, running, success, error,
+it nows how to proceed from one state to the next, and species the actions to be
+performed when the state changes. The way jobs are submited, and the names of
+log files are examples of items that change with mode.
+
+This class also has the following methods, which are common to all Minders,
+
+poll
+fromQueued
+fromRunning
+fromSuccess
+fromError
+setStatus
+setStatusList
+forceCloseDown
+setDone
+
+Many of these are overidden in derived classes.
+"""
+
+from Factory_MinderStateEngine      import MinderStateEngineFactory
+from Factory_XMLConverter           import XMLConverterFactory
+from simpleDataForMonitoring        import simpleDataForMonitoring
+from RTTSException                  import RTTCodingError
+import RTTFileLogger
+
+import logging
+logger = logging.getLogger('rtt')
+
+import shelve
+
+import os.path
+#import cPickle
+
+# -------------------------------------------------------------------------
+#from Tracer        import Tracer
+# uncomment to monitor all method calls (shows args + return values)
+#__metaclass__ = Tracer
+
+
+from MethodTimer import MethodTimer
+
+
+class MinderBase(MethodTimer):
+    """
+    A robust (ie simple) base class for all minders.
+    Some, such as ErrorMinder and Container minders,
+    inherit only form this class. Because Error minders
+    are one of the notification mechanisms for problems,
+    this base class should always be instantiable (no exceptions
+    are to thrown)
+
+    The "done" flag is handled in this class as this is a fundemental
+    control flag for all minders. is minder.done = True, the minder
+    is dicarded form active minder lists.
+
+    The class provides:
+    - a logger
+    - a state engine
+    - an xmlconverter
+    - the done flag and simple methods for handling it
+    - identified name. This is a unique string for the minder. Used, e.g. for XML reporting
+    """
+
+    def __init__(self, logDir, package, identifiedName, serialNumber, elementCreator, textNodeCreator):
+        MethodTimer.__init__(self)
+
+        self.done            = False
+        self.logDir          = logDir
+        self.package         = package
+        self.identifiedName  = identifiedName
+        self.jobSerialNumber = serialNumber
+        self.elementCreator  = elementCreator
+        self.textNodeCreator = textNodeCreator
+        self.jobGroup        = None
+        self.rttPilotJob     = False
+        self.rttATNJob       = False
+
+        self.makeLog()
+        self.logger.debug('MinderBase init')
+
+        try:
+            self.stateEngine = MinderStateEngineFactory(self.logger).create(self)
+        except Exception, e:
+            msg = 'MinderStateEngine requires methods not furnished by Minder %s', str(e)
+            self.logger.error(msg)
+            raise RTTCodingError(msg)
+            
+        msg =  'MinderBase instantiated a state engine of type %s' % self.stateEngine.__class__.__name__
+        self.logger.info(msg)
+
+        self.xmlConverter        = XMLConverterFactory(self.logger).create(self)
+        msg =  'MinderBase instantiated an xml converter of type %s' % self.xmlConverter.__class__.__name__
+        self.logger.info(msg)
+        
+
+        self.removeMe            = False
+        # self.monActions          = {} # key = run position, value = instances
+        self.actions             = {} # key = run position, value = instances
+        self.tests               = {} # key = run position, value = instances
+        self.checks              = []
+
+
+
+        self.operatorCloseDown   = False
+
+    # --------------------------------------------------------------------
+    def numberOfActions(self):
+        tot = 0
+        for k,v in self.actions.items():
+            tot += len(v)
+        return tot
+    
+    def numberOfTests(self):
+        tot = 0
+        for k,v in self.tests.items():
+            tot += len(v)
+        return tot
+        
+    def setSummaryCallBack(self, newCallBack):
+        self.xmlConverter.setSummaryCallBack(newCallBack)
+        self.logger.debug('Set summary call back%s' % str(newCallBack))
+        
+    def poll(self):
+        self.stateEngine.poll()
+
+    def isDone(self): return self.stateEngine.state.isDone()
+    
+    def setDone(self):
+        self.done = True
+
+        # self.xmlConverter.makeSummaryReport() 
+        
+        m = 'done set in minder %s' % self.identifiedName
+        self.logger.info(m)
+
+    def setOperatorCloseDown(self):
+        self.operatorCloseDown = True
+
+    def status(self):
+        s = 'operatorCloseDown'
+        if s in self.stateEngine.state.history: return s
+        
+        return self.stateEngine.state.state
+
+    def dataForXMLNode(self):
+        return self.dataForXMLNode
+
+    def dataForMonitoring(self):
+        return simpleDataForMonitoring(self)
+    
+    def queueOperatorCloseDown(self): self.stateEngine.queueOperatorCloseDown()
+
+
+    def autoShelve(self):
+
+        def loggerSwapper( (a,b) ):
+            blogger = b.logger
+            a.logger = b.logger
+            b.logger = a.logger
+
+        class A:
+            def __init__(self):
+                self.logger = None
+
+        tmpList = [(self.xmlConverter, A()),
+                   (self.stateEngine, A()),
+                   (self, A())
+                   ]
+
+        # remove loggers prior to shelving
+        [swapLogger(t) for t in tmpList]
+
+        of = shelve.open(self.runPath, 'minder.db')
+        of[self.identifiedName] = None
+        of.close()
+        # reinstate  loggers after shelving
+        [swapLogger(t) for t in tmpList]
+
+# =============================================================================
+
+    def makeLog(self, loggerNameExt=''):
+        # set up a log file for this TestRun instance
+        # all logs for a pacakge go in a sub dir
+
+        logfile = os.path.join(self.logDir, self.package, self.identifiedName)
+
+        self.logger = RTTFileLogger.getLogger(self.identifiedName, logfile)
+
+    def __del__(self):
+        self.logger.info('Destructor for Minder %s' % self.identifiedName)
+
+    def unlink(self): pass
+

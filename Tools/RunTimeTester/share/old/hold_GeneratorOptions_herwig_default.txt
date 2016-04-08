@@ -1,0 +1,6 @@
+#include "AthenaCommon/Atlas_Gen.UnixStandardJob.txt"
+ApplicationMgr.DLLs += { "Herwig_i"};
+Generator.Members = {"Herwig"};
+AtRndmGenSvc.Seeds = {"HERWIG 390020611 821000366", "HERWIG_INIT 820021 2347532"};
+Herwig.HerwigCommand = {"iproc 1499","modpdf 1", "autpdf CTEQ  "};
+

@@ -1,0 +1,276 @@
+
+<RTTSummary>
+  <overview>
+    <topProject>AtlasProduction</topProject>
+    <latestUpdateTime2>1247653513.87</latestUpdateTime2>
+    <cmtConfig>i686-slc4-gcc34-opt</cmtConfig>
+    <releaseType>project</releaseType>
+    <site>CERNslc4</site>
+    <releaseName>14.5.0</releaseName>
+    <statusText>09/07/15@12:25: jobs succ/done/tot: 1/1/1</statusText>
+    <otherProject>
+    </otherProject>
+    <runType>build</runType>
+    <latestUpdateTime1>09/07/15@12:25</latestUpdateTime1>
+    <resBaseDir>/afs/cern.ch/user/r/rtt/test2/testsuites/simplemergejob/Results</resBaseDir>
+    <endTime1>09/07/15@12:25</endTime1>
+    <endTime2>1247653513.85</endTime2>
+    <RTTLibVersion>RunTimeTester-00-02-64</RTTLibVersion>
+    <resReleaseDir>/afs/cern.ch/user/r/rtt/test2/testsuites/simplemergejob/Results/14.5.0/build/i686-slc4-gcc34-opt/offline</resReleaseDir>
+    <startTime2>1247652686.48</startTime2>
+    <startTime1>09/07/15@12:11</startTime1>
+    <nPackages>1</nPackages>
+    <nPackagesAllJobsOK>1</nPackagesAllJobsOK>
+    <originalBranch>dev</originalBranch>
+    <nicosDate2>1228275841</nicosDate2>
+    <RTTSrcVersion>RunTimeTester-00-02-64</RTTSrcVersion>
+    <nicosDate1>2008/12/03 03:44:01</nicosDate1>
+    <release>14.5.0</release>
+  </overview>
+  <package>
+    <nPPSuccessInPackage>0</nPPSuccessInPackage>
+    <nTestsSuccessInPackage>0</nTestsSuccessInPackage>
+    <nJobsTotalPackage>1</nJobsTotalPackage>
+    <nJobsSuccessInPackage>0</nJobsSuccessInPackage>
+    <packageName>AthExHelloWorld</packageName>
+    <nJobsInPackage>1</nJobsInPackage>
+    <nJobsOpCloseInPackage>0</nJobsOpCloseInPackage>
+    <nTestsFailureInPackage>0</nTestsFailureInPackage>
+    <containerPackage>Control/AthenaExamples/AthExHelloWorld</containerPackage>
+    <nTimeOutsInPackage>0</nTimeOutsInPackage>
+    <phase>rttMainJobPhase</phase>
+    <packageTag>AthExHelloWorld-01-01-01</packageTag>
+    <nJobsDoneInPackage>1</nJobsDoneInPackage>
+    <nTestsInPackage>0</nTestsInPackage>
+    <nBatchErrorsInPackage>0</nBatchErrorsInPackage>
+    <nJobsFailureInPackage>0</nJobsFailureInPackage>
+    <nPPFailureInPackage>0</nPPFailureInPackage>
+    <nRetriesInPackage>0</nRetriesInPackage>
+    <packageStatus>done</packageStatus>
+    <SequentialMinder>
+      <status>done</status>
+      <nActiveMinders>0</nActiveMinders>
+      <jobID>0</jobID>
+      <state>done</state>
+      <jobGroup>ContainerGroup</jobGroup>
+      <stateHistory>[('queued', '09/07/15 12:14'), ('running', '09/07/15 12:14'), ('done', '09/07/15 12:25')]</stateHistory>
+      <identifiedName>Sequential0</identifiedName>
+      <nContainedMinders>2</nContainedMinders>
+      <ChainJobMinder>
+        <status>done</status>
+        <nActiveMinders>0</nActiveMinders>
+        <jobID>6</jobID>
+        <state>done</state>
+        <jobGroup>ContainerGroup</jobGroup>
+        <stateHistory>[('queued', '09/07/15 12:14'), ('running', '09/07/15 12:21'), ('finishing', '09/07/15 12:24'), ('done', '09/07/15 12:24')]</stateHistory>
+        <identifiedName>Job6</identifiedName>
+        <nContainedMinders>1</nContainedMinders>
+        <minder>
+          <nUserTests>0</nUserTests>
+          <jobDocURL>
+          </jobDocURL>
+          <resultsPath>/afs/cern.ch/user/r/rtt/test2/testsuites/simplemergejob/Results/14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7</resultsPath>
+          <batchStatus>DONE</batchStatus>
+          <jobDisplayName>
+          </jobDisplayName>
+          <cpuTime2000>11</cpuTime2000>
+          <jobID>7</jobID>
+          <chainLength>1</chainLength>
+          <state>done</state>
+          <postProcessingResult>no tests</postProcessingResult>
+          <jobGroup>JobTransform</jobGroup>
+          <identifiedName>SimpleMergeJob07</identifiedName>
+          <status>success</status>
+          <chainSuccesses>1</chainSuccesses>
+          <mem>Unknown</mem>
+          <stateHistory>[('queued', '09/07/15 12:21'), ('running', '09/07/15 12:21'), ('postProcessingQueued', '09/07/15 12:22'), ('postProcessingRunning', '09/07/15 12:23'), ('done', '09/07/15 12:24')]</stateHistory>
+          <jobDocString>MyJob</jobDocString>
+          <hashString>-1946220797</hashString>
+          <nRetries>0</nRetries>
+          <cpuTime>4</cpuTime>
+          <jobName>SimpleMergeJob0</jobName>
+          <vmem>Unknown</vmem>
+          <nUserActions>2</nUserActions>
+          <exitStatus>Unknown</exitStatus>
+          <processingResult>success</processingResult>
+          <wallTime>Unobtainable</wallTime>
+          <datasets>
+            <datasetinfo>
+              <file>simple1.data</file>
+              <directory>/afs/cern.ch/user/r/rtt/test2/data/simplemergejob</directory>
+              <mtime>Unknown</mtime>
+              <size>Unknown</size>
+              <origin>fallback</origin>
+            </datasetinfo>
+            <datasetinfo>
+              <file>simple2.data</file>
+              <directory>/afs/cern.ch/user/r/rtt/test2/data/simplemergejob</directory>
+              <mtime>Unknown</mtime>
+              <size>Unknown</size>
+              <origin>fallback</origin>
+            </datasetinfo>
+          </datasets>
+          <missingDatasets>
+            <missingDataset>simple1.data</missingDataset>
+            <missingDataset>simple2.data</missingDataset>
+          </missingDatasets>
+          <archivers/>
+          <sUserTests>0</sUserTests>
+          <deliveredkeepfiles>
+            <baseKeepFileDir>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7</baseKeepFileDir>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/simple.merged.data</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/RTTtests.db</keepfile_newstyle>
+            <keepfile_newstyle info='Package XML test configuration file' md5sum='' displayColor='#cc3333'>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/package.xml</keepfile_newstyle>
+            <keepfile_newstyle info='The script submitted to the batch machine' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/runScript.sh</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/postprocessing.error.log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/postProcessor.log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/postprocessing.info.log</keepfile_newstyle>
+            <keepfile_newstyle info='Shows all the environmental variables set' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/env.log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/postProcessorScript.sh</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/postprocessing.debug.log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/postprocessing.warning.log</keepfile_newstyle>
+            <keepfile_newstyle info='Job Log file' md5sum='' displayColor='#cc3333'>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleMergeJob0/7/SimpleMergeJob07_log</keepfile_newstyle>
+          </deliveredkeepfiles>
+          <errors/>
+          <done/>
+          <checkResults/>
+          <testResults/>
+        </minder>
+      </ChainJobMinder>
+      <ParallelMinder>
+        <status>done</status>
+        <nActiveMinders>0</nActiveMinders>
+        <jobID>1</jobID>
+        <state>done</state>
+        <jobGroup>ContainerGroup</jobGroup>
+        <stateHistory>[('queued', '09/07/15 12:14'), ('running', '09/07/15 12:14'), ('done', '09/07/15 12:21')]</stateHistory>
+        <identifiedName>Parallel1</identifiedName>
+        <nContainedMinders>2</nContainedMinders>
+        <ChainJobMinder>
+          <status>done</status>
+          <nActiveMinders>0</nActiveMinders>
+          <jobID>4</jobID>
+          <state>done</state>
+          <jobGroup>ContainerGroup</jobGroup>
+          <stateHistory>[('queued', '09/07/15 12:14'), ('running', '09/07/15 12:14'), ('finishing', '09/07/15 12:21'), ('done', '09/07/15 12:21')]</stateHistory>
+          <identifiedName>Job4</identifiedName>
+          <nContainedMinders>1</nContainedMinders>
+          <minder>
+            <nUserTests>0</nUserTests>
+            <jobDocURL>
+            </jobDocURL>
+            <resultsPath>/afs/cern.ch/user/r/rtt/test2/testsuites/simplemergejob/Results/14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5</resultsPath>
+            <batchStatus>DONE</batchStatus>
+            <jobDisplayName>
+            </jobDisplayName>
+            <cpuTime2000>59</cpuTime2000>
+            <jobID>5</jobID>
+            <chainLength>1</chainLength>
+            <state>done</state>
+            <postProcessingResult>no tests</postProcessingResult>
+            <jobGroup>JobTransform</jobGroup>
+            <identifiedName>SimpleJob25</identifiedName>
+            <status>success</status>
+            <chainSuccesses>1</chainSuccesses>
+            <mem>1MB</mem>
+            <stateHistory>[('queued', '09/07/15 12:14'), ('running', '09/07/15 12:14'), ('postProcessingQueued', '09/07/15 12:20'), ('postProcessingRunning', '09/07/15 12:20'), ('done', '09/07/15 12:21')]</stateHistory>
+            <jobDocString>MyJob</jobDocString>
+            <hashString>-2041773479</hashString>
+            <nRetries>0</nRetries>
+            <cpuTime>22</cpuTime>
+            <jobName>SimpleJob2</jobName>
+            <vmem>104MB</vmem>
+            <nUserActions>2</nUserActions>
+            <exitStatus>Unknown</exitStatus>
+            <processingResult>success</processingResult>
+            <wallTime>360</wallTime>
+            <datasets/>
+            <missingDatasets/>
+            <archivers/>
+            <sUserTests>0</sUserTests>
+            <deliveredkeepfiles>
+              <baseKeepFileDir>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5</baseKeepFileDir>
+              <keepfile_newstyle info='Shows all the environmental variables set' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5/env.log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5/postProcessor.log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5/postProcessorScript.sh</keepfile_newstyle>
+              <keepfile_newstyle info='The script submitted to the batch machine' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5/runScript.sh</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5/RTTtests.db</keepfile_newstyle>
+              <keepfile_newstyle info='Package XML test configuration file' md5sum='' displayColor='#cc3333'>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5/package.xml</keepfile_newstyle>
+              <keepfile_newstyle info='Job Log file' md5sum='' displayColor='#cc3333'>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5/SimpleJob25_log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5/postprocessing.info.log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5/postprocessing.debug.log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5/postprocessing.warning.log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob2/5/postprocessing.error.log</keepfile_newstyle>
+            </deliveredkeepfiles>
+            <errors/>
+            <done/>
+            <checkResults/>
+            <testResults/>
+          </minder>
+        </ChainJobMinder>
+        <ChainJobMinder>
+          <status>done</status>
+          <nActiveMinders>0</nActiveMinders>
+          <jobID>2</jobID>
+          <state>done</state>
+          <jobGroup>ContainerGroup</jobGroup>
+          <stateHistory>[('queued', '09/07/15 12:14'), ('running', '09/07/15 12:14'), ('finishing', '09/07/15 12:18'), ('done', '09/07/15 12:19')]</stateHistory>
+          <identifiedName>Job2</identifiedName>
+          <nContainedMinders>1</nContainedMinders>
+          <minder>
+            <nUserTests>0</nUserTests>
+            <jobDocURL>
+            </jobDocURL>
+            <resultsPath>/afs/cern.ch/user/r/rtt/test2/testsuites/simplemergejob/Results/14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3</resultsPath>
+            <batchStatus>DONE</batchStatus>
+            <jobDisplayName>
+            </jobDisplayName>
+            <cpuTime2000>40</cpuTime2000>
+            <jobID>3</jobID>
+            <chainLength>1</chainLength>
+            <state>done</state>
+            <postProcessingResult>no tests</postProcessingResult>
+            <jobGroup>JobTransform</jobGroup>
+            <identifiedName>SimpleJob13</identifiedName>
+            <status>success</status>
+            <chainSuccesses>1</chainSuccesses>
+            <mem>Unknown</mem>
+            <stateHistory>[('queued', '09/07/15 12:14'), ('running', '09/07/15 12:14'), ('postProcessingQueued', '09/07/15 12:16'), ('postProcessingRunning', '09/07/15 12:17'), ('done', '09/07/15 12:18')]</stateHistory>
+            <jobDocString>MyJob</jobDocString>
+            <hashString>-1267101525</hashString>
+            <nRetries>0</nRetries>
+            <cpuTime>15</cpuTime>
+            <jobName>SimpleJob1</jobName>
+            <vmem>Unknown</vmem>
+            <nUserActions>2</nUserActions>
+            <exitStatus>Unknown</exitStatus>
+            <processingResult>success</processingResult>
+            <wallTime>35</wallTime>
+            <datasets/>
+            <missingDatasets/>
+            <archivers/>
+            <sUserTests>0</sUserTests>
+            <deliveredkeepfiles>
+              <baseKeepFileDir>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3</baseKeepFileDir>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3/RTTtests.db</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3/postProcessor.log</keepfile_newstyle>
+              <keepfile_newstyle info='The script submitted to the batch machine' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3/runScript.sh</keepfile_newstyle>
+              <keepfile_newstyle info='Package XML test configuration file' md5sum='' displayColor='#cc3333'>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3/package.xml</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3/postprocessing.info.log</keepfile_newstyle>
+              <keepfile_newstyle info='Job Log file' md5sum='' displayColor='#cc3333'>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3/SimpleJob13_log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3/postprocessing.debug.log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3/postprocessing.warning.log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3/postprocessing.error.log</keepfile_newstyle>
+              <keepfile_newstyle info='Shows all the environmental variables set' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3/env.log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/SimpleJob1/3/postProcessorScript.sh</keepfile_newstyle>
+            </deliveredkeepfiles>
+            <errors/>
+            <done/>
+            <checkResults/>
+            <testResults/>
+          </minder>
+        </ChainJobMinder>
+      </ParallelMinder>
+    </SequentialMinder>
+  </package>
+</RTTSummary>

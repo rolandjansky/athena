@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rttconfig SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/RTT.dtd">
+
+
+<!-- <!DOCTYPE rttconfig SYSTEM "RTT.dtd"> -->
+<rttconfig>
+   <mode>PBS</mode>
+   <release>12.0.0</release>
+   <refRelease>12.0.0</refRelease>
+   <build>opt</build>
+   <branch>N.X.0</branch>
+   <runType>
+      <releaseRun/>
+   </runType>
+   <workBasePath>TESTSUITESCRATCH/Work</workBasePath>
+   <resultsBasePath>TESTSUITESCRATCH/Results</resultsBasePath>
+   <site>CERN</site>
+   <dataSetCatalog>TESTSUITESCRATCH/xml/rttUnitTestDataSetCatalog.xml</dataSetCatalog>
+   <jobGroupConfig>TESTSUITESCRATCH/xml/rttUnitTestTopLevelJobGroup.xml</jobGroupConfig>
+   <refDB>
+      <file>TESTSUITESCRATCH/rttUnitTestRefFile.db</file>
+      <enable>1</enable>
+   </refDB>
+   <moniDB>
+      <file>TESTSUITESCRATCH/rttUnitTestMoniFile.db</file>
+      <enable>1</enable>
+   </moniDB>
+
+
+   <confFileSrc> 
+     <rttProvides>
+       <packageConfFile>
+           <package>Tools/RunTimeTester</package>
+           <pathToFile>TESTSUITESCRATCH/xml/RunTimeTester_TestConfiguration.xml</pathToFile>
+
+           <cmtpath>/afs/cern.ch/atlas/software/releases/AtlasCore/1.2.0</cmtpath>
+           <version>RunTimeTester-00-01-01</version>
+           <installArea>/afs/cern.ch/atlas/software/releases/AtlasCore/1.2.0/InstallArea</installArea>
+
+           <shareArea>/afs/cern.ch/atlas/software/releases/AtlasCore/1.2.0/InstallArea/share</shareArea>
+        </packageConfFile>
+
+      </rttProvides>
+
+       <installedConfFiles/>
+   </confFileSrc>
+
+    <packageAccept>JiveXML</packageAccept> 
+   <!-- <packageVeto>TestAtlfast</packageVeto> -->
+<!--   <testMode>NoNewRunDirs</testMode> -->
+   <maxTime>
+      <hours>1</hours>
+   </maxTime>
+   <distArea>/afs/cern.ch/atlas/software/releases</distArea>
+   <releaseType>project</releaseType>
+</rttconfig>

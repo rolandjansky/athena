@@ -1,0 +1,123 @@
+#include "RunTimeTester/TestAtlfastDoNotTouch.txt"
+//--------------------------------------------------------------
+// Algorithm Parameters set to Default Values 
+//--------------------------------------------------------------
+// Default Reconstructed Particle Maker
+//-------------------------------------
+// options for electron maker
+ElectronMaker.ParticleType               = 11;
+ElectronMaker.mcMinimumPt                = 0.0;
+ElectronMaker.mcMaximumEta               = 100.0;
+ElectronMaker.MinimumPt                  = 5000.0;
+ElectronMaker.MaximumEta                 = 2.5;
+ElectronMaker.DoSmearing		 = true;
+//
+// options for muon maker
+MuonMaker.ParticleType                   = 13;
+MuonMaker.mcMinimumPt                    = 500.0;
+MuonMaker.mcMaximumEta                   = 2.5;
+MuonMaker.MinimumPt                      = 6000.0;
+MuonMaker.MaximumEta                     = 100.0;
+MuonMaker.DoSmearing                     = true;
+MuonMaker.MuonSmearKey			 = 3;
+//
+//options for photon maker
+PhotonMaker.ParticleType                 = 22;
+PhotonMaker.mcMinimumPt                  = 0.0;
+PhotonMaker.mcMaximumEta                 = 100.0;
+PhotonMaker.MinimumPt                    = 5000.0;
+PhotonMaker.MaximumEta                   = 2.5;
+PhotonMaker.DoSmearing			 = true;
+//--------------------------------------------------------------
+// Cell Maker
+//-----------------------------------
+CellMaker.EtaCoverage        = 5.0;
+CellMaker.MinETCell          = 0.0;
+CellMaker.GranBarrelEta      = 0.1;
+CellMaker.GranBarrelPhi      = 0.1;
+CellMaker.GranForwardEta     = 0.2;
+CellMaker.GranForwardPhi     = 0.2;
+CellMaker.FastShower         = false;
+//--------------------------------------------------------------
+// Cluster Maker
+//-------------------------------------  
+ClusterMaker.ProcessCells       = true;
+ClusterMaker.ProcessTracks      = false;
+ClusterMaker.RConeBarrel        = 0.401;
+ClusterMaker.RConeForward       = 0.401;
+ClusterMaker.minInitiatorET     = 1500.;
+ClusterMaker.minClusterET       = 5000.0;
+ClusterMaker.Strategy           = "Cone";
+
+//--------------------------------------------------------------
+// Jet Maker
+//-------------------------------------  
+JetMaker.MinimumPT        = 10000.0;
+JetMaker.MaximumEta       = 5.0;
+JetMaker.DoSmearing       = true;
+JetMaker.RconeB           = 0.400;
+JetMaker.RconeF		  = 0.400;
+JetMaker.bPtMin		  = 5000.0;  
+JetMaker.bMaxDeltaR       = 0.2;
+JetMaker.cPtMin		  = 5000.0;
+JetMaker.cMaxDeltaR       = 0.2;
+JetMaker.tauPtMin         = 10000.0;
+JetMaker.tauMaxDeltaR     = 0.3;
+JetMaker.etaTagMax        = 2.5;
+JetMaker.tauJetPtRatio    = 0.9;
+//--------------------------------------------------------------
+// AtlfastB (jet corrector)
+//-------------------------------------
+ AtlfastB.AtlfBjetSwitch   =true;
+AtlfastB.AtlfCalSwitch     =true;
+AtlfastB.AtlfTauSwitch     =true;
+AtlfastB.AtlfTauVetoSwitch =false;
+AtlfastB.AtlfTrigMuoSwitch =false;
+AtlfastB.JetCorrFile       ="./AtlfastBjet.dat";
+AtlfastB.CJetCorrFile      ="./AtlfastBcjet.dat";
+AtlfastB.AtlfBNSet         = 1; 
+AtlfastB.TauEff            = 0.05;
+AtlfastB.TauVetoOption     = 1;
+//--------------------------------------------------------------
+// Track Maker
+//------------------------------------- 
+TrackMaker.McPtMinimum	     = 500.;
+TrackMaker.McEtaMaximum      = 2.5;
+TrackMaker.vtMaximum         = 3.0;
+TrackMaker.vlMaximum         = 40.0;
+TrackMaker.DoSmearing	      = true;
+TrackMaker.BField	      = 2.0;
+//--------------------------------------------------------------
+// Event Header Maker 
+//------------------------------------- 
+EventHeaderMaker.BeamEnergy               = 7000000.0;
+EventHeaderMaker.TestMode		  = 0;
+//--------------------------------------------------------------
+// FinalStateParticleDumper 
+//------------------------------------
+// choose one of the following values for SelectorName
+//FinalStateParticleDumper.SelectorName	= "Z0selector";
+//FinalStateParticleDumper.SelectorName	= " ";
+//FinalStateParticleDumper.SelectorName	= "qselector";
+//FinalStateParticleDumper.SelectorName	= "bSelector";
+FinalStateParticleDumper.SelectorName	= "All";
+//-------------------------------------- 
+// GlobalEventData Maker 
+//------------------------------------- 
+//Luminosity option: 1=low, 2-high
+GlobalEventDataMaker.Luminosity		= 1;
+GlobalEventDataMaker.Invisibles		= {12,14,16}; 
+GlobalEventDataMaker.RandomSeed		= 12345;
+GlobalEventDataMaker.BFieldOn		= true;
+GlobalEventDataMaker.BarrelForwardEta	= 3.2;
+
+
+
+
+
+
+
+
+
+
+

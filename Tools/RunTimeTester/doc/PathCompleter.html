@@ -1,0 +1,63 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module PathCompleter</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>PathCompleter</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/PathCompleter.py">/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/PathCompleter.py</a></font></td></tr></table>
+    <p><tt><a href="#PathCompleter">PathCompleter</a>&nbsp;&nbsp;builds&nbsp;paths&nbsp;to&nbsp;a&nbsp;file&nbsp;from&nbsp;a&nbsp;release&nbsp;and&nbsp;&nbsp;package.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="re.html">re</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="PathCompleter.html#PathCompleter">PathCompleter</a>
+</font></dt></dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="PathCompleter">class <strong>PathCompleter</strong></a></font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="PathCompleter-__init__"><strong>__init__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="PathCompleter-fileFromReleasedFile"><strong>fileFromReleasedFile</strong></a>(self, package, file, paths)</dt><dd><tt>returns&nbsp;path&nbsp;to&nbsp;file&nbsp;in&nbsp;a&nbsp;release</tt></dd></dl>
+
+<dl><dt><a name="PathCompleter-releaseAreaCMTfile"><strong>releaseAreaCMTfile</strong></a>(self, package, paths)</dt><dd><tt>returns&nbsp;path&nbsp;to&nbsp;the&nbsp;cmt&nbsp;directory&nbsp;given&nbsp;release&nbsp;and&nbsp;<br>
+package&nbsp;name</tt></dd></dl>
+
+<dl><dt><a name="PathCompleter-releaseAreaCMTfile2"><strong>releaseAreaCMTfile2</strong></a>(self, package, paths)</dt><dd><tt>returns&nbsp;path&nbsp;to&nbsp;the&nbsp;cmt&nbsp;directory&nbsp;given&nbsp;release&nbsp;and&nbsp;<br>
+package&nbsp;name<br>
+&nbsp;<br>
+Timing&nbsp;tests&nbsp;show&nbsp;that&nbsp;releaseAreaCMTfile2&nbsp;is&nbsp;a&nbsp;little&nbsp;faster&nbsp;than&nbsp;releaseAreaCMTfile</tt></dd></dl>
+
+<dl><dt><a name="PathCompleter-versionDir"><strong>versionDir</strong></a>(self, package, paths)</dt><dd><tt>returns&nbsp;path&nbsp;to&nbsp;CMT&nbsp;added&nbsp;directory&nbsp;(ie&nbsp;package-xx-yy-zz)</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>logger</strong> = &lt;logging.Logger instance&gt;</td></tr></table>
+</body></html>

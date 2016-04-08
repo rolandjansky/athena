@@ -1,0 +1,127 @@
+"""
+class provding functions to add xml fragments to an existing XML string
+"""
+
+
+from xml.dom.minidom        import parseString
+
+def russianDolls(nodes, dom):
+    "nest a list of DOM nodes - innermost tag first"
+    
+    assert(nodes) # no empty lists
+
+    if len(nodes) == 1:
+        print 'returning single node'
+        return nodes[0]
+
+    
+
+    def dolls(node1, node2):
+        print 'dolls, node1, node2', node1, node2
+        node2.appendChild(node1)
+        return node2
+    
+    innerNode = nodes[0]
+    for node in nodes[1:]:
+        print node
+        innerNode = dolls(innerNode, node) 
+
+    return innerNode
+
+
+def makeElementWithText(text, tag, dom):
+    "creates a DOM node with tagName tag and a text child node"
+    
+    textNode = dom.createTextNode(str(text))
+    node     = dom.createElement(tag)
+    node.appendChild(textNode)
+    return node
+
+def dataToNodes(data, dom):
+    """
+    converts a list of pairs to a list of DOM nodes. The second element,
+    if not None, is treated as a text node.
+    """
+    nodes = []
+    for datum in data:
+        if datum[1]:
+            nodes.append(makeElementWithText(datum[1], datum[0], dom))
+        else:
+            nodes.append(dom.createElement(datum[0]))
+
+    return nodes
+
+
+
+class XMLFileSplicer:
+    def __init__(self, initialXML=None):
+        
+        if not initialXML:
+            initialXML  = '<?xml version="1.0"?>\n'
+            initialXML += '<!DOCTYPE runTimeTesterSummary SYSTEM'
+            initialXML += ' "http://www.hep.ucl.ac.uk/'
+            initialXML += 'atlas/AtlasTesting/DTD/RTTsummary.dtd">\n'
+            initialXML += '\n'
+            initialXML += '<runTimeTesterSummary>\n'
+            initialXML += '</runTimeTesterSummary>\n'
+
+        self.dom = parseString(initialXML)
+        
+    def spliceAtEnd(self, nestedData, innerData):
+        """
+        copies the data passed to the end of a DOM.
+        nestedData will form a series of nested nodes.
+        innerData be unnested children of the innner most node
+        produced from nestedData.
+
+        Quasi-exceptions:
+
+        innerNodes empty list: the nested node is added to document end
+        with no inner nodes
+        
+        nestedData empty list: all innerNodes are added to document end
+        
+        """
+
+        innerNodes = []
+
+        if innerData: innerNodes = dataToNodes(innerData, self.dom)
+
+        if nestedData:
+            nodes      = dataToNodes(nestedData, self.dom)
+            nodes.reverse()
+            nodes[0].childNodes.extend(innerNodes)
+            node = russianDolls(nodes, self.dom)
+            self.dom.documentElement.childNodes.append(node)
+        else:
+            self.dom.documentElement.childNodes.extend(innerNodes)
+            
+    def asString(self): return self.dom.toprettyxml('   ')
+
+if __name__ == "__main__":
+
+    good = "<a><b></b></a>"
+
+    try:
+        xfs = XMLFileSplicer(good)
+        print 'read good file OK'
+    except Exception, e:
+        print e
+        print 'error reading good file'
+
+
+    
+    nestedData = [
+        ('monitor',None),
+        ('innermonitor','aaa'),
+        ]
+    for i in range(3):
+        data = [
+            ('key','kkk'),
+            ('val', str(i))
+            ]
+
+        xfs.spliceAtEnd(nestedData, data)
+    
+    # print xfs.dom.toprettyxml('   ')
+    print xfs.asString()

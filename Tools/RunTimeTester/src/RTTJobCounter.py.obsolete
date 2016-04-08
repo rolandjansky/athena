@@ -1,0 +1,26 @@
+import time, os.path
+from Tools import toJavaScript
+class RTTJobCounter:
+    def __init__(self, testRuns, odir, testerStatus):
+
+        self.testRuns     = testRuns
+        self.ofname       = os.path.join(odir, 'runInfo.js')
+        self.update()
+        
+    def update(self, dummy=None):
+
+        minders      = []
+        [minders.extend(tr.jobMinders) for tr in self.testRuns]
+        nTotal    = len(minders)
+        nDone     = len([m for m in minders if m.done])
+
+        date = time.strftime('%d/%m/%y %H:%M', time.gmtime())
+        testerStatus = '%s\njobs %d done %d' % (date, nTotal, nDone)
+        
+        
+        js = toJavaScript(testerStatus)
+
+        of = open(self.ofname, 'w')
+        of.write(js)
+        of.close()
+

@@ -1,0 +1,31 @@
+from Page0XMLWriter import Page0XMLWriter
+from Page1XMLWriter import Page1XMLWriter
+from Page2XMLWriter import Page2XMLWriter
+from Page3XMLWriter import Page3XMLWriter
+from Page4XMLWriter import Page4XMLWriter
+
+class WebPageWriter:
+	def __init__(self, dbPath, key, tester, logger):
+
+		logger.debug('WebPageWriter __init__ start')
+		self.pageWriters = [
+			Page0XMLWriter(tester, logger),
+			Page1XMLWriter(dbPath, key, tester, logger),
+			Page2XMLWriter(tester, logger),
+			Page3XMLWriter(tester, logger),
+			Page4XMLWriter(tester, logger)
+			]
+		
+		# order for updating is important
+		self.pageWriters.reverse()
+		self.logger = logger
+		logger.debug('WebPageWriter __init__ finish')
+	def update(self, package, updatedMinders):
+		self.logger.info('Update method starts for WebPageWriter')
+		[p.update(package, updatedMinders) for p in self.pageWriters]
+		self.logger.info('Update method ends for WebPageWriter')
+
+	def finalise(self):
+		self.logger.info('Finalise method starts for WebPageWriter')
+		[p.finalise() for p in self.pageWriters]
+		self.logger.info('Finalise method ends for WebPageWriter')

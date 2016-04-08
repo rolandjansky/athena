@@ -1,0 +1,6 @@
+/afs/cern.ch/atlas/project/RTT/Work/rel_3/dev/build/i686-slc3-gcc323-opt
+*_log
+RDBAccessSvc::connect()                   ERROR Exception caught:
+Could not load module GaudiAud
+dbConnection is not correctly initialized.
+exception

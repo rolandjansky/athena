@@ -1,0 +1,418 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module JobMinder</title>
+<style type="text/css"><!--
+TT { font-family: lucidatypewriter, lucida console, courier }
+--></style></head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>JobMinder</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-10/src/JobMinder.py">/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-10/src/JobMinder.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;file&nbsp;contains:<br>
+a&nbsp;factory&nbsp;function&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;to&nbsp;create&nbsp;instances&nbsp;of&nbsp;sub&nbsp;classes&nbsp;of&nbsp;<a href="#JobMinder">JobMinder</a><br>
+a&nbsp;base&nbsp;class&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;<a href="#JobMinder">JobMinder</a><br>
+&nbsp;<br>
+<a href="#JobMinder">JobMinder</a>&nbsp;acts&nbsp;like&nbsp;a&nbsp;state&nbsp;machine.&nbsp;It&nbsp;has&nbsp;states:&nbsp;queued,&nbsp;running,&nbsp;success,&nbsp;error,<br>
+it&nbsp;nows&nbsp;how&nbsp;to&nbsp;proceed&nbsp;from&nbsp;one&nbsp;state&nbsp;to&nbsp;the&nbsp;next,&nbsp;and&nbsp;species&nbsp;the&nbsp;actions&nbsp;to&nbsp;be<br>
+performed&nbsp;when&nbsp;the&nbsp;state&nbsp;changes.&nbsp;The&nbsp;way&nbsp;jobs&nbsp;are&nbsp;submited,&nbsp;and&nbsp;the&nbsp;names&nbsp;of<br>
+log&nbsp;files&nbsp;are&nbsp;examples&nbsp;of&nbsp;items&nbsp;that&nbsp;change&nbsp;with&nbsp;mode.<br>
+&nbsp;<br>
+Subclassing&nbsp;is&nbsp;used&nbsp;to&nbsp;specialse&nbsp;according&nbsp;to&nbsp;mode.<br>
+&nbsp;<br>
+The&nbsp;base&nbsp;class&nbsp;also&nbsp;specifies&nbsp;common&nbsp;tasks&nbsp;that&nbsp;must&nbsp;be&nbsp;performed&nbsp;across&nbsp;job&nbsp;mode<br>
+boundaries:<br>
+&nbsp;<br>
+-&nbsp;database&nbsp;manipulations&nbsp;for&nbsp;jobs&nbsp;which&nbsp;store&nbsp;reference&nbsp;files<br>
+-&nbsp;various&nbsp;protection&nbsp;manipulations&nbsp;to&nbsp;allow&nbsp;other&nbsp;mebers&nbsp;of&nbsp;the&nbsp;same&nbsp;UNIX&nbsp;group<br>
+&nbsp;&nbsp;to&nbsp;manipulate&nbsp;files&nbsp;on&nbsp;future&nbsp;runs.<br>
+-&nbsp;copying&nbsp;files&nbsp;to&nbsp;be&nbsp;stored&nbsp;at&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;job<br>
+-&nbsp;actions&nbsp;to&nbsp;be&nbsp;taken&nbsp;of&nbsp;there&nbsp;is&nbsp;a&nbsp;forced&nbsp;shutdown<br>
+&nbsp;&nbsp;(triggered&nbsp;by&nbsp;receiving&nbsp;a&nbsp;signal&nbsp;15)<br>
+PS</tt></p>
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="anydbm.html">anydbm</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="shutil.html">shutil</a><br>
+<a href="string.html">string</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="JobMinder.html#JobMinder">JobMinder</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="JobMinder.html#LXBatchJobMinder">LXBatchJobMinder</a>
+</font></dt><dt><font face="helvetica, arial"><a href="JobMinder.html#LinuxBatchJobMinder">LinuxBatchJobMinder</a>
+</font></dt><dt><font face="helvetica, arial"><a href="JobMinder.html#LinuxInteractiveJobMinder">LinuxInteractiveJobMinder</a>
+</font></dt><dt><font face="helvetica, arial"><a href="JobMinder.html#PBSJobMinder">PBSJobMinder</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="JobMinder.html#LXBatchJobMinderFactory">LXBatchJobMinderFactory</a>
+</font></dt><dt><font face="helvetica, arial"><a href="JobMinder.html#LinuxBatchJobMinderFactory">LinuxBatchJobMinderFactory</a>
+</font></dt><dt><font face="helvetica, arial"><a href="JobMinder.html#LinuxInteractiveJobMinderFactory">LinuxInteractiveJobMinderFactory</a>
+</font></dt><dt><font face="helvetica, arial"><a href="JobMinder.html#PBSJobMinderFactory">PBSJobMinderFactory</a>
+</font></dt></dl>
+ 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="JobMinder">class <strong>JobMinder</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2>&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="JobMinder-__init__"><strong>__init__</strong></a>(self, jDescriptor, popen)</dt><dd><tt>resDir&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;results&nbsp;directory:&nbsp;recieves&nbsp;the&nbsp;logfile<br>
+status</tt></dd></dl>
+
+<dl><dt><a name="JobMinder-copyKeepFiles"><strong>copyKeepFiles</strong></a>(self)</dt><dd><tt>#&nbsp;copy&nbsp;files&nbsp;to&nbsp;be&nbsp;kept&nbsp;(log&nbsp;histos,&nbsp;ntuples...)&nbsp;to&nbsp;results&nbsp;dir</tt></dd></dl>
+
+<dl><dt><a name="JobMinder-forceCloseDown"><strong>forceCloseDown</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="JobMinder-fromError"><strong>fromError</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="JobMinder-fromQueued"><strong>fromQueued</strong></a>(self)</dt><dd><tt>#&nbsp;subclasses&nbsp;to&nbsp;override&nbsp;this&nbsp;method</tt></dd></dl>
+
+<dl><dt><a name="JobMinder-fromRunning"><strong>fromRunning</strong></a>(self)</dt><dd><tt>#&nbsp;subclasses&nbsp;to&nbsp;override&nbsp;this&nbsp;method</tt></dd></dl>
+
+<dl><dt><a name="JobMinder-fromSuccess"><strong>fromSuccess</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="JobMinder-performChecks"><strong>performChecks</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="JobMinder-poll"><strong>poll</strong></a>(self)</dt><dd><tt>makes&nbsp;status&nbsp;transitions</tt></dd></dl>
+
+<dl><dt><a name="JobMinder-runPostScripts"><strong>runPostScripts</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="JobMinder-setProtection"><strong>setProtection</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="JobMinder-setProtections"><strong>setProtections</strong></a>(self, path, perm)</dt></dl>
+
+<dl><dt><a name="JobMinder-setStatus"><strong>setStatus</strong></a>(self, status)</dt><dd><tt>#&nbsp;Do&nbsp;not&nbsp;set&nbsp;the&nbsp;status&nbsp;member&nbsp;data&nbsp;directly!</tt></dd></dl>
+
+<dl><dt><a name="JobMinder-setStatusList"><strong>setStatusList</strong></a>(self, statusL)</dt></dl>
+
+<dl><dt><a name="JobMinder-storeRefFile"><strong>storeRefFile</strong></a>(self)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dl>
+
+<dl><dt><strong>__module__</strong> = 'JobMinder'</dl>
+
+<dl><dt><strong>lDbg</strong> = 1</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="LXBatchJobMinder">class <strong>LXBatchJobMinder</strong></a>(<a href="JobMinder.html#JobMinder">JobMinder</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>A&nbsp;<a href="#JobMinder">JobMinder</a>&nbsp;class&nbsp;for&nbsp;running&nbsp;on&nbsp;the&nbsp;LX&nbsp;batch&nbsp;queues<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="LXBatchJobMinder-__init__"><strong>__init__</strong></a>(self, jDescriptor, popen)</dt></dl>
+
+<dl><dt><a name="LXBatchJobMinder-fromQueued"><strong>fromQueued</strong></a>(self)</dt><dd><tt>Finds&nbsp;out&nbsp;from&nbsp;popen&nbsp;if&nbsp;queued&nbsp;on&nbsp;Interactive<br>
+stores&nbsp;the&nbsp;submission&nbsp;log</tt></dd></dl>
+
+<dl><dt><a name="LXBatchJobMinder-fromRunning"><strong>fromRunning</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LXBatchJobMinder-getLogFile"><strong>getLogFile</strong></a>(self)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = '<font color="#c040c0">\n</font>    A JobMinder class for running on the LX batch queues<font color="#c040c0">\n</font>    '</dl>
+
+<dl><dt><strong>__module__</strong> = 'JobMinder'</dl>
+
+<hr>
+Methods inherited from <a href="JobMinder.html#JobMinder">JobMinder</a>:<br>
+<dl><dt><a name="LXBatchJobMinder-copyKeepFiles"><strong>copyKeepFiles</strong></a>(self)</dt><dd><tt>#&nbsp;copy&nbsp;files&nbsp;to&nbsp;be&nbsp;kept&nbsp;(log&nbsp;histos,&nbsp;ntuples...)&nbsp;to&nbsp;results&nbsp;dir</tt></dd></dl>
+
+<dl><dt><a name="LXBatchJobMinder-forceCloseDown"><strong>forceCloseDown</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LXBatchJobMinder-fromError"><strong>fromError</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LXBatchJobMinder-fromSuccess"><strong>fromSuccess</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LXBatchJobMinder-performChecks"><strong>performChecks</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LXBatchJobMinder-poll"><strong>poll</strong></a>(self)</dt><dd><tt>makes&nbsp;status&nbsp;transitions</tt></dd></dl>
+
+<dl><dt><a name="LXBatchJobMinder-runPostScripts"><strong>runPostScripts</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LXBatchJobMinder-setProtection"><strong>setProtection</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LXBatchJobMinder-setProtections"><strong>setProtections</strong></a>(self, path, perm)</dt></dl>
+
+<dl><dt><a name="LXBatchJobMinder-setStatus"><strong>setStatus</strong></a>(self, status)</dt><dd><tt>#&nbsp;Do&nbsp;not&nbsp;set&nbsp;the&nbsp;status&nbsp;member&nbsp;data&nbsp;directly!</tt></dd></dl>
+
+<dl><dt><a name="LXBatchJobMinder-setStatusList"><strong>setStatusList</strong></a>(self, statusL)</dt></dl>
+
+<dl><dt><a name="LXBatchJobMinder-storeRefFile"><strong>storeRefFile</strong></a>(self)</dt></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="JobMinder.html#JobMinder">JobMinder</a>:<br>
+<dl><dt><strong>lDbg</strong> = 1</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="LXBatchJobMinderFactory">class <strong>LXBatchJobMinderFactory</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2>&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="LXBatchJobMinderFactory-create"><strong>create</strong></a>(self, jDescriptor, popen)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dl>
+
+<dl><dt><strong>__module__</strong> = 'JobMinder'</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="LinuxBatchJobMinder">class <strong>LinuxBatchJobMinder</strong></a>(<a href="JobMinder.html#JobMinder">JobMinder</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2>&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="LinuxBatchJobMinder-__init__"><strong>__init__</strong></a>(self, jDescriptor, popen)</dt></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-fromQueued"><strong>fromQueued</strong></a>(self)</dt><dd><tt>Finds&nbsp;out&nbsp;from&nbsp;popen&nbsp;if&nbsp;queued&nbsp;on&nbsp;Interactive<br>
+stores&nbsp;the&nbsp;submission&nbsp;log</tt></dd></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-fromRunning"><strong>fromRunning</strong></a>(self)</dt><dd><tt>Looks&nbsp;to&nbsp;see&nbsp;if&nbsp;the&nbsp;log&nbsp;has&nbsp;appeared<br>
+Checks&nbsp;it&nbsp;for&nbsp;errors&nbsp;when&nbsp;it&nbsp;appears</tt></dd></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dl>
+
+<dl><dt><strong>__module__</strong> = 'JobMinder'</dl>
+
+<hr>
+Methods inherited from <a href="JobMinder.html#JobMinder">JobMinder</a>:<br>
+<dl><dt><a name="LinuxBatchJobMinder-copyKeepFiles"><strong>copyKeepFiles</strong></a>(self)</dt><dd><tt>#&nbsp;copy&nbsp;files&nbsp;to&nbsp;be&nbsp;kept&nbsp;(log&nbsp;histos,&nbsp;ntuples...)&nbsp;to&nbsp;results&nbsp;dir</tt></dd></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-forceCloseDown"><strong>forceCloseDown</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-fromError"><strong>fromError</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-fromSuccess"><strong>fromSuccess</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-performChecks"><strong>performChecks</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-poll"><strong>poll</strong></a>(self)</dt><dd><tt>makes&nbsp;status&nbsp;transitions</tt></dd></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-runPostScripts"><strong>runPostScripts</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-setProtection"><strong>setProtection</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-setProtections"><strong>setProtections</strong></a>(self, path, perm)</dt></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-setStatus"><strong>setStatus</strong></a>(self, status)</dt><dd><tt>#&nbsp;Do&nbsp;not&nbsp;set&nbsp;the&nbsp;status&nbsp;member&nbsp;data&nbsp;directly!</tt></dd></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-setStatusList"><strong>setStatusList</strong></a>(self, statusL)</dt></dl>
+
+<dl><dt><a name="LinuxBatchJobMinder-storeRefFile"><strong>storeRefFile</strong></a>(self)</dt></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="JobMinder.html#JobMinder">JobMinder</a>:<br>
+<dl><dt><strong>lDbg</strong> = 1</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="LinuxBatchJobMinderFactory">class <strong>LinuxBatchJobMinderFactory</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2>&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="LinuxBatchJobMinderFactory-create"><strong>create</strong></a>(self, jDescriptor, popen)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dl>
+
+<dl><dt><strong>__module__</strong> = 'JobMinder'</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="LinuxInteractiveJobMinder">class <strong>LinuxInteractiveJobMinder</strong></a>(<a href="JobMinder.html#JobMinder">JobMinder</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2>&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="LinuxInteractiveJobMinder-__init__"><strong>__init__</strong></a>(self, jDescriptor, popen)</dt></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-fromQueued"><strong>fromQueued</strong></a>(self)</dt><dd><tt>Finds&nbsp;out&nbsp;from&nbsp;popen&nbsp;if&nbsp;queued&nbsp;on&nbsp;Interactive<br>
+stores&nbsp;the&nbsp;submission&nbsp;log</tt></dd></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-fromRunning"><strong>fromRunning</strong></a>(self)</dt><dd><tt>Looks&nbsp;to&nbsp;see&nbsp;if&nbsp;the&nbsp;log&nbsp;has&nbsp;appeared<br>
+Checks&nbsp;it&nbsp;for&nbsp;errors&nbsp;when&nbsp;it&nbsp;appears</tt></dd></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dl>
+
+<dl><dt><strong>__module__</strong> = 'JobMinder'</dl>
+
+<hr>
+Methods inherited from <a href="JobMinder.html#JobMinder">JobMinder</a>:<br>
+<dl><dt><a name="LinuxInteractiveJobMinder-copyKeepFiles"><strong>copyKeepFiles</strong></a>(self)</dt><dd><tt>#&nbsp;copy&nbsp;files&nbsp;to&nbsp;be&nbsp;kept&nbsp;(log&nbsp;histos,&nbsp;ntuples...)&nbsp;to&nbsp;results&nbsp;dir</tt></dd></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-forceCloseDown"><strong>forceCloseDown</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-fromError"><strong>fromError</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-fromSuccess"><strong>fromSuccess</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-performChecks"><strong>performChecks</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-poll"><strong>poll</strong></a>(self)</dt><dd><tt>makes&nbsp;status&nbsp;transitions</tt></dd></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-runPostScripts"><strong>runPostScripts</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-setProtection"><strong>setProtection</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-setProtections"><strong>setProtections</strong></a>(self, path, perm)</dt></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-setStatus"><strong>setStatus</strong></a>(self, status)</dt><dd><tt>#&nbsp;Do&nbsp;not&nbsp;set&nbsp;the&nbsp;status&nbsp;member&nbsp;data&nbsp;directly!</tt></dd></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-setStatusList"><strong>setStatusList</strong></a>(self, statusL)</dt></dl>
+
+<dl><dt><a name="LinuxInteractiveJobMinder-storeRefFile"><strong>storeRefFile</strong></a>(self)</dt></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="JobMinder.html#JobMinder">JobMinder</a>:<br>
+<dl><dt><strong>lDbg</strong> = 1</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="LinuxInteractiveJobMinderFactory">class <strong>LinuxInteractiveJobMinderFactory</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2>&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="LinuxInteractiveJobMinderFactory-create"><strong>create</strong></a>(self, jDescriptor, popen)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dl>
+
+<dl><dt><strong>__module__</strong> = 'JobMinder'</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="PBSJobMinder">class <strong>PBSJobMinder</strong></a>(<a href="JobMinder.html#JobMinder">JobMinder</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2>&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="PBSJobMinder-__init__"><strong>__init__</strong></a>(self, jDescriptor, popen)</dt></dl>
+
+<dl><dt><a name="PBSJobMinder-findLog"><strong>findLog</strong></a>(self)</dt><dd><tt>Looks&nbsp;to&nbsp;see&nbsp;if&nbsp;the&nbsp;log&nbsp;has&nbsp;appeared<br>
+Checks&nbsp;it&nbsp;for&nbsp;errors&nbsp;when&nbsp;it&nbsp;appears</tt></dd></dl>
+
+<dl><dt><a name="PBSJobMinder-fromQueued"><strong>fromQueued</strong></a>(self)</dt><dd><tt>Finds&nbsp;out&nbsp;from&nbsp;popen&nbsp;if&nbsp;queued&nbsp;on&nbsp;PBS<br>
+stores&nbsp;the&nbsp;submission&nbsp;log</tt></dd></dl>
+
+<dl><dt><a name="PBSJobMinder-fromRunning"><strong>fromRunning</strong></a>(self)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dl>
+
+<dl><dt><strong>__module__</strong> = 'JobMinder'</dl>
+
+<hr>
+Methods inherited from <a href="JobMinder.html#JobMinder">JobMinder</a>:<br>
+<dl><dt><a name="PBSJobMinder-copyKeepFiles"><strong>copyKeepFiles</strong></a>(self)</dt><dd><tt>#&nbsp;copy&nbsp;files&nbsp;to&nbsp;be&nbsp;kept&nbsp;(log&nbsp;histos,&nbsp;ntuples...)&nbsp;to&nbsp;results&nbsp;dir</tt></dd></dl>
+
+<dl><dt><a name="PBSJobMinder-forceCloseDown"><strong>forceCloseDown</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="PBSJobMinder-fromError"><strong>fromError</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="PBSJobMinder-fromSuccess"><strong>fromSuccess</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="PBSJobMinder-performChecks"><strong>performChecks</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="PBSJobMinder-poll"><strong>poll</strong></a>(self)</dt><dd><tt>makes&nbsp;status&nbsp;transitions</tt></dd></dl>
+
+<dl><dt><a name="PBSJobMinder-runPostScripts"><strong>runPostScripts</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="PBSJobMinder-setProtection"><strong>setProtection</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="PBSJobMinder-setProtections"><strong>setProtections</strong></a>(self, path, perm)</dt></dl>
+
+<dl><dt><a name="PBSJobMinder-setStatus"><strong>setStatus</strong></a>(self, status)</dt><dd><tt>#&nbsp;Do&nbsp;not&nbsp;set&nbsp;the&nbsp;status&nbsp;member&nbsp;data&nbsp;directly!</tt></dd></dl>
+
+<dl><dt><a name="PBSJobMinder-setStatusList"><strong>setStatusList</strong></a>(self, statusL)</dt></dl>
+
+<dl><dt><a name="PBSJobMinder-storeRefFile"><strong>storeRefFile</strong></a>(self)</dt></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="JobMinder.html#JobMinder">JobMinder</a>:<br>
+<dl><dt><strong>lDbg</strong> = 1</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="PBSJobMinderFactory">class <strong>PBSJobMinderFactory</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2>&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="PBSJobMinderFactory-create"><strong>create</strong></a>(self, jDescriptor, popen)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dl>
+
+<dl><dt><strong>__module__</strong> = 'JobMinder'</dl>
+
+</td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><strong>__file__</strong> = './JobMinder.py'<br>
+<strong>__name__</strong> = 'JobMinder'</td></tr></table>
+</body></html>

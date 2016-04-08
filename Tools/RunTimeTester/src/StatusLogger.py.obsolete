@@ -1,0 +1,30 @@
+from os.path import join
+from Status import Status
+
+class StatusLogger:
+    "Write the job status and time stamps to a file for debugging."
+
+    def __init__(self, path, file = 'status.txt'):
+        "store the full status file name"
+        self.file = join(path, file)
+        # resPath=='': resPath=self.paths.resPath
+    def updateStatusLog(self,
+                        job,
+                        statusObj,
+                        platform,
+                        kitOrRelease,
+                        nicosDate):
+        """  Write a file with a line per job, plus an 'Overall' line
+        giving the status. The file is written to the directory continaining
+        the results for the release being processed"""
+
+        
+        status     = statusObj.status()
+        ts         = statusObj.time()
+
+        open(self.file,"a").write("%s %s %s %s %s %s\n"  % (job,
+                                                            status,
+                                                            ts,
+                                                            platform,
+                                                            kitOrRelease,
+                                                            nicosDate))

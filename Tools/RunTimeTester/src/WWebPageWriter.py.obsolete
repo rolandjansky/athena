@@ -1,0 +1,339 @@
+# This class acts as the entrance to the system that writes out the xml files
+# used to generate web pages.
+# It manages incomoming summaries, establishes if the web summary is more recent than
+# others with the same parameter set.
+#
+# It then wraps most recent the summaries into a DOM document and passes them to PageWriter.
+# the document is destroyed after the web pages have been written.
+#
+
+import os.path
+
+import page0DefaultFiles
+
+from PageWriter import Page0Writer
+from PageWriter import summaryPacker
+from xml.dom.minidom            import parseString
+
+from Evaluate import Evaluate
+
+
+def selectKey(key, selection):
+    """
+    selection and key are lists if (name, value) tuples.
+    Return true if every such tuple in selection is in key
+    """
+
+    key = eval(key)
+
+    print key
+    print selection
+    for s in selection:
+        if s not in key: return False
+
+    return True
+
+
+
+def stripTimeFromKey(key):
+    key = eval(key)
+    dict = {}
+    for k, v in key: dict[k] = v
+    # time = dict['time']
+    del dict['time']
+    nkey = dict.values()
+    nkey.sort()
+    nkey = nkey.__repr__()
+    # return (time, nkey)
+    return nkey
+
+def getDocumentTime(doc):
+    """
+    fomd the time stamp of the document. older docuemtns do not
+    have a latestUpdateTime in the overview - in which case use the
+    start time.
+    """
+    
+    try:
+        docTime = float(Evaluate('overview/latestUpdateTime2/text()', doc.documentElement))
+    except:
+        docTime = float(Evaluate('overview/startTime2/text()', doc.documentElement))
+
+    return docTime
+
+import mutex
+
+accessLock = mutex.mutex()
+
+class PageTable:
+    def __init__(self):
+        # data structure: {xpath: {location: page} } to prevent cumulation of old writers
+        self.dict = {}
+    def register(self, parentWriter, writer):
+
+        key = parentWriter.name
+        # print 'registering writer %s  at %s  for parent %s' % (writer.name, writer.location, key)
+        dict = self.dict.setdefault(key, {})
+        
+        # stop memory leaks
+        try:
+            oldWriter = dict[writer.location]
+        except:
+            # no entry yet for this location
+            pass
+        else:
+            # oldWriter.unlink()
+            pass 
+        #fill in table and return
+        dict[writer.location] = writer
+        # print 'registered writer %s at location %s' % (writer.name, key)
+        return
+
+    def __getitem__(self, key): return self.dict[key].values()
+
+    def __str__(self):
+        s = '\n\n'
+        for k in self.dict.keys():
+            s += '\n%s\n' %k 
+            s += '   %s\n' % str([w.name for w in self.dict[k].values()])
+        return str(s)
+    
+class PageTableRouter:
+    def __init__(self, dict):
+        self.dict = dict
+    def register(self, parentWriterName, writer):
+
+        # place the writer in the doctionary. One writer per file location.
+        dict = self.dict.setdefault(parentWriterName, {})
+        dict[writer.location] = writer
+
+    def registeredWriters(self, writerName):
+        'returns ALL the child writers for the writer passed in.'
+        return (self.dict[writerName]).values()
+
+class WebPageWriterBase:
+    def __init__(self, resBaseDir):
+
+        #logger.debug('WebPageWriter __init__ start')
+        self.docs = {}
+        self.resBaseDir = resBaseDir
+        # set up tables to store pages.
+        # the update algorithm is to update only thos pages that are affected.
+        # for a  minder that is updated: the page three for the package is updated,
+        # the page 2 for the cmtTarget is updated, the page1 is updated. Page 0
+        # is updated if the minder corresponds to a new cmtTarget.
+        #
+        # each table holds the pages for a single class of page writer. it is a dictionary
+        # of dictionaries. The key into the frst dictionary is the xpath to get to the
+        # nodes for the next page writer, the inner dictionary key is the page location, and
+        # the value is the page.
+        #self.page0Table = PageTable()
+        # self.page1Table = PageTable()
+        # self.page2Table = PageTable()
+        #self.page3Table = PageTable()
+        self.pageTable = {}
+        # ensure that some enssential web files are present
+        
+        filesToWrite = {
+            'currentStatusN0X.js':       page0DefaultFiles.currentStatusN0X,
+            'currentStatusNX0.js':       page0DefaultFiles.currentStatusNX0,
+            'messageOfTheDay.js':        page0DefaultFiles.messageOfTheDay,
+            'page0.html':                page0DefaultFiles.page0,
+            'page0.noTopFrame.html':     page0DefaultFiles.page0_noTopFrame,
+            'status.html':               page0DefaultFiles.status,
+            'page0.xsl':                 page0DefaultFiles.page0XSL,
+            'page1.xsl':                 page0DefaultFiles.page1XSL,
+            'page2.xsl':                 page0DefaultFiles.page2XSL,
+            'page3.xsl':                 page0DefaultFiles.page3XSL,
+            'page4.xsl':                 page0DefaultFiles.page4XSL,
+            'RTTpage1_LinksAtTopOfPage.js': page0DefaultFiles.RTTpage1_LinksAtTopOfPage
+            }
+
+        def writeOut((fn, text), resBase):
+            fullPath = os.path.join(resBase, fn)
+            if os.path.exists(fullPath): return
+            of = open(fullPath,'w')
+            of.write(text)
+            of.close()
+
+        [writeOut(item, resBaseDir) for item in filesToWrite.items()]
+
+
+    def update(self, dict):
+        print 'start update'
+        accessLock.lock(self.lockedUpdate, dict)
+        return 0
+    
+    def lockedUpdate(self, dict):
+        print 'start lockedUpdate'
+        
+        keyDocList         = dict['keyDocList']
+        cmtTargetToUpdate  = dict['cmtTargetToUpdate']
+        packageToUpdate    = dict['packageToUpdate']
+        mindersToUpdate    = dict['mindersToUpdate']
+
+        # print '\n------------- lockedUpdate starts for ----------------\n'
+        # print 'no of docs', len(keyDocList)
+        # print 'cmtTarget',  cmtTargetToUpdate
+        # print 'package',    packageToUpdate
+        # print 'minders',    mindersToUpdate
+        # print '\n------------- lockedUpdate starts for ----------------\n'
+
+
+        class ParseIt:
+            def __init__(self):
+                self.ncalls = 0
+
+            def run(self, k, xml):
+                print self.ncalls, k
+                self.ncalls += 1
+                return parseString(xml)
+        
+        # parseIt = ParseIt()
+        # keyDocList = [( k, parseIt.run(k, xml)) for k, xml  in keyDocList]
+        keyDocList = [( k, parseString(xml)) for k, xml  in keyDocList]
+        
+
+        newDocs = {}
+        for key, ndoc in keyDocList:
+            # ntime is latest update time if available, start time otherwise.
+            ntime = getDocumentTime(ndoc)
+            nkey  = stripTimeFromKey(key)
+
+            if nkey not in self.docs:
+                self.docs[nkey] = (ntime, ndoc)
+                newDocs[nkey] = ndoc
+                # print 'new doc, key = ', nkey 
+            else:
+                otime, odoc  = self.docs[nkey]
+                # if ntime not latestUpdateTime, the web pages will not update.
+                # this should not cause a problem because all documents that
+                # are unfinished, ir need updating have a latestUpdate time
+                # using ntime>otime with ntime = startTime stops updates
+                #       ntime>=otime with ntime = startTime causes unnecessary reinitialisation
+                # when a new RTT instance sends a database load of data.
+                #
+                if ntime>otime:
+                    self.docs[nkey] = (ntime, ndoc)
+                    newDocs[nkey] = ndoc
+
+        newKeys = newDocs.keys()
+        newDocs = newDocs.values()
+        # print 'found %d new docs' % len(newDocs)
+        # for k in newKeys: print k
+        # return 0
+        packedSummaries = summaryPacker(newDocs) 
+        writer = self.writerClass(self.router, None, self.resBaseDir, 'Top', packedSummaries.documentElement )
+        writer.update(cmtTargetToUpdate, packageToUpdate, mindersToUpdate)
+        # print 'returning from WebPageWriter.update'
+
+
+        # print '\n------------- lockedUpdate ends for ------------------\n'
+        # print 'lockedUpdate ends for: '
+        # print 'no of docs', len(keyDocList)
+        # print 'cmtTarget',  cmtTargetToUpdate
+        # print 'package',    packageToUpdate
+        # print 'minders',    mindersToUpdate
+        # print '\n------------- lockedUpdate ends for ------------------\n'
+        
+        accessLock.unlock()
+        return 0
+
+    def getDocs(self):
+        if self.docs: return self.docs
+        return 0
+
+    def getOutputDir(self): return self.resBaseDir
+
+    def dumpTable(self): return self.__str__()
+
+    def areYouAlive(self): return 'yes'
+    
+    def __str__(self):
+        # return '\n---- WebPageWriter Tables ---\n\n%s\n\n%s\n\n%s\n\n%s\n\n' % (
+        #    str(self.page0Table),
+        #    str(self.page1Table),
+        #    str(self.page2Table),
+        #    str(self.page3Table)
+        #    )
+        return '\n---- WebPageWriter Tables ---\n\n%s\n\n' % str(self.pageTable)
+
+class WebPageWriter(WebPageWriterBase):
+    def __init__(self, resBaseDir):
+        WebPageWriterBase.__init__(self, resBaseDir)
+        self.writerClass = Page0Writer
+        # a class to route the table to the appropiate table.
+        # self.router     = PageTableRouter({
+        #     'Page0Writer': self.page0Table,
+        #    'Page1Writer': self.page1Table,
+        #    'Page2Writer': self.page2Table,
+        #    'Page3Writer': self.page3Table
+        #   })
+
+        self.router = PageTableRouter(self.pageTable)
+        
+class CERNWebPageWriter(WebPageWriter):
+    """
+    selects RTT summaries made at CERN.
+    """
+    def lockedUpdate(self, dict):
+        keyDocList         = dict['keyDocList']
+
+        selection = [('site', 'CERNslc4')]
+
+
+        docList = [(k,d) for k,d in keyDocList if selectKey(k, selection)]
+        if not docList: return 0
+        
+        dict['keyDocList'] = docList
+
+        return WebPageWriter.lockedUpdate(self, dict)
+        
+if __name__ == '__main__':
+    from xml.dom.minidom import parse
+    import sys
+    
+    fn = 'testShort.xml'
+
+    xml = open(fn, 'r').read()
+    #dom = parse(fn)
+    #de = dom.documentElement
+    #on = Evaluate('overview', de)[0]
+
+    mindersToUpdate = [
+        'Atlfast_POOL_False_high_kt_tracksPilot29',
+        'Atlfast_POOL_False_high_shared_tracksPilot81'
+        ]
+    packageToUpdate = 'TestAtlfast'
+
+    key = [
+        ('originalBranch',  'dev'),
+        ('release',         'rel_5'),
+        ('releaseType',     'dev'),
+        ('runType',         'build'),
+        ('targetCMTCONFIG', 'i686-slc3-gcc323-opt'),
+        ('time',             1172855233.26)
+        ]
+
+    key = key.__repr__()
+    docList = [(key, xml)]
+
+    resBaseDir = '/afs/cern.ch/atlas/RTT/data/Peter/Results'
+
+    dict = {
+        'keyDocList':        docList,
+        'cmtTargetToUpdate': [],
+        # 'packageToUpdate':   ['BPhysValidation'],
+        'packageToUpdate':   [],
+        'mindersToUpdate':   []
+        }
+
+    writer = WebPageWriterTest(resBaseDir)
+    # writer.update(docList, packageToUpDate, mindersToUpdate)
+    writer.update(dict)
+    print '----pass 2---'
+    writer.update(dict)
+
+    
+    print writer
+    

@@ -1,0 +1,33 @@
+import logging
+
+def setupLoggerForDebug(level=None):
+    # Set up logger, streams and formatter
+    msgFmt    = '%(asctime)s %(filename)s, %(lineno)s, %(levelname)s %(message)s'
+    tmeFmt    = '%d%b%y %H:%M:%S'
+    formatter = logging.Formatter(msgFmt, tmeFmt)
+
+    levels = {
+        'DEBUG':     logging.DEBUG,
+        'INFO':      logging.INFO,
+        'WARNING':   logging.WARNING,
+        'ERROR':     logging.ERROR,
+        'CRITICAL':  logging.CRITICAL
+        }
+    if level in levels:
+        level=levels[level]
+    else:
+        print 'Unknown level %s\n' %level
+        print 'Possible levels: ', str(levels.keys())
+        print 'setting level to DEBUG'
+        
+        level = logging.DEBUG
+        
+    logStreamHandler = logging.StreamHandler()
+    logStreamHandler.setFormatter(formatter)
+    # logStreamHandler.setLevel(logging.INFO) # change output level here
+    logStreamHandler.setLevel(level)
+    
+    logger = logging.getLogger('rtt')
+    logger.addHandler(logStreamHandler)
+    logger.setLevel(logging.DEBUG) # Do Not change output level here
+

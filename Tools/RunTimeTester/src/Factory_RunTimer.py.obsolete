@@ -1,0 +1,30 @@
+from Factory_BaseClass import Factory
+from RunTimer          import N0XNightlyRunTimer, NX0NightlyRunTimer
+from RunTimer          import NumberedRelRunTimer
+# -------------------------------------------------------------------------
+
+class RunTimerFactory(Factory):
+    def __init__(self, logger):
+        Factory.__init__(self, logger, self.__class__.__name__)
+        self.dict = {'bugfix':    N0XNightlyRunTimer,
+                     '10.0.X':    N0XNightlyRunTimer,
+                     'dev':       NX0NightlyRunTimer,
+                     'devval':    NX0NightlyRunTimer,
+                     'devmig6':   NX0NightlyRunTimer,
+                     'mig6':      NX0NightlyRunTimer,
+                     '13.2.0.Y':  NX0NightlyRunTimer,
+                     '14.0.0.Y':  NX0NightlyRunTimer,
+                     '14.0.10.Y': NX0NightlyRunTimer,
+                     '14.1.0.Y':  N0XNightlyRunTimer,
+                     '14.2.0.Y':  N0XNightlyRunTimer,
+                     'val':       NX0NightlyRunTimer,
+                     'pcache':    NX0NightlyRunTimer,
+                     'Numbered':  NumberedRelRunTimer}
+
+    
+    def create(self, isNightlyRelease,branch):
+        if isNightlyRelease:
+            return self.dict.get(branch, NX0NightlyRunTimer)(self.logger)
+    
+        return self.dict['Numbered'](self.logger)
+

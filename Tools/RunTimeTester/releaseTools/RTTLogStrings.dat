@@ -1,0 +1,14 @@
+/afs/cern.ch/atlas/project/RTT/prod/Peter/logs/logfiles_16feb_01:44
+#/afs/cern.ch/atlas/project/RTT/prod/Peter/logs/logfiles_16feb_09:46
+#/afs/cern.ch/atlas/project/RTT/prod/Peter/logs/logfiles_15feb_14:21
+#/afs/cern.ch/atlas/project/RTT/prod/Peter/logs/logfiles_15feb_00:11
+#/afs/cern.ch/atlas/project/RTT/prod/Peter/logs/logfiles_14feb_22:26
+#/afs/cern.ch/atlas/project/RTT/prod/Peter/logs/logfiles_14feb_18:57
+#/afs/cern.ch/atlas/project/RTT/prod/SLC4_32/logs/logfiles_14feb_11:18
+#/afs/cern.ch/atlas/project/RTT/prod/SLC4_32/logs/logfiles_13feb_19:25
+#/afs/cern.ch/atlas/project/RTT/prod/SLC4_32/logs/logfiles_13feb_22:36
+#/afs/cern.ch/atlas/project/RTT/prod/SLC4_32/logs/logfiles_14feb_07:38
+RTT.log;*error.log
+exceptions.MemoryError
+MemFree:
+

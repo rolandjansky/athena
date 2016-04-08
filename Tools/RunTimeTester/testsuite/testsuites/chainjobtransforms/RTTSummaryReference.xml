@@ -1,0 +1,297 @@
+
+<RTTSummary>
+  <overview>
+    <topProject>AtlasProduction</topProject>
+    <latestUpdateTime2>1245228838.32</latestUpdateTime2>
+    <cmtConfig>i686-slc4-gcc34-opt</cmtConfig>
+    <releaseType>project</releaseType>
+    <site>CERNslc4</site>
+    <releaseName>14.5.0.5</releaseName>
+    <statusText>09/06/17@10:53: jobs succ/done/tot: 1/1/1</statusText>
+    <otherProject>
+    </otherProject>
+    <runType>build</runType>
+    <latestUpdateTime1>09/06/17@10:53</latestUpdateTime1>
+    <resBaseDir>/afs/cern.ch/atlas/project/RTT/data/peter/NewTest/RTTTest/testsuites/chainjobtransforms/Results</resBaseDir>
+    <endTime1>09/06/17@10:53</endTime1>
+    <endTime2>1245228838.29</endTime2>
+    <RTTLibVersion>RunTimeTester-00-02-65</RTTLibVersion>
+    <resReleaseDir>/afs/cern.ch/atlas/project/RTT/data/peter/NewTest/RTTTest/testsuites/chainjobtransforms/Results/14.5.0.5/build/i686-slc4-gcc34-opt/offline</resReleaseDir>
+    <startTime2>1245225289.6</startTime2>
+    <startTime1>09/06/17@09:54</startTime1>
+    <nPackages>1</nPackages>
+    <nPackagesAllJobsOK>1</nPackagesAllJobsOK>
+    <originalBranch>dev</originalBranch>
+    <nicosDate2>1229680106</nicosDate2>
+    <RTTSrcVersion>RunTimeTester-00-02-65</RTTSrcVersion>
+    <nicosDate1>2008/12/19 09:48:26</nicosDate1>
+    <release>14.5.0.5</release>
+  </overview>
+  <package>
+    <nPPSuccessInPackage>0</nPPSuccessInPackage>
+    <nTestsSuccessInPackage>0</nTestsSuccessInPackage>
+    <nJobsTotalPackage>1</nJobsTotalPackage>
+    <nJobsSuccessInPackage>0</nJobsSuccessInPackage>
+    <packageName>AthExHelloWorld</packageName>
+    <nJobsInPackage>1</nJobsInPackage>
+    <nJobsOpCloseInPackage>0</nJobsOpCloseInPackage>
+    <nTestsFailureInPackage>0</nTestsFailureInPackage>
+    <containerPackage>Control/AthenaExamples/AthExHelloWorld</containerPackage>
+    <nTimeOutsInPackage>0</nTimeOutsInPackage>
+    <phase>rttMainJobPhase</phase>
+    <packageTag>AthExHelloWorld-01-01-01</packageTag>
+    <nJobsDoneInPackage>1</nJobsDoneInPackage>
+    <nTestsInPackage>0</nTestsInPackage>
+    <nBatchErrorsInPackage>0</nBatchErrorsInPackage>
+    <nJobsFailureInPackage>0</nJobsFailureInPackage>
+    <nPPFailureInPackage>0</nPPFailureInPackage>
+    <nRetriesInPackage>0</nRetriesInPackage>
+    <packageStatus>done</packageStatus>
+    <SequentialMinder>
+      <status>done</status>
+      <nActiveMinders>0</nActiveMinders>
+      <jobID>0</jobID>
+      <state>done</state>
+      <jobGroup>ContainerGroup</jobGroup>
+      <stateHistory>[('queued', '09/06/17 09:57'), ('running', '09/06/17 09:57'), ('done', '09/06/17 10:53')]</stateHistory>
+      <identifiedName>Sequential0</identifiedName>
+      <nContainedMinders>2</nContainedMinders>
+      <ChainJobMinder>
+        <status>done</status>
+        <nActiveMinders>0</nActiveMinders>
+        <jobID>6</jobID>
+        <state>done</state>
+        <jobGroup>ContainerGroup</jobGroup>
+        <stateHistory>[('queued', '09/06/17 09:57'), ('running', '09/06/17 10:47'), ('done', '09/06/17 10:53')]</stateHistory>
+        <identifiedName>Job6</identifiedName>
+        <nContainedMinders>1</nContainedMinders>
+        <minder>
+          <nUserTests>0</nUserTests>
+          <jobDocURL>
+          </jobDocURL>
+          <resultsPath>/afs/cern.ch/atlas/project/RTT/data/peter/NewTest/RTTTest/testsuites/chainjobtransforms/Results/14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7</resultsPath>
+          <batchStatus>DONE</batchStatus>
+          <jobDisplayName>
+          </jobDisplayName>
+          <cpuTime2000>164</cpuTime2000>
+          <jobID>7</jobID>
+          <chainLength>1</chainLength>
+          <state>done</state>
+          <postProcessingResult>no tests</postProcessingResult>
+          <jobGroup>JobTransform</jobGroup>
+          <identifiedName>MergeJob7</identifiedName>
+          <status>success</status>
+          <chainSuccesses>1</chainSuccesses>
+          <mem>631MB</mem>
+          <stateHistory>[('queued', '09/06/17 10:47'), ('running', '09/06/17 10:47'), ('postProcessingQueued', '09/06/17 10:50'), ('postProcessingRunning', '09/06/17 10:51'), ('done', '09/06/17 10:53')]</stateHistory>
+          <jobDocString>MergeJob</jobDocString>
+          <hashString>-816743624</hashString>
+          <nRetries>0</nRetries>
+          <cpuTime>61</cpuTime>
+          <jobName>MergeJob</jobName>
+          <vmem>1118MB</vmem>
+          <nUserActions>2</nUserActions>
+          <exitStatus>Unknown</exitStatus>
+          <processingResult>success</processingResult>
+          <wallTime>167</wallTime>
+          <datasets>
+            <datasetinfo>
+              <file>job1.AOD.pool.root</file>
+              <directory>/afs/cern.ch/atlas/project/RTT/data/peter/NewTest/RTTTest/testsuites/chainjobtransforms/ChainStore/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/TwoParallelThenMergeJob</directory>
+              <mtime>09/06/17@10:44</mtime>
+              <size>1297641B</size>
+              <origin>chainstore</origin>
+            </datasetinfo>
+            <datasetinfo>
+              <file>job2.AOD.pool.root</file>
+              <directory>/afs/cern.ch/atlas/project/RTT/data/peter/NewTest/RTTTest/testsuites/chainjobtransforms/ChainStore/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/TwoParallelThenMergeJob</directory>
+              <mtime>09/06/17@10:47</mtime>
+              <size>1297728B</size>
+              <origin>chainstore</origin>
+            </datasetinfo>
+          </datasets>
+          <missingDatasets/>
+          <archivers/>
+          <sUserTests>0</sUserTests>
+          <deliveredkeepfiles>
+            <baseKeepFileDir>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7</baseKeepFileDir>
+            <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/MergedAOD.pool.root.checkFile</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/postprocessing.error.log</keepfile_newstyle>
+            <keepfile_newstyle info='Package XML test configuration file' md5sum='' displayColor='#cc3333'>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/package.xml</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/postprocessing.warning.log</keepfile_newstyle>
+            <keepfile_newstyle info='Shows all the environmental variables set' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/env.log</keepfile_newstyle>
+            <keepfile_newstyle info='The script submitted to the batch machine' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/runScript.sh</keepfile_newstyle>
+            <keepfile_newstyle info='Job Log file' md5sum='' displayColor='#cc3333'>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/MergeJob7_log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/RTTtests.db</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/postProcessor.log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/postprocessing.debug.log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/postProcessorScript.sh</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/MergeJob/7/postprocessing.info.log</keepfile_newstyle>
+          </deliveredkeepfiles>
+          <errors/>
+          <done/>
+          <checkResults/>
+          <testResults/>
+        </minder>
+      </ChainJobMinder>
+      <ParallelMinder>
+        <status>done</status>
+        <nActiveMinders>0</nActiveMinders>
+        <jobID>1</jobID>
+        <state>done</state>
+        <jobGroup>ContainerGroup</jobGroup>
+        <stateHistory>[('queued', '09/06/17 09:57'), ('running', '09/06/17 09:57'), ('done', '09/06/17 10:47')]</stateHistory>
+        <identifiedName>Parallel1</identifiedName>
+        <nContainedMinders>2</nContainedMinders>
+        <ChainJobMinder>
+          <status>done</status>
+          <nActiveMinders>0</nActiveMinders>
+          <jobID>4</jobID>
+          <state>done</state>
+          <jobGroup>ContainerGroup</jobGroup>
+          <stateHistory>[('queued', '09/06/17 09:57'), ('running', '09/06/17 09:57'), ('done', '09/06/17 10:47')]</stateHistory>
+          <identifiedName>Job4</identifiedName>
+          <nContainedMinders>1</nContainedMinders>
+          <minder>
+            <nUserTests>0</nUserTests>
+            <jobDocURL>
+            </jobDocURL>
+            <resultsPath>/afs/cern.ch/atlas/project/RTT/data/peter/NewTest/RTTTest/testsuites/chainjobtransforms/Results/14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5</resultsPath>
+            <batchStatus>DONE</batchStatus>
+            <jobDisplayName>
+            </jobDisplayName>
+            <cpuTime2000>1657</cpuTime2000>
+            <jobID>5</jobID>
+            <chainLength>1</chainLength>
+            <state>done</state>
+            <postProcessingResult>no tests</postProcessingResult>
+            <jobGroup>JobTransform</jobGroup>
+            <identifiedName>ParallelJob25</identifiedName>
+            <status>success</status>
+            <chainSuccesses>1</chainSuccesses>
+            <mem>1600MB</mem>
+            <stateHistory>[('queued', '09/06/17 09:57'), ('running', '09/06/17 09:57'), ('postProcessingQueued', '09/06/17 10:16'), ('postProcessingRunning', '09/06/17 10:17'), ('done', '09/06/17 10:46')]</stateHistory>
+            <jobDocString>ParallelJob2</jobDocString>
+            <hashString>-1685739220</hashString>
+            <nRetries>0</nRetries>
+            <cpuTime>617</cpuTime>
+            <jobName>ParallelJob2</jobName>
+            <vmem>2098MB</vmem>
+            <nUserActions>2</nUserActions>
+            <exitStatus>Unknown</exitStatus>
+            <processingResult>success</processingResult>
+            <wallTime>1123</wallTime>
+            <datasets/>
+            <missingDatasets/>
+            <archivers/>
+            <sUserTests>0</sUserTests>
+            <deliveredkeepfiles>
+              <baseKeepFileDir>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5</baseKeepFileDir>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/postProcessorScript.sh</keepfile_newstyle>
+              <keepfile_newstyle info='Job Log file' md5sum='' displayColor='#cc3333'>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/ParallelJob25_log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/RTTtests.db</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/postProcessor.log</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/RPCCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/TGCCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/postprocessing.info.log</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/myESD.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/IDCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/CALOCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Package XML test configuration file' md5sum='' displayColor='#cc3333'>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/package.xml</keepfile_newstyle>
+              <keepfile_newstyle info='Shows all the environmental variables set' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/env.log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/postprocessing.debug.log</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/EMCLUSTCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='The script submitted to the batch machine' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/runScript.sh</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/postprocessing.warning.log</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/IDPROJCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/SCTCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/TILECOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/EGamTauComm.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/PIXELCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/postprocessing.error.log</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob2/5/job2.AOD.pool.root.checkFile</keepfile_newstyle>
+            </deliveredkeepfiles>
+            <errors/>
+            <done/>
+            <checkResults/>
+            <testResults/>
+          </minder>
+        </ChainJobMinder>
+        <ChainJobMinder>
+          <status>done</status>
+          <nActiveMinders>0</nActiveMinders>
+          <jobID>2</jobID>
+          <state>done</state>
+          <jobGroup>ContainerGroup</jobGroup>
+          <stateHistory>[('queued', '09/06/17 09:57'), ('running', '09/06/17 09:57'), ('done', '09/06/17 10:44')]</stateHistory>
+          <identifiedName>Job2</identifiedName>
+          <nContainedMinders>1</nContainedMinders>
+          <minder>
+            <nUserTests>0</nUserTests>
+            <jobDocURL>
+            </jobDocURL>
+            <resultsPath>/afs/cern.ch/atlas/project/RTT/data/peter/NewTest/RTTTest/testsuites/chainjobtransforms/Results/14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3</resultsPath>
+            <batchStatus>DONE</batchStatus>
+            <jobDisplayName>
+            </jobDisplayName>
+            <cpuTime2000>1665</cpuTime2000>
+            <jobID>3</jobID>
+            <chainLength>1</chainLength>
+            <state>done</state>
+            <postProcessingResult>no tests</postProcessingResult>
+            <jobGroup>JobTransform</jobGroup>
+            <identifiedName>ParallelJob13</identifiedName>
+            <status>success</status>
+            <chainSuccesses>1</chainSuccesses>
+            <mem>1MB</mem>
+            <stateHistory>[('queued', '09/06/17 09:57'), ('running', '09/06/17 09:57'), ('postProcessingQueued', '09/06/17 10:19'), ('postProcessingRunning', '09/06/17 10:19'), ('done', '09/06/17 10:44')]</stateHistory>
+            <jobDocString>ParallelJob1</jobDocString>
+            <hashString>1233200221</hashString>
+            <nRetries>0</nRetries>
+            <cpuTime>620</cpuTime>
+            <jobName>ParallelJob1</jobName>
+            <vmem>104MB</vmem>
+            <nUserActions>2</nUserActions>
+            <exitStatus>Unknown</exitStatus>
+            <processingResult>success</processingResult>
+            <wallTime>1282</wallTime>
+            <datasets/>
+            <missingDatasets/>
+            <archivers/>
+            <sUserTests>0</sUserTests>
+            <deliveredkeepfiles>
+              <baseKeepFileDir>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3</baseKeepFileDir>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/postprocessing.warning.log</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/postprocessing.info.log</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/IDCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/RTTtests.db</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/IDPROJCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/postprocessing.error.log</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/TGCCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/SCTCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Shows all the environmental variables set' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/env.log</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/TILECOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/CALOCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/myESD.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='The script submitted to the batch machine' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/runScript.sh</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/postProcessorScript.sh</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/EGamTauComm.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/RPCCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/PIXELCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/job1.AOD.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/postprocessing.debug.log</keepfile_newstyle>
+              <keepfile_newstyle info='Output from checkFile.py' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/EMCLUSTCOMM.pool.root.checkFile</keepfile_newstyle>
+              <keepfile_newstyle info='Package XML test configuration file' md5sum='' displayColor='#cc3333'>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/package.xml</keepfile_newstyle>
+              <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/postProcessor.log</keepfile_newstyle>
+              <keepfile_newstyle info='Job Log file' md5sum='' displayColor='#cc3333'>14.5.0.5/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/JobTransform/ParallelJob1/3/ParallelJob13_log</keepfile_newstyle>
+            </deliveredkeepfiles>
+            <errors/>
+            <done/>
+            <checkResults/>
+            <testResults/>
+          </minder>
+        </ChainJobMinder>
+      </ParallelMinder>
+    </SequentialMinder>
+  </package>
+</RTTSummary>

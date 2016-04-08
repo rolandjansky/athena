@@ -1,0 +1,49 @@
+import xmlrpclib, sys
+from exc2string2 import exc2string2
+def getServer():
+    try:
+        transport =  xmlrpclib.Transport()
+        print transport
+        # server = xmlrpclib.ServerProxy('http://localhost:8000', transport, 'UTF-8', False,True)
+        server = xmlrpclib.ServerProxy('http://localhost:8001', transport, 'UTF-8', True, True)
+        print 'Successfully connected to server.'
+        return server
+    except:
+        print 'Could not connect to the webPageWriter %s' % exc2string2()
+        return None
+
+
+def menu(server):
+    while True:
+        print '0 - exit'
+        print '1 - tables'
+        print '2 - number of doms'
+
+        try:
+            ind = raw_input()
+        except:
+            print 'input error'
+
+        try:
+            ind = int(ind)
+        except:
+            continue
+        if ind not in range(3):
+            print 'index out of range',ind
+            continue
+
+        if ind == 0:
+            break
+
+        if ind == 1:
+            server.dumpTable()
+            continue
+
+        if ind == 2:
+            print server.countDoms()
+            continue
+        
+if __name__ == '__main__':
+
+    server = getServer()
+    menu(server)

@@ -1,0 +1,5 @@
+30  7   * * * /usr/bin/sg atlasrtt /home/en/RTT/dataCopier/runDSManager.sh > /home/en/RTT/dataCopier/dsm.log
+20  13  * * * /usr/local/bin/python2.3 /home/en/RTT/KitsInstall/dev_KitInstaller.py > /home/en/RTT/KitsInstall/dev_kit_install.log
+
+
+

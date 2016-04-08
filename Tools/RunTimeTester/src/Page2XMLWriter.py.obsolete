@@ -1,0 +1,41 @@
+from makeRTTDOM     import makeRTTDOM
+from Evaluate	    import Evaluate, getText
+from xml.dom.ext    import PrettyPrint
+from XMLTools       import xslRef, prependXSLRef
+from PageXMLWriter  import PageXMLWriter
+from StringIO       import StringIO
+import os.path
+
+class Page2XMLWriter(PageXMLWriter):
+	def __init__(self, tester, logger):
+
+		PageXMLWriter.__init__(self, tester, logger)
+		absXSLLoc = os.path.join(self.absXSLDir, 'page2.xsl')
+
+		docEl = self.tester.summaryDocument.documentElement
+		node = Evaluate('overview/resReleaseDir', docEl)[0]
+		self.absPageLoc = os.path.join(getText(node),'page2.xml')
+
+		self.xslref = xslRef(absXSLLoc, self.absPageLoc)
+		
+		print '=========page2 loc ========', self.absPageLoc 
+		
+		
+	def update(self, package, updatedMinders):
+		# self.logger.debug('Page2XMLWriter: start update')
+		# transfer nodes
+
+		# temporary addition of the pointer to the xsl file for this page
+		xslRefNode = prependXSLRef(self.xslref,self.tester.summaryDocument)
+		
+		#self.tester.summaryDocument.appendChild(self.xslInstructionNode)
+
+		
+		of = open(self.absPageLoc,'w')
+		PrettyPrint(self.tester.summaryDocument, of)
+		#of.write(self.tester.summaryDocument.toxml())
+		of.close()
+
+		# self.tester.summaryDocument.removeChild(self.xslInstructionNode)
+		self.tester.summaryDocument.removeChild(xslRefNode)
+		xslRefNode.unlink()

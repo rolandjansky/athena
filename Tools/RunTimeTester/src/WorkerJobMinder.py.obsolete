@@ -1,0 +1,1162 @@
+"""
+This file contains:
+an intermediate base class         -   WorkerJobMinder
+
+- Has a the command string.
+- has a 'fire' method to submit the jobs
+- has a popen method to monitor the subshell used to run the job.
+
+The base class also specifies common tasks that must be performed across job mode
+boundaries:
+
+- database manipulations for jobs which store reference files
+- various protection manipulations to allow other mebers of the same UNIX group
+  to manipulate files on future runs.
+- copying files to be stored at the end of the job
+- actions to be taken of there is a forced shutdown
+  (triggered by receiving a signal 15)
+PS
+"""
+
+import os, shutil, string,time,string,re, sys
+from popen2 import Popen4
+
+from JobGroupKits            import JobGroupKits
+from os.path                 import join
+from PathCompleter           import PathCompleter
+from Reporter                import Reporter
+from getInheritanceHeirarchy import isAthenaJob
+from RunTimer                import *
+from formatCollection        import formatCollection
+from Minder                  import Minder
+from Tools                   import isValidReleaseNumber, dirSnapShot,dirSnapShot2,dirSnapShot3,dirSnapShot4
+from Tools2                  import convertToSeconds
+from exc2string              import exc2string
+from RTTpath                 import RTTpath
+from ShellCommand            import ShellCommand
+
+from Factory_JobGroupDirectoryMaker import JobGroupDirectoryMakerFactory
+from Factory_Commander              import CommanderFactory
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+from MethodTracer        import MetaTracer
+# uncomment to monitor all method calls (shows args + return values)
+# __metaclass__ = MetaTracer
+
+
+def match(patterns, lines):
+    line = None
+    for p in patterns:
+        cp = re.compile(p)
+        line = None
+
+        for l in lines:
+            if re.search(cp,l):
+                line = l
+                break
+                
+        if line: break
+
+    return line
+
+def allMatches(patterns, lines):
+    matchedLines = []
+    for p in patterns:
+        cp = re.compile(p)
+        matchedLines.extend([l for l in lines if re.search(cp,l)])
+    return matchedLines
+
+def getFromEnvLog(runPath,envVar,pathSep=':'):
+    envLogName = os.path.join(runPath, 'env.log')
+    if os.path.exists(envLogName):
+        content = open(envLogName, 'r').readlines()
+    else:
+        return []
+
+    envVar = envVar.strip() + '='
+    libstr = ''
+    for line in content:
+        if line.startswith(envVar):
+            libstr = line[len(envVar):]
+            break
+    if not libstr: return []
+        
+    return libstr.split(pathSep)
+
+class RetryTester:
+    #def __init__(self, log, elog, logger, sharePath, runPath):
+    def __init__(self, log, logger, sharePath, runPath):
+        self.logName   = log # full abs path to log file (which doesn't exist yet)
+        # self.elogName  = elog
+        self.log       = []
+        # self.elog      = []
+        self.logger    = logger
+        self.sharePath = sharePath
+        self.runPath   = runPath
+        
+    def shouldRetry(self):
+        if not self.log:            
+            if os.path.exists(self.logName):
+                self.log = open(self.logName,'r').readlines()
+
+        # if not self.elog:
+        #  if os.path.exists(self.elogName):
+        #     self.elog = open(self.elogName,'r').readlines()
+        
+        if self.commandNotFound():        return True
+        if self.missingJobOptionsExist(): return True
+        if self.missingSharedLibrary():   return True
+        
+        return False
+            
+
+    # -------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+    
+    def missingJobOptionsExist(self):
+        """
+        Looks for missing job options files in the log files. If Athena
+        complains of such a file, check to see if it really does not exist
+        """
+
+        patterns = ['^AthenaCommon.Include.IncludeErr',
+                    '^IOError: [Errno 2] No such file or directory:',
+                    '^IncludeError: include file']
+        # line = match(patterns, self.elog)
+        line = match(patterns, self.log)
+        if not line: return False
+        
+        tokens = line.split()
+        jos = match(['.py$'], tokens)
+
+        if not jos: return False
+        
+        # Note that this makes the assumption (for now, always borne out)
+        # that the 'missing' job options file is in the same project as the
+        # one trying to include it, and that these are both in the same project
+        # as the package under test.
+
+        if os.path.isabs(jos) and not os.path.exists(jos): return False
+        
+        joSearchPaths = getFromEnvLog(self.runPath,'JOBOPTSEARCHPATH',',')
+        if not joSearchPaths:
+            self.logger.warning('No search paths available in which to search for missing job options!')
+            self.logger.warning('(This is either because RTT could not find env.log file, or JOBOPTSEARCHPATH missing/empty in that file.)')
+            return False                                 
+
+        for p in joSearchPaths:
+            p = p.strip()
+            fullPath = RTTpath(p,jos)
+            if os.path.exists(str(fullPath)):
+                m  = 'Apparent connection error: Found the following job options with'
+                m += ' Athena include but which exist: %s' % str(jos)
+                self.logger.info(m)        
+                return True
+        return False
+
+
+    # -------------------------------------------------------------------------
+
+    def commandNotFound(self):
+        """
+        Checks for 'not found' commands such as athena, cmt, etc.
+        """
+
+        patterns = [
+            '^#CMT> Warning: package CMT * /afs/cern.ch/sw/contrib not found',
+            'athena.py: command not found',
+            'cmt: command not found',
+            'pool_insertFileToCatalog: command not found'
+            ]
+        
+        # lineFound = match(patterns, self.elog)
+        lineFound = match(patterns, self.log)
+        if lineFound:
+            m = 'Apparent connection error:\n%s' % lineFound
+            self.logger.info(m)
+            return True
+        return False
+
+    # -------------------------------------------------------------------------
+    
+    def missingSharedLibrary(self):
+        """
+        Looks for missing shared library files in the log files. If Athena
+        complains of such a file, check to see if it really does not exist
+        """
+        patterns = ['^System::doLoad: ERROR:']
+        # lines = allMatches(patterns, self.elog)
+        lines = allMatches(patterns, self.log)
+
+        if not lines: return False
+
+        soFiles = []
+        for l in lines:
+            #example line:
+            #System::doLoad: ERROR:libMuonAlgs.so: cannot open shared object file
+            #: No such file or directory'
+            #
+            tokens = l.split()
+            soFiles.extend([t[:-1] for t in tokens if t.endswith('.so:')])
+
+        # print soFiles
+        if not soFiles: return False
+
+        # make a list of libary paths
+        libDirs = getFromEnvLog(self.runPath,'LD_LIBRARY_PATH')
+        if not libDirs:
+            self.logger.warning('No lib paths in which to search for missing shared library!')
+            self.logger.warning('(This is either because RTT could not find env.log file, or LD_LIBRARY_PATH missing/empty in that file.)')
+            return False
+        
+        fullLibPaths = []
+        for lib in soFiles:
+            possiblePaths  = [os.path.join(libDir, lib) for libDir in libDirs]
+            foundLocations = [l for l in possiblePaths if os.path.exists(l)]
+
+            # looked everywhere on LD_LIBRARY_PAH, but did not find the
+            # library. It is genuinely not present so do not retry
+            if foundLocations: 
+
+                m  = 'Apparent afs connection error: '
+                m += 'Found the following so files reported'
+                m += ' missing but in fact present %s' % str(foundLocations)
+                self.logger.info(m)
+
+        
+                return True
+
+        return False
+
+
+
+class WorkerJobMinder(Minder):
+    
+    # ------------------------------------------------------------------------
+
+    def __init__(self, jDescriptor, logger, runTimer):
+        """
+        resDir     - results directory: recieves the logfile
+        status
+        """
+
+        # Minder __init__ needs a JobGroupDirectoryMaker to have been
+        # instantiated
+        factory = JobGroupDirectoryMakerFactory(logger)
+        self.jobGroupDirectoryMaker = factory.create(jDescriptor.paths,
+                                                     'Worker')
+
+        Minder.__init__(self, jDescriptor, logger, runTimer)
+
+        # important that the jobTimer is initialised to None for the
+        # logic of the testing of the job being in batch to work.
+        self.jobTimer       = None
+        self.jobWeight      = 1 # These jobs are counted in the Launcher stats.
+        self.popen          = None
+        self.subLog         = ""        
+        self.hasFired       = False
+        self.pid            = None
+
+        # extend the Minder checks to perform. Kit was obtained by base class
+        self.checks.append(self.jobGroupKit.logChecker)
+        self.checks.extend(self.jobGroupKit.getItem('checkers'))
+                
+        # Add the log file to the keep files
+        # directory depends on the submit command.
+        # The name is stored in the job Descriptor at submission time        
+        destLogName = self.fullResultsFileName(self.jDescriptor.log)
+        srcFile     = join(self.runPath,self.jDescriptor.log)
+
+        # add the log file as a keep file
+        infoString = "Job Log file"
+        self.keepFiles[srcFile] = {'keepFileString':destLogName,
+                                   'infoString':infoString}
+
+       
+        commander = CommanderFactory(self.logger).create( jDescriptor )
+        msg = 'Could not create a minder for descriptor %s' % (
+            jDescriptor.identifiedName)
+        if not commander: return
+        
+        self.submitCommand = commander.submitCommand(jDescriptor)
+        self.logger.debug( "submit command: "+self.submitCommand)
+
+    
+
+
+    # ------------------------------------------------------------------------
+
+    def fire(self):
+        """
+        Submits the job by spawning a subprocess.
+        The Popen objects captures std error, and std out
+        """
+        self.logger.debug('start fire()')
+        if self.hasFired:
+            msg  = 'Has already fired, being refired!??! '
+            msg += self.jDescriptor.identifiedName
+            self.logger.warning(msg)
+            return
+        os.chdir(self.jDescriptor.runPath)
+
+        self.checkQueue()
+        
+        m =  'fired %s  \n submit command %s'
+        m = m % (str(self.jDescriptor.identifiedName),
+                 str(self.submitCommand))
+        self.logger.debug(m)
+
+
+        self.popen=Popen4(self.submitCommand)
+        self.pid = self.popen.fromchild.readlines()[0].strip() # submit command prints process id to standard out
+        self.logger.debug('Minder: pid = %s' % self.pid)
+        self.hasFired=True
+        
+    #------------------------------------------------------------------------
+
+    def checkQueue(self):
+        return True
+        
+
+    #-----------------------------------------------
+
+    def setDone(self):
+        """
+        Sets the done flag. Also deletes the Popen object.
+        This is to prevent crashes due to 'too many files open'
+        os error when running many jobs.
+        """
+
+        m='Setting the done flag for job %s' % self.jDescriptor.identifiedName
+        self.logger.debug(m)
+                    
+        Minder.setDone(self)
+        del self.popen
+        self.popen = None
+
+    # ------------------------------------------------------------------------
+
+    # =======================================================
+    #
+    # Override of a state transition method
+    #
+    # =======================================================
+
+    def fromRunning(self):
+        if self.fromRunningTest():
+            self.fromRunningAction()
+
+    def fromRunningAction(self):
+        "Runs postscripts, performs checks and sets the status accordingly"
+
+        theJob = self.jDescriptor.identifiedName
+
+        self.logger.debug('Just before runPS for ' + str(theJob))
+        self.runPostScripts()
+        self.logger.debug('Just before runActions for ' + str(theJob))
+        self.runActions()
+        self.logger.debug('Just before runMoniActions for ' + str(theJob))
+        self.runMoniActions()
+        self.logger.debug('Just before runTests for ' + str(theJob))
+        self.runTests()
+        self.logger.debug('Just before performChecks for ' + str(theJob))
+        
+        # perform checks on the job (finished OK? regression?..)
+        fullStatusList = self.performChecks()
+
+        self.logger.debug('Just after performChecks for ' + str(theJob))
+        #reduce this list to a 2-member list and set the Status object
+        ssl = self.summaryCheckStatusList(fullStatusList)
+
+        self.logger.debug('ssl for job: ' + str(theJob) + ' is: ' + str(ssl))
+        self.setStatusList(ssl)
+
+        self.logger.debug('Just after setStatusList for ' + str(theJob))
+        #if not success everywhere in fullStatusList, get info for the user
+        self.handleCheckResults(ssl)
+
+        self.logger.debug('Just after handleCheckResults for ' + str(theJob))
+        
+        # copy files to be kept (log histos, ntuples...) to results dir
+        #if not self.postProcessOn:
+        self.copyKeepFiles()
+
+        self.logger.debug('Just after copyKeepFiles for ' + str(theJob))
+        
+        # make sure ALL files in run and results directory are
+        # accessible by all members of the UCL Atlas group
+        self.setProtection()
+
+        self.logger.debug('Leaving WorkerJobMinder::fromRunningAction ' + str(theJob))
+        
+#------------------------------------------------------------------------
+
+    def __str__(self):
+
+        s = Minder.__str__(self)
+        s += '----------- Worker Minder ---------------\n'
+        s += ' checks:              %s' % formatCollection(self.checks)
+        return s
+    
+
+    def dump(self):
+        self.logger.debug('|-------------------------------------------|')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|        Worker Job Minder  dump            |')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|-------------------------------------------|')
+
+        self.logger.debug(self.__str__())
+        
+# ==================================================================
+# ==================================================================
+# ==================================================================
+
+class LSFBatchJobMinder(WorkerJobMinder):
+    """
+    A JobMinder class for running on the LSF batch queues
+    """
+    def __init__(self, jDescriptor, logger, runTimer):
+        WorkerJobMinder.__init__(self,
+                                 jDescriptor,
+                                 logger,
+                                 runTimer)
+        self.logger.debug( "initialising LSFBatchJobMinder")
+
+    # =======================================================
+    #
+    # Override of a state transition method
+    #
+    # =======================================================
+
+    def fromQueuedTest(self):
+        "Polls popen object to see if the submission command has terminated"
+
+        if self.popen == None:    return False
+        if self.popen.poll()==-1: return False
+
+        return True
+    
+    # -----------------------------------------------
+    
+    def fromRunningTest(self): 
+        " Running is complete if the logfile is found"
+
+        #        self.checkForTimeOut()
+        lf, found  = self.getLogFile()
+
+        return found
+
+    # -----------------------------------------------
+    
+    def fromRunningAction(self):
+        "Additional actions for this class"
+    
+        lf, found  = self.getLogFile()
+        self.logger.debug("found log file = " + lf)
+
+        dest = join(self.runPath, self.jDescriptor.log)
+        shutil.copy(lf, dest)
+        
+        WorkerJobMinder.fromRunningAction(self)
+        
+    # -----------------------------------------------
+    
+    def getLogFile(self):
+        logFile = ""
+        got_it = 0
+        fileList = os.listdir(self.runPath)
+        for object in fileList:
+            path = join(self.runPath,object)
+            if os.path.isdir(path):
+                if object.find("LSFJOB_")!=-1 :
+                    subdirFileList = os.listdir(path)
+                    for thing in subdirFileList:
+                        if thing=="STDOUT":
+                            logFile = join(self.runPath,object,thing)
+                            got_it = 1
+                            break
+
+        return (logFile,got_it)
+
+    # -----------------------------------------------
+    
+    def dump(self):
+        self.logger.debug('|-------------------------------------------|')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|     LSF Batch Job Minder  dump            |')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|-------------------------------------------|')
+
+        self.logger.debug(self.__str__())
+        
+# ==================================================================
+# ==================================================================
+# ==================================================================
+
+class LinuxInteractiveJobMinder(WorkerJobMinder):
+    
+    def __init__ (self, jDescriptor, logger,  runTimer):
+        WorkerJobMinder.__init__(self,
+                                 jDescriptor,
+                                 logger,
+                                 runTimer)
+
+        self.logger.debug( "initialising LinuxInteractiveJobMinder")
+        
+
+    # =======================================================
+    #
+    # Override of a state transition method
+    #
+    # =======================================================
+
+    def fromQueuedTest(self):        
+        if self.popen == None: return False
+        return True
+
+    def fromRunningTest(self):
+        "Running is complete if the subprocess has completed"
+
+        if self.popen.poll()==-1: return False    #poll until process completes
+        
+        # Looks to see if the log has appeared
+        elif  self.jDescriptor.log  in os.listdir(self.runPath): return True
+
+        #return False
+
+    def dump(self):
+        self.logger.debug('|-------------------------------------------|')
+        self.logger.debug('|                                           |')
+        self.logger.debug('| Linux InteractiveJob Minder  dump         |')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|-------------------------------------------|')
+
+        self.logger.debug(self.__str__())
+
+# ==================================================================
+# ==================================================================
+# ==================================================================
+            
+class PBSJobMinder(WorkerJobMinder):
+    
+    def __init__ (self, jDescriptor, logger, runTimer):
+        WorkerJobMinder.__init__(self,
+                                 jDescriptor,
+                                 logger,
+                                 runTimer)
+
+        
+        self.logger.debug("initialising PBSJobMinder")    
+
+        log  = str(RTTpath(self.jDescriptor.runPath,self.jDescriptor.log))
+        # elog = str(RTTpath(self.jDescriptor.runPath,self.jDescriptor.elog))
+        sp   = self.jDescriptor.paths.shareArea
+        rp   = self.runPath
+        # self.retryTester = RetryTester(log, elog, logger, sp, rp)
+        self.retryTester = RetryTester(log, logger, sp, rp)
+        
+    # ------------------------------------------------------------------------
+
+    def stopJob(self):
+        if self.done: return
+        
+        try:
+            cmd = ['qdel ' + str(self.pid)]
+            sc       = ShellCommand(cmd, 100, None, True)
+        except Exception, e:
+            m  = 'Job: ' + str(self.jDescriptor.identifiedName)
+            m += ' threw an exception while issuing cmd: %s' % cmd[0] 
+            self.logger.warning(m)
+
+
+    # -----------------------------------------------
+    
+    def fromQueuedTest(self):
+        """Finds out from popen if queued on PBS
+        stores the submission log"""
+
+        self.logger.debug('WorkerJobMinder fromQueuedTest')
+        
+        if self.popen == None:    return False
+        if self.popen.poll()==-1: return False
+        
+        # handle the case where PBS does not allow us to submit the job
+        self.subLog = self.popen.fromchild.read()
+        self.logger.debug('Got self.subLog. It is: ' + str(self.subLog))
+
+        self.checkForPBSsubmissionError()
+        
+        return True
+
+    # -------------------------------------------------------------------------
+
+    def fromRunningTest(self):
+        "Running is complete if the log files have returned"
+        
+
+        # query if job is in batch queue
+        queryOK, inBatch = self.checkJobInBatch()
+
+        # give up if the query failed
+        if not queryOK:
+            m = 'Job %s: PBS query failed, setting state error'
+            m = m %  self.jDescriptor.identifiedName
+            self.logger.warning(m)
+
+            # on bad query return False so that RunningAction is not called
+            # and set the status to error to go to the error state functions.
+            self.setStatus('error')
+            return False 
+
+        # if the job is still running, test fails
+        if inBatch: return False
+
+        m = 'Job %s: has left batch'  %  self.jDescriptor.identifiedName
+        self.logger.debug(m)
+
+        # are the log files visible?
+        answer = self.areLogFilesInRunDir()
+        m = 'Job %s: log files found? %s'
+        m = m % (self.jDescriptor.identifiedName, str(answer))
+        self.logger.debug(m)
+
+        self.logger.debug(m)
+        dirSnapShot(self.runPath)
+        dirSnapShot2(self.runPath)
+        dirSnapShot3(self.runPath)
+        dirSnapShot4(self.runPath)
+
+        return answer
+    
+    # -------------------------------------------------------------------------
+
+    def fromRunningAction(self):
+        #add the error log to the keep file list. This exceptional
+        #handling of the error log is due to the fact that the error
+        #logs are only produced when the PBS queues are used,
+
+        # src = join(self.runPath, self.jDescriptor.elog)
+        # infoString = "Job Error log"
+        # self.keepFiles[src] = {
+        # 'keepFileString': self.fullResultsFileName(self.jDescriptor.elog),
+        # 'infoString':     infoString
+        # }
+
+        self.audit()
+        
+        WorkerJobMinder.fromRunningAction(self)
+        mustBeSet = {
+            'exitStatus': self.exitStatus,
+            'CPU time':self.cpuTime,
+            'Mem': self.mem,
+            'VMem':self.vmem,
+            'Wall time':self.wallTime
+            }
+        
+        [self.logger.info('Audit info: %s %s' % m) for m in mustBeSet.items()]
+
+    # -------------------------------------------------------------------------
+
+    def fromError(self):
+
+
+        if self.fromErrorRetryTest():
+            m= 'fromError() - retry %d' % self.errorStateCurRetry
+            self.logger.info(m)
+            self.fromErrorAction()
+        else:
+            m = 'fromError() - no retry: setting done' 
+            self.logger.info(m)
+            self.setDone()
+
+    # -------------------------------------------------------------------------
+
+    def fromErrorRetryTest(self):
+        
+        if self.retryTester.shouldRetry():
+            m ='fromErrorRetryTest() %d %d' %(self.errorStateCurRetry,
+                                              self.errorStateMaxRetry)
+            self.logger.debug(m)
+            if self.errorStateCurRetry < self.errorStateMaxRetry:
+                self.errorStateCurRetry += 1
+                return True
+
+        return False
+
+    # -------------------------------------------------------------------------
+    
+    def fromErrorAction(self):
+
+        # the presence of the log files signals the end of the running
+        # phase - remove the files,and ensure they are copied to the
+        # results web pages.
+
+        logs = [str(RTTpath(self.jDescriptor.runPath,self.jDescriptor.log))]
+        # str(RTTpath(self.jDescriptor.runPath,self.jDescriptor.elog))]
+        
+        for log in logs:
+            if os.path.exists(log):
+                dest = log+'_'+str(self.errorStateCurRetry)
+                m = 'Error retry: moving file %s to %s' % (log, dest)
+                self.logger.debug(m)
+                os.rename(log, dest)
+                self.makeKeepFileEntry(os.path.basename(dest),"Log file leading to a retry")
+                # self.keepFiles[dest] = {'keepFileString':self.fullResultsFileName(os.path.basename(dest)),'infoString':infoString}
+        
+
+
+        # re-fire the job
+        self.logger.info('fromErrorAction() - restarting the job' )
+        self.status.set('queued')
+        self.hasFired = False
+        self.jobTimer = None
+        self.fire()
+        
+    # -------------------------------------------------------------------------
+
+    def checkQueue(self):
+        #check if queue exists        
+
+        if self.jDescriptor.paths.mode == 'PBS':
+            testCmd = 'qstat -q ' + self.jDescriptor.batchQueue()
+            self.popen =Popen4(testCmd)
+            result  = self.popen.fromchild.read()
+
+            badQueue = result.find('Unknown queue')!=-1
+            if badQueue:
+                msg  = 'Exiting job because queue, '
+                msg += self.jDescriptor.batchQueue()
+                msg += ', does not exist for mode '
+                msg += self.jDescriptor.paths.mode
+                self.logger.error(msg)
+
+                self.jDescriptor.reporter.badQueueError(self.jDescriptor.batchQueue(),self.jDescriptor.mode)
+                self.jDescriptor.reporter.writeReport()
+                self.forceCloseDown()
+
+    # -------------------------------------------------------------------------
+    
+    def checkForPBSsubmissionError(self):        
+        if self.subLog.find('pbs_iff: error returned') != -1:
+            self.jDescriptor.reporter.batchMachineRefusesSubmissionError()
+            self.jDescriptor.reporter.writeReport()
+            self.forceCloseDown()
+        
+    # -------------------------------------------------------------------------
+
+    def checkJobInBatch(self):
+        'Create the RunTimer if job is no longer in batch queues.'
+
+        queryOK = True
+        inBatch = self.jobTimer == None
+
+        # if job timer has been set previously, the job has left batch
+        # the initial condition is that the job is in batch.
+        if not inBatch: return (queryOK, inBatch)
+
+        # if interogation of the batch system failed, flag this.
+        # note that if the query fails, the timer will not be set
+        queryOK, inBatch = self.isJobStillInBatch()
+        if not queryOK: return (queryOK, inBatch)
+
+        # the batch system was successfully queried, and the job was not there
+        # and this is the first time that this has happened: start the timer
+        # which is also the flag that the job is no longer in the batch system.
+        if not inBatch: self.setJobTimer()
+        return (queryOK, inBatch)
+
+    # -------------------------------------------------------------------------
+
+    def setJobTimer(self):
+        timerLength = 60*60 # seconds
+        msg  = 'PBS job ID: ' + str(self.pid)
+        msg += ' belonging to job ' + str(self.jDescriptor.identifiedName)
+        msg += ' is no longer in the PBS queues. Creating a job timer initialised with ' + str(timerLength) + ' seconds...'
+        self.logger.info(msg)
+        
+        # create the timer
+        self.jobTimer = RunTimer(timerLength, self.logger)
+
+    # -------------------------------------------------------------------------
+    
+    def pbsReplyProvesJobIsInQueue(self,reply):
+        # A positive reply is a 3 liner with the 3rd line starting with the job id
+        if len(reply)==3:
+            if reply[2].strip().startswith(self.pid.split('.')[0]):
+                return True
+            
+        return False
+
+    # -------------------------------------------------------------------------
+    
+    def pbsReplyProvesJobIsAbsentFromQueue(self,reply):
+        # A negative reply is a 1 liner 
+        if len(reply)==1:
+            if reply[0].strip().find('qstat: Unknown Job Id')!=-1:
+                return True
+            
+        return False
+
+    # -------------------------------------------------------------------------
+
+    def sleepTime(self,attempt):
+        if attempt <= 3:
+            return 300
+        else:
+            return 300 * (2**(attempt-3))
+
+    # -------------------------------------------------------------------------
+    
+    def isJobStillInBatch(self):
+        'Returns True is job still in batch, False otherwise.'
+        isFound = True
+        maxTry  = 10
+        attempt = 0
+        queryStat  = False
+        
+        while True:
+            attempt += 1
+            try:
+                pbsQuery = ['qstat ' + str(self.pid)]
+                sc       = ShellCommand(pbsQuery, 100, None, True)
+            except Exception, e:
+                m  = 'Job: ' + str(self.jDescriptor.identifiedName)
+                m += ' threw an exception while issuing qstat'
+                m += ' Attempt: %d of %d\n' % (attempt, maxTry)
+                m += ' Traceback:\n%s%s\n'% (exc2string(sys.exc_info()),str(e))
+                self.logger.warning(m)
+
+                try:
+                    self.printStatusCodesToLogger()
+                except Exception, e:
+                    m  = 'Job: %s threw an exception trying to print '
+                    m += ' qstat status codes! Attempt: %d'
+                    m = m % (str(self.jDescriptor.identifiedName), attempt)
+                    self.error(m)
+                    self.logger.error(exc2string(sys.exc_info()))
+                    self.logger.error(str(e))
+                                        
+                    self.sleepTime(attempt) # maybe things be all better in a bit
+            else:
+                pbsReply = sc.getReply()
+                
+                if self.pbsReplyProvesJobIsInQueue(pbsReply):
+                    queryStat = True
+                    isFound   = True
+                    return (queryStat,isFound)
+                elif self.pbsReplyProvesJobIsAbsentFromQueue(pbsReply):
+                    queryStat = True
+                    isFound   = False
+                    return (queryStat,isFound)
+                else: # reply is corrupt
+                    msg  = 'Attempt number: ' + str(attempt) +'\n'
+                    msg += 'PBS reply to command: ' + str(pbsQuery) + ' was corrupt! It was:\n '
+                    msg += str(pbsReply) + '\n'
+                    msg += self.getExtraInfoOnQstat() + '\n'
+                    self.logger.warning(msg)                    
+                    queryStat = False
+                    self.sleepTime(attempt) # maybe things be all better in a bit
+                    
+            if attempt==maxTry:
+                # give up and kill this job
+                msg  = 'Job: ' + str(self.jDescriptor.identifiedName)
+                msg += ' is being killed after %d' % maxTry
+                msg += ' failed attempts to interrogate qstat about it.'
+                self.logger.error(msg)
+                queryStat = False
+                isFound   = False
+                return (queryStat, isFound)
+    
+    # -------------------------------------------------------------------------
+
+    def getExtraInfoOnQstat(self):
+        extraInfoCmd = ['echo "ls -l /usr/bin/..."',
+                        'ls -l /usr/bin/',
+                        'echo ""',
+                        'echo "Echoing PATH variable"',
+                        'echo $PATH',
+                        'echo ""',
+                        'echo "which qstat..."',
+                        'which qstat']
+ 
+        try:
+            sc = ShellCommand(extraInfoCmd)
+        except Exception, e:
+            reply = ['Exception was thrown trying to use ShellCommand to gather extra information on qstat.']
+            reply.append(exc2string(sys.exc_info()))
+            reply.append(str(e))
+        else:
+            reply = sc.getReply()
+
+        reply.append('Will sleep for 30 seconds now before next attempt to interrogate qstat.')
+
+        replyString = ''
+        for line in reply:
+            replyString += line + '\n'
+        return replyString
+
+    # -------------------------------------------------------------------------
+    
+    def printStatusCodesToLogger(self):
+        if self.statusInt:
+            wcoreStat   = os.WCOREDUMP(self.statusInt)
+            wifSigStat  = os.WIFSIGNALED(self.statusInt)
+            wifExitStat = os.WIFEXITED(self.statusInt)
+            wexitStat   = os.WEXITSTATUS(self.statusInt)
+            wstopStat   = os.WSTOPSIG(self.statusInt)
+            wtermStat   = os.WTERMSIG(self.statusInt)
+            del(self.statusInt)
+
+            msg  = '==============================================\n'
+            msg += 'EXCEPTION WAS THROWN TRYING TO QSTAT A JOB ID!\n'
+            msg += 'Job ID  : ' + str(self.pid) + '\n'
+            msg += 'Job name: ' + str(self.jDescriptor.identifiedName) + '\n'
+            msg += '----------------------------------------------\n'
+            msg += 'wcoreStat   : ' + str(wcoreStat)   + '\n'
+            msg += 'wifSigStat  : ' + str(wifSigStat)  + '\n'
+            msg += 'wifExitStat : ' + str(wifExitStat) + '\n'
+            msg += 'wexitStat   : ' + str(wexitStat)   + '\n'
+            msg += 'wstopStat   : ' + str(wstopStat)   + '\n'
+            msg += 'wtermStat   : ' + str(wtermStat)   + '\n'
+            msg += '==============================================\n'
+            self.logger.error(msg)
+        else:
+            msg  = '==============================================\n'
+            msg += 'EXCEPTION WAS THROWN TRYING TO QSTAT A JOB ID!\n'
+            msg += 'Job ID  : ' + str(self.pid) + '\n'
+            msg += 'Job name: ' + str(self.jDescriptor.identifiedName) + '\n'
+            msg += '----------------------------------------------\n'
+            msg += 'Unable to ask os functions as self.statusInt was not set!\n'
+            msg += '==============================================\n'
+            self.logger.error(msg)
+
+    # -------------------------------------------------------------------------
+    
+    def areLogFilesInRunDir(self):        
+        files = os.listdir(self.runPath)
+
+        #if self.jDescriptor.log in files and self.jDescriptor.elog in files:
+
+        # NOTE: we used to have the above when  Commander qsub command split the
+        # std out and err into 2 different files. Now we have joined them, so only
+        # need look for log file.
+        if self.jDescriptor.log in files:
+            m = "Found the log file %s in rundir %s"
+            m = m % (self.jDescriptor.log, self.runPath)            
+            self.logger.debug(m)
+
+            return True
+
+        return False
+
+    # -------------------------------------------------------------------------
+    def audit(self):
+
+        if self.jDescriptor.paths.site != 'UCLslc3': return
+
+        user = os.environ['USER']
+        fn = time.strftime("%Y%m%d", time.gmtime())
+        src = user+'@pc72.hep.ucl.ac.uk:/var/spool/pbs/server_logs/'+fn        
+        dest = os.path.join(str(self.runPath),fn)
+
+        sc = ShellCommand(['scp -1 '+src+' '+ dest],timeout=60)
+        self.logger.info(sc.getReply())
+
+        if not os.path.exists(dest):
+            m  = 'could not retrieve file %s: - ' % src
+            m += 'needs ssh keys to be set up for user %s' % user
+            self.logger.error(m)
+        else:
+            self.logger.info('Managed to retrieve from pc72 PBS log file %s ' % dest)
+
+            
+        pbslog = open(dest, 'r')
+        lines = pbslog.readlines()
+        pbslog.close()
+        self.logger.info('Found %d lines in the PBS log file. Will now delete it to save space.' % len(lines))
+        os.remove(dest)
+        
+        # sample line:
+        # 08/17/2006 15:57:05;0010;PBS_Server;Job;347428.pc72.hep.ucl.ac.uk;Exit_status=0 resources_used.cput=03:48:00 resources_used.mem=893492kb resources_used.vmem=969136kb resources_used.walltime=23:39:42
+
+        lines = [l for l in lines if l.find(self.pid)>-1]
+        lines = [l for l in lines if l.find('resources_used')>-1]
+        self.logger.info('Grepping of PBS log file found %d matching lines.' % len(lines))
+        if not lines:
+            self.logger.info('Found 0 matching lines in PBS log file. Returning.')
+            return
+        
+        line = lines[0]
+        tokens = line.split()
+
+        ok = True
+        for t in tokens:
+            if t.find('Exit_status=')>-1:
+                ttokens = t.split('=')
+                if len(ttokens) == 2: self.exitStatus = ttokens[1]
+                continue
+            if t.startswith('resources_used.'):
+                ttokens = t.split('.')
+                if len(ttokens) == 2:
+                    ttokens = ttokens[1].split('=')
+                    if ttokens[0] == 'cput':     self.cpuTime = convertToSeconds(ttokens[1])
+                    if ttokens[0] == 'mem':      self.mem = ttokens[1]
+                    if ttokens[0] == 'vmem':     self.vmem = ttokens[1]
+                    if ttokens[0] == 'walltime': self.wallTime = convertToSeconds(ttokens[1])
+                    
+
+        mustBeSet = [
+            self.exitStatus,
+            self.cpuTime,
+            self.mem,
+            self.vmem,
+            self.wallTime
+            ]
+
+        [self.logger.warning('Error finding audit information')
+         for m in mustBeSet if m=='Unknown']
+            
+
+    # -------------------------------------------------------------------------
+
+    def __str__(self):
+        
+        s = WorkerJobMinder.__str__(self)+'\n'
+        return s
+
+    # -------------------------------------------------------------------------
+    
+    def dump(self):
+        self.logger.debug('|-------------------------------------------|')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|           PBS  Minder  dump               |')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|-------------------------------------------|')
+
+        self.logger.debug(self.__str__())
+
+# ==================================================================
+# ==================================================================
+# ==================================================================
+    
+class DummyJobMinder(WorkerJobMinder):
+    def __init__(self, jDescriptor, logger, runTimer):
+        WorkerJobMinder.__init__(self,
+                                 jDescriptor,
+                                 logger,
+                                 runTimer)
+
+    # ------------------------------------------------------------
+    
+    def fire(self):
+        self.logger.debug('end fire()')
+        self.setStatus('success')
+        self.hasFired = True
+
+    # ------------------------------------------------------------
+    
+    def dump(self):
+        self.logger.debug('|-------------------------------------------|')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|           Dummy  Minder  dump             |')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|-------------------------------------------|')
+
+        self.logger.debug(self.__str__())
+
+# ==================================================================
+# ==================================================================
+# ==================================================================
+    
+class RunningDummyJobMinder(WorkerJobMinder):
+    def __init__(self, jDescriptor, logger, runTimer):
+        WorkerJobMinder.__init__(self,
+                                 jDescriptor,
+                                 logger,
+                                 runTimer)
+        
+    def fire(self):
+        self.logger.debug('start fire()')
+        self.setStatus('running')
+        self.hasFired = True
+
+    def dump(self):
+        self.logger.debug('|-------------------------------------------|')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|           Running Dummy  Minder  dump     |')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|-------------------------------------------|')
+
+        self.logger.debug(self.__str__())
+
+# ==================================================================
+# ==================================================================
+# ==================================================================
+    
+class QueuedDummyJobMinder(WorkerJobMinder):
+    def __init__(self, jDescriptor, logger, runTimer):
+        WorkerJobMinder.__init__(self,
+                                 jDescriptor,
+                                 logger,
+                                 runTimer)
+        
+    def fire(self):
+        self.logger.debug('start fire()')
+        self.setStatus('queued')
+        self.hasFired = True
+
+    def dump(self):
+        self.logger.debug('|-------------------------------------------|')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|      Queued Dummy  Minder  dump           |')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|-------------------------------------------|')
+
+        self.logger.debug(self.__str__())
+
+
+# ==================================================================
+# ==================================================================
+# ==================================================================
+
+class TransparentDummyJobMinder(WorkerJobMinder):
+    def __init__(self, jDescriptor, logger, runTimer):
+        WorkerJobMinder.__init__(self,
+                                 jDescriptor,
+                                 logger,
+                                 runTimer)
+
+    def fire(self):
+        """Sets the sattus to the final status of the last job to use
+        the run directory"""
+        
+        self.logger.debug('start fire()')
+        statFile = open( join(self.jDescriptor.runPath, 'status.txt'), 'r')
+        status = statFile.read()
+        self.setStatus(status)
+
+        self.hasFired = True
+                         
+    def dump(self):
+        self.logger.debug('|-------------------------------------------|')
+        self.logger.debug('|                                           |')
+        self.logger.debug('| Transparant Dummy Job Minder  dump        |')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|-------------------------------------------|')
+
+        self.logger.debug(self.__str__())
+
+#--------------------------------------------------------------------------
+        
+
+# =============================================================================
+class ErrorMinder(WorkerJobMinder):
+    def __init__(self, jDescriptor, logger, runTimer):
+        WorkerJobMinder.__init__(self, jDescriptor, logger, runTimer)
+    def fromQueuedAction(self):
+        self.setStatus("error")
+    def fromError(self): self.setDone()

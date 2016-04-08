@@ -1,0 +1,26 @@
+from Factory_HardCoded       import HardCodedFactory
+from Factory_SiteSpecifics   import SiteSpecificsFactory
+from Factory_Legals          import LegalsFactory
+from Factory_PathNameBuilder import PathNameBuilderFactory
+from RTTpath                 import RTTpath
+
+class ParametersForStampObject:
+    def __init__(self,rttConfig,logger):
+        self.runType    = rttConfig.get('runType')
+        releaseType     = rttConfig.get('releaseType')
+        originalBranch  = rttConfig.get('originalBranch')
+        cmtConfig       = rttConfig.get('cmtConfig')
+        site            = rttConfig.get('site')
+        hardCoded       = HardCodedFactory(logger).create(releaseType, self.runType)
+        siteSpecifics   = SiteSpecificsFactory(logger).create(site)
+        legals          = LegalsFactory(logger).create(releaseType,
+                                                       originalBranch,
+                                                       hardCoded)
+        self.pathNameBuilder = PathNameBuilderFactory(logger).create(releaseType,
+                                                                     rttConfig,
+                                                                     hardCoded,
+                                                                     legals,
+                                                                     siteSpecifics)
+        
+        self.distArea  = RTTpath(rttConfig.get('distArea'))
+            

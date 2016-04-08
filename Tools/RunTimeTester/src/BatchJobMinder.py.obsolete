@@ -1,0 +1,306 @@
+
+import os, time,string, sys
+
+from RunTimer                       import *
+from exc2string2                    import exc2string2
+from RetryTester                    import RetryTester
+from WorkerMinder                   import WorkerJobMinder
+from ShellCommand                   import ShellCommand
+from RTTpath                        import RTTpath
+
+
+# -------------------------------------------------------------------------
+from MethodTracer        import MetaTracer
+# uncomment to monitor all method calls (shows args + return values)
+# __metaclass__ = MetaTracer
+            
+class BatchJobMinder(WorkerJobMinder):
+    
+    def __init__ (self, argBag, jDescriptor):
+        WorkerJobMinder.__init__(self, argBag, jDescriptor)
+
+        
+        self.logger.debug("initialising BatchJobMinder for job %s" % self.identifiedName)    
+
+        log  = str(RTTpath(self.runPath, self.log))
+        sp   = self.shareArea
+        rp   = self.runPath
+        # self.retryTester = RetryTester(log, elog, logger, sp, rp)
+        self.retryTester  = RetryTester(log, self.logger, sp, rp)
+        self.retryCount   =  0
+        self.retryMax     =  5
+        
+        self.pid          =  0
+        self.timedOut     = False
+        self.jobIsInBatch = False
+        self.logFileTimer = None
+        self.wallTimer    = None
+        self.batchError   = False
+
+        self.wallTimeTimeout = 72*60*60 # 72 hours
+        self.logFileTimeout  = 1*60*60 # 1
+
+        self.suggestedBatchWallTime = jDescriptor.suggestedBatchWallTime
+
+    # ------------------------------------------------------------------------
+
+    def handleBatchError(self):
+        self.batchError = True
+
+    # ------------------------------------------------------------------------
+
+    def stopJob(self):
+        pass
+
+    # -------------------------------------------------------------------------
+
+    def checkQueue(self):
+        #check if queue exists        
+        pass
+
+    # -------------------------------------------------------------------------
+
+    def jobIsRunning(self):
+        'Create the RunTimer if job is no longer in batch queues.'
+        
+
+        # self.jobIsInBatch is set true in fire()
+        queryOK = True
+        if not self.jobIsInBatch: return (queryOK, self.jobIsInBatch)
+
+        # if the job is flagged as being in the batch queue, check if this is still the case.
+        # flag failure of the interogation of the batch system.
+        queryOK, inBatch = self.isJobStillInBatch()
+        if not queryOK: return (queryOK, None)
+
+        
+        if inBatch: # job is still in batch
+            self.logger.debug('Job %s is running in batch' % str(self.pid))
+            return (queryOK, True)
+        else: # job no longer seen in batch system
+            m = 'Job %s is not visible in batch, setting a logFile timer for %d secs' % (self.pid,
+                                                                                         self.logFileTimeout)
+            self.logger.info(m)
+            self.logFileTimer = RunTimer(self.logFileTimeout, self.logger)
+            self.jobIsInBatch = False
+            return (queryOK, False)
+            
+    # -------------------------------------------------------------------------
+    
+    def batchReplyProvesJobIsInQueue(self,reply): pass
+    # -------------------------------------------------------------------------
+    
+    def batchReplyProvesJobIsAbsentFromQueue(self,reply): pass
+    # -------------------------------------------------------------------------
+
+    def sleepTime(self,attempt):
+        if attempt < 1: return 2
+        if attempt == 1: return 2
+        if attempt == 2: return 8
+        if attempt == 3: return 10
+
+        return 30
+
+    # -------------------------------------------------------------------------
+    
+    def isJobStillInBatch(self):
+        'Returns True is job still in batch, False otherwise.'
+        isFound = True
+        maxTry  = 5
+        attempt = -1
+        queryStat  = False
+        
+        bQuery = self.batchQuery()
+        while True:
+            attempt += 1
+                    
+            if attempt==maxTry:
+                # give up on this job
+                msg  = 'Abandoning attempt to query batch sys after %d attempts %s ' % (attempt,
+                                                                                        self.identifiedName)
+                self.logger.error(msg)
+                queryStat = False
+                isFound   = False
+                return (queryStat, isFound)
+
+
+            bReply = ShellCommand([bQuery], self.logger, 100, None, False).getReply()
+
+            if not self.batchQueryReplyFormatOK(bReply):
+
+                msg  = 'Attempt number: %d\nBad reply: command = %s; reply = %s; extra info =%s ' % (
+                    attempt,
+                    bQuery,
+                    bReply,
+                    self.getExtraInfoOnBatchQueryCommand())
+                self.logger.warning(msg)                    
+                stime = self.sleepTime(attempt)
+                m = 'sleep for %d seconds before next attempt to interrogate batch system with %s.' % (stime, bQuery)
+                self.logger.debug(m)
+                time.sleep(stime)
+                continue
+
+            if self.batchReplyProvesJobIsInQueue(bReply):
+                queryStat = True
+                isFound   = True
+                self.logger.debug('Job proved to be in queue')
+                return (queryStat,isFound)
+            elif self.batchReplyProvesJobIsAbsentFromQueue(bReply):
+                self.logger.debug('Job proved not to be in queue')
+                queryStat = True
+                isFound   = False
+                return (queryStat,isFound)
+            else:
+                msg = 'Cannot determine if job is in queue from reply: %s, will resissue query' % bReply
+                stime = self.sleepTime(attempt)
+                m = 'sleep for %d seconds before next attempt to interrogate batch system with %s.' % (stime, bQuery)
+                self.logger.debug(m)
+                time.sleep(stime)
+                continue
+    
+    # -------------------------------------------------------------------------
+
+    def getExtraInfoOnBatchQueryCommand(self): 
+        extraInfoCmd = ['echo "Echoing PATH variable"',
+                        'echo $PATH',
+                        'echo ""',
+                        'which %s' % self.batchQueryCommand()]
+        
+        try:
+            sc = ShellCommand(extraInfoCmd, self.logger)
+        except Exception, e:
+            reply = ['Exception was thrown trying to use ShellCommand to gather extra information on bjobs.']
+            reply.append(exc2string2())
+            reply.append(str(e))
+        else:
+            reply = sc.getReply()
+
+
+        replyString = ''
+        for line in reply:
+            replyString += line + '\n'
+        return replyString
+
+    # -------------------------------------------------------------------------
+    
+    def areLogFilesInRunDir(self):        
+        files = os.listdir(self.runPath)
+
+        if self.log in files:
+            m = "Found the log file %s in rundir %s"
+            m = m % (self.log, self.runPath)            
+            self.logger.debug(m)
+
+            return True
+
+        return False
+
+    # -------------------------------------------------------------------------
+
+    def retryTest(self):
+
+        if not self.logResult == 'error': return False
+        
+        if self.retryTester.shouldRetry():
+            m ='retryTest() %d %d' % (self.retryCount,
+                                      self.retryMax)
+            self.logger.debug(m)
+            if self.retryCount < self.retryMax:
+                self.retryCount += 1
+                return True
+            
+        return False
+
+    # -------------------------------------------------------------------------
+
+    def prepareForRetry(self):
+
+        logs = [str(RTTpath(self.runPath, self.log))]
+        
+        for log in logs:
+            if os.path.exists(log):
+                dest = log+'_'+str(self.errorStateCurRetry)
+                m = 'State retry: moving file %s to %s' % (log, dest)
+                self.logger.debug(m)
+                os.rename(log, dest)
+                self.makeKeepFileEntry(os.path.basename(dest),
+                                       "Log file leading to a retry")
+
+        self.logResult = 'unavailable'
+        self.logFileTimer  = None
+        self.wallTimer     = None
+
+    # -------------------------------------------------------------------------
+
+    def checkForWallTimeTimeOut(self): return self.checkForTimeOut(self.wallTimer)
+
+    # -------------------------------------------------------------------------
+
+    def checkForLogFileTimeOut(self): return self.checkForTimeOut(self.logFileTimer)
+
+    # -------------------------------------------------------------------------
+
+    def checkForTimeOut(self, timer):
+
+        if not timer: return False
+        
+        if not timer.timeOut():
+            self.timedOut = False
+            return False
+        else:
+            self.timedOut = True
+            return True
+            
+    # -------------------------------------------------------------------------
+
+    def fire(self, what):
+
+        if not self.checkQueue(): return False
+
+        self.logFileTimer = None # remove any time from a previous script
+        self.wallTimer    = RunTimer(self.wallTimeTimeout, self.logger)
+        self.jobIsInBatch = True
+        
+        WorkerJobMinder.fire(self, what)
+
+        self.setPid()
+        # time.sleep(10) # let the jobs reach the batch queues
+        self.logger.debug('Minder: pid = %s' % self.pid)
+
+    # -------------------------------------------------------------------------
+
+    def dataForMonitoring(self):
+        dict = WorkerJobMinder.dataForMonitoring(self)
+        dict['timedOut']   = self.timedOut
+        dict['batchError'] = self.batchError
+        return dict
+    # ------------------------------------------------------------------------
+    
+    def status(self):
+        
+        states  = {'operatorCloseDown': self.operatorCloseDown,
+                   'timedOut':          self.timedOut,
+                   'batchError':        self.batchError
+                   }
+        for s in states.keys():
+            if states[s]:  return s
+
+        if self.logResult == 'unavailable': return self.stateEngine.state.state
+        return self.logResult
+
+    # -------------------------------------------------------------------------
+
+    def __str__(self):
+        s  = '|-------------------------------------------|\n'
+        s += '|                                           |\n'
+        s += '|           Batch  Minder  dump           |\n'
+        s += '|                                           |\n'
+        s += '|-------------------------------------------|\n'
+        s += WorkerJobMinder.__str__(self)+'\n'
+        return s
+
+    # -------------------------------------------------------------------------
+    
+    def dump(self):
+        self.logger.debug(self.__str__())
+

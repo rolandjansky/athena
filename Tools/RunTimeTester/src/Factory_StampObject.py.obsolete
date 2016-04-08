@@ -1,0 +1,29 @@
+from Factory_BaseClass    import Factory
+from StampObject          import StampObject
+from StampObject          import StampObjectKit
+import sys
+
+class StampObjectFactory(Factory):
+    def __init__(self,logger):
+        Factory.__init__(self, logger, self.__class__.__name__)
+        
+        self.dict = {
+            'kit':           StampObjectKit,
+            'build':         StampObject
+            }
+        
+    def create(self, paramsForStampObject):
+        """
+        mode is kit or release.
+        it is overridden by local RTT runs
+        """
+        key = paramsForStampObject.runType # kit or build
+        
+        if key in self.dict.keys():
+            sto =  self.dict[key](paramsForStampObject)
+            self.logger.debug('Creating a %s' % sto.__class__.__name__)
+            return sto
+        else:
+            msg = 'Unknown release type, could not instantiate a StampObject: '+str(key)
+            self.logger.info(msg)
+            sys.exit(0)

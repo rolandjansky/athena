@@ -1,0 +1,58 @@
+"""
+Coloriser returns string of ccolored htm table elements
+coloriserMN M- number of colors
+            N - number of html table entries
+            
+Coloriser21 2:two colors (green/red. User gives green string, all others red
+            1:always returns 1 table entry
+            
+Coloriser32 3:three colors (green/red/brown. User gives green string, and red strings
+              all others brown
+            2: always return with 2 entries (padd if neccessary)
+"""
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+class Coloriser32:
+    def __init__(self, greenString, redString):
+        self.greenString = greenString
+        self.redString   = redString
+
+    def colorise(self, string):
+        strings = string.split()
+        if len(strings)==0:
+            strings.append("&nbsp")
+        if len(strings)==1:
+            strings.append("n/a")
+
+        totString = ""
+        for s in strings[0:2]:
+            if s == self.greenString:
+                totString = totString+"<td align=\"center\"><font color=\"green\">"+s+"</font></td>"
+            elif s == self.redString:
+                totString = totString+"<td align=\"center\"><font color=\"red\">"+s+"</font></td>"
+            else:
+                totString = totString+"<td align=\"center\"><font color=\"brown\">"+s+"</font></td>"
+
+        return totString
+        
+class Coloriser21:
+    def __init__(self, greenString):
+        self.greenString = greenString
+
+    def colorise(self, string):
+        strings = string.split()
+        if len(strings)==0: strings.append("&nbsp")
+
+        
+        totString = ""
+        for s in strings[0:1]:
+            if s == self.greenString:
+                totString = totString+"<font color=\"green\">"+s+"</font>"
+            else:
+                totString = totString+"<font color=\"red\">"+s+"</font>"
+
+        return totString
+        

@@ -1,0 +1,79 @@
+from PageWriter import Page0Writer, Page1Writer, Page2Writer, Page3Writer, Page4Writer
+
+class Page4WriterTest(Page4Writer):
+
+    def __init__(self, register, o, r, na, no):
+        Page4Writer.__init__(self, register, o, r, na, no)
+
+    def writePage(self):
+        # will be overwritten many times...
+        of = open('page4Test.xml','w')
+        doc = self.composePage()
+        of.write(doc.toprettyxml('   '))
+        of.close()
+
+    def checkPage(self): return True
+
+
+class Page3WriterTest(Page3Writer):
+
+    def __init__(self, register, o, r, na, no):
+        Page3Writer.__init__(self, register, o, r, na, no)
+        self.writerClass = Page4WriterTest
+
+    def writePage(self):
+        # will be overwritten many times...
+        of = open('page3Test.xml','w')
+        doc = self.composePage()
+        of.write(doc.toprettyxml('   '))
+        of.close()
+
+    def checkPage(self): return True
+    
+
+class Page2WriterTest(Page2Writer):
+
+    def __init__(self, register, o, r, na, no):
+        Page2Writer.__init__(self, register, o, r, na, no)
+        self.writerClass = Page3WriterTest
+
+    def writePage(self):
+        # will be overwritten many times...
+        of = open('page2Test.xml','w')
+        doc = self.composePage()
+        of.write(doc.toprettyxml('   '))
+        of.close()
+
+    def checkPage(self): return True
+    
+
+class Page1WriterTest(Page1Writer):
+
+    def __init__(self, register, o, r, na, no):
+        Page1Writer.__init__(self, register, o, r, na, no)
+        self.writerClass = Page2WriterTest
+
+    def writePage(self):
+        of = open('page1Test.xml','w')
+        doc = self.composePage()
+        of.write(doc.toprettyxml('   '))
+        of.close()
+
+
+    def checkPage(self): return True
+    
+
+class Page0WriterTest(Page0Writer):
+
+    def __init__(self, register, o, r, na, no):
+        Page0Writer.__init__(self, register, o, r, na, no)
+        self.writerClass = Page1WriterTest
+
+    def writePage(self):
+        of = open('page0Test.xml','w')
+        doc = self.composePage()
+        of.write(doc.toprettyxml('   '))
+        of.close()
+
+    def checkPage(self): return True
+    

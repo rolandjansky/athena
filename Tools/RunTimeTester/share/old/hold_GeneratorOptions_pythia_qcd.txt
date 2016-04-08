@@ -1,0 +1,16 @@
+#include "AthenaCommon/Atlas_Gen.UnixStandardJob.txt"
+ApplicationMgr.DLLs += { "Pythia_i"};
+Generator.Members = {"Pythia"};
+AtRndmGenSvc.Seeds = {"PYTHIA 4789899 989240512", "PYTHIA_INIT 820021 2347532"};
+Pythia.PythiaCommand = { "pydat1 mstu 11 10"
+                              ,"pypars mstp 51 7"
+                              ,"pysubs msel 0"
+                              ,"pysubs msub 11 1"
+                              ,"pysubs msub 12 1"
+                              ,"pysubs msub 13 1"
+                              ,"pysubs msub 28 1"
+                              ,"pysubs msub 53 1"
+                              ,"pysubs msub 68 1"
+                              ,"pysubs ckin 3 17.0"
+              };
+

@@ -1,0 +1,94 @@
+"""
+This module bundles the RTT factory functions.
+These functions are written as classes to help write test code.
+"""
+
+from Factory_BaseClass    import Factory
+from ScriptWriterGrid     import *
+
+
+import sys
+
+
+# -------------------------------------------------------------------------
+# ScriptWriter Factory
+# -------------------------------------------------------------------------
+class ScriptWriterGridFactory(Factory):
+  def __init__(self, logger):
+    Factory.__init__(self, logger, self.__class__.__name__)
+
+    self.dict = {
+      'AthenaHelloWorld':         AthenaScriptWriterGrid,
+      'AthenaRecExCommon':        RecExCommonScriptWriterGrid,
+      'AthenaAtlfast':            AthenaScriptWriterGrid,
+      'AthenaAtlfastAlgs':        RecExCommonScriptWriterGrid,        
+      'AthenaJiveXML':            JiveXMLScriptWriterGrid,
+      'AthenaTriggerRelease':     TriggerReleaseScriptWriterGrid,
+      'AthenaTriggerReleaseID':   TrigReleaseIDScriptWriterGrid,
+      'AthenaTriggerReleaseCalo': TrigReleaseCaloScriptWriterGrid,
+      'AthenaTriggerReleaseBS':   TriggerReleaseScriptWriterGrid,
+      'AthenaTriggerReleaseReco': TriggerReleaseScriptWriterGrid,      
+      'AthenaegammaRec':          RecExCommonScriptWriterGrid,
+      'RuleChecker':              RuleCheckerScriptWriterGrid,
+      'QAmetrics':                QAmetricsScriptWriterGrid,
+      'AthenaAtlfastWatcher':     NullScriptWriterGrid,
+      'AthenaegammaRecWatcher':   NullScriptWriterGrid,
+      'RuleCheckerWatcher':       NullScriptWriterGrid,
+      'AthenaInDetRecValidation': RecExCommonScriptWriterGrid,
+      'AthenaMuonDigiExample':    RecExCommonScriptWriterGrid,
+      'KitValidation':            KitValidationScriptWriterGrid,
+      'AthenaMooPerformance':     RecExCommonScriptWriterGrid,
+      'AthenaCaloRecEx':          RecExCommonScriptWriterGrid,
+      'AthenaCaloDigEx':          RecExCommonScriptWriterGrid,
+      'AthenaCaloSimEx':          RecExCommonScriptWriterGrid,
+      'AthenaCaloRec':            RecExCommonScriptWriterGrid,
+      'AthenaBPhysValidation':    RecExCommonScriptWriterGrid,
+      'AthenaAnalysisExamples':   RecExCommonScriptWriterGrid,
+      'AthenaDigitization':       RecExCommonScriptWriterGrid,
+      'AthenaG4AtlasApps':        RecExCommonScriptWriterGrid,
+      'AthenaG4AtlasAppsRelease': RecExCommonScriptWriterGrid,
+      'AthenaGeneratorsRTT':      RecExCommonScriptWriterGrid,
+      'AthenaInDetRTT':           RecExCommonScriptWriterGrid,      
+      'AthenaSingleParticle':     RecExCommonScriptWriterGrid,
+      'AthenaSingleE':            RecExCommonScriptWriterGrid,
+      'AthenaSingleMu':           RecExCommonScriptWriterGrid,
+      'AthenaSinglePi':           RecExCommonScriptWriterGrid,
+      'AthenaMinBias':            RecExCommonScriptWriterGrid,
+      'AthenaZee':                RecExCommonScriptWriterGrid,
+      'AthenaZmumu':              RecExCommonScriptWriterGrid,
+      'AthenaTop':                RecExCommonScriptWriterGrid,
+      'AthenaJ5':                 RecExCommonScriptWriterGrid,
+      'AthenaJ8':                 RecExCommonScriptWriterGrid,      
+      'AthenaMissingET':          RecExCommonScriptWriterGrid,
+      'AthenaPhysicsAnalysisTools': RecExCommonScriptWriterGrid,
+      'Monitoring':               MonitoringScriptWriterGrid,
+      'AthenaMuonboyAth':         RecExCommonScriptWriterGrid,
+      'AthenaMboyPerformance':    RecExCommonScriptWriterGrid,
+      'AthenatauRec':             RecExCommonScriptWriterGrid,
+      'AthenaInDetSimRTT':        RecExCommonScriptWriterGrid,
+      'AthenaLArMonTools':        RecExCommonScriptWriterGrid,
+      'AthenaRecExAnaTest':       RecExCommonScriptWriterGrid,
+      'AthenaRecExTrigTest':      RecExCommonScriptWriterGrid,
+      'AthenaQuickGenCheck':      RecExCommonScriptWriterGrid,
+      'AthenaSimDig':             RecExCommonScriptWriterGrid,
+      'AthenaCaloRecExESDAOD':    RecExCommonScriptWriterGrid,
+      'AthenaCaloRecExTestBeam':  RecExCommonScriptWriterGrid,
+      'AthenaHighPtMu':           RecExCommonScriptWriterGrid,
+      'RTTMonitor':               NullScriptWriterGrid
+      #'RTTSelfTest':              RTTSelfTestScriptWriterGrid
+      }
+    
+
+
+
+  def create(self, jDescriptor):
+    'Returns a  ScriptWriter instance according to jobGroup'
+    group = jDescriptor.jobGroup
+    if group in self.dict.keys():
+      return self.dict[group](jDescriptor)
+    else:
+      msg = 'Unknown mode, could not instantiate a ScriptWriter: '+group
+      self.logger.error(msg)
+      sys.exit(0)
+
+

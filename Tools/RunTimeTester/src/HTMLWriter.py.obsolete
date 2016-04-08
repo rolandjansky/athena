@@ -1,0 +1,1260 @@
+#===== Python imports ==
+from os.path                 import join
+import                       os, copy, string
+
+#===== RTT imports =====
+from Coloriser               import *
+from GroupKits               import groupKitFactory
+from getInheritanceHeirarchy import isAthenaJob
+from Tools2                  import fixSortBranches, getAllResultDirs
+from Tools2                  import jobStatusFromFile, setProtectionFile
+from NICOS                   import NICOS
+from Factory_HardCoded       import HardCodedFactory
+from RTTDateTime             import RTTDateTime
+from RTTpath                 import RTTpath
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+
+def HTMLheader():
+    return """
+    <!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">
+    <html>
+    <head>
+
+    <meta http-equiv="Pragma" content="no-cache">
+    <!-- Pragma content set to no-cache tells the browser not to cache the page
+    This may or may not work in IE -->
+
+    <meta http-equiv="expires" content="0">
+    <!-- Setting the page to expire at 0 means the page is immediately expired
+    Any vales less then one will set the page to expire some time in past and
+    not be cached. This may not work with Navigator -->
+
+    <style>
+    body{background-color:#ddddff}
+    acronym{border-bottom: dotted 2px green; cursor:help}
+    .level0TableHeader{font-family:arial;font-size:20pt;font-weight:bold;color:gray;background-color:#666666}
+    .level1TableHeader{font-family:arial;font-size:14pt;font-weight:bold;color:black;background-color:#8888ff}
+    .level2TableHeader{font-family:arial;font-size:12pt;font-weight:bold;color:black;background-color:#aaaaff}
+    .parentTableCellColor{background-color:#ddddff}
+    .tableEntry{font-family:arial;font-size:14pt;color:#333333;background-color:#bbbbff}
+    .failedTableEntry{font-family:arial;font-size:14pt;color:#333333;background-color:#9999cc}
+
+    .nightlyTableEntry{font-family:arial;font-size:14pt;color:#333333;background-color:#aaaaee}
+    
+    a.tableLink{font-family:arial;font-size:14pt;color:#333333;text-decoration:none;border-bottom:1px solid}
+    a.tableLink:hover{font-family:arial;font-size:14pt;color:orange;text-decoration:none;border-bottom:1px solid}
+    a.tableLinkWithInfo{font-family:arial;font-size:14pt;color:#333333;text-decoration:none;border-bottom:1px dashed}
+    a.tableLinkWithInfo:hover{font-family:arial;font-size:14pt;color:orange;text-decoration:none;border-bottom:1px solid;cursor:help}
+    a.pageLink{font-family:arial;font-size:10pt;color:#777777;text-decoration:underline}
+    a.pageLink:hover{font-family:arial;font-size:10pt;color:black;text-decoration:none}
+    
+    .pageHeader{font-family:arial;font-size:20pt;font-weight:bold;color:black;}
+    a.mail{font-family:arial;font-size:12pt;color:#777777;text-decoration:none}
+    a.mail:hover{font-family:arial;font-size:12pt;color:black;text-decoration:underline}
+    .keepFilesHeader{font-family:arial;font-size:14pt;font-weight:bold;color:black;background-color:#aaaaff}
+    .sectionHeader{font-family:arial;font-size:14pt;font-weight:bold;color:black;}
+    .reporterParamEntry{font-family:arial;font-size:10pt;font-weight:bold;color:black;}
+    .reporterValueEntry{font-family:arial;font-size:10pt;font-weight:plain;color:black;}
+    .latestNews{font-family:arial;font-size:10pt;font-weight:plain;color:black;background-color:#cccccc}
+    
+    .TabCommon {FONT: 18px Verdana; COLOR: #6D6D6D; PADDING: 5px; FONT-WEIGHT: bold; TEXT-ALIGN: center; HEIGHT: 20px; WIDTH: 300px;}
+    .TabContent {PADDING: 5px;}
+    .TabContentBottom {PADDING: 10px; BORDER-BOTTOM: 2px outset #99ccff;}
+    .TabOff {CURSOR: hand; BACKGROUND-COLOR: #cccccc; BORDER-LEFT: 1px solid #BBBBBB;}
+    .TabOn {CURSOR: default; BORDER-TOP: 2px outset #D1D1D1; COLOR: #000000;}
+    .TabBorderBottom{BORDER-BOTTOM: 2px inset #D1D1D1;}
+    .TabActiveBorderLeftRight{BORDER-RIGHT: 2px outset #D1D1D1; BORDER-LEFT: 2px outset #D1D1D1;}
+    .TabActiveBackground {BACKGROUND-COLOR: #ccccff;}
+    </style>
+
+    <script>
+    function TabClick( nTab ){
+    Col = document.getElementsByName(\"Content\");
+    for (i = 0; i < document.getElementsByName(\"Content\").length; i++)
+    {
+    document.getElementsByName(\"tabs\")[i].className = \"TabBorderBottom TabCommon TabOff\";
+    document.getElementsByName(\"Content\")[i].style.display = \"none\";
+    }
+    document.getElementsByName(\"Content\")[nTab].style.display = \"block\";  
+    document.getElementsByName(\"tabs\")[nTab].className = \"TabCommon TabOn TabActiveBackground TabActiveBorderLeftRight\";
+    }
+    </script>
+    
+    </head>
+    <body onload=\"TabClick(0);\">    
+    """
+
+#=================================================================================================
+
+def pageTitle(title):
+    return '<center><span class=\"pageHeader\">' + title + '</span></center><br/><br/>\n'
+
+#=================================================================================================
+
+def sectionTitle(title):
+    return '<center><span class=\"sectionHeader\">' + title + '</span></center><br/><br/>\n'
+
+#=================================================================================================
+
+def blockquote(type='open'):
+    if type=='close':
+        return '</blockquote>'
+
+    return '<blockquote>'
+
+#=================================================================================================
+	
+def table(tagType='begin',border=1,bkgdColor='',width=''):
+    if tagType == 'end':
+        return '</table>' + endLine()
+
+    bkgd = ''
+    if bkgdColor != '':
+        bkgd=' bgcolor=\"' + bkgdColor + '\"'
+
+    widthString = ''
+    if width != '':
+        widthString = 'width=' + width
+    return '<table ' + widthString + ' BORDER=\"'+str(border)+'\" CELLSPACING=\"0\" CELLPADDING=\"4\"' + bkgd + '>' + endLine()
+
+#=================================================================================================
+
+def tableRow(styleClass='tableEntry',colSpan=1,tableCells=[]):
+    html1 = '<tr class=\"' + styleClass + '\">' + endLine()
+    for cell in tableCells:
+        
+        values = {'content':'','color':'','align':'center','style':''}
+        for value in values:
+            try:
+                values[value] = str(cell[value])
+            except KeyError:
+                pass #do nothing, default holds
+
+        styleText = 'style=\"background-color:' + values['color'] + '\"'
+        if values['style']:
+            styleText = 'style=' + values['style']
+
+        html1 += '<td ' + styleText + ' align=\"' + values['align'] + '\" valign=\"top\" colspan=\"'+str(colSpan)+'\">' + values['content'] + '</td>'
+    html1 += '</tr>' + endLine()
+    return html1 
+	
+#=================================================================================================
+        
+def tableEnd():
+    return '</table>' + endLine()
+		
+#=================================================================================================
+
+def HTMLfooter():
+    return """
+    </body>
+    </html>
+    """
+
+#=================================================================================================
+
+def breakTag(number=1):
+    """Return the HTML code for the break tag."""
+    return '<br/>'*number
+
+#=================================================================================================
+
+def endLine(number=1):
+    """Return the end of line character \n."""
+    return '\n'*number
+
+#=================================================================================================
+
+def pageRule():
+    """Return the HTML code for a horizontal rule."""
+    return '<hr/>'
+
+#=================================================================================================
+
+def center(tagType='open'):
+    if tagType == 'close':
+        return '</center>'
+    return '<center>'
+
+#=================================================================================================
+	
+def toFile(htmlFile, htmlContent):
+    page = open(htmlFile,'w', 777)
+    page.write(htmlContent)
+
+#=================================================================================================
+
+def writeTempPage2(resPath):
+    text = center('open') + '<div class=\"pageHeader\">The RTT is currently in initialisation phase...please be patient...and check back to this page later</div>' + center('close') + endLine()
+    content = HTMLheader() + text + HTMLfooter()
+    page2Path = join(resPath,"page2.html")
+    toFile(page2Path,content)    
+
+#=================================================================================================
+
+def writePage2GlobalFailure(resPath):
+    text = '<center><div class=\"pageHeader\"><font color="red">The RTT was unable to run because of a fatal error during initialisation.<br/>More details may be found in the&nbsp;</font><a class=\"warningLink\" href=\"RTT_failure_report.html\">RTT Failure Report</a></div></center>\n'
+    content = HTMLheader() + text + HTMLfooter()
+    page2Path = join(resPath,"page2.html")
+    toFile(page2Path,content)
+
+#=================================================================================================
+
+def writePage2NothingAvailable(resPath):
+    text = '<center><div class=\"pageHeader\">No packages found that required testing! Twiddling thumbs...</div></center>\n'
+    content = HTMLheader() + text + HTMLfooter()
+    page2Path = join(resPath,"page2.html")
+    toFile(page2Path,content)
+
+#=================================================================================================
+
+def writePage2Shutdown(resPath):
+    text = '<center><div class=\"pageHeader\"><font color="red">The RTT process was shut down by the user-typed command: <code>kill -15</code></div></center>\n'
+    content = HTMLheader() + text + HTMLfooter()
+    page2Path = join(resPath,"page2.html")
+    toFile(page2Path,content)
+    
+#=================================================================================================
+
+def link(styleClass, pointsAt, name):
+    """Return the HTML code for a link with the given style class, href adress and name in the page."""
+    return '<a class=\"' + styleClass + '\" href=\"' + pointsAt  + '\">' + name + '</a>'
+
+#=================================================================================================
+
+def linkWithInfoString(styleClass, pointsAt, name, info):
+    """Return the HTML code for a link with the given style class, href adress and name in the page."""    
+    return '<a class=\"' + styleClass + '\" title=\"' + info + '\" href=\"' + pointsAt  + '\">' + name + '</a>'
+
+#=================================================================================================
+
+def linkSep():
+    """Return the character used to separate links in the web page."""
+    return ' | '
+    
+#=================================================================================================
+
+def page1EmailLinks():
+    email = pageRule() + endLine()
+    email += link('mail', 'mailto:en@hep.ucl.ac.uk','Eric Nzuobontane') + linkSep()
+    email += link('mail', 'mailto:peter.sherwood@cern.ch','Peter Sherwood') + linkSep()
+    email += link('mail', 'mailto:brinick.simmons@cern.ch','Brinick Simmons') + breakTag() + endLine()
+
+    return email
+
+#=================================================================================================
+
+def page1HeaderLinks_Javascript(resBaseDir):
+    theScript = 'RTTpage1_LinksAtTopOfPage.js'
+    fullPath  = os.path.join(resBaseDir,theScript)
+    if not os.path.exists(fullPath):
+        pass
+        # createPage1LinksJavaScriptFile(fullPath)
+                
+    return '<script src="' + theScript + '"></script>' + endLine() + breakTag()
+    
+#=================================================================================================
+
+def createPage1LinksJavaScriptFile(outputPath):
+    js  = "/*********************/\n"
+    js += "/***** Base URLs *****/\n"
+    js += "/*********************/\n\n"    
+    js += "uclHEP    = 'http://www.hep.ucl.ac.uk/atlas/AtlasTesting/';\n"
+    js += "atlasComp = 'http://atlas-computing.web.cern.ch/atlas-computing/';\n\n"
+    js += "/*********************/\n"
+    js += "/***** Style CSS *****/\n"
+    js += "/*********************/\n\n"
+    js += "styleClass  = '<style>';\n"
+    js += "styleClass += 'a.pageLink{font-family:arial;font-size:10pt;color:#777777;text-decoration:underline}';\n"
+    js += "styleClass += 'a.pageLink:hover{font-family:arial;font-size:10pt;color:black;text-decoration:none}';\n"
+    js += "styleClass += '</style>';\n\n"
+    js += "/*********************/\n"
+    js += "/***** The links *****/\n"
+    js += "/*********************/\n\n"
+    js += "link1 = '<a class=\"pageLink\" href=\"http://www.hep.ucl.ac.uk/atlas/RTTprojects/RTTpage1.html\"><font size=\"2\">RTT project runs</font></a>';\n"
+    js += "link2 = '<a class=\"pageLink\" href=\"' + uclHEP + 'RTTstatus/RTTstatus.html\">RTT status reports</a>';\n"
+    js += "link3 = '<a class=\"pageLink\" href=\"' + uclHEP + '\">RTT documentation</a>';\n"
+    js += "link4 = '<a class=\"pageLink\" href=\"' + atlasComp + 'projects/releases/releases.php\">Release Status</a>';\n"
+    js += "link5 = '<a class=\"pageLink\" href=\"' + atlasComp +'links/distDirectory/nightlies/global/\">NICOS</a>';\n"
+    js += "link6 = '<a class=\"pageLink\" href=\"' + uclHEP + 'RTTstatus/Monitoring.html\">Monitoring plots</a>';\n"
+    js += "link7 = '<a class=\"pageLink\" href=\"' + uclHEP + 'DatasetManager.report\">Dataset Manager Report</a>';\n\n"
+    js += "document.write(\n"
+    js += "   styleClass\n"
+    js += " + '<div align=\"center\">'\n"
+    js += " + link1 + ' | '\n"
+    js += " + link2 + ' | '\n"
+    js += " + link3 + ' | '\n"
+    js += " + link4 + ' | '\n"
+    js += " + link5 + ' | '\n"
+    js += " + link6 + ' | '\n"    
+    js += " + link7\n"    
+    js += " + '</div>'\n"
+    js += " + '<br /><br />'\n"
+    js += ");\n"
+        
+    f = open(outputPath,'w')
+    f.write(js)
+    f.close()
+    setProtectionFile(outputPath, 02775)
+            
+
+#=================================================================================================
+
+def createMessageOfDayJavaScriptFile(outputPath):
+    js  = "/****************************/\n"
+    js += "/*** User stuff goes here ***/\n"
+    js += "/****************************/\n\n"
+    js += "theDate    = '9th May 2006';\n"
+    js += "theMessage = 'This is the start up message of the day. The JavaScript file that created this is located in: <br />' + '" + outputPath + "';\n"
+    js += "level      = 1;\n\n"
+    js += "/*************************************************/\n"
+    js += "/*** Do not touch what follows unless you want ***/\n"
+    js += "/*** to change the web page appearance         ***/\n"
+    js += "/*************************************************/\n\n"    
+    js += "if (level==0){\n"
+    js += "   message_style = 'font-family:arial;font-size:10pt;font-weight:plain;color:black;background-color:#cccccc';\n"
+    js += "}\n"
+    js += "else{\n"
+    js += "   message_style = 'font-family:arial;font-size:10pt;font-weight:bold;color:red;background-color:#cccccc';\n"
+    js += "}\n"
+    js += "document.write(\n"
+    js += "  '<div align=\"center\">'\n"
+    js += "+ '   <table width=\"600\" border=\"0\" cellspacing=\"0\" cellpadding=\"4\">'\n"
+    js += "+ '      <tr align =\"center\" style=\"' + message_style + '\">'\n"
+    js += "+ '         <td>' + theDate + '</td>'\n"
+    js += "+ '      </tr>'\n"
+    js += "+ '      <tr align=\"left\" style=\"' + message_style + '\">'\n"
+    js += "+ '         <td>' + theMessage + '</td>'\n"
+    js += "+ '      </tr>'\n"
+    js += "+ '   </table>'\n"
+    js += "+ '</div>'\n"
+    js += ");\n"
+        
+    f = open(outputPath,'w')
+    f.write(js)
+    f.close()
+    setProtectionFile(outputPath,02775)
+    
+#=================================================================================================
+
+def messageOfTheDay(resBaseDir):
+    theScript = 'messageOfTheDay.js'
+    fullPath  = os.path.join(resBaseDir,theScript)
+    if not os.path.exists(fullPath):
+        pass
+        # createMessageOfDayJavaScriptFile(fullPath)
+        
+    return '<script src="' + theScript + '"></script>' + endLine() + breakTag()
+
+#=================================================================================================
+
+def currentStatusNX0(resBaseDir):
+    theScript = 'currentStatusNX0.js'
+    fullPath  = os.path.join(resBaseDir,theScript)
+    if not os.path.exists(fullPath):
+        pass
+        
+    return '<script src="' + theScript + '"></script>' + endLine() + breakTag()
+
+#=================================================================================================
+
+
+def currentStatusN0X(resBaseDir):
+    theScript = 'currentStatusN0X.js'
+    fullPath  = os.path.join(resBaseDir,theScript)
+    if not os.path.exists(fullPath):
+        pass
+        
+    return '<script src="' + theScript + '"></script>' + endLine() + breakTag()
+
+#=================================================================================================
+
+def generateTableForBuild(paths, releasesRun):
+    """Accepts a list of releases run for the same build. Returns the HTML table code."""  
+
+    resBase        = paths.resultsDirs['resBase/']
+    branchesToVeto = paths.branchesNotToDisplay
+    platform       = paths.platform
+    releaseType    = paths.releaseType
+  
+    if len(releasesRun)==0: return ''
+
+    # get the releases by branch
+    releasesByBranch = {}
+    [releasesByBranch.setdefault(rel['branch'],[]).append(rel) for rel in releasesRun]
+    
+    # begin a new table
+    tab  = center('begin') + table(width='850')
+
+
+    # we only want to show the branches not in the veto list passed to this method
+    branchesToDisplay = {}
+    for branch in releasesByBranch:
+        if branch not in branchesToVeto:
+            branchesToDisplay[branch] = releasesByBranch[branch]
+        else:
+            logger.warning('Branch ' + str(branch) + ' is vetoed, and will thus not be displayed on the web pages.')
+
+    sortedBranchesToDisplayKeys = fixSortBranches(branchesToDisplay.keys())
+    
+    for theBranch in sortedBranchesToDisplayKeys:
+
+        hardCoded = HardCodedFactory(logger).create(paths.releaseType,
+                                                    paths.runType)
+        branchRowHeaderText = hardCoded.branchToWebPageText(theBranch)
+        
+        tab += tableRow(styleClass='level1TableHeader',colSpan=7, tableCells=[{'content':branchRowHeaderText,'align':'left'}])
+
+        # now add the column titles for the releases within this branch
+        theCells = [{'content':'Release'},{'content':'Kit/Release'},{'content':'Platform'},{'content':'Started<font color="yellow"> (GMT)</font>'},{'content':'Completed<font color="yellow"> (GMT)</font>'},{'content':'NICOS'},{'content':'Status'}]
+        tab += tableRow(styleClass='level2TableHeader', tableCells=theCells)
+
+        # add a table row for each of the valid result directories within this branch
+
+        #    index = 1
+        for release in branchesToDisplay[theBranch]:
+            # get details from the status file
+            fullPath   = join(resBase,release['build'],release['branch'],release['runType'],release['release'])
+            statusFile = join(fullPath, "status.txt")
+            
+            print jobStatusFromFile("Started", fullPath, statusFile)
+
+            startStatus, startDate, startTime, startPlatform, startRunType, startNICOStime = jobStatusFromFile("Started", fullPath, statusFile)
+            doneStatus, doneDate, doneTime, donePlatform, doneRunType, doneNICOSdate       = jobStatusFromFile("completed", fullPath, statusFile)
+
+            startDetails = ''
+            doneDetails  = ''
+
+            if startStatus == "unknown":
+                startDetails = 'n/a'
+            else:
+                startDetails = startDate + ' @ ' + startTime
+
+            if doneStatus == "unknown":
+                doneDetails = 'n/a'
+            else:
+                doneDetails = doneDate + ' @ ' + doneTime
+     
+            # add this release to the table
+            page2path             = join(release['build'], release['branch'], release['runType'], release['release'], "page2.html")
+            jsRunInfoRelativePath = join(release['build'], release['branch'], release['runType'], release['release'], "runInfo.js")
+            jsRunInfoAbsPath      = join(fullPath,'runInfo.js')
+            javaScriptLink = '<script src="' + jsRunInfoRelativePath  + '"></script>'
+            
+            if not os.path.exists(jsRunInfoAbsPath):
+                javaScriptLink = 'n/a'
+
+            nicos     = NICOS(paths)
+
+            # convert the time (a string giving as time.time() is read in as a
+            # string. convert to int
+            try:
+                startNICOSdate = RTTDateTime(float(startNICOStime))
+            except Exception:
+                startNICOSdate = RTTDateTime()
+                
+            nicosLink = nicos.toNICOSdateLink(startNICOSdate)
+
+            theCells = [{'content':link('tableLink',page2path,release['release'])},
+                        {'content':startRunType},
+                        {'content':startPlatform},
+                        {'content':startDetails},
+                        {'content':doneDetails},
+                        {'content':nicosLink},
+                        {'content':javaScriptLink,'style':'\"font-size:8pt;font-weight:bold;\"'}
+                        ]
+
+            tab += tableRow(tableCells=theCells)
+
+    tab += table(tagType='end') + center('close')
+  
+    return tab
+
+#=================================================================================================
+
+def writePage1(paths):
+    """Loops through the output subdirectories.
+    There is one subdirectory for each processed release.
+    If The subdirectory contains date and status files,
+    the overall status is displayed, and results, if any are pointed to"""
+
+    resBase        = paths.resultsDirs['resBase/']
+    branchesToVeto = paths.branchesNotToDisplay
+    platform       = paths.platform
+    releaseType    = paths.releaseType
+                              
+    # HTML code for top of page
+    topPage =  HTMLheader() + pageTitle('The ATLAS Nightly Run Time Tests')
+
+    # HTML code for top page links
+    links = page1HeaderLinks_Javascript(resBase)
+
+    # latest news section
+    latestNewsText = messageOfTheDay(resBase)
+
+    # current run status
+    currentStateNX0 = currentStatusNX0(resBase)
+    currentStateN0X = currentStatusN0X(resBase)
+    
+    # returns a sorted list (for all releases and all builds),
+    legalRunTypes = ['release','kit'] # what are we allowed to run on?
+    allReleasesRun = getAllResultDirs(resBase, paths.legals)
+
+
+    # split up this list into a dictionary whose keys are the different,
+    # unique values for 'build', and whose
+    # values are lists containing only entries with same build value. Get it?
+    nDict = {}
+    [nDict.setdefault(entry['build'],[]).append(entry)
+     for entry in allReleasesRun]
+
+    pageContent  = center('begin')
+    pageContent += table(border=0)
+
+    cells = []
+
+    pageContent += '<tr>' + endLine()
+
+    numbBuilds = 0
+    for build in nDict.keys():
+        pageContent += '<td class="TabBorderBottom TabCommon TabOff" ID="tabs" NAME="tabs" ONCLICK="TabClick(' + str(numbBuilds) + ');"><NOBR>'+ build + ' build</NOBR></td>' + endLine()
+        numbBuilds += 1
+        cells.append(generateTableForBuild(paths, nDict[build]))
+
+    pageContent += '<td CLASS="TabBorderBottom" STYLE="width: 50px;"> </td>' + endLine()
+    pageContent += '</tr>' + endLine()
+
+    pageContent += '<tr>' + endLine()
+    pageContent += '<td COLSPAN=7 class="TabContent TabActiveBackground TabActiveBorderLeftRight TabContentBottom">' + endLine()
+
+    for cellContent in cells:
+        pageContent += '<div ID="Content" NAME="Content">' + cellContent + '</div>' + endLine()
+
+    pageContent += '</td></tr>' + endLine()
+    
+    pageContent += table(tagType='end')
+    pageContent += center('end')
+
+    # HTML code for bottom of page
+    bottomPage = page1EmailLinks() + HTMLfooter()
+
+    # put it all together
+    content = topPage + links + latestNewsText + currentStateNX0 + currentStateN0X + pageContent + bottomPage
+
+    page1Path = join(resBase, "RTTpage1.html")
+    toFile(page1Path,content)
+
+    return
+
+#=================================================================================================
+
+def colorStatusText(text):
+    color1 = 'green'
+    color2 = 'red'
+    color3 = 'brown'
+    color4 = 'black'
+    
+    colorDict = {'success'          : color1,
+                 'completed'        : color1,
+                 'error'            : color2,
+                 'Started'          : color2,
+                 'queued'           : color3,
+                 'running'          : color3,
+                 'jobTimedOut'      : color2,
+                 'PBSfatalError'    : color2,
+                 'operatorCloseDown': color2
+                 }
+
+    if text in colorDict.keys():
+        return '<font color=\"' + colorDict[text] + '\">' + text + '</font>'
+
+    return '<font color=\"' + color4 + '\">' + text + '</font>'
+
+#=================================================================================================
+
+def colorText(color,text):
+    return '<font color=\"' + color + '\">' + text + '</font>'
+
+#=================================================================================================
+
+def jobStatsHTMLcode(jobs):
+    """Given the list of jobs in a job group, returns a dictionary holding statistics for those jobs."""
+
+    numbTotalJobs = len(jobs)    
+
+    doneJobs = completedJobs(jobs) # returns a tuple
+    numbDoneJobs = len(doneJobs)
+
+    okJobs = completedOKJobs(doneJobs) # returns a tuple
+    numbOKJobs = len(okJobs)
+    
+    stats = {}
+    stats['numjobs'] = str(numbTotalJobs)
+    stats['done']    = str(numbDoneJobs)
+
+    if numbDoneJobs <= 0:
+        stats['ok'] = 'n/a'
+        stats['testok'] = 'n/a'
+    else:
+        stats['ok']      = str(numbOKJobs)   + '/' + str(numbDoneJobs)        
+        stats['testok'] = 'n/a'
+
+        # only look at the first job in the list as all
+        # RTT jobs in the same group have the same checks
+        firstJob = jobs[0]
+
+        if firstJob.hasChecks():
+            if len(firstJob.checks)>1 or len(firstJob.tests)>0: # we do not count the simple log checker
+                testsOK = completedOKChecks(okJobs) # returns a tuple
+                numbTestsOK = len(testsOK)
+
+                stats['testok'] = str(numbTestsOK) + '/' + str(numbOKJobs)
+        
+    return stats
+
+#=================================================================================================
+
+def completedJobs(jobs):
+    """Returns a tuple of jobs that are marked as done."""
+
+    doneJobs = []
+    for job in jobs:
+        if job.done:
+            doneJobs.append(job)
+
+    return tuple(doneJobs)
+
+#=================================================================================================
+    
+def completedOKJobs(jobs):
+    """Assumes that it gets passed a tuple of donejobs.
+    Returns a tuple containing those jobs that completed ok."""
+
+    okJobs = []
+    for job in jobs:
+        if job.status.primary()=='success':
+            okJobs.append(job)
+
+    return tuple(okJobs)
+
+#=================================================================================================    
+
+def completedOKChecks(jobs):
+    """Assumes it receives a tuple of jobs that completed ok"""
+    """Returns a tuple of those jobs for whom all tests completed ok."""
+
+    testsOK = []
+    for job in jobs:
+        if job.status.secondary()=='success':
+            testsOK.append(job)
+
+    return tuple(testsOK)
+
+#=================================================================================================    
+        
+def writePage3(group,jobs,paths,page3Path):
+    
+    tableEntries = ''	
+    #    coloriser = Coloriser32("success", "error")
+
+    for job in jobs:
+        
+	ref = 'n/a'
+	dataSet="n/a"
+
+	if isAthenaJob(job.jDescriptor):
+            if job.hasRefFiles():
+	        ref = job.jDescriptor.refRelease+"-"+paths.build
+            if job.jDescriptor.hasData():
+                dataSet = ''
+                for datasetList in job.jDescriptor.datasets.values():
+                    for file in datasetList:
+                        dataSet += os.path.basename(file.name)+'<br/>'
+
+        # where is page 4 relative to this page (page3)?
+        relativePage4path = join(job.jDescriptor.name,str(job.jDescriptor.jobSerialNumber),'page4.html')
+        
+        cells = [{'content':link('tableLink',relativePage4path,job.jDescriptor.identifiedName)},{'content':dataSet}]
+
+        statii = job.status.status()
+        coloredStatii = []
+
+        if len(statii.split())==1: statii += ' n/a'
+        for thing in statii.split()[0:2]:
+            cells.append({'content':colorStatusText(thing)})
+
+        cells.append({'content':ref})
+        tableEntries += tableRow(tableCells=cells)
+        
+        if job.jDescriptor.mode != 'TransparentDummy':
+            absolutePage4path = str(RTTpath(job.jDescriptor.resPath,
+                                            'page4.html')) 
+            # absolutePage4path = join(paths.resultsDirs['resBase/build/branch/runType/release'],group,relativePage4path)
+            writePage4(paths, job, absolutePage4path)
+
+    stats = jobStatsHTMLcode(jobs)
+
+    # HTML for top of page
+    #    pageTitleText = paths.release + ' ' + paths.build +  ' (' + paths.branch + ' branch)' + ': ' + group
+
+    pageTitleText = paths.release + ' ' + paths.runType + paths.kitID + ' run --- ' + paths.build + ', ' + paths.branch + ' branch --- ' + paths.platform + ' platform: ' + group    
+    startPage =  HTMLheader() + pageTitle(pageTitleText)
+
+    # HTML for stats table at top of page
+    cellTitles  = [{'content':'Total jobs'},{'content':'Done jobs'},{'content':'Jobs completing OK'},{'content':'Jobs with all post-run tests OK'}]
+    statsTable  = center('begin')
+    statsTable += table('begin')
+    statsTable += tableRow(styleClass='level1TableHeader', tableCells=cellTitles)
+    statsTable += tableRow(tableCells=[{'content':stats['numjobs']},{'content':stats['done']},{'content':stats['ok']},{'content':stats['testok']}])
+    statsTable += table('end')
+    statsTable += center('end') + breakTag()
+
+    # HTML code for the list of jobs table
+    cellTitles  = [{'content':'Job Name'},{'content':'Data Set'},{'content':'Job Status'},{'content':'Combined Checks'},{'content':'Ref. Release'}]
+    jobsTable   = center('begin')
+    jobsTable  += table('begin')
+    jobsTable  += tableRow(styleClass='level1TableHeader',tableCells=cellTitles)
+    jobsTable  += tableEntries
+    jobsTable  += table('end')
+    jobsTable  += center('end')
+    
+    # HTML for bottom page
+    backlink = breakTag() + center('begin') + link('pageLink','../../../../../../RTTpage1.html','Back to home page') + center('end') + endLine()
+    endPage = backlink + HTMLfooter()
+    
+    content = startPage + statsTable + jobsTable + endPage
+    toFile(page3Path,content)
+
+    return 
+    
+#=================================================================================================
+
+def writePage4(paths, jobMinder, page4Path):
+
+    from Tools import fileNameTrim, getKeepFileType
+    from time import sleep
+    
+    keepFileTypes = {
+        "Log Files:":['log','elog','.py','.log','lsaltF.txt'],
+        "Job Report Files:":['failureReport.html'],
+        "Results Files:":['.hist','.ps','.root','.hbook','.xml'],
+        "Other Files:":[]
+        }
+    
+    keepFilesSortedByType = {"Log Files:":[],"Job Report Files:":[],"Results Files:":[],"Other Files:":[]}
+    
+    someKeepFilesAvailable = False
+    
+    # sort the keep files into the different categories
+    
+    for thing in jobMinder.keepFiles.values():
+        
+        file = thing['keepFileString'] # recall that keep file values are in a dictionary 
+        if os.path.exists(file):
+	    head,tail=os.path.split(file)
+            fileNameTrimmed = fileNameTrim(tail,jobMinder.jDescriptor.log[:-4])
+            keepFilesSortedByType[getKeepFileType(fileNameTrimmed,keepFileTypes)].append(thing)
+            someKeepFilesAvailable = True
+
+    keepFileList = 'No Files Available'
+    
+    if someKeepFilesAvailable:
+        keepFileList = table(tagType='begin',border=0)
+        
+        for category in keepFilesSortedByType.keys():
+            keepFilesSortedByType[category].sort()
+
+            #only display a category if it has files in it
+            if keepFilesSortedByType[category]:
+                
+                keepFileList += tableRow(styleClass='keepFilesHeader',tableCells=[{'content':category}]) + endLine()
+
+                for thing in keepFilesSortedByType[category]:
+                    file = thing['keepFileString']
+                    infoString = thing['infoString']
+
+                    head,tail=os.path.split(file)
+                    fileNameTrimmed = fileNameTrim(tail,jobMinder.jDescriptor.log[:-4])
+                    infoString.strip()
+                    if len(infoString)==0:# no info string for this file
+                        keepFileList += tableRow(tableCells=[{'content':link('tableLink',tail,fileNameTrimmed)}])
+                    else:
+                        keepFileList += tableRow(tableCells=[{'content':linkWithInfoString('tableLinkWithInfo',tail,fileNameTrimmed,infoString)}])
+
+        keepFileList += table('end')    
+   
+    # HTML code for top of page
+    pageTextTitle = 'ATLAS RTT --- ' + paths.runType + paths.kitID + ' run, ' + paths.platform + ' platform'
+    topPage =  HTMLheader() + pageTitle(pageTextTitle)
+
+
+
+    # make the checks summary table
+    statii = jobMinder.status.status()
+    coloredStatii = []
+
+    summaryCells=[{'content:':'n/a'},{'content':'n/a'}]
+
+    if len(statii.split())>1:
+        index=0
+        for thing in statii.split()[0:2]:
+            if thing.find('success')!=-1:
+                summaryCells[index]['content']='True'
+            elif thing.find('error')!=-1:
+                summaryCells[index]['content']='False'
+
+            index += 1
+                
+    summaryCellTitles  = [{'content':'Job completed OK'},{'content':'All post-run tests OK'}]
+    summaryTable  = center('begin')
+    summaryTable += table('begin')
+    summaryTable += tableRow(styleClass='level1TableHeader', tableCells=summaryCellTitles)
+    summaryTable += tableRow(tableCells=summaryCells)
+    summaryTable += table('end')
+    summaryTable += center('end') + breakTag()
+    
+    # HTML code job table
+    cellTitles = [{'content':'Job Name'},{'content':'Release'},{'content':'Build'},{'content':'Branch'},{'content':'Keep files'}]
+    jobTable   = center('begin')
+    jobTable  += table('begin')
+    jobTable  += tableRow(styleClass='level1TableHeader',tableCells=cellTitles)
+    theCells   = [{'content':jobMinder.jDescriptor.identifiedName}, {'content':paths.release}, {'content':paths.build}, {'content':paths.branch}, {'content':keepFileList}]
+    jobTable  += tableRow(tableCells=theCells)
+    jobTable  += table('end')
+    jobTable  += center('end')
+    
+    # HTML code for bottom page
+    bottomPage  = breakTag()
+    bottomPage += center('begin')
+    bottomPage += link('pageLink','../../../../../../../../RTTpage1.html','Back to home page') + linkSep()
+    bottomPage += link('pageLink','../../../../page2.html','Back to packages page')
+    bottomPage += center('end')
+    bottomPage += HTMLfooter()
+    
+    content = topPage + summaryTable + jobTable + bottomPage
+    
+    toFile(page4Path,content)
+
+#=================================================================================================
+
+def reporterMessage2html(message):
+    if message.find('@') == -1:
+        message = message.replace(' ', '&nbsp;')
+        message = message.replace('\n','<br/>')        
+        return '<table><tr class=\"reporterValueEntry\"><td>' + message + '</td></tr></table>'
+
+    params = []
+    values = []
+
+    arrayIndex = 0
+    currentIndex = 0
+
+    while not currentIndex >= len(message):
+        nextAtSymbol = message.find('@',currentIndex,len(message))
+        valueEndIndex = indexOfValueEnd(message,nextAtSymbol+1)
+
+        params.append(message[currentIndex:nextAtSymbol])
+        values.append(message[nextAtSymbol+1:valueEndIndex])
+
+        currentIndex = valueEndIndex + 1
+        arrayIndex += 1
+
+    index = 0
+    for param in params:
+        params[index] = param.replace(' ','&nbsp;')
+        params[index] = params[index].replace('\n','<br/>')
+        index += 1
+
+    index = 0
+    for value in values:
+        values[index] = value.replace(' ','&nbsp;')
+        values[index] = values[index].replace('\n','<br/>')
+        index += 1          
+    
+    htmlCode = '<table width=\"90\%\" border=\"0\" cellpadding=\"0\" cellspacing=\"3\">'
+    index = 0
+    for param in params:
+        htmlCode += '<tr><td width=\"20\%\" bgcolor=\"#bbbbff\" class=\"reporterParamEntry\" valign=\"top\">' + params[index] + '</td><td  bgcolor=\"#ccccff\" class=\"reporterValueEntry\" valign=\"top\">' + values[index] + '</td></tr>'
+        index += 1
+    htmlCode += '</table>'
+
+    return htmlCode
+
+#=================================================================================================
+
+def indexOfValueEnd(message,currAtSymbol):
+    nextAtSymbol = message.find('@',currAtSymbol,len(message))
+
+    if nextAtSymbol == -1:
+        return len(message)
+    else:
+        lastSlashNsymbol = message.rfind('\n',currAtSymbol,nextAtSymbol)
+
+        if lastSlashNsymbol != -1:
+            return lastSlashNsymbol
+        else:
+            subString = message[currAtSymbol:nextAtSymbol]
+            subString.rstrip()
+            lastSlashNsymbol = subString.rfind(' ')
+            if lastSlashNsymbol != -1:
+                return lastSlashNsymbol
+            else:
+                return currAtSymbol + (len(subString)/2)
+
+#=================================================================================================
+# from Borg import Borg
+
+# class Page2Writer(Borg):
+class Page2Writer:
+    def __init__(self, noPackagePaths=None,rttTagInRelease='',init=False):
+        """bool argument prevents overwrite of the singleton dictionary
+        if it is not intended to (re)initialise the object.
+        The Paths passed = instance of NoPackagePaths created in Tester."""
+        
+        # Borg.__init__(self)
+
+
+        # if not init: return
+    
+        
+        self.knownTestRuns   = {}
+        self.noPackagePaths  = noPackagePaths
+        self.rttTagInRelease = rttTagInRelease
+
+    # =================================================================================================
+    
+    def addTestRuns(self,tr=[]):
+        """Add a list of testruns to loop over and display."""
+        order = 0
+        for thing in tr:
+            try:
+                self.knownTestRuns[thing.name] = thing
+            except Exception, e:
+                logger.warning("Problem trying to add TestRun with name " + str(thing.name) + " to Page2Writer's list of known TestRuns. Skipping request...")
+                logger.warning("Problem was: " + str(e))
+
+    # =================================================================================================
+
+    def formatErrorMessageForWebDisplay(self,error,cutOffPoint=60):
+        errorToks   = error.split()
+        finalToks = []
+        for tok in errorToks:
+            if len(tok) <= cutOffPoint:
+                finalToks.append(tok)
+                continue
+
+            lines = self.wrapString(tok)                        
+            [finalToks.append(item) for item in lines]            
+
+        formattedError = ''
+        lineLength = 0
+        for thing in finalToks:
+            thing = thing + ' '
+            lineLength += len(thing)
+            if lineLength < cutOffPoint:
+                preString = ''
+            else:
+                preString  = '<br/>'
+                lineLength = len(thing)
+                
+            formattedError += preString + thing
+
+        return formattedError
+
+    # =================================================================================================
+
+    def wrapString(self,theString,maxLineLength=60):
+        lines = []
+        remainder = len(theString)
+        if remainder <= maxLineLength:
+            lines = [theString]
+        else:            
+            forwardSlashChar = theString.find('/')
+            if forwardSlashChar != -1:
+                lines = self.wrapPathString(theString)
+            else:
+                index = 0
+                start = 0
+                end   = 0
+                while remainder > maxLineLength:
+                    start = index*maxLineLength
+                    end   = start + maxLineLength
+                    lines.append(theString[start:end])
+                    index += 1
+                    remainder = len(theString[end:])
+                lines.append(theString[end:])
+                
+        return lines
+
+    # =================================================================================================
+    
+    def wrapPathString(self,thePath,maxLineLength=60):
+        forwardSlash = thePath.find('/')
+        if forwardSlash == -1:
+            return [thePath]
+
+        done  = False
+        start = 0
+        end   = maxLineLength
+        lines = []
+
+        while not done:
+            subString = thePath[start:end]
+            slashIndex = subString.rfind('/')
+
+            if slashIndex == -1:
+                stringToAppend = subString
+                lines.append(stringToAppend)
+                start = end
+            else:
+                stringToAppend = subString[0:slashIndex+1]
+                lines.append(stringToAppend)
+                start = start + slashIndex + 1
+
+            
+            end   = start + maxLineLength
+            if start >= len(thePath):
+                done = True
+
+        return lines    
+    
+    # =================================================================================================
+    
+    def write(self):
+    
+        """Loops over a list of testrun objects, interrogating them for certain information to display on the web page.
+        HTML code for the page is output to file in the results base directory."""
+
+        from Tools import now
+
+        #        if len(self.knownTestRuns) == 0:
+        #   return
+        
+        # table titles and entries
+        tableTitles  = ''
+        tableEntries = ''
+
+        resPath = ''
+        rttTag  = ''
+
+        # names of all the test runs
+        trNames = self.knownTestRuns.keys()
+
+        # now let's sort alphabetically the testrun names, so that page2 is nice and easy to navigate
+        trNames.sort()
+
+        for testRunName in trNames:
+
+            theCells = [{'content':'Package'},{'content':'Container'},{'content':'Status'},{'content':'JobGroups in package'}]
+            tableTitles =  tableRow(styleClass='level1TableHeader',tableCells=theCells)
+            theTestRun  = self.knownTestRuns[testRunName]
+            paths       = theTestRun.paths
+            jobMinders  = theTestRun.jobMinders
+            groupKits   = theTestRun.groupKits
+
+            # results path
+            resPath    = paths.resultsDirs[
+                'resBase/build/branch/runType/release']
+    
+            # set up an initial row for this testrun
+            jobGroupTable = 'n/a'
+
+            # sort by job group
+            byGroup = {}
+            for job in jobMinders:
+                byGroup.setdefault(job.jDescriptor.jobGroup, []).append(job)
+
+            # sort the keys
+            byGroupKeysSorted = byGroup.keys()
+            byGroupKeysSorted.sort()
+
+            if len(byGroupKeysSorted)>0:
+                jobGroupTable  = table(border=0)
+                #   theCells = [{'content':'Name'},{'content':'Summ. Files'},{'content':'Done jobs'},{'content':'Jobs OK'},{'content':'Tests OK'}]
+                theCells = [{'content':'Name'},{'content':'Done jobs'},{'content':'Jobs OK'},{'content':'Tests OK'}]
+                jobGroupTable += tableRow(styleClass='level2TableHeader',tableCells=theCells)
+
+                for group in byGroupKeysSorted:
+
+                    # page 3 goes into .../package/group        
+                    # the full path will be to the run path .../package/group/joboptions/id#
+                    # this hardwiring of where the pages will be written is extrmeely package-centric
+                    # and should be generalised for non-package oriented descriptors
+                    relativePage3path = 'page3.html'
+                    relativePage3path = join(testRunName, group, relativePage3path)
+                    page3link = link('tableLink',relativePage3path,string.replace(group, 'Athena', 'Athena: '))
+            
+                    absolutePage3path = join(resPath,relativePage3path)
+                    writePage3(group,byGroup[group],paths,absolutePage3path)
+            
+                    # add the summary files to the header.
+                    # ask the group kit instances for the display files
+                    # This list was updated when the postScripts were run,
+                    # so it is essential to use the same instance as that which was used to run the postScripts
+            
+                    #                    statusText = colorStatusText('completed')
+                    # startedStatusText = colorStatusText('Started')                
+
+                    # summaryFiles = ''
+
+                    # when a all jobs in a Group terminate, a group kit is put into the groupKit
+                    # dictionary. Testing this to decide if the the group has completed.
+
+                    #if group in groupKits.keys():
+                    #    if groupKits[group].displayFiles:
+                    #        for file in groupKits[group].displayFiles:
+                    #            fullpath = os.path.join(resPath, file)
+                    #            if os.path.exists(fullpath):                    
+                    #                summaryFiles += link('',file,file) + breakTag() + endLine()                    
+
+                    #if summaryFiles == '': summaryFiles = 'n/a'
+
+                    stats = jobStatsHTMLcode(byGroup[group]) # returns a dictionary
+
+                    # let us color stats text accordingly
+                    # if any jobs have failed to complete, or if some checks failed for
+                    # jobs that otherwise were successful, we color red.
+
+                    # set to true if one of the stats column is turned red
+                    problemsNoted = False
+            
+                    # let's peek first at the jobs completed ok stat
+                    okJobs  = str(stats['ok'])
+                    tokens = okJobs.split('/')
+                    if okJobs != 'n/a' and tokens[0] != tokens[1]: #color red then
+                        stats['ok'] = colorText('red',stats['ok'])
+                        problemsNoted = True
+                
+                    # now let's peek first at the tests completed ok stat for those jobs completed ok
+                    okTests = str(stats['testok'])
+                    tokens = okTests.split('/')
+                    if okTests!= 'n/a' and tokens[0] != tokens[1]: #color red then
+                        stats['testok'] = colorText('red',stats['testok'])
+                        problemsNoted = True
+
+                    # if one of the above two stats was turned red, then
+                    # must color the status text red if it is set to "completed"
+                    #                    if problemsNoted and statusText.find('completed')!=-1: 
+                    #   statusText = colorText('red','completed')
+
+                    doneJobs = stats['done'] + '/' + stats['numjobs']
+                    
+                    jobGroupTable += tableRow(tableCells=[{'content':page3link},
+                                                          #  {'content':summaryFiles},
+                                                          {'content':doneJobs},
+                                                          {'content':stats['ok']},
+                                                          {'content':stats['testok']}])                    
+
+                jobGroupTable += table('end')    
+
+
+            if theTestRun.status() == theTestRun.ps.failureState:
+                jobGroupTable  = table(border=0,width='500')
+
+                error = self.formatErrorMessageForWebDisplay(
+                    str(theTestRun.getError()))
+                
+                jobGroupTable += tableRow(tableCells=[{'content':error}])
+                jobGroupTable += table('end')
+                firstCell = theTestRun.name+'<br/>'+(theTestRun.paths.packageTag).replace(theTestRun.name+'-','')
+                theCells  = [{'content':firstCell,'color':'#dd9999'},
+                             {'content':theTestRun.paths.containerPackage},
+                             {'content':theTestRun.status(),'color':'#dd9999'},
+                             {'content':jobGroupTable}
+                             ]
+                tableEntries += tableRow(tableCells=theCells)
+            else:                
+                firstCell = theTestRun.name+'<br/>'+(theTestRun.paths.packageTag).replace(theTestRun.name+'-','')
+                theCells = [{'content':firstCell},
+                            {'content':theTestRun.paths.containerPackage},
+                            {'content':theTestRun.status()},
+                            {'content':jobGroupTable}
+                            ]
+                tableEntries += tableRow(tableCells=theCells)
+                
+        
+        # open the file to write out the html file with the status        
+        page2Path = join(self.noPackagePaths.resultsDirs['resBase/build/branch/runType/release'], "page2.html")
+        
+        
+        # HTML code top page
+        # NOTE: paths.kitID is an empty string if this is a release run
+        # We use noPackagePaths (passed to the Page2Writer constructor) rather than paths, so that this code still works even if there are no TestRuns in the list
+        pageTitleString  = self.noPackagePaths.release + ' '
+        pageTitleString += self.noPackagePaths.runType + self.noPackagePaths.kitID + ' run --- '
+        pageTitleString += self.noPackagePaths.build + ', ' + self.noPackagePaths.branch + ' branch --- '
+        pageTitleString += self.noPackagePaths.platform + ' platform'
+
+        srcRun   = self.noPackagePaths.rttSrcDir
+        libTools = self.libToolsFrom()
+
+        len1 = len('RTT src code run: ')
+        len2 = len('RttLibraryTools module from: ')        
+        firstHalfLine1  = '&nbsp;'*(len2-len1) + 'RTT src code run: '
+
+        len1 = len(str(srcRun))
+        len2 = len(str(libTools))        
+        secondHalfLine1 = str(srcRun) + '&nbsp;'*(len2-len1)
+        
+        firstLine  = firstHalfLine1 + secondHalfLine1
+        secondLine = 'RttLibraryTools module from: ' + str(libTools)
+        
+        rttVersionsString  = firstLine + '<br/>'  
+        rttVersionsString += secondLine
+
+        packagesFoundString = 'Packages found by RTT: ' + str(len(self.knownTestRuns))
+        
+        # create the html code for the top of the page        
+        topPage =  HTMLheader() + pageTitle(pageTitleString) + sectionTitle(rttVersionsString) + pageTitle(packagesFoundString)
+
+        # create the RTT Run Summariser link, if the file exists
+        if os.path.exists(os.path.join(self.noPackagePaths.resultsDirs['resBase/build/branch/runType/release'],'RTTSummary.txt')):
+            topPage += center('begin') + link('pageLink','RTTSummary.txt','Current Run Summary') + center('end') + breakTag(2)
+        
+        # HTML code group table
+        groupTable  = center('begin')
+        groupTable += table('begin')
+        groupTable += tableTitles
+        groupTable += tableEntries
+        groupTable += table('end')
+        groupTable += center('end')
+        
+        # HTML code bottom page
+        bottomPage  = breakTag()
+        bottomPage += center('begin')
+        bottomPage += link('pageLink','../../../../RTTpage1.html','Back to home page')
+        bottomPage += center('end')
+        bottomPage += HTMLfooter()
+        
+        content = topPage + groupTable + bottomPage
+        toFile(page2Path,content)        
+        
+        return
+    
+    # =================================================================================================
+
+    def libToolsFrom(self):
+        isFrom = "release based (" + self.rttTagInRelease + ")"
+        if self.noPackagePaths.rttLibDir:
+            isFrom = self.noPackagePaths.rttLibDir
+
+        return isFrom
+                
+    # =================================================================================================
+    
+    def getStatusFile(self, paths):
+        resPath=paths.resultsDirs['resBase/build/branch/runType/release']
+        statusFile = join(resPath, "status.txt")
+
+        if(os.path.exists(statusFile)): return statusFile
+
+        logger.error("Could not find status file!")
+        return None                
+
+
+if __name__ == '__main__':
+    pass

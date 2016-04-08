@@ -1,0 +1,51 @@
+from Evaluate      import Evaluate, getText
+from xml.dom.ext   import PrettyPrint
+from RTTpath       import RTTpath
+from XMLTools      import xslRef, prependXSLRef
+from makeRTTDOM    import makeRTTDOM
+from PageXMLWriter import PageXMLWriter
+
+import os.path
+
+class Page3XMLWriter(PageXMLWriter):
+	def __init__(self, tester, logger):
+		PageXMLWriter.__init__(self, tester, logger)
+		self.absXSLLoc = os.path.join(self.absXSLDir, 'page3.xsl')
+
+	def update(self, updatedPackage, updatedMinders):
+		# self.logger.debug('Page3XMLWriter: start update')
+		rttSummaryDocument = self.tester.summaryDocument
+
+		sDocumentElement =  rttSummaryDocument.documentElement
+		packageList = sDocumentElement.getElementsByTagName('package')
+		packageNode = [p for p in  packageList if Evaluate('packageName/text()', p) == updatedPackage][0]
+		
+		# create one page3 per package
+		overviewNode = Evaluate('overview', sDocumentElement)[0]
+		self.createPage( overviewNode, packageNode )
+		# self.logger.debug('Page3XMLWriter: end update')
+
+
+	def createPage(self, overviewNode, packageNode):
+		rttSummaryDocument = self.tester.summaryDocument
+		doc   = makeRTTDOM('RTTpage3')
+
+
+		absPageLoc = RTTpath(
+			Evaluate('resReleaseDir/text()', overviewNode),
+			Evaluate('packageName/text()',   packageNode),
+			'page3.xml')
+		
+		absPageLoc = str(absPageLoc)
+
+		prependXSLRef(xslRef(self.absXSLLoc, absPageLoc), doc)
+
+		doc.documentElement.appendChild(doc.importNode(overviewNode, True))
+		doc.documentElement.appendChild(doc.importNode(packageNode, True))
+
+		of = open(absPageLoc, 'w')
+		PrettyPrint(doc,of)
+		of.close()
+
+		doc.unlink()
+		# self.logger.debug('Wrote out page3.xml to %s' % str(absPageLoc))

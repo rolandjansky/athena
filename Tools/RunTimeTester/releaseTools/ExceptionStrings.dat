@@ -1,0 +1,88 @@
+/afs/cern.ch/atlas/project/RTT/prod/logs/val/SLC4_32/logs/logfiles_3sep_10:15
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC3/logs/logfiles_29aug_22:30
+# /afs/cern.ch/atlas/project/RTT/prod/logs/pcache/SLC3/logs/logfiles_29aug_23:01
+# /afs/cern.ch/atlas/project/RTT/prod/logs/val/SLC4_32/logs/logfiles_28aug_09:00
+# /afs/cern.ch/atlas/project/RTT/data/brinick/logs/SLC4_32/logs/logfiles_29aug_03:31
+# /afs/cern.ch/atlas/project/RTT/prod/logs/val/SLC4_32/logs/logfiles_27aug_09:00
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_23aug_12:00
+# /afs/cern.ch/atlas/project/RTT/prod/logs/val/SLC4_32/logs/logfiles_23aug_09:00
+# /afs/cern.ch/atlas/project/RTT/prod/logs/val/SLC4_32/logs/logfiles_19aug_09:00
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_19aug_12:01
+# /afs/cern.ch/atlas/project/RTT/prod/logs/pcache/SLC3/logs/logfiles_15aug_23:00
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_15aug_12:00
+# /afs/cern.ch/atlas/project/RTT/prod/logs/pcache/SLC3/logs/logfiles_9aug_22:00
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_8aug_13:02
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_1aug_02:01
+#/afs/cern.ch/atlas/project/RTT/prod/logs/val/SLC4_32/logs/logfiles_5aug_09:31
+# /afs/cern.ch/atlas/project/RTT/data/brinick/logs/SLC4_32/logs/logfiles_3aug_03:30
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_2aug_14:00
+# /afs/cern.ch/atlas/project/RTT/prod/logs/val/SLC4_32/logs/logfiles_3aug_09:30
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_1aug_02:01
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_23jul_12:00
+#/afs/cern.ch/atlas/project/RTT/prod/logs/val/SLC4_32/logs/logfiles_23jul_09:31
+# /afs/cern.ch/atlas/project/RTT/data/brinick/logs/SLC4_32/logs/logfiles_24jul_03:31
+# /afs/cern.ch/atlas/project/RTT/data/brinick/logs/SLC4_32/logs/logfiles_23jul_16:50
+# /afs/cern.ch/atlas/project/RTT/prod/logs/pcache/SLC3/logs/logfiles_12jul_22:01
+# /afs/cern.ch/atlas/project/RTT/prod/logs/dev/SLC4_32/logs/logfiles_12jul_16:00
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_12jul_13:30
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_12jul_13:30
+# /afs/cern.ch/atlas/project/RTT/prod/logs/val/SLC4_32/logs/logfiles_12jul_11:21
+# /afs/cern.ch/atlas/project/RTT/data/brinick/logs/SLC4_32/logs/logfiles_10jul_07:35
+#/afs/cern.ch/atlas/project/RTT/data/peter/Results/
+#/afs/cern.ch/atlas/project/RTT/data/peter/Results/rel_5/pcache/build/i686-slc3-gcc323-opt/offline
+#/afs/cern.ch/atlas/project/RTT/Results/rel_2/bugfix/build/i686-slc4-gcc34-opt/offline
+#/afs/cern.ch/atlas/project/RTT/data/peter/logs/SLC4_32/logs/logfiles_22jun_16:46
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_23apr_14:01
+# /afs/cern.ch/atlas/project/RTT/prod/logs/bugfix/SLC4_32/logs/logfiles_23apr_14:01
+# /afs/cern.ch/atlas/project/RTT/data/brinick/logs/SLC4_32/logs/logfiles_28feb_22:30
+#/afs/cern.ch/atlas/project/RTT/prod/SLC3/logs/logfiles_23feb_14:51
+#/afs/cern.ch/atlas/project/RTT/prod/Peter/logs/logfiles_22feb_19:27
+#/afs/cern.ch/atlas/project/RTT/prod/Peter/logs/logfiles_22feb_21:19
+#/afs/cern.ch/atlas/project/RTT/prod/Peter/logs/logfiles_15feb_20:45
+RTT.log;*.log
+#*_log
+RTTSException
+SystemExit
+StopIteration
+StandardError
+KeyboardInterrupt
+ImportError
+EnvironmentError
+IOError
+OSError
+WindowsError
+EOFError
+RuntimeError
+NotImplementedError
+NameError
+UnboundLocalError
+AttributeError
+SyntaxError
+IndentationError
+TabError
+TypeError
+AssertionError
+LookupError
+IndexError
+KeyError
+ArithmeticError
+OverflowError
+ZeroDivisionError
+FloatingPointError
+ValueError
+UnicodeError
+UnicodeEncodeError
+UnicodeDecodeError
+UnicodeTranslateError
+ReferenceError
+SystemError
+MemoryError
+ Warning.
+UserWarning
+DeprecationWarning
+PendingDeprecationWarning
+SyntaxWarning
+OverflowWarning
+RuntimeWarning
+FutureWarning
+

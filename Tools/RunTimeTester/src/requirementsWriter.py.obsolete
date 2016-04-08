@@ -1,0 +1,84 @@
+import os, os.path, string
+
+from Tools import extractReleasePart
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+import Reporter
+globalReporter = Reporter.getGlobalReporter()
+# -------------------------------------------------------------------------
+
+def requirementsWriter_Project(runPath, packages=[]):
+    "returns the 'home directory' requirements file"
+
+    distArea = '/afs/cern.ch/atlas/software/dist'
+
+    script  = 'set CMTSITE CERN\n'
+    script += 'set SITEROOT /afs/cern.ch\n'
+    script += 'macro ATLAS_DIST_AREA '+distArea+'\n'
+    script += 'macro ATLAS_TEST_AREA '+runPath+'\n'
+    script += 'use AtlasLogin AtlasLogin-* $(ATLAS_DIST_AREA)\n'
+    for package in packages:
+        head, tail = os.path.split(package)
+        # script += 'use '+tail+' '+tail+'* '+head+'\n'
+        
+    print script
+    return script 
+
+# -------------------------------------------------------------------------
+
+# def requirementsWriter(releasePath, runPath, runType, packages=[]):
+def requirementsWriter(distArea, release, runPath, runType, packages=[]):
+    "returns the 'home directory' requirements file"
+
+    # releasePath is full path to release area e.g.
+    # /afs/cern.ch/atlas/software/dist/8.4.0 or
+    # /afs/cern.ch/atlas/software/dist/nightlies/rd/atlrel_1
+
+    
+
+    releasePath = '/'+release
+
+    if runType == 'kit':
+        script  = 'macro ATLAS_DIST_AREA '+ '"'+distArea+'"\n'
+        script += 'macro TestArea "'+runPath+'"\n'
+        
+        script += 'macro ATLAS_RELEASE "'+releasePath+'"\n'
+        script += 'path_prepend PATH ${ATLASSETTINGSROOT}/scripts\n'
+        script += 'set INSTALLAREA ${CMTINSTALLAREA}\n'
+        
+        script += 'path_prepend CMTPATH $(TestArea)\n'
+        script += 'path_remove CMTPATH "$(ATLAS_DIST_AREA)"\n'
+        script += 'path_append CMTPATH "$(ATLAS_DIST_AREA)$(ATLAS_RELEASE)"\n'
+        script += '$(ATLAS_DIST_AREA)/$(ATLAS_RELEASE)/External\n'
+
+        for package in packages:
+            head, tail = os.path.split(package)
+            script += 'use '+tail+' '+tail+'* '+head+'\n'
+
+    else: # not a kit => is a release
+
+        script  = 'set CMTSITE CERN\n'
+        script  = 'set SITEROOT /afs/cern.ch\n'
+        script += 'macro ATLAS_DIST_AREA '+ '"'+distArea+'"\n'
+        script += 'macro TestArea "'+runPath+'"\n'
+        script += 'macro ATLAS_RELEASE "'+releasePath+'"\n'
+        script += 'use AtlasSettings v* $(ATLAS_DIST_AREA)\n'
+        script += 'path_prepend CMTPATH $(TestArea)\n'
+        script += 'path_remove CMTPATH "$(ATLAS_DIST_AREA)"\n'
+        script += 'path_append CMTPATH "$(ATLAS_DIST_AREA)$(ATLAS_RELEASE)"\n'
+        
+    
+        for package in packages:
+            head, tail = os.path.split(package)
+            script += 'use '+tail+' '+tail+'* '+head+'\n'
+
+        logger.debug(script)
+        return script
+   
+        
+        print script
+        return script 
+

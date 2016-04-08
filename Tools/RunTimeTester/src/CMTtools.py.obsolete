@@ -1,0 +1,86 @@
+#! /usr/local/bin/python
+
+from requirementsWriter import requirementsWriter
+from requirementsWriter import requirementsWriter_Project
+
+import os
+from releaseToNum      import releaseToNum
+from Tools             import setProtections
+import shellCommand 
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+smallLogger = logging.getLogger('rtt.standalone')
+# -------------------------------------------------------------------------
+import Reporter
+globalReporter = Reporter.getGlobalReporter()
+# ------------------------------------------------------------------------
+def writeTopCMTRequirementsFile(paths, packagesToUse):
+    'write and setup a top level cmt file.'
+    
+    
+    os.chdir(paths.workDirs['workBase/'])
+    m  = 'writeTopCMTRequirementsFile cwd = '+str(os.getcwd())
+    logger.debug(m)
+    open("requirements","w").write(requirementsWriter(
+        paths.releasePath,\
+        paths.runType,
+        paths.workDirs['workBase/'],
+        packagesToUse
+        ))
+
+    nightly,relNum = releaseToNum(paths.release)
+
+    cmds = []
+    if nightly or relNum >=870:
+        cmd = 'source '
+        cmd += '/afs/cern.ch/sw/contrib/CMT/v1r18p20050501/mgr/setup.sh'
+        cmds.append(cmd)
+        #cmd += '/afs/cern.ch/sw/contrib/CMT/v1r16p20040901/mgr/setup.sh;'
+    else:
+        cmd = 'source '
+        cmd += '/afs/cern.ch/sw/contrib/CMT/v1r14p20031120/mgr/setup.sh'
+        cmds.append(cmd)
+        
+    cmds.append('cmt config')
+    # os.system(cmd)
+
+    shellCommand.shellCommand(cmds)
+
+    setProtections(os.getcwd(),0775)
+
+# ------------------------------------------------------------------------
+
+def writeTopCMTRequirementsFile_Project(paths, packagesToUse):
+    'write and setup a top level cmt file.'
+    
+    
+    os.chdir(paths.workDirs['workBase/'])
+    m  = 'writeTopCMTRequirementsFile_Project cwd = '+str(os.getcwd())
+    logger.debug(m)
+    ofile = open("requirements","w")
+    ofile.write(requirementsWriter_Project(
+        paths.workDirs['workBase/'],
+        packagesToUse)
+                )
+
+    nightly,relNum = releaseToNum(paths.release)
+
+    cmds = []
+    if nightly or relNum >=870:
+        cmd = 'source '
+        # cmd += '/afs/cern.ch/sw/contrib/CMT/v1r18p20050501/mgr/setup.sh'
+        cmd += '/afs/cern.ch/sw/contrib/CMT/v1r18p20051108/mgr/setup.sh'
+        cmds.append(cmd)
+        #cmd += '/afs/cern.ch/sw/contrib/CMT/v1r16p20040901/mgr/setup.sh;'
+    else:
+        cmd = 'source '
+        cmd += '/afs/cern.ch/sw/contrib/CMT/v1r14p20031120/mgr/setup.sh'
+        cmds.append(cmd)
+        
+    cmds.append('cmt config')
+    # os.system(cmd)
+
+    shellCommand.shellCommand(cmds)
+
+    setProtections(os.getcwd(),0775)

@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rttconfig SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/RTT.dtd">
+
+
+<rttconfig>
+
+   <mode>PBS</mode>
+
+   <release>nightly</release>
+
+   <refRelease>11.0.0</refRelease>
+   <cmtConfig>i686-slc3-gcc323-opt</cmtConfig>
+   <build>opt</build>
+   <branch>dev</branch>
+
+   <runType>
+
+      <releaseRun/>
+
+   </runType>
+
+   <workBasePath>/home/en/RttHead/Work</workBasePath>
+
+   <resultsBasePath>/home/en/RttHead/Results</resultsBasePath>
+
+   <site>CERN</site>
+
+   <dataSetCatalog>/home/en/dcopier_dev/cfg/rttDataSetCatalog.xml</dataSetCatalog>
+
+   <jobGroupConfig>/home/en/RTT/TopLevelJobGroup.xml</jobGroupConfig>
+
+   <refDB>
+
+      <file>/home/en/RTT/refFile.db</file>
+
+      <enable>1</enable>
+
+   </refDB>
+
+   <moniDB>
+
+      <file>/home/en/RTT/moni.db</file>
+
+      <enable>1</enable>
+
+   </moniDB>
+
+
+   <confFileSrc>
+         <installedConfFiles/>
+   </confFileSrc>
+
+
+<!--
+
+   <confFileSrc>
+
+      <rttProvides>
+
+        <packageConfFile>
+
+           <package>Simulation/Atlfast/TestAtlfast</package>
+
+           <pathToFile>/home/en/RttHead/Tools/RunTimeTester/RunTimeTester-00-00-94/src/../TestSuiteScratch/TestSuiteFixtures/Fixtures3/xml/TestAtlfast_TestConfiguration.xml</pathToFile>
+
+
+
+           <cmtpath>/afs/cern.ch/atlas/software/builds/nightlies/dev/AtlasReconstruction/rel_4</cmtpath>
+
+           <version>TestAtlfast-00-00-61</version>
+
+           <installArea>/afs/cern.ch/atlas/software/builds/nightlies/dev/AtlasReconstruction/rel_4/InstallArea</installArea>
+
+
+
+           <shareArea>/afs/cern.ch/atlas/software/builds/nightlies/dev/AtlasReconstruction/rel_4/shareArea</shareArea>
+
+        </packageConfFile>
+
+
+
+
+
+        <packageConfFile>
+
+           <package>Tools/RunTimeTester</package>
+
+           <pathToFile>/home/en/RttHead/Tools/RunTimeTester/RunTimeTester-00-00-94/src/../TestSuiteScratch/TestSuiteFixtures/Fixtures3/xml/RunTimeTester_TestConfiguration.xml</pathToFile>
+
+
+
+           <cmtpath>/afs/cern.ch/atlas/software/builds/nightlies/dev/AtlasCore/rel_4</cmtpath>
+
+           <version>RunTimeTester-00-00-82</version>
+
+           <installArea>/afs/cern.ch/atlas/software/builds/nightlies/dev/AtlasCore/rel_4/InstallArea</installArea>
+
+
+
+           <shareArea>/afs/cern.ch/atlas/software/builds/nightlies/dev/AtlasCore/rel_4/shareArea</shareArea>
+
+        </packageConfFile>
+
+
+
+
+
+      </rttProvides>
+
+   </confFileSrc>
+
+-->
+
+   <!-- <packageAccept>HelloWorld</packageAccept> -->
+
+   <!-- <packageVeto>TestAtlfast</packageVeto> -->
+
+<!--   <testMode>NoNewRunDirs</testMode> -->
+
+   <maxTime>
+
+      <hours>1</hours>
+
+   </maxTime>
+
+   <!-- <rttKitTest/> -->
+
+   <releaseType>project</releaseType>
+
+</rttconfig>
+

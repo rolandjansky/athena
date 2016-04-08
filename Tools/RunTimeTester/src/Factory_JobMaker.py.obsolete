@@ -1,0 +1,21 @@
+from Factory_BaseClass    import Factory
+from JobMaker             import RTTJobMaker, ATNJobMaker
+
+
+# -------------------------------------------------------------------------
+# JobMaker Factory
+# -------------------------------------------------------------------------
+class JobMakerFactory(Factory):
+  def __init__(self, logger):
+    Factory.__init__(self, logger, self.__class__.__name__)
+    self.dict = {'RTT': RTTJobMaker,
+                 'ATN': ATNJobMaker}
+    
+  def create(self, confMode, jobListElement, paths):
+
+    if not self.dict.has_key(confMode):
+        self.logger.error('jobMakerFactory dictionary has no key '+confMode)
+        return None
+    
+    return self.dict[confMode](jobListElement, paths, self.logger)
+

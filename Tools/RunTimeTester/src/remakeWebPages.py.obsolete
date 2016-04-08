@@ -1,0 +1,22 @@
+from anydbm import open
+from WWebPageWriter import CERNWebPageWriter
+
+moniDBLocation = '/afs/cern.ch/atlas/project/RTT/prod/moniFile.db'
+resBaseDir = '/afs/cern.ch/atlas/project/RTT/Results'
+
+db = open(moniDBLocation, 'r')
+
+
+webPageWriter = CERNWebPageWriter(resBaseDir)
+items = db.items()
+
+print 'found %d summaries' % len(items)
+
+argDict = {
+    'keyDocList':        items,
+    'cmtTargetToUpdate': [],
+    'packageToUpdate':   [],
+    'mindersToUpdate':   []
+    }
+
+webPageWriter.update(argDict)

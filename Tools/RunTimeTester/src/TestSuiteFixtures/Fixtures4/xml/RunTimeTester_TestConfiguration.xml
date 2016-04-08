@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+   
+   <atn/>
+   <kv/>
+   <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+      <refRelease>10.0.0</refRelease>
+      
+      <jobList>
+                  
+        <!-- <rulechecker> -->
+        <!--    <package>Database/NovaBlob</package>-->
+        <!--    <queue>short</queue>-->
+        <!-- </rulechecker> -->
+
+           <rulechecker>  
+              <package>Database</package> 
+              <queue>medium</queue>  
+           </rulechecker> 
+
+           <rulechecker>  
+              <package>Simulation/Atlfast</package> 
+              <queue>medium</queue>  
+           </rulechecker> 
+         
+         <!-- <qametrics> -->
+             <!--  <package>Simulation/Atlfast</package> -->
+            <!--   <queue>short</queue> -->
+          <!--  </qametrics> -->
+         
+           <kitvalidation> 
+              <queue>medium</queue> 
+           </kitvalidation>
+
+      </jobList>
+      
+      <jobGroups>
+         
+         <jobGroup name="RuleChecker" parent="Top">
+            
+            <keepFilePattern>*.viol</keepFilePattern>
+            <keepFilePattern>*.i</keepFilePattern>
+            <keepFilePattern>srcFileInfo.txt</keepFilePattern>
+            <keepFilePattern>*.xml</keepFilePattern>
+            <keepFilePattern>*.html</keepFilePattern>
+            
+            <storeInDatabasePattern>*.xml</storeInDatabasePattern>
+            <action>
+               <modulename>RuleCheckerLibraryTools</modulename>
+               <testname>Viol2XMLLocal</testname>
+            </action>
+
+            <logChecker class="SimpleLogChecker">
+               <searchString>rulechecker ok.</searchString>
+            </logChecker>
+
+         </jobGroup>
+
+         <jobGroup name="RuleCheckerWatcher" parent="Top">
+
+            <keepFilePattern>*.html</keepFilePattern>
+            <keepFilePattern>badViolFiles.*</keepFilePattern>
+
+            <action>
+               <modulename>RttLibraryTools</modulename>
+               <testname>WatcherFilesWithStringsFinder</testname>
+               <arg>
+                  <argname>outputFile</argname>
+                  <argvalue>badViolFiles</argvalue>
+               </arg>
+               <arg>
+                  <argname>dirWithFiles</argname>
+                  <argvalue>resultsDir</argvalue>
+               </arg>
+               <listarg>
+                  <listargname>searchPatterns</listargname>
+                  <listargvalue>expecting</listargvalue>
+               </listarg>
+               <listarg>
+                  <listargname>inputFilePatterns</listargname>
+                  <listargvalue>*.viol</listargvalue>
+               </listarg>
+
+            </action>            
+            <summary>RuleCheckerSummary.html</summary>
+
+         </jobGroup>
+         
+         
+         <jobGroup name="PBSTest" parent="Top"/>
+         
+         <jobGroup name="KitValidation" parent="Top">
+            
+            <keepFilePattern>Summary.results</keepFilePattern>
+
+            <checker class="SimpleLogChecker">
+               <searchString>Validation [</searchString>
+               <vetoString>[FAILED]</vetoString>
+            </checker>
+            
+            <test>
+               <modulename>RttLibraryTools</modulename>
+               <testname>FileGrepper</testname>
+               
+               <arg>
+                  <argname>inputFile</argname>
+                  <argvalue>*_log</argvalue>
+               </arg>
+
+               <arg>               
+                  <argname>outputFile</argname>
+                  <argvalue>Summary.results</argvalue>
+               </arg>
+
+               <arg>               
+                  <argname>searchList</argname>
+                  <argvalue>PASSED,FAILED</argvalue>
+               </arg>
+               
+               <arg>
+                  <argname>vetoList</argname>
+                  <argvalue>DEBUG</argvalue>
+               </arg>
+               
+               
+            </test>
+            
+            
+            
+            <logChecker class="SimpleLogChecker">
+               <searchString>Validation [</searchString>
+            </logChecker>
+         </jobGroup>
+                  
+      </jobGroups>
+   </rtt>
+</unifiedTestConfiguration>

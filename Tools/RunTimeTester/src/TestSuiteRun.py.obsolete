@@ -1,0 +1,238 @@
+"""
+PS 31/10/05
+
+Script to test the creation of RTT objects.
+At the moment the only test is whether the creation succeeds.
+Possible extension is to add checks on the objects.
+
+Object creation is performed through zero argument factory fucntions,
+so the module can be used as a convenient way of getting hold of an
+RTT object that would otherwise be complex to contruct.
+
+The configuration information is hardwired and global, but can be overridden
+with data read from a configuration file.
+"""
+import os, time, string
+from xml.sax.handler import ContentHandler
+import xml.sax, sys
+
+from Tools   import mkdirIfNew
+
+import string, shutil
+
+import logging
+from LoggerSetup import setupLoggerForTestSuite
+
+from TestSuiteTests    import TestSuiteTests
+from TestSuiteGlobals  import getGlobalStats
+
+
+class TestSuiteRun:
+
+    def __init__(self, startPath, fixtureDir):
+    
+        print '\n\n ---TestSuiteRun starts %s ----\n' % time.ctime(time.time())
+        testSuiteScratchPath = os.path.join(startPath, '../TestSuiteScratch')
+    
+
+        if not os.path.exists(testSuiteScratchPath):
+            os.mkdir(testSuiteScratchPath)
+        
+        destPath = os.path.join(testSuiteScratchPath, fixtureDir)
+        srcPath  = os.path.join(startPath, fixtureDir)
+        if os.path.exists(destPath):shutil.rmtree(destPath)
+        os.makedirs(destPath)
+        # print 'made destPath',destPath,os.path.exists(destPath)
+        self.fixtures =  self.setupFixtures(srcPath, destPath)
+        logDir = os.path.join(destPath, self.fixtures['testLogDir'])
+        
+
+        self.handler = setupLoggerForTestSuite(logDir)
+        logger = logging.getLogger('rttTestSuite')
+        
+        # # print 'handlers %s' % str(logger.handlers)
+        # if len(logger.handlers) ==2:
+        #    # for some reason this is a logging.StreamHandler
+        #    logger.removeHandler(logger.handlers[0]) 
+        #    handler = logger.handlers[0]
+        #    # print 'TestSuite: handler = ',handler
+
+
+        self.logger = logger
+
+        self.passed = self.execute()
+        # self.passed = True # for debug !!
+        # self.passed = False # for debug !!
+        print '\n\n ---TestSuiteRun ends %s ----\n' % time.ctime(time.time())
+        
+    def setupFixtures(self, srcPath, destPath):
+
+        mkdirIfNew(os.path.join(destPath, 'logs'))
+        mkdirIfNew(os.path.join(destPath, 'logs/Tester'))
+        mkdirIfNew(os.path.join(destPath, 'Install'))
+        mkdirIfNew(os.path.join(destPath, 'Install/jobOptions'))
+        mkdirIfNew(os.path.join(destPath,
+                            'Install/jobOptions/TestAtlfast'))
+        mkdirIfNew(os.path.join(destPath, 'Work'))
+        mkdirIfNew(os.path.join(destPath, 'Work/cmtHome'))
+        mkdirIfNew(os.path.join(destPath, 'Work/cmtProject'))
+        mkdirIfNew(os.path.join(destPath,
+                                'Results/opt/N.0.X/release/atlrel_0'))
+        mkdirIfNew(os.path.join(destPath,
+                                'Results/opt/N.0.X/release/atlrel_1'))
+        mkdirIfNew(os.path.join(destPath, 'xml'))
+        mkdirIfNew(os.path.join(destPath, 'cfg'))
+        mkdirIfNew(os.path.join(destPath,
+                                'opt/N.0.X/release/atlrel_2'))
+        mkdirIfNew(os.path.join(destPath, 'opt/N.0.X/kit'))
+ 
+        toPreprocess = [
+            'cfg/rttUnitTests.xml',
+            ]
+
+        toCopy =[
+            'status.txt',
+            'Readme.txt',
+            'xml/rttUnitTestTopLevelJobGroup.xml',
+            'xml/TestAtlfast_TestConfiguration.xml',
+            'xml/RunTimeTester_TestConfiguration.xml',
+            'xml/rttUnitTestDataSetCatalog.xml',
+            'Install/jobOptions/TestAtlfast/Atlfast_POOL_False_low_cone_cells.py'
+            ]
+        toCopy2 ={
+            'status.txt': ['Results/opt/N.0.X/release/atlrel_0',
+                           'Results/opt/N.0.X/release/atlrel_1']
+            }
+        [self.preprocessConfigFile(srcPath, destPath, f) for f in toPreprocess]
+        [shutil.copy(
+            os.path.join(srcPath,file),
+            os.path.join(destPath, file)
+            ) for file in toCopy]
+
+
+        for k in toCopy2.keys():
+            destDirs = toCopy2[k]
+            [shutil.copy(os.path.join(srcPath, k),
+                         os.path.join(destPath, dir, k))
+             for dir in destDirs]
+            
+            fixtures = self.getFixtures(destPath)
+            fixtures['testSuiteScratchPath'] = destPath
+            return fixtures
+    def writeline(self, file, line): file.write(line+'\n')
+    # -------------------------------------------------------------------------
+    def getFixtures(self, basePath):
+
+        testTopLevelRTTFile  = os.path.join(basePath,'cfg/rttUnitTests.xml')
+        testTopLevelJobGroup = os.path.join(basePath,'xml/rttUnitTestTopLevelJobGroup.xml')
+        
+        testRunTimerTime     = 5
+        testRTTtagBeingTested= 'NoTag' 
+        testInstallArea      = os.path.join(basePath, 'Install')
+        testPackage          = 'TestAtlfast'
+        
+        testPackageConfFile  = os.path.join(basePath,'xml/TestAtlfast_TestConfiguration.xml')
+        testLogDir           = os.path.join(basePath, 'logs')
+        testTesterLogDir     = os.path.join(basePath, 'logs/Tester')
+        testFixtureDoc       = os.path.join(basePath, 'Readme.txt')
+        
+        fixtures = {
+            'testTopLevelRTTFile':   testTopLevelRTTFile,
+            'testTopLevelJobGroup':  testTopLevelJobGroup,
+            'testRunTimerTime':      testRunTimerTime,
+            'testRTTtagBeingTested': testRTTtagBeingTested,
+            'testInstallArea':       testInstallArea,
+            'testPackage':           testPackage,
+            'testPackageConfFile':   testPackageConfFile,
+            'testLogDir':            testLogDir,
+            'testTesterLogDir':      testTesterLogDir,
+            'testFixtureDoc':        testFixtureDoc
+            }
+        self.fixturesAsStr = self.fixturesToStr(basePath, fixtures)
+        print self.fixturesAsStr
+
+        tlcf = fixtures['testTopLevelRTTFile']
+        print 'Contents of top level configuration file %s:' % tlcf
+        #print open(fixtures['testTopLevelRTTFile'], 'r').read()
+        self.stripXML(tlcf)
+        print
+        
+        return fixtures
+    # ----------------------------------------------------------------
+    def fixturesToStr(self, basePath, fixtures):
+        text =  '\nAll paths relative to %s\n' % basePath
+        
+        for i in fixtures.items():
+            var = i[0]
+            val = str(i[1])
+            # if val.find(basePath) != -1: val = val[val.rfind(basePath), -1]
+            if val.find(basePath) != -1: val = val[len(basePath):]
+            text += '%30s          %40s\n' % (string.ljust(var, 30), val)
+            
+            
+
+        docFile = fixtures['testFixtureDoc']
+        text +=  '\n\nFixture Documentation:\n'
+    
+        if os.path.exists(docFile):
+            text += open(docFile, 'r').read()
+            text += '\n\n'
+        else:
+            text +=  'No documentation file for these fixtures\n\n'
+
+        return text
+    # ----------------------------------------------------------------
+
+
+    def preprocessConfigFile(self, srcDir, destDir, file):
+
+        ifile = open(os.path.join(srcDir, file), 'r')
+        srcLines  = ifile.readlines()
+        ifile.close()
+        newSrcLines= [string.replace(l, 'TESTSUITESCRATCH',
+                                     destDir) for l in srcLines] 
+
+        dest      = open(os.path.join(destDir, file), 'w')
+        [self.writeline(dest, l) for l in newSrcLines]
+    
+    def execute(self):
+        # functionRunner = FunctionRunner(TestSuiteCoreTests.getTests())
+        # functionRunner.runNewFunctions(TestSuiteUserTests.getTests())
+        # print functionRunner
+        tests = TestSuiteTests(self.fixtures,
+                               self.logger,
+                               self.handler)
+        tests.runNonCoreTests()
+        self.testResults = str(tests)
+        self.summary     = str(getGlobalStats())
+        print self.testResults
+        print self.summary
+        return tests.allTestsPassed()
+
+    def stripXML(self, file):
+        
+        class TextHandler(ContentHandler):
+            def __init__(self):
+                self.text   = ''
+            def characters(self, ch):
+                ch = ch.strip()
+                if len(ch)==0: return
+                if len(ch)>60: ch=ch[len(ch)-60:]
+                self.text += '                 '+ch+'\n'
+                
+            def startElement(self, name, attr):
+                tag = name.strip()+':\n'
+                self.text   += tag
+                # self.indent += self.delta
+                
+                
+        parser = xml.sax.make_parser()
+        handler = TextHandler()
+        parser.setContentHandler(handler)
+        parser.parse(file)
+        print handler.text
+# -------------------------------------------------------------------------
+if __name__ == '__main__':
+    here = os.getcwd()
+    tsr = TestSuiteRun(here, 'TestSuiteFixtures/Fixtures3')
+    print 'result = ', tsr.passed

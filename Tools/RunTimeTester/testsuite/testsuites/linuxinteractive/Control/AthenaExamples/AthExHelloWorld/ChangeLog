@@ -1,0 +1,119 @@
+2008-09-30  Sebastien Binet  <binet@lblbox>
+
+	* tagging AthExHelloWorld-01-02-00
+	* migration to AthenaBaseComps
+	* M AthExHelloWorld/IHelloTool.h
+	* M cmt/requirements
+	* M src/HelloAlg.cxx
+	* M src/HelloAlg.h
+	* M src/HelloTool.cxx
+	* M src/HelloTool.h
+
+2007-12-14  Paolo Calafiura  <calaf@0-11-25-81-1e-12.dhcp.lbl.gov>
+
+	* src/HelloAlg.cxx (operator<<): OBO Steve Gowdy. Add a streamer
+	to pair<double, double> to make gcc41 happy.
+        * tag AthExHelloWorld-01-01-01
+
+2007-11-21  Alex Undrus <undrus@bnl.gov>
+        * test/AthExHelloWorld_TestConfiguration.xml
+	* in RTT part: replace AthExHelloWorld_jobOptions 
+	* with HelloWorldOptions job options.
+	* as an exception: retag AthExHelloWorld-01-01-00
+
+2007-11-08  Paolo Calafiura  <pcalafiura@lbl.gov>
+	* cmt/requirements: remove reference to remove job opt file
+        * tag AthExHelloWorld-01-01-00
+	
+2007-11-07  Wim Lavrijsen <WLavrijsen@lbl.gov>
+        * python-side cleanup and educational comments
+        * tagging as AthExHelloWorld-01-00-04
+
+2007-08-10  Alex Undrus <undrus@bnl.gov>
+        * tagging AthExHelloWorld-01-00-03
+	* in test/AthExHelloWorld_TestConfiguration.xml
+	* added doc, classification, mailto, rttContactPerson tags
+	
+2007-04-19  Sebastien Binet  <binet@lblbox>
+	* tagging AthExHelloWorld-01-00-02
+	* added a std::vector<std::pair<double, double> > property
+	* added a std::vector<std::vector<double> > property
+
+	* tagging AthExHelloWorld-01-00-01
+	* adding a std::map<std::string,std::string> property
+
+2007-02-02  Paolo Calafiura  <pcalafiura@lbl.gov>
+	* general cleanup. Renamed HelloWorld->HelloAlg. Introduced tool iface
+        * tag AthExHelloWorld-01-00-00
+	
+2006-10-20 Martin Woudstra <MJWoudstra@lbl.gov>
+	* share/AthExHelloWorld_jobOptions.py: use latest ToolHandle features
+	requires  AthenaCommon-02-04-26 or later
+	requires Gaudi-0.16.1.16-LCG47b or later
+	tagged with AthExHelloWorld-00-02-02
+
+2006-10-06 Martin Woudstra <MJWoudstra@lbl.gov>
+	* HelloWorld.h/.cxx:
+	  - use latest feature of ToolHandle: propertyName()
+	  - add missing #include	
+	
+2006-10-05 Martin Woudstra <MJWoudstra@lbl.gov>
+	* have working ToolHandle example. Needs AthenaCommon-02-04-24 or later
+        * tagged with AthExHelloWorld-00-02-01
+	
+2006-07-29  Wim Lavrijsen <WLavrijsen@lbl.gov>
+        * tagged with AthExHelloWorld-00-02-00
+
+2006-07-14  Wim Lavrijsen <WLavrijsen@lbl.gov>
+        * more elaborate job options settings
+
+2006-07-13  Wim Lavrijsen <WLavrijsen@lbl.gov>
+        * added tool to play and learn
+
+2006-07-05  Wim Lavrijsen <WLavrijsen@lbl.gov>
+        * removed .txt configuration file
+        * added genconf pattern and finished AthExHelloWorld_jobOptions.py accordingly
+
+2006-03-27  Alex Undrus <undrus@bnl.gov>
+	* test/AthExHelloWorld_TestConfiguration.xml : replace <options> with
+	* <options_atn> for ATN part (to avoid clash with RTT)
+	* tag AthExHelloWorld-00-01-16
+
+2005-10-31  Paolo Calafiura  <pcalafiura@lbl.gov>
+	* src/components/HelloWorld_entries.cxx : remove extra ; (Matthias) 
+        * tag AthExHelloWorld-00-01-15
+
+2005-09-04  Paolo Calafiura  <pcalafiura@lbl.gov>
+	* python/AthExHelloWorldConfig.py (HelloWorld.gaudiType):
+	required method added
+
+2005-07-14  Wim Lavrijsen <WLavrijsen@lbl.gov>
+        * added beginRun/endRun to example code
+
+2005-05-27  Wim Lavrijsen <WLavrijsen@lbl.gov>
+        * added example code making use of new config facilities
+
+2005-05-19  Alex Undrus <undrus@bnl.gov>
+	* cmt/requirements: added macro and runtime extras 
+	* for RTT system
+        * tag AthExHelloWorld-00-01-14
+	
+2005-05-19  Alex Undrus <undrus@bnl.gov>
+	* added test area with the unified configuration file
+        * (for automatic test running in ATN and RTT systems)
+	
+2004-12-03  David Quarrie <David.Quarrie@cern.ch>
+	* cmt/requirements: Remove redundant commented out statements
+
+2003-12-06 Paolo Calafiura <pcalafiura@lbl.gov>
+        * cmt/requirements: remoive redundant? use statements
+        tag AthExHelloWorld-00-01-11
+
+2003-11-17 Paolo Calafiura <pcalafiura@lbl.gov>
+        * cmt/requirements: explicitly install job opts in run area
+        tag AthExHelloWorld-00-01-09
+
+2003-11-14  Christian Arnault  <arnault@lal.in2p3.fr>
+
+	* share/HelloWorldOptions.txt: Adapt to the new convention
+

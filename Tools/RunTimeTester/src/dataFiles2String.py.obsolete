@@ -1,0 +1,16 @@
+import os
+
+def dataFiles2String(jDescriptor):
+
+    s = ''
+
+    for datasetList in jDescriptor.datasets.values():
+        for file in datasetList:
+            s += os.path.basename(file.name) + ' '
+
+                                 
+        
+    return s
+
+if __name__ == '__main__':
+    pass

@@ -1,0 +1,82 @@
+from os.path import join
+
+def SLC3_string():
+    return 'slc3'
+
+def RH73_string():
+    return 'rh73'
+
+def afsDistBase(which):
+    base = {'release':'/afs/cern.ch/atlas/software/dist',
+            #'kit':'/afs/cern.ch/atlas/software/installed/rel/dist'
+           'kit':'/afs/cern.ch/atlas/software/releases'}
+
+    theBase = ''
+    try:
+        theBase = base[which]
+    except KeyError:
+        pass
+
+    return theBase
+
+def installAreaDirName():
+    return 'InstallArea'
+
+def nightliesAFSArea():
+    return join(afsDistBase('release'),'nightlies')
+
+def fullNightlyPathDict():
+    dictionary = {'N.X.0': join(afsDistBase('release'),nightlyDirDict()['N.X.0']),
+                  'N.0.X': join(afsDistBase('release'),nightlyDirDict()['N.0.X']),
+                  '10.0.X': join(afsDistBase('release'),nightlyDirDict()['10.0.X'])
+                  }
+
+    return dictionary
+
+def branchToWebPageTextMapping():
+    """Given a branch, one can get the text to be written on RTTpage1 in the branch header row.
+    An added feature is that if a branch does not feature in this dictionary, then it will
+    not be displayed on RTTpage1."""
+    
+    theDict = {'N.0.X':'11.0.X nightlies','10.0.X':'10.0.X nightlies','Numbered':'Numbered releases','N.X.0':'11.X.0 nightlies'}
+    return theDict
+
+def nightlyDirDict():
+    return {'N.X.0':'nightlies/rel', '10.0.X':'nightlies/rd', 'N.0.X':'nightlies/11.0.X'}
+
+def latestCopiedReleaseLinkName():
+    # NOTE: Alex does not build an SLC3 dbg for N.0.X; RTT should stop if we try and run that
+    dictionary = {(SLC3_string(),'opt','10.0.X'):'latest_copied_releaseSlcProd',
+                  (SLC3_string(),'opt','N.X.0'):'latest_copied_releaseSlcOpt',
+                  (SLC3_string(),'dbg','N.X.0'):'latest_copied_releaseSlcDbg',
+                  (SLC3_string(),'opt','N.0.X'):'latest_copied_releaseSlc110X',
+                  (SLC3_string(),'dbg','N.0.X'):'latest_copied_releaseSlc110XDbg',
+                  }
+    return dictionary
+
+def nicosNightlyWebPageURL():
+    urlPrefixDict = {('N.X.0','opt'):'http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/atlaswwwSlcOpt/',
+                     ('10.0.X','opt'):'http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/atlaswwwSlcProd/',
+                     ('N.0.X','opt'):'http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/nicos_web_areaSlc110X',
+                     ('N.0.X','dbg'):'http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/nicos_web_areaSlc110XDbg'}
+
+    return urlPrefixDict
+
+def nicosNumberedWebPageURL(rel,build):
+    prefix = 'http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/'
+    suffix = {'opt':'/Log/slcoptwww/','dbg':'/Log/slcwww/'}
+
+    return prefix + str(rel) + suffix[build]
+
+    
+def nightlyStampDir(branch):
+    return join(afsDistBase('release'),nightlyDirDict()[branch]) 
+
+def pathFragmentToReleaseNotes(release):
+    return join(release,'cmt/ReleaseNotes.txt')
+
+def AFS_release_string():
+    return 'AFS_Release'
+
+def AFS_kit_string():
+    return 'AFS_Kit'

@@ -1,0 +1,54 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module HTMLpages</title>
+<style type="text/css"><!--
+TT { font-family: lucidatypewriter, lucida console, courier }
+--></style></head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>HTMLpages</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-10/src/HTMLpages.py">/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-10/src/HTMLpages.py</a></font></td></tr></table>
+    <p><tt>Writes&nbsp;out&nbsp;html&nbsp;pages&nbsp;for&nbsp;the&nbsp;current&nbsp;RTT&nbsp;run.<br>
+&nbsp;<br>
+&nbsp;<br>
+Functions:<br>
+&nbsp;<br>
+resultsDir&nbsp;-&nbsp;returns&nbsp;the&nbsp;names&nbsp;of&nbsp;directories&nbsp;containg&nbsp;results.<br>
+writePage2&nbsp;-&nbsp;writes&nbsp;out&nbsp;an&nbsp;html&nbsp;page&nbsp;with&nbsp;jobname,&nbsp;dataset,&nbsp;statuses,&nbsp;and&nbsp;reference<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;release&nbsp;for&nbsp;all&nbsp;jobs.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Also&nbsp;calls&nbsp;writePage3&nbsp;to&nbsp;give&nbsp;detailed&nbsp;information&nbsp;for&nbsp;each&nbsp;page.</tt></p>
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl><dt><a name="-resultsDirs"><strong>resultsDirs</strong></a>(build, paths)</dt></dl>
+ <dl><dt><a name="-writePage2"><strong>writePage2</strong></a>(paths, build, jobMinders)</dt><dd><tt>Looks&nbsp;at&nbsp;the&nbsp;status&nbsp;file&nbsp;in&nbsp;the&nbsp;results&nbsp;subdirectory<br>
+for&nbsp;the&nbsp;release&nbsp;being&nbsp;processed&nbsp;(self.<strong>paths</strong>.release),&nbsp;together<br>
+with&nbsp;the&nbsp;template&nbsp;Results.html&nbsp;from&nbsp;the&nbsp;work&nbsp;directory<br>
+(self.<strong>workDir</strong>)&nbsp;to&nbsp;make&nbsp;an&nbsp;updated&nbsp;html&nbsp;file&nbsp;with&nbsp;the<br>
+current&nbsp;status.&nbsp;This&nbsp;page&nbsp;is&nbsp;written&nbsp;to&nbsp;the&nbsp;results<br>
+directory&nbsp;for&nbsp;this&nbsp;release.</tt></dd></dl>
+</td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><strong>__file__</strong> = './HTMLpages.py'<br>
+<strong>__name__</strong> = 'HTMLpages'</td></tr></table>
+</body></html>

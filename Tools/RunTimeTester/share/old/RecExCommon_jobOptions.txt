@@ -1,0 +1,578 @@
+//##############################################################
+//
+// Main jobOptions.file seting up general parameters 
+// and sourcing one auxilliary jobOption per major algorithm
+// To use it : athena RecExCommon_jobOptions.txt  
+//==============================================================
+//
+// uncomment to switch off dumping of jobOption file content
+//#pragma print off
+ 
+// to read Zebra TDR data
+
+#include "AthenaCommon/Atlas_ZebraTDR.UnixStandardJob.txt"
+
+
+
+
+
+
+//particle property service
+#include "PartPropSvc/PartPropSvc.txt"
+
+
+// specify input file
+//
+ApplicationMgr.EvtSel = "FILE ZEBRA.P";
+//dummy (SHOULD NOT BE NECESSARY IN THE FUTURE ANY MORE)
+EventSelector.dataSetNames = {"Y01606.1"} ;
+
+// Select the events to read by their event number:
+//  Examples:   24,  35: 37, 45:   selects 24, 35 to 37 and 45 and above
+//              : 35               selects up to and including 35
+//              53:               selects from 53
+// be careful to respects the spaces after " and :
+//EventSelector.EventNumbers = " 24,  35: 37, 45: " ;
+
+//
+// Get only relevant digits from Event
+//
+EventSelector.calos = false;                        
+EventSelector.muons = false;                        
+EventSelector.trt   = false;
+EventSelector.sct   = false;
+EventSelector.pixel = false;
+
+
+// Use auditors
+ApplicationMgr.DLLs += { "GaudiAud" };
+//
+// write out a summary of the time spent
+//
+AuditorSvc.Auditors  += { "ChronoAuditor"};
+//
+// write out a short message upon entering or leaving each algorithm
+//
+//AuditorSvc.Auditors  += { "NameAuditor" };
+//
+// write out s summary of the memory usage
+//
+//AuditorSvc.Auditors  += { "MemStatAuditor" };
+//MemStatAuditor.OutputLevel = 4 ;
+//
+// write out a list of all Storegate collection with their keys and
+// lock/unlock state. Very useful for debugging purpose
+//StoreGateSvc.Dump = true ;
+//DetectorStore.Dump = true ;
+//ConditionsStore.Dump = true ;
+
+// Set output level threshold 
+//(0=ALL 1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
+MessageSvc.OutputLevel               = 3;
+
+// to get couloured messages (not in emacs though)
+//MessageSvc.useColors = true ;
+
+
+// Number of events to be processed 
+ApplicationMgr.EvtMax = 25;
+
+
+
+// Root Ntuple output 
+ApplicationMgr.DLLs += { "RootHistCnv" };
+ApplicationMgr.HistogramPersistency = "ROOT";
+NTupleSvc.Output = { "FILE1 DATAFILE='ntuple.root' OPT='NEW'" };
+//for root file, it is easier to start ntuple ID with a letter
+// to be removed for hbook ntuple
+CBNT_Athena.NtupleLocID="/FILE1/CBNT/t3333";
+
+
+//  Hbook Ntuple output  (uncomment these lines, comment the four previous lines)
+// Also please make sure that all ntuple ID are plain number (in
+//    particular CBNT_Athena)
+//NTupleSvc.Output =  { "FILE1 DATAFILE='ntuple.hbook' OPT='NEW'" };
+//ApplicationMgr.HistogramPersistency="HBOOK";
+//HbookHistSvc.NPAWC = 1500000 ;
+
+
+// Histogram output, if any. 
+HistogramPersistencySvc.OutputFile  = "histo.hbook";
+
+// Nova converters are necessary
+#include "NovaCnvSvc/NovaCnvSvc_jobOptions.txt" 
+#include "NovaConverters/NovaConverters_jobOptions.txt" 
+
+NovaCnvSvc.Host		= "atlasdev1.cern.ch";
+NovaCnvSvc.Database	= "parameters";
+
+// Get Geomodel and its tools
+ApplicationMgr.DLLs	+= { "GeoModelSvc", "SCT_GeoModel", "PixelGeoModel"};
+ApplicationMgr.ExtSvc	+= { "GeoModelSvc"};
+GeoModelSvc.Detectors	+= { "PixelDetectorTool", "SCT_DetectorTool" };
+//GeoModelSvc.PixelDetectorTool.Align = false;
+
+
+
+
+
+//
+// Detector description initialisation
+//
+// do not use only compact identificator 
+//DetDescrCnvSvc.CompactIDsOnly = false ;
+//
+
+#include "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.txt"
+
+// AMDB database is needed by muon reco
+//
+#include "AmdbAth/AmdbAth_jobOptions.txt"
+//
+// muon mdet descr manager
+#include "MuonDetMgrDetDescrCnv/MuonDetMgrDetDescrCnv_joboptions.txt"
+
+
+
+// MagneticField Service 
+#include "BFieldAth/BFieldAth_jobOptions.txt"
+// if running on data with uniform magnetic field in Inner Detector
+// (which is the case for most data until dc0) this switch 
+// should be uncommented
+//MagFieldAthenaSvc.UniformFieldInID = 1 ;
+
+
+
+//--------------------------------------------------------------
+// Now specify the list of algorithms to be run
+// The order of the jobOption specify the order of the algorithms
+// (don't modify it)
+//--------------------------------------------------------------
+
+
+// CBNT_Athena.Members specify the ntuple block corresponding to a given ntuple
+// Comment CBNT_Athena.Members line to remove a ntuple block
+// It is also possible to disable a ntuple block by
+//       disabling the corresponding
+//       CBNT_Athena.Members with the line: <Member>.Enable = false ;
+// Comment #include line to remove an algorithm : it is 
+//   mandatory to also comment the corresponding
+//       CBNT_Athena line otherwise crash
+// The ntuple specification is in file CBNT_jobOptions.txt
+// and can be modified by adding properties below
+//
+// ----- CBNT_Athena algorithm
+//
+#include "RecExCommon/CBNT_jobOptions.txt"
+#include "RecExCommon/CBNT_Truth_jobOptions.txt"
+
+// run/event number
+#include "CBNT_Athena/CBNT_EventInfo_jobOptions.txt"
+
+
+
+// 
+//
+// functionality : Genz/kine->HepMc converter for true particle, Generators and Kine
+//
+ApplicationMgr.DLLs += { "GenzModule"};
+// run the  GenzKine->HepMC coverter
+ApplicationMgr.TopAlg += { "GenzModule"};
+
+// this algorithm dump the content of the MC event: big output
+//ApplicationMgr.DLLs += { "DumpMC" };
+//ApplicationMgr.TopAlg += { "DumpMC" };
+
+
+// truth information
+ApplicationMgr.DLLs += { "CBNT_Truth" };
+CBNT_Athena.Members += { "CBNT_Truth" };
+
+//
+
+
+
+//
+// functionality : Inner detector prereconstruction 
+//
+// use the new detector description (chose only one of these three files)
+//
+// for TDR data
+ApplicationMgr.DLLs += { "InDetRawUtils" };
+//#include "InDetDC1ReadPackage/SiTrackerDetDescrTDR_CnvOptions.txt"
+// use the DC1 Initial Layout (one less pixel layer, TRT wheel
+// missing) xml detector description
+//#include "InDetDC1ReadPackage/SiTrackerDetDescrInitialLayout_CnvOptions.txt"
+// use the DC1 xml detector description
+#include "InDetDC1ReadPackage/SiTrackerDetDescrDC0_CnvOptions.txt"
+
+
+#include "InDetDC1ReadPackage/PixelDetDescrCnvOptions.txt"
+#include "InDetDC1ReadPackage/SCT_DetDescrCnvOptions.txt"
+
+
+// Generate RDOs
+#include "InDetDC1ReadPackage/PixelRDOCnvOptions.txt"
+#include "InDetDC1ReadPackage/SCT_RDOCnvOptions.txt"
+#include "InDetDC1ReadPackage/TRT_RDOCnvOptions.txt"
+
+// Simulated data selection (noise/efficiency/threshold settings)
+#include "InDetSimDataSelector/PixelSimDataSelectorOptions.txt"
+#include "InDetSimDataSelector/SCT_SimDataSelectorOptions.txt"
+
+
+// and SiTrackerClusters
+#include "SiClusterization/MergedPixelsOptions.txt"
+#include "SiClusterization/SCT_ClustersOptions.txt"
+
+// and SiTrackerSpacePoints
+#include "SiSpacePointMaker/SiTrackerSpacePointFinderOptions.txt"
+
+
+//
+// functionality :  xKalman track finding
+//
+#include "xKalmanppAthena/xKalman_jobOptions.txt"
+CBNT_Track.TracksNames += { "Tracks_xKalman/1" };
+//
+// optionally switch back to RD's event 
+// 
+//XKaEventCollection.InputForTRTclusters     = 0 ; // 0->RD ,1->RDO (default),2->RIO
+//XKaEventCollection.InputForSILclusters     = 0 ; // 0->RD ,1->RI0 (default)
+
+
+
+//
+// functionality : iPatRec TrackFinder/Follower/Fitter
+//
+
+#include "iPatRecAlgs/iPatRec_jobOptions.txt"
+//temporary: reduce printlevel as the default is too verbose
+iPatRec.printLevel		= 0;
+
+// iPatRec TrackTruth
+#include "iPatRecAlgs/iPatTrackTruthAssociator_jobOptions.txt"
+
+
+// iPatRec statistics
+#include "iPatRecAlgs/iPatStatistics_jobOptions.txt"
+
+// iPatRec SimpleTrackCollection output
+#include "iPatRecAlgs/iPatSimpleTracks_jobOptions.txt"
+CBNT_Track.TracksNames += { "iPatSimpleTracks/2" };
+
+
+//
+// functionality : put tracks from any tracking algorithm in combined ntuple
+//
+ApplicationMgr.DLLs += { "SimpleTrackAlgs" };
+CBNT_Athena.Members += { "CBNT_Track"};
+
+
+//
+// functionality : LAr Calorimeter cell reconstruction 
+//
+//(only one of these  
+// two # include lines should be uncommented ) 
+//
+// - complete RDO and cell production (needed for the TRIGGER)
+//
+//#include "LArCellRec/LArCellFromLArRaw_MC_jobOptions.txt"
+//   uncomment this line if you want to switch on the noise in LArg calo
+//   (be aware that noise will add 60s/event)
+//digitmaker1.NoiseOnOff = true ; // switch noise on
+//
+// - direct cell production (only if TRIGGER is not run) 
+//
+#include "LArCellRec/LArCell_jobOptions.txt"             
+//   uncomment these lines if you want to switch on the noise in LArg cal
+//   (be aware that noise will add 16s/event)
+//cellbuilderEM.WithNoise=true; // switch noise on in e.m
+//cellbuilderHEC.WithNoise=true; // switch noise on in HEC
+//cellbuilderFCal.WithNoise=true; // switch noise on in FCAL
+
+// to use the BNL mysql noise database instead of the CERN one
+// uncomment this line (identical results)
+//LArConditionsDBSvc.Hostname = "atlassw1.phy.bnl.gov";
+// for info the cern server (default) is:
+//LArConditionsDBSvc.Hostname = "atlasdev1.cern.ch";
+
+
+CBNT_Athena.Members  += { "CBNT_CaloCell/CBNT_LArCell" }; 
+
+
+
+//
+// functionality : Tile Calorimeter cell reconstruction
+//
+#include "TileRec/TileRec_jobOptions.txt"
+// comment this line to switch off the noise in TIle calo
+TileInfoLoader.TileNoise		= false;
+// switch off zero suppresion in tile for time being
+TileInfoLoader.TileZeroSuppress         = false;
+
+CBNT_Athena.Members  += { "CBNT_CaloCell/CBNT_TileCell" }; 
+//
+
+//
+// functionality : Calorimeter combined clustering
+//
+
+#include "CaloRec/CaloCluster_jobOptions.txt"
+
+// only for very detailed calo info
+CBNT_Athena.Members += { "CBNT_CaloInfo"};
+
+//
+// functionality : LAr Calorimeter clustering
+//
+#include "LArClusterRec/LArCluster_jobOptions.txt"
+// introduce multisize possibility
+#include "LArClusterRec/LArCluster_MultiSize_jobOptions.txt"
+CBNT_Athena.Members += { "CBNT_CaloCluster"};
+// different clustersize
+CBNT_Athena.Members += { "CBNT_CaloCluster/CBNT_CaloCluster35" };
+CBNT_Athena.Members += { "CBNT_CaloCluster/CBNT_CaloCluster37" };
+
+//
+// functionality : Topological clustering
+//
+#include "LArClusterRec/LArTopoCluster_jobOptions.txt"
+CBNT_Athena.Members += { "CBNT_CaloCluster/CBNT_CaloClusterTopo" };
+
+//
+// functionality: Muonbox muon Reconstruction
+//
+//muonbox
+//#include "MuonboxAth/Muonbox_jobOptions.txt"
+// old DC1 data
+//MuonboxCosignalMaker.MaximumDriftTime = 500. ; 
+// redigitised data
+MuonboxCosignalMaker.MaximumDriftTime = 700. ; 
+MuonboxConfigMaker.PrintLevel            = 0    ;
+
+//new f90 version of muonbox (at cern/bnl only so far)
+// cannot be used together with MuonboxAthena
+#include "MuonboyAth/Muonboy_jobOptions.txt"
+// old DC1 data
+//MuonboyCosignalMaker.MaximumDriftTime = 500. ; 
+// redigitised data
+MuonboyCosignalMaker.MaximumDriftTime = 700. ; 
+MuonboyConfigMaker.PrintLevel            = 0    ;
+
+CBNT_Athena.Members  += { "CBNT_Muon" }; 
+
+
+//
+// functionality : Moore muon reconstruction
+//
+#include "MooAlgs/Moore_RecEx_jobOptions.txt"
+CBNT_Athena.Members  += { "MooMakeNtuple" }; 
+//old DC1 data 
+//MooMdtDigitToHitSvc.max_drift_time = 500; 
+//redigitised  data
+MooMdtDigitToHitSvc.max_drift_time = 700; 
+
+
+//------------------------------------------------
+// now combined reconstruction algorithms
+//------------------------------------------------
+//
+// functionality : primary vertex and vertexing interface
+//
+#include "VertexPrimary/Vertex_jobOptions.txt"
+CBNT_Athena.Members  += { "CBNT_Vertex" }; 
+
+//
+// functionality : photon Conversion
+//
+#include "ConversionAlgs/Conversion_jobOptions.txt"
+CBNT_Athena.Members  += { "CBNT_Conversion" }; 
+
+
+//
+// functionality : CaloTower protojets + preclustering + KT algorithm + CombinedJetAlg
+//
+#include "JetRec/KtJetTower_jobOptions.txt"
+//
+// to switch to cone reco jet uncomment this line and comment the next
+// BE CAREFUL to do the same for the truth jets 
+//
+//#include "JetRec/ConeJetTower_jobOptions.txt"
+//
+// CBNT without jet cell sums for H1 weights
+CBNT_Athena.Members += { "CBNT_CombinedJet" };
+CBNT_CombinedJet.inputLoc = "CombinedJets" ;
+//
+// CBNT including jet cell sums for H1 weights requires setting DoCellSums=1
+// combJet.DoCellSums = 1
+//CBNT_Athena.Members += { "CBNT_JetSums" };
+//
+
+//
+// functionality: MC Truth protojets + preclustering + KT algorithm + CombinedJetAlg
+//
+//
+CBNT_Athena.Members += { "CBNT_Jet/CBNT_JetTruth" };
+#include "JetRec/KtJetTruth_jobOptions.txt"
+CBNT_JetTruth.inputLoc = "TruthKtJets";
+//
+// to switch to truth cone jet uncomment this line and comment the next
+// BE CAREFUL to do the same for the reco jets 
+//
+//#include "JetRec/ConeJetTruth_jobOptions.txt"
+//CBNT_JetTruth.inputLoc = "SplitMergeTruthJets";
+
+//
+// functionality : tau identification
+//
+#include "tauRec/tauRec_jobOptions.txt"
+CBNT_Athena.Members  += { "CBNT_tau" }; 
+
+//
+// functionality : electron photon identification
+//
+//
+
+#include "egammaRec/egammaRec_jobOptions.txt"
+CBNT_Athena.Members += { "CBNT_egamma" };
+CBNT_Athena.Members += { "CBNT_egTruth" };
+
+//
+// functionality : muonIdentification 
+//
+
+#include "MuonIdentification/MuonIdentification_jobOptions.txt"
+CBNT_Athena.Members += { "MuidNtupleKINE"};     
+MuidNtupleKINE.maxNumberofKINE = 10 ;
+CBNT_Athena.Members += { "MuidIDNtuple"};
+MuidIDNtuple.maxNumberofRECO = 10 ;
+CBNT_Athena.Members += { "MuidInitNtuple"};
+MuidInitNtuple.maxNumberofRECO = 10 ;
+CBNT_Athena.Members += { "MuidNtuple"};
+MuidNtuple.maxNumberofRECO = 10 ;
+CBNT_Athena.Members += { "MuidCombNtuple"};
+MuidCombNtuple.maxNumberofRECO = 10 ;
+
+
+
+//
+// functionality : Missing Et
+//
+
+#include "MissingET/MissingET_jobOptions.txt"
+CBNT_Athena.Members += { "CBNT_MissingET" };
+CBNT_Athena.Members += { "CBNT_MissingETtruth" };
+
+//
+// functionality : energy flow 
+//
+#include "eflowRec/CaloClusterForEflow_jobOptions.txt"
+#include "eflowRec/eflowRec_jobOptions.txt"
+CBNT_Athena.Members += { "CBNT_eflow" };
+
+//
+// functionality : Jet-finding on eflowObjects 
+// can be performed by uncommenting the next
+// three lines (using cone or Kt jobOptions and CBNT parameters)
+
+//#include "JetRec/ConeJetEflow_jobOptions.txt"
+//CBNT_Athena.Members += { "CBNT_Jet/CBNT_JetEflow" };
+//CBNT_JetEflow.inputLoc = "EflowConeJets";
+
+
+
+//
+// functionality : All TRIGGER code bytestream, LVL1 and LVL2
+//
+
+//#include "TriggerRelease/jobOfragment_forRecExCommon.txt"
+// trigger combined ntuple
+//#include "TriggerRelease/jobOfragment_TriggerCBNT.txt"
+
+
+//
+// functionality : atlfast 
+// disabled by default.
+//uncomment these two lines
+//#include "AtlfastAlgs/Atlfast_CBNT.txt"
+//CBNT_Athena.Members  += { "Atlfast::CBNT_Atlfast/CBNT_Atlfast" }; 
+
+
+//
+// user code and property modifiers should come below
+//
+
+
+
+
+//
+// functionality : monitor memory and cpu time
+//
+#include "CBNT_Athena/CBNT_Audit_jobOptions.txt"
+
+//
+// functionality : build combined ntuple, 
+// gathering info from all the reco algorithms
+//
+#include "CBNT_Athena/CBNT_Athena_jobOptions.txt"
+
+
+// uncomment this block to write output
+// WARNING nova converters need be switched off
+/*
+//--------------------------------------------------------------
+// now write out Transient Event Store content in POOL
+//--------------------------------------------------------------
+//
+
+#include "AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.txt"
+
+// check dictionary
+#include "AthenaSealSvc/AthenaSealSvc_joboptions.txt"
+AthenaSealSvc.CheckDictionary = true;
+
+// Define the output Db parameters (the default value are shown)
+PoolSvc.Output    = "SimplePoolFile.root";
+// PoolSvc.DbServer  =  "db1.usatlas.bnl.gov";
+// PoolSvc.DbAccount =  "athena";
+// PoolSvc.DbPassword = "";
+PoolSvc.DbType    = "root";
+// PoolSvc.ConnectionType = "MySQLCollection";
+// PoolSvc.FullConnection = "mysql://athena:insider@db1.usatlas.bnl.gov/pool_collection";
+PoolSvc.Collection = "NewPoolTry";
+
+
+
+// Converters:
+#include "GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPool_joboptions.txt"
+#include "EventAthenaPool/EventAthenaPool_joboptions.txt"
+#include "RecAthenaPool/RecAthenaPool_joboptions.txt"
+
+
+// list of output objects 
+
+//HepMC record
+Stream1.ItemList+={"McEventCollection#*"};
+
+// MissingET
+Stream1.ItemList+={"MissingET#*"};
+
+// EventInfo
+Stream1.ItemList+={"EventInfo#*"};
+
+// SimpleTrackCollection
+Stream1.ItemList+={"SimpleTrackCollection#*"};
+
+// JetCollection<CombinedJet>
+Stream1.ItemList+={"JetCollection<CombinedJet>#*"};
+
+
+//--------------------------------------------------------------------
+// switch off the writing
+//ApplicationMgr.OutStream = { };
+*/
+
+
+
+

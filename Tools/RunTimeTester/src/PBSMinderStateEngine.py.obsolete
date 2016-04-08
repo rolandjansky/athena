@@ -1,0 +1,123 @@
+"""State Engine for PBSJobMinders: extends WorkerJobMinderStateEngine
+
+overrides: fromQueued
+           fromQueuedTest
+           fromRunning
+
+removes transitions
+
+
+adds state transitions
+
+queued   -> pbsError
+running  -> retry
+retry    -> queued
+pbsError -> done
+"""
+
+from WorkerMinderStateEngine  import WorkerMinderStateEngine
+
+class PBSMinderStateEngine(WorkerMinderStateEngine):
+    'Overrides for PBS'
+    
+    def __init__(self, pbsMinder, state='queued'):
+        WorkerMinderStateEngine.__init__(self, pbsMinder, state)
+        newDispatcher = {
+            'retry':      self.fromRetry,
+            'pbsError':   self.fromPBSError,
+            'timedOut':   self.fromTimedOut
+            }
+        self.dispatcher.update(newDispatcher)
+    # -----------------------------------------------
+
+    def fromQueuedTest(self): assert(False) # base method refused
+            
+    # -----------------------------------------------
+    
+    def fromQueued(self):
+
+
+        self.minder.fire('runScript')
+                    
+        if not self.minder.checkPBSSubmissionWasOK():
+            self.state.set('pbsError')
+            return
+
+
+        self.state.set('running')
+        # othewise stay in 'queued'
+
+    # -----------------------------------------------
+
+    def fromRunning(self):
+        "Running is complete if the log files have returned"
+        
+        # query if job is in batch queue
+        queryOK, inBatch = self.minder.jobIsRunning()
+
+        # give up if the query failed
+        if not queryOK:
+            self.state.set('pbsError')
+            return
+
+        # if the job is still running, no state transition.
+        if inBatch: return
+
+        # are the log files visible?
+        if not self.minder.areLogFilesInRunDir():
+            if self.minder.checkForTimeOut():
+                self.state.set('timedOut')
+                return
+            # waiting for log files to return: no state change
+            return
+
+        self.fromRunningActions() # must perform log checks before retry test.
+
+        if self.minder.retryTest():
+            self.state.set('retry')
+            return
+
+        if self.minder.doPostProcessing():
+            self.state.set('postProcessingQueued')
+            return
+
+        self.state.set('done')
+        
+    # -------------------------------------------------------------------------
+
+    def fromRunningActions(self):
+        self.minder.audit()
+        WorkerMinderStateEngine.fromRunningActions(self)
+        
+        
+    # -------------------------------------------------------------------------
+    
+    def fromRetry(self):
+
+        # the presence of the log files signals the end of the running
+        # phase - remove the files,and ensure they are copied to the
+        # results web pages.
+
+        self.minder.prepareForRetry()
+        self.state.set('queued')
+        
+    # -----------------------------------------------
+        
+    def fromTimedOut(self):
+        'A marker state'
+
+        if self.minder.doPostProcessing():
+            self.state.set('postProcessingQueued')
+            return
+
+        self.state.set('done')
+        
+        
+    # -----------------------------------------------
+        
+    def fromPBSError(self):
+        self.state.set('done')
+        
+    def fromOperatorCloseDown(self):
+        self.minder.stopJob()
+        WorkerMinderStateEngine.fromOperatorCloseDown(self)

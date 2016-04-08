@@ -1,0 +1,11 @@
+2006-05-25   David Quarrie <David.Quarrie@cern.ch>
+
+        * cmt/requirements: Add support for the AtlasProduction project
+
+2005-12-12  David Quarrie <David.Quarrie@cern.ch>
+
+	* cmt/requirements: Add support for all projects
+
+2005-08-19  David Quarrie <David.Quarrie@cern.ch>
+
+	* Initial version

@@ -1,0 +1,5 @@
+#include "AthenaCommon/Atlas_Gen.UnixStandardJob.txt"
+ApplicationMgr.DLLs += { "Isajet_i"};
+Generator.Members = {"Isajet"};
+AtRndmGenSvc.Seeds = {"ISAJET 1857585203 424674947", "ISAJET_INIT 820021 2347532"};
+

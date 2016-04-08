@@ -1,0 +1,171 @@
+<!ELEMENT unifiedTestConfiguration ((doc?, atn,  kv?, rtt?) |
+                                    (doc?, atn?, kv,  rtt?) |
+                                    (doc?, atn?, kv?, rtt))>
+
+<!ELEMENT classification ((none) | (displayClass, displayProcess+, displayComponent+))?>
+<!ELEMENT displayClass (#PCDATA)>
+<!ELEMENT displayProcess (#PCDATA)>
+<!ELEMENT displayComponent (#PCDATA)>
+<!ELEMENT none EMPTY>
+
+
+<!ELEMENT atn         (classification?, TEST*)>
+  <!ELEMENT TEST     (doc?, classification?, options_atn*, furtherOptions_atn*, timelimit*, author*, mailto*, prescript*, postscript*, package_atn*, rundir*, expectations*)>
+  <!ATTLIST TEST   name       CDATA                    #IMPLIED>
+  <!ATTLIST TEST   type       (script|athena|kv|rtt|makecheck)   #REQUIRED>
+  <!ATTLIST TEST   suite      CDATA                    "general">
+  <!ELEMENT options_atn     (#PCDATA | rttSpecs | kvSpecs)*>
+      <!ELEMENT rttSpecs  ANY>
+      <!ELEMENT kvSpecs   ANY>
+  <!ELEMENT furtherOptions_atn (#PCDATA)>
+  <!ELEMENT timelimit          (#PCDATA)>
+  <!ELEMENT author             (#PCDATA)>
+  <!ELEMENT mailto             (#PCDATA)>
+  <!ELEMENT prescript          (#PCDATA)>
+  <!ELEMENT postscript         (#PCDATA)>
+  <!ELEMENT package_atn        (#PCDATA)>
+  <!ELEMENT rundir             (#PCDATA)>
+  <!ELEMENT expectations       (errorMessage*, warningMessage*, successMessage*, returnValue*)>
+     <!ELEMENT errorMessage    (#PCDATA)>
+     <!ELEMENT warningMessage  (#PCDATA)>
+     <!ELEMENT successMessage  (#PCDATA)>
+     <!ELEMENT returnValue     (#PCDATA)>
+
+<!ELEMENT kv                (kvtest*)>
+    <!ELEMENT kvtest (release,priority?,kvsuite,trf,desc,author?,version?,
+                    inpath,infile,inpool,outpath,outfile,outntuple?,logfile,signature,copyfiles,checkfiles)>
+    <!ATTLIST kvtest                name    CDATA #REQUIRED>
+    <!ATTLIST kvtest                enabled CDATA #REQUIRED>
+
+    <!ELEMENT release     (#PCDATA)> 
+    <!ELEMENT priority    (#PCDATA)> 
+    <!ELEMENT kvsuite       (#PCDATA)> 
+    <!ELEMENT trf         (#PCDATA)> 
+    <!ELEMENT desc        (#PCDATA)> 
+    <!ELEMENT version     (#PCDATA)> 
+    <!ELEMENT inpath      (#PCDATA)> 
+    <!ELEMENT infile      (#PCDATA)> 
+    <!ELEMENT inpool      (#PCDATA)> 
+    <!ELEMENT outpath     (#PCDATA)> 
+    <!ELEMENT outfile     (#PCDATA)> 
+    <!ELEMENT outntuple   (#PCDATA)> 
+    <!ELEMENT logfile     (#PCDATA)> 
+    <!ELEMENT signature   (#PCDATA)> 
+    <!ELEMENT copyfiles   (#PCDATA)> 
+    <!ELEMENT checkfiles  (#PCDATA)> 
+
+
+<!ELEMENT rtt              ((EMPTY) | (rttContactPerson*,mailto?,refRelease?, jobList, jobGroups?) | (jobGroups))?>
+   <!ELEMENT refRelease    (#PCDATA)>   
+   <!ELEMENT jobList       (classification?, athena*, rulechecker*, 
+                            qametrics*,  kitvalidation*, rttmonitor*,
+                            rttselftest*, jobTransform*)>
+      <!ELEMENT athena     ( doc?, doclink?, (numberedOnly |  limitedNightlies)?, rttKitTestJob?, 
+                            classification?, displayName?, commandLineFlags?, commandLineString?, preconfigOptions?, options, furtherOptions?,
+                            package?, group, confederation?, 
+                            queue?,  dataset*, dataset_info*, dq2*, asciiRefFile*, binRefFile*,
+                            storeInDatabasePattern*, action*, monAction*, 
+                            test*, athenaFlavour*)>
+
+	 <!ELEMENT doc                    (#PCDATA)>
+	 <!ELEMENT doclink                (#PCDATA)>
+	 <!ELEMENT displayName            (#PCDATA)>
+	 <!ELEMENT rttContactPerson       (#PCDATA)>
+	 <!ELEMENT numberedOnly              EMPTY>
+	 <!ELEMENT limitedNightlies          EMPTY>
+	 <!ELEMENT limitedNightly         (nightly+)>
+         <!ELEMENT rttKitTestJob          EMPTY>
+         <!ELEMENT commandLineFlags       (#PCDATA)>
+         <!ELEMENT commandLineString      (#PCDATA)>
+         <!ELEMENT preconfigOptions       (#PCDATA)>
+         <!ELEMENT options                (#PCDATA)>
+          <!ELEMENT furtherOptions        (jobOptionItem+)>
+             <!ELEMENT jobOptionItem      (#PCDATA)>
+	 <!ELEMENT package                (#PCDATA)>
+	 <!ELEMENT group                  (#PCDATA)>
+	 <!ELEMENT confederation          (#PCDATA)>
+	 <!ELEMENT queue                  (#PCDATA)>
+	 <!ELEMENT nightly                (#PCDATA)>
+
+ 	 <!-- The old dataset tag -->
+         <!ELEMENT dataset                  (#PCDATA)>	
+
+ 	 <!-- The new dataset tag along with the definition of its children elements -->
+
+	 <!ELEMENT dataset_info                ((bytestream | dc2 | dc3 | jobTransformData), datasetName,datasetRepeat?)>
+	 <!ELEMENT bytestream                 EMPTY>
+	 <!ELEMENT dc2                        EMPTY>
+	 <!ELEMENT dc3                        EMPTY>
+	 <!ELEMENT jobTransformData           EMPTY>
+	 <!ELEMENT datasetName            (#PCDATA)>
+	 <!ELEMENT datasetRepeat          (#PCDATA)>
+         <!ELEMENT dq2                    (dq2site, dq2dataset,datatype, dq2file+)>
+         <!ELEMENT dq2site                (#PCDATA)>
+         <!ELEMENT dq2dataset             (#PCDATA)>
+         <!ELEMENT datatype               (#PCDATA)>
+         <!ELEMENT dq2file                (#PCDATA)>
+	 <!ELEMENT asciiRefFile           (#PCDATA)>
+	 <!ELEMENT storeInDatabasePattern (#PCDATA)>
+	 <!ELEMENT athenaFlavour          (#PCDATA)>
+
+      <!ELEMENT rulechecker ( (numberedOnly | limitedNightlies)?, 
+                             package, queue)>
+      <!ELEMENT qametrics   ( (numberedOnly | limitedNightlies)?,
+                             package, queue)>
+      <!ELEMENT kitvalidation ((EMPTY) | ( (numberedOnly | limitedNightlies)?, queue))?>
+      <!ELEMENT rttmonitor EMPTY>
+      <!ELEMENT rttselftest EMPTY>
+      <!ELEMENT jobTransform ((numberedOnly |  limitedNightlies)?, 
+                              doc?, doclink?, classification?, rttKitTestJob?, displayName?, jobTransformJobName, 
+                              jobTransformCmd, group, dataset_info*, queue?)>
+
+         <!ELEMENT jobTransformJobName (#PCDATA)>
+         <!ELEMENT jobTransformCmd (#PCDATA)>
+
+
+   <!ELEMENT jobGroups (jobGroup+)>
+      <!ELEMENT jobGroup (keepFilePattern*,   asciiRefFile*, 
+                          binRefFile*,        storeInDatabasePattern*, 
+                          checker*,           
+                          postScript*,        auxFilePattern*, 
+                          action*,            monAction*,test*,   stringToFile*,     
+                          summary*,           logChecker*)>
+
+            <!ELEMENT keepFilePattern (#PCDATA)>
+	    <!ELEMENT binRefFile      (#PCDATA)>
+            <!ELEMENT checker         ((searchString*, vetoString*) | (comparisonType?))>
+	       <!ELEMENT searchString     (#PCDATA)>
+	       <!ELEMENT vetoString       (#PCDATA)>
+               <!ELEMENT comparisonType   (#PCDATA)>
+            <!ELEMENT postScript          EMPTY>
+	    <!ELEMENT auxFilePattern      (#PCDATA)>
+            <!ELEMENT action             (modulename,testname, arg*, listarg*)>
+            <!ELEMENT monAction          (modulename,testname, arg*, listarg*)>
+            <!ELEMENT test               (modulename,testname, arg*, listarg*)>
+               <!ELEMENT modulename       (#PCDATA)>
+	       <!ELEMENT testname         (#PCDATA)>
+               <!ELEMENT arg              (argname, argvalue)>
+	          <!ELEMENT argname       (#PCDATA)>
+		  <!ELEMENT argvalue      (#PCDATA)>
+               <!ELEMENT listarg          (listargname, listargvalue+)>
+	          <!ELEMENT listargname   (#PCDATA)>
+		  <!ELEMENT listargvalue  (#PCDATA)>
+            <!ELEMENT stringToFile        (line+)>
+	       <!ELEMENT line             (#PCDATA)>
+            <!ELEMENT logChecker          ((searchString+, vetoString*) | 
+	                                   (searchString*, vetoString+))>
+            <!ELEMENT summary             (#PCDATA)>
+
+<!ATTLIST rtt               xmlns  CDATA #REQUIRED>
+<!ATTLIST jobGroup          name   CDATA #REQUIRED>
+<!ATTLIST jobGroup          parent CDATA #REQUIRED>
+<!ATTLIST class             name   CDATA #REQUIRED>
+<!ATTLIST action            position  CDATA "">
+<!ATTLIST test              position  CDATA "">
+<!ATTLIST keepFilePattern   info   CDATA "">
+<!ATTLIST keepFilePattern   displayColor   CDATA "black">
+<!ATTLIST checker           class  CDATA #REQUIRED>
+<!ATTLIST logChecker        class  CDATA #REQUIRED>
+<!ATTLIST postScript        class  CDATA #REQUIRED>
+<!ATTLIST stringToFile      file   CDATA #REQUIRED>
+

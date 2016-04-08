@@ -1,0 +1,143 @@
+import os, os.path
+from popen2                     import Popen4
+from Factory_HardCoded          import HardCodedFactory
+from RTTSException              import RTTSException
+from Factory_UserStuffRetriever import UserStuffRetrieverFactory
+# -------------------------------------------------------------------------
+# import logging
+# logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+
+def cmtLinesProject(jDescriptor):
+    """
+    Returns lines of script needed to set up cmt if this is being
+    done from scratch(eg for nightly running)
+    Returns an empty string otherwise
+    (for running from checked-out code, where it is
+    assumed the user has performed the cmt operations.
+    """
+
+    
+    # is the package in the local package list declared in the top level
+    # RTT config file?
+    try:
+        if jDescriptor.paths.local:
+            hCMT, pCMT = checkConditionsForLocalRunning(jDescriptor)
+        else:
+            hCMT, pCMT = checkConditionsForReleaseRunning(jDescriptor)
+    except:
+        jDescriptor.logger.error("Could not find RTT CMT dirs")
+        raise
+            
+    jDescriptor.logger.debug(
+        'cmtLines setting up for batch running (project builds)')
+
+    release       = jDescriptor.paths.release
+    oriDir        = os.getcwd()
+    
+    string  = 'unset PYTHONPATH\n'
+    string += 'cd %s\n' % hCMT
+    string += 'source setup.sh -tag=AtlasOffline,%s,opt\n' % (release)
+    string += 'cd %s\n' % pCMT
+    string += 'source setup.sh\n'
+    # if jDescriptor.paths.local:
+    #     string += 'cmt broadcast gmake\n'
+    string += 'cd %s\n' % oriDir
+    return string
+
+
+def checkConditionsForReleaseRunning(desc):
+    """
+    check we have made the project build cmt requirements files
+    for now I am going to hardwire a lot of the code. This is less than
+    ideal as we are assuming what is done in other parts of the code
+    (UserStuffRetrieverProject)
+     Need to make an USR in order to refind the cmt requirements
+     files...
+    """
+    
+    homeRequirements    = desc.paths.rttCmtHomePath
+    projectRequirements = desc.paths.rttCmtProjPath
+    hExists             = os.path.exists(homeRequirements)
+    pExists             = os.path.exists(projectRequirements)
+    msg                 = ''
+    
+    if not hExists:
+        msg += 'cmtLinesProject no file %s\n' % homeRequirements
+
+
+    if not pExists:
+        msg += 'cmtLinesProject no file %s\n' % projectRequirements
+
+    if not (hExists and pExists):
+        desc.logger.error(msg)
+        raise RTTSException(msg)
+    
+    return (homeRequirements, projectRequirements)
+
+
+def conditionsForLocalRunning(desc):
+    desc.logger.debug('cmtLines setting up for local running')
+    """
+    Local packages can only be run if
+
+    1. mode = LinuxInteractive mode
+  
+    because the user has to set up use statements, typically in the
+    TestRelease requirements file.
+    """
+        
+    modeOK    = jDescriptor.paths.mode=='LinuxInteractive'
+
+    if not modeOK: 
+        msg  = 'You must have mode LinuxInteractive '
+        msg += 'if you want to run local packages '
+        msg += 'your current mode is '
+        msg += jDescriptor.paths.mode
+        desc.logger.error(msg)
+        raise RTTSException(msg)
+        
+    return checkConditionsForReleaseRunning(desc)
+
+def cmtLinesKit(jDescriptor):
+    rel = checkConditionsForKitRunning(jDescriptor)
+    string   ='source '+os.path.join(jDescriptor.paths.distArea, 'cmtsite/setup.sh')
+    string  +=' -tag=AtlasOffline,opt,%s'%rel+'\n'
+    string  +='cd '+os.path.join(jDescriptor.paths.distArea, 'AtlasOffline')
+    string  += '/'+jDescriptor.paths.release
+    string  +='/AtlasOfflineRunTime/cmt\n'
+    string  += 'source setup.sh\n'
+    return  string
+
+def checkConditionsForKitRunning(jDescriptor):
+    kitCMTPath = os.path.join(jDescriptor.paths.distArea, 'cmtsite/setup.sh')
+    if not os.path.exists(kitCMTPath):
+        msg = kitCMTPath +' does not exist\n'
+        jDescriptor.logger.error(msg)
+        raise RTTSException(msg)
+    
+    release = jDescriptor.paths.release
+    parts   = release.split('.')
+    
+    if len(parts) !=3 :
+         msg = 'Running against kits for nightlies not supported yet!\n'
+         raise RTTSException(msg)
+     
+    #if jDescriptor.paths.isNightly:
+    #    msg = 'Running against kits for nightlies not supported yet!\n'
+    #    raise RTTSException(msg)
+    
+    rel = jDescriptor.paths.release[1:] 
+    return rel
+    
+
+if __name__ =="__main__":
+    
+    runSetup=Popen4('/usr/local/bin/python2.3 /unix/atlas/RTTdev/UsefulTools/setCompilerVersion.py')
+    runSetup.wait()
+
+    sourceTemp=Popen4('source tempSetup.sh')
+
+    os.system("echo $CMTCONFIG")
+    

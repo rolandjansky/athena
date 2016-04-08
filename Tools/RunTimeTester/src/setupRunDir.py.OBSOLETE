@@ -1,0 +1,184 @@
+#===== RTT MODULES =====
+from requirementsWriter      import requirementsWriter
+from jobGroupKitFactory      import jobGroupKitFactory
+from scriptWriterFactory     import scriptWriterFactory
+from PathCompleter           import PathCompleter
+from releaseToNum            import releaseToNum
+from dataFiles2String        import dataFiles2String
+from getInheritanceHeirarchy import getInheritanceHeirarchy
+#===== PYTHON MODULES ==
+import os, shutil, anydbm
+from os.path              import join, splitext
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger()
+# -------------------------------------------------------------------------
+
+
+#--------------------------------------------------------------------------
+
+def setupRunDir(jMinder):
+
+    """
+    Creates run directory (obtained from the descriptor)
+
+    Uses JobGroupKits to establish what is needed to be copied to it.
+    Uses ScriptWriter to write a run script to it.
+    """
+    logger.info("entering setupRunDir")
+
+    jDescriptor = jMinder.jDescriptor
+    runPath     = jDescriptor.runPath
+
+    try:
+        # createRunDir(desc)
+        rmdirMkdir(runPath)
+        logger.debug('making '+runPath)
+    except Exception, e:
+        # later on this should be reported to a Global Reporter	
+        # for now simply remove this job from the list
+        errmsg = exc2string(sys.exc_info())
+        logger.error( errmsg)
+        descList.remove(desc)
+
+
+    os.chdir(runPath)
+        
+    logger.debug("writing requirements to  "+os.getcwd())
+    open("requirements","w").write(requirementsWriter(jDescriptor.paths.release, runPath))
+    #
+    # If the following two lines were done in separate os.system calls, the
+    # second would fail as it would not know about the env variables of the
+    # first.
+    #
+    # os.system(
+    #    "source /afs/cern.ch/sw/contrib/CMT/v1r16p20040701/mgr/setup.sh;cmt config")os.system(
+    #os.system(
+    #   "source /afs/cern.ch/sw/contrib/CMT/v1r14p20031120/mgr/setup.sh;cmt config")
+
+    nightly,relNum = releaseToNum(jDescriptor.paths.release)
+    if nightly or relNum >=870:
+        os.system(
+            "source /afs/cern.ch/sw/contrib/CMT/v1r16p20040901/mgr/setup.sh;cmt config")
+    else:
+        os.system(
+            "source /afs/cern.ch/sw/contrib/CMT/v1r14p20031120/mgr/setup.sh;cmt config")
+        
+
+    logger.debug("   asking ScriptWriter to write run script")
+    
+    runScriptWriter = scriptWriterFactory(jDescriptor)
+    scr = runScriptWriter.runScript()
+
+    
+    logger.debug("copying auxilliary files")  
+    # shutil.copy(join(jDescriptor.paths.sharePath, self.jobOptions), runPath)
+    kit = jobGroupKitFactory(jDescriptor.jobGroup)
+    for file in kit.auxFiles(jDescriptor.paths):
+        shutil.copy(file, runPath)
+        fileName = os.path.basename(file)
+        os.chmod(join(runPath,fileName),0777)
+            
+    if jDescriptor.asciiRefFiles or jDescriptor.binRefFiles:
+        retrieveRefFiles2(jDescriptor)
+
+    aux = open(join(jDescriptor.paths.sharePath, "auxFiles.txt"), "r")
+    pc = PathCompleter()
+    for line in aux.readlines():
+        tokens  = line.split()
+        package = tokens[0]
+        file    = tokens[1]
+        fn      = pc.fileFromReleasedFile(package, file, jDescriptor.paths)
+        shutil.copy(fn, runPath)
+        
+        fileName = os.path.basename(fn)
+        os.chmod(join(runPath,fileName),0777)
+        
+        logger.debug("copied "+fn+" to "+runPath)
+        
+    for  item in kit.stringsForRunDir(jDescriptor):
+        filename = item[0]
+        string = item[1]
+        file = open(join(runPath, filename), 'w')
+        file.write(string)
+        file.close()
+
+
+    print getInheritanceHeirarchy(jDescriptor)
+    
+    if 'AthenaJobDescriptor' in getInheritanceHeirarchy(jDescriptor):
+        athenaSetUp(jDescriptor)
+            
+    logger.info("returning from setupRunDir()")
+
+
+
+
+def athenaSetUp(jDescriptor):
+    # dataLink = createDataLink(runPath,jDescriptor)
+    # Create the Zebra.P link only of there is DC1 data for the job
+    if jDescriptor.hasDataSet:
+        if jDescriptor.isDC1data:
+            logger.debug("   creating soft link to data set: "+jDescriptor.DC1dataSet)
+            dataLink = 'ZEBRA.P'
+            if os.path.exists(dataLink): os.remove(dataLink)
+            os.symlink(jDescriptor.DC1dataSet, dataLink)       
+            
+
+#--------------------------------------------------------------------------
+
+#return the appropriate run directory name for the soft link to the data,
+#depending on whether the latter is DC1 or DC2
+def createDataLink(runPath,jDescriptor):
+    if jDescriptor.isDC1data:
+        link = "ZEBRA.P"
+        logger.debug("createDataLink: " + jDescriptor.DC1dataSet + " is DC1 data")
+    else:
+        logger.debug("createDataLink: " + jDescriptor.DC1dataSet + " is DC2 data")
+    return link
+
+def writeRefFiles(dbHandle, jDescriptor):
+    files = jDescriptor.asciiRefFiles
+    files.extend(jDescriptor.binRefFiles)
+
+                
+    for file in files:
+        key = [unicode(jDescriptor.refRelease),
+               unicode(jDescriptor.paths.build),
+               unicode(jDescriptor.name),
+               dataFiles2String(jDescriptor),
+               unicode(file)]
+        
+        refFileName = join(jDescriptor.runPath,'refFile_'+file)
+        
+            
+        try:
+            refFile = dbHandle[key.__repr__()]
+            logger.debug("Found reference file in DB")
+            logger.debug("DataBase at: "+jDescriptor.paths.refDB)    
+            logger.debug("key = "+key.__repr__())
+            open(refFileName, 'w').write(refFile)
+        except KeyError:
+            logger.debug("Warning: NO reference file found in DB")
+            logger.debug("DataBase at: "+jDescriptor.paths.refDB)    
+            logger.debug("key = "+key.__repr__())
+            reporter = jDescriptor.reporter
+            reporter.failedDBKeyFind(jDescriptor.paths.refDB,key.__repr__())
+        
+#--------------------------------------------------------------------------
+
+def retrieveRefFiles2(jDescriptor):
+    try:            
+        dbHandle = anydbm.open(jDescriptor.paths.refDB, 'r')
+        writeRefFiles(dbHandle,jDescriptor)
+        
+    except anydbm.error:
+        reporter = jDescriptor.reporter
+        reporter.failedDBConnect(jDescriptor.paths.refDB)
+        msg = "Could not open reference file dbm "+jDescriptor.paths.refDB
+        logger.warning(msg)
+        
+#--------------------------------------------------------------------------
+def noRunDir(jMinder):
+    logger.info('Not setting up run directory!')
+    pass

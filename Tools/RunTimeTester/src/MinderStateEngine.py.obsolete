@@ -1,0 +1,141 @@
+"""State Engine for WorkerJobMinders.
+
+Transitions:
+
+queued                operatorCloseDown
+queued                running
+
+noKitError            done                  (we get a record of the problem)
+
+running               operatorCloseDown
+running               postProcessingQueued
+
+postProcessingQueued  operatorCloseDown
+postProcessingQueued  postProcessingRunning
+
+postProcessingRunning operatorCloseDown
+postProcessingRunning done
+
+
+"""
+
+from exc2string2            import exc2string2
+from MinderStateEngineBase  import MinderStateEngineBase
+
+import time
+
+class MinderStateEngine(MinderStateEngineBase):
+    """
+    Empty state machine. This will be stepped by calls to poll(),
+    and will end up in state = success. Different behaviour is obtained
+    by subclassing the xxxTest and xxxAction methods.
+    """
+
+    
+    def __init__(self, minder, state='queued'):
+        MinderStateEngineBase.__init__(self, minder, state)
+
+        self.dispatcher = {
+            'queued'               :  self.fromQueued,
+            'running'              :  self.fromRunning,
+            'operatorCloseDown'    :  self.fromOperatorCloseDown,
+            'postProcessingQueued' :  self.fromPostProcessingQueued,
+            'postProcessingRunning':  self.fromPostProcessingRunning,
+            'noKitError'           :  self.fromNoKitError,
+            'done'                 :  self.fromDone
+            }
+
+    # -----------------------------------------------
+    def functionsMinderMustHave(self):
+        return ['jobIsRunning', 'doPostProcessing', 'cleanSpace', 'runChecks', 'copyKeepFiles', 'calcPostProcessingResult',
+                'fire', 'readTestResults']
+
+    # -----------------------------------------------
+    #
+    def unlink(self):
+        ' break circular references'
+        
+        del self.minder
+    # -----------------------------------------------
+    
+    def fromQueued(self):
+        if self.fromQueuedTest():
+            self.state.set('running')
+            return
+        # otherwise remain in 'queued'
+            
+    # -----------------------------------------------
+    
+    def fromQueuedTest(self): # derived classes might override
+        return True 
+            
+    # -----------------------------------------------
+    
+    def fromRunning(self):
+        queryOK, isRunning =  self.minder.jobIsRunning()
+        
+        if isRunning:  return # no state transition
+
+        #self.fromRunningActions()
+
+        if self.minder.doPostProcessing():
+            self.state.set('postProcessingQueued')
+            return
+        
+        self.fromRunningActions() #introduced
+        self.minder.cleanSpace()
+        self.state.set('done')
+
+
+    # -----------------------------------------------    
+
+    def fromRunningActions(self):
+        'in a method to allow derived class extensions'
+
+        # self.minder.runMoniActions()
+        self.minder.runChecks()
+
+        # chainFileCopier present only if running in a chain 
+        if hasattr(self.minder, 'chainFileCopier'):
+            self.minder.chainFileCopier.copyFiles()
+
+        # if keep file is also a chain file, this code
+        # will silently fail. Intended that the chain
+        # file copier is interogated to find new location
+        self.minder.copyKeepFiles()
+        # make sure ALL files in run and results directory are
+        # accessible by all members of the UCL Atlas group
+        self.minder.calcPostProcessingResult()
+
+    # -----------------------------------------------
+    
+    def fromPostProcessingQueued(self):        
+        self.minder.fire('postProcessorScript')
+        self.state.set('postProcessingRunning')
+            
+    # -----------------------------------------------
+    
+    def fromPostProcessingRunning(self):
+        queryOK, isRunning =  self.minder.jobIsRunning()
+        if isRunning:  return # no state transition
+
+        self.minder.readTestResults()
+        self.minder.copyKeepFiles() # grab any new keep files
+        self.minder.cleanSpace()
+
+        self.state.set('done')
+        
+            
+    # -----------------------------------------------
+    
+    def fromNoKitError(self):
+        self.state.set('done')
+
+    # -----------------------------------------------
+
+    def fromDone(self):
+        #del self.minder.popen
+        #self.minder.popen = None
+        MinderStateEngineBase.fromDone(self)
+        # leave in 'done' state
+    # -----------------------------------------------

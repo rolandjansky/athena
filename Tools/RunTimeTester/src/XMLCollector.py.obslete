@@ -1,0 +1,314 @@
+#####################################
+#
+# Store a collection of aml files in an XML file
+# This module acts as a mapping container for the
+# file (ie supports the necessary methods for a map
+#
+# UnTested.
+#
+###############################
+
+
+
+import sys, os, glob, string, shutil, StringIO
+import exceptions, types    
+
+from Tools2          import isType 
+from xml.dom.minidom import Node
+import xml.dom.ext
+
+
+from makeRTTDOM  import makeRTTDOM
+from Evaluate    import Evaluate, getText
+
+
+def keyToDict(node):
+    
+    dict = {}
+    keyNode = Evaluate('keys', node)[0]
+    keyElements = [c for c in keyNode.childNodes
+                   if c.nodeType ==  Node.ELEMENT_NODE]
+    
+    
+    for k in keyElements: dict[k.nodeName] = getText(k)
+    
+    
+    return dict
+
+
+def dictToKey(dict, elementCreator, textNodeCreator):
+    
+    keys = elementCreator('keys')
+
+    for k in dict.keys():
+        t = textNodeCreator(dict[k])
+        e = elementCreator(k)
+        e.appendChild(t)
+        keys.appendChild(e)
+
+    return keys
+
+class XMLCollectorIter:
+    def __init__(self, documentElement):
+        self.reset(documentElement)
+
+    def reset(self, documentElement):
+        self.doms = Evaluate('keyedSummary/RTTSummary', documentElement)
+        currentDomIndex = 0
+        maxDomIndex     = len(self.doms)
+        
+
+    def next(self):
+
+        if currentDomIndex == maxDomIndex: raise StopIteration
+
+        dom = self.doms[currentDomIndex]
+        currentDomIndex += 1
+
+        reurn dom
+
+
+    def __iter__(self): return self
+    
+        
+
+class XMLCollector:
+    def __init__(self, dbDir, fileName, logger):
+
+        self.dbDir      = dbDir
+        self.fileName   = os.path.join(self.dbDir, fileName)
+        self.logger     = logger
+
+        self.document = None
+        self.readIn()
+
+        if self.document is None:
+            self.logger.info('creating new ETTSummaries document')
+            self.document = makeRTTDOM('RTTSummaries')
+
+        self.iter            = XMLCollectorIter(self)
+        
+    def readIn(self):
+
+        if not os.path.exists(self.fileName): return
+
+        try:
+            dom = xml.dom.minidom.parse(self.fileName)
+        except:
+            self.logger.error('parse of %s failed' % self.fileName)
+        else:
+            self.document = dom
+
+
+    def matchDict(self, newDict):
+
+        oldSummaries = Evaluate('keyedSummary', self.document.documentElement)
+
+        oldSummaries = [(keyToDict(n), n) for n in oldSummaries]
+
+        def dictCmp(d1, d2):
+
+            if len(d1.keys()) != len(d2.keys()): return False
+
+            for k in d1.keys():
+                try:
+                    if d1[k] != d2[k]: return
+                except KeyError:
+                    return False
+
+            return True
+
+        matched = [n[1] for n in oldSummaries if dictCmp(n[0], newDict)]
+
+        return matched
+
+
+    def __len__(self):
+        return len(Evaluate('keyedSummary', self.document.documentElement))
+
+    def __getitem__(self, key):
+        if not (type.type(key) is types.DictType): raise Exception.TypeError
+        # remove any nodes with same key
+        self.matchDict(key)
+
+        if not matches: raise Exception.KeyError
+        
+        RTTSummaryNodes = Evaluate('RTTSummary', matches[0])
+
+        if not RTTSummaryNodes: raise Exception.KeyError
+        
+        buffer = StringIO.StringIO()
+        summary = xml.dom.ext.PrettyPrint(RTTSummaryNode, buffer)
+        
+        return buffer.getvalue()
+
+       
+
+    def __setitem__(self, key):
+        " key is a dict of name-value strings"
+        
+        if not (type.type(key) is types.DictType): raise Exception.TypeError
+
+        # make the node to insert
+        keyElement = dictToKey(key,
+                               self.document.elementCreator,
+                               self.document.textNodeCreator
+                               )
+
+        ksElement   = self.document.createElement('keyedSummary')
+        ksElement.appendChild(keyElement)
+        ksElement.appendChild(self.document.importNode(dom.documentElement,
+                                                       deep=1))
+
+        # remove any nodes with same key
+        matches = self.matchDict(key)
+
+        [self.document.documentElement.removeChild(m) for m in matches]
+
+        #insert new node
+        self.document.documentElement.appendChild(ksElement)
+
+        # this invalidates the iterator, as it is reset.
+        self.iter.reset(self.document.documentElement)
+
+    def __delitem__(self, key):
+        if not (type.type(key) is types.DictType): raise Exception.TypeError
+        matches =  self.matchDict(key)
+        [self.document.documentElement.removeChild(m) for m in matches]
+
+        
+    def __iter__(self): return self.iter
+
+    def __contains__(self, item):
+        if not (type.type(key) is types.DictType): raise Exception.TypeError
+
+        matches =  self.matchDict(key)
+        if matches: return True
+        return False
+
+
+class RTTXMLCollector(XMLCollector):
+    def __init__(self, dbDir, fileName, logger, maxVersion=20, frequency=1):
+        XMLCollector.__init__(self, dbDir, fileName, logger)
+
+        self.maxVersion = maxVersion
+        self.updateFrequency = freq
+        self.updateCount     = 0
+
+
+
+    def update(self, dom):
+        el = dom.documentElement
+
+        paths = [
+            'overview/build',
+            'overview/originalBranch',
+            'overview/site',
+            'overview/platform',
+            'overview/release',
+            'overview/releaseType',
+            'overview/runType',
+            'overview/nicosDate2'
+            ]
+
+
+
+        keys = []
+
+        for p in paths:
+            keys.append(Evaluate(p, el)[0])
+
+        XMLCollector.update(self, dom, keys)
+
+
+    def update(self, dom, keyNodes, force = False):
+
+        if not force:
+            self.updateCount += 1
+            if self.updateCount < self.updateFrequency: return
+            
+            self.updateCount = 0
+
+        self.__setitem__(keyNodes)
+
+
+    def version(self):
+
+        versionedFiles = glob.glob(self.fileName+';[0-9][0-9][0-9]')
+
+        versionNumbers = [int(f[-3:]) for f in versionedFiles]
+        
+        if len(versionNumbers) == 0:
+            ver = 0
+        elif len(versionNumbers)<self.maxVersion:
+            versionNumbers.sort()
+            ver = versionNumbers[-1]
+            ver += 1
+        else:
+            times = [(os.stat(f).st_ctime, f) for f in versionedFiles]
+            times.sort()
+            latest = times[-1][1]
+            ver = int(latest[-3:])+1
+            if ver>=self.maxVersion: ver = 0
+
+        return string.zfill(ver, 3 )
+
+
+        
+    def write(self):
+        ver = self.version()
+        vFileName = self.fileName+';'+ver
+        
+        if os.path.exists(self.fileName):shutil.copy(self.fileName, vFileName)
+
+        ofile = open(self.fileName,'w')
+        xml.dom.ext.PrettyPrint(self.document, ofile)
+        ofile.close()
+
+
+
+if __name__ == '__main__':
+
+
+    class Logger:
+        def debug(self, string): print string
+        def info(self, string): print string
+        def warning(self, string): print string
+        def error(self, string): print string
+
+    logger = Logger()
+    dbDir = '/local_disk/sherwood/RTT01'
+    fn = 'collectorTest.xml'
+
+
+    collector = XMLCollector(dbDir, fn, logger)
+
+    dom = xml.dom.minidom.parse('/local_disk/sherwood/RTT01/Results/opt/N.0.X/release/rel_5/RTTSummary.xml')
+
+    
+    collector.update(dom)
+    collector.write()
+
+
+
+    dict = {
+        'build': 'opt',
+        'originalBranch': 'N.0.X',
+        'site': 'CERN',
+        'platform': 'slc3',
+        'release': 'rel_5',
+        'runType': 'release'}
+    
+ 
+    summary = collector.retrieve(dict)
+    assert summary is None
+
+
+    dict['releaseType'] =  'project'
+    dict['nicosDate2']  =  '1164350933'
+    
+    summary = collector.retrieve(dict)
+    # assert xml is not None
+
+    print 'result:'
+    print summary

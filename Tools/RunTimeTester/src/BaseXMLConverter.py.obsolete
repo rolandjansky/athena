@@ -1,0 +1,151 @@
+"""
+A class to provide an aml file summary of an RTT run
+"""
+
+import xml.dom
+from XMLTools    import getText
+from xml.dom.ext import PrettyPrint
+from StringIO    import StringIO
+from Evaluate    import Evaluate
+
+import os.path, types, time
+
+#------------------------------------------------------------------------
+# Wrappers for Descriptor (and subclass) methods print method timings
+# -------------------------------------------------------------------------
+
+def minderContext(method):
+    """
+    Returns a method that wraps a the method passed in the argument.
+    The wrapper provides the context.
+    """
+
+    def contexed_method(self, *a, **k):
+
+        startTime = time.time()
+        result = method(self, *a, **k)
+        dTime = startTime - time.time()
+
+        
+        fn = '/local_disk/sherwood/RTT02/XMLtiming.dat'
+        if os.path.exists(fn):
+            of = open(fn, 'a')
+        else:
+            of = open(fn, 'w')
+
+        
+        line = 'XMLConverter: time for method %s: %d\n' % (method.__name__,
+                                                           dTime)
+        of.write(line)
+        of.close()
+        return result
+
+    return contexed_method
+
+class MetaContexter(type):
+    """
+    A meta class that loops through all methods of a class, excudes __init__
+    and wraps the rest with minderContext
+    """
+
+    def __new__(self, classname, bases, classdict):
+
+        for mn in classdict.keys():
+            if mn == '__init__': continue
+            m = classdict[mn]
+            if isinstance(m, types.FunctionType):
+                classdict[mn] = minderContext(m)
+
+        return type.__new__(self, classname, bases, classdict)
+
+class Contexter:
+    "A class to allow method wrapping through inheritance"
+
+    __metaclass__ = MetaContexter
+            
+
+from MethodTimer import MethodTimer  
+  
+class BaseXMLConverter(MethodTimer):
+    def __init__(self, elementCreator, textNodeCreator, idTagPath):
+        MethodTimer.__init__(self)
+        
+        self.elementCreator  = elementCreator
+        self.textNodeCreator = textNodeCreator
+        self.idTagPath       = idTagPath
+        self.callBack        = None
+
+    def findNode(self, newNode):
+        """
+        Example self.node = <package>
+                            <minder>
+                            <identifiedName>a</identifiedName>
+                            <identifiedName>b</identifiedName>
+                            </minder>
+                            </package>
+                newNode   = <minder>
+                            <identifiedName>b</identifiedname>
+                            </minder>
+
+        will match.
+        """
+        pathDirName  = os.path.dirname(self.idTagPath)
+        # add 'text()' here, not in argument to ensure pathDirName is
+        # calculated properly.
+        pathBaseName = os.path.join(os.path.basename(self.idTagPath),'text()')
+
+        # find the nodes witht the same structure as the new node
+        # (see assumptions stated in the doc string)
+        nodes = Evaluate(pathDirName, self.node)
+
+        matchText = Evaluate(pathBaseName, newNode)
+        matches = [n for n in nodes
+                   if Evaluate(pathBaseName, n) == matchText]
+
+        m = 'Matches: idTagPath- %s, matchText- %s, nmatch- %d' % (
+        self.idTagPath, matchText, len(matches))
+        self.logger.debug(m)
+        
+        if len(matches): return matches[0]
+        return None
+
+    # --------------------------------------------------------------------------
+    
+    def update(self, newNode):
+        matchingNode = self.findNode(newNode)
+        if matchingNode is None:
+            self.logger.debug('appending node %s to %s' % (newNode.nodeName,
+                                                           self.node.nodeName))
+            self.node.appendChild(newNode)
+        else:
+            self.node.removeChild(matchingNode)
+            self.node.appendChild(newNode)
+            self.logger.debug('replacing node %s for %s' % (newNode.nodeName,
+                                                            self.node.nodeName))
+        return self.node
+    
+    # --------------------------------------------------------------------------
+  
+    def addTextNode(self, parentNode, item):
+        try:
+            tn = self.textNodeCreator(str(item[1]).strip("'").strip())
+        except xml.dom.InvalidCharacterErr:
+            tn = self.textNodeCreator('invalid text')
+            
+        n  = self.elementCreator(str(item[0]).strip("'").strip())
+        
+        n.appendChild(tn)
+
+        parentNode.appendChild(n)
+
+    def __str__(self):
+        temp = StringIO() 
+        PrettyPrint(self.node, temp)
+        str = temp.getvalue()
+        temp.close()
+        return str
+        
+    def setSummaryCallBack(self, newCallBack):
+        self.logger.debug('setting a callback of type %s' % (
+            newCallBack.__class__.__name__))
+        self.callBack = newCallBack

@@ -1,0 +1,38 @@
+import sys, os
+from os.path import exists
+
+def cfg2xml(cfgFile):
+    
+    iFile = cfgFile+'.cfg'
+    oFile = cfgFile+'.xml'
+
+    if not exists(iFile):
+        print iFile+' does not exist: exiting'
+        sys.exit()
+
+    of = open(oFile,'w\n')
+    of.write('<?xml version="1.0"?>\n')
+    of.write('<jobList>\n')
+    for line in open(iFile).readlines():
+        if line[0] == '#': continue
+        
+        tokens = line.split()
+        of.write('  <athena>\n')
+        of.write('    <options>'+tokens[0]+'</options>\n')
+        of.write('    <package>'+tokens[1]+'</package>\n')
+        of.write('    <group>'+tokens[2]+'</group>\n')
+        of.write('    <queue>'+tokens[3]+'</queue>\n')
+        if len(tokens) == 5: of.write('    <dataset>'+tokens[4]+'</dataset>\n')
+        of.write('  </athena>\n')
+    of.write('</jobList>\n')
+
+
+if __name__ == '__main__':
+
+    if len(sys.argv) != 2:
+        print "Usage: cfg2xml configFile"
+        sys.exit()
+
+    cfgFile = sys.argv[1]
+    cfg2xml(cfgFile)
+    

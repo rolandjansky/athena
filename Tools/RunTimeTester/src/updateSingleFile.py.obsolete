@@ -1,0 +1,36 @@
+import xmlrpclib, time, os.path
+from exc2string2 import exc2string2
+
+def doit(aPath):
+    try:
+        transport =  xmlrpclib.Transport()
+        # print transport
+        # server = xmlrpclib.ServerProxy('http://localhost:8000', transport, 'UTF-8', False,True)
+        server = xmlrpclib.ServerProxy('http://localhost:8001', transport, 'UTF-8', True, True)
+        # print 'Successfully connected to server.'
+    except:
+        print 'Could not instantiate ServerProxy\n %s' % exc2string2()
+        return
+
+    try:
+        server.areYouAlive()
+    except:
+        print '%s: server not responding' % time.ctime()
+        return
+
+    if os.path.exists(aPath):
+        server.updateSingleSummary(aPath)
+    else:
+        print '%s does not exist. Doing nothing.' % aPath
+    
+if __name__ == '__main__':
+    #########################################################################
+    # BEWARE THE FOLLOWING FILES POINT AT PROD
+    # DANGER OF DESTROYING PROD
+    #########################################################################
+    thePath = '/afs/cern.ch/atlas/project/RTT/Results/rel_3/dev/build/i686-slc4-gcc34-opt/offline/RTTSummary.xml'
+    #thePath = '/afs/cern.ch/atlas/project/RTT/Results/rel_2/bugfix/build/i686-slc4-gcc34-dbg/hlt/RTTSummary.xml'
+    # path = '/afs/cern.ch/atlas/project/RTT/Results/rel_0/dev/build/i686-slc3-gcc323-opt/RTTSummary.xml'
+    # path = '/afs/cern.ch/atlas/project/RTT/data/peter/Results/rel_4/dev/build/i686-slc3-gcc323-opt/RTTSummary.xml'
+
+    doit(thePath)

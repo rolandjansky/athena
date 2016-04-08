@@ -1,0 +1,74 @@
+class MinderToStr:
+    def __init__(self, offset=''):
+        self.offset = offset
+
+    def toStr(self, m):
+        mname =  m.__class__.__name__
+
+        s  = '\n------------------------------\n'
+        try:
+            s += '%s%s:%s \n' % (self.offset, mname, m.identifiedName)
+        except:
+            s += '%s%s \n' % (self.offset,mname)
+            self.offset += '   '
+        mts = MinderToStr(self.offset+'   ')
+        if mname == "ParallelMinder":
+            s+=self.offset+'Minders in minder list: %s' % str(m.minders)
+            mts = MinderToStr(self.offset+'   ')
+            s += self.offset+'Listing the %d minders in to process list\n' % len(m.minders)
+            for sm in m.minders:
+                s += self.offset+('Minders in to process list\n')
+                s+=self.offset+mts.toStr(sm)
+        elif mname == 'SequentialMinder':
+            s += self.offset+'currentMinder: %s\n' % str(m.currentMinder.__class__.__name__)
+            mts = MinderToStr(self.offset+'   ')
+            s += mts.toStr(m.currentMinder)+'\n'
+            s += self.offset+'Listing the %d minders in to process list\n' % len(m.minders)
+            for sm in m.minders:
+                s += self.offset+('Minder in to process list\n')
+                s+=self.offset+mts.toStr(sm)
+        elif mname == 'ChainJobMinder':
+            mts = MinderToStr(self.offset+'   ')
+            s += self.offset+'Contained Minder:'
+            s += mts.toStr(m.minder)+'\n'
+            if hasattr(m,'outChainFiles'):
+                for k in m.outChainFiles:
+                    s += self.offset + 'Chain file out\n'
+                    s += self.offset + '%s\n' % k
+
+            else: 
+                s += self.offset+'No outout chain files\n'
+                if m.fileCopier:
+                    s += self.offset + str(m.fileCopier)
+                else:
+                    s += self.offset + 'NotYetKnown'
+        elif mname == 'PseudoMinder':
+            if hasattr(m, 'datasets'):
+                datasets = m.datasets
+                for k in datasets.keys():
+                    s += self.offset + 'Dataset type %s\n' % k
+                    for d in datasets[k]:
+                        s += self.offset + 'Dataset %s\n' % str(d)
+            else:
+                s += self.offset+'No datasets\n'
+        else:
+            s += self.offset+m.__class__.__name__
+        return s
+
+def dumpMinders(minders):
+    mTos = MinderToStr()
+    for m in minders:
+        print '\n=====================================================\n'
+        print 'Minder %s:%s' % (m.__class__.__name__, m.identifiedName)
+        print mTos.toStr(m)
+        print '\n=====================================================\n'
+
+def dumpMindersToString(minders):
+    mTos = MinderToStr()
+    s = ''
+    for m in minders:
+        s += '\n=====================================================\n'
+        s += 'Minder %s:%s' % (m.__class__.__name__, m.identifiedName)
+        s +=  mTos.toStr(m)
+        s += '\n=====================================================\n'
+        return s

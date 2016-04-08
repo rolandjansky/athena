@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE dsmcfg SYSTEM "/home/en/RTT/dsmProject/DatasetManager.dtd">
+
+<dsmcfg>
+   <mode>active</mode>
+   <datasetCatalog>/unix/atlasrtt/RTT/xml/rttDataSetCatalog.xml</datasetCatalog>
+   <rttsrc>/home/en/RTT/Grid/Tools/RunTimeTester/src</rttsrc>
+   <reportDir>/unix/www/html/atlas/AtlasTesting</reportDir>
+   <rttcfg>/home/en/RTT/dsmProject/cfg_nightly.xml</rttcfg>
+   <datasetDir>/unix/atlasrtt/RTTdata</datasetDir>
+  <!-- <datasetDir>/home/en/RTT</datasetDir> -->
+</dsmcfg>
+
+

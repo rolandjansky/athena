@@ -1,0 +1,203 @@
+"""
+A class to hold checks for the data base (was corrupted - and fixed - 4/05 -
+so we know we need to check it
+"""
+
+import anydbm, os
+
+from formatCollection import formatCollection
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+class DBTestBase:
+    def __init__(self, dbFileName):
+        self.dbFileName = dbFileName
+        self.passed     = False
+        self.msg        = ''
+    
+class ReadAllKeysTest(DBTestBase):
+    def __init__(self, dbFileName):
+        DBTestBase.__init__(self, dbFileName)
+        self.testName = 'readAllKeysTest'
+        
+    def test(self):
+        "Check all entries can be read"
+
+        tempDBfn = os.path.join(os.path.dirname(self.dbFileName), 'temp.db')
+        if os.path.exists(tempDBfn): os.remove(tempDBfn)
+        try:
+            tempDB   = anydbm.open(tempDBfn, 'n')
+        except:
+            self.msg = 'failed to open',tempDBfn
+            
+        testDB   = anydbm.open(self.dbFileName, 'r')
+
+        try:
+            for key in testDB: tempDB[key] = testDB[key]
+        except:
+            self.msg = 'failed to read',tempDBfn
+
+
+        self.passed = True
+        tempDB.close()
+        testDB.close()
+        os.remove('temp.db')
+
+class SingleKeyRWTest(DBTestBase):
+    def __init__(self, dbFileName):
+        DBTestBase.__init__(self, dbFileName)        
+        self.testName = 'singleKeyRWTest'
+        
+    def test(self):
+        """
+        check we can write and read to the database
+        check to values to ensure we get at least one new one.
+        """
+        
+        testDB   = anydbm.open(self.dbFileName, 'w')
+        testKey  = 'TestKeyTestKeyTestKey'
+        testVals = ['', 'TestValTestValTestVal']
+
+        try:
+            for tv in testVals:
+                testDB[testKey] = tv
+                rv = testDB[testKey]
+                if not rv == tv:
+                    self.msg = 'wrote %s but read %s' % (tv, rv)            
+                    return
+        except:
+            return
+
+        del testDB[testKey]
+        
+        self.passed = True
+        testDB.close()    
+
+
+class BrinicksTest(DBTestBase):
+    def __init__(self, dbFileName):
+        DBTestBase.__init__(self, dbFileName)        
+        self.testName = 'BrinicksTest'
+        
+    def test(self):
+        """
+        check we can write and read to the database
+        check to values to ensure we get at least one new one.
+        """
+        
+        handle   = anydbm.open(self.dbFileName, 'w')
+
+        badKeys,keysWithBadValues = self.corruptDBKeys(handle)
+        if badKeys:
+            m = 'The monitoring DB was found to contain %d corrupt keys. These will be removed.' % len(badKeys)
+            logger.warning(m)
+            [self.recoverOrDeleteDBEntry(handle,k) for k in badKeys]
+        elif keysWithBadValues:
+            m = 'The monitoring DB was found to contain %d keys with corrupt values. These will be removed if not recoverable.' % len(keysWithBadValues)
+            logger.warning(m)
+            [self.recoverOrDeleteDBEntry(handle,k) for k in keysWithBadValues]
+        else:
+            m = 'Moni DB OK: no corrupt keys to remove.'
+            self.passed = True
+            logger.info(m)
+            
+        handle.close()
+        # -----------------------------------------------------------------
+
+    def recoverOrDeleteDBEntry(self,handle,key,badValue = True):
+        """For now, we just plain delete the corrupt entry.
+        An improvement could be to grab the file version, create a dom and
+        stick in in the DB.badValue = True if the value if corrupt,
+        False if it is the key itself that is bad.
+        """
+        try:
+            del handle[key]
+            logger.warning('Removed monitoring DB key %s' % str(key))
+        except Exception, e:
+            logger.error('Unable to remove corrupt DB key %s' % str(key))
+            logger.error(exc2string2())
+                        
+    # ------------------------------------------------------------------------
+
+    def corruptDBKeys(self,handle):
+        keys    = handle.keys()
+        keysThatAreCorrupt    = []
+        keysWithCorruptValues = []
+        
+        for key in keys:
+            isPrintableKey  = len(
+                [c for c in key if c not in string.printable])==0
+            if not isPrintableKey:
+                keysThatAreCorrupt.append(key)
+            else:
+                try:
+                    parseString(handle[key])
+                except:
+                    keysWithCorruptValues.append(key)
+                    
+        return (keysThatAreCorrupt,keysWithCorruptValues)
+
+    # ------------------------------------------------------------------------
+
+
+
+class DBIntegrityChecker:
+    def __init__(self, dbFileName):
+
+        if not os.path.exists(dbFileName):
+            logger.info('Database does not exist %s ' % dbFileName)
+            self.tests = []
+            return
+        
+        self.tests = [
+            ReadAllKeysTest(dbFileName),
+            SingleKeyRWTest(dbFileName)
+            # BrinicksTest(dbFileName)
+            ]
+
+    def check(self):
+        
+        def runTest(tester):
+            try:
+                #m = 'running test %s' % tester.__class__.__name__
+                #print m
+                #logger.debug(m)
+                t.test()
+            except:
+                pass
+
+        if not self.tests:
+            m = """No DBIntegrityChecker tests, probably becqause
+            moniDb did not exist at instantiation"""
+            logger.warning(m)
+        [runTest(t) for t in self.tests]
+
+        #m = 'DBIC finished running tests'
+        #print m
+        #logger.debug(m)
+
+        def react(t):
+            if not t.passed:  
+                msg  = 'Database not intact, failed test: %s\n' % t.testName
+                msg += 'error: %s' % t.msg
+                logger.error(msg)
+
+        [react(t) for t in self.tests]
+            
+        if False not in [t.passed for t in self.tests]:
+            msg = 'DBintegrity with %d subtests  passed' % len(self.tests)
+            logger.debug(msg)
+
+if __name__ == '__main__':
+
+    db = '/unix/atlas/RTT/refFile.db.corrupt'
+    assert( not DBIntegrityChecker(db).OK)
+
+    db = '/unix/atlas/RTT/refFile.db'
+    assert( DBIntegrityChecker(db).OK)
+
+    print 'DBIntegrityChecker: all OK'
+        

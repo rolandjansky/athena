@@ -1,0 +1,1350 @@
+"""
+class Minder. Top of the Minder Heirarchy.
+
+- Takes care of the state machine. This is a mixture of
+a status object and a dispatcher.
+
+The state machine  has states: queued, running, success, error,
+it nows how to proceed from one state to the next, and species the actions to be
+performed when the state changes. The way jobs are submited, and the names of
+log files are examples of items that change with mode.
+
+This class also has the following methods, which are common to all Minders,
+
+poll
+fromQueued
+fromRunning
+fromSuccess
+fromError
+setStatus
+setStatusList
+forceCloseDown
+setDone
+
+Many of these are overidden in derived classes.
+"""
+
+from Status                  import Status
+from JobGroupKits            import JobGroupKits
+from os.path                 import join
+from UserTestDescriptor      import UserTestDescriptor
+from formatCollection        import formatCollection
+from getInheritanceHeirarchy import isAthenaJob
+from Tools                   import sendMail, sortItemsInList, changePerm
+from Defs                    import RTTdefs
+from ModuleLoader            import ModuleLoader
+from exc2string2             import exc2string2
+from RTTTestRunner           import RTTTestRunner  
+from popen2                  import Popen4 
+from RTTCloseDownKeyMaker    import RTTCloseDownKeyMaker, dictToDocument
+from makeRTTDOM              import makeRTTDOM
+from MinderToXML             import MinderToXML
+from Factory_Commander       import CommanderFactory
+
+import os, shutil, shelve, fnmatch, imp, shelve, types, time
+
+import mutex
+dbmMutex     = mutex.mutex()
+# -------------------------------------------------------------------------
+#import logging
+#logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+from MethodTracer        import MetaTracer
+# uncomment to monitor all method calls (shows args + return values)
+# __metaclass__ = MetaTracer
+
+#------------------------------------------------------------------------
+# Wrappers for Descriptor (and subclass) methods to provide a minder 'context'
+# -------------------------------------------------------------------------
+
+def minderContext(method):
+    """
+    Returns a method that wraps a the method passed in the argument.
+    The wrapper provides the context.
+    """
+
+    def contexed_method(self, *a, **k):
+
+        runPath = self.jDescriptor.runPath
+        if os.path.exists(runPath): os.chdir(runPath)
+
+        result = method(self, *a, **k)
+        return result
+
+    return contexed_method
+
+class MetaContexter(type):
+    """
+    A meta class that loops through all methods of a class, excudes __init__
+    and wraps the rest with minderContext
+    """
+
+    def __new__(self, classname, bases, classdict):
+
+        for mn in classdict.keys():
+            if mn == '__init__': continue
+            m = classdict[mn]
+            if isinstance(m, types.FunctionType):
+                classdict[mn] = minderContext(m)
+
+        return type.__new__(self, classname, bases, classdict)
+
+class Contexter:
+    "A class to allow method wrapping through inheritance"
+
+    __metaclass__ = MetaContexter
+            
+
+class MinderStateEngine(Contexter):
+    """
+    Empty state machine. This will be stepped by calls to poll(),
+    and will end up in state = success. Different behaviour is obtained
+    by subclassing the xxxTest and xxxAction methods.
+    """
+
+    
+    def __init__(self, name, logger):
+        self.dispatcher = {
+            "queued"              : self.fromQueued,
+            "running"             : self.fromRunning,
+            "success"             : self.fromSuccess,
+            "error"               : self.fromError,
+            "operatorCloseDown"   : self.fromOperatorCloseDown,
+            "timedOut"            : self.fromTimedOut
+            }
+        self.done       = False # ALWAYS set this through self.setDone()
+        self.name       = str(name)
+        self.status     = Status("queued")
+        self.logger     = logger
+        self.jobTimer   = None #to be set as needed. Set here for hasTimedOut()
+        
+    def setLogger(self, newLogger): self.logger = newLogger
+    
+    def poll(self, forceState=None):
+        """
+        makes status transitions by calling the fromXXX
+        methods, according to the current status.
+        returns True if job is active, False otherwise
+        """
+
+        # >= 1 checks are run if the job finishes.
+        # this returned in a list of statuses.
+        # the first one determines if the job ran
+        #
+
+        statOnEntry = self.status.primary()
+        if forceState:
+            stat = forceState
+        else:
+            stat  = self.status.primary()
+
+        msg = "Job: %s status: %s done: %s" % (self.name, stat, str(self.done))
+        self.logger.debug(msg)
+
+        if self.done: return 
+
+        try: # take care of  exceptions
+            stat = self.status.primary()
+            self.dispatcher[stat]()
+        except:
+            
+            m  = 'Exception thrown during Minder::poll()'
+            m += 'JobName: %s\n' %  str(self.jDescriptor.identifiedName)
+            m += 'Traceback:\n'
+            m +=  exc2string2()
+            self.logger.error(m)
+            self.forceCloseDown()
+            
+            return 
+
+        if stat != statOnEntry:
+
+            # make an DOM document for the minder and call back
+            # (presumably toi the testRun)
+
+            m = 'State transition detected: %s -> %s, calling back' % (
+                stat, self.status.primary())
+            self.logger.info(m)
+            startT = time.time()
+            self.xmlConverter.update()
+            diffT = time.time() - startT
+            self.sumTimeToUpdate += diffTime
+            self.nUpdates      += 1
+            m = 'Job %s completed the call back in %d seconds.' % (
+                self.jDescriptor.identifiedName,diffT)
+            self.logger.info(m)
+            # recursive call  move the job through states that take no time
+            # to complete
+            self.poll() 
+        return 
+
+    # -----------------------------------------------
+    
+    #def monitoringCallBack(self, importance):
+    #    # issue message if status has changed
+    #    self.logger.debug("Job: %s status: %s done: %s" % (
+    #        self.name,
+    #        self.status.primary(),
+    #        str(self.done))
+    #                      )
+    #    if not self.runSummaryCallBackHandler:            
+    #        m = 'Job %s: no monitoring call back handler set. Returning.' % (
+    #            self.jDescriptor.identifiedName)
+    #        self.logger.debug(m)
+    #        return
+
+    #    # allow one minder to update at a time  to stop threaded minders
+    #    # to intere with each other.
+    #    startT = time.time()#
+
+    #    try:            
+    #        acquiredMoniLock = \
+    #                         self.runSummaryCallBackHandler.update(importance)
+    #    except:
+    #        m  = """Error during monitoring callback from job: %s'
+    #        Traceback:\n%s """ % (self.jDescriptor.identifiedName,
+    #                              exc2string2())
+    #        self.logger.error(m)
+    #    else:
+    #        if acquiredMoniLock:
+    #            diffT = time.time() - startT
+    #            m = 'Job %s completed the call back in %d seconds.' % (
+    #                self.jDescriptor.identifiedName,diffT)
+    #        else:
+    #            m = 'Job %s, unable to acquire monitoring lock, continuing' % (
+    #                self.jDescriptor.identifiedName)#
+
+    #        self.logger.info(m)
+    # -----------------------------------------------
+        
+    def forceCloseDown(self):
+        if not self.done:
+            self.setStatus('error')
+            self.setDone()
+    
+    # -----------------------------------------------
+        
+    
+
+    # -----------------------------------------------
+    def stopJob(self): pass
+    
+    # =======================================================
+    #
+    # State transition calls. probably no need to override these
+    #
+    # =======================================================
+        
+    def fromQueued(self):
+        if self.fromQueuedTest(): self.fromQueuedAction()
+
+    def fromRunning(self):
+        if self.fromRunningTest(): self.fromRunningAction()
+        
+    def fromSuccess(self):
+        if self.fromSuccessTest(): self.fromSuccessAction()
+        
+    def fromError(self):
+        if self.fromErrorTest(): self.fromErrorAction()
+        
+
+    def fromOperatorCloseDown(self):
+        if self.fromOperatorCloseDownTest(): self.fromOperatorCloseDownAction()
+
+    def fromTimedOut(self):
+        if self.fromTimedOutTest():
+            self.fromTimedOutAction()
+
+
+    # =======================================================
+    #
+    # State transition calls. To be overridden by subclasses
+    #
+    # =======================================================
+        
+    def fromQueuedTest(self):
+        return True
+        
+    def fromQueuedAction(self):
+        self.setStatus("running")
+
+
+    #-----------------------------------------------
+
+    def fromRunningTest(self):
+        return True
+        
+    def fromRunningAction(self):
+        self.setStatus("success")
+
+    #-----------------------------------------------
+
+    def fromSuccessTest(self):
+        return True
+        
+    def fromSuccessAction(self):
+        self.setDone
+
+    #-----------------------------------------------
+
+    def fromErrorTest(self):
+        return True
+        
+    def fromErrorAction(self):
+        self.setDone()
+
+    #-----------------------------------------------
+    
+    def fromOperatorCloseDownTest(self):
+        return True
+        
+    def fromOperatorCloseDownAction(self):
+        self.stopJob()
+        self.setDone()
+
+
+    #-----------------------------------------------
+    
+    def fromTimedOutTest(self):
+        return True
+        
+    def fromTimedOutAction(self):
+        self.stopJob()
+        self.copyKeepFiles()
+        self.storeAllFiles()
+        self.setDone()
+        
+    #-----------------------------------------------
+    
+    def setDone(self):
+        "Sets the done flag. Sub classes may extend"
+        self.done = True
+        # importance = 'high'
+        # self.monitoringCallBack(importance)
+        self.xmlConverter.update()
+
+    #-----------------------------------------------
+    
+class Minder(MinderStateEngine):
+    def __init__(self, jDescriptor, logger, runTimer):
+        """ One function of the minder is to bring together information
+        from the job descriptor (gathered from the jobs config file),
+        the job groups file (gathered from the job groups config file),
+        and the Paths object (gathered from the RTT config file)
+
+        For files to be transferred from the run directory to the results
+        area, we use patterns (for file name matching). Lists of patterns
+        are made at in this method, with a list per use (asciiRef files,
+        binRef files, keep files. These lists will be used to identify
+        filenames at the appropriate moment, and converted to absolute
+        path names. Source and destination will be kept in the dictionaries
+        self.keepFiles self.binRefFiles etc.
+        
+        """
+
+        self.logger = logger
+        self.logger.debug('init')
+        MinderStateEngine.__init__(self, jDescriptor.identifiedName, logger)
+        
+        self.jDescriptor         = jDescriptor
+        self.jDescriptor.logger  = self.logger
+
+        self.removeMe            = False
+        self.actions             = []
+        self.monActions          = []
+        self.tests               = []
+        self.checks              = []
+        self.asciiRefFiles       = []
+        self.binRefFiles         = []
+        self.runPath             = jDescriptor.runPath
+        self.testDescriptors     = []
+        self.keepFilePatterns    = []
+        self.testDBPath          = os.path.join(self.runPath,'RTTtests.db')
+        self.testIds             = []
+        self.runTimer            = runTimer
+        self.closeDownKeyMaker   = RTTCloseDownKeyMaker(
+            self.jDescriptor.paths,
+            self.runTimer.startTime,
+            self.logger)
+        self.closeDownKeyDict = {
+            'branch':           self.jDescriptor.paths.originalBranch,
+            'build':            self.jDescriptor.paths.build,
+            'platform':         self.jDescriptor.paths.platform,
+            'package':          self.jDescriptor.paths.package,
+            'release':          self.jDescriptor.paths.release,
+            'runType':          self.jDescriptor.paths.runType,
+            'startTime':        self.runTimer.startTime,
+            'jobName':          self.jDescriptor.identifiedName,
+            'rttPilotJob':      self.jDescriptor.rttPilotJob,         
+            'atnPilotJob':      self.jDescriptor.rttATNJob,
+            'package':          self.jDescriptor.paths.package
+            }
+        if self.jDescriptor.paths.isNightly:
+            self.closeDownKeyDict['release'] = 'nightly'
+            
+
+        # For conveniencde, a copy of the key to be used to close down this
+        # job will be output to the run directory. To make the xml file
+        # start by creating a document. The output is done elsewhere.
+        self.closeDownDom = dictToDocument(self.closeDownKeyDict,
+                                           makeRTTDOM('RTTCloseDownKey'))
+        
+            
+        
+
+
+        self.jobGroupKit = None
+        try:
+            self.jobGroupKit    = JobGroupKits().kit(jDescriptor.jobGroup)
+        except:
+            pass
+
+        if not self.jobGroupKit:
+            mode = 'Athena'+jDescriptor.jobGroup
+            try:
+                self.jobGroupKit = JobGroupKits().kit(mode)
+            except:
+                pass
+
+        if not self.jobGroupKit:
+            m  = 'Fatal error: No jobgroup kit for group  '
+            m += jDescriptor.jobGroup
+            self.logger.critical(m)
+            self.forceCloseDown()
+
+        # These jobs are NOT counted in  Launcher stats. Otherwise overide.
+        self.jobWeight      = 0 
+
+        # bring together information on files to manipulate.
+        # Keep and aux files are handled as patterns - the actual file
+        # name resolution is deferred to later
+        # Reference files references are complete file names due to
+        # fact that they will go into keys before retirval - and patterns wont work
+        
+        # so complete file names go here here as well.
+        self.handleFilePatterns()
+        self.handleFileNames()
+        self.handleExternalModule()
+
+        self.makeJobGroupDirs()
+        self.shelveTests()
+
+        self.testStatusList    =[] #results returned by test tags
+        
+
+        # declare dictionaries with source and destination paths
+        # for files to be transferred from the run directories to the resulsts
+        # directory.
+
+        self.keepFiles      = {}
+
+        # declare lists of files - no  wild cards, as the elements of the list
+        # are used in data base keys. Also,  no absolute paths for the same reason
+        # (would break portability)
+        
+        self.minderpsDict   = {'log' : self.jDescriptor.log,
+                               'site': self.jDescriptor.paths.site
+                               }
+        self.refDBenable                 = jDescriptor.paths.refDBenable
+
+        self.monActionsData              = [] # monitoring information
+        self.runSummaryCallBackHandler   = None
+        
+        # maximum no of times to retry a job if it enters the error state.
+        self.errorStateMaxRetry = 3
+        self.errorStateCurRetry = 0
+          
+
+        self.exitStatus = 'Unknown'
+        self.cpuTime    = 'Unknown'
+        self.mem        = 'Unknown'
+        self.vmem       = 'Unknown'
+        self.wallTime   = 'Unknown'
+
+        self.constructionErrorMessages = jDescriptor.errorMessages
+        
+        self.xmlConverter = MinderToXML(self)
+        self.summaryCallBack = None
+
+        self.nUpdates            = 0
+        self.sumTimeToUpdate     = 0
+        
+    def setSummaryCallBack(self, newCallBack):
+        self.xmlConverter.setSummaryCallBack(newCallBack)
+    
+# ------------------------------------------------------------------------
+#    def setLogger(self, newLogger):
+#        self.logger = newLogger
+#        # to do: set the descriptor logger as well
+# ------------------------------------------------------------------------
+
+    def poll(self):
+        """
+        makes status transitions by calling the fromXXX
+        methods, according to the current status.
+        returns True if job is active, False otherwise
+        """
+
+        # >= 1 checks are run if the job finishes.
+        # this returned in a list of statuses.
+        # the first one determines if the job ran
+        #
+
+        stat = self.status.primary()
+        msg = "TestRun:poll(): Job: %s status: %s done: %s" % (self.name,
+                                                               stat,
+                                                               str(self.done))
+        self.logger.debug(msg)
+
+        
+        #
+        # perform some checks before going on to checking if there should be a
+        # change of state.
+        # - time-outs
+        forceState = None
+        if self.hasTimedOut():
+            forceState = "timedOut"
+            maxTime = str(self.jobTimer.maxTimeInHours())
+            
+            m = """Job %s run has exceeded the max run time of %s hours,
+            moving state to 'timedOut' """ % (self.name, maxTime)
+
+            self.logger.info(m)
+
+        
+        # - external closeDownFile
+        elif self.closeDownKeyMaker.laterMatch(self.closeDownKeyDict):
+            
+            m = 'Job %s moving state to operatorshutdown' % (self.name)
+            self.logger.info(m)
+
+            forceState = 'operatorCloseDown'
+
+
+        # state engine stuff done in the base class.
+        return MinderStateEngine.poll(self)
+
+# ------------------------------------------------------------------------
+
+    def shelveTests(self):
+
+        # associate string identifiers with each test and action
+        npos = 0
+        for t in self.tests:
+            self.testIds.append( (t, '%s_%d' % (t.__class__.__name__,npos)) )
+            npos +=1
+        for t in self.actions:
+            self.testIds.append( (t, '%s_%d' % (t.__class__.__name__,npos)) )
+            npos +=1
+
+        # provide a database to store the tests
+        db = shelve.open(self.testDBPath, 'n')
+        db.close()
+
+        # wrap the tests to allow transportation to the computing node
+        wrappers = [RTTTestRunner(self.testDBPath, t) for t in self.testIds]
+        
+        # write the tests to a shelf db
+        [t.autoShelve() for t in wrappers]
+        
+    def hasTimedOut(self):
+        'Returns true if job has timed out, false otherwise.'        
+        # if self.status.primary() == 'timedOut': return True
+        if self.status.primary() != 'running': return False
+
+        if self.jobTimer:
+            if self.jobTimer.timeOut():
+                return True
+        return False
+
+    # -------------------------------------------------------------------------
+
+    # def setRunSummaryCallBackHandler(self, handler):
+    # self.runSummaryCallBackHandler = handler
+
+    # -------------------------------------------------------------------------
+
+    def hasChecks(self):
+        answer = False
+
+        if hasattr(self,'checks'):
+            answer = len(self.checks) > 0 or answer
+
+        if hasattr(self,'tests'):  
+            answer = len(self.tests) > 0 or answer
+
+        return answer
+
+    # ------------------------------------------------------------------------
+
+    def handleFilePatterns (self):
+        "method to collect file patterns from the various sources"
+        
+        self.keepFilePatterns  = self.jobGroupKit.getItem('keepFilePatterns')
+        self.auxFilePatterns   = self.jobGroupKit.getItem('auxFilePatterns')
+        self.storeInDBPatterns = self.jobGroupKit.getItem('storeInDBPatterns')
+       
+        self.keepFilePatterns.extend(self.jDescriptor.keepFilePatterns)
+        self.auxFilePatterns.extend(self.jDescriptor.auxFilePatterns)
+        self.auxFilePatterns.extend(self.jDescriptor.storeInDBPatterns)
+
+# ------------------------------------------------------------------------
+
+    def handleExternalModule(self):
+        
+        """test Descriptor is a list with three elements
+           modulename, classname, dictionary of arguments
+        """
+          
+        actionDescriptors        = []
+        alist = self.jobGroupKit.getItem('actions')
+        if alist:    # might = None
+            actionDescriptors.extend(alist)
+
+        actionDescriptors.extend(self.jDescriptor.actions)
+        
+
+        tlist = self.jobGroupKit.getItem('tests')
+        if tlist:
+            self.testDescriptors.extend(tlist) # testList might = None
+        self.testDescriptors.extend(self.jDescriptor.tests)
+
+        monActionDescriptors   =self.jobGroupKit.getItem('monActions')
+        #self.actionDescriptors.extend(self.jDescriptor.actions)
+
+        msg = 'handleExternalModule -actions %d' % len(actionDescriptors)
+        self.logger.debug(msg)
+        
+        
+        for descriptor in self.testDescriptors:
+
+            descriptor.addParameter(('JobDescriptor', self.jDescriptor))
+            descriptor.addParameter(('logger', self.logger))
+            instance = self.getClassFromDescriptor(descriptor) 
+            if instance != None: self.tests.append(instance)
+        
+
+        for descriptor in actionDescriptors:
+
+            descriptor.addParameter(('JobDescriptor', self.jDescriptor))
+            descriptor.addParameter(('logger', self.logger))
+            instance = self.getClassFromDescriptor(descriptor) 
+            if instance != None: self.actions.append(instance)
+            
+
+        for descriptor in monActionDescriptors:
+
+            descriptor.addParameter(('JobDescriptor', self.jDescriptor))
+            descriptor.addParameter(('logger', self.logger))
+            instance = self.getClassFromDescriptor(descriptor) 
+            if instance != None: self.monActions.append(instance)
+          
+#-----------------------------------------------------------------------
+
+    def getClassFromDescriptor(self, testDescriptor):
+
+
+        # allow RTT library tools to be picked up from the local code base
+        # rather than the installed shared area if so requested in the
+        # RTT configuration file
+        rttLibDir = str(self.jDescriptor.paths.rttLibDir)
+        sharePathToUse = {
+            'RuleCheckerLibraryTools': rttLibDir,
+            'RttLibraryTools'        : rttLibDir
+            }
+
+        instance = None
+
+        # RttLibTools has been split into modules with one class per
+        # module, with the module name = he class name. Needed this
+        # for shelve to unshelve instances.
+        # moduleName = testDescriptor.moduleName
+        moduleName = testDescriptor.testName
+        className  = testDescriptor.testName
+        paramDict  = testDescriptor.argDict
+        
+        # default is release share path if key not in dict
+        # this happens when the user supplies own module, which is
+        # picked up from the release area.
+
+
+        # For the moment (25/9/06) only allow the module to by in rttLibDir
+        # sharePathIs = sharePathToUse.get(moduleName,
+        #                                  self.jDescriptor.paths.shareArea)
+
+        sharePathIs = rttLibDir
+        self.logger.debug('module path ' + sharePathIs)
+        self.logger.debug('moduleName  ' + moduleName)
+        self.logger.debug('className   ' + className)
+        self.logger.debug('paramDict   ' + str(paramDict))
+        self.logger.debug('logger      ' + str(self.logger))
+
+        try:            
+            mL        = ModuleLoader(moduleName, sharePathIs, self.logger)
+            instance  = mL.getClassInstance(className, paramDict)
+            self.logger.debug('Created a test instance of class %s' % (
+                instance.__class__.__name__))
+        except Exception, e:
+            self.logger.error('Failed to create a test instance')
+            self.logger.error(exc2string2())
+            self.logger.error(str(e))
+            
+        return instance
+    
+#------------------------------------------------------------------------
+
+    def handleFileNames(self):
+        """ method to collect file names, and resolve patterns where
+        for those patterns for which it is possible at init."""
+        self.asciiRefFiles.extend(self.jobGroupKit.getItem('asciiRefFiles'))
+        self.asciiRefFiles.extend(self.jDescriptor.asciiRefFiles)
+
+        self.binRefFiles.extend(self.jobGroupKit.getItem('binRefFiles'))
+        self.binRefFiles.extend(self.jDescriptor.binRefFiles)
+        
+        # resolve auxFile patterns to file names
+        auxFiles = []
+
+        auxFileDirectory = self.jDescriptor.paths.shareArea
+        if not os.path.exists(auxFileDirectory):
+            self.logger.fatal('unknown aux file directory: '+auxFileDirectory)
+        else:
+            filesInShare = os.listdir(auxFileDirectory)
+            matches = []
+            for pattern in self.auxFilePatterns:
+                matches.extend([file for file in filesInShare if fnmatch.fnmatch(file, pattern)])
+                # convert to full path names
+            self.auxFiles = [join(auxFileDirectory, file) for file in matches]
+
+            # add the test configuration xml file as an aux file
+            # self.auxFiles.append(join(auxFileDirectory,self.jDescriptor.paths.package+'_TestConfiguration.xml'))
+            self.auxFiles.append(self.jDescriptor.paths.confFile)
+
+#------------------------------------------------------------------------
+
+    def hasRefFiles(self):
+        return (len(self.asciiRefFiles)>0 or len(self.binRefFiles)>0)
+
+    # =======================================================
+    #
+    # State transition calls.Overrides to the MinderStateEngine methods
+    #
+    # =======================================================
+    def fromRunningAction(self):
+        self.logger.debug('************************ fromRunningAction ****')
+        self.storeAllFiles()
+        self.setStatus("success")
+
+    # =======================================================
+
+    def fromSuccess(self):
+        "Status transition method. To be overridden."
+        if self.fromSuccessTest(): self.fromSuccessAction()
+        
+    def fromSuccessTest(self):
+        return True
+        
+    def fromSuccessAction(self):
+        msg = 'Job: ' + str(self.jDescriptor.identifiedName) 
+        self.logger.debug(msg + ' in Minder::fromSuccessAction')
+        self.storeAllFiles()
+        self.logger.debug(msg + ' after storeAllFiles')
+        self.setDone()
+        self.logger.debug(msg + ' about to leave')
+    
+    # =======================================================
+    
+    def fromError(self):
+        "Status transition method. To be overridden."
+        if self.fromErrorTest(): self.fromErrorAction()
+        
+    def fromErrorTest(self):
+        return True
+        
+    def fromErrorAction(self):
+        self.storeAllFiles()
+        self.setDone()
+ 
+    # =======================================================
+    # Do not set the status member data
+    # =======================================================
+
+    def statusToRunDir(self, statusList):
+        # write the status to a file eg for use by
+        # TransparentDummyMinders
+        statFile=join(self.jDescriptor.runPath, 'status.txt')
+        sf = open(statFile,'w')
+        sf.write(statusList[0] + ' ' + statusList[1])
+        sf.close()
+        msg = 'wrote statuses: %s and %s to %s' %(statusList[0],
+                                                  statusList[1],
+                                                  statFile)
+        self.logger.debug(msg)
+
+    #-----------------------------------------------
+    
+    def setStatus(self, status):
+        if not self.done:
+            self.status.set(status)
+            # self.statusToRunDir([self.status.primary(),self.status.secondary()])
+
+    #-----------------------------------------------
+    
+    def setStatusList(self, statusL):
+        if not self.done:
+            idName = str(self.jDescriptor.identifiedName)
+            self.logger.debug('setStatusList for Job: %s' % idName)
+            self.status.setList(statusL)
+            self.logger.debug('status to run dir for Job: %s' % idName)
+            # self.statusToRunDir(statusL)
+ 
+    #-----------------------------------------------
+    
+    def forceCloseDown(self):
+
+        # make sure ALL files in run and results directory are
+        # accessible by all members of the UCL Atlas group
+        MinderStateEngine.forceCloseDown(self)
+        
+   #-----------------------------------------------
+
+    def reportUserScriptError(self,message):
+        filePath  = os.path.join(self.runPath,'Python_Script_Output.log')
+        h = open(filePath,'a+')
+        h.write(message)
+        h.close()
+
+    #-----------------------------------------------
+    
+    def runTests(self):
+        jobName = self.jDescriptor.identifiedName
+        nTests  = len(self.tests)
+        msg     = 'Running %d user defined tests for job %s' % (nTests, jobName)
+        self.logger.debug(msg)
+                    
+        for test in self.tests:
+            
+            className = str(test.__class__.__name__)
+            self.logger.debug("Running test " + className)
+            try:
+                rc     = test.run()
+                status = RTTdefs.status(int(rc))
+                self.testStatusList.append(str(status))
+            except Exception, e:
+                self.logger.error("Could not run user test " + className)
+                self.logger.error(str(e))
+                self.logger.error(exc2string2())
+                msg  = '-----------------------------------------\n'
+                msg += 'Test: ' + className + ' could not be run!\n'
+                msg += exc2string2() + '\n'
+                msg += '-----------------------------------------\n\n'
+                self.reportUserScriptError(msg)
+                
+            self.logger.debug("Running next available user test")
+
+        self.logger.debug("Finished running user tests for %s" % jobName)
+        
+
+    #-----------------------------------------------
+    
+    def runTests(self):
+
+        db = shelve.open(self.testDBPath)
+        for t in db.values():
+            if t.error:
+                self.logger.error('Error running test %s' % t.testId)
+            else:
+                self.logger.debug('No Error running test %s' % t.testId)
+
+
+            self.testStatusList.append(RTTdefs.status(t.result))
+
+
+            # collect any messages generated by the test
+            t.transferLog(self.logger) 
+
+            
+       
+    #--------------------------------------------------
+
+    def runActions(self):
+        """Running Action"""
+        return
+        os.chdir(self.jDescriptor.runPath)
+        self.logger.debug("runDir before actions :"+str(os.listdir(self.jDescriptor.runPath)))
+        jobName  = self.jDescriptor.identifiedName
+        nActions = len(self.actions)
+        msg      = 'Running %d actions for job %s' % (nActions, jobName)
+        self.logger.debug(msg)
+
+        for action in self.actions:
+            className = str(action.__class__.__name__)
+            try:
+                self.logger.debug("Running action " + className)
+                action.run()
+                
+            except Exception, e:
+                self.logger.error("Could not run action " + className)
+                self.logger.error(str(e))
+                self.logger.error(exc2string2())
+
+                msg  = '-----------------------------------------\n'
+                msg += 'Action: ' + className + ' could not be run!\n'
+                msg += exc2string2() + '\n'
+                msg += '-----------------------------------------\n\n'
+                self.reportUserScriptError(msg)
+                                                                                                
+            self.logger.debug("Running next available action")
+
+        self.logger.debug("Finished running actions for %s" % jobName)
+
+    #--------------------------------------------------
+    
+    def runMoniActions(self):
+        jobName  = self.jDescriptor.identifiedName
+        nActions = len(self.monActions)
+        msg      = 'Running %d monActions for job %s' % (nActions, jobName)
+        self.logger.debug(msg)
+
+        for action in self.monActions:
+            className = str(action.__class__.__name__)
+            try:
+                self.logger.debug("Running monAction " + className)
+                dataDict=action.run()
+                self.monActionsData.append(dataDict)
+                
+            except Exception, e:
+                msg = "Could not run monitoring action " + className
+                self.logger.error(msg)
+                self.logger.error(str(e))
+                self.logger.error(exc2string2())
+                msg  = '-----------------------------------------\n'
+                msg += 'MoniAction: ' + className + ' could not be run!\n'
+                msg += exc2string2() + '\n'
+                msg += '-----------------------------------------\n\n'
+                self.reportUserScriptError(msg)
+                                
+
+            self.logger.debug("Running next available monAction")
+             
+                
+        self.logger.debug('Minder moniData :'+str(self.monActionsData))
+        self.logger.debug("Finished running monActions for %s" % jobName)
+
+    #--------------------------------------------------
+
+    def fullResultsFileName(self, filename):
+        return join(self.jDescriptor.resPath, filename)
+
+    #-----------------------------------------------
+    
+    def makeKeepFileEntry(self, file, infoString):
+        "helper method for registerWildKeepFiles()"
+        
+        src = join(self.runPath, file)
+        # idPreFix = self.jDescriptor.identifiedName+"_"
+        dest = {'keepFileString': self.fullResultsFileName(file),
+                'infoString':     infoString}
+        
+        self.keepFiles[src]=dest
+        
+    #-----------------------------------------------
+    
+    def registerWildKeepFiles(self):
+        """
+        Common implementation task.
+
+        Obtain the wild card patterns for the current job group from
+        a JobGroupKit.
+        
+        Collect all the wild carded keep files.
+        These are files that are present in the run directory at when
+        fromRunning is called, and which match a pattern in the pattern
+        list.
+
+        Give these files their full paths and add them to the keepFile
+        dictionary.
+        """
+
+        for card in self.keepFilePatterns:
+
+            keepString = card['keepFileString']
+            infoString = card['infoString']
+            
+            wildFiles = fnmatch.filter(os.listdir(self.runPath), keepString)
+
+            [self.makeKeepFileEntry(file, infoString) for file in wildFiles]
+            
+
+        # now manually add the package configuration file to keep files
+        self.makeKeepFileEntry(
+            os.path.basename(self.jDescriptor.paths.confFile),
+            "Package XML test configuration file")
+
+        self.keepFiles.update(self.jDescriptor.keepFiles())
+
+        #    srcFiles = [join(self.runPath, file) for file in wildFiles]
+        #    desFiles = [self.fullResultsFileName(idPreFix+file)
+        #                for file in wildFiles]
+
+        #   for s, d in zip(srcFiles, desFiles):
+        #        self.keepFiles[s]=d
+
+    #-----------------------------------------------
+
+    def makeDBKey(self, release, theBranch, fileName, fileType):
+        """Ask the descriptors for the key - as different descriptors
+        do this differently.
+        fileType: can be 'bin' or 'ascii'
+        """
+        # key = [unicode(self.jDescriptor.paths.release),
+        #        unicode(self.jDescriptor.paths.build),
+        #       unicode(self.jDescriptor.name),
+        #       dataFiles2String(self.jDescriptor),
+        #       unicode(file)]
+
+        key = self.jDescriptor.makeDBKey()
+        key.append(unicode(fileName))
+        key.append(unicode(release))
+        key.append(unicode(theBranch))
+        key.append(unicode(fileType))
+        key = sortItemsInList(key)
+        
+        return key
+
+    #-----------------------------------------------
+    
+    def storeAllFiles(self):
+        """
+        find  all files specified by the xml tag 'storeInDatabasePattern'
+        Then call a function to obtain reference file names ('asciiRefFile'
+        and 'binRefFile' tags), then store the files in the db.
+        """
+
+        self.logger.debug('Store: ascii: %s' % str(self.asciiRefFiles))
+        self.logger.debug('Store: bin:   %s' % str(self.binRefFiles))
+        if not self.refDBenable:
+            self.logger.debug("DBM writing disabled")
+            return
+            
+        msg  = "DBM writing enabled for job: "
+        msg += str(self.jDescriptor.identifiedName)
+        self.logger.debug(msg)
+
+        filesToStore = {'txt': [],
+                        'bin': []
+                        }
+
+        for pattern in self.storeInDBPatterns:
+            filesToStore['txt'].extend(fnmatch.filter(os.listdir(self.runPath),
+                                                      pattern))
+
+        
+        # if isAthenaJob(self.jDescriptor): # why only Athena jobs ???
+        filesToStore['txt'].extend(self.asciiRefFiles)
+        filesToStore['bin'].extend(self.binRefFiles)
+
+        toStore = []
+        isBin = False
+        for fn in filesToStore['txt']:
+            #            key = self.makeDBKey(self.jDescriptor.paths.release, fn)
+            key = self.makeDBKey(self.jDescriptor.paths.release,
+                                 self.jDescriptor.paths.branch,
+                                 fn,
+                                 'ascii')            
+            try:
+                toStore.append(StoreItem(self.runPath, fn, key, isBin))
+                msg = 'Stored item in db using key %s' % key
+                logger.debug(msg)
+            except Exception, e:
+                msg = 'Error while storing ascii file %s, skipping file' % fn
+                self.logger.warning(msg)
+        isBin = True
+        for fn in filesToStore['bin']:
+            #            key = self.makeDBKey(self.jDescriptor.paths.release, fn)
+            key = self.makeDBKey(self.jDescriptor.paths.release,
+                                 self.jDescriptor.paths.branch,
+                                 fn,
+                                 'bin')
+            try:
+                toStore.append(StoreItem(self.runPath, fn, key, isBin))
+            except Exception:
+                msg = 'Error while storing binary file %s, skipping file' % fn
+                self.logger.warning(msg)
+
+
+        [self.logger.debug('storing in DBM:\n %s' % ts.__str__()) for ts in toStore]
+
+        msg = "about to write to the dbm: %s" % self.jDescriptor.paths.refDB
+        self.logger.debug(msg)
+
+        self.grabDBresourceAndStore(toStore)
+
+    # --------------------------------------------------------------------
+    
+    def grabDBresourceAndStore(self,storeItems):
+        # use the global dbm mutual excluder to prevent concurrent dbm access
+        try:
+            dbmMutex.lock(self.placeInDBM, storeItems)
+        except Exception, e:
+            idName = str(self.jDescriptor.identifiedName)
+            self.logger.error('Problem trying to store to DB for job: '+idName)
+            self.logger.error('Job: %s\n%s' %(idName,
+                                              exc2string2()
+                                              )
+                              )
+            self.logger.error(str(e))
+
+        # must now give back the resource
+        dbmMutex.unlock()
+
+    # --------------------------------------------------------------------
+
+    def placeInDBM(self, storeItems):
+
+
+
+        dbHandle = shelve.open(self.jDescriptor.paths.refDB, 'c')
+        for item in storeItems:
+            self.logger.debug('Storing %s length %d' % (item.fullPath, len(item.strFile)))
+            dbHandle[item.key] = item.strFile
+        dbHandle.close()                
+
+        # change mod on db if owner of db = script runner
+        changePerm(self.jDescriptor.paths.refDB,02775)
+
+        msg = 'Stored all items in the DB for job: ' + str(self.jDescriptor.identifiedName) + '...about to leave Minder::placeInDBM method'
+        self.logger.debug(msg)    
+
+    # --------------------------------------------------------------------
+                            
+    # copy files to be kept (log histos, ntuples...) to results dir
+    def copyKeepFiles(self):
+        
+        # find if any of the wild keep cards have a match
+        idName = str(self.jDescriptor.identifiedName)
+        try:
+            self.registerWildKeepFiles()
+        except Exception, e:
+            msg = "Exception registering keep files for job: " + idName
+            self.logger.error(msg)
+            self.logger.error(str(e))
+            self.logger.error(exc2string2())
+            
+
+        for file in self.keepFiles.keys():
+            
+            if not os.path.exists(file):
+                msg = "File does not exist: %s for job %s" % (str(file),
+                                                              idName
+                                                              )
+                
+                
+                self.logger.error(msg)
+
+            if os.path.exists(file):
+
+                msg  = 'Setting up to copy keep files'
+                msg += str(self.jDescriptor.identifiedName)
+                self.logger.debug(msg)
+                
+                dictValue = self.keepFiles[file]
+                desFile = dictValue['keepFileString'] # this is a filename
+
+                try:
+                    self.logger.debug("copying file %s to %s" % (str(file), str(desFile)))
+                    shutil.copy( file, desFile)
+                    changePerm(desFile, 02775)
+                except:
+                    # disk space problems?
+                    message = '***** COPYING OF KEEP FILES PROBLEM! *****\n'
+                    message += 'Unable to copy src file:\n'
+                    message += '   ' + file + '\n'
+                    message += 'to destination file:\n'
+                    message += '   ' + desFile + '\n'
+                    message += 'Doing command df on ' + desFile + ' yields the answer:\n'
+                    #                    message += os.system('df ' + desFile)
+                    message += str(os.popen('df ' + desFile).read())
+                    message += '---------------------------------'                    
+                    self.logger.error(message)
+
+        self.logger.debug("Leaving copyKeepFiles for job: " + idName)
+
+    # --------------------------------------------------------------------
+        
+    def performChecks(self):
+        
+        statusL = []
+        theJob = str(self.jDescriptor.identifiedName)
+        msg = 'Len self.checks is: %s for %s ' % (str(len(self.checks)),theJob)
+        self.logger.debug(msg)
+        
+        for check in self.checks:
+
+            check.setLogger(self.logger) # log to the minders logfile
+
+            if not callable(check):
+                msg = "Uncallable checker: %s for job %s" % (str(check),
+                                                             theJob)
+                self.logger.error(msg)
+                statusL.append('error')
+                self.logger.error('Proceding to the next check')
+                continue
+            
+            self.logger.debug('Job: %s calling check: %s'%(theJob, str(check)))
+            status = ''
+            try:
+                rc = check(self) # int return code from check
+                status = RTTdefs.status(rc) # convert to string
+            except Exception, e:
+                msg = 'Exception raised while executing %s' % str(check)
+                self.logger.error(msg)
+                self.logger.error(exc2string2())
+                self.logger.error(str(e))
+                statusL.append('error')
+                self.logger.error('Proceding to the next check')
+                continue
+            
+            msg = 'Job: %s  check: %s return status %s' % (theJob,
+                                                           str(check),
+                                                           status)
+            self.logger.debug(msg)
+            
+            statusL.append(status)
+        
+        statusL.extend(self.testStatusList)
+        msg = "Checker status List "+str(statusL) + " for job: " + theJob
+        self.logger.debug(msg)
+        return statusL    
+
+    # --------------------------------------------------------------------
+    
+    def summaryCheckStatusList(self,statusList):
+        # Reduces the potentially > 2 status list to a 2-member list
+        # of "did job complete" and "logical AND of other checks.
+        
+        summaryStatusList = [statusList[0]]
+
+        if len(statusList) == 1: # only one check for this job
+            summaryStatusList.append('n/a')
+        else:
+            if statusList[0]=='error':
+                summaryStatusList.append('error')
+            elif 'error'  in statusList[1:]:
+                summaryStatusList.append('error')
+            else:
+                summaryStatusList.append('success')
+
+        
+        return summaryStatusList
+
+    # --------------------------------------------------------------------
+    
+    # this takes the reduced status list (reduced by 'summaryCheckStatusList') as parameter    
+    def handleCheckResults(self,statusList):
+        idName = str(self.jDescriptor.identifiedName)
+        if not len(statusList)==2:
+            msg =  'handleCheckResults function requires 2 members in check '
+            msg += 'status list!!!'
+            self.logger.error(msg)
+
+    # --------------------------------------------------------------------
+           
+    def isSuccess(self):
+        if self.done and self.status.primary() == 'success':
+            return True
+        return False
+
+    # --------------------------------------------------------------------
+    
+    def queue(self): return self.jDescriptor.batchQueue()
+
+    # --------------------------------------------------------------------
+
+    def makeJobGroupDirs(self):
+        try:
+            self.jobGroupDirectoryMaker.makeJobGroupDirs(self)
+        except:
+            msg  = """
+            %s caused an exception while making directories,
+            has been scheduled for removal\n traceback:\n%s""" % (
+            self.jDescriptor.identifiedName,
+            exc2string2())
+            print msg
+            self.logger.warning(msg)
+
+            # reraise the exception. This will be caught and an error Minder
+            # will be created
+            raise
+
+    def __str__(self):
+        s = '----------- Minder ---------------\n'
+        s += ' done:                 '+str(self.done)+'\n'
+        s += ' weight:               '+str(self.jobWeight)+'\n'
+        s += ' runPath:              '+str(self.runPath)+'\n'
+        s += ' keepFilePatterns:     '+formatCollection(self.keepFilePatterns)+'\n'
+        s += ' auxFilePatterns:      '+formatCollection(self.auxFilePatterns)+'\n'
+        s += ' keepFiles:            '+formatCollection(self.keepFiles)+'\n'
+        s += ' auxFiles:             '+formatCollection(self.auxFiles)+'\n'
+        s += ' asciiRefFiles:        '+formatCollection(self.asciiRefFiles)+'\n'
+        s += ' binRefFiles:          '+formatCollection(self.binRefFiles)+'\n'
+        s += ' actions:              '+formatCollection(self.actions)+'\n'
+        s += ' tests:                '+formatCollection(self.tests)+'\n'
+        s += ' descriptor:\n'
+        s +=  self.jDescriptor.__str__()
+
+        return s
+
+    # --------------------------------------------------------------------
+    
+    def dump(self):
+        self.logger.debug('|-------------------------------------------|')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|            Minder  dump                   |')
+        self.logger.debug('|                                           |')
+        self.logger.debug('|-------------------------------------------|')
+        self.logger.debug('\n'+self.__str__())
+
+# =============================================================================
+# =============================================================================
+    
+class StoreItem:
+    def __init__(self, dir, fileName, key, isBinary):
+
+        # note: only the file name is used to store the file:
+        # the directory is RTT run dependent!
+
+        fullPath = os.path.join(dir, fileName)
+        if not os.path.exists(fullPath):
+            self.logger.warning('Cannot store non existent file %s' % fullPath)
+            raise Exception
+        
+            
+        flag="r"
+        if isBinary: flag="rb"
+
+        self.isBinary = isBinary
+        self.key      = key.__repr__()
+        try:
+            file  = open(fullPath,flag)
+        except Exception, e:
+            self.logger.error('Error opening file %s' % fullPath)
+            self.logger.error(e)
+            self.logger.error(exc2string2())
+            raise e
+        
+        try:
+            self.strFile  = file.read()
+            file.close()
+        except Exception, e:
+            self.logger.error('Error reading from file %s' % fullPath)
+            self.logger.error(e)
+            self.logger.error(exc2string2())
+        self.fullPath = fullPath
+
+    def __str__(self):
+        return self.key
+
+
+if __name__ == '__main__':
+    pass

@@ -1,0 +1,105 @@
+import os, os.path
+from os.path import join
+
+from Factory_HardCoded import HardCodedFactory
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+class FindInstalledDirsProject:
+    "A class holding functions to find various installed project build directories"
+
+
+    def __init__(self, local, releasePath, runType):
+        """
+        local - must be a boolean
+        releasePath - string that represents a path
+        local = true: find local installed area from CMTPATH env variable
+        """
+        self.local = local # boolean
+        self.releasePath = releasePath
+        self.releaseType = 'project'
+        self.runType     = runType
+        
+    def findInstallAreas(self):
+        """
+        returns a list of strings representing paths
+        Always add the release installed area.
+        """
+    
+        paths = []
+        
+        hardCoded   = HardCodedFactory(logger).create(self.releaseType,
+                                                      self.runType)
+        installArea = hardCoded.installAreaDirName()
+        
+        if self.local:
+            if 'CMTPATH' in os.environ.keys():
+                cmtpaths = os.environ['CMTPATH'].split(':')
+                cmtpaths = [join(path, installArea) for path in cmtpaths]
+                paths.extend(cmtpaths)
+
+
+        paths.append(join(self.releasePath, installArea))
+        paths = [path for path in paths if os.path.exists(path)]
+    
+        logger.info('installed dirs'+str(paths))
+        return paths
+
+    def findInstalledDirs(self, directory):
+        """
+        Returns a list of strings representing full directory paths
+        hanging from Installed.
+        The installed directories are looked for in the directories given
+        in CMTPATH."""
+        
+        paths = self.findInstallAreas()
+        paths = [join(path, directory) for path in paths]
+        paths = [path for path in paths if os.path.exists(path)]
+        
+        logger.debug('local dirs included:'+str(paths))
+        return paths
+
+    def findOptionsPaths(self):
+        """
+        Returns a list of paths to be used to find option files.
+        The most local path is given first, so in locating option files
+        the path should be traversed from beginning to end.
+        """
+        
+        return self.findInstalledDirs('jobOptions')
+
+    def findSharePaths(self):
+        """
+        Returns a list of paths that will act as a search list.
+        """
+        return self.findInstalledDirs('share')
+
+
+if __name__ == '__main__':
+    "Test function"
+
+    import sys
+    from formatCollection import formatCollection
+    
+    if  'CMTPATH' not in os.environ.keys():
+        print 'run home CMT setup.sh before this test'
+        sys.exit()
+    codeStatuses=['Installed', 'CheckedOut']
+    dirs = ['jobOptions', 'share']
+    release = '/afs/cern.ch/atlas/software/dist/9.0.2'
+
+
+    fids = [FindInstalledDirsProject(True,  release),
+            FindInstalledDirsProject(False, release)]
+    for fid in fids:
+        print '\n\njobOptions paths'
+        print formatCollection(fid.findOptionsPaths())
+
+
+        print '\n\nshare paths'
+        print formatCollection(fid.findSharePaths())
+
+        
+        

@@ -1,0 +1,76 @@
+
+<RTTSummary>
+  <overview>
+    <topProject>AtlasProduction</topProject>
+    <latestUpdateTime2>1239389064.69</latestUpdateTime2>
+    <cmtConfig>i686-slc4-gcc34-opt</cmtConfig>
+    <releaseType>project</releaseType>
+    <site>CERNslc4</site>
+    <releaseName>14.5.0</releaseName>
+    <statusText>09/04/10@20:44: jobs succ/done/tot: 0/1/1</statusText>
+    <otherProject>
+    </otherProject>
+    <runType>build</runType>
+    <latestUpdateTime1>09/04/10@20:44</latestUpdateTime1>
+    <resBaseDir>/afs/cern.ch/atlas/project/RTT/data/peter/RTTTest_LI/testsuites/helloworld_badDataSet/Results</resBaseDir>
+    <endTime1>09/04/10@20:44</endTime1>
+    <endTime2>1239389064.68</endTime2>
+    <RTTLibVersion>RunTimeTester-00-02-61</RTTLibVersion>
+    <resReleaseDir>/afs/cern.ch/atlas/project/RTT/data/peter/RTTTest_LI/testsuites/helloworld_badDataSet/Results/14.5.0/build/i686-slc4-gcc34-opt/offline</resReleaseDir>
+    <startTime2>1239388986.4</startTime2>
+    <startTime1>09/04/10@20:43</startTime1>
+    <nPackages>1</nPackages>
+    <nPackagesAllJobsOK>0</nPackagesAllJobsOK>
+    <originalBranch>dev</originalBranch>
+    <nicosDate2>1228275841</nicosDate2>
+    <RTTSrcVersion>RunTimeTester-00-02-61</RTTSrcVersion>
+    <nicosDate1>2008/12/03 03:44:01</nicosDate1>
+    <release>14.5.0</release>
+  </overview>
+  <package>
+    <nPPSuccessInPackage>0</nPPSuccessInPackage>
+    <nTestsSuccessInPackage>0</nTestsSuccessInPackage>
+    <nJobsTotalPackage>1</nJobsTotalPackage>
+    <nJobsSuccessInPackage>0</nJobsSuccessInPackage>
+    <packageName>AthExHelloWorld</packageName>
+    <nJobsInPackage>1</nJobsInPackage>
+    <nJobsOpCloseInPackage>0</nJobsOpCloseInPackage>
+    <nTestsFailureInPackage>0</nTestsFailureInPackage>
+    <containerPackage>Control/AthenaExamples/AthExHelloWorld</containerPackage>
+    <nTimeOutsInPackage>0</nTimeOutsInPackage>
+    <phase>rttMainJobPhase</phase>
+    <packageTag>AthExHelloWorld-01-01-01</packageTag>
+    <nJobsDoneInPackage>1</nJobsDoneInPackage>
+    <nTestsInPackage>0</nTestsInPackage>
+    <nBatchErrorsInPackage>0</nBatchErrorsInPackage>
+    <nJobsFailureInPackage>1</nJobsFailureInPackage>
+    <nPPFailureInPackage>0</nPPFailureInPackage>
+    <nRetriesInPackage>0</nRetriesInPackage>
+    <packageStatus>done</packageStatus>
+    <minder>
+      <identifiedName>WrongOnPurpose0</identifiedName>
+      <jobName>WrongOnPurpose</jobName>
+      <jobID>0</jobID>
+      <state>done</state>
+      <status>error</status>
+      <jobGroup>ErrorGroup</jobGroup>
+      <resultsPath>/afs/cern.ch/atlas/project/RTT/data/peter/RTTTest_LI/testsuites/helloworld_badDataSet/Results/14.5.0/build/i686-slc4-gcc34-opt/offline/AthExHelloWorld/AthenaHelloWorld/WrongOnPurpose/0</resultsPath>
+      <stateHistory>[('queued', '09/04/10 20:44'), ('done', '09/04/10 20:44')]</stateHistory>
+      <datasets/>
+      <sUserTests/>
+      <deliveredkeepfiles/>
+      <errors>Error building descriptor in method handleAthenaDataSets
+Traceback:RTTSException.RTTInputErrorlogical data set name not known to  catalog NonExistentDataSet  File "/afs/cern.ch/atlas/project/RTT/data/peter/RTTSrc_LI/Tools/RunTimeTester/src/JobsXMLReader.py", line 93, in runXPathFn
+    fn(Evaluate(xpath, self.job), self.dict)
+   File "/afs/cern.ch/atlas/project/RTT/data/peter/RTTSrc_LI/Tools/RunTimeTester/src/JobsXMLReader.py", line 527, in handleAthenaDataSets
+    [self.handleAthenaDataSet(datasetNode, datasetsDict) for datasetNode in datasets]
+   File "/afs/cern.ch/atlas/project/RTT/data/peter/RTTSrc_LI/Tools/RunTimeTester/src/JobsXMLReader.py", line 541, in handleAthenaDataSet
+    physDataSetName = self.getPhysicalDataset(datasetName)
+   File "/afs/cern.ch/atlas/project/RTT/data/peter/RTTSrc_LI/Tools/RunTimeTester/src/JobsXMLReader.py", line 422, in getPhysicalDataset
+    raise RTTInputError(msg)
+
+</errors>
+      <done/>
+    </minder>
+  </package>
+</RTTSummary>

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<unifiedTestConfiguration>
+   <atn/>
+   <kv/>
+   <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfigurationFile">
+
+      <jobGroups>
+
+         <jobGroup name="Top" parent="">
+         
+            <keepFilePattern info="Shows all the environmental variables set">env.log</keepFilePattern>
+
+            <keepFilePattern info="cmt show uses command on package cmt dir">cmtShowUses.log</keepFilePattern>
+
+            <keepFilePattern info="ls -altF command on run directory before and after athena command">lsaltF.txt</keepFilePattern>
+
+            <keepFilePattern info="Gives a concise report of any problems encountered, checks failed, etc.">failureReport.html</keepFilePattern>
+
+            <keepFilePattern info="The script submitted to the batch machine">runScript.sh</keepFilePattern>
+         
+         </jobGroup>
+      
+         <jobGroup name="Athena" parent="Top">
+         
+            <logChecker class="SimpleLogChecker">
+               <searchString>INFO Application Manager Finalized successfully</searchString>
+               <vetoString>ERROR Terminating event processing loop due to errors</vetoString>
+               <vetoString>FATAL Invalid initial state</vetoString>
+            </logChecker>
+         
+         </jobGroup>
+   
+      </jobGroups>
+   </rtt>
+</unifiedTestConfiguration>

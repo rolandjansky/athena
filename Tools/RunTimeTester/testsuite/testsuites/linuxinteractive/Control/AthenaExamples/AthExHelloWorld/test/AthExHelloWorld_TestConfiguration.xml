@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+  <atn>
+     <TEST name="HelloWorld" type="athena" suite="Examples">
+        <options_atn>AthExHelloWorld/HelloWorldOptions.py</options_atn>
+        <timelimit>2</timelimit>
+        <author> Alex Undrus </author>
+        <mailto> undrus@bnl.gov </mailto>
+        <expectations>
+           <errorMessage>FAILURE (ERROR)</errorMessage>
+           <successMessage>FATAL A FATAL</successMessage>
+           <returnValue>0</returnValue>
+        </expectations>
+     </TEST>
+   </atn>
+   <kv/>
+   <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+
+      <rttContactPerson>Alex Undrus (undrus@bnl.gov)</rttContactPerson>
+      <mailto>undrus@bnl.gov</mailto>
+      <refRelease>13.0.0</refRelease>
+      
+      <jobList>
+
+      <classification>
+         <displayClass>OfflineValidation</displayClass>
+         <displayProcess>Core</displayProcess>
+         <displayComponent>Athena-Core</displayComponent>
+      </classification>
+
+         <athena>
+            <doc> Run Athena HelloWorld example </doc>
+            <options>AthExHelloWorld/HelloWorldOptions</options>
+            <package>Control/AthenaExamples/AthExHelloWorld</package>
+            <group>HelloWorld</group>
+            <queue>short</queue>
+         </athena>
+      </jobList>
+
+      <jobGroups>
+         <jobGroup name="AthenaHelloWorld" parent="Athena"/>
+      </jobGroups>
+   </rtt>
+</unifiedTestConfiguration>

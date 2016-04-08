@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE dsmcfg SYSTEM "/home/en/RTT/dsmProject/DatasetManager.dtd">
+
+<dsmcfg>
+   <mode>active</mode>
+   <datasetCatalog>/home/en/ForDcopier/Tools/RunTimeTester/dataCopier/copier_cern/cfg/rttDataSetCatalog.xml</datasetCatalog>
+   <!--<rttsrc>/home/en/RTT/Grid/Tools/RunTimeTester/src</rttsrc>-->
+   <rttsrc>/home/en/ForDcopier/Tools/RunTimeTester/src</rttsrc>
+   <rttLibDir>/home/en/ForDcopier/Tools/RunTimeTester/src</rttLibDir>
+   <logDir>/home/en/ForDcopier</logDir>
+   <reportDir>/home/en/ForDcopier/Tools/RunTimeTester/dataCopier/copier_cern/report</reportDir>
+   <rttcfg>/home/en/ForDcopier/Tools/RunTimeTester/dataCopier/copier_cern/cfg/cfg_nightly.xml</rttcfg>
+   <datasetDir>/castor/home/en/dcopier_dev/data</datasetDir>
+   <stageArea>/afs/cern.ch/atlas/project/RTT/data</stageArea>
+</dsmcfg>
+
+

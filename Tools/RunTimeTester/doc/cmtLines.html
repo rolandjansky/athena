@@ -1,0 +1,62 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module cmtLines</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>cmtLines</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/cmtLines.py">/local_disk/sherwood/RTT/Tools/RunTimeTester/RunTimeTester-00-00-93/src/cmtLines.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-checkConditionsForProjectBuildRunning"><strong>checkConditionsForProjectBuildRunning</strong></a>(desc)</dt><dd><tt>check&nbsp;we&nbsp;have&nbsp;made&nbsp;the&nbsp;project&nbsp;build&nbsp;cmt&nbsp;requirements&nbsp;files<br>
+for&nbsp;now&nbsp;I&nbsp;am&nbsp;going&nbsp;to&nbsp;hardwire&nbsp;a&nbsp;lot&nbsp;of&nbsp;the&nbsp;code.&nbsp;This&nbsp;is&nbsp;less&nbsp;than<br>
+ideal&nbsp;as&nbsp;we&nbsp;are&nbsp;assuming&nbsp;what&nbsp;is&nbsp;done&nbsp;in&nbsp;other&nbsp;parts&nbsp;of&nbsp;the&nbsp;code<br>
+(UserStuffRetrieverProject)<br>
+&nbsp;Need&nbsp;to&nbsp;make&nbsp;an&nbsp;USR&nbsp;in&nbsp;order&nbsp;to&nbsp;refind&nbsp;the&nbsp;cmt&nbsp;requirements<br>
+&nbsp;files...</tt></dd></dl>
+ <dl><dt><a name="-cmtLines"><strong>cmtLines</strong></a>(jDescriptor)</dt><dd><tt>Local&nbsp;packages&nbsp;can&nbsp;only&nbsp;be&nbsp;run&nbsp;if<br>
+&nbsp;<br>
+1.&nbsp;mode&nbsp;=&nbsp;LinuxInteractive&nbsp;mode<br>
+2.&nbsp;CMTPATH&nbsp;is&nbsp;set<br>
+&nbsp;<br>
+because&nbsp;the&nbsp;user&nbsp;has&nbsp;to&nbsp;set&nbsp;up&nbsp;use&nbsp;statements,&nbsp;typically&nbsp;in&nbsp;the<br>
+TestRelease&nbsp;requirements&nbsp;file.<br>
+&nbsp;<br>
+Returns&nbsp;lines&nbsp;of&nbsp;script&nbsp;needed&nbsp;to&nbsp;set&nbsp;up&nbsp;cmt&nbsp;if&nbsp;this&nbsp;is&nbsp;being<br>
+done&nbsp;from&nbsp;scratch(eg&nbsp;for&nbsp;nightly&nbsp;running)<br>
+Returns&nbsp;an&nbsp;empty&nbsp;string&nbsp;otherwise<br>
+(for&nbsp;running&nbsp;from&nbsp;checked-out&nbsp;code,&nbsp;where&nbsp;it&nbsp;is<br>
+assumed&nbsp;the&nbsp;user&nbsp;has&nbsp;performed&nbsp;the&nbsp;cmt&nbsp;operations.</tt></dd></dl>
+ <dl><dt><a name="-cmtLinesProject"><strong>cmtLinesProject</strong></a>(jDescriptor)</dt><dd><tt>Returns&nbsp;lines&nbsp;of&nbsp;script&nbsp;needed&nbsp;to&nbsp;set&nbsp;up&nbsp;cmt&nbsp;if&nbsp;this&nbsp;is&nbsp;being<br>
+done&nbsp;from&nbsp;scratch(eg&nbsp;for&nbsp;nightly&nbsp;running)<br>
+Returns&nbsp;an&nbsp;empty&nbsp;string&nbsp;otherwise<br>
+(for&nbsp;running&nbsp;from&nbsp;checked-out&nbsp;code,&nbsp;where&nbsp;it&nbsp;is<br>
+assumed&nbsp;the&nbsp;user&nbsp;has&nbsp;performed&nbsp;the&nbsp;cmt&nbsp;operations.</tt></dd></dl>
+ <dl><dt><a name="-conditionsForLocalRunning"><strong>conditionsForLocalRunning</strong></a>()</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>logger</strong> = &lt;logging.Logger instance&gt;</td></tr></table>
+</body></html>

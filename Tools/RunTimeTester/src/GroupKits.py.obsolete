@@ -1,0 +1,261 @@
+"""
+A class that contains information and behaviour specific to different groups.
+For now subclasses contain only names of functions to run when all
+Subclasses overide the dummy fucntions to give the real functionality.
+
+Sub classes:
+
+AtlfastKit
+ArtemisKit
+RecExCommonKit
+HelloWorldKit
+TriggerReleaseKit              
+TriggerReleaseKit1
+"""
+
+import os, sys
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+def groupKitFactory(group):
+    dict = {
+        'AthenaAtlfast':          AtlfastGroupKit,
+        'AthenaAtlfastAlgs':      GroupKit,
+        'AthenaHelloWorld':       HelloWorldGroupKit,
+        'AthenaJiveXML':          JiveXMLGroupKit,
+        'AthenaTriggerRelease':   TriggerReleaseGroupKit,
+        'AthenaTriggerReleaseID':    TrigReleaseIDGroupKit,
+        'AthenaTriggerReleaseCalo':  TrigReleaseCaloGroupKit,
+        'AthenaTriggerRelease3':  TriggerReleaseGroupKit3,
+        'AthenaTriggerReleaseReco':  TriggerReleaseRecoGroupKit,
+        'AthenaTriggerReleaseBS':    TriggerReleaseBSGroupKit,
+        'AthenaRecExCommon':      RecExCommonGroupKit,
+        'AthenaegammaRec':        EgammaGroupKit,
+        'AthenaInDetRecValidation': InDetRecValidationGroupKit,
+        'AthenaMuonDigiExample':   MuonDigiExampleGroupKit,
+        #        'RuleChecker':            RuleCheckerGroupKit,
+        # 'RuleCheckerWatcher':     RuleCheckerWatcherGroupKit,
+        # 'QAmetrics':              QAmetricsGroupKit,
+        'AthenaAtlfastWatcher':   GroupKit,
+        'AthenaegammaRecWatcher': GroupKit,
+        'KitValidation':          GroupKit,
+        'AthenaMooPerformance':   GroupKit,
+        'AthenaCaloRecEx':        GroupKit,
+        'AthenaCaloDigEx':        GroupKit,
+        'AthenaCaloSimEx':        GroupKit,
+        'AthenaCaloRec':          GroupKit,
+        'AthenaBPhysValidation':  GroupKit,
+        'AthenaAnalysisExamples': GroupKit,
+        'AthenaDigitization':     GroupKit,
+        'AthenaG4AtlasApps':      GroupKit,
+        'AthenaG4AtlasAppsRelease':      GroupKit,
+        'AthenaGeneratorsRTT':    GroupKit,
+        'AthenaInDetRTT':         GroupKit,
+        'AthenaMissingET':        GroupKit,
+        'AthenaPhysicsAnalysisTools': GroupKit,
+        'Monitoring':             GroupKit,
+        'AthenaMuonboyAth':       GroupKit,
+        'AthenaMboyPerformance':       GroupKit,
+        'AthenaTauRec':           GroupKit
+        }
+
+    if group in dict.keys():
+        return dict[group]()
+    else:
+        logger.error('unknown group: '+group+' exiting')
+        sys.exit(0)
+
+#################################################                    
+class GroupKit:
+    """ Manage functionality that depends on job groups, by group
+    rather than by job,
+    """
+    
+    def __init__(self):
+        "Set default values for all groups"
+        self.pScripts = []
+        self.displayFiles = []
+        self.setPostScripts()
+        
+
+    def setPostScripts(self):
+        'Specific postScripts are set by derived classes'
+        pass
+
+    def runPostScripts(self, srcDir, resDir):
+        """
+        Runs postscripts.
+
+        PostScripts:
+        1. Take their inputs from the srcDir
+        2. Write their output file to the resDir
+        3. return the name of the output file. This is appended to
+           the files to display
+        """
+        for script in self.pScripts:
+            self.displayFiles.append(script(srcDir, resDir))
+
+    def displayFiles(self):
+        """
+        Return the list of files to display.
+        These are typically produced by a postScript that
+        summarises all the jobs of a group
+        """
+        return self.displayFiles
+#################################################                    
+class AthenaGroupKit(GroupKit):
+    """Base class for providing shared behaviour for all Athena jobs"""
+    def __init__(self):
+        "Supplies a checker that looks for the Athena success message"
+        
+        GroupKit.__init__(self)
+#################################################                    
+class AtlfastGroupKit(GroupKit):
+    def __init__(self):
+        "Set defaults for Atlfast"
+        GroupKit.__init__(self)
+#################################################                    
+class HelloWorldGroupKit(GroupKit):
+    def __init__(self):
+        "Default values for HelloWorld"
+        GroupKit.__init__(self)
+#################################################                    
+class RecExCommonGroupKit(GroupKit):
+    
+    def __init__(self):
+        "Default values for RecExCommon" 
+        GroupKit.__init__(self)
+#################################################                    
+class JiveXMLGroupKit(GroupKit):
+    def __init__(self):
+        "Default values for JiveXML" 
+        GroupKit.__init__(self)
+#################################################                    
+class RuleCheckerWatcherGroupKit(GroupKit):
+    def __init__(self):
+        "Default values for RuleCheckerWatcher" 
+        GroupKit.__init__(self)
+#################################################
+
+from viol2xml import viol2xml
+
+class RuleCheckerGroupKit(GroupKit):
+    
+    
+    def __init__(self):
+        "Default values for RuleChecker" 
+        GroupKit.__init__(self)
+
+    # def setPostScripts(self):
+    #    self.pScripts.append(viol2xml)
+        
+#################################################
+from qaMetrics2OnePage import qaMetrics2OnePage
+
+class QAmetricsGroupKit(GroupKit):
+        
+    def __init__(self):
+        "Default values for QAmetrics" 
+        GroupKit.__init__(self)
+    def setPostScripts(self):
+        self.pScripts.append(qaMetrics2OnePage)
+        
+#################################################
+class TriggerReleaseGroupKit(GroupKit):
+    "Default values for TriggerRelease" 
+    def __init__(self):
+        '''default values for TriggerRelease '''
+        GroupKit.__init__(self)
+#################################################                    
+class EgammaGroupKit(GroupKit):
+    def __init__(self):
+        "Set defaults for egamma"
+        GroupKit.__init__(self)
+#################################################                    
+
+class TrigReleaseIDGroupKit(GroupKit):
+    '''Default values for Trigger sub group
+    '''
+    def __init__(self):
+        GroupKit.__init__(self)
+################################################
+
+class TrigReleaseCaloGroupKit(GroupKit):
+    '''Default values for Trigger subgroup
+    T2Calo regression test performed
+    '''
+    def __init__(self):
+        GroupKit.__init__(self)
+
+#################################################
+
+class TriggerReleaseBSGroupKit(GroupKit):
+    "Default values for TriggerRelease"
+    def __init__(self):
+        '''default values for TriggerRelease '''
+        GroupKit.__init__(self)
+
+#################################################
+
+class TriggerReleaseRecoGroupKit(GroupKit):
+    "Default values for TriggerRelease"
+    def __init__(self):
+        '''default values for TriggerRelease '''
+        GroupKit.__init__(self)
+
+#################################################
+        
+class TriggerReleaseGroupKit3(GroupKit):
+    '''ref files:
+       idscan_readBS.reference
+       sitrack_readBS.reference
+    '''
+    def __init__(self):
+        GroupKit.__init__(self)
+
+
+#################################################                    
+class InDetRecValidationGroupKit(GroupKit):
+    def __init__(self):
+        "Default values for InDetRecValidation"
+        GroupKit.__init__(self)
+
+class MuonDigiExampleGroupKit(GroupKit):
+    def __init__(self):
+        "Default values for MuonDigiExample"
+        GroupKit.__init__(self)
+
+if __name__ == "__main__":
+    kitnames = ['AthenaAtlfast',
+                'AthenaHelloWorld',
+                'AthenaJiveXML',
+                'AthenaTriggerRelease',
+                'AthenaTrigReleaseID',
+                'AthenaTrigReleaseCalo',
+                'AthenaRecExCommon',
+                'Athenaegamma',
+                'RuleChecker',
+                'QAmetrics',
+                'AthenaAtlfastWatcher',
+                'AthenaegammaWatcher',
+                'KitValidation']
+
+    kits = [groupKitFactory(kitname) for kitname in kitnames]
+
+
+    def kitContent(kit):
+        print ''
+        print ''
+        print '*********  kit: ',kit.__class__.__name__+'  *********'
+        print ''
+        print 'postScripts:'
+        print str(kit.pScripts)
+        print ''
+        print 'display files'
+        print str(kit.displayFiles)
+
+    [kitContent(kit) for kit in kits]
+    
+        

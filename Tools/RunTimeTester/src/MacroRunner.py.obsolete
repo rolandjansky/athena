@@ -1,0 +1,96 @@
+"""
+Class used to pass commands to an application
+"""
+
+import os
+from popen2 import Popen4
+
+# from siteSpecificsFactory import siteSpecificsFactory
+from Factory_SiteSpecifics import SiteSpecificsFactory
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+#class MacroRunner(SitePostScripts):
+class MacroRunner:
+	
+	psLabel = 'site'
+
+	def __init__(self, cmd):
+		toBeEscaped=['(',')','"']
+
+		for char in toBeEscaped:
+			pieces = cmd.split(char)
+
+			cmd = pieces[0]
+			for piece in pieces[1:]:
+				cmd += '\\'+char+piece
+
+		# cmd = '\\r'+cmd
+			
+		self.cmd = cmd
+	
+	def run(self, site):
+		
+		"run some root macros"
+	       
+		logger.debug('running postscript  on ' +site)
+		logger.info('Current working directory: '+ os.getcwd())
+		#SitePostScripts.setSiteSpecifics(site)
+		self.setSiteSpecifics(site)
+
+		siteSpecicificsFact = SiteSpecificsFactory(logger).create(site)
+		rootCommand = siteSpecificsFact(site).rootCommand()
+		rootCommand = rootCommand+' '+self.cmd
+
+		logger.info( "root command: "+rootCommand)
+
+		runMacro = Popen4(rootCommand)
+		logger.info('root command output: \n'+ runMacro.fromchild.read())
+
+	def setSiteSpecifics(self, site):
+		logger.debug('setting site specific env on :' + site )
+		
+	        # siteSpec = siteSpecificsFactory(site)
+	        siteSpec = SiteSpecificsFactory(logger).create(site)
+		os.environ['LD_LIBRARY_PATH'] = siteSpec.libs()
+		os.environ['ROOTSYS']         = siteSpec.rootSys()
+	
+		
+	setSiteSpecifics=classmethod(setSiteSpecifics)
+
+
+if __name__ == "__main__":
+	import sys
+
+	from setupLoggerForDebug import setupLoggerForDebug
+	setupLoggerForDebug()
+
+	m = MacroRunner('atlfast.C("xxx", "yyy")')
+	print 'label = ', m.psLabel
+	print m.cmd
+
+	macro = 'egamma_hist.C("ntuple.root")'
+	m = MacroRunner(macro)
+	print m.cmd
+	#m.run('UCL')
+	
+	macro = 'egammaHistsToPostScript.C("cluster_validation.hist","refFile_cluster_validation.hist","cluster_validation.ps")'
+	m = MacroRunner(macro)
+	print m.cmd
+	#m.run('UCL')
+
+
+	macro = 'egammaHistsToPostScript.C("softE_validation.hist","refFile_softE_validation.hist","softE_validation.ps")'
+	m = MacroRunner(macro)
+	print m.cmd
+	#m.run('UCL')
+
+
+	macro = 'egammaHistsToPostScript.C("eGamma_validation.hist","refFile_eGamma_validation.hist","eGamma_validation.ps")'
+	m = MacroRunner(macro)
+	print m.cmd
+	#m.run('UCL')
+

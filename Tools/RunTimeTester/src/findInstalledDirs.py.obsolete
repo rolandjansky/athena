@@ -1,0 +1,96 @@
+import os, os.path
+from os.path import join
+
+import hardCoded
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+def findInstallAreas(local, releasePath):
+    """
+    local - must be a boolean
+    releasePath - string that represents a path
+    returns a list of strings representing paths
+    
+    local = true: find local installed area from CMTPATH env variable
+    Always add the release installed area.
+    """
+    
+    paths = []
+    installArea = hardCoded.installAreaDirName()
+
+    if local:
+        if 'CMTPATH' in os.environ.keys():
+            cmtpaths = os.environ['CMTPATH'].split(':')
+            cmtpaths = [join(path, installArea) for path in cmtpaths]
+            paths.extend(cmtpaths)
+
+
+    paths.append(join(releasePath, installArea))
+    paths = [path for path in paths if os.path.exists(path)]
+    
+    logger.info('installed dirs'+str(paths))
+    return paths
+
+def findInstalledDirs(isLocal, releasePath, directory):
+    """
+    local - must be a boolean
+    releasePath - string that represents a path
+
+
+    Returns a list of strings representing full directory paths
+    hanging from Installed.
+    The installed directories are looked for in the directories given
+    in CMTPATH."""
+
+    paths = findInstallAreas(isLocal, releasePath)
+    paths = [join(path, directory) for path in paths]
+    paths = [path for path in paths if os.path.exists(path)]
+
+    logger.debug('local dirs included:'+str(paths))
+    return paths
+
+def findOptionsPaths(isLocal, releasePath):
+    """
+    Returns a list of paths to be used to find option files.
+    The most local path is given first, so in locating option files
+    the path should be traversed from beginning to end.
+    """
+
+    return findInstalledDirs(isLocal, releasePath, 'jobOptions')
+
+def findSharePaths(isLocal, releasePath):
+    """
+    Returns a list of paths that will act as a search list.
+    """
+    return findInstalledDirs(isLocal, releasePath, 'share')
+
+
+if __name__ == '__main__':
+    "Test function"
+
+    import sys
+    from formatCollection import formatCollection
+    
+    if  'CMTPATH' not in os.environ.keys():
+        print 'run home CMT setup.sh before this test'
+        sys.exit()
+    codeStatuses=['Installed', 'CheckedOut']
+    dirs = ['jobOptions', 'share']
+    release = '/afs/cern.ch/atlas/software/dist/9.0.2'
+
+
+    print '\n\njobOptions paths'
+    for status in codeStatuses:
+        print status
+        print formatCollection(findOptionsPaths(status,release))
+
+
+    
+    print '\n\nshare paths'
+    for status in codeStatuses:
+        print status
+        print formatCollection(findSharePaths(status,release))
+
+        
+        

@@ -1,0 +1,13 @@
+from NICOS import NICOS
+
+def nicosDates(paths):
+    nicosDate          = 'n/a'
+    nicosDateFormatted = 'n/a'
+    
+    nicos = NICOS(paths)
+    nDate = nicos.getReleaseDate()
+    if nDate.isValid():
+        nicosDate=str(nicos.getReleaseDate().absTime())
+        nicosDateFormatted=str(nicos.getReleaseDate())
+
+    return (nicosDate, nicosDateFormatted)

@@ -1,0 +1,152 @@
+from os.path           import join
+from getopt            import getopt, GetoptError
+from shellCommand      import shellCommand
+from formatCollection  import formatCollection 
+from glob              import glob
+import sys, os, string
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+smallLogger = logging.getLogger('rtt.standalone')
+# -------------------------------------------------------------------------
+
+def test():
+    lines = []
+    lines.append(' library -s/absolute/somewhere -a=option xxxx yyyy\n')
+    lines.append('a line that does not interest us\n')
+    lines.append(' library -s/absolute/somewhereElse -a=option aaa\n')
+    doit(lines)
+
+
+def decodeFileNames(tokens):
+
+    # remove all options except -s (source directory)
+    options = [token for token in tokens if token.startswith('-')]
+    bOptions = [op for op in options if not op.startswith('-s')]
+    [tokens.remove(op) for op in bOptions]
+
+    # assume -s dir file file file -s dir
+    # ie occaisional souirce directory, followed by file name
+    # is no source directory before file name assume soure directory default
+
+    if (tokens[-1].startswith('-s')):
+        msg = 'last token is a directory name \n %s' % formatCollection(tokens)
+        logger.error(msg)
+        return []
+    
+    logger.debug('tokens after removing options: %s' % str(tokens))
+    dflag = False
+    files = []
+    for token in tokens:
+
+        sdir = 'src'
+        if token.startswith('-s'):
+            dflag = True
+            continue
+        
+        if dflag:
+            dflag = False
+            sdir  = token
+            continue
+        
+    
+        files.append(os.path.join(sdir, token))
+
+    return files
+            
+def removeFiles(files):
+    removeSuffixes = ['.java']
+
+    rmfiles = []
+    for suffix in removeSuffixes:
+        rmfiles.extend([file for file in files if file.endswith(suffix)])
+
+    files = [file for file in files if file not in rmfiles]
+    return files
+   
+def doit(lines, cmtFilePath):
+    """
+    Find out what cmt says to act on by issuing 'cmt show constitunts'
+    in the cmt directory. We take the sourcee files to b those which go into
+    library - and so we keep only 'library' contituents.
+    """
+    # files = '' # the final list of files
+    files = []
+    nSrcFiles = 0
+    for line in lines:
+        tokens = string.split(line) # split line into tokens
+        tokens = [string.strip(token) for token in tokens] # clean-up whitespace
+        if tokens[0] != 'library': continue # a library?
+        # library name - so start from the third
+        # accumulate the list of files from the different libraries
+        files.extend(decodeFileNames(tokens[2:]))
+        
+        files = removeFiles(files) # remove files RuleChecker cannot handle
+        files = [os.path.normpath(os.path.join(cmtFilePath, '..', file)) for file in files]
+
+    # files might have been specified with wild cards in requiremnts file
+    expandGlob = []
+    [expandGlob.extend(list) for list in [glob(file) for file in files]]
+    nSrcFiles += len(expandGlob)
+
+    smallLogger.info( ( 'no of src files =  %d') % nSrcFiles)
+    smallLogger.info( ( 'src files = \n %s') % formatCollection(expandGlob))
+    return nSrcFiles, expandGlob
+
+
+def srcFileCounter(pathToCMTFile, paths):
+    lines = [
+        'cd %s' % paths.workDirs['base'],
+        'source setup.sh',
+        'cd '+pathToCMTFile,
+        'cmt show constituents'
+        ]
+    files=shellCommand(lines)
+    (nSrcFiles, fileList) = doit(files, pathToCMTFile)
+    return nSrcFiles, fileList
+    
+
+
+if __name__ == '__main__':
+    """
+    To run cd to a cmt directory with a requriements file,
+    and type
+    python srcFileCounter.py <pathToCMTFile>
+
+    if no path is given, the script runs in demo mode
+    """
+
+    from setupLoggerForDebug import setupLoggerForDebug
+    from findRTThome     import findRTThome
+
+    import Paths
+
+    setupLoggerForDebug()
+
+    (base, cfg, src) = findRTThome()
+
+    try:
+        opts,args = getopt(sys.argv[1:], 't')
+    except GetoptError:
+        print 'unknown option(s)', opt, args
+
+
+    testMode = True
+    if len(args)==0:
+        test()
+        sys.exit(0)
+        
+    pathToCMTfile = args[0]
+    if not os.path.exists(pathToCMTfile):
+        print 'unknown path '+pathToCMTfile
+        sys.exit(0)
+
+    logger.debug('path tp cmt file %s' % pathToCMTfile)
+
+    paths = Paths.fromScratch(cfg, base)
+    (nFiles, fileList) = srcFileCounter(pathToCMTfile, paths)
+
+    print 'srcFileCounter found',nFiles,'src files'
+    print 'files found \n %s' % fileList
+
+

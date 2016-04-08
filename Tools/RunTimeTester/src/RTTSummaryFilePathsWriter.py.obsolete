@@ -1,0 +1,185 @@
+# This class acts as the entrance to the system that writes out the xml files
+# used to generate web pages.
+# It manages incomoming summaries, establishes if the web summary is more recent than
+# others with the same parameter set.
+#
+# It then wraps most recent the summaries into a DOM document and passes them to PageWriter.
+# the document is destroyed after the web pages have been written.
+#
+
+import os, types, string
+import time
+# import page0DefaultFiles
+
+# from PageWriter import Page1Writer
+# from xml.dom.minidom            import parseString, parse
+
+# from Evaluate  import Evaluate
+from listFiles import listFiles
+# from XMLTools  import relPath
+
+from exc2string2 import exc2string2
+
+debug = 10
+
+# ================================================================
+# HELPER FUNCTIONS
+# ================================================================
+
+# taken from the python cookbook
+def unique(s):
+    """ return a list of the elements in s in arbitrary order,
+    but without duplicates"""
+
+    # get the special case of empty s out of the way rapidly
+    n = len(s)
+    if n==0: return []
+
+    # try using a dict - fast, usaually works
+    u={}
+    try:
+        for x in s: u[x]=1
+    except TypeError:
+        del u # move to next method
+    else:
+        return u.keys()
+
+    # can't hash elements: sort, and remove identical
+    # elements in a single pass
+
+    try:
+        t = list(s)
+        t.sort()
+    except TypeError:
+        del t # move to next method
+    else:
+        assert n>0
+        last = t[0]
+        lasti = i= 1
+        while i<n:
+            if t[i] != last:
+                t[lasti] = last= t[i]
+                lasti += 1
+            i += 1
+
+        return t[:lasti]
+
+    # only brute force remains
+
+    u = []
+    for x in s:
+        if x not in u:
+            u.append(x)
+    return u
+    
+def readSummaryPathsFile(resultsBaseDir, summaryListFileName):
+    """
+    set up a dictionary of location: document pairs
+    location is  a general concept, here represented by a relative path
+
+    the locations of the summary files are stored in the file summaryFilePaths.txt
+    for rapid access. If this file does not exist, the file system is searched
+    for the summaryFiles.
+    """
+    
+    if os.path.exists(summaryListFileName):
+        handle=open(summaryListFileName, 'r')
+        summaryPaths = handle.readlines()
+        handle.close()
+        
+        summaryPaths = unique([s.strip() for s in summaryPaths])
+    else:
+        summaryPaths =  listFiles(resultsBaseDir, 'RTTSummary.xml')
+        of = open(summaryListFileName, 'w')
+        [of.write('%s\n' % l) for l in summaryPaths]
+        of.close()
+
+    summaryPaths = [s for s in summaryPaths if os.path.exists(s)]
+
+    return summaryPaths
+
+
+# ================================================================
+# MAIN STUFF
+# ================================================================
+
+import mutex
+accessLock = mutex.mutex()
+
+class RTTSummaryFilePathsWriterBase:
+    def __init__(self, resBaseDir):
+
+        self.resBaseDir = resBaseDir
+        self.summaryListFileName = os.path.join(self.resBaseDir, 'summaryFilePaths.txt')
+
+        # Look for all summary files below resBaseDir
+        self.pathsToSummaryFiles = readSummaryPathsFile(resBaseDir, self.summaryListFileName)
+
+        self.updates = []
+        
+    def update(self, pathToSummaryFile):
+        if debug>=50: print time.ctime(), 'WebPageWriter start update'
+        startTime = time.ctime()
+        timePair = (startTime,0)
+        self.updates.append(timePair)
+        accessLock.lock(self.lockedUpdate, pathToSummaryFile)
+
+        timePair = (startTime,time.ctime())
+        self.updates[-1] = timePair
+        if debug >=50: print time.ctime(), 'WebPageWriter ends update'
+        
+        return 0
+    
+    def lockedUpdate(self, pathToSummaryFile):
+        if debug>=100: print 'start lockedUpdate'
+
+
+        if os.path.isabs(pathToSummaryFile):
+            pathToSummaryFile = pathToSummaryFile.strip().split(self.resBaseDir)[1]
+            if pathToSummaryFile.startswith('/'): pathToSummaryFile = pathToSummaryFile[1:]
+            
+        if not pathToSummaryFile in self.pathsToSummaryFiles: # add it
+            self.pathsToSummaryFiles.append(pathToSummaryFile)
+            handle = open(self.summaryListFileName, 'r')
+            allFiles = [a.strip() for a in handle.readlines()]
+            allFiles = [a+'\n' for a in allFiles]
+            handle.close()
+            handle = open(self.summaryListFileName, 'w')
+            allFiles.append(pathToSummaryFile.strip()+'\n')
+            handle.writelines(allFiles)
+            handle.close()
+            
+        accessLock.unlock()
+        return 0
+
+    def getDocs(self):
+        if self.docs: return self.docs
+        return 0
+
+    def getOutputDir(self): return self.resBaseDir
+
+    def areYouAlive(self): return 'yes'
+    
+    def dumpTable(self):
+        counts = {}
+        s = str(self.updates) + '\n\n' + self.writer.dump(0, counts)
+        s += '\n\ncounts by page type \n\n'
+
+        ks = counts.keys()
+        ks.sort()
+        for k in ks:
+            s += '%10s %d\n' % (k, counts[k])
+        print s
+        return 0
+
+class RTTSummaryFilePathsWriter(RTTSummaryFilePathsWriterBase):
+    def __init__(self, resBaseDir):
+        RTTSummaryFilePathsWriterBase.__init__(self, resBaseDir)
+
+
+if __name__ == '__main__':
+    resBaseDir = '/afs/cern.ch/atlas/project/RTT/data/brinick/Results'
+    writer = RTTSummaryFilePathsWriter(resBaseDir)
+
+    # print writer.dumpTable()
+    

@@ -1,0 +1,15 @@
+from WWebPageWriter import WebPageWriterBase, PageTableRouter
+from PageWriterTest import Page0WriterTest
+
+class WebPageWriterTest(WebPageWriterBase):
+    def __init__(self, resBaseDir):
+        WebPageWriterBase.__init__(self, resBaseDir)
+        self.writerClass = Page0WriterTest
+        # a class to route the table to the appropiate table.
+        self.router     = PageTableRouter({
+            'Page0WriterTest': self.page0Table,
+            'Page1WriterTest': self.page1Table,
+            'Page2WriterTest': self.page2Table,
+            'Page3WriterTest': self.page3Table
+            })
+            

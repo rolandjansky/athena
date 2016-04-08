@@ -1,0 +1,140 @@
+
+<RTTSummary>
+  <overview>
+    <topProject>AtlasProduction</topProject>
+    <latestUpdateTime2>1239389449.69</latestUpdateTime2>
+    <cmtConfig>i686-slc4-gcc34-opt</cmtConfig>
+    <releaseType>project</releaseType>
+    <site>CERNslc4</site>
+    <releaseName>14.5.0.5</releaseName>
+    <statusText>09/04/10@20:50: jobs succ/done/tot: 1/1/1</statusText>
+    <otherProject>
+    </otherProject>
+    <runType>build</runType>
+    <latestUpdateTime1>09/04/10@20:50</latestUpdateTime1>
+    <resBaseDir>/afs/cern.ch/atlas/project/RTT/data/peter/RTTTest_LI/testsuites/chainMergeMissingFiles/Results</resBaseDir>
+    <endTime1>09/04/10@20:50</endTime1>
+    <endTime2>1239389449.67</endTime2>
+    <RTTLibVersion>RunTimeTester-00-02-61</RTTLibVersion>
+    <resReleaseDir>/afs/cern.ch/atlas/project/RTT/data/peter/RTTTest_LI/testsuites/chainMergeMissingFiles/Results/14.5.0.5/build/i686-slc4-gcc34-opt/offline</resReleaseDir>
+    <startTime2>1239388986.11</startTime2>
+    <startTime1>09/04/10@20:43</startTime1>
+    <nPackages>1</nPackages>
+    <nPackagesAllJobsOK>1</nPackagesAllJobsOK>
+    <originalBranch>dev</originalBranch>
+    <nicosDate2>1229680106</nicosDate2>
+    <RTTSrcVersion>RunTimeTester-00-02-61</RTTSrcVersion>
+    <nicosDate1>2008/12/19 09:48:26</nicosDate1>
+    <release>14.5.0.5</release>
+  </overview>
+  <package>
+    <nPPSuccessInPackage>0</nPPSuccessInPackage>
+    <nTestsSuccessInPackage>0</nTestsSuccessInPackage>
+    <nJobsTotalPackage>1</nJobsTotalPackage>
+    <nJobsSuccessInPackage>0</nJobsSuccessInPackage>
+    <packageName>RecJobTransforms</packageName>
+    <nJobsInPackage>1</nJobsInPackage>
+    <nJobsOpCloseInPackage>0</nJobsOpCloseInPackage>
+    <nTestsFailureInPackage>0</nTestsFailureInPackage>
+    <containerPackage>Reconstruction/RecJobTransforms</containerPackage>
+    <nTimeOutsInPackage>0</nTimeOutsInPackage>
+    <phase>rttMainJobPhase</phase>
+    <packageTag>RecJobTransforms-00-07-89</packageTag>
+    <nJobsDoneInPackage>1</nJobsDoneInPackage>
+    <nTestsInPackage>0</nTestsInPackage>
+    <nBatchErrorsInPackage>0</nBatchErrorsInPackage>
+    <nJobsFailureInPackage>0</nJobsFailureInPackage>
+    <nPPFailureInPackage>0</nPPFailureInPackage>
+    <nRetriesInPackage>0</nRetriesInPackage>
+    <packageStatus>done</packageStatus>
+    <SequentialMinder>
+      <status>done</status>
+      <nActiveMinders>0</nActiveMinders>
+      <jobID>0</jobID>
+      <state>done</state>
+      <jobGroup>ContainerGroup</jobGroup>
+      <stateHistory>[('queued', '09/04/10 20:44'), ('running', '09/04/10 20:44'), ('done', '09/04/10 20:50')]</stateHistory>
+      <identifiedName>Sequential0</identifiedName>
+      <nContainedMinders>1</nContainedMinders>
+      <ChainJobMinder>
+        <status>done</status>
+        <nActiveMinders>0</nActiveMinders>
+        <jobID>1</jobID>
+        <state>done</state>
+        <jobGroup>ContainerGroup</jobGroup>
+        <stateHistory>[('queued', '09/04/10 20:44'), ('running', '09/04/10 20:44'), ('done', '09/04/10 20:50')]</stateHistory>
+        <identifiedName>Job1</identifiedName>
+        <nContainedMinders>1</nContainedMinders>
+        <minder>
+          <nUserTests>0</nUserTests>
+          <jobDocURL>
+          </jobDocURL>
+          <resultsPath>/afs/cern.ch/atlas/project/RTT/data/peter/RTTTest_LI/testsuites/chainMergeMissingFiles/Results/14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2</resultsPath>
+          <batchStatus>DONE</batchStatus>
+          <jobDisplayName>
+          </jobDisplayName>
+          <cpuTime2000>446</cpuTime2000>
+          <jobID>2</jobID>
+          <chainLength>1</chainLength>
+          <state>done</state>
+          <postProcessingResult>no tests</postProcessingResult>
+          <jobGroup>JobTransform</jobGroup>
+          <identifiedName>MergeJob2</identifiedName>
+          <status>success</status>
+          <chainSuccesses>1</chainSuccesses>
+          <mem>667MB</mem>
+          <stateHistory>[('queued', '09/04/10 20:44'), ('running', '09/04/10 20:44'), ('postProcessingQueued', '09/04/10 20:49'), ('postProcessingRunning', '09/04/10 20:49'), ('done', '09/04/10 20:50')]</stateHistory>
+          <jobDocString>MergeJob</jobDocString>
+          <hashString>-819398929</hashString>
+          <nRetries>0</nRetries>
+          <cpuTime>166</cpuTime>
+          <jobName>MergeJob</jobName>
+          <vmem>1153MB</vmem>
+          <nUserActions>2</nUserActions>
+          <exitStatus>Unknown</exitStatus>
+          <processingResult>success</processingResult>
+          <wallTime>320</wallTime>
+          <datasets>
+            <datasetinfo>
+              <file>RPCwBeam_data08_cosmag.0091890.AOD.pool.root</file>
+              <directory>/afs/cern.ch/atlas/offline/external/FullChainTest/tier0-vol3/14.5.X/root_archive/archive</directory>
+              <mtime>09/02/16@16:45</mtime>
+              <size>18270897B</size>
+              <origin>fallback</origin>
+            </datasetinfo>
+            <datasetinfo>
+              <file>RPCwBeam_data08_cosmag.0091890.AOD.pool.root</file>
+              <directory>/afs/cern.ch/atlas/offline/external/FullChainTest/tier0-vol3/14.5.X/root_archive/archive</directory>
+              <mtime>09/02/16@16:45</mtime>
+              <size>18270897B</size>
+              <origin>fallback</origin>
+            </datasetinfo>
+          </datasets>
+          <missingDatasets>
+            <missingDataset>job1.AOD.pool.root</missingDataset>
+            <missingDataset>job2.AOD.pool.root</missingDataset>
+          </missingDatasets>
+          <sUserTests>0</sUserTests>
+          <deliveredkeepfiles>
+            <baseKeepFileDir>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2</baseKeepFileDir>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2/postProcessor.log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2/postProcessorScript.sh</keepfile_newstyle>
+            <keepfile_newstyle info='Package XML test configuration file' md5sum='' displayColor='#cc3333'>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2/package.xml</keepfile_newstyle>
+            <keepfile_newstyle info='Job Log file' md5sum='' displayColor='#cc3333'>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2/MergeJob2_log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2/postprocessing.debug.log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2/postprocessing.warning.log</keepfile_newstyle>
+            <keepfile_newstyle info='The script submitted to the batch machine' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2/runScript.sh</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2/postprocessing.error.log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2/postprocessing.info.log</keepfile_newstyle>
+            <keepfile_newstyle info='Shows all the environmental variables set' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2/env.log</keepfile_newstyle>
+            <keepfile_newstyle info='' md5sum='' displayColor=''>14.5.0.5/build/i686-slc4-gcc34-opt/offline/RecJobTransforms/JobTransform/MergeJob/2/RTTtests.db</keepfile_newstyle>
+          </deliveredkeepfiles>
+          <errors/>
+          <done/>
+          <checkResults/>
+          <testResults/>
+        </minder>
+      </ChainJobMinder>
+    </SequentialMinder>
+  </package>
+</RTTSummary>

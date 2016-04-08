@@ -1,0 +1,36 @@
+from  JobGroupKits import * 
+import sys
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger()
+# -------------------------------------------------------------------------
+
+def  jobGroupKitFactory(group):
+    """ provide an instance of a JobGroupKit:
+    You know the name of a group - and you need the kit to give you
+    pieces relevant to that group"""
+
+    kits = {
+        "AthenaHelloWorld":      HelloWorldKit,
+        "AthenaAtlfast":         AtlfastKit,
+        "AthenaRecExCommon":     RecExCommonKit,
+        "AthenaJiveXML":         JiveXMLKit,
+        "AthenaegammaRec":       EgammaKit,
+        "AthenaTriggerRelease":  TriggerReleaseKit,
+        "AthenaTrigReleaseID":   TrigReleaseIDKit,
+        "AthenaTrigReleaseCalo": TrigReleaseCaloKit,
+        "RuleChecker":           RuleCheckerKit,
+        "QAmetrics":             QAmetricsKit,
+        "AthenaegammaRecWatcher":   EgammaWatcherKit,
+        "AthenaAtlfastWatcher":  AtlfastWatcherKit,
+        "PBSTest":               PBSTestKit,
+        "KitValidation":         KitValidationKit
+        "Monitor":               MonitorKit
+        }
+
+    if group in kits.keys():
+        return kits[group]()
+    else:
+        logger.error('Unknown group, could not instantiate a JobGroupKit: '+group)
+        sys.exit(0)

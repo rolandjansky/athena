@@ -1,0 +1,19 @@
+#===== RTT MODULES =====
+from Tools                   import mkdirIfNew, rmdirMkdir
+#===== PYTHON MODULES ==
+import os
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+def createRunDir(jDescriptor):
+
+    """
+    Creates run directory (path calculated from release, build,
+    job options file name..)
+    """
+    logger.debug("entering createRunDir")
+
+    rmdirMkdir(jDescriptor.runPath, 0777)

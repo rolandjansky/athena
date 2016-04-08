@@ -1,0 +1,105 @@
+import xmlrpclib, time, sys, getopt
+from exc2string2 import exc2string2
+
+
+python = '/afs/cern.ch/sw/lcg/external/Python/2.4.2/slc4_ia32_gcc34/bin/python'
+
+from RTTSummaryFilePathsWriter import RTTSummaryFilePathsWriter
+
+import SimpleXMLRPCServer
+
+def usage():
+    print
+    print 'WebPageCollecter -- starts server web page collector server for the RTT.'
+    print
+    print 'usage: python WebPageCollector [options]'
+    print
+    print 'Options'
+    print '   -n do not init tables from existing summary files.'
+    print '   -w write pages from existing summaries at initalisation'
+    print '   -h print this message and exit'
+    return
+
+def runServer(resBaseDir, ip='localhost', port='8001'):
+    
+    print 'RunServer.run()'
+    socket = 'http://'+ip+':'+port
+    print 'connecting to socket %s '%socket
+    
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 'nwh', ['noprompt'])
+        print opts
+    except getopt.GetoptError:
+        usage()
+        sys.exit(2)
+
+    try:
+        server = xmlrpclib.ServerProxy(socket, xmlrpclib.Transport(), 'UTF-8', True)
+    except Exception, e:
+        print 'Could not get server proxy %s: '%str(e)
+    else:
+        try:
+            a =  server.areYouAlive()
+            print '%s: server is running' % time.ctime()
+            return
+        except:
+            print '%s: server not responding' % time.ctime()
+
+    print 'Preparing to instantiate server'
+                                
+    mmaxtry    = 3
+    maxtry    = mmaxtry
+    sleepTime = 20
+    running   = False
+    
+    while maxtry:
+        
+        try:
+            server = SimpleXMLRPCServer.SimpleXMLRPCServer(("", int(port)))
+            running = True
+            break
+        except:
+            print exc2string2()
+            print 'Could not instantiate server, will sleep %d secs, remaining tries: %d' % (sleepTime,
+                                                                                             maxtry)
+            time.sleep(sleepTime)
+        maxtry -= 1
+
+    if not running:
+        print 'Abandoning attempt to instantiate server after %d attempts' % mmaxtry
+        return
+
+    print 'Server is instantiated'
+    print 'Preparing to instantiate WebPageWriter'
+        
+    summaryFilePathsWriter = RTTSummaryFilePathsWriter(resBaseDir)
+
+
+    print 'RTTSummaryFilePathsWriter is instantiated'
+    print 'Preparing to register this instance with the server.'
+    try:
+        server.register_instance(summaryFilePathsWriter)
+    except:
+        print 'registration failed\n   %s' % exc2string2()
+        return
+
+    print 'RTTSummaryFilePathsWriter instance registered'
+    print 'Preparing to serve forever'
+
+    server.serve_forever()
+        
+if __name__ == '__main__':
+    ip      = 'localhost'
+    port    = '8001'
+    resBaseDir = '/afs/cern.ch/atlas/project/RTT/data/brinick/Results'
+    # resBaseDir = '/afs/cern.ch/atlas/project/RTT/data/brinick/Results'
+    # resBaseDir = '/afs/cern.ch/atlas/project/RTT/Results'
+    #resBaseDir = '/afs/cern.ch/atlas/project/RTT/data/peter/Results'
+    # resBaseDir = '/afs/cern.ch/atlas/project/RTT/Results'
+    if '--noprompt' not in sys.argv:
+        s = raw_input ('resBaseDir = %s CR = No all else yes ' % resBaseDir)
+        if s == '':
+            sys.exit(0)
+            
+    runServer(resBaseDir, ip, port)
+                                                                                 

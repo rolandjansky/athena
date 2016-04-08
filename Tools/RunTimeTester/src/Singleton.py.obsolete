@@ -1,0 +1,26 @@
+class Singleton(object):
+    def __new__(cls, *args, **kwargs):
+        if '_inst' not in vars(cls):
+            cls._inst = object.__new__(cls, *args, **kwargs)
+        return cls._inst
+
+
+
+## class MyClass(Singleton):
+##     def __init__(self):
+##         pass
+##     def testFunc(self):
+##         print 17.25
+
+
+
+## if __name__ == '__main__':
+##     x=MyClass()
+##     y=MyClass()
+##     print id(x)
+##     print id(y)
+##     z=MyClass()
+##     print id(z)
+##     x.testFunc()
+##     y.testFunc()
+##     z.testFunc()

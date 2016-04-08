@@ -1,0 +1,17 @@
+from createDirectoryDictionary import createDirectoryDictionary
+from RTTConstructionFactoryHelpers import makeArgBag
+import os
+
+def chainStoreMaker(paths, chainName, enableMake):
+    argBag = makeArgBag(['release', 'originalBranch', 'runType', 'cmtConfig', 'topProject',
+                         'otherProject', 'isNightly'], paths)
+    argBag.base = paths.chainStoreBasePath
+    
+    
+    the_path = createDirectoryDictionary(argBag, withoutReleaseName=True)['packages']
+    
+    csPath =  os.path.join(paths.chainStoreBasePath, the_path, paths.package, chainName)
+    if enableMake:
+        if not os.path.exists(csPath):
+            os.makedirs(csPath)
+    return csPath

@@ -1,0 +1,33 @@
+import os
+import os.path
+import page0DefaultFiles
+
+filesToWrite = {
+    'currentStatusN0X.js':       page0DefaultFiles.currentStatusN0X,
+    'currentStatusNX0.js':       page0DefaultFiles.currentStatusNX0,
+    'messageOfTheDay.js':        page0DefaultFiles.messageOfTheDay,
+    'page0.html':                page0DefaultFiles.page0,
+    'page0.noTopFrame.html':     page0DefaultFiles.page0_noTopFrame,
+    'status.html':               page0DefaultFiles.status,
+    'page0.xsl':                 page0DefaultFiles.page0XSL,
+    'page1.xsl':                 page0DefaultFiles.page1XSL,
+    'page2.xsl':                 page0DefaultFiles.page2XSL,
+    'page3.xsl':                 page0DefaultFiles.page3XSL,
+    'page4.xsl':                 page0DefaultFiles.page4XSL,
+    'RTTpage1_LinksAtTopOfPage.js': page0DefaultFiles.RTTpage1_LinksAtTopOfPage
+    }
+
+def writeOut((fn, text), resBase):
+    fullPath = os.path.join(resBase, fn)
+    if os.path.exists(fullPath): return
+    of = open(fullPath,'w')
+    of.write(text)
+    of.close()
+    
+
+
+
+if __name__ == '__main__':
+    resBaseDir = '/afs/cern.ch/atlas/project/RTT/data/brinick/Results/'
+    # resBaseDir = '/afs/cern.ch/atlas/project/RTT/Results/'
+    [writeOut(item, resBaseDir) for item in filesToWrite.items()]

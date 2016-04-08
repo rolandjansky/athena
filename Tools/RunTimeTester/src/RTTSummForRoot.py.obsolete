@@ -1,0 +1,393 @@
+from Evaluate            import Evaluate, getText
+from xml.dom.minidom     import parse
+from Tools               import unique, setFileProtection
+from RTTConfigParser     import isValid
+from formatCollection    import formatCollection
+
+import copy, string, os
+
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+"""
+A script that takes a list of possible locations of RTT summary files.
+RTT summary files are xml files.
+The existence and validity against a DTD of the files is checked.
+
+A data structure is set up using the contents of the files.
+
+data structure:
+
+identifier = [runType, cmtConfig, branch]
+dict = 
+{identifier: releaseDict}
+releaseDict =
+{release: jobGroupDict}
+jobGroupDict =
+{jobGroup: dataDict}
+dataDict = 
+{
+"njobsLabel",  njobs,
+"njSuccLabel", njSucc
+"ntestsLabel", ntests,
+"ntSuccLabel", ntSucc
+
+
+This data structure allows the reshuffling of the RTT summary information
+to ease the wring of the root macro used to display the results.
+
+The results for a giveb identifier (see above)
+are written to a file specified in the method output().
+
+A list of the files written out is written to rttSummaryList.txt
+to tell the root macro its input files.
+"""
+
+def makeIdentifier(element):
+    """
+    return a list of contents for selected elements which are
+    immmediate subelements of the input subelement.
+    """
+    # DTD guarantees exactly one of the following simple tags
+    tags=['runType', 'cmtConfig', 'branch']
+
+    id = []
+    for tag in tags:
+        id.append(str(getText(Evaluate(tag, element)[0])))
+
+    return str(id)
+
+def getJobGroupInfo(element, dict):
+    jobGroupName = Evaluate('jobGroupName', element)
+    dataDict = {}
+    dataDict['nJobs']           = Evaluate('nJobs', element)
+    dataDict['nJobsSuccessful'] = Evaluate('nJobsSuccesful', element)
+    dataDict['nTests']          = Evaluate('nTests', element)
+    dataDict['nTestsPassed']    = Evaluate('nTestsPassed', element)
+    dict[jobGroupName]          = dataDict
+    
+def allJobGroups(dict):
+    # find all mentioned jobGroups:
+    #first, make a list of dictionaires with jobGroup as the key:
+    releaseDicts = dict.values()
+    groupDicts = []
+    [groupDicts.extend(d.values()) for d in releaseDicts]
+    jobGroups = []
+    [jobGroups.extend(dict.keys()) for dict in groupDicts]
+    return  unique(jobGroups)
+
+def zeroDataDict():
+    dataDict = {}
+    dataDict['nJobs']           = 0
+    dataDict['nJobsSuccessful'] = 0
+    dataDict['nTests']          = 0
+    dataDict['nTestsPassed']    = 0
+    return dataDict
+
+def fillInZeros(dict):
+    # find all mentioned jobGroups:
+    #first, make a list of dictionaires with jobGroup as the key:
+    jobGroups = allJobGroups(dict)
+
+    rlDicts = dict.values()
+    jgDicts = []
+    [jgDicts.extend(d.values()) for d in rlDicts]
+
+    for d in jgDicts:
+        for g in jobGroups:
+            if g not in d.keys(): d[g]=zeroDataDict
+
+def makeFileName(key):
+    fn = key[1:-1]
+    fn = string.replace(fn,', ','_')
+    fn = string.replace(fn,"'",'')
+    fn = 'RTTSummary_'+fn+'.dat'
+    return fn
+
+def summaryToString(doms, odir, dict):
+    """
+    Write the summary to a string suitable for writing to a file.
+    The data structure dict is descripbed at the top of the module.
+    """
+
+    #
+    # releasesInOrder is a list of ntuples
+    # ntuple = (timeInSeconds, releaseLabels, timeAndDateString)
+    releasesInOrder = orderedReleases(doms)
+
+    lines = []
+
+
+    # Now running from the RTT. Should not be handling more than one value
+    # for the identifier (see notes at the top of the module) at a time.
+    assert( len(dict.keys()) <= 1)
+    
+    summaries = {}
+    for key in dict.keys():
+        summaryFileName = os.path.join(odir, makeFileName(key))
+        lines = [] # this will be the file contents
+        lines.append('%d\n'% len(releasesInOrder)) # number of releases
+        # a line with each release name
+        [lines.append('%s\n' % str(rel[1])) for rel in releasesInOrder]
+        # a line with each release time
+        [lines.append('%s\n' % str(rel[2])) for rel in releasesInOrder]
+        # retrieve the information for the releases
+        jgDict = dict[key]
+        # a line giving the amount of info that is being stored
+        lines.append('%d\n' % len(jgDict.keys()))  
+        for jg in jgDict.keys():
+            rlDict = jgDict[jg]
+            # print rlDict
+            lines.append(jg+'\n')
+            jobsLine        = ''
+            jobsSuccessLine = ''
+            testsLine       = ''
+            testsPassedLine = ''
+            for release in releasesInOrder:
+                dataDict = rlDict[release[1]]
+                jobsLine        += ' %d' % int(dataDict['nJobs'])
+                jobsSuccessLine += ' %d' % int(dataDict['nJobsSuccessful'])
+                testsLine       += ' %d' % int(dataDict['nTests'])
+                testsPassedLine += ' %d' % int(dataDict['nTestsPassed'])
+            lines.append(jobsLine+'\n')
+            lines.append(jobsSuccessLine+'\n')
+            lines.append(testsLine+'\n')
+            lines.append(testsPassedLine+'\n')            
+
+        summaryFileContent = ''
+        for line in lines: summaryFileContent += line
+        summaries[summaryFileName] =  summaryFileContent
+
+
+    # make a list of the summary files (this is read in by the root
+    # macro to get the names of the files to read'
+
+    fileContent = ''
+    for key in summaries.keys():
+        fileContent += key+'\n'
+
+    fileName = os.path.join(odir, 'rttSummaryList.txt')
+
+    summaries[fileName] = fileContent
+    return summaries
+
+def output(summaries):
+    """
+    Write the list of output files to a list file.
+    Write one output file per identifier
+    The output files contain repeated
+
+    summaries is a dictionary of file name: file content
+    """
+
+    for fileName in summaries.keys():
+        logger.debug('Writing summary file %s' % fileName)
+        ofile = open(fileName, 'w')
+        ofile.write(summaries[fileName])
+        ofile.close()
+        setFileProtection(fileName,02775)
+
+    
+
+        # def output(doms, dict, odir):
+        #     """
+        #     Write the list of output files to a list file.
+        #     Write one output file per identifier
+        #     The output files contain repeated 
+        #     """
+        # 
+        #     logger.debug('output dir %s' % odir)
+        # 
+        #     #
+        #     # releasesInOrder is a list of ntuples
+        #     # ntuple = (timeInSeconds, releaseLabels, timeAndDateString)
+        #     releasesInOrder = orderedReleases(doms)
+        #                                   
+        #     for key in dict.keys():
+        #         fn = os.path.join(odir, makeFileName(key))
+        #         logger.info ('Opening monitoring info for root fn = %s' % fn)
+        #         ofile = open(fn, 'w')
+        #         ofile.write('%d\n'% len(releasesInOrder))
+        #         [ofile.write('%s\n' % str(rel[1])) for rel in releasesInOrder]
+        #         [ofile.write('%s\n' % str(rel[2])) for rel in releasesInOrder]
+        #         jgDict = dict[key]
+        #         ofile.write('%d\n' % len(jgDict.keys()))  
+        #         for jg in jgDict.keys():
+        #             rlDict = jgDict[jg]
+        #             # print rlDict
+        #             ofile.write(jg+'\n')
+        #             jobsLine        = ''
+        #             jobsSuccessLine = ''
+        #             testsLine       = ''
+        #             testsPassedLine = ''
+        #             for release in releasesInOrder:
+        #                 dataDict = rlDict[release[1]]
+        #                 jobsLine        += ' %d' % int(dataDict['nJobs'])
+        #                 jobsSuccessLine += ' %d' % int(dataDict['nJobsSuccessful'])
+        #                 testsLine       += ' %d' % int(dataDict['nTests'])
+        #                 testsPassedLine += ' %d' % int(dataDict['nTestsPassed'])
+        #             ofile.write(jobsLine+'\n')
+        #             ofile.write(jobsSuccessLine+'\n')
+        #             ofile.write(testsLine+'\n')
+        #             ofile.write(testsPassedLine+'\n')            
+        #         ofile.close()
+        #         setFileProtection(fn,0775)
+        # 
+        # 
+
+def dataDict(el):
+    keys = ['nJobs', 'nJobsSuccessful', 'nTests', 'nTestsPassed']
+    dict = {}
+    for key in keys:
+        dict[key] = getText(Evaluate(key, el)[0])
+    return dict
+
+def groupsDict(dictToReplace, element):
+    jobGroupElements = Evaluate('jobGroup', element)
+
+    for jobGroupElement in jobGroupElements:
+        group = getText(Evaluate('jobGroupName', jobGroupElement)[0])
+        dictToReplace[group] = releaseDict(dictToReplace[group],
+                                           element,
+                                           jobGroupElement)
+    return dictToReplace
+
+def releaseDict(dictToReplace, element, jobGroupElement):
+    release = getText(Evaluate('release', element)[0])
+    dictToReplace[release] = dataDict(jobGroupElement)
+    return dictToReplace
+
+def processDom(dict, element):
+    """
+    Different RTT runs can have the same identifier, but be differentiated
+    by release. Add the entry into the release dictionary for this release.
+    """
+    identifier = makeIdentifier(element)
+    groupsDict(dict[identifier], element)
+
+def findAllPathContents(doms, path):
+
+    jobNameElements = []
+    [jobNameElements.extend(Evaluate(path, dom)) for dom in doms]
+    return unique([getText(element) for element in jobNameElements])
+
+def findAllIdentifiers(doms):
+    return unique([makeIdentifier(dom) for dom in doms])
+
+
+def makeEmptyDict(ids, releases, groups):
+
+    relDict = {}
+    for release in releases:
+        relDict[release] = zeroDataDict()
+
+    groupDict = {}
+    for group in groups:
+        groupDict[group]=copy.copy(relDict)
+
+    dict = {}
+    for id in ids:
+        dict[str(id)] = copy.copy(groupDict)
+
+    return dict
+
+def orderedReleases(doms):
+    timedReleases = []
+    for dom in doms:
+        release = getText(Evaluate('release', dom)[0])
+        time    = getText(Evaluate('time2', dom)[0])
+        date    = getText(Evaluate('time', dom)[0])[:-3] # drop the seconds
+        date    = string.replace(date,' ','_')
+        timedReleases.append((time, release, date))
+
+    timedReleases.sort()
+    # return [release for (time, release) in timedReleases]
+    return timedReleases
+
+def doit(files, odir):
+    """
+    creates special format files for root processing with all the data
+    needed for the (no of jobs, no of tests) x (pass, fail) histograms.
+    the information is returned in the form os a dictionary of
+    {filename: filecontent} (file content is a string) for further processing.
+
+    Call to output writes the files (commented out)
+    """
+    # make a document for each xml file.
+    doms = [parse(fn) for fn in files]
+
+    # get a list of all releases in the system
+    allReleases    = findAllPathContents(doms, 'release')
+    allJobGroups   = findAllPathContents(doms, 'jobGroup/jobGroupName')
+    allIdentifiers = findAllIdentifiers(doms)
+    logger.debug('allJobGroups   %s' % allJobGroups)
+    logger.debug('allReleases    %s' % allReleases)
+    logger.debug('allIdentifiers %s' % allIdentifiers)
+    dict = makeEmptyDict(allIdentifiers, allReleases, allJobGroups)
+    logger.debug( 'empty dict:')
+    # logger.debug( formatCollection(dict))
+    # returns a master dictionary of raw date.
+    # the key for each entry is a dictionsary specifiying RTT run parameters:
+    # - kit or release, cmtConfig, and branch (the identifier)
+    # the value is a dictionary with key the job groups (including "total") and
+    # value a fixed set of data. currently njobs(ran, passed), ntests(ran, passed)
+    # the data has is raw because the zeros for corresponding to jobs groups
+    # not present for a given identifier have not been added.
+
+    [processDom(dict, dom) for dom in doms]
+    logger.debug( 'filled dict:')
+    # logger.debug( formatCollection(dict))
+
+
+    summaries = summaryToString(doms, odir, dict)
+    output(summaries)
+    return summaries
+
+def summaryByBranch(oDir, paths):
+    """
+    Collects all the summary files written out by the invidual RTT runs
+    which lie below the dir oDir. The caller's choice of oDir determines
+    such parameters as branch, cmtConfig etc as these are represented by (=have)
+    different directories.
+
+    We also asumme a relation between where the files are stored and odir.
+    """
+
+    
+    
+    possibleFiles = [os.path.join(oDir, dir, 'RTTSummary.xml')
+                     for dir in paths.legals.nightlies.values()]
+
+    print 'RTTSummForRoot, possible files =',possibleFiles
+        # 'atlrel_0/RTTSummary.xml',
+        # 'atlrel_1/RTTSummary.xml',
+        # 'atlrel_2/RTTSummary.xml',
+        # 'atlrel_3/RTTSummary.xml',
+        # 'atlrel_4/RTTSummary.xml',
+        # 'atlrel_5/RTTSummary.xml',
+        # 'atlrel_6/RTTSummary.xml'
+        # ]
+
+    files = [fp for fp in possibleFiles if os.path.exists(fp)]
+    logger.debug('No of files before validation %i', len(files))
+    
+    badFiles = [file for file in files if not isValid(file)]
+    [files.remove(file) for file in badFiles]
+    logger.debug('No of files after validation %s' % len(files))
+    doit(files, oDir)
+
+if __name__ == '__main__':
+    # writes output to cwd
+    branch =  'N.0.X'
+    sdir = '/unix/www_data/atlas/NightlyTests/opt/N.X.0/release'
+    odir = '.'
+
+    odir = '/unix/www/html/atlas/atlfast/NightlyTestsDev3/opt/N.X.0/release'
+    
+    collectFiles(branch, odir, sdir)
+    # collectFiles('N.O.X', '.', sdir)
+    #    collectFiles('N.X.O', '.', sdir)
+

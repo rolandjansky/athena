@@ -1,0 +1,45 @@
+
+from exc2string2            import exc2string2
+from MinderStateEngineBase  import MinderStateEngineBase
+import time
+
+class MinderStateEngineDummy(MinderStateEngineBase):
+    """
+    Empty state machine. This will be stepped by calls to poll(),
+    and will end up in state = success. Different behaviour is obtained
+    by subclassing the xxxTest and xxxAction methods.
+    """
+
+    
+    def __init__(self, minder, state='queued'):
+        MinderStateEngineBase.__init__(self, minder, state)
+
+        self.dispatcher = {
+            'queued'               :  self.fromQueued,
+            'running'              :  self.fromRunning,
+            'done'                 :  self.fromDone
+            }
+        self.nPollInRunning   = 0 
+        self.maxPollInRunning = 2 
+
+    # -----------------------------------------------
+
+    def functionsMinderMustHave(self): return []
+    # -----------------------------------------------
+    
+    def fromQueued(self):
+        self.state.set('running')
+        return
+            
+    # -----------------------------------------------
+    
+    def fromRunning(self):
+        if self.nPollInRunning >= self.maxPollInRunning:
+            self.minder.processingResult = 'success = set by dummy state engine'
+            self.state.set('done')
+            return
+
+        self.nPollInRunning += 1
+
+    def fromDone(self):
+        MinderStateEngineBase.fromDone(self)

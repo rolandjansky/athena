@@ -1,0 +1,53 @@
+from Paths         import Paths
+#from JobsConfigReader import JobsConfigReader
+from JobsXMLReader import jobs
+from sys import exit
+
+def makeJobs(paths):
+    """
+    Function that creates a list of jobdescriptors.
+    """
+
+    print 'in makeJobs****'
+    # confReader = JobsConfigReader(paths)
+    descList = jobs(paths)
+    for desc in descList:
+        try:
+            createRunDir(desc)
+        except Exception e:
+            #later on this should be reported to a Global Reporter	
+            # for now simply remove this job from the list
+            errmsg = exc2string(sys.exc_info())
+            dbgF(self, errmsg)
+            badDesc
+
+        jobMinders=[]
+        commander = commanderFactory( self.paths.mode )
+        for jd in descList:
+            submitCmd = commander.submitCommand(jd)
+            dbgF(self, "submit command: "+submitCmd)
+            jm=jobMinderFactory(paths.mode, jd, submitCmd)
+            
+            jobMinders.append(jm)               
+
+        return jobMinders
+    
+    # confederatedDescs = [desc in descList if desc.confederation]
+    # dict = {}
+    # for desc in confederatedDescs:
+    #     dict.setdefault(desc.confederation, []).append(desc)
+
+    # for key in dict.keys():
+    #     descs = :dict[key]
+    #     fGroup = descs[0].jobGroup
+    #    badGroups = [desc.jobGroup for desc in descs if desc.jobGroup != fGroup]
+        
+    #     if badGroups:
+    #         dbgFf(__name__,'Job federation has mixed groups, exiting '+str(badGroups))
+    #         exit(0)
+
+    #     fGroup = fGroup+'Watcher'
+    #     descriptor = descriptorFactory(fGroup)
+    #     minder = minderFactory(paths.mode, descriptor, '')
+    #     minder.jobsToWatch = 
+        

@@ -1,0 +1,9 @@
+<!ELEMENT vetos (CPC?, ids?)>
+
+<!ELEMENT CPC              (displayClass*, displayProcess*, displayComponent*)>
+<!ELEMENT ids              (id*)>
+<!ELEMENT id               (#PCDATA)>
+<!ELEMENT displayClass     (#PCDATA)>
+<!ELEMENT displayProcess   (#PCDATA)>
+<!ELEMENT displayComponent (#PCDATA)>
+

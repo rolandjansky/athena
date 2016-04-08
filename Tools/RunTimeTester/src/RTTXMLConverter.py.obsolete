@@ -1,0 +1,432 @@
+"""
+A class to provide an aml file summary of an RTT run
+"""
+import os, string, copy, anydbm, fnmatch
+from time              import localtime, strftime, time
+from StringIO          import StringIO
+from Tools             import changePerm
+from makeRTTDOM        import makeRTTDOM
+from NICOS             import NICOS
+from xml.dom.minidom   import parseString
+
+import xml.dom, sys
+from exc2string import exc2string
+from exc2string2 import exc2string2
+
+from Defs import RTTdefs
+
+from Evaluate import getText
+
+# -------------------------------------------------------------------------
+import Reporter
+globalReporter = Reporter.getGlobalReporter()
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+        
+class RTTXMLConverter:
+    def __init__(self, tester):
+
+
+        self.tester            = tester
+        # make the summary document easily available for other monitors.
+        self.document          = tester.summaryDocument
+        self.docElement        = self.document.documentElement
+        self.moniDBpath        = str(self.tester.paths.moniDB)        
+
+        self.update()
+        
+    def update(self):
+        self.enforceDBIntegrity()
+         
+        try:
+            [self.docElement.removeChild(child)
+             for child in self.docElement.childNodes]
+            self.document   = makeRTTDOM('RTTSummary')
+            self.docElement = self.document.documentElement
+            self.addTesterInfo()
+            self.addTestRuns()
+        except:
+            logger.error('Unable to convert this RTT run into XML.')
+            logger.error(exc2string2())
+            return
+        try:
+            self.xmlToDB()
+            self.xmlToFile()
+            # WebPageWriter(self.document)
+        except:
+            logger.error('Unable to output run XML to monitoring DB! (%s)' % str(self.moniDBpath))
+            logger.error('Consequence: cannot update web pages with latest info.')
+            logger.error(exc2string2())
+
+        self.tester.summaryDocument = self.document
+        self.enforceDBIntegrity()
+
+    # --------------------------------------------------------------------------
+
+    def openMoniDB(self):
+        handle = None
+        flag = 'n'
+        if os.path.exists(self.moniDBpath):
+            flag = 'c'
+        else:
+            logger.info('Monitoring DB (%s) does not exist, creating it.' % self.moniDBpath)
+
+        try:
+            handle = anydbm.open(self.moniDBpath, flag)
+            logger.info('Successfully opened the monitoring database.')
+        except:
+            logger.warning('Unable to open the monitoring DB!')
+            logger.warning(exc2string2())
+            
+        return handle
+    
+    # --------------------------------------------------------------------------
+                                                                                                                             
+    def corruptDBKeys(self,handle):
+        keys    = handle.keys()
+        keysThatAreCorrupt    = []
+        keysWithCorruptValues = []
+        
+        for key in keys:
+            isPrintableKey  = len([c for c in key if c not in string.printable])==0
+            if not isPrintableKey:
+                keysThatAreCorrupt.append(key)
+            else:
+                try:
+                    parseString(handle[key])
+                except:
+                    keysWithCorruptValues.append(key)
+                    
+        return (keysThatAreCorrupt,keysWithCorruptValues)
+
+    # --------------------------------------------------------------------------
+
+    def enforceDBIntegrity(self):
+        handle = self.openMoniDB()
+        if handle==None:
+            logger.warning('Unable to check moni DB integrity!')
+            return
+        
+        badKeys,keysWithBadValues = self.corruptDBKeys(handle)
+        if badKeys:
+            m = 'The monitoring DB was found to contain %d corrupt keys. These will be removed.' % len(badKeys)
+            logger.warning(m)
+            [self.recoverOrDeleteDBEntry(handle,k) for k in badKeys]
+        elif keysWithBadValues:
+            m = 'The monitoring DB was found to contain %d keys with corrupt values. These will be removed if not recoverable.' % len(keysWithBadValues)
+            logger.warning(m)
+            [self.recoverOrDeleteDBEntry(handle,k) for k in keysWithBadValues]
+        else:
+            m = 'Moni DB OK: no corrupt keys to remove.'
+            logger.info(m)
+
+        handle.close()
+        
+    # --------------------------------------------------------------------------
+
+    def recoverOrDeleteDBEntry(self,handle,key,badValue = True):
+        """For now, we just plain delete the corrupt entry.
+        An improvement could be to grab the file version, create a dom and stick in in the DB.
+        badValue = True if the value if corrupt, False if it is the key itself that is bad.
+        """
+        try:
+            del handle[key]
+            logger.warning('Removed monitoring DB key %s' % str(key))
+        except Exception, e:
+            logger.error('Tried, but unable to remove corrupt monitoring DB key %s' % str(key))
+            logger.error(exc2string2())
+                        
+    # --------------------------------------------------------------------------
+  
+    def addTextNode(self, parentNode, item):
+        try:
+            tn = self.document.createTextNode(str(item[1]).strip("'").strip())
+        except xml.dom.InvalidCharacterErr:
+            tn = self.document.createTextNode('invalid text')
+            
+        n  = self.document.createElement(str(item[0]).strip("'").strip())
+        
+        n.appendChild(tn)
+        parentNode.appendChild(n)
+
+    def addTesterInfo(self):
+        overviewNode = self.document.createElement('overview')        
+
+        els = ['build', 'originalBranch', 'site', 'platform',
+               'release', 'refRelease', 'releaseType', 'runType',
+               'rttSrcDir', 'rttLibDir']
+
+        els.sort()
+        items = [(el, self.tester.paths.__dict__[el]) for el in els]
+        [self.addTextNode(overviewNode, item) for item in items]
+
+        items = [
+            ('startTime1',       self.tester.startTime1),
+            ('startTime2',       self.tester.startTime2),
+            ('endTime1',         self.tester.endTime1),
+            ('endTime2',         self.tester.endTime2),
+            ('nicosDate1',       self.tester.nicosDateFormatted),
+            ('nicosDate2',       self.tester.nicosDate),
+            ('nPackages',        len(self.tester.testRuns) ),
+            ('statusText',       "%s %s" % (self.tester.statusText,
+                                            self.tester.statusTextTime)),
+            ('statusTextJSPath', self.tester.paths.runInfoPath),
+            ('resBaseDir',       self.tester.paths.resultsDirs['resBase/']),
+            ('resBuildDir',      self.tester.paths.resultsDirs['resBase/build']),
+            ('resBranchDir',     self.tester.paths.resultsDirs['resBase/build/branch']),
+            ('resRunTypeDir',    self.tester.paths.resultsDirs['resBase/build/branch/runType']),
+            ('resReleaseDir',    self.tester.paths.resultsDirs['resBase/build/branch/runType/release'])
+            ]
+        
+        [self.addTextNode(overviewNode, item) for item in items]
+        
+        self.docElement.appendChild(overviewNode)
+
+    def addTestRuns(self):
+
+        [self.addTestRun(tr) for tr in self.tester.testRuns]
+
+    def addTestRun(self, tr):
+
+        pNode = self.document.createElement('package')
+
+        # make a conversion table between attribute names of paths, and
+        # element names in the output xml file.
+        tagToPathsAttr = {'packageName':'package',
+                          'packageTag':'packageTag',
+                          'containerPackage':'containerPackage'}
+
+        # move information form the paths object into the document.
+        items = [(pair[0], tr.paths.__dict__[pair[1]])
+                 for pair in tagToPathsAttr.items()]
+        [self.addTextNode(pNode, item) for item in items]
+
+        # add the TestRun package status
+        self.addTextNode(pNode,('packageStatus',tr.ps.get()))
+
+        groups = tr.groupsInTestRun()
+
+        for g in groups:
+            minders  = [m for m in tr.jobMinders
+                        if m.jDescriptor.jobGroup == g]
+            nMinders = len(minders)
+            nDone    = len([m for m in minders if m.done])
+            nJobsOK  = len([m for m in minders
+                            if m.status.primary() == 'success'])
+
+
+            nTests   = reduce(lambda x, y: x+y,
+                              [len(m.tests) for m in minders],
+                              0)
+
+
+            statuses = []
+            [statuses.extend(m.testStatusList) for m in minders]
+            statuses = [s for s in statuses if s == RTTdefs.success]
+            nTestsOK = len(statuses)
+
+
+            nTimeOuts = len([m for m in minders if m.hasTimedOut()])
+            retryList = [m.errorStateCurRetry for m in minders]
+            nRetries  = reduce(lambda x, y: x+y, retryList, 0)
+                            
+            logger.debug('Creating job group node for doc: ' + str(self.document))
+            jgNode = self.document.createElement('jobgroup')
+            logger.debug('Created job group node for doc: ' + str(self.document))
+            
+            items = [
+                ('jobgroupname', g),
+                ('nJobs',        str(nMinders)),
+                ('nJobsDone',    str(nDone)),
+                ('nJobsOK',      str(nJobsOK)),
+                ('nTests',       str(nTests)),
+                ('nTestsOK',     str(nTestsOK)),
+                ('nTimeOuts',    str(nTimeOuts)),
+                ('nRetries',     str(nRetries))
+                ]
+
+            [self.addTextNode(jgNode, item) for item in items]
+
+            
+            def checkedAppendChild(jgNode,minder):
+                try:
+                    mNode = self.minderToXML(minder)
+                except :
+                    logger.debug('Error making mNode...')
+                    logger.debug(exc2string(sys.exc_info()))
+                    raise
+                
+                try:
+                    jgNode.appendChild(mNode)
+                except :
+                    logger.debug('Error appending mNode to jgNode...')
+                    logger.debug('jgNode ' + str(jgNode))
+                    logger.debug('minderNode ' + str(mNode))
+                    logger.debug(exc2string(sys.exc_info()))
+
+                    
+            [checkedAppendChild(jgNode,m) for m in minders]
+            
+            pNode.appendChild(jgNode)
+
+            self.docElement.appendChild(pNode)
+        
+    def minderToXML(self, minder):
+
+        # nested scopes are used to pass parameters to these nested functions
+        def findDataSets():
+
+            dsElement = self.document.createElement('datasets')
+            
+            try:
+                dataSets = minder.jDescriptor.datasets
+            except:
+                dataSets = {}
+
+            datasetInstances = []
+            [datasetInstances.extend(dataSets[k]) for k in dataSets]
+            for ds in datasetInstances:
+                tn = self.document.createTextNode(os.path.basename(ds.name.strip()))
+                el = self.document.createElement('dataset')
+                el.appendChild(tn)
+                dsElement.appendChild(el)
+
+            return dsElement
+
+        def findNtestSuccess():
+            l = len([s for s in minder.testStatusList
+                     if s == RTTdefs.success])
+            tn = self.document.createTextNode(str(l))
+            el = self.document.createElement('sUserTests')
+            el.appendChild(tn)
+            return el
+
+        def findKeepFiles():
+
+            resPath = minder.jDescriptor.resPath
+            
+            # minder.keepFilesPatterns is a list of dictionaries.
+            # kFilePatterns = [k['keepFileString']
+            #                 for k in minder.keepFilePatterns]
+            # minder.keepFiles is a dictionary of dictionaries.
+            kFilePatterns = []            
+            kFilePatterns.extend([minder.keepFiles[key]['keepFileString']
+                                 for key in minder.keepFiles.keys()])
+            # keep just the file names
+            kFilePatterns = [os.path.basename(k) for k in kFilePatterns]
+            
+            kFiles = []
+            [kFiles.extend(fnmatch.filter(os.listdir(resPath), p))
+             for p in kFilePatterns]
+            
+            return [os.path.join(resPath, k) for k in kFiles]
+
+        def makeKeepFileNode():
+            # logger.debug('Going to make element deliveredkeepfiles, self.document: ' +str( self.document))
+            el = self.document.createElement('deliveredkeepfiles')
+            # logger.debug('Have made element deliveredkeepfiles, self.document: ' + str(self.document))
+            keepFiles = findKeepFiles()
+            # logger.debug('After findKeepFiles method, self.document: ' + str( self.document))
+            
+            for k in keepFiles:
+                tn = self.document.createTextNode(os.path.basename(str(k).strip()))
+                el2 = self.document.createElement('keepfile')
+                # logger.debug('Have made element keepfile, self.document: ' +str( self.document))
+                el2.appendChild(tn)
+                el.appendChild(el2)
+            return el
+            
+            
+            
+        def makeTextNode((tagName, text)):
+            tn = self.document.createTextNode(str(text).strip())
+            el = self.document.createElement(str(tagName))
+            el.appendChild(tn)                                   
+            return el
+
+        # logger.debug('Creating minder node for doc: ' + str(self.document))
+        
+        mElement = self.document.createElement('minder')
+        textInfo = [
+            ('jobName',         minder.jDescriptor.name),
+            ('jobID',           minder.jDescriptor.jobSerialNumber),
+            ('status',          minder.status.primary()),
+            ('refRelease',      minder.jDescriptor.refRelease),
+            ('jobGroup',        minder.jDescriptor.jobGroup),
+            ('nUserTests',      len(minder.tests)),
+            ('resultsPath',     minder.jDescriptor.resPath),
+            ('exitStatus',      minder.exitStatus),
+            ('cpuTime',         minder.cpuTime),
+            ('mem',             minder.mem),
+            ('vmem',            minder.vmem),
+            ('wallTime',        minder.wallTime)
+            ]
+
+        [mElement.appendChild(makeTextNode(ti)) for ti in textInfo]
+
+        mElement.appendChild(findDataSets())
+        mElement.appendChild(findNtestSuccess() )
+        mElement.appendChild(makeKeepFileNode() )
+
+        def makeFlagNode((tagName, flag)):
+            if flag: return self.document.createElement(str(tagName))
+            return None
+
+        flagInfo = [
+            ('rttKitTestJob', minder.jDescriptor.rttKitTestJob),
+            ('rttPilotJob',   minder.jDescriptor.rttPilotJob),
+            ('rttATNJob',     minder.jDescriptor.rttPilotJob)
+            ]
+
+        for f in flagInfo:
+            node = makeFlagNode(f)
+            if node: mElement.appendChild(node)
+
+        logger.debug('Created, and returning, minder node for doc: ' + str(self.document))
+        
+        return mElement
+
+                
+    def docToString(self):
+        buffer = StringIO()
+        xml.dom.ext.Print(self.document, buffer)
+        return buffer.getvalue()
+        
+    def docToPrettyString(self):
+        buffer = StringIO()
+        xml.dom.ext.PrettyPrint(self.document, buffer)
+        return buffer.getvalue()
+        
+    def xmlToDB(self):
+    
+        if not self.tester.paths.moniDBenable: return
+
+        key      = self.tester.makeMoniDBKey()
+
+        dbHandle = self.openMoniDB()
+        if dbHandle==None:
+            logger.warning('Unable to store XML run data to moni DB.')
+            return
+        
+        dbHandle[key] = self.docToPrettyString()
+        dbHandle.close()
+
+        changePerm(self.moniDBpath,02775)
+
+        logger.debug('Successfully stored the XML run data in %s' % self.moniDBpath)
+
+    
+    def xmlToFile(self):
+
+        odir = self.tester.paths.resultsDirs[
+            'resBase/build/branch/runType/release']
+        of = open(os.path.join(odir, 'RTTSummary.xml'), 'w')
+        # print '------------'
+        # print 'xmlToFile ', of 
+        # print 'xmlToFile ', self.docToPrettyString()
+        # print '------------'
+        of.write(self.docToPrettyString())
+        of.close

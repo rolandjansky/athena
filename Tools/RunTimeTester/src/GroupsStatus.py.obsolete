@@ -1,0 +1,89 @@
+from formatCollection import formatCollection
+
+# -------------------------------------------------------------------------
+import logging
+logger = logging.getLogger('rtt')
+# -------------------------------------------------------------------------
+
+class GroupsStatus:
+    
+    def __init__(self, jobs):
+        'Sets up dictionary of lists of jobs keyed on jobg group'
+        
+        self.groups = {}
+        for job in jobs:
+            self.groups.setdefault(job.jDescriptor.jobGroup,[]).append(job)
+
+    def __str__(self):
+
+        s = 'Group Status dict:\n'
+        s += formatCollection(self.groups)
+        return s
+        
+    def allGroups(self):
+        return self.groups.keys()
+
+    def doneGroups(self):
+        """
+        Return a list stating of all jobs in a group have finished.
+        """
+
+        # first remove finished jobs:
+        for group in self.groups.keys():
+            jobsToRemove = [job for job in self.groups[group] if job.done]
+            [self.groups[group].remove(job) for job in jobsToRemove]
+
+        # return a dictionary stating if all jobs in a group are done.
+
+        # return a list of all groups which no longer have running jobs
+        # i.e. for which all jobs have been removed from the status dictionary
+        done = []
+        [done.append(group) for group in self.groups.keys() if not self.groups[group]]
+
+        return done
+
+if __name__ == '__main__':
+
+    from minderFactory            import minderFactory
+    from descriptorFactory        import descriptorFactory
+
+    from Paths                    import Paths
+    things = []
+    ajd = descriptorFactory('AthenaJobDescriptor')
+    rjd = descriptorFactory('ReleaseJobDescriptor')
+
+    
+    ajd.jobGroup = 'Athenaegamma'
+
+    paths = Paths()
+    paths.refDBenable = False
+
+    ajd.package = 'blah1'
+    rjd.package = 'blah2'
+
+    ajd.runPath = 'run1'
+    rjd.runPath = 'run2'
+    
+    ajd.initialise(paths)
+    rjd.initialise(paths)
+
+
+    ajd.dump()
+    rjd.dump()
+    things.append(minderFactory('Dummy',ajd,''))
+    things.append(minderFactory('Dummy',ajd,''))
+    things.append(minderFactory('Dummy',rjd,''))
+    things.append(minderFactory('Dummy',ajd,''))
+    things.append(minderFactory('Dummy',rjd,''))
+    things.append(minderFactory('Dummy',rjd,''))
+
+    expect= ['FF', 'FF', 'FF', 'TF', 'TF', 'TT']
+
+    gs = GroupsStatus(things)
+    print gs.doneGroups(),' expect ',expect[0]
+    for i in range(6):
+        print 'setting done for job position ',i
+        things[i].done = True
+        print gs.doneGroups(),' expect ',expect[i]
+
+

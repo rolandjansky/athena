@@ -1,0 +1,56 @@
+import logging, sys, os
+from exc2string         import exc2string
+from Tools              import changePerm
+
+def setupLoggerForTestSuite(level=None):
+    # Set up logger, streams and formatter
+    msgFmt    = '%(asctime)s %(filename)s, %(lineno)s, %(levelname)s %(message)s'
+    tmeFmt    = '%d%b%y %H:%M:%S'
+    formatter = logging.Formatter(msgFmt, tmeFmt)
+
+    levels = {
+        'DEBUG':     logging.DEBUG,
+        'INFO':      logging.INFO,
+        'WARNING':   logging.WARNING,
+        'ERROR':     logging.ERROR,
+        'CRITICAL':  logging.CRITICAL
+        }
+    if level in levels:
+        level=levels[level]
+    else:
+        print 'Unknown level %s\n' %level
+        print 'Possible levels: ', str(levels.keys())
+        print 'setting level to DEBUG'
+        
+        level = logging.DEBUG
+
+
+
+
+    fn = 'testSuite.log'
+    print 'Making a logger for TestSuite %s' % fn
+    try:
+        open(fn, 'w')
+        changePerm(fn,0666)
+    except Exception, e:
+        print 'Could not open a logger file for TestSuite %s' % fn
+        print exc2string(sys.exc_info())
+  
+    fileHandler = logging.FileHandler(fn)
+    fileHandler.setLevel(level)
+    fileHandler.setFormatter(formatter)
+    
+    # logSreamHandler is not used ....
+    logStreamHandler = logging.StreamHandler()
+    logStreamHandler.setFormatter(formatter)
+    # logStreamHandler.setLevel(logging.INFO) # change output level here
+    # logStreamHandler is not used ....
+    logStreamHandler.setLevel(level)
+    
+    logger = logging.getLogger('rtt')
+    # logger.addHandler(logStreamHandler)
+    logger.addHandler(fileHandler)
+    print 'setupLoggerForTestSuote handlers %s' % str(logger.handlers)
+    logger.setLevel(logging.DEBUG) # Do Not change output level here
+
+    print logger.handlers
