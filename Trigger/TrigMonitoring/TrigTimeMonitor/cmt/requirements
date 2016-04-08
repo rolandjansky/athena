@@ -1,0 +1,19 @@
+package TrigTimeMonitor
+
+author Tomasz Bold <Tomasz.Bold@cern.ch>
+
+use GaudiInterface      GaudiInterface-*             External
+use AtlasPolicy         AtlasPolicy-*
+use TrigTimeAlgs        TrigTimeAlgs-*               Trigger/TrigTools
+use AthenaMonitoring    AthenaMonitoring-*    	     Control
+use TrigMonitorBase     TrigMonitorBase-*            Trigger/TrigMonitoring
+use AtlasROOT           AtlasROOT-*                  External
+use AtlasBoost          AtlasBoost-*                 External
+use DataCollection      DataCollection-*             External
+
+
+apply_pattern declare_python_modules files="*.py"
+
+apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_joboptions files="jobOfragment_TrigTimeMonitor.py"
