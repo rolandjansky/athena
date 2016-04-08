@@ -44,7 +44,8 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
 
    const unsigned int schema_version_with_zb_fields = 9;
 
-   TRG_MSG_VERBOSE("Loading ThresholdConfig object attached to Lvl1 master ID " << thrConfig.lvl1MasterTableId());
+   TRG_MSG_DEBUG("Loading ThresholdConfig object attached to Lvl1 master ID " << thrConfig.lvl1MasterTableId());
+   TRG_MSG_DEBUG("Current number of thresholds: " << thrConfig.size());
 
    long caloinfoid = 0;
 
@@ -73,7 +74,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
       coral::ICursor& cursor0 = query0->execute();
 
       if ( ! cursor0.next() ) {
-         msg() << "ThresholdConfigLoader >> No such Master_Table exists " << thrConfig.lvl1MasterTableId() << std::endl;
+         TRG_MSG_ERROR("ThresholdConfigLoader >> No such Master_Table exists " << thrConfig.lvl1MasterTableId());
          commitSession();
          throw std::runtime_error( "ThresholdConfigLoader >> ThresholdConfig not available" );
       }
@@ -84,17 +85,11 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
 
       if ( cursor0.next() ) {
 
-         msg() << "ThresholdConfigLoader >> More than one Master_Table exists " 
-               << thrConfig.lvl1MasterTableId() << std::endl;
+         TRG_MSG_ERROR("ThresholdConfigLoader >> More than one Master_Table exists " 
+                       << thrConfig.lvl1MasterTableId());
          commitSession();
          throw std::runtime_error( "ThresholdConfigLoader >>  Master_Table not available" );
       }
-
-
-
-
-
-
 
       //=====================================================
       // get Thresholds WITH trigger threshold values
@@ -281,8 +276,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             ttv->setWindow(row["TTV.L1TTV_WINDOW"].data<int>());
             tt->addThresholdValue(ttv);
             ++numberofvalues;
-            if(verbose()>=2)
-               msg() << "ThresholdConfigLoader loading thresholdvalue with ID = " << ttv->id() << ":  " << ttv->name() << std::endl;
+            TRG_MSG_DEBUG("ThresholdConfigLoader loading thresholdvalue with ID = " << ttv->id() << ":  " << ttv->name());
          }
 
          nRowsLoop2 = row["TT.L1TT_ID"].data<int>();
@@ -291,17 +285,6 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
 
       // trigger thresholds sorted by type
       thrConfig.addTriggerThreshold(tt);
-
-
-
-
-
-
-
-
-
-
-
 
       //===========================================
       // now get the Thresholds WITHOUT trigger threshold values
