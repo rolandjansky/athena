@@ -271,6 +271,5 @@ void CaloClusterContainerCnvTest_p6::transToPers(const CaloClusterContainer* tra
   F.reduce(tmp_altEtaPhiM,pers->m_altEtaPhiM);
 
    
-  m_caloTowerSegCnv.transToPers(&(trans->m_towerSeg),&(pers->m_towerSeg));
-
+  m_caloTowerSegCnv.transToPers(&trans->getTowerSeg(),&(pers->m_towerSeg));
 } 

@@ -73,7 +73,7 @@ void CaloClusterContainerCnvTest_p7::transToPers(const CaloClusterContainer* tra
   for (CaloClusterContainer::const_iterator it2 = it; it2 != it_e; ++it2)
   {
     const CaloCluster& cl = **it2;
-    const CaloClusterMomentStore& ms = cl.m_momentStore;
+    const CaloClusterMomentStore& ms = *cl.getMomentStore(false);
     pers->m_varTypePattern |= cl.m_dataStore.m_varTypePattern;
 
     if (pers->m_momentContainer.m_nMoments == 0 && ms.size() != 0) {
@@ -267,8 +267,7 @@ void CaloClusterContainerCnvTest_p7::transToPers(const CaloClusterContainer* tra
   F.reduce(tmp_altEtaPhiM,pers->m_altEtaPhiM);
 
    
-  m_caloTowerSegCnv.transToPers(&(trans->m_towerSeg),&(pers->m_towerSeg));
-
+  m_caloTowerSegCnv.transToPers(&trans->getTowerSeg(),&(pers->m_towerSeg));
 } 
 
 

@@ -7,13 +7,8 @@
 #ifndef CALOTPCNV_CALOCLUSTERCONTAINERCNV_P3_H
 #define CALOTPCNV_CALOCLUSTERCONTAINERCNV_P3_H
 
-#define private public
-#define protected public
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloSamplingData.h"
-#undef private
-#undef protected 
-
 #include "AthenaKernel/ITPCnvBase.h"
 #include "CaloTPCnv/CaloTowerSegCnv_p1.h"
 //#include "CaloTPCnv/CaloClusterMomentContainerCnv_p2.h"

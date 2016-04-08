@@ -23,6 +23,8 @@
 #include "EventKernel/SignalStateHelper.h"
 #include "SGTools/TestStore.h"
 #include "AthenaKernel/errorcheck.h"
+#include "CLHEP/Vector/ThreeVector.h"
+#include "CLHEP/Vector/LorentzVector.h"
 #include <cassert>
 
 

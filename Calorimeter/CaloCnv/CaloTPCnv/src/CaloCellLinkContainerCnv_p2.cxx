@@ -10,12 +10,7 @@
  */
 
 
-#define private public
-#define protected public
 #include "DataModel/ElementLink.h"
-#undef private
-#undef protected
-
 #include "CaloTPCnv/CaloCellLinkContainerCnv_p2.h"
 #include "SGTools/IStringPool.h"
 #include "AthenaKernel/errorcheck.h"
