@@ -119,7 +119,7 @@ print "#"*80
 sc,out = doValidation( "WriteThinnedData",
                        workDir("WriteThinnedData.ref"),
                        workDir("thinned.data.pool.log"),
-                       "grep \"^WriteThinnedData \"" )
+                       "grep \"^WriteThinnedData \" | grep -v \"Property update for OutputLevel\" | grep -v \"input handles\" | grep -v \"output handles\" | grep -v \"Data Deps for\"" )
 if sc != 0:
     raise SystemExit("ERROR")
 
@@ -145,7 +145,7 @@ print "#"*80
 sc,out = doValidation( "ReadThinnedData",
                        workDir("ReadThinnedData.ref"),
                        workDir("reaccessed.thinned.data.pool.log"),
-                       "grep \"^ReadThinnedData \"" )
+                       "grep \"^ReadThinnedData \" | grep -v \"Property update for OutputLevel\" | grep -v \"input handles\" | grep -v \"output handles\" | grep -v \"Data Deps for\"" )
 if sc != 0:
     raise SystemExit("ERROR")
 
