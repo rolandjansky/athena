@@ -1,0 +1,67 @@
+2013-10-04 Nick Styles <nicholas.styles -at- cern.ch>
+	* Migrated to Eigen/new track EDM
+	* Tagged as InDetDNASeparator-01-00-00
+	
+2012-10-25 Wolfgang Liebig <http://phonebook.cern.ch/index.html?id=PE485812>
+        * compatibility with CLHEP 2.0
+        * tag InDetDNASeparator-00-00-12
+
+2009-01-20 Wolfgang Liebig <http://phonebook.cern.ch/index.html?id=PE485812>
+        * full IDSW cleanup (detstore() and msg() use), compatible with 15.0.0
+	* tag InDetDNASeparator-00-00-11
+	
+2009-01-20 Wolfgang Liebig <http://phonebook.cern.ch/index.html?id=PE485812>
+        * first level of cleanup, compatible with 14.4.0 & 14.5.0
+	* tag InDetDNASeparator-00-00-10
+	
+2008-09-09 Wolfgang Liebig <http://phonebook.cern.ch/index.html?id=PE485812>
+        * remove editor accident
+        * cmt/requirements: fix checkreq warning
+        * tag InDetDNASeparator-00-00-09
+
+2008-07-28 Wolfgang Liebig <http://phonebook.cern.ch/index.html?id=PE485812>
+        * add new interfaces+implementation to
+          -> give back the internal (floating-point value) significance
+          -> treat Trk::Track as input in addition to KF-trajectories
+        * tag InDetDNASeparator-00-00-07
+
+2008-07-25 Wolfgang Liebig <http://phonebook.cern.ch/index.html?id=PE485812>
+
+        * internal restructuring (modularising) of dna-separation logic
+          as preparation for being called also outside KalmanFitter
+        * new class MeanTrackParsAtFloor for internal data flow
+        * results should be the same
+        * tag InDetDNASeparator-00-00-06
+
+2008-06-11 Vato Kartvelishvili <vakhtang.kartvelishvili@cern.ch>
+
+         * Clean up separator code from abandoned variables etc
+         * tag InDetDNASeparator-00-00-05
+
+2008-05-16 Vato Kartvelishvili <vakhtang.kartvelishvili@cern.ch>
+
+        * Adding python-selectable parameter
+ 
+2007-12-18 Wolfgang Liebig <http://phonebook.cern.ch/index.html?id=PE485812>
+        * react to checkreq report, tag 00-00-03
+
+2007-12-13 Wolfgang Liebig <http://phonebook.cern.ch/index.html?id=PE485812>
+
+        * another case where compile errors appear only with later releases. 
+          -> make array dimensions constant.
+        * tag InDetDNASeparator-00-00-02
+
+2007-12-12 Wolfgang Liebig <http://phonebook.cern.ch/index.html?id=PE485812>
+
+        * add full tool from Sue and Vato
+        * tag InDetDNASeparator-00-00-01
+
+2007-12-12 Igor Kachaev <Igor.Katchaev@cern.ch>
+
+	* create empty package InDetDNASeparator-00-00-00
+
+2007-08-08 Vato Kartvelishvili <vakhtang.kartvelishvili@cern.ch>
+
+        * Setup of InDetDNASeparator (empty) using SetupUtility
+ 
+
