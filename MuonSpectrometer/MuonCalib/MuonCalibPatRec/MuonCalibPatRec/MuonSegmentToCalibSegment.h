@@ -5,9 +5,8 @@
 #ifndef MUONCALIB_MUONSEGMENTTOCALIBSEGMENT_H
 #define MUONCALIB_MUONSEGMENTTOCALIBSEGMENT_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #include "MuonCalibEvent/MuonCalibPatternCollection.h"
@@ -42,7 +41,7 @@ output the muon calibration input.
     @author Niels.Van.Eldik@cern.ch
 */
 
-  class MuonSegmentToCalibSegment : public Algorithm {
+  class MuonSegmentToCalibSegment : public AthAlgorithm {
   public:
     /** Algorithm constructor */
     MuonSegmentToCalibSegment(const std::string& name, ISvcLocator* pSvcLocator);
@@ -66,10 +65,10 @@ output the muon calibration input.
     const MuonSegmentCombinationCollection* retrieveCscSegmentCombinations() const;
     const Trk::SegmentCollection* retrieveCscSegments() const;
 
-    void convertPatterns();
+    StatusCode convertPatterns();
 
     /** save global patterns to storegate */
-    bool savePatterns( const MuonCalibPatternCollection* newPatterns ) const;
+    StatusCode savePatterns( const MuonCalibPatternCollection* newPatterns ) const;
     
     
     MuonCalibSegment* createMuonCalibSegment( const Muon::MuonSegment& seg ) const;
@@ -78,11 +77,6 @@ output the muon calibration input.
     Amg::Transform3D    getGlobalToStation( const Identifier& id ) const;
 
     unsigned int getQuality( const Muon::MuonSegment& seg ) const;
-
-    /** class member version of retrieving MsgStream */
-    mutable MsgStream m_log;
-    bool              m_debug;
-    bool              m_verbose;
 
     /**  segment location */
     bool        m_readSegments;
@@ -103,9 +97,6 @@ output the muon calibration input.
     std::string         m_associationInputLocation; //!< Location of the association object for PatternCombis and SegmentCombis
     std::string         m_cscAssociationInputLocation; //!< Location of the association object for PatternCombis and SegmentCombis
 
-    /** Pointer to StoreGateSvc */
-    StoreGateSvc* m_storeGateSvc;
-
     /** Pointer to MuonDetectorManager */
     const MuonGM::MuonDetectorManager*  m_detMgr;
    
@@ -116,7 +107,7 @@ output the muon calibration input.
     const TgcIdHelper*  m_tgcIdHelper;
 
     /** pointer to MdtCalibSvc */
-    MdtCalibrationSvc* m_calibSvc;
+    ServiceHandle<MdtCalibrationSvc> m_calibSvc;
 
     /** IdentifierTool initialization */
     ToolHandle< Muon::IMuonPatternSegmentAssociationTool> m_assocTool;

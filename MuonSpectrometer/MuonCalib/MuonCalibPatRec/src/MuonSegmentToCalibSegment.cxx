@@ -59,17 +59,13 @@ namespace Trk {
 namespace MuonCalib {
 
   MuonSegmentToCalibSegment::MuonSegmentToCalibSegment(const std::string& name, ISvcLocator* pSvcLocator) :
-    Algorithm(name, pSvcLocator),
-    m_log(messageService(),name),
-    m_debug(false),
-    m_verbose(false),
-    m_storeGateSvc(NULL),
+    AthAlgorithm(name, pSvcLocator),
     m_detMgr(NULL),
     m_mdtIdHelper(NULL),
     m_cscIdHelper(NULL),
     m_rpcIdHelper(NULL),
     m_tgcIdHelper(NULL),
-    m_calibSvc(NULL),
+    m_calibSvc("MdtCalibrationSvc", name),
     m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool")
 
@@ -101,14 +97,10 @@ namespace MuonCalib {
   // Initialize
   StatusCode MuonSegmentToCalibSegment::initialize(){
     //
-    m_log.setLevel(outputLevel());
-    m_debug = m_log.level() <= MSG::DEBUG;
-    m_verbose = m_log.level() <= MSG::VERBOSE;
     if(m_segmentLocationVector.value().size() < m_segment_authors.size())
     	{
 	m_segment_authors.resize(m_segmentLocationVector.value().size(), -1);
 	}
-    StatusCode sc ;
 /*    m_log << MSG::INFO << "Initialisation started     " << endreq;
     //
     //
@@ -125,49 +117,10 @@ namespace MuonCalib {
     m_log << MSG::INFO << "= PatternLocation     " << m_patternLocation     << endreq;
     m_log << MSG::INFO << "================================" << endreq;*/
 
-    // Set pointer on StoreGateSvc
-    sc = service("StoreGateSvc", m_storeGateSvc);
-    if (!sc.isSuccess() || 0 == m_storeGateSvc) {
-      m_log << MSG::ERROR
-	  << "MuonSegmentToCalibSegment::initialize "
-	  << "Could not find StoreGateSvc" << endreq;
-      return( StatusCode::FAILURE );
-    }
-    
-    // retrieve detector store
-    StoreGateSvc* detStore = 0;
-    sc = service( "DetectorStore", detStore );
-    if (sc.isFailure()) {
-      m_log <<MSG::FATAL << "Could not get DetectorStore"<<endreq;
-      return sc;
-    }
-  
-    // retrieve MuonDetectorManager
     std::string managerName="Muon";
-    sc=detStore->retrieve(m_detMgr);
-    if (sc.isFailure()) {
-      m_log << MSG::INFO << "Could not find the MuonGeoModel Manager: "
-	  << managerName << " ! " << endreq;
-    } 
-  
-    sc = m_idToFixedIdTool.retrieve();
-    if (sc.isFailure()) {
-      m_log << MSG::FATAL << "Could not find " << m_idToFixedIdTool << ". Exiting."
-	  << endreq;
-      return sc;
-    } else {
-      m_log << MSG::DEBUG << "Identifier-translation " << m_idToFixedIdTool << " found."
-	    << endreq;
-    }
-
-    sc = m_assocTool.retrieve();
-    if (sc.isFailure()) {
-      m_log << MSG::FATAL << "Could not find " << m_assocTool << ". Exiting."
-	  << endreq;
-      return sc;
-    } else {
-      m_log << MSG::DEBUG << " Found " << m_assocTool << endreq;
-    }
+    ATH_CHECK( detStore()->retrieve(m_detMgr) );
+    ATH_CHECK( m_idToFixedIdTool.retrieve() );
+    ATH_CHECK( m_assocTool.retrieve() );
 
     // initialize MuonIdHelpers
     if (m_detMgr) {
@@ -182,14 +135,7 @@ namespace MuonCalib {
       m_tgcIdHelper = 0;
     }
 
-    // retrieve MdtCalibrationSvc
-    sc = serviceLocator()->service("MdtCalibrationSvc", m_calibSvc);
-    if (sc.isFailure()) {
-      m_log << MSG::ERROR << " Cannot retrieve MdtCalibrationSvc " << endreq;
-      return sc;
-    }else{
-      m_log << MSG::DEBUG << " Retrieved MdtCalibrationSvc " << endreq;
-    }
+    ATH_CHECK( m_calibSvc.retrieve() );
 
     // Get the maximum number of segments each algorithm can
     // store in the ntuple
@@ -198,41 +144,31 @@ namespace MuonCalib {
     if (m_segmentLocationVector.value().size()) {
       m_maxStoredSegs /= m_segmentLocationVector.value().size();
     }
-    m_log << MSG::INFO << "Maximum number of stored segments for each algorithm = " << m_maxStoredSegs << endreq;
+    ATH_MSG_INFO( "Maximum number of stored segments for each algorithm = " << m_maxStoredSegs  );
 
-    m_log << MSG::INFO << "Initialisation ended     " << endreq;
+    ATH_MSG_INFO( "Initialisation ended     "  );
     return StatusCode::SUCCESS;
   }
 
   StatusCode MuonSegmentToCalibSegment::execute(){
 
-    if( m_debug ) m_log << MSG::DEBUG << " execute()     " << endreq;
-
-    convertPatterns();
-
+    ATH_MSG_DEBUG( " execute()     "  );
+    ATH_CHECK( convertPatterns() );
     return StatusCode::SUCCESS;
   }
 
   StatusCode MuonSegmentToCalibSegment::finalize(){
-    if( m_debug )  m_log << MSG::DEBUG << "Finalisation started     " << endreq;
+    ATH_MSG_DEBUG( "Finalisation started     "  );
     return StatusCode::SUCCESS;
   }
 
-  bool MuonSegmentToCalibSegment::savePatterns( const MuonCalibPatternCollection* newPatterns) const {
-
-    // save MuonCalibPattern
-    StatusCode sc = m_storeGateSvc->record(newPatterns, m_patternLocation);
-
-    if ( sc.isFailure() ){
-      m_log << MSG::ERROR << "Could not save global patterns!!! " <<endreq;
-      return false;
-    }else{
-      if( m_debug ) m_log << MSG::DEBUG << "Saved global patterns " <<endreq;
-    }
-    return true;
+  StatusCode MuonSegmentToCalibSegment::savePatterns( const MuonCalibPatternCollection* newPatterns) const
+  {
+    ATH_CHECK( evtStore()->record(newPatterns, m_patternLocation) );
+    return StatusCode::SUCCESS;
   }
 
-  void MuonSegmentToCalibSegment::convertPatterns() {
+  StatusCode MuonSegmentToCalibSegment::convertPatterns() {
 
     /** 
 	Routine to extract mdt calibration segments from Mboy mdt segments
@@ -240,7 +176,7 @@ namespace MuonCalib {
 
     MuonCalibPatternCollection* patterns = new MuonCalibPatternCollection();
 
-    if( m_debug ) m_log << MSG::DEBUG << " convertPatterns() " << endreq;
+    ATH_MSG_DEBUG( " convertPatterns() "  );
 
     if( !m_readSegments ) {
 
@@ -251,7 +187,7 @@ namespace MuonCalib {
 	MuonSegmentCombinationCollection::const_iterator sit = segCombis->begin();
 	MuonSegmentCombinationCollection::const_iterator sit_end = segCombis->end();
 	
-	if( m_debug ) m_log << MSG::DEBUG << " Looping over segment combination " << segCombis->size() << endreq;
+	ATH_MSG_DEBUG( " Looping over segment combination " << segCombis->size()  );
 	
 	for( ;sit!=sit_end;++sit){
 	  
@@ -260,16 +196,16 @@ namespace MuonCalib {
 	  Muon::IMuonPatternSegmentAssociationTool::AssociationMapRange range = m_assocTool->find(*sit);
 	  if ((range.first)!=(range.second)) {
 	    if( m_assocTool->count(*sit) != 1 ){
-	      m_log << MSG::INFO  << " This MuonSegPatAssMap for MDTs should only have one entry!! " << endreq;
+	      ATH_MSG_INFO( " This MuonSegPatAssMap for MDTs should only have one entry!! "  );
 	    }	  // retrieve association map:       
 	    pat = (range.first)->second;
 	  }else{
-	    m_log<<MSG::WARNING<<"MDT Combination missing from the map - something is wrong! " << *sit << endreq;
+	    ATH_MSG_WARNING("MDT Combination missing from the map - something is wrong! " << *sit  );
 	  }
 	  
 	  MuonCalibPattern* calibpat = createMuonCalibPattern(pat);
 	  
-	  if( m_debug ) m_log << MSG::DEBUG << "New segment combination covering " << (*sit)->numberOfStations() << " station " << endreq;
+	  ATH_MSG_DEBUG( "New segment combination covering " << (*sit)->numberOfStations() << " station "  );
 	  
 	  // loop over segments in combination
 	  unsigned int nstations = (*sit)->numberOfStations();
@@ -277,7 +213,7 @@ namespace MuonCalib {
 	    
 	    const Muon::MuonSegmentCombination::SegmentVec* stationSegs = (*sit)->stationSegments( i ) ;
 	    
-	    if( m_verbose ) m_log << MSG::VERBOSE << "New station with " << stationSegs->size() << " segments " << endreq;
+	    ATH_MSG_VERBOSE( "New station with " << stationSegs->size() << " segments "  );
 	    
 	    // 	  if( stationSegs->size() != 1 ) {
 	    // 	    m_log << MSG::DEBUG << " -> skipping station, to many segments " << endreq;
@@ -291,7 +227,7 @@ namespace MuonCalib {
 	      const Muon::MuonSegment* seg = *segit;
 	      
 	      if( !seg ) {
-		m_log << MSG::WARNING << " go NULL pointer for MuonSegment " << endreq;
+		ATH_MSG_WARNING( " go NULL pointer for MuonSegment "  );
 		continue;
 	      }
 	      
@@ -327,31 +263,31 @@ namespace MuonCalib {
 	  Trk::SegmentCollection::const_iterator sit = segCol->begin();
 	  Trk::SegmentCollection::const_iterator sit_end = segCol->end();
 	  
-	  if( m_debug ) m_log << MSG::DEBUG << " Looping over segments " << segCol->size() << endreq;
+	  ATH_MSG_DEBUG( " Looping over segments " << segCol->size()  );
 	  
 	  for( ;sit!=sit_end;++sit){
 
 	    if (nStoredSegments >= m_maxStoredSegs) {
 
-	      m_log << MSG::INFO << "For " << mdtSegmentLocation 
-		    << ", hit max number of segments = " << nStoredSegments << endreq;
+	      ATH_MSG_INFO( "For " << mdtSegmentLocation 
+                            << ", hit max number of segments = " << nStoredSegments  );
 	      break;
 	    }
 	    	    
 	    if( !*sit ) {
-	      m_log << MSG::WARNING << " go NULL pointer for Segment " << endreq;
+	      ATH_MSG_WARNING( " go NULL pointer for Segment "  );
 	      continue;
 	    }
 	    
 	    const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>(*sit);
 	    
 	    if( !seg ) {
-	      m_log << MSG::WARNING << " dynamic_cast to MuonSegment failed " << endreq;
+	      ATH_MSG_WARNING( " dynamic_cast to MuonSegment failed "  );
 	      continue;
 	    }
 	    
 	    // one pattern per segment
-	    if( m_debug ) m_log << MSG::DEBUG << "WARNING, empty muoncalibpattern created" << endreq;
+	    ATH_MSG_DEBUG( "WARNING, empty muoncalibpattern created"  );
 	    MuonCalibPattern* pat = new MuonCalibPattern();
 	    
 	    MuonCalibSegment* mdtSeg = createMuonCalibSegment( *seg );
@@ -375,8 +311,8 @@ namespace MuonCalib {
       const MuonSegmentCombinationCollection* segCombis = retrieveCscSegmentCombinations();
       
       if( !segCombis ) {
-	savePatterns(patterns);
-	return;
+	ATH_CHECK( savePatterns(patterns) );
+	return StatusCode::SUCCESS;
       }
 
       //      m_segmentAuthor = segmentAuthor(m_segmentCscLocation);
@@ -384,7 +320,7 @@ namespace MuonCalib {
       MuonSegmentCombinationCollection::const_iterator sit = segCombis->begin();
       MuonSegmentCombinationCollection::const_iterator sit_end = segCombis->end();
       
-      if( m_debug ) m_log << MSG::DEBUG << " Looping over Csc segment combination " << segCombis->size() << endreq;
+      ATH_MSG_DEBUG( " Looping over Csc segment combination " << segCombis->size()  );
       
       for( ;sit!=sit_end;++sit) {
 
@@ -399,12 +335,12 @@ namespace MuonCalib {
 	if ((range.first)!=(range.second)) {
 	  pat = (range.first)->second;
 	}else{
-	  m_log<<MSG::DEBUG<<"CSC Combination missing from the map - No combined pattern found for this CSC Segment Combination! " << *sit << endreq;
+	  ATH_MSG_DEBUG("CSC Combination missing from the map - No combined pattern found for this CSC Segment Combination! " << *sit  );
 	}
 	
 	MuonCalibPattern* calibpat = createMuonCalibPattern(pat);
 	
-	if( m_debug ) m_log << MSG::DEBUG << "New Csc segment combination covering " << (*sit)->numberOfStations() << " station " << endreq;
+	ATH_MSG_DEBUG( "New Csc segment combination covering " << (*sit)->numberOfStations() << " station "  );
 	
 	// loop over segments in combination
 	unsigned int nstations = (*sit)->numberOfStations();
@@ -412,7 +348,7 @@ namespace MuonCalib {
 	  
 	  const Muon::MuonSegmentCombination::SegmentVec* stationSegs = (*sit)->stationSegments( i ) ;
 	  
-	  if( m_verbose ) m_log << MSG::VERBOSE << "New Csc station with " << stationSegs->size() << " segments " << endreq;
+	  ATH_MSG_VERBOSE( "New Csc station with " << stationSegs->size() << " segments "  );
 	  
 	  // 	  if( stationSegs->size() != 1 ) {
 	  // 	    m_log << MSG::DEBUG << " -> skipping station, too many segments " << endreq;
@@ -426,7 +362,7 @@ namespace MuonCalib {
 	    const Muon::MuonSegment* seg = *segit;
 	    
 	    if( !seg ) {
-	      m_log << MSG::WARNING << " go NULL pointer for MuonSegment " << endreq;
+	      ATH_MSG_WARNING( " go NULL pointer for MuonSegment "  );
 	      continue;
 	    }
 	    
@@ -443,8 +379,8 @@ namespace MuonCalib {
 
     }//if(m_useCscSegments)
     // store patterns in storegate
-    savePatterns(patterns);
-
+    ATH_CHECK( savePatterns(patterns) );
+    return StatusCode::SUCCESS;
   }
 
   Identifier MuonSegmentToCalibSegment::getChId( const Muon::MuonSegment& seg ) const
@@ -452,7 +388,7 @@ namespace MuonCalib {
     
     const std::vector<const Trk::RIO_OnTrack*>& rots = seg.containedROTs();
     if( rots.empty() ) {
-      if( m_debug ) m_log << MSG::DEBUG << " Oops, segment without hits!!! " << endreq;
+      ATH_MSG_DEBUG( " Oops, segment without hits!!! "  );
       return Identifier();
     }
 
@@ -481,52 +417,52 @@ namespace MuonCalib {
     if( m_mdtIdHelper->is_mdt( id ) ){
       const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement(id);
       if( !detEl ) {
-	m_log << MSG::WARNING << "getGlobalToStation failed to retrieve detEL byebye" << endreq;
+	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->GlobalToAmdbLRSTransform();
       }
     }else if( m_cscIdHelper->is_csc( id ) ){
       const MuonGM::CscReadoutElement* detEl = m_detMgr->getCscReadoutElement(id);
       if( !detEl ) {
-	m_log << MSG::WARNING << "getGlobalToStation failed to retrieve detEL byebye" << endreq;
+	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->transform().inverse();
       }
     }else if( m_tgcIdHelper->is_tgc( id ) ){
       const MuonGM::TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(id);
       if( !detEl ) {
-	m_log << MSG::WARNING << "getGlobalToStation failed to retrieve detEL byebye" << endreq;
+	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->transform().inverse();
       }
     }else if( m_rpcIdHelper->is_rpc( id ) ){
       const MuonGM::RpcReadoutElement* detEl = m_detMgr->getRpcReadoutElement(id);
       if( !detEl ) {
-	m_log << MSG::WARNING << "getGlobalToStation failed to retrieve detEL byebye" << endreq;
+	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->transform().inverse();
       }
     }
-    m_log << MSG::WARNING << " Oops, should not be here, returning default transform " << endreq;
+    ATH_MSG_WARNING( " Oops, should not be here, returning default transform "  );
     return Amg::Transform3D();
   }
 
  
   const MuonSegmentCombinationCollection* MuonSegmentToCalibSegment::retrieveSegmentCombinations() const
   {
-    bool contains =  m_storeGateSvc->contains<MuonSegmentCombinationCollection>(m_segmentCombiLocation);
+    bool contains =  evtStore()->contains<MuonSegmentCombinationCollection>(m_segmentCombiLocation);
     if (!contains) { // requested segment location is not in storeGate
-      m_log << MSG::WARNING << "MuonSegmentCombinationCollection " << m_segmentCombiLocation << " is not in storeGate" <<endreq;
+      ATH_MSG_WARNING( "MuonSegmentCombinationCollection " << m_segmentCombiLocation << " is not in storeGate"  );
       return 0;
     }
 
     const MuonSegmentCombinationCollection* segCombis = 0;
-    StatusCode sc = m_storeGateSvc->retrieve(segCombis,m_segmentCombiLocation);
+    StatusCode sc = evtStore()->retrieve(segCombis,m_segmentCombiLocation);
     if (sc.isFailure() ) {
-      m_log << MSG::WARNING << "Could not find MuonSegmentCombinationCollection at " << m_segmentCombiLocation <<endreq;
+      ATH_MSG_WARNING( "Could not find MuonSegmentCombinationCollection at " << m_segmentCombiLocation  );
       return 0;
     }else{
-      if( m_debug ) m_log << MSG::DEBUG << "retrieved MuonSegmentCombinationCollection "  << segCombis->size() << endreq;
+      ATH_MSG_DEBUG( "retrieved MuonSegmentCombinationCollection "  << segCombis->size()  );
     }
     return segCombis;
   }
@@ -534,40 +470,40 @@ namespace MuonCalib {
 
   const Trk::SegmentCollection* MuonSegmentToCalibSegment::retrieveSegments(const std::string colName) const
   {
-    bool contains =  m_storeGateSvc->contains<Trk::SegmentCollection>(colName);
+    bool contains =  evtStore()->contains<Trk::SegmentCollection>(colName);
     if (!contains) { // requested segment location is not in storeGate
-      m_log << MSG::WARNING << "MuonSegmentCollection " << colName << " is not in storeGate" <<endreq;
+      ATH_MSG_WARNING( "MuonSegmentCollection " << colName << " is not in storeGate"  );
       return 0;
     }
 
     const Trk::SegmentCollection* segCol = 0;
-    StatusCode sc = m_storeGateSvc->retrieve(segCol,colName);
+    StatusCode sc = evtStore()->retrieve(segCol,colName);
     if (sc.isFailure() ) {
-      m_log << MSG::WARNING << "Could not find MuonSegmentCollection at " << colName <<endreq;
+      ATH_MSG_WARNING( "Could not find MuonSegmentCollection at " << colName  );
       return 0;
     }else{
-      if( m_debug ) m_log << MSG::DEBUG << "retrieved MuonSegmentCollection "  << segCol->size() << endreq;
+      ATH_MSG_DEBUG( "retrieved MuonSegmentCollection "  << segCol->size()  );
     }
     return segCol;
   }
 
   const MuonSegmentCombinationCollection* MuonSegmentToCalibSegment::retrieveCscSegmentCombinations() const
   {
-    bool contains =  m_storeGateSvc->contains<MuonSegmentCombinationCollection>(m_segmentCscLocation);
+    bool contains =  evtStore()->contains<MuonSegmentCombinationCollection>(m_segmentCscLocation);
     if (!contains) { // requested segment location is not in storeGate
-      m_log << MSG::WARNING << "MuonSegmentCombinationCollection " << m_segmentCscLocation << " is not in storeGate" <<endreq;
+      ATH_MSG_WARNING( "MuonSegmentCombinationCollection " << m_segmentCscLocation << " is not in storeGate"  );
       return 0;
     }
 
     const MuonSegmentCombinationCollection* segCombis = 0;
-    StatusCode sc = m_storeGateSvc->retrieve(segCombis,m_segmentCscLocation);
+    StatusCode sc = evtStore()->retrieve(segCombis,m_segmentCscLocation);
     if (sc.isFailure() ) {
-      m_log << MSG::WARNING << "Could not find Csc MuonSegmentCombinationCollection at " << m_segmentCscLocation << " csc segmentmaker beging run? " << endreq;
+      ATH_MSG_WARNING( "Could not find Csc MuonSegmentCombinationCollection at " << m_segmentCscLocation << " csc segmentmaker beging run? "  );
       return 0;
     }
     else
       {
-	if( m_debug ) m_log << MSG::DEBUG << "retrieved Csc MuonSegmentCombinationCollection "  << segCombis->size() << endreq;
+	ATH_MSG_DEBUG( "retrieved Csc MuonSegmentCombinationCollection "  << segCombis->size()  );
       }
     return segCombis;
   }
@@ -617,11 +553,11 @@ namespace MuonCalib {
     double sinus = sin(thetap);
     double thetan = atan2(mdtSeg->direction().z(),mdtSeg->direction().y());
     double thetaCheck = atan2(segDirLCheck[2],segDirLCheck[1]);
-    if( m_debug ) m_log << MSG::DEBUG << " MuonSegment TO CalibSegment segment found " << endreq;
-    if(m_debug) {
-        if (fabs(thetaCheck-thetan)>0.0001) m_log << MSG::DEBUG << " ALARM angle difference " << thetaCheck-thetan << endreq;
-        m_log << MSG::DEBUG << " segPosL " << segPosL <<  " segPosG " << segPosG << " local angle " << thetan << " thetaCheck " << thetaCheck << endreq;  
-        m_log << MSG::DEBUG << " segDirL " << segDirL << " segDirG " << segDirG << " phi " << segDirG.phi() <<  " segDirLCheck " << segDirLCheck << endreq;  
+    ATH_MSG_DEBUG( " MuonSegment TO CalibSegment segment found "  );
+    if(msgLvl(MSG::DEBUG)) {
+      if (fabs(thetaCheck-thetan)>0.0001) ATH_MSG_DEBUG( " ALARM angle difference " << thetaCheck-thetan  );
+        ATH_MSG_DEBUG( " segPosL " << segPosL <<  " segPosG " << segPosG << " local angle " << thetan << " thetaCheck " << thetaCheck  );
+        ATH_MSG_DEBUG( " segDirL " << segDirL << " segDirG " << segDirG << " phi " << segDirG.phi() <<  " segDirLCheck " << segDirLCheck  );
     }
    bool segment_with_multiple_t0s(false); 
 // for debug purposes count number of mdt,csc,tgc and rpc segments
@@ -650,7 +586,7 @@ namespace MuonCalib {
       
       if( m_mdtIdHelper->is_mdt(id)) {
         if (competingRio) {
-	 m_log << MSG::WARNING << "  MDT hit is competing Rio !!! " << endreq;
+          ATH_MSG_WARNING( "  MDT hit is competing Rio !!! "  );
          continue;
         }
 	// Mdt digit	  
@@ -658,7 +594,7 @@ namespace MuonCalib {
 
 	const Muon::MdtDriftCircleOnTrack* mrot = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(rot);
 	if( !mrot ){
-	  m_log << MSG::WARNING << "This is not a  MdtDriftCircleOnTrack!!! " << endreq;
+	  ATH_MSG_WARNING( "This is not a  MdtDriftCircleOnTrack!!! "  );
 	  continue;
 	}
 //      mdtSegment = true;
@@ -676,7 +612,7 @@ namespace MuonCalib {
         const Trk::StraightLineSurface* pStraightLineSurface 
          = dynamic_cast<const Trk::StraightLineSurface*> (&(detEl->surface(prd->identify())));
         if (!pStraightLineSurface) {
-          m_log << MSG::WARNING << "This has no StraightLineSurface  !!! " << endreq;
+          ATH_MSG_WARNING( "This has no StraightLineSurface  !!! "  );
           continue;
         }
 //        mdtSegment = true;
@@ -687,7 +623,7 @@ namespace MuonCalib {
         //Get local tube direction, orient tube direction along the x local axis direction and get all DCA stuff in local coordinates    
         Amg::Vector3D tubeDirGlo = (pStraightLineSurface->transform()).rotation().col(2) ;
         Amg::Vector3D tubeDirLoc = gToStation.linear()*tubeDirGlo ;
-        if(m_debug)  m_log << MSG::DEBUG << " tubeDirLoc " << tubeDirLoc << endreq;
+        ATH_MSG_DEBUG( " tubeDirLoc " << tubeDirLoc  );
         tubeDirLoc = tubeDirLoc.unit() ;
         if ( tubeDirLoc.x() < 0.) tubeDirLoc = -tubeDirLoc ;
 
@@ -726,11 +662,11 @@ namespace MuonCalib {
 	double locz =  tubePosLoc.z() - sinus*rtrk;
         Amg::Vector3D trk_pos_loc(locx,locy,locz);
         Amg::Vector3D trk_pos =  gToStation.inverse()*trk_pos_loc; 
-	if( m_debug ) m_log << MSG::DEBUG << "  trk_pos_loc_rot " << trk_pos_loc_rot << " tubePosLoc " << tubePosLoc << " trk_pos_loc " <<  trk_pos_loc << "  trk_pos_rot " <<  trk_pos_rot << endreq; 
+	ATH_MSG_DEBUG( "  trk_pos_loc_rot " << trk_pos_loc_rot << " tubePosLoc " << tubePosLoc << " trk_pos_loc " <<  trk_pos_loc << "  trk_pos_rot " <<  trk_pos_rot  );
 
-	if( m_debug ) m_log << MSG::DEBUG << " standard rtrk " << rtrk << " ImpactParameter " << ImpactParameter  << " diff rtrk " << rtrk-ImpactParameter << " trk_pos " << trk_pos << " OR segPosAtDCA " << segPosAtDCA << endreq; 
+	ATH_MSG_DEBUG( " standard rtrk " << rtrk << " ImpactParameter " << ImpactParameter  << " diff rtrk " << rtrk-ImpactParameter << " trk_pos " << trk_pos << " OR segPosAtDCA " << segPosAtDCA  );
 
-        if (m_debug &&  fabs(rtrk-ImpactParameter) > 0.001)  m_log << MSG::DEBUG << " ALARM Impact parameter difference " <<  rtrk-ImpactParameter  << endreq;  
+        if (fabs(rtrk-ImpactParameter) > 0.001)  ATH_MSG_DEBUG( " ALARM Impact parameter difference " <<  rtrk-ImpactParameter   );
 
         //Alternative
         if ( seg.author() == 3 || m_newImpactParameter) {
@@ -738,9 +674,9 @@ namespace MuonCalib {
           trk_pos = segPosAtDCA ;
         }
       
-	if( m_debug ) m_log << MSG::DEBUG << "MDT RIO tdc " << prd->tdc() << " adc " << prd->adc() 
-			    << " r_time " << rot->localParameters()[Trk::driftRadius]
-			    << " r_track " << rtrk << endreq;
+	ATH_MSG_DEBUG( "MDT RIO tdc " << prd->tdc() << " adc " << prd->adc() 
+                       << " r_time " << rot->localParameters()[Trk::driftRadius]
+                       << " r_track " << rtrk  );
 	
        	tubePosLoc[Trk::locX]=trk_pos_loc.x();
 
@@ -756,16 +692,16 @@ namespace MuonCalib {
 	// Store local twin tube coordinate 
 	if( prd->localPosition()[Trk::locY] ){
 	  Identifier test_prd_Id = prd->detectorElement()->identify();
-	  if(m_debug) m_log << MSG::DEBUG << " Twin Position :  prd->localPosition()[Trk::locY] = " <<  prd->localPosition()[Trk::locY] 
-                    << " in station " << m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(test_prd_Id))
-		    << "  multilayer = " << m_mdtIdHelper->multilayer(test_prd_Id) << "  layer = " << m_mdtIdHelper->tubeLayer(test_prd_Id)
-		    << " tube = " <<  m_mdtIdHelper->tube(test_prd_Id) << "  modulo4 = " << (m_mdtIdHelper->tube(test_prd_Id)%4) << endreq;
+	  ATH_MSG_DEBUG( " Twin Position :  prd->localPosition()[Trk::locY] = " <<  prd->localPosition()[Trk::locY] 
+                         << " in station " << m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(test_prd_Id))
+                         << "  multilayer = " << m_mdtIdHelper->multilayer(test_prd_Id) << "  layer = " << m_mdtIdHelper->tubeLayer(test_prd_Id)
+                         << " tube = " <<  m_mdtIdHelper->tube(test_prd_Id) << "  modulo4 = " << (m_mdtIdHelper->tube(test_prd_Id)%4)  );
 	  
       
 	 Amg::Vector3D lposTrking(0.,0., prd->localPosition()[Trk::locY]);
          Amg::Vector3D gposAMDB = detEl->surface(id).transform()*lposTrking;
          Amg::Vector3D lposAMDB = detEl->GlobalToAmdbLRSTransform()*gposAMDB;
-	 if(m_debug)  m_log << MSG::DEBUG << " CHECK lposTrking = " <<    lposTrking.z() << " lposAMDB " << lposAMDB.x() << endreq;
+	 ATH_MSG_DEBUG( " CHECK lposTrking = " <<    lposTrking.z() << " lposAMDB " << lposAMDB.x()  );
           
 	  xLocTwin = lposAMDB.x();
 	}
@@ -806,7 +742,7 @@ namespace MuonCalib {
 		}
 	MdtCalibrationSvcInput input;
 	// if( m_doTof ) input.tof = tubePos.mag()/299.792458;
-	if( m_doTof ) input.tof = calibHit.globalPointOfClosestApproach().mag()/299.792458; 
+	if( m_doTof ) input.tof = calibHit.globalPointOfClosestApproach().mag()*(1./299.792458); 
 	input.trackDirection = &seg.globalDirection(); 
  	
 	input.pointOfClosestApproach = &calibHit.globalPointOfClosestApproach();
@@ -814,14 +750,14 @@ namespace MuonCalib {
 	if (cachedId.is_valid()) { 
 	  sameChamber = (m_mdtIdHelper->stationName(id) == m_mdtIdHelper->stationName(cachedId)) && (m_mdtIdHelper->stationEta(id) == m_mdtIdHelper->stationEta(cachedId)) && (m_mdtIdHelper->stationPhi(id) == m_mdtIdHelper->stationPhi(cachedId)); 
 	} 
-	if (m_debug && !sameChamber) m_log << MSG::DEBUG << "Moving to a new chamber! " << cachedId << " to " << id << endreq; 
+	if (!sameChamber) ATH_MSG_DEBUG( "Moving to a new chamber! " << cachedId << " to " << id  );
 	// We're done with the cached Id for now, so immediately reassign it 
 	cachedId = id; 
 	
 	if (t0Shift == 0 || seg.author() !=3 || sameChamber) { 
 	  // There is one t0 shift for the whole segment - only one calibration is needed 
 	  input.tof += t0Shift; 
-	  if(m_debug) m_log << MSG::DEBUG << "Author " << seg.author() << " added single t0 shift of " << t0Shift << endreq; 
+	  ATH_MSG_DEBUG( "Author " << seg.author() << " added single t0 shift of " << t0Shift  );
 	} else { 
 	  segment_with_multiple_t0s=true;
 	  // We may be in a new chamber, with a different fitted t0 
@@ -830,10 +766,10 @@ namespace MuonCalib {
 	  // Reset the value of the t0 shift 
 	  t0Shift = calibHit.driftTime() - mrot->driftTime(); 
 	  input.tof += t0Shift; 
-	  if(m_debug) m_log << MSG::DEBUG << "t0 shift updated to " << t0Shift << endreq; 
+	  ATH_MSG_DEBUG( "t0 shift updated to " << t0Shift  );
 	  
 	  if( fabs( seg.time() - t0Shift ) > 0.01 && fabs(t0Shift) > 0.01 ){ 
-	    m_log << MSG::INFO << " Inconsistent fitted t0 found: from ROT " << t0Shift << " from segment " << seg.time() << endreq; 
+	    ATH_MSG_INFO( " Inconsistent fitted t0 found: from ROT " << t0Shift << " from segment " << seg.time()  );
 	  } 
 	  
 	}
@@ -853,16 +789,16 @@ namespace MuonCalib {
 	}
 
 	if( fabs(timeDif) >= 0.1 && !segment_with_multiple_t0s) {
-	  m_log << MSG::WARNING << " Bad T0Shift " << t0Shift << "  cor " << timeDif
-		<< " ROT " << mrot->driftRadius()  << " t  " << mrot->driftTime() 
-		<< " calib " << calibHit.driftRadius() << " t " << calibHit.driftTime()
-		<< " old " << oldDriftTime << " author " << seg.author() << endreq;
+	  ATH_MSG_WARNING( " Bad T0Shift " << t0Shift << "  cor " << timeDif
+                           << " ROT " << mrot->driftRadius()  << " t  " << mrot->driftTime() 
+                           << " calib " << calibHit.driftRadius() << " t " << calibHit.driftTime()
+                           << " old " << oldDriftTime << " author " << seg.author()  );
 	}
 	if(fabs(mrot->driftRadius() - calibHit.driftRadius()) > 0.01 && !segment_with_multiple_t0s)
 		{
-		m_log << MSG::WARNING << "Detected radius difference> 10 mu. MROT r= " <<mrot->driftRadius()<<" calib r="<<calibHit.driftRadius()<<endreq;
+                  ATH_MSG_WARNING( "Detected radius difference> 10 mu. MROT r= " <<mrot->driftRadius()<<" calib r="<<calibHit.driftRadius() );
 		}
-	if(m_debug) m_log << MSG::DEBUG << "B-field correction: " << calibHit.lorentzTime() << endreq;
+	ATH_MSG_DEBUG( "B-field correction: " << calibHit.lorentzTime()  );
 
 	//        std::cout << " Drift radius ROT " << rot->localParameters()[Trk::driftRadius] << " Calibsvc " << driftR <<std::endl;
 	// fill distance to track
@@ -879,15 +815,15 @@ namespace MuonCalib {
         double error2 = rot->localCovariance()(0,0);
         double chi2c = (resi*resi)/error2;
         chi2check+= chi2c;
-        if(m_debug && seg.author() == 4 ) {
+        if(msgLvl(MSG::DEBUG) && seg.author() == 4 ) {
 // Craig Blocker his checks
           MuonFixedId fixid = m_idToFixedIdTool->idToFixedId(id);
           std::string st = fixid.stationNumberToFixedStationString(fixid.stationName());
           int ml = fixid.mdtMultilayer();
           int la = fixid.mdtTubeLayer();
-          m_log << MSG::DEBUG << " station " << st << " eta " << fixid.eta() << " phi " << fixid.phi() << " ML " << ml << " Layer " << la << " drift R " << driftR  << " MROT drift R " << mrot->driftRadius() << " drift Time " << mrot->driftTime() << " ROT error " << sqrt(error2) << " residual " << resi << " tubePosLoc " << tubePosLoc << " t0 shift " << t0Shift << " chi2c " << chi2c << endreq;     
-          if (sqrt(error2) < 1.999 )  m_log << MSG::DEBUG << " ALARM TOO SMALL drift error " << endreq;    
-          if (chi2c > qualityFactor)   m_log << MSG::DEBUG << " ALARM TOO LARGE chi2 single hit " << endreq;    
+          ATH_MSG_DEBUG( " station " << st << " eta " << fixid.eta() << " phi " << fixid.phi() << " ML " << ml << " Layer " << la << " drift R " << driftR  << " MROT drift R " << mrot->driftRadius() << " drift Time " << mrot->driftTime() << " ROT error " << sqrt(error2) << " residual " << resi << " tubePosLoc " << tubePosLoc << " t0 shift " << t0Shift << " chi2c " << chi2c  );
+          if (sqrt(error2) < 1.999 ) ATH_MSG_DEBUG( " ALARM TOO SMALL drift error "  );
+          if (chi2c > qualityFactor)   ATH_MSG_DEBUG( " ALARM TOO LARGE chi2 single hit "  );
         }  
 	MdtCalibHitBase* basehit = calibHit.hitBase(&*m_idToFixedIdTool);
 	basehit->setSegmentT0Applied(apply_t0);
@@ -907,14 +843,14 @@ namespace MuonCalib {
 // Loop over competing Rios or Rios  
 	  if (competingRio) rot = &rotc->rioOnTrack(irio);
 
-	  if( m_debug ) {
-	    if (!competingRio) m_log << MSG::DEBUG << "Found RPC Rio !" << endreq;
-	    if (competingRio) m_log << MSG::DEBUG << "Found RPC Competing Rio !" << endreq;
+	  if( msgLvl(MSG::DEBUG) ) {
+	    if (!competingRio) ATH_MSG_DEBUG( "Found RPC Rio !"  );
+	    if (competingRio) ATH_MSG_DEBUG( "Found RPC Competing Rio !"  );
 	  }
 
           const Muon::RpcClusterOnTrack* rrot = dynamic_cast<const Muon::RpcClusterOnTrack*>(rot);
 	  if( !rrot ){
-	    m_log << MSG::WARNING << "This is not a  RpcClusterOnTrack!!! " << endreq;
+	    ATH_MSG_WARNING( "This is not a  RpcClusterOnTrack!!! "  );
 	    continue;
   	  }
 
@@ -965,20 +901,20 @@ namespace MuonCalib {
 // Loop over competing Rios or Rios  
 	  if (competingRio) rot = &rotc->rioOnTrack(irio);
 
-	  if( m_debug ) {
-	    if (!competingRio) m_log << MSG::DEBUG << "Found TGC Rio !" << endreq;
-	    if (competingRio) m_log << MSG::DEBUG << "Found TGC Competing Rio !" << endreq;
+	  if( msgLvl(MSG::DEBUG) ) {
+	    if (!competingRio) ATH_MSG_DEBUG( "Found TGC Rio !"  );
+	    if (competingRio) ATH_MSG_DEBUG( "Found TGC Competing Rio !"  );
 	  }
 
  	  const Muon::TgcClusterOnTrack* trot = dynamic_cast<const Muon::TgcClusterOnTrack*>(rot);
 	  if( !trot ){
-	  m_log << MSG::WARNING << "This is not a  TgcClusterOnTrack!!! " << endreq;
+            ATH_MSG_WARNING( "This is not a  TgcClusterOnTrack!!! "  );
 	  continue;
 	  }
 
 	  const Muon::TgcPrepData* tprd = trot->prepRawData();
 	  id = tprd->identify();
-	  if( m_debug ) m_log << MSG::DEBUG << "TGC RIO " << endreq;
+	  ATH_MSG_DEBUG( "TGC RIO "  );
 	//	m_tgcIdHelper->print(id);
 
 	  int nStrips = tprd->rdoList().size();
@@ -1023,13 +959,12 @@ namespace MuonCalib {
         for (int irio=0; irio < nRios; ++irio) { 
 // Loop over competing Rios or Rios  
 	  if (competingRio) rot = &rotc->rioOnTrack(irio);
-	  if( m_debug ) {
-	    if (!competingRio) m_log << MSG::DEBUG << "Found CSC Rio !" << endreq;
-	    if (competingRio) m_log << MSG::DEBUG << "Found CSC Competing Rio !" << endreq;
-	  }
+          ATH_MSG_DEBUG( (competingRio ?
+                          "Found CSC Competing Rio !" :
+                          "Found CSC Rio !" ) );
 	  const Muon::CscClusterOnTrack* crot = dynamic_cast<const Muon::CscClusterOnTrack*>(rot);
  	  if( !crot ){
- 	   m_log << MSG::WARNING << "This is not a  CscClusterOnTrack!!!" << endreq;
+            ATH_MSG_WARNING( "This is not a  CscClusterOnTrack!!!"  );
  	   continue;
   	  }
 
@@ -1062,10 +997,8 @@ namespace MuonCalib {
 	  cscCH->setIdentifier( fixid);
 
 	  mdtSeg->addHitOnTrack( cscCH );
-          if( m_debug ) {
-	    m_log << MSG::DEBUG << "mdtSeg->cscHitsOnTrack()=" << mdtSeg->cscHitsOnTrack() << endreq;
-	    m_log << MSG::DEBUG << "mdtSeg->hitsOnTrack()=" << mdtSeg->hitsOnTrack() << endreq;
-	  }
+          ATH_MSG_DEBUG( "mdtSeg->cscHitsOnTrack()=" << mdtSeg->cscHitsOnTrack()  );
+          ATH_MSG_DEBUG( "mdtSeg->hitsOnTrack()=" << mdtSeg->hitsOnTrack()  );
 	// set the global to amdb transform in case of first hit
 	//if( rit == rots.begin() ) {
 	  // global to AMDB transform
@@ -1074,24 +1007,24 @@ namespace MuonCalib {
        }
 
       }else{
-	m_log << MSG::WARNING << "ERROR unknown RIO type " << std::endl;
+	ATH_MSG_WARNING( "ERROR unknown RIO type " );
       }
    
     }
-    if( m_verbose ) m_log << MSG::VERBOSE << "Number of *&* mdt " << nm << " rpc " << nr 
-			  << " tgc " << nt << " csc " << nc << endreq;
+      ATH_MSG_VERBOSE( "Number of *&* mdt " << nm << " rpc " << nr 
+                       << " tgc " << nt << " csc " << nc  );
 
     // add magnetic-field entries for MDT hits //
 
-    if (m_debug && seg.author() == 4 ) {
+      if (msgLvl(MSG::DEBUG) && seg.author() == 4 ) {
        if (qualityFactor > 0.0001) {
          if (chi2check/qualityFactor > 1.01 || chi2check/qualityFactor < 0.99) {
-          m_log << MSG::DEBUG << " ALARM wrong chi2 " << "Mdt segment chi2 " << qualityFactor << " mdt hits " << nm << " chi2check " << chi2check << " t0Shift " << t0Shift << endreq; 
+           ATH_MSG_DEBUG( " ALARM wrong chi2 " << "Mdt segment chi2 " << qualityFactor << " mdt hits " << nm << " chi2check " << chi2check << " t0Shift " << t0Shift  );
          }  else {   
-          m_log << MSG::DEBUG << " good chi2 " << "Mdt segment chi2 " << qualityFactor << " mdt hits " << nm << " chi2check " << chi2check << " t0Shift " << t0Shift << endreq; 
+           ATH_MSG_DEBUG( " good chi2 " << "Mdt segment chi2 " << qualityFactor << " mdt hits " << nm << " chi2check " << chi2check << " t0Shift " << t0Shift  );
          }
        } else {
-          m_log << MSG::DEBUG << " good chi2 " << "Mdt segment chi2 " << qualityFactor << " mdt hits " << nm << " chi2check " << chi2check << " t0Shift " << t0Shift << endreq; 
+         ATH_MSG_DEBUG( " good chi2 " << "Mdt segment chi2 " << qualityFactor << " mdt hits " << nm << " chi2check " << chi2check << " t0Shift " << t0Shift  );
        }
     }
 
@@ -1099,7 +1032,7 @@ namespace MuonCalib {
   } // createMuonCalibSegment
 
   MuonCalibPattern* MuonSegmentToCalibSegment::createMuonCalibPattern(const Muon::MuonPatternCombination* pat)const{
-    if( m_verbose ) m_log << MSG::VERBOSE << "createMuonCalibPattern" << endreq;
+    ATH_MSG_VERBOSE( "createMuonCalibPattern"  );
     MuonCalibPattern* calibpat = 0;
 
     if( pat ) {
@@ -1120,13 +1053,12 @@ namespace MuonCalib {
 	  // Approximate conversion of radius of curvature to Pinv in MeV-1
 	  Pinv = (10.*charge)/(perigee->momentum().mag());
 	  z0 = perigee->position().z();
-	  if( m_debug ) {
-	    m_log << MSG::DEBUG  << " r0,z0 " << r0 << " " << z0 << " phi,theta " << phi << " " << theta  << endreq;
-	    m_log << MSG::DEBUG  << " pat "  << perigee->position() << " " << perigee->momentum()<< endreq;
-	  }
+          ATH_MSG_DEBUG( " r0,z0 " << r0 << " " << z0 << " phi,theta " << phi << " " << theta   );
+          ATH_MSG_DEBUG( " pat "  << perigee->position() << " " << perigee->momentum() );
 	}
-      else 
-	{ m_log << MSG::WARNING << "Trackparameters are not set or is not a Perigee!! Pattern gets empty parameters" << endreq;}
+      else {
+        ATH_MSG_WARNING( "Trackparameters are not set or is not a Perigee!! Pattern gets empty parameters"  );
+      }
       
       //Here I have to add the nmdt, nrpc, ntgc and ncsc...
       unsigned int nmdt = 0, nrpc = 0, ntgc = 0, ncsc = 0;
@@ -1150,12 +1082,12 @@ namespace MuonCalib {
 	    } else if ( m_cscIdHelper->is_csc(id) ) {
 	      if      ( m_cscIdHelper->measuresPhi(id) ) ncsc += 1 ;
 	      else    ncsc += 1000 ;
-	    } else    m_log << MSG::INFO << "PrepRawData on pat is not a muon-technom_logy" << endreq;
+	    } else    ATH_MSG_INFO( "PrepRawData on pat is not a muon-technom_logy"  );
 	  }
 	}
       calibpat = new MuonCalibPattern(0.,z0,r0,Pinv,phi,theta, nmdt, nrpc, ntgc, ncsc);
     }else{
-     if( m_debug )  m_log << MSG::DEBUG << "WARNING, empty muoncalibpattern created" << endreq;
+      ATH_MSG_DEBUG( "WARNING, empty muoncalibpattern created"  );
       calibpat = new MuonCalibPattern();
     }
     return calibpat;
@@ -1163,7 +1095,7 @@ namespace MuonCalib {
 
   unsigned int MuonSegmentToCalibSegment::getQuality( const Muon::MuonSegment& seg ) const
   {
-    m_log << MSG::DEBUG << " plotting quality " << endreq;
+    ATH_MSG_DEBUG( " plotting quality "  );
     // try to dynamic_cast to MdtSegmentQuality in order to obtain quality
 
     const Muon::MuonSegmentQuality* q = dynamic_cast<const Muon::MuonSegmentQuality*>(seg.fitQuality());
@@ -1172,15 +1104,15 @@ namespace MuonCalib {
 //    NO quality available for CSC   std::cout << "dynamic_cast MdtSegmentQuality failed" << std::endl;
       return 0;
     }
-    if( m_debug ) m_log << MSG::DEBUG << "Got MuonSegmentQuality "
-			<< " hots " << q->numberDoF()+2
-			<< " number of holes " << q->channelsWithoutHit().size() << endreq;
+    ATH_MSG_DEBUG( "Got MuonSegmentQuality "
+                   << " hots " << q->numberDoF()+2
+                   << " number of holes " << q->channelsWithoutHit().size()  );
     
     unsigned int packedInfo = 0;
     
     packedInfo += 100*( q->channelsWithoutHit().size() < 9 ? q->channelsWithoutHit().size() : 9 );
 
-    if( m_debug ) m_log << MSG::DEBUG << " packedInfo " << packedInfo << endreq;
+    ATH_MSG_DEBUG( " packedInfo " << packedInfo  );
     return packedInfo;
   }
 
