@@ -26,5 +26,4 @@ else
     export PYTHONPATH=$MaMPythonFilesPath:$PYTHONPATH
 fi
 
-javac $SCRIPTDIR/GUI/TrigMaMGUI.java
 java -cp $SCRIPTDIR/GUI: TrigMaMGUI

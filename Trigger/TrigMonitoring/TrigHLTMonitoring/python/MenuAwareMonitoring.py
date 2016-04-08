@@ -4,7 +4,7 @@
 # Authors: Ben Smart (Ben.Smart@cern.ch), Xanthe Hoad (Xanthe.Hoad@cern.ch) 
 #
 
-import sys
+import sys,os
 # import oracle interaction class
 from TrigHLTMonitoring.OracleInterface import OracleInterface
 # import tool interrogator
@@ -19,6 +19,8 @@ import subprocess
 import hashlib
 # import json for converting configuration dictionaries into strings for hashing
 import json
+# for getting connection details
+from xml.dom import minidom
 
 # all Menu-Aware Monitoring stuff in one class
 # it uses OracleInterface to talk to the Oracle database
@@ -36,7 +38,7 @@ class MenuAwareMonitoring:
         and get the current default from the database (if it exists)."""
 
         # MaM code version
-        self.version = '1.2.7'
+        self.version = '1.2.8'
 
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
@@ -77,6 +79,9 @@ class MenuAwareMonitoring:
 
         # flag to record if we have connected to Oracle
         self.connected_to_oracle = False
+        
+        # flag to indicate if we are connected to the replica database with a readonly connection
+        self.replica_db_connection = False
 
         # now connect to oracle
         self.__connect_to_oracle__(database_username,database_password,database_name,database_directory)
@@ -113,15 +118,30 @@ class MenuAwareMonitoring:
         
             # info for user
             print "We are now attempting to connect to the Oracle database"
-
+ 
             # try catch
             try:
-
-                # connect to oracle
-                self.oi.connect_to_oracle(database_username,database_password,database_name,database_directory)
-
-                # flag to record that we have connected
-                self.connected_to_oracle = True
+                
+                if not database_username and not database_password and not database_name and not database_directory:
+                    print "Connecting to the replica database (read only)"
+                    # get the connection from authentication.xml
+                    connectionSvc = MenuAwareMonitoring._getConnectionServicesForAlias("TRIGGERDB")[0]
+                    print "Connection Service %s" % connectionSvc
+                    user,pw = MenuAwareMonitoring._readAuthentication()[connectionSvc]
+                    server = connectionSvc.split('/')[2]
+                    directory = "ATLAS_CONF_TRIGGER_RUN2"
+                    #print "User %s, pw %s, server %s" % (user,pw,server)
+                    # connect to oracle
+                    #self.oi.connect_to_oracle(database_username,database_password,database_name)
+                    self.oi.connect_to_oracle(user,pw,server,directory)
+                    #print "Got here"
+                    # flag to record that we have connected
+                    self.connected_to_oracle = True
+                    self.replica_db_connection = True
+                else:
+                    print "Connecting to database",database_name,"with provided username, password and directory"
+                    self.oi.connect_to_oracle(database_username,database_password,database_name)
+                    self.connected_to_oracle = True
 
             except:
 
@@ -129,9 +149,83 @@ class MenuAwareMonitoring:
                 print "Error while connecting to Oracle database. Some functionality will not be available to you."
                 # just to be sure 
                 self.connected_to_oracle = False
-                                
-                # exit, otherwise the program will crash later when Oracle database features are required
-                #sys.exit(1)
+                    
+                    
+    @staticmethod
+    def _getConnectionServicesForAlias(alias):
+        connectionServices = None # list of services
+        
+        dblookupfilename = MenuAwareMonitoring._getFileLocalOrPath('dblookup.xml','CORAL_DBLOOKUP_PATH')
+        if dblookupfilename == None: 
+            return None
+
+        doc = minidom.parse(dblookupfilename)
+        for ls in doc.getElementsByTagName('logicalservice'):
+            if ls.attributes['name'].value != alias: continue
+            connectionServices = [str(s.attributes['name'].value) for s in ls.getElementsByTagName('service')]
+        doc.unlink()
+        
+        print( "For alias '%s' found list of connections %r" % (alias,connectionServices) )
+        if connectionServices == None:
+            print("Trigger connection alias '%s' is not defined in %s" % (alias,dblookupfilename))
+        return connectionServices
+    
+    @staticmethod
+    def _readAuthentication():
+        """ read authentication.xml, first from local directory, then from all paths specified in CORAL_AUTH_PATH
+            returns dictionary d with d[connection] -> (user,pw)
+            """
+        
+        authDict = {}
+        
+        dbauthfilename = MenuAwareMonitoring._getFileLocalOrPath('authentication.xml','CORAL_AUTH_PATH')
+        if dbauthfilename == None: return authDict
+        
+        doc = minidom.parse(dbauthfilename)
+        for cn in doc.getElementsByTagName('connection'):
+            user = ""
+            pw = ""
+            svc = cn.attributes['name'].value
+            for p in cn.getElementsByTagName('parameter'):
+                if p.attributes['name'].value == 'user': user = p.attributes['value'].value
+                if p.attributes['name'].value == 'password': pw = p.attributes['value'].value
+            authDict[cn.attributes['name'].value] = (user,pw)
+        doc.unlink()
+        return authDict
+    
+    @staticmethod
+    def FindFile( filename, pathlist, access ):
+        """Find <filename> with rights <access> through <pathlist>."""
+        
+        # special case for those filenames that already contain a path
+        if os.path.dirname( filename ):
+            if os.access( filename, access ):
+                return filename
+        
+        # test the file name in all possible paths until first found
+        for path in pathlist:
+            f = os.path.join( path, filename )
+            if os.access( f, access ):
+                return f
+        
+        return None
+    
+    @staticmethod
+    def _getFileLocalOrPath(filename, pathenv):
+        """looks for filename in local directory and then in all paths specified in environment variable 'pathenv'
+            returns path/filename if existing, otherwise None """
+        
+        if os.path.exists(filename):
+            print( "Using local file %s" % filename)
+            return filename
+        
+        pathlist = os.getenv(pathenv,'').split(os.pathsep)
+        resolvedfilename = MenuAwareMonitoring.FindFile(filename, pathlist, os.R_OK)
+        if resolvedfilename:
+            return resolvedfilename
+        
+        print("No file %s found locally nor in %s" % (filename, os.getenv('CORAL_DBLOOKUP_PATH')) )
+        return None
 
 
     def __disconnect_from_oracle__(self):
@@ -144,7 +238,7 @@ class MenuAwareMonitoring:
             print "We are now disconnecting from the Oracle database"
 
             # disconnect from oracle
-            self.oi.disconnect_from_oracle()
+            self.oi.disconnect_from_oracle()       
 
 
     def __quiet_output__(self):
@@ -613,6 +707,10 @@ class MenuAwareMonitoring:
             print "You are not connected to the database, so this function is not available."
             return
         
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
+        
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
@@ -699,6 +797,10 @@ class MenuAwareMonitoring:
             print "You are not connected to the database, so this function is not available."
             return
 
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
+        
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
@@ -832,6 +934,10 @@ class MenuAwareMonitoring:
             print "You are not connected to the database, so this function is not available."
             return
 
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
+        
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
@@ -1003,6 +1109,10 @@ class MenuAwareMonitoring:
             print "You are not connected to the database, so this function is not available."
             return
 
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
+        
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
@@ -2506,6 +2616,10 @@ class MenuAwareMonitoring:
         if self.connected_to_oracle == False:
             print "You are not connected to the database, so this function is not available."
             return
+        
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
 
         # is this session interactive?
         if self.__is_session_interactive__():
@@ -2621,6 +2735,10 @@ class MenuAwareMonitoring:
             print "You are not connected to the database, so this function is not available."
             return
         
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
+        
         # check if there are any other active links for this smk
         active_smk_to_mck_link_search_results = self.oi.find_active_smk_to_mck_link(input_smk)
 
@@ -2733,6 +2851,10 @@ class MenuAwareMonitoring:
 
         if self.connected_to_oracle == False:
             print "You are not connected to the database, so this function is not available."
+            return
+        
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
             return
         
         # check for empty print_output_here

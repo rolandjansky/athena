@@ -26,7 +26,7 @@ class MenuAwareMonitoringStandalone:
     def __init__(self):
 
         # MaM code version
-        self.version = '1.2.7'
+        self.version = '1.2.8'
 
         # flag for setting whether to print out anything to screen or not
         self.print_output = True

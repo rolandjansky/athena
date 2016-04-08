@@ -164,8 +164,7 @@ if HLTMonFlags.doMaM:
 
     # set up menu-aware monitoring
     from TrigHLTMonitoring.MenuAwareMonitoring import MenuAwareMonitoring
-    #mam = MenuAwareMonitoring()
-    mam = MenuAwareMonitoring('ATLAS_CONF_TRIGGER_RUN2_R','TrigConfigRead2015','atlas_config','ATLAS_CONF_TRIGGER_RUN2')
+    mam = MenuAwareMonitoring()
 
     # if we are applying configurations to tools according to an MCK, then do that here
     if  HLTMonFlags.doMaM_ApplyMCK:
