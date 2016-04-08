@@ -2,13 +2,13 @@ package OnlineRecoTests
 
 author Max Baak <mbaak@cern.ch>
 
-use AtlasPolicy       AtlasPolicy-01-*
-use GaudiInterface    GaudiInterface-01-*       External
-use AthenaKernel      AthenaKernel-*            Control
+use AtlasPolicy       AtlasPolicy-*
+#use GaudiInterface    GaudiInterface-*       External
+#use AthenaKernel      AthenaKernel-*            Control
 use AtlasROOT         AtlasROOT-*               External
-use AthenaPoolKernel  AthenaPoolKernel-*        Database/AthenaPOOL
+#use AthenaPoolKernel  AthenaPoolKernel-*        Database/AthenaPOOL
 
-use Tier0ChainTests   Tier0ChainTests-*         Tools
+#use Tier0ChainTests   Tier0ChainTests-*         Tools
 
 apply_pattern declare_scripts files="../scripts/ort_*.py ../scripts/ort_*.sh"
 apply_pattern declare_joboptions files="../share/*.py"
@@ -24,4 +24,3 @@ apply_pattern declare_runtime extras="`if [ -f ${ORTXMLFILE} ]; then cp -f $ORTX
 ## >              echo "../test/OnlineRecoTests_`echo $AtlasArea | sed 's/-VAL//' | sed 's/-T0//' | sed 's/-Prod//' | cut -d "/" -f 8,9 | sed 's/\//_/'`.xml"
 ## will result in: ../test/OnlineRecoTests_devval_AtlasOffline.xml
 ## if this file is not found, the fall-back file is: ../test/OnlineRecoTests_DefaultConfiguration.xml
-
