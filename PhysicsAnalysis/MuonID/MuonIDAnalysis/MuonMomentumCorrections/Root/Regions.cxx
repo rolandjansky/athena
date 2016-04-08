@@ -90,17 +90,17 @@ Regions::Regions(string inRegionFile, int doMacroRegionsFlag){
 	m_doMacroRegions =true;
 	switch(doMacroRegionsFlag){
 	case 1:
-	    if(verb) cout<<"collectMacroRegionsSL()"<<endl;
+	    if(verb) cout<<"m_collectMacroRegionsSL()"<<endl;
 	    //Collects all the Large and Small sectors if they belong to the same eta bin
-	    collectMacroRegionsSL(); break;
+	    m_collectMacroRegionsSL(); break;
 	case 2:
-	    if(verb) cout<<"collectMacroRegionsSL_SplitBAR()"<<endl;
+	    if(verb) cout<<"m_collectMacroRegionsSL_SplitBAR()"<<endl;
 	    //Large,Small sectors split plus Feet(12+14) and 11+15 sector split in Barrel
-	    collectMacroRegionsSL_SplitBAR(); break;
+	    m_collectMacroRegionsSL_SplitBAR(); break;
 	case 3:
-	    if(verb) cout<<"collectMacroRegionsSL_UpDn()"<<endl;
+	    if(verb) cout<<"m_collectMacroRegionsSL_UpDn()"<<endl;
 	    //Collects all the Large and Small, Up and Down sectors if they belong to the same eta bin
-	    collectMacroRegionsSL_UpDn(); break;
+	    m_collectMacroRegionsSL_UpDn(); break;
 	case 4: 
 	    if(verb) cout<<"using fabs(eta)"<<endl;
 	    m_useAbsEta = true; 
@@ -108,7 +108,7 @@ Regions::Regions(string inRegionFile, int doMacroRegionsFlag){
 	    break;
 	case 5: 
 	    if(verb) cout<<"using sectors!"<<endl;
-	    useSectors(); break;
+	    m_useSectors(); break;
 	    break;
 	default:
 	    cerr<<"ERROR: doMacroRegionFlag="<<doMacroRegionsFlag<<" not defined!"<<endl<<endl;
@@ -189,7 +189,7 @@ string Regions::GetRegionName(const double eta, const double phi) const{
 }
 
 //Collects all the Large and Small sectors if they belong to the same eta bin
-void Regions::collectMacroRegionsSL(){
+void Regions::m_collectMacroRegionsSL(){
     double etaMin = -999., etaMax = -999., deltaEta = -999.;
     int macroRegionIdx = 0;
     for(int k=0; k < m_nb_regions; ++k){
@@ -225,7 +225,7 @@ void Regions::collectMacroRegionsSL(){
 }
 
 //Collects all the Large and Small sectors if they belong to the same eta bin
-void Regions::collectMacroRegionsSL_UpDn(){
+void Regions::m_collectMacroRegionsSL_UpDn(){
     double etaMin = -999., etaMax = -999., deltaEta = -999.;
     int macroRegionIdx = 0;
     for(int k=0; k < m_nb_regions; ++k){
@@ -273,7 +273,7 @@ void Regions::collectMacroRegionsSL_UpDn(){
     }
 }
 
-void Regions::useSectors(){
+void Regions::m_useSectors(){
     double etaMin = -999., etaMax = -999., deltaEta = -999.;
     int macroRegionIdx = 0;
     for(int k=0; k < m_nb_regions; ++k){
@@ -323,7 +323,7 @@ void Regions::useSectors(){
 
 //Collects all the Large and Small sectors if they belong to the same eta bin and splits 
 // the barrel 12,14 smalls and 11+15 larges that may need different calibrations
-void Regions::collectMacroRegionsSL_SplitBAR(){
+void Regions::m_collectMacroRegionsSL_SplitBAR(){
     double etaMin = -999., etaMax = -999., deltaEta = -999.;
     int macroRegionIdx = 0;
     for(int k=0; k < m_nb_regions; ++k){
