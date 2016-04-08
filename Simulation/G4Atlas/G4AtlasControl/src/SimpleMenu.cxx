@@ -14,7 +14,7 @@ MsgStream SimpleMenu::log()
     IMessageSvc* p_msgSvc = 0;
 
     if (svcLocator->service("MessageSvc", p_msgSvc).isFailure() || !p_msgSvc)
-        std::cout << "FadsSensitiveDetector: Trouble getting the message service.  Should never happen.  Will crash now." << std::endl;
+        std::cout << "Trouble getting the message service.  Should never happen.  Will crash now." << std::endl;
     m_log = new MsgStream(p_msgSvc,name);
     return *m_log;
 }
