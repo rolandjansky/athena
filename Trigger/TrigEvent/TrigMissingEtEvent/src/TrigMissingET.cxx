@@ -8,7 +8,7 @@
 #include <string>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
+#include <cmath>
 
 TrigMissingET::TrigMissingET() :
   m_ex(0), m_ey(0), m_ez(0), m_sum_et(0), m_sum_e(0),
@@ -57,6 +57,14 @@ TrigMissingET::TrigMissingET(unsigned char n) :
     }
     m_compVec.push_back(c);
   }
+}
+
+
+TrigMissingET::TrigMissingET(std::vector< TrigMissingEtComponent >&& compVec)
+  : m_ex(0), m_ey(0), m_ez(0), m_sum_et(0), m_sum_e(0),
+    m_flag(0), m_roiWord(0),
+    m_compVec (std::move(compVec))
+{
 }
 
 
