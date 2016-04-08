@@ -55,7 +55,7 @@ StatusCode TRT_PAI_Process::initialize() {
   using namespace TRT_PAI_gasdata;
   using namespace TRT_PAI_physicsConstants;
 
-  ATH_MSG_VERBOSE ( "Initializing TRT_PAI_Process." );
+  ATH_MSG_VERBOSE ( "TRT_PAI_Process::initialize()" );
 
   // Get the Rndm number service
   if ( !m_pAtRndmGenSvc.retrieve().isSuccess() ) {
@@ -64,57 +64,45 @@ StatusCode TRT_PAI_Process::initialize() {
   }
   m_pHRengine = m_pAtRndmGenSvc->GetEngine("TRT_PAI");
 
-  // Sasha:
-  // currently supported gasType's:
-  // 1) XenonNew - Xe/CO2/O2    70/27/3
-  // 2) XenonOld - Xe/CO2/CF4   70/10/20
-  // 3) Argon    - Ar/CO2/O2    70/27/3
+  // Supported gasType's are 70%/27%/03%:
+  // 1) "Xenon"  - Xe/CO2/O2
+  // 2) "Argon"  - Ar/CO2/O2
+  // 3) "Kryton" - Kr/CO2/O2
   //
   // Figure out which type of gas we are having:
-  std::string gasType = "XenonNew";
 
-  /// Sasha: looks like 'Auto' work only for Xenon based mixtures
-  if ( m_gasType == "Auto" ) {
+  ATH_MSG_DEBUG ( "Gastype read as " << m_gasType );
 
-    ATH_MSG_DEBUG ( "Autodetecting gas type via TRT_DetectorManager" );
+  std::string gasType = "NotSet";
+  // Here m_gasType="Auto" was previously used to prompt a
+  // check of InDetDD::TRT_DetectorManager for whether we want
+  // the old Xenon mix: Xe/CO2/CF4 or the new one: Xe/CO2/O2
+  // Nowadays, it is always the new one, so we don't check this anymore.
 
-    // Get the TRT Detector Manager
-    const InDetDD::TRT_DetectorManager * manager;
-    if ( StatusCode::SUCCESS != detStore()->retrieve(manager,"TRT") ) {
-      ATH_MSG_ERROR ( "Can't get TRT_DetectorManager." );
+  if ( m_gasType == "Auto" )
+    {
+      gasType = "Xenon";
+    }
+  else if ( m_gasType == "Xenon" || m_gasType == "Argon" || m_gasType == "Krypton" )
+    {
+      ATH_MSG_DEBUG ( "Gastype is overriden from joboptions to be " << m_gasType );
+      gasType = m_gasType;
+    }
+  else
+    {
+      ATH_MSG_FATAL ( "GasType property set to '" << m_gasType
+                     << "'. Must be one of 'Auto', 'Xenon', 'Argon' or 'Krypton'." );
       return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG ( "Retrieved TRT_DetectorManager with version "
-                      << manager->getVersion().majorNum() );
-    }
+    };
 
-    if ( manager->gasType() == InDetDD::TRT_DetectorManager::newgas )      { gasType = "XenonNew"; }
-    else if ( manager->gasType() == InDetDD::TRT_DetectorManager::oldgas ) { gasType = "XenonOld"; }
-    else if ( manager->gasType() == InDetDD::TRT_DetectorManager::unknown ) {
-      ATH_MSG_WARNING ( "GasType info not set in TRT_DetectorManager. Using new gas." );
-      gasType = "XenonNew";
-    } else {
-      ATH_MSG_WARNING ( "Unrecognized GasType info set in TRT_DetectorManager. Using new gas." );
-      gasType = "XenonNew";
-    }
-
-  } else if ( m_gasType == "XenonNew" || m_gasType == "XenonOld" || m_gasType == "Argon" ) {
-    ATH_MSG_DEBUG ( "Gastype is overriden from joboptions to be " << m_gasType );
-    gasType = m_gasType;
-  }
-  else {
-    ATH_MSG_FATAL ( "GasType property set to '" << m_gasType
-                    << "'. Must be one of 'Auto', 'XenonNew', 'XenonOld' or 'Argon'." );
-    return StatusCode::FAILURE;
-  };
   ATH_MSG_INFO ( name() << " will use gas type = " << gasType );
+
   // Done with "trivial" initialization.
   // Finally we can start to construct gas
 
   ATH_MSG_VERBOSE ( "Constructing gas mixture." );
 
   // Need the gas temperature
-
   const double tempK = 289.;  // At 289. degrees, we get same densities as Nevski had
 
   // Define elements
@@ -126,11 +114,12 @@ StatusCode TRT_PAI_Process::initialize() {
   elements["F"]  = TRT_PAI_element( "F" , EF  , SF  , NF  , ZF ,  AF );
   elements["O"]  = TRT_PAI_element( "O" , EO  , SO  , NO  , ZO ,  AO );
   elements["Ar"] = TRT_PAI_element( "Ar", EAr , SAr , NAr , ZAr,  AAr);
+  elements["Kr"] = TRT_PAI_element( "Kr", EKr , SKr , NKr , ZKr,  AKr);
 
   // Print out elements
   {
     for (element_type::iterator ei=elements.begin(); ei!=elements.end(); ei++) {
-      ATH_MSG_DEBUG ( ". Element " << (*ei).second.getName()
+      ATH_MSG_DEBUG ( ". Element "  << (*ei).second.getName()
                       << ", A= "    << (*ei).second.getAtomicA()
                       << ", Z= "    << (*ei).second.getAtomicZ()
                       << ", rho="   << (*ei).second.getDensity(tempK)
@@ -162,18 +151,21 @@ StatusCode TRT_PAI_Process::initialize() {
   components["Ar"]  = TRT_PAI_gasComponent("Ar");
   components["Ar"].addElement(&elements["Ar"],1);
 
+  components["Kr"]  = TRT_PAI_gasComponent("Kr");
+  components["Kr"].addElement(&elements["Kr"],1);
+
   // Print out gas components
 
   {
-    std::vector<std::string> cnam(5);
-    cnam[0] = "Xe"; cnam[1] = "CO2"; cnam[2] = "CF4"; cnam[3] = "CO2"; cnam[4] = "Ar";
+    std::vector<std::string> cnam(6);
+    cnam[0] = "Xe"; cnam[1] = "CO2"; cnam[2] = "CF4"; cnam[3] = "CO2"; cnam[4] = "Ar"; cnam[5] = "Kr";
 
     int n;
-    for ( int ic=0; ic<5; ++ic ) {
+    for ( int ic=0; ic<6; ++ic ) {
       n = components[cnam[ic]].getNElementTypes();
       ATH_MSG_DEBUG ( ". Gas component " << components[cnam[ic]].getName() << " contains");
       for ( int ie=0; ie<n; ++ie ) {
-        ATH_MSG_DEBUG ( "   - "     <<  components[cnam[ic]].getElementMultiplicity(ie)
+        ATH_MSG_DEBUG ( "   - "        <<  components[cnam[ic]].getElementMultiplicity(ie)
                         << " atoms "   << (components[cnam[ic]].getElement(ie))->getName()
                         << " with Z= " << (components[cnam[ic]].getElement(ie))->getAtomicZ()
                         << " and A= "  << (components[cnam[ic]].getElement(ie))->getAtomicA()
@@ -188,7 +180,7 @@ StatusCode TRT_PAI_Process::initialize() {
   mixtureName.insert(4, gasType);
   m_trtgas = new TRT_PAI_gasMixture(mixtureName);
 
-  if ( gasType == "XenonNew" ) {
+  if ( gasType == "Xenon" ) {
     ATH_MSG_DEBUG ( "Using new Xenon gas mixture (Xe/CO2/O2 - 70/27/3)." );
     m_trtgas->addComponent( &components["Xe"] , 0.70);
     m_trtgas->addComponent( &components["CO2"], 0.27);
@@ -205,6 +197,13 @@ StatusCode TRT_PAI_Process::initialize() {
   if ( gasType == "Argon" ) {
     ATH_MSG_DEBUG ( "Using Argon gas mixture (Ar/CO2/O2 - 70/27/3)." );
     m_trtgas->addComponent( &components["Ar"] , 0.70);
+    m_trtgas->addComponent( &components["CO2"], 0.27);
+    m_trtgas->addComponent( &components["O2"] , 0.03);
+  }
+
+  if ( gasType == "Krypton" ) {
+    ATH_MSG_DEBUG ( "Using Krypton gas mixture (Kr/CO2/O2 - 70/27/3)." );
+    m_trtgas->addComponent( &components["Kr"] , 0.70);
     m_trtgas->addComponent( &components["CO2"], 0.27);
     m_trtgas->addComponent( &components["O2"] , 0.03);
   }
