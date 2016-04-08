@@ -21,6 +21,7 @@ private
 use AthenaKernel               AthenaKernel-*          Control
 use SGTools                    SGTools-*               Control
 use FourMomUtils               FourMomUtils-*          Event
+use xAODMissingET              xAODMissingET-*         Event/xAOD
 use egammaEvent		       egammaEvent-*           Reconstruction/egamma
 use muonEvent                  muonEvent-*             Reconstruction/MuonIdentification
 use tauEvent	               tauEvent-*              Reconstruction

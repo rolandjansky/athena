@@ -31,7 +31,7 @@ SumETFillerTool::SumETFillerTool (const std::string& type,
   : BlockFillerTool<MissingET> (type, name, parent)
   ,   mLog(msgSvc(), name )
 {
-
+  book().ignore(); // Avoid coverity warning.
 }
 
 

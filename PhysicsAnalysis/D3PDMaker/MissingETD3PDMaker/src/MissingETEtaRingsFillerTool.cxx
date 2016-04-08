@@ -32,6 +32,8 @@ namespace D3PD {
     ,   _data ( "MissingETData" )
   {
     declareProperty("DoNoiseCut", m_doNoiseCut = false);
+
+    book().ignore(); // Avoid coverity warning.
   }
 
   /**

@@ -31,6 +31,7 @@ MissingETJetsInfoFillerTool::MissingETJetsInfoFillerTool (const std::string& typ
     mLog(msgSvc(), name )
 {
 declareProperty ("TrackParticleContainer",       m_trackContainerKey        = "TrackParticleCandidate");
+book().ignore(); // Avoid coverity warning.
 }
 
 

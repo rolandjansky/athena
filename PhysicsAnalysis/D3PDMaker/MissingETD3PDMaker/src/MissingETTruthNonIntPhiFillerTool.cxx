@@ -32,6 +32,7 @@ MissingETTruthNonIntPhiFillerTool::MissingETTruthNonIntPhiFillerTool (const std:
   : BlockFillerTool<MissingEtTruth> (type, name, parent)
   ,   mLog(msgSvc(), name )
 {
+  book().ignore(); // Avoid coverity warning.
 }
 
 

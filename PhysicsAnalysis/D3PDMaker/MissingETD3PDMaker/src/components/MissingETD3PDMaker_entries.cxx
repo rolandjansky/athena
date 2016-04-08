@@ -26,6 +26,7 @@
 #include "MissingETD3PDMaker/MissingETCaloSamplingFillerTool.h"
 #include "MissingETD3PDMaker/MissingETCaloEMFracSETFillerTool.h"
 #include "MissingETD3PDMaker/MissingETCompAssociationTool.h"
+#include "../MissingETContainerFillerTool.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -48,6 +49,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETRegionFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETCaloSamplingFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETCaloEMFracSETFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETCompAssociationTool)
+DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, MissingETContainerFillerTool)
 
 DECLARE_FACTORY_ENTRIES(MissingETD3PDMaker) {
     DECLARE_NAMESPACE_TOOL      (D3PD, MissingETFillerTool)
@@ -69,5 +71,6 @@ DECLARE_FACTORY_ENTRIES(MissingETD3PDMaker) {
     DECLARE_NAMESPACE_TOOL      (D3PD, MissingETCaloSamplingFillerTool)
     DECLARE_NAMESPACE_TOOL      (D3PD, MissingETCaloEMFracSETFillerTool)
     DECLARE_NAMESPACE_TOOL      (D3PD, MissingETCompAssociationTool)
+    DECLARE_NAMESPACE_TOOL      (D3PD, MissingETContainerFillerTool)
      }
 

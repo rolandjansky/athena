@@ -47,6 +47,8 @@ MissingETCompAssociationTool::MissingETCompAssociationTool (const std::string& t
   declareProperty ("ObjectType", m_objectType = "egamma",
 		   "what type of object is it "
 		   "so METComp tools know what to get");
+
+  book().ignore(); // Avoid coverity warning.
 }
 
 
