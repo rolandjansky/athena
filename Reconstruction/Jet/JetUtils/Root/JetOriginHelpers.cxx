@@ -23,7 +23,9 @@ namespace jet {
       if( ! cl ) continue;
 
       xAOD::CaloVertexedTopoCluster corrCl(*cl, constitScale, vxpos );
-      corrP4 += corrCl.p4();      
+      xAOD::IParticle::FourMom_t p4CorrCl=corrCl.p4();
+      if(cl->e(constitScale) < 0.) p4CorrCl*=-1.;
+      corrP4 += p4CorrCl;   
     }
     
     xAOD::JetFourMom_t corrJet;
