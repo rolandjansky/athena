@@ -113,7 +113,11 @@ StatusCode AlignTrackCollSplitter::execute()
     int type = alignTrack->type();
     ATH_MSG_DEBUG("type of AlignTrack: "<<alignTrack->type());
 
-    int colIndex = (type>=0 || type<AlignTrack::NTrackTypes) ? type : AlignTrack::NTrackTypes;
+    //previously this check was always returning true (type>=0 || type<AlignTrack::NTrackTypes), meaning that in principle you could try
+    //to access an invalid vector element if type was negative. Assume that what we have below is what was meant, as last entry in vector
+    // is for undefined tracks? (Nick Styles, 04/02/15)
+    int colIndex = (type>=0 && type<AlignTrack::NTrackTypes) ? type : AlignTrack::NTrackTypes;
+
     ATH_MSG_DEBUG("collection index is "<<colIndex);
     alignTracks[colIndex]->push_back(new AlignTrack(*alignTrack));
     ATH_MSG_DEBUG("pushback ok");
