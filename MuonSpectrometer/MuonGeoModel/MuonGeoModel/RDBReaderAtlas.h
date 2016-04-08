@@ -88,8 +88,8 @@ private:
     const DblQ00Aszt::ASZT  *m_aszt;
     DblQ00IAcsc           *m_dhiacsc;
     const DblQ00IAcsc::IACSC  *m_iacsc;
-    DblQ00Xtomo           *dhxtomo;
-    const DblQ00Xtomo::XTOMO  *xtomo;
+    DblQ00Xtomo           *m_dhxtomo;
+    const DblQ00Xtomo::XTOMO  *m_xtomo;
 
     const std::string m_geoTag;
     const std::string m_geoNode;
