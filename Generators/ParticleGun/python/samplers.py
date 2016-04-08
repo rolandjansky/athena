@@ -252,13 +252,13 @@ def mksampler(x):
     if hasattr(x, "__call__"):
         return x
     elif type(x) is list:
-        # TODO: allow disjoint ranges as nested lists, e.g. [(1,2), (4,5)]
-        if len(x) == 2:
+        # NB: disjoint ranges can be given as nested lists, e.g. [(1,2), (4,5)]
+        if len(x) == 2 and type(x[0]) in (int,float) and type(x[1]) in (int,float):
             #print "MKSAMPLER: Casting %s to UniformSampler" % str(x)
             return UniformSampler(*x)
-        elif len(x) > 2:
+        elif len(x) > 2 or (len(x) > 0 and type(x[0]) not in (int,float)):
             #print "MKSAMPLER: Casting %s to DisjointUniformSampler" % str(x)
-            return DisjointUniformSampler(*x)
+            return DisjointUniformSampler(x)
         if len(x) < 2:
             raise Exception("Supplied list could not be converted to a continuous sampler")
     elif type(x) is tuple:

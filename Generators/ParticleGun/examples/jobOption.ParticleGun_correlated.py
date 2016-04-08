@@ -26,6 +26,7 @@ class MyParticleSampler(PG.ParticleSampler):
         return [p1, p2]
 
 topSeq += PG.ParticleGun()
+topSeq.ParticleGun.randomSeed = 123456
 topSeq.ParticleGun.sampler = MyParticleSampler()
 
 include("GeneratorUtils/postJO.CopyWeights.py")

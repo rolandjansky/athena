@@ -33,6 +33,7 @@ class PtEtaHistParticleSampler(PG.ParticleSampler):
         return particles
 
 topSeq += PG.ParticleGun()
+topSeq.ParticleGun.randomSeed = 123456
 topSeq.ParticleGun.sampler = PtEtaHistParticleSampler(11, "data_histos_el_1470pt.root")
 
 include("GeneratorUtils/postJO.CopyWeights.py")
