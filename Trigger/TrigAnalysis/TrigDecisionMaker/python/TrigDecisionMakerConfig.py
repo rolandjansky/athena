@@ -130,6 +130,33 @@ class WriteTrigDecisionToStream ( object ) :
         self.TrigDecStream  = decStream
         self.TrigCondStream = condStream
 
+
+class WritexAODTrigDecision ( object ) :
+    def __init__(self):
+        from AthenaCommon.AlgSequence import AlgSequence
+        TopAlg = AlgSequence()
+
+        from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigDecisionCnvAlg
+        alg = xAODMaker__TrigDecisionCnvAlg()
+
+        # In order for the conversion to work we need to setup the TrigDecisionTool such that it uses the old decision
+        ToolSvc.TrigDecisionTool.UseAODDecision = True
+        ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
+
+        from AthenaCommon.Logging import logging  # loads logger
+        log = logging.getLogger( 'WritexAODTrigDecision' )
+        log.info('TrigDecisionTool setup to use old decision')
+                
+        alg.xAODKey = "xTrigDecision"
+        TopAlg += alg
+        
+        from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigNavigationCnvAlg
+        TopAlg += xAODMaker__TrigNavigationCnvAlg()
+
+        log.info('TrigDecision writing to xAOD enabled')
+
+
+
 class WriteTrigDecision ( object ) :
     def __init__ ( self, AODItemList = None, ESDItemList = None, doxAOD = True) :
 
@@ -146,21 +173,15 @@ class WriteTrigDecision ( object ) :
         from AthenaCommon.Logging import logging  # loads logger
         log = logging.getLogger( 'WriteTrigDecisionToAOD' )
 
-        if doxAOD:
-            from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigDecisionCnvAlg
-            alg = xAODMaker__TrigDecisionCnvAlg()
-
-            alg.xAODKey = "xTrigDecision"
-            TopAlg += alg
-
-            from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigNavigationCnvAlg
-            TopAlg += xAODMaker__TrigNavigationCnvAlg()
-
-
         log.info('TrigDecision writing enabled')
+        
+        makexAOD = WritexAODTrigDecision()
+
 
     def addItemsToList(self, itemList) :
         itemList += [ "TrigDec::TrigDecision#*" ]
+
+
 
 
 
