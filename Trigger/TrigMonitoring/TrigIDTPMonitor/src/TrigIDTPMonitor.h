@@ -83,6 +83,7 @@ class TrigIDTPMonitor: public HLT::FexAlgo{
 
   //monitored values
     
+  double m_invBS; //Invariant mass from TrigEFBPhys object before selection
   double m_invD; //Invariant mass from TrigEFBPhys object
   double m_invN; //Invariant mass from TrigEFBPhys object (if ID Track)
   double m_invTPD; //Invariant mass calculated from Tag and Probe Tracks
@@ -97,7 +98,8 @@ class TrigIDTPMonitor: public HLT::FexAlgo{
   double m_phiN;//phi of the Probe Muon(if ID Track)
   double m_IDTmass; //Inveriant mass calculated from ID track and CombMuon
   double m_massDiff;//Difference between invariant masses
-  
+  double m_PTfound; //found probe PT track
+  double m_FTFfound; //found probe FTF tack
 
 };
 

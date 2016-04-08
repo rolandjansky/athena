@@ -12,7 +12,7 @@ use DataModel		DataModel-*		Control
 
 use TrigSteeringEvent	TrigSteeringEvent-*	Trigger/TrigEvent
 use TrigBphysicsEvent	TrigBphysicsEvent-*	Trigger/TrigEvent
-use TrigNavigation	TrigNavigation-*	Trigger/TrigEvent
+#use TrigNavigation	TrigNavigation-*	Trigger/TrigEvent
 use TrigInterfaces	TrigInterfaces-*	Trigger/TrigSteer
 use TrigConfHLTData	TrigConfHLTData-*	Trigger/TrigConfiguration
 
