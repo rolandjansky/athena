@@ -11,7 +11,7 @@ include_path none
 #---------------------------------------------------------------------
 # This line is necessary to ensure that the Atlas policies and patterns
 # are enforced and available.
-use AtlasPolicy AtlasPolicy-* -no_auto_imports
+use AtlasPolicy AtlasPolicy-*
 
 #---------------------------------------------------------------------
 # Setup the runtime environment for AthenaExample packages
