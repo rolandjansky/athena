@@ -73,24 +73,18 @@ double CosmicTriggerTimeTool::trackRecordTime()
     return 0; 
   } 
 
-  // TimedTrackRecordCollection::const_iterator it = coll->begin(); 
-  // TimedTrackRecordCollection::const_iterator it_e = coll->end(); 
-  TrackRecordCollection::const_iterator it = coll->begin(); 
-  TrackRecordCollection::const_iterator it_e = coll->end(); 
-  
   double t = 0; 
-  for (; it!=it_e;++it) { 
+  for (auto it : *coll) {
     // TimedTrackRecord * r = const_cast<TimedTrackRecord*>( *it ); 
-    TrackRecord * r = const_cast<TrackRecord*>( *it ); 
-    CLHEP::Hep3Vector pos = r->GetPosition(); 
-    CLHEP::Hep3Vector p = r->GetMomentum(); 
+    CLHEP::Hep3Vector pos = it.GetPosition(); 
+    CLHEP::Hep3Vector p = it.GetMomentum(); 
     // ATH_MSG_DEBUG( "TimedTrackRecord xyz position " <<pos.x()<<" "
     ATH_MSG_DEBUG( "TrackRecord xyz position " <<pos.x()<<" " 
                    << pos.y() << " " << pos.z() ); 
     ATH_MSG_DEBUG( "                      momentum " <<p.x() << " " 
                    << p.y() << " " << p.z() );
-    ATH_MSG_DEBUG( "                      time     " << r->GetTime() ); 
-    t +=  r->GetTime() ; 
+    ATH_MSG_DEBUG( "                      time     " << it.GetTime() ); 
+    t +=  it.GetTime() ; 
   } 
 
   t = t/n ; 
