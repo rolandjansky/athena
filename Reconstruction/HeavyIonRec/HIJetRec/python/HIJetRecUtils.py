@@ -242,7 +242,8 @@ def AddIteration(seed_container,shape_name, **kwargs) :
 def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
     #insert exe tools at front of list, e.g. tracksel and tvassoc for HI etc.
     HIJet_exe_tools=[]
-    if jetFlags.useTruth(): HIJet_exe_tools += HITruthParticleCopy()
+    from JetRec.JetRecFlags import jetFlags
+    if jetFlags.useTruth() and not jetFlags.Enabled() : HIJet_exe_tools += HITruthParticleCopy()
     #if jetFlags.useCells():  HIJet_exe_tools += [jtm.missingcells]
     if HIJetFlags.UseHITracks() : HIJet_exe_tools += [jtm.tracksel_HI,jtm.gtracksel_HI,jtm.tvassoc_HI]
     rtools=HIJet_exe_tools+rtools
