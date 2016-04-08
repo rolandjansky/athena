@@ -6,7 +6,7 @@
 #define ISF_Geant4Tools_TestBoundariesUserAction_h
 
 
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
 #include <string>
 #include <map>
 
@@ -16,14 +16,13 @@ class TFile;
 
 namespace iGeant4 {
 
-  class TestBoundariesUserAction: public FADS::UserAction {
+  class TestBoundariesUserAction: public UserActionBase {
   public:
-    TestBoundariesUserAction(std::string s);
-    void BeginOfEventAction(const G4Event*);
-    void EndOfEventAction(const G4Event*);
-    void BeginOfRunAction(const G4Run*);
-    void EndOfRunAction(const G4Run*);
-    void SteppingAction(const G4Step*);
+    TestBoundariesUserAction(const std::string& type, const std::string& name, const IInterface* parent);
+    virtual void BeginOfRun(const G4Run*) override;
+    virtual void EndOfRun(const G4Run*) override;
+    virtual void Step(const G4Step*) override;
+    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
   private:
     typedef std::map<std::string,int> SMap;
     SMap sel;
@@ -37,15 +36,15 @@ namespace iGeant4 {
       Bool_t enter;
       Bool_t exit;
       Bool_t leave;
-    Data() : x(0.),y(0.),z(0.), volume(0),enter(false),exit(false),leave(false) {}
+      Data() : x(0.),y(0.),z(0.), volume(0),enter(false),exit(false),leave(false) {}
       void Reset() {
-	enter=exit=leave=false;
+        enter=exit=leave=false;
       }
       void Set(Float_t _x, Float_t _y, Float_t _z,
-	       Int_t _vol) {
-	x=_x; y=_y; z=_z;
-	volume=_vol;
-      }	
+               Int_t _vol) {
+        x=_x; y=_y; z=_z;
+        volume=_vol;
+      }
     } data;
   };
 
