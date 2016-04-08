@@ -15,31 +15,23 @@ def OnlineLumiCalibrationToolDefault(name="OnlineLumiCalibrationTool"):
         mlog.info("OnlineLumiCalibrationToolDefault returning existing tool %s", name)
         return getattr(svcMgr.ToolSvc, name)
 
+    # Check if this is MC, return unconfigured tool (which will do nothing) if so
     # Instantiate new tool, by default configuration will do nothing
     olcTool = OnlineLumiCalibrationTool(name)
 
     # Now configure based on the environment
     from IOVDbSvc.CondDB import conddb
+    if conddb.isMC:
+        return olcTool
 
-    # Run1
-    if conddb.dbdata == "COMP200":
+    # Need this in both Run1 and Run2
+    folder = '/TDAQ/OLC/CALIBRATIONS'
+    olcTool.CalibrationFolderName = folder
 
-        folder = '/TDAQ/OLC/CALIBRATIONS'
-        olcTool.CalibrationFolderName = folder
-
-        # Mistakenly created as multi-version folder, must specify HEAD 
-        if not conddb.folderRequested( folder ):
-            conddb.addFolder('TDAQ', folder)
-            mlog.info("OnlineLumiCalibrationToolDefault requested %s", folder)
-
-    # Run2 - do nothing
-    elif conddb.dbdata == "CONDBR2":
-        pass
-
-    # Unknown, complain and do nothing
-    else:
-        mlog.warning("OnlineLumiCalibrationToolDefault can't resolve conddb.dbdata = %s, assume Run2!" % conddb.dbdata)
-        pass
+    # Mistakenly created as multi-version folder, must specify HEAD 
+    if not conddb.folderRequested( folder ):
+        conddb.addFolder('TDAQ', folder)
+        mlog.info("OnlineLumiCalibrationToolDefault requested %s", folder)
 
     return olcTool
 

@@ -100,8 +100,44 @@ def unpackBunchGroupList(blob, bgrp=[1]):
 
     return physBG
 
-# routine to unpack the BCID mask stored in COOL
+# Generic routine to unpack BCID mask
 def unpackBCIDMask(blob,nb1,nb2,nlumi):
+
+    bloblength = blob.size()
+
+    if bloblength == 3564:
+        return unpackRun2BCIDMask(blob,nb1,nb2,nlumi)
+    else:
+        return unpackRun1BCIDMask(blob,nb1,nb2,nlumi)
+
+# routine to unpack the BCID mask stored in COOL
+# This is the run2 version
+def unpackRun2BCIDMask(blob,nb1,nb2,nlumi):
+    beam1=[]
+    beam2=[]
+    coll=[]
+    blobCopy = blob.read()
+    rawData = bConvertList(blobCopy, 1, 3564)
+
+    for i in range(3564):
+        val = rawData[i]
+        if val & 0x01:
+            beam1.append(i)
+        if val & 0x02: 
+            beam2.append(i)
+        if (val & 0x03) == 0x03:
+            coll.append(i)
+
+    print 'unpackRun2BCIDMask found:'
+    print ' Beam1:', beam1
+    print ' Beam2:', beam2
+    print ' Coll: ', coll
+
+    return beam1,beam2,coll
+
+# routine to unpack the BCID mask stored in COOL
+# This is the run1 version
+def unpackRun1BCIDMask(blob,nb1,nb2,nlumi):
     beam1=[]
     beam2=[]
     coll=[]
@@ -145,7 +181,7 @@ def unpackBCIDMask(blob,nb1,nb2,nlumi):
 # Note, the normValue is only used in certain storage modes.  If you want to renormalize, do this yourself.
 # Specifying a different value for the normValue will likely cause unpredictable results.
 
-def unpackBCIDValues(blob, mask, normValue=1):
+def unpackBCIDValues(blob, mask=[], normValue=1):
 
     bss, bcidVec, lvec = unpackBunches(blob, mask)
     
@@ -169,7 +205,7 @@ def unpackBCIDValues(blob, mask, normValue=1):
     else:
       return [],[]
     
-def unpackBunches(blob,mask):
+def unpackBunches(blob,mask=[]):
     # routine to unpack Intensity/Luminosity info stored in COOL
     # the mask given as input has to match the quantity to be
     # unpacked (beam1, beam2, beamsand for B1, B2 intensities and

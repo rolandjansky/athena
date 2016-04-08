@@ -76,7 +76,7 @@ BunchDescription::setValue(const coral::AttributeList& attrList) {
 
   // Decode beam1 list                                                                                              
   for (unsigned int i = 0; i < blobBC.size(); i++, p++) {
-    unsigned int tmp = *p;
+    //unsigned int tmp = *p;
     //   std::cout << "The Data of BunchGroupContent is   " << tmp << std::endl ;                                   
     // std::cout << "BGC    " << tmp  << std::endl;
     m_bunchD.push_back(*p);
