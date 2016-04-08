@@ -24,6 +24,9 @@
 #include <iostream>
 
 
+#include "SGTools/TestStore.h"
+
+
 class MyVI
   : public DataVector<NavigableTerminalNode>
 {
@@ -161,6 +164,7 @@ void test2()
 
 int main()
 {
+  SGTest::initTestStore();
   test1();
   test2();
   return 0;

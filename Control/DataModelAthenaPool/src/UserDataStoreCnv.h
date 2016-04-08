@@ -27,7 +27,7 @@ class UserDataStoreCnv  : public T_AthenaPoolCustomCnv<UserDataStore, UserDataSt
  private:
     UserDataStoreCnv_p1 m_converterP1;
     pool::Guid m_guidP1;
-    MsgStream mlog;
+    MsgStream m_log;
 
 };	
 

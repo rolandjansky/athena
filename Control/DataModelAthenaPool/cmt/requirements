@@ -30,6 +30,7 @@ use AtlasCLHEP            AtlasCLHEP-*             External
 use AtlasROOT             AtlasROOT-*              External
 use AtlasReflex           AtlasReflex-*            External
 use CLIDSvc               CLIDSvc-*                Control
+use SGTools               SGTools-*                Control
 use AthenaPoolUtilities   AthenaPoolUtilities-*    Database/AthenaPOOL
 use RootConversions       RootConversions-*        Database/AthenaPOOL
 

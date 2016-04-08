@@ -22,6 +22,9 @@
 #include <iostream>
 
 
+#include "SGTools/TestStore.h"
+
+
 class MyVI
   : public std::vector<int>
 {
@@ -77,6 +80,7 @@ void test1()
 
 int main()
 {
+  SGTest::initTestStore();
   test1();
   return 0;
 }

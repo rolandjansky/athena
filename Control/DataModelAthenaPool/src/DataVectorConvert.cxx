@@ -366,13 +366,13 @@ void test_dv (RootUtils::ILogger* logfn,
     return;
   }
 
+  // If no streaminfos, this class isn't involved in persistency.  Skip it.
+  if (infos->GetEntries() == 0)
+    return;
+
   // Get the class version, and thence the primary class shape.
   int dv_vers = dv_class->GetClassVersion(); 
-  // nb. once we don't need to support root 5.14 any more,
-  // the dynamic_cast can be removed and the type of si0
-  // changed to TVirtualStreamerInfo.
-  TStreamerInfo* si0 =
-    dynamic_cast<TStreamerInfo*> (dv_class->GetStreamerInfo());
+  TVirtualStreamerInfo* si0 = dv_class->GetStreamerInfo();
   if (si0 == 0) {
     if (logfn) {
       std::ostringstream ss;

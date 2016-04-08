@@ -29,7 +29,7 @@ public:
 
   class ElementRef {
    public:
-    ElementRef() {}
+    ElementRef() : m_elementIndex(0), m_nameIndex(0) {}
     ElementRef(const INDEXTYPE &elink_idx, uint32_t name_idx)
 	  : m_elementIndex(elink_idx), m_nameIndex(name_idx)
     { }
