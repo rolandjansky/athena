@@ -89,7 +89,7 @@
 //   *Put small iron tips in the front G10 pieces before the absorbers
 //   *Fix z lenght as in latest hardcoded G4 geometry
 //   *if no sagging, set deltay=0 => almost all code sagging/no_sagging becomes the same
-//      and much less if(A_SAGGING) are needed
+//      and much less if(m_A_SAGGING) are needed
 //   *small modifications in test beam case to agree with last hardcoded version
 
 // JFB Notes:
@@ -109,8 +109,8 @@
 
 LArGeo::BarrelConstruction::BarrelConstruction(bool fullGeo)
   :m_parameters(LArGeo::VDetectorParameters::GetInstance()),
-   A_SAGGING(false),
-   NVISLIM(-1),
+   m_A_SAGGING(false),
+   m_NVISLIM(-1),
    m_ecamPhysicalPos(NULL),
    m_ecamPhysicalNeg(NULL),
    m_fullGeo(fullGeo)
@@ -154,7 +154,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   log << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
 
   log << " " << std::endl;
-  log << "Sagging in geometry " << A_SAGGING << std::endl;
+  log << "Sagging in geometry " << m_A_SAGGING << std::endl;
   log << " " << std::endl;
   log << " " << endreq;
 
@@ -194,7 +194,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   }
 
   log << MSG::INFO << "  Makes detailed absorber sandwich  ? " << doDetailedAbsorberStraight << " " << doDetailedAbsorberFold << endreq;
-  log << MSG::INFO << "  Use sagging in geometry  ? " << A_SAGGING << endreq;
+  log << MSG::INFO << "  Use sagging in geometry  ? " << m_A_SAGGING << endreq;
 
 
   Genfun::Cos  Cos;
@@ -377,7 +377,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   // Maximum SAGGING displacement for each of the fifteen folds in CLHEP::mm
   // (should be 0.0, 0.17, 0.30, 0.63, 0.78, 1.06, 1.09, 1.21, 1.07, 1.03, 0.74, 0.61, 0.27, 0.20, 0.0)
 //GUtmp sagging amplied by 10
-      if (A_SAGGING)  {
+      if (m_A_SAGGING)  {
          deltay[idat] = 
  	   (double) (m_parameters->GetValue("LArEMBSaggingAmplitude",idat));
          deltax[idat] = 
@@ -394,8 +394,8 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 
 // #ifdef DEBUGGEO
        log << MSG::DEBUG << "idat " << idat << " Rhocen/Phice/Delta/deltay/deltax/etatrans "
-	   << Rhocen[idat] << " " << Phicen[idat]/CLHEP::deg << " "
-	   << Delta[idat]/CLHEP::deg << " " << deltay[idat] << " " << deltax[idat]
+	   << Rhocen[idat] << " " << Phicen[idat]*(1./CLHEP::deg) << " "
+	   << Delta[idat]*(1./CLHEP::deg) << " " << deltay[idat] << " " << deltax[idat]
 	   << " " << etaTrans << endreq;
 // #endif
 
@@ -413,9 +413,9 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 
   // If the user has specifically limited the number of cells (e.g. for visualization)
   // then only create this number....
-  if (NVISLIM > 0) Nabsorber  = NVISLIM;
-  if (NVISLIM > 0) Nelectrode = NVISLIM;
-  if (NVISLIM > 0) {
+  if (m_NVISLIM > 0) Nabsorber  = m_NVISLIM;
+  if (m_NVISLIM > 0) Nelectrode = m_NVISLIM;
+  if (m_NVISLIM > 0) {
     log << MSG::WARNING;
     log << "================LAr BarrelConstruction===========================" << std::endl;
     log << "===YOU ARE RUNNING WITH A LIMITED SLICE OF BARREL ACCORDEON   ===" << std::endl;
@@ -431,14 +431,15 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 // z of end of G10 ring
   double z1   = m_parameters->GetValue("LArEMBG10FrontDeltaZ")+ Moth_Z_min;
 // radius of end of G10 ring
-  double r1    = Moth_inner_radius
-               + m_parameters->GetValue("LArEMBInnerElectronics")
-               + m_parameters->GetValue("LArEMBG10SupportBarsIn");
+  const double r1    = Moth_inner_radius
+    + m_parameters->GetValue("LArEMBInnerElectronics")
+    + m_parameters->GetValue("LArEMBG10SupportBarsIn");
 // minimum radius at end of volume
-  double r2    =  m_parameters->GetValue("LArEMBRminHighZ");
-
+  const double r2    =  m_parameters->GetValue("LArEMBRminHighZ");
+  const double inv_r2_r1 = 1. / (r2-r1);
+  
 // max z of Stac (@ r = Rhocen[0] )
-  double zmax1_Stac = z1 + (Rhocen[0]-r1)*(Moth_Z_max-z1)/(r2-r1); 
+  double zmax1_Stac = z1 + (Rhocen[0]-r1)*(Moth_Z_max-z1)*inv_r2_r1;
 
 
   // Construct the container volume (Accordion plates, G10 bars, etc...)
@@ -918,7 +919,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 	Ceny[jf] = Rhocen[jf]*sin(Phicen[jf]);
         Zcp1[jf] = Rhocen[jf]/tan(TetaTrans[jf]);
         if (Rhocen[jf] < r2)
-           Zcp2[jf] = z1 + (Rhocen[jf]-r1)/(r2-r1)*(Moth_Z_max-z1);
+           Zcp2[jf] = z1 + (Rhocen[jf]-r1)*inv_r2_r1*(Moth_Z_max-z1);
          else
            Zcp2[jf]=Moth_Z_max;
 
@@ -959,11 +960,11 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
       Zcp1l[jl] = Rhol[jl]/tan(TetaTrans[jl]);
       Zcp1h[jl] = Rhoh[jl]/tan(TetaTrans[jl+1]);
       if (Rhol[jl] < r2) 
-         Zcp2l[jl] = z1 + (Rhol[jl]-r1)/(r2-r1)*(Moth_Z_max-z1);
+         Zcp2l[jl] = z1 + (Rhol[jl]-r1)*inv_r2_r1*(Moth_Z_max-z1);
        else
          Zcp2l[jl]=Moth_Z_max;
       if (Rhoh[jl] < r2) 
-         Zcp2h[jl] = z1 + (Rhoh[jl]-r1)/(r2-r1)*(Moth_Z_max-z1);
+         Zcp2h[jl] = z1 + (Rhoh[jl]-r1)*inv_r2_r1*(Moth_Z_max-z1);
        else    
          Zcp2h[jl]=Moth_Z_max;
 #ifdef DEBUGGEO
@@ -1412,7 +1413,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 		// We simply declare the placement recipe, and place the first phys Vol 
 		// everywhere.
 		//------------------------------------------------------------------------
-		if (A_SAGGING) {
+		if (m_A_SAGGING) {
 		  if (!gStraightAbsorbers) gStraightAbsorbers = new GeoStraightAccSection();
 		  gStraightAbsorbers->XCent(instance,irl)=TX(instance).dx();
 		  gStraightAbsorbers->YCent(instance,irl)=TX(instance).dy();
@@ -1679,7 +1680,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                          <<  Gama(instance) << std::endl;
                   }
 #endif
-                  if (A_SAGGING) {
+                  if (m_A_SAGGING) {
                       stacPhysical->add(new GeoTransform((*TXfold)(instance)));
                       int icopytot = 10000*jrl+instance;
                       stacPhysical->add(new GeoIdentifierTag(icopytot));
@@ -1776,7 +1777,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
 		// We simply declare the placement recipe, and place the first phys Vol 
 		// everywhere. 
 		//------------------------------------------------------------------------
-		if (A_SAGGING) {
+		if (m_A_SAGGING) {
 		  if (!gStraightElectrodes) gStraightElectrodes = new GeoStraightAccSection();
 		  gStraightElectrodes->XCent(instance,irl)=TXE(instance).dx();
 		  gStraightElectrodes->YCent(instance,irl)=TXE(instance).dy();
@@ -1962,7 +1963,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
                          << Game(instance) << std::endl;
                   }
 #endif
-                  if (A_SAGGING) {
+                  if (m_A_SAGGING) {
                       stacPhysical->add(new GeoTransform((*TXfold)(instance)));
                       int icopytot = 10000*jrl+instance;
                       stacPhysical->add(new GeoIdentifierTag(icopytot));

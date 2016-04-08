@@ -6,8 +6,8 @@
 // Insert the LAr Barrel into a pre-defined mother volume.
 // Author: Gaston Parrour  translated to GeoModel by G.Unal
 
-#ifndef __BarrelConstruction_H__
-#define __BarrelConstruction_H__
+#ifndef LARGEOBARREL_BARRELCONSTRUCTION_H
+#define LARGEOBARREL_BARRELCONSTRUCTION_H
 
 #include "LArGeoCode/VDetectorParameters.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -31,8 +31,8 @@ namespace LArGeo {
     GeoFullPhysVol* GetNegativeEnvelope();
 
     // Set parameters for the barrel.
-    void setBarrelSagging(bool flag)        {A_SAGGING  = flag;}
-    void setBarrelCellVisLimit(int maxCell) {NVISLIM    = maxCell;}
+    void setBarrelSagging(bool flag)        {m_A_SAGGING  = flag;}
+    void setBarrelCellVisLimit(int maxCell) {m_NVISLIM    = maxCell;}
 
     void printParams();
 
@@ -72,8 +72,8 @@ namespace LArGeo {
       // Detector parameters ACCG, ACCA, ACMB, ACCO
       LArGeo::VDetectorParameters* m_parameters;
 
-      bool                    A_SAGGING;
-      int                     NVISLIM;
+      bool                    m_A_SAGGING;
+      int                     m_NVISLIM;
 
       // volumes that are private member variables:
       GeoFullPhysVol*  m_ecamPhysicalPos;
@@ -86,4 +86,4 @@ namespace LArGeo {
 
 }  // namespace LArGeo
 
-#endif // __BarrelConstruction_H__
+#endif // LARGEOBARREL_BARRELCONSTRUCTION_H

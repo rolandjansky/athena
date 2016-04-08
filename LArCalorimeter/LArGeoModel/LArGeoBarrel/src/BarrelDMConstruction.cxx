@@ -823,6 +823,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     const double Enda=1155;
     const double Endb=1695.2;
     const double Endc=2771.6;
+    const double inv_Endab = 1. / (Endb - Enda);
     const double DYa=1155*tan(Alfa/2);
     const double DYb=1695.2*tan(Alfa/2);
     const double DYc=2771.6*tan(Alfa/2);
@@ -1164,8 +1165,8 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 
        double radiusMin=SecE1ztr/sinh(etaMax);
        double radiusMax=SecE1ztr/sinh(etaMin);
-       double dy1 = DYa + (DYb-DYa)*(radiusMin-Enda)/(Endb-Enda);
-       double dy2 = DYa + (DYb-DYa)*(radiusMax-Enda)/(Endb-Enda);
+       double dy1 = DYa + (DYb-DYa)*(radiusMin-Enda)*inv_Endab;
+       double dy2 = DYa + (DYb-DYa)*(radiusMax-Enda)*inv_Endab;
        double zpos=0.5*(radiusMax+radiusMin - (Endb+Enda));
        GeoMaterial *matExtraTdr = materialManager->getMaterial((*BarrelDMRing)[i]->getString("MATERIAL"));
 

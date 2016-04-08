@@ -11,8 +11,8 @@
  */
 
 
-#ifndef __BarrelCryostatConstruction_H__
-#define __BarrelCryostatConstruction_H__
+#ifndef LARG4EOBARREL_BARRELCRYOSTATCONSTRUCTION_H
+#define LARG4EOBARREL_BARRELCRYOSTATCONSTRUCTION_H
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 class StoreGateSvc;
@@ -35,18 +35,18 @@ namespace LArGeo {
     virtual GeoFullPhysVol* GetEnvelope();
     
 
-    void setBarrelSagging(bool flag)        {_barrelSagging  = flag;}
-    void setBarrelCellVisLimit(int maxCell) {_barrelVisLimit = maxCell;}
+    void setBarrelSagging(bool flag)        {m_barrelSagging  = flag;}
+    void setBarrelCellVisLimit(int maxCell) {m_barrelVisLimit = maxCell;}
     
   private:
 
-    bool                    _barrelSagging;
-    int                     _barrelVisLimit;
-    GeoFullPhysVol          *cryoMotherPhysical;
+    bool                    m_barrelSagging;
+    int                     m_barrelVisLimit;
+    GeoFullPhysVol          *m_cryoMotherPhysical;
 
     bool                    m_fullGeo;  // true->FULL, false->RECO
   };
 
 } // namespace LArGeo
 
-#endif // __BarrelCryostatConstruction_H__
+#endif // LARG4EOBARREL_BARRELCRYOSTATCONSTRUCTION_H
