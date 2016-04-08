@@ -2,7 +2,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 // Local include(s):
-#include "../TopPhysValMonitoring/TopPhysValMonitoring.h"
+#include "TopPhysValMonitoring/TopPhysValMonitoring.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( TopPhysVal, TopPhysValMonitoring )
 

@@ -31,7 +31,20 @@ namespace TopPhysVal {
 TopPhysValMonitoring::TopPhysValMonitoring( const std::string& type,
     const std::string& name,
     const IInterface* parent ) :
-  ManagedMonitorToolBase( type, name, parent ) {
+  ManagedMonitorToolBase( type, name, parent ),
+  m_jets(nullptr),
+  m_elecs(nullptr),
+  m_photons(nullptr),
+  m_muons(nullptr),
+  m_taus(nullptr),
+  h_jetPt(nullptr),
+  h_elecPt(nullptr),
+  h_photonPt(nullptr),
+  h_muonPt(nullptr),
+  h_tauPt(nullptr),
+  h_tauEta(nullptr),
+  h_metEt(nullptr),
+  h_NJets(nullptr) {
     
   declareProperty( "JetContainerName",      m_c_jetName    = "AntiKt4LCTopoJets" );
   declareProperty( "ElectronContainerName", m_c_elecName   = "ElectronCollection" );
