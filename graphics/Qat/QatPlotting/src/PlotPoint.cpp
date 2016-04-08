@@ -39,34 +39,9 @@ class PlotPoint::Clockwork {
 
   public:
 
-  Clockwork():x(0.0),y(0.0),nRectangle(),myProperties(nullptr),defaultProperties(){
-  //
-  }
-  ~Clockwork() { 
-    delete myProperties;
-  }
-  
-  //copy
-  Clockwork(const Clockwork & other){
-    x = other.x;
-    y = other.y;
-    nRectangle = other.nRectangle;
-    myProperties = (other.myProperties)?(new Properties(*(other.myProperties))):nullptr;
-    defaultProperties=other.defaultProperties;
-  }
-  
-  //assignment
-  Clockwork & operator=(const Clockwork & other){
-    if (&other != this){
-      x=other.x;
-      y=other.y;
-      nRectangle = other.nRectangle;
-      delete myProperties;
-      myProperties = (other.myProperties)?(new Properties(*(other.myProperties))):nullptr;
-      defaultProperties=other.defaultProperties;
-    }
-    return *this;
-  }
+  Clockwork():x(0.0),y(0.0),nRectangle(),myProperties(nullptr),defaultProperties()  {}
+  ~Clockwork() { if (myProperties) delete myProperties; myProperties=nullptr;}
+
 
   double                                x,y;
   QRectF                                nRectangle;   
@@ -75,15 +50,24 @@ class PlotPoint::Clockwork {
 };
 
 
-//copy c'tor
-PlotPoint::PlotPoint (const PlotPoint & other):Plotable(),c(new Clockwork(*(other.c))){
-  
+
+PlotPoint::PlotPoint (const PlotPoint & right):Plotable(),c(new Clockwork()){
+  if (right.c->myProperties) {
+    c->myProperties= new Properties(*right.c->myProperties);
+  }
+  c->x=right.c->x;
+  c->y=right.c->y;
+  c->nRectangle=right.c->nRectangle;
 }
 
-PlotPoint & PlotPoint::operator=(const PlotPoint & other) {
-  if (&other!=this) {
-   Plotable::operator=(other);
-   c.reset(new Clockwork(*(other.c)));
+PlotPoint & PlotPoint::operator=(const PlotPoint & right) {
+  if (&right!=this) {
+    if (c->myProperties) delete c->myProperties; c->myProperties=nullptr;
+    if (right.c->myProperties) c->myProperties= new Properties(*(right.c->myProperties));
+    c->x=right.c->x;
+    c->y=right.c->y;
+    c->nRectangle=right.c->nRectangle;
+    c->defaultProperties = right.c->defaultProperties;
   }
   return *this;
 }
@@ -104,12 +88,12 @@ PlotPoint::PlotPoint(double x, double y)
 
 // Destructor
 PlotPoint::~PlotPoint(){
-  //delete c;
+  delete c;
 }
 
 
 // Get the "natural maximum R"
-const QRectF  PlotPoint::rectHint() const {
+const QRectF & PlotPoint::rectHint() const {
   return c->nRectangle;
 }
 
@@ -179,17 +163,20 @@ void PlotPoint::describeYourselfTo(AbsPlotter *plotter) const{
   delete toLogY;
 }
 
-const PlotPoint::Properties  PlotPoint::properties() const { 
+const PlotPoint::Properties & PlotPoint::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 
 void PlotPoint::setProperties(const Properties &  properties) { 
-  delete c->myProperties;
-  c->myProperties=new Properties(properties);
+  if (!c->myProperties) {
+    c->myProperties = new Properties(properties);
+  }
+  else {
+    *c->myProperties=properties;
+  }
 }
 
 void PlotPoint::resetProperties() {
   delete c->myProperties;
-  c->myProperties=nullptr;
 }
 

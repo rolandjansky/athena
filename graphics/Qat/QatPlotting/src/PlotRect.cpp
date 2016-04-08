@@ -38,25 +38,12 @@
 class PlotRect::Clockwork {
 
   public:
-  Clockwork():rectangle(),myProperties(nullptr),defaultProperties() {}
+
+  Clockwork():myProperties(nullptr) {}
   ~Clockwork() { delete myProperties;}
-  //copy
-  Clockwork(const Clockwork & other){
-  	rectangle=other.rectangle;
-  	myProperties=(other.myProperties)?(new Properties(*(other.myProperties))):nullptr;
-  	defaultProperties=other.defaultProperties;
-  }
-  //assign
-  Clockwork & operator=(const Clockwork & other){
-    if (&other !=this){
-      rectangle=other.rectangle;
-      delete myProperties;
-      myProperties=(other.myProperties)?(new Properties(*(other.myProperties))):nullptr;
-      defaultProperties=other.defaultProperties;
-    }
-    return *this;
-  }
-  //state
+
+
+
   QRectF                                rectangle;   
   Properties                            *myProperties;
   Properties                            defaultProperties;
@@ -64,14 +51,20 @@ class PlotRect::Clockwork {
 
 
 
-PlotRect::PlotRect (const PlotRect & other):Plotable(),c(new Clockwork(*(other.c))){
-  
+PlotRect::PlotRect (const PlotRect & right):Plotable(),c(new Clockwork()){
+  if (right.c->myProperties) {
+    c->myProperties= new Properties(*right.c->myProperties);
+  }
+  c->rectangle=right.c->rectangle;
 }
 
-PlotRect & PlotRect::operator=(const PlotRect & other) {
-  if (&other!=this) {
-    Plotable::operator=(other);
-    c.reset(new Clockwork(*(other.c)));
+PlotRect & PlotRect::operator=(const PlotRect & right) {
+  if (&right!=this) {
+    c->rectangle=right.c->rectangle;
+    if (c->myProperties) delete c->myProperties; 
+    c->myProperties = nullptr;
+    if (right.c->myProperties) c->myProperties= new Properties(*right.c->myProperties);
+    c->defaultProperties = right.c->defaultProperties;
   }
   return *this;
 }
@@ -79,20 +72,22 @@ PlotRect & PlotRect::operator=(const PlotRect & other) {
 // Constructor
 PlotRect::PlotRect(const QRectF & rectangle)
   :Plotable(),c(new Clockwork())
+
 {
   c->rectangle=rectangle;
+
 }
 
 
 
 // Destructor
 PlotRect::~PlotRect(){
-  //delete c;
+  delete c;
 }
 
 
 // Get the "natural maximum R"
-const QRectF  PlotRect::rectHint() const {
+const QRectF & PlotRect::rectHint() const {
   return c->rectangle;
 }
 
@@ -137,17 +132,20 @@ void PlotRect::describeYourselfTo(AbsPlotter *plotter) const{
   delete toLogY;
 }
 
-const PlotRect::Properties  PlotRect::properties() const { 
+const PlotRect::Properties & PlotRect::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 
 void PlotRect::setProperties(const Properties &  properties) { 
-  delete c->myProperties;
-  c->myProperties = new Properties(properties);
+  if (!c->myProperties) {
+    c->myProperties = new Properties(properties);
+  }
+  else {
+    *c->myProperties=properties;
+  }
 }
 
 void PlotRect::resetProperties() {
   delete c->myProperties;
-  c->myProperties=nullptr;
 }
 

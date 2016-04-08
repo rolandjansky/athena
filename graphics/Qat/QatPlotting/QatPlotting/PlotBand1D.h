@@ -27,16 +27,14 @@
 //----------------------------------------------------------------------------------//
 #ifndef _PLOTBAND1D_H_
 #define _PLOTBAND1D_H_
-
+class AbsFunction;
 #include "QatPlotting/Plotable.h"
-//#include "QatPlotting/PlotBand1DProperties.h"
+#include "QatPlotting/PlotBand1DProperties.h"
 #include "CLHEP/GenericFunctions/CutBase.hh"
 #include <QtCore/QRectF>
-#include <QtCore/QSizeF>
-#include <memory>
-
-class AbsPlotter;
-class PlotBand1DProperties;
+#include <vector>
+#include <string>
+#include <limits.h>
 
 namespace Genfun {
   class AbsFunction;
@@ -64,13 +62,13 @@ public:
   PlotBand1D(const PlotBand1D &);
 
   // Assignment operator:
-  PlotBand1D & operator=(const PlotBand1D &) = delete;
+  PlotBand1D & operator=(const PlotBand1D &); 
 
   // Destructor
   virtual ~PlotBand1D();
 
   // Get the "natural rectangular border"
-  virtual const QRectF  rectHint() const;
+  virtual const QRectF & rectHint() const;
 
   // Describe to plotter, in terms of primitives:
   virtual void describeYourselfTo(AbsPlotter *plotter) const;
@@ -82,12 +80,12 @@ public:
   void resetProperties();
 
   // Get the properties (either default, or specific)
-  const Properties properties () const;
+  const Properties &properties () const;
   
 private:
 
   class Clockwork;
-  std::unique_ptr<Clockwork> c;
+  Clockwork *c;
   
 
 };

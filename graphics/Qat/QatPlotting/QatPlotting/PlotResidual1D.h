@@ -32,7 +32,6 @@
 #include "CLHEP/GenericFunctions/AbsFunction.hh"
 #include <QtCore/QRectF>
 #include <vector>
-#include <memory>
 class Hist1D;
 
 class PlotResidual1D: public Plotable {
@@ -56,7 +55,7 @@ public:
   virtual ~PlotResidual1D();
 
   // Get the "natural rectangular border"
-  virtual const QRectF  rectHint() const;
+  virtual const QRectF & rectHint() const;
 
   // Describe to plotter, in terms of primitives:
   virtual void describeYourselfTo(AbsPlotter *plotter) const;
@@ -77,12 +76,12 @@ public:
   void resetProperties();
 
   // Get the properties (either default, or specific)
-  const Properties properties () const;
+  const Properties &properties () const;
 
 private:
 
   class Clockwork;
-  std::unique_ptr<Clockwork> c;
+  Clockwork *c;
   
 };
 #endif

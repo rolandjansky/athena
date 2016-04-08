@@ -28,17 +28,13 @@
 #ifndef _PLOTMEASURE_H_
 #define _PLOTMEASURE_H_
 #include "QatPlotting/Plotable.h"
-//#include "PlotMeasureProperties.h"
-//#include <QtCore/QRectF>
-//#include <vector>
-class QRectF;
-class PlotMeasureProperties;
-class AbsPlotter;
-class QPointF;
-
+#include "PlotMeasureProperties.h"
+#include <QtCore/QRectF>
+#include <vector>
 class PlotMeasure: public Plotable {
 
 public:
+  
   
   // Define properties:
   typedef PlotMeasureProperties Properties;
@@ -50,7 +46,7 @@ public:
   virtual ~PlotMeasure();
 
   // Get the "natural rectangular border"
-  virtual const QRectF  rectHint() const;
+  virtual const QRectF & rectHint() const;
 
   // Describe to plotter, in terms of primitives:
   virtual void describeYourselfTo(AbsPlotter *plotter) const;
@@ -65,7 +61,7 @@ public:
   void resetProperties();
 
   // Get the properties (either default, or specific)
-  const Properties properties () const;
+  const Properties &properties () const;
 
 private:
 
@@ -73,7 +69,7 @@ private:
   PlotMeasure(const PlotMeasure &);
 
   // Assignment operator:
-  PlotMeasure  operator=(const PlotMeasure &); 
+  PlotMeasure & operator=(const PlotMeasure &); 
 
   class Clockwork;
   Clockwork *c;

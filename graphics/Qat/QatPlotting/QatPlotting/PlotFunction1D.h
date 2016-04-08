@@ -34,7 +34,6 @@
 #include <vector>
 #include <string>
 #include <limits.h>
-#include <memory>
 
 namespace Genfun {
   class AbsFunction;
@@ -61,13 +60,13 @@ public:
   PlotFunction1D(const PlotFunction1D &);
 
   // Assignment operator:
-  PlotFunction1D & operator=(const PlotFunction1D &);
+  PlotFunction1D & operator=(const PlotFunction1D &); 
 
   // Destructor
   virtual ~PlotFunction1D();
 
   // Get the "natural rectangular border"
-  virtual const QRectF  rectHint() const;
+  virtual const QRectF & rectHint() const;
 
   // Describe to plotter, in terms of primitives:
   virtual void describeYourselfTo(AbsPlotter *plotter) const;
@@ -79,12 +78,12 @@ public:
   void resetProperties();
 
   // Get the properties (either default, or specific)
-  const Properties properties () const;
+  const Properties &properties () const;
   
 protected:
 
   class Clockwork;
-  std::unique_ptr<Clockwork> c;
+  Clockwork *c;
   
 
 };
