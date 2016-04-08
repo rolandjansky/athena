@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRT_DETRAWDATABYTESTREAMCNV_TRT_RODENCODER_H
+#ifndef TRT_RAWDATABYTESTREAMCNV_TRT_RODENCODER_H
 #define TRT_RAWDATABYTESTREAMCNV_TRT_RODENCODER_H
 
 #include "TRT_Cabling/ITRT_CablingSvc.h"
@@ -60,4 +60,4 @@ public:
     VRDO           m_RDOs;
 }; 
 
-#endif
+#endif // TRT_RAWDATABYTESTREAMCNV_TRT_RODENCODER_H
