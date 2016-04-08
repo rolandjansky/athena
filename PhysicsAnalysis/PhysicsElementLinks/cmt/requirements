@@ -2,7 +2,7 @@ package PhysicsElementLinks
 
 author Serban Protopopescu <serban@bnl.gov>
 
-use AtlasPolicy			AtlasPolicy-01-*
+use AtlasPolicy			AtlasPolicy-*
 
 branches run
 
