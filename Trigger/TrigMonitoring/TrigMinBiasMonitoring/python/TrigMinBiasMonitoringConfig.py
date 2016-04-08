@@ -27,7 +27,7 @@ def TrigMinBiasMonitoringTool():
 					  InDetTrackParticleContainerName = "InDetTrackParticles",
 					  
 					  monitoring_minbias = hltmonList.monitoring_minbias,
-					  MinBiasRefTrigItem = "mb_sptrk", # "mb_sptrk" should be used
+					  MinBiasRefTrigItem = "mb_sp", # "mb_sptrk" should be used
                                           MinBiasAvailableAlgorithms = ['sp', 'sptrk', 'mbts', 'noalg', 'hmtperf',  'idperf',   'perf',   'hmt'], #the order here matters: more specific names should go before general eg. 'ideperf' before 'perf'... 
                                           MinBiasHistoTargets =     [IDMINBIAS,  IDMINBIAS, MBTS,  MBTS,  HMT,   0,  MBTS + IDMINBIAS,   HMT],
 					  IsPassedCondtitions =     [PHYSICS,  PHYSICS, PHYSICS, L1_ISPASSEDBEFOREPRESCALE,  PHYSICS,  	PHYSICS,   PHYSICS,   PHYSICS],
