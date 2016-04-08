@@ -29,5 +29,8 @@ typedef C_v1 C;
 } // namespace DMTest
 
 
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF (DMTest::C, 9724, 1)
+
 
 #endif // not DATAMODELTESTDATACOMMON_C_H

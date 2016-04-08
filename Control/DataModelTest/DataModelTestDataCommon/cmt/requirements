@@ -20,6 +20,7 @@ use xAODTrigger    xAODTrigger-*   Event/xAOD
 use SGTools        SGTools-*       Control
 
 private
+use AtlasROOT      AtlasROOT-*     External
 use AthLinks       AthLinks-*      Control
 end_private
 

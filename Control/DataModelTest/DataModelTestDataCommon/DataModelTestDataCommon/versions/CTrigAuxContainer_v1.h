@@ -18,7 +18,6 @@
 
 
 #include "xAODTrigger/versions/ByteStreamAuxContainer_v1.h"
-#include "SGTools/CLASS_DEF.h"
 #include "SGTools/BaseInfo.h"
 #include <vector>
 
@@ -44,7 +43,6 @@ private:
 } // namespace DMTest
 
 
-CLASS_DEF (DMTest::CTrigAuxContainer_v1, 9725, 1)
 SG_BASE (DMTest::CTrigAuxContainer_v1, xAOD::ByteStreamAuxContainer_v1);
 
 

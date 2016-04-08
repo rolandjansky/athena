@@ -18,7 +18,6 @@
 
 
 #include "AthContainers/AuxElement.h"
-#include "SGTools/CLASS_DEF.h"
 #include "SGTools/BaseInfo.h"
 
 
@@ -54,7 +53,6 @@ public:
 } // namespace DMTest
 
 
-CLASS_DEF (DMTest::C_v1, 9724, 1)
 SG_BASE (DMTest::C_v1, SG::AuxElement);
 
 

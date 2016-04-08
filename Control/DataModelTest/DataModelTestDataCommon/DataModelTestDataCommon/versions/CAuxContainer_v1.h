@@ -19,7 +19,6 @@
 
 #include "xAODCore/AuxContainerBase.h"
 #include "AthContainers/PackedContainer.h"
-#include "SGTools/CLASS_DEF.h"
 #include "SGTools/BaseInfo.h"
 #include <vector>
 
@@ -46,7 +45,6 @@ private:
 } // namespace DMTest
 
 
-CLASS_DEF (DMTest::CAuxContainer_v1, 9722, 1)
 SG_BASE (DMTest::CAuxContainer_v1, xAOD::AuxContainerBase);
 
 
