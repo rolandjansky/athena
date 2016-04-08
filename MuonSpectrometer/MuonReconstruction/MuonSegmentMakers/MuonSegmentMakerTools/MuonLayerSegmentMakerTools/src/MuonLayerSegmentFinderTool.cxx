@@ -169,17 +169,20 @@ namespace Muon {
       const MuonHough::MuonLayerHough::Maximum& maximum = **mit;
       float residual = maximum.pos - y;
       float residualTheta = maximum.theta - theta;
-      float pull = residual/errx;
       float refPos = (maximum.hough != nullptr) ? maximum.hough->m_descriptor.referencePosition : 0;
-      ATH_MSG_DEBUG("   Hough maximum " << maximum.max << " position (" << refPos
-                    << "," << maximum.pos << ") residual " << residual << " pull " << pull
-                    << " angle " << maximum.theta << " residual " << residualTheta );
+      float maxwidth = (maximum.binposmax-maximum.binposmin);
+      if( maximum.hough ) maxwidth *= maximum.hough->m_binsize;
+      float pull = residual/sqrt(errx*errx+maxwidth*maxwidth/12.);
       
       // fill validation content
       if( !m_recoValidationTool.empty() ) m_recoValidationTool->add( intersection, maximum );
 
+      ATH_MSG_DEBUG("   Hough maximum " << maximum.max << " position (" << refPos
+                    << "," << maximum.pos << ") residual " << residual << " pull " << pull
+                    << " angle " << maximum.theta << " residual " << residualTheta );
+
       // select maximum
-      if( std::abs(residual) > 400 ) continue;
+      if( std::abs(pull) > 5 ) continue;
 
       // loop over hits in maximum and add them to the hit list
       std::vector<const MdtDriftCircleOnTrack*> mdts;
