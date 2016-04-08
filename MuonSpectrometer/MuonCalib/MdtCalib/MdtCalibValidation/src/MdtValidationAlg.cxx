@@ -94,8 +94,8 @@ MdtValidationAlg::~MdtValidationAlg() {
 
 StatusCode MdtValidationAlg::initialize() {
   //greet user
-  MsgStream log(msgSvc(), name());
-  log<< MSG::INFO << "Thank you for using MdtValidationAlg!" <<endmsg;
+  MsgStream log(messageService(), name());
+  log<< MSG::INFO << "Thank you for using MdtValidationAlg!" <<endreq;
   StatusCode sc;
 
   //get geometry
@@ -103,31 +103,31 @@ StatusCode MdtValidationAlg::initialize() {
   StoreGateSvc* m_detStore;
   sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-    log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
+    log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
   } else {
-    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
+    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
     return sc;
   }
   //retrieve mdt id helper
   sc = m_detStore->retrieve(m_MdtIdHelper, "MDTIDHELPER" );
   if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endmsg;
+    log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endreq;
     return sc;
   }
   //retrieve detector manager
   sc = m_detStore->retrieve( m_detMgr );
   if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endmsg;
+    log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endreq;
     return sc;
   }
   //get region selection service
   sc= serviceLocator()->service("RegionSelectionSvc", p_reg_sel_svc);
   if(!sc.isSuccess()) {
-    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endmsg;
+    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
     return sc;
   }
   m_region_ids=p_reg_sel_svc->GetStationsInRegions();
-  log<< MSG::INFO << " MdtValidationAlg::initialize() - number of selected regions: "<<m_region_ids.size()<<endmsg;
+  log<< MSG::INFO << " MdtValidationAlg::initialize() - number of selected regions: "<<m_region_ids.size()<<endreq;
 		
   gettimeofday(&m_t0,NULL);
   
@@ -140,13 +140,13 @@ StatusCode MdtValidationAlg::initialize() {
   if(m_headid<0) {
     m_headid=m_head_ops->GetLatestHeadId();
     if(m_headid<0) {
-	log<<MSG::FATAL<<"Cannot get head_id for '"<<m_sitename<<"'!"<<endmsg;
+	log<<MSG::FATAL<<"Cannot get head_id for '"<<m_sitename<<"'!"<<endreq;
 	return StatusCode::FAILURE;
     }
   }
   m_data_connection=m_head_ops->GetDataConnection(m_headid, true, m_writer_ConnectionString, m_writer_account, m_writer_password);
   if(m_data_connection==NULL) {
-    log<<MSG::FATAL<<"Cannot get data connection!"<<endmsg;
+    log<<MSG::FATAL<<"Cannot get data connection!"<<endreq;
     return StatusCode::FAILURE;
   }
   m_data_connection->OpenConnection();
@@ -154,14 +154,14 @@ StatusCode MdtValidationAlg::initialize() {
   m_t0_op=new CalibT0DbOperations(*m_data_connection);
   m_rt_op=new CalibRtDbOperations(*m_data_connection);
 
-  log<< MSG::INFO <<"Validating for header="<<m_headid<<"/"<<m_sitename<<endmsg;
+  log<< MSG::INFO <<"Validating for header="<<m_headid<<"/"<<m_sitename<<endreq;
   return sc;
 }
 
 StatusCode MdtValidationAlg::execute() {
   /** execute function */
-  MsgStream log(msgSvc(), name());
-  log<< MSG::INFO << " MdtValidationAlg::execute "<<endmsg;
+  MsgStream log(messageService(), name());
+  log<< MSG::INFO << " MdtValidationAlg::execute "<<endreq;
 
   StatusCode sc;
 
@@ -171,7 +171,7 @@ StatusCode MdtValidationAlg::execute() {
   //loop on all the ids in the selected calibration region
   for (std::vector<MuonCalib::NtupleStationId>::const_iterator it=m_region_ids.begin(); it!=m_region_ids.end(); it++) {
     if(m_db==NULL) {
-      log<<MSG::ERROR<< " MdtValidationAlg::execute - no DB connection defined "<<endmsg;
+      log<<MSG::ERROR<< " MdtValidationAlg::execute - no DB connection defined "<<endreq;
       return StatusCode::FAILURE;
     }
     m_Histos = TFile::Open(((*it).regionId() + ".root").c_str(), "recreate");
@@ -184,15 +184,15 @@ StatusCode MdtValidationAlg::execute() {
 	
       RootFile();
 	
-      log << MSG::INFO << "Reading t0s for region " << it->regionId() <<""<< endmsg;
+      log << MSG::INFO << "Reading t0s for region " << it->regionId() <<""<< endreq;
 	  
       m_tube_chamber = m_t0_op->LoadT0Validation(*it, m_headid, m_sitename);
       if(m_tube_chamber==NULL) {
-	log<<MSG::FATAL<<"Cannot load t0s for "<<(*it).regionId()<<endmsg;
+	log<<MSG::FATAL<<"Cannot load t0s for "<<(*it).regionId()<<endreq;
 	m_Histos->Close();
 	return StatusCode::FAILURE;
       }
-      log<<MSG::INFO<<"Validating "<<m_tube_chamber->numMultilayers() * m_tube_chamber-> numLayers() * m_tube_chamber->numTubes() <<" tubes."<<endmsg;
+      log<<MSG::INFO<<"Validating "<<m_tube_chamber->numMultilayers() * m_tube_chamber-> numLayers() * m_tube_chamber->numTubes() <<" tubes."<<endreq;
       // end reading t0s //
 
       NtupleStationId id(*it);
@@ -219,7 +219,7 @@ StatusCode MdtValidationAlg::execute() {
 	sc = ValidateRegionRt(*it); 
 	
     } else {
-	log<<MSG::ERROR<<" No ValidationTask selected" <<endmsg;
+	log<<MSG::ERROR<<" No ValidationTask selected" <<endreq;
 	return StatusCode::FAILURE;
     }
     m_Histos->Close();
@@ -229,8 +229,8 @@ StatusCode MdtValidationAlg::execute() {
 
 StatusCode MdtValidationAlg::finalize() {
   /** finalize function */
-  MsgStream log(msgSvc(), name());
-  log<< MSG::INFO << " MdtValidationAlg::finalize "<<endmsg;
+  MsgStream log(messageService(), name());
+  log<< MSG::INFO << " MdtValidationAlg::finalize "<<endreq;
 
   gettimeofday(&m_t1,NULL);
   timersub(&m_t1,&m_t0,&m_result); 
@@ -240,8 +240,8 @@ StatusCode MdtValidationAlg::finalize() {
 }
  
 StatusCode MdtValidationAlg::ConnectDb() {
-  MsgStream log(msgSvc(), name()); 
-  log<<MSG::INFO<<"Connecting to "<<m_db_ConnectionString<<" "<<m_db_WorkingSchema<<endmsg;
+  MsgStream log(messageService(), name()); 
+  log<<MSG::INFO<<"Connecting to "<<m_db_ConnectionString<<" "<<m_db_WorkingSchema<<endreq;
   m_db=new CalibDbConnection(m_db_ConnectionString, m_db_WorkingSchema);
   m_db->SetLogin(m_reader_account, m_reader_password);
   if(!m_db->OpenConnection()) {
@@ -388,7 +388,7 @@ bool MdtValidationAlg::ComputeLimits() {
   m_minPP = 0. ;
   m_maxPP = 10000. ;
 
-  log<<MSG::INFO<<"slope min/max "<<m_minSlope<<"/"<<m_maxSlope<<" Tmax min/max "<<m_minTmax <<"/"<<m_maxTmax<<" Ttot min/max "<<m_minTtot<<"/"<<m_maxTtot<<" T0 min/max "<<m_minT0<<"/"<<m_maxT0<<endmsg;
+  log<<MSG::INFO<<"slope min/max "<<m_minSlope<<"/"<<m_maxSlope<<" Tmax min/max "<<m_minTmax <<"/"<<m_maxTmax<<" Ttot min/max "<<m_minTtot<<"/"<<m_maxTtot<<" T0 min/max "<<m_minT0<<"/"<<m_maxT0<<endreq;
 
   return true;
 }
@@ -441,7 +441,7 @@ bool MdtValidationAlg::Histos(NtupleStationId & id, const std::vector<int> & val
 /////////////////////////////////////////////////////////////////////////////
 StatusCode MdtValidationAlg::ValidateChamberT0(NtupleStationId & id) {
   MsgStream log(msgSvc(), name());
-  log<<MSG::INFO<<"Entering ValidateChamberT0" <<endmsg;
+  log<<MSG::INFO<<"Entering ValidateChamberT0" <<endreq;
   std::vector<int> validflags;
   int validflag;
   bool all_ok(true);
@@ -450,7 +450,7 @@ StatusCode MdtValidationAlg::ValidateChamberT0(NtupleStationId & id) {
     for(unsigned int ly=0; ly<m_tube_chamber->numLayers(); ly++) {
       for(unsigned int tb=0; tb<m_tube_chamber->numTubes(); tb++) {
         if(!exists(id, ml, ly, tb)) {    //check for dummy tubes
-	  log<<MSG::INFO<< " tube ("<<ml+1<<","<<ly+1<<","<<tb+1<<") is a dummy tube!"<<endmsg;
+	  log<<MSG::INFO<< " tube ("<<ml+1<<","<<ly+1<<","<<tb+1<<") is a dummy tube!"<<endreq;
 	  validflags.push_back(5);
 	} else {
 	  ValidateTubeT0(m_tube_chamber->getFit(ml, ly, tb), validflag);
@@ -483,7 +483,7 @@ StatusCode MdtValidationAlg::ValidateChamberT0(NtupleStationId & id) {
 	    //				std::cout<<"CCccCC "<<m_tube_chamber->getFit(ml, ly, tb)->par[6]<<std::endl;
 	    m_tube_chamber->getCalib(ml, ly, tb)->t0=ht0->GetMean();
 	    m_tube_chamber->getFit(ml, ly, tb)->group_by="VAL_FIX";
-	    log<<MSG::INFO<< " tube ("<<ml+1<<","<<ly+1<<","<<tb+1<<") validated with flag = "<<validflag<<endmsg;
+	    log<<MSG::INFO<< " tube ("<<ml+1<<","<<ly+1<<","<<tb+1<<") validated with flag = "<<validflag<<endreq;
 	  }
 	  count++;
 	}  //end loop over tubes
@@ -496,7 +496,7 @@ StatusCode MdtValidationAlg::ValidateChamberT0(NtupleStationId & id) {
   std::cout<<std::endl;
   if( m_writeToDbEnable ) {
     if(!m_t0_op->WriteT0Chamber(id, m_tube_chamber, validflags, m_headid, m_sitename)) {
-      log<<MSG::FATAL<<" Cannot write Chamber!"<<endmsg;
+      log<<MSG::FATAL<<" Cannot write Chamber!"<<endreq;
       return StatusCode::FAILURE;
     }
   }
@@ -508,7 +508,7 @@ void MdtValidationAlg::ValidateTubeT0 (const MdtTubeFitContainer::SingleTubeFit 
 /////////////////////////////////////////////////////////////////////////////
 
   MsgStream log(msgSvc(), name());
-  log<<MSG::INFO<<"Entering ValidateTubeT0" <<endmsg;
+  log<<MSG::INFO<<"Entering ValidateTubeT0" <<endreq;
 
   int T0flag = CheckT0Parameters(fit);
 
@@ -523,7 +523,7 @@ void MdtValidationAlg::ValidateTubeT0 (const MdtTubeFitContainer::SingleTubeFit 
 int MdtValidationAlg::CheckT0Parameters (const MdtTubeFitContainer::SingleTubeFit *fit) {
 /////////////////////////////////////////////////////////////////////////////
   MsgStream log(msgSvc(), name());
-  log<<MSG::INFO<<"Entering CheckT0Parameters" <<endmsg;
+  log<<MSG::INFO<<"Entering CheckT0Parameters" <<endreq;
 
   double t0    = fit->par[4];
   double slope = fit->par[6]; 
@@ -539,7 +539,7 @@ int MdtValidationAlg::CheckT0Parameters (const MdtTubeFitContainer::SingleTubeFi
   int T0flag = 0;
   if (bsl && bt0 && btmax && btt ) {T0flag=1;}
 
-  log<<MSG::INFO<<"Result of CheckT0Parameters: T0flag=" << T0flag <<" (T0flag=0 fail, =1 ok) T0_Limits="<<bt0<<" Slope_Limits="<<bsl<<" Tmax_Limits="<<btmax<<" Total_Drifttime_Limits="<<btt <<endmsg; 
+  log<<MSG::INFO<<"Result of CheckT0Parameters: T0flag=" << T0flag <<" (T0flag=0 fail, =1 ok) T0_Limits="<<bt0<<" Slope_Limits="<<bsl<<" Tmax_Limits="<<btmax<<" Total_Drifttime_Limits="<<btt <<endreq; 
 
   return T0flag;
 }
@@ -549,13 +549,13 @@ int MdtValidationAlg::CheckT0Parameters (const MdtTubeFitContainer::SingleTubeFi
 StatusCode MdtValidationAlg::ValidateRegionRt(const NtupleStationId & id) {
 /////////////////////////////////////////////////////////////////////////////
   MsgStream log(msgSvc(), name());
-  log<<MSG::INFO<< " Entering ValidateRegionRt" <<endmsg;
+  log<<MSG::INFO<< " Entering ValidateRegionRt" <<endreq;
   
   RtFullInfo full_info;
   std::vector<SamplePoint> points_in;
 	
   if(!m_rt_op->LoadRt(id, m_headid, false, m_sitename, points_in, &full_info)) {
-    log<<MSG::FATAL<<"Cannot read chamber!"<<endmsg;
+    log<<MSG::FATAL<<"Cannot read chamber!"<<endreq;
     return StatusCode::FAILURE;
   }
   std::vector<SamplePoint> points;
@@ -568,7 +568,7 @@ StatusCode MdtValidationAlg::ValidateRegionRt(const NtupleStationId & id) {
   if (good1==1) {
     if(m_writeToDbEnable) {
       if(!m_rt_op->SetValidflag(3)) {
-	log<<MSG::FATAL<<"Cannot set validflag for rt!"<<endmsg;
+	log<<MSG::FATAL<<"Cannot set validflag for rt!"<<endreq;
 	return StatusCode::FAILURE;
       }
     }
@@ -580,7 +580,7 @@ StatusCode MdtValidationAlg::ValidateRegionRt(const NtupleStationId & id) {
       //open file
       std::ifstream infile(m_defaultRtFile.c_str());
       if(infile.fail()) {
-	log << MSG::ERROR << "Cannot open file '" << m_defaultRtFile << "' for reading!" << endmsg;
+	log << MSG::ERROR << "Cannot open file '" << m_defaultRtFile << "' for reading!" << endreq;
 	return StatusCode::FAILURE;
       }
       //sample points
@@ -603,12 +603,12 @@ StatusCode MdtValidationAlg::ValidateRegionRt(const NtupleStationId & id) {
     }
     if(m_writeToDbEnable) {
       if(!m_rt_op->SetValidflag(1, false)) {
-	log << MSG::FATAL << "Cannot set validflag!"<<endmsg;
+	log << MSG::FATAL << "Cannot set validflag!"<<endreq;
 	return StatusCode::FAILURE;
       }
       full_info.setImplementation("Validation");
       if(!m_rt_op->WriteUpdateRt(id, m_headid, m_sitename, points, v_flag, &full_info)) {
-	log << MSG::FATAL << "Cannot write rt-relation!"<<endmsg;
+	log << MSG::FATAL << "Cannot write rt-relation!"<<endreq;
 	return StatusCode::FAILURE;
       }
     }
@@ -621,7 +621,7 @@ int MdtValidationAlg::CheckRtParameters (std::vector<SamplePoint> & points, cons
 /////////////////////////////////////////////////////////////////////////////
 
   MsgStream log(msgSvc(), name());
-  log<<MSG::INFO<<"Entering CheckRtParameters" <<endmsg;
+  log<<MSG::INFO<<"Entering CheckRtParameters" <<endreq;
 
   double nsegs    = full_info->numSeg();
   double aveangle = full_info->rmsAng();
@@ -632,7 +632,7 @@ int MdtValidationAlg::CheckRtParameters (std::vector<SamplePoint> & points, cons
   int RTflag = 0;
   if (bseg && baveangle ) {RTflag=1;}
 
-  log<<MSG::INFO<<"Result of CheckRtParameters is: RTflag=" << RTflag <<" (RTflag=0 fail, =1 ok) Number_Segments_Check="<<bseg<<" Ave_Angle_Check="<<baveangle<<endmsg; 
+  log<<MSG::INFO<<"Result of CheckRtParameters is: RTflag=" << RTflag <<" (RTflag=0 fail, =1 ok) Number_Segments_Check="<<bseg<<" Ave_Angle_Check="<<baveangle<<endreq; 
 
   if(RTflag==0) {
     return 0;
@@ -640,7 +640,7 @@ int MdtValidationAlg::CheckRtParameters (std::vector<SamplePoint> & points, cons
 
   FixRtEnds fix_end;
   int ret=fix_end.FixEnds(points);
-  log<<MSG::INFO<<"Fix End points returned "<<ret<<endmsg;
+  log<<MSG::INFO<<"Fix End points returned "<<ret<<endreq;
   switch(ret) {
   case FixRtEnds::NO_FIX_NEEDED:
     return 1;
