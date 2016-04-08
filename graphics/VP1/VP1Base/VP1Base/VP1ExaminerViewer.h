@@ -18,6 +18,7 @@
 #define VP1EXAMINERVIEWER_H
 
 #include "VP1Base/VP1String.h"
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 #include <QtCore/QObject>
 class QPixmap;

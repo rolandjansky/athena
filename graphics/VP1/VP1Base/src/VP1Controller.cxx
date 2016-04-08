@@ -33,6 +33,7 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QButtonGroup>
 #include <QtCore/QTimer>
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbColor4f.h>
 #include <Inventor/nodes/SoMaterial.h>
 

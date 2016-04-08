@@ -130,7 +130,7 @@ void IVP1ChannelWidget::create()
 void IVP1ChannelWidget::systemRefreshed(IVP1System*s)
 {
 	assert(d->state==READY);
-	if(! s->state()==IVP1System::REFRESHED) {
+	if( ! (s->state()==IVP1System::REFRESHED) ) {
 		VP1Msg::messageVerbose("s->state() != IVP1System::REFRESHED!");
 	}
 	assert(s->state()==IVP1System::REFRESHED);

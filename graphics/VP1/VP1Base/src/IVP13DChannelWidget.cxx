@@ -23,6 +23,7 @@
 #include <QtCore/QBuffer>
 #include <QtCore/QByteArray>
 
+#include <Inventor/C/errors/debugerror.h>
 #include "Inventor/Qt/SoQtRenderArea.h"
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 #include "Inventor/nodes/SoNode.h"

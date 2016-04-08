@@ -25,6 +25,7 @@
 #include "VP1Base/VP1ControllerHelper.h"
 #include "VP1Base/VP1TabWidget.h"
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/actions/SoLineHighlightRenderAction.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/SoOffscreenRenderer.h>
