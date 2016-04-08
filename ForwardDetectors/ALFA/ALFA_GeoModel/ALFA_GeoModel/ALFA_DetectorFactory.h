@@ -7,7 +7,7 @@
 
 #include "ALFA_Geometry/ALFA_constants.h"
 #include "ALFA_Geometry/ALFA_GeometryReader.h"
-#include "ALFA_GeoModel/ALFA_DetectorTool.h"
+//#include "ALFA_GeoModel/ALFA_DetectorTool.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 
 #include "GeoModelKernel/GeoVDetectorFactory.h"

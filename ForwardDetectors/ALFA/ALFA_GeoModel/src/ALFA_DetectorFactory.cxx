@@ -889,9 +889,13 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 	
 	LogStream<<MSG::INFO<<"ALFA detector successfully created."<<endreq;
 
-	if(m_eRequestedMetrologyType==EMT_NOMINAL || m_eRequestedMetrologyType==EMT_METROLOGY){
+	if(m_eRequestedMetrologyType==EMT_NOMINAL || m_eRequestedMetrologyType==EMT_METROLOGY)
+	{
 		SaveGeometry();
 	}
+
+	if(pMapSolidOdPlates) delete pMapSolidOdPlates;
+	if(pMapSolidTiPlates) delete pMapSolidTiPlates;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
