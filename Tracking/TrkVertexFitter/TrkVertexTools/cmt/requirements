@@ -16,6 +16,7 @@ use  EventPrimitives            EventPrimitives-*               Event
 use  GeneratorObjects           GeneratorObjects-*              Generators
 use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
 use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
+use InDetBeamSpotService      InDetBeamSpotService-*       InnerDetector/InDetConditions
 end_private
 
 #macro DOXYGEN_IMAGE_PATH "../doc/images"

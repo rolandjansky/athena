@@ -59,14 +59,14 @@ namespace Trk{
       return StatusCode::FAILURE;
     }
  
-     msg(MSG::INFO) << "Initialization successful" << endreq;
-     return StatusCode::SUCCESS;
-   }///EndOfInitialize
+    msg(MSG::INFO) << "Initialization successful" << endreq;
+    return StatusCode::SUCCESS;
+  }///EndOfInitialize
 
-   StatusCode VertexCollectionSortingTool::finalize()
-   {
-     return StatusCode::SUCCESS;
-   }
+  StatusCode VertexCollectionSortingTool::finalize()
+  {
+    return StatusCode::SUCCESS;
+  }
 
   VxContainer* VertexCollectionSortingTool::sortVxContainer( const VxContainer& MyVxCont)
   { 
@@ -76,32 +76,32 @@ namespace Trk{
     VxContainer::const_iterator endIter = MyVxCont.end();
 
     for(VxContainer::const_iterator i = beginIter; i!=endIter; i++) 
-    {
-      // do not weight dummy!!! (do not delete it either! it is deleted when the original MyVxContainer is deleted in InDetPriVxFinder.cxx)
-      if ((*i)->vertexType() != Trk::NoVtx)
       {
-        double Weight =m_iVertexWeightCalculator->estimateSignalCompatibility(**i);
-        MyVxCandidate_pairs.push_back(VxCandidates_pair(Weight,(*i)));
-        //std::cout << "Weight before sorting: " << Weight << std::endl;
-      } 
-    }
+        // do not weight dummy!!! (do not delete it either! it is deleted when the original MyVxContainer is deleted in InDetPriVxFinder.cxx)
+        if ((*i)->vertexType() != Trk::NoVtx)
+          {
+            double Weight =m_iVertexWeightCalculator->estimateSignalCompatibility(**i);
+            MyVxCandidate_pairs.push_back(VxCandidates_pair(Weight,(*i)));
+            //std::cout << "Weight before sorting: " << Weight << std::endl;
+          } 
+      }
 
     if (MyVxCandidate_pairs.size()>0)
-    {
-      std::sort (MyVxCandidate_pairs.begin(), MyVxCandidate_pairs.end());
-    }
+      {
+        std::sort (MyVxCandidate_pairs.begin(), MyVxCandidate_pairs.end());
+      }
 
     VxContainer *NewContainer = new VxContainer(SG::OWN_ELEMENTS);
     
     unsigned int vtxCount(1);
     for (std::vector<VxCandidates_pair>::const_iterator iter = MyVxCandidate_pairs.begin() ; iter != MyVxCandidate_pairs.end(); iter++ )
-    {
-      //std::cout << "Weight after sorting: " << (*iter).first << std::endl;
-      Trk::VxCandidate* vxCand = (*iter).second->clone();
-      if (vtxCount == 1) { vxCand->setVertexType(Trk::PriVtx); vtxCount++; }
-      else { vxCand->setVertexType(Trk::PileUp); }
-      NewContainer->push_back(vxCand);
-    }
+      {
+        //std::cout << "Weight after sorting: " << (*iter).first << std::endl;
+        Trk::VxCandidate* vxCand = (*iter).second->clone();
+        if (vtxCount == 1) { vxCand->setVertexType(Trk::PriVtx); vtxCount++; }
+        else { vxCand->setVertexType(Trk::PileUp); }
+        NewContainer->push_back(vxCand);
+      }
 
     // add dummy at position of first vertex
     Trk::VxCandidate * primaryVtx = NewContainer->front();
@@ -122,34 +122,40 @@ namespace Trk{
     xAOD::VertexContainer::const_iterator endIter = MyVxCont.end();
 
     for(xAOD::VertexContainer::const_iterator i = beginIter; i!=endIter; ++i) 
-    {
-      // do not weight dummy!!! (do not delete it either! it is deleted when the original MyVxContainer is deleted in InDetPriVxFinder.cxx)
-      if ((*i)->vertexType() != xAOD::VxType::NoVtx)
       {
-        double Weight =m_iVertexWeightCalculator->estimateSignalCompatibility(**i);
-        MyVertex_pairs.push_back(Vertex_pair(Weight,(*i)));
-        ATH_MSG_DEBUG("Weight before sorting: " << Weight);
-      } 
-    }
+        // do not weight dummy!!! (do not delete it either! it is deleted when the original MyVxContainer is deleted in InDetPriVxFinder.cxx)
+        if ((*i)->vertexType() != xAOD::VxType::NoVtx)
+          {
+            double Weight =m_iVertexWeightCalculator->estimateSignalCompatibility(**i);
+            MyVertex_pairs.push_back(Vertex_pair(Weight,(*i)));
+            ATH_MSG_DEBUG("Weight before sorting: " << Weight);
+          } 
+      }
 
     if (MyVertex_pairs.size()>0)
-    {
-      std::sort (MyVertex_pairs.begin(), MyVertex_pairs.end());
-    }
+      {
+        std::sort (MyVertex_pairs.begin(), MyVertex_pairs.end());
+      }
 
     xAOD::VertexContainer *NewContainer = new xAOD::VertexContainer();
     xAOD::VertexAuxContainer* auxNewContainer = new xAOD::VertexAuxContainer();
     NewContainer->setStore( auxNewContainer );
+    std::string decorationName = (m_iVertexWeightCalculator->name().find("InDetSumPtVertexWeightCalculator") != std::string::npos) ? "sumPt2" : "signalCompatibility";
+    SG::AuxElement::Decorator< float > sigWeightDec(decorationName);
     unsigned int vtxCount(1);
     for (std::vector<Vertex_pair>::const_iterator iter = MyVertex_pairs.begin() ; iter != MyVertex_pairs.end(); ++iter )
-    {
-      ATH_MSG_DEBUG("Weight after sorting: " << (*iter).first);
-      xAOD::Vertex* vxCand = new xAOD::Vertex(*(iter->second)); //use copy-constructor, creates a private store
-      NewContainer->push_back(vxCand); //private store is now copied to the container store
-      if (vtxCount == 1) { vxCand->setVertexType(xAOD::VxType::PriVtx); vtxCount++; }
-      else { vxCand->setVertexType(xAOD::VxType::PileUp); }
-      vtxCount++;
-    }
+      {
+        ATH_MSG_DEBUG("Weight after sorting: " << (*iter).first);
+        xAOD::Vertex* vxCand = new xAOD::Vertex(*(iter->second)); //use copy-constructor, creates a private store
+        NewContainer->push_back(vxCand); //private store is now copied to the container store
+        if (vtxCount == 1) { 
+          vxCand->setVertexType(xAOD::VxType::PriVtx); 
+        } else { 
+          vxCand->setVertexType(xAOD::VxType::PileUp); 
+        }
+        sigWeightDec(*vxCand) = iter->first;
+        vtxCount++;
+      }
 
     // add dummy at position of first vertex
     xAOD::Vertex* primaryVtx = NewContainer->front();
