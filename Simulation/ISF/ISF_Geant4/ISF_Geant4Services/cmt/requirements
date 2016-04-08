@@ -15,6 +15,7 @@ use GaudiInterface              GaudiInterface-*         External
 private
 use AthenaBaseComps             AthenaBaseComps-*        Control
 use Geant4                      Geant4-*                 External
+use G4AtlasInterfaces     G4AtlasInterfaces-*     Simulation/G4Atlas
 use GeoModelInterfaces          GeoModelInterfaces-*     DetectorDescription/GeoModel
 use ISF_Event                   ISF_Event-*              Simulation/ISF/ISF_Core
 use ISF_Geant4Interfaces        ISF_Geant4Interfaces-*   Simulation/ISF/ISF_Geant4
