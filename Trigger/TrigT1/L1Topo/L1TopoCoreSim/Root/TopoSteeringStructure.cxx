@@ -209,6 +209,7 @@ TCS::TopoSteeringStructure::setupFromMenu(const TXC::L1TopoMenu& menu, bool debu
    // set algorithm parameters
    if(debug)
       cout << "... setting algorithm parameters" << endl;
+   
    for( const TXC::L1TopoConfigAlg & configalgo: menu.getL1TopoConfigAlgs() ) {
 
       ConfigurableAlg * alg = AlgFactory::instance().algorithm(configalgo.name());
@@ -267,6 +268,10 @@ TCS::TopoSteeringStructure::setupFromMenu(const TXC::L1TopoMenu& menu, bool debu
             TCS_EXCEPTION("Sorting algorithm " << alg->name() << " has algoId " << alg->algoId() << " which is already used");
          }
          m_parameters[alg->algoId() + LayoutConstraints::maxComponents()] = ps;
+      } else {
+	// newed parameters unused so delete to avoid memory leak
+	delete ps;
+	ps=0;
       }
    }
 
