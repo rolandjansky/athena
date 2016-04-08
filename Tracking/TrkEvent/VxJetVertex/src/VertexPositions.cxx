@@ -105,7 +105,7 @@ namespace Trk {
     std::cout << "FATAL: VertexPositions is not able to return a valid position " << 
       " as a const object: need to go from Update to Use mode. Unrecovered Bug!" << std::endl;
     throw;
-    return m_position;
+    //    return m_position;
 
   }
 

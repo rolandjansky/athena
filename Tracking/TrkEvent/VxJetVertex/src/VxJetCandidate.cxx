@@ -198,7 +198,9 @@ namespace Trk {
       
       ITrackLink* IlinkTT=(*tracksIter)->trackOrParticleLink();
       LinkToTrack* linkTT=dynamic_cast<LinkToTrack*>(IlinkTT);
-      linkTT->setStorableObject(*trackTES);
+      if(linkTT) {
+	linkTT->setStorableObject(*trackTES);
+      }
       (*tracksIter)->setOrigTrack(linkTT);
       
     }
@@ -215,7 +217,9 @@ namespace Trk {
       
       ITrackLink* IlinkTT=(*tracksIter)->trackOrParticleLink();
       LinkToTrackParticleBase* linkTT=dynamic_cast<LinkToTrackParticleBase*>(IlinkTT);
-      linkTT->setStorableObject(*trackParticleTES);
+      if(linkTT) {
+	linkTT->setStorableObject(*trackParticleTES);
+      }
       (*tracksIter)->setOrigTrack(linkTT);
 
     }
