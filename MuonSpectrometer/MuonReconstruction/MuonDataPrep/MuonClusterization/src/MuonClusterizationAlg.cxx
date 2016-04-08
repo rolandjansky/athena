@@ -32,11 +32,11 @@ StatusCode MuonClusterizationAlg::initialize()
   if( AthAlgorithm::initialize().isFailure() ) return StatusCode::FAILURE;
 
   if (m_idHelper.retrieve().isFailure()){
-    msg(MSG::ERROR) <<"Could not get " << m_idHelper <<endmsg; 
+    msg(MSG::ERROR) <<"Could not get " << m_idHelper <<endreq; 
     return StatusCode::FAILURE;
   }
   if (m_clusterTool.retrieve().isFailure()){
-    msg(MSG::ERROR) <<"Could not get " << m_clusterTool <<endmsg; 
+    msg(MSG::ERROR) <<"Could not get " << m_clusterTool <<endreq; 
     return StatusCode::FAILURE;
   }
   
