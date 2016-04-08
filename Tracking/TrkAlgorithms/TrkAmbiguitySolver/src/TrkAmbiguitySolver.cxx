@@ -11,6 +11,7 @@ Trk::TrkAmbiguitySolver::TrkAmbiguitySolver(const std::string& name, ISvcLocator
   m_resolvedTracksLocation("Tracks"),
   m_resolveTracks(true), 
   m_oldTracks(SG::VIEW_ELEMENTS), // must be view or will delete tracks when cleared.
+  m_tracks(nullptr),
   m_trackInCount(0),   
   m_trackOutCount(0),
   m_ambiTool("Trk::SimpleAmbiguityProcessorTool/TrkAmbiguityProcessor")
@@ -29,17 +30,17 @@ Trk::TrkAmbiguitySolver::~TrkAmbiguitySolver(void)
 StatusCode
 Trk::TrkAmbiguitySolver::initialize()
 {
-  msg(MSG::INFO) << "TrkAmbiguitySolver::initialize(). " << endreq;
+  ATH_MSG_INFO( "TrkAmbiguitySolver::initialize(). " );
 
   if (!m_resolveTracks)
-    msg(MSG::INFO) << "ATTENTION: Resolving tracks turned off! " << endreq;
+    ATH_MSG_INFO( "ATTENTION: Resolving tracks turned off! " );
   else {
     // Get Tools sevices
     if (m_ambiTool.retrieve().isFailure()) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_ambiTool << endreq;
       return StatusCode::FAILURE;
     } else
-      msg(MSG::INFO) << "Retrieved tool " << m_ambiTool << endreq;
+      ATH_MSG_INFO( "Retrieved tool " << m_ambiTool );
   }
   return StatusCode::SUCCESS;
 }
@@ -72,7 +73,7 @@ Trk::TrkAmbiguitySolver::finalize()
 {
   m_ambiTool->statistics();
 
-  msg(MSG::INFO) << "Finalizing with "<< m_trackInCount << " tracks input, and "<< m_trackOutCount<< " output"<< endreq;
+  ATH_MSG_INFO( "Finalizing with "<< m_trackInCount << " tracks input, and "<< m_trackOutCount<< " output");
 
   return StatusCode::SUCCESS;
 }
