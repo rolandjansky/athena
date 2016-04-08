@@ -118,7 +118,8 @@ ServiceVolume::ServiceVolume()
     m_splittableR(true),
     m_splittableZ(true),
     m_envNum(0),
-    m_envParentNum(0)
+    m_envParentNum(0),
+    m_zShift(0.)
 {}
 
 
@@ -190,6 +191,10 @@ ServiceVolume::getShape() const {
    const GeoShape * serviceShape = 0;
    double volume = 0;
 
+   // Check if service needs to be shifted
+   //   if(fabs(m_zShift)>0.001)
+   //      std::cout<<"SHIFTED SERVICE : "<<m_volName<<" "<<m_shapeType<<std::endl;
+      
   if (m_shapeType.empty() || m_shapeType == "TUBE") {
     serviceShape = new GeoTube(m_rmin,m_rmax,halflength);
   } else if (m_shapeType == "TUBS") {

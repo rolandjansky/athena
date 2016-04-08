@@ -29,7 +29,19 @@ TubeVolData::maxRadius() const
 
 
 TubeVolData::TubeVolData(const IRDBRecord * record)
-  : m_record(record)
+  : m_record(record),
+    m_bothZ(false),
+    m_nRepeat(0),
+    m_radialDiv(0),
+    m_phiStart(0.),
+    m_phiDelta(0.),
+    m_phiStep(0.),
+    m_rmin1(0.),
+    m_rmin2(0.),
+    m_rmax1(0.),
+    m_rmax2(0.),
+    m_length(0.),
+    m_zMid(0.)
 {
   // add an 2*epsilon gap between phi sectors.
   const double phiepsilon = 0.001*CLHEP::degree;
