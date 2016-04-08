@@ -1,0 +1,228 @@
+<ui version="4.0" >
+ <class>BPhysControllerForm</class>
+ <widget class="QWidget" name="BPhysControllerForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>228</width>
+    <height>502</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>BPhys</string>
+  </property>
+  <widget class="QGroupBox" name="gbTracks" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>0</y>
+     <width>211</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string>Tracks</string>
+   </property>
+   <widget class="QWidget" name="layoutWidget" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>158</width>
+      <height>112</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_2" >
+     <item>
+      <widget class="QCheckBox" name="chDisplayAllTracks" >
+       <property name="text" >
+        <string>Display all tracks</string>
+       </property>
+       <property name="checked" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="chDisplayOrigSignal" >
+       <property name="text" >
+        <string>Display signal tracks</string>
+       </property>
+       <property name="checked" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="chDisplayRefTracks" >
+       <property name="text" >
+        <string>Display refiited tracks</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="chDisplayNeutral" >
+       <property name="text" >
+        <string>Display neutral tracks</string>
+       </property>
+       <property name="checked" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="gbVertex" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>140</y>
+     <width>211</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string>Vertices</string>
+   </property>
+   <widget class="QWidget" name="layoutWidget1" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>191</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_5" >
+     <item>
+      <widget class="QCheckBox" name="chDisplayVertices" >
+       <property name="text" >
+        <string>Display vertices</string>
+       </property>
+       <property name="checked" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox" >
+       <property name="title" >
+        <string>Display Vertices as</string>
+       </property>
+       <widget class="QWidget" name="layoutWidget2" >
+        <property name="geometry" >
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>169</width>
+          <height>83</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3" >
+         <item>
+          <widget class="QRadioButton" name="rbSphere" >
+           <property name="text" >
+            <string>Sphere</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rbCross" >
+           <property name="text" >
+            <string>Cross</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="rbEllipsoid" >
+           <property name="text" >
+            <string>Error ellipsoid (3sigma)</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>310</y>
+     <width>211</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string>VP1BPhys Display File</string>
+   </property>
+   <widget class="QLineEdit" name="leFileName" >
+    <property name="enabled" >
+     <bool>true</bool>
+    </property>
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>191</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>No file opened, click on Load</string>
+    </property>
+    <property name="readOnly" >
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bLoad" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>191</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Load file</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="lStatus" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>400</y>
+     <width>211</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font" >
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet" >
+    <string notr="true" >color: rgb(255, 0, 0);</string>
+   </property>
+   <property name="text" >
+    <string/>
+   </property>
+   <property name="wordWrap" >
+    <bool>true</bool>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
