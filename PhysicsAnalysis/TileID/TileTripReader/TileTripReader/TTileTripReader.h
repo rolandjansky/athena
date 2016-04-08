@@ -25,7 +25,7 @@
 #endif /*ROOTCORE*/
 
 
-class TChain;
+class TTree;
 
 
 
@@ -147,6 +147,12 @@ public:
     int initialize();
     
     /**
+     * closes the ability to add more trip files to the chain and loads the current
+     * TChain into memory as a TTree.
+     */    
+    void memLoadTripFile();
+    
+    /**
      * 
      * @param part tile partition: LBA=0, LBC=1, EBA=2, EBC=3
      * @param mod tile module. Note: starts at 0, not 1
@@ -200,8 +206,8 @@ private:
      * Fills the bad event map
      */
     void setBadEventList();
-    TChain* m_trips;
-    TChain* m_runMap;
+    TTree* m_trips;
+    TTree* m_runMap;
     int m_mapRun;
     int m_Run;
     int m_FirstEntry;
@@ -218,6 +224,7 @@ private:
     int m_LumiStart;
     std::vector<int>* m_LumiEnd;
     std::ostream* m_msglog;
+    bool m_ChainsLoaded;
     
 
 };

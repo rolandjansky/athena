@@ -53,6 +53,7 @@ TTileTripReader::TTileTripReader(const char* name)
     m_EBOffsets.eta2=0;
     m_EBOffsets.phi1=0;
     m_EBOffsets.phi2=0;
+    m_ChainsLoaded=false;
     setBadEventList();
 }
 
@@ -103,10 +104,11 @@ const TResult& TTileTripReader::calculate(int run, int lbn, double eta, double p
 }
 #endif /*ROOTCORE*/
 void TTileTripReader::buildOffsets(){
+    if(m_ChainsLoaded)return;
     ostream& msg=*m_msglog;
     m_Offsets.clear();
     m_Offsets.push_back(0);
-    int nTrees=m_trips->GetNtrees();
+    int nTrees=((TChain*)m_trips)->GetNtrees();
     if(nTrees==1){
         int mapentries=m_runMap->GetEntries();
         for(int i=0;i<mapentries;++i){
@@ -260,7 +262,7 @@ int TTileTripReader::findStartEntry(int run){
         m_startEntry=m_FirstEntry;
     }
     else{
-        if(m_runMap->GetNtrees()==1){
+        if(m_ChainsLoaded || ((TChain*)m_runMap)->GetNtrees()==1){
             size_t nOffsets=m_Offsets.size();
             for(size_t i=0;i<nOffsets;++i){
                 m_trips->GetEntry(m_FirstEntry+m_Offsets[i]);
@@ -397,6 +399,42 @@ int TTileTripReader::initialize(){
     m_result.addResult("TripAreaFrac","The fraction of the area coverd by trips");
 #endif /*ROOTCORE*/
     return 1;
+}
+
+void TTileTripReader::memLoadTripFile(){
+    if(m_ChainsLoaded)return;
+    TChain* tripMap=(TChain*)m_trips;
+    TChain* runMap=(TChain*)m_runMap;
+    m_trips=new TTree("TripList_Mem","Memory loaded TripList");
+    m_runMap=new TTree("RunMap_Mem","Starting entry for each run in TripList");
+    
+    m_runMap->Branch("Run",&m_mapRun,"Run/I");
+    m_runMap->Branch("FirstEntry",&m_FirstEntry,"FirstEntry/I");
+    
+    m_trips->Branch("Run",&m_Run,"Run/I");
+    m_trips->Branch("LumiStart",&m_LumiStart,"LumiStart/I");
+    m_trips->Branch("Partition",&m_Partition);
+    m_trips->Branch("Module",&m_Module);
+    m_trips->Branch("LumiEnd",&m_LumiEnd);
+    
+    m_currentRun=0;
+    m_currentLbn=0;
+    m_startEntry=0;
+    
+    int entry=0;
+    while(runMap->GetEntry(entry)){
+        m_runMap->Fill();
+        ++entry;
+    }
+    entry=0;
+    while(tripMap->GetEntry(entry)){
+        m_trips->Fill();
+        ++entry;
+    }
+    delete tripMap;
+    delete runMap;
+    m_ChainsLoaded=true;
+    
 }
 
 TripRegion TTileTripReader::partModToEtaPhi(int part, int mod){
@@ -570,9 +608,13 @@ void TTileTripReader::readTileFlags(int run, int lbn, int tileError, int tileFla
 
 int TTileTripReader::setTripFile(const char* file){
     ostream& msg=*m_msglog;
+    if(m_ChainsLoaded){
+        msg<<"ERROR:  Cannot add more trip files to the chain after you have closed the file and loaded it into memory!\n";
+        return 0;
+    }
     int files_connected=0;
-    files_connected=m_trips->Add(file);
-    if(files_connected!=m_runMap->Add(file))
+    files_connected=((TChain*)m_trips)->Add(file);
+    if(files_connected!=((TChain*)m_runMap)->Add(file))
         msg<<"Connected file missmatch.\n";
     
     m_mapRun=0;

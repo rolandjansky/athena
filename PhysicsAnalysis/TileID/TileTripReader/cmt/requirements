@@ -23,8 +23,8 @@ end_private
 apply_tag ROOTMathLibs
 apply_tag ROOTGraphicsLibs
 
-macro_append ROOT_linkopts " -lPyROOT"
-
+#macro_append ROOT_linkopts " -lPyROOT"
+macro_append TileTripReader_linkopts " -L$(ROOT_home)/lib -lPyROOT"
 
 ## declare the directories CMT should know about
 branches TileTripReader share src Root data
