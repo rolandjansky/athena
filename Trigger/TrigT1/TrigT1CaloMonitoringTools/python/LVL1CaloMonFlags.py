@@ -45,6 +45,12 @@ class doPedestalMonitoring(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+## Flag for turning on/off Pedestal Correction Monitoring
+class doPedestalCorrectionMonitoring(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 ## Flag for turning on/off EtCorrelation Monitoring
 class doEtCorrelationMonitoring(JobProperty):
     statusOn=True
