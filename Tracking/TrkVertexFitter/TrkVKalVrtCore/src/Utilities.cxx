@@ -30,7 +30,7 @@ double cfchi2(double *xyzt, long int *ich, double *part,
 
     uu = xyzt[1] * cos(part[2]) + xyzt[2] * sin(part[2]);
     vv = xyzt[2] * cos(part[2]) - xyzt[1] * sin(part[2]);
-    sr = part[3] * fabs(*ich);
+    sr = part[3] * std::abs(*ich);
     epsf = -vv - (uu * uu + vv * vv) * sr / 2.;
     zpf = xyzt[3] - uu * (1. - vv * sr) / tan(part[1]);
     phif = part[2] - uu * sr;

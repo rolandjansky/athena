@@ -22,6 +22,6 @@
 #define NTrkM 300
 #define vkalMagCnvCst 0.29979246
 #define vkalInternalStepLimit  200.
-#define vkalAllowedPtChange      5.
+#define vkalAllowedPtChange      7.
 
 #endif

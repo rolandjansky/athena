@@ -67,8 +67,8 @@ namespace Trk {
        double refCovar[15]; //symmetric covariance matrix 
 
      public:
-       double getMass() const  {return mass;}
-       void   setMass(double M){ mass=M;}
+       double getMass() const  {return m_mass;}
+       void   setMass(double M){ m_mass=M;}
        double a0()    const    { return Perig[0];}
        double z()     const    { return Perig[1];}
        double theta() const    { return Perig[2];}
@@ -87,8 +87,8 @@ namespace Trk {
 
      private:
 
-       VKVertex* originVertex;
-       double mass;      //track mass
+       VKVertex* m_originVertex;
+       double m_mass;      //track mass
 
    };
   

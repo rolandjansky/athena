@@ -46,17 +46,17 @@ namespace Trk {
      double getCnvCst();
   
    private:
-     double cnstBMAG;
-     addrMagHandler functionHandler;
-     double vkalCnvMagFld;
-     baseMagFld*    objectHandler;   
+     double m_cnstBMAG;
+     addrMagHandler m_functionHandler;
+     double m_vkalCnvMagFld;
+     baseMagFld*    m_objectHandler;   
      double m_saveXpos;
      double m_saveYpos;
      double m_saveZpos;
      double m_saveBX;
      double m_saveBY;
      double m_saveBZ;
-     double mm;
+     double m_mm;
    };
 
 }

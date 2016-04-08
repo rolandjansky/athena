@@ -55,10 +55,10 @@ namespace Trk {
 	std::vector<int> usedParticles;
 
      private:
-       VKVertex * originVertex;
+       VKVertex * m_originVertex;
  
      public:
-       VKVertex * getOriginVertex() const { return originVertex;}
+       VKVertex * getOriginVertex() const { return m_originVertex;}
    };
 //
 //  Angular constraints
@@ -69,10 +69,10 @@ namespace Trk {
         VKPhiConstraint(int,VKVertex*); 
         ~VKPhiConstraint(); 
         friend std::ostream& operator<<( std::ostream& out, const VKPhiConstraint& );
-        VKVertex * getOriginVertex() const { return originVertex;}
+        VKVertex * getOriginVertex() const { return m_originVertex;}
    
       private:
-        VKVertex * originVertex;
+        VKVertex * m_originVertex;
    };
    class VKThetaConstraint : public VKConstraintBase
    {
@@ -80,10 +80,10 @@ namespace Trk {
         VKThetaConstraint(int,VKVertex*); 
         ~VKThetaConstraint(); 
         friend std::ostream& operator<<( std::ostream& out, const VKThetaConstraint& );
-        VKVertex * getOriginVertex() const { return originVertex;}
+        VKVertex * getOriginVertex() const { return m_originVertex;}
   
       private:
-        VKVertex * originVertex;
+        VKVertex * m_originVertex;
    };
 
 //
@@ -95,14 +95,14 @@ namespace Trk {
         VKPointConstraint(int,double [], VKVertex*); 
         ~VKPointConstraint(); 
         friend std::ostream& operator<<( std::ostream& out, const VKPointConstraint& );
-        VKVertex * getOriginVertex() const { return originVertex;}
+        VKVertex * getOriginVertex() const { return m_originVertex;}
 
       public:
          double targetVertex[3];   //Target vertex is in global reference system
          bool onlyZ; 
 
       private:
-        VKVertex * originVertex;
+        VKVertex * m_originVertex;
    };
 //
 //  Vertex in plane constraint
@@ -113,15 +113,15 @@ namespace Trk {
         VKPlaneConstraint(int, double, double, double, double, VKVertex*); 
         ~VKPlaneConstraint(); 
         friend std::ostream& operator<<( std::ostream& out, const VKPlaneConstraint& );
-        VKVertex * getOriginVertex() const { return originVertex;}
-        double getA() const { return A;}
-        double getB() const { return B;}
-        double getC() const { return C;}
-        double getD() const { return D;}
+        VKVertex * getOriginVertex() const { return m_originVertex;}
+        double getA() const { return m_A;}
+        double getB() const { return m_B;}
+        double getC() const { return m_C;}
+        double getD() const { return m_D;}
    
       private:
-        double A,B,C,D;
-        VKVertex * originVertex;
+        double m_A,m_B,m_C,m_D;
+        VKVertex * m_originVertex;
    };
 
 } /* End namespace */

@@ -183,7 +183,7 @@ int fitVertexCascadeScale( VKVertex * vk, double & distToVertex )
      cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1]->passWithTrkCov=true;
   }     
 //
-  double Chi2Old=0.,Chi2Cur; 
+  double Chi2Old=0.,Chi2Cur=0; 
   double Scale=2.;
   double limDstToVrt=0.001;
   old_dstToVrt=100000.;

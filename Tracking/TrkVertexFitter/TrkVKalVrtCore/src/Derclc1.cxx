@@ -39,15 +39,20 @@ void  calcMassConstraint( VKMassConstraint * cnst )
       ptot[3] += pp[itc][3];    
    }
    
+   double temp = 1.e-10;
    int ip=0; if( fabs(ptot[1]) > fabs(ptot[ip]) )ip=1; if( fabs(ptot[2]) > fabs(ptot[ip]) )ip=2;
    int im=0; if( fabs(ptot[1]) < fabs(ptot[im]) )im=1; if( fabs(ptot[2]) < fabs(ptot[im]) )im=2;
    int id=4; for(int i=0;i<3;i++) if(i!=ip && i!=im)id=i;
-   double temp = sqrt( (ptot[3]-ptot[ip])*(ptot[3]+ptot[ip]) );
-          temp = sqrt( (  temp -ptot[id])*(  temp +ptot[id]) );
-          temp =       (  temp -ptot[im])*(  temp +ptot[im]);
+   if(id==4){
+     std::cout<<"ERROR in mass constraint!!!"<<'\n';
+     temp=ptot[3]*ptot[3]-ptot[0]*ptot[0]-ptot[1]*ptot[1]-ptot[2]*ptot[2];
+   } else {
+     temp = sqrt( (ptot[3]-ptot[ip])*(ptot[3]+ptot[ip]) );
+     temp = sqrt( (  temp -ptot[id])*(  temp +ptot[id]) );
+     temp =       (  temp -ptot[im])*(  temp +ptot[im]);
+   }
    if(temp<1.e-10)temp=1.e-10;  //protection
-   temp=sqrt(temp);             //syatem mass
-   if(id==4) std::cout<<"ERROR in mass constraint!!!"<<'\n';
+   temp=sqrt(temp);             //system mass
 //
 //
     int numCNST=0;   //constraint number. Single constraint in this case

@@ -47,9 +47,9 @@ namespace Trk {
      void setTypeProp(int); 
   
    private:
-     int typePropagator;
-     addrPropagator   functionProp; 
-     basePropagator*  objectProp;
+     int m_typePropagator;
+     addrPropagator   m_functionProp; 
+     basePropagator*  m_objectProp;
    };
 
 }
