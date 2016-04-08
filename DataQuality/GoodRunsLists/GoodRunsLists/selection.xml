@@ -1,0 +1,11 @@
+<lcgdict>
+
+  <!-- GoodRunsListSelectionTool -->
+  <class name="GoodRunsListSelectionTool" />
+
+  <exclusion>
+    <class name="DataLink<SG::IConstAuxStore>" />
+    <class name="ElementLink<DataVector<xAOD::EventInfo_v1> >" />
+  </exclusion>
+
+</lcgdict>

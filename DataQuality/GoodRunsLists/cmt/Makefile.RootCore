@@ -7,5 +7,6 @@ PACKAGE_TRYDEP   = AsgTools xAODEventInfo
 PACKAGE_CXXFLAGS = -I/usr/include/libxml2
 PACKAGE_BINFLAGS = -lxml2
 PACKAGE_PEDANTIC = 1
+PACKAGE_REFLEX   = 1
 
 include $(ROOTCOREDIR)/Makefile-common

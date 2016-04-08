@@ -24,6 +24,9 @@
 #include "GoodRunsLists/TLumiBlockRange.h"
 
 #ifndef __NOLIBXML__
+#ifdef __clang__
+# define LIBXML_ATTR_ALLOC_SIZE(x)
+#endif
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #endif

@@ -33,6 +33,8 @@
 
 #include <sys/stat.h>
 
+using namespace std;
+
 namespace
 {
   std::string locate_file (const std::string& file)
@@ -168,7 +170,10 @@ GoodRunsListSelectionTool::initialize()
       }
       m_reader->AddXMLFile(fname);
     }
-    m_reader->Interpret();
+    if ( !m_reader->Interpret() ) {
+      ATH_MSG_ERROR ("Error parsing good runs list");
+      return StatusCode::FAILURE;
+    }
     /// this merge accounts for same identical metadata, version, name, etc.
     *m_grlcollection = m_reader->GetMergedGRLCollection(static_cast<Root::BoolOperation>(m_boolop));
   }
@@ -188,7 +193,10 @@ GoodRunsListSelectionTool::initialize()
       }
       m_reader->AddXMLFile(fname);
     }
-    m_reader->Interpret();
+    if ( !m_reader->Interpret() ) {
+      ATH_MSG_ERROR ("Error parsing black runs list");
+      return StatusCode::FAILURE;
+    }
     /// this merge accounts for same identical metadata, version, name, etc.
     *m_brlcollection = m_reader->GetMergedGRLCollection(static_cast<Root::BoolOperation>(m_boolop));
   }
@@ -233,15 +241,15 @@ GoodRunsListSelectionTool::passEvent(const EventInfo* pEvent)
 {
   ATH_MSG_DEBUG ("passEvent() ");
 
-  int m_eventNumber = pEvent->event_ID()->event_number();
-  int m_runNumber   = pEvent->event_ID()->run_number();
-  int m_lumiBlockNr = pEvent->event_ID()->lumi_block();
-  int m_timeStamp   = pEvent->event_ID()->time_stamp();
+  int eventNumber = pEvent->event_ID()->event_number();
+  int runNumber   = pEvent->event_ID()->run_number();
+  int lumiBlockNr = pEvent->event_ID()->lumi_block();
+  int timeStamp   = pEvent->event_ID()->time_stamp();
 
-  ATH_MSG_DEBUG ("passEvent() :: run number = " << m_runNumber <<
-                 " ; event number = " << m_eventNumber <<
-                 " ; lumiblock number = " << m_lumiBlockNr <<
-                 " ; timestamp = " << m_timeStamp
+  ATH_MSG_DEBUG ("passEvent() :: run number = " << runNumber <<
+                 " ; event number = " << eventNumber <<
+                 " ; lumiblock number = " << lumiBlockNr <<
+                 " ; timestamp = " << timeStamp
                 );
 
   /// now make query decision ...
@@ -252,14 +260,14 @@ GoodRunsListSelectionTool::passEvent(const EventInfo* pEvent)
   }
   /// decide from XML files
   else if (!m_usecool) {
-    pass = this->passRunLB(m_runNumber,m_lumiBlockNr);
+    pass = this->passRunLB(runNumber,lumiBlockNr);
   }
   /// Cool based decision
   else {
     /// check if run is in runrange, only done for Cool decision
     if (m_inrunrange.getNPars()==1) {
       double dummy(0);
-      double drunNr = static_cast<double>(m_runNumber);
+      double drunNr = static_cast<double>(runNumber);
       pass = static_cast<bool>(m_inrunrange.EvalPar(&dummy,&drunNr));
       if (!pass) {
         ATH_MSG_DEBUG ("passEvent() :: Event rejected based on provided run range.");
@@ -332,11 +340,11 @@ GoodRunsListSelectionTool::passRunLB( int runNumber, int lumiBlockNr,
   /// decision based on specific blackrunlists
   } else if (!brlnameVec.empty()) {
     bool reject(false);
-    std::vector<Root::TGoodRunsList>::const_iterator m_brlitr;
+    std::vector<Root::TGoodRunsList>::const_iterator brlitr;
     for (unsigned int i=0; i<brlnameVec.size() && !reject; ++i) {
-      m_brlitr = m_brlcollection->find(brlnameVec[i]);
-      if (m_brlitr!=m_brlcollection->end())
-        reject = m_brlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
+      brlitr = m_brlcollection->find(brlnameVec[i]);
+      if (brlitr!=m_brlcollection->end())
+        reject = brlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
     }    
     if (reject) {
       ATH_MSG_DEBUG ("passRunLB() :: Event rejected by specific black runs list.");
@@ -347,11 +355,11 @@ GoodRunsListSelectionTool::passRunLB( int runNumber, int lumiBlockNr,
   /// decision based on specific goodrunlists
   if (!grlnameVec.empty()) {
     bool pass(false);
-    std::vector<Root::TGoodRunsList>::const_iterator m_grlitr;
+    std::vector<Root::TGoodRunsList>::const_iterator grlitr;
     for (unsigned int i=0; i<grlnameVec.size() && !pass; ++i) {
-      m_grlitr = m_grlcollection->find(grlnameVec[i]);
-      if (m_grlitr!=m_grlcollection->end())
-        pass = m_grlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
+      grlitr = m_grlcollection->find(grlnameVec[i]);
+      if (grlitr!=m_grlcollection->end())
+        pass = grlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
     } 
     if (pass) {
       ATH_MSG_DEBUG ("passRunLB() :: Event accepted by specific good runs list.");

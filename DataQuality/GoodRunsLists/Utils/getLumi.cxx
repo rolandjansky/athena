@@ -92,6 +92,7 @@ static struct option long_options[] =
 	    //loop over all that are objstrings
 	    for( Int_t j = 0; j < keys->GetEntries(); ++j ) {
 	      TKey *key = dynamic_cast<TKey*>( keys->At( j ) );
+              if( ! key ) { std::cout << "..skipping object: " << keys->At(j)->GetName() << std::endl; continue; }
 	      TObjString* ostring = (TObjString*) key->ReadObjectAny( TObjString::Class() );
 	      if( ! ostring ) { std::cout << "...skipping object: " << key->GetName() << std::endl; continue;}
 	      // Check that it has the right format:
