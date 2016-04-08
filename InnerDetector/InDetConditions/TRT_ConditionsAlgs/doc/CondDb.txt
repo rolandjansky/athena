@@ -1,0 +1,90 @@
+TRT_ConditionsAlgs/doc/CondDb.txt - documentation for TRT Conditions db
+last modifed by Peter Hansen 1/4/2006
+
+Data Classes
+----------------
+
+  Calibration and alignment data classes are now handled by the
+  same tool, TRT_CondDbTool.
+
+  The used classes are
+  1) FloatArrayStore
+     - defined in TRT_ConditionsData
+     - used both for data accumulators and for storage of constants
+  2) AlignableTransforms
+     - from DetDescrCond - see documentation there
+     - used for module transforms (translation*Euler-rotation)
+
+  for useCOOL=False:
+
+  Implemented keys are (n=0-2 in barrel, 0-13 in endcap):
+
+  InDet/Calib/TRT_T0_B0 t0 map of 2*32*329 straws in barrel layer 0
+  InDet/Calib/TRT_T0_B1 t0 map of 2*32*520 straws in barrel layer 1
+  InDet/Calib/TRT_T0_B2 t0 map of 2*32*793 straws in barrel layer 2
+  InDet/Calib/TRT_T0_A<n> t0 map (<n>=0-13) of N straws in forw wheel <n>
+  InDet/Calib/TRT_T0_C<n> t0 map (<n>=0-13) of N straws in bckw wheel <n>
+  InDet/Calib/TRT_RT_B<n> R(t) map (3,4 or 16 constants)
+  InDet/Calib/TRT_RT_A<n> R(t) map (3,4 or 16 constants)
+  InDet/Calib/TRT_RT_C<n> R(t) map (3,4 or 16 constants)
+  InDet/Align/TRT_DF_B<n> Delta-phi(z) map (3 polynomial constants)
+  InDet/Align/TRT_DF_A<n> Delta-phi(z) map (3 polynomial constants)
+  InDet/Align/TRT_DF_C<n> Delta-phi(z) map (3 polynomial constants)
+  InDet/Align/ID          ID subdetector transforms
+  InDet/Align/TRTB<n>     barrel phi_module transforms
+  InDet/Align/TRTA<n>     endcap A phi_module transforms
+  InDet/Align/TRTC<n>     endcap C phi_module transforms
+  ( N=12288 for n=0-5, N=6144 for n=6-13)
+
+  for useCOOL=True:
+
+  All AlignableTransforms in one Multichannel folder
+  /TRT/Align
+  with channel-tags
+  /TRT/Align/TRT holding the subdetectors (+-barrel,ea,ec)
+  /TRT/Align/B0 holding each module in barrel layer 0
+  /TRT/Align/B1 holding each module in barrel layer 1
+  etc
+
+  The FloatArrayStores are in the following folders
+  /TRT/Calib/Defaults (both t0 and R(t-t0) for modules and straw_layers)
+  /TRT/Calib/T0_B0    (t0s in barrel lay 0)
+  etc
+  /TRT/Calib/DF_B0    (delta(Rphi)s in barrel lay 0)
+  etc
+  /TRT/Calib/RT_B0    (R(t)s in barrel lay 0)
+  etc
+
+  Version tags are automatically prefixed by a contraction of the
+  folder name.
+ 
+ Methods
+ -------
+ see mainpage
+
+ Read/write
+ ----------
+
+ For writing constants use WriteCondDBS.py and edit it so that it writes
+ either alignment or calibration constants. This fragment contains
+ too much stuff, but it needs the TRT_DetectorManager, and I have
+ not had time to prune it so that is delivered but not other things.
+
+ Edit then WriteAlignCTB.py, WriteAlignCTB.py etc to select the input
+ text files, the output root and xml files, whether to overwrite or
+ append, to register or not the data with some run range and possible tag
+ in some database etc.
+
+ For reading you can use eg TRT_CoolTB.py, if the constants are in the
+ production DB (make sure the connection strings are updated).
+ Otherwise comment out the alignment connection string in the RecExample
+ and use  TRT_CondFromPool.py instead of TRT_CoolTB.py.
+ You need to edit this if you have new root files and new SQLite files.
+
+ Note that that you can now also input BOTH calibration AND alignment text
+ files as inputs to a reconstruction job.
+
+ Testing
+--------
+ Turn on debug in the Read fragments
+
