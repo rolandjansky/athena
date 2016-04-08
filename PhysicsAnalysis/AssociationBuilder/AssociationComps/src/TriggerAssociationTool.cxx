@@ -61,8 +61,8 @@
 #include "TrigObjectMatching/TrigMatchTool.h"
 
 // The needed ElementLink stuff
-#include "AthContainers/DataVector.h"
-#include "AthLinks/ElementLink.h" 
+#include "DataModel/DataVector.h"
+#include "DataModel/ElementLink.h" 
 
 
 

@@ -23,7 +23,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // CLHEP includes
-#include "AthenaKernel/Units.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 // NavFourMom includes
 #include "NavFourMom/INav4MomAssocs.h"
@@ -34,7 +34,7 @@
 // AssociationComps includes
 #include "AssocDumper.h"
 
-using Athena::Units::GeV;
+using namespace CLHEP;
 
 namespace {
   struct ToLower
@@ -107,9 +107,9 @@ StatusCode AssocDumper::initialize()
   setupOutputStream( m_outputStreamName );
 
   ATH_MSG_INFO
-    ("Configured properties: " << endmsg
+    ("Configured properties: " << endreq
      << " - INav4MomAssocs: " << m_inav4MomAssocsName.value()
-     << endmsg
+     << endreq
      << " - OutputStream  : " << m_outputStreamName.value());
 
   return StatusCode::SUCCESS;

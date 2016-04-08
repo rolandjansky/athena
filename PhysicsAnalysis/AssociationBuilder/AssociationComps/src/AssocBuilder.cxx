@@ -19,7 +19,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // CLHEP includes
-#include "AthenaKernel/Units.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 // FourMom includes
 #include "FourMomUtils/P4Helpers.h"
@@ -34,7 +34,7 @@
 // AssociationComps includes
 #include "AssocBuilder.h"
 
-using Athena::Units::GeV;
+using namespace CLHEP;
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -124,7 +124,7 @@ StatusCode AssocBuilder::initialize()
   // retrieve the association tools
   if ( !m_assocTools.retrieve().isSuccess() ) {
     ATH_MSG_ERROR
-      ("Could not retrieve Association tools !!" << endmsg
+      ("Could not retrieve Association tools !!" << endreq
        << " [" << m_assocTools << "]");
     return StatusCode::FAILURE;
   }
@@ -218,21 +218,21 @@ StatusCode AssocBuilder::execute()
 
   if ( msgLvl(MSG::DEBUG) ) {
     INav4MomAssocs::object_iterator endObj = assocs->endObject();
-    msg(MSG::DEBUG) << " === INav4MomAssocs' content === " << endmsg;
+    msg(MSG::DEBUG) << " === INav4MomAssocs' content === " << endreq;
     for ( INav4MomAssocs::object_iterator objItr = assocs->beginObject();
 	  objItr != endObj;
 	  ++objItr ) {
       const INavigable4Momentum* obj = objItr.getObject();
       msg() << "object: E= " << obj->e() / GeV
 	    << "\tnAssocs= " << assocs->getNumberOfAssociations(objItr)
-	    << endmsg;
+	    << endreq;
       for ( INav4MomAssocs::asso_iterator assoItr = assocs->beginAssociation(objItr);
 	    assoItr != assocs->endAssociation(objItr);
 	    ++assoItr ) {
 	const INavigable4Momentum * assoc = *assoItr;
 	msg() << "\tE= " << assoc->e() / GeV
 	      << "\tdR= " << P4Helpers::deltaR( obj, assoc )
-	      << endmsg;
+	      << endreq;
       }
     }
   }
