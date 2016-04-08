@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: aprof.py 783179 2016-11-09 11:13:54Z limosani $
+# $Id: aprof.py 498733 2012-05-02 11:25:56Z krasznaa $
 #
 # This is a helper script for quickly interpreting the profile file(s)
 # produced by gathena.py.
@@ -30,7 +30,7 @@ def main():
            "options, but it prints everyhing that it's doing. So it's easy to " \
            "tweak a bit what it did. Usage instructions can be found on: " \
            "[Put TWiki here]"
-    vers = "$Revision: 783179 $"
+    vers = "$Revision: 498733 $"
     parser = optparse.OptionParser( description = desc,
                                     version = vers,
                                     usage = "%prog [options] <profile file> <output file>" )
@@ -77,15 +77,9 @@ def makePdf( input_file, output_file ):
     from AthenaCommon.Logging import logging
     logger = logging.getLogger( "makePdf" )
 
-    import os
-    # CMAKE
-    if os.environ.get( 'CMTPATH', '' ) == '':
-        commandprefix = ""    
-    else:
-        # CMT
-        # Locate the setup script:
-        from PerfMonGPerfTools.Utils import locateSetupScript
-        script = locateSetupScript()
+    # Locate the setup script:
+    from PerfMonGPerfTools.Utils import locateSetupScript
+    script = locateSetupScript()
 
     # Construct and run the command:
     import os
