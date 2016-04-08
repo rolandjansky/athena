@@ -7,7 +7,7 @@ def getInput_TrackRecordGenerator(name="TrackRecordGenerator", **kwargs):
     kwargs.setdefault('TRCollection','CosmicRecord') # Collection name
     kwargs.setdefault('TRSmearing', -1) #in millimeters, e.g. 10
     kwargs.setdefault('TRPSmearing', -1) #in radians, e.g. 0.01
-    kwargs.setdefault('StopParticles', false) # Stop the particles or not
+    kwargs.setdefault('StopParticles', False) # Stop the particles or not
     kwargs.setdefault('stopped_tminus', -25.) # in ns, lower bound
     kwargs.setdefault('stopped_tplus', 25.) # in ns, upper bound
     #kwargs.setdefault('OutputLevel', DEBUG) # for turning up output during testing
@@ -22,3 +22,5 @@ def getInput_TrackRecordGenerator(name="TrackRecordGenerator", **kwargs):
 
     return algorithm
 
+def getTrackRecordCosmicGenerator(name="TrackRecordCosmicGenerator", **kwargs):
+    return getInput_TrackRecordGenerator(name, **kwargs)
