@@ -135,11 +135,7 @@ StatusCode ZdcRecV2::execute()
 		return StatusCode::SUCCESS;
 	}
 
-	//mLog << MSG::DEBUG << ZdcToString( *m_ttContainer ) << endreq;
-
-	//Create the containers to hold the reconstructed information (you just pass the pointer and the converter does the work)
-
-	
+    	//Create the containers to hold the reconstructed information (you just pass the pointer and the converter does the work)	
 	std::unique_ptr<xAOD::ZdcModuleContainer> moduleContainer( new xAOD::ZdcModuleContainer());
 	std::unique_ptr<xAOD::ZdcModuleAuxContainer> moduleAuxContainer( new xAOD::ZdcModuleAuxContainer() );
 	moduleContainer->setStore( moduleAuxContainer.get() );
