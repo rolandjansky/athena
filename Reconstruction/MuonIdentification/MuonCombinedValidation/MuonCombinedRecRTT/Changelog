@@ -1,3 +1,7 @@
+2015-03-23 Graham Cree <gcree@cern.ch>
+	* Removed from running RTT
+	* Tagged as MuonCombinedRecRTT-00-01-07
+
 2014-09-17 Jochen Meyer <jomeyer@mail.cern.ch>
   * fixing compiler warning
   * Tagged as MuonCombinedRecRTT-00-01-06
