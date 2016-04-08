@@ -31,7 +31,7 @@ public:
   virtual const float& UA2MEV(const Identifier& id) const; 
 
 private:
-  static const float errorcode;
+  //static const float errorcode;
 
   
 };

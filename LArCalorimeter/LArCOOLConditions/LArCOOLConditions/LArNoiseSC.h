@@ -32,7 +32,7 @@ public:
   virtual const float& noise(const Identifier& id, int gain) const; 
   
 private:
-  static const float errorcode;
+  //static const float errorcode;
 
 };
 

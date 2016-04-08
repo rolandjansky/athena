@@ -8,7 +8,7 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 LArPedestalFlat::LArPedestalFlat()  {}
 

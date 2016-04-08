@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArDSPConfig.h" 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/Blob.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 LArDSPConfig::LArDSPConfig():
   m_attrList(nullptr),m_pBlob(nullptr),m_nFebs(0) 

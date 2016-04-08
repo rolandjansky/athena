@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArfSamplSC.h"
 
 
-const float LArfSamplSC::errorcode=ILArfSampl::ERRORCODE;
+//const float LArfSamplSC::errorcode=ILArfSampl::ERRORCODE;
 
 LArfSamplSC::LArfSamplSC() {}
 

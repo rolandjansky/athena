@@ -4,7 +4,7 @@
 
 #include "LArCOOLConditions/LArDAC2uASC.h"
 
-const float LArDAC2uASC::errorcode=ILArDAC2uA::ERRORCODE;
+//const float LArDAC2uASC::errorcode=ILArDAC2uA::ERRORCODE;
 
 LArDAC2uASC::LArDAC2uASC() {}
 

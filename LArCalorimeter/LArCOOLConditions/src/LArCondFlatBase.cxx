@@ -7,7 +7,7 @@
 
 // Services/helpers
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 
 // Gaudi/Athena
 #include "GaudiKernel/Bootstrap.h"
