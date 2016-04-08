@@ -16,8 +16,7 @@ Muon::MuonPatternSegmentAssociationTool::MuonPatternSegmentAssociationTool(const
               const std::string& n,
               const IInterface*  p )
   :
-  AlgTool(t,n,p),
-  m_log(msgSvc(),n)
+  AthAlgTool(t,n,p)
 {
   declareInterface<IMuonPatternSegmentAssociationTool>(this);
 
@@ -36,11 +35,9 @@ Muon::MuonPatternSegmentAssociationTool::~MuonPatternSegmentAssociationTool()
 StatusCode Muon::MuonPatternSegmentAssociationTool::initialize()
 {
   
-  StatusCode sc = AlgTool::initialize();
-  m_log.setLevel(outputLevel());
-  if (sc.isFailure()) return sc;
+  ATH_CHECK( AthAlgTool::initialize() );
 
-  m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+  ATH_MSG_INFO("initialize() successful in " << name() );
   return StatusCode::SUCCESS;
 }
 
@@ -48,8 +45,8 @@ StatusCode Muon::MuonPatternSegmentAssociationTool::initialize()
 
 StatusCode Muon::MuonPatternSegmentAssociationTool::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
-  return sc;
+  ATH_CHECK( AthAlgTool::finalize() );
+  return StatusCode::SUCCESS;
 }
 
 //============================================================================================

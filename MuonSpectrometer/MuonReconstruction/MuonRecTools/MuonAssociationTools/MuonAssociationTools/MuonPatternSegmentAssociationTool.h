@@ -9,8 +9,7 @@
 #ifndef MUONMUONPATTERNSEGMENTASSOCIATIONTOOL_H
 #define MUONMUONPATTERNSEGMENTASSOCIATIONTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 
 class AtlasDetectorID;
@@ -30,7 +29,7 @@ namespace Muon
       @author  Edward Moyse <Edward.Moyse@cern.ch>
   */  
 
-  class MuonPatternSegmentAssociationTool : virtual public IMuonPatternSegmentAssociationTool, public AlgTool
+  class MuonPatternSegmentAssociationTool : virtual public IMuonPatternSegmentAssociationTool, public AthAlgTool
     {
     public:
       MuonPatternSegmentAssociationTool(const std::string&,const std::string&,const IInterface*);
@@ -55,10 +54,6 @@ namespace Muon
       
     private:
       
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-
-
       /** member variables for algorithm properties: */
       //MuonSegPatAssMap m_map;
       IMuonPatternSegmentAssociationTool::AssociationMap m_map;

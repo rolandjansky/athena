@@ -32,18 +32,9 @@ namespace Muon {
   {
     ATH_MSG_VERBOSE("Initializing ...");           
     // Set up ATLAS ID helper to be able to identify the PRD's det-subsystem
-    if( m_idHelper.retrieve().isFailure()) {
-      ATH_MSG_ERROR ("Could not get " << m_idHelper);
-      return StatusCode::FAILURE;
-    }     
-    if (  detStore()->retrieve( m_mmIdHelper ).isFailure() ) {
-      ATH_MSG_ERROR(" Cannot retrieve MmIdHelper ");
-      return StatusCode::FAILURE;
-    } 
-    if (  detStore()->retrieve( m_stgcIdHelper ).isFailure() ) {
-      ATH_MSG_ERROR(" Cannot retrieve sTgcIdHelper ");
-      return StatusCode::FAILURE;
-    } 
+    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( detStore()->retrieve( m_mmIdHelper ) );
+    ATH_CHECK( detStore()->retrieve( m_stgcIdHelper ) ); 
 
     return StatusCode::SUCCESS;
   }           
