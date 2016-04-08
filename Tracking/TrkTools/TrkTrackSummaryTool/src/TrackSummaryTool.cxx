@@ -20,12 +20,15 @@
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 #include "TrkToolInterfaces/IPixelToTPIDTool.h"
 
+#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include <cassert>
 #include <vector>
+#include <algorithm>
 
 //============================================================================================
 
@@ -39,6 +42,7 @@ AthAlgTool(t,n,p),
   m_doSharedHits(false),
   m_idTool(""),
   m_eProbabilityTool(""),
+  m_trt_dEdxTool(""),
   m_dedxtool(""),
   m_muonTool(""),
   m_idHoleSearch(""),
@@ -51,10 +55,17 @@ AthAlgTool(t,n,p),
   declareProperty("AddDetailedMuonSummary",     m_addMuonDetailedSummary=true);
   declareProperty("InDetSummaryHelperTool",     m_idTool);
   declareProperty("TRT_ElectronPidTool",        m_eProbabilityTool);
+  declareProperty("TRT_ToT_dEdxTool",           m_trt_dEdxTool);
   declareProperty("PixelToTPIDTool",            m_dedxtool);
   declareProperty("MuonSummaryHelperTool",      m_muonTool);
   declareProperty("InDetHoleSearchTool",        m_idHoleSearch);
   declareProperty("PixelExists",                m_pixelExists);
+
+  declareProperty("TRTdEdx_DivideByL",        (m_TRTdEdx_DivideByL=true) );
+  declareProperty("TRTdEdx_useHThits",        (m_TRTdEdx_useHThits=true) );
+  declareProperty("TRTdEdx_corrected",        (m_TRTdEdx_corrected=true) );
+  declareProperty("minTRThitsForTRTdEdx",     (m_minTRThitsForTRTdEdx=1) );
+
 }
 
 
@@ -103,6 +114,11 @@ StatusCode
     } else { 
        if ( !m_eProbabilityTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_eProbabilityTool << endreq;
     }
+
+    if (!m_trt_dEdxTool.empty()) {
+      ATH_CHECK( m_trt_dEdxTool.retrieve() );
+    }
+ 
 
     if ( !m_dedxtool.empty() && m_dedxtool.retrieve().isFailure() )
     {
@@ -219,6 +235,7 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
         nhitsuseddedx=m_dedxtool->numberOfUsedHitsdEdx();
 	noverflowhitsdedx=m_dedxtool->numberOfUsedIBLOverflowHits();
       }
+      information [Trk::numberOfDBMHits]                  = 0;
     }
     information [numberOfSCTHits]                  = 0;
     information [numberOfSCTSpoiltHits]            = 0;
@@ -226,14 +243,17 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
     information [numberOfTRTHits]                  = 0;
     information [numberOfTRTXenonHits]             = 0;
     information [numberOfTRTHighThresholdHits]     = 0;
+    information [numberOfTRTHighThresholdHitsTotal]= 0;
     information [numberOfTRTOutliers]              = 0;
     information [numberOfTRTHighThresholdOutliers] = 0;
     information [numberOfTRTTubeHits]              = 0;
 
     // Troels.Petersen@cern.ch:
-    if ( !m_eProbabilityTool.empty() )
+    if ( !m_eProbabilityTool.empty() ) {
       eProbability = m_eProbabilityTool->electronProbability(track);
+    }
   }
+
 
   if (m_doSharedHits) {
     information [numberOfSCTSharedHits]      = 0;
@@ -286,6 +306,22 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
     searchHolesStepWise(track,information);
   }
 
+  if (!m_trt_dEdxTool.empty()) {
+    if (information[Trk::numberOfTRTHits]+information[Trk::numberOfTRTOutliers]>=m_minTRThitsForTRTdEdx) {
+      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
+      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits, m_TRTdEdx_corrected) : 0.0);
+      eProbability.push_back(fvalue);
+      information[ numberOfTRTHitsUsedFordEdx] = static_cast<uint8_t>(std::max(nhits,0));
+    }
+    else {
+      information[ numberOfTRTHitsUsedFordEdx]=0;
+      eProbability.push_back(0.0);
+    }
+  }
+  else {
+    eProbability.push_back(0.0);
+  }
+  
   TrackSummary* ts = new TrackSummary(information,eProbability,hitPattern,dedx,nhitsuseddedx,noverflowhitsdedx);
 
   // add detailed summary for indet
@@ -350,7 +386,28 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track) const
   unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes+1;
   std::vector<float> eProbability(numberOfeProbabilityTypes,0.5); 
   if ( !m_eProbabilityTool.empty() ) eProbability = m_eProbabilityTool->electronProbability(track);
-  
+ 
+  if (!m_trt_dEdxTool.empty()) {
+    if (tSummary->get(Trk::numberOfTRTHits)+tSummary->get(Trk::numberOfTRTOutliers)>=m_minTRThitsForTRTdEdx) {
+      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
+      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits, m_TRTdEdx_corrected) : 0.0);
+      eProbability.push_back(fvalue);
+      if (!tSummary->update(Trk::numberOfTRTHitsUsedFordEdx, static_cast<uint8_t>(std::max(nhits,0)) )) {
+        ATH_MSG_WARNING( "Attempt to update numberOfTRTHitsUsedFordEdx but this summary information is "
+                         "already set. numberOfTRTHitsUsedFordEdx is:" << tSummary->get(numberOfTRTHitsUsedFordEdx)
+                         << " =?= should:" << nhits );
+      }
+    }
+    else {
+      eProbability.push_back(0.0);
+      if (!tSummary->update(Trk::numberOfTRTHitsUsedFordEdx, 0) ) {
+        ATH_MSG_WARNING( "Attempt to update numberOfTRTHitsUsedFordEdx but this summary information is "
+                         "already set. numberOfTRTHitsUsedFordEdx is:" << tSummary->get(numberOfTRTHitsUsedFordEdx)
+                         << " =?= should:" << 0 );
+      }
+    }
+  }
+
   float dedx=0;
   int nhitsuseddedx=0;
   int noverflowhitsdedx=0;
@@ -360,6 +417,7 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track) const
     nhitsuseddedx=m_dedxtool->numberOfUsedHitsdEdx();
     noverflowhitsdedx=m_dedxtool->numberOfUsedIBLOverflowHits();
   }
+
   m_idTool->updateAdditionalInfo(*tSummary, eProbability,dedx, nhitsuseddedx,noverflowhitsdedx);
   
   m_idTool->updateSharedHitCount(track, *tSummary);
@@ -447,6 +505,7 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
     if (tool==0){
       msg(MSG::WARNING)<<"Cannot find tool to match ROT. Skipping."<<endreq;
     } else {
+
       tool->analyse(track,rot,tsos,information, hitPattern);
     }
   } else {
