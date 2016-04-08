@@ -36,11 +36,19 @@ except:
 doTrigger=True
 TriggerModernConfig=True
 
-rec.doWriteAOD.set_Value_and_Lock(True)
-rec.doWritexAOD.set_Value_and_Lock( True)
-rec.doAOD.set_Value_and_Lock(True)
-doWriteAOD=True
-
+import os
+if os.environ['AtlasProject'] == 'AtlasP1HLT' or os.environ['AtlasProject'] == 'AtlasCAFHLT':
+    log.info("WARNING working within AtlasProject %s, will not write AOD/xAOD" % os.environ['AtlasProject'])
+    rec.doWriteAOD.set_Value_and_Lock(False)
+    rec.doWritexAOD.set_Value_and_Lock(False)
+    rec.doAOD.set_Value_and_Lock(False)
+    jp.Rec.doWriteAOD=False
+else:
+    rec.doWriteAOD.set_Value_and_Lock(True)
+    rec.doWritexAOD.set_Value_and_Lock(True)
+    rec.doAOD.set_Value_and_Lock(True)
+    jp.Rec.doWriteAOD=True
+    
 rec.doWriteESD=False
 rec.doWriteTAG=False
 rec.doESD.set_Value_and_Lock(False) 
