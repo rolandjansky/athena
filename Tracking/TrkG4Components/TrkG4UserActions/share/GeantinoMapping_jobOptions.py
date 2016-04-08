@@ -5,7 +5,7 @@
 #		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
-__version__="$Revision: 674388 $"
+__version__="$Revision: 729147 $"
 #==============================================================
 
 
@@ -124,6 +124,13 @@ MaterialStream.ItemList    += [ 'MaterialStepVector#*']
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+
+from AthenaCommon.CfgGetter import getPublicTool
+ServiceMgr.UserActionSvc.BeginOfRunActions += [getPublicTool("MaterialStepRecorder")]
+ServiceMgr.UserActionSvc.EndOfRunActions += [getPublicTool("MaterialStepRecorder")]
+ServiceMgr.UserActionSvc.BeginOfEventActions += [getPublicTool("MaterialStepRecorder")]
+ServiceMgr.UserActionSvc.EndOfEventActions += [getPublicTool("MaterialStepRecorder")]
+ServiceMgr.UserActionSvc.SteppingActions += [getPublicTool("MaterialStepRecorder")]
 
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------
 

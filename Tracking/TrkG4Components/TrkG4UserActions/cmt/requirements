@@ -1,34 +1,31 @@
-
 ## automatically generated CMT requirements file
 package TrkG4UserActions
 author  Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
 
 public
 ## for athena policies: this has to be the first use statement
-use AtlasPolicy       AtlasPolicy-*
-use AthenaBaseComps   AthenaBaseComps-*  Control
-use GaudiInterface    GaudiInterface-*    External
-use FadsActions       FadsActions-*       Simulation/G4Sim/FADS
-use TrkGeometry       TrkGeometry-*       Tracking/TrkDetDescr
-use TrkParameters     TrkParameters-*     Tracking/TrkEvent
-use Geant4            Geant4-*            External
-use TrkDetDescrInterfaces  TrkDetDescrInterfaces-*  Tracking/TrkDetDescr
-use TrkMaterialOnTrack TrkMaterialOnTrack-* Tracking/TrkEvent
+use AtlasPolicy                 AtlasPolicy-*
+use AthenaBaseComps             AthenaBaseComps-*       Control
+use GaudiInterface              GaudiInterface-*        External
+use G4AtlasTools                G4AtlasTools-*          Simulation/G4Atlas
+use TrkGeometry                 TrkGeometry-*           Tracking/TrkDetDescr
+use TrkParameters               TrkParameters-*         Tracking/TrkEvent
+use Geant4                      Geant4-*                External
+use TrkDetDescrInterfaces       TrkDetDescrInterfaces-* Tracking/TrkDetDescr
+use TrkMaterialOnTrack          TrkMaterialOnTrack-*    Tracking/TrkEvent
 
 private
-use AtlasROOT         AtlasROOT-*         External
-use AtlasCLHEP	      AtlasCLHEP-*        External
-use CxxUtils          CxxUtils-*          Control
-use StoreGate         StoreGate-*         Control
-use GeoPrimitives     GeoPrimitives-*     DetectorDescription
-use SimHelpers        SimHelpers-*        Simulation/G4Sim
-use TrkSurfaces       TrkSurfaces-*       Tracking/TrkDetDescr
-use TrkExInterfaces   TrkExInterfaces-*   Tracking/TrkExtrapolation
-use TrkValInterfaces  TrkValInterfaces-*  Tracking/TrkValidation
-use TrkExUtils        TrkExUtils-*          Tracking/TrkExtrapolation
+use AtlasROOT                   AtlasROOT-*             External
+use AtlasCLHEP                  AtlasCLHEP-*            External
+use CxxUtils                    CxxUtils-*              Control
+use StoreGate                   StoreGate-*             Control
+use GeoPrimitives               GeoPrimitives-*         DetectorDescription
+use SimHelpers                  SimHelpers-*            Simulation/G4Sim
+use TrkSurfaces                 TrkSurfaces-*           Tracking/TrkDetDescr
+use TrkExInterfaces             TrkExInterfaces-*       Tracking/TrkExtrapolation
+use TrkValInterfaces            TrkValInterfaces-*      Tracking/TrkValidation
+use TrkExUtils                  TrkExUtils-*            Tracking/TrkExtrapolation
 ##
-
-branches src src/components doc python share
 
 private
 ## default is to make component library

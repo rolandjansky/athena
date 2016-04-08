@@ -5,7 +5,7 @@
 #		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
-__version__="$Revision: 635982 $"
+__version__="$Revision: 729147 $"
 #==============================================================
 
 
@@ -27,7 +27,7 @@ ServiceMgr.MessageSvc.defaultLimit = 20000
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.GlobalFlags import globalflags
 
-# Code crashes on NystromRK4 stepper NOW take default 
+# Code crashes on NystromRK4 stepper NOW take default
 #from G4AtlasApps import AtlasG4Eng
 #AtlasG4Eng.G4Eng._ctrl.fldMenu.UseStepper('NystromRK4')
 
@@ -118,7 +118,7 @@ outPath = ""  #"/tmp/wlukas/"
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput.set_Off()   ### is this necessary?
 ###athenaCommonFlags.PoolHitsOutput = outPath + 'Hits.pool.root'
-athenaCommonFlags.PoolHitsOutput.set_Off() 
+athenaCommonFlags.PoolHitsOutput.set_Off()
 athenaCommonFlags.EvtMax =  myMaxEvent
 
 #--- Simulation flags -----------------------------------------
@@ -154,11 +154,11 @@ myPDG = 13  # 998 = Charged Geantino 999 = neutral Geantino, 13 = Muon
 
 #myPDG = 998
 
-# sept 2014 run ParticleGun 
+# sept 2014 run ParticleGun
 import ParticleGun as PG
 pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE")
 #pg.sampler.pid = PG.CyclicSeqSampler([-13,13])
-pg.sampler.pid = myPDG 
+pg.sampler.pid = myPDG
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=myMomentum, eta=[myMinEta,myMaxEta])
 #pg.sampler.mom = PG.PtEtaMPhiSampler(pt=myMomentum, eta=[myMinEta,myMaxEta])
 topSeq += pg
@@ -175,15 +175,6 @@ myAtRndmGenSvc.Seeds = ["SINGLE "+str(myRandomSeed1)+" "+str(myRandomSeed2) ]
 myAtRndmGenSvc.EventReseeding   = False
 ServiceMgr += myAtRndmGenSvc
 
-
-## Add an action
-def geantino_action():
-    from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-    GeantFollowing = PyG4Atlas.UserAction('TrkG4UserActions','GeantFollowerMS', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(GeantFollowing)
-
-SimFlags.InitFunctions.add_function('preInitG4', geantino_action)
-
 # suppress the enormous amount of MC output
 # from TruthExamples.TruthExamplesConf import PrintMC
 # PrintMC.VerboseOutput = False
@@ -191,13 +182,13 @@ SimFlags.InitFunctions.add_function('preInitG4', geantino_action)
 # ToolSvc setup
 from AthenaCommon.AppMgr import ToolSvc
 
-# Tracking Geometry 
+# Tracking Geometry
 # from AthenaCommon.CfgGetter import getService
 # getService("AtlasTrackingGeometrySvc")
 
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-#ToolSvc.AtlasGeometryBuilder.OutputLevel = VERBOSE 
+#ToolSvc.AtlasGeometryBuilder.OutputLevel = VERBOSE
 #ToolSvc.CaloTrackingGeometryBuilder.OutputLevel = DEBUG
 #ToolSvc.MuonTrackingGeometryBuilder.OutputLevel = DEBUG
 #ToolSvc.InDetTrackingGeometryBuilder.OutputLevel = DEBUG
@@ -253,7 +244,7 @@ TestSTEP_Propagator.DetailedEloss = True
 
 TestPropagators += [TestSTEP_Propagator]
 
-# UPDATOR DEFAULTS -----------------------------------------------------------------------------------------       
+# UPDATOR DEFAULTS -----------------------------------------------------------------------------------------
 
 TestUpdators    = []
 
@@ -274,11 +265,11 @@ if myPDG == 998 :
  TestMaterialEffectsUpdatorLandau.MultipleScattering   = False
 
 ##TestUpdators    += [ TestMaterialEffectsUpdatorLandau ]
-              
+
 # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
 from TrkExTools.TrkExToolsConf import Trk__Navigator
 TestNavigator = Trk__Navigator(name = 'TestNavigator')
-TestNavigator.TrackingGeometrySvc = "Trk::TrackingGeometrySvc/AtlasTrackingGeometrySvc" 
+TestNavigator.TrackingGeometrySvc = "Trk::TrackingGeometrySvc/AtlasTrackingGeometrySvc"
 ToolSvc += TestNavigator
 
 # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
@@ -307,7 +298,7 @@ TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
 
 TestSubPropagators += [ TestPropagator.name() ]
 TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
-# ----------------------------------------------------------------------------------------------------------          
+# ----------------------------------------------------------------------------------------------------------
 
 # call the base class constructor
 from TrkExTools.TrkExToolsConf import Trk__Extrapolator
@@ -320,21 +311,6 @@ TestExtrapolator = Trk__Extrapolator('TestExtrapolator',\
                            SubPropagators = TestSubPropagators,\
                            SubMEUpdators = TestSubUpdators)
 ToolSvc += TestExtrapolator
-
-
-# Helper setup
-# for geantinos ExtrapolateDirectly = True no Eloss is calculated
-#
-from TrkG4UserActions.TrkG4UserActionsConf import Trk__GeantFollowerMSHelper
-GeantFollowerMSHelper = Trk__GeantFollowerMSHelper(name="GeantFollowerMS")
-GeantFollowerMSHelper.Extrapolator             = TestExtrapolator
-GeantFollowerMSHelper.ExtrapolateDirectly      = False     
-GeantFollowerMSHelper.ExtrapolateIncrementally = False
-# SpeedUp False takes more CPU because it will stop at each G4 Step in the Muon Spectrometer
-GeantFollowerMSHelper.SpeedUp = True
-
-#GeantFollowerMSHelper.OutputLevel = DEBUG 
-ToolSvc += GeantFollowerMSHelper
 
 ############### The output collection #######################
 
@@ -367,6 +343,11 @@ TestSTEP_Propagator.Straggling = False
 if myPDG == 998 :
   TestSTEP_Propagator.MultipleScattering = False
   TestSTEP_Propagator.EnergyLoss = False
+
+from AthenaCommon.CfgGetter import getPublicTool
+ServiceMgr.UserActionSvc.BeginOfEventActions += [getPublicTool("GeantFollowerMS")]
+ServiceMgr.UserActionSvc.EndOfEventActions += [getPublicTool("GeantFollowerMS")]
+ServiceMgr.UserActionSvc.SteppingActions += [getPublicTool("GeantFollowerMS")]
 
 from AthenaCommon.ConfigurationShelve import saveToAscii
 saveToAscii("config.txt")
