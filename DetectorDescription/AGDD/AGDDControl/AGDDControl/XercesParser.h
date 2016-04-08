@@ -12,7 +12,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
-using namespace xercesc;
+//using namespace xercesc;
 
 class XercesParser: public IAGDDParser {
 public:
@@ -25,19 +25,19 @@ public:
 	bool ParseStringAndNavigate(std::string);
 	void navigateTree();
 	static void elementLoop();
-	static void elementLoop(DOMNode*);
+	static void elementLoop(xercesc::DOMNode*);
 	static ExpressionEvaluator& Evaluator();
-	static DOMNode* GetCurrentElement() {return currentElement;}
+	static xercesc::DOMNode* GetCurrentElement() {return currentElement;}
 	bool Initialize();
 	bool Finalize();
 private:
-	DOMDocument *doc;
+        xercesc::DOMDocument *m_doc;
 	
-	XercesDOMParser *parser;
+	xercesc::XercesDOMParser *m_parser;
 	
-	bool initialized;
+	bool m_initialized;
 protected:
-	static DOMNode *currentElement;
+	static xercesc::DOMNode *currentElement;
 };
 
 #endif
