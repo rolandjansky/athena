@@ -19,7 +19,7 @@
 #include "DataModelAthenaPool/ElementLink_p1.h"
 
 // HepMC / CLHEP includes
-#include "GeneratorObjects/McEventCollection.h"
+//#include "GeneratorObjects/McEventCollection.h"
 
 // Gaudi includes
 

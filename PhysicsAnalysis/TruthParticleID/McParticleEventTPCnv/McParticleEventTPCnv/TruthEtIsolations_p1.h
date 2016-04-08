@@ -23,7 +23,7 @@
 #include "DataModelAthenaPool/ElementLink_p1.h"
 
 // McParticleEvent includes
-#include "McParticleEvent/TruthParticleParamDefs.h"
+#include "McParticleEvent/TruthParticleParamDefs.h" // For enum
 
 // forward declarations
 class TruthEtIsolationsCnv_p1;
