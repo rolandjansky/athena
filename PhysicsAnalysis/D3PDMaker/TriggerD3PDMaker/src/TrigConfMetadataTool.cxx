@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfMetadataTool.cxx 626801 2014-11-07 06:28:07Z ssnyder $
+// $Id: TrigConfMetadataTool.cxx 729020 2016-03-10 17:55:29Z tamartin $
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -295,15 +295,7 @@ namespace D3PD {
          const TrigMonConfig* tmc = *it;
          if(!tmc) continue;
 
-         TriggerKeyTool::Keys config_keys = m_triggerKeyTool->getKeys();
-
-          // Does this keyset from storegate match the current event?
-         if( (unsigned)config_keys.first != tmc->getMasterKey() || (unsigned)config_keys.second.first != tmc->getLV1PrescaleKey() 
-            || (unsigned)config_keys.second.second != tmc->getHLTPrescaleKey() ) {
-            ATH_MSG_INFO( "Object keys and Tool keys do not match, TrigKeyTool:" << config_keys.first
-               << "," << config_keys.second.first << "," << config_keys.second.second << " TrigMonConfig(we use these):"
-               << tmc->getMasterKey() << "," << tmc->getLV1PrescaleKey() << "," << tmc->getHLTPrescaleKey() );
-         }
+         TriggerKeyTool::Keys config_keys;
 
          // Find out if the configuration that's just been loaded by the
          // configuration service, has been already translated in this job.
@@ -583,8 +575,8 @@ namespace D3PD {
          m_trigConfSvc->ctpConfig()->menu().items().begin();
       TrigConf::ItemContainer::const_iterator item_end =
          m_trigConfSvc->ctpConfig()->menu().items().end();
-      std::vector< int > prescales =
-         m_trigConfSvc->ctpConfig()->prescaleSet().prescales();
+      std::vector< float > prescales =
+         m_trigConfSvc->ctpConfig()->prescaleSet().prescales_float();
       for( ; item_itr != item_end; ++item_itr ) {
          ( *m_lvl1ConfigNameMap )[ ( *item_itr )->name() ] = ( *item_itr )->ctpId();
          ( *m_lvl1ConfigPSKMap )[ ( *item_itr )->name() ] =
