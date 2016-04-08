@@ -95,15 +95,7 @@ for folder in theFolders:
     dbname="OFLP200"
     #For data, use COMP200 for Run 1, CONDBR2 for Run 2
     if globalflags.DataSource()=='data':
-      from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-      # Run() only exists for ATLAS-R1(...) and ATLAS-R2(...) geo tags,
-      # not for ATLAS-GEO(...) and ATLAS-IBL(...) ones.
-      # Hence if Run() is undefined,
-      # presence of IBL is used to switch between Run1/Run2
-      if (geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False)):
-        dbname="COMP200"
-      else:
-        dbname="CONDBR2"
+      dbname=conddb.dbdata
     conddb.addFolder("","<dbConnection>sqlite://X;schema=mycool.db;dbname="+dbname+"</dbConnection> "+folder+" <tag>"+BTaggingFlags.TrigCalibrationTag+"</tag>")
   else:
     if BTaggingFlags.CalibrationFromCERN:
