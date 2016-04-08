@@ -1,8 +1,11 @@
-<!-- $Id: selection.xml 580466 2014-01-28 14:54:00Z krasznaa $ -->
+<!-- $Id: selection.xml 656610 2015-03-25 08:56:32Z krasznaa $ -->
 <lcgdict>
 
   <!-- Athena independent interface(s): -->
   <class name="TrigConf::IILVL1ConfigSvc" />
   <class name="TrigConf::IIHLTConfigSvc" />
+
+  <!-- The dual-use tool interface: -->
+  <class name="TrigConf::ITrigConfigTool" />
 
 </lcgdict>

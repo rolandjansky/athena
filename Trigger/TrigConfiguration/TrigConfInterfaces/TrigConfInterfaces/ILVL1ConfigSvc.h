@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ILVL1ConfigSvc.h 580466 2014-01-28 14:54:00Z krasznaa $
+// $Id: ILVL1ConfigSvc.h 660352 2015-04-13 23:03:15Z stelzer $
 #ifndef TRIGCONFINTERFACES_ILVL1CONFIGSVC_H
 #define TRIGCONFINTERFACES_ILVL1CONFIGSVC_H
 
@@ -23,12 +23,12 @@ namespace TrigConf {
     * Athena interface for all services that provide LVL1 menu configuration
     * information.
     *
-    * $Revision: 580466 $
-    * $Date: 2014-01-28 15:54:00 +0100 (Tue, 28 Jan 2014) $
+    * $Revision: 660352 $
+    * $Date: 2015-04-14 01:03:15 +0200 (Tue, 14 Apr 2015) $
     */
-   class ILVL1ConfigSvc : public IILVL1ConfigSvc,
-                          virtual public IService {
-
+   class ILVL1ConfigSvc : virtual public IService, 
+                          virtual public IILVL1ConfigSvc
+   {
    public:
       /**@brief destructor*/
       virtual ~ILVL1ConfigSvc(){}
