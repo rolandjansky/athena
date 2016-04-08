@@ -109,7 +109,7 @@ private:
   ServiceHandle<ITHistSvc> m_histSvc;
 
   /// Remember all the tuples we've made.
-  std::vector<RootD3PD*> m_d3pds;
+  std::vector<std::unique_ptr<RootD3PD> > m_d3pds;
 
   // Disallow copying.
   RootD3PDSvc (const RootD3PDSvc&);
