@@ -36,8 +36,9 @@ class TrigmuRoI : public HLT::AllTEAlgo
       
       HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& /*input*/,
 				unsigned int output);
-      
-      bool reset();
+
+      HLT::ErrorCode hltEndEvent();
+
    private:
    
       MsgStream m_log;
