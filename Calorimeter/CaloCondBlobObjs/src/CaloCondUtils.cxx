@@ -71,13 +71,10 @@ std::string
 CaloCondUtils::getFullTag(const std::string& folder, const std::string& tag)
 {
   std::string folderTag("");
-  for (std::string::const_iterator i = folder.begin(); i != folder.end(); i++) {
-    if(*i=='/'){
-      i++;
-      folderTag+=char(std::toupper(*i));
-    }
-    else{
-      folderTag+=char(std::tolower(*i));
+  //Copy folder name, ommiting slashes
+  for (const char i : folder) {
+    if (i!='/') {
+      folderTag+=i;
     }
   }
   return (folderTag+"-"+tag);
