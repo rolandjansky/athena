@@ -81,49 +81,49 @@ Trk::ReFitTrack::ReFitTrack(const std::string &name, ISvcLocator *pSvcLocator) :
 // Initialize method:
 StatusCode Trk::ReFitTrack::initialize()
 {
-  msg(MSG::INFO) << "ReFitTrack::initialize()" << endmsg;
+  msg(MSG::INFO) << "ReFitTrack::initialize()" << endreq;
 
 
   if (m_fitRIO_OnTrack) {
-    msg(MSG::WARNING) << "fitRIO_OnTrack flag: This flag is now obsolete! " << endmsg;
+    msg(MSG::WARNING) << "fitRIO_OnTrack flag: This flag is now obsolete! " << endreq;
     msg(MSG::INFO) << "fitRIO_OnTrack flag: In the past its effect was to decompose"
-		   << " a track into hits before fitting, which misses outliers etc." << endmsg;
+		   << " a track into hits before fitting, which misses outliers etc." << endreq;
     msg(MSG::INFO) << "fitRIO_OnTrack flag: instead, please configure the active "
-		   << "track fitter to do the decomposition you want." << endmsg;
+		   << "track fitter to do the decomposition you want." << endreq;
   }
 
   if (m_ITrackFitter.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool "<<m_ITrackFitter.typeAndName()<<endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool "<<m_ITrackFitter.typeAndName()<<endreq;
     return StatusCode::FAILURE;
   } else 
-    msg(MSG::INFO) << "Retrieved general fitter " << m_ITrackFitter.typeAndName() << endmsg;
+    msg(MSG::INFO) << "Retrieved general fitter " << m_ITrackFitter.typeAndName() << endreq;
   
   if (m_ITrackFitterTRT.name()!=""){
     if (m_ITrackFitterTRT.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ITrackFitterTRT.typeAndName()<<endmsg;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ITrackFitterTRT.typeAndName()<<endreq;
       return StatusCode::FAILURE;
     } else
-      msg(MSG::INFO) << "Retrieved fitter for TRT-only tracks " << m_ITrackFitterTRT.typeAndName() << endmsg;
+      msg(MSG::INFO) << "Retrieved fitter for TRT-only tracks " << m_ITrackFitterTRT.typeAndName() << endreq;
   }
 
   if (m_trkSummaryTool.name()!=""){
     if (m_trkSummaryTool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endmsg;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endreq;
       return StatusCode::FAILURE;
     } else
-      msg(MSG::INFO) << "Retrieved tool " << m_trkSummaryTool.typeAndName() << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_trkSummaryTool.typeAndName() << endreq;
   }
   if ( m_assoTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endreq;
     return StatusCode::FAILURE;
   } else ATH_MSG_INFO("Retrieved tool " << m_assoTool);
   
   if (!m_trkSelectorTool.empty()){
     if (m_trkSelectorTool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSelectorTool << ". No Track Selection will be done." << endmsg;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSelectorTool << ". No Track Selection will be done." << endreq;
       return StatusCode::FAILURE;
     } else
-      msg(MSG::INFO) << "Retrieved tool " << m_trkSelectorTool.typeAndName() << endmsg;  
+      msg(MSG::INFO) << "Retrieved tool " << m_trkSelectorTool.typeAndName() << endreq;  
   }
   
   // beam conditions service
@@ -162,7 +162,7 @@ StatusCode Trk::ReFitTrack::execute()
     sc = evtStore()->retrieve(m_tracks, m_TrackName);
     if (sc.isFailure()){
       msg(MSG::ERROR) <<"Track collection named " << m_TrackName 
-		      << " not found, exit ReFitTrack." << endmsg;
+		      << " not found, exit ReFitTrack." << endreq;
       return StatusCode::SUCCESS;
     }
     else{ 
@@ -170,7 +170,7 @@ StatusCode Trk::ReFitTrack::execute()
     }
   }
   else {
-    msg(MSG::ERROR) <<"m_TrackName not set" << endmsg;
+    msg(MSG::ERROR) <<"m_TrackName not set" << endreq;
   }
   
   // constrainVx
@@ -293,7 +293,7 @@ StatusCode Trk::ReFitTrack::execute()
         const Trk::Perigee *aMeasPer=
           dynamic_cast<const Trk::Perigee*>(newtrack->perigeeParameters () );
         if (aMeasPer==0){
-          msg(MSG::ERROR) << "Could not get Trk::MeasuredPerigee" << endmsg;
+          msg(MSG::ERROR) << "Could not get Trk::MeasuredPerigee" << endreq;
           continue;
         }
         double d0 = aMeasPer->parameters()[Trk::d0];
@@ -321,7 +321,7 @@ StatusCode Trk::ReFitTrack::execute()
 
   sc = evtStore()->record(m_newtracks,m_NewTrackName,false);
   if (sc.isFailure()){
-    msg(MSG::ERROR) << "New Track Container could not be recorded in StoreGate !" << endmsg;
+    msg(MSG::ERROR) << "New Track Container could not be recorded in StoreGate !" << endreq;
     return StatusCode::FAILURE;
   }
   else {
@@ -337,6 +337,6 @@ StatusCode Trk::ReFitTrack::execute()
 // Finalize method:
 StatusCode Trk::ReFitTrack::finalize() 
 {
-  msg(MSG::INFO) << "ReFitTrack::finalize()" << endmsg;
+  msg(MSG::INFO) << "ReFitTrack::finalize()" << endreq;
   return StatusCode::SUCCESS;
 }
