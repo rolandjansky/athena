@@ -405,6 +405,23 @@ class EFMetHypoXS_2sided (EFMissingETHypoBase):
         self.METLabel='TrigEFMissingET'
         self.doMuonCorrection = False
         self.forceAccept=False
+        self.significanceOffset = 4.93182
+        self.significanceSlope = 0.442864
+        self.xsMETok = 150000
+        if 'xs30' in name:
+            self.onlineMonitoring(True)
+
+
+class EFMetHypoXS_2sided_2012 (EFMissingETHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFMetHypo_xs100",ef_thr=10):
+        super( EFMetHypoXS_2sided, self ).__init__( name )
+        
+        self.SigCut=ef_thr
+        self.CutType=1
+        self.METLabel='TrigEFMissingET'
+        self.doMuonCorrection = False
+        self.forceAccept=False
         self.significanceOffset = 4.265  
         self.significanceSlope  = 0.2966   
         self.xsMETok = 95000
