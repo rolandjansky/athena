@@ -7,7 +7,7 @@
 #include "TrigSteeringEvent/PartialEventBuildingInfo.h"
 #include "IRegionSelector/IRegSelSvc.h"
 
-#include "TrigDetCalib/TrigROBListWriter.h"
+#include "TrigROBListWriter.h"
 
 TrigROBListWriter::TrigROBListWriter(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator),

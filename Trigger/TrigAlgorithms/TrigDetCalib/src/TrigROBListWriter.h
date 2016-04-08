@@ -12,7 +12,7 @@
  * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
  *
  * File and Version Information:
- * $Id: TrigROBListWriter.h,v 1.6 2009-02-02 11:12:30 fwinkl Exp $
+ * $Id: TrigROBListWriter.h 707504 2015-11-12 16:33:46Z fwinkl $
  **********************************************************************************/
 
 #ifndef TrigEgammaHypo_TrigROBListWriter_H
