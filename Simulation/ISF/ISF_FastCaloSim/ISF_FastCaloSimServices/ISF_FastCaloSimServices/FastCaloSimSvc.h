@@ -23,6 +23,10 @@
 // ISF includes
 #include "ISF_Interfaces/BaseSimulationSvc.h"
 
+// Tracking includes
+#include "TrkExInterfaces/ITimedExtrapolator.h"
+#include "TrkEventPrimitives/PdgToParticleHypothesis.h"
+
 // Barcode includes
 #include "BarcodeInterfaces/Barcode.h"
 
@@ -80,6 +84,11 @@ namespace ISF {
       /** process the given particle */
       StatusCode processOneParticle( const ISF::ISFParticle &isfp);
 
+      /** extrapolation through Calo */
+      std::vector<Trk::HitInfo>* caloHits(const ISF::ISFParticle &isfp) const;
+
+      /** The Extrapolator setup */
+      ToolHandle<Trk::ITimedExtrapolator>      m_extrapolator;          
 
       /** whether CellContainer to be created will own (default) its cells or not */
       int m_ownPolicy;
@@ -96,6 +105,7 @@ namespace ISF {
       //check if punch through simulation is used
       bool m_doPunchThrough;
 
+      Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
 
       // list of tools to be used
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_setup ;

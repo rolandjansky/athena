@@ -28,8 +28,12 @@ use CaloEvent                   CaloEvent-*             	Calorimeter
 #use FastSimulationEvent         FastSimulationEvent-*   	Simulation/FastSimulation
 use FastCaloSim                 FastCaloSim-*           	Simulation/FastShower
 use ISF_FastCaloSimInterfaces	ISF_FastCaloSimInterfaces-*	Simulation/ISF/ISF_FastCaloSim
+use GeneratorObjects            GeneratorObjects-*              Generators
 
-use GeneratorObjects            GeneratorObjects-*        Generators
+public
+use TrkExInterfaces      TrkExInterfaces-*      Tracking/TrkExtrapolation
+use TrkEventPrimitives   TrkEventPrimitives-*   Tracking/TrkEvent
+
 
 public
 library ISF_FastCaloSimServices *.cxx components/*.cxx
