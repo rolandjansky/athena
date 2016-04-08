@@ -160,10 +160,8 @@ bool iParSim::MuonSmearer::smear(xAOD::TrackParticle* xaodTP) const
     else if(i == 1) xname = "z0_corr";
     else if(i == 2) xname = "phi_corr";
     else if(i == 3) xname = "theta_corr";
-    else if(i == 4) xname = "qoverp_corr";
-    else ATH_MSG_WARNING("Dim is only 5 ... not " << i);
+    else            xname = "qoverp_corr";
 
-    //x = new RooRealVar(xname.c_str(), xname.c_str(), 0., -5.,5.);
     x = new RooRealVar(xname.c_str(), xname.c_str(), 0.);
     xVec.add(*x);
   }
