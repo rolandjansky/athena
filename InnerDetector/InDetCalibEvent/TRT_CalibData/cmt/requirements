@@ -1,0 +1,10 @@
+package TRT_CalibData
+
+author Jorgen Beck Hansen <Jorgen.Beck.Hansen@cern.ch>
+author Peter Hansen <Peter.Hansen@cern.ch>
+author Chafik Driouichi <chafik.nbi.dk>
+
+use AtlasCLHEP           AtlasCLHEP-*              External
+use AtlasPolicy          AtlasPolicy-*             
+use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr
+use TRT_ConditionsData   TRT_ConditionsData-*      InnerDetector/InDetConditions
