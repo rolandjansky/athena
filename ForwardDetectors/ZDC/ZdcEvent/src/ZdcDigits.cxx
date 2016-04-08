@@ -126,22 +126,22 @@ ZdcDigits::operator std::string() const
 
 void ZdcDigits::set_digits_gain0_delay0(const std::vector<int>& v)
 {
-  m_digits_gain0_delay0 = std::vector<int>(v); // just copy it
+  m_digits_gain0_delay0 = v; // just copy it
 }
 
 void ZdcDigits::set_digits_gain0_delay1(const std::vector<int>& v)
 {
-  m_digits_gain0_delay1 = std::vector<int>(v); // just copy it
+  m_digits_gain0_delay1 = v; // just copy it
 }
 
 void ZdcDigits::set_digits_gain1_delay0(const std::vector<int>& v)
 {
-  m_digits_gain1_delay0 = std::vector<int>(v); // just copy it
+  m_digits_gain1_delay0 = v; // just copy it
 }
 
 void ZdcDigits::set_digits_gain1_delay1(const std::vector<int>& v)
 {
-  m_digits_gain1_delay1 = std::vector<int>(v); // just copy it
+  m_digits_gain1_delay1 = v; // just copy it
 }
 
 void ZdcDigits::set_digits_gain0_delay0(const std::vector<uint16_t>& v)
