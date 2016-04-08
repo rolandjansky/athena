@@ -55,16 +55,16 @@ class LArDigitsToNtuple : public AthAlgorithm
   const LArHEC_ID   *m_hecId;
   const LArFCAL_ID  *m_fcalId;
 
-  NTuple::Item<long> event;
-  NTuple::Item<long> layer, eta, phi, gain;
-  NTuple::Item<long> region,barrel_ec, pos_neg, FT, slot, channel;
-  NTuple::Item<long> detector;
-  NTuple::Array<long> samples;
-  NTuple::Array<long> sca;
-  NTuple::Item<double> tdc;
-  NTuple::Item<double> ped;
-  NTuple::Item<long> trigger;
-  NTuple::Item<double> S1;
+  NTuple::Item<long> m_nt_event;
+  NTuple::Item<long> m_nt_layer, m_nt_eta, m_nt_phi, m_nt_gain;
+  NTuple::Item<long> m_nt_region,m_nt_barrel_ec, m_nt_pos_neg, m_nt_FT, m_nt_slot, m_nt_channel;
+  NTuple::Item<long> m_nt_detector;
+  NTuple::Array<long> m_nt_samples;
+  NTuple::Array<long> m_nt_sca;
+  NTuple::Item<double> m_nt_tdc;
+  NTuple::Item<double> m_nt_ped;
+  NTuple::Item<long> m_nt_trigger;
+  NTuple::Item<double> m_nt_S1;
   NTuple::Tuple* m_nt;
 
   std::string m_contKey;

@@ -101,7 +101,7 @@ StatusCode DumpLArDigits::execute()
      //continue;
      const HWIdentifier chid=(*vec_it)->channelID();//hardwareID();
      const HWIdentifier febid=m_onlineHelper->feb_Id(chid);
-     std::cout << "FEB_ID: 0x" << std::hex << febid.get_compact() 
+     std::cout << "FEB_ID: 0x" << std::hex << febid.get_identifier32().get_compact() 
 	       << " channel: " << std::dec <<  m_onlineHelper->channel(chid) 
 	       << " (" << m_onlineHelper->channelInSlotMax(febid) << "/FEB), ";
      m_outfile << "FEB_ID: 0x" << std::hex << febid.get_compact() 

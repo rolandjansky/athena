@@ -93,25 +93,25 @@ StatusCode LArDigitsToNtuple::initialize()
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK( nt->addItem("event",event) );
-  ATH_CHECK( nt->addItem("layer",layer,0,4) );
-  ATH_CHECK( nt->addItem("ieta",eta,0,510) );
-  ATH_CHECK( nt->addItem("iphi",phi,0,1023) );
-  ATH_CHECK( nt->addItem("region",region,0,1) );
-  ATH_CHECK( nt->addItem("barrel_ec",barrel_ec,0,1) );
-  ATH_CHECK( nt->addItem("pos_neg",pos_neg,0,1) );
-  ATH_CHECK( nt->addItem("detector",detector,0,2) );
-  ATH_CHECK( nt->addItem("FT",FT,0,32) );
-  ATH_CHECK( nt->addItem("slot",slot,1,15) );
-  ATH_CHECK( nt->addItem("channel",channel,0,127) );
-  ATH_CHECK( nt->addItem("gain",gain,0,3) );
-  ATH_CHECK( nt->addItem("samples",m_nsamples,samples) );
+  ATH_CHECK( nt->addItem("event",m_nt_event) );
+  ATH_CHECK( nt->addItem("layer",m_nt_layer,0,4) );
+  ATH_CHECK( nt->addItem("ieta",m_nt_eta,0,510) );
+  ATH_CHECK( nt->addItem("iphi",m_nt_phi,0,1023) );
+  ATH_CHECK( nt->addItem("region",m_nt_region,0,1) );
+  ATH_CHECK( nt->addItem("barrel_ec",m_nt_barrel_ec,0,1) );
+  ATH_CHECK( nt->addItem("pos_neg",m_nt_pos_neg,0,1) );
+  ATH_CHECK( nt->addItem("detector",m_nt_detector,0,2) );
+  ATH_CHECK( nt->addItem("FT",m_nt_FT,0,32) );
+  ATH_CHECK( nt->addItem("slot",m_nt_slot,1,15) );
+  ATH_CHECK( nt->addItem("channel",m_nt_channel,0,127) );
+  ATH_CHECK( nt->addItem("gain",m_nt_gain,0,3) );
+  ATH_CHECK( nt->addItem("samples",m_nsamples,m_nt_samples) );
 
-  if(m_ped)     ATH_CHECK( nt->addItem("ped",ped) );
-  if(m_sca)     ATH_CHECK( nt->addItem("sca",m_nsamples,sca) );
-  if(m_phase)   ATH_CHECK( nt->addItem("tdc",tdc) );
-  if(m_trigger) ATH_CHECK( nt->addItem("trigger",trigger) );
-  if(m_scint)   ATH_CHECK( nt->addItem("S1",S1) );
+  if(m_ped)     ATH_CHECK( nt->addItem("ped",m_nt_ped) );
+  if(m_sca)     ATH_CHECK( nt->addItem("sca",m_nsamples,m_nt_sca) );
+  if(m_phase)   ATH_CHECK( nt->addItem("tdc",m_nt_tdc) );
+  if(m_trigger) ATH_CHECK( nt->addItem("trigger",m_nt_trigger) );
+  if(m_scint)   ATH_CHECK( nt->addItem("S1",m_nt_S1) );
 
   m_nt=nt;
 
@@ -229,47 +229,47 @@ StatusCode LArDigitsToNtuple::execute()
   for(; it!=it_e; ++it){
     const HWIdentifier hwid=(*it)->channelID();//hardwareID();
     // Fill detector geometry information
-    event   = eventnumber;
-    if(m_phase)   tdc     = tdcphase;
-    if(m_trigger) trigger = triggerword;
-    if(m_scint)   S1      = S1Adc;
+    m_nt_event   = eventnumber;
+    if(m_phase)   m_nt_tdc     = tdcphase;
+    if(m_trigger) m_nt_trigger = triggerword;
+    if(m_scint)   m_nt_S1      = S1Adc;
     try {
       Identifier id=m_larCablingSvc->cnvToIdentifier(hwid);
       if (m_emId->is_lar_em(id)) {
-	eta       = m_emId->eta(id);
-	phi       = m_emId->phi(id);
-	layer     = m_emId->sampling(id);
-	region    = m_emId->region(id);
-	detector  = 0;
+	m_nt_eta       = m_emId->eta(id);
+	m_nt_phi       = m_emId->phi(id);
+	m_nt_layer     = m_emId->sampling(id);
+	m_nt_region    = m_emId->region(id);
+	m_nt_detector  = 0;
       }
       else if (m_hecId->is_lar_hec(id)) {
-	eta       = m_hecId->eta(id);
-	phi       = m_hecId->phi(id);
-	layer     = m_hecId->sampling(id);
-	region    = m_hecId->region(id);
-	detector  = 1;
+	m_nt_eta       = m_hecId->eta(id);
+	m_nt_phi       = m_hecId->phi(id);
+	m_nt_layer     = m_hecId->sampling(id);
+	m_nt_region    = m_hecId->region(id);
+	m_nt_detector  = 1;
       }
       else if (m_fcalId->is_lar_fcal(id)) {
-	eta       = m_fcalId->eta(id);
-	phi       = m_fcalId->phi(id);
-	layer     = m_fcalId->module(id);
-	region    = 0;
-	detector  = 2;
+	m_nt_eta       = m_fcalId->eta(id);
+	m_nt_phi       = m_fcalId->phi(id);
+	m_nt_layer     = m_fcalId->module(id);
+	m_nt_region    = 0;
+	m_nt_detector  = 2;
       }
     }
     catch (LArID_Exception & except) {
-      eta       = -1;
-      phi       = -1;
-      layer     = -1;
-      region    = -1;
-      detector  = -1;
+      m_nt_eta       = -1;
+      m_nt_phi       = -1;
+      m_nt_layer     = -1;
+      m_nt_region    = -1;
+      m_nt_detector  = -1;
     }
     // Fill hardware information
-    barrel_ec = m_onlineHelper->barrel_ec(hwid);
-    pos_neg   = m_onlineHelper->pos_neg(hwid);
-    FT        = m_onlineHelper->feedthrough(hwid);
-    slot      = m_onlineHelper->slot(hwid);
-    channel   = m_onlineHelper->channel(hwid);
+    m_nt_barrel_ec = m_onlineHelper->barrel_ec(hwid);
+    m_nt_pos_neg   = m_onlineHelper->pos_neg(hwid);
+    m_nt_FT        = m_onlineHelper->feedthrough(hwid);
+    m_nt_slot      = m_onlineHelper->slot(hwid);
+    m_nt_channel   = m_onlineHelper->channel(hwid);
 
     // Fill pedestal information
     float thePedestal=-1;    
@@ -282,14 +282,14 @@ StatusCode LArDigitsToNtuple::execute()
       thePedestal = -999;
       ATH_MSG_DEBUG ( "No pedestal found for this cell. Use default value " << thePedestal );
     }
-    ped = thePedestal;
+    m_nt_ped = thePedestal;
 
     // Fill raw data samples and gain
     for(unsigned int i=0;i<(*it)->samples().size();i++) {
       if((int)i>=m_nsamples) break;
-      samples[i]=(*it)->samples()[i];
+      m_nt_samples[i]=(*it)->samples()[i];
     }
-    gain=(*it)->gain();
+    m_nt_gain=(*it)->gain();
 
     // Fill SCA numbers
     if(m_sca) {
@@ -302,7 +302,7 @@ StatusCode LArDigitsToNtuple::execute()
 	if(this_febid!=febid) continue;
 	for(unsigned int i=0;i<(*feb_it)->SCA().size();i++) {
 	  if((int)i>=m_nsamples) break;
-	  sca[i]=(*feb_it)->SCA()[i];
+	  m_nt_sca[i]=(*feb_it)->SCA()[i];
 	}
 	break;
       } // End FebHeader loop
