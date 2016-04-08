@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id:$
+// $Id: xAODTrigMuonAthenaPoolTPCnv.cxx 707606 2015-11-12 19:59:49Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/TPCnvFactory.h"
@@ -19,8 +19,8 @@
 
 // Declare the T/P converter(s):
 DECLARE_TPCNV_FACTORY( xAODL2StandAloneMuonContainerCnv_v1,
-                       xAOD::L2StandAloneMuonContainer,
-                       xAOD::L2StandAloneMuonContainer_v1,
+                       DataVector<xAOD::L2StandAloneMuon>,
+                       DataVector<xAOD::L2StandAloneMuon_v1>,
                        Athena::TPCnvVers::Old )
 DECLARE_TPCNV_FACTORY( xAODL2StandAloneMuonAuxContainerCnv_v1,
                        xAOD::L2StandAloneMuonAuxContainer,
