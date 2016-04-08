@@ -4,27 +4,27 @@ author Hendrik Jansen <jansen@cern.ch>
 
 private 
 
-use GaudiInterface   GaudiInterface-01-*    External
-#use AthenaKernel     AthenaKernel-00-*      Control
-#use StoreGate        StoreGate-02-*         Control
-#use DataModel        DataModel-00-*         Control
+use GaudiInterface   GaudiInterface-*    External
+#use AthenaKernel     AthenaKernel-*      Control
+#use StoreGate        StoreGate-*         Control
+#use DataModel        DataModel-*         Control
 #use AthenaBaseComps  AthenaBaseComps-*      Control
 #use CxxUtils         CxxUtils-*             Control
 
-#use AtlasDetDescr    AtlasDetDescr-00-*     DetectorDescription
-#use Identifier       Identifier-00-*        DetectorDescription
-#use GeoModelSvc      GeoModelSvc-00-*       DetectorDescription/GeoModel
+#use AtlasDetDescr    AtlasDetDescr-*     DetectorDescription
+#use Identifier       Identifier-*        DetectorDescription
+#use GeoModelSvc      GeoModelSvc-*       DetectorDescription/GeoModel
 
 #use AtlasROOT        AtlasROOT-*            External
-#use AtlasCLHEP       AtlasCLHEP-00-*        External
+#use AtlasCLHEP       AtlasCLHEP-*        External
 
 public
-use AtlasPolicy      AtlasPolicy-01-* 
-use CLIDSvc         CLIDSvc-00-*        Control
+use AtlasPolicy      AtlasPolicy-* 
+use CLIDSvc         CLIDSvc-*        Control
 
-#use EventInfo        EventInfo-00-*         Event
+#use EventInfo        EventInfo-*         Event
 
-#use GeneratorObjects GeneratorObjects-01-*  Generators
+#use GeneratorObjects GeneratorObjects-*  Generators
 
 #use InDetBCM_RawData InDetBCM_RawData-* InnerDetector/InDetRawEvent
 
