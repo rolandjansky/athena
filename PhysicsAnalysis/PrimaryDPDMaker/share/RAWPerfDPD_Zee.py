@@ -21,30 +21,21 @@ from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 
 
-
 ##====================================================================
 ## Define the skimming (event selection) for the Photon-Jet DPD output stream
 ##====================================================================
 if primDPD.ApplySkimming() :
 
+    from AthenaCommon.AlgSequence import AlgSequence 
+    topSequence = AlgSequence() 
+
+
     # Medium electron filter
-
-    # First, I need to create a boolean vector since getting at the isMedium for
-    # electron is not trivial.
-    from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGammaPassSelectionWrapper
-    ToolSvc += DerivationFramework__EGammaPassSelectionWrapper( "DRAW_ZEEStream_ElectronPassSelection",
-                                                                SelectionVariables = ["Medium"],
-                                                                CollectionName     = "ElectronCollection",
-                                                                SGPrefix           = "DRAW_ZEEStream_Electrons"
-                                                                )
-
     ToolSvc += CfgMgr.ParticleSelectionTool( "DRAW_ZEEStream_ElectronSelector",
                                             #  OutputLevel         = VERBOSE,
-                                             InputContainer      = "ElectronCollection",
+                                             InputContainer      = "Electrons",
                                              OutputLinkContainer = "DRAW_ZEEStream_MediumElectronCollection",
-                                             Selection           = "(DRAW_ZEEStream_ElectronsMedium) && (ElectronCollection.pt > 20.0*GeV)"
-                                             #Selection           = "(DRAW_ZEEStream_ElectronsMedium) && (ElectronCollection.caloCluster.et > 20.0*GeV)"
-                                             #Selection           = "(ElectronCollection.passSelection['Medium']) && (ElectronCollection.pt > 20.0*GeV)"
+                                             Selection           = "( Electrons.Medium || Electrons.LHMedium ) && (Electrons.pt > 20.0*GeV)"
                                              )
 
     # Define the Z -> e e filter
@@ -56,16 +47,12 @@ if primDPD.ApplySkimming() :
                                             SetPdgId           = 23
                                             )
 
-    # ToolSvc += CfgMgr.CutTool( "DRAW_ZEEStream_ZeeFilter",
-    #                            # OutputLevel = VERBOSE,
-    #                            Cut = "count(DRAW_ZEEStream_ZeeBosonCollection.M > 55.0*GeV) >= 1" )
 
     # The name of the kernel (DRAW_ZEEStream_Kernel in this case) must be unique to this derivation
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
     topSequence += CfgMgr.DerivationFramework__DerivationKernel("DRAW_ZEEStream_Kernel",
                                                                 # OutputLevel       = VERBOSE,
-                                                                AugmentationTools = [ToolSvc.DRAW_ZEEStream_ElectronPassSelection,
-                                                                                     ToolSvc.DRAW_ZEEStream_ElectronSelector,
+                                                                AugmentationTools = [ToolSvc.DRAW_ZEEStream_ElectronSelector,
                                                                                      ToolSvc.DRAW_ZEEStream_ZeeCombiner]
                                                                 #SkimmingTools = [ToolSvc.DRAW_ZEEStream_ZeeFilter],
                                                                 )

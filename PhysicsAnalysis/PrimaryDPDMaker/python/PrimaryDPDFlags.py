@@ -136,6 +136,21 @@ jobproperties.PrimaryDPDFlags.add_JobProperty(isVirtual)
 ## Flags to turn on/off each possible DPD
 ## Note: each DPD has its own internal flags.
 ##--------------------------------
+
+class WriteDESD_HIPsStream(JobProperty):
+    """ Produce the primary DPD for Highly Ionizing Particles analysis."""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDESD_HIPs"
+    FileName     = ""
+    isVirtual    = False
+    DPDMakerScript = "LongLivedParticleDPDMaker/PhysDPD_HIPs.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDESD_HIPsStream)
+listESDtoDPD.append(WriteDESD_HIPsStream.StreamName)
+
+
 class WriteAllcellsStream(JobProperty):
     """ Produce the primary DPD AllCells DPD."""
     statusOn     = True
