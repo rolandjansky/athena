@@ -88,6 +88,9 @@ public:
 
   virtual bool HVisOn() = 0;
 
+  virtual void setDecodedROD(const boost::uint32_t rodId) = 0;
+  virtual std::vector<boost::uint32_t> getRODOuts() const = 0;
+
 private:
 
 };
