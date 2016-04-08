@@ -38,5 +38,6 @@ use TrkParticleBase             TrkParticleBase-*               Tracking/TrkEven
 
 public
 
-library TrkValAlgs *.cxx components/*.cxx
-apply_pattern component_library
+apply_pattern dual_use_library files="*.cxx"
+
+

@@ -107,27 +107,27 @@ Trk::TrackValidationNtupleWriter::~TrackValidationNtupleWriter() {}
 
 StatusCode Trk::TrackValidationNtupleWriter::initialize() {
 
-    msg(MSG::INFO) <<"TrackValidationNtupleWriter initialize()" << endmsg;
+    msg(MSG::INFO) <<"TrackValidationNtupleWriter initialize()" << endreq;
 
     //check that m_inputTrackCollection and m_trackTruthCollectionName have the same size
     if (m_doTruth && (m_inputTrackCollection.size() != m_trackTruthCollectionName.size())) {
-        msg(MSG::FATAL) << "joboptions TrackCollection and TrackTruthCollection have different sizes!" << endmsg;
-        msg(MSG::FATAL) << "If you like to get truth data (DoTruth=True)," << endmsg;
-        msg(MSG::FATAL) << "  please make sure to set for each TrackCollection the corresponding TrackTruthCollection" << endmsg;
+        msg(MSG::FATAL) << "joboptions TrackCollection and TrackTruthCollection have different sizes!" << endreq;
+        msg(MSG::FATAL) << "If you like to get truth data (DoTruth=True)," << endreq;
+        msg(MSG::FATAL) << "  please make sure to set for each TrackCollection the corresponding TrackTruthCollection" << endreq;
         return StatusCode::FAILURE;
     }
 
     // Get Validation ntuple Tools
     StatusCode sc = m_ValidationNtupleTools.retrieve();
     if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve "<< m_ValidationNtupleTools <<" (to write validation ntuple) "<< endmsg;
+        msg(MSG::FATAL) << "Could not retrieve "<< m_ValidationNtupleTools <<" (to write validation ntuple) "<< endreq;
         return sc;
     }
     if(m_doTrackParticle){
     // Get TrackParticle Validation ntuple Tool
     sc = m_ValTrkParticleNtupleTool.retrieve();
     if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve "<< m_ValTrkParticleNtupleTool <<" (to write TrackParticle validation ntuple) "<< endmsg;
+        msg(MSG::FATAL) << "Could not retrieve "<< m_ValTrkParticleNtupleTool <<" (to write TrackParticle validation ntuple) "<< endreq;
         return sc;
      }
     }
@@ -136,20 +136,20 @@ StatusCode Trk::TrackValidationNtupleWriter::initialize() {
     if ( !m_trackSelector.empty() ) {
       sc = m_trackSelector.retrieve();
       if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve "<< m_trackSelector <<" (to select the tracks which are written to the ntuple) "<< endmsg;
-        msg(MSG::INFO) << "Set the ToolHandle to None if track selection is supposed to be disabled" << endmsg;
+        msg(MSG::FATAL) << "Could not retrieve "<< m_trackSelector <<" (to select the tracks which are written to the ntuple) "<< endreq;
+        msg(MSG::INFO) << "Set the ToolHandle to None if track selection is supposed to be disabled" << endreq;
         return sc;
       }
     }
 
-    msg(MSG::INFO) <<"Track Selector retrieved" << endmsg;
+    msg(MSG::INFO) <<"Track Selector retrieved" << endreq;
     // -------------------------------
     // get event property tools
     ToolHandleArray< Trk::IEventPropertyNtupleTool >::iterator itTools;
     if ( m_eventPropertyNtupleHandles.retrieve().isFailure() ) {
-      msg(MSG::ERROR) << "Failed to retreive " << m_eventPropertyNtupleHandles << endmsg;
+      msg(MSG::ERROR) << "Failed to retreive " << m_eventPropertyNtupleHandles << endreq;
     } else {
-      msg(MSG::INFO) << "Retrieved " << m_eventPropertyNtupleHandles << endmsg;
+      msg(MSG::INFO) << "Retrieved " << m_eventPropertyNtupleHandles << endreq;
     }
 
      
@@ -179,9 +179,9 @@ StatusCode Trk::TrackValidationNtupleWriter::initialize() {
         // get given classifier tools
         ToolHandleArray< ITrackTruthClassifier >::iterator itTools;
         if ( m_trackTruthClassifierHandles.retrieve().isFailure() ) {
-            msg(MSG::ERROR) << "Failed to retreive " << m_trackTruthClassifierHandles << endmsg;
+            msg(MSG::ERROR) << "Failed to retreive " << m_trackTruthClassifierHandles << endreq;
         } else {
-            msg(MSG::INFO) << "Retrieved " << m_trackTruthClassifierHandles << endmsg;
+            msg(MSG::INFO) << "Retrieved " << m_trackTruthClassifierHandles << endreq;
         }
         //std::vector<std::string> classifierNames(0);
         itTools = m_trackTruthClassifierHandles.begin();
@@ -196,14 +196,14 @@ StatusCode Trk::TrackValidationNtupleWriter::initialize() {
           sc = m_jetTruthNtupleTool.retrieve();
           if (sc.isFailure()) {
             msg(MSG::ERROR) << "Could not retrieve "<< m_jetTruthNtupleTool
-                  << " (to write jet data)."<< endmsg << "--> Instead configure "
-                  << "to empty string if jet data not desired." << endmsg;
+                  << " (to write jet data)."<< endreq << "--> Instead configure "
+                  << "to empty string if jet data not desired." << endreq;
             return sc;
           }
           sc = m_genJetFinder.retrieve();
           if (sc.isFailure()) {
             msg(MSG::ERROR) << "Could not retrieve "<< m_genJetFinder
-                  << " (to find jets at truth level)."<< endmsg;
+                  << " (to find jets at truth level)."<< endreq;
             return sc;
           }
         }
@@ -211,7 +211,7 @@ StatusCode Trk::TrackValidationNtupleWriter::initialize() {
         // Get the Truth Ntuple Tool
         sc = m_truthNtupleTool.retrieve();
         if (sc.isFailure()) {
-            msg(MSG::FATAL) << "Could not retrieve "<< m_truthNtupleTool <<" (to write truth data) "<< endmsg;
+            msg(MSG::FATAL) << "Could not retrieve "<< m_truthNtupleTool <<" (to write truth data) "<< endreq;
             return sc;
         }
         bool include_jets = (! m_jetTruthNtupleTool.empty());
@@ -227,7 +227,7 @@ StatusCode Trk::TrackValidationNtupleWriter::initialize() {
     ITHistSvc *tHistSvc;
     sc =  service("THistSvc", tHistSvc);
     if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Unable to retrieve pointer to THistSvc" << endmsg;
+        msg(MSG::ERROR) << "Unable to retrieve pointer to THistSvc" << endreq;
         return sc;
     }
     // ---------------------------
@@ -240,7 +240,7 @@ StatusCode Trk::TrackValidationNtupleWriter::initialize() {
         std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleDirName+"/"+(*trackColNameIter);
         sc = tHistSvc->regTree(fullNtupleName, tree);
         if (sc.isFailure()) {
-            msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
+            msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endreq;
             return sc;
         }
         // add the ntuple branches to this tree
@@ -249,7 +249,7 @@ StatusCode Trk::TrackValidationNtupleWriter::initialize() {
         for (  ; itTools != m_ValidationNtupleTools.end(); ++itTools ) {
           if (((*itTools)->addNtupleItems(tree)).isFailure()) {
             msg(MSG::ERROR) << "ValidationNtupleTool could not add its branches"
-                            << " for tree " << fullNtupleName << endmsg;
+                            << " for tree " << fullNtupleName << endreq;
             return StatusCode::FAILURE;
           }
         }
@@ -267,13 +267,13 @@ StatusCode Trk::TrackValidationNtupleWriter::initialize() {
         std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleDirName+"/"+(*trackParticleColNameIter);
         sc = tHistSvc->regTree(fullNtupleName, tree);
         if (sc.isFailure()) {
-            msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
+            msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endreq;
             return sc;
         }
         // add the ntuple branches to this tree
         sc = m_ValTrkParticleNtupleTool->addNtupleItems(tree); 
         if (sc.isFailure()) {
-            msg(MSG::ERROR) << "ValidationNtupleTool could not add its branches for tree " << fullNtupleName << endmsg;
+            msg(MSG::ERROR) << "ValidationNtupleTool could not add its branches for tree " << fullNtupleName << endreq;
             return sc;
         }
 
@@ -295,7 +295,7 @@ StatusCode Trk::TrackValidationNtupleWriter::initialize() {
       std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleDirName+"/EventToTrackLink";
       sc = tHistSvc->regTree(fullNtupleName, m_eventLinkTree);
       if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
+        msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endreq;
         return sc;
       }
 
@@ -305,7 +305,7 @@ StatusCode Trk::TrackValidationNtupleWriter::initialize() {
     	  m_eventPropertyNtupleTools[toolIndex]->isEvtPropertyTool( ) ) {
       if( m_eventPropertyNtupleTools[toolIndex]->addNtupleItems( m_eventLinkTree ).isFailure() ) 
 	                         {
-	                           msg(MSG::ERROR) << "Unable to add items into the event tree: " << m_eventLinkTree->GetTitle() << endmsg;
+	                           msg(MSG::ERROR) << "Unable to add items into the event tree: " << m_eventLinkTree->GetTitle() << endreq;
 	                           return StatusCode::SUCCESS;
 	                         } // if addNtupleItems isFailure
         } // if Track or TrackParticle
@@ -344,7 +344,7 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
             std::string key = "G4Truth";
             if (evtStore()->retrieve(mcEventColl, key).isFailure())
 	    {
-                msg(MSG::WARNING) << "Could not find the McEventCollection" << endmsg;
+                msg(MSG::WARNING) << "Could not find the McEventCollection" << endreq;
                 return StatusCode::SUCCESS;
             }
         }
@@ -451,7 +451,7 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
       {
         sc = writeTrackParticleData(trackParticleColIndex);
         if (sc.isFailure()) {
-            msg(MSG::ERROR) <<"Failure when writing TrackParticle data for collection " << m_inputTrackParticleCollection[trackParticleColIndex] << endmsg;
+            msg(MSG::ERROR) <<"Failure when writing TrackParticle data for collection " << m_inputTrackParticleCollection[trackParticleColIndex] << endreq;
             delete genParticleJets;
             return sc;
         }
@@ -470,7 +470,7 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
     for (unsigned int toolIndex = 0 ; toolIndex < m_eventPropertyNtupleTools.size(); ++toolIndex ) {
       sc = m_eventPropertyNtupleTools[toolIndex]->fillEventData( );
       if (sc.isFailure()) {
-        msg(MSG::ERROR) <<"Failure when filling event data." << endmsg;
+        msg(MSG::ERROR) <<"Failure when filling event data." << endreq;
         delete genParticleJets;
         return sc;
       }
@@ -495,14 +495,14 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
               truthData[*k].truthToJetIndex = nJetTruthTreeRecordsAtCurrentEvent
                 + int(itrMcJet - genParticleJets->begin()) + 1;
             } else {
-              msg(MSG::WARNING) <<" mistake with jet::indexInEvent !! " << *k << endmsg;
+              msg(MSG::WARNING) <<" mistake with jet::indexInEvent !! " << *k << endreq;
             }
           }
       }
       sc = m_jetTruthNtupleTool->writeJetTruthData(*genParticleJets,
                                                    nTruthTreeRecordsAtCurrentEvent);
       if ( sc.isFailure() ){
-        msg(MSG::ERROR) << "Jet Truth Ntuple Tool could not fill data" << endmsg;
+        msg(MSG::ERROR) << "Jet Truth Ntuple Tool could not fill data" << endreq;
         delete genParticleJets;
         return StatusCode::FAILURE;
       }
@@ -512,7 +512,7 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
     if (m_doTruth && selecParticles){
       sc = m_truthNtupleTool->writeTruthData( truthData );
       if ( sc.isFailure() ){
-        msg(MSG::ERROR) << "Truth Ntuple Tool could not fill data" << endmsg;
+        msg(MSG::ERROR) << "Truth Ntuple Tool could not fill data" << endreq;
         delete genParticleJets;
         return StatusCode::FAILURE;
       }
@@ -537,13 +537,13 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
     if (m_inputTrackCollection[trackColIndex] != "" && evtStore()->contains<TrackCollection>(m_inputTrackCollection[trackColIndex])) {
         sc = evtStore()->retrieve(tracks, m_inputTrackCollection[trackColIndex]);
         if (sc.isFailure()) {
-            msg(MSG::WARNING) <<"Tracks not found:  " << m_inputTrackCollection[trackColIndex] << endmsg;
+            msg(MSG::WARNING) <<"Tracks not found:  " << m_inputTrackCollection[trackColIndex] << endreq;
             return StatusCode::SUCCESS;
         } else {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Tracks found: " << m_inputTrackCollection[trackColIndex] <<endmsg;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Tracks found: " << m_inputTrackCollection[trackColIndex] <<endreq;
         }
     } else {
-        msg(MSG::WARNING) <<"TrackCollection " << m_inputTrackCollection[trackColIndex] << " not found in StoreGate." << endmsg;
+        msg(MSG::WARNING) <<"TrackCollection " << m_inputTrackCollection[trackColIndex] << " not found in StoreGate." << endreq;
         return StatusCode::SUCCESS;
     }
 
@@ -553,7 +553,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
         if (m_trackTruthCollectionName[trackColIndex] != "" && evtStore()->contains<TrackTruthCollection>(m_trackTruthCollectionName[trackColIndex])) {
             sc = evtStore()->retrieve(trackTruthCollection, m_trackTruthCollectionName[trackColIndex]);
             if (sc.isFailure()) {
-                msg(MSG::WARNING) <<"TrackTruthCollection not found:  " << m_trackTruthCollectionName[trackColIndex] << endmsg;
+                msg(MSG::WARNING) <<"TrackTruthCollection not found:  " << m_trackTruthCollectionName[trackColIndex] << endreq;
                 // FIXME: return is not good here...
                 return StatusCode::SUCCESS;
             } else {
@@ -561,7 +561,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
                 // TODO: use trackTruthCollection.trackCollectionLink() to check whether consistent track collection was used
             }
         } else {
-            msg(MSG::WARNING) <<"TrackTruthCollection " << m_trackTruthCollectionName[trackColIndex] << " not found in StoreGate." << endmsg;
+            msg(MSG::WARNING) <<"TrackTruthCollection " << m_trackTruthCollectionName[trackColIndex] << " not found in StoreGate." << endreq;
             // FIXME: return is not good here...
             return StatusCode::SUCCESS;
         }
@@ -580,7 +580,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
     TrackCollection::const_iterator trackIterator = (*tracks).begin();
     for ( ; trackIterator < (*tracks).end(); ++trackIterator) {
         if (!((*trackIterator))) {
-            msg(MSG::WARNING) <<"TrackCollection " << m_inputTrackCollection[trackColIndex] << "contains empty entries" << endmsg;
+            msg(MSG::WARNING) <<"TrackCollection " << m_inputTrackCollection[trackColIndex] << "contains empty entries" << endreq;
             continue;
         }
 	if (m_trackSelector.empty() || m_trackSelector->decision(*(*trackIterator), primaryVertex)) {
@@ -605,13 +605,13 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
                 } else {
                   trackTruth = &((*truthIterator).second);
                   if ( !(trackTruth->particleLink().isValid()) ) {
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Link to generated particle information is not there - assuming a lost G4 particle ('fake fake')." << endmsg;
+                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Link to generated particle information is not there - assuming a lost G4 particle ('fake fake')." << endreq;
                     genParticle = m_visibleParticleWithoutTruth; // with pdg_id 0
                   } else {
                     genParticle = trackTruth->particleLink().cptr();
                     if ( genParticle!=NULL && genParticle->pdg_id() == 0 ) {
                       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Associated Particle ID " << genParticle->pdg_id()
-                            << " does not conform to PDG requirements... ignore it!" << endmsg;
+                            << " does not conform to PDG requirements... ignore it!" << endreq;
                       genParticle = 0;
                     } 
                   }
@@ -634,7 +634,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
                   if (matchedPartIter == truthData.end()) {
                     // did not find particle in list of selected particles
                     truthIndex = -1;
-                    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Matched particle with barcode " << genParticle->barcode() << " is not in list of selected particles" << endmsg;
+                    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Matched particle with barcode " << genParticle->barcode() << " is not in list of selected particles" << endreq;
                     if ( genParticle->production_vertex() ) {
                       newTrackPerigee = m_truthToTrack->makePerigeeParameters( genParticle );
                       generatedTrackPerigee = newTrackPerigee;
@@ -671,7 +671,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
 
             m_nTrackTreeRecords[trackColIndex]++;
         } else {
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"track not selected!" <<endmsg;
+            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"track not selected!" <<endreq;
         }
     } // end for (trackIterator)
 
@@ -684,7 +684,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
 
 StatusCode Trk::TrackValidationNtupleWriter::writeTrackParticleData(unsigned int trackParticleColIndex ) {
 
- msg(MSG::DEBUG) << "writeTrackParticleData method started" << endmsg;
+ msg(MSG::DEBUG) << "writeTrackParticleData method started" << endreq;
  
   // retrieve Trk::TrackParticleBaseCollection from the SG
  const Trk::TrackParticleBaseCollection* trackParticles = 0;
@@ -692,13 +692,13 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackParticleData(unsigned int
  if (m_inputTrackParticleCollection[trackParticleColIndex] != "" && 
      evtStore()->contains<Trk::TrackParticleBaseCollection>(m_inputTrackParticleCollection[trackParticleColIndex])) {
             if (evtStore()->retrieve(trackParticles, m_inputTrackParticleCollection[trackParticleColIndex]).isFailure()) {
-                                    msg(MSG::WARNING) <<"Trk::TrackParticleBasesContainer not found:" << m_inputTrackParticleCollection[trackParticleColIndex] << endmsg;
+                                    msg(MSG::WARNING) <<"Trk::TrackParticleBasesContainer not found:" << m_inputTrackParticleCollection[trackParticleColIndex] << endreq;
                                    return StatusCode::SUCCESS;
                } else {
-                       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Trk::TrackParticleBasesContainer found: "<< m_inputTrackParticleCollection[trackParticleColIndex] <<endmsg;
+                       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Trk::TrackParticleBasesContainer found: "<< m_inputTrackParticleCollection[trackParticleColIndex] <<endreq;
                       }
     } else {
-        msg(MSG::WARNING) <<"Trk::TrackParticleBasesContainer " << m_inputTrackParticleCollection[trackParticleColIndex] << " not found in StoreGate." << endmsg;
+        msg(MSG::WARNING) <<"Trk::TrackParticleBasesContainer " << m_inputTrackParticleCollection[trackParticleColIndex] << " not found in StoreGate." << endreq;
         return StatusCode::SUCCESS;
            }
 
@@ -710,18 +710,18 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackParticleData(unsigned int
  Trk::TrackParticleBaseCollection::const_iterator trackParticleIterator = (*trackParticles).begin();
     for ( ; trackParticleIterator < (*trackParticles).end(); ++trackParticleIterator) {
         if (!((*trackParticleIterator))) {
-            msg(MSG::WARNING) <<"TrackParticleCollection " << m_inputTrackParticleCollection[trackParticleColIndex] << "contains empty entries" << endmsg;
+            msg(MSG::WARNING) <<"TrackParticleCollection " << m_inputTrackParticleCollection[trackParticleColIndex] << "contains empty entries" << endreq;
             continue;
 	                                 } // if emty entry
  
         if ( m_ValTrkParticleNtupleTool->fillTrackParticleData( *(*trackParticleIterator) ).isFailure() ){
-                                        msg(MSG::ERROR) << "Validation Ntuple Tool could not fill track data." << endmsg;
+                                        msg(MSG::ERROR) << "Validation Ntuple Tool could not fill track data." << endreq;
                                         return StatusCode::FAILURE;
 	                                } // if StatusCode is FAILURE
      nTrkParticlesPerEvent += 1;
      
      if ( m_ValTrkParticleNtupleTool->writeRecord(m_trees[trackParticleColIndex + m_inputTrackCollection.size()]).isFailure() ){
-    	                                msg(MSG::ERROR) << "Validation Ntuple Tool could not write track data." << endmsg;
+    	                                msg(MSG::ERROR) << "Validation Ntuple Tool could not write track data." << endreq;
                                         return StatusCode::FAILURE;
         } 
     } // loop over Rec::TrackPartcielContainer
@@ -732,14 +732,14 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackParticleData(unsigned int
                      m_eventPropertyNtupleTools[toolIndex]->setTrackTreeIndices(trackParticleColIndex, trackTreeIndexBegin, nTrkParticlesPerEvent );
     }
 
-    msg(MSG::DEBUG) <<"writeTrackParticleData successfully finished " << endmsg;
+    msg(MSG::DEBUG) <<"writeTrackParticleData successfully finished " << endreq;
     return StatusCode::SUCCESS;
 }
 
 
 StatusCode Trk::TrackValidationNtupleWriter::finalize() {
 
-    msg(MSG::INFO)  << "TrackValidationNtupleWriter finalize()" << endmsg;
+    msg(MSG::INFO)  << "TrackValidationNtupleWriter finalize()" << endreq;
 
     delete m_visibleParticleWithoutTruth;
     for (unsigned int toolIndex = 0 ; toolIndex < m_eventPropertyNtupleTools.size(); ++toolIndex ){
@@ -754,7 +754,7 @@ StatusCode Trk::TrackValidationNtupleWriter::finalize() {
 // 										     const TrackTruth*& trackTruth )
 // {
 //     
-//    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Starting InDet::FitterValidationTool::determineGeneratedPerigee()..." << endmsg;
+//    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Starting InDet::FitterValidationTool::determineGeneratedPerigee()..." << endreq;
 // 
 //   StatusCode sc;
 // 
@@ -763,7 +763,7 @@ StatusCode Trk::TrackValidationNtupleWriter::finalize() {
 //   sc = evtStore()->retrieve( trackTruthCollection, m_trackTruthCollectionName );
 // 
 //   if ( sc.isFailure() ){
-//     msg(MSG::ERROR) << "Attempt to retrieve track truth using StoreGate collection name " << m_trackTruthCollectionName << " failed... Exiting" << endmsg;
+//     msg(MSG::ERROR) << "Attempt to retrieve track truth using StoreGate collection name " << m_trackTruthCollectionName << " failed... Exiting" << endreq;
 //     return 0;
 //   }
 // 
@@ -778,7 +778,7 @@ StatusCode Trk::TrackValidationNtupleWriter::finalize() {
 //   TruthIterator truthIterator = trackTruthCollection->find( trackLink );
 // 
 //   if ( truthIterator == trackTruthCollection->end() ){
-//     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Truth could not be found... exiting" << endmsg;
+//     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Truth could not be found... exiting" << endreq;
 //     return 0;
 //   }
 // 
@@ -789,19 +789,19 @@ StatusCode Trk::TrackValidationNtupleWriter::finalize() {
 //   const HepMC::GenParticle* genParticle = particleLink.cptr();
 //   
 //   if ( !genParticle ){
-//     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Link to generated particle information cannot be found... No truth association possible" << endmsg;
+//     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Link to generated particle information cannot be found... No truth association possible" << endreq;
 //     return 0;
 //   }
 //  
 //   int particleID = genParticle->pdg_id();
 //   
 //   if ( particleID == 0 ){
-//     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Associated Particle ID " << particleID << " does not conform to PDG requirements... exiting" << endmsg;
+//     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Associated Particle ID " << particleID << " does not conform to PDG requirements... exiting" << endreq;
 //     return 0;
 //   }
 //  
 //   else
-//     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Associated Particle ID: " << particleID << endmsg;
+//     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Associated Particle ID: " << particleID << endreq;
 // 
 //   const Trk::TrackParameters* generatedTrackPerigee(0);
 // 

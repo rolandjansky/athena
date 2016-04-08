@@ -57,14 +57,14 @@ StatusCode Trk::RecMomentumQualityValidation::initialize()
   if ( !m_trackSelector.empty() ) {
     sc = m_trackSelector.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not retrieve "<< m_trackSelector <<" (to select the tracks which are to be counted) "<< endmsg;
-      msg(MSG::INFO) << "Set the ToolHandle to None if track selection is supposed to be disabled" << endmsg;
+      msg(MSG::FATAL) << "Could not retrieve "<< m_trackSelector <<" (to select the tracks which are to be counted) "<< endreq;
+      msg(MSG::INFO) << "Set the ToolHandle to None if track selection is supposed to be disabled" << endreq;
       return sc;
     }
   }
   sc = m_truthToTrack.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not retrieve "<< m_truthToTrack << endmsg;
+    msg(MSG::FATAL) << "Could not retrieve "<< m_truthToTrack << endreq;
     return sc;
   }
 
@@ -139,24 +139,24 @@ StatusCode Trk::RecMomentumQualityValidation::execute()
       TrackTruthCollection::const_iterator truthIterator 
         = trackTruthCollection->find( trackIterator - (*trackCollection).begin() );
       if ( truthIterator == trackTruthCollection->end() ){
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No matching truth particle found for track" << endmsg;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No matching truth particle found for track" << endreq;
       } else {
         trackTruth = &((*truthIterator).second);
         if ( !(trackTruth->particleLink().isValid()) ) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Link to generated particle information is not there - assuming a lost G4 particle ('fake fake')." << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Link to generated particle information is not there - assuming a lost G4 particle ('fake fake')." << endreq;
           //        genParticle = m_visibleParticleWithoutTruth; // with pdg_id 0
         } else {
           genParticle = trackTruth->particleLink().cptr();
           if ( genParticle!=NULL && genParticle->pdg_id() == 0 ) {
             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Associated Particle ID " << genParticle->pdg_id()
-                                                    << " does not conform to PDG requirements... ignore it!" << endmsg;
+                                                    << " does not conform to PDG requirements... ignore it!" << endreq;
             genParticle = 0;
           } 
         }
       }
       if (genParticle) {
         if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<
-          "Associated Particle ID: " << genParticle->pdg_id() << endmsg;
+          "Associated Particle ID: " << genParticle->pdg_id() << endreq;
         // Perform extrapolation to generate perigee parameters
         if ( genParticle->production_vertex() )
           generatedTrackPerigee = m_truthToTrack->makePerigeeParameters( genParticle );
