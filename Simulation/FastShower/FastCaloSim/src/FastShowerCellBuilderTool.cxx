@@ -74,7 +74,6 @@
 #include "TSpline.h"
 
 #include "TruthUtils/HepMCHelpers.h"
-#include "TruthUtils/HepMCParticleFilters.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 //using namespace Atlfast;
@@ -214,7 +213,7 @@ void FastShowerCellBuilderTool::LoadParametrizationsFromDir(std::string dir)
     if(name.Index(".root")==kNPOS) continue;
     name.ReplaceAll(".root","");
     TFile* infile = TFile::Open(files->At(i)->GetName());
-    if(infile->IsOpen()) {
+    if(infile && infile->IsOpen()) {
       LoadParametrizationsFromFile(*infile);
       infile->Close();
       delete infile;
@@ -291,6 +290,7 @@ bool checkParticleEnergyParametrization(ParticleEnergyParametrization* param, TS
 void FastShowerCellBuilderTool::LoadParametrizationsFromFile(TDirectory& infile,MSG::Level level)
 {
   TIterator *iter=infile.GetListOfKeys()->MakeIterator();
+  if (!iter) return; // This should really not happen
   iter->Reset();
   
   std::map< int,shape_count_info >   n_energy,n_shape;

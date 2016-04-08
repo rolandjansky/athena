@@ -158,7 +158,7 @@ public:
   ~BasicCellBuilderTool();
 
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // update theCellContainer
   virtual StatusCode process( CaloCellContainer * theCellContainer) ;
