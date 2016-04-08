@@ -140,6 +140,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("doStatus",        m_doStatus     = false);
    declareProperty("doDCS",           m_doDCS        = false);
 
+   declareProperty("doDegFactorMap",   m_doDegFactorMap = true);
    declareProperty("doHeavyIonMon",   m_doHeavyIonMon = false);
 
    declareProperty("doIBL",           m_doIBL = false);
@@ -168,20 +169,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
 
    m_avgocc_per_lumi = 0;
 
-   //m_ToT_vs_eta_IBL = 0;
-   //m_ToT_vs_eta_B0 = 0;
-   //m_ToT_vs_eta_B1 = 0;
-   //m_ToT_vs_eta_B2 = 0;
-   //m_ToT_vs_phi_IBL = 0;
-   //m_ToT_vs_phi_B0 = 0;
-   //m_ToT_vs_phi_B1 = 0;
-   //m_ToT_vs_phi_B2 = 0;
-   m_nlowToT_vs_clussize_IBL = 0;
-   m_nlowToT_vs_clussize_B0 = 0;
-   m_nlowToT_vs_clussize_B1 = 0;
-   m_nlowToT_vs_clussize_B2 = 0;
-   m_nlowToT_vs_clussize_ECC = 0;
-   m_nlowToT_vs_clussize_ECA = 0;
    m_Lvl1A = 0;
    m_Lvl1ID_PIX = 0;                
    m_Lvl1ID_IBL = 0;                
@@ -194,9 +181,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_diff_ROD_BCID = 0;         
    m_occupancy = 0;
    m_occupancy_10min = 0;
-   //m_average_occupancy = 0;
    m_average_pixocc = 0;
-   m_average_pixocc2 = 0;
    m_avgocc_ratioIBLB0_per_lumi = 0;
    m_hitmap_tmp = 0;
    m_FE_chip_hit_summary = 0;
@@ -223,6 +208,14 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_pixel_noise_map = 0;
    m_pixel_occupancy_spectrum = 0;
    m_hit_num_mod = 0;
+
+   //-------------------
+   // track histograms
+   //-------------------
+   m_degFactorMap = 0;
+   m_degFactorMap_per_lumi = 0;
+   m_degFactorMap_eta_per_lumi = 0;
+   //m_degFactorMap_phi_per_lumi = 0;
    m_track_res_phi = 0; 
    m_track_pull_phi = 0;
    m_track_res_eta = 0; 
@@ -235,21 +228,21 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_track_chi2_bcl1_highpt = 0;
    m_track_chi2_bcl0_highpt = 0;
    m_track_chi2_bclgt1_highpt = 0;
-   m_track_clusToT = 0;
-   m_track_qOverP = 0;  
-   m_track_qOverP_inv = 0;  
-   m_track_pt = 0;  
-   m_track_d0 = 0;      
-   m_track_z0 = 0;     
-   m_track_phi0 = 0;    
-   m_track_theta = 0;   
-   m_track_eta = 0;    
+   //m_track_clusToT = 0;
+   //m_track_qOverP = 0;  
+   //m_track_qOverP_inv = 0;  
+   //m_track_pt = 0;  
+   //m_track_d0 = 0;      
+   //m_track_z0 = 0;     
+   //m_track_phi0 = 0;    
+   //m_track_theta = 0;   
+   //m_track_eta = 0;    
    m_tracks_per_lumi = 0;
    m_trackRate_per_lumi = 0;
    m_tracksPerEvt_per_lumi = 0;
    m_tracksPerEvtPerMu_per_lumi = 0;
-   m_track_dedx = 0;
-   m_track_mass_dedx = 0;
+   //m_track_dedx = 0;
+   //m_track_mass_dedx = 0;
    m_clustot_vs_pt = 0;
    m_clustot_lowpt = 0;
    m_1hitclustot_lowpt = 0;
@@ -262,68 +255,10 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_tsos_holemap = 0;
    m_tsos_outliermap = 0;
    m_clusters_per_lumi = 0;
-   m_clusters_per_lumi_PIX = 0;
    m_largeclusters_per_lumi = 0;
    m_verylargeclusters_per_lumi = 0;
    m_totalclusters_per_lumi = 0;
    m_highNclusters_per_lumi = 0;
-   m_cluster_ToT_PIX = 0;
-   m_cluster_ToT_IBL = 0;
-   m_cluster_ToT_ECA = 0;
-   m_cluster_ToT_IBL3D = 0;
-   m_cluster_ToT_IBL2D = 0;
-   m_cluster_ToT_B0 = 0;
-   m_cluster_ToT_B1 = 0;
-   m_cluster_ToT_B2 = 0;
-   m_cluster_ToT_ECC = 0;
-   m_bigcluster_ToT_ECA = 0;
-   m_bigcluster_ToT_IBL = 0;
-   m_bigcluster_ToT_B0 = 0;
-   m_bigcluster_ToT_B1 = 0;
-   m_bigcluster_ToT_B2 = 0;
-   m_bigcluster_ToT_ECC = 0;
-   m_1cluster_ToT_ECA = 0;
-   m_1cluster_ToT_IBL = 0;
-   m_1cluster_ToT_B0 = 0;
-   m_1cluster_ToT_B1 = 0;
-   m_1cluster_ToT_B2 = 0;
-   m_1cluster_ToT_ECC = 0;
-   m_2cluster_ToT_ECA = 0;
-   m_2cluster_ToT_IBL = 0;
-   m_2cluster_ToT_B0 = 0;
-   m_2cluster_ToT_B1 = 0;
-   m_2cluster_ToT_B2 = 0;
-   m_2cluster_ToT_ECC = 0;
-   m_3cluster_ToT_ECA = 0;
-   m_3cluster_ToT_IBL = 0;
-   m_3cluster_ToT_B0 = 0;
-   m_3cluster_ToT_B1 = 0;
-   m_3cluster_ToT_B2 = 0;
-   m_3cluster_ToT_ECC = 0;
-   m_bigcluster_Q_ECA = 0;
-   m_bigcluster_Q_IBL = 0;
-   m_bigcluster_Q_B0 = 0;
-   m_bigcluster_Q_B1 = 0;
-   m_bigcluster_Q_B2 = 0;
-   m_bigcluster_Q_ECC = 0;
-   m_1cluster_Q_ECA = 0;
-   m_1cluster_Q_IBL = 0;
-   m_1cluster_Q_B0 = 0;
-   m_1cluster_Q_B1 = 0;
-   m_1cluster_Q_B2 = 0;
-   m_1cluster_Q_ECC = 0;
-   m_2cluster_Q_ECA = 0;
-   m_2cluster_Q_IBL = 0;
-   m_2cluster_Q_B0 = 0;
-   m_2cluster_Q_B1 = 0;
-   m_2cluster_Q_B2 = 0;
-   m_2cluster_Q_ECC = 0;
-   m_3cluster_Q_ECA = 0;
-   m_3cluster_Q_IBL = 0;
-   m_3cluster_Q_B0 = 0;
-   m_3cluster_Q_B1 = 0;
-   m_3cluster_Q_B2 = 0;
-   m_3cluster_Q_ECC = 0;
    m_clussize_map = 0;
    m_cluscharge_map = 0;
    m_clusToT_map = 0;
@@ -332,40 +267,12 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_row_width = 0;
    m_cluster_row_width_IBL = 0;
    m_cluster_LVL1A = 0;
-   m_cluster_LVL1A_PIX = 0;
    m_clus_LVL1A_sizenot1 = 0; 
    m_cluster_LVL1A_highToT = 0;
-   m_cluster_LVL1A_ECA = 0;
-   m_cluster_LVL1A_ECC = 0;
-   m_cluster_LVL1A_IBL = 0;
-   m_cluster_LVL1A_B0 = 0;
-   m_cluster_LVL1A_B1 = 0;
-   m_cluster_LVL1A_B2 = 0;
-   m_cluster_charge_ECA = 0;
-   m_cluster_charge_ECC = 0;
-   m_cluster_charge_IBL = 0;
-   m_cluster_charge_B0 = 0;
-   m_cluster_charge_B1 = 0;
-   m_cluster_charge_B2 = 0;
    m_clusterSize_eta = 0;
-   m_clusToT_vs_eta_IBL = 0;
-   m_clusToT_vs_eta_B0 = 0;
-   m_clusToT_vs_eta_B1 = 0;
-   m_clusToT_vs_eta_B2 = 0;
-   m_ToT_vs_clussize_IBL = 0;
-   m_ToT_vs_clussize_B0 = 0;
-   m_ToT_vs_clussize_B1 = 0;
-   m_ToT_vs_clussize_B2 = 0;
-   m_Q_vs_clussize_IBL = 0;
-   m_Q_vs_clussize_B0 = 0;
-   m_Q_vs_clussize_B1 = 0;
-   m_Q_vs_clussize_B2 = 0;
-   m_Q_vs_clussize_ECC = 0;
-   m_Q_vs_clussize_ECA = 0;
    m_cluster_occupancy = 0;
    m_clusocc_DBM = 0;
    m_clusocc_sizenot1 = 0; 
-   //m_average_cluster_occupancy = 0;
    m_cluseff_mod = 0;
    m_cluster_ToT_mod = 0;
    m_cluster_size_mod = 0;
@@ -399,27 +306,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_Status_modules = 0;
    m_status = 0;
    m_dqStatus = 0;
-   m_badModules_per_lumi = 0;
-   m_badModules_per_lumi_ECA = 0;
-   m_badModules_per_lumi_ECC = 0;
-   m_badModules_per_lumi_IBL = 0;
-   m_badModules_per_lumi_B0 = 0;
-   m_badModules_per_lumi_B1 = 0;
-   m_badModules_per_lumi_B2 = 0;
-   m_disabledModules_per_lumi = 0;
-   m_disabledModules_per_lumi_PIX = 0;
-   m_disabledModules_per_lumi_ECA = 0;
-   m_disabledModules_per_lumi_ECC = 0;
-   m_disabledModules_per_lumi_IBL = 0;
-   m_disabledModules_per_lumi_B0 = 0;
-   m_disabledModules_per_lumi_B1 = 0;
-   m_disabledModules_per_lumi_B2 = 0;
-   m_baddisabledModules_per_lumi_ECA = 0;
-   m_baddisabledModules_per_lumi_ECC = 0;
-   m_baddisabledModules_per_lumi_B0 = 0;
-   m_baddisabledModules_per_lumi_B1 = 0;
-   m_baddisabledModules_per_lumi_B2 = 0;
-   m_baddisabledModules_per_lumi_IBL = 0;
    m_error1 = 0;            
    m_errorTypes = 0;        
    m_otherROD_per_lumi_IBL = 0; 
@@ -428,9 +314,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_error_time2 = 0;       
    m_error_time3 = 0;       
    m_errors = 0;
-   //m_IBLModErrors = 0; 
-   //m_IBLSyncErrors = 0; 
-   //m_IBLotherRODErrors = 0; 
    m_OpticalErrors = 0;
    m_SEU_Errors = 0;
    m_TimeoutErrors = 0;
@@ -442,27 +325,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_SEUCategory = 0; 
    m_TimeoutCategory = 0; 
    m_TruncationErrors = 0;
-   //m_SyncErrors_mod = 0;
-   //m_SyncErrors_ROD = 0;
-   //m_TruncErrors_mod = 0;
-   //m_TruncErrors_ROD = 0;
-   //m_sync_mod_BCID1 = 0;   
-   //m_sync_mod_BCID2 = 0;   
-   //m_sync_mod_LVL1ID = 0;
-   //m_sync_rod_BCID = 0;   
-   //m_sync_rod_LVL1ID = 0;   
-   //m_trunc_mod_EOC = 0;
-   //m_trunc_mod_hitOF = 0;
-   //m_trunc_mod_EoEOF = 0;
-   //m_trunc_rod_HTlim = 0;
-   //m_trunc_rod_FIFOOF = 0;
-   //m_optical_error = 0;
-   //m_seu_hit_parity = 0;
-   //m_seu_reg_parity = 0;
-   //m_seu_hamming = 0;
-   //m_timeout = 0;
-   //m_FEwarning = 0;
-   //m_mod_errors_IBL = 0;
    m_sync_mod_BCID1_per_LB = 0;
    m_sync_mod_BCID1_int_LB = 0;
    m_sync_mod_BCID2_per_LB = 0;
@@ -568,6 +430,19 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_bad_mod_errors_mod[i] = 0;
       m_errors_etaid_mod[i] = 0;
       m_hit_ToT_LB_mod[i] = 0;
+      m_clusToT_vs_eta_mod[i] = 0;
+      m_ToT_vs_clussize_mod[i] = 0;
+      m_Q_vs_clussize_mod[i] = 0;
+      m_nlowToT_vs_clussize_mod[i] = 0;
+      m_1cluster_ToT_mod[i] = 0;
+      m_2cluster_ToT_mod[i] = 0;
+      m_3cluster_ToT_mod[i] = 0;
+      m_bigcluster_ToT_mod[i] = 0;
+      m_1cluster_Q_mod[i] = 0;
+      m_2cluster_Q_mod[i] = 0;
+      m_3cluster_Q_mod[i] = 0;
+      m_bigcluster_Q_mod[i] = 0;
+      m_cluster_LVL1A1d_mod[i] = 0;
    }
    for( int j=0; j<16; j++){
       m_errors_int_LB[j] = 0;
@@ -581,6 +456,11 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_TimeoutErrors_per_lumi_mod[i] = 0;
       m_ErrorBit_per_lumi_mod[i] = 0;
       m_Error_per_lumi_mod[i] = 0;
+      m_cluster_ToT1d_mod[i] = 0;
+      m_cluster_Q_mod[i] = 0;
+      m_badModules_per_lumi_mod[i] = 0;
+      m_disabledModules_per_lumi_mod[i] = 0;
+      m_baddisabledModules_per_lumi_mod[i] = 0;
       for( int j=0; j<ErrorCategory::COUNT; j++){
          m_ErrorFraction_per_evt[j][i] = 0;
          m_ErrorCategoryMap[j] = 0;
@@ -710,6 +590,7 @@ PixelMainMon::~PixelMainMon()
     delete m_FSM_state;
     delete m_FSM_status;
     delete m_moduleDCSDataHolder;
+
 }
 
 
@@ -811,7 +692,7 @@ StatusCode PixelMainMon::initialize()
   m_atrcollist.push_back(std::string("/PIXEL/DCS/FSMSTATUS"));   // readout unit
   m_atrcollist.push_back(std::string("/PIXEL/DCS/PIPES"));       // IBL stave
   m_atrcollist.push_back(std::string("/PIXEL/DCS/HVCURRENT"));   // IBL readout unit
-  m_atrcollist.push_back(std::string("/PIXEL/DCS/PLANTS"));      // 1
+  //m_atrcollist.push_back(std::string("/PIXEL/DCS/PLANTS"));      // 1
   m_atrcollist.push_back(std::string("/PIXEL/DCS/LV"));          // IBL readout unit
   m_currentLumiBlockNumber = 0;
 
