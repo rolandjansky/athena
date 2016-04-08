@@ -79,37 +79,9 @@ SCT_TrigSpacePointTool::~SCT_TrigSpacePointTool()
 {}
 //--------------------------------------------------------------------------
 StatusCode SCT_TrigSpacePointTool::initialize()  {
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-
-  // check StoreGate service
-  
-  sc = service ("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()){
-    msg(MSG::FATAL) << "StoreGate service not found"<<endreq;
-    return StatusCode::FAILURE;      
-  }
-    
-  // Get an Identifier helper object
-  StoreGateSvc* detStore(0);
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Detector service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-  
-  sc = detStore->retrieve(m_manager,"SCT"); 
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot retrieve SCT_DetectorManager!"      
-	  << endreq;
-    return StatusCode::FAILURE;
-  } 
-  
-  // Get the SCT Helper
-  if (detStore->retrieve(m_idHelper, "SCT_ID").isFailure()){
-    msg(MSG::FATAL) << "Cannot retrieve SCT_ID helper"<< endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( AthAlgTool::initialize() );
+  ATH_CHECK( detStore()->retrieve(m_manager,"SCT") );
+  ATH_CHECK( detStore()->retrieve(m_idHelper, "SCT_ID") );
 
   // Make a table of neighbours and widths of side 1 SCT wafers
   
@@ -117,34 +89,24 @@ StatusCode SCT_TrigSpacePointTool::initialize()  {
   elements = const_cast<InDetDD::SiDetectorElementCollection*>
     (m_manager->getDetectorElementCollection());   
   
+  if (!elements) {
+    ATH_MSG_FATAL( "Cannot retrieve detector elements" );
+    return StatusCode::FAILURE;
+  } 
+
   m_properties = new InDet::SiElementPropertiesTable(*m_idHelper, 
 						     *elements, 
 						     m_epsWidth);
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot retrieve detector elements" 
-	  << endreq;
-    return StatusCode::FAILURE;
-  } 
 
-  sc = toolSvc()->retrieveTool(m_SiSpacePointMakerToolName, 
-			       m_SiSpacePointMakerTool, this);
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Unable to locate SiSpacePointMakerTool " 
-	  << m_SiSpacePointMakerToolName << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( toolSvc()->retrieveTool(m_SiSpacePointMakerToolName, 
+                                     m_SiSpacePointMakerTool, this) );
 
   if (!m_overrideBS){
-    
-    if ( m_iBeamCondSvc.retrieve().isFailure()){
-      msg(MSG::ERROR) << "Could not find BeamCondSvc." << m_iBeamCondSvc << endreq;
-      return sc;
-    } else {
-      msg(MSG::INFO) << "Retrieved beam spot service " << m_iBeamCondSvc << endreq;
-    }
+    ATH_CHECK( m_iBeamCondSvc.retrieve() );
+    ATH_MSG_INFO( "Retrieved beam spot service " << m_iBeamCondSvc );
   }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 //--------------------------------------------------------------------------
 StatusCode SCT_TrigSpacePointTool::finalize() {
