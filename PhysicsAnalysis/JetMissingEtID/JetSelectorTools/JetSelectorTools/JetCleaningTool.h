@@ -37,7 +37,7 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
 
   public: 
     /** Levels of cut */
-    enum CleaningLevel{ LooseBad , LooseBadLLP, LooseBadTrigger, TightBad , UnknownCut };
+    enum CleaningLevel{ LooseBad , TightBad , UnknownCut };
 
     /** Standard constructor */
     JetCleaningTool(const std::string& name="JetCleaningTool");
@@ -97,7 +97,6 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     std::string m_hotCellsFile;
     std::unordered_map<unsigned int, std::vector<JCT::HotCell*>*>* m_hotCellsMap;
     StatusCode readHotCells();
-
 }; // End: class definition
 
 
