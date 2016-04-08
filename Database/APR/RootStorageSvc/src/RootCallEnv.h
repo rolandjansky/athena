@@ -21,7 +21,6 @@ namespace pool  {
   class RootKeyContainer;
   class RootCallEnv;
   class DataCallBack;
-  class IClassLoader;
 
   /** Helper structure to access context from streamer
       @author  M.Frank
@@ -31,11 +30,10 @@ namespace pool  {
   class RootCallEnv   {
 
   protected:
-    IClassLoader*     loader;
     DataCallBack*     call;
     RootDataPtr&      context;
   public:
-    RootCallEnv(IClassLoader* ldr, DataCallBack* cb, RootDataPtr& ctxt);
+    RootCallEnv(DataCallBack* cb, RootDataPtr& ctxt);
     ~RootCallEnv()    {     }
     void read (TBuffer& buff);
     void write(TBuffer& buff);

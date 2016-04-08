@@ -135,11 +135,21 @@ AuxStoreAPR::AuxStoreAPR(RootTreeContainer &container, long long entry, bool sta
                                                 standalone,
                                                 elemen_type_name,
                                                 branch_type_name);
-      SG::auxid_t auxid;
-      if (!ti)
-        auxid = r.findAuxID(attr);
-      else {
-        auxid = r.getAuxID(*ti, attr);
+      SG::auxid_t auxid = r.findAuxID(attr);
+      if( ti ) {
+         if (auxid == SG::null_auxid) {
+            auxid = r.getAuxID(*ti, attr);
+         } else {
+            const std::type_info* reg_ti = r.getType(auxid);
+            if( ti != reg_ti && strcmp(ti->name(), reg_ti->name()) != 0 ) {
+               DbPrint log(container.getName());
+               log << DbPrintLvl::Debug << "reading attribute " << attr << " (id=" << auxid <<
+                  " typename=" << reg_ti->name() << ") has different type than the branch "
+                    << branch_type_name << DbPrint::endmsg;
+               m_container.findAuxBranch(auxid);  // call this to init_auxBranchMap[auxid]
+               m_container.m_auxBranchMap[auxid].aux_type_different = true;
+            }
+         }
 
         if (auxid == SG::null_auxid) {
           std::string fac_class_name = "SG::AuxTypeVectorFactory<" +
@@ -230,41 +240,39 @@ bool AuxStoreAPR::readData(SG::auxid_t auxid)
    // cout << " Branch: name=" << branch->GetName() << ",  class name=" << branch->GetClassName() << endl;
 
    TClass*      cl = 0;
-
-   if( standalone() ) {
-      // get TClass for untyped and standalone storage 
-      EDataType    typ;
-      if( branch->GetExpectedType(cl, typ) ) {
-         ATHCONTAINERS_ERROR("AuxStoreAPR::getData", string("Error getting branch type for ") + branch->GetName() );
-         return false;
-      }
-   }
-
-   auto readAuxBranch = [&](void *p) {
-      if( m_container.readAuxBranch(*branch, p, m_entry).isSuccess() )
-         return true;
-      ATHCONTAINERS_ERROR("AuxStoreAPR::getData", string("Error reading branch ") + branch->GetName() );
+   EDataType    typ;
+   if( branch->GetExpectedType(cl, typ) ) {
+      ATHCONTAINERS_ERROR("AuxStoreAPR::getData", string("Error getting branch type for ") + branch->GetName() );
       return false;
-   };
-
-   void *       vector = 0;
-   void *       data = &vector;
+   }
 
    // Make a 1-element vector.
    SG::AuxStoreInternal::getDataInternal(auxid, 1, 1, true);
    if (!standalone()) {
-     EDataType typ;
-     branch->GetExpectedType(cl, typ);
      if (cl && strncmp (cl->GetName(), "SG::PackedContainer<", 20) == 0)
        setOption (auxid, SG::AuxDataOption ("nbits", 32));
    }
-   vector = const_cast<void*>(SG::AuxStoreInternal::getIOData (auxid)); // xxx
 
-   if (standalone() && !cl)
+   // get memory location where to write data from the branch entry
+   void *       vector = const_cast<void*>(SG::AuxStoreInternal::getIOData (auxid)); // xxx
+   void *       data = &vector;
+   if (standalone() && !cl) {
+      // raeding fundamental type, ROOT does it a bit differently
      data = vector;
-
+   }
+   
    // read branch
-   return readAuxBranch(data);
+   if( m_container.m_auxBranchMap[auxid].aux_type_different ) {
+      // reading through the TTree - allows for schema evolution
+      if( m_container.readAuxBranch(*branch, data, getIOType(auxid), m_entry).isSuccess() )
+         return true;
+   } else {
+      if( m_container.readAuxBranch(*branch, data, m_entry).isSuccess() )
+         return true;
+   }
+
+   ATHCONTAINERS_ERROR("AuxStoreAPR::getData", string("Error reading branch ") + branch->GetName() );
+   return false;
 }
 
 

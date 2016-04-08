@@ -13,7 +13,6 @@
 #include "RootTreeContainer.h"
 #include "POOLCore/strcasecmp.h"
 #include "StorageSvc/DbInstanceCount.h"
-#include "StorageSvc/IClassLoader.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbOption.h"
