@@ -2,7 +2,6 @@
      <class name="std::vector<char>"/>
      <class name="std::vector<signed char>"/>
      <class name="std::vector<unsigned char>"/>
-     <class name="std::vector<char>"/>
      <class name="std::vector<unsigned int>"/>
      <class name="std::vector<std::vector<char> >"/>
      <class name="std::vector<std::vector<unsigned char> >"/>

@@ -4,14 +4,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LinkDef.h 666726 2015-05-13 02:19:48Z ssnyder $
+// $Id: LinkDef.h 715479 2015-12-18 15:12:11Z mnowak $
 #ifndef XAODCORE_LINKDEF_H
 #define XAODCORE_LINKDEF_H
 
+#ifdef ROOTCORE
+// MN: includes needed by RootCore but posing problems in ROOT 6.6.1. remove protection when ROOT-7879 fixed
 // Local include(s):
 #include "xAODCore/tools/ReadStats.h"
 #include "xAODCore/tools/PerfStats.h"
 //#include "xAODCore/tools/PrintHelpers.h"
+#endif
 
 #ifdef __CINT__
 

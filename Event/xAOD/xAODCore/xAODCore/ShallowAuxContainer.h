@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowAuxContainer.h 652959 2015-03-10 14:03:11Z krasznaa $
+// $Id: ShallowAuxContainer.h 698535 2015-10-05 14:10:12Z krasznaa $
 #ifndef XAODCORE_SHALLOWAUXCONTAINER_H
 #define XAODCORE_SHALLOWAUXCONTAINER_H
 
@@ -41,8 +41,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 652959 $
-   /// $Date: 2015-03-10 15:03:11 +0100 (Tue, 10 Mar 2015) $
+   /// $Revision: 698535 $
+   /// $Date: 2015-10-05 16:10:12 +0200 (Mon, 05 Oct 2015) $
    ///
    class ShallowAuxContainer : public SG::IAuxStore,
                                public SG::IAuxStoreIO,
@@ -171,6 +171,8 @@ namespace xAOD {
       SG::IAuxStoreIO* m_storeIO;
       /// Flag deciding if the object owns the dynamic store or not
       bool m_ownsStore;
+      /// Flag keeping track of whether this object is locked or not
+      bool m_locked;
 
       /// Link to the parent object
       DataLink< SG::IConstAuxStore > m_parentLink;
