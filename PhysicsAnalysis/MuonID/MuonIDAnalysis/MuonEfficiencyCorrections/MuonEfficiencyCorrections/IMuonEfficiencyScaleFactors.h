@@ -38,18 +38,11 @@
  * <ul>
  * <li><b>"WorkingPoint"</b> -> Takes a string</li> <br>
  *  supported working points:
- * <ul>
- * <li> "CB": Combined Muons - if you only run combined muons </li>
- * <li> "CBandST": The Medium+ working point.  </li>
- * <li> "HighPt": Special cuts for analyses searching for high mass resonances </li>
- * <li> "SMT": The muon selection used for the soft muon tagger </li>
+ * <li> "Loose","Medium" or "Tight" - see https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
  * </ul>
  * <li><b>"DataPeriod"</b> -> Takes a string </li><br>
- *  supported data periods:
- * <ul>
- * <li> "2011": 7 TeV pp data </li>
- * <li> "2012": 8 TeV pp data  </li>
- * <li> "2015": 13 TeV pp data </li>
+ *  supported data period:/li>
+ * <li> "2015": 13 TeV pp data - default, so no need to configure this atm! 
  * </ul>
  * <li><b>Optional: "doAudit"</b> -> Activates audit mode  (for debugging) </li><br>
  *  supported choices:
@@ -97,7 +90,7 @@
  *  // or (only obtain the SF, without decorating the muon):
  *
  *  float my_scale_factor = 0; <br>
- *  CHECK(m_effi_corr.getScaleFactor(*mu),my_scale_factor); <br>
+ *  CHECK(m_effi_corr.getEfficiencyScaleFactor(*mu),my_scale_factor); <br>
  *
  *
  *

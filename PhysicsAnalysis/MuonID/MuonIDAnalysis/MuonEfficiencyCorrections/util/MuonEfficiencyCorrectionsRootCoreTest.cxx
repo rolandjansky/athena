@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 /// a simple testing macro for the MuonEfficiencyCorrections_xAOD package
 /// shamelessly stolen from CPToolTests.cxx
 
@@ -28,6 +29,7 @@
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/MuonAuxContainer.h"
 
 // Local include(s):
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
@@ -51,7 +53,8 @@ int main( int argc, char* argv[] ) {
     //	CP::SystematicCode::enableFailure();
     //	xAOD::TReturnCode::enableFailure();
 
-    StatusCode::enableFailure();
+	// some package in rcSetup Base,2.3.10 seems to crash here -> uncomment
+//    StatusCode::enableFailure();
     // The application's name:
     const char* APP_NAME = argv[ 0 ];
 
@@ -93,21 +96,24 @@ int main( int argc, char* argv[] ) {
     CP::MuonEfficiencyScaleFactors m_effi_corr("TestSFClass");
 
     // Configure it :
-
-    ASG_CHECK_SA(APP_NAME,m_effi_corr.setProperty("WorkingPoint","CBandST"));
-    ASG_CHECK_SA(APP_NAME, m_effi_corr.setProperty("DataPeriod","2012"));
+    ASG_CHECK_SA(APP_NAME,m_effi_corr.setProperty("WorkingPoint","Loose"));
+    // Configure it :
+//     ASG_CHECK_SA(APP_NAME,m_effi_corr.setProperty("CustomInputFolder","/afs/cern.ch/user/g/goblirsc/public/ScaleFactorFiles/2015-09-01"));
+    
     // test audit trail
     ASG_CHECK_SA(APP_NAME,m_effi_corr.setProperty("doAudit",true));		// audit trail functionality.
+    
+//     ASG_CHECK_SA(APP_NAME,m_effi_corr.setProperty("Use50nsForD5",true));     // test this flag .
 
     // test if the tool is robust against nonexistent properties being set
     //    m_effi_corr.setProperty("Foo","Bar");
 
     //     set custom lumis (optional)
-    std::map<std::string, double> custom_lumis;
-    //    custom_lumis["A"] = 1;
-    //    custom_lumis["B"] = 42;
-    //    custom_lumis["E"] = 1337;
-    //    m_effi_corr.setProperty("LumiWeights",custom_lumis);
+//     std::map<std::string, double> custom_lumis;
+//     custom_lumis["A"] = 1;
+//     custom_lumis["B"] = 42;
+//     custom_lumis["E"] = 1337;
+//     m_effi_corr.setProperty("LumiWeights",custom_lumis);
 
     TStopwatch tsw;
     tsw.Start();
@@ -117,23 +123,30 @@ int main( int argc, char* argv[] ) {
 
     // try out systematics support - define a few sets to run
     CP::SystematicSet statup;
-    statup.insert (CP::SystematicVariation ("MUONSFSTAT", 1));
+    statup.insert (CP::SystematicVariation ("MUON_EFF_STAT", 1));
     // make sure the tool is not affected by other unsupported systematics in the same set
     statup.insert (CP::SystematicVariation ("TÖRÖÖÖÖ", 1));
     // running two variations affecting the MCP tool in the same set should result in a useful error message
     //	statup.insert (CP::SystematicVariation ("MUONSFSTAT", -1));  // uncomment to test (will cause abort at first muon)
 
     CP::SystematicSet statdown;
-    statdown.insert (CP::SystematicVariation ("MUONSFSTAT", -1));
+    statdown.insert (CP::SystematicVariation ("MUON_EFF_STAT", -1));
 
     CP::SystematicSet sysup;
-    sysup.insert (CP::SystematicVariation ("MUONSFSYS", 1));
+    sysup.insert (CP::SystematicVariation ("MUON_EFF_SYS", 1));
 
     CP::SystematicSet sysdown;
-    sysdown.insert (CP::SystematicVariation ("MUONSFSYS", -1));
+    sysdown.insert (CP::SystematicVariation ("MUON_EFF_SYS", -1));
 
-
-
+    // instance for isolation scale factor
+    CP::MuonEfficiencyScaleFactors m_iso_effi_corr("TestIsolationSF");
+    ASG_CHECK_SA(APP_NAME,m_iso_effi_corr.setProperty("WorkingPoint","GradientLooseIso"));
+//     ASG_CHECK_SA(APP_NAME,m_iso_effi_corr.setProperty("CustomInputFolder","/afs/cern.ch/user/g/goblirsc/public/ScaleFactorFiles/2015-09-01"));
+//     ASG_CHECK_SA(APP_NAME,m_iso_effi_corr.setProperty("DataPeriod","run1"));
+    ASG_CHECK_SA(APP_NAME,m_iso_effi_corr.initialize());
+    CP::SystematicSet isosysup;
+    isosysup.insert (CP::SystematicVariation ("MUON_ISO_SYS", 1));
+    /// done for isolation scale factor
 
     // Loop over the events:
     tsw.Start();
@@ -166,8 +179,6 @@ int main( int argc, char* argv[] ) {
         // Print their properties, using the tools:
         xAOD::MuonContainer::const_iterator mu_itr = muons->begin();
         xAOD::MuonContainer::const_iterator mu_end = muons->end();
-
-
 
         for( ; mu_itr != mu_end; ++mu_itr ) {
 
@@ -228,6 +239,25 @@ int main( int argc, char* argv[] ) {
             //												 (**mu_itr).auxdataConst< bool >( "MuonEfficiencyCorrections" ),
             //												 (**mu_itr).auxdataConst< std::string >( "MuonEfficiencyCorrectionsVersion" ).c_str(),
             //												 (**mu_itr).auxdataConst< std::string >( "AppliedCorrections" ).c_str());
+
+            // do the isolation part similar as reco efficinecy
+            float isoeff = 0.0, isosf = 0.0;
+            CHECK_CPSys( m_iso_effi_corr.applySystematicVariation(CP::SystematicSet()));
+            CHECK_CPCorr( m_iso_effi_corr.getRecoEfficiency( **mu_itr, isoeff ) );
+            Info( APP_NAME, "       isolation efficiency = %g", isoeff );
+            CHECK_CPCorr( m_iso_effi_corr.getEfficiencyScaleFactor( **mu_itr, isosf ) );
+            Info( APP_NAME, "       isolation scaleFactor = %g", isosf );
+            CHECK_CPSys(m_iso_effi_corr.applySystematicVariation(isosysup));
+            CHECK_CPCorr( m_iso_effi_corr.getEfficiencyScaleFactor( **mu_itr, isosf ) );
+            Info( APP_NAME, "           Sys Up isolation scaleFactor = %g", isosf );
+            CHECK_CPCorr( m_iso_effi_corr.applyEfficiencyScaleFactor( **mu_itr ) );
+            CHECK_CPCorr( m_iso_effi_corr.applyRecoEfficiency( **mu_itr ) );
+            // now we can retrieve the info from the muon directly:
+            Info( APP_NAME, "       isolation efficiency from decorated muon = %g",
+                    (**mu_itr).auxdataConst< float >( "ISOEfficiency" ) );
+            Info( APP_NAME, "       isolation SF from decorated muon = %g",
+                    (**mu_itr).auxdataConst< float >( "ISOEfficiencyScaleFactor" ) );
+            /// Isolation test done
         }
 
         // Close with a message:

@@ -28,7 +28,7 @@ LumiWeightHandler::~LumiWeightHandler() {
 void LumiWeightHandler::SetLumiWeights (LumiWeightHandler::lumimap user_weights){
     m_user_lumi_weights = user_weights;
 }
-bool LumiWeightHandler::LoadLumiFromInput(LumiWeightHandler::lumimap & map, std::string file){
+bool LumiWeightHandler::LoadLumiFromInput(LumiWeightHandler::lumimap & map, std::string file,  bool use_50ns_for_276731 ){
 
     // start by clearing anything in the weight map so far
     // in case we initialize multiple times for some reason...
@@ -82,6 +82,13 @@ bool LumiWeightHandler::LoadLumiFromInput(LumiWeightHandler::lumimap & map, std:
             }
         }
     }
+    
+    //  special treatment for our 50ns run in period D... 
+    if  (use_50ns_for_276731 && map.find("D525") !=  map.end()) {
+        map["D550"] = map["D525"];
+        map["D525"] = 0.;
+    }
+    
     fin->Close();
     return true;
 }
@@ -164,36 +171,41 @@ LumiWeightHandler::lumimap LumiWeightHandler::TranslateLumiElement(
 
 std::string LumiWeightHandler::PeriodName (std::string run){
     // also cater for period numbers
-    if (std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZAll").find(run.c_str())!= std::string::npos) return run;
+    if (std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZAllD525D550").find(run.c_str())!= std::string::npos) return run;
 
     // otherwise, assume the user is providing per-run lumis
     int runno = atoi(run.c_str());
-    // 2012
-    if (200804 <= runno && runno <=201556) return "A";
-    else if (202660 <= runno && runno <=205113) return "B";
-    else if (206248 <= runno && runno <=207397) return "C";
-    else if (207447 <= runno && runno <=209025) return "D";
-    else if (209074 <= runno && runno <=210308) return "E";
-    else if (211522 <= runno && runno <=212272) return "G";
-    else if (212619 <= runno && runno <=213359) return "H";
-    else if (213431 <= runno && runno <=213819) return "I";
-    else if (213900 <= runno && runno <=215091) return "J";
-    else if (215414 <= runno && runno <=215643) return "L";
-    else if (216399 <= runno && runno <=216432) return "M";
-
-    // 2011
-    else if (177531 <= runno && runno <=177965) return "A";
-    else if (177986 <= runno && runno <=178109) return "B";
-    else if (179710 <= runno && runno <=180481) return "D";
-    else if (180614 <= runno && runno <=180776) return "E";
-    else if (182013 <= runno && runno <=182519) return "F";
-    else if (182726 <= runno && runno <=183462) return "G";
-    else if (183544 <= runno && runno <=184169) return "H";
-    else if (185353 <= runno && runno <=186493) return "I";
-    else if (186516 <= runno && runno <=186755) return "J";
-    else if (186873 <= runno && runno <=187815) return "K";
-    else if (188902 <= runno && runno <=190343) return "L";
-    else if (190503 <= runno && runno <=191933) return "M";
+    
+    if (276731 == runno) return "D525";
+    else if (266904 <= runno && runno <=272531) return "C";
+    else if (276073 <= runno && runno <=276954) return "D";
+    
+//     // 2012
+//     if (200804 <= runno && runno <=201556) return "A";
+//     else if (202660 <= runno && runno <=205113) return "B";
+//     else if (206248 <= runno && runno <=207397) return "C";
+//     else if (207447 <= runno && runno <=209025) return "D";
+//     else if (209074 <= runno && runno <=210308) return "E";
+//     else if (211522 <= runno && runno <=212272) return "G";
+//     else if (212619 <= runno && runno <=213359) return "H";
+//     else if (213431 <= runno && runno <=213819) return "I";
+//     else if (213900 <= runno && runno <=215091) return "J";
+//     else if (215414 <= runno && runno <=215643) return "L";
+//     else if (216399 <= runno && runno <=216432) return "M";
+// 
+//     // 2011
+//     else if (177531 <= runno && runno <=177965) return "A";
+//     else if (177986 <= runno && runno <=178109) return "B";
+//     else if (179710 <= runno && runno <=180481) return "D";
+//     else if (180614 <= runno && runno <=180776) return "E";
+//     else if (182013 <= runno && runno <=182519) return "F";
+//     else if (182726 <= runno && runno <=183462) return "G";
+//     else if (183544 <= runno && runno <=184169) return "H";
+//     else if (185353 <= runno && runno <=186493) return "I";
+//     else if (186516 <= runno && runno <=186755) return "J";
+//     else if (186873 <= runno && runno <=187815) return "K";
+//     else if (188902 <= runno && runno <=190343) return "L";
+//     else if (190503 <= runno && runno <=191933) return "M";
 
     else return "Unknown";
 

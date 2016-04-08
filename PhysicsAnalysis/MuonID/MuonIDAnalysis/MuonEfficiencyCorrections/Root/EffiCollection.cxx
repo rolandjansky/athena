@@ -14,7 +14,8 @@
 CP::EffiCollection::EffiCollection():
 m_central_eff(0),
 m_forward_eff(0),
-m_calo_eff(0)
+m_calo_eff(0),
+m_effType("EFF")
 {
 }
 
@@ -23,10 +24,12 @@ CP::EffiCollection::EffiCollection(std::string file_central, std::string file_ca
         std::map<std::string, double> lumis_central,
         std::map<std::string, double> lumis_calo,
         std::map<std::string, double> lumis_forward,
-        SystematicSet sys):
+        SystematicSet sys,
+        std::string effType):
 			                m_central_eff(0),
 			                m_forward_eff(0),
-			                m_calo_eff(0) {
+			                m_calo_eff(0),
+                                        m_effType(effType){
 
     double integral = 0;
     double integral_CT = 0;
@@ -36,7 +39,7 @@ CP::EffiCollection::EffiCollection(std::string file_central, std::string file_ca
     for (std::map<std::string, double>::iterator il = lumis_central.begin(); il != lumis_central.end();il++){
         // central muons
         if (!m_central_eff ) {
-            m_central_eff = new EfficiencyScaleFactor(file_central,il->first,sys);
+            m_central_eff = new EfficiencyScaleFactor(file_central,il->first,sys, m_effType);
             m_central_eff->Scale(il->second);
             integral+=il->second;
         }
@@ -47,7 +50,7 @@ CP::EffiCollection::EffiCollection(std::string file_central, std::string file_ca
     // calo muons
     for (std::map<std::string, double>::iterator il = lumis_calo.begin(); il != lumis_calo.end();il++){
         if (!m_calo_eff ) {
-            m_calo_eff = new EfficiencyScaleFactor(file_calo,il->first,sys);
+            m_calo_eff = new EfficiencyScaleFactor(file_calo,il->first,sys, m_effType);
             m_calo_eff->Scale(il->second);
             integral_CT+=il->second;
         }
@@ -57,7 +60,7 @@ CP::EffiCollection::EffiCollection(std::string file_central, std::string file_ca
     // forward muons
     for (std::map<std::string, double>::iterator il = lumis_forward.begin(); il != lumis_forward.end();il++){
         if (!m_forward_eff ) {
-            m_forward_eff = new EfficiencyScaleFactor(file_forward,il->first,sys);
+            m_forward_eff = new EfficiencyScaleFactor(file_forward,il->first,sys,m_effType);
             m_forward_eff->Scale(il->second);
             integral_HighEta+=il->second;
         }

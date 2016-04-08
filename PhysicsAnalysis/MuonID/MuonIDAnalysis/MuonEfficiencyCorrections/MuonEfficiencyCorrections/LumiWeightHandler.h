@@ -37,8 +37,10 @@ namespace CP {
 
         /// translate per-run into per-period lumis and vice versa.
         /// will always switch to the format used in the SF input file.
-        bool LoadLumiFromInput(std::map<std::string, double>  & map, std::string file);
+        /// Last arg should be set of 50ns MC is used to describe run 276731
+        bool LoadLumiFromInput(std::map<std::string, double>  & map, std::string file,  bool use_50ns_for_276731 = false);
 
+        
         /// assign runs to periods
         std::string PeriodName (std::string run);
 

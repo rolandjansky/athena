@@ -25,6 +25,7 @@
 
 #include "PATInterfaces/CorrectionCode.h"
 #include "MuonEfficiencyCorrections/fineEtaPhiBinning.h"
+#include "MuonEfficiencyCorrections/DetRegionBinning.h"
 
 // further ROOT includes
 #include <TFile.h>
@@ -214,17 +215,50 @@ public:
 class ChargeAxisHandler: public AxisHandler {
 public:
     virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value){
-        value =   mu.primaryTrackParticle()->charge();
+        value =   mu.charge();
         return CorrectionCode::Ok;
     }
     virtual ~ChargeAxisHandler(){
     };
 };
 
+class SignedDetRegionAxisHandler: public AxisHandler {
+public:
+    virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value){
+        static TLorentzVector tlv;
+        // Muon::p4() has strange caching behavior, so use pt(),eta(),phi() for now
+        tlv.SetPtEtaPhiM(mu.pt(),mu.eta(),mu.phi(),mu.m());
+        value =   m_drb.bin(tlv);
+        return CorrectionCode::Ok;
+    }
+    virtual ~SignedDetRegionAxisHandler(){
+    };
+private:
+    DetRegionBinning m_drb;
+};
+
+class DetRegionAxisHandler: public AxisHandler {
+public:
+    virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value){
+        static TLorentzVector tlv;
+        // Muon::p4() has strange caching behavior, so use pt(),eta(),phi() for now
+        tlv.SetPtEtaPhiM(mu.pt(),mu.eta(),mu.phi(),mu.m());
+        value =   m_drb.symmetricBin(tlv);
+        return CorrectionCode::Ok;
+    }
+    virtual ~DetRegionAxisHandler(){
+    };
+private:
+    DetRegionBinning m_drb;
+};
+
 class FineEtaPhiAxisHandler: public AxisHandler {
 public:
     virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value){
-        value =   m_fepb.bin(mu.p4());
+        static TLorentzVector tlv;
+        // Muon::p4() has strange caching behavior, so use pt(),eta(),phi() for now
+        tlv.SetPtEtaPhiM(mu.pt(),mu.eta(),mu.phi(),mu.m());
+        value =   m_fepb.bin(tlv);
         return CorrectionCode::Ok;
     }
     virtual ~FineEtaPhiAxisHandler(){

@@ -60,7 +60,7 @@ public:
     /// default constructor - will create the histos as NULL pointers
     EfficiencyScaleFactor();
     /// constructor to use in real life - will read in the histos from the given file
-    EfficiencyScaleFactor(std::string file, std::string time_unit, SystematicSet sys);
+    EfficiencyScaleFactor(std::string file, std::string time_unit, SystematicSet sys, std::string effType="EFF");
     
     EfficiencyScaleFactor(const EfficiencyScaleFactor & other);
     EfficiencyScaleFactor & operator = (const EfficiencyScaleFactor & other);
@@ -172,6 +172,7 @@ private:
     // the systematic variation associated with this instance
     SystematicSet m_sys;
 
+    std::string m_effType;
 
 };
 } /* namespace CP */

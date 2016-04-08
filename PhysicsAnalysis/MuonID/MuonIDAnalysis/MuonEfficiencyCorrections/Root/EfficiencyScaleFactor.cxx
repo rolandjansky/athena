@@ -21,10 +21,11 @@ EfficiencyScaleFactor::EfficiencyScaleFactor():
                                 m_sf_replicas(),
                                 m_eff_replicas(),
                                 m_etaphi(),
-                                m_sys(){
+                                m_sys(),
+                                m_effType("EFF"){
 }
 
-EfficiencyScaleFactor::EfficiencyScaleFactor(std::string file, std::string time_unit, SystematicSet sys):
+EfficiencyScaleFactor::EfficiencyScaleFactor(std::string file, std::string time_unit, SystematicSet sys, std::string effType):
                                     m_sf(0),
                                     m_eff(0),
                                     m_sf_sys(0),
@@ -32,7 +33,8 @@ EfficiencyScaleFactor::EfficiencyScaleFactor(std::string file, std::string time_
                                     m_sf_replicas(),
                                     m_eff_replicas(),
                                     m_etaphi(),
-                                    m_sys(sys){
+                                    m_sys(sys),
+                                    m_effType(effType){
 
     ReadFromFile(file, time_unit);
 }
@@ -45,6 +47,7 @@ EfficiencyScaleFactor::EfficiencyScaleFactor(const EfficiencyScaleFactor & other
     m_sf_sys = package_histo(dynamic_cast<TH1*>(other.m_sf_sys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_sf_sys->GetHist()->GetName()).c_str())));
     m_eff_sys = package_histo(dynamic_cast<TH1*>(other.m_eff_sys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff_sys->GetHist()->GetName()).c_str())));
     m_sys = other.m_sys;
+    m_effType = other.m_effType;
 
     for (ciSFvec h = other.m_sf_replicas.begin(); h != other.m_sf_replicas.end();++h) {
         m_sf_replicas.push_back(package_histo(dynamic_cast<TH1*>((*h)->GetHist()->Clone((std::string("EffSFsfReplicaCloneOf")+(*h)->GetHist()->GetName()).c_str()))));
@@ -375,10 +378,10 @@ EfficiencyScaleFactor::SFvec EfficiencyScaleFactor::GenerateReplicasFromHist(His
 void EfficiencyScaleFactor::ApplySysVariation(){
 
     if (m_sys == SystematicSet()) return;
-    if (*(m_sys.begin()) == SystematicVariation ("MUONSFSTAT", -1)) AddStatErrors(-1.);
-    if (*(m_sys.begin()) == SystematicVariation ("MUONSFSTAT", 1)) AddStatErrors(1.);
-    if (*(m_sys.begin()) == SystematicVariation ("MUONSFSYS", -1)) AddSysErrors(-1.);
-    if (*(m_sys.begin()) == SystematicVariation ("MUONSFSYS", 1)) AddSysErrors(1.);
+    if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_STAT", -1)) AddStatErrors(-1.);
+    if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_STAT", 1)) AddStatErrors(1.);
+    if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_SYS", -1)) AddSysErrors(-1.);
+    if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_SYS", 1)) AddSysErrors(1.);
 
 }
 void EfficiencyScaleFactor::AddStatErrors (float weight){
