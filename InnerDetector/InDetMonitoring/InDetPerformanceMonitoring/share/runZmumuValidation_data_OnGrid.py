@@ -14,12 +14,11 @@
 #
 #   1) Specify the input in here
 #      - One file
-#PoolInput = ["/afs/cern.ch/work/s/sthenkel/work/testarea/20.1.0.6/MCsets/valid1.167824.Sherpa_CT10_ZmumuMassiveCBPt280_500_BFilter.recon.ESD.e3099_s1982_s1964_r6006_tid04628773_00/ESD.04628773._000033.pool.root.1"]
-#PoolInput = ["/afs/cern.ch/user/s/sthenkel/eos/atlas/user/s/sthenkel/MC/valid3.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3099_s2578_r6588_tid05292497_00/ESD.05292497._000150.pool.root.1"]
+PoolInput = ["/afs/cern.ch/user/s/sthenkel/eos/atlas/user/s/sthenkel/MC/valid3.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3099_s2578_r6588_tid05292497_00/ESD.05292497._000150.pool.root.1"]
 #   2) Feed files when executing the script
-if 'inputFiles' in dir():
-  print inputFiles
-PoolInput = inputFiles
+#if 'inputFiles' in dir():
+#  print inputFiles
+#PoolInput = inputFiles
 
 
 # number of event to process
@@ -37,8 +36,7 @@ seq = AthSequencer("AthFilterSeq")
 # GRL
 ###############
 
-useGRL = False
-
+useGRL = True
 if useGRL:
   include("InDetPerformanceMonitoring/jobOptions_useGRL.py")
 
@@ -106,7 +104,9 @@ DetFlags.Muon_setOn()
 
 
 from IOVDbSvc.CondDB import conddb
-inputCollections = ["/afs/cern.ch/user/s/sthenkel/work/Performance/Alignment/WORK_ATHENA/20.1.X-VAL_WeakMode/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/Iter1_AlignmentConstants.root"]
+#inputCollections = ["/afs/cern.ch/user/s/sthenkel/work/Performance/Alignment/WORK_ATHENA/20.1.X-VAL_WeakMode/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/Iter1_AlignmentConstants.root"]
+inputCollections = ["./Iter1_AlignmentConstants.root"]
+
 readPool = True
 conddb.addOverride('/Indet/Align', 'InDetAlign-RUN2-25NS')
 conddb.addOverride('/TRT/Align',   'TRTAlign-RUN2-25NS')
@@ -135,42 +135,22 @@ include ("RecExCommon/RecExCommon_topOptions.py")
 
 print svcMgr.IOVDbSvc
 
-from InDetDiMuonMonitoring.InDetDiMuonMonitoringConf import DiMuMon
-varsVSmeanZmumu = ["eta","etaAll","etaPos","etaNeg","phi","phiAll","phiPos","phiNeg","pt","ptAll","ptPos","ptNeg","etaDiff","etaSumm","phiDiff","phiSumm","crtDiff"]
-varsVSwidthZmumu = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","ptPos","ptNeg","etaDiff","phiDiff","crtDiff"]
-varsDistrZmumu = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","ptPos","ptNeg"]
+ServiceMgr.THistSvc.Output += ["ZmumuValidation DATAFILE='ZmumuValidationOut.root' OPT='RECREATE'"]
+include ("InDetPerformanceMonitoring/ElectronEoverPTracking.py")
 
-ZmumuMon = DiMuMon (name = "ZmumuMon_NoTrig",
-                               resonName = "Zmumu",
-                               minInvmass = 60.,
-                               maxInvmass = 120.,
-                               nMassBins = 60,
-                               triggerChainName = "NoTrig",
-                               regions = ["All","BB","EAEA","ECEC"],
-                               varsVSmean = varsVSmeanZmumu,
-                               varsVSwidth = varsVSwidthZmumu,
-                               varsDistr = varsDistrZmumu,
-                               doFits = True,
-                               doSaveFits = False,
-                               OutputLevel = DEBUG)
-
-ToolSvc += ZmumuMon
-
-from AthenaMonitoring.DQMonFlags import DQMonFlags
-from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
-IDPerfMonManager = AthenaMonManager(name                = "IDPerfMonManager",
-                                    FileKey             = DQMonFlags.monManFileKey(),
-                                    ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(),
-                                    DataType            = DQMonFlags.monManDataType(),
-                                    Environment         = "user",
-                                    ManualRunLBSetup    = True,
-                                    Run                 = 1,
-                                    LumiBlock           = 1)
-IDPerfMonManager.AthenaMonTools += [ ZmumuMon ]
+from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonZmumu
+iDPerfMonZmumu = IDPerfMonZmumu(name = 'IDPerfMonZmumu',
+                                     ReFitterTool1 = MuonRefitterTool,
+                                     ReFitterTool2 = MuonRefitterTool2,
+				     OutputTracksName =  "SelectedMuons",
+				     isMC = False,
+				     doIsoSelection = False,
+                                     OutputLevel= INFO)
 
 
+job += iDPerfMonZmumu
 
-ServiceMgr.THistSvc.Output += ["DiMuMon DATAFILE='./DiMuMon.root' OPT='RECREATE'"]
-IDPerfMonManager.FileKey = "DiMuMon"
-
-topSequence += IDPerfMonManager
+trackCollections = ["SelectedMuonsRefit1","SelectedMuonsRefit2"]
+StoreGateSvc = Service("StoreGateSvc")
+StoreGateSvc.Dump = True
+include ("InDetPerformanceMonitoring/TrackMonitoring.py")

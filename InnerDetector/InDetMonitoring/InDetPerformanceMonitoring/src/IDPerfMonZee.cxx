@@ -107,7 +107,7 @@ StatusCode IDPerfMonZee::initialize()
     ATH_MSG_WARNING("Failure setting primary vertex container " << m_VxPrimContainerName << "in electron likelihood tool");
 
   //Set up electron LH level
-  std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150429/";
+  std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150712/";
   if(m_electronIDLevel == ""){
     ATH_MSG_WARNING("electronIDLevel is set to empty!  No electron ID cuts will be applied.");
     m_doIDCuts = false;

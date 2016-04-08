@@ -94,7 +94,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 include ("RecExCond/RecExCommon_flags.py")
 # switch off ID, calo, or muons
 DetFlags.ID_setOn()
-DetFlags.Calo_setOn()
+#DetFlags.Calo_setOn()
 DetFlags.Muon_setOn()
 #DetFlags.Tile_setOff()
 
