@@ -5,8 +5,8 @@
 #include "ToyConversion/ToyConversionSvc.h"
 long int
 ToyConversionSvc::storageType() {
-  static long _type(0xFF);
-  return _type;
+  static long type(0xFF);
+  return type;
 }
 
 long int ToyConversionSvc::repSvcType() const {
@@ -14,12 +14,12 @@ long int ToyConversionSvc::repSvcType() const {
 }
 
 ToyConversionSvc::~ToyConversionSvc() {
-  std::cout << "deleting toy " << this << std::endl;
+  //std::cout << "deleting toy " << this << std::endl;
 }
 
 ToyConversionSvc::ToyConversionSvc(const std::string &name, ISvcLocator* svc) :
   ConversionSvc(name,svc,storageType()) 
 { 
-  std::cout << "building toy " << this << std::endl;
+  //std::cout << "building toy " << this << std::endl;
 }
   
