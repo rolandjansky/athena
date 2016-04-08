@@ -53,13 +53,10 @@ class NoiseMapBuilder: public AthAlgorithm{
   
   double m_nEvents;
 
-  TH1D* m_nEventsHist;
   std::vector<TH2D*> m_hitMaps;
   std::vector<TH2C*> m_noiseMaps;
   std::vector<TH1D*> m_LBdependence;
   
-  TH1D* m_disabledModules;
-
   const PixelID* m_pixelID;
 
   double m_disk1ACut;
@@ -85,6 +82,8 @@ class NoiseMapBuilder: public AthAlgorithm{
   int m_lbMax;
 
   bool m_calculateNoiseMaps;
+  TH1D* m_nEventsHist;
+  TH1D* m_disabledModules;
 };
  
 #endif 
