@@ -176,7 +176,7 @@ HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE, HL
  
   // if no containers were found, just leave the vector empty and leave
   if ( vectorOfCellContainers.size() < 1) {
-    msg() << MSG::WARNING << "No cells to analyse, leaving!" << endreq;
+    msg() << MSG::ERROR << "No cells to analyse, leaving!" << endreq;
     return HLT::OK;
   }
 
