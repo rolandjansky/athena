@@ -156,24 +156,24 @@ def _args (level, name, kwin, **kw):
     return kw
 
 # Routine to write GSCFactor and WidthFraction jet moments
-def addSTRUCTCalib(jetcoll , **options):
-    from JetCalibTools.MakeCalibSequences import alternateCalibSequence
-    emSeq = alternateCalibSequence('CAL:STRUCT1',options)
-    StructSeq = emSeq.CalibToolSequence[-1]
-    StructSeq.MomentTag = "GSCFactor"
-    StructSeq.SimpleFactorCorrection = True
-    for t in StructSeq.CalibToolSequence[:-1]: #switch off all moments writing but the last.                                                
-        t.WriteMoments = False
+#def addSTRUCTCalib(jetcoll , **options):
+#    from JetCalibTools.MakeCalibSequences import alternateCalibSequence
+#    emSeq = alternateCalibSequence('CAL:STRUCT1',options)
+#    StructSeq = emSeq.CalibToolSequence[-1]
+#    StructSeq.MomentTag = "GSCFactor"
+#    StructSeq.SimpleFactorCorrection = True
+#    for t in StructSeq.CalibToolSequence[:-1]: #switch off all moments writing but the last.                                                
+#        t.WriteMoments = False
 
     #from JetRec.JetGetters import getJetCalibrationTool                                                                                    
     #emToolFromDict = getJetCalibrationTool(emSeq, "STRUCTcalib",inPlaceCorr=False)                                                         
 
-    from JetMomentTools.JetMomentToolsConf import JetMomentsFromCalib
-    momTool = JetMomentsFromCalib()
-    momTool.Calibrator = emSeq
+#    from JetMomentTools.JetMomentToolsConf import JetMomentsFromCalib
+#    momTool = JetMomentsFromCalib()
+#    momTool.Calibrator = emSeq
 
-    from JetRec.JetMomentGetter import  make_JetMomentGetter
-    make_JetMomentGetter( jetcoll , [momTool])
+#    from JetRec.JetMomentGetter import  make_JetMomentGetter
+#    make_JetMomentGetter( jetcoll , [momTool])
 
 
 def HSG5D3PD (alg = None,
@@ -430,37 +430,40 @@ def HSG5D3PD (alg = None,
     includelist += [JetTagD3PDKeys.JetTrackBlockName()] 
     includelist += [JetTagD3PDKeys.IPInfoPlusTrackAssocBlockName()] 
     includelist += [JetTagD3PDKeys.IPInfoPlusTrackBlockName()] 
-
+    includelist += ['ConstituentScale']
+    
     jetkw = kw
     if not jetkw.has_key ( 'AK4TopoEMJet_'+JetTagD3PDKeys.JetTrackAssocBlockName()+'_target'):
         jetkw['AK4TopoEMJet_'+JetTagD3PDKeys.JetTrackAssocBlockName()+'_target']= "trk" 
     if not jetkw.has_key ( 'AK4TopoEMJet_'+JetTagD3PDKeys.IPInfoPlusTrackAssocBlockName()+'_target'):
         jetkw['AK4TopoEMJet_'+JetTagD3PDKeys.IPInfoPlusTrackAssocBlockName()+'_target']= "trk" 
 
-    alg += JetD3PDObject              (**_args ( 4, 'AK4TopoEMJet', jetkw,
+    alg += JetD3PDObject              (**_args ( 3, 'AK4TopoEMJet', jetkw,
                                                  sgkey='AntiKt4TopoEMJets', prefix='jet_AntiKt4TopoEM_',
                                                  include = includelist,
                                                  JetVertexFraction_FromUD=True,
                                                  JetVertexFraction_FillFullJVF=True,
                                                  allowMissing = True))
 
-    alg += JetD3PDObject              (**_args ( 4, 'AK6TopoEMJet', kw,
+    alg += JetD3PDObject              (**_args ( 3, 'AK6TopoEMJet', kw,
                                                  sgkey='AntiKt6TopoEMJets', prefix='jet_AntiKt6TopoEM_',
-                                                 include = JetTagD3PDFlags.StdInfoInclude(),
+                                                 include = [JetTagD3PDFlags.StdInfoInclude(),'ConstituentScale'],
                                                  JetVertexFraction_FromUD=True,
                                                  JetVertexFraction_FillFullJVF=True,
                                                  allowMissing = True))
 
-    alg += JetD3PDObject              (**_args ( 4, 'AK4LCTopoJet', kw,
+    alg += JetD3PDObject              (**_args ( 3, 'AK4LCTopoJet', kw,
                                                  sgkey='AntiKt4LCTopoJets', prefix='jet_AntiKt4LCTopo_',
                                                  exclude=['Layer'],
+                                                 include=['ConstituentScale'],
                                                  JetVertexFraction_FromUD=True,
                                                  JetVertexFraction_FillFullJVF=True,
                                                  allowMissing = True))
     
-    alg += JetD3PDObject              (**_args ( 4, 'AK6LCTopoJet', kw,
+    alg += JetD3PDObject              (**_args ( 3, 'AK6LCTopoJet', kw,
                                                  sgkey='AntiKt6LCTopoJets', prefix='jet_AntiKt6LCTopo_',
                                                  exclude=['Layer'],
+                                                 include=['ConstituentScale'],
                                                  JetVertexFraction_FromUD=True,
                                                  JetVertexFraction_FillFullJVF=True,
                                                  allowMissing = True))
@@ -745,8 +748,8 @@ def HSG5D3PD (alg = None,
 
     #addSTRUCTCalib('AntiKt4LCTopoJets', input='Topo', mainParam=0.4)
     #addSTRUCTCalib('AntiKt6LCTopoJets', input='Topo', mainParam=0.6)
-    addSTRUCTCalib('AntiKt4TopoEMJets', input='Topo', mainParam=0.4)
-    addSTRUCTCalib('AntiKt6TopoEMJets', input='Topo', mainParam=0.6)
+    #addSTRUCTCalib('AntiKt4TopoEMJets', input='Topo', mainParam=0.4)
+    #addSTRUCTCalib('AntiKt6TopoEMJets', input='Topo', mainParam=0.6)
     
     if D3PDMakerFlags.FilterCollCand():
         from CaloD3PDMaker.CollisionFilterAlg import CollisionFilterAlg
