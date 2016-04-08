@@ -17,14 +17,8 @@
 #include "JetTagInfoTPCnv/JetTagInfoCnv_tlp3.h"
 #include "JetTagInfoAthenaPool/JetTagInfo.h"
 
-using Analysis::JetTagInfo_tlp1;
-using Analysis::JetTagInfoCnv_tlp1;
-using Analysis::JetTagInfo_tlp2;
-using Analysis::JetTagInfoCnv_tlp2;
-using Analysis::JetTagInfo_tlp3;
-using Analysis::JetTagInfoCnv_tlp3;
 
-typedef T_AthenaPoolExtendingCnv<JetTagInfo, JetTagInfo_tlp3> JetTagInfoCnvBase;
+typedef T_AthenaPoolExtendingCnv<JetTagInfo, Analysis::JetTagInfo_tlp3> JetTagInfoCnvBase;
 
 #include <iostream>
 
@@ -47,8 +41,8 @@ class JetTagInfoCnv : public JetTagInfoCnvBase {
   void readObjectFromPool (const std::string &obj);
 
  private:
-  JetTagInfoCnv_tlp3 m_TPConverter;
-  JetTagInfoCnv_tlp2 m_TPConverter_p2;
-  JetTagInfoCnv_tlp1 m_TPConverter_p1;
+  Analysis::JetTagInfoCnv_tlp3 m_TPConverter;
+  Analysis::JetTagInfoCnv_tlp2 m_TPConverter_p2;
+  Analysis::JetTagInfoCnv_tlp1 m_TPConverter_p1;
 };
 #endif
