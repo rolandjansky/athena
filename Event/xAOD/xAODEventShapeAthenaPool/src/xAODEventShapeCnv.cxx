@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODEventInfoCnv.cxx 594317 2014-04-25 17:36:58Z krasznaa $
+// $Id: xAODEventShapeCnv.cxx 632142 2014-11-29 12:59:50Z krasznaa $
 
 // System include(s):
 #include <exception>
@@ -43,9 +43,6 @@ StatusCode xAODEventShapeCnv::createObj( IOpaqueAddress* pAddr,
 }
 
 xAOD::EventShape* xAODEventShapeCnv::createPersistent( xAOD::EventShape* trans ) {
-
-   // Prepare the original object for persistification:
-   trans->toPersistent();
 
    // Create a new object:
    xAOD::EventShape* result = new xAOD::EventShape();

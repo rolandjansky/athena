@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODEventShapeCnv.h 592114 2014-04-09 12:00:50Z krasznaa $
+// $Id: xAODEventShapeCnv.h 632142 2014-11-29 12:59:50Z krasznaa $
 #ifndef XAODEVENTSHAPEATHENAPOOL_XAODEVENTSHAPECNV_H
 #define XAODEVENTSHAPEATHENAPOOL_XAODEVENTSHAPECNV_H
 
@@ -30,8 +30,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::EventShape, xAOD::EventShape >
  *
  * @author P-A Delsart 
  *
- * $Revision: 592114 $
- * $Date: 2014-04-09 14:00:50 +0200 (Wed, 09 Apr 2014) $
+ * $Revision: 632142 $
+ * $Date: 2014-11-29 13:59:50 +0100 (Sat, 29 Nov 2014) $
  */
 class xAODEventShapeCnv : public xAODEventShapeCnvBase {
 
