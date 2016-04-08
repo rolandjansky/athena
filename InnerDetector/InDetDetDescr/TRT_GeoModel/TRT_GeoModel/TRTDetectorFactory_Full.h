@@ -62,6 +62,8 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
     return n;
   }
 
+  // Determine which alignment folders are loaded to decide if we register old or new folders
+  virtual InDetDD::AlignFolderType getAlignFolderType() const;
 
  private:  
 
