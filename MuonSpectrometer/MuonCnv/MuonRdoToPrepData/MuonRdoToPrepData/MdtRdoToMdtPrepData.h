@@ -5,15 +5,11 @@
 #ifndef MDTRDOTOMDTPREPDATA_H
 #define MDTRDOTOMDTPREPDATA_H 
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
-
 #include <string>
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
-class StoreGateSvc;
-class MsgStream;
 class MdtIdHelper;
 class MdtDigit;
 class MdtCalibrationSvc;
@@ -31,7 +27,7 @@ class MDTcablingSvc;
 /// store the PrepRawData container in StoreGate
 ////////////////////////////////////////////////////////////////////////////////////////
 
-class MdtRdoToMdtPrepData : public Algorithm {
+class MdtRdoToMdtPrepData : public AthAlgorithm {
 
  public:
 
@@ -50,13 +46,6 @@ class MdtRdoToMdtPrepData : public Algorithm {
 
     bool                                    m_print_inputRdo; //!<< If true, will dump information about the input RDOs.
     bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.
-
-
-    MsgStream                               m_log;
-
-    bool                                    m_debug; //!< Set in initialize(). If true, output DEBUG info
-    bool                                    m_verbose; //!< Set in initialize(). If true, output VERBOSE info
-
 };
 
 #endif /// MDTRDOTOMDTPREPDATA_H

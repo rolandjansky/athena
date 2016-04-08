@@ -5,9 +5,8 @@
 #ifndef TGCRDOTOTGCPREPDATA_H
 #define TGCRDOTOTGCPREPDATA_H 
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
 
 
 #include <string>
@@ -17,7 +16,7 @@
  @auther Takashi Kubota (Takashi.Kubota@cern.ch)
 */
 
-class TgcRdoToTgcPrepData : public Algorithm {
+class TgcRdoToTgcPrepData : public AthAlgorithm {
 
  public:
 
@@ -35,11 +34,6 @@ class TgcRdoToTgcPrepData : public Algorithm {
 
   bool                                    m_print_inputRdo; //!<< If true, will dump information about the input RDOs.
   bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.
-
-  MsgStream                               m_log;
-
-  bool                                    m_debug; //!< Set in initialize(). If true, output DEBUG info
-  bool                                    m_verbose; //!< Set in initialize(). If true, output VERBOSE info
 
   int                                     m_setting; //!< Setting for debugging
   std::vector<int>                        m_settingVector; //!< Setting for debugging

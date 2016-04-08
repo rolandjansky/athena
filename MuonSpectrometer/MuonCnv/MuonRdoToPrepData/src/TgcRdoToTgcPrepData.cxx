@@ -12,13 +12,10 @@
 
 TgcRdoToTgcPrepData::TgcRdoToTgcPrepData(const std::string& name, ISvcLocator* pSvcLocator) 
   :
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_tool( "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"), // 'this' as 2nd arg would make it private tool
   m_print_inputRdo(false),
   m_print_prepData(false),
-  m_log(msgSvc(), name),
-  m_debug(false),
-  m_verbose(false),
   m_setting(0)
 {
   declareProperty("DecodingTool",       m_tool,       "tgc rdo to prep data conversion tool" );
@@ -35,24 +32,16 @@ TgcRdoToTgcPrepData::TgcRdoToTgcPrepData(const std::string& name, ISvcLocator* p
 }  
 
 StatusCode TgcRdoToTgcPrepData::finalize() {
-  if (m_debug) m_log << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()"  );
   return StatusCode::SUCCESS;
 }
 
 StatusCode TgcRdoToTgcPrepData::initialize(){
-  // Set cached output variables
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
-    
-  if (m_debug) m_log << MSG::DEBUG << " in initialize()" << endreq;
+  ATH_MSG_DEBUG( " in initialize()"  );
     
   // verify that our tool handle is pointing to an accessible tool
-  if ( m_tool.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << "Failed to retrieve " << m_tool << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    m_log << MSG::INFO << "Retrieved " << m_tool << endreq;
-  }
+  ATH_CHECK( m_tool.retrieve() );
+  ATH_MSG_INFO( "Retrieved " << m_tool  );
 
   // Debug setting 
   int tmpSetting = m_setting;
@@ -67,20 +56,19 @@ StatusCode TgcRdoToTgcPrepData::initialize(){
     tmpSetting /= 10;
   }
   if(!m_settingVector.empty()) {
-    m_log << MSG::INFO << "Debug setting is as follows (" << m_setting << ") :" << endreq;
+    ATH_MSG_INFO( "Debug setting is as follows (" << m_setting << ") :"  );
     for(unsigned int iExec=0; iExec<m_settingVector.size(); iExec++) {
       if(m_settingVector.at(iExec)==1) {
-	m_log << MSG::INFO << "Execution #" << iExec << 
-	  ": unseeded mode (mode=1)" << endreq; 
+	ATH_MSG_INFO( "Execution #" << iExec << ": unseeded mode (mode=1)"  );
       } else if(m_settingVector.at(iExec)==2) { 
-	m_log << MSG::INFO << "Execution #" << iExec << 
-	  ": seeded mode (1578 hash vectors with just one hash looping over 0 to 1577) (mode=2)" << endreq; 
+	ATH_MSG_INFO( "Execution #" << iExec << 
+                      ": seeded mode (1578 hash vectors with just one hash looping over 0 to 1577) (mode=2)"  );
       } else if(m_settingVector.at(iExec)==3) { 
-	m_log << MSG::INFO << "Execution #" << iExec << 
-	  ": seeded mode (just one hash vector with hashes of 0 to 1577) (mode=3)" << endreq; 
+	ATH_MSG_INFO( "Execution #" << iExec << 
+                      ": seeded mode (just one hash vector with hashes of 0 to 1577) (mode=3)"  );
       } else if(m_settingVector.at(iExec)==4) {
-	m_log << MSG::INFO << "Execution #" << iExec << 
-	  ": seeded mode (just one hash vector with hashes of 0 to 1577 and 0 to 1577, intentional duplication!) (mode=4)" << endreq; 
+	ATH_MSG_INFO( "Execution #" << iExec << 
+                      ": seeded mode (just one hash vector with hashes of 0 to 1577 and 0 to 1577, intentional duplication!) (mode=4)"  );
       }
     }
   }
@@ -90,32 +78,25 @@ StatusCode TgcRdoToTgcPrepData::initialize(){
 
 StatusCode TgcRdoToTgcPrepData::execute() {
 
-  if( m_debug ){
-    m_log << MSG::DEBUG << "**************** in TgcRdoToTgcPrepData::execute() ***********************************************" << endreq;
-    m_log << MSG::DEBUG << "in execute()" << endreq;
-  }
+  ATH_MSG_DEBUG( "**************** in TgcRdoToTgcPrepData::execute() ***********************************************"  );
+  ATH_MSG_DEBUG( "in execute()"  );
     
   if(m_settingVector.empty()) { // Default
     // for the test of "unseeded mode" in MuonTGC_CnvTools/src/TgcRdoToTgcPrepDataTool
     std::vector<IdentifierHash> myVector(0); // empty vector
     std::vector<IdentifierHash> myVectorWithData;
-    StatusCode status = m_tool->decode(myVector, myVectorWithData);
-    if(status.isFailure()) {
-      m_log << MSG::FATAL << "Unable to decode TGC RDO into TGC PrepRawData" 
-	    << endreq;
-      return status;
-    }
+    ATH_CHECK(  m_tool->decode(myVector, myVectorWithData) );
 
     if (m_print_inputRdo) m_tool->printInputRdo(); // print input TGC RDO
     if (m_print_prepData) m_tool->printPrepData(); // print output TGC PRD
 
-    return status;
+    return StatusCode::SUCCESS;;
   } 
 
   // Debugging of TgcRdoToPrepDataTool
-  m_log << MSG::WARNING << "!!! DEBUGGING of TgcRdoToPrepDataTool by TgcRdoToTgcPrepData.cxx !!!" 
-	<< " m_setting=" << m_setting << " m_settingVector.size()=" << m_settingVector.size() 
-	<< endreq;
+  ATH_MSG_WARNING( "!!! DEBUGGING of TgcRdoToPrepDataTool by TgcRdoToTgcPrepData.cxx !!!" 
+                   << " m_setting=" << m_setting << " m_settingVector.size()=" << m_settingVector.size() 
+                   );
 
   unsigned int maxHashId = 1578; // TGC IdHash max = 1578 (BigWheel:1488, SmallWheel:90)
   std::vector<IdentifierHash> myFoundHashVector;
@@ -125,21 +106,13 @@ StatusCode TgcRdoToTgcPrepData::execute() {
     myFoundHashVector.clear();
     if(mode==1) { // 1: unseeded mode
       std::vector<IdentifierHash> myRequestedHashVector(0);
-      StatusCode status = m_tool->decode(myRequestedHashVector, myFoundHashVector);
-      if(status.isFailure()) {
-	m_log << MSG::FATAL << "Unable to decode TGC RDO into TGC PrepRawData (mode==1)" << endreq;
-	return status;
-      }
+      ATH_CHECK( m_tool->decode(myRequestedHashVector, myFoundHashVector) );
     } else if(mode==2) { // 2: seeded mode (1578 hash vectors with just one hash looping over 0 to 1577)
       std::vector<IdentifierHash> myRequestedHashVector(1);
       std::vector<IdentifierHash> tmpFoundHashVector;
       for(unsigned int hashId=0; hashId<maxHashId; hashId++) {
 	myRequestedHashVector.at(0) = IdentifierHash(hashId);
-	StatusCode status = m_tool->decode(myRequestedHashVector, tmpFoundHashVector);
-	if(status.isFailure()) {
-	  m_log << MSG::FATAL << "Unable to decode TGC RDO into TGC PrepRawData (mode==2)" << endreq;
-	  return status;
-	}
+	ATH_CHECK( m_tool->decode(myRequestedHashVector, tmpFoundHashVector) );
 	if(!tmpFoundHashVector.empty()) {
 	  for(unsigned int iHash=0; iHash<tmpFoundHashVector.size(); iHash++) {
 	    myFoundHashVector.push_back(tmpFoundHashVector.at(iHash));
@@ -151,11 +124,7 @@ StatusCode TgcRdoToTgcPrepData::execute() {
       for(unsigned int hashId=0; hashId<maxHashId; hashId++) {
 	myRequestedHashVector.at(hashId) = IdentifierHash(hashId);
       }
-      StatusCode status = m_tool->decode(myRequestedHashVector, myFoundHashVector);
-      if(status.isFailure()) {
-	m_log << MSG::FATAL << "Unable to decode TGC RDO into TGC PrepRawData (mode==3)" << endreq;
-	return status;
-      }
+      ATH_CHECK( m_tool->decode(myRequestedHashVector, myFoundHashVector) );
     } else if(mode==4) { // 4: seeded mode (just one hash vector with hashes of 0 to 1577 and 0 to 1577, intentional duplication!)
       std::vector<IdentifierHash> myRequestedHashVector(maxHashId);
       for(unsigned int hashId=0; hashId<maxHashId; hashId++) {
@@ -164,11 +133,7 @@ StatusCode TgcRdoToTgcPrepData::execute() {
       for(unsigned int hashId=0; hashId<maxHashId; hashId++) { 
 	myRequestedHashVector.at(hashId) = IdentifierHash(hashId); // For intentional duplication!
       }
-      StatusCode status = m_tool->decode(myRequestedHashVector, myFoundHashVector);
-      if(status.isFailure()) {
-	m_log << MSG::FATAL << "Unable to decode TGC RDO into TGC PrepRawData (mode==4)" << endreq;
-	return status;
-      }
+      ATH_CHECK( m_tool->decode(myRequestedHashVector, myFoundHashVector) );
     }
     myFoundHashVectors.push_back(myFoundHashVector); 
   }
@@ -176,10 +141,10 @@ StatusCode TgcRdoToTgcPrepData::execute() {
   // Check if the numbers of found hashes are consistent 
   for(unsigned int iExec=1; iExec<m_settingVector.size(); iExec++) {
     if(myFoundHashVectors.at(0).size()!=myFoundHashVectors.at(iExec).size()) {
-      m_log << MSG::WARNING << "The numbers of found hashes are different: " 
-	    << "Execution #0 (mode=" << m_settingVector.at(0) << ") : " << myFoundHashVectors.at(0).size() << " "
-	    << "Execution #" << iExec << " (mode=" << m_settingVector.at(iExec) << ") : " 
-	    << myFoundHashVectors.at(iExec).size() << endreq;
+      ATH_MSG_WARNING( "The numbers of found hashes are different: " 
+                       << "Execution #0 (mode=" << m_settingVector.at(0) << ") : " << myFoundHashVectors.at(0).size() << " "
+                       << "Execution #" << iExec << " (mode=" << m_settingVector.at(iExec) << ") : " 
+                       << myFoundHashVectors.at(iExec).size()  );
     }
   }
 
@@ -194,10 +159,10 @@ StatusCode TgcRdoToTgcPrepData::execute() {
 	}
       }
       if(!found) {
-	m_log << MSG::WARNING << "Hash " << static_cast<unsigned int>(myFoundHashVectors.at(0).at(iHash)) 
-	      << " is found by Execution #0 (mode=" << m_settingVector.at(0) 
-	      << ") but is not found by Execution #" << iExec << " (mode=" 
-	      << m_settingVector.at(iExec) << ")" << endreq;
+	ATH_MSG_WARNING( "Hash " << static_cast<unsigned int>(myFoundHashVectors.at(0).at(iHash)) 
+                         << " is found by Execution #0 (mode=" << m_settingVector.at(0) 
+                         << ") but is not found by Execution #" << iExec << " (mode=" 
+                         << m_settingVector.at(iExec) << ")"  );
       }
     }
   }

@@ -13,13 +13,10 @@
 
 MdtRdoToMdtPrepData::MdtRdoToMdtPrepData(const std::string& name,
                                          ISvcLocator* pSvcLocator) :
-Algorithm(name, pSvcLocator),
+AthAlgorithm(name, pSvcLocator),
 m_tool( "Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"), // 'this' as 2nd arg would make it private tool
 m_print_inputRdo(false),
-m_print_prepData(false),
-m_log(msgSvc(), name),
-m_debug(false),
-m_verbose(false)
+m_print_prepData(false)
 {
     declareProperty("DecodingTool",       m_tool,       "mdt rdo to prep data conversion tool" );
     declareProperty("PrintInputRdo",      m_print_inputRdo, "If true, will dump information about the input RDOs");
@@ -28,52 +25,33 @@ m_verbose(false)
 
 StatusCode MdtRdoToMdtPrepData::finalize()
 {
-    if (m_debug) m_log << MSG::DEBUG << "in finalize()" << endreq;
+    ATH_MSG_DEBUG( "in finalize()"  );
     return StatusCode::SUCCESS;
-
 }
 
 StatusCode MdtRdoToMdtPrepData::initialize()
 {  
-    // Set cached output variables
-    m_debug = m_log.level() <= MSG::DEBUG;
-    m_verbose = m_log.level() <= MSG::VERBOSE;
-    
-    if (m_debug) m_log << MSG::DEBUG << " in initialize()" << endreq;
+    ATH_MSG_DEBUG( " in initialize()"  );
     
     // verify that our tool handle is pointing to an accessible tool
-    if ( m_tool.retrieve().isFailure() ) {
-      m_log << MSG::FATAL << "Failed to retrieve " << m_tool << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      m_log << MSG::INFO << "Retrieved " << m_tool << endreq;
-    }
+    ATH_CHECK( m_tool.retrieve() );
+    ATH_MSG_INFO( "Retrieved " << m_tool  );
     
     return StatusCode::SUCCESS;
 }
 
 StatusCode MdtRdoToMdtPrepData::execute()
 {
-    StatusCode status;
-
-    if( m_debug ){
-      m_log << MSG::DEBUG << "**************** in MdtRdoToMdtPrepData::execute() ***********************************************" << endreq;
-      m_log << MSG::DEBUG << "in execute()" << endreq;
-    }
-    status = StatusCode::SUCCESS;
+    ATH_MSG_DEBUG( "**************** in MdtRdoToMdtPrepData::execute() ***********************************************"  );
+    ATH_MSG_DEBUG( "in execute()"  );
     
     std::vector<IdentifierHash> myVector;
     std::vector<IdentifierHash> myVectorWithData;
     myVector.reserve(0); // empty vector 
-    status = m_tool->decode(myVector, myVectorWithData);
-    if (status.isFailure()) {
-        m_log << MSG::ERROR << "Unable to decode MDT RDO into MDT PrepRawData" 
-              << endreq;
-        return status;
-    }
+    ATH_CHECK(  m_tool->decode(myVector, myVectorWithData) );
 
     if (m_print_inputRdo) m_tool->printInputRdo();
     if (m_print_prepData) m_tool->printPrepData();
 
-    return status;    
+    return StatusCode::SUCCESS;
 }
