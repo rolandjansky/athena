@@ -16,14 +16,15 @@
 
 // FrameWork includes
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 
-// Forward declarations
-namespace ExpressionParsing {
-  class ExpressionParser;
+
+// forward declarations
+class IJobOptionsSvc;
+namespace DerivationFramework {
+  class ISkimmingTool;
 }
-
 
 
 
@@ -54,26 +55,53 @@ class CutAlg
   virtual StatusCode  finalize();
 
 
+private:
+  // The update handlers
+
+  /// This internal method will realize if a user sets the 'Cut' property
+  void setupCut( Property& /*prop*/ );
+
 
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
  private:
-  /// The trigger decision tool
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
+  /// The job options service (will be used to forward this algs properties to
+  /// the private tool)
+  ServiceHandle<IJobOptionsSvc> m_jos;
 
-  /// The expression parser
-  ExpressionParsing::ExpressionParser *m_parser;
+  /// The ToolHandle to the SkimmingTool
+  ToolHandle<DerivationFramework::ISkimmingTool> m_skimTool;
 
 
   /// The cut string
   StringProperty m_cut;
+
+  /// This boolean is true if the user sets the 'Cut' property
+  bool m_setCut;
+
+
 
   /// Internal event counter
   unsigned long m_nEventsProcessed;
 
 
 };
+
+// I/O operators
+//////////////////////
+
+///////////////////////////////////////////////////////////////////
+// Inline methods:
+///////////////////////////////////////////////////////////////////
+
+/// This internal method will realize if a user sets the 'Cut' property
+inline void CutAlg::setupCut( Property& /*prop*/ ) {
+  m_setCut = true;
+  return;
+}
+
+
 
 
 #endif //> !EVENTUTILS_CUTALG_H

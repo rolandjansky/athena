@@ -52,10 +52,10 @@ public:
   virtual ~AddVarTool();
 
   /// Athena algtool's initialize
-  virtual StatusCode  initialize() override;
+  virtual StatusCode  initialize();
 
   /// Athena algtool's finalize
-  virtual StatusCode  finalize() override;
+  virtual StatusCode  finalize();
 
 
   /// Implement the method from the ISkimmingTool interface

@@ -29,7 +29,7 @@ namespace DerivationFramework {
 
 
 class AddVarAlg
-  : public ::AthAlgorithm
+  : public ::AthFilterAlgorithm
 {
 
   ///////////////////////////////////////////////////////////////////

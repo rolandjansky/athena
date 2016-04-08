@@ -13,8 +13,14 @@
 // SelectionUtils includes
 #include "EventQualityFilterAlg.h"
 
+// STL includes
+
+// FrameWork includes
+#include "GaudiKernel/Property.h"
+
 // EDM includes
-#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventType.h"
 
 
 ///////////////////////////////////////////////////////////////////
@@ -25,20 +31,15 @@
 ////////////////
 EventQualityFilterAlg::EventQualityFilterAlg( const std::string& name,
                                               ISvcLocator* pSvcLocator ) :
-  ::AthFilterAlgorithm( name, pSvcLocator ),
-  m_useLArError(true),
-  m_useTileError(true),
-  m_useSCTError(true),
-  m_useCoreError(true)
+  ::AthFilterAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration
   //
-  declareProperty( "VetoLArError",  m_useLArError,  "Veto events with a LAr error" );
-  declareProperty( "VetoTileError", m_useTileError, "Veto events with a Tile error" );
-  declareProperty( "VetoSCTError",  m_useSCTError,  "Veto events with an SCT error" );
-  declareProperty( "VetoCoreError", m_useCoreError, "Veto events with a Core error" );
-  //declareProperty( "VetoTileTrips", m_useTileTripReader, "Veto events with a Tile trip error" );
+  declareProperty( "VetoLArError",  m_useLArError       = false, "Veto events with a LAr error" );
+  declareProperty( "VetoTileError", m_useTileError      = false, "Veto events with a Tile error" );
+  declareProperty( "VetoCoreError", m_useCoreError      = false, "Veto events with a Core error" );
+  declareProperty( "VetoTileTrips", m_useTileTripReader = false, "Veto events with a Tile trip error" );
 }
 
 
@@ -57,11 +58,6 @@ EventQualityFilterAlg::~EventQualityFilterAlg()
 StatusCode EventQualityFilterAlg::initialize()
 {
   ATH_MSG_DEBUG ("Initializing " << name() << "...");
-  ATH_MSG_DEBUG( "Using: " << m_useLArError );
-  ATH_MSG_DEBUG( "Using: " << m_useTileError );
-  ATH_MSG_DEBUG( "Using: " << m_useSCTError );
-  ATH_MSG_DEBUG( "Using: " << m_useCoreError );
-  // ATH_MSG_DEBUG( "Using: " << m_useTileTripReader );
   return StatusCode::SUCCESS;
 }
 
@@ -81,28 +77,28 @@ StatusCode EventQualityFilterAlg::execute()
 
 
   // Get the EventInfo object
-  const xAOD::EventInfo* eventInfo = nullptr;
+  const EventInfo* eventInfo(NULL);
   ATH_CHECK( evtStore()->retrieve(eventInfo) );
 
 
   // Only do the event vetoing on data
-  const bool isSim = eventInfo->eventType(xAOD::EventInfo::EventType::IS_SIMULATION);
-  if ( isSim ) {
-    ATH_MSG_DEBUG ("It is an MC event... not vetoing...");
-    this->setFilterPassed(true);
-    return StatusCode::SUCCESS;
-  }
+  bool isSim = eventInfo->event_type()->test(EventType::IS_SIMULATION);
+  if ( isSim )
+    {
+      ATH_MSG_DEBUG ("It is an MC event... not vetoing...");
+      setFilterPassed(true);
+      return StatusCode::SUCCESS;
+    }
 
 
   // Now make the event decision
   bool passEvent(true);
-  if ( m_useLArError.value()  && eventInfo->errorState(xAOD::EventInfo::LAr)  == xAOD::EventInfo::Error ){ passEvent = false; }
-  if ( m_useTileError.value() && eventInfo->errorState(xAOD::EventInfo::Tile) == xAOD::EventInfo::Error ){ passEvent = false; }
-  if ( m_useSCTError.value()  && eventInfo->errorState(xAOD::EventInfo::SCT) == xAOD::EventInfo::Error ){ passEvent = false; }
-  if ( m_useCoreError.value() && eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18)  ){ passEvent = false; }
+  // if ( eventInfo->errorState(EventInfo::LAr)  == EventInfo::Error ){ passEvent = false; }
+  // if ( eventInfo->errorState(EventInfo::Tile) == EventInfo::Error ){ passEvent = false; }
+  // if ( eventInfo->eventFlags(EventInfo::Core) & 0x40000 ){ passEvent = false; }
 
   // Set the final decision
-  this->setFilterPassed(passEvent);
+  setFilterPassed(passEvent);
 
   return StatusCode::SUCCESS;
 }

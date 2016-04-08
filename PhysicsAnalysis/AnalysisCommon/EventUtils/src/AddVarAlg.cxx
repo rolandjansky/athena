@@ -29,7 +29,7 @@
 ////////////////
 AddVarAlg::AddVarAlg( const std::string& name,
                       ISvcLocator* pSvcLocator ) :
-  ::AthAlgorithm( name, pSvcLocator ),
+  ::AthFilterAlgorithm( name, pSvcLocator ),
   m_jos("JobOptionsSvc", name),
   m_tool("AddVarTool/AddVarTool", this),
   m_setInCollKey(false),

@@ -61,10 +61,10 @@ public:
 
 public:
   /** Gaudi Service Interface method implementations - initialize */
-  virtual StatusCode initialize() override;
+  StatusCode initialize() ;
 
   /** Gaudi Service Interface method implementations - finalize */
-  virtual StatusCode finalize() override;
+  StatusCode finalize() ;
 
   /// Implement the method from the IAugmentationTool interface
   virtual StatusCode addBranches() const final override;
