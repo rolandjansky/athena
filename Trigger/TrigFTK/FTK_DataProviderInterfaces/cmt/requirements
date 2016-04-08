@@ -17,3 +17,6 @@ use GaudiInterface             GaudiInterface-*           External
 use TrigFTK_RawData	       TrigFTK_RawData-*          Trigger/TrigFTK
 use TrkTrack		       TrkTrack-*		  Tracking/TrkEvent
 use xAODTracking        xAODTracking-*          Event/xAOD 
+
+# Create an interface library in the CMake build:
+apply_pattern cmake_add_command command=metalibrary

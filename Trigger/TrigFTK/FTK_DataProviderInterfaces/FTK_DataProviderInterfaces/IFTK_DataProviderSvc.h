@@ -52,8 +52,12 @@ public:
   virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit) = 0;
 
   virtual VxContainer* getVxContainer(const ftk::FTK_TrackType)=0;
+
+  // methods to create and return a view container. DataProviderSvc retains ownership 
   virtual xAOD::VertexContainer* getVertexContainer(const bool withRefit)=0;
-  //  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> getVertexContainer(const bool withRefit)=0;
+
+  // method to fill container. Ownership passes to caller 
+  virtual StatusCode getVertexContainer(xAOD::VertexContainer* vertex, const bool withRefit)=0;
 };
 
 #endif
