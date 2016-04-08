@@ -1,0 +1,26 @@
+package TrkAssociationTools
+
+author Edward Moyse <edward.moyse@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
+private
+use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
+use  GaudiInterface             GaudiInterface-*                External
+use  Identifier                 Identifier-*                    DetectorDescription
+use  TrkDetElementBase          TrkDetElementBase-*             Tracking/TrkDetDescr
+use  TrkEventUtils              TrkEventUtils-*                 Tracking/TrkEvent
+use  TrkRIO_OnTrack             TrkRIO_OnTrack-*                Tracking/TrkEvent
+use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+
+public
+
+library TrkAssociationTools *.cxx -s=components *.cxx
+apply_pattern component_library
+#apply_pattern declare_joboptions files="*.txt *.py"
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
