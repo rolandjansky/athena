@@ -7,6 +7,9 @@ use  AtlasPolicy                AtlasPolicy-*
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AthenaKernel               AthenaKernel-*                  Control
 use  GaudiInterface             GaudiInterface-*                External
+use  AsgTools                   AsgTools-*              Control/AthToolSupport
+use  xAODCutFlow                xAODCutFlow-*                   Event/xAOD
+use AthenaPoolKernel       AthenaPoolKernel-*          Database/AthenaPOOL
 #use  AtlasBoost                 AtlasBoost-*                    External
 #use  SampleHandler              SampleHandler-*                 PhysicsAnalysis/D3PDTools
 
@@ -18,13 +21,12 @@ use  EventBookkeeperMetaData    EventBookkeeperMetaData-*       Event
 use  EventInfo                  EventInfo-*                     Event
 use  SGTools                    SGTools-*                       Control
 use  StoreGate                  StoreGate-*                     Control
-use  xAODCutFlow                xAODCutFlow-*                   Event/xAOD
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 end_private
 
 
-library EventBookkeeperTools *.cxx components/*.cxx
-#library EventBookkeeperTools *.cxx ../Root/*.cxx components/*.cxx
+#library EventBookkeeperTools *.cxx components/*.cxx
+library EventBookkeeperTools *.cxx ../Root/*.cxx components/*.cxx
 
 branches src Root
 

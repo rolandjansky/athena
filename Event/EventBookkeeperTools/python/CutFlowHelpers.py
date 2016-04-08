@@ -59,7 +59,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
 
     # Determine current input stream name
     inputStreamName = GetCurrentStreamName( msg=msg, athFile=athFile )
-    msg.debug("CrateCutFlowSvc: Have inputStreamName = %s" % (inputStreamName) )
+    msg.debug("CreateCutFlowSvc: Have inputStreamName = %s" % (inputStreamName) )
 
     # Create the CutFlowSvc instance
     import AthenaCommon.CfgMgr as CfgMgr

@@ -37,18 +37,18 @@ class FillEBCFromFlat {
 
     unsigned int m_offset;
 
-    std::vector<std::string> *name;
-    std::vector<std::string> *inputstream;
-    std::vector<std::string> *outputstream;
-    std::vector<std::string> *description;
-    std::vector<std::string> *logic;
-    std::vector<ULong_t> *nAcceptedEvents;
-    std::vector<Double_t> *nWeightedAcceptedEvents;
-    std::vector<Int_t> *isComplete;
-    std::vector<Int_t> *cycle;
-    std::vector<Int_t> *parentIndex;
-    std::vector<Int_t> *nbChildren;
-    std::vector< std::vector<UInt_t> > *childrenIndices;
+    std::vector<std::string> *m_name;
+    std::vector<std::string> *m_inputstream;
+    std::vector<std::string> *m_outputstream;
+    std::vector<std::string> *m_description;
+    std::vector<std::string> *m_logic;
+    std::vector<ULong_t> *m_nAcceptedEvents;
+    std::vector<Double_t> *m_nWeightedAcceptedEvents;
+    std::vector<Int_t> *m_isComplete;
+    std::vector<Int_t> *m_cycle;
+    std::vector<Int_t> *m_parentIndex;
+    std::vector<Int_t> *m_nbChildren;
+    std::vector< std::vector<UInt_t> > *m_childrenIndices;
 };
 
 #endif // FILL_EBC_FROM_FLAT_H
