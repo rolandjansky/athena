@@ -124,10 +124,10 @@
               double etaloc = fabs(startPointinLocal.pseudoRapidity());
               double philoc = startPointinLocal.phi()+M_PI/16.;
               if (philoc<0. ) { philoc+= 2.*M_PI; }
-              static double rend_lar  =  1960.;
-              static double rbeg_lar  =  1500.;
-              static double rend_tile =  3835.;
-              static double rps= 0.5*(1410.+1447.);
+              //static double rend_lar  =  1960.;
+              const static double rbeg_lar  =  1500.;
+              const static double rend_tile =  3835.;
+              const static double rps= 0.5*(1410.+1447.);
               if (rloc<rbeg_lar) { 
                 sampling=1;    
                 if (rloc<rps) region=2;

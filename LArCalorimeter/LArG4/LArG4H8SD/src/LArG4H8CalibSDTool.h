@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __LArG4H8CalibSDTool_H__
-#define __LArG4H8CalibSDTool_H__
+#ifndef LARG4H8SD_LARG4H8CALIBSDTOOL_H
+#define LARG4H8SD_LARG4H8CALIBSDTOOL_H
 
 #include "LArG4Code/LArG4SDTool.h"
 
@@ -43,11 +43,11 @@ private:
   LArG4CalibSD* m_barCrySD;
   LArG4CalibSD* m_bpInSD;
   LArG4CalibSD* m_bpDeadSD;
-  LArG4CalibSD* m_bpModSD;
+  //LArG4CalibSD* m_bpModSD;
   LArG4CalibSD* m_barInSD;
   LArG4CalibSD* m_barDeadSD;
   LArG4CalibSD* m_uninstSD;
 
 };
 
-#endif // __LArG4H8CalibSD_H__
+#endif // LARG4H8SD_LARG4H8CALIBSDTOOL_H
