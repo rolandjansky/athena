@@ -95,7 +95,7 @@ public:
 
 
 //------------------------------------------------------------------------
-class TrigVKalFitter : public AlgTool, virtual public ITrigVKalFitter {
+class TrigVKalFitter : public AthAlgTool, virtual public ITrigVKalFitter {
 public:
    /* Constructor */
    TrigVKalFitter(const std::string& type, const std::string& name, 
