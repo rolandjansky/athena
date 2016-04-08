@@ -45,25 +45,25 @@ StatusCode L1CaloHVCorrectionsForDB::initialize()
 
     sc = m_ttTool.retrieve();
     if(sc.isFailure()){
-      msg(MSG::ERROR) << "Cannot retrieve L1TriggerTowerTool" << endmsg;
+      msg(MSG::ERROR) << "Cannot retrieve L1TriggerTowerTool" << endreq;
      return sc;
     }
 
     sc = m_cells2tt.retrieve();
     if(sc.isFailure()){
-      msg(MSG::ERROR) << "Cannot retrieve L1CaloCells2TriggerTowers" << endmsg;
+      msg(MSG::ERROR) << "Cannot retrieve L1CaloCells2TriggerTowers" << endreq;
      return sc;
     }
 
     sc = m_jmTools.retrieve();
     if(sc.isFailure()){
-      msg(MSG::ERROR) << "Cannot retrieve L1CaloOfflineTriggerTowerTools" << endmsg;
+      msg(MSG::ERROR) << "Cannot retrieve L1CaloOfflineTriggerTowerTools" << endreq;
       return sc;
     }    
 
     sc = m_LArHVCorrTool.retrieve();
     if(sc.isFailure()){
-      msg(MSG::ERROR) << "Cannot retrieve LArHVCorrTool" << endmsg;
+      msg(MSG::ERROR) << "Cannot retrieve LArHVCorrTool" << endreq;
       return sc;
     }
     m_jmTools->LArHV(m_LArHVCorrTool);
@@ -84,7 +84,7 @@ StatusCode L1CaloHVCorrectionsForDB::execute()
         sc = evtStore()->retrieve(triggerTowerCollection, m_triggerTowerCollectionName);
         if(!sc.isSuccess()) {
             msg(MSG::ERROR) << "Cannot retrieve TriggerTowerCollection '"
-                  << m_triggerTowerCollectionName << "' from StoreGate." << endmsg;
+                  << m_triggerTowerCollectionName << "' from StoreGate." << endreq;
             return sc;
         }
 
@@ -92,18 +92,18 @@ StatusCode L1CaloHVCorrectionsForDB::execute()
         sc = evtStore()->retrieve(caloCellContainer, m_caloCellContainerName);
         if(!sc.isSuccess()) {
             msg(MSG::ERROR) << "Cannot retrieve CaloCellContainer '" << m_caloCellContainerName
-                  << "'." << endmsg;
+                  << "'." << endreq;
             return sc;
         }
 
         // init trigger tower to cell mapping - needed each event?
         if(!m_cells2tt->initCaloCellsTriggerTowers(*caloCellContainer)) {
             msg(MSG::ERROR) << "Can not initialize L1CaloCells2TriggerTowers with CaloCellContainer '"
-                  << m_caloCellContainerName << "." << endmsg;
+                  << m_caloCellContainerName << "." << endreq;
             return StatusCode::FAILURE;
         }
-        
-        const LVL1::TriggerTower *tt;
+
+        LVL1::TriggerTower *tt;
         TriggerTowerCollection::const_iterator p_itTT = triggerTowerCollection->begin();
         TriggerTowerCollection::const_iterator p_itTTEnd = triggerTowerCollection->end();
         std::vector<unsigned int> coolIdByRx;
@@ -145,7 +145,7 @@ StatusCode L1CaloHVCorrectionsForDB::execute()
 		nRx != meanScaleByRx.size()      ||
 		nRx != affectedCellsFByRx.size() ||
 		nRx != layerMeansByRx.size()) {
-              msg(MSG::ERROR) << "Vectors by receiver have inconsistent size" << endmsg;
+              msg(MSG::ERROR) << "Vectors by receiver have inconsistent size" << endreq;
 	      return StatusCode::FAILURE;
             }
 	    rxCount += nRx;
@@ -159,26 +159,26 @@ StatusCode L1CaloHVCorrectionsForDB::execute()
 
 	      const unsigned int nLayers = layernames.size();
 	      if (nLayers != layerNcells.size()) {
-	        msg(MSG::ERROR) << "layernames/layerNcells inconsistent size" << endmsg;
+	        msg(MSG::ERROR) << "layernames/layerNcells inconsistent size" << endreq;
 	        return StatusCode::FAILURE;
               }
 	      if (nLayers == 0 || nLayers > 4) {
-	        //msg(MSG::ERROR) << "Unexpected number of layers: " << nLayers << endmsg;
+	        //msg(MSG::ERROR) << "Unexpected number of layers: " << nLayers << endreq;
 	        //return StatusCode::FAILURE;
 		msg(MSG::WARNING) << "Unexpected number of layers: " << nLayers
 		                  << "  eta/phi: " << tt->eta() << "/" << tt->phi()
 				  << "  sample: " << sample
-				  << "  Receiver: " << i << endmsg;
+				  << "  Receiver: " << i << endreq;
 	        continue;
               }
 	      for (unsigned int j = 0; j < nLayers; ++j) {
 	        if (layerNcells[j] == 0) {
-	          msg(MSG::ERROR) << "Layer " << j << " has no cells" << endmsg;
+	          msg(MSG::ERROR) << "Layer " << j << " has no cells" << endreq;
 	          return StatusCode::FAILURE;
                 }
 	        for (unsigned int k = 0; k < j; ++k) {
 		  if (layernames[j] == layernames[k]) {
-		    msg(MSG::ERROR) << "Duplicate layernames" << endmsg;
+		    msg(MSG::ERROR) << "Duplicate layernames" << endreq;
 	            return StatusCode::FAILURE;
                   }
 	        }
@@ -188,11 +188,11 @@ StatusCode L1CaloHVCorrectionsForDB::execute()
 	      m_rxLayersContainer->addRxLayers(coolId, l1caloRxLayersSample);
 
 	      if (nLayers != affectedCellsF.size()) {
-	        msg(MSG::ERROR) << "layernames/affectedCellsF inconsistent size" << endmsg;
+	        msg(MSG::ERROR) << "layernames/affectedCellsF inconsistent size" << endreq;
 	        return StatusCode::FAILURE;
               }
 	      if (nLayers != layerMeans.size()) {
-	        msg(MSG::ERROR) << "layernames/layerMeans inconsistent size" << endmsg;
+	        msg(MSG::ERROR) << "layernames/layerMeans inconsistent size" << endreq;
 	        return StatusCode::FAILURE;
               }
 	      float sum = 0.;
@@ -205,7 +205,7 @@ StatusCode L1CaloHVCorrectionsForDB::execute()
 	      const float tol = 1.e-4;
 	      if (fabs(sum - meanScale) > tol) {
 	        msg(MSG::ERROR) << "Total and layer means inconsistent: "
-		                << meanScale << " " << sum << endmsg;
+		                << meanScale << " " << sum << endreq;
 	        return StatusCode::FAILURE;
               }
 	      bool affected = (meanScale != 1.);
@@ -231,13 +231,13 @@ StatusCode L1CaloHVCorrectionsForDB::execute()
 	const unsigned int exsize = 3584;
 	if (ttsize != exsize) {
 	    msg(MSG::ERROR) << "First event has " << ttsize
-	                    << " TriggerTowers, expected " << exsize << endmsg;
+	                    << " TriggerTowers, expected " << exsize << endreq;
 	    return StatusCode::FAILURE;
         } else {
 	    msg(MSG::INFO) << "Number of TriggerTowers in first event is "
-	                   << ttsize << "  Number of Receivers is " << rxCount << endmsg;
+	                   << ttsize << "  Number of Receivers is " << rxCount << endreq;
 	}
-	msg(MSG::INFO) << "Number of HV Correction entries is " << hvCount << endmsg;
+	msg(MSG::INFO) << "Number of HV Correction entries is " << hvCount << endreq;
 	m_firstEvent = false;
 
     }
@@ -254,15 +254,15 @@ StatusCode L1CaloHVCorrectionsForDB::finalize()
         StatusCode sc;
         sc = detStore()->record(coll, m_rxLayersContainer->coolOutputKey());
         if (sc.isFailure()) {
-            msg(MSG::ERROR) << "Failed to record RxLayersContainer" << endmsg;
+            msg(MSG::ERROR) << "Failed to record RxLayersContainer" << endreq;
 	    return sc;
         }
       } else {
-        msg(MSG::ERROR) << "Could not cast to CondAttrListCollection" << endmsg;
+        msg(MSG::ERROR) << "Could not cast to CondAttrListCollection" << endreq;
 	return StatusCode::FAILURE;
       }
     } else {
-      msg(MSG::ERROR) << "makePersistent failed for RxLayersContainer" << endmsg;
+      msg(MSG::ERROR) << "makePersistent failed for RxLayersContainer" << endreq;
       return StatusCode::FAILURE;
     }
     dObj = m_hvCorrectionsContainer->makePersistent();
@@ -272,15 +272,15 @@ StatusCode L1CaloHVCorrectionsForDB::finalize()
         StatusCode sc;
         sc = detStore()->record(coll, m_hvCorrectionsContainer->coolOutputKey());
         if (sc.isFailure()) {
-            msg(MSG::ERROR) << "Failed to record HVCorrectionsContainer" << endmsg;
+            msg(MSG::ERROR) << "Failed to record HVCorrectionsContainer" << endreq;
 	    return sc;
         }
       } else {
-        msg(MSG::ERROR) << "Could not cast to CondAttrListCollection" << endmsg;
+        msg(MSG::ERROR) << "Could not cast to CondAttrListCollection" << endreq;
 	return StatusCode::FAILURE;
       }
     } else {
-      msg(MSG::ERROR) << "makePersistent failed for HVCorrectionsContainer" << endmsg;
+      msg(MSG::ERROR) << "makePersistent failed for HVCorrectionsContainer" << endreq;
       return StatusCode::FAILURE;
     }
 

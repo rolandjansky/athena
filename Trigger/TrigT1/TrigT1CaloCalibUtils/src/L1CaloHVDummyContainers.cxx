@@ -40,19 +40,19 @@ StatusCode L1CaloHVDummyContainers::initialize()
 
     sc = detStore()->retrieve(m_caloMgr);
     if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Cannot retrieve CaloMgr" << endmsg;
+        msg(MSG::ERROR) << "Cannot retrieve CaloMgr" << endreq;
 	return sc;
     }
     else {
         m_caloCellHelper = m_caloMgr->getCaloCell_ID();
 	if ( !m_caloCellHelper ) {
-	    msg(MSG::ERROR) << "Cannot retrieve CaloCell_ID" << endmsg;
+	    msg(MSG::ERROR) << "Cannot retrieve CaloCell_ID" << endreq;
 	    return StatusCode::FAILURE;
         }
     }
     sc = detStore()->retrieve(m_caloDetDescrMgr);
     if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Cannot retrieve CaloDetDescrMgr" << endmsg;
+        msg(MSG::ERROR) << "Cannot retrieve CaloDetDescrMgr" << endreq;
 	return sc;
     }
 
@@ -80,13 +80,13 @@ StatusCode L1CaloHVDummyContainers::execute()
 	            double eta = side*(etaOffsets[region] + (ieta+0.5)*etaGrans[region]);
 		    for (int iphi = 0; iphi < phiBins[region]; ++iphi) {
 	                double phi = (iphi+0.5)*phiGrans[region];
-                        LVL1::TriggerTower* tt = new LVL1::TriggerTower(phi, eta, 0);
+			TriggerTower* tt = new TriggerTower(phi, eta, 0);
 			ttCol->push_back(tt);
                     }
                 }
             }
         }
-	msg(MSG::INFO) << "Size of TriggerTowerCollection is " << ttCol->size() << endmsg;
+	msg(MSG::INFO) << "Size of TriggerTowerCollection is " << ttCol->size() << endreq;
 	
 	// Create dummy CaloCellCollection
 	CaloCellContainer* ccCol = new CaloCellContainer();
@@ -113,17 +113,17 @@ StatusCode L1CaloHVDummyContainers::execute()
 	    cell->set(m_caloDetDescrMgr->get_element(*cellItr), *cellItr);
 	    ccCol->push_back(cell);
         }
-	msg(MSG::INFO) << "Size of CaloCellContainer is " << ccCol->size() << endmsg;
+	msg(MSG::INFO) << "Size of CaloCellContainer is " << ccCol->size() << endreq;
 
 	// Save in StoreGate
 	sc = evtStore()->record(ttCol, m_triggerTowerCollectionName);
 	if (sc.isFailure()) {
-	    msg(MSG::ERROR) << "Failed to store TriggerTowerCollection in StoreGate" << endmsg;
+	    msg(MSG::ERROR) << "Failed to store TriggerTowerCollection in StoreGate" << endreq;
 	    return sc;
         }
 	sc = evtStore()->record(ccCol, m_caloCellContainerName);
 	if (sc.isFailure()) {
-	    msg(MSG::ERROR) << "Failed to store CaloCellContainer in StoreGate" << endmsg;
+	    msg(MSG::ERROR) << "Failed to store CaloCellContainer in StoreGate" << endreq;
 	    return sc;
         }
 

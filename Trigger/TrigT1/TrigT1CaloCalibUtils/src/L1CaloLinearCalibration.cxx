@@ -53,7 +53,7 @@ StatusCode L1CaloLinearCalibration::finalize()
     const L1CaloRampDataContainer *rampData;
     sc = detStore()->retrieve(rampData, m_l1CaloRampDataContainerKey);
     if(sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve L1CaloRampDataContainer." << endmsg; 
+        msg(MSG::FATAL) << "Could not retrieve L1CaloRampDataContainer." << endreq; 
         return sc;
     }
     
@@ -81,7 +81,7 @@ StatusCode L1CaloLinearCalibration::finalize()
 	    if(val != val) continue;
 
 	    if(step && it->second.getLevel1(step)->mean() < x.back()) {
-		//msg(MSG::WARNING) << "Decreasing step energy - ignoring." << endmsg;
+		//msg(MSG::WARNING) << "Decreasing step energy - ignoring." << endreq;
 		errCount++;
 		continue;
 	    }
@@ -120,13 +120,13 @@ StatusCode L1CaloLinearCalibration::finalize()
     
     if (errCount > 0) {
         msg(MSG::WARNING) << "Decreasing step energy - ignoring. ("
-	                  << errCount << " occurances)" << endmsg;
+	                  << errCount << " occurances)" << endreq;
     }
     
     sc = detStore()->record(dynamic_cast<CondAttrListCollection*>(m_energyScanResultsContainer->makePersistent()),
                             m_energyScanResultsContainer->coolOutputKey());
     if(sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not record EnergyScanResultsContainer." << endmsg; 
+        msg(MSG::FATAL) << "Could not record EnergyScanResultsContainer." << endreq; 
         return sc;
     }
     m_energyScanRunInfoContainer->setRunNumber(rampData->runNumber());
@@ -134,7 +134,7 @@ StatusCode L1CaloLinearCalibration::finalize()
     sc = detStore()->record(dynamic_cast<AthenaAttributeList*>(m_energyScanRunInfoContainer->makePersistent()),
                             m_energyScanRunInfoContainer->coolOutputKey());
     if(sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not record EnergyScanRunInfoContainer." << endmsg; 
+        msg(MSG::FATAL) << "Could not record EnergyScanRunInfoContainer." << endreq; 
         return sc;
     }
 
