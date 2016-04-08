@@ -102,7 +102,7 @@ void pyhepc_(int*);
 PythiaB::PythiaB(const std::string& name, 
       ISvcLocator* pSvcLocator)
   : Pythia(name,pSvcLocator),
-    cutbqp(0.), cutbqe(0.), cutabqp(0.), cutabqe(0.),
+    m_cutbqp(0.), m_cutbqe(0.), m_cutabqp(0.), m_cutabqe(0.),
     m_xhad(0.)
 {
 //--------------------------------------------------------------------------  
@@ -113,8 +113,8 @@ PythiaB::PythiaB(const std::string& name,
   declareProperty("mhadr",m_mhad = 1);
   declareProperty("flavour", m_fla = 5);
   declareProperty("SignalDumptoAscii", m_Ntup = 50);
-  declareProperty("ForceBDecay", forceb = "no");
-  declareProperty("ForceCDecay", forcec = "no");
+  declareProperty("ForceBDecay", m_forceb = "no");
+  declareProperty("ForceCDecay", m_forcec = "no");
   
   declareProperty("maxTriesHard", m_maxTriesHard = 50000);
   declareProperty("ForceDecayChannel", m_forceDecayChannel = "none");
@@ -170,12 +170,12 @@ StatusCode PythiaB::genuserInitialize() {
     c0[2]=mystring.numpiece(4);
     c0[3]=mystring.numpiece(5);
     
-    cutbqp=c0[0];
-    cutbqe=c0[1];
-    cutabqp=c0[2];
-    cutabqe=c0[3];
-    cutbqandor=mystring.piece(3) ;  
-    ATH_MSG_DEBUG( " cutbqandor=" << cutbqandor );
+    m_cutbqp=c0[0];
+    m_cutbqe=c0[1];
+    m_cutabqp=c0[2];
+    m_cutabqe=c0[3];
+    m_cutbqandor=mystring.piece(3) ;  
+    ATH_MSG_DEBUG( " m_cutbqandor=" << m_cutbqandor );
 
 //    double c0[4], c1[3], c2[4], c3[7];
     for ( int ii=0; ii<= 6; ii++ )  
@@ -189,10 +189,10 @@ StatusCode PythiaB::genuserInitialize() {
       
        double cutbqao= 1. ;
        
-       if(cutbqandor=="and" ) cutbqao = 1. ;
-       if(cutbqandor=="AND" ) cutbqao = 1. ;
-       if(cutbqandor=="or" ) cutbqao = -1. ;
-       if(cutbqandor=="OR" ) cutbqao = -1. ;
+       if(m_cutbqandor=="and" ) cutbqao = 1. ;
+       if(m_cutbqandor=="AND" ) cutbqao = 1. ;
+       if(m_cutbqandor=="or" ) cutbqao = -1. ;
+       if(m_cutbqandor=="OR" ) cutbqao = -1. ;
       
 //    user_finsel.F decay channel number and parameters
 //    New channels need to have a number assigned here!
@@ -237,8 +237,8 @@ StatusCode PythiaB::genuserInitialize() {
 	 cdcp[ii] = m_decayChannelParameters[ii];
        }
        
-       ATH_MSG_DEBUG( "cutbqandor =" << cutbqandor << cutbqandor );      
-       ATH_MSG_DEBUG( "  forceb= " << forceb << forceb );
+       ATH_MSG_DEBUG( "m_cutbqandor =" << m_cutbqandor << m_cutbqandor );      
+       ATH_MSG_DEBUG( "  m_forceb= " << m_forceb << m_forceb );
        ATH_MSG_DEBUG( " idc = " << idc << " for channel " << m_forceDecayChannel );
       
        comons_(c0,&cutbqao,c1,c2,c3,&m_mhad,&m_fla,&m_Ntup,&idc,
@@ -251,7 +251,7 @@ StatusCode PythiaB::genuserInitialize() {
      ilist=12;
      pylist_(&ilist);
 	 
-     BEventBuffer.erase( BEventBuffer.begin(), BEventBuffer.end() );
+     m_BEventBuffer.erase( m_BEventBuffer.begin(), m_BEventBuffer.end() );
 
      Pythia::pythia_stream = "PYTHIA";
 	 
@@ -269,7 +269,7 @@ StatusCode PythiaB::callGenerator() {
 //---------------------------------------------------------------------------
 	ATH_MSG_DEBUG( " PYTHIA generating." );
 	
-	if( !BEventBuffer.empty() )   {
+	if( !m_BEventBuffer.empty() )   {
 		ATH_MSG_DEBUG( "PythiaB skipped - still events in buffer" );
 		return StatusCode::SUCCESS;   // there are still buffered events.
 	};
@@ -313,8 +313,8 @@ StatusCode PythiaB::callGenerator() {
                 int ibq=0; int icq=0; // count number of b and c pair-of-quarks in event
 		bool hardok  = false;
 		parsel_(&rejectPrimary, &ibq, &icq);
-		double m_mhad_inter = m_mhad;
-		if (forceb=="yes" && ibq>1 ) m_mhad_inter = 2 * m_mhad;
+		double mhad_inter = m_mhad;
+		if (m_forceb=="yes" && ibq>1 ) mhad_inter = 2 * m_mhad;
 		// cout << "PythiaB: after 1st cut rejectPrimary = "<< rejectPrimary <<endl;
 
 		if (rejectPrimary==0)   {  // passed first cut
@@ -330,20 +330,20 @@ StatusCode PythiaB::callGenerator() {
 			this->pypars().mstp(ip1)=ip2;
 			
 			
-			for ( int ihad=1; ihad<=m_mhad_inter ; ihad++ )   {   // Repeat hadronization 
+			for ( int ihad=1; ihad<=mhad_inter ; ihad++ )   {   // Repeat hadronization 
 				
 				icopy=2;
 				bcopy_(&icopy);     // Put back parton part removing all hadronization from pyjets
 				
                          //  Execute event now
 			 //  Normal regime: for  bb, cc, cccc    or   if no forced channel   
-                         //  If forced channel:  special multiflav treatment for bbbb, bbcc(forcec=yes) , bbbbcc, bbbbcccc
+                         //  If forced channel:  special multiflav treatment for bbbb, bbcc(m_forcec=yes) , bbbbcc, bbbbcccc
                          
 	      
-	                       if(forceb=="no"  || (ibq==1 && icq==0) || (ibq==0 && icq>=1) ) pyexec_(); 
-	                       if(forceb=="yes" &&  ibq==1 && forcec =="no"   && icq>=1 )     pyexec_();
-	                       if(forceb=="yes" &&  ibq==1 && forcec =="yes"  && icq>=1 )     multi_flav_luexec_();
-	                       if(forceb=="yes" &&  ibq>1 )    multi_flav_luexec_();
+	                       if(m_forceb=="no"  || (ibq==1 && icq==0) || (ibq==0 && icq>=1) ) pyexec_(); 
+	                       if(m_forceb=="yes" &&  ibq==1 && m_forcec =="no"   && icq>=1 )     pyexec_();
+	                       if(m_forceb=="yes" &&  ibq==1 && m_forcec =="yes"  && icq>=1 )     multi_flav_luexec_();
+	                       if(m_forceb=="yes" &&  ibq>1 )    multi_flav_luexec_();
   
 ///////////////////////////////////////////////////////////////
 //  Event selections after hadronization  
@@ -394,7 +394,7 @@ StatusCode PythiaB::storeBEvent()   {
 
 //	HepMC::HEPEVT_Wrapper::print_hepevt();
 	
-	GenEvent* evt = new GenEvent(1,1);
+        HepMC::GenEvent* evt = new HepMC::GenEvent(1,1);
 	
 	HepMC::IO_HEPEVT hepio;
 	hepio.fill_next_event(evt);
@@ -409,13 +409,13 @@ StatusCode PythiaB::storeBEvent()   {
 	evt->print();
 	*/
 
-	BEventBuffer.push_back(evt);
+	m_BEventBuffer.push_back(evt);
 
 	return StatusCode::SUCCESS;
 }
 
 
-long PythiaB::pCounter(GenEvent* myEvt) const
+long PythiaB::pCounter(HepMC::GenEvent* myEvt) const
 {
 	HepMC::GenEvent::particle_iterator pitr;
 	long n = 0; 
@@ -425,10 +425,10 @@ long PythiaB::pCounter(GenEvent* myEvt) const
 
 
 //---------------------------------------------------------------------------
-StatusCode PythiaB::fillEvt(GenEvent* evt) {
+StatusCode PythiaB::fillEvt(HepMC::GenEvent* evt) {
 //---------------------------------------------------------------------------
 	
-	if( BEventBuffer.empty() )   {
+	if( m_BEventBuffer.empty() )   {
 		ATH_MSG_ERROR( "PythiaB: No events in buffer" );
 		return StatusCode::FAILURE;
 	};
@@ -444,14 +444,14 @@ StatusCode PythiaB::fillEvt(GenEvent* evt) {
 		 << "PythiaB::fillEvt => Print event from Buffer" << endl
 		 << "****************************************************" << endl
 		 << endl;		 
-	BEventBuffer.back()->pGenEvt()->print();
+	m_BEventBuffer.back()->pGenEvt()->print();
 	*/
 	
-// 	*evt = *(BEventBuffer.back()->pGenEvt());
-// 	McEvent* mcevt = BEventBuffer.back();
+// 	*evt = *(m_BEventBuffer.back()->pGenEvt());
+// 	McEvent* mcevt = m_BEventBuffer.back();
 // 	evt = mcevt->pGenEvt();
-//	evt = BEventBuffer.back();
-	*evt = *(BEventBuffer.back());	
+//	evt = m_BEventBuffer.back();
+	*evt = *(m_BEventBuffer.back());	
 
 	// Should follow Pythia_i fillEvt as closely as possible
 	int pr_id = PYTHIA + m_ExternalProcess + this->pyint1().mint(1);
@@ -489,9 +489,9 @@ StatusCode PythiaB::fillEvt(GenEvent* evt) {
 	evt->print();
 	*/
 	
-	BEventBuffer.pop_back();
+	m_BEventBuffer.pop_back();
 	
-	ATH_MSG_DEBUG( "PythiaB using event from buffer (" << BEventBuffer.size() << " left) \n" );
+	ATH_MSG_DEBUG( "PythiaB using event from buffer (" << m_BEventBuffer.size() << " left) \n" );
 	
 	return StatusCode::SUCCESS;
 }
@@ -539,7 +539,7 @@ StatusCode PythiaB::genFinalize() {
   ATH_MSG_ALWAYS( " I===================================================================================== " );
   ATH_MSG_ALWAYS( " I   HARD SCATTERING  CUT  pysubs().ckin(3)             PT      I      " << this->pysubs().ckin(3) );
   ATH_MSG_ALWAYS( " I   STRUCTURE FCN (1=CTEQ3 7=CTEQ5) pypars().mstp(51)          I      " << this->pypars().mstp(51) );
-  ATH_MSG_ALWAYS( " I   CUTS ON b and/or anti b QUARK                              I      " << cutbqp << " ; " << cutbqe << " ; " << cutbqandor <<" ; " <<cutabqp << " ; " << cutabqe );
+  ATH_MSG_ALWAYS( " I   CUTS ON b and/or anti b QUARK                              I      " << m_cutbqp << " ; " << m_cutbqe << " ; " << m_cutbqandor <<" ; " <<m_cutabqp << " ; " << m_cutabqe );
   ATH_MSG_ALWAYS( " I   LVL1 MUON CUTS:                               PT AND ETA   I      " << m_lvl1cut[1] << " ;  "  << m_lvl1cut[2] );
   ATH_MSG_ALWAYS( " I   LVL2 CUTS:         ON(1)/OFF(0); PARTICLE-ID; PT AND ETA   I      " << m_lvl2cut[0] << " ;  "  << m_lvl2cut[1] << " ;  " << m_lvl2cut[2] << " ;  "  << m_lvl2cut[3] );
   ATH_MSG_ALWAYS( " I   CUTS FOR STABLE PARTICLES IN B-DECAY:         ON(1)/OFF(0) I      " << m_offcut[0] );
