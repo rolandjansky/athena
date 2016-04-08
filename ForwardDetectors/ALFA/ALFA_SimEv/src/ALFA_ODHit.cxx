@@ -9,7 +9,7 @@
   // Called by ALFA_SensitiveDetector::ProcessHits
 
 ALFA_ODHit::ALFA_ODHit(int hit, 
-			int track, 
+                        int /*track*/, 
 			int particle,
 			float kinEnergy, 
 			float eneDeposit, 
@@ -18,30 +18,30 @@ ALFA_ODHit::ALFA_ODHit(int hit,
 			float time,
 			int sign, int side, int plate, int fiber, int station
 			):
-  hitID(hit),
-  trackID(track), 
+  m_hitID(hit),
+  //trackID(track), 
 //  m_partLink(track), 
-  particleEncoding(particle),
-  kineticEnergy(kinEnergy), 
-  energyDeposit(eneDeposit), 
-  preStepX(preX), preStepY(preY), preStepZ(preZ), 
-  postStepX(postX), postStepY(postY), postStepZ(postZ), 
-  globalTime(time),
-  sign_fiber(sign), OD_side(side),n_plate(plate), n_fiber(fiber), n_station(station) 
+  m_particleEncoding(particle),
+  m_kineticEnergy(kinEnergy), 
+  m_energyDeposit(eneDeposit), 
+  m_preStepX(preX), m_preStepY(preY), m_preStepZ(preZ), 
+  m_postStepX(postX), m_postStepY(postY), m_postStepZ(postZ), 
+  m_globalTime(time),
+  m_sign_fiber(sign), m_OD_side(side),m_n_plate(plate), m_n_fiber(fiber), m_n_station(station) 
   {} 
 
 // Default constructor needed by athenaroot/athenapool
 //
 ALFA_ODHit::ALFA_ODHit( ) :
-  hitID(0xffff),
-  trackID(0),  
-  particleEncoding(0),
-  kineticEnergy(0.), 
-  energyDeposit(0.), 
-  preStepX(0.), preStepY(0.), preStepZ(0.), 
-  postStepX(0.), postStepY(0.), postStepZ(0.), 
-  globalTime(0.),
-  sign_fiber(0), OD_side(0), n_plate(0), n_fiber(0), n_station(0)  
+  m_hitID(0xffff),
+  //trackID(0),  
+  m_particleEncoding(0),
+  m_kineticEnergy(0.), 
+  m_energyDeposit(0.), 
+  m_preStepX(0.), m_preStepY(0.), m_preStepZ(0.), 
+  m_postStepX(0.), m_postStepY(0.), m_postStepZ(0.), 
+  m_globalTime(0.),
+  m_sign_fiber(0), m_OD_side(0), m_n_plate(0), m_n_fiber(0), m_n_station(0)  
 {}
 
 // destructor
