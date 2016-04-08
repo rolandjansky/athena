@@ -1,0 +1,409 @@
+/////////////////////////////////////////////////////////////////////////////////// 
+//
+// Parameters names (pixel only at the moment) are of the form 
+//  TableName#RowNumber:FieldName Value
+//    - "#RowNumber" is optional and will refer to row 0 if ommited.
+//    - "#ALL" as the row number allows one to define a default for all
+//       rows. If a specific row number is specified as well this will take
+//       precendence over the default.
+//
+/////////////////////////////////////////////////////////////////////////////////// 
+
+///////////////////////////////////////////
+Section Pixel
+////////////////////////////////////////////
+
+////////////////////////////////////////////
+// PixelCommon table
+////////////////////////////////////////////
+
+// Inner radius (mm)
+PixelCommon:RMIN 40.0
+// Outer radius (mm)
+PixelCommon:RMAX 301.0
+// Overall half-length (mm)
+PixelCommon:HALFLENGTH 3460.0
+
+
+////////////////////////////////////////////
+// PixelBarrelGeneral table
+////////////////////////////////////////////
+
+// Inner radius (mm)
+PixelBarrelGeneral:RMIN 42.0
+// Outer radius (mm)
+PixelBarrelGeneral:RMAX 245.0
+// Barrel half-length (mm)
+PixelBarrelGeneral:HALFLENGTH 460.0
+// Number of layers
+PixelBarrelGeneral:NLAYER 4
+
+// Easy way to turn off individual layers
+// 0: Off  1: On
+// On by default. Uncomment to disable
+//PixelBarrelGeneral:USELAYER_0 0
+//PixelBarrelGeneral:USELAYER_1 0
+//PixelBarrelGeneral:USELAYER_2 0
+//PixelBarrelGeneral:USELAYER_3 0
+
+////////////////////////////////////////////
+//
+// PixelReadout table (or "design")
+//
+////////////////////////////////////////////
+
+// Pixel pitch for all sensors
+//PixelReadout#0:PITCHPHI 0.050
+//PixelReadout#0:PITCHETA 0.250
+//PixelReadout#0:PITCHETALONG 0.450
+//PixelReadout#0:COLSPERCHIP 29
+
+
+////////////////////////////////////////////
+//
+// PixelModule table
+// 
+////////////////////////////////////////////
+
+// Common/Default paramaters
+// DESIGNTYPE refers to row in PixelReadout table
+PixelModule#ALL:CHIPGAP 0
+PixelModule#ALL:DESIGNTYPE 0
+
+// Module type 0:
+
+// Full length of silicon sensor (mm)
+PixelModule#0:BOARDLENGTH 62.0
+// Full width of silicon sensor (mm)
+PixelModule#0:BOARDWIDTH 18.8
+// Full thickness of silicon sensor (mm)
+PixelModule#0:BOARDTHICK 0.25
+// Full length of hybrid (mm)
+PixelModule#0:HYBRIDLENGTH 62.0
+// Full width of hybrid (mm)
+PixelModule#0:HYBRIDWIDTH 19.0
+// Full thickness of hybrid (mm)
+PixelModule#0:HYBRIDTHICK 0.182
+// Full length of chip (mm)
+PixelModule#0:CHIPLENGTH 62.0
+// Full width of chip (mm)
+PixelModule#0:CHIPWIDTH 22.0
+// Full thickness of chip (mm)
+PixelModule#0:CHIPTHICK 0.022
+
+PixelModule#1:BOARDLENGTH 62.0
+PixelModule#1:BOARDWIDTH 18.8
+PixelModule#1:BOARDTHICK 0.25
+PixelModule#1:HYBRIDLENGTH 62.0
+PixelModule#1:HYBRIDWIDTH 19.0
+PixelModule#1:HYBRIDTHICK 0.182
+PixelModule#1:CHIPLENGTH 62.0
+PixelModule#1:CHIPWIDTH 22.0
+PixelModule#1:CHIPTHICK 0.022
+
+////////////////////////////////////////////
+//
+// PixelLayer table
+//
+////////////////////////////////////////////
+
+// Support cylinder. Comment out to remove.
+PixelLayer#ALL:SUPPORTROFFSET 10
+PixelLayer#ALL:SUPPORTTHICK 2.9
+
+// Layer radius (mm)
+PixelLayer#0:RLAYER 50.0
+// Number of sectors (ladders/staves) in phi
+PixelLayer#0:NSECTORS 22
+// Half-length of ladder/stave (mm)
+//PixelLayer#0:LADDERLENGTH 400.0
+// Tilt angle in phi (degrees)
+PixelLayer#0:STAVETILT -15.0
+// Possible offset in phi (degrees)
+PixelLayer#0:PHIOFMODULEZERO 0.0
+// Module type (ie row in PixelModule table)
+PixelLayer#0:MODULETYPE 0
+
+PixelLayer#1:RLAYER 110.0
+PixelLayer#1:NSECTORS 46
+//PixelLayer#1:LADDERLENGTH 400.0
+PixelLayer#1:STAVETILT -15.0
+PixelLayer#1:PHIOFMODULEZERO 0.0
+PixelLayer#1:MODULETYPE 1
+
+PixelLayer#2:RLAYER 160.0
+PixelLayer#2:NSECTORS 68
+//PixelLayer#2:LADDERLENGTH 400.0
+PixelLayer#2:STAVETILT -15.0
+PixelLayer#2:PHIOFMODULEZERO 0.0
+PixelLayer#2:MODULETYPE 1
+
+PixelLayer#3:RLAYER 210.0
+PixelLayer#3:NSECTORS 88
+//PixelLayer#3:LADDERLENGTH 400.0
+PixelLayer#3:STAVETILT -15
+PixelLayer#3:PHIOFMODULEZERO 0.0
+PixelLayer#3:MODULETYPE 1
+
+////////////////////////////////////////////
+//
+// PixelStave table (means "ladder")
+//
+////////////////////////////////////////////
+
+// Number of modules in z
+PixelStave:NMODULE 13
+// Pitch between modules in z -- use to set overlap in z
+// PixelStave:MODULEDZ 61.718
+// Module tilt in theta direction (degrees): default
+PixelStave:MODULETILT 1.1
+// Special treatment of center module in the shingling; shift in r (mm)
+PixelStave:CENTRMODULESHIFT -1.2
+
+// Uncomment to build standard ATLAS ladder services
+// PixelStave:LAYOUT 0
+
+
+//************************************
+//
+//======  Pixel endcap stuff  ====== *
+//
+//************************************
+
+////////////////////////////////////////////
+// PixelEndcapGeneral table
+////////////////////////////////////////////
+
+// Easy way to turn off individual layers
+// 0: Off  1: On
+// On by default. Uncomment to disable
+//PixelEndcapGeneral:USEDISK_0 0
+//PixelEndcapGeneral:USEDISK_1 0
+//PixelEndcapGeneral:USEDISK_2 0
+//PixelEndcapGeneral:USEDISK_3 0
+//PixelEndcapGeneral:USEDISK_4 0
+//PixelEndcapGeneral:USEDISK_5 0
+
+// number of disks in each side
+PixelEndcapGeneral:NDISK 6
+
+// envelope dimensions (ALL IN mm)
+PixelEndcapGeneral:RMIN 60
+PixelEndcapGeneral:RMAX 300
+PixelEndcapGeneral:ZMIN 470
+PixelEndcapGeneral:ZMAX 1520
+
+////////////////////////////////////////////
+//
+// PixelRing table
+//
+////////////////////////////////////////////
+
+PixelRing:ZOFFSET 2
+
+////////////////////////////////////////////
+//
+// PixelModule table
+// 
+////////////////////////////////////////////
+
+//=== Pixel disk modules (ALL LENGTHS IN mm)
+# Disk modules
+PixelModule#2:BOARDTHICK 0.25
+PixelModule#2:BOARDLENGTH 40.5
+PixelModule#2:BOARDWIDTH 33.9
+
+PixelModule#2:HYBRIDTHICK 0.182
+PixelModule#2:HYBRIDLENGTH 38.5
+PixelModule#2:HYBRIDWIDTH 31.9
+
+PixelModule#2:CHIPTHICK 0.022
+PixelModule#2:CHIPLENGTH 20.
+PixelModule#2:CHIPWIDTH 20.
+
+PixelModule#2:CHIPGAP 0
+
+
+////////////////////////////////////////////
+//
+// PixelDiskRing table
+//
+////////////////////////////////////////////
+
+PixelDiskRing#ALL:MODULETYPE 2
+Table PixelDiskRing
+ DISK	RING	NMODULES
+ 0	0	36
+ 0	1	44
+ 0	2	50
+ 0	3	58
+ 1	0	36
+ 1	1	44
+ 1	2	50
+ 2	0	44
+ 3	0	44
+ 3	1	50
+ 3	2	58
+ 4	0	44
+ 4	1	50
+ 4	2	58
+ 5	0	50
+ 5	1	58
+TableEnd 
+
+
+////////////////////////////////////////////
+//
+// PixelDisk table
+//
+////////////////////////////////////////////
+
+//
+// Disk supports - default parameters 
+//
+PixelDisk:SUP_MAT 2
+//
+PixelDisk:SUP_THICK 4.2
+
+
+//=== Disk 0
+PixelDisk#0:RMIN 120
+PixelDisk#0:RMAX 280
+PixelDisk#0:ZDISK 709
+PixelDisk#0:DZCOUNTER 4.2
+PixelDisk#0:NRINGS 4
+
+// disk 0 support disks
+PixelDisk#0:SUP1RMIN 110
+PixelDisk#0:SUP1RMAX 120
+PixelDisk#0:SUP2RMIN 120
+PixelDisk#0:SUP2RMAX 280
+PixelDisk#0:SUP3RMIN 280
+PixelDisk#0:SUP3RMAX 290
+
+// overwrites
+//PixelDisk#0:SUP1THICK   1.1
+//PixelDisk#0:SUP2THICK   2.2
+//PixelDisk#0:SUP3THICK   3.3
+
+//=== Disk 1
+PixelDisk#1:RMIN 120
+PixelDisk#1:RMAX 240
+PixelDisk#1:ZDISK 826
+PixelDisk#1:DZCOUNTER 4.2
+PixelDisk#1:NRINGS 3
+
+// disk 1 support disks
+PixelDisk#1:SUP1RMIN 110
+PixelDisk#1:SUP1RMAX 120
+PixelDisk#1:SUP2RMIN 120
+PixelDisk#1:SUP2RMAX 240
+PixelDisk#1:SUP3RMIN 240
+PixelDisk#1:SUP3RMAX 250
+
+// overwrites
+//PixelDisk#1:SUP0THICK   5.5
+//PixelDisk#1:SUP1THICK   4.4
+//PixelDisk#1:SUP2THICK   3.3
+
+
+//=== Disk 2
+PixelDisk#2:RMIN 160
+PixelDisk#2:RMAX 200
+PixelDisk#2:ZDISK 1068
+PixelDisk#2:DZCOUNTER 4.2
+PixelDisk#2:NRINGS 1
+
+// disk 2 support disks
+PixelDisk#2:SUP1RMIN 150
+PixelDisk#2:SUP1RMAX 160
+PixelDisk#2:SUP2RMIN 160
+PixelDisk#2:SUP2RMAX 200
+PixelDisk#2:SUP3RMIN 200
+PixelDisk#2:SUP3RMAX 210
+
+
+//=== Disk 3
+PixelDisk#3:RMIN 169
+PixelDisk#3:RMAX 280
+PixelDisk#3:ZDISK 1125
+PixelDisk#3:DZCOUNTER 4.2
+PixelDisk#3:NRINGS 3
+
+// disk 3 support disks
+PixelDisk#3:SUP1RMIN 159
+PixelDisk#3:SUP1RMAX 169
+PixelDisk#3:SUP2RMIN 169
+PixelDisk#3:SUP2RMAX 280
+PixelDisk#3:SUP3RMIN 280
+PixelDisk#3:SUP3RMAX 290
+
+
+//=== Disk 4
+PixelDisk#4:RMIN 183
+PixelDisk#4:RMAX 280
+PixelDisk#4:ZDISK 1208
+PixelDisk#4:DZCOUNTER 4.2
+PixelDisk#4:NRINGS 3
+
+// disk 4 support disks
+PixelDisk#4:SUP1RMIN 173
+PixelDisk#4:SUP1RMAX 183
+PixelDisk#4:SUP2RMIN 183
+PixelDisk#4:SUP2RMAX 280
+PixelDisk#4:SUP3RMIN 280
+PixelDisk#4:SUP3RMAX 290
+
+//=== Disk 5
+PixelDisk#5:RMIN 220
+PixelDisk#5:RMAX 280
+PixelDisk#5:ZDISK 1431
+PixelDisk#5:DZCOUNTER 4.2
+PixelDisk#5:NRINGS 2
+
+// disk 5 support disks
+PixelDisk#5:SUP1RMIN 210
+PixelDisk#5:SUP1RMAX 220
+PixelDisk#5:SUP2RMIN 220
+PixelDisk#5:SUP2RMAX 280
+PixelDisk#5:SUP3RMIN 280
+PixelDisk#5:SUP3RMAX 290
+
+////////////////////////////////////////////
+//
+// PixelPixelSimpleService table
+//
+////////////////////////////////////////////
+
+//***
+//*** Pixel EndCap Service elements and structural supports
+//***
+
+PixelSimpleService#ALL:ZSYMM 1
+Table PixelSimpleService
+ RIN	ROUT	ZIN	ZOUT	MATERIALNAME	VOLNAME
+ 121	139	0	3120	pix::Services	PST
+ 977	1007	0	1280	std::Carbon	SCTSupport
+ 1003	1063	0	800	std::Carbon	test
+ 1063	1108	0	3170	pix::Services	test
+ 1133	1153	0	3050	pix::Services	test
+ 1153	1163	0	3050	std::Carbon	test
+ 282	302	790	1280	std::Carbon	test	 
+ 304	324	790	1260	pix::ECServices	test
+ 282	1063	1280	1336	std::Carbon	test
+ 282	1063	1350	1360	std::Carbon	test
+ 1028	1063	1336	3170	pix::ECServices	test
+ 968	1008	1360	3085	std::Carbon	test
+ 1163	1220	1040	3170	std::Carbon	test
+ 830	1028	3085	3250	std::Carbon	test
+ 510	830	3150	3250	std::Carbon	test
+ 139	490	3120	3330	std::Carbon	test
+TableEnd
+
+//************************************
+//======  end of Pixel endcap stuff
+//************************************
+
+////////////////////////////////////////////
+EndSection Pixel
+////////////////////////////////////////////
