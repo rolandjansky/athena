@@ -21,4 +21,5 @@ void mm_readoutHandler::ElementHandle()
     MM->roParameters.gasThickness          = getAttributeAsDouble    ("gasThickness", ret);
     MM->roParameters.pcbThickness          = getAttributeAsDouble    ("pcbThickness", ret);
     MM->roParameters.stereoAngel           = getAttributeAsVector    ("stereoAngle", ret);
+    MM->roParameters.readoutSide           = getAttributeAsIntVector ("readoutSide", ret);
 }
