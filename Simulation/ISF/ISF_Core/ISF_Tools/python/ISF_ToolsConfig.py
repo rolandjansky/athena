@@ -32,6 +32,12 @@ def getMC12EntryLayerFilter(name="ISF_MC12EntryLayerFilter", **kwargs):
     from ISF_Tools.ISF_ToolsConf import ISF__GenericBarcodeFilter
     return ISF__GenericBarcodeFilter(name, **kwargs)
 
+def getMC12LLPEntryLayerFilter(name="ISF_MC12LLPEntryLayerFilter", **kwargs):
+    return getMC12EntryLayerFilter(name, **kwargs)
+
+def getMC12PlusEntryLayerFilter(name="ISF_MC12PlusEntryLayerFilter", **kwargs):
+    return getMC12EntryLayerFilter(name, **kwargs)
+
 def getMC15EntryLayerFilter(name="ISF_MC15EntryLayerFilter", **kwargs):
     kwargs.setdefault('MinEkinCharged'      , 100.*MeV  )
     kwargs.setdefault('MinEkinNeutral'      , -1.       )
@@ -39,6 +45,9 @@ def getMC15EntryLayerFilter(name="ISF_MC15EntryLayerFilter", **kwargs):
     return ISF__EntryLayerFilter(name, **kwargs  )
 
 def getMC15aEntryLayerFilter(name="ISF_MC15aEntryLayerFilter", **kwargs):
+    return getMC15EntryLayerFilter(name, **kwargs)
+
+def getMC15aPlusEntryLayerFilter(name="ISF_MC15aPlusEntryLayerFilter", **kwargs):
     return getMC15EntryLayerFilter(name, **kwargs)
 
 def getValidationEntryLayerFilter(name="ISF_ValidationEntryLayerFilter", **kwargs):
