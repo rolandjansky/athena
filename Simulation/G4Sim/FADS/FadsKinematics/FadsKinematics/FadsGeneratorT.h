@@ -10,11 +10,7 @@
 #include "FadsKinematics/FadsGenerator.h"
 #include "FadsKinematics/GeneratorCenter.h"
 
-#ifdef HAVE_NEW_IOSTREAMS
-	#include <iostream>
-#else
-	#include <iostream.h>
-#endif
+#include <iostream>
 
 namespace FADS {
 
