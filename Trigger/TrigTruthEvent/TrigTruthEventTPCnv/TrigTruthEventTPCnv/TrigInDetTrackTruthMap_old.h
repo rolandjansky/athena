@@ -11,7 +11,7 @@
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetTruthEvent/TrigInDetTrackTruth.h"
 //#include "TrigSteeringEvent/MessageSvcProvider.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include <vector>
 
 class TrigInDetTrackTruthMap_old

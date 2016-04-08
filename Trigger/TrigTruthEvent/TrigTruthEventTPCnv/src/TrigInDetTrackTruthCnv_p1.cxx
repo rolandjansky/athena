@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
-//I should add TrigInDetTrackTruthCnv as a friend in TrigInDetTrackTruth.h
 #include "TrigInDetTruthEvent/TrigInDetTrackTruth.h"
-#undef private
-#undef protected
-
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthCnv_p1.h"
 
 
@@ -19,9 +13,9 @@ void TrigInDetTrackTruthCnv_p1::persToTrans(const TrigInDetTrackTruth_p1* persOb
 {
    log << MSG::DEBUG << "TrigInDetTrackTruthCnv_p1::persToTrans called " << endreq;
 
-   transObj->best_match_hits     = persObj->best_match_hits    ;
-   transObj->best_Si_match_hits  = persObj->best_Si_match_hits ;
-   transObj->best_TRT_match_hits = persObj->best_TRT_match_hits;
+   transObj->m_best_match_hits     = persObj->best_match_hits    ;
+   transObj->m_best_Si_match_hits  = persObj->best_Si_match_hits ;
+   transObj->m_best_TRT_match_hits = persObj->best_TRT_match_hits;
 
    //convert m_true_part_vec
 
@@ -61,9 +55,9 @@ void TrigInDetTrackTruthCnv_p1::transToPers(const TrigInDetTrackTruth* transObj,
    log << MSG::DEBUG << "TrigInDetTrackTruthCnv_p1::transToPers called " << endreq;
 
 
-   persObj->best_match_hits     = transObj->best_match_hits    ;
-   persObj->best_Si_match_hits  = transObj->best_Si_match_hits ;
-   persObj->best_TRT_match_hits = transObj->best_TRT_match_hits;
+   persObj->best_match_hits     = transObj->m_best_match_hits    ;
+   persObj->best_Si_match_hits  = transObj->m_best_Si_match_hits ;
+   persObj->best_TRT_match_hits = transObj->m_best_TRT_match_hits;
 
    //convert m_true_part_vec
 

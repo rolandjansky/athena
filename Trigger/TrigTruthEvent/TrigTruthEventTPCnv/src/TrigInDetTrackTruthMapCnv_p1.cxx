@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
-//maybe I should add TrigInDetTruthMapCnv as a friend to TrigInDetTrackTruthMap instead
 #include "TrigInDetTruthEvent/TrigInDetTrackTruthMap.h"
-#undef private
-#undef protected
- 
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_p1.h" 
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthCnv_p1.h"
 
