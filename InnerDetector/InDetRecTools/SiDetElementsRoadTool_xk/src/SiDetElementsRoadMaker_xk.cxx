@@ -701,20 +701,23 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
 
 	  for(unsigned int j=0; j!=pE.size(); ++j) {
 
-	    detElementInformation(*(pE[j]),P);
+	    if(pE[j]) {
 
-	    if( P[ 9] < rmin ) rmin = P[ 9]; 
-	    if( P[10] > rmax ) rmax = P[10]; 
-	    if( P[11] < zmin ) zmin = P[11]; 
-	    if( P[12] > zmax ) zmax = P[12]; 
+	      detElementInformation(*(pE[j]),P);
 
-	    double df1 = fabs(P[13]-P[2]); if(df1>pi) df1 = fabs(df1-pi2); 
-	    double df2 = fabs(P[14]-P[2]); if(df2>pi) df2 = fabs(df2-pi2); 
-	    if(df1>dfm) dfm = df1;
-	    if(df2>dfm) dfm = df2;
-			     
-	    InDet::SiDetElementLink_xk link(pE[j],P);
-	    layer.add(link);
+	      if( P[ 9] < rmin ) rmin = P[ 9]; 
+	      if( P[10] > rmax ) rmax = P[10]; 
+	      if( P[11] < zmin ) zmin = P[11]; 
+	      if( P[12] > zmax ) zmax = P[12]; 
+	      
+	      double df1 = fabs(P[13]-P[2]); if(df1>pi) df1 = fabs(df1-pi2); 
+	      double df2 = fabs(P[14]-P[2]); if(df2>pi) df2 = fabs(df2-pi2); 
+	      if(df1>dfm) dfm = df1;
+	      if(df2>dfm) dfm = df2;
+	      
+	      InDet::SiDetElementLink_xk link(pE[j],P);
+	      layer.add(link);
+	    }
 	  }
 	  double r  =(rmax+rmin)*.5;
 	  double dr =(rmax-rmin)*.5; 

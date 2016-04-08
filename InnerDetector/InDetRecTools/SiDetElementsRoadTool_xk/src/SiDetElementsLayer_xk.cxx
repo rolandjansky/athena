@@ -12,11 +12,6 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include <algorithm>
-#include <iostream>
-#include <iomanip>
-#include <utility>
-
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
 
