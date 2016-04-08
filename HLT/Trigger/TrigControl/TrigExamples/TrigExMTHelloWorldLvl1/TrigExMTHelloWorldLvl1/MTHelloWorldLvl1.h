@@ -2,15 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <stdint.h>
+#include <vector>
+#include <string>
 
 /////////////////////////////////////////////////////////////////////////////
 
-class StoreGateSvc;
 class IROBDataProviderSvc;
 
-class MTHelloWorldLvl1:public Algorithm {
+class MTHelloWorldLvl1:public AthAlgorithm {
 public:
   MTHelloWorldLvl1(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
@@ -18,7 +19,6 @@ public:
   StatusCode finalize();
   
 private:
-  StoreGateSvc*         m_StoreGateSvc;
   IROBDataProviderSvc*  m_pIROBDataProviderSvc; 
   BooleanProperty       m_retrieveLvl1;
   BooleanProperty       m_retrieveROBs;
