@@ -73,12 +73,46 @@ namespace Rec
                     std::vector<const Trk::TrackParameters*>&                parameters,
                     const Trk::TrackParameters*                              definingParameter,
                     const Trk::FitQuality*                                  fitQuality);   
+
+
+    /**
+     * @brief Alternate constructor, to be used by TP converters.
+     *        Passes in ElementLinks rather than pointers, and does
+     *        not dereference those links.
+     * @param  trackLink Link to track used to create this object.
+     * @param  trkPrtOrigin See TrackParticleOrigin for definitions, but
+     *         should be set to NoVtx if no Trk::VxCandidate pointer is passed.
+     * @param  vxCandidate Link to the Trk::VxCandidate used to create
+     *         this TrackParticle.
+     * @param  trkSummary Summary object of this TrackParticle (should be
+     *         created with Trk::TrackSummaryTool).
+     * @param  parameters std::vector of Trk::TrackParameters which describe
+     *         this Trk::TrackParticle. Ownership of these Trk::TrackParameters
+     *         objects passes to TrackParticle  (so if you copied them from a
+     *         Trk::Track, make sure you didn't just copy the pointers
+     *         but actually created new objects, for example, by using clone()).
+     *         In contrast to the previous constructor, this vector
+     *         must constain the defining parameters.
+     * @param fitQuality Trk::FitQuality which describes this TrackParticle.
+     * @param info TrackInfo for this track.
+     * @param mom Four-momentum for this particle.
+     */
+    TrackParticle (const ElementLink<TrackCollection>& trackLink,
+                   const Trk::TrackParticleOrigin trkPrtOrigin, 
+                   const ElementLink<VxContainer>& vxCandidate,
+                   std::unique_ptr<Trk::TrackSummary> trkSummary,
+                   // passes ownership of elements.
+                   std::vector<const Trk::TrackParameters*>&&  parameters,
+                   std::unique_ptr<Trk::FitQuality> fitQuality,
+                   const Trk::TrackInfo& info,
+                   const P4PxPyPzE& mom);
  
     /** Copy constructor */
     TrackParticle(const TrackParticle &);
 
     /** Assignment operator */
     TrackParticle &operator= (const TrackParticle &);
+    TrackParticle &operator= (TrackParticle &&);
     
     /** Destructor */
     virtual ~TrackParticle();  
