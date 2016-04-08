@@ -17,10 +17,10 @@ public:
     HepMC::GenParticle*  	givekine_getParticle	( const int ikine ) const;
 private:
     const HepMC::GenEvent*	m_evt;
-    const int	m_vertex_offset;
+    //const int	m_vertex_offset;
     const int 	m_kine_offset;
-    const int 	m_mbias_int_kine_offset;
-    const int 	m_mbias_noint_kine_offset;
+    //const int 	m_mbias_int_kine_offset;
+    //const int 	m_mbias_noint_kine_offset;
 };
 
 

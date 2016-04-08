@@ -6,10 +6,10 @@
 
 KineHepMcmap::KineHepMcmap ( const HepMC::GenEvent* evt )
     : m_evt			(evt),
-      m_vertex_offset		(-10000),
-      m_kine_offset		(100000),
-      m_mbias_int_kine_offset  	(200000),
-      m_mbias_noint_kine_offset	(300000)
+      //m_vertex_offset		(-10000),
+      m_kine_offset		(100000)
+      //m_mbias_int_kine_offset  	(200000),
+      //m_mbias_noint_kine_offset	(300000)
 {}
 
 int
