@@ -96,6 +96,7 @@ public:  // functions
   void setSector    (int sector)       { m_sector    = sector;}
 
 private:
+  friend class RpcPadContainerCnv_p1;
 
   Identifier m_id;   
   IdentifierHash m_idHash; 

@@ -57,9 +57,9 @@ class RpcSectorLogic : public DataVector<RpcSLTriggerHit> {
   uint16_t crc() const {return m_crc;}
   bool    hasMoreThan2TriggerCand() const {return m_hasMoreThan2TriggerCand;}
 
-  std::vector<uint16_t> counters() const {return m_counters;}
+  const std::vector<uint16_t>& counters() const {return m_counters;}
 
-  std::vector<double> triggerRates() const {return m_triggerRates;}
+  const std::vector<double>& triggerRates() const {return m_triggerRates;}
 
  private:
 

@@ -20,6 +20,7 @@
 class RpcSectorLogicContainer : public DataVector<RpcSectorLogic> {
 
  public:
+  typedef uint32_t SectorList_t[2];
 
   /** Default constructor */
   RpcSectorLogicContainer();
@@ -33,10 +34,13 @@ class RpcSectorLogicContainer : public DataVector<RpcSectorLogic> {
   /** Flag the sector as already decoded */
   bool setSector(uint16_t sectorId, const uint16_t side=0);
 
+  const SectorList_t& sectorList() const;
+  void setSectorList (const SectorList_t& sectorList);
+
  private:
 
   // Dataword to contain the list of already filled sectors
-  uint32_t m_sectorList[2];
+  SectorList_t m_sectorList;
 
 };
 
