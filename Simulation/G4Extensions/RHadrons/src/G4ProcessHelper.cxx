@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "RHadrons/G4ProcessHelper.hh"
-#include "RHadrons/CustomParticle.h"
-#include "RHadrons/CustomPDGParser.h"
+#include "G4ProcessHelper.hh"
+#include "CustomParticle.h"
+#include "CustomPDGParser.h"
 #include "G4ParticleTable.hh"
 #include "G4DecayTable.hh"
 #include "CLHEP/Random/RandFlat.h"
