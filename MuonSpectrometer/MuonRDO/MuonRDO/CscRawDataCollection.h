@@ -142,6 +142,8 @@ public:
      else return 0x0;
    }
 
+  const std::vector<uint16_t>& spuCount() const  { return m_spuCount; }
+
   /** set methods - the name should be self-descriptive */
   void setRodId (uint16_t rodId) {m_rodId = rodId;}
   void setSubDetectorId (uint16_t subDetectorId) {m_subDetectorId = subDetectorId;}
@@ -150,13 +152,17 @@ public:
   /**sets the OFFLINE IdentifierHash for this collection*/
   void setIdentifyHash(const IdentifierHash& idHash) { m_idHash=idHash;}
   void set_samplingPhase() { m_samplingPhase = true; }
+  void set_samplingPhase(bool flag) { m_samplingPhase = flag; }
   void set_triggerType() { m_triggerType = true; }
+  void set_triggerType(bool flag) { m_triggerType = flag; }
   void set_firstBitSummary(const uint8_t summary) { m_firstBitSummary=summary; }
   void set_eventType (const uint32_t eventType ) { m_eventType = eventType; }
 
   void set_scaAddress( const uint32_t sca ) { m_scaAddress = sca; }
   void set_spuCount ( unsigned int i, uint16_t count) 
    { if ( i<10 ) m_spuCount[i]=count; }
+  void set_spuCount ( const std::vector<uint16_t>& spuCount)
+  { m_spuCount = spuCount; }
 
   void setSamplingRate (const uint16_t rate);
   void setNumSamples (const uint16_t n);
@@ -178,11 +184,14 @@ public:
   /** set the layer number where the calibration is been done */
   void set_calLayer     ( const uint8_t calLay );
 
+  void setRPUID (const std::vector<uint16_t>& rpuID) { m_rpuID = rpuID; }
   void addRPU (const uint16_t rpuID ) { m_rpuID.push_back(rpuID); }
   void addDataType (const uint8_t dataType ) { m_dataType.push_back(dataType); }
   void set_dataType( const unsigned int i, const uint8_t dataType) {
     if ( i < m_dataType.size() ) m_dataType[i] = dataType;
   }
+  void set_dataType( const std::vector<uint8_t>& dataType)
+  { m_dataType = dataType; }
 };
 
 CLASS_DEF(CscRawDataCollection,4184,0)

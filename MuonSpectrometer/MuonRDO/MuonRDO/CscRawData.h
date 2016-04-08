@@ -55,7 +55,7 @@ class CscRawData {
 m_width(0), m_isTimeComputed(false), m_hashId(0) {}
 
   /** constructor for a single strip */
-  CscRawData (std::vector<uint16_t> p_amp, uint32_t address, uint16_t id) : 
+  CscRawData (const std::vector<uint16_t>& p_amp, uint32_t address, uint16_t id) : 
     m_address(address), m_id(id) {
     m_amps = p_amp;
     m_time  = 0x0;
@@ -66,7 +66,7 @@ m_width(0), m_isTimeComputed(false), m_hashId(0) {}
   }
 
   /** single strip constructor with SPU information */
-  CscRawData (std::vector<uint16_t> p_amp, uint32_t address, 
+  CscRawData (const std::vector<uint16_t>& p_amp, uint32_t address, 
 	      uint16_t id, uint16_t rpuID) : 
     m_address(address), m_id(id), m_rpuID(rpuID) {
     m_amps = p_amp;
@@ -77,7 +77,7 @@ m_width(0), m_isTimeComputed(false), m_hashId(0) {}
   }
 
   /** cluster of strip constructor with cluster width and SPU identifier */
-  CscRawData (std::vector<uint16_t> p_amp, uint32_t address, uint16_t id, 
+  CscRawData (const std::vector<uint16_t>& p_amp, uint32_t address, uint16_t id, 
 	      uint16_t rpuID, uint16_t width) : 
     m_address(address), m_id(id), m_rpuID(rpuID), m_width(width) {
     m_amps = p_amp;
@@ -87,7 +87,7 @@ m_width(0), m_isTimeComputed(false), m_hashId(0) {}
   }
 
   /** full constructor for cluster with timing information */
-  CscRawData (std::vector<uint16_t> p_amp, uint32_t address, uint16_t id, 
+  CscRawData (const std::vector<uint16_t>& p_amp, uint32_t address, uint16_t id, 
               uint16_t time, uint16_t rpuID, uint16_t width, uint32_t hashId) : 
     m_address(address), m_id(id), m_time(time), m_rpuID(rpuID), m_width(width), m_hashId(hashId) {
     m_amps = p_amp;
@@ -109,7 +109,7 @@ m_width(0), m_isTimeComputed(false), m_hashId(0) {}
   uint16_t time() const { return m_time; }
   uint16_t width() const { return m_width; }
   bool isTimeComputed() const { return m_isTimeComputed; } 
-  const std::vector<uint16_t>  samples() const { return m_amps; }
+  const std::vector<uint16_t>& samples() const { return m_amps; }
   uint32_t address() const { return m_address; }
   uint32_t hashId() const { return m_hashId; }
 

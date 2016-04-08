@@ -22,6 +22,10 @@ class MsgStream;
 class TgcRawData
 {
 public:
+    friend class TgcRawDataCnv_p1;
+    friend class TgcRawDataCnv_p2;
+    friend class TgcRawDataCnv_p3;
+
     enum SlbType
     {
         SLB_TYPE_DOUBLET_WIRE,

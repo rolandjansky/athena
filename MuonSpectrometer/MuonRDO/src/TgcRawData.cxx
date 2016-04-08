@@ -195,6 +195,8 @@ void TgcRawData::setType(uint16_t type)
     case 2: m_type = TYPE_TRACKLET; m_slbType = SLB_TYPE_TRIPLET_STRIP; break;
     case 3: m_type = TYPE_HIPT; break;
     case 4: m_type = TYPE_SL; break;
+    case 10: m_type = TYPE_HIT; break;
+    default: m_type = TYPE_UNKNOWN; break;
     }
 }
 

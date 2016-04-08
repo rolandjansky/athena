@@ -13,9 +13,8 @@ MsgStream& operator << ( MsgStream& sl, const RpcPad& coll)
     sl << "errorCode() = "<< coll.errorCode()<<", ";
     sl << "onlineId() = "<< coll.onlineId()<<", ";
     sl << "sector() = "<< coll.sector()<<", CoinMatrices = [";
-    std::vector<RpcCoinMatrix*>::const_iterator it = coll.begin();
-    std::vector<RpcCoinMatrix*>::const_iterator itEnd = coll.end();
-    for (;it!=itEnd;++it) sl<< (**it) <<", ";
+    for (const RpcCoinMatrix* p : coll)
+      sl << *p << ", ";
     sl <<"]"<<std::endl; 
     return sl;
 }
@@ -29,9 +28,8 @@ std::ostream& operator << ( std::ostream& sl, const RpcPad& coll)
     sl << "errorCode() = "<< coll.errorCode()<<", ";
     sl << "onlineId() = "<< coll.onlineId()<<", ";
     sl << "sector() = "<< coll.sector()<<", CoinMatrices = [";
-    std::vector<RpcCoinMatrix*>::const_iterator it = coll.begin();
-    std::vector<RpcCoinMatrix*>::const_iterator itEnd = coll.end();
-    for (;it!=itEnd;++it) sl<< (**it);
+    for (const RpcCoinMatrix* p : coll)
+      sl << *p;
     sl <<"]"<<std::endl; 
     return sl;
 }

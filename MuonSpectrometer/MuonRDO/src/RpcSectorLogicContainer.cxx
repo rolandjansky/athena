@@ -27,3 +27,15 @@ bool RpcSectorLogicContainer::setSector(uint16_t sectorId, uint16_t side) {
 }
 
 
+const RpcSectorLogicContainer::SectorList_t&
+RpcSectorLogicContainer::sectorList() const
+{
+  return m_sectorList;
+}
+
+
+void RpcSectorLogicContainer::setSectorList (const SectorList_t& sectorList)
+{
+  m_sectorList[0] = sectorList[0];
+  m_sectorList[1] = sectorList[1];
+}

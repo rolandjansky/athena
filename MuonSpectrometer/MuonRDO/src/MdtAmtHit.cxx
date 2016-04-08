@@ -9,21 +9,18 @@ MdtAmtHit::MdtAmtHit():
   m_tdcId(0), m_channelId(0), m_leading(false), m_coarse(0), 
   m_fine(0), m_width(0), m_isMasked(false)
 { 
-  p_dataWords = new std::vector<uint32_t>();
 }
 
 MdtAmtHit::MdtAmtHit(uint16_t tdcId, uint16_t channelId):
   m_tdcId(tdcId), m_channelId(channelId), m_leading(false), 
   m_coarse(0), m_fine(0), m_width(0), m_isMasked(false)
 {
-  p_dataWords = new std::vector<uint32_t>();
 }
 
 MdtAmtHit::MdtAmtHit(uint16_t tdcId, uint16_t channelId, bool isMasked):
   m_tdcId(tdcId), m_channelId(channelId), m_leading(false), 
   m_coarse(0), m_fine(0), m_width(0), m_isMasked(isMasked)
 {
-  p_dataWords = new std::vector<uint32_t>();
 }
 
 void MdtAmtHit::setValues(uint16_t coarse, uint16_t fine, uint16_t width)
@@ -42,7 +39,7 @@ void MdtAmtHit::setTdcCounts(const uint16_t coarse, const uint16_t fine)
 
 void MdtAmtHit::addData(uint32_t dataWord) 
 {
-  p_dataWords->push_back(dataWord);
+  m_dataWords.push_back(dataWord);
 }
 
 MsgStream& operator << ( MsgStream& sl, const MdtAmtHit& data) 
