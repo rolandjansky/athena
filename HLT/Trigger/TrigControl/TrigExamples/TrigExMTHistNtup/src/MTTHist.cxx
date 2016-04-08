@@ -4,7 +4,6 @@
 
 #include "TrigExMTHistNtup/MTTHist.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "EventInfo/EventInfo.h"
@@ -12,12 +11,8 @@
 
 #include "GaudiKernel/IHistogramSvc.h"
 
-
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
-
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ThreadGaudi.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -30,23 +25,22 @@
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
-MTTHist::MTTHist(const std::string & name, ISvcLocator * pSvcLocator)
-    : Algorithm(name, pSvcLocator),
-      m_h1fTest(0),
-      m_h2muMon(0),
-      m_timing(0),
-      m_evdata(0),
-      m_hGlobal(0),
-      m_hCustom(0),
-      m_StoreGateSvc(0),
-      m_previousEvent(0),
-      m_event(0),
-      m_eventDistance(0),
-      m_testDouble(0.),
-      m_testFloat(0.),
-      m_dataTime(0.),
-      m_processTime(0.),
-      m_eventCounter(0)
+MTTHist::MTTHist(const std::string & name, ISvcLocator * pSvcLocator) :
+   AthAlgorithm(name, pSvcLocator),
+   m_h1fTest(0),
+   m_h2muMon(0),
+   m_timing(0),
+   m_evdata(0),
+   m_hGlobal(0),
+   m_hCustom(0),
+   m_previousEvent(0),
+   m_event(0),
+   m_eventDistance(0),
+   m_testDouble(0.),
+   m_testFloat(0.),
+   m_dataTime(0.),
+   m_processTime(0.),
+   m_eventCounter(0)
 {
   declareProperty("addBinEveryNEvents", m_addBin = 0,
                   "Double the number of bins every N events");
@@ -61,13 +55,12 @@ MTTHist::MTTHist(const std::string & name, ISvcLocator * pSvcLocator)
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  
 
 StatusCode MTTHist::beginRun() {
-    MsgStream log(msgSvc(), name());
     StatusCode sc = StatusCode::SUCCESS;
 
     // get the  histogramming service 
     ITHistSvc *rootHistSvc;
     if (service("THistSvc", rootHistSvc).isFailure()) {
-	log << MSG::ERROR << "Unable to locate THistSvc" << endreq;
+	ATH_MSG_ERROR("Unable to locate THistSvc");
 	return StatusCode::FAILURE;
     }
     /**
@@ -92,23 +85,23 @@ StatusCode MTTHist::beginRun() {
     std::string summaryPath = "/RUNSTAT/"+getGaudiThreadGenericName(name())+"/";
 
     if ( rootHistSvc->regHist( monPath + m_h1fTest->GetName(), m_h1fTest ).isFailure() ) 
-	log << MSG::WARNING << "Can't book " 
-	    << monPath + m_h1fTest->GetName() << endreq;
+	ATH_MSG_WARNING("Can't book " 
+	    << monPath + m_h1fTest->GetName());
 
     if ( rootHistSvc->regHist( exmonPath + m_h2muMon->GetName(), m_h2muMon ).isFailure() )
-	log << MSG::WARNING << "Can't book " 
-	    << exmonPath + m_h2muMon->GetName() << endreq;
+	ATH_MSG_WARNING("Can't book " 
+	    << exmonPath + m_h2muMon->GetName());
 
     for (size_t i=0; i<m_nHistsBinTest; ++i) {
       if ( rootHistSvc->regHist( monPath + m_h1binTest[i]->GetName(), m_h1binTest[i] ).isFailure() ) 
-	log << MSG::WARNING << "Can't book " 
-	    << monPath + m_h1binTest[i]->GetName() << endreq;
+	ATH_MSG_WARNING("Can't book " 
+	    << monPath + m_h1binTest[i]->GetName());
     }
     
     // or just statically choosen name
     if ( rootHistSvc->regHist( summaryPath + m_hGlobal->GetName(), m_hGlobal ).isFailure() )
-	log << MSG::WARNING << "Can't book " 
-	    << summaryPath + m_hGlobal->GetName() << endreq;
+	ATH_MSG_WARNING("Can't book " 
+	    << summaryPath + m_hGlobal->GetName());
 
     /**
      * The example below is showing how to make use of the status returned by 
@@ -120,10 +113,9 @@ StatusCode MTTHist::beginRun() {
     std::string myCustomPath = "/MMTHistCustomDir/";
     m_hCustom  = new TH1F("hCustom", "Custom information", 32, 0, 32);
     if ( rootHistSvc->regHist( myCustomPath + m_hCustom->GetName(), m_hCustom ).isFailure() ) {
-	log << MSG::WARNING << "Can't book " 
-	    <<  myCustomPath + m_hCustom->GetName() << " will delete it and save on filling" << endreq;
-	delete m_hCustom;
-	m_hCustom = 0;
+       ATH_MSG_WARNING("Can't book " <<  myCustomPath + m_hCustom->GetName() << " will delete it and save on filling");
+       delete m_hCustom;
+       m_hCustom = 0;
     }
 
 
@@ -137,8 +129,8 @@ StatusCode MTTHist::beginRun() {
     m_timing->Branch("processTime", &m_processTime, "processTime/F");
 
     if ( rootHistSvc->regTree(exmonPath+"timing", m_timing).isFailure() )
-	log << MSG::WARNING << "Can't book " 
-	    << exmonPath+"timing" << endreq;
+	ATH_MSG_WARNING("Can't book " 
+	    << exmonPath+"timing");
 
     m_evdata = new TTree("evdata", "event base data");
     m_evdata->Branch("eventDistance", &m_eventDistance, "eventDistance/I");
@@ -147,98 +139,79 @@ StatusCode MTTHist::beginRun() {
     m_evdata->Branch("event", &m_event, "event/F");
   
     if ( rootHistSvc->regTree(exmonPath+"evdata", m_evdata).isFailure() )
-	log << MSG::WARNING << "Can't book " 
-	    << exmonPath+"evdata" << endreq;
+	ATH_MSG_WARNING("Can't book " << exmonPath+"evdata");
     return sc;
 }
 
-StatusCode MTTHist::initialize(){
-    MsgStream log(msgSvc(), name());
-    StatusCode sc = StatusCode::SUCCESS;
-    log << MSG::INFO << "in initialize()" << endreq;
-
-    // Locate the StoreGateSvc
-    sc = service("StoreGateSvc", m_StoreGateSvc);
-    if (!sc.isSuccess()) {
-	log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-	return sc;
-    }
-    else {
-	log << MSG::INFO << " Algorithm = " << name() <<
-	    " is connected to StoreGate Service = " << m_StoreGateSvc->name() 
-	    << endreq;
-    }
-    return sc;
+StatusCode MTTHist::initialize() {
+    ATH_MSG_INFO("in initialize()");
+    return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-StatusCode MTTHist::execute(){
+StatusCode MTTHist::execute() {
 
-    m_eventCounter++;
-    MsgStream log(msgSvc(), name());
+   m_eventCounter++;
 
-    log << MSG::DEBUG << "in execute()" << endreq;
+   ATH_MSG_DEBUG("in execute()");
 
-    // Get the Event
-    const EventInfo *pevt;
-    if (StatusCode::SUCCESS != m_StoreGateSvc->retrieve(pevt, ""))
-	return StatusCode::FAILURE;
+   // Get the Event
+   const EventInfo *pevt;
+   if (StatusCode::SUCCESS != evtStore()->retrieve(pevt, ""))
+      return StatusCode::FAILURE;
 
 
-    // some fake calulations
-    int run;
-    m_event = pevt->event_ID()->event_number();
-    run = pevt->event_ID()->run_number();
+   // some fake calulations
+   int run;
+   m_event = pevt->event_ID()->event_number();
+   run = pevt->event_ID()->run_number();
 
-    m_eventDistance = m_event - m_previousEvent;
+   m_eventDistance = m_event - m_previousEvent;
 
-    // fill the histogram
-    m_h2muMon->Fill(m_eventDistance, run);
-    m_h1fTest->Fill(float (m_eventDistance) / 100., 1.);
+   // fill the histogram
+   m_h2muMon->Fill(m_eventDistance, run);
+   m_h1fTest->Fill(float (m_eventDistance) / 100., 1.);
 
-    // calculate some more quantities
-    m_testDouble = (m_event%2) ? 5.11 : 1.234;
-    m_testFloat = ((m_eventDistance+m_event)%1000)/1000.;
+   // calculate some more quantities
+   m_testDouble = (m_event%2) ? 5.11 : 1.234;
+   m_testFloat = ((m_eventDistance+m_event)%1000)/1000.;
 
-    m_evdata->Fill();
+   m_evdata->Fill();
 
-    // adding bins on the fly
-    for (size_t i=0; i<m_nHistsBinTest; ++i) {
+   // adding bins on the fly
+   for (size_t i=0; i<m_nHistsBinTest; ++i) {
       TString label("");
       if (m_addBin>0) label += (m_eventCounter/m_addBin);
       else label = "1";
       if (m_useMutex) {
-        lock_histogram_operation<TH1F>(m_h1binTest[i])->Fill(label, random() % 10);
+         lock_histogram_operation<TH1F>(m_h1binTest[i])->Fill(label, random() % 10);
       }
       else {
-        m_h1binTest[i]->Fill(label, random() % 10);
+         m_h1binTest[i]->Fill(label, random() % 10);
       }
-    }
+   }
 
-    // some fake data to be put in m_timing TTree
-    m_dataTime = 0.1*m_eventDistance;
-    m_processTime = pow(m_testFloat, 2);
-    m_timing->Fill();
+   // some fake data to be put in m_timing TTree
+   m_dataTime = 0.1*m_eventDistance;
+   m_processTime = pow(m_testFloat, 2);
+   m_timing->Fill();
 
-    // you can do more fills per one execute() call
-    m_processTime = pow(m_testFloat, 3);
-    m_timing->Fill();
+   // you can do more fills per one execute() call
+   m_processTime = pow(m_testFloat, 3);
+   m_timing->Fill();
 
-    log << MSG::DEBUG << " fill the TTree " << m_timing->GetEntries()<< endreq;
-    m_previousEvent = m_event;
+   ATH_MSG_DEBUG(" fill the TTree " << m_timing->GetEntries());
+   m_previousEvent = m_event;
 
 
-    // fill of custom histogram (notice we check if it is not null)
-    if ( m_hCustom ) m_hCustom->Fill(random()%32);
+   // fill of custom histogram (notice we check if it is not null)
+   if ( m_hCustom ) m_hCustom->Fill(random()%32);
 
-    return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 StatusCode MTTHist::finalize(){
-    MsgStream log(msgSvc(), name());
-
-    log << MSG::INFO << "in finalize()" << endreq;
-
-    return StatusCode::SUCCESS;
+   ATH_MSG_INFO("in finalize()");
+   return StatusCode::SUCCESS;
 }

@@ -11,16 +11,15 @@
  */
 
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 #include <vector>
 
-class StoreGateSvc;
 class TH1F;
 class TH2D;
 class TTree;
 
-class MTTHist: public Algorithm {
+class MTTHist: public AthAlgorithm {
 public:
     MTTHist (const std::string& name, ISvcLocator* pSvcLocator);
     virtual StatusCode initialize();
@@ -36,7 +35,6 @@ private:
     TH1F *m_hGlobal;  
     TH1F *m_hCustom;  
 
-    StoreGateSvc*         m_StoreGateSvc;
     int m_previousEvent;
     int m_event;
     int m_eventDistance;

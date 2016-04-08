@@ -5,15 +5,16 @@
 #ifndef __MTHist_H__
 #define __MTHist_H__
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 
-class IHistogram1D;
-class StoreGateSvc;
+namespace AIDA {
+  class IHistogram1D;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 
-class MTHist:public Algorithm {
+class MTHist:public AthAlgorithm {
 public:
   MTHist (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
@@ -21,8 +22,7 @@ public:
   StatusCode finalize();
   
 private:
-  IHistogram1D*         m_hist;
-  StoreGateSvc*         m_StoreGateSvc;
+  AIDA::IHistogram1D*         m_hist;
   int m_previousEvent;
 };
 
