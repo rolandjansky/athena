@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigMuonDict.h 634415 2014-12-08 13:21:24Z krasznaa $
+// $Id: xAODTrigMuonDict.h 698126 2015-10-02 12:59:53Z mishitsu $
 #ifndef XAODTRIGMUON_XAODTRIGMUONDICT_H
 #define XAODTRIGMUON_XAODTRIGMUONDICT_H
 
@@ -27,6 +27,9 @@
 #include "xAODTrigMuon/versions/L2StandAloneMuon_v1.h"
 #include "xAODTrigMuon/versions/L2StandAloneMuonContainer_v1.h"
 #include "xAODTrigMuon/versions/L2StandAloneMuonAuxContainer_v1.h"
+#include "xAODTrigMuon/versions/L2StandAloneMuon_v2.h"
+#include "xAODTrigMuon/versions/L2StandAloneMuonContainer_v2.h"
+#include "xAODTrigMuon/versions/L2StandAloneMuonAuxContainer_v2.h"
 #include "xAODTrigMuon/versions/L2IsoMuon_v1.h"
 #include "xAODTrigMuon/versions/L2IsoMuonContainer_v1.h"
 #include "xAODTrigMuon/versions/L2IsoMuonAuxContainer_v1.h"
@@ -43,6 +46,13 @@ namespace{
       ElementLink< xAOD::L2StandAloneMuonContainer_v1 > muonsa_el1;
       std::vector< ElementLink< xAOD::L2StandAloneMuonContainer_v1 > > muonsa_el2;
       std::vector< std::vector< ElementLink< xAOD::L2StandAloneMuonContainer_v1 > > > muonsa_el3;
+
+      xAOD::L2StandAloneMuonContainer_v2 muonsa_c2;
+      DataLink< xAOD::L2StandAloneMuonContainer_v2 > muonsa_dl4;
+      std::vector< DataLink< xAOD::L2StandAloneMuonContainer_v2 > > muonsa_dl5;
+      ElementLink< xAOD::L2StandAloneMuonContainer_v2 > muonsa_el4;
+      std::vector< ElementLink< xAOD::L2StandAloneMuonContainer_v2 > > muonsa_el5;
+      std::vector< std::vector< ElementLink< xAOD::L2StandAloneMuonContainer_v2 > > > muonsa_el6;
 
       xAOD::L2IsoMuonContainer_v1 muoniso_c1;
       DataLink< xAOD::L2IsoMuonContainer_v1 > muoniso_dl1;

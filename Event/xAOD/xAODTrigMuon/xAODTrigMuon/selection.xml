@@ -1,9 +1,9 @@
-<!-- $Id: selection.xml 604163 2014-06-30 10:30:46Z giagu $ -->
+<!-- $Id: selection.xml 706292 2015-11-06 05:33:24Z ssnyder $ -->
 <lcgdict>
 
   <!-- dictionaries: -->
 
-  <!-- L2StandAloneMuon -->
+  <!-- L2StandAloneMuon_v1 -->
   <class name="xAOD::L2StandAloneMuon_v1" >
     <field name="m_p4" transient="true" />
     <field name="m_p4Cached" transient="true" />
@@ -27,6 +27,31 @@
   <class name="ElementLink<xAOD::L2StandAloneMuonContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v1> > >" />
+
+  <!-- L2StandAloneMuon_v2 -->
+  <class name="xAOD::L2StandAloneMuon_v2" >
+    <field name="m_p4" transient="true" />
+    <field name="m_p4Cached" transient="true" />
+  </class>
+  <read sourceClass="xAOD::L2StandAloneMuon_v2" version="[1-]"
+        targetClass="xAOD::L2StandAloneMuon_v2" source=""
+        target="m_p4Cached" >
+    <![CDATA[
+       m_p4Cached = false;
+    ]]>
+  </read>
+
+  <class name="xAOD::L2StandAloneMuonContainer_v2"
+         id="6B02C486-CB3B-4762-89CA-60B210FC5AAF" />
+  <class name="xAOD::L2StandAloneMuonAuxContainer_v2"
+         id="39CA616A-16BF-4CCE-8885-3D68CE7BC3B0" />
+
+  <class name="DataLink<xAOD::L2StandAloneMuonContainer_v2>" />
+  <class name="std::vector<DataLink<xAOD::L2StandAloneMuonContainer_v2> >" />
+
+  <class name="ElementLink<xAOD::L2StandAloneMuonContainer_v2>" />
+  <class name="std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v2> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v2> > >" />
 
   <!-- L2IsoMuon -->
   <class name="xAOD::L2IsoMuon_v1" >
@@ -77,6 +102,21 @@
   <class name="ElementLink<xAOD::L2CombinedMuonContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::L2CombinedMuonContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::L2CombinedMuonContainer_v1> > >" />
+
+  <read sourceClass="xAOD::L2CombinedMuonAuxContainer_v1"
+        targetClass="xAOD::L2CombinedMuonAuxContainer_v1"
+        checksum="[1033889070]"
+        source="std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v1> > muSATrackLink"
+        target="muSATrackLink" >
+    <![CDATA[
+       muSATrackLink.reserve (onfile.muSATrackLink.size());
+       for (const ElementLink<xAOD::L2StandAloneMuonContainer_v1>& el : 
+            onfile.muSATrackLink)
+       {
+         muSATrackLink.emplace_back (el.key(), el.index(), el.source());
+       }
+    ]]>
+  </read>
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2CombinedMuon_v1.h 631108 2014-11-26 07:47:24Z gwatts $
+// $Id: L2CombinedMuon_v1.h 658542 2015-04-01 18:17:00Z ssnyder $
 #ifndef XAODTRIGMUON_VERSIONS_L2COMBINEDMUON_V1_H
 #define XAODTRIGMUON_VERSIONS_L2COMBINEDMUON_V1_H
 
@@ -132,10 +132,11 @@ namespace xAOD {
 
    }; // class L2CombinedMuon_v1
 
-} // namespace xAOD
 
 /// Operator for printing the contents of a LVL2 muon
 std::ostream& operator<< ( std::ostream& out,
                            const xAOD::L2CombinedMuon_v1& mu );
+
+} // namespace xAOD
 
 #endif // XAODTRIGMUON_VERSIONS_L2COMBINEDMUON_V1_H

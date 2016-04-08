@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2CombinedMuon_v1.cxx 605614 2014-07-09 12:49:31Z krasznaa $
+// $Id: L2CombinedMuon_v1.cxx 658542 2015-04-01 18:17:00Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -156,8 +156,6 @@ namespace xAOD {
    //
    /////////////////////////////////////////////////////////////////////////////
 
-} // namespace xAOD
-
 /// Helper operator for easily printing the properties of a LVL2 muon iso
 /// object for debugging.
 ///
@@ -176,3 +174,6 @@ std::ostream& operator<< ( std::ostream& out,
    // Return the stream:
    return out;
 }
+
+
+} // namespace xAOD
