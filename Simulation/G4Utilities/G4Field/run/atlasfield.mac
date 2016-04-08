@@ -1,0 +1,3 @@
+/load G4Field
+/MagneticField/Select AtlasField
+/MagneticField/Initialize
