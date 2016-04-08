@@ -1,0 +1,18 @@
+package JetD3PDAnalysis
+
+use AtlasPolicy                AtlasPolicy-*     
+
+private
+#use GaudiInterface            GaudiInterface-*       External
+#use AthenaKernel              AthenaKernel-*         Control
+#use JetEvent		      JetEvent-*	     Reconstruction/Jet
+#use JetMomentTools	      JetMomentTools-*	     Reconstruction/Jet
+#use D3PDMakerUtils            D3PDMakerUtils-*       PhysicsAnalysis/D3PDMaker
+#use D3PDMakerInterfaces       D3PDMakerInterfaces-*  PhysicsAnalysis/D3PDMaker
+end_private
+
+
+#library JetD3PDAnalysis *.cxx components/*.cxx
+#apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+
