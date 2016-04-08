@@ -12,37 +12,30 @@
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  **/
 
-// stl includes
-#include <typeinfo>
-
 // fwk includes
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IAddressCreator.h"
 #include "DataModelRoot/RootType.h"
 
+// stl includes
+#include <typeinfo>
+
 // fwd declares
+class Token;
 class ITPCnvBase;
 
 /** @class IAthenaRootCnvSvc
  *  @brief This class provides the interface between Athena and RootSvc.
  **/
-class IAthenaRootCnvSvc : 
-  virtual public ::IConversionSvc, 
-  virtual public ::IAddressCreator 
-{
-
+class IAthenaRootCnvSvc : virtual public ::IConversionSvc, virtual public ::IAddressCreator {
 public:
+  virtual ~IAthenaRootCnvSvc();
 
   /// Retrieve interface ID
-  static const InterfaceID& interfaceID() 
-  { 
-    /// Declaration of the interface ID 
-    /// ( interface id, major version, minor version)
+  static const InterfaceID& interfaceID() {
     static const InterfaceID s_iid("IAthenaRootCnvSvc", 1, 0);
-    return s_iid; 
+    return s_iid;
   }
-
-  virtual ~IAthenaRootCnvSvc();
 
   ///@{ RootType-based API
   /// Load the class (dictionary) from Root.
@@ -50,10 +43,10 @@ public:
   virtual RootType getType(const std::type_info& type) const = 0;
 
   /// Write object of a given class to Root, using optional T/P converter.
-  virtual unsigned long writeObject(const std::string& placement,
-                            RootType typeDesc,
-                            const void* pObj,
-                            ITPCnvBase* tpConverter = 0) = 0;
+  virtual const Token* writeObject(const std::string& key,
+		  const RootType& typeDesc,
+		  const void* pObj,
+		  ITPCnvBase* tpConverter = 0) = 0;
   ///@}
 
   /// Get T/P converter for a transient class.
