@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Edited By POOL -->
+<!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">
+<POOLFILECATALOG>
+  <File ID="088A98C0-6F96-DA11-92F5-003048286606">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004042.mu_pt10/digit/v11000401/mc11.004042.mu_pt10.digit.RDO.v11000401._00001.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="B04A27CE-6F96-DA11-8234-00304828C255">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004042.mu_pt10/digit/v11000401/mc11.004042.mu_pt10.digit.RDO.v11000401._00002.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="EA639322-7096-DA11-8E0A-00304828C35F">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004042.mu_pt10/digit/v11000401/mc11.004042.mu_pt10.digit.RDO.v11000401._00003.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="BAAA094F-7096-DA11-8C0D-003048285BCA">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004042.mu_pt10/digit/v11000401/mc11.004042.mu_pt10.digit.RDO.v11000401._00004.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="6E918D53-7096-DA11-9D99-00304828C349">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004042.mu_pt10/digit/v11000401/mc11.004042.mu_pt10.digit.RDO.v11000401._00005.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="8C2524BF-7096-DA11-8554-003048288B00">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004042.mu_pt10/digit/v11000401/mc11.004042.mu_pt10.digit.RDO.v11000401._00006.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="4C9E25BC-7096-DA11-90AF-00304828C349">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004042.mu_pt10/digit/v11000401/mc11.004042.mu_pt10.digit.RDO.v11000401._00007.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="903085D6-7096-DA11-9594-00304828C25F">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004042.mu_pt10/digit/v11000401/mc11.004042.mu_pt10.digit.RDO.v11000401._00008.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="1621E743-7196-DA11-89B2-00304828C263">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004042.mu_pt10/digit/v11000401/mc11.004042.mu_pt10.digit.RDO.v11000401._00009.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="764664A0-7196-DA11-9A98-003048285BC6">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004042.mu_pt10/digit/v11000401/mc11.004042.mu_pt10.digit.RDO.v11000401._00010.pool.root.1"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="86D23223-7997-DA11-8E41-001422093C6D">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004860.pyt_WH120_munubb/digit/v11000401/mc11.004860.pyt_WH120_munubb.digit.RDO.v11000401._00001.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="1689550D-6D96-DA11-9F3A-000CF174C1CC">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004860.pyt_WH120_munubb/digit/v11000401/mc11.004860.pyt_WH120_munubb.digit.RDO.v11000401._00002.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="5289F100-1A96-DA11-8F48-00093D11EF80">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004860.pyt_WH120_munubb/digit/v11000401/mc11.004860.pyt_WH120_munubb.digit.RDO.v11000401._00003.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="C2A59387-5096-DA11-972D-00142209BA61">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004860.pyt_WH120_munubb/digit/v11000401/mc11.004860.pyt_WH120_munubb.digit.RDO.v11000401._00004.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="58E3B58D-6896-DA11-9512-00304872477A">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004860.pyt_WH120_munubb/digit/v11000401/mc11.004860.pyt_WH120_munubb.digit.RDO.v11000401._00005.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="02214007-F195-DA11-8B18-00304872479B">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/003014.M1_minbias/digit/v11000401/mc11.003014.M1_minbias.digit.RDO.v11000401._00001.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="226B8A7B-0496-DA11-825F-00E07DB74564">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/003014.M1_minbias/digit/v11000401/mc11.003014.M1_minbias.digit.RDO.v11000401._00002.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="EE6BD81B-EA95-DA11-9983-00093D122084">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/003014.M1_minbias/digit/v11000401/mc11.003014.M1_minbias.digit.RDO.v11000401._00003.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="6A622187-0E96-DA11-8B08-00E07DB744CC">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/003014.M1_minbias/digit/v11000401/mc11.003014.M1_minbias.digit.RDO.v11000401._00004.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="8EBD2CC6-3096-DA11-934D-00306E2C7C26">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/003014.M1_minbias/digit/v11000401/mc11.003014.M1_minbias.digit.RDO.v11000401._00005.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="DC115BAE-66A7-DA11-9F73-00304872A8BD">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004202.ZmumuJimmy/digit/v11000401/mc11.004202.ZmumuJimmy.digit.RDO.v11000401._00001.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="0C33C60F-C995-DA11-935E-000D60D57392">
+    <physical>
+      <pfn filetype="ROOT_All" name="castor:/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004022.Electron_Pt_25/digit/v11000401/mc11.004022.Electron_Pt_25.digit.RDO.v11000401._00001.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="FC32F7D1-C795-DA11-80D0-003048721799">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00001.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="18CB0C42-BB95-DA11-89B1-0030482767FC">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00002.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="18E6E043-BB95-DA11-97FD-003048724881">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00003.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="D2B0F8DF-C895-DA11-830E-003048725503">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00004.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="1E05EE3E-BB95-DA11-8914-000255673D73">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00005.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="147FA089-BC95-DA11-8D03-00047572A193">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00006.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="20CE629F-BB95-DA11-9B15-00047572A902">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00007.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="2EAA4762-BB95-DA11-822A-00047572A9EB">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00008.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="DC220474-1696-DA11-819E-00304870EE27">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00009.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="92777C8C-1696-DA11-9219-00304870E00B">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00010.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="A45485D0-1696-DA11-91A2-00304870E00B">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00011.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="0846B5B8-1796-DA11-8272-00304870E1C5">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00012.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="943CF730-1796-DA11-8500-00304870E3F9">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00013.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="A434ECA7-1696-DA11-8658-00304870E3F7">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00014.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="34D377FA-B995-DA11-8191-000CF175086C">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00015.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="8A2068C0-BA95-DA11-94DD-000CF174CD49">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00016.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="F6FC323F-BA95-DA11-9156-000CF174C8F1">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00017.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="12CCC33A-BB95-DA11-866B-00096B004084">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00018.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="02EA7DA6-CD95-DA11-861A-000D60D57392">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00019.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="6A3CB186-B995-DA11-9DA3-00093D1225AC">
+    <physical>
+      <pfn filetype="ROOT_All" name="/castor/cern.ch/atlas/csc/valiprod/sampleA/mc11/004946.mu_pt300/digit/v11000401/mc11.004946.mu_pt300.digit.RDO.v11000401._00020.pool.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+</POOLFILECATALOG>
