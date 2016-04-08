@@ -297,16 +297,11 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
     myVxCandidate = 0;
 
     //---- Start of fitting section ------------------------------------------------------//
-    if (origParameters.size() == 1) {
+    if (origParameters.size() >= 1) {
       myVxCandidate = m_iVertexFitter->fit(origParameters, m_iBeamCondSvc->beamVtx());
-    } else if ( origParameters.size() > 1) {
-      myVxCandidate = m_iVertexFitter->fit(origParameters, m_iBeamCondSvc->beamVtx());
-      
-      /* Get the vertex position */
-      Trk::Vertex vertex(myVxCandidate->recVertex().position());
-      trkAtVtx=myVxCandidate->vxTrackAtVertex();
-      /* The fit tool does not return tracks chi2 ordered anymore
-	 We have to do it */
+      /* @TODO? The fit tool does not return tracks chi2 ordered anymore
+                We have to do it */
+
     } else if(msgLvl(MSG::DEBUG)) msg() << "Less than two tracks or fitting without constraint - drop candidate vertex." << endreq;
  // end if preselection for first iteration
  

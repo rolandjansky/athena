@@ -38,6 +38,13 @@ use TrkVxEdmCnv		   TrkVxEdmCnv-*	    Tracking/TrkVertexFitter
 
 use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
 
+# Add a cmake-specific dependency against the PATCore package. This is necessary since
+# packages which create component libraries don't expose their header files or dependencies
+# to any clients, whereas this package relies upon the InDetTrackSelectionTool to access
+# the PATCore package. I haven't added the direct dependency to the "use" statements
+# so thqt checkreq won't generate any warnings.
+apply_pattern cmake_add_dependency package=PhysicsAnalysis/AnalysisCommon/PATCore
+
 library InDetPriVxFinderTool *.cxx components/*.cxx
 apply_pattern component_library
 
