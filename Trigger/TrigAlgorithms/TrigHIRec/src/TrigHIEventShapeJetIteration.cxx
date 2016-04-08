@@ -118,8 +118,9 @@ int TrigHIEventShapeJetIteration::execute() const
 
       if( jet4mom.DeltaR( cl->p4() ) > m_exclude_DR ) continue;
 
-      m_subtractor_tool->UpdateUsingCluster(output_shape,es_index,cl,used_indices,used_eta_bins);
+      m_subtractor_tool->UpdateUsingCluster(output_shape,es_index,cl); //,used_indices,used_eta_bins);
     }
+
   }//end jet loop
 
   return 0;
