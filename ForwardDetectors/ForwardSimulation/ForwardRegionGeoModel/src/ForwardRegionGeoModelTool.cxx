@@ -33,6 +33,13 @@ ForwardRegionGeoModelTool::ForwardRegionGeoModelTool( const std::string& type, c
     declareProperty("vp1Compatibility", m_Config.vp1Compatibility=false);
     declareProperty("buildTCL4",m_Config.buildTCL4=false);
     declareProperty("buildTCL6",m_Config.buildTCL6=false);
+    declareProperty("ALFAInNewPosition",m_Config.ALFAInNewPosition=false);
+    declareProperty("newPosB7L1",m_Config.newPosB7L1=245656.77*CLHEP::mm);
+    declareProperty("newPosB7R1",m_Config.newPosB7R1=-245656.11*CLHEP::mm);
+    declareProperty("posAFPL1",m_Config.posAFPL1=204500*CLHEP::mm);
+    declareProperty("posAFPR1",m_Config.posAFPR1=-204500*CLHEP::mm);
+    declareProperty("posAFPL2",m_Config.posAFPL2=212675*CLHEP::mm);
+    declareProperty("posAFPR2",m_Config.posAFPR2=-212675*CLHEP::mm);
 }
 
 /**
