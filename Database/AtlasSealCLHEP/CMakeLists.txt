@@ -7,8 +7,7 @@ atlas_subdir( AtlasSealCLHEP )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolServices
-                          Control/CxxUtils )
+                          Database/AthenaPOOL/AthenaPoolServices )
 
 # External dependencies:
 find_package( CLHEP )
@@ -33,10 +32,4 @@ atlas_add_dictionary( AtlasSealCLHEPDict
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-
-atlas_add_test( OldCLHEPStreamers_test
-                SOURCES
-                test/OldCLHEPStreamers_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasSealCLHEP )
 
