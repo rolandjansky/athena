@@ -11,18 +11,11 @@
 
 // $Id: iPatTrackContainer.cxx,v 1.2 2002-08-30 12:39:32 pop Exp $
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
-#ifdef HAVE_NEW_IOSTREAMS
-  #include <iomanip>
-  #include <iostream>
-#else
-  #include <iomanip.h>
-  #include <iostream.h>
-#endif
+#include <iomanip>
+#include <iostream>
 #include "iPatRecEvent/iPatTrackContainer.h"
 
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 iPatTrackContainer::iPatTrackContainer()
     :	DataVector<Track>	()
