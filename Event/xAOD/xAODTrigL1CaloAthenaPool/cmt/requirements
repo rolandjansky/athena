@@ -11,8 +11,8 @@ use AtlasPolicy         AtlasPolicy-*
 private
 
 # Base package(s):
-#use AthenaKernel        AthenaKernel-*        Control
-#use AthContainers       AthContainers-*       Control
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
 use AtlasROOT           AtlasROOT-*           External
 
 # POOL package(s):
@@ -61,13 +61,13 @@ apply_pattern poolcnv typesWithNamespace="xAOD::JEMHitsContainer \
                                           xAOD::CMXEtSumsContainer \
                                           xAOD::CMXEtSumsAuxContainer \ 
                                           xAOD::CMXRoIContainer \
-                                          xAOD::CMXRoIAuxContainer \                                           
+                                          xAOD::CMXRoIAuxContainer \
                                           xAOD::CPMTobRoIContainer \
                                           xAOD::CPMTobRoIAuxContainer \   
                                           xAOD::JEMTobRoIContainer \
                                           xAOD::JEMTobRoIAuxContainer \  
                                           xAOD::L1TopoRawDataContainer \
-                                          xAOD::L1TopoRawDataAuxContainer " \                                           
+                                          xAOD::L1TopoRawDataAuxContainer " \
                       files="-s=${xAODTrigL1Calo_root}/xAODTrigL1Calo \
                              JEMHitsContainer.h \
                              JEMHitsAuxContainer.h \
@@ -112,5 +112,5 @@ apply_pattern poolcnv typesWithNamespace="xAOD::JEMHitsContainer \
                              JEMTobRoIContainer.h \
                              JEMTobRoIAuxContainer.h \  
                              L1TopoRawDataContainer.h \
-                             L1TopoRawDataAuxContainer.h " \                              
+                             L1TopoRawDataAuxContainer.h " \
                       cnv_pfx="xAOD"
