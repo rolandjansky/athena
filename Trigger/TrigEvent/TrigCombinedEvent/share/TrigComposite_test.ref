@@ -1,0 +1,22 @@
+registering package with navi, packae typelist has size: 1
+list of features for contaier 22TrigCompositeContainer [13TrigComposite] [22TrigCompositeContainer] 
+		 registering feature: 13TrigComposite -> container: 22TrigCompositeContainer
+		 registering feature: 22TrigCompositeContainer -> container: 22TrigCompositeContainer
+list of features for contaier 22TrigCompositeContainer [13TrigComposite] [22TrigCompositeContainer] 
+		 registering feature: 13TrigComposite -> container: 22TrigCompositeContainer
+		 registering feature: 22TrigCompositeContainer -> container: 22TrigCompositeContainer
+list of features for contaier 22TrigCompositeContainer [13TrigComposite] [22TrigCompositeContainer] 
+		 registering feature: 13TrigComposite -> container: 22TrigCompositeContainer
+		 registering feature: 22TrigCompositeContainer -> container: 22TrigCompositeContainer
+ --------> in NavInit 
+ --------> in NavInit 
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cerr
+TrigComposite_test   INFO By type Feature Links access works
+TrigComposite_test   INFO correctly the exception is thrownThe TrigCompositeObejct does not have key: bla
+TrigComposite_test   INFO b object validity is rightly false 0
+TrigComposite_test   INFO correctly the exception is thrownThe format of TrigComposite object has been locked, addDetails can not be used anymore, see unlockFormat or setDetail
+TrigComposite_test   INFO TrigComposite object: aobj
+TrigComposite_test   INFO TrigComposite: Details stored as floats are (key, value): (f1, 3.14)   (f2, 3.18)   
+TrigComposite_test   INFO TrigComposite: Details stored as ints are (key, value): (i1, 3)   (i2, 6)   
+TrigComposite_test   INFO TrigComposite: Details stored as strings are (key, value): (s1, workedbetter)   
+TrigComposite_test   INFO (o1, CLID:6421)   (o2, CLID:456578)   
