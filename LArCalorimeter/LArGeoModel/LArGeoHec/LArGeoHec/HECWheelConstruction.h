@@ -9,8 +9,8 @@
 // Oct 2007 M. Fincke
 //
 
-#ifndef __HECWheelConstruction_H__
-#define __HECWheelConstruction_H__
+#ifndef LARGEOHEC_HECWHEELCONSTRUCTION_H
+#define LARGEOHEC_HECWHEELCONSTRUCTION_H
 
 #include <string>
 
@@ -31,15 +31,15 @@ namespace LArGeo
     private:
       GeoFullPhysVol* m_physiHECWheel;
       bool	      m_posZSide;
-      bool	      m_rail;
-      bool	      m_left;
+      //bool	      m_rail;
+      //bool	      m_left;
       bool	      m_threeBoards;
       bool	      m_frontWheel;
       std::string     m_wheelType;
-      double          m_clampLength;
-      double          m_clampAngle;
+      //double          m_clampLength;
+      //double          m_clampAngle;
       bool            m_fullGeo;  // true->FULL, false->RECO
     };
   
 }
-#endif // __HECWheelConstruction_H__
+#endif // LARGEOHEC_HECWHEELCONSTRUCTION_H

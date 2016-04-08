@@ -65,10 +65,10 @@ using HepGeom::RotateZ3D;
 //Constructor
 LArGeo::HECWheelConstruction::HECWheelConstruction(bool fullGeo, std::string wheelType, bool threeBoards, bool posZSide):
   m_physiHECWheel(0),
-  m_rail(false),
-  m_left(false),
-  m_clampLength(0),
-  m_clampAngle(0),
+  //m_rail(false),
+  //m_left(false),
+  //m_clampLength(0),
+  //m_clampAngle(0),
   m_fullGeo(fullGeo)
 {
   m_threeBoards = threeBoards;
