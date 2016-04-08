@@ -67,6 +67,11 @@ namespace MET {
       std::map<TString,int> m_stoi;
 
       ClassDef(TEasyFormula,0)
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+      enum { kDefinedVariable = 150 } ;
+#endif
+
    };
 }
 

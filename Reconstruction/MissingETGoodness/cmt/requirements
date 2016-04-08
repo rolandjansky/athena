@@ -42,11 +42,6 @@ end_private
 ## macros
 apply_tag       ROOTBasicLibs
 
-# Request cmake to generate the rootcint dictionary and append the generated file to the library.
-# These lines are transparent to CMT.
-apply_pattern cmake_add_command command="athena_add_rootcint_dictionary(MissingETGoodnessLibDict ROOT_HEADERS MissingETGoodness/EtmissGoodness.h MissingETGoodness/EtmissGoodnessConfig.h MissingETGoodness/EtmissGoodnessManager.h MissingETGoodness/EtmissGoodnessQuality.h MissingETGoodness/EtmissGoodness_Loose_20091117.h MissingETGoodness/EtmissGoodness_Loose_20091217.h MissingETGoodness/EtmissGoodness_Loose_20100115.h MissingETGoodness/EtmissGoodness_Loose_20100217.h MissingETGoodness/EtmissGoodness_Loose_20100408.h MissingETGoodness/EtmissGoodness_Loose_20100415.h MissingETGoodness/EtmissGoodness_Medium_20091117.h MissingETGoodness/EtmissGoodness_Tight_20091117.h MissingETGoodness/Goodies.h MissingETGoodness/NtupleGoodiesFiller.h MissingETGoodness/TEasyFormula.h MissingETGoodness/TMsgLogger.h MissingETGoodness/TRunRange.h MissingETGoodness/TSelection.h MissingETGoodness/TSelectionSet.h MissingETGoodness/TSelectionSetArchive.h MissingETGoodness/bitHelpers.h Root/LinkDef.h)"
-apply_pattern cmake_add_generated_files library=MissingETGoodnessLib files=MissingETGoodnessLibDict.cxx
-
 ### build libraries
 #apply_pattern dual_use_library files="../Root/*.cxx ../src/*.cxx ../src/components/*.cxx"
 #macro MissingETGoodnessLib_dependencies "metgoodness_root_dictionary"
