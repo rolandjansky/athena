@@ -19,9 +19,6 @@ use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
 
 branches isfAthenaPool src
 
-macro        isfAthenaPool_poolCnvTypes ""
-macro_append isfAthenaPool_poolCnvTypes "ISF_FCS_Parametrization::FCS_StepInfo "
-macro_append isfAthenaPool_poolCnvTypes "ISF_FCS_Parametrization::FCS_StepInfoCollection "
-
-apply_pattern poolcnv typesWithNamespace=$(isfAthenaPool_poolCnvTypes) \
+apply_pattern poolcnv typesWithNamespace="ISF_FCS_Parametrization::FCS_StepInfo \
+                                          ISF_FCS_Parametrization::FCS_StepInfoCollection" \
    files=" -s=${ISF_FastCaloSimEvent_root}/ISF_FastCaloSimEvent FCS_StepInfoCollection.h "
