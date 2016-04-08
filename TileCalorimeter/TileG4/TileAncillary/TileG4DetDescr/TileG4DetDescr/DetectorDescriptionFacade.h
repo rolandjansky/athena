@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TILEG4DETDESCR_DETECTORDESCRIPTIONFACADE_H
-#define TILEG4DETDESCR_DETECTORDESCRIPTIONFACADE_H
+#ifndef DetectorDescriptionFacade_H
+#define DetectorDescriptionFacade_H
 
 #include "TileG4DetDescr/DetectorDescription.h"
 
@@ -17,4 +17,4 @@ public:
 
 }	// end namespace
 
-#endif // TILEG4DETDESCR_DETECTORDESCRIPTIONFACADE_H
+#endif

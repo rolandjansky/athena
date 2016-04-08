@@ -7,21 +7,25 @@
 
 namespace FADS {
 
-  DetectorDescription::DetectorDescription(std::string n)
-      : m_name(n) {
-    DetectorDescriptionStore *dd = DetectorDescriptionStore::GetDetectorDescriptionStore();
-    dd->AddDetectorDescription(this);
-    m_isPointed = false;
-  }
+DetectorDescription::DetectorDescription(std::string n):name(n) 
+{
+	DetectorDescriptionStore *dd=
+		DetectorDescriptionStore::GetDetectorDescriptionStore();
+	dd->AddDetectorDescription(this);
+	isPointed=false;
+}
 
-  DetectorDescription::DetectorDescription(const DetectorDescription& d) {
-    DetectorDescriptionStore *dd = DetectorDescriptionStore::GetDetectorDescriptionStore();
-    dd->ReplaceDetectorDescription(d.GetName(), this);
-    m_isPointed = false;
-  }
+DetectorDescription::DetectorDescription(const DetectorDescription& d)
+{
+	DetectorDescriptionStore *dd=
+		DetectorDescriptionStore::GetDetectorDescriptionStore();
+	dd->ReplaceDetectorDescription(d.GetName(),this);
+	isPointed=false;
+}
 
-  std::string DetectorDescription::GetName() const {
-    return m_name;
-  }
+std::string DetectorDescription::GetName() const
+{
+	return name;
+}
 
 }	// end namespace
