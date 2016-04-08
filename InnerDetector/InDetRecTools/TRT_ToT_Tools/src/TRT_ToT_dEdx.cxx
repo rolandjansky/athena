@@ -98,7 +98,7 @@ StatusCode TRT_ToT_dEdx::finalize() {
 }
 
 
-StatusCode TRT_ToT_dEdx::update(int& i , std::list<std::string>& l)
+StatusCode TRT_ToT_dEdx::update(int& /*i*/ , std::list<std::string>& /*l*/)
 {
 
 StoreGateSvc* detStore = 0;
@@ -189,7 +189,7 @@ std::vector<float> current_array_values = {};
 
 
 
-StatusCode TRT_ToT_dEdx::update2(int& i, std::list<std::string>& l ){
+StatusCode TRT_ToT_dEdx::update2(int& /*i*/, std::list<std::string>& /*l*/ ){
 
 const CondAttrListCollection* attrListColl = 0;
 StoreGateSvc* detStore = 0;
