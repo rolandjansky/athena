@@ -9,10 +9,10 @@ public
 use AtlasPolicy 	 AtlasPolicy-*
 use AthenaBaseComps      AthenaBaseComps-*      Control
 use InDetPrepRawData     InDetPrepRawData-*     InnerDetector/InDetRecEvent
-use TrkSpacePoint        TrkSpacePoint-*        Tracking/TrkEvent
 use GeoPrimitives        GeoPrimitives-*        DetectorDescription
 
 private
+use TrkSpacePoint        TrkSpacePoint-*        Tracking/TrkEvent
 
 use GaudiInterface       GaudiInterface-*       External 
 use SiSpacePoint         SiSpacePoint-*         InnerDetector/InDetRecEvent
