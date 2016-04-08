@@ -56,6 +56,7 @@ namespace Muon {
     CompetingMuonClustersOnTrack(const CompetingMuonClustersOnTrack& compROT);
     /** Assignment operator */
     CompetingMuonClustersOnTrack& operator=(const CompetingMuonClustersOnTrack& compROT);
+    CompetingMuonClustersOnTrack& operator=(CompetingMuonClustersOnTrack&& compROT);
 
     /** Constructor with all parameters: PLEASE do not use directly,
     but call Muon::CompetingMuonClustersOnTrackTool, otherwise inconsistency of the data will be very probable. 
@@ -103,6 +104,7 @@ namespace Muon {
     /** returns the surface for the local to global transformation .
         - interface from MeasurementBase */
     const Trk::Surface& associatedSurface() const;
+    const Trk::Surface& associatedSurfaceRaw() const;
 
     /**Interface method to get the global Position.
        - interface from MeasurementBase */
@@ -152,6 +154,11 @@ namespace Muon {
   inline const Trk::Surface& CompetingMuonClustersOnTrack::associatedSurface() const {
     if( m_associatedSurface ) return *m_associatedSurface;
     return ((*(m_containedChildRots->begin()))->associatedSurface());
+  }
+  
+  inline const Trk::Surface& CompetingMuonClustersOnTrack::associatedSurfaceRaw() const
+  {
+    return *m_associatedSurface;
   }
   
   inline unsigned int CompetingMuonClustersOnTrack::numberOfContainedROTs() const {
