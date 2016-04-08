@@ -10,6 +10,7 @@
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkNeutralParameters/NeutralParameters.h"
 
 
 namespace Trk
@@ -43,6 +44,9 @@ namespace Trk
    
     /** return the track parameters of the track (to which the EL< TrackCollection > points) */
     const TrackParameters* parameters() const;
+
+    /** return the neutral parameters of the NeutralParticle) */
+    virtual const NeutralParameters* neutralParameters() const {return NULL;};
     
     /** method to clone the LinkToXAODTrackParticle object */
     LinkToXAODTrackParticle * clone() const ;

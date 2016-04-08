@@ -9,6 +9,7 @@ use DataModel           DataModel-*          Control
 
 use xAODTracking        xAODTracking-*       Event/xAOD
 use TrkParameters       TrkParameters-*      Tracking/TrkEvent
+use TrkNeutralParameters TrkNeutralParameters-*      Tracking/TrkEvent
 use TrkTrackLink        TrkTrackLink-*       Tracking/TrkEvent
 
 library TrkLinks *.cxx
