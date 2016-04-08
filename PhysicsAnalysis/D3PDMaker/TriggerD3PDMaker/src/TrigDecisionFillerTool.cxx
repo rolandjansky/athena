@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionFillerTool.cxx 655890 2015-03-20 20:03:09Z ssnyder $
+// $Id: TrigDecisionFillerTool.cxx 734655 2016-04-07 17:09:12Z ssnyder $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -12,6 +12,7 @@
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfHLTData/HLTChain.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 
 // Local include(s):
 #include "TrigDecisionFillerTool.h"

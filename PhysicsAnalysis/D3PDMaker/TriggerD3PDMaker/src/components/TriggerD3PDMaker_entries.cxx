@@ -6,6 +6,8 @@
  * @brief List Gaudi components.
  */
 
+#define TRIGGERD3PDMAKER_ENTRIES_FILE
+
 // Gaudi/Athena include(s):
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -67,6 +69,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, TrigConfMetadataTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, TrigDecisionFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, TrigRoiDescriptorFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, TrigDBKeysFillerTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, TrigOperationalInfoFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, BunchStructureMetadataTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, BunchConfigIDFillerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( D3PD, TriggerKeyTool )

@@ -18,6 +18,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include <sstream>
 
+// Note: this tool is failing in 20.7+ when used on MC. To be fixed if still needed used...
 
 namespace D3PD {
 
