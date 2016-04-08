@@ -1,0 +1,19 @@
+[OVAL] command= Command -f myfile.txt -v -c myconfig.xml 
+[OVAL] Found property <file> with value <myfile.txt>.
+[OVAL] Found property <verbose> with value <true>.
+[OVAL] Found property <config> with value <myconfig.xml>.
+
+[OVAL] command= Command --file myfile.txt --verbose --config myconfig.xml 
+[OVAL] Found property <file> with value <myfile.txt>.
+[OVAL] Found property <verbose> with value <true>.
+[OVAL] Found property <config> with value <myconfig.xml>.
+
+[OVAL] command= Command -f myfile.txt -v -c myconfig.xml -s pino 
+[OVAL] expected exception: Unsupported option -s found. ( POOL : "CommandOptions::parse" from "POOLCore" )
+
+[OVAL] command= Command -f -v -c myconfig.xml 
+[OVAL] expected exception: Parameter required for option -f is missing. ( POOL : "CommandOptions::parse" from "POOLCore" )
+
+[OVAL] command= Command -f myfile.txt -v verbose -c myconfig.xml 
+[OVAL] expected exception: Parameter not expected for option -v. ( POOL : "CommandOptions::parse" from "POOLCore" )
+
