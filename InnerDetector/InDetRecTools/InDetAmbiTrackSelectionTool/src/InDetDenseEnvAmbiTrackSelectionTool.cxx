@@ -305,7 +305,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
         bool maxotherhasblayer = false;
         bool otherfailsMinUniqueHits = false; 
         
-        bool isSplitable = tsosDetails.splitProb1[index] >= m_sharedProbCut || tsosDetails.splitProb1[index] >= m_sharedProbCut2;
+        bool isSplitable = tsosDetails.splitProb1[index] >= m_sharedProbCut || tsosDetails.splitProb2[index] >= m_sharedProbCut2;
         
         int  numberOfTracksWithThisPrd = checkOtherTracksValidity( rot, isSplitable, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits);
 
@@ -910,10 +910,11 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   
   // If there are no hits on track compatible with be being split and are shared
   // We will make use of the NN information to determine if we should allow that hit to be shared
+/* Don't do this for now
   if(  m_doPixelClusterSplitting && trackHitDetails.numSplitSharedPix < 1){
     for(unsigned int index(0);  index  < tsosDetails.nTSoS; ++index ){
       if( tsosDetails.type[index]  == SharedHit &&  
-          tsosDetails.detType[index] % 10 == 11 &&  
+          tsosDetails.detType[index] % 10 == 1 &&  
           tsosDetails.splitProb1[index] < m_minsharedProbCut &&
           tsosDetails.splitProb2[index] < m_minsharedProbCut){
         tsosDetails.type[index] = RejectedHit;
@@ -922,7 +923,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
       }
     }
   }
-  
+*/  
    
   // special cut, do not allow the last hit to be to far away or after to many holes
   if ( trackHitDetails.isPatternTrack                                                && // pattern track and
@@ -1107,7 +1108,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
         bool maxotherhasblayer = false;
         bool otherfailsMinUniqueHits = false;
         
-        bool isSplitable = tsosDetails.splitProb1[index] >= m_sharedProbCut || tsosDetails.splitProb1[index] >= m_sharedProbCut2;
+        bool isSplitable = tsosDetails.splitProb1[index] >= m_sharedProbCut || tsosDetails.splitProb2[index] >= m_sharedProbCut2;
  
 
         int numberOfTracksWithThisPrd = checkOtherTracksValidity( tsosDetails.RIO[index], isSplitable, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits);
