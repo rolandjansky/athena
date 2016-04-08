@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 744422 2016-05-03 11:34:39Z krasznaa $
 ################################################################################
 # Package: xAODBase
 ################################################################################
@@ -6,37 +5,34 @@
 # Declare the package name:
 atlas_subdir( xAODBase )
 
-# Extra dependencies based on what environment we are in:
-if( NOT XAOD_STANDALONE )
-   set( extra_deps Control/SGTools )
-   set( extra_libs SGTools )
-endif()
-
 # Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   ${extra_deps}
-   PRIVATE
-   Control/AthLinks )
+atlas_depends_on_subdirs( PUBLIC
+                          Control/AthContainers
+                          Control/SGTools
+                          PRIVATE
+                          AtlasTest/TestTools
+                          Control/AthLinks )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Physics )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
 
 # Component(s) in the package:
 atlas_add_library( xAODBase
-   xAODBase/*.h Root/*.cxx
-   PUBLIC_HEADERS xAODBase
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers ${extra_libs}
-   PRIVATE_LINK_LIBRARIES AthLinks )
+                   Root/*.cxx
+                   PUBLIC_HEADERS xAODBase
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES AthContainers SGTools
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthLinks )
 
 atlas_add_dictionary( xAODBaseDict
-   xAODBase/xAODBaseDict.h
-   xAODBase/selection.xml
-   LINK_LIBRARIES xAODBase )
+                      xAODBase/xAODBaseDict.h
+                      xAODBase/selection.xml
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools TestTools AthLinks xAODBase )
 
-# Test(s) in the package:
 atlas_add_test( ut_xAODObjectType_test
-   SOURCES test/ut_xAODObjectType_test.cxx
-   LINK_LIBRARIES xAODBase )
+                SOURCES
+                test/ut_xAODObjectType_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools TestTools AthLinks xAODBase )
+
