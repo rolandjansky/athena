@@ -10,7 +10,6 @@
 // Framework includes
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/IValgrindSvc.h"
-#include "AthenaBaseComps/AthCheckMacros.h"
 
 // STL includes
 #include <algorithm>
@@ -28,6 +27,7 @@ ValgrindAuditor::ValgrindAuditor(const std::string& name,
                                  ISvcLocator* pSvcLocator)
   : Auditor(name, pSvcLocator),
     m_valSvc("ValgrindSvc", this->name()),
+    m_msg(msgSvc(), name),
     m_eventCounter(0)
 {
   declareProperty("ProfiledAlgs", m_algs,
@@ -52,24 +52,27 @@ ValgrindAuditor::~ValgrindAuditor()
 StatusCode ValgrindAuditor::initialize()
 {
   if ( !m_valSvc.retrieve().isSuccess())  {
-    msgStream() << MSG::ERROR << "Could not retrieve the ValgrindSvc" << endmsg;
+    m_msg << MSG::ERROR << "Could not retrieve the ValgrindSvc"
+          << endreq;
     return StatusCode::FAILURE;
   }
 
   const IProperty* valSvcProp = dynamic_cast<const IProperty*>(&(*m_valSvc));
   if ( !valSvcProp ) {
-    msgStream() << MSG::ERROR
-                << "Could not retrieve IProperty interface to ValgrindSvc."
-                << endmsg;
+    m_msg << MSG::ERROR
+          << "Could not retrieve IProperty interface to ValgrindSvc."
+          << endreq;
     return StatusCode::FAILURE;
   }
 
+  // Need to set MessageSvc (again) since we might have been created before it
+  m_msg.setMsgSvc(msgSvc());
   // We inherit the OutputLevel from ValgrindSvc
-  ATH_CHECK(setProperty(valSvcProp->getProperty("OutputLevel")));
-
-  msgStream() << MSG::VERBOSE
-              << "Initializing " << name() << "..." 
-              << endmsg;
+  m_msg.setLevel((dynamic_cast<const IntegerProperty&>(valSvcProp->getProperty("OutputLevel"))).value());
+    
+  m_msg << MSG::VERBOSE
+        << "Initializing " << name() << "..." 
+        << endreq;
 
   // Copy some properties from ValgrindSvc
   std::string properties[] = {"ProfiledAlgs",
@@ -79,7 +82,7 @@ StatusCode ValgrindAuditor::initialize()
 
   BOOST_FOREACH( std::string prop, properties ) {
     if ( !setProperty(valSvcProp->getProperty(prop)) ) {
-      msgStream() << MSG::ERROR << "Cannot set " << prop << " property." << endmsg;
+      m_msg << MSG::ERROR << "Cannot set " << prop << " property." << endreq;
       return StatusCode::FAILURE;
     }     
   }
@@ -93,29 +96,29 @@ StatusCode ValgrindAuditor::initialize()
       m_algsRegEx.push_back( boost::regex(re) );
     }
     catch ( boost::regex_error ) {
-      msgStream() << MSG::ERROR << "Ignoring invalid regular expression: " << re << endmsg;
+      m_msg << MSG::ERROR << "Ignoring invalid regular expression: " << re << endreq;
     }
   }
     
-  if ( msgLevel() <= MSG::INFO ) {
+  if ( outputLevel() <= MSG::INFO ) {
     std::ostringstream out;
     out << "[ ";
     std::copy( m_algs.begin(), m_algs.end(),
                std::ostream_iterator<std::string>( out, " " ) );
     out << "]";
-    msgStream() << MSG::INFO << "Profiled algorithms: " << out.str() << endmsg;
+    m_msg << MSG::INFO << "Profiled algorithms: " << out.str() << endreq;
 
     out.str("");
     out << "[ ";
     std::copy( m_intervals.begin(), m_intervals.end(),
                std::ostream_iterator<std::string>( out, " " ) );
     out << "]";
-    msgStream() << MSG::INFO << "Profiled intervals: " << out.str() << endmsg;
+    m_msg << MSG::INFO << "Profiled intervals: " << out.str() << endreq;
   }
 
   if (!m_intervals.empty()) {
     if ( decodeIntervals().isFailure() ) {
-      msgStream() << MSG::ERROR << "Syntax error in ProfiledIntervals" << endmsg;
+      m_msg << MSG::ERROR << "Syntax error in ProfiledIntervals" << endreq;
       return StatusCode::FAILURE;
     }
   }
@@ -123,7 +126,7 @@ StatusCode ValgrindAuditor::initialize()
   // Register incidents
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
   if ( !incSvc.retrieve().isSuccess() ) {
-    msgStream() << MSG::ERROR << "Unable to get the IncidentSvc" << endmsg;
+    m_msg << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
     return StatusCode::FAILURE;
   }
   // Try to be the first incident handler to be called
@@ -192,9 +195,9 @@ void ValgrindAuditor::do_beforeExecute(const std::string& name)
 {
   if ( algMatch(name) ) {
     if (m_eventCounter > m_ignoreFirstNEvents) {
-      if ( msgLevel() <= MSG::DEBUG )
-        msgStream() << MSG::DEBUG << "Starting callgrind before execute of " << name
-                    << " [event #" << m_eventCounter << "]" << endmsg;
+      if ( outputLevel() <= MSG::DEBUG )
+        m_msg << MSG::DEBUG << "Starting callgrind before execute of " << name
+              << " [event #" << m_eventCounter << "]" << endreq;
       
       m_valSvc->callgrindStartInstrumentation();
     }
@@ -210,9 +213,9 @@ void ValgrindAuditor::do_afterExecute(const std::string& name)
   if ( algMatch(name) ) {
     if (m_eventCounter > m_ignoreFirstNEvents) {
       m_valSvc->callgrindStopInstrumentation();      
-      if ( msgLevel() <= MSG::DEBUG )
-        msgStream() << MSG::DEBUG << "Stopping callgrind after execute of " << name
-                    << " [event #" << m_eventCounter << "]" << endmsg;
+      if ( outputLevel() <= MSG::DEBUG )
+        m_msg << MSG::DEBUG << "Stopping callgrind after execute of " << name
+              << " [event #" << m_eventCounter << "]" << endreq;
     }
   }
 }
@@ -229,9 +232,9 @@ void ValgrindAuditor::do_before(const std::string& name, const std::string& hook
     if ( boost::regex_match(name, iter->first.first) &&
          iter->first.second == hook ) {
       m_valSvc->callgrindStartInstrumentation();
-      if ( msgLevel() <= MSG::DEBUG )
-        msgStream() << MSG::DEBUG << "Starting callgrind before " << hook
-                    << " of " << name << endmsg;
+      if ( outputLevel() <= MSG::DEBUG )
+        m_msg << MSG::DEBUG << "Starting callgrind before " << hook
+              << " of " << name << endreq;
     }
   }
 }
@@ -247,14 +250,14 @@ void ValgrindAuditor::do_after(const std::string& name, const std::string& hook)
     if ( boost::regex_match(name, iter->second.first) &&
          iter->second.second == hook ) {
       m_valSvc->callgrindStopInstrumentation();
-      if ( msgLevel() <= MSG::DEBUG )
-        msgStream() << MSG::DEBUG << "Stopping callgrind after " << hook
-                    << " of " << name << endmsg;
+      if ( outputLevel() <= MSG::DEBUG )
+        m_msg << MSG::DEBUG << "Stopping callgrind after " << hook
+              << " of " << name << endreq;
 
       if ( m_dumpAfterEachInterval ) {
-        m_valSvc->callgrindDumpStats(msgStream().stream());
-        msgStream() << MSG::INFO << "Creating callgrind profile #" << m_valSvc->profileCount()
-                    << " after " << hook << " of " << name << endmsg;
+        m_valSvc->callgrindDumpStats(m_msg.stream());
+        m_msg << MSG::INFO << "Creating callgrind profile #" << m_valSvc->profileCount()
+              << " after " << hook << " of " << name << endreq;
       }
     }
   }
@@ -307,7 +310,7 @@ StatusCode ValgrindAuditor::decodeIntervals()
     NameEvt ne1, ne2;
     if ( s1=="" || s2=="" ||
          decodeNameEvt(s1,ne1).isFailure() || decodeNameEvt(s2,ne2).isFailure() ) {
-      msgStream() << MSG::ERROR << "Invalid profiling interval [" << spec << "]" << endmsg;
+      m_msg << MSG::ERROR << "Invalid profiling interval [" << spec << "]" << endreq;
       return StatusCode::FAILURE;
     }
 

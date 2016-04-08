@@ -105,7 +105,10 @@ StatusCode ValgrindSvc::initialize()
 
   // Register incidents
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-  ATH_CHECK(incSvc.retrieve());
+  if ( !incSvc.retrieve().isSuccess() ) {
+    ATH_MSG_ERROR ("Unable to get the IncidentSvc");
+    return StatusCode::FAILURE;
+  }
   incSvc->addListener( this, IncidentType::BeginEvent );
   incSvc->addListener( this, IncidentType::EndEvent   );
 
@@ -256,7 +259,7 @@ StatusCode ValgrindSvc::makeAuditor (const std::string& audName,
     ATH_MSG_ERROR
       ("Could not add [" << audName 
        << "] to the list of auditors of [AuditorSvc] !!"
-	<< endmsg
+	<< endreq
        << audSvcProp->getProperty(propName));
     return StatusCode::FAILURE;
   }
