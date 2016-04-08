@@ -2,10 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TagAndProbeExAlg.cxx 551321 2013-06-16 19:51:49Z stelzer $
+// $Id: TagAndProbeExAlg.cxx 723125 2016-02-10 15:37:04Z ssnyder $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/Units.h"
 
 // Offline EDM object(s):
 #include "muonEvent/MuonContainer.h"
@@ -17,6 +18,8 @@
 
 // Local include(s):
 #include "TagAndProbeExAlg.h"
+
+using Athena::Units::GeV;
 
 TagAndProbeExAlg::TagAndProbeExAlg( const std::string& name, ISvcLocator *pSvcLocator )
    : AthAlgorithm( name, pSvcLocator ),
@@ -187,7 +190,7 @@ bool TagAndProbeExAlg::passEF( const Analysis::Muon *m ) {
 // match X^2 and eta
 bool TagAndProbeExAlg::passMuon( const Analysis::Muon *m ) {
 
-   if( m->pt() / 1000. > m_ptCut && m->isCombinedMuon() && m->matchChi2() < m_chi2Cut &&
+   if( m->pt() / GeV > m_ptCut && m->isCombinedMuon() && m->matchChi2() < m_chi2Cut &&
        fabs( m->eta() ) < m_etaMax )
       return true;
 
@@ -202,7 +205,7 @@ bool TagAndProbeExAlg::passEvent( std::vector< const Analysis::Muon* > &muons ) 
    if( muons.size() != 2 )
       return false;
 
-   float mass = ( muons[ 0 ]->hlv() + muons[ 1 ]->hlv() ).m() / 1000.;
+   float mass = ( muons[ 0 ]->hlv() + muons[ 1 ]->hlv() ).m() / GeV;
 
    if( mass > m_massMin && mass < m_massMax )
       return true;

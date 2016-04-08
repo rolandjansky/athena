@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMatchExAlg.cxx 551321 2013-06-16 19:51:49Z stelzer $
+// $Id: TrigMatchExAlg.cxx 723145 2016-02-10 16:06:08Z ssnyder $
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -392,11 +392,11 @@ StatusCode TrigMatchExAlg::execute() {
                // if the match is good, print it out!
                if( match ) {
                   // get the track from the TrigMuonEFInfo object
-                  TrigMuonEFTrack *track = 0;
+                  const TrigMuonEFTrack *track = 0;
                   if( match->hasLegacyTrack() )
                      track = match->legacySpectrometerTrack();
                   else if( match->TrackContainer() && match->TrackContainer()->size() > 0 ) {
-                     TrigMuonEFInfoTrack *infoTrack = match->TrackContainer()->at( 0 );
+                     const TrigMuonEFInfoTrack *infoTrack = match->TrackContainer()->at( 0 );
                      if( infoTrack->hasSpectrometerTrack() )
                         track = infoTrack->SpectrometerTrack();
                      else if( infoTrack->hasExtrapolatedTrack() )
