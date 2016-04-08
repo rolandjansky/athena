@@ -12,13 +12,8 @@ Purpose : create a HiggsPhysTag - a word to encode HiggsPhys specific informatio
 
 *****************************************************************************/
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
-#include "JetEvent/JetCollection.h"
 
 #include "HiggsPhysTagTools/HiggsPhysTagTool.h"
 #include "TagEvent/HiggsPhysAttributeNames.h"
@@ -27,7 +22,7 @@ Purpose : create a HiggsPhysTag - a word to encode HiggsPhys specific informatio
 /** the constructor */
 HiggsPhysTagTool::HiggsPhysTagTool (const std::string& type, const 
 std::string& name, const IInterface* parent) : 
-    AlgTool( type, name, parent ) {
+  AthAlgTool( type, name, parent ) {
 
   /** Container Names */
   declareProperty("JetContainer",  m_jetContainerName = "AntiKt4TopoJets");
@@ -40,16 +35,7 @@ std::string& name, const IInterface* parent) :
 
 /** initialization - called once at the begginning */
 StatusCode HiggsPhysTagTool::initialize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in intialize()" << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-    return sc;
-  }
-
+  ATH_MSG_DEBUG( "in intialize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -57,8 +43,7 @@ StatusCode HiggsPhysTagTool::initialize() {
 StatusCode HiggsPhysTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap,
                                                     const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
+  ATH_MSG_DEBUG( "in attributeSpecification()" );
 
   /** specifiy the HiggsPhys the attributes */
 
@@ -73,8 +58,7 @@ StatusCode HiggsPhysTagTool::attributeSpecification(std::map<std::string,AthenaA
 /** execute - called on every event */
 StatusCode HiggsPhysTagTool::execute(TagFragmentCollection& higgsTagCol, const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()" );
 
   /** fill the HiggsPhys analysis tag */
 
@@ -89,8 +73,7 @@ StatusCode HiggsPhysTagTool::execute(TagFragmentCollection& higgsTagCol, const i
 
 /** finalize - called once at the end */
 StatusCode HiggsPhysTagTool::finalize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 

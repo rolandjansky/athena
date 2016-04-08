@@ -15,8 +15,7 @@ Purpose : build the HiggsPhys Tag object - AnalysisTag.h.
           For example encoding the results of hypotheses on different channels
 *****************************************************************************/
 
-#include "GaudiKernel/AlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
@@ -25,7 +24,7 @@ Purpose : build the HiggsPhys Tag object - AnalysisTag.h.
 /** Interface ID for HiggsPhysTagTool*/  
 static const InterfaceID IID_HiggsPhysTagTool("HiggsPhysTagTool", 1, 0);
 
-class HiggsPhysTagTool : public AlgTool {
+class HiggsPhysTagTool : public AthAlgTool {
 
 public:
   
@@ -51,10 +50,6 @@ private:
   /** Properties */
   std::string m_jetContainerName;
   double m_jetPtCut;
-
-  /** Event Store */
-  StoreGateSvc* m_storeGate;
-
  };
 
 #endif // HIGGSPHYSTAGTOOL_H
