@@ -58,10 +58,6 @@ class SiHitIdHelper : HitIdHelper {
   //
   // Initialize the helper, only called by the constructor
   void Initialize();  
- private:
-  //
-  // private data:
-  static SiHitIdHelper* m_help;
 };
 
 #endif // INDETSIMEVENT_SIHITIDHELPER

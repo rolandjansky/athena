@@ -4,8 +4,6 @@
 
 #include "InDetSimEvent/TRTHitIdHelper.h"
 
-TRTHitIdHelper* TRTHitIdHelper::m_help = 0;
-
 // 
 // private constructor
 TRTHitIdHelper::TRTHitIdHelper() :HitIdHelper() {
@@ -13,8 +11,8 @@ TRTHitIdHelper::TRTHitIdHelper() :HitIdHelper() {
 }
 
 TRTHitIdHelper* TRTHitIdHelper::GetHelper() {
-  if(m_help == 0) m_help = new TRTHitIdHelper();
-  return m_help;
+  static TRTHitIdHelper helper;
+  return &helper;
 }
 
 void TRTHitIdHelper::Initialize() {
