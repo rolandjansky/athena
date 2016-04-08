@@ -188,7 +188,7 @@ StatusCode McAodValidationAlg::execute()
     const TruthParticle * mc = *itr;
     eneSum += mc->e();
   }
-  ATH_MSG_DEBUG ("Sum Ene= " << (eneSum / CLHEP::GeV));
+  ATH_MSG_DEBUG ("Sum Ene= " << (eneSum * (1./CLHEP::GeV)));
 
   bool validationIsOK = true;
   ATH_MSG_DEBUG ("Checking the event with the validation AlgTools...");
