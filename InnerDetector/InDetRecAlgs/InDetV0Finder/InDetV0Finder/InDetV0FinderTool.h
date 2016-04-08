@@ -15,7 +15,7 @@
 #ifndef INDETV0FINDERTOOL_H
 #define INDETV0FINDERTOOL_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "InDetConversionFinderTools/InDetConversionFinderTools.h"
