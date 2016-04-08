@@ -6,13 +6,13 @@
 #include "math.h"
 
 double MuGirlNS::test_barrel::value(int index,double in0,double in1,double in2,double in3,double in4,double in5,double in6) {
-   m_input0 = (in0 - 0)/1;
-   m_input1 = (in1 - 0)/1;
-   m_input2 = (in2 - 0)/1;
-   m_input3 = (in3 - 0)/1;
-   m_input4 = (in4 - 0)/1;
-   m_input5 = (in5 - 0)/1;
-   m_input6 = (in6 - 0)/1;
+   input0 = (in0 - 0)/1;
+   input1 = (in1 - 0)/1;
+   input2 = (in2 - 0)/1;
+   input3 = (in3 - 0)/1;
+   input4 = (in4 - 0)/1;
+   input5 = (in5 - 0)/1;
+   input6 = (in6 - 0)/1;
    switch(index) {
      case 0:
          return ((neuron09EE5BE8()*1)+0);
@@ -22,31 +22,31 @@ double MuGirlNS::test_barrel::value(int index,double in0,double in1,double in2,d
 }
 
 double MuGirlNS::test_barrel::neuron09FAFC50() {
-   return m_input0;
+   return input0;
 }
 
 double MuGirlNS::test_barrel::neuron09FAFD70() {
-   return m_input1;
+   return input1;
 }
 
 double MuGirlNS::test_barrel::neuron09FAFED8() {
-   return m_input2;
+   return input2;
 }
 
 double MuGirlNS::test_barrel::neuron09CFD718() {
-   return m_input3;
+   return input3;
 }
 
 double MuGirlNS::test_barrel::neuron09CFD880() {
-   return m_input4;
+   return input4;
 }
 
 double MuGirlNS::test_barrel::neuron09CFD9E8() {
-   return m_input5;
+   return input5;
 }
 
 double MuGirlNS::test_barrel::neuron09CFDB50() {
-   return m_input6;
+   return input6;
 }
 
 double MuGirlNS::test_barrel::neuron09F50698() {

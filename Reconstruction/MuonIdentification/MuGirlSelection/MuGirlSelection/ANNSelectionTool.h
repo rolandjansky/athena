@@ -103,12 +103,12 @@ private:
         if (sc.isFailure())
         {
             if (bError)
-                msg(MSG::ERROR) << "Cannot retrieve " << pHandle << endmsg;
+                msg(MSG::ERROR) << "Cannot retrieve " << pHandle << endreq;
             else
-                msg(MSG::WARNING) << "Cannot retrieve " << pHandle << endmsg;
+                msg(MSG::WARNING) << "Cannot retrieve " << pHandle << endreq;
         }
         else
-            msg(MSG::INFO) << "Retrieved " << pHandle << endmsg;
+            msg(MSG::INFO) << "Retrieved " << pHandle << endreq;
         return sc;
     }
 
