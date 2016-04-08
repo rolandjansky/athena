@@ -45,9 +45,7 @@ const int      slink2ppmChannel[64] =
 
 //==================================================================================================
 ZdcRecChannelToolV2::ZdcRecChannelToolV2(const std::string& name):
-  AsgTool(name),
-  m_nsamples(7),
-  m_sample_time(25.)
+  AsgTool(name)
 {
 	//Declare properties here...
 
@@ -55,6 +53,11 @@ ZdcRecChannelToolV2::ZdcRecChannelToolV2(const std::string& name):
 	declareProperty("ZeroSuppress", m_zeroSupress = 0,"Supress channels with only 0");
 	declareProperty("DeltaPeak", m_delta = 5,"Minimum difference between min and max to be considered a signal");
 	declareProperty("SaturationADC",m_saturation = 1000,"ADC value above which a HG channel is considered saturated");
+	declareProperty("NSamples",m_nsamples=5,"Number of samples in PPM raw data");
+	declareProperty("UseDelay",m_useDelay=0,"If true, then use delayed channels");
+	declareProperty("SampleTime",m_sample_time=12.5,"Sample time in ns (25. = 40 MHz, 12.5 = 80 MHz)");
+	declareProperty("GainFactor",m_gainFactor=10.,"High/lo gain factor");
+	declareProperty("PedestalValue",m_pedestalValue=100.,"Pedestal value");
 }
 //==================================================================================================
 
@@ -200,8 +203,28 @@ int ZdcRecChannelToolV2::convertTT2ZM(const xAOD::TriggerTowerContainer* ttColle
 int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module)
 {
   
-  const size_t nsamp = 5;
-  const float gain = 10;
+  size_t nsamp = 0;
+
+  if (module.TTg1d0Link().isValid())
+    {
+      nsamp = (*module.TTg1d0Link())->adc().size();
+    }
+
+  if (nsamp==0) 
+    {
+      msg(MSG::ERROR) << "No data in ZdcModule S/T/M/C=" 
+		      << module.side()
+		      << "/" <<  module.type()
+		      << "/" <<  module.zdcModule()
+		      << "/" <<  module.channel()
+		      << endreq;
+      return 1;
+    }
+
+  const float gain = m_gainFactor;
+  const int isamptime = int(m_sample_time * 10 + .1);
+  const int isamphalf = isamptime/2;
+
   std::map<int,float> waveform; // using int so i can do direct tests on whether a time exists.
 
   std::map<int,float> waveformG0; // using int so i can do direct tests on whether a time exists.
@@ -211,7 +234,7 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module)
   float ampL=0; // low gain
   float rawamp=0;
   float rawampL=0; // low gain
-  
+  float presamp = 0;
   for (size_t isamp = 0;isamp<nsamp;isamp++)
     {
 
@@ -219,10 +242,11 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module)
 	{
 	  if ( (*module.TTg1d0Link())->adc().size())
 	    {
+	      presamp  = (*module.TTg1d0Link())->adc().at(0);
 	      rawamp =  (*module.TTg1d0Link())->adc().at(isamp);
-	      amp =  rawamp - (*module.TTg1d0Link())->adc().at(0);
-	      waveform[isamp*250] = amp;
-	      waveformG1[isamp*250] = amp;
+	      amp =  rawamp - presamp;
+	      waveform[isamp*isamptime] = amp;
+	      waveformG1[isamp*isamptime] = rawamp - m_pedestalValue;
 	    }
 	}
       
@@ -230,40 +254,47 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module)
 	{
 	  if ( (*module.TTg0d0Link())->adc().size())
 	    {
+	      presamp  = (*module.TTg0d0Link())->adc().at(0);
 	      rawampL = (*module.TTg0d0Link())->adc().at(isamp);
-	      ampL = rawampL - (*module.TTg0d0Link())->adc().at(0);
-	      waveformG0[isamp*250] = ampL;
+	      ampL = rawampL - presamp;
+	      waveformG0[isamp*isamptime] = rawampL - m_pedestalValue;
 	      if (rawamp > m_saturation) // i.e. if high gain defined for D0 saturates
 		{
-		  waveform[isamp*250] = ampL * gain;
+		  waveform[isamp*isamptime] = ampL * gain; // replace with low gain
 		}
 	    }
 	}
 
-      if ( module.TTg1d1Link().isValid() )
+      if (m_useDelay) // use delayed channels
 	{
-	  if ( (*module.TTg1d1Link())->adc().size())
+	  if ( module.TTg1d1Link().isValid() )
 	    {
-	      rawamp =  (*module.TTg1d1Link())->adc().at(isamp);
-	      amp =  rawamp - (*module.TTg1d1Link())->adc().at(0);
-	      waveform[isamp*250-125] = amp;
-	      waveformG1[isamp*250-125] = amp;
-	    }
-	}
-
-      if ( module.TTg0d1Link().isValid() )
-	{
-	  if ((*module.TTg0d1Link())->adc().size())
-	    {
-	      rawampL = (*module.TTg0d1Link())->adc().at(isamp);
-	      ampL = rawampL - (*module.TTg0d1Link())->adc().at(0);
-	      waveformG0[isamp*250-125] = ampL;
-	      if (rawamp > m_saturation) // i.e. if high gain defined for D1 saturates
+	      if ( (*module.TTg1d1Link())->adc().size())
 		{
-		  waveform[isamp*250-125] = ampL * gain;
+		  presamp  = (*module.TTg1d1Link())->adc().at(0);
+		  rawamp =  (*module.TTg1d1Link())->adc().at(isamp);
+		  amp =  rawamp - presamp;
+		  waveform[isamp*isamptime-isamphalf] = amp;
+		  waveformG1[isamp*isamptime-isamphalf] = rawamp - m_pedestalValue;
+		}
+	    }
+	  
+	  if ( module.TTg0d1Link().isValid() )
+	    {
+	      if ((*module.TTg0d1Link())->adc().size())
+		{
+		  presamp  = (*module.TTg0d1Link())->adc().at(0);
+		  rawampL = (*module.TTg0d1Link())->adc().at(isamp);
+		  ampL = rawampL - (*module.TTg0d1Link())->adc().at(0);
+		  waveformG0[isamp*isamptime-isamphalf] = rawampL - m_pedestalValue;
+		  if (rawamp > m_saturation) // i.e. if high gain defined for D1 saturates
+		    {
+		      waveform[isamp*isamptime-isamphalf] = ampL * gain; // replace with low gain
+		    }
 		}
 	    }
 	}
+
     }
 
   // copy constructed waveform into module for subsequent processing
@@ -273,29 +304,29 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module)
   float peak_amp=0, peak_time=0, peak_qual=0;
 
   splitWaveform(waveform,times,adcs);
-  getPeakProperties(times,adcs,peak_time,peak_amp,peak_qual);
+  getPeakProperties(times,adcs,peak_time,peak_amp,peak_qual,presamp);
   // copy them to the module
   module.setWaveformTime(times);
   module.setWaveformADC(adcs);
-  module.setAmplitude(peak_amp);
+  module.setAmplitude(peak_amp); // main waveform is already presamp corrected
   module.setTime(peak_time);
   module.setQual(peak_qual);
 
   splitWaveform(waveformG0,times,adcs);
-  getPeakProperties(times,adcs,peak_time,peak_amp,peak_qual);
+  getPeakProperties(times,adcs,peak_time,peak_amp,peak_qual,presamp);
   // copy them to the module
   module.setWaveformTimeG0(times);
   module.setWaveformADCG0(adcs);
-  module.setAmplitudeG0(peak_amp);
+  module.setAmplitudeG0(peak_amp - presamp); // G0 is pedestal corrected already.  Now correcting for presamp.
   module.setTimeG0(peak_time);
   module.setQualG0(peak_qual);
 
   splitWaveform(waveformG1,times,adcs);
-  getPeakProperties(times,adcs,peak_time,peak_amp,peak_qual);
+  getPeakProperties(times,adcs,peak_time,peak_amp,peak_qual,presamp);
   // copy them to the module
   module.setWaveformTimeG1(times);
   module.setWaveformADCG1(adcs);
-  module.setAmplitudeG1(peak_amp);
+  module.setAmplitudeG1(peak_amp - presamp); // G1 is pedestal corrected already.  Now correcting for presamp.
   module.setTimeG1(peak_time);
   module.setQualG1(peak_qual);
 
@@ -329,7 +360,7 @@ int ZdcRecChannelToolV2::splitWaveform(std::map<int,float>& waveform, std::vecto
   return 1;
 }
 
-int ZdcRecChannelToolV2::getPeakProperties(std::vector<float>& times, std::vector<float>& adcs, float& time, float& amp, float& qual)
+int ZdcRecChannelToolV2::getPeakProperties(std::vector<float>& times, std::vector<float>& adcs, float& time, float& amp, float& qual, float& presamp)
 {
 
   if (times.size() != adcs.size()) 
@@ -355,6 +386,7 @@ int ZdcRecChannelToolV2::getPeakProperties(std::vector<float>& times, std::vecto
   time = max_time;
   amp = max_adc;
   qual = max_qual;
+  presamp = adcs.at(0);
 
   return 1;
 }

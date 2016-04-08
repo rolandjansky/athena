@@ -50,16 +50,19 @@ class ZdcRecChannelToolV2: public asg::AsgTool, virtual public IIncidentListener
   int makeRawFromDigits(xAOD::ZdcModuleContainer& zdcModules); // NOT const -- we're going to modify the objects to add signal processing
   int makeWaveformFromDigits(xAOD::ZdcModule& module);
   int splitWaveform(std::map<int,float>& waveform, std::vector<float>& times, std::vector<float>& adcs);
-  int getPeakProperties(std::vector<float>& times, std::vector<float>& adcs, float& time, float& amp, float& qual);
+  int getPeakProperties(std::vector<float>& times, std::vector<float>& adcs, float& time, float& amp, float& qual, float& presamp);
 
 private:
 
+  // internal parameters, set in pythion
   unsigned int m_nsamples;
   float        m_sample_time;
-
-  int m_delta; // A number to check for signal
-  int m_zeroSupress;
-  int m_saturation; // saturation level (absolute ADC)
+  float        m_gainFactor;
+  bool         m_useDelay;
+  int          m_delta; // A number to check for signal
+  int          m_zeroSupress;
+  int          m_saturation; // saturation level (absolute ADC)
+  float        m_pedestalValue; // pedestal value (set to 100)
 
   static int s_ppmChannel;
   const ZdcID* m_zdcId;
