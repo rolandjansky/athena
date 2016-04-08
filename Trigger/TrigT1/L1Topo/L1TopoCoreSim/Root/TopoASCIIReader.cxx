@@ -57,9 +57,9 @@ bool TCS::TopoASCIIReader::getNextEvent() {
     
       if(currentLine == "<end_file>" || currentLine == "</file>") return false;
       if(currentLine == "<end_event>" || currentLine == "</event>") break;
-      if(currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<tau>" || currentLine == "<met>") type = currentLine;
-      if(currentLine == "</cluster>" || currentLine == "</jet>" || currentLine == "</muon>" || currentLine == "</tau>" || currentLine == "</met>") { type = ""; continue; }
-      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<tau>" || currentLine == "<met>") continue;
+      if(currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<latemuon>" || currentLine == "<tau>" || currentLine == "<met>") type = currentLine;
+      if(currentLine == "</cluster>" || currentLine == "</jet>" || currentLine == "</muon>" || currentLine == "</latemuon>" || currentLine == "</tau>" || currentLine == "</met>") { type = ""; continue; }
+      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<latemuon>" || currentLine == "<tau>" || currentLine == "<met>") continue;
     
       // use stream iterators to copy the stream to a vector as whitespace separated strings
       std::stringstream ss(currentLine);
@@ -103,6 +103,16 @@ bool TCS::TopoASCIIReader::getNextEvent() {
             muon.setPhiDouble( atof(results.at(4).c_str()) );
          }
          m_event->addMuon( muon );
+      } else if(type == "<latemuon>") {
+         unsigned int et = atoi(results.at(0).c_str());
+         int eta = atoi(results.at(1).c_str());
+         int phi = atoi(results.at(2).c_str());
+         TCS::LateMuonTOB latemuon( et, 0, eta, phi );
+         if(results.size()==5) {
+            latemuon.setEtaDouble( atof(results.at(3).c_str()) );
+            latemuon.setPhiDouble( atof(results.at(4).c_str()) );
+         }
+         m_event->addLateMuon( latemuon );
       } else if(type == "<met>") {
          int ex = atoi(results.at(0).c_str());
          int ey = atoi(results.at(1).c_str());

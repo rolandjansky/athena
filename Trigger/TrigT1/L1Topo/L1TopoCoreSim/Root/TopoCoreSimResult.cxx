@@ -93,9 +93,10 @@ TCS::TopoCoreSimResult::output(const std::string & connName) const {
       return conn->outputData();
    }
 
+   // returns first matching connector as there should only be one, otherwise non match, arrive here and throw an exception.
    TCS_EXCEPTION("No connector with name '" << connName << "'");
 
-   return (*m_outputConnectors.begin())->outputData();
+   //return (*m_outputConnectors.begin())->outputData();
 }
 
 
