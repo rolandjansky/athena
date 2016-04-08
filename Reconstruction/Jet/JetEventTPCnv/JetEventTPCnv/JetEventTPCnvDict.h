@@ -7,13 +7,11 @@
 
 
 // DEBUG !!!!
-#define private public
-#define protected public
+//#define private public
+//#define protected public
 
 #include "JetEventTPCnv/JetMomentMap_p6.h" 
 #include "JetEventTPCnv/JetMomentMapCollection_p6.h" 
-
-#include "JetEvent/JetCollection.h"
 
 #include "JetEventTPCnv/JetCollection_tlp6.h"
 #include "JetEventTPCnv/JetCollection_p6.h"
@@ -27,10 +25,11 @@
 #include "JetEventTPCnv/JetCollection_p4.h"
 #include "JetEventTPCnv/Jet_p4.h"
 #include "JetEventTPCnv/JetCollection_p3.h"
-#include "JetEventTPCnv/Jet_p2.h"
+#include "JetEventTPCnv/Jet_p3.h"
 #include "JetEventTPCnv/JetCollection_p2.h"
-#include "JetEventTPCnv/Jet_p1.h"
+#include "JetEventTPCnv/Jet_p2.h"
 #include "JetEventTPCnv/JetCollection_p1.h"
+#include "JetEventTPCnv/Jet_p1.h"
 #include "JetEventTPCnv/JetKeyDescriptor_p1.h"
 #include "JetEventTPCnv/JetKeyDescriptorCollection_p1.h"
 #include "JetEventTPCnv/JetKeyDescriptorCollection_tlp1.h"
@@ -46,8 +45,8 @@
 #include "JetEventTPCnv/ParticleJetContainer_p1.h"
 
 // DEBUG !!!!
-#undef protected
-#undef private
+//#undef protected
+//#undef private
 
 
 

@@ -56,7 +56,7 @@ JetCollectionCnv_p1::persToTrans( const JetCollection_p1* pers,
   // elements are managed by DataPool
   trans->clear(SG::VIEW_ELEMENTS);
 
-  static DataPool<Jet> pool( 20 );
+  DataPool<Jet> pool( 20 );
   const std::size_t nJets = pers->size();
   if ( pool.capacity() - pool.allocated() < nJets ) {
     pool.reserve( pool.allocated() + nJets );

@@ -7,9 +7,6 @@
 #ifndef JETEVENTTPCNV_JETMOMENTMAP_p6_H
 #define JETEVENTTPCNV_JETMOMENTMAP_p6_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-
-
 #include <vector>
 
 class JetMomentMap_p6

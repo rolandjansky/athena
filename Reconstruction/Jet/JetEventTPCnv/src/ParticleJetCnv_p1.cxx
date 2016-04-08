@@ -14,8 +14,6 @@
 // STL includes
 
 // JetTagEvent includes
-#define private public
-#define protected public
 #include "JetEvent/Jet.h"
 /* #include "JetTagEvent/JetConstituent.h"
    #include "JetTagEvent/TrackConstituents.h"
@@ -24,8 +22,6 @@
 #include "egammaEvent/ElectronAssociation.h"
 #include "MuonIDEvent/MuonConstituent.h"
 #include "MuonIDEvent/MuonAssociation.h"
-#undef private
-#undef protected
 
 //#include "JetUtils/JetCaloHelper.h"
 
@@ -61,8 +57,9 @@ static ParticleBaseCnv_p1 partBaseCnv;
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
 
+#if 0
 // This is copied from JetUtils/JetCaloHelper... avoid to depend on JetUtils
-static std::string _calosampling_name[24] = {
+static std::string calosampling_name[24] = {
   "PreSamplerB", "EMB1", "EMB2", "EMB3",
   "PreSamplerE", "EME1", "EME2", "EME3",
   "HEC0", "HEC1", "HEC2", "HEC3",
@@ -71,6 +68,7 @@ static std::string _calosampling_name[24] = {
   "TileExt0", "TileExt1", "TileExt2",     // Tile extended barrel
   "FCAL0", "FCAL1", "FCAL2"              // Forward EM endcap
 };
+#endif
 
 void 
 ParticleJetCnv_p1::persToTrans( const ParticleJet_p1* pers,
@@ -120,7 +118,7 @@ ParticleJetCnv_p1::persToTrans( const ParticleJet_p1* pers,
       size_t nsample = jconstit->m_energyInSample.size();
       for(size_t c=0;c<nsample;c++){
 	float e =  jconstit->m_energyInSample[c];
-	if(e != 0) trans->setShape(base+ _calosampling_name[c], e );
+	if(e != 0) trans->setShape(base+ calosampling_name[c], e );
       }
 	//JetCaloHelper::setEnergyInSampling(trans, (CaloSampling::CaloSample)c, jconstit->m_energyInSample[c]);
 

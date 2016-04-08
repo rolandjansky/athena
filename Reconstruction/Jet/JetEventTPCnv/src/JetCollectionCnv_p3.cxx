@@ -59,8 +59,8 @@ JetCollectionCnv_p3::persToTrans( const JetCollection_p3* pers,
       << endreq;
   
   // make sure to first read the JetKeyDescriptor
-  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > m_JetKeyStoreCnv;
-  m_JetKeyStoreCnv.persToTrans( &pers->m_keyStore, &trans->m_keyStore, msg );
+  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > JetKeyStoreCnv;
+  JetKeyStoreCnv.persToTrans( &pers->m_keyStore, &trans->m_keyStore, msg );
   // attach the map to the instance 
   (trans->m_keyStore)->access();
   // link the JetKeyDescriptorInstance to the store:
@@ -87,7 +87,7 @@ JetCollectionCnv_p3::persToTrans( const JetCollection_p3* pers,
   // elements are managed by DataPool
   trans->clear(SG::VIEW_ELEMENTS);
   
-  static DataPool<Jet> pool( 20 );
+  DataPool<Jet> pool( 20 );
   const std::size_t nJets = pers->size();
   if ( pool.capacity() - pool.allocated() < nJets ) {
     pool.reserve( pool.allocated() + nJets );
@@ -151,8 +151,8 @@ JetCollectionCnv_p3::transToPers( const JetCollection* trans,
   }
   
   // RS now deal with the JetKeyDescriptor
-  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > m_JetKeyStoreCnv;
-  m_JetKeyStoreCnv.transToPers( &trans->m_keyStore, &pers->m_keyStore, msg );
+  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > JetKeyStoreCnv;
+  JetKeyStoreCnv.transToPers( &trans->m_keyStore, &pers->m_keyStore, msg );
   
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection [OK]"
 //       << endreq;

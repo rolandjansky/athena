@@ -12,13 +12,9 @@
 // STL includes
 
 // JetEvent includes
-#define private public
-#define protected public
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetTagInfoBase.h"
 #include "JetEvent/JetAssociationBase.h"
-#undef private
-#undef protected
 
 // DataModelAthenaPool includes
 #include "DataModelAthenaPool/NavigableCnv_p1.h"
@@ -173,7 +169,7 @@ void JetCnv_p4::persToTrans( const Jet_p4* pers,
         // a mismatch.
 
         // The stored index.
-        unsigned int index = ass[i]->m_keyIndex;
+        unsigned int index = ass[i]->keyIndex();
 
         // Cross-check against getIndex() for up to the first 10 times.
         if (m_nIndexTest < 10 && !m_badIndex) {

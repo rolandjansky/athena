@@ -23,10 +23,10 @@
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/P4PxPyPzE_p1.h"
 
-#include "JetEvent/JetTagInfoBase.h"
-#include "JetEvent/JetAssociationBase.h"
-
 // forward declarations
+class JetTagInfoBase;
+class JetAssociationBase;
+
 class JetCnv_p3;
 
 class Jet_p3 
@@ -113,7 +113,13 @@ private:
 /////////////////////////////////////////////////////////////////// 
 
 inline Jet_p3::Jet_p3()
-  : m_ownPointers (true)
+  : m_author(0),
+    m_num_combinedLikelihood(0),
+    m_ownPointers (true),
+    m_ratioE(0),
+    m_ratioPx(0),
+    m_ratioPy(0),
+    m_ratioPz(0)
 {}
 
 #endif //> JETEVENTTPCNV_JET_P1_H

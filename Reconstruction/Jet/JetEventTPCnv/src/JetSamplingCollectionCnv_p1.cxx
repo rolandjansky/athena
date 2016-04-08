@@ -55,7 +55,7 @@ JetSamplingCollectionCnv_p1::persToTrans( const JetSamplingCollection_p1* pers,
   // elements are managed by DataPool
   trans->clear(SG::VIEW_ELEMENTS);
 
-  static DataPool<JetSampling> pool( 20 );
+  DataPool<JetSampling> pool( 20 );
   const std::size_t nJetSampling = pers->size();
   if ( pool.capacity() - pool.allocated() < nJetSampling ) {
     pool.reserve( pool.allocated() + nJetSampling );

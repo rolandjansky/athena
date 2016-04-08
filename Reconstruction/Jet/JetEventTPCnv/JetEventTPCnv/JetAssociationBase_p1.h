@@ -5,9 +5,6 @@
 #ifndef JETEVENT_JETASSOCIATIONBASE_P1_H
 #define JETEVENT_JETASSOCIATIONBASE_P1_H
 
-#include <string>
-#include <vector>
-
 class JetAssociationBase_p1
 {
   friend class JetAssociationBaseCnv_p1;

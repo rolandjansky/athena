@@ -23,12 +23,14 @@
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/P4PxPyPzE_p1.h"
 
-#include "JetEvent/JetAssociationBase.h"
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 #include "ParticleEventTPCnv/ParticleBase_p1.h"
 
 // forward declarations
+class JetTagInfoBase;
+class JetAssociationBase;
+
 class JetCnv_p4;
 
 class Jet_p4 
@@ -105,7 +107,8 @@ private:
 // Inline methods: 
 /////////////////////////////////////////////////////////////////// 
 
-inline Jet_p4::Jet_p4()
+inline Jet_p4::Jet_p4() : m_author(0), 
+                          m_num_combinedLikelihood(0)
 {}
 
 #endif //> JETEVENTTPCNV_JET_P1_H

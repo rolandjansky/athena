@@ -13,11 +13,7 @@
 // STL includes
 
 // JetEvent includes
-#define private public
-#define protected public
 #include "JetEvent/Jet.h"
-#undef private
-#undef protected
 
 // DataModelAthenaPool includes
 #include "DataModelAthenaPool/NavigableCnv_p1.h"
