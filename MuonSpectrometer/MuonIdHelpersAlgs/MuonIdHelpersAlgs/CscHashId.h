@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ActiveStoreSvc.h"
 #include "Identifier/Identifier.h"
 
@@ -20,7 +20,7 @@ class MuonDetectorManager;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class CscHashId: public Algorithm {
+class CscHashId: public AthAlgorithm {
 
 public:
 
@@ -37,7 +37,6 @@ private:
 
 private:
 
-  StoreGateSvc               * m_EvtStore;
   const CscIdHelper          * m_cscId;
   const MuonGM::MuonDetectorManager  * m_muon_mgr;
 

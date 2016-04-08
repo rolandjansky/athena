@@ -28,8 +28,8 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 
 CscHashId::CscHashId(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
-  m_EvtStore(NULL), m_cscId(NULL), m_muon_mgr(NULL)
+  AthAlgorithm(name, pSvcLocator),
+  m_cscId(NULL), m_muon_mgr(NULL)
    {
 
 }
@@ -41,27 +41,12 @@ CscHashId::~CscHashId()
 
 StatusCode CscHashId::initialize(){
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << " in initialize()" << endreq;
+  ATH_MSG_DEBUG( " in initialize()"  );
             
-  StoreGateSvc* detStore=0;
-  StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
-
-  if (sc.isSuccess()) {
-    sc = detStore->retrieve( m_muon_mgr );
-    if (sc.isFailure()) {
-      log << MSG::ERROR << " Cannot retrieve MuonGeoModelMgr " << endreq;
-      return sc;
-    } else {
-      m_cscId = m_muon_mgr->cscIdHelper();
-    }
-  } else {
-    log << MSG::ERROR << " MuonDetDescrMgr not found in DetectorStore " << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve( m_muon_mgr ) );
+  m_cscId = m_muon_mgr->cscIdHelper();
 
   return StatusCode::SUCCESS;
-
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -70,31 +55,19 @@ StatusCode CscHashId::initialize(){
 
 StatusCode CscHashId::execute() {
 
-  static  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute()" << endreq;
-
-  StatusCode sc = StatusCode::SUCCESS;
-
-  sc = cscHash();
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to execute CscHashId " << endreq;
-  }
-  return sc;
+  ATH_MSG_DEBUG( "in execute()"  );
+  ATH_CHECK(  cscHash() );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode CscHashId::finalize() {
  
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "in finalize()" << endreq;
-
-   return StatusCode::SUCCESS;
-
+  ATH_MSG_DEBUG( "in finalize()"  );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode CscHashId::cscHash() {
-  StatusCode sc;
-  static  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute(): testing CSC IdHelper" << endreq;
+  ATH_MSG_DEBUG( "in execute(): testing CSC IdHelper"  );
 
   // Loop over csc detector elements and add in the hash ids
   std::vector<Identifier> modules = m_cscId->idVector();
@@ -126,15 +99,14 @@ StatusCode CscHashId::cscHash() {
         } 
       }
       else {
-	log << MSG::ERROR << "Unable to set csc hash id for det elem " 
-	    << "context begin_index = " << moduleContext.begin_index()
-	    << " context end_index  = " << moduleContext.end_index()
-	    << " the idenitifier is "
-	    << endreq;
+	ATH_MSG_ERROR( "Unable to set csc hash id for det elem " 
+                       << "context begin_index = " << moduleContext.begin_index()
+                       << " context end_index  = " << moduleContext.end_index()
+                       << " the identifier is " );
 	id.show();
       }
     } else {
-      log << MSG::ERROR << "Invalid CSC id " << endreq;
+      ATH_MSG_ERROR( "Invalid CSC id "  );
       id.show();
     }
   }  

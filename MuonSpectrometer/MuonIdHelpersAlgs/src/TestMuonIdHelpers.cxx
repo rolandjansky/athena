@@ -46,7 +46,9 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 
 TestMuonIdHelpers::TestMuonIdHelpers(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator), m_activeStore(0), m_EvtStore(0), m_mdtId(0), m_cscId(0),
+  AthAlgorithm(name, pSvcLocator),
+  m_activeStore("ActiveStoreSvc", name),
+  m_mdtId(0), m_cscId(0),
   m_rpcId(0), m_tgcId(0), m_muon_mgr(0),
   m_deltaUser(0), m_deltaKernel(0), m_deltaElapsed(0), m_nTries(0)
   
@@ -73,34 +75,15 @@ TestMuonIdHelpers::~TestMuonIdHelpers()
 
 StatusCode TestMuonIdHelpers::initialize(){
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << " in initialize()" << endreq;
-            
-  StatusCode sc;
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
-    return sc ;
-  }
+  ATH_MSG_DEBUG( " in initialize()"  );
 
-  StoreGateSvc* detStore=0;
-  sc = serviceLocator()->service("DetectorStore", detStore);
+  ATH_CHECK( m_activeStore.retrieve() );
 
-  if (sc.isSuccess()) {
-    sc = detStore->retrieve( m_muon_mgr );
-    if (sc.isFailure()) {
-      log << MSG::ERROR << " Cannot retrieve MuonGeoModelMgr " << endreq;
-      return sc;
-    } else {
-      m_mdtId = m_muon_mgr->mdtIdHelper();
-      m_cscId = m_muon_mgr->cscIdHelper();
-      m_rpcId = m_muon_mgr->rpcIdHelper();
-      m_tgcId = m_muon_mgr->tgcIdHelper();
-    }
-  } else {
-    log << MSG::ERROR << " MuonDetDescrMgr not found in DetectorStore " << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve( m_muon_mgr ) );
+  m_mdtId = m_muon_mgr->mdtIdHelper();
+  m_cscId = m_muon_mgr->cscIdHelper();
+  m_rpcId = m_muon_mgr->rpcIdHelper();
+  m_tgcId = m_muon_mgr->tgcIdHelper();
 
   m_deltaUser    = 0;
   m_deltaKernel  = 0;
@@ -116,26 +99,21 @@ StatusCode TestMuonIdHelpers::initialize(){
 
 StatusCode TestMuonIdHelpers::execute() {
 
-  static  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()"  );
 
-  StatusCode sc = StatusCode::SUCCESS;
-
-  if (m_testMDT) sc = testMdtIdHelper();
-  if (m_testCSC) sc = testCscIdHelper();
-  if (m_testRPC) sc = testRpcIdHelper();
-  if (m_testTGC) sc = testTgcIdHelper();
+  if (m_testMDT) ATH_CHECK( testMdtIdHelper() );
+  if (m_testCSC) ATH_CHECK( testCscIdHelper() );
+  if (m_testRPC) ATH_CHECK( testRpcIdHelper() );
+  if (m_testTGC) ATH_CHECK( testTgcIdHelper() );
 
   m_nTries       += 1;
 
-  return sc;
-
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TestMuonIdHelpers::finalize() {
  
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()"  );
 
    std::cout << "ntries, user, kernel, elapsed "
              << m_nTries << " "
@@ -149,14 +127,12 @@ StatusCode TestMuonIdHelpers::finalize() {
 }
 
 StatusCode TestMuonIdHelpers::testMdtIdHelper() {
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute(): testing MDT IdHelper" << endreq;
+  ATH_MSG_DEBUG( "in execute(): testing MDT IdHelper"  );
 
   // get the helper from the manager
  
   if (!m_mdtId) {
-    log << MSG::ERROR << "cannot retrieve the MDT id helper from MuonDetDescrMgr" << endreq;
+    ATH_MSG_ERROR( "cannot retrieve the MDT id helper from MuonDetDescrMgr"  );
     return StatusCode::FAILURE;
   }
 
@@ -166,15 +142,11 @@ StatusCode TestMuonIdHelpers::testMdtIdHelper() {
   
   string key = "MDT_DIGITS";
   const DataHandle <MdtDigitContainer> container;
-  sc = (*m_activeStore)->retrieve(container,key);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve MDT Container " << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
   collection_iterator it1_coll= container->begin(); 
   collection_iterator it2_coll= container->end(); 
 
-  log << MSG::INFO << "Start Testing MDT Ids" << endreq;
+  ATH_MSG_INFO( "Start Testing MDT Ids"  );
 
   bool error = false;
 
@@ -184,7 +156,7 @@ StatusCode TestMuonIdHelpers::testMdtIdHelper() {
     ++nc1; 
     Identifier moduleId = mdtCollection->identify();
     if (!m_mdtId->validElement(moduleId)) {
-      log <<MSG::ERROR << "Invalid MDT module identifier " << m_mdtId->show_to_string(moduleId) << endreq;
+      ATH_MSG_ERROR( "Invalid MDT module identifier " << m_mdtId->show_to_string(moduleId)  );
     }
     digit_iterator it1_digit = mdtCollection->begin();
     digit_iterator it2_digit = mdtCollection->end();
@@ -196,27 +168,25 @@ StatusCode TestMuonIdHelpers::testMdtIdHelper() {
       if (testMDT != 0) error = true;
       ++nc2;
     }
-    log << MSG::DEBUG<<"Number of valid digits in the collection " << m_mdtId->show_to_string(moduleId) 
-	<<" = " << nc2 << endreq;
+    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_mdtId->show_to_string(moduleId) 
+                  <<" = " << nc2  );
   }
-  log << MSG::DEBUG <<"  Number of MDT Collections  Accessed " << nc1 <<endreq;
+  ATH_MSG_DEBUG("  Number of MDT Collections  Accessed " << nc1  );
 
-  if(error) log << MSG::ERROR << "Check of MDT ids FAILED " << endreq;
-  else      log << MSG::INFO << "Check of MDT ids OK " << endreq;
+  if(error) ATH_MSG_ERROR( "Check of MDT ids FAILED "  );
+  else      ATH_MSG_INFO( "Check of MDT ids OK "  );
   
  return StatusCode::SUCCESS;
 }
 
 
 StatusCode TestMuonIdHelpers::testCscIdHelper() {
-  StatusCode sc;
-  static  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute(): testing CSC IdHelper" << endreq;
+  ATH_MSG_DEBUG( "in execute(): testing CSC IdHelper"  );
   
   // get the helper from the manager
  
   if (!m_cscId) {
-    log << MSG::ERROR << "cannot retrieve the CSC id helper from MuonDetDescrMgr" << endreq;
+    ATH_MSG_ERROR( "cannot retrieve the CSC id helper from MuonDetDescrMgr"  );
     return StatusCode::FAILURE;
   }
 
@@ -226,15 +196,11 @@ StatusCode TestMuonIdHelpers::testCscIdHelper() {
   
   string key = "CSC_DIGITS";
   const DataHandle <CscDigitContainer> container;
-  sc = (*m_activeStore)->retrieve(container,key);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve CSC Container " << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
   collection_iterator it1_coll= container->begin(); 
   collection_iterator it2_coll= container->end(); 
 
-  log << MSG::INFO << "Start Testing CSC Ids" << endreq;
+  ATH_MSG_INFO( "Start Testing CSC Ids"  );
 
   bool error = false;
 
@@ -244,7 +210,7 @@ StatusCode TestMuonIdHelpers::testCscIdHelper() {
     ++nc1; 
     Identifier moduleId = cscCollection->identify();
     if (!m_cscId->validElement(moduleId)) {
-      log <<MSG::ERROR << "Invalid CSC module identifier " << m_cscId->show_to_string(moduleId) << endreq;
+      ATH_MSG_ERROR( "Invalid CSC module identifier " << m_cscId->show_to_string(moduleId)  );
     }
     digit_iterator it1_digit = cscCollection->begin();
     digit_iterator it2_digit = cscCollection->end();
@@ -256,27 +222,24 @@ StatusCode TestMuonIdHelpers::testCscIdHelper() {
       if (testCSC != 0) error = true;
       ++nc2;
     }
-    log << MSG::DEBUG<<"Number of valid digits in the collection " << m_cscId->show_to_string(moduleId) 
-	<<" = " << nc2 << endreq;
+    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_cscId->show_to_string(moduleId) 
+                  <<" = " << nc2  );
   }
-  log << MSG::DEBUG <<"Number of CSC Collections  Accessed " << nc1 <<endreq;
+  ATH_MSG_DEBUG("Number of CSC Collections  Accessed " << nc1  );
 
-  if(error) log << MSG::ERROR << "Check of CSC ids FAILED " << endreq;
-  else      log << MSG::INFO << "Check of CSC ids OK " << endreq;
+  if(error) ATH_MSG_ERROR( "Check of CSC ids FAILED "  );
+  else      ATH_MSG_INFO( "Check of CSC ids OK "  );
   
- return StatusCode::SUCCESS;
-
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TestMuonIdHelpers::testRpcIdHelper() {
-  StatusCode sc;
-  static  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute(): testing RPC IdHelper" << endreq;
+  ATH_MSG_DEBUG( "in execute(): testing RPC IdHelper"  );
   
   // get the helper from the manager
  
   if (!m_rpcId) {
-    log << MSG::ERROR << "cannot retrieve the RPC id helper from MuonDetDescrMgr" << endreq;
+    ATH_MSG_ERROR( "cannot retrieve the RPC id helper from MuonDetDescrMgr"  );
     return StatusCode::FAILURE;
   }
 
@@ -286,15 +249,11 @@ StatusCode TestMuonIdHelpers::testRpcIdHelper() {
   
   string key = "RPC_DIGITS";
   const DataHandle <RpcDigitContainer> container;
-  sc = (*m_activeStore)->retrieve(container,key);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve RPC Container " << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
   collection_iterator it1_coll= container->begin(); 
   collection_iterator it2_coll= container->end(); 
 
-  log << MSG::INFO << "Start Testing RPC Ids" << endreq;
+  ATH_MSG_INFO( "Start Testing RPC Ids"  );
 
   bool error = false;
 
@@ -304,7 +263,7 @@ StatusCode TestMuonIdHelpers::testRpcIdHelper() {
     ++nc1; 
     Identifier moduleId = rpcCollection->identify();
     if (!m_rpcId->validElement(moduleId)) {
-      log <<MSG::ERROR << "Invalid RPC module identifier " << m_rpcId->show_to_string(moduleId) << endreq;
+      ATH_MSG_ERROR( "Invalid RPC module identifier " << m_rpcId->show_to_string(moduleId)  );
     }
     digit_iterator it1_digit = rpcCollection->begin();
     digit_iterator it2_digit = rpcCollection->end();
@@ -316,27 +275,24 @@ StatusCode TestMuonIdHelpers::testRpcIdHelper() {
       if (testRPC != 0) error = true;
       ++nc2;
     }
-    log << MSG::DEBUG<<"Number of valid digits in the collection " << m_rpcId->show_to_string(moduleId) 
-	<<" = " << nc2 << endreq;
+    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_rpcId->show_to_string(moduleId) 
+                  <<" = " << nc2  );
   }
-  log << MSG::DEBUG <<"  Number of RPC Collections  Accessed " << nc1 <<endreq;
+  ATH_MSG_DEBUG("  Number of RPC Collections  Accessed " << nc1  );
 
-  if(error) log << MSG::ERROR << "Check of RPC ids FAILED " << endreq;
-  else      log << MSG::INFO << "Check of RPC ids OK " << endreq;
+  if(error) ATH_MSG_ERROR( "Check of RPC ids FAILED "  );
+  else      ATH_MSG_INFO( "Check of RPC ids OK "  );
   
- return StatusCode::SUCCESS;
-
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TestMuonIdHelpers::testTgcIdHelper() {
-  StatusCode sc;
-  static  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute(): testing TGC IdHelper" << endreq;
+  ATH_MSG_DEBUG( "in execute(): testing TGC IdHelper"  );
   
   // get the helper from the manager
  
   if (!m_tgcId) {
-    log << MSG::ERROR << "cannot retrieve the TGC id helper from MuonDetDescrMgr" << endreq;
+    ATH_MSG_ERROR( "cannot retrieve the TGC id helper from MuonDetDescrMgr"  );
     return StatusCode::FAILURE;
   }
 
@@ -346,15 +302,11 @@ StatusCode TestMuonIdHelpers::testTgcIdHelper() {
   
   string key = "TGC_DIGITS";
   const DataHandle <TgcDigitContainer> container;
-  sc = (*m_activeStore)->retrieve(container,key);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve TGC Container " << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
   collection_iterator it1_coll= container->begin(); 
   collection_iterator it2_coll= container->end(); 
 
-  log << MSG::INFO << "Start Testing TGC Ids" << endreq;
+  ATH_MSG_INFO( "Start Testing TGC Ids"  );
 
   bool error = false;
 
@@ -364,7 +316,7 @@ StatusCode TestMuonIdHelpers::testTgcIdHelper() {
     ++nc1; 
     Identifier moduleId = tgcCollection->identify();
     if (!m_tgcId->validElement(moduleId)) {
-      log <<MSG::ERROR << "Invalid TGC module identifier " << m_tgcId->show_to_string(moduleId) << endreq;
+      ATH_MSG_ERROR( "Invalid TGC module identifier " << m_tgcId->show_to_string(moduleId)  );
     }
     digit_iterator it1_digit = tgcCollection->begin();
     digit_iterator it2_digit = tgcCollection->end();
@@ -376,21 +328,18 @@ StatusCode TestMuonIdHelpers::testTgcIdHelper() {
       if (testTGC != 0) error = true;
       ++nc2;
     }
-    log << MSG::DEBUG<<"Number of valid digits in the collection " << m_tgcId->show_to_string(moduleId) 
-	<<" = " << nc2 << endreq;
+    ATH_MSG_DEBUG("Number of valid digits in the collection " << m_tgcId->show_to_string(moduleId) 
+                  <<" = " << nc2  );
   }
-  log << MSG::DEBUG <<"Number of TGC Collections  Accessed " << nc1 <<endreq;
+  ATH_MSG_DEBUG("Number of TGC Collections  Accessed " << nc1  );
 
-  if(error) log << MSG::ERROR << "Check of TGC ids FAILED " << endreq;
-  else      log << MSG::INFO << "Check of TGC ids OK " << endreq;
+  if(error) ATH_MSG_ERROR( "Check of TGC ids FAILED "  );
+  else      ATH_MSG_INFO( "Check of TGC ids OK "  );
   
- return StatusCode::SUCCESS;
-
+  return StatusCode::SUCCESS;
 }
 
 int TestMuonIdHelpers::testMDTIds(const Identifier& id) {
-
-  MsgStream log(msgSvc(), name());
 
   bool error = false;
 
@@ -402,104 +351,84 @@ int TestMuonIdHelpers::testMDTIds(const Identifier& id) {
 
   m_mdtId->test_id(id,context);
   if (!m_mdtId->valid(id)) {
-    log << MSG::ERROR
-	<< " testMDTIds invalid identifier "
-	<< m_mdtId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testMDTIds invalid identifier "
+                   << m_mdtId->show_to_string(id) );
     error = true;
   }
   int stationName = m_mdtId->stationName(id);
   std::string name = m_mdtId->stationNameString(stationName);
   if (m_mdtId->isBarrel(id) && name[0] != 'B') {
-    log << MSG::ERROR
-	<< " testMDTIds problem in isBarrel() and stationName() "
-	<< m_mdtId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testMDTIds problem in isBarrel() and stationName() "
+                   << m_mdtId->show_to_string(id) );
     error = true;
   }
   if (m_mdtId->isEndcap(id) && name[0] == 'B') {
-    log << MSG::ERROR
-	<< " testMDTIds problem in isEndCap() and stationName() "
-	<< m_mdtId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testMDTIds problem in isEndCap() and stationName() "
+                   << m_mdtId->show_to_string(id) );
     error = true;
   }
   if (m_mdtId->stationNameIndex(name) != m_mdtId->stationName(id)) {
-    log << MSG::ERROR
-	<< " testMDTIds problem in stationNameIndex() and stationName() "
-	<< m_mdtId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testMDTIds problem in stationNameIndex() and stationName() "
+                   << m_mdtId->show_to_string(id) );
     error = true;
   }
   const int etaMin = m_mdtId->stationEtaMin(id);
   const int etaMax = m_mdtId->stationEtaMax(id);
   const int eta    = m_mdtId->stationEta(id);
   if (eta < etaMin || eta > etaMax) {
-    log << MSG::ERROR
-	<< " testMDTIds problem in etaMin, etaMax or eta "
-	<< "etaMin = " << etaMin
-	<< "etaMax = " << etaMax
-	<< "eta    = " << eta << " "
-	<< m_mdtId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testMDTIds problem in etaMin, etaMax or eta "
+                   << "etaMin = " << etaMin
+                   << "etaMax = " << etaMax
+                   << "eta    = " << eta << " "
+                   << m_mdtId->show_to_string(id) );
     error = true;
   }
   const int phiMin = m_mdtId->stationPhiMin(id);
   const int phiMax = m_mdtId->stationPhiMax(id);
   const int phi    = m_mdtId->stationPhi(id);
   if (phi < phiMin || phi > phiMax) {
-    log << MSG::ERROR
-	<< " testMDTIds problem in phiMin, phiMax or phi "
-	<< "phiMin = " << phiMin
-	<< "phiMax = " << phiMax
-	<< "phi    = " << phi << " "
-	<< m_mdtId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testMDTIds problem in phiMin, phiMax or phi "
+                   << "phiMin = " << phiMin
+                   << "phiMax = " << phiMax
+                   << "phi    = " << phi << " "
+                   << m_mdtId->show_to_string(id) );
     error = true;
   }
   const int technology = m_mdtId->technology(id);
   if (technology != m_mdtId->technologyIndex("MDT")) {
-    log << MSG::ERROR
-	<< " testMDTIds problem in technology() "
-	<< "technolog(id) = " << technology
-	<< "technologyIndex = " << m_mdtId->technologyIndex("MDT")
-	<< m_mdtId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testMDTIds problem in technology() "
+                   << "technolog(id) = " << technology
+                   << "technologyIndex = " << m_mdtId->technologyIndex("MDT")
+                   << m_mdtId->show_to_string(id) );
     error = true;
   }
   if ("MDT" != m_mdtId->technologyString(0) || technology != 0) {
-    log << MSG::ERROR
-	<< " testMDTIds problem in technology() "
+    ATH_MSG_ERROR( " testMDTIds problem in technology() "
 	<< "technolog(id) = " << technology
 	<< "technologyIndex = " << m_mdtId->technologyIndex("MDT")
-	<< m_mdtId->show_to_string(id)
-	<< endreq;
+	<< m_mdtId->show_to_string(id) );
     error = true;
   }
   const int multilayerMin = m_mdtId->multilayerMin(id);
   const int multilayerMax = m_mdtId->multilayerMax(id);
   const int multilayer    = m_mdtId->multilayer(id);
   if (multilayer < multilayerMin || multilayer > multilayerMax) {
-    log << MSG::ERROR
-	<< " testMDTIds problem in multilayerMin, multilayerMax or multilayer "
-	<< "multilayerMin = " << multilayerMin
-	<< "multilayerMax = " << multilayerMax
-	<< "multilayer    = " << multilayer << " "
-	<< m_mdtId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testMDTIds problem in multilayerMin, multilayerMax or multilayer "
+                   << "multilayerMin = " << multilayerMin
+                   << "multilayerMax = " << multilayerMax
+                   << "multilayer    = " << multilayer << " "
+                   << m_mdtId->show_to_string(id) );
     error = true;
   }
   const int tubeLayerMin = m_mdtId->tubeLayerMin(id);
   const int tubeLayerMax = m_mdtId->tubeLayerMax(id);
   const int tubeLayer    = m_mdtId->tubeLayer(id);
   if (tubeLayer < tubeLayerMin || tubeLayer > tubeLayerMax) {
-    log << MSG::ERROR
-	<< " testMDTIds problem in tubeLayerMin, tubeLayerMax or tubeLayer "
-	<< "tubeLayerMin = " << tubeLayerMin
-	<< "tubeLayerMax = " << tubeLayerMax
-	<< "tubeLayer    = " << tubeLayer << " "
-	<< m_mdtId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testMDTIds problem in tubeLayerMin, tubeLayerMax or tubeLayer "
+                   << "tubeLayerMin = " << tubeLayerMin
+                   << "tubeLayerMax = " << tubeLayerMax
+                   << "tubeLayer    = " << tubeLayer << " "
+                   << m_mdtId->show_to_string(id) );
     error = true;
   }
 
@@ -508,13 +437,11 @@ int TestMuonIdHelpers::testMDTIds(const Identifier& id) {
   const int tubeMax = m_mdtId->tubeMax(id);
  
   if (tube < tubeMin || tube > tubeMax) {
-    log << MSG::ERROR
-	<< " testMDTIds problem in tubeMin, tubeMax or tube "
-	<< "tubeMin = " << tubeMin
-	<< "tubeMax = " << tubeMax
-	<< "tube    = " << tube << " "
-	<< m_mdtId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testMDTIds problem in tubeMin, tubeMax or tube "
+                   << "tubeMin = " << tubeMin
+                   << "tubeMax = " << tubeMax
+                   << "tube    = " << tube << " "
+                   << m_mdtId->show_to_string(id) );
     error = true;
   }
 
@@ -533,19 +460,17 @@ int TestMuonIdHelpers::testMDTIds(const Identifier& id) {
   m_deltaElapsed += System::ellapsedTime( System::microSec ) - startOfElapsedTime ;
 
   if(error) {
-    log << MSG::ERROR << "Check of MDT ids FAILED " << endreq;
+    ATH_MSG_ERROR( "Check of MDT ids FAILED "  );
     return 1;
   }
   else {
-    log << MSG::DEBUG << "Check of MDT ids OK " << endreq;
+    ATH_MSG_DEBUG( "Check of MDT ids OK "  );
   }
 
   return 0;
 }
 
 int TestMuonIdHelpers::testCSCIds(const Identifier& id) {
-
-  static  MsgStream log(msgSvc(), name());
 
   bool error = false;
  
@@ -557,130 +482,106 @@ int TestMuonIdHelpers::testCSCIds(const Identifier& id) {
  
   m_cscId->test_id(id,context);
   if (!m_cscId->valid(id)) {
-    log << MSG::ERROR
-	<< " testCSCIds invalid identifier "
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds invalid identifier "
+                   << m_cscId->show_to_string(id) );
     error = true;
   }
   int stationName = m_cscId->stationName(id);
   std::string name = m_cscId->stationNameString(stationName);
   if (m_cscId->isEndcap(id) && name[0] != 'C') {
-    log << MSG::ERROR
-	<< " testCSCIds problem in isEndcap() and stationName() "
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds problem in isEndcap() and stationName() "
+                   << m_cscId->show_to_string(id) );
     error = true;
   }
   if (!m_cscId->isBarrel(id) && name[0] != 'C') {
-    log << MSG::ERROR
-	<< " testCSCIds problem in isBarrel() and stationName() "
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds problem in isBarrel() and stationName() "
+	<< m_cscId->show_to_string(id) );
     error = true;
   }
   if (m_cscId->stationNameIndex(name) != m_cscId->stationName(id)) {
-    log << MSG::ERROR
-	<< " testCSCIds problem in stationNameIndex() and stationName() "
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds problem in stationNameIndex() and stationName() "
+                   << m_cscId->show_to_string(id) );
     error = true;
   }
   const int etaMin = m_cscId->stationEtaMin(id);
   const int etaMax = m_cscId->stationEtaMax(id);
   const int eta    = m_cscId->stationEta(id);
   if (eta < etaMin || eta > etaMax) {
-    log << MSG::ERROR
-	<< " testCSCIds problem in etaMin, etaMax or eta "
-	<< "etaMin = " << etaMin
-	<< "etaMax = " << etaMax
-	<< "eta    = " << eta << " "
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds problem in etaMin, etaMax or eta "
+                   << "etaMin = " << etaMin
+                   << "etaMax = " << etaMax
+                   << "eta    = " << eta << " "
+                   << m_cscId->show_to_string(id) );
     error = true;
   }
   const int phiMin = m_cscId->stationPhiMin(id);
   const int phiMax = m_cscId->stationPhiMax(id);
   const int phi    = m_cscId->stationPhi(id);
   if (phi < phiMin || phi > phiMax) {
-    log << MSG::ERROR
-	<< " testCSCIds problem in phiMin, phiMax or phi "
-	<< "phiMin = " << phiMin
-	<< "phiMax = " << phiMax
-	<< "phi    = " << phi << " "
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds problem in phiMin, phiMax or phi "
+                   << "phiMin = " << phiMin
+                   << "phiMax = " << phiMax
+                   << "phi    = " << phi << " "
+                   << m_cscId->show_to_string(id) );
     error = true;
   }
   const int technology = m_cscId->technology(id);
   if (technology != m_cscId->technologyIndex("CSC")) {
-    log << MSG::ERROR
-	<< " testCSCIds problem in technology() "
-	<< "technolog(id) = " << technology
-	<< "technologyIndex = " << m_cscId->technologyIndex("CSC")
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds problem in technology() "
+                   << "technolog(id) = " << technology
+                   << "technologyIndex = " << m_cscId->technologyIndex("CSC")
+                   << m_cscId->show_to_string(id) );
     error = true;
   }
   if ("CSC" != m_cscId->technologyString(1) || technology != 1) {
-    log << MSG::ERROR
-	<< " testCSCIds problem in technology() "
-	<< "technolog(id) = " << technology
-	<< "technologyIndex = " << m_cscId->technologyIndex("CSC")
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds problem in technology() "
+                   << "technolog(id) = " << technology
+                   << "technologyIndex = " << m_cscId->technologyIndex("CSC")
+                   << m_cscId->show_to_string(id) );
     error = true;
   }
   const int chamberLayerMin = m_cscId->chamberLayerMin(id);
   const int chamberLayerMax = m_cscId->chamberLayerMax(id);
   const int chamberLayer    = m_cscId->chamberLayer(id);
   if (chamberLayer < chamberLayerMin || chamberLayer > chamberLayerMax) {
-    log << MSG::ERROR
-	<< " testCSCIds problem in chamberLayerMin, chamberLayerMax or chamberLayer "
-	<< "chamberLayerMin = " << chamberLayerMin
-	<< "chamberLayerMax = " << chamberLayerMax
-	<< "chamberLayer    = " << chamberLayer << " "
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds problem in chamberLayerMin, chamberLayerMax or chamberLayer "
+                   << "chamberLayerMin = " << chamberLayerMin
+                   << "chamberLayerMax = " << chamberLayerMax
+                   << "chamberLayer    = " << chamberLayer << " "
+                   << m_cscId->show_to_string(id) );
     error = true;
   }
   const int wireLayerMin = m_cscId->wireLayerMin(id);
   const int wireLayerMax = m_cscId->wireLayerMax(id);
   const int wireLayer    = m_cscId->wireLayer(id);
   if (wireLayer < wireLayerMin || wireLayer > wireLayerMax) {
-    log << MSG::ERROR
-	<< " testCSCIds problem in wireLayerMin, wireLayerMax or wireLayer "
-	<< "wireLayerMin = " << wireLayerMin
-	<< "wireLayerMax = " << wireLayerMax
-	<< "wireLayer    = " << wireLayer << " "
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds problem in wireLayerMin, wireLayerMax or wireLayer "
+                   << "wireLayerMin = " << wireLayerMin
+                   << "wireLayerMax = " << wireLayerMax
+                   << "wireLayer    = " << wireLayer << " "
+                   << m_cscId->show_to_string(id) );
     error = true;
   }
   const int measuresPhiMin = m_cscId->measuresPhiMin(id);
   const int measuresPhiMax = m_cscId->measuresPhiMax(id);
   const int measuresPhi    = m_cscId->measuresPhi(id);
   if (measuresPhi < measuresPhiMin || measuresPhi > measuresPhiMax) {
-    log << MSG::ERROR
-	<< " testCSCIds problem in measuresPhiMin, measuresPhiMax or measuresPhi "
-	<< "measuresPhiMin = " << measuresPhiMin
-	<< "measuresPhiMax = " << measuresPhiMax
-	<< "measuresPhi    = " << measuresPhi << " "
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds problem in measuresPhiMin, measuresPhiMax or measuresPhi "
+                   << "measuresPhiMin = " << measuresPhiMin
+                   << "measuresPhiMax = " << measuresPhiMax
+                   << "measuresPhi    = " << measuresPhi << " "
+                   << m_cscId->show_to_string(id) );
     error = true;
   }
   const int stripMin = m_cscId->stripMin(id);
   const int stripMax = m_cscId->stripMax(id);
   const int strip    = m_cscId->strip(id);
   if (strip < stripMin || strip > stripMax) {
-    log << MSG::ERROR
-	<< " testCSCIds problem in stripMin, stripMax or strip "
-	<< "stripMin = " << stripMin
-	<< "stripMax = " << stripMax
-	<< "strip    = " << strip << " "
-	<< m_cscId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testCSCIds problem in stripMin, stripMax or strip "
+                   << "stripMin = " << stripMin
+                   << "stripMax = " << stripMax
+                   << "strip    = " << strip << " "
+                   << m_cscId->show_to_string(id) );
     error = true;
   }
 
@@ -699,15 +600,11 @@ int TestMuonIdHelpers::testCSCIds(const Identifier& id) {
   m_deltaElapsed += System::ellapsedTime( System::microSec ) - startOfElapsedTime ;
 
   if(error) {
-    log << MSG::ERROR 
-	<< "Check of CSC ids FAILED " 
-	<< endreq;
+    ATH_MSG_ERROR( "Check of CSC ids FAILED "  );
     return 1;
   }
   else {
-    log << MSG::DEBUG 
-	<< "Check of CSC ids OK " 
-	<< endreq;
+    ATH_MSG_DEBUG( "Check of CSC ids OK "  );
 
   }
 
@@ -715,8 +612,6 @@ int TestMuonIdHelpers::testCSCIds(const Identifier& id) {
 }
 
 int TestMuonIdHelpers::testRPCIds(const Identifier& id) {
-
-  static  MsgStream log(msgSvc(), name());
 
   bool error = false;
   
@@ -728,156 +623,128 @@ int TestMuonIdHelpers::testRPCIds(const Identifier& id) {
 
   m_rpcId->test_id(id,context);
   if (!m_rpcId->valid(id)) {
-    log << MSG::ERROR
-	<< " testRPCIds invalid identifier "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds invalid identifier "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   int stationName = m_rpcId->stationName(id);
   std::string name = m_rpcId->stationNameString(stationName);
   if (m_rpcId->isBarrel(id) && name[0] != 'B') {
-    log << MSG::ERROR
-	<< " testRPCIds problem in isBarrel() and stationName() "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in isBarrel() and stationName() "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   if (!m_rpcId->isEndcap(id) && name[0] != 'B') {
-    log << MSG::ERROR
-	<< " testRPCIds problem in isEndCap() and stationName() "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in isEndCap() and stationName() "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   if (m_rpcId->stationNameIndex(name) != m_rpcId->stationName(id)) {
-    log << MSG::ERROR
-	<< " testRPCIds problem in stationNameIndex() and stationName() "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in stationNameIndex() and stationName() "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   const int etaMin = m_rpcId->stationEtaMin(id);
   const int etaMax = m_rpcId->stationEtaMax(id);
   const int eta    = m_rpcId->stationEta(id);
   if (eta < etaMin || eta > etaMax) {
-    log << MSG::ERROR
-	<< " testRPCIds problem in etaMin, etaMax or eta "
-	<< "etaMin = " << etaMin
-	<< "etaMax = " << etaMax
-	<< "eta    = " << eta << " "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in etaMin, etaMax or eta "
+                   << "etaMin = " << etaMin
+                   << "etaMax = " << etaMax
+                   << "eta    = " << eta << " "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   const int phiMin = m_rpcId->stationPhiMin(id);
   const int phiMax = m_rpcId->stationPhiMax(id);
   const int phi    = m_rpcId->stationPhi(id);
   if (phi < phiMin || phi > phiMax) {
-    log << MSG::ERROR
-	<< " testRPCIds problem in phiMin, phiMax or phi "
-	<< "phiMin = " << phiMin
-	<< "phiMax = " << phiMax
-	<< "phi    = " << phi << " "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in phiMin, phiMax or phi "
+                   << "phiMin = " << phiMin
+                   << "phiMax = " << phiMax
+                   << "phi    = " << phi << " "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   const int technology = m_rpcId->technology(id);
   if (technology != m_rpcId->technologyIndex("RPC")) {
-    log << MSG::ERROR
-	<< " testRPCIds problem in technology() "
-	<< "technolog(id) = " << technology
-	<< "technologyIndex = " << m_rpcId->technologyIndex("RPC")
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in technology() "
+                   << "technolog(id) = " << technology
+                   << "technologyIndex = " << m_rpcId->technologyIndex("RPC")
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   if ("RPC" != m_rpcId->technologyString(2) || technology != 2) {
-    log << MSG::ERROR
-	<< " testRPCIds problem in technology() "
-	<< "technolog(id) = " << technology
-	<< "technologyIndex = " << m_rpcId->technologyIndex("RPC")
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in technology() "
+                   << "technolog(id) = " << technology
+                   << "technologyIndex = " << m_rpcId->technologyIndex("RPC")
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   const int doubletRMin = m_rpcId->doubletRMin(id);
   const int doubletRMax = m_rpcId->doubletRMax(id);
   const int doubletR    = m_rpcId->doubletR(id);
   if (doubletR < doubletRMin || doubletR > doubletRMax) {
-    log << MSG::ERROR
-	<< " testRPCIds problem in doubletRMin, doubletRMax or doubletR "
-	<< "doubletRMin = " << doubletRMin
-	<< "doubletRMax = " << doubletRMax
-	<< "doubletR    = " << doubletR << " "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in doubletRMin, doubletRMax or doubletR "
+                   << "doubletRMin = " << doubletRMin
+                   << "doubletRMax = " << doubletRMax
+                   << "doubletR    = " << doubletR << " "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   const int doubletZMin = m_rpcId->doubletZMin(id);
   const int doubletZMax = m_rpcId->doubletZMax(id);
   const int doubletZ    = m_rpcId->doubletZ(id);
   if (doubletZ < doubletZMin || doubletZ > doubletZMax) {
-    log << MSG::ERROR
-	<< " testRPCIds problem in doubletZMin, doubletZMax or doubletZ "
-	<< "doubletZMin = " << doubletZMin
-	<< "doubletZMax = " << doubletZMax
-	<< "doubletZ    = " << doubletZ << " "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in doubletZMin, doubletZMax or doubletZ "
+                   << "doubletZMin = " << doubletZMin
+                   << "doubletZMax = " << doubletZMax
+                   << "doubletZ    = " << doubletZ << " "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   const int doubletPhiMin = m_rpcId->doubletPhiMin(id);
   const int doubletPhiMax = m_rpcId->doubletPhiMax(id);
   const int doubletPhi    = m_rpcId->doubletPhi(id);
   if (doubletPhi < doubletPhiMin || doubletPhi > doubletPhiMax) {
-    log << MSG::ERROR
-	<< " testRPCIds problem in doubletPhiMin, doubletPhiMax or doubletPhi "
-	<< "doubletPhiMin = " << doubletPhiMin
-	<< "doubletPhiMax = " << doubletPhiMax
-	<< "doubletPhi    = " << doubletPhi << " "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in doubletPhiMin, doubletPhiMax or doubletPhi "
+                   << "doubletPhiMin = " << doubletPhiMin
+                   << "doubletPhiMax = " << doubletPhiMax
+                   << "doubletPhi    = " << doubletPhi << " "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   const int gasGapMin = m_rpcId->gasGapMin(id);
   const int gasGapMax = m_rpcId->gasGapMax(id);
   const int gasGap    = m_rpcId->gasGap(id);
   if (gasGap < gasGapMin || gasGap > gasGapMax) {
-    log << MSG::ERROR
-	<< " testRPCIds problem in gasGapMin, gasGapMax or gasGap "
-	<< "gasGapMin = " << gasGapMin
-	<< "gasGapMax = " << gasGapMax
-	<< "gasGap    = " << gasGap << " "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in gasGapMin, gasGapMax or gasGap "
+                   << "gasGapMin = " << gasGapMin
+                   << "gasGapMax = " << gasGapMax
+                   << "gasGap    = " << gasGap << " "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   const int measuresPhiMin = m_rpcId->measuresPhiMin(id);
   const int measuresPhiMax = m_rpcId->measuresPhiMax(id);
   const int measuresPhi    = m_rpcId->measuresPhi(id);
   if (measuresPhi < measuresPhiMin || measuresPhi > measuresPhiMax) {
-    log << MSG::ERROR
-	<< " testRPCIds problem in measuresPhiMin, measuresPhiMax or measuresPhi "
-	<< "measuresPhiMin = " << measuresPhiMin
-	<< "measuresPhiMax = " << measuresPhiMax
-	<< "measuresPhi    = " << measuresPhi << " "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in measuresPhiMin, measuresPhiMax or measuresPhi "
+                   << "measuresPhiMin = " << measuresPhiMin
+                   << "measuresPhiMax = " << measuresPhiMax
+                   << "measuresPhi    = " << measuresPhi << " "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
   const int stripMin = m_rpcId->stripMin(id);
   const int stripMax = m_rpcId->stripMax(id);
   const int strip    = m_rpcId->strip(id);
   if (strip < stripMin || strip > stripMax) {
-    log << MSG::ERROR
-	<< " testRPCIds problem in stripMin, stripMax or strip "
-	<< "stripMin = " << stripMin
-	<< "stripMax = " << stripMax
-	<< "strip    = " << strip << " "
-	<< m_rpcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testRPCIds problem in stripMin, stripMax or strip "
+                   << "stripMin = " << stripMin
+                   << "stripMax = " << stripMax
+                   << "strip    = " << strip << " "
+                   << m_rpcId->show_to_string(id) );
     error = true;
   }
 
@@ -897,23 +764,17 @@ int TestMuonIdHelpers::testRPCIds(const Identifier& id) {
   m_deltaElapsed += System::ellapsedTime( System::microSec ) - startOfElapsedTime ;
 
   if(error) {
-    log << MSG::ERROR 
-	<< "Check of RPC ids FAILED " 
-	<< endreq;
+    ATH_MSG_ERROR( "Check of RPC ids FAILED "  );
     return 1;
   }
   else {
-    log << MSG::DEBUG 
-	<< "Check of RPC ids OK " 
-	<< endreq;
+    ATH_MSG_DEBUG( "Check of RPC ids OK "  );
   }
   
   return 0;
 }
 
 int TestMuonIdHelpers::testTGCIds(const Identifier& id) {
-
-  static  MsgStream log(msgSvc(), name());
 
   bool error = false;
  
@@ -925,117 +786,95 @@ int TestMuonIdHelpers::testTGCIds(const Identifier& id) {
 
   m_tgcId->test_id(id,context);
   if (!m_tgcId->valid(id)) {
-    log << MSG::ERROR
-	<< " testTGCIds invalid identifier "
-	<< m_tgcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testTGCIds invalid identifier "
+                   << m_tgcId->show_to_string(id) );
     error = true;
   }
   int stationName = m_tgcId->stationName(id);
   std::string name = m_tgcId->stationNameString(stationName);
   if (!m_tgcId->isForward(id) && name[2] != 'E') {
-    log << MSG::ERROR
-	<< " testTGCIds problem in isEndcap() and stationName() "
-	<< m_tgcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testTGCIds problem in isEndcap() and stationName() "
+                   << m_tgcId->show_to_string(id) );
     error = true;
   }
   if (m_tgcId->isForward(id) && name[2] != 'F') {
-    log << MSG::ERROR
-	<< " testTGCIds problem in isForward() and stationName() "
-	<< m_tgcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testTGCIds problem in isForward() and stationName() "
+                   << m_tgcId->show_to_string(id) );
     error = true;
   }
   if (m_tgcId->stationNameIndex(name) != m_tgcId->stationName(id)) {
-    log << MSG::ERROR
-	<< " testTGCIds problem in stationNameIndex() and stationName() "
-	<< m_tgcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testTGCIds problem in stationNameIndex() and stationName() "
+                   << m_tgcId->show_to_string(id) );
     error = true;
   }
   const int etaMin = m_tgcId->stationEtaMin(id);
   const int etaMax = m_tgcId->stationEtaMax(id);
   const int eta    = m_tgcId->stationEta(id);
   if (eta < etaMin || eta > etaMax) {
-    log << MSG::ERROR
-	<< " testTGCIds problem in etaMin, etaMax or eta "
-	<< "etaMin = " << etaMin
-	<< "etaMax = " << etaMax
-	<< "eta    = " << eta << " "
-	<< m_tgcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testTGCIds problem in etaMin, etaMax or eta "
+                   << "etaMin = " << etaMin
+                   << "etaMax = " << etaMax
+                   << "eta    = " << eta << " "
+                   << m_tgcId->show_to_string(id) );
     error = true;
   }
   const int phiMin = m_tgcId->stationPhiMin(id);
   const int phiMax = m_tgcId->stationPhiMax(id);
   const int phi    = m_tgcId->stationPhi(id);
   if (phi < phiMin || phi > phiMax) {
-    log << MSG::ERROR
-	<< " testTGCIds problem in phiMin, phiMax or phi "
-	<< "phiMin = " << phiMin
-	<< "phiMax = " << phiMax
-	<< "phi    = " << phi << " "
-	<< m_tgcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testTGCIds problem in phiMin, phiMax or phi "
+                   << "phiMin = " << phiMin
+                   << "phiMax = " << phiMax
+                   << "phi    = " << phi << " "
+                   << m_tgcId->show_to_string(id) );
     error = true;
   }
   const int technology = m_tgcId->technology(id);
   if (technology != m_tgcId->technologyIndex("TGC")) {
-    log << MSG::ERROR
-	<< " testTGCIds problem in technology() "
-	<< "technolog(id) = " << technology
-	<< "technologyIndex = " << m_tgcId->technologyIndex("TGC")
-	<< m_tgcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testTGCIds problem in technology() "
+                   << "technolog(id) = " << technology
+                   << "technologyIndex = " << m_tgcId->technologyIndex("TGC")
+                   << m_tgcId->show_to_string(id) );
     error = true;
   }
   if ("TGC" != m_tgcId->technologyString(3) || technology != 3) {
-    log << MSG::ERROR
-	<< " testTGCIds problem in technology() "
-	<< "technolog(id) = " << technology
-	<< "technologyIndex = " << m_tgcId->technologyIndex("TGC")
-	<< m_tgcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testTGCIds problem in technology() "
+                   << "technolog(id) = " << technology
+                   << "technologyIndex = " << m_tgcId->technologyIndex("TGC")
+                   << m_tgcId->show_to_string(id) );
     error = true;
   }
   const int gasGapMin = m_tgcId->gasGapMin(id);
   const int gasGapMax = m_tgcId->gasGapMax(id);
   const int gasGap    = m_tgcId->gasGap(id);
   if (gasGap < gasGapMin || gasGap > gasGapMax) {
-    log << MSG::ERROR
-	<< " testTGCIds problem in gasGapMin, gasGapMax or gasGap "
-	<< "gasGapMin = " << gasGapMin
-	<< "gasGapMax = " << gasGapMax
-	<< "gasGap    = " << gasGap << " "
-	<< m_tgcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testTGCIds problem in gasGapMin, gasGapMax or gasGap "
+                   << "gasGapMin = " << gasGapMin
+                   << "gasGapMax = " << gasGapMax
+                   << "gasGap    = " << gasGap << " "
+                   << m_tgcId->show_to_string(id) );
     error = true;
   }
   const int isStripMin = m_tgcId->isStripMin(id);
   const int isStripMax = m_tgcId->isStripMax(id);
   const int isStrip    = m_tgcId->isStrip(id);
   if (isStrip < isStripMin || isStrip > isStripMax) {
-    log << MSG::ERROR
-	<< " testTGCIds problem in isStripMin, isStripMax or isStrip "
-	<< "isStripMin = " << isStripMin
-	<< "isStripMax = " << isStripMax
-	<< "isStrip    = " << isStrip << " "
-	<< m_tgcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testTGCIds problem in isStripMin, isStripMax or isStrip "
+                   << "isStripMin = " << isStripMin
+                   << "isStripMax = " << isStripMax
+                   << "isStrip    = " << isStrip << " "
+                   << m_tgcId->show_to_string(id) );
     error = true;
   }
   const int channelMin = m_tgcId->channelMin(id);
   const int channelMax = m_tgcId->channelMax(id);
   const int channel    = m_tgcId->channel(id);
   if (channel < channelMin || channel > channelMax) {
-    log << MSG::ERROR
-	<< " testTGCIds problem in channelMin, channelMax or channel "
-	<< "channelMin = " << channelMin
-	<< "channelMax = " << channelMax
-	<< "channel    = " << channel << " "
-	<< m_tgcId->show_to_string(id)
-	<< endreq;
+    ATH_MSG_ERROR( " testTGCIds problem in channelMin, channelMax or channel "
+                   << "channelMin = " << channelMin
+                   << "channelMax = " << channelMax
+                   << "channel    = " << channel << " "
+                   << m_tgcId->show_to_string(id) );
     error = true;
   }
   
@@ -1054,15 +893,11 @@ int TestMuonIdHelpers::testTGCIds(const Identifier& id) {
   m_deltaElapsed += System::ellapsedTime( System::microSec ) - startOfElapsedTime ;
 
   if(error) {
-    log << MSG::ERROR 
-	<< "Check of TGC ids FAILED " 
-	<< endreq;
+    ATH_MSG_ERROR( "Check of TGC ids FAILED "  );
     return 1;
   }
   else {
-    log << MSG::DEBUG 
-	<< "Check of TGC ids OK " 
-	<< endreq;
+    ATH_MSG_DEBUG( "Check of TGC ids OK "  );
   }
 
   return 0;

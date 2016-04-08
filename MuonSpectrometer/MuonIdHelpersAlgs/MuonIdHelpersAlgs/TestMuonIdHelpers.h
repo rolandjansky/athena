@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
 
 class StoreGateSvc;
@@ -24,7 +24,7 @@ class MuonDetectorManager;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class TestMuonIdHelpers:public Algorithm {
+class TestMuonIdHelpers : public AthAlgorithm {
 
 public:
 
@@ -52,8 +52,7 @@ private:
   BooleanProperty m_testRPC;
   BooleanProperty m_testTGC;
 
-  ActiveStoreSvc             * m_activeStore;
-  StoreGateSvc               * m_EvtStore;
+  ServiceHandle<ActiveStoreSvc> m_activeStore;
   const MdtIdHelper          * m_mdtId;
   const CscIdHelper          * m_cscId;
   const RpcIdHelper          * m_rpcId;
