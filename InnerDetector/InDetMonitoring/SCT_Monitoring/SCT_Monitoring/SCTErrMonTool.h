@@ -171,7 +171,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   /// "Magic numbers" for an SCT module
   //unsigned int m_nplanes; //to be determined from SCT Helper
-  enum { Confbins = 6, ConfbinsDetailed = 5,n_lumiErrBins = 12, n_lumiBins = 2000 };
+  enum { Confbins = 6, ConfbinsDetailed = 5,n_lumiErrBins = 12, n_lumiBins = 3000 };
   // NOTE: The following is not the usual index order, which goes C, Barrel, A
   enum { iBARREL = 0, iECp = 1, iECm=2, iGEN=3 }; //iECp==EA, iECm==EC
 
@@ -254,11 +254,30 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH1F * m_MaxBSParseVsLB[4];
   TH1F * m_MaxMissingLinkHeaderVsLB[4];
 
+  // TH2I * m_2d_MaxMaskedLinksVsLB[4];
+  // TH2I * m_2d_MaxROBFragmentVsLB[4];
+  // TH2I * m_2d_MaxABCDVsLB[4];
+  // TH2I * m_2d_MaxRawErrsVsLB[4];
+  // TH2I * m_2d_MaxTimeOutVsLB[4];
+  // TH2I * m_2d_MaxLVL1IDVsLB[4];
+  // TH2I * m_2d_MaxBCIDVsLB[4];
+  // TH2I * m_2d_MaxPreambleVsLB[4];
+  // TH2I * m_2d_MaxFormatterVsLB[4];
+  // TH2I * m_2d_MaxRODClockVsLB[4];
+  // TH2I * m_2d_MaxTruncRODVsLB[4];
+  // TH2I * m_2d_MaxBSParseVsLB[4];
+  // TH2I * m_2d_MaxMissingLinkHeaderVsLB[4];
+
   TProfile * m_NumberOfErrorsVsLB[4];
   TProfile * m_ModulesWithErrorsVsLB[4];
- 
+  TProfile * m_LinksWithErrorsVsLBBarrel[4];
+  TProfile * m_LinksWithErrorsVsLBEndcapA[9];
+  TProfile * m_LinksWithErrorsVsLBEndcapC[9]; 
+
   TH1F * m_MaxNumberOfErrorsVsLB[4];
   TH1F * m_MaxModulesWithErrorsVsLB[4];
+  // TH2I * m_2d_MaxNumberOfErrorsVsLB[4];
+  // TH2I * m_2d_MaxModulesWithErrorsVsLB[4];
 
   TProfile * m_ConfEffOnline;
   TProfile * m_ConfNoiseOnline;

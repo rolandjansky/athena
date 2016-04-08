@@ -525,7 +525,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
         tbin=3;
       }
       SCT_Identifier = (*p_rdo)->identify();
-      const unsigned int firstStrip ((*p_rdo)->getStrip());
+      const unsigned int firstStrip (m_pSCTHelper->strip(SCT_Identifier));
       const unsigned int numberOfStrips ((*p_rdo)->getGroupSize());
       int thisBec       = m_pSCTHelper->barrel_ec(SCT_Identifier);
       int thisLayerDisk = m_pSCTHelper->layer_disk(SCT_Identifier);
