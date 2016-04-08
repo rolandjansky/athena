@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTaggingEnums.h 602981 2014-06-20 20:55:54Z aad $
+// $Id: BTaggingEnums.h 644962 2015-02-07 13:11:34Z filthaut $
 #ifndef XAODBTAGGING_BTAGGINGENUMS_H
 #define XAODBTAGGING_BTAGGINGENUMS_H
 
@@ -52,9 +52,9 @@ namespace xAOD
       JetFitter_energyFraction = 304,
       /// @brief JetFitter : 3D vertex significance
       JetFitter_significance3d = 305,
-      /// @brief JetFitter : Delta eta between ??? (jet and 2nd vtx axis??)
+      /// @brief JetFitter : Delta eta between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
       JetFitter_deltaeta = 306,
-      /// @brief JetFitter : Delta phi between ??? (jet and 2nd vtx axis??)
+      /// @brief JetFitter : Delta phi between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
       JetFitter_deltaphi = 307,
       /// @brief JetFitter :  Number of 2-track pairs
       JetFitter_N2Tpair = 308,

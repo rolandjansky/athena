@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODBTaggingDict.h 631475 2014-11-27 11:53:05Z filthaut $
+// $Id: xAODBTaggingDict.h 688348 2015-08-10 09:03:52Z kleney $
 #ifndef XAODBTAGGING_XAODBTAGGINGDICT_H
 #define XAODBTAGGING_XAODBTAGGINGDICT_H
 
@@ -23,10 +23,12 @@
 // Local include(s):
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"
+#include "xAODBTagging/BTaggingTrigAuxContainer.h"
 #include "xAODBTagging/BTagVertexContainer.h" 
 #include "xAODBTagging/BTagVertexAuxContainer.h"
 // #include "xAODBTagging/versions/BTaggingContainer_v1.h"
 // #include "xAODBTagging/versions/BTaggingAuxContainer_v1.h"
+// #include "xAODBTagging/versions/BTaggingTrigAuxContainer_v1.h"
 // #include "xAODBTagging/versions/BTagVertexContainer_v1.h" 
 // #include "xAODBTagging/versions/BTagVertexAuxContainer_v1.h"
 

@@ -14,6 +14,7 @@ use AthLinks      AthLinks-*      Control
 # EDM package(s):
 use xAODCore               xAODCore-*               Event/xAOD
 use xAODTracking           xAODTracking-*           Event/xAOD
+#use xAODJet                xAODJet-*                Event/xAOD
 use xAODBase               xAODBase-*               Event/xAOD  
 
 
@@ -30,3 +31,5 @@ use AthLinks      AthLinks-*      Control
 apply_pattern lcgdict dict=xAODBTagging selectionfile=selection.xml \
                       headerfiles="../xAODBTagging/xAODBTaggingDict.h" \
                       extralibfiles=../Root/dict/*.cxx
+
+apply_pattern do_genCLIDDB library=xAODBTagging
