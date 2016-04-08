@@ -517,7 +517,7 @@ def DrawPlots(inputTuple, outputName, plotTitle, yAxisTitle, xAxisTitle, legendL
 ##########################################################################################################
 def DrawEvolutionPlot(inputTuple, outputName, plotTitle, yAxisTitle, legendLeftX, legendUpperY, units, 
               canvasText, makeOutput, textBoxLeftX=0.59, textBoxUpperY=0.87, dynamicYRange=True, plotCosmetics="Default"):
-    debug = True
+    debug = False
     if (debug): print " \n <DrawEvolutionPlots> -- start -- drawing \n   inputTuple = ",inputTuple
 
     nPoints = len(inputTuple)/3 # for each file there are 3 entries in the Tuple
@@ -1063,7 +1063,7 @@ def MakeProfSigmaPlots(histogramDir,legendTitles,markerColors,markerStyles,histo
 def MakePlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,histogramName, fitType, rootFiles, nFiles,  symmetricRange=False, binRangeLower=-1, binRangeUpper=-1):
 
     # this function takes as argument a TH3 and obtains the profile in one of its axis. 
-    debug = True
+    debug = False
     normaliseHistos = True # not normalization
     unitArea = False # not unit area
 
@@ -1198,11 +1198,11 @@ def MakeProfPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,hist
     maxval = 0.0
     max_hist = 0
     
-    histoGram = [TH3,TH3,TH3,TH3,TH3,TH3]
-    returnHistogram = [TH1, TH1, TH1, TH1, TH1,TH1]
-    myProfile = [TH2D,TH2D,TH2D,TH2D,TH2D,TH2D]
-    Tuples = [tuple,tuple,tuple,tuple,tuple,tuple]
-    tempProf = [TH1F, TH1F, TH1F, TH1F, TH1F, TH1F]
+    histoGram = [TH3,TH3,TH3,TH3,TH3,TH3, TH3,TH3,TH3]
+    returnHistogram = [TH1, TH1, TH1, TH1, TH1,TH1, TH1, TH1, TH1]
+    myProfile = [TH2D,TH2D,TH2D,TH2D,TH2D,TH2D, TH2D, TH2D, TH2D]
+    Tuples = [tuple,tuple,tuple,tuple,tuple,tuple, tuple, tuple, tuple]
+    tempProf = [TH1F, TH1F, TH1F, TH1F, TH1F, TH1F, TH1F, TH1F, TH1F]
     
     #first have to get all the histograms because they may be used to normalise each other etc 
     for i in range(nFiles):
@@ -1241,7 +1241,7 @@ def MakeProfPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,hist
         if tempProf[i].GetMinimum() < -maxval:
             maxval = -tempProf[i].GetMinimum()
         maxval = 1.20 * maxval
-        maxval = 0.100
+        maxval = 0.009
         if (SubtractFirstHistoTest): maxval = 0.020
         #if (maxval < 0.45): maxval = 0.450
         #if (maxval < 0.10): maxval = 0.100
@@ -1325,7 +1325,57 @@ def MakeProfPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,hist
             totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5]
         elif max_hist==5:
             totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4]
-
+    if nFiles==7:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6]
+        elif max_hist==6:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5]
+    if nFiles==8:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6] + Tuples[7]
+        elif max_hist==6:
+            totalTuple = Tuples[6] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[7]
+        elif max_hist==7:
+            totalTuple = Tuples[7] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+    if nFiles==9:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==6:
+            totalTuple = Tuples[6] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[7] + Tuples[8]
+        elif max_hist==7:
+            totalTuple = Tuples[7] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[8]
+        elif max_hist==7:
+            totalTuple = Tuples[8] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
 
 
     if (debug): print "  <MakeProfPlots> for ",histogramName, " **  COMPLETED  ** "
@@ -1349,11 +1399,11 @@ def MakexResSagittaPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyl
     minval = 0.0
     max_hist = 0
     
-    histoGram = [TH3,TH3,TH3,TH3,TH3,TH3]
-    returnHistogram = [TH1F, TH1F, TH1F, TH1F, TH1F, TH1F]
-    myProfile = [TH2, TH2, TH2, TH2, TH2, TH2]
-    Tuples = [tuple,tuple,tuple,tuple,tuple,tuple]
-    tempProf = [TH1F, TH1F, TH1F, TH1F, TH1F, TH1F]
+    histoGram = [TH3,TH3,TH3,TH3,TH3,TH3, TH3, TH3, TH3]
+    returnHistogram = [TH1F, TH1F, TH1F, TH1F, TH1F, TH1F, TH1F, TH1F, TH1F]
+    myProfile = [TH2, TH2, TH2, TH2, TH2, TH2, TH2, TH2, TH2]
+    Tuples = [tuple,tuple,tuple,tuple,tuple,tuple,tuple,tuple,tuple]
+    tempProf = [TH1F, TH1F, TH1F, TH1F, TH1F, TH1F, TH1F, TH1F, TH1F]
     
     #first have to get all the histograms because they may be used to normalise each other etc 
     for i in range(nFiles):
@@ -1510,6 +1560,57 @@ def MakexResSagittaPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyl
             totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5]
         elif max_hist==5:
             totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4]
+    if nFiles==7:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6]
+        elif max_hist==6:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5]
+    if nFiles==8:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6] + Tuples[7]
+        elif max_hist==6:
+            totalTuple = Tuples[6] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[7]
+        elif max_hist==7:
+            totalTuple = Tuples[7] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+    if nFiles==9:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==6:
+            totalTuple = Tuples[6] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[7] + Tuples[8]
+        elif max_hist==7:
+            totalTuple = Tuples[7] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[8]
+        elif max_hist==7:
+            totalTuple = Tuples[8] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
 
 
     if (debug): print "  <MakeProfPlots> for ",histogramName, " **  COMPLETED  ** "
@@ -1543,9 +1644,9 @@ def MakeModuleResPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles
     maxval = -999999
     max_hist = 0
     
-    histoGram = [TH3,TH3,TH3,TH3,TH3, TH3]
-    returnHistogram = [TH1, TH1, TH1, TH1, TH1, TH1]
-    Tuples = [tuple,tuple,tuple,tuple,tuple,tuple]
+    histoGram = [TH3,TH3,TH3,TH3,TH3, TH3, TH3, TH3, TH3]
+    returnHistogram = [TH1, TH1, TH1, TH1, TH1, TH1, TH1, TH1, TH1]
+    Tuples = [tuple,tuple,tuple,tuple,tuple,tuple, tuple, tuple, tuple]
 
     #first have to get all the histograms because they may be used to normalise each other etc 
     for i in range(nFiles):
@@ -1638,6 +1739,58 @@ def MakeModuleResPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles
             totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5]
         elif max_hist==5:
             totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4]
+    if nFiles==7:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6]
+        elif max_hist==6:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5]
+    if nFiles==8:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6] + Tuples[7]
+        elif max_hist==6:
+            totalTuple = Tuples[6] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[7]
+        elif max_hist==7:
+            totalTuple = Tuples[7] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+    if nFiles==9:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==6:
+            totalTuple = Tuples[6] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[7] + Tuples[8]
+        elif max_hist==7:
+            totalTuple = Tuples[7] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[8]
+        elif max_hist==7:
+            totalTuple = Tuples[8] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+
 
     if (debug): print " <MakeModuleResPlotsFrom3D> totalTuple:", totalTuple
     if (debug): print "  <MakeModuleResPlotsFrom3D> for ",histogramName, " **  COMPLETED  ** "
@@ -3222,28 +3375,71 @@ def getSCTEndCapMapHisto (inputHisto, disk):
 
 ###########################################################################################################
 def getPIXEndCapResMapHisto (inputHisto, disk):
-    
+                             
+    isPixel = True
     #split the pixels hit maps histo of the end caps as all the disks are kept in the same histogram
     debug = False
+    if (debug): print "\n\n -- getPIXEndCapResMapHisto -- remember to set debug = False \n\n" 
     if (debug): print " -- getPIXEndCapResMapHisto -- start -- extracting disk ", disk ," from histo ",inputHisto.GetName()
+    if ("sct" in inputHisto.GetName()):  
+        isPixel = False
+        print " -- getPIXEndCapResMapHisto -- ERROR -- dealing with SCT histogram ", inputHisto.GetName()
+        
+    print " -- getPIXEndCapResMapHisto -- start -- extracting disk ", disk ," from histo ",inputHisto.GetName()
 
-    outputHisto = TH2F("d"+str(disk)+"_"+inputHisto.GetName(), inputHisto.GetTitle()+" disk "+str(disk), 
-                       inputHisto.GetNbinsY(), inputHisto.GetYaxis().GetXmin(), inputHisto.GetYaxis().GetXmax(),
-                       1, inputHisto.GetYaxis().GetXmin(), inputHisto.GetYaxis().GetXmax()) # same range to facilitate drawing on top
-
+    if (isPixel):
+        outputHisto = TH2F("d"+str(disk)+"_"+inputHisto.GetName(), inputHisto.GetTitle()+" disk "+str(disk), 
+                           inputHisto.GetNbinsY(), inputHisto.GetYaxis().GetXmin(), inputHisto.GetYaxis().GetXmax(),
+                           1, inputHisto.GetYaxis().GetXmin(), inputHisto.GetYaxis().GetXmax()) # same range to facilitate drawing on top
+        
     if (debug): print " -- getPIXEndCapResMapHisto -- ouputHisto= ", outputHisto.GetName(), "  Xbins=", outputHisto.GetNbinsX(), "  Ybins=", outputHisto.GetNbinsY()    
     for i in range(outputHisto.GetNbinsX()):
         #project the histo per disk and module
         thisHisto = inputHisto.ProjectionZ(inputHisto.GetName()+"_d"+str(disk)+"_m"+str(i),disk+1,disk+1,i+1,i+1)
         if (thisHisto.GetEntries() >= MinEntriesPerModule): # min number of entries
             outputHisto.SetBinContent(i+1, 1, 1000.*thisHisto.GetMean())
-            if (debug): print " -- getPIXEndCapMapHisto -- disk: ", disk," module: ",i," entries:",thisHisto.GetEntries(),"  res:",1000.*thisHisto.GetMean()," bincontent=",outputHisto.GetBinContent(i+1,disk+1)
+            if (debug): print " -- getPIXEndCapResMapHisto -- disk: ", disk," module: ",i," entries:",thisHisto.GetEntries(),"  res:",1000.*thisHisto.GetMean()," bincontent=",outputHisto.GetBinContent(i+1,disk+1)
 
+                
 
     # this is a crosscheck to avoid crashes
     if (outputHisto.GetEntries() == 0): outputHisto.SetBinContent(1,1,0.)
                 
     if (debug): print " -- getPIXEndCapResMapHisto -- completed -- "
+        
+    return outputHisto
+
+###########################################################################################################
+def getSCTEndCapResMapHisto (inputHisto, disk):
+                            
+    #split the sct hit maps histo of the end caps as all the disks are kept in the same histogram
+    debug = False
+    if (debug): print "\n\n -- getSCTEndCapResMapHisto -- remember to set debug = False \n\n" 
+    if (debug): 
+        print " -- getSCTEndCapResMapHisto -- start -- extracting disk ", disk ," from histo ",inputHisto.GetName()
+        print " -- getSCTEndCapResMapHisto -- start -- extracting disk ", disk ," from histo ",inputHisto.GetName()
+
+    outputHisto = TH2F("d"+str(disk)+"_"+inputHisto.GetName(), inputHisto.GetTitle()+" disk "+str(disk), 
+                       inputHisto.GetNbinsX(), inputHisto.GetXaxis().GetXmin(), inputHisto.GetXaxis().GetXmax(),
+                       inputHisto.GetNbinsY(), inputHisto.GetYaxis().GetXmin(), inputHisto.GetYaxis().GetXmax()) # same range to facilitate drawing on top
+        
+    if (debug): 
+        print " -- getSCTEndCapResMapHisto -- ouputHisto= ", outputHisto.GetName(), "  Xbins=", outputHisto.GetNbinsX(), "  Ybins=", outputHisto.GetNbinsY()
+        print "    loop on rings ", outputHisto.GetNbinsX(), " and modules ",outputHisto.GetNbinsY() 
+    for i in range(outputHisto.GetNbinsX()):
+        for j in range(outputHisto.GetNbinsY()):
+        #project the histo per disk and module
+            thisHisto = inputHisto.ProjectionZ(inputHisto.GetName()+"_d"+str(disk)+"_r"+str(i)+"_m"+str(j),i+1,i+1,j+1,j+1)
+            if (thisHisto.GetEntries() >= MinEntriesPerModule): # min number of entries
+                outputHisto.SetBinContent(i+1, j+1, 1000.*thisHisto.GetMean())
+                if (debug): print " -- getSCTEndCapResMapHisto -- disk: ", disk," ring",i," module: ",j," entries:",thisHisto.GetEntries(),"  res:",1000.*thisHisto.GetMean()," bincontent=",outputHisto.GetBinContent(i+1,j+1)
+
+                
+
+    # this is a crosscheck to avoid crashes
+    if (outputHisto.GetEntries() == 0): outputHisto.SetBinContent(1,1,0.)
+                
+    if (debug): print " -- getSCTEndCapResMapHisto -- completed -- "
         
     return outputHisto
 
@@ -3452,7 +3648,7 @@ def MakeResidualMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="p
     # The hit maps have to be plotted for each track collection
     # this gets histograms from the files, normalises if desired and makes fits
     # and returns histograms and fits
-    debug = True
+    debug = False
     totalMax = -9999999
     totalMin = 99999999
     totalRange = totalMin #intialize to an arbitrary large value
@@ -3528,8 +3724,8 @@ def MakeResidualMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="p
         for disk in range(nLayers):
             myHistoName = shortName + str(disk) + "_s" + str(coordinate)+ "_xresvsmodetaphi_3d" 
             histoEChits = GetHistogram(rootFiles[fileID],histogramDir[fileID],myHistoName,0,0)
-            print "histoEChits. Bins X = ", histoEChits.GetNbinsX(), "   Bins Y= ", histoEChits.GetNbinsY()            
-            histoGram[disk] = getPIXEndCapResMapHisto (histoEChits, disk)
+            if (debug): print " -- MakeResidualMaps --> histoEChits:",myHistoName ," Bins X = ", histoEChits.GetNbinsX(), "   Bins Y= ", histoEChits.GetNbinsY()            
+            histoGram[disk] = getSCTEndCapResMapHisto (histoEChits, disk)
 
 
     #Now, the histograms are available
@@ -3727,7 +3923,7 @@ def PrintHitMapExtraAxis (i, inputHis, detecName = "PIX", barrelEndCap = "BAR"):
 def DrawHitMaps(inputTuple, outputName, xAxisTitle, yAxisTitle, zAxisTitle, legendLeftX, legendUpperY, units, 
               canvasText, makeOutput, detecName = "PIX", barrelEndCap = "BAR", paletteStyle = 1):
 
-    debug = True
+    debug = False
     # dynamicYRange=True means that the y-range of the histogram drawn first is adjusted so that 
     # all the histograms will fit into this range. If False then the default y-range of the first histogram is used.
     
@@ -3763,9 +3959,10 @@ def DrawHitMaps(inputTuple, outputName, xAxisTitle, yAxisTitle, zAxisTitle, lege
         
     if (debug): print " -- DrawHitMaps -- going to loop over ",nHist," histograms of detec=",detecName,"   Barrel/Endcap= ",barrelEndCap 
     # colors
-    #gStyle.SetPalette(1) # 53= dark body radiator; 1= standard; 55 = rainbow
+    gStyle.SetPalette(1) # 53= dark body radiator; 1= standard; 55 = rainbow
     Palette_EffiPlots = TExec("SetPalette_TrafficLights","gStyle->SetPalette(1)")
     if(paletteStyle != 1): Palette_EffiPlots = TExec("Palette_TrafficLights",'TPython::Exec("preparePalette('+str(paletteStyle)+')")') 
+    Palette_EffiPlots.Draw();
 
     # title of the histograms
     latexTitle = TLatex()
@@ -3869,7 +4066,7 @@ def DrawModuleGrid(detecName, inputHisto, layer=0):
     return
 ###########################################################################################################################
 def DrawSCTECMap(inputHisto, disk):
-    debug = True
+    debug = False
     if (debug): print " -- DrawSCTECMap -- start -- for disk ", disk, " entries:",inputHisto.GetEntries(),"  binsX=",inputHisto.GetNbinsX(),"  binsY=",inputHisto.GetNbinsY()
 
     if (debug): print "define boxsct"
@@ -3894,7 +4091,7 @@ def DrawSCTECMap(inputHisto, disk):
     SetOwnership(blank, False)
     blank.Draw()
     gPad.Update()
-    blank.Print()
+    #blank.Print()
 
     # Let's draw the wheels 
     # -parameters
@@ -3930,8 +4127,7 @@ def DrawSCTECMap(inputHisto, disk):
             ymod[4] = ymod[0]
             if (debug): print " -- DrawSCTECMap -- disk:",disk," ring:",ring," module:",module,"  entries:",inputHisto.GetBinContent(ring+1,module+1)
             pmod[module] = TPolyLine(5, xmod, ymod)
-            #pmod[module].SetFillColor(locateColor(boxsct,ring+1,module+1))
-            pmod[module].SetFillColor(locateColor(boxsct,module+1,ring+1))
+            pmod[module].SetFillColor(locateColor(boxsct,ring+1,module+1))
             if (inputHisto.GetBinContent(ring+1,module+1) == 0): 
                 pmod[module].SetFillColor(kGray+1)
             pmod[module].Draw("Fsame")
@@ -4006,7 +4202,7 @@ def DrawPixelECMap(inputHisto):
 
 ###########################################################################################################################
 def DrawResPerStave(inputTuple, outputName, outputFile, nFiles):
-    debug = True
+    debug = False
     can = TCanvas(outputName, outputName, 900, 800)
     can.Divide(4,5)
 

@@ -4,7 +4,7 @@
 
 psname = "ConstantsEvolution.pdf"
 
-def drawCorr(detector, labelList, drawErrors=False, drawLine=True):
+def drawCorr(detector, labelList, drawErrors=False, drawLine=True, drawingDOF=-1):
     debug = False
     NullCanvas = initPsFile()
     Canvases = []
@@ -17,8 +17,9 @@ def drawCorr(detector, labelList, drawErrors=False, drawLine=True):
     tmpCan, tmpGraph = d_utils.drawCorrVsHits(detector)
     Canvases.append(tmpCan)
     Histos.append(tmpGraph)
-    
-    tmpCan = d_utils.drawCorrEvolution(detector, labelList, drawErrors, drawLine ) # add dof number -->plot only that dof
+
+    if (True): print " -- drawCorr -- calling d_utils.drawCorrEvolution for drawingDOF=",drawingDOF
+    tmpCan = d_utils.drawCorrEvolution(detector, labelList, drawErrors, drawLine, drawingDOF ) # add dof number -->plot only that dof
     Canvases.append(tmpCan)
 
     if len(detector[0].ReturnPixelBarrelModules())>0:
@@ -121,6 +122,7 @@ def optParsing():
     parser.add_option("--inputFiles", dest="inputLogFiles", help="In the case you want to use a specific set of initial constants write here the absolute path to the alignlogfile", default="")
     parser.add_option("--fileLabels", dest="inputFileLabels", help="Label to be given to each file. Defaults are: Iter0, Iter1, ...", default="")
     parser.add_option("--drawErrors", dest="inputDrawErrors", help="Constants evolution plot without errors", action="store_true", default=False)
+    parser.add_option("--dof", dest="inputDof", help="User may select a given dof (0=Tx, 1=Ty, 2=Tz, 3=Rx, 4=Ry, 5=Rz, 6=Bx. -1 = from Tx to Rz (no Bx)", default=-1)
     parser.add_option("--SaveData", dest="inputSaveData", help="Define which of the input files is saved in the ntuple and txt file. Default the accumulative one", default = -1)
     parser.add_option("--noLine", dest="inputDrawLine", help="Draw a line conecting the points of the same structure", action="store_false", default=True)
     parser.add_option("--noEndCaps", dest="inputUseEndCaps", help="remove the end caps from the plots", action="store_false", default=True)
@@ -169,6 +171,7 @@ if __name__ == '__main__':
         labelsListGiven = False
 
     userSaveData = int(config.inputSaveData)
+    userDOF = int(config.inputDof)
     
     global TestUseBarrel
     TestUseBarrel = config.inputUseBarrels
@@ -208,7 +211,7 @@ if __name__ == '__main__':
     if (userSaveData < 0): userSaveData = inewdet 
     if (True): print " == drawEvolution == new detector[",inewdet,"] created for the accumulation"
 
-    C,H = drawCorr(detector, labelList, config.inputDrawErrors, config.inputDrawLine)
+    C,H = drawCorr(detector, labelList, config.inputDrawErrors, config.inputDrawLine, userDOF)
 
     if (True): print " == drawEvolution == saving detector[",userSaveData,"]"
     f_utils.writeCorr("alignment.txt",detector[userSaveData])
