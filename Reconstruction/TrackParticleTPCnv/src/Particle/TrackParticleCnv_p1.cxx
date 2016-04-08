@@ -8,11 +8,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "Particle/TrackParticle.h"
-#undef private
-#undef protected
 #include "TrackParticleTPCnv/Particle/TrackParticleCnv_p1.h"
 #include <cmath>
 #include "GeoPrimitives/GeoPrimitives.h"

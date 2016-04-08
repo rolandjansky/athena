@@ -9,14 +9,13 @@
 #include "DataModelAthenaPool/AthenaBarCode_p1.h"
 
 #include "DataModelAthenaPool/ElementLink_p3.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 
 namespace Rec
 {
     class TrackParticle_p3
     {
     public:
-        TrackParticle_p3(){}
+        TrackParticle_p3():m_fitQuality_m_chiSquared{},m_fitQuality_m_numberDoF{}{/* nop */}
 
         ElementLinkInt_p3         m_originalTrack;
         ElementLinkInt_p3         m_elVxCandidate;

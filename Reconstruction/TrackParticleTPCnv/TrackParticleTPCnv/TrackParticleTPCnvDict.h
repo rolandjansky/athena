@@ -23,9 +23,6 @@
 #include "TrackParticleTPCnv/Particle/TrackParticle_p3.h"
 #include "TrackParticleTPCnv/Particle/TrackParticleContainer_p1.h"
 #include "TrackParticleTPCnv/Particle/TrackParticleContainer_p2.h"
-#include "TrackParticleTPCnv/TrackParticleContainerCnv_tlp1.h"
-#include "TrackParticleTPCnv/TrackParticleContainerCnv_tlp2.h"
-#include "TrackParticleTPCnv/TrackParticleContainerCnv_tlp3.h"
 
 namespace TrackParticleTPCnvDict 
 {
@@ -35,9 +32,6 @@ namespace TrackParticleTPCnvDict
       std::vector< Rec::TrackParticle_p1 >                m_v2;
       std::vector< Rec::TrackParticle_p2 >                m_v3;
       std::vector< Rec::TrackParticle_p3 >                m_v4;
-      T_TPCnv<Rec::TrackParticleContainer, Rec::TrackParticleContainer_tlp1 > m_cnv;
-      T_TPCnv<Rec::TrackParticleContainer, Rec::TrackParticleContainer_tlp2 > m_cnv2;
-      T_TPCnv<Rec::TrackParticleContainer, Rec::TrackParticleContainer_tlp3 > m_cnv3;
    };
 }
 
