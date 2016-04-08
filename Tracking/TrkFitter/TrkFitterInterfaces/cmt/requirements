@@ -12,6 +12,10 @@ use TrkParameters         TrkParameters-*            Tracking/TrkEvent
 use TrkFitterUtils        TrkFitterUtils-*           Tracking/TrkFitter
 use EventPrimitives       EventPrimitives-*          Event
 
+# Declare this package as a metalibrary for cmake so that its clients have
+# access to the libraries and header files of packages that this one depends on
+apply_pattern cmake_add_command command=metalibrary
+
 private
 
 macro DOXYGEN_IMAGE_PATH "../doc/images"
