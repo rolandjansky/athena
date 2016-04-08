@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 568357 2013-11-01 16:21:30Z krasznaa $ -->
+<!-- $Id: selection.xml 641134 2015-01-22 19:35:12Z ssnyder $ -->
 <lcgdict>
 
    <class name="xAOD::EventFormatElement" />
@@ -8,6 +8,8 @@
       <field name="m_keyedData" transient="true" />
       <field name="m_hashedData" transient="true" />
    </class>
+
+   <class name="xAOD::EventFormat_v1::const_iterator"/>
 
    <!-- Custom streamer for the event format class: -->
    <read sourceClass="xAOD::EventFormat_v1" version="[1-]"
