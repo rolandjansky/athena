@@ -1,0 +1,243 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+  
+  <atn>
+    <TEST name="aaaempty" type="athena" suite="aaaempty">
+      <options_atn>RecExRecoTest/RecExRecoTest_RTT_empty.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Rolf Seuster </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <prescript>RecExCommon_links.sh</prescript>
+    </TEST>
+    
+    <TEST name="esd_nopers" type="athena" suite="esd_nopers">
+      <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True  " AthenaCommon/MemTraceInclude.py RecExTrigTest/RecExTrigTest_RTT_trigger.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Rolf Seuster </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <nightly_exclude>15.5.X.Y</nightly_exclude>
+      <prescript>RecExCommon_links.sh</prescript>
+    </TEST>
+    
+    <TEST name="RECOSHIFT_esd" type="athena" suite="esd">
+      <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True  " AthenaCommon/MemTraceInclude.py RecExTrigTest/RecExTrigTest_RTT_esdtrigger.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Rolf Seuster </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <nightly_exclude>15.5.X.Y</nightly_exclude>
+      <prescript>RecExCommon_links.sh</prescript>
+    </TEST>
+    
+    
+    <TEST name="esdtoesdwithreco" type="athena" suite="esd">
+      <options_atn>-c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True  ; rec.doESD.set_Value_and_Lock(True) ; jp.AthenaCommonFlags.PoolESDOutput='reco_ESD.pool.root'  " AthenaCommon/MemTraceInclude.py RecExCommon/esdtoesd.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Rolf Seuster </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <nightly_exclude>15.5.X.Y</nightly_exclude>
+    </TEST>
+    
+    
+    <TEST name="rdotordo" type="athena" suite="rdo">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExCommon/rdotordo.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Rolf Seuster </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <nightly_exclude>15.5.X.Y</nightly_exclude>
+      <prescript>RecExCommon_links.sh</prescript>
+    </TEST>
+    
+    <TEST name="rdotordotoesd" type="athena" suite="rdo">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5; jp.AthenaCommonFlags.PoolRDOInput=['RDO.pool.root'] ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " RecExTrigTest/RecExTrigTest_RTT_esdtrigger.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Rolf Seuster </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <nightly_exclude>15.5.X.Y</nightly_exclude>
+      <prescript>RecExCommon_links.sh</prescript>
+    </TEST>
+    
+    <TEST name="rawtoesd_data" type="athena" suite="RecTrigData">
+      <options_atn>-c 'jp.AthenaCommonFlags.FilesInput=["/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1"];rec.doDPD.set_Value_and_Lock(True);rec.doNameAuditor=True;jp.AthenaCommonFlags.PoolESDOutput="data_ESD.pool.root"' RecExCommon/rdotoesd.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Rolf Seuster </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <prescript>rm -f $ATN_WORK_AREA/*.pool.root; env > env.txt</prescript>
+    </TEST>
+    
+  </atn>
+  
+  <kv/>
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+    <rttContactPerson>Rolf Seuster (seuster@cern.ch)</rttContactPerson>
+    <mailto>atlas.rig@cern.ch</mailto>
+    <refRelease>10.0.0</refRelease>
+    
+    <jobList>       
+      <classification>
+	<displayClass>OfflineValidation</displayClass>
+	<displayProcess>Reco</displayProcess>
+	<displayComponent>Det-Combined</displayComponent>
+      </classification>
+      
+      <athena userJobId="mc12_esdTrig">
+	<doc>Reco and trigger up to ESD on MC12 ttbar </doc>
+	<displayName>RecExRecoTest_RTT_esdtrigger</displayName>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<options>RecExTrigTest_RTT_esdtrigger</options>
+	<package>Reconstruction/RecExample/RecExTrigTest</package>
+	<group>RecExTrig</group>
+	<queue>medium</queue>
+      </athena>
+      
+      <athena userJobId="mc12_outputlevel_debugTrig">
+	<doc>Test reco with outputlevel debug</doc>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=DEBUG;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<options>RecExTrigTest_RTT_esdtrigger</options>
+	<group>RecExTrig</group>
+	<queue>medium</queue>
+	<action position="8" runInAtlasEnv="yes">
+	  <modulename>RttLibraryTools</modulename>
+	  <testname>ExeRunner</testname>
+	  <arg>
+	    <argname>exeName</argname>
+	    <argvalue>tail</argvalue>
+	  </arg>
+	  <arg>
+	    <argname>exeParamString</argname>
+	    <argvalue>--lines=500 mc12_outputlevel_debugTrig_log &gt; mc12_outputlevel_debugTrig_log.txt</argvalue>
+	  </arg>
+	</action>
+	<action position="9" runInAtlasEnv="yes">
+	  <modulename>RttLibraryTools</modulename>
+	  <testname>ExeRunner</testname>
+	  <arg>
+	    <argname>exeName</argname>
+	    <argvalue>bzip2</argvalue>
+	  </arg>
+	  <arg>
+	    <argname>exeParamString</argname>
+	    <argvalue>mc12_outputlevel_debugTrig_log</argvalue>
+	  </arg>
+	</action>
+	<athenaCommonFlags />
+	<alwaysRunPostProc />
+      </athena>
+      
+      <athena userJobId="mc12_outputlevel_verboseTrig">
+	<doc>Test reco with outputlevel verbose</doc>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=50;rec.doWriteESD=False;rec.OutputLevel=VERBOSE;rec.doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<options>RecExTrigTest_RTT_esdtrigger</options>
+	<group>RecExTrig</group>
+	<queue>long</queue>
+	<action position="8" runInAtlasEnv="yes">
+	  <modulename>RttLibraryTools</modulename>
+	  <testname>ExeRunner</testname>
+	  <arg>
+	    <argname>exeName</argname>
+	    <argvalue>tail</argvalue>
+	  </arg>
+	  <arg>
+	    <argname>exeParamString</argname>
+	    <argvalue>--lines=500 mc12_outputlevel_verboseTrig_log &gt; mc12_outputlevel_verboseTrig_log.txt</argvalue>
+	  </arg>
+	</action>
+	<action position="9" runInAtlasEnv="yes">
+	  <modulename>RttLibraryTools</modulename>
+	  <testname>ExeRunner</testname>
+	  <arg>
+	    <argname>exeName</argname>
+	    <argvalue>bzip2</argvalue>
+	  </arg>
+	  <arg>
+	    <argname>exeParamString</argname>
+	    <argvalue>mc12_outputlevel_verboseTrig_log</argvalue>
+	  </arg>
+	</action>
+	<athenaCommonFlags />
+	<alwaysRunPostProc />
+      </athena>
+
+
+
+      <athena userJobId="mc11_esdTrig">
+         <doc>Reco and trigger up to ESD on MC11 ttbar </doc>
+         <displayName>RecExRecoTest_RTT_esdtrigger</displayName>
+         <commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1256_s1258_d566_tid464353_00/RDO.464353._000001.pool.root.1"]</commandLineFlags>
+         <options>RecExTrigTest_RTT_esdtrigger</options>
+         <package>Reconstruction/RecExample/RecExTrigTest</package>
+         <group>RecExTrig</group>
+         <queue>medium</queue>
+      </athena>
+
+
+     
+      <athena userJobId="mc10_esdTrig">
+	<doc>Reco and trigger up to ESD on MC10 ttbar </doc>
+	<displayName>RecExRecoTest_RTT_esdtrigger</displayName>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366_tid197091_00/RDO.197091._000001.pool.root.1"]</commandLineFlags>
+	<options>RecExTrigTest_RTT_esdtrigger</options>
+	<package>Reconstruction/RecExample/RecExTrigTest</package>
+	<group>RecExTrig</group>
+	<queue>medium</queue>
+      </athena>
+      
+
+
+    </jobList>  
+
+    <jobGroups>
+
+      <jobGroup name="RecExTrig" parent="Transform">
+        <keepFilePattern>cgi-bin/*</keepFilePattern>
+        <keepFilePattern>cgi-bin/data/*</keepFilePattern>
+        
+        <keepFilePattern>*.root</keepFilePattern>
+        <keepFilePattern>dumprootfile.*.log.gz</keepFilePattern>
+        
+        <keepFilePattern>*.txt</keepFilePattern>
+        <keepFilePattern>*.bz2</keepFilePattern>
+	<keepFilePattern>*_log.bz2</keepFilePattern>
+        
+        <auxFilePattern>dumpPoolFileInchunks.sh</auxFilePattern>
+        <auxFilePattern>diffPoolFilesRERT.sh</auxFilePattern>
+
+        <auxFilePattern>PostProcessRecoRTTTests.py</auxFilePattern>
+
+        <action position="1" runInAtlasEnv="yes">
+	  <modulename>PostProcessRecoRTTTests</modulename>
+          <testname>PostProcessRecoRTTTests</testname>
+        </action>
+      </jobGroup>
+
+      <jobGroup name="RecExTrig_memleak" parent="Transform">
+        <keepFilePattern>cgi-bin/*</keepFilePattern>
+        <keepFilePattern>cgi-bin/data/*</keepFilePattern>
+        
+        <keepFilePattern>*.root</keepFilePattern>
+        <keepFilePattern>dumprootfile.*.log.gz</keepFilePattern>
+        
+        <keepFilePattern>*.txt</keepFilePattern>
+        <keepFilePattern>*.bz2</keepFilePattern>
+        <keepFilePattern>*_log.bz2</keepFilePattern>
+        
+        <auxFilePattern>slurpRecoRTTTests.pl</auxFilePattern>
+        <auxFilePattern>run_memleak_rett.sh</auxFilePattern>
+        <auxFilePattern>dumpPoolFileInchunks.sh</auxFilePattern>
+        <auxFilePattern>diffPoolFilesRERT.sh</auxFilePattern>
+
+        <auxFilePattern>PostProcessIgprofWeb.py</auxFilePattern>
+        <auxFilePattern>PostProcessRecoRTTTests.py</auxFilePattern>
+
+        <action position="1" runInAtlasEnv="yes">
+	  <modulename>PostProcessRecoRTTTests</modulename>
+          <testname>PostProcessRecoRTTTests</testname>
+        </action>
+      </jobGroup>
+
+    </jobGroups>
+    
+  </rtt>
+</unifiedTestConfiguration>
+
