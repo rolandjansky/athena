@@ -90,6 +90,7 @@ private:
     void fillDetailedHistograms(const xAOD::Jet *jet, Jet_t quality);
     void fillTrackInJetHistograms(const xAOD::Jet *jet);
     void fillBadTrackBits(const std::bitset<17> failedCuts, double eta, double phi);
+    void fillEffHist(TH1 * h_passed, TH1 * h_all, TH1F_LW * effHist);
     //void fillBadZone(int zone, double w);
     bool isGoodJet(const xAOD::Jet *jet);
 
@@ -204,6 +205,15 @@ private:
     TH1F_LW* m_tag_mv2c20_w_phi14_21 = nullptr;
     TH1F_LW* m_tag_mv2c20_w_phi21_28 = nullptr;
     TH1F_LW* m_tag_mv2c20_w_phi28 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_sum50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_sumAll = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi_frac50OP = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj_pT10_20 = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj_pT20_50 = nullptr;
@@ -220,6 +230,15 @@ private:
     TH1F_LW* m_tag_mv2c20_w_sj_phi14_21 = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj_phi21_28 = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj_phi28 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum50OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_sumAll = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac50OP = nullptr;
     /** @brief To monitor number of Jets. */
     TH1F_LW* m_jet_n = nullptr;
     /** @brief To monitor number of TrackParticles. */
