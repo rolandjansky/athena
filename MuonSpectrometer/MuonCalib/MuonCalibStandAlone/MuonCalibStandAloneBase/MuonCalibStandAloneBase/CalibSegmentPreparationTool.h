@@ -30,7 +30,7 @@
 #include <map>
 
 // Gaudi //
-#include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/IAlgTool.h"
 
 // MuonCalib //
 #include "MuonCalibEventBase/MuonCalibEvent.h"
