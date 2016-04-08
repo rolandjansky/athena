@@ -50,7 +50,7 @@ namespace Trk {
 TrigVKalFitter:: TrigVKalFitter(const std::string& type,
                                 const std::string& name,
                                 const IInterface* parent):
-   AlgTool(type,name,parent),
+   AthAlgTool(type,name,parent),
    m_Robustness(0),
    m_Constraint(0),
    m_CalcMomCovariance(0),
@@ -107,16 +107,13 @@ TrigVKalFitter:: TrigVKalFitter(const std::string& type,
 
 //Destructor---------------------------------------------------------------
 TrigVKalFitter::~TrigVKalFitter(){
-   //     MsgStream log( messageService(), name() ) ;
-   MsgStream log( msgSvc(), name() ) ;
-   log << MSG::DEBUG << "TrigVKalFitter destructor called" << endreq;
+   ATH_MSG_DEBUG("TrigVKalFitter destructor called");
    delete m_fitField;
 }
 
 
 StatusCode
 TrigVKalFitter::initialize() {
-   MsgStream log( msgSvc(), name() ) ;
    const std::vector< double > &  prop = mp_CovVrtForConstraint.value();
    m_CovVrtForConstraint.clear();
    for( unsigned int i=0; i<prop.size(); i++) {
@@ -137,10 +134,10 @@ TrigVKalFitter::initialize() {
 
    StatusCode sc=m_magFieldAthenaSvc.retrieve(); 
    if (sc.isFailure() ){ 
-      log << MSG::DEBUG <<"Could not find a valid ATHENA field service."<< endreq; 
-      log << MSG::DEBUG <<"Default constant field is used. B="<<m_BMAG<<" Tesla"<<endreq;
+      ATH_MSG_DEBUG("Could not find a valid ATHENA field service.");
+      ATH_MSG_DEBUG("Default constant field is used. B="<<m_BMAG<<" Tesla");
    }else{ 
-      log << MSG::DEBUG<< "Valid ATHENA field service is retrieved" << endreq;   
+      ATH_MSG_DEBUG("Valid ATHENA field service is retrieved");
       setAthenaField( &(*m_magFieldAthenaSvc) );  
    }
        
