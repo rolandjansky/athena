@@ -58,11 +58,20 @@ namespace xAODMaker {
 
     // Create the xAOD container and its auxiliary store:
     xAOD::VertexContainer* xaod = new xAOD::VertexContainer();
-    CHECK( evtStore()->record( xaod, m_xaodContainerName ) );
     xAOD::VertexAuxContainer* aux = new xAOD::VertexAuxContainer();
-    CHECK( evtStore()->record( aux, m_xaodContainerName + "Aux." ) );
-    xaod->setStore( aux );
-    ATH_MSG_DEBUG( "Recorded Vertexes with key: " << m_xaodContainerName );
+
+    if (evtStore()->contains<xAOD::VertexContainer>(m_xaodContainerName)) {   
+      CHECK( evtStore()->overwrite( aux, m_xaodContainerName + "Aux.",true,false) );
+      CHECK( evtStore()->overwrite( xaod, m_xaodContainerName,true,false) );
+      xaod->setStore( aux );
+      ATH_MSG_DEBUG( "Overwrote Vertexes with key: " << m_xaodContainerName );
+    }
+    else{
+      CHECK( evtStore()->record( aux, m_xaodContainerName + "Aux." ) );
+      CHECK( evtStore()->record( xaod, m_xaodContainerName ) );
+      xaod->setStore( aux );
+      ATH_MSG_DEBUG( "Recorded Vertexes with key: " << m_xaodContainerName );
+    }
 
     // Create the xAOD objects:
     auto itr = aod->begin();
