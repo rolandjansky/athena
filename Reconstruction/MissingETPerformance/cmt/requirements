@@ -56,7 +56,7 @@ use SGTools            SGTools-*          Control
 private
 use AtlasBoost          AtlasBoost-*            External
 use AtlasHepMC     AtlasHepMC-*         External
-use EventInfo                EventInfo-*                      Event
+use xAODEventInfo       xAODEventInfo-* Event/xAOD
 use FourMom             FourMom-*       Event
 use FourMomUtils        FourMomUtils-*  Event
 use CaloGeoHelpers      CaloGeoHelpers-* Calorimeter

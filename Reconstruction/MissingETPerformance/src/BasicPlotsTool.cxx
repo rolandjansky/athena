@@ -7,8 +7,7 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/AlgFactory.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //#include "CLHEP/Units/PhysicalConstants.h"
 
@@ -440,11 +439,11 @@ StatusCode BasicPlotsTool::basicPlots(MissingETData *data) {
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  if (evtStore()->contains<EventInfo>(m_evtInfoKey)) {
-    const EventInfo* pevt = 0;
+  if (evtStore()->contains<xAOD::EventInfo>(m_evtInfoKey)) {
+    const xAOD::EventInfo* pevt = 0;
     sc = evtStore()->retrieve(pevt, m_evtInfoKey);
     if( !sc.isFailure() ){
-      unsigned int lbn = pevt->event_ID()->lumi_block();
+      unsigned int lbn = pevt->lumiBlock();
 
       h_MET_Topo_METx_V_lbn->Fill(lbn,data->topo()->etx()/1000.);
       h_MET_Topo_METy_V_lbn->Fill(lbn,data->topo()->ety()/1000.);

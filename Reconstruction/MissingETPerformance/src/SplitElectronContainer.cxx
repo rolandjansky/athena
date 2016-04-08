@@ -14,8 +14,7 @@
 #include "McParticleEvent/TruthParticleContainer.h"
 #include "McParticleEvent/TruthParticle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "FourMom/P4PtEtaPhiM.h"
 
@@ -128,7 +127,7 @@ StatusCode SplitElectronContainer::execute()
 
   // Retrieve Event INFO
   m_event = -1;
-  const EventInfo* pevt;
+  const xAOD::EventInfo* pevt;
   
   sc = evtStore()->retrieve(pevt, m_evtInfoKey);
   
@@ -138,7 +137,7 @@ StatusCode SplitElectronContainer::execute()
 
   } else {
 
-    m_event = pevt->event_ID()->event_number();
+    m_event = pevt->eventNumber();
     
     msg() << MSG::DEBUG 
 	    << "Event #: "

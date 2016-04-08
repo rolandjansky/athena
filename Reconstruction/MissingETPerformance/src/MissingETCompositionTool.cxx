@@ -7,8 +7,7 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/AlgFactory.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //#include "CLHEP/Units/PhysicalConstants.h"
 
@@ -1076,12 +1075,12 @@ StatusCode MissingETCompositionTool::missingETCompositionPlots(MissingETData *da
   const MissingETComposition *pComp = data->metComposition();
 
   if (_make_event_displays) {
-    if (evtStore()->contains<EventInfo>(m_evtInfoKey)) {
-      const EventInfo* pevt = 0;
+    if (evtStore()->contains<xAOD::EventInfo>(m_evtInfoKey)) {
+      const xAOD::EventInfo* pevt = 0;
       sc = evtStore()->retrieve(pevt, m_evtInfoKey);
       if( !sc.isFailure() ){
-	unsigned int run = pevt->event_ID()->run_number();
-	unsigned int evt = pevt->event_ID()->event_number();
+	unsigned int run = pevt->runNumber();
+	unsigned int evt = pevt->eventNumber();
 
 	event_displays.push_back(new evt_display(run,evt,m_thistSvc,m_folderName,&msg()));
 	msg() << MSG::WARNING << "Making Event Display for run " << run << ", event " << evt << endreq; 
