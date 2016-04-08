@@ -19,16 +19,12 @@
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 
-static FluxRecorder fluxrec1("FluxRecorder");
-
-void FluxRecorder::BeginOfEventAction(const G4Event* /*anEvent*/)
-{
-}
-void FluxRecorder::EndOfEventAction(const G4Event* /*anEvent*/)
+void FluxRecorder::EndOfEvent(const G4Event* /*anEvent*/)
 {
   m_nev+=1.;
 }
-void FluxRecorder::BeginOfRunAction(const G4Run* /*aRun*/)
+
+void FluxRecorder::BeginOfRun(const G4Run* /*aRun*/)
 {
   char nom[120];
   double timebins[101],ebins[101];
@@ -48,7 +44,7 @@ void FluxRecorder::BeginOfRunAction(const G4Run* /*aRun*/)
   } // Volume
 }
 
-void FluxRecorder::EndOfRunAction(const G4Run* /*aRun*/)
+void FluxRecorder::EndOfRun(const G4Run* /*aRun*/)
 {
   TFile * f = new TFile("flux.root","RECREATE");
   f->cd();
@@ -67,7 +63,7 @@ void FluxRecorder::EndOfRunAction(const G4Run* /*aRun*/)
   } // Volume
   f->Close();
 }
-void FluxRecorder::SteppingAction(const G4Step* aStep)
+void FluxRecorder::Step(const G4Step* aStep)
 {
   int pdgid = 8, energy=(aStep->GetTrack()->GetKineticEnergy()>10.)?1:0;
   if (aStep->GetTrack()->GetDefinition()==G4Gamma::Definition()){
@@ -180,3 +176,15 @@ void FluxRecorder::findVolume( const double r1 , const double z1 , const double 
   } // Loop over all volumes
 }
 
+
+StatusCode FluxRecorder::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
+}

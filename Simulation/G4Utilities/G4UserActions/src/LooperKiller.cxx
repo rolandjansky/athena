@@ -16,38 +16,38 @@
 
 // For setting an error state in event info
 #include "EventInfo/EventInfo.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "StoreGate/StoreGateSvc.h"
-
-static LooperKiller lkill("LooperKiller");
 
 
-void LooperKiller::BeginOfEventAction(const G4Event*) {
-  if (!m_initted) ParseProperties();
+LooperKiller::LooperKiller(const std::string& type, const std::string& name, const IInterface* parent) : 
+  UserActionBase(type,name,parent), m_max_steps(1000000), m_print_steps(100), m_count_steps(0), 
+  m_killed_tracks(0), m_verbose_level(1), m_abortEvent(true),
+  m_setError(false) {
+
+  declareProperty("MaxSteps", m_max_steps);
+  declareProperty("PrintSteps",m_print_steps);
+  declareProperty("VerboseLevel", m_verbose_level);
+  declareProperty("AbortEvent", m_abortEvent);
+  declareProperty("SetError", m_setError);
+
 }
 
 
-void LooperKiller::EndOfEventAction(const G4Event*) { }
-
-
-void LooperKiller::BeginOfRunAction(const G4Run*) {
-  if (!m_initted) ParseProperties();
-}
-
-
-void LooperKiller::EndOfRunAction(const G4Run*)
+StatusCode LooperKiller::finalize()
 {
-  ATH_MSG_INFO( "******* Report from LooperKiller *******" << std::endl
-         << " Set to kill tracks over " << m_max_steps << " steps" << std::endl
-         << " and give " << m_print_steps << " steps of verbose output" << std::endl
-         << " We killed " << m_killed_tracks << " tracks this run." << std::endl
-         << " Was set to " << (m_abortEvent?"":"not ") << "abort events and " 
-         << (m_setError?"":"not ") << "set an error state." );
+
+  ATH_MSG_INFO( "******* Report from "<< name()<< " *******");
+  ATH_MSG_INFO(" Set to kill tracks over " << m_max_steps << " steps");
+  ATH_MSG_INFO(" and give " << m_print_steps << " steps of verbose output");
+  ATH_MSG_INFO(" We killed " << m_killed_tracks << " tracks this run.");
+  ATH_MSG_INFO(" Was set to " << (m_abortEvent?"":"not ") << "abort events and "); 
+  ATH_MSG_INFO( (m_setError?"":"not ") << "set an error state." );
+
+  return StatusCode::SUCCESS;
+
 }
 
 
-void LooperKiller::SteppingAction(const G4Step* aStep)
+void LooperKiller::Step(const G4Step* aStep)
 {
   if (aStep->GetTrack()->GetCurrentStepNumber() < m_max_steps) {
     if (m_count_steps==0) return;
@@ -94,18 +94,9 @@ void LooperKiller::SteppingAction(const G4Step* aStep)
     }
     if (m_setError){
 
-      static StoreGateSvc * m_storeGate = 0;
-      if (!m_storeGate){
-        ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-        StatusCode status = svcLocator->service("StoreGateSvc", m_storeGate);
-        if (status.isFailure()){
-          ATH_MSG_WARNING( "HitWrapper::EndOfEventAction could not access StoreGateSvc" );
-        }
-      }
-
       // Set error state in eventInfo
       const DataHandle<EventInfo> eic = 0;
-      if (!m_storeGate || m_storeGate->retrieve( eic ).isFailure() || !eic ){
+      if (evtStore()->retrieve( eic ).isFailure() || !eic ){
         ATH_MSG_WARNING( "Failed to retrieve EventInfo" );
       } else {
         // Gotta cast away the const... sadface
@@ -118,30 +109,14 @@ void LooperKiller::SteppingAction(const G4Step* aStep)
   } // End of handling end of error time
 }
 
-
-void LooperKiller::ParseProperties() {
-  if (theProperties.find("MaxSteps")==theProperties.end()) {
-    theProperties["MaxSteps"]="1000000";
+StatusCode LooperKiller::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
   }
-  if (theProperties.find("PrintSteps")==theProperties.end()) {
-    theProperties["PrintSteps"]="100";
-  }
-  if (theProperties.find("VerboseLevel")==theProperties.end()) {
-    theProperties["VerboseLevel"]="1";
-  }
-  if (theProperties.find("AbortEvent")==theProperties.end()) {
-    theProperties["AbortEvent"]="1";
-  }
-  if (theProperties.find("SetError")==theProperties.end()) {
-    theProperties["SetError"]="0";
-  }
-
-  m_max_steps     = strtol(theProperties["MaxSteps"].c_str(),0,0);
-  m_print_steps   = strtol(theProperties["PrintSteps"].c_str(),0,0);
-  m_verbose_level = strtol(theProperties["VerboseLevel"].c_str(),0,0);
-  m_abortEvent    = strtol(theProperties["AbortEvent"].c_str(),0,0)>0;
-  m_setError      = strtol(theProperties["SetError"].c_str(),0,0)>0;
-  m_initted = true;
-
+  return StatusCode::SUCCESS;
 }
-

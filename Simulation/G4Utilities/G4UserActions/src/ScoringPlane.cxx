@@ -8,18 +8,30 @@
 #include "TTree.h"
 #include "TFile.h"
 
-static ScoringPlane sp1("ScoringPlane");
 
-void ScoringPlane::BeginOfEventAction(const G4Event* /*anEvent*/) {
+ScoringPlane::ScoringPlane(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent),
+    m_tree0(0),m_tree1(0),m_evt(0),m_ntr(0),
+    m_pdg(0),m_cha(0),m_ene(0),m_vx(0),m_vy(0),m_vz(0),m_x0(0),m_y0(0),m_z0(0),m_t0(0),
+    m_px0(0),m_py0(0),m_pz0(0),m_x1(0),m_y1(0),m_z1(0),m_t1(0),m_px1(0),m_py1(0),
+    m_pz1(0),m_x(0),m_y(0),m_z(0),m_plane(22600),m_pkill(0),m_fname("ufo.root") {
+
+  declareProperty("Plane",m_plane);
+  declareProperty("PKill",m_pkill);
+  declareProperty("FName",m_fname);
+
+
+}
+
+void ScoringPlane::BeginOfEvent(const G4Event* /*anEvent*/) {
   m_evt++;
   m_ntr=0;
 }
 
-void ScoringPlane::EndOfEventAction(const G4Event* /*anEvent*/) {
+void ScoringPlane::EndOfEvent(const G4Event* /*anEvent*/) {
   m_tree0->Fill();
 }
 
-void ScoringPlane::BeginOfRunAction(const G4Run* /*aRun*/) {
+StatusCode ScoringPlane::initialize() {
 
   m_tree0 = new TTree("t0", "ATHENA event tree");
 
@@ -56,16 +68,15 @@ void ScoringPlane::BeginOfRunAction(const G4Run* /*aRun*/) {
 
   m_evt = 0;
 
-  m_plane = (theProperties.find("plane")==theProperties.end()) ?      22600 : strtod(theProperties["plane"].c_str(), 0);
-  m_pkill = (theProperties.find("pkill")==theProperties.end()) ?          0 : strtol(theProperties["pkill"].c_str(), 0, 0);
-  m_fname = (theProperties.find("fname")==theProperties.end()) ? "ufo.root" :        theProperties["fname"].c_str();
-
   ATH_MSG_INFO( "ScoringPlane: placing scoring plane at [mm]: " << m_plane );
   ATH_MSG_INFO( "ScoringPlane: stop and kill particles: "       << m_pkill );
   ATH_MSG_INFO( "ScoringPlane: output root filename: "          << m_fname );
+
+  return StatusCode::SUCCESS;
+  
 }
 
-void ScoringPlane::EndOfRunAction(const G4Run* /*aRun*/) {
+StatusCode ScoringPlane::finalize() {
 
   TFile* file = new TFile(m_fname.c_str(), "RECREATE", "ATHENA ufo simulation");
 
@@ -73,9 +84,11 @@ void ScoringPlane::EndOfRunAction(const G4Run* /*aRun*/) {
   m_tree1->Write();
 
   file->Close();
+
+  return StatusCode::SUCCESS;
 }
 
-void ScoringPlane::SteppingAction(const G4Step* aStep) {
+void ScoringPlane::Step(const G4Step* aStep) {
 
   m_z0 = aStep->GetPreStepPoint()->GetPosition().z();
   m_z1 = aStep->GetPostStepPoint()->GetPosition().z();
@@ -126,4 +139,19 @@ void ScoringPlane::SteppingAction(const G4Step* aStep) {
    	<< " y0: " << std::setw(10) << m_y0
    	<< " y1: " << std::setw(10) << m_y1
    	<< " y:  " << std::setw(10) << m_y );
+}
+
+
+
+
+StatusCode ScoringPlane::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

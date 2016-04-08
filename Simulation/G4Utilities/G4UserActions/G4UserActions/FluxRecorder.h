@@ -5,22 +5,26 @@
 #ifndef FluxRecorder_H
 #define FluxRecorder_H
 
-#include "FadsActions/ActionsBase.h"
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
+
+
 #include <string>
 #include <vector>
 
 class TH1D;
 
-class FluxRecorder: public FADS::ActionsBase , public FADS::UserAction {
+class FluxRecorder final: public UserActionBase {
 
   public:
-   FluxRecorder(std::string s): FADS::ActionsBase(s),FADS::UserAction(s),m_nev(0.) {}
-   void BeginOfEventAction(const G4Event*);
-   void EndOfEventAction(const G4Event*);
-   void BeginOfRunAction(const G4Run*);
-   void EndOfRunAction(const G4Run*);
-   void SteppingAction(const G4Step*);
+ FluxRecorder(const std::string& type, const std::string& name, const IInterface* parent): UserActionBase(type,name,parent),m_nev(0.) {;}
+
+   virtual void EndOfEvent(const G4Event*) override;
+   virtual void BeginOfRun(const G4Run*) override;
+   virtual void EndOfRun(const G4Run*) override;
+   virtual void Step(const G4Step*) override;
+
+   virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+
 
   private:
    enum scoringVolume {RPCOlz,RPCOmz,RPCOhz,RPCMlz,RPCMmz,RPCMhz,MDTIlz,MDTImz,MDTIhz,

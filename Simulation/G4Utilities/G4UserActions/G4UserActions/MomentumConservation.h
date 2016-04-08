@@ -5,26 +5,29 @@
 #ifndef G4UserActions_MomentumConservation_H
 #define G4UserActions_MomentumConservation_H
 
-#include "FadsActions/ActionsBase.h"
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
+
+
 #include <string>
 
 /// User action to check for event-level momentum/energy violation
-class MomentumConservation: public FADS::ActionsBase , public FADS::UserAction {
+class MomentumConservation final: public UserActionBase {
 
   public:
 
    /// Constructor
-   MomentumConservation(const std::string& s)
-     : FADS::ActionsBase(s), FADS::UserAction(s),
-       _sum_edep(0), _sum_eesc(0)
+   MomentumConservation(const std::string& type, const std::string& name, const IInterface* parent)
+     : UserActionBase(type,name,parent), _sum_edep(0), _sum_eesc(0)
    {;}
  
    /// Check that primary and deposited/escaped energy agree
-   void EndOfEventAction(const G4Event* anEvent);
+   virtual void EndOfEvent(const G4Event* anEvent) override;
  
    /// Sum the deposited/escaped energy at each step
-   void SteppingAction(const G4Step* aStep);
+   virtual void Step(const G4Step* aStep) override;
+
+   virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+
 
   private:
 

@@ -12,36 +12,13 @@
 #include "G4TrackVector.hh"
 
 
-static ScoringVolumeTrackKiller svtk("ScoringVolumeTrackKiller");
-
-
-void ScoringVolumeTrackKiller::BeginOfEventAction(const G4Event*)
+void ScoringVolumeTrackKiller::EndOfEvent(const G4Event*)
 {
+  ATH_MSG_INFO( killCount << " tracks killed in this event " );
   killCount = 0;
 }
 
-
-void ScoringVolumeTrackKiller::EndOfEventAction(const G4Event*)
-{
-  ATH_MSG_INFO( killCount << " tracks killed in this event " );
-}
-
-
-void ScoringVolumeTrackKiller::BeginOfRunAction(const G4Run*)
-{
-  ATH_MSG_INFO( " ScoringVolumeTrackKiller kills all particles leaving the"
-            << " envelope of a muon station " );
-}
-
-
-void ScoringVolumeTrackKiller::EndOfRunAction(const G4Run*)
-{
-  ATH_MSG_INFO( " End of run for ScoringVolumeTrackKiller: " 
-            << killCount << " tracks killed during this run" );
-}
-
-
-void ScoringVolumeTrackKiller::SteppingAction(const G4Step* aStep)
+void ScoringVolumeTrackKiller::Step(const G4Step* aStep)
 {
   G4StepPoint* preStep = aStep->GetPreStepPoint();
   const G4VTouchable* preTouchable = preStep->GetTouchable();
@@ -92,4 +69,16 @@ void ScoringVolumeTrackKiller::SteppingAction(const G4Step* aStep)
 //    std::cout << " Track " << trackID << " killed at pre = " 
 //              << preName << " and post = " << postName << std::endl;
   }
+}
+
+StatusCode ScoringVolumeTrackKiller::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

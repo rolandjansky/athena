@@ -5,33 +5,30 @@
 #ifndef CosmicPerigeeAction_H
 #define CosmicPerigeeAction_H
 
-#include "FadsActions/UserAction.h"
-#include "FadsActions/ActionsBase.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
+#include "G4AtlasTools/UserActionBase.h"
 
-// Can't be forward declared - it's a type def
-#include "TrackRecord/TrackRecordCollection.h"
+#include "StoreGate/WriteHandle.h"
+#include "TrackRecord/TrackRecordCollection.h" // Can't be forward declared - it's a type def
 
 #include <string>
 
-class TrackRecorderSD;
+class CosmicPerigeeAction final: public UserActionBase {
 
-class CosmicPerigeeAction: public FADS::ActionsBase , public FADS::UserAction {
+ public:
+  CosmicPerigeeAction(const std::string& type, const std::string& name, const IInterface* parent);
 
-  public:
-   CosmicPerigeeAction(std::string s): FADS::ActionsBase(s),FADS::UserAction(s),perigeeRecord(0),trackRecordCollection(0),m_idZ(0),m_idR(0) {}
-   void BeginOfEventAction(const G4Event*);
-   void EndOfEventAction(const G4Event*);
-   void BeginOfRunAction(const G4Run*);
-   void EndOfRunAction(const G4Run*);
-   void SteppingAction(const G4Step*);
+  virtual void BeginOfEvent(const G4Event*) override;
+  virtual void EndOfEvent(const G4Event*) override;
+  virtual void BeginOfRun(const G4Run*) override;
+  virtual void Step(const G4Step*) override;
 
-  private:
-   TrackRecorderSD *perigeeRecord;
-   TrackRecordCollection *trackRecordCollection;
-   AthenaHitsCollectionHelper theHelper;
-   double m_idZ, m_idR;
+  StatusCode initialize() override;
+  virtual StatusCode queryInterface(const InterfaceID&, void**);
 
+ private:
+  SG::WriteHandle<TrackRecordCollection> m_trackRecordCollection;
+  double m_idZ, m_idR;
+  bool m_allowMods;
 };
 
 #endif

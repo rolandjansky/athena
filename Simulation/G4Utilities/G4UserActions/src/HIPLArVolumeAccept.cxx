@@ -10,13 +10,12 @@
 #include "G4RunManagerKernel.hh"
 #include "G4EventManager.hh"
 
-static HIPLArVolumeAccept HIPL1A("HIPLArVolumeAccept");
 
-void HIPLArVolumeAccept::BeginOfEventAction(const G4Event*)
+void HIPLArVolumeAccept::BeginOfEvent(const G4Event*)
 {
   HIPacc=0;
 }
-void HIPLArVolumeAccept::EndOfEventAction(const G4Event*)
+void HIPLArVolumeAccept::EndOfEvent(const G4Event*)
 {
   HIPevts++;
   if(!HIPacc)
@@ -29,7 +28,7 @@ void HIPLArVolumeAccept::EndOfEventAction(const G4Event*)
     ATH_MSG_INFO("HIPLArVolumeAccept: no HIP reach the LAr detector volumes. Event aborted.");
   }
 }
-void HIPLArVolumeAccept::BeginOfRunAction(const G4Run*)
+void HIPLArVolumeAccept::BeginOfRun(const G4Run*)
 {
   ATH_MSG_INFO("#########################################"<<std::endl<<
 		   "##                                     ##"<<std::endl<<
@@ -42,7 +41,7 @@ void HIPLArVolumeAccept::BeginOfRunAction(const G4Run*)
   HIPevts=0;
   HIPevts_failed=0;
 }
-void HIPLArVolumeAccept::EndOfRunAction(const G4Run*)
+void HIPLArVolumeAccept::EndOfRun(const G4Run*)
 {
    ATH_MSG_INFO("#########################################"<<std::endl<<
 		   "##                                     ##"<<std::endl<<
@@ -55,7 +54,7 @@ void HIPLArVolumeAccept::EndOfRunAction(const G4Run*)
    ATH_MSG_INFO("HIP Acceptance: "<<HIPfraction);
           
 }
-void HIPLArVolumeAccept::SteppingAction(const G4Step* aStep)
+void HIPLArVolumeAccept::Step(const G4Step* aStep)
 {
   int PDGcode=aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 
@@ -81,4 +80,18 @@ void HIPLArVolumeAccept::SteppingAction(const G4Step* aStep)
 	       <<aStep->GetTrack()->GetVolume()->GetName());
     }
   }
+}
+
+
+
+StatusCode HIPLArVolumeAccept::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

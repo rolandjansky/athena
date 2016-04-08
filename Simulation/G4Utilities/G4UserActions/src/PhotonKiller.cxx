@@ -6,12 +6,12 @@
 #include <iostream>
 #include <cmath>
 
-static PhotonKiller phk("PhotonKiller");
+//static PhotonKiller phk("PhotonKiller");
 
-void PhotonKiller::BeginOfEventAction(const G4Event* /*anEvent*/){;}
-void PhotonKiller::EndOfEventAction(const G4Event* /*anEvent*/){;}
-void PhotonKiller::BeginOfRunAction(const G4Run* /*aRun*/){;}
-void PhotonKiller::EndOfRunAction(const G4Run* /*aRun*/){;}
+//void PhotonKiller::BeginOfEvent(const G4Event* /*anEvent*/){;}
+//void PhotonKiller::EndOfEvent(const G4Event* /*anEvent*/){;}
+//void PhotonKiller::BeginOfRun(const G4Run* /*aRun*/){;}
+//void PhotonKiller::EndOfRun(const G4Run* /*aRun*/){;}
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -20,7 +20,7 @@ void PhotonKiller::EndOfRunAction(const G4Run* /*aRun*/){;}
 #include "G4RunManagerKernel.hh"
 #include "G4Event.hh"
 
-void PhotonKiller::SteppingAction(const G4Step* aStep)
+void PhotonKiller::Step(const G4Step* aStep)
 {
   static G4Track * lastTrack = aStep->GetTrack();
   static int count = 0;
@@ -54,4 +54,24 @@ void PhotonKiller::SteppingAction(const G4Step* aStep)
     rmk->GetEventManager()->AbortCurrentEvent();
     rmk->GetEventManager()->GetNonconstCurrentEvent()->SetEventAborted();
   }
+}
+
+
+
+StatusCode PhotonKiller::initialize()
+{
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode PhotonKiller::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

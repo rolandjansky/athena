@@ -5,26 +5,30 @@
 #ifndef ScoringPlane_H
 #define ScoringPlane_H
 
-#include "FadsActions/ActionsBase.h"
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
+
+
 #include <string>
 
 class TTree;
 
-class ScoringPlane: public FADS::ActionsBase , public FADS::UserAction {
+class ScoringPlane final: public UserActionBase {
 
   public:
 
-   ScoringPlane(std::string s): FADS::ActionsBase(s),FADS::UserAction(s),m_tree0(0),m_tree1(0),m_evt(0),m_ntr(0),
-    m_pdg(0),m_cha(0),m_ene(0),m_vx(0),m_vy(0),m_vz(0),m_x0(0),m_y0(0),m_z0(0),m_t0(0),
-    m_px0(0),m_py0(0),m_pz0(0),m_x1(0),m_y1(0),m_z1(0),m_t1(0),m_px1(0),m_py1(0),
-    m_pz1(0),m_x(0),m_y(0),m_z(0),m_plane(0),m_pkill(0) {}
+  ScoringPlane(const std::string& type, const std::string& name, const IInterface* parent);
  
-   void BeginOfEventAction(const G4Event*);
-   void EndOfEventAction  (const G4Event*);
-   void BeginOfRunAction  (const G4Run*);
-   void EndOfRunAction    (const G4Run*);
-   void SteppingAction    (const G4Step*);
+   virtual void BeginOfEvent(const G4Event*) override;
+   virtual void EndOfEvent(const G4Event*) override;
+   virtual void Step(const G4Step*) override;
+
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
+
+
+   virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+
+   
 
   private:
 

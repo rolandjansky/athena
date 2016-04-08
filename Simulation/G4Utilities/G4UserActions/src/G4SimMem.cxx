@@ -6,17 +6,17 @@
 #include "SimHelpers/MemorySnooper.h"
 #include <iostream>
 
-static G4SimMem ts1("G4SimMem");
-void G4SimMem::BeginOfEventAction(const G4Event*)
+
+void G4SimMem::BeginOfEvent(const G4Event*)
 {
 	nrOfEntries++;
 }
-void G4SimMem::BeginOfRunAction(const G4Run*)
+void G4SimMem::BeginOfRun(const G4Run*)
 {
         MemorySnooper Memo_bor("begin of run");
 	runMemory_bor=Memo_bor.GetMemorySize();
 }
-void G4SimMem::EndOfEventAction(const G4Event*)
+void G4SimMem::EndOfEvent(const G4Event*)
 {
 	MemorySnooper Memo("end of event");
         if(nrOfEntries>=1)
@@ -42,7 +42,7 @@ void G4SimMem::EndOfEventAction(const G4Event*)
 	 //std::cout<<"*****************************************************"<<std::endl;
 	 eventpreviousMemory_eoe=Memo.GetMemorySize();
 }
-void G4SimMem::EndOfRunAction(const G4Run*)
+void G4SimMem::EndOfRun(const G4Run*)
 {
 	MemorySnooper Memo_eor("end of run");
 	runMemory_eor=Memo_eor.GetMemorySize();
@@ -69,10 +69,7 @@ void G4SimMem::EndOfRunAction(const G4Run*)
 	ATH_MSG_INFO("*****************************************************");
 
 }
-void G4SimMem::SteppingAction(const G4Step*)
-{
 
-}
 double G4SimMem::averageMemoryPerEvent()
 {
 	if (nrOfEntries<1) return -1;
@@ -82,4 +79,16 @@ double G4SimMem::averageMemoryIncreasePerEvent()
 {
         if (nrOfEntries<1) return -1;
 	return accumulatedIncrMemory/nrOfEntries;
+}
+
+StatusCode G4SimMem::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

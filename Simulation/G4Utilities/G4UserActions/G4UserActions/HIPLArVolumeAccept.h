@@ -5,19 +5,22 @@
 #ifndef HIPLArVolumeAccept_H
 #define HIPLArVolumeAccept_H
 
-#include "FadsActions/ActionsBase.h"
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
+
+
 #include <string>
 
-class HIPLArVolumeAccept: public FADS::ActionsBase , public FADS::UserAction {
+class HIPLArVolumeAccept final: public UserActionBase {
 
   public:
-   HIPLArVolumeAccept(std::string s): FADS::ActionsBase(s),FADS::UserAction(s),HIPacc(0),HIPevts(0),HIPevts_failed(0) {}
-   void BeginOfEventAction(const G4Event*);
-   void EndOfEventAction(const G4Event*);
-   void BeginOfRunAction(const G4Run*);
-   void EndOfRunAction(const G4Run*);
-   void SteppingAction(const G4Step*);
+ HIPLArVolumeAccept(const std::string& type, const std::string& name, const IInterface* parent): UserActionBase(type,name,parent),HIPacc(0),HIPevts(0),HIPevts_failed(0) {}
+   virtual void BeginOfEvent(const G4Event*) override;
+   virtual void EndOfEvent(const G4Event*) override;
+   virtual void BeginOfRun(const G4Run*) override;
+   virtual void EndOfRun(const G4Run*) override;
+   virtual void Step(const G4Step*) override;
+
+   virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
   private:
    bool HIPacc;

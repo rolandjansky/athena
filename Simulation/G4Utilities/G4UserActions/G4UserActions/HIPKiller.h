@@ -5,19 +5,18 @@
 #ifndef HIPKiller_H
 #define HIPKiller_H
 
-#include "FadsActions/ActionsBase.h"
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
 #include <string>
 
-class HIPKiller: public FADS::ActionsBase , public FADS::UserAction {
+class HIPKiller final: public UserActionBase {
 
   public:
-   HIPKiller(std::string s): FADS::ActionsBase(s),FADS::UserAction(s) {}
-   void BeginOfEventAction(const G4Event*);
-   void EndOfEventAction(const G4Event*);
-   void BeginOfRunAction(const G4Run*);
-   void EndOfRunAction(const G4Run*);
-   void SteppingAction(const G4Step*);
+ HIPKiller(const std::string& type, const std::string& name, const IInterface* parent): UserActionBase(type,name,parent) {}
+  
+  virtual void Step(const G4Step*) override;
+  
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+  
 
 };
 
