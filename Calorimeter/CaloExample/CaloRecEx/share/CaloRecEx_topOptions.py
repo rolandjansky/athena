@@ -16,7 +16,6 @@
 
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
-from MuonRecExample.MuonRecFlags import muonRecFlags
 rec.doWriteESD=False
 rec.doWriteTAG=False
 rec.doWriteAOD=False
@@ -37,7 +36,6 @@ jetFlags.Enabled=False
 
 rec.CBNTAthenaAware=True
 
-recAlgs.doMissingET=False
 
 
 #PoolRDOInput=[ "/afs/cern.ch/atlas/offline/data/testfile/q02initialprod.0001.H_2e2mu.q02dig_1004.etacut.0001_extract.pool.root" ]
@@ -52,16 +50,7 @@ include ("RecExCond/RecExCommon_flags.py")
 DetFlags.ID_setOff()
 DetFlags.Muon_setOff()
 
-
-#jobproperties.Global.DetDescrVersion=''
-
-# number of event to process
-# include my own algorithm(s)
-# include my own algorithm
-# UserAlgs=[ "MyPackage/MyAlgorithm_jobOptions.py" ] 
-
-# no jet
-# doJetRec=False
+rec.doNameAuditor=True
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")

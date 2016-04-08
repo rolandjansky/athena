@@ -28,7 +28,6 @@ os.system('cat /proc/meminfo')
 from RecExConfig.RecFlags  import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecAlgsFlags import recAlgs
-from MuonRecExample.MuonRecFlags import muonRecFlags
 
 rec.readRDO.set_Value_and_Lock(True)
 rec.doWriteESD.set_Value_and_Lock(False)
@@ -53,8 +52,6 @@ recAlgs.doTrackRecordFilter=False
 rec.doTrigger=False
 
 doMuid=False
-muonRecFlags.doMoore=False
-muonRecFlags.doMuonboy=False
 recAlgs.doMuGirl=False
 doMuonIdCombined=False
 doMuonIdStandalone=False

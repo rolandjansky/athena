@@ -26,7 +26,6 @@ os.system('cat /proc/meminfo')
 
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
-from MuonRecExample.MuonRecFlags import muonRecFlags
 rec.doEgamma=False
 
 rec.doWriteESD=False
@@ -41,8 +40,6 @@ rec.doAOD=False
 
 
 doMuid=False
-muonRecFlags.doMoore=False
-muonRecFlags.doMuonboy=False
 recAlgs.doMuGirl=False
 doMuonIdCombined=False
 doMuonIdStandalone=False

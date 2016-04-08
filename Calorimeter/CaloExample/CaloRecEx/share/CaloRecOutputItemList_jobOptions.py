@@ -14,9 +14,6 @@ svcMgr.ToolSvc += CaloCompactCellTool()
 CaloESDList += [ "TileCellContainer#E4prContainer" ]
 CaloESDList += [ "TileCellContainer#MBTSContainer" ]
 CaloESDList += [ "TileTTL1Container#TileTTL1MBTS" ]
-CaloESDList += [ "xAOD::CaloTowerContainer#CmbTowers",
-                 "xAOD::CaloTowerAuxContainer#CmbTowersAux."
-                 ]
 
 # explicitly list of CaloCluster related keys
 CaloClusterItemList=[]
@@ -98,6 +95,8 @@ AODMoments=["LATERAL"
             ,"ENG_BAD_CELLS"
             ,"N_BAD_CELLS"
             ,"BADLARQ_FRAC"
+            ,"ENG_BAD_HV_CELLS"
+            ,"N_BAD_HV_CELLS"
             ,"ENG_POS"
             ,"SIGNIFICANCE"
             ,"CELL_SIGNIFICANCE"
@@ -105,6 +104,7 @@ AODMoments=["LATERAL"
             ,"AVG_LAR_Q"
             ,"AVG_TILE_Q"
             ,"EM_PROBABILITY"
+            ,"PTD"
             ,"BadChannelList"
             ]
 
@@ -158,6 +158,3 @@ CaloAODList+=["TileMuContainer#TileMuObj"]
 # LAr noisy Feb/PA summary
 CaloAODList +=  ["LArNoisyROSummary#LArNoisyROSummary"]
 
-CaloAODList += [ "xAOD::CaloTowerContainer#CmbTowers",
-                 "xAOD::CaloTowerAuxContainer#CmbTowersAux."
-                 ]
