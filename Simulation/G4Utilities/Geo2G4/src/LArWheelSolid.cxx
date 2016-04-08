@@ -16,14 +16,14 @@ EInside LArWheelSolid::Inside(const G4ThreeVector &inputP) const
 {
 	LWSDBG(10, std::cout << std::setprecision(25));
 	LWSDBG(1, std::cout << TypeStr() << " Inside " << MSG_VECTOR(inputP) << std::endl);
-	static G4ThreeVector p;
 	const EInside inside_BS = BoundingShape->Inside(inputP);
 	if(inside_BS == kOutside){
 		LWSDBG(2, std::cout << "outside BS" << std::endl);
 		return kOutside;
 	}
-	p = inputP;
-	const G4double d = fabs(Calculator->DistanceToTheNearestFan(p));
+	G4ThreeVector p( inputP );
+	int p_fan = 0;
+	const G4double d = fabs(GetCalculator()->DistanceToTheNearestFan(p, p_fan));
 	if(d > FHTplusT){
 		LWSDBG(2, std::cout << "outside fan d=" << d << ", FHTplusT=" << FHTplusT << std::endl);
 		return kOutside;
@@ -39,15 +39,15 @@ EInside LArWheelSolid::Inside(const G4ThreeVector &inputP) const
 G4ThreeVector LArWheelSolid::SurfaceNormal(const G4ThreeVector &inputP) const
 {
 	LWSDBG(1, std::cout << TypeStr() << " SurfaceNormal" << MSG_VECTOR(inputP) << std::endl);
-	static G4ThreeVector p, d;
 	EInside inside_BS = BoundingShape->Inside(inputP);
 	if(inside_BS != kInside){
 		LWSDBG(2, std::cout << "not inside BS" << std::endl);
 		return BoundingShape->SurfaceNormal(inputP);
 	}
-	p = inputP;
-	Calculator->DistanceToTheNearestFan(p);
-	d = Calculator->NearestPointOnNeutralFibre(p);
+	G4ThreeVector p( inputP );
+	int p_fan = 0;
+	GetCalculator()->DistanceToTheNearestFan(p, p_fan);
+	G4ThreeVector d = GetCalculator()->NearestPointOnNeutralFibre(p, p_fan);
 	d.rotateZ(inputP.phi() -  p.phi()); // rotate back to initial position
 	LWSDBG(4, std::cout << "npnf" << MSG_VECTOR(d) << std::endl);
 	p = inputP - d;
