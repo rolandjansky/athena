@@ -5,14 +5,12 @@
 #ifndef __MTNtup_H__
 #define __MTNtup_H__
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
 #include <string>
 
-class StoreGateSvc;
-/////////////////////////////////////////////////////////////////////////////
 
-class MTNtup:public Algorithm {
+class MTNtup:public AthAlgorithm {
 public:
   MTNtup (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
@@ -28,8 +26,6 @@ private:
   // Pointer to an ntuple
   NTuple::Tuple*      m_ntuple;
 
-  // Pointer to event store
-  StoreGateSvc*       m_StoreGateSvc;
 };
 
 #endif
