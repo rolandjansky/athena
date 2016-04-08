@@ -1,0 +1,9 @@
+2015-05-28  Werner Freund  <wsfreund@cern.ch>        
+
+	* Improved metadata for xAOD->xAOD step
+
+2015-01-21  Werner Freund  <wsfreund@cern.ch>        
+
+	* Creation of package xAODCaloRingsAthenaPool
+	* tagging as xAODCaloRingsAthenaPool-00-00-01 
+
