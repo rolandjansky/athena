@@ -358,18 +358,45 @@ void CSCcablingSvc::hash2Rob(const unsigned int& hashid, uint32_t& robid) const 
   }
 }
 
+
+
 void CSCcablingSvc::hash2Rod(const unsigned int& hashid, uint32_t& rodid) const {
    if(m_run1){
-     if(hashid & 16){
-        rodid = (hashid & 15);
-     } else {
-        rodid = hashid;
-     } 
+     rodid = hashid & 7;
   } else {
-     if(hashid & 1){ 
-        rodid = (hashid >> 1);
-     } else {
-        rodid = ((hashid >> 1)|0x10);
-     }
+    if (hashid<8)
+      rodid = hashid;
+    else if (hashid<24)
+      rodid = hashid-8;
+    else
+      rodid = hashid-16;
+    rodid |= 0x10;
   } 
+}
+
+void CSCcablingSvc::hash2SubdetectorId(const unsigned int& hashid, uint32_t& subdetectorid) const {
+  if ((hashid >= 8 && hashid <= 15) || (hashid >= 24))
+    subdetectorid = 0x69;
+  else
+    subdetectorid = 0x6a;
+}
+
+void CSCcablingSvc::hash2RobFull(const unsigned int& hashid, uint32_t& robid) const {
+  uint32_t shortRobID = 0xffff;
+  hash2Rob(hashid, shortRobID);
+  
+  uint32_t subdetectorid = 0;
+  hash2SubdetectorId(hashid, subdetectorid);
+  
+  robid = (subdetectorid << 16) | shortRobID;
+}
+
+void CSCcablingSvc::hash2CollectionId(const unsigned int& hashid, uint16_t& collectionid) const {
+  uint32_t rodid = 0xffff;
+  hash2Rod(hashid, rodid);
+  
+  uint32_t subdetectorid = 0;
+  hash2SubdetectorId(hashid, subdetectorid);
+    
+  collectionid = collectionId(subdetectorid, rodid);
 }
