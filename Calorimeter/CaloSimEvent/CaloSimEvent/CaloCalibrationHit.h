@@ -126,7 +126,7 @@ class CaloCalibrationHit
   }
 
   /** @return energy deposits by specifying input type.  Units are MeV. */
-  double energy( unsigned int i )
+  double energy( unsigned int i ) const
   {
     switch (i)
       {
@@ -142,7 +142,7 @@ class CaloCalibrationHit
   unsigned int particleID()      const { return m_particleID; }
 
   /** @return energy deposits by specifying input type, same as above method */
-  double operator() (unsigned int i) { return energy(i); }
+  double operator() (unsigned int i) const { return energy(i); }
 
   /** Calibration hits are ordered by values of their identifiers */
   bool Less(CaloCalibrationHit* const& h) const 
@@ -156,12 +156,15 @@ class CaloCalibrationHit
 
   /** Calibration hits are ordered by values of their identifiers */
   /** Calibration hits are ordered by values of their identifiers */
-  bool Equals(CaloCalibrationHit* const& h) const { 
-    return (m_ID == h->m_ID) && (m_particleID == h->m_particleID); 
+  bool Equals(const CaloCalibrationHit& h) const { 
+    return (m_ID == h.m_ID) && (m_particleID == h.m_particleID); 
   };
+  bool Equals(const CaloCalibrationHit* h) const {
+    return Equals (*h);
+  }
 
   /** Method used for energy accumulation */
-  void Add(CaloCalibrationHit* const& h)
+  void Add(const CaloCalibrationHit* h)
   {
     m_energy0 += h->m_energy0;
     m_energy1 += h->m_energy1;
