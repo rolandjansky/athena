@@ -24,7 +24,7 @@ This class is a monoton/singleton object.
   class Tschebyscheff_polynomial {
 
   private:
-    static Tschebyscheff_polynomial *polynomial_pointer; //!< pointer to the monoton
+    static Tschebyscheff_polynomial *s_polynomial_pointer; //!< pointer to the monoton
     Tschebyscheff_polynomial(void); //!< constructor
 
   public:

@@ -44,7 +44,7 @@ class PolygonBase : public BaseFunction {
 public:
 // Constructor //
 	PolygonBase(const std::vector<double> & x) {
-		m_init(x);
+		init(x);
 		}
 	///< Constructor: the vector x contains the abscissae of the
 	///< base points of the polygon. x must contain the abscissae in
@@ -58,7 +58,7 @@ public:
 private:
 	std::vector<double> m_x; // vector containing the abscissae of the base
 	                         // points of the polygon
-	void m_init(const std::vector<double> & x);
+	void init(const std::vector<double> & x);
 	                         // initialization method,
 	                         // x contains the abscissae of the base points
 	                         // of the polygon.

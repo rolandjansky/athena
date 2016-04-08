@@ -25,7 +25,7 @@ namespace MuonCalib {
 // SET LEGENDRE-POLYNOMIAL POINTER //
 /////////////////////////////////////
 
- Legendre_polynomial *Legendre_polynomial::polynomial_pointer=0;
+ Legendre_polynomial *Legendre_polynomial::s_polynomial_pointer=0;
 
 //*****************************************************************************
 
@@ -35,10 +35,10 @@ namespace MuonCalib {
 
  Legendre_polynomial * Legendre_polynomial::get_Legendre_polynomial(void) {
 
-    if (polynomial_pointer == 0) {
-      polynomial_pointer = new Legendre_polynomial();
+    if (s_polynomial_pointer == 0) {
+      s_polynomial_pointer = new Legendre_polynomial();
     }
-    return polynomial_pointer;
+    return s_polynomial_pointer;
 
   }
 

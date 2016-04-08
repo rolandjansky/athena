@@ -9,12 +9,12 @@
 //*****************************************************************************
 
 //////////////////////////////////////
-// METHOD m_init(double triplet[3]) //
+// METHOD init(double triplet[3]) //
 //////////////////////////////////////
 
 namespace MuonCalib {
 
-inline void SamplePoint::m_init(double triplet[3]) {
+inline void SamplePoint::init(double triplet[3]) {
 
 	m_x1 = triplet[0];
 	m_x2 = triplet[1];
@@ -27,10 +27,10 @@ inline void SamplePoint::m_init(double triplet[3]) {
 //*****************************************************************************
 
 ////////////////////////////
-// METHOD m_init(., ., .) //
+// METHOD init(., ., .) //
 ////////////////////////////
 
-inline void SamplePoint::m_init(const double & mx1, const double & mx2,
+inline void SamplePoint::init(const double & mx1, const double & mx2,
 						const double & msigma) {
 
 	m_x1 = mx1;

@@ -58,7 +58,7 @@ bool BaseFunctionFitter::fit_parameters(
 ////////////////////////////////////////////////////////////
 
 // clear the objects //
-	m_init(m_nb_coefficients);
+	init(m_nb_coefficients);
 
 // fill the objects //
 // 	for (unsigned int k=first_point-1; k<last_point; k++) {

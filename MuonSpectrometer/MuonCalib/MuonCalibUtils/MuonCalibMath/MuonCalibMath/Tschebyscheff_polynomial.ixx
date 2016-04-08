@@ -15,7 +15,7 @@
 
 namespace MuonCalib {
 
-inline double Tschebyscheff_polynomial::value(const unsigned int & m_order,
+inline double Tschebyscheff_polynomial::value(const unsigned int & order,
 						const double & x) const {
 
 
@@ -24,7 +24,7 @@ inline double Tschebyscheff_polynomial::value(const unsigned int & m_order,
 // CALCULATE RECURSIVELY.                                                   //
 //////////////////////////////////////////////////////////////////////////////
 
-	switch(m_order) {
+	switch(order) {
 		case 0:
 			return 1;
 			break;
@@ -33,7 +33,7 @@ inline double Tschebyscheff_polynomial::value(const unsigned int & m_order,
 			break;
 		case 2:
 		default:
-			return 2.0*x*value(m_order-1, x) - value(m_order-2, x);
+			return 2.0*x*value(order-1, x) - value(order-2, x);
 			break;
 	}
 

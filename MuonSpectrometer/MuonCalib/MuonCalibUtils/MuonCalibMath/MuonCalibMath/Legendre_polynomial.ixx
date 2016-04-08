@@ -17,7 +17,7 @@
 
 namespace MuonCalib {
 
-inline double Legendre_polynomial::value(const int & m_order,
+inline double Legendre_polynomial::value(const int & order,
 						const double & x) const {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ inline double Legendre_polynomial::value(const int & m_order,
 // CALCULATE RECURSIVELY.                                                   //
 //////////////////////////////////////////////////////////////////////////////
 
-	switch(std::abs(m_order)) {
+	switch(std::abs(order)) {
 		case 0:
 			return 1;
 			break;
@@ -53,16 +53,16 @@ inline double Legendre_polynomial::value(const int & m_order,
 				-35.0*x)/16.0;
 			break;
 		default:
-//			return (2.0*m_order-1)*x*value(m_order-1, x)/
-// 					static_cast<double>(m_order)
-//				- (m_order-1)*value(m_order-2, x)/
-//					static_cast<double>(m_order);
+//			return (2.0*order-1)*x*value(order-1, x)/
+// 					static_cast<double>(order)
+//				- (order-1)*value(order-2, x)/
+//					static_cast<double>(order);
 			break;
   	}
-//  Move default option here to check m_order in order to satisfy Coverity
-        if( m_order ) {		
-          return (2.0*m_order-1)*x*value(m_order-1, x)/static_cast<double>(m_order)
-	         - (m_order-1)*value(m_order-2, x)/static_cast<double>(m_order);
+//  Move default option here to check order in order to satisfy Coverity
+        if( order ) {		
+          return (2.0*order-1)*x*value(order-1, x)/static_cast<double>(order)
+	         - (order-1)*value(order-2, x)/static_cast<double>(order);
         }
         return 0;
 }

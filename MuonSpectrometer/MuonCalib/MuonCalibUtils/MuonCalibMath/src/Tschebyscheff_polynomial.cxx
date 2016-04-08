@@ -24,7 +24,7 @@ namespace MuonCalib {
 // SET LEGENDRE-POLYNOMIAL POINTER //
 /////////////////////////////////////
 
- Tschebyscheff_polynomial *Tschebyscheff_polynomial::polynomial_pointer=0;
+ Tschebyscheff_polynomial *Tschebyscheff_polynomial::s_polynomial_pointer=0;
 
   //*****************************************************************************
 
@@ -35,10 +35,10 @@ namespace MuonCalib {
   Tschebyscheff_polynomial * 
   Tschebyscheff_polynomial::get_Tschebyscheff_polynomial(void) {
 
-    if (polynomial_pointer == 0) {
-      polynomial_pointer = new Tschebyscheff_polynomial();
+    if (s_polynomial_pointer == 0) {
+      s_polynomial_pointer = new Tschebyscheff_polynomial();
     }
-    return polynomial_pointer;
+    return s_polynomial_pointer;
 
   }
 

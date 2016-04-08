@@ -10,14 +10,14 @@
 //*****************************************************************************
 
 /////////////////////////
-// METHOD m_init(void) //
+// METHOD init(void) //
 /////////////////////////
 
 namespace MuonCalib {
 
-inline void BaseFunctionFitter::m_init(void) {
+inline void BaseFunctionFitter::init(void) {
 
-	m_init(5);
+	init(5);
 	return;
 
 }
@@ -25,10 +25,10 @@ inline void BaseFunctionFitter::m_init(void) {
 //*****************************************************************************
 
 //////////////////////
-// METHOD m_init(.) //
+// METHOD init(.) //
 //////////////////////
 
-inline void BaseFunctionFitter::m_init(const int & nb_coefficients) {
+inline void BaseFunctionFitter::init(const int & nb_coefficients) {
 
 	m_A = Amg::MatrixX(nb_coefficients,nb_coefficients);
 	m_A.setZero();
@@ -75,7 +75,7 @@ inline Amg::VectorX BaseFunctionFitter::coefficients(void) const {
 inline void BaseFunctionFitter::set_number_of_coefficients(
 						const int & nb_coefficients) {
 
-	m_init(nb_coefficients);
+	init(nb_coefficients);
 
 }
 
