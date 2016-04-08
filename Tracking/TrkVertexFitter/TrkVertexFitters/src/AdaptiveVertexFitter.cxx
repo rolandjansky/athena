@@ -25,11 +25,13 @@
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
+#include "TrkLinks/LinkToXAODNeutralParticle.h"
 #include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
 //xAOD includes
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/NeutralParticle.h"
 
 namespace Trk
 {
@@ -149,6 +151,7 @@ namespace Trk
   }
 
   VxCandidate * AdaptiveVertexFitter::_fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
+					   const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
 					   const RecVertex& constraint,//initialized to RecVertex()
 					   const Vertex & startingPoint,//initialized to Vertex()
 					   bool IsConstraint,//initialized to false
@@ -156,11 +159,11 @@ namespace Trk
   {
 
     //check the number of tracks
-    if ( perigeeList.size()<2 && IsConstraint==false ) {
+    if ( (perigeeList.size() + neutralPerigeeList.size())<2 && IsConstraint==false ) {
       msg(MSG::WARNING) << "Not enough tracks (>2) to fit in this event (without constraint)." << endreq;
       return 0;
     }
-    if (perigeeList.size()<1 && IsConstraint==true) {
+    if ((perigeeList.size() + neutralPerigeeList.size())<1 && IsConstraint==true) {
       msg(MSG::WARNING) << "Not enough tracks (>1) to fit in this event (with constraint)." << endreq;
       return 0;
     }
@@ -196,7 +199,7 @@ namespace Trk
     std::vector<const Trk::TrackParameters*>::const_iterator perigeesBegin=perigeeList.begin();
     std::vector<const Trk::TrackParameters*>::const_iterator perigeesEnd=perigeeList.end();
 
-    ATH_MSG_DEBUG("Inside fitter with perigee parameters.");
+    ATH_MSG_DEBUG("Inside fitter with track perigee parameters.");
     ATH_MSG_DEBUG("Seed point: " << *SeedPoint);    
     int myDebugNTrk(0);
     for (std::vector<const Trk::TrackParameters*>::const_iterator perigeesIter=perigeesBegin;perigeesIter!=perigeesEnd;++perigeesIter) {
@@ -207,7 +210,7 @@ namespace Trk
       //      }
       
       ATH_MSG_DEBUG("Track #" << myDebugNTrk++ << ". TrackParameters: x="  << (*perigeesIter)->position().x() << ", y="<< (*perigeesIter)->position().y() <<", z="<< (*perigeesIter)->position().z() << ". Covariance: " << *(*perigeesIter)->covariance());
-      VxTrackAtVertex* LinTrackToAdd=new VxTrackAtVertex(0.,0,(*perigeesIter));
+      VxTrackAtVertex* LinTrackToAdd=new VxTrackAtVertex(0.,0,NULL,(*perigeesIter),NULL);
       //m_LinearizedTrackFactory->linearize(*LinTrackToAdd,*SeedPoint); why linearize it? maybe you don't need it at all!!!!! <19-05-2006>
       bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,*SeedPoint);
       if (!success)
@@ -216,6 +219,28 @@ namespace Trk
       }
       theLinTracks.push_back(LinTrackToAdd);
     }
+
+
+    std::vector<const Trk::NeutralParameters*>::const_iterator neutralPerigeesBegin=neutralPerigeeList.begin();
+    std::vector<const Trk::NeutralParameters*>::const_iterator neutralPerigeesEnd  =neutralPerigeeList.end();
+
+    ATH_MSG_DEBUG("Inside fitter with neutral perigee parameters.");
+    ATH_MSG_DEBUG("Seed point: " << *SeedPoint);    
+    int myDebugNNeutral(0);
+    for (std::vector<const Trk::NeutralParameters*>::const_iterator neutralPerigeesIter=neutralPerigeesBegin;neutralPerigeesIter!=neutralPerigeesEnd;++neutralPerigeesIter) {
+      ATH_MSG_DEBUG("Neutral #" << myDebugNNeutral++ << ". NeutralParameters: x="  << (*neutralPerigeesIter)->position().x() << ", y="<< (*neutralPerigeesIter)->position().y() <<", z="<< (*neutralPerigeesIter)->position().z());
+      ATH_MSG_DEBUG("     Covariance: " << *(*neutralPerigeesIter)->covariance());
+      ATH_MSG_DEBUG("     Momentum: x="  << (*neutralPerigeesIter)->momentum().x() << ", y="<< (*neutralPerigeesIter)->momentum().y() <<", z="<< (*neutralPerigeesIter)->momentum().z());
+      VxTrackAtVertex* LinTrackToAdd=new VxTrackAtVertex(0.,0,NULL,NULL,(*neutralPerigeesIter));
+      bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,*SeedPoint);
+      if (!success)
+      {
+        msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endreq;
+      }
+      theLinTracks.push_back(LinTrackToAdd);
+    }
+
+
     
     //Initialize the vertex seed with an arbitrary great error matrix (just starting point,
     //not really prior information in it)
@@ -538,7 +563,10 @@ namespace Trk
 	//	    " Skipping track. .. " << endreq;
 	//	  continue;
 	//	}
-	(*iter)->setPerigeeAtVertex(((*iter)->initialPerigee())->clone());
+	if ((*iter)->initialPerigee())
+	  (*iter)->setPerigeeAtVertex(((*iter)->initialPerigee())->clone());
+	else if ((*iter)->initialNeutralPerigee())
+	  (*iter)->setPerigeeAtVertex(((*iter)->initialNeutralPerigee())->clone());
       }
     }
       
@@ -558,25 +586,28 @@ namespace Trk
   }
   
 
-  VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
-		    const Vertex& startingPoint) 
-		    {
-    return _fit(perigeeList,RecVertex(),startingPoint,false,true);
+  VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*>   & perigeeList,
+					  const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
+					  const Vertex& startingPoint) 		    {
+    return _fit(perigeeList,neutralPerigeeList,RecVertex(),startingPoint,false,true);
   }
 
   VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
-		    const RecVertex& constraint) {
-    return _fit(perigeeList,constraint,Vertex(),true);
+					  const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
+					  const RecVertex& constraint) {
+    return _fit(perigeeList,neutralPerigeeList,constraint,Vertex(),true);
   }
 
   VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
+					  const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
 					  const RecVertex& constraint,
 					  const Vertex & startingPoint) {
-    return _fit(perigeeList,constraint,startingPoint,true,true);
+    return _fit(perigeeList,neutralPerigeeList,constraint,startingPoint,true,true);
   }
 
-  VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList) {
-    return _fit(perigeeList,RecVertex(),Vertex(),false,false);
+  VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
+					  const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList) {
+    return _fit(perigeeList,neutralPerigeeList,RecVertex(),Vertex(),false,false);
   }
 
   VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::Track*> & vectorTrk,
@@ -606,12 +637,41 @@ namespace Trk
   VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk) {
     return _fit(vectorTrk,RecVertex(),Vertex(),false,false);
   }
+
+  VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const Vertex& startingPoint) {
+    const std::vector<const Trk::NeutralParameters*> neutralPerigeeList;
+    return fit(perigeeList, neutralPerigeeList, startingPoint);
+  }
   
+  VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const RecVertex& constraint) {
+    const std::vector<const Trk::NeutralParameters*> neutralPerigeeList;
+    return fit(perigeeList, neutralPerigeeList, constraint);
+  }
+
+  VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const RecVertex& constraint, const Vertex & startingPoint) {
+    const std::vector<const Trk::NeutralParameters*> neutralPerigeeList;
+    return fit(perigeeList, neutralPerigeeList, constraint, startingPoint);
+  }
+
+  VxCandidate * AdaptiveVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList) {
+    const std::vector<const Trk::NeutralParameters*> neutralPerigeeList; 
+    return fit(perigeeList,neutralPerigeeList);
+  }
+
+  VxCandidate * AdaptiveVertexFitter::_fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
+					   const RecVertex& constraint,
+					   const Vertex & startingPoint,
+					   bool IsConstraint,
+					   bool IsStartingPoint) {
+    const std::vector<const Trk::NeutralParameters*> neutralPerigeeList;
+    return _fit(perigeeList, neutralPerigeeList, constraint, startingPoint, IsConstraint, IsStartingPoint);
+  }
+
 
 
 //xAOD interfaced methods. Required to un-block the current situation 
 // with the xAOD tracking design.
- xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,const Vertex& startingPoint)
+ xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,const std::vector<const xAOD::NeutralParticle*>& vectorNeut,const Vertex& startingPoint)
  {	
    ATH_MSG_DEBUG("Called Adaptive vertex with xAOD::TrackParticle. N. Tracks = " << vectorTrk.size());
 
@@ -620,10 +680,14 @@ namespace Trk
     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endreq;
     return 0;
    }
+
+   if(vectorNeut.size() == 0)
+   {
+    msg(MSG::VERBOSE)<<"Empty vector of neutrals passed"<<endreq;
+   }
    
-//making a list of perigee out of the vector of tracks  
-   std::vector<const Trk::TrackParameters*> measuredPerigees;
-   
+   //making a list of perigee out of the vector of tracks  
+   std::vector<const Trk::TrackParameters*> measuredPerigees;   
    for(std::vector<const xAOD::TrackParticle*>::const_iterator i = vectorTrk.begin(); i!= vectorTrk.end();++i)
    {
     const Trk::TrackParameters * tmpMeasPer = &((*i)->perigeeParameters());
@@ -632,7 +696,16 @@ namespace Trk
     else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq;
    }
 
-   Trk::VxCandidate* fittedVxCandidate = _fit(measuredPerigees, RecVertex(),startingPoint,false,true);				 
+   //making a list of perigee out of the vector of neutrals
+   std::vector<const Trk::NeutralParameters*> measuredNeutralPerigees;   
+   for(std::vector<const xAOD::NeutralParticle*>::const_iterator i = vectorNeut.begin(); i!= vectorNeut.end();++i)   {
+    const Trk::NeutralParameters * tmpMeasPer = &((*i)->perigeeParameters());
+
+    if(tmpMeasPer!=0) measuredNeutralPerigees.push_back(tmpMeasPer);
+    else  msg(MSG::INFO)<<"Failed to dynamic_cast this neutral parameters to perigee"<<endreq;
+   }
+
+   Trk::VxCandidate* fittedVxCandidate = _fit(measuredPerigees, measuredNeutralPerigees, RecVertex(),startingPoint,false,true);				 
    
     //assigning the input tracks to the fitted vertex   
    if(fittedVxCandidate !=0)
@@ -662,6 +735,20 @@ namespace Trk
 // vxtrackatvertex takes ownership!
        (*(fittedVxCandidate->vxTrackAtVertex()))[i]->setOrigTrack(linkTT);
       }//end of loop for setting orig tracks in.
+
+      for(unsigned int i = 0; i <vectorNeut.size(); ++i)      {
+       LinkToXAODNeutralParticle* linkTT= new LinkToXAODNeutralParticle();
+       const xAOD::NeutralParticleContainer* cont = dynamic_cast< const xAOD::NeutralParticleContainer* >( vectorNeut[ i ]->container() );
+       if(  cont )       {
+        if( ! linkTT->toIndexedElement( *cont, vectorNeut[ i ]->index() ) )	{
+	 msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endreq;
+	}
+       }else{
+        msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endreq;
+       }//end of the dynamic cast check 
+       // vxtrackatvertex takes ownership!
+       (*(fittedVxCandidate->vxTrackAtVertex()))[i+vectorTrk.size()]->setOrigTrack(linkTT);
+      }//end of loop for setting orig neutrals in.
      }//end of protection against unsuccessfull updates (no tracks were added)
     }//end of vector of tracks check
    }//end of pointer check
@@ -676,20 +763,27 @@ namespace Trk
        delete fittedVxCandidate;
        return 0;
       }//end of protection check
-     delete fittedVxCandidate;
+     delete fittedVxCandidate; 
    }//end of protection check
+  
+  
    return return_vertex;  
    
  }//end of the xAOD starting point fit method
 
     
- xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const RecVertex& constraint)
+ xAOD::Vertex * AdaptiveVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const std::vector<const xAOD::NeutralParticle*>& vectorNeut, const RecVertex& constraint)
  {
 
    if(vectorTrk.size() == 0)
    {
     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endreq;
     return 0;
+   }
+
+   if(vectorNeut.size() == 0)
+   {
+    msg(MSG::INFO)<<"Empty vector of neutrals passed"<<endreq;
    }
    
 //making a list of perigee out of the vector of tracks  
@@ -702,9 +796,18 @@ namespace Trk
     if(tmpMeasPer!=0) measuredPerigees.push_back(tmpMeasPer);
     else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq;
    }
+
+//making a list of perigee out of the vector of neutrals  
+   std::vector<const Trk::NeutralParameters*> measuredNeutralPerigees;
+   for(std::vector<const xAOD::NeutralParticle*>::const_iterator i = vectorNeut.begin(); i!= vectorNeut.end();++i)   {
+    const Trk::NeutralParameters * tmpMeasPer = &((*i)->perigeeParameters());
+  
+    if(tmpMeasPer!=0) measuredNeutralPerigees.push_back(tmpMeasPer);
+    else  msg(MSG::INFO)<<"Failed to dynamic_cast this neutral parameters to perigee"<<endreq;
+   }
    
    
-   Trk::VxCandidate* fittedVxCandidate = _fit(measuredPerigees,constraint,Vertex(),true);
+   Trk::VxCandidate* fittedVxCandidate = _fit(measuredPerigees,measuredNeutralPerigees,constraint,Vertex(),true);
  
  //assigning the input tracks to the fitted vertex   
    if(fittedVxCandidate !=0)
@@ -737,6 +840,20 @@ namespace Trk
 // vxtrackatvertex takes ownership!
        (*(fittedVxCandidate->vxTrackAtVertex()))[i]->setOrigTrack(linkTT);
       }//end of loop for setting orig tracks in.
+
+      for(unsigned int i = 0; i <vectorNeut.size(); ++i)      {
+       LinkToXAODNeutralParticle* linkTT = new LinkToXAODNeutralParticle();
+       const xAOD::NeutralParticleContainer* cont = dynamic_cast<const xAOD::NeutralParticleContainer* >( vectorNeut[ i ]->container() );
+       if(  cont )       {
+        if( ! linkTT->toIndexedElement( *cont, vectorNeut[ i ]->index() ) )	{
+	 msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endreq;
+	}
+       }else{
+        msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endreq;
+       }//end of the dynamic cast check 
+// vxtrackatvertex takes ownership!
+       (*(fittedVxCandidate->vxTrackAtVertex()))[i+vectorTrk.size()]->setOrigTrack(linkTT);
+      }//end of loop for setting orig neutrals in.
      }//end of protection against unsuccessfull updates (no tracks were added)
     }//end of vector of tracks check
    }//end of pointer check
@@ -751,7 +868,7 @@ namespace Trk
        delete fittedVxCandidate;
        return 0;
       }//end of protection check
-     delete fittedVxCandidate;
+     delete fittedVxCandidate; 
    }//end of protection check
   
   

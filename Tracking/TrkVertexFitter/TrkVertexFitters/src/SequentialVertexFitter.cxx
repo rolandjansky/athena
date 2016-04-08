@@ -19,6 +19,7 @@
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
+#include "TrkLinks/LinkToXAODNeutralParticle.h"
 #include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
 
@@ -250,7 +251,6 @@ namespace Trk{
     {
      if(fittedVxCandidate->vxTrackAtVertex()->size() !=0)
      {
-      //unsigned int iTrkAtVtx(0);
       for(unsigned int i = 0; i <trkToFit.size(); ++i)
       {
 //      (*(fittedVxCandidate->vxTrackAtVertex()))[i]->setOrigTrack(trkToFit[i]);
@@ -267,12 +267,13 @@ namespace Trk{
    
 //conversion from the perigeeList and starting point   
   VxCandidate * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
+					    const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
                               const Vertex& startingPoint) 
   {   
   
 //    std::cout << " Starting point: " << startingPoint << std::endl;
 
-   Trk::VxCandidate * fittedVxCandidate  = fit(perigeeList, RecVertex(startingPoint));
+    Trk::VxCandidate * fittedVxCandidate  = fit(perigeeList, neutralPerigeeList, RecVertex(startingPoint));
    
 //setting the initial perigees  
    if(fittedVxCandidate !=0 )
@@ -286,7 +287,12 @@ namespace Trk{
        Trk::TrackParameters* iPer = const_cast<Trk::TrackParameters*>(perigeeList[i]);
        (*(fittedVxCandidate->vxTrackAtVertex()))[i]->setInitialPerigee(iPer);
       }
-     } //end of protection against unsuccessfull updates (no tracks were added)
+      //same for neutrals
+      for(unsigned int i = 0; i <neutralPerigeeList.size(); ++i)      {
+	Trk::NeutralParameters* iPer = const_cast<Trk::NeutralParameters*>(neutralPerigeeList[i]);
+	(*(fittedVxCandidate->vxTrackAtVertex()))[perigeeList.size()+i]->setInitialPerigee(iPer);
+      }
+     } //end of protection against unsuccessfull updates (no tracks or neutrals were added)
     }
    }
    return fittedVxCandidate; 
@@ -294,14 +300,14 @@ namespace Trk{
   }
   
 //additional new fitting methods  
-   VxCandidate * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParameters*>& perigeeList)
+  VxCandidate * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParameters*>& perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList)
    {    
    
 //this method will later be modifyed to use the a finder
 //uses a default starting point so  far.
     Amg::Vector3D start_point(0.,0.,0.);
     const Trk::Vertex start_vertex(start_point); 
-    return fit(perigeeList, start_vertex);
+    return fit(perigeeList, neutralPerigeeList, start_vertex);
    }
 
    VxCandidate * SequentialVertexFitter::fit(const std::vector<const Trk::Track*>& vectorTrk)
@@ -319,8 +325,8 @@ namespace Trk{
     
 //method where the actual fit is done  
   VxCandidate * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
-                             const RecVertex& constraint)
-  { 
+					    const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
+					    const RecVertex& constraint)   { 
 
     //   std::cout << " Number of tracks provided: " << perigeeList.size() << std::endl;
 
@@ -368,7 +374,7 @@ namespace Trk{
    Trk::RecVertex  initialRecVertex(priorVertexPosition, priorErrorMatrix , in_ndf, in_chi);    
      
 //converting the input perigee to the Vertex tracks  
-   std::vector<Trk::VxTrackAtVertex*> tracks_to_fit = linearizeTracks(perigeeList, initialRecVertex); 
+   std::vector<Trk::VxTrackAtVertex*> tracks_to_fit = linearizeTracks(perigeeList, neutralPerigeeList, initialRecVertex); 
    std::vector<Trk::VxTrackAtVertex*> fittedTracks(0);
    //   std::cout << "Linearized tracks to fit: " << tracks_to_fit.size() << std::endl;
  
@@ -507,8 +513,9 @@ namespace Trk{
 
 
 //initial linearization of tracks--------------------------------------------------------------------------------------------
- std::vector<Trk::VxTrackAtVertex*>  SequentialVertexFitter::linearizeTracks(
-          const std::vector<const Trk::TrackParameters*> & perigeeList, const RecVertex & vrt) const
+ std::vector<Trk::VxTrackAtVertex*>  SequentialVertexFitter::linearizeTracks(const std::vector<const Trk::TrackParameters*> & perigeeList, 
+									     const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
+									     const RecVertex & vrt) const
  { 
  
  
@@ -525,7 +532,7 @@ namespace Trk{
     Trk::Perigee * mPer  = new Trk::Perigee(*m_loc_per);
     const Trk::Perigee * inPer = m_loc_per;
     //new MeasuredPerigee(*m_loc_per);
-    Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., mPer, inPer);
+    Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., mPer, NULL, inPer, NULL);
    
 //linearization itself   
     m_LinTrkFactory->linearize(*vTrack,vrt);
@@ -536,6 +543,24 @@ namespace Trk{
     msg(MSG::WARNING)<<"Cannot linearize tracks; treatment of neutrals not yet supported"<<endreq;
    } 
   }//end of loop over all the perigee states
+  //same for neutrals
+  for(std::vector<const Trk::NeutralParameters*>::const_iterator i = neutralPerigeeList.begin();i!= neutralPerigeeList.end();++i)  {
+    //creating new meas perigees, since the will be deleted 
+    //by VxTrackAtVertex in destructor
+    const Trk::NeutralPerigee * m_loc_per = dynamic_cast<const Trk::NeutralPerigee *>(*i);
+    if( m_loc_per != 0)   {
+      Trk::NeutralPerigee * mPer  = new Trk::NeutralPerigee(*m_loc_per);
+      const Trk::NeutralPerigee * inPer = m_loc_per;
+      Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., NULL, mPer, NULL, inPer);
+      //linearization itself   
+      m_LinTrkFactory->linearize(*vTrack,vrt);
+      vTrack->setWeight(1.);
+      out_tracks.push_back(vTrack); 
+    }else{
+      msg(MSG::WARNING)<<"Cannot linearize tracks; treatment of neutrals not yet supported"<<endreq;
+    } 
+  }//end of loop over all the neutral perigee states
+ 
   return out_tracks;  
  }//end of linearize method  
 
@@ -566,14 +591,15 @@ namespace Trk{
 
 //xAOD interfaced methods. Required to un-block the current situation 
 // with the xAOD tracking design.
- xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,const Vertex& startingPoint)
+ xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,const std::vector<const xAOD::NeutralParticle*>& vectorNeut,const Vertex& startingPoint)
  {			 
-  return fit(vectorTrk, RecVertex(startingPoint));				 
+   return fit(vectorTrk, vectorNeut, RecVertex(startingPoint));				 
  }//end of the xAOD starting point fit method
 
     
- xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const RecVertex& constraint)
- {
+ xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
+					    const std::vector<const xAOD::NeutralParticle*>& vectorNeut, 
+					    const RecVertex& constraint) {
    if(vectorTrk.size() == 0)
    {
     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endreq;
@@ -609,9 +635,36 @@ namespace Trk{
       msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq;
     }
    }
+
+   //Same for neutrals
+   std::vector<const Trk::NeutralParameters*> measuredNeutralPerigees;
+   std::vector<const xAOD::NeutralParticle*> neutToFit;
+   for(std::vector<const xAOD::NeutralParticle*>::const_iterator i = vectorNeut.begin(); i!= vectorNeut.end();++i)
+   {
+     //check for duplicates
+     bool foundDuplicate(false);
+     for (std::vector<const xAOD::NeutralParticle*>::const_iterator j = vectorNeut.begin(); j!= i; ++j) {
+       if (*i == *j) {
+	 ATH_MSG_WARNING("Duplicate neutral given as input to the fitter. Ignored.");
+	 foundDuplicate = true;
+	 break;
+       }
+     }
+     if (foundDuplicate) continue; //skip track
+
+    const Trk::NeutralParameters * tmpMeasPer = &((*i)->perigeeParameters());
+  
+    if(tmpMeasPer!=0) {
+      neutToFit.push_back(*i);
+      measuredNeutralPerigees.push_back(tmpMeasPer);
+    } else {
+      msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq;
+    }
+   }
+
    
    
-   Trk::VxCandidate* fittedVxCandidate = fit( measuredPerigees, constraint );
+   Trk::VxCandidate* fittedVxCandidate = fit( measuredPerigees, measuredNeutralPerigees, constraint );
 
 //assigning the input tracks to the fitted vertex   
    if(fittedVxCandidate !=0)
@@ -642,6 +695,20 @@ namespace Trk{
 // vxtrackatvertex takes ownership!
        (*(fittedVxCandidate->vxTrackAtVertex()))[i]->setOrigTrack(linkTT);
       }//end of loop for setting orig tracks in.
+      //same for neutrals
+      for(unsigned int i = 0; i <neutToFit.size(); ++i)      {
+	LinkToXAODNeutralParticle* linkTT= new LinkToXAODNeutralParticle();
+	const xAOD::NeutralParticleContainer* cont = dynamic_cast< const xAOD::NeutralParticleContainer* >( neutToFit[ i ]->container() );
+	if(  cont )       {
+	  if( ! linkTT->toIndexedElement( *cont, neutToFit[ i ]->index() ) )	{
+	    msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endreq;
+	  }
+	}else{
+	  msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endreq;
+	}//end of the dynamic cast check 
+	// vxtrackatvertex takes ownership!
+	(*(fittedVxCandidate->vxTrackAtVertex()))[trkToFit.size()+i]->setOrigTrack(linkTT);
+      }//end of loop for setting orig neutrals in.
      }//end of protection against unsuccessfull updates (no tracks were added)
     }//end of vector of tracks check
    }//end of pointer check

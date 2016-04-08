@@ -14,6 +14,8 @@
 //xAOD includes
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
+#include "xAODTracking/NeutralParticle.h"
+
 
 /**
  *
@@ -95,33 +97,57 @@ namespace Trk
     
     
     /** 
+     *Interface for xAOD::TrackParticle and xAOD::NeutralParticle with starting point 
+     */
+    virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+			       const std::vector<const xAOD::NeutralParticle*>& vectorNeut,
+			       const Vertex& startingPoint);
+    /** 
      *Interface for xAOD::TrackParticle with starting point 
      */
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-                                 const Vertex& startingPoint);
+			       const Vertex& startingPoint) {return fit(vectorTrk, std::vector<const xAOD::NeutralParticle*>(), startingPoint);};
 
+    /** 
+     * Interface for xAOD::TrackParticle and xAOD::NeutralParticle with vertex constraint 
+     * the position of the constraint is ALWAYS the starting point 
+     */
+    virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+			       const std::vector<const xAOD::NeutralParticle*>& vectorNeut,
+			       const RecVertex& constraint);
     /** 
      * Interface for xAOD::TrackParticle with vertex constraint 
      * the position of the constraint is ALWAYS the starting point 
      */
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-                                 const RecVertex& constraint);
+                                 const RecVertex& constraint) {return fit(vectorTrk, std::vector<const xAOD::NeutralParticle*>(), constraint);};
 
     
     
     /**
-     * Vertex fit from list of track parameters
+     * Vertex fit from list of track and neutral parameters
+     * and a starting point
+     */   
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
+			      const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
+                              const Vertex& startingPoint);
+    /**
+     * Vertex fit from list of track and parameters
      * and a starting point
      */   
     virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & paramList,
-                              const Vertex& startingPoint);
+                              const Vertex& startingPoint) {return fit(paramList, std::vector<const Trk::NeutralParameters*>(), startingPoint);};
     
     /**
-     * Vertex fit from the vector of track parameters
+     * Vertex fit from the vector of track and neutral parameters
      * with a preliminary knowledge (vertex constraint)
      */ 
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
+			      const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
+                              const RecVertex& constraint);
     virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
-			      const RecVertex& constraint);
+			      const RecVertex& constraint){return fit(perigeeList, std::vector<const Trk::NeutralParameters*>(), constraint);};
+
     /**
      * Additional fit methods.
      * These will later work with selected finder..
@@ -129,7 +155,8 @@ namespace Trk
      * starting point and "huge" diagonal error matrix
      */
     
-    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*>& perigeeList);
+    VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*>& perigeeList){return fit(perigeeList, std::vector<const Trk::NeutralParameters*>());};
     
     virtual VxCandidate * fit(const std::vector<const Trk::Track*>& vectorTrk);
     
@@ -139,7 +166,7 @@ namespace Trk
     * Internal method related to the linearization of tracks (initial linearization)
     */
 
-   std::vector<Trk::VxTrackAtVertex*>  linearizeTracks(const std::vector<const Trk::TrackParameters*> & perigeeList, const RecVertex & vrt)const;  
+   std::vector<Trk::VxTrackAtVertex*>  linearizeTracks(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList, const RecVertex & vrt)const;  
  
    /**
     * Relinearization on iterations

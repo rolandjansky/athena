@@ -13,6 +13,7 @@
 //xAOD includes
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/NeutralParticle.h"
 
 
 
@@ -131,27 +132,38 @@ namespace Trk
      *Interface for xAOD::TrackParticle with starting point 
      */
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-                                 const Vertex& startingPoint);
+			       const std::vector<const xAOD::NeutralParticle*>& vectorNeut,
+			       const Vertex& startingPoint);
+    virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+			       const Vertex& startingPoint) {return fit(vectorTrk, std::vector<const xAOD::NeutralParticle*>(), startingPoint);};
+
 
     /** 
      * Interface for xAOD::TrackParticle with vertex constraint 
      * the position of the constraint is ALWAYS the starting point 
      */
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-                                 const RecVertex& constraint);
+			       const std::vector<const xAOD::NeutralParticle*>& vectorNeut,
+			       const RecVertex& constraint);
+    virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+			       const RecVertex& constraint) {return fit(vectorTrk, std::vector<const xAOD::NeutralParticle*>(), constraint);};
 
     
     /**
      * Interface for MeasuredPerigee with starting point
      */
-    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
+			      const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
                               const Vertex& startingPoint);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const Vertex& startingPoint);
     
     /**
      * Interface for MeasuredPerigee with vertex constraint 
      */
-    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
+			      const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
                               const RecVertex& constraint);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const RecVertex& constraint);
     
     /**
      * fit providing vector of tracks, constraint and startingPoint
@@ -165,6 +177,9 @@ namespace Trk
      * fit providing vector of ParametersBase, constraint and startingPoint
      */
     
+    VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
+		      const RecVertex& constraint,
+		      const Vertex & startingPoint);
     VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
 		      const RecVertex& constraint,
 		      const Vertex & startingPoint);
@@ -176,9 +191,10 @@ namespace Trk
     VxCandidate * fit(const std::vector<const Trk::Track*> & vectorTrk);
     
     /**
-     * fit providing vector of TrackParameters
+     * fit providing vector of TrackParameters and NeutralParameters
      */
 
+    VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList);
     VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList);
 
     /**
@@ -193,11 +209,17 @@ namespace Trk
   private:
 
     /**
-     * Internal method for fitting a list of TrackParameters, with or without constraint and 
+     * Internal method for fitting a list of TrackParameters and NeutralParameters, with or without constraint and 
      * starting point
      */
 
-    VxCandidate * _fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
+    VxCandidate * _fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
+		       const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList=std::vector<const Trk::NeutralParameters*>(),
+		      const RecVertex& constraint=RecVertex(),
+		      const Vertex & startingPoint=Vertex(),
+		      bool IsConstraint=false,
+		      bool IsStartingPoint=false);
+    VxCandidate * _fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
 		      const RecVertex& constraint=RecVertex(),
 		      const Vertex & startingPoint=Vertex(),
 		      bool IsConstraint=false,
