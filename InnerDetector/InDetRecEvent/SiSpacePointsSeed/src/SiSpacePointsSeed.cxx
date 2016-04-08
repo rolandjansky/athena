@@ -24,6 +24,7 @@ namespace InDet {
     
   SiSpacePointsSeed::SiSpacePointsSeed ()
   {
+    m_zvertex = 0.;
   }
  
   SiSpacePointsSeed::SiSpacePointsSeed
@@ -61,8 +62,10 @@ namespace InDet {
   
   SiSpacePointsSeed& SiSpacePointsSeed::operator = (const SiSpacePointsSeed& Se) 
   {
-    m_spacepoints = Se.m_spacepoints;
-    m_zvertex     = Se.m_zvertex    ;
+    if(&Se!=this) {
+      m_spacepoints = Se.m_spacepoints;
+      m_zvertex     = Se.m_zvertex    ;
+    }
     return *this;
   }
 
