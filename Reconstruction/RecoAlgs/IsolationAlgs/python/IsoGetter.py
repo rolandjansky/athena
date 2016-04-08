@@ -168,10 +168,10 @@ tit.TrackSelectionTool.maxZ0SinTheta = 3
 tit.TrackSelectionTool.minPt         = 1000
 tit.TrackSelectionTool.CutLevel      = "Loose"
 
-import ROOT, PyCintex
+import ROOT, cppyy
 # Need to be sure base dict is loaded first.
-PyCintex.loadDictionary('xAODCoreRflxDict')
-PyCintex.loadDictionary('xAODPrimitivesDict')
+cppyy.loadDictionary('xAODCoreRflxDict')
+cppyy.loadDictionary('xAODPrimitivesDict')
 isoPar = ROOT.xAOD.Iso
 
 # In fact the default isolations are the same for eg and muons : prepare the list here
@@ -236,7 +236,7 @@ class isoGetter ( Configured ) :
             print traceback.format_exc()
             return False
          
-        print self._isoBuilderHandle
+        #print self._isoBuilderHandle
         return True
  
     def isoBuilderHandle(self):

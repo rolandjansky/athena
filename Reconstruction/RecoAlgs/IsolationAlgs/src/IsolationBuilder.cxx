@@ -38,7 +38,8 @@
 
 IsolationBuilder::IsolationBuilder( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator )
+  ::AthAlgorithm( name, pSvcLocator ),
+  m_cellColl (nullptr)
 {
   //
   // Property declaration
@@ -77,7 +78,8 @@ StatusCode IsolationBuilder::initialize()
   for (unsigned int ii = 0; ii < nI; ii++) {
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     std::vector<SG::AuxElement::Decorator<float>*> Deco;
-    xAOD::Iso::IsolationFlavour isoFlav;
+    xAOD::Iso::IsolationFlavour isoFlav =
+      xAOD::Iso::numIsolationFlavours;
     for (unsigned int jj = 0; jj < m_egisoInts[ii].size(); jj++) {
       int egIso = int(m_egisoInts[ii][jj]+0.5);
       xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(egIso);
@@ -133,7 +135,8 @@ StatusCode IsolationBuilder::initialize()
   for (unsigned int ii = 0; ii < nI; ii++) {
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     std::vector<SG::AuxElement::Decorator<float>*> Deco;
-    xAOD::Iso::IsolationFlavour isoFlav;
+    xAOD::Iso::IsolationFlavour isoFlav =
+      xAOD::Iso::numIsolationFlavours;
     for (unsigned int jj = 0; jj < m_muisoInts[ii].size(); jj++) {
       int muIso = int(m_muisoInts[ii][jj]+0.5);
       xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(muIso);
