@@ -13,6 +13,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <math.h>
 
+using CLHEP::nanosecond;
 using CLHEP::picosecond;
 
 #define MAXINT 2147483000
@@ -28,12 +29,12 @@ LArRawChannelBuilderToolOFC::LArRawChannelBuilderToolOFC(const std::string& type
   m_shapeMode(0),
   m_keyShape("LArShape")
 {
-  helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
+  m_helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
 					       0x05);  // bit pattern special for this tool,
                                                        // to be stored in  "uint16_t provenance"
-  helper->setErrorString(0, "no errors");
-  helper->setErrorString(1, "channel saturated");
-  helper->setErrorString(2, "OFC size zero");
+  m_helper->setErrorString(0, "no errors");
+  m_helper->setErrorString(1, "channel saturated");
+  m_helper->setErrorString(2, "OFC size zero");
   
   declareProperty("ADCMax",                    m_AdcMax=4095);
   declareProperty("Skip",                      m_skipSaturatedCells=true);
@@ -65,12 +66,12 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
 						  const std::vector<float>& ramps,
 						  MsgStream* pLog)
 {
-  HWIdentifier chid=pParent->curr_chid;
+  HWIdentifier chid=m_parent->curr_chid;
   if(bool(pLog))
     (*pLog) << MSG::DEBUG << "Start " <<MSG::hex<< chid<<MSG::dec<< endreq;
-  CaloGain::CaloGain gain=pParent->curr_gain;
+  CaloGain::CaloGain gain=m_parent->curr_gain;
   
-  if ( pParent->curr_maximum > m_AdcMax )
+  if ( m_parent->curr_maximum > m_AdcMax )
     {
       if(bool(pLog))
 	(*pLog) << MSG::DEBUG << "Saturation on channel 0x"
@@ -79,7 +80,7 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
 	{
       if(bool(pLog))
 	(*pLog) << "Skipping channel." << endreq; 
-	  helper->incrementErrorCount(1);
+	  m_helper->incrementErrorCount(1);
 	  return false;
 	}
       if(bool(pLog))
@@ -101,7 +102,7 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
 	     << MSG::hex << chid.get_compact() << MSG::dec 
 	     << " Time bin = " << OFCTimeBin << ", Gain = " << gain
 	     << ". Skipping channel." << endreq;
-      helper->incrementErrorCount(2);
+      m_helper->incrementErrorCount(2);
       return false;
     }
   
@@ -110,7 +111,7 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
   //Now apply Optimal Filtering to get ADC peak
   float ADCPeak=0;
   for (unsigned i=0;i<(ofc_a->size());i++) {
-    ADCPeak+=(digit->samples()[i+pParent->curr_shiftTimeSamples]-
+    ADCPeak+=(digit->samples()[i+m_parent->curr_shiftTimeSamples]-
 	      pedestal)*ofc_a->at(i);
     if(bool(pLog))
       (*pLog) << MSG::DEBUG << "OFC i, a= " <<i<<" "<< ofc_a->at(i) << endreq;
@@ -147,7 +148,7 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
 	    }
 	}else{
 	  for (unsigned i=0;i<(ofc_b->size());i++) 
-	    time+=(digit->samples()[i+pParent->curr_shiftTimeSamples]-pedestal)
+	    time+=(digit->samples()[i+m_parent->curr_shiftTimeSamples]-pedestal)
 	      *ofc_b->at(i);
 	  time/=ADCPeak;
 	}
@@ -199,18 +200,18 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
 		{
 		  //Calculate Q without time info
 		  for (unsigned i=0;i<(ofc_a->size());i++)
-		    quality+=((digit->samples()[i+pParent->curr_shiftTimeSamples]-
+		    quality+=((digit->samples()[i+m_parent->curr_shiftTimeSamples]-
 			       pedestal)-shape[i]*ADCPeak)*
-		      ((digit->samples()[i+pParent->curr_shiftTimeSamples]-
+		      ((digit->samples()[i+m_parent->curr_shiftTimeSamples]-
 			pedestal)-shape[i]*ADCPeak);
 		} else {
 		  //All input data ok, calculate Q with time info
 		  for (unsigned i=0;i<(ofc_a->size());i++) 
 		    quality+=
-		      ((digit->samples()[i+pParent->curr_shiftTimeSamples]-
+		      ((digit->samples()[i+m_parent->curr_shiftTimeSamples]-
 			pedestal)-
 		       ((shape[i]-shapeDer[i]*time)*ADCPeak))*
-		      ((digit->samples()[i+pParent->curr_shiftTimeSamples]-
+		      ((digit->samples()[i+m_parent->curr_shiftTimeSamples]-
 			pedestal)-
 		       ((shape[i]-shapeDer[i]*time)*ADCPeak));
 		}
@@ -231,11 +232,11 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
      iprovenance = iprovenance | 0x2000;
   }
 
-  iprovenance |= pParent->qualityBitPattern;
-  iprovenance |= helper->returnBitPattern();
+  iprovenance |= m_parent->qualityBitPattern;
+  iprovenance |= m_helper->returnBitPattern();
   iprovenance = iprovenance & 0x3FFF;
   
-  time=time/picosecond; //Convert time to ps
+  time=time*(nanosecond/picosecond); //Convert time to ps
 
   if (time>MAXINT) time=MAXINT;
   if (time<MAXINT2) time=MAXINT2;
@@ -244,7 +245,7 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
   if (energy<MAXINT2) energy=MAXINT2;
   
   (this->*m_buildIt)((int)(floor(energy+0.5)),(int)floor(time+0.5),iquality,iprovenance,digit);
-  helper->incrementErrorCount(0);
+  m_helper->incrementErrorCount(0);
   
   return true;
 }
@@ -253,7 +254,7 @@ const std::vector<float>&
 LArRawChannelBuilderToolOFC::OFC_a()
 {
   m_OFCtmp.clear();
-  m_OFCtmp = m_OFCTool->OFC_a(pParent->curr_chid,pParent->curr_gain).asVector();
+  m_OFCtmp = m_OFCTool->OFC_a(m_parent->curr_chid,m_parent->curr_gain).asVector();
   return m_OFCtmp;
 }
 
@@ -261,7 +262,7 @@ const std::vector<float>&
 LArRawChannelBuilderToolOFC::OFC_b()
 {
   m_OFCtmp.clear();
-  m_OFCtmp = m_OFCTool->OFC_b(pParent->curr_chid,pParent->curr_gain).asVector();
+  m_OFCtmp = m_OFCTool->OFC_b(m_parent->curr_chid,m_parent->curr_gain).asVector();
   return m_OFCtmp;
 }
 

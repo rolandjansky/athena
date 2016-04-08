@@ -24,12 +24,12 @@ LArRawChannelBuilderToolParabola::LArRawChannelBuilderToolParabola(const std::st
   m_parabolaRecoTool("LArOFPeakRecoTool"),
   m_emId(NULL)
 {
-  helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
+  m_helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
 					       0x03);  // bit pattern special for this tool,
                                                        // to be stored in  "uint16_t provenance"
-  helper->setErrorString(0, "no errors");
-  helper->setErrorString(1, "Fit failed");
-  helper->setErrorString(2, "is FCAL");
+  m_helper->setErrorString(0, "no errors");
+  m_helper->setErrorString(1, "Fit failed");
+  m_helper->setErrorString(2, "is FCAL");
 }
 
 StatusCode LArRawChannelBuilderToolParabola::initTool()
@@ -79,8 +79,8 @@ bool LArRawChannelBuilderToolParabola::buildRawChannel(const LArDigit* digit,
     time = int(peak[2]);
   
   // store which tool created this channel
-  iprovenance |= pParent->qualityBitPattern;
-  iprovenance |= helper->returnBitPattern();
+  iprovenance |= m_parent->qualityBitPattern;
+  iprovenance |= m_helper->returnBitPattern();
   iprovenance = iprovenance & 0x3FFF;
 
   if (time>MAXINT) time=MAXINT;
@@ -92,7 +92,7 @@ bool LArRawChannelBuilderToolParabola::buildRawChannel(const LArDigit* digit,
   
   
   (this->*m_buildIt)((int)(floor(energy+0.5)),time,iquality,iprovenance,digit);
-  helper->incrementErrorCount(0);
+  m_helper->incrementErrorCount(0);
   
   return true;
 }

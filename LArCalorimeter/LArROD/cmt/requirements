@@ -17,7 +17,7 @@ use LArRawEvent      LArRawEvent-*         LArCalorimeter
 #use LArRawUtils     LArRawUtils-*         LArCalorimeter
 use LArRawConditions LArRawConditions-*    LArCalorimeter
 use LArRecUtils      LArRecUtils-*         LArCalorimeter
-use LArTools         LArTools-*            LArCalorimeter
+use LArCabling       LArCabling-*          LArCalorimeter
 
 use LArRecConditions LArRecConditions-*    LArCalorimeter
 
@@ -42,10 +42,8 @@ use CaloEvent	    CaloEvent-*		Calorimeter
 use LArCOOLConditions           LArCOOLConditions-*             LArCalorimeter
 use AthenaPoolUtilities         AthenaPoolUtilities-*           Database/AthenaPOOL
 
-use  CaloTriggerTool            CaloTriggerTool-*               Calorimeter
-
 use AtlasROOT AtlasROOT-* External
-
+use EventInfo EventInfo-* Event
 end_private
 
 #use GaudiPython v*

@@ -36,7 +36,7 @@ class LArRawChannelBuilderToolBase : public LArRawChannelBuilderToolBaseClass,
 			       const std::string& name,
 			       const IInterface* parent);
   void initEventHidden()
-    { m_larRawChannelContainer=pParent->m_larRawChannelContainer;
+    { m_larRawChannelContainer=m_parent->m_larRawChannelContainer;
       if ( m_larRawChannelContainer !=NULL )
         m_buildIt = &LArRawChannelBuilderToolBase::BuildLArRawChannel;
       else

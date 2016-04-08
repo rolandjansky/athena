@@ -34,7 +34,7 @@ LArDigitPreProcessor<DIGITCONTAINER>::LArDigitPreProcessor (const std::string& n
   const float highGainFactor=9.8; //MedGain*highGainFactor=highGain Value correct??
   m_medGainLowerLimit=0x4fe;      //Comes from old LArRawChannelBuilder class
   m_medGainUpperLimit=0xe0f;      //Comes from old LArRawChannelBuilder class
-  m_highGainLowerLimit=(short)(m_medGainUpperLimit/highGainFactor); 
+  m_highGainLowerLimit=(short)(m_medGainUpperLimit*(1./highGainFactor)); 
   m_lowGainUpperLimit=(short)(m_medGainLowerLimit*medGainFactor);
 }
 

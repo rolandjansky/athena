@@ -31,10 +31,10 @@ LArRawChannelBuilderToolAverage::LArRawChannelBuilderToolAverage(const std::stri
   m_hecId(NULL),
   m_onlineHelper(NULL)
 {
-  helper = new LArRawChannelBuilderStatistics( 1,      // number of possible errors
+  m_helper = new LArRawChannelBuilderStatistics( 1,      // number of possible errors
 					       0x01);  // bit pattern special for this tool,
                                                        // to be stored in  "uint16_t provenance"
-  helper->setErrorString(0, "no errors");
+  m_helper->setErrorString(0, "no errors");
   
   declareProperty("AverageSamplesEM",m_averageSamplesEM=5); 
   declareProperty("AverageSamplesHEC",m_averageSamplesHEC=5); 
@@ -55,7 +55,7 @@ StatusCode LArRawChannelBuilderToolAverage::initTool()
   
 
   if (detStore()->retrieve(m_onlineHelper, "LArOnlineID").isFailure()){
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
+    msg(MSG::ERROR) << "Could not get LArOnlineID m_helper !" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -67,7 +67,7 @@ bool LArRawChannelBuilderToolAverage::buildRawChannel(const LArDigit* digit,
 						      const std::vector<float>& ramps,
 						      MsgStream* /* plog */ )
 {
-  HWIdentifier chid = pParent->curr_chid; 
+  HWIdentifier chid = m_parent->curr_chid; 
   //int nMin = 0;
   unsigned int nAverage = 1;
   float myScale = 1;
@@ -88,19 +88,19 @@ bool LArRawChannelBuilderToolAverage::buildRawChannel(const LArDigit* digit,
   // look for maximum of all possible windows of size nAverage
   long sum=0;
   unsigned nSummedSamples=0;
-  for( unsigned int i=pParent->curr_shiftTimeSamples;
-       i<(pParent->curr_shiftTimeSamples+nAverage) &&
-	 i<pParent->curr_nsamples; i++,nSummedSamples++ )
+  for( unsigned int i=m_parent->curr_shiftTimeSamples;
+       i<(m_parent->curr_shiftTimeSamples+nAverage) &&
+	 i<m_parent->curr_nsamples; i++,nSummedSamples++ )
     sum += digit->samples()[i];
   
   long max=sum;
-  unsigned int maxsample=pParent->curr_shiftTimeSamples;
+  unsigned int maxsample=m_parent->curr_shiftTimeSamples;
 
-  unsigned int nmax = pParent->curr_shiftTimeSamples+1+m_nScan;
-  if(nmax>pParent->curr_nsamples-nAverage+1)
-	nmax = pParent->curr_nsamples-nAverage+1 ; 
+  unsigned int nmax = m_parent->curr_shiftTimeSamples+1+m_nScan;
+  if(nmax>m_parent->curr_nsamples-nAverage+1)
+	nmax = m_parent->curr_nsamples-nAverage+1 ; 
 
-  for( unsigned int i=pParent->curr_shiftTimeSamples+1;
+  for( unsigned int i=m_parent->curr_shiftTimeSamples+1;
        i<nmax; i++ )
     {
       sum += digit->samples()[i+nAverage-1] - digit->samples()[i-1];
@@ -121,13 +121,13 @@ bool LArRawChannelBuilderToolAverage::buildRawChannel(const LArDigit* digit,
     }
   
   // LArRawChannel has a non-standard unit of pico-second.
-  int time=int(25.0 * maxsample * nanosecond /picosecond  );
+  int time=int((25.0 * nanosecond /picosecond) * maxsample );
   uint16_t iquality=0;
   
   // store which tool created this channel
   uint16_t iprovenance=0;
-  iprovenance |= pParent->qualityBitPattern;
-  iprovenance |= helper->returnBitPattern();
+  iprovenance |= m_parent->qualityBitPattern;
+  iprovenance |= m_helper->returnBitPattern();
   iprovenance = iprovenance & 0x3FFF;
 
   if (time>MAXINT) time=MAXINT;
@@ -139,7 +139,7 @@ bool LArRawChannelBuilderToolAverage::buildRawChannel(const LArDigit* digit,
   
   (this->*m_buildIt)((int)(floor(energy+0.5)),time,iquality,iprovenance,digit);  
 
-  helper->incrementErrorCount(0);
+  m_helper->incrementErrorCount(0);
   
   return true;
 }

@@ -26,8 +26,8 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "LArTools/LArCablingService.h"
-#include "LArTools/LArSuperCellCablingTool.h"
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 
 class LArRawChannelBuilderToolBaseClass : public AthAlgTool,
 					  public virtual ILArRawChannelBuilderToolBaseClass
@@ -45,7 +45,7 @@ class LArRawChannelBuilderToolBaseClass : public AthAlgTool,
   
   StatusCode initToolHidden(LArRawChannelBuilderParams *myParent)
     {
-      pParent=myParent; 
+      m_parent=myParent; 
       if ( m_isSC ) {
            ToolHandle<LArSuperCellCablingTool> lscct;
            CHECK( lscct.retrieve() );
@@ -83,9 +83,9 @@ class LArRawChannelBuilderToolBaseClass : public AthAlgTool,
   
  protected:
   
-  LArRawChannelBuilderParams *pParent;
+  LArRawChannelBuilderParams *m_parent;
   
-  LArRawChannelBuilderStatistics *helper;  
+  LArRawChannelBuilderStatistics *m_helper;  
   
   StoreGateSvc*  m_detStore;
   

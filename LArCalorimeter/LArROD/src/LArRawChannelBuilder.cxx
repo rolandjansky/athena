@@ -22,6 +22,7 @@
 
 using CLHEP::MeV;
 using CLHEP::megahertz;
+using CLHEP::nanosecond;
 using CLHEP::picosecond;
 
 LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
@@ -656,7 +657,7 @@ StatusCode LArRawChannelBuilder::execute()
     else 
       quality=-1; //in case E<Ecut
     //time*=1000.0; 
-    time=time/picosecond; //Convert time to ps
+    time=time*(nanosecond/picosecond); //Convert time to ps
     //Make LArRawChannel Object with new data
 
     uint16_t iqual=0;

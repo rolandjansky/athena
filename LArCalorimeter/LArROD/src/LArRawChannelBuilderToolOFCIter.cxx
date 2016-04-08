@@ -23,6 +23,7 @@
 #include <math.h>
 
 using CLHEP::ns;
+using CLHEP::nanosecond;
 using CLHEP::picosecond;
 
 #define MAXINT 2147483000
@@ -35,12 +36,12 @@ LArRawChannelBuilderToolOFCIter::LArRawChannelBuilderToolOFCIter(const std::stri
   m_larOFIterCont(NULL),
   m_storeGate("StoreGateSvc", name),
   m_peakReco("LArOFPeakRecoTool") {
-  helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
+  m_helper = new LArRawChannelBuilderStatistics( 3,      // number of possible errors
 					       0x05);  // bit pattern special for this tool,
                                                        // to be stored in "uint16_t provenance"
-  helper->setErrorString(0, "no errors");
-  helper->setErrorString(1, "channel saturated");
-  helper->setErrorString(2, "OFC not valid");
+  m_helper->setErrorString(0, "no errors");
+  m_helper->setErrorString(1, "channel saturated");
+  m_helper->setErrorString(2, "OFC not valid");
   
   declareProperty("ADCMax",                    m_AdcMax=4095);
   declareProperty("Skip",                      m_skipSaturatedCells=false);
@@ -131,8 +132,8 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
 						      const std::vector<float>& ramps,
 						      MsgStream* pLog )
 {
-  const HWIdentifier chid=pParent->curr_chid;
-  const CaloGain::CaloGain gain=pParent->curr_gain;
+  const HWIdentifier chid=m_parent->curr_chid;
+  const CaloGain::CaloGain gain=m_parent->curr_gain;
 
   uint16_t iprovenance=0;
 
@@ -160,7 +161,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
 			     << " ADC=" << samples[ii];
       if ( m_skipSaturatedCells ) {
 	  if(debugPrint) (*pLog) << " Skipping channel." << endreq; 
-	  helper->incrementErrorCount(1);
+	  m_helper->incrementErrorCount(1);
 	  return false;
       }
       else
@@ -200,7 +201,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
 
   if (!doIter) {//No iteration, insufficient signal
     nIteration=1;
-    ipeak = pParent->curr_shiftTimeSamples + 2 ; 
+    ipeak = m_parent->curr_shiftTimeSamples + 2 ; 
   }
 
 
@@ -229,7 +230,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
     // this should be ~0 if the peak is at curr_shiftTimeSamples
 
     // FIXME: this time definition still misses the tstart from the OFC to be absolutely computed
-    time = (25.*((int)(results.getPeakSample_final())-2-pParent->curr_shiftTimeSamples)-(results.getDelay_final()-results.getTau()));
+    time = (25.*((int)(results.getPeakSample_final())-2-m_parent->curr_shiftTimeSamples)-(results.getDelay_final()-results.getTau()));
     //log << MSG::DEBUG << "Peak and time properly retrieved with OFPeakRecoTool:";
     //log << MSG::DEBUG << "ADCPeak = " << ADCPeak <<", time = "<< time << endreq;
   }
@@ -237,7 +238,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
   //  log << MSG::DEBUG << ". OFC iteration not valid for channel 0x"
   // 	<< MSG::hex << chid.get_compact() << MSG::dec 
   // 	<< " Gain = " << gain << ". Skipping channel." << endreq;
-    helper->incrementErrorCount(2);
+    m_helper->incrementErrorCount(2);
     return false;
   }
 
@@ -267,13 +268,13 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
   //Reminder: Bit-pattern 
   //ppcc bbbb sqqq qqqq qqqq
 
-  iprovenance |= (pParent->qualityBitPattern & 0x00FF);
-  iprovenance |= (helper->returnBitPattern() & 0x00FF);
+  iprovenance |= (m_parent->qualityBitPattern & 0x00FF);
+  iprovenance |= (m_helper->returnBitPattern() & 0x00FF);
   if (results.getConverged())
     iprovenance |= 0x0100;
   iprovenance = iprovenance & 0x3FFF;
 
-  time=time/picosecond; //Convert time to ps
+  time=time*(nanosecond/picosecond); //Convert time to ps
 
   if (time>MAXINT) time=MAXINT;
   if (time<MAXINT2) time=MAXINT2;
@@ -285,7 +286,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
   (this->*m_buildIt)((int)(floor(energy+0.5)),(int)floor(time+0.5),iquality,iprovenance,digit);
    
   
-  helper->incrementErrorCount(0);
+  m_helper->incrementErrorCount(0);
 
   
   return true;

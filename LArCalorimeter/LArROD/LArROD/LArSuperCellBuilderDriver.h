@@ -19,7 +19,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "LArTools/LArSuperCellCablingTool.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 #include "CaloIdentifier/CaloGain.h"
 
 #include "LArIdentifier/LArOnline_SuperCellID.h"
