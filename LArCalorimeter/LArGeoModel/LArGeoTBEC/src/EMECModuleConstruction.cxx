@@ -238,7 +238,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   m2=Tgfe*Iron->getDensity();
   m3=Tgpb*Lead->getDensity();
   double Totalmass=m1+m2+m3;
-  density=Totalmass/Totalthick;
+  density=Totalmass*(1./Totalthick);
   {
     const double inv_Totalmass = 1. / Totalmass;
     Fracgl=m1*inv_Totalmass;
@@ -261,7 +261,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   m2=Thfe*Iron->getDensity();
   m3=Thpb*Lead->getDensity();
   Totalmass=m1+m2+m3;
-  density=Totalmass/Totalthick;
+  density=Totalmass*(1./Totalthick);
   {
     const double inv_Totalmass = 1. / Totalmass;
     Fracgl=m1*inv_Totalmass;
@@ -282,7 +282,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   m1=Thcu*Copper->getDensity();
   m2=Thka*Kapton->getDensity();
   Totalmass=m1+m2;
-  density=Totalmass/Totalthicke;
+  density=Totalmass*(1./Totalthicke);
   {
     const double inv_Totalmass = 1. / Totalmass;
     Fraccu=m1*inv_Totalmass;
@@ -335,7 +335,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     Fracgl  =m2*inv_Totalmass;
     FracGten=m3*inv_Totalmass;
   }
-  density =   Totalmass/Totalthick;
+  density =   Totalmass*(1./Totalthick);
 
   GeoMaterial* G10FeInner=
       new GeoMaterial(name="LAr::EMEC::G10FeInner",density);
@@ -362,7 +362,7 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
     Fracgl  =m2*inv_Totalmass;
     FracGten=m3*inv_Totalmass;
   }
-  density =   Totalmass/Totalthick;
+  density =   Totalmass*(1./Totalthick);
   GeoMaterial* G10FeOuter=
          new GeoMaterial(name="LAr::EMEC::G10FeOuter",density);
   G10FeOuter->add(Iron,Fracfe);
