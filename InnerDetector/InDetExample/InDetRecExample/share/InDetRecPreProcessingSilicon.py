@@ -87,9 +87,6 @@ if InDetFlags.doPRDFormation():
                                                                  SplitOnlyOnBLayer                   = False,
                                                                  useBeamSpotInfo                     = useBeamConstraint)
 
-            # COOL binding
-            from IOVDbSvc.CondDB import conddb
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
             
             ToolSvc += NnPixelClusterSplitter
             if (InDetFlags.doPrintConfigurables()):
@@ -209,6 +206,9 @@ if InDetFlags.doSpacePointFormation():
    #
    from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
    InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool")
+
+   if InDetFlags.doSLHC():
+      InDetSiSpacePointMakerTool.SCTGapParameter = 0.0015
 
    if InDetFlags.doCosmics() or InDetFlags.doBeamHalo():
       InDetSiSpacePointMakerTool.StripLengthTolerance       = 0.05
