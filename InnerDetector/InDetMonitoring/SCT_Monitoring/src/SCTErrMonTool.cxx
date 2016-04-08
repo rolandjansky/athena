@@ -1162,7 +1162,7 @@ StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
     bool failedBooking(false); 
     for (int layer(0); layer!=N_DISKSx2;++layer) {
       for (int errType(0);errType!=N_ERRTYPES;++errType){
-	MonGroup err2(this,m_errorsNamesMG[errType],lumiBlock,ATTRIB_UNMANAGED );//07.01.2015
+	MonGroup err2(this,m_errorsNamesMG[errType],run,ATTRIB_UNMANAGED ); 
         std::string name1 = m_errorsNames[errType] + "ErrsECp_";
         std::string title = m_errorsNames[errType] + " errors Disk ";
         std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECp_";
@@ -1233,7 +1233,7 @@ StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(){
     bool failedBooking(false);
     for (int layer(0); layer!=N_DISKSx2;++layer) {
       for (int errType(0);errType!=N_ERRTYPES;++errType){
-	MonGroup err2(this,m_errorsNamesMG[errType],lumiBlock,ATTRIB_UNMANAGED );//07.01.2015
+	MonGroup err2(this,m_errorsNamesMG[errType],run,ATTRIB_UNMANAGED );
         std::string name1 = m_errorsNames[errType] + "ErrsECm_";
         std::string title = m_errorsNames[errType] + " errors Disk ";
         std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECm_";

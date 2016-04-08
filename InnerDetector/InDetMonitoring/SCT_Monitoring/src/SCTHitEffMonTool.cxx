@@ -1371,7 +1371,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
     m_nTrkParsHisto->Fill(nTrkPars); 
     m_nTrkGoodHisto->Fill(nTrkGood); 
   }
-  if (m_detailed) m_LumiBlock->Fill(eventID->lumi_block()); 
+  if (m_superDetailed) m_LumiBlock->Fill(eventID->lumi_block()); 
   m_countEvent++; 
   if(m_chronotime) m_chrono->chronoStop("SCTHitEff");
   return StatusCode::SUCCESS;
