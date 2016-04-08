@@ -1,0 +1,76 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: RingerIOVarDepObj.icc 667905 2015-05-18 19:07:55Z wsfreund $
+#ifndef RINGERSELECTORTOOLS_TOOLS_RINGERIOVARDEPOBJ_ICC
+#define RINGERSELECTORTOOLS_TOOLS_RINGERIOVARDEPOBJ_ICC
+
+// STL includes:
+#include <sstream>
+#include <cctype>
+
+// Root includes:
+#include <TFile.h>
+
+// Local includes:
+#include "RingerSelectorTools/tools/RingerIOVarDepObj.h"
+#include "RingerSelectorTools/tools/IOHelperFcns.icc"
+
+namespace Ringer {
+
+// =============================================================================
+template < class CRTP >
+const char* RingerIOVarDepObj<CRTP>::name() const
+{
+  const_cast<std::string&>(m_name) = std::string(CRTP::base_t::procType()) +
+    this->VariableDependency::type();
+  return m_name.c_str();
+}
+
+// =============================================================================
+template < class CRTP >
+CRTP* RingerIOVarDepObj<CRTP>::read(TDirectory *configDir) 
+{
+  CRTP* crtp = new CRTP;
+  try {
+    unsigned v = IOHelperFcns::getWrittenVersion(configDir);
+    CRTP::base_t::read(crtp, configDir, v );
+    VariableDependency::read(crtp, configDir, v );
+    return crtp;
+  } catch ( const std::runtime_error &e){
+    std::cerr << "Couldn't read object of type " 
+      << CRTP::base_t::procType() 
+      << ". Reason: " << e.what() << std::endl;
+    delete crtp;
+    return nullptr;
+  }
+}
+
+// =============================================================================
+template < class CRTP >
+void RingerIOVarDepObj<CRTP>::write(TDirectory *baseDir, const char *idxStr)
+  const
+{
+  typedef typename CRTP::base_t base_t;
+  typedef typename RingerProcedureType<base_t>::procEnum_t
+    procEnum_t;
+  // Create directory where we will add all configurable information:
+  TDirectory* configDir = IOHelperFcns::makeDir( baseDir, 
+      (std::string(this->name()) + std::string(idxStr) ).c_str() );
+  // Write object version:
+  unsigned v = IOHelperFcns::version();
+  IOHelperFcns::writeVar( configDir, "writtenOnPkgVersion", v );
+  // Write object type:
+  procEnum_t procType = base_t::template procType<procEnum_t>();
+  IOHelperFcns::writeVar< const procEnum_t, const unsigned int>( configDir, 
+      "procType", 
+      procType );
+  // Now write BaseProcedure and VariableDependency information on it:
+  static_cast<const CRTP*>(this)->base_t::write(configDir, idxStr);
+  static_cast<const VariableDependency*>(this)->writeDepInfo(configDir);
+}
+
+} // namespace Ringer
+
+#endif // RINGERSELECTORTOOLS_TOOLS_RINGERIOVARDEPOBJ_ICC

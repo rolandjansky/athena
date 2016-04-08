@@ -1,0 +1,441 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: RingerProcedureWrapper.icc 689837 2015-08-17 17:22:12Z wsfreund $
+#ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERPROCEDUREWRAPPER_ICC
+#define RINGERSELECTORTOOLS_PROCEDURES_RINGERPROCEDUREWRAPPER_ICC
+
+#undef NDEBUG
+
+// STL includes:
+#include <vector>
+#include <stdexcept>
+
+// Local includes:
+#include "RingerProcedureWrapper.h"
+#include "RingerSelectorTools/RingerSelectorToolsDefs.h"
+#include "RingerSelectorTools/tools/VariableDependency.h"
+#include "RingerSelectorTools/tools/TrackPatternsHolder.h"
+#include "RingerSelectorTools/tools/IOHelperFcns.h"
+
+/** 
+ * @brief Namespace dedicated for Ringer utilities 
+ **/
+namespace Ringer {
+
+namespace WrapperHelperFcns {
+
+// =============================================================================
+/**
+ * @brief Returns eta bin number which is within region.
+ *
+ * Vector Dimension: [etBin][etaBin]:
+ **/
+template<class vecType>
+size_t findEtaBin( const float eta, 
+  const typename std::vector< std::vector < 
+      vecType*
+    > 
+  > &varDepCol )
+{
+  std::vector< vecType* > firstRow = varDepCol[0];
+  for (size_t idx = 0; idx < firstRow.size(); ++idx){
+    if (firstRow[idx]->isWithinEtaRange(eta)){
+      return idx;
+    }
+  }
+  throw std::runtime_error(std::string( "eta ")  +
+      std::to_string(eta) + " is not inside Ringer Procedure range.");
+}
+
+// =============================================================================
+/**
+ * @brief Returns Et bin number which is within region.
+ *
+ * Vector Dimension: [etBin][etaBin]:
+ **/
+template<class vecType>
+size_t findEtBin( const float et, 
+    const std::vector< 
+      std::vector < 
+          vecType*
+        > 
+      > &varDepCol )
+{
+  for (size_t idx = 0; idx < varDepCol.size(); ++idx){
+    if ( varDepCol[idx][0]->isWithinEtRange(et) ){
+      return idx;
+    }
+  }
+  throw std::runtime_error(std::string( "Et ")  +
+      std::to_string(et) + " is not inside Ringer Procedure range.");
+}
+
+// =============================================================================
+template < typename vecType >
+void checkCollection( const std::vector< std::vector<vecType*> > &vec, 
+    EtaDependency etaDependency, EtDependency etDependency )
+{
+  if (vec.empty()){
+    throw std::runtime_error(std::string(
+          "Dependency collection cannot be empty."));
+  }
+  if ( !static_cast<bool>(etDependency) && (vec.size() != 1) ) {
+    throw std::runtime_error(std::string(
+          "Cannot have EtIndependent vector with size different from unit."));
+  }
+  for ( size_t etIdx = 0; etIdx < vec.size() ; ++etIdx){
+    size_t etaSize = vec[etIdx].size();
+    if ( !etaSize ){
+      throw std::runtime_error(std::string(
+          "Dependency collection cannot have an empty vector."));
+    }
+    if ( !static_cast<bool>(etaDependency) && (etaSize != 1) ) {
+      throw std::runtime_error(std::string(
+            "Cannot have EtaIndependent vector with size "
+            "different from unit."));
+    }
+    for ( size_t etaIdx = 0; etaIdx < etaSize; ++etaIdx){
+      if( !vec[etIdx][etaIdx] ){
+        throw std::runtime_error(std::string(
+            "Dependency collection holden object is invalid."));
+      }
+      if ( etaDependency != vec[etIdx][etaIdx]->etaDep() ){
+        if ( etDependency != vec[etIdx][etaIdx]->etDep() ){
+          throw std::runtime_error(std::string(
+                "Wrong eta and Et dependency. EtaDependency should be ") + 
+              toStr(etaDependency) + " and is " + 
+              toStr(vec[etIdx][etaIdx]->etaDep()) + ", as well as EtDependency "
+              "should be " + toStr(etDependency) + " and is " +
+              toStr(vec[etIdx][etaIdx]->etDep()) + "." );
+        } else {
+          throw std::runtime_error(std::string(
+                "Wrong eta dependency. EtaDependency should be ") + 
+              toStr(etaDependency) + " and is " + 
+              toStr(vec[etIdx][etaIdx]->etaDep()) + "." );
+        }
+      }
+      if ( etDependency != vec[etIdx][etaIdx]->etDep() ){
+        throw std::runtime_error(std::string(
+              "Wrong Et dependency. EtDependency should be ") + 
+            toStr(etDependency) + " and is " + 
+            toStr(vec[etIdx][etaIdx]->etDep()) + "." );
+      }
+    }
+  }
+}
+
+// =============================================================================
+template < typename vecType >
+void checkCollection( 
+    const std::vector< std::vector< std::vector<vecType*> > > &vec,
+    EtaDependency etaDependency, EtDependency etDependency)
+{
+  if (vec.empty()){
+    throw std::runtime_error(std::string(
+          "Dependency collection cannot be empty."));
+  }
+  for ( size_t segIdx = 0; segIdx < vec.size(); ++segIdx){
+    size_t etSize = vec[segIdx].size();
+    if (!etSize){
+      throw std::runtime_error(std::string(
+          "Dependency collection cannot have an" 
+          " empty vector<vector>."));
+    }
+    checkCollection(vec[segIdx], etaDependency, etDependency);
+  }
+}
+
+// =============================================================================
+template < typename vecType >
+void setCollectionMsgStream(
+    MsgStream *stream, 
+    const std::vector< std::vector<vecType*> > &vec )
+{
+  for ( size_t etIdx = 0; etIdx < vec.size() ; ++etIdx){
+    size_t etaSize = vec[etIdx].size();
+    for ( size_t etaIdx = 0; etaIdx < etaSize; ++etaIdx){
+      vec[etIdx][etaIdx]->setMsgStream(stream);
+    }
+  }
+}
+
+// =============================================================================
+template < typename vecType >
+void setCollectionMsgStream(
+    MsgStream *stream, 
+    const std::vector< std::vector< std::vector<vecType*> > > &vec )
+{
+  for ( size_t segIdx = 0; segIdx < vec.size(); ++segIdx) {
+    setCollectionMsgStream(stream,vec[segIdx]);
+  }
+}
+
+// =============================================================================
+/**
+ * @brief Ensure that segType is NoSegmentation, otherwise throws runtime_error
+ **/
+inline
+void ensureNoSegmentationOnlyFcn(const SegmentationType segType)
+{
+  // XXX This shouldn't be a runtime_error, but it seems I would need to
+  // implement a RingerProcedureWrapper for each segType (check if this
+  // hypothesis is true), which would demand more time that I afford.
+  if (segType != SegmentationType::NoSegmentation ){
+    throw std::runtime_error(std::string(
+          "Cannot use this method for other" 
+          " SegmentationType then NoSegmentation."));
+  }
+}
+
+// =============================================================================
+/**
+ * @brief Insert toBeCopied vector values to newHolder end
+ **/
+inline
+void insertVecToVecEnd(
+    const std::vector<float> &toBeCopied,
+    std::vector<float> &newHolder)
+{
+  newHolder.insert(newHolder.end(), toBeCopied.begin(), toBeCopied.end());
+}
+
+// =============================================================================
+/**
+ * @brief Execute segmented pre-processor unified routine
+ **/
+inline
+void executeSegmentedPP(
+  std::vector<float> &input, 
+  const PreProcessing::IPreProcessor *proc, 
+  std::vector<float> &transformVec)
+{
+  // Transform input:
+  proc->execute(input);
+  // Concatenate it to global transformation vector:
+  insertVecToVecEnd(input, transformVec);
+  // Clear input vector:
+  input.clear();
+}
+
+// =============================================================================
+/**
+ * @brief Execute segmented discriminator unified routine
+ **/
+inline
+void executeSegmentedDiscr(
+  std::vector<float> &input, 
+  const Discrimination::IDiscriminator *discr, 
+  std::vector<float> &output)
+{
+  // Get this procedure output into another vector:
+  std::vector<float> localOutput;
+  localOutput.reserve(output.capacity());
+  // Execute on it:
+  discr->execute(input,localOutput);
+  // Concatenate it to global output vec:
+  insertVecToVecEnd(localOutput, output);
+  // Clear input vector:
+  input.clear();
+}
+
+// =============================================================================
+/**
+ * @brief Get Calorimeter segment from transformVec
+ **/
+inline
+void getCaloSegmentFromTransformVec(
+    const unsigned nRings,
+    const std::vector<float> &transformVec,
+    std::vector<float> &transformVecSegment)
+{
+  transformVecSegment.clear();
+  for ( size_t idx = 0; idx < nRings; ++idx )
+  {
+    transformVecSegment.push_back(transformVec[idx]);
+  }
+}
+
+// =============================================================================
+/**
+ * @brief Get Calorimeter segment from transformVec
+ **/
+template<typename segment_t>
+inline
+void getCaloSegmentFromTransformVec(
+    const xAOD::RingSetConf::RawConfCollection &rawConfCol,
+    const segment_t segment,
+    const std::vector<float> &transformVec,
+    std::vector<float> &transformVecSegment)
+{
+
+  transformVecSegment.clear();
+
+  // Get the start and end indexes from the required segment:
+  unsigned startIdx(0), endIdx(0);
+  xAOD::RingSetConf::getEdges(rawConfCol,segment,startIdx,endIdx);
+
+  for (unsigned idx = startIdx; idx < endIdx; ++idx ) {
+    transformVecSegment.push_back(transformVec[idx]);
+  }
+}
+
+// =============================================================================
+/**
+ * @brief Get Track segment from transformVec
+ **/
+inline
+void getTrackSegmentFromTransformVec(
+    const unsigned nRings,
+    const std::vector<float> &transformVec,
+    std::vector<float> &transformVecSegment)
+{
+  transformVecSegment.clear();
+  for ( size_t idx = nRings; idx < transformVec.size(); ++idx ) {
+    transformVecSegment.push_back(transformVec[idx]);
+  }
+}
+
+
+// =============================================================================
+/**
+ * These macros can be used if we want to declare a specific type wrapper, so
+ * that it can have it dedicated compiled code. Although its wrapper calling
+ * method will be determined during runtime (it is holded though its
+ * interface), it will have its code specifically compiled for this type. This
+ * means that it execute its collection methods through statically determined
+ * methods are can also benefit of inline methods.
+ *
+ * However, it shouldn't be used for every type created, as it will increase
+ * compile time and library size.
+ *
+ * Besides, there is no garantee that there will be speed gain or that it won't
+ * be negligible.
+ *
+ * If you use the READ_ALL_DEP_WRAPPER macro, it will declare all possible
+ * dependent types for that class: you should pass this wrapper the variables
+ * that are read on the file. 
+ *
+ * Instead using the READ_ALL_DEP_WRAPPER, when you need to declare only one
+ * specific template type for reading, you can otherwise use READ_WRAPPER. In
+ * this case, the passing parameters are not variables, but rather the template
+ * values.
+ *
+ * If you want to declare all eta/et dependent cases for a procedure type,
+ * you can use the READ_ETA_ET_DEP_WRAPPER, where it defines for the etaDep and
+ * etDep variables all possible variations. The segType however must be a
+ * value determined at compile time.
+ *
+ * Otherwise you want to declare segment dependent cases, which are not eta/et
+ * dependent, use READ_SEG_DEP_WRAPPER inserting segType as the variable and
+ * eta/et as compile time values, such as EtaIndependent and EtIndependent.
+ **/
+#define READ_WRAPPER(vec, wrapType, segType, etaDep, etDep, configDir, version) \
+  vec.push_back( Ringer::RingerProcedureWrapper<wrapType,                       \
+      etaDep, etDep, segType >::read(configDir,version) );     
+
+// =============================================================================
+#define READ_ETA_DEP_WRAPPER(vec, wrapType, segType, etaDep, etDep,            \
+    configDir, version)                                                        \
+  switch( etaDep )                                                             \
+  {                                                                            \
+    case Ringer::EtaDependent:                                                 \
+      READ_WRAPPER(vec, wrapType, segType, Ringer::EtaDependent, etDep,        \
+          configDir, version)                                                  \
+      break;                                                                   \
+    case Ringer::EtaIndependent:                                               \
+      READ_WRAPPER(vec, wrapType, segType, Ringer::EtaIndependent, etDep,      \
+          configDir, version)                                                  \
+      break;                                                                   \
+    default:                                                                   \
+      throw std::runtime_error(std::string("Unknown Eta dependency."));        \
+  }
+
+// =============================================================================
+#define READ_SEG_DEP_WRAPPER(vec, wrapType, segType, etaDep, etDep, configDir, \
+    version)                                                                   \
+  switch( segType )                                                            \
+  {                                                                            \
+    case Ringer::NoSegmentation:                                               \
+      READ_WRAPPER(vec, wrapType, Ringer::NoSegmentation, etaDep, etDep,       \
+          configDir, version)                                                  \
+      break;                                                                   \
+    case Ringer::TrackCalPatTypeSegmentation:                                  \
+      READ_WRAPPER(vec, wrapType, Ringer::TrackCalPatTypeSegmentation, etaDep, \
+          etDep, configDir, version)                                           \
+      break;                                                                   \
+    case Ringer::TrackCalSegmentation:                                         \
+      READ_WRAPPER(vec, wrapType, Ringer::TrackCalSegmentation, etaDep, etDep, \
+          configDir, version)                                                  \
+      break;                                                                   \
+    case Ringer::TrackCalJointLayers:                                          \
+      READ_ETA_ET_DEP_WRAPPER(vec, wrapType, Ringer::TrackCalJointLayers,      \
+          etaDep, etDep, configDir, version)                                   \
+      break;                                                                   \
+    case Ringer::TrackCalJointSections:                                        \
+      READ_ETA_ET_DEP_WRAPPER(vec, wrapType, Ringer::TrackCalJointSections,    \
+          etaDep, etDep, configDir, version)                                   \
+    default:                                                                   \
+      throw std::runtime_error(std::string("Unknown segmentation type"));      \
+  }
+
+// =============================================================================
+#define READ_ETA_ET_DEP_WRAPPER(vec, wrapType, segType, etaDep, etDep,         \
+    configDir, version)                                                        \
+  switch( etDep )                                                              \
+  {                                                                            \
+    case Ringer::EtDependent:                                                  \
+      READ_ETA_DEP_WRAPPER(vec, wrapType, segType, etaDep, Ringer::EtDependent,\
+          configDir, version)                                                  \
+      break;                                                                   \
+    case Ringer::EtIndependent:                                                \
+      READ_ETA_DEP_WRAPPER(vec, wrapType, segType, etaDep,                     \
+          Ringer::EtIndependent, configDir, version)                           \
+      break;                                                                   \
+    default:                                                                   \
+      throw std::runtime_error(std::string("Unknown Et dependency."));         \
+  }
+
+// =============================================================================
+#define READ_ALL_DEP_WRAPPER(vec, wrapType, segType, etaDep, etDep,            \
+    configDir, version )                                                       \
+  switch( segType )                                                            \
+  {                                                                            \
+    case Ringer::NoSegmentation:                                               \
+      READ_ETA_ET_DEP_WRAPPER(vec, wrapType, Ringer::NoSegmentation, etaDep,   \
+          etDep, configDir, version )                                          \
+      break;                                                                   \
+    case Ringer::TrackCalPatTypeSegmentation:                                  \
+      READ_ETA_ET_DEP_WRAPPER(vec, wrapType,                                   \
+          Ringer::TrackCalPatTypeSegmentation,                                 \
+          etaDep, etDep, configDir, version )                                  \
+      break;                                                                   \
+    case Ringer::TrackCalSegmentation:                                         \
+      READ_ETA_ET_DEP_WRAPPER(vec, wrapType,                                   \
+          Ringer::TrackCalSegmentation, etaDep,                                \
+          etDep, configDir, version )                                          \
+      break;                                                                   \
+    case Ringer::TrackCalJointLayers:                                          \
+      READ_ETA_ET_DEP_WRAPPER(vec, wrapType,                                   \
+          Ringer::TrackCalJointLayers, etaDep,                                 \
+          etDep, configDir, version)                                           \
+      break;                                                                   \
+    case Ringer::TrackCalJointSections:                                        \
+      READ_ETA_ET_DEP_WRAPPER(vec, wrapType,                                   \
+          Ringer::TrackCalJointSections, etaDep,                               \
+          etDep, configDir, version)                                           \
+    default:                                                                   \
+      throw std::runtime_error(std::string("Unknown segmentation type"));      \
+  }
+
+
+} // WrapperUtils namespace
+
+} // Ringer namespace
+
+#include "RingerSelectorTools/procedures/RingerPreProcessorWrapper.icc"
+#include "RingerSelectorTools/procedures/RingerDiscriminatorWrapper.icc"
+#include "RingerSelectorTools/procedures/RingerThresholdWrapper.icc"
+
+#endif // RINGERSELECTORTOOLS_PROCEDURES_RINGERPROCEDUREWRAPPER_ICC

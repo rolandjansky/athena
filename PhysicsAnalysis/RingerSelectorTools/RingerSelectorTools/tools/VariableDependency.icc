@@ -1,0 +1,113 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: VariableDependency.icc 689837 2015-08-17 17:22:12Z wsfreund $
+#ifndef  RINGERSELECTORTOOLS_TOOLS_VARIABLEDEPENDENCY_ICC
+#define  RINGERSELECTORTOOLS_TOOLS_VARIABLEDEPENDENCY_ICC
+
+// Local includes:
+#include "RingerSelectorTools/tools/VariableDependency.h"
+
+namespace Ringer {
+
+// =============================================================================
+inline
+bool VariableDependency::isWithinRange(const DepVarStruct &depVar) const 
+{
+  return isWithinEtaRange(depVar.eta) && isWithinEtRange(depVar.et);
+}
+
+// =============================================================================
+inline
+bool VariableDependency::isWithinEtaRange(const float eta) const  
+{
+  if ( static_cast<bool>(m_etaDependency) ){
+    const float eta_abs = std::abs(eta);
+    return ( (eta_abs >= m_etaMin) && (eta_abs < m_etaMax) );
+  } else {
+    return true;
+  }
+}
+
+// =============================================================================
+inline
+EtaDependency VariableDependency::etaDep() const {
+  return m_etaDependency;
+}
+
+// =============================================================================
+inline
+float VariableDependency::etaMin() const
+{
+  return m_etaMin;
+}
+
+// =============================================================================
+inline
+float VariableDependency::etaMax() const
+{
+  return m_etaMax;
+}
+
+// =============================================================================
+inline
+void VariableDependency::setEtaDep(const float etaMin, const float etaMax) 
+{
+  m_etaDependency = EtaDependency::EtaDependent;
+  m_etaMin = etaMin;
+  m_etaMax = etaMax;
+}
+
+// =============================================================================
+inline
+bool VariableDependency::isWithinEtRange(const float et) const 
+{
+  if ( static_cast<bool>(m_etDependency) ) {
+    return ( (et >= m_etMin) && (et < m_etMax) );
+  } else {
+    return true;
+  }
+}
+
+// =============================================================================
+inline
+EtDependency VariableDependency::etDep() const {
+  return m_etDependency;
+}
+
+// =============================================================================
+inline
+float VariableDependency::etMin() const
+{
+  return m_etMin;
+}
+
+// =============================================================================
+inline
+float VariableDependency::etMax() const
+{
+  return m_etMax;
+}
+
+// =============================================================================
+inline
+void VariableDependency::setEtDep(const float etMin, const float etMax) 
+{
+  m_etDependency = EtDependency::EtDependent;
+  m_etMin = etMin;
+  m_etMax = etMax;
+}
+
+// =============================================================================
+inline
+void VariableDependency::setEtaEtDep(const float etaMin, const float etaMax,
+    const float etMin, const float etMax)
+{
+  setEtaDep(etaMin,etaMax);
+  setEtDep(etMin,etMax);
+}
+
+} // namespace Ringer
+
+#endif // RINGERSELECTORTOOLS_TOOLS_VARIABLEDEPENDENCY_ICC

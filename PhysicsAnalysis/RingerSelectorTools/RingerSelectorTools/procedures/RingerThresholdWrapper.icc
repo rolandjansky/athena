@@ -1,0 +1,456 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: RingerThresholdWrapper.icc 704615 2015-10-29 18:50:12Z wsfreund $
+#ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERTHRESHOLDWRAPPER_ICC
+#define RINGERSELECTORTOOLS_PROCEDURES_RINGERTHRESHOLDWRAPPER_ICC
+
+#include "RingerThresholdWrapper.h"
+#include "RingerProcedureWrapper.icc"
+
+#include "RingerSelectorTools/tools/cxx/is_same.h"
+
+#include "RingerSelectorTools/procedures/Thresholds.h"
+
+namespace Ringer {
+
+namespace WrapperHelperFcns {
+
+/**
+ * Return the threshold on dirObj of thresType
+ **/
+inline
+Discrimination::IThresholdVarDep* getThres(thresEnum_t thresType, 
+    TDirectory *dirObj )
+{
+  using namespace Discrimination;
+  // For the interface case, we will have to create each threshold
+  // depending on the information written on thresType:
+  switch ( thresType )
+  {
+    case thresEnum_t::UniqueThreshold:
+    {
+      return UniqueThresholdVarDep::read( dirObj );
+      break;
+    }
+    default:
+    {
+      throw std::runtime_error( std::string("Cannot read threshold of ") +
+          "type: " + toStr(thresType) );
+    }
+  }
+}
+} // private namespace 
+
+
+// Import Wrapper Helper functions
+using namespace WrapperHelperFcns;
+
+// =============================================================================
+//            -------------------------------------
+//            RingerProcedureWrapper for Thresholds
+//            -------------------------------------
+// =============================================================================
+
+/**/
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  SegmentationType::NoSegmentation,
+  false,
+  false,
+  true >
+::releaseMemory()
+{
+  for ( size_t etIdx = 0; etIdx < m_thresCol.size() ; ++etIdx){
+    for ( size_t etaIdx = 0; etaIdx < m_thresCol[etIdx].size(); ++etaIdx)
+    {
+      delete m_thresCol[etIdx][etaIdx];
+    }
+  }
+  m_thresCol.clear();
+  m_thres = nullptr;
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  SegmentationType::NoSegmentation,
+  false,
+  false,
+  true >
+::getOutput(
+    const DepVarStruct &depVar,
+    const std::vector<float> &discrOutput,
+    std::vector<bool> &decision) const
+{
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Running getOutput.");
+#endif
+
+  // If no dependency, simply use threshold and return
+  if ( !etaDependency && !etDependency ){
+    m_thres->execute(discrOutput,decision);
+    return;
+  }
+
+  // Initialize eta and et indexes:
+  size_t etaIdx(0), etIdx(0);
+  // Get the correct pp to be applied:
+  if (etaDependency){
+    etaIdx = findEtaBin(depVar.eta, m_thresCol);
+  }
+  if (etDependency){
+    etIdx = findEtBin(depVar.et, m_thresCol);
+  }
+#ifndef NDEBUG
+  ATH_MSG_VERBOSE("Applying threshold at etaIdx (" << 
+      etaIdx << ") and etIdx (" << etIdx << ").");
+#endif
+  // Apply it:
+  m_thresCol[etIdx][etaIdx]->execute(discrOutput,decision);
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  SegmentationType::NoSegmentation,
+  false,      // isPreProcessor
+  false,      // isDiscriminator
+  true>       // isThreshold
+::checkThresCol(){
+  try {
+    checkCollection(m_thresCol, 
+        static_cast<EtaDependency>(etaDependency), 
+        static_cast<EtDependency>(etDependency));
+  } catch ( const std::runtime_error &e ) {
+    throw std::runtime_error(std::string("Couldn't initialize RingerThresholdWrapper due to: ")
+        + e.what() );
+  }
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  SegmentationType::NoSegmentation,
+  false,      // isPreProcessor
+  false,      // isDiscriminator
+  true>       // isThreshold
+::setMsgStream(MsgStream *msg) const {
+  // Propagate this stream into collection:
+  setCollectionMsgStream(msg,m_thresCol);
+  // Set stream to self
+  this->RedirectMsgStream::setMsgStream(msg);
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency
+>
+std::string RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  SegmentationType::NoSegmentation,
+  false,      // isPreProcessor
+  false,      // isDiscriminator
+  true>       // isThreshold
+::staticFullName() {
+  typedef typename RingerProcedureType<procedure_t>::procEnum_t procEnum_t;
+  std::stringstream ss;
+  ss << "RingerProcedureWrapper<"
+        << toStr(procedure_t::template procType<procEnum_t>() ) 
+        << ((Ringer::is_same<procedure_t,Discrimination::IThresholdVarDep>::value)?",":"(VarDep),")
+        << toStr(static_cast<EtaDependency>(etaDependency)) << "," 
+        << toStr(static_cast<EtDependency>(etDependency)) << "," 
+        << toStr(NoSegmentation) << ">";
+  return ss.str();
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency
+>
+std::string RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  SegmentationType::NoSegmentation,
+  false,      // isPreProcessor
+  false,      // isDiscriminator
+  true>       // isThreshold
+::fullName() const {
+  return staticFullName();
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  SegmentationType::NoSegmentation,
+  false,      // isPreProcessor
+  false,      // isDiscriminator
+  true>       // isThreshold
+::print(MSG::Level lvl) const
+{
+  if ( this->isStreamAvailable() ) { 
+    if ( this->level() > lvl ){
+      // Dont waste time printing nothing
+      return;
+    }
+    this->msg() << lvl << fullName() << " contents: "<<  endreq;
+    std::vector<unsigned> posVec(2);
+    for ( unsigned etIdx = 0; etIdx < m_thresCol.size() ; ++etIdx){
+      posVec[0] = etIdx;
+      for ( unsigned etaIdx = 0; etaIdx < m_thresCol[etIdx].size(); ++etaIdx)
+      {
+        posVec[1] = etaIdx;
+        this->msg() << lvl << m_thresCol[etIdx][etaIdx]->name() << 
+          IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endreq;
+        m_thresCol[etIdx][etaIdx]->print(lvl);
+      }
+    }
+  } else {
+    std::cerr << "Stream is not available, cannot print " <<
+      fullName() << "." << std::endl;
+  }
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  SegmentationType::NoSegmentation,
+  false,      // isPreProcessor
+  false,      // isDiscriminator
+  true>      // isThreshold
+::write(TDirectory *baseDir, const char *idxStr) const
+{
+  // ----------- Template basics ----------
+  // Create configuration directory
+  TDirectory *configDir = IOHelperFcns::makeDir(baseDir, 
+      (std::string(this->name()) + idxStr).c_str() );
+
+  // Write basic template information:
+  thresEnum_t thresType = procedure_t::template procType<thresEnum_t>();
+  EtaDependency fileEtaDep = static_cast<EtaDependency>(etaDependency);
+  EtDependency fileEtDep = static_cast<EtDependency>(etDependency);
+  // FIXME Why do I need to use const? Unfortunately if I don't use so, the
+  // compiler won't accept static_casting from discr_Enum_t to unsigned int:
+  // some issue with reference casting.
+  IOHelperFcns::writeVar<const thresEnum_t, const unsigned int>( configDir,
+      "thresType",
+      thresType);
+  IOHelperFcns::writeVar<const EtaDependency, const unsigned int>( configDir,
+      "etaDependency",
+      fileEtaDep);
+  IOHelperFcns::writeVar<const EtDependency, const unsigned int>( configDir,
+      "etDependency",
+      fileEtDep);
+
+  // Write size information:
+  unsigned thresEtDepSize =  m_thresCol.size();
+  unsigned thresEtaDepSize = m_thresCol[0].size();
+  IOHelperFcns::writeVar( configDir,  "thresEtDepSize"  , thresEtDepSize  );
+  IOHelperFcns::writeVar( configDir,  "thresEtaDepSize" , thresEtaDepSize );
+
+  // Write Threshold collection
+  std::vector<unsigned int> thresCount(2);
+  for (size_t etIdx = 0; 
+      etIdx < m_thresCol.size(); 
+      ++etIdx)
+  {
+    thresCount[0] = etIdx;
+    for (size_t etaIdx = 0; 
+        etaIdx < m_thresCol[etIdx].size(); 
+        ++etaIdx)
+    {
+      thresCount[1] = etaIdx;
+      m_thresCol[etIdx][etaIdx]->write(
+          configDir,
+          IOHelperFcns::makeIdxStr(thresCount).c_str());
+    }
+  }
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency
+>
+RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  SegmentationType::NoSegmentation,
+  false,
+  false,
+  true> *
+RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  SegmentationType::NoSegmentation,
+  false,      // isPreProcessor
+  false,      // isDiscriminator
+  true>      // isThreshold
+::read(TDirectory *configDir, unsigned /*version*/)
+{
+  using namespace Discrimination;
+
+  IOHelperFcns::checkDir(configDir);
+
+  // ----------- PreProcesings: ----------
+  // Read pre-processing collection size:
+  unsigned thresEtDepSize(0),
+           thresEtaDepSize(0);
+  IOHelperFcns::readVar( configDir,  "thresEtDepSize" , thresEtDepSize  );
+  IOHelperFcns::readVar( configDir,  "thresEtaDepSize", thresEtaDepSize );
+
+  // Allocate pre-processing collection with size specified on file
+  ThresDepProcCollection thresCol( thresEtDepSize, 
+      std::vector< procedure_t*>(
+        thresEtaDepSize, nullptr ));
+
+  // Allocate index position retriever:
+  std::vector<unsigned int> thresIdxVec(2);
+
+  // Retrieve dir list and loop on it:
+  std::shared_ptr<THashList> list(nullptr);
+  if ( !( list = IOHelperFcns::getDirList(configDir) ) ) {
+    std::runtime_error(std::string("Couldn't retrieve directory "
+          "list from wrapper folder"));
+  }
+
+  TIter iter( list.get() );
+  while ( TDirectory* dirObj = static_cast<TDirectory*>(iter()) ) {
+
+    const char* folderName = dirObj->GetName();
+
+    //ATH_MSG_VERBOSE("Scanning directory " << folderName );
+
+    // Get information about the pre-processing on the folder:
+    thresEnum_t thresType;
+    EtaDependency fileEtaDep;
+    EtDependency fileEtDep;
+    try {
+      IOHelperFcns::readVar<thresEnum_t, unsigned int>(dirObj, 
+          "procType", 
+          thresType);
+      IOHelperFcns::readVar<EtaDependency, unsigned int>(dirObj, 
+          "etaDependency", 
+          fileEtaDep);
+      IOHelperFcns::readVar<EtDependency, unsigned int>(dirObj, 
+          "etDependency", 
+          fileEtDep);
+    } catch (const std::runtime_error &e){
+      throw std::runtime_error(std::string("Couldn't get threshold type "
+            "while") + " reading folder: " + folderName + ". Reason: "
+          + e.what() );
+    }
+    // Check if holden information dependency information is ok:
+    if ( fileEtaDep != etaDependency ){
+      throw std::runtime_error(std::string("Folder \"") + folderName + "\" is "
+          + toStr(fileEtaDep) + " whereas Wrapper is " + toStr(static_cast<EtaDependency>(etaDependency)) + ".");
+    }
+    if ( fileEtDep != etDependency ){
+      throw std::runtime_error(std::string("Folder \"") + folderName + "\" is "
+          + toStr(fileEtDep) + " whereas Wrapper is " + toStr(static_cast<EtDependency>(etDependency)) + ".");
+    }
+    // Retrieve position indexes where we shall retrieve this pre-processing 
+    IOHelperFcns::getIdxVecFromStr( folderName, thresIdxVec );
+
+    // Check if everything is ok on indexes retrived:
+    if ( thresIdxVec.size() < 2 ||
+        thresIdxVec[0] >= thresEtDepSize  ||
+        thresIdxVec[1] >= thresEtaDepSize )
+    {
+      throw std::runtime_error(std::string("There is something wrong with ")
+            + "folder idxStr: " + folderName + ". Got idxStr " + 
+            IOHelperFcns::makeIdxStr(thresIdxVec) + ". Maximum threshold "
+            "collection size is : " + std::to_string(thresEtDepSize) + "," 
+            + std::to_string(thresEtaDepSize));
+    }
+
+    // Get a reference to the pointer (only used to reduce typing):
+    procedure_t *&thisThres = thresCol[thresIdxVec[0]]
+                                      [thresIdxVec[1]];
+
+    // Check which procedure_t this pre-processing wrapper holds. 
+    if ( Ringer::is_same<procedure_t, IThresholdVarDep >::value )
+    {
+      // If the procedure_t is not the PreProcessor interface, code will
+      // never get here. We only use the interpret cast so that the compiler
+      // doesn't complain about type casting.
+      thisThres = reinterpret_cast<procedure_t*>( getThres(thresType, dirObj) );
+      // FIXME New compiler version complains to use static_cast, but would it compile on
+      // older versions?
+    } else {
+      // Here it's easier, we already know the type that is written in the file,
+      // so all we need to do is loop over it and retrieve the discriminator.
+      thresEnum_t wrapperThresType = procedure_t::template procType<thresEnum_t>();
+      if ( thresType != wrapperThresType ){
+        throw std::runtime_error( std::string("There is a pre-processing of type ") +
+            toStr(thresType) + " whereas this wrapper can only hold pre-processings " 
+            "of type " + toStr(wrapperThresType));
+      }
+      thisThres = procedure_t::read( dirObj );
+    }
+    // ATH_MSG_VERBOSE("Successfully read directory " << folderName);
+  }
+
+  // Create and return PreProcessors wrapper:
+  return new RingerProcedureWrapper(thresCol);
+
+}
+
+} // Namespace Ringer
+
+#endif // RINGERSELECTORTOOLS_PROCEDURES_RINGERTHRESHOLDWRAPPER_ICC

@@ -1,0 +1,245 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: Normalizations.icc 667905 2015-05-18 19:07:55Z wsfreund $
+#ifndef RINGERSELECTORTOOLS_NORMALIZATIONS_ICC
+#define RINGERSELECTORTOOLS_NORMALIZATIONS_ICC
+
+#include "Normalizations.h"
+#include <cmath>
+#include <limits>
+
+/** 
+ * @brief Namespace dedicated for Ringer utilities 
+ **/
+namespace Ringer
+{
+
+/** 
+* @brief Namespace dedicated for Ringer pre-processing utilities 
+**/
+namespace PreProcessing
+{
+
+/** 
+ * @brief Namespace dedicated for Ringer normalization utilities 
+ **/
+namespace Norm {
+
+/** 
+ * @brief Helper functions:
+ **/
+namespace {
+
+// =============================================================================
+inline
+float getMax( std::vector<float> &inputSpace ) {
+  float max = std::numeric_limits<float>::min();
+  for ( std::vector<float>::const_iterator itr = inputSpace.begin();
+        itr != inputSpace.end();
+        ++itr){
+    if (std::abs(*itr) > max) {
+      max = *itr;
+    }
+  }
+  return std::abs(max);
+}
+
+// =============================================================================
+inline
+float getNorm( std::vector<float> &inputSpace ){
+  float norm = 0;
+  for ( std::vector<float>::const_iterator itr = inputSpace.begin();
+        itr != inputSpace.end();
+        ++itr){
+    norm += *itr;
+  }
+  return std::abs(norm);
+}
+
+// =============================================================================
+inline
+float getNorm( std::vector<float> &inputSpace, const unsigned int p ){
+  if ( p == 1) return getNorm(inputSpace);
+  float norm = 0;
+  for ( std::vector<float>::const_iterator itr = inputSpace.begin();
+        itr != inputSpace.end();
+        ++itr){
+    norm += std::pow(*itr,p);
+  }
+  return std::abs(std::pow(norm,1/p));
+}
+
+// =============================================================================
+inline
+void applyNorm( std::vector<float> &inputSpace, const float norm ){
+  if (!norm) return;
+  float invNorm = 1/norm;
+  for ( std::vector<float>::iterator itr = inputSpace.begin();
+        itr != inputSpace.end();
+        ++itr){
+    *itr *= invNorm;
+  }
+}
+
+// =============================================================================
+inline
+void applyInvNorm( std::vector<float> &inputSpace, const float invNorm ){
+  for ( std::vector<float>::iterator itr = inputSpace.begin();
+        itr != inputSpace.end();
+        ++itr){
+    *itr *= invNorm;
+  }
+}
+
+// =============================================================================
+inline
+void applyInvNorm( std::vector<float> &inputSpace, 
+    const std::vector<float> &invNorm )
+{
+  std::vector<float>::const_iterator itr2 = invNorm.begin();
+  for ( std::vector<float>::iterator itr = inputSpace.begin();
+        itr != inputSpace.end();
+        ++itr, ++itr2)
+  {
+    *itr *= *itr2;
+  }
+}
+
+// =============================================================================
+inline
+void applyDeslocation( std::vector<float> &inputSpace, const float deslocation )
+{
+  for ( std::vector<float>::iterator itr = inputSpace.begin();
+        itr != inputSpace.end();
+        ++itr)
+  {
+    *itr += deslocation;
+  }
+}
+
+// =============================================================================
+inline
+void applyDeslocation( std::vector<float> &inputSpace, 
+    const std::vector<float> deslocation )
+{
+  std::vector<float>::const_iterator itr2 = deslocation.begin();
+  for ( std::vector<float>::iterator itr = inputSpace.begin();
+        itr != inputSpace.end();
+        ++itr, ++itr2)
+  {
+    *itr += *itr2;
+  }
+}
+
+} // Private namespace
+
+/// Normalization interfaces:
+/// @{
+// =============================================================================
+inline
+void Norm1::execute(std::vector<float> &inputSpace) const {
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Applying Norm1. Input space is: " << inputSpace);
+#endif
+  float norm1 = getNorm(inputSpace,1);
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Normalization factor is " << norm1 );
+#endif
+  applyNorm(inputSpace,norm1);
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Pattern space is: " << inputSpace);
+#endif
+}
+
+// =============================================================================
+inline
+void Norm2::execute(std::vector<float> &inputSpace) const {
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Applying Norm2. Input space is: " << inputSpace);
+#endif
+  float norm2 = getNorm(inputSpace,2);
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Normalization factor is " << norm2 );
+#endif
+  applyNorm(inputSpace,norm2);
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Pattern space is: " << inputSpace);
+#endif
+}
+
+// =============================================================================
+inline
+void Sqrt::execute(std::vector<float> &inputSpace) const {
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Applying Sqrt. Input space is: " << inputSpace);
+#endif
+  float sqrtNorm = std::sqrt(std::fabs(getNorm(inputSpace,1)));
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Normalization factor is " << sqrtNorm );
+#endif
+  applyNorm(inputSpace,sqrtNorm);
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Pattern space is: " << inputSpace);
+#endif
+}
+
+// =============================================================================
+inline
+void ConstantValue::execute(std::vector<float> &inputSpace) const {
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Applying ConstantValue(Value: " << 1/m_constantInv
+      << "). Input space is: " << inputSpace);
+#endif
+  applyInvNorm(inputSpace,m_constantInv);
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Pattern space is: " << inputSpace);
+#endif
+}
+
+// =============================================================================
+inline
+void Spherization::execute(std::vector<float> &inputSpace) const {
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Applying Spherization. Input space is: " << inputSpace);
+#endif
+  if ( inputSpace.size() != m_dim ){
+    throw std::runtime_error(std::string( "Input size (") +
+        std::to_string(inputSpace.size()) + ") does not match "
+        " this pre-processing inputSpace dimension size(" +
+        std::to_string(m_dim) + ".");
+  }
+  applyDeslocation(inputSpace,m_deslocation);
+  applyInvNorm(inputSpace,m_normInv);
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Pattern space is: " << inputSpace);
+#endif
+}
+
+// =============================================================================
+inline
+void MinMax::execute(std::vector<float> &inputSpace) const {
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Applying MinMax. Input space is: " << inputSpace);
+#endif
+  if ( inputSpace.size() != m_dim ){
+    throw std::runtime_error(std::string( "Input size (") +
+        std::to_string(inputSpace.size()) + ") does not match "
+        " this pre-processing inputSpace dimension size(" +
+        std::to_string(m_dim) + ".");
+  }
+  applyDeslocation(inputSpace,m_deslocation);
+  applyInvNorm(inputSpace,m_normInv);
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Pattern space is: " << inputSpace);
+#endif
+}
+/// @}
+
+} // namespace Norm
+} // namespace Discrimination
+} // namespace Ringer
+
+#endif // RINGERSELECTORTOOLS_NORMALIZATIONS_ICC
+// vim: filetype=cpp :

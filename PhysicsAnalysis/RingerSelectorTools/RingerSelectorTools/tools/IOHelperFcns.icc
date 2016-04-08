@@ -1,0 +1,109 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: IOHelperFcns.icc 694257 2015-09-10 22:45:27Z wsfreund $
+#ifndef RINGERSELECTORTOOLS_TOOLS_IOHELPERFCNS_ICC
+#define RINGERSELECTORTOOLS_TOOLS_IOHELPERFCNS_ICC
+
+// STL includes:
+#include <vector>
+#include <stdexcept>
+#include <string>
+#include <iostream>
+
+// ROOT includes:
+#include <TFile.h>
+#include <TError.h>
+
+// Local includes:
+#include "IOHelperFcns.h"
+#include "RingerSelectorTools/tools/cxx/remove_cv.h"
+#include "RingerSelectorTools/tools/cxx/decay.h"
+
+namespace Ringer {
+
+namespace IOHelperFcns {
+
+// =============================================================================
+template <typename ReadingType, typename WrittenType >
+void readVar(TDirectory* dir, const char* varName, ReadingType& varDest) 
+{
+
+  checkDir(dir);
+
+  if ( dir->FindObjectAny( varName ) != nullptr ) {
+    WrittenType* reader = nullptr;
+    dir->GetObject( varName, reader );
+    if ( reader != nullptr ){
+      // Make raw copy to varDest
+      varDest = static_cast<ReadingType>(*reader);
+    } else {
+      throw std::runtime_error(std::string("Retrieved null pointer while ") +
+          "trying to read " + varName + " at directory named " +
+          dir->GetName() + ".");
+    }
+  } else if ( dir->FindObjectAny( (std::string(varName) + "__Vec__").c_str() ) 
+      != nullptr )
+  {
+    // Remove constant and reference types
+    std::vector< typename Ringer::decay< 
+                 typename Ringer::remove_cv<WrittenType>::type >::type 
+                 >* reader = nullptr;
+    dir->GetObject( (std::string(varName) + "__Vec__" ).c_str(), reader );
+    if ( reader != nullptr ){
+      if ( reader->size() != 1 ){
+        throw std::runtime_error(std::string("Seems that the variable was saved using "
+              "the std::vector type. However, its size is different from 1, "
+              "which indicates that something went wrong."));
+      }
+      // Make raw copy to varDest
+      varDest = static_cast<ReadingType>((*reader)[0]);
+    } else {
+      throw std::runtime_error(std::string("Retrieved null pointer while ") +
+          "trying to read " + varName + "__Vec__ at directory named " +
+          dir->GetName() + ".");
+    }
+  } else {
+    throw std::runtime_error( std::string("Cannot find ") + 
+        varName + " at directory named " +
+        dir->GetName() + "." );
+  }
+}
+
+// =============================================================================
+template <typename InputType, typename WrittenType >
+void writeVar(TDirectory* dir, const char* varName, InputType& var) 
+{
+  // This workaround is just because gcc seems not to be able of creating
+  // std::vector<const type>, so we remove const and reference types.
+  typedef typename Ringer::decay<
+          typename Ringer::remove_cv<WrittenType>::type 
+          >::type NonConstWrittenType;
+  // Create the non constant variable to write:
+  NonConstWrittenType &writtenVar = const_cast<NonConstWrittenType&>(
+                                    static_cast<WrittenType&>(var));
+  // Check if directory is in good status
+  checkDir(dir);
+  Int_t prevMessageLevel = gErrorIgnoreLevel;
+  gErrorIgnoreLevel = kBreak;
+  // Try to write variable directly:
+  if ( !dir->WriteObject( &writtenVar, varName ) ){
+    gErrorIgnoreLevel = prevMessageLevel;
+    // It didn't work, so attempt to write it using std::vector
+    std::vector< NonConstWrittenType > vec(1, writtenVar);
+    if ( !dir->WriteObject( &vec, (std::string(varName) + "__Vec__").c_str() ) )
+    {
+      dir->ls();
+      throw std::runtime_error(std::string("Couldn't write variable ") + 
+          varName );
+    }
+  }
+  gErrorIgnoreLevel = prevMessageLevel;
+}
+
+} // namespace IOHelperFcns
+
+} // namespace Ringer
+
+#endif // RINGERSELECTORTOOLS_TOOLS_IOHELPERFCNS_ICC

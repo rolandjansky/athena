@@ -1,0 +1,709 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: RingerPreProcessorWrapper.icc 704615 2015-10-29 18:50:12Z wsfreund $
+#ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERPREPROCESSORWRAPPER_ICC
+#define RINGERSELECTORTOOLS_PROCEDURES_RINGERPREPROCESSORWRAPPER_ICC
+
+#include "RingerPreProcessorWrapper.h"
+#include "RingerProcedureWrapper.icc"
+
+#include "Normalizations.h"
+
+#include "RingerSelectorTools/RingerSelectorToolsDefs.h"
+
+#undef NDEBUG
+
+namespace Ringer {
+
+namespace WrapperHelperFcns {
+
+/**
+ * Return the pre-processing on dirObj of ppType
+ **/
+inline
+PreProcessing::IPreProcessorVarDep* getPP(preProcEnum_t ppType, 
+    TDirectory *dirObj )
+{
+  using namespace PreProcessing;
+  // For the interface case, we will have to create each pre-processing 
+  // depending on the information written on ppType:
+  switch ( ppType )
+  {
+    case preProcEnum_t::Norm1:
+    {
+      return Norm::Norm1VarDep::read( dirObj );
+      break;
+    }
+    case preProcEnum_t::Norm2:
+    {
+      return Norm::Norm2VarDep::read( dirObj );
+      break;
+    }
+    case preProcEnum_t::Sqrt:
+    {
+      return Norm::SqrtVarDep::read( dirObj );
+      break;
+    }
+    case preProcEnum_t::ConstantValue:
+    {
+      return Norm::ConstantValueVarDep::read( dirObj );
+      break;
+    }
+    case preProcEnum_t::Sequential:
+    {
+      return Norm::SequentialVarDep::read( dirObj );
+      break;
+    }
+    case preProcEnum_t::Spherization:
+    {
+      return Norm::SpherizationVarDep::read( dirObj );
+      break;
+    }
+    case preProcEnum_t::MinMax:
+    {
+      return Norm::MinMaxVarDep::read( dirObj );
+      break;
+    }
+    default:
+    {
+      throw std::runtime_error( std::string("Cannot read preprocessor of ") +
+          "type: " + toStr(ppType) );
+    }
+  }
+}
+} // private namespace 
+
+
+// Import Wrapper Helper functions
+using namespace WrapperHelperFcns;
+
+// =============================================================================
+//            ----------------------------------------
+//            RingerProcedureWrapper for PreProcessors
+//            ----------------------------------------
+// =============================================================================
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  true,      // isPreProcessor
+  false,     // isDiscriminator
+  false>     // isThreshold
+::releaseMemory()
+{
+  for ( size_t segIdx = 0; segIdx < m_ppCol.size() ; ++segIdx){
+    for ( size_t etIdx = 0; etIdx < m_ppCol[segIdx].size() ; ++etIdx){
+      for ( size_t etaIdx = 0; etaIdx < m_ppCol[segIdx][etIdx].size(); 
+          ++etaIdx)
+      {
+        delete m_ppCol[segIdx][etIdx][etaIdx];
+      }
+    }
+  }
+  m_ppCol.clear();
+  m_pp = nullptr;
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  true,
+  false,
+  false >
+::applyPreProcessing(
+    const DepVarStruct &depVar,
+    std::vector<float> &transformVec) const
+{
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Applying internal layer pre-processing.");
+#endif
+
+  // This method only applies for segType NoSegmentation.
+  ensureNoSegmentationOnlyFcn(static_cast<SegmentationType>(segType));
+
+  // If not dependent, simply run for the first position in the vector:
+  if ( !etaDependency && !etDependency ){
+    m_pp->execute(transformVec);
+    return;
+  }
+
+  // Initialize eta and et indexes:
+  size_t etaIdx(0), etIdx(0);
+  // Get the correct pp to be applied:
+  if (etaDependency == EtaDependency::EtaDependent){
+    etaIdx = findEtaBin(depVar.eta, m_ppCol[0]);
+  }
+
+  if (etDependency == EtDependency::EtDependent){
+    etIdx = findEtBin(depVar.et, m_ppCol[0]);
+  }
+
+#ifndef NDEBUG
+  ATH_MSG_VERBOSE("Applying pre-processing at etaIdx (" 
+      << etaIdx << ") and etIdx (" << etIdx << ").");
+#endif
+
+  // Apply it:
+  m_ppCol[0][etIdx][etaIdx]->execute(transformVec);
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  true,
+  false,
+  false >
+::applyPreProcessing(
+    const DepVarStruct &depVar,
+    const xAOD::CaloRings *clrings,
+    const TrackPatternsHolder *trackPat,
+    std::vector<float> &transformVec) const
+{
+
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Applying first discrimination layer pre-processing.");
+#endif
+
+  // Erase any previous information
+  transformVec.clear();
+
+  // Initialize eta and et indexes:
+  size_t etaIdx(0), etIdx(0);
+  // Get the correct idx to be applied:
+  if ( etaDependency == EtaDependency::EtaDependent ) {
+    etaIdx = findEtaBin(depVar.eta, m_ppCol[0]);
+  }
+  if ( etDependency == EtDependency::EtDependent ) {
+    etIdx = findEtBin(depVar.et, m_ppCol[0]);
+  }
+  size_t cPreProc = 0;
+
+  switch(segType){
+    case SegmentationType::NoSegmentation:
+    {
+#ifndef NDEBUG
+      ATH_MSG_VERBOSE("Applying NonSegmented pre-processing at etaIdx (" 
+          << etaIdx << ") and etIdx (" << etIdx << ").");
+#endif
+      if (clrings){
+        clrings->exportRingsTo(transformVec);
+      }
+      if (trackPat){
+        trackPat->exportPatternsTo(transformVec);
+      }
+      // Apply pre-processing to all transformVec:
+      m_ppCol[cPreProc++][etaIdx][etIdx]->execute(transformVec);
+      break;
+    }
+    case SegmentationType::TrackCalSegmentation:
+    {
+#ifndef NDEBUG
+      ATH_MSG_VERBOSE("Applying Track/Cal segmented pre-processing "
+          " at etaIdx (" << etaIdx << ") and etIdx (" 
+          << etIdx << ").");
+#endif
+      if (clrings){
+        // Apply pre-processing to CaloRings as one:
+        clrings->exportRingsTo(transformVec);
+        executeSegmentedPP(
+            transformVec,
+            m_ppCol[cPreProc++][etaIdx][etIdx], 
+            transformVec);
+      } else {
+        cPreProc += 1;
+      }
+      if (trackPat){
+        transformVec.clear();
+        // Apply pre-processing to track patterns separated:
+        trackPat->exportPatternsTo(transformVec);
+        executeSegmentedPP(
+            transformVec,
+            m_ppCol[cPreProc++][etaIdx][etIdx], 
+            transformVec);
+      } else {
+        cPreProc += 1;
+      }
+      break;
+    }
+    case SegmentationType::TrackCalPatTypeSegmentation:
+    {
+      // TODO Implement this if it is going to be used:
+      throw std::runtime_error(std::string("There is no implementation method "
+            "for ") + toStr(static_cast<SegmentationType>(segType)) );
+    }
+    case SegmentationType::TrackCalJointSections:
+    {
+#ifndef NDEBUG
+      ATH_MSG_VERBOSE("Applying Track/Cal-JointSections segmented" 
+          " pre-processing at etaIdx (" << etaIdx << ") and etIdx (" 
+          << etIdx << ").");
+#endif
+      if (clrings){
+        // Apply pre-processing to each CalJointSection:
+        while ( cPreProc < static_cast<size_t>(
+              CalJointSection::NJointSections) )
+        {
+          transformVec.clear();
+          clrings->exportRingsTo( transformVec, 
+              *m_rsRawConfCol,
+              static_cast<CalJointSection>(cPreProc));
+
+          executeSegmentedPP(
+              transformVec,
+              m_ppCol[cPreProc++][etaIdx][etIdx], 
+              transformVec);
+        }
+      } else {
+        cPreProc += static_cast<size_t>(CalJointSection::NJointSections);
+      }
+      if (trackPat){
+        transformVec.clear();
+        // Apply pre-processing to track patterns separated:
+        trackPat->exportPatternsTo(transformVec);
+        executeSegmentedPP(
+            transformVec,
+            m_ppCol[cPreProc++][etaIdx][etIdx], 
+            transformVec);
+      } else {
+        cPreProc += 1;
+      }
+      break;
+    }
+    case SegmentationType::TrackCalJointLayers:
+    {
+#ifndef NDEBUG
+      ATH_MSG_VERBOSE("Applying Track/Cal-JointLayers segmented" 
+          " pre-processing at etaIdx (" << etaIdx << ") and etIdx (" 
+          << etIdx << ").");
+#endif
+      if (clrings){
+        // Apply pre-processing to each CalJointLayer:
+        while ( cPreProc < static_cast<size_t>(
+              CalJointLayer::NJointLayers) )
+        {
+          transformVec.clear();
+          clrings->exportRingsTo(
+              transformVec, 
+              *m_rsRawConfCol,
+              static_cast<CalJointLayer>(cPreProc));
+
+          executeSegmentedPP(
+              transformVec,
+              m_ppCol[cPreProc++][etaIdx][etIdx], 
+              transformVec);
+        }
+      } else {
+        cPreProc += static_cast<size_t>(CalJointLayer::NJointLayers);
+      }
+      if (trackPat){
+        transformVec.clear();
+        // Apply pre-processing to track Patterns separated:
+        trackPat->exportPatternsTo(transformVec);
+        executeSegmentedPP(
+            transformVec,
+            m_ppCol[cPreProc++][etaIdx][etIdx], 
+            transformVec);
+      } else {
+        cPreProc += 1;
+      }
+      break;
+    }
+    default:
+    {
+      throw std::runtime_error(std::string("There is no implementation method "
+            "for ") + toStr(static_cast<SegmentationType>(segType)) );
+    }
+  }
+  return;
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  true,      // isPreProcessor
+  false,     // isDiscriminator
+  false>     // isThreshold
+::checkPPCol(){
+  try {
+    checkCollection(m_ppCol, 
+        static_cast<EtaDependency>(etaDependency), 
+        static_cast<EtDependency>(etDependency));
+    if ( m_ppCol.size() != numberOfSegments(static_cast<SegmentationType>(segType))){
+      throw std::runtime_error(std::string("Cannot allocate segment ") +
+            "dependent vector of type " + toStr(static_cast<SegmentationType>(segType)) + " with size "
+            "different from " + std::to_string(numberOfSegments(static_cast<SegmentationType>(segType))) + 
+            ". Current size is " + std::to_string(m_ppCol.size()) + ".");
+    }
+  } catch ( const std::runtime_error &e ) {
+    throw std::runtime_error(std::string("Couldn't initialize RingerPreProcessorWrapper due to: ")
+        + e.what() );
+  }
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  true,      // isPreProcessing
+  false,     // isDiscriminator
+  false>     // isThreshold
+::setMsgStream(MsgStream *msg) const {
+  // Propagate this stream into collection:
+  setCollectionMsgStream(msg,m_ppCol);
+  // Set stream to self
+  this->RedirectMsgStream::setMsgStream(msg);
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType
+>
+std::string RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  true,       // isPreProcessor
+  false,      // isDiscriminator
+  false>      // isThreshold
+::staticFullName() {
+  typedef typename RingerProcedureType<procedure_t>::procEnum_t procEnum_t;
+  std::stringstream ss;
+  ss << "RingerProcedureWrapper<"
+        << toStr(procedure_t::template procType<procEnum_t>() ) 
+        << ((Ringer::is_same<procedure_t, 
+              PreProcessing::IPreProcessorVarDep>::value)?",":"(VarDep),")
+        << toStr(static_cast<EtaDependency>(etaDependency)) << "," 
+        << toStr(static_cast<EtDependency>(etDependency)) << "," 
+        << toStr(static_cast<SegmentationType>(segType)) << ">";
+  return ss.str();
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType
+>
+std::string RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  true,       // isPreProcessor
+  false,      // isDiscriminator
+  false>      // isThreshold
+::fullName() const {
+  return staticFullName();
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  true,       // isPreProcessor
+  false,      // isDiscriminator
+  false>      // isThreshold
+::print(MSG::Level lvl) const
+{
+  if ( this->isStreamAvailable() ) { 
+    if ( this->level() > lvl ){
+      // Don't waste time print nothing.
+      return;
+    }
+    std::vector<unsigned> posVec(3);
+    this->msg() << lvl << fullName() << " contents: "<<  endreq;
+    for ( size_t segIdx = 0; segIdx < m_ppCol.size() ; ++segIdx){
+      posVec[0] = segIdx;
+      for ( size_t etIdx = 0; etIdx < m_ppCol[segIdx].size() ; ++etIdx){
+        posVec[1] = etIdx;
+        for ( size_t etaIdx = 0; etaIdx < m_ppCol[segIdx][etIdx].size(); 
+            ++etaIdx)
+        {
+          posVec[2] = etaIdx;
+          this->msg() << lvl << m_ppCol[segIdx][etIdx][etaIdx]->name() <<
+            IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endreq;
+          m_ppCol[segIdx][etIdx][etaIdx]->print(lvl);
+        }
+      }
+    }
+  } else {
+    std::cerr << "Stream is not available, cannot print " <<
+      fullName() << "." << std::endl;
+  }
+}
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  true,       // isPreProcessor
+  false,      // isDiscriminator
+  false>      // isThreshold
+::write(TDirectory *baseDir, const char *idxStr) const
+{
+  // ----------- Template basics ----------
+  // Create configuration directory
+  TDirectory *configDir = IOHelperFcns::makeDir(baseDir, 
+      (std::string(this->name()) + idxStr).c_str() );
+
+  // Write basic template information:
+  preProcEnum_t ppType = procedure_t::template procType<preProcEnum_t>();
+  SegmentationType fileSegType = static_cast<SegmentationType>(segType);
+  EtaDependency fileEtaDep = static_cast<EtaDependency>(etaDependency);
+  EtDependency fileEtDep = static_cast<EtDependency>(etDependency);
+  // FIXME Why do I need to use const? Unfortunately if I don't use so, the
+  // compiler won't accept static_casting from discr_Enum_t to unsigned int:
+  // some issue with reference casting.
+  IOHelperFcns::writeVar<const preProcEnum_t, const unsigned int>( configDir,
+      "ppType",
+      ppType);
+  IOHelperFcns::writeVar<const SegmentationType, const unsigned int>( configDir, 
+      "segType",
+      fileSegType);
+  IOHelperFcns::writeVar<const EtaDependency, const unsigned int>( configDir,
+      "etaDependency",
+      fileEtaDep);
+  IOHelperFcns::writeVar<const EtDependency, const unsigned int>( configDir,
+      "etDependency",
+      fileEtDep);
+
+  // Write size information:
+  unsigned ppSegDepSize = m_ppCol.size();
+  unsigned ppEtDepSize =  m_ppCol[0].size();
+  unsigned ppEtaDepSize = m_ppCol[0][0].size();
+  IOHelperFcns::writeVar( configDir,  "ppSegDepSize" , ppSegDepSize );
+  IOHelperFcns::writeVar( configDir,  "ppEtDepSize"  , ppEtDepSize  );
+  IOHelperFcns::writeVar( configDir,  "ppEtaDepSize" , ppEtaDepSize );
+
+  // Write PreProcessors Collection
+  std::vector<unsigned int> ppCount(3);
+  for (size_t segIdx = 0; 
+      segIdx < m_ppCol.size(); 
+      ++segIdx)
+  {
+    ppCount[0] = segIdx;
+    for (size_t etIdx = 0; 
+        etIdx < m_ppCol[segIdx].size(); 
+        ++etIdx)
+    {
+      ppCount[1] = etIdx;
+      for (size_t etaIdx = 0; 
+          etaIdx < m_ppCol[segIdx][etIdx].size(); 
+          ++etaIdx)
+      {
+        ppCount[2] = etaIdx;
+        m_ppCol[segIdx][etIdx][etaIdx]->write(
+            configDir,
+            IOHelperFcns::makeIdxStr(ppCount).c_str());
+      }
+    }
+  }
+}
+
+
+// =============================================================================
+template < 
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType
+>
+RingerProcedureWrapper<procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  true,
+  false,
+  false> *
+RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  true,      // isPreProcessor
+  false,     // isDiscriminator
+  false>     // isThreshold
+::read(TDirectory *configDir, unsigned /*version*/)
+{
+  using namespace PreProcessing;
+
+  IOHelperFcns::checkDir(configDir);
+
+  // ----------- PreProcesings: ----------
+  // Read pre-processing collection size:
+  unsigned ppSegDepSize(0),
+           ppEtDepSize(0),
+           ppEtaDepSize(0);
+  IOHelperFcns::readVar( configDir,  "ppSegDepSize", ppSegDepSize );
+  IOHelperFcns::readVar( configDir,  "ppEtDepSize" , ppEtDepSize  );
+  IOHelperFcns::readVar( configDir,  "ppEtaDepSize", ppEtaDepSize );
+
+  // Allocate pre-processing collection with size specified on file
+  PPDepProcCollection ppCol( ppSegDepSize,
+      std::vector< std::vector< procedure_t*> >(
+        ppEtDepSize, std::vector< procedure_t*>(
+          ppEtaDepSize, nullptr )));
+
+  // Allocate index position retriever:
+  std::vector<unsigned int> ppIdxVec(3);
+
+  // Retrieve dir list and loop on it:
+  std::shared_ptr<THashList> list(nullptr);
+  if ( !( list = IOHelperFcns::getDirList(configDir) ) ) {
+    std::runtime_error(std::string("Couldn't retrieve directory "
+          "list from wrapper folder"));
+  }
+
+  TIter iter( list.get() );
+  while ( TDirectory* dirObj = static_cast<TDirectory*>(iter()) ) {
+
+    const char* folderName = dirObj->GetName();
+
+    //ATH_MSG_VERBOSE("Scanning directory " << folderName );
+
+    // Get information about the pre-processing on the folder:
+    preProcEnum_t ppType;
+    EtaDependency fileEtaDep;
+    EtDependency fileEtDep;
+    try {
+      IOHelperFcns::readVar<preProcEnum_t, unsigned int>(dirObj, 
+          "procType", 
+          ppType);
+      IOHelperFcns::readVar<EtaDependency, unsigned int>(dirObj, 
+          "etaDependency", 
+          fileEtaDep);
+      IOHelperFcns::readVar<EtDependency, unsigned int>(dirObj, 
+          "etDependency", 
+          fileEtDep);
+    } catch (const std::runtime_error &e){
+      throw std::runtime_error(std::string("Couldn't get pre-processing type "
+            "while") + "reading folder: " + folderName + ". Reason: "
+          + e.what() );
+    }
+    // Check if holden information dependency information is ok:
+    if ( fileEtaDep != etaDependency ){
+      throw std::runtime_error(std::string("Folder \"") + folderName + "\" is "
+          + toStr(fileEtaDep) + " whereas Wrapper is " + toStr(static_cast<EtaDependency>(etaDependency)) + ".");
+    }
+    if ( fileEtDep != etDependency ){
+      throw std::runtime_error(std::string("Folder \"") + folderName + "\" is "
+          + toStr(fileEtDep) + " whereas Wrapper is " + toStr(static_cast<EtDependency>(etDependency)) + ".");
+    }
+    // Retrieve position indexes where we shall retrieve this pre-processing 
+    IOHelperFcns::getIdxVecFromStr( folderName, ppIdxVec );
+
+    // Check if everything is ok on indexes retrived:
+    if ( ppIdxVec.size() < 3 ||
+        ppIdxVec[0] >= ppSegDepSize ||
+        ppIdxVec[1] >= ppEtDepSize  ||
+        ppIdxVec[2] >= ppEtaDepSize )
+    {
+      throw std::runtime_error(std::string("There is something wrong with ")
+            + "folder idxStr: " + folderName + ". Got idxStr " + 
+            IOHelperFcns::makeIdxStr(ppIdxVec) + ". Maximum pre-processing "
+            "collection size is : " + std::to_string(ppSegDepSize) + "," +
+            std::to_string(ppEtDepSize) + "," + std::to_string(ppEtaDepSize));
+    }
+
+    // Get a reference to the pointer (only used to reduce typing):
+    procedure_t *&thisPP = ppCol[ppIdxVec[0]]
+                                [ppIdxVec[1]]
+                                [ppIdxVec[2]];
+
+    // Check which procedure_t this pre-processing wrapper holds. 
+    if ( Ringer::is_same<procedure_t, IPreProcessorVarDep >::value )
+    {
+      // If the procedure_t is not the PreProcessor interface, code will
+      // never get here. We only use the interpret cast so that the compiler
+      // doesn't complain about type casting.
+      thisPP = reinterpret_cast<procedure_t*>( getPP(ppType, dirObj) );
+    } else {
+      // Here it's easier, we already know the type that is written in the file,
+      // so all we need to do is loop over it and retrieve the discriminator.
+      preProcEnum_t wrapperPPType = procedure_t::template procType<preProcEnum_t>();
+      if ( ppType != wrapperPPType ){
+        throw std::runtime_error( std::string("There is a pre-processing of type ") +
+            toStr(ppType) + " whereas this wrapper can only hold pre-processings " 
+            "of type " + toStr(wrapperPPType));
+      }
+      thisPP = procedure_t::read( dirObj );
+    }
+    // ATH_MSG_VERBOSE("Successfully read directory " << folderName);
+  }
+
+  // Create and return PreProcessors wrapper:
+  return new RingerProcedureWrapper(ppCol);
+
+}
+
+
+} // Namespace Ringer
+
+#endif // RINGERSELECTORTOOLS_PROCEDURES_RINGERPREPROCESSORWRAPPER_ICC
