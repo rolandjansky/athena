@@ -1,0 +1,25 @@
+package SiSpacePoint
+
+author Martin Siebel <Martin.Siebel@cern.ch>
+
+
+use AtlasPolicy		AtlasPolicy-*
+use Identifier		Identifier-*		DetectorDescription
+use TrkSpacePoint       TrkSpacePoint-*         Tracking/TrkEvent
+use TrkDetElementBase	TrkDetElementBase-*	Tracking/TrkDetDescr
+
+
+private
+
+use TrkPrepRawData	TrkPrepRawData-*	Tracking/TrkEvent
+use TrkEventPrimitives  TrkEventPrimitives-*    Tracking/TrkEvent
+use TrkSurfaces         TrkSurfaces-*           Tracking/TrkDetDescr
+use EventPrimitives     EventPrimitives-*       Event
+use GeoPrimitives       GeoPrimitives-*         DetectorDescription
+
+public
+
+
+apply_pattern installed_library
+library SiSpacePoint *.cxx
+macro DOXYGEN_IMAGE_PATH "../doc/images"
