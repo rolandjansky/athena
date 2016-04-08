@@ -18,9 +18,11 @@
 #       athena CompareGeometries.py
 #  5) The root file you named is created with all the relavent output.
 #==============================================================
-inputFile1 = "IDgeometryNoStrawMisalignments.txt"
-inputFile2 = "IDgeometryWithRandomLay0Phi0MisAl.txt"
-outputFile = "IDAlignment.root"
+#inputFile1 = "IDgeometry_DB.txt" 
+#inputFile1 = "M9Cosmics_BOFF/IDgeometry_L1_BON_Tp20.txt"
+inputFile1 = "M8Cosmics_L3/preM7.txt"
+inputFile2 = "M8Cosmics_L3/M8_afterL3.txt"
+outputFile = "IDAlignment3D.root"
 
 # The following options set the scales in the relevant plots
 # ==================

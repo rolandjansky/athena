@@ -133,7 +133,7 @@ StatusCode GetDetectorPositions::execute() {
   
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "execute() check global position" << endreq;
   
-    StatusCode sc = StatusCode::SUCCESS;
+  //StatusCode sc = StatusCode::SUCCESS;
     static int eventCount(-1); eventCount++;
     
     /** run only for one event */
