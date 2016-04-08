@@ -1,0 +1,31 @@
+package ISF_FastCaloSimEvent
+
+public
+use  AtlasPolicy                AtlasPolicy-*
+use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  GaudiInterface             GaudiInterface-*                External
+#use  LArSimEvent               LArSimEvent-*                   LArCalorimeter/
+use  TileSimEvent               TileSimEvent-*                  TileCalorimeter
+use  CLIDSvc                    CLIDSvc-*                       Control
+use  DataModel                  DataModel-*                     Control
+
+#use  AthenaBaseComps            AthenaBaseComps-*               Control
+#use  AtlasHepMC                 AtlasHepMC-*                    External
+#use  BarcodeInterfaces          BarcodeInterfaces-*             Simulation/Barcode
+#use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
+#use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+end_public
+
+private
+
+public
+
+library ISF_FastCaloSimEvent *.cxx
+apply_pattern installed_library
+
+#for dictionaries
+private
+apply_tag notAsNeeded
+use AtlasReflex           AtlasReflex-*          External -no_auto_imports
+apply_pattern lcgdict dict=ISF_FastCaloSimEvent selectionfile=selection.xml headerfiles="../ISF_FastCaloSimEvent/ISF_FastCaloSimEventDict.h"
+end_private
