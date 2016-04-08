@@ -9,7 +9,6 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 
-//#include "TrigConfigSvc/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "LUCID_RawEvent/LUCID_DigitContainer.h"
