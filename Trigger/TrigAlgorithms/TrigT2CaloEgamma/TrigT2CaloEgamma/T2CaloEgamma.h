@@ -86,7 +86,7 @@ class T2CaloEgamma: public T2CaloBase {
     /** Monitored Eta and Phi */
     float m_MonEta, m_MonPhi;
 
-    int m_index;
+    //int m_index;
     /** Calibration tools for the Barrel*/
     ToolHandleArray<IEgammaCalibration> m_calibsBarrel;
     /** Calibration tools for the Endcap*/
