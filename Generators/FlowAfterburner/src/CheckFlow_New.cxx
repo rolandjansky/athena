@@ -262,6 +262,7 @@ StatusCode CheckFlow_New::execute() {
 
 
   if ( m_sgSvc->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
+//  if ( evtStore()->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
     msg(MSG::ERROR) << "Could not retrieve Hijing_event_params"<< endreq;
     return StatusCode::FAILURE;
   }
