@@ -119,10 +119,6 @@ extractConstituents(xAOD::Jet& jet, const NameList* pghostlabs,
         nbad += out[i].size();
         continue;
       }
-    } else {
-      if ( out[i].size()==0 && outms[i].size()==0 ) {
-        continue;
-      }
     }
     ParType& partype = partypes[i];
     std::string cname = pli->label(i) + "Count";
@@ -143,6 +139,10 @@ extractConstituents(xAOD::Jet& jet, const NameList* pghostlabs,
   }
   
   return nbad;
+}
+
+int JetConstituentFiller::extractConstituents(xAOD::Jet& jet, const fastjet::PseudoJet* ppj2) {
+  return extractConstituents(jet, 0, ppj2);
 }
 
 //**********************************************************************
