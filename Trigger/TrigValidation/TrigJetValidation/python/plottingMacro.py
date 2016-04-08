@@ -51,7 +51,7 @@ def plotCurve(chain, hist):
    h6  = f1.Get( 'jets_%s_nojcalib/%s' % (chain, hist) )
 
 
-   bins = [ 10000 * i for i in range(51) ]
+   bins = [ 10 * i for i in range(51) ]
    h1 = h1.Rebin( (len(bins) - 1), str(h1) + '_mod', array('d', bins))
    h2 = h2.Rebin( (len(bins) - 1), str(h2) + '_mod', array('d', bins))
    h3 = h3.Rebin( (len(bins) - 1), str(h3) + '_mod', array('d', bins))
@@ -62,6 +62,9 @@ def plotCurve(chain, hist):
    # set up canvas
    CANVAS.Clear()
    CANVAS.SetLogy(True)
+
+   maxVal = max(h.GetBinContent(h.GetMaximumBin()) for h in [h1, h2, h3, h4, h5, h6])
+   h1.SetMaximum(1.2 * maxVal)
    
    h1.SetLineColor(kBlack)
    h1.Draw()

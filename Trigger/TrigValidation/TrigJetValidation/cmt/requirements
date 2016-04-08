@@ -25,12 +25,16 @@ apply_pattern declare_runtime extras= "../test/TrigJetValidation_TestConfigurati
                                        ../python/clustersAndCells.py \
  				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/HLTChain_ref_devval.txt \
  				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/HLTChain_ref_dev.txt \
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/HLTChain_ref_20.2.X.Y.Z-VAL.txt \
  				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/HLTTE_ref_devval.txt \
  				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/HLTTE_ref_dev.txt \
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/HLTTE_ref_20.2.X.Y.Z-VAL.txt \
  				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/clusters_ref_devval.txt \
  				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/clusters_ref_dev.txt \
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/clusters_ref_20.2.X.Y.Z-VAL.txt \
  				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/cells_ref_devval.txt \
- 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/cells_ref_dev.txt"
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/cells_ref_dev.txt \
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/cells_ref_20.2.X.Y.Z-VAL.txt"
 
 private
 use TestPolicy          TestPolicy-*

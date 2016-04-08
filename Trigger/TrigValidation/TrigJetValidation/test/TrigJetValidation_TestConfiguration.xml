@@ -26,7 +26,7 @@
                 </doc>
                 <displayName>Jet</displayName>
                 <commandLineFlags>
-		    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5'; sliceName='jet';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964';fileRange=[32,32]
+		    enableCostMonitoring=TRUE;RunningRTT=TRUE;menu='MC_pp_v5'; sliceName='jet';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
                 </commandLineFlags>
                 <options>TriggerTest/testCommonSliceAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
