@@ -15,94 +15,81 @@
 
 namespace MuonCalib{
 
-  IMdtBackgroundCorFunc* 
-  MdtCalibrationFactory::createBackgroundCorFunc( std::string name, 
-						  const CalibFunc::ParVec& pars)
-  {
-    if( name == "MdtBackgroundCorFunc0" ) {
-      return new MdtBackgroundCorFunc0(pars);
-    }else{
-      std::cout << "MdtCalibrationFactory::createBackgroundCorFunc: <wrong name> " 
-		<< name << std::endl;
-      return 0;
-    }
-  }
-
-  IMdtBFieldCorFunc*     
-  MdtCalibrationFactory::createBFieldCorFunc( std::string name, 
-					      const CalibFunc::ParVec& pars)
-  {
-    if( name == "MdtBFieldCorFunc0" ) {
-      return new MdtBFieldCorFunc0(pars);
-    }else{
-      std::cout << "MdtCalibrationFactory::createBFieldCorFunc: <wrong name> " 
-		<< name << std::endl;
-      return 0;
-    }
-  }
-  
-  IMdtSlewCorFunc*       
-  MdtCalibrationFactory::createMdtSlewCorFunc( std::string name, 
-					       const CalibFunc::ParVec& pars)
-  {
-    if( name == "MdtSlewCorFunc0" ) {
-      return new MdtSlewCorFunc0(pars);
-    }else{
-      std::cout << "MdtCalibrationFactory::createMdtSlewCorFunc: <wrong name> " 
-		<< name << std::endl;
-      return 0;
-    }
-  }
- 
-  IMdtTempCorFunc*       
-  MdtCalibrationFactory::createMdtTempCorFunc( std::string name, 
-					       const CalibFunc::ParVec& pars)
-  {
-    if( name == "MdtTempCorFunc0" ) {
-      return new MdtTempCorFunc0(pars);
-   }else{
-      std::cout << "MdtCalibrationFactory::createMdtTempCorFunc: <wrong name> " 
-		<< name << std::endl;
-       return 0;
-    }
-  }
-
-  IMdtWireSagCorFunc*    
-  MdtCalibrationFactory::createMdtWireSagCorFunc( std::string name, 
-						  const CalibFunc::ParVec& pars)
-  {
-    if( name == "MdtWireSagCorFunc0" ) {
-      return new MdtWireSagCorFunc0(pars);
-   }else{
-      std::cout << "MdtCalibrationFactory::createMdtWireSagCorFunc: <wrong name> " 
-		<< name << std::endl;
-      return 0;
-    }
-  }
-
-  IRtRelation*           
-  MdtCalibrationFactory::createRtRelation( std::string name, 
-					   const CalibFunc::ParVec& pars)
-  {
-    if( name == "RtRelationLookUp" ) {
-      return new RtRelationLookUp(pars);
-    }else{
-      std::cout << "MdtCalibrationFactory::createRtRelation: <wrong name> " 
-		<< name << std::endl;
-      return 0;
-    }
-  }
-
-  IRtResolution*         
-  MdtCalibrationFactory::createRtResolution( std::string name, 
-					     const CalibFunc::ParVec& pars)
-  {
-     if( name == "RtResolutionLookUp" ) {
-       return new RtResolutionLookUp(pars);
-     }else{
-       std::cout << "MdtCalibrationFactory::createRtResolution: <wrong name> " 
-		 << name << std::endl;
-       return 0;
-     }
+IMdtBackgroundCorFunc *MdtCalibrationFactory::createBackgroundCorFunc( std::string name, 
+					      const CalibFunc::ParVec& pars) {
+  if( name == "MdtBackgroundCorFunc0" ) {
+    return new MdtBackgroundCorFunc0(pars);
+  }else{
+    std::cout << "MdtCalibrationFactory::createBackgroundCorFunc: <wrong name> " 
+	      << name << std::endl;
+    return 0;
   }
 }
+
+IMdtBFieldCorFunc *MdtCalibrationFactory::createBFieldCorFunc( std::string name, 
+				      const CalibFunc::ParVec& pars) {
+  if( name == "MdtBFieldCorFunc0" ) {
+    return new MdtBFieldCorFunc0(pars);
+  }else{
+    std::cout << "MdtCalibrationFactory::createBFieldCorFunc: <wrong name> " 
+	      << name << std::endl;
+    return 0;
+  }
+}
+  
+IMdtSlewCorFunc *MdtCalibrationFactory::createMdtSlewCorFunc( std::string name, 
+				       const CalibFunc::ParVec& pars) {
+  if( name == "MdtSlewCorFunc0" ) {
+    return new MdtSlewCorFunc0(pars);
+  }else{
+    std::cout << "MdtCalibrationFactory::createMdtSlewCorFunc: <wrong name> " 
+	      << name << std::endl;
+    return 0;
+  }
+}
+ 
+IMdtTempCorFunc *MdtCalibrationFactory::createMdtTempCorFunc( std::string name, 
+				       const CalibFunc::ParVec& pars) {
+  if( name == "MdtTempCorFunc0" ) {
+    return new MdtTempCorFunc0(pars);
+  }else{
+    std::cout << "MdtCalibrationFactory::createMdtTempCorFunc: <wrong name> " 
+	      << name << std::endl;
+    return 0;
+  }
+}
+
+IMdtWireSagCorFunc* MdtCalibrationFactory::createMdtWireSagCorFunc( std::string name, 
+				  const CalibFunc::ParVec& pars) {
+  if( name == "MdtWireSagCorFunc0" ) {
+    return new MdtWireSagCorFunc0(pars);
+  }else{
+    std::cout << "MdtCalibrationFactory::createMdtWireSagCorFunc: <wrong name> " 
+	      << name << std::endl;
+    return 0;
+  }
+}
+  
+IRtRelation* MdtCalibrationFactory::createRtRelation( std::string name, 
+				   const CalibFunc::ParVec& pars) {
+  if( name == "RtRelationLookUp" ) {
+    return new RtRelationLookUp(pars);
+  }else{
+    std::cout << "MdtCalibrationFactory::createRtRelation: <wrong name> " 
+	      << name << std::endl;
+    return 0;
+  }
+}
+
+IRtResolution* MdtCalibrationFactory::createRtResolution( std::string name, 
+				     const CalibFunc::ParVec& pars) {
+  if( name == "RtResolutionLookUp" ) {
+    return new RtResolutionLookUp(pars);
+  }else{
+    std::cout << "MdtCalibrationFactory::createRtResolution: <wrong name> " 
+	      << name << std::endl;
+    return 0;
+  }
+}
+
+}  //namespace MuonCalib

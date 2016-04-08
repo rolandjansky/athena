@@ -48,7 +48,7 @@ Units: [t] = ns, [r] = mm, [v] = mm/ns.
 */
 
 
-  class RtResolutionChebyshev : public IRtResolution {
+class RtResolutionChebyshev : public IRtResolution {
 
   private:
     // Chebyshev polyonomials //
@@ -70,38 +70,36 @@ Units: [t] = ns, [r] = mm, [v] = mm/ns.
 
     */
     explicit RtResolutionChebyshev(const ParVec& vec) : IRtResolution(vec) {
-	_init();
+      _init();
     }
 
     // Methods //
     // methods required by the base classes //
-    std::string name(void) const;
-                                      //!< get the class name
+    std::string name(void) const;  //!< get the class name
+
+    //!< get the resolution corresponding to the drift time t;
+    //!< if t is not within [t_low, t_up] an unphysical radius of 99999 is
+    //!< returned; the background rate is ignored in present implementation
     double resolution(double t, double bgRate=0.0) const;
-                                      //!< get the resolution corresponding to
-                                      //!< the drift time t;
-				      //!< if t is not within [t_low, t_up]
-				      //!< an unphysical radius of 99999 is
-				      //!< returned;
-				      //!< the background rate is ignored in
-				      //!< present implementation
-
+ 
     // get-methods specific to the RtResolutionChebyshev class //
+   
+    //!< get the lower drift-time bound
     double tLower(void) const;
-                                      //!< get the lower drift-time bound
-    double tUpper(void) const; 
-                                      //!< get the upper drift-time bound
-    unsigned int numberOfResParameters(void) const; 
-                                      //!< get the number of parameters used to 
-				      //!< describe the resolution
-    std::vector<double> resParameters(void) const;
-                                      //!< get the coefficients of the r(t)
-				      //!< polynomial
-    double get_reduced_time(const double & t) const;
-                                      //!< get the reduced time which is the 
-				      //!< argument of the Chebyshev polynomial
 
+    //!< get the upper drift-time bound
+    double tUpper(void) const; 
+
+    //!< get the number of parameters used to describe the resolution
+    unsigned int numberOfResParameters(void) const; 
+
+    //!< get the coefficients of the r(t) polynomial
+    std::vector<double> resParameters(void) const;
+
+    //!< get the reduced time which is the argument of the Chebyshev polynomial
+    double get_reduced_time(const double & t) const;
+   
   };
-}
+}  //namespace MuonCalib
 
 #endif

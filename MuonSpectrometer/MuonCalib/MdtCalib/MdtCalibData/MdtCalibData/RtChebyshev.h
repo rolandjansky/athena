@@ -49,7 +49,6 @@ Units: [t] = ns, [r] = mm, [v] = mm/ns.
 @date 04.06.2006
 */
 
-
   class RtChebyshev : public IRtRelation {
 
   private:
@@ -78,33 +77,31 @@ Units: [t] = ns, [r] = mm, [v] = mm/ns.
 
     // Methods //
     // methods required by the base classes //
-    std::string name(void) const;
-                                      //!< get the class name
+    std::string name(void) const; //!< get the class name
+
     double radius(double t) const;
-                                      //!< get the radius corresponding to the
-                                      //!< drift time t;
-				      //!< if t is not within [t_low, t_up]
-				      //!< an unphysical radius of 99999 is
-				      //!< returned
+    //!< get the radius corresponding to the drift time t;
+    //!< if t is not within [t_low, t_up] an unphysical radius of 99999 is returned
+
+    //!< get the drift velocity
     double driftvelocity(double t) const;
-                                      //!< get the drift velocity
 
     // get-methods specific to the RtChebyshev class //
+    //!< get the lower drift-time bound
     double tLower(void) const;
-                                      //!< get the lower drift-time bound
+    //!< get the upper drift-time bound
     double tUpper(void) const; 
-                                      //!< get the upper drift-time bound
+
+    //!< get the number of parameters used to describe the r(t) relationship
     unsigned int numberOfRtParameters(void) const; 
-                                      //!< get the number of parameters used to 
-				      //!< describe the r(t) relationship
+
+    //!< get the coefficients of the r(t) polynomial
     std::vector<double> rtParameters(void) const;
-                                      //!< get the coefficients of the r(t)
-				      //!< polynomial
-    double get_reduced_time(const double & t) const;
-                                      //!< get the reduced time which is the 
-				      //!< argument of the Chebyshev polynomial
+
+    //!< get the reduced time which is the argument of the Chebyshev polynomial
+    double get_reduced_time(const double &t) const;
 
   };
-}
+}  //namespace MuonCalib
 
 #endif

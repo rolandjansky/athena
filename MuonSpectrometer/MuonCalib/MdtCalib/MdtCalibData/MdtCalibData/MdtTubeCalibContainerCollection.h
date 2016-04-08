@@ -23,8 +23,6 @@ This typedef representing:
 It is a DataVector. It can be saved to storegate.
 */
 typedef DataVector<MuonCalib::MdtTubeCalibContainer> MdtTubeCalibContainerCollection;
-CLASS_DEF(MdtTubeCalibContainerCollection ,1221928754  , 1 )
-
-
+CLASS_DEF(MdtTubeCalibContainerCollection, 1221928754, 1 )
 
 #endif

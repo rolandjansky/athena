@@ -25,12 +25,12 @@ namespace MuonCalib {
       float adc_err[4];
       float adc_chi2;
       std::string group_by;
-      SingleTubeFit():statistics(0), n_hits(0), n_hits_above_adc_cut(0), chi2Tdc(0.), chi2TdcEnd(0.), adc_chi2(0), group_by("UNKNOWN"){
-            for(int i=0;i<8;i++) par[i]=0;
-            for(int i=0;i<36;i++) cov[i]=0;
-            for(int i=0;i<4;i++) adc_par[i]=0;
-            for(int i=0;i<4;i++) adc_err[i]=0;
-      };
+    SingleTubeFit():statistics(0), n_hits(0), n_hits_above_adc_cut(0), chi2Tdc(0.), chi2TdcEnd(0.), adc_chi2(0), group_by("UNKNOWN"){
+      for(int i=0;i<8;i++) par[i]=0;
+      for(int i=0;i<36;i++) cov[i]=0;
+      for(int i=0;i<4;i++) adc_par[i]=0;
+      for(int i=0;i<4;i++) adc_err[i]=0;
+    };
     };
 
 
@@ -69,19 +69,16 @@ namespace MuonCalib {
     /** return the name of the implementation filling this class */
     std::string implementation() const {return m_implementation;}
 
-    inline void setGroupBy(const std::string &group_by)
-    	{
-	for(std::vector<SingleTubeFit>::iterator it=m_info.begin(); it!=m_info.end(); it++)
-		{
-		it->group_by=group_by;
-		}
-	}
-    inline const std::string & GroupBy() const
-    	{
-	if(!m_info.size())
-		return m_group_by;
-	return m_info.begin()->group_by;
-	}
+    inline void setGroupBy(const std::string &group_by) {
+      for(std::vector<SingleTubeFit>::iterator it=m_info.begin(); it!=m_info.end(); it++) {
+	it->group_by=group_by;
+      }
+    }
+    inline const std::string & GroupBy() const {
+      if(!m_info.size())
+	return m_group_by;
+      return m_info.begin()->group_by;
+    }
   private:
     std::vector<SingleTubeFit> m_info;
     std::string m_name;
@@ -89,6 +86,6 @@ namespace MuonCalib {
     std::string m_group_by;
   };
 
-}
+}  //namespace MuonCalib
 
 #endif

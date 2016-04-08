@@ -23,11 +23,9 @@ namespace MuonCalib {
       SingleTubeCalib() : t0(0.0), inversePropSpeed(1./300.), adcCal(1.0), statusCode(1) {};
     };
 
-
     /** nMl = number of multilayres, nLayers = number of layers in multilayer (3 or 4); nTubes = number of tubes in one layer */
     MdtTubeCalibContainer( std::string region, unsigned int nMl, unsigned int nLayers, unsigned int nTubes ) 
       : m_regionKey(region), m_nMl(nMl), m_nLayers(nLayers), m_nTubes(nTubes), m_data(nMl*nLayers*nTubes) {}
-
 
     /** return calibration constants of a single tube */
     const SingleTubeCalib* getCalib( unsigned int nMl, unsigned int layerIndex, unsigned int tubeIndex ) const {
@@ -61,13 +59,13 @@ namespace MuonCalib {
       return nMl*m_nLayers*m_nTubes + m_nTubes * layerIndex + tubeIndex;
     }
 
-    std::string m_regionKey;   //!< a string identifying the chamber (StationName_eta_phi)
+    std::string m_regionKey; //!< a string identifying the chamber (StationName_eta_phi)
     unsigned int m_nMl;      //!< number of multilayers in chamber
     unsigned int m_nLayers;  //!< number of layer 
     unsigned int m_nTubes;   //!< number of tubes
     std::vector<SingleTubeCalib> m_data;
   };
 
-}
+}  //namespace MuonCalib
 
 #endif

@@ -9,7 +9,7 @@
 
 namespace MuonCalib {
 
-  /** implementatin of a resolution function */
+  /** implementation of a resolution function */
 
 class RtResolution0 : public IRtResolution {
   explicit RtResolution0( const CalibFunc::ParVec& vec ) : IRtResolution(vec) {};

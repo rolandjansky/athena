@@ -28,7 +28,6 @@ class MdtSlewCorFuncHardcoded : public IMdtSlewCorFunc {
   
 };
 
-
-}
+}  //namespace MuonCalib
 
 #endif

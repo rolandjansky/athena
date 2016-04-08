@@ -38,36 +38,33 @@ namespace MuonCalib {
 
 class TrRelation {
 
-public:
-// Constructors //
-    TrRelation(const IRtRelation & input_rt);
-    ///< Constructor. The user has to provide the input r-t
-    ///< relationship to be inverted.
+ public:
+  ///< Constructor. The user has to provide the input r-t
+  ///< relationship to be inverted.
+  TrRelation(const IRtRelation &input_rt);
 
-    TrRelation(const std::vector<double> & r_values,
-                const std::vector<double> & t_values);
-    ///< Constructor. The user has to provide (r, t) pairs stored in the
-    ///< vectors r_values and t_values. The r and t values must be in
-    ///< increasing order.
+  ///< Constructor. The user has to provide (r, t) pairs stored in the
+  ///< vectors r_values and t_values. The r and t values must be in
+  ///< increasing order.
+  TrRelation(const std::vector<double> &r_values,
+	     const std::vector<double> &t_values);
 
 // Methods //
-    double tFromR(const double & r, bool & out_of_bound_flag) const;
-        				///< Get t(r). out_of_bound_flag is set to true if
-                        ///< r is out of bounds.
-    double rFromT(const double & t, bool & out_of_bound_flag) const;
-                        ///< Get r(t). out_of_bound_flag is set to true if
-                        ///< t is out of bounds.
+  ///< Get t(r). out_of_bound_flag is set to true if r is out of bounds.
+  double tFromR(const double &r, bool &out_of_bound_flag) const;
+  ///< Get r(t). out_of_bound_flag is set to true if t is out of bounds.
+  double rFromT(const double &t, bool &out_of_bound_flag) const;
 
 private:
 // (r, t) pairs
-    std::vector<double> m_r; // drift radii
-    std::vector<double> m_t; // drift times
+  std::vector<double> m_r; // drift radii
+  std::vector<double> m_t; // drift times
 
 // r(t) inversion method
-    double getTFromR(const double & r, const IRtRelation & input_rt);
+  double getTFromR(const double &r, const IRtRelation &input_rt);
 
 };
 
-}
+}  //namespace MuonCalib
 
 #endif

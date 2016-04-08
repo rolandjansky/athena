@@ -26,27 +26,23 @@ namespace MuonCalib {
     virtual double tUpper(void) const =0;
   
     /** return the difference in total dirft time between the two multilayers (ML1 - ML2) */
-    inline float GetTmaxDiff() const
-    	{
-	return  HasTmaxDiff() ? m_tmax_diff : 0.0;
-	}
+    inline float GetTmaxDiff() const {
+      return  HasTmaxDiff() ? m_tmax_diff : 0.0;
+    }
 
-    inline bool HasTmaxDiff() const
-    	{
-	return (m_tmax_diff<8e8);
-	}
+    inline bool HasTmaxDiff() const {
+      return (m_tmax_diff<8e8);
+    }
 	
    /** set the difference in total drift time betwene the two multilayers (ML1 - ML2) */
-    inline void SetTmaxDiff(const float & d)
-    	{
-	m_tmax_diff = d;
-	}
-		
+    inline void SetTmaxDiff(const float & d) {
+      m_tmax_diff = d;
+    }	
   
     float m_tmax_diff;
   
   };
 
-}
+}  //namespace MuonCalib
 
 #endif

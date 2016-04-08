@@ -23,6 +23,6 @@ class IMdtBFieldCorFunc : public CalibFunc {
   virtual double correction(double t, double Bpar, double Bperp) const = 0;
 };
 
-}
+}  //namespace MuonCalib
 
 #endif

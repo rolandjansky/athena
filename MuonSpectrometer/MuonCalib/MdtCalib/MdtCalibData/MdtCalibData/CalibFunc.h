@@ -13,10 +13,10 @@ namespace MuonCalib {
 
 /** generic interface for a calibration function.
 
-    The class caches the parameters and offers routines to acces them.
+    The class caches the parameters and offers routines to access them.
     All correction functions using parametrisations should inherit from them.
 
-    Two function have to be implemented by the user:
+    Two functions have to be implemented by the user:
     typeName(): returning a string with the type of function.
                 The default is to use the name of the interface.
 		For example:
@@ -39,10 +39,9 @@ class CalibFunc {
   inline virtual  ~CalibFunc() {};
   inline unsigned int   nPar() const { return m_parameters.size(); }
   inline const ParVec&  parameters() const { return m_parameters; }
-  inline double par(unsigned int index) const 
-  { 
-    if(index < nPar())    return m_parameters[index];
-    else                  return 0.;
+  inline double par(unsigned int index) const { 
+    if(index < nPar()) return m_parameters[index];
+    else               return 0.;
   }
   virtual std::string typeName() const = 0;
   virtual std::string name() const = 0;
@@ -51,7 +50,7 @@ class CalibFunc {
   ParVec   m_parameters;
 };
 
-}
+}  //namespace MuonCalib
 
 #endif
 

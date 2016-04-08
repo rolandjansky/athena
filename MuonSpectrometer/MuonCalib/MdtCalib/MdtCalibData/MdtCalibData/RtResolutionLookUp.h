@@ -17,14 +17,13 @@ namespace MuonCalib{
       The r value is calculated by linear interpolation.
   */
   
-  class RtResolutionLookUp : public IRtResolution {
+class RtResolutionLookUp : public IRtResolution {
   public:
-    explicit RtResolutionLookUp( const ParVec& vec ) : IRtResolution(vec) 
-    {
+    explicit RtResolutionLookUp( const ParVec& vec ) : IRtResolution(vec)  {
       if( vec.size() < 4 ){ 
 	std::cout << "RtResolutionLookUp ERROR <to few parameters> " << std::endl;
-         t_min=9e9;
-	 bin_size=1.0; //will be always out of range	
+	t_min=9e9;
+	bin_size=1.0; //will be always out of range	
       }else{
 	t_min = par(0);
 	bin_size = par(1);
@@ -76,7 +75,7 @@ namespace MuonCalib{
     // get bin 
     int bin = getBin( t );
 
-    // if t corresponds to a negativ bin return first
+    // if t corresponds to a negative bin return first
     if( bin < 0 ) bin = 0;
 
     // if t corresponds to a bin outside the range of the lookup table return the last bin
@@ -84,5 +83,5 @@ namespace MuonCalib{
 
     return bin;
   }
-}
+}  //namespace MuonCalib
 #endif

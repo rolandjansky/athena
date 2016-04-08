@@ -25,6 +25,6 @@ class MdtTempCorFunc0 : public IMdtTempCorFunc {
   }
 };
 
-}
+}  //namespace MuonCalib
 
 #endif

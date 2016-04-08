@@ -25,6 +25,6 @@ class MdtBFieldCorFunc0 : public IMdtBFieldCorFunc{
   }
 };
 
-}
+}  //namespace MuonCalib
 
 #endif

@@ -65,6 +65,6 @@ namespace MuonCalib {
     std::string m_implementation;
   };
 
-}
+} //namespace MuonCalib
 
 #endif
