@@ -4,14 +4,7 @@
 
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006, 2007
 
-// FIXME: add merge() methods to  InDetRawData  classes and get rid of the hack.
-#define private public
-#define protected public
 #include "InDetRawData/InDetRawData.h"
-#undef private
-#undef protected
-
-
 #include "InDetOverlay/InDetOverlay.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -61,7 +54,7 @@ namespace Overlay {
 
     if(pr1 && pr2) {
       // the actual merging
-      pr1->m_word |= pr2->m_word;
+      pr1->merge (*pr2);
     }
     else {
       static bool first_time = true;
@@ -81,11 +74,11 @@ namespace Overlay {
   namespace {   // helper functions for SCT merging
     typedef SCT3_RawData  SCT_RDO_TYPE;
 
-    typedef std::multimap<int, SCT_RDO_TYPE*> StripMap;
+    typedef std::multimap<int, const SCT_RDO_TYPE*> StripMap;
 
     void fillStripMap(StripMap *sm, const InDetRawDataCollection<SCT_RDORawData> &rdo_coll, const std::string& collectionName, InDetOverlay *parent) {
       for(InDetRawDataCollection<SCT_RDORawData>::const_iterator i=rdo_coll.begin(); i!=rdo_coll.end(); ++i) {
-        SCT_RDO_TYPE *rdo = dynamic_cast<SCT_RDO_TYPE*>(&**i);
+        const SCT_RDO_TYPE *rdo = dynamic_cast<const SCT_RDO_TYPE*>(&**i);
         if(!rdo) {
           std::ostringstream os;
           os<<"mergeCollection<SCT_RDORawData>(): wrong datum format for the '"<<collectionName<<"' collection. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay.   For the supplied datum  typeid(datum).name() = "<<typeid(**i).name();
@@ -182,7 +175,7 @@ namespace Overlay {
       const int firstStrip = p->first;
 
       // Get all strips for the current RDO
-      std::set<SCT_RDO_TYPE*> origRDOs;
+      std::set<const SCT_RDO_TYPE*> origRDOs;
       origRDOs.insert(p->second);
       int currentStrip = firstStrip;
       while(++p != sm.end()) {
@@ -212,7 +205,7 @@ namespace Overlay {
       int ERRORS = 0;
       std::vector<int> errvec;
 
-      for(std::set<SCT_RDO_TYPE*>::const_iterator origRdoIter = origRDOs.begin(); origRdoIter!=origRDOs.end(); ++origRdoIter) {
+      for(std::set<const SCT_RDO_TYPE*>::const_iterator origRdoIter = origRDOs.begin(); origRdoIter!=origRDOs.end(); ++origRdoIter) {
         tbin |= (*origRdoIter)->getTimeBin();
 
         if((*origRdoIter)->FirstHitError()) {
