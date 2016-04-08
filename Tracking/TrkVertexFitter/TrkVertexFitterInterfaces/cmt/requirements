@@ -13,3 +13,7 @@ use TrkNeutralParameters  TrkNeutralParameters-*  Tracking/TrkEvent
 use EventPrimitives       EventPrimitives-*       Event
 use GeoPrimitives         GeoPrimitives-*         DetectorDescription
 use xAODTracking          xAODTracking-*          Event/xAOD 
+
+# Declare this package as a cmake metalibrary so that the libraries and header files from
+# packages it depends on are available to its clients. Transparent to CMT
+apply_pattern cmake_add_command command=metalibrary

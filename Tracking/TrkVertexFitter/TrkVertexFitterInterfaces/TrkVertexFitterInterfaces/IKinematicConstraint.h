@@ -40,7 +40,7 @@ namespace Trk{
    /*** Actual access methods: */   
    virtual const Amg::VectorX vectorOfValues(std::vector<Amg::VectorX> & cart_coordList, std::vector<int> &charges, Amg::Vector3D refPoint, double b_fieldTesla) const = 0;
    
-   virtual const Amg::MatrixX matrixOfDerivatives(std::vector<Amg::MatrixX> & cart_coordList, std::vector<int> &charges, Amg::Vector3D refPoint, double b_fieldTesla) const = 0;
+   virtual const Amg::MatrixX matrixOfDerivatives(std::vector<Amg::VectorX> & cart_coordList, std::vector<int> &charges, Amg::Vector3D refPoint, double b_fieldTesla) const = 0;
    
    virtual int numberOfEquations() const = 0;
      

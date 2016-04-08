@@ -11,11 +11,13 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkNeutralParameters/NeutralParameters.h"
 #include <vector>
 
 //xAOD includes
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
+#include "xAODTracking/NeutralParticle.h"
 
  /**
    * @class Trk::IVertexFitter
@@ -87,31 +89,63 @@ namespace Trk
 
 
        /** 
+        *Interface for xAOD::TrackParticle and xAOD::NeutralParticle with starting point 
+        */
+       virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
+				  const std::vector<const xAOD::NeutralParticle*>& vectorNeu,
+				  const Vertex& startingPoint) = 0;
+       /** 
         *Interface for xAOD::TrackParticle with starting point 
         */
        virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-                                 const Vertex& startingPoint) = 0;
+				  const Vertex& startingPoint) = 0;
 
+       /** 
+        * Interface for xAOD::TrackParticle and xAOD::NeutralParticle with vertex constraint 
+        * the position of the constraint is ALWAYS the starting point 
+        */
+       virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
+				  const std::vector<const xAOD::NeutralParticle*>& vectorNeu,
+				  const RecVertex& constraint) = 0;
        /** 
         * Interface for xAOD::TrackParticle with vertex constraint 
         * the position of the constraint is ALWAYS the starting point 
         */
        virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-                                 const RecVertex& constraint) = 0;
+				  const RecVertex& constraint) = 0;
 
+       /** 
+        * Interface for TrackParameters and NeutralParameters with starting point 
+	*/
+       virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*>& perigeeList, 
+				 const std::vector<const Trk::NeutralParameters*>& neutralPerigeeList,
+                                 const Vertex& startingPoint) = 0;
        /** 
         * Interface for TrackParameters with starting point 
 	*/
        virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*>& perigeeList,
-                                 const Vertex& startingPoint) = 0;
+				 const Vertex& startingPoint) = 0;
 
+       /** 
+        * Interface for TrackParameters and NeutralParameters with vertex constraint 
+        * the position of the constraint is ALWAYS the starting point 
+	*/
+       virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*>& perigeeList, 
+				 const std::vector<const Trk::NeutralParameters*>& neutralPerigeeList,
+                                 const RecVertex& constraint) = 0;
        /** 
         * Interface for TrackParameters with vertex constraint 
         * the position of the constraint is ALWAYS the starting point 
 	*/
        virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*>& perigeeList,
-                                 const RecVertex& constraint) = 0;
+				 const RecVertex& constraint) = 0;
 
+       /**
+        * Fit method using the VertexSeedFinder to estimate initial 
+	* position of the vertex and taking it as a first linearization point
+	* (in iterative fitters).
+        */
+       virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*>& perigeeList,const std::vector<const Trk::NeutralParameters*>& neutralPerigeeList) = 0;
        /**
         * Fit method using the VertexSeedFinder to estimate initial 
 	* position of the vertex and taking it as a first linearization point

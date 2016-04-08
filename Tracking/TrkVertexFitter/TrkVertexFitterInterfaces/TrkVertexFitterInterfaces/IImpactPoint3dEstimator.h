@@ -7,6 +7,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkNeutralParameters/NeutralParameters.h"
 
 /**
  * @class Trk::ImpactPoint3dEstimator
@@ -37,6 +38,7 @@ namespace Trk
     * method calculating the surface (returned), distance and point of closest approach
     */
     virtual PlaneSurface* Estimate3dIP(const Trk::TrackParameters* trackPerigee, const Vertex* theVertex) const = 0;
+    virtual PlaneSurface* Estimate3dIP(const Trk::NeutralParameters* neutralPerigee, const Vertex* theVertex) const = 0;
    
     /**
      * Access to the 3D impact point
@@ -61,6 +63,9 @@ namespace Trk
       * of the plane defined as the given vertex.
       */
     virtual Trk::AtaPlane * IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Vertex & vertex) const = 0;
+    //Same for neutrals
+    virtual Trk::NeutralAtaPlane * IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Vertex & vertex) const = 0;
+
 
  };//end of class definition
 
