@@ -243,7 +243,29 @@ def convert_trigemcluster (seq, xaod_key, key):
            xAODKey = xaod_key)
     seq += alg
     return
+
+
+def convert_trigdec (seq, xaod_key, key):
+    from AthenaCommon.AppMgr          import ToolSvc
+
+    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+    tdt = Trig__TrigDecisionTool ('TrigDecisionToolCnv',
+                                  TrigDecisionKey = 'TrigDecision',
+                                  UseAODDecision = True)
+    ToolSvc += tdt
     
+    from xAODTriggerCnv.xAODTriggerCnvConf import \
+         xAODMaker__TrigDecisionCnvAlg, \
+         xAODMaker__TrigDecisionCnvTool
+    tdct = xAODMaker__TrigDecisionCnvTool (xaod_key + 'CnvTool',
+                                           TrigDecisionTool = tdt)
+    alg = xAODMaker__TrigDecisionCnvAlg (xaod_key + 'Cnv',
+                                         AODKey = key,
+                                         xAODKey = xaod_key,
+                                         CnvTool = tdct)
+    seq += alg
+    return
+
 
 
 types = {
@@ -261,11 +283,15 @@ types = {
     'xAOD::TruthParticleContainer' : ('McEventCollection', convert_truth),
     'xAOD::MissingETContainer' : ('MissingET', convert_met),
     'xAOD::TrigEMClusterContainer' : ('TrigEMClusterContainer', convert_trigemcluster),
+    'xAOD::TrigDecision'      : ('TrigDec::TrigDecision', convert_trigdec),
     }
 
 
 def makexAOD (seq, xaod_type, xaod_key, key=None, **kw):
-    if cfgKeyStore.isInInput (xaod_type, xaod_key):
+    testfn = cfgKeyStore.isInInput
+    if xaod_type in ['xAOD::TrigDecision']:
+        testfn = cfgKeyStore.isInInputFile
+    if testfn (xaod_type, xaod_key):
         return
 
     if key == None:
