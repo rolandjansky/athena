@@ -28,11 +28,11 @@ namespace ClusterSeg {
   bool sortfunctionTGC (Cluster* i,Cluster* j) { return (i->z() < j->z()); }
   bool sortfunctionRPC (Cluster* i,Cluster* j) { return (i->rCyl() < j->rCyl()); }
 
-  bool m_writeOut = false;
-  double m_ang_cut = 0.5;
-  double m_ang2_cut = 1.0;
-  double m_dist_cut = 100.0;
-  double m_dist_cut2 = 50.;
+  bool writeOut = false;
+  double ang_cut = 0.5;
+  double ang2_cut = 1.0;
+  double dist_cut = 100.0;
+  double dist_cut2 = 50.;
 
   TH2F* h_miss_RZ;
   TH2F* h_miss_XY;
@@ -305,7 +305,7 @@ namespace ClusterSeg {
       else if(it.phiIndex() == Muon::MuonStationIndex::PhiIndex::T3) layer3Points.push_back(it);
     }
 
-    if(m_writeOut){
+    if(writeOut){
       int L1size = layer1Points.size();
       int L2size = layer2Points.size();
       int L3size = layer3Points.size(); 
@@ -317,7 +317,7 @@ namespace ClusterSeg {
       h_sizeL1L2L3->Fill(L1size*L2size*L3size);
     }
     
-    if(m_writeOut && (layer1Points.empty() || layer2Points.empty() || layer3Points.empty())){
+    if(writeOut && (layer1Points.empty() || layer2Points.empty() || layer3Points.empty())){
       if(!layer1Points.empty()){
         for(auto &it1: layer1Points){if(it1.isMatch()) h_miss_RZ->Fill(fabs(it1.z()),it1.rCyl()); h_miss_XY->Fill(it1.x(),it1.y());} 
       }
@@ -348,7 +348,7 @@ namespace ClusterSeg {
       if (it.phiIndex() == Muon::MuonStationIndex::PhiIndex::BM1) layer1Points.push_back(it);
       else if (it.phiIndex() == Muon::MuonStationIndex::PhiIndex::BM2) layer2Points.push_back(it);
     }
-    if(m_writeOut){
+    if(writeOut){
       int L1size = layer1Points.size();
       int L2size = layer2Points.size();
 
@@ -357,7 +357,7 @@ namespace ClusterSeg {
     }
   
    
-    if(m_writeOut && (layer1Points.empty() || layer2Points.empty())){
+    if(writeOut && (layer1Points.empty() || layer2Points.empty())){
       if(!layer1Points.empty()){
         for(auto &it1: layer1Points){if(it1.isMatch()) h_miss_RZ->Fill(fabs(it1.z()),it1.rCyl()); h_miss_XY->Fill(it1.x(),it1.y());}
       }
@@ -389,20 +389,20 @@ namespace ClusterSeg {
         if(dphi > TMath::PiOver2() && dphi < 3*TMath::PiOver2()) dphi -= TMath::Pi();
         if(dphi > 3*TMath::PiOver2()) dphi -= TMath::TwoPi();
         double dtheta = TMath::Abs(point.theta()-it1.theta());
-        if (m_writeOut) {
+        if (writeOut) {
           h_phi->Fill(TMath::Abs(dphi));
           h_theta->Fill(dtheta);
           h_corr->Fill(dphi,dtheta);
           h_angle->Fill(angle);
         }
-        if(m_writeOut && it3.isMatch() && it1.isMatch() && it3.barcode() == it1.barcode() && it1.barcode() != 0 ) {
+        if(writeOut && it3.isMatch() && it1.isMatch() && it3.barcode() == it1.barcode() && it1.barcode() != 0 ) {
           h_barcodes->Fill(it1.barcode(),it3.barcode());
           h_phi_t->Fill(TMath::Abs(dphi));
           h_theta_t->Fill(dtheta);
           h_angle_t->Fill(angle);
         }
 
-    if(angle < m_ang_cut) {
+    if(angle < ang_cut) {
           if(!layer2Points.empty()){
             for(auto &it2: layer2Points){
               std::vector<SpacePoint> theSeed;
@@ -413,18 +413,18 @@ namespace ClusterSeg {
               double seedX = it1.x() + t*point.x();
               double seedY = it1.y() + t*point.y();
               double XY = sqrt(pow(it2.x()-seedX,2)+pow(it2.y()-seedY,2));
-              if (m_writeOut) {
+              if (writeOut) {
                 h_R->Fill(TMath::Abs(spR-seedR));
                 h_XY->Fill(XY);
               }
 
-              if(m_writeOut && it1.isMatch() && it3.isMatch() && it2.isMatch() && it1.barcode() == it3.barcode() && it1.barcode() == it2.barcode() && it1.barcode() != 0) {
+              if(writeOut && it1.isMatch() && it3.isMatch() && it2.isMatch() && it1.barcode() == it3.barcode() && it1.barcode() == it2.barcode() && it1.barcode() != 0) {
                 h_R_t->Fill(TMath::Abs(spR-seedR));
                 h_XY_t->Fill(XY);
 
               }
 
-              if( XY < m_dist_cut){
+              if( XY < dist_cut){
                  theSeed.push_back(it1);
                  theSeed.push_back(it2);
                  theSeed.push_back(it3);
@@ -451,17 +451,17 @@ namespace ClusterSeg {
             if(dphi > TMath::PiOver2() && dphi < 3*TMath::PiOver2()) dphi -= TMath::Pi();
             if(dphi > 3*TMath::PiOver2()) dphi -= TMath::TwoPi();
             double dtheta = TMath::Abs(point.theta()-it1.theta());
-            if (m_writeOut) {
+            if (writeOut) {
               h_phi12->Fill(TMath::Abs(dphi));
               h_theta12->Fill(dtheta);
               h_angle12->Fill(angle);
             }
-            if(m_writeOut && it3.isMatch() && it1.isMatch() && it3.barcode() == it1.barcode() && it1.barcode() != 0 ) {
+            if(writeOut && it3.isMatch() && it1.isMatch() && it3.barcode() == it1.barcode() && it1.barcode() != 0 ) {
               h_phi_t12->Fill(TMath::Abs(dphi));
               h_theta_t12->Fill(dtheta);
               h_angle_t12->Fill(angle);
             }
-            if (angle < m_ang2_cut){
+            if (angle < ang2_cut){
               theSeed.push_back(it1);
               theSeed.push_back(it3);
               seeds.push_back(theSeed);
