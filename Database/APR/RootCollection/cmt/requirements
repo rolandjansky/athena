@@ -30,6 +30,7 @@ private
 use GaudiInterface	GaudiInterface-*	External
 use AtlasCORAL		AtlasCORAL-*		External
 use AthenaKernel        AthenaKernel-*          Control
+use RootUtils           RootUtils-*             Control
 use PersistentDataModel PersistentDataModel-*   Database
 use POOLCore            POOLCore-*              Database/APR
 use CollectionBase	CollectionBase-*	Database/APR
