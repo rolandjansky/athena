@@ -2,8 +2,8 @@
 package EventDisplayFilters
 author Sebastian Boeser, Brian Thomas Martin
 
-use AtlasPolicy          AtlasPolicy-01-*
-use GaudiInterface       GaudiInterface-01-*   External
+use AtlasPolicy          AtlasPolicy*
+use GaudiInterface       GaudiInterface-*      External
 use AthenaBaseComps      AthenaBaseComps-*     Control
 
 use StoreGate            StoreGate-*           Control

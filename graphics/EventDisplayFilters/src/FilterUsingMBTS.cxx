@@ -72,7 +72,7 @@ StatusCode FilterUsingMBTS::execute()
 		log <<  MSG::DEBUG << "Number of Bunches in CTP window: " << numberBC << endreq;
 		log <<  MSG::DEBUG << "Level 1 Accept Bunch: " << l1aBC   << endreq;
 		log <<  MSG::DEBUG << "Level 1 Accept BCID: "  << l1aBCID << endreq;
-		const std::bitset < 256 > TBP(bunch.getTBP());
+		const std::bitset < 512 > TBP(bunch.getTBP());
 		for(int c=0;c<32;c++)  // Loop over MBTS counters
 		{
 			// Check the L1 result for each MBTS counter
