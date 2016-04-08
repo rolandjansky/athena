@@ -70,7 +70,7 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
   StatusCode sc = AlgTool::initialize(); 
   
   if (!m_usePIX && !m_useSCT) {
-    msg(MSG::FATAL) << "Please don't call this tool if usePixel and useSCT are false" << endmsg;
+    msg(MSG::FATAL) << "Please don't call this tool if usePixel and useSCT are false" << endreq;
     return StatusCode::SUCCESS;
   }
  
@@ -89,10 +89,10 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
   // Get propagator tool
   //
   if ( m_proptool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_proptool << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_proptool << endreq;
   }
 
   // Get output print level
@@ -109,10 +109,10 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
   std::string tagInfoKey = "";
 
   if(tagInfoKeys.size()==0)
-    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endmsg;
+    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endreq;
    else {
      if(tagInfoKeys.size() > 1) {
-       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endmsg;
+       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endreq;
      }
      tagInfoKey = tagInfoKeys[0];
    }
@@ -127,9 +127,9 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
 			  this,tagInfoH,m_callbackString);
 
   if(sc==StatusCode::SUCCESS) {
-      msg(MSG::INFO) << "Registered callback for geometry " << name() << endmsg;
+      msg(MSG::INFO) << "Registered callback for geometry " << name() << endreq;
    } else {
-      msg(MSG::ERROR) << "Could not book callback for geometry " << name () << endmsg;
+      msg(MSG::ERROR) << "Could not book callback for geometry " << name () << endreq;
       return StatusCode::FAILURE;
   }
 
@@ -142,9 +142,9 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
 			   this,currentHandle,folder);
    
    if(sc==StatusCode::SUCCESS) {
-     msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endmsg;
+     msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endreq;
    } else {
-     msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endmsg;
+     msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endreq;
      return StatusCode::FAILURE;
    }
  }
@@ -173,8 +173,7 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::finalize()
 MsgStream& InDet::SiDetElementsRoadMaker_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out);
-  return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -579,7 +578,7 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
   if(m_usePIX) {
     sc = detStore()->retrieve(pixmgr,m_pix);
     if (sc.isFailure() || !pixmgr) {
-      msg(MSG::INFO)<<"Could not get PixelDetectorManager  !"<<endmsg; 
+      msg(MSG::INFO)<<"Could not get PixelDetectorManager  !"<<endreq; 
       return;
     }
   }
@@ -590,7 +589,7 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
   if(m_useSCT) {
     sc = detStore()->retrieve(sctmgr,m_sct);
     if (sc.isFailure() || !sctmgr) {
-      msg(MSG::INFO)<<"Could not get SCT_DetectorManager !"<<endmsg; 
+      msg(MSG::INFO)<<"Could not get SCT_DetectorManager !"<<endreq; 
       return;
     }
   }
@@ -601,11 +600,11 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
   const SCT_ID*  IDs = 0; 
 
   if (m_usePIX &&  detStore()->retrieve(IDp, "PixelID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
+    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
   }
   
   if(m_useSCT && detStore()->retrieve(IDs, "SCT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
   }
 
 
@@ -921,12 +920,9 @@ void InDet::SiDetElementsRoadMaker_xk::detElementInformation
     double r = sqrt(x[i]*x[i]+y[i]*y[i]);
     double f = atan2(y[i],x[i])-P[2]; if(f<-pi) f+=pi2; else if(f>pi) f-=pi2;
     double zf= z[i];
-    if(r <rmin) rmin= r;
-    if(r >rmax) rmax= r;
-    if(zf<zmin) zmin=zf;
-    if(zf>zmax) zmax=zf;
-    if(f <fmin) fmin= f;
-    if(f >fmax) fmax= f;
+    if(r <rmin) rmin= r; if(r >rmax) rmax= r;
+    if(zf<zmin) zmin=zf; if(zf>zmax) zmax=zf;
+    if(f <fmin) fmin= f; if(f >fmax) fmax= f;
   }
   P[ 9]    = rmin;
   P[10]    = rmax;
@@ -998,8 +994,7 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_A
 {
   // Build MagneticFieldProperties 
   //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField";
-  magneticFieldInit();
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
   return StatusCode::SUCCESS;
 }
 
