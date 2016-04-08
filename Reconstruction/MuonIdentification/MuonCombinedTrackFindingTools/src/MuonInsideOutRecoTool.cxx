@@ -20,6 +20,8 @@
 #include "MuonSegment/MuonSegment.h"
 
 #include "MuonCombinedEvent/MuGirlTag.h"
+#include "xAODTracking/Vertex.h"
+
 
 namespace MuonCombined {
 
@@ -202,6 +204,25 @@ namespace MuonCombined {
   void MuonInsideOutRecoTool::addTag( const InDetCandidate& indetCandidate, const Muon::MuonCandidate& candidate,  
                                       std::unique_ptr<const Trk::Track>& selectedTrack ) const {
 
+    const xAOD::TrackParticle& idTrackParticle = indetCandidate.indetTrackParticle();
+    float bs_x = 0.;
+    float bs_y = 0.;
+    float bs_z = 0.;
+ 
+    const xAOD::Vertex* matchedVertex = idTrackParticle.vertex();
+    if(matchedVertex) {
+      bs_x = matchedVertex->x();
+      bs_y = matchedVertex->y();
+      bs_z = matchedVertex->z();
+      ATH_MSG_DEBUG( " found matched vertex  bs_x " << bs_x << " bs_y " << bs_y << " bs_z " << bs_z);
+    } else {
+    // take for beamspot point of closest approach of ID track in  x y z 
+      bs_x = -idTrackParticle.d0()*sin(idTrackParticle.phi()) + idTrackParticle.vx();
+      bs_y =  idTrackParticle.d0()*cos(idTrackParticle.phi()) + idTrackParticle.vy();
+      bs_z = idTrackParticle.z0() + idTrackParticle.vz();
+      ATH_MSG_DEBUG( " NO matched vertex  take track perigee  x " << bs_x << " y " << bs_y << " z " << bs_z);
+    }
+
     // get segments 
     std::vector<const Muon::MuonSegment*> segments;
     for( const auto& layer : candidate.layerIntersections ){
@@ -209,7 +230,7 @@ namespace MuonCombined {
     }
 
     // perform standalone refit
-    const Trk::Track* standaloneRefit = m_trackFitter->standaloneRefit(*selectedTrack.get());
+    const Trk::Track* standaloneRefit = m_trackFitter->standaloneRefit(*selectedTrack.get(), bs_x, bs_y, bs_z);
         
     // create tag and set SA refit
     MuGirlTag* tag = new MuGirlTag(selectedTrack.release(),segments);    

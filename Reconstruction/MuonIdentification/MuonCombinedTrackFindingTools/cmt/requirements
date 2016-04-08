@@ -23,6 +23,7 @@ use MuonLayerEvent      MuonLayerEvent-*        MuonSpectrometer/MuonReconstruct
 use MuonClusterization  MuonClusterization-*    MuonSpectrometer/MuonReconstruction/MuonDataPrep
 use MuonCombinedEvent   MuonCombinedEvent-*     Reconstruction/MuonIdentification
 use xAODTruth           xAODTruth-*             Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
 
 use MuonRecToolInterfaces      MuonRecToolInterfaces-*      MuonSpectrometer/MuonReconstruction/MuonRecTools
 use MuonRecHelperTools         MuonRecHelperTools-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
