@@ -1,4 +1,4 @@
-#include "ForwardTransportSvc/ForwardTransportSvc.h"
+#include "../ForwardTransportSvc.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_SERVICE_FACTORY(ForwardTransportSvc)

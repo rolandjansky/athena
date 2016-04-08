@@ -2,16 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaKernel/errorcheck.h"
-
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "StoreGate/StoreGateSvc.h"
 
-#include "ForwardTransportSvc/ForwardTransportSvc.h"
+#include "ForwardTransportSvc.h"
 #include "ForwardTransportSvc/IForwardTransportSvc.h"
 #include "ForwardTracker/TwissFile.h"
 
@@ -19,7 +15,7 @@
 #include "TTree.h"
 
 ForwardTransportSvc::ForwardTransportSvc(const std::string& name, ISvcLocator* svc) : 
-  Service    (name,           svc),
+  AthService (name,           svc),
   m_StoreGate("StoreGateSvc", name),
   m_thistSvc ("THistSvc",     name) 
 {  
@@ -73,7 +69,7 @@ ForwardTransportSvc::ForwardTransportSvc(const std::string& name, ISvcLocator* s
 StatusCode ForwardTransportSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
 
   if (IID_IForwardTransportSvc == riid) *ppvInterface = (IForwardTransportSvc*)this;
-  else                                  return Service::queryInterface(riid, ppvInterface);
+  else                                  return AthService::queryInterface(riid, ppvInterface);
   
   addRef();
   
@@ -84,8 +80,6 @@ StatusCode ForwardTransportSvc::initialize() {
 
   ATH_MSG_INFO("ForwardTransportSvc::initialize");
     
-  CHECK(Service::initialize()); // Important! keep it.
-  
   if (!m_fillRootTree) return StatusCode::SUCCESS;
 
   m_tree = new TTree("t", "FwdTransportAnalysis");

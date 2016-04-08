@@ -5,11 +5,8 @@
 #ifndef ForwardTransportSvc_H
 #define ForwardTransportSvc_H
 
-#include "AthenaKernel/MsgStreamMember.h"
-
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Service.h"
-
 #include "ForwardTransportSvc/IForwardTransportSvc.h"
 
 class ITHistSvc;
@@ -18,7 +15,7 @@ class TTree;
 
 template <class TYPE> class SvcFactory;
 
-class ForwardTransportSvc: public Service, virtual public IForwardTransportSvc {
+class ForwardTransportSvc: public AthService, virtual public IForwardTransportSvc {
 
  public:
   
@@ -38,11 +35,6 @@ class ForwardTransportSvc: public Service, virtual public IForwardTransportSvc {
   virtual void addMcVertex     (G4ThreeVector pos, double tim, G4ThreeVector mom, double ene, int pid, bool isTransported, HepMC::GenEvent*);
 
   virtual HepMC::GenEvent* getEvent();
-
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
 
  protected:
   
@@ -92,10 +84,6 @@ class ForwardTransportSvc: public Service, virtual public IForwardTransportSvc {
   double m_pz;
   double m_e;
   bool   m_ist; // isTransported flag (0:lost, 1:transported). If particle is lost, store (Position, Momentum) where it was lost.
-
- private:
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
 };
 
 #endif
