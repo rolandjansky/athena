@@ -33,8 +33,8 @@ namespace D3PD {
     private:
       PileUpEventInfo::SubEvent::const_iterator m_it;
       PileUpEventInfo::SubEvent::const_iterator m_end;
-      long int* m_pevt_time;
-      long unsigned  int* m_pevt_index;
+      //long int* m_pevt_time;
+      //long unsigned  int* m_pevt_index;
     };
 } 
 

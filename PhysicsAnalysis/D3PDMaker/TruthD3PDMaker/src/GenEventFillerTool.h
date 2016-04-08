@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenEventFillerTool.h 356848 2011-04-06 13:51:55Z marti $
+// $Id: GenEventFillerTool.h 651255 2015-03-03 16:29:01Z ssnyder $
 /**
  * @file EventCommonD3PDMaker/src/GenEventFillerTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -13,8 +13,8 @@
  */
 
 
-#ifndef EVENTCOMMOND3PPDMAKER_GENEVENTFILLERTOOL_H
-#define EVENTCOMMOND3PDMAKER_GENEVENTFILLERTOOL_H
+#ifndef TRUTHD3PPDMAKER_GENEVENTFILLERTOOL_H
+#define TRUTHD3PPDMAKER_GENEVENTFILLERTOOL_H
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
@@ -106,4 +106,5 @@ private:
 } // namespace D3PD
 
 
-#endif // not EVENTCOMMOND3PDMAKER_GENEVENTFILLERTOOL_H
+#endif // not TRUTHD3PPDMAKER_GENEVENTFILLERTOOL_H
+

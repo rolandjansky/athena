@@ -9,7 +9,7 @@
  * @brief Block filler tool for @c PileUpInfo information.
  */
 
-#ifndef TRUTHD3PPDMAKER_PILEUPINFOFILLERTOOL_H
+#ifndef TRUTHD3PDMAKER_PILEUPINFOFILLERTOOL_H
 #define TRUTHD3PDMAKER_PILEUPINFOFILLERTOOL_H
 
 
@@ -71,3 +71,4 @@ private:
 
 
 #endif // not TRUTHD3PDMAKER_PILEUPINFOFILLERTOOL_H
+

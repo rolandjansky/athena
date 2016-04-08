@@ -63,11 +63,11 @@ private:
   bool m_do_Et; /// Property: Should we fill transverse energy?
   double m_minPt; /// Property: minimum pT for a lepton
 
-  int m_n; /// Variable: Count of number of particles saved
+  //int m_n; /// Variable: Count of number of particles saved
 
   float* m_E;  /// Variable: Energy.
   float* m_p;  /// Variable: Momentum.
-  float* m_Et;  /// Variable: Transverse energy.
+  //float* m_Et;  /// Variable: Transverse energy.
   float* m_pt;  /// Variable: Transverse momentum.
   float* m_px;  /// Variable: x-omentum.
   float* m_py;  /// Variable: y-momentum.
@@ -76,7 +76,7 @@ private:
   float* m_eta;  /// Variable: Pseudorapidity.
   float* m_phi;  /// Variable: Azimuth.
 
-  int* m_type;  /// Variable: PDG ID.
+  //int* m_type;  /// Variable: PDG ID.
   int* m_status;  /// Variable: status.
   int* m_barcode;  /// Variable: HepMC barcode.
   int* m_charge; /// Variable: Particle charge.
