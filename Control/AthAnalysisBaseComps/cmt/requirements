@@ -13,24 +13,17 @@ use AthenaBaseComps AthenaBaseComps-* Control
 
 use IOVDbDataModel IOVDbDataModel-* Database
 
-use AtlasROOT AtlasROOT-* External
-
-use AthContainers AthContainers-* Control
-
 ## put here your package dependencies...
+
+##
 
 branches python src src/components 
 
 
-#library AthAnalysisBaseComps *.cxx 
-#apply_pattern installed_library
-apply_pattern dual_use_library files="*.cxx"
+library AthAnalysisBaseComps *.cxx 
+apply_pattern installed_library
 
 apply_pattern declare_joboptions files="*.py"
 
 
-private
-use AtlasReflex  AtlasReflex-*  External -no_auto_imports
-apply_pattern lcgdict dict=AthAnalysisBaseComps selectionfile=selection.xml headerfiles="../AthAnalysisBaseComps/AthAnalysisBaseCompsDict.h"
-end_private
 
