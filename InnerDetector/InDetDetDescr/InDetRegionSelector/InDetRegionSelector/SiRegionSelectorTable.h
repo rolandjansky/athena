@@ -56,6 +56,7 @@ private:
   std::string m_roiFileName;
   bool m_printHashId;
   bool m_printTable;
+  bool m_noDBM;
 
   // cablings
   //  ToolHandle<PixelIdMapping>     m_pixIdMapping;
