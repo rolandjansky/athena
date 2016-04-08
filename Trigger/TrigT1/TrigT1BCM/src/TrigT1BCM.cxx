@@ -218,8 +218,12 @@ namespace LVL1 {
       bit5 = true;
       bit6 = true;
     }
-    if (AttHitA>0) bit7 = 1;
-    if (AttHitC>0) bit8 = 1;
+    //if (AttHitA>0) bit7 = 1;
+    //if (AttHitC>0) bit8 = 1;
+    // static code analyser cpp check 1631905147 and 4059822314
+    // Comparison of a boolean with an integer
+    if (AttHitA) bit7 = 1;
+    if (AttHitC) bit8 = 1;
     
     uint32_t cableWord0 = 0;
     if (m_6bit_flag) {
