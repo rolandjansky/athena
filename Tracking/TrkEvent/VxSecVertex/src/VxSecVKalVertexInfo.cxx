@@ -28,9 +28,7 @@ namespace Trk {
     m_energyFraction(0.),
     m_energyTrkInJet(0.),
     m_dstToMatLayer(1000.),
-    m_n2trackvertices(0),
-    m_nBigImpTracks(0),
-    m_pseudoVertex(0){}
+    m_n2trackvertices(0){}
 
   VxSecVKalVertexInfo::VxSecVKalVertexInfo(const std::vector<xAOD::Vertex*> & vertices,
 					   double mass,double energyFraction,int n2trackvertices,double energyTrkInJet,
@@ -40,9 +38,7 @@ namespace Trk {
     m_energyFraction(energyFraction),
     m_energyTrkInJet(energyTrkInJet),
     m_dstToMatLayer(1000.),
-    m_n2trackvertices(n2trackvertices),
-    m_nBigImpTracks(0),
-    m_pseudoVertex(0)
+    m_n2trackvertices(n2trackvertices)
   {
     std::vector<const Trk::TrackParticleBase*>::const_iterator badTracksBegin=badTracks.begin();
     std::vector<const Trk::TrackParticleBase*>::const_iterator badTracksEnd=badTracks.end();
@@ -64,9 +60,7 @@ namespace Trk {
     m_energyFraction(energyFraction),
     m_energyTrkInJet(energyTrkInJet),
     m_dstToMatLayer(1000.),
-    m_n2trackvertices(n2trackvertices),
-    m_nBigImpTracks(0),
-    m_pseudoVertex(0)
+    m_n2trackvertices(n2trackvertices)
   {
     std::vector<const xAOD::IParticle*>::const_iterator badTracksBegin=badTracks.begin();
     std::vector<const xAOD::IParticle*>::const_iterator badTracksEnd=badTracks.end();
@@ -80,29 +74,6 @@ namespace Trk {
     
   }
 
-  VxSecVKalVertexInfo::VxSecVKalVertexInfo(const xAOD::Vertex* vertex,
-					   double mass,double energyFraction,int nBigImpTrk,
-					   const std::vector<const xAOD::IParticle*> & badTracks):
-    VxSecVertexInfo(),
-    m_mass(mass),
-    m_energyFraction(energyFraction),
-    m_energyTrkInJet(0.),
-    m_dstToMatLayer(1000.),
-    m_n2trackvertices(0),
-    m_nBigImpTracks(nBigImpTrk),
-    m_pseudoVertex(vertex)
-  {
-    std::vector<const xAOD::IParticle*>::const_iterator badTracksBegin=badTracks.begin();
-    std::vector<const xAOD::IParticle*>::const_iterator badTracksEnd=badTracks.end();
-
-    for (std::vector<const xAOD::IParticle*>::const_iterator badTracksIter=badTracksBegin;
-	 badTracksIter!=badTracksEnd;++badTracksIter) {
-      ElementLink<xAOD::IParticleContainer> link;
-      link.setElement(*badTracksIter);
-      m_badTracksIP.push_back(link);
-    }
-    
-  }
 
   VxSecVKalVertexInfo::VxSecVKalVertexInfo(const VxSecVKalVertexInfo & rhs):
     VxSecVertexInfo(rhs),
@@ -111,10 +82,8 @@ namespace Trk {
     m_energyTrkInJet(rhs.m_energyTrkInJet),
     m_dstToMatLayer(rhs.m_dstToMatLayer),
     m_n2trackvertices(rhs.m_n2trackvertices),
-    m_nBigImpTracks(rhs.m_nBigImpTracks),
     m_badTracksTP(rhs.m_badTracksTP),
-    m_badTracksIP(rhs.m_badTracksIP),
-    m_pseudoVertex(rhs.m_pseudoVertex)
+    m_badTracksIP(rhs.m_badTracksIP)
   {}
 
   VxSecVKalVertexInfo & VxSecVKalVertexInfo::operator= (const VxSecVKalVertexInfo & rhs) {
@@ -126,15 +95,13 @@ namespace Trk {
       m_energyTrkInJet=rhs.m_energyTrkInJet;
       m_dstToMatLayer=rhs.m_dstToMatLayer,
       m_n2trackvertices=rhs.m_n2trackvertices;
-      m_nBigImpTracks=rhs.m_nBigImpTracks;
       m_badTracksTP=rhs.m_badTracksTP;
       m_badTracksIP=rhs.m_badTracksIP;
-      m_pseudoVertex=rhs.m_pseudoVertex;
     }
     return *this;
   }
   
-  VxSecVKalVertexInfo::~VxSecVKalVertexInfo() { if(m_pseudoVertex && m_SVOwnership)delete m_pseudoVertex;}
+  VxSecVKalVertexInfo::~VxSecVKalVertexInfo() {}
 
   const std::vector<const Trk::TrackParticleBase*> VxSecVKalVertexInfo::badTracksTP() const {
 
