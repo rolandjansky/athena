@@ -11,6 +11,7 @@
  changes :
  
  ***************************************************************************/
+#undef NDEBUG
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 // forward declares
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -52,6 +53,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <cassert>
 
 // helper methods to print messages 
 template<class T>
@@ -87,7 +89,7 @@ namespace Trk
       // added as decorations 
       eprob_map.insert( std::make_pair("eProbabilityToT",std::make_pair(Trk::eProbabilityToT,true)) );
       eprob_map.insert( std::make_pair("eProbabilityBrem",std::make_pair(Trk::eProbabilityBrem,true)) );
-      eprob_map.insert( std::make_pair("TRTLocalOccupancy",std::make_pair(Trk::numberOfeProbabilityTypes,true)) );
+      eprob_map.insert( std::make_pair("TRTTrackOccupancy",std::make_pair(Trk::numberOfeProbabilityTypes,true)) );
       eprob_map.insert( std::make_pair("TRTdEdx",std::make_pair(static_cast<Trk::eProbabilityType>(Trk::numberOfeProbabilityTypes+1),
                                                                 true)) );
     }
@@ -110,7 +112,7 @@ namespace Trk
     m_magFieldSvc         ("AtlasFieldSvc", n),
     m_beamConditionsService("BeamCondSvc", n),
     m_IBLParameterSvc("IBLParameterSvc",n),
-    m_copyExtraSummaryName {"eProbabilityComb","eProbabilityHT","TRTLocalOccupancy","TRTdEdx","TRTdEdxUsedHits"},
+    m_copyExtraSummaryName {"eProbabilityComb","eProbabilityHT","TRTTrackOccupancy","TRTdEdx","TRTdEdxUsedHits"},
     m_useTrackSummaryTool (true),
     m_useMuonSummaryTool  (false),
     m_forceTrackSummaryUpdate (false),
@@ -990,8 +992,10 @@ void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, const T
   unsigned int offset = 47;// where the floats start in xAOD::SummaryType
 
   // ensure that xAOD TrackSummary and TrackSummary enums are in sync. 
-  assert(xAOD::pixeldEdx == Trk::pixeldEdx_res );
-
+  constexpr unsigned int xAodReferenceEnum=static_cast<unsigned int>(xAOD::pixeldEdx);
+  constexpr unsigned int TrkReferenceEnum=static_cast<unsigned int>(Trk::pixeldEdx_res);
+  static_assert( xAodReferenceEnum == TrkReferenceEnum, "Trk and xAOD enums differ in their indices" );
+  
   for (unsigned int i =0 ; i<Trk::numberOfTrackSummaryTypes ; i++){
       // Only add values which are +ve (i.e., which were created)
     if( i >= Trk::numberOfMdtHits && i <= Trk::numberOfRpcEtaHits ) continue;  
@@ -1000,10 +1004,12 @@ void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, const T
     if ( i >= offset && i < offset+Trk::numberOfeProbabilityTypes+1){
       continue;
     }
+    // coverity[mixed_enums]
     if (i == Trk::numberOfTRTHitsUsedFordEdx ) continue;
 
     int value = summary.get(static_cast<Trk::SummaryType>(i));
     uint8_t uvalue = static_cast<uint8_t>(value);
+    // coverity[first_enum_type]
     if (value>0) tp.setSummaryValue(uvalue, static_cast<xAOD::SummaryType>(i));
   }
 
