@@ -4,6 +4,7 @@ use AtlasPolicy    AtlasPolicy-*
 use CLIDSvc        CLIDSvc-*            Control
 use GaudiInterface GaudiInterface-*     External
 use AtlasBoost     AtlasBoost-*         External
+use uuid           v*                   LCG_Interfaces
 
 library AthenaInterprocess *.cxx
 apply_pattern installed_library
