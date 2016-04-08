@@ -46,8 +46,8 @@ TileTBFactory::TileTBFactory(StoreGateSvc *pDetStore,
                              bool addPlates,
                              int ushape,
                              MsgStream *log)
-  : detectorStore(pDetStore)
-  , detectorManager(manager)
+  : m_detectorStore(pDetStore)
+  , m_detectorManager(manager)
   , m_log(log)
   , m_addPlatesToCellVolume(addPlates)
   , m_Ushape(ushape)
@@ -68,7 +68,7 @@ void TileTBFactory::create(GeoPhysVol *world)
 
   // -------- -------- MATERIAL MANAGER -------- ----------
   DataHandle<StoredMaterialManager> theMaterialManager;
-  if (StatusCode::SUCCESS != detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
+  if (StatusCode::SUCCESS != m_detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
   { 
     (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endreq; 
     return; 
@@ -76,7 +76,7 @@ void TileTBFactory::create(GeoPhysVol *world)
   const GeoMaterial* matAir = theMaterialManager->getMaterial("std::Air");
 
   // -------- -------- SECTION BUILDER  -------- ----------
-  TileDddbManager* dbManager = detectorManager->getDbManager();
+  TileDddbManager* dbManager = m_detectorManager->getDbManager();
   TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_Ushape,m_log);
 
   //Tile envelope thickness, Extended & ITC offset
@@ -1035,7 +1035,7 @@ void TileTBFactory::create(GeoPhysVol *world)
   }
   
   TileCablingService * cabling = TileCablingService::getInstance(); 
-  const TileID* tileID = detectorManager->get_id();
+  const TileID* tileID = m_detectorManager->get_id();
 
   int dete[6] = {TILE_REGION_CENTRAL,TILE_REGION_CENTRAL,
                  TILE_REGION_EXTENDED,TILE_REGION_EXTENDED,
@@ -1045,7 +1045,7 @@ void TileTBFactory::create(GeoPhysVol *world)
   for (int ii=0; ii<6; ++ii) {
 
     if (ii%2 == 0) {
-      sectionBuilder->computeCellDim(detectorManager,
+      sectionBuilder->computeCellDim(m_detectorManager,
                                      dete[ii],
                                      m_addPlatesToCellVolume,
                                      zShiftInSection[ii+1], // zShiftPos
@@ -1063,8 +1063,8 @@ void TileTBFactory::create(GeoPhysVol *world)
   
     Identifier idRegion = tileID->region_id(ii);
     descriptor->set(idRegion);
-    detectorManager->add(descriptor); 
-    detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
+    m_detectorManager->add(descriptor); 
+    m_detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
 
     cabling->setConnected(dete[ii],side[ii],0,nModulesInSection[ii]);
   }
@@ -1074,7 +1074,7 @@ void TileTBFactory::create(GeoPhysVol *world)
   GeoNameTag* nTag = new GeoNameTag("Tile"); 
   world->add(nTag);
   world->add(pvTileTBEnv);
-  detectorManager->addTreeTop(pvTileTBEnv);
+  m_detectorManager->addTreeTop(pvTileTBEnv);
 
   delete sectionBuilder;
 }

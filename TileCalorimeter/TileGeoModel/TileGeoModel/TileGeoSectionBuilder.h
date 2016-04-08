@@ -3,9 +3,9 @@
 */
 
 /**
- * @file TileGeoSectionBuioder.h
+ * @file TileGeoSectionBuilder.h
  *
- * @brief Definition of TileGeoSectionBuioder class
+ * @brief Definition of TileGeoSectionBuilder class
  *
  * @author Vakho Tsulaia
  *
@@ -180,8 +180,8 @@ class TileGeoSectionBuilder
 
  private:
 
-  DataHandle<StoredMaterialManager>     theMaterialManager;
-  TileDddbManager *                     dbManager;
+  DataHandle<StoredMaterialManager>     m_theMaterialManager;
+  TileDddbManager *                     m_dbManager;
   MsgStream *                           m_log;
 
   int          m_Ushape;
@@ -192,8 +192,8 @@ class TileGeoSectionBuilder
   /** Flag for activation verbose level for debugging */
   bool         m_verbose;
 
-  GeoMaterial* matLArServices;
-  GeoMaterial* matIronHalfDens;
+  GeoMaterial* m_matLArServices;
+  GeoMaterial* m_matIronHalfDens;
 
   void checktransfunc(double absorber, double period, int np, double center);
   void printdouble(const char * name, double val);

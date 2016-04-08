@@ -45,8 +45,8 @@ TileDetectorFactory::TileDetectorFactory(StoreGateSvc *pDetStore,
                                          bool addPlates, 
                                          int ushape,
                                          MsgStream *log)
-  : detectorStore(pDetStore)
-  , detectorManager(manager)
+  : m_detectorStore(pDetStore)
+  , m_detectorManager(manager)
   , m_log(log)
   , m_addPlatesToCellVolume(addPlates)
   , m_Ushape(ushape)
@@ -81,12 +81,12 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   int negSide = 0;
   int posSide = 1;
 
-  const TileID* tileID = detectorManager->get_id();
+  const TileID* tileID = m_detectorManager->get_id();
   int nregion = 0;
 
   // -------- -------- MATERIAL MANAGER -------- ----------
   DataHandle<StoredMaterialManager> theMaterialManager;
-  if (StatusCode::SUCCESS != detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
+  if (StatusCode::SUCCESS != m_detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
   { 
     (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endreq; 
     return; 
@@ -94,7 +94,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   const GeoMaterial* matAir = theMaterialManager->getMaterial("std::Air");
 
   // -------- -------- SECTION BUILDER  -------- ----------
-  TileDddbManager* dbManager = detectorManager->getDbManager();
+  TileDddbManager* dbManager = m_detectorManager->getDbManager();
   TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_Ushape,m_log);
 
   // --------------- TILE  -------  TILE  --------- TILE ---------- TILE ------------
@@ -319,7 +319,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
     nModules=dbManager->GetEnvNModules();
     zShift=dbManager->GetEnvZShift()*CLHEP::cm;
 
-    sectionBuilder->computeCellDim(detectorManager, 
+    sectionBuilder->computeCellDim(m_detectorManager, 
                                    TILE_REGION_CENTRAL,
                                    m_addPlatesToCellVolume,
                                    zShift,  // shift for positive eta (normally zero)
@@ -347,8 +347,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   Identifier idRegion = tileID->region_id(nregion++);
   descriptor->set(idRegion);
 
-  detectorManager->add(descriptor); 
-  detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
+  m_detectorManager->add(descriptor); 
+  m_detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
   
   descriptor = new TileDetDescriptor();
 
@@ -363,8 +363,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   idRegion = tileID->region_id(nregion++);
   descriptor->set(idRegion);
   
-  detectorManager->add(descriptor); 
-  detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
+  m_detectorManager->add(descriptor); 
+  m_detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
 
   //-------------------------- E X T E N D E D   B A R R E L ---------------------------------
   // Tube - barrel mother
@@ -451,7 +451,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
     nModulesPos=dbManager->GetEnvNModules();
     zShiftPos=dbManager->GetEnvZShift()*CLHEP::cm;
 
-    sectionBuilder->computeCellDim(detectorManager,
+    sectionBuilder->computeCellDim(m_detectorManager,
                                    TILE_REGION_EXTENDED,
                                    m_addPlatesToCellVolume,
                                    zShiftPos,  // shift for positive eta
@@ -479,8 +479,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   idRegion = tileID->region_id(nregion++);
   descriptor->set(idRegion);
   
-  detectorManager->add(descriptor); 
-  detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
+  m_detectorManager->add(descriptor); 
+  m_detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
   
   descriptor = new TileDetDescriptor();
 
@@ -495,8 +495,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   idRegion = tileID->region_id(nregion++);
   descriptor->set(idRegion);
   
-  detectorManager->add(descriptor); 
-  detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
+  m_detectorManager->add(descriptor); 
+  m_detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
 
   //-------------------------- I T C ---------------------------------
   // Tube - barrel mother
@@ -758,7 +758,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
     nModulesPos=dbManager->GetEnvNModules();
     zShiftPos=dbManager->GetEnvZShift()*CLHEP::cm;
 
-    sectionBuilder->computeCellDim(detectorManager,
+    sectionBuilder->computeCellDim(m_detectorManager,
                                    TILE_REGION_GAP,
                                    m_addPlatesToCellVolume,
                                    zShiftPos,  // shift for positive eta
@@ -786,8 +786,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   idRegion = tileID->region_id(nregion++);
   descriptor->set(idRegion);
 
-  detectorManager->add(descriptor); 
-  detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
+  m_detectorManager->add(descriptor); 
+  m_detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
 
   descriptor = new TileDetDescriptor();
 
@@ -802,8 +802,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   idRegion = tileID->region_id(nregion++);
   descriptor->set(idRegion);
 
-  detectorManager->add(descriptor); 
-  detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
+  m_detectorManager->add(descriptor); 
+  m_detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
 
   //-------------------------- C R A C K ---------------------------------
   // Tube - crack mother
@@ -1042,7 +1042,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
     }
 
     world->add(pvTileEnvelopeBarrel);
-    detectorManager->addTreeTop(pvTileEnvelopeBarrel);
+    m_detectorManager->addTreeTop(pvTileEnvelopeBarrel);
   }
 
   if(pvTileEnvelopePosEndcap)
@@ -1062,7 +1062,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
     }
 
     world->add(pvTileEnvelopePosEndcap);
-    detectorManager->addTreeTop(pvTileEnvelopePosEndcap);
+    m_detectorManager->addTreeTop(pvTileEnvelopePosEndcap);
   }
 
   if(pvTileEnvelopeNegEndcap)
@@ -1082,7 +1082,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
     }
 
     world->add(pvTileEnvelopeNegEndcap);
-    detectorManager->addTreeTop(pvTileEnvelopeNegEndcap);
+    m_detectorManager->addTreeTop(pvTileEnvelopeNegEndcap);
   }
 
   delete sectionBuilder;

@@ -56,8 +56,8 @@ TileAtlasFactory::TileAtlasFactory(StoreGateSvc *pDetStore,
                                    int ushape,
                                    MsgStream *log,
 				   bool fullGeo)
-  : detectorStore(pDetStore)
-  , detectorManager(manager)
+  : m_detectorStore(pDetStore)
+  , m_detectorManager(manager)
   , m_log(log) 
   , m_addPlatesToCellVolume(addPlates)
   , m_Ushape(ushape)
@@ -103,7 +103,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
   // -------- -------- MATERIAL MANAGER -------- ----------
   DataHandle<StoredMaterialManager> theMaterialManager;
-  if (StatusCode::SUCCESS != detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
+  if (StatusCode::SUCCESS != m_detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
   {  
     (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endreq; 
     return; 
@@ -113,7 +113,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   //const GeoMaterial* matAlu = theMaterialManager->getMaterial("std::Aluminium");
 
   // -------- -------- SECTION BUILDER  -------- ----------
-  TileDddbManager* dbManager = detectorManager->getDbManager();
+  TileDddbManager* dbManager = m_detectorManager->getDbManager();
   TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_Ushape,m_log);
 
   double DzSaddleSupport = 0, RadiusSaddle = 0;
@@ -1722,23 +1722,17 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       if((EnvType == 4) || (EnvType == 5)){
 
-        bool Ifd4 = false, Ifc10 = false, Ifgap = false, Ifcrack = false;
-        int Id4 = false, Ic10 = false, Igap = false, Icrack = false;
+        int Id4 = ModType%100;
+        int Ic10 = (ModType/100)%100;
+        int Igap = (ModType/10000)%100;
+        int Icrack = (ModType/1000000)%100;
 
-        Id4 = int(fmod(ModType,10));
-        Ic10 = int(fmod(ModType/100,100));
-        Igap = int(fmod(ModType/10000,100));
-        Icrack = int(fmod(ModType/1000000,100));
+        bool Ifd4    = ( Id4 != 0);
+        bool Ifc10   = ( Ic10 != 0);
+        bool Ifgap   = ( Igap != 0);
+        bool Ifcrack = ( Icrack != 0);
 
-        Ifd4    |= ( Id4 != 0);
-        Ifc10   |= ( Ic10 != 0);
-        Ifgap   |= ( Igap != 0);
-        Ifcrack |= ( Icrack != 0);
-
-	
-	bool Ifspecialgirder = false;
-	if (Ifd4)
-	  Ifspecialgirder |= (Id4 == 7);
+	bool Ifspecialgirder = (Id4 == 7);
 
 	if(m_log->level()<=MSG::DEBUG)
 	  (*m_log) << MSG::DEBUG <<" ITC : EnvType "<<EnvType<<" Size = "<<dbManager->GetModTypeSize()
@@ -3001,7 +2995,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
        }
      }
 
-   const TileID* tileID = detectorManager->get_id();
+   const TileID* tileID = m_detectorManager->get_id();
  
    unsigned int dete[6] = {TILE_REGION_CENTRAL,TILE_REGION_CENTRAL,TILE_REGION_EXTENDED,TILE_REGION_EXTENDED,
                            TILE_REGION_GAP,TILE_REGION_GAP};
@@ -3009,7 +3003,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
    
    for (int ii=0; ii<6; ++ii) {
      if (ii%2 == 0) {
-        sectionBuilder->computeCellDim(detectorManager, dete[ii],
+        sectionBuilder->computeCellDim(m_detectorManager, dete[ii],
                                        m_addPlatesToCellVolume,
                                        zShiftInSection[ii+1], // zShiftPos
                                        zShiftInSection[ii]);  // zShiftNeg
@@ -3024,8 +3018,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
      
      Identifier idRegion = tileID->region_id(ii);
      descriptor->set(idRegion);
-     detectorManager->add(descriptor); 
-     detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
+     m_detectorManager->add(descriptor); 
+     m_detectorManager->add(new TileDetDescrRegion(idRegion, descriptor));
    }
 
   // --------- ----------- --------- -------- ------ --------- ------- ---------- 
@@ -3050,7 +3044,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
     world->add(barrelTT);
     world->add(pvTileEnvelopeBarrel);
-    detectorManager->addTreeTop(pvTileEnvelopeBarrel);
+    m_detectorManager->addTreeTop(pvTileEnvelopeBarrel);
   }
  
   if(EBA)
@@ -3072,7 +3066,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
     world->add(posEcTT);
     world->add(pvTileEnvelopePosEndcap);
-    detectorManager->addTreeTop(pvTileEnvelopePosEndcap);
+    m_detectorManager->addTreeTop(pvTileEnvelopePosEndcap);
   }
  
   if(EBC)
@@ -3094,7 +3088,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
     world->add(negEcTT);
     world->add(pvTileEnvelopeNegEndcap);
-    detectorManager->addTreeTop(pvTileEnvelopeNegEndcap);
+    m_detectorManager->addTreeTop(pvTileEnvelopeNegEndcap);
   }
 
   delete sectionBuilder;

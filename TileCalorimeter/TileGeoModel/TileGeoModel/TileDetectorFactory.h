@@ -35,15 +35,15 @@ public:
   virtual void create(GeoPhysVol *world);
 
   /** Access function to TileDetDescr geometry data */
-  virtual const TileDetDescrManager * getDetectorManager() const { return detectorManager; }
+  virtual const TileDetDescrManager * getDetectorManager() const { return m_detectorManager; }
 
 private:  
   
   /** Detector pointer to Store Gate service */
-  StoreGateSvc              *detectorStore;
+  StoreGateSvc              *m_detectorStore;
 
   /** Detector pointer to TileDetDescrManager */  
-  TileDetDescrManager       *detectorManager;  
+  TileDetDescrManager       *m_detectorManager;  
 
   /** Get message SVC */
   MsgStream                 *m_log;
