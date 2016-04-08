@@ -78,6 +78,7 @@ namespace MuonCalib{
     std::string dumpSegments( const SegmentVec& segments ) const;
     std::string dumpSegments() const;
     std::string dumpEvent() const;
+    void setdbg(const bool dbg_on);
 
   private:
     /** create extended tracks for event */
@@ -117,6 +118,7 @@ namespace MuonCalib{
     // author indices of segment and tracks in ntuple
     AuthorIndices m_mooreIndices;
     AuthorIndices m_muonboyIndices;
+    bool m_debug;
 
   };
 

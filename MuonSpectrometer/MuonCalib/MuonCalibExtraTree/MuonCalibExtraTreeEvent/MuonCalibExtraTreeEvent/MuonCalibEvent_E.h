@@ -47,6 +47,7 @@ namespace MuonCalib {
     MuonCalibEvent_E(){};                             //!< default constructor
     MuonCalibEvent_E(const MuonCalibEvent& event);    //!< constructor starting from a MuonCalib::MuonCalibEvent
     MuonCalibEvent_E(const MuonCalibEvent_E& event);  //!< copyconstructor
+    MuonCalibEvent_E& operator=(const MuonCalibEvent_E &right); //!< assign operator
     ~MuonCalibEvent_E () ;                            //!< destructor
 
     void addPattern( MuonCalibTrack_E* pat) ;             //!< Adds a PhiPattern to PhiPatVec

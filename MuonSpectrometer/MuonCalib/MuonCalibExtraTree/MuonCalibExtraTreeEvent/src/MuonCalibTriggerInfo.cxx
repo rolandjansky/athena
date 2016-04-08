@@ -92,15 +92,16 @@ namespace MuonCalib{
     addEntry(NUMBEROFKNOWNTRIGGERS,-1,"UNKNOWN");
   }
 
-  MuonCalibTriggerInfo::MuonCalibTriggerInfo() : m_type(UNKNOWNTRIGGERTYPE), m_delay(0.) {
+  MuonCalibTriggerInfo::MuonCalibTriggerInfo() :
+    m_type(UNKNOWNTRIGGERTYPE), m_tbpbit(0), m_tapbit(0), m_tavbit(0), m_delay(0.), m_bcIndex(0) {
   }
 
   MuonCalibTriggerInfo::MuonCalibTriggerInfo( MuonCalibTriggerType type, double delay) : 
-    m_type(type), m_delay(delay) {
+    m_type(type), m_tbpbit(0), m_tapbit(0), m_tavbit(0), m_delay(delay), m_bcIndex(0) {
   }
 
   MuonCalibTriggerInfo::MuonCalibTriggerInfo( int tbpbit, int tapbit, int tavbit, int bcIndex) : 
-    m_tbpbit(tbpbit), m_tapbit(tapbit), m_tavbit(tavbit), m_bcIndex(bcIndex) {
+    m_type(UNKNOWNTRIGGERTYPE), m_tbpbit(tbpbit), m_tapbit(tapbit), m_tavbit(tavbit), m_delay(0.), m_bcIndex(bcIndex) {
   }
 
   void MuonCalibTriggerTypeHelper::dumpMapping() {

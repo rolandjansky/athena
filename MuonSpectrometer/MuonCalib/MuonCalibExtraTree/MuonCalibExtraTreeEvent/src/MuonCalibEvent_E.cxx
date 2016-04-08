@@ -105,6 +105,21 @@ namespace MuonCalib {
 
   }
 
+  MuonCalibEvent_E& MuonCalibEvent_E::operator=(const MuonCalibEvent_E &right) {
+    if(this!=&right) {
+      m_phiPats = right.m_phiPats;
+      m_tracks = right.m_tracks;
+      m_ctp = right.m_ctp;
+      m_mctpi = right.m_mctpi;
+      m_rpcsl = right.m_rpcsl;
+      m_rpcco = right.m_rpcco;
+      m_rpctr = right.m_rpctr;
+      m_mbts = right.m_mbts;
+      m_l1calo = right.m_l1calo;
+    }
+    return *this;
+  }
+
   void MuonCalibEvent_E::addPattern(  MuonCalibTrack_E* pat) {
     if( pat ){
       m_phiPats.push_back(pat) ;
