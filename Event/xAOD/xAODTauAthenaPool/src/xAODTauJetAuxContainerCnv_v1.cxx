@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTauJetAuxContainerCnv_v1.cxx 638783 2015-01-12 08:12:26Z janus $
+// $Id: xAODTauJetAuxContainerCnv_v1.cxx 653224 2015-03-11 09:59:03Z will $
 
 // System include(s):
 #include <stdexcept>
@@ -18,7 +18,7 @@
 #include "xAODTauJetAuxContainerCnv_v1.h"
 
 /// Convenience macro for setting the level of output messages
-#define MSGLVL MSG::INFO
+#define MSGLVL MSG::DEBUG
 
 /// Another convenience macro for printing messages in the converter
 #define ATH_MSG( MSG )                          \
