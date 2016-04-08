@@ -249,7 +249,7 @@ namespace MuonCalib {
     // Loop over csc detector elements and add in the hash ids
     std::vector<Identifier> modules = m_cscId->idVector();
 
-    typedef std::vector<Identifier>::const_iterator csc_id;
+    //typedef std::vector<Identifier>::const_iterator csc_id;
 
     /*
        print out all strip hashes

@@ -89,7 +89,7 @@ StatusCode MdtCoolStrSvc::putFileT0(const std::string& folder,
   MuonCalib::MdtStringUtils::tokenize(filename,tokens,delimiter);
   sdata+=tokens[0]+deli_data;
 
-  if (f != NULL) {
+  if (f.good()) {
     std::string blobline;  
     std::string blob_header = "";
     std::string version, region, ntubes;
@@ -220,7 +220,7 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
       {
 	float rad; float sigma; float time;
 	
-	int ret = fscanf(f,"%f %f %f", &rad, &time, &sigma);
+	int ret = fscanf(f,"%80f %80f %80f", &rad, &time, &sigma);
 	//printf("\n %8.3f %8.3f %8.3f \n",rad,time,sigma);
 	if (ret!=0){
 	  char * xmlt0;
@@ -261,7 +261,7 @@ StatusCode MdtCoolStrSvc::putFileAlignCorr(const std::string& folder,
   std::ifstream f(filename.c_str());
   std::string sdata="";
 
-  if (f != NULL) {
+  if (f.good()) {
 
     std::string blobline;
     
@@ -314,12 +314,12 @@ StatusCode MdtCoolStrSvc::putFileAlignCorr(const std::string& folder,
    const char* since = since_str.c_str();
    const char* till = till_str.c_str();
    int year, month, day, hour, minute, second, ns;
-   sscanf(since,"%d/%d/%d %d:%d:%d.%d",&year,&month,&day,&hour,&minute,&second,&ns);
+   sscanf(since,"%80d/%80d/%80d %80d:%80d:%80d.%80d",&year,&month,&day,&hour,&minute,&second,&ns);
    log << MSG::INFO << "since : " << year << "/" << month << "/" << day << " " 
 	<< hour << ":" << minute << ":" << second << endreq;
    //  seal::Time since_T(year,month,day,hour,minute,second,0,true);
 
-   sscanf(till,"%d/%d/%d %d:%d:%d.%d",&year,&month,&day,&hour,&minute,&second,&ns);
+   sscanf(till,"%80d/%80d/%80d %80d:%80d:%80d.%80d",&year,&month,&day,&hour,&minute,&second,&ns);
    //seal::Time till_T(year,month,day,hour,minute,second,0,true);
 
    //log << MSG::INFO << "SINCE Seal " << since_T.format(true,"%F %T") << endreq;
