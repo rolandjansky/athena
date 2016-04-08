@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-
 /**************************************************************************
  **
  **   File:         RegSelLayer.cxx        
@@ -338,6 +336,8 @@ void RegSelLayer::createMaps() {
   //  std::cout << "RegSelLayer::createMaps() " << *this << std::endl; 
   
   m_Nphi = clusterModules();
+
+  if ( m_Nphi == 0 ) return; /// can this really ever happen?
 
   //  std::cout << "\t\t\tRegSelLayer::createMaps() layer with " << m_Nphi << " phi segments" << std::endl; 
 
