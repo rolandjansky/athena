@@ -27,7 +27,7 @@ __docformat__ = "restructuredtext en"
 
 import ROOT
 import cppyy
-
+ROOT.TClass.GetClass("TClass")
 
 def fix_dv_container (clname):
     # Now only a stub.
@@ -53,6 +53,17 @@ def enable_pickling ():
     return
 
 
+# Convert from class name to TClass; try to avoid autoparsing.
+def _getClassIfDictionaryExists (cname):
+    cl = ROOT.gROOT.GetListOfClasses().FindObject(cname)
+    if cl:
+        if cl.IsLoaded() and cl.HasDictionary(): return cl
+        return None
+    if ROOT.gInterpreter.GetClassSharedLibs (cname):
+        cl = ROOT.TClass.GetClass (cname)
+        if cl.HasDictionary(): return cl
+    return None
+
 #
 # This function will be called for every new pyroot class created.
 #
@@ -70,20 +81,21 @@ def _pyroot_class_hook (cls):
         if ifuncsname[-1] == '>':
             ifuncsname = ifuncsname + ' '
         ifuncsname = ifuncsname + '>'
-        ifuncs = getattr (ROOT, ifuncsname, None)
-        if hasattr (ifuncs, 'eq'):
-            # Note: To prevent Pythonize.cxx from changing these out from
-            # under us, __cpp_eq__/__cpp_ne__ must be pyroot MethodProxy's,
-            # and __eq__/__ne__ must _not_ be MethodProxy's.
-            cls.__eq__ = lambda a,b: ifuncs.eq(a,b)
-            cls.__ne__ = lambda a,b: ifuncs.ne(a,b)
-            cls.__cpp_eq__ = ifuncs.eq
-            cls.__cpp_ne__ = ifuncs.ne
-        if hasattr (ifuncs, 'lt'):
-            cls.__lt__ = lambda a,b: not not ifuncs.lt(a,b)
-            cls.__gt__ = lambda a,b: not not ifuncs.lt(b,a)
-            cls.__ge__ = lambda a,b: not ifuncs.lt(a,b)
-            cls.__le__ = lambda a,b: not ifuncs.lt(b,a)
+        if _getClassIfDictionaryExists (ifuncsname):
+            ifuncs = getattr (ROOT, ifuncsname, None)
+            if hasattr (ifuncs, 'eq'):
+                # Note: To prevent Pythonize.cxx from changing these out from
+                # under us, __cpp_eq__/__cpp_ne__ must be pyroot MethodProxy's,
+                # and __eq__/__ne__ must _not_ be MethodProxy's.
+                cls.__eq__ = lambda a,b: ifuncs.eq(a,b)
+                cls.__ne__ = lambda a,b: ifuncs.ne(a,b)
+                cls.__cpp_eq__ = ifuncs.eq
+                cls.__cpp_ne__ = ifuncs.ne
+            if hasattr (ifuncs, 'lt'):
+                cls.__lt__ = lambda a,b: not not ifuncs.lt(a,b)
+                cls.__gt__ = lambda a,b: not not ifuncs.lt(b,a)
+                cls.__ge__ = lambda a,b: not ifuncs.lt(a,b)
+                cls.__le__ = lambda a,b: not ifuncs.lt(b,a)
     return
 
 

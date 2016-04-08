@@ -20,7 +20,7 @@
 #include "TTree.h"
 #include "TChain.h"
 #include "TBranch.h"
-#include "TBranchElement.h"
+#include "RootUtils/TBranchElementClang.h"
 #include "TLeaf.h"
 #include "TLeafObject.h"
 #include "TROOT.h"
@@ -171,6 +171,8 @@ Bool_t TreeNotifier::Notify()
         PyErr_Clear();
     }
   }
+
+  if (m_chain) m_chain->Notify();
   return true;
 }
 

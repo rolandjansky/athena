@@ -186,7 +186,7 @@ void ScatterH2::Paint (Option_t* option /*= ""*/)
     if (m_shadestep > 0)
       step = m_shadestep;
     else
-      step = (NCOLOR-1)/(maxcount-1);
+      step = static_cast<float>(NCOLOR-1)/(maxcount-1);
   }
 
   // Count the number of points for each color.
