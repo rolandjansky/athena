@@ -13,7 +13,6 @@ private
 
 use DetDescrConditions   DetDescrConditions-*    DetectorDescription/DetDescrCond
 use DetDescrCondTPCnv    DetDescrCondTPCnv-*     DetectorDescription/DetDescrCond
-use RootConversions      RootConversions-*       Database/AthenaPOOL
 
 public
 
