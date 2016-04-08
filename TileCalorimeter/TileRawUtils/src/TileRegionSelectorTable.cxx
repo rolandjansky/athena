@@ -30,7 +30,6 @@ TileRegionSelectorTable::TileRegionSelectorTable (const std::string& type,
 						  const std::string& name,
 						  const IInterface* parent)
   :  AthAlgTool(type,name,parent),  
-     m_tileLUT(nullptr),
      m_printTable(false),
      m_testTable(false),
      m_roiFileNameTile("TileMapIdAndHash.txt")
