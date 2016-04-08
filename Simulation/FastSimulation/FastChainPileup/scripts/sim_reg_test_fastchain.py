@@ -56,13 +56,12 @@ def checkStatus(path,days=1):
     return file_status,days
 
 ###get the recent tag###
-def get_recent(path):
-    print "####### Get the most recent successful job as reference ######"
+def get_recent(path,pathsplit):
     print "---------------------------------------------------------------------------------------"
     pathlist=path.split('/')
     pos_index=0
     release_list=[]
-    for i,a in enumerate(argv):
+    for i,a in enumerate(pathsplit):
         if a.find("rel_")>=0:
             pos_index=i
             release_list=a.split('_')
@@ -79,7 +78,7 @@ def get_recent(path):
         status_tmp,days_tmp=checkStatus(path_refill)
         if status_tmp:
             print "==> Nightly: "+release_tag+"  Age: "+str(days_tmp)+" days"
-            if days_tmp>0 and days_tmp<recent_days:
+            if days_tmp>=0 and days_tmp<recent_days:
                 recent_days=days_tmp
                 recent_index=i
         else:
@@ -88,9 +87,9 @@ def get_recent(path):
     if recent_days>998:
         print "=====> Could not find another release to compare to. Returning today's nightly ("+todays_release+") as the reference."
         return todays_release
-    recent_release="rel_"+str(recent_index)
-    print "=====> "+recent_release+" is the most recent nightly to use as reference."
-    return recent_release
+    good_rel_refease="rel_"+str(recent_index)
+    print "=====> "+good_rel_refease+" is the most recent nightly to use as reference."
+    return good_rel_refease
 
 ###Add EOS prefix###
 def eoscp(filename,jobname,tag,store_tag,release):
@@ -111,7 +110,6 @@ def eoscp(filename,jobname,tag,store_tag,release):
     ##        elif tag=="yesterday":
     ##            release=arg_list[0]+"_"+rel_list[int(arg_list[1])-1]
     ##            print release
-    ##
     postfix='/'.join(argv[-3:])
     #middle='/'.join(argv[-6:-5])
     middle=argv[-5]
@@ -137,41 +135,110 @@ def eoscp(filename,jobname,tag,store_tag,release):
 
 ## main
 if __name__ == "__main__":
-    pwdmon=os.getcwd()
-    if os.environ.has_key('LS_SUBCWD'):
-        pwdmon= os.environ['LS_SUBCWD']
-    #pwd='/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/rel_2/19.2.X.Y-VAL/build/x86_64-slc6-gcc47-opt/offline/ISF_Validation/ttbar_ISF_G4_sim_Reg'
-    pwd='/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/rel_2/20.3.3.Y-VAL/build/x86_64-slc6-gcc48-opt/offline/ISF_Validation/ATLFASTIIF_ttbar_1sim_Reg'
-    #pwdmon='/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/rel_2/20.3.3.Y-VAL/build/x86_64-slc6-gcc48-opt/offline/FastChainPileup/ttbarFastChain_RDO_Reg'
-    print 'looking for reference file in ',pwd
-    print 'looking for monitored file in ',pwdmon
-    print sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4]
-    argv=pwd.split('/')
-    argv.pop()
-    argv.append(sys.argv[1])
-    corr_path='/'.join(argv)
+    print '------------------usage-----------------'
+    print 'sim_reg_test_fastchain.py [ref package] [ref rel] [ref job name] [ref filename] [mon package] [mon rel] [mon job name] [mon filename]'
+    print 'packages supported are ISF_Validation and FastChainPileup'
+    print 'to use current release, put "current" as a release argument'
+    print 'if job fails for today`s ref/mon, the latest succeeded job will be taken'
+    print '----------------------------------------'
+    
+    print 'Got input arguments:'
+    print 'reference:'
+    print 'package: ', sys.argv[1]
+    print 'release: ', sys.argv[2]
+    print 'job: ', sys.argv[3]
+    print 'filename: ', sys.argv[4]
+    print 'monitored:'
+    print 'package: ', sys.argv[5]
+    print 'release: ', sys.argv[6]
+    print 'job: ', sys.argv[7]
+    print 'filename: ', sys.argv[8]
+    if sys.argv[1]!='ISF_Validation' and sys.argv[1]!='FastChainPileup' :
+      print 'ERROR: unsupported reference package.'
+    if sys.argv[5]!='ISF_Validation' and sys.argv[5]!='FastChainPileup' :
+      print 'ERROR: unsupported monitored package.'
+    #establish path to monitored release, rel num is just dummy at this stage
+    pwdmon=''
+    prepath='/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/rel_0/'
+    #TODO: make postpath configurable
+    postpath='/build/x86_64-slc6-gcc49-opt/offline/'
+    currel='NOREL'
+    if sys.argv[6] == 'current' or sys.argv[2] == 'current' :
+      curdir=os.getcwd()
+      if os.environ.has_key('LS_SUBCWD'): 
+	curdir= os.environ['LS_SUBCWD']
+      #!TEST
+      #curdir='/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/rel_2/mig13/build/x86_64-slc6-gcc49-opt/offline/FastChainPileup/'
+      #!END TEST
+      folders=curdir.split('/')
+      print folders
+      for idx, folder in enumerate(folders):
+	if 'rel_' in folder :
+	  try:
+	    currel = folders[idx+1]
+	  except IndexError:
+	    print 'ERROR: Could not find current release in the path after /rel_*/'
+      if currel == 'NOREL' :
+	print 'ERROR: Could not find current release in the path. Setting release to "NOREL" and going to crash.'
+	    
+    relmon=sys.argv[6]
+    if sys.argv[6] == 'current' : 
+      relmon = currel  
+    pwdmon=prepath + relmon + postpath
+    #establish path to reference release, rel num is just dummy at this stage  
+    pwdref=''
+    prepath='/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/rel_0/'
+    postpath='/build/x86_64-slc6-gcc49-opt/offline/'
+    relref=sys.argv[2]
+    if sys.argv[2] == 'current' : 
+      relref=currel
+    pwdref=prepath + relref + postpath
+   
+    argvref=pwdref.split('/')
+    argvref.pop()
+    argvref.append(sys.argv[1])
+    argvref.append(sys.argv[3])
+    print 'argvref ',argvref 
+    corr_path_ref='/'.join(argvref)
+    print 'reference path:', corr_path_ref
     ## Find a release to use as a reference
-    recent_rel=get_recent(corr_path)
-    this_rel="rel_X"
+    print '###### Get the most recent successful reference job ######'
+    good_rel_ref=get_recent(corr_path_ref,argvref)
+    
+    print ''
+    print ''
+    print ''
+    print ''
+    
     argvmon=pwdmon.split('/')
     argvmon.pop()
-    argvmon.append(sys.argv[2])
-    ## Construct the reference directory path
-    pos=9
+    argvmon.append(sys.argv[5])
+    argvmon.append(sys.argv[7])
+    print 'argvmon ',argvmon 
+    corr_path_mon='/'.join(argvmon)
+    print 'monitored path:', corr_path_mon
+    print '###### Get the most recent successful monitored job ######'
+    good_rel_mon=get_recent(corr_path_mon,argvmon)  
+
+    posref=9
+    for i,a in enumerate(argvref):
+        if a.find("rel_")>=0 :
+            posref = i
+    
+    posmon=9
     for i,a in enumerate(argvmon):
         if a.find("rel_")>=0 :
-            #print "found at ",i
-            this_rel = a
-            pos = i
+            posmon = i
 
-    valPath='/'.join(argvmon)
-    argv[pos]=recent_rel
+    argvmon[posmon]=good_rel_mon
+    monPath='/'.join(argvmon)
+    
+    argvref[posref]=good_rel_ref
+    refPath='/'.join(argvref)
 
-    refPath='/'.join(argv)
-
-    print "Releases to compare: "+recent_rel+", "+this_rel
+    print "Releases to compare: "+good_rel_ref+", "+good_rel_mon
     print refPath
-    print valPath
+    print monPath
 
     # look for suffix
     file_name='.root'
@@ -190,21 +257,21 @@ if __name__ == "__main__":
                 #print "Find tag set, use common tag: %s."%(f)
                 #store_tag=f
                 
-    compfilesref.append(sys.argv[3])
-    compfilesmon.append(sys.argv[4])
+    compfilesref.append(sys.argv[4])
+    compfilesmon.append(sys.argv[8])
     print 'compfilesref:',compfilesref
-    print 'compfilesmon:',compfilesmon
+    print 'compfilesref:',compfilesmon
     file_list_ref=compfilesref[:]
     print file_list_ref
     file_list_val=compfilesmon[:]
     try:
-        print "Confirming today's job status..."
-        file_status_val,days=checkStatus(valPath)
+        print "Confirming monitored job status..."
+        file_status_val,days=checkStatus(monPath)
 
         if file_status_val==True:
             #print "Success"
             file_root=False
-            for f in  os.listdir(valPath):
+            for f in  os.listdir(monPath):
                 if f.endswith(file_name) and f != 'yesterday.root' and f!= 'today.root':
                     print f
                     name,suffix=f.split('.',1)
@@ -214,9 +281,9 @@ if __name__ == "__main__":
                     elif len(compfilesmon)>=2:
                         continue
                     if store_tag!='':
-                        cmd = 'cp'+' '+valPath+'/'+f+' '+'today.'+store_tag+".root"
+                        cmd = 'cp'+' '+monPath+'/'+f+' '+'today.'+store_tag+".root"
                     else:
-                        cmd = 'cp'+' '+valPath+'/'+f+' '+'today.'+suffix
+                        cmd = 'cp'+' '+monPath+'/'+f+' '+'today.'+suffix
                     print cmd
                     if not dryrun:
                         os.system(cmd)
@@ -229,7 +296,7 @@ if __name__ == "__main__":
             if len(file_list_val)!=0:
                 print "The following files were not found in the output directory of today's job: "+str(file_list_val)+", will try to copy them from EOS instead."
                 for val_f in file_list_val:
-                    if eoscp(val_f,sys.argv[4],"today",store_tag,this_rel)!=0 :
+                    if eoscp(val_f,sys.argv[8],"today",store_tag,good_rel_mon)!=0 :
                         print "File does not exist in EOS."
                     else:
                         file_list_val.remove(val_f)
@@ -238,7 +305,7 @@ if __name__ == "__main__":
             file_status_ref=False
             file_list_ref_orig = file_list_ref
             for i in range(1,5):
-                print "Confirming "+recent_rel+"'s job status..."
+                print "Confirming reference job status..."
                 file_status_ref,days_ref=checkStatus(refPath)
                 if file_status_ref==True:
                     #print("Looking for .root files to compare...")
@@ -268,9 +335,9 @@ if __name__ == "__main__":
                     if 'ISFBroker.root' in file_list_ref:
                         file_list_ref.remove('ISFBroker.root')
                     if len(file_list_ref)!=0:
-                        print "The following files were not found in the output directory of "+recent_rel+"'s job: "+str(file_list_ref)+", will try to copy them from EOS instead."
+                        print "The following files were not found in the output directory of "+good_rel_ref+"'s job: "+str(file_list_ref)+", will try to copy them from EOS instead."
                         for ref_f in file_list_ref :
-                            if eoscp(ref_f,sys.argv[3],"yesterday",store_tag,recent_rel)!=0:
+                            if eoscp(ref_f,sys.argv[4],"yesterday",store_tag,good_rel_ref)!=0:
                                 print "File does not exist in EOS."
                             else:
                                 file_list_ref.remove(ref_f)
@@ -279,20 +346,20 @@ if __name__ == "__main__":
                     break
                 else:
                     ##clean up files
-                    print "Could not find a full set of files for "+recent_rel+", so removing any we did find."
+                    print "Could not find a full set of files for "+good_rel_ref+", so removing any we did find."
                     if(len(file_list_ref)+1) < len(file_list_ref_orig): os.system('rm yesterday.*')
                     file_list_ref = file_list_ref_orig
                     file_status_ref=False
-                    previous_rel = recent_rel
-                    if recent_rel == 'rel_0':
-                        recent_rel = 'rel_6'
+                    previous_rel = good_rel_ref
+                    if good_rel_ref == 'rel_0':
+                        good_rel_ref = 'rel_6'
                     else:
-                        recent_rel = 'rel_%d' % (int(recent_rel.split('_')[1])-1)
+                        good_rel_ref = 'rel_%d' % (int(good_rel_ref.split('_')[1])-1)
 
-                    argv[pos]=recent_rel
-                    refPath='/'.join(argv)
-                    print "As we failed to find all required files in "+previous_rel+", trying again with "+recent_rel
-                    print valPath
+                    argvref[pos]=good_rel_ref
+                    refPath='/'.join(argvref)
+                    print "As we failed to find all required files in "+previous_rel+", trying again with "+good_rel_ref
+                    print monPath
                     print refPath
 
             if not file_status_ref==True:

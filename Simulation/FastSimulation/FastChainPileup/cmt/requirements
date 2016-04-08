@@ -8,12 +8,13 @@ use     Pythia8                 Pythia8-*               External
 use     Pythia8_i               Pythia8_i-*             Generators
 use     GaudiInterface          GaudiInterface-*        External
 use     AtlasROOT               AtlasROOT-*             External
+use     GeneratorModules    	GeneratorModules-*    	Generators
 
 private
 use TestPolicy                  TestPolicy-*
 use     AtlasCLHEP              AtlasCLHEP-*            External
 
-library FastChainPileup MultiPy8Pileup.cxx components/*.cxx
+library FastChainPileup MultiPy8Pileup.cxx MultiParticleGunPileup.cxx components/*.cxx
 apply_pattern component_library
 apply_pattern validate_xml
 apply_pattern declare_joboptions files="*.py"
