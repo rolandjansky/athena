@@ -27,7 +27,7 @@
                <athena userJobId="MuonGeantinoSim">
                <doc>Check internal consistency of raw geometry (fed to G4 simulation)
                and of readout geometry (used by reconstruction)</doc>
-               <commandLineFlags>ConditionsTag="OFLCOND-DR-BS900-A1-01";DetDescrVersion="ATLAS-GEO-16-00-01"</commandLineFlags>
+               <commandLineFlags>ConditionsTag="OFLCOND-RUN12-SDR-22";DetDescrVersion="ATLAS-R2-2015-02-01-00"</commandLineFlags>
                <options>MuonGeomRTT/MuonGeantinoSim_RTT_topOptions.py</options>
                <group>MuonGeomRTT-HitRelocation</group>
                <queue>medium</queue>

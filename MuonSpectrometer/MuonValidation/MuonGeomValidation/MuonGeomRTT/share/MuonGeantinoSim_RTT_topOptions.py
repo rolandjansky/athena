@@ -4,8 +4,8 @@
 #
 ############################################################
 
-DetDescrVersion = "ATLAS-GEO-10-00-01"
-GlobalCondTag = "OFLCOND-DR-BS900-A1-01" 
+DetDescrVersion = "ATLAS-R2-2015-02-01-00"
+GlobalCondTag = "OFLCOND-RUN12-SDR-22" 
 
 include( "MuonGeoModelTest/simulGeantinoHits_misal.py" )
 
