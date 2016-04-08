@@ -51,7 +51,7 @@ InDet::CompetingPixelClustersOnTrack::CompetingPixelClustersOnTrack(
 
 InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::operator=(const InDet::CompetingPixelClustersOnTrack& compROT) {
     if (this!=&compROT) {
-        // assingment operator of base class
+        // assignment operator of base class
         Trk::CompetingRIOsOnTrack::operator=(compROT);
         // clear rots
         clearChildRotVector();
@@ -63,6 +63,23 @@ InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::oper
         std::vector<const InDet::PixelClusterOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
         for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
             m_containedChildRots->push_back((*rotIter)->clone());
+    }
+    return (*this);
+}
+
+InDet::CompetingPixelClustersOnTrack& InDet::CompetingPixelClustersOnTrack::operator=(InDet::CompetingPixelClustersOnTrack&& compROT) {
+    if (this!=&compROT) {
+        // move operator of base class
+        Trk::CompetingRIOsOnTrack::operator=(std::move(compROT));
+        // clear rots
+        clearChildRotVector();
+        delete m_containedChildRots;
+        delete m_globalPosition;
+        m_containedChildRots = compROT.m_containedChildRots;
+        compROT.m_containedChildRots = nullptr;
+
+        m_globalPosition = compROT.m_globalPosition;
+        compROT.m_globalPosition = nullptr;
     }
     return (*this);
 }

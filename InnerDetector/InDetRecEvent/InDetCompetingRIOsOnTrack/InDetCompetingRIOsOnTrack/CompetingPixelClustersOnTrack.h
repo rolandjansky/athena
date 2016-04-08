@@ -56,6 +56,7 @@ public:
     CompetingPixelClustersOnTrack(const CompetingPixelClustersOnTrack& compROT);
     /** Assignment operator */
     CompetingPixelClustersOnTrack& operator=(const CompetingPixelClustersOnTrack& compROT);
+    CompetingPixelClustersOnTrack& operator=(CompetingPixelClustersOnTrack&& compROT);
 
     /** Constructor with all parameters: PLEASE do not use directly,
     but call InDet::CompetingPixelClustersOnTrackTool, otherwise inconsistency of
