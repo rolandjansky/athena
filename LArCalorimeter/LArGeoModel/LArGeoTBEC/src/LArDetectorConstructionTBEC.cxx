@@ -286,7 +286,7 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
   log << MSG::DEBUG << "eta = " << m_eta_pos;
   if ( m_eta_pos > 5. ) m_eta_pos = 0.;
   else m_eta_pos = 2*atan( exp( -m_eta_pos ) );
-  log << ", positioning cryostat with angle " << m_eta_pos/CLHEP::deg << " CLHEP::deg";
+  log << ", positioning cryostat with angle " << m_eta_pos*(1./CLHEP::deg) << " CLHEP::deg";
   log << endreq;
   
   // Tubular axis, dummy
@@ -373,10 +373,10 @@ GeoFullPhysVol* LArGeo::LArDetectorConstructionTBEC::createEnvelope()
   
   // End cap module
 	log << MSG::DEBUG << std::endl
-	    << "Module deviation: " << m_ModuleRotation / CLHEP::deg << " CLHEP::deg" << std::endl
-		<< "Phi position: " << m_phi_pos / CLHEP::deg << " CLHEP::deg" << std::endl
-		<< "Y shift: " << m_YShift / CLHEP::mm << " CLHEP::mm"
-		<< endreq;
+	    << "Module deviation: " << m_ModuleRotation * (1./CLHEP::deg) << " CLHEP::deg" << std::endl
+            << "Phi position: " << m_phi_pos * (1./CLHEP::deg) << " CLHEP::deg" << std::endl
+            << "Y shift: " << m_YShift * (1./CLHEP::mm) << " CLHEP::mm"
+            << endreq;
   
   // z = 0 in emecMother is at active region's front face
   

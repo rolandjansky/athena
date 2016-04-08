@@ -96,12 +96,12 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   std::string name,symbol;
  
   double density;
-  double m1,m2,m3,Totalmass;
+  double m1,m2,m3;
   double Totalthick,/*Totalthicko,Totalthicki,*/Totalthicke;
   double Tgpb,Tgfe,Tggl,Thpb,Thfe,Thgl,Thcu,Thka,ThGten;
   double FracH,FracO,FracC,FracN,FracAr;
   double FracGten,Fracpb,Fracfe,Fracgl,Fraccu,Fracka;
-  double aH,aO,aC,aN,aAr,Atot;
+  double aH,aO,aC,aN,aAr;
 
   GeoElement* H=materialManager->getElement("Hydrogen");
   GeoElement* C=materialManager->getElement("Carbon");
@@ -157,10 +157,13 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   aH=8.*H->getA();
   aO=2.*O->getA();
   aC=5.*C->getA();
-  Atot=aH+aO+aC;
-  FracH=aH/Atot;
-  FracO=aO/Atot;
-  FracC=aC/Atot;
+  double Atot=aH+aO+aC;
+  {
+    const double inv_Atot = 1. / Atot;
+    FracH=aH*inv_Atot;
+    FracO=aO*inv_Atot;
+    FracC=aC*inv_Atot;
+  }
   Glue->add(H,FracH);
   Glue->add(O,FracO);
   Glue->add(C,FracC);
@@ -174,9 +177,12 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   aO=2.*O->getA();
   aC=5.*C->getA();
   Atot=aH+aO+aC;
-  FracH=aH/Atot;
-  FracO=aO/Atot;
-  FracC=aC/Atot;
+  {
+    const double inv_Atot = 1. / Atot;
+    FracH=aH*inv_Atot;
+    FracO=aO*inv_Atot;
+    FracC=aC*inv_Atot;
+  }
   PermaliE730->add(H,FracH);
   PermaliE730->add(O,FracO);
   PermaliE730->add(C,FracC);
@@ -189,9 +195,12 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   aO= 4.*O->getA();
   aC= 8.*C->getA();
   Atot=aH+aO+aC;
-  FracH=aH/Atot;
-  FracO=aO/Atot;
-  FracC=aC/Atot;
+  {
+    const double inv_Atot = 1. / Atot;
+    FracH=aH*inv_Atot;
+    FracO=aO*inv_Atot;
+    FracC=aC*inv_Atot;
+  }
   Gten->add(H,FracH);
   Gten->add(O,FracO);
   Gten->add(C,FracC);
@@ -206,10 +215,13 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   aC=22.*C->getA();
   aN= 2.*N->getA();
   Atot=aH+aO+aC+aN;
-  FracH=aH/Atot;
-  FracO=aO/Atot;
-  FracC=aC/Atot;
-  FracN=aN/Atot;
+  {
+    const double inv_Atot = 1. / Atot;
+    FracH=aH*inv_Atot;
+    FracO=aO*inv_Atot;
+    FracC=aC*inv_Atot;
+    FracN=aN*inv_Atot;
+  }
   Kapton->add(H,FracH);
   Kapton->add(O,FracO);
   Kapton->add(C,FracC);
@@ -225,11 +237,14 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   m1=Tggl*Glue->getDensity();
   m2=Tgfe*Iron->getDensity();
   m3=Tgpb*Lead->getDensity();
-  Totalmass=m1+m2+m3;
-  density=Totalmass/Totalthick;
-  Fracgl=m1/Totalmass;
-  Fracfe=m2/Totalmass;
-  Fracpb=m3/Totalmass;
+  double Totalmass=m1+m2+m3;
+  density=Totalmass*(1./Totalthick);
+  {
+    const double inv_Totalmass = 1. / Totalmass;
+    Fracgl=m1*inv_Totalmass;
+    Fracfe=m2*inv_Totalmass;
+    Fracpb=m3*inv_Totalmass;
+  }
   GeoMaterial* Thin_abs = new GeoMaterial(name="Thinabs",density);
   Thin_abs->add(Glue,Fracgl);
   Thin_abs->add(Iron,Fracfe);
@@ -246,10 +261,13 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   m2=Thfe*Iron->getDensity();
   m3=Thpb*Lead->getDensity();
   Totalmass=m1+m2+m3;
-  density=Totalmass/Totalthick;
-  Fracgl=m1/Totalmass;
-  Fracfe=m2/Totalmass;
-  Fracpb=m3/Totalmass;
+  density=Totalmass*(1./Totalthick);
+  {
+    const double inv_Totalmass = 1. / Totalmass;
+    Fracgl=m1*inv_Totalmass;
+    Fracfe=m2*inv_Totalmass;
+    Fracpb=m3*inv_Totalmass;
+  }
   GeoMaterial* Thick_abs = new GeoMaterial(name="Thickabs",density);
   Thick_abs->add(Glue,Fracgl);
   Thick_abs->add(Iron,Fracfe);
@@ -264,9 +282,12 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   m1=Thcu*Copper->getDensity();
   m2=Thka*Kapton->getDensity();
   Totalmass=m1+m2;
-  density=Totalmass/Totalthicke;
-  Fraccu=m1/Totalmass;
-  Fracka=m2/Totalmass;
+  density=Totalmass*(1./Totalthicke);
+  {
+    const double inv_Totalmass = 1. / Totalmass;
+    Fraccu=m1*inv_Totalmass;
+    Fracka=m2*inv_Totalmass;
+  }
   GeoMaterial* Kapton_Cu= new GeoMaterial(name="KaptonC",density);
   Kapton_Cu->add(Copper,Fraccu);
   Kapton_Cu->add(Kapton,Fracka);
@@ -279,9 +300,12 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   aC =1.*C->getA();
   aAr=1.*Ar->getA();
   Atot=aH+aC+aAr;
-  FracH =aH/Atot;
-  FracC =aC/Atot;
-  FracAr=aAr/Atot;
+  {
+    const double inv_Atot = 1. / Atot;
+    FracH =aH*inv_Atot;
+    FracC =aC*inv_Atot;
+    FracAr=aAr*inv_Atot;
+  }
   GeoMaterial* Elect_LAr= new GeoMaterial(name="Elnics",density=1.28*CLHEP::g/CLHEP::cm3);
   Elect_LAr->add(H ,FracH);
   Elect_LAr->add(C ,FracC);
@@ -305,10 +329,13 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   m2=Thgl  *Glue->getDensity();
   m3=ThGten*Gten->getDensity();
   Totalmass=m1+m2+m3;
-  Fracfe  =m1/Totalmass;
-  Fracgl  =m2/Totalmass;
-  FracGten=m3/Totalmass;
-  density =   Totalmass/Totalthick;
+  {
+    const double inv_Totalmass = 1. / Totalmass;
+    Fracfe  =m1*inv_Totalmass;
+    Fracgl  =m2*inv_Totalmass;
+    FracGten=m3*inv_Totalmass;
+  }
+  density =   Totalmass*(1./Totalthick);
 
   GeoMaterial* G10FeInner=
       new GeoMaterial(name="LAr::EMEC::G10FeInner",density);
@@ -329,10 +356,13 @@ GeoVFullPhysVol* LArGeo::EMECModuleConstruction::GetEnvelope()
   m2=Thgl  *Glue->getDensity();
   m3=ThGten*Gten->getDensity();
   Totalmass=m1+m2+m3;
-  Fracfe  =m1/Totalmass;
-  Fracgl  =m2/Totalmass;
-  FracGten=m3/Totalmass;
-  density =   Totalmass/Totalthick;
+  {
+    const double inv_Totalmass = 1. / Totalmass;
+    Fracfe  =m1*inv_Totalmass;
+    Fracgl  =m2*inv_Totalmass;
+    FracGten=m3*inv_Totalmass;
+  }
+  density =   Totalmass*(1./Totalthick);
   GeoMaterial* G10FeOuter=
          new GeoMaterial(name="LAr::EMEC::G10FeOuter",density);
   G10FeOuter->add(Iron,Fracfe);
