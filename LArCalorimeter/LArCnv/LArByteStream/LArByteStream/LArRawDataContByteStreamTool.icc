@@ -45,8 +45,8 @@ StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re, COLLECTION*
 	  std::vector<const uint32_t*>::const_iterator rob_add;
           for(rob_add = robs.begin(); rob_add!=robs.end();++rob_add){
             try {
-              PointerType p;
-	      ROBFragment robFrag(*rob_add);
+              OFFLINE_FRAGMENTS_NAMESPACE::PointerType p;
+	      OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag(*rob_add);
             
 	      if (!m_decoder->check_valid (&robFrag, msg())) {
 	        ATH_MSG_WARNING ( "Error reading bytestream event: "

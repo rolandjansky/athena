@@ -15,10 +15,10 @@
 
 //uint32_t LArRodBlockStructure::FebToOfflineGainMap[3]={2,1,0};
 //uint32_t LArRodBlockStructure::OfflineToFebGainMap[3]={2,1,0};
-// uint32_t LArRodBlockStructure::RawToOfflineGainMap[4]={0, 0, 1,2};
-// uint32_t LArRodBlockStructure::OfflineToRawGainMap[3]={1,2,3};
- uint32_t LArRodBlockStructure::RawToOfflineGainMap[4]={0, 2, 1,0};
- uint32_t LArRodBlockStructure::OfflineToRawGainMap[3]={3,2,1};
+// uint32_t LArRodBlockStructure::m_RawToOfflineGainMap[4]={0, 0, 1,2};
+// uint32_t LArRodBlockStructure::m_OfflineToRawGainMap[3]={1,2,3};
+ uint32_t LArRodBlockStructure::m_RawToOfflineGainMap[4]={0, 2, 1,0};
+ uint32_t LArRodBlockStructure::m_OfflineToRawGainMap[3]={3,2,1};
 LArRodBlockStructure::LArRodBlockStructure()
   : m_Ex(0),
     m_Ey(0),
