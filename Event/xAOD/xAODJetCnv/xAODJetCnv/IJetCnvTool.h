@@ -13,6 +13,7 @@
 // EDM include(s):
 #include "xAODJet/JetContainer.h"
 #include "xAODBase/IParticleContainer.h"
+#include "AthLinks/DataLink.h"
 
 class JetCollection;
 
@@ -39,7 +40,9 @@ namespace xAODMaker {
    public:
       /// Function that fills an existing xAOD::JetContainer
       virtual StatusCode convert( const JetCollection* aodCont,
-                                  xAOD::JetContainer* xaodCont, const xAOD::IParticleContainer* xaodConstitCont=0 ) = 0;
+                                  xAOD::JetContainer* xaodCont,
+                                  DataLink<xAOD::IParticleContainer> xaodConstitCont = DataLink<xAOD::IParticleContainer>(),
+                                  bool constitSearch = false) = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

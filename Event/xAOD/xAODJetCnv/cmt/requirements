@@ -8,6 +8,7 @@ use AtlasPolicy 	AtlasPolicy-*
 ## for gaudi tools, services and objects
 use GaudiInterface 	GaudiInterface-* 	External
 ## put here your package dependencies...
+use AthLinks            AthLinks-*            Control
 use xAODJet            xAODJet-*            Event/xAOD
 use xAODBase            xAODBase-*            Event/xAOD
 

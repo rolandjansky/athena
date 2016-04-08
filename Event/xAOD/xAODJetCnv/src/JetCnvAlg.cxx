@@ -49,6 +49,7 @@ JetCnvAlg::JetCnvAlg( const std::string& name,
   declareProperty( "xAODJetContainer", m_xaodJetCollectionName = "" );
   declareProperty( "ConstituentContainer", m_constitContainerName = "");
   declareProperty( "JetCnvTool", m_cnvTool);
+  declareProperty( "ConstitSearch", m_constitSearch = false);
 }
 
 // Destructor
@@ -98,9 +99,8 @@ StatusCode JetCnvAlg::execute()
                      << m_xaodJetCollectionName );
 
 
-  const xAOD::IParticleContainer* constitContainer = 0;
-  StatusCode sc = evtStore()->retrieve( constitContainer, m_constitContainerName ) ;
-  if( sc.isFailure() ) ATH_MSG_WARNING("User given jet constituent xAOD container : "<< m_constitContainerName <<" not in SG !");
+  DataLink<xAOD::IParticleContainer> constitContainer (m_constitContainerName);
+  if( !constitContainer ) ATH_MSG_WARNING("User given jet constituent xAOD container : "<< m_constitContainerName <<" not in SG !");
 
   return m_cnvTool->convert(inputJets, xaodJets, constitContainer );
   

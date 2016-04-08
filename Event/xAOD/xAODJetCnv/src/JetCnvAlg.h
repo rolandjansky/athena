@@ -66,6 +66,8 @@ namespace xAODMaker {
     std::string m_inputJetCollectionName;
     std::string m_xaodJetCollectionName;
     std::string m_constitContainerName;
+
+    bool m_constitSearch;
     
     ToolHandle<IJetCnvTool> m_cnvTool;
 

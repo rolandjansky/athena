@@ -41,7 +41,10 @@ namespace xAODMaker {
    *          something else if not
    */
   StatusCode JetCnvTool::convert( const JetCollection* aodCont,
-                                  xAOD::JetContainer* xaodCont, const xAOD::IParticleContainer* xaodConstitCont )  {
+                                  xAOD::JetContainer* xaodCont,
+                                  DataLink<xAOD::IParticleContainer> xaodConstitCont,
+                                  bool constitSearch) 
+  {
      
 
     JetCollection::const_iterator it  = aodCont->begin();
@@ -52,8 +55,9 @@ namespace xAODMaker {
     if( it != itE ) {
       momentKeys= (*it)->getMomentKeys();
 
-      if( (xaodConstitCont==0) &&
-          ((*it)->begin() != (*it)->end()) ) {
+      if( xaodConstitCont.isDefault() &&
+          (*it)->begin() != (*it)->end() )
+      {
         // try to retrieve its name from SG and the original jet 
 
         // this doesn't work : getConstituents() is protected
@@ -63,9 +67,8 @@ namespace xAODMaker {
 
         SG::DataProxy* proxy = evtStore()->proxy( (*it)->getContainer( (*it)->begin() ) );
         if(proxy) {
-          std::string key = proxy->name();
-          StatusCode sc = evtStore()->retrieve(xaodConstitCont, key);
-          if(sc.isFailure() ) ATH_MSG_DEBUG("Could not retrieve xaod constiuents with key "<< key );
+          xaodConstitCont.toIdentifiedObject (proxy->name());
+          if( !xaodConstitCont ) ATH_MSG_DEBUG("Could not retrieve xaod constiuents with key "<< proxy->name() );
         }
       }
     }
@@ -82,11 +85,34 @@ namespace xAODMaker {
       xjet->setJetP4( xAOD::JetFourMom_t(jet->pt(), jet->eta(), jet->phi(), jet->m() ) );
     
       // convert constituents if we have a valid xaod constituent container.
-      // this assumes the ordering in aod and xaod containers are the same !
+      // If constitSearch is false, this assumes the ordering
+      // in aod and xaod containers are the same !
       if(xaodConstitCont) {
-        size_t index;
         for( ; cit!= citE; ++cit){
-          if( jet->getIndex( cit , index) ) xjet->addConstituent( xaodConstitCont->at( index  ) );
+          if (constitSearch) {
+            double min_dr2 = 0.1 * 0.1;
+            int iconstit = -1;
+            int ip = 0;
+            for (const xAOD::IParticle* p : *xaodConstitCont) {
+              double deta = p->eta() - (*cit)->eta();
+              double dphi = TVector2::Phi_mpi_pi (p->phi() - (*cit)->phi());
+              double dr2 = deta*deta + dphi*dphi;
+              if (dr2 < min_dr2) {
+                min_dr2 = dr2;
+                iconstit = ip;
+              }
+              ++ip;
+            }
+            if (iconstit >= 0)
+              xjet->addConstituent
+                (ElementLink<xAOD::IParticleContainer> (xaodConstitCont.key(), iconstit));
+          }
+          else {
+            size_t index;
+            if( jet->getIndex( cit , index) )
+              xjet->addConstituent
+                (ElementLink<xAOD::IParticleContainer> (xaodConstitCont.key(), index));
+          }
         }    
       }
 

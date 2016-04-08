@@ -36,11 +36,13 @@ namespace xAODMaker {
                 const IInterface* parent );
     
     /// Function initialising the tool
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     
     /// Function that fills an existing xAOD::MuonRoIContainer
     virtual StatusCode convert( const JetCollection* aodCont,
-                                xAOD::JetContainer* xaodCont , const xAOD::IParticleContainer* xaodConstitCont=0) ;
+                                xAOD::JetContainer* xaodCont,
+                                DataLink<xAOD::IParticleContainer> xaodConstitCont = DataLink<xAOD::IParticleContainer>(),
+                                bool constitSearch = false) override;
     
   }; // class JetCnvTool
   
