@@ -13,7 +13,7 @@ import sys
 
 from PyUtils import RootUtils
 ROOT = RootUtils.import_root()
-from ROOT import TFile, TTree, TKey, TDirectory, TClass, TList, TObjArray, TStopwatch, TBasket
+from ROOT import TFile, TTree, TKey, TDirectory, TClass, TList, TObjArray, TStopwatch, TBasket, TDirectoryFile
 
 
 
@@ -86,6 +86,10 @@ def checkDirectory(directory, type, requireTree, msg):
         if not object:
             msg.warning("Can't get object of key %s." % key.GetName())
             return 1
+
+        if ( the_object.GetName().find('Meta') > -1 ) and isinstance(the_object,TDirectoryFile):
+            msg.warning("Will ignore Meta TDirectoryFile %s!" % the_object.GetName() )
+            continue
 
         if requireTree and not isinstance(object, TTree):
             msg.warning("Object %s is not of class TTree!" % object.GetName())
