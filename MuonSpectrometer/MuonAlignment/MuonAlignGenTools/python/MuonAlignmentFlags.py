@@ -17,6 +17,7 @@ __doc__ = "Muon Alignment specific flags"
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import *
+from TriggerMenuPython.CommonSliceHelper import AllowedList
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from RecExConfig.RecFlags import rec as recFlags

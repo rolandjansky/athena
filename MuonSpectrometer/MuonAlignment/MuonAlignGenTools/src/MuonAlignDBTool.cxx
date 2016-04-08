@@ -49,8 +49,6 @@ namespace Muon {
     , m_alignModuleTool("Muon::MuonAlignModuleTool")
     , p_muonMgr(0)
     , m_ntuple(0)
-    , m_rdbAccessSvc(0)
-    , m_muonDetMgr(0)
     , m_alines(0)
     , m_detElemLookup_identifier(0)
     , m_detElemLookup_alignMod(0)
