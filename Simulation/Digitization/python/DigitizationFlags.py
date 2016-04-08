@@ -358,7 +358,7 @@ class finalBunchCrossing(JobProperty):
     """
     statusOn=True
     allowedTypes=['int']
-    StoredValue=32
+    StoredValue=6 #32
 
 #
 class HighPtMinBiasInputCols(JobProperty):
