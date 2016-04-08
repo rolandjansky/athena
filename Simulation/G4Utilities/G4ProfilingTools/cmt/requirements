@@ -8,7 +8,7 @@ private
 use AthenaKernel        AthenaKernel-*          Control
 use AtlasBoost          AtlasBoost-*            External
 use AtlasROOT           AtlasROOT-*             External
-use FadsActions         FadsActions-*           Simulation/G4Sim/FADS
+use G4AtlasTools        G4AtlasTools-*          Simulation/G4Atlas
 use Geant4              Geant4-*                External
 end_private
 
@@ -21,5 +21,5 @@ apply_tag ROOTTableLibs
 apply_pattern declare_joboptions files="-s=../share *.py"
 apply_pattern declare_python_modules files="*.py"
 
-library G4ProfilingTools ../src/TestAction*.cxx ../src/VolumeTree*.cxx
-apply_pattern installed_library
+library G4ProfilingTools 
+apply_pattern dual_use_library files=*.cxx
