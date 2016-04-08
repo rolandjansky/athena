@@ -1,0 +1,33 @@
+package TrkRoad
+
+author Shlomit Tarem <Shlomit.Tarem@cern.ch>
+author Zvi Tarem <Zvi.Tarem@cern.ch>
+author Natalia Panikashvili <Natalia.Panikashvili@cern.ch>
+
+public
+
+use AtlasPolicy             AtlasPolicy-*
+use CLIDSvc                 CLIDSvc-*            Control
+use DataModel               DataModel-*          Control
+#use TrkEventPrimitives      TrkEventPrimitives-* Tracking/TrkEvent
+use EventPrimitives         EventPrimitives-*    Event 
+use GeoPrimitives           GeoPrimitives-*      DetectorDescription 
+
+apply_pattern installed_library
+library TrkRoad *.cxx
+
+private
+
+use GaudiInterface          GaudiInterface-*     External
+
+use AtlasReflex             AtlasReflex-*        External -no_auto_imports
+
+# Pattern to build the dict lib. User should create a single header
+# file: <package>Dict.h which includes all other .h files. See MissingETDict
+# A selection file must be created by hand. This file lists the
+# classes to be added to the dictionary, and which fields are
+# transient. It should be put in ../<package> dir and is conventionally called
+# selection.xml.
+# apply_pattern lcgdict dict=TrkRoad selectionfile=selection.xml headerfiles="../TrkRoad/TrkRoadDict.h"
+
+
