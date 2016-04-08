@@ -11,9 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODMuon
                           GaudiKernel
                           PhysicsAnalysis/AnalysisCommon/PATCore
-                          AtlasROOT
-			  Tools/PathResolver
-			  PRIVATE
+                          PRIVATE
                           Control/AthenaBaseComps
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODEventInfo
@@ -28,19 +26,19 @@ atlas_add_library( MuonSelectorToolsLib
                    Root/*.cxx
                    PUBLIC_HEADERS MuonSelectorTools
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools xAODMuon GaudiKernel PATCoreLib PathResolver
+                   LINK_LIBRARIES AsgTools xAODMuon GaudiKernel PATCoreLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODCore xAODEventInfo xAODTracking )
 
 atlas_add_component( MuonSelectorTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODMuon GaudiKernel PATCoreLib AthenaBaseComps xAODCore xAODEventInfo xAODTracking MuonSelectorToolsLib PathResolver )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODMuon GaudiKernel PATCoreLib AthenaBaseComps xAODCore xAODEventInfo xAODTracking MuonSelectorToolsLib )
 
 atlas_add_dictionary( MuonSelectorToolsDict
                       MuonSelectorTools/MuonSelectorToolsDict.h
                       MuonSelectorTools/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODMuon GaudiKernel PATCoreLib AthenaBaseComps xAODCore xAODEventInfo xAODTracking MuonSelectorToolsLib PathResolver )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODMuon GaudiKernel PATCoreLib AthenaBaseComps xAODCore xAODEventInfo xAODTracking MuonSelectorToolsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonSelectionTool.h 299883 2014-03-28 17:34:16Z krasznaa $
-#ifndef MUONSELECTORTOOLS_MUONSELECTIONTOOL_H
-#define MUONSELECTORTOOLS_MUONSELECTIONTOOL_H
+// $Id: MuonLegacySelectionTool.h
+#ifndef MUONSELECTORTOOLS_MUONLEGACYSELECTIONTOOL_H
+#define MUONSELECTORTOOLS_MUONLEGACYSELECTIONTOOL_H
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -17,29 +17,22 @@
 
 namespace CP {
 
-   /// Implementation of the muon selector tool
    ///
-   /// Example implementation of how an object selector tool should
-   /// look according to the TF3 recommendations.
+   /// Implementation of the muon selector tool (TIER0 LEGACY VERSION)
    ///
-   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 299883 $
-   /// $Date: 2014-03-28 18:34:16 +0100 (Fri, 28 Mar 2014) $
-   ///
-   class MuonSelectionTool : public virtual IAsgSelectionTool,
-                             public virtual IMuonSelectionTool,
-                             public asg::AsgTool {
+   class MuonLegacySelectionTool : public virtual IAsgSelectionTool,
+				   public virtual IMuonSelectionTool,
+				   public asg::AsgTool {
 
       /// Create a proper constructor for Athena
-      ASG_TOOL_CLASS2( MuonSelectionTool, IAsgSelectionTool,
+      ASG_TOOL_CLASS2( MuonLegacySelectionTool, IAsgSelectionTool,
                        CP::IMuonSelectionTool )
 
    public:
       /// Constructor for standalone usage
-      MuonSelectionTool( const std::string& name = "MuonSelection");
+      MuonLegacySelectionTool( const std::string& name = "MuonLegacySelection");
 
-     virtual ~MuonSelectionTool();
+     virtual ~MuonLegacySelectionTool();
 
       /// @name Function(s) implementing the asg::IAsgTool interface
       /// @{
@@ -60,7 +53,7 @@ namespace CP {
 
       /// @}
 
-      /// @name Function(s) implementing the IMuonSelectorTool interface
+      /// @name Function(s) implementing the IMuonSelectionTool interface
       /// @{
 
       /// Get the decision for a specific Muon object
@@ -79,10 +72,11 @@ namespace CP {
       bool                    passedIDCuts(const xAOD::Muon&) const;
       
       /// Returns true if the track particle passes the standard MCP ID cuts.
-      bool                     passedIDCuts(const xAOD::TrackParticle&) const;
-     
+      bool                	  passedIDCuts(const xAOD::TrackParticle&) const;
+
       /// Returns true if the muon passes the standard MCP High Pt cuts. To set the value on the muon, instead call setPassesHighPtCuts(xAOD::Muon&) const
       bool                    passedHighPtCuts(const xAOD::Muon&) const;
+
 
       /// Returns the quality of the muon. To set the value on the muon, instead call setQuality(xAOD::Muon&) const
       xAOD::Muon::Quality     getQuality(const xAOD::Muon& mu ) const;
@@ -94,20 +88,18 @@ namespace CP {
 
    private:
 
-     MuonSelectionTool & operator=(const MuonSelectionTool &right);
-     MuonSelectionTool( const MuonSelectionTool& toCopy );
+     MuonLegacySelectionTool & operator=(const MuonLegacySelectionTool &right);
+     MuonLegacySelectionTool( const MuonLegacySelectionTool& toCopy );
      const std::string m_name;
       /// Maximum pseudorapidity for the selected muons
      double m_maxEta;
      /// xAOD::Muon::Quality m_quality;
      int  m_quality;
-     
-     bool m_toroidOff;
 
-     /// Object used to store the last decision
-     mutable Root::TAccept m_accept;
+      /// Object used to store the last decision
+      mutable Root::TAccept m_accept;
 
-   }; // class MuonSelectionTool
+   }; // class MuonLegacySelectionTool
 
 } // namespace CP
 
