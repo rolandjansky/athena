@@ -14,6 +14,9 @@ use GaudiInterface       GaudiInterface-*               External
 use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-*         Event 
 use DataCollection       DataCollection-*               External
 
+# Declare the tdaq-common components that are required (only relevent for cmake - invisible to CMT)
+apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS eformat_write DataWriter)"
+
 apply_pattern component_library
 library LUCID_RawDataByteStreamCnv *.cxx components/*.cxx
 
