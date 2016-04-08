@@ -108,8 +108,7 @@ namespace TopPhysVal {
       TH1D* h_tauPt;
       TH1D* h_tauEta;
       TH1D* h_metEt;
-
-			TH1D* h_NJets;
+      TH1D* h_NJets;
 
     };
 
