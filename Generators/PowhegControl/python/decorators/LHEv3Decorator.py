@@ -17,6 +17,5 @@ class LHEv3Decorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.fix_parameter( 'compute_rwgt', 0,   desc='(default 0) 0:nominal; 1:compute reweighting factor' )
-    self.decorated.fix_parameter( 'storeinfo_rwgt', 0, desc='(default 0, disabled) enable new-style PDF information' )
-
+    self.decorated.fix_parameter( 'compute_rwgt', 0,   default='{0}', desc='(0:nominal; 1:compute reweighting factor)' )
+    self.decorated.fix_parameter( 'storeinfo_rwgt', 0, default='{0}', desc='(0:disabled; 1:enabled) enable new-style PDF information' )

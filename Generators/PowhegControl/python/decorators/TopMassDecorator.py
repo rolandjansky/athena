@@ -18,5 +18,5 @@ class TopMassDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'tmass', ATLASCommonParameters.mass_t,   desc='(default ATLAS) top quark mass' )
-    self.decorated.add_parameter( 'topmass', ATLASCommonParameters.mass_t, desc='(default ATLAS) top quark mass' )
+    self.decorated.add_parameter( 'tmass', ATLASCommonParameters.mass_t,   default='{0}', desc='top quark mass' )
+    self.decorated.add_parameter( 'topmass', ATLASCommonParameters.mass_t, default='{0}', desc='top quark mass' )

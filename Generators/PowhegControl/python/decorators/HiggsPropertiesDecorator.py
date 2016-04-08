@@ -18,5 +18,5 @@ class HiggsPropertiesDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'mass_H', ATLASCommonParameters.mass_H,   desc='(default ATLAS) mass of Higgs boson in GeV', parameter='hmass' )
-    self.decorated.add_parameter( 'width_H', ATLASCommonParameters.width_H, desc='(default ATLAS) width of Higgs boson in GeV', parameter='hwidth' )
+    self.decorated.add_parameter( 'mass_H', ATLASCommonParameters.mass_H,   default='{0}', desc='mass of Higgs boson in GeV', parameter='hmass' )
+    self.decorated.add_parameter( 'width_H', ATLASCommonParameters.width_H, default='{0}', desc='width of Higgs boson in GeV', parameter='hwidth' )

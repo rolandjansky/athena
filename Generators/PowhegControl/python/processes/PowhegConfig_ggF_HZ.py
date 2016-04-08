@@ -39,3 +39,5 @@ class PowhegConfig_ggF_HZ(PowhegConfig_base) :
 
     ## Override defaults
     self.minlo = -1
+
+    self.populate_default_strings()

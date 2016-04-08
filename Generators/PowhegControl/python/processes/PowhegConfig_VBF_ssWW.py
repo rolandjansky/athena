@@ -53,3 +53,5 @@ class PowhegConfig_VBF_ssWW(PowhegConfig_base) :
     self.decay_mode = 'WpWplvlv'
     self.minlo      = -1
     self.withdamp   = 1
+
+    self.populate_default_strings()

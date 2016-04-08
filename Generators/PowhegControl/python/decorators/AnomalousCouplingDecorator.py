@@ -17,10 +17,10 @@ class AnomalousCouplingDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'delg1_g', 0,   desc='(default 0) Delta_g1(Gamma)' )
-    self.decorated.add_parameter( 'delg1_z', 0,   desc='(default 0) Delta_g1(Z)' )
-    self.decorated.add_parameter( 'delk_g', 0,    desc='(default 0) Delta_K(Gamma)' )
-    self.decorated.add_parameter( 'delk_z', 0,    desc='(default 0) Delta_K(Z)' )
-    self.decorated.add_parameter( 'lambda_g', 0,  desc='(default 0) Lambda(gamma)' )
-    self.decorated.add_parameter( 'lambda_z', 0,  desc='(default 0) Lambda(Z)' )
-    self.decorated.add_parameter( 'tevscale', -1, desc='(default -1, use Powheg default) W form-factor scale, in TeV' )
+    self.decorated.add_parameter( 'delg1_g', 0,   default='{0}', desc='Delta_g1(Gamma)' )
+    self.decorated.add_parameter( 'delg1_z', 0,   default='{0}', desc='Delta_g1(Z)' )
+    self.decorated.add_parameter( 'delk_g', 0,    default='{0}', desc='Delta_K(Gamma)' )
+    self.decorated.add_parameter( 'delk_z', 0,    default='{0}', desc='Delta_K(Z)' )
+    self.decorated.add_parameter( 'lambda_g', 0,  default='{0}', desc='Lambda(gamma)' )
+    self.decorated.add_parameter( 'lambda_z', 0,  default='{0}', desc='Lambda(Z)' )
+    self.decorated.add_parameter( 'tevscale', -1, default='{0}', desc='(-1:use Powheg default) W form-factor scale, in TeV' )

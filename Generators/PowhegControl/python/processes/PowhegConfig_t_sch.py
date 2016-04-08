@@ -35,3 +35,5 @@ class PowhegConfig_t_sch(PowhegConfig_base) :
     ## Override defaults
     self.topdecaymode = 11111
     self.withdamp     = 1
+
+    self.populate_default_strings()

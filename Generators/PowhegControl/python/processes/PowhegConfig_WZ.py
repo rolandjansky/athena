@@ -53,3 +53,5 @@ class PowhegConfig_WZ(PowhegConfig_base) :
     self.decay_mode = 'WZlvll'
     self.minlo      = -1
     self.withdamp   = 1
+
+    self.populate_default_strings()

@@ -18,8 +18,9 @@ from utility import IntegrationGridTester, LHEHandler, RepeatingTimer
 #
 #  All subprocesses inherit from this class
 class PowhegConfig_base(object) :
-  ## Set up base directory and path to Powheg
+  ## Current directory
   __base_directory = os.environ['PWD']
+  ## Path to Powheg installation
   __powheg_directory = os.environ['POWHEGPATH']
 
   ## Setup athena-compatible logger
@@ -124,24 +125,24 @@ class PowhegConfig_base(object) :
 
     # Print list of configurable parameters for users
     self.logger.info( '** User configurable parameters for this process **' )
-    self.logger.info( ': Configurable parameter :   Current value   : Description' )
-    for value_tuple in sorted( self.configurable_parameters.values()+self.phantom_parameters.values(), key=lambda x: x[0].lower() ) :
-      self.logger.info( ': {0:<22} : {1:>17} : {2}'.format( value_tuple[0], getattr(self, value_tuple[0]), value_tuple[1] ) )
+    self.logger.info( ':   Option name   : ATLAS default :  Current  : Description' )
+    for configurable_list in sorted( self.configurable_parameters.values()+self.phantom_parameters.values(), key=lambda x: x[0].lower() ) :
+      self.logger.info( ': {0:<15} : {1:>13} : {2:>9} : {3}'.format( configurable_list[0], configurable_list[1], getattr(self, configurable_list[0]), configurable_list[2] ) )
 
     # Add configurable parameters to fixed list
-    [ self.fix_parameter( parameter=value_tuple[0], desc=value_tuple[1] ) for value_tuple in self.configurable_parameters.values() ]
+    [ self.fix_parameter( non_configurable_name=configurable_list[0], default=configurable_list[1], desc=configurable_list[2] ) for configurable_list in self.configurable_parameters.values() ]
 
     # Write out final runcard
     self.logger.info( 'Writing Powheg runcard to {0}'.format( self.run_card_path ) )
     with open( self.run_card_path, 'w' ) as f :
-      for parameter_tuple in sorted( self.fixed_parameters, key=lambda x: x[0].lower() ) :
-        name, value, desc = parameter_tuple
+      for non_configurable_list in sorted( self.fixed_parameters, key=lambda x: x[0].lower() ) :
+        name, value, default, desc = non_configurable_list
         if 'lhrwgt' in name : value = '\'{0}\''.format( value ) # lhrwgt parameters need to be in quotes
         # Set starting value to first in list when multiple values are provided
         if isinstance(value,list) :
           value = value[0]
           self.__enable_reweighting = True
-        output_line = '{0:<30}! {1}'.format( '{0} {1}'.format( name, value ), desc )
+        output_line = '{0:<30}! [ATLAS default: {1}] {2}'.format( '{0} {1}'.format( name, value ), default, desc )
         f.write( '{0}\n'.format(output_line) )
         # Print warnings for specific parameters
         if name == 'bornsuppfact' and value > 0 :
@@ -160,12 +161,14 @@ class PowhegConfig_base(object) :
 
     # Setup heartbeat thread
     heartbeat = RepeatingTimer( 600., lambda: self.__emit_heartbeat( time.time() - time_start ) )
+    heartbeat.setName( 'heartbeat thread' )
     heartbeat.daemon = True # Allow program to exit if this is the only live thread
     heartbeat.start()
 
     # Remove any existing .lhe files to avoid repeated events
-    self.logger.info( 'Removing old LHE files' )
-    [ os.remove( LHE_file ) for LHE_file in glob.glob('*.lhe')+glob.glob('*.ev*ts') ]
+    for LHE_file in glob.glob('*.lhe')+glob.glob('*.ev*ts') :
+      self.logger.warning( 'Removing existing LHE file: {0}'.format(LHE_file) )
+      os.remove( LHE_file )
 
     # Run appropriate Powheg process and display generation output until finished
     self.__run_generation_strategy()
@@ -246,20 +249,38 @@ class PowhegConfig_base(object) :
   #  @param value Value of the parameter
   #  @param desc Description for the run card
   #  @param parameter Name used in the run card if different
-  def add_parameter( self, configurable_name, value, desc='', parameter=None ) :
+  def add_parameter( self, configurable_name, value, default='', desc='', parameter=None ) :
     setattr( self, configurable_name, value ) # add new attribute
     powheg_parameter = parameter if parameter is not None else configurable_name
-    self.configurable_parameters[powheg_parameter] = ( configurable_name, desc )
+    self.configurable_parameters[powheg_parameter] = [configurable_name, default, desc]
     return
 
 
   ## Register configurable parameter: exposed to the user but not written to the run card
-  #  @param name Configurable parameter name exposed to the user
+  #  @param configurable_name Configurable parameter name exposed to the user
   #  @param value Value of the parameter
   #  @param desc Description for the run card
-  def add_phantom( self, name, value, desc='' ) :
-    setattr( self, name, value ) # add new attribute
-    self.phantom_parameters[name] = ( name, desc )
+  def add_phantom( self, configurable_name, value, default='', desc='' ) :
+    setattr( self, configurable_name, value ) # add new attribute
+    self.phantom_parameters[configurable_name] = [configurable_name, default, desc]
+    return
+
+
+  ## Register a non-configurable parameter: not exposed to the user but written to the run card
+  #  @param non_configurable_name Parameter name
+  #  @param value Value of the parameter
+  #  @param desc Description for the run card
+  def fix_parameter( self, non_configurable_name, value=None, default='', desc='' ) :
+    # Get previously set value if not overwriting
+    if value is None : value = getattr( self, non_configurable_name )
+    # Remove it from the configurable list if it was there
+    for powheg_parameter, configurable_list in self.configurable_parameters.items() :
+      # Retrieve Powheg parameter name and description if there is a match
+      if non_configurable_name == configurable_list[0] :
+        non_configurable_name, desc = powheg_parameter, configurable_list[1]
+        self.configurable_parameters.pop(powheg_parameter)
+        break
+    self.fixed_parameters.append( [non_configurable_name, value, default, desc] )
     return
 
 
@@ -296,21 +317,19 @@ class PowhegConfig_base(object) :
     return
 
 
-  ## Register a parameter that is not user-configurable
-  #  @param parameter Parameter name
-  #  @param value Value of the parameter
-  #  @param desc Description for the run card
-  def fix_parameter( self, parameter, value=None, desc='' ) :
-    # Get previously set value if not overwriting
-    if value is None : value = getattr( self, parameter )
-    # Remove it from the configurable list if it was there
-    for powheg_parameter, configurable_name_tuple in self.configurable_parameters.items() :
-      # Retrieve Powheg parameter name and description if there is a match
-      if parameter == configurable_name_tuple[0] :
-        parameter, desc = powheg_parameter, configurable_name_tuple[1]
-        self.configurable_parameters.pop(powheg_parameter)
-        break
-    self.fixed_parameters.append( (parameter, value, desc) )
+  ## Write default values to string before allowing users to change them
+  def populate_default_strings( self ) :
+    # Configurable parameters
+    for configurable_list in self.configurable_parameters.values() : # [configurable_name, default, desc]
+      value = getattr( self, configurable_list[0] )
+      if '{0}' in configurable_list[1] : configurable_list[1] = configurable_list[1].format( value )
+    # Phantom parameters
+    for configurable_list in self.phantom_parameters.values() : # [configurable_name, default, desc]
+      value = getattr( self, configurable_list[0] )
+      if '{0}' in configurable_list[1] : configurable_list[1] = configurable_list[1].format( value )
+    # Fixed parameters
+    for non_configurable_list in self.fixed_parameters : #[non_configurable_name, value, default, desc]
+      if '{0}' in non_configurable_list[2] : non_configurable_list[2] = non_configurable_list[2].format( non_configurable_list[1] )
     return
 
 
@@ -388,13 +407,13 @@ class PowhegConfig_base(object) :
 
   ## Deprecated function - use generate() instead
   def generateRunCard(self) :
-    self.logger.warning( 'This function is deprecated as of 2015-02-19' )
+    self.logger.warning( 'The function generateRunCard() is deprecated as of 2015-02-19' )
     self.logger.warning( 'Please use generate() instead of generateRunCard() and generateEvents()' )
     return self.__generate_run_card()
 
 
   ## Deprecated function - use generate() instead
   def generateEvents(self) :
-    self.logger.warning( 'This function is deprecated as of 2015-02-19' )
+    self.logger.warning( 'The function generateEvents() is deprecated as of 2015-02-19' )
     self.logger.warning( 'Please use generate() instead of generateRunCard() and generateEvents()' )
     return self.__generate_events()

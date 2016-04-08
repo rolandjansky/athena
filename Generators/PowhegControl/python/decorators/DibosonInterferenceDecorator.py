@@ -16,5 +16,5 @@ class DibosonInterferenceDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'mllmin', 4,           desc='(default 4) Minimum invariant mass of lepton pairs from Z decay' )
-    self.decorated.add_parameter( 'withinterference', 1, desc='(default 1, enabled) include interference for like flavour charged leptons' )
+    self.decorated.add_parameter( 'mllmin', 4,           default='{0}', desc='Minimum invariant mass of lepton pairs from Z decay' )
+    self.decorated.add_parameter( 'withinterference', 1, default='{0}', desc='(0:disabled; 1:enabled) include interference for like flavour charged leptons' )

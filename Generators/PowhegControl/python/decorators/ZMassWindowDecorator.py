@@ -17,7 +17,7 @@ class ZMassWindowDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'mass_Z_low', 1.0,      desc='(default process-dependent) M_Z > mass low', parameter='min_z_mass' )
-    self.decorated.add_parameter( 'mass_Z_high', 14000.0, desc='(default process-dependent) M_Z < mass high', parameter='max_z_mass' )
-    self.decorated.add_parameter( 'mass_Z_low', 1.0,      desc='(default process-dependent) M_Z > mass low', parameter='min_Z_mass' )
-    self.decorated.add_parameter( 'mass_Z_high', 14000.0, desc='(default process-dependent) M_Z < mass high', parameter='max_Z_mass')
+    self.decorated.add_parameter( 'mass_Z_low', 1.0,      default='{0}', desc='M_Z > mass low', parameter='min_z_mass' )
+    self.decorated.add_parameter( 'mass_Z_high', 14000.0, default='{0}', desc='M_Z < mass high', parameter='max_z_mass' )
+    self.decorated.add_parameter( 'mass_Z_low', 1.0,      default='{0}', desc='M_Z > mass low', parameter='min_Z_mass' )
+    self.decorated.add_parameter( 'mass_Z_high', 14000.0, default='{0}', desc='M_Z < mass high', parameter='max_Z_mass')

@@ -18,7 +18,7 @@ class SingleTopDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'alphaem_inv', 1.0/float(ATLASCommonParameters.alphaem), desc='(default ATLAS) EM coupling' )
-    self.decorated.add_parameter( 'ttype', 1,                                              desc='(default 1) 1:t, -1:tbar' )
-    self.decorated.add_parameter( 'wmass', ATLASCommonParameters.mass_W,                   desc='(default ATLAS) mass of W boson in GeV' )
-    self.decorated.add_parameter( 'wwidth', ATLASCommonParameters.width_W,                 desc='(default ATLAS) W width' )
+    self.decorated.add_parameter( 'alphaem_inv', 1.0/float(ATLASCommonParameters.alphaem), default='{0}', desc='EM coupling' )
+    self.decorated.add_parameter( 'ttype', 1,                                              default='{0}', desc='(1:t; -1:tbar)' )
+    self.decorated.add_parameter( 'wmass', ATLASCommonParameters.mass_W,                   default='{0}', desc='mass of W boson in GeV' )
+    self.decorated.add_parameter( 'wwidth', ATLASCommonParameters.width_W,                 default='{0}', desc='W width' )

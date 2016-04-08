@@ -18,7 +18,7 @@ class WWDecayDecorator(object) :
     self.decorated = decorated
 
     self.decorated.allowed_decay_modes = []
-    self.decorated.add_phantom( 'decay_mode', None, desc='WW decay mode' )
+    self.decorated.add_phantom( 'decay_mode', None, default='{0}', desc='WW decay mode' )
     self.boson = boson
 
 
