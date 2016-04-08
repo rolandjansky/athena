@@ -287,7 +287,7 @@ class PixelMainMon:public ManagedMonitorToolBase
     TProfile_LW*          m_hits_per_lumi_mod[PixLayer::COUNT];
     TProfile_LW*          m_avgocc_per_lumi_mod[PixLayer::COUNT];
 
-    TProfile_LW*          m_maxocc_per_lumi_mod[PixLayer::COUNT];
+    TH2F_LW*          m_maxocc_per_lumi_mod[PixLayer::COUNT];
     TH1F_LW*          m_nlargeevt_per_lumi_mod[PixLayer::COUNT];
 
     //TH1F_LW*              m_hit_ToT[PixLayerIBL2D3D::COUNT];
