@@ -15,8 +15,7 @@ Purpose : build the SUSYPhys Tag object - AnalysisTag.h.
           For example encoding the results of hypotheses on different channels
 *****************************************************************************/
 
-#include "GaudiKernel/AlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
@@ -25,7 +24,7 @@ Purpose : build the SUSYPhys Tag object - AnalysisTag.h.
 /** Interface ID for SUSYPhysTagTool*/  
 static const InterfaceID IID_SUSYPhysTagTool("SUSYPhysTagTool", 1, 0);
 
-class SUSYPhysTagTool : public AlgTool {
+class SUSYPhysTagTool : public AthAlgTool {
 
 public:
   
@@ -52,10 +51,6 @@ private:
   /** Properties */
   std::string m_jetContainerName;
   double m_jetPtCut;
-
-  /** Event Store */
-  StoreGateSvc* m_storeGate;
-
  };
 
 #endif // BPHYSTAGTOOL_H
