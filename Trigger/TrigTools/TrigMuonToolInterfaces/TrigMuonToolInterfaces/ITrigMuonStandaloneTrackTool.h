@@ -116,6 +116,9 @@ class ITrigMuonStandaloneTrackTool : virtual public IAlgTool {
   virtual void recordPatterns() = 0;
   virtual void recordSpectrometerTracks() = 0;
 
+  /** Get list of hashIDs (used for internal caching) **/
+  virtual std::vector<std::vector<IdentifierHash> > getHashList(const IRoiDescriptor* muonRoI)=0;
+
   /** Declares all segment monitoring histograms. returned monVars should be passed to getSegments() */
   virtual void declareSegmentMonitoringVariables(HLT::Algo* fexAlgo, 
 						 TrigMuonEFMonVars& monVars) = 0;
