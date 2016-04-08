@@ -145,7 +145,7 @@ Herwig::Herwig(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("HerwigCommand", m_herwigCommandVector);
   declareProperty("CrossSectionScaleFactor", m_xsscale=m_Default_xsscale);
   declareProperty("SetCrossSection",m_SetCrossSection=m_Default_SetCrossSection);
-  declareProperty("UpdateHadronStatCode", m_updateHadronStatCode=false);
+  declareProperty("UpdateHadronStatCode", m_updateHadronStatCode=true);
 
   m_noshower_Parm = false;
   m_nohadroniz_Parm = false;
