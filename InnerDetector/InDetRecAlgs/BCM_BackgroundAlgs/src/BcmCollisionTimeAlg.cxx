@@ -2,21 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "BCM_BackgroundAlgs/BcmCollisionTimeAlg.h"
 #include "BCM_CollisionTime/BcmCollisionTime.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "Identifier/Identifier.h"
 
 #include "InDetBCM_RawData/BCM_RDO_Container.h"
 
-
+#include "AthenaKernel/errorcheck.h"
 
 //Constructor
 BcmCollisionTimeAlg:: BcmCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator):
-    Algorithm(name,pSvcLocator)
+    AthAlgorithm(name,pSvcLocator)
   {
     //declareProperty("cellContainerName",m_cellsContName);
     //m_nevt=0;
@@ -27,33 +25,16 @@ BcmCollisionTimeAlg:: BcmCollisionTimeAlg(const std::string& name, ISvcLocator* 
 //Destructor
   BcmCollisionTimeAlg::~BcmCollisionTimeAlg()
   {
-    MsgStream log( messageService(), name() ) ;
-    log << MSG::DEBUG << "BcmCollisionTimeAlg destructor called" << endreq;
+    ATH_MSG_DEBUG("BcmCollisionTimeAlg destructor called" );
   }
 
 //__________________________________________________________________________
 StatusCode BcmCollisionTimeAlg::initialize()
   {
     
-    MsgStream log( messageService(), name() );
-    log << MSG::INFO  <<"BcmCollisionTimeAlg initialize()" << endreq;
+    ATH_MSG_INFO( "BcmCollisionTimeAlg initialize()" );
 
-    // Get the StoreGateSvc
-    if (service("StoreGateSvc", m_storeGate).isFailure()) {
-      log << MSG::ALWAYS << "No StoreGate!!!!!!!" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-    StoreGateSvc* detStore;
-    StatusCode sc = service ( "DetectorStore" , detStore ) ;
-    if (sc.isFailure()) {
-      log << MSG::ERROR << " cannot find detector store " << endreq;
-      return StatusCode::FAILURE;
-    }
-    
-
-
-    //m_nevt=0;
+    CHECK( evtStore().retrieve() );
 
     return StatusCode::SUCCESS; 
 
@@ -72,8 +53,7 @@ StatusCode BcmCollisionTimeAlg::execute()
   {
     //.............................................
     
-    MsgStream log( messageService(), name() );
-    log << MSG::DEBUG << "BcmCollisionTimeAlg execute()" << endreq;
+    ATH_MSG_DEBUG( "BcmCollisionTimeAlg execute()" );
 
    //declare variables here
    //unsigned int bcmLGHit=0;
@@ -87,12 +67,12 @@ StatusCode BcmCollisionTimeAlg::execute()
    std::vector<deltat_data> deltaTdataC_HG;
 
    const BCM_RDO_Container *m_bcmRDO=0;
-   if (StatusCode::SUCCESS!=m_storeGate->retrieve(m_bcmRDO,"BCM_RDOs")) {
-     log << MSG::WARNING << "Cannot find BCM RDO! " << endreq;
+   if (StatusCode::SUCCESS!=evtStore()->retrieve(m_bcmRDO,"BCM_RDOs")) {
+     ATH_MSG_WARNING("Cannot find BCM RDO! " );
    }   else {
      int num_collect = m_bcmRDO->size();
      if ( num_collect != 16 ){
-       log << MSG::WARNING << " Number of collections: " << num_collect << endreq;
+       ATH_MSG_WARNING( " Number of collections: " << num_collect );
      }
    
      BCM_RDO_Container::const_iterator chan_itr = m_bcmRDO->begin();
@@ -162,9 +142,12 @@ StatusCode BcmCollisionTimeAlg::execute()
   //std::cout << " multiLG, multiHG " << multiLG << " " << multiHG << std::endl;
   //fill object here
   //BcmBkgWord * bbw = new BcmBkgWord(multiLG,multiHG,IsCol,IsBkg,deltaT);
-  BcmCollisionTime * bbw = new BcmCollisionTime(multiLG,multiHG,deltaT);
-  if (m_storeGate->record(bbw,"BcmCollisionTime").isFailure()) {
-    log << MSG::WARNING << " Cannot record BcmCollisionTime " << endreq;
+   std::unique_ptr<BcmCollisionTime> bbw( new BcmCollisionTime(multiLG,multiHG,deltaT) );
+  if (evtStore()->record(bbw.get(),"BcmCollisionTime").isFailure()) {
+    ATH_MSG_WARNING( " Cannot record BcmCollisionTime " );
+  }
+  else {
+    bbw.release();
   }
 
   return StatusCode::SUCCESS;

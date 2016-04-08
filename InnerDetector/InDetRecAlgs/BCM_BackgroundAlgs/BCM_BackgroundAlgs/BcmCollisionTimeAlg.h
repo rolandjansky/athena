@@ -8,18 +8,11 @@
 #ifndef BcmCollisionTimeAlg_H
 #define BcmCollisionTimeAlg_H
 
-#include <string>
-
 // Gaudi includes
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-class StoreGateSvc;
-
-
-class BcmCollisionTimeAlg : public Algorithm {
+class BcmCollisionTimeAlg : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
@@ -39,9 +32,6 @@ class BcmCollisionTimeAlg : public Algorithm {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  /** The StoreGate Service */
-  //StoreGateSvc* m_sgSvc;
-  StoreGateSvc* m_storeGate;
 
 
 
