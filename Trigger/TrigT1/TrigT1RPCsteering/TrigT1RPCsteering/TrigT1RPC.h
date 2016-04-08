@@ -72,6 +72,9 @@ private:
   BooleanProperty m_data_detail;           // flag to printout detailed INFO on
                                            // processed data
 
+    IntegerProperty m_firstBC_to_MUCTPI;   // First BC to be sent to muctpi, wrt to BC0, e.g. -1 meanst the BC before the trigger Bc
+    IntegerProperty m_lastBC_to_MUCTPI;   // First BC to be sent to muctpi, wrt to BC0, e.g. -1 meanst the BC before the trigger Bc
+    
   StatusCode fill_RPCdata(RPCsimuData&);
 
 private:
