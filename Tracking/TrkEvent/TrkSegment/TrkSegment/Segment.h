@@ -100,7 +100,9 @@ class FitQuality;
 
       const DataVector<const Trk::MeasurementBase>& containedMeasurementsDataVector() const;
 
-     /** Return the number of contained Trk::MeasurementBase (s)*/
+      bool hasContainedMeasurements() const;
+
+      /** Return the number of contained Trk::MeasurementBase (s)*/
       unsigned int numberOfMeasurementBases() const ;
 
       /** returns the Trk::MeasurementBase objects depending on the integer*/
@@ -148,6 +150,11 @@ inline const std::vector<const MeasurementBase*>& Segment::containedMeasurements
 inline const DataVector<const MeasurementBase>& Segment::containedMeasurementsDataVector() const
 { 
      return *m_containedMeasBases; 
+}
+ 
+inline bool Segment::hasContainedMeasurements() const
+{ 
+  return m_containedMeasBases != nullptr;
 }
  
 inline const MeasurementBase* Segment::measurement(unsigned int indx) const
