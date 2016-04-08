@@ -72,8 +72,6 @@
 #include "ALFA_Geometry/ALFA_GeometryReader.h"
 #include "ALFA_LocRec/ALFA_UserObjects.h"
 
-using namespace std;
-
 #define MAXNUMTRACKS 100
 #define MAXNUMGLOBTRACKS 100
 #define MAXNUMGENPARTICLES 100
@@ -284,31 +282,30 @@ private:
 	bool m_bVtxKinFillFlag;
 	bool m_bCoolData;
 
-	string m_strCollectionName;
-	string m_strODCollectionName;
-	string m_strTruthCollectionName;
-	string m_strLocRecCollectionName;
-	string m_strLocRecODCollectionName;
-	string m_strLocRecCorrCollectionName;
-	string m_strLocRecCorrODCollectionName;
-	string m_strGloRecCollectionName;
-	string m_strKeyRawDataCollection;
-
-        string m_coolDirName;
+	std::string m_strCollectionName;
+	std::string m_strODCollectionName;
+	std::string m_strTruthCollectionName;
+	std::string m_strLocRecCollectionName;
+	std::string m_strLocRecODCollectionName;
+	std::string m_strLocRecCorrCollectionName;
+	std::string m_strLocRecCorrODCollectionName;
+	std::string m_strGloRecCollectionName;
+	std::string m_strKeyRawDataCollection;
+	std::string m_coolDirName;
 
 	TTree *m_TreeTrackingData, *m_TreeRunHeader, *m_TreeGlobalTracks, *m_TreeEventHeader;
 	TTree *m_Tree_Vtx_Kin_Info;
 
-	vector<string> m_CoolFolders;
-	vector<string> m_vecListAlgoMD;
-	vector<string> m_vecListAlgoOD;
-	map<string, int> m_MapAlgoNameToID;
-	map<int, TTree*> m_MapTreeOtherAlgo;
-	map<int, ALGOTREEMD> m_MapAlgoTreeMD;
-	map<int, ALGOTREEOD> m_MapAlgoTreeOD;
+	std::vector<std::string> m_CoolFolders;
+	std::vector<std::string> m_vecListAlgoMD;
+	std::vector<std::string> m_vecListAlgoOD;
+	std::map<std::string, int> m_MapAlgoNameToID;
+	std::map<int, TTree*> m_MapTreeOtherAlgo;
+	std::map<int, ALGOTREEMD> m_MapAlgoTreeMD;
+	std::map<int, ALGOTREEOD> m_MapAlgoTreeOD;
 	TTree *m_treeOtherAlgo;
-	string m_strMainAlgoMD;
-	string m_strMainAlgoOD;
+	std::string m_strMainAlgoMD;
+	std::string m_strMainAlgoOD;
 
 
 private:
@@ -372,7 +369,7 @@ private:
 	//COOL data trees ---------------------------------------------------------------
 	TTree *m_TreeMovement, *m_TreeLocalMon, *m_TreeBLM, *m_TreeHVChannel, *m_TreeRadmon, *m_TreeTriggerRate, *m_TreeBPMALFA;
 	Int_t m_iThreshold[RPOTSCNT][3], m_iGain[RPOTSCNT][5];
-	vector<string>* m_vecMainDetGainMode;
+	std::vector<std::string>* m_vecMainDetGainMode;
 
 private:
 	BLM             m_BeamLossMonitor;
@@ -401,9 +398,9 @@ private:
 	StatusCode ALFACollectionReading();
 
 	StatusCode COOLUpdate(IOVSVC_CALLBACK_ARGS_P(I, keys));
-	StatusCode AddCOOLFolderCallback(const string& szFolder);
-	StatusCode AddCOOLFolderCallbackAthenaAttributeList(const string& Folder);
-	StatusCode COOLIOVRange(string strFolder, uint64_t &iTimeIOVStart, uint64_t &iTimeIOVStop);
+	StatusCode AddCOOLFolderCallback(const std::string& szFolder);
+	StatusCode AddCOOLFolderCallbackAthenaAttributeList(const std::string& Folder);
+	StatusCode COOLIOVRange(std::string strFolder, uint64_t &iTimeIOVStart, uint64_t &iTimeIOVStop);
 
 };
 

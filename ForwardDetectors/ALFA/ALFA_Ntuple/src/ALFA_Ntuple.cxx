@@ -90,53 +90,55 @@ void BPMALFA::clear()
 void ALGOTREEMD::clear()
 {
 	iAlgoID   = 0;
+	iEvent    = 0;
 	iNumTrack = 0;
 	memset(&iDetector, 0, sizeof(iDetector));
 	memset(&bRecFlag, false, sizeof(bRecFlag));
-	fill_n(&fXDet[0][0], sizeof(fXDet)/sizeof(Float_t), -9999.0);
-	fill_n(&fYDet[0][0], sizeof(fYDet)/sizeof(Float_t), -9999.0);
-	fill_n(&fXPot[0][0], sizeof(fXPot)/sizeof(Float_t), -9999.0);
-	fill_n(&fYPot[0][0], sizeof(fYPot)/sizeof(Float_t), -9999.0);
-	fill_n(&fXStat[0][0], sizeof(fXStat)/sizeof(Float_t), -9999.0);
-	fill_n(&fYStat[0][0], sizeof(fYStat)/sizeof(Float_t), -9999.0);
-	fill_n(&fXLHC[0][0], sizeof(fXLHC)/sizeof(Float_t), -9999.0);
-	fill_n(&fYLHC[0][0], sizeof(fYLHC)/sizeof(Float_t), -9999.0);
-	fill_n(&fZLHC[0][0], sizeof(fZLHC)/sizeof(Float_t), -9999.0);
-	fill_n(&fXBeam[0][0], sizeof(fXBeam)/sizeof(Float_t), -9999.0);
-	fill_n(&fYBeam[0][0], sizeof(fYBeam)/sizeof(Float_t), -9999.0);
-	fill_n(&iFibSelMD[0][0][0], sizeof(iFibSelMD)/sizeof(Int_t), -9999);
-	fill_n(&fInterceptDet[0][0], sizeof(fInterceptDet)/sizeof(Float_t), -9999.0);
-	fill_n(&fSlopeDet[0][0], sizeof(fSlopeDet)/sizeof(Float_t), -9999.0);
-	fill_n(&fOverU[0][0], sizeof(fOverU)/sizeof(Float_t), -9999.0);
-	fill_n(&fOverV[0][0], sizeof(fOverV)/sizeof(Float_t), -9999.0);
-	fill_n(&iNumU[0][0], sizeof(iNumU)/sizeof(Int_t), -9999);
-	fill_n(&iNumV[0][0], sizeof(iNumV)/sizeof(Int_t), -9999);
-
+	std::fill_n(&fXDet[0][0], sizeof(fXDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fYDet[0][0], sizeof(fYDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fXPot[0][0], sizeof(fXPot)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fYPot[0][0], sizeof(fYPot)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fXStat[0][0], sizeof(fXStat)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fYStat[0][0], sizeof(fYStat)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fXLHC[0][0], sizeof(fXLHC)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fYLHC[0][0], sizeof(fYLHC)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fZLHC[0][0], sizeof(fZLHC)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fXBeam[0][0], sizeof(fXBeam)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fYBeam[0][0], sizeof(fYBeam)/sizeof(Float_t), -9999.0);
+	std::fill_n(&iFibSelMD[0][0][0], sizeof(iFibSelMD)/sizeof(Int_t), -9999);
+	std::fill_n(&fInterceptDet[0][0], sizeof(fInterceptDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fSlopeDet[0][0], sizeof(fSlopeDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fOverU[0][0], sizeof(fOverU)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fOverV[0][0], sizeof(fOverV)/sizeof(Float_t), -9999.0);
+	std::fill_n(&iNumU[0][0], sizeof(iNumU)/sizeof(Int_t), -9999);
+	std::fill_n(&iNumV[0][0], sizeof(iNumV)/sizeof(Int_t), -9999);
 }
 
 void ALGOTREEOD::clear()
 {
 	iAlgoID   = 0;
+	iEvent    = 0;
 	iNumTrack = 0;
 	memset(&iDetector, 0, sizeof(iDetector));
 	memset(&bRecFlag, false, sizeof(bRecFlag));
-	fill_n(&iFibSelOD[0][0][0], sizeof(iFibSelOD)/sizeof(Int_t), -9999);
-	fill_n(&fXDet[0][0], sizeof(fXDet)/sizeof(Float_t), -9999.0);
-	fill_n(&fYDet[0][0], sizeof(fYDet)/sizeof(Float_t), -9999.0);
-	fill_n(&fXPot[0][0], sizeof(fXPot)/sizeof(Float_t), -9999.0);
-	fill_n(&fYPot[0][0], sizeof(fYPot)/sizeof(Float_t), -9999.0);
-	fill_n(&fXStat[0][0], sizeof(fXStat)/sizeof(Float_t), -9999.0);
-	fill_n(&fYStat[0][0], sizeof(fYStat)/sizeof(Float_t), -9999.0);
-	fill_n(&fXLHC[0][0], sizeof(fXLHC)/sizeof(Float_t), -9999.0);
-	fill_n(&fYLHC[0][0], sizeof(fYLHC)/sizeof(Float_t), -9999.0);
-	fill_n(&fZLHC[0][0], sizeof(fZLHC)/sizeof(Float_t), -9999.0);
-	fill_n(&fXBeam[0][0], sizeof(fXBeam)/sizeof(Float_t), -9999.0);
-	fill_n(&fYBeam[0][0], sizeof(fYBeam)/sizeof(Float_t), -9999.0);
-	fill_n(&fInterceptDet[0][0], sizeof(fInterceptDet)/sizeof(Float_t), -9999.0);
-	fill_n(&fSlopeDet[0][0], sizeof(fSlopeDet)/sizeof(Float_t), -9999.0);
-	fill_n(&fOverY[0][0], sizeof(fOverY)/sizeof(Float_t), -9999.0);
-	fill_n(&iNumY[0][0], sizeof(iNumY)/sizeof(Int_t), -9999);
+	std::fill_n(&iFibSelOD[0][0][0], sizeof(iFibSelOD)/sizeof(Int_t), -9999);
+	std::fill_n(&fXDet[0][0], sizeof(fXDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fYDet[0][0], sizeof(fYDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fXPot[0][0], sizeof(fXPot)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fYPot[0][0], sizeof(fYPot)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fXStat[0][0], sizeof(fXStat)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fYStat[0][0], sizeof(fYStat)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fXLHC[0][0], sizeof(fXLHC)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fYLHC[0][0], sizeof(fYLHC)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fZLHC[0][0], sizeof(fZLHC)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fXBeam[0][0], sizeof(fXBeam)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fYBeam[0][0], sizeof(fYBeam)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fInterceptDet[0][0], sizeof(fInterceptDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fSlopeDet[0][0], sizeof(fSlopeDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&fOverY[0][0], sizeof(fOverY)/sizeof(Float_t), -9999.0);
+	std::fill_n(&iNumY[0][0], sizeof(iNumY)/sizeof(Int_t), -9999);
 }
+
 
 ALFA_Ntuple::ALFA_Ntuple(const std::string& name, ISvcLocator* pSvcLocator) :
 AthHistogramAlgorithm(name, pSvcLocator), m_iovSvc( "IOVDbSvc", name )/*,
@@ -191,7 +193,7 @@ m_pDetStore(0)*/
 
 
 	m_vecMainDetGainMode = NULL;
-	m_vecMainDetGainMode = new vector<string>();
+	m_vecMainDetGainMode = new std::vector<std::string>();
 
 	m_TreeEventHeader   = NULL;
 	m_TreeGlobalTracks  = NULL;
@@ -249,16 +251,16 @@ m_pDetStore(0)*/
 	
 	memset(&m_iScaler, 0, sizeof(m_iScaler));
 	memset(&m_iArmGlo, 0, sizeof(m_iArmGlo));
-	fill_n(&m_fxPosGlo[0], sizeof(m_fxPosGlo)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fyPosGlo[0], sizeof(m_fyPosGlo)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fxSlopeGlo[0], sizeof(m_fxSlopeGlo)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fySlopeGlo[0], sizeof(m_fySlopeGlo)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fOverU[0][0], sizeof(m_fOverU)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fOverV[0][0], sizeof(m_fOverV)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fOverY[0][0], sizeof(m_fOverY)/sizeof(Float_t), -9999.0);
-	fill_n(&m_iNumU[0][0], sizeof(m_iNumU)/sizeof(Int_t), -9999);
-	fill_n(&m_iNumV[0][0], sizeof(m_iNumV)/sizeof(Int_t), -9999);
-	fill_n(&m_iNumY[0][0], sizeof(m_iNumY)/sizeof(Int_t), -9999);
+	std::fill_n(&m_fxPosGlo[0], sizeof(m_fxPosGlo)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fyPosGlo[0], sizeof(m_fyPosGlo)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fxSlopeGlo[0], sizeof(m_fxSlopeGlo)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fySlopeGlo[0], sizeof(m_fySlopeGlo)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fOverU[0][0], sizeof(m_fOverU)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fOverV[0][0], sizeof(m_fOverV)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fOverY[0][0], sizeof(m_fOverY)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_iNumU[0][0], sizeof(m_iNumU)/sizeof(Int_t), -9999);
+	std::fill_n(&m_iNumV[0][0], sizeof(m_iNumV)/sizeof(Int_t), -9999);
+	std::fill_n(&m_iNumY[0][0], sizeof(m_iNumY)/sizeof(Int_t), -9999);
 
 
 	m_BPMALFA.clear();
@@ -268,6 +270,11 @@ m_pDetStore(0)*/
 	m_Movement.clear();
 	m_Radmon.clear();
 	m_TriggerRate.clear();
+
+	m_treeOtherAlgo = 0;
+	m_AlgoTreeMD.clear();
+	m_AlgoTreeOD.clear();
+
 
 	ATH_MSG_DEBUG("end ALFA_Ntuple::ALFA_Ntuple()");
 }
@@ -312,14 +319,14 @@ StatusCode ALFA_Ntuple::initialize()
 //	}
 
 	m_MapAlgoNameToID.clear();
-	m_MapAlgoNameToID.insert(pair<string, int>("ODTracking", 1));
-	m_MapAlgoNameToID.insert(pair<string, int>("MDTracking", 2));
-	m_MapAlgoNameToID.insert(pair<string, int>("MDOverlap", 3));
-	m_MapAlgoNameToID.insert(pair<string, int>("CenterGravity", 4));
-	m_MapAlgoNameToID.insert(pair<string, int>("MDMultiple", 5));
-	m_MapAlgoNameToID.insert(pair<string, int>("HalfReco", 6));
-	m_MapAlgoNameToID.insert(pair<string, int>("MDGap", 7));
-	m_MapAlgoNameToID.insert(pair<string, int>("EdgeMethod", 8));
+	m_MapAlgoNameToID.insert(std::pair<std::string, int>("ODTracking", 1));
+	m_MapAlgoNameToID.insert(std::pair<std::string, int>("MDTracking", 2));
+	m_MapAlgoNameToID.insert(std::pair<std::string, int>("MDOverlap", 3));
+	m_MapAlgoNameToID.insert(std::pair<std::string, int>("CenterGravity", 4));
+	m_MapAlgoNameToID.insert(std::pair<std::string, int>("MDMultiple", 5));
+	m_MapAlgoNameToID.insert(std::pair<std::string, int>("HalfReco", 6));
+	m_MapAlgoNameToID.insert(std::pair<std::string, int>("MDGap", 7));
+	m_MapAlgoNameToID.insert(std::pair<std::string, int>("EdgeMethod", 8));
 
 	if (m_bCoolData)
 	{
@@ -463,7 +470,7 @@ StatusCode ALFA_Ntuple::initialize()
 
 
 	// the trees for the other algorithms -------------------------------
-	string strAlgoMD;
+	std::string strAlgoMD;
 	m_MapTreeOtherAlgo.clear();
 	m_MapAlgoTreeMD.clear();
 
@@ -477,7 +484,7 @@ StatusCode ALFA_Ntuple::initialize()
 		if(m_MapAlgoTreeMD.find(m_MapAlgoNameToID[strAlgoMD])==m_MapAlgoTreeMD.end())
 		{
 			m_AlgoTreeMD.clear();
-			m_MapAlgoTreeMD.insert(pair<int, ALGOTREEMD>(m_MapAlgoNameToID[strAlgoMD], m_AlgoTreeMD));
+			m_MapAlgoTreeMD.insert(std::pair<int, ALGOTREEMD>(m_MapAlgoNameToID[strAlgoMD], m_AlgoTreeMD));
 		}
 
 		if(m_MapTreeOtherAlgo.find(m_MapAlgoNameToID[strAlgoMD])==m_MapTreeOtherAlgo.end())
@@ -507,11 +514,11 @@ StatusCode ALFA_Ntuple::initialize()
 			m_treeOtherAlgo->Branch("intercept_Det", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fInterceptDet, "intercept_Det[NumTrack][8]/F");
 			m_treeOtherAlgo->Branch("slope_Det", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fSlopeDet, "slope_Det[NumTrack][8]/F");
 
-			m_MapTreeOtherAlgo.insert(pair<int, TTree*>(m_MapAlgoNameToID[strAlgoMD], m_treeOtherAlgo));
+			m_MapTreeOtherAlgo.insert(std::pair<int, TTree*>(m_MapAlgoNameToID[strAlgoMD], m_treeOtherAlgo));
 		}
 	}
 
-	string strAlgoOD;
+	std::string strAlgoOD;
 	m_MapAlgoTreeOD.clear();
 	for (unsigned int i=0; i<m_vecListAlgoOD.size(); i++)
 	{
@@ -523,7 +530,7 @@ StatusCode ALFA_Ntuple::initialize()
 		if(m_MapAlgoTreeOD.find(m_MapAlgoNameToID[strAlgoOD])==m_MapAlgoTreeOD.end())
 		{
 			m_AlgoTreeOD.clear();
-			m_MapAlgoTreeOD.insert(pair<int, ALGOTREEOD>(m_MapAlgoNameToID[strAlgoOD], m_AlgoTreeOD));
+			m_MapAlgoTreeOD.insert(std::pair<int, ALGOTREEOD>(m_MapAlgoNameToID[strAlgoOD], m_AlgoTreeOD));
 		}
 
 		if(m_MapTreeOtherAlgo.find(m_MapAlgoNameToID[strAlgoOD])==m_MapTreeOtherAlgo.end())
@@ -551,7 +558,7 @@ StatusCode ALFA_Ntuple::initialize()
 			m_treeOtherAlgo->Branch("intercept_Det", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fInterceptDet, "intercept_Det[NumTrack][8]/F");
 			m_treeOtherAlgo->Branch("slope_Det", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fSlopeDet, "slope_Det[NumTrack][8]/F");
 
-			m_MapTreeOtherAlgo.insert(pair<int, TTree*>(m_MapAlgoNameToID[strAlgoOD], m_treeOtherAlgo));
+			m_MapTreeOtherAlgo.insert(std::pair<int, TTree*>(m_MapAlgoNameToID[strAlgoOD], m_treeOtherAlgo));
 		}
 	}
 
@@ -561,10 +568,10 @@ StatusCode ALFA_Ntuple::initialize()
 	m_vecMainDetGainMode->clear();
 	m_fProtonMomentum = -9999.0;
 	memset(&m_bTriggerSet, false, sizeof(m_bTriggerSet));
-	fill_n(&m_iLatency[0][0], sizeof(m_iLatency)/sizeof(Int_t), -1);
-	fill_n(&m_iGain[0][0], sizeof(m_iGain)/sizeof(Int_t), -1);
-	fill_n(&m_iThreshold[0][0], sizeof(m_iThreshold)/sizeof(Int_t), -1);
-	fill_n(&m_fTransformDetRP[0][0][0], sizeof(m_fTransformDetRP)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_iLatency[0][0], sizeof(m_iLatency)/sizeof(Int_t), -1);
+	std::fill_n(&m_iGain[0][0], sizeof(m_iGain)/sizeof(Int_t), -1);
+	std::fill_n(&m_iThreshold[0][0], sizeof(m_iThreshold)/sizeof(Int_t), -1);
+	std::fill_n(&m_fTransformDetRP[0][0][0], sizeof(m_fTransformDetRP)/sizeof(Float_t), -9999.0);
 
 	m_iEvtFromZero     =  0;
 	m_iFlagBLM         = -1;
@@ -577,20 +584,20 @@ StatusCode ALFA_Ntuple::initialize()
 
 
 	//clear COOL directory --------------------------------------------------------------
-	fill_n(&m_BeamLossMonitor.fBLM[0], sizeof(m_BeamLossMonitor.fBLM)/sizeof(Float_t), -9999.0);
-	fill_n(&m_HVChannel.fActualVMeas[0], sizeof(m_HVChannel.fActualVMeas)/sizeof(Float_t), -9999.0);
-	fill_n(&m_HVChannel.fActualIMeas[0], sizeof(m_HVChannel.fActualIMeas)/sizeof(Float_t), -9999.0);
-	fill_n(&m_LocalMonitoring.fTempSensor1[0], sizeof(m_LocalMonitoring.fTempSensor1)/sizeof(Float_t), -9999.0);
-	fill_n(&m_LocalMonitoring.fTempSensor2[0], sizeof(m_LocalMonitoring.fTempSensor2)/sizeof(Float_t), -9999.0);
-	fill_n(&m_LocalMonitoring.fTempSensor3[0], sizeof(m_LocalMonitoring.fTempSensor3)/sizeof(Float_t), -9999.0);
-	fill_n(&m_LocalMonitoring.fTempSensor4[0], sizeof(m_LocalMonitoring.fTempSensor4)/sizeof(Float_t), -9999.0);
-	fill_n(&m_LocalMonitoring.fTempSensor5[0], sizeof(m_LocalMonitoring.fTempSensor5)/sizeof(Float_t), -9999.0);
-	fill_n(&m_Movement.fPosLVDT[0], sizeof(m_Movement.fPosLVDT)/sizeof(Float_t), -9999.0);
-	fill_n(&m_Movement.fPosMotor[0], sizeof(m_Movement.fPosMotor)/sizeof(Float_t), -9999.0);
-	fill_n(&m_Radmon.fDose[0], sizeof(m_Radmon.fDose)/sizeof(Float_t), -9999.0);
-	fill_n(&m_Radmon.fFluence[0], sizeof(m_Radmon.fFluence)/sizeof(Float_t), -9999.0);
-	fill_n(&m_Radmon.fTemp[0], sizeof(m_Radmon.fTemp)/sizeof(Float_t), -9999.0);
-	fill_n(&m_TriggerRate.iTRate[0], sizeof(m_TriggerRate.iTRate)/sizeof(Int_t), -1);
+	std::fill_n(&m_BeamLossMonitor.fBLM[0], sizeof(m_BeamLossMonitor.fBLM)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_HVChannel.fActualVMeas[0], sizeof(m_HVChannel.fActualVMeas)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_HVChannel.fActualIMeas[0], sizeof(m_HVChannel.fActualIMeas)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_LocalMonitoring.fTempSensor1[0], sizeof(m_LocalMonitoring.fTempSensor1)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_LocalMonitoring.fTempSensor2[0], sizeof(m_LocalMonitoring.fTempSensor2)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_LocalMonitoring.fTempSensor3[0], sizeof(m_LocalMonitoring.fTempSensor3)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_LocalMonitoring.fTempSensor4[0], sizeof(m_LocalMonitoring.fTempSensor4)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_LocalMonitoring.fTempSensor5[0], sizeof(m_LocalMonitoring.fTempSensor5)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_Movement.fPosLVDT[0], sizeof(m_Movement.fPosLVDT)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_Movement.fPosMotor[0], sizeof(m_Movement.fPosMotor)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_Radmon.fDose[0], sizeof(m_Radmon.fDose)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_Radmon.fFluence[0], sizeof(m_Radmon.fFluence)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_Radmon.fTemp[0], sizeof(m_Radmon.fTemp)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_TriggerRate.iTRate[0], sizeof(m_TriggerRate.iTRate)/sizeof(Int_t), -1);
 
 	if (m_bCoolData)
 	{
@@ -660,30 +667,30 @@ StatusCode ALFA_Ntuple::execute()
 	memset(&m_iDetector, 0, sizeof(m_iDetector));
 	memset(&m_bRecFlag, false, sizeof(m_bRecFlag));
 
-	fill_n(&m_iScaler[0], sizeof(m_iScaler)/sizeof(Int_t), -1);
-	fill_n(&m_iQDCTrig[0][0], sizeof(m_iQDCTrig)/sizeof(Int_t), -1);
-	fill_n(&m_fXDet[0][0], sizeof(m_fXDet)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fYDet[0][0], sizeof(m_fYDet)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fXPot[0][0], sizeof(m_fXPot)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fYPot[0][0], sizeof(m_fYPot)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fXStat[0][0], sizeof(m_fXStat)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fYStat[0][0], sizeof(m_fYStat)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fXLHC[0][0], sizeof(m_fXLHC)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fYLHC[0][0], sizeof(m_fYLHC)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fZLHC[0][0], sizeof(m_fZLHC)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fXBeam[0][0], sizeof(m_fXBeam)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fYBeam[0][0], sizeof(m_fYBeam)/sizeof(Float_t), -9999.0);
-	fill_n(&m_iFibSelMD[0][0][0], sizeof(m_iFibSelMD)/sizeof(Int_t), -9999);
-	fill_n(&m_iFibSelOD[0][0][0], sizeof(m_iFibSelOD)/sizeof(Int_t), -9999);
-	fill_n(&m_fInterceptDet[0][0], sizeof(m_fInterceptDet)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fSlopeDet[0][0], sizeof(m_fSlopeDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_iScaler[0], sizeof(m_iScaler)/sizeof(Int_t), -1);
+	std::fill_n(&m_iQDCTrig[0][0], sizeof(m_iQDCTrig)/sizeof(Int_t), -1);
+	std::fill_n(&m_fXDet[0][0], sizeof(m_fXDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fYDet[0][0], sizeof(m_fYDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fXPot[0][0], sizeof(m_fXPot)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fYPot[0][0], sizeof(m_fYPot)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fXStat[0][0], sizeof(m_fXStat)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fYStat[0][0], sizeof(m_fYStat)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fXLHC[0][0], sizeof(m_fXLHC)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fYLHC[0][0], sizeof(m_fYLHC)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fZLHC[0][0], sizeof(m_fZLHC)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fXBeam[0][0], sizeof(m_fXBeam)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fYBeam[0][0], sizeof(m_fYBeam)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_iFibSelMD[0][0][0], sizeof(m_iFibSelMD)/sizeof(Int_t), -9999);
+	std::fill_n(&m_iFibSelOD[0][0][0], sizeof(m_iFibSelOD)/sizeof(Int_t), -9999);
+	std::fill_n(&m_fInterceptDet[0][0], sizeof(m_fInterceptDet)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fSlopeDet[0][0], sizeof(m_fSlopeDet)/sizeof(Float_t), -9999.0);
 
-	fill_n(&m_fOverU[0][0], sizeof(m_fOverU)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fOverV[0][0], sizeof(m_fOverV)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fOverY[0][0], sizeof(m_fOverY)/sizeof(Float_t), -9999.0);
-	fill_n(&m_iNumU[0][0], sizeof(m_iNumU)/sizeof(Int_t), -9999);
-	fill_n(&m_iNumV[0][0], sizeof(m_iNumV)/sizeof(Int_t), -9999);
-	fill_n(&m_iNumY[0][0], sizeof(m_iNumY)/sizeof(Int_t), -9999);
+	std::fill_n(&m_fOverU[0][0], sizeof(m_fOverU)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fOverV[0][0], sizeof(m_fOverV)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fOverY[0][0], sizeof(m_fOverY)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_iNumU[0][0], sizeof(m_iNumU)/sizeof(Int_t), -9999);
+	std::fill_n(&m_iNumV[0][0], sizeof(m_iNumV)/sizeof(Int_t), -9999);
+	std::fill_n(&m_iNumY[0][0], sizeof(m_iNumY)/sizeof(Int_t), -9999);
 
 
 	//default values for Vertex_and_IP_kinematics tree ----------------------------------
@@ -708,10 +715,10 @@ StatusCode ALFA_Ntuple::execute()
 	// //default values for GlobalTracks tree ----------------------------------------------
 	// m_iNumGloTrack = 0;
 	// memset(&m_iArmGlo, 0, sizeof(m_iArmGlo));
-	// fill_n(&m_fxPosGlo[0], sizeof(m_fxPosGlo)/sizeof(Float_t), -9999.0);
-	// fill_n(&m_fyPosGlo[0], sizeof(m_fyPosGlo)/sizeof(Float_t), -9999.0);
-	// fill_n(&m_fxSlopeGlo[0], sizeof(m_fxSlopeGlo)/sizeof(Float_t), -9999.0);
-	// fill_n(&m_fySlopeGlo[0], sizeof(m_fySlopeGlo)/sizeof(Float_t), -9999.0);
+	// std::fill_n(&m_fxPosGlo[0], sizeof(m_fxPosGlo)/sizeof(Float_t), -9999.0);
+	// std::fill_n(&m_fyPosGlo[0], sizeof(m_fyPosGlo)/sizeof(Float_t), -9999.0);
+	// std::fill_n(&m_fxSlopeGlo[0], sizeof(m_fxSlopeGlo)/sizeof(Float_t), -9999.0);
+	// std::fill_n(&m_fySlopeGlo[0], sizeof(m_fySlopeGlo)/sizeof(Float_t), -9999.0);
 
 	const EventInfo* eventInfo;
 	sc = evtStore()->retrieve(eventInfo);
@@ -727,7 +734,7 @@ StatusCode ALFA_Ntuple::execute()
 	m_iLumBlock = eventInfo->event_ID()->lumi_block();
 
 	// for other algorithms -------------------------------------------------------------
-	string strAlgoMD;
+	std::string strAlgoMD;
 	for(unsigned int i=0; i<m_vecListAlgoMD.size(); i++)
 	{
 		strAlgoMD = m_vecListAlgoMD[i];
@@ -736,7 +743,7 @@ StatusCode ALFA_Ntuple::execute()
 		m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].iEvent = m_iEvent;
 	}
 
-	string strAlgoOD;
+	std::string strAlgoOD;
 	for(unsigned int i=0; i<m_vecListAlgoOD.size(); i++)
 	{
 		strAlgoOD = m_vecListAlgoOD[i];
@@ -802,7 +809,7 @@ StatusCode ALFA_Ntuple::execute()
 	// m_TreeGlobalTracks->Fill();
 
 
-	map<int, TTree*>::iterator itTree;
+	std::map<int, TTree*>::iterator itTree;
 	for (itTree=m_MapTreeOtherAlgo.begin(); itTree!=m_MapTreeOtherAlgo.end(); itTree++)
 	{
 		ATH_MSG_DEBUG("filling of the " << itTree->first << " tree");
@@ -881,11 +888,12 @@ StatusCode ALFA_Ntuple::TruthInfo()
 			break;
 		}
 
-		if (coll_counter == 0 )
-		{
-			ATH_MSG_DEBUG("no collection for the event ");
-			return sc;
-		}
+		// comment to fix coverity 29013
+//		if (coll_counter == 0 )
+//		{
+//			ATH_MSG_DEBUG("no collection for the event ");
+//			return sc;
+//		}
 
 		HepMC::GenEvent::vertex_const_iterator begGenVtxItr = (**mcTruBeg).vertices_begin();
 		HepMC::GenEvent::vertex_const_iterator endGenVtxItr = (**mcTruBeg).vertices_end();
@@ -1111,12 +1119,12 @@ StatusCode ALFA_Ntuple::GetRawDataCollection()
 
 	int iMBId;
 
-	fill_n(&m_iScaler[0], sizeof(m_iScaler)/sizeof(Int_t), -1);
+	std::fill_n(&m_iScaler[0], sizeof(m_iScaler)/sizeof(Int_t), -1);
 	m_iBCId = -1;
 	m_iTimeStamp = -1;
 	m_iTimeStamp_ns = -1;
 
-	vector<bool> bTrigPat, bLvl1TrigPat;
+	std::vector<bool> bTrigPat, bLvl1TrigPat;
 	int iTrigPatSize=0;
 	int iLvl1TrigPatSize = 0;
 
@@ -1252,7 +1260,7 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 
 	memset(&iNumTrackPot, 0, sizeof(iNumTrackPot));
 
-	vector<Int_t> vNumTrackPotAll;
+	std::vector<Int_t> vNumTrackPotAll;
 	vNumTrackPotAll.assign(8, 0);
 
 
@@ -1269,12 +1277,12 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 	ALFA_LocRecEvCollection::const_iterator mcColBeg = pLocRecCol->begin();
 	ALFA_LocRecEvCollection::const_iterator mcColEnd = pLocRecCol->end();
 
-	map<int, vector<Int_t> > mapNumTrackPotMD;
-	map<int, vector<Int_t> > mapNumTrackPotOD;
+	std::map<int, std::vector<Int_t> > mapNumTrackPotMD;
+	std::map<int, std::vector<Int_t> > mapNumTrackPotOD;
 	mapNumTrackPotMD.clear();
 	mapNumTrackPotOD.clear();
 
-	vector<int> vecFibSel;
+	std::vector<int> vecFibSel;
 	vecFibSel.clear();
 	int iAlgoID = 0;
 	int iTrackTmp = 0;
@@ -1292,7 +1300,7 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 
 		if (mapNumTrackPotMD.find(iAlgoID)==mapNumTrackPotMD.end())
 		{
-			mapNumTrackPotMD.insert(pair<int, vector<Int_t> >(iAlgoID, vNumTrackPotAll));
+			mapNumTrackPotMD.insert(std::pair<int, std::vector<Int_t> >(iAlgoID, vNumTrackPotAll));
 		}
 
 
@@ -1379,7 +1387,7 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 
 		if (mapNumTrackPotOD.find(iAlgoID)==mapNumTrackPotOD.end())
 		{
-			mapNumTrackPotOD.insert(pair<int, vector<Int_t> >(iAlgoID, vNumTrackPotAll));
+			mapNumTrackPotOD.insert(std::pair<int, std::vector<Int_t> >(iAlgoID, vNumTrackPotAll));
 		}
 
 		if (iAlgoID==m_MapAlgoNameToID[m_strMainAlgoOD])
@@ -1434,21 +1442,21 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 
 
 	//for the other MD algorithms ----------------------------------------------------------
-	map<int, int> mapNumTrackPotMax;
+	std::map<int, int> mapNumTrackPotMax;
 	mapNumTrackPotMax.clear();
-	map<int, vector<Int_t> >::iterator it;
+	std::map<int, std::vector<Int_t> >::iterator it;
 	for (it=mapNumTrackPotMD.begin(); it!=mapNumTrackPotMD.end(); it++)
 	{
 		for (int iPot=0; iPot<RPOTSCNT; iPot++)
 		{
 //			cout << "first, second = " << it->first << ", " << it->second[iPot] << endl;
-			if (mapNumTrackPotMax.find(it->first)==mapNumTrackPotMax.end()) mapNumTrackPotMax.insert(pair<int, int>(it->first, 0));
+			if (mapNumTrackPotMax.find(it->first)==mapNumTrackPotMax.end()) mapNumTrackPotMax.insert(std::pair<int, int>(it->first, 0));
 
 			if (it->second[iPot] > mapNumTrackPotMax[it->first]) mapNumTrackPotMax[it->first] = it->second[iPot];
 		}
 	}
 
-	map<int, int >::iterator itNum;
+	std::map<int, int >::iterator itNum;
 	for (itNum=mapNumTrackPotMax.begin(); itNum!=mapNumTrackPotMax.end(); itNum++)
 	{
 //		cout << "first, second = " << itNum->first << ", " << itNum->second << endl;
@@ -1463,7 +1471,7 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 		for (int iPot=0; iPot<RPOTSCNT; iPot++)
 		{
 //			cout << "first, second = " << it->first << ", " << it->second[iPot] << endl;
-			if (mapNumTrackPotMax.find(it->first)==mapNumTrackPotMax.end()) mapNumTrackPotMax.insert(pair<int, int>(it->first, 0));
+			if (mapNumTrackPotMax.find(it->first)==mapNumTrackPotMax.end()) mapNumTrackPotMax.insert(std::pair<int, int>(it->first, 0));
 
 			if (it->second[iPot] > mapNumTrackPotMax[it->first]) mapNumTrackPotMax[it->first] = it->second[iPot];
 		}
@@ -1497,10 +1505,10 @@ StatusCode ALFA_Ntuple::GetLocRecCorrData()
 
 	memset(&iNumTrackPot, 0, sizeof(iNumTrackPot));
 
-	vector<Int_t> vNumTrackPotAll;
+	std::vector<Int_t> vNumTrackPotAll;
 	vNumTrackPotAll.assign(8, 0);
 
-	map<int, vector<Int_t> > mapNumTrackPot;
+	std::map<int, std::vector<Int_t> > mapNumTrackPot;
 	mapNumTrackPot.clear();
 
 	const ALFA_LocRecCorrEvCollection* pLocRecCorrCol = 0;
@@ -1533,7 +1541,7 @@ StatusCode ALFA_Ntuple::GetLocRecCorrData()
 
 		if (mapNumTrackPot.find(iAlgoID)==mapNumTrackPot.end())
 		{
-			mapNumTrackPot.insert(pair<int, vector<Int_t> >(iAlgoID, vNumTrackPotAll));
+			mapNumTrackPot.insert(std::pair<int, std::vector<Int_t> >(iAlgoID, vNumTrackPotAll));
 		}
 
 		if (iAlgoID==m_MapAlgoNameToID[m_strMainAlgoMD])
@@ -1610,7 +1618,7 @@ StatusCode ALFA_Ntuple::GetLocRecCorrData()
 
 		if (mapNumTrackPot.find(iAlgoID)==mapNumTrackPot.end())
 		{
-			mapNumTrackPot.insert(pair<int, vector<Int_t> >(iAlgoID, vNumTrackPotAll));
+			mapNumTrackPot.insert(std::pair<int, std::vector<Int_t> >(iAlgoID, vNumTrackPotAll));
 		}
 
 		if (iAlgoID==m_MapAlgoNameToID[m_strMainAlgoOD])
@@ -1697,7 +1705,7 @@ StatusCode ALFA_Ntuple::GetGloRecData()
 	return StatusCode::SUCCESS;
 }
 
-StatusCode ALFA_Ntuple::AddCOOLFolderCallback(const string& Folder)
+StatusCode ALFA_Ntuple::AddCOOLFolderCallback(const std::string& Folder)
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::AddCOOLFolderCallback()");
 	StatusCode sc=StatusCode::FAILURE;
@@ -1712,7 +1720,7 @@ StatusCode ALFA_Ntuple::AddCOOLFolderCallback(const string& Folder)
 	return sc;
 }
 
-StatusCode ALFA_Ntuple::AddCOOLFolderCallbackAthenaAttributeList(const string& Folder)
+StatusCode ALFA_Ntuple::AddCOOLFolderCallbackAthenaAttributeList(const std::string& Folder)
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::AddCOOLFolderCallbackAthenaAttributeList()");
 	StatusCode sc=StatusCode::FAILURE;
@@ -1730,7 +1738,7 @@ StatusCode ALFA_Ntuple::AddCOOLFolderCallbackAthenaAttributeList(const string& F
 StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::COOLUpdate()");
-	list<string>::const_iterator iter;
+	std::list<std::string>::const_iterator iter;
 	const CondAttrListCollection* atrlistcol;
 	const AthenaAttributeList* atrlist;
 
@@ -1882,7 +1890,7 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 					m_iGain[iChannel][2]      = (((*citr).second)[4]).data<int>();
 					m_iGain[iChannel][3]      = (((*citr).second)[6]).data<int>();
 					m_iGain[iChannel][4]      = (((*citr).second)[7]).data<int>();
-					m_vecMainDetGainMode->push_back((((*citr).second)[2]).data<string>());
+					m_vecMainDetGainMode->push_back((((*citr).second)[2]).data<std::string>());
 				}
 			}
 			else ATH_MSG_WARNING("Could not retrieve CondAttrListCollection " << COOLFOLDER_FECONFIGURATION);
@@ -1977,9 +1985,9 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 	return StatusCode::SUCCESS;
 }
 
-StatusCode ALFA_Ntuple::COOLIOVRange(string strFolder, uint64_t &iTimeIOVStart, uint64_t &iTimeIOVStop)
+StatusCode ALFA_Ntuple::COOLIOVRange(std::string strFolder, uint64_t &iTimeIOVStart, uint64_t &iTimeIOVStop)
 {
-	string strFoldername, strTag;
+	std::string strFoldername, strTag;
 	IOVRange Range;
 	bool bRetrieved;
 	unsigned long long ullBytesRead;
