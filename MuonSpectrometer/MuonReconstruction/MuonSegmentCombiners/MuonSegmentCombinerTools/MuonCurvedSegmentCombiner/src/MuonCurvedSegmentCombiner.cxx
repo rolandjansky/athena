@@ -1612,9 +1612,9 @@ Muon::MuonCurvedSegmentCombiner::trackParameters( const Muon::MuonSegment& seg ,
     ym.setZero();
     Amg::MatrixX Res(2,1); // Vector of residuals 
     Res.setZero();
-    double m_radius_cylinder = 4000.;
-    double m_z_cylinder = 6000.;
-    double m_z_end = 15000.;
+    double radius_cylinder = 4000.;
+    double z_cylinder = 6000.;
+    double z_end = 15000.;
 
     double thetas = seg.globalDirection().theta();
     double rs = seg.globalPosition().perp();
@@ -1634,9 +1634,9 @@ Muon::MuonCurvedSegmentCombiner::trackParameters( const Muon::MuonSegment& seg ,
         imeth = 0;
     // Barrel Track Model Matrix
         Model(0,0) = rs;
-        Model(0,1) = (rs-m_radius_cylinder)*(rs-m_radius_cylinder);
+        Model(0,1) = (rs-radius_cylinder)*(rs-radius_cylinder);
         Model(1,0) = 1;
-        Model(1,1) = 2*(rs-m_radius_cylinder);
+        Model(1,1) = 2*(rs-radius_cylinder);
     // Measurements ym
     // correspondig squared errors: zs -> ers2  cot(thetas) ->ets2
         ym(0,0) = zs; 
@@ -1645,13 +1645,13 @@ Muon::MuonCurvedSegmentCombiner::trackParameters( const Muon::MuonSegment& seg ,
         imeth = 1;
     // Forward Track Model Matrix
         Model(0,0) = zs;
-        Model(0,1) = sign*(zs-sign*m_z_cylinder)*(zs-sign*m_z_cylinder);
+        Model(0,1) = sign*(zs-sign*z_cylinder)*(zs-sign*z_cylinder);
         Model(1,0) = 1;
-        Model(1,1) = 2*sign*(zs-sign*m_z_cylinder);
+        Model(1,1) = 2*sign*(zs-sign*z_cylinder);
 
-        if (fabs(zs) > m_z_end) {
-            Model(0,1) = -m_z_end*m_z_end + m_z_cylinder*m_z_cylinder + 2*zs*sign*(m_z_end-m_z_cylinder);
-            Model(1,1) = 2*(sign*m_z_end-sign*m_z_cylinder);
+        if (fabs(zs) > z_end) {
+            Model(0,1) = -z_end*z_end + z_cylinder*z_cylinder + 2*zs*sign*(z_end-z_cylinder);
+            Model(1,1) = 2*(sign*z_end-sign*z_cylinder);
         }  
     // Measurements ym
     // correspondig squared errors: rs -> ers2  tan(thetas) ->ets2
@@ -1948,10 +1948,10 @@ Muon::MuonCurvedSegmentCombiner::fit2Segments( const Muon::MuonSegment& seg , co
     Resi.setZero();
 
     // Geometry conventions 
-    double m_radius_cylinder = 4000.;
-    double m_z_cylinder = 6000.;
-    double m_z_end = 15000.; 
-    double m_cos_barrel = std::cos(std::atan2(11430.,14000.));  
+    double radius_cylinder = 4000.;
+    double z_cylinder = 6000.;
+    double z_end = 15000.; 
+    double cos_barrel = std::cos(std::atan2(11430.,14000.));  
     int imeth;
 
     // First Segment  
@@ -1987,7 +1987,7 @@ Muon::MuonCurvedSegmentCombiner::fit2Segments( const Muon::MuonSegment& seg , co
     if (scf < 1. ) scf = 1.; 
     if (scf > 100. ) scf = 100.;
     if (m_debug) std::cout << " error scaling in Curved fit " << scf << std::endl; 
-    if (std::abs(std::cos(thetasp))>m_cos_barrel || std::abs(std::cos(thetaspe))>m_cos_barrel ) scf = 2*scf;
+    if (std::abs(std::cos(thetasp))>cos_barrel || std::abs(std::cos(thetaspe))>cos_barrel ) scf = 2*scf;
 
     std::string st1 = info1.station;
     std::string st2 = info2.station;
@@ -2021,14 +2021,14 @@ Muon::MuonCurvedSegmentCombiner::fit2Segments( const Muon::MuonSegment& seg , co
         Model(0,0) = 1.;
         Model(1,0) = 1.;
         Model(1,1) = rs;
-        Model(1,2) = (rs-m_radius_cylinder)*(rs-m_radius_cylinder);
+        Model(1,2) = (rs-radius_cylinder)*(rs-radius_cylinder);
         Model(2,1) = 1.;
-        Model(2,2) = 2*(rs-m_radius_cylinder);
+        Model(2,2) = 2*(rs-radius_cylinder);
         Model(3,0) = 1.;
         Model(3,1) = rse;
-        Model(3,2) = (rse-m_radius_cylinder)*(rse-m_radius_cylinder);
+        Model(3,2) = (rse-radius_cylinder)*(rse-radius_cylinder);
         Model(4,1) = 1.;
-        Model(4,2) = 2*(rse-m_radius_cylinder);
+        Model(4,2) = 2*(rse-radius_cylinder);
     // Measurements ym
     // correspondig squared errors: zs -> ers2  cot(thetas) ->ets2
         ym(0,0) = 0.; 
@@ -2043,26 +2043,26 @@ Muon::MuonCurvedSegmentCombiner::fit2Segments( const Muon::MuonSegment& seg , co
         Model(0,0) = 1.;
         Model(1,0) = 1.;
         Model(1,1) = zs;
-        Model(1,2) = sign*(zs-sign*m_z_cylinder)*(zs-sign*m_z_cylinder);
+        Model(1,2) = sign*(zs-sign*z_cylinder)*(zs-sign*z_cylinder);
         Model(2,1) = 1;
-        Model(2,2) = sign*2*(zs-sign*m_z_cylinder);
+        Model(2,2) = sign*2*(zs-sign*z_cylinder);
         Model(3,0) = 1.;
         Model(3,1) = zse;
-        Model(3,2) = sign*(zse-sign*m_z_cylinder)*(zse-sign*m_z_cylinder);
+        Model(3,2) = sign*(zse-sign*z_cylinder)*(zse-sign*z_cylinder);
         Model(4,1) = 1;
-        Model(4,2) = sign*2*(zse-sign*m_z_cylinder);
+        Model(4,2) = sign*2*(zse-sign*z_cylinder);
 
-        if (fabs(zs) > m_z_end+2000) {
-            Model(1,2) = sign*(-m_z_end*m_z_end + m_z_cylinder*m_z_cylinder + 2*zs*sign*(m_z_end-m_z_cylinder)
-                +      (zs-sign*m_z_end)*(zs-sign*m_z_end)/5.);
-            Model(2,2) = sign*(2*(sign*m_z_end-sign*m_z_cylinder)
-                +     (zs-sign*m_z_end)/5.);
+        if (fabs(zs) > z_end+2000) {
+            Model(1,2) = sign*(-z_end*z_end + z_cylinder*z_cylinder + 2*zs*sign*(z_end-z_cylinder)
+                +      (zs-sign*z_end)*(zs-sign*z_end)/5.);
+            Model(2,2) = sign*(2*(sign*z_end-sign*z_cylinder)
+                +     (zs-sign*z_end)/5.);
         }
-        if (fabs(zse) > m_z_end+2000) {
-            Model(3,2) = sign*(-m_z_end*m_z_end + m_z_cylinder*m_z_cylinder + 2*zse*sign*(m_z_end-m_z_cylinder) 
-                +      (zse-sign*m_z_end)*(zse-sign*m_z_end)/5.);
-            Model(4,2) = sign*(2*(sign*m_z_end-sign*m_z_cylinder)
-                +     (zse-sign*m_z_end)/5.);
+        if (fabs(zse) > z_end+2000) {
+            Model(3,2) = sign*(-z_end*z_end + z_cylinder*z_cylinder + 2*zse*sign*(z_end-z_cylinder) 
+                +      (zse-sign*z_end)*(zse-sign*z_end)/5.);
+            Model(4,2) = sign*(2*(sign*z_end-sign*z_cylinder)
+                +     (zse-sign*z_end)/5.);
         }  
     // Measurements ym
     // correspondig squared errors: rs -> ers2  tan(thetas) ->ets2
@@ -2176,10 +2176,10 @@ void Muon::MuonCurvedSegmentCombiner::fit2SegmentsC( const Muon::MuonSegment& se
     Resi.setZero();
 
     // Geometry conventions 
-    double m_radius_cylinder = 4000.;
-    double m_z_cylinder = 6000.;
-    double m_z_end = 15000.;
-    double m_cos_barrel = std::cos(std::atan2(11430.,14000.));  
+    double radius_cylinder = 4000.;
+    double z_cylinder = 6000.;
+    double z_end = 15000.;
+    double cos_barrel = std::cos(std::atan2(11430.,14000.));  
     int imeth;
 
     // First Segment  
@@ -2232,7 +2232,7 @@ void Muon::MuonCurvedSegmentCombiner::fit2SegmentsC( const Muon::MuonSegment& se
         if (scf < 1. ) scf = 1.; 
         if (scf > 100. ) scf = 100.;
         if (m_debug) std::cout << " error scaling in Cosmics Curved fit " << scf << std::endl; 
-        if (std::abs(std::cos(thetasp))>m_cos_barrel || std::abs(std::cos(thetaspe))>m_cos_barrel ) scf = 2*scf;
+        if (std::abs(std::cos(thetasp))>cos_barrel || std::abs(std::cos(thetaspe))>cos_barrel ) scf = 2*scf;
 
         std::string st1 = info1.station;
         std::string st2 = info2.station;
@@ -2266,14 +2266,14 @@ void Muon::MuonCurvedSegmentCombiner::fit2SegmentsC( const Muon::MuonSegment& se
             Model(0,0) = 1.;
             Model(1,0) = 1.;
             Model(1,1) = rsc;
-            Model(1,2) = (rs-m_radius_cylinder)*(rs-m_radius_cylinder);
+            Model(1,2) = (rs-radius_cylinder)*(rs-radius_cylinder);
             Model(2,1) = 1.;
-            Model(2,2) = 2*(rs-m_radius_cylinder);
+            Model(2,2) = 2*(rs-radius_cylinder);
             Model(3,0) = 1.;
             Model(3,1) = rsec;
-            Model(3,2) = (rse-m_radius_cylinder)*(rse-m_radius_cylinder);
+            Model(3,2) = (rse-radius_cylinder)*(rse-radius_cylinder);
             Model(4,1) = 1.;
-            Model(4,2) = 2*(rse-m_radius_cylinder);
+            Model(4,2) = 2*(rse-radius_cylinder);
     // Measurements ym
     // correspondig squared errors: zs -> ers2  cot(thetas) ->ets2
             ym(0,0) = 0.; 
@@ -2288,26 +2288,26 @@ void Muon::MuonCurvedSegmentCombiner::fit2SegmentsC( const Muon::MuonSegment& se
             Model(0,0) = 1.;
             Model(1,0) = 1.;
             Model(1,1) = zs;
-            Model(1,2) = sign*(zs-sign*m_z_cylinder)*(zs-sign*m_z_cylinder);
+            Model(1,2) = sign*(zs-sign*z_cylinder)*(zs-sign*z_cylinder);
             Model(2,1) = 1;
-            Model(2,2) = sign*2*(zs-sign*m_z_cylinder);
+            Model(2,2) = sign*2*(zs-sign*z_cylinder);
             Model(3,0) = 1.;
             Model(3,1) = zse;
-            Model(3,2) = sign*(zse-sign*m_z_cylinder)*(zse-sign*m_z_cylinder);
+            Model(3,2) = sign*(zse-sign*z_cylinder)*(zse-sign*z_cylinder);
             Model(4,1) = 1;
-            Model(4,2) = sign*2*(zse-sign*m_z_cylinder);
+            Model(4,2) = sign*2*(zse-sign*z_cylinder);
 
-            if (fabs(zs) > m_z_end+2000) {
-                Model(1,2) = sign*(-m_z_end*m_z_end + m_z_cylinder*m_z_cylinder + 2*zs*sign*(m_z_end-m_z_cylinder)
-                    +      (zs-sign*m_z_end)*(zs-sign*m_z_end)/5.);
-                Model(2,2) = sign*(2*(sign*m_z_end-sign*m_z_cylinder)
-                    +     (zs-sign*m_z_end)/5.);
+            if (fabs(zs) > z_end+2000) {
+                Model(1,2) = sign*(-z_end*z_end + z_cylinder*z_cylinder + 2*zs*sign*(z_end-z_cylinder)
+                    +      (zs-sign*z_end)*(zs-sign*z_end)/5.);
+                Model(2,2) = sign*(2*(sign*z_end-sign*z_cylinder)
+                    +     (zs-sign*z_end)/5.);
             }
-            if (fabs(zse) > m_z_end+2000) {
-                Model(3,2) = sign*(-m_z_end*m_z_end + m_z_cylinder*m_z_cylinder + 2*zse*sign*(m_z_end-m_z_cylinder) 
-                    +      (zse-sign*m_z_end)*(zse-sign*m_z_end)/5.);
-                Model(4,2) = sign*(2*(sign*m_z_end-sign*m_z_cylinder)
-                    +     (zse-sign*m_z_end)/5.);
+            if (fabs(zse) > z_end+2000) {
+                Model(3,2) = sign*(-z_end*z_end + z_cylinder*z_cylinder + 2*zse*sign*(z_end-z_cylinder) 
+                    +      (zse-sign*z_end)*(zse-sign*z_end)/5.);
+                Model(4,2) = sign*(2*(sign*z_end-sign*z_cylinder)
+                    +     (zse-sign*z_end)/5.);
             }  
     // Measurements ym
     // correspondig squared errors: rs -> ers2  tan(thetas) ->ets2
@@ -2415,10 +2415,10 @@ void Muon::MuonCurvedSegmentCombiner::extrapolateSegment( const Muon::MuonSegmen
     Resi.setZero();
 
     // Geometry conventions 
-    double m_radius_cylinder = 4000.;
-    double m_z_cylinder = 5000.;
-    double m_z_end = 15000.;
-    //  double m_cos_barrel = std::cos(std::atan2(11430.,14000.));  
+    double radius_cylinder = 4000.;
+    double z_cylinder = 5000.;
+    double z_end = 15000.;
+    //  double cos_barrel = std::cos(std::atan2(11430.,14000.));  
     //int imeth;
 
     // Segment to start
@@ -2452,15 +2452,15 @@ void Muon::MuonCurvedSegmentCombiner::extrapolateSegment( const Muon::MuonSegmen
         Model(0,0) = 1.;
         Model(1,0) = 1.;
         Model(1,1) = rs;
-        Model(1,2) = (rs-m_radius_cylinder)*(rs-m_radius_cylinder);
+        Model(1,2) = (rs-radius_cylinder)*(rs-radius_cylinder);
         Model(2,1) = 1.;
-        Model(2,2) = 2*(rs-m_radius_cylinder);
+        Model(2,2) = 2*(rs-radius_cylinder);
         ModelE(0,0) = 1.;
         ModelE(1,0) = 1.;
         ModelE(1,1) = rse;
-        ModelE(1,2) = (rse-m_radius_cylinder)*(rse-m_radius_cylinder);
+        ModelE(1,2) = (rse-radius_cylinder)*(rse-radius_cylinder);
         ModelE(2,1) = 1.;
-        ModelE(2,2) = 2*(rse-m_radius_cylinder);
+        ModelE(2,2) = 2*(rse-radius_cylinder);
     // Measurements ym
     // correspondig squared errors: zs -> ers2  cot(thetas) ->ets2
         ym(0,0) = 0.; 
@@ -2475,21 +2475,21 @@ void Muon::MuonCurvedSegmentCombiner::extrapolateSegment( const Muon::MuonSegmen
         Model(0,0) = 1.;
         Model(1,0) = 1.;
         Model(1,1) = zs;
-        Model(1,2) = sign*(zs-sign*m_z_cylinder)*(zs-sign*m_z_cylinder);
+        Model(1,2) = sign*(zs-sign*z_cylinder)*(zs-sign*z_cylinder);
         Model(2,1) = 1;
-        Model(2,2) = sign*2*(zs-sign*m_z_cylinder);
+        Model(2,2) = sign*2*(zs-sign*z_cylinder);
         ModelE(0,0) = 1.;
         ModelE(1,0) = 1.;
         ModelE(1,1) = zse;
-        ModelE(1,2) = sign*(zse-sign*m_z_cylinder)*(zse-sign*m_z_cylinder);
+        ModelE(1,2) = sign*(zse-sign*z_cylinder)*(zse-sign*z_cylinder);
         ModelE(2,1) = 1;
-        Model(2,2) = sign*2*(zse-sign*m_z_cylinder);
+        Model(2,2) = sign*2*(zse-sign*z_cylinder);
 
-        if (fabs(zs) > m_z_end) {
-            Model(1,2) = sign*(-m_z_end*m_z_end + m_z_cylinder*m_z_cylinder + 2*zs*sign*(m_z_end-m_z_cylinder));
-            Model(2,2) = sign*2*(sign*m_z_end-sign*m_z_cylinder);
-            ModelE(1,2) = sign*(-m_z_end*m_z_end + m_z_cylinder*m_z_cylinder + 2*zse*sign*(m_z_end-m_z_cylinder));
-            ModelE(2,2) = sign*2*(sign*m_z_end-sign*m_z_cylinder);
+        if (fabs(zs) > z_end) {
+            Model(1,2) = sign*(-z_end*z_end + z_cylinder*z_cylinder + 2*zs*sign*(z_end-z_cylinder));
+            Model(2,2) = sign*2*(sign*z_end-sign*z_cylinder);
+            ModelE(1,2) = sign*(-z_end*z_end + z_cylinder*z_cylinder + 2*zse*sign*(z_end-z_cylinder));
+            ModelE(2,2) = sign*2*(sign*z_end-sign*z_cylinder);
         }  
     // Measurements ym
     // correspondig squared errors: rs -> ers2  tan(thetas) ->ets2
