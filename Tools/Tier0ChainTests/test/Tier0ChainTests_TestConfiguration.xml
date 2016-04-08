@@ -1253,36 +1253,79 @@
                         </chainElement>
                         
                         <!-- Standard reco test job q221 -->
-                        <chainElement>
-                            <jobTransform userJobId="q221">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>q221</jobTransformJobName>
-                                <jobTransformCmd>
-                                    Reco_tf.py --AMI=q221
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>q221.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                            </jobTransform>
-                        </chainElement>
-                        
+        		<sequential> <!-- 2 steps in q221 job : Running reco jobs, then producing outputNTUP_PHYSVALFile from the AOD file from the first step -->
+          		    <chainElement>
+          		        <jobTransform userJobId="q221">
+          		            <doc>RecoTrf</doc>
+          		            <jobTransformJobName>q221</jobTransformJobName>
+          		            <jobTransformCmd>
+          		                Reco_tf.py --AMI=q221
+          		            </jobTransformCmd>
+          		            <group>TCTTransform</group>
+          		            <queue>medium</queue>
+          		            <batchWallTime>420</batchWallTime>
+          		            <castorSvcClass>t0atlas</castorSvcClass>
+          		            <test>
+          		                <modulename>RttLibraryTools</modulename>
+          		                <testname>FileGrepper</testname>
+          		                <arg>
+          		                    <argname>inputFile</argname>
+          		                    <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+          		                </arg>
+          		                <arg>
+          		                    <argname>outputFile</argname>
+          		                    <argvalue>q221.summary.txt</argvalue>
+          		                </arg>
+          		                <arg>
+          		                    <argname>searchList</argname>
+          		                    <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+          		                </arg>
+          		            </test>
+          		        </jobTransform>
+          		        <chainfileout>myAOD.pool.root</chainfileout> 
+          		    </chainElement>
+          		    <chainElement>
+          		        <jobTransform userJobId="q221_NTUP_PHYSVAL">
+          		            <doc>RecoTrf</doc>
+          		            <jobTransformJobName>q221_NTUP_PHYSVAL</jobTransformJobName>
+          		            <jobTransformCmd>
+          		            Reco_tf.py --validationFlags 'doExample,doMET,doPFlow,doTau,doTopoCluster,doEgamma,doBtag,doZee,doJet,doMuon,doTrigMinBias,doTrigIDtrk,doTrigBphys,doTrigMET,doTrigJet,doTrigTau, doTrigEgamma,doTrigMuon,doTrigBjet,doTrigHLTResult' --inputAODFile myAOD.pool.root  --outputNTUP_PHYSVALFile myNTUP_PHYSVAL.root
+          		            </jobTransformCmd>
+          		            <group>TCTTransform</group>
+                                    <chaindataset_info>
+                                        <jobTransformData/>
+                                        <chaindatasetName>myAOD.pool.root</chaindatasetName> <!-- Made by 1st step of the q221 job-->
+                                        <dataset_info>
+                                            <jobTransformData/>
+                                            <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/tier0-vol3/rtt/fallbackfiles/myAOD_from_q221.pool.root</datasetName>
+                                        </dataset_info>
+                                    </chaindataset_info>
+          		            <queue>medium</queue>
+          		            <batchWallTime>420</batchWallTime>
+          		            <castorSvcClass>t0atlas</castorSvcClass>
+          		            <test>
+          		                <modulename>RttLibraryTools</modulename>
+          		                <testname>FileGrepper</testname>
+          		                <arg>
+          		                    <argname>inputFile</argname>
+          		                    <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+          		                </arg>
+          		                <arg>
+          		                    <argname>outputFile</argname>
+          		                    <argvalue>q221_NTUP_PHYSVAL.summary.txt</argvalue>
+          		                </arg>
+          		                <arg>
+          		                    <argname>searchList</argname>
+          		                    <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+          		                </arg>
+          		            </test>
+                                    <testToRemove>  <!-- No POOL output produced -->
+                                        <jobGroupName>Top</jobGroupName>
+                                        <testidentifier>CheckFileRunner0</testidentifier>
+                                    </testToRemove>
+          		        </jobTransform>
+          		    </chainElement>
+        		</sequential> 
                         <!-- Standard reco test job q222 -->
                         <chainElement>
                             <jobTransform userJobId="q222">
