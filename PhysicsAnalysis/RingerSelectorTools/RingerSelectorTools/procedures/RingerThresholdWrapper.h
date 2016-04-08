@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerThresholdWrapper.h 694258 2015-09-10 22:46:03Z wsfreund $
+// $Id: RingerThresholdWrapper.h 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERTHRESHOLDWRAPPER_H
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERTHRESHOLDWRAPPER_H
 
@@ -92,8 +92,8 @@ typedef IThresWrapper::WrapperCollection IThresWrapperCollection;
  * @brief Specialization for Threshold procedure.
  **/
 template < class procedure_t,
-  EtaDependency etaDependency,
-  EtDependency etDependency>
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency>
 class RingerProcedureWrapper<
   procedure_t,
   etaDependency,
@@ -172,7 +172,7 @@ class RingerProcedureWrapper<
     EtaDependency etaDep() const
       ATH_RINGER_OVERRIDE ATH_RINGER_FINAL
     {
-      return etaDependency;
+      return static_cast<EtaDependency>(etaDependency);
     }
 
     /**
@@ -181,7 +181,7 @@ class RingerProcedureWrapper<
     EtDependency etDep() const
       ATH_RINGER_OVERRIDE ATH_RINGER_FINAL
     {
-      return etDependency;
+      return static_cast<EtDependency>(etDependency);
     }
 
     /**

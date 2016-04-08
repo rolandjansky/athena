@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerProcedureWrapper.h 670599 2015-05-28 14:15:35Z wsfreund $
+// $Id: RingerProcedureWrapper.h 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERPROCEDUREWRAPPER_H
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERPROCEDUREWRAPPER_H
 
@@ -165,9 +165,9 @@ class IRingerProcedureWrapper;
  **/
 template < 
   class procedure_t,
-  EtaDependency etaDependency = EtaIndependent,
-  EtDependency etDependency = EtIndependent,
-  SegmentationType segType = NoSegmentation,
+  /*EtaDependency*/int etaDependency = EtaIndependent,
+  /*EtDependency*/int etDependency = EtIndependent,
+  /*SegmentationType*/int segType = NoSegmentation,
   // Below template parameters are not supposed to be set directly by user:
   bool isPreProcessor = RingerProcedureType< procedure_t >::is_pre_processor,
   bool isDiscriminator = RingerProcedureType< procedure_t >::is_discriminator,

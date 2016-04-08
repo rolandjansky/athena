@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerDiscriminatorWrapper.h 689837 2015-08-17 17:22:12Z wsfreund $
+// $Id: RingerDiscriminatorWrapper.h 713528 2015-12-09 08:58:44Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERDISCRIMINATIONWRAPPER_H
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERDISCRIMINATIONWRAPPER_H
 
@@ -144,9 +144,9 @@ typedef IDiscrWrapper::WrapperCollection IDiscrWrapperCollection;
  * @brief Specialization for Discriminator procedure.
  **/
 template < class procedure_t,
-  EtaDependency etaDependency,
-  EtDependency etDependency,
-  SegmentationType segType>
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType>
 class RingerProcedureWrapper<
   procedure_t,
   etaDependency,
@@ -191,7 +191,10 @@ class RingerProcedureWrapper<
     RingerProcedureWrapper(
         const DiscrDepProcCollection &discrDepCol):
       m_ppWrapperCol(IPreProcWrapperCollection(0)),
-      m_discrCol(discrDepCol)
+      m_discrCol(discrDepCol),
+      m_discr(nullptr),
+      m_rsRawConfCol(nullptr),
+      m_nRings(0)
     { 
       checkDiscrCol(); 
     }
@@ -282,24 +285,24 @@ class RingerProcedureWrapper<
     virtual SegmentationType getSegType() const 
       ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
     {
-      return segType;
+      return static_cast<SegmentationType>(segType);
     }
 
 
     /**
      * @brief Returns whether holden interface collection is empty.
      **/
-    virtual bool empty() const { return m_discrCol.empty();}
+    virtual bool empty() const ATH_RINGER_OVERRIDE { return m_discrCol.empty();}
 
     /**
      * @brief Returns whether it has pre-processing Collection Wrapper.
      **/
-    virtual bool hasPP() const { return !m_ppWrapperCol.empty();}
+    virtual bool hasPP() const ATH_RINGER_OVERRIDE { return !m_ppWrapperCol.empty();}
 
     /**
      * @brief Overloads the setMsgStream from RedirectMsgStream.
      **/
-    virtual void setMsgStream(MsgStream *msg) const;
+    virtual void setMsgStream(MsgStream *msg) const ATH_RINGER_OVERRIDE;
 
     /**
      * @brief Write collection to TDirectory
@@ -313,7 +316,7 @@ class RingerProcedureWrapper<
     EtaDependency etaDep() const
       ATH_RINGER_OVERRIDE ATH_RINGER_FINAL
     {
-      return etaDependency;
+      return static_cast<EtaDependency>(etaDependency);
     }
 
     /**
@@ -322,7 +325,7 @@ class RingerProcedureWrapper<
     EtDependency etDep() const
       ATH_RINGER_OVERRIDE ATH_RINGER_FINAL
     {
-      return etDependency;
+      return static_cast<EtDependency>(etDependency);
     }
 
     /**

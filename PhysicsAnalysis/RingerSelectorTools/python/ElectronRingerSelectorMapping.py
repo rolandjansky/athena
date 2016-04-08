@@ -6,7 +6,7 @@
 ## Author:      Werner Spolidoro Freund (LPS/UFRJ)
 ## Created:     Mar 2015
 ##
-## Description: Find mapping of mask and function for ID quality
+## Description: Retrieve selector from mask mapping 
 ##=============================================================================
 
 try:
@@ -42,6 +42,12 @@ class electronRingerPIDmenu (electronPIDmenu):
 ##  Loose_CutID_Pf                || Same false alarm probability as CutID Loose                   ##
 ##  Medium_CutID_Pf               || Same false alarm probability as CutID Medium                  ##
 ##  Tight_CutID_Pf                || Same false alarm probability as CutID Tight                   ##
+##  Loose_LH_Pd,                  || Same detection probability as LH Loose                        ##
+##  Medium_LH_Pd,                 || Same detection probability as LH Medium                       ##
+##  Tight_LH_Pd,                  || Same detection probability as LH Tight                        ##
+##  Loose_LH_Pf,                  || Same false alarm probability as LH Loose                      ##
+##  Medium_LH_Pf,                 || Same false alarm probability as LH Medium                     ##
+##  Tight_LH_Pf,                  || Same false alarm probability as LH Tight                      ##
 ##  Medium-MaxSP                  || Maximum SP-product                                            ##
 ##  Loose                         || Same as LooseCutIDPd                                          ##
 ##  Medium                        || Same as Medium-MaxSP                                          ##

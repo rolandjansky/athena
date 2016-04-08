@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerSelectorToolsDefs.h 689837 2015-08-17 17:22:12Z wsfreund $
+// $Id: RingerSelectorToolsDefs.h 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_RINGERSELECTORTOOLSDEFS_H
 #define RINGERSELECTORTOOLS_RINGERSELECTORTOOLSDEFS_H
 
@@ -27,7 +27,7 @@ namespace Ringer {
 
 
 /**                                                                                        
- * @brief the possible procedure segmentation types.
+ * @brief the possible procedure longitudinal segmentation types.
  *
  * - NoSegmentation stands for a unique representation for all data. This may
  *   mean that the procedure: 
@@ -103,18 +103,24 @@ enum EtDependency {
  * @brief the cut requirement 
  **/
 enum Requirement {
-  Loose_CutID_Pd = 0,          // Same detection probability as CutID Loose
-  Medium_CutID_Pd,             // Same detection probability as CutID Medium
-  Tight_CutID_Pd,              // Same detection probability as CutID Tight
-  Loose_CutID_Pf,              // Same false alarm probability as CutID Loose
-  Medium_CutID_Pf,             // Same false alarm probability as CutID Medium
-  Tight_CutID_Pf,              // Same false alarm probability as CutID Tight
-  Medium_MaxSP,                // Maximum SP-product
-  Loose,                       // Same as LooseCutIDPd
-  Medium,                      // Same as MediumSP
-  Tight,                       // Same as TightCutIDPf
-  NoCut,                       // Run to retrieve discriminators output, but no cut is applied
-  NRequirements
+  Loose_CutID_Pd = 0, // Same detection probability as CutID Loose
+  Medium_CutID_Pd,    // Same detection probability as CutID Medium
+  Tight_CutID_Pd,     // Same detection probability as CutID Tight
+  Loose_CutID_Pf,     // Same false alarm probability as CutID Loose
+  Medium_CutID_Pf,    // Same false alarm probability as CutID Medium
+  Tight_CutID_Pf,     // Same false alarm probability as CutID Tight
+  Loose_LH_Pd,        // Same detection probability as LH Loose
+  Medium_LH_Pd,       // Same detection probability as LH Medium
+  Tight_LH_Pd,        // Same detection probability as LH Tight
+  Loose_LH_Pf,        // Same false alarm probability as LH Loose
+  Medium_LH_Pf,       // Same false alarm probability as LH Medium
+  Tight_LH_Pf,        // Same false alarm probability as LH Tight
+  Medium_MaxSP,       // Maximum SP-product
+  Loose,              // Same as LooseCutIDPd
+  Medium,             // Same as MediumSP
+  Tight,              // Same as TightCutIDPf
+  NoCut,              // Run to retrieve discriminators output, but no cut is applied
+  NRequirements       // Number of Requirements available
 };
 
 /**

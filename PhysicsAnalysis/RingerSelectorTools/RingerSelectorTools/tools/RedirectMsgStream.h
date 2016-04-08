@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RedirectMsgStream.h 693573 2015-09-07 19:15:49Z wsfreund $
+// $Id: RedirectMsgStream.h 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_TOOLS_REDIRECTMSGSTREAM_H
 #define RINGERSELECTORTOOLS_TOOLS_REDIRECTMSGSTREAM_H
 
@@ -41,13 +41,13 @@ class RedirectMsgStream : virtual public IRedirectMsgStream {
       const_cast<RedirectMsgStream*>(this)->m_msg = msg;
 #endif
     }
-    /// Set msg level
+    /// Check if message level is enabled
     bool msgLvl(MSG::Level level) const { 
 #if !defined(RINGER_STANDALONE)
       if ( isStreamAvailable() ) {
         return m_msg->level() <= level; 
       }
-      return true;
+      return false;
 #else
       return MSG::currentLevel <= level;
 #endif
@@ -85,6 +85,7 @@ class RedirectMsgStream : virtual public IRedirectMsgStream {
     RedirectMsgStream():
       m_msg(nullptr){;}
     /// @}
+    ~RedirectMsgStream(){;}
 
     /// Properties:
     /// @{

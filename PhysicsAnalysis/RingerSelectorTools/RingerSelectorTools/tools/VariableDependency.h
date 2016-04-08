@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VariableDependency.h 689837 2015-08-17 17:22:12Z wsfreund $
+// $Id: VariableDependency.h 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef  RINGERSELECTORTOOLS_TOOLS_VARIABLEDEPENDENCY_H
 #define  RINGERSELECTORTOOLS_TOOLS_VARIABLEDEPENDENCY_H
 
@@ -10,9 +10,10 @@
 #include <stdexcept>
 #include <cmath>
 #include <sstream>
+#include <iostream>
 
-// ROOT Includes:
-#include <TObject.h>
+// ROOT includes:
+#include <TDirectory.h>
 
 // Local includes:
 #include "RingerSelectorTools/RingerSelectorToolsDefs.h"
@@ -20,6 +21,7 @@
 #include "RingerSelectorTools/tools/cxx/final.h"
 #include "RingerSelectorTools/tools/cxx/override.h"
 #include "RingerSelectorTools/tools/cxx/mutable.h"
+
 
 /** 
  * @brief Namespace dedicated for Ringer utilities 

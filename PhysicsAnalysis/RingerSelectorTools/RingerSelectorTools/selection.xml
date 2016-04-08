@@ -1,19 +1,54 @@
 <lcgdict>
 
+  <!-- Needed for adding logging capabilities on python (?)-->
   <!-- Redirect MsgStream dictionary: -->
-  <!-- <class name="Ringer::RedirectMsgStream">
+  <!--
+  <class name="Ringer::RedirectMsgStream">
     <field name="m_msg" transient="true" />
-  </class> -->
+  </class>
+  -->
 
+  <class class="Ringer::VariableDependency" />
+
+  <!-- The multi-tool and some configurables -->
   <class name="Ringer::AsgElectronRingerSelector" />
   <class pattern="Ringer::ElectronTAccept*" />
   <class pattern="Ringer::BitdefElectron*" />
 
-  <!-- Add every class/enum within Ringer namespace -->
+  <!-- The procedures -->
+  <class name="Ringer::PreProcessing::Norm::Norm1VarDep" />
+  <class name="Ringer::Discrimination::NNFeedForwardVarDep" />
+  <class name="Ringer::Discrimination::UniqueThresholdVarDep" />
+
+  <!-- The wrapper templates -->
+  <class name="Ringer::IPreProcWrapper" />
+  <class name="Ringer::IPreProcWrapperCollection" />
+  <class name="Ringer::IDiscrWrapper" />
+  <class name="Ringer::IDiscrWrapperCollection" />
+  <class name="Ringer::IThresWrapper" />
+  <class pattern="Ringer::RingerProcedureWrapper<*" />
+  <!-- Include the templated Ringer vectors-->
+  <class pattern="std::vector<Ringer::*" />
+  <class pattern="std::vector<std::vector<Ringer::*" />
+
+  <!-- Add every enum/fnc within Ringer namespace -->
   <enum pattern="Ringer::*"/>
-  <!-- <class pattern="Ringer::*" /> -->
   <function pattern="Ringer::*"/>
-  <function pattern="Ringer::IOHelperFcns::readVar<*"/>
+
+  <!-- <class pattern="Ringer::*" /> -->
+
+  <!-- Remove extra Root catch-ups by above patterns that we dont want -->
+  <exclusion>
+    <class pattern="*ROOTDict::*" />
+    <class pattern="*boost_static_assert_typedef*" />
+    <class pattern="Ringer::is_base_of*" />
+    <class pattern="Ringer::is_same*" />
+    <enum  name="Ringer::CalJointSection" />
+    <enum  name="Ringer::CalJointLayer" />
+    <function pattern="Ringer::PreProcessing*"/>
+    <function pattern="Ringer::WrapperHelperFcns*"/>
+    <class pattern="*bitMskWord*" />
+  </exclusion>
 
   <!--
   <class name="std::vector<long long>"/>
@@ -32,18 +67,5 @@
     ]]>
   </read>
   -->
-
-  <!-- Remove extra Root catchups by above patterns -->
-  <exclusion>
-    <class pattern="*ROOTDict::*" />
-    <class pattern="*boost_static_assert_typedef*" />
-    <class pattern="Ringer::is_base_of*" />
-    <class pattern="Ringer::is_same*" />
-    <enum  name="Ringer::CalJointSection" />
-    <enum  name="Ringer::CalJointLayer" />
-    <function pattern="Ringer::PreProcessing*"/>
-    <function pattern="Ringer::WrapperHelperFcns*"/>
-    <class pattern="*bitMskWord*" />
-  </exclusion>
 
 </lcgdict>

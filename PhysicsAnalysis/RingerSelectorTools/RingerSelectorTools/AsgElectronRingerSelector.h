@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AsgElectronRingerSelector.h 670599 2015-05-28 14:15:35Z wsfreund $
+// $Id: AsgElectronRingerSelector.h 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_ASGELECTRONCALORINGERSELECTOR_H
 #define RINGERSELECTORTOOLS_ASGELECTRONCALORINGERSELECTOR_H
 
@@ -99,6 +99,37 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
 
     /// Main methods for IAsgSelectionTool interface
     ///@{
+    /**
+     * @brief Set the discrimination configuration file
+     **/
+    void setDiscrFile( const std::string path );
+
+    /**
+     * @brief Set the threshold configuration file
+     **/
+    void setThresFile( const std::string path );
+
+    /**
+     * @brief Set the threshold configuration file
+     **/
+    void setCutMask( const unsigned int cutMask );
+
+    /**
+     * @brief Set the CutIDSelector to be used
+     **/
+    void setCutIDSelector( IAsgElectronIsEMSelector *cutID );
+
+    /**
+     * @brief Set the RingSetConfContainer (MetaData) key
+     **/
+    void setRSMetaName( const std::string name );
+
+    /**
+     * @brief Set whether to cache the meta data and assume it will be the same
+     *        through all the analysis.
+     **/
+    void setCacheMetaData( bool flag );
+
     /** 
      * @brief This method will bypass accept to xAOD::Electron if it is possible.
      **/
@@ -266,7 +297,7 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
     /// @}
 };
 
-#else // ifndef RINGER_STANDALONE
+#else // RINGER_STANDALONE is defined
 class AsgElectronRingerSelector 
 {
   public:
@@ -310,6 +341,7 @@ class AsgElectronRingerSelector
 
 // Inline methods:
 //=============================================================================
+inline
 AsgElectronRingerSelector::IOConfStruct::IOConfStruct()
   : useTrackPat(false),
     useRawTrackPat(false),
@@ -322,7 +354,52 @@ AsgElectronRingerSelector::IOConfStruct::IOConfStruct()
     useTRTOutliers(false),
     useTRTXenonHits(false){;}
 
+
 #ifndef RINGER_STANDALONE
+
+//=============================================================================
+inline
+void AsgElectronRingerSelector::setDiscrFile( const std::string path )
+{
+  m_discrFileName = path;
+}
+
+//=============================================================================
+inline
+void AsgElectronRingerSelector::setThresFile( const std::string path )
+{
+  m_thresFileName = path;
+}
+
+//=============================================================================
+inline 
+void AsgElectronRingerSelector::setCutMask( const unsigned int cutMask )
+{
+  m_cutsMask = cutMask;
+}
+
+//=============================================================================
+inline 
+void AsgElectronRingerSelector::setCutIDSelector( 
+      IAsgElectronIsEMSelector *cutID )
+{
+  m_cutIDSelector = ToolHandle<IAsgElectronIsEMSelector>(cutID);
+}
+
+//=============================================================================
+inline
+void AsgElectronRingerSelector::setRSMetaName( const std::string name )
+{
+  m_rsMetaName = name;
+}
+
+//=============================================================================
+inline
+void AsgElectronRingerSelector::setCacheMetaData( bool flag )
+{
+  m_cacheMetaData = flag;
+}
+
 //=============================================================================
 inline
 const Root::TAccept& AsgElectronRingerSelector::accept( 

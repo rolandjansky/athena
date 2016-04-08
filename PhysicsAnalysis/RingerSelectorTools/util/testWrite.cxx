@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: testWrite.cxx 694258 2015-09-10 22:46:03Z wsfreund $
+// $Id: testWrite.cxx 694257 2015-09-10 22:45:27Z wsfreund $
 /**
  * In this executable we want to test if wrappers can be sucessfully written.
  *

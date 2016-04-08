@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AsgElectronRingerSelector.cxx 694258 2015-09-10 22:46:03Z wsfreund $
+// $Id: AsgElectronRingerSelector.cxx 713528 2015-12-09 08:58:44Z wsfreund $
 // STL includes:
 #include <string>
 #include <stdexcept>
@@ -371,15 +371,15 @@ StatusCode AsgElectronRingerSelector::execute(
   }
 
   // First, check if we can retrieve decoration:
-  const xAOD::CaloRingsELVec *caloRingsELVec(nullptr);
+  const xAOD::CaloRingsLinks *caloRingsLinks(nullptr);
   try {
-    caloRingsELVec = &(m_ringsELReader->operator()(*el));
+    caloRingsLinks = &(m_ringsELReader->operator()(*el));
   } catch ( const std::exception &e) {
-    ATH_MSG_ERROR("Couldn't retrieve CaloRingsELVec. Reason: " 
+    ATH_MSG_ERROR("Couldn't retrieve CaloRingsLinks. Reason: " 
         << e.what());
   }
 
-  if ( caloRingsELVec->empty() ){
+  if ( caloRingsLinks->empty() ){
 
     ATH_MSG_ERROR("Particle does not have CaloRings decoratorion.");
 
@@ -390,11 +390,24 @@ StatusCode AsgElectronRingerSelector::execute(
     return StatusCode::FAILURE;
   }
 
+  // FIXME The indexing should be an enum, previous test should ensure that the
+  // size is large enought to access index.
+  if ( !caloRingsLinks->at(0).isValid() ){
+    ATH_MSG_DEBUG("Ignoring candidate with invalid ElementLink.");
+
+    partDecMsk_ref.setCutResult( 
+        BitdefElectron::NoErrorBit, 
+        false);
+
+    return StatusCode::SUCCESS;
+  }
+
+
   // For now, we are using only the first cluster 
-  const xAOD::CaloRings *clrings = *(caloRingsELVec->at(0));
+  const xAOD::CaloRings *clrings = *(caloRingsLinks->at(0));
   
   // Check if everything is ok with CaloRings ElementLink vector:
-  if (caloRingsELVec->empty() || !(clrings) ){
+  if (caloRingsLinks->empty() || !(clrings) ){
 
     ATH_MSG_ERROR("There isn't CaloRings Decoration available" 
         " for input particle." );
@@ -575,9 +588,68 @@ StatusCode AsgElectronRingerSelector::beginInputFile()
   if ( ( m_metaIsOnOutput || failedToRetrieveInInput ) &&
       outputMetaStore()->retrieve( m_rsConfCont, m_rsMetaName ).isFailure())
   {
-    ATH_MSG_ERROR( "Couldn't retrieve rings configuration on both "
-        "inputMetaStore and outputMetaStore." );
-    return StatusCode::FAILURE;
+    // FIXME: This should be done by manually setting the metadata information
+    // if it is not set (if manually set, do not attempt to retrieve on the 
+    // metadata store).
+    ATH_MSG_WARNING( "Couldn't retrieve rings configuration on both "
+        "inputMetaStore and outputMetaStore. Setting default value, "
+        "(which might be wrong)." );
+    m_rawConfCol.clear();
+    m_rawConfCol = { 
+        {8,
+          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
+          Ringer::CalJointLayer::PS,
+          Ringer::CalJointSection::EM,
+          false, false,
+          0, 8,
+        0, 88},
+        {64,
+          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
+          Ringer::CalJointLayer::EM1,
+          Ringer::CalJointSection::EM,
+          false, false,
+          8, 72,
+        0, 88},
+        {8,
+          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
+          Ringer::CalJointLayer::EM2,
+          Ringer::CalJointSection::EM,
+          false, false,
+          72, 80, 
+        0, 88},
+        {8,
+          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
+          Ringer::CalJointLayer::EM3,
+          Ringer::CalJointSection::EM,
+          false, false,
+          80, 88, 
+        0, 88},
+        {4,
+          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
+          Ringer::CalJointLayer::HAD1,
+          Ringer::CalJointSection::HAD,
+          false, false,
+          88, 92, 
+        88, 100},
+        {4,
+          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
+          Ringer::CalJointLayer::HAD2,
+          Ringer::CalJointSection::HAD,
+          false, false,
+          92, 96, 
+        88, 100},
+        {4,
+          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
+          Ringer::CalJointLayer::HAD3,
+          Ringer::CalJointSection::HAD,
+          false, false,
+          96, 100,
+        88, 100} };
+    for ( auto &discrWrapper : m_discrWrapperCol ) {
+      discrWrapper->setRawConfCol( &m_rawConfCol );
+    }
+    xAOD::RingSetConf::print( m_rawConfCol, msg() );
+    m_metaDataCached = true;
   } else {
     // Flag that meta is on outputMeta rather than the input 
     if ( failedToRetrieveInInput ){

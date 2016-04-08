@@ -51,12 +51,12 @@ apply_pattern lcgdict dict=RingerSelectorTools \
                       headerfiles="..\/RingerSelectorTools/RingerSelectorToolsDict.h"
 
 # Add binary ringerSel_readTest using testRead.cxx
-application ringerSel_testRead ../util/testRead.cxx
-macro_append ringerSel_testRead_dependencies RingerSelectorToolsLib 
+#application ringerSel_testRead ../util/testRead.cxx
+#macro_append ringerSel_testRead_dependencies RingerSelectorToolsLib 
 
 # Add binary ringerSel_writeTest using writeRead.cxx
-application ringerSel_testWrite ../util/testWrite.cxx
-macro_append ringerSel_testWrite_dependencies RingerSelectorToolsLib
+#application ringerSel_testWrite ../util/testWrite.cxx
+#macro_append ringerSel_testWrite_dependencies RingerSelectorToolsLib
 
 
 ###################### Code Graveyard ##########################

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: NeuralNetwork.cxx 667905 2015-05-18 19:07:55Z wsfreund $
+// $Id: NeuralNetwork.cxx 704615 2015-10-29 18:50:12Z wsfreund $
 #include "RingerSelectorTools/procedures/NeuralNetwork.h"
 
 // STL includes:
@@ -260,23 +260,8 @@ void NNFeedForward::read(NNFeedForward *newObj,
   std::vector<unsigned int> nodes;
   std::vector<float> weights, bias;
   IOHelperFcns::readVar(configDir, "nodes", nodes); 
-  //std::cout << "Nodes are: (" << nodes.size() << ")" << std::endl;
-  //for ( auto node : nodes ){
-  //  std::cout << node << " ";
-  //}
-  //std::cout << std::endl;
   IOHelperFcns::readVar(configDir, "weights", weights); 
-  //std::cout << "weights are: (" << weights.size() << ")" << std::endl;
-  //for ( auto weight : weights ){
-  //  std::cout << weight << " ";
-  //}
-  //std::cout << std::endl;
   IOHelperFcns::readVar(configDir, "bias", bias); 
-  //std::cout << "bias are: (" << bias.size() << ")" << std::endl;
-  //for ( auto b : bias ){
-  //  std::cout << b << " ";
-  //}
-  //std::cout << std::endl;
   newObj->changeArchiteture(nodes,weights,bias);
 }
 

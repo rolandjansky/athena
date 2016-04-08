@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IAsgElectronRingerSelector.h 668868 2015-05-20 20:26:18Z wsfreund $
+// $Id: IAsgElectronRingerSelector.h 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_IASGELECTRONRINGERSELECTOR_H
 #define RINGERSELECTORTOOLS_IASGELECTRONRINGERSELECTOR_H
 
@@ -27,6 +27,8 @@
 // Forward declarations:
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/ElectronFwd.h"
+
+class IAsgElectronIsEMSelector;
 
 class IAsgElectronRingerSelector : virtual public IAsgSelectionTool
 {
@@ -61,6 +63,31 @@ class IAsgElectronRingerSelector : virtual public IAsgSelectionTool
   
   /** Get last executed TResult value */
   virtual const std::vector<float>& getOutputSpace() const = 0;
+
+  /**
+   * @brief Set the discrimination configuration file
+   **/
+  virtual void setDiscrFile( const std::string path ) = 0;
+
+  /**
+   * @brief Set the threshold configuration file
+   **/
+  virtual void setThresFile( const std::string path ) = 0;
+
+  /**
+   * @brief Set the threshold configuration file
+   **/
+  virtual void setCutMask( const unsigned int cutMask ) = 0;
+
+  /**
+   * @brief Set the CutIDSelector to be used
+   **/
+  virtual void setCutIDSelector( IAsgElectronIsEMSelector *cutID ) = 0;
+
+  /**
+   * @brief Set the RingSetConfContainer (MetaData) key
+   **/
+  virtual void setRSMetaName( const std::string name ) = 0;
 
 };
 

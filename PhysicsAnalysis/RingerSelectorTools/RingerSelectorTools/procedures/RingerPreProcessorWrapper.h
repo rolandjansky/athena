@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerPreProcessorWrapper.h 689837 2015-08-17 17:22:12Z wsfreund $
+// $Id: RingerPreProcessorWrapper.h 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERPREPROCESSORWRAPPER_H
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERPREPROCESSORWRAPPER_H
 
@@ -124,9 +124,9 @@ typedef IPreProcWrapper::WrapperCollection IPreProcWrapperCollection;
  * @brief Specialization for PreProcessing procedure.
  **/
 template < class procedure_t,
-  EtaDependency etaDependency,
-  EtDependency etDependency,
-  SegmentationType segType>
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType>
 class RingerProcedureWrapper<
   procedure_t, 
   etaDependency,
@@ -233,7 +233,7 @@ class RingerProcedureWrapper<
     virtual SegmentationType getSegType() const 
       ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
     {
-      return segType;
+      return static_cast<SegmentationType>(segType);
     }
 
     /**
@@ -250,7 +250,7 @@ class RingerProcedureWrapper<
     EtaDependency etaDep() const
       ATH_RINGER_OVERRIDE ATH_RINGER_FINAL
     {
-      return etaDependency;
+      return static_cast<EtaDependency>(etaDependency);
     }
 
     /**
@@ -259,7 +259,7 @@ class RingerProcedureWrapper<
     EtDependency etDep() const
       ATH_RINGER_OVERRIDE ATH_RINGER_FINAL
     {
-      return etDependency;
+      return static_cast<EtDependency>(etDependency);
     }
 
     /**

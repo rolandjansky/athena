@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Thresholds.h 694258 2015-09-10 22:46:03Z wsfreund $
+// $Id: Thresholds.h 694257 2015-09-10 22:45:27Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_THRESHOLDS_H
 #define RINGERSELECTORTOOLS_PROCEDURES_THRESHOLDS_H
 

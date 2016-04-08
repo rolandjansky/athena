@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronTAccept.cxx 670599 2015-05-28 14:15:35Z wsfreund $
+// $Id: ElectronTAccept.cxx 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef RINGER_STANDALONE
 
 #include "RingerSelectorTools/ElectronTAccept.h"
@@ -59,12 +59,16 @@ unsigned int ElectronTAccept_v1::getAppliedCutMsk( const Requirement cut,
   switch (cut) {
     case  Requirement::Loose_CutID_Pd:
     case  Requirement::Loose_CutID_Pf:
+    case  Requirement::Loose_LH_Pd:
+    case  Requirement::Loose_LH_Pf:
     case  Requirement::Loose:
       // Add for all loose configuration their cuts applied:
       ElectronTAccept_v1::addLooseAppliedCuts(word);
       break;
     case  Requirement::Medium_CutID_Pd:
     case  Requirement::Medium_CutID_Pf:
+    case  Requirement::Medium_LH_Pd:
+    case  Requirement::Medium_LH_Pf:
     case  Requirement::Medium_MaxSP:
     case  Requirement::Medium:
       // Add for all medium configuration their cuts applied:
@@ -72,6 +76,8 @@ unsigned int ElectronTAccept_v1::getAppliedCutMsk( const Requirement cut,
       break;
     case  Requirement::Tight_CutID_Pf:
     case  Requirement::Tight_CutID_Pd:
+    case  Requirement::Tight_LH_Pf:
+    case  Requirement::Tight_LH_Pd:
     case  Requirement::Tight:
       // Add for all tight configuration their cuts applied:
       ElectronTAccept_v1::addTightAppliedCuts(word);

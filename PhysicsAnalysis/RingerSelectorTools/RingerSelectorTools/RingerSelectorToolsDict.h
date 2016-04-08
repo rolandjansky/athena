@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerSelectorToolsDict.h 693573 2015-09-07 19:15:49Z wsfreund $
+// $Id: RingerSelectorToolsDict.h 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_RINGERSELECTORTOOLSDICT_H
 #define RINGERSELECTORTOOLS_RINGERSELECTORTOOLSDICT_H
 
@@ -65,6 +65,16 @@ template void Ringer::IOHelperFcns::readVar<Ringer::Discrimination::Type::Discri
 template void Ringer::IOHelperFcns::readVar<Ringer::Discrimination::Type::ThresholdTypes,unsigned>(TDirectory*, const char*, Ringer::Discrimination::Type::ThresholdTypes&);
 template void Ringer::IOHelperFcns::readVar(TDirectory*, const char*, unsigned&);
 template void Ringer::IOHelperFcns::readVar(TDirectory*, const char*, float&);
+//-------------- For now, we also include the write variable methods
+template void Ringer::IOHelperFcns::writeVar<const Ringer::EtaDependency,const unsigned>(TDirectory*, const char*, const Ringer::EtaDependency&);
+template void Ringer::IOHelperFcns::writeVar<const Ringer::EtDependency,const unsigned>(TDirectory*, const char*, const Ringer::EtDependency&);
+template void Ringer::IOHelperFcns::writeVar<const Ringer::SegmentationType,const unsigned>(TDirectory*, const char*, const Ringer::SegmentationType&);
+template void Ringer::IOHelperFcns::writeVar<const Ringer::PreProcessing::Type::PreProcessorTypes,const unsigned>(TDirectory*, const char*, const Ringer::PreProcessing::Type::PreProcessorTypes&);
+template void Ringer::IOHelperFcns::writeVar<const Ringer::Discrimination::Type::DiscriminatorTypes,const unsigned>(TDirectory*, const char*, const Ringer::Discrimination::Type::DiscriminatorTypes&);
+template void Ringer::IOHelperFcns::writeVar<const Ringer::Discrimination::Type::ThresholdTypes,const unsigned>(TDirectory*, const char*, const Ringer::Discrimination::Type::ThresholdTypes&);
+template void Ringer::IOHelperFcns::writeVar(TDirectory*, const char*, unsigned&);
+template void Ringer::IOHelperFcns::writeVar(TDirectory*, const char*, float&);
+//---------------------------------------------------------------------
 
 namespace RingerSelectorToolsDict {
 
@@ -74,15 +84,30 @@ struct dict {
   //std::vector<unsigned long long>    m_vecULongLong;
   //std::vector<unsigned long>    m_vecULong;
   //std::vector<Ringer::EtaDependency>    m_vecEtaDep;
+  std::vector<Ringer::PreProcessing::Norm::Norm1VarDep*>    m_vecNorm1;
+  std::vector<std::vector<Ringer::PreProcessing::Norm::Norm1VarDep*> >    m_vecVecNorm1;
 
+  std::vector<Ringer::Discrimination::NNFeedForwardVarDep*>    m_vecNN;
+  std::vector<std::vector<Ringer::Discrimination::NNFeedForwardVarDep*> >  m_vecVecNN;
+
+  //Ringer::RingerProcedureWrapper<Ringer::PreProcessing::Norm1VarDep, 
+  //                               Ringer::EtaIndependent,
+  //                               Ringer::EtIndependent,
+  //                               Ringer::NoSegmentation> discrDummy;
 
   /// Wrappers
   /// @{
-  //Ringer::RingerProcedureWrapper< Ringer::PreProcessing::IPreProcessing,Ringer::EtaDependent,Ringer::EtDependent,Ringer::TrackCalJointLayers> namedummy;
-  //RINGER_DECLARE_ALLSEGTYPES_WRAPPER_T(Ringer::PreProcessing::IPreProcessorVarDep, iwrap_ipp)
-  //RINGER_DECLARE_ALLSEGTYPES_WRAPPER_T(Ringer::PreProcessing::IPreProcessor, iwrap_ipp)
-  //RINGER_DECLARE_ALLSEGTYPES_WRAPPER_T(Ringer::Discrimination::IDiscriminatorVarDep, iwrap_idiscr)
+  // Add all interface wrappers:
+  RINGER_DECLARE_ALLSEGTYPES_WRAPPER_T(Ringer::PreProcessing::IPreProcessorVarDep, iwrap_ipp)
+  RINGER_DECLARE_ALLSEGTYPES_WRAPPER_T(Ringer::Discrimination::IDiscriminatorVarDep, iwrap_idiscr)
   //RINGER_DECLARE_ONLYALLCALO_WRAPPER_T(Ringer::Discrimination::IThresholdVarDep, iwrap_ithres)
+  // Now we add some the specialized procedure wrappers:
+  // Norm1:
+  RINGER_DECLARE_ONLYALLCALO_WRAPPER_T(Ringer::PreProcessing::Norm::Norm1VarDep, norm1)
+  // NNFeedForward:
+  RINGER_DECLARE_ONLYALLCALO_WRAPPER_T(Ringer::Discrimination::NNFeedForwardVarDep, nnff)
+  // UniqueThreshold
+  RINGER_DECLARE_ONLYALLCALO_WRAPPER_T(Ringer::Discrimination::UniqueThresholdVarDep, uniqueThres)
   /// @}
 
 };
@@ -99,7 +124,7 @@ namespace Ringer {
      DeclareHeader() {
         gInterpreter->Declare("#include \"RingerSelectorTools/RingerSelectorToolsDefs.h\"");
         gInterpreter->Declare("#include \"RingerSelectorTools/procedures/Types.h\"");
-        //gInterpreter->Declare("#include \"RingerSelectorTools/tools/IOHelperFcns.h\"");
+        gInterpreter->Declare("#include \"RingerSelectorTools/tools/IOHelperFcns.h\"");
      }
    } declareHeader;
 }
