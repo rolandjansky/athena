@@ -305,6 +305,7 @@ namespace xAOD {
         pMap->getMiscAssociation()->addOverrideMom(pOverride);
       }
     }
+    if (!constMap.size()) insertMisc(pMap,pPart,std::vector<const IParticle*>());
     return true;
   }
 
