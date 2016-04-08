@@ -80,9 +80,9 @@ inline
 const InterfaceID&
 IGeoModelSvc::interfaceID() {
 
-  static const InterfaceID m_IID(1011, 1, 1);
+  static const InterfaceID IID(1011, 1, 1);
 
-  return m_IID;
+  return IID;
 }
 
 
