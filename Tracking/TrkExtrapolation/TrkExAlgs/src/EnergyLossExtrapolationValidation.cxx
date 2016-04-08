@@ -48,9 +48,6 @@ Trk::EnergyLossExtrapolationValidation::EnergyLossExtrapolationValidation(const 
   m_validationRunTreeDescription("Run stats of the EnergyLossExtrapolationValidation Algorithm"),
   m_maximumR(0.),
   m_maximumZ(0.),
-//  m_sigmaLoc(0.),
-//  m_sigmaR(0.),
-//  m_sigmaZ(0.),
   m_cylinders(6),
   m_onion(true),
   m_momentum(10.*Gaudi::Units::GeV),
@@ -62,12 +59,29 @@ Trk::EnergyLossExtrapolationValidation::EnergyLossExtrapolationValidation(const 
   m_avgRecordedLayers(0.),
   m_pdg(0),
   m_particleType(2),
+  m_entries(0),
+  m_energy{},         
+	m_energyLoss{},     
+	m_parameterX0{},    
+	m_radius{},         
+	m_positionX{},      
+	m_positionY{},      
+	m_positionZ{},      
+	m_parameterPhi{},   
+	m_parameterEta{},   
+	m_parameterTheta{}, 
+	m_parameterQoverP{},
+	m_parameterP{},     
+	m_layer{},          
   m_triesForward(0),
   m_breaksForward(0),
   m_triesBack(0),
   m_breaksBack(0),
   m_collectedLayerForward(0),
   m_collectedLayerBack(0),
+  m_isValid(false),
+  m_cylinderR{},
+  m_cylinderZ{},
   m_theCylinders(0),
   m_theDiscs1(0),
   m_theDiscs2(0)
@@ -140,9 +154,6 @@ StatusCode Trk::EnergyLossExtrapolationValidation::initialize()
 	m_validationRunTree = new TTree(m_validationRunTreeName.c_str(), m_validationRunTreeDescription.c_str());
 
 	// the branches for the parameters
-//	m_validationTree->Branch("IsValid",    &m_isValid,         "isValid/O");
-//	m_validationTree->Branch("Loc1",        m_parameterLoc1,   "loc1[entries]/F");
-//	m_validationTree->Branch("Loc2",        m_parameterLoc2,   "loc2[entries]/F");
 	m_validationTree->Branch("Entries",    &m_entries,         "entries/i");
 	m_validationTree->Branch("Energy",      m_energy,          "energy[entries]/F");
 	m_validationTree->Branch("EnergyLoss",  m_energyLoss,      "eLoss[entries]/F");
@@ -154,8 +165,6 @@ StatusCode Trk::EnergyLossExtrapolationValidation::initialize()
 	m_validationTree->Branch("Eta",         m_parameterEta,    "eta[entries]/F");
 	m_validationTree->Branch("Phi",         m_parameterPhi,    "phi[entries]/F");
 	m_validationTree->Branch("Layer",       m_layer,           "layer[entries]/i");
-//	m_validationTree->Branch("Theta",       m_parameterTheta,  "theta[entries]/F");
-//	m_validationTree->Branch("QoverP",      m_parameterQoverP, "qoverp[entries]/F");
 
 	m_validationRunTree->Branch("Layers",  &m_cylinders,       "layers/i");
 	m_validationRunTree->Branch("CylR",     m_cylinderR,       "cylR[layers]/F");
@@ -165,9 +174,8 @@ StatusCode Trk::EnergyLossExtrapolationValidation::initialize()
 	m_validationRunTree->Branch("MinEta",  &m_minEta,          "minEta/F");
 	m_validationRunTree->Branch("MaxEta",  &m_maxEta,          "maxEta/F");
 	m_validationRunTree->Branch("PDG",     &m_pdg,             "pdg/I");
-    m_validationRunTree->Branch("Events",  &m_events,          "events/i");
-//    m_validationRunTree->Branch("NoMaterialStep", &m_noMaterialStep, "noMatStep/i");
-    m_validationRunTree->Branch("AvgRecordedLayers", &m_avgRecordedLayers, "avgRecLayers/F");
+  m_validationRunTree->Branch("Events",  &m_events,          "events/i");
+  m_validationRunTree->Branch("AvgRecordedLayers", &m_avgRecordedLayers, "avgRecLayers/F");
 
 	// now register the Trees
 	ITHistSvc* tHistSvc = 0;
@@ -202,15 +210,19 @@ StatusCode Trk::EnergyLossExtrapolationValidation::initialize()
     for (size_t lay=0; lay<m_cylinders+1; ++lay) {
         m_cylinderR[lay] = m_cylinderVR[lay] > 0 ? m_cylinderVR[lay] : s_cylInitR[lay];
         m_cylinderZ[lay] = m_cylinderVZ[lay] > 0 ? m_cylinderVZ[lay] : s_cylInitZ[lay];
-		// in "strict onion mode", constrain m_cylinders if the values don't make sense
-        if (m_onion && lay>0 && (m_cylinderR[lay] < m_cylinderR[lay-1] || m_cylinderR[lay] < m_cylinderR[lay-1])) {
+		    // in "strict onion mode", constrain m_cylinders if the values don't make sense
+		    /** sroe; original line was:
+		        if (m_onion && lay>0 && (m_cylinderR[lay] < m_cylinderR[lay-1] || m_cylinderR[lay] < m_cylinderR[lay-1])) {
+        but the two sides of the 'or' are equal
+        **/
+        if (m_onion && lay>0 && (m_cylinderR[lay] < m_cylinderR[lay-1])) {
             ATH_MSG_WARNING( "initialize() layer " << lay << "dimensions are smaller than those of layer " << lay-1 << " - constraining m_cylinders to " << lay-1 );
             ATH_MSG_INFO( "initialize() cutting off here :" );
             ATH_MSG_INFO( "initialize() m_cylinderR[" << lay << "] = " << m_cylinderR[lay] << "\t ... m_cylinderZ[" << lay << "] = " << m_cylinderZ[lay] );
             m_cylinders = lay-1;
             break;
         }
-		ATH_MSG_INFO( "initialize() m_cylinderR[" << lay << "] = " << m_cylinderR[lay] << "\t ... m_cylinderZ[" << lay << "] = " << m_cylinderZ[lay] );
+		    ATH_MSG_INFO( "initialize() m_cylinderR[" << lay << "] = " << m_cylinderR[lay] << "\t ... m_cylinderZ[" << lay << "] = " << m_cylinderZ[lay] );
     }
 
     // fill data vector with cylinders once (in order not to create them every time)
@@ -219,11 +231,11 @@ StatusCode Trk::EnergyLossExtrapolationValidation::initialize()
     m_theDiscs2 = new DataVector<const Trk::DiscSurface>();
     for (size_t lay=0; lay<m_cylinders+1; ++lay) {
     	m_theCylinders->push_back(new Trk::CylinderSurface(new Amg::Transform3D, m_cylinderR[lay], m_cylinderZ[lay]));
-		ATH_MSG_INFO( "initialize() Cylinder " << lay << ": " << *m_theCylinders->at(lay) );
-        m_theDiscs1->push_back(new Trk::DiscSurface(createTransform(0.,0.,-m_cylinderZ[lay]), 0., m_cylinderR[lay]));
-        ATH_MSG_INFO( "initialize() Disc1 " << lay << ": " << *m_theDiscs1->at(lay) );
-        m_theDiscs2->push_back(new Trk::DiscSurface(createTransform(0.,0., m_cylinderZ[lay]), 0., m_cylinderR[lay]));
-        ATH_MSG_INFO( "initialize() Disc2 " << lay << ": " << *m_theDiscs2->at(lay) );
+		  ATH_MSG_INFO( "initialize() Cylinder " << lay << ": " << *m_theCylinders->at(lay) );
+      m_theDiscs1->push_back(new Trk::DiscSurface(createTransform(0.,0.,-m_cylinderZ[lay]), 0., m_cylinderR[lay]));
+      ATH_MSG_INFO( "initialize() Disc1 " << lay << ": " << *m_theDiscs1->at(lay) );
+      m_theDiscs2->push_back(new Trk::DiscSurface(createTransform(0.,0., m_cylinderZ[lay]), 0., m_cylinderR[lay]));
+      ATH_MSG_INFO( "initialize() Disc2 " << lay << ": " << *m_theDiscs2->at(lay) );
     }
 
     if      (m_particleType==0) m_pdg = 999; // geantino
