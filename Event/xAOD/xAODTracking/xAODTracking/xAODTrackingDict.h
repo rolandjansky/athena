@@ -4,7 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrackingDict.h 573808 2013-12-04 14:09:11Z salzburg $
 #ifndef XAODTRACKING_XAODTRACKINGDICT_H
 #define XAODTRACKING_XAODTRACKINGDICT_H
 
@@ -42,6 +41,13 @@
 #include "xAODTracking/versions/TrackStateValidationAuxContainer_v1.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
+
+#include "xAODTracking/SCTRawHitValidation.h"
+#include "xAODTracking/SCTRawHitValidationContainer.h"
+#include "xAODTracking/SCTRawHitValidationAuxContainer.h"
+#include "xAODTracking/versions/SCTRawHitValidation_v1.h"
+#include "xAODTracking/versions/SCTRawHitValidationContainer_v1.h"
+#include "xAODTracking/versions/SCTRawHitValidationAuxContainer_v1.h"
 
 namespace {
   struct GCCXML_DUMMY_INSTANTIATION_XAODTRACKING {
@@ -103,6 +109,15 @@ namespace {
       std::vector<std::vector<std::vector<float> > > vecDummyFltX;
       std::vector<std::vector<unsigned long> > vecDummyULX;
 
+      // Container(s):
+      xAOD::SCTRawHitValidationContainer_v1                                                    c6;
+      // Data link(s):
+      DataLink< xAOD::SCTRawHitValidationContainer_v1 >                                        rdodl1;
+      std::vector< DataLink< xAOD::SCTRawHitValidationContainer_v1 > >                         rdodl2;
+      // Element link(s):
+      ElementLink< xAOD::SCTRawHitValidationContainer >                                        rdoel1;
+      std::vector< ElementLink< xAOD::SCTRawHitValidationContainer_v1 > >                      rdoel2;
+      std::vector< std::vector< ElementLink< xAOD::SCTRawHitValidationContainer_v1 > > >       rdoel3;
 
   };
 }
