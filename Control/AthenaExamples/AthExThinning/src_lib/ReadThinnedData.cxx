@@ -150,38 +150,39 @@ StatusCode ReadThinnedData::checkTest( const std::string& testName )
     return StatusCode::RECOVERABLE;
   }
 
+  const double igev = 1. / CLHEP::GeV;
   ATH_MSG_DEBUG 
     ("IN  particles: " <<  particles->size() << endreq
      << "IN iparticles: " << iparticles->size() << endreq
      << "IN decay: " << endreq
-     << " p1: px= " << decay->p1()->px() / CLHEP::GeV << endreq
-     << " p2: px= " << decay->p2()->px() / CLHEP::GeV);
+     << " p1: px= " << decay->p1()->px() * igev << endreq
+     << " p2: px= " << decay->p2()->px() * igev);
 
   msg(MSG::DEBUG) << " l1: px= ";
-  if ( decay->l1() ) { msg(MSG::DEBUG) << decay->l1()->px() / CLHEP::GeV << endreq;
+  if ( decay->l1() ) { msg(MSG::DEBUG) << decay->l1()->px() * igev << endreq;
   } else             { msg(MSG::DEBUG) << "[thinned!]"            << endreq;
   }
   msg(MSG::DEBUG) << " l2: px= ";
-  if ( decay->l2() ) { msg(MSG::DEBUG) << decay->l2()->px() / CLHEP::GeV << endreq;
+  if ( decay->l2() ) { msg(MSG::DEBUG) << decay->l2()->px() * igev << endreq;
   } else             { msg(MSG::DEBUG) << "[thinned!]"            << endreq;
   }
 
   msg(MSG::DEBUG)
     << "IN elephantino: " << endreq
-    << " leg1: px= " << elephantino->leg1()->px() / CLHEP::GeV << endreq
-    << " leg2: px= " << elephantino->leg2()->px() / CLHEP::GeV << endreq
-    << " leg3: px= " << elephantino->leg3()->px() / CLHEP::GeV << endreq
-    << " leg4: px= " << elephantino->leg4()->px() / CLHEP::GeV << endreq;
+    << " leg1: px= " << elephantino->leg1()->px() * igev << endreq
+    << " leg2: px= " << elephantino->leg2()->px() * igev << endreq
+    << " leg3: px= " << elephantino->leg3()->px() * igev << endreq
+    << " leg4: px= " << elephantino->leg4()->px() * igev << endreq;
 
   msg(MSG::DEBUG) << " ear1: px= ";
   if ( elephantino->ear1() ) { 
-    msg(MSG::DEBUG) << elephantino->ear1()->px() / CLHEP::GeV << endreq;
+    msg(MSG::DEBUG) << elephantino->ear1()->px() * igev << endreq;
   } else { 
     msg(MSG::DEBUG) << "[thinned!]" << endreq;
   }
   msg(MSG::DEBUG) << " ear2: px= ";
   if ( elephantino->ear2() ) { 
-    msg(MSG::DEBUG) << elephantino->ear2()->px() / CLHEP::GeV << endreq;
+    msg(MSG::DEBUG) << elephantino->ear2()->px() * igev << endreq;
   } else { 
     msg(MSG::DEBUG) << "[thinned!]" << endreq;
   }
@@ -189,9 +190,9 @@ StatusCode ReadThinnedData::checkTest( const std::string& testName )
   msg(MSG::INFO) << "Particles | IParticles : " << endreq;
   for ( unsigned int i = 0; i != particles->size(); ++i ) {
     msg(MSG::INFO)
-      << std::setw(9) << (* particles)[i]->px() / CLHEP::GeV
+      << std::setw(9) << (* particles)[i]->px() * igev
       << " | "
-      << std::setw(9) << (*iparticles)[i]->px() / CLHEP::GeV
+      << std::setw(9) << (*iparticles)[i]->px() * igev
       << endreq;
   }
   msg(MSG::INFO) << "======================" << endreq;

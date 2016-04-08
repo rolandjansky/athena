@@ -30,6 +30,9 @@ class AthExFatObject
   // for slimming
   friend class AthExFatObjectSlimmer;
 
+  // Make the AthenaPoolCnv class our friend
+  friend class AthExFatObjectCnv_p1;
+
   /////////////////////////////////////////////////////////////////// 
   // Public typedefs: 
   /////////////////////////////////////////////////////////////////// 

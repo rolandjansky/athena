@@ -109,9 +109,9 @@ macro_append AthExThinningPoolCnv_shlibflags "$(AthExThinning_linkopts) -lAthExT
 # Needed for client code to be able to store ElementLinks toward elements of
 # these containers
 #
-macro TEvtAthenaPool_poolio ""
-macro_append TEvtAthenaPool_poolio "-s=${AthExThinning_root}/AthExThinning "
-macro_append TEvtAthenaPool_poolio "AthExParticles.h "
+#macro TEvtAthenaPool_poolio ""
+#macro_append TEvtAthenaPool_poolio "-s=${AthExThinning_root}/AthExThinning "
+#macro_append TEvtAthenaPool_poolio "AthExParticles.h "
 
 # I don't think that the following is needed. RDS 11/2008:
 # macro_append AthExThinningPoolCnv_shlibflags " $(AthExThinning_dict_linkopts)"

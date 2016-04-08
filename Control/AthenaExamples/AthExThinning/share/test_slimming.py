@@ -119,7 +119,7 @@ print "#"*80
 sc,out = doValidation( "WriteSlimmedData",
                        workDir("WriteSlimmedData.ref"),
                        workDir("slimmed.data.pool.log"),
-                       "grep \"^Slimmer \"" )
+                       "grep \"^Slimmer \" | grep -v \"Property update for OutputLevel\" | grep -v \"input handles\" | grep -v \"output handles\" | grep -v \"Data Deps for\"" )
 if sc != 0:
     raise SystemExit("ERROR")
 

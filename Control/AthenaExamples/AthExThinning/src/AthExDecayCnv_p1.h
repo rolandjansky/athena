@@ -24,11 +24,7 @@
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
 
 // AthExThinning includes
-#define private public
-#define protected public
 #include "AthExThinning/AthExDecay.h"
-#undef private
-#undef protected
 
 // AthExThinning includes
 #include "AthExThinning/AthExDecay_p1.h"

@@ -174,12 +174,13 @@ StatusCode CreateData::makeData( const std::string& test )
 
   dcy->setDecay( p1, p2, l1, l2 );
 
+  const double igev = 1. / CLHEP::GeV;
   ATH_MSG_INFO
     ("Created a Decay from :" << endreq
-     << " p1: px= " << dcy->p1()->px() / CLHEP::GeV << endreq
-     << " p2: px= " << dcy->p2()->px() / CLHEP::GeV << endreq
-     << " l1: px= " << dcy->l1()->px() / CLHEP::GeV << endreq
-     << " l2: px= " << dcy->l2()->px() / CLHEP::GeV
+     << " p1: px= " << dcy->p1()->px() * igev << endreq
+     << " p2: px= " << dcy->p2()->px() * igev << endreq
+     << " l1: px= " << dcy->l1()->px() * igev << endreq
+     << " l2: px= " << dcy->l2()->px() * igev
      );
 
   // create the elephantino
@@ -249,12 +250,12 @@ StatusCode CreateData::makeData( const std::string& test )
   eleph->setEars( ie1, ie2 );
 
   ATH_MSG_INFO("Created an Elephantino from :" << endreq
-	       << " leg1: px= " << eleph->leg1()->px() / CLHEP::GeV << endreq
-	       << " leg2: px= " << eleph->leg2()->px() / CLHEP::GeV << endreq
-	       << " leg3: px= " << eleph->leg3()->px() / CLHEP::GeV << endreq
-	       << " leg4: px= " << eleph->leg4()->px() / CLHEP::GeV << endreq
-	       << " ear1: px= " << eleph->ear1()->px() / CLHEP::GeV << endreq
-	       << " ear2: px= " << eleph->ear2()->px() / CLHEP::GeV);
+	       << " leg1: px= " << eleph->leg1()->px() * igev << endreq
+	       << " leg2: px= " << eleph->leg2()->px() * igev << endreq
+	       << " leg3: px= " << eleph->leg3()->px() * igev << endreq
+	       << " leg4: px= " << eleph->leg4()->px() * igev << endreq
+	       << " ear1: px= " << eleph->ear1()->px() * igev << endreq
+	       << " ear2: px= " << eleph->ear2()->px() * igev);
 
   return StatusCode::SUCCESS;
 }

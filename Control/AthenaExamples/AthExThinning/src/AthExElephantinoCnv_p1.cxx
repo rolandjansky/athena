@@ -16,11 +16,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 // AthExThinning includes
-#define private public
-#define protected public
 #include "AthExThinning/AthExElephantino.h"
-#undef private
-#undef protected
 
 // AthExThinning includes
 #include "AthExElephantinoCnv_p1.h"

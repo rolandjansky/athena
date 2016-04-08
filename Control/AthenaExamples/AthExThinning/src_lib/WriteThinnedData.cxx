@@ -180,20 +180,21 @@ StatusCode WriteThinnedData::test( const std::string& testName )
     return StatusCode::RECOVERABLE;
   }
 
+  const double igev = 1. / CLHEP::GeV;
   ATH_MSG_DEBUG("IN particles: " << particles->size() << endreq
 		<< "IN decay: " << endreq
-		<< " p1: px= " << decay->p1()->px() / CLHEP::GeV << endreq
-		<< " p2: px= " << decay->p2()->px() / CLHEP::GeV << endreq
-		<< " l1: px= " << decay->l1()->px() / CLHEP::GeV << endreq
-		<< " l2: px= " << decay->l2()->px() / CLHEP::GeV);
+		<< " p1: px= " << decay->p1()->px() * igev << endreq
+		<< " p2: px= " << decay->p2()->px() * igev << endreq
+		<< " l1: px= " << decay->l1()->px() * igev << endreq
+		<< " l2: px= " << decay->l2()->px() * igev);
 
   ATH_MSG_DEBUG("IN elephantino: " << endreq
-		<< " leg1: px= " << elephantino->leg1()->px() / CLHEP::GeV << endreq
-		<< " leg2: px= " << elephantino->leg2()->px() / CLHEP::GeV << endreq
-		<< " leg3: px= " << elephantino->leg3()->px() / CLHEP::GeV << endreq
-		<< " leg4: px= " << elephantino->leg4()->px() / CLHEP::GeV << endreq
-		<< " ear1: px= " << elephantino->ear1()->px() / CLHEP::GeV << endreq
-		<< " ear2: px= " << elephantino->ear2()->px() / CLHEP::GeV);
+		<< " leg1: px= " << elephantino->leg1()->px() * igev << endreq
+		<< " leg2: px= " << elephantino->leg2()->px() * igev << endreq
+		<< " leg3: px= " << elephantino->leg3()->px() * igev << endreq
+		<< " leg4: px= " << elephantino->leg4()->px() * igev << endreq
+		<< " ear1: px= " << elephantino->ear1()->px() * igev << endreq
+		<< " ear2: px= " << elephantino->ear2()->px() * igev);
 
   ////////////////////////////////////////////////////////////////////
   /// thinning 
@@ -217,19 +218,19 @@ StatusCode WriteThinnedData::test( const std::string& testName )
 
   ATH_MSG_INFO
     ("Decay is now: " << endreq
-     << " p1: px= " << decay->p1()->px() / CLHEP::GeV << endreq
-     << " p2: px= " << decay->p2()->px() / CLHEP::GeV << endreq
-     << " l1: px= " << decay->l1()->px() / CLHEP::GeV << endreq
-     << " l2: px= " << decay->l2()->px() / CLHEP::GeV);
+     << " p1: px= " << decay->p1()->px() * igev << endreq
+     << " p2: px= " << decay->p2()->px() * igev << endreq
+     << " l1: px= " << decay->l1()->px() * igev << endreq
+     << " l2: px= " << decay->l2()->px() * igev);
     
   ATH_MSG_INFO
     ("Elephantino is now: " << endreq
-     << " leg1: px= " << elephantino->leg1()->px() / CLHEP::GeV << endreq
-     << " leg2: px= " << elephantino->leg2()->px() / CLHEP::GeV << endreq
-     << " leg3: px= " << elephantino->leg3()->px() / CLHEP::GeV << endreq
-     << " leg4: px= " << elephantino->leg4()->px() / CLHEP::GeV << endreq
-     << " ear1: px= " << elephantino->ear1()->px() / CLHEP::GeV << endreq
-     << " ear2: px= " << elephantino->ear2()->px() / CLHEP::GeV);
+     << " leg1: px= " << elephantino->leg1()->px() * igev << endreq
+     << " leg2: px= " << elephantino->leg2()->px() * igev << endreq
+     << " leg3: px= " << elephantino->leg3()->px() * igev << endreq
+     << " leg4: px= " << elephantino->leg4()->px() * igev << endreq
+     << " ear1: px= " << elephantino->ear1()->px() * igev << endreq
+     << " ear2: px= " << elephantino->ear2()->px() * igev);
    
   // test IThinning::thinningOccurred api
   if (!m_thinningSvc->thinningOccurred()) {
@@ -287,11 +288,12 @@ StatusCode WriteThinnedData::doThinningTest1( const AthExParticles& particles )
   const AthExParticles * cont = &particles;
   std::vector<bool> filter = m_filter.value();
   
+  const double igev = 1. / CLHEP::GeV;
   msg(MSG::INFO) << "Particles | filter :" << endreq;
   for ( unsigned int i = 0; i != particles.size(); ++i ) {
     const std::string dec = filter[i] ? "keep" : "remove";
     msg(MSG::INFO)
-      << std::setw(9) << particles[i]->px() / CLHEP::GeV
+      << std::setw(9) << particles[i]->px() * igev
       << " | " << dec
       << endreq;
   }
@@ -362,12 +364,13 @@ StatusCode WriteThinnedData::doThinningTest2( const AthExParticles& particles )
 {
   const AthExParticles * cont = &particles;
   std::vector<bool> filter = m_filter.value();
-  
+
+  const double igev = 1. / CLHEP::GeV;
   msg(MSG::INFO) << "Particles | filter :" << endreq;
   for ( unsigned int i = 0; i != particles.size(); ++i ) {
     const std::string dec = filter[i] ? "keep" : "remove";
     msg(MSG::INFO)
-      << std::setw(9) << particles[i]->px() / CLHEP::GeV
+      << std::setw(9) << particles[i]->px() * igev
       << " | " << dec
       << endreq;
   }
@@ -441,12 +444,13 @@ WriteThinnedData::doThinningTest3( const AthExIParticles& iparticles )
 {
   const AthExIParticles * cont = &iparticles;
   std::vector<bool> filter = m_filter.value();
-  
+
+  const double igev = 1. / CLHEP::GeV;
   msg(MSG::INFO) << "IParticles | filter :" << endreq;
   for ( unsigned int i = 0; i != iparticles.size(); ++i ) {
     const std::string dec = filter[i] ? "keep" : "remove";
     msg(MSG::INFO)
-      << std::setw(9) << iparticles[i]->px() / CLHEP::GeV
+      << std::setw(9) << iparticles[i]->px() * igev
       << " | " << dec
       << endreq;
   }

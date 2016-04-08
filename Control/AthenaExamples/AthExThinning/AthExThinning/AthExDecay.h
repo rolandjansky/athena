@@ -27,6 +27,8 @@
 
 class AthExDecay
 { 
+  // Make the AthenaPoolCnv class our friend
+  friend class AthExDecayCnv_p1;
 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
