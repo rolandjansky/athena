@@ -1,4 +1,4 @@
-//$Id: CommandLine.cpp 509054 2012-07-05 13:33:16Z mnowak $
+//$Id: CommandLine.cpp 662167 2015-04-22 04:14:30Z ssnyder $
 /* ****************************************************************************
 *
 *  CommandLine.cpp
@@ -181,7 +181,7 @@ pool::CommandLine::LoadSettingsFile(const std::string& strFileName)
   std::string strInput;
   char  ch;
 
-  if(settingsFile == NULL)
+  if(!settingsFile)
   {
     throw (std::string("Failed to find settings file: " + strFileName));
   }

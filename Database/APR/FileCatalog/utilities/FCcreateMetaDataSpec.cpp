@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCcreateMetaDataSpec.cpp 509054 2012-07-05 13:33:16Z mnowak $
+//$Id: FCcreateMetaDataSpec.cpp 676790 2015-06-19 17:55:38Z ssnyder $
 /**FCcreateMetaDataSpec.cpp -- FileCatalog command line tool to create metadata definition
   @author: Zhen Xie
   @date: 02/03/2005 Z.X.
@@ -33,8 +33,8 @@ class MetadataSpecparser{
 public:
   MetadataSpecparser(){}
   MetadataSpecparser(const std::string& spec):m_spec(spec){}
-  std::auto_ptr<MetaDataEntry> getSpec() const{
-    std::auto_ptr<MetaDataEntry> result(new MetaDataEntry);
+  std::unique_ptr<MetaDataEntry> getSpec() const{
+    std::unique_ptr<MetaDataEntry> result(new MetaDataEntry);
     std::string delim("(,) ");
     std::string::size_type begIdx,endIdx;
     while( (begIdx=m_spec.find_first_not_of(delim))!= m_spec.npos ){
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
     exit(-1);
   }
   try{
-    std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
+    std::unique_ptr<IFileCatalog> mycatalog(new IFileCatalog);
     mycatalog->setWriteCatalog(myuri);
     FCAdmin a;
     mycatalog->setAction(a);
