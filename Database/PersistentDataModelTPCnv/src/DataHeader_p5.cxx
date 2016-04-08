@@ -84,19 +84,17 @@ void DataHeaderForm_p5::resize(unsigned int size) {
 }
 
 
-DataHeader_p5::DataHeader_p5() : m_dataHeader(), m_dhForm(0), m_dhFormToken(), m_dhFormMdx() {}
+DataHeader_p5::DataHeader_p5() : m_dataHeader(), m_dhForm(), m_dhFormToken(), m_dhFormMdx() {}
 DataHeader_p5::DataHeader_p5(const DataHeader_p5& rhs) : m_dataHeader(rhs.m_dataHeader),
-	m_dhForm(0),
+	m_dhForm(rhs.m_dhForm),
 	m_dhFormToken(rhs.m_dhFormToken),
 	m_dhFormMdx(rhs.m_dhFormMdx) {}
-DataHeader_p5::~DataHeader_p5() {
-   delete m_dhForm;
-}
+DataHeader_p5::~DataHeader_p5() {}
 
 DataHeader_p5& DataHeader_p5::operator=(const DataHeader_p5& rhs) {
    if (this != &rhs) {
       m_dataHeader = rhs.m_dataHeader;
-      m_dhForm = 0;
+      m_dhForm = rhs.m_dhForm;
       m_dhFormToken = rhs.m_dhFormToken;
       m_dhFormMdx = rhs.m_dhFormMdx;
    }
@@ -107,11 +105,11 @@ const std::vector<DataHeaderElement_p5>& DataHeader_p5::elements() const {
    return(m_dataHeader);
 }
 
-const DataHeaderForm_p5* DataHeader_p5::dhForm() const {
+const DataHeaderForm_p5& DataHeader_p5::dhForm() const {
    return(m_dhForm);
 }
 
-void DataHeader_p5::setDhForm(DataHeaderForm_p5* form) {
+void DataHeader_p5::setDhForm(const DataHeaderForm_p5& form) {
    m_dhForm = form;
 }
 
@@ -120,27 +118,25 @@ const std::string& DataHeader_p5::dhFormToken() const {
 }
 
 void DataHeader_p5::setDhFormToken(const std::string& formToken) {
-   if (m_dhForm) {
-      m_dhFormToken = formToken;
-      std::ostringstream stream;
-      for (std::vector<std::string>::const_iterator iter = m_dhForm->map().begin(),
-		      last = m_dhForm->map().end(); iter != last; iter++) {
-         stream << *iter << "\n";
-      }
-      for (m_dhForm->start(); m_dhForm->entry() <= m_dhForm->size(); m_dhForm->next()) {
-         for (std::vector<unsigned int>::const_iterator iter = m_dhForm->params().begin(),
-		         last = m_dhForm->params().end(); iter != last; iter++) {
-            stream << *iter << ",";
-         }
-         stream << "\n";
-      }
-      MD5 checkSum((unsigned char*)stream.str().c_str(), stream.str().size());
-      uuid_t checkSumUuid;
-      checkSum.raw_digest((unsigned char*)(&checkSumUuid));
-      char text[37];
-      uuid_unparse_upper(checkSumUuid, text);
-      m_dhFormMdx = text;
+   m_dhFormToken = formToken;
+   std::ostringstream stream;
+   for (std::vector<std::string>::const_iterator iter = m_dhForm.map().begin(),
+		   last = m_dhForm.map().end(); iter != last; iter++) {
+      stream << *iter << "\n";
    }
+   for (m_dhForm.start(); m_dhForm.entry() <= m_dhForm.size(); m_dhForm.next()) {
+      for (std::vector<unsigned int>::const_iterator iter = m_dhForm.params().begin(),
+		      last = m_dhForm.params().end(); iter != last; iter++) {
+         stream << *iter << ",";
+      }
+      stream << "\n";
+   }
+   MD5 checkSum((unsigned char*)stream.str().c_str(), stream.str().size());
+   uuid_t checkSumUuid;
+   checkSum.raw_digest((unsigned char*)(&checkSumUuid));
+   char text[37];
+   uuid_unparse_upper(checkSumUuid, text);
+   m_dhFormMdx = text;
 }
 const std::string& DataHeader_p5::dhFormMdx() const {
    return(m_dhFormMdx);
