@@ -13,6 +13,26 @@
 
 
 /**
+ * @brief Default Constructor.  (Only intended for use by persistency.)
+ */
+CaloEMFrac::CaloEMFrac()
+  : m_nBinEta(0),
+    m_nBinLogEClus(0),
+    m_nBinLogEDens(0),
+    m_nBinLogDepth(0),
+    m_MinEta(0),
+    m_MinLogEClus(0),
+    m_MinLogEDens(0),
+    m_MinLogDepth(0),
+    m_MaxEta(0),
+    m_MaxLogEClus(0),
+    m_MaxLogEDens(0),
+    m_MaxLogDepth(0)
+{
+}
+
+
+/**
  * @brief Constructor.
  * @param nBinEta      Number of bins in eta.
  * @param MinEta       Minimum eta for the first bin.

@@ -59,7 +59,7 @@ public:
   /**
    * @brief Default Constructor.  (Only intended for use by persistency.)
    */
-  CaloEMFrac() {};
+  CaloEMFrac();
 
 
   /**
