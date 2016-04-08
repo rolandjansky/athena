@@ -36,7 +36,7 @@ public:
     // N.B. Don't forget to release the interface after use!!!
     virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 		
-	void addHandler(XMLHandler* v) { handlerVector.push_back(v);}
+	void addHandler(XMLHandler* v) { m_handlerVector.push_back(v);}
 	
 protected:
 
@@ -54,7 +54,7 @@ private:
 	
 	ITagInfoMgr* m_tagInfoMgr;
 	
-	std::vector<XMLHandler*> handlerVector;
+	std::vector<XMLHandler*> m_handlerVector;
 	
 	std::vector<std::string> m_builders;
 
