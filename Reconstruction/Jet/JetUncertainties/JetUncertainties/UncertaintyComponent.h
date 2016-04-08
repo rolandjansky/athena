@@ -29,15 +29,19 @@ class UncertaintyComponent : public asg::AsgMessaging
         UncertaintyComponent(const UncertaintyComponent& toCopy);
         virtual UncertaintyComponent* clone() const = 0;
         virtual ~UncertaintyComponent();
-        virtual StatusCode SetSplitFactor(const int splitCompNumber);
-        virtual StatusCode Initialize(const std::vector<TString>& histNames, TFile* histFile);
-        virtual StatusCode Initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile);
+        virtual StatusCode initialize(const std::vector<TString>& histNames, TFile* histFile);
+        virtual StatusCode initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile);
 
         // Information retrieval methods
-        virtual TString                 getName()       const   { return m_name; }
-        virtual TString                 getDesc()       const   { return m_desc; }
-        virtual CompCategory::TypeEnum  getCategory()   const   { return m_category; }
-        virtual CompScaleVar::TypeEnum  getScaleVar()   const   { return m_scaleVar; }
+        virtual TString                 getName()        const	{ return m_name; }
+        virtual TString                 getDesc()        const	{ return m_desc; }
+        virtual CompCategory::TypeEnum  getCategory()    const	{ return m_category; }
+        virtual CompScaleVar::TypeEnum  getScaleVar()    const	{ return m_scaleVar; }
+        virtual int                     getGroupNum()    const	{ return m_groupNum; }
+        virtual bool 			getIsReducible() const	{ return m_isReducible; } 
+
+        // Methods to check for special situations
+        virtual bool                    isAlwaysZero()  const;
 
         // Uncertainty retrieval methods (wrappers)
         virtual bool   getValidity(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
@@ -53,9 +57,12 @@ class UncertaintyComponent : public asg::AsgMessaging
         const CompCategory::TypeEnum m_category;
         const CompCorrelation::TypeEnum m_corrType;
         const CompScaleVar::TypeEnum m_scaleVar;
+        const float m_energyScale;
         const bool m_interpolate;
+        const int m_groupNum;
         int m_splitNumber;
         std::vector<UncertaintyHistogram*> m_histos;
+        const bool m_isReducible; 
 
         // Uncertainty retrieval helper methods (pure abstract)
         virtual bool   getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const = 0;
@@ -64,7 +71,7 @@ class UncertaintyComponent : public asg::AsgMessaging
 
 
         // Split factor methods
-        virtual double getSplitFactorLinear(const UncertaintyHistogram* histo, const xAOD::Jet& jet) const;
+        virtual double getSplitFactor(const UncertaintyHistogram* histo, const xAOD::Jet& jet) const;
 
     private:
         UncertaintyComponent(const std::string& name = "");

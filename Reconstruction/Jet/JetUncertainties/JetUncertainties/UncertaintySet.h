@@ -28,7 +28,7 @@ class UncertaintySet : virtual public asg::AsgMessaging
         // Constructor/destructor/initialization
         UncertaintySet(const std::string& name = "");
         virtual ~UncertaintySet();
-        virtual StatusCode Initialize(const CP::SystematicSet& systConfig, const std::vector<UncertaintyComponent*>& components);
+        virtual StatusCode initialize(const CP::SystematicSet& systConfig, const std::vector<UncertaintyComponent*>& components);
         
         virtual std::string getName() const;
         

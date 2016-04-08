@@ -28,7 +28,7 @@ UncertaintySet::UncertaintySet(const std::string& name)
 UncertaintySet::~UncertaintySet()
 { }
 
-StatusCode UncertaintySet::Initialize(const CP::SystematicSet& systConfig, const std::vector<UncertaintyComponent*>& components)
+StatusCode UncertaintySet::initialize(const CP::SystematicSet& systConfig, const std::vector<UncertaintyComponent*>& components)
 {
     // Ensure it wasn't already initialized
     if (m_isInit)

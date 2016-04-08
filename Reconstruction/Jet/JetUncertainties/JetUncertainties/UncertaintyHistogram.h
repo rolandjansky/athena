@@ -13,6 +13,7 @@
 #include "TH1.h"
 
 class TFile;
+class TAxis;
 
 namespace jet
 {
@@ -26,11 +27,11 @@ class UncertaintyHistogram : virtual public asg::AsgMessaging
         //UncertaintyHistogram(const char* histName, const char* validHistName = NULL, const bool interpolate = true);
         UncertaintyHistogram(const UncertaintyHistogram& toCopy);
         virtual ~UncertaintyHistogram();
-        virtual StatusCode Initialize(TFile* histFile);
+        virtual StatusCode initialize(TFile* histFile);
 
         // Member retrieval methods
-        const TString& getName() const  { return m_name; }
-        const TH1* getHisto() const     { return m_uncHisto; }
+        const TString& getName()  const { return m_name;     }
+        const TH1*     getHisto() const { return m_uncHisto; }
 
         // Validity retrieval
         bool getValidity(const float var1) const;
@@ -64,6 +65,7 @@ class UncertaintyHistogram : virtual public asg::AsgMessaging
         double readHisto(const TH1* histo, const float var1, const float var2=0, const float var3=0, const bool interpolate=true) const;
         bool   readValidityHisto(const float var1, const float var2=0, const float var3=0) const;
         double readUncertaintyHisto(const float var1, const float var2=0, const float var3=0) const;
+        float  checkBoundaries(const TAxis* axis, const int numBins, const float valInput) const;
 
         // Helper to have a const method for interpolation (why is there not a const version in ROOT???)
         double Interpolate(const TH1* histo, const double x) const;

@@ -7,6 +7,7 @@
 #include "PathResolver/PathResolver.h"
 
 #include "TSystem.h"
+#include "TH1.h"
 
 #include <math.h>
 
@@ -15,21 +16,21 @@ namespace jet
 namespace utils
 {
 template <>
-bool GetTypeObjFromString<std::string>(const std::string& str, std::string& obj)
+bool getTypeObjFromString<std::string>(const std::string& str, std::string& obj)
 {
     obj = str;
     return true;
 }
 
 template <>
-bool GetTypeObjFromString<TString>(const std::string& str, TString& obj)
+bool getTypeObjFromString<TString>(const std::string& str, TString& obj)
 {
     obj = str.c_str();
     return true;
 }
 
 template <>
-bool GetTypeObjFromString<bool>(const std::string& str, bool& obj)
+bool getTypeObjFromString<bool>(const std::string& str, bool& obj)
 {
     bool toReturn = false;
     if (str == "true" || str == "True" || str == "TRUE")
@@ -45,7 +46,7 @@ bool GetTypeObjFromString<bool>(const std::string& str, bool& obj)
     else
     {
         int value;
-        toReturn = GetTypeObjFromString<int>(str,value);
+        toReturn = getTypeObjFromString<int>(str,value);
         if (toReturn)
             obj = static_cast<bool>(value);
     }
@@ -53,21 +54,21 @@ bool GetTypeObjFromString<bool>(const std::string& str, bool& obj)
 }
 
 template <>
-bool GetTypeObjFromString<std::string>(const TString& str, std::string& obj)
+bool getTypeObjFromString<std::string>(const TString& str, std::string& obj)
 {
     obj = str.Data();
     return true;
 }
 
 template <>
-bool GetTypeObjFromString<TString>(const TString& str, TString& obj)
+bool getTypeObjFromString<TString>(const TString& str, TString& obj)
 {
     obj = str;
     return true;
 }
 
 template <>
-bool GetTypeObjFromString<bool>(const TString& str, bool& obj)
+bool getTypeObjFromString<bool>(const TString& str, bool& obj)
 {
     bool toReturn = false;
     if (str.EqualTo("true",TString::kIgnoreCase))
@@ -83,26 +84,26 @@ bool GetTypeObjFromString<bool>(const TString& str, bool& obj)
     else
     {
         int value;
-        toReturn = GetTypeObjFromString<int>(str,value);
+        toReturn = getTypeObjFromString<int>(str,value);
         if (toReturn)
             obj = static_cast<bool>(value);
     }
     return toReturn;
 }
 
-bool FileExists(const TString& fileName)
+bool fileExists(const TString& fileName)
 {
     return gSystem->AccessPathName(fileName) == false;
 }
 
-TString FindFilePath(const TString& fileName, const TString& path)
+TString findFilePath(const TString& fileName, const TString& path)
 {
     TString pathToGet = "";
 
     // First, try the raw filename plus path (user-specified), then raw filename (local)
-    if (FileExists(fileName))
+    if (fileExists(fileName))
         pathToGet = fileName;
-    else if (FileExists(path+(path.EndsWith("/")?"":"/")+fileName))
+    else if (fileExists(path+(path.EndsWith("/")?"":"/")+fileName))
         pathToGet = path+(path.EndsWith("/")?"":"/")+fileName;
 
     // Next, try PathResolver
@@ -114,13 +115,13 @@ TString FindFilePath(const TString& fileName, const TString& path)
     if (pathToGet == "")
     {
         // Try ROOTCOREBIN
-        if (TString(gSystem->Getenv("ROOTCOREBIN")) != "" && FileExists(TString(gSystem->Getenv("ROOTCOREBIN"))+"/data/JetUncertainties/"+fileName))
+        if (TString(gSystem->Getenv("ROOTCOREBIN")) != "" && fileExists(TString(gSystem->Getenv("ROOTCOREBIN"))+"/data/JetUncertainties/"+fileName))
             pathToGet = TString(gSystem->Getenv("ROOTCOREBIN"))+"/data/JetUncertainties/"+fileName;
         // Try ROOTCOREDIR
-        else if (TString(gSystem->Getenv("ROOTCOREDIR")) != "" && FileExists(TString(gSystem->Getenv("ROOTCOREDIR"))+"/data/JetUncertainties/"+fileName))
+        else if (TString(gSystem->Getenv("ROOTCOREDIR")) != "" && fileExists(TString(gSystem->Getenv("ROOTCOREDIR"))+"/data/JetUncertainties/"+fileName))
             pathToGet = TString(gSystem->Getenv("ROOTCOREDIR"))+"/data/JetUncertainties/"+fileName;
         // Try standard athena location
-        else if (TString(gSystem->Getenv("TestArea")) != "" && FileExists(TString(gSystem->Getenv("TestArea"))+"/Reconstruction/Jet/JetUncertainties/share/"+fileName))
+        else if (TString(gSystem->Getenv("TestArea")) != "" && fileExists(TString(gSystem->Getenv("TestArea"))+"/Reconstruction/Jet/JetUncertainties/share/"+fileName))
             pathToGet = TString(gSystem->Getenv("TestArea"))+"/Reconstruction/Jet/JetUncertainties/share/"+fileName;
     }
 
@@ -129,11 +130,11 @@ TString FindFilePath(const TString& fileName, const TString& path)
     return pathToGet;
 }
 
-TFile* ReadRootFile(const TString& fileName, const TString& path)
+TFile* readRootFile(const TString& fileName, const TString& path)
 {
     TFile* rootFile = NULL;
     
-    TString pathToGet = FindFilePath(fileName,path);
+    TString pathToGet = findFilePath(fileName,path);
 
     if (pathToGet != "")
         rootFile = new TFile(pathToGet,"READ");
@@ -141,7 +142,7 @@ TFile* ReadRootFile(const TString& fileName, const TString& path)
 }
 
 
-std::vector<double> GetLogBins(const size_t numBins, const double minVal, const double maxVal)
+std::vector<double> getLogBins(const size_t numBins, const double minVal, const double maxVal)
 {
     std::vector<double> bins;
     bins.resize(numBins+1);
@@ -153,7 +154,7 @@ std::vector<double> GetLogBins(const size_t numBins, const double minVal, const 
     return bins;
 }
 
-std::vector<double> GetUniformBins(const size_t numBins, const double minVal, const double maxVal)
+std::vector<double> getUniformBins(const size_t numBins, const double minVal, const double maxVal)
 {
     std::vector<double> bins;
     bins.resize(numBins+1);
@@ -163,6 +164,60 @@ std::vector<double> GetUniformBins(const size_t numBins, const double minVal, co
         bins[iBin] = minVal+iBin*dx;
 
     return bins;
+}
+
+
+void scaleHistoAxes(TH1* toScale, const double factorX, const double factorY, const double factorZ)
+{
+    const int dim = toScale->GetDimension();
+
+    // Check for simple copies and sanity checks
+    bool returnDuplicate = false;
+    if      ( dim == 1 && (factorX < 0 || fabs(factorX-1) < 1.e-4) )
+        returnDuplicate = true;
+    else if ( dim == 2 && (factorX < 0 || fabs(factorX-1) < 1.e-4)
+                       && (factorY < 0 || fabs(factorY-1) < 1.e-4) )
+        returnDuplicate = true;
+    else if ( dim == 3 && (factorX < 0 || fabs(factorX-1) < 1.e-4)
+                       && (factorY < 0 || fabs(factorY-1) < 1.e-4)
+                       && (factorZ < 0 || fabs(factorZ-1) < 1.e-4) )
+        returnDuplicate = true;
+    if (returnDuplicate)
+    {
+        printf("ScaleHistoAxes: Doing nothing, as all scale factors require no changes\n");
+        return;
+    }
+    
+    // Let negative numbers mean no change
+    const double facX = factorX < 0 ? 1 : factorX;
+    const double facY = factorY < 0 ? 1 : factorY;
+    const double facZ = factorZ < 0 ? 1 : factorZ;
+
+    // Scale the x axis if necessary
+    if (fabs(facX-1) > 1.e-4)
+    {
+        std::vector<double> binsX;
+        for (int iBin = 1; iBin <= toScale->GetNbinsX()+1; ++iBin)
+            binsX.push_back(toScale->GetXaxis()->GetBinLowEdge(iBin)*facX);
+        toScale->GetXaxis()->Set(binsX.size()-1,&binsX[0]);
+    }
+    // Scale the y axis if necessary
+    if (dim > 1 && fabs(facY-1) > 1.e-4)
+    {
+        std::vector<double> binsY;
+        for (int iBin = 1; iBin <= toScale->GetNbinsY()+1; ++iBin)
+            binsY.push_back(toScale->GetYaxis()->GetBinLowEdge(iBin)*facY);
+        toScale->GetYaxis()->Set(binsY.size()-1,&binsY[0]);
+    }
+    // Scale the z axis if necessary
+    if (dim > 2 && fabs(facZ-1) > 1.e-4)
+    {
+        std::vector<double> binsZ;
+        for (int iBin = 1; iBin <= toScale->GetNbinsZ()+1; ++iBin)
+            binsZ.push_back(toScale->GetZaxis()->GetBinLowEdge(iBin)*facZ);
+        toScale->GetZaxis()->Set(binsZ.size()-1,&binsZ[0]);
+    }
+
 }
 
 

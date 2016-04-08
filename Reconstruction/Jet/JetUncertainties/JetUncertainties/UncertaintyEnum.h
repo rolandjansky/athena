@@ -24,8 +24,8 @@ namespace CompCategory
         Effective,  // Effective nuisance parameters (category is nonsensical after global reduction)
         Other       // Other uncertainties that don't fit in the above (MC nonclosure, ...)
     };
-    TString EnumToString(const TypeEnum type);
-    TypeEnum StringToEnum(const TString type);
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
 }
 
 namespace CompCorrelation
@@ -36,8 +36,8 @@ namespace CompCorrelation
         Uncorrelated,   // Uncorrelated systematic - add in quadrature
         Correlated      // Correlated systematic - add linearly
     };
-    TString EnumToString(const TypeEnum type);
-    TypeEnum StringToEnum(const TString type);
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
 }
 
 
@@ -52,9 +52,9 @@ namespace CompParametrization
         PtMassEta,      // 3D, (pT,m/pT,eta) dependence
         PtMassAbsEta    // 3D, (pT,m/pT,|eta|) dependence
     };
-    TString EnumToString(const TypeEnum type);
-    TypeEnum StringToEnum(const TString type);
-    bool IsAbsEta(const TypeEnum type);
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
+    bool isAbsEta(const TypeEnum type);
 }
 
 namespace CompScaleVar
@@ -70,25 +70,9 @@ namespace CompScaleVar
         Tau21,          // Just the ratio on n-subjettiness 2/1
         Tau32           // Just the ratio on n-subjettiness 3/2
     };
-    TString EnumToString(const TypeEnum type);
-    TypeEnum StringToEnum(const TString type);
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
 }
-
-//namespace CompVariable
-//{
-//    enum TypeEnum
-//    {
-//        UNKNOWN=0,  // Failure/unset/etc
-//        pt,         // calibrated pT
-//        eta,        // calibrated eta
-//        absEta,     // calibrated |eta|
-//        mOverPt     // calibrated m/pT
-//    };
-//    TString EnumToString(const TypeEnum type);
-//    TypeEnum StringToEnum(const TString type);
-//    TString EnumToFormattedString(const TypeEnum type);
-//    float EnumToValue(const TypeEnum type, const xAOD::Jet& jet);
-//}
 
 namespace PileupComp
 {
@@ -100,8 +84,8 @@ namespace PileupComp
         PtTerm,     // pT based systematic (both NPV and mu dependence)
         RhoTopology // Rho topology systematic (no NPV or mu dependence, but pileup anyway)
     };
-    TString EnumToString(const TypeEnum type);
-    TypeEnum StringToEnum(const TString type);
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
 }
 
 namespace FlavourComp
@@ -113,8 +97,8 @@ namespace FlavourComp
         Composition,    // Flavour compositon
         bJES            // bJES response
     };
-    TString EnumToString(const TypeEnum type);
-    TypeEnum StringToEnum(const TString type);
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
 }
 
 } // end jet namespace

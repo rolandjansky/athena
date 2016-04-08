@@ -21,88 +21,114 @@
 #define JESUNC_NO_DEFAULT_CONSTRUCTOR ATH_MSG_FATAL("Default constructor is not supported");
 #define JESUNC_SAFE_DELETE(T) { if(T) { delete T; T = NULL; } }
 
+class TH1;
+
 namespace jet
 {
 
 namespace utils
 {
+    // Check variable types from strings
+    template<typename T>
+    bool isTypeObjFromString(const std::string& str);
+    template<typename T>
+    bool isTypeObjFromString(const TString& str);
+
     // Get variables from strings
     template<typename T>
-    bool GetTypeObjFromString(const std::string& str, T& obj);
+    bool getTypeObjFromString(const std::string& str, T& obj);
     template<typename T>
-    T GetTypeObjFromString(const std::string& str);
+    T getTypeObjFromString(const std::string& str);
     template<typename T>
-    bool GetTypeObjFromString(const TString& str, T& obj);
+    bool getTypeObjFromString(const TString& str, T& obj);
     template<typename T>
-    T GetTypeObjFromString(const TString& str);
+    T getTypeObjFromString(const TString& str);
 
     // Specializations of getting variables from strings
     template <>
-    bool GetTypeObjFromString<std::string>(const std::string& str, std::string& obj);
+    bool getTypeObjFromString<std::string>(const std::string& str, std::string& obj);
     template <>
-    bool GetTypeObjFromString<TString>(const std::string& str, TString& obj);
+    bool getTypeObjFromString<TString>(const std::string& str, TString& obj);
     template <>
-    bool GetTypeObjFromString<bool>(const std::string& str, bool& obj);
+    bool getTypeObjFromString<bool>(const std::string& str, bool& obj);
     template <>
-    bool GetTypeObjFromString<std::string>(const TString& str, std::string& obj);
+    bool getTypeObjFromString<std::string>(const TString& str, std::string& obj);
     template <>
-    bool GetTypeObjFromString<TString>(const TString& str, TString& obj);
+    bool getTypeObjFromString<TString>(const TString& str, TString& obj);
     template <>
-    bool GetTypeObjFromString<bool>(const TString& str, bool& obj);
+    bool getTypeObjFromString<bool>(const TString& str, bool& obj);
     
     // Convert strings to vectors of objects
     template <typename T>
-    bool Vectorize(const TString& str, const TString& sep, std::vector<T>& result);
+    bool vectorize(const TString& str, const TString& sep, std::vector<T>& result);
     template <typename T>
-    std::vector<T> Vectorize(const TString& str, const TString& sep);
+    std::vector<T> vectorize(const TString& str, const TString& sep);
 
     // Check if a file exists
-    bool FileExists(const TString& fileName);
+    bool fileExists(const TString& fileName);
 
     // Find a valid file path
-    TString FindFilePath(const TString& fileName, const TString& path = "");
+    TString findFilePath(const TString& fileName, const TString& path = "");
     
     // Open a root file
-    TFile* ReadRootFile(const TString& fileName, const TString& path = "");
+    TFile* readRootFile(const TString& fileName, const TString& path = "");
 
     // Make bins easily
-    std::vector<double> GetLogBins(const size_t numBins, const double minVal, const double maxVal);
-    std::vector<double> GetUniformBins(const size_t numBins, const double minVal, const double maxVal);
+    std::vector<double> getLogBins(const size_t numBins, const double minVal, const double maxVal);
+    std::vector<double> getUniformBins(const size_t numBins, const double minVal, const double maxVal);
+
+    // Scale the axis or axes of a histogram
+    void scaleHistoAxes(TH1* toScale, const double factorX=1, const double factorY=1, const double factorZ=1);
 }
-    
+
 template <typename T>
-bool utils::GetTypeObjFromString(const std::string& str, T& obj)
+bool utils::isTypeObjFromString(const std::string& str)
+{
+    std::istringstream iss(str);
+    T obj;
+    return !(iss >> obj).fail();
+}
+
+template <typename T>
+bool utils::isTypeObjFromString(const TString& str)
+{
+    std::string stdstr = str.Data();
+    return isTypeObjFromString<T>(stdstr);
+}
+
+template <typename T>
+bool utils::getTypeObjFromString(const std::string& str, T& obj)
 {
     std::istringstream iss(str);
     return !(iss >> obj).fail();
 }
 template <typename T>
-T utils::GetTypeObjFromString(const std::string& str)
+T utils::getTypeObjFromString(const std::string& str)
 {
     T toReturn;
-    if (!GetTypeObjFromString(str,toReturn))
+    if (!getTypeObjFromString(str,toReturn))
         printf("Failed to convert object: %s\n",str.c_str());
 
     return toReturn;
 }
 template <typename T>
-bool utils::GetTypeObjFromString(const TString& str, T& obj)
+bool utils::getTypeObjFromString(const TString& str, T& obj)
 {
     std::string stdstr = str.Data();
-    return GetTypeObjFromString(stdstr,obj);
+    return getTypeObjFromString(stdstr,obj);
 }
 template <typename T>
-T utils::GetTypeObjFromString(const TString& str)
+T utils::getTypeObjFromString(const TString& str)
 {
     T toReturn;
-    if (!GetTypeObjFromString(str,toReturn))
+    if (!getTypeObjFromString(str,toReturn))
         printf("ERROR: Failed to convert object: %s\n",str.Data());
 
     return toReturn;
 }
 
 template <typename T>
-bool utils::Vectorize(const TString& str, const TString& sep, std::vector<T>& result)
+bool utils::vectorize(const TString& str, const TString& sep, std::vector<T>& result)
 {
     bool success = true;
     result.clear();
@@ -112,7 +138,7 @@ bool utils::Vectorize(const TString& str, const TString& sep, std::vector<T>& re
     while(TObjString* os=(TObjString*)istr())
     {
         T obj;
-        if (!GetTypeObjFromString(os->GetString(),obj))
+        if (!getTypeObjFromString(os->GetString(),obj))
         {
             success = false;
             break;
@@ -126,7 +152,7 @@ bool utils::Vectorize(const TString& str, const TString& sep, std::vector<T>& re
 }
 
 template <typename T>
-std::vector<T> utils::Vectorize(const TString& str, const TString& sep)
+std::vector<T> utils::vectorize(const TString& str, const TString& sep)
 {
     std::vector<T> result;
     TObjArray* tokens = str.Tokenize(sep);
@@ -135,7 +161,7 @@ std::vector<T> utils::Vectorize(const TString& str, const TString& sep)
     while(TObjString* os=(TObjString*)istr())
     {
         T obj;
-        if (!GetTypeObjFromString(os->GetString(),obj))
+        if (!getTypeObjFromString(os->GetString(),obj))
             printf("ERROR: String \"%s\" is not the requested type\n",os->GetString().Data());
         result.push_back(obj);
     }

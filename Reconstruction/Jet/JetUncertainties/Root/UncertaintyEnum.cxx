@@ -18,7 +18,7 @@ namespace jet
 
 namespace CompCategory
 {
-    TString EnumToString(const TypeEnum type)
+    TString enumToString(const TypeEnum type)
     {
         switch (type)
         {
@@ -32,7 +32,7 @@ namespace CompCategory
         }
     }
     
-    TypeEnum StringToEnum(const TString type)
+    TypeEnum stringToEnum(const TString type)
     {
         if (!type.CompareTo("Statistical"))
             return Statistical;
@@ -59,7 +59,7 @@ namespace CompCategory
 
 namespace CompCorrelation
 {
-    TString EnumToString(const TypeEnum type)
+    TString enumToString(const TypeEnum type)
     {
         switch (type)
         {
@@ -69,7 +69,7 @@ namespace CompCorrelation
         }
     }
 
-    TypeEnum StringToEnum(const TString type)
+    TypeEnum stringToEnum(const TString type)
     {
         if (!type.CompareTo("Uncorrelated"))
             return Uncorrelated;
@@ -88,7 +88,7 @@ namespace CompCorrelation
 
 namespace CompParametrization
 {
-    TString EnumToString(const TypeEnum type)
+    TString enumToString(const TypeEnum type)
     {
         switch(type)
         {
@@ -101,7 +101,7 @@ namespace CompParametrization
         }
     }
 
-    TypeEnum StringToEnum(const TString type)
+    TypeEnum stringToEnum(const TString type)
     {
         if (!type.CompareTo("Pt",TString::kIgnoreCase))
             return Pt;
@@ -116,7 +116,7 @@ namespace CompParametrization
         return UNKNOWN;
     }
 
-    bool IsAbsEta(const TypeEnum type)
+    bool isAbsEta(const TypeEnum type)
     {
         switch(type)
         {
@@ -137,7 +137,7 @@ namespace CompParametrization
 
 namespace CompScaleVar
 {
-    TString EnumToString(const TypeEnum type)
+    TString enumToString(const TypeEnum type)
     {
         switch(type)
         {
@@ -152,7 +152,7 @@ namespace CompScaleVar
         }
     }
 
-    TypeEnum StringToEnum(const TString type)
+    TypeEnum stringToEnum(const TString type)
     {
         if (!type.CompareTo("FourVec",TString::kIgnoreCase) || !type.CompareTo("4Vec",TString::kIgnoreCase) || !type.CompareTo("FourVector",TString::kIgnoreCase))
             return FourVec;
@@ -175,72 +175,13 @@ namespace CompScaleVar
 
 //////////////////////////////////////////////////
 //                                              //
-//  Component variable type enum methods        //
-//                                              //
-//////////////////////////////////////////////////
-
-//namespace CompVariable
-//{
-//    TString EnumToString(const TypeEnum type)
-//    {
-//        switch (type)
-//        {
-//            case pt:        return "pT";
-//            case eta:       return "eta";
-//            case absEta:    return "absEta";
-//            case mOverPt:   return "mOverPt";
-//            default:        return "UNKNOWN";
-//        }
-//    }
-//
-//    TypeEnum StringToEnum(const TString type)
-//    {
-//        if (!type.CompareTo("pt",TString::kIgnoreCase)      || !type.CompareTo("p_{T}"))
-//            return pt;
-//        if (!type.CompareTo("eta",TString::kIgnoreCase)     || !type.CompareTo("#eta"))
-//            return eta;
-//        if (!type.CompareTo("absEta",TString::kIgnoreCase)  || !type.CompareTo("|#eta|"))
-//            return absEta;
-//        if (!type.CompareTo("mOverPt",TString::kIgnoreCase) || !type.CompareTo("m/p_{T}"))
-//            return mOverPt;
-//        return UNKNOWN;
-//    }
-//
-//    TString EnumToFormattedString(const TypeEnum type)
-//    {
-//        switch (type)
-//        {
-//            case pt:        return "p_{T}";
-//            case eta:       return "#eta";
-//            case absEta:    return "|#eta|";
-//            case mOverPt:   return "m/p_{T}";
-//            default:        return "UNKNOWN";
-//        }
-//    }
-//
-//    float EnumToValue(const TypeEnum type, const xAOD::Jet& jet)
-//    {
-//        switch (type)
-//        {
-//            case pt:        return jet.pt();
-//            case eta:       return jet.eta();
-//            case absEta:    return fabs(jet.eta());
-//            case mOverPt:   return jet.m()/jet.pt();
-//            default:        return NAN;
-//        }
-//    }
-//}
-
-
-//////////////////////////////////////////////////
-//                                              //
 //  Pileup component enumeration methods        //
 //                                              //
 //////////////////////////////////////////////////
 
 namespace PileupComp
 {
-    TString EnumToString(const TypeEnum type)
+    TString enumToString(const TypeEnum type)
     {
         switch (type)
         {
@@ -252,7 +193,7 @@ namespace PileupComp
         }
     }
 
-    TypeEnum StringToEnum(const TString type)
+    TypeEnum stringToEnum(const TString type)
     {
         if (type.Contains("Pileup",TString::kIgnoreCase))
         {
@@ -272,13 +213,13 @@ namespace PileupComp
 
 //////////////////////////////////////////////////
 //                                              //
-//  Pileup component enumeration methods        //
+//  Flavour component enumeration methods        //
 //                                              //
 //////////////////////////////////////////////////
 
 namespace FlavourComp
 {
-    TString EnumToString(const TypeEnum type)
+    TString enumToString(const TypeEnum type)
     {
         switch (type)
         {
@@ -289,7 +230,7 @@ namespace FlavourComp
         }
     }
 
-    TypeEnum StringToEnum(const TString type)
+    TypeEnum stringToEnum(const TString type)
     {
         if (type.Contains("Flavour",TString::kIgnoreCase) || type.Contains("Flavor",TString::kIgnoreCase))
         {

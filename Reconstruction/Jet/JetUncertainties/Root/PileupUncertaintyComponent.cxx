@@ -23,8 +23,10 @@ const size_t PileupUncertaintyComponent::PT_TERM_MU  = 1;
 PileupUncertaintyComponent::PileupUncertaintyComponent(const std::string& name)
     : UncertaintyComponent(ComponentHelper(name))
     , m_pileupType(PileupComp::UNKNOWN)
-    , m_refNPV(0)
-    , m_refMu(0)
+    , m_refNPV(-1)
+    , m_refMu(-1)
+    , m_refNPVHist(NULL)
+    , m_refMuHist(NULL)
     , m_absEta(false)
     , m_NPVaccessor("NPV")
 {
@@ -39,7 +41,9 @@ PileupUncertaintyComponent::PileupUncertaintyComponent( const ComponentHelper& c
     , m_pileupType(component.pileupType)
     , m_refNPV(refNPV)
     , m_refMu(refMu)
-    , m_absEta(CompParametrization::IsAbsEta(component.parametrization))
+    , m_refNPVHist(NULL)
+    , m_refMuHist(NULL)
+    , m_absEta(CompParametrization::isAbsEta(component.parametrization))
     , m_NPVaccessor("NPV")
 {
     ATH_MSG_DEBUG("Created PileupUncertaintyComponent named" << m_name.Data());
@@ -51,11 +55,79 @@ PileupUncertaintyComponent::PileupUncertaintyComponent( const ComponentHelper& c
         ATH_MSG_FATAL(Form("Unusual pileup reference values.  (NPV,mu)=(%.1f,%.1f) for %s",m_refNPV,m_refMu,m_name.Data()));
 }
 
+PileupUncertaintyComponent::PileupUncertaintyComponent( const ComponentHelper& component,
+                                                        const UncertaintyHistogram* refNPV,
+                                                        const UncertaintyHistogram* refMu
+                                                        )
+    : UncertaintyComponent(component)
+    , m_pileupType(component.pileupType)
+    , m_refNPV(-1)
+    , m_refMu(-1)
+    , m_refNPVHist(refNPV)
+    , m_refMuHist(refMu)
+    , m_absEta(CompParametrization::isAbsEta(component.parametrization))
+    , m_NPVaccessor("NPV")
+{
+    ATH_MSG_DEBUG("Created PileupUncertaintyComponent named" << m_name.Data());
+    
+    // Ensure that the pileup type and ref values are sensible
+    if (m_pileupType == PileupComp::UNKNOWN)
+        ATH_MSG_FATAL("Pileup type is UNKNOWN: " << m_name.Data());
+    if (!m_refNPV || !m_refMu)
+        ATH_MSG_FATAL(Form("Unusual pileup reference values.  (NPV,mu)=(%s,%s) for %s",m_refNPVHist?"OK":"NULL",m_refMuHist?"OK":"NULL",m_name.Data()));
+}
+
+PileupUncertaintyComponent::PileupUncertaintyComponent( const ComponentHelper& component,
+                                                        const UncertaintyHistogram* refNPV,
+                                                        const float refMu
+                                                        )
+    : UncertaintyComponent(component)
+    , m_pileupType(component.pileupType)
+    , m_refNPV(-1)
+    , m_refMu(refMu)
+    , m_refNPVHist(refNPV)
+    , m_refMuHist(NULL)
+    , m_absEta(CompParametrization::isAbsEta(component.parametrization))
+    , m_NPVaccessor("NPV")
+{
+    ATH_MSG_DEBUG("Created PileupUncertaintyComponent named" << m_name.Data());
+    
+    // Ensure that the pileup type and ref values are sensible
+    if (m_pileupType == PileupComp::UNKNOWN)
+        ATH_MSG_FATAL("Pileup type is UNKNOWN: " << m_name.Data());
+    if (!m_refNPV || m_refMu <= 0)
+        ATH_MSG_FATAL(Form("Unusual pileup reference values.  (NPV,mu)=(%s,%.1f) for %s",m_refNPVHist?"OK":"NULL",m_refMu,m_name.Data()));
+}
+
+PileupUncertaintyComponent::PileupUncertaintyComponent( const ComponentHelper& component,
+                                                        const float refNPV,
+                                                        const UncertaintyHistogram* refMu
+                                                        )
+    : UncertaintyComponent(component)
+    , m_pileupType(component.pileupType)
+    , m_refNPV(refNPV)
+    , m_refMu(-1)
+    , m_refNPVHist(NULL)
+    , m_refMuHist(refMu)
+    , m_absEta(CompParametrization::isAbsEta(component.parametrization))
+    , m_NPVaccessor("NPV")
+{
+    ATH_MSG_DEBUG("Created PileupUncertaintyComponent named" << m_name.Data());
+    
+    // Ensure that the pileup type and ref values are sensible
+    if (m_pileupType == PileupComp::UNKNOWN)
+        ATH_MSG_FATAL("Pileup type is UNKNOWN: " << m_name.Data());
+    if (m_refNPV <= 0 || !m_refMu)
+        ATH_MSG_FATAL(Form("Unusual pileup reference values.  (NPV,mu)=(%.1f,%s) for %s",m_refNPV,m_refMuHist?"OK":"NULL",m_name.Data()));
+}
+
 PileupUncertaintyComponent::PileupUncertaintyComponent(const PileupUncertaintyComponent& toCopy)
     : UncertaintyComponent(toCopy)
     , m_pileupType(toCopy.m_pileupType)
     , m_refNPV(toCopy.m_refNPV)
     , m_refMu(toCopy.m_refMu)
+    , m_refNPVHist(toCopy.m_refNPVHist)
+    , m_refMuHist(toCopy.m_refMuHist)
     , m_absEta(toCopy.m_absEta)
     , m_NPVaccessor(toCopy.m_NPVaccessor)
 {
@@ -67,16 +139,16 @@ PileupUncertaintyComponent* PileupUncertaintyComponent::clone() const
     return new PileupUncertaintyComponent(*this);
 }
 
-StatusCode PileupUncertaintyComponent::Initialize(const std::vector<TString>& histNames, TFile* histFile)
+StatusCode PileupUncertaintyComponent::initialize(const std::vector<TString>& histNames, TFile* histFile)
 {
     std::vector<TString> validHistNames;
-    return Initialize(histNames,validHistNames,histFile);
+    return initialize(histNames,validHistNames,histFile);
 }
 
-StatusCode PileupUncertaintyComponent::Initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile)
+StatusCode PileupUncertaintyComponent::initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile)
 {
     // Call the base class first
-    if (UncertaintyComponent::Initialize(histNames,validHistNames,histFile).isFailure())
+    if (UncertaintyComponent::initialize(histNames,validHistNames,histFile).isFailure())
         return StatusCode::FAILURE;
 
     // Then ensure that the number of histograms matches what is expected for Pileup components
@@ -131,23 +203,23 @@ StatusCode PileupUncertaintyComponent::Initialize(const std::vector<TString>& hi
 
 bool PileupUncertaintyComponent::getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getValidity(jet.pt()/1.e3,m_absEta ? fabs(jet.eta()) : jet.eta());
+    return histo->getValidity(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
 }
 
 double PileupUncertaintyComponent::getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
 {
-    return getPileupWeight(histo,eInfo) * histo->getUncertainty(jet.pt()/1.e3,m_absEta ? fabs(jet.eta()) : jet.eta());
+    return getPileupWeight(histo,jet,eInfo) * histo->getUncertainty(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
 }
 
 bool PileupUncertaintyComponent::getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
 {
-    bool success = histo->getValidUncertainty(unc,jet.pt()/1.e3,m_absEta ? fabs(jet.eta()) : jet.eta());
+    bool success = histo->getValidUncertainty(unc,jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
     if (success)
-        unc *= getPileupWeight(histo,eInfo);
+        unc *= getPileupWeight(histo,jet,eInfo);
     return success;
 }
 
-double PileupUncertaintyComponent::getPileupWeight(const UncertaintyHistogram* histo, const xAOD::EventInfo& eInfo) const
+double PileupUncertaintyComponent::getPileupWeight(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
 {
     double weight;
     const float mu  = eInfo.averageInteractionsPerCrossing();
@@ -163,15 +235,15 @@ double PileupUncertaintyComponent::getPileupWeight(const UncertaintyHistogram* h
 
 
     if (m_pileupType == PileupComp::OffsetNPV)
-        weight = NPV - m_refNPV;
+        weight = NPV - (m_refNPVHist?m_refNPVHist->getUncertainty(fabs(jet.eta())):m_refNPV);
     else if (m_pileupType == PileupComp::OffsetMu)
-        weight = mu - m_refMu;
+        weight = mu - (m_refMuHist?m_refMuHist->getUncertainty(fabs(jet.eta())):m_refMu);
     else if (m_pileupType == PileupComp::PtTerm)
     {
         if (histo == m_histos.at(PT_TERM_NPV))
-            weight = NPV - m_refNPV;
+            weight = NPV - (m_refNPVHist?m_refNPVHist->getUncertainty(fabs(jet.eta())):m_refNPV);
         else if (histo == m_histos.at(PT_TERM_MU))
-            weight = mu - m_refMu;
+            weight = mu - (m_refMuHist?m_refMuHist->getUncertainty(fabs(jet.eta())):m_refMu);
         else
         {
             ATH_MSG_ERROR(Form("Unexpected histogram %s for component %s",histo->getName().Data(),m_name.Data()));
@@ -188,24 +260,6 @@ double PileupUncertaintyComponent::getPileupWeight(const UncertaintyHistogram* h
 
     return weight;
 }
-
-//unsigned PileupUncertaintyComponent::getDefaultNPV() const
-//{
-//    const xAOD::VertexContainer* vertices = NULL;
-//    if (evtStore()->retrieve(vertices,"PrimaryVertices").isFailure())
-//    {
-//        ATH_MSG_ERROR("Failed to retrieve default NPV value from PrimaryVertices");
-//        return 0;
-//    }
-//
-//    unsigned NPV = 0;
-//    xAOD::VertexContainer::const_iterator itr;
-//    for (itr = vertices->begin(); itr != vertices->end(); ++itr)
-//        if ( (*itr)->nTrackParticles() > 1)
-//            NPV++;
-//
-//    return NPV;
-//}
 
 
 } // end jet namespace

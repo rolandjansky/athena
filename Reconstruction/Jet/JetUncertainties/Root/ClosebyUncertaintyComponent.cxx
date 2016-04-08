@@ -56,17 +56,17 @@ bool ClosebyUncertaintyComponent::getValidity(const UncertaintyHistogram* histo,
     //    return false;
     //}
 
-    return histo->getValidity(jet.pt()/1.e3,m_minDRaccessor(jet));
+    return histo->getValidity(jet.pt()*m_energyScale,m_minDRaccessor(jet));
 }
 
 double ClosebyUncertaintyComponent::getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getUncertainty(jet.pt()/1.e3,m_minDRaccessor(jet));
+    return histo->getUncertainty(jet.pt()*m_energyScale,m_minDRaccessor(jet));
 }
 
 bool ClosebyUncertaintyComponent::getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getValidUncertainty(unc,jet.pt()/1.e3,m_minDRaccessor(jet));
+    return histo->getValidUncertainty(unc,jet.pt()*m_energyScale,m_minDRaccessor(jet));
 }
 
 } // end jet namespace

@@ -4,11 +4,13 @@
 
 
 #include "JetUncertainties/ComponentHelper.h"
+#include "JetUncertainties/Helpers.h"
 
 namespace jet
 {
 
-ComponentHelper::ComponentHelper(const TString& compName)
+ComponentHelper::ComponentHelper(const TString& compName, const float energyScaleVal)
+    : energyScale(energyScaleVal)
 {
     name        = compName;
     desc        = "";
@@ -16,11 +18,13 @@ ComponentHelper::ComponentHelper(const TString& compName)
     corr        = "";
     param       = "";
     scale       = "";
-    interpolate = "";
-    numSplit    = -1;
+    interpolStr = "";
+    splitNum    = -1;
     special     = "";
     hists       = "";
     validHists  = "";
+    group       = -1;
+    isRed       = "false"; 
 
     category        = CompCategory::UNKNOWN;
     correlation     = CompCorrelation::UNKNOWN;
@@ -29,9 +33,12 @@ ComponentHelper::ComponentHelper(const TString& compName)
     isSpecial       = false;
     pileupType      = PileupComp::UNKNOWN;
     flavourType     = FlavourComp::UNKNOWN;
+    interpolate     = true;
+    reducible       = false; 
 }
 
-ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, const TString& MCtype)
+ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, const TString& MCtype, const float energyScaleVal)
+    : energyScale(energyScaleVal)
 {
     // Read in information on the uncertainty component
     //      - Name: name
@@ -52,21 +59,25 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     corr        = settings.GetValue(compPrefix+"Corr","");
     param       = settings.GetValue(compPrefix+"Param","");
     scale       = settings.GetValue(compPrefix+"Scale","FourVec");
-    interpolate = settings.GetValue(compPrefix+"Interp","true");
-    numSplit    = settings.GetValue(compPrefix+"Split",1);
+    interpolStr = settings.GetValue(compPrefix+"Interp","true");
+    splitNum    = settings.GetValue(compPrefix+"Split",0);
     special     = settings.GetValue(compPrefix+"Special","");
     hists       = TString(settings.GetValue(compPrefix+"Hists","")).ReplaceAll("MCTYPE",MCtype);
     validHists  = TString(settings.GetValue(compPrefix+"VHists","")).ReplaceAll("MCType",MCtype);
+    group       = settings.GetValue(compPrefix+"Group",-1);
+    isRed	= settings.GetValue(compPrefix+"isReducible","false"); 
 
     // Get enums where appropriate
     // Leave interpreting/checking the enums to others
-    category        = CompCategory::StringToEnum(cat);
-    correlation     = CompCorrelation::StringToEnum(corr);
-    parametrization = CompParametrization::StringToEnum(param);
-    scaleVar        = CompScaleVar::StringToEnum(scale);
+    category        = CompCategory::stringToEnum(cat);
+    correlation     = CompCorrelation::stringToEnum(corr);
+    parametrization = CompParametrization::stringToEnum(param);
+    scaleVar        = CompScaleVar::stringToEnum(scale);
     isSpecial       = (!special.CompareTo("true",TString::kIgnoreCase)) || (!special.CompareTo("yes",TString::kIgnoreCase));
-    pileupType      = PileupComp::StringToEnum(name);
-    flavourType     = FlavourComp::StringToEnum(name);
+    pileupType      = PileupComp::stringToEnum(name);
+    flavourType     = FlavourComp::stringToEnum(name);
+    interpolate     = utils::getTypeObjFromString<bool>(interpolStr);
+    reducible	    = utils::getTypeObjFromString<bool>(isRed); 
 }
 
 } // end jet namespace

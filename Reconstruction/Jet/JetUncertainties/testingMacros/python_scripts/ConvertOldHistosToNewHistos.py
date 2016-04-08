@@ -4,6 +4,7 @@
 import sys
 import re
 import array
+import math
 from ROOT import *
 def GetKeyNames(self,dir=""):
     self.cd(dir)
@@ -47,7 +48,7 @@ for histName in inFile.GetKeyNames():
         converted = TH1D(histName+"_1D",hist.GetTitle(),len(bins)-1,binArray)
         
         for aBin in range(1,hist.GetNbinsX()+1):
-            if fabs(hist.GetXaxis().GetBinLowEdge(aBin) - converted.GetXaxis().GetBinLowEdge(aBin)) > 1.e-4:
+            if math.fabs(hist.GetXaxis().GetBinLowEdge(aBin) - converted.GetXaxis().GetBinLowEdge(aBin)) > 1.e-4:
                 print "ERROR: Bin edges differ, %f vs %f"%(hist.GetXaxis().GetBinLowEdge(aBin),converted.GetXaxis().GetBinLowEdge(aBin))
                 exit(4)
             converted.SetBinContent(aBin,hist.GetBinContent(aBin,1))
@@ -67,9 +68,9 @@ for histName in inFile.GetKeyNames():
         print "Unexpected hist name: ",histName
         exit(5)
 
-    # Watch for Pythia8==MC12a
-    if "Pythia8" in histNameConverted:
-        histNameConverted = re.sub("Pythia8","MC12a",histNameConverted)
+    # Watch for Pythia8==MC12
+    if "Pythia8" in histNameConverted or "MC12a" in histNameConverted:
+        histNameConverted = re.sub("Pythia8","MC12",re.sub("MC12a","MC12",histNameConverted))
 
     outFile.cd()
     converted.Write(histNameConverted)

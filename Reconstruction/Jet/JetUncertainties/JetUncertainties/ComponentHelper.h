@@ -16,9 +16,12 @@ namespace jet
 class ComponentHelper
 {
     public:
-        ComponentHelper(const TString& name="");
-        ComponentHelper(TEnv& settings, const TString& compPrefix, const TString& MCtype);
+        ComponentHelper(const TString& name="", const float energyScaleVal=1.e-3);
+        ComponentHelper(TEnv& settings, const TString& compPrefix, const TString& MCtype, const float energyScaleVal);
         virtual ~ComponentHelper() {}
+        
+        // Values fixed by arguments
+        const float energyScale;
 
         // Raw component values to read from a file
         TString name;
@@ -27,11 +30,13 @@ class ComponentHelper
         TString corr;
         TString param;
         TString scale;
-        TString interpolate;
-        int numSplit;
+        TString isRed; 
+        TString interpolStr;
+        int splitNum;
         TString special;
         TString hists;
         TString validHists;
+        int group;
 
         // Derived values to parse from the raw values
         CompCategory::TypeEnum category;
@@ -41,6 +46,8 @@ class ComponentHelper
         bool isSpecial;
         PileupComp::TypeEnum pileupType;
         FlavourComp::TypeEnum flavourType;
+        bool interpolate;
+        bool reducible; 
 };
 
 } // end jet namespace

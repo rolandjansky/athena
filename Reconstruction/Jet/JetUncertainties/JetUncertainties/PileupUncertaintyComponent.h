@@ -18,11 +18,23 @@ class PileupUncertaintyComponent : public UncertaintyComponent
                                     const float refNPV,
                                     const float refMu
                                     );
+        PileupUncertaintyComponent( const ComponentHelper& component,
+                                    const UncertaintyHistogram* refNPV,
+                                    const UncertaintyHistogram* refMu
+                                    );
+        PileupUncertaintyComponent( const ComponentHelper& component,
+                                    const UncertaintyHistogram* refNPV,
+                                    const float refMu
+                                    );
+        PileupUncertaintyComponent( const ComponentHelper& component,
+                                    const float refNPV,
+                                    const UncertaintyHistogram* refMu
+                                    );
         PileupUncertaintyComponent(const PileupUncertaintyComponent& toCopy);
         virtual PileupUncertaintyComponent* clone() const;
         virtual ~PileupUncertaintyComponent() {}
-        virtual StatusCode Initialize(const std::vector<TString>& histNames, TFile* histFile);
-        virtual StatusCode Initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile);
+        virtual StatusCode initialize(const std::vector<TString>& histNames, TFile* histFile);
+        virtual StatusCode initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile);
         
         // Extra information retrieval methods
         virtual PileupComp::TypeEnum    getPileupType() const   { return m_pileupType; }
@@ -47,14 +59,15 @@ class PileupUncertaintyComponent : public UncertaintyComponent
         const PileupComp::TypeEnum m_pileupType;
         const float m_refNPV;
         const float m_refMu;
+        const UncertaintyHistogram* m_refNPVHist;
+        const UncertaintyHistogram* m_refMuHist;
         const bool m_absEta;
         SG::AuxElement::Accessor<float> m_NPVaccessor;
 
         // Helper indices/methods
         static const size_t PT_TERM_NPV;
         static const size_t PT_TERM_MU;
-        double getPileupWeight(const UncertaintyHistogram* histo, const xAOD::EventInfo& eInfo) const;
-        //unsigned getDefaultNPV() const;
+        double getPileupWeight(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
 };
 
 } // end jet namespace
