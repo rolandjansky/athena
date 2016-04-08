@@ -99,6 +99,12 @@ public:
                                                            const Trk::TrackParameters&) const;
 
   virtual const InDet::PixelClusterOnTrack* correctNN(const Trk::PrepRawData&, const Trk::TrackParameters&) const;
+	
+  virtual bool getErrorsDefaultAmbi( const InDet::PixelCluster*, const Trk::TrackParameters&, 
+                           Amg::Vector2D&,  Amg::MatrixX&) const;
+													 
+	virtual bool getErrorsTIDE_Ambi( const InDet::PixelCluster*, const Trk::TrackParameters&,  
+                        Amg::Vector2D&,  Amg::MatrixX&) const;
 
   virtual const InDet::PixelClusterOnTrack* correct
     (const Trk::PrepRawData&, const Trk::TrackParameters&, 
@@ -176,6 +182,9 @@ public:
   std::string                                           m_splitClusterMapName;  //!< split cluster ambiguity map
   bool                                                  m_doNotRecalibrateNN;
   bool                                                  m_noNNandBroadErrors;
+	
+	/** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
+  bool                      m_usingTIDE_Ambi;
 
 };
 
