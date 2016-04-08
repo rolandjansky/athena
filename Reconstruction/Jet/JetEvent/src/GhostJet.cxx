@@ -4,6 +4,6 @@
 
 #include "JetEvent/GhostJet.h"
 
-double GhostJet::delta_eta = 0.05;
-double GhostJet::delta_phi = 0.05;
+double GhostJet::s_delta_eta = 0.05;
+double GhostJet::s_delta_phi = 0.05;
 

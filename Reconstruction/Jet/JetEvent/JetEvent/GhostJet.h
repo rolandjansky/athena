@@ -29,14 +29,14 @@ class GhostJet :   public Jet
  public:
   GhostJet(const I4Momentum& pFourVector) : Jet(pFourVector) {};
 
-  static double get_delta_eta(){return delta_eta;}
-  static double get_delta_phi(){return delta_phi;}
+  static double get_delta_eta(){return s_delta_eta;}
+  static double get_delta_phi(){return s_delta_phi;}
 
-  static void set_delta_eta(double eta){delta_eta = eta;}
-  static void set_delta_phi(double phi){delta_phi = phi;}
+  static void set_delta_eta(double eta){s_delta_eta = eta;}
+  static void set_delta_phi(double phi){s_delta_phi = phi;}
  protected:
-  static double delta_eta ;
-  static double delta_phi ;
+  static double s_delta_eta ;
+  static double s_delta_phi ;
 };
 
 #endif //JETEVENT_GHOSTJET_H

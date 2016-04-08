@@ -722,6 +722,11 @@ public:
 
 
 protected:
+  friend class ParticleJetCnv_p1;
+  friend class JetCnv_p1;
+  friend class JetCnv_p2;
+  friend class JetCnv_p3;
+  friend class JetCnv_p4;
 
   static const size_t s_defaultJetAuthor;
   /** @brief Jet author store */
