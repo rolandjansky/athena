@@ -25,9 +25,9 @@ using CaloClusterCorr::interpolate;
 
 StatusCode EgammaLWCalibration::initialize(){
 
-	CHECK (AlgTool::initialize());
+	CHECK (AthAlgTool::initialize());
 	CHECK (CaloRec::ToolWithConstantsMixin::initialize() );
-	m_log = new MsgStream(AlgTool::msgSvc(), name() );
+	m_log = new MsgStream(AthAlgTool::msgSvc(), name() );
 
 	(*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endreq;
 
@@ -91,8 +91,8 @@ void EgammaLWCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
 	  double total0 = 0;
 	  for (int sampling=0; sampling<4; ++sampling)
 	     total0 += clus->energy(m_samps[si][sampling]);
-	     e_offset = clus->energy() - total0;
-	  }
+	  e_offset = clus->energy() - total0;
+	}
  
 	clus->setEnergy (m_samps[si][0], clus->energy(m_samps[si][0]) * pars[0]);
 	clus->setEnergy (m_samps[si][3], clus->energy(m_samps[si][3]) * pars[1]);
@@ -113,7 +113,7 @@ StatusCode
 EgammaLWCalibration::setProperty (const std::string& propname,
                                     const std::string& value)
 {
-  CHECK( AlgTool::setProperty(propname,value) );
+  CHECK( AthAlgTool::setProperty(propname,value) );
   CHECK( CaloRec::ToolWithConstantsMixin::setProperty (propname, value) );
   return StatusCode::SUCCESS;
 }
@@ -121,7 +121,7 @@ EgammaLWCalibration::setProperty (const std::string& propname,
 StatusCode
 EgammaLWCalibration::setProperty (const Property& p)
 {
-  CHECK( AlgTool::setProperty(p) );
+  CHECK( AthAlgTool::setProperty(p) );
   CHECK( CaloRec::ToolWithConstantsMixin::setProperty (p) );
   return StatusCode::SUCCESS;
 }

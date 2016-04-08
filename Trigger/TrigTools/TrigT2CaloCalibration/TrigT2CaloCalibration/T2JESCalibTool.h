@@ -20,7 +20,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/Property.h"
 
 #include "CaloRec/ToolWithConstantsMixin.h"
@@ -31,7 +31,7 @@
 #include <math.h>
 
 class T2JESCalibTool : virtual public IT2HadCalibTool, 
-                               public AlgTool,
+                               public AthAlgTool,
                                public CaloRec::ToolWithConstantsMixin 
 {
  public:
@@ -45,7 +45,7 @@ class T2JESCalibTool : virtual public IT2HadCalibTool,
    StatusCode finalize(); 
    
    // These ones must be redefined for ToolWithConstantsMixin
-   using AlgTool::setProperty;
+   using AthAlgTool::setProperty;
    virtual StatusCode setProperty (const std::string& propname,
                                    const std::string& value);  
    virtual StatusCode setProperty (const Property& p); 

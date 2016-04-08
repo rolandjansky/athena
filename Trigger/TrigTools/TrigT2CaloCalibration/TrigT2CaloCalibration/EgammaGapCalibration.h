@@ -7,7 +7,7 @@
 #define TRIGT2CALOCALIBRATION_EGAMMAGAPCALIBRATION
 
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 
 // Specific for this calibration
@@ -22,7 +22,7 @@
 
 /** General Interface for calibrations at the LVL2 Egamma Calo Fex algo */
 class EgammaGapCalibration : virtual public IEgammaCalibration,
-			     virtual public AlgTool, 
+			     virtual public AthAlgTool, 
 			     public CaloRec::ToolWithConstantsMixin 
 {
  public:
@@ -31,7 +31,7 @@ class EgammaGapCalibration : virtual public IEgammaCalibration,
   EgammaGapCalibration(const std::string & type, 
 		       const std::string & name,
 		       const IInterface* parent) 
-    : AlgTool(type,name,parent), CaloRec::ToolWithConstantsMixin() {
+    : AthAlgTool(type,name,parent), CaloRec::ToolWithConstantsMixin() {
     declareInterface<IEgammaCalibration>(this);
     declareConstant("correction",      m_correction);
     declareConstant("eta_start_crack", m_eta_start_crack);
@@ -52,7 +52,7 @@ class EgammaGapCalibration : virtual public IEgammaCalibration,
   StatusCode finalize();
   
   /** Set Property necessary */
-  using AlgTool::setProperty;
+  using AthAlgTool::setProperty;
   StatusCode setProperty(const std::string&, const std::string&);
   StatusCode setProperty(const Property&);
   

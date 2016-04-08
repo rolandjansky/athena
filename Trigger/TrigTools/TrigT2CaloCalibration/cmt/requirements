@@ -8,6 +8,7 @@ author Nuno Anjos <Nuno.Anjos@cern.ch>
 
 use AtlasPolicy              AtlasPolicy-*
 use StoreGate		     StoreGate-*		Control
+use AthenaBaseComps	     AthenaBaseComps-*		Control
 
 use GaudiInterface           GaudiInterface-*           External
 

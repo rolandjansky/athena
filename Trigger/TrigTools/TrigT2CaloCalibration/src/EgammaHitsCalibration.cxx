@@ -26,9 +26,9 @@
 
 StatusCode EgammaHitsCalibration::initialize(){
 
-    CHECK (AlgTool::initialize());
+    CHECK (AthAlgTool::initialize());
     CHECK (CaloRec::ToolWithConstantsMixin::initialize() );
-    m_log = new MsgStream(AlgTool::msgSvc(), name() );
+    m_log = new MsgStream(AthAlgTool::msgSvc(), name() );
 
     (*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endreq;
 
@@ -299,7 +299,7 @@ StatusCode
 EgammaHitsCalibration::setProperty (const std::string& propname,
         const std::string& value)
 {
-    CHECK( AlgTool::setProperty(propname,value) );
+    CHECK( AthAlgTool::setProperty(propname,value) );
     CHECK( CaloRec::ToolWithConstantsMixin::setProperty (propname, value) );
     return StatusCode::SUCCESS;
 }
@@ -307,7 +307,7 @@ EgammaHitsCalibration::setProperty (const std::string& propname,
 StatusCode
 EgammaHitsCalibration::setProperty (const Property& p)
 {
-    CHECK( AlgTool::setProperty(p) );
+    CHECK( AthAlgTool::setProperty(p) );
     CHECK( CaloRec::ToolWithConstantsMixin::setProperty (p) );
     return StatusCode::SUCCESS;
 }

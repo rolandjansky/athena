@@ -19,7 +19,7 @@
 EgammaSshapeCalibration::EgammaSshapeCalibration(const std::string &type,
 						 const std::string &name, 
 						 const IInterface* parent) 
-  : AlgTool(type,name,parent), CaloRec::ToolWithConstantsMixin()
+  : AthAlgTool(type,name,parent), CaloRec::ToolWithConstantsMixin()
 {
   declareInterface<IEgammaCalibration>(this);
   declareConstant("correction",    m_correction);
@@ -35,8 +35,8 @@ EgammaSshapeCalibration::EgammaSshapeCalibration(const std::string &type,
 // initialize
 //====================================================================
 StatusCode EgammaSshapeCalibration::initialize(){
-  m_log = new MsgStream(AlgTool::msgSvc(), name() ); 
-  CHECK(AlgTool::initialize());
+  m_log = new MsgStream(AthAlgTool::msgSvc(), name() ); 
+  CHECK(AthAlgTool::initialize());
   CHECK(CaloRec::ToolWithConstantsMixin::initialize());
   (*m_log) << MSG::DEBUG << "Initialize Tool : " << name() << endreq;
   return StatusCode::SUCCESS;
@@ -252,7 +252,7 @@ inline void EgammaSshapeCalibration::docalc (int i,
 //====================================================================
 StatusCode EgammaSshapeCalibration::setProperty (const std::string& propname,
 						 const std::string& value){
-  CHECK( AlgTool::setProperty(propname,value) );
+  CHECK( AthAlgTool::setProperty(propname,value) );
   CHECK( CaloRec::ToolWithConstantsMixin::setProperty (propname, value) );
   return StatusCode::SUCCESS;
 }
@@ -262,7 +262,7 @@ StatusCode EgammaSshapeCalibration::setProperty (const std::string& propname,
 // EgammaSshapeCalibration::setProperty
 //====================================================================
 StatusCode EgammaSshapeCalibration::setProperty (const Property& p){
-  CHECK( AlgTool::setProperty(p) );
+  CHECK( AthAlgTool::setProperty(p) );
   CHECK( CaloRec::ToolWithConstantsMixin::setProperty (p) );
   return StatusCode::SUCCESS;
 }

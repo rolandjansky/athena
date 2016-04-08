@@ -25,7 +25,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/Property.h"
 #include "StoreGate/DataHandle.h"
 
@@ -42,7 +42,7 @@ class IAthenaOutputStreamTool;//Needed to write to POOL/root file
 class IIOVRegistrationSvc;//Needed for register with COOL
 class IIncidentSvc;//Need to retrieve dB at initialize
 
-class T2SampCalibTool : virtual public IT2HadCalibTool, public AlgTool, virtual public IIncidentListener  {
+class T2SampCalibTool : virtual public IT2HadCalibTool, public AthAlgTool, virtual public IIncidentListener  {
  public:
   /** Constructor */
   T2SampCalibTool(const std::string&,const std::string&,const IInterface*); 

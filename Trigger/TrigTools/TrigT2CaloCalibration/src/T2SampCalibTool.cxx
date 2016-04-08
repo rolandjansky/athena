@@ -47,7 +47,7 @@
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 
 T2SampCalibTool::T2SampCalibTool(const std::string& t, const std::string& n,
-				 const IInterface*  p ) : AlgTool(t,n,p),						m_log(msgSvc(), n)	
+				 const IInterface*  p ) : AthAlgTool(t,n,p),						m_log(msgSvc(), n)	
 {
  
  declareInterface<IT2HadCalibTool>(this);

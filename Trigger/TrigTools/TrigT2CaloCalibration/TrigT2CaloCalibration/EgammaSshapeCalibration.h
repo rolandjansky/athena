@@ -6,7 +6,7 @@
 #define TRIGT2CALOCALIBRATION_EGAMMASSHAPECALIBRATION
 
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "CaloRec/ToolWithConstantsMixin.h"
 #include "CaloConditions/Array.h"
@@ -21,7 +21,7 @@
 // class EgammaSshapeCalibration
 //--------------------------------------------
 class EgammaSshapeCalibration : virtual public IEgammaCalibration, 
-				virtual public AlgTool, 
+				virtual public AthAlgTool, 
 				public CaloRec::ToolWithConstantsMixin
 {  
  public:
@@ -43,7 +43,7 @@ class EgammaSshapeCalibration : virtual public IEgammaCalibration,
   virtual void makeCorrection(xAOD::TrigEMCluster*, const void*);
 
   /** Set Property necessary */
-  using AlgTool::setProperty;
+  using AthAlgTool::setProperty;
   StatusCode setProperty(const std::string&,const std::string&);  
   StatusCode setProperty(const Property&);
   

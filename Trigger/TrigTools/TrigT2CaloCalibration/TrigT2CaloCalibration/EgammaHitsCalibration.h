@@ -7,7 +7,7 @@
 
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
 #include "TrigT2CaloCalibration/EgammaHitsShowerDepth.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 
 // Specific for this calibration
@@ -22,11 +22,11 @@
 
 /** General Interface for calibrations at the LVL2 Egamma Calo Fex algo */
 class EgammaHitsCalibration  : virtual public IEgammaCalibration,
-	virtual public AlgTool, public CaloRec::ToolWithConstantsMixin {
+	virtual public AthAlgTool, public CaloRec::ToolWithConstantsMixin {
 	public:
 	/** Constructor */
 	EgammaHitsCalibration (const std::string & type, const std::string & name,
-		const IInterface* parent) : AlgTool(type,name,parent),
+		const IInterface* parent) : AthAlgTool(type,name,parent),
 	CaloRec::ToolWithConstantsMixin(),
   m_showerDepth(0){
     declareInterface<IEgammaCalibration>(this);
@@ -49,7 +49,7 @@ class EgammaHitsCalibration  : virtual public IEgammaCalibration,
 	StatusCode finalize();
 
 	/** Set Property necessary */
-        using AlgTool::setProperty;
+        using AthAlgTool::setProperty;
 	StatusCode setProperty(const std::string&,
 		const std::string&);
 	StatusCode setProperty(const Property&);

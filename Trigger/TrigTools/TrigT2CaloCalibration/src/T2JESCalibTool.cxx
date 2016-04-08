@@ -23,7 +23,7 @@
 
 
 T2JESCalibTool::T2JESCalibTool(const std::string& t, const std::string& n,
-			       const IInterface*  p ) : AlgTool(t,n,p),	m_log(msgSvc(), n)	
+			       const IInterface*  p ) : AthAlgTool(t,n,p),	m_log(msgSvc(), n)	
 {
  
  declareInterface<IT2HadCalibTool>(this);
@@ -39,7 +39,7 @@ T2JESCalibTool::~T2JESCalibTool() {
 
 StatusCode T2JESCalibTool::setProperty (const std::string& propname,
                                              const std::string& value){
-  StatusCode sc = AlgTool::setProperty (propname, value);
+  StatusCode sc = AthAlgTool::setProperty (propname, value);
   if (sc.isFailure())
     return sc;
   sc=CaloRec::ToolWithConstantsMixin::setProperty (propname, value);
@@ -49,7 +49,7 @@ StatusCode T2JESCalibTool::setProperty (const std::string& propname,
 }
 
 StatusCode T2JESCalibTool::setProperty (const Property& p){
-  StatusCode sc=AlgTool::setProperty (p);
+  StatusCode sc=AthAlgTool::setProperty (p);
   if (sc.isFailure())
     return sc;
   sc=CaloRec::ToolWithConstantsMixin::setProperty (p);
