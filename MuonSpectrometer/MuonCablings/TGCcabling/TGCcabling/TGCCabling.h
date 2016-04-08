@@ -159,7 +159,12 @@ private:
   int getIndexFromReadoutWithoutChannel(const TGCIdBase::SideType side, 
 					const int rodId, 
 					const int sswId, 
-					const int sbLoc) const; 
+					const int sbLoc) const;
+
+  // hidden assignment operator and copy constructor
+  TGCCabling & operator=(const TGCCabling &right);
+  TGCCabling(const TGCCabling&);
+
 };
 
 } // end of namespace
