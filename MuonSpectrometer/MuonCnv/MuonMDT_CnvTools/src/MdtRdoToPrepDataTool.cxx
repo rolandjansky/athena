@@ -1829,10 +1829,9 @@ MdtDriftCircleStatus MdtRdoToPrepDataTool::getMdtTwinPosition(const MdtDigit * d
   } // end if(m_calibratePrepData)    
   else{
     radius = 0.;
-    errRadius = 4.215; // 14.6/sqrt(12)
- 
-    zTwin = 0.;
     Identifier channelId = digit->identify();
+    errRadius = m_muonMgr->getMdtReadoutElement(channelId)->innerTubeRadius()/sqrt(12); // 14.6/sqrt(12)
+    zTwin = 0.;
     double tubelength = m_muonMgr->getMdtReadoutElement(channelId)->getTubeLength(m_mdtHelper->tubeLayer(channelId),m_mdtHelper->tube(channelId));
     errZTwin = tubelength/2.;
   }
