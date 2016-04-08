@@ -24,7 +24,7 @@ public:
 
 	inline float getOverY() const {return m_fOverY;}
 	inline int getNumY() const {return m_iNumY;}
-	inline std::vector<int> getFibSel() {return m_iFibSel;}
+	inline std::vector<int> getFibSel() const {return m_iFibSel;}
 
 	private:
 
