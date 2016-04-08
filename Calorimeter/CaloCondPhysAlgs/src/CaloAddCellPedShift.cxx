@@ -11,7 +11,7 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloEvent/CaloCell.h"
 #include "Identifier/Identifier.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 //=== AttributeList
 #include "CoralBase/Blob.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"

@@ -204,7 +204,12 @@ StatusCode CaloCellNoiseAlg::execute()
   if ( lumiblock != m_lumiblockOld) {
     float luminosity =  this->getLuminosity();
     ATH_MSG_INFO ( " New lumiblock seen " << lumiblock << " " << m_lumiblock << " " << luminosity << " " << m_luminosity <<  " m_first " << m_first );
-    if ( ( abs(lumiblock-m_lumiblock)>=m_addlumiblock || std::fabs(luminosity-m_luminosity)>(m_luminosity*m_deltaLumi) || m_first ) && m_doLumiFit) {
+    // lumiblock, m_lumiblock are unsigned.
+    if ( ( lumiblock - m_lumiblock >= static_cast<unsigned int>(m_addlumiblock) ||
+           std::fabs(luminosity-m_luminosity)>(m_luminosity*m_deltaLumi) ||
+           m_first )
+         && m_doLumiFit)
+    {
       if (!m_first) {
         ATH_MSG_INFO ( " filling ntuple for lumiblock " << m_lumiblock << " until  " << lumiblock << " (excluded) " );
          if (this->fillNtuple().isFailure()) {
@@ -225,7 +230,7 @@ StatusCode CaloCellNoiseAlg::execute()
       ATH_MSG_WARNING ( " too many celly " << m_ncell );
       return StatusCode::SUCCESS;
     }
-    CellList.reserve(m_ncell);
+    m_CellList.reserve(m_ncell);
 
     for (int i=0;i<m_ncell;i++) {
      IdentifierHash idHash=i;
@@ -248,14 +253,14 @@ StatusCode CaloCellNoiseAlg::execute()
           }
           else {
               if(m_calo_id->is_hec(id)) gain=CaloGain::LARMEDIUMGAIN;
-              gain=CaloGain::LARHIGHGAIN;
+              else gain=CaloGain::LARHIGHGAIN;
           }
           cell0.reference = m_noiseToolDB->totalNoiseRMS(calodde,gain,-1);
      }
      else{
        cell0.reference=0.;
      }
-     CellList.push_back(cell0);
+     m_CellList.push_back(cell0);
     }
 
     m_tree = new TTree("mytree","Calo Noise ntuple");
@@ -307,9 +312,9 @@ StatusCode CaloCellNoiseAlg::execute()
             IdentifierHash idhash = m_calo_id->calo_cell_hash(cellID);
             int index = (int) (idhash);
 
-            double oldN = (double) (CellList[index].nevt);
-            double oldAverage = CellList[index].average;
-            double oldRMS     = CellList[index].rms;
+            double oldN = (double) (m_CellList[index].nevt);
+            double oldAverage = m_CellList[index].average;
+            double oldRMS     = m_CellList[index].rms;
 
             double frac = oldN/(1.+oldN);
             double Anew = 1.+oldN;
@@ -317,11 +322,11 @@ StatusCode CaloCellNoiseAlg::execute()
             double deltaE = (energy-oldAverage);
             double newRMS     = frac*(oldRMS + deltaE*deltaE/Anew);
 
-            CellList[index].nevt ++;
-            CellList[index].average = newAverage;
-            CellList[index].rms = newRMS;
+            m_CellList[index].nevt ++;
+            m_CellList[index].average = newAverage;
+            m_CellList[index].rms = newRMS;
 
-            if (!((*first_cell)->badcell())) CellList[index].nevt_good++;
+            if (!((*first_cell)->badcell())) m_CellList[index].nevt_good++;
           }
       }
    }
@@ -366,24 +371,24 @@ StatusCode CaloCellNoiseAlg::fillNtuple()
   ATH_MSG_INFO ( "  in fillNtuple " );
 
  for (int i=0;i<m_ncell;i++) {
-   m_identifier[i] = CellList[i].identifier;
-   m_layer[i] = CellList[i].sampling;
-   m_eta[i] = CellList[i].eta;
-   m_phi[i] = CellList[i].phi;
-   m_nevt[i] = CellList[i].nevt;
-   m_nevt_good[i] = CellList[i].nevt_good;
-   m_average[i] = (float) (CellList[i].average);
-   m_rms[i] = (float) (sqrt(CellList[i].rms));
-   m_reference[i] = (float) (CellList[i].reference);
+   m_identifier[i] = m_CellList[i].identifier;
+   m_layer[i] = m_CellList[i].sampling;
+   m_eta[i] = m_CellList[i].eta;
+   m_phi[i] = m_CellList[i].phi;
+   m_nevt[i] = m_CellList[i].nevt;
+   m_nevt_good[i] = m_CellList[i].nevt_good;
+   m_average[i] = (float) (m_CellList[i].average);
+   m_rms[i] = (float) (sqrt(m_CellList[i].rms));
+   m_reference[i] = (float) (m_CellList[i].reference);
    ATH_MSG_DEBUG ( " hash,Nevt,Average,RMS " << i << " " << m_nevt[i] << " " << m_average[i] << " " << m_rms[i] );
  }
  m_tree->Fill();
 
  for (int i=0;i<m_ncell;i++) {
-  CellList[i].nevt=0;
-  CellList[i].nevt_good=0;
-  CellList[i].average=0;
-  CellList[i].rms=0;
+  m_CellList[i].nevt=0;
+  m_CellList[i].nevt_good=0;
+  m_CellList[i].average=0;
+  m_CellList[i].rms=0;
  }
 
 

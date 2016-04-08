@@ -16,11 +16,11 @@ if len(sys.argv)<2:
 #parameters:
 sqliteName=sys.argv[1]
 folderName="/LAR/CellCorrOfl/EnergyCorr"
-foldertag="".join(folderName.split("/")) + "-empty"
+foldertag="".join(folderName.split("/")) + "-RUN2-UPD4-03"
 iovMin = cool.ValidityKeyMin
 iovMax = cool.ValidityKeyMax
 filename=None
-defaultvalue=0.0
+defaultvalue=1.0
 
 if len(sys.argv)>2:
    filename=sys.argv[2]
@@ -44,8 +44,8 @@ if len(sys.argv)>6:
    print "IOV-until run ",run,"LB",LB
    pass
 
-
+print "Default value",defaultvalue
 createSqlite(sqliteName,folderName,foldertag,iovMin,iovMax,filename,defaultvalue)
 
 print "To upload:"
-print "/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py",sqliteName,"COMP200 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
+print "/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py",sqliteName,"CONDRB2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
