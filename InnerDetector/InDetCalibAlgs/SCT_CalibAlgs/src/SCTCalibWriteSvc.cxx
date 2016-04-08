@@ -51,8 +51,8 @@ string SCTCalibWriteSvc::s_deadChipFolderName = string("/SCT/Derived/DeadChips")
 string SCTCalibWriteSvc::s_effFolderName = string("/SCT/Derived/Efficiency");
 string SCTCalibWriteSvc::s_noFolderName = string("/SCT/Derived/NoiseOccupancy");
 string SCTCalibWriteSvc::s_RawOccuFolderName = string("/SCT/Derived/RawOccupancy");
-string SCTCalibWriteSvc::s_BSErrFolderName = string("/SCT/Derived/BSErrors");
-string SCTCalibWriteSvc::s_LAFolderName = string("/SCT/Derived/LorentzAngle");
+string SCTCalibWriteSvc::s_BSErrFolderName = string("/SCT/Derived/BSErrorsRun2");
+string SCTCalibWriteSvc::s_LAFolderName = string("/SCT/Derived/LorentzAngleRun2_v2");
 
 static bool becCapsFormat(true);
 static bool becUnderscoreFormat(false);
@@ -117,6 +117,7 @@ SCTCalibWriteSvc::SCTCalibWriteSvc(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("TagID4RawOccupancy",   m_tagID4RawOccupancy);
   declareProperty("TagID4BSErrors",       m_tagID4BSErrors);
   declareProperty("TagID4LorentzAngle",   m_tagID4LorentzAngle);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -255,7 +256,7 @@ SCTCalibWriteSvc::addNumber(const string numStr,const unsigned long long number)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalibWriteSvc::createCondObjects(const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize,
+StatusCode SCTCalibWriteSvc::createCondObjects(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,
   const std::string & defectType,const float threshold,const std::string & defectList) const{
   if (!m_writeCondObjs) {return StatusCode::SUCCESS;}
   coral::AttributeListSpecification* attrSpec =createBasicDbSpec(becCapsFormat);
@@ -269,7 +270,7 @@ StatusCode SCTCalibWriteSvc::createCondObjects(const Identifier& wafer_id,const 
   } 
 
   coral::AttributeList attrList0(*attrSpec);
-  setBasicValues(attrList0, wafer_id, samplesize,m_sctId,becCapsFormat);
+  setBasicValues(attrList0, wafer_id, samplesize,sctId,becCapsFormat);
   attrList0["DefectType"].setValue(static_cast<std::string>(defectType));
   attrList0["Threshold"].setValue(static_cast<float>(threshold));
   attrList0["DefectList"].setValue(static_cast<std::string>(defectList));
@@ -282,7 +283,7 @@ StatusCode SCTCalibWriteSvc::createCondObjects(const Identifier& wafer_id,const 
 ////////////////////////////////////////////////////////////////////////////////
 
 StatusCode SCTCalibWriteSvc::createListStrip(const Identifier& wafer_id,
-                   const SCT_ID* m_sctId,
+                   const SCT_ID* sctId,
                    const int samplesize,
                    const std::string & defectType,
                    const float threshold,
@@ -300,7 +301,7 @@ StatusCode SCTCalibWriteSvc::createListStrip(const Identifier& wafer_id,
   } 
 
   coral::AttributeList attrList0(*attrSpec);
-  setBasicValues(attrList0, wafer_id, samplesize,m_sctId, becCapsFormat);
+  setBasicValues(attrList0, wafer_id, samplesize,sctId, becCapsFormat);
   attrList0["DefectType"].setValue(static_cast<std::string>(defectType));
   attrList0["Threshold"].setValue(static_cast<float>(threshold));
   attrList0["DefectList"].setValue(static_cast<std::string>(defectList));
@@ -308,12 +309,13 @@ StatusCode SCTCalibWriteSvc::createListStrip(const Identifier& wafer_id,
   std::ostringstream attrStr2;
   attrList0.toOutputStream( attrStr2 );
   m_attrListColl_deadStrip->add(wafer_id.get_identifier32().get_compact(), attrList0);
+  msg(MSG::INFO)<<"createListStrip: return StatusCode::SUCCESS"<<endreq;
   return StatusCode::SUCCESS;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-StatusCode SCTCalibWriteSvc::createListChip(const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize,const std::string & defectType,const float threshold,const std::string & defectList) const{
+StatusCode SCTCalibWriteSvc::createListChip(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,const std::string & defectType,const float threshold,const std::string & defectList) const{
   if (!m_writeCondObjs) {return StatusCode::SUCCESS;}
   coral::AttributeListSpecification* attrSpec =createBasicDbSpec(becCapsFormat);
   attrSpec->extend("DefectType","string");
@@ -326,7 +328,7 @@ StatusCode SCTCalibWriteSvc::createListChip(const Identifier& wafer_id,const SCT
 
   // Add three attr lists
   coral::AttributeList attrList0(*attrSpec);
-  setBasicValues(attrList0, wafer_id, samplesize,m_sctId, becCapsFormat);
+  setBasicValues(attrList0, wafer_id, samplesize,sctId, becCapsFormat);
   attrList0["DefectType"].setValue(static_cast<std::string>(defectType));
   attrList0["Threshold"].setValue(static_cast<float>(threshold));
   attrList0["DefectList"].setValue(static_cast<std::string>(defectList));
@@ -340,7 +342,7 @@ StatusCode SCTCalibWriteSvc::createListChip(const Identifier& wafer_id,const SCT
 
 ////////////////////////////////////////////////////////////////////////////////
 
-StatusCode SCTCalibWriteSvc::createListEff(const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize,const float eff) const {
+StatusCode SCTCalibWriteSvc::createListEff(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,const float eff) const {
   if(!m_writeCondObjs) {return StatusCode::SUCCESS;}
 
   coral::AttributeListSpecification* attrSpec =createBasicDbSpec(becUnderscoreFormat);
@@ -351,7 +353,7 @@ StatusCode SCTCalibWriteSvc::createListEff(const Identifier& wafer_id,const SCT_
   } 
 
   coral::AttributeList attrList0(*attrSpec);
-  setBasicValues(attrList0, wafer_id, samplesize,m_sctId,becUnderscoreFormat);
+  setBasicValues(attrList0, wafer_id, samplesize,sctId,becUnderscoreFormat);
   attrList0["Efficiency"].setValue(static_cast<float>(eff));
   
   std::ostringstream attrStr2;
@@ -363,7 +365,7 @@ StatusCode SCTCalibWriteSvc::createListEff(const Identifier& wafer_id,const SCT_
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-StatusCode SCTCalibWriteSvc::createListNO(const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize,const float noise_occ) const {
+StatusCode SCTCalibWriteSvc::createListNO(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,const float noise_occ) const {
   if (!m_writeCondObjs) {return StatusCode::SUCCESS;}
   coral::AttributeListSpecification* attrSpec =createBasicDbSpec(becUnderscoreFormat);
   attrSpec->extend("NoiseOccupancy", "float");
@@ -373,7 +375,7 @@ StatusCode SCTCalibWriteSvc::createListNO(const Identifier& wafer_id,const SCT_I
   } 
   // Add three attr lists
   coral::AttributeList attrList0(*attrSpec);
-  setBasicValues(attrList0, wafer_id, samplesize,m_sctId,becUnderscoreFormat);
+  setBasicValues(attrList0, wafer_id, samplesize,sctId,becUnderscoreFormat);
   attrList0["NoiseOccupancy"].setValue(static_cast<float>(noise_occ));
   std::ostringstream attrStr2;
   attrList0.toOutputStream(attrStr2);
@@ -384,7 +386,7 @@ StatusCode SCTCalibWriteSvc::createListNO(const Identifier& wafer_id,const SCT_I
 ///////////////////////////////////////////////////////////////////////////////////
 
 StatusCode 
-SCTCalibWriteSvc::createListRawOccu(const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize,const float raw_occu) const {
+SCTCalibWriteSvc::createListRawOccu(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,const float raw_occu) const {
   if (!m_writeCondObjs) {return StatusCode::SUCCESS;}
   coral::AttributeListSpecification* attrSpec =createBasicDbSpec(becUnderscoreFormat);
   attrSpec->extend("RawOccupancy", "float");
@@ -394,7 +396,7 @@ SCTCalibWriteSvc::createListRawOccu(const Identifier& wafer_id,const SCT_ID* m_s
   } 
   // Add three attr lists
   coral::AttributeList attrList0(*attrSpec);
-  setBasicValues(attrList0, wafer_id, samplesize, m_sctId,becUnderscoreFormat);
+  setBasicValues(attrList0, wafer_id, samplesize, sctId,becUnderscoreFormat);
   attrList0["RawOccupancy"].setValue(static_cast<float>(raw_occu));
   std::ostringstream attrStr2;
   attrList0.toOutputStream(attrStr2);
@@ -405,14 +407,14 @@ SCTCalibWriteSvc::createListRawOccu(const Identifier& wafer_id,const SCT_ID* m_s
 ///////////////////////////////////////////////////////////////////////////////////
 
 StatusCode 
-SCTCalibWriteSvc::createListBSErr(const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize,const std::string & errorList) const {
-//SCTCalibWriteSvc::createListBSErr(const Identifier& wafer_id,const unsigned long long n_events,const std::string& BSErrorType,const std::string& n_errors ) const {
+SCTCalibWriteSvc::createListBSErr(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,const std::string & errorList,const std::string & probList) const {
   if (!m_writeCondObjs) {return StatusCode::SUCCESS;}
 
-  int eta = m_sctId->eta_module(wafer_id);
-  int phi = m_sctId->phi_module(wafer_id);
-  int barrel_ec = m_sctId->barrel_ec(wafer_id);
-  int layer = m_sctId->layer_disk(wafer_id);
+
+  int eta = sctId->eta_module(wafer_id);
+  int phi = sctId->phi_module(wafer_id);
+  int barrel_ec = sctId->barrel_ec(wafer_id);
+  int layer = sctId->layer_disk(wafer_id);
 
   coral::AttributeListSpecification* attrSpec =
       new coral::AttributeListSpecification();
@@ -422,6 +424,7 @@ SCTCalibWriteSvc::createListBSErr(const Identifier& wafer_id,const SCT_ID* m_sct
   attrSpec->extend("Eta", "int");
   attrSpec->extend("Phi", "int");
   attrSpec->extend("BSErrors", "string");
+  attrSpec->extend("BadFraction", "string");
 
   if (!attrSpec->size()) {
       msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
@@ -436,22 +439,8 @@ SCTCalibWriteSvc::createListBSErr(const Identifier& wafer_id,const SCT_ID* m_sct
   attrList0["Phi"].setValue(static_cast<int>(phi));
   attrList0["Eta"].setValue(static_cast<int>(eta));
   attrList0["BSErrors"].setValue(static_cast<std::string>(errorList));
+  attrList0["BadFraction"].setValue(static_cast<std::string>(probList));
 
-  //coral::AttributeListSpecification* attrSpec =new coral::AttributeListSpecification();
-  //attrSpec->extend("n_events", "unsigned long long");
-  //attrSpec->extend("BSErrorType", "string");
-  //attrSpec->extend("n_errors", "string");
- 
-  //if (!attrSpec->size()) {
-  //  msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
-  //  return StatusCode::FAILURE;
-  //} 
-
-  // Add three attr lists
-  //coral::AttributeList attrList0(*attrSpec);
-  //attrList0["n_events"].setValue(static_cast<unsigned long long>(n_events));
-  //attrList0["BSErrorType"].setValue(static_cast<string>(BSErrorType));
-  //attrList0["n_errors"].setValue(static_cast<string>(n_errors));
   
   std::ostringstream attrStr2;
   attrList0.toOutputStream(attrStr2);
@@ -459,22 +448,21 @@ SCTCalibWriteSvc::createListBSErr(const Identifier& wafer_id,const SCT_ID* m_sct
   return StatusCode::SUCCESS;
 }
 
-///////////////////////////////////////////////////////////////////////////////////
 
-StatusCode 
-SCTCalibWriteSvc::createListLA(const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize,int module, const float lorentz, const float err_lorentz, const float chisq, const float fitParam_a, const float err_a, const float fitParam_b, const float err_b, const float fitParam_sigma, const float err_sigma, const float MCW ) const {
+StatusCode
+SCTCalibWriteSvc::createListLA(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,int module, const float lorentz, const float err_lorentz, const float chisq, const float fitParam_a, const float err_a, const float fitParam_b, const float err_b, const float fitParam_sigma, const float err_sigma, const float MCW, const float err_MCW ) const {
   if (!m_writeCondObjs) return StatusCode::SUCCESS;
-  int barrel_ec = m_sctId->barrel_ec(wafer_id);
-  int layer = m_sctId->layer_disk(wafer_id);
-  int side = m_sctId->side(wafer_id);
-
+  int barrel_ec = sctId->barrel_ec(wafer_id);
+  int layer = sctId->layer_disk(wafer_id);
+  int side = sctId->side(wafer_id);
+  
   coral::AttributeListSpecification* attrSpec =new coral::AttributeListSpecification();
   attrSpec->extend("SampleSize", "int");
   attrSpec->extend("barrel_endcap", "int");
   attrSpec->extend("Layer", "int");
   attrSpec->extend("Side", "int");
   attrSpec->extend("moduleType", "int");
-  attrSpec->extend("LorentzAngle", "float");
+  attrSpec->extend("lorentzAngle", "float");
   attrSpec->extend("err_lorentzAngle", "float");
   attrSpec->extend("chisq", "float");
   attrSpec->extend("fitParam_a", "float");
@@ -483,13 +471,14 @@ SCTCalibWriteSvc::createListLA(const Identifier& wafer_id,const SCT_ID* m_sctId,
   attrSpec->extend("err_b", "float");
   attrSpec->extend("fitParam_sigma", "float");
   attrSpec->extend("err_sigma", "float");
-  attrSpec->extend("MinClusterWidth", "float");
- 
+  attrSpec->extend("minClusterWidth", "float");
+  attrSpec->extend("err_minClusterWidth", "float");
+   
   if (!attrSpec->size()) {
     msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
     return StatusCode::FAILURE;
-  } 
-
+  }
+  
   // Add three attr lists
   coral::AttributeList attrList0(*attrSpec);
   attrList0["SampleSize"].setValue(static_cast<int>(samplesize));
@@ -497,23 +486,61 @@ SCTCalibWriteSvc::createListLA(const Identifier& wafer_id,const SCT_ID* m_sctId,
   attrList0["Layer"].setValue(static_cast<int>(layer));
   attrList0["Side"].setValue(static_cast<int>(side));
   attrList0["moduleType"].setValue(static_cast<int>(module));
-  attrList0["LorentzAngle"].setValue(static_cast<float>(lorentz));
+  attrList0["lorentzAngle"].setValue(static_cast<float>(lorentz));
   attrList0["err_lorentzAngle"].setValue(static_cast<float>(err_lorentz));
   attrList0["chisq"].setValue(static_cast<float>(chisq));
-  attrList0["fitParam_a"].setValue(static_cast<float>(fitParam_a)); 
+  attrList0["fitParam_a"].setValue(static_cast<float>(fitParam_a));
   attrList0["err_a"].setValue(static_cast<float>(err_a));
   attrList0["fitParam_b"].setValue(static_cast<float>(fitParam_b));
   attrList0["err_b"].setValue(static_cast<float>(err_b));
   attrList0["fitParam_sigma"].setValue(static_cast<float>(fitParam_sigma));
   attrList0["err_sigma"].setValue(static_cast<float>(err_sigma));
-  attrList0["MinClusterWidth"].setValue(static_cast<float>(MCW));
-  
+  attrList0["minClusterWidth"].setValue(static_cast<float>(MCW));
+  attrList0["err_minClusterWidth"].setValue(static_cast<float>(err_MCW));
+   
   std::ostringstream attrStr2;
   attrList0.toOutputStream(attrStr2);
   m_attrListColl_LA->add(wafer_id.get_identifier32().get_compact(), attrList0);
-
+  
   return StatusCode::SUCCESS;
 }
+
+
+// StatusCode 
+// SCTCalibWriteSvc::createListLA(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,int /*module*/, const float lorentz, const float MCW ) const {
+//   if (!m_writeCondObjs) return StatusCode::SUCCESS;
+//   int barrel_ec = sctId->barrel_ec(wafer_id);
+//   int layer = sctId->layer_disk(wafer_id);
+//   int side = sctId->side(wafer_id);
+
+//   coral::AttributeListSpecification* attrSpec =new coral::AttributeListSpecification();
+//   attrSpec->extend("SampleSize", "int");
+//   attrSpec->extend("barrel_endcap", "int");
+//   attrSpec->extend("Layer", "int");
+//   attrSpec->extend("Side", "int");
+//   attrSpec->extend("LorentzAngle", "float");
+//   attrSpec->extend("MinClusterWidth", "float");
+ 
+//   if (!attrSpec->size()) {
+//     msg(MSG:: ERROR) << " Attribute list specification is empty" <<endreq;
+//     return StatusCode::FAILURE;
+//   } 
+
+//   // Add three attr lists
+//   coral::AttributeList attrList0(*attrSpec);
+//   attrList0["SampleSize"].setValue(static_cast<int>(samplesize));
+//   attrList0["barrel_endcap"].setValue(static_cast<int>(barrel_ec));
+//   attrList0["Layer"].setValue(static_cast<int>(layer));
+//   attrList0["Side"].setValue(static_cast<int>(side));
+//   attrList0["LorentzAngle"].setValue(static_cast<float>(lorentz));
+//   attrList0["MinClusterWidth"].setValue(static_cast<float>(MCW));
+  
+//   std::ostringstream attrStr2;
+//   attrList0.toOutputStream(attrStr2);
+//   m_attrListColl_LA->add(wafer_id.get_identifier32().get_compact(), attrList0);
+
+//   return StatusCode::SUCCESS;
+// }
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -714,11 +741,11 @@ SCTCalibWriteSvc::createBasicDbSpec(const bool capsFormat) const{
 }
 
 void
-SCTCalibWriteSvc::setBasicValues(coral::AttributeList & attrList, const Identifier& wafer_id, const int samplesize,const SCT_ID* m_sctId, const bool capsFormat) const{
-  int eta = m_sctId->eta_module(wafer_id);
-  int phi = m_sctId->phi_module(wafer_id);
-  int barrel_ec = m_sctId->barrel_ec(wafer_id);
-  int layer = m_sctId->layer_disk(wafer_id);
+SCTCalibWriteSvc::setBasicValues(coral::AttributeList & attrList, const Identifier& wafer_id, const int samplesize,const SCT_ID* sctId, const bool capsFormat) const{
+  int eta = sctId->eta_module(wafer_id);
+  int phi = sctId->phi_module(wafer_id);
+  int barrel_ec = sctId->barrel_ec(wafer_id);
+  int layer = sctId->layer_disk(wafer_id);
   //
   const std::string becName=capsFormat?"BarrelEndcap":"barrel_endcap";
   attrList["SampleSize"].setValue(static_cast<int>(samplesize));

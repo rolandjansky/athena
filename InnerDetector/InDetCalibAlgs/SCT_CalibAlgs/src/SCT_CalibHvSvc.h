@@ -92,7 +92,7 @@ private:
   int m_phvtripFirstTime;
   double          m_absolutetriplimit;
   double          m_relativetriplimit;
-   int tq[100];
+   int m_tq[100];
 
   std::vector< std::vector< std::pair<int, int> > > m_summarytrips;
   std::vector< std::vector< std::pair<int, int> > > m_summarytripslb;

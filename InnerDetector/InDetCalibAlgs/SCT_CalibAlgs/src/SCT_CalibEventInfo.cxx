@@ -9,7 +9,6 @@
 **/
 #include <limits>
 //STL, boost
-#include <boost/lexical_cast.hpp>
 #include "SCT_CalibEventInfo.h"
 #include "SCT_CalibUtilities.h"
 #include "EventInfo/EventInfo.h"
@@ -27,21 +26,27 @@ namespace{
 SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string &name, ISvcLocator * svc):AthService(name,svc),
   m_storegateSvc ( "StoreGateSvc", name ),
   m_incidentSvc ( "IncidentSvc", name ),
-  m_evt(0),
+  m_evt(nullptr),
   m_timeStampBegin(INTMAX),
+  m_tsBeginString(""),
+  m_tsEndString(""),
   m_timeStampEnd(INTMIN),
   m_timeStampMax(INTMIN),
   m_duration(0),										   
   m_LBBegin(INTMAX),
   m_LBEnd(INTMIN),
   m_numLB(0),
+  m_numUOFO(0),
+  m_numUOFOth(10),
   m_source("UNKNOWN"),
+ 
   m_runNumber(0),
   m_eventNumber(0),
   m_lumiBlock(0),
   m_timeStamp(0),
   m_bunchCrossing(0),
-  m_counter(0){
+  m_counter(0)					   
+{
 }
 
 StatusCode 
@@ -50,13 +55,14 @@ SCT_CalibEventInfo::initialize(){
    //agrohsje const int pri(100);
    const int pri(500);
    m_incidentSvc->addListener( this, "BeginRun",   pri, true, true );
+   m_incidentSvc->addListener( this, "UnknownOfflineId", pri, true );
    m_incidentSvc->addListener( this, "BeginEvent", pri, true );
+   m_incidentSvc->addListener( this, "EndEvent",   pri, true );
    return StatusCode::SUCCESS;
 }
 
 StatusCode 
 SCT_CalibEventInfo::finalize(){
-  msg( MSG::INFO ) << "----- in finalize() ----- " << endreq;
   return StatusCode::SUCCESS; 
 }
 
@@ -76,11 +82,32 @@ int SCT_CalibEventInfo::lumiBlock() const{
 }
 
 void
-SCT_CalibEventInfo::handle(const Incident &){
-
+SCT_CalibEventInfo::handle(const Incident &inc){
   if (m_storegateSvc->retrieve( m_evt ).isFailure()) 
     msg( MSG::ERROR ) << "SCT_CalibEventInfo: Unable to get eventinfo !" << endreq;
   if (not m_evt) return;
+
+  //listening for the Unknown offlineId for OfflineId..." error.
+  //count number of instances/event
+  if (inc.type() == "UnknownOfflineId"){
+    incrementUOFO();
+  }
+                      
+  //at the beginning of each event set the counter to 0
+  if (inc.type() == "BeginEvent"){
+    resetUOFO();
+  }
+
+  //at the end end of each event, if there are more than m_numUOFOth instances
+  //(default is 10) of the error, skip the event
+  if (inc.type() == "EndEvent"){
+    int nUOFO = UOFO();
+    if (nUOFO > m_numUOFOth){
+      msg ( MSG::DEBUG ) << " More than " << m_numUOFOth <<" Id ROD failures, skipping event" << endreq;
+      m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
+    }
+  }
+
   if ( m_source == "BS" ) {
     msg( MSG::VERBOSE ) << SCT_CalibAlgs::eventInfoAsString(m_evt) << endreq;
     //--- TimeStamp/LB range analyzed
@@ -98,6 +125,7 @@ SCT_CalibEventInfo::handle(const Incident &){
   } else msg( MSG::FATAL ) << "SCT_CalibEventInfo: Unknown source!" << endreq;
 }
 
+
 void
 SCT_CalibEventInfo::setTimeStamp(const int begin, const int end){
   m_timeStampBegin=begin;
@@ -113,8 +141,8 @@ int SCT_CalibEventInfo::duration() const{
 
 void
 SCT_CalibEventInfo::setTimeStamp(const std::string & begin, const std::string & end){
-	int ibegin=boost::lexical_cast<int>(begin);
-	int iend=boost::lexical_cast<int>(end);
+	int ibegin=std::stoi(begin);
+	int iend=std::stoi(end);
 	setTimeStamp(ibegin,iend);
 }
 
@@ -176,6 +204,22 @@ void
 SCT_CalibEventInfo::incrementCounter(){
   ++m_counter;
 }
+
+int
+SCT_CalibEventInfo::UOFO() const{
+  return m_numUOFO;
+}
+
+void
+SCT_CalibEventInfo::incrementUOFO(){
+  ++m_numUOFO;
+}
+
+void
+SCT_CalibEventInfo::resetUOFO(){
+  m_numUOFO=0;
+}
+
 
 void
 SCT_CalibEventInfo::setCounter(const int counterVal){

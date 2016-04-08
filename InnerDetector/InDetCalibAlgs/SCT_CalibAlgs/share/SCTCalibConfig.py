@@ -1,3 +1,4 @@
+
 #--------------------------------------------------------------
 # JobOptions for user setting in SCTCalib/SCTCalibWriteSvc
 # - Minimum inputs to run each algorithm
@@ -6,7 +7,7 @@
 #--------------------------------------------------------------
 # RunNumber and number of events
 #--------------------------------------------------------------
-RunNumber = 209994 
+RunNumber = 256721
 EvtMax    = -1  
 
 #--------------------------------------------------------------
@@ -20,7 +21,7 @@ ConditionsTag = '' # empty in default
 # Global flags and beam flag
 #--------------------------------------------------------------
 DataSource = 'data'       # 'data' or 'geant4'
-beamType   = 'collisions' # 'cosmics', 'singlebeam' or 'collisions'
+beamType   = 'cosmics' # 'cosmics', 'singlebeam' or 'collisions'
 
 #------------------------------------------------------------
 # Flags for input 
@@ -33,11 +34,11 @@ ReadBS         = True
 # - Set only one flag to True and others to False
 #------------------------------------------------------------
 #--- Algs using TrkVal or BS
-DoNoisyStrip     = True 
+DoNoisyStrip     = False
 DoNoisyLB        = False 
 DoHV             = False
 DoDeadStrip      = False
-DoDeadChip       = False
+DoDeadChip       = True
 #--- Algs using HIST
 DoNoiseOccupancy = False 
 DoRawOccupancy   = False
@@ -65,8 +66,12 @@ DoBSErrors       = False
 #--- local DB
 WriteToCool = True
 
+# hitmaps
+LbsPerWindow           = 20
+
 #--- Noisy strips
 NoisyUpdate            = True     # True = Write out difference from the existing data, False = Write out all
+#NoisyMinStat           = 100    # 50000 (enough), 10000 (still possible), 5000 (for commissioning)
 NoisyMinStat           = 10000    # 50000 (enough), 10000 (still possible), 5000 (for commissioning)
 NoisyStripAll          = True     # True = All noisy strips into DB, False = Only newly found strips
 NoisyStripThrDef       = True     # True = Offline, False = Calib
@@ -80,7 +85,8 @@ NoisyWaferThrECA       = 1.000E-4
 NoisyWaferThrECC       = 1.000E-4
 NoisyWaferFraction     = 0.500
 NoisyChipFraction      = 0.500
-NoisyUploadTest        = True
+NoisyUploadTest        = True     #only false during the first few runs
+#NoisyUploadTest        = True
 NoisyModuleAverageInDB = -1.
 NoisyStripLastRunInDB  = -999
 NoisyModuleList        = 5000
@@ -93,9 +99,11 @@ OutputLowHits = False
 LowHitsCut    = 100
 
 #--- Dead strips/chips
-DeadStripMinStat      = 1600000
+DeadStripMinStat      = 0
+#DeadStripMinStat      = 1600000
 DeadStripMinStatBusy  = 200000
-DeadChipMinStat       = 200000 
+DeadChipMinStat       = 0 
+#DeadChipMinStat       = 200000 
 DeadStripSignificance = 10
 DeadChipSignificance  = 10
 BusyThr4DeadFinding   = 1E-4
@@ -117,14 +125,15 @@ LorentzAngleDebugMode = True
 #--------------------------------------------------------------
 # Tags for local DB and XML files in SCTCalib/SCTCalibWriteSvc
 #--------------------------------------------------------------
-TagID4NoisyStrips    = 'SctDerivedMonitoring-UPD4-002' # UPD4, open IOV for BLK
+TagID4NoisyStrips    = 'SctDerivedMonitoring-RUN2-UPD4-004' # UPD4, open IOV for BLK
+#TagID4NoisyStrips    = 'SctDerivedMonitoring-UPD4-002' # UPD4, open IOV for BLK
 TagID4DeadStrips     = 'SctDerivedDeadStrips-003-00'
 TagID4DeadChips      = 'SctDerivedDeadChips-003-00'
 TagID4NoiseOccupancy = 'SctDerivedNoiseOccupancy-003-01' 
 TagID4RawOccupancy   = 'SctDerivedRawOccupancy-003-00'
 TagID4Efficiency     = 'SctDerivedEfficiency-003-00'
-TagID4BSErrors       = 'SctDerivedBSErrors-003-00'
-TagID4LorentzAngle   = 'SctDerivedLorentzAngle-001-01'
+TagID4BSErrors       = 'SctDerivedBSErrorsRun2-001-00'
+TagID4LorentzAngle   = 'SctDerivedLorentzAngleRun2_v2-001-00'
 
 #--------------------------------------------------------------
 # A list of GeometryTags
@@ -154,7 +163,7 @@ ConditionsTagMC  = 'OFLCOND-DR-BS7T-ANom-00' # digi+rec for MC09 - Nominal
 #ConditionsTagNTF = 'COMCOND-BLKPS-004-02'    # Solenoide=ON,  BarrelTroid=OFF
 #ConditionsTagNSF = 'COMCOND-BLKPT-004-02'    # Solenoide=OFF, BarrelTroid=ON
 #ConditionsTagNF  = 'COMCOND-BLKP-004-02'     # Solenoide=OFF, BarrelTroid=OFF
-# commented, A.N., 2014-11-28
+#commented, A.N., 2014-11-28
 # ConditionsTagSTF = 'COMCOND-BLKPA-006-03'     # Solenoide=ON,  BarrelTroid=ON
 # ConditionsTagNTF = 'COMCOND-BLKPA-006-03'     # Solenoide=ON,  BarrelTroid=OFF
 # ConditionsTagNSF = 'COMCOND-BLKPA-006-03'     # Solenoide=OFF, BarrelTroid=ON
@@ -165,11 +174,15 @@ ConditionsTagMC  = 'OFLCOND-DR-BS7T-ANom-00' # digi+rec for MC09 - Nominal
 #ConditionsTagNTF = 'COMCOND-ES1PA-006-02'    # Solenoide=ON,  BarrelTroid=OFF
 #ConditionsTagNSF = 'COMCOND-ES1PA-006-02'    # Solenoide=OFF, BarrelTroid=ON
 #ConditionsTagNF  = 'COMCOND-ES1PA-006-02'     # Solenoide=OFF, BarrelTroid=OFF
-# added, A.N., 2014-11-28 
-ConditionsTagSTF = 'CONDBR2-ES1PA-2014-01'    # Solenoid=ON,  BarrelToroid=ON
-ConditionsTagNTF = 'CONDBR2-ES1PA-2014-01'    # Solenoid=ON,  BarrelToroid=OFF
-ConditionsTagNSF = 'CONDBR2-ES1PA-2014-01'    # Solenoid=OFF, BarrelToroid=ON
-ConditionsTagNF  = 'CONDBR2-ES1PA-2014-01'    # Solenoid=OFF, BarrelToroid=OFF
+# # added, A.N., 2014-11-28 
+ConditionsTagSTF = 'CONDBR2-ES1PA-2015-03'    # Solenoid=ON,  BarrelToroid=ON
+ConditionsTagNTF = 'CONDBR2-ES1PA-2015-03'    # Solenoid=ON,  BarrelToroid=OFF
+ConditionsTagNSF = 'CONDBR2-ES1PA-2015-03'    # Solenoid=OFF, BarrelToroid=ON
+ConditionsTagNF  = 'CONDBR2-ES1PA-2015-03'    # Solenoid=OFF, BarrelToroid=OFF
+# ConditionsTagSTF = 'CONDBR2-BLKPA-2015-03'    # Solenoid=ON,  BarrelToroid=ON
+# ConditionsTagNTF = 'CONDBR2-BLKPA-2015-03'    # Solenoid=ON,  BarrelToroid=OFF
+# ConditionsTagNSF = 'CONDBR2-BLKPA-2015-03'    # Solenoid=OFF, BarrelToroid=ON
+# ConditionsTagNF  = 'CONDBR2-BLKPA-2015-03'    # Solenoid=OFF, BarrelToroid=OFF
 #--- REP : reporcessing
 #ConditionsTagSTF = 'COMCOND-REPPST-006-00'   # Solenoide=ON,  BarrelTroid=ON
 #ConditionsTagNTF = 'COMCOND-REPPS-006-00'    # Solenoide=ON,  BarrelTroid=OFF
@@ -179,5 +192,6 @@ ConditionsTagNF  = 'CONDBR2-ES1PA-2014-01'    # Solenoid=OFF, BarrelToroid=OFF
 #-------------------------------------------------------------- 
 # Read /SCT/Derived/Monotoring in COOL 
 # - Used in a criteria for upload of NoisyStrips 
-NoisyReadNumRuns = 5 
-TagID4NoisyUploadTest = 'SctDerivedMonitoring-UPD4-002'
+NoisyReadNumRuns = 2
+TagID4NoisyUploadTest = 'SctDerivedMonitoring-RUN2-UPD4-004'
+#TagID4NoisyUploadTest = 'SctDerivedMonitoring-UPD4-002'

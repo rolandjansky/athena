@@ -173,7 +173,7 @@ if DoNoisyStrip and NoisyUploadTest :
     tag      = TagID4NoisyUploadTest
     numRuns  = NoisyReadNumRuns
     
-    dbstring = 'ATLAS_COOLOFL_SCT/COMP200'
+    dbstring = 'ATLAS_COOLOFL_SCT/CONDBR2'
     folder   = '/SCT/Derived/Monitoring'
     RunList  = GetRunList( dbstring, folder, tag, RunNumber, numRuns )
     if ( len(RunList) != 0 ) :
@@ -486,8 +486,10 @@ SCTCalib.DeadSummaryFile           = 'DeadSummaryFile.xml'           # Summary o
 SCTCalib.NoiseOccupancyFile        = 'NoiseOccupancyFile.xml'        # NoiseOccupancy
 SCTCalib.NoiseOccupancySummaryFile = 'NoiseOccupancySummaryFile.xml' # Summary of NoiseOccupancy
 SCTCalib.RawOccupancySummaryFile   = 'RawOccupancySummaryFile.xml'   # Summary of RawOccupancy
+SCTCalib.EfficiencyModuleFile      = 'EfficiencyModuleSummary.xml'   # Efficiency
 SCTCalib.EfficiencySummaryFile     = 'EfficiencySummaryFile.xml'     # Summary of Efficiency
 SCTCalib.BSErrorSummaryFile        = 'BSErrorSummaryFile.xml'        # Summary of BS Errors
+SCTCalib.BSErrorModuleFile         = 'BSErrorModuleSummary.xml'        # Summary of BS Errors
 
 SCTCalib.LorentzAngleFile          = 'LorentzAngleFile.xml'          # Summary of LorentzAngle ------- Roger
 
