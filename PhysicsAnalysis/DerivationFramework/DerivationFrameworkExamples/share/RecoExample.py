@@ -16,7 +16,7 @@ from DerivationFrameworkJetEtMiss.JetEtMissCommon import *
 #====================================================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 TEST9StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "TEST9StringSkimmingTool",
-                                                                 expression = "count(abs(ElectronCollection.eta) < 1.0) > 0 && count(Muons.pt > (20 * GeV)) >= 1")
+                                                                 expression = "count(abs(Electrons.eta) < 1.0) > 0 && count(Muons.pt > (20 * GeV)) >= 1")
                                                                  #expression = "EventInfo.eventNumber")
 
 ToolSvc += TEST9StringSkimmingTool

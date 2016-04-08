@@ -33,7 +33,7 @@ namespace DerivationFramework {
   {
 
       // Set up the vector
-      std::vector<float> *track_z0_PV = new std::vector<float>();
+      std::unique_ptr<std::vector<float> > track_z0_PV(new std::vector<float>());
 
       // Set up the decorators 
       SG::AuxElement::Decorator< float > decorator("DFDecoratorExample"); 
@@ -80,7 +80,7 @@ namespace DerivationFramework {
           ATH_MSG_ERROR("Tool is attempting to write StoreGate keys which already exists. Please use a different key");
           return StatusCode::FAILURE;
       } else {
-        CHECK(evtStore()->record(track_z0_PV, "DFAugmentationExample"));       
+        CHECK(evtStore()->record(std::move(track_z0_PV), "DFAugmentationExample"));       
       }
 
       return StatusCode::SUCCESS;
