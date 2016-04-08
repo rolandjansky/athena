@@ -16,6 +16,9 @@ apply_tag ROOTMathLibs
 apply_tag ROOTRooFitLibs
 apply_tag ROOTGraphicsLibs
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore RIO Matrix Physics RooFit RooFitCore)"
+
 use GaudiInterface  GaudiInterface-*  External
 
 end_private
