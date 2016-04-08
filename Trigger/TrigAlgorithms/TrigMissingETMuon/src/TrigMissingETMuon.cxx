@@ -19,7 +19,6 @@
 // ********************************************************************
 
 #include "TrigMissingETMuon/TrigMissingETMuon.h"
-#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "xAODMuon/MuonContainer.h"
 
@@ -46,8 +45,6 @@ TrigMissingETMuon::TrigMissingETMuon(const std::string& name, ISvcLocator* pSvcL
 {
 
   declareProperty("METLabel", m_featureLabel = "T2MissingET", "label for the MET feature in the HLT Navigation");
-  declareProperty("DoClone", m_clone = false, "flag for doing cloning (true) or doing updating (false)");
-  declareProperty("Level", m_level = 3, "2 for L2, 3 for EF");
   declareProperty("MuonPtCut", m_muonptcut = 5.0, "Muon Pt threshold");
 
   declareMonitoredVariable("Muon_Ex",     m_mu_ex);
@@ -128,7 +125,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   // first check whether we executed this instance before:
   if (m_useCachedResult) {
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Executing this TrigMissingETMuon " << name() << " in cached mode" << endreq;
+      msg() << MSG::DEBUG << "Executing this xAOD::TrigMissingETMuon " << name() << " in cached mode" << endreq;
     }
     // Only count MET as an input TE (for seeding relation of navigation structure)
     HLT::TEVec allTEs;
@@ -163,7 +160,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   unsigned int tes_in1_size=0;  // size of muon container
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Executing TrigMissingETMuon::hltExecute()" << endreq;
+    msg() << MSG::DEBUG << "Executing xAOD::TrigMissingETMuon::hltExecute()" << endreq;
   }
 
   if (msgLvl() <= MSG::DEBUG) {
@@ -194,7 +191,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
-      std::vector<const TrigMissingET*> vectorOfMET;
+      std::vector<const xAOD::TrigMissingET*> vectorOfMET;
       for (HLT::TEVec::const_iterator met_it = tes_in[0].begin(); met_it != tes_in[0].end(); ++met_it) {
 	HLT::ErrorCode status = getFeatures( (*met_it) , vectorOfMET);
 	if(status != HLT::OK) {
@@ -205,13 +202,15 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
 	}
       }
       if (msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "REGTEST: No muon input. Will save the input TE without updating it." << endreq;
+	msg() << MSG::DEBUG << "REGTEST: Florian: No muon input. Will save the input TE without updating it " << endreq;
       }
-      const TrigMissingET *met_temp=vectorOfMET[0];
-      // Method 1: cloning
-      if(m_clone) m_met = clone(met_temp);
-      // Method 2: updating
-      else m_met = const_cast<TrigMissingET *>(met_temp);      
+
+      // Check if EDM is there
+      if(vectorOfMET.size() == 0) 
+        return HLT::NAV_ERROR;      
+      
+      const xAOD::TrigMissingET *met_temp=vectorOfMET[0];
+      m_met = const_cast<xAOD::TrigMissingET *>(met_temp);      
       HLT::ErrorCode status = makeOutputTE(tes_in, type_out);
       return status;
     }
@@ -220,6 +219,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
 
     tes_in0_size=tes_in[0].size();
     tes_in1_size=tes_in[1].size();
+
     if (tes_in0_size != 1) {
       msg() << MSG::WARNING // ERROR
 	    << "Configuration error: expecting exactly 1 L2 or EF result.  Aborting chain" << endreq;
@@ -232,7 +232,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
       }
 
       // Save ouput TE before leaving.
-      std::vector<const TrigMissingET*> vectorOfMET;
+      std::vector<const xAOD::TrigMissingET*> vectorOfMET;
       for (HLT::TEVec::const_iterator met_it = tes_in[0].begin(); met_it != tes_in[0].end(); ++met_it) {
 	HLT::ErrorCode status = getFeatures( (*met_it) , vectorOfMET);
 	if(status != HLT::OK) {
@@ -242,14 +242,13 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
 	  return HLT::NAV_ERROR;
 	}
       }
-      if (msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "REGTEST: No muon input. Will save the input TE without updating it." << endreq;
-      }
-      const TrigMissingET *met_temp=vectorOfMET[0];
-      // Method 1: cloning
-      if(m_clone) m_met = clone(met_temp);
-      // Method 2: updating
-      else m_met = const_cast<TrigMissingET *>(met_temp);      
+
+      // Check if EDM is there
+      if(vectorOfMET.size() == 0) 
+        return HLT::NAV_ERROR;
+   	  
+      const xAOD::TrigMissingET *met_temp=vectorOfMET[0];
+      m_met = const_cast<xAOD::TrigMissingET *>(met_temp);      
       HLT::ErrorCode status = makeOutputTE(tes_in, type_out);
       return status;
     }
@@ -263,7 +262,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   }
 
   // First we retrieve the TrigMissingET object
-  std::vector<const TrigMissingET*> vectorOfMET;
+  std::vector<const xAOD::TrigMissingET*> vectorOfMET;
   for (HLT::TEVec::const_iterator met_it = tes_in[0].begin(); met_it != tes_in[0].end(); ++met_it) {
     HLT::ErrorCode status = getFeatures( (*met_it) , vectorOfMET);
     if(status != HLT::OK) {
@@ -274,16 +273,17 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
     }
   }
 
-  // ++++++++++++++++++++++++++++++++++++++++++
-  const TrigMissingET *met_temp=vectorOfMET[0];
-  // Method 1: cloning
-  if(m_clone) m_met = clone(met_temp);
-  // Method 2: updating
-  else m_met = const_cast<TrigMissingET *>(met_temp);
-  // ++++++++++++++++++++++++++++++++++++++++++
-  msg() << MSG::DEBUG << "TrigMissingET object retrieved." <<endreq;
+  // Check if EDM is there
+  if(vectorOfMET.size() == 0) 
+    return HLT::NAV_ERROR;
 
-  flag=m_met->getFlag();
+  // ++++++++++++++++++++++++++++++++++++++++++
+  const xAOD::TrigMissingET *met_temp=vectorOfMET[0];
+  m_met = const_cast<xAOD::TrigMissingET *>(met_temp);
+  // ++++++++++++++++++++++++++++++++++++++++++
+  msg() << MSG::DEBUG << "xAOD::TrigMissingET object retrieved." <<endreq;
+
+  flag=m_met->flag();
   msg() << MSG::DEBUG << "Flag got." <<endreq;
 
   // Now we loop over all the muons
@@ -292,82 +292,85 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   float muon_ez=0;
   float muon_sum_et=0;
   float muon_sum_e=0;
-  int muon_charge=0;
+  //int muon_charge=0;
   unsigned int Nmuons=0;
   bool MuonError=false;
 
-  if(m_level==2) {
-    // Use level 2 muons
+  msg() << MSG::DEBUG << "REGTEST: Ready to access xAOD::MuonContainer  muons " << endreq;
 
-    std::vector<const CombinedMuonFeature*> vecOfMuons;
+  std::vector<const xAOD::TrackParticle*> vecOfMuonTrk;
 
-    if (msgLvl() <= MSG::DEBUG) {                                                                                                                          
-      msg() << MSG::DEBUG                                                                                                                                  
-  	  << "REGTEST: Using muon pt threshold "<<m_muonptcut<<" GeV."<< endreq;
-    }       
+  if (msgLvl() <= MSG::DEBUG) {
+    msg() << MSG::DEBUG
+        << "REGTEST: Using muon pt threshold "<<m_muonptcut<<" GeV."<< endreq;
+  }
 
-    for (HLT::TEVec::const_iterator muon_it = tes_in[muonIndex].begin();
-         muon_it != tes_in[muonIndex].end(); ++muon_it) {
-    
-      // Get vector of pointers to all CombinedMuonFeatures linked to the TE
-      std::vector<const CombinedMuonFeature*> vectorOfMuons;
+  for (HLT::TEVec::const_iterator muon_it = tes_in[muonIndex].begin();
+       muon_it != tes_in[muonIndex].end(); ++muon_it) {
 
-      HLT::ErrorCode status = getFeatures( (*muon_it) , vectorOfMuons);
-      if(status != HLT::OK) {
-        if (msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG 
-	        << "no CombinedMuonFeatures found for this TE ... ?!?"
-	        << endreq;
-        }
-        continue;
+    // Get the muon container linked to the TE
+    const xAOD::MuonContainer* muonContainer(0);
+
+    HLT::ErrorCode status = getFeature( (*muon_it) , muonContainer);
+  
+    if(status != HLT::OK || muonContainer==0) {
+      if (msgLvl() <= MSG::DEBUG) {
+        msg() << MSG::DEBUG
+              << "no MuonContainer found for this TE ... ?!?"
+              << endreq;
       }
-      int NofMuons=vectorOfMuons.size();
+      continue;
+    }
 
-      // Check that there is at least one CombinedMuonFeature
-      if (NofMuons == 0){
+    int NofMuons=muonContainer->size();
+
+    // Check that there is at least one muon in TrigMuonEFInfoContainer
+    if (NofMuons == 0){
+      if (msgLvl() <= MSG::DEBUG) {
         msg() << MSG::DEBUG << "Size of vectorOfMuons is 0. Skipping muon correction" << endreq;
-        MuonError=true;
-        continue;
-        //       return HLT::NAV_ERROR;
       }
-      for (int kk=0; kk<NofMuons; ++kk) {
-        const CombinedMuonFeature* pMuon = vectorOfMuons[kk];
-        if(!pMuon){
-	  msg() << MSG::ERROR << "Retrieval of MuonFeature container failed"
-	        << endreq;
-	  return HLT::NAV_ERROR;
-        }
+      MuonError=true;
+      continue;
+      //       return HLT::NAV_ERROR;
+    }
+    unsigned int kk=0;
+    for(auto muon : *muonContainer) {
+      if (msgLvl() <= MSG::DEBUG) {
+        msg() << MSG::DEBUG << "Looking at muon " << kk << "pt = " << muon->pt() << "eta= " << 
+                              muon->eta() << "phi= " << muon->phi() << endreq;
+      }
+      const xAOD::Muon::MuonType muontype = muon->muonType();
+      if(muontype == xAOD::Muon::MuonType::Combined || muontype == xAOD::Muon::MuonType::SegmentTagged ) { 
+        // combined or segment tagged muon
 
         // double counting removal and minimum pt cut
-        // note that the combined muComb pt is used in this code
-        // (as a bug-fix of this variable has been effective)
-        const TrigInDetTrack* idtrk = pMuon->IDTrack();
-
         bool sel = true;
-
-        float Et = fabs(pMuon->pt());
-        if(Et/CLHEP::GeV<m_muonptcut) sel = false;
+        float Et = fabs(muon->pt());
+        if (Et/CLHEP::GeV < m_muonptcut) sel = false;
         if(!sel) continue;
 
-        for(std::vector<const CombinedMuonFeature*>::size_type idx=0; idx<vecOfMuons.size(); idx++) {
-	  const TrigInDetTrack* idtrk_sel = vecOfMuons[idx]->IDTrack();
-	  if(!idtrk_sel) {
-	    sel = false;
-	    break;
-	  }
-	  else if((*idtrk) == (*idtrk_sel)) {
-	    sel = false;
-	    break;
-	  }
-        }
+        const xAOD::TrackParticle* idtrk = muon->trackParticle( xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle );
+
+        if(idtrk==0) {sel = false;} // Reject muons without IDtracks
 
         if(!sel) continue;
 
-        vecOfMuons.push_back( pMuon ); // store for future use inside tools
+        for(std::vector<const xAOD::TrackParticle*>::size_type idx=0; idx<vecOfMuonTrk.size(); idx++) {
+          const xAOD::TrackParticle* idtrk_sel = vecOfMuonTrk[idx];
+          //if((*idtrk) == (*idtrk_sel)) { //  == operator not defined for this class, so comment it out 
+          if((idtrk) == (idtrk_sel)) {
+            sel = false;
+            break;
+          }
+        } //end of loop over stored muon tracks
 
-        int charge = pMuon->charge()>0 ? 1 : -1;
-        float eta = pMuon->eta();
-        float phi = pMuon->phi();
+        if(!sel) continue;
+
+        vecOfMuonTrk.push_back(idtrk);  // store for testing future muon tracks for double counting prevention
+
+        //int charge = muon->Charge()>0 ? 1 : -1;
+        float eta = muon->eta();
+        float phi = muon->phi();
         float cosPhi, sinPhi;
         sincosf(phi, &sinPhi, &cosPhi);
         float Ex = Et*cosPhi;
@@ -380,117 +383,17 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
         muon_ez     -= Ez;
         muon_sum_et += Et;
         muon_sum_e  += E;
-        muon_charge += charge;
+        //muon_charge += charge;
         ++Nmuons;
-      
+
         if (msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "REGTEST: Adding muon with pT = " << Et
-	        << " MeV, phi = " << phi << " rad, eta = " << eta << endreq;
+          msg() << MSG::DEBUG << "REGTEST: Adding muon with pT = " << Et
+                << " MeV, phi = " << phi << " rad, eta = " << eta << endreq;
         }
-      } // End of looping muon vector
-    } // End of looping input TE
-  } // End of dealing with muons for level 2
-  else { // Not level 2 muons; assume EF level
 
-    msg() << MSG::DEBUG << "REGTEST: Ready to access EF level muons " << endreq;
-
-    std::vector<const xAOD::TrackParticle*> vecOfMuonTrk;
-
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG
-          << "REGTEST: Using muon pt threshold "<<m_muonptcut<<" GeV."<< endreq;
-    }
-
-    for (HLT::TEVec::const_iterator muon_it = tes_in[muonIndex].begin();
-         muon_it != tes_in[muonIndex].end(); ++muon_it) {
-
-      // Get the muon container linked to the TE
-      const xAOD::MuonContainer* muonContainer(0);
-
-      HLT::ErrorCode status = getFeature( (*muon_it) , muonContainer);
-  
-      if(status != HLT::OK || muonContainer==0) {
-        if (msgLvl() <= MSG::DEBUG) {
-          msg() << MSG::DEBUG
-                << "no MuonContainer found for this TE ... ?!?"
-                << endreq;
-        }
-        continue;
-      }
-
-      int NofMuons=muonContainer->size();
-
-      // Check that there is at least one muon in TrigMuonEFInfoContainer
-      if (NofMuons == 0){
-        if (msgLvl() <= MSG::DEBUG) {
-          msg() << MSG::DEBUG << "Size of vectorOfMuons is 0. Skipping muon correction" << endreq;
-        }
-        MuonError=true;
-        continue;
-        //       return HLT::NAV_ERROR;
-      }
-      unsigned int kk=0;
-      for(auto muon : *muonContainer) {
-        if (msgLvl() <= MSG::DEBUG) {
-          msg() << MSG::DEBUG << "Looking at muon " << kk << "pt = " << muon->pt() << "eta= " << 
-                                muon->eta() << "phi= " << muon->phi() << endreq;
-        }
-        const xAOD::Muon::MuonType muontype = muon->muonType();
-        if(muontype == xAOD::Muon::MuonType::Combined || muontype == xAOD::Muon::MuonType::SegmentTagged ) { 
-          // combined or segment tagged muon
-
-          // double counting removal and minimum pt cut
-          bool sel = true;
-          float Et = fabs(muon->pt());
-          if (Et/CLHEP::GeV < m_muonptcut) sel = false;
-          if(!sel) continue;
-
-          const xAOD::TrackParticle* idtrk = muon->trackParticle( xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle );
-
-          if(idtrk==0) {sel = false;} // Reject muons without IDtracks
-
-          if(!sel) continue;
-
-          for(std::vector<const xAOD::TrackParticle*>::size_type idx=0; idx<vecOfMuonTrk.size(); idx++) {
-            const xAOD::TrackParticle* idtrk_sel = vecOfMuonTrk[idx];
-            //if((*idtrk) == (*idtrk_sel)) { //  == operator not defined for this class, so comment it out 
-            if((idtrk) == (idtrk_sel)) {
-              sel = false;
-              break;
-            }
-          } //end of loop over stored muon tracks
-
-          if(!sel) continue;
-
-          vecOfMuonTrk.push_back(idtrk);  // store for testing future muon tracks for double counting prevention
-
-          //int charge = muon->Charge()>0 ? 1 : -1;
-          float eta = muon->eta();
-          float phi = muon->phi();
-          float cosPhi, sinPhi;
-          sincosf(phi, &sinPhi, &cosPhi);
-          float Ex = Et*cosPhi;
-          float Ey = Et*sinPhi;
-          float Ez = Et*sinhf(eta);
-          float E = sqrtf(Et*Et + Ez*Ez);
-
-          muon_ex     -= Ex;
-          muon_ey     -= Ey;
-          muon_ez     -= Ez;
-          muon_sum_et += Et;
-          muon_sum_e  += E;
-          //muon_charge += charge;
-          ++Nmuons;
-
-          if (msgLvl() <= MSG::DEBUG) {
-            msg() << MSG::DEBUG << "REGTEST: Adding muon with pT = " << Et
-                  << " MeV, phi = " << phi << " rad, eta = " << eta << endreq;
-          }
-
-        } // end muon-type if statement
-      } // end loop over muons
-    } // end loop over muons te's
-  } // end EF level muons
+      } // end muon-type if statement
+    } // end loop over muons
+  } // end loop over muons te's
 
   m_mu_ex = muon_ex;
   m_mu_ey = muon_ey;
@@ -501,9 +404,9 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   }
 
   if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Setting energies and flag" << endreq;
-  unsigned int muonComp = m_met->getNumOfComponents() - 1;
+  unsigned int muonComp = m_met->getNumberOfComponents() - 1;
   // Suggested by Diego: Checking the component name of the input
-  if( (m_met->getNameOfComponent(muonComp)).substr(0,4)!="Muon") {
+  if( (m_met->nameOfComponent(muonComp)).substr(0,4)!="Muon") {
     msg() << MSG::ERROR << "Wrong component name!!! Exit..." <<endreq;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);    
   }
@@ -514,8 +417,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   m_met->setEzComponent(muonComp,muon_ez);
   m_met->setSumEtComponent(muonComp,muon_sum_et);
   m_met->setSumEComponent(muonComp,muon_sum_e);
-  m_met->setUsedChannels(muonComp, Nmuons);
-  m_met->setSumOfSigns(muonComp, muon_charge);
+  m_met->setUsedChannelsComponent(muonComp, Nmuons);
 
   if (MuonError){ // set muon error bit 
     flag |= m_maskErrMuon; flag |= m_maskCompErrors;
@@ -574,11 +476,10 @@ HLT::ErrorCode TrigMissingETMuon::makeOutputTE(std::vector<std::vector<HLT::Trig
   // Create an output TE seeded by the inputs
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
   HLT::ErrorCode status = HLT::OK;
-  if(m_clone) status = attachFeature(outputTE, m_met, m_featureLabel);
-  else m_config->getNavigation()->copyAllFeatures(tes_in[0][0], outputTE);
+  m_config->getNavigation()->copyAllFeatures(tes_in[0][0], outputTE);
   if (status != HLT::OK){
     msg() << MSG::ERROR
-	  << "Write of TrigMissingET feature into outputTE failed"
+	  << "Write of xAOD::TrigMissingET feature into outputTE failed"
 	  << endreq;
     return status;
   }
@@ -594,8 +495,7 @@ HLT::ErrorCode TrigMissingETMuon::makeOutputTE(std::vector<std::vector<HLT::Trig
   // CACHING
   // if we got here, everything was okay. so, we cache the feature for further execution of this instance in e.g. other MET Sequences:
   if (msgLvl() <= MSG::DEBUG) {
-    if(m_clone) msg() << MSG::DEBUG << "Clone mode. New feature attached to output TE." << endreq;
-    else msg() << MSG::DEBUG << "Non-Clone mode. Updated feature copied to output TE." << endreq;
+    msg() << MSG::DEBUG << "Updated feature copied to output TE." << endreq;
   }
   m_useCachedResult = true;
   m_cachedTE = outputTE;
@@ -603,54 +503,3 @@ HLT::ErrorCode TrigMissingETMuon::makeOutputTE(std::vector<std::vector<HLT::Trig
   return HLT::OK;
 }
 
-//////////////////////////////////////////////////////////
-// Cloning a TrigMissingET object
-TrigMissingET *TrigMissingETMuon::clone(const TrigMissingET *met_temp){
-  
-  int ncom=met_temp->getNumOfComponents();
-  float tempEx=met_temp->ex();
-  float tempEy=met_temp->ey();
-  float tempEz=met_temp->ez();
-  float tempE=met_temp->sumE();
-  float tempEt=met_temp->sumEt();
-  int tempFlag=met_temp->getFlag();
-  long tempRoIword=met_temp->RoIword();
-
-  TrigMissingET *met = new TrigMissingET(ncom);
-
-  met->setEx(tempEx);
-  met->setEy(tempEy);
-  met->setEz(tempEz);
-  met->setSumE(tempE);
-  met->setSumEt(tempEt);
-  met->setFlag(tempFlag);
-  met->set_RoIword(tempRoIword);
-
-  for(int index=0;index<ncom;index++){
-
-    std::string name=met_temp->getNameOfComponent(index); 
-    double ex=met_temp->getExComponent(index);
-    double ey=met_temp->getEyComponent(index);
-    double ez=met_temp->getEzComponent(index);
-    double sumet=met_temp->getSumEtComponent(index);
-    double sume=met_temp->getSumEComponent(index);
-    double calib0=met_temp->getComponentCalib0(index);
-    double calib1=met_temp->getComponentCalib1(index);
-    short sumOfSigns=met_temp->getSumOfSigns(index);
-    unsigned short usedChannels=met_temp->getUsedChannels(index);
-    short status=met_temp->getStatus(index);
-
-    met->setNameOfComponent(index,name.c_str());
-    met->setExComponent(index,ex);
-    met->setEyComponent(index,ey);
-    met->setEzComponent(index,ez);
-    met->setSumEtComponent(index,sumet);
-    met->setSumEComponent(index,sume);
-    met->setComponentCalib0(index,calib0);
-    met->setComponentCalib1(index,calib1);
-    met->setSumOfSigns(index,sumOfSigns);
-    met->setUsedChannels(index,usedChannels);
-    met->setStatus(index,status);
-  }
-  return met;
-}

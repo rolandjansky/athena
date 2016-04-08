@@ -24,12 +24,13 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 #include <vector>
 
+#include "xAODTrigMissingET/TrigMissingET.h"
 
 namespace HLT {
   class TriggerElement;
 }
 
-class TrigMissingET;
+// class xAOD::TrigMissingET;
 
 
   /**
@@ -59,9 +60,10 @@ class TrigMissingETMuon : public HLT::AllTEAlgo
   HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& input, unsigned int output);
   HLT::ErrorCode makeOutputTE(std::vector<std::vector<HLT::TriggerElement*> >& input, unsigned int type_out ) ;
 
-  virtual bool reset() {m_useCachedResult = false; m_met = 0; m_cachedTE=0; AllTEAlgo::reset(); return true;}
-  TrigMissingET *clone(const TrigMissingET *);
-
+  HLT::ErrorCode hltEndEvent() { m_useCachedResult = false; m_met = 0; m_cachedTE=0; return HLT::OK; };
+ 
+  // virtual bool reset() {m_useCachedResult = false; m_met = 0; m_cachedTE=0; AllTEAlgo::reset(); return true;}
+ 
  private:
 
   std::string m_featureLabel; //!< label for the MET feature in the HLT Navigation
@@ -84,7 +86,7 @@ class TrigMissingETMuon : public HLT::AllTEAlgo
   float m_mu_ey_log; //!< Monitoring: Muon ETy [GeV] log-scale
   float m_mu_set_log; //!< Monitoring: Muon Et [GeV] log-scale
 
-  TrigMissingET* m_met;    //!< internal caching: mnissing E_T feature of the first execution
+  xAOD::TrigMissingET* m_met;    //!< internal caching: mnissing E_T feature of the first execution
   HLT::TriggerElement* m_cachedTE; //!< internal caching: output TE from the first exectution
 
   /** definition of the meaning for the component flag bits
@@ -94,8 +96,6 @@ class TrigMissingETMuon : public HLT::AllTEAlgo
   unsigned short m_maskErrMuon;      //!< Unexpected no. of input muons
   unsigned short m_maskCompErrors;   //!< Error detected
 
-  bool m_clone;                      //!< Flag for retrieving TrigMissingET Object
-  int  m_level;                      //!< 2: L2 3: EF
   float m_muonptcut;
 /*   unsigned m_maskGlobErrors;            //!< Error detected */
 

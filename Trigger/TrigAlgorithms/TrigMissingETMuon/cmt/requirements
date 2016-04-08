@@ -8,6 +8,7 @@ author Allen Mincer <allen.mincer@nyu.edu>
 public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  TrigInterfaces             TrigInterfaces-*                Trigger/TrigSteer
+use  xAODTrigMissingET	        xAODTrigMissingET-*	        Event/xAOD
 private
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  CxxUtils                   CxxUtils-*                      Control

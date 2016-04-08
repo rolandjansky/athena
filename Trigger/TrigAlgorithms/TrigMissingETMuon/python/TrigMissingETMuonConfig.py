@@ -10,8 +10,6 @@ class L2TrigMissingETMuon_Fex ( TrigMissingETMuon ) :
         super(L2TrigMissingETMuon_Fex, self).__init__(name)
 
         self.METLabel = "T2MissingET"
-        self.Level = 3
-        #self.DoClone = True
         #self.MuonPtCut = 5.0
         # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
         from TrigMissingETMuon.TrigMissingETMuonMonitoring import TrigMissingETMuonOnlineMonitoring, TrigMissingETMuonCosmicMonitoring, TrigMissingETMuonValidationMonitoring
@@ -29,8 +27,6 @@ class L2CaloTrigMissingETMuon_Fex ( TrigMissingETMuon ) :
         super(L2CaloTrigMissingETMuon_Fex, self).__init__(name)
 
         self.METLabel = "L2MissingET_FEB"
-        self.Level = 3
-        #self.DoClone = False
         #self.MuonPtCut = 5.0
         # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
         from TrigMissingETMuon.TrigMissingETMuonMonitoring import TrigMissingETMuonOnlineMonitoring, TrigMissingETMuonCosmicMonitoring, TrigMissingETMuonValidationMonitoring
@@ -49,8 +45,6 @@ class EFTrigMissingETMuon_Fex ( TrigMissingETMuon ) :
         super(EFTrigMissingETMuon_Fex, self).__init__(name)
 
         self.METLabel = "TrigEFMissingET"
-        self.Level = 3
-        #self.DoClone = True
         #self.MuonPtCut = 5.0
         # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
         from TrigMissingETMuon.TrigMissingETMuonMonitoring import TrigMissingETMuonOnlineMonitoring, TrigMissingETMuonCosmicMonitoring, TrigMissingETMuonValidationMonitoring
@@ -68,8 +62,6 @@ class EFTrigMissingETMuon_Fex_FEB ( TrigMissingETMuon ) :
         super(EFTrigMissingETMuon_Fex_FEB, self).__init__(name)
 
         self.METLabel = "TrigEFMissingET_FEB"
-        self.Level = 3
-        #self.DoClone = False
         #self.MuonPtCut = 5.0
         # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
         from TrigMissingETMuon.TrigMissingETMuonMonitoring import TrigMissingETMuonOnlineMonitoring, TrigMissingETMuonCosmicMonitoring, TrigMissingETMuonValidationMonitoring
@@ -87,8 +79,6 @@ class EFTrigMissingETMuon_Fex_topocl ( TrigMissingETMuon ) :
         super(EFTrigMissingETMuon_Fex_topocl, self).__init__(name)
 
         self.METLabel = "TrigEFMissingET_topocl"
-        self.Level = 3
-        #self.DoClone = False
         #self.MuonPtCut = 5.0
         # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
         from TrigMissingETMuon.TrigMissingETMuonMonitoring import TrigMissingETMuonOnlineMonitoring, TrigMissingETMuonCosmicMonitoring, TrigMissingETMuonValidationMonitoring
@@ -106,8 +96,6 @@ class EFTrigMissingETMuon_Fex_topoclPS ( TrigMissingETMuon ) :
         super(EFTrigMissingETMuon_Fex_topoclPS, self).__init__(name)
 
         self.METLabel = "TrigEFMissingET_topocl_PS"
-        self.Level = 3
-        #self.DoClone = False
         #self.MuonPtCut = 5.0
         # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
         from TrigMissingETMuon.TrigMissingETMuonMonitoring import TrigMissingETMuonOnlineMonitoring, TrigMissingETMuonCosmicMonitoring, TrigMissingETMuonValidationMonitoring
@@ -118,4 +106,40 @@ class EFTrigMissingETMuon_Fex_topoclPS ( TrigMissingETMuon ) :
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
         time.TimerHistLimits = [0, 50]
+
+
+class EFTrigMissingETMuon_Fex_Jets ( TrigMissingETMuon ) :
+    __slots__ = []
+    def __init__ (self, name="EFTrigMissingETMuon_Fex_Jets"):
+        super(EFTrigMissingETMuon_Fex_Jets, self).__init__(name)
+
+        self.METLabel = "TrigEFMissingET_Jets"
+        #self.MuonPtCut = 5.0
+        # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
+        from TrigMissingETMuon.TrigMissingETMuonMonitoring import TrigMissingETMuonOnlineMonitoring, TrigMissingETMuonCosmicMonitoring, TrigMissingETMuonValidationMonitoring
+        validation = TrigMissingETMuonValidationMonitoring()
+        online     = TrigMissingETMuonOnlineMonitoring()
+        cosmic     = TrigMissingETMuonCosmicMonitoring()
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+        time.TimerHistLimits = [0, 50]
+
+class EFTrigMissingETMuon_Fex_topoclPUC ( TrigMissingETMuon ) :
+    __slots__ = []
+    def __init__ (self, name="EFTrigMissingETMuon_Fex_topoclPUC"):
+        super(EFTrigMissingETMuon_Fex_topoclPUC, self).__init__(name)
+
+        self.METLabel = "TrigEFMissingET_topocl_PUC"
+        #self.MuonPtCut = 5.0
+        # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
+        from TrigMissingETMuon.TrigMissingETMuonMonitoring import TrigMissingETMuonOnlineMonitoring, TrigMissingETMuonCosmicMonitoring, TrigMissingETMuonValidationMonitoring
+        validation = TrigMissingETMuonValidationMonitoring()
+        online     = TrigMissingETMuonOnlineMonitoring()
+        cosmic     = TrigMissingETMuonCosmicMonitoring()
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+        time.TimerHistLimits = [0, 50]
+
 
