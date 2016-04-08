@@ -11,8 +11,8 @@
  *  $Id: ExampleTrack.h,v 1.9 2009-02-23 16:10:30 gemmeren Exp $
  **/
 
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "Navigation/Navigable.h"
 #include "AthenaPoolExampleData/ExampleHitContainer.h"
 

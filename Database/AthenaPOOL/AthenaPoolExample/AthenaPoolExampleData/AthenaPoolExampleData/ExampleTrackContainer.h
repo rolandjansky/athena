@@ -11,7 +11,7 @@
  *  $Id: ExampleTrackContainer.h,v 1.1 2005-12-08 20:02:03 gemmeren Exp $
  **/
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "AthenaPoolExampleData/ExampleTrack.h"
 
 /** @class ExampleTrackContainer
