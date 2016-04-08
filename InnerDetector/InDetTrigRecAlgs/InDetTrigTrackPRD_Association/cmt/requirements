@@ -1,0 +1,22 @@
+package InDetTrigTrackPRD_Association
+
+author Iwona Grabowska-Bold <Iwona.Grabowska@cern.ch>
+
+use AtlasPolicy 		 AtlasPolicy-*
+use GaudiInterface               GaudiInterface-*         External 
+
+use TrkToolInterfaces            TrkToolInterfaces-*      Tracking/TrkTools
+
+# Trigger dependencies:
+use TrigInterfaces      	 TrigInterfaces-*         Trigger/TrigSteer
+use TrigTimeAlgs        	 TrigTimeAlgs-*           Trigger/TrigTools
+
+private
+use TrkTrack                     TrkTrack-*               Tracking/TrkEvent
+#linkage of TrigStorage
+use TrigParticle            TrigParticle-*          Trigger/TrigEvent
+
+library InDetTrigTrackPRD_Association *.cxx  components/*.cxx
+apply_pattern component_library
+
+
