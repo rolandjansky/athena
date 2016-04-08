@@ -23,7 +23,7 @@ PRD_MultiTruthCollectionPERS* PRD_MultiTruthCollectionCnv::createPersistent(PRD_
   MsgStream log(messageService(), "PRD_MultiTruthCollectionCnv");
   log<<MSG::DEBUG<<"Writing PRD_MultiTruthCollection_p2"<<endreq;
   PRD_MultiTruthCollectionPERS* pers=new PRD_MultiTruthCollectionPERS();
-  m_converter_p2.transToPers(trans,pers,log); 
+  m_converter_p2.transToPers(trans,pers,log);
   return pers;
 }
 

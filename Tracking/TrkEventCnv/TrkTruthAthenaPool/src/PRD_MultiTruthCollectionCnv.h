@@ -13,12 +13,8 @@
 
 namespace Trk { class PRD_MultiTruthCollection_p2; }
 
-//typedef Trk::PRD_MultiTruthCollection_p2 PRD_MultiTruthCollectionPERS;
-#ifdef __IDENTIFIER_64BIT__
 typedef Trk::PRD_MultiTruthCollection_p2 PRD_MultiTruthCollectionPERS;
-#else
-typedef Trk::PRD_MultiTruthCollection_p1 PRD_MultiTruthCollectionPERS;
-#endif
+
 
 typedef T_AthenaPoolCustomCnv<PRD_MultiTruthCollection,PRD_MultiTruthCollectionPERS> PRD_MultiTruthCollectionCnvBase;
 
