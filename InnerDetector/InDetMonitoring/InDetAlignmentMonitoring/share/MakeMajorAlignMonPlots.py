@@ -54,6 +54,11 @@ def optParsing():
 	parser.add_option("--ShowPlots", dest="inputSetBatch", help="When ShowPlots is used the histogram display is open", action="store_false", default=True)
 	parser.add_option("--TrackParams", dest="inputTrackParams", help="Do track parameter plots", action="store_true",default=False)
 	parser.add_option("--TrackSegments", dest="inputTrackSegments", help="Do track segment matching plots", action="store_true",default=False)
+	parser.add_option("--inputFiles",dest="inputFiles",help="list of files", default = "")
+	parser.add_option("--inputLabels",dest="inputLabels",help="labels to be used with the input files", default = "")
+	parser.add_option("--inputMarkers",dest="inputMarkers",help="markers to be used with the input files", default = "")
+	parser.add_option("--inputTrackCollection", dest="inputTrackCollection",help = "Track collection to be drawn from an input file", default ="")
+	parser.add_option("--inputFolder", dest="inputFolder",help = "Main folder of the input files where monitoring histograms are kept", default ="")
     
 	(config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
 
@@ -82,6 +87,11 @@ userResByModule = config.inputResByModule
 userBeamSpot = config.inputBeamSpot
 userClusters = config.inputClusters
 userCosmetics = config.inputCosmetics
+userInputFiles = config.inputFiles.split()
+userInputLabels = config.inputLabels.split()
+userInputMarkers = config.inputMarkers.split()
+userInputTrackCollection = config.inputTrackCollection.split()
+userInputFolder = config.inputFolder.split()
 
 if (config.inputALL):
     userHitErrors = True
