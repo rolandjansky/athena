@@ -3,8 +3,8 @@
 */
 
 /**
- * @date      $Date: 2015-03-27 06:35:44 +0100 (Fri, 27 Mar 2015) $
- * @version   $Revision: 657236 $
+ * @date      $Date: 2016-02-10 18:13:46 +0100 (Wed, 10 Feb 2016) $
+ * @version   $Revision: 723173 $
  */
 
 /** @todo */
@@ -69,6 +69,7 @@
 #include "TLorentzVector.h"
 
 #include <limits>
+#include <cmath>
 
 #include "src/TrigEffJpsiTools.h"
 
@@ -107,7 +108,7 @@ TrigEffJpsiTools::TrigEffJpsiTools(const std::string& type,
     p_rpcCablingSvc(0),
     m_cacheEndcap(),
     m_cacheBarrel(),
-    MUON_MASS(105.658367) // MeV/c  ref - PL B667, 1 (2008) (pdg.lbl.gov)
+    m_MUON_MASS(105.658367) // MeV/c  ref - PL B667, 1 (2008) (pdg.lbl.gov)
 {
   declareInterface<ITrigEffJpsiTools>(this);
 
@@ -395,8 +396,8 @@ TrigEffJpsiTools::isJPsiCandidate(const Rec::TrackParticle* track1,
   ATH_MSG_DEBUG("accept: tracks well separated");
 
   TLorentzVector tvec1, tvec2;
-  tvec1.SetPtEtaPhiM(track1->pt(), track1->eta(), track1->phi(), MUON_MASS);
-  tvec2.SetPtEtaPhiM(track2->pt(), track2->eta(), track2->phi(), MUON_MASS);
+  tvec1.SetPtEtaPhiM(track1->pt(), track1->eta(), track1->phi(), m_MUON_MASS);
+  tvec2.SetPtEtaPhiM(track2->pt(), track2->eta(), track2->phi(), m_MUON_MASS);
   double invariantMass = (tvec1 + tvec2).M();
 
   if ((invariantMass < m_invariantMassLowerLimit) or
@@ -423,8 +424,8 @@ TrigEffJpsiTools::isJPsiCandidate(const INavigable4Momentum* mom1,
 
   // invariant mass calculation
   TLorentzVector tvec1, tvec2;
-  tvec1.SetPtEtaPhiM(mom1->pt(), mom1->eta(), mom1->phi(), MUON_MASS);
-  tvec2.SetPtEtaPhiM(mom2->pt(), mom2->eta(), mom2->phi(), MUON_MASS);
+  tvec1.SetPtEtaPhiM(mom1->pt(), mom1->eta(), mom1->phi(), m_MUON_MASS);
+  tvec2.SetPtEtaPhiM(mom2->pt(), mom2->eta(), mom2->phi(), m_MUON_MASS);
   double invariantMass = (tvec1 + tvec2).M();
 
   if ((invariantMass < m_invariantMassLowerLimit) or
@@ -978,7 +979,7 @@ TrigEffJpsiTools::getEFAllTriggerObjects(const std::string& chain,
     TrigMuonEFInfoContainer::const_iterator MuonItrE  = TmuonsCont->end();
 
     for (int imu=0; MuonItr != MuonItrE; ++MuonItr, ++imu ) {
-      TrigMuonEFInfo* muonInfo = (*MuonItr);
+      const TrigMuonEFInfo* muonInfo = (*MuonItr);
       const TrigMuonEFInfoTrackContainer* muonEFInfoTrackCont = muonInfo->TrackContainer();
       int iTrack    = 0;
       TrigMuonEFInfoTrackContainer::const_iterator trit;
@@ -1130,16 +1131,16 @@ TrigEffJpsiTools::getEFMSTriggerObjects(const std::string& chain,
       Trig::Feature< TrigMuonEFInfoContainer > trackFeature1 = muons.at(roiIt1);
       const TrigMuonEFInfoContainer* trigMuon1 = trackFeature1.cptr();
       TrigMuonEFInfoContainer::const_iterator muonItr1  = trigMuon1->begin();
-      TrigMuonEFInfo* muoninfo1 = (*muonItr1);
+      const TrigMuonEFInfo* muoninfo1 = (*muonItr1);
 
       if( !initRois.empty() ){
 	const TrigRoiDescriptor* roid1 = initRois[roiIt1].cptr();
 	TIDARoiDescriptor roiInfo1 = TIDARoiDescriptorBuilder(*roid1);
 	if( muoninfo1->hasTrack() ){
-	  TrigMuonEFInfoTrackContainer* tc1 = muoninfo1->TrackContainer();
+	  const TrigMuonEFInfoTrackContainer* tc1 = muoninfo1->TrackContainer();
 	  bool selected = false;
 	  for( TrigMuonEFInfoTrackContainer::const_iterator trackItr = tc1->begin(); trackItr != tc1->end(); trackItr++){
-	    TrigMuonEFInfoTrack* muonInfo1 = (*trackItr);
+	    const TrigMuonEFInfoTrack* muonInfo1 = (*trackItr);
 	    if( muonInfo1->hasExtrapolatedTrack() ){
 	      TrigMuonEFTrack* eTrack1 = muonInfo1->ExtrapolatedTrack();
 
@@ -1149,15 +1150,15 @@ TrigEffJpsiTools::getEFMSTriggerObjects(const std::string& chain,
 		  Trig::Feature< TrigMuonEFInfoContainer > trackFeature2 = muons.at(roiIt2);
 		  const TrigMuonEFInfoContainer* trigMuon2 = trackFeature2.cptr();
 		  TrigMuonEFInfoContainer::const_iterator muonItr2  = trigMuon2->begin();
-		  TrigMuonEFInfo* muoninfo2 = (*muonItr2);
+		  const TrigMuonEFInfo* muoninfo2 = (*muonItr2);
 		  if( !initRois.empty() ){
 		    const TrigRoiDescriptor* roid2 = initRois[roiIt2].cptr();
 		    TIDARoiDescriptor roiInfo2 = TIDARoiDescriptorBuilder(*roid2);
 
 		    if( muoninfo2->hasTrack() ){
-		      TrigMuonEFInfoTrackContainer* tc2 = muoninfo2->TrackContainer();
+		      const TrigMuonEFInfoTrackContainer* tc2 = muoninfo2->TrackContainer();
 		      for( TrigMuonEFInfoTrackContainer::const_iterator trackItr = tc2->begin(); trackItr != tc2->end(); trackItr++){
-			TrigMuonEFInfoTrack* muonInfo2 = (*trackItr);
+			const TrigMuonEFInfoTrack* muonInfo2 = (*trackItr);
 			if( muonInfo2->hasExtrapolatedTrack() ){
 			  TrigMuonEFTrack* eTrack2 = muonInfo2->ExtrapolatedTrack();
 			  //      std::cout << "RoI " << muoninfo2->RoINum() << " extrapolated track " << *eTrack2 << std::endl;
@@ -1241,8 +1242,8 @@ TrigEffJpsiTools::getBPhysL2TriggerObjects(const std::string& chain,
   int nTrig=-1;
   bool muTrkJpsi = (chain.find("_mu") && chain.find("Trk")); // Checks if chain is a mu+Trk chain. Notice: Case sensitive!
 
-  for (unsigned int iTrig=0; iTrig < Btrig_L2_chain.size(); iTrig++) {
-    if (Btrig_L2_chain[iTrig] == chain) nTrig=iTrig;
+  for (unsigned int iTrig=0; iTrig < m_Btrig_L2_chain.size(); iTrig++) {
+    if (m_Btrig_L2_chain[iTrig] == chain) nTrig=iTrig;
   }
   if (m_useManualHypoCuts) {
     if (nTrig<0) {
@@ -1250,11 +1251,11 @@ TrigEffJpsiTools::getBPhysL2TriggerObjects(const std::string& chain,
       return true;
     }
     ATH_MSG_DEBUG("getBPhysL2TriggerObjects: cuts for chain " << chain);
-    ATH_MSG_DEBUG("getBPhysL2TriggerObjects: mass : " << Btrig_L2_massMin[nTrig] << " - " << Btrig_L2_massMax[nTrig]);
-    ATH_MSG_DEBUG("getBPhysL2TriggerObjects: applyMassMax " << Btrig_L2_applyMassMax[nTrig]);
-    ATH_MSG_DEBUG("getBPhysL2TriggerObjects: checkOS " << Btrig_L2_checkOS[nTrig]);
-    ATH_MSG_DEBUG("getBPhysL2TriggerObjects: nHits " << Btrig_L2_nHits[nTrig]);
-    ATH_MSG_DEBUG("getBPhysL2TriggerObjects: chi2 " << Btrig_L2_chi2[nTrig]);
+    ATH_MSG_DEBUG("getBPhysL2TriggerObjects: mass : " << m_Btrig_L2_massMin[nTrig] << " - " << m_Btrig_L2_massMax[nTrig]);
+    ATH_MSG_DEBUG("getBPhysL2TriggerObjects: applyMassMax " << m_Btrig_L2_applyMassMax[nTrig]);
+    ATH_MSG_DEBUG("getBPhysL2TriggerObjects: checkOS " << m_Btrig_L2_checkOS[nTrig]);
+    ATH_MSG_DEBUG("getBPhysL2TriggerObjects: nHits " << m_Btrig_L2_nHits[nTrig]);
+    ATH_MSG_DEBUG("getBPhysL2TriggerObjects: chi2 " << m_Btrig_L2_chi2[nTrig]);
   }
 
 
@@ -1315,12 +1316,12 @@ TrigEffJpsiTools::getBPhysL2TriggerObjects(const std::string& chain,
       bool passedHypo = m_useManualHypoCuts ? selectL2TrigDiMuon(trigObj,
 								 trigObjTracks[0],
 								 trigObjTracks[1],
-								 Btrig_L2_checkOS[nTrig],
-								 Btrig_L2_massMin[nTrig],
-								 Btrig_L2_massMax[nTrig],
-								 Btrig_L2_applyMassMax[nTrig],
-								 Btrig_L2_nHits[nTrig],
-								 Btrig_L2_chi2[nTrig]) : true;
+								 m_Btrig_L2_checkOS[nTrig],
+								 m_Btrig_L2_massMin[nTrig],
+								 m_Btrig_L2_massMax[nTrig],
+								 m_Btrig_L2_applyMassMax[nTrig],
+								 m_Btrig_L2_nHits[nTrig],
+								 m_Btrig_L2_chi2[nTrig]) : true;
 
       if (!passedHypo) {
         ATH_MSG_DEBUG("This object failed hypo, will not store on ntuple");
@@ -1405,8 +1406,8 @@ TrigEffJpsiTools::getBPhysEFTriggerObjects(const std::string& chain,
   int nTrig      = -1;
   bool muTrkJpsi = (chain.find("_mu") && chain.find("Trk")); // Checks if chain is a mu+Trk chain. Notice: Case sensitive!
 
-  for (unsigned int iTrig=0; iTrig < Btrig_EF_chain.size(); iTrig++) {
-    if (Btrig_EF_chain[iTrig] == chain) nTrig=iTrig;
+  for (unsigned int iTrig=0; iTrig < m_Btrig_EF_chain.size(); iTrig++) {
+    if (m_Btrig_EF_chain[iTrig] == chain) nTrig=iTrig;
   }
 
   if (m_useManualHypoCuts) {
@@ -1415,10 +1416,10 @@ TrigEffJpsiTools::getBPhysEFTriggerObjects(const std::string& chain,
       return true;
     }
     ATH_MSG_DEBUG("getBPhysEFTriggerObjects: cuts for chain " << chain);
-    ATH_MSG_DEBUG("getBPhysEFTriggerObjects: mass : " << Btrig_EF_massMin[nTrig] << " -> " << Btrig_EF_massMax[nTrig]);
-    ATH_MSG_DEBUG("getBPhysEFTriggerObjects: applyMassMax " << Btrig_EF_applyMassMax[nTrig]);
-    ATH_MSG_DEBUG("getBPhysEFTriggerObjects: checkOS " << Btrig_EF_checkOS[nTrig]);
-    ATH_MSG_DEBUG("getBPhysEFTriggerObjects: chi2 " << Btrig_EF_chi2[nTrig]);
+    ATH_MSG_DEBUG("getBPhysEFTriggerObjects: mass : " << m_Btrig_EF_massMin[nTrig] << " -> " << m_Btrig_EF_massMax[nTrig]);
+    ATH_MSG_DEBUG("getBPhysEFTriggerObjects: applyMassMax " << m_Btrig_EF_applyMassMax[nTrig]);
+    ATH_MSG_DEBUG("getBPhysEFTriggerObjects: checkOS " << m_Btrig_EF_checkOS[nTrig]);
+    ATH_MSG_DEBUG("getBPhysEFTriggerObjects: chi2 " << m_Btrig_EF_chi2[nTrig]);
   }
 
   // Getting the chain's features:
@@ -1491,11 +1492,11 @@ TrigEffJpsiTools::getBPhysEFTriggerObjects(const std::string& chain,
       bool passedHypo = m_useManualHypoCuts ? selectEFTrigDiMuon(trigObj,
 								 trigObjTracks[0],
 								 trigObjTracks[1],
-								 Btrig_EF_checkOS[nTrig],
-								 Btrig_EF_massMin[nTrig],
-								 Btrig_EF_massMax[nTrig],
-								 Btrig_EF_applyMassMax[nTrig],
-								 Btrig_EF_chi2[nTrig]) : true;
+								 m_Btrig_EF_checkOS[nTrig],
+								 m_Btrig_EF_massMin[nTrig],
+								 m_Btrig_EF_massMax[nTrig],
+								 m_Btrig_EF_applyMassMax[nTrig],
+								 m_Btrig_EF_chi2[nTrig]) : true;
 
       if (!passedHypo) {
         ATH_MSG_DEBUG("This object failed hypo, will not store on ntuple");
@@ -3024,7 +3025,7 @@ TrigEffJpsiTools::hasPassedMuFast(const MuonFeature* mf) const
 {
   // https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TrigHypothesis/TrigMuonHypo/trunk/python/TrigMuonHypoConfig.py
   double pt = mf->pt();
-  double eta = abs(mf->eta());
+  double eta = std::abs(mf->eta());
 
   if (eta < 1.05) {
     if (pt < 3.0) return false;
@@ -3051,7 +3052,7 @@ TrigEffJpsiTools::hasPassedTrigMuonEF(const Rec::TrackParticle* tp) const
 {
   // https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TrigHypothesis/TrigMuonHypo/trunk/python/TrigMuonHypoConfig.py
   double pt = tp->pt();
-  double eta = abs(tp->eta());
+  double eta = std::abs(tp->eta());
 
   if (eta < 1.05) {
     if (pt < 3.0) return false;
@@ -3154,113 +3155,113 @@ TrigEffJpsiTools::Btrig_L2_initCuts()
 {
   ATH_MSG_DEBUG("Use manual hypo cuts: " << m_useManualHypoCuts);
   //L2_mu4_DiMu
-  Btrig_L2_chain.push_back("L2_mu4_DiMu");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(500.);
-  Btrig_L2_massMax.push_back(13000.);
-  Btrig_L2_applyMassMax.push_back(false);
-  Btrig_L2_nHits.push_back(3);
-  Btrig_L2_chi2.push_back(-1.);
+  m_Btrig_L2_chain.push_back("L2_mu4_DiMu");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(500.);
+  m_Btrig_L2_massMax.push_back(13000.);
+  m_Btrig_L2_applyMassMax.push_back(false);
+  m_Btrig_L2_nHits.push_back(3);
+  m_Btrig_L2_chi2.push_back(-1.);
 
   //L2_mu4_Jpsimumu
-  Btrig_L2_chain.push_back("L2_mu4_Jpsimumu");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(2500.);
-  Btrig_L2_massMax.push_back(4300.);
-  Btrig_L2_applyMassMax.push_back(true);
-  Btrig_L2_nHits.push_back(3);
-  Btrig_L2_chi2.push_back(-1.);
+  m_Btrig_L2_chain.push_back("L2_mu4_Jpsimumu");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(2500.);
+  m_Btrig_L2_massMax.push_back(4300.);
+  m_Btrig_L2_applyMassMax.push_back(true);
+  m_Btrig_L2_nHits.push_back(3);
+  m_Btrig_L2_chi2.push_back(-1.);
 
   //L2_mu4_Upsimumu
-  Btrig_L2_chain.push_back("L2_mu4_Upsimumu");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(8000.);
-  Btrig_L2_massMax.push_back(12000.);
-  Btrig_L2_applyMassMax.push_back(true);
-  Btrig_L2_nHits.push_back(3);
-  Btrig_L2_chi2.push_back(-1.);
+  m_Btrig_L2_chain.push_back("L2_mu4_Upsimumu");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(8000.);
+  m_Btrig_L2_massMax.push_back(12000.);
+  m_Btrig_L2_applyMassMax.push_back(true);
+  m_Btrig_L2_nHits.push_back(3);
+  m_Btrig_L2_chi2.push_back(-1.);
 
   //L2_mu4_Bmumu
-  Btrig_L2_chain.push_back("L2_mu4_Bmumu");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(8000.);
-  Btrig_L2_massMax.push_back(12000.);
-  Btrig_L2_applyMassMax.push_back(true);
-  Btrig_L2_nHits.push_back(3);
-  Btrig_L2_chi2.push_back(-1.);
+  m_Btrig_L2_chain.push_back("L2_mu4_Bmumu");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(8000.);
+  m_Btrig_L2_massMax.push_back(12000.);
+  m_Btrig_L2_applyMassMax.push_back(true);
+  m_Btrig_L2_nHits.push_back(3);
+  m_Btrig_L2_chi2.push_back(-1.);
 
   //L2_2mu4_DiMu
-  Btrig_L2_chain.push_back("L2_2mu4_DiMu");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(500.);
-  Btrig_L2_massMax.push_back(13000.);
-  Btrig_L2_applyMassMax.push_back(false);
-  Btrig_L2_nHits.push_back(-1);
-  Btrig_L2_chi2.push_back(20.);
+  m_Btrig_L2_chain.push_back("L2_2mu4_DiMu");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(500.);
+  m_Btrig_L2_massMax.push_back(13000.);
+  m_Btrig_L2_applyMassMax.push_back(false);
+  m_Btrig_L2_nHits.push_back(-1);
+  m_Btrig_L2_chi2.push_back(20.);
 
   //L2_2mu4_Jpsimumu
-  Btrig_L2_chain.push_back("L2_2mu4_Jpsimumu");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(2500.);
-  Btrig_L2_massMax.push_back(4300.);
-  Btrig_L2_applyMassMax.push_back(true);
-  Btrig_L2_nHits.push_back(-1);
-  Btrig_L2_chi2.push_back(20.);
+  m_Btrig_L2_chain.push_back("L2_2mu4_Jpsimumu");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(2500.);
+  m_Btrig_L2_massMax.push_back(4300.);
+  m_Btrig_L2_applyMassMax.push_back(true);
+  m_Btrig_L2_nHits.push_back(-1);
+  m_Btrig_L2_chi2.push_back(20.);
 
   //L2_2mu4_Upsimumu
-  Btrig_L2_chain.push_back("L2_2mu4_Upsimumu");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(8000.);
-  Btrig_L2_massMax.push_back(12000.);
-  Btrig_L2_applyMassMax.push_back(true);
-  Btrig_L2_nHits.push_back(-1);
-  Btrig_L2_chi2.push_back(20.);
+  m_Btrig_L2_chain.push_back("L2_2mu4_Upsimumu");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(8000.);
+  m_Btrig_L2_massMax.push_back(12000.);
+  m_Btrig_L2_applyMassMax.push_back(true);
+  m_Btrig_L2_nHits.push_back(-1);
+  m_Btrig_L2_chi2.push_back(20.);
 
   //L2_2mu4_Bmumu
-  Btrig_L2_chain.push_back("L2_2mu4_Bmumu");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(4000.);
-  Btrig_L2_massMax.push_back(7000.);
-  Btrig_L2_applyMassMax.push_back(true);
-  Btrig_L2_nHits.push_back(-1);
-  Btrig_L2_chi2.push_back(20.);
+  m_Btrig_L2_chain.push_back("L2_2mu4_Bmumu");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(4000.);
+  m_Btrig_L2_massMax.push_back(7000.);
+  m_Btrig_L2_applyMassMax.push_back(true);
+  m_Btrig_L2_nHits.push_back(-1);
+  m_Btrig_L2_chi2.push_back(20.);
 
 
   //L2_mu4_DiMu_FS
-  Btrig_L2_chain.push_back("L2_mu4_DiMu_FS");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(500.);
-  Btrig_L2_massMax.push_back(13000.);
-  Btrig_L2_applyMassMax.push_back(false);
-  Btrig_L2_nHits.push_back(3);
-  Btrig_L2_chi2.push_back(-1.);
+  m_Btrig_L2_chain.push_back("L2_mu4_DiMu_FS");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(500.);
+  m_Btrig_L2_massMax.push_back(13000.);
+  m_Btrig_L2_applyMassMax.push_back(false);
+  m_Btrig_L2_nHits.push_back(3);
+  m_Btrig_L2_chi2.push_back(-1.);
 
   //L2_mu4_Jpsimumu_FS
-  Btrig_L2_chain.push_back("L2_mu4_Jpsimumu_FS");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(2500.);
-  Btrig_L2_massMax.push_back(4300.);
-  Btrig_L2_applyMassMax.push_back(true);
-  Btrig_L2_nHits.push_back(3);
-  Btrig_L2_chi2.push_back(-1.);
+  m_Btrig_L2_chain.push_back("L2_mu4_Jpsimumu_FS");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(2500.);
+  m_Btrig_L2_massMax.push_back(4300.);
+  m_Btrig_L2_applyMassMax.push_back(true);
+  m_Btrig_L2_nHits.push_back(3);
+  m_Btrig_L2_chi2.push_back(-1.);
 
   //L2_mu4_Upsimumu_FS
-  Btrig_L2_chain.push_back("L2_mu4_Upsimumu_FS");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(8000.);
-  Btrig_L2_massMax.push_back(12000.);
-  Btrig_L2_applyMassMax.push_back(true);
-  Btrig_L2_nHits.push_back(3);
-  Btrig_L2_chi2.push_back(-1.);
+  m_Btrig_L2_chain.push_back("L2_mu4_Upsimumu_FS");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(8000.);
+  m_Btrig_L2_massMax.push_back(12000.);
+  m_Btrig_L2_applyMassMax.push_back(true);
+  m_Btrig_L2_nHits.push_back(3);
+  m_Btrig_L2_chi2.push_back(-1.);
 
   //L2_mu4_Bmumu_FS
-  Btrig_L2_chain.push_back("L2_mu4_Bmumu_FS");
-  Btrig_L2_checkOS.push_back(true);
-  Btrig_L2_massMin.push_back(4000.);
-  Btrig_L2_massMax.push_back(7000.);
-  Btrig_L2_applyMassMax.push_back(true);
-  Btrig_L2_nHits.push_back(3);
-  Btrig_L2_chi2.push_back(-1.);
+  m_Btrig_L2_chain.push_back("L2_mu4_Bmumu_FS");
+  m_Btrig_L2_checkOS.push_back(true);
+  m_Btrig_L2_massMin.push_back(4000.);
+  m_Btrig_L2_massMax.push_back(7000.);
+  m_Btrig_L2_applyMassMax.push_back(true);
+  m_Btrig_L2_nHits.push_back(3);
+  m_Btrig_L2_chi2.push_back(-1.);
 
 
 
@@ -3273,93 +3274,93 @@ TrigEffJpsiTools::Btrig_EF_initCuts()
 {
   ATH_MSG_DEBUG("Use manual hypo cuts: " << m_useManualHypoCuts);
   //Ef_mu4_DiMu
-  Btrig_EF_chain.push_back("EF_mu4_DiMu");
-  Btrig_EF_checkOS.push_back(true);
-  Btrig_EF_massMin.push_back(500.);
-  Btrig_EF_massMax.push_back(13000.);
-  Btrig_EF_applyMassMax.push_back(false);
-  Btrig_EF_chi2.push_back(-1.);
+  m_Btrig_EF_chain.push_back("EF_mu4_DiMu");
+  m_Btrig_EF_checkOS.push_back(true);
+  m_Btrig_EF_massMin.push_back(500.);
+  m_Btrig_EF_massMax.push_back(13000.);
+  m_Btrig_EF_applyMassMax.push_back(false);
+  m_Btrig_EF_chi2.push_back(-1.);
 
 
   //EF_mu4_Jpsimumu
-  Btrig_EF_chain.push_back("EF_mu4_Jpsimumu");
-  Btrig_EF_checkOS.push_back(true);
-  Btrig_EF_massMin.push_back(2500.);
-  Btrig_EF_massMax.push_back(4300.);
-  Btrig_EF_applyMassMax.push_back(true);
-  Btrig_EF_chi2.push_back(-1.);
+  m_Btrig_EF_chain.push_back("EF_mu4_Jpsimumu");
+  m_Btrig_EF_checkOS.push_back(true);
+  m_Btrig_EF_massMin.push_back(2500.);
+  m_Btrig_EF_massMax.push_back(4300.);
+  m_Btrig_EF_applyMassMax.push_back(true);
+  m_Btrig_EF_chi2.push_back(-1.);
 
   //EF_mu4_Bmumu
-  Btrig_EF_chain.push_back("EF_mu4_Bmumu");
-  Btrig_EF_checkOS.push_back(true);
-  Btrig_EF_massMin.push_back(4000.);
-  Btrig_EF_massMax.push_back(7000.);
-  Btrig_EF_applyMassMax.push_back(true);
-  Btrig_EF_chi2.push_back(-1.);
+  m_Btrig_EF_chain.push_back("EF_mu4_Bmumu");
+  m_Btrig_EF_checkOS.push_back(true);
+  m_Btrig_EF_massMin.push_back(4000.);
+  m_Btrig_EF_massMax.push_back(7000.);
+  m_Btrig_EF_applyMassMax.push_back(true);
+  m_Btrig_EF_chi2.push_back(-1.);
 
   //EF_2mu4_DiMu
-  Btrig_EF_chain.push_back("EF_2mu4_DiMu");
-  Btrig_EF_checkOS.push_back(true);
-  Btrig_EF_massMin.push_back(500.);
-  Btrig_EF_massMax.push_back(13000.);
-  Btrig_EF_applyMassMax.push_back(false);
-  Btrig_EF_chi2.push_back(20.);
+  m_Btrig_EF_chain.push_back("EF_2mu4_DiMu");
+  m_Btrig_EF_checkOS.push_back(true);
+  m_Btrig_EF_massMin.push_back(500.);
+  m_Btrig_EF_massMax.push_back(13000.);
+  m_Btrig_EF_applyMassMax.push_back(false);
+  m_Btrig_EF_chi2.push_back(20.);
 
   //EF_2mu4_Bmumu
-  Btrig_EF_chain.push_back("EF_2mu4_Bmumu");
-  Btrig_EF_checkOS.push_back(true);
-  Btrig_EF_massMin.push_back(4000.);
-  Btrig_EF_massMax.push_back(7000.);
-  Btrig_EF_applyMassMax.push_back(true);
-  Btrig_EF_chi2.push_back(20.);
+  m_Btrig_EF_chain.push_back("EF_2mu4_Bmumu");
+  m_Btrig_EF_checkOS.push_back(true);
+  m_Btrig_EF_massMin.push_back(4000.);
+  m_Btrig_EF_massMax.push_back(7000.);
+  m_Btrig_EF_applyMassMax.push_back(true);
+  m_Btrig_EF_chi2.push_back(20.);
 
   //EF_2mu4_Jpsimumu
-  Btrig_EF_chain.push_back("EF_2mu4_Jpsimumu");
-  Btrig_EF_checkOS.push_back(true);
-  Btrig_EF_massMin.push_back(2500.);
-  Btrig_EF_massMax.push_back(4300.);
-  Btrig_EF_applyMassMax.push_back(true);
-  Btrig_EF_chi2.push_back(20.);
+  m_Btrig_EF_chain.push_back("EF_2mu4_Jpsimumu");
+  m_Btrig_EF_checkOS.push_back(true);
+  m_Btrig_EF_massMin.push_back(2500.);
+  m_Btrig_EF_massMax.push_back(4300.);
+  m_Btrig_EF_applyMassMax.push_back(true);
+  m_Btrig_EF_chi2.push_back(20.);
 
   //EF_2mu4_Upsimumu
-  Btrig_EF_chain.push_back("EF_2mu4_Upsimumu");
-  Btrig_EF_checkOS.push_back(true);
-  Btrig_EF_massMin.push_back(8000.);
-  Btrig_EF_massMax.push_back(12000.);
-  Btrig_EF_applyMassMax.push_back(true);
-  Btrig_EF_chi2.push_back(20.);
+  m_Btrig_EF_chain.push_back("EF_2mu4_Upsimumu");
+  m_Btrig_EF_checkOS.push_back(true);
+  m_Btrig_EF_massMin.push_back(8000.);
+  m_Btrig_EF_massMax.push_back(12000.);
+  m_Btrig_EF_applyMassMax.push_back(true);
+  m_Btrig_EF_chi2.push_back(20.);
 
   //EF_mu4_DiMumumu_FS
-  Btrig_EF_chain.push_back("EF_mu4_DiMu_FS");
-  Btrig_EF_checkOS.push_back(true);
-  Btrig_EF_massMin.push_back(500.);
-  Btrig_EF_massMax.push_back(13000.);
-  Btrig_EF_applyMassMax.push_back(false);
-  Btrig_EF_chi2.push_back(-1.);
+  m_Btrig_EF_chain.push_back("EF_mu4_DiMu_FS");
+  m_Btrig_EF_checkOS.push_back(true);
+  m_Btrig_EF_massMin.push_back(500.);
+  m_Btrig_EF_massMax.push_back(13000.);
+  m_Btrig_EF_applyMassMax.push_back(false);
+  m_Btrig_EF_chi2.push_back(-1.);
 
   //EF_mu4_Jpsimumu_FS
-  Btrig_EF_chain.push_back("EF_mu4_Jpsimumu_FS");
-  Btrig_EF_checkOS.push_back(true);
-  Btrig_EF_massMin.push_back(2500.);
-  Btrig_EF_massMax.push_back(4300.);
-  Btrig_EF_applyMassMax.push_back(true);
-  Btrig_EF_chi2.push_back(-1.);
+  m_Btrig_EF_chain.push_back("EF_mu4_Jpsimumu_FS");
+  m_Btrig_EF_checkOS.push_back(true);
+  m_Btrig_EF_massMin.push_back(2500.);
+  m_Btrig_EF_massMax.push_back(4300.);
+  m_Btrig_EF_applyMassMax.push_back(true);
+  m_Btrig_EF_chi2.push_back(-1.);
 
   //EF_mu4_Upsimumu_FS
-  Btrig_EF_chain.push_back("EF_mu4_Upsimumu_FS");
-  Btrig_EF_checkOS.push_back(true);
-  Btrig_EF_massMin.push_back(8000.);
-  Btrig_EF_massMax.push_back(12000.);
-  Btrig_EF_applyMassMax.push_back(true);
-  Btrig_EF_chi2.push_back(-1.);
+  m_Btrig_EF_chain.push_back("EF_mu4_Upsimumu_FS");
+  m_Btrig_EF_checkOS.push_back(true);
+  m_Btrig_EF_massMin.push_back(8000.);
+  m_Btrig_EF_massMax.push_back(12000.);
+  m_Btrig_EF_applyMassMax.push_back(true);
+  m_Btrig_EF_chi2.push_back(-1.);
 
   //EF_mu4_Bmumu_FS
-  Btrig_EF_chain.push_back("EF_mu4_Bmumu_FS");
-  Btrig_EF_checkOS.push_back(true);
-  Btrig_EF_massMin.push_back(4000.);
-  Btrig_EF_massMax.push_back(7000.);
-  Btrig_EF_applyMassMax.push_back(true);
-  Btrig_EF_chi2.push_back(-1.);
+  m_Btrig_EF_chain.push_back("EF_mu4_Bmumu_FS");
+  m_Btrig_EF_checkOS.push_back(true);
+  m_Btrig_EF_massMin.push_back(4000.);
+  m_Btrig_EF_massMax.push_back(7000.);
+  m_Btrig_EF_applyMassMax.push_back(true);
+  m_Btrig_EF_chi2.push_back(-1.);
 
 
 
