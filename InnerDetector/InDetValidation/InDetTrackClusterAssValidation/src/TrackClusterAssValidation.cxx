@@ -143,6 +143,7 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
   m_eventsBTE[0] = 0                   ;
   m_eventsBTE[1] = 0                   ;
   m_eventsBTE[2] = 0                   ;
+  m_eventsBTE[3] = 0                   ;
   m_ncolection = m_tracklocation.size();
 
   for(int nc = 0; nc!=m_ncolection; ++nc) {
@@ -154,32 +155,42 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
       for(int j=0; j!=5; ++j) m_efficiencyBTE[nc][i][j][0] = 0;
       for(int j=0; j!=5; ++j) m_efficiencyBTE[nc][i][j][1] = 0;
       for(int j=0; j!=5; ++j) m_efficiencyBTE[nc][i][j][2] = 0;
+      for(int j=0; j!=5; ++j) m_efficiencyBTE[nc][i][j][3] = 0;
     }
 
     m_ntracksPOSB [nc] = 0; 
     m_ntracksPOSE [nc] = 0; 
     m_ntracksNEGB [nc] = 0; 
-    m_ntracksNEGE [nc] = 0; 
+    m_ntracksNEGE [nc] = 0;
+    m_ntracksNEGDBM [nc] = 0;
+    m_ntracksPOSDBM [nc] = 0;
+ 
     for(int i=0; i!=50; ++i) {m_total[nc][i] = 0; m_fake[nc][i] =0;}
   } 
   m_nclustersPosBP  = 0; // number barrel pixels clusters for positive particles
   m_nclustersPosBS  = 0; // number barrel  SCT   clusters for positive particles
   m_nclustersPosEP  = 0; // number endcap pixels clusters for positive particles
   m_nclustersPosES  = 0; // number endcap  SCT   clusters for positive particles
+  m_nclustersPosDBM = 0;
   m_nclustersNegBP  = 0; // number barrel pixels clusters for negative particles
   m_nclustersNegBS  = 0; // number barrel  SCT   clusters for negative particles
   m_nclustersNegEP  = 0; // number endcap pixels clusters for negative particles
   m_nclustersNegES  = 0; // number endcap  SCT   clusters for negative particles
-  
+  m_nclustersNegDBM = 0;
+
   for(int i=0; i!=50; ++i) {
     m_particleClusters      [i]    = 0;
     m_particleClustersBTE   [i][0] = 0;
     m_particleClustersBTE   [i][1] = 0;
     m_particleClustersBTE   [i][2] = 0;
+    m_particleClustersBTE   [i][3] = 0;
+
     m_particleSpacePoints   [i]    = 0;
     m_particleSpacePointsBTE[i][0] = 0;
     m_particleSpacePointsBTE[i][1] = 0;
     m_particleSpacePointsBTE[i][2] = 0;
+    m_particleSpacePointsBTE[i][3] = 0;
+
   }
   if(!m_useTRT) m_clcutTRT = 0; if(!m_clcutTRT) m_useTRT = false;
   return sc;
@@ -302,10 +313,12 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
     m_particleClustersBTE   [i][0]+=m_particleClustersBTE   [i+1][0];
     m_particleClustersBTE   [i][1]+=m_particleClustersBTE   [i+1][1];
     m_particleClustersBTE   [i][2]+=m_particleClustersBTE   [i+1][2];
+    m_particleClustersBTE   [i][3]+=m_particleClustersBTE   [i+1][3];
     m_particleSpacePoints   [i]   +=m_particleSpacePoints   [i+1];
     m_particleSpacePointsBTE[i][0]+=m_particleSpacePointsBTE[i+1][0];
     m_particleSpacePointsBTE[i][1]+=m_particleSpacePointsBTE[i+1][1];
     m_particleSpacePointsBTE[i][2]+=m_particleSpacePointsBTE[i+1][2];
+    m_particleSpacePointsBTE[i][3]+=m_particleSpacePointsBTE[i+1][3];
   }
 
   double pa   =  double(m_particleClusters[0]); if(pa < 1.) pa = 1.;
@@ -353,6 +366,20 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   double pcE9  = double(m_particleClustersBTE[ 9][2])    / pa;
   double pcE10 = double(m_particleClustersBTE[10][2])    / pa;
   double pcE11 = double(m_particleClustersBTE[11][2])    / pa;
+
+  pa           = double(m_particleClustersBTE[0][3]); if(pa < 1.) pa = 1.;
+  double pcD2  = double(m_particleClustersBTE[ 2][3])    / pa;
+  double pcD3  = double(m_particleClustersBTE[ 3][3])    / pa;
+  double pcD4  = double(m_particleClustersBTE[ 4][3])    / pa;
+  double pcD5  = double(m_particleClustersBTE[ 5][3])    / pa;
+  double pcD6  = double(m_particleClustersBTE[ 6][3])    / pa;
+  double pcD7  = double(m_particleClustersBTE[ 7][3])    / pa;
+  double pcD8  = double(m_particleClustersBTE[ 8][3])    / pa;
+  double pcD9  = double(m_particleClustersBTE[ 9][3])    / pa;
+  double pcD10 = double(m_particleClustersBTE[10][3])    / pa;
+  double pcD11 = double(m_particleClustersBTE[11][3])    / pa;
+
+
   pa           = double(m_particleSpacePoints[0]); if(pa < 1.) pa = 1.;
   double ps2   = double(m_particleSpacePoints[ 2])       / pa;
   double ps3   = double(m_particleSpacePoints[ 3])       / pa;
@@ -398,120 +425,154 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   double psE10 = double(m_particleSpacePointsBTE[10][2]) / pa;
   double psE11 = double(m_particleSpacePointsBTE[11][2]) / pa;
 
-  std::cout<<"|         Propability for such charge particles to have some number silicon         |"
+  pa           = double(m_particleSpacePointsBTE[0][3]); if(pa < 1.) pa = 1.;
+  double psD2  = double(m_particleSpacePointsBTE[ 2][3]) / pa;
+  double psD3  = double(m_particleSpacePointsBTE[ 3][3]) / pa;
+  double psD4  = double(m_particleSpacePointsBTE[ 4][3]) / pa;
+  double psD5  = double(m_particleSpacePointsBTE[ 5][3]) / pa;
+  double psD6  = double(m_particleSpacePointsBTE[ 6][3]) / pa;
+  double psD7  = double(m_particleSpacePointsBTE[ 7][3]) / pa;
+  double psD8  = double(m_particleSpacePointsBTE[ 8][3]) / pa;
+  double psD9  = double(m_particleSpacePointsBTE[ 9][3]) / pa;
+  double psD10 = double(m_particleSpacePointsBTE[10][3]) / pa;
+  double psD11 = double(m_particleSpacePointsBTE[11][3]) / pa;
+
+
+  std::cout<<"|         Propability for such charge particles to have some number silicon                          |"
 	   <<std::endl;
-  std::cout<<"|                     clusters                         space points                 |"
+  std::cout<<"|                     clusters                     |             space points                        |"
 	   <<std::endl;
-  std::cout<<"|          Total   Barrel  Transi  Endcap      Total   Barrel  Transi  Endcap       |"
+  std::cout<<"|           Total   Barrel  Transi  Endcap   DBM    |  Total   Barrel  Transi  Endcap   DBM          |"
 	   <<std::endl;
   std::cout<<"|  >= 2  "
 	   <<std::setw(8)<<std::setprecision(5)<<pc2
 	   <<std::setw(8)<<std::setprecision(5)<<pcB2
 	   <<std::setw(8)<<std::setprecision(5)<<pcT2
-	   <<std::setw(8)<<std::setprecision(5)<<pcE2<<"    "
+	   <<std::setw(8)<<std::setprecision(5)<<pcE2
+	   <<std::setw(8)<<std::setprecision(5)<<pcD2<<"  |  "
+
 	   <<std::setw(8)<<std::setprecision(5)<<ps2
 	   <<std::setw(8)<<std::setprecision(5)<<psB2
 	   <<std::setw(8)<<std::setprecision(5)<<psT2
 	   <<std::setw(8)<<std::setprecision(5)<<psE2
+	   <<std::setw(8)<<std::setprecision(5)<<psD2
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 3  "
 	   <<std::setw(8)<<std::setprecision(5)<<pc3
 	   <<std::setw(8)<<std::setprecision(5)<<pcB3
 	   <<std::setw(8)<<std::setprecision(5)<<pcT3
-	   <<std::setw(8)<<std::setprecision(5)<<pcE3<<"    "
+	   <<std::setw(8)<<std::setprecision(5)<<pcE3
+	   <<std::setw(8)<<std::setprecision(5)<<pcD3<<"  |  "
 	   <<std::setw(8)<<std::setprecision(5)<<ps3
 	   <<std::setw(8)<<std::setprecision(5)<<psB3
 	   <<std::setw(8)<<std::setprecision(5)<<psT3
 	   <<std::setw(8)<<std::setprecision(5)<<psE3
+	   <<std::setw(8)<<std::setprecision(5)<<psD3
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 4  "
 	   <<std::setw(8)<<std::setprecision(5)<<pc4
 	   <<std::setw(8)<<std::setprecision(5)<<pcB4
 	   <<std::setw(8)<<std::setprecision(5)<<pcT4
-	   <<std::setw(8)<<std::setprecision(5)<<pcE4<<"    "
+	   <<std::setw(8)<<std::setprecision(5)<<pcE4
+	   <<std::setw(8)<<std::setprecision(5)<<pcD4<<"  |  "
 	   <<std::setw(8)<<std::setprecision(5)<<ps4
 	   <<std::setw(8)<<std::setprecision(5)<<psB4
 	   <<std::setw(8)<<std::setprecision(5)<<psT4
 	   <<std::setw(8)<<std::setprecision(5)<<psE4
+	   <<std::setw(8)<<std::setprecision(5)<<psD4
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 5  "
 	   <<std::setw(8)<<std::setprecision(5)<<pc5
 	   <<std::setw(8)<<std::setprecision(5)<<pcB5
 	   <<std::setw(8)<<std::setprecision(5)<<pcT5
-	   <<std::setw(8)<<std::setprecision(5)<<pcE5<<"    "
+	   <<std::setw(8)<<std::setprecision(5)<<pcE5
+	   <<std::setw(8)<<std::setprecision(5)<<pcD5<<"  |  "
 	   <<std::setw(8)<<std::setprecision(5)<<ps5
 	   <<std::setw(8)<<std::setprecision(5)<<psB5
 	   <<std::setw(8)<<std::setprecision(5)<<psT5
 	   <<std::setw(8)<<std::setprecision(5)<<psE5
+	   <<std::setw(8)<<std::setprecision(5)<<psD5
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 6  "
 	   <<std::setw(8)<<std::setprecision(5)<<pc6
 	   <<std::setw(8)<<std::setprecision(5)<<pcB6
 	   <<std::setw(8)<<std::setprecision(5)<<pcT6
-	   <<std::setw(8)<<std::setprecision(5)<<pcE6<<"    "
+	   <<std::setw(8)<<std::setprecision(5)<<pcE6
+	   <<std::setw(8)<<std::setprecision(5)<<pcD6<<"  |  "
 	   <<std::setw(8)<<std::setprecision(5)<<ps6
 	   <<std::setw(8)<<std::setprecision(5)<<psB6
 	   <<std::setw(8)<<std::setprecision(5)<<psT6
 	   <<std::setw(8)<<std::setprecision(5)<<psE6
+	   <<std::setw(8)<<std::setprecision(5)<<psD6
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 7  "
 	   <<std::setw(8)<<std::setprecision(5)<<pc7
 	   <<std::setw(8)<<std::setprecision(5)<<pcB7
 	   <<std::setw(8)<<std::setprecision(5)<<pcT7
-	   <<std::setw(8)<<std::setprecision(5)<<pcE7<<"    "
+	   <<std::setw(8)<<std::setprecision(5)<<pcE7
+	   <<std::setw(8)<<std::setprecision(5)<<pcD7<<"  |  "
 	   <<std::setw(8)<<std::setprecision(5)<<ps7
 	   <<std::setw(8)<<std::setprecision(5)<<psB7
 	   <<std::setw(8)<<std::setprecision(5)<<psT7
 	   <<std::setw(8)<<std::setprecision(5)<<psE7
+	   <<std::setw(8)<<std::setprecision(5)<<psD7
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 8  "
 	   <<std::setw(8)<<std::setprecision(5)<<pc8
 	   <<std::setw(8)<<std::setprecision(5)<<pcB8
 	   <<std::setw(8)<<std::setprecision(5)<<pcT8
-	   <<std::setw(8)<<std::setprecision(5)<<pcE8<<"    "
+	   <<std::setw(8)<<std::setprecision(5)<<pcE8
+	   <<std::setw(8)<<std::setprecision(5)<<pcD8<<"  |  "
 	   <<std::setw(8)<<std::setprecision(5)<<ps8
 	   <<std::setw(8)<<std::setprecision(5)<<psB8
 	   <<std::setw(8)<<std::setprecision(5)<<psT8
 	   <<std::setw(8)<<std::setprecision(5)<<psE8
+	   <<std::setw(8)<<std::setprecision(5)<<psD8
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >= 9  "
 	   <<std::setw(8)<<std::setprecision(5)<<pc9
 	   <<std::setw(8)<<std::setprecision(5)<<pcB9
 	   <<std::setw(8)<<std::setprecision(5)<<pcT9
-	   <<std::setw(8)<<std::setprecision(5)<<pcE9<<"    "
+	   <<std::setw(8)<<std::setprecision(5)<<pcE9
+	   <<std::setw(8)<<std::setprecision(5)<<pcD9<<"  |  "
 	   <<std::setw(8)<<std::setprecision(5)<<ps9
 	   <<std::setw(8)<<std::setprecision(5)<<psB9
 	   <<std::setw(8)<<std::setprecision(5)<<psT9
 	   <<std::setw(8)<<std::setprecision(5)<<psE9
+	   <<std::setw(8)<<std::setprecision(5)<<psD9
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >=10  "
 	   <<std::setw(8)<<std::setprecision(5)<<pc10
 	   <<std::setw(8)<<std::setprecision(5)<<pcB10
 	   <<std::setw(8)<<std::setprecision(5)<<pcT10
-	   <<std::setw(8)<<std::setprecision(5)<<pcE10<<"    "
+	   <<std::setw(8)<<std::setprecision(5)<<pcE10
+	   <<std::setw(8)<<std::setprecision(5)<<pcD10<<"  |  "
 	   <<std::setw(8)<<std::setprecision(5)<<ps10
 	   <<std::setw(8)<<std::setprecision(5)<<psB10
 	   <<std::setw(8)<<std::setprecision(5)<<psT10
 	   <<std::setw(8)<<std::setprecision(5)<<psE10
+	   <<std::setw(8)<<std::setprecision(5)<<psD10
 	   <<"       |"
 	   <<std::endl;
   std::cout<<"|  >=11  "
 	   <<std::setw(8)<<std::setprecision(5)<<pc11
 	   <<std::setw(8)<<std::setprecision(5)<<pcB11
 	   <<std::setw(8)<<std::setprecision(5)<<pcT11
-	   <<std::setw(8)<<std::setprecision(5)<<pcE11<<"    "
+	   <<std::setw(8)<<std::setprecision(5)<<pcE11
+	   <<std::setw(8)<<std::setprecision(5)<<pcD11<<"  |  "
 	   <<std::setw(8)<<std::setprecision(5)<<ps11
 	   <<std::setw(8)<<std::setprecision(5)<<psB11
 	   <<std::setw(8)<<std::setprecision(5)<<psT11
 	   <<std::setw(8)<<std::setprecision(5)<<psE11
+	   <<std::setw(8)<<std::setprecision(5)<<psD11
 	   <<"       |"
 	   <<std::endl;
   
@@ -550,6 +611,11 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventsBTE[2])/pa
 	   <<"             |"
  	   <<std::endl;
+  pa  = double(m_particleClustersBTE[0][3]); if(pa < 1.) pa = 1.;
+  std::cout<<"|                                        For DBM        region "
+           <<std::setw(8)<<std::setprecision(5)<<double(m_eventsBTE[3])/pa
+           <<"             |"
+           <<std::endl;
 
   std::cout<<"|                                                                                   |"
 	   <<std::endl;
@@ -570,6 +636,14 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<std::setw(8)<<std::setprecision(5)<<eratio
 	   <<"          |"
 	   <<std::endl;
+  pa            = double(m_nclustersNegDBM); if(pa < 1.) pa = 1.;
+  ratio         = double(m_nclustersPosDBM)/pa;
+  eratio        = sqrt(ratio*(1.+ratio)/pa);
+  std::cout<<"|      Ratio  DBM  pixels clusters for +/- particles = "
+           <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
+           <<std::setw(8)<<std::setprecision(5)<<eratio
+           <<"          |"
+           <<std::endl;
   pa            = double(m_nclustersNegBS); if(pa < 1.) pa = 1.;
   ratio         = double(m_nclustersPosBS)/pa;
   eratio        = sqrt(ratio*(1.+ratio)/pa);
@@ -641,14 +715,20 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
     double efE3[6]; for(int i=0; i!=6; ++i) efE3[i] = double(m_efficiencyBTE[nc][i][3][2])/neBTE;
     double efE4[6]; for(int i=0; i!=6; ++i) efE4[i] = double(m_efficiencyBTE[nc][i][4][2])/neBTE;
 
-
+    neBTE = m_eventsBTE[3];        if(neBTE < 1.) neBTE = 1;
+    double efD0[6]; for(int i=0; i!=6; ++i) efD0[i] = double(m_efficiencyBTE[nc][i][0][3])/neBTE;
+    double efD1[6]; for(int i=0; i!=6; ++i) efD1[i] = double(m_efficiencyBTE[nc][i][1][3])/neBTE;
+    double efD2[6]; for(int i=0; i!=6; ++i) efD2[i] = double(m_efficiencyBTE[nc][i][2][3])/neBTE;
+    double efD3[6]; for(int i=0; i!=6; ++i) efD3[i] = double(m_efficiencyBTE[nc][i][3][3])/neBTE;
+    double efD4[6]; for(int i=0; i!=6; ++i) efD4[i] = double(m_efficiencyBTE[nc][i][4][3])/neBTE;
 
 
     double efrec  = ef0[0]+ef0[1]+ef0[2]+ef1[0]+ef1[1]+ef2[0];
     double efrecB = efB0[0]+efB0[1]+efB0[2]+efB1[0]+efB1[1]+efB2[0];
     double efrecT = efT0[0]+efT0[1]+efT0[2]+efT1[0]+efT1[1]+efT2[0];
     double efrecE = efE0[0]+efE0[1]+efE0[2]+efE1[0]+efE1[1]+efE2[0];
-    
+    double efrecD = efD0[0]+efD0[1]+efD0[2]+efD1[0]+efD1[1]+efD2[0];    
+
     ne        = double(m_eventsPOS); if(ne < 1.) ne = 1.;
     double efP[6]; for(int i=0; i!=6; ++i) efP[i] = double(m_efficiencyPOS[nc][i])/ne;
     ne        = double(m_eventsNEG); if(ne < 1.) ne = 1.;
@@ -863,6 +943,51 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	     <<std::setw(9)<<std::setprecision(5)<<efE4[4]
 	     <<std::setw(9)<<std::setprecision(5)<<efE4[5]<<"        |"
 	     <<std::endl;
+    std::cout<<"|-----------------------------------------------------------------------------------|"
+             <<std::endl;
+    std::cout<<"| DBM region                                                                        |"
+             <<std::endl;
+    std::cout<<"|   0 wrong clusters  "
+             <<std::setw(9)<<std::setprecision(5)<<efD0[0]
+             <<std::setw(9)<<std::setprecision(5)<<efD0[1]
+             <<std::setw(9)<<std::setprecision(5)<<efD0[2]
+             <<std::setw(9)<<std::setprecision(5)<<efD0[3]
+             <<std::setw(9)<<std::setprecision(5)<<efD0[4]
+             <<std::setw(9)<<std::setprecision(5)<<efD0[5]<<"        |"
+             <<std::endl;
+    std::cout<<"|   1 wrong clusters  "
+             <<std::setw(9)<<std::setprecision(5)<<efD1[0]
+             <<std::setw(9)<<std::setprecision(5)<<efD1[1]
+             <<std::setw(9)<<std::setprecision(5)<<efD1[2]
+             <<std::setw(9)<<std::setprecision(5)<<efD1[3]
+             <<std::setw(9)<<std::setprecision(5)<<efD1[4]
+             <<std::setw(9)<<std::setprecision(5)<<efD1[5]<<"        |"
+             <<std::endl;
+    std::cout<<"|   2 wrong clusters  "
+             <<std::setw(9)<<std::setprecision(5)<<efD2[0]
+             <<std::setw(9)<<std::setprecision(5)<<efD2[1]
+             <<std::setw(9)<<std::setprecision(5)<<efD2[2]
+             <<std::setw(9)<<std::setprecision(5)<<efD2[3]
+             <<std::setw(9)<<std::setprecision(5)<<efD2[4]
+             <<std::setw(9)<<std::setprecision(5)<<efD2[5]<<"        |"
+             <<std::endl;
+    std::cout<<"|   3 wrong clusters  "
+             <<std::setw(9)<<std::setprecision(5)<<efD3[0]
+             <<std::setw(9)<<std::setprecision(5)<<efD3[1]
+             <<std::setw(9)<<std::setprecision(5)<<efD3[2]
+             <<std::setw(9)<<std::setprecision(5)<<efD3[3]
+             <<std::setw(9)<<std::setprecision(5)<<efD3[4]
+             <<std::setw(9)<<std::setprecision(5)<<efD3[5]<<"        |"
+             <<std::endl;
+    std::cout<<"| >=4 wrong clusters  "
+             <<std::setw(9)<<std::setprecision(5)<<efD4[0]
+             <<std::setw(9)<<std::setprecision(5)<<efD4[1]
+             <<std::setw(9)<<std::setprecision(5)<<efD4[2]
+             <<std::setw(9)<<std::setprecision(5)<<efD4[3]
+             <<std::setw(9)<<std::setprecision(5)<<efD4[4]
+             <<std::setw(9)<<std::setprecision(5)<<efD4[5]<<"        |"
+             <<std::endl;
+
    std::cout<<"|-----------------------------------------------------------------------------------|"
 	     <<std::endl;
    pa  = double(m_particleClusters[0]);       if(pa < 1.) pa = 1.;
@@ -897,7 +1022,15 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	    <<" ) "
 	    <<"       |"
 	    <<std::endl;
-   
+   pa  = double(m_particleClustersBTE[0][3]);  if(pa < 1.) pa = 1.;
+   std::cout<<"|                             For DBM        region = "
+            <<std::setw(9)<<std::setprecision(5)<<efrecD
+            <<" ("
+            <<std::setw(9)<<std::setprecision(5)<<efrecD*double(m_eventsBTE[3])/pa
+            <<" ) "
+            <<"       |"
+            <<std::endl;
+
    std::cout<<"|-----------------------------------------------------------------------------------|"
 	     <<std::endl;
     std::cout<<"| Reconstructed tracks         +          -    +/-ration    error                   |"
@@ -925,6 +1058,18 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	     <<std::setw(11)<<std::setprecision(5)<<ratio
 	     <<std::setw(11)<<std::setprecision(5)<<eratio<<"                  |"
 	     <<std::endl;
+    pa     = double(m_ntracksNEGDBM[nc]); if(pa < 1.) pa = 1.;
+    ratio  = double(m_ntracksPOSDBM[nc])/pa;
+    eratio = sqrt(ratio*(1.+ratio)/pa);
+
+    std::cout<<"| DBM                  "
+             <<std::setw(10)<<m_ntracksPOSDBM[nc]
+             <<std::setw(11)<<m_ntracksNEGDBM[nc]
+             <<std::setw(11)<<std::setprecision(5)<<ratio
+             <<std::setw(11)<<std::setprecision(5)<<eratio<<"                  |"
+             <<std::endl;
+
+
 
     int nt=0;
     int ft=0;
@@ -1439,17 +1584,20 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
     int q  = charge(*c,rp); 
 
     if     (q<0) {
-
-      if(de->isBarrel()) {
+      if (de->isDBM())
+	++m_nclustersNegDBM;
+      else if(de->isBarrel()) {
 	de->isPixel() ? ++m_nclustersNegBP : ++m_nclustersNegBS; 
       }
       else                                     {
 	de->isPixel() ? ++m_nclustersNegEP : ++m_nclustersNegES; 
       }
+
     }
     else if(q>0) {
-
-      if(de->isBarrel()) {
+      if (de->isDBM())
+	++m_nclustersPosDBM;
+      else if(de->isBarrel()) {
 	de->isPixel() ? ++m_nclustersPosBP : ++m_nclustersPosBS; 
       }
       else                                     {
@@ -1522,11 +1670,13 @@ void InDet::TrackClusterAssValidation::tracksComparison()
 	    double rap = fabs(log(tan(.5*Vp[3])));
 	    if     (pT >  m_ptcut && pT <  m_ptcutmax) {
 	      if     (rap <      1. ) ++m_ntracksPOSB[nc];
-	      else if(rap < m_rapcut) ++m_ntracksPOSE[nc];
+	      else if(rap < 3.0) ++m_ntracksPOSE[nc];
+	      else if(rap < m_rapcut) ++m_ntracksPOSDBM[nc];
 	    }
 	    else if(pT < -m_ptcut && pT > -m_ptcutmax) {
 	      if     (rap <      1. ) ++m_ntracksNEGB[nc];
-	      else if(rap < m_rapcut) ++m_ntracksNEGE[nc];
+              else if(rap < 3.0) ++m_ntracksNEGE[nc];
+	      else if(rap < m_rapcut) ++m_ntracksNEGDBM[nc];
 	    }
 	  }
 	}
@@ -1904,7 +2054,12 @@ int InDet::TrackClusterAssValidation::charge(std::pair<int,const Trk::PrepRawDat
       double pt = sqrt(px*px+py*py)   ;
       double t  = atan2(pt,pz)        ;
       double ra = fabs(log(tan(.5*t)));
-      ra > 1.6 ? rap = 2 : ra > .8 ?  rap = 1 : rap = 0;
+      // DBM
+      if (ra > 3.0)
+	rap = 3;
+      else
+      // other regions
+	ra > 1.6 ? rap = 2 : ra > .8 ?  rap = 1 : rap = 0;
 
       int                         pdg = pat->pdg_id();  
       const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
