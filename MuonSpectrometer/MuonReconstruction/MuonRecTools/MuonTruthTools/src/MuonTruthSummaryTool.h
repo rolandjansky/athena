@@ -47,6 +47,9 @@ namespace Muon {
     /** get the associated barcode for the identifier, return -1 if the channel was not hit by a muon */
     int getBarcode( const Identifier& id );
 
+    /** get the associated pdgId for a given barcode */
+    int getPdgId( int barcode );
+
     /** add identifier */
     void add( const Identifier& id, int level );
 
@@ -82,6 +85,7 @@ namespace Muon {
     std::string m_MM_TruthName;
     std::string m_STGC_TruthName;
 
+    std::map<int,int>                           m_pdgIdLookupFromBarcode;
     std::map<Identifier,int>                    m_truthHits; // map containing truth hits associated with muons, stores barcode as second element
     std::map<int,std::set<Identifier> >         m_truthDataPerLevel;
     mutable std::map<int,unsigned int >         m_lossesPerLevel; // We can get rid of the mutable, once printSummary() isn't const.
@@ -93,6 +97,7 @@ namespace Muon {
     std::string                                 m_treeName;
     std::string                                 m_histStream;
     unsigned int                                m_level;
+    int                                         m_selectedPdgId;
     
     std::vector< unsigned int           >       m_numChambers;
     std::vector< std::vector<uint8_t>*  >       m_numMissedHits; 
