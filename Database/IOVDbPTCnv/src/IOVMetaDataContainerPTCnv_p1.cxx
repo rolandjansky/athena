@@ -9,11 +9,7 @@
  *
  */
 
-#define private public
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
-#undef private
-
-
 #include "IOVDbDataModel/IOVPayloadContainer.h"
 #include "IOVDbPTCnv/IOVMetaDataContainerPTCnv_p1.h"
 #include "IOVDbTPCnv/IOVMetaDataContainer_p1.h"

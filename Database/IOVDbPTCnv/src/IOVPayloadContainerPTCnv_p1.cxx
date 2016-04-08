@@ -10,19 +10,13 @@
  *
  */
 
-#define private public
-#define protected public
 #include "IOVDbDataModel/IOVPayloadContainer.h"
-#undef private
-#undef protected
-
-#include <set>
-
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "IOVDbPTCnv/IOVPayloadContainerPTCnv_p1.h"
 #include "IOVDbTPCnv/IOVPayloadContainer_p1.h"
 #include "CoralBase/Date.h"
 #include "CoralBase/TimeStamp.h"
+#include <set>
 
 IOVPayloadContainerPTCnv_p1::IOVPayloadContainerPTCnv_p1()
 {}

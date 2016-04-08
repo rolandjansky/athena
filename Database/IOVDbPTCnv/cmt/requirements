@@ -9,7 +9,8 @@ use IOVDbDataModel       IOVDbDataModel-*       Database
 use IOVDbTPCnv           IOVDbTPCnv-*           Database
 
 library IOVDbPTCnv  *.cxx
-apply_pattern tpcnv_library
+apply_pattern installed_library
+#apply_pattern tpcnv_library
 
 private
 use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
