@@ -16,15 +16,19 @@ namespace {
 }
 
 
-xAODParticleContainerCnv::xAODParticleContainerCnv(ISvcLocator* svcLoc) : xAODParticleContainerCnvBase(svcLoc) {}
+xAODParticleContainerCnv::xAODParticleContainerCnv(ISvcLocator* svcLoc)
+  : xAODParticleContainerCnvBase(svcLoc)
+{ }
 
 
-xAOD::ParticleContainer* xAODParticleContainerCnv::createPersistent(xAOD::ParticleContainer* trans){
+xAOD::ParticleContainer*
+xAODParticleContainerCnv::createPersistent(xAOD::ParticleContainer* trans){
 
-  xAOD::ParticleContainer* viewContainer = new xAOD::ParticleContainer(trans->begin(),trans->end(), SG::VIEW_ELEMENTS);
+  xAOD::ParticleContainer* viewContainer =
+    new xAOD::ParticleContainer(trans->begin(),trans->end(), SG::VIEW_ELEMENTS);
 
   xAOD::ParticleContainer::iterator firstParticle = viewContainer->begin();
-  xAOD::ParticleContainer::iterator lastParticle = viewContainer->end();
+  xAOD::ParticleContainer::iterator lastParticle  = viewContainer->end();
 
   for (; firstParticle != lastParticle; ++firstParticle) {
     toPersistent(*firstParticle);
@@ -35,7 +39,7 @@ xAOD::ParticleContainer* xAODParticleContainerCnv::createPersistent(xAOD::Partic
 
 
 StatusCode xAODParticleContainerCnv::createObj( IOpaqueAddress* pAddr,
-                                                         DataObject*& pObj ) {
+                                                DataObject*& pObj ) {
 
   // Get the key of the container that we'll be creating:
   m_keyName = *( pAddr->par() + 1 );

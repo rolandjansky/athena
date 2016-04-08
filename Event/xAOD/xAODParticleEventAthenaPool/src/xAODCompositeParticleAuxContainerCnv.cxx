@@ -3,13 +3,15 @@
 */
 
 #include "xAODCompositeParticleAuxContainerCnv.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 xAODCompositeParticleAuxContainerCnv::xAODCompositeParticleAuxContainerCnv(ISvcLocator* svcLoc) : xAODCompositeParticleAuxContainerCnvBase(svcLoc) {}
 
 xAOD::CompositeParticleAuxContainer* xAODCompositeParticleAuxContainerCnv::createPersistent(xAOD::CompositeParticleAuxContainer* trans){
 
-  xAOD::CompositeParticleAuxContainer* container = new xAOD::CompositeParticleAuxContainer(*trans);
-  return container;
+   // Create a copy of the container:
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 

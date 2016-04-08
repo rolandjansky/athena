@@ -7,7 +7,9 @@ use AtlasPolicy 	AtlasPolicy-*
 
 private
 ## for gaudi tools, services and objects
-use GaudiInterface 	GaudiInterface-* 	External
+#use GaudiInterface 	GaudiInterface-* 	External
+use AthContainers       AthContainers-*       Control
+use AthenaKernel        AthenaKernel-*        Control
 
 # POOL package(s):
 use AthenaPoolUtilities   AthenaPoolUtilities-*  Database/AthenaPOOL
