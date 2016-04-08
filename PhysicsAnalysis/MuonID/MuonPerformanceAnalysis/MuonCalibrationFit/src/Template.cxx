@@ -55,6 +55,7 @@ Template::Template( TString name, TString title, int splitting, std::string bkg 
     m_FitInfo[ i ] = new std::vector< Tools::FitInfo* >;
   }
   m_Bkg = bkg;
+  m_AverageWeight = -1.;
   m_EmptyMonitoredPlots = true;
 }
 

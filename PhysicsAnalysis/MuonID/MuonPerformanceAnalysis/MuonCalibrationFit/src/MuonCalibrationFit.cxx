@@ -264,6 +264,7 @@ StatusCode MuonCalibrationFit::execute() {
   g_Output->Close();
   delete InReg;
   delete OutReg;
+  if(InRegForID) { delete InRegForID; InRegForID = NULL; }
   return StatusCode::SUCCESS;
 }
 
