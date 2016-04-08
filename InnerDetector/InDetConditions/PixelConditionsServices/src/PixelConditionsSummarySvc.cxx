@@ -88,7 +88,6 @@ StatusCode PixelConditionsSummarySvc::initialize(){
     msg(MSG::WARNING) << "Could not retrieve IBLParameterSvc" << endreq;
   }
   else {
-    m_IBLParameterSvc->setBoolParameters(m_useDCS,"useDCS");
     m_IBLParameterSvc->setBoolParameters(m_useSpecialPixelMap,"EnableSpecialPixels");
   }
   sc = m_detStore.retrieve();
