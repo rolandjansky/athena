@@ -270,6 +270,7 @@ namespace InDet {
     points.reserve(40);
     double oldphi=0;
 
+
     // loop over the measurements in track segment (tS)
     for(int it=0; it<int(tS.numberOfMeasurementBases()); it++){
 
@@ -399,17 +400,43 @@ namespace InDet {
 
 	// get estimate of parameters
 	double sx=0,sy=0,sxx=0,sxy=0,d=0;
+	float zmin=0, zmax=0;
 	// loop over all points 
 	for (unsigned int i=0;i<points.size();i++) {
 	  sx  += points[i].first;
 	  sy  += points[i].second;
 	  sxy += points[i].first*points[i].second;
 	  sxx += points[i].first*points[i].first;
+	  if (fabs(points[i].first)>fabs(zmax)){
+	    zmax = points[i].first;
+	  }
+	  if (fabs(points[i].first)<fabs(zmin)){
+	    zmin = points[i].first;
+	  }
 	}
+
+	if (fabs(pseudotheta)<1.e-6) {
+	  ATH_MSG_DEBUG("pseudomeasurements missing on the segment?");
+	  const float Rinn= 644., Rout=1004.;
+	  if (zmax*zmin>0.){
+	    pseudotheta = atan2(Rout-Rinn,zmax-zmin);
+	  }
+	  else if (abs(zmax*zmin)<1.e-6){
+	    if (abs(zmax)>1.e-6){
+	      pseudotheta = atan2(Rout, zmax) ;
+	    } else {
+	      ATH_MSG_DEBUG("no points in endcap?");
+	    }
+	  }
+	  else {
+	    pseudotheta = atan2(2.*Rout,zmax-zmin);
+	  }
+	}
+
 	// get q/p
 	d             = (points.size()*sxx-sx*sx);
 	double dphidz = ((points.size()*sxy-sy*sx)/d);
-	myqoverp      = -dphidz/(0.6*tan(pseudotheta));
+	myqoverp      = (fabs(pseudotheta)>1e-6) ? -dphidz/(0.6*tan(pseudotheta)) : 1000.;
 	// std::cout << "pt: " << sin(pseudotheta)/myqoverp << std::endl;    
 
 	// some geometry stuff to estimate further paramters...
