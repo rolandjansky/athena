@@ -4,16 +4,19 @@
 # Verbose level is transmitted to several G4 classes to increase their verbosity.
 # Note that the event number is the number of events into the G4 run, rather than the ATLAS event number.
 
-def verboseSelectorArea_setup():
-    print 'Firing up the verbose selector'
-    from G4AtlasApps import PyG4Atlas, AtlasG4Eng
-    myAction = PyG4Atlas.UserAction('G4UserActions', 'VerboseSelectorArea', ['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
-    myAction.set_Properties( {"Xmin" : "-25000", "Xmax" : "25000",
-                              "Ymin" : "-25000", "Ymax" : "25000",
-                              "Zmin" : "-30000", "Zmax" : "30000",
-                              "targetEvent" : "10",
-                              "verboseLevel" : "1"} )
-    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(myAction)
+from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+from AthenaCommon.CfgGetter import getPublicToolClone,getPublicTool
 
-from G4AtlasApps.SimFlags import simFlags
-simFlags.InitFunctions.add_function("preInitG4", verboseSelectorArea_setup)
+vsArea=getPublicTool('VerboseSelector/VerboseSelectorArea',tryDefaultConfigurable=True)
+
+vsArea.Xmin=-25000
+vsArea.Xmax=25000
+vsArea.Ymin=-25000
+vsArea.Ymax=25000
+vsArea.Zmin=-30000
+vsArea.Zmax=30000
+vsArea.TargetEvent=1
+vsArea.VerboseLevel=1
+
+UAStore.addAction(vsArea,['EndOfEvent','Step'])
+
