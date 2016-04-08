@@ -243,7 +243,7 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
 // ================================================================================
 // ================================================================================
 
-bool TrigmuRoI::reset() {
+HLT::ErrorCode TrigmuRoI::hltEndEvent() {
   m_executed = false;
-  return AllTEAlgo::reset();
+  return HLT::OK;
 }
