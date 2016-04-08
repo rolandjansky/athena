@@ -5,7 +5,10 @@
 #include "AraToolExample/AraToolUsingTool.h"
 #include "assert.h"
 
-AraToolUsingTool::AraToolUsingTool(PropertyMgr *pmgr) : AraToolBase(pmgr) {
+AraToolUsingTool::AraToolUsingTool(PropertyMgr *pmgr)
+  : AraToolBase(pmgr),
+    m_alsoToolAra(nullptr)
+{
   declareProperty("alsoProperty1",m_alsoProperty1=0.5,"doc to alsoProperty1");
   declareProperty("alsoTool",m_alsoTool,"doc to alsoTool");
 }
