@@ -17,13 +17,8 @@ UPDATED:
 
 #include "egammaEvent/egPID.h"
 #include "GaudiKernel/GaudiException.h"
-#ifdef HAVE_NEW_IOSTREAMS
-  #include <iomanip>
-  #include <iostream>
-#else
-  #include <iomanip.h>
-  #include <iostream.h>
-#endif
+#include <iomanip>
+#include <iostream>
 
 //  END OF HEADER FILES INCLUDE
 

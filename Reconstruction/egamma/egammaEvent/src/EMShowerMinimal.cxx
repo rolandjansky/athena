@@ -23,13 +23,8 @@ PURPOSE:  Minimal EM shower property data class, as needed by LVL2.
 // INCLUDE HEADER FILES:
 
 #include "egammaEvent/EMShowerMinimal.h"
-#ifdef HAVE_NEW_IOSTREAMS
-  #include <iomanip>
-  #include <iostream>
-#else
-  #include <iomanip.h>
-  #include <iostream.h>
-#endif
+#include <iomanip>
+#include <iostream>
 
 //  END OF HEADER FILES INCLUDE
 

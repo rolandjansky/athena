@@ -6,13 +6,8 @@
 
 #include "egammaEvent/CaloRingsContainer.h"
 #include "egammaEvent/CaloRings.h"
-#ifdef HAVE_NEW_IOSTREAMS
-  #include <iomanip>
-  #include <iostream>
-#else
-  #include <iomanip.h>
-  #include <iostream.h>
-#endif
+#include <iomanip>
+#include <iostream>
 
 //  END OF HEADER FILES INCLUDE
 

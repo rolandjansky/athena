@@ -15,13 +15,8 @@ PACKAGE:  offline/Reconstruction/egammaEvent
 #include "egammaEvent/egDetailContainer.h"
 #include "egammaEvent/egDetail.h"
 
-#ifdef HAVE_NEW_IOSTREAMS
-  #include <iomanip>
-  #include <iostream>
-#else
-  #include <iomanip.h>
-  #include <iostream.h>
-#endif
+#include <iomanip>
+#include <iostream>
 
 //  END OF HEADER FILES INCLUDE
 
