@@ -15,9 +15,9 @@ namespace MuGirlNS
 {
     struct StauCalibrationParameters
     {
-        double timeShift;
-        double error;
-        StauCalibrationParameters(double in_timeShift = 0, double in_error = 0) :
+        float timeShift;
+        float error;
+        StauCalibrationParameters(float in_timeShift = 0, float in_error = 0) :
                 timeShift(in_timeShift), error(in_error)
         {
         }

@@ -38,7 +38,7 @@ void MuGirlNS::StauCalibration::loadMdtStauCalibration(std::string &calibFileNam
         unsigned int id = 0;
         double mean = 0, sigma = 0;
         const char* cline = line.c_str();
-        sscanf(cline, "%x %lf %lf", &id, &mean, &sigma);
+        sscanf(cline, "%80x %80lf %80lf", &id, &mean, &sigma);
 	m_log<<MSG::DEBUG<<"MDT "<<id<<"  "<<mean<<"  "<<sigma<<endreq;
         StauCalibrationParameters cp(mean, sigma);
         m_calibrationMdt[id] = cp;
@@ -64,7 +64,7 @@ void MuGirlNS::StauCalibration::loadRpcStauCalibration(std::string &calibFileNam
         unsigned int compact_id = 0;
         double mean = 0, sigma = 0;
         const char* cline = line.c_str();
-        sscanf(cline, "%u %lf %lf", &compact_id, &mean, &sigma);
+        sscanf(cline, "%80u %80lf %80lf", &compact_id, &mean, &sigma);
 	m_log<<MSG::DEBUG<<"RPC "<<compact_id<<"  "<<mean<<"  "<<sigma<<endreq;
         StauCalibrationParameters cp(mean, sigma);
         m_calibrationRpc[compact_id] = cp;
@@ -90,7 +90,7 @@ void MuGirlNS::StauCalibration::loadTileStauCalibration(std::string &calibFileNa
         int layer = 0, bin = 0;
         double mean = 0, sigma = 0;
         const char* cline = line.c_str();
-        sscanf(cline, "%d %df %lf %lf", &layer, &bin, &mean, &sigma);
+        sscanf(cline, "%80d %80df %80lf %80lf", &layer, &bin, &mean, &sigma);
 	m_log<<MSG::DEBUG<<"CALO "<<layer<<"  "<<bin<<"  "<<mean<<"  "<<sigma<<endreq;
         StauCalibrationParameters cp(mean, sigma);
         m_calibrationTile[std::make_pair(layer, bin)] = cp;
