@@ -28,13 +28,6 @@ double hth_delta_phi(const float& phi1, const float& phi2){
   return (PHI<=PI)? PHI : TWOPI-PHI;
 }
 
-//Function to check whether eta of TRT hit is acceptable
-bool hth_eta_match(const float& caleta, const float& trteta, const float& etaWindow){
-  bool r=false;
-  if (fabs(caleta)<etaWindow || caleta*trteta>0.) r = true;
-  return r;
-}
-
 //Function to calculate distance for road algorithm
 float dist2COR(float R, float phi1, float phi2){
   float PHI=fabs(phi1-phi2);
@@ -75,7 +68,7 @@ TrigTRTHTHCounter::TrigTRTHTHCounter(const std::string& name, ISvcLocator* pSvcL
     m_wedgeNBin(5)
 {
   
-  declareProperty("TRT_DC_ContainerName", m_trtDCContainerName = "Trig_OfflineDriftCircles" );
+  declareProperty("TRT_DC_ContainerName", m_trtDCContainerName = "TRT_TrigDriftCircles" );
   declareProperty("TrtDataProviderTool",  m_rawDataTool, "TrigTRT_DriftCircleProviderTool");
   declareProperty("EtaHalfWidth",         m_etaHalfWidth); //Used to define subsection of RoI (to retrieve fewer TRT hits)
   declareProperty("PhiHalfWidth",         m_phiHalfWidth); //Used to define subsection of RoI (to retrieve fewer TRT hits)
@@ -154,9 +147,9 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
 
   m_listOfTrtIds.clear();
 
-  float hitInit[5]={0,-999,0,-999,-999};
+  float hitInit[6]={0,-999,0,-999,-999,-999};
   m_trththits.clear();
-  for (int i=0; i<5; i++) {
+  for (int i=0; i<6; i++) {
     m_trththits.push_back(hitInit[i]);
   }
 
@@ -172,10 +165,22 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
   std::vector<TRT_hit> hit;
 
   const TrigRoiDescriptor* roi = 0;
-  HLT::ErrorCode stat = getFeature( inputTE, roi, "initialRoI");
+  HLT::ErrorCode stat = getFeature( inputTE, roi); //used to be initialRoI, data preparation done in the most recent RoI - use it as well
   if (stat!=HLT::OK || roi==0){
     return HLT::NAV_ERROR;
   }
+ 
+  //Sanity check of the ROI size
+  double deltaEta=fabs(roi->etaPlus()-roi->etaMinus());
+  double deltaPhi=hth_delta_phi(roi->phiPlus(),roi->phiMinus());
+  float phiTolerance = 0.001;
+  float etaTolerance = 0.001;
+
+  if((m_etaHalfWidth - deltaEta/2.) > etaTolerance)
+    ATH_MSG_WARNING ( "ROI eta range too small : " << deltaEta);
+
+  if((m_phiHalfWidth - deltaPhi/2.) > phiTolerance)
+    ATH_MSG_WARNING ( "ROI phi range too small : " << deltaPhi);
 
   float coarseWedgeHalfWidth = m_phiHalfWidth/m_nBinCoarse;
   float fineWedgeHalfWidth = coarseWedgeHalfWidth/m_nBinFine;
@@ -191,22 +196,6 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
 
   //Code will only proceed if the RoI eta is not too large; used to limit rate from endcap
   if ( fabs(roi->eta())<=m_maxCaloEta ){
-
-    float phi=roi->phi();
-    float phimin=roi->phi()-m_phiHalfWidth;
-    float phimax=roi->phi()+m_phiHalfWidth;
-    if (phimin<-PI) phimin+=2.*PI; if (phimin>PI) phimin-=2.*PI;
-    if (phimax<-PI) phimax+=2.*PI; if (phimax>PI) phimax-=2.*PI;
-
-    //Define a smaller RoI for which TRT hits will be retrieved 
-    TrigRoiDescriptor tmproi(roi->eta(), roi->eta()-m_etaHalfWidth, roi->eta()+m_etaHalfWidth,
-			     phi, phimin, phimax);
-
-    StatusCode sc_fc = m_rawDataTool->fillCollections(tmproi);
-
-    if (sc_fc.isFailure()){
-      ATH_MSG_WARNING ( "Failed to prepare TRTDriftCircle collection");
-    }
 
     const InDet::TRT_DriftCircleContainer* driftCircleContainer = nullptr;
     StatusCode sc_sg = evtStore()->retrieve( driftCircleContainer, m_trtDCContainerName) ;
@@ -240,8 +229,8 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
 
         if ((*trtItr)->highLevel()) hth = true;
 	
-	//if the hit is close in eta to the RoI, it needs to be stored
-        if(hth_eta_match(roi->eta(), heta, m_etaHalfWidth)) hit.push_back(make_hit(hphi,R,hth));
+	//hit needs to be stored
+        hit.push_back(make_hit(hphi,R,hth));
 
 	//First, define coarse wedges in phi, and count the TRT hits in these wedges
         int countbin=0;	
@@ -250,7 +239,7 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
 	  float endValue = roi->phi() + m_phiHalfWidth;
 	  float increment = 2*coarseWedgeHalfWidth;
           for(float roibincenter = startValue; roibincenter < endValue; roibincenter += increment){
-            if (hth_delta_phi(hphi,roibincenter)<=coarseWedgeHalfWidth && hth_eta_match(roi->eta(), heta, m_etaHalfWidth)) {
+            if (hth_delta_phi(hphi,roibincenter)<=coarseWedgeHalfWidth) {
 	      if(hth) count_httrt_c.at(countbin) += 1.;
 	      count_tottrt_c.at(countbin) += 1.;
 	      break; //the hit has been assigned to one of the coarse wedges, so no need to continue the for loop							
@@ -353,6 +342,7 @@ HLT::ErrorCode TrigTRTHTHCounter::hltExecute(const HLT::TriggerElement* inputTE,
   }
 
   m_trththits[4]=roi->eta();
+  m_trththits[5]=roi->phi();
 
   ATH_MSG_VERBOSE ( "trthits with road algorithm : " << m_trththits[0]);
   ATH_MSG_VERBOSE ( "fHT with road algorithm : " << m_trththits[1]);
