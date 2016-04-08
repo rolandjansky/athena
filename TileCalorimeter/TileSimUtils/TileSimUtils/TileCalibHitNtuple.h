@@ -33,60 +33,50 @@
 #include <inttypes.h>
 
 /**
- @class TileCalibHitNtuple
- @brief This class creates ntuple with calibration hits info
- */
+@class TileCalibHitNtuple
+@brief This class creates ntuple with calibration hits info
+*/
 class TileCalibHitNtuple: public AthAlgTool {
 
-  public:
-    TileCalibHitNtuple(const std::string& type, const std::string& name, const IInterface* parent); //!< Constructor
+public:
+  TileCalibHitNtuple(const std::string& type, const std::string& name, const IInterface* parent); //!< Constructor
 
-    virtual ~TileCalibHitNtuple(); //!< Destructor
+  virtual ~TileCalibHitNtuple(); //!< Destructor
 
-    virtual StatusCode initialize();  //!< intialize method
-    virtual StatusCode finalize();    //!< finalize method
+  virtual StatusCode initialize();  //!< intialize method
+  virtual StatusCode finalize();    //!< finalize method
+  
+  static const InterfaceID& interfaceID( ) ; //!< AlgTool InterfaceID
+  
+  void storeHit(int det, int mod, int tow, int samp, int reg,
+                int calc, int evt, float x, float y, float z, float e);
 
-    static const InterfaceID& interfaceID(); //!< AlgTool InterfaceID
+private:
 
-    void storeHit(int det, int mod, int tow, int samp, int reg, int calc, int evt, float x, float y, float z, float e,
-                  const char *volume = 0, int pid = 0, float ekine = 0., float xLocal = 0., float yLocal = 0.,
-                  float zLocal = 0., float phiLocal = 0.);
+  // handle to THistSvc
+  ServiceHandle<ITHistSvc>   m_thistSvc;
 
-  private:
+  // NTuple parameters
+  std::string m_streamName;
+  std::string m_ntupleID;
+  int64_t m_treeSize;
 
-    // handle to THistSvc
-    ServiceHandle<ITHistSvc> m_thistSvc;
+  // The ntuple
+  TTree* m_ntuplePtr;
 
-    // NTuple parameters
-    std::string m_streamName;
-    std::string m_ntupleID;
-    int64_t m_treeSize;
+  // ntuple variables
+  short m_det ;
+  short m_mod ;
+  short m_tow ;
+  short m_samp;
+  short m_reg;
+  short m_calc;
+  short m_evt;
+  float m_xPos;
+  float m_yPos;
+  float m_zPos;
+  float m_ener;
 
-    // The ntuple
-    TTree* m_ntuplePtr;
-
-    int m_level;
-
-    // ntuple variables
-    short m_det;
-    short m_mod;
-    short m_tow;
-    short m_samp;
-    short m_reg;
-    short m_calc;
-    short m_evt;
-    float m_xPos;
-    float m_yPos;
-    float m_zPos;
-    float m_ener;
-    char m_volume[100];
-    short m_pid;
-    float m_ekine;
-    float m_xLocal;
-    float m_yLocal;
-    float m_zLocal;
-    float m_phiLocal;
-    
 };
 
 #endif

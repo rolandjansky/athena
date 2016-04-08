@@ -14,8 +14,8 @@
 //
 //////////////////////////////////////////////////////////
 
-#ifndef TILESIMUTILS_TILEG4SIMOPTIONS_H
-#define TILESIMUTILS_TILEG4SIMOPTIONS_H
+#ifndef _TileG4SimOptions_h_
+#define _TileG4SimOptions_h_
 
 #include <string>
 #include <vector>
@@ -116,5 +116,5 @@ private:
 CLASS_DEF(TileG4SimOptions, 2912, 1)
 #endif
 
-#endif // TILESIMUTILS_TILEG4SIMOPTIONS_H
+#endif
 
