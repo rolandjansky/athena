@@ -36,140 +36,141 @@ public:
 
           
 
-  /** N 0) <b>Neutral parameters method </b>
-      - returns a ParametersBase object as well, 0 if the extrapolation did not succeed
-  */
-  /// implemented
-  const NeutralParameters* propagate(const NeutralParameters&,
-				     const Surface&,
-				     PropDirection,
-				     BoundaryCheck,
-				     bool) const;
-
-  /** [TrackParameters] --------------------------------------------------------- */
-
-  /** Propagation interface:
-    
-    The propagation method called by the TrkExtrapolator. The extrapolator
-    is responsible for the underlying logic of which surface to go to.
+    /** N 0) <b>Neutral parameters method </b>
+	- returns a ParametersBase object as well, 0 if the extrapolation did not succeed
     */
-  /// implemented
-  const TrackParameters*      propagate( const TrackParameters& parm,
-					 const Surface& sf,
-					 PropDirection dir,
-					 BoundaryCheck bcheck,
-					 const MagneticFieldProperties& mprop,
-					 ParticleHypothesis particle,
-					 bool returnCurv,
-					 const TrackingVolume*) const;
+    /// implemented
+    const NeutralParameters* propagate(const NeutralParameters&,
+				       const Surface&,
+				       PropDirection,
+				       BoundaryCheck,
+				       bool) const;
+
+    /** [TrackParameters] --------------------------------------------------------- */
+
+    /** Propagation interface:
+    
+	The propagation method called by the TrkExtrapolator. The extrapolator
+	is responsible for the underlying logic of which surface to go to.
+    */
+    /// implemented
+    const TrackParameters*      propagate( const TrackParameters& parm,
+					   const Surface& sf,
+					   PropDirection dir,
+					   BoundaryCheck bcheck,
+					   const MagneticFieldProperties& mprop,
+					   ParticleHypothesis particle,
+					   bool returnCurv,
+					   const TrackingVolume*) const;
   
 
-  /** Propagation interface:
+    /** Propagation interface:
     
-    The propagation method called by the TrkExtrapolator. The propagator
-    finds the closest surface.
+	The propagation method called by the TrkExtrapolator. The propagator
+	finds the closest surface.
     */
-  const TrackParameters* propagate( const TrackParameters&,
-				    std::vector<DestSurf>&,
-				    PropDirection,
-				    const MagneticFieldProperties&,
-				    ParticleHypothesis,
-				    std::vector<unsigned int>&,
-				    double&,
-				    bool,
-				    bool,
-				    const TrackingVolume*) const { return 0; }
+    const TrackParameters* propagate( const TrackParameters&,
+				      std::vector<DestSurf>&,
+				      PropDirection,
+				      const MagneticFieldProperties&,
+				      ParticleHypothesis,
+				      std::vector<unsigned int>&,
+				      double&,
+				      bool,
+				      bool,
+				      const TrackingVolume*) const { return 0; }
   
-  /** Propagation interface:
+    /** Propagation interface:
     
-    The propagation method called by the TrkExtrapolator. The propagator
-    finds the closest surface. Timing included.
+	The propagation method called by the TrkExtrapolator. The propagator
+	finds the closest surface. Timing included.
     */
-  const TrackParameters* propagateT( const TrackParameters&,
-				     std::vector<DestSurf>&,
-				     PropDirection,
-				     const MagneticFieldProperties&,
-				     ParticleHypothesis,
-				     std::vector<unsigned int>&,
-				     PathLimit&, TimeLimit&,
-				     bool,
-				     const TrackingVolume*) const { return 0; }
+    const TrackParameters* propagateT( const TrackParameters&,
+				       std::vector<DestSurf>&,
+				       PropDirection,
+				       const MagneticFieldProperties&,
+				       ParticleHypothesis,
+				       std::vector<unsigned int>&,
+				       PathLimit&, TimeLimit&,
+				       bool,
+				       const TrackingVolume*,
+				       std::vector<Trk::HitInfo>*&) const { return 0; }
     
 
-  /** Propagation interface:
+    /** Propagation interface:
     
-    The propagation method including the return of the TransportJacobian matrix.
+	The propagation method including the return of the TransportJacobian matrix.
 
     */
-  /// implemented
-  const TrackParameters*      propagate( const TrackParameters&,
-					 const Surface&,
-					 PropDirection,
-					 BoundaryCheck,
-					 const MagneticFieldProperties&,
-					 TransportJacobian*&,
-                     double&,
-					 ParticleHypothesis,
-					 bool,
-					 const TrackingVolume*) const;
+    /// implemented
+    const TrackParameters*      propagate( const TrackParameters&,
+					   const Surface&,
+					   PropDirection,
+					   BoundaryCheck,
+					   const MagneticFieldProperties&,
+					   TransportJacobian*&,
+					   double&,
+					   ParticleHypothesis,
+					   bool,
+					   const TrackingVolume*) const;
   
 
-  /** Propagation interface without Covariance matrix propagation
-    the pathlength has to be returned for eventual following propagateCovariance
+    /** Propagation interface without Covariance matrix propagation
+	the pathlength has to be returned for eventual following propagateCovariance
     */
-  /// implemented
-  const TrackParameters*      propagateParameters( const TrackParameters& parm,
-						   const Surface& sf,
-						   PropDirection dir,
-						   BoundaryCheck bcheck,
-						   const MagneticFieldProperties& mprop,
-						   ParticleHypothesis particle=pion,
-						   bool returnCurv = false,
-						   const TrackingVolume* tVol=0) const;
+    /// implemented
+    const TrackParameters*      propagateParameters( const TrackParameters& parm,
+						     const Surface& sf,
+						     PropDirection dir,
+						     BoundaryCheck bcheck,
+						     const MagneticFieldProperties& mprop,
+						     ParticleHypothesis particle=pion,
+						     bool returnCurv = false,
+						     const TrackingVolume* tVol=0) const;
   
-  /// implemented
-  const TrackParameters*      propagateParameters( const TrackParameters& parm,
-						   const Surface& sf,
-						   PropDirection dir,
-						   BoundaryCheck bcheck,
-						   const MagneticFieldProperties& mprop,
-						   TransportJacobian*&,
-						   ParticleHypothesis particle=pion,
-						   bool returnCurv = false,
-						   const TrackingVolume* tVol=0) const;
+    /// implemented
+    const TrackParameters*      propagateParameters( const TrackParameters& parm,
+						     const Surface& sf,
+						     PropDirection dir,
+						     BoundaryCheck bcheck,
+						     const MagneticFieldProperties& mprop,
+						     TransportJacobian*&,
+						     ParticleHypothesis particle=pion,
+						     bool returnCurv = false,
+						     const TrackingVolume* tVol=0) const;
   
 
-  /** Intersection interface:
+    /** Intersection interface:
     
-     The intersection interface might be used by the material service as well to estimate
-     the surfaces (sensitive and nonesensitive) while propagation
+	The intersection interface might be used by the material service as well to estimate
+	the surfaces (sensitive and nonesensitive) while propagation
     */
-  const IntersectionSolution* intersect( const TrackParameters& parm,
-					 const Surface& sf,
-					 const MagneticFieldProperties& mprop,
-					 ParticleHypothesis particle=pion,
-					 const TrackingVolume* tVol=0) const;
+    const IntersectionSolution* intersect( const TrackParameters& parm,
+					   const Surface& sf,
+					   const MagneticFieldProperties& mprop,
+					   ParticleHypothesis particle=pion,
+					   const TrackingVolume* tVol=0) const;
                                                 
- /** GlobalPositions list interface:
-    This is used mostly in pattern recognition in the road finder, the propagation direction is intrinsically given
-    by the sign of the stepSize.
+    /** GlobalPositions list interface:
+	This is used mostly in pattern recognition in the road finder, the propagation direction is intrinsically given
+	by the sign of the stepSize.
     
-    To avoid memory fragmentation in multiple use of pattern recognition processes and respecting the possible iterative
-    filling of the positions list, the list of GlobalPositions is given by reference through the signature and a void
-    method has been chosen.
+	To avoid memory fragmentation in multiple use of pattern recognition processes and respecting the possible iterative
+	filling of the positions list, the list of GlobalPositions is given by reference through the signature and a void
+	method has been chosen.
     */
-  void globalPositions(std::list<Amg::Vector3D>& positionslist, 
-		       const TrackParameters& parm,
-		       const MagneticFieldProperties& mprop,
-		       const CylinderBounds& cylbo,
-		       double stepSize,
-		       ParticleHypothesis particle=pion,
-		       const TrackingVolume* tVol=0) const;
+    void globalPositions(std::list<Amg::Vector3D>& positionslist, 
+			 const TrackParameters& parm,
+			 const MagneticFieldProperties& mprop,
+			 const CylinderBounds& cylbo,
+			 double stepSize,
+			 ParticleHypothesis particle=pion,
+			 const TrackingVolume* tVol=0) const;
 
 
-/** Validation Action:
-     Can be implemented optionally, outside access to internal validation steps */
-  void validationAction() const {}
+    /** Validation Action:
+	Can be implemented optionally, outside access to internal validation steps */
+    void validationAction() const {}
 
     
 

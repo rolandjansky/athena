@@ -9,7 +9,7 @@
 
 #include <cmath>
 #include <iomanip>
-#include "GaudiKernel/SystemOfUnits.h"
+#include "TrkDetDescrUtils/Intersection.h"
 #include "TrkExRungeKuttaIntersector/RungeKuttaIntersector.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/CylinderSurface.h"
@@ -18,8 +18,6 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/Surface.h"
-#include "TrkDetDescrUtils/Intersection.h"
-
 
 namespace Trk
 {
@@ -46,6 +44,7 @@ RungeKuttaIntersector::RungeKuttaIntersector (const std::string&	type,
 	m_inDetZ1		(420.*Gaudi::Units::mm),	// start of well behaved transition region
 	m_inDetZ2		(700.*Gaudi::Units::mm),	// start of endcap region
 	m_momentumThreshold	(1./20.*Gaudi::Units::MeV),	// protection against loopers
+	m_momentumWarnThreshold	(1./450.*Gaudi::Units::MeV),	// warning threshold for intersection failure
 	m_muonR0		(4300.*Gaudi::Units::mm),	// inner radius of barrel toroid region
 	m_muonZ0		(6600.*Gaudi::Units::mm),	// start of endcap toroid region
 	m_shortStepMax		(3.0*Gaudi::Units::mm),
@@ -158,6 +157,7 @@ RungeKuttaIntersector::intersectSurface(const Surface&		surface,
     if (std::abs(qOverP) > m_momentumThreshold)
     {
 	ATH_MSG_DEBUG(" trapped as below momentum threshold" );
+	m_intersectionNumber = 0;
 	return 0;
     }
     const PlaneSurface* plane			= dynamic_cast<const PlaneSurface*>(&surface);
@@ -182,18 +182,18 @@ RungeKuttaIntersector::intersectSurface(const Surface&		surface,
                                     
 /**IIntersector interface method for specific Surface type : PerigeeSurface */
 const Trk::TrackSurfaceIntersection*
-RungeKuttaIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
+RungeKuttaIntersector::approachPerigeeSurface(const PerigeeSurface&		surface,
 					      const TrackSurfaceIntersection*	trackIntersection,
-					      const double      	qOverP)
+					      const double			qOverP)
 {
     // set member data
     setCache(trackIntersection, qOverP);
 
     // straight line distance along track to closest approach to line
-    const Amg::Vector3D& lineDirection = (surface.transform().rotation()).col(2);
+    const Amg::Vector3D& lineDirection	= (surface.transform().rotation()).col(2);
     distanceToLine (surface.center(),lineDirection);
-    m_maxSteps		= m_countStep + m_stepsUntilTrapped;
-    m_previousDistance	= 1.1*m_distance;
+    m_maxSteps				= m_countStep + m_stepsUntilTrapped;
+    m_previousDistance			= 1.1*m_distance;
 
     // integration loop (step)
     while (m_distance > m_shortStepMax && notTrapped())
@@ -203,38 +203,33 @@ RungeKuttaIntersector::approachPerigeeSurface(const PerigeeSurface&	surface,
 	distanceToLine (surface.center(),lineDirection);
     }
 
-    // if intersection OK: make short final step assuming constant field
-    if (m_trapped)
+    // if intersection OK: make short final step to surface - assuming constant field
+    if (! m_trapped)
     {
-	m_intersectionNumber = 0;
-	return 0;
+	if (m_distance > m_shortStepMin)	shortStep();
+	return newIntersection(surface);
     }
-    if (m_distance > m_shortStepMin) shortStep();
 
-    // ensure intersection is valid (ie. on surface)
-    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
-    if (! SLIntersect.valid)		return 0;
-    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
-							   m_direction,
-							   m_pathLength);
-    m_intersectionNumber		= intersection->serialNumber();
-    return intersection;
+    // trapped: ensure cache reset
+    m_intersectionNumber = 0;
+    if (msgLvl(MSG::DEBUG))			debugFailure (surface);
+    return 0;
 }
 	
 /**IIntersector interface method for specific Surface type : StraightLineSurface */
 const Trk::TrackSurfaceIntersection*
-RungeKuttaIntersector::approachStraightLineSurface(const StraightLineSurface&	surface,
-						   const TrackSurfaceIntersection*		trackIntersection,
-						   const double      		qOverP)
+RungeKuttaIntersector::approachStraightLineSurface(const StraightLineSurface&		surface,
+						   const TrackSurfaceIntersection*	trackIntersection,
+						   const double      			qOverP)
 {
     // set member data
     setCache(trackIntersection, qOverP);
 
     // straight line distance along track to closest approach to line
-    const Amg::Vector3D& lineDirection = (surface.transform().rotation()).col(2);
+    const Amg::Vector3D& lineDirection	= (surface.transform().rotation()).col(2);
     distanceToLine (surface.center(),lineDirection);
-    m_maxSteps		= m_countStep + m_stepsUntilTrapped;
-    m_previousDistance	= 1.1*m_distance;
+    m_maxSteps				= m_countStep + m_stepsUntilTrapped;
+    m_previousDistance			= 1.1*m_distance;
 
     // integration loop (step)
     while (m_distance > m_shortStepMax && notTrapped())
@@ -245,28 +240,23 @@ RungeKuttaIntersector::approachStraightLineSurface(const StraightLineSurface&	su
     }
 
     // if intersection OK: make short final step assuming constant field
-    if (m_trapped)
+    if (! m_trapped)
     {
-	m_intersectionNumber = 0;
-	return 0;
+	if (m_distance > m_shortStepMin)	shortStep();
+	return newIntersection(surface);
     }
-    if (m_distance > m_shortStepMin) shortStep();
-    
-    // ensure intersection is valid (ie. on surface)
-    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
-    if (! SLIntersect.valid)		return 0;
-    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
-							   m_direction,
-							   m_pathLength);
-    m_intersectionNumber		= intersection->serialNumber();
-    return intersection;
+
+    // trapped: ensure cache reset
+    m_intersectionNumber = 0;
+    if (msgLvl(MSG::DEBUG))			debugFailure (surface);
+    return 0;
 }
             
 /**IIntersector interface method for specific Surface type : CylinderSurface */
 const Trk::TrackSurfaceIntersection*
-RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&	surface,
+RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&			surface,
 						 const TrackSurfaceIntersection*	trackIntersection,
-						 const double      	qOverP)
+						 const double				qOverP)
 {
     // set member data
     setCache(trackIntersection, qOverP);
@@ -299,33 +289,31 @@ RungeKuttaIntersector::intersectCylinderSurface (const CylinderSurface&	surface,
 	m_distance	= std::abs(m_stepLength);
     }
 
-    // fail if trapped
-    if (std::abs(cylinderRadius - rCurrent) > m_shortStepMax) m_trapped = true;
-    if (m_trapped)
+    // if intersection OK: make short final step assuming constant field
+    if (! m_trapped
+	&& std::abs(cylinderRadius - rCurrent) < m_shortStepMax)
     {
-	m_intersectionNumber = 0;
-	return 0;
-    }	
+	distanceToCylinder (cylinderRadius,rCurrent,offset);	
+	// protect against divergence (looping)
+	if (m_distance < m_shortStepMax)
+	{
+	    if (m_distance > m_shortStepMin) shortStep();
+	    return newIntersection(surface);
+	}
+    }
 
-    // short final step assumes constant field
-    distanceToCylinder (cylinderRadius,rCurrent,offset);
-    if (m_distance > m_shortStepMin) shortStep();
-    
-    // ensure intersection is valid (ie. on surface)
-    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
-    if (! SLIntersect.valid)		return 0;
-    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
-							   m_direction,
-							   m_pathLength);
-    m_intersectionNumber		= intersection->serialNumber();
-    return intersection;
+    // trapped: ensure cache reset
+    m_trapped			= true;
+    m_intersectionNumber	= 0;
+    if (msgLvl(MSG::DEBUG))	debugFailure (surface);
+    return 0;
 }
 
 /**IIntersector interface method for specific Surface type : DiscSurface */
 const Trk::TrackSurfaceIntersection*
-RungeKuttaIntersector::intersectDiscSurface (const DiscSurface&		surface,
+RungeKuttaIntersector::intersectDiscSurface (const DiscSurface&			surface,
 					     const TrackSurfaceIntersection*	trackIntersection,
-					     const double      		qOverP)
+					     const double			qOverP)
 {
     setCache(trackIntersection, qOverP);
 
@@ -343,28 +331,23 @@ RungeKuttaIntersector::intersectDiscSurface (const DiscSurface&		surface,
     }
 
     // if intersection OK: make short final step assuming constant field
-    if (m_trapped)
+    if (! m_trapped)
     {
-	m_intersectionNumber = 0;
-	return 0;
-    }	
-    if (std::abs(m_stepLength) > m_shortStepMin) shortStep();
-        
-    // ensure intersection is valid (ie. on surface)
-    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
-    if (! SLIntersect.valid)		return 0;
-    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
-							   m_direction,
-							   m_pathLength);
-    m_intersectionNumber		= intersection->serialNumber();
-    return intersection;
+	if (std::abs(m_stepLength) > m_shortStepMin)	shortStep();
+	return newIntersection(surface);
+    }
+
+    // trapped: ensure cache reset
+    m_intersectionNumber = 0;
+    if (msgLvl(MSG::DEBUG))				debugFailure (surface);
+    return 0;
 }
 
 /**IIntersector interface method for specific Surface type : PlaneSurface */
 const Trk::TrackSurfaceIntersection*
-RungeKuttaIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
+RungeKuttaIntersector::intersectPlaneSurface(const PlaneSurface&		surface,
 					     const TrackSurfaceIntersection*	trackIntersection,
-					     const double      		qOverP)
+					     const double			qOverP)
 {
     // set member data
     setCache(trackIntersection, qOverP);
@@ -383,21 +366,16 @@ RungeKuttaIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
     }
 
     // if intersection OK: make short final step assuming constant field
-    if (m_trapped)
+    if (! m_trapped)
     {
-	m_intersectionNumber = 0;
-	return 0;
-    }	
-    if (m_distance > m_shortStepMin) shortStep();
-    
-    // ensure intersection is valid (ie. on surface)
-    Intersection SLIntersect	= surface.straightLineIntersection(m_position, m_direction, false, false);
-    if (! SLIntersect.valid)		return 0;
-    const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
-							   m_direction,
-							   m_pathLength);
-    m_intersectionNumber		= intersection->serialNumber();
-    return intersection;
+	if (m_distance > m_shortStepMin)	shortStep();
+	return newIntersection(surface);
+    }
+
+    // trapped: ensure cache reset
+    m_intersectionNumber = 0;
+    if (msgLvl(MSG::DEBUG))			debugFailure (surface);
+    return 0;
 }
 
 
@@ -651,6 +629,94 @@ RungeKuttaIntersector::assignStepLength (void)
     {
 	m_stepLength = -stepMax;
     }
+}
+
+void
+RungeKuttaIntersector::debugFailure (const Surface& surface)
+{
+    // forget low momentum (prone to looping...)
+    if (std::abs(m_qOverP) > m_momentumWarnThreshold)	return;
+
+    double pt	= 1.E+8;
+    if (m_qOverP != 0.) pt = m_sinTheta/(m_qOverP*Gaudi::Units::GeV);
+    
+    MsgStream log(msgSvc(), name());
+    if (m_rCurrent > m_rStart)
+    {
+	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right)
+	    << " fail to intersect surface when extrapolating outwards from R,Z"
+	    << std::setw(8) << std::setprecision(1) << m_rStart << ","
+	    << std::setw(7) << std::setprecision(0) << m_zStart << " mm, with pt"
+	    << std::setw(7) << std::setprecision(2) << pt << " GeV, direction eta"
+	    << std::setw(5) << std::setprecision(2) << m_direction.eta();
+    }
+    else
+    {
+	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right)
+	    << " fail to intersect surface when extrapolating inwards from R,Z"
+	    << std::setw(8) << std::setprecision(1) << m_rStart << ","
+	    << std::setw(7) << std::setprecision(0) << m_zStart << " mm, with pt"
+	    << std::setw(7) << std::setprecision(2) << pt << " GeV, direction eta"
+	    << std::setw(5) << std::setprecision(2) << m_direction.eta();
+    }
+    // if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
+    log << MSG::DEBUG << endreq;
+    
+    if (dynamic_cast<const PlaneSurface*>(&surface))
+    {
+	distanceToPlane (surface.center(),surface.normal());
+	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right) << "   PlaneSurface"
+	    << " at R,Z" << std::setw(8) << std::setprecision(1) << surface.center().perp() << ","
+	    << std::setw(7) << std::setprecision(0) << surface.center().z()
+	    << "  at line distance " << std::setw(9) << std::setprecision(1) << m_stepLength;
+	// if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
+	log << MSG::DEBUG << endreq;
+    }
+    else if (dynamic_cast<const CylinderSurface*>(&surface))
+    {
+	double cylinderRadius	= (surface.globalReferencePoint() - surface.center()).perp();
+	Amg::Vector3D offset	= surface.center() - m_position;
+	double rCurrent		= offset.perp();
+	distanceToCylinder (cylinderRadius,rCurrent,offset);
+	if (m_distance < m_shortStepMin)
+	{
+	    log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right)
+		<< "  closest approach to CylinderSurface at radius "
+		<< std::setw(9) << std::setprecision(4) << rCurrent
+		<< " mm.  Cylinder radius " << std::setw(9) << std::setprecision(4) << cylinderRadius << " mm"
+		<< endreq;
+	}
+	else
+	{
+	    log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right) << "  CylinderSurface"
+		<< "  radius " << std::setw(6) << std::setprecision(1) << cylinderRadius
+		<< "  rCurrent " << std::setw(6) << std::setprecision(1) << rCurrent
+		<< "  distance " << std::setw(6) << std::setprecision(1) << m_stepLength;
+	    if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
+	    log << MSG::DEBUG << endreq;
+	}
+    }
+    else if (dynamic_cast<const DiscSurface*>(&surface))
+    {	
+	distanceToDisc (surface.center().z());
+	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right) << "   DiscSurface"
+	    << " at R,Z" << std::setw(8) << std::setprecision(1) << surface.center().perp() << ","
+	    << std::setw(7) << std::setprecision(0) << surface.center().z()
+	    << "  at line distance " << std::setw(9) << std::setprecision(1) << m_stepLength;
+	if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
+	log << MSG::DEBUG << endreq;
+    }
+    else if (dynamic_cast<const PerigeeSurface*>(&surface))
+    {
+	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right) << "   PerigeeSurface  "
+	    << endreq;
+    }
+    else if (dynamic_cast<const StraightLineSurface*>(&surface))
+    {
+	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right) << "   StraightLineSurface  "
+	    << endreq;
+    }
+    log << MSG::DEBUG << endreq;
 }
 
 bool
