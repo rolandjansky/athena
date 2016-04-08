@@ -6,10 +6,7 @@
 /// Convert the sl truth info
 ///
 
-#define private public
 #include "JetTagInfo/SLTrueInfo.h"
-#undef private
-
 #include "JetTagInfoTPCnv/SLTrueInfoCnv_p1.h"
 
 namespace Analysis {
@@ -18,14 +15,14 @@ namespace Analysis {
 				       SLTrueInfo_p1 *persObj,
 				       MsgStream &)
   {
-    persObj->m_barcode = transObj->m_barcode;
-    persObj->m_pdgCode = transObj->m_pdgCode;
-    persObj->m_pdgCodeMother = transObj->m_pdgCodeMother;
-    persObj->m_isFromBhadron = transObj->m_isFromBhadron;
-    persObj->m_isFromDhadron = transObj->m_isFromDhadron;
-    persObj->m_isFromGHboson = transObj->m_isFromGHboson;
-    persObj->m_Momentum = transObj->m_Momentum;
-    persObj->m_ProductionVertex = transObj->m_ProductionVertex;
+    persObj->m_barcode = transObj->barcode();
+    persObj->m_pdgCode = transObj->pdgId();
+    persObj->m_pdgCodeMother = transObj->pdgIdMother();
+    persObj->m_isFromBhadron = transObj->FromB();
+    persObj->m_isFromDhadron = transObj->FromD();
+    persObj->m_isFromGHboson = transObj->FromGH();
+    persObj->m_Momentum = transObj->momentum();
+    persObj->m_ProductionVertex = transObj->prodvtx();
   }
 
   void SLTrueInfoCnv_p1::persToTrans (const SLTrueInfo_p1 *persObj,
@@ -33,13 +30,13 @@ namespace Analysis {
 				       MsgStream &)
   {
 
-    transObj->m_barcode = persObj->m_barcode;
-    transObj->m_pdgCode = persObj->m_pdgCode;
-    transObj->m_pdgCodeMother = persObj->m_pdgCodeMother;
-    transObj->m_isFromBhadron = persObj->m_isFromBhadron;
-    transObj->m_isFromDhadron = persObj->m_isFromDhadron;
-    transObj->m_isFromGHboson = persObj->m_isFromGHboson;
-    transObj->m_Momentum = persObj->m_Momentum;
-    transObj->m_ProductionVertex = persObj->m_ProductionVertex;
+    *transObj = SLTrueInfo (persObj->m_barcode,
+                            persObj->m_pdgCode,
+                            persObj->m_pdgCodeMother,
+                            persObj->m_isFromBhadron,
+                            persObj->m_isFromDhadron,
+                            persObj->m_isFromGHboson,
+                            persObj->m_Momentum,
+                            persObj->m_ProductionVertex);
   }
 }

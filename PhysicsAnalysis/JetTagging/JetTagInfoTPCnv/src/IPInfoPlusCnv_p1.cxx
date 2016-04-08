@@ -5,9 +5,7 @@
 ///
 /// Code to fluf and compress the ip info plus data.
 
-#define private public
 #include "JetTagInfo/IPInfoPlus.h"
-#undef private
 #include "JetTagInfoTPCnv/IPInfoPlusCnv_p1.h"
 #include "JetTagInfoTPCnv/BaseTagInfoCnv_p1.h"
 
@@ -27,19 +25,23 @@ namespace Analysis {
 				     msg);
 #endif
 
+    size_t sz = pa->numTrackInfo();
     pb->m_trackinfo.clear();
-    pb->m_trackinfo.reserve(pa->m_trackinfo.size());
-    for (vector<IPTrackInfo>::const_iterator itr = pa->m_trackinfo.begin();
-	 itr != pa->m_trackinfo.end();
-	 itr ++) {
-      pb->m_trackinfo.push_back(toPersistent(&m_trackInfoCnv, &(*itr), msg));
+    pb->m_trackinfo.reserve(sz);
+    for (size_t i = 0; i < sz; i++) {
+      pb->m_trackinfo.push_back(toPersistent(&m_trackInfoCnv, 
+                                             &pa->getTrackInfo(i), msg));
     }
   }
 
   ///
   /// Fluf the data up again.
   ///
-  void IPInfoPlusCnv_p1::persToTrans(const IPInfoPlus_p1* pa, IPInfoPlus* pb, MsgStream & msg) {
+  void IPInfoPlusCnv_p1::persToTrans(const IPInfoPlus_p1* pa, IPInfoPlus* pb, MsgStream & msg)
+  {
+    /// Clear vector.
+    *pb = IPInfoPlus();
+
     fillTransFromPStore (&m_baseTagCnv, pa->m_baseTagInfo, pb, msg);
 
 #ifdef notyet
@@ -48,15 +50,11 @@ namespace Analysis {
 				     msg);
 #endif
 
-    pb->m_trackinfo.clear();
-    pb->m_trackinfo.resize(pa->m_trackinfo.size());
-
-    int index = 0;
-    for (vector<TPObjRef>::const_iterator itr = pa->m_trackinfo.begin();
-	 itr != pa->m_trackinfo.end();
-	 itr++) {
-      fillTransFromPStore(&m_trackInfoCnv, *itr, &pb->m_trackinfo[index], msg);
-      index ++;
+    size_t sz = pa->m_trackinfo.size();
+    for (size_t i = 0; i < sz; i++) {
+      IPTrackInfo info;
+      fillTransFromPStore(&m_trackInfoCnv, pa->m_trackinfo[i], &info, msg);
+      pb->addTrackInfo (info);
     }
   }
 

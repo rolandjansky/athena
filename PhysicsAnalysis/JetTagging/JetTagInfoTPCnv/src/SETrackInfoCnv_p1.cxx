@@ -6,32 +6,47 @@
 /// Translator for the soft electron track info.
 ///
 
-#define private public
-#define protected public
 #include "JetTagInfo/SETrackInfo.h"
-#undef private
-#undef protected
 #include "JetTagInfoTPCnv/SETrackInfoCnv_p1.h"
 
 
 namespace Analysis {
 
   void SETrackInfoCnv_p1::transToPers(const SETrackInfo* pa, SETrackInfo_p1* pb, MsgStream &msg) {
-    pb->m_valD0wrtPV = pa->m_valD0wrtPV;
-    pb->m_pTrel = pa->m_pTrel;
-    pb->m_tagLikelihood.assign(pa->m_tagLikelihood.begin(), pa->m_tagLikelihood.end());
+    pb->m_valD0wrtPV = pa->d0Value();
+    pb->m_pTrel = pa->pTrel();
+    pb->m_tagLikelihood.assign(pa->tagLikelihood().begin(),
+                               pa->tagLikelihood().end());
 
-    m_eleElementLinkCnv.transToPers(&pa->m_electron, &pb->m_electron, msg);
-    m_phoElementLinkCnv.transToPers(&pa->m_photon, &pb->m_photon, msg);
+    if (pa->isPhoton()) {
+      m_eleElementLinkCnv.transToPers(&pa->electronLink(), &pb->m_electron, msg);
+    }
+    else {
+      m_phoElementLinkCnv.transToPers(&pa->photonLink(), &pb->m_photon, msg);
+    }
   }
 
-  void SETrackInfoCnv_p1::persToTrans(const SETrackInfo_p1* pa, SETrackInfo* pb, MsgStream &msg) {
-    pb->m_valD0wrtPV = pa->m_valD0wrtPV;
-    pb->m_pTrel = pa->m_pTrel;
-    pb->m_tagLikelihood.assign(pa->m_tagLikelihood.begin(), pa->m_tagLikelihood.end());
+  void SETrackInfoCnv_p1::persToTrans(const SETrackInfo_p1* pa, SETrackInfo* pb, MsgStream &msg)
+  {
+    if (pa->m_electron.m_SGKeyHash != 0) {
+      assert (pa->m_photon.m_SGKeyHash == 0);
+      ElementLink<ElectronContainer> eleLink;
+      m_eleElementLinkCnv.persToTrans(&pa->m_electron, &eleLink, msg);
+      *pb = SETrackInfo (eleLink,
+                         pa->m_valD0wrtPV,
+                         pa->m_pTrel,
+                         std::vector<double> (pa->m_tagLikelihood.begin(),
+                                              pa->m_tagLikelihood.end()));
 
-    m_eleElementLinkCnv.persToTrans(&pa->m_electron, &pb->m_electron, msg);
-    m_phoElementLinkCnv.persToTrans(&pa->m_photon, &pb->m_photon, msg);
+    }
+    else {
+      ElementLink<PhotonContainer> phoLink;
+      m_phoElementLinkCnv.persToTrans(&pa->m_photon, &phoLink, msg);
+      *pb = SETrackInfo (phoLink,
+                         pa->m_valD0wrtPV,
+                         pa->m_pTrel,
+                         std::vector<double> (pa->m_tagLikelihood.begin(),
+                                              pa->m_tagLikelihood.end()));
+    }
   }
-
 }
