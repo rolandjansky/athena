@@ -3,17 +3,14 @@ package GeneratorObjectsAthenaPool
 author  Georgios Stavropoulos <George.Stavropoulos@cern.ch>
 author  Sebastien Binet       <binet@cern.ch>
 
-use AtlasPolicy            AtlasPolicy-* 
-use AtlasReflex            AtlasReflex-*              External
-use DataModel		   DataModel-*		      Control	
+use AtlasPolicy            AtlasPolicy-*
 use AtlasSealCLHEP         AtlasSealCLHEP-*           Database -no_auto_imports
 use AthenaPoolUtilities    AthenaPoolUtilities-*      Database/AthenaPOOL
 
-use AtlasHepMC		   AtlasHepMC-*               External
-use GeneratorObjects       GeneratorObjects-*	      Generators
+private
+use GeneratorObjects       GeneratorObjects-*         Generators
 use GeneratorObjectsTPCnv  GeneratorObjectsTPCnv-*    Generators
-
-branches src share
+end_private
 
 # apply_pattern declare_runtime
 apply_pattern declare_joboptions files="*.py"
@@ -26,4 +23,3 @@ macro_append genObjAthenaPoolCnv " HijingEventParams.h"
 macro_append genObjAthenaPoolCnv " McEventCollection.h"
 
 apply_pattern poolcnv files=$(genObjAthenaPoolCnv)
-
