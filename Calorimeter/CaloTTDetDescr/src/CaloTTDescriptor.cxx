@@ -17,13 +17,8 @@
 
 //FLG#include "CaloIdentifier/CaloLVL1_ID.h"
 
-#ifdef HAVE_NEW_IOSTREAMS
-    #include <iostream>
-    #include <iomanip>
-#else
-    #include <iostream.h>
-    #include <iomanip.h>
-#endif
+#include <iostream>
+#include <iomanip>
 
 CaloTTDescriptor::CaloTTDescriptor(float eta_min,   float eta_max,   float deta, 
 				   float phi_min,   float phi_max,   float dphi,
