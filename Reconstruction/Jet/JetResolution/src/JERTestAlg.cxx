@@ -33,9 +33,8 @@ StatusCode JERTestAlg::initialize()
   // Build systematic list: nominal, +1 jer, -1 jer
   m_sysList.clear();
   if(m_applySystematics){
-    m_sysList.resize(3);
-    m_sysList[1].insert(CP::SystematicVariation("JER", 1));
-    m_sysList[2].insert(CP::SystematicVariation("JER", -1));
+    m_sysList.resize(2);
+    m_sysList[1].insert(CP::SystematicVariation("JET_JER_SINGLE_NP", 1));
   }
   else m_sysList.resize(1);
 
@@ -57,8 +56,8 @@ StatusCode JERTestAlg::execute()
   // Loop over systematics
   for(auto sysSet : m_sysList){
 
-    ATH_MSG_DEBUG("Applying systematic: "
-                  << (sysSet.size() == 0 ? "Nominal" : sysSet.name()));
+    ATH_MSG_DEBUG("Applying systematic: " <<
+                  (sysSet.size() == 0 ? "Nominal" : sysSet.name()));
 
     if(m_jerSmearingTool->applySystematicVariation(sysSet)
        != CP::SystematicCode::Ok){
@@ -69,10 +68,6 @@ StatusCode JERTestAlg::execute()
     // Loop over the jets
     for(auto jet : *jets){
 
-      // Dump some jet info before applying the tool
-      ATH_MSG_DEBUG("Input  jet: pt = " << jet->pt()*0.001
-                    << ", eta = " << jet->eta());
-
       // Copy the jet and smear it
       xAOD::Jet* newJet = 0;
       if(m_jerSmearingTool->correctedCopy(*jet, newJet)
@@ -80,6 +75,10 @@ StatusCode JERTestAlg::execute()
         ATH_MSG_ERROR("Problem correcting jet");
         return StatusCode::FAILURE;
       }
+
+      // Dump some input jet info
+      ATH_MSG_DEBUG("Input  jet: pt = " << jet->pt()*0.001
+                    << ", eta = " << jet->eta());
 
       // Dump jet info after applying the tool
       ATH_MSG_DEBUG("Output jet: pt = " << newJet->pt()*0.001

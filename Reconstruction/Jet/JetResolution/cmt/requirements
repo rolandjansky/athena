@@ -3,21 +3,22 @@ package JetResolution
 
 public
 
-use AtlasPolicy         AtlasPolicy-* 
+use AtlasPolicy                 AtlasPolicy-*
 
-use AtlasROOT           AtlasROOT-*             External
-use PathResolver        PathResolver-*          Tools
-use AsgTools            AsgTools-*              Control/AthToolSupport
-use PATInterfaces       PATInterfaces-*         PhysicsAnalysis/AnalysisCommon
+use AtlasROOT                   AtlasROOT-*             External
+use AsgTools                    AsgTools-*              Control/AthToolSupport
+use PATInterfaces               PATInterfaces-*         PhysicsAnalysis/AnalysisCommon
 
-use xAODJet             xAODJet-*               Event/xAOD
+use xAODJet                     xAODJet-*               Event/xAOD
 
 private
 
-use GaudiInterface      GaudiInterface-*        External
-use xAODEventInfo       xAODEventInfo-*         Event/xAOD
-use AthenaBaseComps     AthenaBaseComps-*       Control
-use AtlasReflex         AtlasReflex-*           External -no-auto-imports
+use PathResolver                PathResolver-*          Tools
+use GaudiInterface              GaudiInterface-*        External
+use xAODEventInfo               xAODEventInfo-*         Event/xAOD
+use AthenaBaseComps             AthenaBaseComps-*       Control
+use AthAnalysisBaseComps        AthAnalysisBaseComps-*  Control
+use AtlasReflex                 AtlasReflex-*           External -no-auto-imports
 
 end_private
 
@@ -26,10 +27,9 @@ apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist)"
 
 apply_tag ROOTMathLibs
 
-# Declare the library
-apply_pattern installed_library
-library JetResolution *.cxx ../Root/*.cxx components/*.cxx
-apply_pattern component_library
+# Declare the library (this is dual_use since the lcgdict patern doesn't work with a pure component
+# library when cmake is used for the build)
+apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
 
 # Install the root file
 apply_pattern declare_calib files="../share/*.root"

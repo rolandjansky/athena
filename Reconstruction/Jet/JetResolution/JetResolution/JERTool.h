@@ -21,24 +21,8 @@
 
 
 /// A dual-use tool which provides the jet energy resolution and
-/// associated uncertainties as described on the TWiki:
-/// https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetEnergyResolutionProvider
-///
-/// Configuration
-///
-/// Config properties are set via setProperty(NAME, VALUE). Currently,
-/// the properties of this tool are all strings:
-///
-/// - PlotFileName: path to ROOT file with the resolution graphs.
-///   You must use the PathResolver-friendly path, e.g.
-///   JetResolution/JERProviderPlots_2012.root
-/// - CollectionName: name of the jet algorithm, e.g.
-///   AntiKt4LCTopoJets, AntiKt6EMTopoJets, etc.
-/// - BeamEnergy: 7TeV or 8TeV are supported.
-/// - SimulationType: FullSim or AFII.
-/// - ErrorMethod: Default or Alternate. See Twiki for details.
-///
-/// Interface
+/// associated uncertainties. For more information, see:
+/// https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetEnergyResolutionXAODTools
 ///
 /// Resolution and uncertainty are retrieved using the getRelResolutionMC,
 /// getRelResolutionData, and getUncertainty methods.
@@ -55,26 +39,14 @@ class JERTool : public virtual IJERTool,
 
   public:
 
-    /// Jet algorithm enumeration
-    enum JETALGO
-    {
-      JETALGO_UNDEFINED = -1,
-      AKt4EM = 0,
-      AKt4LC,
-      AKt6EM,
-      AKt6LC,
-      JETALGO_N
-    };
-
     /// Create a constructor for standalone usage
     JERTool(const std::string& name);
 
-    /// Constructor with initialization
-    JERTool(const std::string& toolName, const std::string& plotFileName,
-            const std::string& jetCollection);
-
     /// Copy constructor needed for reflex dictionary generation in Athena
     JERTool(const JERTool&);
+
+    /// We shouldn't need assignment, but regardless it isn't implemented.
+    JERTool& operator=(const JERTool&) = delete;
 
     /// Destructor
     ~JERTool();
@@ -100,94 +72,10 @@ class JERTool : public virtual IJERTool,
     double getRelResolutionData(const xAOD::Jet* jet);
 
     /// Calculate resolution uncertainty
-    double getUncertainty(const xAOD::Jet* jet);
+    double getUncertainty(const xAOD::Jet* jet,
+                          JER::Uncert errType = JER::JER_NP_ALL);
 
     /// @}
-
-
-    ///-----------------------------------------------------------------------
-    /// @name Tool configuration
-    /// @{
-
-    /// Set input file name
-    void setFileName(const std::string& fileName)
-    { m_fileName = fileName; }
-
-    /// Set the input jet collection
-    void setJetCollection(const std::string& jetCollection)
-    { m_collectionName = jetCollection; }
-
-    /// Set the JER method
-    /// Note, only "Truth" is currently supported
-    void setJERMethod(const std::string& jerMethod)
-    { m_jerMethod = jerMethod; }
-
-    /// Set 7-TeV flag
-    void setIs7TeV(bool use7TeV = true) { m_is7TeV = use7TeV; }
-
-    /// The alternate uncertainty is a more optimistic scenario
-    /// in which the uncertainty is constrained by the insitu fit error
-    void setUseAltError(bool useAlt = true) { m_useAltErr = useAlt; }
-
-    /// @}
-
-    ///-----------------------------------------------------------------------
-    /// @name Lower-level methods for multiple tool configurations.
-    /// I may not always support these.
-    /// @{
-
-    /// Read the resolution from the MC parameterization
-    double getRelResolutionMC(const xAOD::Jet* jet, bool isAFII);
-
-    /// Calculate resolution uncertainty
-    double getUncertainty(const xAOD::Jet* jet, bool isAFII, bool altErr);
-
-    /// Calculate resolution uncertainty for 7TeV analysis only
-    double getUncertainty_7TeV(const xAOD::Jet* jet);
-
-    /// @}
-
-
-    ///-----------------------------------------------------------------------
-    /// Pt/eta-based methods for retrieving the resolution
-    /// @{
-
-    /// Read the resolution from the MC parameterization
-    double getRelResolutionMC(double pt, double eta);
-    /// Obtain the resolution for AFII MC
-    double getRelResolutionMC(double pt, double eta, bool isAFII);
-    /// Obtain the resolution for data (sigma_MC + offset)
-    double getRelResolutionData(double pt, double eta);
-
-    /// @}
-
-
-    ///-----------------------------------------------------------------------
-    /// Access to the insitu measurements and their errors
-    /// @{
-    double getInsituRelResolutionMC(const xAOD::Jet* jet);
-    double getInsituRelResolutionMC(double pt, double eta);
-    double getInsituRelResolutionData(const xAOD::Jet* jet);
-    double getInsituRelResolutionData(double pt, double eta);
-    double getInsituUncertMC(const xAOD::Jet* jet);
-    double getInsituUncertMC(double pt, double eta);
-    double getInsituUncertData(const xAOD::Jet* jet);
-    double getInsituUncertData(double pt, double eta);
-    double getInsituUncert(const xAOD::Jet* jet);
-    double getInsituUncert(double pt, double eta);
-    /// @}
-
-
-    ///-----------------------------------------------------------------------
-    /// Insitu measurements for 7TeV
-    /// @{
-    double getSystematics_7TeV(int etaBin);
-    double getInsituDiffDataMC(const xAOD::Jet* jet);
-    double getInsituDiffDataMC(double pt, double eta);
-    double getInsituDiffDataMCError(const xAOD::Jet* jet);
-    double getInsituDiffDataMCError(double pt, double eta);
-    /// @}
-
 
   protected:
 
@@ -200,70 +88,34 @@ class JERTool : public virtual IJERTool,
     /// Helper method for loading the JER inputs
     StatusCode loadJERInputs();
 
-
     /// Get eta bin corresponding for this jet.
     /// Indexing convention of eta regions is off-by-one
     /// with respect to the TAxis (etaBin = TAxisBin - 1)
     int getEtaBin(const xAOD::Jet* jet);
-    int getEtaBin(double eta);
-
-    /// Read the offset from data/MC for the pt bin considered
-    double getOffset(const xAOD::Jet* jet);
-    double getOffset(double pt, double eta);
-
-  private:
-
-    /// Extract an object from the input file
-    template<class T> StatusCode pullFromFile(std::string name, T*& obj);
-
-    /// Extract an in situ measurement from one of the TGraph maps.
-    /// All of these measurements use truncations in eta and pt.
-    template<class T> double getInsituMeasurement(double pt, double eta,
-                                                  std::map<int, T*> graphMap);
 
   private:
 
     /// Binning
-    static const unsigned int m_nEtaBins = 6;
+    /// TODO: Think of a better way to do this.
+    /// For example, can't we take these from the input file??
+    //  static const unsigned int m_nNP = 9;
+    static const unsigned int m_nEtaBins = 7;
+    //static const unsigned int m_nJetCol = 4;
+
     TAxis* m_etaAxis;
 
     /// Configuration
-    bool m_useAutoConfig;
     std::string m_fileName;
+    int m_jetAlgo; // JER::JetAlg
     std::string m_collectionName;
-    std::string m_jerMethod;
-    std::string m_beamEnergy;
-    std::string m_simulationType;
-    std::string m_errorMethod;
-    bool m_is7TeV;
-    bool m_isAFII;
-    bool m_useAltErr;
-    JETALGO m_jetAlgo;
+    //std::string m_simulationType;
+    //bool m_useAutoConfig;
 
-    /// Input file
-    TFile* m_inputFile;
-
-    /// @name Resolution results in maps keyed by eta region number.
-    /// Might want to use a different set of data structures for this.
-    /// @{
-
-    /// Resolution functions
-    std::map<int, TF1*> m_jerFunc;
-    std::map<int, TF1*> m_jerFuncAFII;
-
-    /// In situ data resolution graphs
-    std::map<int, TGraphErrors*> m_jerData;
-    std::map<int, TGraph*> m_errorData;
-
-    /// In situ MC resolution graphs
-    std::map<int, TGraphErrors*> m_jerMC;
-    std::map<int, TGraph*> m_errorMC;
-
-    /// Data-MC diff in 7 TeV
-    std::map<int, TGraphErrors*> m_diffDataMC;
-    std::map<int, TGraph*> m_errorDataMC;
-
-    /// @}
+    /// Nuisance parameter graphs.
+    /// TODO: think about a better structure for these.
+    /// Previously, these maps were keyed by eta. Maybe we could use TGraph2D
+    /// and instead key them by NP.
+    TGraph* m_jerNP[JER::JETALG_N][m_nEtaBins][JER::JER_NP_ALL];
 
 }; // class JERTool
 
