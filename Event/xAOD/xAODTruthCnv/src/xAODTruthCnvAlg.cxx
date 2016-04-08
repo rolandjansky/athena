@@ -49,6 +49,7 @@ namespace xAODMaker {
     declareProperty("TruthLinks", m_truthLinkContainerName="xAODTruthLinks" );
     declareProperty( "WriteAllPileUpTruth", m_doAllPileUp = false);
     declareProperty( "WriteInTimePileUpTruth", m_doInTimePileUp = false);
+    declareProperty( "ForceRerun", m_forceRerun = false);
 
   }
 
@@ -75,11 +76,12 @@ namespace xAODMaker {
   StatusCode xAODTruthCnvAlg::execute() {
 
     // If the containers already exist then assume that nothing needs to be done
-    /// @todo Should this check be AND rather than OR?
-    if (evtStore()->contains< xAOD::TruthEventContainer >(m_xaodTruthEventContainerName) ||
-        evtStore()->contains< xAOD::TruthPileupEventContainer >(m_xaodTruthPUEventContainerName) ||
-        evtStore()->contains< xAOD::TruthParticleContainer >(m_xaodTruthParticleContainerName) ||
-        evtStore()->contains< xAOD::TruthVertexContainer >(m_xaodTruthVertexContainerName)) {
+    /// @todo Should this check be AND rather than OR? But pileup might be missing.
+    if ((evtStore()->contains< xAOD::TruthEventContainer >(m_xaodTruthEventContainerName) ||
+	 evtStore()->contains< xAOD::TruthPileupEventContainer >(m_xaodTruthPUEventContainerName) ||
+	 evtStore()->contains< xAOD::TruthParticleContainer >(m_xaodTruthParticleContainerName) ||
+	 evtStore()->contains< xAOD::TruthVertexContainer >(m_xaodTruthVertexContainerName)) && 
+	!m_forceRerun) {
       ATH_MSG_WARNING("xAOD Truth seems to be already available in the event");
       return StatusCode::SUCCESS;
     }
@@ -105,12 +107,16 @@ namespace xAODMaker {
       xTruthEventContainer->setStore( xTruthEventAuxContainer );
       ATH_MSG_DEBUG( "Recorded TruthEventContainer with key: " << m_xaodTruthEventContainerName );
       // Pile-up events
-      xAOD::TruthPileupEventContainer* xTruthPileupEventContainer = new xAOD::TruthPileupEventContainer();
-      CHECK( evtStore()->record( xTruthPileupEventContainer, m_xaodTruthPUEventContainerName ) );
-      xAOD::TruthPileupEventAuxContainer* xTruthPileupEventAuxContainer = new xAOD::TruthPileupEventAuxContainer();
-      CHECK( evtStore()->record( xTruthPileupEventAuxContainer, m_xaodTruthPUEventContainerName + "Aux." ) );
-      xTruthPileupEventContainer->setStore( xTruthPileupEventAuxContainer );
-      ATH_MSG_DEBUG( "Recorded TruthPileupEventContainer with key: " << m_xaodTruthPUEventContainerName );
+      xAOD::TruthPileupEventContainer* xTruthPileupEventContainer = 0;
+      xAOD::TruthPileupEventAuxContainer* xTruthPileupEventAuxContainer = 0;
+      if (m_doAllPileUp || m_doInTimePileUp) {
+	xTruthPileupEventContainer = new xAOD::TruthPileupEventContainer();
+	CHECK( evtStore()->record( xTruthPileupEventContainer, m_xaodTruthPUEventContainerName ) );
+	xTruthPileupEventAuxContainer = new xAOD::TruthPileupEventAuxContainer();
+	CHECK( evtStore()->record( xTruthPileupEventAuxContainer, m_xaodTruthPUEventContainerName + "Aux." ) );
+	xTruthPileupEventContainer->setStore( xTruthPileupEventAuxContainer );
+	ATH_MSG_DEBUG( "Recorded TruthPileupEventContainer with key: " << m_xaodTruthPUEventContainerName );
+      }
       // Particles
       xAOD::TruthParticleContainer* xTruthParticleContainer = new xAOD::TruthParticleContainer();
       CHECK( evtStore()->record( xTruthParticleContainer, m_xaodTruthParticleContainerName ) );
@@ -312,7 +318,7 @@ namespace xAODMaker {
           // (c) Put particle into container; Build Event<->Vertex element link
           ElementLink<xAOD::TruthVertexContainer> eltv(*xTruthVertexContainer, xTruthVertexContainer->size()-1);
           // Mark if this is the signal process vertex
-          if (vertex == signalProcessVtx) xTruthEvent->setSignalProcessVertexLink(eltv);
+          if ((vertex == signalProcessVtx) && isSignalProcess) xTruthEvent->setSignalProcessVertexLink(eltv);
           if (isSignalProcess) xTruthEvent->addTruthVertexLink(eltv);
 	  if (!isSignalProcess) xTruthPileupEvent->addTruthVertexLink(eltv);
           // (d) Assign incoming particles to the vertex, from the map
