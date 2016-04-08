@@ -7,7 +7,7 @@
 #
 
 # Utility to unpack BCID blobs
-from AtlDataSummary.AtlDataSumLumiData import LumiBCIDData
+from CoolLumiUtilities.CoolBCIDData import LumiBCIDData
 
 from ROOT import TFile, TTree, gROOT, AddressOf
 from array import array
@@ -33,55 +33,64 @@ class ScanNtupleHandler:
         self.algDict[105] = 'lucidEvtA'
         self.algDict[106] = 'lucidEvtC'
 
-        self.algDict[111] = 'fiberEvtAND'
-        self.algDict[112] = 'fiberEvtOR'
-        self.algDict[113] = 'fiberHitOR'
-        self.algDict[114] = 'fiberHitAND'
-        self.algDict[115] = 'fiberEvtA'
-        self.algDict[116] = 'fiberEvtC'
+        self.algDict[111] = 'lucBiEvtAND'
+        self.algDict[112] = 'lucBiEvtOR'
+        self.algDict[113] = 'lucBiHitOR'
+        self.algDict[115] = 'lucBiEvtA'
+        self.algDict[116] = 'lucBiEvtC'
         
+        self.algDict[121] = 'lucModEvtAND'
+        self.algDict[122] = 'lucModEvtOR'
+        self.algDict[123] = 'lucModHitOR'
+        self.algDict[124] = 'lucModHitAND'
+        self.algDict[125] = 'lucModEvtA'
+        self.algDict[126] = 'lucModEvtC'
+
+        self.algDict[131] = 'lucBiPMTA1'        
+        self.algDict[132] = 'lucBiPMTA5'        
+        self.algDict[133] = 'lucBiPMTA9'        
+        self.algDict[134] = 'lucBiPMTA13'        
+        self.algDict[135] = 'lucBiPMTC1'        
+        self.algDict[136] = 'lucBiPMTC5'        
+        self.algDict[137] = 'lucBiPMTC9'        
+        self.algDict[138] = 'lucBiPMTC13'        
+
+        self.algDict[151] = 'lucChA'
+        self.algDict[152] = 'lucChC'
+        self.algDict[153] = 'lucBiChA'
+        self.algDict[154] = 'lucBiChC'
+        self.algDict[155] = 'lucFibChA'
+        self.algDict[156] = 'lucFibChC'
+
         self.algDict[201] = 'bcmHEvtOR'
         self.algDict[202] = 'bcmHEvtAND'
-        # self.algDict[203] = 'bcmXORA'
-        # self.algDict[204] = 'bcmHXORC' # Remove in 2012
+        self.algDict[205] = 'bcmHORA'
         self.algDict[206] = 'bcmHORC'
-        self.algDict[207] = 'bcmHAND25'
         
         self.algDict[211] = 'bcmVEvtOR'
         self.algDict[212] = 'bcmVEvtAND'
-        # self.algDict[214] = 'bcmVXORC' # Remove in 2012
+        self.algDict[215] = 'bcmVORA'
         self.algDict[216] = 'bcmVORC'
-        self.algDict[217] = 'bcmVAND25'
         
         self.algDict[221] = 'bcmTEvtOR'
         self.algDict[222] = 'bcmTEvtAND'
-        self.algDict[226] = 'bcmTORC'
+        #self.algDict[225] = 'bcmTORA'
+        #self.algDict[226] = 'bcmTORC'
+        
+        self.algDict[231] = 'bcmHEarlyOR'
+        self.algDict[235] = 'bcmHEarlyA'
+        self.algDict[236] = 'bcmHEarlyC'
+
+        self.algDict[241] = 'bcmVEarlyOR'
+        self.algDict[245] = 'bcmVEarlyA'
+        self.algDict[246] = 'bcmVEarlyC'
         
         self.algDict[301] = 'mbtsEvtOR'
         self.algDict[302] = 'mbtsEvtAND'
-        # self.algDict[303] = 'mbtsHitOR'
-
-        self.algDict[401] = 'zdcEvtAND'
-        self.algDict[402] = 'zdcEvtORA'
-        self.algDict[403] = 'zdcEvtORC'
-
-        self.algDict[411] = 'zdclEvtAND'
-        self.algDict[412] = 'zdclEvtOR'
-        self.algDict[413] = 'zdclEvtORA'
-        self.algDict[414] = 'zdclEvtORC'
+        self.algDict[303] = 'mbtsEvt2'
         
         self.algDict[501] = 'fcalA'
         self.algDict[502] = 'fcalC'
-        self.algDict[521] = 'rpc'
-
-        self.algDict[1001] = 'bcm11HEvtOR'
-        self.algDict[1002] = 'bcm11HEvtAND'
-        self.algDict[1004] = 'bcm11HXORC'
-
-        self.algDict[1011] = 'bcm11VEvtOR'
-        self.algDict[1012] = 'bcm11VEvtAND'
-        self.algDict[1014] = 'bcm11VXORC'
-
 
         # Algorithms with bunch-by-bunch information
         self.bbbAlgDict = dict()
@@ -92,43 +101,58 @@ class ScanNtupleHandler:
         self.bbbAlgDict[105] = 'lucidEvtA'
         self.bbbAlgDict[106] = 'lucidEvtC'
         
-        self.bbbAlgDict[111] = 'fiberEvtAND'
-        self.bbbAlgDict[112] = 'fiberEvtOR'
-        self.bbbAlgDict[113] = 'fiberHitOR'
-        self.bbbAlgDict[114] = 'fiberHitAND'
-        self.bbbAlgDict[115] = 'fiberEvtA'
-        self.bbbAlgDict[116] = 'fiberEvtC'
+        self.bbbAlgDict[111] = 'lucBiEvtAND'
+        self.bbbAlgDict[112] = 'lucBiEvtOR'
+        self.bbbAlgDict[113] = 'lucBiHitOR'
+        self.bbbAlgDict[114] = 'lucBiHitAND'
+        self.bbbAlgDict[115] = 'lucBiEvtA'
+        self.bbbAlgDict[116] = 'lucBiEvtC'
         
+        self.bbbAlgDict[121] = 'lucModEvtAND'
+        self.bbbAlgDict[122] = 'lucModEvtOR'
+        self.bbbAlgDict[123] = 'lucModHitOR'
+        self.bbbAlgDict[125] = 'lucModEvtA'
+        self.bbbAlgDict[126] = 'lucModEvtC'
+        
+        self.bbbAlgDict[131] = 'lucBiPMTA1'        
+        self.bbbAlgDict[132] = 'lucBiPMTA5'        
+        self.bbbAlgDict[133] = 'lucBiPMTA9'        
+        self.bbbAlgDict[134] = 'lucBiPMTA13'        
+        self.bbbAlgDict[135] = 'lucBiPMTC1'        
+        self.bbbAlgDict[136] = 'lucBiPMTC5'        
+        self.bbbAlgDict[137] = 'lucBiPMTC9'        
+        self.bbbAlgDict[138] = 'lucBiPMTC13'        
+
+        self.bbbAlgDict[151] = 'lucChA'
+        self.bbbAlgDict[152] = 'lucChC'
+        self.bbbAlgDict[153] = 'lucBiChA'
+        self.bbbAlgDict[154] = 'lucBiChC'
+        self.bbbAlgDict[155] = 'lucFibChA'
+        self.bbbAlgDict[156] = 'lucFibChC'
+
         self.bbbAlgDict[201] = 'bcmHEvtOR'
         self.bbbAlgDict[202] = 'bcmHEvtAND'
-        # self.bbbAlgDict[203] = 'bcmXORA'
-        # self.bbbAlgDict[204] = 'bcmHXORC' # Remove for 2012
+        self.bbbAlgDict[205] = 'bcmHORA'
         self.bbbAlgDict[206] = 'bcmHORC'
-        self.bbbAlgDict[207] = 'bcmHAND25'
         
         self.bbbAlgDict[211] = 'bcmVEvtOR'
         self.bbbAlgDict[212] = 'bcmVEvtAND'
-        # self.bbbAlgDict[214] = 'bcmVXORC' # Remove for 2012
+        self.bbbAlgDict[215] = 'bcmVORA'
         self.bbbAlgDict[216] = 'bcmVORC'
-        self.bbbAlgDict[217] = 'bcmVAND25'
-
+        
         self.bbbAlgDict[221] = 'bcmTEvtOR'
         self.bbbAlgDict[222] = 'bcmTEvtAND'
-        self.bbbAlgDict[226] = 'bcmTORC'
-
-        self.bbbAlgDict[411] = 'zdclEvtAND'
-        self.bbbAlgDict[412] = 'zdclEvtOR'
-        self.bbbAlgDict[413] = 'zdclEvtORA'
-        self.bbbAlgDict[414] = 'zdclEvtORC'
-
-        self.bbbAlgDict[1001] = 'bcm11HEvtOR'
-        self.bbbAlgDict[1002] = 'bcm11HEvtAND'
-        self.bbbAlgDict[1004] = 'bcm11HXORC'
-
-        self.bbbAlgDict[1011] = 'bcm11VEvtOR'
-        self.bbbAlgDict[1012] = 'bcm11VEvtAND'
-        self.bbbAlgDict[1014] = 'bcm11VXORC'
+        #self.bbbAlgDict[225] = 'bcmTORA'
+        #self.bbbAlgDict[226] = 'bcmTORC'
         
+        self.bbbAlgDict[231] = 'bcmHEarlyOR'
+        self.bbbAlgDict[235] = 'bcmHEarlyA'
+        self.bbbAlgDict[236] = 'bcmHEarlyC'
+
+        self.bbbAlgDict[241] = 'bcmVEarlyOR'
+        self.bbbAlgDict[245] = 'bcmVEarlyA'
+        self.bbbAlgDict[246] = 'bcmVEarlyC'
+
     def open(self):
         print 'ScanNtupleHandler.open() called'
 
@@ -145,7 +169,7 @@ class ScanNtupleHandler:
         self.initBunchData()
         self.initBunchLumi()
         self.initLumiData()
-        self.initTurnData()
+        self.initLiveData()
         
     # Must pass data object as a reference where extracted COOL data can be found
     # This relies on naming conventions, such as:
@@ -191,10 +215,6 @@ class ScanNtupleHandler:
             # LUMINOSITY
             self.fillLumiData(obj, data.lumiData.data)
 
-            # Turns
-            if data.turnData != None:
-                self.fillTurnData(obj, data.turnData.data)
-            
             self.tree.Fill()
             nfilled += 1
 
@@ -744,6 +764,8 @@ class ScanNtupleHandler:
         foundAny = False
         
         found = dict()
+        liveDict = dict()
+
         for chId in self.algDict.iterkeys():
             found[chId] = False
 
@@ -754,7 +776,11 @@ class ScanNtupleHandler:
             chId = obj.channelId()
             if chId == 5:
                 continue # Ignore CMS luminosity
-            
+
+            elif chId >= 50 and chId <=70:
+                liveDict[chId] = obj.payload()['LBAvOLCInstLum']
+                continue
+
             elif not chId in self.algDict:
                 print 'scanNtupleHandler.fillLumiData - Unknown lumi channel', chId, '!'
                 continue
@@ -812,92 +838,44 @@ class ScanNtupleHandler:
                 self.lumiStruct[chId].fDetectorState = 0
                 self.lumiStruct[chId].fValid = 0xFFFFFFFF
 
-    # turn and count data per algorithm from Nitesh's files
-    def initTurnData(self):
-        print 'scanNtupleHandler.initTurnData() called'
-        
-        #
-        # Define tree
-        # Try to abstract this for different lumi algorithms
-        gROOT.ProcessLine("struct TurnDataStruct {\
-            Float_t fTurnsPhys;\
-            Float_t fCountsPhys;\
-            Float_t fTurnsAll;\
-            Float_t fCountsAll;\
-            Float_t fTurnsOLC;\
-            Float_t fCountsOLC;\
-        };")
-        from ROOT import TurnDataStruct
+        # Fill the livefraction data (if present)
+        self.fillLive(liveDict, 50, 51, self.liveDataStruct.fRD0_Filled)
+        self.fillLive(liveDict, 54, 55, self.liveDataStruct.fMBTS_1_1)
+        self.fillLive(liveDict, 56, 57, self.liveDataStruct.fMBTS_2)
+        self.fillLive(liveDict, 58, 59, self.liveDataStruct.fEM12)
+        self.fillLive(liveDict, 60, 61, self.liveDataStruct.fRD0_BGRP9)
+        self.fillLive(liveDict, 62, 63, self.liveDataStruct.fMBTS_1_BGRP9)
+        self.fillLive(liveDict, 66, 67, self.liveDataStruct.fMBTS_2_BGRP9)
 
-        self.turnStruct = dict()
-        for (chId, algstr) in self.algDict.iteritems():
-            if chId == 0: continue
-            print 'scanNtupleHandler.initTurnData - initializing', algstr, 'as channel', chId
-            self.turnStruct[chId] = TurnDataStruct()
-            branchString = 'ALG_BXPhys/F:ALG_CountsPhys/F:ALG_BXAll/F:ALG_CountsAll/F:ALG_BXOLC/F:ALG_CountsOLC/F'
+        print self.liveDataStruct.fEM12
 
-            self.tree.Branch(algstr+'_TURN', self.turnStruct[chId], branchString.replace('ALG', algstr))
-
-
-    def fillTurnData(self, timeobj, data):
-
-        # Must match by IOV - exact match
-        # Keep track of every algorithm separately
-        foundAny = False
-        
-        found = dict()
-        for chId in self.algDict.iterkeys():
-            found[chId] = False
-
-        # Insert invalid values here
-        for chId in self.algDict.iterkeys():
-            if chId == 0: continue
-            self.turnStruct[chId].fTurnsPhys = -1.
-            self.turnStruct[chId].fCountsPhys = -1.
-            self.turnStruct[chId].fTurnsAll = -1.
-            self.turnStruct[chId].fCountsAll = -1.
-            self.turnStruct[chId].fTurnsOLC = -1.
-            self.turnStruct[chId].fCountsOLC = -1.
-            
-        # Look for our lumi block
-        run = timeobj.payload()['RunLB'] >> 32
-        lb = timeobj.payload()['RunLB'] & 0xFFFFFFFF
-        
-        if not lb in data:
-            print 'scanNtupleHandler.fillTurnData - Found no turn data to match IOV %d/%d !' % (run, lb)
-
+    def fillLive(self, liveDict, denchan, numchan, dest):
+        num = liveDict.get(numchan, 0.)
+        den = liveDict.get(denchan, 0.)
+        if den > 0.:
+            dest = num/den
         else:
+            dest = 0.
 
-            # Search for channels based on our list
-            for (chId, chName) in self.algDict.iteritems():
+        self.liveDataStruct.fRD0_Filled = 0.
 
-                if chId == 0: continue
 
-                # Change my naming to match Nitesh's naming
-                chStrBase = chName.replace('Evt', 'Event')
-                chStrBase = chStrBase.replace('bcmH', 'bcm')
-                chStrBase = chStrBase.replace('bcmXORC', 'bcmEventXORC')
-                
-                # Three types of data in tree
-                for ext in ['_OLCLBAv', '_PHYS', '_LBAvALL']:
-                    chStr = chStrBase+ext
-                    if not chStr in data[lb]:
-                        print 'scanNtupleHandler.fillTurnData - no data in lb', lb, 'for', chStr
-                        continue
+    def initLiveData(self):
 
-                    (turns, counts) = data[lb][chStr]
+        #
+        # Define LIVEDATA tree
+        gROOT.ProcessLine("struct LiveDataStruct {\
+          Float_t fRD0_Filled;\
+          Float_t fMBTS_1_1;\
+          Float_t fMBTS_2;\
+          Float_t fEM12;\
+          Float_t fRD0_BGRP9;\
+          Float_t fMBTS_1_BGRP9;\
+          Float_t fMBTS_2_BGRP9;\
+        };")
+        from ROOT import LiveDataStruct
+        self.liveDataStruct = LiveDataStruct()
 
-                    if ext == '_OLCLBAv':
-                        self.turnStruct[chId].fTurnsOLC = turns
-                        self.turnStruct[chId].fCountsOLC = counts
-
-                    if ext == '_PHYS':
-                        self.turnStruct[chId].fTurnsPhys = turns
-                        self.turnStruct[chId].fCountsPhys = counts
-
-                    if ext == '_LBAvALL':
-                        self.turnStruct[chId].fTurnsAll = turns
-                        self.turnStruct[chId].fCountsAll = counts
-
+        self.tree.Branch('LiveFractions', AddressOf(self.liveDataStruct, 'fRD0_Filled'), 'RD0_Filled/f,MBTS_1_1/f,MBTS_2/f,EM12/f,RD0_BGRP9/f,MBTS_1_BGRP9/f,MBTS_2_BGRP9/f')
                         
-                    
+        
