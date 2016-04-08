@@ -245,7 +245,18 @@ TRT_Prediction::setPosition (double			phi,
 inline bool
 TRT_Prediction::OutwardsOrder::operator() (const TRT_Prediction* p,
 					   const TRT_Prediction* q) const
-{ return (p->r() < q->r()); }
+{
+    if (p->barrelElement())
+    {
+	if (! q->barrelElement())	return true;
+	return (p->r() < q->r());
+    }
+    else
+    {
+	if (q->barrelElement())		return false;
+	return (std::abs(p->z()) < std::abs(q->z()));
+    }
+}
 
 #endif // TRTREC_TRTPREDICTION_H
 
