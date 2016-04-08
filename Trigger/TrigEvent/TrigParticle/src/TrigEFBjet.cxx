@@ -18,6 +18,7 @@
 TrigEFBjet::TrigEFBjet() :
   P4PtEtaPhiM(0,0,0,1.*CLHEP::MeV), 
   NavigableTerminalNode(),
+  m_valid(false),
   m_roiID(-1),
   m_track(0), 
   m_prmvertex(0), 
@@ -40,6 +41,7 @@ TrigEFBjet::TrigEFBjet(int roi, float eta, float phi, const Rec::TrackParticleCo
 		       float ptJet, float xcomb, float xIP1d, float xIP2d, float xIP3d, float xChi2,
 		       float xSv, float xmvtx, float xevtx, float xnvtx) :
   P4PtEtaPhiM((double)ptJet,(double)eta,(double)phi, 1.*CLHEP::MeV), NavigableTerminalNode(),
+  m_valid(false),
   m_roiID(roi), 
   m_track(track), 
   m_prmvertex(prmvertex), 
@@ -118,20 +120,20 @@ bool operator== (const TrigEFBjet& a, const TrigEFBjet& b) {
   //* distance used to compare floats *//
   const double DELTA=1e-3; 
 
-  if(fabsf(a.eta() - b.eta()) > DELTA) return false;
-  if(fabsf(a.phi() - b.phi()) > DELTA) return false;
+  if(std::abs(a.eta() - b.eta()) > DELTA) return false;
+  if(std::abs(a.phi() - b.phi()) > DELTA) return false;
   
-  if(fabsf(a.prmVtx() - b.prmVtx()) > DELTA) return false;
+  if(std::abs(a.prmVtx() - b.prmVtx()) > DELTA) return false;
   
-  if(fabsf(a.xComb() - b.xComb()) > DELTA) return false;
-  if(fabsf(a.xIP1D() - b.xIP1D()) > DELTA) return false;
-  if(fabsf(a.xIP2D() - b.xIP2D()) > DELTA) return false;
-  if(fabsf(a.xIP3D() - b.xIP3D()) > DELTA) return false;
-  if(fabsf(a.xCHI2() - b.xCHI2()) > DELTA) return false;
-  if(fabsf(a.xSV()   - b.xSV())   > DELTA) return false;
-  if(fabsf(a.xMVtx() - b.xMVtx()) > DELTA) return false;
-  if(fabsf(a.xEVtx() - b.xEVtx()) > DELTA) return false;
-  if(fabsf(a.xNVtx() - b.xNVtx()) > DELTA) return false;
+  if(std::abs(a.xComb() - b.xComb()) > DELTA) return false;
+  if(std::abs(a.xIP1D() - b.xIP1D()) > DELTA) return false;
+  if(std::abs(a.xIP2D() - b.xIP2D()) > DELTA) return false;
+  if(std::abs(a.xIP3D() - b.xIP3D()) > DELTA) return false;
+  if(std::abs(a.xCHI2() - b.xCHI2()) > DELTA) return false;
+  if(std::abs(a.xSV()   - b.xSV())   > DELTA) return false;
+  if(std::abs(a.xMVtx() - b.xMVtx()) > DELTA) return false;
+  if(std::abs(a.xEVtx() - b.xEVtx()) > DELTA) return false;
+  if(std::abs(a.xNVtx() - b.xNVtx()) > DELTA) return false;
 
   return true;
 }

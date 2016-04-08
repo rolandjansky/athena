@@ -73,6 +73,39 @@ class TrigElectron : public P4PtEtaPhiM,
 	       const TrigEMClusterContainer* cluster, unsigned int cl_index,
 	       const TrigInDetTrackCollection* track, unsigned int tr_index);
 
+  /** Initialize without accessing cluster/track objects. */
+  TrigElectron(float pt,
+               float eta,
+               float phi,
+
+               // roi word
+               unsigned int roi,
+               bool valid,
+
+               // track-cluster match variables
+               float trkEtaAtCalo,
+               float trkPhiAtCalo,
+               float EToverPT,
+
+               // Cluster
+               const ElementLink< TrigEMClusterContainer >& cluster,
+               float caloEta,
+               float caloPhi,
+               float Rcore,
+               float Eratio,
+               float EThad,
+               float F0,
+               float F1,
+               float F2,
+               float F3,
+
+               // Track
+               const ElementLink< TrigInDetTrackCollection >& track,
+               TrigInDetTrack::AlgoId trackAlgo,
+               float Zvtx,
+               int nTRTHits,
+               int nTRTHiThresholdHits) ;
+
   /** copy constructor */
   TrigElectron(const TrigElectron& te);
 
@@ -147,12 +180,15 @@ class TrigElectron : public P4PtEtaPhiM,
 
   /** accessor to get pointer to cluster (TrigEMCluster) */
   const TrigEMCluster* cluster() const;
+  const ElementLink< TrigEMClusterContainer >& clusterLink() const
+  { return m_cluster; }
 
   /** accessor to get pointer to track (TrigInDetTrack) */
   const TrigInDetTrack* track() const;
+  const ElementLink< TrigInDetTrackCollection >& trackLink() const
+  { return m_track; }
 
  private:
-  
   // private data members
   /** roi word unique to L1 RoI (note: different from HLT RoI id)*/
   unsigned int m_roiWord; 

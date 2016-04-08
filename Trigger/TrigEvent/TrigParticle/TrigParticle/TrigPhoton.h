@@ -58,6 +58,28 @@ class TrigPhoton : public P4PtEtaPhiM,
   	     const TrigEMClusterContainer* cluster_cont, 
 	     unsigned int cluster_index );
 
+  /** Initialize without accessing cluster objects. */
+  TrigPhoton(float pt,
+             float eta,
+             float phi,
+
+             // roi word
+             unsigned int roi,
+             bool valid,
+
+             // Cluster
+             const ElementLink< TrigEMClusterContainer >& cluster,
+             float HadEt,
+             float energyRatio,
+             float rCore,
+             float deta,
+             float dphi,
+             float Fside,
+             float Weta2,
+             float F0,
+             float F1,
+             float F2,
+             float F3);
 
 
 
@@ -111,9 +133,10 @@ class TrigPhoton : public P4PtEtaPhiM,
 
   /** accessor for pointer to TrigEMCluster */
   const TrigEMCluster* cluster() const;
+  const ElementLink< TrigEMClusterContainer >& clusterLink() const
+  { return m_cluster; }
 
  private:
-  
   // private data members
   int   m_roiID;
   float m_HadEt; 

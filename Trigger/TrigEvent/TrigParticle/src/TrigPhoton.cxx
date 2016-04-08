@@ -160,6 +160,46 @@ TrigPhoton::TrigPhoton(int roi, float dphi, float deta,
 }
 
 
+/** Initialize without accessing cluster objects. */
+TrigPhoton::TrigPhoton(float pt,
+                       float eta,
+                       float phi,
+
+                       // roi word
+                       unsigned int roi,
+                       bool valid,
+
+                       // Cluster
+                       const ElementLink< TrigEMClusterContainer >& cluster,
+                       float HadEt,
+                       float energyRatio,
+                       float rCore,
+                       float deta,
+                       float dphi,
+                       float Fside,
+                       float Weta2,
+                       float F0,
+                       float F1,
+                       float F2,
+                       float F3)
+  : P4PtEtaPhiM(pt, eta, phi, 0),
+    m_roiID(roi),
+    m_HadEt(HadEt),
+    m_energyRatio(energyRatio),
+    m_rCore(rCore),
+    m_dPhi(dphi),
+    m_dEta(deta),
+    m_cl_e_frac_S0(F0),
+    m_cl_e_frac_S1(F1),
+    m_cl_e_frac_S2(F2),
+    m_cl_e_frac_S3(F3),
+    m_Fside(Fside),
+    m_Weta2(Weta2),
+    m_valid(valid),
+    m_cluster(cluster)
+{
+}
+    
 /** Copy Constructor */
 TrigPhoton::TrigPhoton(const TrigPhoton& tp) : 
   I4Momentum(tp),
@@ -170,31 +210,28 @@ TrigPhoton::TrigPhoton(const TrigPhoton& tp) :
   P4PtEtaPhiM(tp),
   NavigableTerminalNode()
 {
-  if( this!=&tp ){
-    m_roiID        = tp.m_roiID;
-    m_HadEt        = tp.m_HadEt; 
-    m_energyRatio  = tp.m_energyRatio; 
-    m_rCore        = tp.m_rCore;
-    m_dPhi         = tp.m_dPhi;
-    m_dEta         = tp.m_dEta;
-    //    m_cl_energy    = tp.m_cl_energy;
-    m_cl_e_frac_S0 = tp.m_cl_e_frac_S0;
-    m_cl_e_frac_S1 = tp.m_cl_e_frac_S1;
-    m_cl_e_frac_S2 = tp.m_cl_e_frac_S2;
-    m_cl_e_frac_S3 = tp.m_cl_e_frac_S3;
-    m_Fside        = tp.m_Fside;
-    m_Weta2        = tp.m_Weta2;
-    m_valid        = tp.m_valid;
+  m_roiID        = tp.m_roiID;
+  m_HadEt        = tp.m_HadEt; 
+  m_energyRatio  = tp.m_energyRatio; 
+  m_rCore        = tp.m_rCore;
+  m_dPhi         = tp.m_dPhi;
+  m_dEta         = tp.m_dEta;
+  //    m_cl_energy    = tp.m_cl_energy;
+  m_cl_e_frac_S0 = tp.m_cl_e_frac_S0;
+  m_cl_e_frac_S1 = tp.m_cl_e_frac_S1;
+  m_cl_e_frac_S2 = tp.m_cl_e_frac_S2;
+  m_cl_e_frac_S3 = tp.m_cl_e_frac_S3;
+  m_Fside        = tp.m_Fside;
+  m_Weta2        = tp.m_Weta2;
+  m_valid        = tp.m_valid;
 
-    //set ElementLink to cluster
-    if( m_cluster.isValid() ){
-      m_cluster.toIndexedElement( tp.m_cluster.getStorableObjectRef(), tp.m_cluster.index() );
-    }
-    else {
-      m_cluster.reset();
-    }
+  //set ElementLink to cluster
+  if( m_cluster.isValid() ){
+    m_cluster.toIndexedElement( tp.m_cluster.getStorableObjectRef(), tp.m_cluster.index() );
   }
-
+  else {
+    m_cluster.reset();
+  }
 }
 
 /** Destructor */

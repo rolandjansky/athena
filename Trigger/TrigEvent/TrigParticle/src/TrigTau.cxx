@@ -64,31 +64,6 @@ TrigTau::TrigTau(int roi,
    m_trkAvgDist(0), m_etOverPtLeadTrk(0)
 {}
 
-// copy constructor
-TrigTau::TrigTau(const TrigTau& te) : 
-  I4Momentum(te),
-  P4PtEtaPhiMBase(te),
-  INavigable(te), 
-  IAthenaBarCode(te),
-  INavigable4Momentum(te),
-  P4PtEtaPhiM(te),
-  NavigableTerminalNode(te)
-{
-  if (this!=&te) {
-    m_roiID    = te.m_roiID;
-    m_Zvtx     = te.m_Zvtx;
-    m_err_Zvtx = te.m_err_Zvtx;
-    m_etCalibCluster  = te.m_etCalibCluster;
-    m_simpleEtFlow  = te.m_simpleEtFlow;
-    m_nMatchedTracks  = te.m_nMatchedTracks;
-    m_cluster  = te.m_cluster;
-    m_tracks   = te.m_tracks;
-    m_tracksInfo   = te.m_tracksInfo;
-    m_trkAvgDist  = te.m_trkAvgDist;
-    m_etOverPtLeadTrk  = te.m_etOverPtLeadTrk;
-  }
-}
-
 // destructor
 TrigTau::~TrigTau() {}
 

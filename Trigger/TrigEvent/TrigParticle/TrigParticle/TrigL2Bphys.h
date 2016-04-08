@@ -87,6 +87,7 @@ class TrigL2Bphys  {
 
   /** accessor method: secondary decay particle */
   const TrigL2Bphys* pSecondDecay() const ;
+  const ElementLink<TrigL2BphysContainer>& secondaryDecayLink() const;
 
   /** accessor method:vector of tracks used to make particle */
   const ElementLinkVector<TrigInDetTrackCollection>& trackVector() const {return m_trackVector;}
