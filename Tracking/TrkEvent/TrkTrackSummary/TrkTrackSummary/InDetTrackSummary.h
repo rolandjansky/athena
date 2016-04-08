@@ -8,6 +8,8 @@
 #include "Identifier/Identifier.h"
 
 class MsgStream;
+class InDetTrackSummaryCnv_p1;
+class TrackSummaryCnv_p2;
 
 
 namespace InDet {
@@ -22,6 +24,8 @@ namespace Trk {
   class InDetTrackSummary {
   public:
     friend class InDet::InDetTrackSummaryHelperTool;
+    friend class ::InDetTrackSummaryCnv_p1;
+    friend class ::TrackSummaryCnv_p2;
 
     /** default constructor */
     InDetTrackSummary();

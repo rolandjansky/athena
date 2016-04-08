@@ -8,6 +8,9 @@
 #include "Identifier/Identifier.h"
 
 class MsgStream;
+class MuonTrackSummaryCnv_p1;
+class MuonTrackSummaryCnv_p2;
+class TrackSummaryCnv_p2;
 
 
 namespace Muon {
@@ -31,12 +34,14 @@ namespace Trk {
       /** structure to hold the information for the eta/phi projection of RPC, TGC and CSC
 	  chambers and per multilayer for MDT chambers */
       struct Projection {
-        Projection() : nhits(0),nholes(0),noutliers(0),ndeltas(0), ncloseHits(0){}
+      Projection() : nhits(0),nholes(0),noutliers(0),ndeltas(0), ncloseHits(0), ngoodHits(0), noutBounds(0) {}
         int nhits;      //<! number of hits on track in the projection
         int nholes;     //<! number of holes in the projection
         int noutliers;  //<! number of outliers in the projection
         int ndeltas;    //<! number of delta electrons in the projection (only filled for MDT chambers)
         int ncloseHits; //<! number of hits within a road around the track in the projection
+	int ngoodHits;  //<! number of hits that matter for the track
+	int noutBounds; //<! number of out-of-bounds hits
       };
 
       ChamberHitSummary(  ):m_chId{},m_isMdt{} {}
@@ -53,51 +58,61 @@ namespace Trk {
       bool isMdt() const { return m_isMdt; }
 
       /** returns the total number of hits on track in the chamber */
-      int nhits() const    { return first.nhits + second.nhits; }
+      int nhits() const    { return m_first.nhits + m_second.nhits; }
 
       /** returns the total number of holes in the chamber */
-      int nholes() const   { return first.nholes + second.nholes; }
+      int nholes() const   { return m_first.nholes + m_second.nholes; }
 
       /** returns the total number of outliers in the chamber */
-      int noutliers() const { return first.noutliers + second.noutliers; }
+      int noutliers() const { return m_first.noutliers + m_second.noutliers; }
 
       /** returns the total number of delta electrons in the chamber */
-      int ndeltas() const  { return first.ndeltas + second.ndeltas; }
+      int ndeltas() const  { return m_first.ndeltas + m_second.ndeltas; }
 
       /** returns the total number of close hits in the chamber */
-      int ncloseHits() const { return first.ncloseHits + second.ncloseHits; }
+      int ncloseHits() const { return m_first.ncloseHits + m_second.ncloseHits; }
+
+      /** returns the number of non-deweighted hits in the chamber */
+      int ngoodHits() const { return m_first.ngoodHits + m_second.ngoodHits; }
+
+      //returns the number of out of bounds hits
+      int noutBoundsHits() const { return m_first.noutBounds + m_second.noutBounds; }
 
       /** returns the total number of eta hits on track  in the chamber */
-      int netaHits() const { return isMdt() ? nhits() : first.nhits; }
+      int netaHits() const { return isMdt() ? nhits() : m_first.nhits; }
 
       /** returns the total number of phi hits on track  in the chamber */
-      int nphiHits() const { return isMdt() ? 0       : second.nhits; }
+      int nphiHits() const { return isMdt() ? 0       : m_second.nhits; }
 
       /** returns the total number of MDT hits on track  in the first multi layer */
-      int nMdtHitsMl1() const { return isMdt() ? first.nhits  : 0; }
+      int nMdtHitsMl1() const { return isMdt() ? m_first.nhits  : 0; }
 
       /** returns the total number of MDT hits on track  in the second multi layer */
-      int nMdtHitsMl2() const { return isMdt() ? second.nhits : 0; }
+      int nMdtHitsMl2() const { return isMdt() ? m_second.nhits : 0; }
 
       /** access to the data of the first MDT multi layer, users have to check whether this is a MDT chamber first!! */
-      const Projection& mdtMl1() const { return first; }
+      const Projection& mdtMl1() const { return m_first; }
 
       /** access to the data of the second MDT multi layer, users have to check whether this is a MDT chamber first!! */
-      const Projection& mdtMl2() const { return second; }
+      const Projection& mdtMl2() const { return m_second; }
 
       /** access to the data of the eta projection, users have to check whether this is NOT a MDT chamber first!! */
-      const Projection& etaProjection() const { return first; }
+      const Projection& etaProjection() const { return m_first; }
 
       /** access to the data of the phi projection, users have to check whether this is NOT a MDT chamber first!! */
-      const Projection& phiProjection() const { return second; }
+      const Projection& phiProjection() const { return m_second; }
       
 
       private:
+      friend class ::MuonTrackSummaryCnv_p1;
+      friend class ::MuonTrackSummaryCnv_p2;
+      friend class ::TrackSummaryCnv_p2;
+
       Identifier m_chId; //<! chamber identifier
       bool m_isMdt;      //<! is this a MDT chamber
       
-      Projection first;  //<! eta projections for cluster chambers, first multi layer for mdt chambers
-      Projection second; //<! phi projections for cluster chambers, first multi layer for mdt chambers
+      Projection m_first;  //<! eta projections for cluster chambers, first multi layer for mdt chambers
+      Projection m_second; //<! phi projections for cluster chambers, first multi layer for mdt chambers
       
     };
 
@@ -132,6 +147,9 @@ namespace Trk {
     const std::vector<ChamberHitSummary>& chamberHitSummary() const { return m_chamberHitSummary; }
 
   private:
+    friend class ::MuonTrackSummaryCnv_p1;
+    friend class ::MuonTrackSummaryCnv_p2;
+    friend class ::TrackSummaryCnv_p2;
 
     unsigned int m_nscatterers; //<! number of scattering centres on the track
     unsigned int m_npseudoMeasurements; //<! number of pseudomeasurements on the track

@@ -15,6 +15,8 @@ email                : edward.moyse@cern.ch
 #include <bitset>
 
 class MsgStream;
+class TrackSummaryCnv_p1;
+class TrackSummaryCnv_p2;
 
 namespace InDet {
     class InDetTrackSummaryHelperTool;
@@ -97,6 +99,7 @@ enum SummaryType {
         numberOfTgcEtaHoles             =26,       //! number of TGC Eta measurements missing from the track
         numberOfTgcPhiHoles             =27,       //! number of TGC Phi measurements missing from the track
         numberOfCscUnspoiltEtaHits      =45,       //! number of unspoilt CSC eta measurements (all CSC phi measurements are by definition spoilt). See Muon::CscClusterStatus for definitions of 'spoiled' hits.
+	numberOfGoodMdtHits             =66,       //!number of non-deweighted MDT hits.  Only here as a placeholder, will be filled only on xAOD::Muon
     // --- all
         numberOfOutliersOnTrack =15,       //!< number of measurements flaged as outliers in TSOS
         standardDeviationOfChi2OS = 30,    //!< 100 times the standard deviation of the chi2 from the surfaces
@@ -110,7 +113,7 @@ enum SummaryType {
 	pixeldEdx_res                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
 
  // -- numbers...
-        numberOfTrackSummaryTypes = 66
+        numberOfTrackSummaryTypes = 67
     };
 
 // Troels.Petersen@cern.ch:
@@ -264,6 +267,8 @@ public:
    bool update(Trk::SummaryType type, int new_value);
 
 private: // data members
+    friend class ::TrackSummaryCnv_p1;
+    friend class ::TrackSummaryCnv_p2;
 
     /** vector containing the persistent summary information. */
     std::vector<int>  m_information;
