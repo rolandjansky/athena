@@ -498,6 +498,7 @@ StatusCode D2PDMuonSelector::processObject( const Analysis::Muon* muon,
       // Get all requested MuonParameters and perform the selection
       if ( isPassed && m_doMuonParameterList )
         {
+          const double inv_muonPt = (muonPt != 0 ? 1. / muonPt : 1);
           for ( unsigned int i=0; i < m_muonParameterList.size(); ++i )
             {
               MuonParameters::ParamDef currentPar = (MuonParameters::ParamDef)m_muonParameterList[i];
@@ -512,7 +513,7 @@ StatusCode D2PDMuonSelector::processObject( const Analysis::Muon* muon,
                 {
                   if ( muonPt != 0.0 )
                     {
-                      isPassed = isPassed && ( (muon->parameter(currentPar))/muonPt >= lowerCut ) && ( (muon->parameter(currentPar))/muonPt <= upperCut );
+                      isPassed = isPassed && ( (muon->parameter(currentPar))*inv_muonPt >= lowerCut ) && ( (muon->parameter(currentPar))*inv_muonPt <= upperCut );
                     }
                   else
                     {

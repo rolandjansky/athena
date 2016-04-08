@@ -38,6 +38,7 @@ class AddContainers( PyAthena.Alg ):
 
         ## Define the cuts
         self.inputContainerType   = kw.get( 'inputContainerType',  "" )
+        self.inputContainerParticleType = kw.get( 'inputContainerParticleType', self.inputContainerType )
         self.inputContainerNames  = kw.get( 'inputContainerNames', [] )
         self.outputContainerName  = kw.get( 'outputContainerName', "" )
         self.printInternalCutflow = kw.get( 'printInternalCutflow', False )
@@ -47,7 +48,6 @@ class AddContainers( PyAthena.Alg ):
         self.removeNearby         = kw.get( 'removeNearby',    False )
         self.maxDeltaR            = kw.get( 'maxDeltaR', 0.01 )
         self.attribute            = kw.get( 'useAttribute',  "" ) # This could be, e.g., for egamma objects "cluster"; then, the cluster object will be used for deltaR overlap checks instead of the egamma object
-        
         ## Get the storgate handle
         self.storeGateSvc = None
 
@@ -139,17 +139,14 @@ class AddContainers( PyAthena.Alg ):
         # Create the new output container and reserve some memory for it
         try :
             VIEW_ELEMENTS = 1
-            outCont = getattr( PyAthena, self.inputContainerType )(VIEW_ELEMENTS)
+            outCont = PyAthena.DataVector(getattr( PyAthena.xAOD, self.inputContainerParticleType ) )(VIEW_ELEMENTS)
         except TypeError :
-            outCont = getattr( PyAthena, self.inputContainerType )()
+            outCont = PyAthena.DataVector(getattr( PyAthena.xAOD, self.inputContainerParticleType ) )()
             pass
         outCont.reserve( nInputElements )
         
 
         #Then... here we go!
-
-        # Create a dictionary with the barcodes that have already been found
-        barCodeDict = {}
 
         # Get the input collections from StoreGate
         for inCont in inContList :
@@ -160,8 +157,7 @@ class AddContainers( PyAthena.Alg ):
                 self.nObjectsProcessed += 1
                 self.msg.verbose( '  Processing object in input container...' )
                 if self.removeIdentical :
-                    if not obj.getAthenaBarCode() in barCodeDict :
-                        barCodeDict[ obj.getAthenaBarCode() ] = True
+                    if not obj in outCont :
                         outCont.push_back( obj )
                         pass
                     pass

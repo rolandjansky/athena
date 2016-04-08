@@ -55,7 +55,7 @@
 #include "Navigation/IAthenaBarCode.h"
 
 // include the Odometer Algorithm from  EventViewCombiners/EVComboHelper.h
-#include "AnalysisUtils/CombinatoricsOdometer.h"
+#include "PATCore/CombinatoricsOdometer.h"
 
 
 
