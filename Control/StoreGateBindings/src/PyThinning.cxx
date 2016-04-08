@@ -221,10 +221,10 @@ AthenaInternal::thinContainer( IThinningSvc* self,
 //    Filter_t& filter = 
 //      *(Filter_t*)ObjectProxy_ASVOIDPTR(filter);
 
-   SG::DataProxy* proxy = self->deep_proxy( ObjectProxy_ASVOIDPTR(container) );
+   SG::DataProxy* proxy = self->proxy( ObjectProxy_ASVOIDPTR(container) );
    if ( !proxy ) {
        PyErr_SetString( PyExc_RuntimeError,
-			"could not manage to find a deep_proxy" );
+			"could not manage to find a proxy" );
      return 0;
    }
 
@@ -290,10 +290,10 @@ AthenaInternal::thinIdxContainer( IThinningSvc* self,
      return 0;
    }
 
-   SG::DataProxy* proxy = self->deep_proxy( ObjectProxy_ASVOIDPTR(container) );
+   SG::DataProxy* proxy = self->proxy( ObjectProxy_ASVOIDPTR(container) );
    if ( 0 == proxy ) {
      PyErr_SetString( PyExc_RuntimeError,
-		      "could not manage to find a deep_proxy" );
+		      "could not manage to find a proxy" );
      return 0;
    }
    return self->index( proxy, idx );

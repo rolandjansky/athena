@@ -95,11 +95,11 @@ namespace SG {
     /**
      * @brief Destructor.
      */
-    ~PyDataBucket() { Py_DECREF( m_pyObj ); }
+    virtual ~PyDataBucket() override { Py_DECREF( m_pyObj ); }
     /**
      * @brief Return the held object.
      */
-    virtual void* object() 
+    virtual void* object() override
     { 
       return m_clid != PyCLID
         ? ObjectProxy_ASVOIDPTR(m_pyObj)
@@ -116,7 +116,7 @@ namespace SG {
      * @param isConst True if the object being converted is regarded as const.
      */
     virtual void* cast (CLID clid, IRegisterTransient* itr = 0,
-                        bool isConst = true) const;
+                        bool isConst = true) const override;
 
 
     /**
@@ -129,23 +129,31 @@ namespace SG {
      */
     virtual void* cast (const std::type_info& tinfo,
                         IRegisterTransient* itr = 0,
-                        bool isConst = true) const;
+                        bool isConst = true) const override;
 
     /**
      * @brief Retrieve reference to class definition structure
      */
-    virtual const CLID& clID() const { return m_clid; }
+    virtual const CLID& clID() const override { return m_clid; }
+
+    /**
+     * @brief Return the @c type_info for the stored object.
+     */
+    virtual const std::type_info& tinfo() const override
+    {
+      return m_bib->typeinfo();
+    }
 
     /**
      * @brief Return a new @c DataBucket whose payload has been cloned from the
      *        original one.
      */
-    virtual SG::PyDataBucket* clone() const;
+    virtual SG::PyDataBucket* clone() const override;
 
     /**
      * @brief Give up ownership of the  @c DataBucket contents.
      */
-    virtual void relinquish() 
+    virtual void relinquish() override
     {
       Py_DECREF( m_pyObj );
     }
@@ -153,7 +161,7 @@ namespace SG {
     /**
      * If the held object derives from @c ILockable, call @lock() on it.
      */
-    virtual void lock();
+    virtual void lock() override;
 
   private:
     /// Pointer to the held pyroot object (or 'regular' PyObject)
