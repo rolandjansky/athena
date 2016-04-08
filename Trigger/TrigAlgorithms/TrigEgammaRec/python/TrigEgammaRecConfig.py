@@ -56,6 +56,8 @@ CaloTopoIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCa
         ClustersInConeTool              = CaloClustersInConeTool,
         CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster,
         UseEMScale = True,
+        TopoClusterEDCentralContainer = "HLTTopoClusterIsoCentralEventShape",
+        TopoClusterEDForwardContainer = "HLTTopoClusterIsoForwardEventShape",
         OutputLevel = 2)
 
 TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrigEgammaTrackIsolationTool')
