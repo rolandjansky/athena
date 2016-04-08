@@ -125,7 +125,7 @@ class AnalysisSkeleton : public AthAlgorithm  {
    ITHistSvc * m_thistSvc;
 
    /** a handle on Store Gate for access to the Event Store */
-   StoreGateSvc* m_storeGate;
+   //StoreGateSvc* m_storeGate;
 
    /** the key of the Electron Container to retrieve from the AOD */
    std::string m_electronContainerName; 
@@ -228,7 +228,7 @@ class AnalysisSkeleton : public AthAlgorithm  {
   std::vector<double>* m_aan_FinalElEta;
   std::vector<double>* m_aan_FinalElPt;
   std::vector<double>* m_aan_FinalElEtCone20;
-  std::vector<double>* m_aan_FinalElPtrat;
+  //std::vector<double>* m_aan_FinalElPtrat;
 
   std::vector<double>* m_aan_FinalMuEta;
   std::vector<double>* m_aan_FinalMuPt;
@@ -275,7 +275,7 @@ class AnalysisSkeleton : public AthAlgorithm  {
   unsigned int    m_lumiBlock;
   unsigned int    m_bCID;
   double  m_eventWeight;
-  unsigned int    m_statusElement;
+  //unsigned int    m_statusElement;
   /*
   unsigned int    m_lVL1ID;
   unsigned int    m_lvl1TriggerType;

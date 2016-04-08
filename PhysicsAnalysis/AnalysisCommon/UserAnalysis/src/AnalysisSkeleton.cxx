@@ -86,8 +86,8 @@
 #include <functional>
 #include <iostream>
 
-static const double mZ = 91.19*CLHEP::GeV;
-static const int  MAX_PARTICLES = 20;
+//static const double mZ = 91.19*CLHEP::GeV;
+//static const int  MAX_PARTICLES = 20;
 
 using namespace Analysis;
 using namespace Rec;
