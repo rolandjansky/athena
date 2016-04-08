@@ -27,7 +27,7 @@ class LArCablingChecker : public AthAlgorithm
   StatusCode finalize();
 
  private:
-  int m_count, m_chan;
+  int m_count;
   LArCablingService *m_larCablingSvc;
   ILArBadChanTool *m_caloBadChannelTool;
 

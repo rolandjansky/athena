@@ -15,7 +15,7 @@
 
 LArCablingChecker::LArCablingChecker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_chan(0),
+    //m_chan(0),
     m_larCablingSvc(0),
     m_caloBadChannelTool(0),
     m_onlineHelper(0),
