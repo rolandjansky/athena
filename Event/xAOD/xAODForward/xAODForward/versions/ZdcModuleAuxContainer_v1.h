@@ -65,10 +65,10 @@ namespace xAOD {
      std::vector<float> timeG1;
      std::vector<float> qualG1;
 
-     std::vector< ElementLink< TriggerTowerContainer > > tt_g0d0;
-     std::vector< ElementLink< TriggerTowerContainer > > tt_g0d1;
-     std::vector< ElementLink< TriggerTowerContainer > > tt_g1d0;
-     std::vector< ElementLink< TriggerTowerContainer > > tt_g1d1;
+     std::vector< ElementLink< TriggerTowerContainer > > TTg0d0Link;
+     std::vector< ElementLink< TriggerTowerContainer > > TTg0d1Link;
+     std::vector< ElementLink< TriggerTowerContainer > > TTg1d0Link;
+     std::vector< ElementLink< TriggerTowerContainer > > TTg1d1Link;
      /// @}
      
 
