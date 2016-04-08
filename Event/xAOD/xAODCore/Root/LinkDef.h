@@ -4,13 +4,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LinkDef.h 579782 2014-01-23 15:40:31Z krasznaa $
+// $Id: LinkDef.h 715479 2015-12-18 15:12:11Z mnowak $
 #ifndef XAODCORE_LINKDEF_H
 #define XAODCORE_LINKDEF_H
 
+#ifdef ROOTCORE
+// MN: includes needed by RootCore but posing problems in ROOT 6.6.1. remove protection when ROOT-7879 fixed
 // Local include(s):
 #include "xAODCore/tools/ReadStats.h"
 #include "xAODCore/tools/PerfStats.h"
+//#include "xAODCore/tools/PrintHelpers.h"
+#endif
 
 #ifdef __CINT__
 
@@ -26,8 +30,12 @@
 #pragma link C++ class pair<string,xAOD::BranchStats>+;
 #pragma link C++ class xAOD::PerfStats+;
 
+#ifdef XAOD_STANDALONE
 #pragma link C++ class vector<vector<float> >+;
 #pragma link C++ class vector<vector<int> >+;
+#endif
+
+//#pragma link C++ function xAOD::dump+;
 
 #endif // __CINT__
 #endif // XAODCORE_LINKDEF_H

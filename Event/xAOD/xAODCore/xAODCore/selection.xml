@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 624654 2014-10-28 16:41:01Z krasznaa $ -->
+<!-- $Id: selection.xml 652959 2015-03-10 14:03:11Z krasznaa $ -->
 <lcgdict>
 
    <!-- Auxiliary container base: -->
@@ -14,7 +14,7 @@
       <field name="m_mutex" transient="true" />
       <field name="m_tsAuxids" transient="true" />
       <field name="m_locked" transient="true" />
-      <field name="m_name" transiet="true" />
+      <field name="m_name" transient="true" />
    </class>
    <read sourceClass="xAOD::AuxContainerBase" version="[1-]"
          targetClass="xAOD::AuxContainerBase" source="" target="" >
@@ -37,7 +37,7 @@
       <field name="m_mutex" transient="true" />
       <field name="m_tsAuxids" transient="true" />
       <field name="m_locked" transient="true" />
-      <field name="m_name" transiet="true" />
+      <field name="m_name" transient="true" />
    </class>
    <read sourceClass="xAOD::AuxInfoBase" version="[1-]"
          targetClass="xAOD::AuxInfoBase" source="" target="" >
@@ -59,6 +59,7 @@
      <field name="m_tick" transient="true" />
      <field name="m_mutex" transient="true" />
      <field name="m_tsAuxids" transient="true" />
+     <field name="m_name" transient="true" />
    </class>
    <read sourceClass="xAOD::ShallowAuxContainer" version="[1-]"
          targetClass="xAOD::ShallowAuxContainer" source="" target="" >

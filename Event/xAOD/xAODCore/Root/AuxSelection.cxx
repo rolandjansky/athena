@@ -2,16 +2,24 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxSelection.cxx 583607 2014-02-17 11:02:08Z krasznaa $
+// $Id: AuxSelection.cxx 653257 2015-03-11 11:26:15Z krasznaa $
 
 // System include(s):
 #include <iostream>
+#include <map>
 
 // EDM include(s):
 #include "AthContainers/AuxTypeRegistry.h"
 
 // Local include(s):
 #include "xAODCore/AuxSelection.h"
+
+namespace {
+
+   /// Helper variable to only print warning about missing variables once
+   static std::set< std::string > mentionnedVariableNames;
+
+} // private namespace
 
 namespace xAOD {
 
@@ -95,9 +103,13 @@ namespace xAOD {
                   m_auxids.insert( auxid );
                }
             } else {
-               std::cerr << "xAOD::AuxSelection WARNING Selected dynamic Aux "
-                         << "atribute \"" << *name_itr << "\" not found in the "
-                         << "registry" << std::endl;
+               // Check if a warning should be printed at this time or not:
+               if( ::mentionnedVariableNames.insert( *name_itr ).second ) {
+                  // Apparently we didn't complain about this name yet...
+                  std::cerr << "xAOD::AuxSelection WARNING Selected dynamic "
+                            << "Aux atribute \"" << *name_itr
+                            << "\" not found in the registry" << std::endl;
+               }
             }
          }
       } else {

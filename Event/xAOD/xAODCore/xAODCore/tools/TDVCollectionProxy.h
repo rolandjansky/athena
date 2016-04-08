@@ -4,9 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TDVCollectionProxy.h 591472 2014-04-05 11:23:29Z krasznaa $
+// $Id: TDVCollectionProxy.h 687822 2015-08-06 07:58:06Z krasznaa $
 #ifndef XAODCORE_TDVCOLLECTIONPROXY_H
 #define XAODCORE_TDVCOLLECTIONPROXY_H
+
+// System include(s):
+#include <cstddef>
 
 // ROOT include(s):
 #include <TGenCollectionProxy.h>
@@ -36,8 +39,8 @@ namespace xAOD {
    /// @author Scott Snyder <Scott.Snyder@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 591472 $
-   /// $Date: 2014-04-05 13:23:29 +0200 (Sat, 05 Apr 2014) $
+   /// $Revision: 687822 $
+   /// $Date: 2015-08-06 09:58:06 +0200 (Thu, 06 Aug 2015) $
    ///
    class TDVCollectionProxy
       : public TGenCollectionProxy {

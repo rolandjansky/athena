@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowAuxContainer.h 611401 2014-08-12 12:24:53Z krasznaa $
+// $Id: ShallowAuxContainer.h 698535 2015-10-05 14:10:12Z krasznaa $
 #ifndef XAODCORE_SHALLOWAUXCONTAINER_H
 #define XAODCORE_SHALLOWAUXCONTAINER_H
 
@@ -41,8 +41,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 611401 $
-   /// $Date: 2014-08-12 14:24:53 +0200 (Tue, 12 Aug 2014) $
+   /// $Revision: 698535 $
+   /// $Date: 2015-10-05 16:10:12 +0200 (Mon, 05 Oct 2015) $
    ///
    class ShallowAuxContainer : public SG::IAuxStore,
                                public SG::IAuxStoreIO,
@@ -151,6 +151,16 @@ namespace xAOD {
 
       /// @}
 
+      /// @name Functions managing the instance name of the container
+      /// @{
+
+      /// Get the name of the container instance
+      const char* name() const;
+      /// Set the name of the container instance
+      void setName( const char* name );
+
+      /// @}
+
    private:
       /// Dynamic attributes selection implementation
       AuxSelection m_selection;
@@ -161,6 +171,8 @@ namespace xAOD {
       SG::IAuxStoreIO* m_storeIO;
       /// Flag deciding if the object owns the dynamic store or not
       bool m_ownsStore;
+      /// Flag keeping track of whether this object is locked or not
+      bool m_locked;
 
       /// Link to the parent object
       DataLink< SG::IConstAuxStore > m_parentLink;
@@ -188,6 +200,9 @@ namespace xAOD {
           : m_tick (0) {}
       };
       mutable AthContainers_detail::thread_specific_ptr<TSAuxidSet> m_tsAuxids;
+
+      /// Name of the container in memory. Set externally.
+      std::string m_name;
 
    }; // class ShallowAuxContainer
 

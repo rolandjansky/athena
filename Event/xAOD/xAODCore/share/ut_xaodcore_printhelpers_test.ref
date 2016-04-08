@@ -1,0 +1,25 @@
+SG::AuxElement
+   standalone object, without auxiliary store
+SG::AuxElement
+   using private store 0x2688440
+   Variables:
+    - type: int, 	name: "IntValue", 	value: 12
+    - type: float, 	name: "FloatValue", 	value: 3.14
+    - type: std::vector<int>, 	name: "VecIntValue", 	value: [1, 2, 3]
+    - type: std::vector<float>, 	name: "VecFloatValue", 	value: [1.2, 2.3, 3.4]
+    - type: TypeA, 	name: "TypeAValue", 	value: N/A
+    - type: std::vector<TypeA>, 	name: "VecTypeAValue", 	value: N/A
+SG::AuxElement
+   in container 0x7fff8e753090
+   Variables:
+    - type: long, 	name: "LongValue", 	value: 234
+    - type: unsigned int, 	name: "UInt32Value", 	value: 291
+SG::AuxElement
+   using private store 0x2688440
+   Variables:
+    - type: int, 	name: "IntValue", 	value: 12
+    - type: float, 	name: "FloatValue", 	value: 3.14
+    - type: std::vector<int>, 	name: "VecIntValue", 	value: [1, 2, 3]
+    - type: std::vector<float>, 	name: "VecFloatValue", 	value: [1.2, 2.3, 3.4]
+    - type: TypeA, 	name: "TypeAValue", 	value: N/A
+    - type: std::vector<TypeA>, 	name: "VecTypeAValue", 	value: N/A

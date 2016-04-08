@@ -4,12 +4,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowCopy.h 598261 2014-05-21 16:36:05Z krasznaa $
+// $Id: ShallowCopy.h 687601 2015-08-05 10:23:25Z krasznaa $
 #ifndef XAODCORE_SHALLOWCOPY_H
 #define XAODCORE_SHALLOWCOPY_H
 
 // System include(s):
 #include <map>
+#include <iostream>
+
+// EDM include(s):
+#include "AthLinks/DataLink.h"
+#include "AthContainersInterfaces/IConstAuxStore.h"
 
 // Local include(s):
 #include "xAODCore/ShallowAuxContainer.h"
@@ -36,10 +41,10 @@ namespace xAOD {
          // This can happen when we read the input file in standalone
          // mode in branch access mode. That's unfortunately not
          // compatible with using a shallow copy auxiliary store.
-         std::cerr << "xAOD::shallowCopyContainer ERROR Couldn't set up "
+         std::cout << "xAOD::shallowCopyContainer ERROR Couldn't set up "
                    << "DataLink to the original container's auxiliary store"
                    << std::endl;
-         std::cerr << "xAOD::shallowCopyContainer ERROR Are you using the "
+         std::cout << "xAOD::shallowCopyContainer ERROR Are you using the "
                    << "xAOD::TEvent::kBranchAccess access mode?"
                    << std::endl;
          std::pair< T*, ShallowAuxContainer* > dummy;
@@ -85,10 +90,10 @@ namespace xAOD {
          // This can happen when we read the input file in standalone
          // mode in branch access mode. That's unfortunately not
          // compatible with using a shallow copy auxiliary store.
-         std::cerr << "xAOD::shallowCopyObject ERROR Couldn't set up "
+         std::cout << "xAOD::shallowCopyObject ERROR Couldn't set up "
                    << "DataLink to the original object's auxiliary store"
                    << std::endl;
-         std::cerr << "xAOD::shallowCopyObject ERROR Are you using the "
+         std::cout << "xAOD::shallowCopyObject ERROR Are you using the "
                    << "xAOD::TEvent::kBranchAccess access mode?"
                    << std::endl;
          std::pair< T*, ShallowAuxInfo* > dummy;

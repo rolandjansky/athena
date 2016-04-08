@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowAuxInfo.h 611401 2014-08-12 12:24:53Z krasznaa $
+// $Id: ShallowAuxInfo.h 671678 2015-06-02 12:28:46Z krasznaa $
 #ifndef XAODCORE_SHALLOWAUXINFO_H
 #define XAODCORE_SHALLOWAUXINFO_H
 
@@ -23,8 +23,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 611401 $
-   /// $Date: 2014-08-12 14:24:53 +0200 (Tue, 12 Aug 2014) $
+   /// $Revision: 671678 $
+   /// $Date: 2015-06-02 14:28:46 +0200 (Tue, 02 Jun 2015) $
    ///
    class ShallowAuxInfo : public ShallowAuxContainer {
 
@@ -33,6 +33,9 @@ namespace xAOD {
       ShallowAuxInfo();
       /// Constructor with a parent object
       ShallowAuxInfo( const DataLink< SG::IConstAuxStore >& parent );
+
+      /// Return the type of the store object
+      virtual AuxStoreType getStoreType() const { return AST_ObjectStore; }
 
    }; // class ShallowAuxInfo
 

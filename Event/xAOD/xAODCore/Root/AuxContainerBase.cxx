@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxContainerBase.cxx 633004 2014-12-02 13:36:00Z ssnyder $
+// $Id: AuxContainerBase.cxx 666175 2015-05-11 12:32:25Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -207,10 +207,6 @@ namespace xAOD {
       // Guard against multi-threaded execution:
       guard_t guard( m_mutex );
 
-      // Update the statistics for this variable:
-      BranchStats* stat = IOStats::instance().stats().branch( m_name, auxid );
-      stat->setReadEntries( stat->readEntries() + 1 );
-
       if( ( auxid >= m_vecs.size() ) || ( ! m_vecs[ auxid ] ) ) {
          if( m_store ) {
             size_t nids = m_store->getAuxIDs().size();
@@ -228,6 +224,10 @@ namespace xAOD {
             return 0;
          }
       }
+
+      // Update the statistics for this variable. The dynamic store registers
+      // its own variable accesses.
+      IOStats::instance().stats().readBranch( m_name, auxid );
 
       return m_vecs[ auxid ]->toPtr();
    }
@@ -517,6 +517,10 @@ namespace xAOD {
             return 0;
          }
       }
+
+      // Update the statistics for this variable. The dynamic store registers
+      // its own variable accesses.
+      IOStats::instance().stats().readBranch( m_name, auxid );
 
       return m_vecs[ auxid ]->toVector();
    }

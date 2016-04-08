@@ -30,12 +30,22 @@ use AtlasReflex             AtlasReflex-*             External
 apply_tag ROOTGenVectorLibs
 
 apply_pattern lcgdict dict=xAODCoreRflx selectionfile=selection.xml \
-                      headerfiles="../xAODCore/xAODCoreRflxDict.h"
+                      headerfiles="../xAODCore/xAODCoreRflxDict.h" \
+                      extraselection="selectionAthSuppress.xml"
 
-apply_pattern lcgdict dict=xAODCoreAthena selectionfile=selectionAthena.xml \
+pattern xAODCoreAthenaDict_patt \
+     apply_pattern lcgdict dict=xAODCoreAthena selectionfile=selectionAthena.xml \
                       headerfiles="../xAODCore/xAODCoreAthenaDict.h"
+
+# ROOT::Math dicts only for ROOT5
+apply_pattern root5only_pattern pattern_name="xAODCoreAthenaDict_patt" 
 
 apply_pattern have_root_headers root_headers="tools/ReadStats.h \
                                               tools/PerfStats.h \
                                               ../Root/LinkDef.h" \
               headers_lib=xAODCore
+
+# Declare the unit tests of the package:
+use TestTools               TestTools-*               AtlasTest
+apply_pattern UnitTest_run unit_test=ut_xaodcore_auxselection
+apply_pattern UnitTest_run unit_test=ut_xaodcore_printhelpers
