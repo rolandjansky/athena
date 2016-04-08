@@ -58,7 +58,7 @@ namespace InDet
   private:
     void ResetMon();
     void FillMonPerTrack(const xAOD::TrackParticle *, const double&, const double&);
-    void FillMonPerRoi(const double&, const double&);
+    void FillMonPerRoi(const TrigRoiDescriptor* , const double&, const double&);
 
   private:
     ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool;
@@ -85,6 +85,8 @@ namespace InDet
     std::vector<float>          m_dqm_chi2dof;
     std::vector<float>          m_dqm_eta_roi;
     std::vector<float>          m_dqm_phi_roi;
+    double                      m_roiPhi, m_roiEta, m_roiZ;
+    double                      m_roiPhiWidth, m_roiEtaWidth, m_roiZ_Width;
     int                         m_dqm_ntrkpart;
     int                         m_dqm_ntrk;
     int                         m_dqm_nvertex;
