@@ -6,25 +6,30 @@
 #define RECPARTICLE_TRACKSLIMMINGHDLR_H
 
 // STL includes
-#include <vector>
+#include <string>
 #include <typeinfo>
 
-#include <iostream>
-
+//#include <iostream>
 // Track includes
-#include "Particle/TrackParticleContainer.h"
-#include "Particle/TrackParticle.h"
+//#include "Particle/TrackParticleContainer.h"
+//#include "Particle/TrackParticle.h"
+//#include "TrkTrackSummary/TrackSummary.h"
+//#include "TrkTrack/TrackCollection.h"
+//#include "TrkEventPrimitives/FitQuality.h"
+//#include "TrkEventPrimitives/ParamDefs.h"
+
 #include "TrkParametersBase/ParametersBase.h"
-#include "TrkTrackSummary/TrackSummary.h"
-#include "TrkTrack/TrackCollection.h"
-#include "TrkEventPrimitives/FitQuality.h"
-#include "TrkTrack/Track.h"
-#include "TrkEventPrimitives/ParamDefs.h"
+#include "TrkTrack/Track.h" //to get Trk::Charged
+
 
 
 // Athena/Gaudi includes
 #include "AthenaKernel/ISlimmingHdlr.h"
-#include "AthenaKernel/MsgStreamMember.h"
+//#include "AthenaKernel/MsgStreamMember.h"
+
+namespace Rec{
+	class TrackParticle;
+}
 
 /**
  * @class Athena::TrackSlimmingHdlr
@@ -40,7 +45,11 @@ class TrackSlimmingHdlr: public ::Athena::ISlimmingHdlr
  public:
 
   // Copy constructor: 
-  TrackSlimmingHdlr( const TrackSlimmingHdlr& rhs );
+  TrackSlimmingHdlr( const TrackSlimmingHdlr& rhs ); //no implementation?
+  
+  // Delete assignment
+  TrackSlimmingHdlr & operator=(const TrackSlimmingHdlr& ) = delete;
+  
 
   /// Constructor with parameters: 
   TrackSlimmingHdlr(Rec::TrackParticle * trkp,INamedInterface* requester);

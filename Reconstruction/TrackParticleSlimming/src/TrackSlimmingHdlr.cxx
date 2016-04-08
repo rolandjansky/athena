@@ -3,11 +3,17 @@
 */
 
 #include "TrackParticleSlimming/TrackSlimmingHdlr.h"
+#include "AthenaKernel/MsgStreamMember.h"
+#include <vector>
+#include "Particle/TrackParticle.h"
 
 
-
-TrackSlimmingHdlr::TrackSlimmingHdlr(Rec::TrackParticle * trkp, INamedInterface* requester): Athena::ISlimmingHdlr(),  m_trkp(trkp), m_requester(requester), m_thisName("TrackSlimmingHdlr")
-{ }
+TrackSlimmingHdlr::TrackSlimmingHdlr(Rec::TrackParticle * trkp, INamedInterface* requester): 
+		Athena::ISlimmingHdlr(),  m_trkp(trkp), m_firsthit{},
+		m_lasthit{},
+		m_requester(requester), 
+		m_thisName("TrackSlimmingHdlr")
+	{ }
 
 void TrackSlimmingHdlr::commit()
 {
