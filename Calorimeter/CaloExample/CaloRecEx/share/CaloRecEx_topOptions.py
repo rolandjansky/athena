@@ -29,8 +29,10 @@ rec.doTrigger=False
 rec.doAOD=False
 #doTruth=False
 
-# no jets,etc (depends on Tracks too)
-rec.doJetMissingETTag=False
+recAlgs.doMuTag=False
+
+from JetRec.JetRecFlags import jetFlags
+jetFlags.Enabled=False
 
 rec.CBNTAthenaAware=True
 

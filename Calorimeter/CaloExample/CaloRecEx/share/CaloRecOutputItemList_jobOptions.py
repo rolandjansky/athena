@@ -104,6 +104,7 @@ AODMoments=["LATERAL"
             ,"AVG_LAR_Q"
             ,"AVG_TILE_Q"
             ,"EM_PROBABILITY"
+            ,"PTD"
             ,"BadChannelList"
             ]
 
