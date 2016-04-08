@@ -15,6 +15,9 @@ InDet::InDetTrackPRD_Association::InDetTrackPRD_Association
   AthAlgorithm(name, pSvcLocator)                           ,
   m_assoTool  ("InDet::InDetPRD_AssociationToolGangedPixels")
 {
+  m_nprint      = 0;
+  m_outputlevel = 0;
+ 
   // InDetTrackPRD_Association steering parameters
   //
   declareProperty("AssociationTool", m_assoTool  );
