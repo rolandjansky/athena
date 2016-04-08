@@ -1,0 +1,5 @@
+1) Make a soft link between horace conf file to horace.conf, which will be searched by Horace_i
+for example horace.conf -> PATH_TO_SHARE/horace_3.1_W+W-_mu_exp_unweighted.conf
+
+2) The events file listed in conf ("file where event are store horace_3.1_W+W-_mu_exp_unweighted.evts"
+should be reachable from the run directory

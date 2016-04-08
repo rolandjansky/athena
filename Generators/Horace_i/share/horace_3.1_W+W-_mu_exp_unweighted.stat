@@ -1,0 +1,72 @@
+  
+ Requested number of unweighed events:   1000.
+ Unweighted event n.   1000.
+ Weighted event n.   76390.
+ Weighted events after cuts  41451
+  
+ Initial state particles:  2212   2212
+ PDFs: CTEQ6 PDFs (with iset = 3)                        
+  
+ C. of m. energy =  14000.00 GeV
+ W+ & W- production, decaying into muons
+  
+ W mass      =   80.398 GeV
+ W width     =   2.124 GeV
+ Z mass      =   91.1876 GeV
+ Z width     =   2.4952 GeV
+ sin^2(th_w) =   0.222645853
+ delta_r     =   0. (one-loop EW delta_r)        
+  
+ EW RC: exp    (MATCHED QED PS)
+  EW input scheme:  0
+  
+ hit or miss cross section  =  19460.4818407 +-    611.3532226 (pb)
+ h. or m. out-of-range bias =      0.0000000 +-     0.0000000 (pb)
+ weighted cross section     =  19261.9370279 +-    150.1179220 (pb)
+  
+ h. or m. efficiency =   1.30907 %    (out of range =      0)
+ (upper limit =  150., to be set to  116.715618)
+  
+ Events stored in file: 
+ Wmunu_CTEQ6L_EW_1000/horace_3.1_W+W-_mu_exp_unweighted.evts                                                                                           
+ Partial cross sections:
+   0 photons:  14037.014 +-  112.5389           (npoints:  30295)
+   1 photons:  4964.61309 +-  103.701613           (npoints:  9413)
+   2 photons:  247.148803 +-  31.380328           (npoints:  1535)
+   3 photons:  13.1568248 +-  9.26091784           (npoints:  200)
+   4 photons:  0.00427522415 +-  0.00329264048           (npoints:  7)
+   5 photons: -4.56739938E-10 +-  4.56736949E-10           (npoints:  1)
+  
+ Negative weights statistics:
+  n. of weighted points   = 683
+  n. of unweighted events = 0
+  cross section  -25.1806509 +-  5.18946746
+  
+ partial q-q['][bar] contributions
+ -5 4   0.501566194
+ -4 1   108.817925
+ -4 3   872.415311
+ -4 5   0.00318796509
+ -3 2   188.251423
+ -3 4   858.433368
+ -2 1   3030.31559
+ -2 3   71.2180993
+ -1 2   4444.74792
+ -1 4   54.3706076
+ 1 -4   88.545512
+ 1 -2   2984.43548
+ 2 -3   194.672422
+ 2 -1   4346.48278
+ 3 -4   993.637153
+ 3 -2   66.0327203
+ 4 -5   2.74967617
+ 4 -3   896.984121
+ 4 -1   57.3237954
+ 5 -4   1.99836928
+ Sum:   19261.937
+ ....
+ Started by user ID 444 on grid15.pv.infn.it, process ID 22862
+ ....
+ Running time statistics:
+ program started  146 s ago
+ CPU time =  145 s (of which  145 s user time)
