@@ -1,26 +1,45 @@
-<!-- $Id: selection.xml 612503 2014-08-19 11:58:04Z krasznaa $ -->
+<!-- $Id: selection.xml 693494 2015-09-07 14:59:45Z krasznaa $ -->
 <lcgdict>
-  <!-- I do not think we need it -->
-  <class name="xAOD::HIEventShape_v1"/>
+
+  <!--                  -->
+  <!-- V1 dictionaries: -->
+  <!--                  -->
+  <class name="xAOD::HIEventShape_v1" />
 
   <class name="xAOD::HIEventShapeContainer_v1"
          id="FA2C3CB2-71A6-11E4-BB30-02163E010E29" />
   <class name="xAOD::HIEventShapeAuxContainer_v1"
          id="06FA81A6-71A7-11E4-9A9D-02163E010E29" />
 
-  <!-- Smart pointer dictionaries: -->
   <class name="DataLink<xAOD::HIEventShape_v1>" />
-
   <class name="std::vector<DataLink<xAOD::HIEventShape_v1> >" />
 
   <class name="ElementLink<xAOD::HIEventShapeContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::HIEventShapeContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::HIEventShapeContainer_v1> > >" />
 
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-  </exclusion>
+  <!--                  -->
+  <!-- V2 dictionaries: -->
+  <!--                  -->
+  <class name="xAOD::HIEventShape_v2" />
+
+  <class name="xAOD::HIEventShapeContainer_v2"
+         id="386D4EAA-358E-42CB-B35C-126D69D1331C" />
+  <class name="xAOD::HIEventShapeAuxContainer_v2"
+         id="8A34CCBF-509A-4A15-8234-07FBC0BFF1B0" />
+
+  <class name="DataLink<xAOD::HIEventShape_v2>" />
+  <class name="std::vector<DataLink<xAOD::HIEventShape_v2> >" />
+
+  <class name="ElementLink<xAOD::HIEventShapeContainer_v2>" />
+  <class name="std::vector<ElementLink<xAOD::HIEventShapeContainer_v2> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::HIEventShapeContainer_v2> > >" />
+
+  <read sourceClass="DataLink<xAOD::HIEventShape_v1>" version="[1-]"
+        targetClass="DataLink<xAOD::HIEventShape_v2>"
+        source="" target="" />
+  <read sourceClass="ElementLink<xAOD::HIEventShape_v1>" version="[1-]"
+        targetClass="ElementLink<xAOD::HIEventShape_v2>"
+        source="" target="" />
 
 </lcgdict>

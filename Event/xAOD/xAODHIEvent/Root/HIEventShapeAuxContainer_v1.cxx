@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: HIEventShapeAuxContainer_v1.cxx 594315 2014-04-25 17:34:40Z krasznaa $
+// $Id: HIEventShapeAuxContainer_v1.cxx 693427 2015-09-07 11:45:19Z krasznaa $
 
 // Local include(s):
 #include "xAODHIEvent/versions/HIEventShapeAuxContainer_v1.h"
