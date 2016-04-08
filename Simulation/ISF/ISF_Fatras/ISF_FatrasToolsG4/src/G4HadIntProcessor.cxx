@@ -64,8 +64,6 @@
 #include "CLHEP/Random/RandFlat.h"
 
 
-#include "FadsPhysics/PhysicsListCatalog.h"
-
 // using namespace std;
 
 // STD
