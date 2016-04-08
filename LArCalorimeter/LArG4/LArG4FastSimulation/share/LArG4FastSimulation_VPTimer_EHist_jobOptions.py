@@ -1,5 +1,5 @@
 ##
-## # $Id: LArG4FastSimulation_VPTimer_EHist_jobOptions.py 662012 2015-04-21 14:32:22Z jchapman $
+## # $Id: LArG4FastSimulation_VPTimer_EHist_jobOptions.py 708108 2015-11-16 12:34:05Z jchapman $
 ##
 ## # jobOptions file for preparing detailed program timer and histogramming of 
 ## # MC-level energy by particle and volume
@@ -27,17 +27,31 @@ actionProperties={
 
 ## # volume/particle timing - prints cpu time spent per particle, per volume to outfile
 ## # DO NOT USE SIMULTANEOUSLY WITH EHistAction!
-TimerAction = PyG4Atlas.UserAction('G4ProfilingTools','TestActionVPTimer',
-                                   ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-TimerAction.set_Properties(actionProperties)
-AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(TimerAction)
+try:
+    # Post UserAction Migration (ATLASSIM-1752)
+    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+    from AthenaCommon.CfgGetter import getPublicTool
+    UAStore.addAction(getPublicTool('TestActionVPTimer'),['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+except:
+    # Pre UserAction Migration
+    TimerAction = PyG4Atlas.UserAction('G4ProfilingTools','TestActionVPTimer',
+                                       ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+    TimerAction.set_Properties(actionProperties)
+    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(TimerAction)
 print "volume/particle timing ON (see stdout)"
 
 ## # energy histogramming - creates ROOT file with histograms of kinetic energy by particle, by volume
-#EHistAction = PyG4Atlas.UserAction('G4ProfilingTools','TestActionEHist',
-#                                   ['BeginOfRun','EndOfRun','Step'])
-#EHistAction.set_Properties(actionProperties)
-#AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(EHistAction)
+#try:
+#    # Post UserAction Migration (ATLASSIM-1752)
+#    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+#    from AthenaCommon.CfgGetter import getPublicTool
+#    UAStore.addAction(getPublicTool('TestActionEHist'),['BeginOfRun','EndOfRun','Step'])
+#except:
+#    # Pre UserAction Migration
+#    EHistAction = PyG4Atlas.UserAction('G4ProfilingTools','TestActionEHist',
+#                                       ['BeginOfRun','EndOfRun','Step'])
+#    EHistAction.set_Properties(actionProperties)
+#    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(EHistAction)
 #print "energy histogramming ON (outfile:",actionProperties['ROOTFileName'],")"
 
 ## # must be imported prior to the commands:

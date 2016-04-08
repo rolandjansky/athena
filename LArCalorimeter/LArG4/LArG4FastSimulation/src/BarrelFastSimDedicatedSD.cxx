@@ -10,68 +10,26 @@
 #include "LArReadoutGeometry/EMBAccordionDetails.h"
 #include "LArReadoutGeometry/GeoStraightAccSection.h"
 #include "LArG4Code/EnergySpot.h"
-#include "LArG4SD/LArG4SD.h"
-#include "LArG4Code/LArVHitMerger.h"
-#include "LArG4Code/LArVHitMergerFactory.h"
 #include "LArG4Code/LArG4Identifier.h"
+#include "StoreGate/StoreGateSvc.h"
 
 using HepGeom::Point3D;
 using HepGeom::Transform3D;
 using CLHEP::Hep3Vector;
 
 // Constructor:
-BarrelFastSimDedicatedSD::BarrelFastSimDedicatedSD(const std::string& type, const std::string& name, const IInterface *parent)
-  : SensitiveDetectorBase(type,name,parent)
-  , m_hitMerger(0)
+BarrelFastSimDedicatedSD::BarrelFastSimDedicatedSD(StoreGateSvc* detStore)
+  : IFastSimDedicatedSD("BarrelFastSimDedicatedSD", detStore)
   , m_embManager(nullptr)
   , m_accordionDetails(nullptr)
   , m_absorberSections(nullptr)
 {
-  m_noVolumes=true;
-  declareInterface<IFastSimDedicatedSD>(this);
-}
-
-StatusCode BarrelFastSimDedicatedSD::initialize()
-{
-  ATH_MSG_VERBOSE( name() << "::initialize()");
-  CHECK( detStore()->retrieve( m_embManager ) );
+  G4cout << GetName() << "::initialize()" << G4endl;
+  if ( detStore->retrieve( m_embManager ).isFailure()  ){
+    throw std::runtime_error("Could not retrieve EMB manager");
+  }
   m_accordionDetails=m_embManager->getAccordionDetails();
   m_absorberSections=m_accordionDetails->getAbsorberSections();
-  return SensitiveDetectorBase::initialize();
-}
-
-StatusCode BarrelFastSimDedicatedSD::retrieveLArHitMerger()
-{
-  // At the beginning of first event initialize m_hitMerger pointer
-  // 1. Get Hit Merger factory from DS
-  // 2. Query Hit Merger factory for Hit Merger pointer
-  const DataHandle<LArVHitMergerFactory> _factory;
-  CHECK( detStore()->retrieve(_factory,"LArHitMergerFactory") );
-
-  m_hitMerger = _factory->getHitMerger();
-
-  if(m_hitMerger==0){
-    ATH_MSG_ERROR("0 pointer to the Hit Merger");
-    return StatusCode::FAILURE;
-  }
-  m_hitMerger->BeginOfEvent(); //FIXME lazy init hack
-  return StatusCode::SUCCESS;
-}
-
-// End each event (do hit merger here)
-StatusCode BarrelFastSimDedicatedSD::EndOfAthenaEvent() {
-  if(m_hitMerger) m_hitMerger->EndOfEvent();
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-BarrelFastSimDedicatedSD::queryInterface(const InterfaceID& riid, void** ppvIf) {
-  if ( riid == IFastSimDedicatedSD::interfaceID() ) {
-    *ppvIf = (IFastSimDedicatedSD*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  return SensitiveDetectorBase::queryInterface( riid, ppvIf );
 }
 
 // ProcessHitsMethod
@@ -143,7 +101,7 @@ void BarrelFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
           int stackIndex=int(A1.dot(P0)/A1.mag2()*22.0 + 3.0)/2 ;
 
           if (stackIndex<0 || stackIndex>13) {
-            ATH_MSG_WARNING( "Warning, bad stack index " << stackIndex << ' ' << rmin << ' ' << r << ' ' << A0.perp() << ' ' << A0 <<  ' ' << A1 << ' ' << P0 );
+            G4cout << "Warning, bad stack index " << stackIndex << ' ' << rmin << ' ' << r << ' ' << A0.perp() << ' ' << A0 <<  ' ' << A1 << ' ' << P0 << G4endl;
             if (implementWaves) return;
           } else {
             double xcent      = m_absorberSections->XCent     (accordionIndexLower,stackIndex);
@@ -189,17 +147,8 @@ void BarrelFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
                << regionIndex
                << etaIndex
                << phiIndex;
-        //FIXME temporary hack for lazy initialization for LArHitMerger
-        if (!m_hitMerger)
-          {
-            if(retrieveLArHitMerger().isFailure())
-              {
-                ATH_MSG_FATAL("Could not retrieve the LArHitMerger! Will crash now.");
-                //throw;
-              }
-          }
-        // call process with dummy first argument
-        m_hitMerger->process(0,id, spot.GetTime(), spot.GetEnergy());
+        // call process to add this to the collection 
+        SimpleHit(id, spot.GetTime(), spot.GetEnergy());
 
         return;
       }

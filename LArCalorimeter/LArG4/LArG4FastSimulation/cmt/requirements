@@ -14,9 +14,11 @@ use GeoModelKernel      GeoModelKernel-*        DetectorDescription/GeoModel
 use GeoSpecialShapes    GeoSpecialShapes-*      DetectorDescription/GeoModel
 use LArG4Code           LArG4Code-*             LArCalorimeter/LArG4
 use LArG4ShowerLibSvc   LArG4ShowerLibSvc-*     LArCalorimeter/LArG4
-use LArG4SD             LArG4SD-*               LArCalorimeter/LArG4
+#use LArG4SD             LArG4SD-*               LArCalorimeter/LArG4
 use LArReadoutGeometry  LArReadoutGeometry-*    LArCalorimeter/LArGeoModel
 use LArSimEvent         LArSimEvent-*           LArCalorimeter
+use StoreGate           StoreGate-*             Control
+#use CaloIdentifier      CaloIdentifier-*        Calorimeter
 end_private
 
 apply_tag ROOTBasicLibs
