@@ -2,8 +2,8 @@ package CppUnitExample
 
 author Alex Undrus <undrus@bnl.gov>
 
-use AtlasPolicy    AtlasPolicy-01-* 
-use TestPolicy     TestPolicy-00-*
+use AtlasPolicy    AtlasPolicy-* 
+use TestPolicy     TestPolicy-*
 use TestTools      TestTools-*    AtlasTest  
 
 # Run CppUnit tests:
