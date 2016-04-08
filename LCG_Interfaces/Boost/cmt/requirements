@@ -15,7 +15,7 @@ macro Boost_debug "" \
 macro Boost_home $(LCG_external)/Boost/$(Boost_native_version)/$(LCG_system)
 
 include_path none
-include_dirs $(Boost_home)/include/boost-$(Boost_file_version) 
+macro Boost_include $(Boost_home)/include/boost-$(Boost_file_version) 
 
 # silence warnings from gcc48 and later
 macro Boost_pp_cppflags "-isystem $(Boost_home)/include/boost-$(Boost_file_version) "
@@ -71,6 +71,7 @@ macro Boost_header_file_filter $(Boost_home)/include/boost-$(Boost_file_version)
 macro Boost_header_file_stamp  $(Boost_home)/include/boost-$(Boost_file_version)/boost/any.hpp
 
 apply_pattern set_lib_path
+apply_pattern set_root_include_path
 
 macro_append cppflags  ""  target-win  " /DBOOST_ALL_DYN_LINK /wd4275 /wd4251 "
 
