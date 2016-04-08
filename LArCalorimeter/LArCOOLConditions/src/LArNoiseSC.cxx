@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArNoiseSC.h"
 
 
-const float LArNoiseSC::errorcode=ILArNoise::ERRORCODE;
+//const float LArNoiseSC::errorcode=ILArNoise::ERRORCODE;
 
 LArNoiseSC::LArNoiseSC() {}
 

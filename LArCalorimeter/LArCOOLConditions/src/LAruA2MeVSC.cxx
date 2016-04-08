@@ -9,7 +9,7 @@ LAruA2MeVSC::LAruA2MeVSC() {}
 
 LAruA2MeVSC::~LAruA2MeVSC() {}
 
-const float LAruA2MeVSC::errorcode=ILAruA2MeV::ERRORCODE;
+//const float LAruA2MeVSC::errorcode=ILAruA2MeV::ERRORCODE;
 
 LAruA2MeVSC::LAruA2MeVSC(const CondAttrListCollection* attrList) {
   StatusCode sc=initializeBase("LAruA2MeVSC");

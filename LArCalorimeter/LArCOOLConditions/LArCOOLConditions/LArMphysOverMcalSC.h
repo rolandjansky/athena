@@ -32,7 +32,7 @@ public:
   virtual const float& MphysOverMcal(const Identifier& id, int gain) const; 
   
 private:
-  static const float errorcode;
+  //  static const float s_errorcode;
 
 };
 

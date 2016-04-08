@@ -4,7 +4,7 @@
 
 #include "LArCOOLConditions/LArHVScaleCorrSC.h"
 
-const float LArHVScaleCorrSC::errorcode=ILArHVScaleCorr::ERRORCODE;
+//const float LArHVScaleCorrSC::errorcode=ILArHVScaleCorr::ERRORCODE;
 
 LArHVScaleCorrSC::LArHVScaleCorrSC() {}
 

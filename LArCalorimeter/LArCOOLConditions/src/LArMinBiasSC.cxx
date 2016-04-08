@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArMinBiasSC.h"
 
 
-const float LArMinBiasSC::errorcode=ILArMinBias::ERRORCODE;
+//const float LArMinBiasSC::errorcode=ILArMinBias::ERRORCODE;
 
 LArMinBiasSC::LArMinBiasSC() {}
 

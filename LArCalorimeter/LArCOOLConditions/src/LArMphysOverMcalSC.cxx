@@ -5,7 +5,7 @@
 #include "LArCOOLConditions/LArMphysOverMcalSC.h"
 
 
-const float LArMphysOverMcalSC::errorcode=ILArMphysOverMcal::ERRORCODE;
+//const float LArMphysOverMcalSC::m_errorcode=ILArMphysOverMcal::ERRORCODE;
 
 LArMphysOverMcalSC::LArMphysOverMcalSC() {}
 
