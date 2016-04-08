@@ -740,9 +740,12 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
   const AmgVector(5)&                         p = tS.localParameters();
   AmgSymMatrix(5)*  ep = new AmgSymMatrix(5)(tS.localCovariance());
   const Trk::StraightLineSurface*       surf = dynamic_cast<const Trk::StraightLineSurface*>(&(tS.associatedSurface()));
+  if (!surf) {
+    throw std::logic_error("Unhandled surface.");
+  }
   
 
-  const Trk::TrackParameters* segPar = surf->createParameters<5,Trk::Charged>(p(0),p(1),p(2),p(3),p(4),ep);
+  std::unique_ptr<const Trk::TrackParameters> segPar( surf->createParameters<5,Trk::Charged>(p(0),p(1),p(2),p(3),p(4),ep) );
   if(segPar){
     if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Initial TRT Segment Parameters for refitting " << (*segPar) << endreq;}
   }else{
@@ -756,7 +759,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Measurement);
     if(it==0) 
-      seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),segPar,0,0,typePattern);
+      seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),segPar.release(),0,0,typePattern);
     else
       seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),0,0,0,typePattern);
     ntsos->push_back(seg_tsos);
