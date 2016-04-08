@@ -49,13 +49,14 @@ typename LArTT_Selector<CONTAINER>::const_iterator&
 LArTT_Selector<CONTAINER>::const_iterator:: operator = 
 	( const LArTT_Selector<CONTAINER>::const_iterator & it ) 
 {
-
+  if (this != &it) {
 	  m_vec_itpair  = it.m_vec_itpair      ; 
 	  m_pair_it     = it.m_pair_it         ;
 	  m_obj_it      = it.m_obj_it          ;
 	  m_obj_it_end  = it.m_obj_it_end      ;
+  }
 
-	return *this; 
+  return *this; 
 }
 
 
