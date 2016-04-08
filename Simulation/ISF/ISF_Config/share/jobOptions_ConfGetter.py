@@ -15,7 +15,10 @@ options.setdefault('Simulator',                'ATLFASTII'                     )
 options.setdefault('EvtMax',                   15                              )
 options.setdefault('OverrideInputFiles',       []                              )
 options.setdefault('ValidationMode',           False                           )
-options.setdefault('GeometryVersion',          'ATLAS-GEO-20-00-01'            )
+options.setdefault('GeometryVersion',          'ATLAS-R2-2015-03-01-00'        )
+options.setdefault('truthStrategy',            'MC15aPlus'                     )
+options.setdefault('DataRunNumber',            222525                          )
+options.setdefault('ConditionsTag',            'OFLCOND-RUN12-SDR-19'          )
 
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
         getService,getServiceClone,getAlgorithm,getAlgorithmClone
@@ -55,13 +58,14 @@ ISF_Flags.OverrideInputFiles        = OverrideInputFiles    # default: []
 #FatrasTuningFlags.MomCutOffSec = 50.
 
 from G4AtlasApps.SimFlags import simFlags
+if DataRunNumber>0:
+  simFlags.RunNumber=DataRunNumber
 simFlags.ReleaseGeoModel = False    # Comment this out when not making making DCube plots
 simFlags.SimLayout = GeometryVersion
 
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
-globalflags.ConditionsTag   = 'OFLCOND-MC12-SIM-00'
-
+globalflags.ConditionsTag   = ConditionsTag
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 TrkDetFlags.PixelBuildingOutputLevel = INFO
 TrkDetFlags.SCT_BuildingOutputLevel  = INFO
@@ -76,6 +80,49 @@ ServiceMgr.MessageSvc.Format       = "% F%60W%S%7W%R%T %0W%M"
 #--------------------------------------------------------------
 # Do the rest of the configuration
 #--------------------------------------------------------------
+try:
+    from ISF_Config import FlagSetters
+    FlagSetters.configureFlagsBase()
+## Check for any simulator-specific configuration
+    configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
+    if configureFlags is not None:
+        configureFlags()
+except:
+    ## Select detectors
+    if 'DetFlags' not in dir():
+        ## If you configure one det flag, you're responsible for configuring them all!
+        from AthenaCommon.DetFlags import DetFlags
+        DetFlags.all_setOn()
+    DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
+    DetFlags.Truth_setOn()
+    DetFlags.Forward_setOff() # Forward dets are off by default
+
+if 'truthStrategy' in dir():
+    ISF_Flags.BarcodeService   = 'Barcode_' + truthStrategy + 'BarcodeSvc'
+    ISF_Flags.TruthService     = 'ISF_'     + truthStrategy + 'TruthService'
+    ISF_Flags.EntryLayerFilter = 'ISF_'     + truthStrategy + 'EntryLayerFilter'
+    ISF_Flags.TruthStrategy    = truthStrategy
+    try:
+        from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
+        simFlags.SimBarcodeOffset  = barcodeOffsetForTruthStrategy(truthStrategy)
+    except RuntimeError:
+        if 'MC12' in truthStrategy or 'MC15a' in truthStrategy:
+            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
+        else:
+            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
+        atlasG4log.warning('Using unknown truth strategy '+str(truthStrategy)+' guessing that barcode offset is '+str(simFlags.SimBarcodeOffset))
+    except ImportError:
+        # Temporary back-compatibility
+        if 'MC12' in truthStrategy or 'MC15a' in truthStrategy:
+            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
+        else:
+            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
+else:
+    ISF_Flags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
+    ISF_Flags.TruthService     = 'ISF_TruthService'
+    ISF_Flags.EntryLayerFilter = 'ISF_MC12EntryLayerFilter'
+    ISF_Flags.TruthStrategy    = 'MC12'
+    simFlags.SimBarcodeOffset  = 200000 #MC12 setting
 
 include('ISF_Config/ISF_ConfigJobInclude.py')
 
