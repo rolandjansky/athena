@@ -5,7 +5,6 @@ author Hironori Kiyamura <kiyamura@phys.sci.kobe-u.ac.jp>
 author Takashi Matsushita <Takashi.Matsushita@cern.ch>
 
 private
-use AnalysisTools             AnalysisTools-*             PhysicsAnalysis/AnalysisCommon 
 use AnalysisTriggerEvent      AnalysisTriggerEvent-*      PhysicsAnalysis/AnalysisTrigger
 use AthenaKernel              AthenaKernel-*              Control
 use AthenaBaseComps           AthenaBaseComps-*           Control

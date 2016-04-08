@@ -7,8 +7,8 @@
 /**
  * @author    Hironori Kiyamura
  * @author    Takashi Matsushita
- * @date      $Date: 2014-10-07 17:38:23 +0200 (Tue, 07 Oct 2014) $
- * @version   $Revision: 620455 $
+ * @date      $Date: 2016-02-10 17:47:59 +0100 (Wed, 10 Feb 2016) $
+ * @version   $Revision: 723159 $
  */
 
 /** @todo */
@@ -367,27 +367,27 @@ class TrigEffJpsiTools : virtual public ITrigEffJpsiTools,
     mutable Cache m_cacheBarrel;
 
     // constants
-    const double MUON_MASS;
+    const double m_MUON_MASS;
     enum RoiRegion {
       BARREL,
       ENDCAP,
       NUM_REGION
     };
 
-    std::vector<std::string> Btrig_L2_chain;
-    std::vector<bool> Btrig_L2_checkOS;
-    std::vector<double> Btrig_L2_massMin;
-    std::vector<double> Btrig_L2_massMax;
-    std::vector<bool> Btrig_L2_applyMassMax;
-    std::vector<int> Btrig_L2_nHits;
-    std::vector<double> Btrig_L2_chi2;
+    std::vector<std::string> m_Btrig_L2_chain;
+    std::vector<bool> m_Btrig_L2_checkOS;
+    std::vector<double> m_Btrig_L2_massMin;
+    std::vector<double> m_Btrig_L2_massMax;
+    std::vector<bool> m_Btrig_L2_applyMassMax;
+    std::vector<int> m_Btrig_L2_nHits;
+    std::vector<double> m_Btrig_L2_chi2;
 
-    std::vector<std::string> Btrig_EF_chain;
-    std::vector<bool> Btrig_EF_checkOS;
-    std::vector<double> Btrig_EF_massMin;
-    std::vector<double> Btrig_EF_massMax;
-    std::vector<bool> Btrig_EF_applyMassMax;
-    std::vector<double> Btrig_EF_chi2;
+    std::vector<std::string> m_Btrig_EF_chain;
+    std::vector<bool> m_Btrig_EF_checkOS;
+    std::vector<double> m_Btrig_EF_massMin;
+    std::vector<double> m_Btrig_EF_massMax;
+    std::vector<bool> m_Btrig_EF_applyMassMax;
+    std::vector<double> m_Btrig_EF_chi2;
    
 };
 
