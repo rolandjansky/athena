@@ -15,7 +15,7 @@
 
 // Constructor
 LArHitProducer::LArHitProducer(const std::string& name, ISvcLocator* pSvcLocator ) :
- Algorithm(name , pSvcLocator),
+  AthAlgorithm(name , pSvcLocator),
  m_hitcontainer(0) 
 {
   
@@ -24,44 +24,35 @@ LArHitProducer::LArHitProducer(const std::string& name, ISvcLocator* pSvcLocator
 
 //Initialize method
 StatusCode LArHitProducer::initialize(){
-    MsgStream log( this->messageService(), this->name() ); 
-    StatusCode sc = StatusCode::SUCCESS ;   
-    log<<MSG::DEBUG<<"LArHitProducer "<< this->name()<<" initialized"<<endreq ;        
-    return sc;
+  ATH_MSG_DEBUG("LArHitProducer "<< this->name()<<" initialized");
+  return StatusCode::SUCCESS;
 }
 
 
 //Execute method
 StatusCode LArHitProducer::execute(){
-    MsgStream log( this->messageService(), this->name() );
-    StatusCode sc = StatusCode::SUCCESS ;   
     // a new hit container for each event
     // this container will be finally
     // stored into the TDS by a LArHitMaker
     // So no delete needed 
     
-    log<<MSG::DEBUG<<"Creating a new LArHitContainer"<<endreq;
+    ATH_MSG_DEBUG("Creating a new LArHitContainer");
     m_hitcontainer  = new LArHitContainer() ;
     if( m_hitcontainer == 0 ) {
-    
-       log<<MSG::FATAL<<"FAILURE : Unable to create a new LArHitContainer "<<endreq ;
-       return StatusCode::FAILURE ;
+      ATH_MSG_FATAL("FAILURE : Unable to create a new LArHitContainer ");
+      return StatusCode::FAILURE ;
     }
     
     // construction of hits delegated to this method 
     // to be implemented in specialized classes
-    log<<MSG::DEBUG<<"Start construction of hits " << endreq ;
-    sc = this->hitConstruction() ; 
-    return sc;
+    ATH_MSG_DEBUG("Start construction of hits " );
+    return this->hitConstruction() ; 
 }
 
 //Finalize method
 StatusCode LArHitProducer::finalize(){
-     MsgStream log( this->messageService(), this->name() );
-     StatusCode sc = StatusCode::SUCCESS ;
-     
-     log<<MSG::DEBUG<<"finalize() completed correctly"<<endreq;
-     return sc;
+  ATH_MSG_DEBUG("finalize() completed correctly");
+  return StatusCode::SUCCESS;
 }
 
 

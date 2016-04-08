@@ -17,7 +17,7 @@
 
 #include <string>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArSimEvent/LArHitContainer.h"
 
 /**
@@ -37,7 +37,7 @@
  * @version 01-00-00 , remove methods to create specialized hits
  *
  */
-class LArHitProducer : public Algorithm {
+class LArHitProducer : public AthAlgorithm {
 
 public:
 

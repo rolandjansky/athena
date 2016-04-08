@@ -16,7 +16,7 @@
 
 // Constructor
 LArHitMaker::LArHitMaker(const std::string& name, ISvcLocator* pSvcLocator ) :
- Algorithm(name , pSvcLocator),
+ AthAlgorithm(name , pSvcLocator),
  m_HitRetrieverNameAndType("LArHitProducerTest/producer1"),
  m_HitContainerLocation("LArHits"),
  m_HitRetrieverAlgorithm(0) ,
@@ -54,85 +54,55 @@ std::string LArHitMaker::findName(std::string l_property){
 
 //Initialize method
 StatusCode LArHitMaker::initialize(){
-    MsgStream log( messageService(), name() ); 
-    StatusCode sc = StatusCode::SUCCESS ;
-    
     // Get sub-algo Type and instance name
     std::string type = findType(m_HitRetrieverNameAndType);
     std::string name = findName(m_HitRetrieverNameAndType);
-    log<<MSG::INFO<<"Sub-Algorithm type="<<type<<" and instance name="<<name<<endreq; 
-    log<<MSG::INFO<<"location of stored hits="<<m_HitContainerLocation<<endreq;
+    ATH_MSG_INFO("Sub-Algorithm type="<<type<<" and instance name="<<name);
+    ATH_MSG_INFO("location of stored hits="<<m_HitContainerLocation);
     
     // Instanciate LArHitProducer
-    sc = createSubAlgorithm(type, name, m_HitRetrieverAlgorithm);
-    if ( sc.isFailure() ){
-      log << MSG::FATAL << "LAr FAILURE : Unable to create " << m_HitRetrieverNameAndType << endreq;
-    }
-    return sc;
+    ATH_CHECK(  createSubAlgorithm(type, name, m_HitRetrieverAlgorithm) );
+    return StatusCode::SUCCESS;
 }
 
 //*****************************************************************************************
 
 //Execute method
 StatusCode LArHitMaker::execute(){
-    MsgStream log( messageService(), name() );
-    StatusCode sc = StatusCode::SUCCESS ; 
+  ATH_MSG_DEBUG(" Start executing execute() method of "<< m_HitRetrieverNameAndType );
     
-    log<<MSG::DEBUG<<" Start executing execute() method of "<< m_HitRetrieverNameAndType << endreq ;
-    
-    StoreGateSvc * l_storeGateSvc ;
-    
-    sc = service ( "StoreGateSvc" , l_storeGateSvc ) ;
-    if( sc.isFailure() ) {
-      log<<MSG::FATAL<<"LAr FAILURE : Cannot locate StoreGate " << endreq ;
-      sc = StatusCode::FAILURE ;
-      return sc ;
-    }
-    
-    sc = m_HitRetrieverAlgorithm -> execute() ;
-    
+    ATH_CHECK( m_HitRetrieverAlgorithm -> execute() );
     
     LArHitProducer * producer = dynamic_cast<LArHitProducer*> ( m_HitRetrieverAlgorithm ) ;
     if(producer == NULL ) {
-     log<<MSG::FATAL<<"LAr FAILURE : Impossible to down cast "<<m_HitRetrieverNameAndType<<" to LArHitProducer "<<endreq;
-     sc = StatusCode::FAILURE ;
-     return sc ;
+      ATH_MSG_FATAL("LAr FAILURE : Impossible to down cast "<<m_HitRetrieverNameAndType<<" to LArHitProducer ");
+      return StatusCode::FAILURE ;
     }
     
     LArHitContainer * hit_container =  producer->hitContainer() ;
     if( hit_container == 0 ) {
     
-      log<<MSG::FATAL<<"LAr FAILURE : Null pointer to LArHit Container "<<endreq;
-      sc = StatusCode::FAILURE ;
-      return sc ;
+      ATH_MSG_FATAL("LAr FAILURE : Null pointer to LArHit Container ");
+      return StatusCode::FAILURE ;
       
      }
     
-    log<<MSG::DEBUG<<" Storing LArHitContainer in TDS"<<endreq; 
-    sc = l_storeGateSvc->record(hit_container , m_HitContainerLocation ) ;
-    if( sc.isFailure() ){
-      log << MSG::FATAL<< "LAr FAILURE : Could not store new LArHitContainer in TDS at location :" << m_HitContainerLocation << endreq;
-      sc = StatusCode::FAILURE ;
-      return sc;
-    }
+    ATH_MSG_DEBUG(" Storing LArHitContainer in TDS");
+    ATH_CHECK( evtStore()->record(hit_container , m_HitContainerLocation ) );
     
     //print contents of new LArHitContainer 
          
     if( m_DebugFlag != 0 ) { 
-      log << MSG::DEBUG << ( (std::string) *hit_container ) << endreq ;
+      ATH_MSG_DEBUG ( ( (std::string) *hit_container ) );
     }
     
-    return sc;
+    return StatusCode::SUCCESS;
 }
 
 //******************************************************************************************
 
 //Finalize method
 StatusCode LArHitMaker::finalize(){
-     MsgStream log( messageService(), name() );
-     StatusCode sc = StatusCode::SUCCESS ;
-      
-     
-     log<<MSG::INFO<<"finalize() completed correctly"<<endreq;
-     return sc;
+  ATH_MSG_INFO("finalize() completed correctly");
+  return StatusCode::SUCCESS;
 }

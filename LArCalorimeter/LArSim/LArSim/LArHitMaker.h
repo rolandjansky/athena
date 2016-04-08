@@ -17,7 +17,7 @@
 
 #include <string>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 /**
  * Specialized ATHENA algorithm which can be used to store <br>
@@ -33,7 +33,7 @@
  * @version 00-00-05
  *
  */
-class LArHitMaker : public Algorithm {
+class LArHitMaker : public AthAlgorithm {
 
 public:
 

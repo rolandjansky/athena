@@ -17,10 +17,10 @@
 
 #include <string>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArSimEvent/LArHitContainer.h"
 
-class LArHitReader : public Algorithm {
+class LArHitReader : public AthAlgorithm {
 
 public:
 

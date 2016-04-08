@@ -5,7 +5,6 @@
 #include "LArSim/LArHitReader.h"
 
 #include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IDataProviderSvc.h"
 
@@ -14,7 +13,7 @@
 
 // Constructor
 LArHitReader::LArHitReader(const std::string& name, ISvcLocator* pSvcLocator ) :
- Algorithm(name , pSvcLocator)
+ AthAlgorithm(name , pSvcLocator)
 {
   
 }
@@ -22,39 +21,26 @@ LArHitReader::LArHitReader(const std::string& name, ISvcLocator* pSvcLocator ) :
 
 //Initialize method
 StatusCode LArHitReader::initialize(){
-    MsgStream log( this->messageService(), this->name() ); 
-    StatusCode sc = StatusCode::SUCCESS ;   
-    log<<MSG::DEBUG<<"LArHitReader "<< this->name()<<" initialized"<<endreq ;        
-    return sc;
+  ATH_MSG_DEBUG("LArHitReader "<< this->name()<<" initialized");
+  return StatusCode::SUCCESS ;   
 }
 
 
 //Execute method
 StatusCode LArHitReader::execute(){
-    MsgStream log( this->messageService(), this->name() );
-    StatusCode sc = StatusCode::SUCCESS ;   
+  const LArHitContainer* cont = nullptr;
+  ATH_CHECK( StoreGate::instance().retrieve(cont,"LArHitFake") );
 
-    const LArHitContainer* cont; 
+  ATH_MSG_DEBUG(" LArHitContainer Dump ----------- " );
+  ATH_MSG_DEBUG( (std::string)(*cont)   );
 
-    if(StatusCode::SUCCESS != StoreGate::instance().retrieve(cont,"LArHitFake") ) 
-    { 
-      log<<MSG::ERROR<<" Failed to retrieve LArHitContainer  " <<endreq; 
-      return StatusCode::FAILURE; 
-    } 
-
-    log<<MSG::DEBUG<<" LArHitContainer Dump ----------- " << endreq; 
-    log<<MSG::DEBUG<< (std::string)(*cont)   << endreq; 
-
-    return sc;
+  return StatusCode::SUCCESS ;   
 }
 
 //Finalize method
 StatusCode LArHitReader::finalize(){
-     MsgStream log( this->messageService(), this->name() );
-     StatusCode sc = StatusCode::SUCCESS ;
-     
-     log<<MSG::DEBUG<<"finalize() completed correctly"<<endreq;
-     return sc;
+  ATH_MSG_DEBUG("finalize() completed correctly");
+  return StatusCode::SUCCESS ;   
 }
 
 
