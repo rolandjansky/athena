@@ -76,10 +76,7 @@ T2CaloMissingET::T2CaloMissingET(const std::string& name, ISvcLocator* pSvcLocat
   declareMonitoredStdContainer("Tile_nLBC", m_tile_nlbc ); 
   declareMonitoredStdContainer("Tile_nEBA", m_tile_neba ); 
   declareMonitoredStdContainer("Tile_nEBC", m_tile_nebc ); 
-  m_vec_robs.reserve(1000);
 
-  m_timer[0] = 0;
-  m_timer[1] = 0;
 
 }
 
@@ -579,17 +576,4 @@ HLT::ErrorCode T2CaloMissingET::init(xAOD::TrigMissingET *met){
     met->setSumEtComponent(index,0.);   
   }
   return HLT::OK;
-}
-
-HLT::ErrorCode T2CaloMissingET::prepareRobRequests( const std::vector<HLT::TEConstVec>& /*inputs*/ ){
-
-   // Calculate ROBs needed
-   const RoiDescriptor roi (true) ;
-
-   m_data->ROBList( roi, m_vec_robs);
-
-   config()->robRequestInfo()->addRequestScheduledRobIDs(m_vec_robs);
-
-   return HLT::OK;
-
 }
