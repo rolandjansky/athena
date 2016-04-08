@@ -46,7 +46,7 @@ double EMClusterEtaPosErrorsMatrix::getError(double eta, double clusterEnergy) c
   // for protection, to not divide by 0;
   if (clusterEnergy < 1.0) clusterEnergy = 1.0;
   
-  const double clusterEnergyGeV = clusterEnergy/GeV;  //GeV
+  const double clusterEnergyGeV = clusterEnergy*(1./GeV);  //GeV
   
   const double a = params->at(0); // "a" from DB
   const double b = params->at(1); // "b" from DB

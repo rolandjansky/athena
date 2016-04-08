@@ -46,7 +46,7 @@ double EMClusterEtaErrorsMatrix::getError(double eta, double clusterEnergy) cons
   if (clusterEnergy < 1.0) clusterEnergy = 1.0;
   if (fabs(eta) > 8.0) eta = 8.0;
   
-  const double clusterEnergyGeV = clusterEnergy/GeV;  //GeV
+  const double clusterEnergyGeV = clusterEnergy*(1./GeV);  //GeV
   
   /** Error on theta = C(eta) mrad/sqrt(Energy) */
   /** NOTE: Eta dependence of C  will be implemented later. C=70mrad based on EG6 note*/ 

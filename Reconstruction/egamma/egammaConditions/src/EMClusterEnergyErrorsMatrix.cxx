@@ -43,7 +43,7 @@ double EMClusterEnergyErrorsMatrix::getError(double eta, double clusterEnergy) c
 
   if (!params) return -1.0;
   
-  double clusterEnergyGeV = clusterEnergy/1000.0;  //GeV
+  double clusterEnergyGeV = clusterEnergy*1e-3;  //GeV
   
   /** sigma_E (eta,E) = a + b*sqrt(E) + c*E */
   /** NOTE: The a, b and c parameters will be tuned later*/
