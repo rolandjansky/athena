@@ -39,13 +39,7 @@ namespace pooltest{
         m_argv[i] = m_args[i].c_str(); 
       }
     } 
-    Command (const Command&) = delete;
-    Command& operator= (const Command&) = delete;
 
-    ~Command() {
-       delete [] m_argv;
-    }
-    
     int argc() const {
       return m_args.size();
     }
