@@ -23,4 +23,4 @@ use GaudiInterface       GaudiInterface-*         External
 # classes to be added to the dictionary, and which fields are
 # transient. It should be put in ../<package> dir and is conventionally called
 # selection.xml.
-#apply_pattern lcgdict dict=TrkPseudoMeasurementOnTrack selectionfile=selection.xml headerfiles="../TrkPseudoMeasurementOnTrack/TrkPseudoMeasurementOnTrackDict.h"
+apply_pattern lcgdict dict=TrkPseudoMeasurementOnTrack selectionfile=selection.xml headerfiles="../TrkPseudoMeasurementOnTrack/TrkPseudoMeasurementOnTrackDict.h"
