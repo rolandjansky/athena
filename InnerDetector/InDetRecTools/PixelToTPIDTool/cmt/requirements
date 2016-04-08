@@ -21,7 +21,7 @@ use AtlasCLHEP           AtlasCLHEP-*              External
 use PathResolver         PathResolver-*            Tools
 use EventInfo            EventInfo-*               Event
 use AtlasCORAL           AtlasCORAL-*              External
-
+use PixelConditionsServices PixelConditionsServices-* InnerDetector/InDetConditions
 use RegistrationServices RegistrationServices-*    Database
 
 use Identifier           Identifier-*              DetectorDescription
@@ -41,6 +41,7 @@ use AtlasROOT            AtlasROOT-*               External
 use Particle             Particle-*                Reconstruction
 use TrkTrackSummary      TrkTrackSummary-*         Tracking/TrkEvent
 use TrkToolInterfaces    TrkToolInterfaces-*       Tracking/TrkTools
+use PixelGeoModel        PixelGeoModel-*           InnerDetector/InDetDetDescr
 
 # ---------------------------------------------------------------------------
 
