@@ -47,7 +47,7 @@ class IOffloadSvc : virtual public IService
 
   /// Delivers important informations
   //virtual StatusCode qotd( std::string& quote ) = 0;
-  virtual StatusCode sendData(std::unique_ptr<APE::BufferContainer> &buff, int &token)=0;
+  virtual StatusCode sendData(std::unique_ptr<APE::BufferContainer> &buff, int &token, bool requiresResponse=true)=0;
   virtual StatusCode receiveData(std::unique_ptr<APE::BufferContainer> &buff, int token, int timeOut=-1)=0;
   /// identifier for the framework
   static const InterfaceID& interfaceID();
