@@ -14,12 +14,9 @@
 #ifndef ROIDESCRIPTOR_ROIDESCRIPTOR_H
 #define ROIDESCRIPTOR_ROIDESCRIPTOR_H
 
-
-#include <ostream>
-
+#include <iostream>
 
 #include "IRegionSelector/IRoiDescriptor.h"
-
 
 
 /**
@@ -30,18 +27,14 @@
  * -# zedMinus     : most negative z position of the roi
  * -# zedPlus      : most positive z position of the roi
  * -# phi          : azimuthal angle (radians) of "centre" of RoI at origin in range from [-pi, pi]
- * -# phiMinus     : the most anti-clockwise (negative phi direction) phi value for the RoI
- * -# phiPlus      : the most      clockwise (positive phi direction) phi value for the RoI
+ * -# phiMinus     : the most      clockwise (negative phi direction) phi value for the RoI
+ * -# phiPlus      : the most anti-clockwise (positive phi direction) phi value for the RoI
  * -# eta          : pseudo-rapidity of "centre" of RoI 
  * -# etaMinus     : pseudo-rapidity at zedMinus
  * -# etaPlus      : pseudo-rapidity at zedPlus
  */
 
 class RoiDescriptor : public IRoiDescriptor {
-
-public:
-
-  typedef std::vector<const IRoiDescriptor*>::const_iterator roi_iterator;
 
 public:
 
@@ -63,9 +56,9 @@ public:
    * @param zedMinus zed at rear  of RoI
    * @param zedPlus  zed at front of RoI
    */
-  RoiDescriptor(double eta,   double etaMinus,   double etaPlus, 
-		double phi,   double phiMinus,   double phiPlus, 
-		double zed=0, double zedMinus=-zedWidthDefault, double zedPlus=zedWidthDefault   );
+  RoiDescriptor(double eta_,   double etaMinus_,   double etaPlus_, 
+		double phi_,   double phiMinus_,   double phiPlus_, 
+		double zed_=0, double zedMinus_=-zedWidthDefault, double zedPlus_=zedWidthDefault   );
   /**
    * @brief constructor
    * @param etaMinus eta at rear  of RoI
@@ -73,14 +66,15 @@ public:
    * @param phiMinus minimum phi of RoI
    * @param phiPlus  maximum phi of RoI
    */
-  RoiDescriptor(double etaMinus, double etaPlus, 
-		double phiMinus, double phiPlus ); 
+  RoiDescriptor(double etaMinus_, double etaPlus_, 
+		double phiMinus_, double phiPlus_ ); 
 
   /**
    * @brief copy constructor
    */
-  RoiDescriptor( const IRoiDescriptor& _roi );
+  RoiDescriptor( const IRoiDescriptor& roi );
 
+  RoiDescriptor& operator=( const IRoiDescriptor& r );  
   
   // Destructor
   virtual ~RoiDescriptor();
@@ -110,11 +104,14 @@ public:
   double phiMinus() const  { return m_phiMinus; }   //!< gets phiMinus
 
 
-  /// versioning and output
-  int   version() const { return m_version; } 
+  /// versioning 
+  int   version() const   { return m_version; } 
+  void  version(int v)    { m_version = v; } 
+
 
   /// output
   virtual operator std::string() const;
+
 
   /// is this a full scan RoI?
   bool  isFullscan() const { return m_fullscan; }
@@ -163,21 +160,16 @@ public:
   double zedMin(const double r) const;
   double zedMax(const double r) const; 
 
+  double zedOuterPlus()  const { return m_zedOuterPlus; } //!< z at the most forward end of the RoI
+  double zedOuterMinus() const { return m_zedOuterMinus; } //!< z at the most backward end of the RoI
+
   double rhoMin(const double z) const; 
   double rhoMax(const double z) const; 
 
-  /// test whether a stub is contained within the roi
-  virtual bool contains( double z0, double dzdr ) const;
-  virtual bool contains_internal( double z0, double zouter ) const;
-
-  /// test whether a point is contained within the RoI 
-  virtual bool contains( double _z, double _r, double _phi ) const;
-  virtual bool containsPhi( double _phi ) const;
-  virtual bool containsZed( double _z, double _r ) const;
-
-
-
 protected:
+
+  friend class TrigRoiDescriptorCnv_p2;
+  friend class TrigRoiDescriptorCnv_p3;
 
   /**
    * @brief construct RoiDescriptor internals -  similar to constructors
@@ -188,18 +180,6 @@ protected:
 		 double zed, double zedMinus, double zedPlus); 
 
   void construct( const IRoiDescriptor& _roi );
-
-protected:
-
-  /// these should be virtual, and not part of the interface
-
-  virtual double phicheck(double _phi);  //!< helper function to check if phi range was violated
-  virtual double etacheck(double _eta);  //!< helper function to check if eta range was violated
-  virtual double zedcheck(double _zed);  //!< helper function to check if zed range was violated
-
-  //  virtual double phicheck(double _phi, std::exception* ex=0 );  //!< helper function to check if phi range was violated
-  //  virtual double etacheck(double _eta, std::exception* ex=0 );  //!< helper function to check if eta range was violated
-  //  virtual double zedcheck(double _zed, std::exception* ex=0 );  //!< helper function to check if zed range was violated
 
 protected:
 
