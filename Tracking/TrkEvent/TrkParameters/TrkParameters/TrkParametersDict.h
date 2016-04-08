@@ -15,6 +15,7 @@
 namespace {
   struct GCCXML_DUMMY_INSTANTIATION_TRKPARAMETERS {
     Trk::CurvilinearParameters p1;
+    std::vector<const Trk::TrackParameters*> p2;
   };
 }
 

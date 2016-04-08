@@ -9,4 +9,5 @@
   <class name="Trk::Perigee" />
   <class name="Trk::AtaPlane" />
   <class name="Trk::AtaStraightLine" />
+  <class name="std::vector<const Trk::TrackParameters*>"/>
 </lcgdict>
