@@ -15,9 +15,9 @@
 
 class ZmumuFineEtaPhiEfficiencyPlots: public MuonTPEfficiencyPlotBase {
  public:
-	ZmumuFineEtaPhiEfficiencyPlots(PlotBase* pParent, std::string sDir, bool isMatched, bool ApplySF=false);
+  ZmumuFineEtaPhiEfficiencyPlots(PlotBase* pParent, std::string sDir, bool isMatched, bool ApplySF=false);
 
-
+  void initializePlots();
   void fill(Probe& probe);
 
  private:

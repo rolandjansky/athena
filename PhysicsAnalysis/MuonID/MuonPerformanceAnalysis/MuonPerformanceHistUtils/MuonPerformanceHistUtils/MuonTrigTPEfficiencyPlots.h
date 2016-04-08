@@ -30,15 +30,11 @@ class MuonTrigTPEfficiencyPlots: public MuonTPEfficiencyPlotBase
 
     bool m_isMatched;
 
-    TH1* pt;
+    TH1* pt; //inclusive larger muon Pt
     TH1* eta;
     TH1* phi;
-
     TH2* eta_phi;
 
-    TH1* dRL1;
-    TH1* dRHLT;
-    TH1* mll;
 
 };
 

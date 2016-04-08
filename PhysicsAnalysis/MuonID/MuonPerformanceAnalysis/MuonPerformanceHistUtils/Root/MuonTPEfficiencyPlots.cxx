@@ -11,8 +11,8 @@ MuonTPEfficiencyPlots::MuonTPEfficiencyPlots(PlotBase* pParent, std::string sDir
     m_isMatched(isMatched),
     m_probeTrkKinePlots(this, "/", "Probe"),
     m_probeTrkImpactPlots(this, "/"),
-    m_probeTrkRecoInfoPlots(this, "/"),
-    m_probeMuonRecoInfoPlots(this, "/"),
+    m_probeTrkRecoInfoPlots(this, "/Trk_"),
+    m_probeMuonRecoInfoPlots(this, "/Mu_"),
     m_probeMuonIsolationPlots(this, "/")
 {}
 

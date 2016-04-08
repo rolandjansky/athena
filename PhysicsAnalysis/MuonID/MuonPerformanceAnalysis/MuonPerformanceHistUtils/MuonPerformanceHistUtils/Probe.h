@@ -14,6 +14,7 @@ class Probe {
 
   // constructor
   Probe(const xAOD::IParticle& tagTrack, const xAOD::IParticle& probeTrack);
+  Probe(const xAOD::IParticle& tagTrack, const xAOD::IParticle& probeTrack, int tagPassTrigger);
   
   // destructor
   ~Probe();
@@ -38,6 +39,8 @@ class Probe {
 
   // set probe matching status
   void isMatched(bool isM) {m_isMatched = isM;}
+  // set probe closest match dr
+  void dr_match(float in){ m_dr_match = in;}
 
   float sfweight(){ return m_sf_weight;}
   void sfweight(float w ){ m_sf_weight = w;}
@@ -52,6 +55,10 @@ class Probe {
   bool HasSomeTrigger_HLT(void)    { return m_HasSomeTrigger_HLT; }
   void HasSomeTrigger_HLT(bool in) { m_HasSomeTrigger_HLT = in;   }
 
+  int tagPassTrigger(){ return m_tagPassTrigger;}
+  
+  double dr_match() {return m_dr_match;}
+
   float dRL1;
   float dRHLT;
 
@@ -63,6 +70,9 @@ class Probe {
   const xAOD::IParticle& m_probeTrack;
   
   float m_sf_weight;     // for closure tests
+  float m_dr_match;      // dR distance to closest match
+
+  int m_tagPassTrigger;
 
   // trigger stuff
   std::string m_CurrentTrigger;

@@ -27,14 +27,15 @@ MuonTrigTPEfficiencyPlots::MuonTrigTPEfficiencyPlots(PlotBase* pParent, std::str
   : MuonTPEfficiencyPlotBase (pParent, sDir, isMatched, ApplySF),
     m_isMatched(isMatched)
 {
-    pt      = Book1D( "_pt"     ," pt; Pt, GeV; Entries / 1 GeV ",50,0.0,100.);
-    eta     = Book1D("_eta"     ," eta; #eta; Entries ",50,-2.5,2.5);
-    phi     = Book1D("_phi"     ," phi; #phi; Entries ",64,-TMath::Pi(),TMath::Pi());
-    eta_phi = Book2D("_eta_phi" , "eta vs phi",50,-2.5,2.5,32,-TMath::Pi(),TMath::Pi());
-    
-    dRL1    = Book1D("_dRL1"    ," dRL1;   dR; Entries ",100,0,0.3);
-    dRHLT   = Book1D("_dRHLT"   ," dRHLT;  dR; Entries ",100,0,0.001);
-    mll     = Book1D("_mll"     ," mll;	GeV; Entries / 1 GeV ",100,50.0,130.);
+
+    double ptbins[] = {0.,5.,10.,15.,20.,25.,30.,35.,40.,45.,50.,55.,60.,65.,70.,75,80.,85,90.,95,100.,120.,140.,160.,180.,200.};
+    int nptbins = sizeof (ptbins) / sizeof (double) - 1;
+    TH1D ptdummy ("ptdummy","dummy",nptbins,ptbins) ;
+    pt      = Book1D("pt" ,&ptdummy, " Large Pt; Muon Transverse Momentum [GeV];Entries / 1 GeV");
+    eta     = Book1D("eta"     ," eta; #eta; Entries ",50,-2.5,2.5);
+    phi     = Book1D("phi"     ," phi; #phi; Entries ",64,-TMath::Pi(),TMath::Pi());
+    eta_phi = Book2D("eta_phi" , "eta vs phi",50,-2.5,2.5,32,-TMath::Pi(),TMath::Pi());
+ 
 }
 
 
@@ -104,12 +105,15 @@ void MuonTrigTPEfficiencyPlots::fill(Probe& probe)
     if ( probe.pt()/1000. > TriggerThreshold*1.05)
     {
         eta->Fill(probe.eta(),sfweight);
-        phi->Fill(probe.phi(),sfweight);
+        if(CurrentTrigger=="HLT_mu60_0eta105_msonly")
+        {
+            if(fabs(probe.eta())<=1.05)
+                phi->Fill(probe.phi(),sfweight);
+        }
+        else
+        {
+            phi->Fill(probe.phi(),sfweight);
+        }
         eta_phi->Fill(probe.eta(),probe.phi());
-
-        dRL1->Fill(probe.dRL1,sfweight);
-        dRHLT->Fill(probe.dRHLT,sfweight);
-        TLorentzVector z = probe.probeTrack().p4() + probe.tagTrack().p4();
-        mll->Fill(z.M() / 1000.,sfweight);
     }
 }
