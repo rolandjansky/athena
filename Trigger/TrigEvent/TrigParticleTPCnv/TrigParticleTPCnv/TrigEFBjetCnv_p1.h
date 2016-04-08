@@ -22,6 +22,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 #include "TrigParticleTPCnv/TrigEFBjet_p1.h"
+#include "TrigParticle/TrigEFBjet.h"
 
 class MsgStream;
 

@@ -18,10 +18,6 @@
 #ifndef TRIGPARTICLETPCNV_TRIGL2BJET_P1_H
 #define TRIGPARTICLETPCNV_TRIGL2BJET_P1_H
 
-#include <stdint.h>
-#include "TrigParticle/TrigL2Bjet.h"
-#include "AthenaPoolUtilities/TPObjRef.h"
-
 class TrigL2Bjet_p1 
 {
   friend class TrigL2BjetCnv_p1;
@@ -31,23 +27,23 @@ class TrigL2Bjet_p1
   TrigL2Bjet_p1() {}
   virtual ~TrigL2Bjet_p1(){}
  
- private:
+  //private:
 
-  bool m_valid;
+  bool m_valid = false;
   
-  int   m_roiID;
-  float m_eta;
-  float m_phi;
-  float m_prmVtx;
+  int   m_roiID = 0;
+  float m_eta = 0;
+  float m_phi = 0;
+  float m_prmVtx = 0;
   			 
-  float m_xcomb;
-  float m_x2d;
-  float m_xd0;
-  float m_xz0; 
-  float m_x3d;
-  float m_xmvtx;
-  float m_xevtx;
-  float m_xnvtx;
+  float m_xcomb = 0;
+  float m_x2d = 0;
+  float m_xd0 = 0;
+  float m_xz0 = 0; 
+  float m_x3d = 0;
+  float m_xmvtx = 0;
+  float m_xevtx = 0;
+  float m_xnvtx = 0;
   
 };
 

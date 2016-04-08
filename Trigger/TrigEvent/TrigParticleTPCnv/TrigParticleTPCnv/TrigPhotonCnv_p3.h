@@ -13,7 +13,7 @@
  * @author Francesca Bucci  <F.Bucci@cern.ch>          - U. Geneva
  *
  * File and Version Information:
- * $Id: TrigPhotonCnv_p3.h 359048 2011-04-15 12:07:04Z salvator $
+ * $Id: TrigPhotonCnv_p3.h 724397 2016-02-16 22:17:22Z ssnyder $
  **********************************************************************************/
 #ifndef TRIGPARTICLETPCNV_TRIGPHOTONCNV_P3_H
 #define TRIGPARTICLETPCNV_TRIGPHOTONCNV_P3_H
@@ -26,6 +26,7 @@
 
 #include "TrigParticleTPCnv/TrigPhoton_p3.h"
 #include "TrigCaloEventTPCnv/TrigEMClusterCnv_p1.h"
+#include "TrigParticle/TrigPhoton.h"
 
 class MsgStream;
 

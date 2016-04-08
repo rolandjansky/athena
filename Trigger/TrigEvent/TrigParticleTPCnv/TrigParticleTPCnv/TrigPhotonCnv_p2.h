@@ -26,6 +26,7 @@
 #include "TrigParticleTPCnv/TrigPhoton_p2.h"
 #include "TrigCaloEventTPCnv/TrigEMClusterCnv_p1.h"
 #include "EventCommonTPCnv/P4PtEtaPhiMCnv_p1.h"
+#include "TrigParticle/TrigPhoton.h"
 
 class MsgStream;
 

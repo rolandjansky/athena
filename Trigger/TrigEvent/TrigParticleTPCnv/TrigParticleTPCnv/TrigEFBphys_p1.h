@@ -18,8 +18,6 @@
 #ifndef TRIGPARTICLETPCNV_TRIGEFBPHYS_P1_H
 #define TRIGPARTICLETPCNV_TRIGEFBPHYS_P1_H
 
-#include <stdint.h>
-#include "TrigParticle/TrigEFBphys.h"
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 class TrigEFBphys_p1 
@@ -31,9 +29,9 @@ class TrigEFBphys_p1
   TrigEFBphys_p1() {}
   virtual ~TrigEFBphys_p1(){}
   
-  enum pType_p1{PHIKK=0, DSPHIPI=1, BMUMU=2, BMUMUX=3, JPSIEE=4};
-
- private:
+  enum pType_p1{PHIKK=0, DSPHIPI=1, BMUMU=2, BMUMUX=3, JPSIEE=4, JPSIMUMU=5, MULTIMU=6, BKMUMU=7, BDKSTMUMU=8, BSPHIMUMU=9, LBLMUMU=10, BCDSMUMU=11};
+  
+  //private:
 
   int   m_roiID;
   pType_p1   m_particleType;

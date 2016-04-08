@@ -31,21 +31,21 @@ class TrigElectron_p1
   virtual ~TrigElectron_p1() {}
   friend class TrigElectronCnv_p1;
   
- private:
+  //private:
 
-  int   m_roiID; 
-  TrigInDetTrack::AlgoId m_trackAlgo; 
-  int m_trackIndx;
-  int m_charge;
-  float m_Zvtx; 
-  float m_err_Zvtx;
-  float m_err_eta;
-  float m_err_phi;
-  float m_err_Pt; 
-  float m_dEta;  
-  float m_dPhi;
-  float m_etoverpt;
-  bool  m_valid; 
+  int   m_roiID = 0; 
+  TrigInDetTrack::AlgoId m_trackAlgo = TrigInDetTrack::NULLID;
+  int m_trackIndx = -1;
+  int m_charge = 0;
+  float m_Zvtx = 0; 
+  float m_err_Zvtx = -999.9;
+  float m_err_eta = -999.9;
+  float m_err_phi = -999.9;
+  float m_err_Pt = -999.9; 
+  float m_dEta = -999.9;  
+  float m_dPhi = -999.9;
+  float m_etoverpt = -999.9;
+  bool  m_valid = false; 
 
   //the P4PtEtaPhiM base class
   TPObjRef m_p4PtEtaPhiM;

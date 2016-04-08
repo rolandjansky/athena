@@ -34,7 +34,10 @@ apply_pattern tpcnv_library
 private
 
 use AtlasReflex		 AtlasReflex-*		    External
+use GaudiInterface       GaudiInterface-*           External
+use AtlasCLHEP           AtlasCLHEP-*               External
 use AthenaKernel         AthenaKernel-*             Control
+use SGTools              SGTools-*                  Control
 
 # Create a dictionary for the persistent representation 
 # of transient classes.  If we make a single dictionary,
@@ -50,3 +53,24 @@ apply_pattern lcgdict dict=OLD_TrigParticleTPCnv  \
   headerfiles="../TrigParticleTPCnv/TrigParticleTPCnvDict.h"
 
 end_private
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=TrigEFBjetCnv_p1
+apply_pattern UnitTest_run unit_test=TrigEFBjetCnv_p2
+apply_pattern UnitTest_run unit_test=TrigEFBphysCnv_p1
+apply_pattern UnitTest_run unit_test=TrigEFBphysCnv_p2
+apply_pattern UnitTest_run unit_test=TrigEFBphysCnv_p3
+apply_pattern UnitTest_run unit_test=TrigElectronCnv_p2
+apply_pattern UnitTest_run unit_test=TrigElectronCnv_p3
+apply_pattern UnitTest_run unit_test=TrigL2BjetCnv_p1
+apply_pattern UnitTest_run unit_test=TrigL2BjetCnv_p2
+apply_pattern UnitTest_run unit_test=TrigL2BjetCnv_p3
+apply_pattern UnitTest_run unit_test=TrigL2BphysCnv_p1
+apply_pattern UnitTest_run unit_test=TrigL2BphysCnv_p2
+apply_pattern UnitTest_run unit_test=TrigL2BphysCnv_p3
+apply_pattern UnitTest_run unit_test=TrigPhotonCnv_p2
+apply_pattern UnitTest_run unit_test=TrigPhotonCnv_p3
+apply_pattern UnitTest_run unit_test=TrigTauCnv_p1
+apply_pattern UnitTest_run unit_test=TrigTauCnv_p2
+apply_pattern UnitTest_run unit_test=TrigTauCnv_p3

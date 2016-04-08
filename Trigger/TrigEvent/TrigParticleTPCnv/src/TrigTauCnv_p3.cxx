@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigParticle/TrigTau.h"
-#undef private
-#undef protected
-
-
 #include "TrigParticleTPCnv/TrigTau_p3.h"
 #include "TrigParticleTPCnv/TrigTauCnv_p3.h"
 
@@ -19,16 +13,18 @@ void TrigTauCnv_p3::persToTrans(const TrigTau_p3* persObj,
 {
    log << MSG::DEBUG << "TrigTauCnv_p3::persToTrans called " << endreq;
 
-   transObj->m_roiID	      = persObj->m_roiID	 ; 
-   transObj->m_Zvtx 	      = persObj->m_Zvtx 	 ;
-   transObj->m_err_Zvtx	      = persObj->m_err_Zvtx	 ;
-   transObj->m_etCalibCluster = persObj->m_etCalibCluster;
-   transObj->m_simpleEtFlow         = persObj->m_simpleEtFlow;
-   transObj->m_nMatchedTracks = persObj->m_nMatchedTracks; 
-   transObj->m_trkAvgDist = persObj->m_trkAvgDist;
-   transObj->m_etOverPtLeadTrk = persObj->m_etOverPtLeadTrk;
-   transObj->m_cluster = 0;
-   transObj->m_tracks = 0;
+   transObj->setRoiId	       (persObj->m_roiID); 
+   transObj->setZvtx 	       (persObj->m_Zvtx);
+   transObj->setErr_Zvtx       (persObj->m_err_Zvtx);
+   transObj->setEtCalibCluster (persObj->m_etCalibCluster);
+   transObj->setSimpleEtFlow   (persObj->m_simpleEtFlow);
+   transObj->setNMatchedTracks (persObj->m_nMatchedTracks);
+   transObj->setTrkAvgDist     (persObj->m_trkAvgDist);
+   transObj->setEtOverPtLeadTrk(persObj->m_etOverPtLeadTrk);
+
+   transObj->setTauCluster (nullptr);
+   transObj->setTrackCollection (nullptr);
+   transObj->setTracksInfo (nullptr);
 
    //fillTransFromPStore( &m_p4PtEtaPhiMCnv, persObj->m_p4PtEtaPhiM, transObj, log );
    m_p4PtEtaPhiMCnv.persToTrans(&(persObj->m_p4PtEtaPhiM), transObj, log);
@@ -42,14 +38,14 @@ void TrigTauCnv_p3::transToPers(const TrigTau* transObj,
 {
    log << MSG::DEBUG << "TrigTauCnv_p3::transToPers called " << endreq;
 
-   persObj->m_roiID	      = transObj->m_roiID	  ; 
-   persObj->m_Zvtx 	      = transObj->m_Zvtx 	  ;
-   persObj->m_err_Zvtx	      = transObj->m_err_Zvtx	  ;
-   persObj->m_etCalibCluster  = transObj->m_etCalibCluster;
-   persObj->m_simpleEtFlow    = transObj->m_simpleEtFlow;
-   persObj->m_nMatchedTracks  = transObj->m_nMatchedTracks; 
-   persObj->m_trkAvgDist      = transObj->m_trkAvgDist;
-   persObj->m_etOverPtLeadTrk = transObj->m_etOverPtLeadTrk;
+   persObj->m_roiID	      = transObj->roiId();
+   persObj->m_Zvtx 	      = transObj->Zvtx();
+   persObj->m_err_Zvtx	      = transObj->err_Zvtx();
+   persObj->m_etCalibCluster  = transObj->etCalibCluster();
+   persObj->m_simpleEtFlow    = transObj->simpleEtFlow();
+   persObj->m_nMatchedTracks  = transObj->nMatchedTracks(); 
+   persObj->m_trkAvgDist      = transObj->trkAvgDist();
+   persObj->m_etOverPtLeadTrk = transObj->etOverPtLeadTrk();
    
 
    //persObj->m_p4PtEtaPhiM = baseToPersistent( &m_p4PtEtaPhiMCnv, transObj, log );

@@ -28,15 +28,14 @@ class TrigTau_p2
   TrigTau_p2() {}
   friend class TrigTauCnv_p2;
   
- private:
-
+  //private:
   
-  int   m_roiID;
-  float m_Zvtx; 
-  float m_err_Zvtx;
-  float m_etCalibCluster;
-  float m_simpleEtFlow;
-  int   m_nMatchedTracks;
+  int   m_roiID = 0;
+  float m_Zvtx = 0; 
+  float m_err_Zvtx = 0;
+  float m_etCalibCluster = 0;
+  float m_simpleEtFlow = 0;
+  int   m_nMatchedTracks = 0;
 
   //the P4PtEtaPhiM base class
   TPObjRef m_p4PtEtaPhiM;

@@ -42,7 +42,7 @@ class TrigTau_p3
 
   ~TrigTau_p3() {};
   
- private:
+  //private:
 
   
   int   m_roiID;

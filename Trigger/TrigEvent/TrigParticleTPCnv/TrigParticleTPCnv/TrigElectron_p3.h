@@ -14,16 +14,14 @@
  * @author Ricardo Goncalo  <r.goncalo@rhul.ac.uk>     - Royal Holloway 
  *
  * File and Version Information:
- * $Id: TrigElectron_p3.h 358100 2011-04-12 12:29:54Z salvator $
+ * $Id: TrigElectron_p3.h 724426 2016-02-16 23:38:10Z ssnyder $
  **********************************************************************************/
 #ifndef TRIGPARTICLETPCNV_TRIGELECTRON_P3_H
 #define TRIGPARTICLETPCNV_TRIGELECTRON_P3_H
 
-#include "AthenaPoolUtilities/TPObjRef.h"
+//#include "AthenaPoolUtilities/TPObjRef.h"
 #include "DataModelAthenaPool/ElementLink_p3.h"
 
-#include "TrigCaloEvent/TrigEMClusterContainer.h"
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "EventCommonTPCnv/P4PtEtaPhiMCnv_p1.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
@@ -43,7 +41,7 @@ class TrigElectron_p3
   virtual ~TrigElectron_p3() {}
   friend class TrigElectronCnv_p3;
   
- private:
+  //private:
 
   unsigned int m_roiWord; 
   bool  m_valid; 
