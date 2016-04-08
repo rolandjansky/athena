@@ -2701,115 +2701,115 @@
 
   <region group="stgc">
     <range field="stationName" value="STS" />
-    <range field="stationEta" values="-4 -3 3 4" />
+    <range field="stationEta" values="-3 -2 2 3" />
     <range field="stationPhi" minvalue="1" maxvalue="8" />
     <range field="technology" value="STGC" />
     <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
     <range field="stgcGasGap" minvalue="1" maxvalue="4" />
     <range field="stgcChannelType" value="sTgcPad" />
-    <range field="stgcChannel" minvalue="1" maxvalue="78" />
+    <range field="stgcChannel" minvalue="1" maxvalue="128" />
   </region>
   
   <region group="stgc">
     <range field="stationName" value="STL" />
-    <range field="stationEta" values="-4 -3 3 4" />
+    <range field="stationEta" values="-3 -2 2 3" />
     <range field="stationPhi" minvalue="1" maxvalue="8" />
     <range field="technology" value="STGC" />
     <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
     <range field="stgcGasGap" minvalue="1" maxvalue="4" />
     <range field="stgcChannelType" value="sTgcPad" />
-    <range field="stgcChannel" minvalue="1" maxvalue="78" />
+    <range field="stgcChannel" minvalue="1" maxvalue="128" />
   </region> 
 
   <region group="stgc">
     <range field="stationName" value="STS" />
-    <range field="stationEta" values="-2 -1 1 2" />
+    <range field="stationEta" values="-1 1" />
     <range field="stationPhi" minvalue="1" maxvalue="8" />
     <range field="technology" value="STGC" />
     <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
     <range field="stgcGasGap" minvalue="1" maxvalue="4" />
     <range field="stgcChannelType" value="sTgcPad" />
-    <range field="stgcChannel" minvalue="1" maxvalue="78" />
+    <range field="stgcChannel" minvalue="1" maxvalue="128" />
   </region>
 
   <region group="stgc">
     <range field="stationName" value="STL" />
-    <range field="stationEta" values="-2 -1 1 2" />
+    <range field="stationEta" values="-1 1" />
     <range field="stationPhi" minvalue="1" maxvalue="8" />
     <range field="technology" value="STGC" />
     <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
     <range field="stgcGasGap" minvalue="1" maxvalue="4" />
     <range field="stgcChannelType" value="sTgcPad" />
-    <range field="stgcChannel" minvalue="1" maxvalue="78" />
+    <range field="stgcChannel" minvalue="1" maxvalue="128" />
   </region>
 
      <!--  sTGC  Strips (stgcChannelType=1) -->
 
   <region group="stgc">
     <range field="stationName" value="STS" />
-    <range field="stationEta" values="-4 -3 3 4" />
+    <range field="stationEta" values="-3 -2 2 3" />
     <range field="stationPhi" minvalue="1" maxvalue="8" />
     <range field="technology" value="STGC" />
     <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
     <range field="stgcGasGap" minvalue="1" maxvalue="4" />
     <range field="stgcChannelType" value="sTgcStrip" />
-    <range field="stgcChannel" minvalue="1" maxvalue="370" />
+    <range field="stgcChannel" minvalue="1" maxvalue="512" />
   </region>
 
   <region group="stgc">
     <range field="stationName" value="STL" />
-    <range field="stationEta" values="-4 -3 3 4" />
+    <range field="stationEta" values="-3 -2 2 3" />
     <range field="stationPhi" minvalue="1" maxvalue="8" />
     <range field="technology" value="STGC" />
     <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
     <range field="stgcGasGap" minvalue="1" maxvalue="4" />
     <range field="stgcChannelType" value="sTgcStrip" />
-    <range field="stgcChannel" minvalue="1" maxvalue="370" />
+    <range field="stgcChannel" minvalue="1" maxvalue="512" />
   </region>
 
   <region group="stgc">
     <range field="stationName" value="STS" />
-    <range field="stationEta" values="-2 -1 1 2" />
+    <range field="stationEta" values="-1 1" />
     <range field="stationPhi" minvalue="1" maxvalue="8" />
     <range field="technology" value="STGC" />
     <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
     <range field="stgcGasGap" minvalue="1" maxvalue="4" />
     <range field="stgcChannelType" value="sTgcStrip" />
-    <range field="stgcChannel" minvalue="1" maxvalue="370" />
+    <range field="stgcChannel" minvalue="1" maxvalue="512" />
   </region>
 
   <region group="stgc">
     <range field="stationName" value="STL" />
-    <range field="stationEta" values="-2 -1 1 2" />
+    <range field="stationEta" values="-1 1" />
     <range field="stationPhi" minvalue="1" maxvalue="8" />
     <range field="technology" value="STGC" />
     <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
     <range field="stgcGasGap" minvalue="1" maxvalue="4" />
     <range field="stgcChannelType" value="sTgcStrip" />
-    <range field="stgcChannel" minvalue="1" maxvalue="370" />
+    <range field="stgcChannel" minvalue="1" maxvalue="512" />
   </region>
 
      <!--  sTGC  Wire (stgcChannelType=2) -->
   <region group="stgc">
     <range field="stationName" value="STS" />
-    <range field="stationEta" values="-4 -3 3 4" />
+    <range field="stationEta" values="-3 -2 2 3" />
     <range field="stationPhi" minvalue="1" maxvalue="8" />
     <range field="technology" value="STGC" />
     <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
     <range field="stgcGasGap" minvalue="1" maxvalue="4" />
     <range field="stgcChannelType" value="sTgcWire" />
-    <range field="stgcChannel" minvalue="1" maxvalue="25" />
+    <range field="stgcChannel" minvalue="1" maxvalue="64" />
   </region>
 
   <region group="stgc">
     <range field="stationName" value="STL" />
-    <range field="stationEta" values="-4 -3 3 4" />
+    <range field="stationEta" values="-3 -2 2 3" />
     <range field="stationPhi" minvalue="1" maxvalue="8" />
     <range field="technology" value="STGC" />
     <range field="stgcMultilayer" minvalue="1" maxvalue="2" />
     <range field="stgcGasGap" minvalue="1" maxvalue="4" />
     <range field="stgcChannelType" value="sTgcWire" />
-    <range field="stgcChannel" minvalue="1" maxvalue="35" />
+    <range field="stgcChannel" minvalue="1" maxvalue="64" />
   </region>
 
      <!--  MicroMegas  -->
@@ -2823,7 +2823,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
+    <range field="mmChannel" minvalue="1" maxvalue="5120" />
   </region>
      <!--  Stereoangle position abs(stationEta) 1-->
   <region group="mm">
@@ -2833,7 +2833,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
+    <range field="mmChannel" minvalue="1" maxvalue="5120" />
   </region>
 
      <!--  Nominal position abs(stationEta) 2-->
@@ -2844,7 +2844,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
+    <range field="mmChannel" minvalue="1" maxvalue="3071" />
   </region>
      <!--  Stereoangle position abs(stationEta) 2-->
   <region group="mm">
@@ -2854,50 +2854,9 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
+    <range field="mmChannel" minvalue="1" maxvalue="3071" />
   </region>
 
-     <!--  Nominal position abs(stationEta) 3-->
-  <region group="mm">
-    <range field="stationName" value="MMS" />
-    <range field="stationEta" values="-3 3" />
-    <range field="stationPhi" minvalue="1" maxvalue="8" />
-    <range field="technology" value="MM" />
-    <range field="mmMultilayer" minvalue="1" maxvalue="2" />
-    <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
-  </region>
-     <!--  Stereoangle position abs(stationEta) 3-->
-  <region group="mm">
-    <range field="stationName" value="MMS" />
-    <range field="stationEta" values="-3 3" />
-    <range field="stationPhi" minvalue="1" maxvalue="8" />
-    <range field="technology" value="MM" />
-    <range field="mmMultilayer" minvalue="1" maxvalue="2" />
-    <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
-  </region>
-
-     <!--  Nominal position abs(stationEta) 4-->
-  <region group="mm">
-    <range field="stationName" value="MMS" />
-    <range field="stationEta" values="-4 4" />
-    <range field="stationPhi" minvalue="1" maxvalue="8" />
-    <range field="technology" value="MM" />
-    <range field="mmMultilayer" minvalue="1" maxvalue="2" />
-    <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
-  </region>
-     <!--  Stereoangle position abs(stationEta) 4-->
-  <region group="mm">
-    <range field="stationName" value="MMS" />
-    <range field="stationEta" values="-4 4" />
-    <range field="stationPhi" minvalue="1" maxvalue="8" />
-    <range field="technology" value="MM" />
-    <range field="mmMultilayer" minvalue="1" maxvalue="2" />
-    <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
-  </region>
 
      <!--  MicroMegas Large Sector -->
      <!--  Nominal position abs(stationEta) 1-->
@@ -2908,7 +2867,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
+    <range field="mmChannel" minvalue="1" maxvalue="5120" />
   </region>
      <!--  Stereoangle position abs(stationEta) 1-->
   <region group="mm">
@@ -2918,7 +2877,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
+    <range field="mmChannel" minvalue="1" maxvalue="5120" />
   </region>
 
      <!--  Nominal position abs(stationEta) 2-->
@@ -2929,7 +2888,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
+    <range field="mmChannel" minvalue="1" maxvalue="3071" />
   </region>
      <!--  Stereoangle position abs(stationEta) 2-->
   <region group="mm">
@@ -2939,49 +2898,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
-  </region>
-  
-     <!--  Nominal position abs(stationEta) 3-->
-  <region group="mm">
-    <range field="stationName" value="MML" />
-    <range field="stationEta" values="-3 3" />
-    <range field="stationPhi" minvalue="1" maxvalue="8" />
-    <range field="technology" value="MM" />
-    <range field="mmMultilayer" minvalue="1" maxvalue="2" />
-    <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
-  </region>
-     <!--  Stereoangle position abs(stationEta) 3-->
-  <region group="mm">
-    <range field="stationName" value="MML" />
-    <range field="stationEta" values="-3 3" />
-    <range field="stationPhi" minvalue="1" maxvalue="8" />
-    <range field="technology" value="MM" />
-    <range field="mmMultilayer" minvalue="1" maxvalue="2" />
-    <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
+    <range field="mmChannel" minvalue="1" maxvalue="3071" />
   </region>
 
-     <!--  Nominal position abs(stationEta) 4-->
-  <region group="mm">
-    <range field="stationName" value="MML" />
-    <range field="stationEta" values="-4 4" />
-    <range field="stationPhi" minvalue="1" maxvalue="8" />
-    <range field="technology" value="MM" />
-    <range field="mmMultilayer" minvalue="1" maxvalue="2" />
-    <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
-  </region>
-     <!--  Stereoangle position abs(stationEta) 4-->
-  <region group="mm">
-    <range field="stationName" value="MML" />
-    <range field="stationEta" values="-4 4" />
-    <range field="stationPhi" minvalue="1" maxvalue="8" />
-    <range field="technology" value="MM" />
-    <range field="mmMultilayer" minvalue="1" maxvalue="2" />
-    <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="2500" />
-  </region>
- 
 </IdDictionary>
