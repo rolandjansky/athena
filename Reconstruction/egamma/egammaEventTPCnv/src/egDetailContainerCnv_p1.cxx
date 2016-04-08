@@ -11,11 +11,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 
-#define private public
-#define protected public
 #include "egammaEvent/egDetailContainer.h"
-#undef private
-#undef protected
 
 // egammaEventTPCnv includes
 #include "egammaEventTPCnv/egDetailContainerCnv_p1.h"
