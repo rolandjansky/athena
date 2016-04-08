@@ -12,7 +12,9 @@
 #include "GaudiKernel/ToolHandle.h"
 
 
-
+namespace Trk{
+  class IExtrapolator;
+}
 namespace Muon{
   class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
@@ -57,6 +59,7 @@ class ExtrapolateMuonToIPTool : virtual public Muon::IMuonTrackExtrapolationTool
   const Trk::TrackParameters* findMeasuredParametersClosestToIP( const Trk::Track& track ) const;
 
 
+  ToolHandle<Trk::IExtrapolator>   m_extrapolator;              //!< Extrapolator
   ToolHandle<Muon::MuonEDMHelperTool>    m_helper;               //!< muon EDM helper tool
   ToolHandle<Muon::MuonEDMPrinterTool>   m_printer;              //!< muon EDM printer tool
 

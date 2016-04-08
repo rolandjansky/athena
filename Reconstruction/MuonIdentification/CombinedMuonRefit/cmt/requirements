@@ -17,7 +17,7 @@ use TrkParameters       TrkParameters-*      Tracking/TrkEvent
 
 use MuonRecHelperTools     MuonRecHelperTools-*          MuonSpectrometer/MuonReconstruction/MuonRecTools
 use MuonRecToolInterfaces  MuonRecToolInterfaces-*       MuonSpectrometer/MuonReconstruction/MuonRecTools
-#use RecoToolInterfaces     RecoToolInterfaces-*     Reconstruction/RecoTools
+use TrkExInterfaces        TrkExInterfaces-*             Tracking/TrkExtrapolation
 
 public
 library CombinedMuonRefit *.cxx components/*.cxx
