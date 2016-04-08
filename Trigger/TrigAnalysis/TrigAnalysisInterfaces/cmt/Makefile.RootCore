@@ -6,6 +6,6 @@ PACKAGE          = TrigAnalysisInterfaces
 PACKAGE_PRELOAD  =
 PACKAGE_CXXFLAGS =
 PACKAGE_LDFLAGS  =
-PACKAGE_DEP      =
+PACKAGE_DEP      = AsgTools
 
 include $(ROOTCOREDIR)/Makefile-common

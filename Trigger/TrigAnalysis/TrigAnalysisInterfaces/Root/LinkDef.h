@@ -4,15 +4,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LinkDef.h 457108 2011-09-05 09:14:09Z krasznaa $
+// $Id: LinkDef.h 617991 2014-09-22 13:59:57Z krasznaa $
+#ifndef TRIGANALYSISINTERFACES_LINKDEF_H
+#define TRIGANALYSISINTERFACES_LINKDEF_H
+
+// Local include(s):
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "TrigAnalysisInterfaces/IBunchCrossingConfProvider.h"
+
 #ifdef __CINT__
-
-#include "../TrigAnalysisInterfaces/IIBunchCrossingTool.h"
-
-// This pretty empty LinkDef file is here to create a small RootCore
-// library out of this interface package. This is just a hack,
-// in the future a better solution might be found. (This dictionary
-// is not necessarily needed...)
 
 #pragma link off all globals;
 #pragma link off all classes;
@@ -20,6 +20,8 @@
 
 #pragma link C++ nestedclass;
 
-#pragma link C++ class Trig::IIBunchCrossingTool+;
+#pragma link C++ class Trig::IBunchCrossingTool+;
+#pragma link C++ class Trig::IBunchCrossingConfProvider+;
 
 #endif // __CINT__
+#endif // not TRIGANALYSISINTERFACES_LINKDEF_H

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IBunchCrossingConfProvider.h 511861 2012-07-31 08:40:04Z krasznaa $
+// $Id: IBunchCrossingConfProvider.h 618301 2014-09-24 08:53:05Z krasznaa $
 #ifndef TRIGANALYSISINTERFACES_IBUNCHCROSSINGCONFPROVIDER_H
 #define TRIGANALYSISINTERFACES_IBUNCHCROSSINGCONFPROVIDER_H
 
@@ -12,59 +12,50 @@
 #include <vector>
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/IAlgTool.h"
+#include "AsgTools/IAsgTool.h"
 
 namespace Trig {
 
-   /// The interface provided by IBunchCrossingConfProvider
-   static const InterfaceID
-   IID_IBunchCrossingConfProvider( "Trig::IBunchCrossingConfProvider", 2, 0 );
-
    /**
-    *  @short Inteface for providing the bunch structure information
+    * @short Inteface for providing the bunch structure information
     *
-    *         To make it simpler for Athena components to save the bunch
-    *         structure information in a uniform way, they should use this
-    *         interface. The bunch structure configuration can come from many
-    *         different places. Since the package already provides code for
-    *         interpreting all these sources, it makes sense that analysts
-    *         wouldn't have to re-do all this themselves.
+    * To make it simpler for Athena components to save the bunch
+    * structure information in a uniform way, they should use this
+    * interface. The bunch structure configuration can come from many
+    * different places. Since the package already provides code for
+    * interpreting all these sources, it makes sense that analysts
+    * wouldn't have to re-do all this themselves.
     *
-    *         The idea is that the information that this interface provides has
-    *         to be enough for fully configuring any version (especially the
-    *         standalone one(s)) of the tool. The main use case at the moment
-    *         being, that if someone saves this configuration into a D3PD, it
-    *         will become possible to use a standalone version of the bunch
-    *         crossing tool to analyse the D3PD in the same way as the analysis
-    *         is done in Athena.
+    * The idea is that the information that this interface provides has
+    * to be enough for fully configuring any version (especially the
+    * standalone one(s)) of the tool. The main use case at the moment
+    * being, that if someone saves this configuration into a D3PD, it
+    * will become possible to use a standalone version of the bunch
+    * crossing tool to analyse the D3PD in the same way as the analysis
+    * is done in Athena.
     *
-    *         This interface is not split into an Athena-dependent and
-    *         Athena-independent class, as I don't think this functionality
-    *         would be useful outside Athena. But who knows...
+    * This interface is not split into an Athena-dependent and
+    * Athena-independent class, as I don't think this functionality
+    * would be useful outside Athena. But who knows...
     *
-    *         All Athena tools that implement this interface have to fire an
-    *         incident of type "BunchConfig" when their configuration is
-    *         updated. Unfortunately I can't create a static member with this
-    *         type name, because then the interface would stop being pure
-    *         virtual... :-( I could define this incident type name as a
-    *         pre-processor macro, but I don't like that solution. :-P
+    * All Athena tools that implement this interface have to fire an
+    * incident of type "BunchConfig" when their configuration is
+    * updated. Unfortunately I can't create a static member with this
+    * type name, because then the interface would stop being pure
+    * virtual... :-( I could define this incident type name as a
+    * pre-processor macro, but I don't like that solution. :-P
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 511861 $
-    * $Date: 2012-07-31 10:40:04 +0200 (Tue, 31 Jul 2012) $
+    * $Revision: 618301 $
+    * $Date: 2014-09-24 10:53:05 +0200 (Wed, 24 Sep 2014) $
     */
-   class IBunchCrossingConfProvider : public virtual IAlgTool {
+   class IBunchCrossingConfProvider : public virtual asg::IAsgTool {
+
+      /// Declare the interface that this class provides
+      ASG_TOOL_INTERFACE( Trig::IBunchCrossingConfProvider )
 
    public:
-      /// Virtual destructor to make the vtable happy
-      virtual ~IBunchCrossingConfProvider() {}
-
-      /// Gaudi interface definition
-      static const InterfaceID& interfaceID() {
-         return IID_IBunchCrossingConfProvider;
-      }
-
       /// Type for the unique identifier
       typedef unsigned int configid_type;
 
