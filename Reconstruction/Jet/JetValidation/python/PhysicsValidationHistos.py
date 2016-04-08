@@ -177,7 +177,7 @@ athenaMonTool = JetMonitoringTool(HistoTools = [
     commonPhysValTool( "AntiKt4TruthJets" ),
 
     commonPhysValTool( "HLT_xAOD__JetContainer_TrigHLTJetRec", onlyKinematics = True ),
-    ])
+    ], IntervalType=8) # 8 == HistoGroupBase::all
 
 
 
