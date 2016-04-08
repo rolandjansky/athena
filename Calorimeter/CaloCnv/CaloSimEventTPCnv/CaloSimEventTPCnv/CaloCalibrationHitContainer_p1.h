@@ -23,7 +23,7 @@ class CaloCalibrationHitContainer_p1
   // Accessors
   const std::string&  name() const; 
   const HitVector&    getVector() const;
- private:
+  //private:
   std::vector<CaloCalibrationHit_p1>   m_cont; 
   std::string                          m_name;
 };

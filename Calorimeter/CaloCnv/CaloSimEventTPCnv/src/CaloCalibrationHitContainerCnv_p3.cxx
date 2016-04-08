@@ -2,12 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
-#undef private
-#undef protected
 #include "Identifier/Identifier.h"
 
 #include "Identifier/IdentifierHash.h"
@@ -45,7 +41,7 @@ void CaloCalibrationHitContainerCnv_p3::transToPers(const CaloCalibrationHitCont
     for (unsigned int w=0;w<size;++w){
         //IdentifierHash hashId = cellIdHelper->calo_cell_hash((*it)->m_ID);
 		
-        unsigned int id = (*it)->m_ID.get_identifier32().get_compact();
+        unsigned int id = (*it)->cellID().get_identifier32().get_compact();
         /* when hash things are clear it could be usefull to change from storing ID to storing hash 
            IdentifierHash hashId = -1;
            if (cellIdHelper->is_lar_dm(id)) 
@@ -71,11 +67,12 @@ void CaloCalibrationHitContainerCnv_p3::transToPers(const CaloCalibrationHitCont
         old=iter->first;
         unsigned int pos=iter->second;
         persCont->m_channelHash.push_back(pHash);
-        tempE.push_back( (float) (transCont->At(pos))->m_energy0 ); 
-        tempE.push_back( (float) (transCont->At(pos))->m_energy1 ); 
-        tempE.push_back( (float) (transCont->At(pos))->m_energy2 ); 
-        tempE.push_back( (float) (transCont->At(pos))->m_energy3 ); 
-        tempPID.push_back( (unsigned int) (transCont->At(pos))->m_particleID );
+        const CaloCalibrationHit& hit = *transCont->At(pos);
+        tempE.push_back( (float) hit.energyEM() ); 
+        tempE.push_back( (float) hit.energyNonEM() ); 
+        tempE.push_back( (float) hit.energyInvisible() ); 
+        tempE.push_back( (float) hit.energyEscaped() ); 
+        tempPID.push_back( (unsigned int) hit.particleID() );
 
 //		if (!ev) std::cout<<"Writing Hash: "<<iter->first<<"\t E: "<< (float) (transCont->At(pos))->m_energy0<<std::endl;
     }			
@@ -109,21 +106,21 @@ void CaloCalibrationHitContainerCnv_p3::persToTrans(const CaloCalibrationHitCont
 	
     unsigned int sum=0;
     for (unsigned int i=0;i<cells;++i){
-        CaloCalibrationHit* trans=new CaloCalibrationHit();
         sum+= persCont->m_channelHash[i];
 		
 	/*	//trans->m_ID=cellIdHelper->cell_id(sum);
 		//trans->m_ID=cellIdHelper->lar_zone_id(sum);  when story with hashes gets clarified 
                 */
-        trans->m_ID=sum;
-		
-        trans->m_energy0 =(double)tempE[i*4];
-        trans->m_energy1 =(double)tempE[i*4+1];
-        trans->m_energy2 =(double)tempE[i*4+2];
-        trans->m_energy3 =(double)tempE[i*4+3];
-        trans->m_particleID = (unsigned int)persCont->m_particleID[i];
+
+        transCont->push_back
+          (new CaloCalibrationHit(static_cast<Identifier>(sum),
+                                  tempE[i*4],
+                                  tempE[i*4+1],
+                                  tempE[i*4+2],
+                                  tempE[i*4+3],
+                                  persCont->m_particleID[i]));
+
 //		if(!dog) std::cout<<"Reading hash: "<<sum <<"\t E: "<< (double)tempE[i] <<std::endl;
-        transCont->push_back(trans);
     }
 //	dog++;
 		
