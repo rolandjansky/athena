@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-
 //MdtCalibData
 #include "MdtCalibData/MdtTubeFitContainer.h"
 
@@ -21,7 +17,8 @@
 
 namespace MuonCalib{
 
-NtupleMTT0Tool::NtupleMTT0Tool(const std::string& t, const std::string& n, const IInterface* p): AlgTool(t, n, p), p_alg(NULL)
+NtupleMTT0Tool::NtupleMTT0Tool(const std::string& t, const std::string& n, const IInterface* p)
+        : AthAlgTool(t, n, p), p_alg(NULL), m_reg_sel_svc("RegionSelectionSvc", n)
 	{
 	declareInterface< NtupleCalibrationTool >(this) ;
 	m_settings.AddFitfun()=true;
@@ -46,14 +43,14 @@ NtupleMTT0Tool::NtupleMTT0Tool(const std::string& t, const std::string& n, const
 	declareProperty("MinumumEntriesPerADCFit", m_min_entries_adc);
 	m_correct_rel_t0=true;
 	declareProperty("CorrectForRelativeT0", m_correct_rel_t0);
+	declareProperty("RegionSelectionSvc", m_reg_sel_svc);
 	}
 
 
 	
 StatusCode NtupleMTT0Tool::initialize()
 	{
-	MsgStream log(msgSvc(), name());
-	log<< MSG::INFO << "Initializing MT T0 Tool" <<endreq;
+	ATH_MSG_INFO( "Initializing MT T0 Tool" );
 //complete settings class
 	m_settings.NBinsTime()=m_n_bins_neg+m_n_bins_pos;
 	m_settings.TimeMin()= (25.0/32.0)*(0.5 - m_n_bins_neg);
@@ -71,7 +68,7 @@ StatusCode NtupleMTT0Tool::initialize()
 		{
 		if(!eval_group_by(m_group_by[i], m_sort_by[i]))
 			{
-			log<< MSG::FATAL <<"Invalid GroupBy option!" <<endreq;
+			ATH_MSG_FATAL( "Invalid GroupBy option!" );
 			return StatusCode :: FAILURE;
 			}
 		}
@@ -80,27 +77,21 @@ StatusCode NtupleMTT0Tool::initialize()
 		{
 		if(!eval_group_by(m_adc_group_by[i], m_adc_sort_by[i]))
 			{
-			log<< MSG::FATAL <<"Invalid ADCGroupBy option!" <<endreq;
+			ATH_MSG_FATAL( "Invalid ADCGroupBy option!" );
 			return StatusCode :: FAILURE;
 			}
 		}
 //get region selection service
-	StatusCode sc=service("RegionSelectionSvc", p_reg_sel_svc);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
-		return sc;
-		}
+	ATH_CHECK( m_reg_sel_svc.retrieve() );
 	setRegion();
 	return StatusCode :: SUCCESS;
 	}
 	
 StatusCode NtupleMTT0Tool::handleEvent(const MuonCalibEvent &/*event*/, int /*evnt_nr*/, const std::vector<MuonCalibSegment *> &segments, unsigned int position)
 	{
-	MsgStream log(msgSvc(), name());
 	if(p_alg == NULL)
 		{
-		log<< MSG::FATAL << "Not correctly initialized!" << endreq;
+		ATH_MSG_FATAL( "Not correctly initialized!" );
 		return StatusCode :: FAILURE;
 		}
 	for(unsigned int i=position; i<segments.size(); i++)
@@ -114,10 +105,9 @@ StatusCode NtupleMTT0Tool::handleEvent(const MuonCalibEvent &/*event*/, int /*ev
 	
 StatusCode NtupleMTT0Tool::analyseSegments(const std::vector<MuonCalibSegment *> & /*segemnts*/)
 	{
-	MsgStream log(msgSvc(), name());
 	if(p_alg == NULL)
 		{
-		log<< MSG::FATAL << "Not correctly initialized!" << endreq;
+		ATH_MSG_FATAL( "Not correctly initialized!" );
 		return StatusCode :: FAILURE;
 		}
 	if(p_alg->analyse())
@@ -131,7 +121,7 @@ void NtupleMTT0Tool::setRegion()
 	{
 	p_alg = new T0CalibrationMT("MT_t0_fitter", &m_settings, m_sort_by, m_adc_sort_by);
 	T0CalibrationOutput input(NULL);
-	for(std::vector<MuonCalib :: NtupleStationId> :: const_iterator it=p_reg_sel_svc->GetStationsInRegions().begin(); it!=p_reg_sel_svc->GetStationsInRegions().end(); it++)
+	for(std::vector<MuonCalib :: NtupleStationId> :: const_iterator it=m_reg_sel_svc->GetStationsInRegions().begin(); it!=m_reg_sel_svc->GetStationsInRegions().end(); it++)
 		{
 		input.GetMap()[*it]=new MdtTubeFitContainer(it->regionId(), 2, 4, 72);
 		}
@@ -140,10 +130,9 @@ void NtupleMTT0Tool::setRegion()
 	
 const IMdtCalibrationOutput * NtupleMTT0Tool::getResults() const
 	{
-	MsgStream log(msgSvc(), name());
 	if(p_alg == NULL)
 		{
-		log<< MSG::FATAL << "Not correctly initialized!" << endreq;
+		ATH_MSG_FATAL( "Not correctly initialized!" );
 		return NULL;
 		}
 	return p_alg->getResults();

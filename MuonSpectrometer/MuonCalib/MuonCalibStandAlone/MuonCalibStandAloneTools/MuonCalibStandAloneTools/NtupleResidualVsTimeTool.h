@@ -7,7 +7,7 @@
 
 //this
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
-
+#include "AthenaBaseComps/AthAlgTool.h"
 
 
 //root 
@@ -25,7 +25,7 @@ class IMdtPatRecFitter;
 	@author rauscher@cern.ch
 	*/
 	
-class NtupleResidualVsTimeTool: public AlgTool, virtual public NtupleCalibrationTool
+class NtupleResidualVsTimeTool: public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 	public:
 //==============================================================================

@@ -2,9 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-
 //MdtCalibRt
 #include "MdtCalibRt/RtCalibrationAnalytic.h"
 #include "MdtCalibRt/RtCalibrationOutput.h"
@@ -20,7 +17,7 @@
 namespace MuonCalib {
 
 NtupleAnalyticAutocalibrationTool :: NtupleAnalyticAutocalibrationTool(const std::string& t, const std::string& n, const IInterface* p): 
-				AlgTool(t, n, p), 
+				AthAlgTool(t, n, p), 
 				m_autocalibration(NULL), 
 				m_rt_accuracy(0.5), 
 				m_func_type("LEGENDRE"), 
@@ -32,6 +29,7 @@ NtupleAnalyticAutocalibrationTool :: NtupleAnalyticAutocalibrationTool(const std
 				max_it(100),
 				m_force_mono(false),
 				m_control_histograms(false),
+				m_calib_input_svc("MdtCalibInputSvc", n),
 				m_failed(false),
 				m_smoothening(false),
 				m_parabolic_extrapolation(false)
@@ -49,12 +47,12 @@ NtupleAnalyticAutocalibrationTool :: NtupleAnalyticAutocalibrationTool(const std
 	declareProperty("ControlHistograms", m_control_histograms);
 	declareProperty("ConventionalSmoothening", m_smoothening);
 	declareProperty("ParabolicExtrapolation", m_parabolic_extrapolation);
+	declareProperty("MdtCalibInputSvc", m_calib_input_svc);
 	}
 	
 StatusCode NtupleAnalyticAutocalibrationTool :: initialize()
 	{
-	MsgStream log(msgSvc(), name());
-	log << MSG::INFO << "initialize()" <<endreq;
+	ATH_MSG_INFO( "initialize()" );
 //interpret functino type
 	if(m_func_type == "LEGENDRE")
 		{
@@ -70,38 +68,32 @@ StatusCode NtupleAnalyticAutocalibrationTool :: initialize()
 		}
 	else
 		{
-		log << MSG::FATAL << "Invalid function type '" << m_func_type << "'!" << endreq;
+		ATH_MSG_FATAL( "Invalid function type '" << m_func_type << "'!" );
 		return StatusCode ::FAILURE;
 		}
 	if(m_force_mono)
 		{
-		log<<MSG::INFO<<"Forcing monotonous rt-relation"<<endreq;
+		ATH_MSG_INFO( "Forcing monotonous rt-relation" );
 		}
 //get pointer to Calibration input service
-	StatusCode sc=service("MdtCalibInputSvc", p_calib_input_svc);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR <<"Cannot retrieve MdtCalibInputSvc!" <<endreq;
-		return sc;
-		}
+	ATH_CHECK( m_calib_input_svc.retrieve() );
 	setRegion();	
 	return StatusCode :: SUCCESS;
 	}
 
 void NtupleAnalyticAutocalibrationTool :: setRegion()
 	{
-	MsgStream log(msgSvc(), name());
 //retrieve rt-relationid
-	const IRtRelation *rt_relation(p_calib_input_svc->GetRtRelation());
+	const IRtRelation *rt_relation(m_calib_input_svc->GetRtRelation());
 	if(rt_relation == NULL)
 		{
-		log << MSG::FATAL << "No rt-relation stored for this region!" << endreq;
+		ATH_MSG_FATAL( "No rt-relation stored for this region!" );
 		return;
 		}
 //create objects
-	log << MSG::INFO << "Creating RtCalibrationAnalytic!" <<endreq;
+	ATH_MSG_INFO( "Creating RtCalibrationAnalytic!" );
 	m_autocalibration = new RtCalibrationAnalytic("RT", m_rt_accuracy, m_func_type_num, m_order, m_split, m_full_matrix, m_fix_min, m_fix_max,	max_it, m_smoothening, m_parabolic_extrapolation);
-	log << MSG::INFO << "setInput!" <<endreq;
+	ATH_MSG_INFO( "setInput!" );
 	m_autocalibration->setInput(new RtCalibrationOutput(rt_relation, new RtFullInfo()));
 	if(m_force_mono)
 		{
@@ -115,10 +107,9 @@ void NtupleAnalyticAutocalibrationTool :: setRegion()
 
 StatusCode NtupleAnalyticAutocalibrationTool :: analyseSegments(const std::vector<MuonCalibSegment *> & segemnts)
 	{
-	MsgStream log(msgSvc(), name());
 	if(m_autocalibration == NULL)
 		{
-		log << MSG::FATAL << "Algorithm not created!" << endreq;
+		ATH_MSG_FATAL( "Algorithm not created!" );
 		m_failed=true;
 		return StatusCode::FAILURE;
 		}
@@ -134,10 +125,9 @@ StatusCode NtupleAnalyticAutocalibrationTool :: analyseSegments(const std::vecto
 
 const IMdtCalibrationOutput * NtupleAnalyticAutocalibrationTool :: getResults() const
 	{
-	MsgStream log(msgSvc(), name());
 	if(m_autocalibration == NULL)
 		{
-		log << MSG::FATAL << "Algorithm not created!" << endreq;
+		ATH_MSG_FATAL( "Algorithm not created!" );
 		return NULL;
 		}
 	if (m_failed) return NULL;

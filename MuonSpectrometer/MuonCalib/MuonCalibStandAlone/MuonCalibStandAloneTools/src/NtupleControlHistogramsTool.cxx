@@ -45,6 +45,7 @@
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MdtCalibT0/T0MTHistos.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
+#include "MdtCalibIOSvc/MdtCalibInputSvc.h"
 //root;
 #include "TF1.h"
 #include "TTree.h"
@@ -64,11 +65,14 @@ using namespace MuonCalib;
 //:::::::::::::::::
 
 NtupleControlHistogramsTool::NtupleControlHistogramsTool(const std::string & t, 
-	const std::string & n, const IInterface * p) : AlgTool(t, n, p) {
+	const std::string & n, const IInterface * p) : AthAlgTool(t, n, p),
+	m_reg_sel_svc("RegionSelectionSvc", n), m_input_service("MdtCalibInputSvc",n) {
 
 /////////////////
 // JOB OPTIONS //
 /////////////////
+	declareProperty("RegionSelectionSvc", m_reg_sel_svc);
+	declareProperty("MdtCalibInputSvc", m_input_service);
 
 	m_refit_segments = false; // by default refit the segments
     declareProperty("segmentRefit", m_refit_segments);
@@ -84,9 +88,6 @@ NtupleControlHistogramsTool::NtupleControlHistogramsTool(const std::string & t,
 
 	m_road_width = 1.0; // by default road width = 1 mm
 	declareProperty("roadWidth", m_road_width);
-
-	m_detector_store = string("DetectorStore");
-	declareProperty("detectorStore", m_detector_store);
 
 	m_MDT_ID_helper = string("MDTIDHELPER");
 	declareProperty("MDTIdHelper", m_MDT_ID_helper);
@@ -138,7 +139,6 @@ NtupleControlHistogramsTool::NtupleControlHistogramsTool(const std::string & t,
 	m_nb_totalEtaStrips2.clear();
 	m_nb_raw_MDT_hits.clear();
 	m_nb_events = 0;
-	m_detStore = 0;
 	m_MdtIdHelper = 0;
 	m_RpcIdHelper = 0;
 	m_detMgr = 0;
@@ -174,66 +174,31 @@ StatusCode NtupleControlHistogramsTool::initialize(void) {
 // VARIABLES //
 ///////////////
 
-	MsgStream log(msgSvc(), name()); // message service
-
 /////////////
 // MESSAGE //
 /////////////
 
-	log << MSG::INFO << "Initializing tool..." << endreq;
+	ATH_MSG_INFO( "Initializing tool..." );
 
 ////////////////////////////////////////////////////
 // STORE GATE AND GEOMODEL RELATED INITIALIZATION //
 ////////////////////////////////////////////////////
 
-// detector store //
-	StatusCode sc=service(m_detector_store, m_detStore);
-	if (!sc.isSuccess()) {
-		log << MSG::FATAL << "Cannot retrieve " << m_detector_store
-			<< "!" << endreq;
-		return sc;
-	}
-
 // MDT ID helper //
-	sc = m_detStore->retrieve(m_MdtIdHelper, m_MDT_ID_helper);
-	if (!sc.isSuccess()) {
-		log << MSG::FATAL << "Cannot retrieve " << m_MDT_ID_helper
-			<< "!" << endreq;
-		return sc;
-	}
+	ATH_CHECK( detStore()->retrieve(m_MdtIdHelper, m_MDT_ID_helper) );
 
 // RPC ID helper //
-	sc = m_detStore->retrieve(m_RpcIdHelper, m_RPC_ID_helper);
-	if (!sc.isSuccess()) {
-		log << MSG::FATAL << "Cannot retrieve RpcIdHelper" << m_RPC_ID_helper
-			<< "!" << endreq;
-		return sc;
-	}
+	ATH_CHECK( detStore()->retrieve(m_RpcIdHelper, m_RPC_ID_helper) );
 
 // muon detector manager //
-	sc = m_detStore->retrieve(m_detMgr);
-	if (!sc.isSuccess()) {
-		log << MSG::FATAL<< "Can't retrieve MuonDetectorManager!"
-			<< endreq;
-		return sc;
-	}
+	ATH_CHECK( detStore()->retrieve(m_detMgr) );
 
 // muon fixed id tool //
-	sc = toolSvc()->retrieveTool(m_idToFixedIdToolType,
-					m_idToFixedIdToolName, m_id_tool);
-	if(!sc.isSuccess()) {
-		log << MSG::FATAL<< "Can't retrieve "
-			<< m_idToFixedIdToolName << "!" << endreq;
-		return sc;
-	}
+	ATH_CHECK( toolSvc()->retrieveTool(m_idToFixedIdToolType,
+					m_idToFixedIdToolName, m_id_tool) );
 
 // calibration input service //
- 	sc=service("MdtCalibInputSvc", m_input_service);
-	if (!sc.isSuccess()) {
-		log << MSG::FATAL << "Can't retrieve MdtCalibInputSvc!"
-			<< endreq;
-		return sc;
-	}
+ 	ATH_CHECK( m_input_service.retrieve() );
 
 ////////////////////////
 // OPEN THE ROOT FILE //
@@ -257,12 +222,8 @@ StatusCode NtupleControlHistogramsTool::initialize(void) {
 	m_cfitter->setTimeOut(m_time_out);
 
 //get region selection service
-	sc=service("RegionSelectionSvc", p_reg_sel_svc);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
-		return sc;
-		}
+	ATH_CHECK( m_reg_sel_svc.retrieve() );
+
 	return StatusCode::SUCCESS;
 
 }
@@ -279,13 +240,12 @@ StatusCode NtupleControlHistogramsTool::finalize(void) {
 // VARIABLES //
 ///////////////
 
-	MsgStream log(msgSvc(), name()); // message service
 
 /////////////
 // MESSAGE //
 /////////////
 
-	log << MSG::INFO << "Finalizing tool..." << endreq;
+	ATH_MSG_INFO( "Finalizing tool..." );
 //the summary tree creation crashes if the refit option is not set -- To be fixed!
 	if (!m_refit_segments) 
 		{
@@ -381,7 +341,7 @@ StatusCode NtupleControlHistogramsTool::finalize(void) {
 		else {
 		if(!histo->FitT0())
 			{
-			log << MSG::WARNING << " T0 fit faild for " << it->first.regionId()<<endreq;
+			ATH_MSG_WARNING( " T0 fit faild for " << it->first.regionId() );
 			t0[i]=9e9;
 			t0_err[i]=9e9;
 			T0[i]=9e9;
@@ -403,7 +363,7 @@ StatusCode NtupleControlHistogramsTool::finalize(void) {
 			chi2_t0[i]=getChi2(t0_fun, it->second->GetTSpec());
 			if(!histo->FitTmax())
 				{
-				log << MSG::WARNING << " TMax fit faild for " << 	it->first.regionId()<<endreq;
+				ATH_MSG_WARNING( " TMax fit faild for " << 	it->first.regionId() );
 				tmax[i]=9e9;
 				tmax_err[i]=9e9;
 				Tmax[i]=9e9;
@@ -457,8 +417,6 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
 // VARIABLES //
 ///////////////
 
-	MsgStream log(msgSvc(), name()); // message service
-
 	const MuonCalibRawHitCollection *raw_hits(event.rawHitCollection());
 //	const MuonCalibSegment *rpcHits(event.rpcHitCollection());
 	unsigned int ml, ly, tb; // multilayer, layer, tube
@@ -492,7 +450,7 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
    // get the raw hit and check whether it is in the calibration region //
 		MuonCalibRawMdtHit *hit(*it);
 		
-		if(!p_reg_sel_svc->isInRegion(hit->identify())) continue;
+		if(!m_reg_sel_svc->isInRegion(hit->identify())) continue;
 
 
    // create maps if necessary //
@@ -547,7 +505,7 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
    // get the raw rpc hit and check whether it is in the calibration region //
 		MuonCalibRawRpcHit *rhit(*rit);
 
-		if(!p_reg_sel_svc->isInRegion(rhit->identify())) continue;
+		if(!m_reg_sel_svc->isInRegion(rhit->identify())) continue;
 
    // create maps if necessary //
 		NtupleStationId station_identifier(rhit->identify());
@@ -592,8 +550,8 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
 					break;
 
 				default:
-					log<< MSG::INFO << "no second rpc found for chambertype: " << 
-							(rhit->identify()).stationNameIndex()	<<endreq;
+					ATH_MSG_INFO( "no second rpc found for chambertype: " << 
+							(rhit->identify()).stationNameIndex()	);
 					break;
 			}
 							
@@ -628,8 +586,8 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
 			
 		}
 		else{
-			log << MSG::WARNING << "MDT close layer could no be set for rpc with stationNameIndex: "
-					<< (rhit->identify()).stationNameIndex() << endreq;
+			ATH_MSG_WARNING( "MDT close layer could no be set for rpc with stationNameIndex: "
+					<< (rhit->identify()).stationNameIndex() );
 		}
 	
 	//now loop over all raw mdt hits in the layer which is next to the rpc
@@ -709,7 +667,7 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
 
 
    // get the first hit to check if it is in the calibration region //
-		if(!p_reg_sel_svc->isInRegion(segments[k]->mdtHOT()[0] ->identify())) continue;
+		if(!m_reg_sel_svc->isInRegion(segments[k]->mdtHOT()[0] ->identify())) continue;
 
 	   // create maps if necessary //
 		NtupleStationId station_identifier((segments[k]->mdtHOT()[0])->identify());

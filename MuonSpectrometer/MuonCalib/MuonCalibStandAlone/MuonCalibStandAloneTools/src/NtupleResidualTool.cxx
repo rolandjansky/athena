@@ -2,9 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-
 //MuonCalibEventBase
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibEventBase/MdtCalibHitBase.h"
@@ -22,7 +19,7 @@
 
 namespace MuonCalib{
 
-NtupleResidualTool::NtupleResidualTool(const std::string& t, const std::string& n, const IInterface* p): AlgTool(t, n, p)
+NtupleResidualTool::NtupleResidualTool(const std::string& t, const std::string& n, const IInterface* p): AthAlgTool(t, n, p)
 	{
 	declareInterface< NtupleCalibrationTool >(this) ;
 	}

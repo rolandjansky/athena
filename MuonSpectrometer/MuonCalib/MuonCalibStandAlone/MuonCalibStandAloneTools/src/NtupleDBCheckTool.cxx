@@ -28,8 +28,10 @@
 
 namespace MuonCalib {
 
-NtupleDbCheckTool::NtupleDbCheckTool(const std::string & t, const std::string & n, const IInterface * p) : AlgTool(t, n, p) 
+NtupleDbCheckTool::NtupleDbCheckTool(const std::string & t, const std::string & n, const IInterface * p)
+        : AthAlgTool(t, n, p), m_input_service("MdtCalibInputSvc", n)
 	{
+	declareProperty("MdtCalibInputSvc", m_input_service);
 	declareInterface< NtupleCalibrationTool >(this);
 	}
 	
@@ -40,7 +42,6 @@ NtupleDbCheckTool::~NtupleDbCheckTool()
 	
 StatusCode NtupleDbCheckTool::initialize(void)
 	{
-	MsgStream log(msgSvc(), name());
 	m_outfile = new TFile("NtupleDbCheckTool.root", "RECREATE");
 	m_outtree = new TTree("tree", "tree");
 	
@@ -52,13 +53,7 @@ StatusCode NtupleDbCheckTool::initialize(void)
 	m_outtree->Branch("ntuple_r", &m_ntuple_r, "ntuple_r/D");
 	m_outtree->Branch("calib_r", &m_calib_r, "calib_r/D");
 // calibration input service //
- 	StatusCode sc=service("MdtCalibInputSvc", m_input_service);
-	if (!sc.isSuccess()) 
-		{
-		log << MSG::FATAL << "Can't retrieve MdtCalibInputSvc!"
-			<< endreq;
-		return sc;
-		}
+ 	ATH_CHECK( m_input_service.retrieve() );
 	return StatusCode::SUCCESS;
 	}
 

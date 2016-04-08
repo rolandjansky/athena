@@ -17,9 +17,10 @@ class TH1F;
 //MuonCalibIdentifier
 #include "MuonCalibIdentifier/MuonFixedId.h"
 
-
 //this
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 class MdtCalibInputSvc;
 
@@ -33,7 +34,7 @@ class MuonCalibHitBase;
 	
 	*/
 	
-class NtupleWireCentricityTool : public AlgTool, virtual public NtupleCalibrationTool
+class NtupleWireCentricityTool : public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 	public:
 //==============================================================================
@@ -77,7 +78,7 @@ class NtupleWireCentricityTool : public AlgTool, virtual public NtupleCalibratio
 	//! track radius
 		TH1F *track_radius;
 	//! calibration input service
-		MdtCalibInputSvc *p_calib_input_svc;
+		ServiceHandle<MdtCalibInputSvc> m_calib_input_svc;
 	//! drift velocity for large radii
 		Double_t m_drift_velocity;
 	//! region id

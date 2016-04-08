@@ -12,7 +12,7 @@
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneTools/HitCounter.h"
-
+#include "AthenaBaseComps/AthAlgTool.h"
 //root
 class TFile;
 
@@ -30,7 +30,7 @@ Scans a run and checks for present chambers and number of hits
 @author rauscher@cern
 */
 
-class NtupleRunScanTool:  public AlgTool, virtual public NtupleCalibrationTool
+class NtupleRunScanTool:  public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 	public:
 //==============================================================================

@@ -23,8 +23,6 @@
 #include <sstream>
 
 // Athena //
-//#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 // MuonReadoutGeometry //
@@ -82,9 +80,11 @@ namespace MuonCalib {
 NtupleDisplayTool::NtupleDisplayTool( const std::string& t, 
                                                     const std::string& n, 
                                                     const IInterface* p) : 
-    AlgTool(t, n, p){
+    AthAlgTool(t, n, p),
+    m_reg_sel_svc("RegionSelectionSvc", n){
     
     declareInterface< NtupleCalibrationTool >(this);	
+    declareProperty("RegionSelectionSvc", m_reg_sel_svc);
 
     //-----------------//
     //-- Job Options --//
@@ -116,8 +116,7 @@ NtupleDisplayTool::NtupleDisplayTool( const std::string& t,
 
 StatusCode NtupleDisplayTool::initialize() {
 	
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "Initializing NtupleDisplayTool" << endreq;
+    ATH_MSG_INFO( "Initializing NtupleDisplayTool" );
 
     
     //----------------------//
@@ -137,36 +136,15 @@ StatusCode NtupleDisplayTool::initialize() {
     //-- Get the StoreGate Stuff --//
     //-----------------------------//
 
-    StoreGateSvc * detStore;
-    StatusCode sc=service("DetectorStore", detStore);
-    if(!sc.isSuccess()){
-        log << MSG::FATAL << "Cannot retrieve Store Gate!" << endreq;
-        return sc;
-    }
+    ATH_CHECK( detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
 
-    sc = detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-    if (!sc.isSuccess()) {
-  	log << MSG::FATAL << "Can't retrieve MdtIdHelper" << endreq;
-  	return sc;
-    }
-
-    sc = detStore->retrieve( m_detMgr );
-    if (!sc.isSuccess()) {
-	log << MSG::FATAL << "Can't retrieve MuonDetectorManager" << endreq;
-	return sc;
-    }
-
+    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 
     //retrieve fixed id tool   
     std::string idToFixedIdToolType("MuonCalib::IdToFixedIdTool");
     std::string idToFixedIdToolName("MuonCalib_IdToFixedIdTool");
     
-    sc = toolSvc()->retrieveTool(idToFixedIdToolType, idToFixedIdToolName, m_id_tool); 
-    if(!sc.isSuccess()) {
-	log << MSG::FATAL << "Can't retrieve IdToFixedIdTool" << endreq;
-	return sc;
-    }
-
+    ATH_CHECK( toolSvc()->retrieveTool(idToFixedIdToolType, idToFixedIdToolName, m_id_tool) ); 
 
     //---------------//
     //-- Variables --//
@@ -204,12 +182,7 @@ StatusCode NtupleDisplayTool::initialize() {
     } 
 
 //get region selection service
-	sc=service("RegionSelectionSvc", p_reg_sel_svc);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
-		return sc;
-		}
+	ATH_CHECK( m_reg_sel_svc.retrieve() );
    
     return StatusCode::SUCCESS;
 
@@ -223,8 +196,7 @@ StatusCode NtupleDisplayTool::initialize() {
 
 StatusCode NtupleDisplayTool::finalize(void) {
 
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "Finalizing NtupleDisplayTool" << endreq;
+    ATH_MSG_INFO( "Finalizing NtupleDisplayTool" );
     
     return StatusCode::SUCCESS;
 
@@ -245,9 +217,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     if(segments.size()<=position) return StatusCode::SUCCESS;
 
     MuonCalibSegment segment(*segments[position]);
-    MsgStream log(msgSvc(), name());
-    
-	
+
     //if displaying only one event 
     if(m_chosen_event!=-1){
         if(eventnumber!=m_chosen_event){
@@ -269,7 +239,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
        }
        if (m_fitter_name!=string("QuasianalyticLineReconstruction") &&
            m_fitter_name!=string("StraightPatRec")) {
-           log << MSG::FATAL << "Unknown track fitter!" << endreq;
+           ATH_MSG_FATAL( "Unknown track fitter!" );
            return StatusCode::FAILURE;
        }
     }
@@ -319,10 +289,10 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
                     Amg::Vector3D TubePos = 
                         MdtRoEl->GlobalToAmdbLRSCoords(MdtRoEl->tubePos(multilayer,layer,k));
                                           
-                    //cout << "ml: " << multilayer << ", " << TubePos << endl;
+                    //ATH_MSG_INFO( "ml: " << multilayer << ", " << TubePos );
                     
                     //set the tube position
-//              std::cout<< multilayer   <<" "<< layer<<" "<<k<<std::endl;
+//              ATH_MSG_INFO( multilayer   <<" "<< layer<<" "<<k );
 			m_tube_circle[multilayer-1][layer-1][k-1] ->setPosition(TubePos);
 			m_tube_circle[multilayer-1][layer-1][k-1]->multilayer= multilayer;
 			m_tube_circle[multilayer-1][layer-1][k-1]->layer= layer;
@@ -417,7 +387,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
         MuonCalibRawMdtHit *hit = *it;
         MuonFixedId id(hit->identify());
         
-        if (p_reg_sel_svc->isInRegion(hit->identify())){
+        if (m_reg_sel_svc->isInRegion(hit->identify())){
 
             int ml(id.mdtMultilayer());
             int ly(id.mdtTubeLayer());
@@ -612,7 +582,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     //-- Draw Everything --//
     //---------------------//
 
-    cout << "Event: " << eventnumber << endl;
+    ATH_MSG_INFO( "Event: " << eventnumber );
 
     for (unsigned int k=0; k<m_tube_circle_lin.size(); k++) {
         m_tube_circle_lin[k]->Draw();
@@ -623,7 +593,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
 		TLatex *txt=new TLatex( m_tube_circle_lin[k]->GetX1() - 2* m_tube_circle_lin[k]->GetR1(), m_tube_circle_lin[k]->GetY1(), ostr.str().c_str());
 //	txt->SetTextSize(1);
 		txt->Draw();
-		std::cout<<ostr.str()<<std::endl;
+		ATH_MSG_INFO( ostr.str() );
 		}
 
     }
@@ -634,7 +604,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
         line_refit->Draw();
     }
     else{
-        cout << "WARNING: refit not successfull!" << endl;
+        ATH_MSG_WARNING( "refit not successfull!" );
     }
 
     m_canvas->Update();
@@ -645,7 +615,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     //return StatusCode::SUCCESS;
     //}
      
-    // cout << "Event: " << eventnumber << " -> Press Return to continue to the next event! (q for exit)" << endl;
+    // ATH_MSG_INFO( "Event: " << eventnumber << " -> Press Return to continue to the next event! (q for exit)" );
     //char c = getchar();
    
     //if(c==char('q')){

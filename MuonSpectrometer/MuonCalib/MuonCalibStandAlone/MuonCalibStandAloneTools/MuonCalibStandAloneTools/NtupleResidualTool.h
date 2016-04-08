@@ -7,8 +7,7 @@
 
 //this
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
-
-
+#include "AthenaBaseComps/AthAlgTool.h"
 
 //root 
 class TH2F;
@@ -26,7 +25,7 @@ class QuasianalyticLineReconstruction;
 	@author rauscher@cern.ch
 	*/
 	
-class NtupleResidualTool: public AlgTool, virtual public NtupleCalibrationTool
+class NtupleResidualTool: public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 	public:
 //==============================================================================

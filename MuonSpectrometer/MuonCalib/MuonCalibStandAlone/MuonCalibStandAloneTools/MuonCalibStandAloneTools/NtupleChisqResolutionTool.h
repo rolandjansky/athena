@@ -17,6 +17,8 @@ class TFile;
 
 //this
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 class MdtCalibInputSvc;
 
 
@@ -29,7 +31,7 @@ class MuonCalibSegment;
 class IRtResolution;
 
 
-class NtupleChisqResolutionTool : public AlgTool, virtual public NtupleCalibrationTool
+class NtupleChisqResolutionTool : public AthAlgTool, virtual public NtupleCalibrationTool
   	{
 	public:
 //===============================public section=================================
@@ -65,7 +67,7 @@ class NtupleChisqResolutionTool : public AlgTool, virtual public NtupleCalibrati
 		int m_minuitoutputlevel;
 		TFile * m_resolfile;
 	//! Calibration input service
-		MdtCalibInputSvc *p_calib_input_svc;
+		ServiceHandle<MdtCalibInputSvc> m_calib_input_svc;
 	//! the rt relation
 		const IRtRelation *p_rt_rel;
     

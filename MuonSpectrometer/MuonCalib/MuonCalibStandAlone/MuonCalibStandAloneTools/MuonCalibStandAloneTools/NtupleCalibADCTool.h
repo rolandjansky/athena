@@ -47,9 +47,8 @@ class TF1;
 class TTree;
 class TProfile;
 
-// AtlasCore //
-#include "StoreGate/StoreGateSvc.h"
-
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 // MuonCalib //
 #include "MuonCalibEventBase/MuonCalibEvent.h"
@@ -58,10 +57,10 @@ class TProfile;
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MdtCalibFitters/CurvedPatRec.h"
-#include "MdtCalibIOSvc/MdtCalibInputSvc.h"
 #include "MuonCalibStandAloneBase/T0Refinement.h"
 #include "MdtCalibUtils/GlobalTimeFitter.h"
 #include "MdtCalibFitters/DCSLFitter.h"
+#include "MdtCalibIOSvc/MdtCalibInputSvc.h"
 class RegionSelectionSvc;
 
 namespace MuonGM {
@@ -72,7 +71,7 @@ namespace MuonCalib {
 
 class T0MTHistos;
 
-class NtupleCalibADCTool : public AlgTool, 
+class NtupleCalibADCTool : public AthAlgTool, 
 					virtual public NtupleCalibrationTool {
 
 public:
@@ -110,7 +109,6 @@ private:
 	                    // = false, if straight segment fits should be performed
 	double m_time_out; // time out for pattern finding
 	double m_road_width; // road width for pattern recognition
-	std::string m_detector_store; // name of the detector store
 	std::string m_MDT_ID_helper; // name of the MDT ID helper
 	std::string m_RPC_ID_helper; // name of the RPC ID helper
 	std::string m_idToFixedIdToolType; // type of the muon fixed id tool
@@ -124,9 +122,9 @@ private:
 	                // be stored
 
 // calibration region //
-	RegionSelectionSvc *p_reg_sel_svc;
+	ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 // calibration parameters //
- 	MdtCalibInputSvc *m_input_service; // pointer to the calibration input
+ 	ServiceHandle<MdtCalibInputSvc> m_input_service; // pointer to the calibration input
 	                                   // service
 // chamber parameters //
 	std::map<NtupleStationId, unsigned int> m_nb_ml; // number of
@@ -189,7 +187,6 @@ private:
 //
 
 
-	StoreGateSvc *m_detStore; // pointer to the detector store
 	const MdtIdHelper *m_MdtIdHelper; // pointer to the MDT ID helper
 	const RpcIdHelper *m_RpcIdHelper; // pointer to the RPC ID helper
 	

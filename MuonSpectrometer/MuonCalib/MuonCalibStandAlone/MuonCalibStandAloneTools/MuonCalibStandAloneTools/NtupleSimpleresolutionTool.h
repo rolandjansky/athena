@@ -16,6 +16,8 @@
 //this
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 //c - c++
 #include "string"
 #include "vector"
@@ -41,7 +43,7 @@ class IRtRelation;
 class NtupleStationId;
 
 
-class NtupleSimpleResolutionTool :  public AlgTool, virtual public NtupleCalibrationTool
+class NtupleSimpleResolutionTool :  public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 public:
 /** Constructors **/
@@ -115,9 +117,9 @@ private:
 	float m_low[RBIN], m_top[RBIN];
 
 /* Calibration input service */
-	MdtCalibInputSvc *p_calib_input_svc;
+	ServiceHandle<MdtCalibInputSvc> m_calib_input_svc;
 /* calibration region */
-	RegionSelectionSvc *p_reg_sel_svc;
+	ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 
 /* rt relation */
 	const IRtRelation *p_rt_relation;

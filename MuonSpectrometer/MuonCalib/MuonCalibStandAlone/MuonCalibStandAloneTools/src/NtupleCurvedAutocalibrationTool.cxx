@@ -2,9 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-
 //MdtCalibRt
 #include "MdtCalibRt/RtCalibrationCurved.h"
 #include "MdtCalibRt/RtCalibrationOutput.h"
@@ -19,7 +16,7 @@
 namespace MuonCalib {
 
 NtupleCurvedAutocalibrationTool :: NtupleCurvedAutocalibrationTool(const std::string& t, const std::string& n, const IInterface* p): 
-				AlgTool(t, n, p), 
+				AthAlgTool(t, n, p), 
 				m_autocalibration(NULL), 
 				m_rt_accuracy(0.5), 
 				m_func_type("LEGENDRE"), 
@@ -29,6 +26,7 @@ NtupleCurvedAutocalibrationTool :: NtupleCurvedAutocalibrationTool(const std::st
 				max_it(100),
 				m_force_mono(false),
 				m_control_histograms(false),
+				m_calib_input_svc("MdtCalibInputSvc", n),
 				m_failed(false),
 				m_parabolic_extrapolation(false),
 				m_smoothing(false),
@@ -46,12 +44,12 @@ NtupleCurvedAutocalibrationTool :: NtupleCurvedAutocalibrationTool(const std::st
 	declareProperty("ParabolicExtrapolation", m_parabolic_extrapolation);
 	declareProperty("ConventionalSmoothing", m_smoothing);
 	declareProperty("MultilayerRtScale", m_multilayer_rt_difference);
+	declareProperty("MdtCalibInputSvc", m_calib_input_svc);
 	}
 	
 StatusCode NtupleCurvedAutocalibrationTool :: initialize()
 	{
-	MsgStream log(msgSvc(), name());
-	log << MSG::INFO << "initialize()" <<endreq;
+	ATH_MSG_INFO( "initialize()" );
 //interpret functino type
 	if(m_func_type == "LEGENDRE")
 		{
@@ -67,43 +65,37 @@ StatusCode NtupleCurvedAutocalibrationTool :: initialize()
 		}
 	else
 		{
-		log << MSG::FATAL << "Invalid function type '" << m_func_type << "'!" << endreq;
+		ATH_MSG_FATAL( "Invalid function type '" << m_func_type << "'!" );
 		return StatusCode ::FAILURE;
 		}
 	if(m_force_mono)
 		{
-		log<<MSG::INFO<<"Forcing monotonous rt-relation"<<endreq;
+		ATH_MSG_INFO( "Forcing monotonous rt-relation" );
 		}
 //get pointer to Calibration input service
-	StatusCode sc=service("MdtCalibInputSvc", p_calib_input_svc);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR <<"Cannot retrieve MdtCalibInputSvc!" <<endreq;
-		return sc;
-		}
+	ATH_CHECK( m_calib_input_svc.retrieve() );
 	setRegion();	
 	return StatusCode :: SUCCESS;
 	}
 
 void NtupleCurvedAutocalibrationTool :: setRegion()
 	{
-	MsgStream log(msgSvc(), name());
 //retrieve rt-relationid
-	const IRtRelation *rt_relation(p_calib_input_svc->GetRtRelation());
+	const IRtRelation *rt_relation(m_calib_input_svc->GetRtRelation());
 	if(rt_relation == NULL)
 		{
-		log << MSG::FATAL << "No rt-relation stored for this region!" << endreq;
+		ATH_MSG_FATAL( "No rt-relation stored for this region!" );
 		return;
 		}
 //create objects
-	log << MSG::INFO << "Creating RtCalibrationCurved!" <<endreq;
+	ATH_MSG_INFO( "Creating RtCalibrationCurved!" );
 	m_autocalibration = new RtCalibrationCurved("RT", m_rt_accuracy,
                                         m_func_type_num, m_order,
                                         m_fix_min, m_fix_max, max_it,
                                         m_parabolic_extrapolation,
                                         m_smoothing,
 					m_multilayer_rt_difference);
-	log << MSG::INFO << "setInput!" <<endreq;
+	ATH_MSG_INFO( "setInput!" );
 	m_autocalibration->setInput(new RtCalibrationOutput(rt_relation, new RtFullInfo()));
 	if(m_force_mono)
 		{
@@ -117,10 +109,9 @@ void NtupleCurvedAutocalibrationTool :: setRegion()
 
 StatusCode NtupleCurvedAutocalibrationTool :: analyseSegments(const std::vector<MuonCalibSegment *> & segemnts)
 	{
-	MsgStream log(msgSvc(), name());
 	if(m_autocalibration == NULL)
 		{
-		log << MSG::FATAL << "Algorithm not created!" << endreq;
+		ATH_MSG_FATAL( "Algorithm not created!" );
 		m_failed=true;
 		return StatusCode::FAILURE;
 		}
@@ -136,10 +127,9 @@ StatusCode NtupleCurvedAutocalibrationTool :: analyseSegments(const std::vector<
 
 const IMdtCalibrationOutput * NtupleCurvedAutocalibrationTool :: getResults() const
 	{
-	MsgStream log(msgSvc(), name());
 	if(m_autocalibration == NULL)
 		{
-		log << MSG::FATAL << "Algorithm not created!" << endreq;
+		ATH_MSG_FATAL( "Algorithm not created!" );
 		return NULL;
 		}
 	if (m_failed) return NULL;

@@ -40,8 +40,7 @@
 #include "TH2.h"
 #include "TNtuple.h"
 
-// AtlasCore //
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 // AtlasConditions //
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -62,7 +61,7 @@ namespace MuonCalib {
 
 class IIdToFixedIdTool;
 
-class NtupleMDTChamberGeometryDeterminationTool : public AlgTool,
+class NtupleMDTChamberGeometryDeterminationTool : public AthAlgTool,
 					virtual public NtupleCalibrationTool {
 
 public:
@@ -110,7 +109,6 @@ private:
 	unsigned int m_reference_ml; // reference multilayer
 	double m_road_width; // road width for pattern recognition
 	std::string m_geometry_file_name; // name of the geometry file
-	std::string m_detector_store; // name of the detector store
 	std::string m_MDT_ID_helper; // name of the MDT ID helper
 	std::string m_idToFixedIdToolType; // type of the muon fixed id tool
 	std::string m_idToFixedIdToolName; // name of the muon fixed id tool
@@ -123,7 +121,7 @@ private:
 
 
 // calibration parameters //
-	MdtCalibInputSvc *m_input_service; // pointer to the calibration input
+	ServiceHandle<MdtCalibInputSvc> m_input_service; // pointer to the calibration input
 					   // service
 
 // chamber parameters //
@@ -169,7 +167,6 @@ private:
 	// geomodel might be finalized before this tool.                //
 
 // helpers //
-	StoreGateSvc *m_detStore; // pointer to the detector store
 	const MdtIdHelper *m_MdtIdHelper; // pointer to the MDT ID helper
 	const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
 						     // detector manager

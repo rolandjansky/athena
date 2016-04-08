@@ -36,6 +36,8 @@
 
 // this
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 class RegionSelectionSvc;
 
 //root 
@@ -44,7 +46,6 @@ class TNtuple;
 class TH1F;
 class TH1I;
 
-class StoreGateSvc; 
 class MdtIdHelper;
 
 namespace MuonGM{
@@ -60,7 +61,7 @@ class NtupleStationId;
 class MuonCalibEvent;
 
 
-class NtupleTubeEfficiencyTool : public AlgTool, virtual public NtupleCalibrationTool
+class NtupleTubeEfficiencyTool : public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 
     public:
@@ -114,7 +115,7 @@ class NtupleTubeEfficiencyTool : public AlgTool, virtual public NtupleCalibratio
         // line reconstruction //
         QuasianalyticLineReconstruction *qfitter;    
 	//! pointe rto region selectin service
-		RegionSelectionSvc *p_reg_sel_svc;
+	ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 
         // counter/numbers //
         int m_nb_trigger;  
