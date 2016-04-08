@@ -60,8 +60,8 @@ SplitBkgStreamsCache::SplitBkgStreamsCache( const std::string& type,
   m_chooseEventRand2(0),
   m_chooseCacheRand(0),
   m_collXingPoisson(0),  
-  f_collDistr(0),
-  f_numberOfBackgroundForBunchCrossing(0),
+  m_f_collDistr(0),
+  m_f_numberOfBackgroundForBunchCrossing(0),
   m_collXingSF(1.0),
   m_zeroXing(-1),
   m_beamInt(0)
@@ -464,27 +464,27 @@ StatusCode SplitBkgStreamsCache::initialize() {
   // select collision distribution functions
   if (m_collDistrName.value() == "Fixed") 
     {
-      f_collDistr = boost::bind(&SplitBkgStreamsCache::collXing, this);
+      m_f_collDistr = boost::bind(&SplitBkgStreamsCache::collXing, this);
       if(m_ignoreBM.value()) 
 	{
-	  f_numberOfBackgroundForBunchCrossing = boost::bind(&SplitBkgStreamsCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity, this, _1);
+	  m_f_numberOfBackgroundForBunchCrossing = boost::bind(&SplitBkgStreamsCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity, this, _1);
 	} else 
 	{
-	  f_numberOfBackgroundForBunchCrossing = boost::bind(&SplitBkgStreamsCache::numberOfCavernBkgForBunchCrossing, this, _1);
+	  m_f_numberOfBackgroundForBunchCrossing = boost::bind(&SplitBkgStreamsCache::numberOfCavernBkgForBunchCrossing, this, _1);
 	}
     }
   else if (m_collDistrName.value() == "Poisson") 
     {
       //pass collEng by reference. If Not CLHEP will take ownership...
       m_collXingPoisson = new CLHEP::RandPoisson(*(collEng), m_meanCollisionsPerBunchCrossing);
-      // f_collDistr will call m_collXingPoisson->fire(m_meanCollisionsPerBunchCrossing)  USED TO BE boost::bind(&CLHEP::RandPoisson::fire, m_collXingPoisson); 
-      f_collDistr = boost::bind(&SplitBkgStreamsCache::collXingPoisson, this);      
+      // m_f_collDistr will call m_collXingPoisson->fire(m_meanCollisionsPerBunchCrossing)  USED TO BE boost::bind(&CLHEP::RandPoisson::fire, m_collXingPoisson); 
+      m_f_collDistr = boost::bind(&SplitBkgStreamsCache::collXingPoisson, this);      
       if(m_ignoreBM.value()) 
 	{
-	  f_numberOfBackgroundForBunchCrossing = boost::bind(&SplitBkgStreamsCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity, this, _1);
+	  m_f_numberOfBackgroundForBunchCrossing = boost::bind(&SplitBkgStreamsCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity, this, _1);
 	} else 
 	{
-	  f_numberOfBackgroundForBunchCrossing = boost::bind(&SplitBkgStreamsCache::numberOfBkgForBunchCrossingDefaultImpl, this, _1);
+	  m_f_numberOfBackgroundForBunchCrossing = boost::bind(&SplitBkgStreamsCache::numberOfBkgForBunchCrossingDefaultImpl, this, _1);
 	}
     } else 
     {
@@ -502,26 +502,26 @@ unsigned int SplitBkgStreamsCache::getNumberOfBkgForBunchCrossing(unsigned int i
 
 unsigned int SplitBkgStreamsCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity(unsigned int) const 
 {
-  return f_collDistr();
+  return m_f_collDistr();
 }
 unsigned int SplitBkgStreamsCache::numberOfBkgForBunchCrossingDefaultImpl(unsigned int iXing) const 
 {
-  return static_cast<unsigned int>(m_beamInt->normFactor(iXing-m_zeroXing)*static_cast<float>(f_collDistr()));
+  return static_cast<unsigned int>(m_beamInt->normFactor(iXing-m_zeroXing)*static_cast<float>(m_f_collDistr()));
 }
 unsigned int SplitBkgStreamsCache::numberOfCavernBkgForBunchCrossing(unsigned int iXing) const 
 {
-  return static_cast<unsigned int>(m_beamInt->normFactor(iXing-m_zeroXing)>0.0)*f_collDistr();
+  return static_cast<unsigned int>(m_beamInt->normFactor(iXing-m_zeroXing)>0.0)*m_f_collDistr();
 }
 
 unsigned int SplitBkgStreamsCache::pickNumberOfBkgForBunchCrossing(unsigned int iXing) {
   if (iXing + 1 > m_numberOfBkgForBunchCrossing.size()) { m_numberOfBkgForBunchCrossing.resize(2 * iXing + 1); }
-  unsigned int nEvts(f_numberOfBackgroundForBunchCrossing(iXing));
+  unsigned int nEvts(m_f_numberOfBackgroundForBunchCrossing(iXing));
   //this is done mainly to handle the case in which original and backround
   //events belong to the same stream. Of course we do not want m_numberOfBkgForBunchCrossing[m_zeroXing]<0 
   if ((int)iXing==m_zeroXing) 
     {
       unsigned int subValue(m_subtractBC0.value());
-      while (nEvts<subValue) nEvts = f_numberOfBackgroundForBunchCrossing(iXing);
+      while (nEvts<subValue) nEvts = m_f_numberOfBackgroundForBunchCrossing(iXing);
       nEvts -= subValue;
 #ifndef NDEBUG
       ATH_MSG_VERBOSE ( "Subtracted " <<   m_subtractBC0.value() 

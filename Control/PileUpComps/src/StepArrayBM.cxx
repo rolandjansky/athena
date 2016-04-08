@@ -64,6 +64,7 @@ StepArrayBM::initialize() {
   
   // Normalise the pattern so that the highest element value is 1.0
   float maxElement(*(std::max_element(pBegin, pEnd)));
+  float inv_maxElement = maxElement != 0 ? 1. / maxElement : 1;
   
   //copy normalized intensity pattern from the property, and match signal pattern if requested
   delete [] m_intensityPattern;
@@ -74,7 +75,7 @@ StepArrayBM::initialize() {
       ATH_MSG_ERROR("All IntensityPattern elements must be >=0. Please fix element #" << i );
       return StatusCode::FAILURE;
     }
-    m_intensityPattern[i] = rProp[i]/maxElement;
+    m_intensityPattern[i] = rProp[i] * inv_maxElement;
   }
   
   // Will be used to convert values in the m_intensityPattern 

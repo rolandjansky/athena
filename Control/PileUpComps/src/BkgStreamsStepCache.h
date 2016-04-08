@@ -156,10 +156,10 @@ private:
   CLHEP::RandPoisson* m_collXingPoisson;
   /// function returning the number of collisions per bunch crossing
   /// before bunch structure modulation
-  boost::function0< long > f_collDistr;
+  boost::function0< long > m_f_collDistr;
   /// function returning the number of bkg events per bunch crossing
   /// after bunch structure modulation
-  boost::function1< unsigned int, unsigned int > f_numberOfBackgroundForBunchCrossing;
+  boost::function1< unsigned int, unsigned int > m_f_numberOfBackgroundForBunchCrossing;
   /// float scaling number of collisions/xing 
   float m_collXingSF;
   /// bool apply scaling number of collisions/xing ?

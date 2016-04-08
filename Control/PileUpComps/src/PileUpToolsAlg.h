@@ -11,11 +11,14 @@
  * @author Paolo Calafiura - ATLAS Collaboration
  */
 
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "EventInfo/PileUpEventInfo.h" /* SubEvent*/
 
-class IPileUpTool;
+#include "PileUpTools/IPileUpTool.h"
+#include "xAODEventInfo/EventInfo.h" /* SubEvent*/
+
+#include "GaudiKernel/ToolHandle.h"
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -27,8 +30,8 @@ public:
   StatusCode finalize();
 
 private:
-  StatusCode clearXing(PileUpEventInfo::SubEvent::const_iterator& fEvt,
-                       PileUpEventInfo::SubEvent::const_iterator& lEvt);
+  StatusCode clearXing(SubEventIterator& fEvt,
+                       SubEventIterator& lEvt);
   ToolHandleArray<IPileUpTool> m_puTools;
 };
 

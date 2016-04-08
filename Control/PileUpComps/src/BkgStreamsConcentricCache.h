@@ -93,7 +93,7 @@ public:
 
   virtual StatusCode queryInterface(const InterfaceID&, void**);
 
-  /// meant to be used (mainly) via f_collDistr
+  /// meant to be used (mainly) via m_f_collDistr
   long collXing() { return m_collXing * m_collXingSF; }
   long collXingPoisson();
 
@@ -195,7 +195,7 @@ private:
   /// set number of collisions/xing (if Poisson distribution chosen)
   CLHEP::RandPoisson* m_collXingPoisson;
   /// function returning number of collisions/xing 
-  boost::function0< long > f_collDistr;
+  boost::function0< long > m_f_collDistr;
   /// float scaling number of collisions/xing 
   float m_collXingSF;
   /// bool apply scaling number of collisions/xing ?

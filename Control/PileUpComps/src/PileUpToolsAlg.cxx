@@ -2,11 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "EventInfo/EventID.h"
+// Class header
+#include "PileUpToolsAlg.h"
 
 #include "PileUpTools/IPileUpTool.h"
-
-#include "PileUpToolsAlg.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -20,8 +19,7 @@ PileUpToolsAlg::PileUpToolsAlg(const std::string& name, ISvcLocator* pSvcLocator
 
 StatusCode PileUpToolsAlg::initialize(){
   StatusCode sc(StatusCode::FAILURE);
-  msg() << MSG::DEBUG << "Initializing " << name()
-        << " - package version " << PACKAGE_VERSION << endreq ;
+  ATH_MSG_DEBUG ("Initializing " << name() << " - package version " << PACKAGE_VERSION);
   //locate the pu tools and initialize them
   if (!(sc=m_puTools.retrieve()).isSuccess()) {
     ATH_MSG_ERROR ("Could not retrieve PileUpTools");
@@ -46,12 +44,12 @@ StatusCode PileUpToolsAlg::execute() {
   /////////////////////////////////////////////////////////////////////
   // Get the overlaid event header, print out event and run number
 
-  const PileUpEventInfo* evt;
+  const xAOD::EventInfo *evt(nullptr);
   if (StatusCode::SUCCESS == evtStore()->retrieve(evt))
   {
     ATH_MSG_INFO ("Overlaid EventInfo : "
-                  << " event: " << evt->event_ID()->event_number()
-                  << " run: " << evt->event_ID()->run_number());
+                  << " event: " << evt->eventNumber()
+                  << " run: " << evt->runNumber());
   }
   else
   {
@@ -71,12 +69,12 @@ StatusCode PileUpToolsAlg::execute() {
   }
 
   // access the sub events...
-  PileUpEventInfo::SubEvent::const_iterator iEvt = evt->beginSubEvt();
-  PileUpEventInfo::SubEvent::const_iterator endEvt = evt->endSubEvt();
+  SubEventIterator iEvt = evt->subEvents().begin();
+  SubEventIterator endEvt = evt->subEvents().end();
 
   // first and last event in a xing
-  PileUpEventInfo::SubEvent::const_iterator fEvt = evt->beginSubEvt();
-  PileUpEventInfo::SubEvent::const_iterator lEvt = fEvt;
+  SubEventIterator fEvt = evt->subEvents().begin();
+  SubEventIterator lEvt = fEvt;
   int currXing(iEvt->time());
   int lastXing(currXing);
 
@@ -119,9 +117,9 @@ StatusCode PileUpToolsAlg::execute() {
   }
   //reset everything
   iPUT = bPUT;
-  iEvt = evt->beginSubEvt();
-  fEvt = evt->beginSubEvt();
-  lEvt = evt->beginSubEvt();
+  iEvt = evt->subEvents().begin();
+  fEvt = evt->subEvents().begin();
+  lEvt = evt->subEvents().begin();
   currXing = (iEvt->time());
   lastXing = (currXing);
   //set nInputEvents
@@ -131,9 +129,9 @@ StatusCode PileUpToolsAlg::execute() {
     ATH_MSG_DEBUG
       ("SubEvt EventInfo : "
        << " time offset: " << iEvt->time()
-       << " event: " << iEvt->pSubEvt->event_ID()->event_number()
-       << " run: " << iEvt->pSubEvt->event_ID()->run_number());
-    //FIXME       << " contents: \n" << iEvt->pSubEvtSG->dump());
+       << " event: " << iEvt->ptr()->eventNumber()
+       << " run: " << iEvt->ptr()->runNumber());
+    //FIXME       << " contents: \n" << iEvt->evtStore()->dump());
     currXing = iEvt->time();
     lEvt=iEvt;
     //check if we are in a new xing
@@ -206,18 +204,15 @@ StatusCode PileUpToolsAlg::finalize() {
 }
 
 
-StatusCode PileUpToolsAlg::clearXing(PileUpEventInfo::SubEvent::const_iterator& fEvt, PileUpEventInfo::SubEvent::const_iterator& lEvt) {
-  PileUpEventInfo::SubEvent::const_iterator iClearEvt=fEvt;
+StatusCode PileUpToolsAlg::clearXing(SubEventIterator& fEvt, SubEventIterator& lEvt) {
+  SubEventIterator iClearEvt=fEvt;
   StatusCode sc = StatusCode::SUCCESS;
   while (sc.isSuccess() && (iClearEvt != lEvt)) {
-    if (!(sc = iClearEvt->pSubEvtSG->clearStore()).isSuccess()) {
-      msg() << MSG::ERROR
-            << "Can not clear store "
-            << iClearEvt->pSubEvtSG->name() << endreq;
+    if (!(sc = iClearEvt->ptr()->evtStore()->clearStore()).isSuccess()) {
+      ATH_MSG_ERROR("Can not clear store " << iClearEvt->ptr()->evtStore()->name());
     } else {
 #ifndef NDEBUG
-      msg() << MSG::VERBOSE
-            << "Cleared store " << iClearEvt->pSubEvtSG->name() << endreq;
+      ATH_MSG_VERBOSE("Cleared store " << iClearEvt->ptr()->evtStore()->name());
 #endif
     }
     ++iClearEvt;

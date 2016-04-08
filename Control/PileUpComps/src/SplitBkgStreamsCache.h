@@ -89,7 +89,7 @@ public:
   /// meant to be used (mainly) via f_collDistr
   long collXing() { return m_meanCollisionsPerBunchCrossing; }
   long collXingPoisson();
-  /// meant to be used via f_numberOfBackgroundForBunchCrossing
+  /// meant to be used via m_f_numberOfBackgroundForBunchCrossing
   unsigned int numberOfBkgForBunchCrossingIgnoringBeamIntensity(unsigned int iXing) const;
   unsigned int numberOfBkgForBunchCrossingDefaultImpl(unsigned int iXing) const;
   unsigned int numberOfCavernBkgForBunchCrossing(unsigned int iXing) const;
@@ -172,10 +172,10 @@ private:
   CLHEP::RandPoisson* m_collXingPoisson;
   /// function returning the number of collisions per bunch crossing
   /// before bunch structure modulation
-  boost::function0< long > f_collDistr;
+  boost::function0< long > m_f_collDistr;
   /// function returning the number of bkg events per bunch crossing
   /// after bunch structure modulation
-  boost::function1< unsigned int, unsigned int > f_numberOfBackgroundForBunchCrossing;
+  boost::function1< unsigned int, unsigned int > m_f_numberOfBackgroundForBunchCrossing;
   /// float scaling number of collisions per bunch crossing 
   float m_collXingSF;
   /// offset of BC=0 xing

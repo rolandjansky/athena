@@ -2,57 +2,71 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <cmath>
-#include <vector>
 
+// Class header
 #include "PileUpEventLoopMgr.h"
 
-#include "GaudiKernel/IAlgorithm.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/Incident.h"
-#include "GaudiKernel/DataIncident.h"
-#include "GaudiKernel/IEvtSelector.h"
-#include "GaudiKernel/IDataManagerSvc.h"
-#include "GaudiKernel/IConversionSvc.h"
-#include "GaudiKernel/ISvcManager.h"
-#include "GaudiKernel/IToolSvc.h"
-
-#include "AthenaKernel/ITimeKeeper.h"
+// Athena includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ITimeKeeper.h"
 
-#include "StoreGate/ActiveStoreSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-
-#include "EventInfo/PileUpEventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/EventIncident.h"
+#include "EventInfo/PileUpEventInfo.h" // OLD EDM
+#include "EventInfo/EventID.h"         // OLD EDM
+#include "EventInfo/EventType.h"       // OLD EDM
+#include "EventInfo/EventIncident.h"   // OLD EDM
 
 #include "PileUpTools/IBeamIntensity.h"
 #include "PileUpTools/IBeamLuminosity.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "PileUpTools/IBkgStreamsCache.h"
 
+#include "StoreGate/ActiveStoreSvc.h"
+#include "StoreGate/StoreGateSvc.h"
+
+#include "xAODEventInfo/EventInfo.h"             // NEW EDM
+#include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
+#include "xAODEventInfo/EventInfoContainer.h"    // NEW EDM
+#include "xAODEventInfo/EventInfoAuxContainer.h" // NEW EDM
+#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
+
+// xAOD include(s):
+//#include "xAODCore/tools/PrintHelpers.h"
+
+// Gaudi headers
+#include "GaudiKernel/IAlgorithm.h"
+#include "GaudiKernel/IEvtSelector.h"
+#include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/Incident.h"
+#include "GaudiKernel/DataIncident.h" // For ContextIncident
+#include "GaudiKernel/IEvtSelector.h"
+
+// std library headers
+#include <cmath>
+//#include <vector>
+
 //=========================================================================
 // Standard Constructor
 //=========================================================================
-PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& nam,
+PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
                                        ISvcLocator* svcLoc)
-  : MinimalEventLoopMgr(nam, svcLoc),
-    p_incidentSvc(0), p_mergeSvc(0),
-    p_SGOver(0),
+  : MinimalEventLoopMgr(name, svcLoc),
+    m_incidentSvc("IncidentSvc", name), //FIXME should this be configurable?
+    m_mergeSvc("PileUpMergeSvc", name),
+    m_evtStore("StoreGateSvc/StoreGateSvc",  name),
     //m_nInputs(0), m_nStores(0),
-    m_origSel("EventSelector", nam),
+    m_origSel("EventSelector", name),
     m_caches(this),
     m_maxCollPerXing(23.0),
     m_xingFreq(25), m_firstXing(-2), m_lastXing(+1),
-    m_timeKeeper("",nam), m_allowSubEvtsEOF(true),
+    m_timeKeeper("",name), m_allowSubEvtsEOF(true),
     m_xingByXing(false), m_isEventOverlayJob(false),
     m_failureMode(1),
-    m_beamInt("FlatBM", nam),
-    m_beamLumi("LumiProfileSvc", nam),
+    m_beamInt("FlatBM", name),
+    m_beamLumi("LumiProfileSvc", name),
+    m_xAODCnvTool("xAODMaker::EventInfoCnvTool/EventInfoCnvTool", this),//Will need a special configuration here + extra config tweaks
     m_currentRun(0), m_firstRun(true),
-    m_msg( nam ),
+    m_msg( name ),
     m_maxBunchCrossingPerOrbit(3564),
     m_nevt(0),
     m_ncurevt(0),
@@ -83,6 +97,8 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& nam,
                   "The service providing the beam intensity distribution");
   declareProperty("BeamLuminosity", m_beamLumi,
                   "The service providing the beam luminosity distribution vs. run");
+  declareProperty("PileUpMergeSvc", m_mergeSvc, "PileUp Merge Service");
+  declareProperty( "xAODCnvTool", m_xAODCnvTool );
   declareProperty("IsEmbedding", m_isEmbedding, "Set this to True for embedding jobs.");
   declareProperty("AllowSerialAndMPToDiffer", m_allowSerialAndMPToDiffer, "When set to False, this will allow the code to reproduce serial output in an AthenaMP job, albeit with a significant performance penalty.");
   //  m_caches.push_back("BkgStreamsCache/MinBiasCache");
@@ -101,95 +117,82 @@ StatusCode PileUpEventLoopMgr::initialize()
   //-------------------------------------------------------------------------
   // Process Properties
   //-------------------------------------------------------------------------
-  try {
-    if (!(setProperties()).isSuccess()) return StatusCode::FAILURE;
-    // configure our MsgStream
-    m_msg.get().setLevel( m_outputLevel.value() );
-  } catch (...) {
-    ATH_MSG_WARNING ( "Caught exception thrown reading in properties" );
-  }
+  try
+    {
+      CHECK(setProperties());
+      // configure our MsgStream
+      m_msg.get().setLevel( m_outputLevel.value() );
+    }
+  catch (...)
+    {
+      ATH_MSG_WARNING ( "Caught exception thrown reading in properties" );
+    }
 
-
-  ATH_MSG_INFO ( "Initializing " << name() << " - package version " << PACKAGE_VERSION ) ;
+  ATH_MSG_INFO ( "Initializing " << this->name() << " - package version " << PACKAGE_VERSION ) ;
   if(!m_allowSerialAndMPToDiffer)
     {
       ATH_MSG_WARNING ( "AllowSerialAndMPToDiffer=False! This will incur serious performance penalties! But Serial and MP output will be the same." );
     }
 
   //locate the StoreGateSvc and initialize our local ptr
-  StatusCode sc = service("StoreGateSvc", p_SGOver);
-  if (!sc.isSuccess() || 0 == p_SGOver) {
-    ATH_MSG_ERROR ( "Could not find StoreGateSvc" );
-    return sc;
-  }
+  CHECK(m_evtStore.retrieve());
 
   //reset output store proxy provider: we don't want to have one!
-  p_SGOver->setProxyProviderSvc(0);
+  m_evtStore->setProxyProviderSvc(0);
 
   //locate the IncidentSvc and initialize our local ptr
-  sc = serviceLocator()->service("IncidentSvc", p_incidentSvc);
-  if( !sc.isSuccess() )
-    {
-      ATH_MSG_ERROR ( "Error retrieving IncidentSvc." );
-      return sc;
-    }
+  CHECK(m_incidentSvc.retrieve());
+
+  // Retrieve the converter tool:
+  CHECK(m_xAODCnvTool.retrieve());
 
   //locate the PileUpMergeSvc and initialize our local ptr
-  sc = serviceLocator()->service("PileUpMergeSvc", p_mergeSvc);
-  if( !sc.isSuccess() )
-    {
-      ATH_MSG_ERROR ( "Error retrieving IncidentSvc." );
-      return sc;
-    }
+  CHECK(m_mergeSvc.retrieve());
 
   //-------------------------------------------------------------------------
   // Setup Event Selector
   //-------------------------------------------------------------------------
-  if (!(setupStreams().isSuccess()))
-    {
-      ATH_MSG_ERROR ( "Failed to initialize pile-up streams" );
-      return StatusCode::FAILURE;
-    }
+  CHECK(this->setupStreams());
   //-------------------------------------------------------------------------
   // Setup TimeKeeper service
   //-------------------------------------------------------------------------
 
   // We do not expect a TimeKeeper necessarily being declared
-  if (!m_timeKeeper.empty()) {
-    if (!(sc = m_timeKeeper.retrieve()).isSuccess()) {
-      ATH_MSG_FATAL ( "TimeKeeper not found." );
-      return sc;
+  if (!m_timeKeeper.empty())
+    {
+      CHECK(m_timeKeeper.retrieve());
     }
-  } else {
-    ATH_MSG_INFO ( "No TimeKeeper selected. No time limit control on event loop." );
-  }
+  else
+    {
+      ATH_MSG_INFO ( "No TimeKeeper selected. No time limit control on event loop." );
+    }
 
   // Get the value of SkipEvents. It is needed for seeking
   SmartIF<IProperty> prpMgr(serviceLocator());
   IEvtSelector* evtSelector(0);
-  if(prpMgr.isValid()) {
-    // Get event selector name. Retrieve EventSelector
-    std::string evtSelName = prpMgr->getProperty("EvtSel").toString();
-    sc = serviceLocator()->service(evtSelName,evtSelector);
-    if(sc.isFailure() || evtSelector==0) {
-      ATH_MSG_ERROR ( "Error retrieving EventSelector" );
+  if(prpMgr.isValid())
+    {
+      // Get event selector name. Retrieve EventSelector
+      std::string evtSelName = prpMgr->getProperty("EvtSel").toString();
+      CHECK(serviceLocator()->service(evtSelName,evtSelector));
+    }
+  else
+    {
+      ATH_MSG_ERROR ( "IProperty interface not found in ApplicationMgr" );
       return StatusCode::FAILURE;
     }
-  }
-  else {
-    ATH_MSG_ERROR ( "IProperty interface not found in ApplicationMgr" );
-    return StatusCode::FAILURE;
-  }
 
   SmartIF<IProperty> prpMgr1(evtSelector);
-  if(prpMgr1.isValid()) {
-    std::string skipEventsStr = prpMgr1->getProperty("SkipEvents").toString();
-    m_ncurevt = std::atoi(skipEventsStr.c_str());
-  }
-  else {
-    ATH_MSG_ERROR ( "IProperty interface not found on the event selector" );
-    return StatusCode::FAILURE;
-  }
+  if(prpMgr1.isValid())
+    {
+      std::string skipEventsStr = prpMgr1->getProperty("SkipEvents").toString();
+      m_ncurevt = std::atoi(skipEventsStr.c_str());
+    }
+  else
+    {
+      ATH_MSG_ERROR ( "IProperty interface not found on the event selector" );
+      return StatusCode::FAILURE;
+    }
 
   //-------------------------------------------------------------------------
   // Base class initialize (done at the end to allow algs to access stores)
@@ -203,20 +206,21 @@ StatusCode PileUpEventLoopMgr::initialize()
 //=========================================================================
 StatusCode PileUpEventLoopMgr::finalize()
 {
-  ATH_MSG_INFO ( "Finalizing " << name() << " - package version " << PACKAGE_VERSION );
+  ATH_MSG_INFO ( "Finalizing " << this->name() << " - package version " << PACKAGE_VERSION );
 
   //we need to release all our BkgStreamCaches
   ToolHandleArray<IBkgStreamsCache>::iterator cacheIterator(m_caches.begin());
   ToolHandleArray<IBkgStreamsCache>::iterator endOfCaches(m_caches.end());
-  while (cacheIterator != endOfCaches) (*cacheIterator++)->release();
+  while (cacheIterator != endOfCaches)
+    {
+      (*cacheIterator++)->release();
+    }
   m_caches.clear();
 
   //and to clean up the store the stream owns
-  StatusCode sc = m_origStream.finalize();
+  CHECK(m_origStream.finalize());
 
-  if (sc.isSuccess()) sc = MinimalEventLoopMgr::finalize();
-
-  return sc;
+  return MinimalEventLoopMgr::finalize();
 }
 
 //=========================================================================
@@ -236,19 +240,14 @@ StatusCode PileUpEventLoopMgr::finalize()
 StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
 {
   // make nextEvent(0) a dummy call, as needed by athenaMP
-  if (0 == maxevt) return StatusCode::SUCCESS;
+  if (0 == maxevt) { return StatusCode::SUCCESS; }
 
 
   static int        total_nevt = 0;
 
   //locate the ActiveStoreSvc and initialize our local ptr
-  ActiveStoreSvc* pActiveStore;
-  StatusCode sc = serviceLocator()->service("ActiveStoreSvc", pActiveStore);
-  if( !sc.isSuccess() )
-    {
-      ATH_MSG_FATAL ( "Error retrieving ActiveStoreSvc." );
-      return sc;
-    }
+  ActiveStoreSvc* pActiveStore(nullptr);
+  CHECK(serviceLocator()->service("ActiveStoreSvc", pActiveStore));
 
   // These following two initialization loops are performed here in case new
   // Top level Algorithms or Output Streams have been created interactively
@@ -290,200 +289,292 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
   bool noTimeLimit(false);
   while( (maxevt == -1 || m_nevt < maxevt) &&
          (noTimeLimit = (m_timeKeeper.empty() || m_timeKeeper->nextIter()) )  &&
-         0 != (pEvent = m_origStream.nextEventPre()) ) {
-    // Check if there is a scheduled stop issued by some algorithm/sevice
-    if ( m_scheduledStop ) {
-      m_scheduledStop = false;
-      ATH_MSG_ALWAYS ( "A stopRun was requested. Terminating event loop." );
-      break;
-    }
-    ++m_nevt; ++total_nevt; ++m_ncurevt;
-    ATH_MSG_INFO ( "nextEvent(): overlaying original event " <<
-                   pEvent->event_ID()->run_number() << '/' <<
-                   pEvent->event_ID()->event_number() << '/' <<
-                   pEvent->event_ID()->lumi_block() );
-
-    //-----------------------------------------------------------------------
-    // Setup overlaid event in the event store
-    //-----------------------------------------------------------------------
-    //ask the BeamIntensitySvc to choose (and remember)
-    //in which xing this event will be wrto the beam int distribution
-    m_beamInt->selectT0();
-
-    EventID* pOvrID = new EventID(*(pEvent->event_ID()));
-    unsigned int t0BCID(pOvrID->bunch_crossing_id());
-    if (!m_isEventOverlayJob) {
-      // Use the position in the beam intensity array to set a BCID-like quantity
-      t0BCID = m_beamInt->getCurrentT0BunchCrossing();
-      pOvrID->set_bunch_crossing_id(t0BCID);
-    }
-    ATH_MSG_VERBOSE ( "BCID =" << pOvrID->bunch_crossing_id() );
-    EventType *pOvrEt = new EventType(); //FIXME
-    pOvrEt->set_user_type("Overlaid"); //FIXME
-    pOvrEt->set_mc_channel_number(pEvent->event_type()->mc_channel_number());
-    pOvrEt->set_mc_event_number(pEvent->event_type()->mc_event_number());
-    const unsigned int nWeights(pEvent->event_type()->n_mc_event_weights());
-    for (unsigned int iWeight(0); iWeight<nWeights; ++iWeight)
-      {
-        pOvrEt->set_mc_event_weight(pEvent->event_type()->mc_event_weight(iWeight));
-      }
-    if (m_isEventOverlayJob){
-      pOvrEt->set_mc_channel_number(m_mcRunNumber);
-      ATH_MSG_DEBUG ( "pOvrEt set_mc_channel_number: " << m_mcRunNumber );
-    }
-    else {
-      // Overlay RDO files should be treated like data for reco
-      // purposes, so only set this for SimHit level pile-up.
-      pOvrEt->add_type(EventType::IS_SIMULATION);
-    }
-
-    PileUpEventInfo *pOverEvent = new PileUpEventInfo(pOvrID, pOvrEt);
-    if(m_isEmbedding) {
-      pOverEvent->setActualInteractionsPerCrossing(pEvent->actualInteractionsPerCrossing());
-      pOverEvent->setAverageInteractionsPerCrossing(pEvent->averageInteractionsPerCrossing());
-    }
-    ATH_MSG_VERBOSE ( "BCID =" << pOverEvent->event_ID()->bunch_crossing_id() );
-    //  register as sub event of the overlaid
-    bool addpEvent(true);
-    if(m_isEmbedding) {
-      const PileUpEventInfo* pOldEvent(dynamic_cast<const PileUpEventInfo*>(pEvent));
-      if(pOldEvent) {
-        PileUpEventInfo::SubEvent::const_iterator it  = pOldEvent->beginSubEvt();
-        PileUpEventInfo::SubEvent::const_iterator end = pOldEvent->endSubEvt();
-        if (it != end) { addpEvent=false; }
-        for (; it != end; ++it) {
-          const EventInfo* sevt = (*it).pSubEvt;
-          pOverEvent->addSubEvt((*it).time() , (*it).type(), sevt, &m_origStream.store());
-        }
-      }
-    }
-    if(addpEvent) {
-      pOverEvent->addSubEvt(0, PileUpTimeEventIndex::Signal,
-                            pEvent, &m_origStream.store());
-    }
-
-    if( !(p_SGOver->record(pOverEvent, "McEventInfo")).isSuccess() )  {
-      ATH_MSG_ERROR ( "Error recording overlayed event object" );
-      return StatusCode::FAILURE;
-    }
-    //add an alias to "OverlayEvent" (backward compatibility)
-    if( !(p_SGOver->setAlias(pOverEvent, "OverlayEvent")).isSuccess() )  {
-      ATH_MSG_ERROR ( "Error setting OverlayEvent alias for overlayed event object" );
-      return StatusCode::FAILURE;
-    }
-    //add an alias to "MyEvent" (backward compatibility)
-    if( !(p_SGOver->setAlias(pOverEvent, "MyEvent")).isSuccess() )  {
-      ATH_MSG_ERROR ( "Error setting OverlayEvent alias for overlayed event object" );
-      return StatusCode::FAILURE;
-    }
-
-    //symlink to EventInfo to support transparent access for standard code
-    const EventInfo *pEI(0);
-    if( !(p_SGOver->symLink(pOverEvent, pEI)).isSuccess() )  {
-      ATH_MSG_ERROR ( "Error symlinking overlayed event object" );
-      return StatusCode::FAILURE;
-    }
-
-
-    //FIXME at this point one may want to look into the original event
-    //FIXME to decide whether to skip it or to do the pile-up
-
-    ///ask the BeamLuminositySvc to check for a new scalefactor
-    bool needupdate;
-    float sf = m_beamLumi->scaleFactor(pEvent->event_ID()->run_number(), pEvent->event_ID()->lumi_block(), needupdate );
-    float currentaveragemu(sf*m_maxCollPerXing);
-    if(!m_isEmbedding) {
-      pOverEvent->setAverageInteractionsPerCrossing(currentaveragemu);
-      //FIXME check whether actualInteractionsPerCrossing should be set
-      //to mu for the central bunch crossing, as below, or whether it
-      //should be set to the actual number of minbias piled-up in the
-      //central bunch crossing for this particular event.
-      pOverEvent->setActualInteractionsPerCrossing(m_beamInt->normFactor(0)*currentaveragemu);
-    }
-    ATH_MSG_DEBUG ( "BCID = "<< t0BCID <<
-                    ", mu =" << pOverEvent->actualInteractionsPerCrossing() <<
-                    ", <mu> =" << pOverEvent->averageInteractionsPerCrossing() );
-    ToolHandleArray<IBkgStreamsCache>::iterator cacheIterator(m_caches.begin());
-    ToolHandleArray<IBkgStreamsCache>::iterator endOfCaches(m_caches.end());
-    while (cacheIterator != endOfCaches) {
-      if (needupdate) (*cacheIterator)->resetEvtsPerXingScaleFactor(sf);//set cache scale factor. some caches should ignore it?
-      (*cacheIterator++)->newEvent(); //inform cache we overlay a new event
-    }
-    //-----------------------------------------------------------------------
-    // loop over x-ings
-    //-----------------------------------------------------------------------
-    for (int iXing=m_firstXing; iXing<=m_lastXing; iXing++) {
-      // if (m_xingByXing.value()) test that PileUpToolsAlg is there?
-      //-----------------------------------------------------------------------
-      // Read input events in bkg stores and link them to overlay store
-      //-----------------------------------------------------------------------
-      int t0BinCenter((int)m_xingFreq*iXing);
-      unsigned int currentBCID = getBCID((t0BinCenter/25), t0BCID); //Should account for m_xingFreq>25. FIXME - hardcoded 25ns
-      ATH_MSG_VERBOSE ( "Background BCID =" << currentBCID );
-      cacheIterator = m_caches.begin();
-      while (cacheIterator != endOfCaches) {
-        // Now set the BCID for background events - also requires changes to PileUpEventInfo, SubEvent
-        if (((*cacheIterator)->addSubEvts(iXing-m_firstXing, *pOverEvent, t0BinCenter, m_loadProxies, currentBCID)).isFailure()) {
-          //if (((*cacheIterator)->addSubEvts(iXing-m_firstXing, *pOverEvent, t0BinCenter)).isFailure()) {
-          if (maxevt == -1 && m_allowSubEvtsEOF) {
-            ATH_MSG_INFO ( "No more sub events for " << cacheIterator->name() );
-            return StatusCode::SUCCESS;
-          } else {
-            ATH_MSG_FATAL ( "Error adding sub events to " << cacheIterator->name() );
-            return StatusCode::FAILURE;
-          }
-        }
-        ++cacheIterator;
-      }
-    }  //loop over xings
-
-    //set active store back to the overlaid one
-    pActiveStore->setStore(p_SGOver);
-
-    // Execute event for all required algorithms. The overlaid event
-    // (PileUpEventInfo) is considered to be current
-    if(m_skipExecAlgs) {
-      ATH_MSG_INFO ( "Firing reseed incident (" << pOverEvent->event_ID()->event_number() << "," << pOverEvent->event_ID()->run_number() << ")" );
-      p_incidentSvc->fireIncident(ContextIncident<std::pair<unsigned,unsigned> >(name(),"ReseedIncident",std::pair<unsigned,unsigned>(pOverEvent->event_ID()->event_number(),pOverEvent->event_ID()->run_number())));
-      p_incidentSvc->fireIncident(Incident(name(),"AfterReseedIncident"));
-      ATH_MSG_INFO ( "Not going to process this event" );
-    }
-    else {
-      if( !(executeEvent(reinterpret_cast<void*>(pOverEvent)).isSuccess()) )
+         0 != (pEvent = m_origStream.nextEventPre()) ) //FIXME this call has to be able to cope with xAOD::EventInfo rather than EventInfo being in m_origStream
+    {
+      // Check if there is a scheduled stop issued by some algorithm/sevice
+      if ( m_scheduledStop )
         {
-          ATH_MSG_ERROR ( "Terminating event processing loop due to errors" );
-          return StatusCode::FAILURE;
+          m_scheduledStop = false;
+          ATH_MSG_ALWAYS ( "A stopRun was requested. Terminating event loop." );
+          break;
+        }
+      ++m_nevt; ++total_nevt; ++m_ncurevt;
+      ATH_MSG_INFO ( "nextEvent(): overlaying original event " <<
+                     pEvent->event_ID()->run_number() << '/' <<
+                     pEvent->event_ID()->event_number() << '/' <<
+                     pEvent->event_ID()->lumi_block() );
+
+      //-----------------------------------------------------------------------
+      // Setup overlaid event in the event store
+      //-----------------------------------------------------------------------
+      //ask the BeamIntensitySvc to choose (and remember)
+      //in which xing this event will be wrto the beam int distribution
+      m_beamInt->selectT0();
+
+      EventID* pOvrID = new EventID(*(pEvent->event_ID()));
+      unsigned int t0BCID(pOvrID->bunch_crossing_id());
+      if (!m_isEventOverlayJob)
+        {
+          // Use the position in the beam intensity array to set a BCID-like quantity
+          t0BCID = m_beamInt->getCurrentT0BunchCrossing();
+          pOvrID->set_bunch_crossing_id(t0BCID);
+        }
+      ATH_MSG_VERBOSE ( "BCID =" << pOvrID->bunch_crossing_id() );
+      EventType *pOvrEt = new EventType(); //FIXME
+      pOvrEt->set_user_type("Overlaid"); //FIXME
+      pOvrEt->set_mc_channel_number(pEvent->event_type()->mc_channel_number());
+      pOvrEt->set_mc_event_number(pEvent->event_type()->mc_event_number());
+      pOvrEt->set_mc_event_weight(pEvent->event_type()->mc_event_weight());
+      if (m_isEventOverlayJob)
+        {
+          pOvrEt->set_mc_channel_number(m_mcRunNumber);
+          ATH_MSG_DEBUG ( "pOvrEt set_mc_channel_number: " << m_mcRunNumber );
         }
       else
-        ATH_MSG_INFO ( "Event processing successfull" );
-    }
-    //if we are not doing overlap xing by xing clean up all stores at the end
-    //the clean up is done object by object and controlled by
-    //PileUpXingFolder.CacheRefreshFrequency property
-    if (!m_xingByXing.value()) {
-      // FIXME test that PileUpToolsAlg is NOT there?
-      //clear all stores as configured in
-      if( !(p_mergeSvc->clearDataCaches().isSuccess()) ) {
-        ATH_MSG_ERROR ( "Can not clear data caches" );
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_DEBUG ( "Cleared data caches" );
+        {
+          // Overlay RDO files should be treated like data for reco
+          // purposes, so only set this for SimHit level pile-up.
+          pOvrEt->add_type(EventType::IS_SIMULATION);
+        }
+
+      PileUpEventInfo *pOverEvent = new PileUpEventInfo(pOvrID, pOvrEt);
+      if(m_isEmbedding)
+        {
+          pOverEvent->setActualInteractionsPerCrossing(pEvent->actualInteractionsPerCrossing());
+          pOverEvent->setAverageInteractionsPerCrossing(pEvent->averageInteractionsPerCrossing());
+        }
+      ATH_MSG_VERBOSE ( "BCID =" << pOverEvent->event_ID()->bunch_crossing_id() );
+      //  register as sub event of the overlaid
+      bool addpEvent(true);
+      if(m_isEmbedding)
+        {
+          const PileUpEventInfo* pOldEvent(dynamic_cast<const PileUpEventInfo*>(pEvent));
+          if(pOldEvent)
+            {
+              PileUpEventInfo::SubEvent::const_iterator it  = pOldEvent->beginSubEvt();
+              PileUpEventInfo::SubEvent::const_iterator end = pOldEvent->endSubEvt();
+              if (it != end) { addpEvent=false; }
+              for (; it != end; ++it)
+                {
+                  const EventInfo* sevt = (*it).pSubEvt;
+                  pOverEvent->addSubEvt((*it).time() , (*it).type(), sevt, &m_origStream.store());
+                }
+            }
+        }
+      if(addpEvent)
+        {
+          pOverEvent->addSubEvt(0, PileUpTimeEventIndex::Signal,
+                                pEvent, &m_origStream.store());
+        }
+
+      CHECK(m_evtStore->record(pOverEvent, "McEventInfo"));
+      //add an alias to "OverlayEvent" (backward compatibility)
+      CHECK(m_evtStore->setAlias(pOverEvent, "OverlayEvent"));
+      //add an alias to "MyEvent" (backward compatibility)
+      CHECK(m_evtStore->setAlias(pOverEvent, "MyEvent"));
+
+      //symlink to EventInfo to support transparent access for standard code
+      const EventInfo *pEI(0);
+      CHECK(m_evtStore->symLink(pOverEvent, pEI));
+
+      //FIXME at this point one may want to look into the original event
+      //FIXME to decide whether to skip it or to do the pile-up
+
+      ///ask the BeamLuminositySvc to check for a new scalefactor
+      bool needupdate;
+      float sf = m_beamLumi->scaleFactor(pEvent->event_ID()->run_number(), pEvent->event_ID()->lumi_block(), needupdate );
+      float currentaveragemu(sf*m_maxCollPerXing);
+      if(!m_isEmbedding)
+        {
+          pOverEvent->setAverageInteractionsPerCrossing(currentaveragemu);
+          //FIXME check whether actualInteractionsPerCrossing should be set
+          //to mu for the central bunch crossing, as below, or whether it
+          //should be set to the actual number of minbias piled-up in the
+          //central bunch crossing for this particular event.
+          pOverEvent->setActualInteractionsPerCrossing(m_beamInt->normFactor(0)*currentaveragemu);
+        }
+      ATH_MSG_DEBUG ( "BCID = "<< t0BCID <<
+                      ", mu =" << pOverEvent->actualInteractionsPerCrossing() <<
+                      ", <mu> =" << pOverEvent->averageInteractionsPerCrossing() );
+      ToolHandleArray<IBkgStreamsCache>::iterator cacheIterator(m_caches.begin());
+      ToolHandleArray<IBkgStreamsCache>::iterator endOfCaches(m_caches.end());
+      while (cacheIterator != endOfCaches)
+        {
+          if (needupdate) (*cacheIterator)->resetEvtsPerXingScaleFactor(sf);//set cache scale factor. some caches should ignore it?
+          (*cacheIterator++)->newEvent(); //inform cache we overlay a new event
+        }
+      //-----------------------------------------------------------------------
+      // loop over x-ings
+      //-----------------------------------------------------------------------
+      for (int iXing=m_firstXing; iXing<=m_lastXing; iXing++)
+        {
+          // if (m_xingByXing.value()) test that PileUpToolsAlg is there?
+          //-----------------------------------------------------------------------
+          // Read input events in bkg stores and link them to overlay store
+          //-----------------------------------------------------------------------
+          int t0BinCenter((int)m_xingFreq*iXing);
+          unsigned int currentBCID = getBCID((t0BinCenter/25), t0BCID); //Should account for m_xingFreq>25. FIXME - hardcoded 25ns
+          ATH_MSG_VERBOSE ( "Background BCID =" << currentBCID );
+          cacheIterator = m_caches.begin();
+          while (cacheIterator != endOfCaches)
+            {
+              // Now set the BCID for background events - also requires changes to PileUpEventInfo, SubEvent
+              if (((*cacheIterator)->addSubEvts(iXing-m_firstXing, *pOverEvent, t0BinCenter, m_loadProxies, currentBCID)).isFailure()) {
+                //if (((*cacheIterator)->addSubEvts(iXing-m_firstXing, *pOverEvent, t0BinCenter)).isFailure()) {
+                if (maxevt == -1 && m_allowSubEvtsEOF) {
+                  ATH_MSG_INFO ( "No more sub events for " << cacheIterator->name() );
+                  return StatusCode::SUCCESS;
+                } else {
+                  ATH_MSG_FATAL ( "Error adding sub events to " << cacheIterator->name() );
+                  return StatusCode::FAILURE;
+                }
+              }
+              ++cacheIterator;
+            }
+        }  //loop over xings
+
+      //////////// START OF TEMPORARY HACK /////////////////////
+      ATH_MSG_DEBUG("Converting PileUpEventInfo to xAOD::EventInfo");
+      // Copy completed PileUpEventInfo into xAODEventInfo at this point temporarily
+      // Create the xAOD object(s):
+      std::unique_ptr< xAOD::EventAuxInfo > pxAODEventAuxInfo(new xAOD::EventAuxInfo());
+      std::unique_ptr< xAOD::EventInfo > pxAODEventInfo( new xAOD::EventInfo());
+      pxAODEventInfo->setStore( pxAODEventAuxInfo.get() );
+      CHECK(m_xAODCnvTool->convert( pOverEvent, pxAODEventInfo.get(), true, false ));
+       // Before the record, keep a pointer to the EventInfo object, to be able
+      // to add ElementLinks to it afterwards.
+      xAOD::EventInfo* pLocalXAODEventInfo = pxAODEventInfo.get();
+
+      //ATH_MSG_INFO ("Dumping xAOD::EventInfo prior to adding SubEvents");
+      //xAOD::dump( *pLocalXAODEventInfo );
+      // Record the xAOD object(s):
+      CHECK( m_evtStore->record( std::move( pxAODEventAuxInfo ), "EventInfoAux." ) );
+      CHECK( m_evtStore->record( std::move( pxAODEventInfo ), "EventInfo" ) );
+
+      // Create an EventInfoContainer for the pileup events:
+      std::unique_ptr< xAOD::EventInfoContainer > puei(new xAOD::EventInfoContainer());
+      std::unique_ptr< xAOD::EventInfoAuxContainer > puaux(new xAOD::EventInfoAuxContainer());
+      puei->setStore( puaux.get() );
+
+      // Sub-events for the main EventInfo object:
+      std::vector< xAOD::EventInfo::SubEvent > subEvents;
+
+      // A map translating between the AOD and xAOD pileup event types:
+      static std::map< PileUpEventInfo::SubEvent::pileup_type,
+                       xAOD::EventInfo::PileUpType > pileupTypeMap;
+      if( ! pileupTypeMap.size() ) {
+#define DECLARE_SE_TYPE( TYPE )                                         \
+         pileupTypeMap[ PileUpTimeEventIndex::TYPE ] = xAOD::EventInfo::TYPE
+
+         DECLARE_SE_TYPE( Unknown );
+         DECLARE_SE_TYPE( Signal );
+         DECLARE_SE_TYPE( MinimumBias );
+         DECLARE_SE_TYPE( Cavern );
+         DECLARE_SE_TYPE( HaloGas );
+         DECLARE_SE_TYPE( ZeroBias );
+
+#undef DECLARE_SE_TYPE
       }
-    }
-    if (!(p_SGOver->clearStore()).isSuccess() ) {
-      ATH_MSG_ERROR ( "Clear of Overlaid Event data store failed" );
-      return StatusCode::FAILURE;
-    }
-  }  //end of event loop
 
-  if(m_skipExecAlgs) {
-    m_nevt--;
-    total_nevt--;
-  }
+      // A convenience type declaration:
+      typedef ElementLink< xAOD::EventInfoContainer > EiLink;
 
-  return (sc.isSuccess() ?
-          (noTimeLimit ? StatusCode::SUCCESS : StatusCode::FAILURE) :
-          sc);
+      // Create xAOD::EventInfo objects for each pileup EventInfo object:
+      PileUpEventInfo::SubEvent::const_iterator pu_itr = pOverEvent->beginSubEvt();
+      PileUpEventInfo::SubEvent::const_iterator pu_end = pOverEvent->endSubEvt();
+      const unsigned int countEvents = std::distance(pu_itr,pu_end);
+      ATH_MSG_VERBOSE( "CHECKING: There are " << countEvents << " subevents in this Event." );
+
+      for( ; pu_itr != pu_end; ++pu_itr ) {
+         // Create a new xAOD object:
+         xAOD::EventInfo* ei = new xAOD::EventInfo();
+         puei->push_back( ei );
+         // Fill it with information:
+         CHECK( m_xAODCnvTool->convert( pu_itr->pSubEvt, ei, true, false ) );
+         StoreGateSvc* tmpSG = pu_itr->pSubEvtSG;
+         if(tmpSG)
+           {
+             ei->setEvtStore(tmpSG);
+             ATH_MSG_VERBOSE("FOUND A STOREGATE");
+           }
+         else
+           {
+             ATH_MSG_ERROR("FAILED TO FIND A STOREGATE");
+           }
+         // And now add a sub-event to the temporary list:
+         auto typeItr = pileupTypeMap.find( pu_itr->type() );
+         xAOD::EventInfo::PileUpType type = xAOD::EventInfo::Unknown;
+         if( typeItr == pileupTypeMap.end() ) {
+            ATH_MSG_WARNING( "PileUpType not recognised: " << pu_itr->type() );
+         } else {
+            type = typeItr->second;
+         }
+         ATH_MSG_VERBOSE("PileUpEventInfo: time = " << pu_itr->time() << ", index = " << pu_itr->index());
+         subEvents.push_back( xAOD::EventInfo::SubEvent( pu_itr->time(),
+                                                         pu_itr->index(),
+                                                         type,
+                                                         EiLink( "PileUpEventInfo",
+                                                                 puei->size() -
+                                                                 1,
+                                                                 m_evtStore.operator->() ) ) );
+         ATH_MSG_VERBOSE("PileUpEventInfo: time = " << subEvents.back().time() << ", index = " << subEvents.back().index());
+      }
+
+      // And now update the main EventInfo object with the sub-events:
+      pLocalXAODEventInfo->setSubEvents( subEvents );
+
+      // Record the xAOD object(s):
+      CHECK( m_evtStore->record( std::move( puaux ), "PileUpEventInfoAux." ) );
+      CHECK( m_evtStore->record( std::move( puei ), "PileUpEventInfo" ) );
+      //ATH_MSG_INFO("Dumping xAOD::EventInfo after adding SubEvents");
+      //xAOD::dump( *pLocalXAODEventInfo );
+
+      //////////// END OF TEMPORARY HACK /////////////////////
+
+      //set active store back to the overlaid one
+      pActiveStore->setStore(&(*m_evtStore));
+
+      // Execute event for all required algorithms. The overlaid event
+      // (PileUpEventInfo) is considered to be current
+      if(m_skipExecAlgs)
+        {
+          ATH_MSG_INFO ( "Firing reseed incident (" << pOverEvent->event_ID()->event_number() << "," << pOverEvent->event_ID()->run_number() << ")" );
+          m_incidentSvc->fireIncident(ContextIncident<std::pair<unsigned,unsigned> >(this->name(),"ReseedIncident",std::pair<unsigned,unsigned>(pOverEvent->event_ID()->event_number(),pOverEvent->event_ID()->run_number())));
+          m_incidentSvc->fireIncident(Incident(this->name(),"AfterReseedIncident"));
+          ATH_MSG_INFO ( "Not going to process this event" );
+        }
+      else
+        {
+          if( !(executeEvent(reinterpret_cast<void*>(pOverEvent)).isSuccess()) )
+            {
+              ATH_MSG_ERROR ( "Terminating event processing loop due to errors" );
+              return StatusCode::FAILURE;
+            }
+          else
+            {
+              ATH_MSG_INFO ( "Event processing successful." );
+            }
+        }
+      //if we are not doing overlap xing by xing clean up all stores at the end
+      //the clean up is done object by object and controlled by
+      //PileUpXingFolder.CacheRefreshFrequency property
+      if (!m_xingByXing.value())
+        {
+          // FIXME test that PileUpToolsAlg is NOT there?
+          //clear all stores as configured in
+          CHECK(m_mergeSvc->clearDataCaches());
+          ATH_MSG_DEBUG ( "Cleared data caches" );
+        }
+      CHECK(m_evtStore->clearStore());
+    }  //end of event loop
+
+  if(m_skipExecAlgs)
+    {
+      m_nevt--;
+      total_nevt--;
+    }
+
+  return (noTimeLimit ? StatusCode::SUCCESS : StatusCode::FAILURE);
 
 }
 
@@ -495,13 +586,14 @@ StatusCode PileUpEventLoopMgr::seek(int evt)
                  " nevtsToAdvance=" << nevtsToAdvance );
 
   m_skipExecAlgs = true;
-  for(int i=0; i<nevtsToAdvance; ++i) {
-    if(m_allowSerialAndMPToDiffer) {m_loadProxies = (nevtsToAdvance==(i+1));}
-    if(this->nextEvent(nParam).isFailure()) {
-      ATH_MSG_ERROR ( "Seek error! Failed to advance to evt=" << m_ncurevt+1 );
-      return StatusCode::FAILURE;
+  for(int i=0; i<nevtsToAdvance; ++i)
+    {
+      if(m_allowSerialAndMPToDiffer) {m_loadProxies = (nevtsToAdvance==(i+1));}
+      if(this->nextEvent(nParam).isFailure()) {
+        ATH_MSG_ERROR ( "Seek error! Failed to advance to evt=" << m_ncurevt+1 );
+        return StatusCode::FAILURE;
+      }
     }
-  }
   m_skipExecAlgs = false;
   return StatusCode::SUCCESS;
 }
@@ -517,37 +609,32 @@ int PileUpEventLoopMgr::curEvent() const
 StatusCode
 PileUpEventLoopMgr::setupStreams()
 {
-  StatusCode sc(StatusCode::SUCCESS);
-
   //OK now we can run
   // retrieve selector and setup iterator (the selector has been setup as an ExtService)
-  if  (!(m_origSel.retrieve()).isSuccess()) {
-    ATH_MSG_ERROR ( "Failed to find selector for " << m_origSel );
-    return StatusCode::FAILURE;
-  }
+  CHECK(m_origSel.retrieve());
 
   m_origStream = PileUpStream("OriginalEvent", serviceLocator(), &*m_origSel);
-  if (!m_origStream.setupStore()) {
-    ATH_MSG_ERROR ( "Can not setup original evt store " << m_origSel );
-    return StatusCode::FAILURE;
-  }
+  if (!m_origStream.setupStore())
+    {
+      ATH_MSG_ERROR ( "Can not setup original evt store " << m_origSel );
+      return StatusCode::FAILURE;
+    }
 
   //now get the bkg stream caches, and set them up
-  if( (sc=m_caches.retrieve()).isSuccess() ) {
-    ATH_MSG_DEBUG ( "retrieved BkgStreamsCaches " << m_caches );
-  } else {
-    ATH_MSG_ERROR ( "Can not get BkgStreamsCaches " << m_caches );
-    return sc;
-  }
+  CHECK(m_caches.retrieve());
+  ATH_MSG_DEBUG ( "retrieved BkgStreamsCaches " << m_caches );
+
   ToolHandleArray<IBkgStreamsCache>::iterator cacheIterator(m_caches.begin());
   ToolHandleArray<IBkgStreamsCache>::iterator endOfCaches(m_caches.end());
   unsigned int nXings(m_lastXing-m_firstXing+1);
   unsigned int firstStore(0);
-  while ((cacheIterator != endOfCaches) && sc.isSuccess()) {
-    sc = (*cacheIterator)->setup(m_firstXing, nXings, firstStore, &*m_beamInt);
-    firstStore += (*cacheIterator)->nStores() ;
-    ++cacheIterator;
-  }
+  StatusCode sc(StatusCode::SUCCESS);
+  while ((cacheIterator != endOfCaches) && sc.isSuccess())
+    {
+      sc = (*cacheIterator)->setup(m_firstXing, nXings, firstStore, &*m_beamInt);
+      firstStore += (*cacheIterator)->nStores() ;
+      ++cacheIterator;
+    }
   return sc;
 }
 
@@ -556,50 +643,50 @@ PileUpEventLoopMgr::setupStreams()
 //=========================================================================
 // Run the algorithms beginRun hook
 //=========================================================================
-StatusCode PileUpEventLoopMgr::beginRunAlgorithms() {
-
+StatusCode PileUpEventLoopMgr::beginRunAlgorithms()
+{
   // Call the execute() method of all top algorithms
   for ( ListAlg::iterator ita = m_topAlgList.begin();
         ita != m_topAlgList.end();
         ita++ )
     {
       const StatusCode& sc = (*ita)->sysBeginRun();
-      if ( !sc.isSuccess() ) {
-        ATH_MSG_INFO ( "beginRun of algorithm " <<
-                       (*ita)->name() << " failed with StatusCode::" << sc );
-        return sc;
-      }
+      if ( !sc.isSuccess() )
+        {
+          ATH_MSG_INFO ( "beginRun of algorithm " <<
+                         (*ita)->name() << " failed with StatusCode::" << sc );
+          return sc;
+        }
     }
-
   return StatusCode::SUCCESS;
 }
 
 //=========================================================================
 // Run the algorithms endRun hook
 //=========================================================================
-StatusCode PileUpEventLoopMgr::endRunAlgorithms() {
-
+StatusCode PileUpEventLoopMgr::endRunAlgorithms()
+{
   // Call the execute() method of all top algorithms
   for ( ListAlg::iterator ita = m_topAlgList.begin();
         ita != m_topAlgList.end();
         ita++ )
     {
       const StatusCode& sc = (*ita)->sysEndRun();
-      if ( !sc.isSuccess() ) {
-        ATH_MSG_INFO ( "endRun of algorithm "  <<
-                       (*ita)->name() << " failed with StatusCode::" << sc );
-        return sc;
-      }
+      if ( !sc.isSuccess() )
+        {
+          ATH_MSG_INFO ( "endRun of algorithm "  <<
+                         (*ita)->name() << " failed with StatusCode::" << sc );
+          return sc;
+        }
     }
-
   return StatusCode::SUCCESS;
 }
 
 //=========================================================================
 // Run the algorithms for the current event
 //=========================================================================
-StatusCode PileUpEventLoopMgr::executeAlgorithms() {
-
+StatusCode PileUpEventLoopMgr::executeAlgorithms()
+{
   // Call the execute() method of all top algorithms
   for ( ListAlg::iterator ita = m_topAlgList.begin();
         ita != m_topAlgList.end();
@@ -607,11 +694,12 @@ StatusCode PileUpEventLoopMgr::executeAlgorithms() {
     {
       (*ita)->resetExecuted();
       const StatusCode& sc = (*ita)->sysExecute();
-      if ( !sc.isSuccess() ) {
-        ATH_MSG_INFO ( "Execution of algorithm " <<
-                       (*ita)->name() << " failed with StatusCode::" << sc );
-        return sc;
-      }
+      if ( !sc.isSuccess() )
+        {
+          ATH_MSG_INFO ( "Execution of algorithm " <<
+                         (*ita)->name() << " failed with StatusCode::" << sc );
+          return sc;
+        }
     }
 
   return StatusCode::SUCCESS;
@@ -628,24 +716,26 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
   assert(pEvent);
 
   /// Fire begin-Run incident if new run:
-  if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) ) {
-    // Fire EndRun incident unless this is the first run
-    if (!m_firstRun) {
-      m_incidentSvc->fireIncident(Incident(name(),"EndRun"));
-      if (!(this->endRunAlgorithms()).isSuccess()) return (StatusCode::FAILURE);
+  if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) )
+    {
+      // Fire EndRun incident unless this is the first run
+      if (!m_firstRun)
+        {
+          m_incidentSvc->fireIncident(Incident(this->name(),"EndRun"));
+          CHECK(this->endRunAlgorithms());
+        }
+      m_firstRun=false;
+      m_currentRun = pEvent->event_ID()->run_number();
+
+      ATH_MSG_INFO ( "  ===>>>  start of run " << m_currentRun << "    <<<===" );
+
+      // Fire BeginRun "Incident"
+      m_incidentSvc->fireIncident(EventIncident(*pEvent, this->name(),"BeginRun"));
+      CHECK(this->beginRunAlgorithms());
     }
-    m_firstRun=false;
-    m_currentRun = pEvent->event_ID()->run_number();
-
-    ATH_MSG_INFO ( "  ===>>>  start of run " << m_currentRun << "    <<<===" );
-
-    // Fire BeginRun "Incident"
-    m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginRun"));
-    if (!(this->beginRunAlgorithms()).isSuccess()) return (StatusCode::FAILURE);
-  }
 
   // Fire BeginEvent "Incident"
-  m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent"));
+  m_incidentSvc->fireIncident(EventIncident(*pEvent, this->name(),"BeginEvent"));
 
   // Execute Algorithms
   //  StatusCode sc = MinimalEventLoopMgr::executeEvent(par);
@@ -654,41 +744,48 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
   // Call the execute() method of all top algorithms
   StatusCode sc = executeAlgorithms();
 
-  if(!sc.isSuccess()) {
-    eventFailed = true;
+  if(!sc.isSuccess())
+    {
+      eventFailed = true;
 
-    /// m_failureMode 1,
-    /// RECOVERABLE: skip algorithms, but do not terminate job
-    /// FAILURE: terminate job
-    if (m_failureMode == 1 && sc.isRecoverable() ) {
-      ATH_MSG_WARNING ( "RECOVERABLE error returned by algorithm. " <<
-                        "Skipping remaining algorithms." << std::endl <<
-                        "\tNo output will be written for this event, " <<
-                        "but job will continue to next event" );
-      eventFailed = false;
-    }
+      /// m_failureMode 1,
+      /// RECOVERABLE: skip algorithms, but do not terminate job
+      /// FAILURE: terminate job
+      if (m_failureMode == 1 && sc.isRecoverable() )
+        {
+          ATH_MSG_WARNING ( "RECOVERABLE error returned by algorithm. " <<
+                            "Skipping remaining algorithms." << std::endl <<
+                            "\tNo output will be written for this event, " <<
+                            "but job will continue to next event" );
+          eventFailed = false;
+        }
 
-    /// m_failureMode 2: skip algorithms, but do not terminate job
-    if (m_failureMode >= 2) {
-      ATH_MSG_INFO ( "Skipping remaining algorithms." << std::endl <<
-                     "\tNo output will be written for this event, " <<
-                     "but job will continue to next event" );
-      eventFailed = false;
+      /// m_failureMode 2: skip algorithms, but do not terminate job
+      if (m_failureMode >= 2)
+        {
+          ATH_MSG_INFO ( "Skipping remaining algorithms." << std::endl <<
+                         "\tNo output will be written for this event, " <<
+                         "but job will continue to next event" );
+          eventFailed = false;
+        }
     }
-  }  else {
-    // Call the execute() method of all output streams
-    for (ListAlg::iterator ito = m_outStreamList.begin();
-         ito != m_outStreamList.end(); ito++ ) {
-      (*ito)->resetExecuted();
-      sc = (*ito)->sysExecute();
-      if( !sc.isSuccess() ) {
-        eventFailed = true;
-      }
+  else
+    {
+      // Call the execute() method of all output streams
+      for (ListAlg::iterator ito = m_outStreamList.begin();
+           ito != m_outStreamList.end(); ito++ )
+        {
+          (*ito)->resetExecuted();
+          sc = (*ito)->sysExecute();
+          if( !sc.isSuccess() )
+            {
+              eventFailed = true;
+            }
+        }
     }
-  }
 
   // Fire EndEvent "Incident"
-  m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"EndEvent"));
+  m_incidentSvc->fireIncident(EventIncident(*pEvent, this->name(),"EndEvent"));
 
   //------------------------------------------------------------------------
   // Check if there was an error processing current event
@@ -699,13 +796,15 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
 
 StatusCode PileUpEventLoopMgr::queryInterface(const InterfaceID& riid,void** ppvInterface)
 {
-  if(IEventSeek::interfaceID().versionMatch(riid)) {
-    *ppvInterface = dynamic_cast<IEventSeek*>(this);
-  }
-  else {
-    // Interface is not directly available : try out a base class
-    return MinimalEventLoopMgr::queryInterface(riid, ppvInterface);
-  }
+  if(IEventSeek::interfaceID().versionMatch(riid))
+    {
+      *ppvInterface = dynamic_cast<IEventSeek*>(this);
+    }
+  else
+    {
+      // Interface is not directly available : try out a base class
+      return MinimalEventLoopMgr::queryInterface(riid, ppvInterface);
+    }
   addRef();
   return StatusCode::SUCCESS;
 }

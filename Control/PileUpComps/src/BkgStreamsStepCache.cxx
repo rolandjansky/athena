@@ -53,8 +53,8 @@ BkgStreamsStepCache::BkgStreamsStepCache( const std::string& type,
   m_readEventRand(0),
   m_chooseEventRand(0),
   m_collXingPoisson(0),  
-  f_collDistr(0),
-  f_numberOfBackgroundForBunchCrossing(0),
+  m_f_collDistr(0),
+  m_f_numberOfBackgroundForBunchCrossing(0),
   m_collXingSF(1.0),
   m_ignoreSF(false),
   m_zeroXing(-1),
@@ -358,22 +358,22 @@ StatusCode BkgStreamsStepCache::initialize() {
 
   // select collision distribution functions
   if (m_collDistrName.value() == "Fixed") {
-    f_collDistr = boost::bind(&BkgStreamsStepCache::collXing, this);
+    m_f_collDistr = boost::bind(&BkgStreamsStepCache::collXing, this);
     if(m_ignoreBM.value()) {
-      f_numberOfBackgroundForBunchCrossing = boost::bind(&BkgStreamsStepCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity, this, _1);
+      m_f_numberOfBackgroundForBunchCrossing = boost::bind(&BkgStreamsStepCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity, this, _1);
     } else {
-      f_numberOfBackgroundForBunchCrossing = boost::bind(&BkgStreamsStepCache::numberOfCavernBkgForBunchCrossing, this, _1);
+      m_f_numberOfBackgroundForBunchCrossing = boost::bind(&BkgStreamsStepCache::numberOfCavernBkgForBunchCrossing, this, _1);
     }
   }
   else if (m_collDistrName.value() == "Poisson") {
     //pass collEng by reference. If Not CLHEP will take ownership...
     m_collXingPoisson = new CLHEP::RandPoisson(*(collEng), m_collXing);
-    // f_collDistr will call m_collXingPoisson->fire(m_collXing)  USED TO BE boost::bind(&CLHEP::RandPoisson::fire, m_collXingPoisson); 
-    f_collDistr = boost::bind(&BkgStreamsStepCache::collXingPoisson, this);      
+    // m_f_collDistr will call m_collXingPoisson->fire(m_collXing)  USED TO BE boost::bind(&CLHEP::RandPoisson::fire, m_collXingPoisson); 
+    m_f_collDistr = boost::bind(&BkgStreamsStepCache::collXingPoisson, this);      
     if(m_ignoreBM.value()) {
-      f_numberOfBackgroundForBunchCrossing = boost::bind(&BkgStreamsStepCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity, this, _1);
+      m_f_numberOfBackgroundForBunchCrossing = boost::bind(&BkgStreamsStepCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity, this, _1);
     } else {
-      f_numberOfBackgroundForBunchCrossing = boost::bind(&BkgStreamsStepCache::numberOfBkgForBunchCrossingDefaultImpl, this, _1);
+      m_f_numberOfBackgroundForBunchCrossing = boost::bind(&BkgStreamsStepCache::numberOfBkgForBunchCrossingDefaultImpl, this, _1);
     }
   } else {
     ATH_MSG_ERROR (  m_collDistrName 
@@ -388,18 +388,18 @@ unsigned int BkgStreamsStepCache::nEvtsXing(unsigned int iXing) const {
 }
 
 unsigned int BkgStreamsStepCache::numberOfBkgForBunchCrossingIgnoringBeamIntensity(unsigned int) const {
-  return f_collDistr();
+  return m_f_collDistr();
 }
 unsigned int BkgStreamsStepCache::numberOfBkgForBunchCrossingDefaultImpl(unsigned int iXing) const {
-  return static_cast<unsigned int>(m_beamInt->normFactor(iXing-m_zeroXing)*static_cast<float>(f_collDistr()));
+  return static_cast<unsigned int>(m_beamInt->normFactor(iXing-m_zeroXing)*static_cast<float>(m_f_collDistr()));
 }
 unsigned int BkgStreamsStepCache::numberOfCavernBkgForBunchCrossing(unsigned int iXing) const {
-  return static_cast<unsigned int>(m_beamInt->normFactor(iXing-m_zeroXing)>0.0)*f_collDistr();
+  return static_cast<unsigned int>(m_beamInt->normFactor(iXing-m_zeroXing)>0.0)*m_f_collDistr();
 }
 
 unsigned int BkgStreamsStepCache::setNEvtsXing(unsigned int iXing) {
   if (iXing + 1 > m_nEvtsXing.size())  m_nEvtsXing.resize(2 * iXing + 1);
-  unsigned int nEvts(f_numberOfBackgroundForBunchCrossing(iXing));
+  unsigned int nEvts(m_f_numberOfBackgroundForBunchCrossing(iXing));
   //this is done mainly to handle the case in which original and backround
   //events belong to the same stream. Of course we do not want m_nEvtsXing[m_zeroXing]<0 
   if ((int)iXing==m_zeroXing) {

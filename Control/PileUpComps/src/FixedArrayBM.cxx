@@ -62,7 +62,8 @@ FixedArrayBM::initialize() {
   
   // Normalise the pattern so that the highest element value is 1.0
   float maxElement(*(std::max_element(pBegin, pEnd)));
-  
+  float inv_maxElement = maxElement != 0 ? 1. / maxElement : 1;
+
   // Copy normalized intensity pattern from the property
   delete [] m_intensityPattern;
   m_intensityPattern = new double[m_ipLength];
@@ -72,7 +73,7 @@ FixedArrayBM::initialize() {
       ATH_MSG_ERROR("All IntensityPattern elements must be >=0. Please fix element #" << i );
       return StatusCode::FAILURE;
     }
-    m_intensityPattern[i] = rProp[i]/maxElement; // this ensures that the elements are all in the range [0,1]
+    m_intensityPattern[i] = rProp[i] * inv_maxElement; // this ensures that the elements are all in the range [0,1]
 
   }
   
