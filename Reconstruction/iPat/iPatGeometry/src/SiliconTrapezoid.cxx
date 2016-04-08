@@ -21,6 +21,8 @@ SiliconTrapezoid::SiliconTrapezoid(double localEtaWidth,
 				   double localPhiWidth,
 				   double rCentre)                   
     :	m_gap			(false),
+	m_gapMax	        (0.),
+	m_gapMin		(0.),
 	m_localEtaWidth      	(localEtaWidth),
 	m_localPhiWidth      	(localPhiWidth),
 	m_rCentre		(rCentre)

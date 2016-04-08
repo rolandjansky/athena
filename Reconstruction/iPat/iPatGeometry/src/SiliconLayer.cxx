@@ -35,6 +35,10 @@ SiliconLayer::SiliconLayer(SiliconRing*	ring)
 	m_positiveSurface	(0),
 	m_rMax			(ring->rMax()),
 	m_rMin			(ring->rMin()),
+	m_rzCentre            	(0.),
+	m_zrBegin             	(0.),
+	m_zrCentre            	(0.),
+	m_zrEnd      		(0.),
 	m_zrPeriod		(0.)
 {
     // set name
@@ -78,6 +82,7 @@ SiliconLayer::SiliconLayer(std::string	name,
     :	m_isActive		(false),
 	m_isPixel		(false),
 	m_isStrip		(false),
+	m_multiple		(1),
 	m_name			(name),
 	m_negativeSurface	(0),
 	m_positiveSurface	(0),

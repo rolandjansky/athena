@@ -72,7 +72,8 @@ DetectorIntersect::DetectorIntersect(double    	localEta,
     :	m_hasIntersect		(true),
 	m_localEta		(localEta),
 	m_localPhi		(localPhi),
-	m_nearBoundary		(nearBoundary)
+	m_nearBoundary		(nearBoundary),
+	m_radius		(0.)
 {}
 
 inline
