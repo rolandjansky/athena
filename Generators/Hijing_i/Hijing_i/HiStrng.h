@@ -25,44 +25,44 @@ public:
     void	init	(void);
 
     // return common array lengths
-    inline int	lenI() const {return _lenI;}
-    inline int	lenJ() const {return _lenJ;}
+    inline int	lenI() const {return s_lenI;}
+    inline int	lenJ() const {return s_lenJ;}
 
 private: 
 
     // Lengths of array in HiMain2 common
-    static const int _lenI	= 300;
-    static const int _lenJ	= 15;
+    static const int s_lenI	= 300;
+    static const int s_lenJ	= 15;
 
     struct HISTRNG;
     friend struct HISTRNG;
 
     struct HISTRNG
     {
-	int	nfp	[_lenJ][_lenI];
-	float  	pp	[_lenJ][_lenI];
-	int	nft	[_lenJ][_lenI];
-	float  	pt	[_lenJ][_lenI];
+	int	nfp	[s_lenJ][s_lenI];
+	float  	pp	[s_lenJ][s_lenI];
+	int	nft	[s_lenJ][s_lenI];
+	float  	pt	[s_lenJ][s_lenI];
     };
 
-    int  _dummy;
-    float  _realdummy;
+    int  m_dummy;
+    float  m_realdummy;
 
-    static HISTRNG* _histrng;
+    static HISTRNG* s_histrng;
 };
 
 // set pointer to zero at start
-HiStrng::HISTRNG* HiStrng::_histrng =0;
+HiStrng::HISTRNG* HiStrng::s_histrng =0;
 
 inline void
 HiStrng::init(void)
-{ if (!_histrng) _histrng = static_cast<HISTRNG*>(histrng_address_()); }
+{ if (!s_histrng) s_histrng = static_cast<HISTRNG*>(histrng_address_()); }
 
 // Constructor
 inline
 HiStrng::HiStrng()
-    : _dummy		(-999),
-      _realdummy	(-999.)
+    : m_dummy		(-999),
+      m_realdummy	(-999.)
 {}
 
 // Destructor
@@ -75,9 +75,9 @@ HiStrng::nfp	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _dummy;
+	j < 1 || j > lenJ() ) return m_dummy;
 
-    return _histrng->nfp[j-1][i-1];
+    return s_histrng->nfp[j-1][i-1];
 }
 
 inline float&
@@ -85,9 +85,9 @@ HiStrng::pp	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _histrng->pp[j-1][i-1];
+    return s_histrng->pp[j-1][i-1];
 }
 
 inline int&
@@ -95,9 +95,9 @@ HiStrng::nft	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _dummy;
+	j < 1 || j > lenJ() ) return m_dummy;
 
-    return _histrng->nft[j-1][i-1];
+    return s_histrng->nft[j-1][i-1];
 }
 
 inline float&
@@ -105,9 +105,9 @@ HiStrng::pt	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _histrng->pt[j-1][i-1];
+    return s_histrng->pt[j-1][i-1];
 }
 
 #endif

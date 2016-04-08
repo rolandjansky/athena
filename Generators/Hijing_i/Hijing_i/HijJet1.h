@@ -34,54 +34,54 @@ public:
     void	init	(void);
 
     // return common array lengths
-    inline int	lenI() const {return _lenI;}
-    inline int	lenJ() const {return _lenJ;}
+    inline int	lenI() const {return s_lenI;}
+    inline int	lenJ() const {return s_lenJ;}
 
 private: 
 
     // Lengths of array in HiMain2 common
-    static const int _lenI	= 300;
-    static const int _lenJ	= 500;
+    static const int s_lenI	= 300;
+    static const int s_lenJ	= 500;
 
     struct HIJJET1;
     friend struct HIJJET1;
 
     struct HIJJET1
     {
-	int    	npj	[_lenI];
-	int    	kfpj	[_lenJ][_lenI];
-	float  	pjpx	[_lenJ][_lenI];
-	float  	pjpy	[_lenJ][_lenI];
-	float  	pjpz	[_lenJ][_lenI];
-	float  	pjpe	[_lenJ][_lenI];
-	float  	pjpm	[_lenJ][_lenI];
-	int    	ntj	[_lenI];
-	int    	kftj	[_lenJ][_lenI];
-	float  	pjtx	[_lenJ][_lenI];
-	float  	pjty	[_lenJ][_lenI];
-	float  	pjtz	[_lenJ][_lenI];
-	float  	pjte	[_lenJ][_lenI];
-	float  	pjtm	[_lenJ][_lenI];
+	int    	npj	[s_lenI];
+	int    	kfpj	[s_lenJ][s_lenI];
+	float  	pjpx	[s_lenJ][s_lenI];
+	float  	pjpy	[s_lenJ][s_lenI];
+	float  	pjpz	[s_lenJ][s_lenI];
+	float  	pjpe	[s_lenJ][s_lenI];
+	float  	pjpm	[s_lenJ][s_lenI];
+	int    	ntj	[s_lenI];
+	int    	kftj	[s_lenJ][s_lenI];
+	float  	pjtx	[s_lenJ][s_lenI];
+	float  	pjty	[s_lenJ][s_lenI];
+	float  	pjtz	[s_lenJ][s_lenI];
+	float  	pjte	[s_lenJ][s_lenI];
+	float  	pjtm	[s_lenJ][s_lenI];
     };
 
-    int  _dummy;
-    float  _realdummy;
+    int  m_dummy;
+    float  m_realdummy;
 
-    static HIJJET1* _hijjet1;
+    static HIJJET1* s_hijjet1;
 };
 
 // set pointer to zero at start
-HijJet1::HIJJET1* HijJet1::_hijjet1 =0;
+HijJet1::HIJJET1* HijJet1::s_hijjet1 =0;
 
 inline void
 HijJet1::init(void)
-{ if (!_hijjet1) _hijjet1 = static_cast<HIJJET1*>(hijjet1_address_()); }
+{ if (!s_hijjet1) s_hijjet1 = static_cast<HIJJET1*>(hijjet1_address_()); }
 
 // Constructor
 inline
 HijJet1::HijJet1()
-    : _dummy		(-999),
-      _realdummy	(-999.)
+    : m_dummy		(-999),
+      m_realdummy	(-999.)
 {}
 
 // Destructor
@@ -93,8 +93,8 @@ inline int&
 HijJet1::npj	(int i)
 {
     init(); // check COMMON is initialized
-    if(i < 1 || i > lenI()) return _dummy;
-    return _hijjet1->npj[i-1];
+    if(i < 1 || i > lenI()) return m_dummy;
+    return s_hijjet1->npj[i-1];
 }
 
 inline int&
@@ -102,9 +102,9 @@ HijJet1::kfpj	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _dummy;
+	j < 1 || j > lenJ() ) return m_dummy;
 
-    return _hijjet1->kfpj[j-1][i-1];
+    return s_hijjet1->kfpj[j-1][i-1];
 }
 
 inline float&
@@ -112,9 +112,9 @@ HijJet1::pjpx	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet1->pjpx[j-1][i-1];
+    return s_hijjet1->pjpx[j-1][i-1];
 }
 
 inline float&
@@ -122,9 +122,9 @@ HijJet1::pjpy	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet1->pjpy[j-1][i-1];
+    return s_hijjet1->pjpy[j-1][i-1];
 }
 
 inline float&
@@ -132,9 +132,9 @@ HijJet1::pjpz	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet1->pjpz[j-1][i-1];
+    return s_hijjet1->pjpz[j-1][i-1];
 }
 
 inline float&
@@ -142,9 +142,9 @@ HijJet1::pjpe	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet1->pjpe[j-1][i-1];
+    return s_hijjet1->pjpe[j-1][i-1];
 }
 
 inline float&
@@ -152,17 +152,17 @@ HijJet1::pjpm	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet1->pjpm[j-1][i-1];
+    return s_hijjet1->pjpm[j-1][i-1];
 }
 
 inline int&
 HijJet1::ntj	(int i)
 {
     init(); // check COMMON is initialized
-    if(i < 1 || i > lenI()) return _dummy;
-    return _hijjet1->ntj[i-1];
+    if(i < 1 || i > lenI()) return m_dummy;
+    return s_hijjet1->ntj[i-1];
 }
 
 inline int&
@@ -170,9 +170,9 @@ HijJet1::kftj	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _dummy;
+	j < 1 || j > lenJ() ) return m_dummy;
 
-    return _hijjet1->kftj[j-1][i-1];
+    return s_hijjet1->kftj[j-1][i-1];
 }
 
 inline float&
@@ -180,9 +180,9 @@ HijJet1::pjtx	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet1->pjtx[j-1][i-1];
+    return s_hijjet1->pjtx[j-1][i-1];
 }
 
 inline float&
@@ -190,9 +190,9 @@ HijJet1::pjty	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet1->pjty[j-1][i-1];
+    return s_hijjet1->pjty[j-1][i-1];
 }
 
 inline float&
@@ -200,9 +200,9 @@ HijJet1::pjtz	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet1->pjtz[j-1][i-1];
+    return s_hijjet1->pjtz[j-1][i-1];
 }
 
 inline float&
@@ -210,9 +210,9 @@ HijJet1::pjte	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet1->pjte[j-1][i-1];
+    return s_hijjet1->pjte[j-1][i-1];
 }
 
 inline float&
@@ -220,9 +220,9 @@ HijJet1::pjtm	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet1->pjtm[j-1][i-1];
+    return s_hijjet1->pjtm[j-1][i-1];
 }
 
 #endif

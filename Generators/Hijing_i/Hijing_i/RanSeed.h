@@ -31,11 +31,11 @@ private:
 	int	nseed;
     };
 
-    static RANSEED* _ranseed;
+    static RANSEED* s_ranseed;
 };
 
 // set pointer to zero at start
-RanSeed::RANSEED* RanSeed::_ranseed =0;
+RanSeed::RANSEED* RanSeed::s_ranseed =0;
 
 inline
 RanSeed::RanSeed()
@@ -48,8 +48,8 @@ RanSeed::~RanSeed()
 inline int&
 RanSeed::nseed	(void)
 {
-    if (!_ranseed) _ranseed = static_cast<RANSEED*>(ranseed_address_());
-    return _ranseed->nseed;
+    if (!s_ranseed) s_ranseed = static_cast<RANSEED*>(ranseed_address_());
+    return s_ranseed->nseed;
 }
 
 #endif

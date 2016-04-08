@@ -24,51 +24,51 @@ public:
     void	init	(void);
 
     // return common array lengths
-    inline int	leniKatt() const {return _leniKatt;}
-    inline int	lenjKatt() const {return _lenjKatt;}
-    inline int	leniPatt() const {return _leniPatt;}
-    inline int	lenjPatt() const {return _lenjPatt;}
-    inline int	leniVatt() const {return _leniVatt;}
-    inline int	lenjVatt() const {return _lenjVatt;}
+    inline int	leniKatt() const {return s_leniKatt;}
+    inline int	lenjKatt() const {return s_lenjKatt;}
+    inline int	leniPatt() const {return s_leniPatt;}
+    inline int	lenjPatt() const {return s_lenjPatt;}
+    inline int	leniVatt() const {return s_leniVatt;}
+    inline int	lenjVatt() const {return s_lenjVatt;}
 
 private: 
 
     // Lengths of array in HiMain2 common
-    static const int _leniKatt	= 130000;
-    static const int _lenjKatt	= 4;
-    static const int _leniPatt	= 130000;
-    static const int _lenjPatt	= 4;
-    static const int _leniVatt	= 130000;
-    static const int _lenjVatt	= 4;
+    static const int s_leniKatt	= 130000;
+    static const int s_lenjKatt	= 4;
+    static const int s_leniPatt	= 130000;
+    static const int s_lenjPatt	= 4;
+    static const int s_leniVatt	= 130000;
+    static const int s_lenjVatt	= 4;
 
     struct HIMAIN2;
     friend struct HIMAIN2;
 
     struct HIMAIN2
     {
-	int  	katt[_lenjKatt][_leniKatt];
-	float  	patt[_lenjPatt][_leniPatt];
-	float  	vatt[_lenjVatt][_leniVatt];
+	int  	katt[s_lenjKatt][s_leniKatt];
+	float  	patt[s_lenjPatt][s_leniPatt];
+	float  	vatt[s_lenjVatt][s_leniVatt];
     };
 
-    int  _dummy;
-    float  _realdummy;
+    int  m_dummy;
+    float  m_realdummy;
     
-    static HIMAIN2* _himain2;
+    static HIMAIN2* s_himain2;
 };
 
 // set pointer to zero at start
-HiMain2::HIMAIN2* HiMain2::_himain2 =0;
+HiMain2::HIMAIN2* HiMain2::s_himain2 =0;
 
 inline void
 HiMain2::init(void)
-{ if (!_himain2) _himain2 = static_cast<HIMAIN2*>(himain2_address_()); }
+{ if (!s_himain2) s_himain2 = static_cast<HIMAIN2*>(himain2_address_()); }
 
 // Constructor
 inline
 HiMain2::HiMain2()
-    : _dummy		(-999),
-      _realdummy	(-999.)
+    : m_dummy		(-999),
+      m_realdummy	(-999.)
 {}
 
 // Destructor
@@ -81,9 +81,9 @@ HiMain2::katt	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > leniKatt() ||
-	j < 1 || j > lenjKatt() ) return _dummy;
+	j < 1 || j > lenjKatt() ) return m_dummy;
 
-    return _himain2->katt[j-1][i-1];
+    return s_himain2->katt[j-1][i-1];
 }
 
 inline float&
@@ -91,9 +91,9 @@ HiMain2::patt	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > leniPatt() ||
-	j < 1 || j > lenjPatt() ) return _realdummy;
+	j < 1 || j > lenjPatt() ) return m_realdummy;
 
-    return _himain2->patt[j-1][i-1];
+    return s_himain2->patt[j-1][i-1];
 }
 
 inline float&
@@ -101,9 +101,9 @@ HiMain2::vatt	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > leniVatt() ||
-	j < 1 || j > lenjVatt() ) return _realdummy;
+	j < 1 || j > lenjVatt() ) return m_realdummy;
 
-    return _himain2->vatt[j-1][i-1];
+    return s_himain2->vatt[j-1][i-1];
 }
 
 #endif

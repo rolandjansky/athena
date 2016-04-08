@@ -32,16 +32,16 @@ public:
     void	init	(void);
 
     // return common array lengths
-    inline int	lenI() const {return _lenI;}
-    inline int	lenJ() const {return _lenJ;}
-    inline int	lenK() const {return _lenK;}
+    inline int	lenI() const {return s_lenI;}
+    inline int	lenJ() const {return s_lenJ;}
+    inline int	lenK() const {return s_lenK;}
 
 private: 
 
     // Lengths of array in HiMain2 common
-    static const int _lenI	= 900;
-    static const int _lenJ	= 100;
-    static const int _lenK	= 3;
+    static const int s_lenI	= 900;
+    static const int s_lenJ	= 100;
+    static const int s_lenK	= 3;
 
     struct HIJJET2;
     friend struct HIJJET2;
@@ -49,35 +49,35 @@ private:
     struct HIJJET2
     {
 	int    	nsg;
-	int    	njsg	[_lenI];
-	int	iasg	[_lenK][_lenI];
-	int	k1sg	[_lenJ][_lenI];
-	int	k2sg	[_lenJ][_lenI];
-	float  	pxsg	[_lenJ][_lenI];
-	float  	pysg	[_lenJ][_lenI];
-	float  	pzsg	[_lenJ][_lenI];
-	float  	pesg	[_lenJ][_lenI];
-	float  	pmsg	[_lenJ][_lenI];
+	int    	njsg	[s_lenI];
+	int	iasg	[s_lenK][s_lenI];
+	int	k1sg	[s_lenJ][s_lenI];
+	int	k2sg	[s_lenJ][s_lenI];
+	float  	pxsg	[s_lenJ][s_lenI];
+	float  	pysg	[s_lenJ][s_lenI];
+	float  	pzsg	[s_lenJ][s_lenI];
+	float  	pesg	[s_lenJ][s_lenI];
+	float  	pmsg	[s_lenJ][s_lenI];
     };
 
-    int  _dummy;
-    float  _realdummy;
+    int  m_dummy;
+    float  m_realdummy;
 
-    static HIJJET2* _hijjet2;
+    static HIJJET2* s_hijjet2;
 };
 
 // set pointer to zero at start
-HijJet2::HIJJET2* HijJet2::_hijjet2 =0;
+HijJet2::HIJJET2* HijJet2::s_hijjet2 =0;
 
 inline void
 HijJet2::init(void)
-{ if (!_hijjet2) _hijjet2 = static_cast<HIJJET2*>(hijjet2_address_()); }
+{ if (!s_hijjet2) s_hijjet2 = static_cast<HIJJET2*>(hijjet2_address_()); }
 
 // Constructor
 inline
 HijJet2::HijJet2()
-    : _dummy		(-999),
-      _realdummy	(-999.)
+    : m_dummy		(-999),
+      m_realdummy	(-999.)
 {}
 
 // Destructor
@@ -89,15 +89,15 @@ inline int&
 HijJet2::nsg	(void)
 {
     init(); // check COMMON is initialized
-    return _hijjet2->nsg;
+    return s_hijjet2->nsg;
 }
 
 inline int&
 HijJet2::njsg    (int i)
 {
     init(); // check COMMON is initialized
-    if(i < 1 || i > lenI()) return _dummy;
-    return _hijjet2->njsg[i-1];
+    if(i < 1 || i > lenI()) return m_dummy;
+    return s_hijjet2->njsg[i-1];
 }
 
 inline int&
@@ -105,9 +105,9 @@ HijJet2::iasg	(int i, int k)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	k < 1 || k > lenK() ) return _dummy;
+	k < 1 || k > lenK() ) return m_dummy;
 
-    return _hijjet2->iasg[k-1][i-1];
+    return s_hijjet2->iasg[k-1][i-1];
 }
 
 inline int&
@@ -115,9 +115,9 @@ HijJet2::k1sg	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _dummy;
+	j < 1 || j > lenJ() ) return m_dummy;
 
-    return _hijjet2->k1sg[j-1][i-1];
+    return s_hijjet2->k1sg[j-1][i-1];
 }
 
 inline int&
@@ -125,9 +125,9 @@ HijJet2::k2sg	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _dummy;
+	j < 1 || j > lenJ() ) return m_dummy;
 
-    return _hijjet2->k2sg[j-1][i-1];
+    return s_hijjet2->k2sg[j-1][i-1];
 }
 
 inline float&
@@ -135,9 +135,9 @@ HijJet2::pxsg	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet2->pxsg[j-1][i-1];
+    return s_hijjet2->pxsg[j-1][i-1];
 }
 
 inline float&
@@ -145,9 +145,9 @@ HijJet2::pysg	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet2->pysg[j-1][i-1];
+    return s_hijjet2->pysg[j-1][i-1];
 }
 
 inline float&
@@ -155,9 +155,9 @@ HijJet2::pzsg	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet2->pzsg[j-1][i-1];
+    return s_hijjet2->pzsg[j-1][i-1];
 }
 
 inline float&
@@ -165,9 +165,9 @@ HijJet2::pesg	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet2->pesg[j-1][i-1];
+    return s_hijjet2->pesg[j-1][i-1];
 }
 
 inline float&
@@ -175,9 +175,9 @@ HijJet2::pmsg	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _realdummy;
+	j < 1 || j > lenJ() ) return m_realdummy;
 
-    return _hijjet2->pmsg[j-1][i-1];
+    return s_hijjet2->pmsg[j-1][i-1];
 }
 
 #endif
