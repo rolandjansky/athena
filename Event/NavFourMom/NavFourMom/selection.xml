@@ -12,6 +12,7 @@
     <field name="m_ownPolicy" transient="true" />
   </class>
   <class name="std::vector<INavigable4Momentum*>" />
+  <class name="DataVector_detail::VirtBases<INavigable4Momentum>" />
   <class pattern="DataVector*<INavigable4Momentum>" />
 
   <class name="DataVector<IParticle>" id="6A886244-3314-40C7-BA75-2ECB96DDE9EA"/>
