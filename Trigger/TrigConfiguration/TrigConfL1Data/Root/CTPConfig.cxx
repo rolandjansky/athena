@@ -92,20 +92,17 @@ CTPConfig::compareTo(const CTPConfig* o) const {
 void
 CTPConfig::print(const std::string& indent, unsigned int detail) const {
    if(detail>=1) {
-      cout << indent << "==================================" << endl;
-      cout << indent << "CTP Configuration " << endl;
+      cout << indent << "================================================================================" << endl;
+      cout << indent << "CTP Configuration";
+      if(smk()>0) cout << " (SMK = " << smk() << ")";
+      cout << ": "; printNameIdV(indent);
       cout << indent << "CTP Version " << ctpVersion() << endl;
       cout << indent << "L1 Version " << l1Version() << endl;
-      if(lvl1MasterTableId()>0) cout << " for MT_id = " << lvl1MasterTableId();
-      cout << indent << "-----------------" << endl;
-      menu().print(indent+ "  ", detail);
-      prescaleSet().print(indent+ "  ", detail);
-      //prioritySet().print(indent+ "  ", detail);
-      bunchGroupSet().print(indent+ "  ", detail);
-      //prescaledClock().print(indent+ "  ", detail);
-      //deadTime().print(indent+ "  ", detail);
-      random().print(indent+ "  ", detail);
-      cout << indent << "==================================" << endl;
+      menu().print(indent, detail);
+      prescaleSet().print(indent, detail);
+      bunchGroupSet().print(indent, detail);
+      random().print(indent, detail);
+      cout << indent << "================================================================================" << endl;
    }
 }
 

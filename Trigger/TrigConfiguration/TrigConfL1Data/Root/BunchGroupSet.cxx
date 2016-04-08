@@ -51,11 +51,14 @@ BunchGroupSet::fillPattern(uint32_t bitpos, const BunchGroup& bg) {
 void
 BunchGroupSet::print(const std::string& indent, unsigned int detail) const {
    if(detail>=1) {
-      cout << indent << "BunchGroupSet "; printNameIdV(); 
-      cout << indent << "  number of bunch groups: " << m_BunchGroups.size() << endl;
+      cout << indent << "BunchGroupSet " << name();
+      if(id()>0 || version()>0)
+         cout << " (id=" << id() << "/v=" << version() << ")";
+      cout  << endl;
+      cout << indent << "Number of bunch groups: " << m_BunchGroups.size() << endl;
       if(detail>=2) {
          for(BunchGroup bg: m_BunchGroups)
-            bg.print(indent + "  ", detail);
+            bg.print(indent + indent, detail);
       }
    }
 }
