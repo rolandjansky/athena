@@ -8,7 +8,7 @@ use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 use GaudiInterface       GaudiInterface-*           External
 use RecEventTPCnv	 RecEventTPCnv-*	    Reconstruction
 use RecEvent	 	 RecEvent-*		    Reconstruction
-use CLIDSvc              CLIDSvc-*                  Control
+#use CLIDSvc              CLIDSvc-*                  Control
 
 public
 
