@@ -10,7 +10,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
 
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ActiveStoreSvc.h"
 
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/MdtCsmContainer.h"
