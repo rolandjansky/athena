@@ -29,5 +29,8 @@ typedef G_v1 G;
 } // namespace DMTest
 
 
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF (DMTest::G, 9744, 1)
+
 
 #endif // not DATAMODELTESTDATAREAD_G_H

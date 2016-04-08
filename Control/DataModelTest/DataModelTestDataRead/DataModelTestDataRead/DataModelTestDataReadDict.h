@@ -24,6 +24,14 @@
 #include "DataModelTestDataRead/G.h"
 #include "DataModelTestDataRead/GVec.h"
 #include "DataModelTestDataRead/GAuxContainer.h"
+#include "DataModelTestDataRead/H.h"
+#include "DataModelTestDataRead/HVec.h"
+#include "DataModelTestDataRead/HView.h"
+#include "DataModelTestDataRead/HAuxContainer.h"
+#include "DataModelTestDataRead/versions/H_v1.h"
+#include "DataModelTestDataRead/versions/HVec_v1.h"
+#include "DataModelTestDataRead/versions/HView_v1.h"
+#include "DataModelTestDataRead/versions/HAuxContainer_v1.h"
 
 struct GCCXML_DUMMY_INSTANTIATION_DATAMODELTESTDATAREAD {
   ElementLink<DMTest::BVec> m_dum1;

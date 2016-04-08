@@ -15,14 +15,21 @@
 #include "xAODTestTypelessRead.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CVec.h"
+#include "DataModelTestDataCommon/CVecWithData.h"
+#include "DataModelTestDataCommon/CView.h"
 #include "DataModelTestDataCommon/CAuxContainer.h"
 #include "DataModelTestDataCommon/CTrigAuxContainer.h"
 #include "DataModelTestDataCommon/CInfoAuxContainer.h"
+#include "DataModelTestDataRead/H.h"
+#include "DataModelTestDataRead/HAuxContainer.h"
+#include "DataModelTestDataRead/HVec.h"
+#include "DataModelTestDataRead/HView.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/StrFormat.h"
+#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/System.h"
 #include <memory>
 
@@ -123,7 +130,147 @@ void dumpAuxItem (SG::auxid_t auxid, const SG::AuxVectorData& c, size_t i)
 }
 
 
+std::map<std::string, SG::auxid_t> get_map (const SG::AuxVectorData* vec)
+{
+  const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+
+  // Sort auxids in name order.
+  std::map<std::string, SG::auxid_t> auxid_map;
+  for (SG::auxid_t auxid : vec->getAuxIDs())
+    auxid_map[r.getName(auxid)] = auxid;
+
+  return auxid_map;
+}
+
+
+std::map<std::string, SG::auxid_t> get_map (const SG::AuxElement* elt)
+{
+  return get_map (elt->container());
+}
+
+
+void dumpelt (const SG::AuxVectorData* cont,
+              size_t index,
+              const std::map<std::string, SG::auxid_t>& auxid_map)
+{
+  for (const auto& m : auxid_map)
+    dumpAuxItem (m.second, *cont, index);
+  std::cout << "\n";
+}
+
+
+template <class OBJ>
+void dumpobj (const OBJ* obj,
+              const std::map<std::string, SG::auxid_t>& auxid_map)
+{
+  for (size_t i = 0; i < obj->size(); i++) {
+    std::cout << "  ";
+    if (!obj->hasStore()) {
+      // Handle view container.
+      const auto* elt = obj->at(i);
+      dumpelt (elt->container(), elt->index(), auxid_map);
+    }
+    else
+      dumpelt (obj, i, auxid_map);
+  }
+}
+
+
+void dumpobj (const DMTest::C* obj,
+              const std::map<std::string, SG::auxid_t>& auxid_map)
+{
+  const SG::AuxVectorData* cont = obj->container();
+  dumpelt (cont, 0, auxid_map);
+}
+
+
+void copy (DMTest::CVec& to, const DMTest::CVec& from)
+{
+  for (size_t i = 0; i < from.size(); i++) {
+    to.push_back (new C);
+    *to.back() = *from[i];
+  }
+}
+
+
+void copy (DMTest::HVec& to, const DMTest::HVec& from)
+{
+  for (size_t i = 0; i < from.size(); i++) {
+    to.push_back (new H);
+    *to.back() = *from[i];
+  }
+}
+
+
+void copy (DMTest::CVecWithData& to, const DMTest::CVecWithData& from)
+{
+  to.meta1 = from.meta1;
+  copy (static_cast<DMTest::CVec&>(to),
+        static_cast<const DMTest::CVec&>(from));
+}
+
+
+void copy (DMTest::C& to, const DMTest::C& from)
+{
+  to = from;
+}
+
+
 } // anonymous namespace
+
+
+template <class OBJ, class AUX>
+StatusCode
+xAODTestTypelessRead::testit (const char* key)
+{
+  const OBJ* obj = nullptr;
+  CHECK( evtStore()->retrieve (obj, key) );
+
+  const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+
+  std::map<std::string, SG::auxid_t> auxid_map = get_map (obj);
+  std::cout << key << " types: ";
+  for (const auto& m : auxid_map)
+    std::cout << r.getName(m.second) << "/" 
+              << System::typeinfoName (*r.getType(m.second)) << " ";
+  std::cout << "\n";
+
+  dumpobj (obj, auxid_map);
+
+  if (!m_writePrefix.empty()) {
+    // Passing this as the third arg of record will make the object const.
+    bool LOCKED = false;
+
+    auto objnew = CxxUtils::make_unique<OBJ>();
+    auto store  = CxxUtils::make_unique<AUX>();
+    objnew->setStore (store.get());
+    copy (*objnew, *obj);
+    CHECK (evtStore()->record (std::move(objnew), m_writePrefix + key, LOCKED));
+    CHECK (evtStore()->record (std::move(store), m_writePrefix + key + "Aux.", LOCKED));
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+template <class OBJ>
+StatusCode
+xAODTestTypelessRead::testit_view (const char* key)
+{
+  const OBJ* obj = nullptr;
+  CHECK( evtStore()->retrieve (obj, key) );
+
+  if (obj->empty())
+    return StatusCode::SUCCESS;
+  std::map<std::string, SG::auxid_t> auxid_map = get_map (obj->front());
+  std::cout << key << "\n";
+  dumpobj (obj, auxid_map);
+
+  if (!m_writePrefix.empty()) {
+    CHECK (evtStore()->record (CxxUtils::make_unique<OBJ>(*obj),
+                               m_writePrefix + key, false));
+  }
+  return StatusCode::SUCCESS;
+}
 
 
 /**
@@ -134,97 +281,13 @@ StatusCode xAODTestTypelessRead::execute()
   ++m_count;
   std::cout << m_count << "\n";
 
-  const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-
-  const CVec* vec = 0;
-  CHECK( evtStore()->retrieve (vec, "cvec") );
-
-  // Sort auxids in name order.
-  std::map<std::string, SG::auxid_t> auxid_map;
-  for (SG::auxid_t auxid : vec->getAuxIDs())
-    auxid_map[r.getName(auxid)] = auxid;
-
-  std::cout << "cvec types: ";
-  for (const auto& m : auxid_map)
-    std::cout << r.getName(m.second) << "/" 
-              << System::typeinfoName (*r.getType(m.second)) << " ";
-  std::cout << "\n";
-  for (size_t i = 0; i < vec->size(); i++) {
-    std::cout << "  ";
-    for (const auto& m : auxid_map)
-      dumpAuxItem (m.second, *vec, i);
-    std::cout << "\n";
-  }
-
-  const C* c = 0;
-  CHECK( evtStore()->retrieve (c, "cinfo") );
-  const SG::AuxVectorData* cont = c->container();
-
-  std::map<std::string, SG::auxid_t> cauxid_map;
-  for (SG::auxid_t auxid : cont->getAuxIDs())
-    cauxid_map[r.getName(auxid)] = auxid;
-
-  std::cout << "cinfo types: ";
-  for (const auto& m : cauxid_map)
-    std::cout << r.getName(m.second) << "/" 
-              << System::typeinfoName (*r.getType(m.second)) << " ";
-  std::cout << "\n";
-  for (const auto& m : cauxid_map)
-    dumpAuxItem (m.second, *cont, 0);
-  std::cout << "\n";
-
-  const CVec* ctrig = 0;
-  CHECK( evtStore()->retrieve (ctrig, "ctrig") );
-
-  // Sort auxids in name order.
-  std::map<std::string, SG::auxid_t> trig_auxid_map;
-  for (SG::auxid_t auxid : ctrig->getAuxIDs())
-    trig_auxid_map[r.getName(auxid)] = auxid;
-
-  std::cout << "ctrig types: ";
-  for (const auto& m : trig_auxid_map)
-    std::cout << r.getName(m.second) << "/" 
-              << System::typeinfoName (*r.getType(m.second)) << " ";
-  std::cout << "\n";
-  for (size_t i = 0; i < ctrig->size(); i++) {
-    std::cout << "  ";
-    for (const auto& m : trig_auxid_map)
-      dumpAuxItem (m.second, *ctrig, i);
-    std::cout << "\n";
-  }
-
-  if (!m_writePrefix.empty()) {
-    // Passing this as the third arg of record will make the object const.
-    bool LOCKED = false;
-
-    std::unique_ptr<CVec> vecnew (new CVec);
-    std::unique_ptr<CAuxContainer> store (new CAuxContainer);
-    vecnew->setStore (store.get());
-    for (size_t i = 0; i < vec->size(); i++) {
-      vecnew->push_back (new C);
-      *vecnew->back() = *(*vec)[i];
-    }
-    CHECK (evtStore()->record (std::move(vecnew), m_writePrefix + "cvec", LOCKED));
-    CHECK (evtStore()->record (std::move(store), m_writePrefix + "cvecAux.", LOCKED));
-
-    std::unique_ptr<C> cnew (new C);
-    std::unique_ptr<CInfoAuxContainer> info_store (new CInfoAuxContainer);
-    cnew->setStore (info_store.get());
-    *cnew = *c;
-
-    CHECK (evtStore()->record (std::move(cnew), m_writePrefix + "cinfo", LOCKED));
-    CHECK (evtStore()->record (std::move(info_store), m_writePrefix + "cinfoAux.", LOCKED));
-
-    std::unique_ptr<CVec> ctrignew (new CVec);
-    std::unique_ptr<CTrigAuxContainer> trig_store (new CTrigAuxContainer);
-    ctrignew->setStore (trig_store.get());
-    for (size_t i = 0; i < ctrig->size(); i++) {
-      ctrignew->push_back (new C);
-      *ctrignew->back() = *(*ctrig)[i];
-    }
-    CHECK (evtStore()->record (std::move(ctrignew), m_writePrefix + "ctrig", LOCKED));
-    CHECK (evtStore()->record (std::move(trig_store), m_writePrefix + "ctrigAux.", LOCKED));
-  }
+  CHECK(( testit<CVec, CAuxContainer>     ("cvec") ));
+  CHECK(( testit<C,    CInfoAuxContainer> ("cinfo") ));
+  CHECK(( testit<CVec, CTrigAuxContainer> ("ctrig") ));
+  CHECK(( testit<CVecWithData, CAuxContainer> ("cvecWD") ));
+  CHECK(( testit_view<CView> ("cview") ));
+  CHECK(( testit<HVec, HAuxContainer>     ("hvec") ));
+  CHECK(( testit_view<HView> ("hview") ));
 
   return StatusCode::SUCCESS;
 }

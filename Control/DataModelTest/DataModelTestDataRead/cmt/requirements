@@ -31,8 +31,12 @@ use AthenaBaseComps         AthenaBaseComps-*         Control
 use xAODCore                xAODCore-*                Event/xAOD
 end_private
 
-apply_pattern component_library
-library DataModelTestDataRead *.cxx components/*.cxx
+# DRQ: Change to a dual-use library because the lcgdict pattern doesn't work with component libraries
+# when building with cmake
+####apply_pattern component_library
+####library DataModelTestDataRead *.cxx components/*.cxx
+apply_pattern dual_use_library files=*.cxx
+
 
 private
 use AtlasReflex  AtlasReflex-*  External  -no_auto_imports
