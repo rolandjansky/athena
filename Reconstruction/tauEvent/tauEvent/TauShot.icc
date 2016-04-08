@@ -25,7 +25,12 @@ namespace Analysis{
         return *m_cluster;
     }
 
-    inline ElementLink<CaloClusterContainer> TauShot::clusterLink() const
+    inline const ElementLink<CaloClusterContainer>& TauShot::clusterLink() const
+    {
+      return m_cluster;
+    }
+
+    inline ElementLink<CaloClusterContainer>& TauShot::clusterLink()
     {
       return m_cluster;
     }
@@ -44,7 +49,12 @@ namespace Analysis{
         return *m_seedCell;
     }
 
-    inline ElementLink<CaloCellContainer> TauShot::seedCellLink() const
+    inline const ElementLink<CaloCellContainer>& TauShot::seedCellLink() const
+    {
+        return m_seedCell;
+    }
+
+    inline ElementLink<CaloCellContainer>& TauShot::seedCellLink()
     {
         return m_seedCell;
     }

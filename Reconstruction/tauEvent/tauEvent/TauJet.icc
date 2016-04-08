@@ -391,6 +391,15 @@ namespace Analysis
         return 0;
     }
 
+    inline ElementLinkVector<TauDetailsContainer>& TauJet::tauDetailLinkVector()
+    {
+      return m_tauDetails;
+    }
+    inline const ElementLinkVector<TauDetailsContainer>& TauJet::tauDetailLinkVector() const
+    {
+      return m_tauDetails;
+    }
+
     inline void TauJet::setE( const double ene ) 
     {
         return this->momentumBase().setE(ene);

@@ -40,7 +40,7 @@
 /// tau analysis helper object data class
 ///
 /// object containing additional information (mostly mc truth) 
-/// useful for performance analysis, should be superseeded by the trueTauObject
+/// useful for performance analysis, should be superceded by the trueTauObject
 /// Package: Reconstruction/TauEvent
 class tauAnalysisHelperObject
 {
@@ -301,6 +301,11 @@ class tauAnalysisHelperObject
         void setD0sumnontaupt( double  val ) { m_d0sumnontaupt = val; };
         void setD0sumpt( double  val ) { m_d0sumpt = val; };
 
+        void clearD0towers() {
+          m_towere.clear();
+          m_towereta.clear();
+          m_towerphi.clear();
+        }
         void addD0tower( const double e, const double eta, const double phi ) { m_towere.push_back( e ); m_towereta.push_back( eta ); m_towerphi.push_back( phi ); };
         void addD0tower( const I4Momentum *mom ) { m_towere.push_back( mom->e() ); m_towereta.push_back( mom->eta() ); m_towerphi.push_back( mom->phi() ); };
 
@@ -312,6 +317,8 @@ class tauAnalysisHelperObject
          *  set by tauD0Helper::execute()
          */
         //@{
+        tauCellColl_type&  d0_emcluster() { return m_d0_emcluster; }
+        const tauCellColl_type&  d0_emcluster() const { return m_d0_emcluster; }
         int d0_emcluster_nCells() const			           { return m_d0_emcluster.size(); }
         tauCellColl_iterator d0_emcluster_begin()      { return m_d0_emcluster.begin(); }
         tauCellColl_iterator d0_emcluste_end()         { return m_d0_emcluster.end(); }
@@ -331,6 +338,8 @@ class tauAnalysisHelperObject
          */
         //@{
         int d0_05_nTracks() const			                         { return m_d0_05_Tracks.size(); }
+        tauTrackColl_type&  d0_05_tracks() { return m_d0_05_Tracks; }
+        const tauTrackColl_type&  d0_05_tracks() const { return m_d0_05_Tracks; }
         tauTrackColl_iterator d0_05_track_begin()              { return m_d0_05_Tracks.begin(); }
         tauTrackColl_iterator d0_05_track_end()                { return m_d0_05_Tracks.end(); }
 
@@ -349,6 +358,8 @@ class tauAnalysisHelperObject
          */
         //@{
         int d0_tau_nTracks() const			                         { return m_d0_tau_Tracks.size(); }
+        tauTrackColl_type&  d0_tau_tracks() { return m_d0_tau_Tracks; }
+        const tauTrackColl_type&  d0_tau_tracks() const { return m_d0_tau_Tracks; }
         tauTrackColl_iterator d0_tau_track_begin()              { return m_d0_tau_Tracks.begin(); }
         tauTrackColl_iterator d0_tau_track_end()                { return m_d0_tau_Tracks.end(); }
 
@@ -367,6 +378,8 @@ class tauAnalysisHelperObject
          */
         //@{
         int d0_nontau_nTracks() const			                         { return m_d0_nontau_Tracks.size(); }
+        tauTrackColl_type&  d0_nontau_tracks() { return m_d0_nontau_Tracks; }
+        const tauTrackColl_type&  d0_nontau_tracks() const { return m_d0_nontau_Tracks; }
         tauTrackColl_iterator d0_nontau_track_begin()              { return m_d0_nontau_Tracks.begin(); }
         tauTrackColl_iterator d0_nontau_track_end()                { return m_d0_tau_Tracks.end(); }
 

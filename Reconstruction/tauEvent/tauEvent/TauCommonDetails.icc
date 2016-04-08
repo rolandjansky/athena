@@ -609,7 +609,7 @@ namespace Analysis {
             const Trk::RecVertex* secVtx )
     {
         delete m_secVtx;
-        m_secVtx = new Trk::RecVertex(*secVtx);
+        m_secVtx = secVtx ? new Trk::RecVertex(*secVtx) : nullptr;
     }
 
     //-------------------------------------------------------------------------
@@ -1312,12 +1312,25 @@ namespace Analysis {
             m_seedTrk_etChrgEM01Trk[i] : 0.;
     }
 
+    inline const std::vector<double>& TauCommonDetails::seedTrk_etChrgEM01TrkVector() const
+    {
+      return m_seedTrk_etChrgEM01Trk;
+    }
+
     inline void TauCommonDetails::setSeedTrk_etChrgEM01Trk(
             unsigned int i,
             double et )
     {
         if( m_seedTrk_etChrgEM01Trk.size() < i )
             m_seedTrk_etChrgEM01Trk[i] = et;
+    }
+
+    template <class ITERATOR>
+    inline void TauCommonDetails::setSeedTrk_etChrgEM01Trk(
+            ITERATOR beg,
+            ITERATOR end )
+    {
+      m_seedTrk_etChrgEM01Trk.assign (beg, end);
     }
 
     inline void TauCommonDetails::addSeedTrk_etChrgEM01Trk(
@@ -1337,12 +1350,25 @@ namespace Analysis {
             m_seedTrk_etResChrgEMTrk[i] : 0.;
     }
 
+    inline const std::vector<double>& TauCommonDetails::seedTrk_etResChrgEMTrkVector() const
+    {
+      return m_seedTrk_etResChrgEMTrk;
+    }
+
     inline void TauCommonDetails::setSeedTrk_etResChrgEMTrk(
             unsigned int i,
             double et )
     {
         if( m_seedTrk_etResChrgEMTrk.size() < i )
             m_seedTrk_etResChrgEMTrk[i] = et;
+    }
+
+    template <class ITERATOR>
+    inline void TauCommonDetails::setSeedTrk_etResChrgEMTrk(
+            ITERATOR beg,
+            ITERATOR end )
+    {
+      m_seedTrk_etResChrgEMTrk.assign (beg, end);
     }
 
     inline void TauCommonDetails::addSeedTrk_etResChrgEMTrk(

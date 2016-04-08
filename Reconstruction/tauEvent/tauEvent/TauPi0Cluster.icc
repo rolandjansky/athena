@@ -45,6 +45,11 @@ namespace Analysis{
         return *m_cluster;
     }
 
+    inline const ElementLink<CaloClusterContainer>& TauPi0Cluster::clusterLink() const
+    {
+      return m_cluster;
+    }
+    
     inline ElementLink<CaloClusterContainer>& TauPi0Cluster::clusterLink()
     {
       return m_cluster;

@@ -236,6 +236,9 @@ namespace Analysis
 
 
 
+        ElementLinkVector<Rec::TrackParticleContainer>& looseTracks();
+        const ElementLinkVector<Rec::TrackParticleContainer>& looseTracks() const;
+
         private:
         static std::string s_className;
 
@@ -566,6 +569,18 @@ namespace Analysis
     inline unsigned TauRecDetails :: numLooseTrack() const
     {
         return m_looseTracks.size();
+    }
+
+    inline
+    ElementLinkVector<Rec::TrackParticleContainer>& TauRecDetails::looseTracks()
+    {
+      return m_looseTracks;
+    }
+    
+    inline
+    const ElementLinkVector<Rec::TrackParticleContainer>& TauRecDetails::looseTracks() const
+    {
+      return m_looseTracks;
     }
 }
 

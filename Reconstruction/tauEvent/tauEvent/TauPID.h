@@ -15,8 +15,8 @@
 ///
 /// $Id: TauPID.h,v 1.6 2008-11-28 13:31:17 tburgess Exp $
 
-#ifndef __TAUPID_ANALYSIS_H__
-#define __TAUPID_ANALYSIS_H__
+#ifndef TAUEVENT_TAUPID_H
+#define TAUEVENT_TAUPID_H
 
 //TauEvent includes
 #include "tauEvent/TauJetParameters.h"
@@ -37,12 +37,19 @@ namespace Analysis
             /// Destructor
             virtual ~TauPID();
 
+            TauPID (std::vector<std::pair<TauJetParameters::TauID, double> >&& params,
+                    const std::bitset<32>& isTauFlags,
+                    const std::bitset<32>& vetoFlags);
+
+
             /// Copy constructor
             TauPID(const TauPID& rhs);
 
             /// assignment operator
             ///@param rhs TauPID to copy
             TauPID &operator = ( const TauPID &rhs );
+
+            TauPID &operator = ( TauPID &&rhs );
 
             /// Equality operator
             /// @param rhs right hand side TauPID instance to compare
@@ -94,6 +101,10 @@ namespace Analysis
             bool flag(
                     TauJetParameters::VetoFlags flag ) const;
 
+            const std::vector<std::pair<TauJetParameters::TauID, double> >& params() const;
+            const std::bitset<32> isTauFlags() const;
+            const std::bitset<32> vetoFlags() const;
+
         //@}
         private:
             std::vector<std::pair<TauJetParameters::TauID, double> > m_params;
@@ -105,4 +116,4 @@ namespace Analysis
 #include "TauDetails.h"
 #include "TauPID.icc"
 
-#endif // __TAUPID_ANALYSIS_H__
+#endif // TAUEVENT_TAUPID_H
