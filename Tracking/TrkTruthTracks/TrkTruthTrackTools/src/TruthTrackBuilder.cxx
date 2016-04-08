@@ -46,6 +46,9 @@ Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::strin
   m_minNdof(6),
   m_onlyPrimaries(false),
   m_primaryBarcodeCutOff(100000),
+  m_minSiHits(7),
+  m_minSiHitsForward(m_minSiHits),
+  m_forwardBoundary(2.4),
   m_materialInteractions(true)
 {
     declareInterface<Trk::ITruthTrackBuilder>(this);
@@ -57,6 +60,9 @@ Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::strin
     declareProperty("MinDegreesOfFreedom",               m_minNdof);
     declareProperty("OnlyPrimaries",                     m_onlyPrimaries); 
     declareProperty("PrimaryBarcodeCutOff",              m_primaryBarcodeCutOff);
+    declareProperty("MinSiHits",                         m_minSiHits);
+    declareProperty("MinSiHitsForward",                  m_minSiHitsForward);
+    declareProperty("ForwardBoundary",                   m_forwardBoundary);
     declareProperty("MaterialInteractions",              m_materialInteractions);
 }
 
@@ -161,7 +167,6 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
     //!< get the charge via the particle table ...
     int barcode = genPart->barcode();
     int pdgCode = genPart->pdg_id();
-    //std::cout << "barcode: " << barcode << " pdgcode: " << pdgCode << std::endl;
     int absPdgCode = abs(pdgCode);
     // get the charge: ap->charge() is used later, DOES NOT WORK RIGHT NOW
     const HepPDT::ParticleData* ap =
@@ -177,7 +182,6 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
     Trk::PerigeeSurface persurf;
     Trk::CurvilinearParameters startParams(startPos,startMom,charge);
     const Trk::TrackParameters *per = m_extrapolator->extrapolate(startParams,persurf,Trk::anyDirection,false,Trk::nonInteracting);
-    //std::cout << "per: " << per << std::endl;
     if (!per) {
         ATH_MSG_DEBUG("Perigee creation for genParticle start position failed. Skipping track creation.");
         return 0;
@@ -198,27 +202,22 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    int i=0;
    for ( ;i<(int)clusters.size();i++){
         if (m_DetID->is_trt(clusters[i]->identify())) break;
-        //const Trk::Surface *surf=&clusters[i]->detectorElement()->surface(clusters[i]->identify());
-	const Trk::Surface &surf=clusters[i]->detectorElement()->surface(clusters[i]->identify());	
+        const Trk::Surface &surf=clusters[i]->detectorElement()->surface(clusters[i]->identify());	
         if (surf==prevpar->associatedSurface()) continue;
         bool ispixel=false;
         if (m_DetID->is_pixel(clusters[i]->identify())) ispixel=true;
         
         const Trk::TrackParameters *thispar = m_extrapolator->extrapolate(*prevpar,surf,Trk::alongMomentum,false,Trk::nonInteracting);
-        /* std::cout << "thispar: " << thispar;
-        if (thispar) std::cout << " inside bounds: " << surf->insideBounds(thispar->localPosition(),20*mm,50*mm);
-        std::cout << std::endl; */
         if (!thispar) break;
         if (!surf.insideBounds(thispar->localPosition(),20*mm,50*mm)) {
           delete thispar;
           continue;
         }
-        //HepVector params=thispar->parameters();
-	AmgVector(5) params=thispar->parameters();
+        AmgVector(5) params=thispar->parameters();
         params[Trk::loc1]=clusters[i]->localPosition().x();
         if (ispixel) params[Trk::loc2]=clusters[i]->localPosition().y();
         //is this correct?
-	const Trk::TrackParameters *tmppar=thispar->clone();
+        const Trk::TrackParameters *tmppar=thispar->clone();
         delete thispar;
         thispar=tmppar;
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
@@ -227,8 +226,6 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
         bool isshared=false;
         
         if (!isshared) rot=m_rotcreator->correct(*clusters[i],*thispar);
-        //else rot=m_rotcreatorbroad->correct(*clusters[i],*thispar);
-        //std::cout << "rot: " << rot << std::endl;
         if (!rot) {
           delete thispar;
           continue;
@@ -236,14 +233,13 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
         // create the ROTs for the reference trajectory
         const Trk::TrackStateOnSurface *tsos=new Trk::TrackStateOnSurface(rot,thispar,0,0,typePattern);
         traj->push_back(tsos);
-        //if (i!=0) delete prevpar;
         prevpar=thispar;
         
    }
    // this is the reference trajectory to be refitted  
    Trk::TrackInfo info;
    Trk::Track track(info,traj,0);
-   if (/* ndof<0 */ track.measurementsOnTrack()->size()<7 || (m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff)) {
+   if (/* ndof<0 */ (track.measurementsOnTrack()->size()<m_minSiHits && fabs(genPart->momentum().eta())<=m_forwardBoundary) || (track.measurementsOnTrack()->size()<m_minSiHitsForward && fabs(genPart->momentum().eta())>m_forwardBoundary) || (m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff)) {
        ATH_MSG_VERBOSE("Track does not fulfill requirements for refitting. Skipping it.");
        return 0;
    }
