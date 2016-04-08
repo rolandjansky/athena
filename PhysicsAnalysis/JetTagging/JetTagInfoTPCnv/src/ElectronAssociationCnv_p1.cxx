@@ -6,12 +6,7 @@
 /// Write out a ElectronAssociation
 ///
 
-#define private public
-#define protected public
 #include "egammaEvent/ElectronAssociation.h"
-#undef private
-#undef protected
-
 #include "JetTagInfoTPCnv/ElectronAssociationCnv_p1.h"
 
 namespace Analysis {
@@ -33,7 +28,7 @@ namespace Analysis {
 					      NavAssociationCommon_p1 *persObj,
 					      MsgStream &log)
   {
-    persObj->m_keyIndex = transObj->m_keyIndex;
+    persObj->m_keyIndex = transObj->keyIndex();
     persObj->m_navBase = baseToPersistent(&m_navAssCnv,
 					  transObj,
 					  log);

@@ -23,6 +23,10 @@ use JetEvent * Reconstruction/Jet
 use VxVertex * Tracking/TrkEvent
 use Particle * Reconstruction
 
+private
+use CxxUtils CxxUtils-* Control
+end_private
+
 
 library JetTagInfoTPCnv *.cxx
 apply_pattern installed_library

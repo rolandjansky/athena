@@ -6,9 +6,7 @@
 /// Type converter for the TruthInfo persistent/transient classes
 ///
 
-#define private public
 #include "JetTagInfo/TruthInfo.h"
-#undef private
 #include "JetTagInfoTPCnv/TruthInfoCnv_p1.h"
 #include "JetTagInfoTPCnv/BaseTagInfoCnv_p1.h"
 
@@ -25,13 +23,17 @@ namespace Analysis {
 					      transObj,
 					      msg);
 
+    static const std::string s_B("B");
+    static const std::string s_C("C");
+    static const std::string s_T("T");
+
     /// Now, our particular members.
-    persObj->m_jetTruthLabel = transObj->m_jetTruthLabel;
-    persObj->m_distanceToBQuark = transObj->m_distanceToBQuark;
-    persObj->m_distanceToCQuark = transObj->m_distanceToCQuark;
-    persObj->m_distanceToTLepton = transObj->m_distanceToTLepton;
-    persObj->m_BHadronDecayVertex = transObj->m_BHadronDecayVertex;
-    persObj->m_BHadronPdg = transObj->m_BHadronPdg;
+    persObj->m_jetTruthLabel = transObj->jetTruthLabel();
+    persObj->m_distanceToBQuark = transObj->deltaRMinTo(s_B);
+    persObj->m_distanceToCQuark = transObj->deltaRMinTo(s_C);
+    persObj->m_distanceToTLepton = transObj->deltaRMinTo(s_T);
+    persObj->m_BHadronDecayVertex = transObj->BDecayVertex();
+    persObj->m_BHadronPdg = transObj->BHadronPdg();
   }
 
   void TruthInfoCnv_p1::persToTrans (const TruthInfo_p1 *persObj,
@@ -41,13 +43,17 @@ namespace Analysis {
     /// Do the base class first.
     fillTransFromPStore (&m_baseTagCnv, persObj->m_BaseTagInfo, transObj, msg);
 
+    static const std::string s_B("B");
+    static const std::string s_C("C");
+    static const std::string s_T("T");
+
     /// Now, our particular members.
-    transObj->m_jetTruthLabel = persObj->m_jetTruthLabel;
-    transObj->m_distanceToBQuark = persObj->m_distanceToBQuark;
-    transObj->m_distanceToCQuark = persObj->m_distanceToCQuark;
-    transObj->m_distanceToTLepton = persObj->m_distanceToTLepton;
-    transObj->m_BHadronDecayVertex = persObj->m_BHadronDecayVertex;
-    transObj->m_BHadronPdg = persObj->m_BHadronPdg;
+    transObj->setJetTruthLabel (persObj->m_jetTruthLabel);
+    transObj->deltaRMinTo (s_B, persObj->m_distanceToBQuark);
+    transObj->deltaRMinTo (s_C, persObj->m_distanceToCQuark);
+    transObj->deltaRMinTo (s_T, persObj->m_distanceToTLepton);
+    transObj->BDecayVertex (persObj->m_BHadronDecayVertex);
+    transObj->BHadronPdg (persObj->m_BHadronPdg);
   }
 
 }

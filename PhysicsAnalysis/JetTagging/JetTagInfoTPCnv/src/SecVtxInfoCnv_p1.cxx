@@ -6,9 +6,7 @@
 /// Type converter for the SecVtxInfo persistent/transient classes
 ///
 
-#define private public
 #include "JetTagInfo/SecVtxInfo.h"
-#undef private
 #include "JetTagInfoTPCnv/SecVtxInfoCnv_p1.h"
 #include "JetTagInfoTPCnv/BaseTagInfoCnv_p1.h"
 
@@ -26,17 +24,17 @@ namespace Analysis {
 					      msg);
 
     /// Now, our particular members.
-    persObj->m_dist = transObj->m_dist;
-    persObj->m_rphidist = transObj->m_rphidist;
-    persObj->m_prob = transObj->m_prob;
-    persObj->m_mass = transObj->m_mass;
-    persObj->m_energyFraction = transObj->m_energyFraction;
-    persObj->m_mult = transObj->m_mult;
-    persObj->m_NGood2TrackVertices = transObj->m_NGood2TrackVertices;
-    persObj->m_fitType = transObj->m_fitType;
+    persObj->m_dist = transObj->distance();
+    persObj->m_rphidist = transObj->rphidistance();
+    persObj->m_prob = transObj->probability();
+    persObj->m_mass = transObj->mass();
+    persObj->m_energyFraction = transObj->energyFraction();
+    persObj->m_mult = transObj->mult();
+    persObj->m_NGood2TrackVertices = transObj->NumberOfG2TrackVertices();
+    persObj->m_fitType = transObj->fitType();
 
     persObj->m_secVtxPos = toPersistent (&m_recoVertexCnv,
-					 &transObj->m_secVtxPos,
+					 &transObj->secVertexPos(),
 					 msg);
 
   }
@@ -49,20 +47,20 @@ namespace Analysis {
     fillTransFromPStore (&m_baseTagCnv, persObj->m_BaseTagInfo, transObj, msg);
 
     /// Now, our particular members.
-    transObj->m_dist = persObj->m_dist;
-    transObj->m_rphidist = persObj->m_rphidist;
-    transObj->m_prob = persObj->m_prob;
-    transObj->m_mass = persObj->m_mass;
-    transObj->m_energyFraction = persObj->m_energyFraction;
-    transObj->m_mult = persObj->m_mult;
-    transObj->m_NGood2TrackVertices = persObj->m_NGood2TrackVertices;
-    transObj->m_fitType = (SecVtxInfo::FitType) persObj->m_fitType;
+    transObj->setDist (persObj->m_dist);
+    transObj->setRPhiDist (persObj->m_rphidist);
+    transObj->setMass (persObj->m_mass);
+    transObj->setEnergyFraction (persObj->m_energyFraction);
+    transObj->setMult (persObj->m_mult);
+    transObj->setNumberOfG2TrackVertices (persObj->m_NGood2TrackVertices);
+    transObj->setFitType ((SecVtxInfo::FitType) persObj->m_fitType);
 
+    Trk::RecVertex secVtx;
     fillTransFromPStore(&m_recoVertexCnv,
 			persObj->m_secVtxPos,
-			&transObj->m_secVtxPos,
+			&secVtx,
 			msg);
-
+    transObj->setSecVtx (secVtx, persObj->m_prob, TrackVec());
   }
 
 }
