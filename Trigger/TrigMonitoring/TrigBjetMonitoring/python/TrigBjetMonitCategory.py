@@ -25,5 +25,9 @@ monitoring_mujet          = ["HLT_mu4_j15_bperf_split_dr05_dz02", "HLT_mu4_j55_b
 
 # Muon-jet parameters
 
-EtThreshold               = 10.
-PriVtxKey                 = "EFHistoPrmVtx"
+#EtThreshold               = 10.
+
+# SV1 parameters
+
+#inputSV1SourceName        = "SVInfoPlus"
+       
