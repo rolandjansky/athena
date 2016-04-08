@@ -217,7 +217,7 @@ TRT_Recon::reconstructSegment(const PerigeeParameters&		perigee,
 		       << std::setw(8) << std::setprecision(3) << params.position().theta()
 		       << " theta" 
 		       << std::setw(13) << std::setprecision(3) << params.pt()/Gaudi::Units::GeV
-		       << " pT (Gaudi::Units::GeV)" );
+		       << " pT (GeV)" );
     }
     
     // remove stuff referring to any previous track

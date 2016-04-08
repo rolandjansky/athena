@@ -70,16 +70,7 @@ TRT_Predictor::TRT_Predictor (const std::string&	type,
 }
 
 TRT_Predictor::~TRT_Predictor(void)
-{
-    delete m_hashIds;
-    for (std::vector<TRT_Prediction*>::reverse_iterator p = m_predictions.rbegin();
-	 p !=  m_predictions.rend();
-	 ++p)
-    {
-	delete *p;
-	m_predictions.pop_back();
-    }
-}
+{}
 
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
@@ -123,8 +114,6 @@ TRT_Predictor::initialize()
     Amg::Transform3D* transform1	= new Amg::Transform3D;
     transform1->setIdentity();
     (*transform1)			= Amg::Translation3D(0.,0.,0.);
-    // CLHEP::HepRotation rotation;
-    // HepGeom::Transform3D* transform1	= new HepGeom::Transform3D(rotation,CLHEP::Hep3Vector(0.,0.,0.));
     double halfZLength			= m_cotThetaCorner*m_rMeanBarrel;
     m_midBarrelSurface			= new Trk::CylinderSurface(transform1,m_rMeanBarrel,halfZLength);
     Amg::Transform3D* transform2	= new Amg::Transform3D;
@@ -133,16 +122,12 @@ TRT_Predictor::initialize()
     m_outerBackwardsSurface		= new Trk::DiscSurface(transform2, 0., m_rMeanBarrel);
      Amg::Transform3D* transform3	= new Amg::Transform3D;
     transform3->setIdentity();
-    (*transform3)			= Amg::Translation3D(0.,0.,-m_zEndcapMax);
+    (*transform3)			= Amg::Translation3D(0.,0.,m_zEndcapMax);
     m_outerForwardsSurface		= new Trk::DiscSurface(transform3, 0., m_rMeanBarrel);
-    // HepGeom::Transform3D* transform4	= new HepGeom::Transform3D(rotation,CLHEP::Hep3Vector(0.,0.,-m_zEndcapMax));
-    // m_outerBackwardsSurface	= new Trk::DiscSurface(transform4, 0., m_rMeanBarrel);
-    // HepGeom::Transform3D* transform5	= new HepGeom::Transform3D(rotation,CLHEP::Hep3Vector(0.,0.,+m_zEndcapMax));
-    // m_outerForwardsSurface	= new Trk::DiscSurface(transform5, 0., m_rMeanBarrel);
     
     // initialise some useful constants
-    m_phiHalfWidth	= M_PI/static_cast<double>(m_phiSectors);
-    m_strawHalfWidth	= 0.5*m_strawWidth;
+    m_phiHalfWidth			= M_PI/static_cast<double>(m_phiSectors);
+    m_strawHalfWidth			= 0.5*m_strawWidth;
 
     return StatusCode::SUCCESS;
 }
@@ -151,6 +136,10 @@ StatusCode
 TRT_Predictor::finalize(void)
 {
     ATH_MSG_INFO( "TRT_Predictor::finalize()" );
+    delete m_midBarrelSurface;
+    delete m_outerBackwardsSurface;
+    delete m_outerForwardsSurface;
+    delete m_hashIds;
     for (std::vector<TRT_Prediction*>::reverse_iterator p = m_predictions.rbegin();
 	 p !=  m_predictions.rend();
 	 ++p)
@@ -189,7 +178,11 @@ TRT_Predictor::makePredictions(const PerigeeParameters&	perigee,
         
     // create vector<HashIdentifiers> according to the predicted (eta, phi) at the TRT
     setRegion(parameters);
-    if (! m_hashIds->size()) return m_predictions;
+    if (! m_hashIds->size())
+    {
+	delete m_intersection;
+	return m_predictions;
+    }
     
     // make a TRT_Prediction for each element in region.
     // Subject to crude filtering using line parameters in rz projection
@@ -250,7 +243,7 @@ TRT_Predictor::crudePredictions(void)
 	    double r		= sqrt(x*x + y*y);
 	    double zPred	= zMean + cotTheta*(r - rMean);
 	    double zPos		= barrelElem->strawZPos(straw);	// this is not the active centre - bug?
-	    // double zDif = fabs(zPred) - barrelElem->getDescriptor()->strawZDead();	// dz from start of active 
+	    // double zDif = std::abs(zPred) - barrelElem->getDescriptor()->strawZDead();	// dz from start of active 
 	    double length = barrelElem->strawLength() / 2.;
 
 	    // if (zDif < -m_zWidth || zDif > barrelElem->strawLength()+m_zWidth) continue;
@@ -271,14 +264,14 @@ TRT_Predictor::crudePredictions(void)
 
 	    m_predictions.push_back(pred);
 	    
-// 	    std::cout << " radius " << r
-// 		      << "   zpred " << zPred
-// 		      << "   elem.strawZPos(centre) " << barrelElem->getDescriptor()->strawZPos()
-// 		      << "   " << barrelElem->strawZPos(straw)
-// 		      << "   elem.strawLength() " << barrelElem->getDescriptor()->strawLength()
-// 		      << "   " << barrelElem->strawLength()
-// 		      << "  dead " <<  barrelElem->getDescriptor()->strawZDead()
-// 		      << std::endl;
+	    // std::cout << " radius " << r
+	    // 	      << "   zpred " << zPred
+	    // 	      << "   elem.strawZPos(centre) " << barrelElem->getDescriptor()->strawZPos()
+	    // 	      << "   " << barrelElem->strawZPos(straw)
+	    // 	      << "   elem.strawLength() " << barrelElem->getDescriptor()->strawLength()
+	    // 	      << "   " << barrelElem->strawLength()
+	    // 	      << "  dead " <<  barrelElem->getDescriptor()->strawZDead()
+	    // 	      << std::endl;
 	}
 	else if (endcapElem)
 	{
@@ -305,10 +298,10 @@ TRT_Predictor::crudePredictions(void)
 		|| deltaR > endcapElem->getDescriptor()->strawLength() - m_rWidth) pred->boundary();
 	    m_predictions.push_back(pred);
 	    
-// 	    std::cout << " radius " << rPred
-// 		      << "   zpred " << z
-// 		      << "   centre " << centre
-// 		      << std::endl;
+	    // std::cout << " radius " << rPred
+	    // 	      << "   zpred " << z
+	    // 	      << "   centre " << centre
+	    // 	      << std::endl;
 	}
     }
 }
@@ -319,7 +312,7 @@ TRT_Predictor::finePredictions(void)
     // now discard any predictions incompatible in phi
     // otherwise compute and store electron and narrow road widths and
     // the number of intersected layers with the number of straws to be expected
-
+    
     // extrapolation starts from last silicon measurement (== roadVertex)
     double rRoadVertex	= m_intersection->position().perp();
     double phiPrev	= m_intersection->position().phi();
@@ -349,7 +342,14 @@ TRT_Predictor::finePredictions(void)
 			m_rungeKuttaIntersector->intersectSurface((**p).surface(),
 								  m_intersection,
 								  m_qOverP);
-		    if (! nextIntersection)		break;
+		    // finish if trapped
+		    if (! nextIntersection)
+		    {
+			(**p).discard();
+			while (++p != m_predictions.end()) (**p).discard();
+			break;
+		    }
+		    
 		    delete m_intersection;
 		    m_intersection	= nextIntersection;
 		    r			= m_intersection->position().perp();
@@ -381,12 +381,12 @@ TRT_Predictor::finePredictions(void)
 	    Amg::Vector3D	lastPos       	=  element.strawCenter(lastStraw);
 	    distance				=  lastAxis.dot(prediction - lastPos);
 	    lastPos				+= distance*lastAxis;
-// 	    std::cout << std::setiosflags(std::ios::fixed)
-//  		      << std::setw(9) << std::setprecision(3)
-// 		      << " prediction r,phi,z " << (**p).r() << " " << phi << " " << z
-// 		      << "   strawPos " << firstPos
-// 		      << "   centre " << element.strawCenter(firstStraw)
-// 		      << std::endl;
+	    // std::cout << std::setiosflags(std::ios::fixed)
+ 	    // 	      << std::setw(9) << std::setprecision(3)
+	    // 	      << " prediction r,phi,z " << (**p).r() << " " << phi << " " << z
+	    // 	      << "   strawPos " << firstPos
+	    // 	      << "   centre " << element.strawCenter(firstStraw)
+	    // 	      << std::endl;
 
 	    double firstPhi	= firstPos.phi();
 	    double phiRange	= lastPos.phi() - firstPhi;
@@ -412,9 +412,9 @@ TRT_Predictor::finePredictions(void)
 						    m_intersection->direction().x()*m_sinPhiStart);
 	    double widthStrawUnits	=  (predWidth + m_strawHalfWidth) / (r*pitch);
 
-// 	    std::cout << std::setiosflags(std::ios::fixed)
-//  		      << std::setw(9) << std::setprecision(3)
-// 		      << "  straw " << straw << std::endl;
+	    // std::cout << std::setiosflags(std::ios::fixed)
+ 	    // 	      << std::setw(9) << std::setprecision(3)
+	    // 	      << "  straw " << straw << std::endl;
 	    // std::cout << std::setiosflags(std::ios::fixed)
 	    // 	      << std::setw(9) << std::setprecision(1)
  	    // 	      << "  r " << r
@@ -458,7 +458,7 @@ TRT_Predictor::finePredictions(void)
 	    double phi;
 	    double r;
 	    double deltaZ	= (**p).z() - zPrev;
-	    if (fabs(deltaZ) > m_extrapolationTolerance)
+	    if (std::abs(deltaZ) > m_extrapolationTolerance)
 	    {
 		// extrapolate to plane
 		if (m_intersection)
@@ -467,7 +467,13 @@ TRT_Predictor::finePredictions(void)
 			m_rungeKuttaIntersector->intersectSurface((**p).surface(),
 								  m_intersection,
 								  m_qOverP);
-		    if (! nextIntersection)		break;
+		    // finish if trapped
+		    if (! nextIntersection)
+		    {
+			(**p).discard();
+			while (++p != m_predictions.end()) (**p).discard();
+			break;
+		    }
 		    delete m_intersection;
 		    m_intersection	= nextIntersection;
 		}
@@ -615,11 +621,11 @@ TRT_Predictor::setRegion(const TrackParameters&	parameters)
     }
 
     double eta		=  intersection->position().eta();
-    double deltaEta	=  m_etaRoadSafetyFactor + fabs(parameters.position().eta() - eta);
+    double deltaEta	=  m_etaRoadSafetyFactor + std::abs(parameters.position().eta() - eta);
     double etaMin	=  eta - deltaEta;
     double etaMax	=  eta + deltaEta;;
     double phi		=  intersection->position().phi();
-    double deltaPhi	=  fabs(parameters.position().phi() - phi);
+    double deltaPhi	=  std::abs(parameters.position().phi() - phi);
 
     /// What is going on here? If you have a very wide RoI, it is made to be the 
     /// smaller compliment? This makes no sense. And you need to check that you still 
@@ -643,7 +649,6 @@ TRT_Predictor::setRegion(const TrackParameters&	parameters)
     double phiMin	=  phi - deltaPhi;
     double phiMax	=  phi + deltaPhi;
     delete intersection;
-    
 
     /// Check the phi limits !!!! 
     while ( phiMin<-M_PI ) phiMin += 2*M_PI;
