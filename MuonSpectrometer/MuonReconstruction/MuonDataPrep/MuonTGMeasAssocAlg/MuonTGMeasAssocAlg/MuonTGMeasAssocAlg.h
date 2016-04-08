@@ -10,7 +10,7 @@
 #define MUONTGMEASASSOCALG_MUONTGMEASASSOCALG_H
 
 // Base class
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -47,7 +47,7 @@ namespace Muon{
      @author Sarka.Todorova@cern.ch
      */
  
-class MuonTGMeasAssocAlg : public Algorithm  {
+class MuonTGMeasAssocAlg : public AthAlgorithm  {
 
 public:
 
