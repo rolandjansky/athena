@@ -10,6 +10,8 @@
 
 class MsgStream;
 class TrackCollectionCnv;
+class MaterialEffectsOnTrackCnv_p2;
+class ScatteringAngleOnTrackCnv_p1;
 
 namespace Trk {
 
@@ -111,6 +113,9 @@ class MaterialEffectsOnTrack : public MaterialEffectsBase
  protected:
 
  private:
+   friend class ::MaterialEffectsOnTrackCnv_p2;
+   friend class ::ScatteringAngleOnTrackCnv_p1;
+   
    //! holds the scattering angles+errors in a separate object
    const ScatteringAngles* m_scatteringAngles;
    //! holds the measured and/or estimated energy loss in a separate object
