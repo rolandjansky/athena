@@ -7,7 +7,7 @@ ntuple, store them in a standalone ntuple for use in RooFit, and run
 different RooFit beam spot fits.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: fitman.py 654065 2015-03-13 20:50:56Z btamadio $'
+__version__ = '$Id: fitman.py 644343 2015-02-05 02:37:20Z beringer $'
 __usage__   = """%prog [options] [cmd ...]
 
 Commands are:

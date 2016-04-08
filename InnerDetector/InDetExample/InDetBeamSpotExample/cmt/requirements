@@ -24,16 +24,14 @@ apply_pattern declare_scripts files="-s=$(InDetBeamSpotExample_root)/bin \
   checkJobs.py \
   runJobs.py \
   beamSpotT0_ESDToDPD_trf.py \
-  beamSpotT0_Vertex_trf.py \
+  beamSpotT0_Vertex_tf.py \
   taskman.py \
   beamspotman.py \
   beamspotnt.py \
   pickleTool.py \
-  plotBeamSpot.py \
   plotBeamSpotMon.py \
   plotBeamSpotVert.py \
   plotBeamSpotVxVal.py \
-  aveBeamSpot.py \
   beamSpotT1_Vertex_trf.py \
   dumpLBFileMap.py \
   makeDatasetOnDiskList \
@@ -54,11 +52,9 @@ alias taskman      taskman.py
 alias beamspotman  beamspotman.py
 alias beamspotnt   beamspotnt.py
 alias pickleTool   pickleTool.py
-alias plotBeamSpot plotBeamSpot.py
 alias plotBeamSpotMon plotBeamSpotMon.py
 alias plotBeamSpotVert plotBeamSpotVert.py
 alias plotBeamSpotVxVal plotBeamSpotVxVal.py
-alias aveBeamSpot  aveBeamSpot.py
 alias dumpLBFileMap dumpLBFileMap.py
 alias plotBeamSpotCompare plotBeamSpotCompare.py
 alias dqBeamSpot  dqBeamSpot.py

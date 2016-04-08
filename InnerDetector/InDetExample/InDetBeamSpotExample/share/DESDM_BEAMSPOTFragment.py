@@ -7,7 +7,7 @@
 ## Description: Here, the output stream for the BeamSpot is defined.
 ##
 ##
-## $Id$
+## $Id $
 ##=============================================================================
 
 ## for messaging

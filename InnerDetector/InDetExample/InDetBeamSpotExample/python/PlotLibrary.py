@@ -5,7 +5,7 @@
 A library with miscellaneous beam spot related utilities and plots.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id$'
+__version__ = '$Id $'
 
 
 from math import *

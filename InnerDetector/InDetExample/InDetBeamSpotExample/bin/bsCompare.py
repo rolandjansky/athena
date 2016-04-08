@@ -11,7 +11,7 @@ __usage__   = '''%prog [options] [database1] [database2]
 
 Database can be either connection string or db file:
 
-  e.g COOLOFL_INDET/COMP200 (default)
+  e.g COOLOFL_INDET/CONDBR2 (default)
       beamspot.db/BEAMSPOT
 
 Example:
@@ -35,8 +35,8 @@ parser.add_option('-s', '--summary', dest='summary', action='store_true', defaul
 parser.add_option('', '--span', dest='span', action='store_true', default=False, help='Allows IoVs spanning run boundaries (default: False)')
 (options,args) = parser.parse_args()
 
-db1 = args[0] if len(args)==1 else 'COOLOFL_INDET/COMP200'
-db2 = args[1] if len(args)==2 else 'COOLOFL_INDET/COMP200'
+db1 = args[0] if len(args)==1 else 'COOLOFL_INDET/CONDBR2'
+db2 = args[1] if len(args)==2 else 'COOLOFL_INDET/CONDBR2'
 
 def main():
     f1 = "%s::%s" % (db1, options.folder)

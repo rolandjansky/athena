@@ -9,7 +9,7 @@ Frontier outside of CERN. For example:
 setenv FRONTIER_SERVER "(serverurl=http://squid-frontier.usatlas.bnl.gov:23128/frontieratbnl)"
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: BeamSpotData.py 654065 2015-03-13 20:50:56Z btamadio $'
+__version__ = '$Id: BeamSpotData.py 674928 2015-06-12 21:52:28Z mhance $'
 
 import time
 import copy
@@ -34,10 +34,10 @@ varDefsGen = {
     'fill':  {},
     'bcid':  {},
     'nEvents':   {},
-    'nValid':    {},
+    'nValid':    {'altfmt': '%i', 'latexheader': '$n_{\mathrm{vtx}}$'},
     'nVtxAll':   {},
     'nVtxPrim':  {},
-    'status':    {},
+    'status':    {'fmt': '%4i', 'altfmt': '%4i','latexheader' : 'Status' },
     'posX':      {'units': 'mm', 'fmt': '%10.4f', 'latexheader': '$x$ [mm]',
                   'altfmt': '%10.3f', 'altlatexheader': '\\lumposx [mm]',
                   'title': 'Beam Spot Position x', 'atit': 'Luminous centroid x [mm]', 'min': -2, 'max': 6},
@@ -89,13 +89,25 @@ varDefsGen = {
                   'title': 'Covariance of Beam Spot #sigma_{x}#rho_{xy}', 'atit': 'Covariance of #sigma_{x}#rho_{xy}', 'min': -.1, 'max': .1},
     'covSyRhoXY':{'fmt': '%10.3f',
                   'title': 'Covariance of Beam Spot #sigma_{y}#rho_{xy}', 'atit': 'Covariance of #sigma_{y}#rho_{xy}', 'min': -.1, 'max': .1},
-    'k':         {'fmt': '%10.3f',
+    'k':         {'fmt': '%10.3f', 'latexheader': 'k', 'altlatexheader': 'k',
                   'title': 'Error Scale Factor k', 'atit': 'k', 'min': 0.5, 'max': 2.0},
     'kErr':      {'fmt': '%10.3f',
                   'title': 'Uncertainty on Error Scale Factor k', 'atit': 'Uncertainty on k', 'min': 0, 'max': 0.2},
     'sigmaXY':   {'fmt': '%10.6f', 'latexheader': '$\sigma_{xy}$',
                   'title': 'Beam Spot Size #sigma_{xy}', 'atit': '#sigma_{xy}', 'min': -0.0005, 'max': 0.0005},
 }
+
+# Version for making LaTeX table of beam spot results
+varDefsTable = copy.deepcopy(varDefsGen)
+varDefsTable['posX']['altfmt'] = '%10.4f'
+varDefsTable['posY']['altfmt'] = '%10.4f'
+varDefsTable['posZ']['altfmt'] = '%10.4f'
+varDefsTable['sigmaX']['altfmt'] = '%10.1f'
+varDefsTable['sigmaY']['altfmt'] = '%10.1f'
+varDefsTable['sigmaZ']['altfmt'] = '%10.1f'
+varDefsTable['tiltX']['altfmt'] = '%10.1f'
+varDefsTable['tiltY']['altfmt'] = '%10.1f'
+varDefsTable['rhoXY']['altfmt'] = '%10.3f'
 
 # Version where default values are tailored for Run 1
 varDefsRun1 = copy.deepcopy(varDefsGen)
@@ -475,7 +487,9 @@ class BeamSpotValue:
 
     def summary(self):
         """Get one-line summary info."""
-        return '[%i, %i - %i), fill %i, BCID %i: %i events, status %i' % (self.run,self.lbStart,self.lbEnd,self.fill,self.bcid,self.nEvents,self.status)
+        return '[%i, %i - %i), fill %i, BCID %i: %i events, %i selected, status %i' % (self.run,self.lbStart,self.lbEnd,
+                                                                                       self.fill,self.bcid,
+                                                                                       self.nEvents,self.nValid,self.status)
 
     def dump(self,verbose=False):
         """Standard printout of beam spot parameters."""
@@ -810,8 +824,9 @@ class BeamSpotContainer:
             if b.lbEnd-b.lbStart > 500:
                 print 'WARNING: Cannot cache LB range %i ... %i for run %i' % (b.lbStart,b.lbEnd,r)
             else:
-                for i in range(b.lbStart,b.lbEnd):
-                    cache[r][i] = b
+                for i in range(b.lbStart,b.lbEnd+1):
+                    if b.status in self.statusList:
+                        cache[r][i] = b
         return cache
 
     def summary(self):
@@ -846,7 +861,6 @@ class BeamSpotNt(BeamSpotContainer):
     def __init__(self,fileName,update=False,fullCorrelations=False):
         BeamSpotContainer.__init__(self)
         self.treeName = 'BeamSpotNt'
-        #self.treeName = 'Beamspot/Beamspots'
         self.fileName = fileName
         self.update = update
         self.fullCorrelations = fullCorrelations
@@ -917,7 +931,7 @@ class BeamSpotFinderNt(BeamSpotContainer):
     fitResultToStatusMap = {0: 0, 1: 3, 2: 0, 3: 0}
     fitIdToStatusMap = {1: 0x38, 2: 0x40, 3: 0x10}
 
-    def __init__(self,fileName,treeName = 'Beamspot/Beamspots',fullCorrelations=True):
+    def __init__(self,fileName,treeName = 'BeamSpotNt',fullCorrelations=True):
         BeamSpotContainer.__init__(self)
         self.fileName = fileName
         self.treeName = treeName
@@ -1054,7 +1068,7 @@ class BeamSpotFinderNt(BeamSpotContainer):
 class BeamSpotCOOL(BeamSpotContainer):
     """BeamSpotContainer for beam spot information stored in COOL."""
 
-    def __init__(self, tag, database='COOLOFL_INDET/COMP200', folder='/Indet/Beampos'):
+    def __init__(self, tag, database='COOLOFL_INDET/CONDBR2', folder='/Indet/Beampos'):
         BeamSpotContainer.__init__(self)
         self.database = database
         self.tag = tag
