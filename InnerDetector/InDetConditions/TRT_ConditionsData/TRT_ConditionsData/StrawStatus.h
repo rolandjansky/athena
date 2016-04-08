@@ -14,7 +14,8 @@ namespace TRTCond
     private:
       unsigned int m_status ; //!< the status
     public:
-      enum EStatus { Undefined, Dead, Good } ; //!< the three status states
+      //enum EStatus { Undefined, Dead, Good } ; //!< the three status states
+      enum EStatus { Undefined, Dead, Good, Xenon, Argon, Krypton} ; //!< the three status states
       /** default constructor */
       StrawStatus() : m_status(Undefined) {}
       /** constructor */ 

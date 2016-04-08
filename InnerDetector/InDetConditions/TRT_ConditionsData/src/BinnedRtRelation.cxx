@@ -69,8 +69,10 @@ namespace TRTCond
   {
     size_t n(0) ;
     is >> m_tmin >> m_tmax >> n ;
-    m_values.resize(n) ;
-    for(size_t i=0; i<n; ++i) is >> m_values[i] ;
+    if(n<UINT_MAX){
+    		   m_values.resize(n) ;
+    		   for(size_t i=0; i<n; ++i) is >> m_values[i] ;
+		  }
     return is ;
   }
 

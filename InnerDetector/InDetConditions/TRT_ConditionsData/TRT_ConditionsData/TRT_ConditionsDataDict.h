@@ -22,7 +22,7 @@
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 
 
-class TRT_ConditionsDataDict_Dummy {
+struct TRT_ConditionsDataDict_Dummy {
   TRTCond::StrawT0Container x ;
   TRTCond::RtRelationContainer y ;
   TRTCond::StrawT0MultChanContainer xx ;

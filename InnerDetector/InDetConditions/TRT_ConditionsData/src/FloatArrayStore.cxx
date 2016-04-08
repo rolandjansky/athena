@@ -64,21 +64,27 @@ std::istream& operator>>(std::istream& is, FloatArrayStore& store)
   std::string tag ;
   is >> tag ;
   store = FloatArrayStore(tag) ;
+  std::vector<int> identifiers(0) ;
+  std::vector<float> data(0) ;
   int nlines ;
   is >> nlines ;
-  for(int iline = 0; iline <nlines; ++iline) {
-    int size ;
-    is >> size ;
-    std::vector<int> identifiers(size) ;
-    for(int i=0; i<size; ++i) is >> (identifiers[i]) ;
-    is >> size ;
-    std::vector<float> data(size) ;
-    for(int i=0; i<size; ++i) is >> (data[i]) ;
-    Identifier reference(identifiers.front()) ;
-    store.push_back( reference, data ) ;
-    std::vector<int>::const_iterator it = identifiers.begin() ;
-    for( ++it; it!= identifiers.end(); ++it)
-      store.share(Identifier(*it),reference) ;
-  }
+  if (nlines>=0&&nlines<=INT_MAX)
+  	for(int iline = 0; iline <nlines; ++iline) {
+    		int size ;
+    		is >> size ;
+                if (size>=0&&size<=INT_MAX){
+    			identifiers.resize(size) ;
+    			for(int i=0; i<size; ++i) is >> (identifiers[i]) ;
+			}
+    		is >> size ;
+                if (size>=0&&size<=INT_MAX){
+    			data.resize(size) ;
+    			for(int i=0; i<size; ++i) is >> (data[i]) ;
+			}
+    		Identifier reference(identifiers.front()) ;
+    		store.push_back( reference, data ) ;
+    		std::vector<int>::const_iterator it = identifiers.begin() ;
+    		for( ++it; it!= identifiers.end(); ++it) store.share(Identifier(*it),reference) ;
+  		}
   return is ;
 }
