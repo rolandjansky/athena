@@ -63,8 +63,8 @@ using HepGeom::TranslateZ3D;
 
 //Constructor
 LArGeo::HECClampConstruction::HECClampConstruction(bool front, bool posZSide)
-  : m_rail(false),
-    m_left(false),
+  : //m_rail(false),
+    //m_left(false),
     m_moduleNumber(0),
     m_moduleRouter(0),
     m_modulePhistart(0),

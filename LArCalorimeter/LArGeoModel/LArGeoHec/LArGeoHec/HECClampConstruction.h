@@ -9,8 +9,8 @@
 //
 // M. Fincke  25.Oct2007
 //
-#ifndef __HECClampConstruction_H__
-#define __HECClampConstruction_H__
+#ifndef LARGEOHEC_HECCLAMPCONSTRUCTION_H
+#define LARGEOHEC_HECCLAMPCONSTRUCTION_H
 
 #include <string>
 
@@ -31,8 +31,8 @@ namespace LArGeo
     private:
       GeoPhysVol* GetClampingBar(bool rail=false,bool left=false);
       bool     m_front;
-      bool     m_rail;
-      bool     m_left;
+      //bool     m_rail;
+      //bool     m_left;
       bool     m_posZSide;
       int      m_moduleNumber   ;
       double   m_moduleRouter   ;
@@ -42,4 +42,4 @@ namespace LArGeo
     };
   
 }
-#endif // __HECClampConstruction_H__
+#endif // LARGEOHEC_HECCLAMPCONSTRUCTION_H
