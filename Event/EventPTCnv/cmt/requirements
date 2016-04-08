@@ -7,7 +7,8 @@ use AtlasPolicy          AtlasPolicy-*
 use EventTPCnv           EventTPCnv-*           Event
 
 library EventPTCnv  *.cxx
-apply_pattern tpcnv_library
+apply_pattern installed_library
+#apply_pattern tpcnv_library
 
 private
 use AtlasReflex          AtlasReflex-*          External
