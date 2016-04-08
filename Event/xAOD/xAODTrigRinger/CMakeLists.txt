@@ -30,4 +30,3 @@ atlas_add_dictionary( xAODTrigRingerDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODCore xAODTrigCalo xAODTrigRinger
                       EXTRA_FILES Root/dict/*.cxx )
 
-
