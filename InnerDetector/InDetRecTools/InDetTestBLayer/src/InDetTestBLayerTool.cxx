@@ -702,7 +702,6 @@ namespace InDet {
 
   bool InDet::InDetTestBLayerTool::isActive(const Trk::TrackParameters* trackpar) const
   {
-    
 
     const InDetDD::SiDetectorElement* siElement =
       dynamic_cast<const InDetDD::SiDetectorElement*> (trackpar->associatedSurface().associatedDetectorElement());
@@ -713,10 +712,10 @@ namespace InDet {
      } else {
        double phitol = 2.5;
        double etatol = 5.;
-       if (trackpar) {
-         phitol = 3.* sqrt((*trackpar->covariance())(Trk::locX,Trk::locX));
-         etatol = 3.* sqrt((*trackpar->covariance())(Trk::locY,Trk::locY));
-       }
+
+       phitol = 3.* sqrt((*trackpar->covariance())(Trk::locX,Trk::locX));
+       etatol = 3.* sqrt((*trackpar->covariance())(Trk::locY,Trk::locY));
+
        InDetDD::SiIntersect siIn = siElement->inDetector(trackpar->localPosition(), phitol, etatol);
        if( siElement->nearBondGap(trackpar->localPosition(), etatol) ) { 
 	 if (msgLvl(MSG::DEBUG)) 
@@ -986,12 +985,19 @@ namespace InDet {
       double fracGood = getFracGood(trkParam, m_phiRegionSize, m_etaRegionSize);
       blayerInfo.goodFraction(fracGood);
 
-      Identifier id = trkParam->associatedSurface().associatedDetectorElement()->identify();
-      blayerInfo.moduleId(id);
+      Identifier id;
 
+      if(trkParam){
+	id = trkParam->associatedSurface().associatedDetectorElement()->identify();
+	blayerInfo.moduleId(id);
+      }
+      else{
+	ATH_MSG_WARNING("Invalid TrackParameters - could not get Identifier");
+	return false;
+      } 
+      
       const InDetDD::SiDetectorElement* sielem = dynamic_cast<const InDetDD::SiDetectorElement*>(trkParam->associatedSurface().associatedDetectorElement());
-//     const Trk::Surface *aS = trkParam->associatedSurface();
-//     const Trk::LocalPosition locPos = *(aS->globalToLocal(trkParam->position()));
+
       const Amg::Vector2D& locPos = trkParam->localPosition();
 
       if(sielem){
@@ -1026,13 +1032,9 @@ namespace InDet {
       float error_locx = -9999;
       float error_locy = -9999;
 
-      if(trkParam){
-        error_locx = sqrt((*trkParam->covariance())(Trk::locX,Trk::locX));
-        error_locy = sqrt((*trkParam->covariance())(Trk::locY,Trk::locY));
-      }
-      else{
-	ATH_MSG_DEBUG ( "could not MeasuredTrackParameters for hole  " <<   m_idHelper->show_to_string(id)  );
-      }
+      error_locx = sqrt((*trkParam->covariance())(Trk::locX,Trk::locX));
+      error_locy = sqrt((*trkParam->covariance())(Trk::locY,Trk::locY));
+     
 
       blayerInfo.errLocalX(error_locx);
       blayerInfo.errLocalY(error_locy);
@@ -1093,8 +1095,16 @@ namespace InDet {
       double fracGood = getFracGood(trkParam, m_phiRegionSize, m_etaRegionSize);
       blayerInfo.goodFraction(fracGood);
 
-      Identifier id = trkParam->associatedSurface().associatedDetectorElement()->identify();
-      blayerInfo.moduleId(id);
+      Identifier id; 
+
+      if(trkParam){
+	id = trkParam->associatedSurface().associatedDetectorElement()->identify();
+	blayerInfo.moduleId(id);
+      }
+      else{
+	ATH_MSG_WARNING("Invalid TrackParameters - could not get Identifier");
+	return false;
+      }
 
       const InDetDD::SiDetectorElement* sielem = dynamic_cast<const InDetDD::SiDetectorElement*>(trkParam->associatedSurface().associatedDetectorElement());
 //     const Trk::Surface *aS = trkParam->associatedSurface();
@@ -1133,13 +1143,9 @@ namespace InDet {
       float error_locx = -9999;
       float error_locy = -9999;
 
-      if(trkParam){
-        error_locx = sqrt((*trkParam->covariance())(Trk::locX,Trk::locX));
-        error_locy = sqrt((*trkParam->covariance())(Trk::locY,Trk::locY));
-      }
-      else{
-	ATH_MSG_DEBUG ( "could not MeasuredTrackParameters for hole  " <<   m_idHelper->show_to_string(id)  );
-      }
+      error_locx = sqrt((*trkParam->covariance())(Trk::locX,Trk::locX));
+      error_locy = sqrt((*trkParam->covariance())(Trk::locY,Trk::locY));
+	
 
       blayerInfo.errLocalX(error_locx);
       blayerInfo.errLocalY(error_locy);
@@ -1250,12 +1256,22 @@ namespace InDet {
   double InDet::InDetTestBLayerTool::getFracGood(const Trk::TrackParameters* trkParam, 
 						 double phiRegionSize, double etaRegionSize) const{
 
+    Identifier moduleid;
 
-    Identifier moduleid = trkParam->associatedSurface().associatedDetectorElement()->identify();
+    if(trkParam){ 
+      moduleid = trkParam->associatedSurface().associatedDetectorElement()->identify();
+    }
+    else {
+      ATH_MSG_WARNING (  "Invalid TrackParameters - could not get Identifier"  );
+      return 0;
+    }
+    
     IdentifierHash id_hash = m_pixelId->wafer_hash(moduleid);
 
-    if( !m_pixelCondSummarySvc->isGood(id_hash) )return 0.;
-
+    if( !m_pixelCondSummarySvc->isGood(id_hash) ){
+      ATH_MSG_WARNING (  "Invalid Hash"  );
+      return 0.;
+    }
 
     const Amg::Vector2D& locPos = trkParam->localPosition();
     double locx = locPos[Trk::locX];
@@ -1263,20 +1279,14 @@ namespace InDet {
     double error_locx = -9999;
     double error_locy = -9999;
 
-    if(trkParam){
-      error_locx = sqrt((*trkParam->covariance())(Trk::locX,Trk::locX));
-      error_locy = sqrt((*trkParam->covariance())(Trk::locY,Trk::locY));
-    }
-    else{
-      ATH_MSG_DEBUG ( "could not get MeasuredTrackParameters " );
-    }
-    
+    error_locx = sqrt((*trkParam->covariance())(Trk::locX,Trk::locX));
+    error_locy = sqrt((*trkParam->covariance())(Trk::locY,Trk::locY));
+        
     double phitol = 2.5;
     double etatol = 5.;
-    if (trkParam) {
-      phitol = phiRegionSize*error_locx; 		  
-      etatol = etaRegionSize*error_locy;
-    }
+   
+    phitol = phiRegionSize*error_locx; 		  
+    etatol = etaRegionSize*error_locy;
 
     const InDetDD::SiDetectorElement* sielem = 
       dynamic_cast<const InDetDD::SiDetectorElement*>(trkParam->associatedSurface().associatedDetectorElement());
@@ -1335,7 +1345,6 @@ namespace InDet {
       ATH_MSG_WARNING ( " SiDetectorElement not found in TrackParameters" );
       return 0;
     }
-    return 0;
 
   }
 
