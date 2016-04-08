@@ -14,6 +14,7 @@
 // Math & Geometry library
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "InDetReadoutGeometry/SiCellId.h"
 
 namespace iFatras {
 
@@ -39,12 +40,16 @@ namespace iFatras {
     /// Destructor:
     ~ISegmentation();
 
-    virtual std::pair<int, int> cellsOfPosition(const Amg::Vector2D &localPos) const = 0;
+    virtual bool cellOfPosition(const Amg::Vector2D &localPos, std::pair<int, int>& XY) const = 0;
+    virtual Amg::Vector2D localPositionOfCell(const InDetDD::SiCellId &cellId) const = 0;
 
     virtual double pitchX() const = 0;
     virtual double pitchY() const = 0;
-    virtual bool isIdValid() const = 0;
-
+    virtual double phiPitch() const = 0;
+    virtual double phiPitch(const Amg::Vector2D &) const = 0;
+    virtual double stripLength(const Amg::Vector2D &) const = 0;
+    virtual double sinStereoLocal(const Amg::Vector2D &localPos) const = 0;
+    
   };
   
   inline ISegmentation::ISegmentation() {}
