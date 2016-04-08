@@ -777,7 +777,7 @@ cerr << "done init services" << endl;
 
       TGraphErrors * calGraph = new TGraphErrors(numCalibPoints);      //calGraph will be what the gain will be found on
       char calName[20],titleSeed[500];
-      sprintf(calName, "calGraph%d",stripHash);
+      sprintf(calName, "calGraph%u",stripHash);
       sprintf(titleSeed, "Calgraph for eta %d, sector %d, layer %d%c, strip %d",stationEta,(2*stationPhi+50 - stationName),wireLayer,orientation, stripNumber);
       calGraph->SetName(calName);
       string title = m_titlePrefix + titleSeed + m_titlePostfix;

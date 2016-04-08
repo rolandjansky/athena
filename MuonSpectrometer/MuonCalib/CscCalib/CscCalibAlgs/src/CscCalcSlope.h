@@ -155,7 +155,7 @@ namespace MuonCalib{
       bool m_doLinPlot;
       
       //String command to allow interface to patched version
-      std::string cmd_parameters;
+      std::string m_cmd_parameters;
 
       //Number of bits
       unsigned int m_numBits;

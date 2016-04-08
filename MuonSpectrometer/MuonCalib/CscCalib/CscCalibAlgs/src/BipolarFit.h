@@ -38,11 +38,11 @@ class BipolarFit
   double bipolar(double*, double*);
   double FindPow(double z);
 
-  double n;
-  double powcachez;
-  double powcachezn;
-  double zmax;
-  double bipolarNormalization;
-  double tsampling;
+  double m_n;
+  double m_powcachez;
+  double m_powcachezn;
+  double m_zmax;
+  double m_bipolarNormalization;
+  double m_tsampling;
 };
 #endif

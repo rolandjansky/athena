@@ -25,8 +25,7 @@ import pickle
 
 #minimum number of calibration file in castor to start calibration
 numFilesToRun=3
-responsiblePerson = "lampen@physics.arizona.edu"
-#maillist = 'lampen@physics.arizona.edu schernau@positron.ps.uci.edu elliott@physics.arizona.edu prolay@physics.arizona.edu'
+responsiblePerson = "youzhou@email.arizona.edu"
 maillist = responsiblePerson
 
 CoolMergeByDefault = False
@@ -170,7 +169,7 @@ def runCalib(calType, runNumber,workDir,castorCopyCmd):
   #    + "--batch --noexec --comment=\'Automated UPD1 update from " + calType  \
   #    + ' run ' + runNumber +'\' ' \
   #    + calFilePrefix + '.db'   \
-  #    + ' COMP200 ATONR_COOL ATLAS_COOLONL_CSC_W WCOOLONL4CSC17 '
+  #    + ' COMP200 ATONR_COOL ATLAS_COOLONL_CSC_W PASSWORD '
   #UploadCommand += "\n"
 
 

@@ -23,12 +23,12 @@
 #include <iostream>
 BipolarFit::BipolarFit()
 {
-  n=12.;
-  powcachez = -9999.;
-  powcachezn= -9999.;
-  zmax= n+1 - sqrt(n+1.0);
-  bipolarNormalization = FindPow(zmax)*(1-zmax/(n+1))*exp(-zmax);
-  tsampling = 25.;
+  m_n=12.;
+  m_powcachez = -9999.;
+  m_powcachezn= -9999.;
+  m_zmax= m_n+1 - sqrt(m_n+1.0);
+  m_bipolarNormalization = FindPow(m_zmax)*(1-m_zmax/(m_n+1))*exp(-m_zmax);
+  m_tsampling = 25.;
 
 }
 
@@ -38,15 +38,15 @@ BipolarFit::~BipolarFit()
   double 
 BipolarFit::FindPow(double z)
 {
-  if(fabs(powcachez-z)<1.e-4)
-    return powcachezn;
+  if(fabs(m_powcachez-z)<1.e-4)
+    return m_powcachezn;
 
   double zpower = z*z*z;
   zpower *= zpower;
   zpower *= zpower; 
 
-  powcachez = z;
-  powcachezn= zpower;
+  m_powcachez = z;
+  m_powcachezn= zpower;
   return zpower;
 }
 
@@ -92,7 +92,7 @@ BipolarFit::FindInitValues(double*x,double *initValues,int *maxsample)
   }
 
   initValues[0] = amplitude;
-  initValues[1] = peakingTime - zmax*initValues[2]/tsampling;
+  initValues[1] = peakingTime - m_zmax*initValues[2]/m_tsampling;
   return x[imax];
 }
 
@@ -101,22 +101,22 @@ BipolarFit::bipolar(double *x, double *parm) // the bipolar pulse function
 {
   // the bipolar pulse function is
   //
-  // z = (x-parm[0])*tsampling/parm[3]
-  // zmax = n+1 - sqrt(n+1)
-  // aa = exp(n*log(zmax))*(1-zmax/(n+1))*exp(-zmax)
-  // parm[0]*exp(n*log(z))*(1-z/(n+1))*exp(-z)/aa
+  // z = (x-parm[0])*m_tsampling/parm[3]
+  // m_zmax = m_n+1 - sqrt(m_n+1)
+  // aa = exp(m_n*log(m_zmax))*(1-m_zmax/(m_n+1))*exp(-m_zmax)
+  // parm[0]*exp(m_n*log(z))*(1-z/(m_n+1))*exp(-z)/aa
   //
   // for timing reasons instead of x (ie # of sample) 
   // the z is given
   double z = x[0];
 
 
-  //const double tsampling = 25.;// nsec
-  //z=(x[0]-parm[1])*tsampling/(parm[2]);
+  //const double m_tsampling = 25.;// nsec
+  //z=(x[0]-parm[1])*m_tsampling/(parm[2]);
   if(z<0.)
     return 0.;
 
-  return parm[0]*FindPow(z)*(1-z/(n+1))*exp(-z)/bipolarNormalization;
+  return parm[0]*FindPow(z)*(1-z/(m_n+1))*exp(-z)/m_bipolarNormalization;
 }
 
   void 
@@ -129,22 +129,22 @@ BipolarFit::Derivative(double A[][3],double fp[][1], double p0[][1],int imeas, i
   for(int i=0;i<imeas;i++)
   {
     int ii = meas[i];
-    double z = (ii-p0[1][0])*tsampling/p0[2][0];
+    double z = (ii-p0[1][0])*m_tsampling/p0[2][0];
     double repquant = 0.;
     double dFdzNormalized = 0.;
     if(z>0.)
     {
-      repquant = FindPow(z)*exp(-z)/bipolarNormalization;
-      dFdzNormalized= repquant*(n/z+z/13.-2.);
+      repquant = FindPow(z)*exp(-z)/m_bipolarNormalization;
+      dFdzNormalized= repquant*(m_n/z+z/13.-2.);
     }
 
     A[ii][0] = repquant*(1.-z/13.);
     //A[ii][0] = bipolar(&z,parm);
     fp[ii][0] = norm * A[ii][0];
 
-    //double normOverZmax = norm/bipolarNormalization;
+    //double normOverZmax = norm/m_bipolarNormalization;
     double commonpart = norm* dFdzNormalized;//(z,parm);
-    A[ii][1] = commonpart * (-tsampling/p0[2][0]);
+    A[ii][1] = commonpart * (-m_tsampling/p0[2][0]);
     A[ii][2] = commonpart * (-z/p0[2][0]);
   }
   // end of derivative/zeroth order calculations
@@ -260,7 +260,7 @@ The function return an integer representing different exit status.
   else if(imax==3)
   {
     // don't fit too late pulses
-    if(initValues[1]+zmax*initValues[2]/tsampling>2.75)
+    if(initValues[1]+m_zmax*initValues[2]/m_tsampling>2.75)
       return 9; 
   }
   else
@@ -280,7 +280,7 @@ The function return an integer representing different exit status.
   //always fix width and fit two parameters
   bool fitpar[3] = {true,true,false};
   bool usemeas[4] = {true,true,true,true};
-  if(initValues[1]+zmax*initValues[2]/tsampling<2.0)
+  if(initValues[1]+m_zmax*initValues[2]/m_tsampling<2.0)
   {
     fitpar[2] = false;
     usemeas[3]= false;
@@ -594,7 +594,7 @@ BipolarFit::TheFitter(double*x,const double ex,double *initValues, int imeas, in
     counter++;
   }
   result[0]=p0[0][0];
-  result[1]=zmax*p0[2][0]/tsampling+p0[1][0];
+  result[1]=m_zmax*p0[2][0]/m_tsampling+p0[1][0];
   result[2]=p0[2][0];
 
   if(counter==maxIter)
