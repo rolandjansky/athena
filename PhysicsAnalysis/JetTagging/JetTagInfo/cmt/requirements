@@ -28,6 +28,5 @@ private
 use AtlasReflex                 AtlasReflex-*                External -no_auto_imports
 
 apply_pattern lcgdict dict=JetTagInfo \
-selectionfile=selection.xml \ 
-navigables=$(navigables_JetTagInfo) \
+selectionfile=selection.xml \
 headerfiles="../JetTagInfo/JetTagInfoDict.h"

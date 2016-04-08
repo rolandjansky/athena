@@ -33,7 +33,7 @@ class SVInfoPlus : public BaseTagInfo
   virtual SVInfoPlus* clone() const;
 
   /** Set methods */
-  void setRecSvx(Trk::RecVertex); 
+  void setRecSvx(const Trk::RecVertex&); 
   void setNGTrackInJet(long int);
   void setNGTrackInSvx(long int);
   void setN2T(long int);
@@ -65,7 +65,7 @@ class SVInfoPlus : public BaseTagInfo
   
 }; // End class
   
- inline void SVInfoPlus::setRecSvx(Trk::RecVertex gl) {m_recsvx   = gl;}
+ inline void SVInfoPlus::setRecSvx(const Trk::RecVertex& gl) {m_recsvx   = gl;}
  inline void SVInfoPlus::setNGTrackInJet(long int li) {m_NGTinJet = li;}
  inline void SVInfoPlus::setNGTrackInSvx(long int li) {m_NGTinSvx = li;}
  inline void SVInfoPlus::setN2T(long int li)          {m_N2Tpair  = li;}

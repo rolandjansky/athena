@@ -15,7 +15,7 @@ namespace Analysis {
   class SLTrueInfo {
     public:
       SLTrueInfo();
-      SLTrueInfo(int, int, int, bool, bool, bool, Eigen::Vector3d&, Eigen::Vector3d&);
+      SLTrueInfo(int, int, int, bool, bool, bool, const Eigen::Vector3d&, const Eigen::Vector3d&);
       virtual ~SLTrueInfo();
       inline int  barcode()         const { return m_barcode; }
       inline int  pdgId()           const { return m_pdgCode; } 
