@@ -12,6 +12,7 @@
 #include "SctSensorSD.h"
 
 // athena includes
+#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 
 // Geant4 includes
@@ -24,14 +25,11 @@
 // CLHEP transform
 #include "CLHEP/Geometry/Transform3D.h"
 
-// For make unique
-#include "CxxUtils/make_unique.h"
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 SctSensorSD::SctSensorSD( const std::string& name, const std::string& hitCollectionName )
- : G4VSensitiveDetector( name )
- , m_HitColl( hitCollectionName )
+  : G4VSensitiveDetector( name )
+  , m_HitColl( hitCollectionName )
 {
 }
 
@@ -39,7 +37,12 @@ SctSensorSD::SctSensorSD( const std::string& name, const std::string& hitCollect
 
 void SctSensorSD::Initialize(G4HCofThisEvent *)
 {
+#ifdef ATHENAHIVE
+  // Temporary fix for Hive until isValid is fixed
+  m_HitColl = CxxUtils::make_unique<SiHitCollection>();
+#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
+#endif
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -53,11 +56,10 @@ G4bool SctSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
       return false;
   }
   edep *= CLHEP::MeV;
-  //use the global time. i.e. the time from the beginning of the event
   //
   // Get the Touchable History:
   //
-  G4TouchableHistory*  myTouch = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable());
+  G4TouchableHistory *myTouch = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable());
   //
   // Get the hit coordinates. Start and End Point
   //
@@ -71,8 +73,11 @@ G4bool SctSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   const G4AffineTransform transformation = myTouch->GetHistory()->GetTopTransform();
   G4ThreeVector localPosition1 = transformation.TransformPoint(coord1);
   G4ThreeVector localPosition2 = transformation.TransformPoint(coord2);
-
+  //
+  // Get it into a vector in local coords and with the right units:
+  //
   HepGeom::Point3D<double> lP1,lP2;
+
   lP1[SiHit::xEta] = localPosition1[2]*CLHEP::mm;
   lP1[SiHit::xPhi] = localPosition1[1]*CLHEP::mm;
   lP1[SiHit::xDep] = localPosition1[0]*CLHEP::mm;
@@ -80,10 +85,6 @@ G4bool SctSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   lP2[SiHit::xEta] = localPosition2[2]*CLHEP::mm;
   lP2[SiHit::xPhi] = localPosition2[1]*CLHEP::mm;
   lP2[SiHit::xDep] = localPosition2[0]*CLHEP::mm;
-
-  //
-  // Get it into a vector in local coords and with the right units:
-
 
   // Now Navigate the history to know in what detector the step is:
   // and finally set the ID of det element in which the hit is.
@@ -97,12 +98,29 @@ G4bool SctSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   int etaMod = 0;
   int phiMod = 0;
   int side = 0;
-  //
+  this->indexMethod(myTouch, coord1.z(), brlEcap, layerDisk, etaMod, phiMod, side);
+  // get the barcode from the trackhelper
+  TrackHelper trHelp(aStep->GetTrack());
+  int barcode = trHelp.GetBarcode();
+  m_HitColl->Emplace(lP1,
+                     lP2,
+                     edep,
+                     aStep->GetPreStepPoint()->GetGlobalTime(),//use the global time. i.e. the time from the beginning of the event
+                     barcode,
+                     1,brlEcap,layerDisk,etaMod,phiMod,side);
+  return true;
+}
+
+void SctSensorSD::indexMethod(G4TouchableHistory *myTouch, double coord1z,
+                              int &brlEcap, int &layerDisk, int &etaMod, int &phiMod, int &side) {
+
+
+ //
   // In the case of the TB the positioning integers won't be initialized
   // and the identifying integer will be zero. There is no need to do
   // anything else
 
-  int sensorCopyNo =  myTouch->GetVolume()->GetCopyNo();
+  const int sensorCopyNo = myTouch->GetVolume()->GetCopyNo();
 
   if (verboseLevel>5){
     for (int i=0;i<myTouch->GetHistoryDepth();i++){
@@ -158,7 +176,7 @@ G4bool SctSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
       G4Exception("SctSensorSD", "UnrecognizedSCTGeometry2", FatalException, description);
       abort();
     }
-     if (verboseLevel>5){
+    if (verboseLevel>5){
       G4cout << "In the SCT Barrel" << G4endl;
       G4cout << "----- side       : " << side << G4endl;
       G4cout << "----- eta_module : " << etaMod << G4endl;
@@ -173,7 +191,7 @@ G4bool SctSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
     // 600 For DC3 and later (including SLHC)
     int sensorCopyNoTest =  sensorCopyNo/100;
     if(sensorCopyNoTest == 5 || sensorCopyNoTest == 6) {
-      int signZ = (coord1.z() > 0) ? 1 : -1;
+      int signZ = (coord1z > 0) ? 1 : -1;
       brlEcap = 2 * signZ;
       side      = myTouch->GetVolume(0)->GetCopyNo() % 2;
       if (sensorCopyNoTest == 5) { // DC2 and Rome
@@ -196,12 +214,12 @@ G4bool SctSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
 
       // Some printout
       if (verboseLevel>5){
-      G4cout << "In the SCT EndCap" << G4endl;
-      G4cout << "----- side       : " << side << G4endl;
-      G4cout << "----- phi_module : " << phiMod<< G4endl;
-      G4cout << "----- eta_module : " << etaMod << G4endl;
-      G4cout << "----- layerDisk  : " << layerDisk << G4endl;
-      G4cout << "----- barrel_ec  : " << brlEcap << G4endl;
+        G4cout << "In the SCT EndCap" << G4endl;
+        G4cout << "----- side       : " << side << G4endl;
+        G4cout << "----- phi_module : " << phiMod<< G4endl;
+        G4cout << "----- eta_module : " << etaMod << G4endl;
+        G4cout << "----- layerDisk  : " << layerDisk << G4endl;
+        G4cout << "----- barrel_ec  : " << brlEcap << G4endl;
       }
     } else {
       // Do not expect other numbers. Need to fix SCT_GeoModel or SCT_SLHC_GeoModel if this occurs.
@@ -211,15 +229,5 @@ G4bool SctSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
       abort();
     }
   }
-
-  // get the barcode from the trackhelper
-  TrackHelper trHelp(aStep->GetTrack());
-  int barcode = trHelp.GetBarcode();
-  m_HitColl->Emplace(lP1,
-                     lP2,
-                     edep,
-                     aStep->GetPreStepPoint()->GetGlobalTime(),
-                     barcode,
-                     1,brlEcap,layerDisk,etaMod,phiMod,side);
-  return true;
+  return;
 }
