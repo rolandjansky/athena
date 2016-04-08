@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H 
-#define MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H  
-/** @class sTgcDigitizationTool 
+#ifndef MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H
+#define MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H
+/** @class sTgcDigitizationTool
 
     @section sTGC_DigitizerDetails Class methods and properties
 
@@ -16,30 +16,31 @@
 
 */
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
+#include "PileUpTools/PileUpToolBase.h"
 
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "HitManagement/TimedHitCollection.h"
+#include "Identifier/Identifier.h"
 #include "MuonSimEvent/GenericMuonSimHitCollection.h"
 #include "MuonSimEvent/GenericMuonSimHit.h"
-#include "PileUpTools/PileUpToolBase.h"
-#include "Identifier/Identifier.h"
- 
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
+
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 
-#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
-  
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include <string>
 #include <sstream>
 #include <vector>
 #include <map>
 
-/*******************************************************************************/ 
+/*******************************************************************************/
 namespace MuonGM{
   class MuonDetectorManager;
   class sTgcReadoutElement;
@@ -65,7 +66,7 @@ class TH2F;
 class TH1F;
 
 class MuonSimDataCollection;
-/*******************************************************************************/  
+/*******************************************************************************/
 class sTgcDigitizationTool : virtual public IMuonDigitizationTool, public PileUpToolBase {
 
 public:
@@ -74,25 +75,25 @@ public:
   /** Initialize */
   virtual StatusCode initialize();
 
-  // /** When being run from PileUpToolsAlgs, this method is called at the start of 
+  // /** When being run from PileUpToolsAlgs, this method is called at the start of
   //       the subevts loop. Not able to access SubEvents */
   StatusCode prepareEvent(const unsigned int /*nInputEvents*/);
-  // 
-  //   /** When being run from PileUpToolsAlgs, this method is called for each active 
+  //
+  //   /** When being run from PileUpToolsAlgs, this method is called for each active
   //       bunch-crossing to process current SubEvents bunchXing is in ns */
   StatusCode  processBunchXing(int bunchXing,
- 			       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
- 			       PileUpEventInfo::SubEvent::const_iterator eSubEvents); 
- 
-  //   /** When being run from PileUpToolsAlgs, this method is called at the end of 
+                               SubEventIterator bSubEvents,
+                               SubEventIterator eSubEvents);
+
+  //   /** When being run from PileUpToolsAlgs, this method is called at the end of
   //       the subevts loop. Not (necessarily) able to access SubEvents */
   StatusCode mergeEvent();
-  /** alternative interface which uses the PileUpMergeSvc to obtain 
-      all the required SubEvents. */ 
-  virtual StatusCode processAllSubEvents(); 
- 		 
-  /** Just calls processAllSubEvents - leaving for back-compatibility 
-      (IMuonDigitizationTool) */ 
+  /** alternative interface which uses the PileUpMergeSvc to obtain
+      all the required SubEvents. */
+  virtual StatusCode processAllSubEvents();
+
+  /** Just calls processAllSubEvents - leaving for back-compatibility
+      (IMuonDigitizationTool) */
 
   /**
      reads GEANT4 hits from StoreGate in each of detector
@@ -103,14 +104,14 @@ public:
      every readout element, i.e., a sensitive volume of a
      chamber. (IMuonDigitizationTool)
   */
-  StatusCode digitize(); 
-    
+  StatusCode digitize();
+
   /** Finalize */
   StatusCode finalize();
 
   /** accessors */
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
-  CLHEP::HepRandomEngine *getRndmEngine() const { return m_rndmEngine; } // Random number engine used 
+  CLHEP::HepRandomEngine *getRndmEngine() const { return m_rndmEngine; } // Random number engine used
 
 private:
   /** Get next event and extract collection of hit collections */
@@ -119,15 +120,15 @@ private:
   StatusCode recordDigitAndSdoContainers();
   /** Core part of digitization use by mergeEvent (IPileUpTool) and digitize (IMuonDigitizationTool) */
   StatusCode doDigitization();
- 
-protected:  
+
+protected:
   PileUpMergeSvc *m_mergeSvc; // Pile up service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;      // Random number service
-  std::string m_rndmEngineName;// name of random engine 
- 
+  std::string m_rndmEngineName;// name of random engine
+
 private:
-  ServiceHandle<StoreGateSvc>              m_sgSvc; 
+  ServiceHandle<StoreGateSvc>              m_sgSvc;
   ActiveStoreSvc*                          m_activeStore;
   sTgcHitIdHelper*                         m_hitIdHelper;
   sTgcDigitContainer*                      m_digitContainer;
@@ -141,14 +142,14 @@ private:
   std::string m_inputHitCollectionName; // name of the input objects
   std::string m_outputDigitCollectionName; // name of the output digits
   std::string m_outputSDO_CollectionName; // name of the output SDOs
- 
+
   bool m_doToFCorrection;
   int m_doChannelTypes;
   //double m_noiseFactor;
-  float m_readoutThreshold; 
-  float m_neighborOnThreshold; 
+  float m_readoutThreshold;
+  float m_neighborOnThreshold;
   float m_saturation;
-  float m_ADC;
+  //float m_ADC;
   float m_deadtimeStrip;
   float m_deadtimePad;
   float m_timeWindowOffsetPad;
@@ -159,7 +160,7 @@ private:
   float m_timeJitterElectronicsStrip;
   float m_timeJitterElectronicsPad;
 
-  uint16_t bcTagging(const float digittime, const int channelType) const; 
+  uint16_t bcTagging(const float digittime, const int channelType) const;
 
   //TFile *m_file;
   //TH2F *m_SimHitOrg, *m_SimHitMerged, *m_SimHitDigitized, *m_SimHitDigitizedwPad, *m_SimHitDigitizedwoPad;
