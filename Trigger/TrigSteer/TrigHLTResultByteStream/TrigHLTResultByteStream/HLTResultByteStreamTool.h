@@ -77,7 +77,7 @@ namespace HLT {
     FullEventAssembler<HLTSrcIdMap>* eventAssembler(std::string objName); //!< helper method
 
   private:
-    static std::string s_l2ResultName, s_efResultName, s_hltResultName; //!< LVL2 and EF StoreGate keys
+    static std::string s_l2ResultName, s_efResultName, s_hltResultName, s_dataScoutingResultName; //!< LVL2 and EF StoreGate keys
     static eformat::SubDetector s_idL2, s_idEF; //!< eformat TDAQ "subdetector"
 
     FullEventAssembler<HLTSrcIdMap> m_feaL2, m_feaEF; //!< helper for reading
