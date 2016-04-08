@@ -31,17 +31,10 @@
 #ifndef INDETSIMDATA_InDetSimData_H
 # define INDETSIMDATA_InDetSimData_H
 
-//<<<<<< INCLUDES  >>>>>>
 //#include "InDetSimData/PixelSimHelper.h"
 #include <utility>
 #include <vector>
 #include "GeneratorObjects/HepMcParticleLink.h"
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class PixelSimHelper;
 
@@ -56,8 +49,10 @@ public:
     // energy (charge) which its hits contribute to the current RDO.
     InDetSimData();
     InDetSimData (const std::vector< Deposit >& deposits, int simDataWord = 0);
+    InDetSimData (std::vector< Deposit >&& deposits, int simDataWord = 0);
     InDetSimData (const InDetSimData& other);
     InDetSimData &operator=(const InDetSimData& other);
+    InDetSimData &operator=(InDetSimData&& other);
     virtual ~InDetSimData();
     int word() const;                           // Get the packed simdata word
     void deposits(std::vector<Deposit>& deposits) const; // Get the Deposits
@@ -69,9 +64,6 @@ private:
     //    Deposit* m_p_deposits; but use vector meantime, needs more work
     std::vector<Deposit> m_deposits;
 };
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 inline int InDetSimData::word() const
 {

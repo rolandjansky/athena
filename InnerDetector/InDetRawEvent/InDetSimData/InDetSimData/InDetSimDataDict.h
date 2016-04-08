@@ -9,7 +9,7 @@
 
 namespace AthenaPoolTestDataDict 
 {
-    std::pair< HepMcParticleLink , float> m_pair;
+    std::pair< HepMcParticleLink , float> d_pair;
 }
 
  
