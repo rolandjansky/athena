@@ -157,6 +157,8 @@ public:
   // Constructor
   RecSeg() : irsg(-1), ichm(-1), chsq(9999.) {
     m_weight[0] = 0.0;
+    for ( int i=0; i<dim; ++i ) vec[i] = 0.0;
+    for ( int i=0; i<errdim; ++i ) err[i] = 0.0;
   }
   // Return inverse of error matrix
   const double* weight() const {

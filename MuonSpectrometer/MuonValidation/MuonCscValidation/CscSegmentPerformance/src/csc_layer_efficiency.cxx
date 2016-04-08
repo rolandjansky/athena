@@ -52,14 +52,14 @@ namespace {
   };
   ///////////////////////
   // Global Variabls
-  //  double m_kFactor=20000;
-  //  double m_T0=0;
-  //  NoiseOption m_noiseOption=Sigma;
+  //  double kFactor=20000;
+  //  double T0=0;
+  //  NoiseOption noiseOption=Sigma;
   const int maxchamber = 32;
   
-  double m_f001[maxchamber][4][2][192]; // 32 sector 4 layer 0/1 192 channel
-  double m_rms[maxchamber][4][2][192]; // 32 sector 4 layer 0/1 192 channel
-  double m_sigma[maxchamber][4][2][192]; // 32 sector 4 layer 0/1 192 channel
+  double f001[maxchamber][4][2][192]; // 32 sector 4 layer 0/1 192 channel
+  double rms[maxchamber][4][2][192]; // 32 sector 4 layer 0/1 192 channel
+  double sigma[maxchamber][4][2][192]; // 32 sector 4 layer 0/1 192 channel
   
 
   int getSectorIdx(int isector); 
@@ -300,13 +300,13 @@ int main(int narg, char* argv[]) {
     unsigned int imeas   =calib.measphi;
     
     for (int ist=0; ist<calib.nchan; ++ist) {
-      m_f001[isector][ilay][imeas][ist] = calib.f001[ist];
-      m_rms[isector][ilay][imeas][ist]  = calib.rms[ist];
-      m_sigma[isector][ilay][imeas][ist] = calib.sigma[ist];
+      f001[isector][ilay][imeas][ist] = calib.f001[ist];
+      rms[isector][ilay][imeas][ist]  = calib.rms[ist];
+      sigma[isector][ilay][imeas][ist] = calib.sigma[ist];
 
-      hf001[isector][ilay][imeas] ->Fill(m_f001[isector][ilay][imeas][ist]);
-      hrms[isector][ilay][imeas]  ->Fill(m_rms[isector][ilay][imeas][ist]);
-      hsigma[isector][ilay][imeas]->Fill(m_sigma[isector][ilay][imeas][ist]);
+      hf001[isector][ilay][imeas] ->Fill(f001[isector][ilay][imeas][ist]);
+      hrms[isector][ilay][imeas]  ->Fill(rms[isector][ilay][imeas][ist]);
+      hsigma[isector][ilay][imeas]->Fill(sigma[isector][ilay][imeas][ist]);
     }
   }
 
@@ -706,11 +706,11 @@ namespace{
                    unsigned int isector, unsigned int ilay,
                    unsigned int imeas,   unsigned int ist) { // 0  
     if (opt == RMS) {
-      return m_rms[isector][ilay][imeas][ist];
+      return rms[isector][ilay][imeas][ist];
     } else if (opt == Sigma) {
-      return m_sigma[isector][ilay][imeas][ist];
+      return sigma[isector][ilay][imeas][ist];
     } else if (opt == F001) {
-      return m_f001[isector][ilay][imeas][ist];
+      return f001[isector][ilay][imeas][ist];
     } else {
       cout << "NoiseOption is not set up!!!!!!! << endl";
       return 3.5;
