@@ -5,35 +5,25 @@ author Jacob Groth-Jensen <Jacob.Groth-Jensen@cern.ch>
 
 public
 
-use AtlasCLHEP		  AtlasCLHEP-*		  External
 use AtlasPolicy           AtlasPolicy-*
-use FadsSensitiveDetector FadsSensitiveDetector-* Simulation/G4Sim/FADS
-use Geant4                Geant4-*                External
-use HitManagement         HitManagement-*         Simulation
-use LUCID_SimEvent        LUCID_SimEvent-*        ForwardDetectors/LUCID/LUCID_SimUtils
-use SimHelpers            SimHelpers-*            Simulation/G4Sim
+use GaudiInterface        GaudiInterface-*        External
 
 private
-
-use AthenaBaseComps       AthenaBaseComps-*       Control
+use AtlasCLHEP            AtlasCLHEP-*            External
+use AtlasDoxygen          AtlasDoxygen-*          Tools
+use CxxUtils              CxxUtils-*              Control
+use Geant4                Geant4-*                External
+use G4AtlasTools          G4AtlasTools-*          Simulation/G4Atlas
+use HitManagement         HitManagement-*         Simulation
 use LUCID_GeoModel        LUCID_GeoModel-*        ForwardDetectors/LUCID
+use LUCID_SimEvent        LUCID_SimEvent-*        ForwardDetectors/LUCID/LUCID_SimUtils
 use StoreGate             StoreGate-*             Control
 
 end_private
 
-include_dirs "$(LUCID_G4_SD_root)/LUCID_G4_SD"
-include_dirs "$(LUCID_GeoModel_root)/LUCID_GeoModel"
-include_dirs "$(LUCID_SimEvent_root)/LUCID_SimEvent"
+apply_pattern declare_python_modules files="*.py"
 
-library LUCID_G4_SD *.cxx
+# define link options
+library LUCID_G4_SD *.cxx -s=components *.cxx
+apply_pattern component_library
 
-apply_pattern linked_library
-
-#private
-#
-#macro_remove cppflags "-O3 "
-#macro_remove cppflags "-O "
-#macro_remove cppflags "-Wall "
-#
-#macro_remove CLHEP_pp_cppflags "-DCLHEP_SQR_DEFINED "
-#macro_remove CLHEP_pp_cppflags "-DCLHEP_MAX_MIN_DEFINED "
