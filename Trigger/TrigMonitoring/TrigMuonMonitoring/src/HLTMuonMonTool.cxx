@@ -74,6 +74,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   declareProperty("monitoring_muonIso", m_chainsEFiso);
   declareProperty("monitoring_MSonly", m_chainsMSonly);
   declareProperty("monitoring_muonEFFS", m_chainsEFFS);
+  declareProperty("HI_pp_mode", m_HI_pp_mode);
   
   //construction of muFast parameters
 
@@ -736,6 +737,7 @@ StatusCode HLTMuonMonTool::fill()
     ATH_MSG_VERBOSE("fillCommon failed");
   }
   hist("Common_Counter", m_histdir )->Fill((float)EVENT);
+  if(m_HI_pp_mode)hist("HI_PP_Flag", m_histdir)->Fill(1);
   
   // chain
   StatusCode scChain;

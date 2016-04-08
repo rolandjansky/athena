@@ -78,7 +78,6 @@
 #include "TH1F.h"
 #include "TH2I.h"
 #include "TH2F.h"
-#include "TGraphAsymmErrors.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -112,6 +111,7 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
 
     ATH_MSG_INFO("start booking Common histograms for newRun");
   
+    addHistogram( new TH1F("HI_PP_Flag", "HI_PP_Flag",4,0,4), m_histdir); 
     addHistogram( new TH1F("Common_Counter",           "Event Counter",  30, 0., 30.), m_histdir );
     hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(EVENT+1,"Event");
     hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFAST+1,"muFast");
@@ -405,14 +405,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
       addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
       hist(name, m_histdireff)->Sumw2();
       
-      // added for base release <- uncommented by YY 12.04.10
-      TGraphAsymmErrors* g = new TGraphAsymmErrors();
-      g->SetName( (name + "_Fit").c_str() );
-      g->SetMarkerStyle(22);
-      g->SetMaximum(1.05);
-      addGraph( g, m_histdireff );
-      // YY end
-
       for (int be = 0; be < 2; be++) {
 	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
@@ -429,13 +421,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	hist(name, m_histdireff)->Sumw2();
 	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, m_histdireff );
-	// YY end
       }
     }
 
@@ -503,27 +488,10 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	hist(name, m_histdireff)->Sumw2();
 	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, m_histdireff );
-	// YY end
-	
 	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
 	nameaxis = name + "; Muid SA pT (GeV); Efficiency";
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	hist(name, m_histdireff)->Sumw2();
-	
-	// added for base release <- uncommented by YY 12.04.10
-	g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, m_histdireff );
-	// YY end
-	
       }
       
       chainName = cName;
@@ -547,14 +515,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	nameaxis = name + "; Muid SA pT (GeV); Efficiency";
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	hist(name, m_histdireff)->Sumw2();
-	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, m_histdireff );
-	// YY end
       }
       
 
@@ -564,14 +524,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	nameaxis = name + "; Muid SA pT (GeV); Efficiency";
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	hist(name, m_histdireff)->Sumw2();
-
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, m_histdireff );
-	// YY end
       }
       
       // Barrel/endcap (YY 27.05.10) - Monitoring MuFast, MuonEFSA wrt upstream / offline
@@ -601,12 +553,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	    hist(name, m_histdireff)->Sumw2();
 
-	    TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	    g->SetName( (name + "_Fit").c_str() );
-	    g->SetMarkerStyle(22);
-	    g->SetMaximum(1.05);
-	    addGraph( g, m_histdireff );
-      
 	    name     = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	    nameaxis = name + "; Muid SA pT (GeV); Events";
 	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
@@ -616,13 +562,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	    nameaxis = name + "; Muid SA pT (GeV); Efficiency";
 	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	    hist(name, m_histdireff)->Sumw2();
-
-	    g = new TGraphAsymmErrors();
-	    g->SetName( (name + "_Fit").c_str() );
-	    g->SetMarkerStyle(22);
-	    g->SetMaximum(1.05);
-	    addGraph( g, m_histdireff );
-
 	  }
 	}
       }
@@ -746,12 +685,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
         hist(name, m_histdireff)->Sumw2();
 
-        TGraphAsymmErrors* g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, m_histdireff );
-
 	// require one muon match with the pre_trigger ROI,  mu  <= 15
         name = chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
@@ -767,12 +700,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
         hist(name, m_histdireff)->Sumw2();
-
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, m_histdireff );
 
 	// require one muon match with the pre_trigger ROI,  15 < mu  < 20 
         name = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
@@ -790,12 +717,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
         hist(name, m_histdireff)->Sumw2();
 
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, m_histdireff );
-
 	// require one muon match with the pre_trigger ROI,  20 < mu  
         name = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
@@ -811,12 +732,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
         hist(name, m_histdireff)->Sumw2();
-
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, m_histdireff );
 
         // FS trigger efficiency summary for different mu range 
         name = chainName + "_EFplateau_wrtOffline_mu_dependence";
@@ -843,12 +758,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
          nameaxis = name + "; Muid CB pT (GeV); Efficiency";
          addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
          hist(name, m_histdireff)->Sumw2();
-
-	 g = new TGraphAsymmErrors();
-	 g->SetName( (name + "_Fit").c_str() );
-	 g->SetMarkerStyle(22);
-	 g->SetMaximum(1.05);
-	 addGraph( g, m_histdireff );
 
        }
 
@@ -877,12 +786,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
         hist(name, m_histdireff)->Sumw2();
 
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, m_histdireff );
-
 	// pseudo T&P method to check the pre trigger efficiency 
         name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
@@ -898,12 +801,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff);
         hist(name, m_histdireff)->Sumw2();
-
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, m_histdireff );
 
 	// pseudo T&P method to check the pre trigger efficiency w.r.t L1
         name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Denominator";
@@ -921,27 +818,13 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff);
         hist(name, m_histdireff)->Sumw2();
 
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, m_histdireff );
-
         // pseudo T&P method to check the pre trigger L1 efficiency w.r.t offline 
         name = "EFFSpre_dimuonTP_L1_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff);
         hist(name, m_histdireff)->Sumw2();
 
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, m_histdireff );
-
-
         return StatusCode::SUCCESS;
-
     }
         //*****************************************//
 
@@ -1043,14 +926,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
       hist(name, m_histdireff)->Sumw2();
       
-      // added for base release <- uncommented by YY 12.04.10
-      TGraphAsymmErrors* g = new TGraphAsymmErrors();
-      g->SetName( (name + "_Fit").c_str() );
-      g->SetMarkerStyle(22);
-      g->SetMaximum(1.05);
-      addGraph( g, m_histdireff );
-      // YY end
-
       for (int be = 0; be < 2; be++) {
 	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
@@ -1067,13 +942,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	hist(name, m_histdireff)->Sumw2();
 	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, m_histdireff );
-	// YY end
       }
     }
     
@@ -1165,28 +1033,12 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	hist(name, m_histdireff)->Sumw2();
 	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, m_histdireff );
-	// YY end
-
 	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
 	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	hist(name, m_histdireff)->Sumw2();
 	
-	// added for base release <- uncommented by YY 12.04.10
-	g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, m_histdireff );
-	// YY end
       }
-
 
       // Reset necessary inside the loop ....
       chainName = cName;
@@ -1214,13 +1066,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	hist(name, m_histdireff)->Sumw2();
 
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors *g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, m_histdireff );
-	// YY end
       }
 
 
@@ -1231,13 +1076,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	hist(name, m_histdireff)->Sumw2();
 	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors *g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, m_histdireff );
-	// YY end
       }
       
 
@@ -1279,12 +1117,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	  hist(name, m_histdireff)->Sumw2();
 
-	  TGraphAsymmErrors *g = new TGraphAsymmErrors();
-	  g->SetName( (name + "_Fit").c_str() );
-	  g->SetMarkerStyle(22);
-	  g->SetMaximum(1.05);
-	  addGraph( g, m_histdireff );
-	  
 	  name     = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  nameaxis = name + "; Muid CB pT (GeV); Events";
 	  addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
@@ -1295,11 +1127,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
 	  hist(name, m_histdireff)->Sumw2();
 	  
-	  g = new TGraphAsymmErrors();
-	  g->SetName( (name + "_Fit").c_str() );
-	  g->SetMarkerStyle(22);
-	  g->SetMaximum(1.05);
-	  addGraph( g, m_histdireff );
 	}
       }
 
@@ -3388,7 +3215,7 @@ StatusCode HLTMuonMonTool::procChainDQA()
       std::string name1     = "Number_Of_"+ it->second + "_Passed_Events" ;
       std::string name2     = it->second + "_Triggers_Per_Event" ;
      
-      hist( name2, m_histdirrateratio ) -> Divide ( hist(name1, m_histdirrate), hist("Number_Of_Events", m_histdirrate));
+      //hist( name2, m_histdirrateratio ) -> Divide ( hist(name1, m_histdirrate), hist("Number_Of_Events", m_histdirrate));
       
     }
   }
@@ -3416,10 +3243,8 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
       denom = chainName + "_Turn_On_Curve_wrt_MuidSA_Denominator";
       numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidSA";
-      hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
+      //hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
       // Uncommented by YY 12.04.10
-
-      if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0) dynamic_cast<TGraphAsymmErrors*>(graph(effi + "_Fit", m_histdireff )) ->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 
       if (true) { // all
 	double sumeff, sumerr;
@@ -3452,9 +3277,6 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
       denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
       numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-      // Uncommented by YY 12.04.10
-      if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0) dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 
       //  for ES ------------------------------------------------------------------------------------
       for (int i = 0; i <= m_maxESbr; i++) {
@@ -3466,25 +3288,17 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
 	  denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
 	  numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
 	  effi  = chainName + m_triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidSA";
-	  hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 	  // Need to implement barrel and endcap ...
 	  for (int be = 0; be < 2; be++) {
 	    denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
 	    numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 	    effi  = chainName + m_triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
-	    hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-	    if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 	  }
 	}
 
 	denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
 	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
 	effi  = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidSA";
-	hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 
 	// MSonly summary: viewed only by EStag sample
 	if (ESTAG == i || ESINDEP == i) {
@@ -3516,10 +3330,6 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
 	denom = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
 	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
 	effi = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-	hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
       }
       //  for ES : END ------------------------------------------------------------------------------
 
@@ -3529,21 +3339,15 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
 	  denom = chainName + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
 	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi  = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
-	  hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
+	  //hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
       
 	  // Uncommented by YY 12.04.10
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
-
 
 	  denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
 	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
-	  hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
+	  //hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
       
-	  // Uncommented by YY 12.04.10
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
-
-
 	}
       } 
       
@@ -3588,10 +3392,6 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
         effi =  chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB";
 
-        hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
-
 	for (int be =0; be<2; be++){
 
           denom = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + bestr[be] + "_Denominator";
@@ -3600,9 +3400,6 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
           effi =  chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + bestr[be];
 
-          hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) ); 
             double sumd, sumn, sumeff, sumerr;
             sumn = hist(numer, m_histdireffnumdenom)->Integral(iSTDL, iSTDH);
             sumd = hist(denom, m_histdireffnumdenom)->Integral(iSTDL, iSTDH);
@@ -3628,29 +3425,17 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
         effi =  chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB";
 
-        hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
-
         denom = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
 
         numer = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
 
         effi =  chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB";
 
-        hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
-
         denom = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
 
         numer = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
 
         effi =  chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB";
-
-        hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 
 	std::string mu_range_names[3] = {"_mu0_15", "_mu15_20","_mu20"};
 
@@ -3662,9 +3447,6 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
           effi =  chainName + "_tagEFFSpre" + mu_range_names[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB" ;
 
-          hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) ); 
             double sumd, sumn, sumeff, sumerr;
             sumn = hist(numer, m_histdireffnumdenom)->Integral(iSTDL, iSTDH);
             sumd = hist(denom, m_histdireffnumdenom)->Integral(iSTDL, iSTDH);
@@ -3689,19 +3471,11 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
         effi =  chainName + "_Turn_On_Curve_wrt_subleading_MuidCB";
 
-        hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
-
         denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Denominator";
 
         numer = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Numerator";
 
         effi =  "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB";
-
-        hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 
         denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Denominator";
 
@@ -3709,21 +3483,11 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
         effi =  "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB";
 
-        hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
-
         denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Denominator";
 
         numer = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Denominator";
 
         effi =  "EFFSpre_dimuonTP_L1_Turn_On_Curve_wrt_probe_MuidCB";
-
-        hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
- 
-        if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom));     
-
-
 
 
     }
@@ -3754,38 +3518,18 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
       denom = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
       numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-      hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) !=0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
-
 
       denom = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
       numer = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi  = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-      hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
-      
-      // Summary all - removed
       
       denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
       numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
-
 
       denom = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
       numer = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 
       //  for ES ------------------------------------------------------------------------------------
       for (int i = 0; i <= m_maxESbr; i++) {
@@ -3797,15 +3541,11 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	  denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
 	  numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
 	  effi  = chainName + m_triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidCB";
-	  hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 	  // Need to implement barrel and endcap ...
 	  for (int be = 0; be < 2; be++) {
 	    denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
 	    numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 	    effi  = chainName + m_triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	    hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-	    if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 
 	    if (ESINDEP == i) {
 	      // integrating over and fill in a summary histogram
@@ -3831,10 +3571,6 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
 	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
 	effi  = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 
 	// Summary ESid and ESindep
 	if (0 == alg || 1 == alg || 2 == alg) {
@@ -3867,10 +3603,6 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	denom = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
 	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
 	effi = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-	hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom));
 
       }
       //  for ES : END ------------------------------------------------------------------------------
@@ -3881,10 +3613,7 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	  denom = chainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
 	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi  = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	  hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
       
-	  // Uncommented by YY 12.04.10
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 	}
 
 
@@ -3892,30 +3621,18 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	  denom = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
 	  numer = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi  = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	  hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 	}
 
 	for (int be = 0; be < 2; be++) {
 	  denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
 	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
-	  hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 	}
 
 	for (int be = 0; be < 2; be++) {
 	  denom = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
 	  numer = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
-	  hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) ) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", m_histdireff ) )->BayesDivide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom) );
 	}
 
       }
