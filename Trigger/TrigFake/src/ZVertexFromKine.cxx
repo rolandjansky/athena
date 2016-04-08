@@ -18,8 +18,6 @@ Modified :
                                
 ********************************************************************/                               
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"

@@ -23,14 +23,10 @@ Modified :
 #include <vector>
 #include <utility>
 // INCLUDE GAUDI HEADER FILES:
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ISvcLocator.h"
 
-
 # include "CLHEP/Units/SystemOfUnits.h"
-/* Storegate stuff */
-#include "StoreGate/StoreGateSvc.h"
 
 //#include "HepMC/IO_PDG_ParticleDataTable.h"
 //#include "HepMC/ParticleDataTable.h"
@@ -72,10 +68,7 @@ using namespace LVL1;
 FakeLvl1RoIfromKine::FakeLvl1RoIfromKine(const std::string& name, const std::string& type,
 						   const IInterface* parent)
   : HLT::LvlConverter(name, type, parent),
-    m_log(0),
     m_roiId(0),
-    m_StoreGate(0),
-    m_DetectorStore(0),
     m_mcEventCollectionName("")
 {
 
@@ -124,15 +117,6 @@ FakeLvl1RoIfromKine::~FakeLvl1RoIfromKine()
 
 HLT::ErrorCode FakeLvl1RoIfromKine::hltInitialize()
 {
-  m_log = new MsgStream ( msgSvc(), name() );
-
-  StatusCode sc = service("StoreGateSvc", m_StoreGate);
-  if (sc.isFailure())  {
-    (*m_log) << MSG::ERROR
-          << "Unable to get pointer to StoreGate Service" << endreq;
-    return HLT::BAD_ALGO_CONFIG;
-  }
-
   //  if ( m_particleDataTable.empty() ) {
   //(*m_log) << MSG::WARNING << "FakeLvl1RoIfromKine failed to read particleDataTable" << endreq;
   //return StatusCode::FAILURE;
@@ -141,47 +125,45 @@ HLT::ErrorCode FakeLvl1RoIfromKine::hltInitialize()
   if (! m_emTauRoiParticles.empty()) {
     std::vector<int>::iterator emParticle=m_emTauRoiParticles.begin();
     std::vector<int>::iterator lastEmParticle=m_emTauRoiParticles.end();
-    (*m_log) << MSG::INFO << " Forming fake EMROI (" << m_emRoiLabel << ") from the following kine particle IDs : ";
+    msg(MSG::INFO) << " Forming fake EMROI (" << m_emRoiLabel << ") from the following kine particle IDs : ";
     for ( ; emParticle != lastEmParticle ; emParticle++ ) {
-      (*m_log) << MSG::INFO << *emParticle << " " ;
+      msg() << *emParticle << " " ;
     }
-    (*m_log) << endreq;
-    (*m_log) << MSG::INFO << " with ET > " << m_emTauRoiPtMin <<
-      " and |eta| < " << m_emTauRoiEtaMax << endreq;
+    msg() << endreq;
+    ATH_MSG_INFO(" with ET > " << m_emTauRoiPtMin <<
+                 " and |eta| < " << m_emTauRoiEtaMax);
   } else {
-    (*m_log) << MSG::INFO << " Not forming fake EMROI (" << m_emRoiLabel << ")" << endreq;
+    ATH_MSG_INFO(" Not forming fake EMROI (" << m_emRoiLabel << ")");
   }
 
   if ( ! m_muonRoiParticles.empty()) {
     std::vector<int>::iterator muParticle=m_muonRoiParticles.begin();
     std::vector<int>::iterator lastMuParticle=m_muonRoiParticles.end();
-    (*m_log) << MSG::INFO << " Forming fake MUONROI (" << m_muonRoiLabel << ") from the following kine particle IDs : ";
+    msg(MSG::INFO) << " Forming fake MUONROI (" << m_muonRoiLabel << ") from the following kine particle IDs : ";
     for ( ; muParticle != lastMuParticle ; muParticle++ ) {
-      (*m_log) << MSG::INFO << *muParticle << " " ;
+      msg() << *muParticle << " " ;
     }
-    (*m_log) << endreq;
-    (*m_log) << MSG::INFO << " with pT > " << m_muonRoiPtMin <<
-      " and |eta| < " << m_muonRoiEtaMax << endreq;
+    msg() << endreq;
+    ATH_MSG_INFO(" with pT > " << m_muonRoiPtMin <<
+                 " and |eta| < " << m_muonRoiEtaMax);
   } else {
-    (*m_log) << MSG::INFO << " Not forming fake MUONROI (" << m_muonRoiLabel << ")" << endreq;
+    ATH_MSG_INFO(" Not forming fake MUONROI (" << m_muonRoiLabel << ")");
   }
 
 
   if ( ! m_jetRoiParticles.empty()) {
     std::vector<int>::iterator muParticle=m_jetRoiParticles.begin();
     std::vector<int>::iterator lastMuParticle=m_jetRoiParticles.end();
-    (*m_log) << MSG::INFO << " Forming fake JETROI (" <<  m_jetRoiLabel << ") from the following kine particle IDs : ";
+    msg(MSG::INFO) << " Forming fake JETROI (" <<  m_jetRoiLabel << ") from the following kine particle IDs : ";
     for ( ; muParticle != lastMuParticle ; muParticle++ ) {
-      (*m_log) << MSG::INFO << *muParticle << " " ;
+      msg() << *muParticle << " " ;
     }
-    (*m_log) << endreq;
-    (*m_log) << MSG::INFO << " with pT > " << m_jetRoiPtMin<<
-      " and |eta| < " << m_jetRoiEtaMax << endreq;
+    msg() << endreq;
+    ATH_MSG_INFO(" with pT > " << m_jetRoiPtMin<<
+                 " and |eta| < " << m_jetRoiEtaMax);
   } else {
-    (*m_log) << MSG::INFO << " Not forming fake JETROI (" <<  m_jetRoiLabel << ")" << endreq;
+    ATH_MSG_INFO(" Not forming fake JETROI (" <<  m_jetRoiLabel << ")");
   }
-
-  (*m_log) << MSG::INFO << name() << ": Initialization completed successfully" << endreq;
 
   return HLT::OK;
 }
@@ -191,7 +173,6 @@ HLT::ErrorCode FakeLvl1RoIfromKine::hltInitialize()
 
 HLT::ErrorCode FakeLvl1RoIfromKine::hltFinalize()
 {
-  delete m_log; m_log = 0;
   return HLT::OK;
 }
 
@@ -200,10 +181,10 @@ HLT::ErrorCode FakeLvl1RoIfromKine::hltFinalize()
 
 HLT::ErrorCode FakeLvl1RoIfromKine::hltExecute( std::vector<HLT::SteeringChain*>& activeSteeringChains )
 {
-  (*m_log) << MSG::DEBUG << "Executing FakeLvl1RoIfromKine" << endreq;
+  ATH_MSG_DEBUG("Executing FakeLvl1RoIfromKine");
 
   // activate all configured chains:
-  (*m_log) << MSG::DEBUG << "activating all configured chains." << endreq;
+  ATH_MSG_DEBUG("activating all configured chains.");
 
   for (std::vector<HLT::SteeringChain*>::const_iterator it = m_configuredChains->begin();
        it != m_configuredChains->end(); ++it) {
@@ -248,9 +229,9 @@ HLT::ErrorCode FakeLvl1RoIfromKine::hltExecute( std::vector<HLT::SteeringChain*>
   }
 
   if ( nCreatedRoI == 0) {
-    (*m_log) << MSG::DEBUG << "FakeLvl1RoIfromKine did not create any RoI" << endreq;
-  } else {
-    (*m_log) << MSG::DEBUG << "FakeLvl1RoIfromKine created " << nCreatedRoI << " RoI" << endreq;
+    ATH_MSG_DEBUG("FakeLvl1RoIfromKine did not create any RoI");
+} else {
+    ATH_MSG_DEBUG("FakeLvl1RoIfromKine created " << nCreatedRoI << " RoI");
   }
 
   delete roiList;
@@ -287,7 +268,7 @@ StatusCode FakeLvl1RoIfromKine::createRoI(FakeRoI &fakeRoi) {
   */
 
 
-  (*m_log) << MSG::DEBUG << " REGTEST created an " <<  fakeRoi.type() << " RoI " << *roiDescriptor << endreq;
+  ATH_MSG_DEBUG(" REGTEST created an " <<  fakeRoi.type() << " RoI " << *roiDescriptor);
 
 
   return StatusCode::SUCCESS;
@@ -300,9 +281,9 @@ std::vector<FakeRoI> * FakeLvl1RoIfromKine::createRoIfromMC() {
   //  Get the collection generator events (physics and pile-up) making up this event
 
   const McEventCollection* mcEvents;
-  StatusCode sc = m_StoreGate->retrieve( mcEvents, m_mcEventCollectionName );
+  StatusCode sc = evtStore()->retrieve( mcEvents, m_mcEventCollectionName );
   if( sc.isFailure() ) {
-    (*m_log) << MSG::INFO <<"Could not retrieve mcEventCollection with key " << m_mcEventCollectionName << endreq;
+    ATH_MSG_INFO("Could not retrieve mcEventCollection with key " << m_mcEventCollectionName);
     return fakeRoiList;
   };
 
@@ -346,23 +327,23 @@ std::vector<FakeRoI> * FakeLvl1RoIfromKine::createRoIfromMC() {
 		       (*p)->production_vertex()->point3d().y(),
 		       (*p)->production_vertex()->point3d().z(), qq);
 
-      (*m_log) << MSG::VERBOSE << " Forming EMROI (" << m_emRoiLabel << ") from kine ID " << pdgid << " charge " << qq << endreq;
-      (*m_log) << MSG::VERBOSE << " Address " << std::hex << (*p) << std::dec << endreq;
-      (*m_log) << MSG::VERBOSE << " px " << (*p)->momentum().px() <<
-	" py " <<  (*p)->momentum().py() << " pz " << (*p)->momentum().pz() << endreq;
-      (*m_log) << MSG::VERBOSE  << " vx " << (*p)->production_vertex()->point3d().x() <<
-	" vy " <<  (*p)->production_vertex()->point3d().y() <<
-	" vz " << (*p)->production_vertex()->point3d().z() << endreq;
-      (*m_log) << MSG::VERBOSE << " pt " << (*p)->momentum().perp() <<
-	" phi " << (*p)->momentum().phi() << " eta " << track.eta() << endreq;
-      (*m_log) << MSG::VERBOSE << " Closest approach to origin : d0 " << track.d0() <<
-	" phi0 " << track.phi0() << " z0 " << track.z0() << endreq;
+      ATH_MSG_VERBOSE(" Forming EMROI (" << m_emRoiLabel << ") from kine ID " << pdgid << " charge " << qq);
+      ATH_MSG_VERBOSE(" Address " << std::hex << (*p) << std::dec);
+      ATH_MSG_VERBOSE(" px " << (*p)->momentum().px() <<
+                      " py " <<  (*p)->momentum().py() << " pz " << (*p)->momentum().pz());
+      ATH_MSG_VERBOSE(" vx " << (*p)->production_vertex()->point3d().x() <<
+                      " vy " <<  (*p)->production_vertex()->point3d().y() <<
+                      " vz " << (*p)->production_vertex()->point3d().z());
+      ATH_MSG_VERBOSE(" pt " << (*p)->momentum().perp() <<
+                      " phi " << (*p)->momentum().phi() << " eta " << track.eta());
+      ATH_MSG_VERBOSE(" Closest approach to origin : d0 " << track.d0() <<
+                      " phi0 " << track.phi0() << " z0 " << track.z0());
 #define RCAL 147.
 #define ZCAL 380.
       std::pair<double, double> etaPhi = track.etaPhiAtCylinder(RCAL, ZCAL);
 
-      (*m_log) << MSG::VERBOSE << " At calorimeter : phi " << etaPhi.second <<
-	" eta " << etaPhi.first << endreq;
+      ATH_MSG_VERBOSE(" At calorimeter : phi " << etaPhi.second <<
+	" eta " << etaPhi.first);
       FakeRoI fakeRoi(m_emRoiLabel, etaPhi.second, etaPhi.first);
       fakeRoiList->push_back(fakeRoi);
     }
@@ -378,10 +359,10 @@ std::vector<FakeRoI> * FakeLvl1RoIfromKine::createRoIfromMC() {
     }
     if ( formMuonRoi ) {
 
-      (*m_log) << MSG::VERBOSE << " Forming MUONROI (" << m_muonRoiLabel << ") from kine ID " << pdgid <<
-	" pt " << (*p)->momentum().perp() <<
-	" phi " << (*p)->momentum().phi() <<
-	" eta " << (*p)->momentum().pseudoRapidity() << endreq;
+      ATH_MSG_VERBOSE(" Forming MUONROI (" << m_muonRoiLabel << ") from kine ID " << pdgid <<
+                      " pt " << (*p)->momentum().perp() <<
+                      " phi " << (*p)->momentum().phi() <<
+                      " eta " << (*p)->momentum().pseudoRapidity());
 
 
       Trajectory track((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(),
@@ -393,8 +374,8 @@ std::vector<FakeRoI> * FakeLvl1RoIfromKine::createRoIfromMC() {
 #define ZCAL 380.
       std::pair<double, double> etaPhi = track.etaPhiAtCylinder(RCAL, ZCAL);
 
-      (*m_log) << MSG::VERBOSE << " At ID outer radius : phi " << etaPhi.second <<
-	" eta " << etaPhi.first << endreq;
+      ATH_MSG_VERBOSE(" At ID outer radius : phi " << etaPhi.second <<
+                      " eta " << etaPhi.first);
       FakeRoI fakeRoi(m_muonRoiLabel, etaPhi.second, etaPhi.first);
       fakeRoiList->push_back(fakeRoi);
 
@@ -411,10 +392,10 @@ std::vector<FakeRoI> * FakeLvl1RoIfromKine::createRoIfromMC() {
     }
     if ( formJetRoi ) {
 
-      (*m_log) << MSG::VERBOSE << " Forming JETROI (" <<  m_jetRoiLabel << ") from kine ID " << pdgid <<
-	" pt " << (*p)->momentum().perp() <<
-	" phi " << (*p)->momentum().phi() <<
-	" eta " << (*p)->momentum().pseudoRapidity() << endreq;
+      ATH_MSG_VERBOSE(" Forming JETROI (" <<  m_jetRoiLabel << ") from kine ID " << pdgid <<
+                      " pt " << (*p)->momentum().perp() <<
+                      " phi " << (*p)->momentum().phi() <<
+                      " eta " << (*p)->momentum().pseudoRapidity());
       FakeRoI fakeRoi(m_jetRoiLabel,(*p)->momentum().phi() ,(*p)->momentum().pseudoRapidity());
       fakeRoiList->push_back(fakeRoi);
     }

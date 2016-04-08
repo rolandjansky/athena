@@ -7,10 +7,6 @@
 
 #include <string>
 #include <vector>
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-//#include "TrigInterfaces/HLTCoreAlgo.h"
-//#include "TrigSteering/StepSequencer.h"
 #include "TrigSteering/LvlConverter.h"
 
 #define DEFAULT_RoIBRDOLocation "/RoIB/RoIBRDOLocation"
@@ -36,8 +32,6 @@ class FakeLvl1MultipleRoIsatFixedEtaPhi : public HLT::LvlConverter
 
  private:
 
-
-  MsgStream* m_log;
   unsigned int m_roiId;
   std::vector<double> m_muonRoiPhi;
   std::vector<double> m_muonRoiEta;
