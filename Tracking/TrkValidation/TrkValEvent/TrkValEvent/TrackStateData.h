@@ -43,8 +43,6 @@ public:
                    std::string                     detTypeName,
                    TrackState::MeasurementType     detType);
 
-    /**  copy constructor */
-    TrackStateData(const TrackStateData&);
     /**  destructor */
     ~TrackStateData(){};
     //    /**  assignment operator */

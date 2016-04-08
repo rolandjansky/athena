@@ -37,17 +37,6 @@ class GenParticleJet
 		
 	}; // constructor
 
-  GenParticleJet(const GenParticleJet &a){
-	   m_particles = a.m_particles;
-       m_indices   = a.m_indices;
-	   m_energy    = a.m_energy;
-	   m_momentum  = a.m_momentum;
-	   m_totalPt2  = a.m_totalPt2;
-	   m_totalMom2 = a.m_totalMom2;
-	   m_pDotJetAxis= a.m_pDotJetAxis;
-	   m_magP      = a.m_magP;
-  }; // copy constructor
-
   ~GenParticleJet(){}; // destructor
   
   void setEnergy(double energy){m_energy = energy;}

@@ -21,13 +21,6 @@ m_surface(0),
 m_detTypeName("unidentified"),
 m_detType(Trk::TrackState::unidentified) {}
 
-// copy constructor
-Trk::TrackStateData::TrackStateData(const Trk::TrackStateData& tsdata):
-m_trackStateOnSurface(tsdata.m_trackStateOnSurface),
-m_rot(tsdata.m_rot),
-m_surface(tsdata.m_surface),
-m_detTypeName(tsdata.m_detTypeName),
-m_detType(tsdata.m_detType) {}
 
 // constructor with parameters
 Trk::TrackStateData::TrackStateData(const Trk::TrackStateOnSurface* trackStateOnSurface,
