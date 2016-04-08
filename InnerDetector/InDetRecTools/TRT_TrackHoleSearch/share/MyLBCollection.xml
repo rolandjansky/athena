@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE LumiRangeCollection SYSTEM "http://atlas-runquery.cern.ch/LumiRangeCollection.dtd">
+<!-- Good-runs-list created by AtlRunQuery.py on 2011-01-19 15:56:14.517651 -->
+<LumiRangeCollection>
+   <NamedLumiRange>
+      <Name>MyLBCollection</Name>
+      <Version>2.1</Version>
+      <Metadata Name="Query">find run 167607 and dq pix LBSUMM#DetStatus-v03-repro05-00 g and dq CP_TRACKING LBSUMM#DetStatus-v03-repro05-00 g and dq GLOBAL_STATUS LBSUMM#DetStatus-v03-repro05-00 g and dq ATLSOL LBSUMM#DetStatus-v03-repro05-00 g</Metadata>
+      <Metadata Name="RunList">167607</Metadata>
+      <Metadata Name="RQTSVNVersion">CoolRunQuery-00-03-56</Metadata>
+      <Metadata Name="StreamListInfo">
+         <Stream Name="physics_CosmicCalo" TotalNumOfEvents="427890" NumOfSelectedEvents="336384"/>
+         <Stream Name="physics_CosmicMuons" TotalNumOfEvents="10203" NumOfSelectedEvents="10203"/>
+         <Stream Name="physics_Egamma" TotalNumOfEvents="3886539" NumOfSelectedEvents="3886539"/>
+         <Stream Name="physics_EnhancedBias" TotalNumOfEvents="237283" NumOfSelectedEvents="237283"/>
+         <Stream Name="physics_IDCosmic" TotalNumOfEvents="1716" NumOfSelectedEvents="1716"/>
+         <Stream Name="physics_JetTauEtmiss" TotalNumOfEvents="4832983" NumOfSelectedEvents="4832983"/>
+         <Stream Name="physics_MinBias" TotalNumOfEvents="651906" NumOfSelectedEvents="651906"/>
+         <Stream Name="physics_Muons" TotalNumOfEvents="5709963" NumOfSelectedEvents="5709963"/>
+         <Stream Name="physics_Standby" TotalNumOfEvents="177915" NumOfSelectedEvents="0"/>
+         <Stream Name="physics_ZeroBias" TotalNumOfEvents="28596" NumOfSelectedEvents="28596"/>
+      </Metadata>
+      <LumiBlockCollection>
+         <Run>167607</Run>
+         <LBRange Start="86" End="430"/>
+      </LumiBlockCollection>
+   </NamedLumiRange>
+</LumiRangeCollection>
