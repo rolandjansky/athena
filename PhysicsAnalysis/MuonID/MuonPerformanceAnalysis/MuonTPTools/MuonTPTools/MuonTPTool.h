@@ -23,7 +23,7 @@ class IMuonTPSelectionTool;
 class IMuonTPEfficiencyTool;
 
 class MuonTPTool
-: virtual public asg::AsgTool,
+: public asg::AsgTool,
   virtual public IMuonTPTool {
   ASG_TOOL_CLASS(MuonTPTool, IMuonTPTool)
     
@@ -44,7 +44,7 @@ class MuonTPTool
   
  private:
 
-  ServiceHandle<ITHistSvc> m_histSvc;
+  //ServiceHandle<ITHistSvc> m_histSvc;
   ToolHandleArray<IMuonTPSelectionTool> m_muonTPSelectionTools;
   ToolHandleArray<IMuonTPEfficiencyTool> m_muonTPEfficiencyTools;
   std::string m_efficiencyFlag;

@@ -18,22 +18,25 @@
 #include "AsgTools/AsgTool.h"
 #include <map>
 
-class ZmumuMuonTPPlotTool:
+class DiMuonTPPlotTool:
 		public MuonTPPlotTool {
-		ASG_TOOL_CLASS(ZmumuMuonTPPlotTool, IMuonTPPlotTool)
+		ASG_TOOL_CLASS(DiMuonTPPlotTool, IMuonTPPlotTool)
 
 public:
-		ZmumuMuonTPPlotTool(std::string name);
+		DiMuonTPPlotTool(std::string name);
 
 		virtual std::vector<MuonTPEfficiencyPlotBase*> AddPlots(std::string sDir, bool isMatched);
         virtual std::vector<MuonTPCutFlowBase*> AddCutFlowPlots(std::string sDir);
 
 protected:
-		bool m_do_TPBasic;
+		bool m_do_TPBasic_JPsi;
+        bool m_do_TPBasic_Zmm;
+        bool m_do_DiLepton_Zmm;
+        bool m_do_DiLepton_JPsi;
 		bool m_do_TPFineEtaPhi;
+        bool m_do_TriggerPlots;
         bool m_do_DetRegions;
 		bool m_do_Valid;
-		bool m_do_DiLepton;
         bool m_apply_SF;
 
 };

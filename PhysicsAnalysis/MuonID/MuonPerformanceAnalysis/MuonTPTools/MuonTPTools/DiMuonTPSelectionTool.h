@@ -3,27 +3,24 @@
 */
 
 /*
- * ZmumuMuonTPSelectionTool.h
+ * DiMuonTPSelectionTool.h
  *
- *  Created on: Aug 26, 2014
+ *  Created on: Jun 18, 2015
  *      Author: goblirsc<at>CERN.CH
  */
 
 #ifndef ZMUMUMUONTPSELECTIONTOOL_H_
 #define ZMUMUMUONTPSELECTIONTOOL_H_
 
-/// This is the implementation of the IMuonTPSelectionTool for the Z->mm tag and probe
-/// efficiency measurement.
+/// This is the implementation of the IMuonTPSelectionTool for the tag and probe
+/// efficiency measurement using dimuon resonances (JPsi and Z).
 #include "MuonTPTools/MuonTPSelectionTool.h"
 #include "AsgTools/AsgTool.h"
 
-class ZmumuMuonTPSelectionTool:
-        virtual public IMuonTPSelectionTool,
-        virtual public asg::AsgTool,
-        public MuonTPSelectionTool{
-      ASG_TOOL_CLASS(ZmumuMuonTPSelectionTool, IMuonTPSelectionTool)
+class DiMuonTPSelectionTool:  public MuonTPSelectionTool{
+      ASG_TOOL_CLASS(DiMuonTPSelectionTool, IMuonTPSelectionTool)
 public:
-    ZmumuMuonTPSelectionTool(std::string myname);
+    DiMuonTPSelectionTool(std::string myname);
 
     virtual StatusCode initialize();
 
@@ -69,6 +66,7 @@ private:
     bool m_CBProbe;
     bool m_MSProbe;
     bool m_TruthProbe;
+    bool m_TruthMatchedProbe;
 
     bool m_only_A_side;
     bool m_only_C_side;
@@ -83,8 +81,17 @@ private:
     double m_probe_z0;
 
 
-      double m_deltaPhiCut;
+    double m_deltaPhiCut;
+    double m_deltaEtaCut;
 
+    bool m_doProbeChargeSys;
+    std::string m_ProbeCharge;
+    
+    bool m_VeryLooseProbe;
+    bool m_LooseProbe;
+    bool m_MediumProbe;
+    bool m_TightProbe;
+    bool m_HighPtProbe;
 };
 
 

@@ -16,7 +16,7 @@
 
 
 // FrameWork includes
-#include "GaudiKernel/ServiceHandle.h"
+//#include "GaudiKernel/ServiceHandle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 
@@ -29,12 +29,11 @@ public:
 
     // Match probes for efficiency calculation
     void matchProbes(ProbeContainer*, const xAOD::IParticleContainer*) const;
-     
+    
 private:
 
     float m_dR_L1;
     float m_dR_HLT;
-    std::string m_trigger_item;
 
 };
 
