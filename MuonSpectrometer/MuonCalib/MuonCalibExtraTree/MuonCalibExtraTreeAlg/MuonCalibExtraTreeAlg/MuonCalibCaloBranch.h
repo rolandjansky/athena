@@ -50,4 +50,3 @@ namespace MuonCalib {
 }// namespace MuonCalib
 
 #endif
-

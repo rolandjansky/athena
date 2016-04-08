@@ -25,7 +25,6 @@ class TTree;
 
 class MdtIdHelper;
 
-
 namespace MuonGM {
  class MuonDetectorManager;
 }
@@ -36,22 +35,27 @@ class IIdToFixedIdTool ;
 class  ISegmentOnTrackSelector;
   /**
      @class MuonCalibExtraTreeAlg
-     This athena algorithm retrieves several collection (PhiPatterns, Tracks and Holes) from StoreGate and feeds the collection to the different 'Extended Branches':
+
+     This athena algorithm retrieves several collection (PhiPatterns,
+     Tracks and Holes) from StoreGate and feeds the collection to the
+     different 'Extended Branches':
      - MuonCalib::MuonCalibHit_EBranch
      - MuonCalib::MuonCalibHole_EBranch 
      - MuonCalib::MuonCalibPhiHit_EBranch 
      - MuonCalib::MuonCalibPhiPattern_EBranch 
      - MuonCalib::MuonCalibTrack_EBranch
 
-     These branches are added to the CalibrationNtuple as created in MuonSpectrometer/MuonCalib/MuonCalibNtuple.
+     These branches are added to the CalibrationNtuple as created in
+     MuonSpectrometer/MuonCalib/MuonCalibNtuple.
 
-     For the content of the Extended Branches, see the  <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/MuonCalibExtraNtupleContent"><span>ExtraTree Ntuple wiki</span></a>
+     For the content of the Extended Branches, see 
+     <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/MuonCalibExtraNtupleContent"><span>ExtraTree Ntuple wiki</span></a>
 
      @author Zdenko.Van.Kesteren@cern.ch
   */
   class MuonCalibExtraTreeAlg : public AthAlgorithm {
   public:
-    MuonCalibExtraTreeAlg(const std::string& name, ISvcLocator* pSvcLocator); //!< Athena Algorithm constructor declaring the several properties ( doPhi/doTracks/doHoles adding extra branches to the CalibrationNtuple, and their locations in StoreGate)
+    MuonCalibExtraTreeAlg(const std::string &name, ISvcLocator *pSvcLocator); //!< Athena Algorithm constructor declaring the several properties ( doPhi/doTracks/doHoles adding extra branches to the CalibrationNtuple, and their locations in StoreGate)
     ~MuonCalibExtraTreeAlg(); //!< Athena Algorithm destructor
     StatusCode initialize();  //!< Algorithm initialize: retrieve StoreGateSvc, MuonHolesOnTrackTool and IdentifierConverter. Retrieves the ntuple to write in.
     StatusCode execute();     //!< Algorithm execute, called once per event: resets branches, retrieves the PhiPattern and Track Collections. Finally, it writes the Tree.

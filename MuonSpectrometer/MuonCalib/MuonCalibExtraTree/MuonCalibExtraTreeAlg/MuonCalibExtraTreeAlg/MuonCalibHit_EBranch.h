@@ -32,11 +32,11 @@ namespace MuonCalib {
   
   class MuonCalibHit_EBranch {
   public:
-    MuonCalibHit_EBranch(std::string branchName = "trkHit_");           //!< default constructor 
-    bool  fillBranch(const MuonCalibHit_E& hit, const int track_index); //!< fill content of hit into branch 
-    bool  createBranch(TTree* tree);                                    //!< create branch structure in tree 
-    void reset() { index = 0; }                                         //!< set hit_index to zero 
-    int getBranchEntries() { return index; }                            //!< returns the number of hits currently in the branch 
+    MuonCalibHit_EBranch(std::string branchName = "trkHit_");          //!< default constructor 
+    bool fillBranch(const MuonCalibHit_E &hit, const double drifttime, const int track_index); //!< fill content of hit into branch 
+    bool createBranch(TTree* tree);                                    //!< create branch structure in tree 
+    void reset() { index = 0; }                                        //!< set hit_index to zero 
+    int getBranchEntries() { return index; }                           //!< returns the number of hits currently in the branch 
   
   private:
     std::string m_branchName;           //!< name of branch in tree, per default prepended to variable names 
@@ -46,11 +46,12 @@ namespace MuonCalib {
     int  index;                         //!< counter keeping track on the number of MuonCalib::MuonCalibHit_E s stored in the event
 
     int   trackIndex[blockSize];
-    unsigned int   id[blockSize];
+    unsigned int id[blockSize];
     float posX[blockSize];
     float posY[blockSize];
     float posZ[blockSize];
     float driftRadius[blockSize];
+    float driftTime[blockSize];
     float error[blockSize];
     float resi[blockSize];
     float pull[blockSize];
