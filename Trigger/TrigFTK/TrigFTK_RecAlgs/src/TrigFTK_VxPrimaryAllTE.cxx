@@ -99,9 +99,16 @@ HLT::ErrorCode TrigFTK_VxPrimaryAllTE::hltExecute(std::vector<std::vector<HLT::T
   
   
   if (m_getVertexContainer) {
-    
-    xAOD::VertexContainer* theVertexContainer = m_DataProviderSvc->getVertexContainer(m_useRefittedTracks);
-    
+
+    xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer();
+    xAOD::VertexAuxContainer	theVertexAux;
+    theVertexContainer->setStore(&theVertexAux);
+
+    StatusCode sc = m_DataProviderSvc->getVertexContainer( theVertexContainer, m_useRefittedTracks);
+
+    if (sc != StatusCode::SUCCESS) {
+      msg() << MSG::DEBUG << " Error getting VertexContainer StatusCode is " << sc << endreq;
+    }
     
     //
     //  Attach resolved tracks to the trigger element.
