@@ -6,6 +6,9 @@
 #define __ITRIG_L2_LAYER_NUMBER_TOOL_H__
 
 #include "GaudiKernel/IAlgTool.h"
+#include "TrigInDetPattRecoEvent/TrigInDetSiLayer.h"
+#include <vector>
+
 
 /** @class ITrigL2LayerNumberTool    
 provides the abstract interface for the silicon layer number tool
@@ -28,6 +31,10 @@ class ITrigL2LayerNumberTool : virtual public IAlgTool {
   virtual int offsetEndcapSCT()    = 0;
   virtual void report()            = 0;//prints out the above 
 
+  virtual int maxNumberOfUniqueLayers()  = 0;
+  virtual const std::vector<short>* pixelLayers()  = 0; // hashId addressable arrays of layer numbers
+  virtual const std::vector<short>* sctLayers()  = 0; // hashId addressable arrays of layer numbers
+  virtual const std::vector<TRIG_INDET_SI_LAYER>* layerGeometry() = 0;
 };
 
 #endif
