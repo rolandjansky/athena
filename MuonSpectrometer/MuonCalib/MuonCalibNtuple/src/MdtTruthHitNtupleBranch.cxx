@@ -39,6 +39,10 @@ namespace MuonCalib {
     barCode[index] = hit.barCode();
     driftRadius[index] = hit.driftRadius();
     positionAlongTube[index] = hit.positionAlongTube();
+    gpositionX[index] = hit.gpositionX();
+    gpositionY[index] = hit.gpositionY();
+    gpositionZ[index] = hit.gpositionZ();
+    time[index] = hit.time();
 
     // increment hit index
     ++index;
@@ -71,6 +75,10 @@ namespace MuonCalib {
     branchCreator.createBranch( tree, "barCode",     &barCode,           array_size + "/I" );
     branchCreator.createBranch( tree, "driftRadius", &driftRadius,       array_size + "/D" );
     branchCreator.createBranch( tree, "posAlongTube",&positionAlongTube, array_size + "/D" );
+    branchCreator.createBranch( tree, "gPosX",&gpositionX, array_size + "/D" );
+    branchCreator.createBranch( tree, "gPosY",&gpositionY, array_size + "/D" );
+    branchCreator.createBranch( tree, "gPosZ",&gpositionZ, array_size + "/D" );
+    branchCreator.createBranch( tree, "time", &time,       array_size + "/D" );
 
     branchesInit = true;
   

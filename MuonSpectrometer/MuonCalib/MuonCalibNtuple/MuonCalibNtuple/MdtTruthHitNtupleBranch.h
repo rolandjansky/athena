@@ -52,6 +52,11 @@ namespace MuonCalib {
     int barCode[m_blockSize];
     double driftRadius[m_blockSize];
     double positionAlongTube[m_blockSize];
+    double gpositionX[m_blockSize];
+    double gpositionY[m_blockSize];
+    double gpositionZ[m_blockSize];
+    double time[m_blockSize];
+    
   };
 }
 
