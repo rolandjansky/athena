@@ -51,3 +51,5 @@ class PowhegConfig_Hj(PowhegConfig_base) :
     self.bornzerodamp = 1
     self.par_diexp    = 2
     self.par_dijexp   = 2
+
+    self.populate_default_strings()

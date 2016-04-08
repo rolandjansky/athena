@@ -18,5 +18,5 @@ class TopDecaySecondGenerationQuarkDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'lhfm/bmass', ATLASCommonParameters.mass_b, desc='(default ATLAS) b quark mass' )
-    self.decorated.add_parameter( 'lhfm/cmass', ATLASCommonParameters.mass_c, desc='(default ATLAS) c quark mass' )
+    self.decorated.add_parameter( 'lhfm/bmass', ATLASCommonParameters.mass_b, default='{0}', desc='b-quark mass' )
+    self.decorated.add_parameter( 'lhfm/cmass', ATLASCommonParameters.mass_c, default='{0}', desc='c-quark mass' )

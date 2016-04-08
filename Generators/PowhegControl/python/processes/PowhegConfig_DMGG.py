@@ -46,3 +46,5 @@ class PowhegConfig_DMGG(PowhegConfig_base) :
     self.doublefsr    = 1
     self.minlo        = -1
     self.runningscale = 3
+
+    self.populate_default_strings()

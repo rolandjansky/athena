@@ -44,3 +44,5 @@ class PowhegConfig_bb(PowhegConfig_base) :
     self.minlo        = -1
     self.quark_mass   = ATLASCommonParameters.mass_b
     self.topdecaymode = 0
+
+    self.populate_default_strings()
