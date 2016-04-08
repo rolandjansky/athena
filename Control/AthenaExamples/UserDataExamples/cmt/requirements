@@ -3,20 +3,16 @@ package UserDataExamples
 author Yushu Yao <yyao@lbl.gov>
 
 use AtlasPolicy		AtlasPolicy-* 
-use AthenaKernel 	AthenaKernel-* 		Control
-use AthenaBaseComps	AthenaBaseComps-*	Control
 use AtlasReflex  	AtlasReflex-*  		External -no_auto_imports
 
-use GaudiInterface      GaudiInterface-*        External 
-use AtlasBoost          AtlasBoost-*            External
-use AtlasCLHEP          AtlasCLHEP-*            External
-use AtlasROOT           AtlasROOT-*             External
-use AtlasReflex         AtlasReflex-*           External -no_auto_imports
-use DataModel           DataModel-*             Control
-use StoreGate           StoreGate-*             Control
-use Navigation	        Navigation-*            Control
 
+private
+use GaudiInterface      GaudiInterface-*        External 
+use AthenaKernel 	AthenaKernel-* 		Control
+use AthenaBaseComps	AthenaBaseComps-*	Control
 use CaloEvent         CaloEvent-*	        Calorimeter
+use DataModel           DataModel-*             Control
+end_private
 
 library UserDataExamples *.cxx -s=components *.cxx 
 apply_pattern component_library

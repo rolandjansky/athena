@@ -252,7 +252,7 @@ StatusCode CreateDataWithUserData::execute() {
     msg(MSG::ERROR) << "Failed to record EventDecoration called " << label << endreq;
   }
 
-  double fOut;
+  double fOut = 0;
   CHECK(m_userDataSvc->retrieve(label,fOut));
   if (!checkvalues(42.0,fOut,label)) return StatusCode::FAILURE;
 
