@@ -1,0 +1,57 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\textwidth=6.5in
+\textheight=9.0in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}   
+\def\topfraction{1.}
+\def\textfraction{0.}           
+\begin{document}
+\title{McAtNlo\_i: An interface between MC@NLO and Athena}
+\author{  Ian Hinchliffe (I\_Hinchliffe@lbl.gov), Borut Kerevan (borut.kersevan@cern.ch) and Georgios Stavropoulos (George.Stavropoulos@cern.ch) }
+%\today
+
+\maketitle           
+
+This package runs MC@NLO  from within Athena. \\See the example
+in {\bf McAtNlo\_i/share/jobOptions.McAtNloHerwig.py } which show how to
+read MC@NLO events and hadronize them using Herwig.
+
+Users must first run 
+MC@NLO in standalone mode and make a file of events. An athena job
+then takes these events hadronizes them and passes them down the
+Athena event chain. The events must be made with a version of MC@NLO
+that is compatible, recent versions that support the Les Houches
+interface should be acceptable. The current implementation is compatible
+with the version 3.1 format.
+
+To hadronize {\bf MC@NLO} generated events with Herwig, you only need to run athena with the jobOptions
+file jobOptions.McAtNloHerwig.py by typing in the prompt \\
+{\it athena.py jobOptions.McAtNloHerwig.py}\\
+
+More infomation about MC@NLO here
+
+http://www.hep.phy.cam.ac.uk/theory/webber/MCatNLO/\\
+
+{\large \bf Note on LHApdf stucture functions (release 11.0.0)}
+
+In the case you want to run MC@NLO with the LHAPDF structure functions you need to
+set the autpdf variable to HWLHAPDF and the modpdf one to the LHAPDF set/member index
+(see the documentation of the Generators/Lhapdf\_i package for the LHAPDF set/member
+index settings). Up to v 3.1, MC@NLO is using the PDFLIB and not the LHAPDF one. In this
+case you need to edit the inparmMcAtNlo.dat and the event files and replace the PDFLIB
+structure functions set/member with the LHAPDF one. You can have a look at the
+McAtNlo\_i/share/inparmMcAtNlo.dat and McAtNlo\_i/share/tt.events files, as an example
+of what needs to be changed.\\
+
+{\large \bf Note on the new interface for version 3.3.1}
+ 
+There present interface works for MC@NLO up to version 3.3.1 (at least) but \emph{should} be 
+backwards compatible down to version 3.1. All failues \emph{must} be reported (if you want to get
+it fixed, of course).
+
+\end{document}

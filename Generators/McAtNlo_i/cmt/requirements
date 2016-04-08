@@ -1,0 +1,25 @@
+package McAtNlo_i
+
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+branches src share python doc
+
+use AtlasPolicy AtlasPolicy-*
+use Herwig  Herwig-*  External
+use Pythia  Pythia-*  External
+
+private
+use GeneratorFortranCommon GeneratorFortranCommon-* Generators
+end_private
+
+library McAtNlo_i *.cxx *.F
+
+apply_pattern installed_library
+
+private
+apply_tag notAsNeeded
+end_private
+
+apply_pattern declare_python_modules files="-s=../python *.py"
+apply_pattern declare_runtime_extras extras="inparmMcAtNlo.dat tt.events"
+apply_pattern declare_joboptions files="-s=../share *.py"

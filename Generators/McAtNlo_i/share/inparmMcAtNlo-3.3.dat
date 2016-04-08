@@ -1,0 +1,13 @@
+ 'tt-3.3.events'        ! event file
+  500                        ! number of events
+  1                        ! 0->Herwig PDFs, 1 otherwise
+ 'P'  'P'               ! hadron types
+  7000.00 7000.00               ! beam momenta
+  -1706                          ! -1705/1706=bb/tt
+  'LHAPDF'                      ! PDF group (1)
+  29003                       ! PDF id number (1).
+  'LHAPDF'                      ! PDF group (2).
+  29003                       ! PDF id number (2).
+  -1                     ! Lambda_5, < 0 for default
+  174.5 80.42                 ! M_t, M_W
+  0.32 0.32 0.5 1.55 4.95 0.75 ! quark and gluon masses

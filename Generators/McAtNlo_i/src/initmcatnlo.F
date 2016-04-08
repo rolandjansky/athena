@@ -1,0 +1,333 @@
+      SUBROUTINE INITMCATNLO
+C----------------------------------------------------------------------
+C  Reads MC@NLO input headers and fills Les Houches run common HEPRUP
+C----------------------------------------------------------------------
+#include "HERWIG65.INC"
+C--Les Houches Common Blocks
+#include "GeneratorFortranCommon/heprup.inc"
+#include "GeneratorFortranCommon/hepeup.inc"
+
+      DOUBLE PRECISION XCKECM,XTMP1,XTMP2,XTMP3,XTMP4,XMT,XMW,XMZ,
+     & XMH,XMV,XM1,XM2,XM3,XM4,XM5,XM21,XLAM,GAH,GAT,GAW,TINY
+      DOUBLE PRECISION XMV1,GAV1,GAMAX1,XMV2,GAV2,GAMAX2
+      INTEGER IVVCODE,IFAIL,MQQ,NQQ,IHW,I,NDNS,JPR,JPR0,IH,
+     & IVHVEC,IVHLEP,IVLEP1,IVLEP2
+      CHARACTER*60 TMPSTR
+      CHARACTER*4 STRP1,STRP2
+      CHARACTER*8 STRGRP
+      CHARACTER*2 STRSCH
+      CHARACTER*3 STRFMT
+      CHARACTER*140 QQIN
+      LOGICAL FK88STRNOEQ
+      DATA TINY/1.D-3/
+      COMMON/NQQCOM/MQQ,NQQ
+      COMMON/VVJIN/QQIN
+      COMMON/VHLIN/IVHVEC,IVHLEP
+      COMMON/VVLIN/IVLEP1,IVLEP2
+C
+      CHARACTER*60 TMPSTR2
+      LOGICAL OLDFORM
+      DATA OLDFORM/.FALSE./
+
+      REAL*8 RGAMMAX
+
+C-- If FORMAT 4.0 with x1, x2, qscale is used                                                                                
+      INTEGER READXXQ
+      COMMON/IFXXQ/ READXXQ
+c      INTEGER CHECKFORMAT
+      INTEGER FILEVER
+      LOGICAL WZ,WW
+
+      CALL INPUTINI
+C
+      IF (IERROR.NE.0) RETURN
+C--SET UP INPUT FILES
+      OPEN(UNIT=61,FILE=QQIN,STATUS='UNKNOWN')
+C--READ HEADERS OF EVENT FILE
+      READ(61,801)XCKECM,XTMP1,XTMP2,XTMP3,XTMP4,TMPSTR
+      READ(61,802)IVVCODE,TMPSTR
+      IVVCODE=MOD(IVVCODE,10000)
+C---CHECK PROCESS CODE
+      JPR0=MOD(ABS(IPROC),10000)
+      print *,'JP = ',JPR0
+      IF(JPR0.EQ.2870.OR.JPR0.EQ.2880)THEN
+         WZ=.TRUE.
+         WW=.FALSE.
+      ELSEIF (JPR0.eq.2850) THEN
+         WW=.TRUE.
+         WZ=.FALSE.
+      ELSE   
+         WZ=.FALSE.
+         WW=.FALSE.
+      ENDIF
+      JPR=JPR0/100
+      IF (JPR.NE.IVVCODE/100) THEN
+         CALL HWWARN('UPINIT',500)
+         GOTO 999
+      ENDIF
+      IF ((JPR.EQ.17.OR.JPR.EQ.28.OR.JPR.EQ.36).AND.
+     & IVVCODE.NE.MOD(ABS(IPROC),10000)) THEN
+         CALL HWWARN('UPINIT',501)
+         GOTO 999
+      ENDIF
+      IF (JPR.EQ.13.OR.JPR.EQ.14) THEN
+         IF(JPR0.EQ.1396.OR.JPR0.EQ.1371.OR.
+     #      JPR0.EQ.1372.OR.JPR0.EQ.1373)THEN
+           READ(61,808)EMMIN,EMMAX,TMPSTR
+         ELSE
+           READ(61,809)XMV,GAH,RGAMMAX,TMPSTR
+           IF(RGAMMAX.GE.0.D0) GAMMAX=RGAMMAX
+         ENDIF
+C-- CHECK VECTOR BOSON MASS
+         IF( (IVVCODE.EQ.1397.AND.ABS(XMV-RMASS(200)).GT.TINY) .OR.
+     #       (IVVCODE.EQ.1497.AND.ABS(XMV-RMASS(198)).GT.TINY) .OR.
+     #       (IVVCODE.EQ.1498.AND.ABS(XMV-RMASS(199)).GT.TINY) ) THEN
+            IF(WZ) THEN
+               CALL HWWARN('UPINIT',1502)
+            ELSE
+               CALL HWWARN('UPINIT',502)
+            ENDIF
+           GOTO 999
+         ENDIF
+      ELSEIF (JPR.EQ.26.OR.JPR.EQ.27) THEN
+         READ(61,810)IVHVEC,IVHLEP,TMPSTR
+         READ(61,809)XMV,GAH,RGAMMAX,TMPSTR
+         READ(61,809)XMH,GAH,RGAMMAX,TMPSTR
+         IF( (JPR.EQ.26.AND.ABS(XMV-RMASS(199)).GT.TINY) .OR.
+     #       (JPR.EQ.27.AND.ABS(XMV-RMASS(200)).GT.TINY) ) THEN
+            CALL HWWARN('UPINIT',508)
+            GOTO 999
+         ENDIF
+         IF(RGAMMAX.GE.0.D0) GAMMAX=RGAMMAX
+         IF(ABS(XMH-RMASS(201)).GT.TINY) THEN
+            CALL HWWARN('UPINIT',509)
+            GOTO 999
+         ENDIF
+      ELSEIF (JPR.EQ.28) THEN
+         READ(61,808)XMW,XMZ,TMPSTR
+C-- CHECK VECTOR BOSON MASSES
+         IF(ABS(XMW-RMASS(198)).GT.TINY .OR.
+     #      ABS(XMZ-RMASS(200)).GT.TINY) THEN
+            IF(WZ) THEN
+               CALL HWWARN('UPINIT',2502)
+            ELSE
+               CALL HWWARN('UPINIT',502)
+            ENDIF
+            GOTO 999
+         ENDIF
+         READ(61,810)IVLEP1,IVLEP2,TMPSTR
+         READ(61,809)XMV1,GAV1,GAMAX1,TMPSTR
+         READ(61,809)XMV2,GAV2,GAMAX2,TMPSTR
+      ELSEIF (JPR.EQ.16.OR.JPR.EQ.36) THEN
+         READ(61,809)XMH,GAH,XMT,TMPSTR
+C-- CHECK HIGGS AND TOP MASSES
+         IH=201
+         IF (JPR.EQ.36) IH=IVVCODE/10-158
+         IF(ABS(XMH-RMASS(IH)).GT.TINY) THEN
+            CALL HWWARN('UPINIT',503)
+            GOTO 999
+         ENDIF
+         IF(ABS(XMT-RMASS(6)) .GT.TINY) THEN
+            CALL HWWARN('UPINIT',504)
+            GOTO 999
+         ENDIF
+      ELSEIF (JPR.EQ.17) THEN
+         IF (MOD(JPR0,10).EQ.6) THEN
+CBPK->
+            READ(61,'(A)') TMPSTR2
+            IF (TMPSTR2(17:19).EQ.'M_Q') THEN
+               OLDFORM=.TRUE.
+               READ(TMPSTR2,803) XMT,TMPSTR
+c               PRINT *,'OLDFORM IN INITMC',XMT,TMPSTR2(17:19)
+            ELSE
+               READ(TMPSTR2,808)XMT,GAT,TMPSTR         
+c               PRINT *,'NEWFORM IN INITMC',XMT,GAT
+            ENDIF
+CBPK-<
+         ELSE
+            READ(61,803)XMT,TMPSTR
+         ENDIF
+C-- CHECK HEAVY QUARK MASS
+         IF( (IVVCODE.EQ.1706.AND.ABS(XMT-RMASS(6)).GT.TINY) .OR.
+     #       (IVVCODE.EQ.1705.AND.ABS(XMT-RMASS(5)).GT.TINY) .OR.
+     #       (IVVCODE.EQ.1704.AND.ABS(XMT-RMASS(4)).GT.TINY) ) THEN
+            CALL HWWARN('UPINIT',505)
+            GOTO 999
+         ENDIF
+         IF (MOD(JPR0,10).EQ.6.AND.(.NOT.OLDFORM)) THEN
+            READ(61,808)XMW,GAW,TMPSTR
+            READ(61,810)IVLEP1,IVLEP2,TMPSTR
+C-- CHECK W BOSON MASS WHEN TOPS DECAY
+            IF( IVLEP1.NE.7.AND.IVLEP2.NE.7 .AND.
+     #          ABS(XMW-RMASS(198)).GT.TINY ) THEN
+               IF(WZ) THEN
+                  CALL HWWARN('UPINIT',3502)
+               ELSE
+                  CALL HWWARN('UPINIT',502)
+               ENDIF
+               GOTO 999
+            ENDIF
+CBPK->
+c            PRINT *,'NEWFORM IN INITMC',XMW,GAW,IVLEP1,IVLEP2
+         ELSEIF (MOD(JPR0,10).EQ.6.AND.OLDFORM) THEN
+            XMW=0.D0
+            GAW=0.D0
+            IVLEP1=7
+            IVLEP2=7
+c            PRINT *,'OLDFORM IN INITMC',XMW,GAW,IVLEP1,IVLEP2
+CBPK-<
+         ENDIF
+      ELSEIF (JPR.EQ.20) THEN
+CBPK->
+         READ(61,'(A)') TMPSTR2
+         IF (TMPSTR2(17:21).EQ.'M_top') THEN
+            OLDFORM=.TRUE.
+            READ(TMPSTR2,803) XMT,TMPSTR
+c            PRINT *,'OLDFORM IN INITMC',XMT,TMPSTR2(17:19)
+         ELSE
+            READ(TMPSTR2,808)XMT,GAT,TMPSTR         
+c            PRINT *,'NEWFORM IN INITMC',XMT,GAT
+         ENDIF
+CBPK->
+C-- CHECK TOP QUARK MASS
+         IF(ABS(XMT-RMASS(6)).GT.TINY) THEN
+            CALL HWWARN('UPINIT',511)
+            GOTO 999
+         ENDIF
+CBPK->
+         IF(.NOT.OLDFORM) THEN
+            READ(61,808)XMW,GAW,TMPSTR
+            IF(JPR0.LT.2030)THEN
+               READ(61,812)IVLEP1,TMPSTR
+C-- CHECK W BOSON MASS WHEN TOPS DECAY
+               IF( IVLEP1.NE.7 .AND.
+     #           ABS(XMW-RMASS(198)).GT.TINY ) THEN
+                  IF(WZ) THEN
+                     CALL HWWARN('UPINIT',4502)
+                  ELSE
+                     CALL HWWARN('UPINIT',502)
+                  ENDIF
+                  GOTO 999
+               ENDIF
+            ELSE
+               READ(61,810)IVLEP1,IVLEP2,TMPSTR
+C--   CHECK W BOSON MASS
+               IF(ABS(XMW-RMASS(198)).GT.TINY) THEN
+                  IF(WZ) THEN
+                     CALL HWWARN('UPINIT',5502)
+                  ELSE
+                     CALL HWWARN('UPINIT',502)
+                  ENDIF
+                  GOTO 999
+               ENDIF
+            ENDIF
+         ENDIF
+CBPK->
+      ELSEIF (JPR.NE.1) THEN
+         CALL HWWARN('UPINIT',506)
+         GOTO 999
+      ENDIF
+      READ(61,804)XM1,XM2,XM3,XM4,XM5,XM21,TMPSTR
+      IF (JPR.NE.1) THEN
+         READ(61,805)STRP1,STRP2,TMPSTR
+         READ(61,806)STRGRP,NDNS,TMPSTR
+      ENDIF
+      READ(61,807)XLAM,STRSCH,TMPSTR
+C--CHECK THAT EVENT FILE HAS BEEN GENERATED CONSISTENTLY WITH 
+C--HERWIG PARAMETERS ADOPTED HERE
+      IFAIL=0
+C-- CM ENERGY
+C-- QUARK AND GLUON MASSES
+      IF( ABS(XCKECM-PBEAM1-PBEAM2).GT.TINY .OR.
+     #     ABS(XM1-RMASS(1)).GT.TINY .OR.
+     #     ABS(XM2-RMASS(2)).GT.TINY .OR.
+     #     ABS(XM3-RMASS(3)).GT.TINY .OR.
+     #     ABS(XM4-RMASS(4)).GT.TINY .OR.
+     #     ABS(XM5-RMASS(5)).GT.TINY .OR.
+     #     ABS(XM21-RMASS(13)).GT.TINY)  THEN
+         IFAIL=1
+      ENDIF
+C-- LAMBDA_QCD: NOW REMOVED TO ALLOW MORE FLEXIBILITY (NNLO EFFECT ANYHOW)
+C     #     ABS(XLAM-QCDLAM).GT.TINY .OR.
+C-- REPLACE THE FOLLOWING WITH A CONDITION ON STRSCH, IF CONSISTENT 
+C-- INFORMATION ON PDF SCHEME WILL BE AVAILABLE FROM PDF LIBRARIES AND HERWIG
+C-- COLLIDING PARTICLE TYPE
+      IF (JPR.NE.1.AND.IFAIL.EQ.0) THEN
+         IF(
+     #        FK88STRNOEQ(STRP1,PART1) .OR.
+     #        FK88STRNOEQ(STRP2,PART2) )IFAIL=1
+C--IF PDF LIBRARY IS USED, CHECK PDF CONSISTENCY
+         IF( IFAIL.EQ.0 .AND. MODPDF(1).NE.-1)THEN
+            IF( 
+     #           FK88STRNOEQ(STRGRP,AUTPDF(1)) .OR.
+     #           FK88STRNOEQ(STRGRP,AUTPDF(2)) .OR.
+     #           ABS(NDNS-MODPDF(1)).GT.TINY .OR.
+     #           ABS(NDNS-MODPDF(2)).GT.TINY ) THEN
+               IFAIL=1
+            ENDIF
+C--WHEN LHAPDF IS LINKED, AUTPDF() IS A MC@NLO-DEFINED STRING
+            IF(AUTPDF(1).EQ.'LHAPDF'.OR.AUTPDF(1).EQ.'LHAEXT')THEN
+               AUTPDF(1)='HWLHAPDF'
+               AUTPDF(2)='HWLHAPDF'
+            ENDIF
+         ENDIF
+      ENDIF
+      IF(IFAIL.EQ.1) THEN
+         CALL HWWARN('UPINIT',507)
+         GOTO 999
+      ENDIF
+      CALL HWUIDT(3,IDBMUP(1),IHW,PART1)
+      CALL HWUIDT(3,IDBMUP(2),IHW,PART2)
+      DO I=1,2
+         EBMUP(I)=HALF*XCKECM
+         PDFGUP(I)=-1
+         PDFSUP(I)=-1
+      ENDDO
+      IDWTUP=-4
+      NPRUP=1
+      LPRUP(1)=IVVCODE
+C-- TEST FOR NEW FORMAT INPUT MOMENTA: (PX,PY,PZ,M)
+      READ(61,811) STRFMT,TMPSTR
+      IF (STRFMT.NE.'P,M') THEN
+         CALL HWWARN('UPINIT',510)
+         GOTO 999
+      ENDIF
+      READ(61,900) MQQ
+      NQQ=0
+C-- LARGEST EXPECTED NUMBER OF LEGS
+      NUP=10
+      AQEDUP=ZERO
+      AQCDUP=ZERO
+      DO I=1,NUP
+         VTIMUP(I)=ZERO
+         SPINUP(I)=9.
+      ENDDO
+C-- DETECT FORMAT 4.0
+c      READXXQ=CHECKFORMAT(61,JPR0)
+      READXXQ=FILEVER(61,JPR0)
+      IF(READXXQ.EQ.1) THEN
+         PRINT *, "EVENT FILE made by MC@NLO >=4.0"
+      ELSE IF(READXXQ.EQ.2) THEN
+         PRINT *, "EVENT FILE made by MC@NLO >=4.0 and WZ"
+      ELSE IF(READXXQ.EQ.3) THEN
+         PRINT *, "EVENT FILE made by MC@NLO >=4.0 and WW"
+      ELSE IF(READXXQ.EQ.0) THEN
+         PRINT *, "EVENT FILE made by MC@NLO <4.0"
+      ELSE 
+         PRINT *, "UNKNOWN MC@NLO FORMAT"
+      ENDIF
+      
+ 801  FORMAT(5(1X,D10.4),1X,A)
+ 802  FORMAT(1X,I6,1X,A)
+ 803  FORMAT(1X,D10.4,1X,A)
+ 804  FORMAT(6(1X,D10.4),1X,A)
+ 805  FORMAT(2(1X,A4),1X,A)
+ 806  FORMAT(1X,A8,1X,I6,1X,A)
+ 807  FORMAT(1X,D10.4,1X,A2,1X,A)
+ 808  FORMAT(2(1X,D10.4),1X,A)
+ 809  FORMAT(3(1X,D10.4),1X,A)
+ 810  FORMAT(2(1X,I2),1X,A)
+ 811  FORMAT(1X,A3,1X,A)
+ 812  FORMAT(1X,I2,1X,A)
+ 900  FORMAT(I9)
+ 999  END

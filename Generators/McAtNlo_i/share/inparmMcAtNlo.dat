@@ -1,0 +1,13 @@
+ 'tt.events'        ! event file
+  500                        ! number of events
+  1                        ! 0->Herwig PDFs, 1 otherwise
+ 'P'  'PBAR'               ! hadron types
+  7000.00 7000.00               ! beam momenta
+  -1706                          ! -1705/1706=bb/tt
+ 'HWLHAPDF'                      ! PDF group (1). It was MRS in the original ttMCinput file
+  29003                       ! PDF id number (1). It was 105 in the original ttMCinput file
+ 'HWLHAPDF'                      ! PDF group (2). It was MRS in the original ttMCinput file
+  29003                       ! PDF id number (2). It was 105 in the original ttMCinput file
+  -1                     ! Lambda_5, < 0 for default
+  173                        ! M_Q
+  0.32 0.32 0.5 1.5 5.0 0.75 ! quark and gluon masses
