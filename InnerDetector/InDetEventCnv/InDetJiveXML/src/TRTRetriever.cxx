@@ -36,7 +36,7 @@ namespace JiveXML {
 
   }
 
-  StatusCode TRTRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode TRTRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endreq; 

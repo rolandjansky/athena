@@ -41,7 +41,7 @@ namespace JiveXML {
    * - fill in all information in the data map
    * @param FormatTool the tool that will create formated output from the DataMap
    **/
-  StatusCode PixelRDORetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode PixelRDORetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
   
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endreq; 

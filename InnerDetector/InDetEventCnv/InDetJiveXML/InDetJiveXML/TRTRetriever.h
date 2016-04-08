@@ -44,7 +44,7 @@ namespace JiveXML{
       TRTRetriever(const std::string& type,const std::string& name,const IInterface* parent);
       
       /// Retrieve all the data
-      virtual StatusCode retrieve(ToolHandle<IFormatTool> FormatTool); 
+      virtual StatusCode retrieve(ToolHandle<IFormatTool> &FormatTool); 
 
       /// Return the name of the data type
       virtual std::string dataTypeName() const { return typeName; };

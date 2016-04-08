@@ -40,7 +40,7 @@ namespace JiveXML {
    * - fill in dataMap and forward it to the formatting tool
    * @param FormatTool the tool that will create formated output from the DataMap
    **/
-  StatusCode SCTRDORetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode SCTRDORetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endreq; 
