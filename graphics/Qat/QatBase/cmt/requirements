@@ -4,7 +4,8 @@ author Joe Boudreau  <Joseph.Boudreau@cern.ch>
 manager Joe Boudreau <Joseph.Boudreau@cern.ch>
 
 use AtlasPolicy        AtlasPolicy-*
-use VP1Qt              VP1Qt-*            graphics/VP1
+# needed for the definition of the 'qt4based_library' pattern, defined in VP1Qt's 'requirements' file. The flag '-no_auto_imports' prevents CHECKREQ errors.
+use VP1Qt              VP1Qt-*            graphics/VP1   -no_auto_imports 
 
 apply_tag notAsNeeded
 
