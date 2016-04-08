@@ -11,6 +11,14 @@
 #include "TomoTubeDisplacement.h"
 #include "TomoTubeDisplacementContinuous.h"
 
+#include "f1get.h"
+#include "getindfromamdc.h"
+#include "getamdcindfrom.h"
+#include "fgetamdcagdd.h"
+#include "getnotnomgeo.h"
+#include "fgetranges.h"
+#include "f1perform.h"
+
 using std::setiosflags;
 
 int AmdcsimrecStand::initFromAscii (std::string fileName)
@@ -29,14 +37,6 @@ int AmdcsimrecStand::initFromAscii (std::string fileName)
 
   return Istate;
 }
-
-#include "f1get.h"
-#include "getindfromamdc.h"
-#include "getamdcindfrom.h"
-#include "fgetamdcagdd.h"
-#include "getnotnomgeo.h"
-#include "fgetranges.h"
-#include "f1perform.h"
 
 //*Class implementation
 AmdcsimrecStand::AmdcsimrecStand(){}
