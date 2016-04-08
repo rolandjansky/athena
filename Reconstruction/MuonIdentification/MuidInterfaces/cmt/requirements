@@ -11,6 +11,10 @@ use TrkFitterUtils	  TrkFitterUtils-*	  Tracking/TrkFitter
 use TrkParameters	  TrkParameters-*	  Tracking/TrkEvent
 use TrkTrack		  TrkTrack-*		  Tracking/TrkEvent
 
+# Declare this package as a cmake metalibrary in order to make libraries and header files from
+# packages it depends upon accessible to its clients (transparent to CMT)
+apply_pattern cmake_add_command command=metalibrary
+
 # apply_pattern declare_non_standard_include name=doc
 
 private

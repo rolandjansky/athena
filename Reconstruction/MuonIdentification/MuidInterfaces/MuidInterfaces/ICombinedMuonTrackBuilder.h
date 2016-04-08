@@ -65,11 +65,13 @@ public:
     /**ICombinedMuonTrackBuilder interface:
        propagate to perigee adding calo energy-loss and material to MS track */
     virtual Trk::Track*		standaloneFit	(const Trk::Track&	spectrometerTrack,
-						 const Trk::Vertex*	vertex = 0) const = 0;
+						 const Trk::Vertex*	vertex = 0, 
+                                                 float bs_x = 0., float bs_y = 0., float bs_z = 0.) const = 0;
 
     /**ICombinedMuonTrackBuilder interface:
        refit a track removing any indet measurements with optional addition of pseudoMeasurements */
-    virtual Trk::Track*		standaloneRefit	(const Trk::Track&	combinedTrack) const = 0;
+    virtual Trk::Track*		standaloneRefit	(const Trk::Track&	combinedTrack, 
+                                                 float bs_x = 0., float bs_y = 0., float bs_z = 0.) const = 0;
 };
  
 }	// end of namespace
