@@ -14,15 +14,15 @@ RFILE=$1
 # create a temporary file with the ROOT commands
 MYFILE=/tmp/coolHist_extractFileIdentifier_$$.C
 cat > $MYFILE <<EOF
-void coolHist_extractFileIdentifier_$$(TString& file) {
+void coolHist_extractFileIdentifier_$$(const char* file) {
   cout << "Get GUID from file " << file << endl;
   TFile* myfile=new TFile(file,"READ");
   TObjString* oguid;
   myfile->GetObject("fileGUID",oguid);
   if (oguid!=0) {
     cout << "GUID is " << oguid->GetString() << endl;
-    std::string comm="echo "+(oguid->GetString())+" > coolhist_guid.tmp";
-    system(comm.c_str());
+    TString comm="echo "+(oguid->GetString())+" > coolhist_guid.tmp";
+    system(comm.Data());
     myfile->Close();
   } else {
     cout << "File has no fileGUID object" << endl;
