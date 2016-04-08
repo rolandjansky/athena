@@ -3,7 +3,7 @@
 */
 
 //////////////////////////////////////////////////////////////////
-// SurfaceIntersectionTest.h, (c) ATLAS Detector software
+// IntersectionTest.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef TRKDETDESCRUNITTESTS_SURFACEINTERSECTIONTEST_H
@@ -19,7 +19,7 @@
 
 namespace Trk {
              
-    /** @class SurfaceIntersectionTest
+    /** @class IntersectionTest
        
         Test calling the internal surface intersection methods 
         

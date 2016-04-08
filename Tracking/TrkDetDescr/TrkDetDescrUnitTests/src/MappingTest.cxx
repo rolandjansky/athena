@@ -14,6 +14,7 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
+#include "TrkNeutralParameters/NeutralParameters.h"
 //Root includes
 #include "TTree.h"
 #include "TString.h"
@@ -154,22 +155,25 @@ StatusCode Trk::MappingTest::runTest()
                     // the mapping position & unit is the same
                     Amg::Vector3D position(mapX, mapY, mapZ);
                     Amg::Vector3D direction = position.normalized();
+                    // create curvilinear parameters
+                    Trk::NeutralCurvilinearParameters ncp(position,direction,0.);
                     // get the closest material layer
-                    const Trk::LayerIntersection lIntersect = m_trackingGeometry->closestMaterialLayer(position, direction, Trk::mappingMode, true);
-                    if (lIntersect.sIntersection.valid){
+                    const Trk::LayerIntersection<Amg::Vector3D> lIntersect 
+                        = m_trackingGeometry->closestMaterialLayer<Trk::NeutralCurvilinearParameters>(ncp, Trk::mappingMode, true);
+                    if (lIntersect.intersection.valid){
                         // the mapping positions
                         m_mappingPositionX = mapX;
                         m_mappingPositionY = mapY;
                         m_mappingPositionZ = mapZ;
                         m_mappingPositionR = mapRad;
                         // the resulting assigned position
-                        m_assignedPositionX  = lIntersect.sIntersection.intersection.x();
-                        m_assignedPositionY  = lIntersect.sIntersection.intersection.y();
-                        m_assignedPositionZ  = lIntersect.sIntersection.intersection.z();
-                        m_assignedPositionR  = lIntersect.sIntersection.intersection.perp();
+                        m_assignedPositionX  = lIntersect.intersection.position.x();
+                        m_assignedPositionY  = lIntersect.intersection.position.y();
+                        m_assignedPositionZ  = lIntersect.intersection.position.z();
+                        m_assignedPositionR  = lIntersect.intersection.position.perp();
                         m_assignedCorrection = 0.;
-                        m_assignedLayerIndex = lIntersect.layer->layerIndex().value();
-                        m_assignmentDistance = lIntersect.sIntersection.pathLength;
+                        m_assignedLayerIndex = lIntersect.object->layerIndex().value();
+                        m_assignmentDistance = lIntersect.intersection.pathLength;
                         // and now write the tree
                         m_mappingTree->Fill();
                     } else {

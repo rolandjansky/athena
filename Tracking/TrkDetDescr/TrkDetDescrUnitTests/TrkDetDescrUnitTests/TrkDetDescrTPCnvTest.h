@@ -38,6 +38,7 @@ namespace Trk {
          
          std::string m_materialStepCollectionName;
          std::string m_layerMaterialCollectionName;
+         std::string m_elementTableName;
                                            
    };
 }

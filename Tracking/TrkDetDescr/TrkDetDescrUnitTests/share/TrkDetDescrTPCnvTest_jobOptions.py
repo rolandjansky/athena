@@ -5,14 +5,20 @@
 #==============================================================
 
 #--------------------------------------------------------------
-# ATLAS default Application Configuration options
+# ATLAS default Application Cnviguration options
 #--------------------------------------------------------------
+WriteFile = False
 
 # Use McEventSelector so we can run with AthenaMP
-import AthenaCommon.AtlasUnixGeneratorJob
+if WriteFile :
+    import AthenaCommon.AtlasUnixGeneratorJob
+else :
+    import AthenaCommon.AtlasUnixStandardJob
+    import AthenaPoolCnvSvc.ReadAthenaPool 
+    ServiceMgr.EventSelector.InputCollections = [ 'TrkDetDescrTPCnvTest.root' ]
 
 #--------------------------------------------------------------
-# Private Application Configuration options
+# Private Application Cnviguration options
 #--------------------------------------------------------------
 
 # the global detflags
@@ -28,15 +34,18 @@ job = AlgSequence()
 # output collection name
 MaterialStepCollectionName       = 'RandomMaterialSteps'
 LayerMaterialCollectionName      = 'RandomLayerMaterial'
+ElementTableName                 = 'ElementTableName'
 
 # Add top algorithms to be run
 from TrkDetDescrUnitTests.TrkDetDescrUnitTestsConf import Trk__TrkDetDescrTPCnvTest
-TrkDetDescrTPConfTest = Trk__TrkDetDescrTPCnvTest('TrkDetDescrTPConfTest')
-TrkDetDescrTPConfTest.NumberOfTestsPerEvent         = 100
-TrkDetDescrTPConfTest.MaterialStepCollection   = MaterialStepCollectionName
-TrkDetDescrTPConfTest.LayerMaterialMap         = LayerMaterialCollectionName
-TrkDetDescrTPConfTest.OutputLevel              = VERBOSE
-job += TrkDetDescrTPConfTest   # 1 alg, named "BinUtilityTest"
+TrkDetDescrTPCnvTest = Trk__TrkDetDescrTPCnvTest('TrkDetDescrTPCnvTest')
+TrkDetDescrTPCnvTest.NumberOfTestsPerEvent         = 100
+TrkDetDescrTPCnvTest.MaterialStepCollection        = MaterialStepCollectionName
+TrkDetDescrTPCnvTest.LayerMaterialMap              = LayerMaterialCollectionName
+TrkDetDescrTPCnvTest.ElementTable                  = ElementTableName
+TrkDetDescrTPCnvTest.WriteMode                     = WriteFile
+TrkDetDescrTPCnvTest.OutputLevel                   = VERBOSE
+job += TrkDetDescrTPCnvTest   # 1 alg, named "     TrkDetDescrTPCnvTest"
 
 #--------------------------------------------------------------
 # Set output level threshold (DEBUG, INFO, WARNING, ERROR, FATAL)
@@ -63,7 +72,7 @@ BinUtilityTest = INFO
 # Number of events to be processed (default is until the end of
 # input, or -1, however, since we have no input, a limit needs
 # to be set explicitly, here, choose 10)
-theApp.EvtMax = 5
+theApp.EvtMax = 1
 
 #==============================================================
 #
@@ -73,14 +82,15 @@ theApp.EvtMax = 5
 
 
 ############### The Material hit collection ##################
-
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-# --- check dictionary
-ServiceMgr.AthenaSealSvc.CheckDictionary   = True
-# --- commit interval (test)
-ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
-ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
-MaterialStream              = AthenaPoolOutputStream ( 'TrkDetDescrTPCnv' )
-MaterialStream.OutputFile   =   "TrkDetDescrTPCnvTest.root" 
-MaterialStream.ItemList    += [ 'Trk::MaterialStepCollection#'+MaterialStepCollectionName ]
-MaterialStream.ItemList    += [ 'Trk::LayerMaterialMap#'+LayerMaterialCollectionName ]
+if WriteFile :
+    from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+    # --- check dictionary
+    ServiceMgr.AthenaSealSvc.CheckDictionary   = True
+    # --- commit interval (test)
+    ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
+    ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 1
+    MaterialStream              = AthenaPoolOutputStream ( 'TrkDetDescrTPCnv' )
+    MaterialStream.OutputFile   =   'TrkDetDescrTPCnvTest.root' 
+    MaterialStream.ItemList    += [ 'Trk::MaterialStepCollection#'+MaterialStepCollectionName ]
+    MaterialStream.ItemList    += [ 'Trk::LayerMaterialMap#'+LayerMaterialCollectionName ]
+    MaterialStream.ItemList    += [ 'Trk::ElementTable#'+ElementTableName ]

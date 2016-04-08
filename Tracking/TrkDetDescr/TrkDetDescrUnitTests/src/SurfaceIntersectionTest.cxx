@@ -3,7 +3,7 @@
 */
 
 //////////////////////////////////////////////////////////////////
-// SurfaceIntersectionTest.cxx, (c) ATLAS Detector software
+// IntersectionTest.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 // Amg includes
@@ -100,7 +100,7 @@ StatusCode Trk::SurfaceIntersectionTest::runTest()
             return StatusCode::FAILURE;
         }
         // create the name under which the tree is registered
-        TString fullTreeName  = m_treeFolder+"SurfaceIntersection_Event";
+        TString fullTreeName  = m_treeFolder+"Intersection_Event";
                 fullTreeName += m_eventCounter;
                 fullTreeName += "_Number";
                 fullTreeName += it;
@@ -148,17 +148,17 @@ StatusCode Trk::SurfaceIntersectionTest::runTest()
             ATH_MSG_VERBOSE(" -> Line: " << Amg::toString(startPosition) << " + t * " << Amg::toString(direction));
             
             // now doing the distance estimation
-            Trk::SurfaceIntersection intersection = sf->straightLineIntersection(startPosition,direction,false);
+            Trk::Intersection intersection = sf->straightLineIntersection(startPosition,direction,false);
             ++m_surfaceAttempts[sType];
             // now check if the intesection is valid or not
             if (intersection.valid){
                 ++m_surfaceSuccessful[sType];
-                Amg::Vector3D consistency = (intersection.intersection-intersection.pathLength*direction) - startPosition;
+                Amg::Vector3D consistency = (intersection.position-intersection.pathLength*direction) - startPosition;
                 if (m_writeTTree){
-                    intersectionBranch.fill(intersection.intersection);
+                    intersectionBranch.fill(intersection.position);
                     currentTree->Fill();
                 }    
-                ATH_MSG_VERBOSE( "  -o Intersection  at " << Amg::toString(intersection.intersection) );
+                ATH_MSG_VERBOSE( "  -o Intersection  at " << Amg::toString(intersection.position) );
                 ATH_MSG_VERBOSE( "  -x Cross-checked at " << Amg::toString(consistency) );
               }
             }

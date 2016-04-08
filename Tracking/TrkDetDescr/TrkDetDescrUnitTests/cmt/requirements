@@ -16,6 +16,7 @@ use TrkVolumes            TrkVolumes-*            Tracking/TrkDetDescr
 use TrkSurfaces           TrkSurfaces-*           Tracking/TrkDetDescr
 use TrkDetDescrUtils      TrkDetDescrUtils-*      Tracking/TrkDetDescr
 use TrkValidationUtils    TrkValidationUtils-*    Tracking/TrkUtilityPackages
+use TrkNeutralParameters  TrkNeutralParameters-*  Tracking/TrkEvent
 
 library TrkDetDescrUnitTests *.cxx components/*.cxx
 apply_pattern component_library

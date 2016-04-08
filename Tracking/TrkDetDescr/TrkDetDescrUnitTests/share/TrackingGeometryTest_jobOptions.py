@@ -10,7 +10,7 @@
 
 # Use McEventSelector so we can run with AthenaMP
 import AthenaCommon.AtlasUnixGeneratorJob
-include("BFieldAth/BFieldAth_jobOptions.py")
+
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
@@ -40,9 +40,17 @@ conddb.setGlobalTag("OFLCOND-MC12-SDR-06")
 
 # switch the material loading off
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-TrkDetFlags.MaterialSource           = 'COOL'
+TrkDetFlags.MaterialSource           = 'None'
 TrkDetFlags.MaterialVersion          = 16
 TrkDetFlags.ConfigurationOutputLevel = VERBOSE
+
+
+TrkDetFlags.PixelBuildingOutputLevel     = VERBOSE
+TrkDetFlags.SCT_BuildingOutputLevel      = VERBOSE
+TrkDetFlags.TRT_BuildingOutputLevel      = VERBOSE
+TrkDetFlags.InDetBuildingOutputLevel     = VERBOSE
+TrkDetFlags.ConfigurationOutputLevel     = VERBOSE
+
 
 # load the tracking geometry service
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
@@ -107,6 +115,15 @@ TrackingGeometryTest = INFO
 # input, or -1, however, since we have no input, a limit needs
 # to be set explicitly, here, choose 10)
 theApp.EvtMax = 10
+
+from AthenaCommon.AppMgr import ServiceMgr
+# output level
+ServiceMgr.MessageSvc.OutputLevel  = INFO
+# increase the number of letter reserved to the alg/tool name from 18 to 30
+ServiceMgr.MessageSvc.Format       = "% F%50W%S%7W%R%T %0W%M"
+# to change the default limit on number of message
+ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages
+
 
 #==============================================================
 #
