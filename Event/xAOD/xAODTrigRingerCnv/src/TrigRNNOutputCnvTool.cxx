@@ -59,9 +59,9 @@ namespace xAODMaker {
          xAOD::TrigRNNOutput* rnn = new xAOD::TrigRNNOutput();
          xaod->push_back( rnn );
           
-          rnn->setDecision( ((*aod_itr)->output())[0] );
-          rnn->setEt( ((*aod_itr)->cluster())->et() );
-
+          rnn->setRnnDecision( ((*aod_itr)->output())[0] );
+          //rnn->setEt( ((*aod_itr)->cluster())->et() );
+          rnn->auxdata<float>("et") = ((*aod_itr)->cluster())->et();
       }
 
       ATH_MSG_DEBUG( "Size of the xAOD container after loop: "
