@@ -56,9 +56,7 @@
   m1->getTriggerObjects<type>("", false); \
 }
 
-void nevercalled_TrigObjectMatchingARA() {
-
-  TrigMatchTool *m1 = 0;
+void nevercalled_TrigObjectMatchingARA(TrigMatchTool* m1) {
 
   std::vector<const INavigable4Momentum*> v;
   DataVector<INavigable4Momentum> dvNavigable;

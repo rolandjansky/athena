@@ -36,6 +36,5 @@ use AtlasReflex             AtlasReflex-*             External -no_auto_imports
 apply_pattern lcgdict   dict=TrigObjectMatching \
                              selectionfile=selection.xml \
                              headerfiles="../TrigObjectMatching/TrigObjectMatchingDict.h"
-                             macro_append ROOT_linkopts " -lPyROOT"
 
                              end_private

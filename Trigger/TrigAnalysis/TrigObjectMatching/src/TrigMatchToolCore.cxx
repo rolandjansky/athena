@@ -12,7 +12,8 @@
 #include "TrigObjectMatching/TrigMatchToolCore.h"
 
 TrigMatchToolCore::TrigMatchToolCore()
-  : m_trigDecisionToolCore(0),
+  : m_nConfiguredChainNames(0),
+    m_trigDecisionToolCore(0),
     m_nFeatureContainers (100)
 {
 
