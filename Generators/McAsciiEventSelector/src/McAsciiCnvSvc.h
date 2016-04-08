@@ -84,7 +84,7 @@ class McAsciiCnvSvc : public ConversionSvc
   IIOHepMcTool* m_cnvTool;
 
   /// Output location of the @c McEventCollection
-  Gaudi::Property<std::string> m_mcEventsOutputName;
+  StringProperty m_mcEventsOutputName;
 }; 
 
 /////////////////////////////////////////////////////////////////// 
