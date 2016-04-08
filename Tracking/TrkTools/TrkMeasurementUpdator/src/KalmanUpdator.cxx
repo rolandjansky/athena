@@ -558,6 +558,7 @@ const Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::
   }
   if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar) : false ) {
     m_log << MSG::WARNING << "calculateFS(TP,LPOS,ERR): bad angles in filtered state!" << endreq;
+    delete covPar;
     return 0;
   }
   if (m_outputlevel<=0) logResult(createFQoS?
@@ -675,6 +676,7 @@ const Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::
   }
   if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar) : false ) {
     m_log << MSG::WARNING << "calculateFS(TP,LPAR,ERR): bad angles in filtered state!" << endreq;
+    delete covPar;
     return 0;
   }
   if (m_outputlevel<=0) logResult(createFQoS?

@@ -660,10 +660,8 @@ Trk::KalmanUpdatorAmg::calculateFilterStep_1D(const AmgVector(5)& trkPar, const 
   }
 
   if (createFQoS) {
-    double predictedResidual = (sign<0) ?  r : (measPar - newPar(mk)) ;
-    const AmgSymMatrix(5)& updatedCov   = (sign<0) ?
-      trkCov : // when removing, the input are updated par
-      newCov ; // when adding, chi2 is made from upd. par
+    double predictedResidual = (measPar - newPar(mk)) ;
+    const AmgSymMatrix(5)& updatedCov   = newCov ; // when adding, chi2 is made from upd. par
 
     // for both signs (add/remove) the chi2 is now calculated like for updated states
     double chiSquared = measCov - updatedCov(mk,mk);
@@ -672,7 +670,7 @@ Trk::KalmanUpdatorAmg::calculateFilterStep_1D(const AmgVector(5)& trkPar, const 
     else {
       // get chi2 = r.T() * R^-1 * r
       chiSquared = predictedResidual*predictedResidual/chiSquared;
-      ATH_MSG_VERBOSE("-U- fitQuality of "<< (sign>0?" added ":"removed")
+      ATH_MSG_VERBOSE("-U- fitQuality of "<< (" added ")
                     <<" state, chi2 :" << chiSquared << " / ndof= 1");
     }
     fQ = new FitQualityOnSurface(chiSquared, 1);
@@ -759,7 +757,7 @@ Trk::KalmanUpdatorAmg::calculateFilterStep_5D(const AmgVector(5)& trkPar, const 
     if (createFQoS) {      // get chi2 = r.T() * R2^-1 * r
       // when adding, the r and R are ready to for calculating the predicted chi2
       // when removing the r and -R are ready for calculating the updated chi2.
-      double  chiSquared = (sign>0) ?  r.transpose()*R*r : r.transpose()*(-R)*r;
+      double  chiSquared = r.transpose()*R*r;
       // create the FQSonSurface
       fQ = new FitQualityOnSurface(chiSquared, 5);
     }

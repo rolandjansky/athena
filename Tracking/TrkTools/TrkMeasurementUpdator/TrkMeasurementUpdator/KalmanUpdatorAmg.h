@@ -323,7 +323,7 @@ private:
     if (createFQ) {      // get chi2 = r.T() * R2^-1 * r
       // when adding, the r and R are ready to for calculating the predicted chi2
       // when removing the r and -R are ready for calculating the updated chi2.
-      double  chiSquared = (sign>0) ?  r.transpose()*R*r : r.transpose()*(-R)*r;
+      double  chiSquared = r.transpose()*R*r;
       // create the FQSonSurface
       fQ = new FitQualityOnSurface(chiSquared, DIM);
     }
