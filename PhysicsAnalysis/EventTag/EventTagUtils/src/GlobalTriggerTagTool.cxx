@@ -93,8 +93,7 @@ void GlobalTriggerTagTool::handle ( const Incident& incident ) {
 
   if (incident.type()==IncidentType::BeginRun) {
      m_ccnameL1 = getChainCounter("L1_.*");
-     m_ccnameL2 = getChainCounter("L2_.*");
-     m_ccnameEF = getChainCounter("EF_.*");
+     m_ccnameHLT = getChainCounter("HLT_.*");
 
      CollectionMetadataContainer* bitmaplist = 0;
 
@@ -189,29 +188,23 @@ StatusCode GlobalTriggerTagTool::attributeSpecification(std::map<std::string,Ath
   for (int i=0; i<maxNumber; ++i) {
     /** LVL1 */
     os.str("");
-    if (i < 8) os << TriggerAttributeNames[Trg::LVL1] << "TBP" << std::dec << i;
-    else if (i < 16) os << TriggerAttributeNames[Trg::LVL1] << "TAP" << std::dec << (i%8);
-    else  os << TriggerAttributeNames[Trg::LVL1] << "TAV" << std::dec << (i%8);
+    if (i < 16) os << TriggerAttributeNames[Trg::LVL1] << "TBP" << std::dec << i;
+    else if (i < 32) os << TriggerAttributeNames[Trg::LVL1] << "TAP" << std::dec << (i%16);
+    else  os << TriggerAttributeNames[Trg::LVL1] << "TAV" << std::dec << (i%16);
     attrMap[ os.str() ] = AthenaAttributeType("unsigned int", TriggerAttributeUnitNames[Trg::LVL1], TriggerAttributeGroupNames[Trg::LVL1]);
     m_lv1Str.push_back( os.str() );
   }
-  
-  if ( max.size() > 1 ) maxNumber = max[1];
-  for (int i=0; i<maxNumber; ++i) {  
-    /** level2 */
-    os.str("");
-    os << TriggerAttributeNames[Trg::LVL2] << std::dec << i;
-    attrMap[ os.str() ] = AthenaAttributeType("unsigned int", TriggerAttributeUnitNames[Trg::LVL2], TriggerAttributeGroupNames[Trg::LVL2]);
-    m_lv2Str.push_back( os.str() );
-  }
 
-  if ( max.size() > 2 ) maxNumber = max[2];
+
+
+
+  if ( max.size() > 2 ) maxNumber = max[1];
   for (int i=0; i<maxNumber; ++i) { 
-    /** EF */
+    /** HLT */
     os.str("");
-    os << TriggerAttributeNames[Trg::EF] << std::dec << i;
-    attrMap[ os.str() ] = AthenaAttributeType("unsigned long long", TriggerAttributeUnitNames[Trg::EF], TriggerAttributeGroupNames[Trg::EF]);
-    m_efStr.push_back( os.str() );
+    os << TriggerAttributeNames[Trg::HLT] << std::dec << i;
+    attrMap[ os.str() ] = AthenaAttributeType("unsigned long long", TriggerAttributeUnitNames[Trg::HLT], TriggerAttributeGroupNames[Trg::HLT]);
+    m_hltStr.push_back( os.str() );
 
   }
   // Add Stream info
@@ -290,10 +283,10 @@ StatusCode  GlobalTriggerTagTool::execute(TagFragmentCollection& globalTriggerTa
   for( std::map<int, std::string>::iterator it=m_ccnameL1.begin(); it!=m_ccnameL1.end(); ++it) {
     unsigned int bit = 1u << ( (*it).first % 32 );
     unsigned int word = ((*it).first)/32;
-    if ( (word+16)<maxNumber ) {
+    if ( (word+32)<maxNumber ) {
       if (this->isPassedBits(((*it).second), TrigDefs::L1_isPassedBeforePrescale)) test[word]    |= bit;
-      if (this->isPassedBits(((*it).second), TrigDefs::L1_isPassedAfterPrescale))  test[word+8]  |= bit;
-      if (this->isPassedBits(((*it).second), TrigDefs::L1_isPassedAfterVeto))      test[word+16] |= bit;
+      if (this->isPassedBits(((*it).second), TrigDefs::L1_isPassedAfterPrescale))  test[word+16]  |= bit;
+      if (this->isPassedBits(((*it).second), TrigDefs::L1_isPassedAfterVeto))      test[word+32] |= bit;
     } else {
       ATH_MSG_DEBUG("Word is not within the limit : " << word);
     }
@@ -310,67 +303,34 @@ StatusCode  GlobalTriggerTagTool::execute(TagFragmentCollection& globalTriggerTa
   }
 
 
-  /** Level 2 */
+  /** HLT */
   if ( max.size()>1 )  maxNumber = max[1]; 
   test.clear(); test.resize(maxNumber,0x0);
 
-  for( std::map<int, std::string>::iterator it=m_ccnameL2.begin(); it!=m_ccnameL2.end(); ++it) {
+  for( std::map<int, std::string>::iterator it=m_ccnameHLT.begin(); it!=m_ccnameHLT.end(); ++it) {
     unsigned int bit = 1u << ( (*it).first % 32 );
     unsigned int word = ((*it).first)/32;
     if ( word<maxNumber ) {
       //(RawAccepted && ! Prescaled && ! Resurrected) || PassedThrough
       bool passedPhysics = m_trigDec->isPassed((*it).second);
       bool passedPT      = this->isPassed((*it).second, TrigDefs::passedThrough);
-      bool passedRes     = this->isPassedBits((*it).second, TrigDefs::L2_resurrected);
+      //bool passedRes     = this->isPassedBits((*it).second, TrigDefs::hlt_resurrected);
 
-      if( passedPhysics || passedPT || passedRes ) test[word] |= bit;
+      if( passedPhysics || passedPT  ) test[word] |= bit;
     } else {
       ATH_MSG_DEBUG("Word is not within the limit : " << word);
     }
   }
 
   for (unsigned int i=0; i<maxNumber; i++) {
-    if ( i<m_ccnameL2.size()) {
+    if ( i<m_ccnameHLT.size()) {
         // careful: we are converting the 'int' bitfield to 'double' here
-      globalTriggerTag.insert( m_lv2Str[i], (double)test[i]);
+      globalTriggerTag.insert( m_hltStr[i], (double)test[i]);
     } else {
-      globalTriggerTag.insert( m_lv2Str[i], 0.0 );
+      globalTriggerTag.insert( m_hltStr[i], 0.0 );
     }
   }
  
-  /** Event Filter */
-  if ( max.size()>2 ) maxNumber = max[2];
-  std::vector<unsigned long long> testEF;
-  testEF.resize(maxNumber,0x0L);
-
-  for( std::map<int, std::string>::iterator it=m_ccnameEF.begin(); it!=m_ccnameEF.end(); ++it) {
-    // take word number as chain counter integer divided by word length (32 bits)
-    unsigned int word = (*it).first/32;
-    // take raw bit in word as chain counter remaindered with word length (32 bits)
-    unsigned long long bitR = 1ull << ( (*it).first % 32 );
-    // take physics bit in word as chain counter remaindered with word length (32 bits) shifted by 32
-    unsigned long long bitT = 1ull << (((*it).first % 32 )+32); 
-    // check that word number is legal, then set decision bit if passed
-    if ( word<maxNumber ) {
-      bool passedPhysics = m_trigDec->isPassed((*it).second);
-      bool passedPT      = this->isPassed((*it).second, TrigDefs::passedThrough);
-      bool passedRes     = this->isPassedBits((*it).second, TrigDefs::EF_resurrected);
-
-      bool passedInclusive = (passedPhysics || passedPT || passedRes );
-
-      if( passedInclusive ) testEF[word] |= bitR;
-      if( passedPhysics )   testEF[word] |= bitT;
-
-    } else {
-      ATH_MSG_DEBUG("Word is not within the limit : " << word);
-    }
-  }
-
-  for (unsigned int i=0; i<maxNumber; i++) {
-    // careful: we are converting the 'unsigned long long' bitfield to 'double' here
-    if ( i<m_ccnameEF.size() ) globalTriggerTag.insert( m_efStr[i], testEF[i]);
-    else globalTriggerTag.insert( m_efStr[i], 0.0 );
-  }
 
   // Put stream decisions into a bit mask
   unsigned int stream = 0;

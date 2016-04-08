@@ -72,14 +72,12 @@ private:
 
   //const ChainGroup* m_level;
   std::map<int, std::string> m_ccnameL1;
-  std::map<int, std::string> m_ccnameL2;
-  std::map<int, std::string> m_ccnameEF;
+  std::map<int, std::string> m_ccnameHLT;
 
   /** the attribute names */
   std::vector<std::string> m_lv1StrType;
   std::vector<std::string> m_lv1Str;
-  std::vector<std::string> m_lv2Str;
-  std::vector<std::string> m_efStr;
+  std::vector<std::string> m_hltStr;
 
    /** stream info */
    std::map<std::string,unsigned int> m_TDTstreamMap;

@@ -2,7 +2,7 @@
 #include "EventTagUtils/EventInfoTagTool.h"
 #include "EventTagUtils/GlobalEventTagTool.h"
 #include "EventTagUtils/GlobalTriggerTagTool.h"
-#include "EventTagUtils/RegistrationStreamLumiTrig.h"
+#include "EventTagUtils/RegistrationStreamTrig.h"
 
 
 
@@ -12,14 +12,14 @@ DECLARE_TOOL_FACTORY( RawInfoSummaryForTagTool )
 DECLARE_TOOL_FACTORY( EventInfoTagTool )
 DECLARE_TOOL_FACTORY( GlobalEventTagTool )
 DECLARE_TOOL_FACTORY( GlobalTriggerTagTool )
-DECLARE_ALGORITHM_FACTORY( RegistrationStreamLumiTrig )
+DECLARE_ALGORITHM_FACTORY( RegistrationStreamTrig )
  
 DECLARE_FACTORY_ENTRIES( EventTagUtils ) {
   DECLARE_TOOL( RawInfoSummaryForTagTool )
   DECLARE_TOOL( EventInfoTagTool )
   DECLARE_TOOL( GlobalEventTagTool )
   DECLARE_TOOL( GlobalTriggerTagTool )
-  DECLARE_ALGORITHM( RegistrationStreamLumiTrig )
+  DECLARE_ALGORITHM( RegistrationStreamTrig )
 }
 
 
