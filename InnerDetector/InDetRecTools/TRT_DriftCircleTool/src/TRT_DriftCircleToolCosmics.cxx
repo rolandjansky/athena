@@ -165,6 +165,28 @@ StatusCode InDet::TRT_DriftCircleToolCosmics::finalize()
 {
    StatusCode sc = AthAlgTool::finalize(); return sc;
 }
+///////////////////////////////////////////////////////////////////
+// Test validity gate
+///////////////////////////////////////////////////////////////////
+bool InDet::TRT_DriftCircleToolCosmics::passValidityGate(unsigned int word, float lowGate, float highGate, float t0) const
+{
+  bool foundInterval = false;
+  unsigned  mask = 0x02000000;
+  int i = 0;
+  while ( !foundInterval && (i < 24) ) {
+    if (word & mask) {
+      float thisTime = ((0.5+i)*3.125)-t0;
+      if (thisTime >= lowGate && thisTime <= highGate) foundInterval = true;
+    }
+    mask >>= 1;
+    if (i == 7 || i == 15) 
+      mask >>= 1;
+    i++;
+  }
+  if (foundInterval) return true;
+  return false;
+}
+
 
 ///////////////////////////////////////////////////////////////////
 // Trk::TRT_DriftCircles collection production
@@ -233,10 +255,10 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 	continue;
       }
 
-      Identifier   id  = (*r)->identify    ()                          ;
-      int          tdcvalue  = (*r)->driftTimeBin()                    ;
-      int          newtdcvalue  = tdcvalue                             ;
-      unsigned int timepll = 0                                         ;
+      Identifier   id  = (*r)->identify();
+      int          tdcvalue  = (*r)->driftTimeBin();
+      int          newtdcvalue  = tdcvalue;
+      unsigned int timepll = 0;
 
       // Fix hardware bug in testbeam
       if(m_driftFunctionTool->isTestBeamData()) {
@@ -283,7 +305,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
       if(!isOK) word &= 0xF7FFFFFF; 
       else word |= 0x08000000;
 
-      std::vector<Identifier>    dvi                                   ;
+      //std::vector<Identifier>    dvi // we dont need this                                   ;
       if(msgLvl(MSG::VERBOSE)) msg() << " id " << m_trtid->layer_or_wheel(id)
 	  << " " << m_trtid->straw_layer(id)
 	  << " " << m_trtid->straw(id)
@@ -313,9 +335,9 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 
       Amg::Vector2D loc(radius,0.);
 
-      if(Mode<1) dvi.push_back(id); 
+      // if(Mode<1) dvi.push_back(id);  we dont need this 
 
-      InDet::TRT_DriftCircle* tdc = new InDet::TRT_DriftCircle(id,loc,dvi,errmat,pE,word);
+      InDet::TRT_DriftCircle* tdc = new InDet::TRT_DriftCircle(id,loc,errmat,pE,word);
 
       if (tdc) {
 	     
