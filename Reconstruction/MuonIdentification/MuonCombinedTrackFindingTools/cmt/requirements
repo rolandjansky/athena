@@ -13,7 +13,7 @@ use EventPrimitives     EventPrimitives-*       Event
 use TrkExInterfaces     TrkExInterfaces-*       Tracking/TrkExtrapolation
 use TrkParameters       TrkParameters-*         Tracking/TrkEvent
 use TrkEventPrimitives  TrkEventPrimitives-*    Tracking/TrkEvent
-
+use TrkTrack            TrkTrack-*              Tracking/TrkEvent
 use MuonIdHelpers	MuonIdHelpers-*  	MuonSpectrometer
 
 use MuonSegment         MuonSegment-*           MuonSpectrometer/MuonReconstruction/MuonRecEvent
@@ -22,7 +22,8 @@ use MuonCompetingRIOsOnTrack MuonCompetingRIOsOnTrack-* MuonSpectrometer/MuonRec
 use MuonLayerEvent      MuonLayerEvent-*        MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonClusterization  MuonClusterization-*    MuonSpectrometer/MuonReconstruction/MuonDataPrep
 use MuonCombinedEvent   MuonCombinedEvent-*     Reconstruction/MuonIdentification
-
+use xAODTruth           xAODTruth-*             Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
 
 use MuonRecToolInterfaces      MuonRecToolInterfaces-*      MuonSpectrometer/MuonReconstruction/MuonRecTools
 use MuonRecHelperTools         MuonRecHelperTools-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
@@ -36,6 +37,10 @@ use MuonDetDescrUtils          MuonDetDescrUtils-*          MuonSpectrometer/Muo
 use  MuonSegmentMakerToolInterfaces MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
 use TrkToolInterfaces TrkToolInterfaces-* Tracking/TrkTools
 use MuGirlStau MuGirlStau-* Reconstruction/MuonIdentification
+
+use  MdtCalibData               MdtCalibData-*                  MuonSpectrometer/MuonCalib/MdtCalib
+use  MdtCalibSvc                MdtCalibSvc-*                   MuonSpectrometer/MuonCalib/MdtCalib
+use TrkDriftCircleMath TrkDriftCircleMath-* Tracking/TrkUtilityPackages
 public
 
 apply_pattern component_library

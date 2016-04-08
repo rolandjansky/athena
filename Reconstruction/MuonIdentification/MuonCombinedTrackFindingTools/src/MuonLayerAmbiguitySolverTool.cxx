@@ -147,7 +147,8 @@ namespace Muon {
               candidate.layerIntersections.push_back(layerIntersection);
             }else{
               MuonCandidate newCandidate = candidate;
-              newCandidate.layerIntersections.push_back(layerIntersection);
+              newCandidate.layerIntersections.back() = layerIntersection; // replace the last intersection on the original candidate 
+              //newCandidate.layerIntersections.push_back(layerIntersection);
               newCandidates.push_back(std::move(newCandidate));
             }
             ++selectedSegmentsInLayer;
