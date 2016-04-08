@@ -1,0 +1,420 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+<atn>
+  <TEST name="ATN_BS_default" type="script" suite="MuonConfigBSTrfATN">
+    <options_atn>ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=5 AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py  inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True</options_atn>
+    <timelimit>20</timelimit>
+    <author> Rikard Sandstrom </author>
+    <mailto> rikard.sandstrom@cern.ch,liebig@mail.cern.ch </mailto>
+    <prescript>rm -f $ATN_WORK_AREA/*</prescript>
+    <expectations>
+      <errorMessage>FAILURE </errorMessage>
+      <returnValue>0</returnValue>
+    </expectations>
+  </TEST>
+</atn>
+<kv/>
+<rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+   <rttContactPerson>Rikard Sandstrom (rikard.sandstrom@cern.ch)</rttContactPerson>
+   <mailto>rikard.sandstrom@NOSPAMcern.ch,martin.woudstra@NOSPAMcern.ch,liebig@NOSPAMmail.cern.ch</mailto>
+   <refRelease>12.0.6</refRelease>
+   
+   <jobList>       
+      <classification>
+         <displayClass>OfflineValidation</displayClass>
+         <displayProcess>Reco</displayProcess>
+         <displayComponent>Perf-CombMuon</displayComponent>
+      </classification>
+      
+<!--       BS -->
+      <jobTransform userJobId="BS_all" doMonitoring="True" trendId="BS_all">
+        <doc>MuonRecConfigTests : standard job, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_all</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_all</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="BS_TBMoore" doMonitoring="True" trendId="BS_TBMoore">
+        <doc>MuonRecConfigTests : Moore track builder, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_TBMoore</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_TBMoore</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doStandalone=True,,muonCombinedRecFlags.doCombinedFit=True,,muonCombinedRecFlags.doStatisticalCombination=True,,'from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags',,'muonStandaloneFlags.trackBuilder="Moore"',,'muonStandaloneFlags.printSummary=True'
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="BS_TBMuonboy" doMonitoring="True" trendId="BS_TBMuonboy">
+        <doc>MuonRecConfigTests : Muonboy track builder, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_TBMuonboy</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_TBMuonboy</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doStandalone=True,,muonCombinedRecFlags.doCombinedFit=True,,muonCombinedRecFlags.doStatisticalCombination=True,,'from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags',,'muonStandaloneFlags.trackBuilder="Muonboy"',,'muonStandaloneFlags.printSummary=True'
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="BS_noMuid" doMonitoring="True" trendId="BS_noMuid">
+        <doc>MuonRecConfigTests : no Muid, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_noMuid</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_noMuid</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doMoore=False,,muonCombinedRecFlags.doMuidMuonCollection=False
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="BS_noStaco" doMonitoring="True" trendId="BS_noStaco">
+        <doc>MuonRecConfigTests : no Staco, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_noStaco</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_noStaco</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doMuonboy=False,,muonCombinedRecFlags.doStacoMuonCollection=False
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="BS_noMuidNoStaco" doMonitoring="True" trendId="BS_noMuidNoStaco">
+        <doc>MuonRecConfigTests : no Muid, no Staco, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_noMuidNoStaco</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_noMuidNoStaco</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doMoore=False,,muonCombinedRecFlags.doMuidMuonCollection=False,,muonRecFlags.doMuonboy=False,,muonCombinedRecFlags.doStacoMuonCollection=False
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="BS_noMuidCB" doMonitoring="True" trendId="BS_noMuidCB">
+        <doc>MuonRecConfigTests : no MuidCombined, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_noMuidCB</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_noMuidCB</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMuidCombined=False
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="BS_noMuidSA" doMonitoring="True" trendId="BS_noMuidSA">
+        <doc>MuonRecConfigTests : no MuidStandalone, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_noMuidSA</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_noMuidSA</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMuidStandalone=False
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="BS_noMuTagIMO" doMonitoring="True" trendId="BS_noMuTagIMO">
+        <doc>MuonRecConfigTests : no MuTagIMO, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_noMuTagIMO</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_noMuTagIMO</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMuTagIMO=False
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="BS_noMuGirl" doMonitoring="True" trendId="BS_noMuGirl">
+        <doc>MuonRecConfigTests : no MuGirl, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_noMuGirl</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_noMuGirl</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMuGirl=False
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="BS_noMuTag" doMonitoring="True" trendId="BS_noMuTag">
+        <doc>MuonRecConfigTests : no MuTag, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_noMuTag</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_noMuTag</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMuTag=False
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="BS_noStacoCB" doMonitoring="True" trendId="BS_noStacoCB">
+        <doc>MuonRecConfigTests : no StacoCB, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_noStacoCB</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_noStacoCB</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMboyCombined=False,,muonCombinedRecFlags.doStaco=False
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="BS_noMoore" doMonitoring="True" trendId="BS_noMoore">
+        <doc>MuonRecConfigTests : no Moore, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_noMoore</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_noMoore</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doMoore=False
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="BS_noCalo" doMonitoring="True" trendId="BS_noCalo">
+        <doc>MuonRecConfigTests : no CaloMuon, reco from BS</doc>
+        <displayName>MuonRecConfigTests_BS_noCalo</displayName>
+        <jobTransformJobName>MuonRecConfigTests_BS_noCalo</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=200  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doCaloMuonCollection=False
+        </jobTransformCmd>
+        <group>MuonConfigBSTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+<!--       RDO -->
+      <jobTransform userJobId="Zmumu_all" doMonitoring="True" trendId="Zmumu_all">
+        <doc>MuonRecConfigTests : standard job, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_all</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_all</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="Zmumu_TBMoore" doMonitoring="True" trendId="Zmumu_TBMoore">
+        <doc>MuonRecConfigTests : Moore track builder, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_TBMoore</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_TBMoore</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doStandalone=True,,muonCombinedRecFlags.doCombinedFit=True,,muonCombinedRecFlags.doStatisticalCombination=True,,'from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags',,'muonStandaloneFlags.trackBuilder="Moore"',,'muonStandaloneFlags.printSummary=True'
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="Zmumu_TBMuonboy" doMonitoring="True" trendId="Zmumu_TBMuonboy">
+        <doc>MuonRecConfigTests : Muonboy track builder, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_TBMuonboy</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_TBMuonboy</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doStandalone=True,,muonCombinedRecFlags.doCombinedFit=True,,muonCombinedRecFlags.doStatisticalCombination=True,,'from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags',,'muonStandaloneFlags.trackBuilder="Muonboy"',,'muonStandaloneFlags.printSummary=True'
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+          
+      <jobTransform userJobId="Zmumu_noMuid" doMonitoring="True" trendId="Zmumu_noMuid">
+        <doc>MuonRecConfigTests : no Muid, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_noMuid</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_noMuid</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doMoore=False,,muonCombinedRecFlags.doMuidMuonCollection=False
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="Zmumu_noStaco" doMonitoring="True" trendId="Zmumu_noStaco">
+        <doc>MuonRecConfigTests : no Staco, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_noStaco</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_noStaco</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doMuonboy=False,,muonCombinedRecFlags.doStacoMuonCollection=False
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="Zmumu_noMuidNoStaco" doMonitoring="True" trendId="Zmumu_noMuidNoStaco">
+        <doc>MuonRecConfigTests : no Muid, no Staco, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_noMuidNoStaco</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_noMuidNoStaco</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doMoore=False,,muonCombinedRecFlags.doMuidMuonCollection=False,,muonRecFlags.doMuonboy=False,,muonCombinedRecFlags.doStacoMuonCollection=False
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="Zmumu_noMuidCB" doMonitoring="True" trendId="Zmumu_noMuidCB">
+        <doc>MuonRecConfigTests : no MuidCombined, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_noMuidCB</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_noMuidCB</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMuidCombined=False
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="Zmumu_noMuidSA" doMonitoring="True" trendId="Zmumu_noMuidSA">
+        <doc>MuonRecConfigTests : no MuidStandalone, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_noMuidSA</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_noMuidSA</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMuidStandalone=False
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="Zmumu_noMuTagIMO" doMonitoring="True" trendId="Zmumu_noMuTagIMO">
+        <doc>MuonRecConfigTests : no MuTagIMO, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_noMuTagIMO</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_noMuTagIMO</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMuTagIMO=False
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="Zmumu_noMuGirl" doMonitoring="True" trendId="Zmumu_noMuGirl">
+        <doc>MuonRecConfigTests : no MuGirl, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_noMuGirl</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_noMuGirl</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMuGirl=False
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="Zmumu_noMuTag" doMonitoring="True" trendId="Zmumu_noMuTag">
+        <doc>MuonRecConfigTests : no MuTag, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_noMuTag</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_noMuTag</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMuTag=False
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="Zmumu_noStacoCB" doMonitoring="True" trendId="Zmumu_noStacoCB">
+        <doc>MuonRecConfigTests : no StacoCB, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_noStacoCB</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_noStacoCB</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doMboyCombined=False,,muonCombinedRecFlags.doStaco=False
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+   
+      <jobTransform userJobId="Zmumu_noMoore" doMonitoring="True" trendId="Zmumu_noMoore">
+        <doc>MuonRecConfigTests : no Moore, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_noMoore</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_noMoore</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonRecFlags.doMoore=False
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+      
+      <jobTransform userJobId="Zmumu_noCalo" doMonitoring="True" trendId="Zmumu_noCalo">
+        <doc>MuonRecConfigTests : no CaloMuon, reco from Zmumu</doc>
+        <displayName>MuonRecConfigTests_Zmumu_noCalo</displayName>
+        <jobTransformJobName>MuonRecConfigTests_Zmumu_noCalo</jobTransformJobName>
+        <jobTransformCmd>
+          ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=70  AMITag=q121 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py inputRDOFile=/afs/cern.ch/atlas/project/rig/referencefiles/MC/mc11_ttbar_mu40/mc11_valid.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1310_s1300_d577/RDO.512893._000010.pool.root.1 outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True,,muonCombinedRecFlags.doCaloMuonCollection=False
+        </jobTransformCmd>
+        <group>MuonConfigZmumuTrf</group>
+        <queue>medium</queue>
+      </jobTransform>
+    </jobList>
+    
+   <jobGroups> 
+         <jobGroup name="MuonConfigTrf" parent="Transform">
+          <keepFilePattern> ntuple.root </keepFilePattern>
+          <keepFilePattern> *.pmon.gz </keepFilePattern>
+          <keepFilePattern> Muon*.C </keepFilePattern>
+          <keepFilePattern> AAN*.gif </keepFilePattern>
+          <keepFilePattern> CalNt*.gif </keepFilePattern>
+          <keepFilePattern> *.html </keepFilePattern>
+          <keepFilePattern> *.txt </keepFilePattern>
+          <keepFilePattern> *log </keepFilePattern>
+          <keepFilePattern>*.pdf</keepFilePattern>
+          <auxFilePattern> *.root </auxFilePattern>
+          <auxFilePattern> MuonRecConfigTests_*.C </auxFilePattern>
+          <auxFilePattern> ALL_MuonRecConfigTests_*.html</auxFilePattern>
+          <auxFilePattern> MuonRecConfigTests_*.py</auxFilePattern>
+          <action position="1">
+            <modulename>RttLibraryTools</modulename>
+            <testname>FileGrepper</testname>
+            <arg>
+              <argname>inputFile</argname>
+              <argvalue>*_log</argvalue>
+            </arg>
+            <arg>
+              <argname>outputFile</argname>
+              <argvalue>libraries.txt</argvalue>
+            </arg>
+            <arg>
+              <argname>searchList</argname>
+              <argvalue>AthDsoLogger</argvalue>
+            </arg>
+          </action>
+          <test position="2">
+            <modulename>RttLibraryTools</modulename>
+            <testname>FileGrepper</testname>
+            <arg>
+              <argname>inputFile</argname>
+              <argvalue>*_log</argvalue>
+            </arg>
+            <arg>
+              <argname>outputFile</argname>
+              <argvalue>logExtract.log</argvalue>
+            </arg>
+            <arg>
+              <argname>searchList</argname>
+              <argvalue>leaving with code 0</argvalue>
+            </arg>
+            <arg>
+              <argname>vetoList</argname>
+              <argvalue>FATAL,segmentation violation,bus error</argvalue>
+            </arg>
+          </test>
+      </jobGroup>
+
+      <jobGroup name="MuonConfigBSTrf" parent="MuonConfigTrf">
+          <action position="3">
+            <modulename>RttLibraryTools</modulename>
+            <testname>PerfMonRunner</testname>
+            <arg>
+              <argname>fileName</argname>
+              <argvalue>ntuple_bstoesd.pmon.gz</argvalue>
+            </arg>
+          </action>
+      </jobGroup>
+
+      <jobGroup name="MuonConfigZmumuTrf" parent="MuonConfigTrf">
+          <action position="3">
+            <modulename>RttLibraryTools</modulename>
+            <testname>PerfMonRunner</testname>
+            <arg>
+              <argname>fileName</argname>
+              <argvalue>ntuple_rdotoesd.pmon.gz</argvalue>
+            </arg>
+          </action>
+      </jobGroup>
+   </jobGroups>
+
+</rtt>
+</unifiedTestConfiguration>
+
