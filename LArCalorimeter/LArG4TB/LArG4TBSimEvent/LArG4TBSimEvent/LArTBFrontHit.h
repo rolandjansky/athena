@@ -38,39 +38,39 @@ class LArTBFrontHit
 
 // Set- Get- methods
  // energy deposit
-     inline void SetEdep(double ed) { edep = ed; }
-     inline double GetEdep() { return edep; }
+     inline void SetEdep(double ed) { m_edep = ed; }
+     inline double GetEdep() { return m_edep; }
 
  // position
-     inline void SetPos(CLHEP::Hep3Vector p) { pos = p; }
-     inline CLHEP::Hep3Vector GetPos() { return pos; }
+     inline void SetPos(const CLHEP::Hep3Vector& p) { m_pos = p; }
+     inline CLHEP::Hep3Vector GetPos() { return m_pos; }
 
  // scnum
-     inline void SetSC(int sc) { scnum = sc; }
-     inline int GetSC() { return scnum; }
+     inline void SetSC(int sc) { m_scnum = sc; }
+     inline int GetSC() { return m_scnum; }
 
  // mwpcnum , x, y
-     inline void SetMWPC(int mw) { mwpcnum = mw; }
-     inline int GetMWPC()  { return mwpcnum; }
-     inline void SetX(int x1) { x = x1; }
-     inline int GetX() { return x; }
-     inline void SetY(int y1) { y = y1; }
-     inline int GetY() { return y; }
+     inline void SetMWPC(int mw) { m_mwpcnum = mw; }
+     inline int GetMWPC()  { return m_mwpcnum; }
+     inline void SetX(int x1) { m_x = x1; }
+     inline int GetX() { return m_x; }
+     inline void SetY(int y1) { m_y = y1; }
+     inline int GetY() { return m_y; }
 
  // trackID
-     inline void SetTrackID(int id)  { track_id = id; }
-     inline int GetTrackID()  { return track_id; }
+     inline void SetTrackID(int id)  { m_track_id = id; }
+     inline int GetTrackID()  { return m_track_id; }
 
  // particle code
-     inline void SetPcode(int code) { pcode = code; }
-     inline int GetPcode() { return pcode; }     
+     inline void SetPcode(int code) { m_pcode = code; }
+     inline int GetPcode() { return m_pcode; }     
 
  private:
-     double edep;                // deposited energy in  internal units
-     CLHEP::Hep3Vector pos;            // position of the hit
-     int scnum, mwpcnum, x, y;   // sci. number, mwpc number, x- or y- wire number
-     int track_id;               // track id
-     int pcode;                  // particle code
+     double m_edep;                // deposited energy in  internal units
+     CLHEP::Hep3Vector m_pos;            // position of the hit
+     int m_scnum, m_mwpcnum, m_x, m_y;   // sci. number, mwpc number, x- or y- wire number
+     int m_track_id;               // track id
+     int m_pcode;                  // particle code
 };
 
 typedef std::vector<LArTBFrontHit> LArTBFrontHitsCollection;
