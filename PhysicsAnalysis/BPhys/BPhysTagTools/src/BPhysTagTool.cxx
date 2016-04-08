@@ -15,7 +15,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 BPhysTagTool::BPhysTagTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  AlgTool(type, name, parent) {
+  AthAlgTool(type, name, parent) {
 
   declareInterface<BPhysTagTool>(this);
 }
@@ -29,8 +29,7 @@ BPhysTagTool::~BPhysTagTool() {}
 StatusCode BPhysTagTool::initialize() {
 
   // Athena message stream
-  MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "In intialize()" << endreq;
+  ATH_MSG_DEBUG( "In intialize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -38,8 +37,7 @@ StatusCode BPhysTagTool::initialize() {
 
 StatusCode BPhysTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap, const int /*max*/) {
 
-  MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "In attributeSpecification()" << endreq;
+  ATH_MSG_DEBUG( "In attributeSpecification()" );
 
   // Build the attribute list - called in initialize and specify the BPhys the attributes
   attrMap[ BPhysAttributeNames[0] ] =AthenaAttributeType(std::string("unsigned int"),  BPhysAttributeUnitNames[0], BPhysAttributeGroupNames[0]);
@@ -51,8 +49,7 @@ StatusCode BPhysTagTool::attributeSpecification(std::map<std::string,AthenaAttri
 
 StatusCode BPhysTagTool::execute(TagFragmentCollection& bphysTagColl, const int /*max*/) {
 
-  MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "In execute()" << endreq;
+  ATH_MSG_DEBUG( "In execute()" );
 
   //=============================================================================
   // Fill the B-physics TAG word ================================================
@@ -71,8 +68,7 @@ StatusCode BPhysTagTool::execute(TagFragmentCollection& bphysTagColl, const int 
 
 StatusCode BPhysTagTool::finalize() {
 
-  MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "In finalize()" << endreq;
+  ATH_MSG_DEBUG( "In finalize()" );
 
   return StatusCode::SUCCESS;
 }

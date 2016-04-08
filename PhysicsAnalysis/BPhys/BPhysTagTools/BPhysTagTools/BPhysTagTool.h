@@ -13,8 +13,7 @@
 #include <string>
 #include <map>
 
-#include "GaudiKernel/AlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
@@ -24,7 +23,7 @@
 // Interface ID for BPhysTagTool
 static const InterfaceID IID_BPhysTagTool("BPhysTagTool", 1, 0);
 
-class BPhysTagTool : public AlgTool {
+class BPhysTagTool : public AthAlgTool {
 
 public:
 
