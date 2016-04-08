@@ -7,7 +7,7 @@
 #include "CavernInfraGeoModel/CavernInfraDetectorFactory01.h" 
 #include "CavernInfraGeoModel/CavernInfraDetectorManager.h" 
 
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
@@ -26,17 +26,17 @@ CavernInfraDetectorTool::~CavernInfraDetectorTool()
 
 StatusCode CavernInfraDetectorTool::create( StoreGateSvc* detStore )
 { 
-  IGeoDbTagSvc *geoDbTag;
-  StatusCode sc = service ("GeoDbTagSvc",geoDbTag);
+  IGeoModelSvc *geoModel;
+  StatusCode sc = service ("GeoModelSvc",geoModel);
   if(sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not locate GeoDbTagSvc" << endmsg;
+    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
     return sc;
   }
 
-  std::string cavernInfraVersion = geoDbTag->cavernInfraVersion();
-  msg(MSG::INFO) << "Building Cavern geometry version " << cavernInfraVersion << endmsg;
+  std::string cavernInfraVersion = geoModel->cavernInfraVersion();
+  msg(MSG::INFO) << "Building Cavern geometry version " << cavernInfraVersion << endreq;
   if(cavernInfraVersion.empty()) {
-    msg(MSG::INFO) << "No Cavern Infra version for the given configuration. Skip building CavernInfraGeoModel" << endmsg;
+    msg(MSG::INFO) << "No Cavern Infra version for the given configuration. Skip building CavernInfraGeoModel" << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -44,7 +44,7 @@ StatusCode CavernInfraDetectorTool::create( StoreGateSvc* detStore )
 
   DataHandle<GeoModelExperiment> theExpt; 
   if (StatusCode::SUCCESS != detStore->retrieve(theExpt,"ATLAS")) { 
-    msg(MSG::ERROR) << "Could not find GeoModelExperiment ATLAS" << endmsg; 
+    msg(MSG::ERROR) << "Could not find GeoModelExperiment ATLAS" << endreq; 
     return StatusCode::FAILURE; 
   } 
  
@@ -52,14 +52,14 @@ StatusCode CavernInfraDetectorTool::create( StoreGateSvc* detStore )
   IRDBAccessSvc* raccess = 0;
   sc = service("RDBAccessSvc",raccess);
   if(sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not locate RDBAccessSvc" << endmsg;
+    msg(MSG::ERROR) << "Could not locate RDBAccessSvc" << endreq;
     return sc;
   }
 
   if(cavernInfraVersion.find("CavernInfra")==0) {
     std::string geoVersion = cavernInfraVersion.substr(12,2);
     if(geoVersion=="00" || geoVersion=="01") {
-      msg(MSG::ERROR) << "ERROR. Version " << cavernInfraVersion << " is obsolete and cannot be supported anymore" << endmsg;
+      msg(MSG::ERROR) << "ERROR. Version " << cavernInfraVersion << " is obsolete and cannot be supported anymore" << endreq;
       return StatusCode::FAILURE;
     }
     else if(geoVersion=="02") {
@@ -84,12 +84,12 @@ StatusCode CavernInfraDetectorTool::create( StoreGateSvc* detStore )
     sc = detStore->record(m_manager,
 			  m_manager->getName());
     if(sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not register CavernInfra detector manager" << endmsg;
+      msg(MSG::ERROR) << "Could not register CavernInfra detector manager" << endreq;
       return sc;
     }
   }
   else {
-    msg(MSG::ERROR) << "ERROR. Failed to build Cavern Version " << cavernInfraVersion << endmsg;
+    msg(MSG::ERROR) << "ERROR. Failed to build Cavern Version " << cavernInfraVersion << endreq;
     return StatusCode::FAILURE;
   }
 
