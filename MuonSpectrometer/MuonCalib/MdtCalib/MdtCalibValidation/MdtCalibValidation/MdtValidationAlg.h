@@ -24,7 +24,7 @@
 #include "TF1.h"
 
 //athena
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h" 
 
 // AtlasCore //
@@ -38,21 +38,20 @@ class RegionSelectionSvc;
 
 class MdtIdHelper;
 namespace MuonGM {
-class MuonDetectorManager;
+  class MuonDetectorManager;
 }
+
 namespace MuonCalib {
 
-class NtupleStationId;
-class SamplePoint;
-class CalibDbConnection;
-class RtFullInfo;
-class CalibRtDbOperations;
-class CalibT0DbOperations;
-class CalibHeadOperations;
-
-
-class MdtValidationAlg : public Algorithm
-  {
+  class NtupleStationId;
+  class SamplePoint;
+  class CalibDbConnection;
+  class RtFullInfo;
+  class CalibRtDbOperations;
+  class CalibT0DbOperations;
+  class CalibHeadOperations;
+  
+  class MdtValidationAlg : public AthAlgorithm {
     //===========================================
   public:
     /** Algorithm Constructor */
@@ -67,9 +66,8 @@ class MdtValidationAlg : public Algorithm
     StatusCode finalize();
 
     void filltubeT0();
-
     void ValidateTubeT0 (const MdtTubeFitContainer::SingleTubeFit *fit, int & validflag);
-  
+ 
     int CheckT0Parameters (const MdtTubeFitContainer::SingleTubeFit *fit);
     int CheckRtParameters (std::vector<SamplePoint> & points, const RtFullInfo * full_info);
 
@@ -93,7 +91,6 @@ class MdtValidationAlg : public Algorithm
     //========
     /** Calibration DataBase handling methods */
     StatusCode ConnectDb();
-    StatusCode DisconnectDb();
     
     /** */
     double getLeftLimit(TH1F * histo);
@@ -144,8 +141,7 @@ class MdtValidationAlg : public Algorithm
     std::string m_writer_account, m_writer_password;
     timeval m_t0,m_t1,m_result;
     
-    
-    
+  
     /** limits for T0 acceptance */
     double m_minSlope;
     double m_maxSlope;

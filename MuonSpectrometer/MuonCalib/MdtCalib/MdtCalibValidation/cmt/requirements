@@ -4,6 +4,7 @@ manager Domizia Orestano <domizia.orestano@cern.ch>
 author Fabrizio Petrucci <petrucci@roma3.infn.it> 
 	
 use AtlasPolicy    AtlasPolicy-*
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 use GaudiInterface         GaudiInterface-*      External
 use AtlasROOT AtlasROOT-* External
 
