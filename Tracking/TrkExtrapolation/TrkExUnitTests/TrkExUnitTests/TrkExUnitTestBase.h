@@ -45,7 +45,10 @@ namespace Trk {
        
        /* specify the test here */
        virtual StatusCode runTest() = 0;
-       
+
+       /* specify the scan here */
+       virtual StatusCode runScan() = 0;
+
        /* book the TTree branches */
        virtual StatusCode bookTree();
        
@@ -55,13 +58,15 @@ namespace Trk {
     protected:
       /** Random Number setup */
       Rndm::Numbers*            m_gaussDist;
-      Rndm::Numbers*            m_flatDist;      
+      Rndm::Numbers*            m_flatDist;
+      Rndm::Numbers*            m_landauDist;
       
       /** number of tests */
       size_t                    m_numTests; 
       
-                             
-   };
+      /** enable scan mode */
+      bool                      m_scanMode;
+  };
       
    
 }
