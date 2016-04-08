@@ -55,7 +55,10 @@ const ModuleSpecialPixelMap* DetectorSpecialPixelMap::module(IdentifierHash modu
 
 
 DetectorSpecialPixelMap& DetectorSpecialPixelMap::operator=(const DetectorSpecialPixelMap& spm){
-  return dynamic_cast<DetectorSpecialPixelMap&>(PixelCoralClientUtils::DetectorSpecialPixelMap::operator=(spm));
+  if(this !=&spm){ 
+    *this =  dynamic_cast<DetectorSpecialPixelMap&>(PixelCoralClientUtils::DetectorSpecialPixelMap::operator=(spm));
+  }
+  return (*this);
 }
 
 DetectorSpecialPixelMap& DetectorSpecialPixelMap::operator+=(const DetectorSpecialPixelMap& spm){
@@ -91,7 +94,10 @@ ModuleSpecialPixelMap::~ModuleSpecialPixelMap(){}
 
 
 ModuleSpecialPixelMap& ModuleSpecialPixelMap::operator=(const ModuleSpecialPixelMap& mspm){
-  return dynamic_cast<ModuleSpecialPixelMap&>(PixelCoralClientUtils::ModuleSpecialPixelMap::operator=(mspm));
+  if(this !=&mspm){
+    *this =dynamic_cast<ModuleSpecialPixelMap&>(PixelCoralClientUtils::ModuleSpecialPixelMap::operator=(mspm));
+  }
+  return (*this);
 }
 
 ModuleSpecialPixelMap& ModuleSpecialPixelMap::operator+=(ModuleSpecialPixelMap mspm){

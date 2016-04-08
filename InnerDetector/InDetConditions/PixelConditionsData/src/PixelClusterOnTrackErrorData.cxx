@@ -416,7 +416,7 @@ void PixelClusterOnTrackErrorData::Print(std::string file) const {
 
 // Load costants from file
 void PixelClusterOnTrackErrorData::Load(std::string file){
-
+  int nmax(100); // protection for loop bound
   std::ifstream infile(file.c_str()); 
 
   // number of bins of parametrization
@@ -451,12 +451,16 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
   // read bins of parametrization
 
   float value;
+  if(ncsx<0)ncsx = 0;
+  ncsx = std::min(ncsx, nmax);
   m_csx.clear();
   m_csx.reserve(ncsx);
   for(int i=0; i<ncsx; i++){
     infile >> value;
     m_csx.push_back(value);
   }
+  if(ncsy<0)ncsy=0;
+  ncsy = std::min(ncsy, nmax);
   m_csy.clear();
   m_csy.reserve(ncsy);
   for(int i=0; i<ncsy; i++){
@@ -465,24 +469,30 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
   }
   if(m_etabinsibl>0 && m_phibinsibl >0 ){ // IBL
     m_ibletaref.clear();
+    m_etabinsibl = std::min(m_etabinsibl, nmax);
     m_ibletaref.reserve(m_etabinsibl+1);
     for(int i=0; i<m_etabinsibl+1; i++){
       infile >> value;
       m_ibletaref.push_back(value);
     }
     m_iblphibins.clear();
+    m_phibinsibl = std::min(m_phibinsibl, nmax);
     m_iblphibins.reserve(m_phibinsibl+1);
     for(int i=0; i<m_phibinsibl+1; i++){
       infile >> value;
       m_iblphibins.push_back(value);
     }	 
   }
+  if(neta<0)neta=0;
+  neta = std::min(neta, nmax);
   m_etaref.clear();
   m_etaref.reserve(neta);
   for(int i=0; i<neta; i++){
     infile >> value;
     m_etaref.push_back(value);
   }
+  if(nalpha<0)nalpha = 0;
+  nalpha = std::min(nalpha, nmax);
   m_phibins.clear();
   m_phibins.reserve(nalpha);
   for(int i=0; i<nalpha; i++){
@@ -490,6 +500,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
     m_phibins.push_back(value);
   }
   if(nxbinsibl>0){ // IBL
+    nxbinsibl = std::min(nxbinsibl, nmax);
     m_iblphierror.clear();
     m_iblphierror.reserve(nxbinsibl);
     for(int ib1=0; ib1<nxbinsibl; ib1++){
@@ -508,6 +519,7 @@ void PixelClusterOnTrackErrorData::Load(std::string file){
      m_barrelphierror.push_back(value);
   }
   if(nybinsibl>0){ // IBL
+    nybinsibl = std::min(nybinsibl, nmax);
     m_ibletaerror.clear();
     m_ibletaerror.reserve(nybinsibl);
     for(int ib1=0; ib1<nybinsibl; ib1++){

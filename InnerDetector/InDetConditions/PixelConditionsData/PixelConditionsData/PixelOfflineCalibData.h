@@ -34,6 +34,8 @@ class PixelOfflineCalibData{
   public:
   /** Constructor:*/
   PixelOfflineCalibData(); 
+  PixelOfflineCalibData(const PixelOfflineCalibData& rhs);
+  PixelOfflineCalibData& operator=(const PixelOfflineCalibData& rhs);
   // PixelOfflineCalibData(const Identifier & ident); 
   // PixelOfflineCalibData(Identifier & ident);  
 
@@ -72,6 +74,21 @@ inline PixelOfflineCalibData::PixelOfflineCalibData() {
   m_clusterontrackerrordata = new PixelClusterOnTrackErrorData();
   m_chargeinterpolationparameters = new PixelChargeInterpolationParameters();
 } 
+
+inline PixelOfflineCalibData::PixelOfflineCalibData(const PixelOfflineCalibData& rhs){
+  m_clustererrordata = rhs.m_clustererrordata;
+  m_clusterontrackerrordata = rhs.m_clusterontrackerrordata;
+  m_chargeinterpolationparameters = rhs.m_chargeinterpolationparameters;
+}
+
+inline PixelOfflineCalibData& PixelOfflineCalibData::operator=(const PixelOfflineCalibData& rhs){
+  if(this != &rhs){
+    m_clustererrordata = rhs.m_clustererrordata;
+    m_clusterontrackerrordata = rhs.m_clusterontrackerrordata;
+    m_chargeinterpolationparameters = rhs.m_chargeinterpolationparameters;
+  }
+  return (*this);
+}
                                                                    
 inline bool PixelOfflineCalibData::update(const PixelClusterErrorData& idat){
   *m_clustererrordata = idat;
