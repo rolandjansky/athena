@@ -16,8 +16,8 @@ class TrkSegmentDummyDict {
 	Trk::SegmentCollection m_mySegColl;
 	Trk::TrackSegment m_myTempSeg;
   std::vector<const Trk::RIO_OnTrack*> m_myRioVec;
-  ElementLink< Trk::SegmentCollection >                               i3;
-  std::vector<ElementLink< Trk::SegmentCollection > >                 i4;
+  ElementLink< Trk::SegmentCollection >                               m_i3;
+  std::vector<ElementLink< Trk::SegmentCollection > >                 m_i4;
 };
 
 #endif 

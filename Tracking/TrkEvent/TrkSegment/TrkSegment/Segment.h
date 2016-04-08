@@ -21,6 +21,7 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 
 class MsgStream;
+class SegmentCnv_p1;
 
 namespace Trk{
 
@@ -97,7 +98,11 @@ class FitQuality;
         */
       const std::vector<const Trk::MeasurementBase*>& containedMeasurements() const;
 
-     /** Return the number of contained Trk::MeasurementBase (s)*/
+      const DataVector<const Trk::MeasurementBase>& containedMeasurementsDataVector() const;
+
+      bool hasContainedMeasurements() const;
+
+      /** Return the number of contained Trk::MeasurementBase (s)*/
       unsigned int numberOfMeasurementBases() const ;
 
       /** returns the Trk::MeasurementBase objects depending on the integer*/
@@ -117,6 +122,7 @@ class FitQuality;
       std::string dumpAuthor() const;
 
     protected:
+      friend class ::SegmentCnv_p1;
       
       /** The fit quality of the Segment */
       FitQuality*                           m_fitQuality;
@@ -139,6 +145,16 @@ inline const FitQuality* Segment::fitQuality() const
 inline const std::vector<const MeasurementBase*>& Segment::containedMeasurements() const
 { 
      return m_containedMeasBases->stdcont(); 
+}
+ 
+inline const DataVector<const MeasurementBase>& Segment::containedMeasurementsDataVector() const
+{ 
+     return *m_containedMeasBases; 
+}
+ 
+inline bool Segment::hasContainedMeasurements() const
+{ 
+  return m_containedMeasBases != nullptr;
 }
  
 inline const MeasurementBase* Segment::measurement(unsigned int indx) const
