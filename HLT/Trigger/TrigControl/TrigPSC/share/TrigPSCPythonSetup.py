@@ -109,15 +109,6 @@ except Exception, e:
 theApp.StatusCodeCheck = False     # enabled via TriggerFlags.Online.doValidation (see below)
 theApp.setOutputLevel(OUTPUTLEVEL)
 
-try:
-   import PyCintex
-except ImportError, e:
- # handle a somewhat common mistake
-   import traceback
-   traceback.print_exception( sys.exc_type,
-       '%s, ROOT version or setup problem?' % str(e), sys.exc_traceback )
-   sys.exit( 1 )
-
 # Configure the CoreDumpSvc
 if not hasattr(ServiceMgr,"CoreDumpSvc"):
    from AthenaServices.Configurables import CoreDumpSvc
@@ -129,11 +120,6 @@ if not hasattr(ServiceMgr,"CoreDumpSvc"):
 #
 if ServiceMgr.CoreDumpSvc.properties().has_key('FatalHandler'): 
    ServiceMgr.CoreDumpSvc.FatalHandler = -1         # make SIG_INT fatal
-else:
-   PyCintex.loadDictionary( "libAthenaServicesDict" )
-   gbl = PyCintex.makeNamespace('')
-   # make SIG_INT fatal
-   gbl.AthenaServices.SetFatalHandler()
 
 ## set resource limits
 from AthenaCommon.ResourceLimits import SetMaxLimits

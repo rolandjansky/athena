@@ -52,7 +52,6 @@ if not os.environ.has_key( "POOL_OUTMSG_LEVEL" ):
 ## Minimal Python bindings
 from GaudiPython import *
 from GaudiPython.Bindings import iProperty
-import PyCintex
 from TrigCommon.TrigPyHelper import trigApp
 
 ## Set OutputLevel in JobOptionsSvc if "-l" option was used in athenaMT/PT
