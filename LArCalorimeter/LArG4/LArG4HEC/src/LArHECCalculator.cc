@@ -78,9 +78,9 @@ LArHECCalculator::LArHECCalculator()
   // Constructor initializes the geometry.
 
   // Make sure we don't have any undefined values.
-  m_identifier = LArG4Identifier();
-  m_time = 0.;
-  m_energy = 0.;
+  //m_identifier = LArG4Identifier();
+  //m_time = 0.;
+  //m_energy = 0.;
   m_isInTime = false;
 
   // Initialize the geometry calculator.
@@ -96,8 +96,7 @@ LArHECCalculator::LArHECCalculator()
   m_OOTcut = 2.5*CLHEP::ns;
 }
 
-
-G4bool LArHECCalculator::Process(const G4Step* a_step)
+G4bool LArHECCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
 {
   // Given a G4Step, find the sampling, region, eta bin, and phi bin
   // in the LAr HEC associated with that point.
@@ -109,8 +108,10 @@ G4bool LArHECCalculator::Process(const G4Step* a_step)
   // true, the hit is valid; if it's false, there was some problem
   // with the hit and it should be ignored.
 
+  // Make sure that vector is cleared
+  hdata.clear();
   // First, get the energy.
-  m_energy = a_step->GetTotalEnergyDeposit();
+  hdata[0].energy = a_step->GetTotalEnergyDeposit();
 
   // Find out how long it took the energy to get here.
   G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
@@ -121,14 +122,14 @@ G4bool LArHECCalculator::Process(const G4Step* a_step)
   G4ThreeVector endPoint   = post_step_point->GetPosition();
   G4ThreeVector p = (startPoint + endPoint) * 0.5;
 					 
-  m_time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
-  if (m_time > m_OOTcut)
+  hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+  if (hdata[0].time > m_OOTcut)
     m_isInTime = false;
   else
     m_isInTime = true;
 
   // Calculate the identifier.
-  m_identifier = m_geometry->CalculateIdentifier( a_step );
+  hdata[0].id = m_geometry->CalculateIdentifier( a_step );
 
 #ifdef DEBUG_HITS
   std::cout << "LArHECCalculator::Process                 "
@@ -138,7 +139,7 @@ G4bool LArHECCalculator::Process(const G4Step* a_step)
 #endif
 
   // Check for any problems.
-  if ( m_identifier == LArG4Identifier() )
+  if ( hdata[0].id == LArG4Identifier() )
     return false;
 
   return true;
