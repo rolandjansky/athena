@@ -75,14 +75,20 @@ namespace Muon {
 
   int MuonSegmentSelectionTool::quality( const MuonSegment& seg, bool ignoreHoles ) const {
     Identifier chid = m_helperTool->chamberId(seg);
+    if( !chid.is_valid() ) {
+      ATH_MSG_WARNING("Got invalid segment identifier");
+      return -1;
+    }
         
     // different treatment for CSC and MDT segments
-    
     // mdt treatment
     if( m_idHelperTool->isMdt(chid) ) return mdtSegmentQuality(seg,chid,ignoreHoles);
     
     // csc segments
     if( m_idHelperTool->isCsc(chid) ) return cscSegmentQuality(seg,chid,ignoreHoles);
+
+    // rpc/tgc case
+    if( m_idHelperTool->isTgc(chid) || m_idHelperTool->isRpc(chid) ) return 1;
 
     // NSW segments
     return nswSegmentQuality(seg,chid,ignoreHoles);

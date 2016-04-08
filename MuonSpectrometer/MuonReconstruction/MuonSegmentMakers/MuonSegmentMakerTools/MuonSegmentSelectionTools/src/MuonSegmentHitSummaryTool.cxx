@@ -146,11 +146,13 @@ namespace Muon {
 	if( m_idHelperTool->mdtIdHelper().multilayer(id) == 1 ) ++hitCounts.nmdtHitsMl1; 
 	else                                                    ++hitCounts.nmdtHitsMl2;
 
-	if( mdt->prepRawData() ){
+	if (mdt){
+        if( mdt->prepRawData() ){
 	  int adc = mdt->prepRawData()->adc();
 	  if( adc > m_lowerADCBound ) ++hitCounts.nmdtHighADCHits;
 	  if( adc > hitCounts.adcMax ) hitCounts.adcMax = adc;
 	}
+        }
 
       }else if( m_idHelperTool->isTrigger(id) ){
 	// get gasgap ID (same for eta/phi projection)
