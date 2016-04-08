@@ -1,0 +1,7 @@
+package InDetAlignToolInterfaces
+
+author Tobias Goettfert <tobias.goettfert@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-*           External
+use DataModel             DataModel-*                Control
