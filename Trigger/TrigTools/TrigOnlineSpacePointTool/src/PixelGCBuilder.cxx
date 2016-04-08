@@ -36,8 +36,8 @@ void PixelGCBuilder::formSpacePoints (const InDet::PixelClusterCollection& clust
 
   double pitchPhi = element->phiPitch();
   double pitchRz  = element->etaPitch();
-  errLocT= pitchPhi/sqrt(12.); 
-  errLocL= pitchRz/sqrt(12.);
+  errLocT= pitchPhi*sqrt(1./12.); 
+  errLocL= pitchRz*sqrt(1./12.);
   
   const Amg::Vector3D posn = element->center();  
   const Amg::Vector3D& dir1 =  element->phiAxis();
@@ -59,7 +59,7 @@ void PixelGCBuilder::formSpacePoints (const InDet::PixelClusterCollection& clust
    
   for (; iter != clusterColl.end(); iter++) {
 
-    InDet::SiCluster* cluster =  *iter;
+    const InDet::SiCluster* cluster =  *iter;
     const Amg::Vector2D pos = cluster->localPosition();
     locT = pos[0];
     locL = pos[1];

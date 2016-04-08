@@ -112,7 +112,6 @@ class OnlineSpacePointProviderTool: public AthAlgTool, virtual public ISpacePoin
   double m_spformationSCTTime;
   double m_l2DataTime;
   double m_regSelTime;
-  double m_minZ, m_maxZ;
   int nColl[4];
   bool m_useStoreGate;
 

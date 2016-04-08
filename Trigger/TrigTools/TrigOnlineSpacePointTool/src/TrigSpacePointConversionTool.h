@@ -18,6 +18,7 @@ class SCT_ID;
 class PixelID;
 class IRegSelSvc;
 class IBeamCondSvc;
+
 class ITrigL2LayerNumberTool;
 
 class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionTool, public AthAlgTool {
@@ -41,7 +42,6 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   const AtlasDetectorID* m_atlasId;
   const SCT_ID*  m_sctId;
   const PixelID* m_pixelId;
-
   std::string    m_regionSelectorName;
   IRegSelSvc*    m_regionSelector;
   IBeamCondSvc*  m_beamCondSvc; 
@@ -51,9 +51,11 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   const SpacePointContainer* m_pixelSpacePointsContainer; 
   bool m_filter_phi;
   bool m_useBeamTilt;
+  bool m_useNewScheme;
 
   StatusCode retrieveSpacePointsContainers();
   void shiftSpacePoints(std::vector<TrigSiSpacePointBase>&);
   void transformSpacePoints(std::vector<TrigSiSpacePointBase>&);
+
 };
 #endif

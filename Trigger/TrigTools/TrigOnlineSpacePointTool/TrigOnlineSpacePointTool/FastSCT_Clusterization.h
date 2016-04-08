@@ -51,7 +51,7 @@ private:
 
   Identifier m_element;
   
-  InDet::SCT_Cluster* m_currentCluster;
+  //InDet::SCT_Cluster* m_currentCluster;
 
   InDet::SCT_ClusterCollection* m_currentClusterColl;
 

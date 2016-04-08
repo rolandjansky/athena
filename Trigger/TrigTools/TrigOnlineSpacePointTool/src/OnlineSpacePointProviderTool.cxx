@@ -68,8 +68,6 @@ OnlineSpacePointProviderTool::OnlineSpacePointProviderTool(const std::string& t,
   declareProperty( "SctSpContainerName", m_sctSpContainerName = "TrigSCT_SpacePoints" );
   declareProperty( "PixelSpContainerName", m_pixelSpContainerName = "TrigPixelSpacePoints" );
   declareProperty( "UseStoreGate", m_useStoreGate = false );
-  declareProperty( "zMin", m_minZ = -168.0 );
-  declareProperty( "zMax", m_maxZ =  168.0 );
   declareProperty( "UseSctClusterThreshold", m_useSctClustThreshold = false );
   declareProperty( "SctClusterThreshold",    m_sctClustThreshold    = 30 );
   declareProperty( "UsePixelClusterThreshold", m_usePixelClustThreshold = false );

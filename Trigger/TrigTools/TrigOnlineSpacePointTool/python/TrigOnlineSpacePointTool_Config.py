@@ -21,7 +21,6 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         
         from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import L2IDTrackingCuts
         
         InDetL2TrigClusterMakerTool = InDet__ClusterMakerTool( name = "InDetL2TrigClusterMakerTool",
                                                                UsePixelCalibCondDB = False,
@@ -69,6 +68,3 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         self.PixelClusterCacheTool = ConfiguredPixelClusterCacheTool
         self.SctClusterCacheTool = ConfiguredSCT_ClusterCacheTool
         
-        self.zMin = -L2IDTrackingCuts.RegSelZmax()
-        self.zMax =  L2IDTrackingCuts.RegSelZmax()
-

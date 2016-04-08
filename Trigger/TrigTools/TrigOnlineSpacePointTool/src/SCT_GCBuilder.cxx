@@ -52,8 +52,8 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
        
   sint = element->sinTilt();
       
-  errLocT= pitchPhi / sqrt(12.); 
-  errLocL = element->length()/sqrt(12.); 
+  errLocT= pitchPhi * sqrt(1./12.); 
+  errLocL = element->length()*sqrt(1./12.); 
 
   locL = 0;
   locT = 0;
@@ -72,7 +72,7 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
   }
 
   for (; iter != phi_clusterColl.end(); iter++) {
-    InDet::SiCluster* cluster =  *iter;
+    const InDet::SiCluster* cluster =  *iter;
            
     const Amg::Vector2D phiPos = cluster->localPosition();
 
@@ -102,7 +102,7 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
       dr = errLocL;
       
       locT = phiPos[0]/posn.mag();
-      dphi= pitchPhiRadians/ sqrt(12.);
+      dphi= pitchPhiRadians* sqrt(1./12.);
 
       phi = locT + posn.phi();
 
@@ -152,8 +152,8 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
 {
   double errLocT,errLocL,x,y;
   double dZ,dr,dphi,dz;
-  double sint,cost,zphi,Rphi,Rstereo,Phiphi,Phistereo,zsp,rsp,phisp;
-  double alpha, cosa, sina, maxLocL, denom;
+  double Phiphi,Phistereo,zsp,rsp,phisp;
+  double alpha, denom;
   bool associationFound;
 
   InDet::SCT_ClusterCollection::const_iterator phi_begin = phi_clusterColl.begin(),
@@ -195,47 +195,51 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
 
   //std::cout << "pitchPhi " << pitchPhi << "pitchPhiRadians " << pitchPhiRadians<< std::endl;
 
-  errLocT= pitchPhi / sqrt(12.);
+  errLocT= pitchPhi * sqrt(1./12.);
 
   const Amg::Vector3D& posPhi = phi_element->center();
-  zphi=posPhi.z();
-  Rphi=posPhi.perp();
+  const double zphi=posPhi.z();
+  const double inv_zphi = 1. / zphi;
+  const double Rphi=posPhi.perp();
   Phiphi=posPhi.phi();
   const Amg::Vector3D& posStereo =  uv_element->center();
   Phistereo=posStereo.phi();
-  Rstereo=posStereo.perp();
+  const double Rstereo=posStereo.perp();
+  const double inv_Rstereo = 1. / Rstereo;
 
   //std::cout << "Phi element extends " << phi_element->rMin() << "\t" << phi_element->rMax() << std::endl;
   
   const Amg::Vector3D& dirT = phi_element->phiAxis();
-  maxLocL = phi_element->length()/2.;
+  const double maxLocL = phi_element->length()*0.5;
 
   long layerId = m_sctID->layer_disk(phi_waferId);
-  sina = uv_element->sinStereo();
-  cosa = sqrt(1.0-sina*sina);
+  const double sina = uv_element->sinStereo();
+  const double cosa = sqrt(1.0-sina*sina);
+  const double inv_sina = 1. / sina;
   if (m_sctID->is_barrel(phi_waferId)) {
     layerId += m_OffsetBarrelSCT;    
     alpha=asin(sina);
     errLocL=pitchPhi/(sqrt(6.)*fabs(sina));
     dr=0.5*WAFER_WIDTH/sqrt(3.0);
     dz=errLocL;
-    dphi=errLocT/500.0;
+    dphi=errLocT*(1./500.0);
   }
   else {
     layerId += m_OffsetEndcapSCT;
     dz=0.5*WAFER_WIDTH/sqrt(3.0);
-    dphi=pitchPhiRadians/sqrt(12.0);
+    dphi=pitchPhiRadians*sqrt(1./12.0);
     dr=pitchPhi/(sqrt(6.)*fabs(sina));
   }
 
   Amg::Vector3D vertex(0.0,0.0,0.0);
 
+  const double inv_Rphi = 1. / Rphi;
   if(m_useOfflineAlgorithm) {
 
     InDet::SCT_ClusterCollection::const_iterator iter_phi = phi_begin;
     for(;iter_phi!=phi_end;iter_phi++) 
       {
-	InDet::SiCluster* cluster1=(*iter_phi);
+	const InDet::SiCluster* cluster1=(*iter_phi);
 	Amg::Vector2D localPos = cluster1->localPosition(); 
 	std::pair<Amg::Vector3D, Amg::Vector3D > ends1(phi_element->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0)));  
 	Amg::Vector3D a(ends1.first);   // Top end, first cluster 
@@ -244,7 +248,7 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
 	InDet::SCT_ClusterCollection::const_iterator iter_uv = uv_begin;
 	for(;iter_uv!=uv_end;iter_uv++) 
 	  {
-	    InDet::SiCluster* cluster2=(*iter_uv);
+	    const InDet::SiCluster* cluster2=(*iter_uv);
 	    localPos = cluster2->localPosition(); 
 	    std::pair<Amg::Vector3D, Amg::Vector3D > ends2(uv_element->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0)));  
 	    Amg::Vector3D c(ends2.first);   // Top end, second cluster 
@@ -287,22 +291,23 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
   else {
     if (m_sctID->is_barrel(phi_waferId)) {
 
-      sint = phi_element->sinTilt();
-      cost = sqrt(1.0-sint*sint);
+      const double sint = phi_element->sinTilt();
+      const double cost = sqrt(1.0-sint*sint);
+      const double inv_cost = 1. / cost;
       InDet::SCT_ClusterCollection::const_iterator iter_phi = phi_begin;
       for(;iter_phi!=phi_end;iter_phi++) 
 	{
-	  InDet::SiCluster* cluster_phi=(*iter_phi);
+	  const InDet::SiCluster* cluster_phi=(*iter_phi);
 	  double xphi=cluster_phi->localPosition()[0];
 	  associationFound=false;
 	  InDet::SCT_ClusterCollection::const_iterator iter_uv = uv_begin;
 	  for(;iter_uv!=uv_end;iter_uv++) 
 	    {
-	      InDet::SiCluster* cluster_uv=(*iter_uv);
+	      const InDet::SiCluster* cluster_uv=(*iter_uv);
 	      double xs = cluster_uv->localPosition()[0];
-	      double coeff=1.0+(Rstereo-Rphi)/Rphi;
-	      double centerShift=Rstereo*cosa*(Phistereo-Phiphi)/cost;
-	      double localZ=(xs-xphi*coeff*cosa+centerShift)/sina;
+	      double coeff=1.0+(Rstereo-Rphi)*inv_Rphi;
+	      double centerShift=Rstereo*cosa*(Phistereo-Phiphi)*inv_cost;
+	      double localZ=(xs-xphi*coeff*cosa+centerShift)*inv_sina;
 	      if(fabs(localZ)<maxLocL) 
 		{
 		  associationFound = true;
@@ -348,7 +353,7 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
 
 	      dphi = errLocT/rsp;
 	      zsp=posPhi.z()+xphi*dirT.z();
-	      dz=0.5*maxLocL/sqrt(3.0);
+	      dz=0.5*maxLocL*sqrt(1/3.0);
 	      TrigSiSpacePoint* sp=new TrigSiSpacePoint(cluster_phi, phi_waferId,
 							layerId, rsp, phisp, zsp, 
 							dr, dphi, dz);
@@ -383,22 +388,22 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
       alpha = asin(dirT.y()*dirT2.x()-dirT.x()*dirT2.y());
       for(;iter_phi!=phi_end;iter_phi++) 
 	{
-	  InDet::SiCluster* cluster_phi=(*iter_phi);
+	  const InDet::SiCluster* cluster_phi=(*iter_phi);
 	  double xphi=cluster_phi->localPosition()[0];
-	  double PHI0=xphi/Rphi;
+	  double PHI0=xphi*inv_Rphi;
 	  associationFound=false;
 	  InDet::SCT_ClusterCollection::const_iterator iter_uv = uv_begin;
 	  for(;iter_uv!=uv_end;iter_uv++)
 	    {
-	      InDet::SiCluster* cluster_uv=(*iter_uv);
+	      const InDet::SiCluster* cluster_uv=(*iter_uv);
 	      double xs = cluster_uv->localPosition()[0];
-	      double PHIS=xs/Rstereo;
+	      double PHIS=xs*inv_Rstereo;
 	      denom=sin(PHI0-PHIS+alpha);
 	      if(fabs(denom)<1.e-10) continue;
 	      double B=(sin(PHIS)-sin(PHIS-alpha))/denom;
 	      if (maxLocL<35 && Rphi>400) { // short middle-ring strips (length~60, radius>400)
 		double posDiff = std::sqrt(std::pow(posPhi.x()-posStereo.x(),2)+std::pow(posPhi.y()-posStereo.y(),2));
-		double shortMidCorr = posDiff/2./sin(fabs(alpha)/2.);
+		double shortMidCorr = posDiff*0.5/sin(fabs(alpha)*0.5);
 		// Assuming that the point of rotation is below the center of module.
 		rsp=(Rphi-shortMidCorr)*B; }
 	      else rsp=Rphi*B;
@@ -409,10 +414,10 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
 		  associationFound = true;
 
 		  // The "stereo" angle of the phi element, due to misalignment etc.
-	 	  double rotAng = -asin((dirT.x()*posPhi.x()+dirT.y()*posPhi.y())/Rphi);
+	 	  double rotAng = -asin((dirT.x()*posPhi.x()+dirT.y()*posPhi.y())*inv_Rphi);
 
 		  // Correct rsp so that the  coordinates are calculated on the phi-layer
-		  rsp=rsp/(1.0+dZ/zphi);
+		  rsp=rsp/(1.0+dZ*inv_zphi);
 
 		  phisp=PHI0+Phiphi;
 
@@ -438,7 +443,7 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
 		  
 		  double K=(cos(PHIS)-cos(PHIS-alpha))/denom;
 		  double M=B*cos(PHI0-PHIS+alpha)/denom;
-		  dr=pitchPhiRadians/sqrt(12.0);
+		  dr=pitchPhiRadians*sqrt(1./12.0);
 		  dr*=Rphi*sqrt(M*M+(K+M)*(K+M));
 		  //int signZ=(zphi<0.0)?-1:1;
 		  //zsp+=0.5*WAFER_WIDTH*signZ;
@@ -472,9 +477,9 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
 	  if(!associationFound && allowPhiOnly)
 	    {
 	      rsp=Rphi;
-	      dr=0.5*maxLocL/sqrt(3.0);
+	      dr=0.5*maxLocL*sqrt(1./3.0);
 	      phisp=PHI0;
-	      dphi=pitchPhiRadians/sqrt(12.0);
+	      dphi=pitchPhiRadians*sqrt(1./12.0);
 	      phisp+=Phiphi;
 	      if(phisp<-M_PI) phisp+=2.0*M_PI;
 	      else if(phisp>M_PI) phisp-=2.0*M_PI;
