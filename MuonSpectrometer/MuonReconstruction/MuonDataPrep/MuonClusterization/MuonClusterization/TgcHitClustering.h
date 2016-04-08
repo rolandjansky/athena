@@ -113,7 +113,8 @@ namespace Muon {
     typedef std::vector< Triplet > HitClustering;
 
     TgcHitClusteringObj( const TgcIdHelper& tgcIdHelper ) : 
-      m_tgcIdHelper(&tgcIdHelper),debug(false),combinedGasGaps(true)
+      m_tgcIdHelper(&tgcIdHelper),bunchIdBestEta(-99),bunchIdBestPhi(-99),
+      ngasgaps(-99),debug(false),combinedGasGaps(true)
     {}
 
     
