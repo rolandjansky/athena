@@ -379,13 +379,7 @@ class TrigCaloCellMaker_fullcalo (TrigFullCaloCellMakerBase):
         #self.OutputLevel=INFO
 
         #### configure TrigDataAccess for loadFullCollections
-        from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigDataAccess
-        #class TrigDataAccessConfig(TrigDataAccess):
-        #    __slots__ = []
-        #    def __init__ (self, name="TrigDataAccess"):
-        #        super(TrigDataAccessConfig, self).__init__(name)
-        #        self.loadFullCollections=True
-        #ToolSvc+=TrigDataAccessConfig()
+        from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
         ToolSvc+=TrigDataAccess()
         ToolSvc.TrigDataAccess.loadFullCollections = True
 
