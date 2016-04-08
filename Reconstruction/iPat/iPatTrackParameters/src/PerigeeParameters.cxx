@@ -12,7 +12,7 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
-#include "GaudiKernel/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 #include "iPatTrackParameters/PerigeeParameters.h"
 
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
@@ -28,7 +28,7 @@ PerigeeParameters::print (void) const
 	      << std::setw(7) << std::setprecision(4) << std::atan2(m_sinPhi,m_cosPhi)
 	      << std::setw(8) << std::setprecision(4) << m_cotTheta
 	      << "  pt"
-	      << std::setw(8) << std::setprecision(2) << pt()/Gaudi::Units::GeV
+	      << std::setw(8) << std::setprecision(2) << pt()*Athena::Units::GeV
 	      << std::resetiosflags(std::ios::fixed);
 }
 
