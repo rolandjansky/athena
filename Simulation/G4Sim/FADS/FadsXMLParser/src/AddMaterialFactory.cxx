@@ -7,6 +7,7 @@
 #include "xercesc/dom/DOMNamedNodeMap.hpp"
 #include "xercesc/dom/DOMNodeList.hpp"
 #include <string>
+#include <stdexcept>
 #include <map>
 #include "FadsMaterial/FadsElement.h"
 #include "FadsMaterial/FadsMaterial.h"
@@ -68,7 +69,12 @@ namespace FADS {
                   }
                 DOMNamedNodeMap *atts=list->item(i)->getAttributes();
                 std::string str=XMLReaderUtil::Transcode(atts->item(0)->getNodeValue());
-                int na=atoi(str.c_str());
+		char *endptr;
+                int na=strtol(str.c_str(), &endptr, 0);
+		if (endptr[0] != '\0') {
+		  throw std::invalid_argument("Could not convert string to int: " + str);	
+		}
+		
 
                 ml->AddElement(XMLReaderUtil::trim(aMap["material"]),na);
               }

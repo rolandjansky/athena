@@ -7,6 +7,8 @@
 #include "FadsXMLParser/XMLReader.h"
 #include "FadsUtilities/Tokenizer.h"
 
+#include <stdexcept>
+
 #include "G4UnitsTable.hh"
 
 namespace FADS {
@@ -58,8 +60,12 @@ namespace FADS {
   {
     if (attributeMap.find(aName)==attributeMap.end())
       return 0;
-    else
-      return atoi(attributeMap[aName].c_str());
+    char *endptr;
+    int result = strtol(attributeMap[aName].c_str(), &endptr, 0);
+    if (endptr[0] != '\0') {
+      throw std::invalid_argument("Could not convert string to int: " + aName);	
+    }
+    return result;
   }
   std::string DescriptionFactory::GetAttributeAsString(std::string aName)
   {
@@ -80,10 +86,15 @@ namespace FADS {
         std::string blank(" ");
         FADS::Tokenizer t(blank,attributeMap[aName]);
         typedef std::vector<std::string>::const_iterator Itr;
+	char *endptr;
         for (Itr p=t.begin(); p!=t.end(); p++)
           {
-            if ((*p)!=" " && !(*p).empty())
-              out.push_back(atoi((*p).c_str()));
+            if ((*p)!=" " && !(*p).empty()) {
+              out.push_back(strtol((*p).c_str(), &endptr, 0));
+	      if (endptr[0] != '\0') {
+		throw std::invalid_argument("Could not convert string to int: " + (*p));	
+	      }
+	    }
           }
         return out;
       }
