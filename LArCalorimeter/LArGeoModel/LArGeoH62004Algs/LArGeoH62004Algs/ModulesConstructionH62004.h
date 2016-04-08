@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __ModulesConstructionH62004_H__
-#define __ModulesConstructionH62004_H__
+#ifndef LARGEOH62004ALGS_MODULESCONSTRUCTIONH62004_H
+#define LARGEOH62004ALGS_MODULESCONSTRUCTIONH62004_H
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -41,9 +41,9 @@ namespace LArGeo {
 
 	   const LArGeoTB2004Options      *m_Options;
 
-           static float dX[NUM_LEAK], dY[NUM_LEAK], dZ[NUM_LEAK];
-           static float shiftX[NUM_LEAK], shiftY[NUM_LEAK], shiftZ[NUM_LEAK];
-           static float angleX[NUM_LEAK], angleY[NUM_LEAK], angleZ[NUM_LEAK];
+           static float s_dX[NUM_LEAK], s_dY[NUM_LEAK], s_dZ[NUM_LEAK];
+           static float s_shiftX[NUM_LEAK], s_shiftY[NUM_LEAK], s_shiftZ[NUM_LEAK];
+           static float s_angleX[NUM_LEAK], s_angleY[NUM_LEAK], s_angleZ[NUM_LEAK];
 
            int m_fcalVisLimit;
 
@@ -51,4 +51,4 @@ namespace LArGeo {
 
 }
 
-#endif // __ModulesConstructionH62004_H__
+#endif // LARGEOH62004ALGS_MODULESCONSTRUCTIONH62004_H
