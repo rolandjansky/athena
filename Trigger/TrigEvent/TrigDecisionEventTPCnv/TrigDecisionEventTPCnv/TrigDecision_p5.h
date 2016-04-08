@@ -61,10 +61,10 @@ namespace TrigDec {
     //    const HLT::HLTResult_p1&       getL2Result() const { return *m_l2_result; }
     //    const HLT::HLTResult_p1&       getEFResult() const { return *m_ef_result; }
 
-  private:
+    //private:
 
-    uint32_t m_configMasterKey;
-    char     m_bgCode;
+    uint32_t m_configMasterKey = 0;
+    char     m_bgCode = 0;
 
     LVL1CTP::Lvl1Result_p2  m_l1_result; //!< Light result of trigger level 1
     DataLink_p2 m_l2_result;             //!< HLTResult of trigger level 2

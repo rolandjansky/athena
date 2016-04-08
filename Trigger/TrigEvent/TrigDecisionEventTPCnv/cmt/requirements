@@ -16,9 +16,12 @@ apply_pattern tpcnv_library
 
 private
 
+use GaudiInterface       GaudiInterface-*           External
 use AtlasReflex		 AtlasReflex-*		    External
 use AthenaKernel         AthenaKernel-*             Control
+use SGTools              SGTools-*                  Control
 use TrigDecisionEvent    TrigDecisionEvent-*        Trigger/TrigEvent
+use TrigSteeringEvent    TrigSteeringEvent-*        Trigger/TrigEvent
 
 # Create a dictionary for the persistent representation 
 # of transient classes.  If we make a single dictionary,
@@ -33,3 +36,13 @@ apply_pattern lcgdict dict=OLD_TrigDecisionEventTPCnv \
   headerfiles="../TrigDecisionEventTPCnv/TrigDecisionEventTPCnvDict.h"
 
 end_private
+
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=TrigDecisionCnv_p1
+apply_pattern UnitTest_run unit_test=TrigDecisionCnv_p2
+apply_pattern UnitTest_run unit_test=TrigDecisionCnv_p3
+apply_pattern UnitTest_run unit_test=TrigDecisionCnv_p4
+apply_pattern UnitTest_run unit_test=TrigDecisionCnv_p5
+
