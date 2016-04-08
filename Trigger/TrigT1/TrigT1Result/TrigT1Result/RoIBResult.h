@@ -53,6 +53,11 @@ namespace ROIB {
     RoIBResult( const MuCTPIResult&, const CTPResult&,
                 const std::vector< JetEnergyResult >&,
                 const std::vector< EMTauResult >& );
+    //! Full move constructor, with all RODs provided 
+    RoIBResult( MuCTPIResult&&,
+                CTPResult&&,
+                std::vector< JetEnergyResult >&&,
+                std::vector< EMTauResult >&& );
     //! Constructor without Muon rod 
     RoIBResult( const CTPResult&,
                 const std::vector< EMTauResult >&,
@@ -75,7 +80,7 @@ namespace ROIB {
     //! Gets the L1Topo part of the L1 RDO 
     const std::vector< L1TopoResult >& l1TopoResult() const;
     //! Sets the L1Topo part of the L1 RDO 
-    void l1TopoResult(const std::vector< L1TopoResult >);
+    void l1TopoResult(const std::vector< L1TopoResult >&);
     
     //! dump raw object content to string
     /** method used for read/write testing and T/P separation */

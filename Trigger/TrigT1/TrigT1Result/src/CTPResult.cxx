@@ -27,7 +27,7 @@ namespace ROIB {
       m_CTPResultHeader(),
       m_CTPResultTrailer(),
       m_CTPResultRoIVec(),
-      m_ctpVersionNumber(0),
+      //m_ctpVersionNumber(0),
       m_ctpDataformat(0),
       m_useRoIB(false),
       m_l1aBunch(0)
@@ -39,7 +39,7 @@ namespace ROIB {
       m_CTPResultHeader( head ),
       m_CTPResultTrailer( trail ),
       m_CTPResultRoIVec( rois ),
-      m_ctpVersionNumber( ctpVersion ),
+      //m_ctpVersionNumber( ctpVersion ),
       m_ctpDataformat( ctpVersion ),
       m_useRoIB(false),
       m_l1aBunch(0)
@@ -52,7 +52,7 @@ namespace ROIB {
    CTPResult::CTPResult(unsigned int ctpVersion, const Header& head, const Trailer& trail, const std::vector<uint32_t>& v ) :
       m_CTPResultHeader( head ),
       m_CTPResultTrailer( trail ),
-      m_ctpVersionNumber( ctpVersion ),
+      //m_ctpVersionNumber( ctpVersion ),
       m_ctpDataformat( ctpVersion ),
       m_useRoIB(false),
       m_l1aBunch(0)

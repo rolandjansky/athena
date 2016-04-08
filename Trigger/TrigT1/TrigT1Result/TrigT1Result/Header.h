@@ -47,7 +47,7 @@ namespace ROIB {
       : m_header() {}
 
     //! constructor which fully specifies the initialiser values 
-    Header( const std::vector<uint32_t> v)
+    Header( const std::vector<uint32_t>& v)
       : m_header( v ) {}
 
     //! constructor specifying subdet ID, event ID and version 

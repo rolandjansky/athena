@@ -53,7 +53,7 @@ public:
    * @param dataWord                The muon candidate data words
    */
   MuCTPI_RDO( const uint32_t candidateMultiplicity,
-              const std::vector< uint32_t > dataWord )
+              const std::vector< uint32_t >& dataWord )
     : m_dataWord( dataWord ) {
     setCandidateMultiplicity( candidateMultiplicity );
   }
@@ -66,8 +66,8 @@ public:
    * @param candidateMultiplicity   The multiplicity words with the 6 separate 3-bit muon multiplicities
    * @param dataWord                The muon candidate data words
    */
-  MuCTPI_RDO( const std::vector< uint32_t > candidateMultiplicity,
-              const std::vector< uint32_t > dataWord )
+  MuCTPI_RDO( const std::vector< uint32_t >& candidateMultiplicity,
+              const std::vector< uint32_t >& dataWord )
     : m_candidateMultiplicity( candidateMultiplicity ),
       m_dataWord( dataWord ) {
   }

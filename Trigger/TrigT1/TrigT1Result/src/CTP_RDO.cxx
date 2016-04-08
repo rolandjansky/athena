@@ -35,7 +35,7 @@ CTP_RDO::CTP_RDO(unsigned int ctpVersionNumber, const uint32_t nBCs, uint32_t nE
    m_dataWords.resize(m_ctpDataFormat.getNumberTimeWords()+(nBCs*m_ctpDataFormat.getDAQwordsPerBunch() )+nExtraWords);
 }
 
-CTP_RDO::CTP_RDO(unsigned int ctpVersionNumber, const std::vector<uint32_t> data, uint32_t nExtraWords)
+CTP_RDO::CTP_RDO(unsigned int ctpVersionNumber, const std::vector<uint32_t>& data, uint32_t nExtraWords)
   : m_ctpVersionNumber(ctpVersionNumber),
     m_ctpDataFormat(ctpVersionNumber),
     m_dataWords(data)    

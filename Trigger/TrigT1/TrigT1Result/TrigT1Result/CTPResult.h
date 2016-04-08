@@ -123,7 +123,7 @@ namespace ROIB {
      std::vector<CTPRoI> m_CTPResultRoIVec;                //!< raw data content (RoIs)
 
      //CTP version
-     unsigned int m_ctpVersionNumber;
+     //unsigned int m_ctpVersionNumber;
      CTPdataformatVersion m_ctpDataformat;
     
      //! convert data content into string (used by dump and print)

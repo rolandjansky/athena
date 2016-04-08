@@ -30,6 +30,18 @@ namespace ROIB {
 
   }
 
+  RoIBResult::RoIBResult( MuCTPIResult&& muctpi,
+                          CTPResult&& ctp,
+                          std::vector< JetEnergyResult >&& jetEnergy,
+                          std::vector< EMTauResult >&& emtau )
+    : m_RoIBResultMuCTPI( std::move(muctpi) ),
+      m_RoIBResultCTP( std::move(ctp) ),
+      m_RoIBResultJetEnergy( std::move(jetEnergy) ),
+      m_RoIBResultEMTau( std::move(emtau) ),
+      m_RoIBResultL1Topo()
+  {
+  }
+
   RoIBResult::RoIBResult( const CTPResult& ctp, 
 			  const std::vector< EMTauResult >& emtau, 
 			  const std::vector< JetEnergyResult >& jetEnergy )
@@ -82,7 +94,7 @@ namespace ROIB {
     return m_RoIBResultL1Topo;
   }
 
-  void RoIBResult::l1TopoResult(const std::vector< L1TopoResult > vL1TopoResult){
+  void RoIBResult::l1TopoResult(const std::vector< L1TopoResult >& vL1TopoResult){
     m_RoIBResultL1Topo = vL1TopoResult;
   }
 
