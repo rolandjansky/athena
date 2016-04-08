@@ -3,14 +3,16 @@ package AthenaPoolExampleConverter
 author Peter Van Gemmeren <gemmeren@anl.gov>
 
 use AtlasPolicy           AtlasPolicy-*
-use AtlasCLHEP            AtlasCLHEP-00-*            External
+use AtlasCLHEP            AtlasCLHEP-*               External
 use AtlasReflex           AtlasReflex-*              External
-use GaudiInterface        GaudiInterface-*           External
-use DataModelAthenaPool   DataModelAthenaPool-01-*   Control
-use AthenaPoolCnvSvc      AthenaPoolCnvSvc-00-*      Database/AthenaPOOL
-use AthenaPoolServices    AthenaPoolServices-00-*    Database/AthenaPOOL
-use AthenaPoolUtilities   AthenaPoolUtilities-00-*   Database/AthenaPOOL
-use AthenaPoolExampleData AthenaPoolExampleData-00-* Database/AthenaPOOL/AthenaPoolExample
+use DataModelAthenaPool   DataModelAthenaPool-*      Control
+use AthenaPoolServices    AthenaPoolServices-*       Database/AthenaPOOL
+use AthenaPoolUtilities   AthenaPoolUtilities-*      Database/AthenaPOOL
+use AthenaPoolExampleData AthenaPoolExampleData-*    Database/AthenaPOOL/AthenaPoolExample
+
+private
+use AthenaPoolCnvSvc      AthenaPoolCnvSvc-*         Database/AthenaPOOL
+end_private
 
 macro_append AthenaPoolExampleConverterPoolCnvGen_dependencies " AthenaPoolExampleConverterDict "
 
