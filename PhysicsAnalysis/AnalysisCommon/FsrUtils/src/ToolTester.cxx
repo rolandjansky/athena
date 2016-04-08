@@ -64,7 +64,7 @@ namespace FSR {
 			<<" f1 = " << candidate.f1
 			<<" eta = " << candidate.eta
 			<<" phi = " << candidate.phi
-			<<" etcone = "<< candidate.topoEtcone40
+			<<" phIso = "<< candidate.phIso
 			<<" fsrtype = " << candidate.type
 			);
     	 }

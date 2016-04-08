@@ -15,10 +15,11 @@ use PATInterfaces	PATInterfaces-*	PhysicsAnalysis/AnalysisCommon
 
 private
 
+use xAODCore            xAODCore-*              Event/xAOD
 use AthenaBaseComps	AthenaBaseComps-*	Control
 use GaudiInterface	GaudiInterface-*	External
 use AtlasROOT		AtlasROOT-*		External
-
+use IsolationSelection  IsolationSelection-*    PhysicsAnalysis/AnalysisCommon
 
 end_private
 

@@ -30,7 +30,7 @@ namespace FSR {
    public:
       enum FsrType { FsrNear, FsrFar, FsrUnknown };
 
-       FsrCandidate() : particle(0), deltaR(-1), Et(-1), f1(-1), eta(-1), phi(-1), topoEtcone40(-1),
+       FsrCandidate() : particle(0), deltaR(-1), Et(-1), f1(-1), eta(-1), phi(-1), phIso(-1),
                        type(FsrUnknown) {}
       std::string container;
       const xAOD::IParticle* particle;
@@ -39,7 +39,7 @@ namespace FSR {
       double  f1;
       double  eta;
       double  phi;
-      double  topoEtcone40;
+      double  phIso; // Only available for far photons
       FsrType type;
       bool operator<(const FsrCandidate& c) const {
           return deltaR < c.deltaR;
