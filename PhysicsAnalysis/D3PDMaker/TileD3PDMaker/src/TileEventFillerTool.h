@@ -161,10 +161,16 @@ class TileEventFillerTool:public D3PD::BlockFillerTool<xAOD::EventInfo>{
         EventID::number_type *m_detmask1;
 
         // MISSING ENERGY VARIABLES
-        const xAOD::MissingETContainer* m_missET; bool b_missET_Final;
-        float* m_MET_RefFinal_Ex;
-        float* m_MET_RefFinal_Ey;
-        float* m_MET_RefFinal_EtSum;
+        std::string m_metContainer;
+
+        bool   m_isMissingEtAvailable;
+        float* m_MET_Ref_FinalClus_Ex;
+        float* m_MET_Ref_FinalClus_Ey;
+        float* m_MET_Ref_FinalClus_EtSum;
+
+        float* m_MET_Ref_FinalTrk_Ex;
+        float* m_MET_Ref_FinalTrk_Ey;
+        float* m_MET_Ref_FinalTrk_EtSum;
 
         //size of Muons container
         int *m_N_mu;

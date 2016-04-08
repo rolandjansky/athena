@@ -93,9 +93,8 @@ typedef xAOD::CaloClusterContainer CLUSTERCONTAINER;
 typedef xAOD::CaloClusterAuxContainer CLUSTERAUXCONTAINER;
 
 
-#ifndef KinematicUtils
-#define KinematicUtils
 namespace KinematicUtils {
+  inline
   void EnsurePhiInMinusPiToPi(double& phi) {
     phi = fmod(phi, (2*M_PI));
     if (phi < -M_PI) phi += 2*M_PI;
@@ -103,6 +102,7 @@ namespace KinematicUtils {
     return;
   }
 
+  inline
   double deltaPhi(double phi1, double phi2) {
     EnsurePhiInMinusPiToPi(phi1);
     EnsurePhiInMinusPiToPi(phi2);
@@ -112,6 +112,7 @@ namespace KinematicUtils {
     return dPhi;
   }
 
+  inline
   double deltaR(double eta1, double eta2, double phi1, double phi2) {
     double dPhi=KinematicUtils::deltaPhi(phi1,phi2);
     double dEta=std::fabs(eta1-eta2);
@@ -119,9 +120,6 @@ namespace KinematicUtils {
     return dR;
   }
 }
-#endif
-using namespace std;
-using namespace xAOD;
 
 
 static const InterfaceID IID_ITrackTools("ITrackTools", 1, 0);
@@ -150,7 +148,7 @@ class ITrackTools:virtual public IAlgTool{
         virtual int retrieveIndex(int sampling, float eta) = 0;
 
         virtual bool trackIsolation( xAOD::TrackIsolation& result, const xAOD::TrackParticle &tp,
-                                     const std::vector<Iso::IsolationType>& cones ) = 0;
+                                     const std::vector<xAOD::Iso::IsolationType>& cones ) = 0;
 /*THIS IS GOING TO BE USED
         virtual bool caloTopoClusterIsolation( xAOD::CaloIsolation& result, const xAOD::TrackParticle& tp,
                                                const std::vector<xAOD::Iso::IsolationType>& cones, xAOD::CaloIso::SubtractionStrategy strategy) = 0; 

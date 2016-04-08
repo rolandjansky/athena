@@ -33,12 +33,14 @@ namespace D3PD{
 TileEventFillerTool::TileEventFillerTool(const std::string& type,
                                                  const std::string& name,
                                                  const IInterface* parent)
-  : D3PD::BlockFillerTool<xAOD::EventInfo>(type,name,parent){
+  : D3PD::BlockFillerTool<xAOD::EventInfo>(type,name,parent)
+{
 //=========================================================================
 // CONSTRUCTOR
-  declareProperty("LevelOfDetails",   m_LevelOfDetails);
+  declareProperty("LevelOfDetails", m_LevelOfDetails);
+  declareProperty("METContainer", m_metContainer = "MET_Reference_AntiKt4LCTopo"); // 'MET_RefFinal' in r19
+
   m_storeGate =	0;
-  m_missET = 0;
   m_trigDec = 0;
   m_pVertex = 0;
         // PILE-UP
@@ -120,10 +122,15 @@ TileEventFillerTool::TileEventFillerTool(const std::string& type,
    m_detmask1 = 0;
 
    // MISSING ENERGY VARIABLES
-   b_missET_Final = false;
-   m_MET_RefFinal_Ex = 0;
-   m_MET_RefFinal_Ey = 0;
-   m_MET_RefFinal_EtSum = 0;
+   m_isMissingEtAvailable = true;
+
+   m_MET_Ref_FinalClus_Ex = 0;
+   m_MET_Ref_FinalClus_Ey = 0;
+   m_MET_Ref_FinalClus_EtSum = 0;
+
+   m_MET_Ref_FinalTrk_Ex = 0;
+   m_MET_Ref_FinalTrk_Ey = 0;
+   m_MET_Ref_FinalTrk_EtSum = 0;
 
    //size of Muons container
    m_N_mu = 0;
@@ -150,14 +157,6 @@ StatusCode TileEventFillerTool::initialize(){
     } // IF
 
 
-    // SET WHICH MISSING ENERGY VARIABLES SHOULD BE ADDED TO D3PD
-    if(m_LevelOfDetails > 3){
-        if(!m_storeGate->retrieve(m_missET,"MET_RefFinal").isFailure())
-        {
-          b_missET_Final = true;
-        }
-        else ATH_MSG_ERROR("COULD NOT RETRIVE MET!");       
-    } // IF
 
     // RETRIEVE TRIGGER DECISION TOOL
     if(m_LevelOfDetails > 4){
@@ -210,9 +209,14 @@ StatusCode TileEventFillerTool::book(){
 
     // BASIC MISSING ENERGY
     if(m_LevelOfDetails > 3){
-        CHECK( addVariable( "MET_RefFinal_Ex",               m_MET_RefFinal_Ex, "", 0.) );
-        CHECK( addVariable( "MET_RefFinal_Ey",               m_MET_RefFinal_Ey, "", 0.) );
-        CHECK( addVariable( "MET_RefFinal_EtSum",            m_MET_RefFinal_EtSum, "", 0.) );
+        CHECK( addVariable( "MET_Ref_FinalClus_Ex",               m_MET_Ref_FinalClus_Ex, "", 0.) );
+        CHECK( addVariable( "MET_Ref_FinalClus_Ey",               m_MET_Ref_FinalClus_Ey, "", 0.) );
+        CHECK( addVariable( "MET_Ref_FinalClus_EtSum",            m_MET_Ref_FinalClus_EtSum, "", 0.) );
+
+        CHECK( addVariable( "MET_Ref_FinalTrk_Ex",               m_MET_Ref_FinalTrk_Ex, "", 0.) );
+        CHECK( addVariable( "MET_Ref_FinalTrk_Ey",               m_MET_Ref_FinalTrk_Ey, "", 0.) );
+        CHECK( addVariable( "MET_Ref_FinalTrk_EtSum",            m_MET_Ref_FinalTrk_EtSum, "", 0.) );
+
     } // IF
 
     // TRIGGER DECISIONS
@@ -325,21 +329,34 @@ StatusCode TileEventFillerTool::fill(const xAOD::EventInfo& p){
     // MISSING ENERGY POINTER RETRIEVAL: EACH TIME IT IS CHECKED WHETHER THE MISSING ENERGY VARIABLE
     // COULD BE RETRIEVED FROM THE STOREGATE. THEN THE TRANSVERSE ENERGIES IN X AND Y AND THE SUMMED
     // MISSING ENERGY ARE STORED.
-    if(m_LevelOfDetails > 3){
-      if(m_missET)
-      {
-        xAOD::MissingETContainer::const_iterator itr = m_missET->begin();
-        for(;itr!=m_missET->end(); ++itr )
-        {
-          //ATH_MSG_INFO("MET name: "<<(*itr)->name());
-          if((*itr)->name()=="Final")
-          {
-            *m_MET_RefFinal_Ex    = (*itr)->mpx();
-            *m_MET_RefFinal_Ey    = (*itr)->mpy();
-            *m_MET_RefFinal_EtSum = (*itr)->sumet();
-          }
+    if(m_LevelOfDetails > 3 && m_isMissingEtAvailable){
+      // SET WHICH MISSING ENERGY VARIABLES SHOULD BE ADDED TO D3PD
+      const xAOD::MissingETContainer* missingEtContainer; 
+      if(!m_storeGate->retrieve(missingEtContainer, m_metContainer).isFailure()) {
+
+        const MissingET* finalClus = (*missingEtContainer)["FinalClus"]; 
+        if (!finalClus) {
+          ATH_MSG_WARNING(  "No total MissingET object found in container with name FinalClus"); 
+        } else {
+          *m_MET_Ref_FinalClus_Ex    = finalClus->mpx();
+          *m_MET_Ref_FinalClus_Ey    = finalClus->mpy();
+          *m_MET_Ref_FinalClus_EtSum = finalClus->sumet();
         }
+
+        const MissingET* finalTrk = (*missingEtContainer)["FinalTrk"]; 
+        if (!finalTrk) {
+          ATH_MSG_WARNING(  "No total MissingET object found in container with name FinalTrk"); 
+        } else {
+          *m_MET_Ref_FinalTrk_Ex    = finalTrk->mpx();
+          *m_MET_Ref_FinalTrk_Ey    = finalTrk->mpy();
+          *m_MET_Ref_FinalTrk_EtSum = finalTrk->sumet();
+        }
+        
+      } else {
+        m_isMissingEtAvailable = false;
+        ATH_MSG_ERROR("COULD NOT RETRIVE MET!");       
       }
+
     } // IF
 
 
