@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ZMUMUBASICTPEFFICIENCYPLOTS_H
-#define ZMUMUBASICTPEFFICIENCYPLOTS_H
+#ifndef JPSIBASICTPEFFICIENCYPLOTS_H
+#define JPSIBASICTPEFFICIENCYPLOTS_H
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "MuonPerformanceHistUtils/MuonTPEfficiencyPlotBase.h"
@@ -11,9 +11,10 @@
 #include "MuonPerformanceHistUtils/Probe.h"
 #include "MuonEfficiencyCorrections/fineEtaPhiBinning.h"
 
-class ZmumuBasicTPEfficiencyPlots: public MuonTPEfficiencyPlotBase {
+class JPsiBasicTPEfficiencyPlots: public MuonTPEfficiencyPlotBase {
  public:
-  ZmumuBasicTPEfficiencyPlots(PlotBase* pParent, std::string sDir, bool isMatched, bool ApplySF=false);
+  JPsiBasicTPEfficiencyPlots(PlotBase* pParent, std::string sDir, bool isMatched, bool ApplySF=false);
+
 
   void initializePlots();
   void fill(Probe& probe);
@@ -24,8 +25,12 @@ class ZmumuBasicTPEfficiencyPlots: public MuonTPEfficiencyPlotBase {
   TH1* pt;
   TH1* eta;
   TH1* phi;
+  TH1* d0;
+  //   TH1* phi;
+  TH1* fineEtaPhi;
   TH1* integrated;
+  fineEtaPhiBinning m_fepb;
 
 };
 
-#endif		// ZMUMUBASICTPEFFICIENCYPLOTS_H
+#endif		// JPSIBASICTPEFFICIENCYPLOTS_H

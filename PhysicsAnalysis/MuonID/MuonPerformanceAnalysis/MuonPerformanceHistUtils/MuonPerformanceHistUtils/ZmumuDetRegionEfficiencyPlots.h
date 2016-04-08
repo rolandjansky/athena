@@ -18,6 +18,7 @@ class ZmumuDetRegionEfficiencyPlots: public MuonTPEfficiencyPlotBase {
 	ZmumuDetRegionEfficiencyPlots(PlotBase* pParent, std::string sDir, bool isMatched, bool ApplySF=false);
 
 
+  void initializePlots();
   void fill(Probe& probe);
 
  private:
