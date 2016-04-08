@@ -101,6 +101,12 @@ if DetFlags.detdescr.ID_on():
     except Exception:
        treatException("Could not include InDetRecExample/WriteInDetAOD.py" )
 
+
+# FTK 
+if DetFlags.detdescr.FTK_on():
+    protectedInclude ("FTK_RecExample/WriteFTK_AOD.py") 
+    fullAODList += CfgItemList( "FTKAod", items = FtkAODList )
+
 # Calorimeters 
 if DetFlags.detdescr.Calo_on():
     try:
