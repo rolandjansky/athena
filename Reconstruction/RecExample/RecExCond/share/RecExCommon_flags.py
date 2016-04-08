@@ -311,11 +311,6 @@ except Exception:
    treatException("Could not instantiate muonRecFlags ")
 
 try:
-   from MuonRecExample.MuonCBNTFlags import muonCBNT
-except Exception:
-   treatException("Could not instantiate muonCBNT ")
-
-try:
    from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 except Exception:
    treatException("Could not instantiate muonCombinedRecFlags ")
