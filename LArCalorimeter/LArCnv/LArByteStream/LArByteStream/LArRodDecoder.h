@@ -122,7 +122,7 @@
    */
 
 
-using namespace OFFLINE_FRAGMENTS_NAMESPACE ; 
+//using namespace OFFLINE_FRAGMENTS_NAMESPACE ; 
 
 class LArRodDecoder : public AthAlgTool
 {
@@ -174,7 +174,7 @@ public:
   //fast convert ROD Data words to read the headers of the Feb coming from ROS
   inline void fillCollectionHLTROSFeb(const uint32_t* p, uint32_t n, LArFebEnergyCollection& coll);
                                                       
-  inline void setRobFrag(const ROBFragment* rob);
+  inline void setRobFrag(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* rob);
   
   //Send an error reported by the eformat package to a MsgStream.
   //inline void report_error (const ers::Issue& error, MsgStream& log);
@@ -234,21 +234,21 @@ private:
   
   double m_delayScale;
   std::vector<std::vector<LArRodBlockStructure*> > m_BlStructArray;
-  LArRodBlockStructure* rodTranspV0 ;
-  LArRodBlockStructure* rodCalibV0  ;
-  LArRodBlockStructure* rodCalibV1  ;
-  LArRodBlockStructure* rodCalibV2  ;
-  LArRodBlockStructure* rodCalibV3  ;
-  LArRodBlockStructure* rodAccumV3  ;
-  LArRodBlockStructure* rodPhysicsV0;
-  LArRodBlockStructure* rodPhysicsV1;
-  LArRodBlockStructure* rodPhysicsV2;
-  LArRodBlockStructure* rodPhysicsV3;
-  LArRodBlockStructure* rodPhysicsV4;
-  LArRodBlockStructure* rodPhysicsV5;
-  LArRodBlockStructure* rodPhysicsV6;
+  LArRodBlockStructure* m_rodTranspV0 ;
+  LArRodBlockStructure* m_rodCalibV0  ;
+  LArRodBlockStructure* m_rodCalibV1  ;
+  LArRodBlockStructure* m_rodCalibV2  ;
+  LArRodBlockStructure* m_rodCalibV3  ;
+  LArRodBlockStructure* m_rodAccumV3  ;
+  LArRodBlockStructure* m_rodPhysicsV0;
+  LArRodBlockStructure* m_rodPhysicsV1;
+  LArRodBlockStructure* m_rodPhysicsV2;
+  LArRodBlockStructure* m_rodPhysicsV3;
+  LArRodBlockStructure* m_rodPhysicsV4;
+  LArRodBlockStructure* m_rodPhysicsV5;
+  LArRodBlockStructure* m_rodPhysicsV6;
 
-  const ROBFragment* m_robFrag ;
+  const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* m_robFrag ;
   //uint32_t m_rodVersion;
   //uint16_t m_rodMinorVersion;
   //uint8_t m_rodBlockType;
@@ -296,7 +296,7 @@ inline void LArRodDecoder::report_error (const ers::Issue& error, MsgStream& log
 }
 */
 
-inline void LArRodDecoder::setRobFrag(const ROBFragment* rob)
+inline void LArRodDecoder::setRobFrag(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* rob)
 {m_robFrag=rob;
 }
 
@@ -413,7 +413,7 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
 	if(m_doBadChanMasking && m_badChannelMasker->cellShouldBeMaskedFEB(fId, fcNb, gain)) 
            {energy = 0;   iquality = 0; iprovenance|=0x0800;} 
 	// time converted to ns
-	collElem->set(energy, time/1e3, iquality, iprovenance, (CaloGain::CaloGain)gain);
+	collElem->set(energy, time*1e-3, iquality, iprovenance, (CaloGain::CaloGain)gain);
         //setCellEnergy(collElem,energy, time, quality, (CaloGain::CaloGain)gain);
        }
        continue;
@@ -616,9 +616,9 @@ inline void LArRodDecoder:: setCellEnergy(
 }
 
 inline void LArRodDecoder:: writeFebInfo(
-   LArCellCollection& m_coll, LArFebEnergy& febene)
+   LArCellCollection& coll, LArFebEnergy& febene)
  {
-   m_coll.addfebenergy(febene);
+   coll.addfebenergy(febene);
  }
 
 #endif

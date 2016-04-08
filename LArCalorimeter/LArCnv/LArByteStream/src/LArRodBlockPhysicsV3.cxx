@@ -457,18 +457,18 @@ void LArRodBlockPhysicsV3::initializeFragment(std::vector<uint32_t>& fragment)
     unsigned int sizeRead=0;
     //Store existing data in the FEB-Map
     while (sizeRead<fragment.size()) {
-      std::vector<uint32_t>::iterator m_FebIter;
-      m_FebIter=fragment.begin()+sizeRead;     //Store pointer to current Feb-Header
-      m_FebBlock=&(*m_FebIter); //Set m_FebBlock in order to use getHeader-functions.
+      std::vector<uint32_t>::iterator FebIter;
+      FebIter=fragment.begin()+sizeRead;     //Store pointer to current Feb-Header
+      m_FebBlock=&(*FebIter); //Set m_FebBlock in order to use getHeader-functions.
       uint32_t currFEBid=getHeader32(FEBID); //Get this FEB-ID
       uint16_t currFebSize=getNumberOfWords(); //Size of this FEB-Block
       //std::cout << "FebID=" << currFEBid << " FEBSize=" << currFebSize << " Vector size=" << fragment.size() << std::endl;
-      if (m_FebIter+currFebSize>fragment.end()) {
+      if (FebIter+currFebSize>fragment.end()) {
 	fragment.clear(); //Clear existing vector
 	m_logstr << MSG::ERROR  << "Got inconsistent ROD-Fragment!" << endreq; 
 	return;
       }
-      m_mFebBlocks[currFEBid].assign(m_FebIter,m_FebIter+currFebSize); //Copy data from ROD-fragment into FEB-Block
+      m_mFebBlocks[currFEBid].assign(FebIter,FebIter+currFebSize); //Copy data from ROD-fragment into FEB-Block
       sizeRead+=currFebSize+m_MiddleHeaderSize;  //6 is the middle header size
       LARBSDBG("Found FEB-id " << currFEBid << " in existing ROD-Fragment");
     } // end while
@@ -813,8 +813,9 @@ uint32_t LArRodBlockPhysicsV3::getRadd(uint32_t /*adc*/, uint32_t sample)  const
 { 
   int index=LE_getHeader16(RawDataBlkOffset)-3+(sample+1)/2;
   uint32_t x=m_FebBlock[index];
-  if(sample&0x1) x=x&0xffff;
-  else x=x&0xffff;
+  //if(sample&0x1) x=x&0xffff;
+  //else
+  x=x&0xffff;
   return x;
 }
 

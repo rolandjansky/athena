@@ -233,8 +233,8 @@ public :
   FEBMAPTYPE m_mFebBlocks; //Map of feb-Blocks (for encoding only);
   //static uint32_t FebToOfflineGainMap[3];
   //static uint32_t OfflineToFebGainMap[3];
-  static uint32_t RawToOfflineGainMap[4];
-  static uint32_t OfflineToRawGainMap[3];
+  static uint32_t m_RawToOfflineGainMap[4];
+  static uint32_t m_OfflineToRawGainMap[3];
   int32_t m_MiddleHeaderSize;
   // Free gain mode needs raw data to be rearranged
   unsigned int m_rearrangeFirstSample;
@@ -346,10 +346,10 @@ inline int LArRodBlockStructure::RodToFebChannel(int ch) const
 */
 
 inline uint32_t LArRodBlockStructure::RawToOfflineGain(const uint32_t gain) const
-{return RawToOfflineGainMap[gain];} //For efficency, don't check range
+{return m_RawToOfflineGainMap[gain];} //For efficency, don't check range
 
 inline uint32_t LArRodBlockStructure::OfflineToRawGain(const uint32_t gain) const
-{return OfflineToRawGainMap[gain];} //For efficency, don't check range
+{return m_OfflineToRawGainMap[gain];} //For efficency, don't check range
 
 inline uint16_t LArRodBlockStructure::getHeader16(const unsigned n) const // n should be choosen from the above enum
 {
