@@ -13,7 +13,7 @@ class PhiSlice
 {
 public:
   //Default constructor
-  PhiSlice();
+  PhiSlice() = delete;
 
   //Constructor with input parameters
   PhiSlice( int SliceIndex, 

@@ -57,6 +57,8 @@ TrigZFinder::TrigZFinder( const std::string& type, const std::string& name, cons
   declareProperty( "TripletDP",          m_tripletDP        = 0.05  );
   declareProperty( "WeightThreshold",    m_weightThreshold  = 0     );
 
+  declareProperty( "LayerNumberTool", m_numberingTool);
+
   //  std::cout << "ZFinder::ZFinder() " << name << " " << type << "\tm_nFirstLayers  " << m_nFirstLayers  << std::endl;
 
 }
@@ -122,6 +124,7 @@ StatusCode TrigZFinder::initialize()
   /// NB: decrement the endcap pixels, as we want the layer number 
   ///     of the last barrel layer, not the number of the first 
   ///     endcap pixel layer
+
   initializeInternal(maxSiliconLayerNum,offsetEndcapPixels-1);
 
   athenaLog << MSG::INFO << "TrigZFinder constructed:     name()  "    << name()             << endreq;

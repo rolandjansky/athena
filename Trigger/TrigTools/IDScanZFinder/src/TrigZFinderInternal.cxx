@@ -61,14 +61,36 @@ TrigZFinderInternal::TrigZFinderInternal( const std::string& type,
 
 void TrigZFinderInternal::initializeInternal(long maxLayers, long lastBarrel )
 {
+
   m_IdScan_MaxNumLayers = maxLayers; 
   m_IdScan_LastBrlLayer = lastBarrel; 
 
-  //  std::cout << "m_IdScan_MaxNumLayers "    <<  m_IdScan_MaxNumLayers
+  //initialize new/old layer number transform table
+
+  if(maxLayers > 20) {
+    int offsetEndcapPixels = lastBarrel + 1;
+    int M = (maxLayers-offsetEndcapPixels)/2;
+    for(int l=0;l<maxLayers;l++) {
+      int oldL = l;
+      if(l>lastBarrel) {
+	oldL = l-offsetEndcapPixels;
+	oldL = oldL < M ? oldL : oldL - M;
+	oldL += offsetEndcapPixels;
+      }
+      m_new2old.push_back(oldL);
+    }
+    m_IdScan_MaxNumLayers = lastBarrel + M + 1;
+  } else {
+    for(int l=0;l<maxLayers;l++) m_new2old.push_back(l);
+  }
+
+
+  // std::cout << "m_IdScan_MaxNumLayers "    <<  m_IdScan_MaxNumLayers
   //	    << "\tm_IdScan_LastBrlLayer "  <<  m_IdScan_LastBrlLayer << std::endl;
 
   // number of phi neighbours to look at
   //  if ( extraPhi.size()==0 ) 
+
   extraPhi = std::vector< std::vector<long> >( m_IdScan_MaxNumLayers, std::vector<long>(m_IdScan_MaxNumLayers) ); 
 
   if ( m_fullScanMode ) m_usedROIphiWidth = 2*M_PI;
@@ -159,6 +181,7 @@ double TrigZFinderInternal::computeZV(double r1, double p1, double z1,
   y2 = r2 * sin(p2);
 
 #define _COMPUTEX0_
+
 #ifdef _COMPUTEX0_
   double slope = (y2-y1)/(x2-x1);
   double invslope = 1./slope;
@@ -187,6 +210,7 @@ long TrigZFinderInternal::fillVectors (const std::vector<TrigSiSpacePointBase>& 
     std::vector<long>& lyr, 
     std::vector<long>& filledLayers)
 {
+
   std::vector<bool> lcount( m_IdScan_MaxNumLayers, false );
 
   // full scan check
@@ -291,7 +315,7 @@ long TrigZFinderInternal::fillVectors (const std::vector<TrigSiSpacePointBase>& 
         phi[i] = _phi;
         rho[i] = SpItr->r();
         zed[i] = SpItr->z();
-        lyr[i] = SpItr->layer();
+        lyr[i] = m_new2old[SpItr->layer()];
         lcount[lyr[i]]=true;
         ++icount;
       }
@@ -309,7 +333,7 @@ long TrigZFinderInternal::fillVectors (const std::vector<TrigSiSpacePointBase>& 
         phi[i] = _phi;
         rho[i] = SpItr->r();
         zed[i] = SpItr->z();
-        lyr[i] = SpItr->layer();
+        lyr[i] = m_new2old[SpItr->layer()];
         lcount[lyr[i]]=true;
         ++icount;
       }
@@ -410,9 +434,6 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
 
   m_NMax = 0;
 
-
-
-
   //Make a vector of all the PhiSlice instances we need
   std::vector< PhiSlice* > allSlices( m_NumPhiSlices );
   for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ )
@@ -423,6 +444,7 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
   }
 
   int allSlicesSize = allSlices.size();
+
   //Populate the slices
   for ( long pointIndex = 0; pointIndex < nsp; pointIndex++ )
   {
