@@ -12,7 +12,11 @@ MDTSimHit::MDTSimHit() :
   m_MDTid(0xffff),
   m_globalTime(0.), 
   m_driftRadius(0.),
-  m_partLink()
+  m_partLink(),
+  m_stepLength(0.),
+  m_energyDeposit(0.),
+  m_particleEncoding(0),
+  m_kineticEnergy(0.)
 
 {
 }
