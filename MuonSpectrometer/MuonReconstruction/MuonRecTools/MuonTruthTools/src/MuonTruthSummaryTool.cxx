@@ -38,6 +38,7 @@ namespace Muon {
     declareProperty("WriteNtuple",      m_writeTree);
     declareProperty("NtupleTreeName",   m_treeName = "MuonTruthSummaryTree");
     declareProperty("HistStream",       m_histStream = "Summary");
+    declareProperty("SelectedPdgId",    m_selectedPdgId = 13, "Should be positive as absolute value is used" );
   }
 
   StatusCode  MuonTruthSummaryTool::initialize()
@@ -88,7 +89,10 @@ namespace Muon {
       
       initChamberVariables(numLevels); 
     }
-    
+    if( m_selectedPdgId < 0 ) {
+      ATH_MSG_WARNING("SelectedPdgId should be positive, taking the absolute value");
+      m_selectedPdgId = abs(m_selectedPdgId);
+    }
     return StatusCode::SUCCESS;
   }
 
@@ -134,8 +138,19 @@ namespace Muon {
     PRD_MultiTruthCollection::const_iterator it_end = col->end();
     for( ;it!=it_end;++it ){
       const HepMcParticleLink& link = it->second;
-      if( link.cptr() && abs(link.cptr()->pdg_id()) == 13 ) m_truthHits[it->first] = link.cptr()->barcode();
+      if( link.cptr() && 
+          (abs(link.cptr()->pdg_id()) ==  m_selectedPdgId || abs(link.cptr()->pdg_id()) == 13 ) ) {
+        m_truthHits[it->first] = link.cptr()->barcode();
+        m_pdgIdLookupFromBarcode[link.cptr()->barcode()]=link.cptr()->pdg_id();
+      }
     }
+  }
+
+  int MuonTruthSummaryTool::getPdgId( int barcode ) {
+    if( !m_wasInit) init();
+    auto pos = m_pdgIdLookupFromBarcode.find(barcode);
+    if( pos == m_pdgIdLookupFromBarcode.end() ) return 0;
+    return pos->second;    
   }
 
   int MuonTruthSummaryTool::getBarcode( const Identifier& id ) {
