@@ -17,7 +17,7 @@
 
 // Base class
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -42,7 +42,7 @@ class Incident;
 
 namespace InDet {
   class TrigSCTRawDataProvider :  virtual public ITrigRawDataProviderTool,
-				  public AlgTool,
+				  public AthAlgTool,
 				  virtual public IIncidentListener {
     
   public:
@@ -77,8 +77,6 @@ namespace InDet {
     bool                                m_first_event;
 
     //
-    MsgStream                             *m_log;
-
   };
 
 }

@@ -17,7 +17,7 @@
 
 // Base class
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
@@ -38,7 +38,7 @@ class ITRTRawDataProviderTool;
 namespace InDet {
 
   class TrigTRTRawDataProvider :  virtual public ITrigRawDataProviderTool,
-				  public AlgTool {
+				  public AthAlgTool {
     
   public:
     
@@ -70,7 +70,6 @@ namespace InDet {
     bool                                m_first_event;
 
     //
-    MsgStream                           *m_log;
   };
 
 }

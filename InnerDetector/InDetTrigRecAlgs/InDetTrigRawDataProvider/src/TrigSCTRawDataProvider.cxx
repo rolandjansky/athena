@@ -7,7 +7,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
 //#include "InDetRawData/InDetRawDataCLASS_DEF.h"
@@ -28,81 +27,77 @@ namespace InDet {
   TrigSCTRawDataProvider::TrigSCTRawDataProvider( const std::string& type,
 						  const std::string& name,
 						  const IInterface* parent) :
-    AlgTool(type,name,parent),
+    AthAlgTool(type,name,parent),
     m_regionSelector  ("RegSelSvc", name), 
     m_robDataProvider ("ROBDataProviderSvc", name),
     m_rawDataTool     ("SCTRawDataProviderTool"),
     m_storeGate       ("StoreGateSvc",name),
     m_detStore        ("DetectorStore",name),
     m_cablingSvc      ("SCT_CablingSvc",name),
-    m_container(0),
-    m_log(0)
+    m_container(0)
   {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "SCT_RDOs_EFID");
     declareProperty("RawDataTool", m_rawDataTool);
-    m_log = new MsgStream(msgSvc(), name);
   }
 
   TrigSCTRawDataProvider::~TrigSCTRawDataProvider(){
-    delete m_log;
   }
 
   // --------------------------------------------------------------------
   // Initialize
   StatusCode TrigSCTRawDataProvider::initialize() {
 
-    *m_log << MSG::INFO << "TrigSCTRawDataProvider::initialize" << endreq;
+    msg(MSG::INFO) << "TrigSCTRawDataProvider::initialize" << endreq;
 
     if ( m_regionSelector.retrieve().isFailure() ) {        
-      *m_log << MSG::FATAL                                   
-            << m_regionSelector.propertyName()              
-            << " : Unable to retrieve RegionSelector tool "                                                        
+      msg(MSG::FATAL) << m_regionSelector.propertyName()              
+            << " : Unable to retrieve RegionSelector tool "
             << m_regionSelector.type() << endreq;           
       return StatusCode::FAILURE;                          
     }                                                       
 
     // Get ROBDataProviderSvc
     if (m_robDataProvider.retrieve().isFailure()) {
-      *m_log << MSG::FATAL << "Failed to retrieve " << m_robDataProvider << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve " << m_robDataProvider << endreq;
       return StatusCode::FAILURE;
     } else
-      *m_log << MSG::INFO << "Retrieved service " << m_robDataProvider << endreq;
+      msg(MSG::INFO) << "Retrieved service " << m_robDataProvider << endreq;
  
     // Get SCTRawDataProviderTool
     if (m_rawDataTool.retrieve().isFailure()) {
-      *m_log << MSG::FATAL << "Failed to retrieve " << m_rawDataTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve " << m_rawDataTool << endreq;
       return StatusCode::FAILURE;
     } else
-      *m_log << MSG::INFO << "Retrieved service " << m_rawDataTool << endreq;
+      msg(MSG::INFO) << "Retrieved service " << m_rawDataTool << endreq;
  
     // Get an detector store
     if (m_detStore.retrieve().isFailure()) {
-      *m_log << MSG::FATAL << "Failed to retrieve " << m_detStore << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve " << m_detStore << endreq;
       return StatusCode::FAILURE;
     } else
-      *m_log << MSG::INFO << "Retrieved service " << m_detStore << endreq;
+      msg(MSG::INFO) << "Retrieved service " << m_detStore << endreq;
  
     StatusCode sc = m_detStore->retrieve(m_id,"SCT_ID"); 
     if (sc.isFailure()) {
-      *m_log << MSG::FATAL << "Cannot retrieve SCT_ID helper!"      
+      msg(MSG::FATAL) << "Cannot retrieve SCT_ID helper!"      
 	    << endreq;
       return StatusCode::FAILURE;
     } 
 
     // Get StoreGateSvc 
     if (m_storeGate.retrieve().isFailure()) {
-      *m_log << MSG::FATAL << "Failed to retrieve servive " << m_storeGate << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve servive " << m_storeGate << endreq;
       return StatusCode::FAILURE;
     } else
-      *m_log << MSG::INFO << "Retrieved service " << m_storeGate << endreq;
+      msg(MSG::INFO) << "Retrieved service " << m_storeGate << endreq;
   
     // Retrieve id mapping 
     if (m_cablingSvc.retrieve().isFailure()) {
-      *m_log << MSG::FATAL << "Failed to retrieve service " << m_cablingSvc << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve service " << m_cablingSvc << endreq;
       return StatusCode::FAILURE;
     } else 
-      *m_log << MSG::INFO << "Retrieved service " << m_cablingSvc << endreq;
+      msg(MSG::INFO) << "Retrieved service " << m_cablingSvc << endreq;
 
     //RDO Container
     m_container = new SCT_RDO_Container(m_id->wafer_hash_max()); 
@@ -113,7 +108,7 @@ namespace InDet {
       int priority = 100;
       pIncsvc->addListener( this, "BeginEvent", priority);
     } else {
-      *m_log << MSG::ERROR << "No connection to incidentSvc used for cleanup" << endreq;
+      msg(MSG::ERROR) << "No connection to incidentSvc used for cleanup" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -137,17 +132,17 @@ namespace InDet {
       // now create the container and register the collections
       // write into StoreGate
       if (m_storeGate->record(m_container, m_RDO_Key).isFailure()) {
-	*m_log << MSG::FATAL << "Unable to record SCT RDO Container" << endreq;
+	msg(MSG::FATAL) << "Unable to record SCT RDO Container" << endreq;
 	return StatusCode::FAILURE;
       } else {
-	*m_log << MSG::DEBUG << "SCT RDO Container recorded into SG" << endreq;
+	msg(MSG::DEBUG) << "SCT RDO Container recorded into SG" << endreq;
       }
     } else {
       if (!m_storeGate->retrieve(m_container,m_RDO_Key)){
-	*m_log << MSG::FATAL << "Unable to retrieve existing SCT RDO Container" << endreq;
+	msg(MSG::FATAL) << "Unable to retrieve existing SCT RDO Container" << endreq;
 	return StatusCode::FAILURE;
       } else {
-	*m_log << MSG::DEBUG << "Retrieved existing SCT RDO Container" << endreq;
+	msg(MSG::DEBUG) << "Retrieved existing SCT RDO Container" << endreq;
       }
     }
 
@@ -162,14 +157,10 @@ namespace InDet {
 
     std::vector<uint32_t> robIDlist;
 
-    const int msgLvl = m_log->level();
-
     if (roi) {
       // Get RoiDescriptor                                    
-      if (msgLvl <= MSG::DEBUG) {                           
-	*m_log << MSG::DEBUG << "REGTEST:" << *roi << endreq;
-      }                                                       
-      
+      ATH_MSG_DEBUG( "REGTEST:" << *roi);
+
       //      double zmax = 168; 
       m_regionSelector->DetROBIDListUint( SCT, 
 					  *roi, 
@@ -182,7 +173,7 @@ namespace InDet {
 
     StatusCode sg = initContainer();
     if (sg.isFailure()){
-      *m_log << MSG::WARNING << "RDO container cannot be registered" << endreq;
+      msg(MSG::WARNING) << "RDO container cannot be registered" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -195,7 +186,7 @@ namespace InDet {
     if (m_container){
       scon =  m_rawDataTool->convert(listOfRobf,m_container);
       if (scon==StatusCode::FAILURE)
-	  *m_log << MSG::ERROR << "BS conversion into RDOs failed" << endreq;
+	msg(MSG::ERROR) << "BS conversion into RDOs failed" << endreq;
     }
 
     return scon;
