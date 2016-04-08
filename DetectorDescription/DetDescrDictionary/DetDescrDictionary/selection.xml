@@ -1,6 +1,5 @@
 <lcgdict>
   <class name="Identifiable" />
-  <class name="Identifier" />
   <class name="Identifier32" />
   <class name="HWIdentifier" />
   <class name="IdentifierHash" />
@@ -17,4 +16,19 @@
   <class name="std::pair < IdentifierHash, int >" /> 
   <class name="DataVector<std::pair<IdentifierHash, int> >" />
   <class name="std::vector<std::pair<IdentifierHash, int>* >"/>
+
+
+  <class name="Identifier" />
+  <read targetClass="Identifier"
+        target="m_id"
+        sourceClass="Identifier"
+        source="uint32_t m_id"
+        checksum="[4275944278]"
+        include="Identifier/Identifier.h,stdint.h"
+        >
+  <![CDATA[
+    Identifier id (onfile.m_id);
+    m_id = id.get_compact();
+   ]]>
+  </read>
 </lcgdict>
