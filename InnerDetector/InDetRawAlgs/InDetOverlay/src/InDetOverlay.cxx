@@ -4,14 +4,7 @@
 
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006, 2007
 
-// FIXME: add merge() methods to  InDetRawData  classes and get rid of the hack.
-#define private public
-#define protected public
 #include "InDetRawData/InDetRawData.h"
-#undef private
-#undef protected
-
-
 #include "InDetOverlay/InDetOverlay.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -61,7 +54,7 @@ namespace Overlay {
 
     if(pr1 && pr2) {
       // the actual merging
-      pr1->m_word |= pr2->m_word;
+      pr1->merge (*pr2);
     }
     else {
       static bool first_time = true;
@@ -81,18 +74,18 @@ namespace Overlay {
   namespace {   // helper functions for SCT merging
     typedef SCT3_RawData  SCT_RDO_TYPE;
 
-    typedef std::multimap<int, SCT_RDO_TYPE*> StripMap;
+    typedef std::multimap<int, const SCT_RDO_TYPE*> StripMap;
 
-    void fillStripMap(StripMap *sm, const InDetRawDataCollection<SCT_RDORawData> &rdo_coll, const std::string& collectionName) {
+    void fillStripMap(StripMap *sm, const InDetRawDataCollection<SCT_RDORawData> &rdo_coll, const std::string& collectionName, InDetOverlay *parent) {
       for(InDetRawDataCollection<SCT_RDORawData>::const_iterator i=rdo_coll.begin(); i!=rdo_coll.end(); ++i) {
-        SCT_RDO_TYPE *rdo = dynamic_cast<SCT_RDO_TYPE*>(&**i);
+        const SCT_RDO_TYPE *rdo = dynamic_cast<const SCT_RDO_TYPE*>(&**i);
         if(!rdo) {
           std::ostringstream os;
           os<<"mergeCollection<SCT_RDORawData>(): wrong datum format for the '"<<collectionName<<"' collection. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay.   For the supplied datum  typeid(datum).name() = "<<typeid(**i).name();
           throw std::runtime_error(os.str());
         }
 
-        int stripBegin = rdo->getStrip();
+        int stripBegin = parent->get_sct_id()->strip(rdo->identify());
         int stripEnd = stripBegin + rdo->getGroupSize();
         for(int strip = stripBegin; strip < stripEnd; ++strip) {
           sm->insert(std::make_pair(strip, rdo));
@@ -171,8 +164,8 @@ namespace Overlay {
     // Expand encoded RDOs into individual hit strips.
     // Each strip number is linked to the original RDO.
     StripMap sm;
-    fillStripMap(&sm, data, "data");
-    fillStripMap(&sm, mc, "MC");
+    fillStripMap(&sm, data, "data", parent);
+    fillStripMap(&sm, mc, "MC", parent);
 
     // collect all the hits
     StripMap::const_iterator p=sm.begin();
@@ -182,7 +175,7 @@ namespace Overlay {
       const int firstStrip = p->first;
 
       // Get all strips for the current RDO
-      std::set<SCT_RDO_TYPE*> origRDOs;
+      std::set<const SCT_RDO_TYPE*> origRDOs;
       origRDOs.insert(p->second);
       int currentStrip = firstStrip;
       while(++p != sm.end()) {
@@ -212,7 +205,7 @@ namespace Overlay {
       int ERRORS = 0;
       std::vector<int> errvec;
 
-      for(std::set<SCT_RDO_TYPE*>::const_iterator origRdoIter = origRDOs.begin(); origRdoIter!=origRDOs.end(); ++origRdoIter) {
+      for(std::set<const SCT_RDO_TYPE*>::const_iterator origRdoIter = origRDOs.begin(); origRdoIter!=origRDOs.end(); ++origRdoIter) {
         tbin |= (*origRdoIter)->getTimeBin();
 
         if((*origRdoIter)->FirstHitError()) {
@@ -284,7 +277,7 @@ StatusCode InDetOverlay::overlayExecute() {
   //----------------------------------------------------------------
   if(m_do_TRT) {
     ATH_MSG_VERBOSE("Retrieving data input TRT container");
-    std::auto_ptr<TRT_RDO_Container> cdata(m_storeGateData->retrievePrivateCopy<TRT_RDO_Container>(m_mainInputTRT_Name));
+    std::auto_ptr<TRT_RDO_Container> cdata(m_storeGateData->retrieve<TRT_RDO_Container>(m_mainInputTRT_Name));
     if(!cdata.get()) {
       ATH_MSG_WARNING("Could not get data TRT container \""<<m_mainInputTRT_Name<<"\"");
     }
@@ -312,13 +305,13 @@ StatusCode InDetOverlay::overlayExecute() {
     // Digitization algs keep a pointer to their output Identifiable Container and reuse
     // the same object over and other again.   So unlike any "normal" per-event object
     // this IDC is not a disposable one, and we should not delete it.
-    cmc.release();
+    //cmc.release();
   }
 
   //----------------------------------------------------------------
   if(m_do_SCT) {
     ATH_MSG_VERBOSE("Retrieving data input SCT container");
-    std::auto_ptr<SCT_RDO_Container> cdata(m_storeGateData->retrievePrivateCopy<SCT_RDO_Container>(m_mainInputSCT_Name));
+    std::auto_ptr<SCT_RDO_Container> cdata(m_storeGateData->retrieve<SCT_RDO_Container>(m_mainInputSCT_Name));
     if(!cdata.get()) {
       ATH_MSG_WARNING("Could not get data SCT container \""<<m_mainInputSCT_Name<<"\"");
     }
@@ -345,13 +338,13 @@ StatusCode InDetOverlay::overlayExecute() {
     // Digitization algs keep a pointer to their output Identifiable Container and reuse
     // the same object over and other again.   So unlike any "normal" per-event object
     // this IDC is not a disposable one, and we should not delete it.
-    cmc.release();
+    //cmc.release();
   }
 
   //----------------------------------------------------------------
   if(m_do_Pixel) {
     ATH_MSG_VERBOSE("Retrieving data input Pixel container");
-    std::auto_ptr<PixelRDO_Container> cdata(m_storeGateData->retrievePrivateCopy<PixelRDO_Container>(m_mainInputPixel_Name));
+    std::auto_ptr<PixelRDO_Container> cdata(m_storeGateData->retrieve<PixelRDO_Container>(m_mainInputPixel_Name));
     if(!cdata.get()) {
       ATH_MSG_WARNING("Could not get data Pixel container \""<<m_mainInputPixel_Name<<"\"");
     }
@@ -378,7 +371,7 @@ StatusCode InDetOverlay::overlayExecute() {
     // Digitization algs keep a pointer to their output Identifiable Container and reuse
     // the same object over and other again.   So unlike any "normal" per-event object
     // this IDC is not a disposable one, and we should not delete it.
-    cmc.release();
+    //cmc.release();
   }
 
   //----------------------------------------------------------------
