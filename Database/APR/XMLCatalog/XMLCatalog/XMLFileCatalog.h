@@ -10,6 +10,7 @@
 #ifdef HAVE_GAUDI_PLUGINSVC
 #include "Gaudi/PluginService.h"
 #endif
+#include "GAUDI_VERSION.h"
 
 namespace pool { 
 
@@ -26,7 +27,11 @@ class XMLMetaDataCatalog;
 class XMLFileCatalog: public FCImpl{
  public:
 #ifdef HAVE_GAUDI_PLUGINSVC
-typedef Gaudi::PluginService::Factory0<FCImpl*> Factory;
+  #if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+    typedef Gaudi::PluginService::Factory<FCImpl*> Factory;
+  #else  
+    typedef Gaudi::PluginService::Factory0<FCImpl*> Factory;
+  #endif
 #endif
   /**Default constructor.
    */

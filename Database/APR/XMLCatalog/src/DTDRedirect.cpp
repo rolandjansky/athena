@@ -13,6 +13,8 @@
 #include <string>
 #include <iostream>
 
+using namespace xercesc;
+
 static const char* inmemdtd = "\
 <!ELEMENT POOLFILECATALOG (META*,File*)>\
 <!ELEMENT META EMPTY>\

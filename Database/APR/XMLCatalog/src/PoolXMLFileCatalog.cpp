@@ -21,6 +21,8 @@
 #include <fstream>
 #include <stdexcept>
 
+using namespace xercesc;
+
 const std::string pool::PoolXMLFileCatalog::MainNode  = "POOLFILECATALOG";
 
 const std::string pool::PoolXMLFileCatalog::METANode        = "META";
@@ -1173,9 +1175,9 @@ pool::PoolXMLFileCatalog::getNode(const std::string& nodename,
         MyNode = mem_pfn[attrname];
         if (!MyNode) {
           // back compatibility with POOL_1_3_3
-          XMLCh* attr = pool::_toDOMS(attrname);
-          MyNode = doc->getElementById(attr);          
-          XMLString::release(&attr);
+          XMLCh* attr2 = pool::_toDOMS(attrname);
+          MyNode = doc->getElementById(attr2);          
+          XMLString::release(&attr2);
         }
       }
     }

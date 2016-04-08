@@ -17,6 +17,8 @@
 #include <string>
 #include <stdexcept>
 
+using namespace xercesc;
+
 // Global streaming operator for DOMString is defined in DOMPrint.cpp
 //extern ostream& operator<<(ostream& target, const DOMString& s);
 
