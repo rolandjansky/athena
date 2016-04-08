@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigT2MbtsBitsCnvTool.h 785778 2016-11-22 16:26:31Z ssnyder $
+// $Id: TrigT2MbtsBitsCnvTool.h 608072 2014-07-23 00:27:40Z azemla $
 #ifndef xAODTrigMinBiasCNV_TrigT2MbtsBitsCNVTOOL_H
 #define xAODTrigMinBiasCNV_TrigT2MbtsBitsCNVTOOL_H
 
@@ -34,11 +34,11 @@ namespace xAODMaker {
                       const IInterface* parent );
 
       /// Function initialising the tool
-      virtual StatusCode initialize() override;
+      virtual StatusCode initialize();
 
       /// Function that fills an existing xAOD::TrigT2MbtsBitsContainer
       virtual StatusCode convert( const TrigT2MbtsBitsContainer* aod,
-                                  xAOD::TrigT2MbtsBitsContainer* xaod ) const override;
+                                  xAOD::TrigT2MbtsBitsContainer* xaod );
 
    }; // class TrigT2MbtsBitsCnvTool
 

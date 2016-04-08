@@ -36,11 +36,11 @@ namespace xAODMaker {
                       const IInterface* parent );
 
       /// Function initialising the tool
-      virtual StatusCode initialize() override;
+      virtual StatusCode initialize();
 
       /// Function that fills an existing xAOD::TrigTrackCountsContainer
       virtual StatusCode convert( const TrigTrackCountsCollection* aod,
-                                  xAOD::TrigTrackCountsContainer* xaod ) const override;
+                                  xAOD::TrigTrackCountsContainer* xaod );
 
    }; // class TrigTrackCountsCnvTool
 

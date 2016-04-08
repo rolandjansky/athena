@@ -41,7 +41,7 @@ namespace xAODMaker {
    *          something else if not
    */
   StatusCode TrigVertexCountsCnvTool::convert( const TrigVertexCountsCollection* aod,
-					       xAOD::TrigVertexCountsContainer* xaod ) const {
+					       xAOD::TrigVertexCountsContainer* xaod ) {
     
     // A small sanity check. The output container should really be empty...
     if( xaod->size() ) {
