@@ -114,6 +114,7 @@ const Amg::MatrixX& Trk::LocalParameters::expansionMatrix() const
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::LocalParameters& lp)
 { 
+  std::streamsize ss = sl.precision();
   sl << std::setiosflags(std::ios::fixed)<< std::setprecision(3);
   sl << "Trk::LocalParameters " <<": ("; 
   for (int ipar=0; ipar<lp.dimension(); ++ipar)
@@ -128,12 +129,14 @@ MsgStream& Trk::operator << ( MsgStream& sl, const Trk::LocalParameters& lp)
       else sl << "0";
     }
   sl << ")";
+  sl.precision (ss); sl<<std::resetiosflags(std::ios::fixed);
     
   return sl; 
 }
 
 std::ostream& Trk::operator << ( std::ostream& sl, const Trk::LocalParameters& lp)
 { 
+  std::streamsize ss = sl.precision();
   sl << std::setiosflags(std::ios::fixed)<< std::setprecision(3);
   sl << "Trk::LocalParameters " <<": ("; 
   for (int ipar=0; ipar<lp.dimension(); ++ipar)
@@ -148,6 +151,8 @@ std::ostream& Trk::operator << ( std::ostream& sl, const Trk::LocalParameters& l
       else sl << "0";
     }
   sl << ")";
+  sl.precision (ss); sl<<std::resetiosflags(std::ios::fixed);
+
   
   return sl; 
 }     

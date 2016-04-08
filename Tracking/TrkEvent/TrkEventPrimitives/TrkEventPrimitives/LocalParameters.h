@@ -20,6 +20,8 @@
 
 class MsgStream;
 
+class LocalParametersCnv_p1;
+
 /** standard namespace for Tracking*/
 namespace Trk {
 
@@ -169,6 +171,7 @@ namespace Trk {
 
   
     protected:     
+     friend class ::LocalParametersCnv_p1;
      int                                   m_parameterkey;
      
     private: 

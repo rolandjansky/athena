@@ -65,10 +65,11 @@ public:
 
   /**  copy constructor */
   ResidualPull(const ResidualPull&);
+  /** assignment */
+  ResidualPull & operator=(const ResidualPull&) = default;
   /**  destructor */
   ~ResidualPull(){};
-  //    /**  assignment operator */
-  //    ResidualPull& operator  = (const ResidualPull&);
+  
 
   ///////////////////////////////////////////////////////////////////
   // Main methods
