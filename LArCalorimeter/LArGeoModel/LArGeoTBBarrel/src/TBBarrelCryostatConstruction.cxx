@@ -228,8 +228,8 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
     std::cout << "   (matter = foam) " << std::endl;
     std::cout << " Rmin/Rmax " << Rmin_mother << " " << Rmax_mother << std::endl;
     std::cout << " Dz/2 " << Cryo_Distz/2. << std::endl;
-    std::cout << " PhiMin, Span " << Phi_Min_Moth/CLHEP::deg << " "
-              << Phi_Span_Moth/CLHEP::deg << std::endl;
+    std::cout << " PhiMin, Span " << Phi_Min_Moth*(1./CLHEP::deg) << " "
+              << Phi_Span_Moth*(1./CLHEP::deg) << std::endl;
 #endif
 
     GeoTubs* Cent_tube = new GeoTubs(Rmin_mother,
@@ -338,8 +338,8 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
     std::cout << " *** LAr volume (tubs put in foam)" << std::endl;
     std::cout << "Rmin/Rmax " << LAr_inner_radius << " "
                               << LAr_outer_radius << std::endl;
-    std::cout << "PhiMin,Span " << Phi_Min/CLHEP::deg << " "
-                                << Phi_Span/CLHEP::deg << std::endl;
+    std::cout << "PhiMin,Span " << Phi_Min*(1./CLHEP::deg) << " "
+                                << Phi_Span*(1./CLHEP::deg) << std::endl;
     std::cout << "DeltaZ/2 " << LAr_z_max/2. << std::endl;
     std::cout << "Position in z in mother " << (LAr_z_max-Cryo_Distz)/2. << std::endl;
 #endif
@@ -401,7 +401,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 
 #ifdef DEBUG_GEO
       std::cout << " Ar additionnal volume before PS " << r1 << " "
-                << r2 << " " << Phi1[ilar]/CLHEP::deg << " " << Delta_phi[ilar]/CLHEP::deg << std::endl;
+                << r2 << " " << Phi1[ilar]*(1./CLHEP::deg) << " " << Delta_phi[ilar]*(1./CLHEP::deg) << std::endl;
 #endif
 
       GeoTubs* lar_tube = new GeoTubs(r1,
