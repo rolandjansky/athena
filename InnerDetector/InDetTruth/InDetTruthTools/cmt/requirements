@@ -1,0 +1,26 @@
+package InDetTruthTools
+
+author Andrei Gaponenko <AGaponenko@lbl.gov>
+
+public
+use AtlasPolicy 		AtlasPolicy-*
+use AthenaBaseComps		AthenaBaseComps-*		Control
+use InDetTruthInterfaces	InDetTruthInterfaces-*		InnerDetector/InDetTruth
+use TrkTruthTrackInterfaces     TrkTruthTrackInterfaces-*       Tracking/TrkTruthTracks
+use TrkEventPrimitives          TrkEventPrimitives-*            Tracking/TrkEvent
+
+private
+use GaudiInterface 		GaudiInterface-*  		External
+use TrkTruthData 		TrkTruthData-*			Tracking/TrkEvent
+use TrkPrepRawData		TrkPrepRawData-* 		Tracking/TrkEvent
+use InDetSimData		InDetSimData-*			InnerDetector/InDetRawEvent
+use InDetPrepRawData		InDetPrepRawData-*		InnerDetector/InDetRecEvent
+use InDetReadoutGeometry	InDetReadoutGeometry-*		InnerDetector/InDetDetDescr
+use InDetIdentifier		InDetIdentifier-*		InnerDetector/InDetDetDescr
+use AtlasDetDescr               AtlasDetDescr-*                 DetectorDescription 
+use AtlasHepMC                  AtlasHepMC-*                    External
+
+
+library InDetTruthTools *.cxx -s=components *.cxx
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py"
