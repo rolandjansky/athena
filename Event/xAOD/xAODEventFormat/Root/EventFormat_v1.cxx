@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormat_v1.cxx 629218 2014-11-18 17:38:06Z krasznaa $
+// $Id: EventFormat_v1.cxx 641134 2015-01-22 19:35:12Z ssnyder $
 
 // STL include(s):
 #include <iostream>
@@ -83,16 +83,20 @@ namespace xAOD {
     * exists, and only use this function if it does.
     *
     * @param key The name of the branch to get the information for
+    * @param quiet If true, silently return 0 if the hash isn't found;
+    *              otherwise, print an error.
     * @returns A pointer to the element describing the requested branch
     */
    const EventFormatElement*
-   EventFormat_v1::get( const std::string& key ) const {
+   EventFormat_v1::get( const std::string& key, bool quiet ) const {
 
       KeyedData_t::const_iterator itr = m_keyedData.find( key );
       if( itr == m_keyedData.end() ) {
-         std::cerr << "<xAOD::EventFormat_v1::get>"
-                   << " Information requested about unknown branch ("
-                   << key << ")" << std::endl;
+         if (!quiet) {
+           std::cerr << "<xAOD::EventFormat_v1::get>"
+                     << " Information requested about unknown branch ("
+                     << key << ")" << std::endl;
+         }
          return 0;
       }
 
@@ -105,27 +109,31 @@ namespace xAOD {
     * exists, and only use this function if it does.
     *
     * @param hash The hashed version of the name of the branch
+    * @param quiet If true, silently return 0 if the hash isn't found;
+    *              otherwise, print an error.
     * @returns A pointer to the element describing the requested branch
     */
-   const EventFormatElement* EventFormat_v1::get( uint32_t hash ) const {
+    const EventFormatElement* EventFormat_v1::get( uint32_t hash, bool quiet ) const {
 
       HashedData_t::const_iterator itr = m_hashedData.find( hash );
       if( itr == m_hashedData.end() ) {
-         // Get the current state of the stream:
-         const char fillChar = std::cerr.fill();
-         const std::ios_base::fmtflags flags = std::cerr.flags();
-         const std::streamsize width = std::cerr.width();
+         if (!quiet) {
+           // Get the current state of the stream:
+           const char fillChar = std::cerr.fill();
+           const std::ios_base::fmtflags flags = std::cerr.flags();
+           const std::streamsize width = std::cerr.width();
 
-         // Do the printout:
-         std::cerr << "<xAOD::EventFormat_v1::get>"
-                   << " Information requested about unknown hash ("
-                   << std::setw( 8 ) << std::hex << std::setfill( '0' )
-                   << hash << ")" << std::endl;
+           // Do the printout:
+           std::cerr << "<xAOD::EventFormat_v1::get>"
+                     << " Information requested about unknown hash ("
+                     << std::setw( 8 ) << std::hex << std::setfill( '0' )
+                     << hash << ")" << std::endl;
 
-         // Restore the original state of the stream:
-         std::cerr.fill( fillChar );
-         std::cerr.flags( flags );
-         std::cerr.width( width );
+           // Restore the original state of the stream:
+           std::cerr.fill( fillChar );
+           std::cerr.flags( flags );
+           std::cerr.width( width );
+         }
 
          return 0;
       }
@@ -208,6 +216,13 @@ namespace xAOD {
       }
 
       return out;
+   }
+
+
+   /// Dump the contents of this object.
+   void EventFormat_v1::dump() const
+   {
+     std::cout << *this;
    }
 
 } // namespace xAOD
