@@ -3,7 +3,7 @@
  * 
  * Author: Sergey Kosyakov
  *
- * $Id: TriggerFrontierClientTest.cxx 524415 2012-11-04 19:27:29Z seuster $
+ * $Id: TriggerFrontierClientTest.cxx 696788 2015-09-25 09:17:58Z czodrows $
  *
  * Copyright (c) 2009, FERMI NATIONAL ACCELERATOR LABORATORY
  * All rights reserved. 
@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
                std::cerr << "No number specified after -c option\n";
                return 2;
             }
-            repeat_count=atoi(argv[arg_ind]);
+            sscanf(argv[arg_ind],"%d",&repeat_count);
             continue;
          }
 
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
                std::cerr << "No number specified after -F option\n";
                return 2;
             }
-            fork_count=atoi(argv[arg_ind]);
+            sscanf(argv[arg_ind],"%d",&fork_count);
             continue;
          }
 
