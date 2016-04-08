@@ -47,11 +47,11 @@ CaloTTMgrDetDescrCnv::initialize()
 {
     // First call parent init
     StatusCode sc = DetDescrConverter::initialize();
-    MsgStream log(msgSvc(), "CaloTTMgrDetDescrCnv");
-    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "in initialize" << endmsg;
+    MsgStream log(messageService(), "CaloTTMgrDetDescrCnv");
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "in initialize" << endreq;
 
     if (sc.isFailure()) {
-        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
+        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
 	return sc;
     }
     
@@ -66,7 +66,7 @@ CaloTTMgrDetDescrCnv::initialize()
 //      // - this is ONLY needed for the manager of each system
 //      sc = addToDetStore(classID(), "CaloTTDescrManager");
 //      if (sc.isFailure()) {
-//  	log << MSG::FATAL << "Unable to add proxy for CaloTTDescrManager to the Detector Store!" << endmsg;
+//  	log << MSG::FATAL << "Unable to add proxy for CaloTTDescrManager to the Detector Store!" << endreq;
 //  	return StatusCode::FAILURE;
 //      } else {}
 
@@ -78,8 +78,8 @@ CaloTTMgrDetDescrCnv::initialize()
 StatusCode 
 CaloTTMgrDetDescrCnv::finalize()
 {
-    MsgStream log(msgSvc(), "CaloTTMgrDetDescrCnv");
-    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "in finalize" << endmsg;
+    MsgStream log(messageService(), "CaloTTMgrDetDescrCnv");
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "in finalize" << endreq;
 
     return StatusCode::SUCCESS; 
 }
@@ -89,8 +89,8 @@ CaloTTMgrDetDescrCnv::finalize()
 StatusCode
 CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {
-    MsgStream log(msgSvc(), "CaloTTMgrDetDescrCnv");
-    log << MSG::INFO << "in createObj: creating a CaloTTDescrManager object in the detector store" << endmsg;
+    MsgStream log(messageService(), "CaloTTMgrDetDescrCnv");
+    log << MSG::INFO << "in createObj: creating a CaloTTDescrManager object in the detector store" << endreq;
     int outputLevel = msgSvc()->outputLevel( "CaloTTMgrDetDescrCnv" );
 
     // Create a new CaloTTDescrManager
@@ -98,7 +98,7 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     DetDescrAddress* ddAddr;
     ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
     if(!ddAddr) {
-	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
+	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
 	return StatusCode::FAILURE;
     }
 
@@ -107,10 +107,10 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     
     if (outputLevel <= MSG::DEBUG) {
     if ("" == mgrKey) {
-	log << MSG::DEBUG << "No Manager key " << endmsg;
+	log << MSG::DEBUG << "No Manager key " << endreq;
     }
     else {
-	log << MSG::DEBUG << "Manager key is " << mgrKey << endmsg;
+	log << MSG::DEBUG << "Manager key is " << mgrKey << endreq;
     }
     }
     
@@ -124,7 +124,7 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     StoreGateSvc * detStore;
     StatusCode status = serviceLocator()->service("DetectorStore", detStore);
     if (status.isFailure()) {
-	log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+	log << MSG::FATAL << "DetectorStore service not found !" << endreq;
 	return StatusCode::FAILURE;
     } else {}
  
@@ -133,26 +133,26 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     const CaloLVL1_ID* lvl1_id;
     status = detStore->retrieve(lvl1_id, "CaloLVL1_ID");
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get CaloLVL1_ID helper !" << endmsg;
+	log << MSG::FATAL << "Could not get CaloLVL1_ID helper !" << endreq;
 	return StatusCode::FAILURE;
     } 
     else {
-      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << " Found the CaloLVL1_ID helper. " << endmsg;
+      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << " Found the CaloLVL1_ID helper. " << endreq;
     }
     caloTTMgr->set_helper(lvl1_id);
     log << MSG::INFO << "Set CaloLVL1_ID helper in CaloTTMgr " 
-	<< endmsg;
+	<< endreq;
 
     // Get CaloDetDescrManager from detector store 
     // to build geometry of trigger towers
     const CaloDetDescrManager* caloMgr;
     status = detStore->retrieve(caloMgr);
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get CaloDetDescr manager !" << endmsg;
+	log << MSG::FATAL << "Could not get CaloDetDescr manager !" << endreq;
 	return StatusCode::FAILURE;
     } 
     else {
-      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << " Retrieved CaloDetDescr Manager " << endmsg;
+      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << " Retrieved CaloDetDescr Manager " << endreq;
     }
 
     // Retrieve LArCablingSvc also needed to build TT geometry
@@ -176,7 +176,7 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     if (!caloTTMgr->is_initialized()) {
 
       if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Initializing CaloTTMgr from values in CaloTTMgrDetDescrCnv " 
-	  << endmsg;
+	  << endreq;
 
       int numberOfIdRegions=0;
       int numberOfDescrRegions=0;
@@ -247,19 +247,19 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 		if (outputLevel <= MSG::DEBUG) {
 		  if(lvl1_helper->is_emb(layId) || lvl1_helper->is_barrel_end(layId) ) {
 		    ++nEmb;
-		    log << MSG::DEBUG << " Found EMB TT " << lvl1_helper->show_to_string(layId) << endmsg;
+		    log << MSG::DEBUG << " Found EMB TT " << lvl1_helper->show_to_string(layId) << endreq;
 		  }
 		  else if(lvl1_helper->is_emec(layId)) {
 		    ++nEmec;
-		    log << MSG::DEBUG << " Found EMEC TT " << lvl1_helper->show_to_string(layId) << endmsg;
+		    log << MSG::DEBUG << " Found EMEC TT " << lvl1_helper->show_to_string(layId) << endreq;
 		  }
 		  else if(lvl1_helper->is_hec(layId)) {
 		    ++nHec;
-		    log << MSG::DEBUG << " Found HEC TT " << lvl1_helper->show_to_string(layId) << endmsg;
+		    log << MSG::DEBUG << " Found HEC TT " << lvl1_helper->show_to_string(layId) << endreq;
 		  }
 		  else {  // FCAL
 		    ++nFcal;
-		    log << MSG::DEBUG << " Found FCAL TT " << lvl1_helper->show_to_string(layId) << endmsg;
+		    log << MSG::DEBUG << " Found FCAL TT " << lvl1_helper->show_to_string(layId) << endreq;
 		  }
 		}
 
@@ -322,7 +322,7 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 
 		} // end condition of vec size
 		else {
-		  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << " Found no cell for TT " << lvl1_helper->show_to_string(layId) << endmsg;
+		  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << " Found no cell for TT " << lvl1_helper->show_to_string(layId) << endreq;
 		}
 	      } // end loop on layers
 	    } // end condition against tile
@@ -334,15 +334,15 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
       if (caloTTMgr->calo_descriptors_size () > 0) caloTTMgr->initialize();
       
 	
-      log << MSG::INFO << " Initialized CaloTTMgr, number of descr regions is " << numberOfDescrRegions << endmsg;
+      log << MSG::INFO << " Initialized CaloTTMgr, number of descr regions is " << numberOfDescrRegions << endreq;
       if (outputLevel <= MSG::DEBUG) {
 	log << MSG::DEBUG << " including " 
 	    << nEmb << " Em Barrel " 
 	    << nEmec << " Em EC "
 	    << nHec << " HEC "
 	    << nFcal << " FCAL "
-	    << endmsg;
-	log << MSG::DEBUG << " number of helper regions= " << numberOfIdRegions << endmsg; 
+	    << endreq;
+	log << MSG::DEBUG << " number of helper regions= " << numberOfIdRegions << endreq; 
       }
     } // end of condition !is_initialized()
 
