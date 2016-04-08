@@ -7,17 +7,17 @@
 
 class Polyplane {
 public:
-	Polyplane(double ri, double ro, double z):_rin(ri),_rou(ro),_z(z) {;}
-	double rin() {return _rin;}
-	double rou() {return _rou;}
-	double z() {return _z;}
-	void rin(double v) {_rin=v;}
-	void rou(double v) {_rou=v;}
-	void z(double v) {_z=v;}
+	Polyplane(double ri, double ro, double z):m_rin(ri),m_rou(ro),m_z(z) {;}
+	double rin() {return m_rin;}
+	double rou() {return m_rou;}
+	double z() {return m_z;}
+	void rin(double v) {m_rin=v;}
+	void rou(double v) {m_rou=v;}
+	void z(double v) {m_z=v;}
 private:
-	double _rin;
-	double _rou;
-	double _z;
+	double m_rin;
+	double m_rou;
+	double m_z;
 };
 
 #endif

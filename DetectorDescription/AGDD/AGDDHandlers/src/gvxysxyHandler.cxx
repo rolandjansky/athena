@@ -8,6 +8,8 @@
 #include "AGDDHandlers/gvxy_pointHandler.h"
 #include <iostream>
 
+using namespace xercesc;
+
 gvxysxyHandler::gvxysxyHandler(std::string s):XMLHandler(s)
 {
 //	std::cout<<"Creating handler for gvxy"<<std::endl;
