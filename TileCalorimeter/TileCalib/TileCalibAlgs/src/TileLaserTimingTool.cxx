@@ -65,30 +65,30 @@ TileLaserTimingTool::PMTData::PMTData(const std::string &id)
 }
 
 TileLaserTimingTool::DigitizerData::DigitizerData()
-  : N_active(0)
-  , mean_time(0.)
-  , mean_rms(0.)
+  : m_N_active(0)
+  , m_mean_time(0.)
+  , m_mean_rms(0.)
 {
-  memset(ch_time, 0, sizeof(ch_time));
+  memset(m_ch_time, 0, sizeof(m_ch_time));
 }
 
 void TileLaserTimingTool::DigitizerData::Add(float time) {
-  ch_time[N_active] = time;
-  ++N_active;
+  m_ch_time[m_N_active] = time;
+  ++m_N_active;
 }
 
 void TileLaserTimingTool::DigitizerData::Freeze() {
-  mean_time = 0;
-  mean_rms = 0;
+  m_mean_time = 0;
+  m_mean_rms = 0;
 
-  for (int i = 0; i < N_active; ++i) mean_time += ch_time[i];
+  for (int i = 0; i < m_N_active; ++i) m_mean_time += m_ch_time[i];
 
-  mean_time = mean_time / ((float) N_active);
+  m_mean_time = m_mean_time / ((float) m_N_active);
 
-  for (int i = 0; i < N_active; ++i) mean_rms += sqr(ch_time[i] - mean_time);
+  for (int i = 0; i < m_N_active; ++i) m_mean_rms += sqr(m_ch_time[i] - m_mean_time);
 
-  mean_rms = mean_rms / ((float) N_active);
-  mean_rms = sqrt(mean_rms);
+  m_mean_rms = m_mean_rms / ((float) m_N_active);
+  m_mean_rms = sqrt(m_mean_rms);
 }
 
 TileLaserTimingTool::DrawerData::DrawerData(const std::string &id)
@@ -752,39 +752,39 @@ StatusCode TileLaserTimingTool::writeNtuple(int runNumber, int runType, TFile* r
 
   // Write a tree with all arrays
   TTree *t = new TTree(m_ntupleID.c_str(), "TileLaserTimingNtuple");
-  t->Branch("DrawerOffset", m_DrawerOffset, "DrawerOffset[5][64]/F"); // float m_DrawerOffset[NRos][64];
-  t->Branch("DrawerOffsetError", m_DrawerOffsetError, "DrawerOffsetError[5][64]/F"); // float m_DrawerOffsetError[NRos][64];
+  t->Branch("DrawerOffset", m_DrawerOffset, "DrawerOffset[5][64]/F"); // float m_DrawerOffset[s_NRos][64];
+  t->Branch("DrawerOffsetError", m_DrawerOffsetError, "DrawerOffsetError[5][64]/F"); // float m_DrawerOffsetError[NROS][64];
 
-  t->Branch("ChannelOffset", m_ChannelOffset, "ChannelOffset[5][64][48]/F"); // float m_ChannelOffset[NRos][64][48];
-  t->Branch("ChannelOffsetError", m_ChannelOffsetError, "ChannelOffsetError[5][64][48]/F"); // float m_ChannelOffsetError[NRos][64][48];
+  t->Branch("ChannelOffset", m_ChannelOffset, "ChannelOffset[5][64][48]/F"); // float m_ChannelOffset[NROS][64][48];
+  t->Branch("ChannelOffsetError", m_ChannelOffsetError, "ChannelOffsetError[5][64][48]/F"); // float m_ChannelOffsetError[NROS][64][48];
 
-  t->Branch("ADCAmplitude", m_ADCAmplitude, "ADCAmplitude[5][64][48]/F"); // float m_ADCAmplitude[NRos][64][48];
+  t->Branch("ADCAmplitude", m_ADCAmplitude, "ADCAmplitude[5][64][48]/F"); // float m_ADCAmplitude[NROS][64][48];
 
-  t->Branch("PedestalMean", m_PedestalMean, "PedestalMean[5][64][48]/F"); // float m_PedestalMean[NRos][64][48];
-  t->Branch("PedestalSigma", m_PedestalSigma, "PedestalSigma[5][64][48]/F"); // float m_PedestalSigma[NRos][64][48];
+  t->Branch("PedestalMean", m_PedestalMean, "PedestalMean[5][64][48]/F"); // float m_PedestalMean[NROS][64][48];
+  t->Branch("PedestalSigma", m_PedestalSigma, "PedestalSigma[5][64][48]/F"); // float m_PedestalSigma[NROS][64][48];
 
-  t->Branch("TimeDiffMean", m_TimeDiffMean, "TimeDiffMean[5][64][48]/F"); // float m_TimeDiffMean[NRos][64][48];
-  t->Branch("TimeDiffMeanError", m_TimeDiffMeanError, "TimeDiffMeanError[5][64][48]/F"); // float m_TimeDiffMeanError[NRos][64][48];
-  t->Branch("TimeDiffSigma", m_TimeDiffSigma, "TimeDiffSigma[5][64][48]/F"); // float m_TimeDiffSigma[NRos][64][48];
+  t->Branch("TimeDiffMean", m_TimeDiffMean, "TimeDiffMean[5][64][48]/F"); // float m_TimeDiffMean[NROS][64][48];
+  t->Branch("TimeDiffMeanError", m_TimeDiffMeanError, "TimeDiffMeanError[5][64][48]/F"); // float m_TimeDiffMeanError[NROS][64][48];
+  t->Branch("TimeDiffSigma", m_TimeDiffSigma, "TimeDiffSigma[5][64][48]/F"); // float m_TimeDiffSigma[NROS][64][48];
 
 #ifdef TileLaserTimingPMT0Mon
-  t->Branch("TimeDiffHighMean", m_TimeDiffHighMean, "TimeDiffHighMean[5][64][48]/F"); // float m_TimeDiffHighMean[NRos][64][48];
-  t->Branch("TimeDiffHighMeanError", m_TimeDiffHighMeanError, "TimeDiffHighMeanError[5][64][48]/F"); // float m_TimeDiffHighMeanError[NRos][64][48];
-  t->Branch("TimeDiffHighSigma", m_TimeDiffHighSigma, "TimeDiffHighSigma[5][64][48]/F"); // float m_TimeDiffHighSigma[NRos][64][48];
-  t->Branch("TimeDiffLowMean", m_TimeDiffLowMean, "TimeDiffLowMean[5][64][48]/F"); // float m_TimeDiffLowMean[NRos][64][48];
-  t->Branch("TimeDiffLowMeanError", m_TimeDiffLowMeanError, "TimeDiffLowMeanError[5][64][48]/F"); // float m_TimeDiffLowMeanError[NRos][64][48];
-  t->Branch("TimeDiffLowSigma", m_TimeDiffLowSigma, "TimeDiffLowSigma[5][64][48]/F"); // float m_TimeDiffLowSigma[NRos][64][48];
-  t->Branch("TimeDiffNoCFCorrMean", m_TimeDiffNoCFCorrMean, "TimeDiffNoCFCorrMean[5][64][48]/F"); // float m_TimeDiffNoCFCorrMean[NRos][64][48];
-  t->Branch("TimeDiffNoCFCorrMeanError", m_TimeDiffNoCFCorrMeanError, "TimeDiffNoCFCorrMeanError[5][64][48]/F"); // float m_TimeDiffNoCFCorrMeanError[NRos][64][48];
-  t->Branch("TimeDiffNoCFCorrSigma", m_TimeDiffNoCFCorrSigma, "TimeDiffNoCFCorrSigma[5][64][48]/F"); // float m_TimeDiffNoCFCorrSigma[NRos][64][48];
+  t->Branch("TimeDiffHighMean", m_TimeDiffHighMean, "TimeDiffHighMean[5][64][48]/F"); // float m_TimeDiffHighMean[NROS][64][48];
+  t->Branch("TimeDiffHighMeanError", m_TimeDiffHighMeanError, "TimeDiffHighMeanError[5][64][48]/F"); // float m_TimeDiffHighMeanError[NROS][64][48];
+  t->Branch("TimeDiffHighSigma", m_TimeDiffHighSigma, "TimeDiffHighSigma[5][64][48]/F"); // float m_TimeDiffHighSigma[NROS][64][48];
+  t->Branch("TimeDiffLowMean", m_TimeDiffLowMean, "TimeDiffLowMean[5][64][48]/F"); // float m_TimeDiffLowMean[NROS][64][48];
+  t->Branch("TimeDiffLowMeanError", m_TimeDiffLowMeanError, "TimeDiffLowMeanError[5][64][48]/F"); // float m_TimeDiffLowMeanError[NROS][64][48];
+  t->Branch("TimeDiffLowSigma", m_TimeDiffLowSigma, "TimeDiffLowSigma[5][64][48]/F"); // float m_TimeDiffLowSigma[NROS][64][48];
+  t->Branch("TimeDiffNoCFCorrMean", m_TimeDiffNoCFCorrMean, "TimeDiffNoCFCorrMean[5][64][48]/F"); // float m_TimeDiffNoCFCorrMean[NROS][64][48];
+  t->Branch("TimeDiffNoCFCorrMeanError", m_TimeDiffNoCFCorrMeanError, "TimeDiffNoCFCorrMeanError[5][64][48]/F"); // float m_TimeDiffNoCFCorrMeanError[NROS][64][48];
+  t->Branch("TimeDiffNoCFCorrSigma", m_TimeDiffNoCFCorrSigma, "TimeDiffNoCFCorrSigma[5][64][48]/F"); // float m_TimeDiffNoCFCorrSigma[NROS][64][48];
 #endif
-  t->Branch("FiberLength", m_FiberLength, "FiberLength[5][64][48]/F"); // float m_FiberLength[NRos][64][48];
+  t->Branch("FiberLength", m_FiberLength, "FiberLength[5][64][48]/F"); // float m_FiberLength[NROS][64][48];
 
 #ifdef TileLaserTimingMon
-  t->Branch("EvenOddTimeDiff", m_EvenOddTimeDiff, "EvenOddTimeDiff[5][64]/F"); // float m_EvenOddTimeDiff[NRos][64];
+  t->Branch("EvenOddTimeDiff", m_EvenOddTimeDiff, "EvenOddTimeDiff[5][64]/F"); // float m_EvenOddTimeDiff[NROS][64];
 
-  t->Branch("FiberCorrection", m_FiberCorrection, "FiberCorrection[5][64][48]/F"); // float m_FiberCorrection[NRos][64][48];
-  t->Branch("IsConnected", m_IsConnected, "IsConnected[5][64][48]/F"); // float m_FiberCorrection[NRos][64][48];
+  t->Branch("FiberCorrection", m_FiberCorrection, "FiberCorrection[5][64][48]/F"); // float m_FiberCorrection[NROS][64][48];
+  t->Branch("IsConnected", m_IsConnected, "IsConnected[5][64][48]/F"); // float m_FiberCorrection[NROS][64][48];
 
   t->Branch("MeanOddPmtTdiff", m_MeanOddPmtTdiff, "MeanOddPmtTdiff[5][64]/F");
   t->Branch("OddPmtCounter", m_OddPmtCounter, "OddPmtCounter[5][64]/I");
@@ -802,8 +802,8 @@ StatusCode TileLaserTimingTool::writeNtuple(int runNumber, int runType, TFile* r
   t->Branch("EvenPmtCounterPMT0", m_EvenPmtCounterPMT0, "EvenPmtCounterPMT0[5][64]/I");
   // <-- mon pmt0
 
-  t->Branch("DSkewSet", m_DSkewSet, "DSkewSet[5][64][8]/F");       // float m_DSkewSet[NRos][64][8];
-  t->Branch("DigiMean", m_DigiMean, "DigiMean[5][64][8]/F");       // float m_DigiMean[NRos][64][8];
+  t->Branch("DSkewSet", m_DSkewSet, "DSkewSet[5][64][8]/F");       // float m_DSkewSet[NROS][64][8];
+  t->Branch("DigiMean", m_DigiMean, "DigiMean[5][64][8]/F");       // float m_DigiMean[NROS][64][8];
   t->Fill();
   rootFile->cd();
   t->Write();
