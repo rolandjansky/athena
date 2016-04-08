@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ContainerProxies.cxx 704515 2015-10-29 15:08:30Z azemla $
+// $Id: ContainerProxies.cxx 708124 2015-11-16 13:24:22Z steinber $
 
 // EDM include(s):
 #include "xAODCore/AddDVProxy.h"

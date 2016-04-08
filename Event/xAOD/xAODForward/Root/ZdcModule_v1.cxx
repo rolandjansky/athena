@@ -22,9 +22,8 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1, uint32_t, id,setId)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1,int,side,setSide)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1,int,zdcModule,setZdcModule)
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1,int,type,setType)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1,int,channel,setChannel)
-
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1,int,type,setType)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1,float,amplitude,setAmplitude)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1,float,energy,setEnergy)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1,float,time,setTime)
