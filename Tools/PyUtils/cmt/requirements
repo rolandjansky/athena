@@ -68,6 +68,7 @@ apply_pattern declare_scripts files="\
  dump-athfile.py \
  dumpAthfilelite.py \
   filter-and-merge-d3pd.py \
+ getAMIDatasetParameters.py \
  gen-typereg-dso.py \
  gen_klass.py \
  get-tag-diff.py \

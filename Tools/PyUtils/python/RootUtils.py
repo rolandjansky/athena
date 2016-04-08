@@ -8,7 +8,7 @@
 from __future__ import with_statement
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
-__version__ = "$Revision: 678771 $"
+__version__ = "$Revision: 733716 $"
 __author__ = "Sebastien Binet"
 
 __all__ = [
@@ -39,6 +39,11 @@ def import_root(batch=True):
     if batch:
         ROOT.PyConfig.IgnoreCommandLineOptions = True
     import cppyy
+    if os.environ.get('GLIBCXX_USE_CXX11_ABI') == '0':
+        cmd = ROOT.gSystem.GetMakeSharedLib()
+        if cmd.find('GLIBCXX_USE_CXX11_ABI') < 0:
+            cmd = cmd.replace ('$SourceFiles', '$SourceFiles -D_GLIBCXX_USE_CXX11_ABI=0 ')
+            ROOT.gSystem.SetMakeSharedLib(cmd)
     return ROOT
 
 def root_compile(src=None, fname=None, batch=True):
@@ -318,8 +323,8 @@ def _test_main():
     no_raise("problem pythonizing TFile", fct=_pythonize_tfile)
     no_raise("problem compiling dummy one-liner",
              root_compile, "void foo1() { return ; }")
-#    no_raise("problem compiling dummy one-liner w/ kwds",
-#             fct=root_compile, src="void foo1() { return ; }")
+    no_raise("problem compiling dummy one-liner w/ kwds",
+             fct=root_compile, src="void foo1a() { return ; }")
     import tempfile
     # PvG workaround for ROOT-7059
     dummy = tempfile.NamedTemporaryFile(prefix="foo_",suffix=".cxx")

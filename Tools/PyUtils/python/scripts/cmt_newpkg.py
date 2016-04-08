@@ -7,7 +7,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 655341 $"
+__version__ = "$Revision: 734631 $"
 __author__ = "Sebastien Binet"
 __doc__ = "streamline and ease the creation of new cmt packages"
 
@@ -54,8 +54,8 @@ def main(args):
     author = os.path.expanduser(os.path.expandvars(args.author))
 
     if os.path.exists(full_pkg_name):
-        import shutil
-        shutil.rmtree(full_pkg_name)
+        print "ERROR: %s package already exists" % full_pkg_name
+        return 1
         
     print textwrap.dedent("""\
     ::: creating package [%(full_pkg_name)s]...
@@ -90,8 +90,7 @@ def main(args):
         branches src src/components doc python share
 
         ## default is to make component library. See: https://twiki.cern.ch/twiki/bin/view/Main/LearningAthena#Libraries_in_CMT for alternatives
-        library %(pkg_name)s *.cxx components/*.cxx
-        apply_pattern component_library
+        
         
         apply_pattern declare_joboptions files="*.py"
         apply_pattern declare_python_modules files="*.py"

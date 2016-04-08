@@ -5,7 +5,7 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__version__ = "$Revision: 692760 $"
+__version__ = "$Revision: 681245 $"
 __doc__ = "check that 2 ROOT files have same content (containers and sizes)."
 __author__ = "Sebastien Binet"
 
