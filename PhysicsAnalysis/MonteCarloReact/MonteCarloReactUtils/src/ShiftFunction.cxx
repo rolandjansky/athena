@@ -27,13 +27,13 @@ ShiftFunction::ShiftFunction( istream & ist,
   m_makeResolution( ist, request );
 }
 
-ShiftFunction::ShiftFunction( const TF1 * )
+ShiftFunction::ShiftFunction( const TF1 * ) : Resolution(), m_flowMode(Default)
 {
   //needs to be implememented
   cerr << "MonteCarloReactUtils::ShiftFunction(const TF1) Not yet implemented" << endl;
 }
 
-ShiftFunction::ShiftFunction( const TF2 * )
+ShiftFunction::ShiftFunction( const TF2 * ) : Resolution(), m_flowMode(Default)
 {
   //needs to be implememented
   cerr << "MonteCarloReactUtils::ShiftFunction(const TF2) Not yet implemented" << endl;

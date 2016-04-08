@@ -28,7 +28,7 @@ RandomFunction::RandomFunction( istream & ist,
 
 }
 
-RandomFunction::RandomFunction( const TF1 * )
+RandomFunction::RandomFunction( const TF1 * )  : Resolution(), m_flowMode(Default)
 {
   //needs to be implememented
   cerr << "MonteCarloReactUtils::RandomFunction::RandomFunction(TH1F) " 
