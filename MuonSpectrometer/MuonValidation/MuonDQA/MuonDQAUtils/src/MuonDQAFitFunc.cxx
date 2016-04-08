@@ -267,7 +267,11 @@ namespace Muon {
       //calculating the RMS from the above quantities
       float rms = (float)binerr*(sqrt(binentries));
      
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
+      hRms_char->SetCanExtend(TH1::kAllAxes);
+#else
       hRms_char->SetBit(TH1::kCanRebin);
+#endif    
       hRms_char->Fill(BinLabel_char,rms);
 
     } // Loop over bins
