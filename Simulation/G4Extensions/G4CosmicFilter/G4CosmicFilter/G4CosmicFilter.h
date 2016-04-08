@@ -10,33 +10,28 @@
 #ifndef G4CosmicFilter_H
 #define G4CosmicFilter_H
 
-#include "FadsActions/UserAction.h"
-#include "FadsActions/ActionsBase.h"
+#include "G4AtlasTools/UserActionBase.h"
+
 #include <string>
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "StoreGate/StoreGateSvc.h"
 
-class G4CosmicFilter: public FADS::ActionsBase , public FADS::UserAction {
-private:
+class G4CosmicFilter final: public UserActionBase
+{
+ private:
 
-  StoreGateSvc*   m_storeGate;
   int m_ntot,m_npass;
-  int m_magicID;
-  std::string m_collectionName;
+  int m_PDGId;
+  std::string m_collectionName,m_volumeName;
 
   double m_ptMin , m_ptMax;
 
-  void ParseProperties();
-  bool m_init;
-
 public:
-  G4CosmicFilter(std::string s):FADS::ActionsBase(s),FADS::UserAction(s),m_storeGate(0),m_ntot(0),m_npass(0),m_magicID(0),m_ptMin(-1),m_ptMax(-1),m_init(false){};
-  void BeginOfEventAction(const G4Event*);
-  void EndOfEventAction(const G4Event*);
-  void BeginOfRunAction(const G4Run*);
-  void EndOfRunAction(const G4Run*);
-  void SteppingAction(const G4Step*);
+  G4CosmicFilter(const std::string& type, const std::string& name, const IInterface* parent);
+
+  virtual StatusCode initialize() override;
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+
+  virtual void EndOfEvent(const G4Event*) override;
+  virtual void EndOfRun(const G4Run*) override;
 
 };
 
