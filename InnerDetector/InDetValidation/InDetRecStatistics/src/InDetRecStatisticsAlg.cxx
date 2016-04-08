@@ -113,7 +113,9 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
   //m_maxZIndet                (),
   m_minZEndSecondary         (3200.0*CLHEP::mm),
   m_useTrackSelection        (false),
-  m_doTruth                  (true)
+  m_doTruth                  (true),
+  m_minEtaDBM (2.5),
+  m_maxEtaDBM (10.0)
 {  
   m_RecTrackCollection_keys.push_back(std::string("Tracks"));
   m_TrackTruthCollection_keys.push_back(std::string("TrackTruthCollection"));  
@@ -142,6 +144,8 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
   declareProperty("maxEtaBarrel",               m_maxEtaBarrel  );
   declareProperty("maxEtaTransition",           m_maxEtaTransition);
   declareProperty("maxEtaEndcap",               m_maxEtaEndcap);
+  declareProperty("maxEtaDBM", m_maxEtaDBM);
+  declareProperty("minEtaDBM", m_minEtaDBM);
   declareProperty("fakeTrackCut",               m_fakeTrackCut);
   declareProperty("fakeTrackCut2",              m_fakeTrackCut2);
   declareProperty("matchTrackCut",              m_matchTrackCut);
@@ -248,6 +252,8 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
   ct.minZEndPrimary	 = m_minZEndPrimary;
   ct.minZEndSecondary  	 = m_minZEndSecondary;  
   ct.minPt               = m_minPt;
+  ct.minEtaDBM = m_minEtaDBM;
+  ct.maxEtaDBM = m_maxEtaDBM;
 
   unsigned int nCollections = 0;
   for (std::vector <std::string>::const_iterator 
@@ -760,6 +766,8 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
 	    << "\t" << "Secondary (non-primary) end   \t"
 	    << " R > "    << m_minREndSecondary   << "mm or"
 	    << " |z| > "  << m_minREndSecondary   << "mm" << std::endl
+            << "\t" << "DBM                \t"
+            << "|eta| > " << m_minEtaDBM     << std::endl
 	    << "\t" << "Low prob tracks #1    \t" << "< "               
 	    << m_fakeTrackCut  << " of hits from single Truth Track " 
 	    << std::endl  
@@ -783,23 +791,29 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
     std::cout << "Detailed Statistics for Hits on Reconstructed tracks, using TrackSummary: (Preselection of tracks as described above.)" << std::endl;
     std::cout << s_linestr2 << std::endl;  
     
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Reco Tracks                           .........................................hits/track.................................................  " << std::endl;
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  in BARREL                tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl    " << std::endl;
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "  Reco Tracks                           .........................................hits/track.......................................................  " << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "  in BARREL                tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
     
     printTrackSummary (ETA_BARREL);
     
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  in TRANSITION region     tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl    " << std::endl;
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "  in TRANSITION region     tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
     printTrackSummary (ETA_TRANSITION);
 
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  in ENDCAP                tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl    " << std::endl;
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "  in ENDCAP                tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
     printTrackSummary (ETA_ENDCAP);
+
+    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "  in DBM                   tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    printTrackSummary (ETA_DBM);
+
     
   }
 
