@@ -112,7 +112,7 @@ const Trk::MaterialProperties* Trk::CompoundLayerMaterial::fullMaterial(const Am
 const Trk::MaterialProperties* Trk::CompoundLayerMaterial::material(size_t bin0, size_t bin1) const
 {
     // get the size
-    double thickness = m_thicknessBins.value(bin0,bin1);
+    const double thickness = m_thicknessBins.value(bin0,bin1);
     // no thickness or no x0 - return a null pointer
     if (thickness == 0.) return nullptr;
     double x0   = 0.;
@@ -144,7 +144,10 @@ const Trk::MaterialProperties* Trk::CompoundLayerMaterial::material(size_t bin0,
     // record the material composition
     Trk::MaterialComposition* mComposition = new Trk::MaterialComposition(m_composition[bin1][bin0]); 
     // check for 0 material
-    if (x0 == 0.) return nullptr;
+    if (x0 == 0.){ 
+    	delete mComposition;
+    	return nullptr;
+    }
     // set it and return 
     //!< @TODO measure if this is slow
     m_materialProperties->setMaterial(Trk::Material(x0,l0,a,z,rho,0.,mComposition),thickness);
@@ -153,8 +156,8 @@ const Trk::MaterialProperties* Trk::CompoundLayerMaterial::material(size_t bin0,
 
 MsgStream& Trk::CompoundLayerMaterial::dump( MsgStream& sl) const
 {
-  sl << "Trk::CompoundLayerMaterial : " << std::endl;
-  sl << "   - Number of Material bins (1/2) : " << m_binUtility->max(0)+1  << " / " << m_binUtility->max(1)+1 << std::endl;
+  sl << "Trk::CompoundLayerMaterial : \n" ;
+  sl << "   - Number of Material bins (1/2) : " << m_binUtility->max(0)+1  << " / " << m_binUtility->max(1)+1 << "\n";
   return sl;
 }
 

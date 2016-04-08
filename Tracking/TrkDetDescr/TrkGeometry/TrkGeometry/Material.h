@@ -170,7 +170,7 @@ namespace Trk {
         composition( amc.composition ? new MaterialComposition(*amc.composition) : 0 )
       {}
 
-      /** Desctructor - delete the composition if there */
+      /** Destructor - delete the composition if there */
 	  ~Material() { delete composition;  }
 
       /** Assignment operator */

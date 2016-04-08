@@ -968,39 +968,34 @@ void Trk::TrackingVolume::createLayerAttemptsCalculator()
 }
 
 void Trk::TrackingVolume::interlinkLayers() {
-  
   if (m_confinedLayers){
-      // get the BinUtility
-      const Trk::BinUtility* layerBinUtils = m_confinedLayers->binUtility();
-      if (layerBinUtils) {
-         const std::vector<const Trk::Layer*>& layers = m_confinedLayers->arrayObjects();
-         // forward loop
-         const Trk::Layer* lastLayer = 0;
-         std::vector<const Trk::Layer*>::const_iterator layerIter = layers.begin();
-         for ( ; layerIter != layers.end(); ++layerIter)
-            { 
-              if (*layerIter) {
-                 // register the layers
-                 (**layerIter).m_binUtility    = layerBinUtils; 
-                 (**layerIter).m_previousLayer = lastLayer;
-                 // register the volume
-                 (**layerIter).encloseTrackingVolume(*this); 
-                 }
-              lastLayer = (*layerIter);
-            }
-        // backward loop
-        lastLayer = 0;
-        layerIter = layers.end();
-        --layerIter;
-        for ( ; ; --layerIter)
-            { 
-              if (*layerIter)
-                 (**layerIter).m_nextLayer = lastLayer;
-              lastLayer = (*layerIter);
-              if (layerIter == layers.begin()) break;
-            }
-       }
-   }
+    const std::vector<const Trk::Layer*>& layers = m_confinedLayers->arrayObjects();
+    // forward loop
+    const Trk::Layer* lastLayer = 0;
+    std::vector<const Trk::Layer*>::const_iterator layerIter = layers.begin();
+    for ( ; layerIter != layers.end(); ++layerIter)
+      { 
+	if (*layerIter) {
+	  // register the layers
+	  (**layerIter).m_binUtility    = m_confinedLayers->binUtility() ? m_confinedLayers->binUtility() : 0; 
+	  (**layerIter).m_previousLayer = lastLayer;
+	  // register the volume
+	  (**layerIter).encloseTrackingVolume(*this); 
+	}
+	lastLayer = (*layerIter);
+      }
+    // backward loop
+    lastLayer = 0;
+    layerIter = layers.end();
+    --layerIter;
+    for ( ; ; --layerIter)
+      { 
+	if (*layerIter)
+	  (**layerIter).m_nextLayer = lastLayer;
+	lastLayer = (*layerIter);
+	if (layerIter == layers.begin()) break;
+      }
+  }
 }
 
 const Trk::LayerArray* Trk::TrackingVolume::checkoutConfinedLayers() const

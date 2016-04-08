@@ -351,11 +351,13 @@ namespace Trk {
       
       // clear the vector, just in case
       cSurfaces.clear();
+
       // create a new for for the moment because there are two different modes:
       // - the layer does the intersection already
       // - you do the intersection  
       // !< TODO harmonise this
       std::vector<SurfaceIntersection> testSurfaces;
+      
       // get the main target surface
       const Surface* tSurface = subSurface(pos);
       //!< @TODO allow also a 0 target in the future
