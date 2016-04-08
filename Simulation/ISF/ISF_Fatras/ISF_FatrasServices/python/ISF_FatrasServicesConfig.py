@@ -333,15 +333,27 @@ def getFatrasProcessSamplingTool(name="ISF_FatrasProcessSamplingTool", **kwargs)
 #
 # (ii) Energy Loss
 #      - Ionization and Bremstrahlung loss
-
+#      - assing the Bethe-Heitler Eloss updator
 def getFatrasEnergyLossUpdator(name="ISF_FatrasEnergyLossUpdator", **kwargs):
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
+    kwargs.setdefault("UsePDG_EnergyLossFormula", True)
+    kwargs.setdefault("EnergyLossDistribution", 2)
     #kwargs.setdefault("EnergyLossUpdator"  , getPublicTool('AtlasEnergyLossUpdator'))
 
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__McEnergyLossUpdator
     return iFatras__McEnergyLossUpdator(name, **kwargs )
+
+def getFatrasEnergyLossSamplerBetheHeitler(name="ISF_FatrasEnergyLossSamplerBetheHeitler", **kwargs):
+    from G4AtlasApps.SimFlags import SimFlags,simFlags
+    kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
+    kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
+    kwargs.setdefault("ScaleFactor"  , FatrasTuningFlags.BetheHeitlerScalor())
+    
+    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__EnergyLossSamplerBetheHeitler
+    return iFatras__EnergyLossSamplerBetheHeitler(name, **kwargs )
+
 #
 # (iii) Multiple scattering
 def getFatrasMultipleScatteringUpdator(name="ISF_FatrasMultipleScatteringUpdator", **kwargs):
@@ -431,7 +443,9 @@ def getFatrasMaterialEffectsEngine(name="ISF_FatrasMaterialEffectsEngine", **kwa
     # energy loss
     kwargs.setdefault("EnergyLoss"                  , True)
     kwargs.setdefault("EnergyLossSampler"           , getPublicTool('ISF_FatrasEnergyLossUpdator'))
-    kwargs.setdefault("CreateBremPhotons"           , True)
+    kwargs.setdefault("UseElectronSampler"          , True)
+    kwargs.setdefault("ElectronEnergyLossSampler"   , getPublicTool('ISF_FatrasEnergyLossSamplerBetheHeitler'))
+    kwargs.setdefault("CreateBremPhotons"           , True)    
     # multiple scattering
     kwargs.setdefault("MultipleScattering"          , True)
     kwargs.setdefault("MultipleScatteringSampler"   , getPublicTool('ISF_FatrasMultipleScatteringSamplerHighland'))
@@ -657,12 +671,13 @@ def getFatrasSimServiceID(name="ISF_FatrasSimSvc", **kwargs):
     return iFatras__FatrasSimSvc(name, **kwargs )
 
 def getFatrasNewExtrapolationSimServiceID(name="ISF_FatrasNewExtrapolationSimSvc", **kwargs):
-    kwargs.setdefault("Identifier"      , "Fatras")
+    kwargs.setdefault("Identifier"        , "Fatras")
     kwargs.setdefault("IDSimulationTool"  , getPublicTool('ISF_FatrasSimEngine'))
-    kwargs.setdefault("SimulationTool"  , getPublicTool('ISF_FatrasSimTool'))
-    
+    kwargs.setdefault("SimulationTool"    , getPublicTool('ISF_FatrasSimTool'))
+    kwargs.setdefault("UseSimulationTool" , True)
+
     # set the output level
-    kwargs.setdefault("OutputLevel"         , ISF_FatrasFlags.OutputLevelGeneral())
+    kwargs.setdefault("OutputLevel"       , ISF_FatrasFlags.OutputLevelGeneral())
         
     # register Fatras random number stream if not already registered
     from G4AtlasApps.SimFlags import SimFlags,simFlags
