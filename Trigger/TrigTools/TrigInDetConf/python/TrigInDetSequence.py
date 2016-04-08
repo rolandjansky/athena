@@ -141,7 +141,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
       #raise Exception
 
-    log.info('%s ' % algseq)  
+    log.debug('%s ' % algseq)  
 
     self.__sequence__.append(algseq)
     pass
@@ -171,7 +171,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
     fullseq = list()
 
-    log.info("TrigInDetSequence  sigName=%s seqFlav=%s sig=%s sequenceType=%s" % (signatureName, sequenceFlavour, signature, sequenceType))
+    log.debug("TrigInDetSequence  sigName=%s seqFlav=%s sig=%s sequenceType=%s" % (signatureName, sequenceFlavour, signature, sequenceType))
 
     dataprep = [
       ("PixelClustering", "PixelClustering_IDTrig"),
@@ -264,7 +264,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     else:
       pass
 
-    log.info("Full sequence has %d items" % len(fullseq) )
+    log.debug("Full sequence has %d items" % len(fullseq) )
     #print fullseq
     #log.info("generate python now")
 
