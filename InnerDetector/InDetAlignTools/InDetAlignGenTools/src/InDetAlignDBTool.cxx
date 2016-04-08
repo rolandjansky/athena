@@ -6,6 +6,12 @@
 // AlgTool to manage the SCT/pixel AlignableTransforms in the conditions store
 // Richard Hawkings, started 8/4/05
 
+#include "CoralBase/AttributeListSpecification.h"
+#include "CoralBase/Attribute.h"
+
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+
 #include <fstream>
 #include <iostream>
 
@@ -189,7 +195,31 @@ StatusCode InDetAlignDBTool::initialize()
     else
       ATH_MSG_DEBUG("Assuming old (Lisbon) alignment DB model based on separate AlignableTransforms");
   }
+
+  // make a new empty CondAttrListCollection with the IBLDist structure:  
+  m_attrListCollection = new CondAttrListCollection(true); // not really sure....
   
+  coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
+  spec->extend("stave", "int");
+  spec->extend("eta", "int");
+  spec->extend("mag", "float");
+  spec->extend("base", "float");
+  spec->extend("free", "float");
+
+  const int ibl_stave_max = 14;
+  // create a full collection first with NULL entries to ensure fail save operation 
+  for (int this_stave=0; this_stave<ibl_stave_max; this_stave++){
+
+    coral::AttributeList atrlist(*spec);
+    // Set value of each row for the current channel
+    atrlist[ "stave" ].data<int>()=this_stave;
+    atrlist[ "eta" ].data<int>()=0;
+    atrlist[ "mag" ].data<float>()=0;
+    atrlist[ "base" ].data<float>()=0;
+    atrlist[ "free" ].data<float>()=0;
+    m_attrListCollection->add(100*(1+this_stave),atrlist);
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -333,6 +363,26 @@ void InDetAlignDBTool::createDB() const
   ATH_MSG_DEBUG( "Dumping size of created AlignableTransform objects");
   for (unsigned int i=0;i<m_alignobjs.size();++i)
     if ((pat=getTransPtr(m_alignobjs[i]))) pat->print();
+
+  /*  Not needed at the moment
+  {
+
+    ATH_MSG_DEBUG("createDB method called for IBLDist");
+    const CondAttrListCollection* atrlistcol=0;
+    std::string ibl_folderName = "/Indet/IBLDist";
+    if (detStore()->contains<CondAttrListCollection>(ibl_folderName)) {
+      ATH_MSG_WARNING("createDB: CondAttrListCollection already exists");
+      //return; 
+    }
+    
+    if (par_newdb) {
+      atrlistcol = m_attrListCollection;
+      if (StatusCode::SUCCESS!=detStore()->record(atrlistcol,ibl_folderName))
+	ATH_MSG_ERROR( "Could not record IBLDist "<< ibl_folderName );
+    
+    }
+  }  
+  */
 }
 
 bool InDetAlignDBTool::idToDetSet(const Identifier ident, int& det, int& bec,
@@ -699,6 +749,39 @@ void InDetAlignDBTool::writeFile(const bool ntuple, const std::string file)
   }
   ATH_MSG_DEBUG("Written " << nobj << " AlignableTransform objects" << " with " << ntrans << " transforms to text file" );
 }
+
+// write extra txt file for new IBLDist
+
+void InDetAlignDBTool::writeIBLDistFile( const std::string file) 
+  const {
+  std::ofstream* outfile=0;
+ 
+  ATH_MSG_DEBUG( "writeFile: Write IBLDist DB in text file: " << file );
+  outfile=new std::ofstream(file.c_str());
+  *outfile << "/Indet/IBLDist" << std::endl;
+
+  const CondAttrListCollection* atrlistcol=0;
+  if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,"/Indet/IBLDist")) {
+    // loop over objects in collection                                                                                                             
+    for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
+
+      const coral::AttributeList& atrlist=citr->second;
+      *outfile  << citr->first << " " << atrlist["stave"].data<int>()
+		<< " " << atrlist["eta"].data<int>()
+		<< " " << atrlist["mag"].data<float>()
+		<< " " << atrlist["base"].data<float>() << std::endl;
+    }
+  }
+  else {
+    if (msgLvl(MSG::INFO))
+      msg(MSG::INFO) << "Cannot find IBLDist Container - cannot write IBLDist DB in text file " << endreq;
+  }
+
+  outfile->close();
+  delete outfile;
+  
+}
+
 
 
 void InDetAlignDBTool::readTextFile(const std::string file) const {
@@ -1132,6 +1215,22 @@ StatusCode InDetAlignDBTool::outputObjs() const {
     ATH_MSG_ERROR("Could not stream output objects" );
     return StatusCode::FAILURE;
   }
+
+  {
+    // additional IBLDist DB
+    ATH_MSG_DEBUG( "starting to register typeKey for IBLDist" );
+    IAthenaOutputStreamTool::TypeKeyPairs typekeys_IBLDist(1);
+    IAthenaOutputStreamTool::TypeKeyPair pair("CondAttrListCollection", "/Indet/IBLDist");
+    typekeys_IBLDist[0] = pair;
+    
+    // write objects to stream                                                                                                                  
+    if (StatusCode::SUCCESS!=optool->streamObjects(typekeys_IBLDist)) {
+      ATH_MSG_ERROR("Could not stream output IBLDist objects" );
+      return StatusCode::FAILURE;
+    }
+
+  }
+
   // commit output
   if (StatusCode::SUCCESS!=optool->commitOutput()) {
     ATH_MSG_ERROR("Could not commit output" );
@@ -1357,3 +1456,51 @@ void InDetAlignDBTool::extractAlphaBetaGamma(const Amg::Transform3D & trans,
     if (gamma == 0) gamma = 0; // convert -0 to 0
   }
 }
+
+
+bool InDetAlignDBTool::tweakIBLDist(const int stave, const float bowx) const {
+
+  // find transform key, then set appropriate transform           
+  const CondAttrListCollection* atrlistcol1=0;
+  CondAttrListCollection* atrlistcol2=0;
+  bool result=false;
+  if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol1,"/Indet/IBLDist")) {
+    // loop over objects in collection                                    
+    atrlistcol2 = const_cast<CondAttrListCollection*>(atrlistcol1);
+    if (atrlistcol2!=0){
+      for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
+	
+	const coral::AttributeList& atrlist=citr->second;
+	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
+ 
+	if(atrlist2["stave"].data<int>()!=stave) continue;
+	else {
+	  msg(MSG::DEBUG) << "IBLDist DB -- channel before update: " << citr->first
+			 << " ,stave: " << atrlist2["stave"].data<int>()
+			 << " ,mag: " << atrlist2["mag"].data<float>()
+			 << " ,base: " << atrlist2["base"].data<float>() << endreq;
+
+	  atrlist2["mag"].data<float>() += bowx;
+	  result = true;
+	  msg(MSG::DEBUG) << "IBLDist DB -- channel after update: " << citr->first
+			 << " ,stave: " << atrlist2["stave"].data<int>()
+			 << " ,mag: " << atrlist2["mag"].data<float>()
+			 << " ,base: " << atrlist2["base"].data<float>() << endreq;
+	  
+	}	
+      }
+    }
+    else {
+      ATH_MSG_ERROR("tweakIBLDist: cast fails for stave " << stave );
+      return false;
+   }
+  }
+  else {
+    ATH_MSG_ERROR("tweakIBLDist: cannot retrieve CondAttrListCollection for key /Indet/IBLDist" );
+    return false;
+  }
+
+  return result;  
+}
+
+
