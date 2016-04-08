@@ -2,7 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvAlg.cxx 644234 2015-02-04 17:24:51Z leggett $
+// $Id: EventInfoCnvAlg.cxx 727101 2016-03-01 15:56:08Z krasznaa $
+
+// System include(s):
+#include <memory>
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -62,16 +65,20 @@ namespace xAODMaker {
       }
 
       // Create the xAOD object(s):
-      xAOD::EventAuxInfo* aux = new xAOD::EventAuxInfo();
-      xAOD::EventInfo* xaod = new xAOD::EventInfo();
-      xaod->setStore( aux );
+      std::unique_ptr< xAOD::EventAuxInfo > aux( new xAOD::EventAuxInfo() );
+      std::unique_ptr< xAOD::EventInfo > xaod( new xAOD::EventInfo() );
+      xaod->setStore( aux.get() );
 
       // Do the translation:
-      CHECK( m_cnvTool->convert( aod, xaod ) );
+      CHECK( m_cnvTool->convert( aod, xaod.get() ) );
+
+      // Before the record, keep a pointer to the EventInfo object, to be able
+      // to add ElementLinks to it afterwards.
+      xAOD::EventInfo* ei = xaod.get();
 
       // Record the xAOD object(s):
-      CHECK( evtStore()->record( aux, m_xaodKey + "Aux." ) );
-      CHECK( evtStore()->record( xaod, m_xaodKey ) );
+      CHECK( evtStore()->record( std::move( aux ), m_xaodKey + "Aux." ) );
+      CHECK( evtStore()->record( std::move( xaod ), m_xaodKey ) );
 
       // Check if this is a PileUpEventInfo object:
       const PileUpEventInfo* paod =
@@ -82,9 +89,34 @@ namespace xAODMaker {
       }
 
       // Create an EventInfoContainer for the pileup events:
-      xAOD::EventInfoContainer* puei = new xAOD::EventInfoContainer();
-      xAOD::EventInfoAuxContainer* puaux = new xAOD::EventInfoAuxContainer();
-      puei->setStore( puaux );
+      std::unique_ptr< xAOD::EventInfoContainer >
+         puei( new xAOD::EventInfoContainer() );
+      std::unique_ptr< xAOD::EventInfoAuxContainer >
+         puaux( new xAOD::EventInfoAuxContainer() );
+      puei->setStore( puaux.get() );
+
+      // Sub-events for the main EventInfo object:
+      std::vector< xAOD::EventInfo::SubEvent > subEvents;
+
+      // A map translating between the AOD and xAOD pileup event types:
+      static std::map< PileUpEventInfo::SubEvent::pileup_type,
+                       xAOD::EventInfo::PileUpType > pileupTypeMap;
+      if( ! pileupTypeMap.size() ) {
+#define DECLARE_SE_TYPE( TYPE )                                         \
+         pileupTypeMap[ PileUpTimeEventIndex::TYPE ] = xAOD::EventInfo::TYPE
+
+         DECLARE_SE_TYPE( Unknown );
+         DECLARE_SE_TYPE( Signal );
+         DECLARE_SE_TYPE( MinimumBias );
+         DECLARE_SE_TYPE( Cavern );
+         DECLARE_SE_TYPE( HaloGas );
+         DECLARE_SE_TYPE( ZeroBias );
+
+#undef DECLARE_SE_TYPE
+      }
+
+      // A convenience type declaration:
+      typedef ElementLink< xAOD::EventInfoContainer > EiLink;
 
       // Create xAOD::EventInfo objects for each pileup EventInfo object:
       PileUpEventInfo::SubEvent::const_iterator pu_itr = paod->beginSubEvt();
@@ -94,12 +126,31 @@ namespace xAODMaker {
          xAOD::EventInfo* ei = new xAOD::EventInfo();
          puei->push_back( ei );
          // Fill it with information:
-         CHECK( m_cnvTool->convert( pu_itr->pSubEvt, ei, true ) );
+         CHECK( m_cnvTool->convert( pu_itr->pSubEvt, ei, true, false ) );
+         // And now add a sub-event to the temporary list:
+         auto typeItr = pileupTypeMap.find( pu_itr->type() );
+         xAOD::EventInfo::PileUpType type = xAOD::EventInfo::Unknown;
+         if( typeItr == pileupTypeMap.end() ) {
+            ATH_MSG_WARNING( "PileUpType not recognised: " << pu_itr->type() );
+         } else {
+            type = typeItr->second;
+         }
+         subEvents.push_back( xAOD::EventInfo::SubEvent( pu_itr->time(),
+                                                         pu_itr->index(),
+                                                         type,
+                                                         EiLink( "PileUp" +
+                                                                 m_xaodKey,
+                                                                 puei->size() -
+                                                                 1 ) ) );
       }
 
+      // And now update the main EventInfo object with the sub-events:
+      ei->setSubEvents( subEvents );
+
       // Record the xAOD object(s):
-      CHECK( evtStore()->record( puaux, "PileUp" + m_xaodKey + "Aux." ) );
-      CHECK( evtStore()->record( puei, "PileUp" + m_xaodKey ) );
+      CHECK( evtStore()->record( std::move( puaux ),
+                                 "PileUp" + m_xaodKey + "Aux." ) );
+      CHECK( evtStore()->record( std::move( puei ), "PileUp" + m_xaodKey ) );
 
       // Return gracefully:
       return StatusCode::SUCCESS;

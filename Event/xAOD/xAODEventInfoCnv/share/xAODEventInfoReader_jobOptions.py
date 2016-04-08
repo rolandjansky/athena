@@ -1,4 +1,4 @@
-# $Id: xAODEventInfoReader_jobOptions.py 592116 2014-04-09 12:04:38Z krasznaa $
+# $Id: xAODEventInfoReader_jobOptions.py 682548 2015-07-13 13:57:15Z krasznaa $
 
 # Set up the reading of a file:
 FNAME = "xAOD.pool.root"
@@ -11,7 +11,7 @@ theJob = AlgSequence()
 
 # Add the EventInfo reader algorithm:
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODReader__EventInfoReaderAlg
-alg = xAODReader__EventInfoReaderAlg()
+alg = xAODReader__EventInfoReaderAlg( SGKey = "EventInfoTest" )
 alg.OutputLevel = 2
 theJob += alg
 

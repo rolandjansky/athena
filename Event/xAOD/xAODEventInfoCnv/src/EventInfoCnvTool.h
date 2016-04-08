@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvTool.h 670837 2015-05-29 10:17:08Z krasznaa $
+// $Id: EventInfoCnvTool.h 727531 2016-03-03 17:44:38Z krasznaa $
 #ifndef XAODEVENTINFOCNV_EVENTINFOCNVTOOL_H
 #define XAODEVENTINFOCNV_EVENTINFOCNVTOOL_H
 
@@ -13,14 +13,16 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#ifndef XAOD_ANALYSIS
 // Beam condition include(s):
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 // Luminosity include(s):
 #include "LumiBlockComps/ILuminosityTool.h"
+#endif
 
-// Local include(s):
-#include "xAODEventInfoCnv/IEventInfoCnvTool.h"
+// xAOD include(s):
+#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
 
 namespace xAODMaker {
 
@@ -32,8 +34,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 670837 $
-    * $Date: 2015-05-29 12:17:08 +0200 (Fri, 29 May 2015) $
+    * $Revision: 727531 $
+    * $Date: 2016-03-03 18:44:38 +0100 (Thu, 03 Mar 2016) $
     */
    class EventInfoCnvTool : public AthAlgTool,
                             public virtual IEventInfoCnvTool {
@@ -49,16 +51,21 @@ namespace xAODMaker {
       /// Function that fills an existing xAOD::EventInfo object with data
       virtual StatusCode convert( const EventInfo* aod,
                                   xAOD::EventInfo* xaod,
-                                  bool pileUpInfo = false );
+                                  bool pileUpInfo = false,
+                                  bool copyPileUpLinks = true );
 
    private:
+#ifndef XAOD_ANALYSIS
       /// Connection to the beam spot service
       ServiceHandle< IBeamCondSvc > m_beamCondSvc;
+      /// Connection to the luminosity tool
+      ToolHandle< ILuminosityTool > m_lumiTool;
+#endif
+
       /// Internal flag for the availability of the beam conditions service
       bool m_beamCondSvcAvailable;
 
-      /// Connection to the luminosity tool
-      ToolHandle< ILuminosityTool > m_lumiTool;
+      
       /// Internal flag for the availability of the luminosity tool
       bool m_lumiToolAvailable;
 

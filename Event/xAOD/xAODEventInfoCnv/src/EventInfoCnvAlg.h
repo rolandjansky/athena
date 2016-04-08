@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvAlg.h 634394 2014-12-08 11:10:34Z krasznaa $
+// $Id: EventInfoCnvAlg.h 727531 2016-03-03 17:44:38Z krasznaa $
 #ifndef XAODEVENTINFOCNV_EVENTINFOCNVALG_H
 #define XAODEVENTINFOCNV_EVENTINFOCNVALG_H
 
@@ -16,7 +16,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Local include(s):
-#include "xAODEventInfoCnv/IEventInfoCnvTool.h"
+#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
 
 namespace xAODMaker {
 
@@ -28,8 +28,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 634394 $
-    * $Date: 2014-12-08 12:10:34 +0100 (Mon, 08 Dec 2014) $
+    * $Revision: 727531 $
+    * $Date: 2016-03-03 18:44:38 +0100 (Thu, 03 Mar 2016) $
     */
    class EventInfoCnvAlg : public AthAlgorithm {
 

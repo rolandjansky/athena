@@ -1,12 +1,13 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: xAODEventInfoCreator.py 634394 2014-12-08 11:10:34Z krasznaa $
+# $Id: xAODEventInfoCreator.py 682548 2015-07-13 13:57:15Z krasznaa $
 
 # Import the configurable(s):
 from xAODEventInfoCnv.xAODEventInfoCnvConf import *
 
 ## Helper function for creating xAOD::EventInfo
-def xAODEventInfoCreator( sequence = None, stream = None, key = "" ):
+def xAODEventInfoCreator( sequence = None, stream = None, key = "",
+                          outkey = "EventInfo" ):
     """
     Helper function that schedules the algorithm for creating an xAOD::EventInfo
     object out of the AOD's EventInfo one.
@@ -41,7 +42,6 @@ def xAODEventInfoCreator( sequence = None, stream = None, key = "" ):
         pass
 
     # Add the converter algorithm:
-    outkey = "EventInfo"
     alg = xAODMaker__EventInfoCnvAlg()
     alg.AODKey = key
     alg.xAODKey = outkey

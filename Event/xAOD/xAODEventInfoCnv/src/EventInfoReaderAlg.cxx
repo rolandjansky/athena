@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoReaderAlg.cxx 592116 2014-04-09 12:04:38Z krasznaa $
+// $Id: EventInfoReaderAlg.cxx 682548 2015-07-13 13:57:15Z krasznaa $
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -86,6 +86,25 @@ namespace xAODReader {
          ATH_MSG_DEBUG( "mcChannelNumber = " << ei->mcChannelNumber() );
          ATH_MSG_DEBUG( "mcEventNumber = " << ei->mcEventNumber() );
          ATH_MSG_DEBUG( "mcEventWeights = " << ei->mcEventWeights() );
+      }
+
+      // Check if it has sub-events:
+      try {
+         const auto& subEvents = ei->subEvents();
+         int counter = 0;
+         for( const xAOD::EventInfo::SubEvent& se : subEvents ) {
+            ATH_MSG_DEBUG( "SubEvent #" << counter++ );
+            ATH_MSG_DEBUG( "   time = " << se.time() );
+            ATH_MSG_DEBUG( "   type = " << se.typeName() );
+            const xAOD::EventInfo* sei = se.ptr();
+            if( sei ) {
+               ATH_MSG_DEBUG( "   runNumber = " << sei->runNumber() );
+               ATH_MSG_DEBUG( "   eventNumber = " << sei->eventNumber() );
+               ATH_MSG_DEBUG( "   bcid = " << sei->bcid() );
+            }
+         }
+      } catch( const std::exception& ) {
+         // Nope, it doesn't...
       }
 
       // Return gracefully:

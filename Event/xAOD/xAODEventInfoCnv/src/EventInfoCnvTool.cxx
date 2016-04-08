@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvTool.cxx 670837 2015-05-29 10:17:08Z krasznaa $
+// $Id: EventInfoCnvTool.cxx 727101 2016-03-01 15:56:08Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -36,17 +36,20 @@ namespace xAODMaker {
                                        const std::string& name,
                                        const IInterface* parent )
       : AthAlgTool( type, name, parent ),
+#ifndef XAOD_ANALYSIS
         m_beamCondSvc( "BeamCondSvc", name ),
-        m_beamCondSvcAvailable( false ),
         m_lumiTool( "LuminosityTool" ),
+#endif
+        m_beamCondSvcAvailable( false ),
         m_lumiToolAvailable( false ) {
 
       // Declare the interface(s) provided by the tool:
       declareInterface< IEventInfoCnvTool >( this );
-
+#ifndef XAOD_ANALYSIS
       // Declare the tool's properties:
       declareProperty( "BeamCondSvc", m_beamCondSvc );
       declareProperty( "LuminosityTool", m_lumiTool );
+#endif
    }
 
    StatusCode EventInfoCnvTool::initialize() {
@@ -54,6 +57,7 @@ namespace xAODMaker {
       // Greet the user:
       ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
 
+#ifndef XAOD_ANALYSIS
       // Check if the beam position will be available or not:
       if( detStore()->contains< AthenaAttributeList >( INDET_BEAMPOS ) ) {
          m_beamCondSvcAvailable = true;
@@ -86,6 +90,10 @@ namespace xAODMaker {
       if( m_lumiToolAvailable ) {
          CHECK( m_lumiTool.retrieve() );
       }
+#else
+      //do nothing, lumi and beam conditions not available
+      
+#endif
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -98,12 +106,14 @@ namespace xAODMaker {
     * @param aod The AOD's EventInfo object
     * @param xaod The xAOD::EventInfo object to fill
     * @param pileUpInfo <code>true</code> for pile-up EventInfo objects
+    * @param copyPileUpLinks Allows to turn the ElementLink creation on or off
     * @returns <code>StatusCode::SUCCESS</code> if all went fine,
     *          something else if not
     */
    StatusCode EventInfoCnvTool::convert( const EventInfo* aod,
                                          xAOD::EventInfo* xaod,
-                                         bool pileUpInfo ) {
+                                         bool pileUpInfo,
+                                         bool copyPileUpLinks ) {
 
       if( ! aod ) {
          ATH_MSG_WARNING( "Null pointer received for input!" );
@@ -176,6 +186,7 @@ namespace xAODMaker {
       // Copy/calculate the pileup information:
       if( ! pileUpInfo ) {
          if( m_lumiToolAvailable ) {
+#ifndef XAOD_ANALYSIS
             float actualMu = 0.0;
             const float muToLumi = m_lumiTool->muToLumi();
             if( std::abs( muToLumi ) > 0.00001 ) {
@@ -184,6 +195,7 @@ namespace xAODMaker {
             xaod->setActualInteractionsPerCrossing( actualMu );
             xaod->setAverageInteractionsPerCrossing(
                m_lumiTool->lbAverageInteractionsPerCrossing() );
+#endif
          } else {
             xaod->setActualInteractionsPerCrossing(
                aod->actualInteractionsPerCrossing() );
@@ -250,7 +262,7 @@ namespace xAODMaker {
       // Check if it is a PileUpEventInfo object:
       const PileUpEventInfo* puei =
          dynamic_cast< const PileUpEventInfo* >( aod );
-      if( puei ) {
+      if( puei && copyPileUpLinks ) {
          // Construct the map for the SubEvent translation:
          static std::map< PileUpEventInfo::SubEvent::pileup_type,
                           xAOD::EventInfo::PileUpType > subTypeMap;
@@ -292,6 +304,7 @@ namespace xAODMaker {
 
             // Add the new object
             subEvents.push_back( xAOD::EventInfo::SubEvent( itr->time(),
+                                                            itr->index(),
                                                             type, link ) );
          }
 
@@ -299,6 +312,7 @@ namespace xAODMaker {
          xaod->setSubEvents( subEvents );
       }
 
+#ifndef XAOD_ANALYSIS
       // Fill the beam spot variables if the necessary service is available:
       if( m_beamCondSvcAvailable && ( ! pileUpInfo ) ) {
          xaod->setBeamPos( m_beamCondSvc->beamPos()[ Amg::x ],
@@ -312,6 +326,7 @@ namespace xAODMaker {
          xaod->setBeamTiltYZ( m_beamCondSvc->beamTilt( 1 ) );
          xaod->setBeamStatus( m_beamCondSvc->beamStatus() );
       }
+#endif
 
       // Finish with some printout:
       ATH_MSG_VERBOSE( "Finished conversion" << *xaod );
