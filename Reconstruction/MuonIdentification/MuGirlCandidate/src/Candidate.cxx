@@ -90,7 +90,7 @@ void Candidate::Cell::clear()
 void Candidate::clear()
 {
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::clear" << endmsg;
+        m_pMuGirl->msg() << "Candidate::clear" << endreq;
     if (m_pIDPerigee!=0) {
         // delete m_pIDPerigee;   it is not a clone of Perigee anymore
         m_pIDPerigee = 0;
@@ -181,7 +181,7 @@ void Candidate::clear()
     }
     m_TgcRIO_OnTrackLists.clear();
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::clear ended" << endmsg;
+        m_pMuGirl->msg() << "Candidate::clear ended" << endreq;
 }
 
 void Candidate::setIDPerigee(const Trk::TrackParameters* pPerigee)
@@ -201,13 +201,13 @@ void Candidate::setIDPerigee(const Trk::TrackParameters* pPerigee)
                     m_pIDPerigee->momentum().unit(), 0.);
 
     if(m_pMuGirl->msgLvl(MSG::DEBUG)) {
-        m_pMuGirl->msg() << "Intersection set by setIDPerigee:" << endmsg;
-        m_pMuGirl->msg() <<  *(m_pIDTrkIsect) << endmsg;
-        m_pMuGirl->msg() << "setIDPerigee: m_IDQOverP = " << m_IDQOverP << endmsg;
+        m_pMuGirl->msg() << "Intersection set by setIDPerigee:" << endreq;
+        m_pMuGirl->msg() <<  *(m_pIDTrkIsect) << endreq;
+        m_pMuGirl->msg() << "setIDPerigee: m_IDQOverP = " << m_IDQOverP << endreq;
     }
 
     // check if the perigee in in the muon entry level
-    if ( pPerigee->position().perp()>=4000 || std::abs(pPerigee->position().z())>=4000. ) {
+    if ( pPerigee->position().perp()>=4000 || fabsf(pPerigee->position().z())>=4000. ) {
         m_startFromMuonEntry = true;
     } else {
         m_startFromMuonEntry = false;
@@ -299,7 +299,7 @@ void Candidate::setMuonBetaRefitTrack(const xAOD::TrackParticle* lowBetaTrack)
     if (muonFeature->pt()<0.)
     m_IDQOverP = -1./mf_p;
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg(MSG::DEBUG) << "Candidate::setMuonFeature mf_p "<<mf_p<<" qoverp "<<m_IDQOverP <<endmsg;
+        m_pMuGirl->msg(MSG::DEBUG) << "Candidate::setMuonFeature mf_p "<<mf_p<<" qoverp "<<m_IDQOverP <<endreq;
 
     if (m_pIDTrkIsect != NULL) delete m_pIDTrkIsect;
     m_pIDTrkIsect = new Trk::TrackSurfaceIntersection(*MFpos, *MFdir,0);
@@ -370,7 +370,7 @@ void Candidate::setMuonFeature(const MuonFeature* muonFeature)
     if (muonFeature->pt()<0.)
     m_IDQOverP = -1./mf_p;
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg(MSG::DEBUG) << "Candidate::setMuonFeature mf_p "<<mf_p<<" qoverp "<<m_IDQOverP <<endmsg;
+        m_pMuGirl->msg(MSG::DEBUG) << "Candidate::setMuonFeature mf_p "<<mf_p<<" qoverp "<<m_IDQOverP <<endreq;
 
     if (m_pIDTrkIsect != NULL) delete m_pIDTrkIsect;
     m_pIDTrkIsect = new Trk::TrackSurfaceIntersection(*MFpos, *MFdir,0);
@@ -411,7 +411,7 @@ void Candidate::setMuonEFTrack(const TrigMuonEFTrack* muonEFTrack)
 
     m_IDQOverP = muonEFTrack->charge()/mf_p;
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg(MSG::DEBUG) << "Candidate::setMuonEFTrack: momentum "<<mf_p<<" qoverp "<<m_IDQOverP <<endmsg;
+        m_pMuGirl->msg(MSG::DEBUG) << "Candidate::setMuonEFTrack: momentum "<<mf_p<<" qoverp "<<m_IDQOverP <<endreq;
 
     if (m_pIDTrkIsect != NULL) delete m_pIDTrkIsect;
     m_pIDTrkIsect = new Trk::TrackSurfaceIntersection(*MFpos, *MFdir,0);
@@ -459,7 +459,7 @@ void Candidate::setRefittedTrack(const Trk::Track* pTrkRefittedTrack)
 StatusCode Candidate::crudeExtrapolate()
 {
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::crudeExtrapolate" << endmsg;
+        m_pMuGirl->msg() << "Candidate::crudeExtrapolate" << endreq;
 
     const Trk::TrackSurfaceIntersection* pLastIsect = m_pIDTrkIsect;
     const Trk::TrackSurfaceIntersection* pBarrelTrkIsect = NULL;
@@ -550,7 +550,7 @@ StatusCode Candidate::crudeExtrapolate()
                 setCellIntersection(ID_TECH, eDist, BARREL_REGION, pIsect);
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
                     m_pMuGirl->msg() << "Crude intersection " << DistanceTypeName(eDist)
-                    << " Barrel " << pBarrelTrkIsect << endmsg;
+                    << " Barrel " << pBarrelTrkIsect << endreq;
             }
         }
 
@@ -610,7 +610,7 @@ StatusCode Candidate::crudeExtrapolate()
                 setCellIntersection(ID_TECH, eDist, ENDCAP_REGION, pIsect);
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
                     m_pMuGirl->msg() << "Crude intersection " << DistanceTypeName(eDist)
-                    << " Endcap " << pEndcapTrkIsect << endmsg;
+                    << " Endcap " << pEndcapTrkIsect << endreq;
             }
         }
         const Trk::TrackSurfaceIntersection* pTrkIsect =
@@ -620,7 +620,7 @@ StatusCode Candidate::crudeExtrapolate()
         if (eDist == INNER_DIST)
         {
             if (pTrkIsect == NULL)
-                m_pMuGirl->msg(MSG::WARNING) << "No intersection at INNER distance!" << endmsg;
+                m_pMuGirl->msg(MSG::WARNING) << "No intersection at INNER distance!" << endreq;
             else
             {
                 if (!m_startFromMF && !m_startFromEF)
@@ -648,7 +648,7 @@ StatusCode Candidate::crudeExtrapolate()
                         if (newP<500.0)
                         {
                             if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                                m_pMuGirl->msg() << "Candidate::crudeExtrapolate ended. NewP lower than 500MeV" << endmsg;
+                                m_pMuGirl->msg() << "Candidate::crudeExtrapolate ended. NewP lower than 500MeV" << endreq;
                             delete pCaloEnergy;
                             return StatusCode::RECOVERABLE;
                         }
@@ -656,7 +656,7 @@ StatusCode Candidate::crudeExtrapolate()
                         {
                             m_QOverP = copysign(1.0 / newP, m_QOverP);
                             if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                                m_pMuGirl->msg() << "Changing P from " << P << " to " << newP << endmsg;
+                                m_pMuGirl->msg() << "Changing P from " << P << " to " << newP << endreq;
                         }
                     }
                     delete pCaloEnergy;
@@ -668,7 +668,7 @@ StatusCode Candidate::crudeExtrapolate()
 
 
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg() << "Candidate::crudeExtrapolate ended" << endmsg;
+            m_pMuGirl->msg() << "Candidate::crudeExtrapolate ended" << endreq;
         return StatusCode::SUCCESS;
 }
 
@@ -677,7 +677,7 @@ void Candidate::selectChambers()
     unsigned iDist, iTech;
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::selectChambers" << endmsg;
+        m_pMuGirl->msg() << "Candidate::selectChambers" << endreq;
     Road narrow_roads[DISTANCES], wide_roads[TECHNOLOGIES];
 
     double pt;
@@ -698,7 +698,7 @@ void Candidate::selectChambers()
 
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
                 m_pMuGirl->msg() << "narrow_roads[" << DistanceTypeName((DistanceType)iDist)
-                << "] " << road.toString() << endmsg;
+                << "] " << road.toString() << endreq;
         }
     }
 
@@ -747,26 +747,26 @@ void Candidate::selectChambers()
 
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
                 m_pMuGirl->msg(MSG::DEBUG) << "wide_roads[" << TechnologyTypeName(eTech) << "] "
-                << road.toString() << endmsg;
+                << road.toString() << endreq;
 
             std::vector<IdentifierHash> chambers;
 
             if ( eTech == STGC_TECH ) {
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                  m_pMuGirl->msg(MSG::DEBUG) << "Region selector is not available for the sTGC technology, returning the full list of avalible collections" << endmsg;
+                  m_pMuGirl->msg(MSG::DEBUG) << "Region selector is not available for the sTGC technology, returning the full list of avalible collections" << endreq;
                 chambers = pTech->retrieveAvailableCollections();
                 
             } else if ( eTech == MM_TECH ) {
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                  m_pMuGirl->msg(MSG::DEBUG) << "Region selector is not available for the MM technology, returning the full list of avaliable collections" << endmsg;
+                  m_pMuGirl->msg(MSG::DEBUG) << "Region selector is not available for the MM technology, returning the full list of avaliable collections" << endreq;
                 chambers = pTech->retrieveAvailableCollections();
             } else {
                 // use region selector for MDT, RPC, TGC, CSC
-	        RoiDescriptor roi( road.etaMin(), road.etaMax(), road.phiMin(), road.phiMax() );
-	        m_pMuGirl->regionSelector()->DetHashIDList(pTech->detId(), roi, chambers);
+	        RoiDescriptor _roi( road.etaMin(), road.etaMax(), road.phiMin(), road.phiMax() );
+	        m_pMuGirl->regionSelector()->DetHashIDList(pTech->detId(), _roi, chambers);
             }
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                m_pMuGirl->msg(MSG::DEBUG) << "Got " << chambers.size() << " HashIDs" << endmsg;
+                m_pMuGirl->msg(MSG::DEBUG) << "Got " << chambers.size() << " HashIDs" << endreq;
 
             for (std::vector<IdentifierHash>::iterator itCh = chambers.begin();
                     itCh != chambers.end();
@@ -777,14 +777,14 @@ void Candidate::selectChambers()
                 Identifier id;
                 if (pTech->id(idHash, id) != 0)
                 {
-                    m_pMuGirl->msg(MSG::WARNING) << "Cannot convert HashId " << idHash << " to id" << endmsg;
+                    m_pMuGirl->msg(MSG::WARNING) << "Cannot convert HashId " << idHash << " to id" << endreq;
                     continue;
                 }
                 Station* pStation = pTech->station(id);
                 if (pStation == NULL)
                 {
                     m_pMuGirl->msg(MSG::WARNING) << "Cannot find station for chamber id "
-                    << idHash << ":" << TechnologyTypeName(eTech) << endmsg;
+                    << idHash << ":" << TechnologyTypeName(eTech) << endreq;
                     continue;
                 }
 
@@ -794,20 +794,20 @@ void Candidate::selectChambers()
                     if(m_pMuGirl->msgLvl(MSG::DEBUG))
                         m_pMuGirl->msg(MSG::DEBUG) << "Cannot find ReadoutElement for "
                             << TechnologyTypeName(eTech) << ", id=" << id.getString()
-                            << ", Hash id=" << idHash << ", station=" << pStation->name() << endmsg;
+                            << ", Hash id=" << idHash << ", station=" << pStation->name() << endreq;
                 }
 
                 Chamber* pChamber = new Chamber(id, idHash, pStation, pReadoutElement);
 
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                    m_pMuGirl->msg(MSG::DEBUG) << "Chamber " << pChamber->toString() << " bbox=" << pChamber->bbox().toString() << endmsg;
+                    m_pMuGirl->msg(MSG::DEBUG) << "Chamber " << pChamber->toString() << " bbox=" << pChamber->bbox().toString() << endreq;
                 DistanceType eDist= pChamber->distanceType();
                 RegionType eReg= pChamber->regionType();
 
                 if (pChamber->fillPrepData() == 0)
                 {
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                        m_pMuGirl->msg(MSG::DEBUG) << "  -> No hits in chamber. Chamber removed." << endmsg;
+                        m_pMuGirl->msg(MSG::DEBUG) << "  -> No hits in chamber. Chamber removed." << endreq;
                     delete pChamber;
                     continue;
                 }
@@ -820,18 +820,18 @@ void Candidate::selectChambers()
                         if(m_pMuGirl->msgLvl(MSG::DEBUG))
                             m_pMuGirl->msg(MSG::WARNING) << "After fillPrepData(), cannot find ReadoutElement for "
                                 << TechnologyTypeName(eTech) << ", id=" << id.getString()
-                                << ", Hash id=" << idHash << ", station=" << pStation->name() << endmsg;
+                                << ", Hash id=" << idHash << ", station=" << pStation->name() << endreq;
                         continue;
                     }
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                        m_pMuGirl->msg(MSG::DEBUG) << "Chamber " << pChamber->toString() << " bbox=" << pChamber->bbox().toString() << endmsg;
+                        m_pMuGirl->msg(MSG::DEBUG) << "Chamber " << pChamber->toString() << " bbox=" << pChamber->bbox().toString() << endreq;
                 }
 
                 Intersection* pCrudeIsect = m_cells[ID_TECH][eDist][eReg].pIsect;
                 if (pCrudeIsect == NULL)
                 {
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                        m_pMuGirl->msg(MSG::DEBUG) << "  -> No crude intersection!!! Chamber removed." << endmsg;
+                        m_pMuGirl->msg(MSG::DEBUG) << "  -> No crude intersection!!! Chamber removed." << endreq;
                     delete pChamber;
                     continue;
                 }
@@ -840,7 +840,7 @@ void Candidate::selectChambers()
                 if (pTrkIsect == NULL)
                 {
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                        m_pMuGirl->msg(MSG::DEBUG) << "  -> Cannot extrapolate intersection to chamber. Chamber removed." << endmsg;
+                        m_pMuGirl->msg(MSG::DEBUG) << "  -> Cannot extrapolate intersection to chamber. Chamber removed." << endreq;
                     delete pChamber;
                     continue;
                 }
@@ -862,8 +862,8 @@ void Candidate::selectChambers()
                     << " iEta=" << pReadoutElement->getStationEta()
                     << " iPhi=" << pReadoutElement->getStationPhi()
                     << " pos="  << pReadoutElement->globalPosition()
-                    << endmsg;
-                    m_pMuGirl->msg(MSG::DEBUG) << "    Fine intersection at " << pIsect->position() << endmsg;
+                    << endreq;
+                    m_pMuGirl->msg(MSG::DEBUG) << "    Fine intersection at " << pIsect->position() << endreq;
                 }
 
                 m_cells[iTech][eDist][eReg].chambers.push_back(pChamber);
@@ -872,7 +872,7 @@ void Candidate::selectChambers()
         }
     }
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg(MSG::DEBUG) << "Candidate::selectChambers ended with " << nChambers << " Chambers." << endmsg;
+        m_pMuGirl->msg(MSG::DEBUG) << "Candidate::selectChambers ended with " << nChambers << " Chambers." << endreq;
 }
 
 void Candidate::collectHits(TechnologyType eTech,
@@ -888,27 +888,27 @@ void Candidate::collectHits(TechnologyType eTech,
         << ", " << DistanceTypeName(eDist)
         << ", " << RegionTypeName(eReg)
         << ", " << TechnologyTypeName(eOrigTech) << ")"
-        << endmsg;
+        << endreq;
 
     double pt;
     if (m_startFromEF)
     {
         pt = fabs(m_muonEFTrack->pt());
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg() << "Start from MuonEF "<< endmsg;
+            m_pMuGirl->msg() << "Start from MuonEF "<< endreq;
     }
     else if (m_startFromMF)
     {
         pt = fabs(m_muonFeature->pt())*1000;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg() << "Start from MuonFeature "<< endmsg;
+            m_pMuGirl->msg() << "Start from MuonFeature "<< endreq;
     }
     else  pt =m_pIDPerigee->pT();
 
     double  dPhi = roadDeltaPhi(pt);
     ChamberList& chambers = m_cells[eTech][eDist][eReg].chambers;
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Visiting " << chambers.size() << " chambers" << endmsg;
+        m_pMuGirl->msg() << "Visiting " << chambers.size() << " chambers" << endreq;
     for (ChamberList::iterator itCh = chambers.begin(); itCh != chambers.end(); itCh++)
     {
         Chamber* pChamber = *itCh;
@@ -916,7 +916,7 @@ void Candidate::collectHits(TechnologyType eTech,
 
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
             m_pMuGirl->msg() << "Processing chamber " << pChamber->toString()
-            << ". Collection contains " << prepDataArray.size() << " hits" << endmsg;
+            << ". Collection contains " << prepDataArray.size() << " hits" << endreq;
         Intersection* pIsect = pChamber->intersection(eOrigTech, Chamber::SAME_DISTANCE);
         if (pIsect == NULL)
         {
@@ -930,7 +930,7 @@ void Candidate::collectHits(TechnologyType eTech,
         }
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
             m_pMuGirl->msg() << TechnologyTypeName(eOrigTech)
-            << " intersection at " << pIsect->position() << endmsg;
+            << " intersection at " << pIsect->position() << endreq;
 
         //double dEta = roadDeltaEta(eTech, eDist, eReg, pIsect->position().eta());
         double dEta = roadDeltaEta(eTech, eDist, eReg, pIsect->position().eta(),pt) * m_pMuGirl->roadScaleFactor();
@@ -951,7 +951,7 @@ void Candidate::collectHits(TechnologyType eTech,
                 if (!pChamber->inChamber(baseRoad))
                 {
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                        m_pMuGirl->msg() << "Candidate::collectHits - BaseRoad (" << baseRoad.toString() << ") not on chamber." << endmsg;
+                        m_pMuGirl->msg() << "Candidate::collectHits - BaseRoad (" << baseRoad.toString() << ") not on chamber." << endreq;
                     continue;
                 }
             }
@@ -990,8 +990,8 @@ void Candidate::collectHits(TechnologyType eTech,
                 {
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
                     {
-                        m_pMuGirl->msg() << "Exclude PrepData at " << pTech->hitPosition(pPrepData) << endmsg;
-                        m_pMuGirl->msg() << "  Road: " << baseRoad.toString() << ", PRD bbox: " << bbox.toString() << endmsg;
+                        m_pMuGirl->msg() << "Exclude PrepData at " << pTech->hitPosition(pPrepData) << endreq;
+                        m_pMuGirl->msg() << "  Road: " << baseRoad.toString() << ", PRD bbox: " << bbox.toString() << endreq;
                     }
                     continue;
                 }
@@ -1003,7 +1003,7 @@ void Candidate::collectHits(TechnologyType eTech,
             if (pHitTrkIsect == NULL)
             {
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                    m_pMuGirl->msg() << " Candidate::collectHits - pHitTrkIsect is NULL" << endmsg;
+                    m_pMuGirl->msg() << " Candidate::collectHits - pHitTrkIsect is NULL" << endreq;
                 continue;
             }
 
@@ -1025,7 +1025,7 @@ void Candidate::collectHits(TechnologyType eTech,
             if (pRIO == NULL)
             {
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                    m_pMuGirl->msg(MSG::DEBUG) << "Cannot create Trk::RIO_OnTrack" << endmsg;
+                    m_pMuGirl->msg(MSG::DEBUG) << "Cannot create Trk::RIO_OnTrack" << endreq;
                 delete pHitTrkIsect;
                 continue;
             }
@@ -1040,13 +1040,13 @@ void Candidate::collectHits(TechnologyType eTech,
             double deltaEta = pos.eta() - pHitTrkIsect->position().eta();
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
             {
-                m_pMuGirl->msg() << "PrepData position   " << pTech->hitPosition(pPrepData) << endmsg;
-                m_pMuGirl->msg() << "Isect with DetElem  " << pHitTrkIsect->position() << endmsg;
-                m_pMuGirl->msg() << "Trk::RIO_OnTrack at " << pos << endmsg;
+                m_pMuGirl->msg() << "PrepData position   " << pTech->hitPosition(pPrepData) << endreq;
+                m_pMuGirl->msg() << "Isect with DetElem  " << pHitTrkIsect->position() << endreq;
+                m_pMuGirl->msg() << "Trk::RIO_OnTrack at " << pos << endreq;
                 if (bIsEta)
-                    m_pMuGirl->msg() << "fabs(deltaEta)=" << fabs(deltaEta) << " dEta=" << dEta << endmsg;
+                    m_pMuGirl->msg() << "fabs(deltaEta)=" << fabs(deltaEta) << " dEta=" << dEta << endreq;
                 else
-                    m_pMuGirl->msg() << "fabs(deltaPhi)=" << fabs(deltaPhi) << " dPhi=" << dPhi << endmsg;
+                    m_pMuGirl->msg() << "fabs(deltaPhi)=" << fabs(deltaPhi) << " dPhi=" << dPhi << endreq;
             }
             if ((bIsEta && fabs(deltaEta) < dEta) || (!bIsEta && fabs(deltaPhi) < dPhi))
             {
@@ -1061,7 +1061,7 @@ void Candidate::collectHits(TechnologyType eTech,
                 pChamber->addRIO(pRIO, pHit);
                 pHit->setRIO(pRIO);
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                    m_pMuGirl->msg() << "Hit is selected" << endmsg;
+                    m_pMuGirl->msg() << "Hit is selected" << endreq;
             }
             else
                 delete pRIO;
@@ -1076,7 +1076,7 @@ void Candidate::collectHits(TechnologyType eTech,
     }
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::collectHits ended" << endmsg;
+        m_pMuGirl->msg() << "Candidate::collectHits ended" << endreq;
 }
 
 void Candidate::buildSegments(TechnologyType eTech,
@@ -1092,11 +1092,11 @@ void Candidate::buildSegments(TechnologyType eTech,
         << ", " << DistanceTypeName(eDist)
         << ", " << RegionTypeName(eReg)
         << ", " << TechnologyTypeName(eOrigTech) << ")"
-        << endmsg;
+        << endreq;
 
     collectHits(eTech, eDist, eReg, eOrigTech);
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg(MSG::DEBUG) << "Candidate::buildSegments after collectHits" << endmsg;
+        m_pMuGirl->msg(MSG::DEBUG) << "Candidate::buildSegments after collectHits" << endreq;
 
     ChamberList& chambers = m_cells[eTech][eDist][eReg].chambers;
     if (!chambers.empty())
@@ -1121,7 +1121,7 @@ void Candidate::buildSegments(TechnologyType eTech,
     }
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::buildSegments ended" << endmsg;
+        m_pMuGirl->msg() << "Candidate::buildSegments ended" << endreq;
 }
 
 Intersection* Candidate::addIntersection(IntersectionType eType,
@@ -1198,10 +1198,10 @@ void Candidate::computeChamberIntersections(TechnologyType eOrigTech,
         << DistanceTypeName(eOrigDist) << ", "
         << DistanceTypeName(eTargDist) << ", "
         << RegionTypeName(eReg) << ")"
-        << endmsg;
+        << endreq;
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Using " << pOrigIsect->toString() << endmsg;
+        m_pMuGirl->msg() << "Using " << pOrigIsect->toString() << endreq;
 
     Chamber::Origin eOrig = (eOrigDist == eTargDist ? Chamber::SAME_DISTANCE : Chamber::OTHER_DISTANCE);
     for (unsigned iTech = 0; iTech < TECHNOLOGIES; iTech++)
@@ -1230,12 +1230,12 @@ void Candidate::computeChamberIntersections(TechnologyType eOrigTech,
                 m_pMuGirl->msg() << "Chamber " << pChamber->toString()
                 << " " << TechnologyTypeName(eOrigTech)
                 << " intersection at " << pIsect->position()
-                << endmsg;
+                << endreq;
         }
     }
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::computeChamberIntersections ended" << endmsg;
+        m_pMuGirl->msg() << "Candidate::computeChamberIntersections ended" << endreq;
 }
 
 double Candidate::roadDeltaPhi(double pt) const
@@ -1388,7 +1388,7 @@ void Candidate::updateRoad(Road& road, const Intersection* pIsect)
     if (pIsect != NULL)
     {
         if (pIsect->trkIntersection() == NULL)
-            m_pMuGirl->msg(MSG::WARNING) << "Candidate::updateRoad - Intersection has a NULL Trk::TrackSurfaceIntersection*" << endmsg;
+            m_pMuGirl->msg(MSG::WARNING) << "Candidate::updateRoad - Intersection has a NULL Trk::TrackSurfaceIntersection*" << endreq;
         else
             road.update(pIsect->position());
     }
@@ -1449,7 +1449,7 @@ void Candidate::computeCombinedIntersection(DistanceType eDist,
 {
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
         m_pMuGirl->msg() << "Candidate::computeCombinedIntersection("
-        << DistanceTypeName(eDist) << "," << RegionTypeName(eReg) << ")" << endmsg;
+        << DistanceTypeName(eDist) << "," << RegionTypeName(eReg) << ")" << endreq;
 
     Intersection* pInIsect = NULL;
     TechnologyType inTech = ALL_TECHNOLOGIES;
@@ -1459,7 +1459,7 @@ void Candidate::computeCombinedIntersection(DistanceType eDist,
         Intersection* pMdtIsect = cellIntersection(MDT_TECH, eDist, eReg);
         Segment* pMdtSeg = pMdtIsect->segment();
         if (pMdtSeg == NULL)
-            m_pMuGirl->msg(MSG::WARNING) << "MDT intersection does not have a segment!" << endmsg;
+            m_pMuGirl->msg(MSG::WARNING) << "MDT intersection does not have a segment!" << endreq;
         else if (pMdtSeg->fitProbability() > 0.01)
         {
             pInIsect = pMdtIsect;
@@ -1480,7 +1480,7 @@ void Candidate::computeCombinedIntersection(DistanceType eDist,
 
         Segment* pRpcSeg = pRpcIsect->segment();
         if (pRpcSeg == NULL)
-            m_pMuGirl->msg(MSG::WARNING) << "RPC intersection does not have a segment!" << endmsg;
+            m_pMuGirl->msg(MSG::WARNING) << "RPC intersection does not have a segment!" << endreq;
         else if (pRpcSeg->fitProbability() > 0.05 && cosa <= COS1DEG)
         {
             pInIsect = pRpcIsect;
@@ -1490,7 +1490,7 @@ void Candidate::computeCombinedIntersection(DistanceType eDist,
 
         Segment* pMdtSeg = pMdtIsect->segment();
         if (pMdtSeg == NULL)
-            m_pMuGirl->msg(MSG::WARNING) << "MDT intersection does not have a segment!" << endmsg;
+            m_pMuGirl->msg(MSG::WARNING) << "MDT intersection does not have a segment!" << endreq;
         else if (cosa > COS1DEG && pMdtSeg->fitProbability() > 0.001 && !aux_quantities_set)
         {
             pInIsect = pMdtIsect;
@@ -1538,23 +1538,23 @@ void Candidate::computeCombinedIntersection(DistanceType eDist,
 //            << " based on " << TechnologyTypeName(inTech)
             << " set to " << TechnologyTypeName(inTech)
             << " " << DistanceTypeName(inDist)
-            << " " << pInIsect->trkIntersection() << endmsg;
+            << " " << pInIsect->trkIntersection() << endreq;
 
 //        setCellIntersection(COMB_TECH, eDist, eReg, pIsect);
         setCellIntersection(COMB_TECH, eDist, eReg, pInIsect);
 
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg() << cellToString(COMB_TECH, eDist, eReg) << endmsg;
+            m_pMuGirl->msg() << cellToString(COMB_TECH, eDist, eReg) << endreq;
 
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg() << "Candidate::computeCombinedIntersection done" << endmsg;
+            m_pMuGirl->msg() << "Candidate::computeCombinedIntersection done" << endreq;
     }
 }
 
 bool Candidate::hasInnerStationSegments()
 {
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::hasInnerStationHits" << endmsg;
+        m_pMuGirl->msg() << "Candidate::hasInnerStationHits" << endreq;
 
     const Chamber* pChamber;
     Intersection* pCombIsectBarrel = NULL;
@@ -1584,7 +1584,7 @@ bool Candidate::hasInnerStationSegments()
 void Candidate::computeAngles()
 {
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::computeAngles" << endmsg;
+        m_pMuGirl->msg() << "Candidate::computeAngles" << endreq;
     const Chamber* pChamber;
     Intersection* pIdIsect;
     Intersection* pCombIsect;
@@ -1606,7 +1606,7 @@ void Candidate::computeAngles()
                 m_innAngle = acos(argo);
                 m_innDelta = fabs(pIdIsect->position().z() - pCombIsect->position().z());
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                    m_pMuGirl->msg() << "Inner Barrel angle=" << m_innAngle << " delta=" << m_innDelta << endmsg;
+                    m_pMuGirl->msg() << "Inner Barrel angle=" << m_innAngle << " delta=" << m_innDelta << endreq;
             }
         }
     }
@@ -1629,7 +1629,7 @@ void Candidate::computeAngles()
                     m_innAngle = acos(argo);
                     m_innDelta = fabs(pIdIsect->position().perp() - pCombIsect->position().perp());
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                        m_pMuGirl->msg() << "Inner Endcap angle=" << m_innAngle << " delta=" << m_innDelta << endmsg;
+                        m_pMuGirl->msg() << "Inner Endcap angle=" << m_innAngle << " delta=" << m_innDelta << endreq;
                 }
             }
         }
@@ -1650,7 +1650,7 @@ void Candidate::computeAngles()
                         m_innAngle = acos(argo);
                         m_innDelta = fabs(pIdIsect->position().perp() - pCombIsect->position().perp());
                         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                            m_pMuGirl->msg() << "Inner Endcap angle=" << m_innAngle << " delta=" << m_innDelta << endmsg;
+                            m_pMuGirl->msg() << "Inner Endcap angle=" << m_innAngle << " delta=" << m_innDelta << endreq;
                     }
                 }
             }
@@ -1673,7 +1673,7 @@ void Candidate::computeAngles()
                 m_midAngle = acos(argo);
                 m_midDelta = fabs(pIdIsect->position().z() - pCombIsect->position().z());
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                    m_pMuGirl->msg() << "Middle Barrel angle=" << m_midAngle << " delta=" << m_midDelta << endmsg;
+                    m_pMuGirl->msg() << "Middle Barrel angle=" << m_midAngle << " delta=" << m_midDelta << endreq;
             }
         }
     }
@@ -1696,7 +1696,7 @@ void Candidate::computeAngles()
                     m_midAngle = acos(argo);
                     m_midDelta = fabs(pIdIsect->position().perp() - pCombIsect->position().perp());
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                        m_pMuGirl->msg() << "Middle Endcap angle=" << m_midAngle << " delta=" << m_midDelta << endmsg;
+                        m_pMuGirl->msg() << "Middle Endcap angle=" << m_midAngle << " delta=" << m_midDelta << endreq;
                 }
             }
         }
@@ -1708,13 +1708,13 @@ void Candidate::computeAngles()
         m_midAngle = 999.;
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::computeAngles ended" << endmsg;
+        m_pMuGirl->msg() << "Candidate::computeAngles ended" << endreq;
 }
 
 StatusCode Candidate::fillSummaryFromBetaRefit(CandidateSummary* pSummary)
 {
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::fillSummaryFromBetaRefit" << endmsg;
+        m_pMuGirl->msg() << "Candidate::fillSummaryFromBetaRefit" << endreq;
 
     memset(pSummary, 0, sizeof(CandidateSummary));
     pSummary->startFromMF        = m_startFromMF;
@@ -1734,7 +1734,7 @@ StatusCode Candidate::fillSummaryFromBetaRefit(CandidateSummary* pSummary)
     //    pSummary->pTrkLowBetaExtr    = NULL;
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::fillSummaryFromBetaRefit ended" << endmsg;
+        m_pMuGirl->msg() << "Candidate::fillSummaryFromBetaRefit ended" << endreq;
 
     return StatusCode::SUCCESS;
 }
@@ -1742,7 +1742,7 @@ StatusCode Candidate::fillSummaryFromBetaRefit(CandidateSummary* pSummary)
 StatusCode Candidate::fillSummary(CandidateSummary* pSummary)
 {
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::fillSummary" << endmsg;
+        m_pMuGirl->msg() << "Candidate::fillSummary" << endreq;
 
     memset(pSummary, 0, sizeof(CandidateSummary));
 
@@ -1866,12 +1866,12 @@ StatusCode Candidate::fillSummary(CandidateSummary* pSummary)
     pSummary->pIDTrkIsect = m_pIDTrkIsect;
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::fillSummary qQverP"<<pSummary->qOverP << endmsg;
+        m_pMuGirl->msg() << "Candidate::fillSummary qQverP"<<pSummary->qOverP << endreq;
 
     pSummary->lhr = m_lhr;
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::fillSummary ended" << endmsg;
+        m_pMuGirl->msg() << "Candidate::fillSummary ended" << endreq;
 
     return StatusCode::SUCCESS;
 }
@@ -1931,7 +1931,7 @@ const MuGirlNS::RIO_OnTrackLists& Candidate::getRpcHitsInSegments()
                       if (m_pMuGirl->msgLvl(MSG::DEBUG))
                       {
                               m_pMuGirl->msg() <<  "RPC hit not in chamber, removing hit: " <<  (*itHit)->toString() << 
-                               " bbox: "  << bbox.toString() << " RIO eta,phi " << pRIO->globalPosition().eta() << "," << pRIO->globalPosition().phi() << endmsg;
+                               " bbox: "  << bbox.toString() << " RIO eta,phi " << pRIO->globalPosition().eta() << "," << pRIO->globalPosition().phi() << endreq;
                       }  
                       delete pRIO;
                       continue; 
@@ -2032,7 +2032,7 @@ bool Candidate::firstIsBest( const Muon::MuonSegment& seg1, const Muon::MuonSegm
     const Trk::FitQuality* fq1 = seg1.fitQuality();
     const Trk::FitQuality* fq2 = seg2.fitQuality();
     if( !fq1 && !fq2 ) {
-      m_pMuGirl->msg(MSG::WARNING) << "None of the two segments has a fit quality! Choosing arbitrarily first to be the best!" << endmsg;
+      m_pMuGirl->msg(MSG::WARNING) << "None of the two segments has a fit quality! Choosing arbitrarily first to be the best!" << endreq;
       return true;
     }
     else if( !fq1 && fq2 ) return false;

@@ -30,7 +30,7 @@ TGC::TGC(CandidateTool* pMuGirl, const std::string& sPrepDataCollection) :
     m_detId = ::TGC;
     m_pIdHelper = dynamic_cast<const TgcIdHelper*>(pMuGirl->muonManager()->tgcIdHelper());
     if(m_pIdHelper == 0)
-      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be TgcIdHelper, but it is NOT!" << endmsg;
+      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be TgcIdHelper, but it is NOT!" << endreq;
 }
 
 const MuonGM::MuonReadoutElement* TGC::readoutElement(const Identifier& id) const
@@ -60,14 +60,14 @@ StatusCode TGC::retrievePrepData()
         {
         m_pPrepDataContainer=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataCollection << endmsg;
+            m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataCollection << endreq;
          }
      }
     else
     {
         m_pPrepDataContainer=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain TGC PrepData Container " << m_sPrepDataCollection << endmsg;
+            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain TGC PrepData Container " << m_sPrepDataCollection << endreq;
     }
 
     std::string m_sPrepDataPrior = m_sPrepDataCollection+"PriorBC";
@@ -80,14 +80,14 @@ StatusCode TGC::retrievePrepData()
         {
         m_pPrepDataContainerP=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataPrior << endmsg;
+            m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataPrior << endreq;
         }
      }
     else
     {
         m_pPrepDataContainerP=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain TGC PrepData Container " << m_sPrepDataPrior << endmsg;
+            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain TGC PrepData Container " << m_sPrepDataPrior << endreq;
     }
 
      if (m_pMuGirl->evtStore()->contains<Muon::TgcPrepDataContainer>(m_sPrepDataNext))
@@ -97,14 +97,14 @@ StatusCode TGC::retrievePrepData()
         {
         m_pPrepDataContainerN=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataNext << endmsg;
+            m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataNext << endreq;
         }
      }
     else
     {
         m_pPrepDataContainerN=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain TGC PrepData Container " << m_sPrepDataNext << endmsg;
+            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain TGC PrepData Container " << m_sPrepDataNext << endreq;
     }
      return StatusCode::SUCCESS;
 
@@ -141,7 +141,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainer, m_sPrepDataCollection).isFailure() ||
             m_pPrepDataContainer == NULL)
         {
-            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataCollection << endmsg;
+            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataCollection << endreq;
             return 0;
         }
     }
@@ -170,7 +170,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
             }
             MsgStream log(m_pMuGirl->msgSvc(), m_pMuGirl->name());
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                m_pMuGirl->msg() << "size of TGC PrepData collection from BC = " << nHits << " out of " << pColl->size() << endmsg;
+                m_pMuGirl->msg() << "size of TGC PrepData collection from BC = " << nHits << " out of " << pColl->size() << endreq;
 
         }
     }
@@ -182,11 +182,11 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
         // If conversion failed, then there are clearly no hits, so return 0.
         if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
             if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
-                m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataPrior << endmsg;
+                m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataPrior << endreq;
         // If conversion succeeds, then we must be able to get the container, so try it now.
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerP, m_sPrepDataPrior).isFailure() ||
             m_pPrepDataContainerP == NULL)
-            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataPrior << endmsg;
+            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataPrior << endreq;
     }
     if (m_pPrepDataContainerP != NULL)
     {
@@ -210,7 +210,7 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
                     nHits++;
             }
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                m_pMuGirl->msg() << "size of TGC PrepData collection from BC-1 =" << nHits << " out of " << pColl->size() << endmsg;
+                m_pMuGirl->msg() << "size of TGC PrepData collection from BC-1 =" << nHits << " out of " << pColl->size() << endreq;
         }
     }
     std::string m_sPrepDataNext = m_sPrepDataCollection+"NextBC";
@@ -221,11 +221,11 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
         // If conversion failed, then there are clearly no hits, so return 0.
         if (!m_pMuGirl->tgcRdoToPrepDataTool().empty())
             if (m_pMuGirl->tgcRdoToPrepDataTool()->decode(inhash, outhash).isFailure())
-                m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataNext << endmsg;
+                m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataNext << endreq;
         // If conversion succeeds, then we must be able to get the container, so try it now.
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainerN, m_sPrepDataNext).isFailure() ||
             m_pPrepDataContainerN == NULL)
-            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataNext << endmsg;
+            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve TGC PrepData Container " << m_sPrepDataNext << endreq;
     }
     if (m_pPrepDataContainerN != NULL)
     {
@@ -249,11 +249,11 @@ unsigned TGC::prepData(Chamber* pChamber, PrepDataList& array)
                     nHits++;
             }
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                m_pMuGirl->msg() << "size of TGC PrepData collection from BC+1 =" << nHits << " out of " << pColl->size() << endmsg;
+                m_pMuGirl->msg() << "size of TGC PrepData collection from BC+1 =" << nHits << " out of " << pColl->size() << endreq;
         }
     }
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "size of all TGC PrepData =" << array.size() << endmsg;
+        m_pMuGirl->msg() << "size of all TGC PrepData =" << array.size() << endreq;
     return array.size();
 }
 
@@ -268,7 +268,7 @@ Amg::Vector3D TGC::hitPosition(const Trk::PrepRawData* pPrepData)
     const Muon::TgcPrepData* pTgcPrepData = dynamic_cast<const Muon::TgcPrepData*>(pPrepData);
     if (pTgcPrepData == NULL)
     {
-        m_pMuGirl->msg(MSG::WARNING) << "Cannt convert from Trk::PrepRawData* to Muon::TgcPrepData*" << endmsg;
+        m_pMuGirl->msg(MSG::WARNING) << "Cannt convert from Trk::PrepRawData* to Muon::TgcPrepData*" << endreq;
         return Amg::Vector3D();
     }
     return pTgcPrepData->globalPosition();
@@ -283,7 +283,7 @@ bool TGC::isEtaHit(const Trk::PrepRawData* pPrepData)
 void TGC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
 {
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "TGC::buildSegments - " << chambers.size() << " chambers" << endmsg;
+        m_pMuGirl->msg() << "TGC::buildSegments - " << chambers.size() << " chambers" << endreq;
 
     if (chambers.empty())
         return;
@@ -310,9 +310,9 @@ void TGC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
                     dynamic_cast<const Muon::MuonClusterOnTrack*>(*itRIO);
                 if (pMcot == NULL)
                 {
-                    m_pMuGirl->msg(MSG::WARNING) << "Cannot convert Trk::RIO_OnTrack to Muon::MuonClusterOnTrack" << endmsg;
+                    m_pMuGirl->msg(MSG::WARNING) << "Cannot convert Trk::RIO_OnTrack to Muon::MuonClusterOnTrack" << endreq;
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                        m_pMuGirl->msg() << "TGC::buildSegments ended" << endmsg;
+                        m_pMuGirl->msg() << "TGC::buildSegments ended" << endreq;
                     return;
                 }
                 mcots.push_back(pMcot);
@@ -322,7 +322,7 @@ void TGC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
     if (nChamber == 0)
     {
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg() << "No TGC hits\nTGC::buildSegments ended" << endmsg;
+            m_pMuGirl->msg() << "No TGC hits\nTGC::buildSegments ended" << endreq;
         return;
     }
     clusters.resize(nChamber);
@@ -330,11 +330,11 @@ void TGC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
         m_pMuGirl->msg() << "clusters(" << TechnologyTypeName(TGC_TECH) << ","
             << DistanceTypeName(chambers.front()->distanceType()) << ","
             << RegionTypeName(chambers.front()->regionType()) << ")"
-            << " contains " << count_clusters(clusters) << " clusters" << endmsg;
+            << " contains " << count_clusters(clusters) << " clusters" << endreq;
     Trk::TrackRoad* pRoad = pGoodChamber->baseRoad();
     if (pRoad == NULL)
     {
-        m_pMuGirl->msg(MSG::DEBUG) << "Cannot find base road" << endmsg;
+        m_pMuGirl->msg(MSG::DEBUG) << "Cannot find base road" << endreq;
         return;
     }
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
@@ -362,14 +362,14 @@ void TGC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
                 << " hits=" << pMuonSegment->numberOfContainedROTs()
                 << " chi2=" << pMuonSegment->fitQuality()->chiSquared()
                 << " prob=" << pSegment->fitProbability()
-                << endmsg;
+                << endreq;
 
             Trk::TrackSurfaceIntersection* pTrkIsect =
                 new Trk::TrackSurfaceIntersection(pMuonSegment->globalPosition(),
                                                   pMuonSegment->globalDirection().unit(),
                                                   0.0);
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                m_pMuGirl->msg() << "Adding TGC intersection at " << pTrkIsect << endmsg;
+                m_pMuGirl->msg() << "Adding TGC intersection at " << pTrkIsect << endreq;
             Intersection* pIsect = pCand->addIntersection(FIT_INTERSECTION,
                                    pTrkIsect,
                                    TGC_TECH,
@@ -384,7 +384,7 @@ void TGC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
         delete pSegments;
     }
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "TGC::buildSegments ended" << endmsg;
+        m_pMuGirl->msg() << "TGC::buildSegments ended" << endreq;
 }
 
 }

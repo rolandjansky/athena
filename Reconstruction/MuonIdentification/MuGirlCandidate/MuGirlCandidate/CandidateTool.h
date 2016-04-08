@@ -171,16 +171,8 @@ public:
     {
         return m_pCscRdoToPrepDataTool;
     }
-    ToolHandle<Muon::IMuonRdoToPrepDataTool>& cscRdoToPrepDataTool()
-    {
-        return m_pCscRdoToPrepDataTool;
-    }
 
     const ToolHandle<ICscClusterBuilder>& cscClusterProviderTool() const
-    {
-        return m_pCscClusterProviderTool;
-    }
-    ToolHandle<ICscClusterBuilder>& cscClusterProviderTool()
     {
         return m_pCscClusterProviderTool;
     }
@@ -188,23 +180,11 @@ public:
     {
         return m_pMdtRdoToPrepDataTool;
     }
-    ToolHandle<Muon::IMuonRdoToPrepDataTool>& mdtRdoToPrepDataTool()
-    {
-        return m_pMdtRdoToPrepDataTool;
-    }
     const ToolHandle<Muon::IMuonRdoToPrepDataTool>& rpcRdoToPrepDataTool() const
     {
         return m_pRpcRdoToPrepDataTool;
     }
-    ToolHandle<Muon::IMuonRdoToPrepDataTool>& rpcRdoToPrepDataTool()
-    {
-        return m_pRpcRdoToPrepDataTool;
-    }
     const ToolHandle<Muon::IMuonRdoToPrepDataTool>& tgcRdoToPrepDataTool() const
-    {
-        return m_pTgcRdoToPrepDataTool;
-    }
-    ToolHandle<Muon::IMuonRdoToPrepDataTool>& tgcRdoToPrepDataTool()
     {
         return m_pTgcRdoToPrepDataTool;
     }
@@ -221,10 +201,6 @@ public:
         return m_pCscClusterCreator;
     }
     const ToolHandle<Trk::IIntersector>& Intersector() const
-    {
-        return m_pIntersector;
-    }
-    ToolHandle<Trk::IIntersector>& Intersector()
     {
         return m_pIntersector;
     }
@@ -274,12 +250,12 @@ private:
         if (sc.isFailure())
         {
             if (bError)
-                msg(MSG::ERROR) << "Cannot retrieve tool " << pHandle << endmsg;
+                msg(MSG::ERROR) << "Cannot retrieve tool " << pHandle << endreq;
             else
-                msg(MSG::WARNING) << "Cannot retrieve tool " << pHandle << endmsg;
+                msg(MSG::WARNING) << "Cannot retrieve tool " << pHandle << endreq;
         }
         else
-            msg(MSG::INFO) << "Retrieved tool " << pHandle << endmsg;
+            msg(MSG::INFO) << "Retrieved tool " << pHandle << endreq;
         return sc;
     }
     template <class T>
@@ -289,12 +265,12 @@ private:
         if (sc.isFailure())
         {
             if (bError)
-                msg(MSG::ERROR) << "Cannot retrieve service " << pHandle << endmsg;
+                msg(MSG::ERROR) << "Cannot retrieve service " << pHandle << endreq;
             else
-                msg(MSG::WARNING) << "Cannot retrieve service " << pHandle << endmsg;
+                msg(MSG::WARNING) << "Cannot retrieve service " << pHandle << endreq;
         }
         else
-            msg(MSG::INFO) << "Retrieved service " << pHandle << endmsg;
+            msg(MSG::INFO) << "Retrieved service " << pHandle << endreq;
         return sc;
     }
 
