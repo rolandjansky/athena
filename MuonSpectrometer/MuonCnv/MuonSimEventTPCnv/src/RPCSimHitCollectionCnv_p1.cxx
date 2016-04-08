@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonSimEvent/RPCSimHit.h"
-#undef private
-#undef protected
 #include "MuonSimEventTPCnv/RPCSimHitCollectionCnv_p1.h"
 #include "MuonSimEventTPCnv/RPCSimHitCollection_p1.h"
 #include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
@@ -40,13 +36,13 @@ void RPCSimHitCollectionCnv_p1::transToPers(const RPCSimHitCollection* transCont
   // loop through container, filling pers object  
     RPCSimHitCollection::const_iterator it = transCont->begin(), itEnd = transCont->end();
     for (; it != itEnd; ++it) {
-        persCont->m_RPCid.push_back(it->m_RPCid);
-        persCont->m_globalTime.push_back(it->m_globalTime);
-        persCont->m_stX.push_back(it->m_localPosition.x());
-        persCont->m_stY.push_back(it->m_localPosition.y());
-        persCont->m_stZ.push_back(it->m_localPosition.z());
+        persCont->m_RPCid.push_back(it->RPCid());
+        persCont->m_globalTime.push_back(it->globalTime());
+        persCont->m_stX.push_back(it->localPosition().x());
+        persCont->m_stY.push_back(it->localPosition().y());
+        persCont->m_stZ.push_back(it->localPosition().z());
 
-        hepMcPLCnv.transToPers(&(it->m_partLink),&persLink, log);   
+        hepMcPLCnv.transToPers(&it->particleLink(),&persLink, log);   
         persCont->m_partLink.push_back(persLink);
     }
 }
@@ -67,10 +63,11 @@ void RPCSimHitCollectionCnv_p1::persToTrans(const Muon::RPCSimHitCollection_p1* 
   for (unsigned int i = 0; i < persCont->m_RPCid.size(); i++) {
       Amg::Vector3D position(persCont->m_stX[i], persCont->m_stY[i], persCont->m_stZ[i]);
       
-      RPCSimHit transHit(persCont->m_RPCid[i], persCont->m_globalTime[i], position);
-      // No way to pass through HMCPL in ctor! Seems a bit dumb.
-      hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&(transHit.m_partLink), log);   
-      transCont->push_back(transHit);
+      HepMcParticleLink link;
+      hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);   
+
+      transCont->Emplace(persCont->m_RPCid[i], persCont->m_globalTime[i], position,
+                         link.barcode());
   }
 }
 

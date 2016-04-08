@@ -1,0 +1,4 @@
+test1
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
+test                 INFO Processing 
+Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout

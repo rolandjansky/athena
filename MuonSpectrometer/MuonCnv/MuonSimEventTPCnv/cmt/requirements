@@ -16,8 +16,9 @@ use  StoreGate                  StoreGate-*                     Control
 end_private
 
 public
-apply_pattern tpcnv_library
+#apply_pattern tpcnv_library
 library MuonSimEventTPCnv  *.cxx
+apply_pattern installed_library
 
 # The following use is to get the lcgdict pattern.
 # This is "hidden" behind "private" and "no_auto_imports" to keep 
@@ -33,3 +34,19 @@ apply_pattern lcgdict dict=OLD_MuonSimEventTPCnv  selectionfile=OLD_selection.xm
 #private
 # macro cppdebugflags '$(cppdebugflags_s)'
 # macro_remove componentshr_linkopts "-Wl,-s"
+
+
+private
+use TestTools            TestTools-*                AtlasTest
+
+apply_pattern UnitTest_run unit_test=CSCSimHitCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=CSCSimHitCollectionCnv_p2
+apply_pattern UnitTest_run unit_test=GenericMuonSimHitCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=MDTSimHitCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=MDTSimHitCollectionCnv_p2
+apply_pattern UnitTest_run unit_test=RPCSimHitCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=RPCSimHitCollectionCnv_p2
+apply_pattern UnitTest_run unit_test=TGCSimHitCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=TGCSimHitCollectionCnv_p2
+apply_pattern UnitTest_run unit_test=TGCSimHitCollectionCnv_p3
+
