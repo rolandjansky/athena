@@ -3,8 +3,7 @@
 */
 
 #include "MissingETPerformance/MissingETData.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // MB: reference to MET Goodies map for storing derived quantities
 MET::Goodies& MissingETData::goodies(MET::Goodies::instance());
@@ -746,11 +745,11 @@ StatusCode MissingETData::retrieveContainers() {
     setLocHadTopo(MET_LocHadTopo);
   }
 
-  const DataHandle<EventInfo> evt = 0;  
-  sc = evtStore()->retrieve<EventInfo>( evt );      
+  const DataHandle<xAOD::EventInfo> evt = 0;  
+  sc = evtStore()->retrieve<xAOD::EventInfo>( evt );      
   if ( sc.isFailure() ) { return sc;}
-  if(evt && evt->event_ID()){
-    setBCID (evt->event_ID()->bunch_crossing_id());
+  if(evt){
+    setBCID (evt->bcid());
     setMU (evt->averageInteractionsPerCrossing());
   }
 
