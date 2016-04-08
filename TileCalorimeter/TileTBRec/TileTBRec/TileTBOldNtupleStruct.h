@@ -309,7 +309,7 @@ public :
 
 private:
 
-  TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+  TTree          *m_fChain;   //!pointer to the analyzed TTree or TChain
 
   bool            m_adderFit; // if ntuple has additional Efit for adder
   Int_t           m_nGains;  // monogain (=1) or bigain (=2) ntuple
