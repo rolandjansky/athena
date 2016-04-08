@@ -8,65 +8,23 @@
 #include "LArReadoutGeometry/FCALDetectorManager.h"
 #include "LArReadoutGeometry/FCALModule.h"
 #include "LArG4Code/EnergySpot.h"
-#include "LArG4SD/LArG4SD.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArG4Code/LArG4Identifier.h"
-#include "LArG4Code/LArVHitMerger.h"
-#include "LArG4Code/LArVHitMergerFactory.h"
 #include "GeoModelKernel/GeoTubs.h"
+#include "StoreGate/StoreGateSvc.h"
 
 using HepGeom::Transform3D;
 using HepGeom::Point3D;
 
 // Constructor:
-FCALFastSimDedicatedSD::FCALFastSimDedicatedSD(const std::string& type, const std::string& name, const IInterface *parent)
-  : SensitiveDetectorBase(type,name,parent)
-  , m_hitMerger(0)
+FCALFastSimDedicatedSD::FCALFastSimDedicatedSD(StoreGateSvc* detStore)
+  : IFastSimDedicatedSD("FCALFastSimDedicatedSD", detStore) 
   , m_fcalManager(nullptr)
 {
-  m_noVolumes=true;
-  declareInterface<IFastSimDedicatedSD>(this);
-}
-
-StatusCode FCALFastSimDedicatedSD::initialize()
-{
-  ATH_MSG_VERBOSE( name() << "::initialize()");
-  CHECK( detStore()->retrieve(m_fcalManager) );
-  return SensitiveDetectorBase::initialize();
-}
-
-StatusCode FCALFastSimDedicatedSD::retrieveLArHitMerger()
-{
-  // At the beginning of first event initialize m_hitMerger pointer
-  // 1. Get Hit Merger factory from DS
-  // 2. Query Hit Merger factory for Hit Merger pointer
-  const DataHandle<LArVHitMergerFactory> _factory;
-  CHECK( detStore()->retrieve(_factory,"LArHitMergerFactory") );
-
-  m_hitMerger = _factory->getHitMerger();
-
-  if(m_hitMerger==0){
-    ATH_MSG_ERROR("0 pointer to the Hit Merger");
-    return StatusCode::FAILURE;
+  G4cout << GetName() << "::initialize()" << G4endl;
+  if ( detStore->retrieve(m_fcalManager).isFailure() ){
+    throw std::runtime_error("Could not retrieve FCAL manager");
   }
-  m_hitMerger->BeginOfEvent(); //FIXME lazy init hack
-  return StatusCode::SUCCESS;
-}
-
-// End each event (do hit merger here)
-StatusCode FCALFastSimDedicatedSD::EndOfAthenaEvent() {
-  if(m_hitMerger) m_hitMerger->EndOfEvent();
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-FCALFastSimDedicatedSD::queryInterface(const InterfaceID& riid, void** ppvIf) {
-  if ( riid == IFastSimDedicatedSD::interfaceID() ) {
-    *ppvIf = (IFastSimDedicatedSD*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  return SensitiveDetectorBase::queryInterface( riid, ppvIf );
 }
 
 // ProcessHitsMethod
@@ -138,15 +96,7 @@ void FCALFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
     return;
   }
 
-  //FIXME temporary hack for lazy initialization for LArHitMerger
-  if (!m_hitMerger && retrieveLArHitMerger().isFailure())
-    {
-      ATH_MSG_FATAL("Could not retrieve the LArHitMerger! Will crash now.");
-      throw;
-    }
-  // call process with dummy first argument
-  m_hitMerger->process(0,id, spot.GetTime(), spot.GetEnergy());
+  // call process to add this to the collection 
+  SimpleHit(id, spot.GetTime(), spot.GetEnergy());
   return;
-
-
 }
