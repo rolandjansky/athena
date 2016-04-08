@@ -6,7 +6,7 @@
 #include "AGDDKernel/TwoPoint.h"
 #include <iostream>
 
-TwoPoint gvxy_pointHandler::point(0.,0.);
+TwoPoint gvxy_pointHandler::s_point(0.,0.);
 
 
 gvxy_pointHandler::gvxy_pointHandler(std::string s):XMLHandler(s)
@@ -17,6 +17,6 @@ gvxy_pointHandler::gvxy_pointHandler(std::string s):XMLHandler(s)
 void gvxy_pointHandler::ElementHandle()
 {
 	std::vector<double> vvv=getAttributeAsVector("X_Y");
-	point.x(vvv[0]);
-	point.y(vvv[1]);
+	s_point.x(vvv[0]);
+	s_point.y(vvv[1]);
 }

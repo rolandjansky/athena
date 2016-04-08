@@ -8,6 +8,8 @@
 #include "AGDDHandlers/polyplaneHandler.h"
 #include <iostream>
 
+using namespace xercesc;
+
 pgonHandler::pgonHandler(std::string s):XMLHandler(s)
 {
 //	std::cout<<"Creating handler for pgon"<<std::endl;

@@ -8,6 +8,8 @@
 #include "AGDDControl/XercesParser.h"
 #include <iostream>
 
+using namespace xercesc;
+
 gvxyHandler::gvxyHandler(std::string s):XMLHandler(s)
 {
 }
