@@ -10,8 +10,8 @@
  * $Id: EndcapPresamplerConstruction.h,v 1.5 2007-07-08 18:51:26 tsulaia Exp $
  */
 
-#ifndef __EndcapPresamplerConstruction_H__
-#define __EndcapPresamplerConstruction_H__
+#ifndef LARGEOENDCAP_ENDCAPPRESAMPLERCONSTRUCTION_H
+#define LARGEOENDCAP_ENDCAPPRESAMPLERCONSTRUCTION_H
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "CLHEP/GenericFunctions/FunctionNoop.hh"
@@ -46,9 +46,10 @@ class EndcapPresamplerConstruction
   GeoFullPhysVol*  m_psPhysical;
 
   // Flag for module only presampler ( TB )
-  bool isModule;
+  bool m_isModule;
     
 };
 
-#endif // __EndcapPresamplerConstruction_H__
+#endif // LARGEOENDCAP_ENDCAPPRESAMPLERCONSTRUCTION_H
+
 

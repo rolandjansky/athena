@@ -87,9 +87,9 @@ typedef std::map<int, unsigned int, std::less<int> > planeIndMap;
 
 LArGeo::EndcapCryostatConstruction::EndcapCryostatConstruction(bool fullGeo):
   //  cryoEnvelopePhysical(NULL),
-  _fcalVisLimit(-1),
-  pAccessSvc(NULL),
-  geoModelSvc(NULL),
+  m_fcalVisLimit(-1),
+  m_pAccessSvc(NULL),
+  m_geoModelSvc(NULL),
   m_fullGeo(fullGeo)
 {
 
@@ -97,12 +97,12 @@ LArGeo::EndcapCryostatConstruction::EndcapCryostatConstruction(bool fullGeo):
 
   ISvcLocator *svcLocator = Gaudi::svcLocator();
   StatusCode sc;
-  sc=svcLocator->service("RDBAccessSvc",pAccessSvc);
+  sc=svcLocator->service("RDBAccessSvc",m_pAccessSvc);
   if (sc != StatusCode::SUCCESS) {
     throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
   }
 
-  sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
+  sc = svcLocator->service ("GeoModelSvc",m_geoModelSvc);
   if (sc != StatusCode::SUCCESS) {
     throw std::runtime_error ("Cannot locate GeoModelSvc!!");
   }
@@ -178,16 +178,16 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   //                                                                                                 //
   //-------------------------------------------------------------------------------------------------//
 
-  std::string AtlasVersion = geoModelSvc->atlasVersion();
-  std::string LArVersion = geoModelSvc->LAr_VersionOverride();
+  std::string AtlasVersion = m_geoModelSvc->atlasVersion();
+  std::string LArVersion = m_geoModelSvc->LAr_VersionOverride();
 
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
 
-  IRDBRecordset_ptr cryoCylinders =  pAccessSvc->getRecordsetPtr("CryoCylinders",detectorKey, detectorNode);
-  IRDBRecordset_ptr larPosition  =  pAccessSvc->getRecordsetPtr("LArPosition",detectorKey, detectorNode);
+  IRDBRecordset_ptr cryoCylinders =  m_pAccessSvc->getRecordsetPtr("CryoCylinders",detectorKey, detectorNode);
+  IRDBRecordset_ptr larPosition  =  m_pAccessSvc->getRecordsetPtr("LArPosition",detectorKey, detectorNode);
   if (larPosition->size()==0 ) {
-    larPosition = pAccessSvc->getRecordsetPtr("LArPosition", "LArPosition-00");
+    larPosition = m_pAccessSvc->getRecordsetPtr("LArPosition", "LArPosition-00");
     if (larPosition->size()==0 ) {
       throw std::runtime_error("Error, no lar position table in database!");
     }
@@ -196,11 +196,11 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
 
 
-  if(cryoCylinders->size()==0) cryoCylinders = pAccessSvc->getRecordsetPtr("CryoCylinders","CryoCylinders-00");
+  if(cryoCylinders->size()==0) cryoCylinders = m_pAccessSvc->getRecordsetPtr("CryoCylinders","CryoCylinders-00");
 
   // Deal with Pcons
-  IRDBRecordset_ptr cryoPcons = pAccessSvc->getRecordsetPtr("CryoPcons",detectorKey, detectorNode);
-  if(cryoPcons->size()==0) cryoPcons = pAccessSvc->getRecordsetPtr("CryoPcons","CryoPcons-00");
+  IRDBRecordset_ptr cryoPcons = m_pAccessSvc->getRecordsetPtr("CryoPcons",detectorKey, detectorNode);
+  if(cryoPcons->size()==0) cryoPcons = m_pAccessSvc->getRecordsetPtr("CryoPcons","CryoPcons-00");
 
   planeIndMap cryoMotherPlanes, emhPlanes, fcalNosePlanes;
   std::vector<planeIndMap> brassPlugPlanesVect;
@@ -280,7 +280,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
   //  Extra cylinders
 
-  IRDBRecordset_ptr cryoExtraCyl = pAccessSvc->getRecordsetPtr("LArCones",detectorKey, detectorNode);
+  IRDBRecordset_ptr cryoExtraCyl = m_pAccessSvc->getRecordsetPtr("LArCones",detectorKey, detectorNode);
 
   if(m_fullGeo && cryoCylinders->size()>0){
     unsigned int nextra=cryoExtraCyl->size();
@@ -634,7 +634,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
 
   // 13-Mar-2002 WGS: Place the FCAL detector inside the cryostat.
-  m_fcal->setFCALVisLimit(_fcalVisLimit);
+  m_fcal->setFCALVisLimit(m_fcalVisLimit);
   m_fcal->setFullGeo(m_fullGeo);
   {
     
@@ -681,7 +681,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   }
 
   //_________________________ Mini FCAL ___________________________________________________
-  if(pAccessSvc->getChildTag("MiniFcal",detectorKey, detectorNode)!="") {
+  if(m_pAccessSvc->getChildTag("MiniFcal",detectorKey, detectorNode)!="") {
     MiniFcalConstruction minifcal(bPos);
     GeoFullPhysVol* miniFcalEnvelope = minifcal.GetEnvelope();
     if(miniFcalEnvelope) {
@@ -691,13 +691,13 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   }
 
   //__________________________ MBTS+moderator+JM tube _____________________________________
-  if(pAccessSvc->getChildTag("MBTS",detectorKey, detectorNode)!="") {
+  if(m_pAccessSvc->getChildTag("MBTS",detectorKey, detectorNode)!="") {
     // DB related stuff first
-    IRDBRecordset_ptr mbtsTubs   = pAccessSvc->getRecordsetPtr("MBTSTubs", detectorKey, detectorNode);
-    IRDBRecordset_ptr mbtsScin   = pAccessSvc->getRecordsetPtr("MBTSScin", detectorKey, detectorNode);
-    IRDBRecordset_ptr mbtsPcons  = pAccessSvc->getRecordsetPtr("MBTSPcons",detectorKey, detectorNode);
-    IRDBRecordset_ptr mbtsGen    = pAccessSvc->getRecordsetPtr("MBTSGen",  detectorKey, detectorNode);
-    IRDBRecordset_ptr mbtsTrds   = pAccessSvc->getRecordsetPtr("MBTSTrds", detectorKey, detectorNode);
+    IRDBRecordset_ptr mbtsTubs   = m_pAccessSvc->getRecordsetPtr("MBTSTubs", detectorKey, detectorNode);
+    IRDBRecordset_ptr mbtsScin   = m_pAccessSvc->getRecordsetPtr("MBTSScin", detectorKey, detectorNode);
+    IRDBRecordset_ptr mbtsPcons  = m_pAccessSvc->getRecordsetPtr("MBTSPcons",detectorKey, detectorNode);
+    IRDBRecordset_ptr mbtsGen    = m_pAccessSvc->getRecordsetPtr("MBTSGen",  detectorKey, detectorNode);
+    IRDBRecordset_ptr mbtsTrds   = m_pAccessSvc->getRecordsetPtr("MBTSTrds", detectorKey, detectorNode);
     
     double zposMM = 0.;
     std::map<std::string,unsigned> trdMap;  // Used in the new description only
@@ -997,7 +997,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	log << MSG::ERROR << "Unable to initialize TileTBID" << endreq;
       else {
 	// This recordset is need for calculating global Z positions of scintillators
-	IRDBRecordset_ptr larPosition = pAccessSvc->getRecordsetPtr("LArPosition",detectorKey, detectorNode);
+	IRDBRecordset_ptr larPosition = m_pAccessSvc->getRecordsetPtr("LArPosition",detectorKey, detectorNode);
 	const IRDBRecord *posRec = GeoDBUtils::getTransformRecord(larPosition, "LARCRYO_EC_POS");
 	if(!posRec) throw std::runtime_error("Error, no lar position record in the database") ;
 	HepGeom::Transform3D xfPos = GeoDBUtils::getTransform(posRec);

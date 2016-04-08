@@ -10,8 +10,8 @@
  * $Id: EndcapCryostatConstruction.h,v 1.14 2009-02-10 16:50:53 tsulaia Exp $
  */
 
-#ifndef __EndcapCryostatConstruction_H__
-#define __EndcapCryostatConstruction_H__
+#ifndef LARGEOENDCAP_ENDCAPCRYOSTATCONSTRUCTION_H
+#define LARGEOENDCAP_ENDCAPCRYOSTATCONSTRUCTION_H
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -45,16 +45,16 @@ namespace LArGeo {
     
 
     // Set a vis limit for the FCAL
-    void setFCALVisLimit(int limit) {_fcalVisLimit=limit;}
+    void setFCALVisLimit(int limit) {m_fcalVisLimit=limit;}
 
   private:
 
     //    GeoPhysVol          *cryoEnvelopePhysical;
 
-    int                 _fcalVisLimit;
+    int                 m_fcalVisLimit;
 
-    IRDBAccessSvc       *pAccessSvc;
-    IGeoModelSvc        *geoModelSvc;
+    IRDBAccessSvc       *m_pAccessSvc;
+    IGeoModelSvc        *m_geoModelSvc;
 
     EMECConstruction          m_emec;
     HEC2WheelConstruction     m_hec2;
@@ -71,4 +71,4 @@ namespace LArGeo {
 
 } // namespace LArGeo
 
-#endif // __EndcapCryostatConstruction_H__
+#endif // LARGEOENDCAP_ENDCAPCRYOSTATCONSTRUCTION_H

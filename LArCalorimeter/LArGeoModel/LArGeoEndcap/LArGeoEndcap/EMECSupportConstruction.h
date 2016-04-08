@@ -14,8 +14,8 @@
 // construct EMEC support structures
 // 20-May-2003 AMS
 // 06-Oct-2003 JT, modified for using GeoModel
-#ifndef __EMECSupportConstruction_H__
-#define __EMECSupportConstruction_H__
+#ifndef LARGEOENDCAP_EMECSUPPORTCONSTRUCTION_H
+#define LARGEOENDCAP_EMECSUPPORTCONSTRUCTION_H
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
@@ -90,21 +90,21 @@ class EMECSupportConstruction
 
 	GeoPcon* getPcon(std::string) const;
 
-    int Type;
-    bool isModule;
-    std::string BaseName;
-    double Position, PhiStart, PhiSize;
+    int m_Type;
+    bool m_isModule;
+    std::string m_BaseName;
+    double m_Position, m_PhiStart, m_PhiSize;
 
-	GeoMaterial *LAr, *Alu, *Gten, *PermaliE730;
-	GeoMaterial *G10FeInner, *G10FeOuter, *Kapton_Cu;
-	GeoMaterial *Cable, *Copper;
-        GeoMaterial *Lead;
+	GeoMaterial *m_LAr, *m_Alu, *m_Gten, *m_PermaliE730;
+	GeoMaterial *m_G10FeInner, *m_G10FeOuter, *m_Kapton_Cu;
+	GeoMaterial *m_Cable, *m_Copper;
+        GeoMaterial *m_Lead;
 
-	IRDBRecordset_ptr DB_EmecGeometry, DB_EmecWheelParameters, DB_mn;
-	IRDBRecordset_ptr DB_boxes, DB_numbers, DB_tubes, DB_pcons;
-        IRDBRecordset_ptr DB_emecExtraCyl;
+	IRDBRecordset_ptr m_DB_EmecGeometry, m_DB_EmecWheelParameters, m_DB_mn;
+	IRDBRecordset_ptr m_DB_boxes, m_DB_numbers, m_DB_tubes, m_DB_pcons;
+        IRDBRecordset_ptr m_DB_emecExtraCyl;
 };
 
 } // namespace LArGeo
 
-#endif // __EMECSupportConstruction_H__
+#endif // LARGEOENDCAP_EMECSUPPORTCONSTRUCTION_H

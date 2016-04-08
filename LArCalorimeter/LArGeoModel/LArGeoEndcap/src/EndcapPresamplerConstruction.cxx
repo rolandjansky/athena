@@ -51,7 +51,7 @@
 EndcapPresamplerConstruction::EndcapPresamplerConstruction( bool imb ):
   m_psPhysical(0)
 {
-  isModule = imb;
+  m_isModule = imb;
 }
 
 EndcapPresamplerConstruction::~EndcapPresamplerConstruction() {;}
@@ -118,7 +118,7 @@ GeoFullPhysVol* EndcapPresamplerConstruction::Envelope()
   double phi_size = 360.*CLHEP::deg;
   double start_phi = 0.;
   
-  if( isModule ){
+  if( m_isModule ){
     phi_size = M_PI / 4;
     start_phi = M_PI / 2 - M_PI / 8;
   }
