@@ -109,10 +109,10 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
   resi.setIdentity();
 
   // Geometry conventions
-  double m_radius_cylinder = 4000.;
-  double m_z_cylinder = 6000.;
-  double m_z_end = 15000.;
-  double m_cos_barrel = std::cos(std::atan2(m_radius_cylinder,m_z_cylinder));
+  double radius_cylinder = 4000.;
+  double z_cylinder = 6000.;
+  double z_end = 15000.;
+  double cos_barrel = std::cos(std::atan2(radius_cylinder,z_cylinder));
   int imeth;
 
   // First Segment
@@ -135,9 +135,9 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
   if (m_debug) std::cout << " radius1 " << rs << " radius2 " <<  rse << " z1 " << zs << " z2 " << zse << " theta1 " << thetas << " theta2 " << thetase << " thetasp1 " << thesp << " thetasp2 " << thespe <<  std::endl;
 
   bool barrel = false;
-  if (fabs(cos(thesp)) < m_cos_barrel || fabs(cos(thespe)) < m_cos_barrel ) barrel = true;
+  if (fabs(cos(thesp)) < cos_barrel || fabs(cos(thespe)) < cos_barrel ) barrel = true;
   bool forward = false;
-  if (fabs(cos(thesp)) > m_cos_barrel || fabs(cos(thespe)) > m_cos_barrel ) forward = true;
+  if (fabs(cos(thesp)) > cos_barrel || fabs(cos(thespe)) > cos_barrel ) forward = true;
 
   double scf = 20.;
   if (m_debug) std::cout << " error scaling in Curved fit " << scf << std::endl;
@@ -167,14 +167,14 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
     model(0,0) = 1.;
     model(1,0) = 1.;
     model(1,1) = rs;
-    model(1,2) = (rs-m_radius_cylinder)*(rs-m_radius_cylinder);
+    model(1,2) = (rs-radius_cylinder)*(rs-radius_cylinder);
     model(2,1) = 1.;
-    model(2,2) = 2*(rs-m_radius_cylinder);
+    model(2,2) = 2*(rs-radius_cylinder);
     model(3,0) = 1.;
     model(3,1) = rse;
-    model(3,2) = (rse-m_radius_cylinder)*(rse-m_radius_cylinder);
+    model(3,2) = (rse-radius_cylinder)*(rse-radius_cylinder);
     model(4,1) = 1.;
-    model(4,2) = 2*(rse-m_radius_cylinder);
+    model(4,2) = 2*(rse-radius_cylinder);
     // Measurements ym
     // correspondig squared errors: zs -> ers2  cot(thetas) ->ets2
     ym(0,0) = 0.;
@@ -189,26 +189,26 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
     model(0,0) = 1.;
     model(1,0) = 1.;
     model(1,1) = zs;
-    model(1,2) = sign*(zs-sign*m_z_cylinder)*(zs-sign*m_z_cylinder);
+    model(1,2) = sign*(zs-sign*z_cylinder)*(zs-sign*z_cylinder);
     model(2,1) = 1;
-    model(2,2) = sign*2*(zs-sign*m_z_cylinder);
+    model(2,2) = sign*2*(zs-sign*z_cylinder);
     model(3,0) = 1.;
     model(3,1) = zse;
-    model(3,2) = sign*(zse-sign*m_z_cylinder)*(zse-sign*m_z_cylinder);
+    model(3,2) = sign*(zse-sign*z_cylinder)*(zse-sign*z_cylinder);
     model(4,1) = 1;
-    model(4,2) = sign*2*(zse-sign*m_z_cylinder);
+    model(4,2) = sign*2*(zse-sign*z_cylinder);
 
-    if (fabs(zs) > m_z_end+2000) {
-      model(1,2) = sign*(-m_z_end*m_z_end + m_z_cylinder*m_z_cylinder + 2*zs*sign*(m_z_end-m_z_cylinder)
-                          +      (zs-sign*m_z_end)*(zs-sign*m_z_end)/5.);
-      model(2,2) = sign*(2*(sign*m_z_end-sign*m_z_cylinder)
-                          +     (zs-sign*m_z_end)/5.);
+    if (fabs(zs) > z_end+2000) {
+      model(1,2) = sign*(-z_end*z_end + z_cylinder*z_cylinder + 2*zs*sign*(z_end-z_cylinder)
+                          +      (zs-sign*z_end)*(zs-sign*z_end)/5.);
+      model(2,2) = sign*(2*(sign*z_end-sign*z_cylinder)
+                          +     (zs-sign*z_end)/5.);
     }
-    if (fabs(zse) > m_z_end+2000) {
-      model(3,2) = sign*(-m_z_end*m_z_end + m_z_cylinder*m_z_cylinder + 2*zse*sign*(m_z_end-m_z_cylinder)
-                          +      (zse-sign*m_z_end)*(zse-sign*m_z_end)/5.);
-      model(4,2) = sign*(2*(sign*m_z_end-sign*m_z_cylinder)
-                          +     (zse-sign*m_z_end)/5.);
+    if (fabs(zse) > z_end+2000) {
+      model(3,2) = sign*(-z_end*z_end + z_cylinder*z_cylinder + 2*zse*sign*(z_end-z_cylinder)
+                          +      (zse-sign*z_end)*(zse-sign*z_end)/5.);
+      model(4,2) = sign*(2*(sign*z_end-sign*z_cylinder)
+                          +     (zse-sign*z_end)/5.);
     }
     // Measurements ym
     // correspondig squared errors: rs -> ers2  tan(thetas) ->ets2
