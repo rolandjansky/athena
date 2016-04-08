@@ -19,7 +19,7 @@
 
 JpsiAlg::JpsiAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_eventCntr(0), m_jpsiCntr(0),
+  eventCntr(0), jpsiCntr(0),
   m_jpsiFinder("Analysis::JpsiFinder"),
   m_jpsiContainerName("JpsiCandidates")
 {
@@ -52,8 +52,8 @@ StatusCode JpsiAlg::initialize(){
     ATH_MSG_INFO("Retrieved tool " << m_jpsiFinder);
   }
 
-  m_eventCntr = 0;
-  m_jpsiCntr = 0;
+  eventCntr = 0;
+  jpsiCntr = 0;
 
   return sc;
   
@@ -67,7 +67,7 @@ StatusCode JpsiAlg::execute() {
   ATH_MSG_DEBUG("in execute()");
 
   // Increment counter
-  ++m_eventCntr;
+  ++eventCntr;
 
   // Jpsi container and its auxilliary store
   xAOD::VertexContainer*    jpsiContainer = NULL;
@@ -80,7 +80,7 @@ StatusCode JpsiAlg::execute() {
   }
 
   // Extracting information from the Jpsi candidates
-  m_jpsiCntr += jpsiContainer->size(); // Count the Jpsis
+  jpsiCntr += jpsiContainer->size(); // Count the Jpsis
 
   // save in the StoreGate
   ATH_MSG_DEBUG("Recording to StoreGate: " << m_jpsiContainerName << " size:" <<jpsiContainer->size());
@@ -104,8 +104,8 @@ StatusCode JpsiAlg::finalize() {
   ATH_MSG_INFO("SUMMARY OF ANALYSIS");
   ATH_MSG_INFO("===================");
   ATH_MSG_INFO(" ");
-  ATH_MSG_INFO("Total number of events analysed: " << m_eventCntr);
-  ATH_MSG_INFO("Total number of jpsi candidates: " << m_jpsiCntr); 
+  ATH_MSG_INFO("Total number of events analysed: " << eventCntr);
+  ATH_MSG_INFO("Total number of jpsi candidates: " << jpsiCntr); 
 
   return StatusCode::SUCCESS;
 }

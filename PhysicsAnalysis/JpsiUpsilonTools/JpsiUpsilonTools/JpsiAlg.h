@@ -20,8 +20,8 @@ public:
 
 private:
 
-  int m_eventCntr;
-  int m_jpsiCntr;
+  int eventCntr;
+  int jpsiCntr;
  
   ToolHandle<Analysis::JpsiFinder> m_jpsiFinder;
   std::string                      m_jpsiContainerName; //!< Name of output container to store results
