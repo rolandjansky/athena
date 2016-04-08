@@ -32,7 +32,7 @@ private:
   //  int m_ThresholdVnBin;
   int m_FlowHarmonic;
   
-  double m_q0xShift; // shifts
-  double m_q0yShift;
+  //double m_q0xShift; // shifts
+  //double m_q0yShift;
   bool m_upperLimit;
 };
