@@ -2,6 +2,7 @@ package TrigInDetTrackExtrapolator
 
 author Dmitry Emeliyanov <D.Emeliyanov@rl.ac.uk>
 
+use AthenaBaseComps             AthenaBaseComps-*   Control
 use AtlasPolicy			AtlasPolicy-*
 use GaudiInterface		GaudiInterface-*     External
 use TrigSteeringEvent           TrigSteeringEvent-*     Trigger/TrigEvent
@@ -17,8 +18,6 @@ apply_pattern declare_joboptions files="*.py"
 
 private
 
-use StoreGate			StoreGate-*		Control
-use AtlasCLHEP 			AtlasCLHEP-* 	External
 use MagFieldInterfaces  MagFieldInterfaces-*         MagneticField 
 use TrigTimeAlgs		TrigTimeAlgs-*		Trigger/TrigTools
 use TrkDistributedKalmanFilter  TrkDistributedKalmanFilter-* Tracking/TrkFitter

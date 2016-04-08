@@ -5,7 +5,7 @@
 #ifndef __TRIGINDETTRACKEXTRAPOLATOR_H__
 #define __TRIGINDETTRACKEXTRAPOLATOR_H__
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -24,7 +24,7 @@ namespace MagField {
 }
 
 
-class TrigInDetTrackExtrapolator: public AlgTool, virtual public ITrigInDetTrackExtrapolator
+class TrigInDetTrackExtrapolator: public AthAlgTool, virtual public ITrigInDetTrackExtrapolator
 {
  public:
   TrigInDetTrackExtrapolator( const std::string&, const std::string&, const IInterface* );
