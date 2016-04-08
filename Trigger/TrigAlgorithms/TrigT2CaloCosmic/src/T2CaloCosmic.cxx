@@ -79,45 +79,37 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
   // Time total T2CaloCosmic execution time.
   if ( m_timersvc ) m_timer[0]->start();
   
-#ifndef NDEBUG
-  (*m_log) << MSG::INFO << "in execute()" << endreq;
-#endif
+  if (msgLvl(MSG::DEBUG))
+    ATH_MSG_DEBUG("in execute()");
+
  
   //bool status = false;
   
   // Some debug output:
-#ifndef NDEBUG
-    (*m_log) << MSG::DEBUG
-	  << "outputTE->getId(): "
-	  << outputTE->getId()
-	  << endreq;
-
-    (*m_log) << MSG::DEBUG
-	  << "inputTE->getId(): "
-	  << inputTE->getId()
-	  << endreq;
-#endif
+  if (msgLvl(MSG::DEBUG)) {
+    msg (MSG::DEBUG) << "outputTE->getId(): " << outputTE->getId() << endreq;
+    
+    msg(MSG::DEBUG) << "inputTE->getId(): " << inputTE->getId() << endreq;
+  }
     
   const TrigRoiDescriptor* roiDescriptor = 0;
 
   HLT::ErrorCode hltStatus = getFeature(inputTE, roiDescriptor);
 
   if ( hltStatus == HLT::OK ) {
-#ifndef NDEBUG
-      (*m_log) << MSG::DEBUG  << *roiDescriptor << endreq;
-#endif
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << *roiDescriptor << endreq;	
   } else {
-    (*m_log) <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+    msg(MSG::WARNING) << " Failed to find RoiDescriptor " << endreq;
     return hltStatus;
   }
 
   // Some debug output:
 
-  (*m_log) << MSG::DEBUG  << "Message to count events. LVL1 phi="
-	   << roiDescriptor->phi()
-	   << " & LVL1 eta="
-	   << roiDescriptor->eta()
-	   << endreq;
+  msg(MSG::DEBUG)  << "Message to count events. LVL1 phi="
+		   << roiDescriptor->phi()
+		   << " & LVL1 eta="
+		   << roiDescriptor->eta()
+		   << endreq;
 
   // End LVL1 part
   double etamin, etamax, phimin, phimax;
@@ -148,19 +140,16 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
   
   
 
-#ifndef NDEBUG
-  (*m_log) << MSG::DEBUG  << " etamin = "<< *roiDescriptor << endreq;
-  //  (*m_log) << MSG::DEBUG  << " etamin = "<< etamin << endreq;
-  //  (*m_log) << MSG::DEBUG  << " etamax = "<< etamax << endreq;
-  //  (*m_log) << MSG::DEBUG  << " phimin = "<< phimin << endreq;
-  //  (*m_log) << MSG::DEBUG  << " phimax = "<< phimax << endreq;
-#endif
+  if (msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG)  << " etamin = "<< *roiDescriptor << endreq;
+    //  (*m_log) << MSG::DEBUG  << " etamin = "<< etamin << endreq;
+    //  (*m_log) << MSG::DEBUG  << " etamax = "<< etamax << endreq;
+    //  (*m_log) << MSG::DEBUG  << " phimin = "<< phimin << endreq;
+    //  (*m_log) << MSG::DEBUG  << " phimax = "<< phimax << endreq;
+  }
 
 
-#ifndef NDEBUG
-  (*m_log) << MSG::DEBUG  << " Making TrigEMCluster "<< endreq;
-#endif
-
+  if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG)  << " Making TrigEMCluster "<< endreq;
 
   std::vector<xAOD::TrigEMCluster*> m_vec_clus;
   std::cout << "m_emAlgTools.size() = " << m_emAlgTools.size() << std::endl;
@@ -184,9 +173,9 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
   phimax=m_phimax[counter];
   //    if ((*it)->execute(*ptrigEmCluster,etamin,etamax,phimin,phimax).isFailure() ) {
   if ((*it)->execute(*ptrigEmCluster,*roiDescriptor).isFailure() ) {
-      (*m_log) << MSG::WARNING << "T2Calo AlgToolCosmic returned Failure" << endreq;
-      return HLT::TOOL_FAILURE;
-    }
+    ATH_MSG_WARNING("T2Calo AlgToolCosmic returned Failure");
+    return HLT::TOOL_FAILURE;
+  }
   // If you do not have any hot cell in top or bottom, stop algo
   if ( (counter==0 || counter==1) && (*ptrigEmCluster).energy()==0)
 	return HLT::OK; 
@@ -209,25 +198,19 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
   xAOD::TrigEMCluster* ptrigEmCluster=m_vec_clus[i];
   
   // Print out Cluster produced
-  (*m_log) << MSG::DEBUG  << " Values of Cluster produced: "<< endreq;
-  (*m_log) << MSG::DEBUG  << " REGTEST: emEnergy = "<< (*ptrigEmCluster).energy()
-	   << endreq;
-  (*m_log) << MSG::DEBUG  << " REGTEST: hadEnergy = "<< (*ptrigEmCluster).ehad1()
-	   << endreq;
-  (*m_log) << MSG::DEBUG  << " REGTEST: rCore = "
-	   << ((*ptrigEmCluster).e237() )/ ((*ptrigEmCluster).e277()) << endreq;
-  (*m_log) << MSG::DEBUG  << " REGTEST: energyRatio = "
-	   << (((*ptrigEmCluster).emaxs1()-(*ptrigEmCluster).e2tsts1())/
-	       ((*ptrigEmCluster).emaxs1()+(*ptrigEmCluster).e2tsts1()))
-	   << endreq;
-  (*m_log) << MSG::DEBUG  << " REGTEST: clusterWidth = "
-	   << (*ptrigEmCluster).weta2() << endreq;
-  (*m_log) << MSG::DEBUG  << " REGTEST: frac73 = "
-	   << (*ptrigEmCluster).fracs1() << endreq;
-  (*m_log) << MSG::DEBUG  << " REGTEST: eta = "<< (*ptrigEmCluster).eta() << endreq;
-  (*m_log) << MSG::DEBUG  << " REGTEST: phi = "<< (*ptrigEmCluster).phi() << endreq;
-  (*m_log) << MSG::DEBUG  << " REGTEST: roiWord = "
-	   << (*ptrigEmCluster).RoIword() << endreq;
+  msg(MSG::DEBUG)  << " Values of Cluster produced: "<< endreq;
+  msg(MSG::DEBUG)  << " REGTEST: emEnergy = "<< (*ptrigEmCluster).energy() << endreq;
+  msg(MSG::DEBUG)  << " REGTEST: hadEnergy = "<< (*ptrigEmCluster).ehad1() << endreq;
+  msg(MSG::DEBUG)  << " REGTEST: rCore = " << ((*ptrigEmCluster).e237() )/ ((*ptrigEmCluster).e277()) << endreq;
+  msg(MSG::DEBUG)  << " REGTEST: energyRatio = "
+		   << (((*ptrigEmCluster).emaxs1()-(*ptrigEmCluster).e2tsts1())/
+		       ((*ptrigEmCluster).emaxs1()+(*ptrigEmCluster).e2tsts1()))
+		   << endreq;
+  msg(MSG::DEBUG)  << " REGTEST: clusterWidth = " << (*ptrigEmCluster).weta2() << endreq;
+  msg(MSG::DEBUG)  << " REGTEST: frac73 = " << (*ptrigEmCluster).fracs1() << endreq;
+  msg(MSG::DEBUG)  << " REGTEST: eta = "<< (*ptrigEmCluster).eta() << endreq;
+  msg(MSG::DEBUG)  << " REGTEST: phi = "<< (*ptrigEmCluster).phi() << endreq;
+  msg(MSG::DEBUG)  << " REGTEST: roiWord = " << (*ptrigEmCluster).RoIword() << endreq;
 
   // Fill monitoring hists:
 /*
@@ -240,10 +223,7 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
 
   hltStatus = recordAndAttachFeature(outputTE, ptrigEmCluster, key, "TrigT2CaloCosmic");
   if (hltStatus != HLT::OK){
-#ifndef NDEBUG
-      (*m_log) << MSG::ERROR << "Write of TrigEMCluster into outputTE failed"
-	    << endreq;
-#endif
+    if(msgLvl(MSG::DEBUG)) ATH_MSG_ERROR("Write of TrigEMCluster into outputTE failed");
     return hltStatus;
   }
   }
@@ -266,18 +246,18 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
   }
 */
 
-#ifndef NDEBUG
+//#ifndef NDEBUG
  //   (*m_log) << MSG::DEBUG  << "Recorded an RoiDescriptor "
 //	  << " phi " <<  newRoiDescriptor->phi0()
 //	  << " eta " << newRoiDescriptor->eta0() << endreq;
-#endif
+//#endif
 
   // Some debug output:
-#ifndef NDEBUG
-    (*m_log) << MSG::DEBUG << "We assume success, set TE with Id "
-	  << outputTE->getId() << " active to signal positive result."
-	  << endreq;
-#endif
+  if (msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG) << "We assume success, set TE with Id "
+		    << outputTE->getId() << " active to signal positive result."
+		    << endreq;
+  }
   
   // Time total T2CaloCosmic execution time.
   if ( m_timersvc ) m_timer[0]->stop();
@@ -287,11 +267,7 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
 
 
 HLT::ErrorCode T2CaloCosmic::hltFinalize(){
-
   //  if ( msgLvl() <= MSG::INFO ) 
-#ifndef NDEBUG
-    (*m_log) << MSG::INFO << "in finalize()" << endreq;
-#endif
-
+  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("in finalize()");
   return HLT::OK;
 }

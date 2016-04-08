@@ -26,11 +26,11 @@ CosmicSamp2Fex::CosmicSamp2Fex(const std::string & type, const std::string & nam
 		   {
 	declareProperty("THR_1",m_THR_1 = 400.0);
 	declareProperty("THR_2",m_THR_2 = 100.0);
-#ifndef NDEBUG
+	//#ifndef NDEBUG
 	// Create Geometry object
         // 0 -> CaloType EM, 2 -> Second Layer
-//        m_geometry[0] = new T2Geometry(0,2);
-#endif
+	//        m_geometry[0] = new T2Geometry(0,2);
+	//#endif
 }
 
 CosmicSamp2Fex::~CosmicSamp2Fex(){
@@ -44,9 +44,8 @@ StatusCode CosmicSamp2Fex::execute(TrigEMCluster &rtrigEmCluster,
 	// Time total AlgTool time 
 	if (!m_timersvc.empty()) m_timer[0]->start();      
 
-#ifndef NDEBUG
-	(*m_log) << MSG::INFO << "in execute(TrigEMCluster&)" << endreq;
-#endif
+	if (msgLvl(MSG::DEBUG)) 
+	  ATH_MSG_DEBUG("in execute(TrigEMCluster&)");
 
 	// Time to access RegionSelector
 	if (!m_timersvc.empty()) m_timer[1]->start();      
