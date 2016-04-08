@@ -6,11 +6,7 @@
 // HomogeneousLayerMaterialCnv_p1.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#define private public
-#define protected public
 #include "TrkGeometry/HomogeneousLayerMaterial.h"
-#undef private
-#undef protected
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkDetDescrTPCnv/TrkGeometry/HomogeneousLayerMaterialCnv_p1.h"
 
@@ -26,6 +22,7 @@ void HomogeneousLayerMaterialCnv_p1::persToTrans( const Trk::HomogeneousLayerMat
     // pointer to converter (will be auto-retrieved)
     ITPConverterFor<Trk::MaterialProperties> *materialCnv = 0;
     transObj->m_fullMaterial = createTransFromPStore( &materialCnv, persObj->material, mlog );
+    transObj->m_splitFactor = persObj->splitFactor;
     
 }
 
