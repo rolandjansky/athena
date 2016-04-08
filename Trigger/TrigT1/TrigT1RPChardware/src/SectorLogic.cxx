@@ -25,15 +25,15 @@ using namespace std;
 //****************************************************************************//
 // returns bits from lsb to msb right aligned
 CMAword getbits(CMAword x, int msb, int lsb) {
-  return ~(~0 << (msb - lsb + 1)) & (x >> lsb);
+  return ~(~0u << (msb - lsb + 1)) & (x >> lsb);
 }
 //****************************************************************************//
 // returns bits from lsb to msb right aligned
 // sets bits between lsb and msb of x to first (msb - lsb + 1) right 
 // bits of y, remaining bits are left unchanged
 unsigned setbits(unsigned x, int msb, int lsb, unsigned y) {
-  unsigned mask=0;
-  mask = (~0 << (msb + 1)) | ~(~0 << lsb);
+  unsigned mask=0u;
+  mask = (~0u << (msb + 1)) | ~(~0u << lsb);
   return (x & mask) | (y << lsb);
 }
 //****************************************************************************//
