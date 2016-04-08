@@ -50,18 +50,18 @@ StatusCode DetStatusSvc::initialize()
 
   MsgStream log(msgSvc(), name());
   if (StatusCode::SUCCESS!=Service::initialize()) log << MSG::ERROR <<
-	    "Service initialisation failed" << endmsg;
+	    "Service initialisation failed" << endreq;
 
-  log << MSG::DEBUG << "in initialize()" << endmsg;
+  log << MSG::DEBUG << "in initialize()" << endreq;
 
   // get event store
   if (StatusCode::SUCCESS!=service("StoreGateSvc",p_evtstore)) {
-    log << MSG::FATAL << "Detector store not found" << endmsg; 
+    log << MSG::FATAL << "Detector store not found" << endreq; 
     return StatusCode::FAILURE;
   }
   // get detector store
   if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    log << MSG::FATAL << "Detector store not found" << endmsg; 
+    log << MSG::FATAL << "Detector store not found" << endreq; 
     return StatusCode::FAILURE;
   }
   // register callback if needed
@@ -70,17 +70,17 @@ StatusCode DetStatusSvc::initialize()
 						cptr,par_conddbfolder)) {
     log << MSG::INFO << 
     "Register callback to read detector status from CondDB folder "
-	    << par_conddbfolder << endmsg;
+	    << par_conddbfolder << endreq;
   } else {
     log << MSG::FATAL << "Could not register callback to CondDB folder "
-          << par_conddbfolder << endmsg;
+          << par_conddbfolder << endreq;
     return StatusCode::FAILURE;
   }
   // put (empty) DetStatusMap in TDS ready for callback to update
   DetStatusMap* statmap=new DetStatusMap();
   if (StatusCode::SUCCESS!=p_detstore->record(statmap,m_sgkey)) {
     log << MSG::FATAL << "Could not record DetStatusMap at " << m_sgkey
-        << " in TDS" << endmsg;
+        << " in TDS" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -88,7 +88,7 @@ StatusCode DetStatusSvc::initialize()
   if (par_detname.size()!=par_detreq.size()) {
     log << MSG::INFO << 
       "Inconsistent setting of StatusNames and StatusReqs properities" 
-	<< endmsg;
+	<< endreq;
     return StatusCode::FAILURE;
   }
   m_detname.clear();
@@ -103,9 +103,9 @@ StatusCode DetStatusSvc::initialize()
   }
   if (m_detname.size()>0) {
     log << MSG::INFO << "Number of detector status requirements set: " <<
-      m_detname.size() << endmsg;
+      m_detname.size() << endreq;
     for (unsigned int i=0;i<m_detname.size();++i)
-      log << m_detname[i] << ": >= " << m_detreq[i] << endmsg;
+      log << m_detname[i] << ": >= " << m_detreq[i] << endreq;
   }
   return StatusCode::SUCCESS;
 }
@@ -141,7 +141,7 @@ StatusCode DetStatusSvc::parseDetReqString() {
         status=3;
       } else {
         log << MSG::ERROR << "Character " << *numv << " does not define status"
-	  << endmsg;
+	  << endreq;
         return StatusCode::FAILURE;
       }
       m_detname.push_back(par_detreqs.substr(iofs0,iofs1-iofs0));
@@ -161,7 +161,7 @@ StatusCode DetStatusSvc::update( IOVSVC_CALLBACK_ARGS_P( /* I */ ,keys) ) {
   log << MSG::DEBUG << "Update callback invoked for keys: ";
   for (std::list<std::string>::const_iterator itr=keys.begin();
        itr!=keys.end(); ++itr) log << " " << *itr;
-  log << endmsg;
+  log << endreq;
   // read the conditions object
   const CondAttrListCollection* cptr=0;
   if (StatusCode::SUCCESS==p_detstore->retrieve(cptr,par_conddbfolder) &&
@@ -169,7 +169,7 @@ StatusCode DetStatusSvc::update( IOVSVC_CALLBACK_ARGS_P( /* I */ ,keys) ) {
     // find status object in TDS and reset it ready for new status info
     DetStatusMap* statmap=0;
     if (StatusCode::SUCCESS!=p_detstore->retrieve(statmap,m_sgkey)) {
-      log << MSG::ERROR << "Cannot find DetStatus map to update" << endmsg;
+      log << MSG::ERROR << "Cannot find DetStatus map to update" << endreq;
       return StatusCode::FAILURE;
     }
     statmap->clear();
@@ -187,16 +187,16 @@ StatusCode DetStatusSvc::update( IOVSVC_CALLBACK_ARGS_P( /* I */ ,keys) ) {
       } else {
 	log << MSG::ERROR << 
 	  "COOL data problem: no status name defined for channel " <<
-	  chan << endmsg;
+	  chan << endreq;
       }
     }
     log << MSG::DEBUG << "Updated DetStatusMap has size " << statmap->size()
-	<< endmsg;
+	<< endreq;
     statmap->toOutputStream(log);
-    log << endmsg;
+    log << endreq;
   } else {
     log << MSG::ERROR << "Problem reading detector status from CondDB"
-	  << endmsg;
+	  << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -219,7 +219,7 @@ void DetStatusSvc::print() const {
     log << MSG::INFO;
     statmap->toOutputStream(log);
   } else {
-    log << MSG::ERROR << "Cannot find DetStatusMap to print" << endmsg;
+    log << MSG::ERROR << "Cannot find DetStatusMap to print" << endreq;
   }
 }
 
@@ -263,7 +263,7 @@ bool DetStatusSvc::vetoed() const {
 	if (itr->second.code()<m_detreq[i]) {
 	  log << MSG::DEBUG << "Event vetoed by status " << name << ", code "
 	      << itr->second.code() << " below requirement of " << 
-	    m_detreq[i] << endmsg;
+	    m_detreq[i] << endreq;
 	  veto=true;
 	}
 	break;
@@ -273,7 +273,7 @@ bool DetStatusSvc::vetoed() const {
   // check all requirements saw a status flag
   if (nseen<m_detname.size()) {
     log << MSG::DEBUG << "Only " << nseen << " of " << m_detname.size()
-	<< " requirements saw status flags - event vetoed" << endmsg;
+	<< " requirements saw status flags - event vetoed" << endreq;
     veto=true;
   }
   return veto;
