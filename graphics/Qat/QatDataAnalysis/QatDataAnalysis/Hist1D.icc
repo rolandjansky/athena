@@ -1,0 +1,116 @@
+//---------------------------------------------------------------------------//
+//                                                                           //
+// This file is part of the Pittsburgh Visualization System (PVS)            //
+//                                                                           //
+// Copyright (C) 2004 Joe Boudreau, University of Pittsburgh                 //
+//                                                                           //
+//  This program is free software; you can redistribute it and/or modify     //
+//  it under the terms of the GNU General Public License as published by     //
+//  the Free Software Foundation; either version 2 of the License, or        //
+//  (at your option) any later version.                                      //
+//                                                                           //
+//  This program is distributed in the hope that it will be useful,          //
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of           //
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            //
+//  GNU General Public License for more details.                             //
+//                                                                           //
+//  You should have received a copy of the GNU General Public License        //
+//  along with this program; if not, write to the Free Software              //
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307     //
+// --------------------------------------------------------------------------//
+#include <algorithm>
+
+class Hist1D::Clockwork {
+
+public:
+
+  std::string         name;                 
+  size_t              nBins;                 
+  double              min;                   
+  double              max;                   
+  double              binWidth;              
+  size_t              overflow;              
+  size_t              underflow;             
+  size_t              entries;               
+  double              xW;                    
+  double              xxW;                   
+  double              sumWeight;             
+  mutable double      minContents;           
+  mutable double      maxContents;
+  std::vector<double> contents;
+  std::vector<double> errors;
+
+};  
+
+inline std::string & Hist1D::name()  { return c->name;}
+
+inline const std::string & Hist1D::name() const { return c->name;}
+
+inline size_t Hist1D::nBins() const { return c->nBins;}
+
+inline double Hist1D::min() const {return c->min;}
+
+inline double Hist1D::max() const {return c->max;}
+
+inline double Hist1D::binWidth () const {return c->binWidth;}
+
+inline double Hist1D::binUpperEdge(unsigned int i) const {return c->min + (i+1)*c->binWidth;}
+
+inline double Hist1D::binLowerEdge(unsigned int i) const {return c->min + i*c->binWidth;}
+
+inline double Hist1D::binCenter(unsigned int i) const { return c->min + (i+0.5)*c->binWidth;}
+
+inline double Hist1D::bin(unsigned int i) const {return c->contents[i];}
+
+inline double Hist1D::binError(unsigned int i) const {return sqrt(c->errors[i]);}
+
+inline size_t Hist1D::overflow() const {return c->overflow;}
+
+inline size_t Hist1D::underflow() const {return c->underflow;}
+
+inline double Hist1D::variance() const { 
+  if (c->sumWeight==0) {
+    return 0;
+  }
+  else {
+    return  c->xxW/c->sumWeight-(c->xW*c->xW/c->sumWeight/c->sumWeight);
+  }
+}
+
+inline double Hist1D::mean() const { 
+  if (c->sumWeight==0) {
+    return 0;
+  }
+  else {
+    return  c->xW/c->sumWeight;
+  }
+
+}
+
+inline double Hist1D::sum() const { return c->sumWeight;}
+
+inline double Hist1D::minContents () const { 
+  if (c->minContents==0) {
+    if (c->entries!=0) {
+      std::vector<double>::const_iterator min = std::min_element(c->contents.begin(),c->contents.end());
+      if (min!=c->contents.end()) {
+	c->minContents=*min;
+      }
+    }
+  }
+  return c->minContents;
+}
+
+inline double Hist1D::maxContents() const {
+  if (c->maxContents==0) {
+    if (c->entries!=0) {
+      std::vector<double>::const_iterator max = std::max_element(c->contents.begin(),c->contents.end());
+      if (max!=c->contents.end()) {
+	c->maxContents=*max;
+      }
+    }
+  }
+  return c->maxContents;
+}
+
+inline size_t Hist1D::entries() const {return c->entries;}

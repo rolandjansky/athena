@@ -1,0 +1,23 @@
+#include "QatDataAnalysis/SocketException.h"
+
+template<class T> inline const ClientSocket& ClientSocket::operator << ( const T & query ) const
+{
+  if ( ! Socket::send ( query ) )
+    {
+      throw SocketException ( "Could not write to socket." );
+    }
+
+  return *this;
+
+}
+
+
+template<class T> inline const ClientSocket& ClientSocket::operator >> ( T & response ) const
+{
+  if ( ! Socket::recv ( response ) )
+    {
+      throw SocketException ( "Could not read from socket." );
+    }
+
+  return *this;
+}

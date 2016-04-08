@@ -1,0 +1,53 @@
+//---------------------------------------------------------------------------//
+//                                                                           //
+// This file is part of the Pittsburgh Visualization System (PVS)            //
+//                                                                           //
+// Copyright (C) 2004 Joe Boudreau, University of Pittsburgh                 //
+//                                                                           //
+//  This program is free software; you can redistribute it and/or modify     //
+//  it under the terms of the GNU General Public License as published by     //
+//  the Free Software Foundation; either version 2 of the License, or        //
+//  (at your option) any later version.                                      //
+//                                                                           //
+//  This program is distributed in the hope that it will be useful,          //
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of           //
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            //
+//  GNU General Public License for more details.                             //
+//                                                                           //
+//  You should have received a copy of the GNU General Public License        //
+//  along with this program; if not, write to the Free Software              //
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307     //
+// --------------------------------------------------------------------------//
+
+
+#include <algorithm>
+#include <stdexcept>
+inline ValueList::ValueList() {}
+
+inline ValueList::~ValueList() {}
+
+// Add an attribute:
+inline void ValueList::add (const Value & value) {
+  _valueList.push_back(value);
+}
+
+// ConstIterator over attributes:
+inline ValueList::ConstIterator ValueList::begin() const {return _valueList.begin();}
+inline ValueList::ConstIterator ValueList::end()   const {return _valueList.end();}
+
+
+inline size_t ValueList::size() const { return _valueList.size();}
+
+inline Value & ValueList::operator[] (size_t i) {
+  return _valueList[i];
+}
+
+inline const Value & ValueList::operator[] (size_t i) const {
+  return _valueList[i];
+}
+
+inline void ValueList::clear() {
+  for (unsigned int i=0;i<_valueList.size(); i++) {
+    _valueList[i].clear();
+  }
+}

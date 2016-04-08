@@ -1,0 +1,35 @@
+#include <errno.h>
+#include <iostream>
+template <class T> inline bool Socket::send ( const T & query ) const
+{
+  int status = ::send ( m_sock, &query, sizeof(query), MSG_NOSIGNAL );
+  if ( status == -1 )
+    {
+      return false;
+    }
+  else
+    {
+      return true;
+    }
+}
+
+
+template <class T> inline int Socket::recv ( T & query ) const
+{
+  int status = ::recv ( m_sock, &query, sizeof(query), 0 );
+
+  if ( status == -1 )
+    {
+      std::cout << "status == -1   errno == " << errno << "  in Socket::recv\n";
+      return 0;
+    }
+  else if ( status == 0 )
+    {
+      return 0;
+    }
+  else
+    {
+      return status;
+    }
+}
+
