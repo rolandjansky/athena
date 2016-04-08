@@ -175,7 +175,7 @@ namespace InDet
      if(m_isConv) {
 
        if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-	 ratioTrk = tSum->getPID(Trk::eProbabilityComb);
+	 ratioTrk = tSum->getPID(Trk::eProbabilityHT);
 
        if ( pt >= m_minPt ) {
 	 if ( (nclus==0 && fabs(d0)<=m_maxTrtD0) || (nclus>0 && fabs(d0)<=m_maxSiD0) ) {
@@ -203,7 +203,7 @@ namespace InDet
        
        ratioTrk = 1.0;
        if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-	 ratioTrk = tSum->getPID(Trk::eProbabilityComb);
+	 ratioTrk = tSum->getPID(Trk::eProbabilityHT);
 
        if(ratioTrk>m_trRatioV0) pass = false;
      }
@@ -286,7 +286,7 @@ namespace InDet
      if(m_isConv){
 
        if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-	 ratioTrk = tSum->getPID(Trk::eProbabilityComb);
+	 ratioTrk = tSum->getPID(Trk::eProbabilityHT);
 
        if ( pt >= m_minPt ) {
 	 if ( (nclus==0 && fabs(d0)<=m_maxTrtD0) || (nclus>0 && fabs(d0)<=m_maxSiD0) ) {
@@ -314,7 +314,7 @@ namespace InDet
 
        ratioTrk = 1.0;
        if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-	 ratioTrk = tSum->getPID(Trk::eProbabilityComb);
+	 ratioTrk = tSum->getPID(Trk::eProbabilityHT);
        if(ratioTrk>m_trRatioV0) pass = false;
      }
    } else pass = false;
@@ -362,7 +362,7 @@ namespace InDet
     if(m_isConv){
      float temp(0);
      if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ){ // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-      ratioTrk = tp.summaryValue(temp,xAOD::eProbabilityComb)  ?  temp: 0 ;
+      ratioTrk = tp.summaryValue(temp,xAOD::eProbabilityHT)  ?  temp: 0 ;
      }
  
      if ( pt >= m_minPt ) {
@@ -392,7 +392,7 @@ namespace InDet
      ratioTrk = 1.0;
      float temp(0);
      if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-      ratioTrk = tp.summaryValue(temp,xAOD::eProbabilityComb)  ?  temp: 0 ;
+      ratioTrk = tp.summaryValue(temp,xAOD::eProbabilityHT)  ?  temp: 0 ;
      if(ratioTrk>m_trRatioV0) pass = false;
     }
 
