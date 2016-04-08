@@ -2,33 +2,27 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <algorithm>  
-using std::make_pair;
-
-#include <cstdlib>  /* random */
-
-#include <functional>
-using std::bind1st;
-using std::mem_fun;
-
-#include <string>
-using std::string;
+#include "PileUpTools/PileUpMergeSvc.h"
+#include "AthenaKernel/ITriggerTime.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "SGTools/DataProxy.h"
+#include "SGTools/DataStore.h"
+#include "PileUpTools/IPileUpXingFolder.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/MsgStream.h"
+#include <algorithm>  
+#include <cstdlib>  /* random */
+#include <functional>
+#include <string>
 
-#include "AthenaKernel/ITriggerTime.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#include "SGTools/DataProxy.h"
-#include "SGTools/DataStore.h"
-
-#include "PileUpTools/IPileUpXingFolder.h"
-
-#include "PileUpTools/PileUpMergeSvc.h"
+using std::make_pair;
+using std::bind1st;
+using std::mem_fun;
+using std::string;
 
 /// Standard Constructor
 PileUpMergeSvc::PileUpMergeSvc(const std::string& name,ISvcLocator* svc)

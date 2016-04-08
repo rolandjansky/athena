@@ -35,8 +35,8 @@ public:
   virtual unsigned int getBeamPatternLength() const =0;
 
   static const InterfaceID& interfaceID() {
-    static const InterfaceID _IID( "IBeamIntensity", 1, 0 );
-    return _IID;
+    static const InterfaceID IID( "IBeamIntensity", 1, 0 );
+    return IID;
   }
 };
 #endif

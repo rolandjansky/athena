@@ -14,17 +14,23 @@
  * $Id: PileUpStream.h,v 1.18 2008-10-31 18:34:42 calaf Exp $
  * @author Paolo Calafiura - ATLAS Collaboration
  */
-#include "EventInfo/PileUpEventInfo.h"  /*SubEvent*/
 #include "GaudiKernel/IAlgTool.h"
+
+#include "EventInfo/PileUpEventInfo.h"  /*SubEvent*/
+#include "xAODEventInfo/EventInfo.h"
+
+#include <vector>
+//typedef PileUpEventInfo::SubEvent::const_iterator SubEventIterator;
+typedef std::vector<xAOD::EventInfo::SubEvent>::const_iterator SubEventIterator;
+
 class IPileUpTool : virtual public IAlgTool{
 public:
   ///called before the bunchXing loop
   virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/) { return StatusCode::SUCCESS; }
   ///called for each active bunch-crossing (time in ns)
-  virtual StatusCode
-    processBunchXing(int bunchXing,
-                     PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                     PileUpEventInfo::SubEvent::const_iterator eSubEvents) = 0;
+  virtual StatusCode processBunchXing(int bunchXing,
+                                      SubEventIterator bSubEvents,
+                                      SubEventIterator eSubEvents) = 0;
   ///flags whether this tool is "live" for bunchXing (time in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   virtual bool toProcess(int bunchXing) const =0;
@@ -39,8 +45,8 @@ public:
   virtual void resetFilter() =0;
 
   static const InterfaceID& interfaceID() {
-    static const InterfaceID _IID( "IPileUpTool", 1, 0 );
-    return _IID;
+    static const InterfaceID IID( "IPileUpTool", 1, 0 );
+    return IID;
   }
 };
 #endif

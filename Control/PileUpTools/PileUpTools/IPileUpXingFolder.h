@@ -36,8 +36,8 @@ public:
   //@}
 
   static const InterfaceID& interfaceID() {
-    static const InterfaceID _IID( "IPileUpXingFolder", 1, 0 );
-    return _IID;
+    static const InterfaceID IID( "IPileUpXingFolder", 1, 0 );
+    return IID;
   }
 };
 
