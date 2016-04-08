@@ -20,7 +20,7 @@ use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use xAODTrigMinBias         xAODTrigMinBias-*         Event/xAOD
 
 # Declare the pool converter(s): (add extra ones onto the string with line continuations)
-apply_pattern poolcnv typesWithNamespace="xAOD::TrigSpacePointCountsContainer xAOD:: TrigSpacePointCountsAuxContainer.h \
+apply_pattern poolcnv typesWithNamespace="xAOD::TrigSpacePointCountsContainer xAOD::TrigSpacePointCountsAuxContainer.h \
 					  xAOD::TrigVertexCountsContainer xAOD::TrigVertexCountsAuxContainer \
 					  xAOD::TrigTrackCountsContainer xAOD::TrigTrackCountsAuxContainer \
 					  xAOD::TrigT2MbtsBitsContainer xAOD::TrigT2MbtsBitsAuxContainer \
