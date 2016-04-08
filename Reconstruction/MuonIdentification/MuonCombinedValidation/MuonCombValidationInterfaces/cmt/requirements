@@ -4,8 +4,8 @@ package MuonCombValidationInterfaces
 author Niels van Eldik
 
 public
-use GaudiInterface    GaudiInterface-01-*       External 
-use AtlasPolicy       AtlasPolicy-01-* 
+use GaudiInterface    GaudiInterface-*       External 
+use AtlasPolicy       AtlasPolicy-* 
 
 use TrkParameters     TrkParameters-*           Tracking/TrkEvent
 use MuonSegmentMakerToolInterfaces MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
