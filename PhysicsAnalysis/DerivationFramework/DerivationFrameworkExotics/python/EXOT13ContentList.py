@@ -26,8 +26,11 @@ EXOT13AllVariablesContent = [
 "TruthVertices",
 "CombinedMuonTrackParticles",
 "ExtrapolatedMuonTrackParticles",
+"MuonSpectrometerTrackParticles",
 "GSFTrackParticles",
+"GSFConversionVertices",
 "egammaClusters",
+"egammaTopoSeededClusters"
 #PFOs
 #"TauPi0ChargedPFOContainer", 
 #"TauPi0NeutralPFOContainer", 
@@ -38,12 +41,12 @@ EXOT13AllVariablesContent = [
 #"neutralJetETMiss_LCPFO_NonModified_eflowRec", 
 #"neutralJetETMiss_LCPFO_eflowRec", 
 #"neutralTauPFO_eflowRec",
-"JetETMissChargedParticleFlowObjects",
-"JetETMissNeutralParticleFlowObjects",
-"TauChargedParticleFlowObjects",
-"TauHadronicParticleFlowObjects",
-"TauNeutralParticleFlowObjects",
-"TauShotParticleFlowObjects"
+#"JetETMissChargedParticleFlowObjects",
+#"JetETMissNeutralParticleFlowObjects",
+#"TauChargedParticleFlowObjects",
+#"TauHadronicParticleFlowObjects",
+#"TauNeutralParticleFlowObjects",
+#"TauShotParticleFlowObjects"
 ]
 
 EXOT13UnslimmedContent = [

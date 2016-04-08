@@ -113,6 +113,10 @@ namespace DerivationFramework {
       // Calculators
       void   JetPreselect(const xAOD::Jet *jet);
 
+      // Helpers
+      std::string TriggerVarName(std::string s) const;
+
+
       ///////////////
       ///// COUNTERS
       mutable unsigned int n_tot;

@@ -8,6 +8,9 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 
+from DerivationFrameworkCore.WeightMetadata import *
+
+exot14Seq = CfgMgr.AthSequencer("EXOT14Sequence")
 
 #====================================================================
 # THINNING TOOLS
@@ -19,7 +22,7 @@ EXOT14MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name 
                                                                            ThinningService         = "EXOT14ThinningSvc",
                                                                            MuonKey                 = "Muons",
                                                                            InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                           SelectionString         = "Muons.pt > 20*GeV",
+                                                                           SelectionString         = "Muons.pt > 8*GeV",
                                                                            ConeSize                = 0.4)
 ToolSvc += EXOT14MuonTPThinningTool
 
@@ -28,8 +31,10 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 EXOT14ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EXOT14ElectronTPThinningTool",
                                                                                  ThinningService         = "EXOT14ThinningSvc",
                                                                                  SGKey             	 = "Electrons",
+                                                                                 GSFTrackParticlesKey    = "GSFTrackParticles",
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                                 SelectionString         = "Electrons.pt > 10*GeV",
+                                                                                 SelectionString         = "Electrons.pt > 8*GeV",
+                                                                                 BestMatchOnly           = True,
                                                                                  ConeSize                = 0.4)
 ToolSvc += EXOT14ElectronTPThinningTool
 
@@ -38,18 +43,18 @@ EXOT14PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( n
                                                                                ThinningService         = "EXOT14ThinningSvc",
                                                                                SGKey                   = "Photons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                               SelectionString         = "Photons.pt > 20*GeV",
+                                                                               SelectionString         = "Photons.pt > 8*GeV",
                                                                                ConeSize                = 0.6)
 ToolSvc += EXOT14PhotonTPThinningTool
 
 # Calo Clusters associated with Photons
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CaloClusterThinning
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 EXOT14PhotonCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "EXOT14PhotonCCThinningTool",
                                                                                      ThinningService         = "EXOT14ThinningSvc",
                                                                                      SGKey             	     = "Photons",
                                                                                      CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                                     SelectionString         = "Photons.pt > 20*GeV",
+                                                                                     SelectionString         = "Photons.pt > 8*GeV",
                                                                                      #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
                                                                                      ConeSize                = 0.6)
 ToolSvc += EXOT14PhotonCCThinningTool
@@ -60,10 +65,39 @@ EXOT14ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name   
                                                                                      SGKey             	     = "Electrons",
                                                                                      CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                                     SelectionString         = "Electrons.pt > 10*GeV",
+                                                                                     SelectionString         = "Electrons.pt > 8*GeV",
                                                                                      #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
                                                                                      ConeSize                = 0.4)
 ToolSvc += EXOT14ElectronCCThinningTool
+
+if globalflags.DataSource() == 'geant4':
+    # MC Thinning
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import \
+        DerivationFramework__MenuTruthThinning
+
+    EXOT14MCThinningTool = DerivationFramework__MenuTruthThinning(
+        name                       = 'EXOT14MCThinningTool',
+        ThinningService            = 'EXOT14ThinningSvc',
+        WriteEverything            = False,
+        WritePartons               = False,
+        PartonPtThresh             = -1.0,
+        WriteHadrons               = False,
+        WriteBHadrons              = False,
+        WriteGeant                 = False,
+        GeantPhotonPtThresh        = -1.0,
+        WriteTauHad                = True,
+        WriteBSM                   = True,
+        WriteBosons                = True,
+        WriteBSMProducts           = True,
+        WriteTopAndDecays          = True,
+        WriteAllLeptons            = True,
+        #WriteLeptonsNotFromHadrons = True,
+        WriteStatus3               = False,
+        WriteFirstN                = -1,
+        #PreserveDescendants        = False,
+        )
+    ToolSvc += EXOT14MCThinningTool
+
 
 
 ToolSvc += CfgMgr.JetCalibrationTool("m_JESTool",
@@ -82,11 +116,11 @@ EXOT14SkimmingTool = DerivationFramework__SkimmingToolEXOT14(
                                                 RequireJetsDEta = True,
                                                 RequireDiJetMass = True,
                                                 RequireJetsDPhi = False,
-                                                DiJetsMass = 7e5,
-                                                EtaSeparation = 3.,
-                                                LeadingJetPtCut = 60e3,
-                                                SubleadingJetPtCut = 40e3,
-                                                Triggers = ["HLT_xe70"])
+                                                DiJetsMass = 5e5,
+                                                EtaSeparation = 2.5,
+                                                LeadingJetPtCut = 25e3,
+                                                SubleadingJetPtCut = 25e3,
+                                                Triggers = ["L1_XE60", "L1_XE70", "L1_KF-XE55", "L1_KF-XE60", "L1_KF-XE65", "L1_KF-XE75", "HLT_xe70", "HLT_xe80", "HLT_xe90", "HLT_xe100", "HLT_xe80_tc_lcw", "HLT_xe100_tc_lcw"])
 
 ToolSvc += EXOT14SkimmingTool
 print EXOT14SkimmingTool
@@ -113,11 +147,16 @@ expression += ' && sum( (AntiKt4LCTopoJets.pt > 25*GeV) * abs(AntiKt4LCTopoJets.
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 
+#different thinning tools for data/MC
+EXOT14ThinningTools=[EXOT14MuonTPThinningTool, EXOT14ElectronTPThinningTool, EXOT14PhotonTPThinningTool,EXOT14PhotonCCThinningTool, EXOT14ElectronCCThinningTool]
+if globalflags.DataSource() == 'geant4':
+    EXOT14ThinningTools.append(EXOT14MCThinningTool)
+
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EXOT14Kernel",
-									SkimmingTools = [EXOT14SkimmingTool],
-									ThinningTools = [EXOT14MuonTPThinningTool, EXOT14ElectronTPThinningTool, EXOT14PhotonTPThinningTool, 
-											EXOT14PhotonCCThinningTool, EXOT14ElectronCCThinningTool])
+DerivationFrameworkJob += exot14Seq
+exot14Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT14Kernel_skim", SkimmingTools = [EXOT14SkimmingTool])
+exot14Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT14Kernel",
+                                                          ThinningTools = EXOT14ThinningTools)
 
 #====================================================================
 # SET UP STREAM   
@@ -143,5 +182,10 @@ EXOT14SlimmingHelper.StaticContent = EXOT14Content
 EXOT14SlimmingHelper.SmartCollections = EXOT14SmartContent
 EXOT14SlimmingHelper.AllVariables = EXOT14AllVariablesContent
 EXOT14SlimmingHelper.UserContent = EXOT14Content
+EXOT14SlimmingHelper.ExtraVariables = EXOT14ExtraVariablesContent
+
+EXOT14SlimmingHelper.IncludeJetTriggerContent = True
+EXOT14SlimmingHelper.IncludeEtMissTriggerContent = True
+
 EXOT14SlimmingHelper.AppendContentToStream(EXOT14Stream)
 

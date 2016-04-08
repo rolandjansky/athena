@@ -50,7 +50,7 @@ DerivationFramework::SkimmingToolEXOT14::SkimmingToolEXOT14(const std::string& t
 
   declareProperty("GoodRunList",           m_goodRunList = "");
 
-  declareProperty("DefaultTrigger",        m_defaultTrigger = "HLT_xe70");
+  declareProperty("DefaultTrigger",        m_defaultTrigger = "HLT_xe100");
   declareProperty("Triggers",              m_triggers = std::vector<std::string>()); 
 
   declareProperty("MinimumJetPt",          m_minJetPt = 25*CLHEP::GeV);
@@ -185,13 +185,21 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutLArError() const {
 
 bool DerivationFramework::SkimmingToolEXOT14::SubcutTrigger() const {
 
-  //  temporary pass-through of trigger cut for MC as DC14 8TeV MC samples have no trigger knowledge
-  e_passTrigger = m_isMC ? true : false;
+  const xAOD::EventInfo *eventInfo(0);
+  ATH_CHECK(evtStore()->retrieve(eventInfo));
+
+  e_passTrigger = false;
+
   for (unsigned int i = 0; i < m_triggers.size(); i++) {
-    ATH_MSG_DEBUG("TRIGGER = " << m_triggers.at(i));
-    e_passTrigger |= m_trigDecisionTool->isPassed(m_triggers.at(i));
+    bool thisTrig = m_trigDecisionTool->isPassed(m_triggers.at(i));
+    eventInfo->auxdecor< bool >(TriggerVarName(m_triggers.at(i))) = thisTrig;
+    // ATH_MSG_INFO("TRIGGER = " << m_triggers.at(i) <<  " -->> " << thisTrig);
+    e_passTrigger |= thisTrig;
   }
   
+  //  temporary pass-through of trigger cut for MC
+  if (m_isMC) e_passTrigger = true;
+
   if (e_passTrigger) n_passTrigger++;
   return e_passTrigger;
 
@@ -261,7 +269,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutJetPts() const {
 bool DerivationFramework::SkimmingToolEXOT14::SubcutJetDEta() const {
 
   e_JetsDEta = fabs(j1TLV.Eta() - j2TLV.Eta());
-  ATH_MSG_INFO("deta=" << e_JetsDEta << "  min=" << m_etaSeparation);
+  //ATH_MSG_INFO("deta=" << e_JetsDEta << "  min=" << m_etaSeparation);
 
   e_passJetsDEta = e_JetsDEta > m_etaSeparation;
 
@@ -295,6 +303,9 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutJetDPhi() const {
 
 }
 
+std::string DerivationFramework::SkimmingToolEXOT14::TriggerVarName(std::string s) const {
+  std::replace(s.begin(), s.end(), '-', '_'); return s;
+}
 
 
 

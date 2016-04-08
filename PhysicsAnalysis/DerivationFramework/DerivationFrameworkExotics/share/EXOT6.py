@@ -9,25 +9,29 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 
+from DerivationFrameworkCore.WeightMetadata import *
+
+exot6Seq = CfgMgr.AthSequencer("EXOT6Sequence")
 
 #====================================================================
 # THINNING TOOL 
 #====================================================================
-# MET/Jet tracks
-met_thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-EXOT6MetTPThinningTool = DerivationFramework__TrackParticleThinning( name                = "EXOT6MetTPThinningTool",
-                                                                ThinningService         = "EXOT6ThinningSvc",
-                                                                SelectionString         = met_thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += EXOT6MetTPThinningTool
-
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-EXOT6JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "EXOT6JetTPThinningTool",
-                                                                ThinningService         = "EXOT6ThinningSvc",
-                                                                JetKey                  = "AntiKt4LCTopoJets",
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += EXOT6JetTPThinningTool
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
+# MET/Jet tracks
+#met_thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
+#EXOT6MetTPThinningTool = DerivationFramework__TrackParticleThinning( name                = "EXOT6MetTPThinningTool",
+#                                                                ThinningService         = "EXOT6ThinningSvc",
+#                                                                SelectionString         = met_thinning_expression,
+#                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += EXOT6MetTPThinningTool
+#
+#EXOT6JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "EXOT6JetTPThinningTool",
+#                                                                ThinningService         = "EXOT6ThinningSvc",
+#                                                                JetKey                  = "AntiKt4LCTopoJets",
+#                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += EXOT6JetTPThinningTool
 
 
 
@@ -60,6 +64,17 @@ EXOT6PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(   
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6PhotonTPThinningTool
 
+# Calo Clusters associated with Photons
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+EXOT6PhotonCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "EXOT6PhotonCCThinningTool",
+                                                                                     ThinningService         = "EXOT6ThinningSvc",
+                                                                                     SGKey                   = "Photons",
+                                                                                     CaloClCollectionSGKey   = "egammaClusters",
+                                                                                     TopoClCollectionSGKey   = "CaloCalTopoClusters",
+                                                                                     #SelectionString         = "Photons.pt > 30*GeV",
+                                                                                     #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
+                                                                                     ConeSize                = 0.6)
+ToolSvc += EXOT6PhotonCCThinningTool
 
 #====================================================================
 # SKIMMING TOOL 
@@ -70,7 +85,7 @@ expression = ''
 if (beamEnergy < 4.1e+06):
     expression = '((EventInfo.eventTypeBitmask==1) || EF_g120_loose || EF_xe80_tclcw_tight) && (count(Photons.pt > 100*GeV) > 0) || (count(Electrons.pt > 100*GeV) > 0)'
 if (beamEnergy > 6.0e+06):
-    expression = '(count(Photons.Loose && Photons.pt > 100*GeV) > 0) || (count(Electrons.Medium && Electrons.pt > 100*GeV) > 0)'
+    expression = '(HLT_g120_loose || HLT_g140_loose || HLT_xe100) && ((count(Photons.Loose && Photons.pt > 100*GeV) > 0) || (count(Electrons.Medium && Electrons.pt > 100*GeV) > 0))'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EXOT6SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EXOT6SkimmingTool1",
@@ -82,9 +97,10 @@ ToolSvc += EXOT6SkimmingTool
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EXOT6Kernel",
-									SkimmingTools = [EXOT6SkimmingTool],
-									ThinningTools = [EXOT6MetTPThinningTool,EXOT6JetTPThinningTool,EXOT6TPThinningTool,EXOT6MuonTPThinningTool,EXOT6ElectronTPThinningTool, EXOT6PhotonTPThinningTool]
+DerivationFrameworkJob += exot6Seq
+exot6Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT6Kernel_skim", SkimmingTools = [EXOT6SkimmingTool])
+exot6Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT6Kernel",
+									ThinningTools = [EXOT6TPThinningTool,EXOT6MuonTPThinningTool,EXOT6ElectronTPThinningTool, EXOT6PhotonTPThinningTool, EXOT6PhotonCCThinningTool]
                                                                       )
 
 #====================================================================
