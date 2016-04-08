@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+  <atn>
+     <TEST name="TBBExamples" type="athena" suite="Examples">
+        <options_atn>TBBExamples/HelloParForOptions.py</options_atn>
+        <timelimit>2</timelimit>
+        <author> Paolo Calafiura </author>
+        <mailto> pcalafiura@lbl.gov </mailto>
+        <expectations>
+           <errorMessage>FAILURE (ERROR)</errorMessage>
+           <successMessage></successMessage>
+           <returnValue>0</returnValue>
+        </expectations>
+     </TEST>
+   </atn>
+</unifiedTestConfiguration>
