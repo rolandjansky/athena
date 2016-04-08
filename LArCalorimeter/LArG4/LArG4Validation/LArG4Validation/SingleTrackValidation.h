@@ -21,7 +21,7 @@ public:
 private:
 
     class Clockwork;
-    Clockwork *m_c;
+    Clockwork *c;
 
     TH1F* m_histos[162];
 
