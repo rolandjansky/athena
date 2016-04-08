@@ -434,6 +434,8 @@ namespace Trk {
       mutable bool    m_mcondition                               ;
       mutable bool    m_solenoid                                 ;
       mutable bool    m_needgradient                             ;  
+      mutable bool    m_newfield                                 ;
+      mutable double  m_field[3]                                 ;
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
       MagField::IMagFieldSvc*                m_fieldService      ;
    };
