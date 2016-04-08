@@ -19,5 +19,13 @@ namespace Muon {
      
   }
 
+  MuonSegmentQuality::MuonSegmentQuality( double chi2, int ndof, 
+					  std::vector<Identifier>&& channelsWithoutHit, bool isStrict) 
+:
+    FitQuality(chi2, ndof), m_channelsWithoutHit(std::move(channelsWithoutHit)), m_isStrict(isStrict)
+  {
+     
+  }
+
 
 }
