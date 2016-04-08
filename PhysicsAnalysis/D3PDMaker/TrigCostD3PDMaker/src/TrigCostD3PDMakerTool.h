@@ -191,6 +191,7 @@ namespace D3PD {
         std::vector< uint8_t >*   m_roiIsNoneType;
         std::vector< uint8_t >*   m_roiIsMuonType;
         std::vector< uint8_t >*   m_roiIsEmTauType;
+        std::vector< uint8_t >*   m_roiIsTau;
         std::vector< uint8_t >*   m_roiIsJetType;
         std::vector< uint8_t >*   m_roiIsJetEtType;
         std::vector< uint8_t >*   m_roiIsEnergyType;
@@ -199,6 +200,16 @@ namespace D3PD {
         std::vector< float >*     m_roiEta;
         std::vector< float >*     m_roiPhi;
         std::vector< float >*     m_roiArea;
+        //
+        std::vector< float >*     m_roiEt;
+        std::vector< float >*     m_roiEtLarge;
+        std::vector< uint8_t >*   m_roiMuCharge;
+        std::vector< uint32_t >*  m_roiIsolationBits;
+        std::vector< float >*     m_roiVectorEX;
+        std::vector< float >*     m_roiVectorEY;
+        std::vector< uint8_t >*   m_roiOverflowEX;
+        std::vector< uint8_t >*   m_roiOverflowEY;
+        std::vector< uint8_t >*   m_roiOverflowET;
 
         ////////////////
         //SEQ/ALG DATA//
