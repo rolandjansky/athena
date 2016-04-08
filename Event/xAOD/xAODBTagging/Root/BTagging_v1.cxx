@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTagging_v1.cxx 605682 2014-07-09 16:31:37Z vacavant $
+// $Id: BTagging_v1.cxx 713466 2015-12-08 21:46:29Z ssnyder $
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -530,9 +530,9 @@ namespace xAOD {
    /////////////////////////////////////////////////////////////////////////////
  
  
-  static std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::TPELVec_t> > m_DynTPELVec;
-  static std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::VxELVec_t> > m_DynVxELVec;
-  static std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::BTagVxELVec_t> > m_DynBTagVxELVec;
+  static std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::TPELVec_t> > DynTPELVec;
+  static std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::VxELVec_t> > DynVxELVec;
+  static std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::BTagVxELVec_t> > DynBTagVxELVec;
 
    void BTagging_v1::toPersistent() {
 
@@ -571,9 +571,9 @@ namespace xAOD {
          }
       }
 
-      std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::TPELVec_t> >::iterator dyniter = m_DynTPELVec.begin();
+      std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::TPELVec_t> >::iterator dyniter = DynTPELVec.begin();
 
-      for(; dyniter != m_DynTPELVec.end(); ++dyniter){
+      for(; dyniter != DynTPELVec.end(); ++dyniter){
 
 	if( dyniter->second.isAvailableWritable( *this ) ) {
 	  itr = dyniter->second( *this ).begin();
@@ -589,9 +589,9 @@ namespace xAOD {
       VxELVec_t::iterator vxitr;
       VxELVec_t::iterator vxend;
 
-      std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::VxELVec_t> >::iterator dynvxiter = m_DynVxELVec.begin();
+      std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::VxELVec_t> >::iterator dynvxiter = DynVxELVec.begin();
 
-      for(; dynvxiter != m_DynVxELVec.end(); ++dynvxiter){
+      for(; dynvxiter != DynVxELVec.end(); ++dynvxiter){
 
 	if( dynvxiter->second.isAvailableWritable( *this ) ) {
 	  vxitr = dynvxiter->second( *this ).begin();
@@ -606,9 +606,9 @@ namespace xAOD {
       BTagVxELVec_t::iterator btagvxitr;
       BTagVxELVec_t::iterator btagvxend;
 
-      std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::BTagVxELVec_t> >::iterator dynbtagvxiter = m_DynBTagVxELVec.begin();
+      std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::BTagVxELVec_t> >::iterator dynbtagvxiter = DynBTagVxELVec.begin();
 
-      for(; dynbtagvxiter != m_DynBTagVxELVec.end(); ++dynbtagvxiter){
+      for(; dynbtagvxiter != DynBTagVxELVec.end(); ++dynbtagvxiter){
 
 	    if( dynbtagvxiter->second.isAvailableWritable( *this ) ) {
 	      btagvxitr = dynbtagvxiter->second( *this ).begin();
@@ -631,7 +631,7 @@ namespace xAOD {
     
     std::string varname = taggername+ "_" + variablename;
     Accessor< TPELVec_t > acc( varname );
-    m_DynTPELVec.insert(std::make_pair(varname,acc));
+    DynTPELVec.insert(std::make_pair(varname,acc));
     return;
   }
 
@@ -640,7 +640,7 @@ namespace xAOD {
     
     std::string varname = taggername+ "_" + variablename;
     Accessor< VxELVec_t > acc( varname );
-    m_DynVxELVec.insert(std::make_pair(varname,acc));
+    DynVxELVec.insert(std::make_pair(varname,acc));
     return;
   }
 
@@ -650,7 +650,7 @@ namespace xAOD {
     
     std::string varname = taggername+ "_" + variablename;
     Accessor< BTagVxELVec_t > acc( varname );
-    m_DynBTagVxELVec.insert(std::make_pair(varname,acc));
+    DynBTagVxELVec.insert(std::make_pair(varname,acc));
     return;
   }
 
