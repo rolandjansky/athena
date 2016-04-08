@@ -10,12 +10,13 @@ use AthenaBaseComps     AthenaBaseComps-*      Control
 use AthenaKernel        AthenaKernel-*         Control
 use AtlasCLHEP          AtlasCLHEP-*           External
 use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
-use EventInfo           EventInfo-*            Event
+#use EventInfo           EventInfo-*            Event
 use GeneratorObjects    GeneratorObjects-*     Generators
 use InDetBCM_RawData    InDetBCM_RawData-*     InnerDetector/InDetRawEvent
 use InDetSimData        InDetSimData-*         InnerDetector/InDetRawEvent
 use InDetSimEvent       InDetSimEvent-*        InnerDetector
 use PileUpTools         PileUpTools-*          Control
+use xAODEventInfo       xAODEventInfo-*    Event/xAOD
 
 public
 library BCM_Digitization *.cxx components/*.cxx

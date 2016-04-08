@@ -4,38 +4,35 @@
 
 #include "BCM_DigitizationTool.h"
 
+#include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "GeneratorObjects/HepMcParticleLink.h"
 #include "InDetBCM_RawData/BCM_RawData.h"
 #include "InDetBCM_RawData/BCM_RDO_Collection.h"
-
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
-#include "CLHEP/Random/RandomEngine.h"
-
-#include "InDetSimEvent/SiHitCollection.h"
-
 #include "InDetSimData/InDetSimDataCollection.h"
-#include "GeneratorObjects/HepMcParticleLink.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
+#include "InDetSimEvent/SiHitCollection.h"
 #include "PileUpTools/PileUpMergeSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "xAODEventInfo/EventInfo.h"             // NEW EDM
+#include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
+
+#include "CLHEP/Random/RandomEngine.h"
 
 //----------------------------------------------------------------------
 // Constructor with parameters:
 //----------------------------------------------------------------------
 BCM_DigitizationTool::BCM_DigitizationTool(const std::string &type, const std::string &name, const IInterface *parent) :
-    PileUpToolBase(type,name,parent),
-    m_rndmEngine(NULL),
-    m_mipDeposit(0.0f),
-    m_effPrmDistance(0.0f),
-    m_effPrmSharpness(0.0f),
-    m_timeDelay(0.0f),
-    m_rdoContainer(NULL),
-    m_simDataCollMap(NULL),
-    m_rndmEngineName("BCM_Digitization"),
-    m_mergeSvc(NULL), //("PileUpMergeSvc",name),
-    m_atRndmGenSvc("AtRndmGenSvc",name)
+  PileUpToolBase(type,name,parent),
+  m_rndmEngine(NULL),
+  m_mipDeposit(0.0f),
+  m_effPrmDistance(0.0f),
+  m_effPrmSharpness(0.0f),
+  m_timeDelay(0.0f),
+  m_rdoContainer(NULL),
+  m_simDataCollMap(NULL),
+  m_rndmEngineName("BCM_Digitization"),
+  m_mergeSvc(NULL), //("PileUpMergeSvc",name),
+  m_atRndmGenSvc("AtRndmGenSvc",name)
 {
   declareInterface<IPileUpTool>(this);
   //declareProperty("PileupMergeSvc", m_mergeSvc, "Pileup merging service");
@@ -53,20 +50,15 @@ BCM_DigitizationTool::BCM_DigitizationTool(const std::string &type, const std::s
 //----------------------------------------------------------------------
 // Initialize method:
 //----------------------------------------------------------------------
-StatusCode BCM_DigitizationTool::initialize() {
-  msg(MSG::VERBOSE) << "BCM_DigitizationTool::initialize()" << endreq;
-
-  StatusCode sc;
+StatusCode BCM_DigitizationTool::initialize()
+{
+  ATH_MSG_VERBOSE ( "initialize()");
 
   // get random service
-  sc = m_atRndmGenSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not initialize random number service." << endreq;
-    return sc;
-  };
+  CHECK(m_atRndmGenSvc.retrieve());
   m_rndmEngine = m_atRndmGenSvc->GetEngine(m_rndmEngineName) ;
   if (m_rndmEngine==0) {
-    msg(MSG::ERROR) << "Could not find RndmEngine : " << m_rndmEngineName << endreq;
+    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
     return StatusCode::FAILURE ;
   }
 
@@ -76,30 +68,24 @@ StatusCode BCM_DigitizationTool::initialize() {
 //----------------------------------------------------------------------
 // createOutpuContainers method:
 //----------------------------------------------------------------------
-StatusCode BCM_DigitizationTool::createOutputContainers() {
+StatusCode BCM_DigitizationTool::createOutputContainers()
+{
 
   // Create output RDO container and record it to StoreGate
   try {
     m_rdoContainer = new BCM_RDO_Container();
   } catch (std::bad_alloc) {
-    msg(MSG::FATAL) << "Could not create a new BCM RawDataContainer!" << endreq;
+    ATH_MSG_FATAL ( "Could not create a new BCM RawDataContainer!" );
     return StatusCode::FAILURE;
   }
-  if (evtStore()->record(m_rdoContainer,"BCM_RDOs").isFailure()) {
-    msg(MSG::FATAL) << "Container '" << "BCM_RDOs" << "' could not be registered in StoreGate" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Container '" << "BCM_RDOs" << "' registered in StoreGate" << endreq;
-  }
+  CHECK(evtStore()->record(m_rdoContainer,"BCM_RDOs"));
+  ATH_MSG_DEBUG ( "Container '" << "BCM_RDOs" << "' registered in StoreGate" );
 
   // Create a map for the SDO and register it into StoreGate
   m_simDataCollMap = new InDetSimDataCollection();
-  if (evtStore()->record(m_simDataCollMap,"BCM_SDO_Map").isFailure()) {
-    msg(MSG::FATAL) << "InDetSimData map '" << "BCM_SDO_Map" << "' could not be registered in StoreGate" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "InDetSimData map '" << "BCM_SDO_Map" << "' registered in StoreGate" << endreq;
-  }
+  CHECK(evtStore()->record(m_simDataCollMap,"BCM_SDO_Map"));
+  ATH_MSG_DEBUG ( "InDetSimData map '" << "BCM_SDO_Map" << "' registered in StoreGate" );
+
 
   // Clear G4 hit info vectors
   for (unsigned int iMod=0; iMod<8; ++iMod) {
@@ -109,13 +95,13 @@ StatusCode BCM_DigitizationTool::createOutputContainers() {
   }
 
   return StatusCode::SUCCESS;
-
 }
 
 //----------------------------------------------------------------------
 // ProcessSiHit method:
 //----------------------------------------------------------------------
-void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTime, unsigned int evtIndex) {
+void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTime, unsigned int evtIndex)
+{
   int moduleNo = currentHit.getLayerDisk();
   float enerDep = computeEnergy(currentHit.energyLoss(), currentHit.localStartPosition(), currentHit.localEndPosition());
   float hitTime = currentHit.meanTime() + eventTime + m_timeDelay;
@@ -126,7 +112,7 @@ void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTim
   InDetSimData::Deposit deposit(HepMcParticleLink(currentHit.trackNumber(), evtIndex),currentHit.energyLoss());
   int barcode = deposit.first.barcode();
   if (barcode == 0 || barcode == 10001){
-      return;
+    return;
   }
   m_depositVect[moduleNo].push_back(deposit);
   return;
@@ -135,7 +121,8 @@ void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTim
 //----------------------------------------------------------------------
 // createRDOs method:
 //----------------------------------------------------------------------
-void BCM_DigitizationTool::createRDOsAndSDOs() {
+void BCM_DigitizationTool::createRDOsAndSDOs()
+{
   // Digitize hit info and create RDO for each module
   for (int iMod=0; iMod<8; ++iMod) {
     if (m_depositVect[iMod].size()) m_simDataCollMap->insert(std::make_pair(Identifier(iMod), InDetSimData(m_depositVect[iMod])));
@@ -155,13 +142,11 @@ void BCM_DigitizationTool::createRDOsAndSDOs() {
 //----------------------------------------------------------------------
 // PrepareEvent method:
 //----------------------------------------------------------------------
-StatusCode BCM_DigitizationTool::prepareEvent(unsigned int nInputEvents) {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "BCM_DigitizationTool::prepareEvent() called for " << nInputEvents << " input events" << endreq;
+StatusCode BCM_DigitizationTool::prepareEvent(unsigned int nInputEvents)
+{
+  ATH_MSG_DEBUG ( "prepareEvent() called for " << nInputEvents << " input events" );
 
-  if (createOutputContainers().isFailure()) {
-    msg(MSG::FATAL) << "Could not create output containers" << endreq;
-    return StatusCode::FAILURE;
-  }
+  CHECK(createOutputContainers());
 
   return StatusCode::SUCCESS;
 }
@@ -169,9 +154,9 @@ StatusCode BCM_DigitizationTool::prepareEvent(unsigned int nInputEvents) {
 //----------------------------------------------------------------------//
 // Digitize method:                                                     //
 //----------------------------------------------------------------------//
-StatusCode BCM_DigitizationTool::processAllSubEvents() {
-
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "BCM_Digitization::processAllSubEvents()" << endreq;
+StatusCode BCM_DigitizationTool::processAllSubEvents()
+{
+  ATH_MSG_DEBUG ( "processAllSubEvents()" );
 
 
   if(!m_mergeSvc) {
@@ -179,26 +164,23 @@ StatusCode BCM_DigitizationTool::processAllSubEvents() {
     const bool CREATEIF(true);
     if(!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
        !m_mergeSvc) {
-      ATH_MSG_FATAL("digitize: Could not find PileUpMergeSvc");
+      ATH_MSG_FATAL("processAllSubEvents(): Could not find PileUpMergeSvc");
       return StatusCode::FAILURE;
     }
-    else ATH_MSG_DEBUG("digitize: retrieved PileUpMergeSvc");
+    else ATH_MSG_DEBUG("processAllSubEvents(): retrieved PileUpMergeSvc");
   }
-  else ATH_MSG_DEBUG("digitize: PileUpMergeSvc already available");  
+  else ATH_MSG_DEBUG("processAllSubEvents(): PileUpMergeSvc already available");
 
-  if (createOutputContainers().isFailure()) {
-    msg(MSG::FATAL) << "Could not create output containers" << endreq;
-    return StatusCode::FAILURE;
-  }
+  CHECK(createOutputContainers());
 
   // Fetch SiHitCollections for this bunch crossing
   typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
   TimedHitCollList hitCollList;
   if (!(m_mergeSvc->retrieveSubEvtsData(m_hitCollName, hitCollList).isSuccess()) && hitCollList.size()==0) {
-    msg(MSG::ERROR) << "Could not fill TimedHitCollList" << endreq;
+    ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
     return StatusCode::FAILURE;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << hitCollList.size() << " SiHitCollections with key " << m_hitCollName << " found" << endreq;
+    ATH_MSG_DEBUG ( hitCollList.size() << " SiHitCollections with key " << m_hitCollName << " found" );
   }
 
   // Store hit info in vectors and fill SDO map
@@ -207,7 +189,7 @@ StatusCode BCM_DigitizationTool::processAllSubEvents() {
   for (; iColl != endColl; ++iColl) {
     const SiHitCollection* tmpColl(iColl->second);
     HepMcParticleLink::index_type evtIndex = (iColl->first).index();
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SiHitCollection found with " << tmpColl->size() << " hits" << endreq;
+    ATH_MSG_DEBUG ( "SiHitCollection found with " << tmpColl->size() << " hits" );
     // Read hits from this collection
     SiHitCollection::const_iterator i = tmpColl->begin();
     SiHitCollection::const_iterator e = tmpColl->end();
@@ -224,27 +206,24 @@ StatusCode BCM_DigitizationTool::processAllSubEvents() {
 //----------------------------------------------------------------------
 // ProcessBunchXing method:
 //----------------------------------------------------------------------
-StatusCode BCM_DigitizationTool::processBunchXing(int bunchXing, PileUpEventInfo::SubEvent::const_iterator bSubEvents, PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "BCM_DigitizationTool::processBunchXing() " << bunchXing << endreq;
+StatusCode BCM_DigitizationTool::processBunchXing(int bunchXing,
+                                                  SubEventIterator bSubEvents,
+                                                  SubEventIterator eSubEvents)
+{
+  ATH_MSG_DEBUG ( "processBunchXing() " << bunchXing );
 
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
+  SubEventIterator iEvt = bSubEvents;
   for (; iEvt!=eSubEvents; ++iEvt) {
-    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
-    const EventInfo* pEI = 0;
-    if (seStore.retrieve(pEI).isSuccess()) {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-                                                  << " bunch crossing : " << bunchXing
-                                                  << " time offset : " << iEvt->time()
-                                                  << " event number : " << pEI->event_ID()->event_number()
-                                                  << " run number : " << pEI->event_ID()->run_number()
-                                                  << endreq;
-    }
+    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
+    ATH_MSG_VERBOSE ( "SubEvt StoreGate " << seStore.name() << " :"
+                      << " bunch crossing : " << bunchXing
+                      << " time offset : " << iEvt->time()
+                      << " event number : " << iEvt->ptr()->eventNumber()
+                      << " run number : " << iEvt->ptr()->runNumber()
+                      );
     const SiHitCollection* seHitColl = 0;
-    if (!seStore.retrieve(seHitColl,m_hitCollName).isSuccess()) {
-      msg(MSG::ERROR) << "SubEvent BCM SiHitCollection not found in StoreGate " << seStore.name() << endreq;
-      return StatusCode::FAILURE;
-    }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SiHitCollection found with " << seHitColl->size() << " hits" << endreq;
+    CHECK(seStore.retrieve(seHitColl,m_hitCollName));
+    ATH_MSG_DEBUG ( "SiHitCollection found with " << seHitColl->size() << " hits" );
     SiHitCollection::const_iterator i = seHitColl->begin();
     SiHitCollection::const_iterator e = seHitColl->end();
     // Read hits from this collection
@@ -257,10 +236,11 @@ StatusCode BCM_DigitizationTool::processBunchXing(int bunchXing, PileUpEventInfo
 }
 
 //----------------------------------------------------------------------
-// MergeEvent method:                                                   
+// MergeEvent method:
 //----------------------------------------------------------------------
-StatusCode BCM_DigitizationTool::mergeEvent() {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "BCM_DigitizationTool::mergeEvent()" << endreq;
+StatusCode BCM_DigitizationTool::mergeEvent()
+{
+  ATH_MSG_DEBUG ( "mergeEvent()" );
 
   createRDOsAndSDOs();
 
@@ -270,7 +250,8 @@ StatusCode BCM_DigitizationTool::mergeEvent() {
 //----------------------------------------------------------------------
 // ComputeEnergy method:
 //----------------------------------------------------------------------
-float BCM_DigitizationTool::computeEnergy(float simEner, HepGeom::Point3D<double> startPos, HepGeom::Point3D<double> endPos) {
+float BCM_DigitizationTool::computeEnergy(float simEner, HepGeom::Point3D<double> startPos, HepGeom::Point3D<double> endPos)
+{
   // Initialize output energy
   float calcEner = 0;
   // Break hit up into 10 discrete energy deposits
@@ -341,7 +322,8 @@ std::bitset<64> BCM_DigitizationTool::applyThreshold(int iChan, std::vector<floa
 //----------------------------------------------------------------------
 // ApplyFilter method:
 //----------------------------------------------------------------------
-void BCM_DigitizationTool::applyFilter(std::bitset<64> &digital) {
+void BCM_DigitizationTool::applyFilter(std::bitset<64> &digital)
+{
   // 1101, 1011 -> 1111
   for (int iSamp=2; iSamp<63; iSamp++) {
     if (digital[iSamp-2] && digital[iSamp-1] && !digital[iSamp] && digital[iSamp+1]) digital[iSamp] = 1;
