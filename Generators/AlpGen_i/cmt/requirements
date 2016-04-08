@@ -1,0 +1,21 @@
+package AlpGen_i
+
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+use Pythia Pythia-* External
+private
+use GeneratorFortranCommon GeneratorFortranCommon-* Generators
+end_private
+library AlpGen_i *.cxx *.F
+
+apply_pattern installed_library
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in full asNeeded/noUndefined mode. Until that time, this
+# package explicitly sets the allowUndefined tag
+private
+apply_tag allowUndefined
+end_private
+
+apply_pattern declare_joboptions files="*.py"

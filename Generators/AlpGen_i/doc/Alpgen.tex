@@ -1,0 +1,113 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\textwidth=6.5in
+\textheight=9.0in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}   
+\def\topfraction{1.}
+\def\textfraction{0.}           
+
+\def\jimmy{{\sc Jimmy}}
+\def\herwig{{HERWIG}}
+\def\pythia{{\sc Pythia}}
+\def\alpgen{{AlpGen}}
+
+
+\begin{document}
+\title{\alpgen\_i: An interface between \alpgen\ and Athena\\
+Version in release 10.4.0 and later}
+\author{  Ian Hinchliffe (I\_Hinchliffe@lbl.gov), Georgios Stavropoulos (George.Stavropoulos@cern.ch) and Jon Butterworth (J.Butterworth@ucl.ac.uk)}
+%\today
+
+\maketitle           
+
+\section{Introduction}
+
+\noindent
+This package runs \alpgen\  from within Athena. See the examples in 
+\\ {\bf \alpgen\_i/share/jobOptions.AlpgenPythia.py } 
+and 
+\\ {\bf \alpgen\_i/share/jobOptions.AlpgenHerwig.py }  
+which show how to read Alpgen events, add parton showers and
+hadronize them using \pythia\ or \herwig. Note that on ATLAS we use the
+``new'' (i.e. \pythia 6.4) shower and this does not work with the \alpgen\
+parton shower matching, so \herwig\ should be used in general.
+
+\bigskip
+
+\noindent
+Users must first run \alpgen\ in standalone mode and make a file of
+events. An athena job then takes these events hadronizes them and
+passes them down the Athena event chain. The events must be made with
+a version of \alpgen\ that is compatible, recent versions that support
+the Les Houches interface should be acceptable. The current release is
+compatible with versions 2.13 to 2.11. It is recommended that you use
+the latest compatible version of the standalone \alpgen.
+
+Within the {\tt GeneratorModules}, {\tt m\_ExternalProcess = 4} is used to
+signify \alpgen\ to both the \herwig\ and \pythia\ interfaces.
+
+\bigskip
+
+\section{\alpgen\ and \pythia}
+
+\noindent
+To hadronize {\bf \alpgen} generated events with \pythia, you need to link the file with the input parameters 
+and the one with the unweighted events produced by \alpgen\ to the files inparmAlpGen.dat and alpgen.unw\_events 
+respectively. Then you only need to run athena with the jobOptions file jobOptions.AlpgenPythia.py by typing 
+in the prompt \\ {\it athena jobOptions.AlpgenPythia.py}
+
+
+\bigskip
+
+\section{\alpgen\ and \herwig}
+
+\noindent
+To hadronize {\bf \alpgen} generated events with \herwig, you need to
+link the file with the input parameters and the one with the
+unweighted events produced by \alpgen\ to the files inparmAlpGen.dat
+and alpgen.unw\_events respectively. Then you only need to run athena
+with the jobOptions file jobOptions.AlpgenHerwig.py by typing in the
+prompt \\ {\it athena jobOptions.AlpgenHerwig.py}\\
+
+\medskip
+
+\noindent
+The program flow in \herwig\ is a little complex, especially at the
+end of a run. The interface Herwig.cxx (in Herwig\_i) calls HWHGUP (a
+\herwig\ routine) which calls UPEVNT (modified by ATLAS to make sure
+it calls the right routine in usealpgen.f, which is in
+AlpGen\_i). When the end of a file is found, UPEVNT calls ALSFIN (in
+atoher\_65.f in Herwig\_i), which then calls HWUGUP (\herwig\
+routine). ATLAS uses a modified version of HWUGUP which instead of
+abruptly stopping the program (which is bad for Athena!) sets IERROR
+and GENEV such that events generation is terminated more
+gracefully. This still leads to some confusing apparent error messages
+from Athena, but the \herwig\ and \alpgen\ output is at least
+consistent.
+
+\medskip
+
+\noindent
+To specify \alpgen\ running with \herwig\ you need to set the line\\
+{\tt job.Herwig.HerwigCommand = ["iproc alpgen"]} \\
+in your jobOptions file.  It is also possible to specify Higgs decay information 
+for the events by adding a second argument to the {\tt iproc} parameter, 
+which will be interpreted as the ID value (last two digits of IPROC) controlling 
+the Higgs decay.  e.g. \\
+{\tt job.Herwig.HerwigCommand = ["iproc alpgen 12"]}\\ 
+would force any Higgs particles present in your input events to decay to two photons. See the \herwig\ manual for more information.
+
+
+\end{document}
+
+
+
+
+
+
+
