@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "ParticleTruth/TrackParticleTruthCollection.h"
-#undef private
-#undef protected
-
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p1.h"
 
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p1.h"
@@ -72,7 +67,7 @@ void TrackParticleTruthCollectionCnv_p1::transToPers( const TrackParticleTruthCo
         // thinned
         ElementLinkInt_p3 el_p;
         TrackLinkCnv_t    elCnv_p;
-        elCnv_p.transToPers(itrans->first.m_EL, el_p, msg);
+        elCnv_p.transToPers(itrans->first.link(), el_p, msg);
         if (0 != el_p.m_SGKeyHash) {
             entry.index = el_p.m_elementIndex; // save index from ElementLink
             entry.probability = truth.probability();
