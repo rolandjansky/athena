@@ -31,6 +31,8 @@
 
 
 #include "TrigFTKTrackConverter/TrigFTKTrackConverter.h"
+#include "TrigFTKTrackConverter/TrigFTKClusterConverterTool.h"
+
 
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h" 
@@ -58,6 +60,7 @@ TrigFTKTrackConverter::TrigFTKTrackConverter(const std::string& t,
   m_offlineCalibSvc("PixelOfflineCalibSvc", n),
   m_usePixelCalibSvc(true),
   m_trackFitter("Trk::DistributedKalmanFilter/InDetTrackFitter"),
+  m_clusterConverterTool("TrigFTKClusterConverterTool"),
   m_doFit(false),
   m_doTruth(false),
   m_ftkPixelTruthName("PRD_MultiTruthPixel_FTK"),
@@ -252,7 +255,7 @@ StatusCode TrigFTKTrackConverter::convert(const std::vector<FTKTrack*>& vFT,
       case 1: {
 	//create SCT cluster
 	//std::cout<<"FTK SCT hit hash id = "<<h.getIdentifierHash()<<std::endl;
-	InDet::SCT_Cluster* pSctCL = createSCT_Cluster(h);
+	InDet::SCT_Cluster* pSctCL = m_clusterConverterTool->createSCT_Cluster(h.getIdentifierHash(), h.getCoord(0), h.getNStrips() ); //createSCT_Cluster(h);
 	if(pSctCL!=NULL) {
 	  InDet::SCT_ClusterCollection* pColl = getCollection(sctCont, h.getIdentifierHash());
 	  if(pColl!=NULL) {
@@ -290,7 +293,9 @@ StatusCode TrigFTKTrackConverter::convert(const std::vector<FTKTrack*>& vFT,
       case 2: {
 	//create Pixel cluster
 	//std::cout<<"FTK pixel hit hash id = "<<h.getIdentifierHash()<<std::endl;
-	InDet::PixelCluster* pPixCL = createPixelCluster(h,trkPerigee->eta());
+
+	InDet::PixelCluster* pPixCL = m_clusterConverterTool->createPixelCluster(h.getIdentifierHash(), h.getCoord(0), h.getCoord(1), h.getEtaWidth(), h.getPhiWidth(),trkPerigee->eta());
+
 	if(pPixCL!=NULL) {
 	  InDet::PixelClusterCollection* pColl = getCollection(pixCont, h.getIdentifierHash());
 	  if(pColl!=NULL) {
@@ -299,7 +304,7 @@ StatusCode TrigFTKTrackConverter::convert(const std::vector<FTKTrack*>& vFT,
 	    if(m_doTruth && m_collectionsReady) {
 	      const MultiTruth& t = h.getTruth();
         ATH_MSG_DEBUG("PIX cluster MC barcode = "<<t.best_barcode());
-	      createPixelTruth(pPixCL->identify(), t);
+	        createPixelTruth(pPixCL->identify(), t);
 	    }
 	  }
 
@@ -469,192 +474,6 @@ StatusCode TrigFTKTrackConverter::convert(const TrackCollection* offlineTracks, 
     trigInDetTracks->push_back(pTrack);
   }
   return StatusCode::SUCCESS;
-}
-
-InDet::SCT_Cluster*  TrigFTKTrackConverter::createSCT_Cluster(const FTKHit& h) {
-  
-  IdentifierHash hash = h.getIdentifierHash();
-  const InDetDD::SiDetectorElement* pDE = m_SCT_Manager->getDetectorElement(hash);
-  float locPos = h.getCoord(0)+0.1; // adding 0.1 to prevent rounding errors
-
-  int w = h.getNStrips();
-  int strip = (int)(locPos);
-
-  //std::cout<<"SCT locPos="<<locPos<<" phi width="<<h.getPhiWidth()<<" eta width="<<h.getEtaWidth()<<std::endl;
-
-  if(w==0) w=1;
-  
-
-  Identifier wafer_id = m_sctId->wafer_id(hash);
-  Identifier strip_id = m_sctId->strip_id(wafer_id, strip);
-
-  std::vector<Identifier> rdoList;
-  rdoList.push_back(strip_id);
-
-  int firstStrip = (int)(locPos+0.5-0.5*w);
-  int lastStrip  = (int)(locPos+0.5+0.5*w) -1 ;
-
-  const int nStrips(lastStrip - firstStrip + 1);
-
-  const InDetDD::SiCellId cell1(firstStrip - 1);  
-  const InDetDD::SiCellId cell2(lastStrip + 1);   
-
-  const InDetDD::SiLocalPosition firstStripPos(pDE->rawLocalPositionOfCell(cell1)); 
-  const InDetDD::SiLocalPosition lastStripPos(pDE->rawLocalPositionOfCell(cell2)); 
-
-  const double width((double(nStrips)/double(nStrips+1))*( lastStripPos.xPhi()-firstStripPos.xPhi())); 
-  const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0); 
-
-  Amg::Vector2D localPos(centre.xPhi(),  centre.xEta()); 
-
-  const InDetDD::SCT_ModuleSideDesign* design; 
-  if (m_sctId->is_barrel(wafer_id)){ 
-    design = (static_cast<const InDetDD::SCT_BarrelModuleSideDesign*>(&pDE->design())); 
-  } else{ 
-    design = (static_cast<const InDetDD::SCT_ForwardModuleSideDesign*>(&pDE->design())); 
-  }  
-
-  const std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design->endsOfStrip(centre)); 
-  double stripLength(fabs(ends.first.xEta()-ends.second.xEta())); 
-
-
-  InDet::SiWidth siWidth(Amg::Vector2D(w,1), Amg::Vector2D(width,stripLength) );
-
-  double shift = pDE->getLorentzCorrection();
-
-  double derivedPos = localPos[Trk::locX]+shift; 
-  double rawPos = (h.getCoord(0)-0.5*767)*pDE->phiPitch();
-
-  if(fabs(derivedPos-rawPos)>0.5*pDE->phiPitch()) {
-    derivedPos = rawPos+shift;
-  }
-
-  Amg::Vector2D position(derivedPos, localPos[Trk::locY]);
-
-  Amg::MatrixX* cov = new Amg::MatrixX(2,2);
-	cov->setZero();
-
-  (*cov)(0,0) = siWidth.phiR()*siWidth.phiR()/12; 
-  (*cov)(1,1) = siWidth.z()*siWidth.z()/12; 
-
-  // rotation for endcap SCT
- 
-  if(pDE->design().shape() == InDetDD::Trapezoid) { 
-    double sn      = pDE->sinStereoLocal(localPos);  
-    double sn2     = sn*sn; 
-    double cs2     = 1.-sn2; 
-    double w       = pDE->phiPitch(localPos)/pDE->phiPitch();  
-    double v0      = (*cov)(0,0)*w*w; 
-    double v1      = (*cov)(1,1); 
-    (*cov)(0,0) = (cs2*v0+sn2*v1); 
-    (*cov)(1,0) = (sn*sqrt(cs2)*(v0-v1)); 
-    (*cov)(0,1) = (sn*sqrt(cs2)*(v0-v1)); 
-    (*cov)(1,1) = (sn2*v0+cs2*v1); 
-  } 
-  
-
-
-
-  InDet::SCT_Cluster* pCL = new InDet::SCT_Cluster(strip_id, position, rdoList, siWidth, pDE, cov); 
-
-  return pCL;
-}
-
-InDet::PixelCluster* TrigFTKTrackConverter::createPixelCluster(const FTKHit& h, float eta) {
-  
-  IdentifierHash hash = h.getIdentifierHash();
-  Identifier wafer_id = m_pixelId->wafer_id(hash);
-
-  const InDetDD::SiDetectorElement* pDE = m_pixelManager->getDetectorElement(hash);
-  const InDetDD::PixelModuleDesign* design 
-    (dynamic_cast<const InDetDD::PixelModuleDesign*>(&pDE->design()));
- 
-  float locPosPhi = h.getCoord(0);
-  float locPosEta = h.getCoord(1);
-
-  int etaWidth = h.getEtaWidth(); 
-  int phiWidth = h.getPhiWidth(); 
-
-  bool isIBL = (m_pixelId->barrel_ec(wafer_id)==0) && (m_pixelId->layer_disk(wafer_id)==0);
-
-  double phiPos=0.0, etaPos=0.0;
-
-  if (isIBL) {
-    phiPos = (h.getCoord(0)-0.5*336 + 0.5 - 0.14)*0.05; // + half a pixel  - 7um
-    etaPos = (h.getCoord(1)-0.5*160)*0.25 * (162.+0.400/0.250) / 160;
-  } else {
-    if (m_pixelId->barrel_ec(wafer_id)==0) {
-      phiPos = (h.getCoord(0)-0.5*328+0.5)*0.05; // + half a pixel for barrel layers
-    } else {
-      phiPos = (h.getCoord(0)-0.5*328)*0.05;
-    }
-    etaPos = (h.getCoord(1)-0.5*144)*0.4 * 152./144.;
-  }
-
-  locPosPhi = phiPos;
-  locPosEta = etaPos;
-  
-  InDetDD::SiLocalPosition silPos(locPosEta, locPosPhi);// use the converted positions in mm !!!
-  InDetDD::SiCellId cell =  design->cellIdOfPosition(silPos);  
-  if(!cell.isValid()) {
-    //    std::cout<<"Not valid cell for locPosEta="<<locPosEta<<" locPosPhi="<<locPosPhi<<std::endl;
-    return NULL;
-  }
-  int phi_index = cell.phiIndex();
-  int eta_index = cell.etaIndex();
-
-  Identifier pixel_id = m_pixelId->pixel_id(wafer_id, phi_index, eta_index); 
-
-  int colMin = (int)(eta_index-0.5*etaWidth);
-  int colMax = colMin+etaWidth;
-
-  int rowMin = (int)(phi_index-0.5*phiWidth);
-  int rowMax = rowMin+phiWidth;
-
-  double etaW = design->widthFromColumnRange(colMin, colMax-1); 
-  double phiW = design->widthFromRowRange(rowMin, rowMax-1); 
-
-  InDet::SiWidth siWidth(Amg::Vector2D(phiWidth,etaWidth),Amg::Vector2D(phiW,etaW)); 
-
-  double shift = pDE->getLorentzCorrection();
-  Amg::Vector2D position(phiPos+shift,etaPos);
-
-  std::vector<Identifier> rdoList;
-  rdoList.push_back(pixel_id);
-
-  Amg::MatrixX* cov = new Amg::MatrixX(2,2);
-	cov->setZero();
-
-  (*cov)(0,0) = siWidth.phiR()*siWidth.phiR()/12; 
-  (*cov)(1,1) = siWidth.z()*siWidth.z()/12; 
-
-  if(m_usePixelCalibSvc) {
-    const Amg::Vector2D& colRow = siWidth.colRow();
-    double averageZPitch = siWidth.z()/colRow.y();
-    //std::cout<<"track eta="<<eta<<std::endl;
-    //std::cout<<"cluster width: phiW="<<phiW<<" colRow: "<<int(colRow.x())<<" etaW="<<etaW<<" colRow="<<int(colRow.y())<<std::endl;
-
-    if(averageZPitch > 399*micrometer && averageZPitch < 401*micrometer && m_offlineCalibSvc != 0){ 
-
-      if(pDE->isBarrel()){ 
-	//std::cout<<"barrel corrections "<<std::endl;
-        (*cov)(0,0) =  pow(m_offlineCalibSvc->getBarrelErrorPhi(eta,int(colRow.y()),int(colRow.x())),2);   
-        (*cov)(1,1) = pow(m_offlineCalibSvc->getBarrelErrorEta(eta,int(colRow.y()),int(colRow.x())),2);
-      } 
-      else{ 
-	//std::cout<<"endcap corrections "<<std::endl;
-        (*cov)(0,0) = pow(m_offlineCalibSvc->getEndCapErrorPhi(int(colRow.y()),int(colRow.x())),2);  
-        (*cov)(1,1) =  pow(m_offlineCalibSvc->getEndCapErrorEta(int(colRow.y()),int(colRow.x())),2); 
-      } 
-    } else { 
-      (*cov)(0,0) = pow(siWidth.phiR()/colRow.x(),2)/12; 
-      (*cov)(1,1) = pow(averageZPitch,2)/12; 
-    }
-  }
-  InDet::PixelCluster* pCL = new InDet::PixelCluster(pixel_id, position, rdoList, siWidth, 
-						     pDE, cov);
-  
-  return pCL;
 }
 
 InDet::PixelClusterCollection* TrigFTKTrackConverter::getCollection(InDet::PixelClusterContainer* cont, 

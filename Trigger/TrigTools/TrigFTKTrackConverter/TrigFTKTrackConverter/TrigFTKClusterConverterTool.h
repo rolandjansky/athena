@@ -4,15 +4,14 @@
 
 //implementation
 
-#ifndef __TRIG_FTK_TRACK_CONVERTER_TOOL_H__
-#define __TRIG_FTK_TRACK_CONVERTER_TOOL_H__
+#ifndef __TRIG_FTK_CLUSTER_CONVERTER_TOOL_H__
+#define __TRIG_FTK_CLUSTER_CONVERTER_TOOL_H__
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigFTKSim/FTKTrack.h"
-#include "TrigFTKToolInterfaces/ITrigFTKTrackConverter.h"
 #include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
 
 #include "TrkFitterInterfaces/ITrackFitter.h" 
@@ -41,29 +40,25 @@ class PRD_MultiTruthCollection;
 class McEventCollection;
 
 
-class TrigFTKTrackConverter : public AthAlgTool, virtual public ITrigFTKTrackConverter
+class TrigFTKClusterConverterTool : public AthAlgTool, virtual public ITrigFTKClusterConverterTool
 {
  public:
-  TrigFTKTrackConverter( const std::string&, const std::string&, const IInterface* );
-  virtual ~TrigFTKTrackConverter(){};
+  TrigFTKClusterConverterTool( const std::string&, const std::string&, const IInterface* );
+  virtual ~TrigFTKClusterConverterTool(){};
   virtual StatusCode initialize();
   virtual StatusCode finalize  ();
 
-  virtual StatusCode convert(const std::vector<FTKTrack*>&, InDet::PixelClusterContainer*, 
-			     InDet::SCT_ClusterContainer*, TrackCollection*);
-	virtual StatusCode convert(const TrackCollection* offlineTracks, TrigInDetTrackCollection* trigInDetTracks);
-
-  virtual StatusCode addSiHitInfo(const FTKTrack*, TrigInDetTrack*);
-
  protected:
 
-  InDet::SCT_Cluster*  createSCT_Cluster(const FTKHit&);
-  InDet::PixelCluster* createPixelCluster(const FTKHit&, float);
-  InDet::PixelClusterCollection* getCollection(InDet::PixelClusterContainer*, IdentifierHash);
-  InDet::SCT_ClusterCollection*  getCollection(InDet::SCT_ClusterContainer*, IdentifierHash);
+  InDet::SCT_Cluster*  createSCT_Cluster(IdentifierHash , float , int);
+  InDet::PixelCluster* createPixelCluster(IdentifierHash , float , float , float , float , float );
   StatusCode getMcTruthCollections();
-  void createSCT_Truth(Identifier,const MultiTruth&);
-  void createPixelTruth(Identifier,const MultiTruth&);
+  void createSCT_Truth(Identifier id, const MultiTruth& mt, PRD_MultiTruthCollection *sctTruth, const McEventCollection*  m_mcEventCollection, StoreGateSvc* m_evtStore, std::string m_mcTruthName);
+  void createPixelTruth(Identifier id, const MultiTruth& mt, PRD_MultiTruthCollection *pxlTruth, const McEventCollection*  m_mcEventCollection, StoreGateSvc* m_evtStore, std::string m_mcTruthName);
+
+  InDet::SCT_ClusterCollection*  getCollection(InDet::SCT_ClusterContainer*, IdentifierHash); 
+  InDet::PixelClusterCollection*  getCollection(InDet::PixelClusterContainer*, IdentifierHash); 
+  StatusCode getMcTruthCollections(  StoreGateSvc* m_evtStore, const McEventCollection*  m_mcEventCollection,  std::string m_ftkPixelTruthName,   std::string m_ftkSctTruthName, std::string m_mcTruthName);
 
 private:
 
@@ -80,9 +75,6 @@ private:
   const InDetDD::SCT_DetectorManager* m_SCT_Manager;
 
   ToolHandle<Trk::ITrackFitter> m_trackFitter;
-  ToolHandle<ITrigFTKClusterConverterTool>  m_clusterConverterTool;
-
-
   bool m_doFit;
   bool m_doTruth;
   std::string m_ftkPixelTruthName;
@@ -91,8 +83,6 @@ private:
 
   PRD_MultiTruthCollection* m_ftkPixelTruth;
   PRD_MultiTruthCollection* m_ftkSctTruth;
-
-  const McEventCollection*  m_mcEventCollection;
   const AtlasDetectorID* m_idHelper;
   bool m_collectionsReady;
 };

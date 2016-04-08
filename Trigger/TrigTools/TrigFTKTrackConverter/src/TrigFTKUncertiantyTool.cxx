@@ -84,7 +84,7 @@ double TrigFTKUncertiantyTool::getParamCovMtx(const FTKTrack *trk, int id0, int 
   if(outputLevel <= MSG::DEBUG)
     athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: has BL " << hasBL << endreq; 
   
-  double trkIpt (trk->getInvPt());  // NOTE: this is 1./(2xpt)
+  double trkIpt (trk->getHalfInvPt());  // NOTE: this is 1./(2xpt)
   double trkEta (trk->getEta()  );
 
   if(outputLevel <= MSG::VERBOSE){
