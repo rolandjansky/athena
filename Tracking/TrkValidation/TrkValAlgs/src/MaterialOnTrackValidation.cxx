@@ -23,7 +23,10 @@
 Trk::MaterialOnTrackValidation::MaterialOnTrackValidation(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
   m_inputTrackCollection("Tracks"),
-  m_Tree(0)
+  m_Tree(0),
+  m_updates(0), // Coverity complaints about this and the following members not to be initialised, although they are before usage.
+  m_currentPathInX0(0),
+  m_stepInX0(0)
 {
 
 
@@ -136,11 +139,13 @@ StatusCode Trk::MaterialOnTrackValidation::execute()
         m_traversedStepInX0[m_updates] = m_stepInX0;        //current traversed thickness/radiation length
         m_traversedPathInX0[m_updates] = m_currentPathInX0; //accumulated traversed path/radiation length
 
-        if (m_updates<MAXUPDATES)
-          ++m_updates;                     //increases m_updates everytime the trackparameters are nonzero
-        else
+        ++m_updates;                     //increases m_updates everytime the trackparameters are nonzero
+        if (m_updates>=MAXUPDATES) {
           ATH_MSG_ERROR("Maximum number of updates reached!");
-
+          // @TODO still fill the tree ? 
+          return StatusCode::FAILURE;
+        } 
+        
       } //protection end
 
 

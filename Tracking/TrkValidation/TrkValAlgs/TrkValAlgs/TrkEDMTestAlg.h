@@ -60,10 +60,7 @@ protected:
 
   /** numbers of event*/
   unsigned int  m_eventNum;
-
-  unsigned int m_totalPRDs;
-  unsigned int m_totalRDOs;
-  
+ 
   bool m_dumpToMsg;
   bool m_dumpToFile;
   bool m_dumpSummaryToFile;
