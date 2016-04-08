@@ -2,29 +2,51 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include <cmath>
-#include "ZDC_SD/ZDC_PixelSD.h"
-#include "ZDC_SimEvent/ZDC_SimPixelHit_Collection.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+// Class header
+#include "ZDC_PixelSD.h"
+
+// Athena headers
+#include "CxxUtils/make_unique.h" // For make unique
+
+// Geant4 headers
 #include "G4Poisson.hh"
 
-static FADS::SensitiveDetectorEntryT<ZDC_PixelSD> zdc_pix_sd("ZDCPixelSD");
+// CLHEP headers
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
-void ZDC_PixelSD::Initialize(G4HCofThisEvent*)
+// STL headers
+#include <cmath>
+
+ZDC_PixelSD::ZDC_PixelSD(const std::string& name, const std::string& hitCollectionName)
+  : G4VSensitiveDetector( name )
+  , m_HitColl( hitCollectionName )
 {
-  ATH_MSG_DEBUG("IN INITIALIZE OF PIXELSD");
+}
 
-  for (int I=0; I<=1; I++) {
-    for (int J=0; J<=1; J++) for (int K=0; K<80; K++) {
-        Edep_Cherenkov_Pixel   [I][J][K] = 0;
-        NPhoton_Cherenkov_Pixel[I][J][K] = 0;
-      }
-  }
+void ZDC_PixelSD::StartOfAthenaEvent()
+{
+  if (verboseLevel>5)
+    {
+      G4cout << "IN INITIALIZE OF PIXELSD" << G4endl;
+    }
+
+  for (int I=0; I<=1; I++)
+    {
+      for (int J=0; J<=1; J++)
+        {
+          for (int K=0; K<80; K++)
+            {
+              m_Edep_Cherenkov_Pixel   [I][J][K] = 0;
+              m_NPhoton_Cherenkov_Pixel[I][J][K] = 0;
+            }
+        }
+    }
+}
+
+void ZDC_PixelSD::Initialize(G4HCofThisEvent *)
+{
+  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<ZDC_SimPixelHit_Collection>();
 }
 
 G4bool ZDC_PixelSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
@@ -61,10 +83,10 @@ G4bool ZDC_PixelSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 
   if (Pixel_No<0 || Module<0 || Side<0) {
 
-    ATH_MSG_ERROR("COULD NOT LOCATE PIXEL(From Copy) Values are (Side,Module,Pixel_No) = "
-                  << Side     << "   "
-                  << Module   << "   "
-                  << Pixel_No << "   ");
+    G4cout << "ERROR: COULD NOT LOCATE PIXEL(From Copy) Values are (Side,Module,Pixel_No) = "
+           << Side     << "   "
+           << Module   << "   "
+           << Pixel_No << "   " << G4endl;
     G4ExceptionDescription description;
     description << "ProcessHits: COULD NOT LOCATE PIXEL(From Copy)";
     G4Exception("ZDC_PixelSD", "FailedToLocatePixel", FatalException, description);
@@ -72,10 +94,10 @@ G4bool ZDC_PixelSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
   }
 
   if (Pixel_No>79 || Module>1 || Side>1) {
-    ATH_MSG_ERROR("Impossible values obtained. Values are (Side,Module,Pixel_No) = "
-                  << Side     << "   "
-                  << Module   << "   "
-                  << Pixel_No << "   ");
+    G4cout << "ERROR: Impossible values obtained. Values are (Side,Module,Pixel_No) = "
+           << Side     << "   "
+           << Module   << "   "
+           << Pixel_No << "   " << G4endl;
     G4ExceptionDescription description;
     description << "ProcessHits: IMPOSSIBLE PIXEL LOCATION (From Copy)";
     G4Exception("ZDC_PixelSD", "ImpossiblePixelLocation", FatalException, description);
@@ -138,49 +160,44 @@ G4bool ZDC_PixelSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
       else Transmission=1.0;
     }
 
-    Edep_Cherenkov_Pixel   [Side][Module][Pixel_No] += sampledEnergy*Transmission;
-    NPhoton_Cherenkov_Pixel[Side][Module][Pixel_No] += 1;
+    m_Edep_Cherenkov_Pixel   [Side][Module][Pixel_No] += sampledEnergy*Transmission;
+    m_NPhoton_Cherenkov_Pixel[Side][Module][Pixel_No] += 1;
   }
 
   return true;
 }
 
-void ZDC_PixelSD::EndOfEvent(G4HCofThisEvent*)
+void ZDC_PixelSD::EndOfAthenaEvent()
 {
-  ATH_MSG_DEBUG("Printing Final Energy(eV) deposited in Pixel");
-
-  ZDC_SimPixelHit_Collection* m_ZDC_SimPixelHit_Collection = new ZDC_SimPixelHit_Collection("ZDC_SimPixelHit_Collection");
-
-  for (int I=0; I<=1; I++) {
-
-    int Jmin = 0; if (I==1) Jmin = 1;
-
-    for (int J=Jmin; J<=1; J++) {
-
-      int Kmax = 24; // CHANGE TO 80 IF YOU WANT EACH PIXEL IN HMXY TP BE READ OUT SEPARATELY (Also make corresponding change in ZDC_GeoM file)
-
-      if (J==0) Kmax = 64;
-
-      for (int K=0; K<Kmax; K++) {
-
-        const int    NPhoton = NPhoton_Cherenkov_Pixel[I][J][K];
-        const double Edep_C  = Edep_Cherenkov_Pixel   [I][J][K]/CLHEP::eV;
-
-        ATH_MSG_DEBUG(" Final Cherenkov Energy(eV) deposited in Pixel "
-                      << I << "   "
-                      << J << "   "
-                      << K << "  = "
-                      << Edep_C << " eV and Number of Photons deposited = " << NPhoton);
-
-        ZDC_SimPixelHit* ahit = new ZDC_SimPixelHit(I, J, K, NPhoton, Edep_C);
-
-        m_ZDC_SimPixelHit_Collection->Insert(*ahit);
-
-        delete ahit;
-      }
+  if (verboseLevel>5)
+    {
+      G4cout << "Printing Final Energy(eV) deposited in Pixel" << G4endl;
     }
-  }
 
+  for (int I=0; I<=1; I++)
+    {
+      int Jmin = 0;
+      if (I==1) { Jmin = 1; }
+      for (int J=Jmin; J<=1; J++)
+        {
+          int Kmax = 24; // CHANGE TO 80 IF YOU WANT EACH PIXEL IN HMXY TP BE READ OUT SEPARATELY (Also make corresponding change in ZDC_GeoM file)
+          if (J==0) { Kmax = 64; }
+          for (int K=0; K<Kmax; K++)
+            {
+              const int    NPhoton = m_NPhoton_Cherenkov_Pixel[I][J][K];
+              const double Edep_C  = m_Edep_Cherenkov_Pixel   [I][J][K]/CLHEP::eV;
+              if (verboseLevel>5)
+                {
+                  G4cout << " Final Cherenkov Energy(eV) deposited in Pixel "
+                         << I << "   "
+                         << J << "   "
+                         << K << "  = "
+                         << Edep_C << " eV and Number of Photons deposited = " << NPhoton << G4endl;
+                }
+              m_HitColl->Emplace(I, J, K, NPhoton, Edep_C);
+            }
+        }
+    }
   //for (ZDC_SimPixelHit_ConstIterator it = m_ZDC_SimPixelHit_Collection->begin(); it != m_ZDC_SimPixelHit_Collection->end(); it++)
   // ATH_MSG_DEBUG(" BUG_TRACKER "
   //            << " Side: "     << it->GetSide()
@@ -188,6 +205,5 @@ void ZDC_PixelSD::EndOfEvent(G4HCofThisEvent*)
   //            << " PixNo: "    << it->GetPix()
   //            << " NPhotons: " << it->GetNPhotons()
   //            << " Edep: "     << it->GetEdep());
-
-  m_HitCollHelp.ExportCollection<ZDC_SimPixelHit_Collection>(m_ZDC_SimPixelHit_Collection);
+  return;
 }

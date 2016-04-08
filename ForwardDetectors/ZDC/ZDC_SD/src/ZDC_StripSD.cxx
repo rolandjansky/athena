@@ -2,29 +2,46 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include <cmath>
-#include "ZDC_SD/ZDC_StripSD.h"
-#include "ZDC_SimEvent/ZDC_SimStripHit_Collection.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+// Class header
+#include "ZDC_StripSD.h"
+
+// Athena headers
+#include "CxxUtils/make_unique.h" // For make unique
+
+// Geant4 headers
 #include "G4Poisson.hh"
 
-static FADS::SensitiveDetectorEntryT<ZDC_StripSD> zdc_strip_sd("ZDCStripSD");
+// CLHEP headers
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
-void ZDC_StripSD::Initialize(G4HCofThisEvent*)
+// STL headers
+#include <cmath>
+
+ZDC_StripSD::ZDC_StripSD(const std::string& name, const std::string& hitCollectionName)
+  : G4VSensitiveDetector( name ), m_HitColl(hitCollectionName)
 {
-  ATH_MSG_DEBUG("IN INITIALIZE OF STRIPSD");
+}
 
-  for (int I=0; I<2; I++) {
-    for (int J=0; J<4; J++) {
-      Edep_Cherenkov_Strip   [I][J] = 0;
-      NPhoton_Cherenkov_Strip[I][J] = 0;
+void ZDC_StripSD::StartOfAthenaEvent()
+{
+  if(verboseLevel>5)
+    {
+      G4cout << "ZDC_StripSD::StartOfAthenaEvent()" << G4endl;
     }
-  }
+  for (int I=0; I<2; I++)
+    {
+      for (int J=0; J<4; J++)
+        {
+          m_Edep_Cherenkov_Strip   [I][J] = 0;
+          m_NPhoton_Cherenkov_Strip[I][J] = 0;
+        }
+    }
+}
+
+void ZDC_StripSD::Initialize(G4HCofThisEvent *)
+{
+  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<ZDC_SimStripHit_Collection>();
 }
 
 G4bool ZDC_StripSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
@@ -62,24 +79,26 @@ G4bool ZDC_StripSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
   Zloc = (Location_From_Copy_No/1000) %10 -1; // can be 0,1,2,3
   Side = (Location_From_Copy_No/10000)%10 -1; //Side==0 is A-side; and Side ==1 is C-Side
 
-  if (Side<0 || Zloc <0) {
+  if (Side<0 || Zloc <0)
+    {
 
-    ATH_MSG_ERROR("LOCATING MODULE " << Side << "   " << Zloc);
-    G4ExceptionDescription description;
-    description << "ProcessHits: COULD NOT LOCATE MODULE(From Copy)";
-    G4Exception("ZDC_StripSD", "FailedToLocateModule", FatalException, description);
-    return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
-  }
+      G4cout << "ERROR: LOCATING MODULE " << Side << "   " << Zloc << G4endl;
+      G4ExceptionDescription description;
+      description << "ProcessHits: COULD NOT LOCATE MODULE(From Copy)";
+      G4Exception("ZDC_StripSD", "FailedToLocateModule", FatalException, description);
+      return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+    }
 
-  if (Side>1 || Zloc>3) {
-    ATH_MSG_ERROR("Impossible values obtained. Values are (Side,Zloc) = "
-                  << Side << "   "
-                  << Zloc << "   ");
-    G4ExceptionDescription description;
-    description << "ProcessHits: IMPOSSIBLE MODULE LOCATION (From Copy)";
-    G4Exception("ZDC_StripSD", "ImpossibleModuleLocation", FatalException, description);
-    return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
-  }
+  if (Side>1 || Zloc>3)
+    {
+      G4cout << "ERROR: Impossible values obtained. Values are (Side,Zloc) = "
+             << Side << "   "
+             << Zloc << "   " << G4endl;
+      G4ExceptionDescription description;
+      description << "ProcessHits: IMPOSSIBLE MODULE LOCATION (From Copy)";
+      G4Exception("ZDC_StripSD", "ImpossibleModuleLocation", FatalException, description);
+      return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+    }
   const G4ThreeVector p0 = aStep->GetDeltaPosition().unit();
   const float Pmin   = 2.761*CLHEP::eV; // MinPhotonEnergy :: Cherenkov Photons below this energy are not produced
   //float Pmax = 3.550*CLHEP::eV; // MaxPhotonEnergy :: Cherenkov Photons above this energy are not produced
@@ -135,41 +154,35 @@ G4bool ZDC_StripSD::ProcessHits(G4Step*aStep,G4TouchableHistory*)
       else Transmission=1.0;
     }
 
-    Edep_Cherenkov_Strip   [Side][Zloc] +=sampledEnergy*Transmission;
-    NPhoton_Cherenkov_Strip[Side][Zloc] +=1;
+    m_Edep_Cherenkov_Strip   [Side][Zloc] +=sampledEnergy*Transmission;
+    m_NPhoton_Cherenkov_Strip[Side][Zloc] +=1;
   }
 
   return true;
 }
 
-void ZDC_StripSD::EndOfEvent(G4HCofThisEvent*)
+void ZDC_StripSD::EndOfAthenaEvent()
 {
-  ATH_MSG_DEBUG(" Printing Final Energy(eV) deposited in Strip ");
-
-  ZDC_SimStripHit_Collection* m_ZDC_SimStripHit_Collection = new ZDC_SimStripHit_Collection("ZDC_SimStripHit_Collection");
-
-  for (int I=0; I<2; I++) for (int J=0; J<4; J++) {
-
-      const double Edep_C  =    Edep_Cherenkov_Strip[I][J]/CLHEP::eV;
-      const int    NPhoton = NPhoton_Cherenkov_Strip[I][J];
-
-      ATH_MSG_DEBUG(" Final Energy(eV) deposited in Strip "
-                    << I << "  "
-                    << J << "  = "
-                    << Edep_C << " eV and Number of Photons deposited = " << NPhoton);
-
-      ZDC_SimStripHit* ahit = new ZDC_SimStripHit(I, J, NPhoton, Edep_C);
-
-      m_ZDC_SimStripHit_Collection->Insert(*ahit);
-
-      delete ahit;
+  if(verboseLevel>5)
+    {
+      G4cout << "ZDC_StripSD::EndOfAthenaEvent(): Printing Final Energy(eV) deposited in Strip " << G4endl;
     }
 
-  // for (ZDC_SimStripHit_ConstIterator it = m_ZDC_SimStripHit_Collection->begin(); it != m_ZDC_SimStripHit_Collection->end(); it++)
-  //   ATH_MSG_DEBUG(" BUG_TRACKER "
-  //              << " Side: "     << it->GetSide()
-  //              << " ModuleNo: " << it->GetMod()
-  //              << " NPhotons: " << it->GetNPhotons());
-
-  m_HitCollHelp.ExportCollection<ZDC_SimStripHit_Collection>(m_ZDC_SimStripHit_Collection);
+  for (int I=0; I<2; I++)
+    {
+      for (int J=0; J<4; J++)
+        {
+          const double Edep_C  =    m_Edep_Cherenkov_Strip[I][J]/CLHEP::eV;
+          const int    NPhoton = m_NPhoton_Cherenkov_Strip[I][J];
+          if(verboseLevel>5)
+            {
+              G4cout << "ZDC_StripSD::EndOfAthenaEvent(): Final Energy(eV) deposited in Strip "
+                     << I << "  "
+                     << J << "  = "
+                     << Edep_C << " eV and Number of Photons deposited = " << NPhoton << G4endl;
+            }
+          m_HitColl->Emplace(I, J, NPhoton, Edep_C);
+        }
+    }
+  return;
 }
