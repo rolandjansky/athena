@@ -40,6 +40,7 @@ Muon::MuonAmbiTrackSelectionTool::MuonAmbiTrackSelectionTool(const std::string& 
 
   declareProperty("MaxOverlapFraction"   , m_maxOverlapFraction = 0.1 );
   declareProperty("KeepPartialOverlaps"  , m_keepPartial = true );
+  declareProperty("KeepMoreThanOneShare" , m_keepMoreThanOne = true );
 }
 
 //================ Destructor =================================================
@@ -200,6 +201,10 @@ const Trk::Track* Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(const Trk
       }
       if( overlapFraction < 0.25 && precisionPerLayer.size() > 2 && precisionPerLayer.size() - sharedPrecisionPerLayer.size() == 1 ) {
 	ATH_MSG_DEBUG("Three station track differing by one precision layer, keeping ");
+	return ptrTrack;
+      }
+      if( overlapFraction < 0.35 && precisionPerLayer.size() > 2 && precisionPerLayer.size() - sharedPrecisionPerLayer.size() > 1 && m_keepMoreThanOne) {
+	ATH_MSG_DEBUG("Three station track differing by more than one precision layer, keeping ");
 	return ptrTrack;
       }
     }
