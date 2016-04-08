@@ -106,16 +106,34 @@ class Simulator(JobProperty):
         if self.statusOn:
             return 'configureFlags' + self.StoredValue
 
+class UsingGeant4(JobProperty):
+    """Will this job be using Geant4?"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 ## TODO Setting this should automatically update dependent jobproperties.
 class TruthStrategy(JobProperty):
     """Steering of ISF: set truthStrategy"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'MC15'
+    def TruthServiceName(self):
+        # Sometimes want to override and use the Validation Truth Service for example
+        if  jobproperties.ISF_jobProperties.TruthService.statusOn:
+            return jobproperties.ISF_jobProperties.TruthService.get_Value()
+        if self.statusOn:
+            return 'ISF_' + self.StoredValue + 'TruthService'
+    def EntryLayerFilterName(self):
+        if self.statusOn:
+            return 'ISF_' + self.StoredValue + 'EntryLayerFilter'
+    def BarcodeServiceName(self):
+        if self.statusOn:
+            return 'Barcode_' + self.StoredValue + 'BarcodeSvc'
 
 class TruthService(JobProperty):
     """Steering of ISF: set the TruthService"""
-    statusOn     = True
+    statusOn     = False
     allowedTypes = ['str']
     StoredValue  = 'ISF_TruthService'
 
@@ -210,6 +228,7 @@ jobproperties.ISF_jobProperties.add_JobProperty(DoMemoryMonitoring)
 jobproperties.ISF_jobProperties.add_JobProperty(DoTimeMonitoring)
 jobproperties.ISF_jobProperties.add_JobProperty(Input)
 jobproperties.ISF_jobProperties.add_JobProperty(Simulator)
+jobproperties.ISF_jobProperties.add_JobProperty(UsingGeant4)
 jobproperties.ISF_jobProperties.add_JobProperty(TruthStrategy)
 jobproperties.ISF_jobProperties.add_JobProperty(TruthService)
 jobproperties.ISF_jobProperties.add_JobProperty(EntryLayerFilter)

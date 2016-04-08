@@ -6,7 +6,7 @@ include.block("RecExCond/AllDet_detDescr.py")
 include.block("RecExCommon/AllDet_detDescr.py")
 
 from AthenaCommon.Resilience import protectedInclude
-
+from AthenaCommon.DetFlags import DetFlags
 if DetFlags.detdescr.any_on():
     from AtlasGeoModel import SetGeometryVersion
     from AtlasGeoModel import GeoModelInit
