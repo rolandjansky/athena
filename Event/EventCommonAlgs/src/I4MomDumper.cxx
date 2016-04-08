@@ -23,9 +23,6 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
-
 // NavFourMom includes
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
@@ -57,9 +54,7 @@ namespace {
 ////////////////
 I4MomDumper::I4MomDumper( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  Algorithm( name, pSvcLocator ),
-  m_storeGate    ( "StoreGateSvc", name ),
-  m_msg          ( msgSvc(),       name ),
+  AthAlgorithm( name, pSvcLocator ),
   m_display      ( Display::PxPyPzE ),
   m_outputStream ( 0 )
 {
@@ -102,7 +97,7 @@ I4MomDumper::I4MomDumper( const std::string& name,
 ///////////////
 I4MomDumper::~I4MomDumper()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG( "Calling destructor"  );
   // delete output stream
   if ( m_outputStream && 
        ( m_outputStream != &std::cout && 
@@ -116,53 +111,33 @@ I4MomDumper::~I4MomDumper()
 ////////////////////////////
 StatusCode I4MomDumper::initialize()
 {
-  // configure our MsgStream
-  m_msg.setLevel( outputLevel() );
+  ATH_MSG_INFO( "Initializing " << name() << "..."  );
 
-  m_msg << MSG::INFO 
-	<< "Initializing " << name() << "..." 
-	<< endreq;
-
-  // Get pointer to StoreGateSvc and cache it :
-  if ( !m_storeGate.retrieve().isSuccess() ) {
-    m_msg << MSG::ERROR 	
-	  << "Unable to retrieve pointer to StoreGateSvc"
-	  << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  m_msg << MSG::INFO
-	<< "Configured to dump [" << m_i4momContainersName.value().size()
-	<< "] containers:"
-	<< endreq;
+  ATH_MSG_INFO( "Configured to dump [" << m_i4momContainersName.value().size()
+                << "] containers:" );
   for ( std::vector<std::string>::const_iterator 
 	  itr = m_i4momContainersName.value().begin(),
 	  iEnd= m_i4momContainersName.value().end();
 	itr != iEnd;
-	++itr ) {
-    m_msg << " - " << *itr << endreq;
+	++itr )
+  {
+    ATH_MSG_INFO( " - " << *itr  );
   }
-  m_msg << MSG::INFO 
-	<< "Display : ["     << s_display[m_display] << "]" << endreq
-	<< "OutputStream : " << m_outputStreamName.value() 
-	<< endreq;
+  ATH_MSG_INFO( "Display : ["     << s_display[m_display] << "]\n"
+                << "OutputStream : " << m_outputStreamName.value() );
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode I4MomDumper::finalize()
 {
-  m_msg << MSG::INFO 
-	<< "Finalizing " << name() << "..." 
-	<< endreq;
-
+  ATH_MSG_INFO( "Finalizing " << name() << "..." );
   return StatusCode::SUCCESS;
 }
 
 StatusCode I4MomDumper::execute()
 {  
-  m_msg << MSG::DEBUG << "Executing " << name() << "..." 
-	<< endreq;
+  ATH_MSG_DEBUG( "Executing " << name() << "..." );
 
   typedef std::vector<std::string>::const_iterator ContNameIterator;
 
@@ -170,16 +145,15 @@ StatusCode I4MomDumper::execute()
 	  itr  = m_i4momContainersName.value().begin(),
 	  iEnd = m_i4momContainersName.value().end();
 	itr != iEnd;
-	++itr ) {
-    m_msg << MSG::DEBUG << "dumping:  [" << *itr << "]..." << endreq;
+	++itr )
+  {
+    ATH_MSG_DEBUG( "dumping:  [" << *itr << "]..."  );
 
     if ( !dump( *itr ).isSuccess() ) {
-      m_msg << MSG::WARNING
-	    << "Problem while dumping [" << *itr << "] !!"
-	    << endreq;
+      ATH_MSG_WARNING( "Problem while dumping [" << *itr << "] !!" );
       continue;
     }
-    m_msg << MSG::DEBUG << "dumping:  [" << *itr << "]... [OK]" << endreq;
+    ATH_MSG_DEBUG( "dumping:  [" << *itr << "]... [OK]"  );
   }
 
   return StatusCode::SUCCESS;
@@ -197,21 +171,18 @@ StatusCode
 I4MomDumper::dump( const std::string& collName )
 {
   typedef INavigable4MomentumCollection I4Moms_t;
-  if ( !m_storeGate->contains<I4Moms_t>( collName ) ) {
-    m_msg << MSG::WARNING 
-	  << "No [" << collName
-	  << "] I4MomentumContainer in StoreGate !"
-	  << endreq;
+  if ( !evtStore()->contains<I4Moms_t>( collName ) ) {
+    ATH_MSG_WARNING( "No [" << collName
+                     << "] I4MomentumContainer in StoreGate !" );
     return StatusCode::RECOVERABLE;
   }
 
   const I4Moms_t * coll = 0;
-  if ( !m_storeGate->retrieve( coll, collName ).isSuccess() ||
-       0 == coll ) {
-    m_msg << MSG::WARNING
-	  << "Could not retrieve any I4MomentumContainer at ["
-	  << collName << "] !!"
-	  << endreq;
+  if ( !evtStore()->retrieve( coll, collName ).isSuccess() ||
+       0 == coll )
+  {
+    ATH_MSG_WARNING( "Could not retrieve any I4MomentumContainer at ["
+                     << collName << "] !!" );
     return StatusCode::RECOVERABLE;
   }
 
@@ -285,7 +256,7 @@ I4MomDumper::dump( const std::string& collName )
   out << "\n";
 
   if ( 0 != m_outputStream ) { (*m_outputStream)   << out.str() << std::flush;
-  } else                     { m_msg << MSG::DEBUG << out.str() << endreq;
+  } else                     { ATH_MSG_DEBUG( out.str()  );
   }
 
   return StatusCode::SUCCESS;
@@ -316,11 +287,8 @@ void I4MomDumper::setupDisplay( Property& /*displayName*/ )
   } else if ( display == "ptetaphim" )    { m_display = Display::PtEtaPhiM;
   } else if ( display == "pxpypze" )      { m_display = Display::PxPyPzE;
   } else {
-    m_msg << MSG::WARNING
-	  << "Unknown value for display [" << m_displayName.value() << "] !!"
-	  << endreq
-	  << " => will use [pxpypxe] instead..."
-	  << endreq;
+    ATH_MSG_WARNING( "Unknown value for display [" << m_displayName.value() << "] !!\n"
+                     << " => will use [pxpypxe] instead..." );
     display = "pxpypze";
     m_display = Display::PxPyPzE;
   }

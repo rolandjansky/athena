@@ -6,10 +6,10 @@ author  Sebastien Binet <binet@cern.ch>
 use AtlasPolicy 	AtlasPolicy-*
 
 use GaudiInterface 	GaudiInterface-* 	External
+use AthenaBaseComps     AthenaBaseComps-*       Control
 
 private
 use AtlasBoost		AtlasBoost-*		External
-use StoreGate		StoreGate-*		Control
 use NavFourMom		NavFourMom-*		Event
 use FourMomUtils	FourMomUtils-*		Event
 

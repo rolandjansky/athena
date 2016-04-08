@@ -18,14 +18,10 @@
 // HepMC / CLHEP includes
 
 // FrameWork includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-// Forward declaration
-class StoreGateSvc;
-
-class INav4MomDumper : public Algorithm
+class INav4MomDumper : public AthAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -79,14 +75,6 @@ class INav4MomDumper : public Algorithm
   // Protected data: 
   /////////////////////////////////////////////////////////////////// 
  protected: 
-
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  /// Pointer to the StoreGate service
-  StoreGateSvc_t m_storeGate;
-
-  /// MsgStream instance (a std::cout like with print-out levels)
-  MsgStream m_msg;
-
   // Containers
   
   /// List of @c INavigable4Momentum containers one wants to dump
