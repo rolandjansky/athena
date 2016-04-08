@@ -6,7 +6,7 @@
 #ifndef MUON_MDTSEGMENTT0FITTER_H
 #define MUON_MDTSEGMENTT0FITTER_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -17,14 +17,13 @@
 
 #include <vector>
 
-class MsgStream;
 class IIdToFixedIdTool;
 class MdtCalibrationDbSvc;
 class TMinuit;
 
 namespace TrkDriftCircleMath {
 
-  class MdtSegmentT0Fitter : public AlgTool, public DCSLFitter, virtual public Muon::IDCSLFitProvider {
+  class MdtSegmentT0Fitter : public AthAlgTool, public DCSLFitter, virtual public Muon::IDCSLFitProvider {
     public:
 
       MdtSegmentT0Fitter(const std::string&,const std::string&,const IInterface*);
@@ -39,9 +38,6 @@ namespace TrkDriftCircleMath {
       DCSLFitter* getFitter() { return this; }
 
     private:
-      mutable MsgStream* m_log;
-      bool m_verbose;
-
 		  bool m_trace; // debug - traces operation
       bool m_dumpToFile; // debug - dumps some performance info
 		  bool m_dumpNoFit; // debug - print hit info where fit doesn't run		

@@ -63,7 +63,7 @@ namespace TrkDriftCircleMath {
 //	int count;
     
   MdtSegmentT0Fitter::MdtSegmentT0Fitter(const std::string& ty,const std::string& na,const IInterface* pa)
-  : AlgTool(ty,na,pa),
+  : AthAlgTool(ty,na,pa),
     DCSLFitter(), 
     m_calibDbSvc("MdtCalibrationDbSvc", na),
     m_ntotalCalls(0),
@@ -90,13 +90,8 @@ namespace TrkDriftCircleMath {
   MdtSegmentT0Fitter::~MdtSegmentT0Fitter(){}
   
   StatusCode MdtSegmentT0Fitter::initialize() {
-    StatusCode sc = AlgTool::initialize(); 
-    m_log = new MsgStream(msgSvc(), name());
-    m_verbose = m_log->level() <= MSG::VERBOSE;
+    ATH_CHECK ( AthAlgTool::initialize() );
 
-    // only print in debug output level
-    m_trace = m_log->level() <= MSG::DEBUG && m_trace;
-    
     use_hardcoded = m_useInternalRT;
     use_shift_constraint = m_constrainShifts;
     constrainT0Error = m_constrainT0Error;
@@ -104,35 +99,31 @@ namespace TrkDriftCircleMath {
     
         
     // Get pointer to MdtCalibrationDbSvc and cache it :
-    if ( !m_calibDbSvc.retrieve().isSuccess() ) {
-      *m_log << MSG::FATAL << "Unable to retrieve pointer to MdtCalibrationDbSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK ( m_calibDbSvc.retrieve() );
 
     TMinuit* oldMinuit = gMinuit;
     m_minuit = new TMinuit(3);
     m_minuit->SetPrintLevel(-1); // -1: no output, 1: std output
-    if( m_verbose ) m_minuit->SetPrintLevel(1);
+    if( msgLvl(MSG::VERBOSE) ) m_minuit->SetPrintLevel(1);
     gMinuit = oldMinuit;
 
-    return sc;
+    return StatusCode::SUCCESS;
   }
   
   StatusCode MdtSegmentT0Fitter::finalize() {
     
     double scaleFactor = m_ntotalCalls != 0 ? 1./(double)m_ntotalCalls : 1.;
 
-    *m_log << MSG::INFO << "Summarizing fitter statistics " << endreq
-	   << " Total fits       " << std::setw(10) << m_ntotalCalls << "   " << scaleFactor*m_ntotalCalls << endreq
-	   << " hits > 2         " << std::setw(10) << m_npassedNHits << "   " << scaleFactor*m_npassedNHits << endreq
-	   << " hit consis.      " << std::setw(10) << m_npassedSelectionConsistency << "   " << scaleFactor*m_npassedSelectionConsistency << endreq
-	   << " sel. hits > 2    " << std::setw(10) << m_npassedNSelectedHits << "   " << scaleFactor*m_npassedNSelectedHits << endreq
-	   << " Hits > min hits  " << std::setw(10) << m_npassedMinHits << "   " << scaleFactor*m_npassedMinHits << endreq
-	   << " Passed Fit       " << std::setw(10) << m_npassedMinuitFit << "   " << scaleFactor*m_npassedMinuitFit << endreq;
-    delete m_log;
+    ATH_MSG_INFO( "Summarizing fitter statistics " << "\n"
+                  << " Total fits       " << std::setw(10) << m_ntotalCalls << "   " << scaleFactor*m_ntotalCalls << "\n"
+                  << " hits > 2         " << std::setw(10) << m_npassedNHits << "   " << scaleFactor*m_npassedNHits << "\n"
+                  << " hit consis.      " << std::setw(10) << m_npassedSelectionConsistency << "   " << scaleFactor*m_npassedSelectionConsistency << "\n"
+                  << " sel. hits > 2    " << std::setw(10) << m_npassedNSelectedHits << "   " << scaleFactor*m_npassedNSelectedHits << "\n"
+                  << " Hits > min hits  " << std::setw(10) << m_npassedMinHits << "   " << scaleFactor*m_npassedMinHits << "\n"
+                  << " Passed Fit       " << std::setw(10) << m_npassedMinuitFit << "   " << scaleFactor*m_npassedMinuitFit  );
     if( gMinuit == m_minuit ) gMinuit = 0;
     delete m_minuit;
-    return AlgTool::finalize(); 
+    return AthAlgTool::finalize(); 
   }
   
   
@@ -155,7 +146,7 @@ namespace TrkDriftCircleMath {
         tpow *= tin;
       }
     }
-    rc = rc/1000.;
+    rc = rc*1e-3;
     
     return rc;
   }
@@ -188,7 +179,7 @@ namespace TrkDriftCircleMath {
         tpow *= tin;
       }
     }
-    rc = rc/1000.;
+    rc = rc*1e-3;
     
     return rc;
   }
@@ -325,9 +316,9 @@ namespace TrkDriftCircleMath {
       double lowercut = use_hardcoded ? 0 : data[i].rt->tLower();
 // Penalty for t<lowercut and t >uppercut
       if (t> uppercut ) { // too large 
-	fval += (t-uppercut)* (t-uppercut)/10.;
+	fval += (t-uppercut)* (t-uppercut)*0.1;
       }else if (t < 0 ) {// too small
-	fval += (t-lowercut)*(t-lowercut)/10.;
+	fval += (t-lowercut)*(t-lowercut)*0.1;
       }
       if(use_hardcoded) {
 	  if(t<0) r=0;
@@ -355,7 +346,7 @@ namespace TrkDriftCircleMath {
 
     ++m_ntotalCalls;
 
-    if(m_trace) *m_log << MSG::DEBUG << "New seg: " << "\n"; //<< seg;
+    if(m_trace) ATH_MSG_DEBUG( "New seg: "  );
  
     const DCOnTrackVec& dcs_keep = dcs;
 
@@ -368,7 +359,7 @@ namespace TrkDriftCircleMath {
     }
     ++m_npassedNHits;
     if( selection.size() != N ) {
-      *m_log << MSG::ERROR << "MdtSegmentT0Fitter.cxx:fit with t0 <bad HitSelection>" <<endreq;
+      ATH_MSG_ERROR( "MdtSegmentT0Fitter.cxx:fit with t0 <bad HitSelection>"  );
       return false;
     }  
     ++m_npassedSelectionConsistency;
@@ -377,12 +368,12 @@ namespace TrkDriftCircleMath {
       //      if(m_trace) *m_log << MSG::DEBUG << " selection flag " <<  selection[i] << endreq;
     }
     if(used < 2){
-      if(m_trace) *m_log << MSG::DEBUG << "TOO FEW HITS SELECTED" <<endreq;
+      if(m_trace) ATH_MSG_DEBUG( "TOO FEW HITS SELECTED"  );
       return false;
     }
     ++m_npassedNSelectedHits;
     if(used < m_minHits) {
-      if(m_trace) *m_log << MSG::DEBUG << "FEWER THAN Minimum HITS N " << m_minHits << " total hits " <<N<<" used " << used <<"\n";
+      if(m_trace) ATH_MSG_DEBUG( "FEWER THAN Minimum HITS N " << m_minHits << " total hits " <<N<<" used " << used  );
 
       //
       //     Copy driftcircles and reset the drift radii as they might have been overwritten
@@ -407,8 +398,8 @@ namespace TrkDriftCircleMath {
           const MuonCalib::MdtRtRelation *rtInfo = m_calibDbSvc->getRtCalibration(ds->rot()->identify());
           double tUp = rtInfo->rt()->tUpper();
           double tLow = rtInfo->rt()->tLower();
-          if(t<tLow) chi2p += (t-tLow)*(t-tLow)/10.;
-          if(t>tUp) chi2p += (t-tUp)*(t-tUp)/10.;
+          if(t<tLow) chi2p += (t-tLow)*(t-tLow)*0.1;
+          if(t>tUp) chi2p += (t-tUp)*(t-tUp)*0.1;
         }
       }
       if(m_trace&&chi2p>0) std::cout << " NO Minuit Fit TOO few hits Chi2 penalty " << chi2p << std::endl;
@@ -421,15 +412,14 @@ namespace TrkDriftCircleMath {
       if(m_trace) std::cout << " chi2 total " << m_result.chi2() << " angle " << m_result.line().phi() << " y0 " << m_result.line().y0()  << " nhits "<< selection.size() << " refit ok " << iok << std::endl;
       return oldrefit;
     } else {
-      if(m_trace) *m_log << MSG::DEBUG << "FITTING FOR T0 N "<<N<<" used " << used << endreq;
+      if(m_trace) ATH_MSG_DEBUG( "FITTING FOR T0 N "<<N<<" used " << used  );
     } 
 
     ++m_npassedMinHits;
 
     
-    if (m_trace) *m_log << MSG::DEBUG <<" in  MdtSegmentT0Fitter::fit with N dcs "<< N << " hit selection size " <<  selection.size() << endreq;
-    if(m_trace) *m_log << MSG::DEBUG <<"in fit "<<m_result.hasT0Shift()<< " " <<m_result.t0Shift()<<"\n";
-
+    if (m_trace) ATH_MSG_DEBUG(" in  MdtSegmentT0Fitter::fit with N dcs "<< N << " hit selection size " <<  selection.size()  );
+    if(m_trace) ATH_MSG_DEBUG("in fit "<<m_result.hasT0Shift()<< " " <<m_result.t0Shift() );
     
     
     double Zc=0, Yc=0, S=0, Sz=0, Sy=0;
@@ -452,10 +442,10 @@ namespace TrkDriftCircleMath {
       for(int ii=0 ;it!=it_end; ++it, ++ii ){
         const Muon::MdtDriftCircleOnTrack *roto = it->rot();
         if (!roto) {
-          *m_log << MSG::ERROR <<" MdtSegmentT0Fitter: NO DC ROT pointer found " << endreq;;
+          ATH_MSG_ERROR(" MdtSegmentT0Fitter: NO DC ROT pointer found "  );
           return false;
         }
-        if(m_trace) *m_log << MSG::DEBUG << "hit # "<<ii<<" ";
+        ATH_MSG_DEBUG( "hit # "<<ii );
         y[ii] = it->y();
         z[ii] = it->x();
         r[ii] = std::abs( roto->driftRadius() );
@@ -463,7 +453,7 @@ namespace TrkDriftCircleMath {
         const Muon::MdtPrepData *peerd;
         peerd = dynamic_cast<const Muon::MdtPrepData*>( roto->prepRawData() );
         if(!peerd) {
-          *m_log << MSG::ERROR <<"MdtSegmentT0Fitter: Can't convert to MdtPrepData* !! Not fitting for t0\n";
+          ATH_MSG_ERROR("MdtSegmentT0Fitter: Can't convert to MdtPrepData* !! Not fitting for t0"  );
           return false;
         }
         Identifier id = roto->identify();
@@ -478,25 +468,26 @@ namespace TrkDriftCircleMath {
         w[ii]*=w[ii];
         if(r[ii]<0){
           r[ii] = 0.;
-          if(m_trace) *m_log << MSG::DEBUG << "MdtSegmentT0Fitter (using times) ERROR: <Negative r> " << r[ii] <<endreq;
+          if(m_trace) ATH_MSG_DEBUG( "MdtSegmentT0Fitter (using times) ERROR: <Negative r> " << r[ii]  );
         }
 
-        if(m_trace) *m_log << MSG::DEBUG << "DC:  (" << y[ii] << "," << z[ii] << ") R = " << r[ii] << " W " << w[ii] <<" t " <<t[ii]<< " id: "<<it->id()<<" sel " << selection[ii] <<endreq;
+        if(m_trace) ATH_MSG_DEBUG( "DC:  (" << y[ii] << "," << z[ii] << ") R = " << r[ii] << " W " << w[ii] <<" t " <<t[ii]<< " id: "<<it->id()<<" sel " << selection[ii]  );
         
         if( selection[ii] == 0 ){
           S+=w[ii];
           Sz+= w[ii]*z[ii];
           Sy+= w[ii]*y[ii];
           if(r[ii] > MAX_RAD ) {
-            if(m_trace) *m_log << MSG::DEBUG <<"Radius is too big" << endreq;
+            if(m_trace) ATH_MSG_DEBUG("Radius is too big"  );
           }
         }
       }
     }
-    Zc = Sz/S;
-    Yc = Sy/S;
+    const double inv_S = 1. / S;
+    Zc = Sz*inv_S;
+    Yc = Sy*inv_S;
     
-    if(m_trace) *m_log << MSG::DEBUG << "Yc " << Yc << " Zc " << Zc <<endreq;
+    if(m_trace) ATH_MSG_DEBUG( "Yc " << Yc << " Zc " << Zc  );
     
     /// go to coordinates centered at the average of the hits
     for(unsigned int i=0;i<N;++i) {
@@ -542,16 +533,16 @@ namespace TrkDriftCircleMath {
         tee0 = t[ii] - r2tval;
 
         if(m_trace) {
-          *m_log << MSG::DEBUG <<" z "<<z[ii];
-          *m_log << MSG::DEBUG <<" y "<<y[ii];
-          *m_log << MSG::DEBUG <<" r "<<r[ii];
-          *m_log << MSG::DEBUG <<" t "<<t[ii];
-          *m_log << MSG::DEBUG <<" t0 "<<tee0;
+          msg() << MSG::DEBUG <<" z "<<z[ii]
+                 <<" y "<<y[ii]
+                 <<" r "<<r[ii]
+                 <<" t "<<t[ii]
+                 <<" t0 "<<tee0;
           if(!use_hardcoded) {
-            *m_log << MSG::DEBUG <<" tLower "<<tl;
-            *m_log << MSG::DEBUG <<" tUpper "<<th;
+            msg() << MSG::DEBUG <<" tLower "<<tl;
+            msg() << MSG::DEBUG <<" tUpper "<<th;
           }
-          *m_log << MSG::DEBUG << endreq;
+          msg() << MSG::DEBUG << endreq;
         }
         t0seed += tee0;
         st0 += tee0*tee0;
@@ -573,7 +564,7 @@ namespace TrkDriftCircleMath {
       t_lo = min_tlower;
     }
     
-    if(m_trace) *m_log << MSG::DEBUG <<"t_hi "<<t_hi<<" t_lo "<<t_lo<<" t0seed "<<t0seed<<" sigma "<<st0<< " min_t0 "<<min_t0<< endreq;
+    if(m_trace) ATH_MSG_DEBUG("t_hi "<<t_hi<<" t_lo "<<t_lo<<" t0seed "<<t0seed<<" sigma "<<st0<< " min_t0 "<<min_t0 );
     if(t_hi > t_lo ) {
       if(m_dumpNoFit) {
         std::ofstream gg;
@@ -597,7 +588,7 @@ namespace TrkDriftCircleMath {
           gg<<" tdc "<<peerd->tdc();
           gg<<*it;
           gg<<" sel "<<selection[ii];
-          gg<< endreq;
+          gg<< std::endl;
         }
         gg<<"--------------\n";
       }
@@ -615,15 +606,15 @@ namespace TrkDriftCircleMath {
     } else if ( sinus == 0.0 && cosin < 0.0 ) {
       cosin = -cosin;
     }
-    if(m_trace) *m_log << MSG::DEBUG <<"before fit theta "<<theta<<" sinus "<<sinus<< " cosin "<< cosin << endreq; 
+    if(m_trace) ATH_MSG_DEBUG("before fit theta "<<theta<<" sinus "<<sinus<< " cosin "<< cosin  );
     
     double d = line.y0() + Zc*sinus-Yc*cosin;
     
     if(m_trace) {
-      *m_log << MSG::DEBUG <<" line x y "<<line.position().x()<<" "<<line.position().y()<< endreq;
-      *m_log << MSG::DEBUG <<" Zc Yc "<< Zc <<" "<<Yc<< endreq;
-      *m_log << MSG::DEBUG <<" line x0 y0 "<<line.x0()<<" "<<line.y0()<< endreq;
-      *m_log << MSG::DEBUG <<" hit shift " << -Zc*sinus+Yc*cosin;
+      ATH_MSG_DEBUG(" line x y "<<line.position().x()<<" "<<line.position().y() );
+      ATH_MSG_DEBUG(" Zc Yc "<< Zc <<" "<<Yc );
+      ATH_MSG_DEBUG(" line x0 y0 "<<line.x0()<<" "<<line.y0() );
+      ATH_MSG_DEBUG(" hit shift " << -Zc*sinus+Yc*cosin  );
     } 
 
 // Calculate signed radii 
@@ -650,7 +641,7 @@ namespace TrkDriftCircleMath {
 
 // Reject topologies where in one of the Multilayers no +- combination is present
     if((nml1p<1||nml1n<1)&&(nml2p<1||nml2n<1)&&m_rejectWeakTopologies) {
-      if(m_trace) *m_log << MSG::DEBUG <<" Combination rejected for positive radii ML1 " <<  nml1p << " ML2 " <<  nml2p << " negative radii ML1 " << nml1n << " ML " << nml2n << " used hits " << used << " t0 Error " << t0Error  << endreq;
+      if(m_trace) ATH_MSG_DEBUG(" Combination rejected for positive radii ML1 " <<  nml1p << " ML2 " <<  nml2p << " negative radii ML1 " << nml1n << " ML " << nml2n << " used hits " << used << " t0 Error " << t0Error   );
       it = dcs.begin();
       it_end = dcs.end();
       double chi2p = 0.; 
@@ -668,11 +659,11 @@ namespace TrkDriftCircleMath {
           const MuonCalib::MdtRtRelation *rtInfo = m_calibDbSvc->getRtCalibration(ds->rot()->identify());
           double tUp = rtInfo->rt()->tUpper();
           double tLow = rtInfo->rt()->tLower();
-          if(t<tLow) chi2p += (t-tLow)*(t-tLow)/10.;
-          if(t>tUp) chi2p += (t-tUp)*(t-tUp)/10.;
+          if(t<tLow) chi2p += (t-tLow)*(t-tLow)*0.1;
+          if(t>tUp) chi2p += (t-tUp)*(t-tUp)*0.1;
         } 
       }
-      if(m_trace&&chi2p>0) *m_log << MSG::DEBUG  << " Rejected weak topology Chi2 penalty " << chi2p << std::endl;
+      if(m_trace&&chi2p>0) ATH_MSG_DEBUG( " Rejected weak topology Chi2 penalty " << chi2p  );
       bool oldrefit = DCSLFitter::fit( line, dcs_new, selection ); 
       chi2p += m_result.chi2();
 // add chi2 penalty for too large or too small driftTimes  t < 0 or t> t upper
@@ -680,7 +671,7 @@ namespace TrkDriftCircleMath {
       return oldrefit;
     }  // end rejection of weak topologies  
 
-    if(m_trace) *m_log << MSG::DEBUG <<" positive radii ML1 " <<  nml1p << " ML2 " <<  nml2p << " negative radii ML1 " << nml1n << " ML " << nml2n << " used hits " << used << " t0 Error " << t0Error  << endreq;
+    if(m_trace) ATH_MSG_DEBUG(" positive radii ML1 " <<  nml1p << " ML2 " <<  nml2p << " negative radii ML1 " << nml1n << " ML " << nml2n << " used hits " << used << " t0 Error " << t0Error   );
     
 //    m_minuit->BuildArrays(3);
     m_minuit->SetFCN(mdtSegmentT0Fcn);
@@ -705,8 +696,8 @@ namespace TrkDriftCircleMath {
     Double_t step[3] = {0.01 , 0.01 , 0.1 };
     
     if(m_trace) {
-      *m_log << MSG::DEBUG <<"\n____________INITIAL VALUES________________\n";
-      *m_log << MSG::DEBUG <<"Theta " << theta << "("<<tan(theta)<<") d " << vstart[1] <<endreq;
+      ATH_MSG_DEBUG("\n____________INITIAL VALUES________________" );
+      ATH_MSG_DEBUG("Theta " << theta << "("<<tan(theta)<<") d " << vstart[1]  );
     }
     
     int errFlag = 0;
@@ -721,7 +712,7 @@ namespace TrkDriftCircleMath {
     m_minuit->mnparm(2, "t0", vstart[2], step[2], 0., 0.,errFlag);
 
     if (errFlag !=0 &&m_trace)  {
-      *m_log << MSG::DEBUG  <<  " ALARM with steering of Minuit variable " << errFlag << endreq;
+      ATH_MSG_DEBUG(  " ALARM with steering of Minuit variable " << errFlag  );
     }
    
     m_minuit->FixParameter(0);
@@ -739,7 +730,7 @@ namespace TrkDriftCircleMath {
     if(errFlag5!=0&&errFlag4==0) {
       m_minuit->mnexcm("MINIMIZE", arglist, 0,errFlag4); 
       if (errFlag4 == 0 &&m_trace)  {
-        *m_log << MSG::DEBUG  <<  " ALARM Fall back to MINIMIZE " << errFlag4 << endreq;
+        ATH_MSG_DEBUG(  " ALARM Fall back to MINIMIZE " << errFlag4  );
       }
     } 
     
@@ -751,27 +742,27 @@ namespace TrkDriftCircleMath {
     m_minuit->mnstat(chisq, edm, errdef, npari, nparx, icstat);
    
     int fitretval = errFlag5;
-    if (npari<0 || nparx < 0 || chisq < 0) *m_log << MSG::ERROR  <<  " MdtSegmentT0Fitter MINUIT problem " << " chisq "<<chisq<<" npari "<<npari<<" nparx "<< nparx <<" fitretval "<< fitretval<< endreq;
+    if (npari<0 || nparx < 0 || chisq < 0) ATH_MSG_ERROR(  " MdtSegmentT0Fitter MINUIT problem " << " chisq "<<chisq<<" npari "<<npari<<" nparx "<< nparx <<" fitretval "<< fitretval );
 
     if (fitretval !=0 &&m_trace)  {
-     *m_log << MSG::DEBUG  <<  " ALARM return value " << fitretval << endreq;
+      ATH_MSG_DEBUG(  " ALARM return value " << fitretval  );
     }
     if(m_dumpToFile) {
       std::ofstream ff;
       ff.open("fitres.txt", std::ios::out | std::ios::app);
 //      ff << fitretval<<" 0 "<<chisq<<" "<<t_hi<<" "<<t_lo<<" "<<t0seed<<" "<<st0<<" "<<min_t0<<" "<<m_minuit->GetParameter(2)<<" "<<m_minuit->GetParError(2)<< endreq;
 //			TMinut * tm = (TMinuit*) minuit->GetObjectFit();
-			ff<<npari<<" "<<nparx<<" "<<fitretval<<" "<<chisq<< " "<< endreq;
+      ff<<npari<<" "<<nparx<<" "<<fitretval<<" "<<chisq<< " "<< std::endl;
       ff.close();
     }
-    if(m_trace) *m_log << MSG::DEBUG <<"chisq "<<chisq<<" npari "<<npari<<" nparx "<<nparx<<" fitretval "<<fitretval<< endreq;
+    if(m_trace) ATH_MSG_DEBUG("chisq "<<chisq<<" npari "<<npari<<" nparx "<<nparx<<" fitretval "<<fitretval );
 
     // Do standard DCSL fit if minuit is bad 
     // Do standard DCSL fit if all fits from minuit are bad 
     if (errFlag5!=0&&errFlag4!=0&&errFlag3!=0&&errFlag2!=0&&errFlag1!=0)  {
-      if(m_trace)*m_log << MSG::DEBUG << " ALARM Minimize fix " << errFlag1 << " ALARM minimize release " << errFlag2 
+      if(m_trace)ATH_MSG_DEBUG( " ALARM Minimize fix " << errFlag1 << " ALARM minimize release " << errFlag2 
 			<< " ALARM migrad fix 1 " << errFlag3 << " ALARM minimize all free" << errFlag4 << " ALARM migrad all free " 
-			<< errFlag5 << endreq;
+                                << errFlag5  );
 
       DCOnTrackVec dcs_new;
       dcs_new.reserve(dcs.size());
@@ -828,9 +819,9 @@ namespace TrkDriftCircleMath {
     else del_t = fabs(rtpointers[0]->radius((t0+t0Err)) - rtpointers[0]->radius(t0)) ;
     
     if(m_trace) {
-      *m_log << MSG::DEBUG <<"____________FINAL VALUES________________\n";
-      *m_log << MSG::DEBUG <<"Values: a "<<tana<<" d "<<b * cosin <<" t0 "<<t0<< endreq; 
-      *m_log << MSG::DEBUG <<"Errors: a "<<aErr<<" b "<<dy0 <<" t0 "<<t0Err<< endreq; 
+      ATH_MSG_DEBUG("____________FINAL VALUES________________" );
+      ATH_MSG_DEBUG("Values: a "<<tana<<" d "<<b * cosin <<" t0 "<<t0 );
+      ATH_MSG_DEBUG("Errors: a "<<aErr<<" b "<<dy0 <<" t0 "<<t0Err );
     }
     
     
@@ -840,12 +831,12 @@ namespace TrkDriftCircleMath {
     double covar[3][3];
     m_minuit->mnemat(&covar[0][0],3);  // 3x3
     if(m_trace) {
-      *m_log << MSG::DEBUG <<"COVAR  ";
+      msg() << MSG::DEBUG <<"COVAR  ";
       for(int it1=0; it1<3; it1++) {
         for(int it2=0; it2<3; it2++) {
-          *m_log << MSG::DEBUG <<covar[it1][it2]<<" ";
+          msg() << MSG::DEBUG <<covar[it1][it2]<<" ";
         }
-  	 *m_log << MSG::DEBUG << endreq;
+        msg() << MSG::DEBUG << endreq;
       }
     }
     
@@ -853,7 +844,7 @@ namespace TrkDriftCircleMath {
     m_result.clusters().clear();
     m_result.emptyTubes().clear();
 
-    if(m_trace) *m_log << MSG::DEBUG <<"after fit theta "<<ang<<" sinus "<<sinus<< " cosin "<< cosin << endreq; 
+    if(m_trace) ATH_MSG_DEBUG("after fit theta "<<ang<<" sinus "<<sinus<< " cosin "<< cosin  );
     
     double chi2 = 0;
     unsigned int nhits(0);
@@ -863,7 +854,7 @@ namespace TrkDriftCircleMath {
     // calculate predicted hit positions from track parameters
     it = dcs_keep.begin();
     it_end = dcs_keep.end();
-    if(m_trace) *m_log << MSG::DEBUG <<"------NEW HITS------\n";
+    ATH_MSG_DEBUG("------NEW HITS------"  );
     
     for(int i=0; it!=it_end; ++it, ++i ){
       double rad, drad;
@@ -884,14 +875,14 @@ namespace TrkDriftCircleMath {
       
       yl = (y[i] -  tana*z[i] - b);
       if(m_trace) {
-        *m_log << MSG::DEBUG <<"i "<<i<<" "; // ": yi "<<y[i]<<" line y "<<tana*z[i] + b<<" perp "<<yl/sqrt((1+tana*tana))<<" ";
+        ATH_MSG_DEBUG("i "<<i<<" ");
       }
       
       
       double dth = -(sinus*y[i] + cosin*z[i])*dtheta;
       double residuals = fabs(yl)/sqrt((1+tana*tana)) - rad;
       if(m_trace) {
-        *m_log << MSG::DEBUG <<" dth "<<dth<<" dy0 "<<dy0<<" del_t "<<del_t<<" ";
+        ATH_MSG_DEBUG(" dth "<<dth<<" dy0 "<<dy0<<" del_t "<<del_t<<" "  );
       }
       
       double errorResiduals = sqrt( dth*dth + dy0*dy0 + del_t*del_t);
@@ -915,13 +906,13 @@ namespace TrkDriftCircleMath {
         }
       }
       if(m_trace) {
-	*m_log << MSG::DEBUG << " covsquared " << covsq << endreq;
+	ATH_MSG_DEBUG( " covsquared " << covsq  );
 	if( covsq < 0. ){
 	  for(int rr=0; rr<3; rr++) {
 	    for(int cc=0; cc<3; cc++) {
 	      double dot = deriv[rr]*covar[rr][cc]* deriv[cc];
-	      *m_log << MSG::DEBUG << " adding term " << dot << " dev1 " << deriv[rr] << " cov " << covar[rr][cc]
-		     << " dev2 " << deriv[cc] << endreq;
+	      ATH_MSG_DEBUG( " adding term " << dot << " dev1 " << deriv[rr] << " cov " << covar[rr][cc]
+                             << " dev2 " << deriv[cc]  );
 	    }
 	  }
 	}
@@ -933,7 +924,7 @@ namespace TrkDriftCircleMath {
       DCOnTrack dc_new(dc_newrad, residuals, covsq);
       dc_new.state(dcs_keep[i].state());
       
-      if(m_trace) *m_log << MSG::DEBUG  <<"T0 Segment hit res "<<residuals<<" eres "<<errorResiduals<<" covsq "<<covsq<<" ri " << r[i]<<" ro "<<rad<<" drad "<<drad << " sel "<<selection[i]<< " inv error " << w[i] << endreq;
+      if(m_trace) ATH_MSG_DEBUG("T0 Segment hit res "<<residuals<<" eres "<<errorResiduals<<" covsq "<<covsq<<" ri " << r[i]<<" ro "<<rad<<" drad "<<drad << " sel "<<selection[i]<< " inv error " << w[i]  );
       
       if( selection[i] == 0 ) {
         ++nhits;
@@ -946,9 +937,9 @@ namespace TrkDriftCircleMath {
         if(m_trace) std::cout <<" T0 Segment hit res "<<residuals<<" eres "<<errorResiduals<<" covsq "<<covsq<<" ri " << r[i]<<" radius after t0 "<<rad<<" radius error "<< drad <<  " original error " << dr[i] << std::endl;
 // Put chi2 penalty for drift times outside window
         if (t[i]-t0> uppercut ) { // too large 
-	  chi2  += (t[i]-t0-uppercut)* (t[i]-t0-uppercut)/10.;
+	  chi2  += (t[i]-t0-uppercut)* (t[i]-t0-uppercut)*0.1;
         }else if (t[i]-t0 < lowercut ) {// too small
-	  chi2 += ((t[i]-t0-lowercut)*(t[i]-t0-lowercut))/10.;
+	  chi2 += ((t[i]-t0-lowercut)*(t[i]-t0-lowercut))*0.1;
         }
       } 
       m_result.dcs().push_back( dc_new );
@@ -956,7 +947,7 @@ namespace TrkDriftCircleMath {
     
     double oldshift;
     oldshift = m_result.t0Shift();
-    if(m_trace) *m_log << MSG::DEBUG <<"end fit old "<<oldshift<< " new " <<t0<< endreq;
+    if(m_trace) ATH_MSG_DEBUG("end fit old "<<oldshift<< " new " <<t0 );
     // Final Minuit Fit result
     if(nhits==NUMPAR) {
       nhits++;
@@ -969,13 +960,13 @@ namespace TrkDriftCircleMath {
     if(m_trace) std::cout << "Minuit Fit complete: Chi2 " << chi2 << " angle " << m_result.line().phi() << " nhits "<< nhits  << " t0result " << t0 << std::endl;
     
     if(m_trace) {
-      *m_log << MSG::DEBUG << "Minuit Fit complete: Chi2 " << chi2 << " angle " << m_result.line().phi() << " nhits "<<nhits<<" numpar "<<NUMPAR << " per dof " << chi2/(nhits-NUMPAR)  << endreq;
+      ATH_MSG_DEBUG( "Minuit Fit complete: Chi2 " << chi2 << " angle " << m_result.line().phi() << " nhits "<<nhits<<" numpar "<<NUMPAR << " per dof " << chi2/(nhits-NUMPAR)   );
 
-      *m_log << MSG::DEBUG << "Fit complete: Chi2 " << chi2 <<" nhits "<<nhits<<" numpar "<<NUMPAR << " per dof " << chi2/(nhits-NUMPAR)  <<endreq;
+      ATH_MSG_DEBUG( "Fit complete: Chi2 " << chi2 <<" nhits "<<nhits<<" numpar "<<NUMPAR << " per dof " << chi2/(nhits-NUMPAR)   );
       if(chi2/(nhits-NUMPAR) > 5) {
-        *m_log << MSG::DEBUG << "_______NOT GOOD " <<endreq;
+        ATH_MSG_DEBUG( "_______NOT GOOD "  );
       }
-      *m_log << MSG::DEBUG <<"chi2 "<<chi2<<" per dof "<<chi2/(nhits-NUMPAR)<<" root chisq "<<chisq<< endreq;
+      ATH_MSG_DEBUG("chi2 "<<chi2<<" per dof "<<chi2/(nhits-NUMPAR)<<" root chisq "<<chisq );
     }
 
     // Do standard DCSL fit using the t0 updated results 
