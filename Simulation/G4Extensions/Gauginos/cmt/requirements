@@ -1,22 +1,18 @@
 package Gauginos
 
-version Gauginos-00-00-01
+author Edoardo Farina <edoardo.maria.farina@cern.ch>
 
-author ADA <dellacqu@mail.cern.ch>
-
-branches src cmt
-
+public
 use AtlasPolicy         AtlasPolicy-*
-use FadsPhysics                 FadsPhysics-*                   Simulation/G4Sim/FADS
-use Geant4                      Geant4-*                        External
 
 private
-use G4AtlasControl              G4AtlasControl-*                Simulation/G4Atlas
+use G4AtlasInterfaces   G4AtlasInterfaces-*     Simulation/G4Atlas
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use AtlasCLHEP          AtlasCLHEP-*            External
+use Geant4              Geant4-*                External
+use GaudiInterface      GaudiInterface-*        External
 end_private
 
-include_dirs "$(Gauginos_root)"
-
-library Gauginos ../src/*.cxx
-
-apply_pattern linked_library
-
+library Gauginos ../src/*.cxx -s=components *.cxx
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
