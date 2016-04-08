@@ -753,11 +753,13 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
       ATH_MSG_DEBUG("This vertex has no associated tracks. Normal if beam spot is used. Vertex already unbiased");
       return new xAOD::Vertex(*vtx);
     }
-
+   
    //create new vertex for output
    xAOD::Vertex *outputVertex = new xAOD::Vertex(*vtx);
    outputVertex->clearTracks(); //remove all tracks -> will add them back one by one
    if (outputVertex->vxTrackAtVertexAvailable()) outputVertex->vxTrackAtVertex().clear(); //remove all VxTrackAtVertex
+
+   bool tmpLinTrack = false; //do we created a new linearised track?
 
    //loop over tracks
    const Amg::Vector3D & pos = track->position();
@@ -787,6 +789,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
 	   }
 	   continue;
 	 }
+	 else tmpLinTrack = true;
        }
        //now update vertex position removing the linearized track, and do not add the track back to the output vertex
        Trk::RecVertex originalVtx(vtx->position(), vtx->covariancePosition(), vtx->numberDoF(), vtx->chiSquared());
@@ -795,6 +798,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
        outputVertex->setPosition(reducedVertex.position());
        outputVertex->setCovariancePosition(reducedVertex.covariancePosition());
        outputVertex->setFitQuality(reducedVertex.fitQuality().chiSquared(),reducedVertex.fitQuality().numberDoF());
+       if (tmpLinTrack) delete linTrack; //only delete if it was created new, and doesn't belong to a vertex
      } else {
        //track not to be removed. Add back the track to the vertex collection
        outputVertex->addTrackAtVertex(vtx->trackParticleLinks()[itrk], vtx->trackWeight(itrk));
@@ -802,9 +806,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
 	 outputVertex->vxTrackAtVertex().push_back(vtx->vxTrackAtVertex()[itrk]);//will clone everything inside -> output vertex owns all the memory
        }
      }
-   }
-
-   //return xAOD::Vertex
+   }  
    return outputVertex;
 
  }
