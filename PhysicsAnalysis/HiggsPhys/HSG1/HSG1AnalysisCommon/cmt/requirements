@@ -2,7 +2,7 @@ package HSG1AnalysisCommon
 	
 author Ketevi A. Assamagan <ketevi@bn.gov>
 
-use AtlasPolicy       AtlasPolicy-01-*   
+use AtlasPolicy       AtlasPolicy-*   
 
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
