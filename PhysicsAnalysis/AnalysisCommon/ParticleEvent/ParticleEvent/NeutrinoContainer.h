@@ -19,7 +19,7 @@
 
 /// INCLUDE HEADER FILES:
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "SGTools/CLASS_DEF.h"
 #include "ParticleEvent/Neutrino.h"
 #include "EventKernel/IParticle.h"

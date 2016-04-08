@@ -7,7 +7,7 @@
 
 
 #include "ParticleEvent/ParticleBase.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "SGTools/CLASS_DEF.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 #include "NavFourMom/IParticleContainer.h"

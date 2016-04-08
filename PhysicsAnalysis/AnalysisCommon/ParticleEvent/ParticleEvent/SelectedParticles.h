@@ -56,8 +56,8 @@ class SelectedParticles {
  public:
 
     SelectedParticles():m_bits(){;}
-	SelectedParticles(std::vector<unsigned>& indices); 
-	void Set(std::vector<unsigned>& onoffBits){ m_bits=onoffBits;}
+	SelectedParticles(const std::vector<unsigned>& indices); 
+	void Set(const std::vector<unsigned>& onoffBits){ m_bits=onoffBits;}
 	// supply max number of bits
 	void SetMaxBits(unsigned maxbits);
 	// set specific bit

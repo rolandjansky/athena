@@ -10,8 +10,7 @@
 #ifndef PARTICLEEVENT_PARTICLESHALLOWCLONE_H
 #define PARTICLEEVENT_PARTICLESHALLOWCLONE_H 1
 
-// DataModel includes
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "EventKernel/IParticle.h"
 #include "NavFourMom/IParticleContainer.h"
 #include "FourMom/P4PxPyPzE.h"
@@ -41,6 +40,8 @@ typedef IParticle Master_t;
 typedef IParticleContainer MasterContainer_t;
 typedef ElementLink<MasterContainer_t> MasterLink_t;
 typedef P4PxPyPzE P4Momentum_t;
+
+class ParticleShallowCloneCnv_p1;
 
 namespace Analysis
 {
@@ -256,6 +257,7 @@ namespace Analysis
 
     // All private data memebers that this class needs on top of the ones inherited
   private:
+    friend class ::ParticleShallowCloneCnv_p1;
     
     /// The persistent pointer (ElementLink) to the original "master" particle
     MasterLink_t m_masterLink;

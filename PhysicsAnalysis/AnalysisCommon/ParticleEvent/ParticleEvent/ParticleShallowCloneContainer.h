@@ -14,8 +14,7 @@
 // STL includes
 #include <iosfwd>
 
-// DataModel includes
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // SGTools includes (for persistency)
 #include "SGTools/CLASS_DEF.h"

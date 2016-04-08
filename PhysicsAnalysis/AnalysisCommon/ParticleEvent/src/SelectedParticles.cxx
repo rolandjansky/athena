@@ -8,7 +8,7 @@
 
 using namespace std;
 
-SelectedParticles::SelectedParticles(vector<unsigned>& indices):m_bits(){
+SelectedParticles::SelectedParticles(const vector<unsigned>& indices):m_bits(){
   int nind=indices.size();
   this->SetMaxBits(nind);
   for(int i=0;i<nind;++i){
