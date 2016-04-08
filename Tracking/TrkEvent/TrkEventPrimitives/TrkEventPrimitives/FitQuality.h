@@ -43,6 +43,9 @@ namespace Trk {
 
         /** Copy constructor */
         FitQuality( const FitQuality& rhs);
+        
+        ///Assignment
+        FitQuality & operator=(const FitQuality& /*rhs*/) = default;
 
         /** Destructor */
         virtual ~FitQuality();
