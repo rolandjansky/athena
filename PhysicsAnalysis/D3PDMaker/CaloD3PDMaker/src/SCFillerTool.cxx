@@ -11,7 +11,7 @@
 
 #include <sstream>
 
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"

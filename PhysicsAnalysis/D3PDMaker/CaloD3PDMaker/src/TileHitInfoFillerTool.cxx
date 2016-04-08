@@ -85,6 +85,9 @@ StatusCode TileHitInfoFillerTool::book()
  */
 StatusCode TileHitInfoFillerTool::fill (const TileHitVector& hitCont)
 {
+
+  MsgStream log(msgSvc(), name());
+
   *m_energy       = 0.0;
   *m_eInTime      = 0.0;
   *m_eBefore      = 0.0;
@@ -219,8 +222,9 @@ StatusCode TileHitInfoFillerTool::fill (const TileHitVector& hitCont)
 
   }
   
-  ATH_MSG_DEBUG(" Tile hits: "<< *m_nChan << " / " << *m_nHit
-                <<" energy " << *m_energy << " time " << *m_time  );
+  if ( log.level() <= MSG::DEBUG ) 
+      log<<MSG::DEBUG<<" Tile hits: "<< *m_nChan << " / " << *m_nHit
+         <<" energy " << *m_energy << " time " << *m_time << endreq;
   
   return StatusCode::SUCCESS;
 }

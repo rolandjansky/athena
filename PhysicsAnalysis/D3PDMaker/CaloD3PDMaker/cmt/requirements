@@ -10,6 +10,7 @@ use AtlasCLHEP                 AtlasCLHEP-*            External
 use AthenaBaseComps            AthenaBaseComps-*       Control
 use AthenaKernel               AthenaKernel-*          Control
 use SGTools                    SGTools-*               Control
+use DataModel                  DataModel-*             Control
 use StoreGate                  StoreGate-*             Control
 use AthContainers              AthContainers-*         Control
 use Navigation                 Navigation-*            Control
@@ -33,7 +34,7 @@ use TileIdentifier             TileIdentifier-*        TileCalorimeter
 use TileConditions             TileConditions-*        TileCalorimeter
 use TileSimEvent               TileSimEvent-*          TileCalorimeter
 use JetEvent                   JetEvent-*              Reconstruction/Jet
-use LArCabling                 LArCabling-*            LArCalorimeter
+use LArTools                   LArTools-*              LArCalorimeter
 use LArElecCalib               LArElecCalib-*          LArCalorimeter
 use PrimaryDPDMaker            PrimaryDPDMaker-*       PhysicsAnalysis
 use D3PDMakerUtils             D3PDMakerUtils-*        PhysicsAnalysis/D3PDMaker

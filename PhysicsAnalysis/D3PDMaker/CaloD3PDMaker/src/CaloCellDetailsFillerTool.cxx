@@ -15,6 +15,7 @@
 #include "CaloCellDetailsFillerTool.h"
 
 #include "GaudiKernel/StatusCode.h" 
+#include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "CaloConditions/ICaloBadChanTool.h"
@@ -24,9 +25,9 @@
 
 #include "CaloEvent/CaloCell.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include <sstream>
-#include <cmath>
+
+#include "CaloInterface/ICaloNoiseTool.h"
 
 namespace D3PD {
 
@@ -107,8 +108,10 @@ StatusCode CaloCellDetailsFillerTool::book()
      if(!m_noise_tool.empty()){
        CHECK (m_noise_tool.retrieve() );
     } else {
-       ATH_MSG_ERROR( "CellFillerTool::book() : m_noise_tool empty."
-                      << "Information on cell noise will not be stored" );
+      MsgStream log(msgSvc(), name());
+      log << MSG::ERROR << "CellFillerTool::book() : m_noise_tool empty."
+           << "Information on cell noise will not be stored" 
+           << endreq;
       m_useNoiseTool = false;
     }
   }
@@ -132,7 +135,7 @@ StatusCode CaloCellDetailsFillerTool::fill ( const CaloCell& c)
     *m_xCells = cell->x() ;
     *m_yCells = cell->y() ;
     *m_zCells = cell->z() ;
-    if (std::abs (*m_zCells) < 1e-8) *m_zCells = 0;
+    if (abs (*m_zCells) < 1e-8) *m_zCells = 0;
   }
 
 // pack into one work the quality and provenance information
