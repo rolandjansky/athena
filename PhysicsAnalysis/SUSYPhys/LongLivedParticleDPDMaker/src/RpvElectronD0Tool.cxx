@@ -73,6 +73,7 @@ StatusCode DerivationFramework::RpvElectronD0Tool::addBranches() const
 
      if (evtStore()->contains<std::vector<float> >(sgKey)) {
        ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << sgKey << " which already exists. Please use a different key");
+       delete d0vec; // avoid mem leak
        return StatusCode::FAILURE;
      }
      CHECK(evtStore()->record(d0vec, sgKey));       
