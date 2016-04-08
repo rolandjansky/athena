@@ -109,16 +109,16 @@ namespace Muon {
 
   //find the precision (eta) segments
   std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinderTool::findPrecisionSegments(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters) const {
-    std::vector<const Muon::MuonSegment*>* segments = new std::vector<const Muon::MuonSegment*>;
-    TrackCollection* segTrkColl = new TrackCollection;
+
     //clean the muon clusters -- select only the eta hits
     bool selectPhiHits(false);
     std::vector< const Muon::MuonClusterOnTrack* > clusters = cleanClusters(muonClusters,selectPhiHits);
     ATH_MSG_VERBOSE("After hit cleaning, there are " << clusters.size() << " clusters to be fit" );
     if(clusters.size() < 4){
-      delete segments;
       return 0;
     }
+    
+    TrackCollection* segTrkColl = new TrackCollection;
     //std::vector< const Muon::MuonClusterOnTrack* > clusters = muonClusters;
     //order the muon clusters by layer
     std::vector< std::vector<const Muon::MuonClusterOnTrack*> > orderedClusters = orderByLayer(clusters);
@@ -200,38 +200,44 @@ namespace Muon {
       msg(MSG::DEBUG) << endreq;
     }
 
+    if( segTrkColl->empty() ){
+      delete segTrkColl;
+      return 0;
+    }
+
     TrackCollection* resolvedTracks = m_ambiTool->process(segTrkColl);
     ATH_MSG_DEBUG("Resolved track candidates: old size " << segTrkColl->size() << " new size " << resolvedTracks->size() );
-    //store the resolved segments
+      //store the resolved segments
+
+    std::vector<const Muon::MuonSegment*>* segments = new std::vector<const Muon::MuonSegment*>;
     for(TrackCollection::const_iterator it=resolvedTracks->begin(); it!=resolvedTracks->end(); ++it) {
       MuonSegment* seg = m_trackToSegmentTool->convert( **it );
       if( !seg ) {
-	ATH_MSG_VERBOSE("Segment conversion failed, no segment created. ");
+        ATH_MSG_VERBOSE("Segment conversion failed, no segment created. ");
       }
       else {
-	ATH_MSG_DEBUG(" adding " << m_printer->print(*seg) << std::endl << m_printer->print( seg->containedMeasurements() ) );
-	segments->push_back(seg);
+        ATH_MSG_DEBUG(" adding " << m_printer->print(*seg) << std::endl << m_printer->print( seg->containedMeasurements() ) );
+        segments->push_back(seg);
       }
     }
     
     //memory cleanup
-    delete segTrkColl;
     delete resolvedTracks;
+    delete segTrkColl;
 
     return segments;
   }
 
   std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinderTool::find3DSegments(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters, 
 										      std::vector<const Muon::MuonSegment*>* etaSegs) const {
-    std::vector<const Muon::MuonSegment*>* segments = new std::vector<const Muon::MuonSegment*>;
     bool selectPhiHits(true);
     std::vector< const Muon::MuonClusterOnTrack* > clusters = cleanClusters(muonClusters,selectPhiHits);
     ATH_MSG_DEBUG("After hit cleaning, there are " << clusters.size() << " clusters to be fit" );
     if(clusters.size() < 4) {
       ATH_MSG_DEBUG("Not enough phi hits present, cannot perform the fit!");
-      delete segments;
       return etaSegs;
     }
+    std::vector<const Muon::MuonSegment*>* segments = new std::vector<const Muon::MuonSegment*>;
     TrackCollection* segTrkColl = new TrackCollection;
     //order the clusters by layer
     bool useWires(true);

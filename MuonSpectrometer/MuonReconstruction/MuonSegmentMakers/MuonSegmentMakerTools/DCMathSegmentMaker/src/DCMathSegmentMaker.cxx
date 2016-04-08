@@ -563,7 +563,7 @@ namespace Muon {
 
     //MuonStationIndex::ChIndex chIndex;
     if(segment.hasCurvatureParameters()) {
-      if(chIndex == Muon::MuonStationIndex::BIL || chIndex == MuonStationIndex::BML || chIndex == MuonStationIndex::BOL)
+      if(chIndex == Muon::MuonStationIndex::BIL || chIndex == MuonStationIndex::BML || chIndex == MuonStationIndex::BMS || chIndex == MuonStationIndex::BOL)
 	isCurvedSegment = true;	    
     }
 
@@ -836,7 +836,7 @@ namespace Muon {
 	double charge = gpos.z()*tan(gdir.theta());
 	charge = charge/fabs(charge);
 	//if the curved segment was not refit, then use a momentum estimate
-	double BILALPHA(28.4366),BMLALPHA(62.8267),/*BMSALPHA(53.1259),*/BOLALPHA(29.7554);
+	double BILALPHA(28.4366),BMLALPHA(62.8267),BMSALPHA(53.1259),BOLALPHA(29.7554);
 	if(chIndex == MuonStationIndex::BIL) {
 	  qoverp = (charge*segment.deltaAlpha())/BILALPHA;
 	  dqoverp = sqrt(2)*segment.dtheta()/BILALPHA;
@@ -845,13 +845,10 @@ namespace Muon {
 	  qoverp = (charge*segment.deltaAlpha())/BMLALPHA;
 	  dqoverp = sqrt(2)*segment.dtheta()/BMLALPHA;
 	}
-        /*
-        //code currently can't reach this
 	else if(chIndex == MuonStationIndex::BMS) {
 	  qoverp = (charge*segment.deltaAlpha())/BMSALPHA;
 	  dqoverp = sqrt(2)*segment.dtheta()/BMSALPHA;
 	}
-        */
 	else if(chIndex == MuonStationIndex::BOL) {
 	  qoverp = (charge*segment.deltaAlpha())/BOLALPHA;
 	  dqoverp = sqrt(2)*segment.dtheta()/BOLALPHA;
@@ -1765,7 +1762,7 @@ namespace Muon {
 	  
       // calculate Amg::Vector2D using surf to obtain sign
       Amg::Vector2D locPos(0.,0.);
-      surf->globalToLocal(mdtGP,gdir,locPos);
+      if( ! surf->globalToLocal(mdtGP,gdir,locPos) ) ATH_MSG_WARNING(" globalToLocal failed ");
 	  
       // calculate side
       Trk::DriftCircleSide side = locPos[Trk::driftRadius] < 0 ? Trk::LEFT : Trk::RIGHT;
@@ -2617,12 +2614,15 @@ namespace Muon {
 	    // copy code from ROT creator
 	    int stripNo = m_idHelperTool->tgcIdHelper().channel(id);
 	    int gasGap = m_idHelperTool->tgcIdHelper().gasGap(id);
-
+	    if (!crot) {
+	      ATH_MSG_WARNING("dynamic cast failed for CompetingMuonClustersOnTrack");
+	      continue;
+	    }
 	    const MuonGM::TgcReadoutElement* detEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(crot->containedROTs().front()->prepRawData()->detectorElement());
-            if (!detEl) {
-              ATH_MSG_WARNING("dynamic cast failed for TgcReadoutElement");
-              continue;
-            }
+	    if (!detEl) {
+	      ATH_MSG_WARNING("dynamic cast failed for TgcReadoutElement");
+	      continue;
+	    }
 	    // calculate two points along the tgc phi strip in the local tgc reference frame
 	    Amg::Vector3D lposTGC = detEl->localChannelPos(id);
 	    double z_shift = lposTGC.z()+10;
