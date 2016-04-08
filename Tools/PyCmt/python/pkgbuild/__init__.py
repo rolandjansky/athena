@@ -151,8 +151,9 @@ def _cmt_to_autoconf(cmt):
 
         'CPPFLAGS': cmt('includes'),
         }
-    if ( len(cmt('target-icc')) + len(cmt('target-clang')) != 0 ):
-        cfg_env['LD']=cmt('cc')
+    if cfg_env['CC'].find ('clang')>=0 or cfg_env['CC'].find ('icc')>=0:
+        #cfg_env['LD']='ld'
+        cfg_env['LDSHARED']=cmt('cc') + ' -shared '
 
     # use_linkopts introduces <package>_linkopts which may confuse 'autoconf'
     pkg_name = cmt('package').strip()
@@ -177,6 +178,7 @@ def _cmt_to_autoconf(cmt):
                         .replace("-Wno-deprecated ", " ")\
                         .replace("--ccache-skip ", " ")\
                         .replace("-shared ", " ")\
+                        .replace("-std=c++11 ", " ")\
                         .replace("`checker_gccplugins_args`", " ")
 
     cfg_env['CXXFLAGS'] = cfg_env['CXXFLAGS']\
@@ -197,8 +199,7 @@ def _cmt_to_autoconf(cmt):
     cfg_env['CFLAGS']  += " -fno-strict-aliasing"
     cfg_env['FCFLAGS'] += " -fno-strict-aliasing"
     cfg_env['CXXFLAGS']+= " -fno-strict-aliasing"
-    
-    
+
     host_arch = 'x86_64' if 'x86_64' in os.environ['CMTCONFIG'] else 'i686'
     host_plat = 'none'
     if 'linux' in sys.platform:
@@ -229,6 +230,18 @@ def _cmt_to_autoconf(cmt):
     cfg_env['CXX']= cfg_env['CXX'].replace('distcc','').strip()
     cfg_env['FC'] = cfg_env['FC'].replace('distcc', '').strip()
     cfg_env['compiler'] = cfg_env['compiler'].replace('distcc', '').strip()
+    
+    # Move any extra arguments.
+    def move_args (compiler, flags):
+        l = cfg_env[compiler].split()
+        if len(l) > 1:
+            cfg_env[flags] += ' ' + ' '.join(l[1:])
+            cfg_env[compiler] = l[0]
+        return
+    move_args ('CC', 'CFLAGS')
+    move_args ('compiler', 'CFLAGS')
+    move_args ('CXX', 'CXXFLAGS')
+    #move_args ('LD', 'LDFLAGS')
     
     cfg_env['F77'] = cfg_env['FC']
     cfg_env['FFLAGS'] = cfg_env['FCFLAGS']
