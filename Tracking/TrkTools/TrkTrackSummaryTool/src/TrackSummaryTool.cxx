@@ -40,7 +40,6 @@ AthAlgTool(t,n,p),
   m_doHolesMuon(false),
   m_doHolesInDet(false),
   m_doSharedHits(false),
-  m_detID{},
   m_idTool(""),
   m_eProbabilityTool(""),
   m_trt_dEdxTool(""),
@@ -81,11 +80,17 @@ Trk::TrackSummaryTool::~TrackSummaryTool()
 StatusCode 
   Trk::TrackSummaryTool::initialize()
 {
-    // StatusCode sc=StatusCode::SUCCESS;
-    //StatusCode sc = AlgTool::initialize();
-    //if (sc.isFailure()) return sc;
 
-    ATH_CHECK( detStore()->retrieve(m_detID, "AtlasID" ));
+    StatusCode sc = AlgTool::initialize();
+    if (sc.isFailure()) return sc;
+
+    sc = detStore()->retrieve(m_detID, "AtlasID" );
+    if (sc.isFailure()) {
+        ATH_MSG_FATAL ("Could not get AtlasDetectorID ");
+        return sc;
+    }else{
+        ATH_MSG_DEBUG ("Found AtlasDetectorID");
+    }
 
     if (m_idTool.empty() && m_muonTool.empty()) {
         ATH_MSG_ERROR ("Could get neither InDetHelperTool nor MuonHelperTool. Must abort.");
@@ -97,7 +102,7 @@ StatusCode
         ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
         return StatusCode::FAILURE;
     } else {
-        if ( !m_idTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_idTool << endmsg;
+        if ( !m_idTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_idTool << endreq;
     }
 
   // Troels.Petersen@cern.ch:
@@ -107,7 +112,7 @@ StatusCode
         ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
         return StatusCode::FAILURE;
     } else { 
-       if ( !m_eProbabilityTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_eProbabilityTool << endmsg;
+       if ( !m_eProbabilityTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_eProbabilityTool << endreq;
     }
 
     if (!m_trt_dEdxTool.empty()) {
@@ -121,7 +126,7 @@ StatusCode
         ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
         return StatusCode::FAILURE;
     } else {
-       if ( !m_dedxtool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_dedxtool << endmsg;
+       if ( !m_dedxtool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_dedxtool << endreq;
     }
 
     if ( !m_idHoleSearch.empty() ) {
@@ -130,7 +135,7 @@ StatusCode
             ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
             return StatusCode::FAILURE;
         } else {
-            msg(MSG::INFO) << "Retrieved tool " << m_idHoleSearch<<endmsg;;
+            msg(MSG::INFO) << "Retrieved tool " << m_idHoleSearch<<endreq;;
             m_doHolesInDet = true;
         }
     }
@@ -141,7 +146,7 @@ StatusCode
         ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
     } 
     else {
-        if ( !m_muonTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_muonTool<<endmsg;
+        if ( !m_muonTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_muonTool<<endreq;
     }
 
     if (m_doHolesInDet) 
@@ -163,8 +168,8 @@ StatusCode
 StatusCode 
   Trk::TrackSummaryTool::finalize()
 {
-  //StatusCode sc = AlgTool::finalize();
-  return StatusCode::SUCCESS;
+  StatusCode sc = AlgTool::finalize();
+  return sc;
 }
 
 //============================================================================================
@@ -330,7 +335,7 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
   }
 
   // move this part to VERBOSE
-  ATH_MSG_VERBOSE ( *ts << endmsg << "Finished!");
+  ATH_MSG_VERBOSE ( *ts << endreq << "Finished!");
 
   Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
   if (onlyUpdateTrack) {
@@ -435,7 +440,7 @@ void Trk::TrackSummaryTool::processTrackStates(const Track& track,
 
   int measCounter = 0, cntAddChi2 = 0;
   float chi2Sum = 0, chi2Sum2 = 0;
-  DataVector<const TrackStateOnSurface>::const_iterator it = tsos->begin(), itEnd = tsos->end();
+  std::vector<const TrackStateOnSurface*>::const_iterator it = tsos->begin(), itEnd = tsos->end();
   for ( ; it!=itEnd; ++it){
     if ((*it)->type(Trk::TrackStateOnSurface::Measurement) || (*it)->type(Trk::TrackStateOnSurface::Outlier)){
       ++measCounter;
@@ -498,7 +503,7 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
     // have RIO_OnTrack
     Trk::ITrackSummaryHelperTool* tool = getTool(rot->identify());
     if (tool==0){
-      msg(MSG::WARNING)<<"Cannot find tool to match ROT. Skipping."<<endmsg;
+      msg(MSG::WARNING)<<"Cannot find tool to match ROT. Skipping."<<endreq;
     } else {
 
       tool->analyse(track,rot,tsos,information, hitPattern);
@@ -512,7 +517,7 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
       rot = &compROT->rioOnTrack(0); // get 1st rot
       Trk::ITrackSummaryHelperTool* tool = getTool(rot->identify()); // Use 'main' ROT to get detector type
       if (tool==0){
-        msg(MSG::WARNING)<<"Cannot find tool to match cROT. Skipping."<<endmsg;
+        msg(MSG::WARNING)<<"Cannot find tool to match cROT. Skipping."<<endreq;
       } else {
         tool->analyse(track,compROT,tsos,information, hitPattern);
       }
@@ -527,13 +532,13 @@ Trk::TrackSummaryTool::getTool(const Identifier& id) const
     if (!m_idTool.empty()){
       return &(*m_idTool);
     } else { 
-      msg(MSG::WARNING)<<"getTool: Identifier is from ID but have no ID tool"<<endmsg;
+      msg(MSG::WARNING)<<"getTool: Identifier is from ID but have no ID tool"<<endreq;
     }
   } else if(m_detID->is_muon(id)) {
     if (!m_muonTool.empty()) {
       return &(*m_muonTool);
     } else {
-      msg(MSG::WARNING)<<"getTool: Identifier is from Muon but have no Muon tool"<<endmsg;
+      msg(MSG::WARNING)<<"getTool: Identifier is from Muon but have no Muon tool"<<endreq;
     }
   } else {
     msg(MSG::WARNING) <<"getTool: Identifier is of unknown type! id: "<<id.getString();
