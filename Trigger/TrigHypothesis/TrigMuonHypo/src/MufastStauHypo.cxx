@@ -161,10 +161,10 @@ HLT::ErrorCode MufastStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
  {
     
 	//if ( fabsf(pMuon->pt()) > (m_ptThreshold/CLHEP::GeV)&& BetaCand < m_betaMax && BetaCand>0)
-	if ( fabsf(pMuon->pt()) > (threshold/CLHEP::GeV)&& BetaCand < m_betaMax && BetaCand>0)
+        if ( std::abs(pMuon->pt()) > (threshold/CLHEP::GeV)&& BetaCand < m_betaMax && BetaCand>0)
 	{
 		double theta = 2.*atan(exp(-pMuon->etaMS())); //should be turned into codes
-		double pCand = fabsf(pMuon->pt())/sin(theta)*CLHEP::GeV;
+		double pCand = std::abs(pMuon->pt())/sin(theta)*CLHEP::GeV;
 		mCand = pCand * sqrt(1.-BetaCand*BetaCand)/BetaCand; // should be turned into code
 		if (mCand > m_mMin) result = true;
 	}
@@ -179,7 +179,7 @@ HLT::ErrorCode MufastStauHypo::hltExecute(const HLT::TriggerElement* outputTE,
  else 
  {
     //if ( fabsf(pMuon->pt()) > (m_ptThreshold/CLHEP::GeV))
-    if ( fabsf(pMuon->pt()) > (threshold/CLHEP::GeV))
+    if ( std::abs(pMuon->pt()) > (threshold/CLHEP::GeV))
     {
         result = true;   
     }

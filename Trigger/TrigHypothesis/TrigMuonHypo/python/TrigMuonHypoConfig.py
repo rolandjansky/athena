@@ -1253,7 +1253,8 @@ trigMuonEFTrkIsoThresholds = {
     'VarTauCP'                   : [ -1.0,      1.0],
 
     'RelEFOnlyVarLoose'          : [ 0.2,  -1.0 ],
-    'RelEFOnlyVarMedium'         : [ 0.18, -1.0 ],
+#    'RelEFOnlyVarMedium'         : [ 0.18, -1.0 ], #MC15C
+    'RelEFOnlyVarMedium'         : [ -1.0,  0.16],  #ivarloose
     'RelEFOnlyVarTight'          : [ 0.06, -1.0 ],
     
     'EFOnlyVarLooseWide'         : [ -1.0,   4200.0],
@@ -1262,7 +1263,8 @@ trigMuonEFTrkIsoThresholds = {
     
     'RelEFOnlyVarLooseWide'      : [-1.0 ,  0.2  ],
     'RelEFOnlyVarMediumWide'     : [-1.0 ,  0.12 ],
-    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.08 ] 
+#    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.08 ] #MC15C 
+    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.07 ]  #ivarmedium
     }
 
 """

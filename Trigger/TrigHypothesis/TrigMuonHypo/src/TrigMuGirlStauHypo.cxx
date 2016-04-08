@@ -144,7 +144,7 @@ HLT::ErrorCode TrigMuGirlStauHypo::hltExecute(const HLT::TriggerElement* outputT
 	double mass = (trk)->m()/CLHEP::GeV;
 	
 	double theta = 2.*atan(exp(-eta)); //should be turned into codes
-	double pCand = fabsf(pt)/sin(theta);
+	double pCand = std::abs(pt)/sin(theta);
 	//TrigMuonEFCbTrack* combinedTrk = (*tr)->CombinedTrack();
 	//double mass = combinedTrk->mass();
 	double iGamma = mass/pCand;

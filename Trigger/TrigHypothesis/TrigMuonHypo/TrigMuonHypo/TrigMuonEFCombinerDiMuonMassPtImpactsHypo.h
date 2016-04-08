@@ -25,8 +25,7 @@ class TrigMuonEFCombinerDiMuonMassPtImpactsHypo: public HLT::AllTEAlgo
 
    private:
       
-      static const double pi;
-      static const double mumass;
+      static const double MUMASS;
       static const double MASS_ZERO_LIMIT;
   
       // Properties
