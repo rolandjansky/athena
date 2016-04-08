@@ -29,11 +29,13 @@ namespace Muon {
   public:
 
     struct HitSummary {
-      HitSummary() : nprecisionHits(0), netaTriggerLayers(0), nphiLayers(0), netaPhiLayers(0),
-		     nprecisionHoles(0), netaTriggerHoleLayers(0), nphiHoleLayers(0), nprecisionOutliers(0), nprecisionCloseHits(0) {}
+      HitSummary() : nprecisionHits(0), nprecisionGoodHits(0), netaTriggerLayers(0), nphiLayers(0), netaPhiLayers(0),
+	             nprecisionHoles(0), netaTriggerHoleLayers(0), nphiHoleLayers(0), nprecisionOutliers(0),
+	             nprecisionCloseHits(0), noutBoundsHits(0), isEndcap(false), isSmall(false) {}
 
       /** hit counts */
       unsigned int nprecisionHits;        /** number of precision hits */
+      unsigned int nprecisionGoodHits;    /** number of precision hits that are not deweighted */
       unsigned int netaTriggerLayers;     /** number of eta trigger layers */
       unsigned int nphiLayers;            /** number of phi layers */
       unsigned int netaPhiLayers;         /** number of paired eta/phi trigger layers */
@@ -44,15 +46,21 @@ namespace Muon {
       unsigned int nphiHoleLayers;        /** number of phi layer holes */
 
       /** outliers and close hits counts */
-      unsigned int nprecisionOutliers;        /** number of outliers hits */
-      unsigned int nprecisionCloseHits;       /** number of close hits hits */
+      unsigned int nprecisionOutliers;    /** number of outliers hits */
+      unsigned int nprecisionCloseHits;   /** number of close hits hits */
+      unsigned int noutBoundsHits;        /** number of out of bounds hits */
+
+      //some basic info
+      bool isEndcap;
+      bool isSmall;
 
       std::string dump() const;
     };
 
     struct CompactSummary {
       CompactSummary() : mainSector(-1),nprecisionLayers(0),nphiLayers(0),ntrigEtaLayers(0),
-			 nprecisionHoleLayers(0), ntrigEtaHoleLayers(0), nphiHoleLayers(0) {}
+	                 nprecisionHoleLayers(0), ntrigEtaHoleLayers(0), nphiHoleLayers(0),
+	                 nprecisionGoodLayers(0), isEndcap(false), isSmall(false) {}
 
       int mainSector;
       unsigned int nprecisionLayers;       /** number of precision layers */
@@ -61,6 +69,9 @@ namespace Muon {
       unsigned int nprecisionHoleLayers;   /** number of precision holes */
       unsigned int ntrigEtaHoleLayers;     /** number of eta trigger layer holes */
       unsigned int nphiHoleLayers;         /** number of phi layer holes */
+      unsigned int nprecisionGoodLayers;   /** number of precision layers not deweighted */
+      bool isEndcap;                       /** true if non-deweighted chambers are in endcap */
+      bool isSmall;                        /** true if non-deweighted chambers are small */
 
       std::set<int>                sectors;
       std::map<MuonStationIndex::StIndex,HitSummary> stationLayers;
@@ -132,10 +143,10 @@ namespace Muon {
 
   inline std::string IMuonHitSummaryTool::HitSummary::dump() const {
     std::ostringstream sout;
-    sout << " precHits " << nprecisionHits << " etaTrigLay " << netaTriggerLayers 
+    sout << " precHits " << nprecisionHits << " etaTrigLay " << netaTriggerLayers
 	 << " phiLay " << nphiLayers << " etaPhiLay " << netaPhiLayers
 	 << " precHoles " << nprecisionHoles << " etaTrigHoleLay " << netaTriggerHoleLayers
-	 << " phiHoleLay " << nphiHoleLayers;
+	 << " phiHoleLay " << nphiHoleLayers << " isEndcap " << isEndcap << " isSmall " << isSmall;
     return sout.str();
   }
 
