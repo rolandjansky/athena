@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvTool.cxx 675986 2015-06-17 13:37:50Z will $
+// $Id: EventInfoCnvTool.cxx 727101 2016-03-01 15:56:08Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -106,12 +106,14 @@ namespace xAODMaker {
     * @param aod The AOD's EventInfo object
     * @param xaod The xAOD::EventInfo object to fill
     * @param pileUpInfo <code>true</code> for pile-up EventInfo objects
+    * @param copyPileUpLinks Allows to turn the ElementLink creation on or off
     * @returns <code>StatusCode::SUCCESS</code> if all went fine,
     *          something else if not
     */
    StatusCode EventInfoCnvTool::convert( const EventInfo* aod,
                                          xAOD::EventInfo* xaod,
-                                         bool pileUpInfo ) {
+                                         bool pileUpInfo,
+                                         bool copyPileUpLinks ) {
 
       if( ! aod ) {
          ATH_MSG_WARNING( "Null pointer received for input!" );
@@ -260,7 +262,7 @@ namespace xAODMaker {
       // Check if it is a PileUpEventInfo object:
       const PileUpEventInfo* puei =
          dynamic_cast< const PileUpEventInfo* >( aod );
-      if( puei ) {
+      if( puei && copyPileUpLinks ) {
          // Construct the map for the SubEvent translation:
          static std::map< PileUpEventInfo::SubEvent::pileup_type,
                           xAOD::EventInfo::PileUpType > subTypeMap;
@@ -302,6 +304,7 @@ namespace xAODMaker {
 
             // Add the new object
             subEvents.push_back( xAOD::EventInfo::SubEvent( itr->time(),
+                                                            itr->index(),
                                                             type, link ) );
          }
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvAlg.cxx 682548 2015-07-13 13:57:15Z krasznaa $
+// $Id: EventInfoCnvAlg.cxx 727101 2016-03-01 15:56:08Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -126,7 +126,7 @@ namespace xAODMaker {
          xAOD::EventInfo* ei = new xAOD::EventInfo();
          puei->push_back( ei );
          // Fill it with information:
-         CHECK( m_cnvTool->convert( pu_itr->pSubEvt, ei, true ) );
+         CHECK( m_cnvTool->convert( pu_itr->pSubEvt, ei, true, false ) );
          // And now add a sub-event to the temporary list:
          auto typeItr = pileupTypeMap.find( pu_itr->type() );
          xAOD::EventInfo::PileUpType type = xAOD::EventInfo::Unknown;
@@ -136,6 +136,7 @@ namespace xAODMaker {
             type = typeItr->second;
          }
          subEvents.push_back( xAOD::EventInfo::SubEvent( pu_itr->time(),
+                                                         pu_itr->index(),
                                                          type,
                                                          EiLink( "PileUp" +
                                                                  m_xaodKey,
