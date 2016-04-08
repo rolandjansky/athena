@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAuxContainer_v2.h 638520 2015-01-09 13:21:05Z janus $
+// $Id: TauJetAuxContainer_v2.h 699667 2015-10-09 12:39:03Z bburghgr $
 #ifndef XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V2_H
 #define XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V2_H
 
@@ -94,6 +94,11 @@ namespace xAOD {
     std::vector< float > etaPanTauCellBased;
     std::vector< float > phiPanTauCellBased;
     std::vector< float > mPanTauCellBased;
+
+    std::vector< float > ptTrigCaloOnly;
+    std::vector< float > etaTrigCaloOnly;
+    std::vector< float > phiTrigCaloOnly;
+    std::vector< float > mTrigCaloOnly;
    
         
              
