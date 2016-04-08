@@ -27,8 +27,8 @@
 Trk::ResidualPullCalculator::ResidualPullCalculator(const std::string& type, const std::string& name, const IInterface* parent)
         : AthAlgTool(type,name,parent),
         m_SCTresidualTool("InDet::SCT_ResidualPullCalculator/SCT_ResidualPullCalculator"),
-        m_RPCresidualTool(""),
-        m_TGCresidualTool(""),
+        m_RPCresidualTool("Muon::RPC_ResidualPullCalculator/RPC_ResidualPullCalculator"),
+        m_TGCresidualTool("Muon::TGC_ResidualPullCalculator/TGC_ResidualPullCalculator"),
         m_idHelper(0) {
     declareInterface<IResidualPullCalculator>(this);
     declareProperty("ResidualPullCalculatorForSCT", m_SCTresidualTool,  "Tool to calculate residuals and pulls in the SCT (including module rotation)");
