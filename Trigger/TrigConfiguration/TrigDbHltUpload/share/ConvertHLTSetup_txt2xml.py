@@ -20,6 +20,8 @@ class Property:
         if name=='OutputLevel' and (value=='0' or value=='7'): value = '3'
         #set the MuonCalBufferName property to "" instead of e.g. _23921
         if name=='MuonCalBufferName': value = ''
+        #set the XMLMenuFile property to "" instead of e.g. outputHLTconfig_PID-92163.xml
+        if name=='XMLMenuFile': value = ''
         # exception for list-type values: remove extra whitespace,
         # e.g., convert [ 'Value1' , 'Value2' ] to ['Value1', 'Value2']
         if len(value)!=0 and value[0]=='[':
