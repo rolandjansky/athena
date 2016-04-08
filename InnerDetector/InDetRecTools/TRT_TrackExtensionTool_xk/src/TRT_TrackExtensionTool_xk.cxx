@@ -95,7 +95,7 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
   //
   IToolSvc* toolSvc;
   if ((sc=service("ToolSvc", toolSvc)).isFailure())  {
-    msg(MSG::FATAL)<<"Toll service not found !"<<endmsg;
+    msg(MSG::FATAL)<<"Toll service not found !"<<endreq;
     return StatusCode::FAILURE;
   }
 
@@ -114,55 +114,55 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
   // Get RIO_OnTrack creator with drift time information
   //
   if(m_riontrackD.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riontrackD <<endmsg;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riontrackD <<endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_riontrackD << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_riontrackD << endreq;
   }
 
   // Get RIO_OnTrack creator without drift time information
   //
   if(m_riontrackN.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riontrackN <<endmsg;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riontrackN <<endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_riontrackN << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_riontrackN << endreq;
   }
 
   // Get detector elements road maker tool
   //
   if(m_roadtool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_roadtool <<endmsg;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_roadtool <<endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_roadtool << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_roadtool << endreq;
   }
 
   // Get propagator tool
   //
   if(m_proptool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_proptool <<endmsg;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_proptool <<endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_proptool << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_proptool << endreq;
   }
 
   // Get updator tool
   //
   if(m_updatortool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_updatortool <<endmsg;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_updatortool <<endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_updatortool << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_updatortool << endreq;
   }
 
   // Get segment selector tool
   //
   if(m_selectortool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endmsg;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_selectortool << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_selectortool << endreq;
   }
 
   // Get  TRT Detector Manager
@@ -170,14 +170,14 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
   const InDetDD::TRT_DetectorManager* trtmanager;
   sc = detStore()->retrieve(trtmanager,m_trtmanager);
   if (sc.isFailure()) {
-    msg(MSG::FATAL)<<"Could not get TRT_DetectorManager"<<endmsg; return sc;
+    msg(MSG::FATAL)<<"Could not get TRT_DetectorManager"<<endreq; return sc;
   }
   */
 
   const TRT_ID * trtid;
   // TRT
   if (detStore()->retrieve(trtid,"TRT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
+    msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
     return StatusCode::FAILURE;
   }
   m_trajectory.set
@@ -192,9 +192,9 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
     sc = detStore()->regFcn(&InDet::TRT_TrackExtensionTool_xk::magneticFieldInit,this,currentHandle,folder);
     
     if(sc==StatusCode::SUCCESS) {
-      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endmsg;
+      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endreq;
     } else {
-      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endmsg;
+      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endreq;
       return StatusCode::FAILURE;
     }
   } else {
@@ -225,8 +225,7 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::finalize()
 MsgStream& InDet::TRT_TrackExtensionTool_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out);
-  return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
 }
 
 
@@ -343,7 +342,7 @@ void InDet::TRT_TrackExtensionTool_xk::newEvent()
   m_trtcontainer = 0;
   StatusCode sc = evtStore()->retrieve(m_trtcontainer,m_trtname); 
   if(sc.isFailure() && m_outputlevel<=0) {
-    msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
+    msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endreq;
   }
 }
 
@@ -488,8 +487,7 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::magneticFieldInit(IOVSVC_CALLBACK_A
 {
   // Build MagneticFieldProperties 
   //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField";
-  magneticFieldInit();
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
   return StatusCode::SUCCESS;
 }
 

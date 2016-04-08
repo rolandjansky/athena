@@ -79,7 +79,7 @@ StatusCode InDet::TRT_TrackExtensionToolCosmics::initialize()
   //
   IToolSvc* toolSvc;
   if ((sc=service("ToolSvc", toolSvc)).isFailure())  {
-    msg(MSG::FATAL)<<"Toll service not found !"<<endmsg;
+    msg(MSG::FATAL)<<"Toll service not found !"<<endreq;
     return StatusCode::FAILURE;
   }
 
@@ -87,23 +87,23 @@ StatusCode InDet::TRT_TrackExtensionToolCosmics::initialize()
   // Get RIO_OnTrack creator with drift time information
   //
   if(m_riontrackD.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riontrackD <<endmsg;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riontrackD <<endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_riontrackD << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_riontrackD << endreq;
   }
 
   // Get RIO_OnTrack creator without drift time information
   //
   if(m_riontrackN.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riontrackN <<endmsg;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_riontrackN <<endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_riontrackN << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_riontrackN << endreq;
   }
 
   if ((detStore()->retrieve(m_trtid)).isFailure()) {
-    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
+    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -111,7 +111,7 @@ StatusCode InDet::TRT_TrackExtensionToolCosmics::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
   }
   return sc;
 
@@ -142,8 +142,7 @@ StatusCode InDet::TRT_TrackExtensionToolCosmics::finalize()
 MsgStream& InDet::TRT_TrackExtensionToolCosmics::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out);
-  return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
 }
 
 
@@ -221,7 +220,7 @@ void InDet::TRT_TrackExtensionToolCosmics::newEvent()
   m_trtcontainer = 0;
   StatusCode sc = evtStore()->retrieve(m_trtcontainer,m_trtname); 
   if(sc.isFailure() && m_outputlevel<=0) {
-    msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
+    msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endreq;
   }
 }
 
@@ -264,15 +263,15 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr)
 ///////////////////////////////////////////////////////////////////
 void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const Trk::TrackParameters* >* tpars)
 {
-  msg(MSG::DEBUG)<<"Number of tpars: "<<tpars->size()<<endmsg;
+  msg(MSG::DEBUG)<<"Number of tpars: "<<tpars->size()<<endreq;
   
   double lastz=-99999;
   std::vector< const Trk::TrackParameters* >::const_iterator parameterIter = tpars->begin();
   for ( ; parameterIter != tpars->end(); ++parameterIter) {
-    msg(MSG::DEBUG)<< "par pos: " << (**parameterIter).position() <<endmsg;
+    msg(MSG::DEBUG)<< "par pos: " << (**parameterIter).position() <<endreq;
       
     if ( (*parameterIter)->associatedSurface().associatedDetectorElementIdentifier()==0 ) {
-      msg(MSG::DEBUG)<<"No DE identifier!!!"<<endmsg;
+      msg(MSG::DEBUG)<<"No DE identifier!!!"<<endreq;
       continue; 
     }
 
@@ -310,11 +309,11 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	  InDet::TRT_DriftCircleContainer::const_iterator containerIterator = m_trtcontainer->indexFind(detElements[i+1]);
 	  
 	  if(containerIterator==m_trtcontainer->end()) {
-	    msg(MSG::DEBUG)<<"for the current detectorElement no DriftCircleContainer seems to exist: "<<m_trtid->show_to_string(m_trtid->layer_id(detElements[i+1]))<<endmsg;
+	    msg(MSG::DEBUG)<<"for the current detectorElement no DriftCircleContainer seems to exist: "<<m_trtid->show_to_string(m_trtid->layer_id(detElements[i+1]))<<endreq;
 	    continue;
 	  }
 	  
-	  msg(MSG::DEBUG)<< "There are "  << (*containerIterator)->size() << " entries in the TRT_DriftCircleCollection "<<m_trtid->show_to_string(m_trtid->layer_id(detElements[i+1])) <<endmsg;
+	  msg(MSG::DEBUG)<< "There are "  << (*containerIterator)->size() << " entries in the TRT_DriftCircleCollection "<<m_trtid->show_to_string(m_trtid->layer_id(detElements[i+1])) <<endreq;
 	  
 	  //take the closest one in case it satisfies some default cuts
 	  InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = (*containerIterator)->begin();
@@ -329,13 +328,13 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	    double distance=m_roadwidth+1;
 	    if(lpos){
 	      distance = fabs(lpos->x());
-	      msg(MSG::DEBUG)<<"Hit "<<m_trtid->show_to_string((*driftCircleIterator)->identify())<<" has a distance of "<<distance<<endmsg;
+	      msg(MSG::DEBUG)<<"Hit "<<m_trtid->show_to_string((*driftCircleIterator)->identify())<<" has a distance of "<<distance<<endreq;
 
 	      double dist_locz=fabs(lpos->y());
 	      if(distance<m_roadwidth+1){
 		if(!dc_surface.insideBounds(*lpos,m_roadwidth,m_roadwidth_locz)){
-		  msg(MSG::DEBUG)<<"Hit not inside surface bounds! "<<distance<<" , "<<dist_locz<<endmsg;
-		  msg(MSG::DEBUG)<<"\trejecting hit"<<endmsg;
+		  msg(MSG::DEBUG)<<"Hit not inside surface bounds! "<<distance<<" , "<<dist_locz<<endreq;
+		  msg(MSG::DEBUG)<<"\trejecting hit"<<endreq;
 		  distance=m_roadwidth+1;
 		}
 	      }
@@ -347,14 +346,14 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	      maxdist=distance;
 	      circ=(*driftCircleIterator);
 	      //}else{
-	      //  msg(MSG::DEBUG)<<"Driftcircle "<<m_trtid->show_to_string((*driftCircleIterator)->identify())<<" has a distance of "<<distance<<endmsg;
+	      //  msg(MSG::DEBUG)<<"Driftcircle "<<m_trtid->show_to_string((*driftCircleIterator)->identify())<<" has a distance of "<<distance<<endreq;
 	    }
 	  }
 	}
       }
-      msg(MSG::DEBUG)<<"Maximal distance: "<<maxdist<<endmsg;
+      msg(MSG::DEBUG)<<"Maximal distance: "<<maxdist<<endreq;
       if(circ){
-	msg(MSG::DEBUG)<<"Found Driftcircle! Adding it to list ..."<<m_trtid->show_to_string(circ->identify())<<endmsg;
+	msg(MSG::DEBUG)<<"Found Driftcircle! Adding it to list ..."<<m_trtid->show_to_string(circ->identify())<<endreq;
         if (lastz<-9999) lastz=(**parameterIter).position().z();
         if (fabs(lastz-(**parameterIter).position().z())>500.) return;
         lastz=(**parameterIter).position().z();
@@ -470,7 +469,7 @@ InDet::TRT_DriftCircleContainer::const_iterator
     delete tpars_down;
   }
 
-  msg(MSG::DEBUG)<<"Found "<<m_measurement.size()<<" driftcircles"<<endmsg;
+  msg(MSG::DEBUG)<<"Found "<<m_measurement.size()<<" driftcircles"<<endreq;
 
   return m_measurement;
 }

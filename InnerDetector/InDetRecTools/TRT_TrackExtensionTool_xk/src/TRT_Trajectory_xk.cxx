@@ -103,8 +103,7 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
 
       q = m_elements[m_nElements].initiateForPrecisionSeed(false,(*d),ti,te,(*i),A,m_roadwidth2);
     }
-    if(q && m_elements[m_nElements].nlinks()) ++m_nElements;
-    if(++d==de) break;
+    if(q && m_elements[m_nElements].nlinks()) ++m_nElements; if(++d==de) break;
 
     // New trajectory direction calculation
     //
@@ -428,10 +427,8 @@ void  InDet::TRT_Trajectory_xk::buildTrajectoryForPrecisionSeed
     bool h = false         ;
     if     (m_elements[e].buildForPrecisionSeed(m_A,m_B,q,h)) { // Cluster
       
-      if(++m_nclusters==1) m_firstTrajectory=e;
-      m_lastTrajectory=e; 
-      if(q) ++m_ntclusters;
-      m_nholes = m_nholese; 
+      if(++m_nclusters==1) m_firstTrajectory=e; m_lastTrajectory=e; 
+      if(q) ++m_ntclusters; m_nholes = m_nholese; 
     }
     else if(h)                                                  { // Hole
       m_nclusters ? ++m_nholese : ++m_nholesb;
@@ -458,10 +455,8 @@ void  InDet::TRT_Trajectory_xk::buildTrajectoryForTRTSeed
     bool h = false         ;
     if     (m_elements[e].buildForTRTSeed(m_A,m_B,q,h)) { // Cluster
       
-      if(++m_nclusters==1) m_firstTrajectory=e;
-      m_lastTrajectory=e; 
-      if(q) ++m_ntclusters;
-      m_nholes = m_nholese; 
+      if(++m_nclusters==1) m_firstTrajectory=e; m_lastTrajectory=e; 
+      if(q) ++m_ntclusters; m_nholes = m_nholese; 
     }
     else if(h)                                                  { // Hole
       m_nclusters ? ++m_nholese : ++m_nholesb;
@@ -743,8 +738,7 @@ bool InDet::TRT_Trajectory_xk::fitter()
 
     rad+=trad;
     bool br = m_elements[e].isBarrel(); 
-    if( (br && !barrel) || (!br && barrel) ) rad+=.1;
-    barrel = br;
+    if( (br && !barrel) || (!br && barrel) ) rad+=.1; barrel = br;
 
     if(m_elements[e].status() > 0) {
 
@@ -830,8 +824,7 @@ void InDet::TRT_Trajectory_xk::stabline(int Np,double DA) {
       i-=2;
     } 
 
-    if(m<=4) break;
-    sort(m_SS,m);
+    if(m<=4) break; sort(m_SS,m);
 
     int   nm = 0; s = 0; sm=-1000;
     for(int i=0; i!=m-1; ++i) {
@@ -889,8 +882,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
     
     rad+=trad;
     bool br = m_elements[e].isBarrel();
-    if( (br && !barrel) || (!br && barrel) ) rad+=.1;
-    barrel = br;
+    if( (br && !barrel) || (!br && barrel) ) rad+=.1; barrel = br;
  
     if(m_elements[e].status() > 0) {
 
