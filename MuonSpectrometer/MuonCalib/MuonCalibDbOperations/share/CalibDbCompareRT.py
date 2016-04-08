@@ -2,10 +2,13 @@
 
 import getopt
 import sys
+import CalibDbDefaults
 
-cool_database_string='COOLOFL_MDT/COMP200'
-cool_folder='/MDT/RT'
-cool_tag='MDTRT-BON-UPD1-02'
+calibtype = 'rt'
+cool_database_string = CalibDbDefaults.cool_database_string
+cool_folder = CalibDbDefaults.cool_folders[calibtype]
+cool_tag = CalibDbDefaults.cool_tags[calibtype]
+dbname = CalibDbDefaults.cool_dbname
 
 def printhelp(argv0):
 	sys.stderr.write("Usage: " + argv0 + " [-h] [-s <cool database string>] [-f <cool folder>] [-t <cool tag>] <run number> <calib db>/<head id> <reader password> <root file>\n")
@@ -18,7 +21,7 @@ if not len(args)==5:
 for opt, oa in optlist:
 	if opt=='-s':
 		if oa[-2:]=='db':
-			cool_database_string = 'sqlite://;schema=' + oa + ';dbname=COMP200'
+			cool_database_string = 'sqlite://;schema=' + oa + ';dbname=' + dbname
 			cool_tag=''
 		else:
 			cool_database_string = oa

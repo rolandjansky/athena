@@ -2,9 +2,10 @@
 
 import getopt
 import sys
+import CalibDbDefaults
 
-cool_database_string='COOLOFL_MDT/COMP200'
-cool_folder='/MDT/T0'
+cool_database_string = CalibDbDefaults.cool_database_string
+cool_folder=CalibDbDefaults.cool_folder['t0']
 cool_tag=''
 
 def printhelp(argv0):

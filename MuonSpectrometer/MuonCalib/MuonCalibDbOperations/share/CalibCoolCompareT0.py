@@ -2,9 +2,10 @@
 
 import sys
 import getopt
+import CalibdDbDefaults
 
-cool_database_strings=['COOLOFL_MDT/COMP200', 'COOLOFL_MDT/COMP200']
-cool_folders=['/MDT/T0', '/MDT/T0']
+cool_database_strings=[CalibDbDefaults.cool_database_string, CalibDbDefaults.cool_database_string]
+cool_folders=[CalibDbDefaults.cool_folders[calibtype], CalibDbDefaults.cool_folders[calibtype]]
 cool_tags=['COMCOND-BLKPST-004-07', 'COMCOND-BLKPST-004-07']
 run_numbers=[None, None]
 

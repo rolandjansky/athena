@@ -1,0 +1,90 @@
+#!/usr/bin/python
+
+# initialize settable variables (don't edit here)
+databases = { }
+dbw = { }
+dbw_proxy = { }
+dbr = { } 
+tns = { }
+dbr_proxy = { }
+db = { } 
+dbr_password = { }
+dbw_password = { }
+sitename = { }
+schema = { }
+replica = { }
+###################################################
+
+# To add a new database, create a new key for each configuration array.  
+# At a minimum, you will need to add your own site and modify information for 'cern'
+# to reflect your site login/password/schema (or add new database identifier and call whatever you want)
+# Some info about 'umich' site is left for example
+
+# Full TNS connect string for database.  Copy from suitable tnsnames.ora, remove linebreaks.
+# Aliases are not allowed because (at the moment) not all site databases are defined in CERN's tnsnames.ora 
+# We need to create database links to those databases to copy from them
+databases['umich'] = '(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = umors.grid.umich.edu)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = muoncal.grid.umich.edu)))'
+databases['cern'] = '(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = atlr1-v.cern.ch)(PORT = 10121)) (ADDRESS = (PROTOCOL = TCP)(HOST = atlr2-v.cern.ch)(PORT = 10121)) (ADDRESS = (PROTOCOL = TCP)(HOST = atlr3-v.cern.ch)(PORT = 10121)) (ADDRESS = (PROTOCOL = TCP)(HOST = atlr4-v.cern.ch)(PORT = 10121)) (ENABLE=BROKEN) (LOAD_BALANCE = on) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = atlr.cern.ch) (FAILOVER_MODE = (TYPE = SELECT)(METHOD = BASIC)(RETRIES = 200)(DELAY = 15)) ) )'
+databases['cernintr'] = '(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = intr1-v.cern.ch)(PORT = 10121)) (ADDRESS = (PROTOCOL = TCP)(HOST = intr2-v.cern.ch)(PORT = 10121)) (LOAD_BALANCE = yes) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = intr.cern.ch) (FAILOVER_MODE = (TYPE = SELECT) (METHOD = BASIC) (RETRIES = 200) (DELAY = 15) ) ) )'
+
+# tns short name (not used by CalibDataClass, may be useful elsewhere/future)
+tns['umich'] = 'MUONCAL'
+tns['cern'] = 'ATLAS_MUON'
+
+# Set database index under replica to True if copies to this database should be done as a replica preserving head_id exactly
+# Set false if copies will generate a new head_id.  Replica copies only work if there is no sequence trigger on MDT_HEAD head_id column.  
+replica['umich'] = False
+replica['cern'] = True
+replica['cernintr'] = True
+
+#default database id (from databases list defined already).  Used if no database is set on the command line
+calibdb = 'cern'
+
+# database reader account and writer account for top-level schema or meta table
+# if a _proxy account is set it will be combined with dbw/dbr like "ATLAS_MUONCALIB_WRITER[ATLAS_MUONCALIB_UM_META_TEST_W]"
+# if dbw_proxy is set then the dbw value will be combined with queried WRITER_ACCOUNT the same way (There is currently no way to have one and not the other built-in)
+#  If there is not a proxy user, do not set the array member.
+
+dbw['umich']  = 'ATLAS_MUONCALIB_WRITER'
+dbw_proxy['umich'] = 'ATLAS_MUONCALIB_UM_META_TEST_W'
+dbr['umich'] = 'ATLAS_MUONCALIB_READER'
+
+dbw['cernintr'] = ''
+dbr['cernintr'] = ''
+
+# usernames specific to your site access to INTR
+dbw['cern'] = ''
+dbr['cern'] = ''
+
+# meta database or top-level schema.  In the new schema, it's just the top-level schema.
+# 
+db['umich'] = "ATLAS_MUONCALIB_UM_META"
+db['cernintr'] = ''
+# Change this according to your site
+db['cern'] = 'ATLAS_MUONCALIBR_UM'
+
+# Set this to force use of schema (possibly) different from one marked active or from one in copy sources
+# ie, for copy from UM -> CERN the schema has to be different at CERN than at the UM source (at least for now)
+
+schema['umichtest'] = 'ATLAS_MUONCALIB_UM_META'
+# change according to your site
+schema['cern'] = 'ATLAS_MUONCALIBR_UM'
+schema['cernintr'] = ''
+
+# db reader password, db writer password
+# writing to calib db will use proxy user constructed after we query the writer for a given schema
+dbr_password['umich'] = ''
+dbw_password['umich'] = ''
+dbr_password['cernintr'] = ''
+dbw_password['cernintr'] = ''
+dbr_password['cern'] = ''
+dbw_password['cern'] = ''
+
+# Sitename used in new database inserts (when copying this does not change the site copied from the source, only for new inserts)
+
+sitename['umich'] = "MI"  
+sitename['cern'] = "CERN"
+sitename['cernintr'] = "CERN"
+
+
+ 

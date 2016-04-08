@@ -1,5 +1,7 @@
 import os
 
+# database information is set by including "MuonCalibDbOperations/CalibDbInfo.py" in your job options file
+
 appendToExistingFile_flag=False
 if "appendToExistingFile" in dir():
 	appendToExistingFile_flag = appendToExistingFile
@@ -8,8 +10,6 @@ if os.path.exists(coolFileName) and not appendToExistingFile_flag:
 	print "FATAL File", coolFileName, "already exists"
 	print "FATAL remove file or set 'appendToExistingFile = True'"
 	sys.exit(1)
-	
-	
 
 ### Setup Athena common flags
 #include ("AthenaCommon/AthenaCommonFlags.py")
@@ -62,7 +62,7 @@ import cx_Oracle
 
 
 if autoFillGasmon:
-	reader_connection=cx_Oracle.connect("ATLAS_MUONCALIB_READER", readerPassword, "ATLAS_MUON")
+	reader_connection=cx_Oracle.connect(dbr[calibdb], dbr_password[calibdb],tns[calibdb])
 	reader_cursor=reader_connection.cursor()
 	gasmon_source=MuonCalib__genGasmonSource(toroidOn, calibrationTime, reader_cursor)
 	if "GasmonDriftTimeOffsetsVsR" in dir():
@@ -79,7 +79,7 @@ for source_config in MuonCalib__gCalibrationSourceConfigs:
 
 MuonCalib_gCalibrationDefaultSourceConfig.ConfigureTool(ToolSvc, CoolInserter)
 
-dbname="COMP200"
+dbname="CONDBR2"
 if "isMC" in dir():
 	if isMC:
 		dbname="OFLP200"
