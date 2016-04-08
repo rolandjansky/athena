@@ -111,7 +111,7 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("PhotonContainerName",   m_photonContainerName="egamma_Photons");
     // Additional property to retrieve slw and topo containers from TE
     declareProperty("SlwCaloClusterContainerName",m_slwClusterContName="TrigEFCaloCalibFex");
-    declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TrigCaloClusterMaker_topo");
+    declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TrigCaloClusterMaker_topo_fullscan_egamma");
     // ShowerBuilder (trigger specific)
     declareProperty("ShowerBuilderTool",  m_showerBuilder, "Handle to Shower Builder");
     // FourMomBuilder (trigger specific)
@@ -590,7 +590,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     // get pointer to CaloClusterContainer from the trigger element
     std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainer;
     HLT::ErrorCode stat; 
-    if(m_doTopoIsolation) stat = getFeatures(inputTE, vectorClusterContainer,"TrigEFCaloCalibFex");
+    if(m_doTopoIsolation) stat = getFeatures(inputTE, vectorClusterContainer,m_slwClusterContName);
     else  stat = getFeatures(inputTE, vectorClusterContainer);
     
     if ( stat!= HLT::OK ) {
@@ -603,7 +603,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             << " CaloClusterContainers associated to the TE " << endreq;
 
     // Check that there is only one ClusterContainer in the RoI
-    if (vectorClusterContainer.size() != 1){
+    if (vectorClusterContainer.size() < 1){
         if ( msgLvl() <= MSG::ERROR )
             msg() << MSG::ERROR
                 << "REGTEST: Size of vectorClusterContainer is not 1, it is: "
@@ -628,7 +628,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     bool topoClusTrue = false; 
     std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainerTopo;
     if(m_doTopoIsolation){
-        stat = getFeatures(inputTE, vectorClusterContainerTopo,"TrigCaloClusterMaker_topo_ED_eGamma");
+        stat = getFeatures(inputTE, vectorClusterContainerTopo,m_topoClusterContName);
     
         if ( stat!= HLT::OK ) {
         msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endreq;
