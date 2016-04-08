@@ -19,8 +19,9 @@ apply_pattern declare_scripts files="../share/*.sh \
 
 
 # RTT declarations
-apply_pattern declare_runtime extras="../test/TrigP1Test_TestConfiguration.xml ../Testing/*.conf \ 
+apply_pattern declare_runtime extras="../test/TrigP1Test_TestConfiguration.xml \ 
 ../Testing/*.trans \
+../Testing/*.conf \
 ../python/RunMsgFinder.py \
 ../python/RttScriptRunner.py \
 ../python/RootComp.py \
@@ -34,20 +35,7 @@ apply_pattern declare_runtime extras="../test/TrigP1Test_TestConfiguration.xml .
 
 macro TrigP1Test_TestConfiguration "../test/TrigP1Test_TestConfiguration.xml"
 
-#
-# Run test auto-configuration script
-# This will create TrigP1Test_TestConfiguration.xml file
-#
-action test-auto-conf "test-xml-autoconf.py ../test/TrigP1Test_TestConfiguration.xml.autoconf > ../test/TrigP1Test_TestConfiguration.xml"
-macro_append constituents " test-auto-conf"
-macro_append install_runtime_dependencies " test-auto-conf"
-
 private
-
-#add validation of RTT xml file
-use TestPolicy TestPolicy-*
 apply_pattern validate_xml
-macro_append TrigP1Test_validateXML_dependencies " test-auto-conf "
 
 end_private
-

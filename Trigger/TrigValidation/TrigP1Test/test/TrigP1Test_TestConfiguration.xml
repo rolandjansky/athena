@@ -33,7 +33,7 @@
     
     <atn>
         
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT-->
+      
         <TEST name="HelloWorldHLT" type="script" suite="TrigP1HLTcore">
             <options_atn>trigtest.pl --cleardir --test HelloWorldHLT --rundir HelloWorldHLT --conf TrigP1Test.conf</options_atn>
             <timelimit>5</timelimit>
@@ -80,11 +80,6 @@
             </expectations>
         </TEST>
         
-        <!-- ENABLE-IN-PROJECT-END -->
-        
-        
-
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT--> 
 
          <TEST name="HLT_HIV3" type="script" suite="TrigP1HLThiV3"> 
             <options_atn>trigtest.pl --cleardir --test HLT_HIV3  --rundir HLT_HIV3 --conf TrigP1Test.conf</options_atn> 
@@ -95,12 +90,10 @@
             </expectations> 
         </TEST>  
 
-        <!-- ENABLE-IN-PROJECT-END --> 
         <!-- End of physics Heavy ION menu chain --> 
 
 
 
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT--> 
         
         <TEST name="HLT_physicsV6_COS" type="script" suite="TrigP1HLTCOS"> 
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS --rundir HLT_physicsV6_COS --conf TrigP1Test.conf</options_atn> 
@@ -158,10 +151,7 @@
         </TEST>
 
         
-        <!-- ENABLE-IN-PROJECT-END --> 
-            
-        
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
+ 
         
         <TEST name="HLT_mcV6" type="script" suite="TrigP1HLTMC">
             <options_atn>trigtest.pl --cleardir --test HLT_mcV6 --rundir HLT_mcV6 --conf TrigP1Test.conf</options_atn>
@@ -204,13 +194,12 @@
         </TEST>
 
         
-        <!-- ENABLE-IN-PROJECT-END -->
         <!-- end of MC chain of tests -->
         
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT--> 
+
         <TEST name="HLT_physicsV6" type="script" suite="TrigP1HLTphysv6"> 
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6 --rundir HLT_physicsV6 --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
+            <timelimit>30</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -291,11 +280,11 @@
 
         
         
-        <!-- ENABLE-IN-PROJECT-END --> 
+ 
         <!-- End of physics V6 menu chain --> 
         
         <!--  chain of test with various data, menu and detector conditions -->
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT-->
+     
         <TEST name="HLT_physicsV6_run_stop_run" type="script" suite="TrigP1HLTvarious">
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_run_stop_run --rundir HLT_physicsV6_run_stop_run --conf TrigP1Test.conf</options_atn>
             <timelimit>35</timelimit>
@@ -315,11 +304,11 @@
         </TEST>
         
         
-        <!-- ENABLE-IN-PROJECT-END -->
+ 
         <!-- End of various  data, menu and detector conditions chain -->
         
         <!--  chain of test for automatic menu uploading to trigger DB  -->
-        <!-- ENABLE-IN-PROJECT-BEGIN:  AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
+ 
         <TEST name="HLT_physicsV6_menu" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_menu --rundir HLT_physicsV6_menu --conf TrigP1Test.conf</options_atn>
             <timelimit>20</timelimit>
@@ -338,10 +327,10 @@
             </expectations>
         </TEST>
        
-        <!-- ENABLE-IN-PROJECT-END -->
+ 
         
         <!--  chain of test for automatic menu uploading to trigger DB  -->
-        <!-- ENABLE-IN-PROJECT-BEGIN:  AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
+   
         
         <TEST name="UploadMenuKeys" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys --rundir UploadMenuKeys --conf TrigP1Test.conf</options_atn>
@@ -449,11 +438,11 @@
         </TEST>
         
         
-        <!-- ENABLE-IN-PROJECT-END -->
+     
         <!-- End of menu uploading test chain -->
         
         <!--  A short chain of tests on data with the T0 reco release -->
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
+       
                        
          <TEST name="Trigreco_physicsV6_currentT0" type="script" suite="TrigP1HLTvarious"> 
             <options_atn>trigtest.pl --cleardir --test Trigreco_physicsV6_currentT0 --rundir Trigreco_physicsV6_currentT0 --conf TrigP1Test.conf</options_atn> 
@@ -486,12 +475,11 @@
         
               
                 
-        <!-- ENABLE-IN-PROJECT-END -->
-        <!-- End of ofline reconstruction chain -->
+         <!-- End of ofline reconstruction chain -->
 
 
         <!--  A short chain of tests onSteering and Data access -->
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
+      
 
 	<TEST name="pureNewSteering_ecodes" type="script" suite="TrigP1pureNewSteering">
             <options_atn>trigtest.pl --test pureNewSteering_ecodes --run pureNewSteering_ecodes --conf TrigP1Test.conf</options_atn>
@@ -535,7 +523,7 @@
             </expectations> 
         </TEST> 
 
-        <!-- ENABLE-IN-PROJECT-END -->
+     
         <!-- End of steering chain -->
 
         
@@ -598,7 +586,7 @@
                 <displayComponent>Trig-Common</displayComponent>
             </classification>    
             
-            <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT -->
+            
             
             <jobTransform userJobId="All_data_run_stop_run_chain" >
                 <doc>
@@ -625,7 +613,7 @@
                 <queue>long</queue>
             </jobTransform>
             
-            <!-- ENABLE-IN-PROJECT-END -->
+    
         </jobList>
         
         <jobGroups>
