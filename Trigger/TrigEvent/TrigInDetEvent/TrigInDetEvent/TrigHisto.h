@@ -39,23 +39,23 @@ class TrigHisto {
 
   /** Return the number of bins along the y-axis, not 
   * including the under and overflow. */
-  unsigned int nbins_x(void) {
+  unsigned int nbins_x(void) const {
     return m_nbins_x;
   }
 
   /** Return the minimum along the x-axis. */
-  float min_x(void) {
+  float min_x(void) const {
     return m_min_x;
   }
 
   /** Return the maximum along the x-axis. */
-  float max_x(void) {
+  float max_x(void) const {
     return m_max_x;
   }
 
   /** Return the bin contents of the histogram, including 
   * the under and overflow bins. */
-  std::vector<float> contents(void) {
+  const std::vector<float>& contents(void) const {
     return m_contents;
   }
 
@@ -66,7 +66,7 @@ class TrigHisto {
    */
   unsigned int findBin(unsigned int nbins, 
 		       float h_min, float h_max, float binSize, 
-		       float value);
+		       float value) const;
 
   std::vector<float> m_contents; //<! A vector to contain the contents of the histogram.
   std::vector<float>::iterator m_itr;

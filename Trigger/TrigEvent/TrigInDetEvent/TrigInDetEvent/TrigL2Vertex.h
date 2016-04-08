@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIG_L2_VERTEX__
-#define __TRIG_L2_VERTEX__
+#ifndef TRIGINDETEVENT_TRIGL2VERTEX_H
+#define TRIGINDETEVENT_TRIGL2VERTEX_H
 
 #include <list>
 #include <vector>
@@ -181,7 +181,7 @@ class TrigL2Vertex
 
  private:
   int m_nTracks,m_nDOF;
-  int m_nTrackType;
+  //int m_nTrackType;
   //TrigVertexCovariance* m_Gk;
   
   std::list<TrigVertexFitInputTrack*>* m_pvTracks;

@@ -18,21 +18,44 @@ TrigSpacePointCounts::TrigSpacePointCounts(): m_pixelClusEndcapC(),
 
 //---------------------------------------------------------------
 
-TrigSpacePointCounts::TrigSpacePointCounts(TrigHisto2D pixelClusEndcapC,
-					   TrigHisto2D pixelClusBarrel,
-					   TrigHisto2D pixelClusEndcapA,
-					   std::vector<Identifier> droppedPixelModules,
+TrigSpacePointCounts::TrigSpacePointCounts(const TrigHisto2D& pixelClusEndcapC,
+					   const TrigHisto2D& pixelClusBarrel,
+					   const TrigHisto2D& pixelClusEndcapA,
+					   const std::vector<Identifier>& droppedPixelModules,
 					   unsigned int sctSpEndcapC,
 					   unsigned int sctSpBarrel,
 					   unsigned int sctSpEndcapA,
-					   std::vector<Identifier> droppedSctModules): m_pixelClusEndcapC(pixelClusEndcapC),
-										       m_pixelClusBarrel(pixelClusBarrel),
-										       m_pixelClusEndcapA(pixelClusEndcapA),
-										       m_droppedPixelModules(droppedPixelModules),
-										       m_sctSpEndcapC(sctSpEndcapC),
-										       m_sctSpBarrel(sctSpBarrel),
-										       m_sctSpEndcapA(sctSpEndcapA),
-										       m_droppedSctModules(droppedSctModules) {
+					   const std::vector<Identifier>& droppedSctModules)
+  : m_pixelClusEndcapC(pixelClusEndcapC),
+    m_pixelClusBarrel(pixelClusBarrel),
+    m_pixelClusEndcapA(pixelClusEndcapA),
+    m_droppedPixelModules(droppedPixelModules),
+  m_sctSpEndcapC(sctSpEndcapC),
+  m_sctSpBarrel(sctSpBarrel),
+  m_sctSpEndcapA(sctSpEndcapA),
+  m_droppedSctModules(droppedSctModules)
+{
+}
+
+//---------------------------------------------------------------
+
+TrigSpacePointCounts::TrigSpacePointCounts(TrigHisto2D&& pixelClusEndcapC,
+					   TrigHisto2D&& pixelClusBarrel,
+					   TrigHisto2D&& pixelClusEndcapA,
+					   std::vector<Identifier>&& droppedPixelModules,
+					   unsigned int sctSpEndcapC,
+					   unsigned int sctSpBarrel,
+					   unsigned int sctSpEndcapA,
+					   std::vector<Identifier>&& droppedSctModules)
+  : m_pixelClusEndcapC(std::move(pixelClusEndcapC)),
+    m_pixelClusBarrel(std::move(pixelClusBarrel)),
+    m_pixelClusEndcapA(std::move(pixelClusEndcapA)),
+    m_droppedPixelModules(std::move(droppedPixelModules)),
+  m_sctSpEndcapC(sctSpEndcapC),
+  m_sctSpBarrel(sctSpBarrel),
+  m_sctSpEndcapA(sctSpEndcapA),
+  m_droppedSctModules(std::move(droppedSctModules))
+{
 }
 
 //---------------------------------------------------------------
@@ -53,19 +76,19 @@ TrigSpacePointCounts::~TrigSpacePointCounts(void) {
 
 //---------------------------------------------------------------
 
-TrigHisto2D TrigSpacePointCounts::pixelClusEndcapC(void) const {
+const TrigHisto2D& TrigSpacePointCounts::pixelClusEndcapC(void) const {
   return m_pixelClusEndcapC;
 }
 
-TrigHisto2D TrigSpacePointCounts::pixelClusBarrel(void) const {
+const TrigHisto2D& TrigSpacePointCounts::pixelClusBarrel(void) const {
   return m_pixelClusBarrel;
 }
 
-TrigHisto2D TrigSpacePointCounts::pixelClusEndcapA(void) const {
+const TrigHisto2D& TrigSpacePointCounts::pixelClusEndcapA(void) const {
   return m_pixelClusEndcapA;
 }
 
-std::vector<Identifier> TrigSpacePointCounts::droppedPixelModules(void) const {
+const std::vector<Identifier>& TrigSpacePointCounts::droppedPixelModules(void) const {
   return m_droppedPixelModules;
 } 
 
@@ -81,7 +104,7 @@ unsigned int TrigSpacePointCounts::sctSpEndcapA(void) const {
   return m_sctSpEndcapA;
 }
 
-std::vector<Identifier> TrigSpacePointCounts::droppedSctModules(void) const {
+const std::vector<Identifier>& TrigSpacePointCounts::droppedSctModules(void) const {
   return m_droppedSctModules;
 }
 

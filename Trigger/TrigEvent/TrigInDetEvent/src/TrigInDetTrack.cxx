@@ -4,7 +4,7 @@
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 
-void TrigInDetTrack::m_fillSiHitInfo() 
+void TrigInDetTrack::fillSiHitInfo() 
 {
   eraseRdoList();
   if(m_siSpacePoints==NULL) return;

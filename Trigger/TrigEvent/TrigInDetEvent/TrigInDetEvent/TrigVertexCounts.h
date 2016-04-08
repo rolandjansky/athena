@@ -20,17 +20,17 @@ public:
   TrigVertexCounts();
 
   /** Standard constructor used by FEX algorithms. */ 
-  TrigVertexCounts(std::vector<unsigned int> vtxNtrks,
-		   std::vector<float> vtxTrkPtSqSum);
-  
-  /** Copy Constructor */
-  TrigVertexCounts(const TrigVertexCounts& trigVertexCounts);
+  TrigVertexCounts(const std::vector<unsigned int>& vtxNtrks,
+		   const std::vector<float>& vtxTrkPtSqSum);
+
+  TrigVertexCounts(std::vector<unsigned int>&& vtxNtrks,
+		   std::vector<float>&& vtxTrkPtSqSum);
   
   /** Destructor */
   ~TrigVertexCounts();
 
-  std::vector<unsigned int> vtxNtrks(void) const { return m_vtxNtrks; }
-  std::vector<float> vtxTrkPtSqSum(void) const { return m_vtxTrkPtSqSum; }
+  const std::vector<unsigned int>& vtxNtrks(void) const { return m_vtxNtrks; }
+  const std::vector<float>& vtxTrkPtSqSum(void) const { return m_vtxTrkPtSqSum; }
   
 private:
  

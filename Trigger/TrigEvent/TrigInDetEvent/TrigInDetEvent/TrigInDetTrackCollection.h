@@ -14,7 +14,9 @@ class TrigInDetTrackCollection : public DataVector<TrigInDetTrack> {
 
 public:
   // Constructors: POOL needs default constructor
-  TrigInDetTrackCollection() : m_RoI_ID(-1) {};
+TrigInDetTrackCollection(SG::OwnershipPolicy ownPolicy = SG::OWN_ELEMENTS)
+  : DataVector<TrigInDetTrack> (ownPolicy),
+    m_RoI_ID(-1) {};
 
   void RoI_ID ( const int roi) { m_RoI_ID = roi; }
 
