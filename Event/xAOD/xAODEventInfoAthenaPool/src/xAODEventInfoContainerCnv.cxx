@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODEventInfoContainerCnv.cxx 594317 2014-04-25 17:36:58Z krasznaa $
+// $Id: xAODEventInfoContainerCnv.cxx 682544 2015-07-13 13:53:25Z krasznaa $
 
 // System include(s):
 #include <exception>
@@ -64,7 +64,7 @@ xAODEventInfoContainerCnv::createPersistent( xAOD::EventInfoContainer* trans ) {
 xAOD::EventInfoContainer* xAODEventInfoContainerCnv::createTransient() {
 
    // The known ID(s) for the object:
-   static const pool::Guid v1_guid( "AE8BED6D-1D41-4CAF-994B-42613FC91A0A" );
+   static const pool::Guid v1_guid( "8F061263-D744-4D72-9377-1573FE21CDCE" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {
