@@ -118,7 +118,8 @@ LayerNumberAllocator::print(void) const
     // For each wheel where barrel counts as wheel 0
     std::cout << " LayerNumberAllocator: pixel wheel   z-boundary       r-boundaries "
 	      << std::endl;
-    
+
+    int 		prec	= std::cout.precision();
     int 	       	wheel	= 0;
     boundary_citerator	z	= m_pixel_z_boundary.begin();
     for (wheel_citerator w = m_pixel_r_boundaries.begin();
@@ -157,8 +158,9 @@ LayerNumberAllocator::print(void) const
 	{
 	    std::cout << std::setw(7) << std::setprecision(1) << *i << "  ";
 	}
-	std::cout << std::endl;
+	std::cout << std::resetiosflags(std::ios::fixed) << std::endl;
     }
+    std::cout.precision(prec);
 }
 
 //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
