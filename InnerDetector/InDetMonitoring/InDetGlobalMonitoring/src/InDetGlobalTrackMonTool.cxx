@@ -77,6 +77,14 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       m_trkSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
       m_CombinedTracksName("Tracks"),
       m_ForwardTracksName("ResolvedForwardTracks"),
+      sct_holes(nullptr),
+      trt_holes(nullptr),
+      pixel_holes(nullptr),
+      comb_holes(nullptr),
+      silicon_vs_trt(nullptr),
+      sct_vs_pixels(nullptr),
+      holes_quality(nullptr),
+      holes_quality_profile(nullptr),
       m_Trk_nLoose(nullptr),
       m_Trk_eta_phi(nullptr),
       m_Trk_eta_phi_LoosePrimary_ratio(nullptr),
@@ -90,10 +98,17 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       m_Trk_noIBLhits_LB(nullptr),
       m_Trk_noBLhits_LB(nullptr),
       m_Trk_noTRText_LB(nullptr),
+      m_Trk_noIBLhits_frac_LB(nullptr),
+      m_Trk_noBLhits_frac_LB(nullptr),
+      m_Trk_noTRText_frac_LB(nullptr),
+      m_trtID(nullptr),
+      m_sctID(nullptr),
+      m_pixelID(nullptr),
       m_holes_eta_phi(nullptr),
       m_holes_eta_pt(nullptr),
       m_holes_phi_pt(nullptr), 
       m_holes_eta_phi_n(nullptr),
+      m_holesComb2(nullptr),
       m_holes_hits(nullptr),
       m_holesvshits(nullptr),
       m_holesvshits_ECA(nullptr),
@@ -108,6 +123,9 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       m_trk_hits_eta_phi{nullptr},
       m_trk_disabled_eta_phi{nullptr},
       m_trk_hits_LB{nullptr},
+      m_trk_shared_pix_eta_phi(nullptr),
+      m_trk_split_pix_eta_phi(nullptr),
+      m_trk_shared_sct_eta_phi(nullptr),
       m_Trk_FORW_FA_eta_phi(nullptr),
       m_Trk_FORW_FC_eta_phi(nullptr),
       m_Trk_FORW_qoverp(nullptr),
@@ -262,6 +280,24 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 			 m_nBinsPhi,-M_PI,M_PI,
 			 "#eta", "#phi" ).ignore();
     }
+    
+    registerManHist( m_trk_shared_pix_eta_phi,  "InDetGlobal/Hits", detailsInterval,
+		     "Trk_nPixShared_eta_phi","Number of Pixel shared hits per track, eta-phi profile",
+		     m_nBinsEta, -c_etaRange, c_etaRange,
+		     m_nBinsPhi,-M_PI,M_PI,
+		     "#eta", "#phi" ).ignore();
+
+    registerManHist( m_trk_split_pix_eta_phi,  "InDetGlobal/Hits", detailsInterval,
+		     "Trk_nPixSplit_eta_phi","Number of Pixel split hits per track, eta-phi profile",
+		     m_nBinsEta, -c_etaRange, c_etaRange,
+		     m_nBinsPhi,-M_PI,M_PI,
+		     "#eta", "#phi" ).ignore();
+
+    registerManHist( m_trk_shared_sct_eta_phi,  "InDetGlobal/Hits", detailsInterval,
+		     "Trk_nSCTShared_eta_phi","Number of SCT shared hits per track, eta-phi profile",
+		     m_nBinsEta, -c_etaRange, c_etaRange,
+		     m_nBinsPhi,-M_PI,M_PI,
+		     "#eta", "#phi" ).ignore();
     
     // Forward Pixel tracks
     if ( m_doForwardTracks )
@@ -678,12 +714,18 @@ void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const Trk::Trac
     m_trk_disabled_eta_phi[1]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], 
 				     ( summary->get(Trk::numberOfPixelDeadSensors) >= 0 ) ? summary->get(Trk::numberOfPixelDeadSensors) : 0 );
     m_trk_hits_LB[1]->Fill( m_manager->lumiBlockNumber(), pixHits );
-	
+    m_trk_shared_pix_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
+				    ( summary->get(Trk::numberOfPixelSharedHits) >= 0 ) ? summary->get(Trk::numberOfPixelSharedHits) : 0 );
+    m_trk_split_pix_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
+				   ( summary->get(Trk::numberOfPixelSplitHits) >= 0 ) ? summary->get(Trk::numberOfPixelSplitHits) : 0 );
+    
     m_trk_hits_eta_phi[2]->Fill(  perigee->eta(), perigee->parameters()[Trk::phi0],sctHits );
     m_trk_disabled_eta_phi[2]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], 
-				     ( summary->get(Trk::numberOfSCTDeadSensors) >= 0 ) ? summary->get(Trk::numberOfSCTDeadSensors) : 0 );
+				     ( summary->get(Trk::numberOfSCTDeadSensors) >= 0 ) ? summary->get(Trk::numberOfSCTDeadSensors) : 0 ) ;
     m_trk_hits_LB[2]->Fill( m_manager->lumiBlockNumber(), sctHits );
-
+    m_trk_shared_sct_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
+				    ( summary->get(Trk::numberOfSCTSharedHits) >= 0 ) ? summary->get(Trk::numberOfSCTSharedHits) : 0 );
+    
     m_trk_hits_eta_phi[3]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],trtHits );
     m_trk_disabled_eta_phi[3]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], 
 				     ( summary->get(Trk::numberOfTRTDeadStraws) >= 0 ) ? summary->get(Trk::numberOfTRTDeadStraws) : 0 );
@@ -693,6 +735,8 @@ void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const Trk::Trac
 
 void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::TrackSummary* summary )
 {
+    if ( ! track || ! summary ) return;
+	
     const Trk::Perigee *perigee = track->perigeeParameters();
     float eta = perigee->eta();
     float phi = perigee->parameters()[Trk::phi0];
@@ -700,28 +744,26 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::Tr
     /// Map of all extended tracks
     m_Trk_eta_phi->Fill( eta, phi );
     bool isTight = false;
-    if ( track )
+
+    // Loose primary tracks
+    if ( m_loosePri_selTool->accept(*track) )
     {
-	// Loose primary tracks
-	if ( m_loosePri_selTool->accept(*track) )
-	{
-	    m_Trk_eta_phi_LoosePrimary_ratio->Fill( eta, phi, 1 );
-	}
-	else
-	{
-	    m_Trk_eta_phi_LoosePrimary_ratio->Fill( eta, phi, 0 );
-	}
-	
-	/// TRACKSEL: Tight
-	if ( m_tight_selTool->accept(*track) )
-	{
-	    isTight = true;
-	    m_Trk_eta_phi_Tight_ratio->Fill( eta, phi, 1 );
-	}
-	else
-	{
-	    m_Trk_eta_phi_Tight_ratio->Fill( eta, phi, 0 );
-	}
+	m_Trk_eta_phi_LoosePrimary_ratio->Fill( eta, phi, 1 );
+    }
+    else
+    {
+	m_Trk_eta_phi_LoosePrimary_ratio->Fill( eta, phi, 0 );
+    }
+    
+    /// TRACKSEL: Tight
+    if ( m_tight_selTool->accept(*track) )
+    {
+	isTight = true;
+	m_Trk_eta_phi_Tight_ratio->Fill( eta, phi, 1 );
+    }
+    else
+    {
+	m_Trk_eta_phi_Tight_ratio->Fill( eta, phi, 0 );
     }
 
     /// Innermost layer
