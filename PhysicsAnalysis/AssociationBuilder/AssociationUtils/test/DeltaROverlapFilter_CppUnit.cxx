@@ -23,8 +23,8 @@
 #include <boost/bind.hpp>
 
 // DataModel includes
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 // EventKernel includes
