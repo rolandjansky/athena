@@ -21,7 +21,12 @@ InDet::TRT_TrackSegmentsFinder::TRT_TrackSegmentsFinder
 {
   // TRT_TrackSegmentsFinder steering parameters
   //
-  m_segmentslocation = "TRTSegments"                     ;
+
+  m_outputlevel       = 0                                ;
+  m_nprint            = 0                                ;
+  m_nsegments         = 0                                ;
+  m_nsegmentsTotal    = 0                                ;
+  m_segmentslocation  = "TRTSegments"                    ;
   m_useCaloSeeds      = false                            ;
   m_inputClusterContainerName = "InDetCaloClusterROIs"   ;
   m_minNumberDCs     = 9                                 ; 
