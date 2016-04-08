@@ -72,7 +72,6 @@ namespace LAr {
 
       void printInfo(GeoPVConstLink pv, int gen=-1) const;
       void printChildren(GeoPVConstLink pv, int gen, int igen, Amg::Transform3D tr) const;
-      GeoPVConstLink getChild(GeoPVConstLink mother, std::string name, Amg::Transform3D& trIn) const;
 
       void throwIntoGarbage(const Trk::Material* mat) const;
 
@@ -114,16 +113,9 @@ namespace LAr {
       bool                             m_useCaloSurfBuilder;           //!< if true use DetDescr based layering, if false use biequidistant layering
       unsigned int                     m_lArLayersPerRegion;           //!< if m_useCaloSurfBuilder == true, number of layers per dead material region or sampling
       bool                             m_useCaloTrackingGeometryBounds;//!< if true use DetDescr based layering, if false use biequidistant layering
-      mutable float                    m_mbtsZ;                        // MBTS layer position     
-      mutable float                    m_mbts_rmin;                     // MBTS layer dimensions     
-      mutable float                    m_mbts_rmax;                     // MBTS layer dimensions     
 
       ToolHandle<ICaloSurfaceBuilder>  m_calosurf;                      //!< tool required for DetDescr-based layering
       mutable std::map<const Trk::Material*, bool> m_materialGarbage;
-
-      // material scaling ( temporary ? )
-      float m_scale_HECmaterial;
-
   };
   
 } // end of namespace
