@@ -1,53 +1,26 @@
 package ISF_Geant4UserActions
 
-author Robert Harrington <roberth@cern.ch>
-author Andreas Schaelicke
-
 public
-use AtlasPolicy          AtlasPolicy-*
-use FadsActions          FadsActions-*           Simulation/G4Sim/FADS
-use StoreGate                   StoreGate-*                     Control
-use GaudiInterface GaudiInterface-* External
-#use Identifier          Identifier-*            DetectorDescription
-#use AthenaBaseComps AthenaBaseComps-*   Control
-#use McParticleEvent   McParticleEvent-*   PhysicsAnalysis/TruthParticleID
-#use CaloEvent         CaloEvent-*         Calorimeter
-#use CaloDetDescr      CaloDetDescr-*      Calorimeter
-#use EventKernel       EventKernel-*       Event
-#use EventInfo         EventInfo-*         Event
-#use GeneratorObjects  GeneratorObjects-*  Generators
-#use McParticleUtils     McParticleUtils-*       PhysicsAnalysis/TruthParticleID
-#use McParticleKernel    McParticleKernel-*      PhysicsAnalysis/TruthParticleID
-#use HepPDT              v*                      LCG_Interfaces
-
+use AtlasPolicy                 AtlasPolicy-*
+use GaudiInterface              GaudiInterface-*        External
+use G4AtlasTools                G4AtlasTools-*          Simulation/G4Atlas
 private
-use LArG4Code           LArG4Code-*             LArCalorimeter/LArG4
-use ISF_FastCaloSimParametrization ISF_FastCaloSimParametrization-* Simulation/ISF/ISF_FastCaloSim
-use AtlasROOT           AtlasROOT-*             External
-use Geant4              Geant4-*                External
-#use EventInfo           EventInfo-*             Event
-#use GeoModelInterfaces  GeoModelInterfaces-*    DetectorDescription/GeoModel
-use GeneratorObjects    GeneratorObjects-*      Generators
-use LArG4Barrel         LArG4Barrel-*           LArCalorimeter/LArG4
-use LArG4EC             LArG4EC-*               LArCalorimeter/LArG4
-use LArG4FCAL           LArG4FCAL-*             LArCalorimeter/LArG4
-use LArG4HEC            LArG4HEC-*              LArCalorimeter/LArG4
-#use LArG4ShowerLib      LArG4ShowerLib-*        LArCalorimeter/LArG4
-#use FadsPhysics         FadsPhysics-*           Simulation/G4Sim/FADS
-use ISF_FastCaloSimEvent ISF_FastCaloSimEvent-*  Simulation/ISF/ISF_FastCaloSim
-use LArG4HitManagement  LArG4HitManagement-*    LArCalorimeter/LArG4
-use TileGeoG4SD         TileGeoG4SD-*          TileCalorimeter/TileG4
-#use FadsSensitiveDetector  FadsSensitiveDetector-*  Simulation/G4Sim/FADS
-
+use AtlasROOT                   AtlasROOT-*             External
+use CaloDetDescr                CaloDetDescr-*          Calorimeter
+use CaloIdentifier              CaloIdentifier-*        Calorimeter
+use Geant4                      Geant4-*                External
+use GeneratorObjects            GeneratorObjects-*      Generators
+use ISF_FastCaloSimEvent        ISF_FastCaloSimEvent-*  Simulation/ISF/ISF_FastCaloSim
+use LArG4Barrel                 LArG4Barrel-*           LArCalorimeter/LArG4
+use LArG4Code                   LArG4Code-*             LArCalorimeter/LArG4
+use LArG4EC                     LArG4EC-*               LArCalorimeter/LArG4
+use LArG4FCAL                   LArG4FCAL-*             LArCalorimeter/LArG4
+use LArG4HEC                    LArG4HEC-*              LArCalorimeter/LArG4
+use TileGeoG4SD                 TileGeoG4SD-*           TileCalorimeter/TileG4
 
 public
 apply_pattern declare_python_modules files="*.py"
-#apply_tag ROOTGraphicsLibs
-#apply_tag ROOTMathLibs
 
 library ISF_Geant4UserActions *.cxx -s=components *.cxx
-#apply_pattern component_library
-apply_pattern linked_library
+apply_pattern component_library
 apply_pattern declare_joboptions files="*.py"
-#macro_append ISF_Geant4UserActions_cxxflags " -O3 -Wunitialized "
-#macro_append ISF_Geant4UserActions_linkopts "-lLArG4HitManagement"
