@@ -28,7 +28,6 @@
 
 // Data member classes
 #include <map>
-#include <unordered_map>
 #include "SiDigitization/SiChargedDiode.h"
 #include "Identifier/Identifier.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -42,7 +41,8 @@ namespace InDetDD{
   class SiCellId;
 }
 
-#include "AthAllocators/ArenaPoolSTLAllocator.h"
+#include "DataModel/tools/ArenaPoolSTLAllocator.h"
+#include "CxxUtils/unordered_map.h"
 
 struct SiChargedDiodeHash
 {
@@ -52,11 +52,11 @@ struct SiChargedDiodeHash
   }
 };
 
-typedef std::unordered_map<InDetDD::SiCellId,
-                           SiChargedDiode,
-                           SiChargedDiodeHash,
-                           std::equal_to<InDetDD::SiCellId>,
-                           SG::ArenaPoolSTLAllocator<
+typedef SG::unordered_map<InDetDD::SiCellId,
+                          SiChargedDiode,
+                          SiChargedDiodeHash,
+                          std::equal_to<InDetDD::SiCellId>,
+                          SG::ArenaPoolSTLAllocator<
                             std::pair<const InDetDD::SiCellId, SiChargedDiode> > >
   SiChargedDiodeMap;
 

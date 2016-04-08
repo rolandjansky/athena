@@ -8,7 +8,8 @@ atlas_subdir( SiDigitization )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
-                          Control/AthAllocators
+                          Control/CxxUtils
+                          Control/DataModel
                           DetectorDescription/Identifier
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -20,5 +21,5 @@ atlas_add_library( SiDigitization
                    src/SiChargedDiodeCollection.cxx
                    src/SiSurfaceCharge.cxx
                    PUBLIC_HEADERS SiDigitization
-                   LINK_LIBRARIES AthenaKernel AthAllocators Identifier GaudiKernel InDetReadoutGeometry InDetSimEvent )
+                   LINK_LIBRARIES AthenaKernel CxxUtils DataModel Identifier GaudiKernel InDetReadoutGeometry InDetSimEvent )
 
