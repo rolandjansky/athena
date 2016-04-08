@@ -433,6 +433,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     if (!effectiveLocalPar) {
         ATH_MSG_ERROR("Could not produce effective localParameters");
         //clean-up
+        delete effectiveErrMat;
         delete ROTvector;
         delete assgnProbVector;
         return 0;
@@ -440,6 +441,8 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     if (!effectiveErrMat) {
         ATH_MSG_ERROR("Could not produce effective ErrorMatrix");
         //clean-up
+        
+        delete effectiveLocalPar;
         delete ROTvector;
         delete assgnProbVector;
         return 0;
@@ -502,6 +505,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     const Trk::TrackParameters* newTrackParameters = 0;
     for (unsigned int i=0; i<compROT->numberOfContainedROTs(); i++) {
         const Trk::StraightLineSurface* ROTsurfacePointer = dynamic_cast< const Trk::StraightLineSurface* > (&(compROT->rioOnTrack(i).associatedSurface()));
+        if (!ROTsurfacePointer) throw std::logic_error("Unhandled surface.");
         ATH_MSG_VERBOSE("ROTsurfacePointer: " << ROTsurfacePointer << " at ("
                                     << ROTsurfacePointer->center().x() << ", "
                                     << ROTsurfacePointer->center().y() << ", "
@@ -824,10 +828,12 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
     new std::vector<const InDet::TRT_DriftCircleOnTrack*>;
   const InDet::TRT_DriftCircleOnTrack* dc1 = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>
     ( ROTvector->at(0));
+  if (!dc1) throw std::logic_error("Not a TRT_DriftCircleOnTrack");
   DCvector->push_back(dc1);
   if (ROTvector->size() > 1) {
     const InDet::TRT_DriftCircleOnTrack* dc2
       = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>( ROTvector->at(1));
+    if (!dc2) throw std::logic_error("Not a TRT_DriftCircleOnTrack");
       DCvector->push_back(dc2);
   }
   InDet::CompetingTRT_DriftCirclesOnTrack* theCompetingROT = 
