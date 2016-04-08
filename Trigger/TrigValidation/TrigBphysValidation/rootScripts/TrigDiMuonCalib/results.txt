@@ -1,0 +1,33 @@
+original code
+=============
+
+[TrigJpsiRootAnalysis::analyzeChain]             INFO: No of J/psi                 : 572
+[TrigJpsiRootAnalysis::analyzeChain]             INFO: No of J/psi after Tracking  : 556
+[TrigJpsiRootAnalysis::analyzeChain]             INFO: No of J/psi after FEX       : 470
+[TrigJpsiRootAnalysis::analyzeChain]             INFO: No of J/psi after Hypo.     : 409
+[TrigJpsiRootAnalysis::analyzeChain]             INFO: Efficiency of Tracking  : 0.972028
+[TrigJpsiRootAnalysis::analyzeChain]             INFO: Efficiency of FEX       : 0.821678
+[TrigJpsiRootAnalysis::analyzeChain]             INFO: Efficiency of Hypo.     : 0.715035
+
+new code, old calibration
+=========================
+
+[TrigDiMuonRootCalib::analyzeChain]              INFO: No of J/psi                 : 572
+[TrigDiMuonRootCalib::analyzeChain]              INFO: No of J/psi after Tracking  : 556
+[TrigDiMuonRootCalib::analyzeChain]              INFO: No of J/psi after FEX       : 470
+[TrigDiMuonRootCalib::analyzeChain]              INFO: No of J/psi after Hypo.     : 410
+[TrigDiMuonRootCalib::analyzeChain]              INFO: Efficiency of Tracking  : 0.972028
+[TrigDiMuonRootCalib::analyzeChain]              INFO: Efficiency of FEX       : 0.821678
+[TrigDiMuonRootCalib::analyzeChain]              INFO: Efficiency of Hypo.     : 0.716783
+
+
+new calibration
+===============
+
+[TrigDiMuonRootCalib::analyzeChain]              INFO: No of J/psi                 : 572
+[TrigDiMuonRootCalib::analyzeChain]              INFO: No of J/psi after Tracking  : 556
+[TrigDiMuonRootCalib::analyzeChain]              INFO: No of J/psi after FEX       : 470
+[TrigDiMuonRootCalib::analyzeChain]              INFO: No of J/psi after Hypo.     : 450
+[TrigDiMuonRootCalib::analyzeChain]              INFO: Efficiency of Tracking  : 0.972028
+[TrigDiMuonRootCalib::analyzeChain]              INFO: Efficiency of FEX       : 0.821678
+[TrigDiMuonRootCalib::analyzeChain]              INFO: Efficiency of Hypo.     : 0.786713

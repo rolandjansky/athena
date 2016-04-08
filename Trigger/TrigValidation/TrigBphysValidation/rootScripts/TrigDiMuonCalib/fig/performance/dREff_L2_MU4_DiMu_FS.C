@@ -1,0 +1,197 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+{
+//=========Macro generated from canvas: c_eff_jpsi_dR/c_eff_jpsi_dR
+//=========  (Thu Jun 24 16:32:31 2010) by ROOT version5.26/00
+   TCanvas *c_eff_jpsi_dR = new TCanvas("c_eff_jpsi_dR", "c_eff_jpsi_dR",15,34,700,500);
+   gStyle->SetOptFit(1);
+   c_eff_jpsi_dR->Range(-0.233924,-0.2262738,1.228101,1.187937);
+   c_eff_jpsi_dR->SetFillColor(0);
+   c_eff_jpsi_dR->SetBorderMode(0);
+   c_eff_jpsi_dR->SetBorderSize(2);
+   c_eff_jpsi_dR->SetTickx(1);
+   c_eff_jpsi_dR->SetTicky(1);
+   c_eff_jpsi_dR->SetLeftMargin(0.16);
+   c_eff_jpsi_dR->SetRightMargin(0.05);
+   c_eff_jpsi_dR->SetTopMargin(0.08);
+   c_eff_jpsi_dR->SetBottomMargin(0.16);
+   c_eff_jpsi_dR->SetFrameBorderMode(0);
+   c_eff_jpsi_dR->SetFrameBorderMode(0);
+   
+   TGraphAsymmErrors *grae = new TGraphAsymmErrors(7);
+   grae->SetName("");
+   grae->SetTitle(";#DeltaR; Efficiency");
+   grae->SetFillColor(1);
+   grae->SetMarkerStyle(20);
+   grae->SetMarkerSize(1.2);
+   grae->SetPoint(0,0.075,0.5);
+   grae->SetPointError(0,0.075,0.075,0.2480053,0.2480053);
+   grae->SetPoint(1,0.225,0.8125);
+   grae->SetPointError(1,0.075,0.075,0.1056392,0.08162414);
+   grae->SetPoint(2,0.375,0.9456522);
+   grae->SetPointError(2,0.075,0.075,0.02709213,0.02058242);
+   grae->SetPoint(3,0.525,0.9565217);
+   grae->SetPointError(3,0.075,0.075,0.01574945,0.01278636);
+   grae->SetPoint(4,0.675,0.955102);
+   grae->SetPointError(4,0.075,0.075,0.01454671,0.01205457);
+   grae->SetPoint(5,0.825,0.9901961);
+   grae->SetPointError(5,0.075,0.075,0.01437348,0.007128613);
+   grae->SetPoint(6,0.975,1);
+   grae->SetPointError(6,0.075,0.075,0.06183102,0);
+   
+   TH1F *Graph7 = new TH1F("Graph7","",100,0,1.155);
+   Graph7->SetMinimum(0);
+   Graph7->SetMaximum(1.074801);
+   Graph7->SetDirectory(0);
+   Graph7->SetStats(0);
+   Graph7->SetLineWidth(2);
+   Graph7->SetMarkerStyle(20);
+   Graph7->SetMarkerSize(1.2);
+   Graph7->GetXaxis()->SetTitle("#DeltaR");
+   Graph7->GetXaxis()->SetLabelFont(42);
+   Graph7->GetXaxis()->SetLabelSize(0.05);
+   Graph7->GetXaxis()->SetTitleSize(0.05);
+   Graph7->GetXaxis()->SetTitleOffset(1.4);
+   Graph7->GetXaxis()->SetTitleFont(42);
+   Graph7->GetYaxis()->SetTitle(" Efficiency");
+   Graph7->GetYaxis()->SetLabelFont(42);
+   Graph7->GetYaxis()->SetLabelSize(0.05);
+   Graph7->GetYaxis()->SetTitleSize(0.05);
+   Graph7->GetYaxis()->SetTitleOffset(1.4);
+   Graph7->GetYaxis()->SetTitleFont(42);
+   Graph7->GetZaxis()->SetLabelFont(42);
+   Graph7->GetZaxis()->SetLabelSize(0.05);
+   Graph7->GetZaxis()->SetTitleSize(0.05);
+   Graph7->GetZaxis()->SetTitleFont(42);
+   grae->SetHistogram(Graph7);
+   
+   grae->Draw("ap");
+   
+   grae = new TGraphAsymmErrors(7);
+   grae->SetName("");
+   grae->SetTitle("");
+   grae->SetFillColor(1);
+   grae->SetMarkerStyle(22);
+   grae->SetMarkerSize(1.2);
+   grae->SetPoint(0,0.075,0.5);
+   grae->SetPointError(0,0.075,0.075,0.2480053,0.2480053);
+   grae->SetPoint(1,0.225,0.8125);
+   grae->SetPointError(1,0.075,0.075,0.1056392,0.08162414);
+   grae->SetPoint(2,0.375,0.9130435);
+   grae->SetPointError(2,0.075,0.075,0.03236565,0.02640108);
+   grae->SetPoint(3,0.525,0.8454106);
+   grae->SetPointError(3,0.075,0.075,0.02617863,0.02396405);
+   grae->SetPoint(4,0.675,0.7877551);
+   grae->SetPointError(4,0.075,0.075,0.02683677,0.02527823);
+   grae->SetPoint(5,0.825,0.8235294);
+   grae->SetPointError(5,0.075,0.075,0.03961209,0.0354327);
+   grae->SetPoint(6,0.975,0.5294118);
+   grae->SetPointError(6,0.075,0.075,0.1155941,0.1135065);
+   
+   TH1F *Graph8 = new TH1F("Graph8","",100,0,1.155);
+   Graph8->SetMinimum(0.1832497);
+   Graph8->SetMaximum(1.00819);
+   Graph8->SetDirectory(0);
+   Graph8->SetStats(0);
+   Graph8->SetLineWidth(2);
+   Graph8->SetMarkerStyle(20);
+   Graph8->SetMarkerSize(1.2);
+   Graph8->GetXaxis()->SetLabelFont(42);
+   Graph8->GetXaxis()->SetLabelSize(0.05);
+   Graph8->GetXaxis()->SetTitleSize(0.05);
+   Graph8->GetXaxis()->SetTitleOffset(1.4);
+   Graph8->GetXaxis()->SetTitleFont(42);
+   Graph8->GetYaxis()->SetLabelFont(42);
+   Graph8->GetYaxis()->SetLabelSize(0.05);
+   Graph8->GetYaxis()->SetTitleSize(0.05);
+   Graph8->GetYaxis()->SetTitleOffset(1.4);
+   Graph8->GetYaxis()->SetTitleFont(42);
+   Graph8->GetZaxis()->SetLabelFont(42);
+   Graph8->GetZaxis()->SetLabelSize(0.05);
+   Graph8->GetZaxis()->SetTitleSize(0.05);
+   Graph8->GetZaxis()->SetTitleFont(42);
+   grae->SetHistogram(Graph8);
+   
+   grae->Draw("p");
+   
+   grae = new TGraphAsymmErrors(7);
+   grae->SetName("");
+   grae->SetTitle("");
+   grae->SetFillColor(1);
+   grae->SetMarkerStyle(24);
+   grae->SetMarkerSize(1.2);
+   grae->SetPoint(0,0.075,0.5);
+   grae->SetPointError(0,0.075,0.075,0.2480053,0.2480053);
+   grae->SetPoint(1,0.225,0.75);
+   grae->SetPointError(1,0.075,0.075,0.1125048,0.09352039);
+   grae->SetPoint(2,0.375,0.8369565);
+   grae->SetPointError(2,0.075,0.075,0.04068954,0.0358667);
+   grae->SetPoint(3,0.525,0.7729469);
+   grae->SetPointError(3,0.075,0.075,0.02989639,0.02814897);
+   grae->SetPoint(4,0.675,0.7346939);
+   grae->SetPointError(4,0.075,0.075,0.02875929,0.02748882);
+   grae->SetPoint(5,0.825,0.745098);
+   grae->SetPointError(5,0.075,0.075,0.04439911,0.0412407);
+   grae->SetPoint(6,0.975,0.4705882);
+   grae->SetPointError(6,0.075,0.075,0.1135064,0.1155941);
+   
+   TH1F *Graph9 = new TH1F("Graph9","",100,0,1.155);
+   Graph9->SetMinimum(0.1899119);
+   Graph9->SetMaximum(0.9349061);
+   Graph9->SetDirectory(0);
+   Graph9->SetStats(0);
+   Graph9->SetLineWidth(2);
+   Graph9->SetMarkerStyle(20);
+   Graph9->SetMarkerSize(1.2);
+   Graph9->GetXaxis()->SetLabelFont(42);
+   Graph9->GetXaxis()->SetLabelSize(0.05);
+   Graph9->GetXaxis()->SetTitleSize(0.05);
+   Graph9->GetXaxis()->SetTitleOffset(1.4);
+   Graph9->GetXaxis()->SetTitleFont(42);
+   Graph9->GetYaxis()->SetLabelFont(42);
+   Graph9->GetYaxis()->SetLabelSize(0.05);
+   Graph9->GetYaxis()->SetTitleSize(0.05);
+   Graph9->GetYaxis()->SetTitleOffset(1.4);
+   Graph9->GetYaxis()->SetTitleFont(42);
+   Graph9->GetZaxis()->SetLabelFont(42);
+   Graph9->GetZaxis()->SetLabelSize(0.05);
+   Graph9->GetZaxis()->SetTitleSize(0.05);
+   Graph9->GetZaxis()->SetTitleFont(42);
+   grae->SetHistogram(Graph9);
+   
+   grae->Draw("p");
+   
+   TLegend *leg = new TLegend(0.3821839,0.2584746,0.7327586,0.4576271,NULL,"brNDC");
+   leg->SetLineColor(1);
+   leg->SetLineStyle(1);
+   leg->SetLineWidth(1);
+   leg->SetFillColor(0);
+   leg->SetFillStyle(1001);
+   TLegendEntry *entry=leg->AddEntry("","Tracking eff.","pl");
+   entry->SetLineColor(1);
+   entry->SetLineStyle(1);
+   entry->SetLineWidth(1);
+   entry->SetMarkerColor(1);
+   entry->SetMarkerStyle(20);
+   entry->SetMarkerSize(1.2);
+   entry=leg->AddEntry("","FEX eff.","pl");
+   entry->SetLineColor(1);
+   entry->SetLineStyle(1);
+   entry->SetLineWidth(1);
+   entry->SetMarkerColor(1);
+   entry->SetMarkerStyle(22);
+   entry->SetMarkerSize(1.2);
+   entry=leg->AddEntry("","Hypo eff.","pl");
+   entry->SetLineColor(1);
+   entry->SetLineStyle(1);
+   entry->SetLineWidth(1);
+   entry->SetMarkerColor(1);
+   entry->SetMarkerStyle(24);
+   entry->SetMarkerSize(1.2);
+   leg->Draw();
+   c_eff_jpsi_dR->Modified();
+   c_eff_jpsi_dR->cd();
+   c_eff_jpsi_dR->SetSelected(c_eff_jpsi_dR);
+}
