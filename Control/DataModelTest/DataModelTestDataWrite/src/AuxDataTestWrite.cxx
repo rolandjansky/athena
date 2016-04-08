@@ -91,7 +91,7 @@ StatusCode AuxDataTestWrite::execute()
     aB(b).m_x = m_count*1000 + i+300;
 
     pint(b) = (m_count*2 + i) % 3;
-    pfloat(b) = i + (float)m_count / 100;
+    pfloat(b) = i + (float)m_count * 0.01;
 
     std::vector<int> pvi;
     for (int j=0; j<i; j++)
@@ -100,7 +100,7 @@ StatusCode AuxDataTestWrite::execute()
 
     std::vector<float> pvf;
     for (int j=0; j<i; j++)
-      pvf.push_back ((float)j/10 + (float)i/100 + (float)m_count/1000 - 0.5);
+      pvf.push_back ((float)j*0.1 + (float)i*0.01 + (float)m_count*0.001 - 0.5);
     pvfloat(b) = std::move (pvf);
   }
 

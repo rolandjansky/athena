@@ -23,14 +23,16 @@ use xAODCore                xAODCore-*                Event/xAOD
 
 
 private
+use CxxUtils                CxxUtils-*                Control
 use AthenaKernel            AthenaKernel-*            Control
 use AthContainersInterfaces AthContainersInterfaces-* Control
 use StoreGate               StoreGate-*               Control
 use AthenaBaseComps         AthenaBaseComps-*         Control
 end_private
 
-apply_pattern component_library
-library DataModelTestDataWrite *.cxx components/*.cxx
+####apply_pattern component_library
+####library DataModelTestDataWrite *.cxx components/*.cxx
+apply_pattern dual_use_library files=*.cxx
 
 private
 use AtlasReflex  AtlasReflex-*  External  -no_auto_imports

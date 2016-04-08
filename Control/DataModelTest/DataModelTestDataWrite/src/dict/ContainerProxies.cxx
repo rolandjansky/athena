@@ -4,5 +4,7 @@
 
 #include "xAODCore/AddDVProxy.h"
 #include "DataModelTestDataWrite/GVec.h"
+#include "DataModelTestDataWrite/HVec.h"
 
 ADD_NS_DV_PROXY (DMTest, GVec);
+ADD_NS_DV_PROXY (DMTest, HVec);
