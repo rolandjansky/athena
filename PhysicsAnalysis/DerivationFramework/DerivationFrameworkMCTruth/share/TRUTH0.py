@@ -2,8 +2,16 @@
 # Set up common services and job object.
 # This should appear in ALL derivation job options
 #==============================================================================
+# Add translator from EVGEN input to xAOD-like truth here
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkMCTruth.MCTruthCommon import * 
+from RecExConfig.ObjKeyStore import objKeyStore
+from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
+from DerivationFrameworkMCTruth.TruthDerivationTools import *
+
+if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+        DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT")
+elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
+        DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent")
 
 #==============================================================================
 # Create the derivation kernel algorithm

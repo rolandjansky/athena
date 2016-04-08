@@ -44,6 +44,7 @@ namespace DerivationFramework {
       bool m_preserveGeneratorDescendants;
       bool m_preserveAncestors;
       bool m_tauHandling;
+      int m_geantOffset;
   }; 
 }
 

@@ -5,14 +5,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # Add translator from EVGEN input to xAOD-like truth here
 from DerivationFrameworkMCTruth.MCTruthCommon import * 
-
-# Flag to distinguish EVNT/xAOD input
-# isEVNT = False
-# This is now set in the MCTruthCommon
-
-# Add translator from EVGEN input to xAOD-like truth here
-from RecExConfig.ObjKeyStore import objKeyStore
-from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
+from DerivationFrameworkTau.TauTruthCommon import *
 
 #====================================================================
 # JET/MET
@@ -34,7 +27,7 @@ jetFlags.truthFlavorTags = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
 if dfInputIsEVNT:
   # Standard truth jets
   # To recover jet constituents remove the last modifier.
-  akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", modifiersin=[jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit], ptmin= 5000)
+  akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", modifiersin=[jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit, jtm.jetdrlabeler, jtm.trackjetdrlabeler], ptmin= 5000)
   akt4alg = JetAlgorithm("jetalgAntiKt4TruthJets", Tools = [akt4] )
   DerivationFrameworkJob += akt4alg
 
@@ -56,13 +49,6 @@ metAlg = getMETRecoAlg('METReconstruction')
 DerivationFrameworkJob += metAlg
 
 #==============================================================================
-# Set-up of the tols for writing special collections and decorators
-#==============================================================================
-
-from DerivationFrameworkMCTruth.TruthObjectTools import *
-from DerivationFrameworkMCTruth.TruthDecoratorTools import *
-
-#==============================================================================
 # Thinning the master truth collection 
 #==============================================================================
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
@@ -70,7 +56,7 @@ TRUTH1TruthThinning = DerivationFramework__MenuTruthThinning(name               
                                                             ThinningService            = "TRUTH1ThinningSvc",
                                                             WritePartons               = False,
                                                             WriteHadrons               = False,
-                                                            WriteBHadrons              = False,
+                                                            WriteBHadrons              = True,
                                                             WriteGeant                 = False,
                                                             GeantPhotonPtThresh        = -1.0,
                                                             WriteTauHad                = True,
@@ -96,7 +82,7 @@ from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import Derivation
 TRUTH1PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "TRUTH1PhotonThinning",
                                                                  ThinningService         = "TRUTH1ThinningSvc",
                                                                  ParticlesKey            = "TruthPhotons",  
-                                                                 ParticleSelectionString = "(TruthPhotons.particleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)")
+                                                                 ParticleSelectionString = "(TruthPhotons.classifierParticleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)")
 ToolSvc += TRUTH1PhotonThinning
 
 #==============================================================================
@@ -104,11 +90,12 @@ ToolSvc += TRUTH1PhotonThinning
 #==============================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH1Kernel",
-                                                                        AugmentationTools = [TRUTH1MuonTool,TRUTH1ElectronTool,TRUTH1PhotonTool,TRUTH1TauTool,TRUTH1NeutrinoTool,
-                                                                          TRUTH1ElectronDressingTool, TRUTH1MuonDressingTool,
-                                                                          TRUTH1ElectronIsolationTool1, TRUTH1ElectronIsolationTool2,
-                                                                          TRUTH1MuonIsolationTool1, TRUTH1MuonIsolationTool2,
-                                                                          TRUTH1PhotonIsolationTool1, TRUTH1PhotonIsolationTool2],
+                                                                        AugmentationTools = [DFCommonTruthClassificationTool,
+                                                                          DFCommonTruthMuonTool,DFCommonTruthElectronTool,DFCommonTruthPhotonTool,DFCommonTruthNeutrinoTool,
+                                                                          DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
+                                                                          DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
+                                                                          DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
+                                                                          DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2],
                                                                         ThinningTools = [TRUTH1TruthThinning,TRUTH1PhotonThinning])
 
 #==============================================================================

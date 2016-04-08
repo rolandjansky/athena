@@ -22,7 +22,7 @@
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "EventKernel/PdtPdg.h"
+//#include "EventKernel/PdtPdg.h"
 #include "AthenaKernel/errorcheck.h"
 #include "HepPID/ParticleIDMethods.hh"
 #include "GaudiKernel/SystemOfUnits.h"

@@ -38,7 +38,8 @@ m_partString(""),
 m_preserveDescendants(false),
 m_preserveGeneratorDescendants(false),
 m_preserveAncestors(false),
-m_tauHandling(true)
+m_tauHandling(true),
+m_geantOffset(200000)
 {
     declareInterface<DerivationFramework::IThinningTool>(this);
     declareProperty("ThinningService", m_thinningSvc);
@@ -51,6 +52,7 @@ m_tauHandling(true)
     declareProperty("PreserveGeneratorDescendants", m_preserveGeneratorDescendants);
     declareProperty("PreserveAncestors", m_preserveAncestors);
     declareProperty("TauHandling", m_tauHandling);
+    declareProperty("SimBarcodeOffset", m_geantOffset); 
 }
 
 // Destructor
@@ -206,7 +208,7 @@ StatusCode DerivationFramework::GenericTruthThinning::doThinning() const
     // - update the masks including the descendants/ancestors
     // To ensure graph completeness, this  over-rides anything set by the special treatment 
     // of taus in the section above 
-    DerivationFramework::DecayGraphHelper decayHelper;
+    DerivationFramework::DecayGraphHelper decayHelper(m_geantOffset);
     std::unordered_set<int> encounteredBarcodes; // to enable loop handling
     if (m_preserveDescendants || m_preserveGeneratorDescendants  || m_preserveAncestors) {
         for (unsigned int i=0; i<nParticles; ++i) {

@@ -21,10 +21,10 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // mc tools
-#include "McParticleKernel/IMcVtxFilterTool.h"
-#include "McParticleKernel/ITruthParticleCnvTool.h"
-#include "McParticleEvent/TruthParticle.h"
-#include "McParticleEvent/TruthParticleContainer.h"
+//#include "McParticleKernel/IMcVtxFilterTool.h"
+//#include "McParticleKernel/ITruthParticleCnvTool.h"
+//#include "McParticleEvent/TruthParticle.h"
+//#include "McParticleEvent/TruthParticleContainer.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
@@ -32,13 +32,13 @@
 // Needed for FourVector
 #include "HepMC/SimpleVector.h"
 
-#include "McParticleUtils/McVtxFilter.h"
+//#include "McParticleUtils/McVtxFilter.h"
 
-#include "TruthHelper/IsGenStable.h"
-#include "TruthHelper/IsGenNonInteracting.h"
-#include "TruthHelper/IsGenerator.h"
+//#include "TruthHelper/IsGenStable.h"
+//#include "TruthHelper/IsGenNonInteracting.h"
+//#include "TruthHelper/IsGenerator.h"
 
-#include "EventKernel/PdtPdg.h"
+//#include "EventKernel/PdtPdg.h"
 
 // ROOT includes
 #include "TH1F.h"
@@ -1103,9 +1103,10 @@ bool CompactHardTruth::isFinalParton( const HepMC::GenParticle* p ) {
 }
   
 // Hadron excludes leptons and BSM particles
+// Includes clusters to find, e.g., partons->cluster vertices 
 bool CompactHardTruth::isHadron( const HepMC::GenParticle* p ) {
   int ida = abs(p->pdg_id());
-  if( (ida>100 && ida<1000000) || ida>9000000 ) return true;
+  if( (ida>=80 && ida<1000000) || ida>9000000 ) return true;
   return false;
 }  
 

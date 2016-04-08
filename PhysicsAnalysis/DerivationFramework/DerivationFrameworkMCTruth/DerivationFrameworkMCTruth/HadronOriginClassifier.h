@@ -1,0 +1,138 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/*
+ 
+ * @author Mirko Casolino
+ * @date June 2015
+ * @brief tool to compute oring of hadron to flag ttbar+HF
+ 
+ */
+
+
+#ifndef  DerivationFrameworkMCTruth_HadronOriginClassifier_H
+#define  DerivationFrameworkMCTruth_HadronOriginClassifier_H
+
+
+#include <vector>
+#include <map>
+#include <set>
+#include <string>
+#include <utility>
+
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+
+
+
+
+namespace DerivationFramework{
+
+
+  static const InterfaceID IID_HadronOriginClassifier("HadronOriginClassifier", 1, 0);
+
+  class HadronOriginClassifier: public AthAlgTool {
+
+
+  public:
+    HadronOriginClassifier(const std::string& t, const std::string& n, const IInterface* p);
+    virtual ~HadronOriginClassifier();
+    
+    virtual StatusCode initialize();
+    virtual StatusCode finalize();
+
+
+
+    static const InterfaceID& interfaceID() { return IID_HadronOriginClassifier; }
+    
+    
+    
+    
+    typedef enum {extrajet=0,
+		  c_MPI     =-1, b_MPI      =1,
+		  c_FSR     =-2, b_FSR      =2,
+		  c_from_W  =-3, b_from_W   =3,
+		  c_from_top=-4, b_from_top =4,
+		  c_from_H  =-5, b_from_H   =5} HF_id;
+    
+    
+        
+    std::map<const xAOD::TruthParticle*, HF_id> GetOriginMap();
+    
+  private:
+
+
+
+    void initMaps();
+ 
+    void fillHadronMap(const xAOD::TruthParticle* mainhad, const xAOD::TruthParticle* ihad, bool decayed=false);
+
+    void findPartonsToRemove(bool isNotDecayed);
+
+    void buildPartonsHadronsMaps();
+
+
+    int hadronType(int pdgid) const;
+    bool isBHadron(const xAOD::TruthParticle* part) const;
+    bool isCHadron(const xAOD::TruthParticle* part) const;
+
+    bool passHadronSelection(const xAOD::TruthParticle* part) const;
+
+
+    bool isQuarkFromHadron(const xAOD::TruthParticle* part) const;
+
+    bool isCHadronFromB(const xAOD::TruthParticle* part) const;
+
+
+    /// init_part needed to detect looping graphs (sherpa) and to switch on using barcode to resolve it without affecting pythia8
+    /// up to know only seen at parton level
+    bool isLooping(const xAOD::TruthParticle* part, std::set<const xAOD::TruthParticle*> init_part = std::set<const xAOD::TruthParticle*>()) const;
+    
+    const xAOD::TruthParticle* findInitial(const xAOD::TruthParticle* part, bool looping) const;
+    
+    bool isFromTop(const xAOD::TruthParticle* part, bool looping) const;
+    bool isDirectlyFromTop(const xAOD::TruthParticle* part, bool looping) const;
+    bool isDirectlyFromWTop(const xAOD::TruthParticle* part, bool looping) const;
+
+    bool isDirectlyFromGluonQuark(const xAOD::TruthParticle* part, bool looping) const;
+    bool isFromGluonQuark(const xAOD::TruthParticle* part, bool looping) const;
+    bool isDirectlyFSRPythia(const xAOD::TruthParticle* part, bool looping) const;
+
+    bool isDirectlyFromQuarkTop(const xAOD::TruthParticle* part, bool looping) const;
+    bool isFromQuarkTop(const xAOD::TruthParticle* part, bool looping) const;
+    bool isDirectlyFSR(const xAOD::TruthParticle* part, bool looping) const;
+    bool isFromWTop(const xAOD::TruthParticle* part, bool looping) const;
+
+    bool isDirectlyMPI(const xAOD::TruthParticle* part, bool looping) const;
+    
+     
+    inline bool IsHerwigPP(){return m_isHerwigPP;};
+
+
+    const xAOD::TruthParticle*  partonToHadron(const xAOD::TruthParticle* parton);
+
+    
+    std::set<const xAOD::TruthParticle*> usedHadron;
+    std::map<const xAOD::TruthParticle*,int> mainHadronMap; //maps main hadrons with flavor
+    
+    
+    std::map<const xAOD::TruthParticle*, HF_id> partonsOrigin; //parton, category
+    std::map<const xAOD::TruthParticle*, const xAOD::TruthParticle*> hadronsPartons; //hadron, category
+    std::map<const xAOD::TruthParticle*, HF_id> hadronsOrigin; //hadron, category
+
+    std::string m_mcName;
+    double m_HadronPtMinCut;
+    double m_HadronEtaMaxCut;
+    int m_DSID;
+    bool m_isHerwigPP;
+    
+    
+  };
+
+} //namespace
+
+
+#endif //DerivationFrameworkMCTruth_HadronOriginClassifier_H
+

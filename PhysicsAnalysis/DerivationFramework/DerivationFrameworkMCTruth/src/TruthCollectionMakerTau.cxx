@@ -94,15 +94,18 @@ StatusCode DerivationFramework::TruthCollectionMakerTau::addBranches() const
       xTruthTau->makePrivateStore( *xTruthParticle );
 	
       if ( examineTruthTau(*xTruthTau).isFailure() )
+      {
+	delete xTruthTau;
       	continue;
+      }
 
       // Run classification
       if ( m_runClassifier ) {
   	std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> classification = m_classifier->particleTruthClassifier(xTruthTau);			
   	unsigned int particleType = classification.first;
   	unsigned int particleOrigin = classification.second;
-  	xTruthTau->auxdecor<unsigned int>("particleType") = particleType;
-  	xTruthTau->auxdecor<unsigned int>("particleOrigin") = particleOrigin;
+  	xTruthTau->auxdecor<unsigned int>("classifierParticleType") = particleType;
+  	xTruthTau->auxdecor<unsigned int>("classifierParticleOrigin") = particleOrigin;
       } 
 
       // create link to the original TruthParticle
@@ -182,7 +185,7 @@ StatusCode DerivationFramework::TruthCollectionMakerTau::examineTruthTau(const x
   xTruthParticle.auxdecor<size_t>("numNeutral") = m_iNNeutralPions+m_iNNeutralOthers;
   xTruthParticle.auxdecor<size_t>("numNeutralPion") = m_iNNeutralPions;
 
-  xTruthParticle.auxdecor<bool>("IsHadronicTau") = m_bIsHadronicTau;
+  xTruthParticle.auxdecor<char>("IsHadronicTau") = (char)m_bIsHadronicTau;
     
   if ( m_writeVisibleChargedFourMomentum )
   {
