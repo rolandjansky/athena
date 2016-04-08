@@ -71,7 +71,8 @@ namespace InDet {
     std::vector< BeamSpot::VrtHolder > m_vertexData;
     long m_vertexCount;
     FitStatus m_fitStatus;
-    std::string m_vtxCut;
+    std::string m_vtxCutString;
+    double m_vtxResCut;
     double m_kStart;
     double m_rmsCutNum;
     bool m_kConst;

@@ -184,8 +184,6 @@ bool InDet::InDetBeamSpotFinder::passVertexSelection(const xAOD::Vertex * vtx ) 
   if(TMath::Prob(vtx->chiSquared(), vtx->numberDoF()) < m_minVtxProb ) { return false; }
   if(vtx->covariancePosition()(0,0) <= 0 || vtx->covariancePosition()(1,1) <= 0 || vtx->covariancePosition()(2,2) <= 0 ) { return false; }
   if(m_vertexTypes.end() == find(  m_vertexTypes.begin(), m_vertexTypes.end(), vtx->vertexType() ) ) { return false; }
-  //  int nPassedTracks = 0;
-  //  if (nPassedTracks < m_minTrackNum) { return false; }
   if(sqrt(vtx->covariancePosition()(0,0)) > m_maxTransverseError || sqrt(vtx->covariancePosition()(1,1)) > m_maxTransverseError) {return false;}
   return true;
 }
@@ -231,8 +229,9 @@ StatusCode InDet::InDetBeamSpotFinder::performFits(){
       m_BeamStatusCode.setFitStatus(fitStat);
       if (bs->getParamMap()["sigmaX"] == 0 && bs->getParamMap()["sigmaY"] ==0 ) { m_BeamStatusCode.setFitWidth( false); }
       else { m_BeamStatusCode.setFitWidth(true); } 
-      
-      writeToBeamSpotTree( bs, m_sortedEventList[i], verticesToFit );
+
+      if(m_sortedEventList[i].size() > 0)
+	writeToBeamSpotTree( bs, m_sortedEventList[i], verticesToFit );
     }
   }
   return StatusCode::SUCCESS;
