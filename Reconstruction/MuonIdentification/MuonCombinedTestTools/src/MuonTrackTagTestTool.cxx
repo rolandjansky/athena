@@ -166,41 +166,46 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
      return 0;     
   }
 
-  const Trk::TrackParameters *idextrapolatedpar=0,*msextrapolatedpar=0;
+  std::unique_ptr<const Trk::TrackParameters> idextrapolatedpar =
+    std::unique_ptr<const Trk::TrackParameters>
+    ( m_extrapolator->extrapolateToVolume(*lastmeasidpar,*m_msEntrance,Trk::alongMomentum,Trk::muon) );
 
-  idextrapolatedpar=m_extrapolator->extrapolateToVolume(*lastmeasidpar,*m_msEntrance,Trk::alongMomentum,Trk::muon);
   if (!idextrapolatedpar && lastmeasidpar->parameters()[Trk::qOverP]!=0 && std::abs(1./lastmeasidpar->parameters()[Trk::qOverP])<5.*CLHEP::GeV) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolating with p=5 GeV" << endreq;
     AmgVector(5) params=lastmeasidpar->parameters();
     double sign= (params[Trk::qOverP]>0) ? 1 : -1;
     double newqoverp=sign/(5.*CLHEP::GeV);
     params[Trk::qOverP]=newqoverp;
-    const Trk::TrackParameters *newlastidpar=lastmeasidpar->associatedSurface().createTrackParameters(params[0],params[1],params[2],params[3],params[4],new AmgSymMatrix(5)(*lastmeasidpar->covariance()));
+    std::unique_ptr<const Trk::TrackParameters> newlastidpar =
+      std::unique_ptr<const Trk::TrackParameters>
+      ( lastmeasidpar->associatedSurface().createTrackParameters(params[0],params[1],params[2],params[3],params[4],new AmgSymMatrix(5)(*lastmeasidpar->covariance())) );
     if(newlastidpar) {
-      idextrapolatedpar=m_extrapolator->extrapolateToVolume(*newlastidpar,*m_msEntrance,Trk::alongMomentum,Trk::muon);
-      delete newlastidpar;
+      idextrapolatedpar =
+        std::unique_ptr<const Trk::TrackParameters>
+        ( m_extrapolator->extrapolateToVolume(*newlastidpar,*m_msEntrance,Trk::alongMomentum,Trk::muon) );
     }
   }
-  const Trk::TrackParameters *measidpar= idextrapolatedpar && idextrapolatedpar->covariance() ? idextrapolatedpar : 0;
 
-  if (!measidpar) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ID extrapolated par null or missing error matrix, par: " << idextrapolatedpar << " meas par: " << measidpar << endreq;
-    delete idextrapolatedpar;
+  if (!idextrapolatedpar || !idextrapolatedpar->covariance()) {
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ID extrapolated par null or missing error matrix, par: " << idextrapolatedpar.get() << endreq;
     return 0;
   }
   const Trk::TrackParameters *msparforextrapolator=mspar;
+  std::unique_ptr<const Trk::TrackParameters> created_mspar;
   if (muonisstraight){
-    const AmgSymMatrix(5) &idcovmat=*measidpar->covariance();
+    const AmgSymMatrix(5) &idcovmat=*idextrapolatedpar->covariance();
     AmgVector(5) params=mspar->parameters();
     params[Trk::qOverP]=idextrapolatedpar->parameters()[Trk::qOverP];
     if(!mspar->covariance()){
       ATH_MSG_DEBUG( "Muons parameters missing Error matrix: " << mspar);
-      delete idextrapolatedpar;
       return 1e5; // Sometimes it's 0, sometimes 1e15. Maybe for comparison of chi2? Just in case, will copy this value from earlier check on ms track. EJWM.
     } 
     AmgSymMatrix(5) *newcovmat=new AmgSymMatrix(5)(*mspar->covariance());
     for (int i=0;i<5;i++) (*newcovmat)(i,4)=idcovmat(i,4);
-    msparforextrapolator=msparforextrapolator->associatedSurface().createTrackParameters(params[0],params[1],params[2],params[3],params[4],newcovmat);
+    created_mspar = 
+      std::unique_ptr<const Trk::TrackParameters>
+      ( msparforextrapolator->associatedSurface().createTrackParameters(params[0],params[1],params[2],params[3],params[4],newcovmat) );
+    msparforextrapolator = created_mspar.get();
   }
   Trk::PropDirection propdir=Trk::oppositeMomentum;
   Trk::DistanceSolution distsol=idextrapolatedpar->associatedSurface().straightLineDistanceEstimate(msparforextrapolator->position(),msparforextrapolator->momentum().unit());
@@ -212,8 +217,9 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
   //std::cout << "distance: " << distance << std::endl;
   if (distance>0 && distsol.numberOfSolutions()>0) propdir=Trk::alongMomentum;
 
-  msextrapolatedpar=m_extrapolator->extrapolate(*msparforextrapolator,idextrapolatedpar->associatedSurface(),propdir,false,Trk::muon);
-  if (msparforextrapolator!=mspar) delete msparforextrapolator;
+  std::unique_ptr<const Trk::TrackParameters> msextrapolatedpar =
+    std::unique_ptr<const Trk::TrackParameters>
+    ( m_extrapolator->extrapolate(*msparforextrapolator,idextrapolatedpar->associatedSurface(),propdir,false,Trk::muon) );
     
   if (muonisstraight){
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon track is straight line" << endreq;
@@ -221,20 +227,19 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
   //std::cout << "idpar: " << measidpar << " mspar: " << measmspar << std::endl;
 
   if ((!msextrapolatedpar && !muonisstraight)){
-    msg(MSG::DEBUG) << "extrapolation failed, id:" << idextrapolatedpar << " ms: " << msextrapolatedpar << endreq;
+    msg(MSG::DEBUG) << "extrapolation failed, id:" << idextrapolatedpar.get() << " ms: " << msextrapolatedpar.get() << endreq;
 
-    delete msextrapolatedpar;
-    delete idextrapolatedpar;
     return 0;
   }
   double mychi2=1e15;
   if (msextrapolatedpar) mychi2=chi2(*idextrapolatedpar,*msextrapolatedpar);
   if (muonisstraight) {
-    const Trk::TrackParameters *idpar_firsthit=m_extrapolator->extrapolate(*idextrapolatedpar,mspar->associatedSurface(),Trk::alongMomentum,false,Trk::muon);
+    std::unique_ptr<const Trk::TrackParameters> idpar_firsthit =
+      std::unique_ptr<const Trk::TrackParameters>
+      ( m_extrapolator->extrapolate(*idextrapolatedpar,mspar->associatedSurface(),Trk::alongMomentum,false,Trk::muon) );
     if (idpar_firsthit) {
       double chi2_2=chi2(*idpar_firsthit,*mspar);
       if (chi2_2<mychi2) mychi2=chi2_2;
-      delete idpar_firsthit;
     }
   }
   return mychi2;
