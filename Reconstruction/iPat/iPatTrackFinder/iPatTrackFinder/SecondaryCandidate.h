@@ -26,7 +26,7 @@ class SecondaryCandidate
 public:
     // constructor
     SecondaryCandidate (const Amg::Vector3D&			perigeeVertex,
-			ToolHandle<IFinderConfiguration>	tolerances,
+			ToolHandle<IFinderConfiguration>&	tolerances,
 			std::vector<double>::const_iterator	zBegin,
 			std::vector<double>::const_iterator	zEnd);
     

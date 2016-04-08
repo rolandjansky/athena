@@ -468,6 +468,7 @@ TrackFinder::searchForVertexRegion (void)
 
     if (m_printLevel > 2)
     {
+	int prec	= std::cout.precision();
 	std::cout << "   found " << m_zVertices.size() << " vertices";
 	for (std::vector<double>::const_iterator z = m_zVertices.begin();
 	     z != m_zVertices.end();
@@ -476,7 +477,8 @@ TrackFinder::searchForVertexRegion (void)
 	    std::cout << std::setiosflags(std::ios::fixed)
 		      << std::setw(8) << std::setprecision(1) << *z;
 	}
-	std::cout << std::endl;
+	std::cout << std::resetiosflags(std::ios::fixed) << std::endl;
+	std::cout.precision(prec);
     }
 
     // restore tolerances for minPt
@@ -664,17 +666,14 @@ TrackFinder::vertexRegionDefinition (void)
 
     // vertex for transverse vertex constraint
     // assume flat distribution for error (only x and y components will be used)
-    Amg::MatrixX* covariance	= new Amg::MatrixX(3,3);
-    covariance->setZero();
+    Amg::MatrixX covariance(3,3);
+    covariance.setZero();
     double sigmaSquared = (m_finderTolerances->maxPrimaryImpact() *
 			   m_finderTolerances->maxPrimaryImpact())/3.;
-    (*covariance)(0,0)	= sigmaSquared;
-    //(*covariance)(0,1)	= 0.;
-    (*covariance)(1,1)	= sigmaSquared;
-    //(*covariance)(0,2)	= 0.;
-    //(*covariance)(1,2)	= 0.;
-    (*covariance)(0,2)	= sigmaSquared;
-    m_vertex = new Trk::RecVertex(beamPosition,*covariance);
+    covariance(0,0)	= sigmaSquared;
+    covariance(1,1)	= sigmaSquared;
+    covariance(0,2)	= sigmaSquared;
+    m_vertex		= new Trk::RecVertex(beamPosition,covariance);
     
 //     std::cout << " beam vertex " << beamPosition << std::endl;
 //     	      << "  beamSigma " << m_beamCondSvc->beamSigma(2) << std::endl;

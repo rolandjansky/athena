@@ -22,13 +22,28 @@
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 SecondaryCandidate::SecondaryCandidate (const Amg::Vector3D&			perigeeVertex,
-					ToolHandle<IFinderConfiguration>	tolerances,
+					ToolHandle<IFinderConfiguration>&	tolerances,
 					std::vector<double>::const_iterator	zBegin,
 					std::vector<double>::const_iterator	zEnd)
-    :  m_perigeeVertex	(perigeeVertex),
-       m_tolerances	(tolerances),
-       m_zBegin		(zBegin),
-       m_zEnd		(zEnd)
+    :	m_perigeeVertex		(perigeeVertex),
+	m_tolerances		(tolerances),
+	m_inBarrel		(false),
+	m_outerPosition 	(Amg::Vector3D(0.,0.,0.)),
+	m_outerR		(0.),  
+	m_innerPosition		(Amg::Vector3D(0.,0.,0.)),
+	m_a1			(0.),
+	m_a2			(0.),
+	m_cosAxis		(0.),
+	m_sinAxis		(0.),
+	m_x			(0.),
+	m_cosPhi		(0.),
+	m_cotTheta		(0.),
+	m_inversePt		(0.),
+	m_sinPhi		(0.),
+	m_transverseImpact	(0.),
+	m_z			(0.),
+	m_zBegin		(zBegin),
+	m_zEnd			(zEnd)
 {
 //     std::cout << "   m_half_field " << tolerances.halfField()
 // 	      << "   m_phi_slope_max " << tolerances.maxPhiSlope()

@@ -459,28 +459,33 @@ PointManager::setPoints (const std::vector<Trk::SpacePoint*>&	space_points,
 	const std::pair<IdentifierHash, IdentifierHash>
 	    elementIdList	= (**s).elementIdList();
 
+	// ignore garbage
+	const InDet::SiCluster* cluster1 = dynamic_cast<const InDet::SiCluster*>(clusterList.first);
+	if (! cluster1)		continue;
+
 	// test for pixel i.e. only one cluster
-	if (clusterList.second == 0)
+	const InDet::SiCluster* cluster2 = dynamic_cast<const InDet::SiCluster*>(clusterList.second);
+	if (! cluster2)
 	{
-	    bool isBarrel = m_detectorLocator->
-			    pixelDetector(elementIdList.first).element().isBarrel();
-	    p = new Point(*dynamic_cast<const InDet::SiCluster*>(clusterList.first),
-			  elementIdList.first,
-			  (**s).globalPosition(),
-			  isBarrel,
-			  vertexRegionCentre);
+	    bool isBarrel	= m_detectorLocator->
+				  pixelDetector(elementIdList.first).element().isBarrel();
+	    p			= new Point(*cluster1,
+					    elementIdList.first,
+					    (**s).globalPosition(),
+					    isBarrel,
+					    vertexRegionCentre);
 	}
 	else
 	{
-	    bool isBarrel = m_detectorLocator->
-			    SCT_Detector(elementIdList.first).element().isBarrel();
-	    p = new Point(*dynamic_cast<const InDet::SiCluster*>(clusterList.first),
-			  *dynamic_cast<const InDet::SiCluster*>(clusterList.second),
-			  elementIdList.first,
-			  elementIdList.second,
-			  (**s).globalPosition(),
-			  isBarrel,
-			  vertexRegionCentre);
+	    bool isBarrel	= m_detectorLocator->
+				  SCT_Detector(elementIdList.first).element().isBarrel();
+	    p			= new Point(*cluster1,
+					    *cluster2,
+					    elementIdList.first,
+					    elementIdList.second,
+					    (**s).globalPosition(),
+					    isBarrel,
+					    vertexRegionCentre);
 	}
 	m_extendedPoints->addPoint(p);
 	(**l).addPoint(p);

@@ -25,7 +25,7 @@ class PrimaryCandidate
 
 public:
     // constructor
-    PrimaryCandidate (ToolHandle<IFinderConfiguration>	tolerances,
+    PrimaryCandidate (ToolHandle<IFinderConfiguration>&	tolerances,
 		      const Amg::Vector3D&		vertexRegionCentre);
     
     // forbidden copy constructor
