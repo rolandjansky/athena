@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LHCBunchCrossingTool.cxx 618331 2014-09-24 11:55:26Z krasznaa $
+// $Id: LHCBunchCrossingTool.cxx 689822 2015-08-17 16:25:33Z krasznaa $
 
 // System include(s):
 #include <inttypes.h>
@@ -210,7 +210,8 @@ namespace Trig {
          uint32_t valid = 0xf;
          try {
             if( static_cast< int >( bunchdata->size() ) > m_intChannel ) {
-               valid = bunchdata->attributeList( m_intChannel )[ "Valid" ].data< uint32_t >();
+               valid =
+                  bunchdata->attributeList( m_intChannel )[ "Valid" ].data< uint32_t >();
             }
          } catch( const coral::AttributeListException& ex ) {
             ATH_MSG_DEBUG( "Caught exception with message: " << ex.what() );
@@ -322,16 +323,6 @@ namespace Trig {
       m_luminousBunches = attr[ "LuminousBunches" ].data< uint32_t >();
       const coral::Blob& bcids = attr[ "BCIDmasks" ].data< coral::Blob >();
 
-      // Do a little sanity check:
-      if( static_cast< uint32_t >( bcids.size() ) !=
-          ( 2 * ( m_beam1Bunches + m_beam2Bunches +
-                  m_luminousBunches ) ) ) {
-         REPORT_MESSAGE( MSG::ERROR )
-            << "The format of " << LHC_FILLPARAMS_FOLDER
-            << " is not what's expected!";
-         return result;
-      }
-
       // Give some very verbose feedback:
       if( msgLvl( MSG::VERBOSE ) ) {
          REPORT_MESSAGE( MSG::VERBOSE )
@@ -344,14 +335,55 @@ namespace Trig {
             << "BCIDmasks size : " << bcids.size();
       }
 
-      // Extract the collising bunch crossing BCIDs:
-      const int16_t* p = static_cast< const short* >( bcids.startingAddress() );
-      p += m_beam1Bunches + m_beam2Bunches;
-      for( uint32_t i = 0; i < m_luminousBunches; ++i, ++p ) {
-         if( msgLvl( MSG::VERBOSE ) ) {
-            REPORT_MESSAGE( MSG::VERBOSE ) << "Luminous BCID: " << *p;
+      //
+      // Decide which run it looks like:
+      //
+      if( static_cast< uint32_t >( bcids.size() ) ==
+          ( 2 * ( m_beam1Bunches + m_beam2Bunches +
+                  m_luminousBunches ) ) ) {
+
+         // This looks like Run 1...
+
+         // Extract the collising bunch crossing BCIDs:
+         const int16_t* p =
+            static_cast< const short* >( bcids.startingAddress() );
+         p += m_beam1Bunches + m_beam2Bunches;
+         for( uint32_t i = 0; i < m_luminousBunches; ++i, ++p ) {
+            if( msgLvl( MSG::VERBOSE ) ) {
+               REPORT_MESSAGE( MSG::VERBOSE ) << "Luminous BCID: " << *p;
+            }
+            result.push_back( *p );
          }
-         result.push_back( *p );
+
+      } else if( bcids.size() == BunchCrossing::MAX_BCID ) {
+
+         // This looks like Run 2...
+
+         // Extract the collising bunch crossing BCIDs:
+         const int8_t* p =
+            static_cast< const int8_t* >( bcids.startingAddress() );
+         for( int i = 0; i < BunchCrossing::MAX_BCID; ++i, ++p ) {
+            if( *p != 0x3 ) {
+               continue;
+            }
+            if( msgLvl( MSG::VERBOSE ) ) {
+               REPORT_MESSAGE( MSG::VERBOSE ) << "Luminous BCID: " << i;
+            }
+            result.push_back( i );
+         }
+
+         // A sanity check:
+         if( result.size() != m_luminousBunches ) {
+            REPORT_MESSAGE( MSG::ERROR )
+               << "Number of colliding bunches found (" << result.size()
+               << ") differs from value in the DB (" << m_luminousBunches
+               << ")";
+         }
+
+      } else {
+         REPORT_MESSAGE( MSG::ERROR )
+            << "The format of " << LHC_FILLPARAMS_FOLDER
+            << " is not what's expected!";
       }
 
       return result;
@@ -379,16 +411,6 @@ namespace Trig {
       m_luminousBunches = attr[ "LuminousBunches" ].data< uint32_t >();
       const coral::Blob& bcids = attr[ "BCIDmasks" ].data< coral::Blob >();
 
-      // Do a little sanity check:
-      if( static_cast< uint32_t >( bcids.size() ) !=
-          ( 2 * ( m_beam1Bunches + m_beam2Bunches +
-                  m_luminousBunches ) ) ) {
-         REPORT_MESSAGE( MSG::ERROR )
-            << "The format of " << LHC_FILLPARAMS_FOLDER
-            << " is not what's expected!";
-         return result;
-      }
-
       // Give some very verbose feedback:
       if( msgLvl( MSG::VERBOSE ) ) {
          REPORT_MESSAGE( MSG::VERBOSE )
@@ -404,24 +426,69 @@ namespace Trig {
       // Clear the internal info:
       m_beam1Colliding.clear();
 
-      // Extract the unpaired bunch crossing BCIDs from beam 1 only:
-      const int16_t* p = static_cast< const short* >( bcids.startingAddress() );
-      for( uint32_t i = 0; i < m_beam1Bunches; ++i, ++p ) {
-         // Only consider bunches that are not in the colliding bunch
-         // list:
-         if( std::find( m_filledBunches.begin(), m_filledBunches.end(), *p ) ==
-             m_filledBunches.end() ) {
-            if ( std::find( result.begin(), result.end(), *p ) ==
-                 result.end() ) {
-               if( msgLvl( MSG::VERBOSE ) ) {
-                  REPORT_MESSAGE( MSG::VERBOSE ) << "B1 unpaired BCID: " << *p;
+      //
+      // Decide which run it looks like:
+      //
+      if( static_cast< uint32_t >( bcids.size() ) ==
+          ( 2 * ( m_beam1Bunches + m_beam2Bunches +
+                  m_luminousBunches ) ) ) {
+
+         // This looks like Run 1...
+
+         // Extract the unpaired bunch crossing BCIDs from beam 1 only:
+         const int16_t* p =
+            static_cast< const short* >( bcids.startingAddress() );
+         for( uint32_t i = 0; i < m_beam1Bunches; ++i, ++p ) {
+            // Only consider bunches that are not in the colliding bunch
+            // list:
+            if( std::find( m_filledBunches.begin(),
+                           m_filledBunches.end(), *p ) ==
+                m_filledBunches.end() ) {
+               if ( std::find( result.begin(), result.end(), *p ) ==
+                    result.end() ) {
+                  if( msgLvl( MSG::VERBOSE ) ) {
+                     REPORT_MESSAGE( MSG::VERBOSE ) << "B1 unpaired BCID: "
+                                                    << *p;
+                  }
+                  result.push_back( *p );
                }
-               result.push_back( *p );
+               m_beam1Colliding.push_back( false );
+            } else {
+               m_beam1Colliding.push_back( true );
             }
-            m_beam1Colliding.push_back( false );
-         } else {
-            m_beam1Colliding.push_back( true );
          }
+
+      } else if( bcids.size() == BunchCrossing::MAX_BCID ) {
+
+         // This looks like Run 2...
+
+         // Extract the collising bunch crossing BCIDs:
+         const int8_t* p =
+            static_cast< const int8_t* >( bcids.startingAddress() );
+         for( int i = 0; i < BunchCrossing::MAX_BCID; ++i, ++p ) {
+            if( ! ( *p & 0x1 ) ) {
+               continue;
+            }
+            if( *p == 0x1 ) {
+               result.push_back( i );
+               m_beam1Colliding.push_back( false );
+            } else {
+               m_beam1Colliding.push_back( true );
+            }
+         }
+
+         // A sanity check:
+         if( m_beam1Colliding.size() != m_beam1Bunches ) {
+            REPORT_MESSAGE( MSG::ERROR )
+               << "Number of beam 1 bunches found (" << m_beam1Colliding.size()
+               << ") differs from value in the DB (" << m_beam1Bunches
+               << ")";
+         }
+
+      } else {
+         REPORT_MESSAGE( MSG::ERROR )
+            << "The format of " << LHC_FILLPARAMS_FOLDER
+            << " is not what's expected!";
       }
 
       return result;
@@ -449,16 +516,6 @@ namespace Trig {
       m_luminousBunches = attr[ "LuminousBunches" ].data< uint32_t >();
       const coral::Blob& bcids = attr[ "BCIDmasks" ].data< coral::Blob >();
 
-      // Do a little sanity check:
-      if( static_cast< uint32_t >( bcids.size() ) !=
-          ( 2 * ( m_beam1Bunches + m_beam2Bunches +
-                  m_luminousBunches ) ) ) {
-         REPORT_MESSAGE( MSG::ERROR )
-            << "The format of " << LHC_FILLPARAMS_FOLDER
-            << " is not what's expected!";
-         return result;
-      }
-
       // Give some very verbose feedback:
       if( msgLvl( MSG::VERBOSE ) ) {
          REPORT_MESSAGE( MSG::VERBOSE )
@@ -474,25 +531,70 @@ namespace Trig {
       // Clear the internal info:
       m_beam2Colliding.clear();
 
-      // Extract the unpaired bunch crossing BCIDs from beam 2 only:
-      const int16_t* p = static_cast< const short* >( bcids.startingAddress() );
-      p += m_beam1Bunches;
-      for( uint32_t i = 0; i < m_beam2Bunches; ++i, ++p ) {
-         // Only consider bunches that are not in the colliding bunch
-         // list:
-         if( std::find( m_filledBunches.begin(), m_filledBunches.end(), *p ) ==
-             m_filledBunches.end() ) {
-            if( std::find( result.begin(), result.end(), *p ) ==
-                result.end() ) {
-               if( msgLvl( MSG::VERBOSE ) ) {
-                  REPORT_MESSAGE( MSG::VERBOSE ) << "B2 unpaired BCID: " << *p;
+      //
+      // Decide which run it looks like:
+      //
+      if( static_cast< uint32_t >( bcids.size() ) ==
+          ( 2 * ( m_beam1Bunches + m_beam2Bunches +
+                  m_luminousBunches ) ) ) {
+
+         // This looks like Run 1...
+
+         // Extract the unpaired bunch crossing BCIDs from beam 2 only:
+         const int16_t* p =
+            static_cast< const short* >( bcids.startingAddress() );
+         p += m_beam1Bunches;
+         for( uint32_t i = 0; i < m_beam2Bunches; ++i, ++p ) {
+            // Only consider bunches that are not in the colliding bunch
+            // list:
+            if( std::find( m_filledBunches.begin(),
+                           m_filledBunches.end(), *p ) ==
+                m_filledBunches.end() ) {
+               if( std::find( result.begin(), result.end(), *p ) ==
+                   result.end() ) {
+                  if( msgLvl( MSG::VERBOSE ) ) {
+                     REPORT_MESSAGE( MSG::VERBOSE ) << "B2 unpaired BCID: "
+                                                    << *p;
+                  }
+                  result.push_back( *p );
                }
-               result.push_back( *p );
+               m_beam2Colliding.push_back( false );
+            } else {
+               m_beam2Colliding.push_back( true );
             }
-            m_beam2Colliding.push_back( false );
-         } else {
-            m_beam2Colliding.push_back( true );
          }
+
+      } else if( bcids.size() == BunchCrossing::MAX_BCID ) {
+
+         // This looks like Run 2...
+
+         // Extract the collising bunch crossing BCIDs:
+         const int8_t* p =
+            static_cast< const int8_t* >( bcids.startingAddress() );
+         for( int i = 0; i < BunchCrossing::MAX_BCID; ++i, ++p ) {
+            if( ! ( *p & 0x2 ) ) {
+               continue;
+            }
+            if( *p == 0x2 ) {
+               result.push_back( i );
+               m_beam2Colliding.push_back( false );
+            } else {
+               m_beam2Colliding.push_back( true );
+            }
+         }
+
+         // A sanity check:
+         if( m_beam2Colliding.size() != m_beam2Bunches ) {
+            REPORT_MESSAGE( MSG::ERROR )
+               << "Number of beam 2 bunches found (" << m_beam2Colliding.size()
+               << ") differs from value in the DB (" << m_beam2Bunches
+               << ")";
+         }
+
+      } else {
+         REPORT_MESSAGE( MSG::ERROR )
+            << "The format of " << LHC_FILLPARAMS_FOLDER
+            << " is not what's expected!";
       }
 
       return result;
