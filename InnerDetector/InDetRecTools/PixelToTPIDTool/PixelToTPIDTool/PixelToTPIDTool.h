@@ -63,7 +63,7 @@ namespace InDet
 
     private:
       ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
-      int                                  m_overflowIBLToT;                                                                                          
+      mutable int                    m_overflowIBLToT;                                                                                          
       ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
       StatusCode update( IOVSVC_CALLBACK_ARGS );  
       dEdxID *m_mydedx;

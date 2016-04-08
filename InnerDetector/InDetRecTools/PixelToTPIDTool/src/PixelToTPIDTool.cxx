@@ -130,7 +130,7 @@ StatusCode InDet::PixelToTPIDTool::initialize()
       ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
  
 
-  m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
+  //m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
 
   ATH_MSG_INFO ("initialize() successful in " << name());
   return StatusCode::SUCCESS;
@@ -249,6 +249,7 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
 	  
 	  //loop over ToT and check if anyone is overflow (ToT==14) check for IBL cluster overflow
 	  
+	  m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
 	  const std::vector<int>& ToTs = pixclus->prepRawData()->totList();
 	  
 	    for (int pixToT : ToTs) {
