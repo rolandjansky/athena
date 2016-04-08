@@ -16,6 +16,7 @@
 #include "ISF_Event/ISFParticle.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "ISF_Geant4Interfaces/ITransportTool.h"
 
 // Geant4 classes
@@ -25,6 +26,7 @@
 iGeant4::Geant4SimSvc::Geant4SimSvc(const std::string& name,ISvcLocator* svc) :
   BaseSimulationSvc(name, svc),
   m_geoModelSvc("GeoModelSvc",name),
+  m_detGeoSvc("DetectorGeometrySvc", name),
   m_simulationTool("ISFG4TransportTool"),
   m_configTool(""),
   m_doTiming(true),
@@ -36,6 +38,7 @@ iGeant4::Geant4SimSvc::Geant4SimSvc(const std::string& name,ISvcLocator* svc) :
 {
   declareProperty("SimulationTool" ,      m_simulationTool );
   declareProperty("GeoModelService",      m_geoModelSvc    );
+  declareProperty("DetectorGeometrySvc",  m_detGeoSvc      );
   declareProperty("G4ConfigTool"   ,      m_configTool     );
 
   declareProperty("PrintTimingInfo",      m_doTiming       );
@@ -210,6 +213,11 @@ StatusCode iGeant4::Geant4SimSvc::simulateVector(const ISF::ConstISFParticleVect
 StatusCode iGeant4::Geant4SimSvc::geoInit(IOVSVC_CALLBACK_ARGS)
 {
   ATH_MSG_INFO( m_screenOutputPrefix << "ATLAS Geometry is initialized, calling Geo2G4 converter." );
+  if (m_detGeoSvc.retrieve().isFailure())
+    {
+      ATH_MSG_FATAL("Could not retrieve DetectorGeometrySvc.");
+      return StatusCode::FAILURE;
+    }
 
   return StatusCode::SUCCESS;
 }
