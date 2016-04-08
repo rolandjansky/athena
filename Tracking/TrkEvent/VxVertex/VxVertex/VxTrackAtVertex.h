@@ -197,6 +197,12 @@ namespace Trk
 
 
     /**
+     * Setting up the initial track, without caching parameters.
+     */ 
+      void setOrigTrackNoCache(ITrackLink * trk);
+
+
+    /**
      * Setting up the linearized track.
      */  
       void setLinTrack(LinearizedTrack * myLinTrack);
@@ -511,6 +517,15 @@ namespace Trk
       m_initialNeutralPerigee = 0;
     }
   }//end of setOrigTrack method
+  
+  inline void VxTrackAtVertex::setOrigTrackNoCache(ITrackLink* trk)
+  {
+    delete m_trackOrParticleLink;
+    m_trackOrParticleLink = trk;    
+
+    m_initialPerigee = nullptr;
+    m_initialNeutralPerigee = nullptr;
+  }//end of setOrigTrackNocache method
   
   inline void VxTrackAtVertex::setInitialPerigee(const TrackParameters * perigee)
   {
