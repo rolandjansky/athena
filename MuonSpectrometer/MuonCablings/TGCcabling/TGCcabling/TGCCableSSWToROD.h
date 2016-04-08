@@ -30,6 +30,11 @@ private:
   virtual TGCModuleMap* getModuleIn (const TGCModuleId* rod) const;
   virtual TGCModuleMap* getModuleOut (const TGCModuleId* ssw) const;
   TGCDatabase* database;
+
+  // hidden assignment operator and copy constructor
+  TGCCableSSWToROD & operator=(const TGCCableSSWToROD &right);
+  TGCCableSSWToROD(const TGCCableSSWToROD&);
+
 };
   
 } // end of namespace
