@@ -12,6 +12,7 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigSteeringEvent/Lvl1Item.h"
 
 class VP1TriggerDecisionSystem::Clockwork
 {
