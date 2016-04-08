@@ -35,14 +35,14 @@ namespace Muon {
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
   {  
     
-    m_trackRecordCollectionNames.push_back("CaloEntryLayer");
-    m_trackRecordCollectionNames.push_back("MuonEntryLayer");
-    m_trackRecordCollectionNames.push_back("MuonExitLayer");
+    m_trackRecordColletionNames.push_back("CaloEntryLayer");
+    m_trackRecordColletionNames.push_back("MuonEntryLayer");
+    m_trackRecordColletionNames.push_back("MuonExitLayer");
 
     // Get parameter values from jobOptions file
     declareProperty("TruthParticleContainerName"    , m_truthParticleContainerName = "TruthParticles");
     declareProperty("MuonTruthParticleContainerName", m_muonTruthParticleContainerName = "MuonTruthParticles");
-    declareProperty("TrackRecordCollectionNames"    , m_trackRecordCollectionNames);
+    declareProperty("TrackRecordCollectionNames"    , m_trackRecordColletionNames);
 
     m_PRD_TruthNames.push_back("CSC_TruthMap");
     m_PRD_TruthNames.push_back("RPC_TruthMap");
@@ -61,7 +61,7 @@ namespace Muon {
     m_SDO_TruthNames.push_back("STGC_SDO");
     declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames);
     declareProperty("SDOs",      m_SDO_TruthNames);
-    std::stable_sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
+    std::sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
 
     declareProperty("xAODTruthLinkVector",m_truthLinkVecName="xAODTruthLinks");
 
@@ -71,7 +71,6 @@ namespace Muon {
     declareProperty("Extrapolator",        m_extrapolator);
     declareProperty("CreateTruthSegments", m_createTruthSegment = true );
     declareProperty("MuonTruthSegmentName",m_muonTruthSegmentContainerName = "MuonTruthSegments" );
-    declareProperty("BarcodeOffset",       m_barcodeOffset = 1000000 );
   }
 
   // Initialize method:
@@ -98,7 +97,7 @@ namespace Muon {
     ATH_MSG_DEBUG("Retrieved TruthContainer " << m_truthParticleContainerName << " size " << truthContainer->size());
     // retrieve TrackRecord info
     std::vector< std::pair<const TrackRecordCollection*,std::string> > trackRecords;
-    for( const auto& name : m_trackRecordCollectionNames ){
+    for( const auto& name : m_trackRecordColletionNames ){
       if ( evtStore()->contains<TrackRecordCollection>(name) ) {
 	const TrackRecordCollection* col = 0;
 	if( evtStore()->retrieve(col,name ).isSuccess() ){
@@ -234,9 +233,6 @@ namespace Muon {
 
       // add hit counts
       addHitCounts(*truthParticle,prdCollections,&ids);
-
-      //add hit ID vectors
-      addHitIDVectors(*truthParticle,ids);
 
       bool goodMuon = true;
       if( iType != 6 && iType != 7 )     goodMuon = false;
@@ -416,7 +412,7 @@ namespace Muon {
       // loop over collection and find particle with the same bar code
       for( const auto& particle : *col.first ){
       
-        if( (particle.GetBarCode())%m_barcodeOffset != barcode ) continue;
+        if( particle.GetBarCode() != barcode ) continue;
         CLHEP::Hep3Vector pos = particle.GetPosition();
         CLHEP::Hep3Vector mom = particle.GetMomentum();
         ATH_MSG_VERBOSE("Found associated  " << name << " pt " << mom.perp() << " position: r " << pos.perp() << " z " << pos.z());
@@ -523,7 +519,7 @@ namespace Muon {
       for( const auto& trajectory : *col ){
 
 	// check if gen particle same as input
-	if( (trajectory.second->barcode())%m_barcodeOffset != barcode ) continue;
+	if( trajectory.second->barcode() != barcode ) continue;
 
 	const Identifier& id = trajectory.first;
 	bool measPhi   = m_idHelper->measuresPhi(id);
@@ -584,14 +580,14 @@ namespace Muon {
       + nphiHitsPerChamberLayer[Muon::MuonStationIndex::STGC2];
     uint8_t phiLayer2Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::BM2] + nphiHitsPerChamberLayer[Muon::MuonStationIndex::T1];
     uint8_t phiLayer3Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO1] + nphiHitsPerChamberLayer[Muon::MuonStationIndex::T2];
-    uint8_t phiLayer4Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO2] + nphiHitsPerChamberLayer[Muon::MuonStationIndex::T3];
+    uint8_t phiLayer4Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::T4];
 
     uint8_t etaLayer1Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM1] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T4]
       + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::CSC] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::STGC1] 
       + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::STGC2];
     uint8_t etaLayer2Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM2] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T1];
     uint8_t etaLayer3Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO1] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T2];
-    uint8_t etaLayer4Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO2] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T3];
+    uint8_t etaLayer4Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T4];
 
     uint8_t nprecLayers = 0;
     if( nprecHitsPerChamberLayer[Muon::MuonStationIndex::BIS] + nprecHitsPerChamberLayer[Muon::MuonStationIndex::BIL] > 3 ) ++nprecLayers;
@@ -608,7 +604,6 @@ namespace Muon {
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BM1] > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BM2] > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO1] > 0 )  ++nphiLayers;
-    if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO2] > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::T1]  > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::T2]  > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::T3]  > 0 )  ++nphiLayers;
@@ -620,7 +615,6 @@ namespace Muon {
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM1] > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM2] > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO1] > 0 )  ++ntrigEtaLayers;
-    if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO2] > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T1]  > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T2]  > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T3]  > 0 )  ++ntrigEtaLayers;
@@ -667,7 +661,7 @@ namespace Muon {
         }
       }
       if( nphiLayers > 0 ){
-        msg(MSG::VERBOSE) << endmsg << " Phi chambers ";
+        msg(MSG::VERBOSE) << endreq << " Phi chambers ";
         for( int index = 0; index < static_cast<int>(nphiHitsPerChamberLayer.size()) ; ++index ) {
           if( nphiHitsPerChamberLayer[index] > 0 ) msg(MSG::VERBOSE) << " " << Muon::MuonStationIndex::phiName(static_cast<Muon::MuonStationIndex::PhiIndex>(index))
             << " hits " << nphiHitsPerChamberLayer[index];
@@ -675,45 +669,16 @@ namespace Muon {
       }
 
       if( ntrigEtaLayers > 0 ){
-        msg(MSG::VERBOSE) << endmsg << " Trigger Eta ";
+        msg(MSG::VERBOSE) << endreq << " Trigger Eta ";
         for( int index = 0; index < static_cast<int>(ntrigEtaHitsPerChamberLayer.size()) ; ++index ) {
           if( ntrigEtaHitsPerChamberLayer[index] > 0 ) msg(MSG::VERBOSE) << " " << Muon::MuonStationIndex::phiName(static_cast<Muon::MuonStationIndex::PhiIndex>(index)) 
             << " hits " << ntrigEtaHitsPerChamberLayer[index];
         }
       }
-      msg(MSG::VERBOSE) << endmsg;
+      msg(MSG::VERBOSE) << endreq;
     }
   }
 
-  void MuonTruthDecorationAlg::addHitIDVectors( xAOD::TruthParticle& truthParticle, const MuonTruthDecorationAlg::ChamberIdMap& ids) const{
-    std::vector<unsigned long long> mdtTruthHits;
-    std::vector<unsigned long long> cscTruthHits;
-    std::vector<unsigned long long> tgcTruthHits;
-    std::vector<unsigned long long> rpcTruthHits;
-
-    // loop over chamber layers
-    int nEI=0,nEM=0;
-    for( const auto& lay : ids ){
-      // loop over hits
-      if(lay.first==Muon::MuonStationIndex::EIS || lay.first==Muon::MuonStationIndex::EIL) nEI++;
-      if(lay.first==Muon::MuonStationIndex::EMS || lay.first==Muon::MuonStationIndex::EML) nEM++;
-      for( const auto& id : lay.second ){
-	if(m_idHelper->isMdt(id)) mdtTruthHits.push_back(id.get_compact());
-	else if(m_idHelper->isCsc(id)) cscTruthHits.push_back(id.get_compact());
-	else if(m_idHelper->isTgc(id)){
-	  if((lay.first==Muon::MuonStationIndex::EIS || lay.first==Muon::MuonStationIndex::EIL) && nEI>1) continue; //otherwise we double-count
-	  if((lay.first==Muon::MuonStationIndex::EMS || lay.first==Muon::MuonStationIndex::EML) && nEM>1) continue; //otherwise we double-count
-	  tgcTruthHits.push_back(id.get_compact());
-	}
-	else if(m_idHelper->isRpc(id)) rpcTruthHits.push_back(id.get_compact());
-      }
-    }
-    truthParticle.auxdata<std::vector<unsigned long long> >("truthMdtHits")=mdtTruthHits;
-    truthParticle.auxdata<std::vector<unsigned long long> >("truthCscHits")=cscTruthHits;
-    truthParticle.auxdata<std::vector<unsigned long long> >("truthRpcHits")=rpcTruthHits;
-    truthParticle.auxdata<std::vector<unsigned long long> >("truthTgcHits")=tgcTruthHits;
-    ATH_MSG_VERBOSE("Added "<<mdtTruthHits.size()<<" mdt truth hits, "<<cscTruthHits.size()<<" csc truth hits, "<<rpcTruthHits.size()<<" rpc truth hits, and "<<tgcTruthHits.size()<<" tgc truth hits");
-  }
 
   // Finalize method:
   StatusCode MuonTruthDecorationAlg::finalize() 

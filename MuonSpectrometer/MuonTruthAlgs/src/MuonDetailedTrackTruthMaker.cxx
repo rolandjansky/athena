@@ -69,7 +69,7 @@ StatusCode MuonDetailedTrackTruthMaker::initialize()
   for(std::vector<std::string>::const_iterator ikey = m_trackCollectionNames.begin(); ikey != m_trackCollectionNames.end(); ikey++,++ikeyt) {
     msg(MSG::INFO) << "  " << *ikey << "  " << *ikeyt;
   }
-  msg(MSG::INFO) << endmsg;
+  msg(MSG::INFO) << endreq;
   
   //----------------
   return StatusCode::SUCCESS;

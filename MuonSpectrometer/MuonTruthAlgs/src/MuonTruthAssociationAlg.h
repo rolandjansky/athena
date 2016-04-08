@@ -13,8 +13,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 class MuonTruthAssociationAlg : public AthAlgorithm  {
 
@@ -34,9 +32,6 @@ private:
   std::string m_muonName;
 
   bool m_associateWithInDetTP;
-  int m_barcodeOffset;
-
-  ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
 };
 
 

@@ -36,7 +36,6 @@ private:
   ToolHandle<Muon::IMuonTrackTruthTool> m_muonTrackTruthTool;
   std::string m_muonTruthSegmentContainerName;
   std::string m_muonSegmentCollectionName;
-  int m_barcodeOffset;
 };
 
 } // namespace Muon

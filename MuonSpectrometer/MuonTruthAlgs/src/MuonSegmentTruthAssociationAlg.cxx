@@ -27,7 +27,6 @@ namespace Muon {
   {  
     declareProperty("MuonTruthSegmentName",m_muonTruthSegmentContainerName = "MuonTruthSegments" );
     declareProperty("MuonSegmentLocation", m_muonSegmentCollectionName = "MuonSegments" );
-    declareProperty("BarcodeOffset",       m_barcodeOffset = 1000000 );
   }
 
   // Initialize method:
@@ -170,7 +169,7 @@ namespace Muon {
           continue;
         }
         // match barcodes
-        if( barcode%m_barcodeOffset == truthParticle->barcode() ){
+        if( barcode == truthParticle->barcode() ){
           ATH_MSG_DEBUG("Matched reconstructed segment: barcode " << barcode << " layer " << Muon::MuonStationIndex::chName(chIndex) );
           recoLink.toPersistent();
           truthLink.toPersistent();

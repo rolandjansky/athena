@@ -24,7 +24,6 @@ namespace Muon {
 				  const std::string& name,
 				  const IInterface* parent)
     :  AthAlgTool(type,name,parent)
-       // ,m_isDecayIntoTwoMuons(false)
   {
     declareInterface<Trk::ITruthTrajectoryBuilder>(this);
   }
@@ -37,7 +36,7 @@ namespace Muon {
 
   //================================================================
   void MuonDecayTruthTrajectoryBuilder::
-  buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) const
+  buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input)
   {
     result->clear();
     if(input) {
@@ -78,7 +77,7 @@ namespace Muon {
 	  if( par.production_vertex() ) msg(MSG::DEBUG) << " vertices prod: r " << par.production_vertex()->point3d().perp() 
 							<< " z " << par.production_vertex()->point3d().z();
 	  if( par.end_vertex() ) msg(MSG::DEBUG) << " end: r " << par.end_vertex()->point3d().perp() << " z " << par.end_vertex()->point3d().z();
-	  msg(MSG::DEBUG) << endmsg;
+	  msg(MSG::DEBUG) << endreq;
 	}
       }
     }
@@ -86,17 +85,17 @@ namespace Muon {
 
   //================================================================
   MuonDecayTruthTrajectoryBuilder::MotherDaughter
-  MuonDecayTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vtx) const
+  MuonDecayTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vtx)
   {
     const HepMC::GenParticle *mother(0), *daughter(0);
 
-    if( vtx && msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " new vertex: nparticles in " << vtx->particles_in_size() << endmsg;
+    if( vtx && msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " new vertex: nparticles in " << vtx->particles_in_size() << endreq;
     // only truth vertices with 1 incoming particle
     if(vtx && (vtx->particles_in_size() == 1)) {
 
       mother = *vtx->particles_in_const_begin();
     
-      if( mother && msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " new mother: " << mother->pdg_id() << " status " << mother->status() << " particles out " << vtx->particles_out_size() << endmsg;
+      if( mother && msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " new mother: " << mother->pdg_id() << " status " << mother->status() << " particles out " << vtx->particles_out_size() << endreq;
       // Allow status code 1 and 2.  E.g. a pion that produced a long track can decay  outside of InDet and have status==2.
       if( mother && (mother->status() < 3) ) {
 	unsigned int nDecayMuons = 0;
@@ -112,7 +111,7 @@ namespace Muon {
 	    if( par.production_vertex() ) msg(MSG::DEBUG) << " vertices prod: r " << par.production_vertex()->point3d().perp() 
 							  << " z " << par.production_vertex()->point3d().z();
 	    if( par.end_vertex() ) msg(MSG::DEBUG) << " end: r " << par.end_vertex()->point3d().perp() << " z " << par.end_vertex()->point3d().z();
-	    msg(MSG::DEBUG) << endmsg;
+	    msg(MSG::DEBUG) << endreq;
 	  }
 
 	  if(candidate->pdg_id() == mother->pdg_id()) {
@@ -130,7 +129,7 @@ namespace Muon {
 	    ++nDecayMuons;
 	    passed_cuts = candidate;
 	  } else { // temp addition for debugging
-            msg(MSG::DEBUG) << " Neither muon nor identical pdgId " << endmsg;
+            msg(MSG::DEBUG) << " Neither muon nor identical pdgId " << endreq;
             passed_cuts = candidate;
           }
 	}
@@ -139,7 +138,7 @@ namespace Muon {
 	    daughter = passed_cuts;
 	  if( nDecayMuons == 2 ){
 	    ATH_MSG_DEBUG( " decay into two muons ");
-	    // m_isDecayIntoTwoMuons = true;
+	    m_isDecayIntoTwoMuons = true;
 	  }
 	}
       } // if( mother && (mother->status() == 1) )
@@ -149,7 +148,7 @@ namespace Muon {
   }
 
   //================================================================
-  const HepMC::GenParticle* MuonDecayTruthTrajectoryBuilder::getDaughter(const HepMC::GenParticle* mother) const {
+  const HepMC::GenParticle* MuonDecayTruthTrajectoryBuilder::getDaughter(const HepMC::GenParticle* mother) {
 
     const HepMC::GenParticle *daughter = 0;
   
@@ -166,14 +165,14 @@ namespace Muon {
   }
 
   //================================================================
-  const HepMC::GenParticle* MuonDecayTruthTrajectoryBuilder::getMother(const HepMC::GenParticle* daughter) const {
+  const HepMC::GenParticle* MuonDecayTruthTrajectoryBuilder::getMother(const HepMC::GenParticle* daughter) {
 
     const HepMC::GenParticle *mother = 0;
 
     if(daughter) {
       MotherDaughter res = truthTrajectoryCuts(daughter->production_vertex());
       mother = res.first;
-      // m_isDecayIntoTwoMuons = false; // Don't think this does anything? EJWM.
+      m_isDecayIntoTwoMuons = false;
     }
 
     return mother;
