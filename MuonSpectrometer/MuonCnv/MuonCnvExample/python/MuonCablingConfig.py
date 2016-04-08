@@ -42,7 +42,6 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
         log.info("No metadata/Taginfo found. Using normal configuration for RPC")
     log.info("RPC cabling is using mode: %s" % muonCnvFlags.RpcCablingMode())
     
-    import RPCgeometry.RPCgeometryConfig
     from MuonCablingServers.MuonCablingServersConf import RPCcablingServerSvc
     ServiceMgr += RPCcablingServerSvc()
     theApp.CreateSvc += [ "RPCcablingServerSvc" ] # TODO: Remove once the C++ dependencies are fixed
