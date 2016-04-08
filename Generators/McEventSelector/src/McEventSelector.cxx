@@ -33,7 +33,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Tokenizer.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 
