@@ -11,17 +11,20 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/TriggerInfo.h"
 
-#include "TrigT1CaloEvent/CMXCPHits.h"
-#include "TrigT1CaloEvent/CMXEtSums.h"
-#include "TrigT1CaloEvent/CMXJetTob.h"
-#include "TrigT1CaloEvent/CMXJetHits.h"
-#include "TrigT1CaloEvent/CMXRoI.h"
+#include "xAODTrigL1Calo/CMXCPHitsContainer.h"
+#include "xAODTrigL1Calo/CMXEtSumsContainer.h"
+#include "xAODTrigL1Calo/CMXJetTobContainer.h"
+#include "xAODTrigL1Calo/CMXJetHitsContainer.h"
+#include "xAODTrigL1Calo/CMXRoIContainer.h"
+// #include "xAODTrigL1Calo/CPMRoIContainer.h"
+// #include "xAODTrigL1Calo/JEMRoIContainer.h"
 
-#include "TrigT1CaloEvent/CPMTobRoI.h"
-#include "TrigT1CaloEvent/JEMEtSums.h"
-#include "TrigT1CaloEvent/JEMTobRoI.h"
-#include "TrigT1CaloEvent/JetElement.h"
-#include "TrigT1CaloEvent/RODHeader.h"
+
+#include "xAODTrigL1Calo/CPMTobRoIContainer.h"
+#include "xAODTrigL1Calo/JEMEtSumsContainer.h"
+#include "xAODTrigL1Calo/JEMTobRoIContainer.h"
+#include "xAODTrigL1Calo/JetElementContainer.h"
+#include "xAODTrigL1Calo/RODHeaderContainer.h"
 
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTrigL1Calo/CPMTowerContainer.h"
@@ -39,7 +42,7 @@ namespace LVL1 {
 // Constructor
 
 TrigT1CaloMonErrorTool::TrigT1CaloMonErrorTool(
-  const std::string& name = "TrigT1CaloMonErrorTool")
+  const std::string& name)
   : AsgTool(name)
 {
 
@@ -123,15 +126,6 @@ StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
   // Must ensure bytestream converters have unpacked all our data
   // before retrieving error vector.
 
-  typedef DataVector<LVL1::CPMTobRoI>    CpmRoiCollection;
-  typedef DataVector<LVL1::JetElement>   JetElementCollection;
-  typedef DataVector<LVL1::CMXJetTob>    CmxJetTobCollection;
-  typedef DataVector<LVL1::CMXJetHits>   CmxJetHitsCollection;
-  typedef DataVector<LVL1::JEMTobRoI>    JemRoiCollection;
-  typedef DataVector<LVL1::JEMEtSums>    JemEtSumsCollection;
-  typedef DataVector<LVL1::CMXEtSums>    CmxEtSumsCollection;
-  typedef DataVector<LVL1::RODHeader>    RodHeaderCollection;
-
   StatusCode sc;
 
   //Retrieve Trigger Towers from SG
@@ -172,7 +166,7 @@ StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
   }
 
   //Retrieve CPM RoIs from SG
-  const CpmRoiCollection* cpmRoiTES = 0;
+  const xAOD::CPMTobRoIContainer* cpmRoiTES = 0;
   sc = evtStore()->retrieve( cpmRoiTES, m_cpmRoiLocation);
   if ( sc.isFailure()  ||  !cpmRoiTES ) {
     msg(MSG::DEBUG) << "No CPM RoIs container found" << endreq;
@@ -193,13 +187,13 @@ StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
   }
 
   //Retrieve Core and Overlap Jet Elements from SG
-  const JetElementCollection* jetElementTES = 0;
-  const JetElementCollection* jetElementOvTES = 0;
+  const xAOD::JetElementContainer* jetElementTES = 0;
+  const xAOD::JetElementContainer* jetElementOvTES = 0;
   sc = evtStore()->retrieve(jetElementTES, m_jetElementLocation);
   if ( sc.isFailure()  ||  !jetElementTES ) {
     msg(MSG::DEBUG) << "No Core Jet Element container found" << endreq;
   }
-  if (evtStore()->contains<JetElementCollection>(m_jetElementLocationOverlap)) {
+  if (evtStore()->contains<xAOD::JetElementContainer>(m_jetElementLocationOverlap)) {
     sc = evtStore()->retrieve(jetElementOvTES, m_jetElementLocationOverlap);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !jetElementOvTES ) {
@@ -207,50 +201,50 @@ StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
   }
 
   //Retrieve JEM RoIs from SG
-  const JemRoiCollection* jemRoiTES = 0;
+  const xAOD::JEMTobRoIContainer* jemRoiTES = 0;
   sc = evtStore()->retrieve( jemRoiTES, m_jemRoiLocation);
   if ( sc.isFailure()  ||  !jemRoiTES  ) {
     msg(MSG::DEBUG) << "No DAQ JEM RoIs container found" << endreq;
   }
 
   //Retrieve CMX-Jet TOBs from SG
-  const CmxJetTobCollection* cmxJetTobTES = 0;
+  const xAOD::CMXJetTobContainer* cmxJetTobTES = 0;
   sc = evtStore()->retrieve( cmxJetTobTES, m_cmxJetTobLocation);
   if ( sc.isFailure()  ||  !cmxJetTobTES ) {
     msg(MSG::DEBUG) << "No CMX-Jet TOB container found" << endreq;
   }
 
   //Retrieve CMX-Jet Hits from SG
-  const CmxJetHitsCollection* cmxJetHitsTES = 0;
+  const xAOD::CMXJetHitsContainer* cmxJetHitsTES = 0;
   sc = evtStore()->retrieve( cmxJetHitsTES, m_cmxJetHitsLocation);
   if ( sc.isFailure()  ||  !cmxJetHitsTES ) {
     msg(MSG::DEBUG) << "No CMX-Jet Hits container found" << endreq;
   }
 
   //Retrieve CMX RoIs from SG
-  const LVL1::CMXRoI* cmxRoiTES = 0;
+  const xAOD::CMXRoIContainer* cmxRoiTES = 0;
   sc = evtStore()->retrieve( cmxRoiTES, m_cmxRoiLocation);
   if ( sc.isFailure()  ||  !cmxRoiTES ) {
     msg(MSG::DEBUG) << "No CMX RoIs container found" << endreq;
   }
 
   //Retrieve JEM Et Sums from SG
-  const JemEtSumsCollection* jemEtSumsTES = 0;
+  const xAOD::JEMEtSumsContainer* jemEtSumsTES = 0;
   sc = evtStore()->retrieve( jemEtSumsTES, m_jemEtSumsLocation);
   if ( sc.isFailure()  ||  !jemEtSumsTES ) {
     msg(MSG::DEBUG) << "No JEM Et Sums container found" << endreq;
   }
 
   //Retrieve CMX Et Sums from SG
-  const CmxEtSumsCollection* cmxEtSumsTES = 0;
+  const xAOD::CMXEtSumsContainer* cmxEtSumsTES = 0;
   sc = evtStore()->retrieve( cmxEtSumsTES, m_cmxEtSumsLocation);
   if ( sc.isFailure()  ||  !cmxEtSumsTES ) {
     msg(MSG::DEBUG) << "No CMX-Energy Et Sums container found" << endreq;
   }
 
   //Retrieve ROD Headers from SG
-  const RodHeaderCollection* rodTES = 0;
-  if (evtStore()->contains<RodHeaderCollection>(m_rodHeaderLocation)) {
+  const xAOD::RODHeaderContainer* rodTES = 0;
+  if (evtStore()->contains<xAOD::RODHeaderContainer>(m_rodHeaderLocation)) {
     sc = evtStore()->retrieve(rodTES, m_rodHeaderLocation);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !rodTES ) {
@@ -258,8 +252,8 @@ StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
   }
 
   //Retrieve CP RoIB ROD Headers from SG
-  const RodHeaderCollection* cpRoibTES = 0;
-  if (evtStore()->contains<RodHeaderCollection>(m_cpRoibRodHeaderLocation)) {
+  const xAOD::RODHeaderContainer* cpRoibTES = 0;
+  if (evtStore()->contains<xAOD::RODHeaderContainer>(m_cpRoibRodHeaderLocation)) {
     sc = evtStore()->retrieve(cpRoibTES, m_cpRoibRodHeaderLocation);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !cpRoibTES ) {
@@ -267,8 +261,8 @@ StatusCode TrigT1CaloMonErrorTool::retrieve(const std::vector<unsigned int>*&
   }
 
   //Retrieve JEP RoIB ROD Headers from SG
-  const RodHeaderCollection* jepRoibTES = 0;
-  if (evtStore()->contains<RodHeaderCollection>(m_jepRoibRodHeaderLocation)) {
+  const xAOD::RODHeaderContainer* jepRoibTES = 0;
+  if (evtStore()->contains<xAOD::RODHeaderContainer>(m_jepRoibRodHeaderLocation)) {
     sc = evtStore()->retrieve(jepRoibTES, m_jepRoibRodHeaderLocation);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !jepRoibTES ) {
@@ -320,15 +314,13 @@ bool TrigT1CaloMonErrorTool::fullEventTimeout()
 bool TrigT1CaloMonErrorTool::missingFragment()
 {
 
-  typedef DataVector<LVL1::RODHeader> RodHeaderCollection;
-
   const bool debug = msgLvl(MSG::DEBUG);
 
   StatusCode sc;
 
   //Retrieve DAQ ROD Headers from SG
-  const RodHeaderCollection* rodTES = 0;
-  if (evtStore()->contains<RodHeaderCollection>(m_rodHeaderLocation)) {
+  const xAOD::RODHeaderContainer* rodTES = 0;
+  if (evtStore()->contains<xAOD::RODHeaderContainer>(m_rodHeaderLocation)) {
     sc = evtStore()->retrieve(rodTES, m_rodHeaderLocation);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !rodTES ) {
@@ -337,8 +329,8 @@ bool TrigT1CaloMonErrorTool::missingFragment()
   }
 
   //Retrieve CP RoIB ROD Headers from SG
-  const RodHeaderCollection* cpRoibTES = 0;
-  if (evtStore()->contains<RodHeaderCollection>(m_cpRoibRodHeaderLocation)) {
+  const xAOD::RODHeaderContainer* cpRoibTES = 0;
+  if (evtStore()->contains<xAOD::RODHeaderContainer>(m_cpRoibRodHeaderLocation)) {
     sc = evtStore()->retrieve(cpRoibTES, m_cpRoibRodHeaderLocation);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !cpRoibTES ) {
@@ -347,8 +339,8 @@ bool TrigT1CaloMonErrorTool::missingFragment()
   }
 
   //Retrieve JEP RoIB ROD Headers from SG
-  const RodHeaderCollection* jepRoibTES = 0;
-  if (evtStore()->contains<RodHeaderCollection>(m_jepRoibRodHeaderLocation)) {
+  const xAOD::RODHeaderContainer* jepRoibTES = 0;
+  if (evtStore()->contains<xAOD::RODHeaderContainer>(m_jepRoibRodHeaderLocation)) {
     sc = evtStore()->retrieve(jepRoibTES, m_jepRoibRodHeaderLocation);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !jepRoibTES ) {
@@ -358,19 +350,19 @@ bool TrigT1CaloMonErrorTool::missingFragment()
 
   // Record fragments present
   std::vector<int> noFragmentFlags(80, 1);
-  std::vector<const RodHeaderCollection*> cols;
+  std::vector<const xAOD::RODHeaderContainer*> cols;
   if (rodTES)     cols.push_back(rodTES);
   if (cpRoibTES)  cols.push_back(cpRoibTES);
   if (jepRoibTES) cols.push_back(jepRoibTES);
-  std::vector<const RodHeaderCollection*>::const_iterator colIter =
+  std::vector<const xAOD::RODHeaderContainer*>::const_iterator colIter =
     cols.begin();
-  std::vector<const RodHeaderCollection*>::const_iterator colIterEnd =
+  std::vector<const xAOD::RODHeaderContainer*>::const_iterator colIterEnd =
     cols.end();
   for (; colIter != colIterEnd; ++colIter) {
-    RodHeaderCollection::const_iterator iter    = (*colIter)->begin();
-    RodHeaderCollection::const_iterator iterEnd = (*colIter)->end();
+    xAOD::RODHeaderContainer::const_iterator iter    = (*colIter)->begin();
+    xAOD::RODHeaderContainer::const_iterator iterEnd = (*colIter)->end();
     for (; iter != iterEnd; ++iter) {
-      const LVL1::RODHeader* header = *iter;
+      const xAOD::RODHeader* header = *iter;
       const int crate = header->crate();
       const int slink = header->sLink();
       const int dataType = header->dataType();
