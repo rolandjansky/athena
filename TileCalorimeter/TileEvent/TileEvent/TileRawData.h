@@ -37,7 +37,10 @@ public:
     /* Constructor: */
     TileRawData(){}
     TileRawData(const Identifier& id);
-    TileRawData(const HWIdentifier& HWid);
+    TileRawData(const HWIdentifier& HWid)
+      : m_adc_hwid (HWid)
+    {
+    }
 
     /* Destructor */
     virtual ~TileRawData() {}

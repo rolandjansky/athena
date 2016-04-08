@@ -43,10 +43,45 @@ class TileRawChannel: public TileRawData {
 
     TileRawChannel(const Identifier& id, float amplitude, float time, float quality, float ped = 0.0);
     TileRawChannel(const HWIdentifier& HWid, float amplitude, float time, float quality, float ped = 0.0);
+    TileRawChannel(const HWIdentifier& HWid, 
+                   std::vector<float>&& amplitude,
+                   std::vector<float>&& time,
+                   std::vector<float>&& quality,
+                   float ped = 0.0);
 
     /* Destructor */
 
     ~TileRawChannel() {
+    }
+
+    void assign (const HWIdentifier& id,
+                 float amplitude,
+                 float time,
+                 float quality,
+                 float ped = 0.0)
+    {
+      TileRawData::operator= (TileRawData (id));
+      m_amplitude.resize(1);
+      m_amplitude[0] = amplitude;
+      m_time.resize(1);
+      m_time[0] = time;
+      m_quality.resize(1);
+      m_quality[0] = quality;
+      m_pedestal = ped;
+    }
+
+    template <class IteratorA, class IteratorT, class IteratorQ>
+    void assign (const HWIdentifier& id,
+                 IteratorA amplitude_beg, IteratorA amplitude_end,
+                 IteratorT time_beg,      IteratorT time_end,
+                 IteratorQ qual_beg,      IteratorQ qual_end,
+                 float ped = 0.0)
+    {
+      TileRawData::operator= (TileRawData (id));
+      m_amplitude.assign (amplitude_beg, amplitude_end);
+      m_time.assign      (time_beg,      time_end);
+      m_quality.assign   (qual_beg,      qual_end);
+      m_pedestal = ped;
     }
 
     int add(float amplitude, float time, float quality);
@@ -58,13 +93,15 @@ class TileRawChannel: public TileRawData {
     /* Inline access methods */
 
     inline float amplitude(int ind = 0) const { return m_amplitude[ind]; }
+    inline void setAmplitude (float a, int ind=0)  { m_amplitude[ind] = a; }
     inline float time(int ind = 0)      const { return m_time[ind]; }
     inline float uncorrTime()           const {  return m_time[m_time.size() - 1]; }
     inline float quality(int ind = 0)   const { return m_quality[ind]; }
     inline float pedestal(void)         const { return m_pedestal; }
 
-    inline int size(void) const { return m_amplitude.size(); }
-    inline int sizeTime(void) const { return m_time.size(); }
+    inline int size() const { return m_amplitude.size(); }
+    inline int sizeTime() const { return m_time.size(); }
+    inline int sizeQuality() const { return m_quality.size(); }
 
     std::string whoami(void) const { return "TileRawChannel"; }
     void print(void) const;
