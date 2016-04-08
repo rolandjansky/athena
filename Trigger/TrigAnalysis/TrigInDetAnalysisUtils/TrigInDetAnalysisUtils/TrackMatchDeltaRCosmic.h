@@ -10,8 +10,8 @@
 //   $Id: TrackMatchDeltaRCosmic.h, v0.0   Sun 18 Jan 2009 19:40:47 GMT sutt $
 
 
-#ifndef TRIGINDETANALYSISUTILS_TRACKMATCHDELTARCOSMIC_H
-#define TRIGINDETANALYSISUTILS_TRACKMATCHDELTARCOSMIC_H
+#ifndef __TRACKMATCHDELTARCOSMIC_H
+#define __TRACKMATCHDELTARCOSMIC_H
 
 #include <iostream>
 #include <string>
@@ -28,7 +28,7 @@ class TrackMatchDeltaRCosmic : public TrackAssociator {
 public:
 
   TrackMatchDeltaRCosmic(const std::string& name, double R) : 
-    TrackAssociator(name), m_R2(R*R) 
+    TrackAssociator(name), mR2(R*R) 
   { } 
 
   ~TrackMatchDeltaRCosmic() { } 
@@ -69,7 +69,7 @@ public:
       }
 
       // is this inside the delta R specification?
-      if ( tmptrack && R2min<m_R2 ) { 
+      if ( tmptrack && R2min<mR2 ) { 
 	mmatched.insert(    map_type::value_type(reftrack,tmptrack) );
 	mrevmatched.insert( map_type::value_type(tmptrack,reftrack) );
 	
@@ -97,7 +97,7 @@ public:
 
 private:
 
-  double m_R2;
+  double mR2;
 
 };
 
@@ -107,4 +107,14 @@ inline std::ostream& operator<<(std::ostream& s, const TrackMatchDeltaRCosmic& /
 }
 
 
-#endif  // TRIGINDETANALYSISUTILS_TRACKMATCHDELTARCOSMIC_H
+#endif  // __TRACKMATCHDELTAR_H 
+
+
+
+
+
+
+
+
+
+

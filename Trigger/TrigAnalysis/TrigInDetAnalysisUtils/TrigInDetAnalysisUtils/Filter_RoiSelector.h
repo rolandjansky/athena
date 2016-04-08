@@ -9,8 +9,8 @@
 //   $Id: Filter_RoiSelector.h, v0.0   Wed 28 Oct 2009 02:44:40 CET sutt $
 
 
-#ifndef TRIGINDETANALYSISUTILS_FILTER_ROISELECTOR_H
-#define TRIGINDETANALYSISUTILS_FILTER_ROISELECTOR_H
+#ifndef __FILTER_ROISELECTOR_H
+#define __FILTER_ROISELECTOR_H
 
 #include <iostream>
 #include <cmath>
@@ -33,47 +33,47 @@ class Filter_RoiSelector : public TrackFilter {
 public:
 
   Filter_RoiSelector(double emin=0, double emax=0, double pmin=0, double pmax=0 ) : 
-    m_etamin(emin), m_etamax(emax), 
-    m_phimin(pmin), m_phimax(pmax) 
+    metamin(emin), metamax(emax), 
+    mphimin(pmin), mphimax(pmax) 
   { }
 
   Filter_RoiSelector(const TIDARoiDescriptor& r) : 
-    m_etamin(r.eta()-r.etaHalfWidth()), m_etamax(r.eta()+r.etaHalfWidth()), 
-    m_phimin(r.phi()-r.phiHalfWidth()), m_phimax(r.phi()-r.phiHalfWidth())
+    metamin(r.eta()-r.etaHalfWidth()), metamax(r.eta()+r.etaHalfWidth()), 
+    mphimin(r.phi()-r.phiHalfWidth()), mphimax(r.phi()-r.phiHalfWidth())
   {
-    if ( m_phimin<-M_PI ) m_phimin+=M_2PI;
-    if ( m_phimin> M_PI ) m_phimin-=M_2PI;
-    if ( m_phimax<-M_PI ) m_phimax+=M_2PI;
-    if ( m_phimax> M_PI ) m_phimax-=M_2PI;
+    if ( mphimin<-M_PI ) mphimin+=M_2PI;
+    if ( mphimin> M_PI ) mphimin-=M_2PI;
+    if ( mphimax<-M_PI ) mphimax+=M_2PI;
+    if ( mphimax> M_PI ) mphimax-=M_2PI;
   }
 
   Filter_RoiSelector(const TIDARoiDescriptor* r) : 
-    m_etamin(r->eta()-r->etaHalfWidth()), m_etamax(r->eta()+r->etaHalfWidth()), 
-    m_phimin(r->phi()-r->phiHalfWidth()), m_phimax(r->phi()-r->phiHalfWidth())
+    metamin(r->eta()-r->etaHalfWidth()), metamax(r->eta()+r->etaHalfWidth()), 
+    mphimin(r->phi()-r->phiHalfWidth()), mphimax(r->phi()-r->phiHalfWidth())
   {
-    if ( m_phimin<-M_PI ) m_phimin+=M_2PI;
-    if ( m_phimin> M_PI ) m_phimin-=M_2PI;
-    if ( m_phimax<-M_PI ) m_phimax+=M_2PI;
-    if ( m_phimax> M_PI ) m_phimax-=M_2PI;
+    if ( mphimin<-M_PI ) mphimin+=M_2PI;
+    if ( mphimin> M_PI ) mphimin-=M_2PI;
+    if ( mphimax<-M_PI ) mphimax+=M_2PI;
+    if ( mphimax> M_PI ) mphimax-=M_2PI;
   }
 
   bool select(const TIDA::Track* t, const TIDARoiDescriptor* /*r=0*/ ) { 
     bool inphi = false;
-    if ( m_phimin<m_phimax ) inphi = ( m_phimin<t->phi() && t->phi()<m_phimax );
-    else                   inphi = ( m_phimin<t->phi() || t->phi()<m_phimax );
-    if ( m_etamin<t->eta() && t->eta()<m_etamax && inphi ) return true;
+    if ( mphimin<mphimax ) inphi = ( mphimin<t->phi() && t->phi()<mphimax );
+    else                   inphi = ( mphimin<t->phi() || t->phi()<mphimax );
+    if ( metamin<t->eta() && t->eta()<metamax && inphi ) return true;
     return false;
   }
 
-  double etamin() const { return m_etamin; }
-  double etamax() const { return m_etamax; }
-  double phimin() const { return m_phimin; }
-  double phimax() const { return m_phimax; }
+  double etamin() const { return metamin; }
+  double etamax() const { return metamax; }
+  double phimin() const { return mphimin; }
+  double phimax() const { return mphimax; }
 
 private:
 
-  double m_etamin, m_etamax;
-  double m_phimin, m_phimax;
+  double metamin, metamax;
+  double mphimin, mphimax;
 
 };
 
@@ -84,4 +84,14 @@ inline std::ostream& operator<<( std::ostream& s, const Filter_RoiSelector& sr )
 }
 
 
-#endif  // TRIGINDETANALYSISUTILS_FILTER_ROISELECTOR_H
+#endif  // __FILTER_ROISELECTOR_H 
+
+
+
+
+
+
+
+
+
+
