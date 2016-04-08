@@ -82,6 +82,7 @@ class photonHist
   // photon ID per region histograms
   std::vector<TH1*> m_hvEhad1;         
   std::vector<TH1*> m_hvCoreEM;        
+  std::vector<TH1*> m_hvF0;            
   std::vector<TH1*> m_hvF1;            
   std::vector<TH1*> m_hvF2;            
   std::vector<TH1*> m_hvF3;            
@@ -158,6 +159,7 @@ class photonHist
       m_nPhotons = 0;
       m_nPhotonsUnconv = 0;
       m_nPhotonsConv = 0;
+
     }
   
   ~photonHist(){}

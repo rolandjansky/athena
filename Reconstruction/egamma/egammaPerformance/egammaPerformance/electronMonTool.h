@@ -32,11 +32,13 @@ class electronHist
  public :
 
   std::string m_nameOfElectronType;
+  bool m_fullHistoList;
 
   enum electronType
    {
       LhMedium=0,
       CbMedium,
+      LhLoose,
       LhTight,
       CbTight,
       NumberOfTypesToMonitor
@@ -56,6 +58,7 @@ class electronHist
   std::vector<TH1*> m_hvEhad1;         
   std::vector<TH1*> m_hvEoverP;        
   std::vector<TH1*> m_hvCoreEM;        
+  std::vector<TH1*> m_hvF0;            
   std::vector<TH1*> m_hvF1;            
   std::vector<TH1*> m_hvF2;            
   std::vector<TH1*> m_hvF3;            
@@ -88,7 +91,7 @@ class electronHist
 
   TH1 *m_hLB_N; // Histogram for number of electrons vs LB
 
- electronHist(std::string name):
+ electronHist(std::string name, bool FullHistoList):
     m_hN (nullptr),
     m_hEt (nullptr),
     m_hEta (nullptr),
@@ -103,6 +106,7 @@ class electronHist
     m_hLB_N(nullptr)
     {
       m_nameOfElectronType = name;
+      m_fullHistoList = FullHistoList;
     }
 
     ~electronHist(){
@@ -132,6 +136,8 @@ class electronMonTool : public egammaMonToolBase
 
   std::string m_ElectronContainer; // Container name for electrons
 
+  // LH Loose electrons histograms
+  electronHist *m_LhLooseElectrons;
   // LH Medium electrons histograms
   electronHist *m_LhMediumElectrons;
   // Medium cut based electrons histograms
