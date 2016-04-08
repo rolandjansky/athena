@@ -8,66 +8,78 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include <string>
-
-// Cluster and space point collections
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
-#include "TrkSpacePoint/SpacePointCollection.h" 
-#include "TrkSpacePoint/SpacePointOverlapCollection.h" 
+
 #include "GeoPrimitives/GeoPrimitives.h"
- 
-namespace Trk
-{
+
+class SCT_ID;
+class SpacePointCollection;
+class SpacePointOverlapCollection;
+namespace Trk{
  class SpacePoint;
 }
 
-namespace InDetDD
-{
+namespace InDetDD{
   class SCT_DetectorManager;
   class SiDetectorElement;
 }
-
 namespace InDet{
   class SiCluster;
+  //class SCT_ClusterCollection; can't fwd declare due to typedef
+  //class PixelClusterCollection;
+}
 
-class SiSpacePointMakerTool : public AthAlgTool {
+namespace InDet{
+  class SiSpacePointMakerTool : public AthAlgTool {
+	public:
+		// Constructor 
+		SiSpacePointMakerTool( const std::string& type, const std::string& name, const IInterface* parent );
 
- public:
+		virtual ~SiSpacePointMakerTool();
 
+		static const InterfaceID& interfaceID();
 
-  // Constructor 
-  SiSpacePointMakerTool( const std::string& type, 
-                      const std::string& name, 
-                      const IInterface* parent );
+		virtual StatusCode initialize();
 
-  virtual ~SiSpacePointMakerTool();
+		virtual StatusCode finalize();
 
-  static const InterfaceID& interfaceID();
+		// Convert clusters to space points
+		Trk::SpacePoint* makeSCT_SpacePoint(const InDet::SiCluster& cluster1, const InDet::SiCluster& cluster2, 
+		  const Amg::Vector3D& vertexVec,
+		  const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2);
 
-  virtual StatusCode initialize();
+		void fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1, 
+		  const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters, 
+		  const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
+		  SpacePointCollection* spacepointCollection);
 
-  virtual StatusCode finalize();
+		void fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters, 
+		  SpacePointCollection* spacepointCollection);
 
-  // Convert clusters to space points
-  Trk::SpacePoint* makeSCT_SpacePoint(const InDet::SiCluster& cluster1, const InDet::SiCluster& cluster2, const Amg::Vector3D& m_vertex,
-			const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2);
+		void fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
+		  const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters, 
+		  const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
+		  SpacePointOverlapCollection* spacepointOverlapCollection);
 
-  void fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1, const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool m_allClusters, const Amg::Vector3D& m_vertex, const InDetDD::SCT_DetectorManager *m_manager, SpacePointCollection* spacepointCollection);
+		void fillSCT_SpacePointPhiOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
+		  const InDet::SCT_ClusterCollection* clusters2, double min1, double max1, double min2, 
+		  double max2, bool allClusters, const Amg::Vector3D& vertexVec , 
+		  const InDetDD::SCT_DetectorManager *SCT_Manager, 
+		  SpacePointOverlapCollection* spacepointOverlapCollection);
 
- void fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters, SpacePointCollection* spacepointCollection);
+	private:
+		double m_stripLengthTolerance;
+		double m_SCTgapParameter;
+		double m_stripLengthGapTolerance;
 
- void fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool m_allClusters, const Amg::Vector3D& m_vertex, const InDetDD::SCT_DetectorManager *m_manager, SpacePointOverlapCollection* m_spacepointoverlapCollection);
+		// option to use closest approach of SCT strips as position for SpacePoint 
+		bool m_usePerpProj;
 
- void fillSCT_SpacePointPhiOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, const InDet::SCT_ClusterCollection* clusters2, double min1, double max1, double min2, double max2, bool m_allClusters, const Amg::Vector3D& m_vertex, const InDetDD::SCT_DetectorManager *m_manager, SpacePointOverlapCollection* m_spacepointoverlapCollection);
+		std::vector<Trk::SpacePoint*> m_tmpSpacePoints;
+		const SCT_ID* m_idHelper; 
+		double offset(const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2);
 
- private:
- double m_stripLengthTolerance;
-
- // option to use closest approach of SCT strips as position for SpacePoint 
- bool m_usePerpProj;
-
- std::vector<Trk::SpacePoint*> m_tmpSpacePoints;
-
-};
+  };
 }
 #endif //SiSpacePointMakerTool_H
