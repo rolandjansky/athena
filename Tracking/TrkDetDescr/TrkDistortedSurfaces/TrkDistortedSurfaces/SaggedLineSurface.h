@@ -44,6 +44,8 @@ namespace Trk {
                        double halez,
                        LineSaggingDescriptor* lsd);
 
+     SaggedLineSurface(std::unique_ptr<Amg::Transform3D> htrans);
+
      /** Constructor for public surface */
      SaggedLineSurface(const TrkDetElementBase& detelement, const Identifier& id);
 

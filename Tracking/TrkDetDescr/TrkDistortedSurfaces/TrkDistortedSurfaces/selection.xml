@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="Trk::DistortionDescriptor"/>
+  <class name="Trk::LineSaggingDescriptor"/>
+  <class name="Trk::DistortedSurface"/>
+  <class name="Trk::SaggedLineSurface"/>
+</lcgdict>

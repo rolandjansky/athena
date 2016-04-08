@@ -33,6 +33,13 @@ Trk::SaggedLineSurface::SaggedLineSurface(Amg::Transform3D* htrans,
   m_lineDirection(0)
 {}
 
+Trk::SaggedLineSurface::SaggedLineSurface(std::unique_ptr<Amg::Transform3D> htrans) :
+  Trk::DistortedSurface(),
+  Trk::StraightLineSurface(std::move(htrans)),
+  m_saggingDescriptor(nullptr),
+  m_lineDirection(0)
+{}
+
 Trk::SaggedLineSurface::SaggedLineSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id) :
   Trk::DistortedSurface(),
   Trk::StraightLineSurface(detelement,id),
