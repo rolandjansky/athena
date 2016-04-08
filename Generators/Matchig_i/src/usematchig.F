@@ -1,0 +1,70 @@
+*****************************
+      SUBROUTINE USEMATCHIG
+*****************************
+C...DOUBLE PRECISION AND INTEGER DECLARATIONS.
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      IMPLICIT INTEGER(I-N)
+
+C...USER PROCESS EVENT COMMON BLOCK.
+#include "GeneratorFortranCommon/hepeup.inc"
+
+      DOUBLE PRECISION MATCHIG
+
+      DIMENSION DCPARM(10)
+
+C      WRITE(6,*) 'MATCHIG_I: In usematchig.F'
+
+C...N:O PARTONS IN THE EVENT
+      NUP=5
+
+C...PARTICLES
+C   WHICH IS QUARK (IQ), WHICH IS ANTIQUARK (7-IQ)
+      IQ=3
+      IF(PYR(0).LT.0.5D0) IQ=4
+
+      IDUP(1)=21
+      IDUP(2)=21
+      IDUP(3)=6
+      IDUP(4)=5
+      IDUP(7-IQ)=-IDUP(7-IQ)
+
+C      IDUP(5)=-ISIGN(1,IDUP(3))*37
+      IDUP(5)=(-ISIGN(1,IDUP(3)))*37
+
+      ISTUP(1)=-1
+      ISTUP(2)=-1
+      ISTUP(3)=1
+      ISTUP(4)=1
+      ISTUP(5)=1
+
+C...PARTICLE MOTHERS
+      DO 10 I=1,5
+        MOTHUP(1,I)=0
+        MOTHUP(2,I)=0
+        SPINUP(I)=9D0
+ 10   CONTINUE
+
+C...COLOR FLOW
+      ICOLUP(1,1)=101
+      ICOLUP(2,1)=102
+      ICOLUP(1,2)=102
+      ICOLUP(2,2)=103
+      ICOLUP(1,IQ)=101
+      ICOLUP(2,IQ)=0
+      ICOLUP(1,7-IQ)=0
+      ICOLUP(2,7-IQ)=103
+      ICOLUP(1,5)=0
+      ICOLUP(2,5)=0
+
+      DO 90 J=1,10
+        DCPARM(J)=PYR(0)
+ 90   CONTINUE
+
+C...NEGATIVE WEIGHT FOR DOUBLE-COUNTING EVENTS
+      XWGTUP=-MATCHIG(DCPARM,1d0)
+
+C      WRITE(*,*) 'MATCHIG_I: WEIGHT = ',XWGTUP
+
+      RETURN
+      END
+
