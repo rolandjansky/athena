@@ -1,7 +1,10 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// $Id: xAODRODHeaderContainerCnv.h 694352 2015-09-11 12:05:29Z krasznaa $
 #ifndef XAODTRIGL1CALOATHENAPOOL_XAODRODHEADERCONTAINERCNV_H
 #define XAODTRIGL1CALOATHENAPOOL_XAODRODHEADERCONTAINERCNV_H
 
@@ -45,9 +48,6 @@ public:
    virtual xAOD::RODHeaderContainer* createTransient();
 
 private:
-   /// Function preparing a vertex object for persistence
-   void toPersistent( xAOD::RODHeader* cluster ) const;
-   
    /// StoreGate key of the container just being created
    std::string m_key;
 
