@@ -59,7 +59,7 @@ namespace SCT_Cabling{
   namespace CoveritySafe{
     ///get an environment variable
     std::string getenv(const std::string & variableName){
-      std::string result;
+      std::string result("");
       const char * pChar=std::getenv(variableName.c_str());
       if (pChar) result=pChar;
       return result;

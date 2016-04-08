@@ -10,7 +10,7 @@
  **/
 
 #include <string>
-#include <ostream>
+//#include <ostream>
 
 /**
  * SCT_SerialNumber is a class to hold a serial number and 

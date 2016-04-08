@@ -8,7 +8,6 @@
  */
 
 #include "SCT_Cabling/SCT_SerialNumber.h"
-#include "boost/lexical_cast.hpp"
 #include <sstream>
 #include <iostream>
 #include <iomanip>
@@ -19,7 +18,7 @@ SCT_SerialNumber::SCT_SerialNumber(): m_truncatedNumber(0){
 
 SCT_SerialNumber::SCT_SerialNumber(const std::string & snString){
   if (snString.substr(0,5)==std::string("20220")){
-    m_truncatedNumber=boost::lexical_cast<int>(snString.substr(5));
+    m_truncatedNumber=std::stoi(snString.substr(5));
   } else {
     m_truncatedNumber=0;
   }

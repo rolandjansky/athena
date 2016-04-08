@@ -2,7 +2,7 @@
 # Job options file to test the Cabling
 ################################################################################
 
-
+# ******** SETUP 20.1.3 ****************
 #--------------------------------------------------------------
 # use auditors
 #--------------------------------------------------------------
@@ -26,7 +26,7 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetDescrVersion = "ATLAS-GEO-20-00-01"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
-globalflags.DataSource="data"
+globalflags.DataSource="geant4"
 print globalflags
 
 #--------------------------------------------------------------
@@ -97,11 +97,14 @@ elif (letsTest=='ReadingFromMCFile'):
   ServiceMgr.SCT_CablingSvc.DataSource='SCT_MC_FullCabling_svc.dat'
 elif (letsTest=='ReadingFromCVP'):
   ServiceMgr.SCT_CablingSvc.DataSource='COOLVECTOR'
-  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/ROD")
-  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/MUR")
-  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/RODMUR")
-  conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/Geog")
-  
+  #conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/ROD")
+  #conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/MUR")
+  #conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/RODMUR")
+  #conddb.addFolder("","<db>sqlite://none;schema=configTest.db;dbname=COOLTEST</db> /SCT/DAQ/Config/Geog")
+  conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-Run2-10July2015</tag>")
+  conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-Run2-10July2015</tag>")
+  conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-Run2-10July2015</tag>")
+  conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-Run2-10July2015</tag>")
 
 
 from SCT_Cabling.SCT_CablingConf import SCT_TestCablingAlg
@@ -136,6 +139,6 @@ ServiceMgr.MessageSvc.infoLimit        = 100000
 #--------------------------------------------------------------
 # Load IOVDbSvc
 #--------------------------------------------------------------
-IOVDbSvc.GlobalTag='COMCOND-ES1C-000-00'
+IOVDbSvc.GlobalTag='OFLCOND-RUN12-SDR-25'
 IOVDbSvc.OutputLevel = DEBUG
 

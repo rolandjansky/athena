@@ -18,9 +18,11 @@
 #include <set>
 #include <algorithm>
 //uint32 in std: namespace
-#include "boost/cstdint.hpp"
+#include <cstdint>
+//#include "boost/cstdint.hpp"
 //fixed-size array
-#include "boost/array.hpp"
+//#include "boost/array.hpp"
+#include <array>
 
 //Gaudi includes
 #include "AthenaBaseComps/AthService.h"
@@ -79,12 +81,12 @@ class SCT_CablingSvc: virtual public ISCT_CablingSvc, virtual public IIncidentLi
     virtual SCT_OnlineId getOnlineIdFromOfflineId(const Identifier & offlineId);
   
     /// return the rob/rod Id, given a hash (used by simulation encoders)
-    virtual boost::uint32_t getRobIdFromHash(const IdentifierHash & hash) {
+    virtual std::uint32_t getRobIdFromHash(const IdentifierHash & hash) {
       return getOnlineIdFromHash(hash).rod();
     }
     
     /// return the rob/rod Id, given an offlineId (used by simulation encoders)
-    virtual boost::uint32_t getRobIdFromOfflineId(const Identifier & offlineId)  {
+    virtual std::uint32_t getRobIdFromOfflineId(const Identifier & offlineId)  {
       return getOnlineIdFromOfflineId(offlineId).rod();
     }
 
@@ -102,10 +104,10 @@ class SCT_CablingSvc: virtual public ISCT_CablingSvc, virtual public IIncidentLi
     virtual SCT_SerialNumber getSerialNumberFromHash(const IdentifierHash & hash) ;
   
     /// fill a users vector with all the RodIds
-    virtual void getAllRods(std::vector<boost::uint32_t> & usersVector) { std::copy(m_rodIdSet.begin(), m_rodIdSet.end(), std::back_inserter(usersVector)); }
+    virtual void getAllRods(std::vector<std::uint32_t> & usersVector) { std::copy(m_rodIdSet.begin(), m_rodIdSet.end(), std::back_inserter(usersVector)); }
     
     /// fill a user's vector with all the hash ids which belong to a given rod
-    virtual void getHashesForRod(std::vector<IdentifierHash> & usersVector, const boost::uint32_t rodId);
+    virtual void getHashesForRod(std::vector<IdentifierHash> & usersVector, const std::uint32_t rodId);
     //@}
   
     /// insert the hashId, onlineId and serial number to the data, used only within this package to fill the data structure
@@ -120,11 +122,11 @@ class SCT_CablingSvc: virtual public ISCT_CablingSvc, virtual public IIncidentLi
     * 96 fibres, so 96 * 96 = 9216 possibilities. In practice, there are 8176 modules so the crate
     * cabling occupancy is 89%; this is probably still better than using a map.
     **/
-    boost::array<IdentifierHash, SCT_OnlineId::NUMBER_OF_INDICES> m_onlineId2HashArray;
+    std::array<IdentifierHash, SCT_OnlineId::NUMBER_OF_INDICES> m_onlineId2HashArray;
 
     std::map<SCT_SerialNumber, IdentifierHash> m_sn2HashMap; //!<Data map for serial number to hash
-    boost::array<SCT_OnlineId, NUMBER_OF_HASHES> m_hash2OnlineIdArray; //!<Array for hash to onlineId; hash goes from 0-8175
-    std::set<boost::uint32_t> m_rodIdSet; //!<set of robIds
+    std::array<SCT_OnlineId, NUMBER_OF_HASHES> m_hash2OnlineIdArray; //!<Array for hash to onlineId; hash goes from 0-8175
+    std::set<std::uint32_t> m_rodIdSet; //!<set of robIds
   
     ServiceHandle<ISCT_FillCabling> m_cablingFiller; //!< The cabling filler by baseclass handle; the concrete class is decided by job options
     StringProperty m_cablingDataSource; //!< the name of the data source

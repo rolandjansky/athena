@@ -36,9 +36,9 @@
 #include <stdint.h>
 #include <set>
 #include <utility>
-#include "boost/lexical_cast.hpp"
-#include "boost/array.hpp"
+#include <array>
 #include <algorithm>
+#include <iostream>
 
 
 //Constants at file scope
@@ -248,7 +248,7 @@ StatusCode
 SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
   ServiceHandle<StoreGateSvc> detStore("DetectorStore",name());
   if (not retrievedService(detStore,"DetectorStore")) return StatusCode::FAILURE;
-  const SCT_ID *  idHelper(0);
+  const SCT_ID *  idHelper(nullptr);
   if (detStore->retrieve(idHelper,"SCT_ID").isFailure()) return msg(MSG::ERROR)  << "SCT mgr failed to retrieve" << endreq, StatusCode::FAILURE;
   // let's get the ROD AttrLists
   const DataHandle<CondAttrListVec> pRod;
@@ -269,10 +269,10 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
     S slots;
     for (; rodIt != last_rod; ++rodIt) {
       //type of 'slot' changed between COMP200 and CONDBR2:
-      if (db==COMP200){
-        slots.insert(int(rodIt->second["slot"].data<short>())); //all but 15 inserts will fail, and these 15 should be sorted
-      } else {
+      if (db==CONDBR2){
         slots.insert(int(rodIt->second["slot"].data<unsigned char>())); //all but 15 inserts will fail, and these 15 should be sorted
+      } else {
+        slots.insert(int(rodIt->second["slot"].data<short>())); //all but 15 inserts will fail, and these 15 should be sorted
       }
     }
     int counter(0);
@@ -285,13 +285,15 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
   bool allInsertsSucceeded(true);
   rodIt=pRod->begin();
   int nrods(0);
+  std::set<int> tempRobSet;
   for (; rodIt != last_rod; ++rodIt) {
     AthenaAttributeList rodAttributes(rodIt->second);
     //int rod=rodAttributes["SRCid"].data<int>();
     int rob=rodAttributes["ROB"].data<int>();
+    if (not tempRobSet.insert(rob).second) ATH_MSG_WARNING("Duplicate rob? :"<<std::hex<<rob<<std::dec );
     //std::cout<<"shaunROB "<<std::hex<<rob<<std::endl;
-    int crate= (db==COMP200)?(rodAttributes["crate"].data<int>()) : (rodAttributes["crate"].data<unsigned char>());
-    int crateSlot=(db==COMP200)?(rodAttributes["slot"].data<short>()) : (rodAttributes["slot"].data<unsigned char>());
+    int crate= (db==CONDBR2)?(rodAttributes["crate"].data<unsigned char>()) : (rodAttributes["crate"].data<int>());
+    int crateSlot=(db==CONDBR2)?(rodAttributes["slot"].data<unsigned char>()) : (rodAttributes["slot"].data<short>());
     //see note in header; these may be 0-15, but not necessarily, so we need to map these onto 0-15
     IntMap::const_iterator pSlot = slotMap.find(crateSlot);
     int slot = (pSlot==slotMap.end())?-1:pSlot->second;
@@ -307,7 +309,8 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
     allInsertsSucceeded = thisInsertSucceeded and allInsertsSucceeded;
     ++nrods;
   }
-  msg(MSG::INFO)<<nrods<<" rods entered"<<endreq;
+  ATH_MSG_INFO(nrods<<" rods entered, of which "<<tempRobSet.size()<<" are unique.");
+  
   if (not allInsertsSucceeded) msg(MSG::WARNING)<<"Some Rod-Rob map inserts failed."<<endreq;
 
   /**
@@ -337,17 +340,18 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
   CondAttrListVec::const_iterator rodMurIt (pRodMur->begin());
   CondAttrListVec::const_iterator last_rodMur (pRodMur->end());
   allInsertsSucceeded = true;
+  std::set<int> tempRobSet2;
   for (; rodMurIt !=last_rodMur;++rodMurIt){
     AthenaAttributeList rodMurAttributes(rodMurIt->second);
-    int mur=(db==COMP200)?(rodMurAttributes["MUR"].data<int>()) : (rodMurAttributes["MUR"].data<unsigned int>());
-    int crate=(db==COMP200)?(rodMurAttributes["crate"].data<int>()) : (rodMurAttributes["crate"].data<unsigned char>());
-    int crateSlot=(db==COMP200)?(rodMurAttributes["rod"].data<int>()) : (rodMurAttributes["rod"].data<unsigned char>());//slot is int16, others are int32
-    //map slot onto 0-11 range
+    int mur=(db==CONDBR2)?(rodMurAttributes["MUR"].data<unsigned int>()) : (rodMurAttributes["MUR"].data<int>());
+    int crate=(db==CONDBR2)?(rodMurAttributes["crate"].data<unsigned char>()) : (rodMurAttributes["crate"].data<int>());
+    int crateSlot=(db==CONDBR2)?(rodMurAttributes["rod"].data<unsigned char>()) : (rodMurAttributes["rod"].data<int>());//slot is int16, others are int32
+    //map slot onto 0-15 range
     IntMap::const_iterator pSlot = slotMap.find(crateSlot);
     int slot = (pSlot==slotMap.end())?-1:pSlot->second;
     if (slot==-1) msg(MSG::ERROR)<<"Failed to find a crate slot in the crate map"<<endreq;
     //
-    int order = (db==COMP200)?(rodMurAttributes["position"].data<int>()) : (rodMurAttributes["position"].data<unsigned char>());
+    int order = (db==CONDBR2)?(rodMurAttributes["position"].data<unsigned char>()) : (rodMurAttributes["position"].data<int>());
     int fibreOrder = ((((crate * slotsPerCrate) + slot ) * mursPerRod) + order) * fibresPerMur;
     bool thisInsertSucceeded(murPositionMap.insert(IntMap::value_type(mur, fibreOrder)).second);
     if (not thisInsertSucceeded) msg(MSG::WARNING)<<"Insert (mur, fibre) "<<mur<<", "<<fibreOrder<<" failed."<<endreq;
@@ -366,18 +370,19 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
   std::set<int> onlineIdSet, robSet;
   std::set<Identifier> offlineIdSet;
   long long lastSerialNumber(0);
+  
   for (; murIt != last_mur; ++murIt) {
     AthenaAttributeList murAttributes(murIt->second);
-    int mur=(db==COMP200)?(murAttributes["MUR"].data<int>()) : (murAttributes["MUR"].data<unsigned int>());
+    int mur=(db==CONDBR2)?(murAttributes["MUR"].data<unsigned int>()) : (murAttributes["MUR"].data<int>());
     bool nullMur(murAttributes["moduleID"].isNull() or murAttributes["module"].isNull() );
     if (9999 == mur or nullMur) continue;
-    int fibreInMur=( (db==COMP200)?(murAttributes["module"].data<int>()) : (murAttributes["module"].data<unsigned char>()) )  - 1;
+    int fibreInMur=( (db==CONDBR2)?(murAttributes["module"].data<unsigned char>()) : (murAttributes["module"].data<int>()) )  - 1;
     long long sn=murAttributes["moduleID"].data<long long>();
     if (lastSerialNumber==sn){ //old version (<2.6) of Coral/Cool doesn't detect a 'null' value, instead it simply repeats the last known value.
       continue;
     }
     lastSerialNumber=sn;
-    std::string snString=boost::lexical_cast<std::string>(sn);
+    std::string snString=std::to_string(sn);
     IntMap::const_iterator pFibre(murPositionMap.find(mur));
     int fibreOffset(-1);
     if (pFibre==murPositionMap.end()){
@@ -392,6 +397,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
       msg(MSG::WARNING)<<"Failed to find a crate slot in the cabling, slot "<<encodedCrateSlot<<endreq;
     } else {
       rob=pCrate->second;
+      tempRobSet2.insert(rob);
     }
     
     //cheat to get the geography: use the MUR notation
@@ -417,10 +423,11 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
       eta = (((mur / 100) % 10) *2 -1) * (fibreInMur+1);//second digit gives eta sign, 0-> -, 1-> +
     }
     int rxLink[2];
-    if (db==COMP200){
-      rxLink[0]=murAttributes["rx0Fibre"].data<int>();rxLink[1]=murAttributes["rx1Fibre"].data<int>();
-    } else {
+    if (db==CONDBR2){
       rxLink[0]=murAttributes["rx0Fibre"].data<unsigned char>();rxLink[1]= murAttributes["rx1Fibre"].data<unsigned char>();
+    } else {
+      rxLink[0]=murAttributes["rx0Fibre"].data<int>();rxLink[1]=murAttributes["rx1Fibre"].data<int>();
+
     }
     if (not (validLinkNumber(rxLink[0]) and validLinkNumber(rxLink[1]) )){
       msg(MSG::WARNING)<<"Invalid link number in database in one of these db entries: rx0Fibre="<<rxLink[0]<<", rx1Fibre="<<rxLink[1]<<endreq;
@@ -472,9 +479,21 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
       numEntries++;
     }
   }
-  msg(MSG::INFO)<<numEntries<<" entries were made to the identifier map."<<endreq;
+  const int robLo=*(tempRobSet2.cbegin());
+  const int robHi=*(tempRobSet2.crbegin());
+  ATH_MSG_INFO(numEntries<<" entries were made to the identifier map.");
+  ATH_MSG_INFO(tempRobSet2.size()<<" unique rob ids were used, spanning 0x"<<std::hex<<robLo<<" to 0x"<<robHi<<std::dec);
+  if (tempRobSet.size() != tempRobSet2.size()){
+  	ATH_MSG_WARNING("The following existing rods were not inserted : ");
+  	std::cout<<std::hex;
+  	std::set_difference(tempRobSet.cbegin(),tempRobSet.cend(),
+  	    tempRobSet2.cbegin(),tempRobSet2.cend(),
+  	    std::ostream_iterator<int>(std::cout,", "));
+  	std::cout<<std::dec<<std::endl;
+  }
+  tempRobSet.clear();
   m_filled=(numEntries not_eq 0);
-  return (numEntries==0)?StatusCode::FAILURE : StatusCode::SUCCESS;
+  return (numEntries==0)?(StatusCode::FAILURE) : (StatusCode::SUCCESS);
 }
   
   

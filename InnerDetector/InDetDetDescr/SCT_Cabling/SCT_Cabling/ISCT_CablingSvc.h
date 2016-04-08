@@ -12,7 +12,8 @@
  **/
  
 //standard includes
-#include "boost/cstdint.hpp"
+//#include "boost/cstdint.hpp"
+#include <cstdint> //C++11
 #include <vector>
 //Gaudi includes
 #include "GaudiKernel/IInterface.h"
@@ -61,13 +62,13 @@ class ISCT_CablingSvc: virtual public IInterface{
     virtual SCT_OnlineId getOnlineIdFromHash(const IdentifierHash & hash)  = 0;
   
     /// return the rob/rod Id, given a hash (used by simulation encoders)
-  virtual boost::uint32_t getRobIdFromHash(const IdentifierHash & hash)  = 0;
+  virtual std::uint32_t getRobIdFromHash(const IdentifierHash & hash)  = 0;
 
     /// return the online Id, given an offlineId
     virtual SCT_OnlineId getOnlineIdFromOfflineId(const Identifier & offlineId)  = 0;
   
     /// return the rob/rod Id, given an offlineId (used by simulation encoders)
-    virtual boost::uint32_t getRobIdFromOfflineId(const Identifier & offlineId)  = 0;
+    virtual std::uint32_t getRobIdFromOfflineId(const Identifier & offlineId)  = 0;
     
     /// size of the data structure (for the SCT should be 8176, one for each module side)
     virtual unsigned int size() const = 0;
@@ -82,10 +83,10 @@ class ISCT_CablingSvc: virtual public IInterface{
     virtual SCT_SerialNumber getSerialNumberFromHash(const IdentifierHash & hash)  = 0;
   
     /// fill a users vector with all the RodIds
-    virtual void getAllRods(std::vector<boost::uint32_t> & usersVector)  = 0;
+    virtual void getAllRods(std::vector<std::uint32_t> & usersVector)  = 0;
     
     /// fill a user's vector with all the hash ids which belong to a given rod
-    virtual void getHashesForRod(std::vector<IdentifierHash> & usersVector, const boost::uint32_t rodId) = 0;
+    virtual void getHashesForRod(std::vector<IdentifierHash> & usersVector, const std::uint32_t rodId) = 0;
 };
  
 inline const InterfaceID & ISCT_CablingSvc::interfaceID(){
