@@ -293,7 +293,8 @@ StatusCode TileCellFillerTool::fill (const CaloCell& p){
             // CALCULATE PATH LENGTHS USING EXTRAPOLATOR TOOL
             float path =  m_trackInCalo->getPathInsideCell(muon_track,&p);
             float ptcone40 = 0.;
-            muon->isolation(ptcone40, Iso::IsolationType::ptcone40 );
+            if (!muon->isolation(ptcone40, Iso::IsolationType::ptcone40 ))
+              ptcone40 = 0;
             m_muptcone40    ->push_back(ptcone40);
             m_mularcone40   ->push_back(0.); //FIXME
             m_mup           ->push_back(muon->p4().P());

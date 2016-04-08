@@ -52,7 +52,7 @@ StatusCode TileClusterFilterAlg::execute(){
     TRACKCONTAINER::const_iterator it = inputTracks->begin();
     for( ; it != inputTracks->end(); ++it ){
       const TRACK* track = *it;
-      vector< vector<double> > etrack = m_trackInCalo->getXYZEtaPhiPerLayer(track);
+      std::vector< std::vector<double> > etrack = m_trackInCalo->getXYZEtaPhiPerLayer(track);
       double deltaR=999;
       for(int i=0;i<11;i++){
 	double dif_eta = cluster->etaSample((CaloSampling::CaloSample)i) - etrack[i][3];
