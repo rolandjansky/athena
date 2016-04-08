@@ -14,9 +14,9 @@
 // -------------------------------------------------------------
 
 #include "TrkValHistUtils/PlotBase.h"
-#include "TH1D.h"
-#include "TH2D.h"
-#include "TH3D.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TH3F.h"
 #include "TProfile.h"
 #include <algorithm>
 
@@ -62,57 +62,57 @@ std::vector<TreeData> PlotBase::retrieveBookedTrees(){
 }
 
 
-TH1* PlotBase::Book1D(const std::string & name, const std::string & labels, int nBins, float start, float end, bool prependDir){
+TH1F* PlotBase::Book1D(const std::string & name, const std::string & labels, int nBins, float start, float end, bool prependDir){
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
-  TH1* hist = new TH1D((prefix + name).c_str(), labels.c_str(), nBins, start, end);
+  TH1F* hist = new TH1F((prefix + name).c_str(), labels.c_str(), nBins, start, end);
   hist->Sumw2();
   m_vBookedHistograms.push_back(HistData(hist,m_sDirectory));
   return hist;
 }
 
 
-TH1* PlotBase::Book1D(const std::string & name, TH1* refHist, const std::string & labels, bool prependDir){
+TH1F* PlotBase::Book1D(const std::string & name, TH1* refHist, const std::string & labels, bool prependDir){
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
-  TH1* hist = new TH1D((prefix + name).c_str(), labels.c_str(), refHist->GetNbinsX(), refHist->GetXaxis()->GetXbins()->GetArray());
+  TH1F* hist = new TH1F((prefix + name).c_str(), labels.c_str(), refHist->GetNbinsX(), refHist->GetXaxis()->GetXbins()->GetArray());
   hist->Sumw2();
   m_vBookedHistograms.push_back(HistData(hist,m_sDirectory));
   return hist;
 }
 
 
-TH2* PlotBase::Book2D(const std::string & name, const std::string & labels, int nBinsX, float startX, float endX, int nBinsY, float startY, float endY, bool prependDir){
+TH2F* PlotBase::Book2D(const std::string & name, const std::string & labels, int nBinsX, float startX, float endX, int nBinsY, float startY, float endY, bool prependDir){
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
-  TH2* hist = new TH2D((prefix + name).c_str(), labels.c_str(), nBinsX, startX, endX, nBinsY, startY,endY);
+  TH2F* hist = new TH2F((prefix + name).c_str(), labels.c_str(), nBinsX, startX, endX, nBinsY, startY,endY);
   hist->Sumw2();
   m_vBookedHistograms.push_back(HistData(hist,m_sDirectory));
   return hist;
 }
 
 
-TH2* PlotBase::Book2D(const std::string & name, TH2* refHist, const std::string & labels, bool prependDir){
+TH2F* PlotBase::Book2D(const std::string & name, TH2* refHist, const std::string & labels, bool prependDir){
   return Book2D(name, labels, refHist->GetNbinsX(), refHist->GetXaxis()->GetXmin(), refHist->GetXaxis()->GetXmax(),
                               refHist->GetNbinsY(), refHist->GetYaxis()->GetXmin(), refHist->GetYaxis()->GetXmax(),prependDir);
 }
 
-TH2* PlotBase::Book2D(const std::string & name, const std::string & labels, int nBinsX, Double_t* binsX, int nBinsY, Double_t startY, Double_t endY, bool prependDir){
+TH2F* PlotBase::Book2D(const std::string & name, const std::string & labels, int nBinsX, Double_t* binsX, int nBinsY, Double_t startY, Double_t endY, bool prependDir){
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
-  TH2* hist = new TH2D((prefix + name).c_str(), labels.c_str(), nBinsX, binsX, nBinsY, startY, endY);
+  TH2F* hist = new TH2F((prefix + name).c_str(), labels.c_str(), nBinsX, binsX, nBinsY, startY, endY);
   hist->Sumw2();
   m_vBookedHistograms.push_back(HistData(hist,m_sDirectory));
   return hist;
 }
 
-TH3* PlotBase::Book3D(const std::string & name, const std::string & labels, int nBinsX, float startX, float endX, int nBinsY, float startY, float endY, int nBinsZ, float startZ, float endZ, bool prependDir){
+TH3F* PlotBase::Book3D(const std::string & name, const std::string & labels, int nBinsX, float startX, float endX, int nBinsY, float startY, float endY, int nBinsZ, float startZ, float endZ, bool prependDir){
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
-  TH3* hist = new TH3D((prefix + name).c_str(), labels.c_str(), nBinsX, startX, endX, nBinsY, startY, endY, nBinsZ, startZ, endZ);
+  TH3F* hist = new TH3F((prefix + name).c_str(), labels.c_str(), nBinsX, startX, endX, nBinsY, startY, endY, nBinsZ, startZ, endZ);
   hist->Sumw2();
   m_vBookedHistograms.push_back(HistData(hist,m_sDirectory));
   return hist;
 }
 
-TH3* PlotBase::Book3D(const std::string & name, TH3* refHist, const std::string & labels, bool prependDir){
+TH3F* PlotBase::Book3D(const std::string & name, TH3* refHist, const std::string & labels, bool prependDir){
   std::string prefix = constructPrefix(m_sDirectory, prependDir);
-  TH3* hist = new TH3D((prefix + name).c_str(), labels.c_str(), refHist->GetNbinsX(), refHist->GetXaxis()->GetXbins()->GetArray(), refHist->GetNbinsY(), refHist->GetYaxis()->GetXbins()->GetArray(), refHist->GetNbinsZ(), refHist->GetZaxis()->GetXbins()->GetArray());
+  TH3F* hist = new TH3F((prefix + name).c_str(), labels.c_str(), refHist->GetNbinsX(), refHist->GetXaxis()->GetXbins()->GetArray(), refHist->GetNbinsY(), refHist->GetYaxis()->GetXbins()->GetArray(), refHist->GetNbinsZ(), refHist->GetZaxis()->GetXbins()->GetArray());
   m_vBookedHistograms.push_back(HistData(hist,m_sDirectory));
   return hist;
 }
