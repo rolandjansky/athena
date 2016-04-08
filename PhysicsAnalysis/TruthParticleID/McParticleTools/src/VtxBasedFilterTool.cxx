@@ -208,6 +208,7 @@ StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
     if ( 0 == p ) {
       p = new HepMC::GenParticle;
       p->set_momentum( (*parent)->momentum() );
+      p->set_generated_mass( (*parent)->generated_mass() );
       p->set_pdg_id( (*parent)->pdg_id() );
       p->set_status( (*parent)->status() );
       p->set_flow( (*parent)->flow() );
@@ -230,6 +231,7 @@ StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
     if ( 0 == p ) {
       p = new HepMC::GenParticle;
       p->set_momentum( (*child)->momentum() );
+      p->set_generated_mass( (*child)->generated_mass() );
       p->set_pdg_id( (*child)->pdg_id() );
       p->set_flow( (*child)->flow() );
       p->set_polarization( (*child)->polarization() );
