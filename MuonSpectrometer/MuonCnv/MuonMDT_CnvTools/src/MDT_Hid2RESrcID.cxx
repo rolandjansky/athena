@@ -54,7 +54,7 @@ uint32_t MDT_Hid2RESrcID::getRodID(const Identifier& offlineId) {
   uint8_t  ChannelId = 0;
 
   log << MSG::DEBUG << "Getting RODId of the Station " << MSG::hex << offlineId << MSG::dec
-      << endmsg;
+      << endreq;
 
   bool online;
   int station_name = m_mdtIdHelper->stationName(offlineId);
@@ -75,12 +75,12 @@ uint32_t MDT_Hid2RESrcID::getRodID(const Identifier& offlineId) {
   
   if (!online) {
     log << MSG::DEBUG << "ROD Id of the Station " << MSG::hex << "0x" << offlineId
-	<< " not found" << endmsg;
+	<< " not found" << endreq;
     MrodId=0xff;
   }
   else {
     log << MSG::DEBUG << "The ROD ID of the station " 
-	<< "is " << MSG::hex << "0x" << MrodId << MSG::dec << endmsg;
+	<< "is " << MSG::hex << "0x" << MrodId << MSG::dec << endreq;
   }
   
   eformat::SubDetector detid = (eformat::SubDetector) SubsystemId;

@@ -14,8 +14,6 @@
 
 #include <algorithm> 
 
-using eformat::helper::SourceIdentifier; 
-
 static const InterfaceID IID_IMdtROD_Decoder
             ("MdtROD_Decoder", 1, 0);
 
@@ -157,19 +155,19 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
   
   // FIXME - Removed debug output for the moment. EJWM
 //   if (m_debug) log << MSG::DEBUG 
-//       << "Collection identifier : " << csmOfflineId.getString() << endmsg;
+//       << "Collection identifier : " << csmOfflineId.getString() << endreq;
 // 
 //   if (m_debug) log << MSG::DEBUG 
-//               << "**********Decoder dumping the words******** " << endmsg;
+//               << "**********Decoder dumping the words******** " << endreq;
 //   if (size > 0) {
-//     log << MSG::DEBUG << "The size of this ROD-read is " << size << endmsg;
+//     log << MSG::DEBUG << "The size of this ROD-read is " << size << endreq;
 //     for (unsigned int i=0; i < size; i++)
 //       if (m_debug) log << MSG::DEBUG << "word " << i 
-//                           << " = " << MSG::hex << robFrag[i] << MSG::dec << endmsg;
+//                           << " = " << MSG::hex << robFrag[i] << MSG::dec << endreq;
 //   }
 //   else {
 //       if (m_debug) log << MSG::DEBUG << " Buffer size 0 ! " 
-//                                           << endmsg;
+//                                           << endreq;
 //       return;
 //   }
 
@@ -225,7 +223,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
 //
 //  if (m_csmReadOut->lvl1Id() != m_rodReadOut->lvl1Id()) {
 //#ifndef NDEBUG
-//    m_log << MSG::ERROR << " LVL1 ID from ROD Header and BOB don't match " << endmsg;
+//    m_log << MSG::ERROR << " LVL1 ID from ROD Header and BOB don't match " << endreq;
 //#endif
 //  }
 /////////////////////////
