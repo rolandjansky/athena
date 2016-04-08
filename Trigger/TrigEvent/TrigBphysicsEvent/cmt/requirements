@@ -18,7 +18,6 @@ use 	TrigSerializeUtils  	TrigSerializeUtils-*    Trigger/TrigDataAccess
 use 	AtlasReflex   		AtlasReflex-*   	External -no_auto_imports
 
 use TrigNavigation        TrigNavigation-*     Trigger/TrigEvent
-use	xAODTrigBphys		xAODTrigBphys-*		Event/xAOD
 
 apply_pattern lcgdict dict=TrigBphysicsEvent selectionfile=selection.xml headerfiles="../TrigBphysicsEvent/TrigBphysicsEventDict.h"
 
