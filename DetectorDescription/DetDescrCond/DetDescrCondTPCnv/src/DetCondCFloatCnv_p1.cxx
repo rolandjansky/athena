@@ -2,18 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "DetDescrConditions/DetCondCFloat.h"
-#undef private
-#undef protected
-
 #include "DetDescrCondTPCnv/DetCondCFloatCnv_p1.h"
 
 void DetCondCFloatCnv_p1::transToPers(const DetCondCFloat* trans, DetCondCFloat_p1* pers, MsgStream &/*log*/) {
 
-    pers->m_size = trans->m_size;
-    pers->m_tag  = trans->m_tag;
+    pers->m_size = trans->size();
+    pers->m_tag  = trans->tag();
 
     DetCondCFloat::BufferMap::const_iterator it   = trans->m_bufmap.begin();
     DetCondCFloat::BufferMap::const_iterator last = trans->m_bufmap.end();
