@@ -3,10 +3,7 @@
 */
 
 #include "TrigExMTHelloWorldLvl1/MTHelloWorldLvl1.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "TrigT1Result/RoIBResult.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
@@ -17,124 +14,114 @@
 /////////////////////////////////////////////////////////////////////////////
 
 MTHelloWorldLvl1::MTHelloWorldLvl1(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator), m_StoreGateSvc(0), m_pIROBDataProviderSvc(0), 
-  m_retrieveLvl1(false), m_retrieveROBs(false)
+   AthAlgorithm(name, pSvcLocator),
+   m_pIROBDataProviderSvc(0), 
+   m_retrieveLvl1(false),
+   m_retrieveROBs(false)
 {
-  // Declare the properties
-  declareProperty("RetrieveLvl1", m_retrieveLvl1);
-  declareProperty("RetrieveROBs", m_retrieveROBs);
-  declareProperty("RobId",        m_listRobIds);
+   // Declare the properties
+   declareProperty("RetrieveLvl1", m_retrieveLvl1);
+   declareProperty("RetrieveROBs", m_retrieveROBs);
+   declareProperty("RobId",        m_listRobIds);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode MTHelloWorldLvl1::initialize(){
-
-  // Part 1: Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize()" << endreq;
-
+StatusCode MTHelloWorldLvl1::initialize() {
+   
+   // Part 1: Get the messaging service, print where you are
+   ATH_MSG_INFO("initialize()");
+                
 #ifdef ATLAS_GAUDI_V21
-  SmartIF<IService> tmp_msgSvc(msgSvc());
-  if(tmp_msgSvc.isValid()) {
-    log << MSG::INFO << " Algorithm = " << name() << " is connected to Message Service = "
-	<< tmp_msgSvc->name() << endreq;
-  }
+   SmartIF<IService> tmp_msgSvc(msgSvc());
+   if(tmp_msgSvc.isValid()) {
+      ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = " << tmp_msgSvc->name());
+   }
 #else
-  Service* tmp_msgSvc = dynamic_cast<Service*> (msgSvc());
-  if(tmp_msgSvc != 0) {
-    log << MSG::INFO << " Algorithm = " << name() << " is connected to Message Service = "
-	<< tmp_msgSvc->name() << endreq;
-  }
+   Service* tmp_msgSvc = dynamic_cast<Service*> (msgSvc());
+   if(tmp_msgSvc != 0) {
+      ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = " << tmp_msgSvc->name());
+   }
 #endif
+   
+   // Print out the property values
+   ATH_MSG_INFO(" RetrieveLvl1 = " << m_retrieveLvl1);
+   ATH_MSG_INFO(" RetrieveROBs = " << m_retrieveROBs);
+   if (m_retrieveROBs) {
+      ATH_MSG_INFO(" Number of ROBs to access = " << m_listRobIds.value().size());                                      
+      ATH_MSG_INFO(" List of ROBs: ");                                   
+      std::vector<int>::const_iterator it = m_listRobIds.value().begin();
+      while (it != m_listRobIds.value().end())
+         {
+            m_robIds.push_back(*it);
+            ATH_MSG_DEBUG(" 0x" << MSG::hex << *it);
+            ++it;
+         }
+   }  
 
-  // Print out the property values
-  log << MSG::INFO << " RetrieveLvl1 = " << m_retrieveLvl1 << endreq;
-  log << MSG::INFO << " RetrieveROBs = " << m_retrieveROBs << endreq;
-  if (m_retrieveROBs) {
-    log << MSG::INFO << " Number of ROBs to access = " << m_listRobIds.value().size() << endreq;                                      
-    log << MSG::INFO << " List of ROBs: " << endreq;                                   
-    std::vector<int>::const_iterator it = m_listRobIds.value().begin();
-    while (it != m_listRobIds.value().end())
-      {
-	m_robIds.push_back(*it);
-	log << MSG::DEBUG << " 0x" << MSG::hex << *it << endreq;
-	++it;
+
+   // Part 4: Locate the ROBDataProviderSvc
+   StatusCode sc = service("ROBDataProviderSvc", m_pIROBDataProviderSvc);
+   if (!sc.isSuccess()) {
+      ATH_MSG_ERROR("Could not find ROBDataProviderSvc");
+      return sc;
+   } else {
+      IService* svc = dynamic_cast<IService*>(m_pIROBDataProviderSvc);
+      if(svc != 0 ) {
+         ATH_MSG_INFO(" Algorithm = " << name() << " is connected to ROBDataProviderSvc Service = "
+                      << svc->name());
       }
-  }  
+   }
 
-  // Part 3: Locate the StoreGateSvc
-  StatusCode sc = service("StoreGateSvc", m_StoreGateSvc);
-  if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-    return sc;
-  } else {
-    log << MSG::INFO << " Algorithm = " << name() << " is connected to StoreGate Service          = "
-        << m_StoreGateSvc->name() << endreq;
-  }
-
-  // Part 4: Locate the ROBDataProviderSvc
-  sc = service("ROBDataProviderSvc", m_pIROBDataProviderSvc);
-  if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Could not find ROBDataProviderSvc" << endreq;
-    return sc;
-  } else {
-    IService* svc = dynamic_cast<IService*>(m_pIROBDataProviderSvc);
-    if(svc != 0 ) {
-      log << MSG::INFO << " Algorithm = " << name() << " is connected to ROBDataProviderSvc Service = "
-	  << svc->name() << endreq;
-    }
-  }
-
-  return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode MTHelloWorldLvl1::execute() {
 
-  // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "execute()" << endreq;
+   // Get the messaging service, print where you are
+   MsgStream log(msgSvc(), name());
+   ATH_MSG_INFO("execute()");
 
-  log << MSG::DEBUG << " StoreGate structure: Begin execute " << name() << "\n"
-      << m_StoreGateSvc->dump() << endreq;
+   ATH_MSG_DEBUG(" StoreGate structure: Begin execute " << name() << "\n"
+                 << evtStore()->dump());
 
-  // Get the Lvl1 Id
-  const DataHandle<ROIB::RoIBResult> dobj;
-  if (m_retrieveLvl1) {
-    StatusCode sc = m_StoreGateSvc->retrieve(dobj,"RoIBResult") ;
-    if ( sc.isFailure() ) {
-      log << MSG::ERROR << "Could not find Lvl1Result" << endreq;
-      return sc;
-    } else {
-      log << MSG::INFO << " ---> Lvl1Result ID " << dobj->cTPResult().header().L1ID() << endreq;
-    }
-  }
-
-  // Get the ROBs
-  if (m_retrieveROBs) {
-    // preload ROBs in memory
-    m_pIROBDataProviderSvc->addROBData(m_robIds);
-
-    // retrieve ROBs
-    std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFragments;
-    m_pIROBDataProviderSvc->getROBData(m_robIds, robFragments) ;
-    log << MSG::INFO << " ---> number of ROBs retrieved " << robFragments.size() << endreq;
-    std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator it = robFragments.begin();
-    log << MSG::INFO << " ---> List of ROBs found: " << endreq;                                   
-    while (it != robFragments.end())
-      {
-	log << MSG::INFO << " ---> ROB ID = 0x" << MSG::hex << (*it)->rod_source_id() << MSG::dec 
-	    << " Level-1 ID = " << (*it)->rod_lvl1_id() << endreq;
-	++it;
+   // Get the Lvl1 Id
+   const DataHandle<ROIB::RoIBResult> dobj;
+   if (m_retrieveLvl1) {
+      StatusCode sc = evtStore()->retrieve(dobj,"RoIBResult") ;
+      if ( sc.isFailure() ) {
+         ATH_MSG_ERROR("Could not find Lvl1Result");
+         return sc;
+      } else {
+         ATH_MSG_INFO(" ---> Lvl1Result ID " << dobj->cTPResult().header().L1ID());
       }
-  }
+   }
 
-  log << MSG::DEBUG << " StoreGate structure: End execute " << name() << "\n"
-      << m_StoreGateSvc->dump() << endreq;
+   // Get the ROBs
+   if (m_retrieveROBs) {
+      // preload ROBs in memory
+      m_pIROBDataProviderSvc->addROBData(m_robIds);
 
-  return StatusCode::SUCCESS;
+      // retrieve ROBs
+      std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFragments;
+      m_pIROBDataProviderSvc->getROBData(m_robIds, robFragments) ;
+      ATH_MSG_INFO(" ---> number of ROBs retrieved " << robFragments.size());
+      std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator it = robFragments.begin();
+      ATH_MSG_INFO(" ---> List of ROBs found: ");                                   
+      while (it != robFragments.end())
+         {
+            ATH_MSG_INFO(" ---> ROB ID = 0x" << MSG::hex << (*it)->rod_source_id() << MSG::dec 
+                         << " Level-1 ID = " << (*it)->rod_lvl1_id());
+            ++it;
+         }
+   }
+
+   ATH_MSG_DEBUG(" StoreGate structure: End execute " << name() << "\n"
+                 << evtStore()->dump());
+
+   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -143,7 +130,7 @@ StatusCode MTHelloWorldLvl1::finalize() {
 
   // Part 1: Get the messaging service, print where you are
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize()" << endreq;
+  ATH_MSG_INFO("finalize()");
 
   return StatusCode::SUCCESS;
 }
