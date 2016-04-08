@@ -17,31 +17,31 @@ using namespace std;
 DumpAPTInput::DumpAPTInput(const std::string& name, 
 				   ISvcLocator* svcloc) :
   AthAlgorithm(name, svcloc), 
-  mOutputFile(), 
-  mTrigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
-  mL1NameIdMap(), mL2NameIdMap(), mEFNameIdMap(), 
-  mL1_TBP(), mL1_TAP(), mL1_TAV(), 
-  mL2_Raw(), mL2_Rerun(), mEF_Raw(), mEF_Rerun() {
-  declareProperty("OutputFileName", mOutputFileName="apt_input.txt", 
+  m_outputFile(), 
+  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
+  m_L1NameIdMap(), m_L2NameIdMap(), m_EFNameIdMap(), 
+  m_L1_TBP(), m_L1_TAP(), m_L1_TAV(), 
+  m_L2_Raw(), m_L2_Rerun(), m_EF_Raw(), m_EF_Rerun() {
+  declareProperty("OutputFileName", m_outputFileName="apt_input.txt", 
 		  "Output file name");
-  mChainGroup_AllL1 = 0;
-  mChainGroup_AllL2 = 0;
-  mChainGroup_AllEF = 0;
+  m_chainGroup_AllL1 = 0;
+  m_chainGroup_AllL2 = 0;
+  m_chainGroup_AllEF = 0;
 }
 
 DumpAPTInput::~DumpAPTInput() {
 }
 
 StatusCode DumpAPTInput::initialize() {
-  if (mTrigDecisionTool.retrieve().isFailure()) {
+  if (m_trigDecisionTool.retrieve().isFailure()) {
     msg(MSG::WARNING) << "Cannot retrieve TrigDecisionTool" << endreq;
   }
 
-  mOutputFile.open(mOutputFileName.c_str());
+  m_outputFile.open(m_outputFileName.c_str());
 
-  mChainGroup_AllL1 = mTrigDecisionTool->getChainGroup("L1_.*");
-  mChainGroup_AllL2 = mTrigDecisionTool->getChainGroup("L2_.*");
-  mChainGroup_AllEF = mTrigDecisionTool->getChainGroup("EF_.*");
+  m_chainGroup_AllL1 = m_trigDecisionTool->getChainGroup("L1_.*");
+  m_chainGroup_AllL2 = m_trigDecisionTool->getChainGroup("L2_.*");
+  m_chainGroup_AllEF = m_trigDecisionTool->getChainGroup("EF_.*");
 
   return StatusCode::SUCCESS;
 }
@@ -49,18 +49,18 @@ StatusCode DumpAPTInput::initialize() {
 StatusCode DumpAPTInput::execute() {
   reset();
 
-  readL1Map(mChainGroup_AllL1->getListOfTriggers(), mL1NameIdMap);
-  readHLTMap(mChainGroup_AllL2->getListOfTriggers(), mL2NameIdMap);
-  readHLTMap(mChainGroup_AllEF->getListOfTriggers(), mEFNameIdMap);
+  readL1Map(m_chainGroup_AllL1->getListOfTriggers(), m_L1NameIdMap);
+  readHLTMap(m_chainGroup_AllL2->getListOfTriggers(), m_L2NameIdMap);
+  readHLTMap(m_chainGroup_AllEF->getListOfTriggers(), m_EFNameIdMap);
 
   std::map<int, std::string>::const_iterator p;
-  for (p=mL1NameIdMap.begin(); p!=mL1NameIdMap.end(); ++p) {
+  for (p=m_L1NameIdMap.begin(); p!=m_L1NameIdMap.end(); ++p) {
     processL1(p->first, p->second);
   }
-  for (p=mL2NameIdMap.begin(); p!=mL2NameIdMap.end(); ++p) {
+  for (p=m_L2NameIdMap.begin(); p!=m_L2NameIdMap.end(); ++p) {
     processL2(p->first, p->second);
   }
-  for (p=mEFNameIdMap.begin(); p!=mEFNameIdMap.end(); ++p) {
+  for (p=m_EFNameIdMap.begin(); p!=m_EFNameIdMap.end(); ++p) {
     processEF(p->first, p->second);
   }
 
@@ -69,7 +69,7 @@ StatusCode DumpAPTInput::execute() {
 
 void DumpAPTInput::readL1Map(const std::vector<std::string>& names, 
 			     std::map<int, std::string>& name_map) {
-  Trig::ExpertMethods* m = mTrigDecisionTool->ExperimentalAndExpertMethods();
+  Trig::ExpertMethods* m = m_trigDecisionTool->ExperimentalAndExpertMethods();
   if (m==0) {
     msg(MSG::WARNING) << "Cannot get TDT expert methods" << endreq;
   } else {
@@ -90,7 +90,7 @@ void DumpAPTInput::readL1Map(const std::vector<std::string>& names,
 
 void DumpAPTInput::readHLTMap(const std::vector<std::string>& names, 
 			    std::map<int, std::string>& name_map) {
-  Trig::ExpertMethods* m = mTrigDecisionTool->ExperimentalAndExpertMethods();
+  Trig::ExpertMethods* m = m_trigDecisionTool->ExperimentalAndExpertMethods();
   if (m==0) {
     msg(MSG::WARNING) << "Cannot get TDT expert methods for HLT" << endreq;
   } else {
@@ -111,33 +111,33 @@ void DumpAPTInput::readHLTMap(const std::vector<std::string>& names,
 
 
 void DumpAPTInput::processL1(int id, const std::string& name) {
-  bool a = mTrigDecisionTool->isPassed(name, 
+  bool a = m_trigDecisionTool->isPassed(name, 
 				       TrigDefs::L1_isPassedBeforePrescale);
-  bool b = mTrigDecisionTool->isPassed(name, 
+  bool b = m_trigDecisionTool->isPassed(name, 
 				       TrigDefs::L1_isPassedAfterPrescale);
-  bool c = mTrigDecisionTool->isPassed(name, TrigDefs::L1_isPassedAfterVeto);
-  mL1_TBP.set(id, a);
-  mL1_TAP.set(id, b);
-  mL1_TAV.set(id, c);
+  bool c = m_trigDecisionTool->isPassed(name, TrigDefs::L1_isPassedAfterVeto);
+  m_L1_TBP.set(id, a);
+  m_L1_TAP.set(id, b);
+  m_L1_TAV.set(id, c);
   msg(MSG::DEBUG) << "Getting bits for " << name << endreq;
 }
 
 void DumpAPTInput::processL2(int id, const std::string& name) {
-  bool a = mTrigDecisionTool->isPassed(name, TrigDefs::L2_passedRaw);
-  bool b = mTrigDecisionTool->isPassed(name, TrigDefs::L2_resurrected);
+  bool a = m_trigDecisionTool->isPassed(name, TrigDefs::L2_passedRaw);
+  bool b = m_trigDecisionTool->isPassed(name, TrigDefs::L2_resurrected);
   if (id < N_L2_BITS) {
-    mL2_Raw.set(id, a);
-    mL2_Rerun.set(id, b);
+    m_L2_Raw.set(id, a);
+    m_L2_Rerun.set(id, b);
   }
   msg(MSG::DEBUG) << "Getting bits for " << name << endreq;
 }
 
 void DumpAPTInput::processEF(int id, const std::string& name) {
-  bool a = mTrigDecisionTool->isPassed(name, TrigDefs::EF_passedRaw);
-  bool b = mTrigDecisionTool->isPassed(name, TrigDefs::EF_resurrected);
+  bool a = m_trigDecisionTool->isPassed(name, TrigDefs::EF_passedRaw);
+  bool b = m_trigDecisionTool->isPassed(name, TrigDefs::EF_resurrected);
   if (id < N_EF_BITS) {
-    mEF_Raw.set(id, a);
-    mEF_Rerun.set(id, b);
+    m_EF_Raw.set(id, a);
+    m_EF_Rerun.set(id, b);
   }
   msg(MSG::DEBUG) << "Getting bits for " << name << endreq;
 }
@@ -146,19 +146,19 @@ void DumpAPTInput::dump() {
 }
 
 void DumpAPTInput::reset() {
-  mL1_TBP.reset();
-  mL1_TAP.reset();
-  mL1_TAV.reset();
+  m_L1_TBP.reset();
+  m_L1_TAP.reset();
+  m_L1_TAV.reset();
 
-  mL2_Raw.reset();
-  mL2_Rerun.reset();
+  m_L2_Raw.reset();
+  m_L2_Rerun.reset();
 
-  mEF_Raw.reset();
-  mEF_Rerun.reset();
+  m_EF_Raw.reset();
+  m_EF_Rerun.reset();
 }
 
 StatusCode DumpAPTInput::finalize() {
-  mOutputFile.close();
+  m_outputFile.close();
 
   return StatusCode::SUCCESS;
 }

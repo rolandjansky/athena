@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HltJetNtComponent_h__
-#define __HltJetNtComponent_h__
+#ifndef TRIGGERMENUANALYSIS_HLTJETNTCOMPONENT_H
+#define TRIGGERMENUANALYSIS_HLTJETNTCOMPONENT_H
 /*
   HltJetNtComponent.h
 */
@@ -24,17 +24,17 @@ public:
   void clear();
 
 private:
-  int mNL2Jets;
-  std::vector<float>* mTrigT2Jet_et;
-  std::vector<float>* mTrigT2Jet_ehad0;
-  std::vector<float>* mTrigT2Jet_eem0;
-  std::vector<float>* mTrigT2Jet_eta;
-  std::vector<float>* mTrigT2Jet_phi;
+  int m_NL2Jets;
+  std::vector<float>* m_trigT2Jet_et;
+  std::vector<float>* m_trigT2Jet_ehad0;
+  std::vector<float>* m_trigT2Jet_eem0;
+  std::vector<float>* m_trigT2Jet_eta;
+  std::vector<float>* m_trigT2Jet_phi;
 
-  int mNEFJets;
-  std::vector<float>* mJet_EF_et;
-  std::vector<float>* mJet_EF_eta;
-  std::vector<float>* mJet_EF_phi;
+  int m_NEFJets;
+  std::vector<float>* m_jet_EF_et;
+  std::vector<float>* m_jet_EF_eta;
+  std::vector<float>* m_jet_EF_phi;
 };
 
-#endif // __HltJetNtComponent_h__
+#endif // TRIGGERMENUANALYSIS_HLTJETNTCOMPONENT_H

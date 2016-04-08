@@ -26,18 +26,18 @@ HLTObjectsInRoI* TileMuObjectsInRoI::create() {
 
 TileMuObjectsInRoI::TileMuObjectsInRoI() :
   HLTObjectsInRoI(), 
-  mMuonRoI(0), 
-  mTileMuFeature(0), mTileTrackMuFeature(0), 
-  mVertexCollection(0), mInDetTrackCollection(0), 
-  mEFMuon(0),
-  mEFMuonInfo(0) {
-  defineL1RoI(mMuonRoI, "Muon_ROI");
-  defineHltFeature(mTileMuFeature, 2, 1, "TileMuFeature");
-  defineHltFeature(mVertexCollection, 2, 2, "VertexCollection");
-  defineHltFeature(mInDetTrackCollection, 2, 2, "InDetTrackCollection");
-  defineHltFeature(mTileTrackMuFeature, 2, 2, "TileTrackMuFeature");
-  defineHltFeature(mEFMuon, 3, 2, "EFMuon");
-  defineHltFeature(mEFMuonInfo, 3, 2, "EFMuonInfo");
+  m_muonRoI(0), 
+  m_tileMuFeature(0), m_tileTrackMuFeature(0), 
+  m_vertexCollection(0), m_inDetTrackCollection(0), 
+  m_EFMuon(0),
+  m_EFMuonInfo(0) {
+  defineL1RoI(m_muonRoI, "Muon_ROI");
+  defineHltFeature(m_tileMuFeature, 2, 1, "TileMuFeature");
+  defineHltFeature(m_vertexCollection, 2, 2, "VertexCollection");
+  defineHltFeature(m_inDetTrackCollection, 2, 2, "InDetTrackCollection");
+  defineHltFeature(m_tileTrackMuFeature, 2, 2, "TileTrackMuFeature");
+  defineHltFeature(m_EFMuon, 3, 2, "EFMuon");
+  defineHltFeature(m_EFMuonInfo, 3, 2, "EFMuonInfo");
 }
 
 TileMuObjectsInRoI::~TileMuObjectsInRoI() {

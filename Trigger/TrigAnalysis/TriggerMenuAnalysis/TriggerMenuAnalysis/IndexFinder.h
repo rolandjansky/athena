@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __IndexFinder_h__
-#define __IndexFinder_h__
+#ifndef TRIGGERMENUANALYSIS_INDEXFINDER_H
+#define TRIGGERMENUANALYSIS_INDEXFINDER_H
 /*
   IndexFinder.h
 */
@@ -26,26 +26,26 @@ public:
 	      StoreGateSvc& sg_svc, 
 	      MsgStream& msg) : 
     IndexFinderBase(),
-    contKey(cont_key), cont(0), sgsvc(&sg_svc), mLabel(""), log(&msg), mTDT(0), L1RoIName(""), mROIWord(-1) {}
+    m_contKey(cont_key), m_cont(0), m_sgsvc(&sg_svc), m_label(""), m_log(&msg), m_TDT(0), m_L1RoIName(""), m_ROIWord(-1) {}
   IndexFinder(const Cont_t* x, 
 	      StoreGateSvc& sg_svc, 
 	      MsgStream& msg) : 
     IndexFinderBase(),
-    contKey(""), cont(x), sgsvc(&sg_svc), mLabel(""), log(&msg), mTDT(0), L1RoIName(""), mROIWord(-1) {}
+    m_contKey(""), m_cont(x), m_sgsvc(&sg_svc), m_label(""), m_log(&msg), m_TDT(0), m_L1RoIName(""), m_ROIWord(-1) {}
   IndexFinder(const std::string& cont_key) :
     IndexFinderBase(),
-    contKey(cont_key), cont(0), sgsvc(0), mLabel(""), log(0), mTDT(0), L1RoIName(""), mROIWord(-1) {}
+    m_contKey(cont_key), m_cont(0), m_sgsvc(0), m_label(""), m_log(0), m_TDT(0), m_L1RoIName(""), m_ROIWord(-1) {}
   IndexFinder(const std::string& cont_key, const std::string& label) :
     IndexFinderBase(),
-    contKey(cont_key), cont(0), sgsvc(0), mLabel(label), log(0), mTDT(0), L1RoIName(""), mROIWord(-1) {}
+    m_contKey(cont_key), m_cont(0), m_sgsvc(0), m_label(label), m_log(0), m_TDT(0), m_L1RoIName(""), m_ROIWord(-1) {}
   IndexFinder(const Cont_t* x) :
     IndexFinderBase(),
-    contKey(""), cont(x), sgsvc(0), mLabel(""), log(0), mTDT(0), L1RoIName(""), mROIWord(-1) {}
+    m_contKey(""), m_cont(x), m_sgsvc(0), m_label(""), m_log(0), m_TDT(0), m_L1RoIName(""), m_ROIWord(-1) {}
   ~IndexFinder() {}
 
-  void setLabel(const std::string& label) { mLabel = label; }
+  void setLabel(const std::string& label) { m_label = label; }
 
-  const std::string& label() const { return mLabel; }
+  const std::string& label() const { return m_label; }
   FeatureIndex findIndex(const Trig::Combination& comb, 
 			 std::string& te_label);
   std::vector<FeatureIndex> findIndexes(const Trig::Combination& comb, 
@@ -63,32 +63,32 @@ public:
     return ClassID_traits<Feature_t>::typeName();
   }
   std::string typeLabel() const {
-    if (mLabel.empty()) {
+    if (m_label.empty()) {
     return ClassID_traits<Feature_t>::typeName();
     } else {
-      return ClassID_traits<Feature_t>::typeName()+"_"+mLabel;
+      return ClassID_traits<Feature_t>::typeName()+"_"+m_label;
     }
   }
 
   int findIndex(const Elem_t* addr);
 
-  void clear() { cont = 0; }
+  void clear() { m_cont = 0; }
 
-  void setTrigDecisionTool(Trig::TrigDecisionTool* tdt) { mTDT=tdt; }
-  void setLogger(MsgStream* logger) { log = logger; }
-  void setL1RoIName(std::string RoIName) { L1RoIName=RoIName; }
-  virtual void setL1ROIWord(const long RoIWord) { mROIWord=RoIWord; }
+  void setTrigDecisionTool(Trig::TrigDecisionTool* tdt) { m_TDT=tdt; }
+  void setLogger(MsgStream* logger) { m_log = logger; }
+  void setL1RoIName(std::string RoIName) { m_L1RoIName=RoIName; }
+  virtual void setL1ROIWord(const long RoIWord) { m_ROIWord=RoIWord; }
   bool checkROIWord(const HLT::TriggerElement* te);
 
 private:
-  std::string contKey;
-  const Cont_t* cont;
-  StoreGateSvc* sgsvc;
-  std::string mLabel;
-  MsgStream* log;
-  Trig::TrigDecisionTool* mTDT;
-  std::string L1RoIName;
-  long mROIWord;
+  std::string m_contKey;
+  const Cont_t* m_cont;
+  StoreGateSvc* m_sgsvc;
+  std::string m_label;
+  MsgStream* m_log;
+  Trig::TrigDecisionTool* m_TDT;
+  std::string m_L1RoIName;
+  long m_ROIWord;
 };
 
 #include "TriggerMenuNtuple/FeatureIndex.h"
@@ -103,11 +103,11 @@ FeatureIndex
 IndexFinder<Feature_t,Cont_t,Elem_t>::findIndex(const Trig::Combination& comb, 
 						std::string& te_label) { 
   std::vector<Trig::Feature<Feature_t> > fs = 
-    comb.get<Feature_t>(mLabel, TrigDefs::alsoDeactivateTEs);
+    comb.get<Feature_t>(m_label, TrigDefs::alsoDeactivateTEs);
 
   int index = 0;
   bool status(false);
-  //(*log) << MSG::DEBUG << "Feature size is: " << fs.size() << endreq;
+  //(*m_log) << MSG::DEBUG << "Feature size is: " << fs.size() << endreq;
   if (fs.size() > 0) {
     //    const Feature_t* x = fs[0].cptr();
     HLT::TriggerElement* te = NULL;
@@ -117,7 +117,7 @@ IndexFinder<Feature_t,Cont_t,Elem_t>::findIndex(const Trig::Combination& comb,
 	break;
       }
     }
-    //(*log) << MSG::DEBUG << "TE = " << te << endreq;
+    //(*m_log) << MSG::DEBUG << "TE = " << te << endreq;
     if( te ) {
       te_label="";
       TrigConf::HLTTriggerElement::getLabel(te->getId(), te_label);
@@ -126,7 +126,7 @@ IndexFinder<Feature_t,Cont_t,Elem_t>::findIndex(const Trig::Combination& comb,
       HLT::TriggerElement::FeatureVec::const_iterator p_f;
       unsigned int clid = ClassID_traits<Feature_t>::ID();
       index = -2;
-      //(*log) << MSG::DEBUG << "Size of feature access helper (clid="
+      //(*m_log) << MSG::DEBUG << "Size of feature access helper (clid="
       //<< clid << " : " << v.size() << endreq;
       for (p_f=v.begin(); p_f!=v.end(); ++p_f) {
 	if (p_f->getCLID() == clid) {
@@ -153,32 +153,32 @@ template<class Feature_t, class Cont_t, class Elem_t>
 bool IndexFinder<Feature_t, Cont_t, Elem_t>::checkROIWord(const HLT::TriggerElement* te) {
   bool status = false;
 
-  if (mROIWord < 0) status = true;
+  if (m_ROIWord < 0) status = true;
 
-  if( L1RoIName == "Muon_ROI" ) {
+  if( m_L1RoIName == "Muon_ROI" ) {
     std::vector<Trig::Feature<Muon_ROI> > rois = 
-      mTDT->ancestors<Muon_ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
+      m_TDT->ancestors<Muon_ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
     std::vector<Trig::Feature<Muon_ROI> >::const_iterator p_roi;
     for (p_roi=rois.begin(); p_roi!=rois.end(); ++p_roi) {
-      if( p_roi->cptr() && (mROIWord == (long)(p_roi->cptr()->getROIWord() ) ) ) {
+      if( p_roi->cptr() && (m_ROIWord == (long)(p_roi->cptr()->getROIWord() ) ) ) {
 	status = true;
       }
     }
-  } else if( L1RoIName == "EmTau_ROI" ) {
+  } else if( m_L1RoIName == "EmTau_ROI" ) {
     std::vector<Trig::Feature<EmTau_ROI> > rois = 
-      mTDT->ancestors<EmTau_ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
+      m_TDT->ancestors<EmTau_ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
     std::vector<Trig::Feature<EmTau_ROI> >::const_iterator p_roi;
     for (p_roi=rois.begin(); p_roi!=rois.end(); ++p_roi) {
-      if( p_roi->cptr() && (mROIWord == (long)(p_roi->cptr()->getROIWord() ) ) ) {
+      if( p_roi->cptr() && (m_ROIWord == (long)(p_roi->cptr()->getROIWord() ) ) ) {
 	status = true;
       }
     }
-  } else if( L1RoIName == "Jet_ROI" ) {
+  } else if( m_L1RoIName == "Jet_ROI" ) {
     std::vector<Trig::Feature<Jet_ROI> > rois = 
-      mTDT->ancestors<Jet_ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
+      m_TDT->ancestors<Jet_ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
     std::vector<Trig::Feature<Jet_ROI> >::const_iterator p_roi;
     for (p_roi=rois.begin(); p_roi!=rois.end(); ++p_roi) {
-      if( p_roi->cptr() && (mROIWord == (long)(p_roi->cptr()->getROIWord() ) ) ) {
+      if( p_roi->cptr() && (m_ROIWord == (long)(p_roi->cptr()->getROIWord() ) ) ) {
 	status = true;
       }
     }
@@ -191,15 +191,15 @@ bool IndexFinder<Feature_t, Cont_t, Elem_t>::checkROIWord(const HLT::TriggerElem
 // template<class Feature_t, class Cont_t, class Elem_t>
 // FeatureIndex IndexFinder<Feature_t, Cont_t, Elem_t>::findIndex(const Trig::Combination& comb, 
 // 							       MsgStream* logger) {
-//   this->log = logger;
+//   this->m_log = logger;
 //   return findIndex(comb);
 // }
 
 // template<class Feature_t, class Cont_t, class Elem_t>
 // FeatureIndex IndexFinder<Feature_t,Cont_t,Elem_t>::findIndex(const Trig::Combination& comb, 
 // 							     StoreGateSvc& sg_svc, MsgStream& msg) {
-//   this->sgsvc = &sg_svc;
-//   this->log = &msg;
+//   this->m_sgsvc = &sg_svc;
+//   this->m_log = &msg;
 //   return findIndex(comb, &msg);
 // }
 
@@ -208,25 +208,25 @@ int IndexFinder<Feature_t,Cont_t,Elem_t>::findIndex(const Elem_t* addr) {
   int index=-1;
   bool foundit=false;
 
-  if (cont == 0) {
-    if (sgsvc->retrieve(cont, contKey).isFailure()) {
-      (*log) << MSG::WARNING << "Cannot retrieve Container " << contKey << endreq;
+  if (m_cont == 0) {
+    if (m_sgsvc->retrieve(m_cont, m_contKey).isFailure()) {
+      (*m_log) << MSG::WARNING << "Cannot retrieve Container " << m_contKey << endreq;
     } else {
-      (*log) << MSG::VERBOSE 
-	     << "Successfully retrieved container: " << contKey << endreq;
+      (*m_log) << MSG::VERBOSE 
+	     << "Successfully retrieved container: " << m_contKey << endreq;
     }
   }
 
-  if (cont) {
+  if (m_cont) {
     typename Cont_t::const_iterator q;
-//     (*log) << MSG::VERBOSE << "Search element with pointer "
+//     (*m_log) << MSG::VERBOSE << "Search element with pointer "
 // 	   << std::hex << addr << std::dec 
-// 	   << " in container (size: " << cont->size() << ")" << endreq;
+// 	   << " in container (size: " << m_cont->size() << ")" << endreq;
     index = -1;
-    for (q=cont->begin(); q!=cont->end(); ++q) {
+    for (q=m_cont->begin(); q!=m_cont->end(); ++q) {
       index ++;
       if (addr == (*q)) {
-// 	(*log) << MSG::VERBOSE
+// 	(*m_log) << MSG::VERBOSE
 // 	       << "Found element in the container with the same pointer" 
 // 	       << endreq;
 	foundit = true;
@@ -250,14 +250,14 @@ IndexFinder<Feature_t,Cont_t,Elem_t>::findIndexes(const Trig::Combination& comb,
   unsigned int clid = ClassID_traits<Feature_t>::ID();
   std::string clsnm = ClassID_traits<Feature_t>::typeName();
   
-  //  (*log) << MSG::DEBUG << "Looking for feature with label " << mLabel
+  //  (*m_log) << MSG::DEBUG << "Looking for feature with label " << m_label
   //	 << " class: " << clsnm << endreq;
 
   std::vector<Trig::Feature<Feature_t> > fs = 
-    comb.get<Feature_t>(mLabel, TrigDefs::alsoDeactivateTEs);
-  uint16_t subtypeOfLabel = subTypeIndex(clid, mLabel, comb);
+    comb.get<Feature_t>(m_label, TrigDefs::alsoDeactivateTEs);
+  uint16_t subtypeOfLabel = subTypeIndex(clid, m_label, comb);
 
-  //  (*log) << MSG::DEBUG 
+  //  (*m_log) << MSG::DEBUG 
   //	 << "  N(feature from Combination::get):" <<  fs.size() << endreq;
 
   typename std::vector<Trig::Feature<Feature_t> >::const_iterator f;
@@ -265,7 +265,7 @@ IndexFinder<Feature_t,Cont_t,Elem_t>::findIndexes(const Trig::Combination& comb,
     const HLT::TriggerElement* te = f->te();
     std::string lbl("?");
     TrigConf::HLTTriggerElement::getLabel(te->getId(), lbl);
-//     (*log) << MSG::DEBUG
+//     (*m_log) << MSG::DEBUG
 // 	   << "Feature te=" << te 
 // 	   << " id=" << te->getId()
 // 	   << " name=" << lbl
@@ -275,7 +275,7 @@ IndexFinder<Feature_t,Cont_t,Elem_t>::findIndexes(const Trig::Combination& comb,
 
     te_label = "";
     TrigConf::HLTTriggerElement::getLabel(te->getId(), te_label);
-    fillIndexes(index, te, clid, subtypeOfLabel, mLabel, log);
+    fillIndexes(index, te, clid, subtypeOfLabel, m_label, m_log);
   }
   return index;
 }
@@ -327,4 +327,4 @@ std::vector<int> findIndexesForCont(const Feature_t* cont,
 }
 
 
-#endif // __IndexFinder_h__
+#endif // TRIGGERMENUANALYSIS_INDEXFINDER_H

@@ -47,7 +47,7 @@ use  egammaEvent                egammaEvent-*                   Reconstruction/e
 use  muonEvent                  muonEvent-*                     Reconstruction/MuonIdentification
 use  tauEvent                   tauEvent-*                      Reconstruction
 use  Particle                   Particle-*                      Reconstruction
-use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+#use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
 use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
 use  MuonTrigCoinData           MuonTrigCoinData-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1

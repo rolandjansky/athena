@@ -20,9 +20,9 @@ HLTObjectsInRoI* JetObjectsInRoI::create() {
 
 
 JetObjectsInRoI::JetObjectsInRoI() : HLTObjectsInRoI(),
- mL2Jet(0), mEFJet(0) {
-  defineHltFeature(mL2Jet, 2, 1, "L2Jet");
-  defineHltFeature(mEFJet, 3, 1, "EFJet");
+ m_L2Jet(0), m_EFJet(0) {
+  defineHltFeature(m_L2Jet, 2, 1, "L2Jet");
+  defineHltFeature(m_EFJet, 3, 1, "EFJet");
 }
 
 JetObjectsInRoI::~JetObjectsInRoI() {

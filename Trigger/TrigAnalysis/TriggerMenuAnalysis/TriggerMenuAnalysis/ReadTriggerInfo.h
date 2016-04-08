@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __ReadTriggerInfo_h__
-#define __ReadTriggerInfo_h__
+#ifndef TRIGGERMENUANALYSIS__READTRIGGERINFO_H
+#define TRIGGERMENUANALYSIS__READTRIGGERINFO_H
 /*
   ReadTriggerInfo.h
 */
@@ -26,17 +26,17 @@ public:
   StatusCode finalize();
 
 private:
-  ToolHandle<TrigAccessTool> mTrigAccessTool;
+  ToolHandle<TrigAccessTool> m_trigAccessTool;
   //  ToolHandle<TrigMenuHists> mTrigMenuHists;
 
-  TrigMenuEvent* mEvent;
+  TrigMenuEvent* m_event;
 
-  std::vector<std::string> mMuonChains;
-  std::vector<std::string> mTileMuChains;
-  std::vector<std::string> mElectronChains;
-  std::vector<std::string> mTauChains;
-  std::vector<std::string> mJetChains;
-  std::vector<std::string> mMetChains;
+  std::vector<std::string> m_muonChains;
+  std::vector<std::string> m_tileMuChains;
+  std::vector<std::string> m_electronChains;
+  std::vector<std::string> m_tauChains;
+  std::vector<std::string> m_jetChains;
+  std::vector<std::string> m_metChains;
 };
 
-#endif // __ReadTriggerInfo_h__
+#endif // TRIGGERMENUANALYSIS__READTRIGGERINFO_H

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HLTObjectsInRoI_h__
-#define __HLTObjectsInRoI_h__
+#ifndef TRIGGERMENUANALYSIS_HLTOBJECTSINROI_H
+#define TRIGGERMENUANALYSIS_HLTOBJECTSINROI_H
 /*
   HLTObjectsInRoI.h
 */
@@ -38,26 +38,26 @@ private:
     virtual int getRoIObject(const Trig::TrigDecisionTool& tdt, 
 			     const HLT::TriggerElement* te) = 0;
 
-    void setName(const std::string& name) { mName = name; }
+    void setName(const std::string& name) { m_name = name; }
     void addChain(const std::string& chain_name, bool passed);
-    const std::string& name() const { return mName; }
-    const std::vector<TrigStatus>& chains() const { return mChains; }
+    const std::string& name() const { return m_name; }
+    const std::vector<TrigStatus>& chains() const { return m_chains; }
     std::vector<std::string> getAssociatedChains() const;
     std::vector<std::string> getPassedChains() const;
     virtual const HLT::TriggerElement* getTEforObj(const Trig::Combination& comb) const=0;
     virtual const HLT::TriggerElement* getTEforObj(const Trig::FeatureContainer& fc) const=0;
   protected:
-    std::string mName;
-    std::vector<TrigStatus> mChains;
+    std::string m_name;
+    std::vector<TrigStatus> m_chains;
   };
 
   template<class T>
   class HltFeatureT : public HltFeature {
   public:
     HltFeatureT(const T* &obj, int size) : 
-      HltFeature(), mObj(obj), mSize(size) {}
+      HltFeature(), m_obj(obj), m_size(size) {}
     ~HltFeatureT() {}
-    const void* objectAddress() const { return mObj; }
+    const void* objectAddress() const { return m_obj; }
     int getObject(const HLT::TriggerElement* te, 
  		  HLT::NavigationCore* navitool);
     int getObject(const Trig::Combination& comb, bool& passed);
@@ -66,17 +66,17 @@ private:
     const HLT::TriggerElement* getTEforObj(const Trig::Combination& comb) const;
     const HLT::TriggerElement* getTEforObj(const Trig::FeatureContainer& fc) const;
   private:
-    const T* &mObj;
-    int mSize;
+    const T* &m_obj;
+    int m_size;
   };
 
   template<class T>
   class L1FeatureT : public HltFeature {
   public:
     L1FeatureT(const T* &obj, int size) : 
-      HltFeature(), mObj(obj), mSize(size) {}
+      HltFeature(), m_obj(obj), m_size(size) {}
     ~L1FeatureT() {}
-    const void* objectAddress() const { return mObj; }
+    const void* objectAddress() const { return m_obj; }
     int getRoIObject(const Trig::TrigDecisionTool& tdt, 
 		     const HLT::TriggerElement* te);
 
@@ -93,8 +93,8 @@ private:
     }
 
   private:
-    const T* &mObj;
-    int mSize;
+    const T* &m_obj;
+    int m_size;
   };
 
 public:
@@ -127,9 +127,9 @@ public:
 
   //  const HLT::TriggerElement* getRoITE() const { return mRoITE; }
   std::vector<const HLT::TriggerElement*> getRoITEs() const {
-    return mRoITEs;
+    return m_RoITEs;
   }
-  std::vector<const HLT::TriggerElement*> getTEs() const { return mTEs; }
+  std::vector<const HLT::TriggerElement*> getTEs() const { return m_TEs; }
  
   bool isAssociated(const std::string& cname) const;
   bool isPassed(const std::string& cname) const;
@@ -170,24 +170,24 @@ protected:
   HltFeature* findFeature(const void *obj);
 
 protected:
-  std::vector<const HLT::TriggerElement*> mRoITEs;
-  std::vector<const HLT::TriggerElement*> mTEs;
-  std::vector<std::string> mAssociatedChains;
-  std::vector<std::string> mPassedChains;
+  std::vector<const HLT::TriggerElement*> m_RoITEs;
+  std::vector<const HLT::TriggerElement*> m_TEs;
+  std::vector<std::string> m_associatedChains;
+  std::vector<std::string> m_passedChains;
 
   MsgStream& log() const;
 
 private:
-  std::map<LevelSigId, std::vector<HltFeature*> > mHltFeatureDefs;
-  static MsgStream* mLog;
+  static MsgStream* s_log;
+  std::map<LevelSigId, std::vector<HltFeature*> > m_hltFeatureDefs;
 };
 
 std::vector<std::string> HLTObjectsInRoI::getAssociatedChains() const {
-  return mAssociatedChains;
+  return m_associatedChains;
 }
 
 std::vector<std::string> HLTObjectsInRoI::getPassedChains() const {
-  return mPassedChains;
+  return m_passedChains;
 }
 
 // Template methods
@@ -197,10 +197,10 @@ int HLTObjectsInRoI::HltFeatureT<T>::getObject(const Trig::Combination& comb, bo
    passed = false;
    const std::vector<Trig::Feature<T> > features = 
       comb.get<T>("", TrigDefs::alsoDeactivateTEs);
-   if (mSize == 1 && features.size() == 1) {
+   if (m_size == 1 && features.size() == 1) {
       // assume only one object is attached to the TriggerElement
-      if (mObj==0) mObj = features[0].cptr();
-      if (mObj) {
+      if (m_obj==0) m_obj = features[0].cptr();
+      if (m_obj) {
          const HLT::TriggerElement* te = features[0].te();
          unsigned int nj = te->getFeatureAccessHelpers().size();
          //unsigned int clid = 0;
@@ -212,7 +212,7 @@ int HLTObjectsInRoI::HltFeatureT<T>::getObject(const Trig::Combination& comb, bo
          if (te->getActiveState()) passed = true;
       }
    }
-   if (mObj) return 0;
+   if (m_obj) return 0;
    else return -1;
 }
 
@@ -221,11 +221,11 @@ int HLTObjectsInRoI::HltFeatureT<T>::getObject(const HLT::TriggerElement* te,
 					       HLT::NavigationCore* navitool) {
   std::vector<const T*> tmp;
   navitool->getFeatures(te, tmp);
-  if (mSize == 1 && tmp.size() == 1) {
+  if (m_size == 1 && tmp.size() == 1) {
     // assume only one object is attached to the TriggerElement
-    mObj = tmp[0];
+    m_obj = tmp[0];
   }
-  if (mObj) return 0;
+  if (m_obj) return 0;
   else return -1;
 }
 
@@ -239,7 +239,7 @@ HLTObjectsInRoI::HltFeatureT<T>::getTEforObj(const Trig::Combination& comb) cons
     //    std::cout << "Feature: cptr=" 
     //	      << std::hex << features[i].cptr() << std::dec
     //	      << " te=" << std::hex << features[i].te() << std::dec << std::endl;
-    if (features[i].cptr() == mObj) {
+    if (features[i].cptr() == m_obj) {
       return features[i].te();
     }
   }
@@ -252,7 +252,7 @@ HLTObjectsInRoI::HltFeatureT<T>::getTEforObj(const Trig::FeatureContainer& fc) c
   const std::vector<Trig::Feature<T> > features = 
     fc.get<T>("", TrigDefs::alsoDeactivateTEs);
   for (unsigned int i=0; i<features.size(); ++i) {
-    if (features[i].cptr() == mObj) {
+    if (features[i].cptr() == m_obj) {
       return features[i].te();
     }
   }
@@ -266,9 +266,9 @@ int HLTObjectsInRoI::HltFeatureT<T>::getRoIObject(const Trig::TrigDecisionTool& 
     return -2;
   }
   const Trig::Feature<T> feature = tdt.ancestor<T>(te);
-  if (mObj==0) mObj = feature.cptr();
-  //  std::cout << "RoI TE: " << feature.te() << ", obj=" << mObj << std::endl;
-  if (mObj) {
+  if (m_obj==0) m_obj = feature.cptr();
+  //  std::cout << "RoI TE: " << feature.te() << ", obj=" << m_obj << std::endl;
+  if (m_obj) {
     return 0;
   } else {
     return -1;
@@ -279,9 +279,9 @@ template<class T>
 int HLTObjectsInRoI::L1FeatureT<T>::getRoIObject(const Trig::TrigDecisionTool& tdt, 
 						 const HLT::TriggerElement* te) {
   const Trig::Feature<T> feature = tdt.ancestor<T>(te);
-  if (mObj==0) mObj = feature.cptr();
-  //  std::cout << "RoI TE: " << feature.te() << ", obj=" << mObj << std::endl;
-  if (mObj) {
+  if (m_obj==0) m_obj = feature.cptr();
+  //  std::cout << "RoI TE: " << feature.te() << ", obj=" << m_obj << std::endl;
+  if (m_obj) {
     return 0;
   } else {
     return -1;
@@ -296,12 +296,12 @@ void HLTObjectsInRoI::defineHltFeature(const T* &obj,
 				       int n_objs) {
   LevelSigId lsid(level, isig);
   std::map<LevelSigId, std::vector<HltFeature*> >::iterator p;
-  if ( (p=mHltFeatureDefs.find(lsid)) == mHltFeatureDefs.end()) {
+  if ( (p=m_hltFeatureDefs.find(lsid)) == m_hltFeatureDefs.end()) {
     std::vector<HltFeature*> tmp;
     HltFeature* feature = new HltFeatureT<T>(obj, n_objs);
     feature->setName(name);
     tmp.push_back(feature);
-    mHltFeatureDefs.insert(make_pair(lsid, tmp));
+    m_hltFeatureDefs.insert(make_pair(lsid, tmp));
   } else {
     HltFeature* feature = new HltFeatureT<T>(obj, n_objs);
     feature->setName(name);
@@ -316,12 +316,12 @@ void HLTObjectsInRoI::defineL1RoI(const T* &obj,
   int isig = 0;
   LevelSigId lsid(level, isig);
   std::map<LevelSigId, std::vector<HltFeature*> >::iterator p;
-  if ( (p=mHltFeatureDefs.find(lsid)) == mHltFeatureDefs.end()) {
+  if ( (p=m_hltFeatureDefs.find(lsid)) == m_hltFeatureDefs.end()) {
     std::vector<HltFeature*> tmp;
     HltFeature* feature = new L1FeatureT<T>(obj, n_objs);
     feature->setName(name);
     tmp.push_back(feature);
-    mHltFeatureDefs.insert(make_pair(lsid, tmp));
+    m_hltFeatureDefs.insert(make_pair(lsid, tmp));
   } else {
     HltFeature* feature = new L1FeatureT<T>(obj, n_objs);
     feature->setName(name);
@@ -330,4 +330,4 @@ void HLTObjectsInRoI::defineL1RoI(const T* &obj,
 }
 
 
-#endif // __HLTObjectsInRoI_h__
+#endif // TRIGGERMENUANALYSIS_HLTOBJECTSINROI_H

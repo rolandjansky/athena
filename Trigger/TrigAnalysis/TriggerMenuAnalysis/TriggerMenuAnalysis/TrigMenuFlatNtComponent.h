@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TrigMenuFlatNtComponent_h__
-#define __TrigMenuFlatNtComponent_h__
+#ifndef TRIGGERMENUANALYSIS_TRIGMENUFLATNTCOMPONENT_H
+#define TRIGGERMENUANALYSIS_TRIGMENUFLATNTCOMPONENT_H
 /*
   TrigMenuFlatNtComponent.h
 */
@@ -33,18 +33,18 @@ public:
   void clear();
 
 private:
-  std::string mBranchName;
-  ChainEntry::RoIType mRoIType;
-  RoILinksCnvTool* mRoILinksCnvTool;
-  MsgStream* mLog;
+  std::string m_branchName;
+  ChainEntry::RoIType m_RoIType;
+  RoILinksCnvTool* m_RoILinksCnvTool;
+  MsgStream* m_log;
 
   // Ntuple variables
-  vi_t* mType;
-  vi_t* mLastStep;
-  std::map<int, vi_t*> mFeatureIndex;
-  std::map<int, vi_t*> mFeatureStatus;
-  std::map<int, vvi_t*> mFeatureIndexVec;
-  std::map<int, vvi_t*> mFeatureStatusVec;
+  vi_t* m_type;
+  vi_t* m_lastStep;
+  std::map<int, vi_t*> m_featureIndex;
+  std::map<int, vi_t*> m_featureStatus;
+  std::map<int, vvi_t*> m_featureIndexVec;
+  std::map<int, vvi_t*> m_featureStatusVec;
   
 };
 
@@ -64,26 +64,26 @@ private:
 			 ChainEntry::RoIType roi_type);
 
 private:
-  Trig::TrigDecisionTool* mTrigDecisionTool;
+  Trig::TrigDecisionTool* m_trigDecisionTool;
   //  TrigAccessTool* mTrigAccessTool;
-  RoILinksCnvTool* mRoILinksCnvTool;
+  RoILinksCnvTool* m_RoILinksCnvTool;
 
   // Transient data
-  std::vector<ChainEntry> mChainEntries;
-  RoILinks mRoILinks;
+  std::vector<ChainEntry> m_chainEntries;
+  RoILinks m_RoILinks;
 
   //-----------------------------------------------
   // ntuple variables
   //-----------------------------------------------
   // Chain Entries
-  vi_t* mChainId;
-  vvi_t* mRoIType;
-  vvi_t* mRoIIndex;
+  vi_t* m_chainId;
+  vvi_t* m_RoIType;
+  vvi_t* m_RoIIndex;
 
   // RoI
-  std::vector<RoINtComponent> mRoINtComponents;
+  std::vector<RoINtComponent> m_RoINtComponents;
 
 };
 
 
-#endif // __TrigMenuFlatNtComponent_h__
+#endif // TRIGGERMENUANALYSIS_TRIGMENUFLATNTCOMPONENT_H

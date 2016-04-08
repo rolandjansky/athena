@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TauObjectsInRoI_h__
-#define __TauObjectsInRoI_h__
+#ifndef TRIGGERMENUANALYSIS_TAUOBJECTSINROI_H
+#define TRIGGERMENUANALYSIS_TAUOBJECTSINROI_H
 /*
   TauObjectsInRoI.h
 */
@@ -38,32 +38,32 @@ public:
   inline void setEFTau(const Analysis::TauJetContainer* x);
 
 protected:
-  const TrigTauCluster* mTauCluster;
-  const TrigTau* mTau;
-  const Analysis::TauJetContainer* mEFTau;
+  const TrigTauCluster* m_tauCluster;
+  const TrigTau* m_tau;
+  const Analysis::TauJetContainer* m_EFTau;
 };
 
 const TrigTauCluster* TauObjectsInRoI::getTauCluster() const {
-  return mTauCluster;
+  return m_tauCluster;
 }
 
 const TrigTau* TauObjectsInRoI::getTau() const {
-  return mTau;
+  return m_tau;
 }
 
 const Analysis::TauJetContainer* TauObjectsInRoI::getEFTau() const {
-  return mEFTau;
+  return m_EFTau;
 }
 void TauObjectsInRoI::setTauCluster(const TrigTauCluster* x) {
-  mTauCluster = x;
+  m_tauCluster = x;
 }
 
 void TauObjectsInRoI::setTau(const TrigTau* x) {
-  mTau = x;
+  m_tau = x;
 }
 
 void TauObjectsInRoI::setEFTau(const Analysis::TauJetContainer* x){
-  mEFTau = x;
+  m_EFTau = x;
 }
 
-#endif //__TauObjectsInRoI_h__
+#endif //TRIGGERMENUANALYSIS_TAUOBJECTSINROI_H

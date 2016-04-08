@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TrigDecNtComponent_h__
-#define __TrigDecNtComponent_h__
+#ifndef TRIGGERMENUANALYSIS_TRIGDECNTCOMPONENT_H
+#define TRIGGERMENUANALYSIS_TRIGDECNTCOMPONENT_H
 /*
   TrigDecNtComponent.h
 */
@@ -28,12 +28,12 @@ public:
   StatusCode fill();
 
 private:
-  TrigConf::ITrigConfigSvc* mTrigConfigSvc;
-  Trig::TrigDecisionTool* mTrigDecisionTool;
+  TrigConf::ITrigConfigSvc* m_trigConfigSvc;
+  Trig::TrigDecisionTool* m_trigDecisionTool;
 
   // Ntuple variable
-  TrigDecSummary* mTrigDecSummary;
+  TrigDecSummary* m_trigDecSummary;
 
 };
 
-#endif // __TrigDecNtComponent_h__
+#endif // TRIGGERMENUANALYSIS_TRIGDECNTCOMPONENT_H

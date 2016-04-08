@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HltConfigNtComponent_h__
-#define __HltConfigNtComponent_h__
+#ifndef TRIGGERMENUANALYSIS_HLTCONFIGNTCOMPONENT_H
+#define TRIGGERMENUANALYSIS_HLTCONFIGNTCOMPONENT_H
 /*
   HltConfigNtComponent.h
 */
@@ -27,12 +27,12 @@ public:
   void clear();
 
 protected:
-  ServiceHandle<TrigConf::IHLTConfigSvc> mTrigConfigSvc;
-  std::string mEventInfoKey;
+  ServiceHandle<TrigConf::IHLTConfigSvc> m_trigConfigSvc;
+  std::string m_eventInfoKey;
 
-  int mRun;
-  std::vector<std::string>* mChainNames;
-  std::vector<int>* mChainCounters;
+  int m_run;
+  std::vector<std::string>* m_chainNames;
+  std::vector<int>* m_chainCounters;
 };
 
-#endif // __HltConfigNtComponent_h__
+#endif // TRIGGERMENUANALYSIS_HLTCONFIGNTCOMPONENT_H

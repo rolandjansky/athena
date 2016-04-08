@@ -15,7 +15,7 @@ using namespace std;
 
 FlatHltNaviMaker::FlatHltNaviMaker(const std::string& name, 
 				   ISvcLocator* svcloc) :
-  AthAlgorithm(name, svcloc), mRoILinksCnvTool("RoILinksCnvTool") {
+  AthAlgorithm(name, svcloc), m_RoILinksCnvTool("RoILinksCnvTool") {
 }
 
 FlatHltNaviMaker::~FlatHltNaviMaker() {
@@ -24,21 +24,21 @@ FlatHltNaviMaker::~FlatHltNaviMaker() {
 StatusCode FlatHltNaviMaker::initialize() {
   AthAlgorithm::initialize().ignore();
   
-  if (mRoILinksCnvTool.retrieve().isFailure()) {
+  if (m_RoILinksCnvTool.retrieve().isFailure()) {
     msg(MSG::WARNING) << "Cannot retrieve RoILinksCnvTool" << endreq;
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode FlatHltNaviMaker::beginRun() {
-  return mRoILinksCnvTool->beginRun();
+  return m_RoILinksCnvTool->beginRun();
 }
 
 StatusCode FlatHltNaviMaker::execute() {
   std::vector<ChainEntry> chains;
   RoILinks roi_links;
-  mRoILinksCnvTool->fill(chains, roi_links);
-  mRoILinksCnvTool->record(chains, roi_links);
+  m_RoILinksCnvTool->fill(chains, roi_links);
+  m_RoILinksCnvTool->record(chains, roi_links);
 
   return StatusCode::SUCCESS;
 }

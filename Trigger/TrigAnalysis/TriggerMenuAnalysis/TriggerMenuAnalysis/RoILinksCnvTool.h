@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __RoILinksCnvTool_h__
-#define __RoILinksCnvTool_h__
+#ifndef TRIGGERMENUANALYSIS_ROILINKSCNVTOOL_H
+#define TRIGGERMENUANALYSIS_ROILINKSCNVTOOL_H
 /*
   RoILinksCnvTool.h
 */
@@ -112,46 +112,44 @@ protected:
 		       const std::vector<ROI>& roilist, 
 		       std::map<int, long>& roiIndexWord);
 private:
-  bool mSaveInactiveCombination;
+  bool m_saveInactiveCombination;
 
-  std::vector<std::string> mChains_Muon0;
-  std::vector<std::string> mChains_Electron0;
-  std::vector<std::string> mChains_Tau0;
-  std::vector<std::string> mChains_Jet0;
-  std::vector<std::string> mChains_Bjet0;
-  std::vector<std::string> mChains_MET0;
-  std::vector<std::string> mChains_MinBias0;
-  std::vector<std::string> mChains_Bphysics0;
-  std::vector<std::string> mChains_TileMu0;
-  std::vector<std::string> mChains_Any0;
+  std::vector<std::string> m_chains_Muon0;
+  std::vector<std::string> m_chains_Electron0;
+  std::vector<std::string> m_chains_Tau0;
+  std::vector<std::string> m_chains_Jet0;
+  std::vector<std::string> m_chains_Bjet0;
+  std::vector<std::string> m_chains_MET0;
+  std::vector<std::string> m_chains_MinBias0;
+  std::vector<std::string> m_chains_Bphysics0;
+  std::vector<std::string> m_chains_TileMu0;
+  std::vector<std::string> m_chains_Any0;
   
-  std::vector<std::string> mChains_Muon;
-  std::vector<std::string> mChains_Electron;
-  std::vector<std::string> mChains_Tau;
-  std::vector<std::string> mChains_Jet;
-  std::vector<std::string> mChains_Bjet;
-  std::vector<std::string> mChains_MET;
-  std::vector<std::string> mChains_MinBias;
-  std::vector<std::string> mChains_Bphysics;
-  std::vector<std::string> mChains_TileMu;
-  std::vector<std::string> mChains_Any;
+  std::vector<std::string> m_chains_Muon;
+  std::vector<std::string> m_chains_Electron;
+  std::vector<std::string> m_chains_Tau;
+  std::vector<std::string> m_chains_Jet;
+  std::vector<std::string> m_chains_Bjet;
+  std::vector<std::string> m_chains_MET;
+  std::vector<std::string> m_chains_MinBias;
+  std::vector<std::string> m_chains_Bphysics;
+  std::vector<std::string> m_chains_TileMu;
+  std::vector<std::string> m_chains_Any;
 
-  std::vector<std::string> mChainsToSaveAllCombinations;
-  std::set<std::string> mChainsAllComb;
+  std::vector<std::string> m_chainsToSaveAllCombinations;
+  std::set<std::string> m_chainsAllComb;
   
-  ServiceHandle<StoreGateSvc> mStoreGateSvc;
-  ServiceHandle<TrigConf::ITrigConfigSvc> mTrigConfSvc;
-  ToolHandle<TrigAccessTool> mTrigAccessTool;
-  ToolHandle<Trig::TrigDecisionTool> mTrigDecisionTool;
-  Trig::ExpertMethods* mExpertMethods;
-  mutable MsgStream* mLog;
+  ServiceHandle<TrigConf::ITrigConfigSvc> m_trigConfSvc;
+  ToolHandle<TrigAccessTool> m_trigAccessTool;
+  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
+  Trig::ExpertMethods* m_expertMethods;
 
-  std::vector<std::string> mChainEntryKeys;
-  std::vector<std::string> mCombLinksKeys;
+  std::vector<std::string> m_chainEntryKeys;
+  std::vector<std::string> m_combLinksKeys;
 
-  RoILinks mRoILinks;
-  std::vector<HLTObjectsInRoI*> mMuonRoIVec;
-  std::vector<HLTObjectsInRoI*> mElectronRoIVec;
+  RoILinks m_RoILinks;
+  std::vector<HLTObjectsInRoI*> m_muonRoIVec;
+  std::vector<HLTObjectsInRoI*> m_electronRoIVec;
 
 };
 
@@ -160,7 +158,7 @@ private:
 // 						   const std::vector<EnergySum_ROI>& roilist);
 
 template<class Elem, class Cont>
-int RoILinksCnvTool::findIndex(const Elem* p, const std::string& elemKey, 
+int RoILinksCnvTool::findIndex(const Elem* p, const std::string& /*elemKey*/, 
 			       const std::string& contKey, 
 			       bool force_retrieve) {
   int index=-1;
@@ -168,7 +166,7 @@ int RoILinksCnvTool::findIndex(const Elem* p, const std::string& elemKey,
   bool foundit=false;
 
   if (force_retrieve || cont==0) {
-    if (mStoreGateSvc->retrieve(cont, contKey).isFailure()) {
+    if (evtStore()->retrieve(cont, contKey).isFailure()) {
       log() << MSG::WARNING << "Cannot retrieve Container " << contKey << endreq;
     }
   }
@@ -212,7 +210,7 @@ int RoILinksCnvTool::findIndexOfRoI(const std::vector<const HLT::TriggerElement*
 
   for (p_te=tes.begin(); p_te!=tes.end(); ++p_te) {
     const std::vector<Trig::Feature<ROI> > rois = 
-      mTrigDecisionTool->ancestors<ROI>(*p_te, "initialRoI", TrigDefs::alsoDeactivateTEs);
+      m_trigDecisionTool->ancestors<ROI>(*p_te, "initialRoI", TrigDefs::alsoDeactivateTEs);
     if (rois.size() == 0) continue;
     const Trig::Feature<ROI>& roi = rois.front();
     if (roi.cptr()) {
@@ -241,7 +239,7 @@ template<class ROI>
 int RoILinksCnvTool::findIndexOfRoI(const HLT::TriggerElement* te, 
 				    const std::vector<ROI>& roilist) {
   typename std::vector<ROI>::const_iterator p_roi;
-  const std::vector<Trig::Feature<ROI> > rois = mTrigDecisionTool->ancestors<ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
+  const std::vector<Trig::Feature<ROI> > rois = m_trigDecisionTool->ancestors<ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
   if (rois.size() == 0) return -1;
   const Trig::Feature<ROI>& roi = rois.front();
   if (roi.cptr()) {
@@ -262,7 +260,7 @@ int RoILinksCnvTool::findIndexOfRoI(const HLT::TriggerElement* te,
 				    const std::vector<ROI>& roilist,
 				    long& RoIWord) {
   typename std::vector<ROI>::const_iterator p_roi;
-  const std::vector<Trig::Feature<ROI> > rois = mTrigDecisionTool->ancestors<ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
+  const std::vector<Trig::Feature<ROI> > rois = m_trigDecisionTool->ancestors<ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
   if (rois.size() == 0) return -1;
   const Trig::Feature<ROI>& roi = rois.front();
   if (roi.cptr()) {
@@ -284,7 +282,7 @@ void RoILinksCnvTool::findIndicesOfRoI(const HLT::TriggerElement* te,
 				       const std::vector<ROI>& roilist, 
 				       std::map<int, long>& roiIndexWord) {
   typename std::vector<ROI>::const_iterator p_roi;
-  const std::vector<Trig::Feature<ROI> > rois = mTrigDecisionTool->ancestors<ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
+  const std::vector<Trig::Feature<ROI> > rois = m_trigDecisionTool->ancestors<ROI>(te, "initialRoI", TrigDefs::alsoDeactivateTEs);
   typename std::vector<Trig::Feature<ROI> >::const_iterator p;
 
   for (p=rois.begin(); p!=rois.end(); ++p) {
@@ -300,4 +298,4 @@ void RoILinksCnvTool::findIndicesOfRoI(const HLT::TriggerElement* te,
   }
 }
 
-#endif // __RoILinksCnvTool_h__
+#endif // TRIGGERMENUANALYSIS_ROILINKSCNVTOOL_H
