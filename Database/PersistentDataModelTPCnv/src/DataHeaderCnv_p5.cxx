@@ -8,12 +8,7 @@
  *  $Id: DataHeaderCnv_p5.cxx,v 1.3.2.2 2009-05-22 19:26:54 gemmeren Exp $
  **/
 
-#define private public
-#define protected public
 #include "PersistentDataModel/DataHeader.h"
-#undef private
-#undef protected
-
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p5.h"
 
 DataHeaderElementCnv_p5::DataHeaderElementCnv_p5() {}
@@ -35,17 +30,25 @@ void DataHeaderElementCnv_p5::persToTrans(const DataHeaderElement_p5* pers,
       clidNum = *intIter; intIter++;
       token->fromString(pers->m_token);
    } else {
-      const unsigned int keyPos = (unsigned short)(*intIter>>16); intIter++;
+      const unsigned int keyPos = (unsigned short)(*intIter>>16),
+	      version = (unsigned short)(*intIter&0x0000FFFF); intIter++;
       const unsigned int guidIdx = (unsigned short)(*intIter>>16),
 	      classIdx = (unsigned short)(*intIter&0x0000FFFF); intIter++;
       const unsigned int prefixIdx = (unsigned short)(*intIter>>16),
 	      typeIdx = (unsigned short)(*intIter&0x0000FFFF); intIter++;
 // Add Technology and Offsets
-      unsigned int tech = *intIter; intIter++;
+      unsigned int tech = 514;
+      if (version&0x00000001U) {
+         tech = *intIter; intIter++;
+      }
       unsigned int oid1 = *intIter; intIter++;
-      keyIdx = *intIter; intIter++;
-      aliasNum = *intIter; intIter++;
-      clidNum = *intIter; intIter++;
+      if (version&0x00000010U) {
+         keyIdx = *intIter; intIter++;
+         aliasNum = *intIter; intIter++;
+         clidNum = *intIter; intIter++;
+      } else {
+         keyIdx = (*intIter>>16), aliasNum = ((*intIter&0x0000FFFF)>>8), clidNum = (*intIter&0x000000FF); intIter++;
+      }
 // Append DbGuid
       Guid guid(form.map()[guidIdx]);
       token->setDb(guid);
@@ -164,15 +167,28 @@ void DataHeaderElementCnv_p5::transToPers(const DataHeaderElement* trans,
       oid1 = trans->getToken()->oid().first;
       pers->m_oid2 = trans->getToken()->oid().second;
    }
-   form.insertParam((unsigned int)(keyPos) * 0x00010000U + 0x0000FFFFU);
+   unsigned int version = 0x0000FFFFU;
+   if (tech == 514) {
+      version = version&0x0000FFFEU;
+   }
+   unsigned int keyIdx = form.map().size(), aliasNum = trans->m_alias.size(), clidNum = trans->m_clids.size();
+   if (keyIdx < 0x00010000U && aliasNum < 0x00000100U && clidNum < 0x00000100U) {
+      version = version&0x0000FFEFU;
+   }
+   form.insertParam((unsigned int)(keyPos) * 0x00010000U + version);
    form.insertParam((unsigned int)(guidIdx) * 0x00010000U + (unsigned int)(classIdx));
    form.insertParam((unsigned int)(prefixIdx) * 0x00010000U + (unsigned int)(typeIdx));
-   form.insertParam(tech);
+   if (version&0x00000001U) {
+      form.insertParam(tech);
+   }
    form.insertParam(oid1);
-   unsigned int keyIdx = form.map().size(), aliasNum = trans->m_alias.size(), clidNum = trans->m_clids.size();
-   form.insertParam(keyIdx);
-   form.insertParam(aliasNum);
-   form.insertParam(clidNum);
+   if (version&0x00000010U) {
+      form.insertParam(keyIdx);
+      form.insertParam(aliasNum);
+      form.insertParam(clidNum);
+   } else {
+      form.insertParam(keyIdx * 0x00010000U + aliasNum * 0x00000100U + clidNum);
+   }
    form.insertMap(trans->m_key);
    for (std::set<std::string>::const_iterator iter = trans->m_alias.begin(),
 		   last = trans->m_alias.end(); iter != last; iter++) {

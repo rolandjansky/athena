@@ -8,12 +8,7 @@
  *  $Id: DataHeaderCnv_p6.cxx,v 1.3.2.2 2009-05-22 19:26:54 gemmeren Exp $
  **/
 
-#define private public
-#define protected public
 #include "PersistentDataModel/DataHeader.h"
-#undef private
-#undef protected
-
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p6.h"
 
 DataHeaderElementCnv_p6::DataHeaderElementCnv_p6() {}
