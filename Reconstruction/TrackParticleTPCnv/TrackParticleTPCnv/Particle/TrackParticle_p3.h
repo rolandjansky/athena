@@ -9,7 +9,6 @@
 #include "DataModelAthenaPool/AthenaBarCode_p1.h"
 
 #include "DataModelAthenaPool/ElementLink_p3.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 
 namespace Rec
 {

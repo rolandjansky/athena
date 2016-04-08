@@ -12,7 +12,7 @@
 #ifndef TRACKPARTICLE_P1_REC_H
 #define TRACKPARTICLE_P1_REC_H
 
- #include "AthenaPoolUtilities/TPObjRef.h"
+#include "AthenaPoolUtilities/TPObjRef.h"
 
 namespace Rec
 {

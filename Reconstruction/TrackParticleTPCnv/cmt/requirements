@@ -9,7 +9,6 @@ use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaP
 use  DataModel                  DataModel-*                     Control
 use  DataModelAthenaPool        DataModelAthenaPool-*           Control
 use  Particle                   Particle-*                      Reconstruction
-use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
 use  TrkEventTPCnv              TrkEventTPCnv-*                 Tracking/TrkEventCnv
 use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
 use  TrkParticleBase            TrkParticleBase-*               Tracking/TrkEvent
@@ -17,6 +16,7 @@ use  TrkTrack                   TrkTrack-*                      Tracking/TrkEven
 use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
 private
 use  AthenaKernel               AthenaKernel-*                  Control
+use  CxxUtils                   CxxUtils-*                      Control
 use  AtlasReflex                AtlasReflex-*                   External                        -no_auto_imports
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
 
