@@ -132,7 +132,7 @@ ByteStreamEmonInputSvc::ByteStreamEmonInputSvc(const std::string& name, ISvcLoca
     declareProperty("BufferSize", m_buffer_size, "Number of buffers");
     declareProperty("ReadDetectorMaskFromIS", m_readDetectorMask, "Read detector mask from IS");
     declareProperty("Timeout", m_timeout, "Timeout in seconds, -1 == infinity")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("ProcessCorruptedEvents", m_timeout, "Process corrupted events not passing check_tree()")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
+    declareProperty("ProcessCorruptedEvents", m_corrupted_events, "Process corrupted events not passing check_tree()")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
     declareProperty("State",m_state,"Read-only property showing the state");
 }
 
@@ -281,7 +281,7 @@ bool ByteStreamEmonInputSvc::getIterator()
     // now put together the bit mask from all
     // three sources: l1 bit mask, l1 names, l1 items
 
-    vector<unsigned char> l1bits(m_l1items.begin(), m_l1items.end());
+    vector<unsigned short> l1bits(m_l1items.begin(), m_l1items.end());
 
     // if names are given, try to read information from IS.
     if(m_l1names.size() > 0) {
