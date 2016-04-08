@@ -31,7 +31,7 @@ public:
     StatusCode genInitialize();
     StatusCode callGenerator();
     StatusCode genFinalize();
-    StatusCode fillEvt(GenEvent*); 
+    StatusCode fillEvt(HepMC::GenEvent*); 
 
 protected:
 
