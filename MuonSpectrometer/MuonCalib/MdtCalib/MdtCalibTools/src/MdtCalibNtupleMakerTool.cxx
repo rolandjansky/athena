@@ -24,7 +24,7 @@ namespace MuonCalib {
   StatusCode MdtCalibNtupleMakerTool::initialize()
   {
     MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "Initialisation started     " << endmsg;
+    log << MSG::INFO << "Initialisation started     " << endreq;
   
     return StatusCode::SUCCESS;
   }
@@ -32,7 +32,7 @@ namespace MuonCalib {
   StatusCode MdtCalibNtupleMakerTool::finalize()
   {
     MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "finalize started     " << endmsg;
+    log << MSG::INFO << "finalize started     " << endreq;
     // delete instances
     std::for_each( m_instances.begin(), m_instances.end(), DeleteObject() );
 

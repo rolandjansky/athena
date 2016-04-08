@@ -59,7 +59,7 @@ QuasianalyticLineReconstructionTool::QuasianalyticLineReconstructionTool(
 StatusCode QuasianalyticLineReconstructionTool::initialize() {
 
 	MsgStream log(msgSvc(), name());
-	log << MSG::INFO << "initialize     " << endmsg;
+	log << MSG::INFO << "initialize     " << endreq;
 
 // create an instance of QuasianalyticLineReconstruction //
 	m_implementation = new QuasianalyticLineReconstruction(m_road_width);
@@ -85,7 +85,7 @@ StatusCode QuasianalyticLineReconstructionTool::initialize() {
 StatusCode QuasianalyticLineReconstructionTool::finalize() {
 
 	MsgStream log(msgSvc(), name());
-	log << MSG::INFO << "finalize     " << endmsg;
+	log << MSG::INFO << "finalize     " << endreq;
 
 	delete m_implementation;
 
