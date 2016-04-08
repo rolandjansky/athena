@@ -90,7 +90,7 @@ namespace Muon {
     MuonGM::CscReadoutElement* csc=dynamic_cast<MuonGM::CscReadoutElement*>(det);
     if (csc) { csc->restoreSurfaces(); return; }
     
-    *m_log<<MSG::ERROR<<"det element not MDT, TGC, or RPC!"<<endmsg;
+    *m_log<<MSG::ERROR<<"det element not MDT, TGC, or RPC!"<<endreq;
     
     return;
   }
