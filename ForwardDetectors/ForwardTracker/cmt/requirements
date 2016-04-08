@@ -8,6 +8,9 @@ use AtlasPolicy 	AtlasPolicy-*
 use AtlasCoreRunTime 	AtlasCoreRunTime-*
 use AtlasBoost 		AtlasBoost-* 		External
 
+# Specify required Boost components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(Boost COMPONENTS program_options)"
+
 library ForwardTracker *.cxx
 apply_pattern installed_library
 
