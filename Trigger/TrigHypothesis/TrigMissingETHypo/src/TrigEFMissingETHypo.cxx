@@ -61,7 +61,7 @@ TrigEFMissingETHypo::TrigEFMissingETHypo(const std::string& name, ISvcLocator* p
   declareProperty("xsSETmin",  m_xsSETmin = 16*CLHEP::GeV, "Minimum Value for MET in xs chains");  
 
   declareProperty("xsMETok",   m_xsMETok = 64*CLHEP::GeV,   "MET value for acceptance in xs chains" );
-  declareProperty("xsSETok",   m_xsSETok = 4000*CLHEP::GeV, "SET value for acceptance in xs chains" );
+  declareProperty("xsSETok",   m_xsSETok = 6500*CLHEP::GeV, "SET value for acceptance in xs chains" );
 
   m_bitMask = 0;
   declareProperty("bitMaskComp", m_bitMaskComp = 0, "bit mask to enable rejection based on the component level status flag" );
