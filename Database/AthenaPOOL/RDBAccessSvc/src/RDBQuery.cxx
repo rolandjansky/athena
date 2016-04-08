@@ -21,15 +21,15 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 
-RDBQuery::RDBQuery(RDBAccessSvc* _accessSvc,
-		   coral::ISessionProxy* _session,
+RDBQuery::RDBQuery(RDBAccessSvc* accessSvc,
+		   coral::ISessionProxy* session,
 		   const std::string& nodeName,
 		   const std::string& tagId):
   IRDBQuery(),
   m_query(0),
   m_queryCount(0),
-  m_accessSvc(_accessSvc),
-  m_session(_session),
+  m_accessSvc(accessSvc),
+  m_session(session),
   m_nodeName(nodeName),
   m_tagId(tagId),
   m_size(0),

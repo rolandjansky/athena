@@ -39,7 +39,7 @@ StatusCode SourceCompAlg::initialize()
 
   // Populate reco maps for the connection 0 and 1
   for(unsigned iConn=0; iConn<2; ++iConn) {
-    NodeToRecordsetMap_ptr _map(new NodeToRecordsetMap);
+    NodeToRecordsetMap_ptr map(new NodeToRecordsetMap);
 
     std::ostringstream streamConnInd;
     streamConnInd << iConn;
@@ -76,10 +76,10 @@ StatusCode SourceCompAlg::initialize()
 	msg(MSG::INFO) << "\t ** Node: " << nodeName << "\t" << perc << "%" << endreq;
 	IRDBRecordset_ptr recPtr = rdbAccess->getRecordsetPtr(nodeName,m_globalTag,"ATLAS",connName);
 	if(recPtr->size())
-	  (*_map)[nodeName] = recPtr;
+	  (*map)[nodeName] = recPtr;
       }
     }
-    m_recoMaps.push_back(_map);
+    m_recoMaps.push_back(map);
 
     rdbAccess->disconnect(connName);
   }

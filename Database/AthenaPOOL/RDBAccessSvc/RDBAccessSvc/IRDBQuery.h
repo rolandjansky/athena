@@ -32,24 +32,24 @@ class IRDBQuery
   const coral::AttributeList* m_attrList;
 };
 
-template<typename T> const T& IRDBQuery::data(const std::string& _field)
+template<typename T> const T& IRDBQuery::data(const std::string& field)
 {
-  return (*m_attrList)[_field].data<T>();
+  return (*m_attrList)[field].data<T>();
 }
 
-template<typename T> const T& IRDBQuery::data(unsigned int _fieldInd)
+template<typename T> const T& IRDBQuery::data(unsigned int fieldInd)
 {
-  return (*m_attrList)[_fieldInd].data<T>();
+  return (*m_attrList)[fieldInd].data<T>();
 }
 
-inline bool IRDBQuery::isNull(const std::string& _field)
+inline bool IRDBQuery::isNull(const std::string& field)
 {
-  return (*m_attrList)[_field].isNull();
+  return (*m_attrList)[field].isNull();
 }
 
-inline bool IRDBQuery::isNull(unsigned int _fieldInd)
+inline bool IRDBQuery::isNull(unsigned int fieldInd)
 {
-  return (*m_attrList)[_fieldInd].isNull();
+  return (*m_attrList)[fieldInd].isNull();
 }
 
 #endif
