@@ -10,50 +10,36 @@
 // Date:   June 2009
 /////////////////////////////////////////////////////////////////// 
 
-#define private public
-#define protected public
 #include "TileEvent/TileTTL1Cell.h"
-#undef private
-#undef protected
-
 #include "TileTPCnv/TileTTL1CellCnv_p1.h"
 
 
 void
 TileTTL1CellCnv_p1::persToTrans(const TileTTL1Cell_p1* persObj, TileTTL1Cell* transObj, MsgStream &/*log*/)
 {
-  transObj->m_ID = Identifier(Identifier32(persObj->m_channelID));
-   
-  // Tower energy
-  transObj->m_eneTower = persObj->m_eneTower;
-
-  // Time average
-  transObj->m_timeAve = persObj->m_timeAve;
-
-  // Correction factor
-  transObj->m_corrFactor = persObj->m_corrFactor;
-
-  // quality factor
-  transObj->m_quality = persObj->m_quality;
-
+  *transObj = TileTTL1Cell (Identifier(Identifier32(persObj->m_channelID)),
+                            persObj->m_eneTower,
+                            persObj->m_timeAve,
+                            persObj->m_corrFactor,
+                            persObj->m_quality);
 }
 
 
 void
 TileTTL1CellCnv_p1::transToPers(const TileTTL1Cell* transObj, TileTTL1Cell_p1* persObj, MsgStream &/*log*/)
 {
-  persObj->m_channelID = transObj->m_ID.get_identifier32().get_compact();
+  persObj->m_channelID = transObj->identify().get_identifier32().get_compact();
 
   // Tower energy
-  persObj->m_eneTower = transObj->m_eneTower;
+  persObj->m_eneTower = transObj->eneTower();
 
   // Time average
-  persObj->m_timeAve = transObj->m_timeAve;
+  persObj->m_timeAve = transObj->timeAve();
 
   // Correction factor
-  persObj->m_corrFactor = transObj->m_corrFactor;
+  persObj->m_corrFactor = transObj->corrFactor();
 
   // quality factor
-  persObj->m_quality = transObj->m_quality;
+  persObj->m_quality = transObj->qualTower();
 
 }
