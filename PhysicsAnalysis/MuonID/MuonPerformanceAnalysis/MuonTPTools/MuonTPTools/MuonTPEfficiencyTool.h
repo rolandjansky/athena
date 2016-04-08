@@ -19,9 +19,9 @@
 #include "TrigMuonMatching/ITrigMuonMatching.h"
 
 class MuonTPEfficiencyTool
-: virtual public asg::AsgTool,
+: public asg::AsgTool,
   virtual public IMuonTPEfficiencyTool {
-  ASG_TOOL_CLASS(MuonTPEfficiencyTool, IMuonTPEfficiencyTool)
+//   ASG_TOOL_CLASS(MuonTPEfficiencyTool, IMuonTPEfficiencyTool)
     
 public:
   
@@ -32,8 +32,8 @@ public:
   virtual StatusCode initialize();
 
   /// Match probes for efficiency calculation
-  void matchProbes(ProbeContainer*, const xAOD::IParticleContainer*) const;
-
+  virtual void matchProbes(ProbeContainer*, const xAOD::IParticleContainer*) const =0;
+  
   /// dR-based matching
   virtual void dRMatching(ProbeContainer* probes, const xAOD::IParticleContainer* matches) const;
 
@@ -45,15 +45,22 @@ public:
   
   //  check for a trigger match (probe side)
   bool MatchTrigger (const xAOD::IParticle* match,  std::string trigger) const;
+  
+  // check if the tool represents a nominal matching
+  bool isNominal() const {return m_isNominal;}
+  
+  // return the triger item (if any configured)
+  std::string triggerItem() {return m_trigger_item;}
 
 protected:
 
   double m_matchPtCut; 
   double m_matchEtaCut;
-  bool m_dRMatching;
   double m_maximumDrCut;
   unsigned int m_muonAuthor;  
   std::string m_efficiencyFlag;
+  bool m_isNominal;
+  std::string m_trigger_item;
   ToolHandle<CP::IMuonSelectionTool> m_selection_tool;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_sf_tool;
   bool m_do_sf;

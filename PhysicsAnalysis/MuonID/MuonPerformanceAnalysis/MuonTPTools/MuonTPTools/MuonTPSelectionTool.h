@@ -15,23 +15,16 @@
 #include "AsgTools/ToolHandle.h"
 #include "MuonTPTools/IMuonTPSelectionTool.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "xAODTruth/TruthParticle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigMuonMatching/ITrigMuonMatching.h"
 #include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/AsgMetadataTool.h"
-
-//  for full athena, we also use the isolation tools
-# if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-#include "RecoToolInterfaces/ITrackIsolationTool.h"
-#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
-# endif
-
+#include "GoodRunsLists/IGoodRunsListSelectionTool.h"
 
 class MuonTPSelectionTool
-: virtual public asg::AsgTool,
+: public asg::AsgTool,
   virtual public IMuonTPSelectionTool {
-  ASG_TOOL_CLASS(MuonTPSelectionTool, IMuonTPSelectionTool)
+//   ASG_TOOL_CLASS(MuonTPSelectionTool, IMuonTPSelectionTool)
 
 public:
 
@@ -62,6 +55,9 @@ public:
   // helper method to select Truth probes
   bool isFinalStateTruthMuon(const xAOD::IParticle* part) const;
 
+  // helper to check if a probe is truth matched
+  bool isTruthMatched(const xAOD::IParticle* part) const;
+
   // select muons that 'probably' fired the trigger - workaround for 19.1 xAODs without trigger info!
   bool passDummyTrigger(const xAOD::Muon* tag) const;
 
@@ -73,9 +69,20 @@ public:
 
   // apply impact parameter cuts
   bool PassIPCuts(const xAOD::TrackParticle* probe, double d0cut, double d0signcut, double z0cut) const;
+  
+  // apply GRL
+  bool passGRL(const xAOD::EventInfo* info) const;
+  
+  // check if the tool represents a nominal selection
+  bool isNominal() const {return m_isNominal;}
+  
+  // check if the tool is a systematic variation that can not be evaluated using the nominal ntuples
+  virtual bool notIncludedInNominal() const {return m_isNotPartOfNominal;}
 
   virtual void AddCutFlowHist(MuonTPCutFlowBase* hist);
   virtual void FillCutFlows(std::string step, double weight =1.) const ;
+  
+  std::vector<std::string> tagTriggerList() const {return m_tag_Triggers;}
 
 protected:
 
@@ -86,19 +93,16 @@ protected:
   double m_probeEtaCut;
   double m_highMassWindow;
   double m_lowMassWindow;
+  bool m_isNominal;
+  bool m_isNotPartOfNominal;
   std::string m_efficiencyFlag;
   std::vector<std::string> m_tag_Triggers;
   ToolHandle<CP::IMuonSelectionTool> m_selection_tool;
   std::vector<MuonTPCutFlowBase*> m_cutFlows;
   ToolHandle<Trig::TrigDecisionTool> m_trigTool;
   ToolHandle<Trig::ITrigMuonMatching> m_matchTool;
+  ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
   
-# if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-  ToolHandle<xAOD::ITrackIsolationTool> m_track_iso_tool;
-  ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_calo_iso_tool;
-  std::vector<xAOD::Iso::IsolationType> m_track_iso_to_run;
-  std::vector<xAOD::Iso::IsolationType> m_calo_iso_to_run;
-#   endif
   
 
 };

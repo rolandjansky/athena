@@ -7,20 +7,25 @@ public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  AsgTools                   AsgTools-*                      Control/AthToolSupport
 use  xAODMuon                   xAODMuon-*                      Event/xAOD
-use  xAODTruth                  xAODTruth-*                     Event/xAOD
 use  xAODBase                   xAODBase-*                      Event/xAOD
 use  MuonPerformanceHistUtils   MuonPerformanceHistUtils-*      PhysicsAnalysis/MuonID/MuonPerformanceAnalysis
 use  MuonEfficiencyCorrections  MuonEfficiencyCorrections-*     PhysicsAnalysis/MuonID/MuonIDAnalysis
 use  MuonSelectorTools          MuonSelectorTools-*             PhysicsAnalysis/MuonID
 use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
-use  TrigMuonMatching         TrigMuonMatching-*                Trigger/TrigAnalysis
+use  TrigMuonMatching           TrigMuonMatching-*              Trigger/TrigAnalysis
 use  AtlasROOT                  AtlasROOT-*                     External
-use_ifndef pplist="XAOD_ANALYSIS" pkg="Reconstruction/RecoTools/RecoToolInterfaces" 
+use  GoodRunsLists              GoodRunsLists-*                 DataQuality
+# Put this back in once available
+##  use  IsolationSelection         IsolationSelection-*            PhysicsAnalysis/AnalysisCommon
 
 private
 use  GaudiInterface             GaudiInterface-*                External
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
-use  xAODTracking              xAODTracking-*                 Event/xAOD
+use  xAODEventShape             xAODEventShape-*                Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+use  xAODJet                    xAODJet-*                       Event/xAOD
+use  xAODTruth                  xAODTruth-*                     Event/xAOD
+use MCTruthClassifier           MCTruthClassifier-*             PhysicsAnalysis
 end_private
 
 public

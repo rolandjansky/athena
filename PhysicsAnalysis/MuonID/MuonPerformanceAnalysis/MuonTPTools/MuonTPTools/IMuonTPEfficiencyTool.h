@@ -23,6 +23,12 @@ public:
 
   /// Get Efficiency Flag
   virtual std::string efficiencyFlag() =0;
+  
+  // check if the tool represents a nominal run or a sys variation
+  virtual bool isNominal() const=0;
+
+  // return the triger item (if any configured)
+  virtual std::string triggerItem() =0;  
 };
 
 #endif

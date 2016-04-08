@@ -27,6 +27,14 @@ public:
 
   /// Get Efficiency Flag
   virtual std::string efficiencyFlag() =0;
+  
+  // check if the tool represents a nominal run or a sys variation
+  virtual bool isNominal() const=0;
+  
+  // check if the tool is a systematic variation that can not be evaluated using the nominal ntuples
+  virtual bool notIncludedInNominal() const=0;
+  
+  virtual std::vector<std::string> tagTriggerList() const = 0;
 
 };
 

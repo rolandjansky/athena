@@ -25,19 +25,19 @@ class IMuonTPEfficiencyTool;
 class IMuonTPTreeTool : virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMuonTPTreeTool)
 
-public:
+    public:
 
-	// used to initialize the required histos
-	 virtual StatusCode RegisterTrees (ToolHandleArray<IMuonTPSelectionTool> & probeTools, ToolHandleArray<IMuonTPEfficiencyTool> & effTools) = 0;
+  // used to initialize the required histos
+  virtual StatusCode RegisterTrees (ToolHandleArray<IMuonTPSelectionTool> & probeTools, ToolHandleArray<IMuonTPEfficiencyTool> & effTools) = 0;
 
-	 // fill the histos
-	 virtual void updateMatch(Probe& probe,ToolHandle <IMuonTPEfficiencyTool> eff_tool) = 0;
-    virtual void ForgetKnownProbes() = 0;
-     virtual void fill(Probe& probe,ToolHandle <IMuonTPSelectionTool> sel_tool) = 0;
-//      virtual void 
+  // fill the histos
+  virtual void updateMatch(Probe& probe,ToolHandle <IMuonTPEfficiencyTool> & eff_tool) = 0;
+  virtual void ForgetKnownProbes() = 0;
+  virtual void fill(Probe& probe,ToolHandle <IMuonTPSelectionTool> & sel_tool) = 0;
+  //      virtual void 
 
-	  /// retrieve booked histograms
-	  virtual std::vector< std::pair<TTree*, std::string> > retrieveBookedTrees() = 0;
+  /// retrieve booked histograms
+  virtual std::vector< std::pair<TTree*, std::string> > retrieveBookedTrees() = 0;
 };
 
 

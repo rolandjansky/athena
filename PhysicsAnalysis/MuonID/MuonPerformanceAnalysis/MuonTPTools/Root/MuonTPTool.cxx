@@ -7,16 +7,19 @@
 #include "MuonTPTools/IMuonTPSelectionTool.h"
 #include "MuonTPTools/IMuonTPEfficiencyTool.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "GaudiKernel/ITHistSvc.h"
+//#include "GaudiKernel/ITHistSvc.h"
 
 //**********************************************************************
 
 MuonTPTool::MuonTPTool(std::string myname)
 : AsgTool(myname),
-  m_histSvc("THistSvc", myname),
-  m_muonTPSelectionTools(),
-  m_muonTPEfficiencyTools(),
-  m_inefficient_evts(0)
+//     m_histSvc("THistSvc", myname),
+    m_muonTPSelectionTools(),
+    m_muonTPEfficiencyTools(),
+    m_inefficient_evts(0),
+    m_evt(-1),
+    m_run(-1),
+    m_centeta(false)
 {
     declareProperty("MuonTPSelectionTools",  m_muonTPSelectionTools);
     declareProperty("MuonTPEfficiencyTools", m_muonTPEfficiencyTools);
@@ -24,7 +27,6 @@ MuonTPTool::MuonTPTool(std::string myname)
     declareProperty("TreeTools",             m_TPTrees);
     declareProperty("EfficiencyFlag",        m_efficiencyFlag = "JPsiTP");
     declareProperty("DumpInefficientEvents", m_dump_inefficient = false);
-
     
 }
 
@@ -43,7 +45,7 @@ StatusCode MuonTPTool::initialize()
     ATH_CHECK(m_muonTPEfficiencyTools.retrieve());
     ATH_CHECK(m_TPPlots.retrieve());
     ATH_CHECK(m_TPTrees.retrieve());
-    ATH_CHECK(m_histSvc.retrieve());
+    //ATH_CHECK(m_histSvc.retrieve());
 
     if (m_dump_inefficient){
 
@@ -77,7 +79,7 @@ void MuonTPTool::runTagAndProbe(const xAOD::MuonContainer* tags, const xAOD::IPa
 
     const xAOD::EventInfo* info = 0;
     ATH_MSG_DEBUG(""<<evtStore());
-    if (evtStore()->retrieve(info).isFailure()){
+    if (evtStore()->retrieve(info, "EventInfo").isFailure()){
         ATH_MSG_FATAL( "Unable to retrieve Event Info" );
     }
     
@@ -98,6 +100,7 @@ void MuonTPTool::runTagAndProbe(const xAOD::MuonContainer* tags, const xAOD::IPa
             plots->fillCutFlow("Processed Events",1,tpSelTool);
             plots->fillCutFlow("Processed Events (Weight)",weight,tpSelTool);
         }
+        
         // Select probes
         ProbeContainer* probeCont = tpSelTool->selectProbes(tags, probes);
 
@@ -107,21 +110,22 @@ void MuonTPTool::runTagAndProbe(const xAOD::MuonContainer* tags, const xAOD::IPa
             }
         }
 
-        for(auto probe : *probeCont)
-	{
+        for(auto probe : *probeCont) {
             probe->HasSomeTrigger(false);
             probe->HasSomeTrigger_HLT(false);
-	}
+        }
         
-	// Loop on TP efficiencies for each selection
-        for(auto tpEffTool : m_muonTPEfficiencyTools)
-	{
+    // Loop on TP efficiencies for each selection
+        for(auto tpEffTool : m_muonTPEfficiencyTools){
+            // do not run 'double' variations
+            if (!tpEffTool->isNominal() && !tpSelTool->isNominal()) continue;
+            
             // Match probes
             tpEffTool->matchProbes(probeCont, matches);
 
             // Fill efficiency histograms
             for(auto probe : *probeCont)
-	    {
+            {
                 if (m_dump_inefficient && !probe->isMatched()){
                     ineff = true;
                     if (fabs(probe->eta()) > 0.1) m_centeta = false;
