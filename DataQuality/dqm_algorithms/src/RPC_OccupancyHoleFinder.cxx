@@ -116,9 +116,9 @@ dqm_algorithms::RPC_OccupancyHoleFinder::execute(	const std::string & name,
 	   if(ibinx ==13)chamber_name  = "BOL8DZ1";
 	  }
 	  else{ 
-	   if(ibinx == 1)chamber_name  = "BOG0DZ1";if(ibinx == 2)chamber_name  = "BOF1DZ1";if(ibinx == 3)chamber_name  = "BOF1DZ2";if(ibinx == 4)chamber_name  = "BOG1DZ1";if(ibinx == 5)chamber_name  = "BOF2DZ1";if(ibinx == 6)chamber_name  = "BOF2DZ2"; 
-	   if(ibinx == 7)chamber_name  = "BOG2DZ1";if(ibinx == 8)chamber_name  = "BOF3DZ1";if(ibinx == 9)chamber_name  = "BOF3DZ2";if(ibinx ==10)chamber_name  = "BOG3DZ1";if(ibinx ==11)chamber_name  = "BOF4DZ1";if(ibinx ==12)chamber_name  = "BOG4DZ1";
-	   if(ibinx >=13)continue; 
+	   if(ibinx == 1)chamber_name  = "BOF1DZ1";if(ibinx == 2)chamber_name  = "BOF1DZ2";if(ibinx == 3)chamber_name  = "BOF2DZ1";if(ibinx == 4)chamber_name  = "BOF2DZ2";if(ibinx == 5)chamber_name  = "BOF3DZ1"; 
+	   if(ibinx == 6)chamber_name  = "BOF3DZ2";if(ibinx == 7)chamber_name  = "BOF4DZ1";if(ibinx == 8)chamber_name  = "BOG0DZ1";if(ibinx == 9)chamber_name  = "BOG1DZ1";if(ibinx ==10)chamber_name  = "BOG2DZ1";
+	   if(ibinx ==11)chamber_name  = "BOG3DZ1";if(ibinx ==12)chamber_name  = "BOG4DZ1";if(ibinx >=13)continue; 
 	  }
 	 }
 	 else if ( Title.find("LowPt0_BA")!= std::string::npos  ||  Title.find("LowPt1_BA")!= std::string::npos ){ 
@@ -147,7 +147,7 @@ dqm_algorithms::RPC_OccupancyHoleFinder::execute(	const std::string & name,
 	   if(ibinx >=6)continue; 
 	  }
 	 }
-	 else if ( Title.find("Pivot0_BA")!= std::string::npos  ||  Title.find("Pivot1_BA")!= std::string::npos ){ 
+	 else if ( Title.find("Pivot0_BA")!= std::string::npos  ||  Title.find("Pivot1_BA")!= std::string::npos ||  Title.find("LowPt_BA")!= std::string::npos ||  Title.find("HighPt_BA")!= std::string::npos ){ 
 	  if(ibiny==1||ibiny==2||ibiny==5||ibiny==6||ibiny==9||ibiny==10){ 
 	   if(ibinx == 1)chamber_name  = "BML1DZ1";if(ibinx == 2)chamber_name  = "BML1DZ2";if(ibinx == 3)chamber_name  = "BML2DZ1";if(ibinx == 4)chamber_name  = "BML2DZ2";if(ibinx == 5)chamber_name  = "BML3DZ1";if(ibinx == 6)chamber_name  = "BML3DZ2"; 
 	   if(ibinx == 7)chamber_name  = "BML4DZ1";if(ibinx == 8)chamber_name  = "BML5DZ1";if(ibinx == 9)chamber_name  = "BML6DZ1";if(ibinx ==10)chamber_name  = "BML6DZ2";if(ibinx ==11)chamber_name  = "BML7DZ1";
@@ -191,9 +191,9 @@ dqm_algorithms::RPC_OccupancyHoleFinder::execute(	const std::string & name,
 	   if(ibinx ==13)chamber_name  = "BOL8DZ1";
 	  }
 	  else{ 
-	   if(ibinx == 1)chamber_name  = "BOF1DZ1";if(ibinx == 2)chamber_name  = "BOF1DZ2";if(ibinx == 3)chamber_name  = "BOG1DZ1";if(ibinx == 4)chamber_name  = "BOF2DZ1";if(ibinx == 5)chamber_name  = "BOF2DZ2"; 
-	   if(ibinx == 6)chamber_name  = "BOG2DZ1";if(ibinx == 7)chamber_name  = "BOF3DZ1";if(ibinx == 8)chamber_name  = "BOF3DZ2";if(ibinx == 9)chamber_name  = "BOG3DZ1";if(ibinx ==10)chamber_name  = "BOF4DZ1";if(ibinx ==11)chamber_name  = "BOG4DZ1";
-	   if(ibinx >=12)continue; 
+	   if(ibinx == 1)chamber_name  = "BOF1DZ1";if(ibinx == 2)chamber_name  = "BOF1DZ2";if(ibinx == 3)chamber_name  = "BOF2DZ1";if(ibinx == 4)chamber_name  = "BOF2DZ2";if(ibinx == 5)chamber_name  = "BOF3DZ1"; 
+	   if(ibinx == 6)chamber_name  = "BOF3DZ2";if(ibinx == 7)chamber_name  = "BOF4DZ1";if(ibinx == 8)chamber_name  = "BOG1DZ1";if(ibinx == 9)chamber_name  = "BOG2DZ1";
+	   if(ibinx ==10)chamber_name  = "BOG3DZ1";if(ibinx ==11)chamber_name  = "BOG4DZ1";if(ibinx >=12)continue; 
 	  }
 	 }
 	 else if ( Title.find("LowPt0_BC")!= std::string::npos  ||  Title.find("LowPt1_BC")!= std::string::npos ){ 
@@ -222,7 +222,7 @@ dqm_algorithms::RPC_OccupancyHoleFinder::execute(	const std::string & name,
 	   if(ibinx >=6)continue; 
 	  }
 	 }
-	 else if ( Title.find("Pivot0_BC")!= std::string::npos  ||  Title.find("Pivot1_BC")!= std::string::npos ){ 
+	 else if ( Title.find("Pivot0_BC")!= std::string::npos  ||  Title.find("Pivot1_BC")!= std::string::npos ||  Title.find("LowPt_BC")!= std::string::npos ||  Title.find("HighPt_BC")!= std::string::npos ){ 
 	  if(ibiny==5||ibiny==6||ibiny==9||ibiny==10){ 
 	   if(ibinx == 1)chamber_name  = "BML1DZ1";if(ibinx == 2)chamber_name  = "BML1DZ2";if(ibinx == 3)chamber_name  = "BML2DZ1";if(ibinx == 4)chamber_name  = "BML2DZ2";if(ibinx == 5)chamber_name  = "BML3DZ1";if(ibinx == 6)chamber_name  = "BML3DZ2"; 
 	   if(ibinx == 7)chamber_name  = "BML4DZ1";if(ibinx == 8)chamber_name  = "BML5DZ1";if(ibinx == 9)chamber_name  = "BML6DZ1";if(ibinx ==10)chamber_name  = "BML6DZ2";if(ibinx ==11)chamber_name  = "BML7DZ1";
@@ -253,9 +253,10 @@ dqm_algorithms::RPC_OccupancyHoleFinder::execute(	const std::string & name,
 	  
 	  //FORTMAT BMS4A10.Piv.Dp0.Ly0.Dz2.eta 
 	  
-	  std::string sector_name  = getChamberName(histo, ibiny)    ;   
+	  std::string  sector_name  = getChamberName(histo, ibiny)    ;   
 	  std::string  chamber ;
 	  std::string  sector  ;
+	  std::string  secnum  ;
 	  std::string  layer   ;
 	  std::string  dphi    ;
 	  std::string  gap     ;
@@ -263,15 +264,24 @@ dqm_algorithms::RPC_OccupancyHoleFinder::execute(	const std::string & name,
 	  std::string  view    ;
 	  std::string  dot =".";	  
           if ( Title.find("Eta")!= std::string::npos ) view = "eta" ;
-          if ( Title.find("Phi")!= std::string::npos ) view = "phi" ;
-          if ( sector_name.find("HV")!= std::string::npos ) dphi = "DP1" ;
-          if ( sector_name.find("RO")!= std::string::npos ) dphi = "DP2" ;
-          if ( Title.find("HighPt0")!= std::string::npos ) { layer = ".CO." ; gap = ".Ly0.";}
-          if ( Title.find("HighPt1")!= std::string::npos ) { layer = ".CO." ; gap = ".Ly1.";}
-          if ( Title.find("LowPt0")!= std::string::npos )  { layer = ".CO." ; gap = ".Ly0.";}
-          if ( Title.find("LowPt1")!= std::string::npos )  { layer = ".CO." ; gap = ".Ly1.";}
-          if ( Title.find("Pivot0")!= std::string::npos )  { layer = ".PI." ; gap = ".Ly0.";}
-          if ( Title.find("Pivot1")!= std::string::npos )  { layer = ".PI." ; gap = ".Ly1.";}
+          if ( Title.find("Phi")!= std::string::npos ) view = "phi" ;	  
+	  secnum  = sector_name.substr (1,2);
+          if ( sector_name.find("HV")!= std::string::npos ){ 
+	   dphi = "DP1" ;
+	   if(secnum=="02"||secnum=="04"||secnum=="06"||secnum=="08"||secnum=="10"||secnum=="12"||secnum=="14"||secnum=="16")dphi = "DP2" ;
+	  } 
+          else if ( sector_name.find("RO")!= std::string::npos ){  
+	   dphi = "DP2" ;
+	   if(secnum=="02"||secnum=="04"||secnum=="06"||secnum=="08"||secnum=="10"||secnum=="12"||secnum=="14"||secnum=="16")dphi = "DP1" ;
+	  } 
+	  if ( Title.find("HighPt0") != std::string::npos )  { layer = ".CO." ; gap = ".Ly0.";}
+          if ( Title.find("HighPt1") != std::string::npos )  { layer = ".CO." ; gap = ".Ly1.";}
+          if ( Title.find("LowPt0")  != std::string::npos )  { layer = ".CO." ; gap = ".Ly0.";}
+          if ( Title.find("LowPt1")  != std::string::npos )  { layer = ".CO." ; gap = ".Ly1.";}
+          if ( Title.find("Pivot0")  != std::string::npos )  { layer = ".PI." ; gap = ".Ly0.";}
+          if ( Title.find("Pivot1")  != std::string::npos )  { layer = ".PI." ; gap = ".Ly1.";}
+          if ( Title.find("LowPt_")  != std::string::npos )  { layer = "." ; gap = ".";}
+          if ( Title.find("HighPt_") != std::string::npos )  { layer = "." ; gap = ".";}
    
 	  sector  = sector_name.substr (0,3);
 	  dzeta   = chamber_name; dzeta.erase(0,4);
