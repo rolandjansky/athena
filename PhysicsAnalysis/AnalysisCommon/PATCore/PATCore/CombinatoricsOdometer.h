@@ -50,12 +50,6 @@ and "jet" container has 4 elements, "lepton" 2, and "bjet" 2, then
 
 ********************************************************************/
 
-#ifdef ROOTCORE
-#include <RootCore/Packages.h>
-#endif
-
-#if !defined(ROOTCORE) || defined(ROOTCORE_PACKAGE_AthContainers)
-
 #include <map>
 #include <set>
 #include <string>
@@ -144,7 +138,5 @@ public:
   virtual bool increment();
 private:
 };
-
-#endif
 
 #endif

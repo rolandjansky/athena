@@ -8,6 +8,4 @@
     <class name="IAthCalculatorTool" />
     <class name="IUserDataCalcTool" />
     <class name="IAthHistogramTool" />
-    <class name="IAsgSelectionTool" />
-    <class name="IAsgSelectionWithVertexTool" />
 </lcgdict>
