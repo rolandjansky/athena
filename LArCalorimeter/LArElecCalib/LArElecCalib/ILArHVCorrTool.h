@@ -36,6 +36,8 @@ class ILArHVCorrTool: virtual public IAlgTool {
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) = 0;
  
   virtual StatusCode record() = 0;
+
+  virtual bool updateOnLastCallback() const = 0 ;
   
 };
 
