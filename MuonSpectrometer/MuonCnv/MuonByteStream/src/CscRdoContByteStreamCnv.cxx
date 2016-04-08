@@ -52,8 +52,8 @@ const CLID& CscRdoContByteStreamCnv::classID()
 // initialize
 StatusCode CscRdoContByteStreamCnv::initialize() 
 {
-    MsgStream log(msgSvc(), const_cnvName);
-    log << MSG::DEBUG<< " initialize " <<endmsg; 
+    MsgStream log(messageService(), const_cnvName);
+    log << MSG::DEBUG<< " initialize " <<endreq; 
 
     std::cout <<"CscRdoContByteStreamCnv::initialize"<<std::endl;
   // initialize base class
@@ -64,20 +64,20 @@ StatusCode CscRdoContByteStreamCnv::initialize()
   // get ByteStreamEventAccess interface
     if (m_byteStreamEventAccess.retrieve().isFailure())
     {
-        log << MSG::ERROR << " Can't get ByteStreamEventAccess interface" << endmsg;
+        log << MSG::ERROR << " Can't get ByteStreamEventAccess interface" << endreq;
         return StatusCode::FAILURE;
     }
 
   // retrieve Tool
     if(m_tool.retrieve().isFailure())
     {
-        log << MSG::ERROR << " Can't get ByteStreamTool " << endmsg;
+        log << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
         return StatusCode::FAILURE;
     }
 
     if(m_storeGate.retrieve().isFailure())
     {
-        log << MSG::ERROR << " Can't get StoreGateSvc" << endmsg;
+        log << MSG::ERROR << " Can't get StoreGateSvc" << endreq;
         return StatusCode::FAILURE;
     }
 
@@ -88,7 +88,7 @@ StatusCode CscRdoContByteStreamCnv::initialize()
 StatusCode
 CscRdoContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
 {
-   MsgStream log(msgSvc(), const_cnvName);
+   MsgStream log(messageService(), const_cnvName);
 
    // get Raw Event data
    RawEventWrite* re = m_byteStreamEventAccess->getRawEvent();  
@@ -98,7 +98,7 @@ CscRdoContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
    StoreGateSvc::fromStorable(pObj, cont);
    if (!cont)
      {
-       log << MSG::ERROR << " Can not cast to CscRawDataContainer" << endmsg; 
+       log << MSG::ERROR << " Can not cast to CscRawDataContainer" << endreq; 
        return StatusCode::FAILURE;    
      } 
 

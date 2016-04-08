@@ -47,8 +47,8 @@ return ClassID_traits<MdtCsmContainer>::ID() ;
 
 
 StatusCode MdtCsmContByteStreamCnv::initialize() {
-   MsgStream log(msgSvc(), "MdtCsmContByteStreamCnv");
-   log << MSG::DEBUG<< " initialize " <<endmsg; 
+   MsgStream log(messageService(), "MdtCsmContByteStreamCnv");
+   log << MSG::DEBUG<< " initialize " <<endreq; 
 
 
    // initialize base class
@@ -59,20 +59,20 @@ StatusCode MdtCsmContByteStreamCnv::initialize() {
    // get ByteStreamEventAccess interface
      if (m_byteStreamEventAccess.retrieve().isFailure())
      {
-         log << MSG::ERROR << " Can't get ByteStreamEventAccess interface" << endmsg;
+         log << MSG::ERROR << " Can't get ByteStreamEventAccess interface" << endreq;
          return StatusCode::FAILURE;
      }
 
    // retrieve Tool
      if(m_tool.retrieve().isFailure())
      {
-         log << MSG::ERROR << " Can't get ByteStreamTool " << endmsg;
+         log << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
          return StatusCode::FAILURE;
      }
 
      if(m_storeGate.retrieve().isFailure())
      {
-         log << MSG::ERROR << " Can't get StoreGateSvc" << endmsg;
+         log << MSG::ERROR << " Can't get StoreGateSvc" << endreq;
          return StatusCode::FAILURE;
      }
 
@@ -83,14 +83,14 @@ StatusCode MdtCsmContByteStreamCnv::initialize() {
  StatusCode 
 MdtCsmContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
    // convert Mdt Csm in the container into ByteStream
-   MsgStream log(msgSvc(), "MdtCsmContByteStreamCnv");
+   MsgStream log(messageService(), "MdtCsmContByteStreamCnv");
 
    RawEventWrite* re = m_byteStreamEventAccess->getRawEvent();  
 
    MdtCsmContainer* cont=NULL ; 
    StoreGateSvc::fromStorable(pObj, cont ); 
    if(!cont) {
-     log << MSG::ERROR << " Can not cast to MdtCsmContainer " << endmsg ; 
+     log << MSG::ERROR << " Can not cast to MdtCsmContainer " << endreq ; 
      return StatusCode::FAILURE;    
    } 
 

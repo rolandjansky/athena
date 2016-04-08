@@ -50,8 +50,8 @@ const CLID& TgcRdoContByteStreamCnv::classID()
 // initialize
 StatusCode TgcRdoContByteStreamCnv::initialize() 
 {
-      MsgStream log(msgSvc(), const_cnvName);
-      log << MSG::DEBUG<< " initialize " <<endmsg; 
+      MsgStream log(messageService(), const_cnvName);
+      log << MSG::DEBUG<< " initialize " <<endreq; 
 
     // initialize base class
       StatusCode sc = Converter::initialize(); 
@@ -61,20 +61,20 @@ StatusCode TgcRdoContByteStreamCnv::initialize()
     // get ByteStreamEventAccess interface
       if (m_byteStreamEventAccess.retrieve().isFailure())
       {
-          log << MSG::ERROR << " Can't get ByteStreamEventAccess interface" << endmsg;
+          log << MSG::ERROR << " Can't get ByteStreamEventAccess interface" << endreq;
           return StatusCode::FAILURE;
       }
 
     // retrieve Tool
       if(m_tool.retrieve().isFailure())
       {
-          log << MSG::ERROR << " Can't get ByteStreamTool " << endmsg;
+          log << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
           return StatusCode::FAILURE;
       }
 
       if(m_storeGate.retrieve().isFailure())
       {
-          log << MSG::ERROR << " Can't get StoreGateSvc" << endmsg;
+          log << MSG::ERROR << " Can't get StoreGateSvc" << endreq;
           return StatusCode::FAILURE;
       }
 
@@ -85,7 +85,7 @@ StatusCode TgcRdoContByteStreamCnv::initialize()
 StatusCode
 TgcRdoContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
 {
-   MsgStream log(msgSvc(), const_cnvName);
+   MsgStream log(messageService(), const_cnvName);
 
    // get Raw Event data
    RawEventWrite* re = m_byteStreamEventAccess->getRawEvent();  
@@ -95,7 +95,7 @@ TgcRdoContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
    StoreGateSvc::fromStorable(pObj, cont);
    if (!cont)
      {
-       log << MSG::ERROR << " Can not cast to TgcRdoContainer" << endmsg; 
+       log << MSG::ERROR << " Can not cast to TgcRdoContainer" << endreq; 
        return StatusCode::FAILURE;    
      } 
 
