@@ -125,18 +125,6 @@
       </expectations>
     </TEST>
 
-    <TEST name="G4ZLeptonsConeSticky_FatrasID_FastCalo_2evts" type="script" >
-      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'G4ZLeptonsConeSticky_FatrasID_FastCalo' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.129680.PowhegPythia8_AU2CT10_Zee_DiLeptonFilter.evgen.EVNT.01232556._002731.pool.root.1 --outputHITSFile "Hits.pool.root"</options_atn>
-      <timelimit>30</timelimit>
-      <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
-      <mailto>atlas-simulation-testreports@cern.ch</mailto>
-      <expectations>
-        <errorMessage>FAILURE</errorMessage>
-        <successMessage>leaving with code 0</successMessage>
-        <returnValue>0</returnValue>
-      </expectations>
-    </TEST>
-
     <TEST name="G4ZDecayProducts_FatrasID_FastCalo_2evts" type="script" >
       <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'G4ZDecayProducts_FatrasID_FastCalo' --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEVNTFile /afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.129680.PowhegPythia8_AU2CT10_Zee_DiLeptonFilter.evgen.EVNT.01232556._002731.pool.root.1 --outputHITSFile "Hits.pool.root"</options_atn>
       <timelimit>30</timelimit>
@@ -182,8 +170,60 @@
         <displayProcess>Simul</displayProcess>
         <displayComponent>Athena-Core</displayComponent>
       </classification>
+
       <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-         %%                           Geant4 ttbar
+          %%                FullG4 ttbar (MC15 production setup)
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        -->
+      <chain>
+        <chainName>SimulationTest_FullG4_ttbar</chainName>
+        <abortOnError />
+        <sequential>
+
+          <chainElement>
+            <jobTransform userJobId="FullG4_ttbar_1sim">
+              <doc>Test detector functionality for ISF FullG4 using ttbar events</doc>
+              <jobTransformJobName>FullG4_ttbar_1sim</jobTransformJobName>
+              <jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4' --postInclude 'default:RecJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 4</jobTransformCmd>
+              <group>ISF_Validation_sim</group>
+              <queue>medium</queue>
+
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>MC15/dcube-G4_ttbar_1sim.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>MC15/G4_ttbar_1sim.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+                <keepFilePattern>DCube-MC15/G4_ttbar_1sim.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
+              </test>
+            </jobTransform>
+          </chainElement>
+
+          <chainElement>
+            <jobTransform userJobId="FullG4_ttbar_1sim_Reg">
+              <doc>Regression test between releases</doc>
+              <jobTransformJobName>FullG4_ttbar_1sim_Reg</jobTransformJobName>
+              <jobTransformCmd>sim_reg_test.py FullG4_ttbar_1sim truth.root Hits.pool.root</jobTransformCmd>
+              <group>ISF_Validation_HitsRegressionTests</group>
+              <queue>short</queue>
+            </jobTransform>
+          </chainElement>
+
+        </sequential>
+      </chain>
+
+      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         %%                           Geant4 ttbar (will soon be depricated)
          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         -->
       <chain>
@@ -234,7 +274,7 @@
       </chain>
 
        <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-         %%                           Geant4 ttbar (MC15 Truth Strategy)
+         %%                           Geant4 ttbar (MC15 Truth Strategy) (will soon be depricated)
          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         -->
       <chain>
@@ -335,9 +375,196 @@
         </sequential>
       </chain>
 
+     <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         %%         FullG4 Minbias FullChain (MC15 production setup)
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        -->
+      <chain>
+        <chainName>FullChainTest_FullG4_minbias</chainName>
+        <abortOnError />
+        <sequential>
+
+          <chainElement>
+            <jobTransform userJobId="FullG4_minbias_1sim">
+              <doc>Tests detector functionality for ISF FullG4 truth and beam transformation using minbias events in the innerdetector</doc>
+              <jobTransformJobName>FullG4_minbias_1sim</jobTransformJobName>
+              <jobTransformCmd>
+                  Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4' --postInclude 'default:RecJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.evgen.EVNT.e3099.01517253._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 50
+              </jobTransformCmd>
+              <group>ISF_Validation_sim</group>
+              <queue>medium</queue>
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <!-- need to update this for minbias and minbias above -->
+                  <argvalue>MC15/dcube-G4_minbias_1sim.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>MC15/G4_minbias_1sim.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+                <keepFilePattern>DCube-MC15/G4_minbias_1sim.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
+              </test>
+            </jobTransform>
+            <chainfileout>
+              Hits.pool.root
+            </chainfileout>
+          </chainElement>
+
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="FullG4_minbias_1sim_Reg">
+                <doc>Regression test between releases</doc>
+                <jobTransformJobName>FullG4_minbias_1sim_Reg</jobTransformJobName>
+                <jobTransformCmd>
+                    sim_reg_test.py FullG4_minbias_1sim truth.root Hits.pool.root
+                </jobTransformCmd>
+
+                <group>ISF_Validation_HitsRegressionTests</group>
+                <queue>short</queue>
+              </jobTransform>
+            </chainElement>
+            <chainElement>
+              <jobTransform userJobId="FullG4_minbias_1sim_Compare_MCProd_G4">
+                <doc>comparison to ISF references</doc>
+                <jobTransformJobName>FullG4_minbias_1sim_Compare_MCProd_G4</jobTransformJobName>
+                <jobTransformCmd>
+                    sim_reg_test.py FullG4_minbias_1sim
+                </jobTransformCmd>
+
+                <group>ISF_Validation</group>
+                <queue>short</queue>
+                <test position="1">
+                  <modulename>RttLibraryTools</modulename>
+                  <testname>DCubeRunner</testname>
+                  <arg>
+                    <argname>DCubeCfg</argname>
+                    <argvalue>MCProd/minbias_G4_50evt.truth.root.xml</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeRef</argname>
+                    <argvalue>MCProd/minbias_G4_50evt.truth.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>DCubeMon</argname>
+                    <argvalue>today.root</argvalue>
+                  </arg>
+                  <keepFilePattern>DCube-MCProd/minbias_G4_50evt.truth.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
+                </test>
+                <testToRemove>
+                  <jobGroupName>RTT:Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+            <sequential>
+              <chainElement>
+                <jobTransform userJobId="FullG4_minbias_2merge">
+                  <doc>HITS merge job</doc>
+                  <jobTransformJobName>FullG4_minbias_2merge</jobTransformJobName>
+                  <jobTransformCmd>
+                      HITSMerge_tf.py --inputHITSFile='Hits.pool.root' --outputHITS_MRGFile='Merge.pool.root' --maxEvents=50 --skipEvents='0' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-19'
+                  </jobTransformCmd>
+                  <group>ISF_Validation</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>Hits.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>short</queue>
+                  <batchWallTime>300</batchWallTime>
+                </jobTransform>
+                <chainfileout>
+                  Merge.pool.root
+                </chainfileout>
+              </chainElement>
+              <!-- Run Digitisation -->
+              <chainElement>
+                <jobTransform userJobId="FullG4_minbias_3digi">
+
+                  <doc>Digitiziation without pile-up, with additional modifications for AFII inputs.</doc>
+                  <jobTransformJobName>FullG4_minbias_3digi</jobTransformJobName>
+
+                  <jobTransformCmd>
+                    Digi_tf.py --inputHITSFile 'Merge.pool.root' --outputRDOFile 'RDO.pool.root' --maxEvents '50' --skipEvents '0' --geometryVersion 'ATLAS-R2-2015-03-01-00' --digiSeedOffset1 '123456' --digiSeedOffset2 '2345678' --postInclude 'PyJobTransforms/UseFrontier.py' --AddCaloDigi 'False' --conditionsTag 'OFLCOND-RUN12-SDR-31'
+                  </jobTransformCmd>
+
+                  <group>ISF_Validation</group>
+
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>Merge.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.HITS.pool.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+
+                  <queue>short</queue>
+                  <batchWallTime>300</batchWallTime>
+                </jobTransform>
+                <chainfileout>RDO.pool.root</chainfileout>
+              </chainElement>
+
+              <!-- Run Reconstruction -->
+              <chainElement>
+                <jobTransform userJobId="FullG4_minbias_4reco">
+                  <doc>reco</doc>
+                  <jobTransformJobName>FullG4_minbias_4reco</jobTransformJobName>
+                  <jobTransformCmd>
+                    Reco_tf.py --inputRDOFile 'RDO.pool.root' --outputESDFile 'ESD.pool.root' --maxEvents '50' --skipEvents '0' --preInclude 'ISF_Example/preInclude.IDonly_reconstruction.py'
+                  </jobTransformCmd>
+                  <group>ISF_Validation</group>
+                  <chaindataset_info>
+                    <jobTransformData/>
+                    <chaindatasetName>RDO.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData/>
+                      <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.RDO.pool.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>short</queue>
+                  <batchWallTime>300</batchWallTime>
+                  <test position="1">
+                    <modulename>RttLibraryTools</modulename>
+                    <testname>DCubeRunner</testname>
+                    <arg>
+                      <argname>DCubeCfg</argname>
+                      <argvalue>MCProd/InDetStandardPlots.root.xml</argvalue>
+                    </arg>
+                    <arg>
+                      <argname>DCubeRef</argname>
+                      <argvalue>MCProd/minbias_G4_50evt.InDetStandardPlots.root</argvalue>
+                    </arg>
+                    <arg>
+                      <argname>DCubeMon</argname>
+                      <argvalue>InDetStandardPlots.root</argvalue>
+                    </arg>
+                    <keepFilePattern>DCube-MCProd/minbias_G4_50evt.InDetStandardPlots.root/InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+                    <noalarm />
+                  </test>
+                </jobTransform>
+                <chainfileout>AOD.pool.root</chainfileout>
+              </chainElement>
+            </sequential>
+          </parallel>
+        </sequential>
+      </chain>
+
 
      <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-         %%                     Geant4 Minbias FullChain
+         %%                     Geant4 Minbias FullChain (will soon be depricated)
          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         -->
       <chain>
