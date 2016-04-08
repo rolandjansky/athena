@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1CaloTriggerTowerDecoratorAlg.cxx 681987 2015-07-10 00:16:05Z morrisj $
+// $Id: L1CaloTriggerTowerDecoratorAlg.cxx 684325 2015-07-20 13:47:57Z amazurov $
 
 // TrigT1 common definitions
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"

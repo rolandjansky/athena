@@ -105,7 +105,7 @@ double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const xAOD::Trigger
     std::vector<float> CaloEnergyLayers;
     float caloEnergy = 0.;
     float ttCpEnergy;
-    ttCpEnergy=trigTower->jepET();
+    ttCpEnergy=trigTower->cpET();
 
     if (ttCpEnergy <= m_EtMin) return -1000.;
     if ( trigTower->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer") ) {
