@@ -26,7 +26,7 @@ namespace xAODMaker {
     declareProperty( "xAODContainerName", m_xaodContainerName = "Muons" );
     declareProperty( "xAODInDetTrackParticleContainerName", m_inDetTrackParticles = "InDetTrackParticles" );
     declareProperty( "xAODSATrackParticleContainerName", m_saTrackParticles = "ExtrapolatedMuonTrackParticles" );
-    declareProperty( "xAODCombinedTrackParticleContainerName", m_cbTrackParticles = "CombinedMuonTrackParticles" );
+    declareProperty( "xAODCombinedTrackParticleContainerName", m_cbTrackParticles = "" );
   }
 
   StatusCode MuonCnvAlg::initialize() {
@@ -210,7 +210,10 @@ namespace xAODMaker {
   
   ElementLink<xAOD::TrackParticleContainer> MuonCnvAlg::getNewLink(const ElementLink<Rec::TrackParticleContainer>& oldLink, const std::string& name) const{
     ElementLink<xAOD::TrackParticleContainer> newLink;
-    newLink.resetWithKeyAndIndex( name, oldLink.index() );
+    std::string destname = name;
+    if (destname.empty())
+      destname = oldLink.dataID();
+    newLink.resetWithKeyAndIndex( destname, oldLink.index() );
     ATH_MSG_VERBOSE("MuonCnvAlg::getNewLink - Old link is "<<(oldLink.isValid()?"VALID":"INVALID")<< " with SGKey = "<<oldLink.dataID()<< " & index = "<<oldLink.index()
              <<" and new link is "<<(newLink.isValid()?"VALID":"INVALID")<< " with SGKey = "<<newLink.dataID()<< " & index = "<<newLink.index());
     return newLink;
