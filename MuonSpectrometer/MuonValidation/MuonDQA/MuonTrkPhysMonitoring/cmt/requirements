@@ -1,0 +1,51 @@
+package MuonTrkPhysMonitoring
+
+manager Nectarios Ch. Benekos <Nectarios.Benekos@cern.ch>
+author  Nectarios Ch. Benekos <Nectarios.Benekos@cern.ch>
+
+branches src cmt doc
+branches run
+
+use     AtlasPolicy             AtlasPolicy-*
+private
+use     GaudiInterface          GaudiInterface-*         External
+
+
+##use     AsgTools                AsgTools-*               Control/AthToolSupport
+#use     AthenaMonitoring        AthenaMonitoring-*       Control
+#use     AtlasROOT               AtlasROOT-*              External
+#use     EventPrimitives         EventPrimitives-*        Event
+#use     FourMomUtils            FourMomUtils-*           Event
+#use     GeoPrimitives           GeoPrimitives-*          DetectorDescription
+#use     MuonIdHelpers           MuonIdHelpers-*          MuonSpectrometer
+#use     MuonRecHelperTools      MuonRecHelperTools-*     MuonSpectrometer/MuonReconstruction/MuonRecTools
+#use     MuonRecToolInterfaces   MuonRecToolInterfaces-*  MuonSpectrometer/MuonReconstruction/MuonRecTools
+
+
+##use     MuonHistUtils           MuonHistUtils-*          MuonSpectrometer/MuonValidation/MuonHistogramming 
+#use     MuonSelectorTools       MuonSelectorTools-*      PhysicsAnalysis/MuonID 
+#use     MuonResonanceTools      MuonResonanceTools-*     PhysicsAnalysis/MuonID/MuonPerformanceAnalysis 
+##use     MuonCombinedToolInterfaces  MuonCombinedToolInterfaces-*    Reconstruction/MuonIdentification
+
+
+##use     TrkParameters           TrkParameters-*          Tracking/TrkEvent
+#use     TrkToolInterfaces       TrkToolInterfaces-*      Tracking/TrkTools
+##use     TrkTrack                TrkTrack-*               Tracking/TrkEvent
+##use     TrkTrackSummary         TrkTrackSummary-*        Tracking/TrkEvent
+#use     TrkValHistUtils	        TrkValHistUtils-*      	 Tracking/TrkValidation
+#use     xAODEventInfo           xAODEventInfo-*          Event/xAOD
+#use     xAODMuon                xAODMuon-*               Event/xAOD
+
+# build a component library
+
+library MuonTrkPhysMonitoring *.cxx components/*.cxx
+
+apply_pattern declare_joboptions files="-s=../share *.py"
+apply_pattern component_library
+apply_pattern declare_runtime
+apply_tag ROOTBasicLibs
+apply_tag ROOTMathLibs
+apply_tag ROOTSTLDictLibs
+apply_tag ROOTGraphicsLibs
+apply_tag ROOTTableLibs
+ 
