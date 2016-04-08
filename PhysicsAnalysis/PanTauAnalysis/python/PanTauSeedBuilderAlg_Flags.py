@@ -46,7 +46,7 @@ class ContainerName_tauRec(JobProperty):
     """Name of SG container with tauRec taus"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = "TauRecContainer"
+    StoredValue  = "TauJets"
 
 class ContainerName_PrimaryVertices(JobProperty):
     """Name of SG container with primary vertices"""

@@ -7,6 +7,31 @@ from PanTauAnalysis.Class_InformationHandler import InformationHandler
 infoHandler = InformationHandler()
 
 
+# copy the configuration from cellbased if requested
+from PanTauAnalysis.Config_PanTau import config_PanTau
+from tauRec.tauRecFlags import jobproperties as config_TauRec
+if config_PanTau.UseDefaultCellBasedConfig == True:
+    
+    # pi0-BDT cuts
+    config_PanTau.CellBased_EtaBinned_Pi0MVACut_1prong.set_Value_and_Lock( config_TauRec.tauRecFlags.pi0MVACuts_1prong() )
+    config_PanTau.CellBased_EtaBinned_Pi0MVACut_3prong.set_Value_and_Lock( config_TauRec.tauRecFlags.pi0MVACuts_mprong() )
+    
+    # Et cuts
+    config_PanTau.TauConstituents_Selection_Neutral_EtaBinned_EtCut.set_Value_and_Lock( config_TauRec.tauRecFlags.pi0EtCuts() )
+    config_PanTau.TauConstituents_Selection_Pi0Neut_EtaBinned_EtCut.set_Value_and_Lock( config_TauRec.tauRecFlags.pi0EtCuts() )
+    
+    #print(config_PanTau.CellBased_EtaBinned_Pi0MVACut_1prong)
+    #print(config_PanTau.CellBased_EtaBinned_Pi0MVACut_3prong)
+    #print(config_PanTau.TauConstituents_Selection_Neutral_EtaBinned_EtCut)
+    #print(config_PanTau.TauConstituents_Selection_Pi0Neut_EtaBinned_EtCut)
+    
+    # Placeholder for future config
+    #config_PanTau.foobar.set_Value_And_Lock( config_TauRec. )
+    
+#end
+
+
+
 # Create tools
 # ==================================================================
 from AthenaCommon.AppMgr import ToolSvc

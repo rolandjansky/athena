@@ -94,7 +94,7 @@ class JetValidating:
         
         # Containers
         tauValAthEx.TruthParticleContainer = "SpclMC"
-        tauValAthEx.TauJetContainer        = "TauRecContainer"
+        tauValAthEx.TauJetContainer        = "TauJets"
         tauValAthEx.JetContainer           = "Cone4TruthJets"
         tauValAthEx.JetRecContainer        = "Cone4H1TopoJets"
         tauValAthEx.EleContainer           = "ElectronAODCollection"

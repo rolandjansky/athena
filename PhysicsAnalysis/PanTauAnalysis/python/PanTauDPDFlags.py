@@ -14,7 +14,7 @@
 """
 
 __author__ = "S.Fleischmann"
-__version__= "$Revision: 487621 $"
+__version__= "$Revision: 630996 $"
 __doc__    = "PanTauDPDFlags"
 
 __all__    = [ "panTauDPDFlags" ]
@@ -80,7 +80,7 @@ class EventSelTauSGKey(JobProperty):
     """Event Selection: Key of tau SG container"""
     statusON     = True
     allowedTypes = ['str']
-    StoredValue  = 'TauRecContainer'
+    StoredValue  = 'TauJets'
 
 ##-----------------------------------------------------------------------------
 ## 2nd step

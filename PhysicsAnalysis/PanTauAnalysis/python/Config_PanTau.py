@@ -40,6 +40,13 @@ import AthenaCommon.SystemOfUnits as Units
 ### Boolean values
 ### /////////////////////////
 
+class UseDefaultCellBasedConfig(JobProperty):
+    """ If this is true, the configuration for pi0s will be copied from cellbased"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
+
 class EnableXAODMigrationHacks(JobProperty):
     """ IMPORTANT NOTE: This needs to be set to false once the xAOD EDM works fine """
     statusOn     = True
@@ -121,39 +128,37 @@ class DecayModeDeterminator_BDTCutValue_R10X_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  = -0.07
+    StoredValue  =  0.19
 
 class DecayModeDeterminator_BDTCutValue_R11X_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  = -0.13
+    StoredValue  =  -0.11
 
 class DecayModeDeterminator_BDTCutValue_R110_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  = -0.16
+    StoredValue  =  0.37
 
 class DecayModeDeterminator_BDTCutValue_R1XX_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  = 0.01
+    StoredValue  =  0.07
 
 class DecayModeDeterminator_BDTCutValue_R30X_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  = -0.05
+    StoredValue  =  -0.01
 
 class DecayModeDeterminator_BDTCutValue_R3XX_CellBased(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  = 0.02
-
-
+    StoredValue  =  -0.03
 
 #
 # PanTau BDT Cut values --- eflowRec
@@ -205,7 +210,7 @@ class Name_TauRecContainer(JobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = "TauRecContainer"
+    StoredValue  = "TauJets"
 
 
 class Name_eflowRecContainer(JobProperty):
@@ -393,11 +398,10 @@ class ModeDiscriminator_BinEdges_Pt(JobProperty):
 ### /////////////////////////
 
 class Names_InputAlgorithms(JobProperty):
-    """  """
+    """ Valid names are: CellBased and eflowRec """
     statusOn     = True
     allowedTypes = ['list']
-    StoredValue  = ["eflowRec",
-                    "CellBased"]
+    StoredValue  = ["CellBased"]
 
 
 class Names_ModeCases(JobProperty):
@@ -488,6 +492,7 @@ jobproperties.add_Container(Config_PanTau)
 ##-----------------------------------------------------------------------------
 ## 4th step
 ## adding athena common flags to the AthenaCommonFlags container
+jobproperties.Config_PanTau.add_JobProperty(UseDefaultCellBasedConfig)
 jobproperties.Config_PanTau.add_JobProperty(EnableXAODMigrationHacks)
 jobproperties.Config_PanTau.add_JobProperty(TauConstituents_UsePionMass)
 jobproperties.Config_PanTau.add_JobProperty(FeatureExtractor_UseEmptySeeds)
