@@ -4,22 +4,23 @@ import sys
 
 #get the list of special run,lbn with more than 1 file
 special_run_lbn = {}
-with open("runs_lbn_files_lb.txt") as f:
+with open("runs_lbn_files.txt") as f:
     for line in f:
         #print line
-        linfo=line.split("\t")
-        #print linfo[1]
-        finfo=linfo[1].split(".")
-        run=finfo[1]
-        lbn=finfo[5].replace("_lb","")
-        #print run+"_"+lbn
+        if not line.startswith("root"): continue
+        filenm=line.rstrip()
+        print filenm
+        finfo=filenm.split(".")
+        run=finfo[3]
+        lbn=finfo[7].replace("_lb","")
+        print run+"_"+lbn
         if run+"_"+lbn in special_run_lbn:
-            if linfo[1] in special_run_lbn[run+"_"+lbn]:
-                print linfo[1], "already in map for ",run,lbn
+            if filenm in special_run_lbn[run+"_"+lbn]:
+                print filenm, "already in map for ",run,lbn
             else:
-                special_run_lbn[run+"_"+lbn].append(linfo[1])
+                special_run_lbn[run+"_"+lbn].append(filenm)
         else:
-            special_run_lbn[run+"_"+lbn]=[linfo[1]]
+            special_run_lbn[run+"_"+lbn]=[filenm]
     for key in special_run_lbn.keys():
         #if len(special_run_lbn[key])>1: print special_run_lbn[key]
         pass
@@ -29,11 +30,11 @@ with open("runs_lbn_files_lb.txt") as f:
 maxstream = int(sys.argv[1])
 print "maxstream=",maxstream
 for s in range(0,maxstream+1): #50
-    with open("/home/ahaas/nfs3/zerobias_skim/lbn_anal_map_"+str(s)+"wanted.txt") as f:
+    with open("lbn_anal_map_stream"+str(s)+".txt") as f:
         tot=0
         nfile=1
-        of=open("/home/ahaas/nfs3/zerobias_skim/lbn_anal_map_"+str(s)+"wanted_"+str(nfile)+".txt","w")
-        of2=open("/home/ahaas/nfs3/zerobias_skim/filelist_"+str(s)+"wanted_"+str(nfile)+".txt","w")
+        of=open("output_stream"+str(s)+"/lbn_anal_map_"+str(nfile)+".txt","w")
+        of2=open("output_stream"+str(s)+"/filelist_"+str(nfile)+".txt","w")
         for line in f:
             linfo=line.split(" ")
             #print line
@@ -58,8 +59,8 @@ for s in range(0,maxstream+1): #50
                 #print run, lbn
 
                 of.close(); of2.close(); nfile+=1
-                of=open("/home/ahaas/nfs3/zerobias_skim/lbn_anal_map_"+str(s)+"wanted_"+str(nfile)+".txt","w")
-                of2=open("/home/ahaas/nfs3/zerobias_skim/filelist_"+str(s)+"wanted_"+str(nfile)+".txt","w")
+                of=open("output_stream"+str(s)+"/lbn_anal_map_"+str(nfile)+".txt","w")
+                of2=open("output_stream"+str(s)+"/filelist_"+str(nfile)+".txt","w")
                 tot=extra #the number left over from the last set
             
                 rline=line.replace(linfo[16]+" wanted",str(extra)+" wanted")
@@ -81,8 +82,8 @@ for s in range(0,maxstream+1): #50
                     print run,lbn," not in files map!"            
 
                 of.close(); of2.close(); nfile+=1
-                of=open("/home/ahaas/nfs3/zerobias_skim/lbn_anal_map_"+str(s)+"wanted_"+str(nfile)+".txt","w")
-                of2=open("/home/ahaas/nfs3/zerobias_skim/filelist_"+str(s)+"wanted_"+str(nfile)+".txt","w")
+                of=open("output_stream"+str(s)+"/lbn_anal_map_"+str(nfile)+".txt","w")
+                of2=open("output_stream"+str(s)+"/filelist_"+str(nfile)+".txt","w")
                 tot=0
             else:
                 of.write(line)
