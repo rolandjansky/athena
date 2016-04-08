@@ -94,7 +94,7 @@ public :
 
 #ifdef SimposAccessor_cxx
 SimposAccessor::SimposAccessor(TTree *tree) :
-   b_run(NULL), b_evt(NULL), b_nentry(NULL), b_y(NULL), b_z(NULL), b_dx(NULL),
+   fChain(NULL), b_run(NULL), b_evt(NULL), b_nentry(NULL), b_y(NULL), b_z(NULL), b_dx(NULL),
    b_dydx(NULL), b_dzdx(NULL), b_time(NULL), b_gid(NULL), b_pdgid(NULL),
    b_istation(NULL), b_phisec(NULL), b_zsec(NULL), b_sector(NULL), b_wlay(NULL),
    b_eta(NULL), b_pt(NULL), b_phi0(NULL), b_d0(NULL), b_z0(NULL), b_vpr(NULL),
