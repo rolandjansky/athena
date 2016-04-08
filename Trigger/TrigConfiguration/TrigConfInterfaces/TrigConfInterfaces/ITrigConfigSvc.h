@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ITrigConfigSvc.h 660352 2015-04-13 23:03:15Z stelzer $
+// $Id: ITrigConfigSvc.h 706340 2015-11-06 10:35:33Z krasznaa $
 #ifndef TRIGCONFINTERFACES_ITRIGCONFIGSVC_H
 #define TRIGCONFINTERFACES_ITRIGCONFIGSVC_H
 
@@ -26,8 +26,8 @@ namespace TrigConf {
     * Note that this is used in particular to retrieve config info in an
     * offline analysis.
     *
-    * $Revision: 660352 $
-    * $Date: 2015-04-14 01:03:15 +0200 (Tue, 14 Apr 2015) $
+    * $Revision: 706340 $
+    * $Date: 2015-11-06 11:35:33 +0100 (Fri, 06 Nov 2015) $
     */
    class ITrigConfigSvc : public extend_interfaces3< IL1TopoConfigSvc,
                                                      ILVL1ConfigSvc,
@@ -38,7 +38,7 @@ namespace TrigConf {
       virtual ~ITrigConfigSvc(){}
 
       /// Specify the interface declared by this class
-      DeclareInterfaceIDMultiBase( ITrigConfigSvc, 0, 1 );
+      DeclareInterfaceID( ITrigConfigSvc, 0, 1 );
 
    }; // class ITrigConfigSvc
 
