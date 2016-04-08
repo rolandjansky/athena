@@ -120,7 +120,10 @@ void TrigMonRoi::setRoIArea(float eta_width, float phi_width)
   if(std::count(m_var_key.begin(), m_var_key.end(), 2) == 0) {
 
     // Assuming the area is an ellipse - approximate
-    float area = 3.14159*eta_width*phi_width;
+    //float area = 3.14159*eta_width*phi_width;
+
+    // Chainging to square area, assume supplied are full width
+    float area = eta_width * phi_width;
 
     m_var_key.push_back(2);
     m_var_val.push_back(area);
@@ -136,6 +139,8 @@ void TrigMonRoi::addVar(const TrigMonVar &var)
   if(var.getKey() > 9) {
     m_var_key.push_back(var.getKey());
     m_var_val.push_back(var.getData());
+  } else {
+    MSGService::msg.Log("Cannot add a var with key < 9 (internal use only) ",MSG::ERROR);
   }
 }
 
@@ -255,6 +260,15 @@ const std::vector<TrigMonVar> TrigMonRoi::getVar() const
 
   return var;
 }
+
+float TrigMonRoi::getVarVal( const uint32_t key ) const 
+{
+    for(unsigned int i = 0; i < m_var_key.size(); ++i) {
+      if (m_var_key.at(i) == key) return m_var_val.at(i);
+    }
+    return 0.;
+}
+
 
 //--------------------------------------------------------------------------------------      
 void TrigMonRoi::print(std::ostream &os)
