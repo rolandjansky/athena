@@ -116,16 +116,7 @@ namespace InDet{
 
   inline TRT_DetElementsLayer_xk::TRT_DetElementsLayer_xk(const TRT_DetElementsLayer_xk& L)
     {
-      m_z         = L.m_z       ;
-      m_dz        = L.m_dz      ;
-      m_r         = L.m_r       ;
-      m_dr        = L.m_dr      ;
-      m_dfe       = L.m_dfe     ;
-      m_f0        = L.m_f0      ;
-      m_sfi       = L.m_sfi     ;
-      m_wf        = L.m_wf      ;
-      m_wz        = L.m_wz      ;
-      m_elements  = L.m_elements;
+      *this = L; 
     }
   
   inline TRT_DetElementsLayer_xk& TRT_DetElementsLayer_xk::operator = 

@@ -83,7 +83,7 @@ namespace InDet {
       m_used       = false;
     }
 
-  inline TRT_DetElementLink_xk::TRT_DetElementLink_xk(const TRT_DetElementLink_xk& L)
+  inline TRT_DetElementLink_xk::TRT_DetElementLink_xk(const TRT_DetElementLink_xk& L): m_detelement(L.m_detelement)
     {
       *this = L; 
     }
