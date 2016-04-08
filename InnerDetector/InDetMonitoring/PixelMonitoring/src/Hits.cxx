@@ -99,10 +99,10 @@ StatusCode PixelMainMon::BookHitsMon(void)
       tmp = "AvgOcc_per_lumi"; tmp2 = "Average pixel occupancy per event per LB"; atitles = ";lumi block;#hits/(pixel, event)";
       sc = rdoExpert.regHist(m_avgocc_per_lumi_mod[i] = TProfile_LW::create((tmp + "_" + modlabel[i]).c_str(), (tmp2 + ", " + modlabel[i] + m_histTitleExt + atitles).c_str(), nbins_LB, min_LB, max_LB));
       tmp = "MaxOcc_per_lumi"; tmp2 = "Max. pixel occupancy per event per LB"; atitles = ";lumi block;#hits/pixel/event";
-      sc = rdoShift.regHist(m_maxocc_per_lumi_mod[i] = TProfile_LW::create((tmp + "_" + modlabel[i]).c_str(), (tmp2 + ", " + modlabel[i] + m_histTitleExt + atitles).c_str(), nbins_LB, min_LB, max_LB));
+      sc = rdoShift.regHist(m_maxocc_per_lumi_mod[i] = TH2F_LW::create((tmp + "_" + modlabel[i]).c_str(), (tmp2 + ", " + modlabel[i] + m_histTitleExt + atitles).c_str(), nbins_LB, min_LB, max_LB, 200, 0.0001, 0.002));
       tmp = "nHits_per_module_per_event"; tmp2 = "Number of hits per module per event"; atitles = ";#hits per module per event;#event #times #module";
       sc = rdoShift.regHist(m_nhits_mod[i] = TH1F_LW::create((tmp + "_" + modlabel[i]).c_str(), (tmp2 + m_histTitleExt + atitles).c_str(), 1000, -0.5, -0.5+1000.0));
-      tmp = "nLargeEvent_per_lumi"; tmp2 = "Number of large event (hitocc > 1.0#times 10^{-3}) per LB"; atitles = ";lumi block;#event";
+      tmp = "nLargeEvent_per_lumi"; tmp2 = "Number of large event (hitocc > 0.7#times 10^{-3}) per LB"; atitles = ";lumi block;#event";
       sc = rdoShift.regHist(m_nlargeevt_per_lumi_mod[i] = TH1F_LW::create((tmp + "_" + modlabel[i]).c_str(), (tmp2 + ", " + modlabel[i] + m_histTitleExt + atitles).c_str(), nbins_LB, min_LB, max_LB));
    }
 
@@ -635,7 +635,8 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    for( int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
       if(nactivechannels_mod[i] > 0) avgocc_mod[i] = nhits_mod[i]/nactivechannels_mod[i];
       if(m_avgocc_per_lumi_mod[i]) m_avgocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(),avgocc_mod[i]);
-      if(avgocc_mod[i] > 0.001 && m_nlargeevt_per_lumi_mod[i]) m_nlargeevt_per_lumi_mod[i]->Fill( m_lumiBlockNum );
+      if(avgocc_mod[i] > 0.0007 && m_nlargeevt_per_lumi_mod[i]) m_nlargeevt_per_lumi_mod[i]->Fill( m_lumiBlockNum );
+      if(m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_mod[i]);
    }
 
    if(avgocc_mod[PixLayer::kB0] > 0 && m_avgocc_ratioIBLB0_per_lumi) 
@@ -646,8 +647,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    if(m_Atlas_BCID_hits) m_Atlas_BCID_hits->Fill(prev_pix_bcid,nhits);
 
    /// Fill the #hit per module per event
-   if(!m_doOnline){
-      /// for disk A/C
+   //if(!m_doOnline){
       for( int i=0; i<PixLayer::COUNT; i++){
          for( int phi=0; phi<nmod_phi[i]; phi++){
             for( int eta=0; eta<nmod_eta[i]; eta++){
@@ -660,7 +660,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
             }
          }
       }
-   }
+   //}
 
    /// Put the #hits per event for each layer
    if( m_event == 0){
@@ -793,13 +793,13 @@ StatusCode PixelMainMon::ProcHitsMon(void)
    }
 
 
-   for( int i=0; i<PixLayer::COUNT; i++){
-      double max = 0;
-      for( unsigned int j=0; j<m_hitocc_stock[i].size(); j++){
-         if(max < m_hitocc_stock[i].at(j)) max = m_hitocc_stock[i].at(j);
-      }
-      if(m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_lumiBlockNum, max);
-   }
+   //for( int i=0; i<PixLayer::COUNT; i++){
+   //   double max = 0;
+   //   for( unsigned int j=0; j<m_hitocc_stock[i].size(); j++){
+   //      if(max < m_hitocc_stock[i].at(j)) max = m_hitocc_stock[i].at(j);
+   //   }
+   //   if(m_maxocc_per_lumi_mod[i] && max != 0) m_maxocc_per_lumi_mod[i]->Fill(m_lumiBlockNum, max);
+   //}
 
   return StatusCode::SUCCESS;
 }
