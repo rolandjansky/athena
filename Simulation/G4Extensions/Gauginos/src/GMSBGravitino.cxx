@@ -2,23 +2,29 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <fstream>
-#include <iomanip>
-
-#include "G4AtlasControl/ParticleDataModifier.h"
-
-#include "Gauginos/GMSBGravitino.hh"
+#include "GMSBGravitino.hh"
 // ######################################################################
 // ###                         Gravitino                             ###
 // ######################################################################
 
-GMSBGravitino* GMSBGravitino::theInstance = Definition();
+GMSBGravitino* GMSBGravitino::theInstance = NULL;
 
-GMSBGravitino* GMSBGravitino::Definition()
+
+GMSBGravitino* GMSBGravitino::Definition(G4double mass, G4double width, G4double charge, G4double PDG, G4bool stable, G4double lifetime, G4bool shortlived)
 {
-  if (theInstance != 0) return theInstance;
 
-  double GravitinoMass = 0.108E-04*CLHEP::GeV;
+  if (theInstance !=0 && (mass>=0. || width>=0. || lifetime>=0.) )
+    {
+      G4ExceptionDescription description;
+      description << "Trying to redefine the GMSB Gravitino properties after it has been constructed is not allowed";
+      G4Exception("GMSBGravitino", "FailedRedefinition", FatalException, description);
+      abort();
+    }
+
+  if (theInstance != 0)
+    {
+      return theInstance;
+    }
 
   //    Arguments for constructor are as follows
   //               name             mass          width         charge
@@ -28,14 +34,23 @@ GMSBGravitino* GMSBGravitino::Definition()
   //             stable         lifetime    decay table
   //             shortlived      subType    anti_encoding
 
-  G4ParticleDefinition* anInstance =
-    new G4ParticleDefinition("s_G",              GravitinoMass,  0.0*CLHEP::MeV,   0,
-                             3,                  0,              0,
-                             0,                  0,              0,
-                             "supersymmetric",   0,              0,         1000039,
-                             true,               -1.0,           NULL,
-                             false,              "Gravitino");
+  if (mass >= 0.)
+    {
+      G4ParticleDefinition* anInstance =    new G4ParticleDefinition("s_G", mass,  width,   charge,
+                                                                     3,                  0,              0,
+                                                                     0,                  0,              0,
+                                                                     "supersymmetric",   0,              0,         PDG,
+                                                                     stable,               lifetime,           NULL,
+                                                                     shortlived,              "Gravitino");
 
-  theInstance = reinterpret_cast<GMSBGravitino*>(anInstance);
-  return theInstance;
+      theInstance = reinterpret_cast<GMSBGravitino*>(anInstance);
+      return theInstance;
+    }
+  else
+    {
+      G4ExceptionDescription description;
+      description << "Trying to create a particle with default constructor is not allowed";
+      G4Exception("GMSBGravitino", "DefaultConstructorCalled", FatalException, description);
+      abort();
+    }
 }
