@@ -29,7 +29,6 @@ use SGTools              SGTools-*                      Control
 use PixelConditionsData  PixelConditionsData-*       InnerDetector/InDetConditions
 use PixelCoralClientUtils PixelCoralClientUtils-*	InnerDetector/InDetConditions
 use TestPolicy           TestPolicy-*
-use AtlasConditionsRunTime AtlasConditionsRunTime-*
 use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
 
 public
