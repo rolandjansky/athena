@@ -27,7 +27,7 @@ class TrigTauCluster_p1
 {
  public:
   
-  TrigTauCluster_p1() {}
+  TrigTauCluster_p1() : m_EMenergy(0.), m_HADenergy(0.), m_eEMCalib(0.), m_eCalib(0.), m_Eta(-999.), m_Phi(-999.0), m_IsoFrac(0.), m_numStripCells(0), m_stripWidth(0.) {}
   friend class TrigTauClusterCnv_p1;
   
  private:

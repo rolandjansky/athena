@@ -2,10 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
 #include "TrigCaloEvent/RingerRings.h"
-#undef private
-
 #include "TrigCaloEventTPCnv/RingerRings_p2.h"
 #include "TrigCaloEventTPCnv/RingerRingsCnv_p2.h"
 

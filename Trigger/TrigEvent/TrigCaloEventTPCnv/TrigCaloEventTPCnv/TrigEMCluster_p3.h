@@ -21,11 +21,8 @@
 //need this for MAXSIZE, NUMEMSAMP, and NUMHADSAMP
 #include "TrigCaloEvent/TrigEMCluster.h"
 #include "DataModelAthenaPool/ElementLink_p3.h"
-#include "AthenaPoolUtilities/TPObjRef.h"
+//#include "AthenaPoolUtilities/TPObjRef.h"
 #include "TrigCaloEventTPCnv/TrigCaloCluster_p2.h"
-
-// needed to fix a Gaudi problem in SLC3 (should be removed eventually):
-#include <stdint.h>
 
 class TrigEMCluster_p3 {
   friend class TrigEMClusterCnv_p3;

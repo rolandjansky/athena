@@ -12,14 +12,10 @@
  * @author Tobias Kruker    <kruker@cern.ch>					 - U. Bern
  *
  * File and Version Information:
- * $Id: TrigT2Jet_p3.h 362053 2011-04-28 12:02:40Z salvator $
+ * $Id: TrigT2Jet_p3.h 724033 2016-02-15 16:24:28Z gemmeren $
  **********************************************************************************/
 #ifndef TRIGCALOEVENTTPCNV_TRIGT2JET_P3_H
 #define TRIGCALOEVENTTPCNV_TRIGT2JET_P3_H
-
-#include <stdint.h>
-#include "TrigCaloEvent/TrigT2Jet.h"
-#include "AthenaPoolUtilities/TPObjRef.h"
 
 class TrigT2Jet_p3 
 {

@@ -17,8 +17,7 @@
 #ifndef TRIGCALOEVENTTPCNV_RINGERRINGS_P2_H
 #define TRIGCALOEVENTTPCNV_RINGERRINGS_P2_H
 
-// needed to fix a Gaudi problem in SLC3 (should be removed eventually):
-#include <stdint.h>
+#include <vector>
 
 class RingerRings_p2 {
   friend class RingerRingsCnv_p2;
@@ -26,7 +25,7 @@ class RingerRings_p2 {
  public:
     
   // default constructor
-  RingerRings_p2() { }
+  RingerRings_p2() : m_numberOfRings(0) { }
 
   // default destructor
   ~RingerRings_p2() { }

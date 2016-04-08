@@ -12,7 +12,7 @@
  * @author Denis Oliveira Damazio <Denis.Oliveira.Damazio@cern.ch>
  *
  * File and Version Information:
- * $Id: TrigCaloCluster_p3.h 590712 2014-04-01 19:27:58Z ssnyder $
+ * $Id: TrigCaloCluster_p3.h 697601 2015-09-30 13:34:01Z damazio $
  **********************************************************************************/
 #ifndef TRIGCALOEVENTTPCNV_TRIGCALOCLUSTER_P3_H
 #define TRIGCALOEVENTTPCNV_TRIGCALOCLUSTER_P3_H
@@ -22,7 +22,7 @@ class TrigCaloCluster_p3
  public:
   static const int MAXSIZE_P = 25;
   
-  TrigCaloCluster_p3() {}
+  TrigCaloCluster_p3() : m_roiWord(0), m_numberUsedCells(0), m_quality(0) {}
   friend class TrigCaloClusterCnv_p3;
   
  private:

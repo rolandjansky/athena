@@ -19,6 +19,7 @@
 #ifndef TRIGCALOEVENTTPCNV_TRIGT2JETCONTAINER_TLP1_H
 #define TRIGCALOEVENTTPCNV_TRIGT2JETCONTAINER_TLP1_H
 
+#include "TrigCaloEvent/TrigT2Jet.h"
 #include "TrigCaloEventTPCnv/TrigT2JetContainer_p1.h"
 #include "TrigCaloEventTPCnv/TrigT2Jet_p1.h"
 #include "TrigCaloEventTPCnv/TrigT2Jet_p2.h" // instructions don't say this should be done but instead, TrigT2JetCnv_p2.h should be included. done this below:

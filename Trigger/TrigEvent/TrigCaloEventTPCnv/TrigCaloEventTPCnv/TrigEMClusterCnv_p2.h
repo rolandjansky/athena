@@ -42,7 +42,7 @@ class TrigEMClusterConverterBase<TrigEMCluster_p2>  : public T_AthenaPoolTPCnvBa
 
  protected:
     
-    ElementLinkCnv_p1< ElementLink<RingerRingsContainer> > ELinkRingerRingsCnv;
+    ElementLinkCnv_p1< ElementLink<RingerRingsContainer> > m_ELinkRingerRingsCnv;
 
     ITPConverterFor<TrigCaloCluster>*   m_trigCaloClusterCnv;
 };

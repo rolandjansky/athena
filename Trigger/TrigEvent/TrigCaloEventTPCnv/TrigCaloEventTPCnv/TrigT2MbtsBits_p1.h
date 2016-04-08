@@ -15,11 +15,14 @@
 #ifndef TRIGCALOEVENTTPCNV_TRIGT2MBTSBITS_P1_H
 #define TRIGCALOEVENTTPCNV_TRIGT2MBTSBITS_P1_H
 
+#include <vector>
+#include <cstdint>
+
 class TrigT2MbtsBits_p1 {
   friend class TrigT2MbtsBitsCnv_p1;
 
  public:
-  TrigT2MbtsBits_p1 () {}
+  TrigT2MbtsBits_p1 () : m_mbtsWord(0) {}
   virtual ~TrigT2MbtsBits_p1 () {}
 
  private:

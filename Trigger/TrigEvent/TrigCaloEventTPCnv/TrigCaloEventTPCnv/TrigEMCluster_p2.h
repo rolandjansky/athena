@@ -24,9 +24,6 @@
 #include "TrigCaloEvent/TrigEMCluster.h"
 #include "DataModelAthenaPool/ElementLinkVector_p1.h"
 
-// needed to fix a Gaudi problem in SLC3 (should be removed eventually):
-#include <stdint.h>
-
 class TrigEMCluster_p2 {
   friend class TrigEMClusterCnv;
   template <class T>
@@ -35,7 +32,7 @@ class TrigEMCluster_p2 {
  public:
     
   // default constructor
-  TrigEMCluster_p2() { }
+  TrigEMCluster_p2() : m_Energy(0.), m_Et(0.), m_Eta(-99.), m_Phi(-99.), m_e237(0.), m_e277(999999.), m_fracs1(0.), m_weta2(0.), m_ehad1(0.), m_Eta1(-99.), m_emaxs1(0.), m_e2tsts1(0.)  { }
 
   // default destructor
   ~TrigEMCluster_p2() { }

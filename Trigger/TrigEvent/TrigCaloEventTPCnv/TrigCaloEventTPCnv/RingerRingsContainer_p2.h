@@ -6,7 +6,7 @@
 #define TRIGCALOEVENTTPCNV_RINGERRINGSCONTAINER_P2_H
 
 #include "TrigCaloEventTPCnv/RingerRings_p2.h"
-//#include <vector>
+#include <vector>
   
 class RingerRingsContainer_p2 : public std::vector<RingerRings_p2> { };
 

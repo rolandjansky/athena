@@ -18,10 +18,6 @@
 #ifndef TRIGCALOEVENTTPCNV_TRIGT2JET_P1_H
 #define TRIGCALOEVENTTPCNV_TRIGT2JET_P1_H
 
-#include <stdint.h>
-#include "TrigCaloEvent/TrigT2Jet.h"
-#include "AthenaPoolUtilities/TPObjRef.h"
-
 class TrigT2Jet_p1 
 {
   friend class TrigT2JetCnv_p1;

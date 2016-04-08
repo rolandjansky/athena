@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
 #include "TrigCaloEvent/TrigRNNOutput.h"
-#undef private
 
 #include "TrigCaloEvent/TrigEMClusterContainer.h"
 
@@ -28,7 +26,7 @@ void TrigRNNOutputCnv_p2::transToPers(const TrigRNNOutput *trans,
     pers->m_output.push_back(trans->at(i));
   }
 
-  ELinkTrigEMClusterCnv.transToPers(&trans->m_cluster, &pers->m_cluster, log);
+  ELinkTrigEMClusterCnv.transToPers(&trans->clusterLink(), &pers->m_cluster, log);
 }
 
 void TrigRNNOutputCnv_p2::persToTrans(const TrigRNNOutput_p2 *pers, 
@@ -45,6 +43,8 @@ void TrigRNNOutputCnv_p2::persToTrans(const TrigRNNOutput_p2 *pers,
     trans->output().push_back(pers->m_output[i]);
   }
 
-  ELinkTrigEMClusterCnv.persToTrans(&pers->m_cluster, &trans->m_cluster, log);
+  ElementLink<TrigEMClusterContainer> cluster;
+  ELinkTrigEMClusterCnv.persToTrans(&pers->m_cluster, &cluster, log);
+  trans->setCluster (cluster);
 }
 
