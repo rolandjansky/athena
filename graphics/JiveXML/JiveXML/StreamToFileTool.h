@@ -7,8 +7,7 @@
 
 //IAlgTool interface
 #include "JiveXML/IStreamTool.h"
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 namespace JiveXML {
   
@@ -18,7 +17,7 @@ namespace JiveXML {
    *
    * @author Sebastian Boeser
    */
-  class StreamToFileTool : virtual public IStreamTool, public AlgTool{
+  class StreamToFileTool : virtual public IStreamTool, public AthAlgTool{
 
     public:
       
@@ -32,7 +31,7 @@ namespace JiveXML {
       virtual StatusCode finalize();
 
       /// Stream one event
-      virtual StatusCode StreamEvent( const unsigned int EventNumber, const unsigned int RunNumber, const std::ostringstream* EventBuffer ) ;
+      virtual StatusCode StreamEvent( const unsigned long EventNumber, const unsigned int RunNumber, const std::ostringstream* EventBuffer ) ;
 
     private:
 
@@ -43,17 +42,14 @@ namespace JiveXML {
       std::string m_FileNameSuffix;
       
       /** Generate a file name */
-      std::string MakeFileName( const unsigned int EventNumber, const unsigned int RunNumber ) const;
+      std::string MakeFileName( const unsigned long EventNumber, const unsigned int RunNumber ) const;
       
       /** Creates a new output stream to write XML to */
-      StatusCode NewFile( const unsigned int EventNumber, const unsigned  int RunNumber, std::ofstream *& outFile ) const ;
+      StatusCode NewFile( const unsigned long EventNumber, const unsigned  int RunNumber, std::ofstream *& outFile ) const ;
 
       /** Closes output stream */
       StatusCode CloseFile( std::ofstream *& outFile ) const ;
       
-      //Message logger
-      mutable MsgStream log;
-
   };
 
 } //Namespace

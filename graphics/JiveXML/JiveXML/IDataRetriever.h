@@ -30,7 +30,7 @@ namespace JiveXML{
     static const InterfaceID& interfaceID();
     
     /** Retrieve data and pass it on to the formatting tool **/
-    virtual StatusCode retrieve( ToolHandle<IFormatTool> FormatTool ) = 0;
+    virtual StatusCode retrieve( ToolHandle<IFormatTool> &FormatTool ) = 0;
     
     /** Return the class name of the data class that is handled by this retriever **/
     virtual std::string dataTypeName() const = 0;

@@ -21,12 +21,12 @@ namespace JiveXML {
     public:
 
       //Constructor with all parameters
-      EventStreamID( unsigned int EventNumber, unsigned int RunNumber, std::string StreamName ) :
+      EventStreamID( unsigned long EventNumber, unsigned int RunNumber, std::string StreamName ) :
         m_event(EventNumber), m_run(RunNumber), m_stream(StreamName){
       };
 
       //Constructor with all paramters and char *
-      EventStreamID( unsigned int EventNumber, unsigned int RunNumber, const char* StreamName ) :
+      EventStreamID( unsigned long EventNumber, unsigned int RunNumber, const char* StreamName ) :
         m_event(EventNumber), m_run(RunNumber){
           //Check for NULL pointer
           if (StreamName) m_stream=StreamName;
@@ -38,7 +38,7 @@ namespace JiveXML {
       };
 
       //Get the different values
-      unsigned int EventNumber() const { return m_event; };
+      unsigned long EventNumber() const { return m_event; };
       unsigned int RunNumber() const { return m_run; };
       std::string StreamName() const { return m_stream; };
 

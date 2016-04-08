@@ -29,7 +29,7 @@ namespace JiveXML {
       virtual StatusCode finalize() = 0;
 
       /** Stream one event */
-      virtual StatusCode StreamEvent( const unsigned int EventNumber, const unsigned int RunNumber, const std::ostringstream* EventBuffer ) = 0;
+      virtual StatusCode StreamEvent( const unsigned long EventNumber, const unsigned int RunNumber, const std::ostringstream* EventBuffer ) = 0;
       
   };
 

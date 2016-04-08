@@ -26,7 +26,7 @@ if jp.Rec.readESD():
 #### Add this at the end, otherwise will double-insert
 #### STr, RVx, ETMis: 
 ## old-style (rel17) AOD retrievers, to be removed soon:
-include ("AnalysisJiveXML/AnalysisJiveXML_DataTypes.py")
+#include ("AnalysisJiveXML/AnalysisJiveXML_DataTypes.py")
 ## new-style (rel19) AOD retrievers, for Run2:
 include ("xAODJiveXML/xAODJiveXML_DataTypes.py")
 include ("TrigJiveXML/TrigJiveXML_DataTypes.py")

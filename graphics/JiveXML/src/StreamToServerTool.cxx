@@ -12,9 +12,8 @@ namespace JiveXML {
    * - initialize properties
    */
   StreamToServerTool::StreamToServerTool( const std::string& type , const std::string& name, const IInterface* p):
-    AlgTool(type,name,p),
-    m_ServerSvc("JiveXML::ONCRPCServerSvc",name),
-    log(msgSvc(),name){
+    AthAlgTool(type,name,p),
+    m_ServerSvc("JiveXML::ONCRPCServerSvc",name){
     
     //Provide interface
     declareInterface<IStreamTool>(this);
@@ -30,12 +29,9 @@ namespace JiveXML {
    */
   StatusCode StreamToServerTool::initialize(){
 
-    //Initialize message stream level
-    log.setLevel(outputLevel());
-
     //Make sure we can get hold of the server
     if (m_ServerSvc.retrieve().isFailure()){
-      log << MSG::ERROR << "Unable to initialize server service with name " << m_ServerSvc.name() << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Unable to initialize server service with name " << m_ServerSvc.name() << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -55,10 +51,10 @@ namespace JiveXML {
    * @param RunNumber the run number
    * @param EventBuffer the string holding the complete event
    */
-   StatusCode StreamToServerTool::StreamEvent( const unsigned int EventNumber, 
+   StatusCode StreamToServerTool::StreamEvent( const unsigned long EventNumber, 
 					       const unsigned int RunNumber, 
 					       const std::ostringstream* const EventBuffer ) { 
-     log << MSG::VERBOSE << "Streaming event Nr. " << EventNumber 
+     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Streaming event Nr. " << EventNumber 
                          << " from run Nr. " << RunNumber
                          << " to stream " << m_StreamName
                          << " on " << m_ServerSvc.name() << " service" << endreq;

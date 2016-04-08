@@ -258,6 +258,8 @@ namespace JiveXML{
     m_runNo   = eventInfo->event_ID()->run_number();
     m_eventNo = eventInfo->event_ID()->event_number(); 
 
+// Note: 4294967293 is the maximum value for a unsigned long
+
     if ( m_mcChannelNo != 0 ){ m_runNo = m_mcChannelNo + 140000000; } // indicating 'mc14'
     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << " runNumber for filename: " << m_runNo 
         << ", eventNumber: " << m_eventNo << endreq;

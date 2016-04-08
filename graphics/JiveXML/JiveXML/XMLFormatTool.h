@@ -6,8 +6,7 @@
 #define JIVEXML__XMLFORMATTOOL_H
 
 #include "JiveXML/IFormatTool.h"
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 namespace JiveXML{
 
@@ -19,7 +18,7 @@ namespace JiveXML{
    * @author S. Boeser
    */
 
-  class XMLFormatTool : virtual public IFormatTool, public AlgTool{
+  class XMLFormatTool : virtual public IFormatTool, public AthAlgTool{
 
     public:
       
@@ -36,7 +35,7 @@ namespace JiveXML{
       virtual StatusCode SetTag ( const TagType tag );
 
       /** Start a new event */
-      virtual StatusCode StartEvent( const unsigned int EventNumber, const unsigned int RunNumber, 
+      virtual StatusCode StartEvent( const unsigned long EventNumber, const unsigned int RunNumber, 
                                      std::string DateTime,
                                      const unsigned int lumiBlock, std::string eventProperty, std::string geometryVersion );      
 
@@ -57,9 +56,6 @@ namespace JiveXML{
 
       /// the release tag 
       std::string m_release;
-
-      /// the athena logger
-      mutable MsgStream log;
 
   };
 

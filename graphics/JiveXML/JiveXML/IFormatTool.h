@@ -34,7 +34,7 @@ namespace JiveXML {
       virtual StatusCode SetTag( const TagType tag ) = 0;
 
       /** Start a new event */
-      virtual StatusCode StartEvent( const unsigned int EventNumber, const unsigned int RunNumber, 
+      virtual StatusCode StartEvent( const unsigned long EventNumber, const unsigned int RunNumber, 
                                 const std::string DateTime,
    			        const unsigned int lumiBlock, std::string eventProperty, std::string geometryVersion ) = 0 ;
 

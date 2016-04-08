@@ -11,8 +11,7 @@ namespace JiveXML {
    * - setup message service
    */
   XMLFormatTool::XMLFormatTool( const std::string& type , const std::string& name, const IInterface* p):
-    AlgTool(type,name,p),
-    log(msgSvc(),name){
+    AthAlgTool(type,name,p){
     
     //Provide interface
     declareInterface<IFormatTool>(this);
@@ -25,9 +24,6 @@ namespace JiveXML {
    * Intialize - called once at the beginning
    */
   StatusCode XMLFormatTool::initialize(){
-
-    //Initialize message stream level
-    log.setLevel(outputLevel());
 
     return StatusCode::SUCCESS;
   }
@@ -63,7 +59,7 @@ namespace JiveXML {
    * @param RunNumber the run number
    * @param dataTime a date and time string
    */
-  StatusCode XMLFormatTool::StartEvent(  const unsigned int EventNumber, const unsigned int RunNumber, std::string dateTime, 
+  StatusCode XMLFormatTool::StartEvent(  const unsigned long EventNumber, const unsigned int RunNumber, std::string dateTime, 
 					 const unsigned int lumiBlock, std::string eventProperty, std::string geometryVersion ){
 
     

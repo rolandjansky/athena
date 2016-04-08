@@ -15,8 +15,7 @@ namespace JiveXML {
    * - initialize properties
    */
   StreamToFileTool::StreamToFileTool( const std::string& type , const std::string& name, const IInterface* p):
-    AlgTool(type,name,p),
-    log(msgSvc(),name){
+    AthAlgTool(type,name,p){
     
     //Provide interface
     declareInterface<IStreamTool>(this);
@@ -31,9 +30,6 @@ namespace JiveXML {
    * Intialize - called once at the beginning
    */
   StatusCode StreamToFileTool::initialize(){
-
-    //Initialize message stream level
-    log.setLevel(outputLevel());
 
     return StatusCode::SUCCESS;
   }
@@ -51,13 +47,13 @@ namespace JiveXML {
    * @param RunNumber the run number
    * @param EventBuffer the string holding the complete event
    */
-   StatusCode StreamToFileTool::StreamEvent( const unsigned int EventNumber, const unsigned int RunNumber, const std::ostringstream* EventBuffer ) { 
+   StatusCode StreamToFileTool::StreamEvent( const unsigned long EventNumber, const unsigned int RunNumber, const std::ostringstream* EventBuffer ) { 
    
      /// Get a pointer to a new file
      std::ofstream* outFile;
      StatusCode sc = NewFile(EventNumber,RunNumber,outFile);
      if (sc.isFailure()){
-       log << MSG::WARNING << "Could not open file for event " 
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not open file for event " 
            << EventNumber << " from run " << RunNumber << endreq;
        return sc;
      }
@@ -67,7 +63,7 @@ namespace JiveXML {
      outFile->flush();
      /// Check wether we could write the event
      if (!outFile->good()){
-       log << MSG::WARNING << "Could not write event " 
+       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not write event " 
            << EventNumber << " from run " << RunNumber << endreq;
        return StatusCode::FAILURE;
      }
@@ -83,7 +79,7 @@ namespace JiveXML {
    * @param EventNumber the event number
    * @param RunNumber the run number
    */
-   std::string StreamToFileTool::MakeFileName( const unsigned int EventNumber, const unsigned int RunNumber) const {
+   std::string StreamToFileTool::MakeFileName( const unsigned long EventNumber, const unsigned int RunNumber) const {
 
      //Generate a the return string with file prefix
      std::ostringstream name;
@@ -99,7 +95,7 @@ namespace JiveXML {
    /** 
     * Open a new file
     */
-   StatusCode StreamToFileTool::NewFile( const unsigned int EventNumber, const unsigned int RunNumber, std::ofstream *& outputFile) const {
+   StatusCode StreamToFileTool::NewFile( const unsigned long EventNumber, const unsigned int RunNumber, std::ofstream *& outputFile) const {
       
       // Generate the file name
       std::string filename = MakeFileName(EventNumber,RunNumber);
@@ -109,7 +105,7 @@ namespace JiveXML {
 
       // check if it worked
       if ( !(outputFile->good()) ){
-        log << MSG::WARNING << "Unable to create output file with name " << filename << endreq;
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to create output file with name " << filename << endreq;
         return StatusCode::FAILURE;
       }
 
@@ -126,7 +122,7 @@ namespace JiveXML {
     
     //See if it worked
     if (!outputFile->good()){
-      log << MSG::WARNING << "Unable to close file" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to close file" << endreq;
     }
 
     //In any case delete object

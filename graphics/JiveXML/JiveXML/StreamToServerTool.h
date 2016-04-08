@@ -9,8 +9,7 @@
 #include "JiveXML/IStreamTool.h"
 #include "JiveXML/IServerSvc.h"
 #include "JiveXML/EventStream.h"
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 namespace JiveXML {
@@ -22,7 +21,7 @@ namespace JiveXML {
    *
    * @author Sebastian Boeser
    */
-  class StreamToServerTool : virtual public IStreamTool, public AlgTool{
+  class StreamToServerTool : virtual public IStreamTool, public AthAlgTool{
 
     public:
       
@@ -36,7 +35,7 @@ namespace JiveXML {
       virtual StatusCode finalize();
 
       /// Stream one event
-      virtual StatusCode StreamEvent( const unsigned int EventNumber, const unsigned int RunNumber, const std::ostringstream* const EventBuffer ) ;
+      virtual StatusCode StreamEvent( const unsigned long EventNumber, const unsigned int RunNumber, const std::ostringstream* const EventBuffer ) ;
 
     protected:
 
@@ -47,9 +46,6 @@ namespace JiveXML {
 
       /** Stream name under which these events shall appear */
       std::string m_StreamName;
-      
-      //Message logger
-      mutable MsgStream log;
 
   };
 
