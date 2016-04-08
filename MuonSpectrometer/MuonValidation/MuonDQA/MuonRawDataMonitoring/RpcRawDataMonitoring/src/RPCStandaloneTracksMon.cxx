@@ -268,6 +268,10 @@ StatusCode RPCStandaloneTracksMon::initialize(){
   hRPCPadThr.clear()		 ;
   hRPCMuctpiThr.clear()  	 ;
   
+  hRPCPhiEtaCoinThr_eff.clear()	 ;
+  hRPCPadThr_eff.clear()		 ;
+  hRPCMuctpiThr_eff.clear()  	 ;
+  
   etaminpad.clear(); 
   etamaxpad.clear(); 
   phiminpad.clear(); 
@@ -2670,6 +2674,100 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	
 	  //book triggereff
 	 
+	 //PhiEtaCoin Thr_eff
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff0","hRPCPhiEtaCoinThr_eff0" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff0");   
+	 
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff1","hRPCPhiEtaCoinThr_eff1" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff1");  
+	 
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff2","hRPCPhiEtaCoinThr_eff2" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff2");  
+	 
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff3","hRPCPhiEtaCoinThr_eff3" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff3");  
+	 
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff4","hRPCPhiEtaCoinThr_eff4" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff4"); 
+	  
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff5","hRPCPhiEtaCoinThr_eff5" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff5"); 
+	 
+	 //Pad Thr_eff
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff0","hRPCPadThr_eff0" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff0");   
+	 
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff1","hRPCPadThr_eff1" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff1");  
+	 
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff2","hRPCPadThr_eff2" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff2");  
+	 
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff3","hRPCPadThr_eff3" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff3");  
+	 
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff4","hRPCPadThr_eff4" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff4"); 
+	  
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff5","hRPCPadThr_eff5" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff5");
+	 
+	 //Muctpi Thr_eff
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff0","hRPCMuctpiThr_eff0" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff0");   
+	 
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff1","hRPCMuctpiThr_eff1" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff1");  
+	 
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff2","hRPCMuctpiThr_eff2" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff2");  
+	 
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff3","hRPCMuctpiThr_eff3" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff3");  
+	 
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff4","hRPCMuctpiThr_eff4" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff4"); 
+	  
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff5","hRPCMuctpiThr_eff5" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff5");
+
+	 
 	 //PhiEtaCoin thr
 	 hRPCPhiEtaCoinThr.push_back( new TH1F("hRPCPhiEtaCoinThr0","hRPCPhiEtaCoinThr0" , 400, 0., 100.));	    
          sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr.back()) ; 
@@ -2762,7 +2860,6 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
          sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr.back()) ; 
          hRPCMuctpiThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
          hRPCMuctpiThr.back()->GetYaxis()->SetTitle("RMuctpi Thr5");
-
 	  
 	  
 	  TH1 *hMEtracks=new TH1F("hMEtracks","hMEtracks",400,0,100);	  
@@ -5308,6 +5405,177 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	
 	
 	}
+	
+	//TriggerEfficiency
+	int nb = hMEtracks->GetNbinsX() ;
+	for (int ibin=0; ibin!=nb; ibin++) {
+	  int TrkPrj = hMEtracks ->GetBinContent ( ibin + 1 ) ;
+	  if ( TrkPrj>0 ) {
+	    //hRPCPhiEtaCoinThr0
+	      int   RPCOnTr    = hRPCPhiEtaCoinThr[0] ->GetBinContent ( ibin + 1 ) ;
+	      float RPCEff     = RPCOnTr / TrkPrj ;
+	      float RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPhiEtaCoinThr1
+	      RPCOnTr      = hRPCPhiEtaCoinThr[1] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPhiEtaCoinThr2
+	      RPCOnTr      = hRPCPhiEtaCoinThr[2] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPhiEtaCoinThr3
+	      RPCOnTr      = hRPCPhiEtaCoinThr[3] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPhiEtaCoinThr4
+	      RPCOnTr      = hRPCPhiEtaCoinThr[4] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPhiEtaCoinThr5
+	      RPCOnTr      = hRPCPhiEtaCoinThr[5] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	    //hRPCPadThr0
+	      RPCOnTr	 = hRPCPadThr[0] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff	 = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPadThr1
+	      RPCOnTr      = hRPCPadThr[1] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPadThr2
+	      RPCOnTr      = hRPCPadThr[2] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPadThr3
+	      RPCOnTr      = hRPCPadThr[3] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPadThr4
+	      RPCOnTr      = hRPCPadThr[4] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPadThr5
+	      RPCOnTr      = hRPCPadThr[5] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	    //hRPCMuctpiThr0
+	      RPCOnTr	 = hRPCMuctpiThr[0] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff	 = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCMuctpiThr1
+	      RPCOnTr      = hRPCMuctpiThr[1] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCMuctpiThr2
+	      RPCOnTr      = hRPCMuctpiThr[2] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCMuctpiThr3
+	      RPCOnTr      = hRPCMuctpiThr[3] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCMuctpiThr4
+	      RPCOnTr      = hRPCMuctpiThr[4] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCMuctpiThr5
+	      RPCOnTr      = hRPCMuctpiThr[5] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	  }	
+	
+	}
+	
+	
+	//TriggerEfficiency end
 
     
 	std::vector<int>::const_iterator iter_bin=layer_name_bin_list_panel.begin() ;
