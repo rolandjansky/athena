@@ -1,0 +1,11 @@
+package SpecialUtils
+
+author Tadashi Maeno       <Tadashi.Maeno@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+use AtlasCLHEP          AtlasCLHEP-*     	External
+use tauEvent		tauEvent-*		Reconstruction
+use ParticleEvent       ParticleEvent-*  	PhysicsAnalysis/AnalysisCommon
+use JetEvent		JetEvent-*		Reconstruction/Jet
+use egammaEvent		egammaEvent-*		Reconstruction/egamma
+use muonEvent		muonEvent-*		Reconstruction/MuonIdentification
