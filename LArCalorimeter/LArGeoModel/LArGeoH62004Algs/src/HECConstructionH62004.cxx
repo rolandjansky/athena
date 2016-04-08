@@ -158,7 +158,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62004::GetEnvelope()
   double absorberPosY = 1.02*CLHEP::cm;            
   double PosYcorr = 0.005*CLHEP::cm;            
 
-  double moduleNumber   = (*hadronicEndcap)[0]->getInt("NSCT"); // 32 Modules
+  const double moduleNumber   = (*hadronicEndcap)[0]->getInt("NSCT"); // 32 Modules
   unsigned int TBmoduleNumber = 8;
   double moduleRinner1  = (*hecLongitudinalBlock)[0]->getDouble("BLRMN")*CLHEP::cm; // 37.2*CLHEP::cm Inner Radius 
   double moduleRinner2  = (*hecLongitudinalBlock)[1]->getDouble("BLRMN")*CLHEP::cm; // 47.5*CLHEP::cm
@@ -193,7 +193,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62004::GetEnvelope()
   double absorberZ1 = (*hadronicEndcap)[0]->getDouble("PLATE_0")*CLHEP::cm; // 2.5*CLHEP::cm;
   double absorberZ2 = (*hadronicEndcap)[0]->getDouble("PLATE_1")*CLHEP::cm; //5.0*CLHEP::cm;
 
-  double moduleDeltaPhi   = 2*M_PI/moduleNumber; //11.25*CLHEP::deg;  
+  const double moduleDeltaPhi   = 2*M_PI/moduleNumber; //11.25*CLHEP::deg;  
   double modulePhistart = -moduleDeltaPhi/2.; 
   //double modulePhistart   = 0.0*CLHEP::deg;
   zCoordinate[0]=0.0*CLHEP::cm; 
@@ -214,7 +214,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62004::GetEnvelope()
 
 
   std::string hecName = "LAr::HEC::LiquidArgon";
-  GeoPcon* solidHEC = new GeoPcon(M_PI / 2., TBmoduleNumber*2.*M_PI/moduleNumber);
+  GeoPcon* solidHEC = new GeoPcon(M_PI / 2., TBmoduleNumber*moduleDeltaPhi);
   for (int i = 0; i < numberZplane - 1; ++i) { 
          solidHEC->addPlane(zCoordinate[i],innerRadius[i]-PosYcorr,outerRadius[i]);
   }	 

@@ -58,15 +58,15 @@
 
 #include "LArG4RunControl/LArGeoTB2004Options.h"
 
-float LArGeo::ModulesConstructionH62004::dX[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::dY[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::dZ[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::angleX[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::angleY[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::angleZ[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::shiftX[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::shiftY[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::shiftZ[NUM_LEAK];
+float LArGeo::ModulesConstructionH62004::s_dX[NUM_LEAK];
+float LArGeo::ModulesConstructionH62004::s_dY[NUM_LEAK];
+float LArGeo::ModulesConstructionH62004::s_dZ[NUM_LEAK];
+float LArGeo::ModulesConstructionH62004::s_angleX[NUM_LEAK];
+float LArGeo::ModulesConstructionH62004::s_angleY[NUM_LEAK];
+float LArGeo::ModulesConstructionH62004::s_angleZ[NUM_LEAK];
+float LArGeo::ModulesConstructionH62004::s_shiftX[NUM_LEAK];
+float LArGeo::ModulesConstructionH62004::s_shiftY[NUM_LEAK];
+float LArGeo::ModulesConstructionH62004::s_shiftZ[NUM_LEAK];
 
 LArGeo::ModulesConstructionH62004::ModulesConstructionH62004():m_ModulesPhys(0),m_Options(0),m_fcalVisLimit(-1)
 {
@@ -77,70 +77,70 @@ LArGeo::ModulesConstructionH62004::ModulesConstructionH62004():m_ModulesPhys(0),
   if(first){
     first = false;
     for(int i=0; i<NUM_LEAK; ++i) {
-       dX[i] = dY[i] = dZ[i] = 0.;
-       shiftX[i] = shiftY[i] = shiftZ[i] = 0.;
-       angleX[i] = angleY[i] = angleZ[i] = 0.;
+       s_dX[i] = s_dY[i] = s_dZ[i] = 0.;
+       s_shiftX[i] = s_shiftY[i] = s_shiftZ[i] = 0.;
+       s_angleX[i] = s_angleY[i] = s_angleZ[i] = 0.;
     }
 
-    dX[0] = dX[1] = 1.*CLHEP::cm; dY[0]= dY[1] = 31.6*CLHEP::cm; dZ[0] = dZ[1] = 50.*CLHEP::cm; 
-    shiftX[0] = -26.*CLHEP::cm; shiftX[1] = -shiftX[0];
-    shiftY[0] = shiftY[1] = 85.1*CLHEP::cm; shiftZ[0] = shiftZ[1] = -3.*CLHEP::cm;
-    angleX[0] = angleX[1] = 4.668*CLHEP::deg; angleZ[0] = angleZ[1] = 0.*CLHEP::deg;
-    angleY[0] = -30.*CLHEP::deg; angleY[1] = -angleY[0]; 
-    dX[2] = 98.1*CLHEP::cm; dY[2] = 98.2*CLHEP::cm; dZ[2] = 30.6*CLHEP::cm;
-    shiftX[2] = 0.*CLHEP::cm; shiftY[2] = 89.7*CLHEP::cm; shiftZ[2] = -42.*CLHEP::cm;
-    angleX[2] = 94.668*CLHEP::deg; angleY[2] = 0.; angleZ[2] = 90.*CLHEP::degree;
+    s_dX[0] = s_dX[1] = 1.*CLHEP::cm; s_dY[0]= s_dY[1] = 31.6*CLHEP::cm; s_dZ[0] = s_dZ[1] = 50.*CLHEP::cm; 
+    s_shiftX[0] = -26.*CLHEP::cm; s_shiftX[1] = -s_shiftX[0];
+    s_shiftY[0] = s_shiftY[1] = 85.1*CLHEP::cm; s_shiftZ[0] = s_shiftZ[1] = -3.*CLHEP::cm;
+    s_angleX[0] = s_angleX[1] = 4.668*CLHEP::deg; s_angleZ[0] = s_angleZ[1] = 0.*CLHEP::deg;
+    s_angleY[0] = -30.*CLHEP::deg; s_angleY[1] = -s_angleY[0]; 
+    s_dX[2] = 98.1*CLHEP::cm; s_dY[2] = 98.2*CLHEP::cm; s_dZ[2] = 30.6*CLHEP::cm;
+    s_shiftX[2] = 0.*CLHEP::cm; s_shiftY[2] = 89.7*CLHEP::cm; s_shiftZ[2] = -42.*CLHEP::cm;
+    s_angleX[2] = 94.668*CLHEP::deg; s_angleY[2] = 0.; s_angleZ[2] = 90.*CLHEP::degree;
     
     
-    dX[3] = 1.*CLHEP::cm; dY[3] = 43.*CLHEP::cm; dZ[3] = 40.*CLHEP::cm;
-    dX[4] = dX[3]; dY[4] = dY[3]; dZ[4] = dZ[3];
-    shiftX[3] = -58.5*CLHEP::cm; shiftY[3] = 12.2*CLHEP::cm; shiftZ[3] = 5.*CLHEP::cm;
-    shiftX[4] = -shiftX[3]; shiftY[4] = shiftY[3]; shiftZ[4] = shiftZ[3];
-    angleX[3] = angleX[4] = 4.668*CLHEP::deg; angleY[3] = -45.*CLHEP::deg; 
-    angleY[4] = -angleY[3]; 
-    angleZ[3] = 0.*CLHEP::deg; 
-    angleZ[4] = -angleZ[3];
-    dX[5] = 130.*CLHEP::cm; dY[5] = 131.*CLHEP::cm; dZ[5] = 43.*CLHEP::cm; 
-    shiftX[5] = 0.*CLHEP::cm; shiftY[5] = 18.1*CLHEP::cm; shiftZ[5] = -62.*CLHEP::cm;
-    angleX[5] = 94.668*CLHEP::deg; angleY[5] = 0.*CLHEP::deg;
-    angleZ[5] = 90.*CLHEP::deg;
+    s_dX[3] = 1.*CLHEP::cm; s_dY[3] = 43.*CLHEP::cm; s_dZ[3] = 40.*CLHEP::cm;
+    s_dX[4] = s_dX[3]; s_dY[4] = s_dY[3]; s_dZ[4] = s_dZ[3];
+    s_shiftX[3] = -58.5*CLHEP::cm; s_shiftY[3] = 12.2*CLHEP::cm; s_shiftZ[3] = 5.*CLHEP::cm;
+    s_shiftX[4] = -s_shiftX[3]; s_shiftY[4] = s_shiftY[3]; s_shiftZ[4] = s_shiftZ[3];
+    s_angleX[3] = s_angleX[4] = 4.668*CLHEP::deg; s_angleY[3] = -45.*CLHEP::deg; 
+    s_angleY[4] = -s_angleY[3]; 
+    s_angleZ[3] = 0.*CLHEP::deg; 
+    s_angleZ[4] = -s_angleZ[3];
+    s_dX[5] = 130.*CLHEP::cm; s_dY[5] = 131.*CLHEP::cm; s_dZ[5] = 43.*CLHEP::cm; 
+    s_shiftX[5] = 0.*CLHEP::cm; s_shiftY[5] = 18.1*CLHEP::cm; s_shiftZ[5] = -62.*CLHEP::cm;
+    s_angleX[5] = 94.668*CLHEP::deg; s_angleY[5] = 0.*CLHEP::deg;
+    s_angleZ[5] = 90.*CLHEP::deg;
 
-    dX[6] = dX[7] = 1.*CLHEP::cm; dY[6] = dY[7] = 27.*CLHEP::cm; dZ[6] = dZ[7] = 40.*CLHEP::cm; 
-    shiftX[6] = -58.*CLHEP::cm; shiftY[6] = shiftY[7] = -57.85*CLHEP::cm; shiftZ[6] = shiftZ[7] = -1.*CLHEP::cm;
-    shiftX[7] = - shiftX[6]; 
-    angleX[6] = angleX[7] = 4.668*CLHEP::deg; angleY[6] = -45.*CLHEP::deg; angleZ[6] = angleZ[7] = 0.*CLHEP::deg;
-    angleY[7] = -angleY[6];
-    dX[8] = 130.*CLHEP::cm; dY[8] = 131.*CLHEP::cm; dZ[8] = 27.*CLHEP::cm;
-    shiftX[8] = 0.*CLHEP::cm; shiftY[8] = -51.9*CLHEP::cm; shiftZ[8] = -67.*CLHEP::cm;
-    angleX[8] = 94.668*CLHEP::degree; angleY[8] = 0.*CLHEP::degree; angleZ[8] = 90.*CLHEP::degree;
-    dX[9] = 1.*CLHEP::cm; dY[9] = 82.*CLHEP::cm; dZ[9] = 44.5*CLHEP::cm;
-    shiftX[9] = 0.*CLHEP::cm; shiftY[9] = -89.0*CLHEP::cm; shiftZ[9] = 32.5*CLHEP::cm;
-    angleX[9] = 4.668*CLHEP::degree; angleY[9] = 0.*CLHEP::degree; angleZ[9] = 90.*CLHEP::degree;    
+    s_dX[6] = s_dX[7] = 1.*CLHEP::cm; s_dY[6] = s_dY[7] = 27.*CLHEP::cm; s_dZ[6] = s_dZ[7] = 40.*CLHEP::cm; 
+    s_shiftX[6] = -58.*CLHEP::cm; s_shiftY[6] = s_shiftY[7] = -57.85*CLHEP::cm; s_shiftZ[6] = s_shiftZ[7] = -1.*CLHEP::cm;
+    s_shiftX[7] = - s_shiftX[6]; 
+    s_angleX[6] = s_angleX[7] = 4.668*CLHEP::deg; s_angleY[6] = -45.*CLHEP::deg; s_angleZ[6] = s_angleZ[7] = 0.*CLHEP::deg;
+    s_angleY[7] = -s_angleY[6];
+    s_dX[8] = 130.*CLHEP::cm; s_dY[8] = 131.*CLHEP::cm; s_dZ[8] = 27.*CLHEP::cm;
+    s_shiftX[8] = 0.*CLHEP::cm; s_shiftY[8] = -51.9*CLHEP::cm; s_shiftZ[8] = -67.*CLHEP::cm;
+    s_angleX[8] = 94.668*CLHEP::degree; s_angleY[8] = 0.*CLHEP::degree; s_angleZ[8] = 90.*CLHEP::degree;
+    s_dX[9] = 1.*CLHEP::cm; s_dY[9] = 82.*CLHEP::cm; s_dZ[9] = 44.5*CLHEP::cm;
+    s_shiftX[9] = 0.*CLHEP::cm; s_shiftY[9] = -89.0*CLHEP::cm; s_shiftZ[9] = 32.5*CLHEP::cm;
+    s_angleX[9] = 4.668*CLHEP::degree; s_angleY[9] = 0.*CLHEP::degree; s_angleZ[9] = 90.*CLHEP::degree;    
     
-    dX[10] = dX[11] =  1.*CLHEP::cm; dY[10] = dY[11] = 41.5*CLHEP::cm; dZ[10] = dZ[11] = 20.3*CLHEP::cm;
-    shiftX[10] = -15.4*CLHEP::cm; shiftY[10] = shiftY[11] = 14.50*CLHEP::cm; shiftZ[10] = shiftZ[11] = -39.*CLHEP::cm;
-    shiftX[11] = - shiftX[10];
-    angleX[10] = angleX[11] = 4.668*CLHEP::degree; angleY[10] = -45.*CLHEP::degree; angleZ[10] = 0.*CLHEP::degree;    
-    angleY[11] = -angleY[10]; angleZ[11] = -angleZ[10];    
+    s_dX[10] = s_dX[11] =  1.*CLHEP::cm; s_dY[10] = s_dY[11] = 41.5*CLHEP::cm; s_dZ[10] = s_dZ[11] = 20.3*CLHEP::cm;
+    s_shiftX[10] = -15.4*CLHEP::cm; s_shiftY[10] = s_shiftY[11] = 14.50*CLHEP::cm; s_shiftZ[10] = s_shiftZ[11] = -39.*CLHEP::cm;
+    s_shiftX[11] = - s_shiftX[10];
+    s_angleX[10] = s_angleX[11] = 4.668*CLHEP::degree; s_angleY[10] = -45.*CLHEP::degree; s_angleZ[10] = 0.*CLHEP::degree;    
+    s_angleY[11] = -s_angleY[10]; s_angleZ[11] = -s_angleZ[10];    
   
-    dX[12] = dX[13] = 1.*CLHEP::cm; dY[12] = dY[13] = 27.*CLHEP::cm; dZ[12] = dZ[13] = 20.3*CLHEP::cm;
-    shiftX[12] = -15.4*CLHEP::cm; shiftY[12] = shiftY[13] = -54.4*CLHEP::cm; shiftZ[12] = shiftZ[13] = -43.8*CLHEP::cm;
-    shiftX[13] = -shiftX[12];
-    angleX[12]  = angleX[13] = 4.668*CLHEP::degree; angleY[12] = -45.*CLHEP::degree; angleZ[12] = 0.*CLHEP::degree;
-    angleY[13] = -angleY[12]; angleZ[13] = -angleZ[12];
+    s_dX[12] = s_dX[13] = 1.*CLHEP::cm; s_dY[12] = s_dY[13] = 27.*CLHEP::cm; s_dZ[12] = s_dZ[13] = 20.3*CLHEP::cm;
+    s_shiftX[12] = -15.4*CLHEP::cm; s_shiftY[12] = s_shiftY[13] = -54.4*CLHEP::cm; s_shiftZ[12] = s_shiftZ[13] = -43.8*CLHEP::cm;
+    s_shiftX[13] = -s_shiftX[12];
+    s_angleX[12]  = s_angleX[13] = 4.668*CLHEP::degree; s_angleY[12] = -45.*CLHEP::degree; s_angleZ[12] = 0.*CLHEP::degree;
+    s_angleY[13] = -s_angleY[12]; s_angleZ[13] = -s_angleZ[12];
       
-    dX[14] = dX[15] = 1.*CLHEP::cm; dY[14] = dY[15] = 12.*CLHEP::cm; dZ[14] = dZ[15] = 25.3*CLHEP::cm;
-    shiftX[14] = -19.5*CLHEP::cm; shiftY[14] = shiftY[15] = -93.5*CLHEP::cm; shiftZ[14] = shiftZ[15] = -46.5*CLHEP::cm;
-    shiftX[15] = -shiftX[14];
-    angleX[14] = angleX[15] = 4.668*CLHEP::degree; angleY[14] = -45.*CLHEP::degree; angleZ[14] = angleZ[15] = 0.*CLHEP::degree;
-    angleY[15] = -angleY[14]; 
+    s_dX[14] = s_dX[15] = 1.*CLHEP::cm; s_dY[14] = s_dY[15] = 12.*CLHEP::cm; s_dZ[14] = s_dZ[15] = 25.3*CLHEP::cm;
+    s_shiftX[14] = -19.5*CLHEP::cm; s_shiftY[14] = s_shiftY[15] = -93.5*CLHEP::cm; s_shiftZ[14] = s_shiftZ[15] = -46.5*CLHEP::cm;
+    s_shiftX[15] = -s_shiftX[14];
+    s_angleX[14] = s_angleX[15] = 4.668*CLHEP::degree; s_angleY[14] = -45.*CLHEP::degree; s_angleZ[14] = s_angleZ[15] = 0.*CLHEP::degree;
+    s_angleY[15] = -s_angleY[14]; 
     
-    dX[16] = 59.5*CLHEP::cm; dY[16] = 60.0*CLHEP::cm; dZ[16] = 12.0*CLHEP::cm;
-    shiftX[16] = 0.*CLHEP::cm; shiftY[16] = -91.5*CLHEP::cm; shiftZ[16] = -73.5*CLHEP::cm;
-    angleX[16] = 94.668*CLHEP::degree; angleY[16] = 0.*CLHEP::degree; angleZ[16] = 90.*CLHEP::degree;
-    dX[17] = 0.3*CLHEP::cm; dY[17] = 35.*CLHEP::cm; dZ[17] = 25.*CLHEP::cm;
-    shiftX[17] = 0.*CLHEP::cm; shiftY[17] = -107.0*CLHEP::cm; shiftZ[17] = -40.*CLHEP::cm;
-    angleX[17] = 4.668*CLHEP::degree; angleY[17] = 0.*CLHEP::degree; angleZ[17] = 90.*CLHEP::degree;
+    s_dX[16] = 59.5*CLHEP::cm; s_dY[16] = 60.0*CLHEP::cm; s_dZ[16] = 12.0*CLHEP::cm;
+    s_shiftX[16] = 0.*CLHEP::cm; s_shiftY[16] = -91.5*CLHEP::cm; s_shiftZ[16] = -73.5*CLHEP::cm;
+    s_angleX[16] = 94.668*CLHEP::degree; s_angleY[16] = 0.*CLHEP::degree; s_angleZ[16] = 90.*CLHEP::degree;
+    s_dX[17] = 0.3*CLHEP::cm; s_dY[17] = 35.*CLHEP::cm; s_dZ[17] = 25.*CLHEP::cm;
+    s_shiftX[17] = 0.*CLHEP::cm; s_shiftY[17] = -107.0*CLHEP::cm; s_shiftZ[17] = -40.*CLHEP::cm;
+    s_angleX[17] = 4.668*CLHEP::degree; s_angleY[17] = 0.*CLHEP::degree; s_angleZ[17] = 90.*CLHEP::degree;
      
   }
   //StoreGateSvc* detStore;
@@ -612,7 +612,7 @@ GeoLogVol * LArGeo::ModulesConstructionH62004::construct(int side, int dir, int 
 //----------------- construct ID and name
   int myID = GetID(side,dir,calo);
   if(myID == 0 || myID > NUM_LEAK) return 0;
-  if(dX[myID-1] == 0 && dY[myID-1] == 0 && dZ[myID-1] == 0) return 0;
+  if(s_dX[myID-1] == 0 && s_dY[myID-1] == 0 && s_dZ[myID-1] == 0) return 0;
   name = "LArGeoTB::LeakageDet::";  
   switch(calo){
   case 0:
@@ -670,18 +670,18 @@ GeoLogVol * LArGeo::ModulesConstructionH62004::construct(int side, int dir, int 
 //------------------ now construct shape and logical volume ---------------
   GeoLogVol *volume_log;
   if(myID == 6 || myID == 9 || myID == 17) {
-     GeoTubs *tub = new GeoTubs(dX[myID-1],dY[myID-1],dZ[myID-1],-43.*CLHEP::degree,86.*CLHEP::degree);
+     GeoTubs *tub = new GeoTubs(s_dX[myID-1],s_dY[myID-1],s_dZ[myID-1],-43.*CLHEP::degree,86.*CLHEP::degree);
      volume_log = new GeoLogVol(name,tub,Vacuum); 
   } else if(myID == 3) {
-     GeoTubs *tub = new GeoTubs(dX[myID-1],dY[myID-1],dZ[myID-1],-32.*CLHEP::degree,64.*CLHEP::degree);
+     GeoTubs *tub = new GeoTubs(s_dX[myID-1],s_dY[myID-1],s_dZ[myID-1],-32.*CLHEP::degree,64.*CLHEP::degree);
      volume_log = new GeoLogVol(name,tub,Vacuum); 
 #if 0 // impossible case...
   } else if(myID == 19) {
-    GeoTrd *trd = new GeoTrd(dX[myID-1]-16.*CLHEP::cm,dX[myID-1],dY[myID-1],dY[myID-1],dZ[myID-1]);
+    GeoTrd *trd = new GeoTrd(s_dX[myID-1]-16.*CLHEP::cm,s_dX[myID-1],s_dY[myID-1],s_dY[myID-1],s_dZ[myID-1]);
     volume_log = new GeoLogVol(name,trd,Vacuum); 
 #endif
   } else {
-    GeoBox *mbox = new GeoBox(dX[myID-1], dY[myID-1], dZ[myID-1]);
+    GeoBox *mbox = new GeoBox(s_dX[myID-1], s_dY[myID-1], s_dZ[myID-1]);
     volume_log = new GeoLogVol(name,mbox,Vacuum);
   }
   return volume_log;
@@ -699,11 +699,11 @@ HepGeom::Transform3D LArGeo::ModulesConstructionH62004::position(int side, int d
   if(myID > NUM_LEAK) return leak_position;
 
   CLHEP::HepRotation rotM;
-  rotM.rotateZ(angleZ[myID-1]);
-  rotM.rotateY(angleY[myID-1]);
-  rotM.rotateX(angleX[myID-1]);
+  rotM.rotateZ(s_angleZ[myID-1]);
+  rotM.rotateY(s_angleY[myID-1]);
+  rotM.rotateX(s_angleX[myID-1]);
 
-  leak_position = HepGeom::Transform3D(rotM,CLHEP::Hep3Vector(shiftX[myID-1],shiftY[myID-1],shiftZ[myID-1]));
+  leak_position = HepGeom::Transform3D(rotM,CLHEP::Hep3Vector(s_shiftX[myID-1],s_shiftY[myID-1],s_shiftZ[myID-1]));
 
   return leak_position;
 }

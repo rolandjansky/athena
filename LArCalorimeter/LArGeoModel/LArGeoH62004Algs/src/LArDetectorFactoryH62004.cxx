@@ -225,7 +225,7 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
      GeoVPhysVol* middle = 0;
      middle = MiddleBeamConstruction.GetEnvelope();
      if(middle != 0 && expHallPhys !=0){
-	double ym_pos = m_tableYpos  * (z_bardm + 2160*CLHEP::cm) / (bttb_pos + 2160*CLHEP::cm);
+        double ym_pos = m_tableYpos  * (z_bardm + 2160*CLHEP::cm) * (1./(bttb_pos + 2160*CLHEP::cm));
 	expHallPhys->add( new GeoNameTag("H62004::Middle"));
 	expHallPhys->add( new GeoTransform( HepGeom::TranslateY3D(ym_pos) * HepGeom::TranslateZ3D(z_bardm) ) );
 	expHallPhys->add(middle);
@@ -342,9 +342,9 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
           }
            std::cout<<"Added "<<hecDetManager->getNumDetectorRegions()<<" regions in HEC"<<std::endl;
         } 
-        catch (std::exception & _ex) {
-            //log << MSG::WARNING << "Unable to build HEC detector manager. " << _ex.what() << endreq;
-           std::cout << "Unable to build HEC detector manager. " << _ex.what() << std::endl;
+        catch (std::exception & ex) {
+            //log << MSG::WARNING << "Unable to build HEC detector manager. " << ex.what() << endreq;
+           std::cout << "Unable to build HEC detector manager. " << ex.what() << std::endl;
         }
      } else {
         //log << MSG::DEBUG << " No Stored PV for MODULES_POS in Detector Store" << endreq;
@@ -360,8 +360,8 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
 	   FCALModule *detDescr = new FCALModule(fcal1->getPhysVol(),FCALModule::FCAL1,FCALModule::POS);
 	   fcalDetectorManager->addModule(detDescr);
 	}
-	catch (std::exception & _ex) {
-           std::cout << "Unable to build FCAL1 detector manager. " << _ex.what() << std::endl;
+	catch (std::exception & ex) {
+           std::cout << "Unable to build FCAL1 detector manager. " << ex.what() << std::endl;
         }
      } else {
         std::cout << " No Stored PV for FCAL1 in Detector Store" << std::endl;
@@ -376,8 +376,8 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
 	   FCALModule *detDescr = new FCALModule(fcal2->getPhysVol(),FCALModule::FCAL2,FCALModule::POS);
 	   fcalDetectorManager->addModule(detDescr);
 	}
-	catch (std::exception & _ex) {
-           std::cout << "Unable to build FCAL2 detector manager. " << _ex.what() << std::endl;
+	catch (std::exception & ex) {
+           std::cout << "Unable to build FCAL2 detector manager. " << ex.what() << std::endl;
         }
      } else {
         std::cout << " No Stored PV for FCAL2 in Detector Store" << std::endl;
