@@ -1,9 +1,4 @@
 package ISF_Services
-author <Andreas.Salzburger@cern.ch>
-
-manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
-manager Elmar Ritsch <Elmar.Ritsch@cern.ch>
-manager Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
 
 #################################################################
 # public use statements
@@ -22,13 +17,11 @@ use BarcodeInterfaces             BarcodeInterfaces-*     Simulation/Barcode
 use BarcodeServices               BarcodeServices-*        Simulation/Barcode
 use CaloIdentifier                CaloIdentifier-*        Calorimeter
 use CaloSimEvent                  CaloSimEvent-*          Calorimeter
-use FadsSensitiveDetector         FadsSensitiveDetector-* Simulation/G4Sim/FADS
 use GeneratorObjects              GeneratorObjects-*      Generators
 use G4AtlasInterfaces             G4AtlasInterfaces-*     Simulation/G4Atlas
 use InDetSimEvent                 InDetSimEvent-*         InnerDetector
 use ISF_Interfaces                ISF_Interfaces-*        Simulation/ISF/ISF_Core
 use ISF_Event                     ISF_Event-*             Simulation/ISF/ISF_Core
-use LArSimEvent                   LArSimEvent-*           LArCalorimeter
 use MuonSimEvent                  MuonSimEvent-*          MuonSpectrometer
 use PmbCxxUtils                   PmbCxxUtils-*           Tools
 use SimHelpers                    SimHelpers-*            Simulation/G4Sim
@@ -36,6 +29,7 @@ use StoreGate                     StoreGate-*             Control
 use SubDetectorEnvelopes          SubDetectorEnvelopes-*  AtlasGeometryCommon
 use TileSimEvent                  TileSimEvent-*          TileCalorimeter
 use TrackRecord                   TrackRecord-*           Simulation/G4Sim
+end_private
 
 public
 library ISF_Services *.cxx components/*.cxx
