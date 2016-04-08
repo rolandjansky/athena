@@ -82,7 +82,7 @@ StatusCode ParticleCreatorNTuple::fillEventInfo(unsigned nRunNumber, unsigned nE
 
 StatusCode ParticleCreatorNTuple::fill(const CandidateSummary* pSummary,
                                        bool doTruth,
-                                       ToolHandle<IPerformanceTruthTool> pTruthTool)
+                                       const ToolHandle<IPerformanceTruthTool> &pTruthTool)
 {
     if (m_log.level() <= MSG::DEBUG)
         m_log << MSG::DEBUG << "ParticleCreatorNTuple::fill" << endreq;
