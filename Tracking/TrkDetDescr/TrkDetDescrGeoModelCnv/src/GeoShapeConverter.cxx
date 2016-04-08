@@ -38,6 +38,14 @@
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
+// #define DEBUG
+#ifdef DEBUG
+#  define DEBUG_TRACE(a) do { a } while (0)
+#else
+#  define DEBUG_TRACE(a) do {  } while (0)
+#endif
+
+
 namespace {
 	//commonly used axes
 	const Amg::Vector3D gXAxis(1.0, 0.0, 0.0), gYAxis(0.0, 1.0, 0.0), gZAxis(0.0, 0.0, 1.0);
@@ -82,6 +90,8 @@ Trk::CylinderVolumeBounds* Trk::GeoShapeConverter::convert(const GeoPcon* gpcon,
     rMin = gpcon->getRMinPlane(iplane) < rMin ? gpcon->getRMinPlane(iplane) : rMin;
     rMax = gpcon->getRMaxPlane(iplane) > rMin ? gpcon->getRMaxPlane(iplane) : rMax;
 
+//    std::cout << " Pcon iplane "  << iplane << " gpcon->getZPlane(iplane) " << gpcon->getZPlane(iplane) << " zmin " << zMin << " zmax " << zMax << std::endl;
+//    std::cout << " Pcon iplane "  << iplane << " gpcon->getRminPlane(iplane) " << gpcon->getRMinPlane(iplane) << " rmin " << rMin << " gpcon->getRmaxPlane(iplane) " << gpcon->getRMaxPlane(iplane) << " rmax " << rMax << std::endl;
 
   }
   zbounds.push_back(zMin);
@@ -103,6 +113,8 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
 {
   Trk::Volume* vol=0;
   double tol = 0.1;
+
+  DEBUG_TRACE( std::cout << " translateGeoShape " << sh->type() << std::endl; );
 
   if ( sh->type()=="Trap") {
     const GeoTrap* trap = dynamic_cast<const GeoTrap*> (sh);
@@ -184,33 +196,110 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     double y2= trd->getYHalfLength2();
     double z = trd->getZHalfLength();
     //
+    DEBUG_TRACE( std::cout <<  " Trd x1 " << x1 << " x2 " << x2 << " y1 " << y1 << " y2 " << y2 << " z " << z << std::endl; );
+
+// Note this flip comes from the y axis in Tracking -> z axis in Geomodel
+
+    const Amg::AngleAxis3D yzFlip(p90deg,gXAxis);
     if (y1==y2) {
       if ( x1 <= x2 ) {
+//
+// my P.K. guess
+//
 	    Trk::TrapezoidVolumeBounds* volBounds=new Trk::TrapezoidVolumeBounds(x1,x2,z,y1);
-	    vol = new Trk::Volume(new Amg::Transform3D(*transf),volBounds);
+       	    Amg::Transform3D totalTransform = (*transf) * yzFlip; 
+	        vol = new Trk::Volume(new Amg::Transform3D(totalTransform),volBounds);
+                DEBUG_TRACE( std::cout <<  " Trd new volume case 1 Trapezoid minHalflengthX " << volBounds->minHalflengthX() << " maxHalflengthX() " << volBounds->maxHalflengthX() << std::endl; );
       } else {
-       	Trk::TrapezoidVolumeBounds* volBounds=new Trk::TrapezoidVolumeBounds(x2,x1,z,y1);
-       	const Amg::AngleAxis3D xRotation(p180deg,gXAxis);
-       	Amg::Transform3D totalTransform = (*transf) * xRotation; 
+
+        Trk::TrapezoidVolumeBounds* volBounds=new Trk::TrapezoidVolumeBounds(x2,x1,z,y1);
+       	const Amg::AngleAxis3D yFlip(p180deg,gXAxis);
+       	const Amg::AngleAxis3D xySign(p180deg,gZAxis);
+
+       	Amg::Transform3D totalTransform = (*transf) * yFlip * yzFlip; 
 	    vol = new Trk::Volume(new Amg::Transform3D(totalTransform),volBounds);
+
+        DEBUG_TRACE( {
+          std::cout <<  " Trd new volume case 2 Trapezoid minHalflengthX " << volBounds->minHalflengthX() << " maxHalflengthX() " << volBounds->maxHalflengthX() << std::endl;
+// original local coordinates in Geomodel (check that routine is NOT called with the  1,1,1 Matrix)
+          Amg::Vector3D top(-x1,y1,z);
+          Amg::Vector3D bottom(-x2,y1,-z);
+          Amg::Vector3D top2(x1,y1,z);
+          Amg::Vector3D bottom2(x2,y1,-z);
+          
+          std::cout << " Original topLocal x " << top.x() << " y " << top.y() << " z " << top.z() << " Radius " << bottom.perp() << std::endl;
+          std::cout << " Original bottomLocal x " << bottom.x() << " y " << bottom.y() << " z " << bottom.z() << " Radius " << bottom.perp() << std::endl;
+          Amg::Vector3D topG = (*transf)*top;
+          Amg::Vector3D bottomG = (*transf)*bottom; 
+          std::cout << " top Global x " << topG.x() << " y " << topG.y() << " z " << topG.z() << " Radius " << topG.perp() << std::endl;
+          std::cout << " bottom Global x " << bottomG.x() << " y " << bottomG.y() << " z " << bottomG.z() << " Radius " << bottomG.perp() << std::endl;
+          topG = (*transf)*top2;
+          bottomG = (*transf)*bottom2; 
+          std::cout << " top2 Global x " << topG.x() << " y " << topG.y() << " z " << topG.z() << " Radius " << topG.perp() << std::endl;
+          std::cout << " bottom2 Global x " << bottomG.x() << " y " << bottomG.y() << " z " << bottomG.z() << " Radius " << bottomG.perp() << std::endl;
+
+// new local coordinates 
+          Amg::Vector3D topR(-x2,z,y1);
+          Amg::Vector3D bottomR(-x1,-z,y1);
+          Amg::Vector3D top2R(x2,z,y1);
+          Amg::Vector3D bottom2R(x1,-z,y1);
+          topG = totalTransform*topR;
+          bottomG = totalTransform*bottomR; 
+          std::cout << " topR Global x " << topG.x() << " y " << topG.y() << " z " << topG.z() << " Radius " << topG.perp() << std::endl;
+          std::cout << " bottomR Global x " << bottomG.x() << " y " << bottomG.y() << " z " << bottomG.z() << " Radius " << bottomG.perp() << std::endl;
+          topG = totalTransform*top2R;
+          bottomG = totalTransform*bottom2R; 
+          std::cout << " top2R Global x " << topG.x() << " y " << topG.y() << " z " << topG.z() << " Radius " << topG.perp() << std::endl;
+          std::cout << " bottom2R Global x " << bottomG.x() << " y " << bottomG.y() << " z " << bottomG.z() << " Radius " << bottomG.perp() << std::endl;
+
+          std::cout << " Original bottomLocal x " << bottom.x() << " y " << bottom.y() << " z " << bottom.z() << " Radius " << bottom.perp() << std::endl;
+          std::cout << " topLocal x " << topR.x() << " y " << topR.y() << " z " << topR.z() << " Radius " << topR.perp() << std::endl;
+          topG = yFlip*topR;
+          std::cout << " topLocal Y Flip  x " << topG.x() << " y " << topG.y() << " z " << topG.z() << " Radius " << topG.perp() << std::endl;
+       	  const Amg::AngleAxis3D xFlip(p180deg,gYAxis);
+          topG = xFlip*topR;
+          std::cout << " topLocal X Flip  x " << topG.x() << " y " << topG.y() << " z " << topG.z() << " Radius " << topG.perp() << std::endl;
+          const Amg::AngleAxis3D xyFlip(p90deg,gZAxis);
+          topG = xyFlip*topR; 
+          std::cout << " topLocal XY Flip  x " << topG.x() << " y " << topG.y() << " z " << topG.z() << " Radius " << topG.perp() << std::endl;
+          topG = yzFlip*topR; 
+          std::cout << " topLocal YZ Flip  x " << topG.x() << " y " << topG.y() << " z " << topG.z() << " Radius " << topG.perp() << std::endl;
+       	  const Amg::AngleAxis3D xzFlip(p90deg,gYAxis);
+          topG = xzFlip*topR; 
+          std::cout << " topLocal XZ Flip  x " << topG.x() << " y " << topG.y() << " z " << topG.z() << " Radius " << topG.perp() << std::endl;
+          topG = xySign*topR; 
+          std::cout << " topLocal XY sign Flip  x " << topG.x() << " y " << topG.y() << " z " << topG.z() << " Radius " << topG.perp() << std::endl;
+          } ); 
       }
       
       return vol;
     } else if (x1==x2) {
       if ( y1 < y2 ) {
 	    Trk::TrapezoidVolumeBounds* volBounds=new Trk::TrapezoidVolumeBounds(y1,y2,z,x1);
-	    const Amg::AngleAxis3D yRotation(p90deg, gYAxis);
-	    const Amg::AngleAxis3D zRotation(p90deg, gZAxis);
-	    Amg::Transform3D totalTransform = yRotation * (*transf) * zRotation;
+//	    const Amg::AngleAxis3D yRotation(p90deg, gYAxis);
+//	    const Amg::AngleAxis3D zRotation(p90deg, gZAxis);
+//	    Amg::Transform3D totalTransform = yRotation * (*transf) * zRotation;
+//
+// my P.K. guess
+//
+            const Amg::AngleAxis3D xyFlip(p90deg,gZAxis);
+            Amg::Transform3D totalTransform = (*transf) * xyFlip * yzFlip;
 	    vol = new Trk::Volume(new Amg::Transform3D(totalTransform), volBounds);
 	    //original line:
 	    //vol = new Trk::Volume(new HepGeom::Transform3D(HepGeom::RotateY3D(90*CLHEP::deg)*(*transf)*HepGeom::RotateZ3D(90*CLHEP::deg)), volBounds );
+            DEBUG_TRACE( std::cout <<  " Trd new volume case 3 Trapezoid minHalflengthX " << volBounds->minHalflengthX() << " maxHalflengthX() " << volBounds->maxHalflengthX() << std::endl; );
       } else {
 	    Trk::TrapezoidVolumeBounds* volBounds=new Trk::TrapezoidVolumeBounds(y2,y1,z,x1);
-	    const Amg::AngleAxis3D yRotation(p90deg, gYAxis);
-	    const Amg::Transform3D totalTransform = yRotation * (*transf);
+//	    const Amg::AngleAxis3D yRotation(p90deg, gYAxis);
+//	    const Amg::Transform3D totalTransform = yRotation * (*transf);
+// my P.K. guess
+//
+            const Amg::AngleAxis3D xyFlip(p90deg,gZAxis);
+            const Amg::AngleAxis3D yFlip(p180deg,gXAxis);
+            Amg::Transform3D totalTransform = (*transf) * yFlip * xyFlip * yzFlip;
 	    //totalTransform *= (*transf);
 	    vol = new Trk::Volume(new Amg::Transform3D(totalTransform), volBounds );
+            DEBUG_TRACE( std::cout <<  " Trd new volume case 4 Trapezoid minHalflengthX " << volBounds->minHalflengthX() << " maxHalflengthX() " << volBounds->maxHalflengthX() << std::endl; );
       }
       return vol;
     } else {
@@ -301,6 +390,7 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     double R1 = con->getRMaxPlane(0);
     std::vector<Trk::Volume*> cyls;
     const unsigned int nPlanes=con->getNPlanes();
+    DEBUG_TRACE( std::cout << " convert pcon aPhi " << aPhi << " dPhi " << dPhi << " z1 " <<z1 << " r1 " << r1 <<" R1 " << R1 << " nPlanes " << nPlanes << std::endl; );
     for (unsigned int iv=1;iv<nPlanes;iv++) {
       double z2 = con->getZPlane(iv);
       double r2 = con->getRMinPlane(iv);
@@ -309,24 +399,54 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
       double hz = 0.5*fabs(z1-z2);
       double rmin = fmax(r1,r2);
       double rmax = sqrt( ( R1*R1+R1*R2+R2*R2-r1*r1-r1*r2-r2*r2 )/3 + rmin*rmin );
-      // translate into tube sector
-      if ( dPhi == 2*M_PI ) {
-		volBounds=new Trk::CylinderVolumeBounds(rmin,rmax,hz);
-		Amg::Transform3D totalTransform(*transf);
-		Amg::Vector3D translationVector(0.0, 0.0, zshift);
-		Amg::Translation3D zTranslation (translationVector);
-		totalTransform *= zTranslation;
-		cyls.push_back(new Trk::Volume(new Amg::Transform3D(totalTransform), volBounds ));
-      } else {
-		volBounds=new Trk::CylinderVolumeBounds(rmin,rmax,0.5*dPhi,hz);
-		Amg::Transform3D totalTransform(*transf);
-	    Amg::Vector3D translationVector(0.0, 0.0, zshift);
-	    Amg::Translation3D zTranslation (translationVector);
-	    totalTransform *= zTranslation;
-	    const Amg::AngleAxis3D zRotation(aPhi + 2.0*dPhi, gZAxis);
-	    totalTransform *=zRotation;
-		cyls.push_back(new Trk::Volume(new Amg::Transform3D(totalTransform), volBounds ));
+      DEBUG_TRACE( std::cout << " iPlane " << iv <<  " z2 " <<z2 << " r2 " << r2 <<" R2 " << R2 << " zshift " << zshift << " hz " << hz <<  " rmin " << rmin << " rmax " << rmax << std::endl; );
+      double dz =  con->getZPlane(iv) -  con->getZPlane(iv-1);
+      double drMin =  con->getRMinPlane(iv) -  con->getRMinPlane(iv-1);
+      double drMax =  con->getRMaxPlane(iv) -  con->getRMaxPlane(iv-1);
+      int nSteps = 1;
+      if(fabs(dz)>1&&(fabs(drMin)>0.1*fabs(dz)||fabs(drMax)>0.1*fabs(dz))) {
+         double dMax = fabs(dz);
+         if(fabs(drMin)> dMax) dMax = fabs(drMin);
+         if(fabs(drMax)> dMax) dMax = fabs(drMax);
+         nSteps = dMax/50.;
+//         nSteps = dMax/100.;
+         if(nSteps<2) nSteps = 2;
+         if(nSteps>20) nSteps = 20;
+         DEBUG_TRACE( std::cout << " Now " << nSteps << " cylinders should be created " << dz << " drMin " << drMin << " drMax " << drMax << " splopeMin " << drMin/dz << " slopeMax " << drMax/dz << std::endl; );
       }
+//      nSteps = 1;
+      
+      for (int j=0;j<nSteps;j++) {
+
+// divide volume into nStep cylinders
+
+        double zStep = (0.5 + j)*dz/nSteps;
+        if(nSteps>1) {
+          hz     = 0.5*fabs(z1-z2)/nSteps;
+          zshift = z1 + zStep;
+          rmin   = r1 + drMin*zStep/dz;
+          rmax   = R1 + drMax*zStep/dz;
+        }
+        DEBUG_TRACE( std::cout << " cylinder " << j << " zshift " << zshift << " rmin " << rmin << " rmax " << rmax << " hz " << hz << std::endl; );
+      // translate into tube sector
+        if ( dPhi == 2*M_PI ) {
+	   volBounds=new Trk::CylinderVolumeBounds(rmin,rmax,hz);
+	   Amg::Transform3D totalTransform(*transf);
+	   Amg::Vector3D translationVector(0.0, 0.0, zshift);
+	   Amg::Translation3D zTranslation (translationVector);
+	   totalTransform *= zTranslation;
+	   cyls.push_back(new Trk::Volume(new Amg::Transform3D(totalTransform), volBounds ));
+        } else {
+	   volBounds=new Trk::CylinderVolumeBounds(rmin,rmax,0.5*dPhi,hz);
+	   Amg::Transform3D totalTransform(*transf);
+	   Amg::Vector3D translationVector(0.0, 0.0, zshift);
+	   Amg::Translation3D zTranslation (translationVector);
+	   totalTransform *= zTranslation;
+	   const Amg::AngleAxis3D zRotation(aPhi + 2.0*dPhi, gZAxis);
+	   totalTransform *=zRotation;
+	   cyls.push_back(new Trk::Volume(new Amg::Transform3D(totalTransform), volBounds ));
+        }
+      } // end loop over steps
       z1 = z2; r1 = r2; R1 = R2;
     }
     if (cyls.size()<2) return cyls[0];
@@ -348,7 +468,10 @@ Trk::Volume* Trk::GeoShapeConverter::translateGeoShape(const GeoShape* sh, Amg::
     if (!spb) return 0;
     unsigned int nv = spb->getNVertices();
     std::vector<std::pair<double,double> > ivtx(nv);
-    for (unsigned int iv = 0; iv < nv; iv++) ivtx[iv]=std::pair<double,double>(spb->getXVertex(iv),spb->getYVertex(iv));
+    for (unsigned int iv = 0; iv < nv; iv++) {
+     ivtx[iv]=std::pair<double,double>(spb->getXVertex(iv),spb->getYVertex(iv));
+     DEBUG_TRACE( std::cout << " SimplePolygonBrep  x " << spb->getXVertex(iv) << " y " << spb->getYVertex(iv) << " z " << spb->getDZ() << std::endl; );
+    }   
     return new Trk::Volume(new Amg::Transform3D(*transf),new Trk::SimplePolygonBrepVolumeBounds(ivtx,spb->getDZ()));
   }
 
