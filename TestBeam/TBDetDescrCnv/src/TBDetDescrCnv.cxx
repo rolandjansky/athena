@@ -18,17 +18,17 @@
 #include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "StoreGate/StoreGate.h" 
+#include "StoreGate/StoreGate.h"
 
 #include "TBDetDescr/TBDetDescrManager.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
-//needed to access G4 geometry 
-//#include "FadsGeometry/DetectorFacility.h"
-#include "FadsGeometry/DetectorFacilityCatalog.h"
-//#include "FadsGeometry/GeometryManager.h"
-using namespace FADS;
+//needed to access G4 geometry
+#include "G4PhysicalVolumeStore.hh"
+#include "G4VPhysicalVolume.hh"
+
+#include <CLHEP/Geometry/Vector3D.h>
 
 #include <string>
 
@@ -42,7 +42,7 @@ using namespace FADS;
 //<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
-StatusCode 
+StatusCode
 TBDetDescrCnv::initialize()
 {
     // First call parent init
@@ -53,32 +53,32 @@ TBDetDescrCnv::initialize()
 
     if (sc.isFailure()) {
         log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
-	return sc;
+        return sc;
     }
-    
-    return StatusCode::SUCCESS; 
-}
 
-//--------------------------------------------------------------------
-
-StatusCode 
-TBDetDescrCnv::finalize()
-{
-    MsgStream log(messageService(), "TBDetDescrCnv");
-    log << MSG::INFO << "in finalize" << endreq;
-
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
 }
 
 //--------------------------------------------------------------------
 
 StatusCode
-TBDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
+TBDetDescrCnv::finalize()
+{
+    MsgStream log(messageService(), "TBDetDescrCnv");
+    log << MSG::INFO << "in finalize" << endreq;
+
+    return StatusCode::SUCCESS;
+}
+
+//--------------------------------------------------------------------
+
+StatusCode
+TBDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 {
   //StatusCode sc = StatusCode::SUCCESS;
   MsgStream log(messageService(), "TBDetDescrCnv");
-  log << MSG::INFO 
-      << "in createObj: creating a TBDetDescrManager object in the detector store" 
+  log << MSG::INFO
+      << "in createObj: creating a TBDetDescrManager object in the detector store"
       << endreq;
 
   // Create a new TBDetDescrManager
@@ -98,35 +98,37 @@ TBDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
   else {
     log << MSG::DEBUG << "Manager key is " << mgrKey << endreq;
   }
-    
+
   // Create the manager
-  TBDetDescrManager* TBmgr = new TBDetDescrManager(); 
+  TBDetDescrManager* TBmgr = new TBDetDescrManager();
 
   // Pass a pointer to the container to the Persistency service by reference.
   pObj = StoreGateSvc::asStorable(TBmgr);
 
   // Initialize the TBDetDescr manager from FADS
 
-  DetectorFacilityCatalog *dfs=DetectorFacilityCatalog::GetInstance();
-  //GeometryManager *gm=GeometryManager::GetGeometryManager();
-  //gm->PrintSolids();
-
+  // Go through the physical volumes and hook the SDs up
+  G4PhysicalVolumeStore *physicalVolumeStore = G4PhysicalVolumeStore::GetInstance();
   for (unsigned int iid=0; iid<TBElementID::TotalSize; ++iid) {
 
     TBElementID::TBElementID id = (TBElementID::TBElementID)iid;
     std::string name=TBmgr->getElement(id).name();
 
     if (name.length() > 0) {
-      
+
       G4String det = name;
-
-      if (dfs->GetDetector(det)) {
-
-        HepGeom::Vector3D<double> position = dfs->GetDetector(det)->GetEnvelope().thePosition;
+      G4VPhysicalVolume *thePhysicalVolume = physicalVolumeStore->GetVolume(det,false);
+      //NB This call will just return the first one which matches,
+      //there is no protection against multiple volumes with the same
+      //name.
+      if (thePhysicalVolume) {
+        HepGeom::Vector3D<double> position = thePhysicalVolume->GetTranslation();//possibly GetFrameTranslation() or GetObjectTranslation()??
         CLHEP::HepRotation rotation;
-        if(G4RotationMatrix *r=dfs->GetDetector(det)->GetEnvelope().theRotation)
-          rotation = (*r);
-
+        G4RotationMatrix *r=thePhysicalVolume->GetRotation(); //possibly GetFrameRotation() or GetObjectRotation()??
+        if(r)
+          {
+            rotation = (*r);
+          }
         Amg::Vector3D positionEigen=Amg::Vector3D(position.x(), position.y(), position.z());
         Amg::RotationMatrix3D rotationEigen=Amg::RotationMatrix3D(3,3);
         rotationEigen<<rotation.xx(),rotation.xy(),rotation.xz(),
@@ -136,16 +138,16 @@ TBDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
         log << MSG::DEBUG
             << (std::string)TBmgr->getElement(id)
             << endreq;
-      
+
       } else {
-        log << MSG::DEBUG 
+        log << MSG::DEBUG
             << "TBElement '" << name << "' not found among G4 volumes"
             << endreq;
-      } 
-    } 
+      }
+    }
   }
 
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 
 }
 
@@ -164,19 +166,18 @@ TBDetDescrCnv::repSvcType() const
 }
 
 //--------------------------------------------------------------------
-const CLID& 
-TBDetDescrCnv::classID() { 
-    return ClassID_traits<TBDetDescrManager>::ID(); 
+const CLID&
+TBDetDescrCnv::classID() {
+    return ClassID_traits<TBDetDescrManager>::ID();
 }
 
 //--------------------------------------------------------------------
-TBDetDescrCnv::TBDetDescrCnv(ISvcLocator* svcloc) 
+TBDetDescrCnv::TBDetDescrCnv(ISvcLocator* svcloc)
     :
     DetDescrConverter(ClassID_traits<TBDetDescrManager>::ID(), svcloc)
 {
   MsgStream log(messageService(), "TBDetDescrCnv");
-  log << MSG::DEBUG 
+  log << MSG::DEBUG
       << "in TBDetDescrCnv::TBDetDescrCnv "
       << endreq;
 }
-
