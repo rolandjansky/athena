@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBphys_v1.cxx 631136 2014-11-26 11:22:46Z gwatts $
+// $Id: TrigBphys_v1.cxx 696633 2015-09-24 14:59:50Z jwalder $
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -24,16 +24,25 @@ namespace xAOD {
         setRoiId(0);
         setEta  (0.);
         setPhi  (0.);
+        setPt   (0.);
         setMass (0.);
         setLevel       (UNKOWNLEVEL);
         setParticleType(UNKNOWNPTYPE);
         // set defaults
         setFitmass(-99.);
         setFitchi2(-99.);
-        setFitndof(-99);
-        setFitx   (-99);
-        setFity   (-99);
-        setFitz   (-99);
+        setFitndof(-99.);
+        setFitx   (-99.);
+        setFity   (-99.);
+        setFitz   (-99.);
+        
+        setFitmassError( -99.);
+        setLxy     ( -99.);
+        setLxyError( -99.);
+        setTau     ( -99.);
+        setTauError( -99.);
+
+        
         // ensure that we clear unused variables
         //secondaryDecay.clear();
         //trackVector.clear();
@@ -48,7 +57,8 @@ namespace xAOD {
             // if attempting to clone oneself, dont
             return;
         }
-        initialise(rhs.roiId(), rhs.eta(), rhs.phi(), rhs.particleType(),
+        initialise(rhs.roiId(), rhs.eta(), rhs.phi(), rhs.pt(),
+                   rhs.particleType(),
                    rhs.mass(), rhs.level());
         setFitmass(rhs.fitmass());
         setFitchi2(rhs.fitchi2());
@@ -67,22 +77,63 @@ namespace xAOD {
 
 
     //** initialise with default parameters */
-    void TrigBphys_v1::initialise(uint32_t roi, float eta, float phi, pType particleType,
+    void TrigBphys_v1::initialise(uint32_t roi, float eta, float phi, float pt,
+                                  pType particleType,
                                   float mass, levelType level) {
-        
         setRoiId(roi);
         setEta  (eta);
         setPhi  (phi);
+        setPt   (pt);
         setMass (mass);
         setLevel(level);
         setParticleType(particleType);
         // set defaults
-        setFitmass(-99);
+        setFitmass(-99.);
         setFitchi2(-99.);
-        setFitndof(-99);
-        setFitx(-99);
-        setFity(-99);
-        setFitz(-99);
+        setFitndof(-99.);
+        setFitx   (-99.);
+        setFity   (-99.);
+        setFitz   (-99.);
+        
+        setFitmassError( -99.);
+        setLxy     ( -99.);
+        setLxyError( -99.);
+        setTau     ( -99.);
+        setTauError( -99.);
+
+        // ensure that we clear unused variables
+        //secondaryDecay.clear();
+        //trackVector.clear(); #FIXME
+        
+    } //initialise
+
+    
+    //** initialise with default parameters */
+    void TrigBphys_v1::initialise(uint32_t roi, float eta, float phi, pType particleType,
+                                  float mass, levelType level) {
+        // deprecated method, as pt is initialised to 0. here.
+        // use the alternative initialise method
+        setRoiId(roi);
+        setEta  (eta);
+        setPhi  (phi);
+        setPt   (0.0);
+        setMass (mass);
+        setLevel(level);
+        setParticleType(particleType);
+        // set defaults
+        setFitmass(-99.);
+        setFitchi2(-99.);
+        setFitndof(-99.);
+        setFitx   (-99.);
+        setFity   (-99.);
+        setFitz   (-99.);
+        
+        setFitmassError( -99.);
+        setLxy     ( -99.);
+        setLxyError( -99.);
+        setTau     ( -99.);
+        setTauError( -99.);
+
         // ensure that we clear unused variables
         //secondaryDecay.clear();
         //trackVector.clear(); #FIXME
@@ -94,13 +145,25 @@ namespace xAOD {
     void TrigBphys_v1::initialise(uint32_t roi, float eta, float phi, pType particleType,
                                   float mass, const ElementLink<xAOD::TrigBphysContainer_v1 >& sDecay,
                                   levelType level) {
+        // deprecated method, as pt is initialised to 0. here.
+        // use the alternative initialise method
 
         // call this method first, as it clears the trackVector and
         initialise(roi,eta,phi,particleType,mass,level);
         setSecondaryDecayLink(sDecay);
     } // initialise
 
-    
+    /** constructor replacement for particle of type "particleType" with mass "mass"
+     and a secondary decay (given as ElementLink to another TrigEFBphys) */
+    void TrigBphys_v1::initialise(uint32_t roi, float eta, float phi, float pt,
+                                  pType particleType,
+                                  float mass, const ElementLink<xAOD::TrigBphysContainer_v1 >& sDecay,
+                                  levelType level) {
+        // call this method first, as it clears the trackVector and
+        initialise(roi,eta,phi,pt,particleType,mass,level);
+        setSecondaryDecayLink(sDecay);
+    } // initialise
+
     
     // use macros to create the getter and setter class methods
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( xAOD::TrigBphys_v1, uint32_t, roiId, setRoiId )
@@ -110,6 +173,7 @@ namespace xAOD {
     AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( xAOD::TrigBphys_v1, uint16_t, TrigBphys_v1::levelType, level, setLevel )
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( xAOD::TrigBphys_v1, float, eta,     setEta )
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( xAOD::TrigBphys_v1, float, phi,     setPhi )
+    // no default pt method, as need to check if it exists for older file compatibility
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( xAOD::TrigBphys_v1, float, mass,    setMass )
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( xAOD::TrigBphys_v1, float, fitmass, setFitmass )
     AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( xAOD::TrigBphys_v1, float, fitchi2, setFitchi2 )
@@ -172,9 +236,9 @@ namespace xAOD {
     } //addTrack
 
     bool TrigBphys_v1::operator==(const TrigBphys_v1& rhs) const {
-        const double epsilon = 1e-8;
+        const double epsilon = 1e-5;
 
-        int aHasSD = (secondaryDecay()!=NULL)?1:0;
+        int aHasSD = (secondaryDecay()    !=NULL)?1:0;
         int bHasSD = (rhs.secondaryDecay()!=NULL)?1:0;
         if((aHasSD+bHasSD)==1)
             return false;
@@ -189,7 +253,8 @@ namespace xAOD {
 
         if(fabs(eta()-rhs.eta())>epsilon)         return false;
         if(fabs(phi()-rhs.phi())>epsilon)         return false;
-        if(fabs(mass()-rhs.mass())>epsilon)       return false;
+        if(fabs(pt()*0.001-rhs.pt()*0.001)>epsilon)return false; // internal conversion to GeV for more sensible comparison.
+        if(fabs(mass()*0.001-rhs.mass()*0.001)>epsilon)       return false;
         if(fabs(fitmass()-rhs.fitmass())>epsilon) return false;
         if(fabs(fitchi2()-rhs.fitchi2())>epsilon) return false;
         if(fabs(fitx()-rhs.fitx())>epsilon)       return false;
@@ -294,5 +359,67 @@ namespace xAOD {
         return;
     } //addTrack
 
+    // get pT, but check if is in the object
+    float TrigBphys_v1::pt() const {
+        // #FIXME - why doesn't this work as expected?
+        static SG::AuxElement::Accessor< float > ptAcc( "pt" );
+        if( ! ptAcc.isAvailable( *this ) ) {
+            return 0.;
+        } 
+        return ptAcc( *this );
+    }
+    
+    void TrigBphys_v1::setPt(float pt) {
+        static SG::AuxElement::Accessor< float > ptAcc( "pt" );
+        ptAcc(*this) = pt;
+        return;
+    }
+
+    static SG::AuxElement::Accessor< float > fitmassErrorAcc( "fitmassError" );
+    static SG::AuxElement::Accessor< float > lxyAcc         ( "lxy"          );
+    static SG::AuxElement::Accessor< float > lxyErrorAcc    ( "lxyError"     );
+    static SG::AuxElement::Accessor< float > tauAcc         ( "tau"          );
+    static SG::AuxElement::Accessor< float > tauErrorAcc    ( "tauError"     );
+
+    
+    float TrigBphys_v1::fitmassError() const {
+        return fitmassErrorAcc.isAvailable(*this)? fitmassErrorAcc(*this) : -99.;
+    }
+    float TrigBphys_v1::lxy() const {
+        return lxyAcc.isAvailable(*this)         ? lxyAcc(*this)      : -99.;
+    }
+    float TrigBphys_v1::lxyError() const {
+        return lxyErrorAcc.isAvailable(*this)    ? lxyErrorAcc(*this) : -99.;
+    }
+    float TrigBphys_v1::tau() const {
+        return tauAcc.isAvailable(*this)         ? tauAcc(*this)      : -99.;
+    }
+    float TrigBphys_v1::tauError() const {
+        return tauErrorAcc.isAvailable(*this)    ? tauErrorAcc(*this) : -99.;
+    }
+
+    
+    void TrigBphys_v1::setFitmassError(float x) {
+        fitmassErrorAcc(*this) = x;
+        return;
+    }
+    void TrigBphys_v1::setLxy(float x) {
+        lxyAcc(*this) = x;
+        return;
+    }
+    void TrigBphys_v1::setLxyError(float x) {
+        lxyErrorAcc(*this) = x;
+        return;
+    }
+    void TrigBphys_v1::setTau(float x) {
+        tauAcc(*this) = x;
+        return;
+    }
+    void TrigBphys_v1::setTauError(float x) {
+        tauErrorAcc(*this) = x;
+        return;
+    }
+
+    
     
 } // namespace xAOD

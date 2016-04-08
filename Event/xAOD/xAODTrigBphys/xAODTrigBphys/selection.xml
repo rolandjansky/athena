@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 600124 2014-06-03 15:35:20Z krasznaa $ -->
+<!-- $Id: selection.xml 646005 2015-02-11 13:20:20Z krasznaa $ -->
 <lcgdict>
 
   <!-- TrigBphys dictionaries -->
@@ -20,6 +20,9 @@
   <exclusion>
     <class name="SG::IConstAuxStore" />
     <class name="DataLink<SG::IConstAuxStore>" />
+    <class name="DataVector<xAOD::IParticle>" />
+    <class name="ElementLink<DataVector<xAOD::IParticle> >" />
+    <class name="ElementLink<DataVector<xAOD::TrackParticle_v1> >" />
   </exclusion>
 
 </lcgdict>
