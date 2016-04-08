@@ -7,7 +7,7 @@
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include <map>
@@ -20,8 +20,6 @@
 #include "ALFA_LocRecCorrEv/ALFA_LocRecCorrEvCollection.h"
 #include "ALFA_LocRecCorrEv/ALFA_LocRecCorrODEvCollection.h"
 // #include "ALFA_GloRecEv/ALFA_GloRecEvCollection.h"
-
-using namespace std;
 
 #define EVCOLLNAME_RAWDATA      "ALFA_RawData"
 #define EVCOLLNAME_DIGIT	    "ALFA_DigitCollection"
@@ -72,9 +70,40 @@ public:
 	const void* GetLinkedObject(eDVType eType) const;
 
 	void SetDCSFolderID(eDCSItem eItem, const unsigned long long ullID);
-	void SetDCSFolderIDs(const PDCSID pDCSIds);
+	void SetDCSFolderIDs(const DCSID* pDCSIds);
 	unsigned long long GetDCSFolderID(eDCSItem eItem) const;
+        const DCSID& DCSId() const { return m_DCSId; }
   
+	const DataLink<ALFA_RawDataContainer>& rawDataEvCollLink() const
+        { return m_RawDataEvColl; }
+	const DataLink<ALFA_DigitCollection>& digitEvCollLink() const
+        { return m_DigitEvColl; }
+	const DataLink<ALFA_ODDigitCollection>& ODDigitEvCollLink() const
+        { return m_ODDigitEvColl; }
+	const DataLink<ALFA_LocRecEvCollection>& locRecEvCollLink() const
+        { return m_LocRecEvColl; }
+	const DataLink<ALFA_LocRecODEvCollection>& locRecODEvCollLink() const
+        { return m_LocRecODEvColl; }
+	const DataLink<ALFA_LocRecCorrEvCollection>& locRecCorrEvCollLink() const
+        { return m_LocRecCorrEvColl; }
+	const DataLink<ALFA_LocRecCorrODEvCollection>& locRecCorrODEvCollLink() const
+        { return m_LocRecCorrODEvColl; }
+
+	void setRawDataEvCollLink (const DataLink<ALFA_RawDataContainer>& link)
+        { m_RawDataEvColl = link; }
+	void setDigitEvCollLink (const DataLink<ALFA_DigitCollection>& link)
+        { m_DigitEvColl = link; }
+	void setODDigitEvCollLink (const DataLink<ALFA_ODDigitCollection>& link)
+        { m_ODDigitEvColl = link; }
+	void setLocRecEvCollLink (const DataLink<ALFA_LocRecEvCollection>& link)
+        { m_LocRecEvColl = link; }
+	void setLocRecODEvCollLink (const DataLink<ALFA_LocRecODEvCollection>& link)
+        { m_LocRecODEvColl = link; }
+	void setLocRecCorrEvCollLink (const DataLink<ALFA_LocRecCorrEvCollection>& link)
+        { m_LocRecCorrEvColl = link; }
+	void setLocRecCorrODEvCollLink (const DataLink<ALFA_LocRecCorrODEvCollection>& link)
+        { m_LocRecCorrODEvColl = link; }
+
 private:
 	DCSID m_DCSId;
 	DataLink<ALFA_RawDataContainer> m_RawDataEvColl;
