@@ -19,7 +19,7 @@ class PowhegConfig_Hjj(PowhegConfig_base) :
     self._powheg_executable += '/HJJ/pwhg_main'
 
     ## Logger warnings for unvalidated process
-    self.logger.warning( 'Negative weight fraction is outside usual recommendations - check final distributions with care!' )
+    self.logger.warning( 'Integration parameters have not been validated - see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PowhegForATLAS#Changing_POWHEG_BOX_integration' )
 
     ## Add process specific options
     self.add_parameter( 'polecheck', -1 )
@@ -35,14 +35,14 @@ class PowhegConfig_Hjj(PowhegConfig_base) :
     self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters
-    self.itmx1    = 15
-    self.itmx2    = 15
-    self.ncall1   = 15000000
-    self.ncall2   = 800000
-    self.nubound  = 400000
-    self.foldx    = 10
-    self.foldy    = 10
-    self.foldphi  = 5
+    self.itmx1   = 15
+    self.itmx2   = 15
+    self.ncall1  = 15000000
+    self.ncall2  = 800000
+    self.nubound = 400000
+    self.foldx   = 10
+    self.foldy   = 10
+    self.foldphi = 5
 
     ## Override defaults
     self.bornktmin    = 0.26
@@ -50,3 +50,4 @@ class PowhegConfig_Hjj(PowhegConfig_base) :
     self.par_diexp    = 2
     self.par_dijexp   = 2
 
+    self.populate_default_strings()

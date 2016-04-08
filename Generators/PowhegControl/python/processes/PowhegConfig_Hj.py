@@ -31,6 +31,7 @@ class PowhegConfig_Hj(PowhegConfig_base) :
     self.add_parameter_set( 'Higgs properties' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'MiNLO NNLL' )
+    self.add_parameter_set( 'NNLO reweighting' )
     self.add_parameter_set( 'running scales' )
     self.add_parameter_set( 'top mass' )
     self.add_parameter_set( 'v2' )
@@ -50,3 +51,5 @@ class PowhegConfig_Hj(PowhegConfig_base) :
     self.bornzerodamp = 1
     self.par_diexp    = 2
     self.par_dijexp   = 2
+
+    self.populate_default_strings()

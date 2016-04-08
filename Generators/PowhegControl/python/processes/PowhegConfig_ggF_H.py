@@ -24,19 +24,28 @@ class PowhegConfig_ggF_H(PowhegConfig_base) :
     ## Add process specific options
     self.add_parameter( 'bwshape', 1,                        desc='(default 1). Functional form of Breit-Wigner used to distribute Higgs virtuality. 1:running width; 2:hwidth' )
     self.add_parameter( 'ew', 1,                             desc='(default 1, enabled). Enable EW corrections' )
-    self.fix_parameter( 'gfermi', ATLASCommonParameters.G_F, desc='(default ATLAS). Fermi constant' )
+    self.add_parameter( 'gfermi', ATLASCommonParameters.G_F, desc='(default ATLAS). Fermi constant' )
     self.add_parameter( 'massren', 0,                        desc='(default 0). 0 = OS, 1 = MSBAR, 2 = DRBAR' )
     self.add_parameter( 'model', 0,                          desc='(default 0). 0 = SM' )
 
     ## Decorate with generic option sets
+    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'Higgs decay mode' )
     self.add_parameter_set( 'Higgs decay properties' )
     self.add_parameter_set( 'Higgs properties' )
+    self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'running scale' )
     self.add_parameter_set( 'top mass' )
+    self.add_parameter_set( 'v2' )
     self.add_parameter_set( 'zero width' )
 
     ## Set optimised integration parameters
     self.ncall1  = 50000
     self.ncall2  = 100000
     self.nubound = 50000
+
+    ## Override defaults
+    self.hfact = 104.16
+    self.minlo = -1
+
+    self.populate_default_strings()

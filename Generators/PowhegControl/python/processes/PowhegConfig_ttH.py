@@ -23,6 +23,7 @@ class PowhegConfig_ttH(PowhegConfig_base) :
     self.add_parameter( 'delta_mttmin', 0, desc='(default 0d0) if not zero, use generation cut on m_tt' )
 
     ## Decorate with generic option sets
+    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'fake virtual' )
     self.add_parameter_set( 'Higgs decay mode' )
     self.add_parameter_set( 'Higgs properties' )
@@ -37,8 +38,10 @@ class PowhegConfig_ttH(PowhegConfig_base) :
     ## Set optimised integration parameters
     self.ncall1   = 10000
     self.ncall2   = 10000
-    self.nubound  = 10000
+    self.nubound  = 20000
 
     ## Override defaults
     self.minlo        = -1
     self.topdecaymode = 00000 #22222 - decaying tops not supported at the moment
+
+    self.populate_default_strings()

@@ -23,6 +23,7 @@ class PowhegConfig_WW(PowhegConfig_base) :
     ## Decorate with generic option sets
     self.add_parameter_set( 'anomalous coupling' )
     self.add_parameter_set( 'diboson' )
+    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'fixed scale' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'running width' )
@@ -38,10 +39,10 @@ class PowhegConfig_WW(PowhegConfig_base) :
     ## Override defaults
     # See https://docs.google.com/spreadsheets/d/1Aa7FwB74ppHbXles5LyHrKGlvUFi5PxbZC-Mrc3Lz90 for meanings
     self.allowed_decay_modes = [ 'WpWmevev', 'WpWmmuvmuv', 'WpWmtauvtauv', 'WpWmevmuv', 'WpWmmuvev',\
-                                 'WpWmevtauv', 'WpWmtauvev', 'WpWmuvtauv', 'WpWmtauvmuv', 'WWevmuv',\
+                                 'WpWmevtauv', 'WpWmtauvev', 'WpWmmuvtauv', 'WpWmtauvmuv', 'WWevmuv',\
                                  'WWmuvtauv', 'WWevtauv', 'WWlvlv', 'WWqqqq', 'WWlvqq' ]
     self.decay_mode = 'WWlvlv'
     self.minlo      = -1
+    self.withdamp   = 1
 
-
-
+    self.populate_default_strings()

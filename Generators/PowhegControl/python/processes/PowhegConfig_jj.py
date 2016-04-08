@@ -21,25 +21,30 @@ class PowhegConfig_jj(PowhegConfig_base) :
     self._powheg_executable += '/Dijet/pwhg_main'
 
     ## Decorate with generic option sets
+    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'fixed scale' )
     self.add_parameter_set( 'jacsing' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 70000
-    self.ncall2   = 10000
-    self.nubound  = 10000
+    self.itmx1    = 2
+    self.itmx2    = 10
+    self.ncall1   = 10000
+    self.ncall2   = 200000
+    self.nubound  = 150000
+    self.xupbound = 10
     self.foldx    = 10
     self.foldy    = 10
-    self.foldphi  = 5
+    self.foldphi  = 10
 
     ## Override defaults
     self.bornktmin = 5.0
     self.minlo     = -1
-    ## Fix problem with spikes in final observables
-    # Options recommended by Paolo Nason to be used with doublefsr (private communication)
+    ## Fix problem with spikes in final observables: from Paolo Nason (private communication)
     self.doublefsr  = 1
     self.par_2gsupp = 5
     self.par_diexp  = 4
     self.par_dijexp = 4
+
+    self.populate_default_strings()

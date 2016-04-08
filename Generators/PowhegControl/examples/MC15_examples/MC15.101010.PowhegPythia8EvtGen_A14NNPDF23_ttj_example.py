@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
-# Powheg Hj setup starting from ATLAS defaults
+# Powheg ttj setup starting from ATLAS defaults
 #--------------------------------------------------------------
-include('PowhegControl/PowhegControl_Hj_Common.py')
+include('PowhegControl/PowhegControl_ttj_Common.py')
 PowhegConfig.generate()
 
 #--------------------------------------------------------------
@@ -15,6 +15,6 @@ include('MC15JobOptions/Pythia8_Powheg.py')
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = 'POWHEG+Pythia8 H+jet production with A14 NNPDF2.3 tune'
-evgenConfig.keywords    = [ 'Higgs', 'jets' ]
+evgenConfig.description = 'POWHEG+Pythia8 ttj production with A14 NNPDF2.3 tune'
+evgenConfig.keywords    = [ 'SM', 'top', '1jet' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]

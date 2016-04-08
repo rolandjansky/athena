@@ -17,7 +17,7 @@ class WMassWindowDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'mass_W_low', 1.0,      desc='(default process-dependent) M_W > mass low', parameter='min_w_mass' )
-    self.decorated.add_parameter( 'mass_W_high', 14000.0, desc='(default process-dependent) M_W < mass high', parameter='max_w_mass' )
-    self.decorated.add_parameter( 'mass_W_low', 1.0,      desc='(default process-dependent) M_W > mass low', parameter='min_W_mass' )
-    self.decorated.add_parameter( 'mass_W_high', 14000.0, desc='(default process-dependent) M_W < mass high', parameter='max_W_mass')
+    self.decorated.add_parameter( 'mass_W_low', 1.0,      default='{0}', desc='M_W > mass low', parameter='min_w_mass' )
+    self.decorated.add_parameter( 'mass_W_high', 14000.0, default='{0}', desc='M_W < mass high', parameter='max_w_mass' )
+    self.decorated.add_parameter( 'mass_W_low', 1.0,      default='{0}', desc='M_W > mass low', parameter='min_W_mass' )
+    self.decorated.add_parameter( 'mass_W_high', 14000.0, default='{0}', desc='M_W < mass high', parameter='max_W_mass')

@@ -24,6 +24,7 @@ class PowhegConfig_DMV(PowhegConfig_base) :
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'dark matter' )
+    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'mass window' )
     self.add_parameter_set( 'running scale' )
@@ -32,12 +33,13 @@ class PowhegConfig_DMV(PowhegConfig_base) :
     self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters
-    self.ncall1  = 2000000
-    self.ncall2  = 1000000
-    self.nubound = 100000
-    # self.foldx   = 2
-    # self.foldy   = 2
-    self.foldphi = 2
+    self.ncall1   = 100000
+    self.ncall2   = 1000000
+    self.nubound  = 1000000
+    self.xupbound = 4
+    self.foldx    = 2
+    self.foldy    = 2
+    self.foldphi  = 2
 
     ## Override defaults
     self.bornktmin    = 100.0
@@ -45,3 +47,5 @@ class PowhegConfig_DMV(PowhegConfig_base) :
     self.vdecaymode   = -1
     self.runningscale = 3
     self.minlo        = -1
+
+    self.populate_default_strings()

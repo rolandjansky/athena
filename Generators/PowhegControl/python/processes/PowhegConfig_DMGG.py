@@ -26,9 +26,11 @@ class PowhegConfig_DMGG(PowhegConfig_base) :
     self.add_parameter_set( 'CKKW' )
     self.add_parameter_set( 'dark matter' )
     self.add_parameter_set( 'dark matter phi' )
+    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'mass window' )
     self.add_parameter_set( 'running scale' )
+    self.add_parameter_set( 'running width' )
     self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters
@@ -44,3 +46,5 @@ class PowhegConfig_DMGG(PowhegConfig_base) :
     self.doublefsr    = 1
     self.minlo        = -1
     self.runningscale = 3
+
+    self.populate_default_strings()

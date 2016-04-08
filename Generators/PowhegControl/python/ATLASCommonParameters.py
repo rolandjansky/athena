@@ -1,14 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#########################################################################################################################
+## @PowhegControl ATLASCommonParameters
+#  Standard Model parameters for Powheg
 #
-#   Standard Model parameters for Powheg
-#
-#   Authors: James Robinson  <james.robinson@cern.ch>
-#            Daniel Hayden   <danhayden0@googlemail.com>
-#            Stephen Bieniek <stephen.paul.bieniek@cern.ch>
-#
-#########################################################################################################################
+#  Authors: James Robinson  <james.robinson@cern.ch>
+#           Daniel Hayden   <danhayden0@googlemail.com>
+#           Stephen Bieniek <stephen.paul.bieniek@cern.ch>
 
 #! /usr/bin/env python
 
@@ -50,6 +47,6 @@ CKM_Vtb     = 0.999152
 
 # Others
 sin2thW_eff = 0.23113
-alphaem     = 1.0/127.934 #0.00781653
+alphaem     = 1.0/127.934
 sin2cabibbo = 0.051
 G_F         = 0.00001166397
