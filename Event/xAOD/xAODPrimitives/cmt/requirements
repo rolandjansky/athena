@@ -1,5 +1,5 @@
 package xAODPrimitives
-# $Id: requirements 625835 2014-11-03 17:30:11Z neldik $
+# $Id: requirements 725506 2016-02-22 14:21:10Z krasznaa $
 
 author Edward Moyse <Edward.Moyse@cern.ch>
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
@@ -21,10 +21,7 @@ private
 use TestTools      TestTools-*         AtlasTest 
 use AtlasReflex   AtlasReflex-*   External
 
-apply_pattern UnitTest_run unit_test=ut_xAOD_primitives_enums_test
-
-macro_append ut_xAOD_primitives_enums_test_dependencies  " xAODPrimitives "
-application  ut_xAOD_primitives_enums_test ../test/ut_xAOD_primitives_enums_test.cxx
+apply_pattern UnitTest_run unit_test=ut_xAOD_primitives_enums
 
 apply_pattern lcgdict dict=xAODPrimitives selectionfile=selection.xml \
                       headerfiles="../xAODPrimitives/xAODPrimitivesDict.h" \

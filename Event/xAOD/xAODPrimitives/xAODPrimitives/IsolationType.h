@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IsolationType.h 636772 2014-12-18 15:33:07Z mnowak $
+// $Id: IsolationType.h 718726 2016-01-20 12:10:22Z dzhang $
 #ifndef XAODPRIMITIVES_ISOLATIONTYPE_H
 #define XAODPRIMITIVES_ISOLATIONTYPE_H
 
@@ -41,7 +41,7 @@ namespace xAOD {
          ptcone20 = 12,
          ptcone30 = 14,
          ptcone40 = 16,
-
+	 ptcone50 = 18,
          /// Topo-cluster E<sub>T</sub>-sum 
          ///
          /// E<sub>T</sub>-sum of the topo-clusters in a cone
@@ -83,6 +83,7 @@ namespace xAOD {
               case ptcone20:    return "ptcone20";
               case ptcone30:    return "ptcone30";
               case ptcone40:    return "ptcone40";
+	      case ptcone50:    return "ptcone50";
 
               case ptvarcone20:    return "ptvarcone20";
               case ptvarcone30:    return "ptvarcone30";
