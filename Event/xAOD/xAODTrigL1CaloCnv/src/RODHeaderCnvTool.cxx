@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RODHeaderCnvTool.cxx 576052 2013-12-18 09:13:50Z morrisj $
+// $Id: RODHeaderCnvTool.cxx 693684 2015-09-08 12:22:49Z amazurov $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/RODHeaderCollection.h"
@@ -57,16 +57,10 @@ namespace xAODMaker {
         
         xAOD::RODHeader* x = new xAOD::RODHeader();
         xaod->push_back( x );
-        
-        x->setVersion( (*itr)->version() );
-        x->setSourceId( (*itr)->sourceID() );
-        x->setRun( (*itr)->run() );
-        x->setLvl1Id( (*itr)->extendedL1ID() );
-        x->setBcid( (*itr)->bunchCrossing() );
-        x->setTrigType( (*itr)->l1TriggerType() );
-        x->setDetType( (*itr)->detEventType() );
-        x->setStatusWords( (*itr)->statusWords() );
-        x->setPayloadSize( (*itr)->payloadSize() );
+        x->initialize((*itr)->version(), (*itr)->sourceID(), (*itr)->run(),
+          (*itr)->l1ID(), (*itr)->bunchCrossing(), (*itr)->l1TriggerType(),
+          (*itr)->detEventType(), (*itr)->statusWords(), (*itr)->payloadSize()
+        );
       }
       
       // Return gracefully:
