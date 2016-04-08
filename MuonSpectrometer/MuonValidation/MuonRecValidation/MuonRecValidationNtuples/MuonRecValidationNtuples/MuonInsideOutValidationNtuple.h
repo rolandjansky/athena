@@ -74,8 +74,9 @@ namespace Muon {
 
     std::vector<int>*   pdg;     // pdg id
     std::vector<int>*   barcode; // barcode
+    std::vector<float>* beta;    // beta
 
-    void fill( int pdg_, int barcode_ ) { pdg->push_back(pdg_); barcode->push_back(barcode_); }
+    void fill( int pdg_, int barcode_, float beta_=1. ) { pdg->push_back(pdg_); barcode->push_back(barcode_);beta->push_back(beta_); }
       
   };
 
@@ -102,7 +103,8 @@ namespace Muon {
     MuonValidationTrackBlock          track; // index of corresponding track particle
     MuonValidationTruthBlock          truth; // truth matching based on the hit content of the segment
 
-    std::vector<int>*     type;      // type: 0 = rpc, 1 = segment
+    std::vector<int>*     type;      // type: 0 = rpc, 1 = segment, 2 = rpc, 10 MDTT, 12 RPC track
+    std::vector<int>*     stage;     // stage of reco
     std::vector<unsigned int>* gasgapId;  // gasgapId (set to the chamber id for segments)
     std::vector<float>*   r;         // r-position
     std::vector<float>*   z;         // z-position
@@ -116,10 +118,10 @@ namespace Muon {
     std::vector<float>*   timeCor;   // time correction
 
     void fill( int type_, unsigned int gasgapId_, float r_, float z_, float time_, float err_,
-               float timeProp_ = 0., float avTimeProp_ = 0., float tof_ = 0., float avTof_ = 0., float timeCor_ = 0. ) { 
+               float timeProp_ = 0., float avTimeProp_ = 0., float tof_ = 0., float avTof_ = 0., float timeCor_ = 0., int stage_ = 0 ) { 
       type->push_back(type_); gasgapId->push_back(gasgapId_); r->push_back(r_); z->push_back(z_); d->push_back(sqrt(r_*r_+z_*z_)); time->push_back(time_); 
       err->push_back(err_); timeProp->push_back(timeProp_); avTimeProp->push_back(avTimeProp_); tof->push_back(tof_); 
-      avTof->push_back(avTof_); timeCor->push_back(timeCor_); 
+      avTof->push_back(avTof_); timeCor->push_back(timeCor_); stage->push_back(stage_);
     }
       
   };
@@ -249,6 +251,33 @@ namespace Muon {
     MuonValidationResidualBlock       residuals; // residuals in the position in the measurement plane of the hit
   };
 
+  struct MuonValidationCandidateBlock : public MuonValidationBlockBase {
+    MuonValidationCandidateBlock();
+
+    std::vector<int>*   ntimes;        // number of time measurements
+    std::vector<float>* beta;          // beta
+    std::vector<float>* chi2ndof;      // chi2/ndof beta fit
+    std::vector<int>*   nseg;          // number of segments
+    std::vector<int>*   nprec;         // precision layers
+    std::vector<int>*   ntrigPhi;      // trigger phi layers
+    std::vector<int>*   ntrigEta;      // trigger eta layers
+    std::vector<int>*   stage;         // reco stage
+
+    MuonValidationTrackBlock          track;     // index of corresponding track particle
+
+    void fill( int ntimes_, float beta_, float chi2ndof_, int nseg_, int nprec_, int ntrigPhi_, int ntrigEta_, int stage_ ){
+      ntimes->push_back(ntimes_); 
+      beta->push_back(beta_); 
+      chi2ndof->push_back(chi2ndof_); 
+      nseg->push_back(nseg_); 
+      nprec->push_back(nprec_); 
+      ntrigPhi->push_back(ntrigPhi_); 
+      ntrigEta->push_back(ntrigEta_); 
+      stage->push_back(stage_); 
+    }
+
+  };
+
 
   class MuonInsideOutValidationNtuple : public MuonValidationBlockBase {
   public:
@@ -259,6 +288,7 @@ namespace Muon {
     MuonValidationHoughBlock         houghBlock;         // hough maxima
     MuonValidationHitBlock           hitBlock;           // hits
     MuonValidationTimeBlock          timeBlock;          // times
+    MuonValidationCandidateBlock     candidateBlock;     // block for reconstructed candidates
   };
   
 }
