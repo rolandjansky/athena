@@ -57,8 +57,8 @@ namespace MuonDQA {
   // ********************************************************************* 
 
   MuonEventInfoMonTool::MuonEventInfoMonTool( const std::string & type, const std::string & name, const IInterface* parent )
-    : ManagedMonitorToolBase( type, name, parent ), m_eventStore(NULL), m_activeStore(NULL),
-      mdt_eventstotal(-1), mdt_event_inarea(-1), in_area(false), testcounter(-1), m_eventNumber(0),
+    : ManagedMonitorToolBase( type, name, parent ), m_eventStore(NULL), m_activeStore(NULL), m_log( msgSvc(), name ),
+      m_debuglevel(false), mdt_eventstotal(-1), mdt_event_inarea(-1), in_area(false), testcounter(-1), m_eventNumber(0),
       m_hTriggerType(NULL)
   {
     /*---------------------------------------------------------*/ 
@@ -72,7 +72,7 @@ namespace MuonDQA {
   MuonEventInfoMonTool::~MuonEventInfoMonTool()
     /*---------------------------------------------------------*/
   {
-    ATH_MSG_INFO(" deleting MuonEventInfoMonTool ");
+    m_log << MSG::INFO << " deleting MuonEventInfoMonTool " << endreq;
   }
  
   /*---------------------------------------------------------*/
@@ -83,12 +83,16 @@ namespace MuonDQA {
     sc = ManagedMonitorToolBase::initialize();
     if(!sc.isSuccess()) return sc;
 
-    ATH_MSG_INFO( "initialize MuonEventInfoMonTool" );
+    // init message stream
+    m_log.setLevel(outputLevel());                // individual outputlevel not known before initialise
+    m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
+      
+    m_log << MSG::INFO << "initialize MuonEventInfoMonTool" << endreq;
  
     // The StoreGateSvc is where event-by-event information is stored.
     sc = service( "StoreGateSvc", m_eventStore);
     if( sc.isFailure() ) {
-      ATH_MSG_FATAL( name() << ": Unable to locate Service StoreGateSvc" );
+      m_log << MSG::FATAL << name() << ": Unable to locate Service StoreGateSvc" << endreq;
       return sc;
     }
     //    ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
@@ -99,8 +103,12 @@ namespace MuonDQA {
   StatusCode MuonEventInfoMonTool::bookHistograms()
     /*----------------------------------------------------------------------------------*/
   {
-  
-    ATH_MSG_DEBUG( "MuonEventInfoMonTool Histograms being filled" );
+ 
+    // init message stream
+    m_log.setLevel(outputLevel());                // individual outputlevel not known before initialise
+    m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
+ 
+    if (m_debuglevel) m_log << MSG::DEBUG << "MuonEventInfoMonTool Histograms being filled" << endreq;
     StatusCode sc = StatusCode::SUCCESS;
 
     std::string m_generic_path_muonmonitoring = "Muon/MuonEventInfo";
@@ -108,11 +116,11 @@ namespace MuonDQA {
     //declare a group of histograms
     MonGroup muonevt_shift( this, m_generic_path_muonmonitoring, run, ATTRIB_MANAGED );
       
-    if(newEventsBlockFlag()){}
-    if(newLumiBlockFlag()){}
-    if(newRunFlag())
+    if(newEventsBlock){}
+    if(newLumiBlock){}
+    if(newRun)
       {      
-	ATH_MSG_DEBUG( "MuonEventInfoMonTool : isNewRun" );
+	if (m_debuglevel) m_log << MSG::DEBUG << "MuonEventInfoMonTool : isNewRun" << endreq;
         
 	// Trigger types
 	
@@ -143,12 +151,17 @@ namespace MuonDQA {
 
 	sc=muonevt_shift.regHist(m_hTriggerType);
 	if(sc.isFailure()){
-	  ATH_MSG_FATAL( "m_hTriggerType Failed to register histogram " );
+	  m_log << MSG::FATAL << "m_hTriggerType Failed to register histogram " << endreq;       
 	  return StatusCode::FAILURE;	
 	}
+
      
-	ATH_MSG_DEBUG( "exiting bookHistograms for trigger type " << m_hTriggerType << " end of run : " << run );
-	
+	if (m_debuglevel){
+	  m_log << MSG::DEBUG << "INSIDE bookHistograms : " << m_hTriggerType << endreq;
+	 // m_log << MSG::DEBUG << "SHIFT : " << shift << endreq;
+	  m_log << MSG::DEBUG << "RUN : " << run << endreq; 
+	  m_log << MSG::DEBUG << "Booked TriggerType successfully" << endreq;}	 
+     
       }// isEndOfRun
  
     return sc;
@@ -163,7 +176,7 @@ namespace MuonDQA {
  
     StatusCode sc = StatusCode::SUCCESS;
    
-    ATH_MSG_DEBUG( "MuonEventInfoMonTool::EventInfo Monitoring Histograms being filled" );
+    if (m_debuglevel) m_log << MSG::DEBUG << "MuonEventInfoMonTool::EventInfo Monitoring Histograms being filled" << endreq;
 
     //Retrieve all ingredients needed to build an MuonDQAMonitoringEvent
     MuonDQA::MuonDQAEventInfo eventInfo = retrieveEventInfo();
@@ -175,17 +188,17 @@ namespace MuonDQA {
   
     StatusCode sc = StatusCode::SUCCESS;  
     const EventInfo* eventInfo;
-    ATH_MSG_VERBOSE( "MuonEventInfoMonTool::retrieveEventInfo() called" );
+    m_log<<MSG::VERBOSE<<"MuonEventInfoMonTool::retrieveEventInfo() called"<<endreq;
 
    
     MuonDQAEventInfo MuonDQAeventInfo;
        
     sc = m_eventStore->retrieve(eventInfo);
     if ( sc.isFailure() ) {
-      ATH_MSG_ERROR( "Could not find eventInfo " );
+      m_log << MSG::ERROR << "Could not find eventInfo " << endreq;
       return MuonDQAeventInfo;
     }else{
-      ATH_MSG_DEBUG( "MuonEventInfoMonTool::retrieved eventInfo" );
+      if (m_debuglevel) m_log << MSG::DEBUG << "MuonEventInfoMonTool::retrieved eventInfo" << endreq;
     }
  
     //Cast eventID into MuonDQAEventInfo class:
@@ -212,7 +225,7 @@ namespace MuonDQA {
     std::string eventTag=m_eventTag;
     MuonDQAeventInfo.setTag( eventTag );
     
-    ATH_MSG_DEBUG( "MuonDQAeventInfo" << MuonDQAeventInfo );
+    if (m_debuglevel) m_log << MSG::DEBUG << "MuonDQAeventInfo" << MuonDQAeventInfo << endreq;
  
     // Retrieve trigger Info
     TriggerInfo* trig = eventInfo->trigger_info(); 
@@ -224,6 +237,32 @@ namespace MuonDQA {
       //bitset<8> m_l1Trig = trig->level1TriggerType();
       uint m_l1Trig = (uint) ( trig->level1TriggerType() );
       m_hTriggerType->Fill(m_l1Trig);
+    }
+
+    if (m_debuglevel) {
+      // protection against simulated cosmics
+      if(trig != NULL) {
+	m_log << MSG::DEBUG << "MuonEventInfoMonTool : lvl2Info " << endreq;
+
+	for (unsigned int i = 0; i < trig->level2TriggerInfo().size(); ++i)
+	  {
+	    m_log << MSG::DEBUG << trig->level2TriggerInfo()[i] << " " << endreq;
+	  }
+
+	m_log << MSG::DEBUG << "MuonEventInfoMonTool : EventFilterInfo " << endreq;
+
+	for (unsigned int i = 0; i < trig->eventFilterInfo().size(); ++i) {
+	  m_log << MSG::DEBUG << trig->eventFilterInfo()[i] << " " << endreq;
+	}
+
+	m_log << MSG::DEBUG << "EventFilterInfo " << endreq;
+	for (unsigned int i = 0; i < trig->streamTags().size(); ++i) {
+	  m_log << MSG::DEBUG << " i " << i << " name " << trig->streamTags()[i].name() << endreq;;
+	  m_log << MSG::DEBUG << " type " << trig->streamTags()[i].type() << endreq;;
+	  m_log << MSG::DEBUG << " ObeyLumi " << trig->streamTags()[i].obeysLumiblock() << endreq;;
+	}
+      }
+      else{ m_log << MSG::DEBUG <<" Trigger Information Object not Filled! "<< endreq;}
     }
 
     // Get number of events per Trigger type : 0001 Tile | 0010 RPC | 0100 TGC | 1000 CTP
@@ -244,13 +283,13 @@ namespace MuonDQA {
 
       sc = m_eventStore->retrieve( ctpRDO, "CTP_RDO" );
       if ( sc.isFailure() ) {
-	ATH_MSG_WARNING( "CTP_RDO trigger info missing, not added to EventTag" );
+	m_log << MSG::WARNING << "CTP_RDO trigger info missing, not added to EventTag" << endreq;
 	return MuonDQAeventInfo;
       }
 
       sc = m_eventStore->retrieve( ctpRIO, "CTP_RIO" );
       if ( sc.isFailure() ) {
-	ATH_MSG_WARNING( "CTP_RIO trigger info missing, not added to EventTag" );
+	m_log << MSG::WARNING << "CTP_RIO trigger info missing, not added to EventTag" << endreq;
 	return MuonDQAeventInfo;
       }
 
@@ -290,11 +329,18 @@ namespace MuonDQA {
   {
     StatusCode sc = StatusCode::SUCCESS;
  
-    ATH_MSG_DEBUG(  "MuonEventInfoMonTool procHist()" );
+    if (m_debuglevel) m_log << MSG::DEBUG << "********MuonEventInfoMonTool : " << mdt_eventstotal << endreq;
+    if (m_debuglevel) m_log << MSG::DEBUG << "********Last event : " << m_lastEvent << endreq;  
+
+
+    if (m_debuglevel) {
+      m_log << MSG::DEBUG << "********Reached Last Event in MuonEventInfoMonTool !!!" << endreq;	  
+      m_log << MSG::DEBUG << "MuonEventInfoMonTool finalize()" << endreq;}
    
-    if(endOfEventsBlockFlag()){}
-    if(endOfLumiBlockFlag()){}
-    if(endOfRunFlag()){ 
+    if(endOfEventsBlock){}
+    if(endOfLumiBlock){}
+    if(endOfRun){
+ 
     } // isEndOfRun
  
     return sc;
