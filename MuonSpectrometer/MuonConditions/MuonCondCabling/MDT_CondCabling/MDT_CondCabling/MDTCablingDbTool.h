@@ -11,6 +11,7 @@
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 //#include "StoreGate/StoreGateSvc.h"
 class Identifier; 
 class StoreGateSvc; 
@@ -20,7 +21,7 @@ class IIOVDbSvc;
 class StatusCode;
 class MuonMDT_CablingMap;
 
-class MDTCablingDbTool: public AlgTool, public IMDTCablingDbTool
+class MDTCablingDbTool: public AthAlgTool, public IMDTCablingDbTool
 {
 
 public:    

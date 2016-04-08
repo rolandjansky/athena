@@ -16,6 +16,7 @@ public
 use AtlasPolicy            AtlasPolicy-* 
 use  AthenaKernel               AthenaKernel-*                  Control
 use GaudiInterface         GaudiInterface-*           External
+use AthenaBaseComps        AthenaBaseComps-*          Control
 
 use MuonCondInterface      MuonCondInterface-*        MuonSpectrometer/MuonConditions/MuonCondGeneral
 #use MuonCondData           MuonCondData-*             MuonSpectrometer/MuonConditions/MuonCondGeneral   
