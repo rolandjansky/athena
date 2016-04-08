@@ -40,7 +40,7 @@ Muon::MuonAmbiTrackSelectionTool::MuonAmbiTrackSelectionTool(const std::string& 
 
   declareProperty("MaxOverlapFraction"   , m_maxOverlapFraction = 0.1 );
   declareProperty("KeepPartialOverlaps"  , m_keepPartial = true );
-  declareProperty("KeepMoreThanOneShare" , m_keepMoreThanOne = false );
+  declareProperty("KeepMoreThanOneShare" , m_keepMoreThanOne = true );
 }
 
 //================ Destructor =================================================
