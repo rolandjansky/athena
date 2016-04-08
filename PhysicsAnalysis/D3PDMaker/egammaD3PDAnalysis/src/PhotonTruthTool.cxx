@@ -15,7 +15,7 @@
 #include "xAODEgamma/Photon.h"
 #include "AthenaKernel/errorcheck.h"
 #include <vector>
-#include <cmath>
+#include <math.h>
 
 
 using HepGeom::Point3D;
@@ -75,19 +75,17 @@ PhotonTruthTool::queryInterface( const InterfaceID& riid, void** ppvIf )
  * @param g The input photon.
  * @return The matching @c TruthParticle, or null.
  */
-// Not const due to particleTruthClassifier().
 const xAOD::TruthParticle*
-PhotonTruthTool::toTruthParticle (const xAOD::Photon& g) /*const*/
+PhotonTruthTool::toTruthParticle (const xAOD::Photon& g) const
 {
-  IMCTruthClassifier::Info info;
-  m_classifier->particleTruthClassifier (&g, &info);
-  return info.genPart;
+  m_classifier->particleTruthClassifier (&g);
+  return m_classifier->getGenPart();
 }
 
 
 /**
  * @brief Check a truth particle for a conversion.
- * @param truePart The particle to check.
+ * @param truePart The  particle to check.
  * @param[out] RconvMC Radius of the conversion.
  * @param[out] ZconvMC Z of the conversion.
  * @return True if this is a conversion; otherwise false.
@@ -123,7 +121,7 @@ PhotonTruthTool::getMCConv (const xAOD::TruthParticle* truePart,
       }
     }
   }
-  else if ( std::abs(pdgId) == 11 ) { // e+/e-
+  else if ( fabs(pdgId) == 11 ) { // e+/e-
     v = truePart->prodVtx();
     if ( v->nIncomingParticles()==1 && v->nOutgoingParticles()==2 ) {
       int pdgBrother[2] ;
@@ -179,7 +177,7 @@ bool PhotonTruthTool::isPromptParticleMC
     int nParentPartons = 0 ;
     for ( unsigned u=0 ; u<nmothers ; ++u ) {
       int pdgMother = mothers[u]->pdgId() ;
-      if ( pdgMother==21 || ( std::abs(pdgMother)<7 && pdgMother!=0 ) )
+      if ( pdgMother==21 || ( fabs(pdgMother)<7 && pdgMother!=0 ) )
         ++nParentPartons ;
     }
     return ( nParentPartons >= 1 ) ;
@@ -198,7 +196,7 @@ bool PhotonTruthTool::isQuarkBremMC
     getMothers(truePart) ;
   if ( mothers.size() != 1 )  return false ;
   int pdgMother = mothers[0]->pdgId() ;
-  return ( pdgMother==21 || ( std::abs(pdgMother)<7 && pdgMother!=0 ) ) ;
+  return ( pdgMother==21 || ( fabs(pdgMother)<7 && pdgMother!=0 ) ) ;
 }
 
 
