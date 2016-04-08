@@ -8,6 +8,7 @@
 #include "xAODTrigBphys/TrigBphys.h"
 
 #include "TrigParticle/TrigEFBphys.h"
+#include "TrigParticle/TrigEFBphysContainer.h"
 
 // Local include(s):
 #include "TrigEFBphysContainerCnvTool.h"

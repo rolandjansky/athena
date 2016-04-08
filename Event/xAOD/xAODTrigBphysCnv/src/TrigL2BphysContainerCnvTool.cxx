@@ -8,6 +8,7 @@
 #include "xAODTrigBphys/TrigBphys.h"
 
 #include "TrigParticle/TrigL2Bphys.h"
+#include "TrigParticle/TrigL2BphysContainer.h"
 
 // Local include(s):
 #include "TrigL2BphysContainerCnvTool.h"
