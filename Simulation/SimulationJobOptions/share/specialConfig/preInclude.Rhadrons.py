@@ -581,22 +581,22 @@ if simdict.has_key("DECAYS"):
         "pydat3 mdme 1975 1 0",
         "pymssm imss 11 0"      # switch off gravitino, just to be sure we don't get gluon decay through it
       ]
-    if simdict.has_key("NOGLUINOLIGHTSQUARKDECAY"):
-      print "preInclude.Rhadrons: NOGLUINOLIGHTSQUARKDECAY"
-      genSeq.PythiaRhad.PythiaCommand += [
-        "pydat3 mdme 2000 1 0",
-        "pydat3 mdme 2001 1 0",
-        "pydat3 mdme 2002 1 0",
-        "pydat3 mdme 2003 1 0",
-        "pydat3 mdme 2004 1 0"
-      ]
-    if simdict.has_key("NOGLUINOTTBARDECAY"):
-      print "preInclude.Rhadrons: NOGLUINOTTBARDECAY"
-      genSeq.PythiaRhad.PythiaCommand += [
-        "pydat3 mdme 2005 1 0"
-      ]
-    if ('GBALLPROB' in globals()):
-      genSeq.PythiaRhad.GluinoBallProbability=GBALLPROB
+      if simdict.has_key("NOGLUINOLIGHTSQUARKDECAY"):
+        print "preInclude.Rhadrons: NOGLUINOLIGHTSQUARKDECAY"
+        genSeq.PythiaRhad.PythiaCommand += [
+          "pydat3 mdme 2000 1 0",
+          "pydat3 mdme 2001 1 0",
+          "pydat3 mdme 2002 1 0",
+          "pydat3 mdme 2003 1 0",
+          "pydat3 mdme 2004 1 0"
+        ]
+      if simdict.has_key("NOGLUINOTTBARDECAY"):
+        print "preInclude.Rhadrons: NOGLUINOTTBARDECAY"
+        genSeq.PythiaRhad.PythiaCommand += [
+          "pydat3 mdme 2005 1 0"
+        ]
+      if ('GBALLPROB' in globals()):
+        genSeq.PythiaRhad.GluinoBallProbability=GBALLPROB
   elif (simdict["CASE"]=='stop'):
     genSeq.PythiaRhad.RunGluinoHadrons=False
     genSeq.PythiaRhad.RunStopHadrons=True
