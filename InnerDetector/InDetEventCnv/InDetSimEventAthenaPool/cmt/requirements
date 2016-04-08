@@ -22,8 +22,21 @@ apply_pattern lcgdict dict=InDetSimEventAthenaPoolCnv  selectionfile=selection.x
 
 macro_append InDetSimEventAthenaPoolPoolCnv_shlibflags "$(InDetEventAthenaPool_linkopts)"
 
+apply_pattern declare_joboptions files="*.py"
+
+
 private
 use AthenaPoolCnvSvc AthenaPoolCnvSvc-* Database/AthenaPOOL
 use AtlasSealCLHEP AtlasSealCLHEP-* Database
 end_private
 
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+
+apply_pattern athenarun_test \
+   name="InDetSimEventTPCnv_HITS" \
+   options="InDetSimEventAthenaPool/InDetSimEventTPCnv_HITS_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh InDetSimEventTPCnv_HITS" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh InDetSimEventTPCnv_HITS"
