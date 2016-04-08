@@ -10,14 +10,7 @@
             : Giacinto Piacquadio (Freiburg University), Kirill Prokofiev (Sheffield University)
     email   : andreas.wildauer@cern.ch
               giacinto.piacquadio@physik.uni-freiburg.de
-    changes : David Shope <david.richard.shope@cern.ch> (2016-04-26)
-
-                EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
-
-                findVertex will now always return an xAOD::VertexContainer,
-                even when using a TrackCollection or a TrackParticleBaseCollection
-                as input.
-
+    changes :
  ***************************************************************************/
 
 
@@ -38,6 +31,8 @@
 
 */
 
+/* Forward declarations */
+class VxContainer;
 //xAOD includes
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
@@ -58,9 +53,9 @@ public:
         return IID_IVertexFinder;
     }
     
-    virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trackTES)=0;
+    virtual VxContainer* findVertex(const TrackCollection* trackTES)=0;
 
-    virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trackTES)=0;
+    virtual VxContainer* findVertex(const Trk::TrackParticleBaseCollection* trackTES)=0;
 
     /** Find vertex from xAOD::TrackParticleContainer.
      * @param trackParticles input track container
