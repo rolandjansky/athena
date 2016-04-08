@@ -12,8 +12,8 @@
 #include "TrigFTK_RawData/FTK_RawSCT_Cluster.h"
 
 namespace FTKByteStreamDecoderEncoder {
-  const size_t TrackBlobSize = 21; // magic number from BS specification
-  const size_t TrackParamsBlobSize = 5; // --||--
+  const size_t TrackBlobSize = 22; // magic number from BS specification
+  const size_t TrackParamsBlobSize = 6; // --||--
   const size_t PixHitParamsBlobSize = 2; // --||--
   const size_t SCTHitParamsBlobSize = 1; // --||--
   const size_t NPixLayers=4;
