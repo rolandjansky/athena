@@ -78,7 +78,9 @@ InDetIterativePriVxFinderTool::InDetIterativePriVxFinderTool(const std::string& 
           m_maxVertices(25),
           m_createSplitVertices(false),
 	  m_splitVerticesTrkInvFraction(2),
-          m_reassignTracksAfterFirstFit(false)
+          m_reassignTracksAfterFirstFit(false),
+	  m_doMaxTracksCut(false), 
+	  m_maxTracks(5000)
 {
     declareInterface<IVertexFinder>(this);
 
@@ -100,6 +102,8 @@ InDetIterativePriVxFinderTool::InDetIterativePriVxFinderTool(const std::string& 
     declareProperty("createSplitVertices",m_createSplitVertices);
     declareProperty("splitVerticesTrkInvFraction", m_splitVerticesTrkInvFraction, "inverse fraction to split tracks (1:N)");
     declareProperty("reassignTracksAfterFirstFit",m_reassignTracksAfterFirstFit);
+    declareProperty( "doMaxTracksCut", m_doMaxTracksCut); 
+    declareProperty( "MaxTracks",  m_maxTracks);
 }
 
 InDetIterativePriVxFinderTool::~InDetIterativePriVxFinderTool()
@@ -338,6 +342,8 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativePriVx
 VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> & trackVector) const
 {
   
+
+
   
   //two things need to be added
   //1) the seeding mechanism
@@ -350,6 +356,14 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
   
   VxContainer* theVxContainer = new VxContainer;
   
+  //bail out early with only Dummy vertex if multiplicity cut is applied and exceeded
+  if (m_doMaxTracksCut && (trackVector.size() > m_maxTracks)){ 
+    if (msgLvl(MSG::WARNING)) msg() << trackVector.size() << " tracks - exceeds maximum (" << m_maxTracks << "), skipping vertexing and returning only dummy..." << endreq; 
+    Trk::VxCandidate * dummyVxCandidate = new Trk::VxCandidate(m_iBeamCondSvc->beamVtx(),std::vector<Trk::VxTrackAtVertex*>());
+    dummyVxCandidate->setVertexType(Trk::NoVtx);
+    theVxContainer->push_back ( dummyVxCandidate );
+    return theVxContainer;
+  } 
  
   int iterations=-1;
   unsigned int seedtracknumber=seedTracks.size();

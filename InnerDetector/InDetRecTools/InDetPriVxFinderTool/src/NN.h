@@ -11,12 +11,12 @@ public:
    ~NN() {}
    double value(int index,double in0,double in1,double in2,double in3,double in4,double in5);
 private:
-   double input0;
-   double input1;
-   double input2;
-   double input3;
-   double input4;
-   double input5;
+   double input0 = 0;
+   double input1 = 0;
+   double input2 = 0;
+   double input3 = 0;
+   double input4 = 0;
+   double input5 = 0;
    double neuron0x8eed3f8();
    double neuron0x8f0ea18();
    double neuron0x8f0ec10();
