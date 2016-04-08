@@ -7,6 +7,7 @@
 // $Id: JetTrigAuxContainer_v1.h 576027 2013-12-17 21:15:51Z delsart $
 #ifndef XAODJET_VERSIONS_JETTRIGAUXCONTAINER_V1_H
 #define XAODJET_VERSIONS_JETTRIGAUXCONTAINER_V1_H
+#ifndef SIMULATIONBASE
 
 // System include(s):
 #include <vector>
@@ -60,5 +61,6 @@ namespace xAOD {
 // Declare the inheritance of the class:
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::JetTrigAuxContainer_v1, xAOD::ByteStreamAuxContainer_v1 );
+#endif
 
 #endif // XAODJET_VERSIONS_JETAUXCONTAINER_V1_H

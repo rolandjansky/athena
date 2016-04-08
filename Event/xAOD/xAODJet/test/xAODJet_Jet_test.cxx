@@ -18,7 +18,14 @@
 
 #ifndef XAOD_STANDALONE
 // allows to test EL 
-#include "TestStore.icc" 
+#include "AthLinks/ElementLink.h"
+// Done like this so that this will compile in both releases 20 and 21.
+# ifdef SGTOOLS_CURRENTEVENTSTORE_H
+#  include "SGTools/TestStore.h" 
+  using namespace SGTest;
+# else
+#  include "TestStore.icc"
+# endif
 #endif
 
 
@@ -192,7 +199,7 @@ int testAttributes(){
  
   
   // Test get by reference call by enum vs string 
-  float w1,w2;
+  float w1=0,w2=0;
   bool ok1= jet->getAttribute<float>("Width", w1);
   bool ok2= jet->getAttribute<float>(xAOD::JetAttribute::Width, w2);
   TESTMACRO( ok1 , "getAttribute(string) returns true");
@@ -288,6 +295,9 @@ int testConstituents( ){
   xAOD::JetConstituentVector vec = jet.getConstituents();
   TESTMACRO( (vec.size() == 2) , "size of JetConstituentVector : 2=="<< vec.size() );
 
+  xAOD::JetConstituent jc = vec.at(0); 
+  TESTMACRO( ( jc.rawConstituent() == c1 ) , " identical constituent retrieved from JetConstituent object");
+
   TEST_MSG("   Pt    finding scale     uncalconstit scale" );
   TEST_MSG( jet.pt() << "     "<< jet.jetP4(xAOD::JetScale::JetConstitScaleMomentum).Pt() << "    "<< jet.jetP4(xAOD::JetScale::JetEMScaleMomentum).Pt() );
 
@@ -299,6 +309,7 @@ int testConstituents( ){
     sum+= TLorentzVector( itr->Px(), itr->Py(), itr->Pz(), itr->E());
     TESTMACRO( jetTestContainer[3+i] == (*itr)->rawConstituent() , "identical constituents from JetConstituentVector at "<< i );
     TESTMACRO( is_equal(stlVec[i].pt(), itr->pt() ), " stlVec and constituent Pt identical at  "<< i );
+    TESTMACRO( (stlVec[i].rawConstituent() ==itr->rawConstituent() ), " stlVec and constituent raw constit ptr identical at  "<< i );
     i++;
   }
   TESTMACRO( is_equal(sum.E() , c1->e()+c2->e()), "identical constituent sum");
@@ -364,7 +375,11 @@ int testShallowCopy( ){
 int main () {
   TEST_MSG("start");
 #ifndef XAOD_STANDALONE
+# ifdef SGTOOLS_CURRENTEVENTSTORE_H
+  initTestStore();
+# else
   SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+# endif
 #endif
   assert( testJetCreation() == 0);
   assert( testKinematicChange() == 0 );
