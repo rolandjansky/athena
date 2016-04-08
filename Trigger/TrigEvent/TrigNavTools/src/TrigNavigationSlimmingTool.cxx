@@ -175,47 +175,12 @@ StatusCode HLT::TrigNavigationSlimmingTool::print() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLT::TrigNavigationSlimmingTool::squeeze() {
-  // gather TEs to protect if the flag is set
-  std::set<HLT::TriggerElement*> tesToProtect;
-  // if ( m_protectChains ) { 
-  //   // iterate through all the configured chains
-  //   for(std::vector<std::string>::iterator iter = m_configuredChainNames.begin();
-  //       iter != m_configuredChainNames.end(); ++iter) {
-  //     // grab the TEs for that chain
-  //     std::vector<HLT::TriggerElement*> *chainTEs = 
-  // 	getTEsFromChainGroup(m_trigDecisionTool->getChainGroup(*iter));
-
-  //     if(chainTEs) {
-  //       // if a TE does not seed another TE in that chain, protect it
-  //       for(std::vector<HLT::TriggerElement*>::const_iterator iterTE = chainTEs->begin();
-  //           iterTE != chainTEs->end(); ++iterTE) {
-  //         // grab the TEs the TE in question seeds
-  //         std::vector<HLT::TriggerElement*> seeds = 
-  // 	    (*iterTE)->getRelated(HLT::TriggerElement::seedsRelation);
-
-  //         bool isChainTerminal = true;
-  //         // check if any of the TEs it seeds are in the chain
-  //         for(std::vector<HLT::TriggerElement*>::const_iterator iterSeeds = seeds.begin();
-  //             iterSeeds != seeds.end(); ++iterSeeds) {
-  //           if(std::find(chainTEs->begin(), chainTEs->end(), (*iterSeeds)) != chainTEs->end()) {
-  //             isChainTerminal = false;
-  //             break;
-  //           }
-  //         }
-  //         // if it is terminal for the chain, protect it
-  //         if(isChainTerminal)
-  //           tesToProtect.insert(*iterTE);
-  //       }
-  //       delete chainTEs;
-  //     }
-  //   }
-  // }
-  
+StatusCode HLT::TrigNavigationSlimmingTool::squeeze() {  
   for ( auto te: m_navigation->getAllTEs() ) {
     if ( m_navigation->isInitialNode(te) 
 	 or m_navigation->isRoINode(te) 
-	 or m_navigation->isTerminalNode(te) )
+	 or m_navigation->isTerminalNode(te) 
+	 or m_tesToProtect.find(te->getId()) != m_tesToProtect.end())
       continue;
     //    if ( te->getId() == 4032407525 ) m_report = true;
     CHECK( removeTriggerElement(te) );
@@ -233,7 +198,7 @@ StatusCode HLT::TrigNavigationSlimmingTool::dropFeatures() {
 
 
   //HLT::NavigationCore::FeaturesStructure::const_iterator types_iterator;
-  typedef  std::map<uint16_t, HLTNavDetails::IHolder*> HoldersBySubType;
+  //typedef  std::map<uint16_t, HLTNavDetails::IHolder*> HoldersBySubType;
   //std::map<uint16_t, HLTNavDetails::IHolder*>::const_iterator holders_iterator;
   for( auto h : m_navigation->m_holderstorage.getAllHolders<HLTNavDetails::IHolder>() ) {
     if(!h) { // check if h is null
