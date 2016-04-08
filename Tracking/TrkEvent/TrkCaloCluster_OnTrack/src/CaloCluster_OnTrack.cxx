@@ -7,13 +7,16 @@
 
 //Trk
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
-//#include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 
 // Gaudi & AthenaCommon
 #include "GaudiKernel/MsgStream.h"
 #include <string>
+#include <limits>
+
+static const double NaN(std::numeric_limits<double>::quiet_NaN());
+static const Amg::Vector3D INVALID_VECTOR3D(NaN, NaN, NaN);
 
 
 Trk::CaloCluster_OnTrack::CaloCluster_OnTrack(  const Trk::LocalParameters& locpars,
@@ -47,9 +50,7 @@ Trk::CaloCluster_OnTrack::CaloCluster_OnTrack() :
 // copy constructor:
 Trk::CaloCluster_OnTrack::CaloCluster_OnTrack( const Trk::CaloCluster_OnTrack& cot) :
   Trk::MeasurementBase(cot),
-  m_globalpos( 0 )
-{
-
+  m_globalpos( 0 ){
   m_surface= cot.m_surface? (cot.m_surface->isFree() ? cot.m_surface->clone():cot.m_surface) : 0;
   this->globalPosition();
   m_eloss= cot.m_eloss ? new Trk::EnergyLoss(*cot.m_eloss) : 0 ;
@@ -78,34 +79,35 @@ Trk::CaloCluster_OnTrack& Trk::CaloCluster_OnTrack::operator=(const Trk::CaloClu
 
 const Amg::Vector3D& Trk::CaloCluster_OnTrack::globalPosition() const
 {
-  if(!m_globalpos){
+  if((!m_globalpos) and m_surface){
     m_globalpos = m_surface->localToGlobal(m_localParams);
-  }  
+  } 
+  if (not m_globalpos) return INVALID_VECTOR3D; 
   return *m_globalpos;
 }
 
 
 MsgStream& Trk::CaloCluster_OnTrack::dump( MsgStream& sl ) const
 {
-  sl << "Trk::CaloCluster_OnTrack { "<<endreq;
-  sl << "\t  surface = "<< associatedSurface()<<endreq;
+  sl << "Trk::CaloCluster_OnTrack { "<<"\n";
+  sl << "\t  surface = "<< associatedSurface()<<"\n";
   sl << "\t  position = (" 
      << localParameters() 
      << endreq;
-  sl << "\t  has Error Matrix: "<<endreq;
-  sl<<localCovariance()<<"}"<<endreq; 
+  sl << "\t  has Error Matrix: "<<"\n";
+  sl<<localCovariance()<<"}"<<"\n"; 
 
   return sl;
 }
 
 std::ostream& Trk::CaloCluster_OnTrack::dump( std::ostream& sl ) const
 {
-  sl << "\t  surface = "<< associatedSurface()<<endreq;
+  sl << "\t  surface = "<< associatedSurface()<<"\n";
   sl << "\t  position = (" 
      << localParameters() 
-     << endreq;
-  sl << "\t  has Error Matrix: "<<endreq;
-  sl<<localCovariance()<<"}"<<endreq; 
+     << "\n";
+  sl << "\t  has Error Matrix: "<<"\n";
+  sl<<localCovariance()<<"}"<<"\n"; 
   return sl;
 }
 
