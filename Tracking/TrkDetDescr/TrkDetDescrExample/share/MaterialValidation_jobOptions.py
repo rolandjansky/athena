@@ -30,7 +30,7 @@ ServiceMgr += GeoModelSvc
 GeoModelSvc.AtlasVersion = DetDescrVersion
 
 from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag("OFLCOND-MC12-SDR-06")
+conddb.setGlobalTag('OFLCOND-SIM-00-00-00')
 
 # switch the material loading off
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags

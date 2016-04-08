@@ -25,7 +25,7 @@ import AthenaCommon.AtlasUnixStandardJob
 # the global detflags
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
-DetFlags.Calo_setOff()
+DetFlags.Calo_setOn()
 DetFlags.Muon_setOff()
 
 # Full job is a list of algorithms
@@ -48,7 +48,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr += GeoModelSvc
 
 from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag("OFLCOND-SIM-00-00-00")
+conddb.setGlobalTag('OFLCOND-SIM-00-00-00')
 
 # Tracking specifications ####################################
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
@@ -67,13 +67,13 @@ TrkDetFlags.TRT_BarrelLayerMaterialBinsZ            = 100
 TrkDetFlags.TRT_EndcapLayerMaterialBinsR            = 50
 TrkDetFlags.InDetPassiveLayerMaterialBinsRz         = 100
 # - phi
-TrkDetFlags.PixelBarrelLayerMaterialBinsPhi         = 50
-TrkDetFlags.PixelEndcapLayerMaterialBinsPhi         = 50
-TrkDetFlags.SCT_BarrelLayerMaterialBinsPhi          = 50
-TrkDetFlags.SCT_EndcapLayerMaterialBinsPhi          = 50
-TrkDetFlags.TRT_BarrelLayerMaterialBinsPhi          = 50
-TrkDetFlags.TRT_EndcapLayerMaterialBinsPhi          = 50
-TrkDetFlags.InDetPassiveLayerMaterialBinsPhi        = 50
+TrkDetFlags.PixelBarrelLayerMaterialBinsPhi         = 1
+TrkDetFlags.PixelEndcapLayerMaterialBinsPhi         = 1
+TrkDetFlags.SCT_BarrelLayerMaterialBinsPhi          = 1
+TrkDetFlags.SCT_EndcapLayerMaterialBinsPhi          = 1
+TrkDetFlags.TRT_BarrelLayerMaterialBinsPhi          = 1
+TrkDetFlags.TRT_EndcapLayerMaterialBinsPhi          = 1
+TrkDetFlags.InDetPassiveLayerMaterialBinsPhi        = 1
 
 print TrkDetFlags
 
@@ -88,7 +88,7 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = FileList
 
 # Number of events to be processed
-theApp.EvtMax = 250000  #-1 # 50000 #5000 #00 #0
+theApp.EvtMax = 200000  #-1 # 50000 #5000 #00 #0
 #ServiceMgr.EventSelector.SkipEvents = 2
 
 splitGeo = DetDescrVersion.split('-')
@@ -118,6 +118,16 @@ ToolSvc += MaterialMapper
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+# the magnetic field
+from MagFieldServices import SetupField
+from IOVDbSvc.CondDB import conddb
+conddb.addOverride('/GLOBAL/BField/Map','BFieldMap-FullAsym-09-solTil3')
+
+from TrkExEngine.AtlasExtrapolationEngine import AtlasExtrapolationEngine
+ExtrapolationEngine = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas', ToolOutputLevel=INFO)
+ToolSvc += ExtrapolationEngine
+
+
 from TrkDetDescrTestTools.TrkDetDescrTestToolsConf import Trk__LayerMaterialAnalyser
 LayerMaterialRecordAnalyser =Trk__LayerMaterialAnalyser('LayerMaterialRecordAnalyser')
 ToolSvc += LayerMaterialRecordAnalyser
@@ -129,7 +139,7 @@ from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__BinnedLayerMaterialCreato
 BinnedLayerMaterialCreator = Trk__BinnedLayerMaterialCreator('BinnedLayerMaterialCreator')
 BinnedLayerMaterialCreator.LayerMaterialName         = 'BinnedLayerMaterial'
 BinnedLayerMaterialCreator.LayerMaterialDirectory    = '/GLOBAL/TrackingGeo/'
-BinnedLayerMaterialCreator.OutputLevel = VERBOSE
+BinnedLayerMaterialCreator.OutputLevel               = VERBOSE
 ToolSvc += BinnedLayerMaterialCreator
 # 0 - b) the analyser
 BinnedLayerMaterialAnalyser = Trk__LayerMaterialAnalyser('BinnedLayerMaterialAnalyser')
@@ -198,6 +208,7 @@ from TrkDetDescrAlgs.TrkDetDescrAlgsConf import Trk__MaterialMapping
 MaterialMapping = Trk__MaterialMapping(name ='MaterialMapping')
 MaterialMapping.TrackingGeometrySvc          = AtlasTrackingGeometrySvc
 MaterialMapping.MappingVolumeName            = 'InDet::Containers::InnerDetector'
+MaterialMapping.ExtrapolationEngine          = ExtrapolationEngine
 #MaterialMapping.MappingVolumeName            = 'InDet::BeamPipe'
 MaterialMapping.MaterialMapper               = MaterialMapper
 MaterialMapping.EtaCutOff                    = 6.
@@ -206,7 +217,7 @@ MaterialMapping.LayerMaterialRecordAnalyser  =  LayerMaterialRecordAnalyser
 MaterialMapping.LayerMaterialCreators        =  LayerMaterialCreators
 MaterialMapping.LayerMaterialAnalysers       =  LayerMaterialAnalysers
 # screen output level [ Default : 0 |  0, 1, 2 )
-MaterialMapping.MaterialScreenOutputLevel    = 0
+MaterialMapping.MaterialScreenOutputLevel    = 2
 topSequence += MaterialMapping
 
 #################################################################
