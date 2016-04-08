@@ -26,21 +26,17 @@ RPC and TGC hits might also be used.
 
 *****************************************************************************/
 
-#include "GaudiKernel/Algorithm.h"
-//#include "GaudiKernel/ObjectVector.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 namespace MuonGM {
 class MuonDetectorManager;
 }
 class MuonIdHelper;
-class StoreGateSvc;
 
 #include <vector>
 #include <string>
 
-
-
-class MuonSpShowerBuilder : public Algorithm {
+class MuonSpShowerBuilder : public AthAlgorithm {
  public:
 
   MuonSpShowerBuilder(const std::string& name, ISvcLocator* pSvcLocator);
@@ -68,8 +64,6 @@ class MuonSpShowerBuilder : public Algorithm {
   int m_muonSegmentCut;  
 
   std::string m_MuonSpShowerKey;
-
-  StoreGateSvc* m_storeGate;
 
   const MuonGM::MuonDetectorManager* m_MuonMgr;
   const MuonIdHelper* m_muonHelper;

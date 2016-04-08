@@ -35,11 +35,6 @@ See MuonSpShowerBuilder.h.
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODJet/JetContainer.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-
 #include <math.h>
 
 /////////////////////////////////////////////////////////////////
@@ -47,7 +42,7 @@ See MuonSpShowerBuilder.h.
 /////////////////////////////////////////////////////////////////
 
 MuonSpShowerBuilder::MuonSpShowerBuilder(const std::string& name, 
-  ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator),
+  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),
   m_JetCollectionKey("Cone7H1TowerJets"),	// input jets
   m_jetPtCut(50*CLHEP::GeV),				// pt cut on jets
   m_RpcPrepDataKey("RPC_Measurements"),		// RPC hits in ESD
@@ -61,7 +56,6 @@ MuonSpShowerBuilder::MuonSpShowerBuilder(const std::string& name,
   m_mdtHitCut(0),				// minimum hits
   m_muonSegmentCut(0),				// minimum segments
   m_MuonSpShowerKey("MuonSpShowers"),		// Storegate key
-  m_storeGate(0),
   m_MuonMgr(0),
   m_muonHelper(0)
 {
@@ -92,32 +86,13 @@ MuonSpShowerBuilder::~MuonSpShowerBuilder() {}
 
 StatusCode MuonSpShowerBuilder::initialize() {
 
-  MsgStream mLog( messageService(), name() );
-  mLog << MSG::INFO 
-       << "Initializing MuonSpShowerBuilder" 
-       << endreq;
+  ATH_MSG_INFO("Initializing MuonSpShowerBuilder");
 
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR
-         << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-    return sc;
-  }
-
-  StoreGateSvc* detStore=0;
-  sc = serviceLocator()->service("DetectorStore", detStore);
-  if ( sc.isSuccess() ) {
-    sc = detStore->retrieve( m_MuonMgr );
-    if ( sc.isFailure() ) {
-      mLog << MSG::ERROR 
-           << " Cannot retrieve MuonDetDescrMgr " << endreq;
-    } else {
-      m_muonHelper = m_MuonMgr->mdtIdHelper();
-    }
+  StatusCode sc = detStore()->retrieve( m_MuonMgr );
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
   } else {
-    mLog << MSG::ERROR 
-         << " MuonDetDescrMgr not found in DetectorStore " << endreq;
+    m_muonHelper = m_MuonMgr->mdtIdHelper();
   }
 
   return StatusCode::SUCCESS;
@@ -138,22 +113,15 @@ StatusCode MuonSpShowerBuilder::finalize() {
 
 StatusCode MuonSpShowerBuilder::execute() {
 
-  // Message log
-  MsgStream mLog( messageService(), name() );
-  mLog << MSG::DEBUG
-       << "Executing MuonSpShowerBuilder" 
-       << endreq;
+  ATH_MSG_DEBUG("Executing MuonSpShowerBuilder");
 
   StatusCode sc;  
 
   // Retrieve jet collection
   const xAOD::JetContainer* jets = 0;
-  sc = m_storeGate->retrieve(jets, m_JetCollectionKey);
+  sc = evtStore()->retrieve(jets, m_JetCollectionKey);
   if(  sc.isFailure() || !jets ) {
-  mLog << MSG::WARNING
-         << "Could not retrieve JetCollection with name "
-         << m_JetCollectionKey
-         << endreq;
+    ATH_MSG_WARNING("Could not retrieve JetCollection with name " << m_JetCollectionKey );
     return StatusCode::SUCCESS;
   }
   auto jetItr = jets->begin();
@@ -161,12 +129,9 @@ StatusCode MuonSpShowerBuilder::execute() {
 
   // Retrieve trigger hits
   const Muon::RpcPrepDataContainer* rpcs = 0;
-  sc = m_storeGate->retrieve(rpcs, m_RpcPrepDataKey);
+  sc = evtStore()->retrieve(rpcs, m_RpcPrepDataKey);
   if(  sc.isFailure() || !rpcs ) {
-  mLog << MSG::WARNING
-         << "Could not retrieve RpcPrepDataCollection with name "
-         << m_RpcPrepDataKey
-         << endreq;
+    ATH_MSG_WARNING("Could not retrieve RpcPrepDataCollection with name " << m_RpcPrepDataKey );
     return StatusCode::SUCCESS;
   }
   Muon::RpcPrepDataContainer::const_iterator rpcColItr  = rpcs->begin();
@@ -174,12 +139,9 @@ StatusCode MuonSpShowerBuilder::execute() {
   Muon::RpcPrepDataContainer::const_iterator rpcColItrE = rpcs->end();
 
   const Muon::TgcPrepDataContainer* tgcs = 0;
-  sc = m_storeGate->retrieve(tgcs, m_TgcPrepDataKey);
+  sc = evtStore()->retrieve(tgcs, m_TgcPrepDataKey);
   if(  sc.isFailure() || !tgcs ) {
-  mLog << MSG::WARNING
-         << "Could not retrieve TgcPrepDataCollection with name "
-         << m_TgcPrepDataKey
-         << endreq;
+    ATH_MSG_WARNING("Could not retrieve TgcPrepDataCollection with name " << m_TgcPrepDataKey );
     return StatusCode::SUCCESS;
   }
   Muon::TgcPrepDataContainer::const_iterator tgcColItr  = tgcs->begin();
@@ -188,12 +150,9 @@ StatusCode MuonSpShowerBuilder::execute() {
 
   // Retrieve MDT hits
   const Muon::MdtPrepDataContainer* mdts = 0;
-  sc = m_storeGate->retrieve(mdts, m_MdtPrepDataKey);
+  sc = evtStore()->retrieve(mdts, m_MdtPrepDataKey);
   if(  sc.isFailure() || !mdts ) {
-  mLog << MSG::WARNING
-         << "Could not retrieve MdtPrepDataCollection with name "
-         << m_MdtPrepDataKey
-         << endreq;
+    ATH_MSG_WARNING("Could not retrieve MdtPrepDataCollection with name " << m_MdtPrepDataKey );
     return StatusCode::SUCCESS;
   }
   Muon::MdtPrepDataContainer::const_iterator mdtColItr  = mdts->begin();
@@ -203,9 +162,9 @@ StatusCode MuonSpShowerBuilder::execute() {
   // Retrieve muon segments. These are saved as Trk::Segments; there is no
   // separate container package
   xAOD::MuonSegmentContainer* segments = 0;
-  if(m_storeGate->contains<xAOD::MuonSegmentContainer>(m_MuonSegmentKey)) {
-    if(m_storeGate->retrieve(segments,m_MuonSegmentKey).isFailure()) {
-      mLog << MSG::WARNING << "Unable to retrieve " << m_MuonSegmentKey <<endreq;
+  if(evtStore()->contains<xAOD::MuonSegmentContainer>(m_MuonSegmentKey)) {
+    if(evtStore()->retrieve(segments,m_MuonSegmentKey).isFailure()) {
+      ATH_MSG_WARNING("Unable to retrieve " << m_MuonSegmentKey );
       return StatusCode::FAILURE;
     }
   }
@@ -215,16 +174,13 @@ StatusCode MuonSpShowerBuilder::execute() {
   auto segItr = segments->begin();
   auto segBeg = segments->begin();
   auto segEnd = segments->end();
-  mLog <<MSG::DEBUG <<"MDT segments size = " <<segments->size() <<endreq;
+  ATH_MSG_DEBUG("MDT segments size = " <<segments->size() );
 
   // Make new MuonSpShowerContainer
   Rec::MuonSpShowerContainer* showers = new Rec::MuonSpShowerContainer;
-  sc = m_storeGate->record(showers, m_MuonSpShowerKey);
+  sc = evtStore()->record(showers, m_MuonSpShowerKey);
   if( sc.isFailure() || !showers ) {
-    mLog << MSG::WARNING
-         << "Could not record MuonSpShowerContainer with name "
-         << m_MuonSpShowerKey
-         << endreq;
+    ATH_MSG_WARNING("Could not record MuonSpShowerContainer with name " << m_MuonSpShowerKey );
     return StatusCode::SUCCESS;
   }
 
@@ -313,9 +269,9 @@ StatusCode MuonSpShowerBuilder::execute() {
       ++nSeg[layer];
     }
 
-    mLog <<MSG::DEBUG <<"Found hits/segments = " << ntrig <<" " 
+    ATH_MSG_DEBUG("Found hits/segments = " << ntrig <<" " 
          <<nHit[0] <<" " <<nHit[1] <<" " <<nHit[2] <<" " 
-         <<nSeg[0] <<" " <<nSeg[1] <<" " <<nSeg[2] <<endreq;
+         <<nSeg[0] <<" " <<nSeg[1] <<" " <<nSeg[2] );
 
     // Check against cuts
     if( ntrig < m_triggerHitCut ) continue;

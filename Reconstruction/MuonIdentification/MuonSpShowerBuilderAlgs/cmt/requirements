@@ -2,7 +2,7 @@ package MuonSpShowerBuilderAlgs
 
 use AtlasPolicy		*
 use GaudiInterface	GaudiInterface-*	External
-
+use AthenaBaseComps     AthenaBaseComps-*       Control
 
 apply_pattern dual_use_library  files="*.cxx"
 
@@ -10,7 +10,6 @@ apply_pattern declare_joboptions files="*.txt *.py"
 
 private
 
-use StoreGate           StoreGate-*             Control
 use JetEvent		JetEvent-*		Reconstruction/Jet
 use MuonPrepRawData	MuonPrepRawData-*	MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use TrkRIO_OnTrack	TrkRIO_OnTrack-*	Tracking/TrkEvent
