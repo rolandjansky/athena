@@ -19,6 +19,7 @@ ALFA_CLinkAlg::ALFA_CLinkAlg(const std::string& name, ISvcLocator* pSvcLocator)
 	declareProperty("DataType", m_nDataType=1, "data type using in the local reconstruction");
 	declareProperty("ProcessingMode", m_nProcessingMode=2, "Processing mode, 1=offline, 2=online");
 
+	m_nMaxTrackCnt=0;
 	memset(&m_CurrentDCSId,0,sizeof(DCSID));
 
 }
