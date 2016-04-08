@@ -458,7 +458,7 @@ AthSequencer::createAndAppend( const std::string& type,
 }
 
 StatusCode
-AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
+AthSequencer::decodeNames( StringArrayProperty& theNames,
                            std::vector<Algorithm*>* theAlgs )
 {
   StatusCode result;
@@ -552,7 +552,7 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
       else
         msg() << System::typeinfoName(typeid(*alg)) << "/" << alg->name();
     }
-    msg(MSG::INFO) << endmsg;
+    msg(MSG::INFO) << endreq;
   }
   theAlgMgr->release();
   return result;
@@ -664,7 +664,7 @@ AthSequencer::cleanupAfterFPE(siginfo_t *info)
           this->msg() << "     Algorithm stack: ";
           if ( algContextSvc->algorithms().size()==0 ) 
             {
-              this->msg() << "<EMPTY>" << endmsg;
+              this->msg() << "<EMPTY>" << endreq;
             }
           else
             {
@@ -681,7 +681,7 @@ AthSequencer::cleanupAfterFPE(siginfo_t *info)
               while ( algContextSvc->algorithms().size() && algContextSvc->currentAlg()->name() != this->name() )
                 if ( algContextSvc->unSetCurrentAlg(algContextSvc->currentAlg()).isFailure() )
                   this->msg() << "cannot unwind: " << algContextSvc->currentAlg();
-              this->msg() << endmsg;
+              this->msg() << endreq;
             }
           algContextSvc->release();
         }
@@ -692,7 +692,7 @@ AthSequencer::cleanupAfterFPE(siginfo_t *info)
       for (size_t i(0); i < s_curArraySize; i++)
         this->msg() << std::setw(10) << i << " : " << strings[i] << "\n";
       
-      this->msg() << endmsg;
+      this->msg() << endreq;
       
       free (strings);
     }

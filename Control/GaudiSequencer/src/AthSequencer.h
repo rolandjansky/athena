@@ -171,7 +171,7 @@ protected:
   /**
    ** Decode algorithm names, creating or appending algorithms as appropriate
    **/
-  StatusCode decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
+  StatusCode decodeNames( StringArrayProperty& theNames,
                           std::vector<Algorithm*>* theAlgs );
 
   /**
@@ -207,10 +207,10 @@ private:
    **************************/
   
   /// Member names (of the form '<cppType>/<instanceName>')
-  Gaudi::Property<std::vector<std::string>> m_names;
+  StringArrayProperty m_names;
 
   /// Stop on filter failure Override flag
-  Gaudi::Property<bool> m_stopOverride;
+  BooleanProperty m_stopOverride;
   
   /// set optional algorithm / sequence time outs
   double m_timeout;

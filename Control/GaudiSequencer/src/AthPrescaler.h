@@ -47,7 +47,7 @@ private:
   /**
    ** Percentage of events that should be passed
    **/
-  Gaudi::CheckedProperty<double> m_percentPass;
+  DoubleProperty m_percentPass;
 
   /**
    ** Number of events passed
