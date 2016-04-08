@@ -291,7 +291,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::finalize()
 void Trk::SimpleAmbiguityProcessorTool::statistics()
 {
   ATH_MSG_INFO (name() << " -- statistics:");
-
+  std::streamsize ss = std::cout.precision();
   if (msgLvl(MSG::INFO)) {
     int iw=9;
     std::cout << "-------------------------------------------------------------------------------" << std::endl;
@@ -416,6 +416,7 @@ void Trk::SimpleAmbiguityProcessorTool::statistics()
 	      << " < Endcap < " << m_etabounds[iEndcap-1] << " DBM )" << std::endl;
     std::cout << "-------------------------------------------------------------------------------" << std::endl;
   }
+  std::cout.precision (ss);
   return;
 }
 

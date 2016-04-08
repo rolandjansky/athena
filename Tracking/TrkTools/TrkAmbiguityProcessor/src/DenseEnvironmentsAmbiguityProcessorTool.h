@@ -216,8 +216,6 @@ namespace Trk {
       std::string                                         m_splitClusterMapName; //!< split cluster ambiguity map
 
 
-      const PixelID *m_PixelHelper;
-
 //==================================================================================================
 //
 //   FROM HERE EVERYTHING IS DEBUGGING CODE !!!
