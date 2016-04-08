@@ -39,8 +39,8 @@ void CaloTransverseBalanceVecMon::findLeadingPhoton(PhotonContainer* userPhotonC
 }
 void CaloTransverseBalanceVecMon::findleadingANDsubleadingjets
   (const std::vector<const Jet*>& userJetContainer,
-   std::vector<const Jet*>::const_iterator& leadingJetPr,
-   std::vector<const Jet*>::const_iterator& subleadingJetPr)
+   Jet const* & leadingJetPr,
+   Jet const* & subleadingJetPr)
 {
   std::vector<const Jet*>::const_iterator jetItr;
   float ptmax=-1;
@@ -50,9 +50,9 @@ void CaloTransverseBalanceVecMon::findleadingANDsubleadingjets
      ptsubmax=ptmax;
      subleadingJetPr=leadingJetPr;
      ptmax=(*jetItr)->pt();
-     leadingJetPr=jetItr;
+     leadingJetPr=*jetItr;
    }
-   else if((*jetItr)->pt()>ptsubmax) {ptsubmax=(*jetItr)->pt();subleadingJetPr=jetItr;}
+   else if((*jetItr)->pt()>ptsubmax) {ptsubmax=(*jetItr)->pt();subleadingJetPr=*jetItr;}
   }
 }
 void CaloTransverseBalanceVecMon::getmissingEt_phi(float missingEx,float missingEy,float& missingEt_phi_t){
@@ -360,9 +360,7 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
     findLeadingPhoton(m_userPhotonContainer,leadingPhPr);
   }
   else leadingPhPr=m_userPhotonContainer->begin();
-  std::vector<const Jet*>::const_iterator leadingJetPr;
-  std::vector<const Jet*>::const_iterator subleadingJetPr;
-   
+
   //****************   jet selection   ***************
   for(jetItr=jetItrB;jetItr<jetItrE;jetItr++){
     float jet_pt = (*jetItr)->pt();
@@ -398,23 +396,27 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
   if(flag_j_3) m_cutflow_j_3++;
   m_h_njet_beforeoverlap->Fill(njet_c_beforeoverlap);
   m_h_njet_afteroverlap->Fill(njet_c_afteroverlap);
+
   if(userJetContainer.size()==0) return StatusCode::SUCCESS;
-  else if(userJetContainer.size()>1) 
-          findleadingANDsubleadingjets(userJetContainer,leadingJetPr,subleadingJetPr);
-       else leadingJetPr = userJetContainer.begin(); // only 1 jet in userJetContainer 
- if(userJetContainer.size()>0) {
-  m_h_leadingJet_pt ->Fill((*leadingJetPr)->pt());
-  m_h_leadingJet_eta ->Fill((*leadingJetPr)->eta());
-  m_h_leadingJet_phi->Fill((*leadingJetPr)->phi());
- }
+
+  const Jet* leadingJetPr = nullptr;
+  const Jet* subleadingJetPr = nullptr;
+  if(userJetContainer.size()>1) 
+    findleadingANDsubleadingjets(userJetContainer,leadingJetPr,subleadingJetPr);
+  else leadingJetPr = userJetContainer.front(); // only 1 jet in userJetContainer
+  if (leadingJetPr) {
+    m_h_leadingJet_pt ->Fill(leadingJetPr->pt());
+    m_h_leadingJet_eta ->Fill(leadingJetPr->eta());
+    m_h_leadingJet_phi->Fill(leadingJetPr->phi());
+  }
  // leading photon and leading jet study
- if(m_userPhotonContainer->size()>0 && userJetContainer.size()>0){
-  float pt_ratio = (*leadingPhPr)->pt() / (*leadingJetPr)->pt(); 
+ if(m_userPhotonContainer->size()>0 && userJetContainer.size()>0 && leadingJetPr){
+  float pt_ratio = (*leadingPhPr)->pt() / leadingJetPr->pt(); 
   m_h_pt_ratio ->Fill(pt_ratio);
-  float ph_jet_deltaPhi = fabs((*leadingPhPr)->phi() - (*leadingJetPr)->phi());
+  float ph_jet_deltaPhi = fabs((*leadingPhPr)->phi() - leadingJetPr->phi());
   AdjustPhi(ph_jet_deltaPhi);
   m_h_deltaPhi ->Fill(ph_jet_deltaPhi);
-  m_h2_ph_leadingJet_eta->Fill((*leadingPhPr)->eta(),(*leadingJetPr)->eta());
+  m_h2_ph_leadingJet_eta->Fill((*leadingPhPr)->eta(),leadingJetPr->eta());
  if(fabs( (*leadingPhPr)->eta())<1.37){
   m_p_ptratioVsPhi_Barrel->Fill((*leadingPhPr)->phi(),pt_ratio);
   m_h2_ptratioVsPhi_Barrel->Fill((*leadingPhPr)->phi(),pt_ratio);

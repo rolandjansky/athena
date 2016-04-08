@@ -257,29 +257,29 @@ StatusCode CaloTowerVecMon::checkTimeGran(bool isNewEventsBlock, bool isNewLumiB
     }
     //... check if it is low statistics interval
     else if (m_timeGran.compare("lowStat") ==0){
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=lowStat;
     }
     //... or medium statistics
     else if (m_timeGran.compare("medStat") ==0) {
-      isNewTimeGran=newMedStatInterval;
+      isNewTimeGran=newMedStatIntervalFlag();
       theinterval=medStat;
     }
     else if (m_timeGran.compare("higStat") ==0){
-      isNewTimeGran=newHigStatInterval;
+      isNewTimeGran=newHigStatIntervalFlag();
       theinterval=higStat;
     }
     else if (m_timeGran.compare("fill") ==0){
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=fill;
     }
     else if (m_timeGran.compare("all") ==0){
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=all;
     }
     // if it is not global, but it is something else stick to medium stat
     else  {
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=medStat;
     }
   }

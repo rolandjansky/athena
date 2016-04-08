@@ -60,10 +60,10 @@ CaloClusterVecMon::CaloClusterVecMon(const std::string& type, const std::string&
   declareProperty("TimeGran",m_timeGran="lowStat");
 
   declareProperty("lowEthresh", m_Ethresh[LOW_E]=0.0);
-  declareProperty("lowmedEthresh", m_Ethresh[LOWMED_E]=4.0);
+  declareProperty("lowmedEthresh", m_Ethresh[LOWMED_E]=5.0);
   declareProperty("medEthresh", m_Ethresh[MED_E]=10.0);
-  //  declareProperty("medhiEthresh", m_Ethresh[MEDHIGH_E]=15.0);
-  declareProperty("hiEthresh", m_Ethresh[HIGH_E]=25.0);
+  declareProperty("medhiEthresh", m_Ethresh[MEDHIGH_E]=15.0);
+  declareProperty("hiEthresh", m_Ethresh[HIGH_E]=20.0);
 
   declareProperty("etaMin1", m_etaMin[REGION1]=0.0);
   declareProperty("etaMin2", m_etaMin[REGION2]=1.4);
@@ -76,10 +76,6 @@ CaloClusterVecMon::CaloClusterVecMon(const std::string& type, const std::string&
   declareProperty("binsClustersEta", m_binRangeEta);
   declareProperty("binsClustersPhi", m_binRangePhi);
   declareProperty("binsClustersEtaPhi", m_binRangeEtaPhi);
-
-  declareProperty("doTotalEnergyMap", m_doTotalEnergyMap=false);
-  declareProperty("doMonitNegEnergy", m_doMonitNegEnergy=false);
-  declareProperty("doOnlyEtPlot", m_doOnlyEtPlot=true);
 
   initHists(); 
 }
@@ -137,6 +133,9 @@ void CaloClusterVecMon::initHists(){
 
   // cluster stat hists
   m_nClusters=0;
+  m_nClustersBottomVsTop=0;
+  m_averageEnergy_etaphi_maxEclusters=0;
+  m_dEtaVsdPhi_maxEclustersTopVsBottom=0; // for cosmics 
 
   // tile hists 
   m_clustersCellsRatioEta=0;
@@ -236,29 +235,29 @@ bool CaloClusterVecMon::checkTimeGran(bool isNewEventsBlock, bool isNewLumiBlock
     }
     //... check if it is low statistics interval
     else if (m_timeGran.compare("lowStat") ==0){
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=lowStat;
     }
     //... or medium statistics
     else if (m_timeGran.compare("medStat") ==0) {
-      isNewTimeGran=newMedStatInterval;
+      isNewTimeGran=newMedStatIntervalFlag();
       theinterval=medStat;
     }
     else if (m_timeGran.compare("higStat") ==0){
-      isNewTimeGran=newHigStatInterval;
+      isNewTimeGran=newHigStatIntervalFlag();
       theinterval=higStat;
     }
     else if (m_timeGran.compare("fill") ==0){
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=fill;
     }
     else if (m_timeGran.compare("all") ==0){
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=all;
     }
     // if it is not global, but it is something else stick to medium stat
     else  {
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=medStat;
     }
   }
@@ -399,107 +398,99 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
 //      m_EMclus_etaVsPhi[i]->GetYaxis()->SetTitle("#phi");
       
 
-      if (!m_doOnlyEtPlot){	
-	sprintf(btitle, "Occupancy of Clusters with E-Clus>%4.1f GeV", m_Ethresh[i]);
-	sprintf(bname, "m_clus_eta%d", i);
-	m_clus_eta[i] = new TH1F(bname,btitle,64,-5.0,5.0);
-	cluster_1drates_expert.regHist( m_clus_eta[i] ).ignore();
-	m_clus_eta[i]->GetXaxis()->SetTitle("#eta");
-      }
-
+      sprintf(btitle, "Occupancy of Clusters with E-Clus>%4.1f GeV", m_Ethresh[i]);
+      sprintf(bname, "m_clus_eta%d", i);
+      m_clus_eta[i] = new TH1F(bname,btitle,64,-5.0,5.0);
+      cluster_1drates_expert.regHist( m_clus_eta[i] ).ignore();
+      m_clus_eta[i]->GetXaxis()->SetTitle("#eta");
+      
       // km add 
-      sprintf(btitle, "Occupancy of Clusters with Et>%4.1f GeV", m_Ethresh[i]);
+      sprintf(btitle, "Occupancy of Clusters with Et-Clus>%4.1f GeV", m_Ethresh[i]);
       sprintf(bname, "m_clus_eta_Et%d", i);
       m_clus_eta_Et[i] = new TH1F(bname,btitle,64,-5.0,5.0);
       cluster_1drates_expert.regHist( m_clus_eta_Et[i]).ignore();
       m_clus_eta_Et[i]->GetXaxis()->SetTitle("#eta");
-      
-      if (!m_doOnlyEtPlot){	
-	for (int j=0; j<3;j++){ //loop over regions
-	  switch(j){
-	  case 0:
-	    sprintf(btitle, "Occupancy of Barrel Clusters Vs Phi E_Clus>%4.1f GeV ", m_Ethresh[i]);
-	    sprintf(bname, "m_clus_phi%dBarrel", i);
-	    break;
-	  case 1:
-	    sprintf(btitle, "Occupancy of EndCapA Clusters Vs Phi with E_clus>%4.1f GeV ", m_Ethresh[i]);
-	    sprintf(bname, "m_clus_phi%dEndcapA", i);
-	    break;
-	  case 2:
-	  sprintf(btitle, "Occupancy of EndCapC clusters Vs phi with E_clus>%4.1f GeV Endcap C", m_Ethresh[i]);
-	  sprintf(bname, "m_clus_phi%dEndcapC", i);
-	  break;
-	  }
-	  m_clus_phi[i][j] =  new TH1F(bname,btitle,64,-3.15,3.15);
-	  cluster_1drates_expert.regHist( m_clus_phi[i][j] ).ignore();
-	  m_clus_phi[i][j]->GetXaxis()->SetTitle("#phi");
-	  m_clus_phi[i][j]->GetYaxis()->SetMoreLogLabels();
-	  m_clus_phi[i][j]->GetZaxis()->SetMoreLogLabels();
-	}      
-      }
-      // km add
-      
+
       for (int j=0; j<3;j++){ //loop over regions
-	switch(j){
-	case 0:
-	  sprintf(btitle, "Occupancy of Barrel Clusters Vs Phi Et_Clus>%4.1f GeV ", m_Ethresh[i]);
-	  sprintf(bname, "m_clus_phi_Et%dBarrel", i);
-	  break;
-	case 1:
-	  sprintf(btitle, "Occupancy of EndCapA Clusters Vs Phi with Et_clus>%4.1f GeV ", m_Ethresh[i]);
-	  sprintf(bname, "m_clus_phi_Et%dEndcapA", i);
-	  break;
-	case 2:
-	  sprintf(btitle, "Occupancy of EndCapC clusters Vs phi with Et_clus>%4.1f GeV Endcap C", m_Ethresh[i]);
-	  sprintf(bname, "m_clus_phi_Et%dEndcapC", i);
-	  break;
-	}
-	m_clus_phi_Et[i][j] =  new TH1F(bname,btitle,64,-3.15,3.15);
-	cluster_1drates_expert.regHist( m_clus_phi_Et[i][j] ).ignore();
-	m_clus_phi_Et[i][j]->GetXaxis()->SetTitle("#phi");
-	m_clus_phi_Et[i][j]->GetYaxis()->SetMoreLogLabels();
-	m_clus_phi_Et[i][j]->GetZaxis()->SetMoreLogLabels();
+        switch(j){
+        case 0:
+          sprintf(btitle, "Occupancy of Barrel Clusters Vs Phi E_Clus>%4.1f GeV ", m_Ethresh[i]);
+          sprintf(bname, "m_clus_phi%dBarrel", i);
+          break;
+        case 1:
+          sprintf(btitle, "Occupancy of EndCapA Clusters Vs Phi with E_clus>%4.1f GeV ", m_Ethresh[i]);
+          sprintf(bname, "m_clus_phi%dEndcapA", i);
+          break;
+        case 2:
+          sprintf(btitle, "Occupancy of EndCapC clusters Vs phi with E_clus>%4.1f GeV Endcap C", m_Ethresh[i]);
+          sprintf(bname, "m_clus_phi%dEndcapC", i);
+          break;
+        }
+        m_clus_phi[i][j] =  new TH1F(bname,btitle,64,-3.15,3.15);
+        cluster_1drates_expert.regHist( m_clus_phi[i][j] ).ignore();
+        m_clus_phi[i][j]->GetXaxis()->SetTitle("#phi");
+        m_clus_phi[i][j]->GetYaxis()->SetMoreLogLabels();
+        m_clus_phi[i][j]->GetZaxis()->SetMoreLogLabels();
       }      
-	
-      if (!m_doOnlyEtPlot){	
-	sprintf(btitle, "Occupancy of clusters with  E_clus>%4.1f GeV", m_Ethresh[i]);
-	sprintf(bname, "m_EtavsPhi%d", i);
-	m_etaVsPhi[i] = new TH2F(bname,btitle,98,-4.9,4.9,64,-3.15,3.15);
-	if(i==0 || i==2) cluster_2drates_shift.regHist(m_etaVsPhi[i]).ignore();
-	else cluster_2drates_expert.regHist(m_etaVsPhi[i]).ignore();
-	m_etaVsPhi[i]->GetXaxis()->SetTitle("#eta");
-	m_etaVsPhi[i]->GetYaxis()->SetTitle("#phi");
-	m_etaVsPhi[i]->GetZaxis()->SetMoreLogLabels();  // km add
-	
-	sprintf(btitle, "Avg energy of clusters with E_clus>%4.1f GeV", m_Ethresh[i]);
-	sprintf(bname, "etaphi_thresh_avgenergy_%d", i);
-	m_etaphi_thresh_avgenergy[i] = new TProfile2D(bname, btitle ,98,-4.9,4.9,64,-3.15,3.15);
-	if(i==0 || i==2) cluster_2davge_shift.regHist(  m_etaphi_thresh_avgenergy[i] ).ignore();
-	else cluster_2davge_expert.regHist(  m_etaphi_thresh_avgenergy[i] ).ignore();
-	m_etaphi_thresh_avgenergy[i]->GetXaxis()->SetTitle("#eta");
-	m_etaphi_thresh_avgenergy[i]->GetYaxis()->SetTitle("#phi");
-	m_etaphi_thresh_avgenergy[i]->GetZaxis()->SetMoreLogLabels();
 
-	if (m_doTotalEnergyMap){
-	  sprintf(btitle, "Total energy of clusters with E_clus>%4.1f GeV", m_Ethresh[i]);
-	  sprintf(bname, "etaphi_thresh_Totalenergy_%d", i);
-	  m_etaphi_thresh_Totalenergy[i] = new TH2F(bname, btitle ,98,-4.9,4.9,64,-3.15,3.15);
-	  cluster_2dTotale_expert.regHist(  m_etaphi_thresh_Totalenergy[i] ).ignore();
-	  m_etaphi_thresh_Totalenergy[i]->GetXaxis()->SetTitle("#eta");
-	}
-      }
+      // km add
+    
+       for (int j=0; j<3;j++){ //loop over regions
+        switch(j){
+        case 0:
+          sprintf(btitle, "Occupancy of Barrel Clusters Vs Phi Et_Clus>%4.1f GeV ", m_Ethresh[i]);
+          sprintf(bname, "m_clus_phi_Et%dBarrel", i);
+          break;
+        case 1:
+          sprintf(btitle, "Occupancy of EndCapA Clusters Vs Phi with Et_clus>%4.1f GeV ", m_Ethresh[i]);
+          sprintf(bname, "m_clus_phi_Et%dEndcapA", i);
+          break;
+        case 2:
+          sprintf(btitle, "Occupancy of EndCapC clusters Vs phi with Et_clus>%4.1f GeV Endcap C", m_Ethresh[i]);
+          sprintf(bname, "m_clus_phi_Et%dEndcapC", i);
+          break;
+        }
+        m_clus_phi_Et[i][j] =  new TH1F(bname,btitle,64,-3.15,3.15);
+        cluster_1drates_expert.regHist( m_clus_phi_Et[i][j] ).ignore();
+        m_clus_phi_Et[i][j]->GetXaxis()->SetTitle("#phi");
+        m_clus_phi_Et[i][j]->GetYaxis()->SetMoreLogLabels();
+        m_clus_phi_Et[i][j]->GetZaxis()->SetMoreLogLabels();
+      }      
+      
+ 
+      sprintf(btitle, "Occupancy of clusters with  E_clus>%4.1f GeV", m_Ethresh[i]);
+      sprintf(bname, "m_EtavsPhi%d", i);
+      m_etaVsPhi[i] = new TH2F(bname,btitle,98,-4.9,4.9,64,-3.15,3.15);
+      if(i==0 || i==2) cluster_2drates_shift.regHist(m_etaVsPhi[i]).ignore();
+      else cluster_2drates_expert.regHist(m_etaVsPhi[i]).ignore();
+      m_etaVsPhi[i]->GetXaxis()->SetTitle("#eta");
+      m_etaVsPhi[i]->GetYaxis()->SetTitle("#phi");
+      m_etaVsPhi[i]->GetZaxis()->SetMoreLogLabels();  // km add
+
+      sprintf(btitle, "Avg energy of clusters with E_clus>%4.1f GeV", m_Ethresh[i]);
+      sprintf(bname, "etaphi_thresh_avgenergy_%d", i);
+      m_etaphi_thresh_avgenergy[i] = new TProfile2D(bname, btitle ,98,-4.9,4.9,64,-3.15,3.15);
+      if(i==0 || i==2) cluster_2davge_shift.regHist(  m_etaphi_thresh_avgenergy[i] ).ignore();
+      else cluster_2davge_expert.regHist(  m_etaphi_thresh_avgenergy[i] ).ignore();
+      m_etaphi_thresh_avgenergy[i]->GetXaxis()->SetTitle("#eta");
+      m_etaphi_thresh_avgenergy[i]->GetYaxis()->SetTitle("#phi");
+      m_etaphi_thresh_avgenergy[i]->GetZaxis()->SetMoreLogLabels();
+
+      sprintf(btitle, "Total energy of clusters with E_clus>%4.1f GeV", m_Ethresh[i]);
+      sprintf(bname, "etaphi_thresh_Totalenergy_%d", i);
+      m_etaphi_thresh_Totalenergy[i] = new TH2F(bname, btitle ,98,-4.9,4.9,64,-3.15,3.15);
+      cluster_2dTotale_expert.regHist(  m_etaphi_thresh_Totalenergy[i] ).ignore();
+      m_etaphi_thresh_Totalenergy[i]->GetXaxis()->SetTitle("#eta");
     }
 
-    if (m_doMonitNegEnergy){
-      m_etaVsPhiNegEn = new TH2F("m_EtavsPhiNegEn","Occupancy of cluster with  E_Clus < 0.0 GeV",98,-4.9,4.9,64,-3.15,3.15);
-      cluster_2drates_expert.regHist(m_etaVsPhiNegEn).ignore();
-      m_etaVsPhiNegEn ->GetXaxis()->SetTitle("#eta");
+    m_etaVsPhiNegEn = new TH2F("m_EtavsPhiNegEn","Occupancy of cluster with  E_Clus < 0.0 GeV",98,-4.9,4.9,64,-3.15,3.15);
+    cluster_2drates_expert.regHist(m_etaVsPhiNegEn).ignore();
+    m_etaVsPhiNegEn ->GetXaxis()->SetTitle("#eta");
 
-      m_averageNegativeEnergy_etaphi  = new TProfile2D("etaphi_avgnegenergy","Average energy of negative energy clusters",98,-4.9,4.9,64,-3.15,3.15);
-      cluster_2davge_expert.regHist(  m_averageNegativeEnergy_etaphi ).ignore();
-      m_averageNegativeEnergy_etaphi->GetXaxis()->SetTitle("#eta");
-      m_averageNegativeEnergy_etaphi->GetYaxis()->SetTitle("#phi");    
-    }
+    m_averageNegativeEnergy_etaphi  = new TProfile2D("etaphi_avgnegenergy","Average energy of negative energy clusters",98,-4.9,4.9,64,-3.15,3.15);
+    cluster_2davge_expert.regHist(  m_averageNegativeEnergy_etaphi ).ignore();
+    m_averageNegativeEnergy_etaphi->GetXaxis()->SetTitle("#eta");
+    m_averageNegativeEnergy_etaphi->GetYaxis()->SetTitle("#phi");    
 
     m_averageEnergy_phi  = new TProfile("phi_avgenergy","Avg energy of clusters Vs #phi",64,-3.15,3.15);
     cluster_1davge_expert.regHist(  m_averageEnergy_phi ).ignore();
@@ -580,6 +571,29 @@ void CaloClusterVecMon::bookClusterStatHists(const Interval_t theinterval){
     }
     cluster_expert.regHist(  m_nClusters ).ignore();
     m_nClusters->GetXaxis()->SetTitle("Number of Clusters");
+
+    m_nClustersBottomVsTop = new TH2I("NClus_botvstop","Number of Cluster in bottomvstop", 80, 0, 80, 80, 0,80);
+    cluster_expert.regHist(  m_nClustersBottomVsTop ).ignore();
+    m_nClustersBottomVsTop ->GetXaxis()->SetTitle("Number of Clusters in bottom");
+    m_nClustersBottomVsTop ->GetYaxis()->SetTitle("Number of Clusters in top");
+
+    if (m_dataType ==  AthenaMonManager::cosmics ){
+      m_averageEnergy_etaphi_maxEclusters  = new TProfile2D("MaxEnergy_etaphi_avgenergy","max avg energy cluster from top and bottom",98,-4.9,4.9,64,-3.15,3.15);
+      cluster_2davge_expert.regHist(  m_averageEnergy_etaphi_maxEclusters ).ignore();
+      m_averageEnergy_etaphi_maxEclusters->GetXaxis()->SetTitle("#eta");
+      m_averageEnergy_etaphi_maxEclusters->GetYaxis()->SetTitle("#phi");
+
+      m_dEtaVsdPhi_maxEclustersTopVsBottom  = new TH2F("Deltaphi_Deltaeta_top_bot_Maxenergy","#Delta Eta and #Delta phi of max avg energy cluster from top and bottom",98,-4.9,4.9,64,0,6.3);
+      cluster_expert.regHist(  m_dEtaVsdPhi_maxEclustersTopVsBottom ).ignore();
+      m_dEtaVsdPhi_maxEclustersTopVsBottom->GetXaxis()->SetTitle("#eta");
+      m_dEtaVsdPhi_maxEclustersTopVsBottom->GetYaxis()->SetTitle("#phi");
+    }
+    else{
+      m_averageEnergy_etaphi_maxEclusters  = new TProfile2D("MaxEnergy_etaphi_avgenergy","Avg energy of most energetic cluster",98,-4.9,4.9,64,-3.15,3.15);
+      cluster_2davge_expert.regHist(  m_averageEnergy_etaphi_maxEclusters ).ignore();
+      m_averageEnergy_etaphi_maxEclusters->GetXaxis()->SetTitle("#eta");
+      m_averageEnergy_etaphi_maxEclusters->GetYaxis()->SetTitle("#phi");
+    }
 
 }
 
@@ -908,7 +922,7 @@ void CaloClusterVecMon::fillClusterHist(const CaloCluster* clus){
           }
         }    
 
-        if(!m_doOnlyEtPlot && EClus/GeV > m_Ethresh[j]) {
+        if(EClus/GeV > m_Ethresh[j]) {
           m_clus_eta[j]->Fill(EtaClus);
           if (fabs(EtaClus)<1.5) {
             m_clus_phi[j][0]->Fill(PhiClus);
@@ -919,11 +933,11 @@ void CaloClusterVecMon::fillClusterHist(const CaloCluster* clus){
           }
           m_etaVsPhi[j]->Fill(EtaClus, PhiClus);
           m_etaphi_thresh_avgenergy[j]->Fill(EtaClus, PhiClus,EClus/GeV);
-          if (m_doTotalEnergyMap) m_etaphi_thresh_Totalenergy[j]->Fill(EtaClus, PhiClus,EClus/GeV);
+          m_etaphi_thresh_Totalenergy[j]->Fill(EtaClus, PhiClus,EClus/GeV);
         }
       }
 
-      if( EClus < 0.0 && m_doMonitNegEnergy){
+      if( EClus < 0.0 ){
         m_etaVsPhiNegEn->Fill(EtaClus, PhiClus);
         m_averageNegativeEnergy_etaphi->Fill(EtaClus, PhiClus,EClus/GeV);
       }
@@ -946,6 +960,44 @@ void CaloClusterVecMon::fillClusterHist(const CaloCluster* clus){
 ////////////////////////////////////////////////////////////////////////////
 void CaloClusterVecMon::fillClusterStatHist(const xAOD::CaloClusterContainer* clusterCont){
   m_nClusters->Fill(m_cluscount);
+  m_nClustersBottomVsTop->Fill(m_cluscount_bot,m_cluscount_top);
+
+  float phi_top=0,eta_top=0;
+  float phi_bot=0,eta_bot=0;
+  if (m_maxclusindex_top > 0){
+    phi_top=(*clusterCont)[m_maxclusindex_top-1]->phi();
+    eta_top=(*clusterCont)[m_maxclusindex_top-1]->eta();
+  }
+  if (m_maxclusindex_bot > 0){
+    phi_bot=(*clusterCont)[m_maxclusindex_bot-1]->phi();
+    eta_bot=(*clusterCont)[m_maxclusindex_bot-1]->eta();
+  }
+
+  if (m_dataType ==  AthenaMonManager::cosmics ){
+
+    if (m_maxclusindex_top > 0){
+      m_averageEnergy_etaphi_maxEclusters->Fill(eta_top,phi_top,m_maxclusene_top/GeV);
+      //m_averageEnergy_etaphi_maxEclusters->Fill(eta_top,phi_top,1.);
+    }
+
+    if (m_maxclusindex_bot > 0){
+      m_averageEnergy_etaphi_maxEclusters->Fill(eta_bot,phi_bot,m_maxclusene_bot/GeV);
+      //m_averageEnergy_etaphi_maxEclusters->Fill(eta_bot,phi_bot,1.);
+    }
+
+    if ((m_maxclusindex_top > 0) && (m_maxclusindex_bot > 0)) {
+      m_dEtaVsdPhi_maxEclustersTopVsBottom->Fill((eta_top-eta_bot),(phi_top-phi_bot));
+    }
+
+  } else  {
+    if ( m_maxclusene_top > m_maxclusene_bot ) {
+      m_averageEnergy_etaphi_maxEclusters->Fill(eta_top,phi_top,m_maxclusene_top/GeV);
+      //m_averageEnergy_etaphi_maxEclusters->Fill(eta_top,phi_top,1.);
+    } else {
+      m_averageEnergy_etaphi_maxEclusters->Fill(eta_bot,phi_bot,m_maxclusene_bot/GeV);
+      //m_averageEnergy_etaphi_maxEclusters->Fill(eta_bot,phi_bot,1.);
+    }
+  }
 
 }
 

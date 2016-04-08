@@ -64,19 +64,6 @@ StatusCode CaloMonToolBase::bookBaseHists(MonGroup* group) {
   for (unsigned i=0;i<binLabels.size();++i) {
     m_h_EvtRejSumm->GetXaxis()->SetBinLabel(i+1,binLabels[i]);
   }
-  if (!m_useReadyFilterTool){
-    m_h_EvtRejSumm->GetXaxis()->SetBinLabel(2,"ATLAS Ready-OFF");
-  }
-  if (!m_useBadLBTool){
-    m_h_EvtRejSumm->GetXaxis()->SetBinLabel(3,"Good LAr LB-OFF");
-  }
-  if (!m_useBeamBackgroundRemoval){
-    m_h_EvtRejSumm->GetXaxis()->SetBinLabel(5,"Beam backgr.-OFF");
-  }
-  if (!m_useLArNoisyAlg){
-    m_h_EvtRejSumm->GetXaxis()->SetBinLabel(7,"LAr Error Veto-OFF");
-  }
-
   return group->regHist( m_h_EvtRejSumm );
 }
 
@@ -94,10 +81,6 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
       ifPass = 1;
       m_h_EvtRejSumm->Fill(2); //All events with ATLAS Ready
     }
-  }
-  else{
-    m_h_EvtRejSumm->Fill(2); //ATLAS ready not activated
-    ifPass = 1;
   }
 
   const xAOD::EventInfo* eventInfo;
@@ -117,16 +100,11 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
       ifPass = 0;
     }
   }
-  else{
-    if(ifPass) m_h_EvtRejSumm->Fill(3); 
-  }
-
  
   const LArCollisionTime * larTime;
   sc = evtStore()->retrieve(larTime,"LArCollisionTime");
   if(sc.isFailure()){
     ATH_MSG_WARNING("Unable to retrieve LArCollisionTime event store");
-    if(ifPass) m_h_EvtRejSumm->Fill(4); 
   }
   else {
     if (larTime->timeC()!=0 && larTime->timeA()!=0 && std::fabs(larTime->timeC() - larTime->timeA())<10)  {
@@ -173,7 +151,6 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
   }
   else {
     TheTrigger = m_triggerChainProp; // Trigger Filter not implemented ++ FIXME ==
-    if(ifPass) m_h_EvtRejSumm->Fill(6); 
   }
 
   if(m_useLArNoisyAlg && (eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error)) {

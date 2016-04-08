@@ -66,8 +66,8 @@ class CaloTransverseBalanceVecMon : public ManagedMonitorToolBase {
   void findLeadingPhoton(PhotonContainer* userPhotonContainer,PhotonContainer::const_iterator& leadingPhPr);
   void findleadingANDsubleadingjets
     (const std::vector<const Jet*>& userJetContainer,
-     std::vector<const Jet*>::const_iterator& leadingJetPr,
-     std::vector<const Jet*>::const_iterator& subleadingJetPr);
+     Jet const* & leadingJetPr,
+     Jet const* & subleadingJetPr);
   void getmissingEt_phi(float missingEx,float missingEy,float& missingEt_phi);
   void AdjustPhi(float& deltaphi);
   void  Plotregister(MonGroup* monitorGroup,TH1F* hist);

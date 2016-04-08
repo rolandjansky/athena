@@ -56,6 +56,7 @@ print "tmp_useBeamBackgroundRemoval=", tmp_useBeamBackgroundRemoval
 CaloClustMonCosmicsNoTA = CaloClusterVecMon(
    name           = "CaloClustMonCosmicsNoTA",
    CaloClusterContainer = "CaloCalTopoClusters",
+   #CaloClusterContainer = "CaloCalTopoCluster",
 
    TimeGran = tmp_timeGran,
 
@@ -71,10 +72,10 @@ CaloClustMonCosmicsNoTA = CaloClusterVecMon(
 
    # cluster energy threshold in GeV
    lowEthresh = 0.0,  
-   lowmedEthresh = 10.0,
-   medEthresh = 25,
-#   medhiEthresh = 15.0,
-   hiEthresh = 50.0,
+   lowmedEthresh = 5.0,
+   medEthresh = 10,
+   medhiEthresh = 15.0,
+   hiEthresh = 20.0,
 )
 
 ToolSvc += CaloClustMonCosmicsNoTA 

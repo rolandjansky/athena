@@ -77,9 +77,9 @@ class CaloClusterVecMon : public CaloMonToolBase {
       LOW_E = 0,
       LOWMED_E = 1,
       MED_E = 2,
-      //      MEDHIGH_E = 3,
-      HIGH_E = 3,
-      MAX_E = 4
+      MEDHIGH_E = 3,
+      HIGH_E = 4,
+      MAX_E = 5
    };
 
    enum DetRegion {
@@ -111,11 +111,6 @@ class CaloClusterVecMon : public CaloMonToolBase {
    // Services
    const CaloIdManager* m_caloMgr;
    const CaloCell_ID*   m_caloCellHelper;
-
-   // Property to switch on/off
-   bool m_doTotalEnergyMap;
-   bool m_doMonitNegEnergy;
-   bool m_doOnlyEtPlot;
 
    // cluster stat variables
    int m_eventsCounter; // add
@@ -179,6 +174,9 @@ class CaloClusterVecMon : public CaloMonToolBase {
    // cluster stat hists
 
    TH1I*       m_nClusters;
+   TH2I*       m_nClustersBottomVsTop;
+   TProfile2D* m_averageEnergy_etaphi_maxEclusters; 
+   TH2F*       m_dEtaVsdPhi_maxEclustersTopVsBottom; // only for cosmics
 
    // tile hists 
    TProfile*   m_clustersCellsRatioEta;

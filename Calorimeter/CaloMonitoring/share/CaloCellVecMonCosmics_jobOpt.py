@@ -5,6 +5,7 @@
 # LArCellVecMon_jobOpt.py   Francesco Spano  07/15/07
 # LArCellVecMon_jobOpt.py   R. Kehoe         07/03/06
 
+
 from CaloMonitoring.CaloMonitoringConf import CaloCellVecMon
 from CaloRec.CaloTopoClusterFlags import jobproperties
 
@@ -25,8 +26,9 @@ from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
 theLArChanMasker=LArBadChannelMasker("LArChanMasker")
 theLArChanMasker.DoMasking=True
 theLArChanMasker.ProblemsToMask=[
-     "deadReadout","deadPhys","short",
+     "deadReadout","deadPhys","almostDead","short",
      "sporadicBurstNoise",
+     "unstableNoiseLG","unstableNoiseMG","unstableNoiseHG",
      "highNoiseHG","highNoiseMG","highNoiseLG"
 ]
 ToolSvc+=theLArChanMasker
@@ -40,7 +42,7 @@ if (DQMonFlags.monManEnvironment == 'online'):
 else:
   tmp_isOnline=FALSE
 
-if (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_Value() == 'geant4' or globalflags.DataSource.get_Value() == 'geant3'):
+if (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_Value() == 'geant4' or globalflags.DataSource.get_Value() == 'geant3'): 
   tmp_useBadLBTool=FALSE
 else:
   tmp_useBadLBTool=TRUE
@@ -48,6 +50,7 @@ else:
 if DQMonFlags.monManEnvironment() == 'online':
   tmp_useReadyFilterTool=FALSE
 else:
+#  tmp_useReadyFilterTool=TRUE
   tmp_useReadyFilterTool=FALSE
 
 if DQMonFlags.monManEnvironment() == 'online':
@@ -63,12 +66,9 @@ if 'DQMonFlags' in dir():
    if not DQMonFlags.useTrigger:
       tmp_useTrigger = FALSE
 
-#if DQMonFlags.monManEnvironment() == 'online':
-#   tmp_sporadicSwitch = FALSE
-#else:
-#   tmp_sporadicSwitch = TRUE
-tmp_sporadicSwitch = FALSE
-if (rec.triggerStream()=='CosmicCalo') and not (DQMonFlags.monManEnvironment() == 'online'):
+if DQMonFlags.monManEnvironment() == 'online':
+   tmp_sporadicSwitch = FALSE
+else:
    tmp_sporadicSwitch = TRUE
 
 CaloCellMonCosmics = CaloCellVecMon(
@@ -94,7 +94,8 @@ CaloCellMonCosmics = CaloCellVecMon(
 
     useTrigger          = tmp_useTrigger,
     rndmTriggerNames    = "L1_RD0, L1_RD0_FILLED, L1_RD0_EMPTY, L1_RD1, L1_RD1_NOISE, L1_RD1_HIST, L1_RD1_BGRP4, L1_RD1_BGRP5",
-    caloTriggerNames    = "L1_EM[0-9]+, L1_HA[0-9]+, L1_J[0-9]+.*, L1_JB[0-9]+, L1_JF[0-9]+, L1_TE[0-9]+, L1_JE[0-9]+, L1_XE[0-9]+, L1_2EM[0-9]+, L1_2FJ[0-9]+, L1_2J[0-9]+,L1_3J[0-9]+.*,L1_4J[0-9]+.*,L1_5J[0-9]+,L1_6J[0-9]+,L1_FJ[0-9]+.*",
+#    caloTriggerNames    = "L1_EM[0-9]+, L1_HA[0-9]+, L1_J[0-9]+.*, L1_JB[0-9]+, L1_JF[0-9]+, L1_TE[0-9]+, L1_JE[0-9]+, L1_XE[0-9]+",
+   caloTriggerNames    = "L1_EM[0-9]+, L1_HA[0-9]+, L1_J[0-9]+.*, L1_JB[0-9]+, L1_JF[0-9]+, L1_TE[0-9]+, L1_JE[0-9]+, L1_XE[0-9]+, L1_2EM[0-9]+, L1_2FJ[0-9]+, L1_2J[0-9]+,L1_3J[0-9]+.*,L1_4J[0-9]+.*,L1_5J[0-9]+,L1_6J[0-9]+,L1_FJ[0-9]+.*",
     minBiasTriggerNames = "L1_RD0_FILLED, L1_MBTS_1, L1_MBTS_2, L1_MBTS_1_1",
     metTriggerNames     = "EF_xe[0-9]+.*",
     miscTriggerNames    = "",
@@ -108,10 +109,9 @@ CaloCellMonCosmics = CaloCellVecMon(
     problemsToMaskOffline =["deadReadout","deadPhys","almostDead","short","sporadicBurstNoise","unstableNoiseLG",
                             "unstableNoiseMG","unstableNoiseHG","highNoiseHG","highNoiseMG","highNoiseLG"],
 
-    # Database Record Plots (filled in first event)
     doDatabaseNoiseVsEtaPhi     = TRUE,
     doKnownBadChannelsVsEtaPhi  = TRUE,
-    doDBNoiseNormalized1DEnergy = FALSE,
+    doDBNoiseNormalized1DEnergy = TRUE,
     doUnnormalized1DEnergy      = TRUE,
     useLogarithmicEnergyBinning = TRUE,
 
@@ -128,6 +128,8 @@ CaloCellMonCosmics = CaloCellVecMon(
 
     DoEtaLumi = FALSE,
     DoPhiLumi = FALSE,
+
+
 
 # EtaPhi Cell Plots:
     
@@ -148,17 +150,17 @@ CaloCellMonCosmics = CaloCellVecMon(
     TriggersToInclude      = ["all"    , "all"  , "all"       , "all"   , "all"   , "all"  , "all"         , "met"  ],
     TriggersToExclude      = ["none"   , "none" , "none"      ],
 
-    DoPercentageOccupancy  = [ FALSE   , FALSE  , FALSE       , TRUE    , FALSE   , FALSE  , FALSE         , FALSE  ],
-    DoEtaPhiOccupancy      = [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    , TRUE   , TRUE          , FALSE  ],
+    DoPercentageOccupancy  = [ TRUE    , FALSE  , FALSE       , TRUE    , FALSE   , FALSE  , FALSE         , FALSE  ],
+    DoEtaPhiOccupancy      = [ FALSE   , FALSE  , FALSE       , TRUE    , TRUE    , TRUE   , TRUE          , TRUE   ],
     DoEtaOccupancy         = [ FALSE   , FALSE  , FALSE       , TRUE    ],
     DoPhiOccupancy         = [ FALSE   , FALSE  , FALSE       , TRUE    ],
 
-    DoEtaPhiAverageEnergy  = [ FALSE   , FALSE  , TRUE        , FALSE   , TRUE    ],
-    DoEtaPhiTotalEnergy    = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   ],
-    DoEtaPhiEnergyRMS      = [ FALSE   , FALSE  , FALSE       ],
-    DoEtaPhiRMSvsDBnoise   = [ FALSE   , FALSE  , FALSE       ],
+    DoEtaPhiAverageEnergy  = [ FALSE   , FALSE  , TRUE        , TRUE    , TRUE    ],
+    DoEtaPhiTotalEnergy    = [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    ],
+    DoEtaPhiEnergyRMS      = [ FALSE   , FALSE  , TRUE        ],
+    DoEtaPhiRMSvsDBnoise   = [ FALSE   , FALSE  , TRUE        ],
 
-    DoEtaPhiAverageQuality = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   ],
+    DoEtaPhiAverageQuality = [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    ],
     DoEtaPhiFractionOverQth= [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   , TRUE   , TRUE          ],
     QualityFactorThreshold = [ 4000.   ],
 
@@ -204,6 +206,7 @@ CaloCellMonCosmics = CaloCellVecMon(
     FCAL1_Thresh          = [ 6000. , 6000.         ],
     FCAL2_Thresh          = [ 6000. , 6000.         ],
     FCAL3_Thresh          = [ 6000. , 6000.         ],
+
 )
 
 ToolSvc+=CaloCellMonCosmics
