@@ -1,5 +1,5 @@
 package xAODCoreAthenaPool
-# $Id: requirements 603717 2014-06-26 12:15:08Z krasznaa $
+# $Id: requirements 635273 2014-12-11 13:58:24Z krasznaa $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -9,6 +9,10 @@ public
 use AtlasPolicy         AtlasPolicy-*
 
 private
+
+# Core package(s):
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
 
 # POOL package(s):
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
