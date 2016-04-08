@@ -9,7 +9,7 @@
 #ifndef MaterialStepRecorder_H
 #define MaterialStepRecorder_H
 
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
 #include <string>
 #include <vector>
 
@@ -24,44 +24,41 @@
     @author Wolfgang.Lukas@cern.ch
 */
 
-class StoreGateSvc;
-
 namespace Trk {
-    class IPositionMomentumWriter;
+  class IPositionMomentumWriter;
 }
 
-class MaterialStepRecorder: public FADS::UserAction {
+class MaterialStepRecorder final: public UserActionBase {
 
-  public:
-    /** Standard FADS UsesAction */
-    MaterialStepRecorder(std::string s);
+ public:
+  /** Standard UserAction Constructor */
+  MaterialStepRecorder(const std::string& type, const std::string& name, const IInterface* parent);
 
-    /** All G4 interface methods */
-    void BeginOfEventAction(const G4Event*);
-    void EndOfEventAction(const G4Event*);
-    void BeginOfRunAction(const G4Run*);
-    void EndOfRunAction(const G4Run*);
-    void SteppingAction(const G4Step*);
-    void ParseProperties();
+  /** All G4 interface methods */
+  virtual void BeginOfEvent(const G4Event*) override;
+  virtual void EndOfEvent(const G4Event*) override;
+  virtual void BeginOfRun(const G4Run*) override;
+  virtual void EndOfRun(const G4Run*) override;
+  virtual void Step(const G4Step*) override;
 
-  private:
-    StoreGateSvc*                   m_storeGate;
-    Trk::MaterialStepCollection*    m_matStepCollection;
-    std::string                     m_matStepCollectionName;
-	bool                            m_recordComposition;
 
-    double                          m_totalNbOfAtoms;
-    size_t                          m_totalSteps;
-    size_t                          m_eventID;
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
-    int                             m_verboseLevel;
-    
-    Trk::ElementTable*              m_elementTable; 
-    std::string                     m_elementTableName;
-    
-    Trk::ElementTable*              m_runElementTable;
-    
+ private:
+  Trk::MaterialStepCollection*    m_matStepCollection; //FIXME convert to a WriteHandle
+  std::string                     m_matStepCollectionName;
+
+  bool                            m_recordComposition;
+
+  double                          m_totalNbOfAtoms;
+  size_t                          m_totalSteps;
+  size_t                          m_eventID;
+
+  Trk::ElementTable*              m_elementTable;  //FIXME convert to a WriteHandle
+  std::string                     m_elementTableName;
+
+  Trk::ElementTable*              m_runElementTable;
+
 };
 
 #endif
-

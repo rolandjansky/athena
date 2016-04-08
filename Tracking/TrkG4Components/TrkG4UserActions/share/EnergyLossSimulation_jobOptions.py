@@ -5,7 +5,7 @@
 #		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
-__version__="$Revision: 674388 $"
+__version__="$Revision: 729147 $"
 #==============================================================
 
 
@@ -89,21 +89,6 @@ myAtRndmGenSvc.OutputLevel 	    = VERBOSE
 myAtRndmGenSvc.EventReseeding   = False
 ServiceMgr += myAtRndmGenSvc
 
-# ToolSvc setup
-from AthenaCommon.AppMgr import ToolSvc
-
-from TrkValTools.TrkValToolsConf import Trk__PositionMomentumWriter as PmWriter
-PmWriter = PmWriter('PosMomWriter')
-ToolSvc += PmWriter
-
-## Add an action
-def energyloss_action():
-    from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-    EnergyLossRecorder = PyG4Atlas.UserAction('TrkG4UserActions','EnergyLossRecorder', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(EnergyLossRecorder)
-
-SimFlags.InitFunctions.add_function('preInitG4', energyloss_action)
-
 ############### The Material hit collection ##################
 
 if not hasattr(ServiceMgr, 'THistSvc'):
@@ -128,6 +113,13 @@ ServiceMgr.THistSvc.Output += [ "val DATAFILE='/tmp/salzburg/EnergyLossRecorder.
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+
+from AthenaCommon.CfgGetter import getPublicTool
+ServiceMgr.UserActionSvc.BeginOfRunActions += [getPublicTool("EnergyLossRecorder")]
+ServiceMgr.UserActionSvc.EndOfRunActions += [getPublicTool("EnergyLossRecorder")]
+ServiceMgr.UserActionSvc.BeginOfEventActions += [getPublicTool("EnergyLossRecorder")]
+ServiceMgr.UserActionSvc.EndOfEventActions += [getPublicTool("EnergyLossRecorder")]
+ServiceMgr.UserActionSvc.SteppingActions += [getPublicTool("EnergyLossRecorder")]
 
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------
 
