@@ -31,18 +31,19 @@ namespace Muon {
     // sanity check
     if( hits.empty() )     return TimingResult();
     
-    ATH_MSG_INFO(" calculating timing for hits " << hits.size() );
+    ATH_MSG_DEBUG(" calculating timing for hits " << hits.size() );
 
     std::vector<int> histogram(100,0);
     float minTime = -100.;
     float binwidth = 2*std::abs(minTime)/histogram.size();
     float invbinwidth = 1./binwidth;
-
+    
+    
     for( auto hit : hits ){
       const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(hit);
       if( !rpc ) continue;
       int bin = invbinwidth*(rpc->time()-minTime);
-      ATH_MSG_INFO(m_idHelper->toString(hit->identify()) << " time " << rpc->time() << " bin " << bin );
+      ATH_MSG_DEBUG(m_idHelper->toString(hit->identify()) << " time " << rpc->time() << " bin " << bin );
       if( bin < 0 || bin >= (int)histogram.size() ) continue;
       ++histogram[bin];
     }
@@ -55,10 +56,23 @@ namespace Muon {
         maxval = val;
       }
     }
-    if( maxbin != -1 ){
-      double time = maxbin*binwidth + minTime;
+    if( maxbin != -1 ){      
+      double time = 0.;
+      unsigned int nhits = 0;
       double error = getError(*hits.front());
-      ATH_MSG_INFO( " final time " << time << " error " << error );
+      for( auto hit : hits ){
+        const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(hit);
+        if( !rpc ) continue;
+        int bin = invbinwidth*(rpc->time()-minTime);
+        ATH_MSG_DEBUG(m_idHelper->toString(hit->identify()) << " time " << rpc->time() << " bin " << bin );
+        // select hits in the max bin or the two neighbouring ones
+        if( bin > maxbin+1 || bin < maxbin-1 ) continue;
+        time += rpc->time();
+        ++nhits;
+      }
+      if( nhits == 0 ) return TimingResult();
+      time /= nhits;
+      ATH_MSG_DEBUG( " final time " << time << " error " << error );
       return TimingResult(true,time,error);
     }
     return TimingResult();
