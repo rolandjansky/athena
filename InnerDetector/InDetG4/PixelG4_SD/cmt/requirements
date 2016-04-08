@@ -14,7 +14,6 @@ use Geant4                Geant4-*                External
 use G4AtlasTools          G4AtlasTools-*          Simulation/G4Atlas
 use InDetSimEvent         InDetSimEvent-*         InnerDetector
 use MCTruth               MCTruth-*               Simulation/G4Sim
-use SimHelpers            SimHelpers-*            Simulation/G4Sim
 use StoreGate             StoreGate-*             Control
 use CxxUtils              CxxUtils-*              Control
 end_private
