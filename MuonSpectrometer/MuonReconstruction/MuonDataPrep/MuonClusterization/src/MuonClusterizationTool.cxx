@@ -32,8 +32,8 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
   
-    m_tgcClustering = new TgcHitClusteringObj(m_idHelper->tgcIdHelper());
-    m_rpcClustering = new RpcHitClusteringObj(m_idHelper->rpcIdHelper());
+    m_tgcClustering = new HitClusteringObj(m_idHelper->tgcIdHelper());
+    m_rpcClustering = new HitClusteringObj(m_idHelper->rpcIdHelper());
     //m_rpcClustering->debug = true;
     m_rpcClustering->combinedGasGaps = m_combineGasGaps;
     m_tgcClustering->combinedGasGaps = m_combineGasGaps;
@@ -69,7 +69,7 @@ namespace Muon {
     TgcPrepDataCollection* collection = new TgcPrepDataCollection(col.identifyHash());
     collection->setIdentifier(col.identify());
     ATH_MSG_INFO("Performing clustering in " << m_idHelper->toString(col.identify()) );
-    std::vector<const TgcPrepData*> prds;
+    std::vector<const MuonCluster*> prds;
     prds.insert(prds.end(),col.begin(),col.end());
     m_tgcClustering->cluster( prds );
     addClusters(m_tgcClustering->clustersEta,collection);
@@ -79,22 +79,22 @@ namespace Muon {
     return collection;
   }
 
-  void MuonClusterizationTool::addClusters( const std::vector<TgcClusterObj>& clusters, TgcPrepDataCollection* collection ){
-    std::vector<TgcClusterObj>::const_iterator cit = clusters.begin();
-    std::vector<TgcClusterObj>::const_iterator cit_end = clusters.end();
+  void MuonClusterizationTool::addClusters( const std::vector<ClusterObj>& clusters, TgcPrepDataCollection* collection ){
+    std::vector<ClusterObj>::const_iterator cit = clusters.begin();
+    std::vector<ClusterObj>::const_iterator cit_end = clusters.end();
     for( ;cit!=cit_end;++cit ){
 
       // ignore non-active clusters
-      const TgcClusterObj& cl = *cit;
+      const ClusterObj& cl = *cit;
       if( !cl.active() ) continue;
-      const TgcPrepData* first = cl.hitList.front();
+      const TgcPrepData* first = static_cast<const TgcPrepData*>(cl.hitList.front());
       if( !first ) continue;
 
       // copy identifiers of contained prds
       std::vector<Identifier> rdoList;
       rdoList.reserve(cl.hitList.size());
-      TgcClusterObj::HitCit hit = cl.hitList.begin();
-      TgcClusterObj::HitCit hit_end = cl.hitList.end();
+      std::vector< const MuonCluster*>::const_iterator hit = cl.hitList.begin();
+      std::vector< const MuonCluster*>::const_iterator hit_end = cl.hitList.end();
       for( ;hit!=hit_end;++hit ) rdoList.push_back((*hit)->identify());
 
       // create new PRD object
@@ -129,32 +129,32 @@ namespace Muon {
     RpcPrepDataCollection* collection = new RpcPrepDataCollection(col.identifyHash());
     collection->setIdentifier(col.identify());
     ATH_MSG_INFO("Performing clustering in " << m_idHelper->toString(col.identify()) );
-    std::vector<const RpcPrepData*> prds;
+    std::vector<const MuonCluster*> prds;
     prds.insert(prds.end(),col.begin(),col.end());
     m_rpcClustering->cluster( prds );
     addClusters(m_rpcClustering->clustersEta,collection);
     addClusters(m_rpcClustering->clustersPhi,collection);
     ATH_MSG_INFO("  input size " << col.size() << " output size " << collection->size());
-
+   
     return collection;
   }
 
-  void MuonClusterizationTool::addClusters( const std::vector<RpcClusterObj>& clusters, RpcPrepDataCollection* collection ){
-    std::vector<RpcClusterObj>::const_iterator cit = clusters.begin();
-    std::vector<RpcClusterObj>::const_iterator cit_end = clusters.end();
+  void MuonClusterizationTool::addClusters( const std::vector<ClusterObj>& clusters, RpcPrepDataCollection* collection ){
+    std::vector<ClusterObj>::const_iterator cit = clusters.begin();
+    std::vector<ClusterObj>::const_iterator cit_end = clusters.end();
     for( ;cit!=cit_end;++cit ){
 
       // ignore non-active clusters
-      const RpcClusterObj& cl = *cit;
+      const ClusterObj& cl = *cit;
       if( !cl.active() ) continue;
-      const RpcPrepData* first = cl.hitList.front();
+      const RpcPrepData* first = static_cast<const RpcPrepData*>(cl.hitList.front());
       if( !first ) continue;
 
       // copy identifiers of contained prds
       std::vector<Identifier> rdoList;
       rdoList.reserve(cl.hitList.size());
-      RpcClusterObj::HitCit hit = cl.hitList.begin();
-      RpcClusterObj::HitCit hit_end = cl.hitList.end();
+      std::vector< const MuonCluster*>::const_iterator hit = cl.hitList.begin();
+      std::vector< const MuonCluster*>::const_iterator hit_end = cl.hitList.end();
       for( ;hit!=hit_end;++hit ) rdoList.push_back((*hit)->identify());
 
       // create new PRD object

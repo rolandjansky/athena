@@ -10,7 +10,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "MuonClusterization/TgcHitClustering.h"
+#include "MuonClusterization/HitClustering.h"
 #include "MuonClusterization/RpcHitClustering.h"
 #include "MuonClusterization/IMuonClusterizationTool.h"
 
@@ -36,13 +36,13 @@ namespace Muon{
     Muon::RpcPrepDataCollection* cluster( const Muon::RpcPrepDataCollection& col );
 
   private:
-    void addClusters( const std::vector<Muon::TgcClusterObj>& clusters, Muon::TgcPrepDataCollection* collection );
-    void addClusters( const std::vector<Muon::RpcClusterObj>& clusters, Muon::RpcPrepDataCollection* collection );
+    void addClusters( const std::vector<Muon::ClusterObj>& clusters, Muon::TgcPrepDataCollection* collection );
+    void addClusters( const std::vector<Muon::ClusterObj>& clusters, Muon::RpcPrepDataCollection* collection );
 
     ToolHandle<Muon::MuonIdHelperTool> m_idHelper;    //!< id helper Tool 
 
-    Muon::TgcHitClusteringObj* m_tgcClustering;
-    Muon::RpcHitClusteringObj* m_rpcClustering;
+    Muon::HitClusteringObj* m_tgcClustering;
+    Muon::HitClusteringObj* m_rpcClustering;
     bool m_combineGasGaps;
   };
 }

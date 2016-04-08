@@ -53,13 +53,30 @@ namespace Muon {
 
   bool RpcHitClusteringObj::cluster( const std::vector<const RpcPrepData*>& col, const Identifier& subid ){
 
-//    std::cout << " RPC collection size " << col.size() << std::endl;
+    /**
+       Core clustering routine that runs on a single RPC module (two gas-gaps)
+       Strategy: 
+         - create a hash vector with the channel number as index and store a Doublet object in it. 
+           The Doublet contains two integers, one for each gasgap. The integers are used to store the cluster number the hit in that channel is 
+           associated with.
+         - loop over the input hits, filtering out all those in different modules
+           - calculate the channel number and look-up the cluster number, if any, for the channel nummber
+             - if there is already a cluster associated with the channel (meaning this is a duplicate hit), add the hit as secondary hit
+           - calculate all potential neightbours of the channel number
+           - loop over the neighbour channels and check if any of them is already assigned to a cluster
+             - if one of the neighbours already is assigned to a cluster, add the hit to that cluster
+             - if another neighbouring channel is assigned to a different cluster, the hit connects the two clusters -> merge the two clusters
+         - add the clusters to the final cluster list
+     */
+
+    // check if there was an input
     if( col.empty() ) return  false;
     std::vector<const RpcPrepData*>::const_iterator cit_begin = col.begin();
     std::vector<const RpcPrepData*>::const_iterator cit_end = col.end();
     if( cit_begin == cit_end ) return false;
     if( debug ) std::cout << " RPC performing clustering: " << col.size() << "  " << m_rpcIdHelper->print_to_string(subid) << std::endl;
     
+    // find the first PRD matching the subid
     int doubZ = m_rpcIdHelper->doubletZ(subid);
     int doubPhi = m_rpcIdHelper->doubletPhi(subid);
     std::vector<const RpcPrepData*>::const_iterator cit = cit_begin;
@@ -73,32 +90,41 @@ namespace Muon {
       break;
     }
       
+    // exit if none found
     if( !prd_first ) return false;
 
+    // setup arrays
     clustersEtaTmp.clear();
     clustersPhiTmp.clear();
     channelsEta.clear();
     channelsPhi.clear();
     channelsEta.resize(prd_first->detectorElement()->NetaStrips());
     channelsPhi.resize(prd_first->detectorElement()->NphiStrips());
-    std::vector<Doublet>* channelsPtr = 0;
+
+    // loop over hits 
+    std::vector<Doublet>* channelsPtr = 0; 
     cit = cit_begin;
     for( ; cit!=cit_end;++cit ) {
+      
+      // drop hits in other subid's
       const Muon::RpcPrepData* prd = *cit;
       const Identifier& id = prd->identify();
       if( doubZ != m_rpcIdHelper->doubletZ(id) ) continue;
       if( doubPhi != m_rpcIdHelper->doubletPhi(id) ) continue;
-      if( debug ) std::cout << " prd " << m_rpcIdHelper->print_to_string(id) << std::endl;
+      if( debug ) std::cout << "  adding prd " << m_rpcIdHelper->print_to_string(id) << std::endl;
+      
+      // decode identifier
       bool measuresPhi = m_rpcIdHelper->measuresPhi(id); 
       int gasgap = m_rpcIdHelper->gasGap(id);
       int channel = m_rpcIdHelper->strip(id)-1;
-	
       if(measuresPhi) channelsPtr = &channelsPhi;
       else            channelsPtr = &channelsEta;
       if( channel >= (int)channelsPtr->size() ){
 	std::cout << "index channels out of range: " << channel << " max " << channelsPtr->size() << std::endl;
 	continue;
       }
+
+      // 
       std::vector<RpcClusterObj>& clusters = measuresPhi ? clustersPhiTmp : clustersEtaTmp;
 
       Doublet& doublet = (*channelsPtr)[channel];
@@ -144,7 +170,7 @@ namespace Muon {
 	if( channel < (int)channelsPtr->size()-1 ) neighbours.push_back( Id(gasgap,channel+1) );
 
 	if( debug ) {
-	  std::cout << " new hit " << channel << "  " << gasgap;
+	  std::cout << "   adding new channel " << channel << "  " << gasgap;
 	  if( measuresPhi ) std::cout << " phi " << " neighbours " << neighbours.size() << std::endl;
 	  else              std::cout << " eta " << " neighbours " << neighbours.size() << std::endl;
 	}
@@ -158,7 +184,7 @@ namespace Muon {
 	  
 	  int clusterNumber =  nit->gp==1 ? doub.first : doub.second;
 	  if( clusterNumber == -1 ) continue;
-	  if( debug ) std::cout << "    new neighbour " << nit->gp << "  " << nit->ch << " clusterid " << clusterNumber;
+	  if( debug ) std::cout << "     new neighbour " << nit->gp << "  " << nit->ch << " clusterid " << clusterNumber;
 	  
 	  RpcClusterObj& cluster = clusters[clusterNumber];
 	  
@@ -169,7 +195,7 @@ namespace Muon {
 	    if( gasgap==1 ) doublet.first  = clusterNumber;
 	    else            doublet.second = clusterNumber;
 	    currentClusterId = clusterNumber;
-	    if( debug ) std::cout << " adding hit " << std::endl;
+	    if( debug ) std::cout << "     adding hit to neighbour cluster with ID " << clusterNumber << std::endl;
 	  }else if( clusterNumber != currentClusterId ){
 	    // the hit is already assigned to a cluster, merge the two clusters
 	    // first update hitPattern
@@ -183,15 +209,15 @@ namespace Muon {
 	      if( gp==1 )  doub.first  = currentClusterId;
 	      else         doub.second = currentClusterId;
 	    }
-	    if( debug ) std::cout << " cluster overlap, merging clusters " << std::endl;
+	    if( debug ) std::cout << "     found cluster overlap, merging clusters " << std::endl;
 	    currentCluster->merge(cluster);
 	  }else{
-	    if( debug ) std::cout << " cluster overlap, same cluster " << std::endl;
+	    if( debug ) std::cout << "     cluster overlap, same cluster " << std::endl;
 	  }
 	}
 	// now check whether the hit was already assigned to a cluster, if not create a new cluster
 	if( currentCluster == 0 ){
-	  if( debug ) std::cout << " no neighbouring hits, creating new cluster " << clusters.size() << std::endl;
+	  if( debug ) std::cout << "       no neighbouring hits, creating new cluster " << clusters.size() << std::endl;
 	  RpcClusterObj cl;
 	  cl.add(prd,gasgap);
 	  Doublet& doub = (*channelsPtr)[channel];
@@ -202,10 +228,22 @@ namespace Muon {
       }
     }
     
-    
-
-    clustersEta.insert(clustersEta.end(),clustersEtaTmp.begin(),clustersEtaTmp.end());
-    clustersPhi.insert(clustersPhi.end(),clustersPhiTmp.begin(),clustersPhiTmp.end());
+    if( debug ) {
+      std::cout << " finished clustering: eta clusters  " <<  clustersEtaTmp.size() << " phi clusters " << clustersPhiTmp.size() << std::endl;
+      for( auto& cl : clustersEtaTmp ){
+        std::cout << "   cluster " << cl.ngasgap1 << " " << cl.ngasgap2 << " hits " << cl.hitList.size() << std::endl;
+        for( auto hit : cl.hitList ){
+          std::cout << "       " << m_rpcIdHelper->print_to_string(hit->identify()) << std::endl;
+        }
+      }
+    }
+    // add all active clusters
+    for( auto& cl : clustersEtaTmp ){
+      if( cl.active() ) clustersEta.push_back(cl);
+    }
+    for( auto& cl : clustersPhiTmp ){
+      if( cl.active() ) clustersPhi.push_back(cl);
+    }
 
     return true;
   }
