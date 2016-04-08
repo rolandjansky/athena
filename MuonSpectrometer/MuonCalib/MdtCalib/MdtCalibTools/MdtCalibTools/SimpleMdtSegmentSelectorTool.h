@@ -16,7 +16,8 @@
 #define MUONCALIB_SIMPLEMDTSEGMENTSELECTORTOOL_H
 
 // Gaudi
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "MdtCalibITools/IMdtSegmentSelectorTool.h"
 
 
@@ -29,7 +30,7 @@ namespace MuonCalib {
    
    @author Niels.Van.Eldik@cern.ch, 
 */
-  class SimpleMdtSegmentSelectorTool : public AlgTool, virtual public IMdtSegmentSelectorTool {
+  class SimpleMdtSegmentSelectorTool : public AthAlgTool, virtual public IMdtSegmentSelectorTool {
   
   public:
     /**AlgTool constructor */

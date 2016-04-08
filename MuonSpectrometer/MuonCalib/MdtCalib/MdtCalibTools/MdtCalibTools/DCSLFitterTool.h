@@ -16,7 +16,7 @@
 #define MUONCALIB_DCSLFITTERTOOL_H
 
 // Gaudi
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "MdtCalibITools/IMdtSegmentFitterTool.h"
 
@@ -30,7 +30,7 @@ namespace MuonCalib {
    
    @author Niels.Van.Eldik@cern.ch, 
 */
-  class DCSLFitterTool : public AlgTool, virtual public IMdtSegmentFitterTool {
+  class DCSLFitterTool : public AthAlgTool, virtual public IMdtSegmentFitterTool {
   
   public:
     /**AlgTool constructor */

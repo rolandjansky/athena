@@ -36,7 +36,7 @@ using namespace std;
 
 QuasianalyticLineReconstructionTool::QuasianalyticLineReconstructionTool(
 	const std::string & type, const std::string & name, 
-	const IInterface *parent) : AlgTool(type, name, parent) {
+	const IInterface *parent) : AthAlgTool(type, name, parent) {
 
 	declareInterface< IMdtSegmentFitterTool>(this);
 

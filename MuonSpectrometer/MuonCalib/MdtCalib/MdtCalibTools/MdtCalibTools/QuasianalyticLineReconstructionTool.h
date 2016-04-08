@@ -32,7 +32,7 @@
 //::::::::::::::::::
 
 // Gaudi //
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 // MuonCalib //
 #include "MdtCalibITools/IMdtSegmentFitterTool.h"
@@ -42,7 +42,7 @@
 namespace MuonCalib {
   
 class QuasianalyticLineReconstructionTool : 
-			public AlgTool, virtual public IMdtSegmentFitterTool {
+			public AthAlgTool, virtual public IMdtSegmentFitterTool {
   
 public:
 // Constructors //
