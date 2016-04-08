@@ -33,6 +33,13 @@ typedef struct _FWD_CONFIGURATION
     bool buildTCL4;
     bool buildTCL6;
     bool vp1Compatibility;
+    bool ALFAInNewPosition;
+    double newPosB7L1;
+    double newPosB7R1;
+    double posAFPL1;
+    double posAFPL2;
+    double posAFPR1;
+    double posAFPR2;
 
     void clear();
 } FWD_CONFIGURATION, *PFWD_CONFIGURATION;
@@ -79,7 +86,7 @@ class ForwardRegionGeoModelFactory : public GeoVDetectorFactory  {
   void insertXRecticircularElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys);
   void insertYRecticircularElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys);
   void insertTrousersElement(std::string name, double x, double y, double z, double rotationAngle, GeoPhysVol* fwrPhys);
-  void insertTCLElement(std::string name, double x, double y, double z, GeoPhysVol* fwrPhys, double TCLJawDistO, double TCLJawDistI);
+  void insertTCLElement(std::string name, double x, double y, double z, GeoPhysVol* fwrPhys, double TCLJawDistO, double TCLJawDistI, bool tungstenInsteadOfCopper = false);
 
   // Load data from file into 2D array of strings
   std::vector<std::vector<std::string> > loadDataFile(char * fileName, int cols);

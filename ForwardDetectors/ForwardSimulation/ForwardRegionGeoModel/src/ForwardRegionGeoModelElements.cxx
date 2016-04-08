@@ -391,7 +391,7 @@ void ForwardRegionGeoModelFactory::insertTrousersElement(std::string name, doubl
 //    fwrPhys->add(ringPhys);
 }
 
-void ForwardRegionGeoModelFactory::insertTCLElement(std::string name, double x, double y, double z, GeoPhysVol* fwrPhys, double TCLJawDistO, double TCLJawDistI)
+void ForwardRegionGeoModelFactory::insertTCLElement(std::string name, double x, double y, double z, GeoPhysVol* fwrPhys, double TCLJawDistO, double TCLJawDistI, bool tungstenInsteadOfCopper)
 {
     // Constants
     double TCL_BOX_halflength, TCL_BOX_halfwidth, TCL_BOX_halfheight, TCL_BOX_sideThickness, TCL_BOX_topBottomThickness, TCL_BOX_endThickness, TCL_TUBE_halflength, TCL_TUBE_halfapperture, TCL_TUBE_thickness;
@@ -426,6 +426,8 @@ void ForwardRegionGeoModelFactory::insertTCLElement(std::string name, double x, 
     TCL_CuBeam_halfheight = 40*CLHEP::mm;
 
     TCL_Cooling_width = 9*CLHEP::mm;
+
+
 
     // rotate by 180 deg around X and Y
     HepGeom::Transform3D rotateX180 = HepGeom::RotateX3D(180*CLHEP::deg);
@@ -471,6 +473,13 @@ void ForwardRegionGeoModelFactory::insertTCLElement(std::string name, double x, 
     HepGeom::Transform3D moveCuBeamO = HepGeom::Translate3D(+TCLJawDistO+2*TCL_CuBlock_halfwidth+TCL_Cooling_width+TCL_CuBeam_halfwidth, 0, 0);
     const GeoShapeShift& cuBeamO = (*cuBeamFull)<<moveCuBeamO<<rotateY180;
 
+    // Watter cooling in first aproximation (water box)
+    const GeoBox * waterBox = new GeoBox(0.5*TCL_Cooling_width, TCL_CuBlock_halfheight, TCL_CuBlock_halflength);
+    HepGeom::Transform3D moveWaterBoxI = HepGeom::Translate3D(TCLJawDistI+2*TCL_CuBlock_halfwidth+0.5*TCL_Cooling_width, 0, 0);
+    const GeoShapeShift& waterBoxI = (*waterBox)<<moveWaterBoxI;
+    HepGeom::Transform3D moveWaterBoxO = HepGeom::Translate3D(+TCLJawDistO+2*TCL_CuBlock_halfwidth+0.5*TCL_Cooling_width, 0, 0);
+    const GeoShapeShift& waterBoxO = (*waterBox)<<moveWaterBoxO<<rotateY180;
+
 
     // Logical and physical volumes
     const GeoLogVol   *ringLog  = new  GeoLogVol(name+"Log", outerSteel, m_MapMaterials[std::string("Steel")]);
@@ -479,15 +488,20 @@ void ForwardRegionGeoModelFactory::insertTCLElement(std::string name, double x, 
     GeoPhysVol        *ringPhys = new GeoPhysVol(ringLog);
     GeoPhysVol        *ringPhys2 = new GeoPhysVol(ringLog2);
 
-    const GeoLogVol   *cuBoxLogI  = new  GeoLogVol(name+"CuBoxI", &cuBoxI, m_MapMaterials[std::string("Copper")]);
+    const GeoLogVol   *cuBoxLogI  = new  GeoLogVol(name+"CuBoxI", &cuBoxI, m_MapMaterials[std::string(tungstenInsteadOfCopper ? "Tungsten" : "Copper")]);
     GeoPhysVol        *cuBoxPhysI = new GeoPhysVol(cuBoxLogI);
-    const GeoLogVol   *cuBoxLogO  = new  GeoLogVol(name+"CuBoxO", &cuBoxO, m_MapMaterials[std::string("Copper")]);
+    const GeoLogVol   *cuBoxLogO  = new  GeoLogVol(name+"CuBoxO", &cuBoxO, m_MapMaterials[std::string(tungstenInsteadOfCopper ? "Tungsten" : "Copper")]);
     GeoPhysVol        *cuBoxPhysO = new GeoPhysVol(cuBoxLogO);
 
     const GeoLogVol   *cuBeamLogI  = new  GeoLogVol(name+"CuBeamI", &cuBeamI, m_MapMaterials[std::string("GlidCopAL15")]);
     GeoPhysVol        *cuBeamPhysI = new GeoPhysVol(cuBeamLogI);
     const GeoLogVol   *cuBeamLogO  = new  GeoLogVol(name+"CuBeamO", &cuBeamO, m_MapMaterials[std::string("GlidCopAL15")]);
     GeoPhysVol        *cuBeamPhysO = new GeoPhysVol(cuBeamLogO);
+
+    const GeoLogVol   *waterBoxLogI  = new  GeoLogVol(name+"waterBoxI", &waterBoxI, m_MapMaterials[std::string("water")]);
+    GeoPhysVol        *waterBoxPhysI = new GeoPhysVol(waterBoxLogI);
+    const GeoLogVol   *waterBoxLogO  = new  GeoLogVol(name+"waterBoxO", &waterBoxO, m_MapMaterials[std::string("water")]);
+    GeoPhysVol        *waterBoxPhysO = new GeoPhysVol(waterBoxLogO);
 
     //create rotation and traslation and add them to the tree of volumes of the world (move and rotate the volume)
     GeoTransform *move           = new GeoTransform(HepGeom::Translate3D(x,y,z));
@@ -510,4 +524,7 @@ void ForwardRegionGeoModelFactory::insertTCLElement(std::string name, double x, 
 
     ringPhys2->add(cuBeamPhysI);
     ringPhys2->add(cuBeamPhysO);
+
+    ringPhys2->add(waterBoxPhysI);
+    ringPhys2->add(waterBoxPhysO);
 }
