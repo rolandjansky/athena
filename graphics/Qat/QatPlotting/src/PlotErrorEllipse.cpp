@@ -29,12 +29,16 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+namespace{
+  const CLHEP::HepVector defaultVector(2);
+};
 
 class PlotErrorEllipse::Clockwork {
 
   public:
 
-  Clockwork():myProperties(NULL) {}
+  Clockwork():X(defaultVector), U0(defaultVector),U1(defaultVector), 
+              nRectangle(),myProperties(nullptr), defaultProperties(), style() {}
   ~Clockwork() { delete myProperties;}
 
 

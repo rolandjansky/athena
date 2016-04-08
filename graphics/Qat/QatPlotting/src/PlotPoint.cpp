@@ -39,8 +39,8 @@ class PlotPoint::Clockwork {
 
   public:
 
-  Clockwork():myProperties(NULL) {}
-  ~Clockwork() { delete myProperties;}
+  Clockwork():x(0.0),y(0.0),nRectangle(),myProperties(nullptr),defaultProperties()  {}
+  ~Clockwork() { if (myProperties) delete myProperties; myProperties=nullptr;}
 
 
   double                                x,y;
@@ -62,10 +62,12 @@ PlotPoint::PlotPoint (const PlotPoint & right):Plotable(),c(new Clockwork()){
 
 PlotPoint & PlotPoint::operator=(const PlotPoint & right) {
   if (&right!=this) {
-    if (right.c->myProperties) c->myProperties= new Properties(*right.c->myProperties);
+    if (c->myProperties) delete c->myProperties; c->myProperties=nullptr;
+    if (right.c->myProperties) c->myProperties= new Properties(*(right.c->myProperties));
     c->x=right.c->x;
     c->y=right.c->y;
     c->nRectangle=right.c->nRectangle;
+    c->defaultProperties = right.c->defaultProperties;
   }
   return *this;
 }

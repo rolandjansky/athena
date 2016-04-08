@@ -29,12 +29,13 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <array>
 
 class PlotBox::Clockwork {
 
   public:
 
-  Clockwork():myProperties(NULL) {}
+  Clockwork():rectangle(), myProperties(nullptr), defaultProperties(),x(0),y(0),dx(0),dy(0){}
   ~Clockwork() { delete myProperties;}
 
 
@@ -88,24 +89,20 @@ void PlotBox::describeYourselfTo(AbsPlotter *plotter) const{
   static CLHEP::HepVector U1(2); U1[0]=+c->dx; U1[1]=-c->dy;
   static CLHEP::HepVector U2(2); U2[0]=-c->dx; U2[1]=-c->dy;
   static CLHEP::HepVector U3(2); U3[0]=-c->dx; U3[1]=+c->dy;
+  std::array<CLHEP::HepVector,5> plusU={U0, U1, U2, U3, U0};
   for (int i=0;i<5;i++) {
     CLHEP::HepVector V(2);
     V[0]=c->x;
     V[1]=c->y;
-    if (i==0) V+=U0;
-    if (i==1) V+=U1;
-    if (i==2) V+=U2;
-    if (i==3) V+=U3;
-    if (i==4) V+=U0;
+    V+=plusU[i];
     if (plotter->rect()->contains(QPointF(V[0],V[1]))){
       double x = V[0];
       double y = V[1];
       if (!started) {
-	started=true;
-	path.moveTo(m.map(QPointF(x,y)));
-      }
-      else {
-	path.lineTo(m.map(QPointF(x,y)));
+	      started=true;
+	      path.moveTo(m.map(QPointF(x,y)));
+      } else {
+	      path.lineTo(m.map(QPointF(x,y)));
       }
     }
   }

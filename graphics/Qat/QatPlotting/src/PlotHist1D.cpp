@@ -42,8 +42,8 @@
 class PlotHist1D::Clockwork {
 public:
   
-  Clockwork() : histogram(NULL),
-		myProperties(NULL) {}
+  Clockwork() : histogram(nullptr),
+		myProperties(nullptr) {}
 
   ~Clockwork() {delete myProperties;}
     
@@ -104,13 +104,13 @@ PlotHist1D & PlotHist1D::operator=(const PlotHist1D & source)
   if (&source!=this) {
     c->histogram=source.c->histogram;
     c->nRectangle=source.c->nRectangle;
-    delete c->myProperties;
+    if (c->myProperties) delete c->myProperties;
     if (source.c->myProperties) {
       c->myProperties = new Properties(*source.c->myProperties);
+    }else {
+      c->myProperties=nullptr;
     }
-    else {
-      c->myProperties=NULL;
-    }
+    c->defaultProperties = source.c->defaultProperties;
   }
   return *this;
 } 

@@ -8,7 +8,7 @@ DEPENDPATH += .
 INCLUDEPATH += . .. ../../QatDataAnalysis
 DESTDIR=../../../lib
 CONFIG += build_all debug
-
+LIBS = -lCLHEP -lgsl -lgslcblas
 # Input
 HEADERS += ../QatPlotting/AbsPlotter.h \
            ../QatPlotting/LinToLog.h \

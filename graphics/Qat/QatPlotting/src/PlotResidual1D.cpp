@@ -42,10 +42,10 @@
 class PlotResidual1D::Clockwork {
 public:
   
-  Clockwork() : histogram(NULL),
-		myProperties(NULL) {}
+  Clockwork() : histogram(nullptr), function(nullptr), nRectangle(),
+		myProperties(nullptr), defaultProperties() {}
 
-  ~Clockwork() {delete myProperties;}
+  ~Clockwork() {if (myProperties) delete myProperties; myProperties=nullptr; }
     
   // This is state:
   const Hist1D                          *histogram;         // The histogram
@@ -107,15 +107,13 @@ PlotResidual1D & PlotResidual1D::operator=(const PlotResidual1D & source)
 {
   if (&source!=this) {
     c->histogram=source.c->histogram;
-    c->nRectangle=source.c->nRectangle;
-    delete c->function;
+    if (c->function) delete c->function;
     c->function = source.c->function->clone();
-    delete c->myProperties;
+    c->nRectangle=source.c->nRectangle;
+    if (c->myProperties) delete c->myProperties;
+    c->myProperties=nullptr;
     if (source.c->myProperties) {
       c->myProperties = new Properties(*source.c->myProperties);
-    }
-    else {
-      c->myProperties=NULL;
     }
   }
   return *this;

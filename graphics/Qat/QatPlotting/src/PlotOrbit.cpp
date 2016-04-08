@@ -58,13 +58,16 @@ PlotOrbit::PlotOrbit(const PlotOrbit & source):
 // Assignment operator:
 PlotOrbit & PlotOrbit::operator=(const PlotOrbit & source){
   if (&source!=this) {
-    delete c->functionX;
-    delete c->functionY;
-    delete c->myProperties;
+    if (c->functionX) delete c->functionX;
+    if (c->functionY) delete c->functionY;
+    if (c->myProperties) delete c->myProperties;
     c->functionX=source.c->functionX->clone();
     c->functionY=source.c->functionY->clone();
-    c->myProperties = source.c->myProperties ? new Properties(*source.c->myProperties):NULL;
     c->rect=source.c->rect;
+    c->t0=source.c->t0;
+    c->t1=source.c->t1;
+    c->myProperties = source.c->myProperties ? new Properties(*source.c->myProperties):nullptr;
+
   }
   return *this;
 } 

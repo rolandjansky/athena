@@ -35,51 +35,47 @@ class PlotBand1D::Clockwork {
 public:
 
   Clockwork() :
-    function1(NULL),
-    function2(NULL),
-    domainRestriction(NULL),
-    myProperties(NULL) {}
+    function1(nullptr),
+    function2(nullptr),
+    rect(),
+    domainRestriction(nullptr),
+    myProperties(nullptr),defaultProperties() {}
 
   ~Clockwork() {
-    delete domainRestriction;
-    delete function1;
-    delete function2;
+    if (domainRestriction) delete domainRestriction;
+    if (function1) delete function1;
+    if (function2) delete function2;
   }
 
   static bool intersect(const QRectF * rect, const QPointF & p1, const QPointF & p2, QPointF & p) {
-
     double min=rect->top();
     double max=rect->bottom();
     double y1=p1.y();
     double y2=p2.y();
-
     if (rect->contains(p1) && rect->contains(p2)) {
       return false;
     }
     else if (y1 < min || y2 < min) {
       if (QLineF(p1,p2).intersect(QLineF(rect->topLeft(),rect->topRight()),&p)!=QLineF::BoundedIntersection){
-	return false;
+	    return false;
       }
     }
     else if (y1 > max || y2 > max) {
       if (QLineF(p1,p2).intersect(QLineF(rect->bottomLeft(),rect->bottomRight()),&p)!=QLineF::BoundedIntersection){
-	return false;
+	    return false;
       }
     }
     return true;
   }
 
   static bool maxOut(const QRectF * rect, const QPointF & p1, QPointF & p) {
-
     double min=rect->top();
     double max=rect->bottom();
     double y1=p1.y();
-
     if (rect->contains(p1)) {
       p=p1;
       return false;
     }
-
     if (y1>max) {
       p.setX(p1.x());
       p.setY(max);
@@ -88,7 +84,6 @@ public:
       p.setX(p1.x());
       p.setY(min);
     }
-
     return true;
   }
 
@@ -104,7 +99,6 @@ public:
     double x=p.x(),y=p.y();
     if (linToLogX) x = (*linToLogX)(x);
     if (linToLogY) y = (*linToLogY)(y);
-    
     path->lineTo(m.map(QPointF(x,y)));
   }
 
@@ -127,7 +121,7 @@ PlotBand1D::PlotBand1D(const Genfun::AbsFunction & function1,
   c->function1=function1.clone();
   c->function2=function2.clone();
   c->rect=naturalRectangle;
-  c->domainRestriction=NULL;
+  c->domainRestriction=nullptr;
 }
 
 PlotBand1D::PlotBand1D(const Genfun::AbsFunction & function1,
@@ -149,18 +143,22 @@ PlotBand1D::PlotBand1D(const PlotBand1D & source):
   c->function1=source.c->function1->clone();
   c->function2=source.c->function2->clone();
   c->rect=source.c->rect;
-  c->domainRestriction=source.c->domainRestriction ? source.c->domainRestriction->clone() : NULL;
+  c->domainRestriction=source.c->domainRestriction ? source.c->domainRestriction->clone() : nullptr;
 }
 
 // Assignment operator:
 PlotBand1D & PlotBand1D::operator=(const PlotBand1D & source){
   if (&source!=this) {
+  //sroe: what should be assigned, and how?
+    if (c->function1) delete c->function1;
+    if (c->function2) delete c->function2;
     c->function1=source.c->function1->clone();
     c->function2=source.c->function2->clone();
     c->rect=source.c->rect;
-    
+    if (c->myProperties) delete c->myProperties;
+    c->myProperties = (source.c->myProperties)? (new Properties(*(source.c->myProperties))) : nullptr;
     delete c->domainRestriction;
-    c->domainRestriction = source.c->domainRestriction ? source.c->domainRestriction->clone() : NULL;
+    c->domainRestriction = (source.c->domainRestriction) ? (source.c->domainRestriction->clone()) : nullptr;
   }
   return *this;
 } 

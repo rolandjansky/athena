@@ -39,7 +39,7 @@ class PlotRect::Clockwork {
 
   public:
 
-  Clockwork():myProperties(NULL) {}
+  Clockwork():myProperties(nullptr) {}
   ~Clockwork() { delete myProperties;}
 
 
@@ -60,8 +60,11 @@ PlotRect::PlotRect (const PlotRect & right):Plotable(),c(new Clockwork()){
 
 PlotRect & PlotRect::operator=(const PlotRect & right) {
   if (&right!=this) {
-    if (right.c->myProperties) c->myProperties= new Properties(*right.c->myProperties);
     c->rectangle=right.c->rectangle;
+    if (c->myProperties) delete c->myProperties; 
+    c->myProperties = nullptr;
+    if (right.c->myProperties) c->myProperties= new Properties(*right.c->myProperties);
+    c->defaultProperties = right.c->defaultProperties;
   }
   return *this;
 }

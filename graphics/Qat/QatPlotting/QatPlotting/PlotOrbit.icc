@@ -12,15 +12,15 @@ class PlotOrbit::Clockwork {
 public:
 
   Clockwork() :
-    functionX(NULL),
-    functionY(NULL),
+    functionX(nullptr),
+    functionY(nullptr),
     t0(0.0), t1(1.0),
-    myProperties(NULL) {}
+    myProperties(nullptr) {}
 
   ~Clockwork() {
-    delete functionX;
-    delete functionY;
-    delete myProperties;
+    if (functionX) delete functionX;
+    if (functionY) delete functionY;
+    if (myProperties) delete myProperties;
   }
 
 

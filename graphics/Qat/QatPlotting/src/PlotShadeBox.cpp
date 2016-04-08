@@ -33,6 +33,7 @@
 #include <QtGui/QPainterPath>
 #include <QtGui/QGraphicsPathItem>
 #include <iostream>
+#include <memory>
 class PlotShadeBox::Clockwork {
 
 
@@ -107,38 +108,43 @@ void PlotShadeBox::describeYourselfTo(AbsPlotter * plotter) const {
 
   QPen pen =properties().pen;
   QBrush brush=properties().brush;
-  double hSize=properties().horizontalSize;
-
-  LinToLog *toLogX= plotter->isLogX() ? new LinToLog (plotter->rect()->left(),plotter->rect()->right()) : NULL;
-  LinToLog *toLogY= plotter->isLogY() ? new LinToLog (plotter->rect()->top(),plotter->rect()->bottom()) : NULL;
+  const double hSize = properties().horizontalSize;
+  const double halfLength = hSize*0.5;
+  //fix coverity issue 16789, 16790 (sroe)
+  using LogFnPtr_t = std::unique_ptr<LinToLog> ;
+  
+  const auto rectangle = plotter->rect();
+  const auto left = rectangle->left();
+  const auto right = rectangle->right();
+  const auto bottom = rectangle->bottom();
+  const auto top = rectangle->top();
+  const bool xAxisIsLogScale(plotter->isLogX());
+  const bool yAxisIsLogScale(plotter->isLogX());
+  LogFnPtr_t toLogX( xAxisIsLogScale ? new LinToLog (left,right) : nullptr);
+  LogFnPtr_t toLogY( yAxisIsLogScale ? new LinToLog (top, bottom) : nullptr);
 
   QMatrix m=plotter->matrix(),mInverse=m.inverted();
 
-  
   for (unsigned int i=0;i<c->points.size();i++) {
-    
-
-
-    double  xdxp = c->points[i].x() + hSize/2;
-    double  xdxm = c->points[i].x() - hSize/2;
+    double  xdxp = c->points[i].x() + halfLength;
+    double  xdxm = c->points[i].x() - halfLength;
     double  ydyp = c->points[i].y() + c->sizePlus[i];
     double  ydym = c->points[i].y() - c->sizeMnus[i];
     
-   
-    xdxp = plotter->isLogX() ? (*toLogX) (xdxp): xdxp;
-    xdxm = plotter->isLogX() ? (*toLogX) (xdxm): xdxm;
-    ydyp = plotter->isLogY() ? (*toLogY) (ydyp): ydyp;
-    ydym = plotter->isLogY() ? (*toLogY) (ydym): ydym;
+    xdxp = xAxisIsLogScale ? (*toLogX) (xdxp): xdxp;
+    xdxm = xAxisIsLogScale ? (*toLogX) (xdxm): xdxm;
+    ydyp = yAxisIsLogScale ? (*toLogY) (ydyp): ydyp;
+    ydym = yAxisIsLogScale ? (*toLogY) (ydym): ydym;
     
-    if (ydyp<plotter->rect()->top()) return;
-    if (ydym>plotter->rect()->bottom()) return;
-    if (xdxp<plotter->rect()->left()) return;
-    if (xdxm>plotter->rect()->right()) return;
+    if (ydyp<top) return;
+    if (ydym>bottom) return;
+    if (xdxp<left) return;
+    if (xdxm>right) return;
 
-    xdxp = std::min(xdxp,plotter->rect()->right());
-    xdxm = std::max(xdxm,plotter->rect()->left());
-    ydyp = std::min(ydyp,plotter->rect()->bottom());
-    ydym = std::max(ydym,plotter->rect()->top());
+    xdxp = std::min(xdxp,right);
+    xdxm = std::max(xdxm,left);
+    ydyp = std::min(ydyp,bottom);
+    ydym = std::max(ydym,top);
 
     QRectF rect;
     rect.setTop(ydym);
@@ -154,8 +160,6 @@ void PlotShadeBox::describeYourselfTo(AbsPlotter * plotter) const {
     plotter->group()->addToGroup(shape);
   }
 
-  delete toLogX;
-  delete toLogY;
 }
 
 const PlotShadeBox::Properties & PlotShadeBox::properties() const { 

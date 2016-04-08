@@ -38,10 +38,10 @@ class PlotText::Clockwork {
 
   public:
 
-  Clockwork():textDocument() {}
+  Clockwork():point(),textDocument(nullptr),nRect(nullptr){}
   ~Clockwork() {
-    delete textDocument;
-    delete nRect;
+    if (textDocument) delete textDocument; textDocument=nullptr;
+    if (nRect) delete nRect; nRect=nullptr;
   }
 
 
@@ -55,14 +55,16 @@ class PlotText::Clockwork {
 PlotText::PlotText (const PlotText & right):Plotable(),c(new Clockwork()){
   c->point=right.c->point;
   c->textDocument=right.c->textDocument->clone();
-  c->nRect=NULL;
+  c->nRect=nullptr;
 }
 
 PlotText & PlotText::operator=(const PlotText & right) {
   if (&right!=this) {
     c->point=right.c->point;
-    c->textDocument=right.c->textDocument->clone();
-    c->nRect=NULL;
+    if (c->textDocument) delete c->textDocument;
+    c->textDocument =  nullptr;
+    if (right.c->textDocument) c->textDocument=right.c->textDocument->clone();
+    c->nRect=nullptr;
   }
   return *this;
 }
@@ -74,7 +76,7 @@ PlotText::PlotText(double x, double y, const QString & text)
 {
   c->point=QPointF(x,y);
   c->textDocument=new QTextDocument(text);
-  c->nRect=NULL;
+  c->nRect=nullptr;
 }
 
 
@@ -102,8 +104,8 @@ const QRectF & PlotText::rectHint() const {
 // Describe to plotter, in terms of primitives:
 void PlotText::describeYourselfTo(AbsPlotter *plotter) const{
 
-  LinToLog *toLogX= plotter->isLogX() ? new LinToLog (plotter->rect()->left(),plotter->rect()->right()) : NULL;
-  LinToLog *toLogY= plotter->isLogY() ? new LinToLog (plotter->rect()->top(),plotter->rect()->bottom()) : NULL;
+  LinToLog *toLogX= plotter->isLogX() ? new LinToLog (plotter->rect()->left(),plotter->rect()->right()) : nullptr;
+  LinToLog *toLogY= plotter->isLogY() ? new LinToLog (plotter->rect()->top(),plotter->rect()->bottom()) : nullptr;
 
   double x=c->point.x();
   double y=c->point.y();
@@ -116,9 +118,10 @@ void PlotText::describeYourselfTo(AbsPlotter *plotter) const{
 
 
   QGraphicsTextItem *item = new QGraphicsTextItem();
-  QPointF p=c->point;
-  QPointF p1  = m.map(c->point);
-  QPointF p2 = mInverse.map(c->point);
+  //unused variables (sroe)
+  //QPointF p=c->point;
+  //QPointF p1  = m.map(c->point);
+  //QPointF p2 = mInverse.map(c->point);
  
 
   QPointF P(plotter->rect()->left(), plotter->rect()->bottom());

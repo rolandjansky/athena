@@ -42,10 +42,10 @@
 class PlotHist2D::Clockwork {
 public:
   
-  Clockwork() : histogram(NULL),
-		myProperties(NULL) {}
+  Clockwork() : histogram(nullptr),
+		myProperties(nullptr) {}
 
-  ~Clockwork() {delete myProperties;}
+  ~Clockwork() {if (myProperties) delete myProperties;}
     
   // This is state:
   const Hist2D                          *histogram;         // The histogram
@@ -58,9 +58,7 @@ public:
 PlotHist2D::PlotHist2D(const Hist2D & histogram):
   Plotable(),c(new Clockwork())
 {
-
   c->histogram=&histogram;
-
   c->nRectangle.setLeft  (histogram.minX());
   c->nRectangle.setRight(histogram.maxX());
   c->nRectangle.setTop(histogram.minY());
@@ -88,8 +86,9 @@ PlotHist2D & PlotHist2D::operator=(const PlotHist2D & source)
       c->myProperties = new Properties(*source.c->myProperties);
     }
     else {
-      c->myProperties=NULL;
+      c->myProperties=nullptr;
     }
+    c->defaultProperties = source.c->defaultProperties;
   }
   return *this;
 } 

@@ -57,17 +57,20 @@ PlotFunction1D::PlotFunction1D(const PlotFunction1D & source):
 {
   c->function=source.c->function->clone();
   c->rect=source.c->rect;
-  c->domainRestriction=source.c->domainRestriction ? source.c->domainRestriction->clone() : NULL;
+  c->domainRestriction=source.c->domainRestriction ? source.c->domainRestriction->clone() : nullptr;
 }
 
 // Assignment operator:
 PlotFunction1D & PlotFunction1D::operator=(const PlotFunction1D & source){
   if (&source!=this) {
+    if (c->function) delete c->function;
     c->function=source.c->function->clone();
     c->rect=source.c->rect;
-    
-    delete c->domainRestriction;
-    c->domainRestriction = source.c->domainRestriction ? source.c->domainRestriction->clone() : NULL;
+    if (c->domainRestriction) delete c->domainRestriction; 
+    c->domainRestriction = source.c->domainRestriction ? source.c->domainRestriction->clone() : nullptr;
+    if (c->myProperties) delete c->myProperties; 
+    c->myProperties = source.c->myProperties;
+    c->defaultProperties = source.c->defaultProperties;
   }
   return *this;
 } 
@@ -130,8 +133,8 @@ void PlotFunction1D::describeYourselfTo(AbsPlotter *plotter) const {
 	    if (cachedPoint.isValid()) {
 	      QPointF intersection;
 	      if (Clockwork::intersect(plotter->rect(),cachedPoint, point,intersection)) {
-		Clockwork::moveTo(path,m,intersection,toLogX,toLogY);
-		Clockwork::lineTo(path,m,point,toLogX,toLogY);
+		      Clockwork::moveTo(path,m,intersection,toLogX,toLogY);
+		      Clockwork::lineTo(path,m,point,toLogX,toLogY);
 	      }
 	      else {
 		if (Clockwork::maxOut(plotter->rect(), point, intersection)) {
