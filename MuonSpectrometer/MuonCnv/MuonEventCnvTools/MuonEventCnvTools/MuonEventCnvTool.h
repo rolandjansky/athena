@@ -56,12 +56,12 @@ namespace Muon {
         /** Return the detectorElement associated with this Identifier*/
         virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id);
         
-        Trk::PrepRawData* rpcClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
-        Trk::PrepRawData* cscClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
-        Trk::PrepRawData* tgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
-        Trk::PrepRawData* mdtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash  );
-        Trk::PrepRawData* mmClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
-        Trk::PrepRawData* stgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
+        const Trk::PrepRawData* rpcClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
+        const Trk::PrepRawData* cscClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
+        const Trk::PrepRawData* tgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
+        const Trk::PrepRawData* mdtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash  );
+        const Trk::PrepRawData* mmClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
+        const Trk::PrepRawData* stgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
 
     private:
 

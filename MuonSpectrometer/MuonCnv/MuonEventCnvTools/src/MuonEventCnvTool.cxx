@@ -203,7 +203,8 @@ void Muon::MuonEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) {
     
     ////std::cout<<"MuonEventCnvTool::recreateRIO_OnTrack"<<std::endl;
     std::pair<const Trk::TrkDetElementBase *, const Trk::PrepRawData *> pair = getLinks( *RoT );
-    Trk::ITrkEventCnvTool::setRoT_Values( pair, RoT );    
+    if (pair.first)
+      Trk::ITrkEventCnvTool::setRoT_Values( pair, RoT );    
     return;
 }
 
@@ -240,7 +241,7 @@ Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id)
     return detEl;
 }
 
-Trk::PrepRawData* 
+const Trk::PrepRawData* 
     Muon::MuonEventCnvTool::rpcClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
 {
     using namespace Trk;
@@ -249,8 +250,8 @@ Trk::PrepRawData*
     // need to retrieve pointers to collections
 
     // obviously this can be optimised! EJWM
-    const RpcPrepDataContainer* m_rpcClusCont;
-    StatusCode sc = evtStore()->retrieve(m_rpcClusCont, m_rpcClusContName);
+    const RpcPrepDataContainer* rpcClusCont;
+    StatusCode sc = evtStore()->retrieve(rpcClusCont, m_rpcClusContName);
     if (sc.isFailure()){
         ATH_MSG_ERROR("rpc Cluster container not found at "<<m_rpcClusContName);
         return 0;
@@ -259,9 +260,9 @@ Trk::PrepRawData*
         ATH_MSG_DEBUG("rpc Cluster container found");
     }
 
-    RpcPrepDataContainer::const_iterator it = m_rpcClusCont->indexFind(idHash);
+    RpcPrepDataContainer::const_iterator it = rpcClusCont->indexFind(idHash);
     // if we find PRD, then recreate link
-    if (it!=m_rpcClusCont->end()) 
+    if (it!=rpcClusCont->end()) 
     {
         //loop though collection to find matching PRD.
         RpcPrepDataCollection::const_iterator collIt = (*it)->begin();
@@ -275,7 +276,7 @@ Trk::PrepRawData*
     return 0;
 }
 
-Trk::PrepRawData* 
+const Trk::PrepRawData* 
     Muon::MuonEventCnvTool::cscClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
 {
     using namespace Trk;
@@ -284,8 +285,8 @@ Trk::PrepRawData*
     // need to retrieve pointers to collections
 
     // obviously this can be optimised! EJWM
-    const CscPrepDataContainer* m_cscClusCont;
-    StatusCode sc = evtStore()->retrieve(m_cscClusCont, m_cscClusContName);
+    const CscPrepDataContainer* cscClusCont;
+    StatusCode sc = evtStore()->retrieve(cscClusCont, m_cscClusContName);
     if (sc.isFailure()){
         ATH_MSG_ERROR("csc Cluster container not found at "<<m_cscClusContName);
         return 0;
@@ -294,9 +295,9 @@ Trk::PrepRawData*
         ATH_MSG_DEBUG("csc Cluster container found" );
     }
 
-    CscPrepDataContainer::const_iterator it = m_cscClusCont->indexFind(idHash);
+    CscPrepDataContainer::const_iterator it = cscClusCont->indexFind(idHash);
     // if we find PRD, then recreate link
-    if (it!=m_cscClusCont->end()) 
+    if (it!=cscClusCont->end()) 
     {
         //loop though collection to find matching PRD.
         CscPrepDataCollection::const_iterator collIt = (*it)->begin();
@@ -310,7 +311,7 @@ Trk::PrepRawData*
     return 0;
 }
 
-Trk::PrepRawData* 
+const Trk::PrepRawData* 
     Muon::MuonEventCnvTool::tgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
 {
     using namespace Trk;
@@ -318,8 +319,8 @@ Trk::PrepRawData*
     // need to retrieve pointers to collections
 
     // obviously this can be optimised! EJWM
-    const TgcPrepDataContainer* m_tgcClusCont;
-    StatusCode sc = evtStore()->retrieve(m_tgcClusCont, m_tgcClusContName);
+    const TgcPrepDataContainer* tgcClusCont;
+    StatusCode sc = evtStore()->retrieve(tgcClusCont, m_tgcClusContName);
     if (sc.isFailure()){
         ATH_MSG_ERROR("tgc Cluster container not found at "<<m_tgcClusContName);
         return 0;
@@ -328,9 +329,9 @@ Trk::PrepRawData*
         ATH_MSG_DEBUG("tgc Cluster container found");
     }
 
-    TgcPrepDataContainer::const_iterator it = m_tgcClusCont->indexFind(idHash);
+    TgcPrepDataContainer::const_iterator it = tgcClusCont->indexFind(idHash);
     // if we find PRD, then recreate link
-    if (it!=m_tgcClusCont->end()) 
+    if (it!=tgcClusCont->end()) 
     {
         //loop though collection to find matching PRD.
         TgcPrepDataCollection::const_iterator collIt = (*it)->begin();
@@ -344,7 +345,7 @@ Trk::PrepRawData*
     return 0;
 }
 
-Trk::PrepRawData* 
+const Trk::PrepRawData* 
     Muon::MuonEventCnvTool::mdtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash  )
 {
     using namespace Trk;
@@ -353,8 +354,8 @@ Trk::PrepRawData*
     // need to retrieve pointers to collections
 
     // obviously this can be optimised! EJWM
-    const MdtPrepDataContainer* m_mdtClusCont;
-    StatusCode sc = evtStore()->retrieve(m_mdtClusCont, m_mdtClusContName);
+    const MdtPrepDataContainer* mdtClusCont;
+    StatusCode sc = evtStore()->retrieve(mdtClusCont, m_mdtClusContName);
     if (sc.isFailure()){
         ATH_MSG_ERROR("mdt Cluster container not found at "<<m_mdtClusContName);
         return 0;
@@ -363,9 +364,9 @@ Trk::PrepRawData*
         ATH_MSG_DEBUG("mdt Cluster container found" );
     }
 
-    MdtPrepDataContainer::const_iterator it = m_mdtClusCont->indexFind(idHash);
+    MdtPrepDataContainer::const_iterator it = mdtClusCont->indexFind(idHash);
     // if we find PRD, then recreate link
-    if (it!=m_mdtClusCont->end()) 
+    if (it!=mdtClusCont->end()) 
     {
         //loop though collection to find matching PRD.
         MdtPrepDataCollection::const_iterator collIt = (*it)->begin();
@@ -379,7 +380,7 @@ Trk::PrepRawData*
     return 0;
 }
 
-Trk::PrepRawData* 
+const Trk::PrepRawData* 
     Muon::MuonEventCnvTool::stgcClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
 {
     using namespace Trk;
@@ -387,8 +388,8 @@ Trk::PrepRawData*
     // need to retrieve pointers to collections
 
     // obviously this can be optimised! EJWM
-    const sTgcPrepDataContainer* m_stgcClusCont;
-    StatusCode sc = evtStore()->retrieve(m_stgcClusCont, m_stgcClusContName);
+    const sTgcPrepDataContainer* stgcClusCont;
+    StatusCode sc = evtStore()->retrieve(stgcClusCont, m_stgcClusContName);
     if (sc.isFailure()){
         ATH_MSG_ERROR("stgc Cluster container not found at "<<m_stgcClusContName);
         return 0;
@@ -397,9 +398,9 @@ Trk::PrepRawData*
         ATH_MSG_DEBUG("stgc Cluster container found");
     }
 
-    sTgcPrepDataContainer::const_iterator it = m_stgcClusCont->indexFind(idHash);
+    sTgcPrepDataContainer::const_iterator it = stgcClusCont->indexFind(idHash);
     // if we find PRD, then recreate link
-    if (it!=m_stgcClusCont->end()) 
+    if (it!=stgcClusCont->end()) 
     {
         //loop though collection to find matching PRD.
         sTgcPrepDataCollection::const_iterator collIt = (*it)->begin();
@@ -413,7 +414,7 @@ Trk::PrepRawData*
     return 0;
 }
 
-Trk::PrepRawData* 
+const Trk::PrepRawData* 
     Muon::MuonEventCnvTool::mmClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
 {
     using namespace Trk;
@@ -421,8 +422,8 @@ Trk::PrepRawData*
     // need to retrieve pointers to collections
 
     // obviously this can be optimised! EJWM
-    const MMPrepDataContainer* m_mmClusCont;
-    StatusCode sc = evtStore()->retrieve(m_mmClusCont, m_mmClusContName);
+    const MMPrepDataContainer* mmClusCont;
+    StatusCode sc = evtStore()->retrieve(mmClusCont, m_mmClusContName);
     if (sc.isFailure()){
         ATH_MSG_ERROR("Mm Cluster container not found at "<<m_mmClusContName);
         return 0;
@@ -431,9 +432,9 @@ Trk::PrepRawData*
         ATH_MSG_DEBUG("Mm Cluster container found");
     }
 
-    MMPrepDataContainer::const_iterator it = m_mmClusCont->indexFind(idHash);
+    MMPrepDataContainer::const_iterator it = mmClusCont->indexFind(idHash);
     // if we find PRD, then recreate link
-    if (it!=m_mmClusCont->end()) 
+    if (it!=mmClusCont->end()) 
     {
         //loop though collection to find matching PRD.
         MMPrepDataCollection::const_iterator collIt = (*it)->begin();
