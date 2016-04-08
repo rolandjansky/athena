@@ -47,7 +47,7 @@ namespace JiveXML {
    * Loop over all true particles and get their basic parameters
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode TruthTrackRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode TruthTrackRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 

@@ -57,7 +57,7 @@ namespace JiveXML {
    * Loop over all true particles, find the muons and get their basic parameters
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode TruthMuonTrackRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode TruthMuonTrackRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     ATH_MSG_DEBUG( "Retrieving " << dataTypeName() ); 
 
