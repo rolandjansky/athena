@@ -157,18 +157,18 @@ StatusCode SCT_FastDigitizationTool::prepareEvent(unsigned int)
 }
 
 StatusCode SCT_FastDigitizationTool::processBunchXing(int bunchXing,
-                                                      PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                                                      PileUpEventInfo::SubEvent::const_iterator eSubEvents)
+                                                      SubEventIterator bSubEvents,
+                                                      SubEventIterator eSubEvents)
 {
   m_seen.push_back(std::make_pair(std::distance(bSubEvents,eSubEvents), bunchXing));
   //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
   if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
-  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
+  SubEventIterator iEvt(bSubEvents);
   while (iEvt != eSubEvents)
     {
-      StoreGateSvc& seStore(*iEvt->pSubEvtSG);
+      StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
       PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
       const SiHitCollection* seHitColl(nullptr);
       CHECK(seStore.retrieve(seHitColl,m_inputObjectName).isSuccess());

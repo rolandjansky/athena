@@ -22,7 +22,8 @@
 #include "GaudiKernel/AlgTool.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 
 #include "boost/shared_ptr.hpp"
 #include <string>
@@ -101,8 +102,8 @@ public:
   virtual StatusCode initialize();
   StatusCode prepareEvent( unsigned int );
   StatusCode processBunchXing( int bunchXing,
-                               PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                               PileUpEventInfo::SubEvent::const_iterator eSubEvents );
+                               SubEventIterator bSubEvents,
+                               SubEventIterator eSubEvents );
   StatusCode mergeEvent();
   StatusCode processAllSubEvents();
   StatusCode createAndStoreRIOs();

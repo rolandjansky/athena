@@ -25,6 +25,7 @@ use  SiPropertiesSvc                    SiPropertiesSvc-*               InnerDet
 use  StoreGate                          StoreGate-*                     Control
 use  TrkEventTPCnv                      TrkEventTPCnv-*                 Tracking/TrkEventCnv
 use  TrkTruthData                       TrkTruthData-*                  Tracking/TrkEvent
+use  xAODEventInfo                      xAODEventInfo-*                 Event/xAOD
 
 #
 # Setup component library
