@@ -15,8 +15,8 @@
 ///
 /// $Id: TauRecExtraDetails_p1.h,v 1.6 2009-01-20 17:19:02 tburgess Exp $
 
-#ifndef __tauEventTPCnv_TAU_REC_EXTRA_DETAILS_P1_H__
-#define __tauEventTPCnv_TAU_REC_EXTRA_DETAILS_P1_H__
+#ifndef TAUEVENTTPCNV_TAURECEXTRADETAILS_P1_H
+#define TAUEVENTTPCNV_TAURECEXTRADETAILS_P1_H
 
 #include "AthenaPoolUtilities/TPObjRef.h"
 
@@ -41,5 +41,5 @@ private:
     float m_sumPTTracks;
 };
 
-#endif // __tauEventTPCnv_TAU_REC_EXTRA_DETAILS_P1_H__
+#endif // TAUEVENTTPCNV_TAURECEXTRADETAILS_P1_H
 

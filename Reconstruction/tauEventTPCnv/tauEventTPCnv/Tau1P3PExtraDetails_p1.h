@@ -15,8 +15,8 @@
 ///
 /// $Id: Tau1P3PExtraDetails_p1.h,v 1.4 2009-01-20 17:19:02 tburgess Exp $
 
-#ifndef __tauEventTPCnv_TAU1P3P_EXTRA_DETAILS_P1_H__
-#define __tauEventTPCnv_TAU1P3P_EXTRA_DETAILS_P1_H__
+#ifndef TAUEVENTTPCNV_TAU1P3PEXTRADETAILS_P1_H
+#define TAUEVENTTPCNV_TAU1P3PEXTRADETAILS_P1_H
 
 #include "DataModelAthenaPool/ElementLink_p2.h"
 #include "DataModelAthenaPool/ElementLinkContNames_p2.h"
@@ -43,4 +43,4 @@ private:
     ElementLinkContNames_p2 m_linkNames;
 };
 
-#endif // __tauEventTPCnv_TAU1P3P_EXTRA_DETAILS_P1_H__
+#endif // TAUEVENTTPCNV_TAU1P3PEXTRADETAILS_P1_H

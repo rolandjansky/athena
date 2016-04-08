@@ -17,13 +17,7 @@
 /// $Id: TauJetCnv_p3.cxx,v 1.5 2009-03-02 17:13:27 binet Exp $
 
 
-//trick to access private members in tau jet
-#define private public
-#define protected public
 #include "tauEvent/TauJet.h"
-#undef private
-#undef protected
-
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
 #include "DataModelAthenaPool/ElementLinkVectorCnv_p1.h"
 
@@ -63,31 +57,27 @@ void TauJetCnv_p3::persToTrans( const TauJet_p3 *pers,
     momCnv.persToTrans( &pers->m_momentum, &trans->momentumBase(), msg );
     partBaseCnv.persToTrans( &pers->m_particleBase, &trans->particleBase(),
 			     msg );
-    clusterCnv.persToTrans( &pers->m_cluster, &trans->m_cluster, msg );
-    clusterCnv.persToTrans( &pers->m_cellCluster, &trans->m_cellCluster, msg );
-    jetCnv.persToTrans( &pers->m_jet, &trans->m_jet, msg );
-    tracksCnv.persToTrans( &pers->m_tracks, &trans->m_tracks, msg );
-    detailsCnv.persToTrans( &pers->m_tauDetails, &trans->m_tauDetails, msg );
-    trans->m_numberOfTracks = pers->m_numberOfTracks;
-    trans->m_roiWord = pers->m_roiWord;
+    clusterCnv.persToTrans( &pers->m_cluster, &trans->clusterLink(), msg );
+    clusterCnv.persToTrans( &pers->m_cellCluster, &trans->cellClusterLink(), msg );
+    jetCnv.persToTrans( &pers->m_jet, &trans->jetLink(), msg );
+    tracksCnv.persToTrans( &pers->m_tracks, &trans->trackLinkVector(), msg );
+    detailsCnv.persToTrans( &pers->m_tauDetails, &trans->tauDetailLinkVector(), msg );
+    trans->setNumberOfTracks (pers->m_numberOfTracks);
+    trans->setROIWord (pers->m_roiWord);
 
     if( getBit( pers->m_flags, 0 ) ) {
-	if (trans->tauID() == 0)
-	    trans->setTauID (new Analysis::TauPID);
+        std::vector<std::pair<TauJetParameters::TauID, double> > params; 
+        params.reserve(pers->m_params.size());
+        for (const auto& p : pers->m_params) {
+          params.emplace_back( static_cast<TauJetParameters::TauID>( p.first),
+                               p.second);
+                                                                       
+        }
 
-	trans->m_tauID->m_vetoFlags = pers->m_vetoFlags;
-	trans->m_tauID->m_isTauFlags = pers->m_isTauFlags;
-
-	std::vector<std::pair<int, float> >::const_iterator it;
-	trans->m_tauID->m_params.clear();
-	trans->m_tauID->m_params.reserve(pers->m_params.size());
-	for( it = pers->m_params.begin(); 
-	     it != pers->m_params.end(); ++it ) {
-	    std::pair<TauJetParameters::TauID, double> param;
-	    param.first = static_cast<TauJetParameters::TauID>( (*it).first );
-	    param.second = (*it).second;
-	    trans->m_tauID->m_params.push_back( param );
-	}
+        Analysis::TauPID* tauID = new Analysis::TauPID (std::move(params),
+                                                        pers->m_isTauFlags,
+                                                        pers->m_vetoFlags);
+        trans->setTauID (tauID);
     } else {
 	trans->setTauID( 0 );
     }
@@ -98,7 +88,7 @@ void TauJetCnv_p3::persToTrans( const TauJet_p3 *pers,
 	trans->setAuthor( TauJetParameters::tau1P3P );
     conversionTracksCnv.persToTrans( 
 	&pers->m_conversionTracks, 
-	&trans->m_conversionTracks, msg );
+	&trans->conversionTrackLinkVector(), msg );
 }
 
 void TauJetCnv_p3::transToPers( const Analysis::TauJet *trans,
@@ -108,32 +98,29 @@ void TauJetCnv_p3::transToPers( const Analysis::TauJet *trans,
     momCnv.transToPers( &trans->momentumBase(), &pers->m_momentum, msg );
     partBaseCnv.transToPers( &trans->particleBase(), &pers->m_particleBase,
 			     msg );
-    clusterCnv.transToPers( &trans->m_cluster, &pers->m_cluster, msg );
-    clusterCnv.transToPers( &trans->m_cellCluster, &pers->m_cellCluster, msg );
-    jetCnv.transToPers( &trans->m_jet, &pers->m_jet, msg );
-    tracksCnv.transToPers( &trans->m_tracks, &pers->m_tracks, msg );
-    detailsCnv.transToPers( &trans->m_tauDetails, &pers->m_tauDetails, msg );
-    pers->m_numberOfTracks = trans->m_numberOfTracks;
-    pers->m_roiWord = trans->m_roiWord;
+    const ElementLink<CaloClusterContainer> clusterLink = trans->clusterLink();
+    clusterCnv.transToPers( &clusterLink, &pers->m_cluster, msg );
+    const ElementLink<CaloClusterContainer> cellClusterLink = trans->cellClusterLink();
+    clusterCnv.transToPers( &cellClusterLink, &pers->m_cellCluster, msg );
+    const ElementLink<JetCollection> jetLink = trans->jetLink();
+    jetCnv.transToPers( &jetLink, &pers->m_jet, msg );
+    tracksCnv.transToPers( &trans->trackLinkVector(), &pers->m_tracks, msg );
+    detailsCnv.transToPers( &trans->tauDetailLinkVector(), &pers->m_tauDetails, msg );
+    pers->m_numberOfTracks = trans->numberOfTracks();
+    pers->m_roiWord = trans->ROIWord();
     pers->m_params.clear();
 
 
-    if( trans->m_tauID ) {
+    if( trans->tauID() ) {
 	setBit( pers->m_flags, 0, true );
 
-	pers->m_vetoFlags = trans->m_tauID->m_vetoFlags.to_ulong();
-	pers->m_isTauFlags = trans->m_tauID->m_isTauFlags.to_ulong();
+        pers->m_vetoFlags = trans->tauID()->vetoFlags().to_ulong();
+        pers->m_isTauFlags = trans->tauID()->isTauFlags().to_ulong();
 
-	pers->m_params.reserve (trans->m_tauID->m_params.size());
-	std::vector<std::pair<
-	TauJetParameters::TauID, double> >::const_iterator it;
-	for( it = trans->m_tauID->m_params.begin(); 
-	     it != trans->m_tauID->m_params.end(); ++it ) {
-	    std::pair<int, float> param;
-	    param.first = static_cast<int>( (*it).first );
-	    param.second = (*it).second;
-	    pers->m_params.push_back( param );
-	}
+        pers->m_params.reserve (trans->tauID()->params().size());
+        for (const auto& p : trans->tauID()->params()) {
+            pers->m_params.emplace_back (static_cast<int>( p.first ), p.second);
+        }
     } else {
 	setBit( pers->m_flags, 0, false );
     }
@@ -142,6 +129,6 @@ void TauJetCnv_p3::transToPers( const Analysis::TauJet *trans,
     if( trans->hasAuthor( TauJetParameters::tau1P3P ) )
 	setBit( pers->m_flags, 3, true );
     conversionTracksCnv.transToPers(
-	&trans->m_conversionTracks, 
+        &trans->conversionTrackLinkVector(), 
 	&pers->m_conversionTracks, msg );
 }

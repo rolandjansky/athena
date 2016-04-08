@@ -12,8 +12,8 @@
 /// @author Thomas Burgess
 /// @author Ilija Vukotic
 
-#ifndef __tauEventTPCnv_TAUCOMMONDETAILS_P2_H__
-#define __tauEventTPCnv_TAUCOMMONDETAILS_P2_H__
+#ifndef TAUEVENTTPCNV_TAUCOMMONDETAILS_P2_H
+#define TAUEVENTTPCNV_TAUCOMMONDETAILS_P2_H
 
 #include <vector>
 #include "EventCommonTPCnv/HepLorentzVector_p1.h"
@@ -71,4 +71,4 @@ private:
     TPObjRef m_secVtx;
 };
 
-#endif // __tauEventTPCnv_TAUCOMMONDETAILS_P2_H__
+#endif // TAUEVENTTPCNV_TAUCOMMONDETAILS_P2_H

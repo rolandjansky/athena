@@ -6,7 +6,6 @@ use AtlasCLHEP           AtlasCLHEP-*           External
 use AtlasPolicy		       AtlasPolicy-*
 use AthenaPoolCnvSvc	   AthenaPoolCnvSvc-*	    Database/AthenaPOOL
 use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
-use DataModel            DataModel-*            Control
 use DataModelAthenaPool	 DataModelAthenaPool-*  Control
 use EventCommonTPCnv     EventCommonTPCnv-*     Event
 use PanTauEvent          PanTauEvent-*          Reconstruction/PanTau

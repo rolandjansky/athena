@@ -15,8 +15,8 @@
 ///
 /// $Id: TauCommonDetails_p1.h,v 1.7 2009-03-02 17:20:51 binet Exp $
 
-#ifndef __tauEventTPCnv_TAUCOMMONDETAILS_P1_H__
-#define __tauEventTPCnv_TAUCOMMONDETAILS_P1_H__
+#ifndef TAUEVENTTPCNV_TAUCOMMONDETAILS_P1_H
+#define TAUEVENTTPCNV_TAUCOMMONDETAILS_P1_H
 
 //Includes
 #include <vector>
@@ -237,4 +237,4 @@ private:
     float    m_effTopoMeanDeltaR;   
 }; 
 
-#endif // __tauEventTPCnv_TAUCOMMONDETAILS_P1_H__
+#endif // TAUEVENTTPCNV_TAUCOMMONDETAILS_P1_H

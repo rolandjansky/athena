@@ -15,13 +15,7 @@
 ///
 /// $Id: Tau1P3PDetailsCnv_p1.cxx,v 1.9 2009-01-20 17:19:01 tburgess Exp $
 
-//Trick to access private members in tau 1P3P details
-#define private public
-#define protected public
 #include "tauEvent/Tau1P3PDetails.h"
-#undef private
-#undef protected
-
 #include "EventCommonTPCnv/HepLorentzVectorCnv_p1.h"
 #include "DataModelAthenaPool/ElementLinkVectorCnv_p1.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
@@ -57,47 +51,53 @@ void Tau1P3PDetailsCnv_p1::persToTrans(
     Analysis::Tau1P3PDetails *trans,
     MsgStream &msg )
 {
-    trans->m_numStripCells=pers->m_numStripCells;
-    trans->m_stripWidth2=pers->m_stripWidth2;
-    trans->m_emRadius=pers->m_emRadius;
-    trans->m_ET12Frac=pers->m_ET12Frac;
-    trans->m_etIsolHAD=pers->m_etIsolHAD;
-    trans->m_etIsolEM=pers->m_etIsolEM;
-    trans->m_etChrgHAD=pers->m_etChrgHAD;
-    trans->m_nAssocTracksCore=pers->m_nAssocTracksCore;
-    trans->m_nAssocTracksIsol=pers->m_nAssocTracksIsol;
-    trans->m_signD0Trk3P=pers->m_signD0Trk3P;
-    trans->m_massTrk3P=pers->m_massTrk3P;
-    trans->m_rWidth2Trk3P=pers->m_rWidth2Trk3P;
-    trans->m_etHadAtEMScale=pers->m_etHadAtEMScale;
-    trans->m_etEMAtEMScale=pers->m_etEMAtEMScale;
-    trans->m_etEMCL =pers->m_etEMCL;
-    trans->m_etChrgEM=pers->m_etChrgEM;
-    trans->m_etNeuEM=pers->m_etNeuEM;
-    trans->m_etResNeuEM=pers->m_etResNeuEM;
-    AssignVector( 
-	trans->m_etChrgEM01Trk, pers->m_etChrgEM01Trk );
-    AssignVector( 
-	trans->m_etResChrgEMTrk, pers->m_etResChrgEMTrk );
-    trans->m_trFlightPathSig=pers->m_trFlightPathSig;
-    trans->m_z0SinThetaSig=pers->m_z0SinThetaSig;
-    trans->m_etChrgHADoverPttot=pers->m_etChrgHADoverPttot;
-    trans->m_etIsolFrac=pers->m_etIsolFrac;
-    trans->m_sumEtCellsLArOverLeadTrackPt=
-	pers->m_sumEtCellsLArOverLeadTrackPt;
-    trans->m_hadronicLeak=pers->m_hadronicLeak;
-    trans->m_secondaryMax=pers->m_secondaryMax;
+    trans->setNumStripCells (pers->m_numStripCells);
+    trans->setStripWidth2 (pers->m_stripWidth2);
+    trans->setEMRadius (pers->m_emRadius);
+    trans->setIsolationFraction (pers->m_ET12Frac);
+    trans->setETIsolHAD (pers->m_etIsolHAD);
+    trans->setETIsolEM (pers->m_etIsolEM);
+    trans->setETChrgHAD (pers->m_etChrgHAD);
+    trans->setNAssocTracksCore (pers->m_nAssocTracksCore);
+    trans->setNAssocTracksIsol (pers->m_nAssocTracksIsol);
+    trans->setSignD0Trk3P (pers->m_signD0Trk3P);
+    trans->setMassTrk3P (pers->m_massTrk3P);
+    trans->setRWidth2Trk3P (pers->m_rWidth2Trk3P);
+    trans->setETHadAtEMScale (pers->m_etHadAtEMScale);
+    trans->setETEMAtEMScale (pers->m_etEMAtEMScale);
+    trans->setETEMCL  (pers->m_etEMCL);
+    trans->setETChrgEM (pers->m_etChrgEM);
+    trans->setETNeuEM (pers->m_etNeuEM);
+    trans->setETResNeuEM (pers->m_etResNeuEM);
 
+    trans->resizeETChrgEM01Trk (pers->m_etChrgEM01Trk.size());
+    for (size_t i = 0; i < pers->m_etChrgEM01Trk.size(); i++)
+      trans->setETChrgEM01Trk (i, pers->m_etChrgEM01Trk[i]);
+
+    trans->resizeETResChrgEMTrk (pers->m_etResChrgEMTrk.size());
+    for (size_t i = 0; i < pers->m_etResChrgEMTrk.size(); i++)
+      trans->setETResChrgEMTrk (i, pers->m_etResChrgEMTrk[i]);
+
+    trans->setTrFlightPathSig (pers->m_trFlightPathSig);
+    trans->setZ0SinThetaSig (pers->m_z0SinThetaSig);
+    trans->setEtChrgHADoverPttot (pers->m_etChrgHADoverPttot);
+    trans->setEtIsolFrac (pers->m_etIsolFrac);
+    trans->setSumEtCellsLArOverLeadTrackPt
+      (pers->m_sumEtCellsLArOverLeadTrackPt);
+    trans->setHadronicLeak (pers->m_hadronicLeak);
+    trans->setSecondaryMax (pers->m_secondaryMax);
+
+    CLHEP::HepLorentzVector sumEM;
     hepLorentzVectorCnv.persToTrans( 
-	&pers->m_sumEM, &trans->m_sumEM, msg );
-    trans->m_secVertex=createTransFromPStore( 
-	&m_recVertexCnv, pers->m_secVertex, msg );
-    clusterVectCnv.persToTrans( 
-	&pers->m_pi0, &trans->m_pi0, msg );
+	&pers->m_sumEM, &sumEM, msg );
+    trans->setSumEM (sumEM);
+    trans->setSecVertex (createTransFromPStore 
+                         (&m_recVertexCnv, pers->m_secVertex, msg ));
+    clusterVectCnv.persToTrans(&pers->m_pi0, &trans->pi0LinkVector(), msg );
     clusterCnv.persToTrans(
 	&pers->m_cellEM012Cluster, 
-	&trans->m_cellEM012Cluster, msg );
-    trans->m_etEflow=pers->m_etEflow;
+	&trans->cellEM012ClusterLink(), msg );
+    trans->setETeflow (pers->m_etEflow);
 }
 
 void Tau1P3PDetailsCnv_p1::transToPers

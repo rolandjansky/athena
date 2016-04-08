@@ -15,13 +15,7 @@
 ///
 /// $Id: TauCommonDetailsCnv_p1.cxx,v 1.7 2009-03-02 17:20:51 binet Exp $
 
-//trick to access private members in tau common details
-#define private public
-#define protected public
 #include "tauEvent/TauCommonDetails.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/VxVertex/RecVertexCnv_p1.h"
 #include "EventCommonTPCnv/HepLorentzVector_p1.h"
 #include "EventCommonTPCnv/HepLorentzVectorCnv_p1.h"
@@ -59,97 +53,98 @@ void TauCommonDetailsCnv_p1::persToTrans(
     Analysis::TauCommonDetails *trans,
     MsgStream &msg )
 {
-    trans->m_ipZ0SinThetaSigLeadTrk=pers->m_ipZ0SinThetaSigLeadTrk;   
-    trans->m_ipZ0SinThetaSigLeadTrk=pers->m_ipZ0SinThetaSigLeadTrk;
-    trans->m_etOverPtLeadTrk=pers->m_etOverPtLeadTrk;
-    trans->m_etOverPtLeadLooseTrk=pers->m_etOverPtLeadLooseTrk;
-    trans->m_leadTrkPt=pers->m_leadTrkPt;
-    trans->m_leadLooseTrkPt=pers->m_leadLooseTrkPt;
-    trans->m_ipSigLeadTrk=pers->m_ipSigLeadTrk;
-    trans->m_ipSigLeadLooseTrk=pers->m_ipSigLeadLooseTrk;
+    trans->setIpZ0SinThetaSigLeadTrk (pers->m_ipZ0SinThetaSigLeadTrk);
+    trans->setEtOverPtLeadTrk (pers->m_etOverPtLeadTrk);
+    trans->setEtOverPtLeadLooseTrk (pers->m_etOverPtLeadLooseTrk);
+    trans->setLeadTrkPt (pers->m_leadTrkPt);
+    trans->setLeadLooseTrkPt (pers->m_leadLooseTrkPt);
+    trans->setIpSigLeadTrk (pers->m_ipSigLeadTrk);
+    trans->setIpSigLeadLooseTrk (pers->m_ipSigLeadLooseTrk);
     tracksCnv.persToTrans( 
  	&pers->m_looseTrk, 
- 	&trans->m_looseTrk, 
+ 	&trans->looseTrk(), 
  	msg );
     conversionTracksCnv.persToTrans( 
  	&pers->m_looseConvTrk, 
- 	&trans->m_looseConvTrk, 
+ 	&trans->looseConvTrk(), 
  	msg );
-    trans->m_chrgLooseTrk=pers->m_chrgLooseTrk;
+    trans->setChrgLooseTrk (pers->m_chrgLooseTrk);
     clusterCnv.persToTrans( 
  	&pers->m_cellEM012Cluster, 
- 	&trans->m_cellEM012Cluster, 
+ 	&trans->cellEM012ClusterLink(), 
  	msg );
+    CLHEP::HepLorentzVector sumPi0Vec;
     hepLorentzVectorCnv.persToTrans(
 	&pers->m_sumPi0Vec, 
-	&trans->m_sumPi0Vec,
+	&sumPi0Vec,
 	msg);
-    trans->m_massTrkSys=pers->m_massTrkSys;
-    trans->m_trkWidth2=pers->m_trkWidth2;
-    trans->m_trFlightPathSig=pers->m_trFlightPathSig;
-    trans->m_secVtx = createTransFromPStore( 
- 	&m_recVertexCnv, 
- 	pers->m_secVtx, 
- 	msg);
-    trans->m_etEflow=pers->m_etEflow;
-    trans->m_mEflow=pers->m_mEflow;
+    trans->setSumPi0Vec (sumPi0Vec);
+    trans->setMassTrkSys (pers->m_massTrkSys);
+    trans->setTrkWidth2 (pers->m_trkWidth2);
+    trans->setTrFlightPathSig (pers->m_trFlightPathSig);
+    trans->setSecVtx (createTransFromPStore( 
+                                            &m_recVertexCnv, 
+                                            pers->m_secVtx, 
+                                            msg));
+    trans->setEtEflow (pers->m_etEflow);
+    trans->setMEflow (pers->m_mEflow);
     clusterVectCnv.persToTrans( 
  	&pers->m_pi0, 
- 	&trans->m_pi0,
+ 	&trans->pi0LinkVec(),
  	msg );
-    trans->m_Ele_E237E277=pers->m_Ele_E237E277;
-    trans->m_Ele_PresamplerFraction=pers->m_Ele_PresamplerFraction;
-    trans->m_Ele_ECALFirstFraction=pers->m_Ele_ECALFirstFraction;
-    trans->m_numCells=pers->m_numCells;   
-    trans->m_numTopoClusters=pers->m_numTopoClusters;   
-    trans->m_numEffTopoClusters=pers->m_numEffTopoClusters;   
-    trans->m_topoInvMass=pers->m_topoInvMass;   
-    trans->m_effTopoInvMass=pers->m_effTopoInvMass;   
-    trans->m_topoMeanDeltaR=pers->m_topoMeanDeltaR;   
-    trans->m_effTopoMeanDeltaR=pers->m_effTopoMeanDeltaR;   
-    trans->m_seedCalo_nIsolLooseTrk=pers->m_seedCalo_nIsolLooseTrk;
-    trans->m_seedCalo_EMRadius=pers->m_seedCalo_EMRadius;
-    trans->m_seedCalo_hadRadius=pers->m_seedCalo_hadRadius;
-    trans->m_seedCalo_etEMAtEMScale=pers->m_seedCalo_etEMAtEMScale;
-    trans->m_seedCalo_etHadAtEMScale=pers->m_seedCalo_etHadAtEMScale;
-    trans->m_seedCalo_isolFrac=pers->m_seedCalo_isolFrac;
-    trans->m_seedCalo_centFrac=pers->m_seedCalo_centFrac;
-    trans->m_seedCalo_stripWidth2=pers->m_seedCalo_stripWidth2;
-    trans->m_seedCalo_nStrip=pers->m_seedCalo_nStrip;
-    trans->m_seedCalo_etEMCalib=pers->m_seedCalo_etEMCalib;
-    trans->m_seedCalo_etHadCalib=pers->m_seedCalo_etHadCalib;
-    trans->m_seedCalo_eta=pers->m_seedCalo_eta;   
-    trans->m_seedCalo_phi=pers->m_seedCalo_phi;
-    trans->m_seedCalo_trkAvgDist=pers->m_seedCalo_trkAvgDist;
-    trans->m_seedCalo_trkRmsDist=pers->m_seedCalo_trkRmsDist;
-    trans->m_seedTrk_EMRadius=pers->m_seedTrk_EMRadius;
-    trans->m_seedTrk_isolFrac=pers->m_seedTrk_isolFrac;
-    trans->m_seedTrk_etChrgHadOverSumTrkPt=
-	pers->m_seedTrk_etChrgHadOverSumTrkPt;
-    trans->m_seedTrk_isolFracWide=pers->m_seedTrk_isolFracWide;
-    trans->m_seedTrk_etHadAtEMScale=pers->m_seedTrk_etHadAtEMScale;
-    trans->m_seedTrk_etEMAtEMScale=pers->m_seedTrk_etEMAtEMScale;
-    trans->m_seedTrk_etEMCL=pers->m_seedTrk_etEMCL;
-    trans->m_seedTrk_etChrgEM=pers->m_seedTrk_etChrgEM;
-    trans->m_seedTrk_etNeuEM=pers->m_seedTrk_etNeuEM;
-    trans->m_seedTrk_etResNeuEM=pers->m_seedTrk_etResNeuEM;
-    trans->m_seedTrk_hadLeakEt=pers->m_seedTrk_hadLeakEt;
-    AssignVector( 
-	trans->m_seedTrk_etChrgEM01Trk, 
-	pers->m_seedTrk_etChrgEM01Trk);
-    AssignVector( 
-	trans->m_seedTrk_etResChrgEMTrk,
-	pers->m_seedTrk_etResChrgEMTrk );
-    trans->m_seedTrk_sumEMCellEtOverLeadTrkPt=
-	pers->m_seedTrk_sumEMCellEtOverLeadTrkPt;
-    trans->m_seedTrk_secMaxStripEt=pers->m_seedTrk_secMaxStripEt;
-    trans->m_seedTrk_stripWidth2=pers->m_seedTrk_stripWidth2;
-    trans->m_seedTrk_nStrip=pers->m_seedTrk_nStrip;
-    trans->m_seedTrk_etChrgHad=pers->m_seedTrk_etChrgHad;
-    trans->m_seedTrk_nOtherCoreTrk=pers->m_seedTrk_nOtherCoreTrk;
-    trans->m_seedTrk_nIsolTrk=pers->m_seedTrk_nIsolTrk;
-    trans->m_seedTrk_etIsolEM=pers->m_seedTrk_etIsolEM;
-    trans->m_seedTrk_etIsolHad=pers->m_seedTrk_etIsolHad;
+    trans->setEle_E237E277 (pers->m_Ele_E237E277);
+    trans->setEle_PresamplerFraction (pers->m_Ele_PresamplerFraction);
+    trans->setEle_ECALFirstFraction (pers->m_Ele_ECALFirstFraction);
+    trans->setNumCells (pers->m_numCells);
+    trans->setNumTopoClusters (pers->m_numTopoClusters);
+    trans->setNumEffTopoClusters (pers->m_numEffTopoClusters);
+    trans->setTopoInvMass (pers->m_topoInvMass);
+    trans->setEffTopoInvMass (pers->m_effTopoInvMass);
+    trans->setTopoMeanDeltaR (pers->m_topoMeanDeltaR);
+    trans->setEffTopoMeanDeltaR (pers->m_effTopoMeanDeltaR);
+    trans->setSeedCalo_nIsolLooseTrk (pers->m_seedCalo_nIsolLooseTrk);
+    trans->setSeedCalo_EMRadius (pers->m_seedCalo_EMRadius);
+    trans->setSeedCalo_hadRadius (pers->m_seedCalo_hadRadius);
+    trans->setSeedCalo_etEMAtEMScale (pers->m_seedCalo_etEMAtEMScale);
+    trans->setSeedCalo_etHadAtEMScale (pers->m_seedCalo_etHadAtEMScale);
+    trans->setSeedCalo_isolFrac (pers->m_seedCalo_isolFrac);
+    trans->setSeedCalo_centFrac (pers->m_seedCalo_centFrac);
+    trans->setSeedCalo_stripWidth2 (pers->m_seedCalo_stripWidth2);
+    trans->setSeedCalo_nStrip (pers->m_seedCalo_nStrip);
+    trans->setSeedCalo_etEMCalib (pers->m_seedCalo_etEMCalib);
+    trans->setSeedCalo_etHadCalib (pers->m_seedCalo_etHadCalib);
+    trans->setSeedCalo_eta (pers->m_seedCalo_eta);
+    trans->setSeedCalo_phi (pers->m_seedCalo_phi);
+    trans->setSeedCalo_trkAvgDist (pers->m_seedCalo_trkAvgDist);
+    trans->setSeedCalo_trkRmsDist (pers->m_seedCalo_trkRmsDist);
+    trans->setSeedTrk_EMRadius (pers->m_seedTrk_EMRadius);
+    trans->setSeedTrk_isolFrac (pers->m_seedTrk_isolFrac);
+    trans->setSeedTrk_etChrgHadOverSumTrkPt
+      (pers->m_seedTrk_etChrgHadOverSumTrkPt);
+    trans->setSeedTrk_isolFracWide (pers->m_seedTrk_isolFracWide);
+    trans->setSeedTrk_etHadAtEMScale (pers->m_seedTrk_etHadAtEMScale);
+    trans->setSeedTrk_etEMAtEMScale (pers->m_seedTrk_etEMAtEMScale);
+    trans->setSeedTrk_etEMCL (pers->m_seedTrk_etEMCL);
+    trans->setSeedTrk_etChrgEM (pers->m_seedTrk_etChrgEM);
+    trans->setSeedTrk_etNeuEM (pers->m_seedTrk_etNeuEM);
+    trans->setSeedTrk_etResNeuEM (pers->m_seedTrk_etResNeuEM);
+    trans->setSeedTrk_hadLeakEt (pers->m_seedTrk_hadLeakEt);
+
+    trans->setSeedTrk_etChrgEM01Trk (pers->m_seedTrk_etChrgEM01Trk.begin(),
+                                     pers->m_seedTrk_etChrgEM01Trk.end());
+    trans->setSeedTrk_etResChrgEMTrk (pers->m_seedTrk_etResChrgEMTrk.begin(),
+                                      pers->m_seedTrk_etResChrgEMTrk.end());
+
+    trans->setSeedTrk_sumEMCellEtOverLeadTrkPt
+      (pers->m_seedTrk_sumEMCellEtOverLeadTrkPt);
+    trans->setSeedTrk_secMaxStripEt (pers->m_seedTrk_secMaxStripEt);
+    trans->setSeedTrk_stripWidth2 (pers->m_seedTrk_stripWidth2);
+    trans->setSeedTrk_nStrip (pers->m_seedTrk_nStrip);
+    trans->setSeedTrk_etChrgHad (pers->m_seedTrk_etChrgHad);
+    trans->setSeedTrk_nOtherCoreTrk (pers->m_seedTrk_nOtherCoreTrk);
+    trans->setSeedTrk_nIsolTrk (pers->m_seedTrk_nIsolTrk);
+    trans->setSeedTrk_etIsolEM (pers->m_seedTrk_etIsolEM);
+    trans->setSeedTrk_etIsolHad (pers->m_seedTrk_etIsolHad);
 }
 
 void TauCommonDetailsCnv_p1::transToPers( 
@@ -157,95 +152,96 @@ void TauCommonDetailsCnv_p1::transToPers(
     TauCommonDetails_p1 *pers,
     MsgStream &msg )
 {
-    pers->m_ipZ0SinThetaSigLeadTrk=trans->m_ipZ0SinThetaSigLeadTrk;   
-    pers->m_ipZ0SinThetaSigLeadTrk=trans->m_ipZ0SinThetaSigLeadTrk;
-    pers->m_etOverPtLeadTrk=trans->m_etOverPtLeadTrk;
-    pers->m_etOverPtLeadLooseTrk=trans->m_etOverPtLeadLooseTrk;
-    pers->m_leadTrkPt=trans->m_leadTrkPt;
-    pers->m_leadLooseTrkPt=trans->m_leadLooseTrkPt;
-    pers->m_ipSigLeadTrk=trans->m_ipSigLeadTrk;
-    pers->m_ipSigLeadLooseTrk=trans->m_ipSigLeadLooseTrk;
+    pers->m_ipZ0SinThetaSigLeadTrk=trans->ipZ0SinThetaSigLeadTrk();   
+    pers->m_etOverPtLeadTrk=trans->etOverPtLeadTrk();
+    pers->m_etOverPtLeadLooseTrk=trans->etOverPtLeadLooseTrk();
+    pers->m_leadTrkPt=trans->leadTrkPt();
+    pers->m_leadLooseTrkPt=trans->leadLooseTrkPt();
+    pers->m_ipSigLeadTrk=trans->ipSigLeadTrk();
+    pers->m_ipSigLeadLooseTrk=trans->ipSigLeadLooseTrk();
     tracksCnv.transToPers( 
-	&trans->m_looseTrk, 
+        &trans->looseTrk(), 
 	&pers->m_looseTrk, 
 	msg );
     conversionTracksCnv.transToPers( 
-	&trans->m_looseConvTrk, 
+        &trans->looseConvTrk(), 
 	&pers->m_looseConvTrk, 
 	msg );
-    pers->m_chrgLooseTrk=trans->m_chrgLooseTrk;
+    pers->m_chrgLooseTrk=trans->chrgLooseTrk();
     clusterCnv.transToPers( 
-	&trans->m_cellEM012Cluster, 
+        &trans->cellEM012ClusterLink(), 
 	&pers->m_cellEM012Cluster, 
 	msg );
     hepLorentzVectorCnv.transToPers(
-	&trans->m_sumPi0Vec, 
+        &trans->sumPi0Vec(), 
 	&pers->m_sumPi0Vec,
 	msg );
-    pers->m_massTrkSys=trans->m_massTrkSys;
-    pers->m_trkWidth2=trans->m_trkWidth2;
-    pers->m_trFlightPathSig=trans->m_trFlightPathSig;
+    pers->m_massTrkSys=trans->massTrkSys();
+    pers->m_trkWidth2=trans->trkWidth2();
+    pers->m_trFlightPathSig=trans->trFlightPathSig();
     pers->m_secVtx = toPersistent( 
 	&m_recVertexCnv, 
-	trans->m_secVtx,
+	trans->secVtx(),
 	msg);
-    pers->m_etEflow=trans->m_etEflow;
-    pers->m_mEflow=trans->m_mEflow;
+    pers->m_etEflow=trans->etEflow();
+    pers->m_mEflow=trans->mEflow();
     clusterVectCnv.transToPers( 
-	&trans->m_pi0, 
+        &trans->pi0LinkVec(), 
 	&pers->m_pi0, 
 	msg );
-    pers->m_Ele_E237E277=trans->m_Ele_E237E277;
-    pers->m_Ele_PresamplerFraction=trans->m_Ele_PresamplerFraction;
-    pers->m_Ele_ECALFirstFraction=trans->m_Ele_ECALFirstFraction;
-    pers->m_numCells=trans->m_numCells;   
-    pers->m_numTopoClusters=trans->m_numTopoClusters;   
-    pers->m_numEffTopoClusters=trans->m_numEffTopoClusters;   
-    pers->m_topoInvMass=trans->m_topoInvMass;   
-    pers->m_effTopoInvMass=trans->m_effTopoInvMass;   
-    pers->m_topoMeanDeltaR=trans->m_topoMeanDeltaR;   
-    pers->m_effTopoMeanDeltaR=trans->m_effTopoMeanDeltaR;   
-    pers->m_seedCalo_nIsolLooseTrk=trans->m_seedCalo_nIsolLooseTrk;
-    pers->m_seedCalo_EMRadius=trans->m_seedCalo_EMRadius;
-    pers->m_seedCalo_hadRadius=trans->m_seedCalo_hadRadius;
-    pers->m_seedCalo_etEMAtEMScale=trans->m_seedCalo_etEMAtEMScale;
-    pers->m_seedCalo_etHadAtEMScale=trans->m_seedCalo_etHadAtEMScale;
-    pers->m_seedCalo_isolFrac=trans->m_seedCalo_isolFrac;
-    pers->m_seedCalo_centFrac=trans->m_seedCalo_centFrac;
-    pers->m_seedCalo_stripWidth2=trans->m_seedCalo_stripWidth2;
-    pers->m_seedCalo_nStrip=trans->m_seedCalo_nStrip;
-    pers->m_seedCalo_etEMCalib=trans->m_seedCalo_etEMCalib;
-    pers->m_seedCalo_etHadCalib=trans->m_seedCalo_etHadCalib;
-    pers->m_seedCalo_eta=trans->m_seedCalo_eta;   
-    pers->m_seedCalo_phi=trans->m_seedCalo_phi;
-    pers->m_seedCalo_trkAvgDist=trans->m_seedCalo_trkAvgDist;
-    pers->m_seedCalo_trkRmsDist=trans->m_seedCalo_trkRmsDist;
-    pers->m_seedTrk_EMRadius=trans->m_seedTrk_EMRadius;
-    pers->m_seedTrk_isolFrac=trans->m_seedTrk_isolFrac;
+    pers->m_Ele_E237E277=trans->ele_E237E277();
+    pers->m_Ele_PresamplerFraction=trans->ele_PresamplerFraction();
+    pers->m_Ele_ECALFirstFraction=trans->ele_ECALFirstFraction();
+    pers->m_numCells=trans->numCells();   
+    pers->m_numTopoClusters=trans->numTopoClusters();   
+    pers->m_numEffTopoClusters=trans->numEffTopoClusters();   
+    pers->m_topoInvMass=trans->topoInvMass();   
+    pers->m_effTopoInvMass=trans->effTopoInvMass();   
+    pers->m_topoMeanDeltaR=trans->topoMeanDeltaR();   
+    pers->m_effTopoMeanDeltaR=trans->effTopoMeanDeltaR();   
+    pers->m_seedCalo_nIsolLooseTrk=trans->seedCalo_nIsolLooseTrk();
+    pers->m_seedCalo_EMRadius=trans->seedCalo_EMRadius();
+    pers->m_seedCalo_hadRadius=trans->seedCalo_hadRadius();
+    pers->m_seedCalo_etEMAtEMScale=trans->seedCalo_etEMAtEMScale();
+    pers->m_seedCalo_etHadAtEMScale=trans->seedCalo_etHadAtEMScale();
+    pers->m_seedCalo_isolFrac=trans->seedCalo_isolFrac();
+    pers->m_seedCalo_centFrac=trans->seedCalo_centFrac();
+    pers->m_seedCalo_stripWidth2=trans->seedCalo_stripWidth2();
+    pers->m_seedCalo_nStrip=trans->seedCalo_nStrip();
+    pers->m_seedCalo_etEMCalib=trans->seedCalo_etEMCalib();
+    pers->m_seedCalo_etHadCalib=trans->seedCalo_etHadCalib();
+    pers->m_seedCalo_eta=trans->seedCalo_eta();   
+    pers->m_seedCalo_phi=trans->seedCalo_phi();
+    pers->m_seedCalo_trkAvgDist=trans->seedCalo_trkAvgDist();
+    pers->m_seedCalo_trkRmsDist=trans->seedCalo_trkRmsDist();
+    pers->m_seedTrk_EMRadius=trans->seedTrk_EMRadius();
+    pers->m_seedTrk_isolFrac=trans->seedTrk_isolFrac();
     pers->m_seedTrk_etChrgHadOverSumTrkPt=
-	trans->m_seedTrk_etChrgHadOverSumTrkPt;
-    pers->m_seedTrk_isolFracWide=trans->m_seedTrk_isolFracWide;
-    pers->m_seedTrk_etHadAtEMScale=trans->m_seedTrk_etHadAtEMScale;
-    pers->m_seedTrk_etEMAtEMScale=trans->m_seedTrk_etEMAtEMScale;
-    pers->m_seedTrk_etEMCL=trans->m_seedTrk_etEMCL;
-    pers->m_seedTrk_etChrgEM=trans->m_seedTrk_etChrgEM;
-    pers->m_seedTrk_etNeuEM=trans->m_seedTrk_etNeuEM;
-    pers->m_seedTrk_etResNeuEM=trans->m_seedTrk_etResNeuEM;
-    pers->m_seedTrk_hadLeakEt=trans->m_seedTrk_hadLeakEt;
+      trans->seedTrk_etChrgHadOverSumTrkPt();
+    pers->m_seedTrk_isolFracWide=trans->seedTrk_isolFracWide();
+    pers->m_seedTrk_etHadAtEMScale=trans->seedTrk_etHadAtEMScale();
+    pers->m_seedTrk_etEMAtEMScale=trans->seedTrk_etEMAtEMScale();
+    pers->m_seedTrk_etEMCL=trans->seedTrk_etEMCL();
+    pers->m_seedTrk_etChrgEM=trans->seedTrk_etChrgEM();
+    pers->m_seedTrk_etNeuEM=trans->seedTrk_etNeuEM();
+    pers->m_seedTrk_etResNeuEM=trans->seedTrk_etResNeuEM();
+    pers->m_seedTrk_hadLeakEt=trans->seedTrk_hadLeakEt();
+
     AssignVector( 
 	pers->m_seedTrk_etChrgEM01Trk, 
-	trans->m_seedTrk_etChrgEM01Trk);
+	trans->seedTrk_etChrgEM01TrkVector());
     AssignVector( 
 	pers->m_seedTrk_etResChrgEMTrk, 
-	trans->m_seedTrk_etResChrgEMTrk );
+	trans->seedTrk_etResChrgEMTrkVector() );
+
     pers->m_seedTrk_sumEMCellEtOverLeadTrkPt=
-	trans->m_seedTrk_sumEMCellEtOverLeadTrkPt;
-    pers->m_seedTrk_secMaxStripEt=trans->m_seedTrk_secMaxStripEt;
-    pers->m_seedTrk_stripWidth2=trans->m_seedTrk_stripWidth2;
-    pers->m_seedTrk_nStrip=trans->m_seedTrk_nStrip;
-    pers->m_seedTrk_etChrgHad=trans->m_seedTrk_etChrgHad;
-    pers->m_seedTrk_nOtherCoreTrk=trans->m_seedTrk_nOtherCoreTrk;
-    pers->m_seedTrk_nIsolTrk=trans->m_seedTrk_nIsolTrk;
-    pers->m_seedTrk_etIsolEM=trans->m_seedTrk_etIsolEM;
-    pers->m_seedTrk_etIsolHad=trans->m_seedTrk_etIsolHad;
+      trans->seedTrk_sumEMCellEtOverLeadTrkPt();
+    pers->m_seedTrk_secMaxStripEt=trans->seedTrk_secMaxStripEt();
+    pers->m_seedTrk_stripWidth2=trans->seedTrk_stripWidth2();
+    pers->m_seedTrk_nStrip=trans->seedTrk_nStrip();
+    pers->m_seedTrk_etChrgHad=trans->seedTrk_etChrgHad();
+    pers->m_seedTrk_nOtherCoreTrk=trans->seedTrk_nOtherCoreTrk();
+    pers->m_seedTrk_nIsolTrk=trans->seedTrk_nIsolTrk();
+    pers->m_seedTrk_etIsolEM=trans->seedTrk_etIsolEM();
+    pers->m_seedTrk_etIsolHad=trans->seedTrk_etIsolHad();
 }

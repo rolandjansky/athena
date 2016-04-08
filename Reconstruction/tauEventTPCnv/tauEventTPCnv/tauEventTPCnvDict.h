@@ -39,6 +39,5 @@
 #include "tauEventTPCnv/TauRecExtraDetails_p1.h"
 #include "tauEventTPCnv/Tau1P3PDetails_p1.h"
 #include "tauEventTPCnv/Tau1P3PExtraDetails_p1.h"
-#include "tauEvent/TauJetContainer.h"
 
 #endif //tauEventTPCnv_tauEventTPCnvCNVDICT_H

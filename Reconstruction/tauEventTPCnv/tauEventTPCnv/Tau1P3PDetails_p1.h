@@ -15,8 +15,8 @@
 ///
 /// $Id: Tau1P3PDetails_p1.h,v 1.10 2009-01-20 17:19:02 tburgess Exp $
 
-#ifndef __tauEventTPCnv_TAU1P3P_DETAILS_P1_H__
-#define __tauEventTPCnv_TAU1P3P_DETAILS_P1_H__
+#ifndef TAUEVENTTPCNV_TAU1P3PDETAILS_P1_H
+#define TAUEVENTTPCNV_TAU1P3PDETAILS_P1_H
 
 #include <vector>
 #include "DataModelAthenaPool/ElementLinkVector_p1.h"
@@ -68,4 +68,4 @@ private:
     float m_etEflow;
 };
 
-#endif // __tauEventTPCnv_TAU1P3P_DETAILS_P1_H__
+#endif // TAUEVENTTPCNV_TAU1P3PDETAILS_P1_H

@@ -20,8 +20,8 @@ PURPOSE:  T/P Converter for the PanTau::PanTauDetails persistent data class
 
 ********************************************************************/
 
-#ifndef __tauEventTPCnv_PANTAUDETAILSCNV_P1_H__
-#define __tauEventTPCnv_PANTAUDETAILSCNV_P1_H__
+#ifndef TAUEVENTTPCNV_PANTAUDETAILSCNV_P1_H
+#define TAUEVENTTPCNV_PANTAUDETAILSCNV_P1_H
 
 //!Conversion classes
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
