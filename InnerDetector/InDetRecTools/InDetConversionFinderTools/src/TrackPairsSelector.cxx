@@ -69,19 +69,19 @@ namespace InDet {
 
     /* Get the track selector tool from ToolSvc */
     if ( m_helpertool.retrieve().isFailure() ) {
-      msg(MSG::ERROR) << "Failed to retrieve tool " << m_helpertool << endmsg;
+      msg(MSG::ERROR) << "Failed to retrieve tool " << m_helpertool << endreq;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_helpertool << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_helpertool << endreq;
     }
 
     /* Get the distance tool from ToolsSvc */
     if(m_distanceTool.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Could not get " << m_distanceTool << endmsg; return StatusCode::FAILURE;
+      msg(MSG::ERROR) << "Could not get " << m_distanceTool << endreq; return StatusCode::FAILURE;
     }else{
-      msg(MSG::INFO) << "Got the distance tool " << m_distanceTool << endmsg;
+      msg(MSG::INFO) << "Got the distance tool " << m_distanceTool << endreq;
     }
-    msg(MSG::INFO) << "Initialization successful" << endmsg;
+    msg(MSG::INFO) << "Initialization successful" << endreq;
     return StatusCode::SUCCESS;
   }
   

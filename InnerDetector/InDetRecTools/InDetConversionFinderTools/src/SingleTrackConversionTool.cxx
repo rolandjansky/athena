@@ -12,6 +12,7 @@
 ***************************************************************************/
 #include "InDetConversionFinderTools/SingleTrackConversionTool.h"
 #include "TrkTrack/Track.h"
+#include "VxVertex/VxCandidate.h"
 #include "TrkParameters/TrackParameters.h"
 #include "DataModel/ElementLink.h"
 #include "TrkTrack/LinkToTrack.h"
@@ -121,7 +122,7 @@ namespace InDet {
   // -------------------------------------------------------
   // Create a RecVertex at the first measurement of the track
   // -------------------------------------------------------
-  xAOD::Vertex* SingleTrackConversionTool::buildSingleTrackConversion(const Trk::Track* track)
+  Trk::VxCandidate* SingleTrackConversionTool::buildSingleTrackConversion(const Trk::Track* track)
   {
     
     // some local variables
@@ -245,15 +246,21 @@ namespace InDet {
       return 0; 
     }
     
+    // now construct the vertex from the global position, cov. put NdF and chi2 to zero (Markus)
+    // Trk::RecVertex* tmpRecV = new Trk::RecVertex(*gp , Trk::ErrorMatrix(new Trk::CovarianceMatrix(nCovVtx)), Ndf, chi2 );
+    Trk::RecVertex* tmpRecV = new Trk::RecVertex( gp , nCovVtx, 0, 0. );
+    
+    //
     //Create the corresponding vector of tracks at that RecVertex. Contains one track with a new redefined measured perigee.
     //
-    std::vector<Trk::VxTrackAtVertex> tmpVTAV;
+    std::vector<Trk::VxTrackAtVertex*>* tmpVTAV = new std::vector<Trk::VxTrackAtVertex*>();
 
     // get the perigee
     Trk::PerigeeSurface perigeeSurface(gp);
     const Trk::TrackParameters *perpar=m_extrapolator->extrapolate(*tp,perigeeSurface,Trk::anyDirection,false,Trk::pion);
     if(!perpar || !perpar->covariance() ){
       ATH_MSG_WARNING ("Perigee creation for single track at its first measurement failed, should never happen !");
+      delete tmpRecV; delete tmpVTAV;
       return 0;
     }
 
@@ -273,26 +280,18 @@ namespace InDet {
 
     Trk::TrackParameters* pp = perpar->clone();
     delete perpar;
-    Trk::VxTrackAtVertex trkV(1., pp);
+    Trk::VxTrackAtVertex* trkV = new Trk::VxTrackAtVertex(1., pp);
     
     Trk::LinkToTrack * linkTT = new Trk::LinkToTrack();
 
     linkTT->setElement(track);
-    trkV.setOrigTrack(linkTT);
-    tmpVTAV.push_back(trkV);
+    trkV->setOrigTrack(linkTT);
+    tmpVTAV->push_back(trkV);
     
-    xAOD::Vertex* vertex = new xAOD::Vertex();
-    vertex->makePrivateStore();
-    vertex->setPosition(gp);
-    vertex->setCovariancePosition(nCovVtx);
-    vertex->setVertexType(xAOD::VxType::ConvVtx);
-    vertex->setFitQuality( 0, 0);
-    for (unsigned int i = 0; i < tmpVTAV.size() ; ++i) {
-      Trk::VxTrackAtVertex vtxTrack = tmpVTAV[i];
-      vertex->vxTrackAtVertex().push_back(vtxTrack);
-    }
-
-    return vertex;    
+    ///Create the VxCandidate by combining the RecVertex and the vector of TrackAtVertex.
+    Trk::VxCandidate* vx = new Trk::VxCandidate(*tmpRecV,*tmpVTAV);
+    delete tmpRecV; delete tmpVTAV;
+    return  vx;
   }
   
   // -------------------------------------------------------

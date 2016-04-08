@@ -112,22 +112,25 @@ namespace InDet {
   double ConversionFinderUtils::distBetweenTracks(const Trk::Track *trk_pos, const Trk::Track *trk_neg) {
 
     //position of the first measurement on the positive track
-    const Trk::MeasurementBase* first_pos_meas = trk_pos->measurementsOnTrack()->front();
-    Amg::Vector3D trk_hit_pos = first_pos_meas->globalPosition();
+    std::vector<const Trk::MeasurementBase*>::const_iterator it;
+    std::vector<const Trk::MeasurementBase*>::const_iterator it_pos = trk_pos->measurementsOnTrack()->begin();
+    std::vector<const Trk::MeasurementBase*>::const_iterator it_pos_end = trk_pos->measurementsOnTrack()->end();
+    Amg::Vector3D trk_hit_pos = (*it_pos)->globalPosition();
+    const Trk::MeasurementBase* first_pos_meas = *it_pos;
     
     //check if really the first measurement
-    for (const Trk::MeasurementBase* m : *trk_pos->measurementsOnTrack())
-      if(trk_hit_pos.mag() > m->globalPosition().mag()) first_pos_meas = m;	
+    for (it = it_pos; it != it_pos_end; ++it) if(trk_hit_pos.mag()>(*it)->globalPosition().mag()) first_pos_meas = (*it);	
     
     trk_hit_pos = first_pos_meas->globalPosition();
     
     //position of the first hit--->track2
-    const Trk::MeasurementBase* first_neg_meas = trk_neg->measurementsOnTrack()->front();
-    Amg::Vector3D trk_hit_neg = first_neg_meas->globalPosition();
+    std::vector<const Trk::MeasurementBase*>::const_iterator it_neg = trk_neg->measurementsOnTrack()->begin();	
+    Amg::Vector3D trk_hit_neg=(*it_neg)->globalPosition();
+    const Trk::MeasurementBase* first_neg_meas = *it_neg;
     
     //check if really the first measurement
-    for (const Trk::MeasurementBase* m : *trk_neg->measurementsOnTrack())
-      if(trk_hit_neg.mag() > m->globalPosition().mag()) first_neg_meas = m;	
+    for (it = it_neg; it != trk_neg->measurementsOnTrack()->end(); ++it) if (trk_hit_neg.mag() > (*it)->globalPosition().mag())
+      first_neg_meas = (*it);
     
     trk_hit_neg = first_neg_meas->globalPosition();
     double distance = 1000.;
@@ -227,41 +230,46 @@ namespace InDet {
     return newTrk;
   }
   
-  xAOD::Vertex* ConversionFinderUtils::correctVxCandidate(xAOD::Vertex* initVxCandidate, Amg::Vector3D guessVertex)
+  Trk::VxCandidate* ConversionFinderUtils::correctVxCandidate(Trk::VxCandidate* initVxCandidate, Amg::Vector3D guessVertex)
   {
-    Amg::Vector3D correctVertex(initVxCandidate->position().x()+guessVertex.x(),
-			     initVxCandidate->position().y()+guessVertex.y(),
-			     initVxCandidate->position().z()+guessVertex.z());
+    const Trk::RecVertex & vertex = initVxCandidate->recVertex();
+    Amg::Vector3D correctVertex(vertex.position().x()+guessVertex.x(),
+			     vertex.position().y()+guessVertex.y(),
+			     vertex.position().z()+guessVertex.z());
     
     Amg::Vector3D globalVertexPosition(correctVertex.x(),correctVertex.y(),correctVertex.z());
     
-    std::vector<Trk::VxTrackAtVertex> tmpVTAV;
+    Trk::RecVertex* tmpRecV = new Trk::RecVertex(correctVertex,
+						 vertex.covariancePosition(),
+						 vertex.fitQuality().chiSquared(),
+						 double(vertex.fitQuality().numberDoF()));
     
-    std::vector<Trk::VxTrackAtVertex> trkAtVtx = initVxCandidate->vxTrackAtVertex();  
-    for (unsigned int i = 0; i < trkAtVtx.size() ; ++i) {
-      Trk::VxTrackAtVertex vtxTrack = trkAtVtx[i];			       						     
-      const Trk::TrackParameters*  vtxPer = vtxTrack.perigeeAtVertex();				     
+    std::vector<Trk::VxTrackAtVertex*>* tmpVTAV = new std::vector<Trk::VxTrackAtVertex*>();
+    
+    std::vector<Trk::VxTrackAtVertex*> * trkAtVtx = initVxCandidate->vxTrackAtVertex();  
+    for (unsigned int i = 0; i < trkAtVtx->size() ; ++i) {
+      Trk::VxTrackAtVertex* vtxTrack = (*(trkAtVtx))[i];						     
+      const Trk::TrackParameters*  vtxPer = vtxTrack->perigeeAtVertex();				     
+      
       const AmgVector(5)& iv = vtxPer->parameters();
       AmgSymMatrix(5) em(*(vtxPer->covariance()));
       Trk::PerigeeSurface surface (globalVertexPosition); 
 
       const Trk::TrackParameters* tmpMeasPer = surface.createParameters<5,Trk::Charged>(0.,0.,iv[2],iv[3],iv[4],&em);
       
-      Trk::VxTrackAtVertex trkV(vtxTrack.trackQuality().chiSquared(), const_cast<Trk::TrackParameters*>(tmpMeasPer));
-      tmpVTAV.push_back(trkV);
+      Trk::VxTrackAtVertex* trkV = new Trk::VxTrackAtVertex(vtxTrack->trackQuality().chiSquared(), const_cast<Trk::TrackParameters*>(tmpMeasPer));
+      tmpVTAV->push_back(trkV);
     }//end of loop over VxTracksAtVertex				    
     
-    if(tmpVTAV.size()!=2) return 0;
+    if(tmpVTAV->size()!=2) {delete tmpVTAV; return 0;}
     
-    //Create the xAOD::Vertex and set the position and VxTrackAtVertex properly
-    xAOD::Vertex *vx = new xAOD::Vertex(*initVxCandidate);
-    vx->setPosition(correctVertex);
-    vx->vxTrackAtVertex().clear();
-    for (unsigned int i = 0; i < tmpVTAV.size() ; ++i) {
-      Trk::VxTrackAtVertex vtxTrack = tmpVTAV[i];
-      vx->vxTrackAtVertex().push_back(vtxTrack);
-    }
-
+    ///Create the VxCandidate by combining the RecVertex and the vector of TrackAtVertex.
+    Trk::VxCandidate* vx = new Trk::VxCandidate(*tmpRecV,*tmpVTAV);
+    
+    delete tmpRecV; 
+    
+    delete tmpVTAV;
+    
     return vx;							       
   }//end of correct vxCandidate method
   
