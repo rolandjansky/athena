@@ -31,5 +31,6 @@ def _regr_basic():
 #c.doctest_cover ()
 
 import doctest
+print ''
 doctest.testmod()
 

@@ -413,7 +413,7 @@ def _regr_get_hist():
     >>> print h.__class__.__name__, h.GetName(), h.GetTitle()
     TH1F tmp1 tmp2
     >>> print h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), \
-        h.GetXaxis().GetXmax(), bool (h.TestBit (ROOT.TH1.kCanRebin))
+        h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h))
     50 0.0 10.0 False
     >>> print opt
     <BLANKLINE>
@@ -421,7 +421,7 @@ def _regr_get_hist():
     >>> print h.__class__.__name__, h.GetName(), h.GetTitle()
     TH1F tmp1 tmp2
     >>> print h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), \
-        h.GetXaxis().GetXmax(), bool (h.TestBit (ROOT.TH1.kCanRebin))
+        h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h))
     50 0.0 1.0 True
     >>> print opt
     <BLANKLINE>
@@ -429,7 +429,7 @@ def _regr_get_hist():
     >>> print h.__class__.__name__, h.GetName(), h.GetTitle()
     RootUtils::ScatterH2 tmp1 tmp2
     >>> print h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), \
-        h.GetXaxis().GetXmax(), bool (h.TestBit (ROOT.TH1.kCanRebin))
+        h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h))
     50 0.0 10.0 False
     >>> print h.GetYaxis().GetNbins(), h.GetYaxis().GetXmin(), \
         h.GetYaxis().GetXmax(), bool (h.scatter())
@@ -441,7 +441,7 @@ def _regr_get_hist():
     >>> print h.__class__.__name__, h.GetName(), h.GetTitle()
     TProfile tmp1 tmp2
     >>> print h.GetXaxis().GetNbins(), h.GetXaxis().GetXmin(), \
-        h.GetXaxis().GetXmax(), bool (h.TestBit (ROOT.TH1.kCanRebin))
+        h.GetXaxis().GetXmax(), bool (pydraw._hasCanRebin (h))
     50 0.0 10.0 False
     >>> print h.GetYaxis().GetNbins(), h.GetYaxis().GetXmin(), \
         h.GetYaxis().GetXmax(), h.GetMinimum(), h.GetMaximum()
@@ -818,6 +818,7 @@ p.Range(0, 1,2,3)
 
 from PyUtils import coverage
 c = coverage.Coverage ('PyAnalysisUtils.pydraw')
+print ''
 c.doctest_cover ()
 
 #from PyAnalysisUtils import pydraw

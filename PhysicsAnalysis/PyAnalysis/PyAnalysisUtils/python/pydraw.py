@@ -340,7 +340,17 @@ except AttributeError: #pragma: NO COVER
     print "WARNING: RootUtils::ScatterH2 not available; using TH2F instead" #pragma: NO COVER
 
 
-_kCanRebin = ROOT.TH1.kCanRebin
+try:
+    ROOT.TH1.kCanRebin
+    def _setCanRebin (h):                     #pragma: NO COVER
+        h.SetBit (ROOT.TH1.kCanRebin)         #pragma: NO COVER
+    def _hasCanRebin (h):                     #pragma: NO COVER
+        return h.TestBit (ROOT.TH1.kCanRebin) #pragma: NO COVER
+except AttributeError:                        #pragma: NO COVER
+    def _setCanRebin (h):                     #pragma: NO COVER
+        h.GetXaxis().SetCanExtend(True)       #pragma: NO COVER
+    def _hasCanRebin (h):                     #pragma: NO COVER
+        return h.GetXaxis().CanExtend()       #pragma: NO COVER
 
 
 # The last histogram we made.
@@ -1107,7 +1117,7 @@ def _get_hist (ndim, args, hname, htitle):
 
     # Automatic rebinning?
     if rebin:
-        hist.SetBit (_kCanRebin)
+        _setCanRebin (hist)
 
     return (hist, options)
 
@@ -1169,7 +1179,7 @@ def draw (arg):
     c.tuple_o.loop (g['_loopfunc'], c.lo, c.hi)
 
     # Adjust binning, if requested.
-    if hist.TestBit (_kCanRebin):
+    if _hasCanRebin (hist):
         hist.LabelsDeflate ("X")
         if ndim > 1:
             hist.LabelsDeflate ("Y")
