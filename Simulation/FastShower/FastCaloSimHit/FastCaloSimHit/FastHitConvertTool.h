@@ -9,16 +9,17 @@
 #ifndef FASTCALOSIMHIT_FASTHITCONVERTTOOL_H
 #define FASTCALOSIMHIT_FASTHITCONVERTTOOL_H
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "CaloInterface/ICaloCellMakerTool.h"
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "TileSimEvent/TileHitVector.h"
-#include "LArElecCalib/ILArfSampl.h"
 
-class IMassageSvc;
-class StoreGateSvc; 
+#include "CaloInterface/ICaloCellMakerTool.h"
+#include "LArElecCalib/ILArfSampl.h"
+#include "LArSimEvent/LArHitContainer.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/WriteHandle.h"
+#include "TileSimEvent/TileHitVector.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+
 class LArHitFloat;
 class LArHitFloatContainer;
 class LArHit;
@@ -29,81 +30,62 @@ class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
 class TileID;
-//class CaloCellContainer;
-class AtlasDetectorID;
-class Identifier;
 
-// No NameSpace selected 
+// No NameSpace selected
 //{
 
-/** @class FastHitConvertTool 
+/** @class FastHitConvertTool
 
-  This is for the Doxygen-Documentation.  
-  Please delete these lines and fill in information about
-  the Algorithm!
-  Please precede every member function declaration with a
-  short Doxygen comment stating the purpose of this function.
+    This is for the Doxygen-Documentation.
+    Please delete these lines and fill in information about
+    the Algorithm!
+    Please precede every member function declaration with a
+    short Doxygen comment stating the purpose of this function.
 
-  @author  Bo Liu <boliu@cern.ch>
-  */  
+    @author  Bo Liu <boliu@cern.ch>
+*/
 
 class FastHitConvertTool : public AthAlgTool,virtual public ICaloCellMakerTool
 {
-  public:
-    FastHitConvertTool(const std::string& type,const std::string& name,const IInterface* parent);
+public:
+  FastHitConvertTool(const std::string& type,const std::string& name,const IInterface* parent);
 
-    /** default destructor */
-    virtual ~FastHitConvertTool(){};
+  /** default destructor */
+  virtual ~FastHitConvertTool(){};
 
-    /** standard Athena-Algorithm method */
-    virtual StatusCode initialize();
-    /** standard Athena-Algorithm method */
-    virtual StatusCode process(CaloCellContainer *theCellContainer);
-    virtual StatusCode finalize();
+  /** standard Athena-Algorithm method */
+  virtual StatusCode initialize() override final;
+  /** standard Athena-Algorithm method */
+  virtual StatusCode process(CaloCellContainer *theCellContainer);
 
-  private:
-    StatusCode initEvent();
-    StatusCode finaliseEvent();
-    StatusCode hitConstruction(CaloCellContainer *theCellCont);
+private:
+  StatusCode initEvent();
+  StatusCode finaliseEvent();
+  StatusCode hitConstruction(CaloCellContainer *theCellCont);
 
-    //For reading in of fast hit
-    LArHitContainer *fastHitContainer;
-    TileHitVector *fastTileHits;
-    //for writing out of Hit, naming as G4 for default
-    LArHitContainer *embHitContainer;
-    LArHitContainer *emecHitContainer;
-    LArHitContainer *fcalHitContainer;
-    LArHitContainer *hecHitContainer;
+  //For reading in of fast hit
+  LArHitContainer *m_fastHitContainer;
+  TileHitVector *m_fastTileHits;
+  //for writing out of Hit, naming as G4 for default
+  SG::WriteHandle<LArHitContainer> m_embHitContainer;
+  SG::WriteHandle<LArHitContainer> m_emecHitContainer;
+  SG::WriteHandle<LArHitContainer> m_fcalHitContainer;
+  SG::WriteHandle<LArHitContainer> m_hecHitContainer;
+  SG::WriteHandle<TileHitVector>   m_tileHitVector;
 
-    TileHitVector* m_tileHits;
+  ServiceHandle<StoreGateSvc> m_storeGateFastCalo;
+  PileUpMergeSvc *m_pMergeSvc;
 
-    std::string m_caloCellsOutputName;
-    //Name for Hit container
-    std::string m_embHitContainerName;
-    std::string m_emecHitContainerName;
-    std::string m_fcalHitContainerName;
-    std::string m_hecHitContainerName;
-    std::string m_tileHitContainerName;
+  const DataHandle<ILArfSampl>   m_dd_fSampl;
+  const TileInfo *m_tileInfo;
+  const LArEM_ID *m_larEmID;
+  const LArFCAL_ID *m_larFcalID;
+  const LArHEC_ID *m_larHecID;
+  const TileID* m_tileID;
 
-    AthenaHitsCollectionHelper helper;
+  bool m_pileup;
+  /** member variables for algorithm properties: */
+  // int/double/bool  m_propertyName;
 
-    StoreGateSvc *m_storeGate;
-    StoreGateSvc *m_detStore;
-    ServiceHandle<StoreGateSvc> m_storeGateFastCalo;
-    PileUpMergeSvc *m_pMergeSvc;
-
-    const DataHandle<ILArfSampl>   m_dd_fSampl;
-    const TileInfo *m_tileInfo;
-    const LArEM_ID *m_larEmID;
-    const LArFCAL_ID *m_larFcalID;
-    const LArHEC_ID *m_larHecID;
-    const TileID* m_tileID;
-
-    bool m_pileup;
-    /** member variables for algorithm properties: */
-    // int/double/bool  m_propertyName;
-
-}; 
-#endif          //FASTHITCONVERTTOOL_H 
-//} // end of namespace
-
+};
+#endif          //FASTCALOSIMHIT_FASTHITCONVERTTOOL_H
