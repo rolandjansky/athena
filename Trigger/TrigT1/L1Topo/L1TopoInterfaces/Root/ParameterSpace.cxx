@@ -121,6 +121,9 @@ ParameterSpace::parameter(const std::string & parameterName, unsigned int select
 }
 
 
+namespace TCS {
+
+
 std::ostream &
 operator<<(std::ostream &o, const TCS::ParameterSpace & ps) {
    if( ps.isInitialized()) {
@@ -130,4 +133,7 @@ operator<<(std::ostream &o, const TCS::ParameterSpace & ps) {
       }
    }
    return o;
+}
+
+
 }

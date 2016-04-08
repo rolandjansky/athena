@@ -8,12 +8,17 @@
 
 #include "TrigConfBase/TrigConfMessaging.h"
 
-#include <vector>
-#include <string>
 #include "L1TopoInterfaces/Parameter.h"
 #include "L1TopoInterfaces/ParameterSpace.h"
 #include "L1TopoInterfaces/AlgFactory.h"
 #include "L1TopoCommon/StatusCode.h"
+
+#include <vector>
+#include <string>
+#include <memory>
+
+class TH1;
+class IL1TopoHistSvc;
 
 namespace TCS {
 
@@ -62,6 +67,11 @@ namespace TCS {
       // setters
       void setAlgoId(unsigned int algoId) { m_algoId = algoId; }
 
+      /**
+       * sets the external hist service
+       */
+      void setL1TopoHistSvc(std::shared_ptr<IL1TopoHistSvc>);
+
    protected:
 
       // define parameters by developer
@@ -71,7 +81,12 @@ namespace TCS {
       
       virtual StatusCode doReset() = 0;
       
+      void registerHist(TH1 *);
+      
    private:
+
+      class ConfigurableAlgImpl;
+      std::unique_ptr<ConfigurableAlgImpl> m_impl;
 
       void defineParameter(const Parameter &);
 
@@ -88,8 +103,8 @@ namespace TCS {
 
    };
 
-} // end of namespace TCS
-
 std::ostream & operator<<(std::ostream &, const TCS::ConfigurableAlg &);
+
+} // end of namespace TCS
 
 #endif /* defined(__TopoCore__TopoAlg__) */

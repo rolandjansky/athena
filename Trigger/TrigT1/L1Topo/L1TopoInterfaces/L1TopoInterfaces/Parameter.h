@@ -72,8 +72,8 @@ namespace TCS {
       std::string  m_defaultVal;
    };
    
-} // end of namespace TCS
-
 std::ostream & operator<<(std::ostream &, const TCS::Parameter&);
+
+} // end of namespace TCS
 
 #endif /* defined(__TopoCore__Parameter__) */
