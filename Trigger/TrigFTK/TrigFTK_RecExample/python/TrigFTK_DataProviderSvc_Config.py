@@ -185,8 +185,12 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.TrainingBeamspotX= -0.0497705
         self.TrainingBeamspotY=1.06299
         self.TrainingBeamspotZ = 0.0
-        self.TrainingBeamspotTiltX= 0.0 # -1.51489e-05 
-        self.TrainingBeamspotTiltY= 0.0 # -4.83891e-05
+        self.TrainingBeamspotTiltX= -1.51489e-05 
+        self.TrainingBeamspotTiltY= -4.83891e-05
+        self. PixelBarrelPhiOffsets=[0.,0.,0.,0.]
+        self. PixelBarrelEtaOffsets=[0.,0.,0.,0.]
+        self. PixelEndCapPhiOffsets=[-0.005,0.,0.]
+        self. PixelEndCapEtaOffsets=[0.,0.,0.]
 
         
 
