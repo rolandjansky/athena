@@ -24,16 +24,16 @@ TileMuToNtuple::TileMuToNtuple(std::string name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
   , m_ntuplePtr(0)
   , m_ntupleID(100)
-  , max_ntag(50)
+  , m_maxNtag(50)
   , m_close(1)
   , m_ntupleLoc("/FILE1/TileMuTag")
-  , m_TileMuContainer("TileMuObj")
+  , m_tileMuContainer("TileMuObj")
 {
 
-  declareProperty("TileMuTagsOutputName", m_TileMuContainer);
+  declareProperty("TileMuTagsOutputName", m_tileMuContainer);
   declareProperty("NTupleLoc", m_ntupleLoc);
   declareProperty("NTupleID", m_ntupleID);
-  declareProperty("MaxNtag", max_ntag);
+  declareProperty("MaxNtag", m_maxNtag);
   declareProperty("CloseNtuple", m_close);
 }
 
@@ -60,7 +60,7 @@ StatusCode TileMuToNtuple::initialize() {
     return StatusCode::FAILURE;
   }
 
-  CHECK( m_ntuplePtr->addItem("TileMu/ntag", m_ntag, 0, max_ntag) );
+  CHECK( m_ntuplePtr->addItem("TileMu/ntag", m_ntag, 0, m_maxNtag) );
   CHECK( m_ntuplePtr->addItem("TileMu/etatag", m_ntag, m_eta, -1.5, 1.5) );
   CHECK( m_ntuplePtr->addItem("TileMu/phitag", m_ntag, m_phi, 0., 6.3) );
   CHECK( m_ntuplePtr->addItem("TileMu/energydepVec", m_ntag, m_energy, 4) );
@@ -75,7 +75,7 @@ StatusCode TileMuToNtuple::execute() {
 
   // step1: read  from TDS
   const TileMuContainer* mutags_cont;
-  CHECK( evtStore()->retrieve(mutags_cont, m_TileMuContainer) );
+  CHECK( evtStore()->retrieve(mutags_cont, m_tileMuContainer) );
 
   TileMuContainer::const_iterator it = mutags_cont->begin();
   TileMuContainer::const_iterator end = mutags_cont->end();
@@ -94,7 +94,7 @@ StatusCode TileMuToNtuple::execute() {
     m_quality[m_ntag] = (*it)->quality();
     m_ntag++;
 
-    if (m_ntag >= max_ntag) break;
+    if (m_ntag >= m_maxNtag) break;
   }
 
   //  write  ntuple (is useful to keep it  open to write also MC truth)

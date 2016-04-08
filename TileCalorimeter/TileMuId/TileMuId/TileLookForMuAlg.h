@@ -56,23 +56,23 @@ class TileLookForMuAlg: public AthAlgorithm {
     enum N_OF_MODULES {
       N_MODULES = 64
     };
-    double etaD[N_CELLS_D];
-    double etaBC[N_CELLS_BC];
-    double etaA[N_CELLS_A];
-    const int nMuMax;
+    double m_etaD[N_CELLS_D];
+    double m_etaBC[N_CELLS_BC];
+    double m_etaA[N_CELLS_A];
+    const int m_nMuMax;
     // and patterns search from D to BC and  from BC to A layers   
-    std::vector<int> fromDtoBC;
-    std::vector<int> fromBCtoA;
+    std::vector<int> m_fromDtoBC;
+    std::vector<int> m_fromBCtoA;
     //   std::map<double,unsigned int> eta2map
     // lower thresholds for the 3 sample
-    double loThrA;
-    double loThrBC;
-    double loThrD;
-    double loThrITC;
+    double m_loThrA;
+    double m_loThrBC;
+    double m_loThrD;
+    double m_loThrITC;
     // std::vector<double>  hiThrD; 
-    std::vector<double> hiThrD;
-    std::vector<double> hiThrBC;
-    std::vector<double> hiThrA;
+    std::vector<double> m_hiThrD;
+    std::vector<double> m_hiThrBC;
+    std::vector<double> m_hiThrA;
     std::string m_cellContainer; // Cell container names 
     std::string m_tileTagContainer;
 //std::string m_CellCollName;

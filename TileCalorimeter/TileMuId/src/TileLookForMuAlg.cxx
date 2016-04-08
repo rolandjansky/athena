@@ -25,22 +25,22 @@ TileLookForMuAlg::TileLookForMuAlg(const std::string& name,
     ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator)
   , m_tileID(0)
-  , etaD()
-  , etaBC()
-  , etaA()
-  , nMuMax(30)
+  , m_etaD()
+  , m_etaBC()
+  , m_etaA()
+  , m_nMuMax(30)
 {
   declareProperty("CellsNames", m_cellContainer);
   declareProperty("TileMuTagsOutputName", m_tileTagContainer);
-  declareProperty("LowerTresh0MeV", loThrA);
-  declareProperty("LowerTresh1MeV", loThrBC);
-  declareProperty("LowerTresh2MeV", loThrD);
-  declareProperty("LowerTreshScinMeV", loThrITC);
-  declareProperty("UpperTresh2MeV", hiThrD);
-  declareProperty("UpperTresh1MeV", hiThrBC);
-  declareProperty("UpperTresh0MeV", hiThrA);
-  declareProperty("From3to2", fromDtoBC);
-  declareProperty("From2to1", fromBCtoA);
+  declareProperty("LowerTresh0MeV", m_loThrA);
+  declareProperty("LowerTresh1MeV", m_loThrBC);
+  declareProperty("LowerTresh2MeV", m_loThrD);
+  declareProperty("LowerTreshScinMeV", m_loThrITC);
+  declareProperty("UpperTresh2MeV", m_hiThrD);
+  declareProperty("UpperTresh1MeV", m_hiThrBC);
+  declareProperty("UpperTresh0MeV", m_hiThrA);
+  declareProperty("From3to2", m_fromDtoBC);
+  declareProperty("From2to1", m_fromBCtoA);
   return;
 }
 
@@ -60,29 +60,29 @@ StatusCode TileLookForMuAlg::initialize() {
   // define a numbering scheme for the cells  
   double eta_D = -1.2;
   for (int iCellD = 0; iCellD < N_CELLS_D; ++iCellD) {
-    etaD[iCellD] = eta_D;
+    m_etaD[iCellD] = eta_D;
     eta_D += 0.2;
   }
 
   if (msgLvl(MSG::DEBUG)) {
     for (int iCellD = 0; iCellD < N_CELLS_D; ++iCellD) {
-      msg(MSG::DEBUG) << " etaD[" << iCellD << "] = " << etaD[iCellD] << endmsg;
+      msg(MSG::DEBUG) << " etaD[" << iCellD << "] = " << m_etaD[iCellD] << endmsg;
     }
   }
 
 
   double eta_BC_A = -1.45;
   for (int iCell = 0; iCell < N_CELLS_BC; ++iCell) {
-    etaBC[iCell] = eta_BC_A;
-    etaA[iCell] = eta_BC_A;
+    m_etaBC[iCell] = eta_BC_A;
+    m_etaA[iCell] = eta_BC_A;
     eta_BC_A += 0.1;
   }
 
 
   if (msgLvl(MSG::DEBUG)) {
     for (int iCell = 0; iCell < N_CELLS_BC; ++iCell) {
-      msg(MSG::DEBUG) << " etaBC[" << iCell << "] = " << etaBC[iCell] << endmsg;
-      msg(MSG::DEBUG) << " etaA[" << iCell << "] = " << etaA[iCell] << endmsg;
+      msg(MSG::DEBUG) << " etaBC[" << iCell << "] = " << m_etaBC[iCell] << endmsg;
+      msg(MSG::DEBUG) << " etaA[" << iCell << "] = " << m_etaA[iCell] << endmsg;
     }
   }
 
@@ -186,13 +186,13 @@ StatusCode TileLookForMuAlg::execute() {
   std::vector<int> muSplitted;
   std::vector<int> muQualityD;
   std::vector<int> muFound;
-  muEtaD.reserve(nMuMax);
-  muEneD.reserve(nMuMax);
-  muModule.reserve(nMuMax);
-  muCellD.reserve(nMuMax);
-  muSplitted.reserve(nMuMax);
-  muQualityD.reserve(nMuMax);
-  muFound.reserve(nMuMax);
+  muEtaD.reserve(m_nMuMax);
+  muEneD.reserve(m_nMuMax);
+  muModule.reserve(m_nMuMax);
+  muCellD.reserve(m_nMuMax);
+  muSplitted.reserve(m_nMuMax);
+  muQualityD.reserve(m_nMuMax);
+  muFound.reserve(m_nMuMax);
 
   int nCandidates = 0, ntri = 0;
   int nSplitted = 0;
@@ -206,28 +206,28 @@ StatusCode TileLookForMuAlg::execute() {
     int prevCell = -2;
     for (int iCellD = 0; iCellD < N_CELLS_D; ++iCellD) {
       float energy = eneD[iCellD][iModule];
-      if (energy >= loThrD) {
+      if (energy >= m_loThrD) {
         int splitted = -1;
-        double eta = etaD[iCellD];
-        double hiThr = hiThrD[iCellD];
+        double eta = m_etaD[iCellD];
+        double hiThr = m_hiThrD[iCellD];
         int quality = (energy < hiThr) ? 0 : 1;
         // check for muon splitting (same phi bin and neighboring eta bin)
         if (prevCell == lastMuCell && iModule == lastMuModule) {
           int sumQuality = quality + muQualityD.back();
           float sumEnergy = energy + eneD[prevCell][iModule];
-          double hiPrevThr = hiThrD[prevCell];
+          double hiPrevThr = m_hiThrD[prevCell];
           double maxHiThr = (hiThr > hiPrevThr) ? hiThr : hiPrevThr;
           if ((sumQuality == 0 && sumEnergy < maxHiThr) || sumQuality == 1) {
             // possible splitting with last found muon candidate 
             splitted = nCandidates - 1; // idx of splitting mu candidate
             energy = sumEnergy;
-            eta = (eta + etaD[prevCell]) / 2;
+            eta = (eta + m_etaD[prevCell]) / 2;
             ++nSplitted;
             ATH_MSG_VERBOSE( "Possible splits between mu candidates ("
                             << (splitted + 1) << ", " << splitted
                             << "): etaD1, etaD2, eta => "
-                            << etaD[iCellD] << ", "
-                            << etaD[prevCell] << ", "
+                            << m_etaD[iCellD] << ", "
+                            << m_etaD[prevCell] << ", "
                             << eta
                             << "; eneD1, eneD2, energy => "
                             << eneD[iCellD][iModule] << ", "
@@ -249,7 +249,7 @@ StatusCode TileLookForMuAlg::execute() {
                         << ", tower index (iCellD)= " << iCellD
                         << ", module index(iModuleD)= " << iModule
                         << ", Energy(iCellD)(iModuleD) = " << eneD[iCellD][iModule]
-                        << ", threshold2(iCellD)= " << hiThrD[iCellD]);
+                        << ", threshold2(iCellD)= " << m_hiThrD[iCellD]);
       } else {
         // ATH_MSG_VERBOSE ( "no candidates" );
       }
@@ -284,37 +284,36 @@ StatusCode TileLookForMuAlg::execute() {
       ATH_MSG_VERBOSE(
           "loop on mu candidates: iMu, module = " << iMu << ", " << module);
       int idxD = 6 * muCellD[iMu];
-      ATH_MSG_VERBOSE ("number of cells in BC layer to check = " << fromDtoBC[idxD]);
-      int endIdxD = idxD + fromDtoBC[idxD];
+      ATH_MSG_VERBOSE ("number of cells in BC layer to check = " << m_fromDtoBC[idxD]);
+      int endIdxD = idxD + m_fromDtoBC[idxD];
       while (++idxD <= endIdxD && muFound[iMu] != 1) {
-        int cellBC = fromDtoBC[idxD];
+        int cellBC = m_fromDtoBC[idxD];
         float energyBC = eneBC[cellBC][module];
         ATH_MSG_VERBOSE( "cellBC = " << cellBC
                         << ", module=" << module
                         << ", eneBC =" << energyBC);
-        if (energyBC > loThrBC) {
-          int qualityBC = (energyBC < hiThrBC[cellBC]) ? 0 : 1;
+        if (energyBC > m_loThrBC) {
+          int qualityBC = (energyBC < m_hiThrBC[cellBC]) ? 0 : 1;
           int idxBC = 6 * cellBC;
-          ATH_MSG_VERBOSE ("number of cells in A layer to check for mu = " << fromBCtoA[idxBC]);
-          int endIdxBC = idxBC + fromBCtoA[idxBC];
+          ATH_MSG_VERBOSE ("number of cells in A layer to check for mu = " << m_fromBCtoA[idxBC]);
+          int endIdxBC = idxBC + m_fromBCtoA[idxBC];
           while (++idxBC <= endIdxBC && muFound[iMu] != 1) {
-            int cellA = fromBCtoA[idxBC];
+            int cellA = m_fromBCtoA[idxBC];
             float energyA = eneA[cellA][module];
             ATH_MSG_VERBOSE( "cellA index = " << cellA
                             << ", module=" << module
                             << ", eneA =" << energyA);
 
-            if (((cellA != 4 || cellA != 25) && energyA > loThrA)
-                || ((cellA == 4 || cellA == 25) && energyA > loThrITC)) {
+            if ( energyA >  ( (cellA == 4 || cellA == 25) ? m_loThrITC : m_loThrA ) ) {
 
-              int qualityA = (energyA < hiThrA[cellA]) ? 0 : 1;
+              int qualityA = (energyA < m_hiThrA[cellA]) ? 0 : 1;
 
               // We have a   muon like signature  
 
               int muQuality = muQualityD[iMu] + qualityBC + qualityA;
               if (muQuality <= 1) {
                 muFound[iMu] = 1;
-                double muEta = (muEtaD[iMu] + etaBC[cellBC] + etaA[cellA]) / 3;
+                double muEta = (muEtaD[iMu] + m_etaBC[cellBC] + m_etaA[cellA]) / 3;
                 double muPhi = phi[module];
                 std::vector<float> muEnergy;
                 muEnergy.reserve(4);
@@ -331,9 +330,9 @@ StatusCode TileLookForMuAlg::execute() {
                                 << muEnergy[2] << ", "
                                 << muEnergy[3]
                                 << " tag  eta 1st, 2nd, 3rd,"
-                                << etaA[cellA] << ", "
-                                << etaBC[cellBC] << ", "
-                                << etaD[muCellD[iMu]]);
+                                << m_etaA[cellA] << ", "
+                                << m_etaBC[cellBC] << ", "
+                                << m_etaD[muCellD[iMu]]);
 
                 int nextModule = (module != 63) ? (module + 1) : 0;
                 int prevModule = (module != 0) ? (module - 1) : 63;
