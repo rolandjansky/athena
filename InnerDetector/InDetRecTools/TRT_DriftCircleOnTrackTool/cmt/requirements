@@ -1,0 +1,21 @@
+package TRT_DriftCircleOnTrackTool
+
+manager Igor Gavrilenko <Igor.Gavrilenko@cern.ch>
+
+private 
+
+use TRT_DriftFunctionTool TRT_DriftFunctionTool-* InnerDetector/InDetRecTools
+use InDetReadoutGeometry  InDetReadoutGeometry-*  InnerDetector/InDetDetDescr
+use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
+
+public
+
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-*        External 
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use TrkToolInterfaces     TrkToolInterfaces-*     Tracking/TrkTools
+use InDetRIO_OnTrack      InDetRIO_OnTrack-*      InnerDetector/InDetRecEvent
+
+library TRT_DriftCircleOnTrackTool *.cxx components/*.cxx
+apply_pattern component_library	
+
