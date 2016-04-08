@@ -67,9 +67,9 @@ protected:
   virtual void resetSignalState() const = 0;
 
   /** make friends! */
-  friend struct SignalStateHelper;
+  friend class SignalStateHelper;
   template <class COLL>
-  friend struct SignalStateCollHelper;
+  friend class SignalStateCollHelper;
   
 };
 #endif
