@@ -34,6 +34,7 @@ Trk::RungeKuttaPropagator::RungeKuttaPropagator
   m_usegradient       = false  ;
   m_fieldService      = 0      ;
   m_solenoid          = true   ;
+  m_newfield          = true   ;
  
   declareInterface<Trk::IPropagator>(this);   
   declareInterface<Trk::IPatternParametersPropagator>(this);
@@ -158,6 +159,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
  bool                               ,
  const TrackingVolume*              ) const
 {
+  if(!&Tp) return 0;
   Sol.erase(Sol.begin(),Sol.end()); Path = 0.; if(DS.empty()) return 0;
   m_direction               = D; 
 
@@ -215,6 +217,9 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
   bool   last_InS   = !InS ;
   bool   reverted_P = false;
   //----------------------------------
+
+  m_newfield = true;
+ 
   while (fabs(W) < Wmax) {
 
     std::pair<double,int> SN;
@@ -254,7 +259,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
     bool next; SN=utils.stepEstimator(DS,DN,Po,Pn,W,m_straightStep,Nveto,next); 
 
     if(next) {for(int i=0; i!=45; ++i) Po[i]=Pn[i]; W+=S; Nveto=-1; }
-    else     {for(int i=0; i!=45; ++i) Pn[i]=Po[i]; reverted_P=true;}
+    else     {for(int i=0; i!=45; ++i) Pn[i]=Po[i]; reverted_P=true; m_newfield= true;}
 
     if (fabs(S)+1. < fabs(St)) Sl=S; 
     InS ? St = 2.*S : St = S; 
@@ -337,7 +342,7 @@ const Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
  double                       * Jac   ,
  bool                       returnCurv) const 
 {
-  const Trk::Surface* su = &Su;
+  const Trk::Surface* su = &Su; if(!&Tp || !su) return 0;
   if(su == &Tp.associatedSurface()) return buildTrackParametersWithoutPropagation(Tp,Jac);
 
   m_direction               = D    ;
@@ -389,7 +394,7 @@ const Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
   }
   else if (ty == Trk::Surface::Perigee  ) {
 
-    double s[6] ={T(0,3),T(1,3),T(2,3),0.,0.,1.};
+    double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
     if(!propagateWithJacobian(useJac,0,s,P,Step)) return 0;
   }
   else if (ty == Trk::Surface::Cone     ) {
@@ -519,7 +524,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
   }
   else if (ty == Trk::Surface::Perigee  ) {
 
-    double s[6] = {T(0,3),T(1,3),T(2,3),0.,0.,1.};
+    double s[6] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
     if(!propagateWithJacobian(useJac,0,s,P,Step)) return 0;
   }
   else if (ty == Trk::Surface::Cone     ) {
@@ -611,7 +616,7 @@ const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
   const TrackingVolume*            ) const 
 {
   bool nJ = false;
-  const Trk::Surface* su = &Su; 
+  const Trk::Surface* su = &Su; if(!&Tp || !su) return 0; 
   m_direction            = 0. ;
 
   m_needgradient = false; 
@@ -664,7 +669,7 @@ const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
   }
   else if (ty == Trk::Surface::Perigee  ) {
 
-    double s[6] ={T(0,3),T(1,3),T(2,3),0.,0.,1.};
+    double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
     if(!propagateWithJacobian(nJ,0,s,P,Step)) return 0;
   }
   else if (ty == Trk::Surface::Cone     ) {
@@ -723,6 +728,7 @@ bool Trk::RungeKuttaPropagator::propagateWithJacobian
   // Rkuta extrapolation
   //
   int niter = 0;
+  m_newfield = true;
   while(fabs(Step) > m_straightStep) {
 
     if(++niter > 10000) return false;
@@ -766,7 +772,8 @@ bool Trk::RungeKuttaPropagator::propagateWithJacobian
   A [0]+=(SA[0]*Step); 
   A [1]+=(SA[1]*Step);
   A [2]+=(SA[2]*Step);
-  double CBA  = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
+  double CBA = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
+
   R[0]+=Step*(A[0]-.5*Step*SA[0]); A[0]*=CBA;
   R[1]+=Step*(A[1]-.5*Step*SA[1]); A[1]*=CBA;
   R[2]+=Step*(A[2]-.5*Step*SA[2]); A[2]*=CBA;
@@ -784,32 +791,32 @@ double Trk::RungeKuttaPropagator::rungeKuttaStep
    double                       * P  ,
    bool                         & InS) const
 {
-  const double C33 = 1./3.      ;  
   double* R    =          &P[ 0];            // Coordinates 
   double* A    =          &P[ 3];            // Directions
   double* sA   =          &P[42];
   double  Pi   =  149.89626*P[6];            // Invert mometum/2. 
   double  dltm = m_dlt*.03      ;
 
-  double f0[3],f[3]; getField(R,f0);
+  double f0[3],f[3]; 
+  if(m_newfield) getField(R,f0); else {f0[0]=m_field[0]; f0[1]=m_field[1]; f0[2]=m_field[2];}
 
   bool Helix = false; if(fabs(S) < m_helixStep) Helix = true; 
   while(S != 0.) {
      
-    double S3=C33*S, S4=.25*S, PS2=Pi*S;
+    double S3=(1./3.)*S, S4=.25*S, PS2=Pi*S;
 
     // First point
     //   
     double H0[3] = {f0[0]*PS2, f0[1]*PS2, f0[2]*PS2};
-    double A0    = A[1]*H0[2]-A[2]*H0[1]             ;
-    double B0    = A[2]*H0[0]-A[0]*H0[2]             ;
-    double C0    = A[0]*H0[1]-A[1]*H0[0]             ;
-    double A2    = A[0]+A0                           ;
-    double B2    = A[1]+B0                           ;
-    double C2    = A[2]+C0                           ;
-    double A1    = A2+A[0]                           ;
-    double B1    = B2+A[1]                           ;
-    double C1    = C2+A[2]                           ;
+    double A0    = A[1]*H0[2]-A[2]*H0[1]            ;
+    double B0    = A[2]*H0[0]-A[0]*H0[2]            ;
+    double C0    = A[0]*H0[1]-A[1]*H0[0]            ;
+    double A2    = A0+A[0]                          ;
+    double B2    = B0+A[1]                          ;
+    double C2    = C0+A[2]                          ;
+    double A1    = A2+A[0]                          ;
+    double B1    = B2+A[1]                          ;
+    double C1    = C2+A[2]                          ;
     
     // Second point
     //
@@ -820,16 +827,16 @@ double Trk::RungeKuttaPropagator::rungeKuttaStep
     else       {f[0]=f0[0]; f[1]=f0[1]; f[2]=f0[2];}
 
     double H1[3] = {f[0]*PS2,f[1]*PS2,f[2]*PS2}; 
-    double A3    = B2*H1[2]-C2*H1[1]+A[0]         ; 
-    double B3    = C2*H1[0]-A2*H1[2]+A[1]         ; 
-    double C3    = A2*H1[1]-B2*H1[0]+A[2]         ;
-    double A4    = B3*H1[2]-C3*H1[1]+A[0]         ; 
-    double B4    = C3*H1[0]-A3*H1[2]+A[1]         ; 
-    double C4    = A3*H1[1]-B3*H1[0]+A[2]         ;
-    double A5    = A4-A[0]+A4                     ; 
-    double B5    = B4-A[1]+B4                     ; 
-    double C5    = C4-A[2]+C4                     ;
-    
+    double A3    = (A[0]+B2*H1[2])-C2*H1[1]    ; 
+    double B3    = (A[1]+C2*H1[0])-A2*H1[2]    ; 
+    double C3    = (A[2]+A2*H1[1])-B2*H1[0]    ;
+    double A4    = (A[0]+B3*H1[2])-C3*H1[1]    ; 
+    double B4    = (A[1]+C3*H1[0])-A3*H1[2]    ; 
+    double C4    = (A[2]+A3*H1[1])-B3*H1[0]    ;
+    double A5    = 2.*A4-A[0]                  ; 
+    double B5    = 2.*B4-A[1]                  ; 
+    double C5    = 2.*C4-A[2]                  ;    
+
     // Last point
     //
     if(!Helix) {
@@ -839,9 +846,9 @@ double Trk::RungeKuttaPropagator::rungeKuttaStep
     else       {f[0]=f0[0]; f[1]=f0[1]; f[2]=f0[2];} 
 
     double H2[3] = {f[0]*PS2,f[1]*PS2,f[2]*PS2}; 
-    double A6    = B5*H2[2]-C5*H2[1]              ;
-    double B6    = C5*H2[0]-A5*H2[2]              ;
-    double C6    = A5*H2[1]-B5*H2[0]              ;
+    double A6    = B5*H2[2]-C5*H2[1]           ;
+    double B6    = C5*H2[0]-A5*H2[2]           ;
+    double C6    = A5*H2[1]-B5*H2[0]           ;
     
     
     // Test approximation quality on give step and possible step reduction
@@ -860,71 +867,115 @@ double Trk::RungeKuttaPropagator::rungeKuttaStep
     // Parameters calculation
     //   
     double A00 = A[0], A11=A[1], A22=A[2];
-    R[0]+=(A2+A3+A4)*S3; A[0] = ((A0+2.*A3)+(A5+A6))*C33;
-    R[1]+=(B2+B3+B4)*S3; A[1] = ((B0+2.*B3)+(B5+B6))*C33;
-    R[2]+=(C2+C3+C4)*S3; A[2] = ((C0+2.*C3)+(C5+C6))*C33; 
-    double CBA = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
-    A[0]*=CBA; A[1]*=CBA; A[2]*=CBA;
- 
-    double Sl = 2./S;
-    sA[0] = A6*Sl; 
-    sA[1] = B6*Sl;
-    sA[2] = C6*Sl; 
+
+    A[0] = 2.*A3+(A0+A5+A6); 
+    A[1] = 2.*B3+(B0+B5+B6); 
+    A[2] = 2.*C3+(C0+C5+C6);
+    
+    double D  = (A[0]*A[0]+A[1]*A[1])+(A[2]*A[2]-9.);
+    double Sl = 2./S                                ;
+    D         = (1./3.)-((1./648.)*D)*(12.-D)       ;
+
+    R[0] +=(A2+A3+A4)*S3;
+    R[1] +=(B2+B3+B4)*S3;
+    R[2] +=(C2+C3+C4)*S3;
+    A[0] *=D            ;
+    A[1] *=D            ;
+    A[2] *=D            ;
+    sA[0] = A6*Sl       ; 
+    sA[1] = B6*Sl       ;
+    sA[2] = C6*Sl       ; 
+
+    m_field[0]=f[0]; m_field[1]=f[1]; m_field[2]=f[2]; m_newfield = false;
 
     if(!Jac) return S;
 
     // Jacobian calculation
     //
-    for(int i=21; i<35; i+=7) {
+    double* d2A = &P[24];
+    double* d3A = &P[31]; 
+    double* d4A = &P[38]; 
+    double d2A0 = H0[2]*d2A[1]-H0[1]*d2A[2];
+    double d2B0 = H0[0]*d2A[2]-H0[2]*d2A[0];
+    double d2C0 = H0[1]*d2A[0]-H0[0]*d2A[1];
+    double d3A0 = H0[2]*d3A[1]-H0[1]*d3A[2];
+    double d3B0 = H0[0]*d3A[2]-H0[2]*d3A[0];
+    double d3C0 = H0[1]*d3A[0]-H0[0]*d3A[1];
+    double d4A0 =(A0+H0[2]*d4A[1])-H0[1]*d4A[2];
+    double d4B0 =(B0+H0[0]*d4A[2])-H0[2]*d4A[0];
+    double d4C0 =(C0+H0[1]*d4A[0])-H0[0]*d4A[1];
+    double d2A2 = d2A0+d2A[0];                
+    double d2B2 = d2B0+d2A[1];                
+    double d2C2 = d2C0+d2A[2];
+    double d3A2 = d3A0+d3A[0];                
+    double d3B2 = d3B0+d3A[1];                
+    double d3C2 = d3C0+d3A[2];
+    double d4A2 = d4A0+d4A[0];                
+    double d4B2 = d4B0+d4A[1];                
+    double d4C2 = d4C0+d4A[2];
+    double d0   = d4A[0]-A00;
+    double d1   = d4A[1]-A11;
+    double d2   = d4A[2]-A22;
+    double d2A3 = ( d2A[0]+d2B2*H1[2])-d2C2*H1[1];
+    double d2B3 = ( d2A[1]+d2C2*H1[0])-d2A2*H1[2];
+    double d2C3 = ( d2A[2]+d2A2*H1[1])-d2B2*H1[0];
+    double d3A3 = ( d3A[0]+d3B2*H1[2])-d3C2*H1[1];
+    double d3B3 = ( d3A[1]+d3C2*H1[0])-d3A2*H1[2];
+    double d3C3 = ( d3A[2]+d3A2*H1[1])-d3B2*H1[0];
+    double d4A3 = ((A3+d0)+d4B2*H1[2])-d4C2*H1[1];
+    double d4B3 = ((B3+d1)+d4C2*H1[0])-d4A2*H1[2];
+    double d4C3 = ((C3+d2)+d4A2*H1[1])-d4B2*H1[0];
+    double d2A4 = ( d2A[0]+d2B3*H1[2])-d2C3*H1[1];
+    double d2B4 = ( d2A[1]+d2C3*H1[0])-d2A3*H1[2];
+    double d2C4 = ( d2A[2]+d2A3*H1[1])-d2B3*H1[0];
+    double d3A4 = ( d3A[0]+d3B3*H1[2])-d3C3*H1[1];
+    double d3B4 = ( d3A[1]+d3C3*H1[0])-d3A3*H1[2];
+    double d3C4 = ( d3A[2]+d3A3*H1[1])-d3B3*H1[0];
+    double d4A4 = ((A4+d0)+d4B3*H1[2])-d4C3*H1[1];
+    double d4B4 = ((B4+d1)+d4C3*H1[0])-d4A3*H1[2];
+    double d4C4 = ((C4+d2)+d4A3*H1[1])-d4B3*H1[0];
+    double d2A5 = 2.*d2A4-d2A[0];            
+    double d2B5 = 2.*d2B4-d2A[1];            
+    double d2C5 = 2.*d2C4-d2A[2];
+    double d3A5 = 2.*d3A4-d3A[0];            
+    double d3B5 = 2.*d3B4-d3A[1];            
+    double d3C5 = 2.*d3C4-d3A[2];            
+    double d4A5 = 2.*d4A4-d4A[0];            
+    double d4B5 = 2.*d4B4-d4A[1];            
+    double d4C5 = 2.*d4C4-d4A[2];            
+    double d2A6 = d2B5*H2[2]-d2C5*H2[1];      
+    double d2B6 = d2C5*H2[0]-d2A5*H2[2];      
+    double d2C6 = d2A5*H2[1]-d2B5*H2[0];      
+    double d3A6 = d3B5*H2[2]-d3C5*H2[1];      
+    double d3B6 = d3C5*H2[0]-d3A5*H2[2];      
+    double d3C6 = d3A5*H2[1]-d3B5*H2[0];
+    double d4A6 = d4B5*H2[2]-d4C5*H2[1];      
+    double d4B6 = d4C5*H2[0]-d4A5*H2[2];      
+    double d4C6 = d4A5*H2[1]-d4B5*H2[0];      
+      
+    double* dR  = &P[21];
+    dR [0]+=(d2A2+d2A3+d2A4)*S3;
+    dR [1]+=(d2B2+d2B3+d2B4)*S3;
+    dR [2]+=(d2C2+d2C3+d2C4)*S3;
+    d2A[0] =((d2A0+2.*d2A3)+(d2A5+d2A6))*(1./3.);      
+    d2A[1] =((d2B0+2.*d2B3)+(d2B5+d2B6))*(1./3.); 
+    d2A[2] =((d2C0+2.*d2C3)+(d2C5+d2C6))*(1./3.);
 
-      double* dR   = &P[i]                                          ;  
-      double* dA   = &P[i+3]                                        ;
-      double dA0   = H0[ 2]*dA[1]-H0[ 1]*dA[2]                      ;
-      double dB0   = H0[ 0]*dA[2]-H0[ 2]*dA[0]                      ;
-      double dC0   = H0[ 1]*dA[0]-H0[ 0]*dA[1]                      ;
-      double dA2   = dA0+dA[0]                                      ;                
-      double dB2   = dB0+dA[1]                                      ;                
-      double dC2   = dC0+dA[2]                                      ;                
-      double dA3   = dA[0]+dB2*H1[2]-dC2*H1[1]                      ;
-      double dB3   = dA[1]+dC2*H1[0]-dA2*H1[2]                      ;
-      double dC3   = dA[2]+dA2*H1[1]-dB2*H1[0]                      ;
-      double dA4   = dA[0]+dB3*H1[2]-dC3*H1[1]                      ;
-      double dB4   = dA[1]+dC3*H1[0]-dA3*H1[2]                      ;
-      double dC4   = dA[2]+dA3*H1[1]-dB3*H1[0]                      ;
-      double dA5   = dA4+dA4-dA[0]                                  ;            
-      double dB5   = dB4+dB4-dA[1]                                  ;            
-      double dC5   = dC4+dC4-dA[2]                                  ;            
-      double dA6   = dB5*H2[2]-dC5*H2[1]                            ;      
-      double dB6   = dC5*H2[0]-dA5*H2[2]                            ;      
-      double dC6   = dA5*H2[1]-dB5*H2[0]                            ;      
-      dR[0]+=(dA2+dA3+dA4)*S3; dA[0]=((dA0+2.*dA3)+(dA5+dA6))*C33   ;      
-      dR[1]+=(dB2+dB3+dB4)*S3; dA[1]=((dB0+2.*dB3)+(dB5+dB6))*C33   ; 
-      dR[2]+=(dC2+dC3+dC4)*S3; dA[2]=((dC0+2.*dC3)+(dC5+dC6))*C33   ;
-    }
+    dR          = &P[28];
+    dR [0]+=(d3A2+d3A3+d3A4)*S3;
+    dR [1]+=(d3B2+d3B3+d3B4)*S3;
+    dR [2]+=(d3C2+d3C3+d3C4)*S3;
+    d3A[0] =((d3A0+2.*d3A3)+(d3A5+d3A6))*(1./3.);      
+    d3A[1] =((d3B0+2.*d3B3)+(d3B5+d3B6))*(1./3.); 
+    d3A[2] =((d3C0+2.*d3C3)+(d3C5+d3C6))*(1./3.);
 
-    double* dR   = &P[35]                                         ;  
-    double* dA   = &P[38]                                         ;
-    double dA0   = H0[ 2]*dA[1]-H0[ 1]*dA[2]+A0                   ;
-    double dB0   = H0[ 0]*dA[2]-H0[ 2]*dA[0]+B0                   ;
-    double dC0   = H0[ 1]*dA[0]-H0[ 0]*dA[1]+C0                   ;
-    double dA2   = dA0+dA[0]                                      ;                
-    double dB2   = dB0+dA[1]                                      ;                
-    double dC2   = dC0+dA[2]                                      ;                
-    double dA3   = (dA[0]+dB2*H1[2]-dC2*H1[1])+(A3-A00)           ;
-    double dB3   = (dA[1]+dC2*H1[0]-dA2*H1[2])+(B3-A11)           ;
-    double dC3   = (dA[2]+dA2*H1[1]-dB2*H1[0])+(C3-A22)           ;
-    double dA4   = (dA[0]+dB3*H1[2]-dC3*H1[1])+(A4-A00)           ;
-    double dB4   = (dA[1]+dC3*H1[0]-dA3*H1[2])+(B4-A11)           ;
-    double dC4   = (dA[2]+dA3*H1[1]-dB3*H1[0])+(C4-A22)           ;
-    double dA5   = dA4+dA4-dA[0]                                  ;            
-    double dB5   = dB4+dB4-dA[1]                                  ;            
-    double dC5   = dC4+dC4-dA[2]                                  ;            
-    double dA6   = dB5*H2[2]-dC5*H2[1]+A6                         ;      
-    double dB6   = dC5*H2[0]-dA5*H2[2]+B6                         ;      
-    double dC6   = dA5*H2[1]-dB5*H2[0]+C6                         ;      
-    dR[0]+=(dA2+dA3+dA4)*S3; dA[0]=((dA0+2.*dA3)+(dA5+dA6))*C33   ;      
-    dR[1]+=(dB2+dB3+dB4)*S3; dA[1]=((dB0+2.*dB3)+(dB5+dB6))*C33   ; 
-    dR[2]+=(dC2+dC3+dC4)*S3; dA[2]=((dC0+2.*dC3)+(dC5+dC6))*C33   ;
+    dR          = &P[35];
+    dR [0]+=(d4A2+d4A3+d4A4)*S3;
+    dR [1]+=(d4B2+d4B3+d4B4)*S3;
+    dR [2]+=(d4C2+d4C3+d4C4)*S3;
+    d4A[0] =((d4A0+2.*d4A3)+(d4A5+d4A6+A6))*(1./3.);      
+    d4A[1] =((d4B0+2.*d4B3)+(d4B5+d4B6+B6))*(1./3.); 
+    d4A[2] =((d4C0+2.*d4C3)+(d4C5+d4C6+C6))*(1./3.);
     return S;
   }
   return S;
@@ -1019,7 +1070,7 @@ double Trk::RungeKuttaPropagator::rungeKuttaStepWithGradient
     double A00 = A[0], A11=A[1], A22=A[2];
     R[0]+=(A2+A3+A4)*S3; A[0] = ((A0+2.*A3)+(A5+A6))*C33;
     R[1]+=(B2+B3+B4)*S3; A[1] = ((B0+2.*B3)+(B5+B6))*C33;
-    R[2]+=(C2+C3+C4)*S3; A[2] = ((C0+2.*C3)+(C5+C6))*C33; 
+    R[2]+=(C2+C3+C4)*S3; A[2] = ((C0+2.*C3)+(C5+C6))*C33;
     double CBA = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
     A[0]*=CBA; A[1]*=CBA; A[2]*=CBA;
  
@@ -1296,7 +1347,7 @@ void Trk::RungeKuttaPropagator::globalPositions
     }
     else if (ty == Trk::Surface::Perigee  ) {
 
-      double s[6] ={T(0,3),T(1,3),T(2,3),0.,0.,1.};
+      double s[6]={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
       if(!propagateWithJacobian(false,0,s,P,Step)) return ;
     }
     else if (ty == Trk::Surface::Cone     ) {
@@ -1327,7 +1378,7 @@ bool Trk::RungeKuttaPropagator::propagateRungeKutta
  const MagneticFieldProperties& M     ,
  double                       & Step  ) const 
 {  
-  const Trk::Surface* su = &Su;
+  const Trk::Surface* su = &Su; if(!su) return false;
   if(su == Ta.associatedSurface()) {Tb = Ta; return true;}
 
   m_direction               = D ; 
@@ -1383,7 +1434,7 @@ bool Trk::RungeKuttaPropagator::propagateRungeKutta
   }
   else if (ty == Trk::Surface::Perigee  ) {
 
-    double s[6] ={T(0,3),T(1,3),T(2,3),0.,0.,1.};
+    double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
     if(!propagateWithJacobian(useJac,0,s,P,Step)) return false;
   }
   else if (ty == Trk::Surface::Cone     ) {
@@ -1495,6 +1546,7 @@ double Trk::RungeKuttaPropagator::stepEstimatorWithCurvature
   double Ay    = P[4]+S*SA[1];
   double Az    = P[5]+S*SA[2];
   double As    = 1./sqrt(Ax*Ax+Ay*Ay+Az*Az);
+
   double PN[6] = {P[0],P[1],P[2],Ax*As,Ay*As,Az*As};
   double StepN = utils.stepEstimator(kind,Su,PN,Q); if(!Q) {Q = true; return Step;}
   if(fabs(StepN) < AStep) return StepN; return Step;
@@ -1542,6 +1594,8 @@ void Trk::RungeKuttaPropagator::globalOneSidePositions
   int sm    = 1;
   for(int s = 0; s!=2; ++s) {
 
+    m_newfield = true;
+
     if(s) {if(per) break; S = -S;}
     double p[45]; for(int i=0; i!=7; ++i) p[i]=P[i]; p[42]=p[43]=p[44]=0.;
 
@@ -1585,6 +1639,8 @@ void Trk::RungeKuttaPropagator::globalOneSidePositions
   per = false;
 
   for(int s = 0; s!=3; ++s) {
+
+    m_newfield = true;
 
     double A = (1.-Pm[5])*(1.+Pm[5]); if(A==0.) break;
     S        = -(Pm[0]*Pm[3]+Pm[1]*Pm[4])/A;
@@ -1649,6 +1705,8 @@ void Trk::RungeKuttaPropagator::globalTwoSidePositions
   int niter = 0;
   for(int s = 0; s!=2; ++s) {
 
+    m_newfield = true;
+    
     if(s) {S = -S;}
     double p[45]; for(int i=0; i!=7; ++i) p[i]=P[i]; p[42]=p[43]=p[44]=0.;
 
@@ -1695,8 +1753,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::crossPoint
   As[0] = A[0]+SA[0]*Step; 
   As[1] = A[1]+SA[1]*Step;
   As[2] = A[2]+SA[2]*Step;
-  
-  double CBA  = 1./sqrt(As[0]*As[0]+As[1]*As[1]+As[2]*As[2]);
+  double CBA = 1./sqrt(As[0]*As[0]+As[1]*As[1]+As[2]*As[2]);
   
   Rs[0] = R[0]+Step*(As[0]-.5*Step*SA[0]); As[0]*=CBA;
   Rs[1] = R[1]+Step*(As[1]-.5*Step*SA[1]); As[1]*=CBA;
@@ -1744,7 +1801,7 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::crossPoint
 double Trk::RungeKuttaPropagator::stepReduction(const double* E) const
 {
   double dlt2  = m_dlt*m_dlt;
-  double dR2   = (E[0]*E[0]+E[1]*E[1]+E[2]*E[2])*E[3]*E[3]*4.; if(dR2 < 1.e-40) dR2 = 1.e-40;
+  double dR2   = (E[0]*E[0]+E[1]*E[1]+E[2]*E[2])*(E[3]*E[3]*4.); if(dR2 < 1.e-40) dR2 = 1.e-40;
   double cS    = std::pow(dlt2/dR2,0.125);
   if(cS < .25) cS = .25; 
   if((dR2 > 16.*dlt2 && cS < 1.) || cS >=3.) return cS;
@@ -1779,7 +1836,9 @@ void Trk::RungeKuttaPropagator::propagateStep
   bool  In = false;
   double S = Step ;
   double W = 0.   ;
-  
+
+  m_newfield = true;
+
   while (true) {
 
     if(m_mcondition) {W+=(S=rungeKuttaStep  (false,S,P,In));}
