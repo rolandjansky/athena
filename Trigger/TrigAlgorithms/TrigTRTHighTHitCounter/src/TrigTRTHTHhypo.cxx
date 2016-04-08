@@ -59,9 +59,9 @@ HLT::ErrorCode TrigTRTHTHhypo::hltExecute(const HLT::TriggerElement* outputTE,
     return HLT::NAV_ERROR;
   }
  
-  std::vector<float> vec = out->decision();
+  std::vector<float> vec = out->rnnDecision();
 
-  if (vec.size()!=5)
+  if (vec.size()!=6)
     return HLT::OK;
 
   //Parse the vector to assign fHT and nHT appropriately
