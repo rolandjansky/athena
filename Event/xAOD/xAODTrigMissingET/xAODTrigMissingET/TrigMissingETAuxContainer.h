@@ -12,7 +12,7 @@ namespace xAOD {
   typedef TrigMissingETAuxContainer_v1 TrigMissingETAuxContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TrigMissingETAuxContainer, 1292357238, 1 )
 
 #endif 
