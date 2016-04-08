@@ -105,9 +105,12 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
 
     const MuonGM::RpcReadoutElement* pReadoutElement =
         dynamic_cast<const MuonGM::RpcReadoutElement*>(rios.front()->detectorElement());
-        
-    if (!pReadoutElement) return pMuonSegs;
-    
+
+    if (!pReadoutElement) {
+       ATH_MSG_WARNING("Cannot get a RpcReadoutElement via dynamic cast.");
+       return pMuonSegs;
+    }
+
     std::set<LayerID> zStations, phiStations;
     int iHit = 0;
     for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator itHit = rios.begin();
@@ -147,11 +150,6 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             // const MuonGM::RpcReadoutElement* pReadoutElement =
             //    dynamic_cast<const MuonGM::RpcReadoutElement*>(pHit->detectorElement());
             zStations.insert(LayerID(iStationName, iDoubletR));
-        }
-    if (!pReadoutElement)
-        {
-            ATH_MSG_WARNING("Cannot get a RpcReadoutElement via dynamic cast.");
-            goto done;
         }
     }
     double zCov[2][2], phiCov[2][2];
