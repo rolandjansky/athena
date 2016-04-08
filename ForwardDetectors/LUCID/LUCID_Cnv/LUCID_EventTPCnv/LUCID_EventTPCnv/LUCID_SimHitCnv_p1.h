@@ -6,6 +6,7 @@
 #define LUCID_SIMHITCNV_P1_H
 
 #include "LUCID_EventTPCnv/LUCID_SimHit_p1.h"
+#include "LUCID_SimEvent/LUCID_SimHit.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
