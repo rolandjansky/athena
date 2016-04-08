@@ -65,21 +65,24 @@ namespace InDet{
 
   inline TRT_DriftCircleLink_xk::TRT_DriftCircleLink_xk()
     {
+      m_circle =  0 ;
+      m_phi     = 0.;
+      m_address = 0 ;
     }
 
   inline TRT_DriftCircleLink_xk::TRT_DriftCircleLink_xk(const TRT_DriftCircleLink_xk& L)
     {
-      m_circle  = L.m_circle ;
-      m_phi     = L.m_phi    ;
-      m_address = L.m_address; 
+      *this = L;
     }
   
   inline TRT_DriftCircleLink_xk& TRT_DriftCircleLink_xk::operator = 
     (const TRT_DriftCircleLink_xk& L) 
     {
-      m_circle  = L.m_circle ;
-      m_phi     = L.m_phi    ;
-      m_address = L.m_address; 
+      if(&L!=this) {
+	m_circle  = L.m_circle ;
+	m_phi     = L.m_phi    ;
+	m_address = L.m_address;
+      } 
       return(*this);
     }
 
@@ -92,7 +95,6 @@ namespace InDet{
       m_phi     = p;
       m_address = a;
     }
-
 
 } // end of name space
 
