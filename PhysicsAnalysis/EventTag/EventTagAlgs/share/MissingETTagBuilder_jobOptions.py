@@ -26,8 +26,8 @@ photonSelIsEM = CfgMgr.AsgPhotonIsEMSelector("PhotonSelIsEM",
                                              ConfigFile="ElectronPhotonSelectorTools/offline/mc15_20150429/PhotonIsEMTightSelectorCutDefs.conf")
 ToolSvc += photonSelIsEM
 	
-#tauSel = CfgMgr.TauAnalysisTools__TauSelectionTool("TauSelectionTool")
-#ToolSvc += tauSel
+tauSel = CfgMgr.TauAnalysisTools__TauSelectionTool("TauSelectionTool")
+ToolSvc += tauSel
 
 
 metMakerAlg = CfgMgr.met__METMakerAlg( "METMakerAlg",
@@ -43,7 +43,7 @@ metMakerAlg = CfgMgr.met__METMakerAlg( "METMakerAlg",
                                        MuonSelectionTool=muonSel,
                                        ElectronLHSelectionTool=elecSelLH,
                                        PhotonIsEMSelectionTool=photonSelIsEM,
-                                       #TauSelectionTool=tauSel	
+                                       TauSelectionTool=tauSel	
                                        )
 
 topSequence += metMakerAlg
