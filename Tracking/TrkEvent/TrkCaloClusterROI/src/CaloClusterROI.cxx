@@ -20,7 +20,7 @@ Trk::CaloClusterROI::CaloClusterROI(  const Trk::LocalParameters* locpars,
                                       double widtheta) 
   :
   m_localParams(locpars),
-  m_globalpos(0),
+  m_globalpos(nullptr),
   m_energy( energy ),
   m_phiWidth( widthphi ),
   m_etaWidth( widtheta )
@@ -39,9 +39,12 @@ Trk::CaloClusterROI::~CaloClusterROI()
 
 // default constructor:
 Trk::CaloClusterROI::CaloClusterROI() :
-    m_localParams(0),
-    m_surface(0),
-    m_globalpos(0)
+    m_localParams(nullptr),
+    m_surface(nullptr),
+    m_globalpos(nullptr),
+    m_energy(0.0),
+    m_phiWidth(0.0),
+    m_etaWidth(0.0)
 {
 }  
 
@@ -49,7 +52,10 @@ Trk::CaloClusterROI::CaloClusterROI() :
 Trk::CaloClusterROI::CaloClusterROI( const Trk::CaloClusterROI& cot) :
   m_localParams( new Trk::LocalParameters(*cot.m_localParams) ),
   m_surface( cot.m_surface? (cot.m_surface->isFree() ? cot.m_surface->clone():cot.m_surface) : 0),
-  m_globalpos( new Amg::Vector3D(*cot.m_globalpos) )
+  m_globalpos( new Amg::Vector3D(*cot.m_globalpos) ),
+  m_energy(cot.m_energy),
+  m_phiWidth(cot.m_phiWidth),
+  m_etaWidth(cot.m_etaWidth)
 {
 }
 
@@ -69,6 +75,9 @@ Trk::CaloClusterROI& Trk::CaloClusterROI::operator=(const Trk::CaloClusterROI& c
     m_localParams     = new Trk::LocalParameters(*cot.m_localParams);
     m_surface =  (cot.m_surface? (cot.m_surface->isFree() ? cot.m_surface->clone():cot.m_surface) : 0);
     m_globalpos       = new Amg::Vector3D(*cot.m_globalpos);
+    m_energy=cot.m_energy;
+    m_phiWidth=cot.m_phiWidth;
+    m_etaWidth=cot.m_etaWidth;
   }
   return *this;
 }
