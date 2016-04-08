@@ -19,7 +19,7 @@ procmaps::Entry::Entry(const char* procMapsLine) :
   char pageProts[5];
   memset(pageProts,' ', 4);
   sscanf(procMapsLine,
-	 "%lx-%lx %4s %x %2x:%2x %x %31s",
+	 "%80lx-%80lx %4s %80x %2x:%2x %80x %31s",
 	 &this->begAddress,
 	 &this->endAddress,
 	 pageProts,

@@ -1506,3 +1506,13 @@ Signal::crashed (void)
 
 //} // namespace seal                             wlav
 } // namespace Athena                             wlav
+
+
+extern "C" {
+  /// Install fatal handler with default options.
+  /// This is meant to be easy to call from pyton via ctypes.
+  void CxxUtils_installFatalHandler()
+  {
+    Athena::Signal::handleFatal(nullptr, 1);
+  }
+}

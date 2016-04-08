@@ -26,7 +26,7 @@ read_athena_statm()
       return res;
     }
 
-    fscanf(fd, "%u %u", &res.vm_pages, &res.rss_pages);
+    fscanf(fd, "%80u %80u", &res.vm_pages, &res.rss_pages);
     fclose(fd);
 #else
     int pagesize = getpagesize();
