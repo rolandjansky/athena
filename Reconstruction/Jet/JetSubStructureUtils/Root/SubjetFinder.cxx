@@ -32,7 +32,7 @@ vector<fastjet::PseudoJet> SubjetFinder::result(const fastjet::PseudoJet &jet) c
     subjets = fastjet::sorted_by_pt(clust_seq->inclusive_jets(m_ptmin));
   }
   else {
-    subjets = fastjet::sorted_by_pt(clust_seq->exclusive_jets(m_exclusivenjets));
+    subjets = fastjet::sorted_by_pt(clust_seq->exclusive_jets_up_to(m_exclusivenjets));
   }
 
   if(subjets.size() == 0) {

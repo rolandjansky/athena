@@ -402,6 +402,16 @@ int BosonTag::result(const xAOD::Jet& jet, std::string algorithm_name) const {
     return -9;
   }
 
+  // check basic kinematic selection
+  if(jet.pt()/1.e3 < 200.0 || std::fabs(jet.eta()) > 2.0){
+    if(m_verbose) printf("<%s>: Jet does not pass basic kinematic selection. pT > 200 GeV, |eta| < 2.0\r\n\tJet Pt: %0.6f GeV\r\n\tJet |eta|: %0.6f\r\n", APP_NAME, jet.pt()/1.e3, std::fabs(jet.eta()));
+    return -5;
+  }
+  if(jet.pt()/1.e3 > 2000.0){
+    if(m_verbose) printf("<%s>: Warning, jet has pT > 2 TeV!\r\nJet Pt: %0.6f GeV", APP_NAME, jet.pt()/1.e3);
+    return -5;
+  }
+
   // overall result
   int passMass(0);
   int passSub(0);
