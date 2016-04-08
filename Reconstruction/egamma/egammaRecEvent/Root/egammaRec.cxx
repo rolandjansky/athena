@@ -5,22 +5,21 @@
 #include "egammaRecEvent/egammaRec.h"
 
 egammaRec::egammaRec(){
-
+  //We do not how many reserve
   m_caloClusters.reserve(4);   
   m_trackParticles.reserve(4); 
   m_vertices.reserve(4);
-  
+  //This has to have size 4
   m_deltaEta.resize(4);
   m_deltaPhi.resize(4);
   m_deltaPhiRescaled.resize(4);
-
+  //init to -999
   m_deltaPhiLast=-999.;
   m_deltaEtaVtx = -999;
   m_deltaPhiVtx = -999;
 }
 
 size_t egammaRec::getNumberOfClusters() const{
-
   return m_caloClusters.size();
 }
      
@@ -28,7 +27,6 @@ const xAOD::CaloCluster* egammaRec::caloCluster( size_t index) const{
 
   if( index >= m_caloClusters.size() || !m_caloClusters.at(index).isValid() ) return 0;
   return (*(m_caloClusters.at(index)));
-  
 }
   
 const ElementLink< xAOD::CaloClusterContainer > egammaRec::caloClusterElementLink( size_t index) const{
@@ -40,30 +38,24 @@ const ElementLink< xAOD::CaloClusterContainer > egammaRec::caloClusterElementLin
 void egammaRec::setCaloClusters( const std::vector< ElementLink< xAOD::CaloClusterContainer > >& links){
 
   m_caloClusters=links;
-  
 }
 
 
 size_t egammaRec::getNumberOfTrackParticles() const{
 
   return m_trackParticles.size();
-
 }
   
 const xAOD::TrackParticle* egammaRec::trackParticle( size_t index ) const{
 
-
   if( index >= m_trackParticles.size() || !m_trackParticles.at(index).isValid() ) return 0;
   return (*(m_trackParticles.at(index)));
-
 }
   
 const ElementLink< xAOD::TrackParticleContainer> egammaRec::trackParticleElementLink( size_t index  ) const{
 
-
   if( index >= m_trackParticles.size() || !m_trackParticles.at(index).isValid() ) return ElementLink< xAOD::TrackParticleContainer>();
   return m_trackParticles.at(index);
-
 }
   
 void egammaRec::setTrackParticles( const std::vector< ElementLink< xAOD::TrackParticleContainer > >& links ){
@@ -95,7 +87,6 @@ const ElementLink< xAOD::VertexContainer > egammaRec::vertexElementLink( size_t 
 void egammaRec::setVertices( const std::vector< ElementLink< xAOD::VertexContainer > >& links ){
 
   m_vertices=links;
-
 }
 
 
@@ -113,8 +104,6 @@ double  egammaRec::deltaPhiRescaled (int index) const{
 
   return m_deltaPhiRescaled.at(index);
 }
-
-
 
 void egammaRec::setDeltaEta (int sampl, double value){
 

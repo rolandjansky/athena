@@ -9,15 +9,16 @@ use AtlasPolicy   AtlasPolicy-*
 use SGTools       SGTools-*       Control
 use AthContainers AthContainers-* Control
 use AthLinks      AthLinks-*      Control
-use AtlasReflex	     AtlasReflex-*        External -no_auto_imports	
 
 # EDM package(s):
 use xAODCaloEvent       xAODCaloEvent-*    Event/xAOD
 use xAODTracking        xAODTracking-*     Event/xAOD
 	
 	
-library egammaRecEvent *.cxx
+library egammaRecEvent ../Root/*.cxx
 
 apply_pattern installed_library
-	
+
+private
+use AtlasReflex   AtlasReflex-*   External	
 apply_pattern lcgdict dict=egammaRecEvent selectionfile=selection.xml headerfiles="../egammaRecEvent/egammaRecEventDict.h" 

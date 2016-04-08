@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: egammaRecContainer.h 586152 2014-03-04 14:12:57Z christos $
+// $Id: egammaRecContainer.h 666999 2015-05-13 18:20:00Z christos $
 #ifndef EGAMMARECCONTAINER
 #define EGAMMARECCONTAINER
 
@@ -13,11 +13,14 @@
 
 // Local include(s):
 #include "egammaRec.h"
-#include "SGTools/CLASS_DEF.h"
 
 /// The container is a simple typedef for now
 
 typedef DataVector< egammaRec > EgammaRecContainer;
- 
+
+#ifndef XAOD_STANDALONE
+#include "SGTools/CLASS_DEF.h"
 CLASS_DEF( EgammaRecContainer , 1265838377 , 1 )
+#endif // XAOD_STANDALONE
+ 
 #endif 

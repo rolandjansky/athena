@@ -27,14 +27,12 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 
-class egammaRec
-{
+class egammaRec{
 
   /////////////////////////////////////////////////////////////////// 
   // Public typedefs: 
   /////////////////////////////////////////////////////////////////// 
  public: 
-
 
   /** @brief Default constructor*/
   egammaRec();
@@ -50,7 +48,6 @@ class egammaRec
      
   /// @brief set Pointer to the xAOD::CaloCluster 
   void setCaloClusters( const std::vector< ElementLink< xAOD::CaloClusterContainer > >& links);
-
 
   /// @brief Return the number xAOD::TrackParticles that match the electron
   /// candidate
@@ -69,7 +66,6 @@ class egammaRec
   void
   setTrackParticles( const std::vector< ElementLink< xAOD::TrackParticleContainer > >& links );
   
-
   /// @brief Return the number xAOD::Vertex/vertices  that match the photon candidate
   size_t getNumberOfVertices() const;
   
@@ -90,7 +86,6 @@ class egammaRec
   /// @brief set Pointer to the xAOD::vertex/vertices that match  the photon candidate
   void setVertices( const std::vector< ElementLink< xAOD::VertexContainer > >& links );
   
-
   /// @name matching variables for the best match track 
   /// @{
 
