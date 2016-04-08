@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToxAOD.h 631433 2014-11-26 23:08:01Z watsona $
+// $Id: RoIBResultToxAOD.h 679933 2015-07-02 21:37:29Z watsona $
 #ifndef ANALYSISTRIGGERALGS_ROIBRESULTTOXAOD_H
 #define ANALYSISTRIGGERALGS_ROIBRESULTTOXAOD_H
 
@@ -26,7 +26,7 @@ namespace TrigConf {
 namespace LVL1 {
   class RecMuonRoiSvc;
   class IL1CPMTools;
-  class IL1JetTools;
+  class IL1JEMJetTools;
 }
 namespace ROIB {
   class RoIBResult;
@@ -46,7 +46,7 @@ namespace ROIB {
  *
  *  The CTP_Decision and LVL1_ROI objects are stored in ESD/AOD.
  *
- *    $Id: RoIBResultToxAOD.h 631433 2014-11-26 23:08:01Z watsona $
+ *    $Id: RoIBResultToxAOD.h 679933 2015-07-02 21:37:29Z watsona $
  *
  * @author Tadashi Maeno <Tadashi.Maeno@cern.ch>
  * @author Attila Kraznahorkay Jr. <Attila.Krasznahorkay@cern.ch>
@@ -84,7 +84,7 @@ private:
 
    // tools
    ToolHandle<LVL1::IL1CPMTools> m_EmTauTool;                          //!< property, see @link RoIBResultToxAOD::RoIBResultToxAOD @endlink
-   ToolHandle<LVL1::IL1JetTools> m_JetTool;                           //!< property, see @link RoIBResultToxAOD::RoIBResultToxAOD @endlink
+   ToolHandle<LVL1::IL1JEMJetTools> m_JetTool;                           //!< property, see @link RoIBResultToxAOD::RoIBResultToxAOD @endlink
    bool m_retrievedEmTauTool;
    bool m_retrievedJetTool;
 
