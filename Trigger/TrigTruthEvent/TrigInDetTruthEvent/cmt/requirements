@@ -7,7 +7,8 @@ public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  AtlasHepMC                 AtlasHepMC-*                    External
 use  CLIDSvc                    CLIDSvc-*                       Control
-use  DataModel                  DataModel-*                     Control
+use  AthContainers              AthContainers-*                 Control
+use  AthLinks                   AthLinks-*                      Control
 use  GeneratorObjects           GeneratorObjects-*              Generators
 use  TrigInDetEvent             TrigInDetEvent-*                Trigger/TrigEvent
 use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent

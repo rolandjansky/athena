@@ -23,31 +23,31 @@ class TrigIDHitStats{
 
   /** Constructors: POOL needs default constructor */
   TrigIDHitStats() {
-    memset(numHits, 0, NUM_SUBDETECTORS);
+    memset(m_numHits, 0, NUM_SUBDETECTORS);
   }
 
   virtual ~TrigIDHitStats() { }
 
-  unsigned char& operator[](IDSubDetType i) { return numHits[i]; }
+  unsigned char& operator[](IDSubDetType i) { return m_numHits[i]; }
 
-  const unsigned char& operator[](IDSubDetType i) const  { return numHits[i]; }
+  const unsigned char& operator[](IDSubDetType i) const  { return m_numHits[i]; }
 
   unsigned int total() const { 
     unsigned char tot=0;
     for(unsigned i=0; i<NUM_SUBDETECTORS; i++) {
-      tot += numHits[i];
+      tot += m_numHits[i];
     }
     return (unsigned int)tot;
   }
 
-  unsigned int pixhits() const { return (unsigned int)numHits[PIX];}
-  unsigned int scthits() const { return (unsigned int)numHits[SCT];}
-  unsigned int trthits() const { return (unsigned int)numHits[TRT];}
+  unsigned int pixhits() const { return (unsigned int)m_numHits[PIX];}
+  unsigned int scthits() const { return (unsigned int)m_numHits[SCT];}
+  unsigned int trthits() const { return (unsigned int)m_numHits[TRT];}
 
 
   TrigIDHitStats& operator+=(const TrigIDHitStats& b) {
     for(unsigned i=0; i<NUM_SUBDETECTORS; i++) {
-      numHits[i] += b.numHits[i];
+      m_numHits[i] += b.m_numHits[i];
     }
     return *this;
   }
@@ -56,7 +56,7 @@ private:
 
   // For InDet, the largest typical number of measurements per track is 36 in  
   // the TRT. One byte is enough to keep any of the numbers.
-  unsigned char numHits[NUM_SUBDETECTORS];
+  unsigned char m_numHits[NUM_SUBDETECTORS];
 
 };
 
