@@ -4,12 +4,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormatSvc.h 641394 2015-01-23 20:07:16Z ssnyder $
+// $Id: EventFormatSvc.h 721421 2016-02-02 15:17:05Z krasznaa $
 #ifndef XAODEVENTFORMATCNV_EVENTFORMATSVC_H
 #define XAODEVENTFORMATCNV_EVENTFORMATSVC_H
 
 // System include(s):
 #include <string>
+#include <set>
 
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthService.h"
@@ -35,8 +36,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 641394 $
-    * $Date: 2015-01-23 21:07:16 +0100 (Fri, 23 Jan 2015) $
+    * $Revision: 721421 $
+    * $Date: 2016-02-02 16:17:05 +0100 (Tue, 02 Feb 2016) $
     */
    class EventFormatSvc : public AthService,
                           public virtual IEventFormatSvc,
@@ -82,7 +83,10 @@ namespace xAODMaker {
       /// We automatically generate event format information for type names
       /// that contain the string `xAOD'.  This property gives a list of
       /// additional type names that should have format information.
-      std::vector<std::string> m_formatNames;
+      std::vector< std::string > m_formatNames;
+
+      /// CLIDs about which warnings have already been printed
+      std::set< CLID > m_warnedCLIDs;
 
       /// The object that we write out in the end
       xAOD::EventFormat* m_ef;
