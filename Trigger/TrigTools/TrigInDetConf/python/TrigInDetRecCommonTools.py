@@ -7,13 +7,15 @@
 """
 
 ___author___ = "Jiri Masik"
-___version___ = "$Id: TrigInDetRecCommonTools.py 713540 2015-12-09 10:36:59Z masik $"
+___version___ = "$Id: TrigInDetRecCommonTools.py 724056 2016-02-15 17:44:17Z masik $"
 
 from AthenaCommon.AppMgr import ToolSvc
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
 
-from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool,\
+    InDetTrigTrackSummaryHelperToolSharedHits,InDetTrigTRT_ElectronPidTool
+
 
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrigFastTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigFastTrackSummaryTool",
@@ -38,4 +40,15 @@ ToolSvc += InDetTrigTrackSummaryToolWithHoleSearch
 if (InDetTrigFlags.doPrintConfigurables()):
     print      InDetTrigTrackSummaryToolWithHoleSearch
 
+
+InDetTrigTrackSummaryToolSharedHitsWithTRTPid = \
+    Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolSharedHitsWithTRT",
+                          InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
+                          doSharedHits           = InDetTrigFlags.doSharedHits(),
+                          InDetHoleSearchTool    = InDetTrigHoleSearchTool,
+                          TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool)
+
+ToolSvc += InDetTrigTrackSummaryToolSharedHitsWithTRTPid
+if (InDetTrigFlags.doPrintConfigurables()):
+    print      InDetTrigTrackSummaryToolSharedHitsWithTRTPid
 

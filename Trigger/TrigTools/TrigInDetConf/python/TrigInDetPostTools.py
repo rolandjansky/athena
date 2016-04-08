@@ -7,7 +7,7 @@
 """
 
 ___author___ = "Jiri Masik"
-___version___ = "$Id: TrigInDetPostTools.py 716747 2016-01-07 11:42:47Z masik $"
+___version___ = "$Id: TrigInDetPostTools.py 724056 2016-02-15 17:44:17Z masik $"
 
 from AthenaCommon.AppMgr import ToolSvc
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
@@ -42,7 +42,8 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummar
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
     InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits, \
     InDetTrigHoleSearchTool,InDetTrigExtrapolator
-from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+
+from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool, InDetTrigTrackSummaryToolSharedHitsWithTRTPid
 
 
 from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
@@ -69,6 +70,19 @@ InDetTrigParticleCreatorToolWithSummary = \
 ToolSvc += InDetTrigParticleCreatorToolWithSummary
 if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigParticleCreatorToolWithSummary
+
+InDetTrigParticleCreatorToolWithSummaryTRTPid = \
+    Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummaryTRTPid",
+                                   Extrapolator = InDetTrigExtrapolator,
+                                   TrackSummaryTool = InDetTrigTrackSummaryToolSharedHitsWithTRTPid,
+                                   KeepParameters = True,
+                                   ForceTrackSummaryUpdate = True,
+                                   )
+
+ToolSvc += InDetTrigParticleCreatorToolWithSummaryTRTPid
+if (InDetTrigFlags.doPrintConfigurables()):
+    print InDetTrigParticleCreatorToolWithSummaryTRTPid
+
 
 InDetTrigParticleCreatorToolParams = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolParams",
