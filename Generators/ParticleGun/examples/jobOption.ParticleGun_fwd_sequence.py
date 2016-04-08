@@ -7,6 +7,7 @@ theApp.EvtMax = 100
 
 import ParticleGun as PG
 pg = PG.ParticleGun()
+pg.randomSeed = 123456
 pg.sampler.pid = (2112, 22, 2112, 22)
 pg.sampler.mom = PG.EThetaMPhiSampler(energy=(1360000, 500000, 1360000, 500000),
                                       theta=(0, 0, PG.PI, PG.PI))
