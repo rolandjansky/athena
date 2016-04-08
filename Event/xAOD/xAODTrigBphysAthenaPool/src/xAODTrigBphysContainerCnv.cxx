@@ -9,6 +9,8 @@
 
 // Local include(s):
 #include "xAODTrigBphysContainerCnv.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 namespace {
     
@@ -36,20 +38,8 @@ xAOD::TrigBphysContainer*
 xAODTrigBphysContainerCnv::
 createPersistent( xAOD::TrigBphysContainer* trans ) {
 
-   // Create a view copy of the container:
-   xAOD::TrigBphysContainer* result =
-      new xAOD::TrigBphysContainer( trans->begin(), trans->end(),
-					  SG::VIEW_ELEMENTS );
-
-   // Prepare the objects to be written out:
-   xAOD::TrigBphysContainer::iterator itr = result->begin();
-   xAOD::TrigBphysContainer::iterator end = result->end();
-   for( ; itr != end; ++itr ) {
-      toPersistent( *itr );
-   }
-
-   // Return the new container:
-   return result;
+   // Create a copy of the container:
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
 /**
@@ -93,24 +83,16 @@ xAOD::TrigBphysContainer* xAODTrigBphysContainerCnv::createTransient() {
 void xAODTrigBphysContainerCnv::
 toPersistent( xAOD::TrigBphys* obj ) const {
 
-    // secondaryDecay
-    //    typedef const ElementLink< xAOD::TrigBphys >              trigBphysLink_t;
-    //    typedef const ElementLink< xAOD::TrackParticleContainer > elTPcontainer_t;
-
-    //    trigBphysLink_t::reference el = const_cast<trigBphysLink_t::reference>( obj->secondaryDecayLink());
-    // const ElementLink< xAOD::TrigBphys > & el = const_cast<ElementLink< xAOD::TrigBphys > & >( obj->secondaryDecayLink());
-    // el.toPersistent();
-    // is this needed?
-    
+    ElementLink< xAOD::TrigBphysContainer > & el = const_cast<ElementLink< xAOD::TrigBphysContainer > & >( obj->secondaryDecayLink());
+    el.toPersistent();
     //associated tracks
-//    std::vector< ElementLink< xAOD::TrackParticleContainer > >::const_iterator cit  = obj->trackParticleLinks().begin();
-//    std::vector< ElementLink< xAOD::TrackParticleContainer > >::const_iterator cend = obj->trackParticleLinks().end();
+    std::vector< ElementLink< xAOD::TrackParticleContainer > >::const_iterator cit  = obj->trackParticleLinks().begin();
+    std::vector< ElementLink< xAOD::TrackParticleContainer > >::const_iterator cend = obj->trackParticleLinks().end();
     
-//    for (; cit != cend;++cit) {
-        //elTPcontainer_t::reference cel = const_cast<elTPcontainer_t::reference >(*cit);
-        //cel.toPersistent();
-        //const ElementLink< xAOD::TrackParticleContainer >::reference cel = const_cast< ElementLink< xAOD::TrackParticleContainer > >(*cit);
-        //cel.toPersistent();
+    for (; cit != cend;++cit) {
+        ElementLink< xAOD::TrackParticleContainer >& cel =const_cast< ElementLink< xAOD::TrackParticleContainer >& >(*cit);
+        cel.toPersistent();
+    }
 //    } // for
     
    return;
