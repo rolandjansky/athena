@@ -48,6 +48,7 @@ class DQCTestCase(unittest.TestCase):
                       'data15_hip',
                       'data15_900GeV',
                       'data15_2p76TeV',
+                      'data15_5TeV',
                       'data15_7TeV',
                       'data15_8TeV',
                       'data15_13TeV',
