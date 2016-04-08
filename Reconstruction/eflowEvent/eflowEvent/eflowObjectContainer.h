@@ -5,7 +5,7 @@
 #ifndef EFLOWOBJECTCONTAINER_H
 #define EFLOWOBJECTCONTAINER_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include "NavFourMom/INavigable4MomentumCollection.h"
