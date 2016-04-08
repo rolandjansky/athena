@@ -9,7 +9,6 @@ use GaudiInterface         GaudiInterface-*         External
 use AtlasBoost             AtlasBoost-*             External
 
 use EventKernel            EventKernel-*            Event
-use FourMom                FourMom-*                Event
 use FourMomUtils           FourMomUtils-*           Event
 
 use AnalysisUtils	   AnalysisUtils-*	    PhysicsAnalysis/AnalysisCommon
