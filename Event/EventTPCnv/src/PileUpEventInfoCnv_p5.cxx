@@ -17,6 +17,8 @@ static	EventInfoCnv_p4		evInfoConv;
 void PileUpEventInfoCnv_p5::transToPers(const PileUpEventInfo* trans, PileUpEventInfo_p5* pers, MsgStream &log) {
    evInfoConv.transToPers(trans, pers, log); 
 
+   pers->m_subEvents.clear();
+   /*
    size_t	sub_ev_n = trans->m_subEvents.size();
    pers->m_subEvents.resize(sub_ev_n);
    PileUpEventInfo::SubEvent::const_iterator	sub_iter = trans->beginSubEvt();
@@ -28,7 +30,7 @@ void PileUpEventInfoCnv_p5::transToPers(const PileUpEventInfo* trans, PileUpEven
       evInfoConv.transToPers(sub_iter->pSubEvt, &p_sub_iter->m_subEventInfo, log);
       p_sub_iter++;  sub_iter++;
    }
-
+   */
 }
 
 void PileUpEventInfoCnv_p5::persToTrans(const PileUpEventInfo_p5* pers, PileUpEventInfo* trans, MsgStream &log) 

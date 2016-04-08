@@ -30,6 +30,7 @@ void UITostr(std::string &n, std::vector<unsigned int>::const_iterator &i,
              bool bugcompat){
     int l = (*i) >> 16;
 
+    n.clear();
     n.reserve(l);
     int rem = 16;
 	
@@ -103,6 +104,7 @@ void UITobitmap(std::vector<bool> &n,
                 std::vector<unsigned int>::const_iterator &i,
                 bool bugcompat)
 {
+    n.clear();
     int l=(*i)>>16;
     n.reserve(l);
     int rem = 16;
