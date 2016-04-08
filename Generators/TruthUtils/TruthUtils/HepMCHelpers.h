@@ -4,24 +4,24 @@
 
 #pragma once
 
-/// @file A backward compatibility header which pulls in the HepMC tools
-///       adapted (and synced?) with the external MCUtils header package.
-///       Some (old/deprecated) ATLAS functions not suitable for MCUtils
-///       are defined here, too... for now!
+/// @file
+///
+/// Provides the HepMC tools from the external MCUtils header package,
+/// ATLAS-specific HepMC functions not suitable for MCUtils.
 
-#include "TruthUtils/HepMCUtils.h"
-#include "TruthUtils/Clustering.h"
+#include "TruthUtils/PIDHelpers.h"
+#include "TruthUtils/TruthParticleHelpers.h"
+#include "MCUtils/HepMCUtils.h"
+// #include "MCUtils/Clustering.h"
 
 // Common imports from external namespaces
-/// @todo Remove these
 using HepMC::GenEvent;
 using HepMC::GenParticle;
 using HepMC::GenVertex;
-using fastjet::PseudoJet;
-using fastjet::ClusterSequence;
+//using fastjet::PseudoJet;
+//using fastjet::ClusterSequence;
 
 // Alias BOOST_FOREACH as foreach in this semi-safe way
-/// @todo Get rid of this in favour of range-for loops with C++11
 #include <boost/foreach.hpp>
 #ifndef foreach
 namespace boost { namespace BOOST_FOREACH = foreach; }
@@ -31,19 +31,21 @@ namespace boost { namespace BOOST_FOREACH = foreach; }
 
 namespace MC {
 
+  // Use the MCUtils and HEPUtils functions as if they were defined in the ATLAS MC and MC::PID namespaces
+  using namespace MCUtils;
+  using namespace HEPUtils;
+
+
   /// @name Extra ATLAS-specific particle classifier functions
   //@{
 
   /// @brief Determine if the particle is stable at the generator (not det-sim) level,
   ///
-  /// I.e. barcode < 200k and either status 1 or status % 1000 = 2 with a decay vertex
-  /// barcode < -200k and/or status > 1000 (the latter would indicate a gen-stable decayed by the G4 sim.)
+  /// The receipe for this is barcode < 200k and status = 1. Gen-stable particles decayed by
+  /// G4 are not set to have status = 2 in ATLAS, but simply have more status = 1 children,
+  /// with barcodes > 200k.
   inline bool isGenStable(const HepMC::GenParticle* p) {
-    if (p->barcode() >= 200000) return false; // This particle is from G4
-    if (p->pdg_id() == 21 && p->momentum().e() == 0) return false; //< Workaround for a gen bug?
-    return ((p->status() % 1000 == 1) || //< Fully stable, even if marked that way by G4
-            (p->status() % 1000 == 2 && p->end_vertex() != NULL && p->end_vertex()->barcode() < -200000)); //< Gen-stable with G4 decay
-    /// @todo Add a no-descendants-from-G4 check?
+    return isGenStable(p->status(), p->barcode());
   }
 
 
@@ -51,11 +53,10 @@ namespace MC {
 
 
   /// @brief Identify if the particle is considered stable at the post-detector-sim stage
-  /// @todo I'm sure this shouldn't be exactly the same as isGenStable, but it is...
   inline bool isSimStable(const HepMC::GenParticle* p) {
-    /// @todo This was commented out in the original: isn't it what we want?
-    // return p->status() % 1000 == 1;
-    return isGenStable(p);
+    if (p->status() != 1) return false;
+    if (isGenStable(p)) return p->end_vertex() == NULL;
+    return true;
   }
 
   /// @brief Identify if the particle is considered stable at the post-detector-sim stage
@@ -66,18 +67,17 @@ namespace MC {
   }
 
 
-  /// @brief Identify if the particle would not interact with the detector, e.g. not a neutrino or WIMP
+  /// @brief Identify if the particle would not interact with the detector, i.e. not a neutrino or WIMP
   inline bool isNonInteracting(const HepMC::GenParticle* p) {
-    const int apid = abs(p->pdg_id());
-    if (apid == 12 || apid == 14 || apid == 16) return true;
-    /// @todo Use MCUtils functions to make this more general, e.g. isStronglyInteracting || isEMInteracting (need to write these fns)
-    if (p->status() % 1000 == 1) { //< Isn't this implied by isGenStable?
-      if (apid == 1000022 || apid == 1000024 || apid == 5100022) return true;
-      if (apid == 39 || apid == 1000039 || apid == 5000039) return true;
-      if (apid == 3000015) return true;
-    }
-    return false;
+    return MC::isNonInteracting(p->pdg_id()); //< From TruthUtils/PIDHelpers.h
   }
+
+  /// @brief Identify if the particle could interact with the detector during the simulation, e.g. not a neutrino or WIMP
+  /// @todo This one can't be made to only take a PDG ID argument since it needs to check gen-stability via status & decay links
+  // inline bool isSimInteracting(int pid) {
+  //   if (! MC::isGenStable(pid)) return false; //skip particles which the simulation would not see
+  //   return !MC::isNonInteracting(pid);
+  // }
   /// @brief Identify if the particle could interact with the detector during the simulation, e.g. not a neutrino or WIMP
   inline bool isSimInteracting(const HepMC::GenParticle* p) {
     if (! MC::isGenStable(p)) return false; //skip particles which the simulation would not see

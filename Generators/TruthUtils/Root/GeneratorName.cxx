@@ -6,6 +6,8 @@
 #include <iostream>
 #include <algorithm>
 
+/// @todo This scheme doesn't work anymore...
+
 GeneratorName generator_name (const int& index) {
   switch (index) {
     //new scheme for first generators

@@ -7,6 +7,8 @@ use AtlasHepMC          AtlasHepMC-*          External
 use AtlasBoost          AtlasBoost-*          External
 use AtlasFastJet        AtlasFastJet-*        External
 use AtlasROOT           AtlasROOT-*           External
+use MCUtils             MCUtils-*             External
+use HEPUtils            HEPUtils-*            External
 
 library TruthUtils ../Root/*.cxx
 apply_pattern installed_library
