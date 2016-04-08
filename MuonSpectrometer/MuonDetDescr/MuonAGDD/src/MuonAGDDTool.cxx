@@ -86,6 +86,9 @@ StatusCode MuonAGDDTool::construct()
 		if (!m_buildNSW && m_structuresFromFlags[i]=="NewSmallWheel") continue;
 		controller->GetBuilder()->BuildFromVolume(m_structuresFromFlags[i]);
 	}
+
+	controller->Clean();
+
 	return StatusCode::SUCCESS;
 }
 
