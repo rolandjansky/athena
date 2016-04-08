@@ -37,7 +37,7 @@ void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6* pers
   m_cellElementLinkCnv.resetForCnv(pers->m_linkNames);
 
   // Use data pool for clusters to avoid calling constructor for each event
-  static  DataPool<CaloCluster> clusters;
+  DataPool<CaloCluster> clusters;
 
   trans->clear (SG::VIEW_ELEMENTS);
   trans->reserve(pers->m_vec.size());
@@ -167,8 +167,7 @@ void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6* pers
   
 			
     //Convert moment store
-    CaloClusterMomentStore::moment_store& transStore=transCluster->m_momentStore.m_store;
-    transStore.clear();
+    CaloClusterMomentStore::moment_store transStore;
     for (unsigned short i=0;i<nkeys;++i) {
       float val;
       if (i_mom == i_mom_e) {
@@ -189,6 +188,7 @@ void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6* pers
       }
       transStore.insert (transStore.end(),  CaloClusterMomentStore::moment_store::value_type( keys[i], val ) );
     }
+    transCluster->m_momentStore.setMomentStore (std::move (transStore));
     
     // fill bad channel information
     transCluster->resetBadChannel();
@@ -340,7 +340,9 @@ void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6* pers
   }
 
   //Convert TowerSegment
-  m_caloTowerSegCnv.persToTrans(&(pers->m_towerSeg),&(trans->m_towerSeg));
+  CaloTowerSeg seg;
+  m_caloTowerSegCnv.persToTrans(&(pers->m_towerSeg),&seg);
+  trans->setTowerSeg (seg);
 }
 
 
@@ -356,13 +358,13 @@ void CaloClusterContainerCnv_p6::transToPers(const CaloClusterContainer* /*trans
 void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6::CaloCluster_p* pers, 
 					     CaloCluster* trans, MsgStream& log) {
   trans->setDefaultSignalState (P4SignalState::CALIBRATED);
-  trans->m_basicSignal=pers->m_basicSignal;
-  trans->m_time=pers->m_time;
+  trans->setBasicEnergy (pers->m_basicSignal);
+  trans->setTime (pers->m_time);
   trans->m_samplingPattern=pers->m_samplingPattern; 
   trans->m_eta0=pers->m_eta0;
   trans->m_phi0=pers->m_phi0;   
-  trans->m_status.m_status=pers->m_caloRecoStatus;
-  trans->m_clusterSize=pers->m_clusterSize;
+  trans->m_status = CaloRecoStatus(pers->m_caloRecoStatus);
+  trans->setClusterSize (pers->m_clusterSize);
 
   //Convert base class and element links
   m_P4EEtaPhiMCnv.persToTrans(&pers->m_P4EEtaPhiM,(P4EEtaPhiM*)trans,log);
@@ -377,13 +379,13 @@ void CaloClusterContainerCnv_p6::persToTrans(const CaloClusterContainer_p6::Calo
 void CaloClusterContainerCnv_p6::transToPers(const CaloCluster* trans, 
 					     CaloClusterContainer_p6::CaloCluster_p* pers, MsgStream& log) {
 
-  pers->m_basicSignal=trans->m_basicSignal;
-  pers->m_time=trans->m_time;
+  pers->m_basicSignal=trans->getBasicEnergy();
+  pers->m_time=trans->getTime();
   pers->m_samplingPattern=trans->m_samplingPattern; 
-  pers->m_eta0=trans->m_eta0;
-  pers->m_phi0=trans->m_phi0; 
-  pers->m_caloRecoStatus=trans->m_status.m_status;
-  pers->m_clusterSize=trans->m_clusterSize;
+  pers->m_eta0=trans->eta0();
+  pers->m_phi0=trans->phi0(); 
+  pers->m_caloRecoStatus=trans->m_status.getStatusWord();
+  pers->m_clusterSize=trans->getClusterSize();
  
   //Convert base class and element links
   m_P4EEtaPhiMCnv.transToPers((P4EEtaPhiM*)trans,&pers->m_P4EEtaPhiM,log);

@@ -18,7 +18,7 @@ void CaloClusterContainerCnv_p3::persToTrans(const CaloClusterContainer_p3* pers
   m_cellElementLinkCnv.resetForCnv(pers->m_linkNames);
 
   // Use data pool for clusters to avoid calling constructor for each event
-  static  DataPool<CaloCluster> clusters;
+  DataPool<CaloCluster> clusters;
 
   trans->clear (SG::VIEW_ELEMENTS);
   trans->reserve(pers->m_vec.size());
@@ -52,18 +52,20 @@ void CaloClusterContainerCnv_p3::persToTrans(const CaloClusterContainer_p3* pers
     m_samplingDataContainerCnv.persToTrans(&(pers->m_samplingDataContainer),&(transCluster->m_dataStore));
     
     //Convert moment store
-    CaloClusterMomentStore::moment_store& transStore=transCluster->m_momentStore.m_store;
-    transStore.clear();
+    CaloClusterMomentStore::moment_store transStore;
     for (unsigned short i=0;i<nkeys;++i) {
            transStore.insert (transStore.end(),  CaloClusterMomentStore::moment_store::value_type( keys[i], (*i_mom) ) );
 	    //std::cout<<"imom: "<<(*i_key)<<"   "<<(*i_mom)<<"\t";
 	    ++i_mom;
 	    }
+    transCluster->m_momentStore.setMomentStore (std::move (transStore));
     //std::cout<<std::endl; 
     trans->push_back(transCluster);
   }
   //Convert TowerSegment
-  m_caloTowerSegCnv.persToTrans(&(pers->m_towerSeg),&(trans->m_towerSeg));
+  CaloTowerSeg seg;
+  m_caloTowerSegCnv.persToTrans(&(pers->m_towerSeg),&seg);
+  trans->setTowerSeg (seg);
 }
 
 
@@ -124,7 +126,7 @@ void CaloClusterContainerCnv_p3::transToPers(const CaloClusterContainer* trans,
   // A.setIgnoreSign();
   A.reduce(temp_Moments,pers->m_momentContainer.m_Mvalue); // packs moments
    
-  m_caloTowerSegCnv.transToPers(&(trans->m_towerSeg),&(pers->m_towerSeg));
+  m_caloTowerSegCnv.transToPers(&trans->getTowerSeg(),&(pers->m_towerSeg));
 
 } 
 
@@ -133,15 +135,15 @@ void CaloClusterContainerCnv_p3::transToPers(const CaloClusterContainer* trans,
 void CaloClusterContainerCnv_p3::persToTrans(const CaloClusterContainer_p3::CaloCluster_p* pers, 
 					     CaloCluster* trans, MsgStream& log) {
   trans->setDefaultSignalState (P4SignalState::CALIBRATED);
-  trans->m_basicSignal=pers->m_basicSignal;
-  trans->m_time=pers->m_time;
+  trans->setBasicEnergy (pers->m_basicSignal);
+  trans->setTime (pers->m_time);
   trans->m_samplingPattern=pers->m_samplingPattern; 
   trans->m_barrel=pers->m_barrel;  
   trans->m_endcap=pers->m_endcap;
   trans->m_eta0=pers->m_eta0;
   trans->m_phi0=pers->m_phi0;   
-  trans->m_status.m_status=pers->m_caloRecoStatus;
-  trans->m_clusterSize=pers->m_clusterSize;
+  trans->m_status = CaloRecoStatus(pers->m_caloRecoStatus);
+  trans->setClusterSize (pers->m_clusterSize);
 
   //trans->m_barrel=pers->m_samplingPattern & 0x1ff00f; //That's the OR of all barrel-bits
   //trans->m_endcap=pers->m_samplingPattern & 0xe00ff0; //That's the OR of all endcap-bits
@@ -160,15 +162,15 @@ void CaloClusterContainerCnv_p3::persToTrans(const CaloClusterContainer_p3::Calo
 void CaloClusterContainerCnv_p3::transToPers(const CaloCluster* trans, 
 					     CaloClusterContainer_p3::CaloCluster_p* pers, MsgStream& log) {
 
-  pers->m_basicSignal=trans->m_basicSignal;
-  pers->m_time=trans->m_time;
+  pers->m_basicSignal=trans->getBasicEnergy();
+  pers->m_time=trans->getTime();
   pers->m_samplingPattern=trans->m_samplingPattern; 
   pers->m_barrel=trans->m_barrel;  
   pers->m_endcap=trans->m_endcap;
-  pers->m_eta0=trans->m_eta0;
-  pers->m_phi0=trans->m_phi0; 
-  pers->m_caloRecoStatus=trans->m_status.m_status;
-  pers->m_clusterSize=trans->m_clusterSize;
+  pers->m_eta0=trans->eta0();
+  pers->m_phi0=trans->phi0(); 
+  pers->m_caloRecoStatus=trans->m_status.getStatusWord();
+  pers->m_clusterSize=trans->getClusterSize();
  
   //Convert base class and element links
   m_P4EEtaPhiMCnv.transToPers((P4EEtaPhiM*)trans,&pers->m_P4EEtaPhiM,log);

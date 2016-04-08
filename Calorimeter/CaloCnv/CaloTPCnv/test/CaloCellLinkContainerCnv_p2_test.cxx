@@ -13,6 +13,7 @@
 
 #include "CaloTPCnv/CaloCellLinkContainerCnv_p2.h"
 #include "CaloEvent/CaloCellLinkContainer.h"
+#include "SGTools/TestStore.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <vector>
@@ -430,6 +431,7 @@ void tests()
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
+  SGTest::initTestStore();
   tests();
   return 0;
 }

@@ -10,12 +10,7 @@
  */
 
 
-#define private public
-#define protected public
 #include "DataModel/ElementLink.h"
-#undef private
-#undef protected
-
 #include "CaloTPCnv/CaloCellLinkContainerCnv_p2.h"
 #include "SGTools/IStringPool.h"
 #include "AthenaKernel/errorcheck.h"
@@ -141,7 +136,7 @@ CaloCellLinkContainerCnv_p2::persToTrans(const CaloCellLinkContainer_p2* pers,
             goto endcells;
           }
           float compositeW = *cIterW++;
-          nw = static_cast<unsigned int> (compositeW/NWEIGHT_SCALE);
+          nw = static_cast<unsigned int> (compositeW*(1./NWEIGHT_SCALE));
           weight = compositeW - (nw*NWEIGHT_SCALE);
         }
 

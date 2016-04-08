@@ -20,7 +20,11 @@
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloSamplingHelper.h"
 #include "CaloUtils/CaloClusterSignalState.h"
+#include "EventKernel/SignalStateHelper.h"
+#include "SGTools/TestStore.h"
 #include "AthenaKernel/errorcheck.h"
+#include "CLHEP/Vector/ThreeVector.h"
+#include "CLHEP/Vector/LorentzVector.h"
 #include <cassert>
 
 
@@ -59,25 +63,21 @@ struct randi_fn
 };
 
 
-class MakeCluster
+class CaloClusterContainerCnvTestMakeCluster
   : public CaloCluster
 {
 public:
   static void setStores (CaloCluster& c);
-  static CaloCluster::cell_link_type& cellLink (CaloCluster& c);
 };
 
 
-void MakeCluster::setStores (CaloCluster& c)
+void CaloClusterContainerCnvTestMakeCluster::setStores (CaloCluster& c)
 {
   c.setLinkStore (new CaloCellLink);
 }
 
 
-CaloCluster::cell_link_type& MakeCluster::cellLink (CaloCluster& c)
-{
-  return c.cellLink();
-}
+typedef CaloClusterContainerCnvTestMakeCluster MakeCluster;
 
 
 std::vector<CaloSampling::CaloSample> getSamplingList()
@@ -122,12 +122,11 @@ CaloCluster* make_cluster()
   c->set4Mom (hlv);
 
   {
-    P4SignalState::State oldstate=c->signalState();
-    c->setSignalState(P4SignalState::UNCALIBRATED);
+    SignalStateHelper sig (c);
+    sig.setSignalState(P4SignalState::UNCALIBRATED);
     dir.setREtaPhi (randf (100000), randf (4, -4), randf (3, -3));
     hlv.setVectM (Hep3Vector(dir), randf (100000));
     c->set4Mom (hlv);
-    c->setSignalState(oldstate);
   }
 
   c->setBasicEnergy (randf (100000, -10000));
@@ -317,8 +316,8 @@ void compare (const CaloClusterContainer& clust1,
   for (size_t i = 0; i < clust1.size(); i++) {
     compare (*clust1[i], *clust2[i], version);
     CaloCluster& cl = *const_cast<CaloCluster*> (clust2[i]);
-    assert (MakeCluster::cellLink(cl).index() == i);
-    assert (MakeCluster::cellLink(cl).dataID() == "celllinkkey");
+    assert (cl.cellLink().index() == i);
+    assert (cl.cellLink().dataID() == "celllinkkey");
   }
 }
 
@@ -340,8 +339,9 @@ MungeCellLinks::MungeCellLinks (const CaloClusterContainer& cont)
 {
   for (size_t i = 0; i < cont.size(); i++) {
     CaloCluster& cl = *const_cast<CaloCluster*> (cont[i]);
-    m_saved.push_back (*MakeCluster::cellLink(cl).cptr());
-    MakeCluster::cellLink(cl).resetWithKeyAndIndex ("celllinkkey", i);
+    m_saved.push_back (*cl.cellLink().cptr());
+    ElementLink<CaloCellLinkContainer> el ("celllinkkey", i);
+    cl.resetCellLink (el);
   }
 }
 
@@ -351,8 +351,9 @@ MungeCellLinks::~MungeCellLinks()
   assert (m_cont->size() == m_saved.size());
   for (size_t i = 0; i < m_cont->size(); i++) {
     CaloCluster& cl = *const_cast<CaloCluster*> ((*m_cont)[i]);
-    MakeCluster::cellLink(cl).reset();
-    MakeCluster::cellLink(cl).setElement (m_saved[i]);
+    ElementLink<CaloCellLinkContainer> el;
+    el.setElement (m_saved[i]);
+    cl.resetCellLink (el);
   }
 }
 
@@ -379,6 +380,7 @@ void testit (const CaloClusterContainer& clust, int version)
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
+  SGTest::initTestStore();
   const CaloClusterContainer* clust = make_clusters();
   testit<CaloClusterContainer_p7, CaloClusterContainerCnvTest_p7> (*clust, 7);
   testit<CaloClusterContainer_p6, CaloClusterContainerCnvTest_p6> (*clust, 6);

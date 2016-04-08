@@ -15,7 +15,9 @@ use CaloEvent            CaloEvent-*                Calorimeter
 
 private
 use AtlasReflex          AtlasReflex-*              External
+use AtlasCLHEP           AtlasCLHEP-*               External
 use SGTools		 SGTools-*	            Control
+use EventKernel          EventKernel-*              Event
 use CaloConditions       CaloConditions-*           Calorimeter
 use CaloInterface        CaloInterface-*            Calorimeter
 use CaloUtils            CaloUtils-*                Calorimeter
