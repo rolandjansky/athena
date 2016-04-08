@@ -8,8 +8,8 @@ use GaudiInterface        GaudiInterface-*         External
 private
 use EventInfo             EventInfo-*              Event
 use ByteStreamCnvSvcBase  ByteStreamCnvSvcBase-*   Event
-use StoreGate             StoreGate-*              Control
 use TrigT1Result          TrigT1Result-*           Trigger/TrigT1
+use AthenaBaseComps       AthenaBaseComps-*        Control
 
 library TrigMuonRoITools *.cxx -s=components *.cxx
 apply_pattern component_library

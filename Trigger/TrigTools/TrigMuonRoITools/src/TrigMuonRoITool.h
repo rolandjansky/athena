@@ -5,16 +5,16 @@
 #ifndef TRIGMUONROITOOL_H
 #define TRIGMUONROITOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h" 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "EventInfo/EventID.h"
 #include "TrigMuonRoITools/ITrigMuonRoITool.h"
 
-class StoreGateSvc;
+/* class StoreGateSvc; */
 class IROBDataProviderSvc;
 
-class TrigMuonRoITool: public AlgTool, 
+class TrigMuonRoITool: public AthAlgTool, 
 		       virtual public ITrigMuonRoITool
 {
     public:
@@ -39,21 +39,6 @@ class TrigMuonRoITool: public AlgTool,
 
     private:
 
-    /** @brief Pointer to MsgStream.*/
-    MsgStream* m_msg;
-
-    /**
-     * @brief Accessor method for the MsgStream.
-     * @return handle to the MsgStream.
-     */
-    inline MsgStream& logStream() const { return *m_msg; }
-
-    /**
-     * @brief Accessor method for the message level variable.
-     * @return value of the message level for this algorithm.
-     */
-    inline MSG::Level logLevel() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-
     /// run number - 32 bit unsigned
     EventID::number_type      m_run_no ;
     /// event number - 32 bit unsigned
@@ -66,10 +51,6 @@ class TrigMuonRoITool: public AlgTool,
     EventID::number_type      m_time_stamp_ns_offset ;
     /// luminosity block identifier, 32 bit unsigned
     EventID::number_type      m_lumi_block ;
-
-    typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-    /// Reference to StoreGateSvc;
-    StoreGateSvc_t                   m_storeGateSvc;
 
     typedef ServiceHandle<IROBDataProviderSvc> IIROBDataProviderSvc_t;
     /// Reference to the ROBDataProviderSvc service
@@ -89,13 +70,13 @@ class TrigMuonRoITool: public AlgTool,
     std::vector< std::pair<ROIB::MuCTPIRoI,int> > m_outOfTime_muCTPIRoIs;  // RoIs from DAQ muCTPi ROB (out of time with event BCID)
 
     /// Helper for decoding the muCTPi RoIB and DAQ ROB
-    void decodeMuCTPi(MsgStream& log);
+    void decodeMuCTPi();
 
     /// Helper for converting a mirod DAQ data word to a muCTPi RoIB data word
     uint32_t mirodToRoIBDataWord( uint32_t data_word );
 
     /// Helper to print contents of a muCTPi RoIB data word
-    void dumpRoIBDataWord(MsgStream& log, uint32_t data_word );
+    void dumpRoIBDataWord(uint32_t data_word );
 };
 
 #endif  // TRIGMUONROITOOL_H
