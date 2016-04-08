@@ -1,0 +1,67 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "InDetSimEvent/TRTUncompressedHit.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "InDetReadoutGeometry/TRT_BarrelElement.h"
+#include "InDetReadoutGeometry/TRT_EndcapElement.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/StoreGate.h"
+
+#include <bitset>
+
+inline void GeoTRTUncompressedHit::init() {
+
+  StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+  if(detStore->retrieve(_mgr,"TRT").isFailure())
+    std::cout << "GeoTRTUncompressedHit::init() WARNING  Unable to retrieve InDetDD::TRT_DetectorManager" << std::endl;
+}
+
+inline GeoTRTUncompressedHit::GeoTRTUncompressedHit (const TRTUncompressedHit & h) {
+  _hit = &h;
+  if (!_mgr) init();
+}
+
+inline HepGeom::Point3D<double> GeoTRTUncompressedHit::getGlobalPosition() const {
+
+ size_t hitID = _hit->GetHitID(), strawID=0,layerID=0, moduleID=0, ringID=0, trtID=0,sectorID=0, wheelID=0, planeID=0;
+ static const size_t mask  = 0x1F;
+ static const size_t shift = 5;
+ std::bitset<32> idBits(hitID);
+ if (!idBits[21]/*IE: BARREL*/ ) {
+   strawID = hitID & mask;
+   hitID >>= shift;
+   layerID = hitID & mask;
+   hitID >>= shift;
+   moduleID = hitID & mask;
+   hitID >>= shift;
+   ringID = hitID & mask;
+   trtID = hitID >> shift;
+   const InDetDD::TRT_BarrelElement *element = _mgr->getBarrelElement(trtID,ringID,moduleID,layerID);
+   if (element) {
+     HepGeom::Point3D<double> v(_hit->GetPreStepX(), _hit->GetPreStepY(), _hit->GetPreStepZ());
+     return element->getAbsoluteTransform(strawID)*v;
+   }
+ }
+ else /*ENDCAP*/ {
+   strawID = hitID & mask;
+   hitID >>= shift;
+   planeID = hitID & mask;
+   hitID >>= shift;
+   sectorID = hitID & mask;
+   hitID >>= shift;
+   wheelID = hitID & mask;
+   trtID = hitID >> shift;
+   bool isPositive = trtID==2 ? 1:0;
+   const InDetDD::TRT_EndcapElement *element = _mgr->getEndcapElement(isPositive,wheelID,planeID,sectorID);
+   if (element) {
+     HepGeom::Point3D<double> v(_hit->GetPreStepX(), _hit->GetPreStepY(), _hit->GetPreStepZ());
+     return element->getAbsoluteTransform(strawID)*v;
+   }
+ }
+ 
+ 
+ return HepGeom::Point3D<double>(0.0,0.0,0.0);
+
+}
