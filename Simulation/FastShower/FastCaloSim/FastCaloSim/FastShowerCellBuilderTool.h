@@ -77,10 +77,10 @@ public:
   ~FastShowerCellBuilderTool();
 
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
   // update theCellContainer
-  virtual StatusCode process(CaloCellContainer* theCellContainer) ;
+  virtual StatusCode process(CaloCellContainer* theCellContainer) override final;
   StatusCode setupEvent();
   StatusCode releaseEvent();
   // the actual simulation code for one particle can run standalone without process(CaloCellContainer* theCellContainer),
