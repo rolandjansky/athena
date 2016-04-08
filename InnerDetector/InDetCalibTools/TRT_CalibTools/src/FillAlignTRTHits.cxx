@@ -222,20 +222,30 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
     typedef std::vector<const Trk::TrackStateOnSurface*>::const_iterator TsosIt_t;
     TsosIt_t tsos=aTrack->trackStateOnSurfaces()->begin();
     TsosIt_t tsosEnd=aTrack->trackStateOnSurfaces()->end();
+
+    const Trk::MeasurementBase* mesb	= NULL;
+    const Trk::RIO_OnTrack* rotp 	= NULL;
+    const InDet::TRT_DriftCircle* dcp   = NULL;
+    const Trk::TrackParameters* tparp   = NULL;
+    const Trk::TrackParameters *mparp   = NULL;
+    const InDet::TRT_DriftCircleOnTrack* trtcirc = NULL;
+    const TRTCond::RtRelation* rtrelation = NULL; 
+
+
     for (;tsos!=tsosEnd;++tsos) {
-      const Trk::MeasurementBase* mesb=(*tsos)->measurementOnTrack();
-      const Trk::RIO_OnTrack* rotp = dynamic_cast<const Trk::RIO_OnTrack*>(mesb);
+      mesb=(*tsos)->measurementOnTrack();
+      rotp = dynamic_cast<const Trk::RIO_OnTrack*>(mesb);
       if(rotp!=0) {
         Identifier ident=rotp->identify();
         if (m_DetID->is_sct(ident)) (*output)[TRT::Track::numberOfSCTHits]++;
           else if (m_DetID->is_trt(ident)) {
 	        (*output)[TRT::Track::numberOfTRTHits]++;
 	        ++m_numOfHitsTotal;
-	        const InDet::TRT_DriftCircleOnTrack* trtcirc=dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(rotp);
+	        trtcirc=dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(rotp);
             if (trtcirc!=0) {
-	          const InDet::TRT_DriftCircle* dcp=trtcirc->prepRawData();
-	          const Trk::TrackParameters* tparp=((*tsos)->trackParameters());
-	          const Trk::TrackParameters *mparp = (tparp);
+	          dcp=trtcirc->prepRawData();
+	          tparp=((*tsos)->trackParameters());
+	          mparp = (tparp);
 
 	          if(tparp==0) {
                 if (msgLvl(MSG::DEBUG)) msg() << "strange: trk parameters not available" << endreq;
@@ -273,7 +283,8 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
 			  //(*newhit)[TRT::Hit::TimeoverThreshold]= dcp ? dcp->timeOverThreshold() : -1.0;
 			  (*newhit)[TRT::Hit::TimeoverThreshold]= dcp->timeOverThreshold() ;
 			  //CORRECT FOR TUBEHITS!!!:
-			  const TRTCond::RtRelation* rtrelation = m_trtcaldbSvc->getRtRelation(ident) ;
+			  //const TRTCond::RtRelation* 
+			  rtrelation = m_trtcaldbSvc->getRtRelation(ident) ;
 			  // added High Level Threshold information
 			  (*newhit)[TRT::Hit::HTLevel]= dcp->highLevel();
 			  // Extract the correction in the db for the ToT:
@@ -427,16 +438,25 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) {
 	          ++m_numOfHitsAccepted;
 	          m_ntuple->Fill(ntvar);
 	        }
+		
 	      }	  
         } else {
           msg(MSG::ERROR) << "TRT drift RIO cast failed - no hit stored" << endreq;
         }
+
+
       } // identified TRT hit
       else if (m_DetID->is_pixel(ident)) (*output)[TRT::Track::numberOfPixelHits]++;
     } // non-zero ROTpointer
   } // end loop on Surfaces
   if (msgLvl(MSG::VERBOSE)) msg() << "Track has " << (*output)[TRT::Track::numberOfTRTHits] << " TRT hits --> of which "
        << output->size() << " hits had FULL info available" << endreq;
+
+
+
   delete unbiasedTrkParameters;
+  if(msgLvl(MSG::INFO)) msg() << "Delete all : " << endreq;
+
+
   return true;
 }
