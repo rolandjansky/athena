@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _MYCONTOBJ_
-#define _MYCONTOBJ_
+#ifndef ATHEXSTOREGATEEXAMPLE_MYCONTOBJ_H
+#define ATHEXSTOREGATEEXAMPLE_MYCONTOBJ_H
 
 //sample data class for the Read/Write example
 //Notice that is does not inherit from Gaudi ContainedObject
@@ -27,9 +27,3 @@ public:
 };
 
 #endif
-
-
-
-
-
-

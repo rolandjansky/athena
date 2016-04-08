@@ -2,8 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// $Id$
+/**
+ * @file WriteDataReentrant.cxx
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2016
+ * @brief 
+ */
+
+
 #undef NDEBUG
-#include "WriteData.h"
+#include "WriteDataReentrant.h"
 
 #include <list>
 #include <vector>
@@ -15,32 +24,58 @@
 
 #include "AthContainers/DataVector.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/WriteHandle.h"
 #include "AthLinks/DataLink.h"
 #include "AthLinks/ElementLink.h"
+#include "TestTools/expect_exception.h"
 
 #include "AthenaKernel/DefaultKey.h"
 #include "AthenaKernel/errorcheck.h"
+#include "CxxUtils/make_unique.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
-WriteData::WriteData(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+
+WriteDataReentrant::WriteDataReentrant(const std::string& name,
+                                       ISvcLocator* pSvcLocator) :
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
+  declareProperty ("DObjKey", m_dobjKey = "dobj");
+  declareProperty ("DObjKey2", m_dobjKey2 = "dobj2");
+  declareProperty ("DObjKey3", m_dobjKey3 = name);
+  //declareProperty ("DObjKey4", m_dobjKey4 = "dobj4");
+  declareProperty ("CObjKey", m_cobjKey = "cobj");
+  declareProperty ("VFloatKey", m_vFloatKey = "vFloat");
+  declareProperty ("PLinkListKey", m_pLinkListKey = name);
+  declareProperty ("MKey", m_mKey = "mkey");
+  declareProperty ("LinkVectorKey", m_linkVectorKey = "linkvec");
+  declareProperty ("TestObjectKey", m_testObjectKey = "testobj");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode WriteData::initialize(){
+StatusCode WriteDataReentrant::initialize()
+{
   ATH_MSG_INFO ("in initialize()");
-  //locate the StoreGateSvc and initialize our local ptr
-  StatusCode sc = evtStore().retrieve();
-  if (!sc.isSuccess()) ATH_MSG_ERROR ("Could not find StoreGateSvc");
-  return sc;
+  ATH_CHECK( m_dobjKey.initialize() );
+  ATH_CHECK( m_dobjKey2.initialize() );
+  ATH_CHECK( m_dobjKey3.initialize() );
+  //ATH_CHECK( m_dobjKey4.initialize() );
+  ATH_CHECK( m_cobjKey.initialize() );
+  ATH_CHECK( m_vFloatKey.initialize() );
+  ATH_CHECK( m_pLinkListKey.initialize() );
+  ATH_CHECK( m_mKey.initialize() );
+  ATH_CHECK( m_linkVectorKey.initialize() );
+  ATH_CHECK( m_testObjectKey.initialize() );
+
+  m_testObject = new TestDataObject(10);
+  return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode WriteData::execute() {
+StatusCode WriteDataReentrant::execute_r (const EventContext& ctx) const
+{
   //this example illustrates how to record objects into the StoreGate(SG)
   //with and without providing a key
   //It then covers the new DataLink class and its usage as a persistable
@@ -58,118 +93,59 @@ StatusCode WriteData::execute() {
   // At preset intervals all objects are removed from the board to make room
   // for new ones and filed.
 
-  // Part 1: Recording objects to the SG 
-  //         We create a MyDataObj on the heap (using "new")
-  //         (so that later we can pass ownership to SG)
-  //
-  MyDataObj *dobj = new MyDataObj;
-  dobj->val(1);
-
-  // now we record dobj. SG will identify dobj as the first obj
-  //  of type MyDataObj
-  StatusCode sc = evtStore()->record(dobj, SG::DEFAULTKEY, false);  
-  //         Remember NEVER delete an object recorded in the SG:
-  //         SG owns the object after it has been recorded
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR (" could not register dobj");
-    return( onError() );
-  }
+  // Part 1: Recording objects to SG 
+  SG::WriteHandle<MyDataObj> dobj (m_dobjKey, ctx);
+  dobj = CxxUtils::make_unique<MyDataObj>(1);
 
   //now we create a second MyDataObj instance...
-  MyDataObj *dobj2 = new MyDataObj;
-  dobj2->val(2);
-
   //...try to record it as we did for the first. Since dobj2 is also a
-  //MyDataObj we expect to see an error printed
+  //MyDataObj we expect to see an error 
   ATH_MSG_WARNING ("we expect  an error message here");
-  sc = evtStore()->record(dobj2, SG::DEFAULTKEY, false);
+  EXPECT_EXCEPTION (std::runtime_error,
+                    dobj = CxxUtils::make_unique<MyDataObj>(2));
   ATH_MSG_WARNING ("end of error message");
-  if ( !sc.isFailure() ) {
-    ATH_MSG_ERROR
-      (" allowed to register two default objects for type MyDataObj");
-    return( onError() );
-  }
-  // The error handling will have deleted dobj2.
 
   //here we go again...
-  MyDataObj *dobj3 = new MyDataObj;
-  dobj3->val(3);
-
   //... but this time we register the dobj3 using this algo name as key
-  //sc = evtStore()->record(dobj3, name(), true);  
-  sc = evtStore()->record(dobj3, name());  
-  //the last argument of record, which for now defaults to true, is "allowMods"
-  //by setting it to true we allow downstream algorithms to modify dobj3
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR (" could not register Data Object");
-    return( onError() );
-  }
-  //now dobj3 is known both as the default MyDataObj and the MyDataObj
-  //with key "WriteData"
-  //Notice that while in this case we used a std::string as key, this
-  //need not be the case. Any type satisfying the constraints specified
-  //in StoreGate/constraints/KeyConcept.h is a valid key
-  //Currently (release 1.3.5) KeyConcept requires a key to be convertible 
-  //to and from a std::string (hence a string is a valid key)
-  //From release 2.0.0 (or 1.3.6) the only requirement on the key type
-  //will be to be sortable, i.e. to provide a "less than" operator <
-  
+  auto dobj3 = SG::makeHandle (m_dobjKey3, ctx);
+  dobj3 = CxxUtils::make_unique<MyDataObj>(3);
 
+  SG::WriteHandle<TestDataObject> testobj (m_testObjectKey, ctx);
+  if (m_testObject->refCount() != 1) std::abort();
+  ATH_CHECK( testobj.record (m_testObject) );
+  if (m_testObject->refCount() != 2) std::abort();
+
+#if 0  
+  {
+    SG::WriteHandle<MyDataObj> dobj4 (m_dobjKey4, ctx);
+    ATH_CHECK( dobj4.recordOrRetrieve (CxxUtils::make_unique<MyDataObj>(4)) );
+    MyDataObj* pp = &*dobj4;
+    ATH_CHECK( dobj4.recordOrRetrieve (CxxUtils::make_unique<MyDataObj>(4)) );
+    assert (pp == &*dobj4);
+  }
+#endif
+  
   ///////////////////////////////////////////////////////////////////////
 
   // Part 2: storing collections in the SG
 
-  //first we create two instances on MyContObj
-  //(they can be created on the stack as std::vector copies them anyway
-
-  MyContObj* mco1 = new MyContObj;
-  MyContObj* mco2 = new MyContObj;
-  mco1->set(11.3, 132);
-  mco2->set(41.7, 291);
-
-  DataVector<MyContObj> *cobj = new DataVector<MyContObj>;
+  SG::WriteHandle<DataVector<MyContObj> > cobj (m_cobjKey, ctx);
+  ATH_CHECK( cobj.record (CxxUtils::make_unique<DataVector<MyContObj> >()) );
   cobj->reserve(10);
-  cobj->push_back(mco1);
-  cobj->push_back(mco2);  // if I push back this, it core dumps in map record
+  cobj->push_back (CxxUtils::make_unique<MyContObj> (11.3, 132));
+  cobj->push_back (CxxUtils::make_unique<MyContObj> (41.7, 291));
 
-  //finally we record the list itself. As before we don't need to specify 
-  //a key. This make sense for collections, as in many applications (Atlfast)
-  //there is only one instance of each collection in the whole app
-  sc = evtStore()->record(cobj, SG::DEFAULTKEY, false);  
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR (" could not register list<MyContObj>");
-    return( onError() );
-  }
-
-  //
   // as above with a vector of integers
-  //        
-
-  //again notice how the vector is created on the heap
-  std::vector<float> *vFloat = new std::vector<float>;
+  SG::WriteHandle<std::vector<float> > vFloat (m_vFloatKey, ctx);
+  vFloat = CxxUtils::make_unique<std::vector<float> >();
   vFloat->push_back(1.0);
   vFloat->push_back(2.0);
   vFloat->push_back(3.0);
 
-  sc = evtStore()->record(vFloat, SG::DEFAULTKEY, false);  
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR (" could not register vector<float>");
-    return( onError() );
-  }
-
-  //
-  // now we record a map 
-  //        
-
-  MapStringFloat *m = new MapStringFloat;
+  SG::WriteHandle<MapStringFloat> m (m_mKey, ctx);
+  ATH_CHECK( m.record (CxxUtils::make_unique<MapStringFloat>()) );
   (*m)["uno"]=1.0;
   (*m)["due"]=2.0;
-
-  sc = evtStore()->record(m, SG::DEFAULTKEY, false);  
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR (" could not register MapStringFloat");
-    return( onError() );
-  }
 
   ///////////////////////////////////////////////////////////////////////
   //
@@ -231,9 +207,8 @@ StatusCode WriteData::execute() {
   DataLink<MyDataObj> dobjLink(*dobj);
   //since dobj is identifiable in the SG a reference to it is all we need
 
-  dobj2 = new MyDataObj;
-  dobj2->val(2);
-  CHECK( evtStore()->record(dobj2, "dobj2") );
+  SG::WriteHandle<MyDataObj> dobj2 (m_dobjKey2, ctx);
+  dobj2 = CxxUtils::make_unique<MyDataObj> (2);
 
   //Otherwise one could first create an empty link
   DataLink<MyDataObj> dobjLink2;
@@ -273,53 +248,40 @@ StatusCode WriteData::execute() {
   // If vFloat has a million elements think twice before using 
   // toContainedElement!
 
-
-  //Now let's put all this VecElemLink in a list 
-  std::list<VecElemLink> *pLinkList = new std::list<VecElemLink>;
+  SG::WriteHandle<std::list<VecElemLink> > pLinkList (m_pLinkListKey, ctx);
+  pLinkList = CxxUtils::make_unique<std::list<VecElemLink> >();
   pLinkList->push_back(aLink);
   pLinkList->push_back(thirdElementLink);
 
-  //and finally let's record the list of links into SG
-  sc = evtStore()->record(pLinkList, name(), false);  
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR (" could not register the list of DataLinks");
-    return( onError() );
-  }
   //
   // Part 3b: create a vector of links to the elements of the map above
   //        
   typedef ElementLink<MapStringFloat> MapElemLink;
-  std::vector<MapElemLink>* linkVector = new std::vector<MapElemLink>;
-
+  SG::WriteHandle<std::vector<MapElemLink> > linkVector (m_linkVectorKey, ctx);
+  linkVector = CxxUtils::make_unique<std::vector<MapElemLink> >();
   linkVector->push_back(MapElemLink(*m, "uno"));
   MapElemLink mLink;
   mLink.toContainedElement(*m, (*m)["due"]);
   linkVector->push_back(mLink);
 
-  sc = evtStore()->record(linkVector, SG::DEFAULTKEY, false);  
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR (" could not register the vector of DataLinks");
-    return( onError() );
-  }
-
   // Part 4
   // make a link to dobj as its base class after it has been registered 
-  // this allows later to retrieve different concrete types as a common ABC 
+  // this allows later to retrieve different concrete types as a common ABC
 
   const BaseClass * pDO = 0; 
-  if ( (evtStore()->symLink(dobj, pDO)).isFailure() ) {
+  if ( (evtStore()->symLink(dobj.cptr(), pDO)).isFailure() ) {
     ATH_MSG_ERROR (" could not make link to BaseClass");
     return( onError() );
   }
    
   // make a link as its base class,  with the same name
-  if ( ( evtStore()->symLink(dobj3, pDO)).isFailure() ) {
+  if ( ( evtStore()->symLink(dobj3.cptr(), pDO)).isFailure() ) {
     ATH_MSG_ERROR (" could not make link to BaseClass");
     return( onError() );
   }
 
   // Part 5
-  // finally dump the sturcture of the StoreGate before returning
+  // finally dump the structure of the StoreGate before returning
   ATH_MSG_INFO (" registered all data objects");
   ATH_MSG_INFO (" StoreGate structure before returning from execute \n"
 		<< evtStore()->dump());
@@ -329,15 +291,15 @@ StatusCode WriteData::execute() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode WriteData::finalize() {
-
+StatusCode WriteDataReentrant::finalize()
+{
   ATH_MSG_INFO ("in finalize()");
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode WriteData::onError() {
-
+StatusCode WriteDataReentrant::onError() const
+{
   ATH_MSG_ERROR ("Dumping StoreGate after error occurred\n" 
 		 << evtStore()->dump());
   return StatusCode::FAILURE;

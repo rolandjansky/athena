@@ -13,14 +13,13 @@
 #include "../ReadData.h"
 #include "../ReadPileUpData.h"
 #include "../WriteData.h"
+#include "../WriteDataReentrant.h"
+#include "../ReadDataReentrant.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( ReadData )
 DECLARE_ALGORITHM_FACTORY( ReadPileUpData )
 DECLARE_ALGORITHM_FACTORY( WriteData )
+DECLARE_ALGORITHM_FACTORY( WriteDataReentrant )
+DECLARE_ALGORITHM_FACTORY( ReadDataReentrant )
 
-DECLARE_FACTORY_ENTRIES(AthExStoreGateExample) {
-    DECLARE_ALGORITHM( ReadData )
-    DECLARE_ALGORITHM( ReadPileUpData )
-    DECLARE_ALGORITHM( WriteData )
-}

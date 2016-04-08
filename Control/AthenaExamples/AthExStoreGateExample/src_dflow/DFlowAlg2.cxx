@@ -8,6 +8,7 @@
 // Implementation file for class DFlowAlg2
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
+#undef NDEBUG
 
 // AthExStoreGateExample includes
 #include "DFlowAlg2.h"

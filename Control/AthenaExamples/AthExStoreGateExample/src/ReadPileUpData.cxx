@@ -19,7 +19,7 @@
 #include "EventInfo/EventID.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 
 /////////////////////////////////////////////////////////////////////////////
 

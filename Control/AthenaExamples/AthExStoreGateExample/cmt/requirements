@@ -9,10 +9,10 @@ use AthenaKernel       AthenaKernel-*   	Control
 use SGTools            SGTools-*           	Control
 
 private
+use TestTools          TestTools-*              AtlasTest
 use AthLinks           AthLinks-*               Control
-#need make_unique
+use AthContainers      AthContainers-*          Control
 use CxxUtils           CxxUtils-*               Control
-use DataModel          DataModel-*         	Control
 use AthenaBaseComps    AthenaBaseComps-*	Control
 use EventInfo          EventInfo-*      	Event
 use GaudiInterface     GaudiInterface-*		External
@@ -32,6 +32,7 @@ apply_pattern declare_joboptions files="\
   StoreGateExample_Gen_jobOptions.txt \
   StoreGateExample_Gen_jobOptions.py \
   StoreGateExample_Del_jobOptions.py \
+  StoreGateExample_Reentrant_jobOptions.py \
   dflow_jobo.py \
   StoreGateHiveExample.py \
 "
@@ -81,3 +82,5 @@ macro_append SGTutorialLib_shlibflags "$(libraryshr_linkopts) $(cmt_installarea_
 macro SGTutorialLib_linkopts "-L$(bin) -lSGTutorialLib"
 macro SGTutorial_shlibflags "$(componentshr_linkopts) -L$(bin) -lSGTutorialLib $(SGTutoriallinkopts) $(use_linkopts)"
 
+apply_pattern optdebug_library name=SGTutorial
+apply_pattern optdebug_library name=SGTutorialLib

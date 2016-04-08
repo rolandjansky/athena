@@ -10,8 +10,8 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 
-#include "DataModel/DataLink.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/DataLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
