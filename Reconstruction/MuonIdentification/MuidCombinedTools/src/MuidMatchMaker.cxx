@@ -372,89 +372,89 @@ MuidMatchMaker::finalize()
 
     ATH_MSG_INFO( "finalized with " << m_countBestMatch1 << " out of " << m_countSA
 		  << " MuonSpectrometer tracks having a 'bestMatch' combined fit. "
-		  << endmsg
+		  << endreq
 		  << "BestMatches:" << std::setiosflags(std::ios::fixed)
 		  << std::setw(6) << std::setprecision(1) << badFit << "% have a bad fit,"
 		  << std::setw(5) << std::setprecision(1) << badMatch << "% have a bad match and"
 		  << std::setw(5) << std::setprecision(1) << badBoth << "% have both bad."
-		  << endmsg
+		  << endreq
 		  << m_countUN
 		  << " MuonSpectrometer tracks have a unique combined fit."
-		  << endmsg << "               "
+		  << endreq << "               "
 		  << m_countAmbigID << " MuonSpectrometer tracks with InDet association ambiguity,"
-		  << endmsg << "               "
+		  << endreq << "               "
 		  << m_countAmbigMS << " InDet tracks with spectrometer association ambiguity,"
-		  << endmsg << "               "
+		  << endreq << "               "
 		  << m_countFailTightFit << " tight associations fail track fitting,"
-		  << endmsg << "               "
+		  << endreq << "               "
 		  << m_countFailInnerFit << " inner associations fail track fitting,"
-		  << endmsg << "               "
+		  << endreq << "               "
 		  << m_countFailOuterFit << " outer associations fail track fitting,"
-		  << endmsg << "               "
+		  << endreq << "               "
 		  << m_countFailLooseFit << " loose associations fail track fitting,"
-		  << endmsg << "         while "
+		  << endreq << "         while "
 		  << m_countNO << " MuonSpectrometer tracks with eta < 2.5 have no InDet association:"
-		  << endmsg
+		  << endreq
 		  << "               " << m_countFailTrackFit
 		  << " fail final track fit for best match "
-		  << endmsg
+		  << endreq
 		  << "               " << m_countFailChargeConflict
 		  << " fail loose match with charge conflict (and have MuidSA)"
-		  << endmsg
+		  << endreq
 		  << "               " << m_countFailEnergyGain
 		  << " fail loose match through excessive energy gain (and have MuidSA)"
-		  << endmsg
+		  << endreq
 		  << "               " << m_countFailEnergyLoss
 		  << " fail loose match through excessive energy loss (and have MuidSA)"
-		  << endmsg
+		  << endreq
 		  << "               " << m_countFailMomentumBalance
 		  << " fail loose momentum balance with invalid track (and have MuidSA)"
-		  << endmsg
+		  << endreq
 		  << "               " << m_countFailPositionMatch
 		  << " fail loose position match at calorimeter midpoint (and have MuidSA)"
-		  << endmsg
+		  << endreq
 		  << "               " << m_countFailMatchWindowSA
 		  << " fail have MuidSA but no match inside window"
-		  << endmsg
+		  << endreq
 		  << "               " << m_countFailMatchWindowMS
 		  << " fail MuidSA and have no match inside window"
-		  << endmsg
+		  << endreq
 		  << "  for " << std::setw(6) << m_countBestMatch1 << " (" << m_countBestMatch2 << ")"
 		  << " best matches with a successful combined fit: "
-		  << endmsg
+		  << endreq
 		  << "      " << std::setw(6) << m_countTightMatch1 << " (" << m_countTightMatch2 << ")"
 		  << " matches with a tight Indet/Spectrometer match (# from outwardsBuilder)"
-		  << endmsg
+		  << endreq
 		  << "      " << std::setw(6) << m_countInnerMatch1 << " (" << m_countInnerMatch2 << ")"
 		  << " matches with an inner Indet/Spectrometer match (# from outwardsBuilder)"
-		  << endmsg
+		  << endreq
 		  << "      " << std::setw(6) << m_countOuterMatch1 << " (" << m_countOuterMatch2 << ")"
 		  << " matches with an outer Indet/Spectrometer match (# from outwardsBuilder)"
-		  << endmsg
+		  << endreq
 		  << "      " << std::setw(6) << m_countSimpleMatch1 << " (" << m_countSimpleMatch2
 		  << ")"
 		  << " matches with a simple SA/Indet match (# from outwardsBuilder)"
-		  << endmsg
+		  << endreq
 		  << "      " << std::setw(6) << m_countGoodLoose1 << " (" << m_countGoodLoose2 << ")"
 		  << " good matches with a loose Indet/Spectrometer match (# from outwardsBuilder)"
-		  << endmsg
+		  << endreq
 		  << "      " << std::setw(6) << m_countBadLoose1 << " (" << m_countBadLoose2 << ")"
 		  << " bad matches with a loose Indet/Spectrometer match (# from outwardsBuilder)"
-		  << endmsg
+		  << endreq
 		  << "      " << std::setw(6) << m_countMSMatch1 << " (" << m_countMSMatch2 << ")"
 		  << " matches recovered from MuonSpectrometer tracks without Standalone fit"
-		  << endmsg
+		  << endreq
 		  << "      " << std::setw(6) << m_countBadMatch1 << " (" << m_countBadMatch2 << ")"
 		  << " bad inner Indet/Spectrometer matches (# from outwardsBuilder)"
-		  << endmsg
+		  << endreq
 		  << "      " << std::setw(6) << m_countPSignificance1
 		  << " (" << m_countPSignificance2 << ")"
 		  << " have momentumBalanceSignificance > 3 (# from outwardsBuilder)"
-		  << endmsg
+		  << endreq
 		  << "      " << std::setw(6) << m_countCSignificance1
 		  << " (" << m_countCSignificance2 << ")"
 		  << " pass above with scatteringCurvatureSignificance > 3 (# from outwardsBuilder)"
-		  << endmsg
+		  << endreq
 		  << "      " << std::setw(6) << m_countNSignificance1
 		  << " (" << m_countNSignificance2 << ")"
 		  << " pass above with scatteringNeighbourSignificance > 3 (# from outwardsBuilder)"
@@ -498,7 +498,7 @@ MuidMatchMaker::convertPerigee (const Trk::Perigee* trkPerigee) const
 MuidTrackContainer*
 MuidMatchMaker::execute(const TrackCollection*	extrapolatedTracks,
 			const TrackCollection*	indetTracks,
-			const TrackCollection*	spectrometerTracks)
+			const TrackCollection*	spectrometerTracks) const
 {
     if (msgLvl(MSG::DEBUG)) debugInput(indetTracks,extrapolatedTracks,spectrometerTracks);
 
@@ -642,7 +642,7 @@ MuidMatchMaker::execute(const TrackCollection*	extrapolatedTracks,
 		 ++cand)
 	    {
 		ATH_MSG_VERBOSE( std::setiosflags(std::ios::fixed | std::ios::right)
-				 << "----------- MuidMatchMaker ----------" << endmsg
+				 << "----------- MuidMatchMaker ----------" << endreq
 				 << std::setw(4) << extrapNumber << " /"
 				 << std::setw(4) << (**cand).indetIndex() );
 
@@ -1717,7 +1717,7 @@ MuidMatchMaker::debugOutput (const MuidTrackContainer*	combinedMuons,
 	}
 	msg(MSG::DEBUG) << std::endl;
     }
-    msg(MSG::DEBUG) << endmsg;
+    msg(MSG::DEBUG) << endreq;
 }
 
 void
@@ -2103,7 +2103,7 @@ MuidMatchMaker::indetCandidates (std::vector<IndetMatchCandidate*>&     candidat
                             << std::endl;
         }
     }
-    msg(MSG::DEBUG) << endmsg;
+    msg(MSG::DEBUG) << endreq;
 }
     
 const Trk::Track*
@@ -2228,7 +2228,7 @@ MuidMatchMaker::indetExtension (const Trk::Track&	indetTrack,
         
 bool
 MuidMatchMaker::loosePositionMatch (const PerigeeParameters&	indet,
-				    const MuonMatch&		matchCandidate)
+				    const MuonMatch&		matchCandidate) const
 {
     ATH_MSG_VERBOSE( "   Try loose match" );
 
