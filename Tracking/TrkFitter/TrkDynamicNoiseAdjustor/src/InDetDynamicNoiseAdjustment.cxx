@@ -25,7 +25,6 @@
 #include "TrkToolInterfaces/IUpdator.h"
 
 //#include "TrkParameters/MeasuredTrackParameters.h"
-#include "TrkEventUtils/TrkParametersManipulator.h"
 #include "TrkFitterUtils/DNA_MaterialEffects.h"
 
 #include <ext/algorithm>
@@ -439,7 +438,7 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 
       // Estimate m (sometimes called c, pathlength in X0, corrected for theta, divided by ln2)
       // calculate the pathcorrection
-      double pathcorrection = lay->pathCorrection(*updatedPar);
+      double pathcorrection = fabs(lay->surfaceRepresentation().pathCorrection(updatedPar->position(), updatedPar->momentum()));
       // prepare the material properties
       const Trk::MaterialProperties* mat = lay->fullUpdateMaterialProperties(*updatedPar);
 
