@@ -45,7 +45,7 @@ namespace MyAnalysisCal {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  int m_nevt;
+    //int m_nevt;
 
   };
 } // end of namespace bracket

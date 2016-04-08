@@ -22,8 +22,8 @@ namespace MyAnalysisCal {
 
   //Constructor
   AnalysisCal::AnalysisCal(const std::string& name, ISvcLocator* pSvcLocator):
-    AthAlgorithm(name,pSvcLocator),
-    m_nevt(0)
+    AthAlgorithm(name,pSvcLocator)
+    //m_nevt(0)
   {
   }
   
