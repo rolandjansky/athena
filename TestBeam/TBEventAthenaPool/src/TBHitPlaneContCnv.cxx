@@ -35,7 +35,7 @@ StatusCode TBHitPlaneContCnv::initialize()
 }
 
 
-StatusCode TBHitPlaneContCnv::PoolToDataObject(DataObject*& pObj,const std::string &token)
+StatusCode TBHitPlaneContCnv::PoolToDataObject(DataObject*& pObj, const Token* token)
 {
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
