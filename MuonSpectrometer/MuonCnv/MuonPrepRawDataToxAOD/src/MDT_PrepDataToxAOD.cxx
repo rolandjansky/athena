@@ -16,17 +16,17 @@
 MDT_PrepDataToxAOD::MDT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   MuonPrepDataToxAOD(name,pSvcLocator,"MDT_DriftCircles","MDT_SDO"),
   m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator")
-{  
-  
+{
+
 }
 
-StatusCode MDT_PrepDataToxAOD::initialize() { 
+StatusCode MDT_PrepDataToxAOD::initialize() {
   ATH_CHECK(MuonPrepDataToxAOD::initialize());
-  ATH_CHECK(m_mdtRotCreator.retrieve()); 
-  return StatusCode::SUCCESS; 
+  ATH_CHECK(m_mdtRotCreator.retrieve());
+  return StatusCode::SUCCESS;
 }
 // Execute method:
-StatusCode MDT_PrepDataToxAOD::execute() 
+StatusCode MDT_PrepDataToxAOD::execute()
 {
   if( !buildCollections() ) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
@@ -57,7 +57,7 @@ void MDT_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::TrackMeasurementVal
     float secondEntry = invalid_value;
     /// loop over hits, check for muons and extract additional info
     for( const auto& deposit : sdo->getdeposits() ){
-      if( !deposit.first.cptr() || !abs(deposit.first.cptr()->pdg_id()) == 13 ) continue;
+      if( !deposit.first.cptr() || abs(deposit.first.cptr()->pdg_id()) != 13 ) continue;
       firstEntry = deposit.second.firstEntry();
       secondEntry = deposit.second.secondEntry();
     }
@@ -67,7 +67,7 @@ void MDT_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::TrackMeasurementVal
     }
     recalculated = true;
   }
-  
+
   if( gpos.mag() > 1000 ){
     const Muon::MdtDriftCircleOnTrack* rot = m_mdtRotCreator->createRIO_OnTrack(prd,gpos);
     if( rot ){
