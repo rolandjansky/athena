@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBjetCnvTool.h 785653 2016-11-22 06:07:48Z ssnyder $
+// $Id: TrigBjetCnvTool.h 601176 2014-06-11 10:54:22Z lidiaz $
 #ifndef xAODBTaggingCNV_TrigBjetCNVTOOL_H
 #define xAODBTaggingCNV_TrigBjetCNVTOOL_H
 
@@ -34,11 +34,11 @@ namespace xAODMaker {
                       const IInterface* parent );
 
       /// Function initialising the tool
-      virtual StatusCode initialize() override;
+      virtual StatusCode initialize();
 
       /// Function that fills an existing xAOD::BTaggingContainer
       virtual StatusCode convert( const TrigEFBjetContainer* aod,
-                                  xAOD::BTaggingContainer* xaod ) const override;
+                                  xAOD::BTaggingContainer* xaod );
 
    }; // class TrigBjetCnvTool
 
