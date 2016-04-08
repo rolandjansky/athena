@@ -26,6 +26,7 @@ use   TrigJPsiTools           TrigJPsiTools-*		Trigger/TrigTools
 private
 
 use   GaudiInterface	      GaudiInterface-*	        External
+use   AthenaKernel            AthenaKernel-*            Control
 use   AthenaMonitoring        AthenaMonitoring-*        Control
 use   TrigInDetEvent	      TrigInDetEvent-*          Trigger/TrigEvent
 use   muonEvent		      muonEvent-*	        Reconstruction/MuonIdentification

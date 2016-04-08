@@ -38,12 +38,6 @@
 #include "TH1F.h"
 #include "TLorentzVector.h"
 
-using std::map;
-using std::string;
-using std::vector;
-using std::cout;
-using std::endl;
-
 namespace TrigInDetAnalysis {
 
   class AnalysisConfig_Jpsi : public T_AnalysisConfig<IHLTMonTool> { 
@@ -59,10 +53,10 @@ namespace TrigInDetAnalysis {
       // - roiInfo: in case the test chain is a real chain, this is used to specify RoI widths;
       //            in case the test chain is a fake chain, this is used for RoI position too
       // - all standard operations are performed in loops over 0=test 1=reference 2=selection
-      AnalysisConfig_Jpsi(const string &analysisInstanceName, const string& testChainName, const string& testType,
-                          const string& testKey, const string& referenceChainName, const string& referenceType,
-                          const string& referenceKey, const string& selectionChainName, const string& selectionType,
-                          const string& selectionKey, TIDARoiDescriptor* roiInfo, TrackFilter* testFilter,
+      AnalysisConfig_Jpsi(const std::string &analysisInstanceName, const std::string& testChainName, const std::string& testType,
+                          const std::string& testKey, const std::string& referenceChainName, const std::string& referenceType,
+                          const std::string& referenceKey, const std::string& selectionChainName, const std::string& selectionType,
+                          const std::string& selectionKey, TIDARoiDescriptor* roiInfo, TrackFilter* testFilter,
                           TrackFilter* referenceFilter, TrackFilter* selectionFilter, TrackAssociator* associator,
                          TrackAnalysis* analysis) : T_AnalysisConfig<IHLTMonTool>( analysisInstanceName, testChainName,
                                                                                    testType, testKey, referenceChainName,
@@ -89,9 +83,9 @@ namespace TrigInDetAnalysis {
       // - roiInfo: in case the test chain is a real chain, this is used to specify RoI widths;
       //            in case the test chain is a fake chain, this is used for RoI position too
       // - all standard operations are performed in loops over 0=test 1=reference 2=selection
-      AnalysisConfig_Jpsi(const string &analysisInstanceName, const string &testChainName, const string &testType,
-                          const string &testKey, const string &referenceChainName, const string &referenceType,
-                          const string &referenceKey, TIDARoiDescriptor* roiInfo, TrackFilter* testFilter,
+      AnalysisConfig_Jpsi(const std::string &analysisInstanceName, const std::string &testChainName, const std::string &testType,
+                          const std::string &testKey, const std::string &referenceChainName, const std::string &referenceType,
+                          const std::string &referenceKey, TIDARoiDescriptor* roiInfo, TrackFilter* testFilter,
                           TrackFilter* referenceFilter, TrackAssociator* associator, TrackAnalysis* analysis) :
                           T_AnalysisConfig<IHLTMonTool>( analysisInstanceName, testChainName, testType, testKey,
                                                          referenceChainName, referenceType, referenceKey, roiInfo,
@@ -143,7 +137,7 @@ namespace TrigInDetAnalysis {
 
       JpsiAnalysis* m_analysisJ; 
 
-      template<class TrackCollection> void selectTracks(const string& key="", unsigned index=0,const string& chain="") {   
+      template<class TrackCollection> void selectTracks(const std::string& key="", unsigned index=0,const std::string& chain="") {   
         m_provider->msg(MSG::DEBUG) << "Starting selectTracks ..." << endreq;
 
         Trig::ExpertMethods* em = (*m_tdt)->ExperimentalAndExpertMethods();
@@ -151,24 +145,24 @@ namespace TrigInDetAnalysis {
         const HLT::NavigationCore* nc = em->getNavigation();
 
         Trig::FeatureContainer fcont = (*m_tdt)->features( chain, TrigDefs::alsoDeactivateTEs );
-        const vector< Trig::Combination >& comb = fcont.getCombinations();
-        vector< Trig::Combination >::const_iterator c_itr = comb.begin();
-        vector< Trig::Combination >::const_iterator c_end = comb.end();
+        const std::vector< Trig::Combination >& comb = fcont.getCombinations();
+        std::vector< Trig::Combination >::const_iterator c_itr = comb.begin();
+        std::vector< Trig::Combination >::const_iterator c_end = comb.end();
 
-        cout << "choosing ID chain name..." << endl;
+        std::cout << "choosing ID chain name..." << std::endl;
 
-        string idChainName;
-        if(chain.find("2mu4T_")     != string::npos) idChainName = "L2_mu4T_IDTrkNoCut";
-        //if(chain.find("2mu4T_")     != string::npos) idChainName = "L2_muon_standalone_mu4T";
-        //if(chain.find("2mu4T_")     != string::npos) idChainName = "***REMOVED***";
-        if(chain.find("2mu4_")      != string::npos) idChainName = "L2_mu4_IDTrkNoCut";
-        if(chain.find("2mu13_")     != string::npos) idChainName = "L2_mu13_IDTrkNoCut";
-        if(chain.find("e4_etcut_Jpsi") != string::npos) idChainName = "L2_e4_etcutid";
-        else if(chain.find("e5_tight1_") != string::npos) idChainName = "L2_e5_tight1id";
-        if(chain.find("e24vh_")     != string::npos) idChainName = "L2_e15_NoCutid";
-        if(chain.find("mu24i_")     != string::npos) idChainName = ""; //L2_mu24_tight";
-        if(chain.find("_mu20")      != string::npos) idChainName = "";
-        //if(chain.find("mu24i_")     != string::npos) idChainName = " L2_muon_standalone_mu18_tight";
+        std::string idChainName;
+        if(chain.find("2mu4T_")     != std::string::npos) idChainName = "L2_mu4T_IDTrkNoCut";
+        //if(chain.find("2mu4T_")     != std::string::npos) idChainName = "L2_muon_standalone_mu4T";
+        //if(chain.find("2mu4T_")     != std::string::npos) idChainName = "***REMOVED***";
+        if(chain.find("2mu4_")      != std::string::npos) idChainName = "L2_mu4_IDTrkNoCut";
+        if(chain.find("2mu13_")     != std::string::npos) idChainName = "L2_mu13_IDTrkNoCut";
+        if(chain.find("e4_etcut_Jpsi") != std::string::npos) idChainName = "L2_e4_etcutid";
+        else if(chain.find("e5_tight1_") != std::string::npos) idChainName = "L2_e5_tight1id";
+        if(chain.find("e24vh_")     != std::string::npos) idChainName = "L2_e15_NoCutid";
+        if(chain.find("mu24i_")     != std::string::npos) idChainName = ""; //L2_mu24_tight";
+        if(chain.find("_mu20")      != std::string::npos) idChainName = "";
+        //if(chain.find("mu24i_")     != std::string::npos) idChainName = " L2_muon_standalone_mu18_tight";
 
         m_provider->msg(MSG::DEBUG) << "chain= " << chain 
                                     << " idChainName= " << idChainName 
@@ -177,17 +171,17 @@ namespace TrigInDetAnalysis {
         for( ; c_itr != c_end; ++c_itr ) {
           // Now we iterate over accepted "combinations". (Single or multiple
           // RoIs that passed the trigger.)
-          /*if(index==0)       cout << "A Before " << idChainName << " HLTTruncated = " << HLTTruncated << endl;
-          if(index==1)       cout << "B Before " << idChainName << " HLTTruncated = " << HLTTruncated << endl;
-          if(index==2)       cout << "C Before " << idChainName << " HLTTruncated = " << HLTTruncated << endl;*/
-          //cout << "   header - before get<...>" << endl;
-          vector< Trig::Feature< TrackCollection > > probeTracks = c_itr->get< TrackCollection >(key, TrigDefs::alsoDeactivateTEs, idChainName);
-          //cout << "   header - after get<...>" << probeTracks.size() << endl;
+          /*if(index==0)       cout << "A Before " << idChainName << " HLTTruncated = " << HLTTruncated << std::endl;
+          if(index==1)       cout << "B Before " << idChainName << " HLTTruncated = " << HLTTruncated << std::endl;
+          if(index==2)       cout << "C Before " << idChainName << " HLTTruncated = " << HLTTruncated << std::endl;*/
+          //cout << "   header - before get<...>" << std::endl;
+          std::vector< Trig::Feature< TrackCollection > > probeTracks = c_itr->get< TrackCollection >(key, TrigDefs::alsoDeactivateTEs, idChainName);
+          //cout << "   header - after get<...>" << probeTracks.size() << std::endl;
 
           // This will probably be a single-element vector if the chain used a
           // single TE. But if it was constructed from multiple TEs, we should
           // have multiple track collections here.
-          // cout << "\n# combinations = " << comb.size() << " # collections = " << probeTracks.size() << "\n" << endl;
+          // cout << "\n# combinations = " << comb.size() << " # collections = " << probeTracks.size() << "\n" << std::endl;
           
           for(unsigned ifeat = 0; ifeat < probeTracks.size(); ++ifeat) {
       
@@ -195,20 +189,20 @@ namespace TrigInDetAnalysis {
 
             Trig::Feature<TrigRoiDescriptor> trackroi = (*m_tdt)->ancestor<TrigRoiDescriptor>(trackfeature);
             const TrigRoiDescriptor* roid1 = trackroi.cptr();
-            //	cout << "ID track RoI ID = " << roid1->roiId() << endl;
+            //	cout << "ID track RoI ID = " << roid1->roiId() << std::endl;
             /// if there are > 3 combinations, roiID can be > 1; ie. there are > 2 RoIs
             /// currently we ignore them
             int roiID = roid1->roiId();
             m_provider->msg(MSG::DEBUG) << "roi ID: " << roiID << endreq;
 
             const HLT::TriggerElement* te = trackfeature.te();
-            string TEName = "";
+            std::string TEName = "";
             TEName = (Trig::getTEName(*te).c_str());
             m_provider->msg(MSG::DEBUG) << "TE name: " << TEName << endreq;
               
             // get all the named collections attached to the TE
             //if(TEName == "L2_mu4T_IDTrkNoCut"){
-            vector< const TrackCollection* > collectionVector;
+            std::vector< const TrackCollection* > collectionVector;
             if( !const_cast<HLT::NavigationCore *>(nc)->getFeatures( te, collectionVector, key ) ) return;
             
             for(unsigned iv = 0; iv < collectionVector.size(); iv++ ) {
@@ -219,13 +213,13 @@ namespace TrigInDetAnalysis {
               ///finally, extract the tracks from this RoI
               if(collectionVector[iv]) { 
                 //if(count == ifeat){
-                //cout << "V1 - RoI num: " << roiID << endl;
+                //cout << "V1 - RoI num: " << roiID << std::endl;
                 getL2tracks<TrackCollection>(collectionVector[iv], roiID);
-                //cout << "AC_Jpsi collectionVector[" << iv << "]->size() " << collectionVector[iv]->size() << " roiID " << roiID << endl;
+                //cout << "AC_Jpsi collectionVector[" << iv << "]->size() " << collectionVector[iv]->size() << " roiID " << roiID << std::endl;
                 //}
                 //if(roiID == 0) selectorA->selectTracks(collectionVector[iv], truthmap);
                 //if(roiID == 1) selectorB->selectTracks(collectionVector[iv], truthmap);
-                //if(roiID != 0 && roiID != 1) cout << "ID tracks roiID = " << roiID << endl;
+                //if(roiID != 0 && roiID != 1) cout << "ID tracks roiID = " << roiID << std::endl;
               }
             }
             //}//specify TEname
@@ -234,54 +228,54 @@ namespace TrigInDetAnalysis {
         m_provider->msg(MSG::DEBUG) << "... end of selectTracks." << endreq;
       }
 
-      template<class TrackCollection> void selectTracks0(const string &key="", unsigned index=0, const string& chain="") {   
+      template<class TrackCollection> void selectTracks0(const std::string &key="", unsigned index=0, const std::string& chain="") {   
         m_provider->msg(MSG::DEBUG) << "Starting selectTracks0 ..." << endreq;
 
         Trig::ExpertMethods* em = (*m_tdt)->ExperimentalAndExpertMethods();
         em->enable();
         const HLT::NavigationCore* nc = em->getNavigation();
 
-        cout << "Chain: " << chain << endl;
+        std::cout << "Chain: " << chain << std::endl;
         Trig::FeatureContainer fcont = (*m_tdt)->features( chain, TrigDefs::alsoDeactivateTEs );
-        const vector< Trig::Combination >& comb = fcont.getCombinations();
-        vector< Trig::Combination >::const_iterator c_itr = comb.begin();
-        vector< Trig::Combination >::const_iterator c_end = comb.end();
+        const std::vector< Trig::Combination >& comb = fcont.getCombinations();
+        std::vector< Trig::Combination >::const_iterator c_itr = comb.begin();
+        std::vector< Trig::Combination >::const_iterator c_end = comb.end();
 
-        string idChainName;
-        if( (chain.find("2mu4T_")!=string::npos) ){ 
-          if( key.find("InDetTrig") != string::npos) idChainName = "EFID_mu4T_IDTrkNoCut";
+        std::string idChainName;
+        if( (chain.find("2mu4T_")!=std::string::npos) ){ 
+          if( key.find("InDetTrig") != std::string::npos) idChainName = "EFID_mu4T_IDTrkNoCut";
           else idChainName = "L2_mu4T_IDTrkNoCut";
         }
-        if( (chain.find("2mu4_")!=string::npos) ){ 
-          if( key.find("InDetTrig") != string::npos) idChainName = "EFID_mu4_IDTrkNoCut";
+        if( (chain.find("2mu4_")!=std::string::npos) ){ 
+          if( key.find("InDetTrig") != std::string::npos) idChainName = "EFID_mu4_IDTrkNoCut";
           else idChainName = "L2_mu4_IDTrkNoCut";
         }
 
-        if( (chain.find("2mu13_")!=string::npos) ){ 
-          if( key.find("InDetTrig") != string::npos) idChainName = "EFID_mu13_IDTrkNoCut";
+        if( (chain.find("2mu13_")!=std::string::npos) ){ 
+          if( key.find("InDetTrig") != std::string::npos) idChainName = "EFID_mu13_IDTrkNoCut";
           else idChainName = "L2_mu4_IDTrkNoCut";
         }
         
-        if( (chain.find("mu24i_")!=string::npos) ) {
-          if( key.find("InDetTrig") != string::npos) idChainName = "";
+        if( (chain.find("mu24i_")!=std::string::npos) ) {
+          if( key.find("InDetTrig") != std::string::npos) idChainName = "";
           else idChainName = "L2_mu24_tight";
         }
-        if( (chain.find("_mu20")!=string::npos) ) {
-          if( key.find("InDetTrig") != string::npos) idChainName = "";
+        if( (chain.find("_mu20")!=std::string::npos) ) {
+          if( key.find("InDetTrig") != std::string::npos) idChainName = "";
           else idChainName = "L2_mu24_tight";
         }
 
-        if( (chain.find("e4_etcut_Jpsi")!=string::npos) ){ 
-          if( key.find("InDetTrig") != string::npos) idChainName = "EF_e4_etcutid";
+        if( (chain.find("e4_etcut_Jpsi")!=std::string::npos) ){ 
+          if( key.find("InDetTrig") != std::string::npos) idChainName = "EF_e4_etcutid";
           else idChainName = "L2_e4_etcutid";
         }
-        else if( (chain.find("e5_tight1_")!=string::npos) ){ 
-          if( key.find("InDetTrig") != string::npos) idChainName = "EF_e5_tight1id";
+        else if( (chain.find("e5_tight1_")!=std::string::npos) ){ 
+          if( key.find("InDetTrig") != std::string::npos) idChainName = "EF_e5_tight1id";
           else idChainName = "L2_e5_tight1id";
         }
 
-       if( (chain.find("e24vh_")!=string::npos) ){ 
-          if( key.find("InDetTrig") != string::npos) idChainName = "EF_e15_NoCutid1";
+       if( (chain.find("e24vh_")!=std::string::npos) ){ 
+          if( key.find("InDetTrig") != std::string::npos) idChainName = "EF_e15_NoCutid1";
           else idChainName = "L2_e15_NoCutcl";
         }
 
@@ -290,39 +284,39 @@ namespace TrigInDetAnalysis {
         for( ; c_itr != c_end; ++c_itr ) {
           // Now we iterate over accepted "combinations". (Single or multiple
           // RoIs that passed the trigger.)
-          //      if(index==0)       cout << "A Before " << idChainName << " HLTTruncated = " << HLTTruncated << endl;
-          /*      if(index==1)       cout << "B Before " << idChainName << " HLTTruncated = " << HLTTruncated << endl;
-          if(index==2)       cout << "C Before " << idChainName << " HLTTruncated = " << HLTTruncated << endl;*/
-          cout << "selectTracks0 BEFORE c_itr->get<...>(...)" << endl;
-          vector< Trig::Feature< TrackCollection > > probeTracks = c_itr->get< TrackCollection >(key, TrigDefs::alsoDeactivateTEs, idChainName);
-          cout << "selectTracks0 AFTER c_itr->get<...>(...)" << endl;
+          //      if(index==0)       std::cout << "A Before " << idChainName << " HLTTruncated = " << HLTTruncated << std::endl;
+          /*      if(index==1)       std::cout << "B Before " << idChainName << " HLTTruncated = " << HLTTruncated << std::endl;
+          if(index==2)       std::cout << "C Before " << idChainName << " HLTTruncated = " << HLTTruncated << std::endl;*/
+          std::cout << "selectTracks0 BEFORE c_itr->get<...>(...)" << std::endl;
+          std::vector< Trig::Feature< TrackCollection > > probeTracks = c_itr->get< TrackCollection >(key, TrigDefs::alsoDeactivateTEs, idChainName);
+          std::cout << "selectTracks0 AFTER c_itr->get<...>(...)" << std::endl;
           /// if empty, probably 2011... so try this one
-          if(chain.find("mu24i") != string::npos && !probeTracks.size()) {
-            if(chain.find("2mu4T_") != string::npos)  idChainName = "EF_EFID_mu4T_IDTrkNoCut";
-            if(chain.find("2mu13_") != string::npos)  idChainName = "EF_EFID_mu13_IDTrkNoCut";
+          if(chain.find("mu24i") != std::string::npos && !probeTracks.size()) {
+            if(chain.find("2mu4T_") != std::string::npos)  idChainName = "EF_EFID_mu4T_IDTrkNoCut";
+            if(chain.find("2mu13_") != std::string::npos)  idChainName = "EF_EFID_mu13_IDTrkNoCut";
             probeTracks = c_itr->get< TrackCollection >(key, TrigDefs::alsoDeactivateTEs, idChainName);
           }
-          /*      cout << "After after " << probeTracks.size() << endl;
+          /*      std::cout << "After after " << probeTracks.size() << std::endl;
           if(probeTracks.size() == 0) idChainName = "EF_trt_mu4T_IDTrkNoCut";
           probeTracks = c_itr->get< TrackCollection >(key, TrigDefs::alsoDeactivateTEs, idChainName);
-          cout << "Next try " << probeTracks.size() << endl;
+          std::cout << "Next try " << probeTracks.size() << std::endl;
           if(probeTracks.size() == 0) idChainName = "EF_MS_mu4T_IDTrkNoCut";
           probeTracks = c_itr->get< TrackCollection >(key, TrigDefs::alsoDeactivateTEs, idChainName);
-          cout << "And again " << probeTracks.size() << endl;
+          std::cout << "And again " << probeTracks.size() << std::endl;
           if(probeTracks.size() == 0) idChainName = "EF_TB_mu4T_IDTrkNoCut";
           probeTracks = c_itr->get< TrackCollection >(key, TrigDefs::alsoDeactivateTEs, idChainName);
-          cout << "And and again " << probeTracks.size() << endl;
+          std::cout << "And and again " << probeTracks.size() << std::endl;
           if(probeTracks.size() == 0) idChainName = "EF_SA_mu4T_IDTrkNoCut";
           probeTracks = c_itr->get< TrackCollection >(key, TrigDefs::alsoDeactivateTEs, idChainName);
-          cout << "And and and again " << probeTracks.size() << endl;
+          std::cout << "And and and again " << probeTracks.size() << std::endl;
           if(probeTracks.size() == 0) idChainName = "EF_mu4T_IDTrkNoCut";
           probeTracks = c_itr->get< TrackCollection >(key, TrigDefs::alsoDeactivateTEs, idChainName);
-          cout << "Last try " << probeTracks.size() << endl;*/
+          std::cout << "Last try " << probeTracks.size() << std::endl;*/
 
           // This will probably be a single-element vector if the chain used a
           // single TE. But if it was constructed from multiple TEs, we should
           // have multiple track collections here.
-          //cout << "\n# combinations = " << comb.size() << " # collections = " << probeTracks.size()	<< "\n" << endl;
+          //std::cout << "\n# combinations = " << comb.size() << " # collections = " << probeTracks.size()	<< "\n" << std::endl;
           
           for(unsigned ifeat = 0; ifeat < probeTracks.size(); ++ifeat) {
       
@@ -330,7 +324,7 @@ namespace TrigInDetAnalysis {
 
             Trig::Feature<TrigRoiDescriptor> trackroi = (*m_tdt)->ancestor<TrigRoiDescriptor>(trackfeature);
             const TrigRoiDescriptor* roid1 = trackroi.cptr();
-            //cout << "ID track RoI ID = " << roid1->roiId() << endl;
+            //std::cout << "ID track RoI ID = " << roid1->roiId() << std::endl;
 
             // if there are > 3 combinations, roiID can be > 1; ie. there are > 2 RoIs
             // currently we ignore them
@@ -338,12 +332,12 @@ namespace TrigInDetAnalysis {
             m_provider->msg(MSG::DEBUG) << "EF roi ID: " << roiID << "eta = " << roid1->eta() << " phi = " << roid1->phi() << endreq;
 
             const HLT::TriggerElement* te = trackfeature.te();
-            string TEName = "";
+            std::string TEName = "";
             TEName = (Trig::getTEName(*te).c_str());
             m_provider->msg(MSG::DEBUG) << "EF TE name: " << TEName << endreq;
         
             // get all the named collections attached to the TE
-            vector<const TrackCollection*> collectionVector;
+            std::vector<const TrackCollection*> collectionVector;
             if( !const_cast<HLT::NavigationCore*>(nc)->getFeatures(te, collectionVector, key) )  return;
       
             for( unsigned iv = 0; iv < collectionVector.size(); iv++ ) {
@@ -353,13 +347,13 @@ namespace TrigInDetAnalysis {
               //finally, extract the tracks from this RoI
               if(collectionVector[iv]) { 
                 //if(count == ifeat) {
-                //cout << "V2 - RoI num: " << roiID << endl;
+                //std::cout << "V2 - RoI num: " << roiID << std::endl;
                 getEFtracks<TrackCollection>(collectionVector[iv], roiID);
-                //cout << "AC_Jpsi collectionVector[" << iv << "]->size() " << collectionVector[iv]->size() << endl;
+                //std::cout << "AC_Jpsi collectionVector[" << iv << "]->size() " << collectionVector[iv]->size() << std::endl;
                 //}
                 //if(roiID == 0) selectorA->selectTracks(collectionVector[iv], truthmap);
                 //if(roiID == 1) selectorB->selectTracks(collectionVector[iv], truthmap);
-                //if(roiID != 0 && roiID != 1) cout << "ID tracks roiID = " << roiID << endl;
+                //if(roiID != 0 && roiID != 1) std::cout << "ID tracks roiID = " << roiID << std::endl;
               }
             }
           }
@@ -369,8 +363,8 @@ namespace TrigInDetAnalysis {
 
       ///PW modified for 2 RoIs
       /*  template<class TrackCollection> 
-      void selectTracks( TrigTrackSelector* selector, const string& key="", const TrigInDetTrackTruthMap* truthmap=0, unsigned index=0, 
-             const string& chain="") {   
+      void selectTracks( TrigTrackSelector* selector, const std::string& key="", const TrigInDetTrackTruthMap* truthmap=0, unsigned index=0, 
+             const std::string& chain="") {   
 
         ///get the all-powerful expert methods
         Trig::ExpertMethods* expert = (*m_tdt)->ExperimentalAndExpertMethods();
@@ -378,20 +372,20 @@ namespace TrigInDetAnalysis {
 
         ///retrieve all trigger elements for defined subchain, eg. for a primary trigger "EF_2mu4T_Jpsimumu_IDTrkNoCut", 
         ///chain = "L2_mu4T_IDTrkNoCut"
-        vector<HLT::TriggerElement*> tes;
+        std::vector<HLT::TriggerElement*> tes;
         expert->getNavigation()->getAllOfType(chain, tes, true);
 
         ///this loop should iterate once / RoI
-        for(vector<HLT::TriggerElement*>::const_iterator te = tes.begin(); te!=tes.end(); te++){
-        //    vector<HLT::TriggerElement*>::const_iterator te = tes.begin();
+        for(std::vector<HLT::TriggerElement*>::const_iterator te = tes.begin(); te!=tes.end(); te++){
+        //    std::vector<HLT::TriggerElement*>::const_iterator te = tes.begin();
 
-          string TEName = "";
+          std::string TEName = "";
           TEName = (Trig::getTEName(*(*te))).c_str();
-          cout << "TE name = " << TEName << endl;
+          std::cout << "TE name = " << TEName << std::endl;
 
           ///using the ancestor method gives us access to all the tracks - for leading and 
           ///test algorithms - in the RoI
-          vector< Trig::Feature<TrackCollection> > featureVector = (*m_tdt)->ancestors<TrackCollection>(*te, key);
+          std::vector< Trig::Feature<TrackCollection> > featureVector = (*m_tdt)->ancestors<TrackCollection>(*te, key);
 
           ///this loop should iterate once / track collection, eg. MuonA, MuonB, etc...
           for( unsigned iv=0; iv<featureVector.size(); iv++){
@@ -399,11 +393,11 @@ namespace TrigInDetAnalysis {
       const TrackCollection* idTracks = featureVector[iv].cptr();
 
       ///finally, extract the tracks from this RoI
-      string algo;
+      std::string algo;
       if(index==0) algo = "A"; 
       if(index==1) algo = "B"; 
       if(index==2) algo = "C"; 
-      cout << "key = " << key << algo << endl;
+      std::cout << "key = " << key << algo << std::endl;
       if(idTracks) selector->selectTracks(idTracks, truthmap);
 
           }
@@ -420,7 +414,7 @@ namespace TrigInDetAnalysis {
           typename TrackCollection::const_iterator trackitr = collection->begin();
           typename TrackCollection::const_iterator trackend = collection->end();
           for( ; trackitr != trackend; ++trackitr) {
-            const TrigInDetTrack* track = dynamic_cast<TrigInDetTrack*>( *trackitr );
+            const TrigInDetTrack* track = dynamic_cast<const TrigInDetTrack*>( *trackitr );
             if(track) {
               double eta      = track->param()->eta();
               double phi      = track->param()->phi0();
@@ -461,11 +455,11 @@ namespace TrigInDetAnalysis {
               /*double phiAtCalo = 0., etaAtCalo = 0.;
               // arguments: track, RCalBarrelFace, ZCalEndcapFace, extrapolatated phi, extrapolated phi
               StatusCode sc = m_l2Extrapolator->extrapolateToCalo((*trackitr), 1470.0*CLHEP::mm, 3800.0*CLHEP::mm, phiAtCalo, etaAtCalo);
-              if(sc.isFailure())  cout << "L2 extrapolator failed " << endl;   
+              if(sc.isFailure())  std::cout << "L2 extrapolator failed " << std::endl;   
               m_phiAtCalo[ int(m_trigTracks.size() - 1) ] = phiAtCalo;
               m_etaAtCalo[ int(m_trigTracks.size() - 1) ] = etaAtCalo;*/
               m_trackRois[ int(m_trigTracks.size() - 1) ] = roi;
-              //cout << "SUTT ID track " << *t << "\t0x" << std::hex << track->HitPattern() << std::dec << endl;
+              //std::cout << "SUTT ID track " << *t << "\t0x" << std::hex << track->HitPattern() << std::dec << std::endl;
               //if( !addTrack( t ) ) delete t;
             } // if(track)
           } // loop over collection
@@ -532,12 +526,12 @@ namespace TrigInDetAnalysis {
               // TrackParticle (offline) tracks
               
               int fitter = track->info().trackFitter();
-              string dumpinfo = track->info().dumpInfo();
+              std::string dumpinfo = track->info().dumpInfo();
               
               int trackAuthor = -1; 
               if( fitter > 0 && fitter<Trk::TrackInfo::NumberOfTrackFitters ) {
-                if(      dumpinfo.find("TRTStandalone"       ) != string::npos)  trackAuthor = 2;
-                else if( dumpinfo.find("TRTSeededTrackFinder") != string::npos)  trackAuthor = 1;
+                if(      dumpinfo.find("TRTStandalone"       ) != std::string::npos)  trackAuthor = 2;
+                else if( dumpinfo.find("TRTSeededTrackFinder") != std::string::npos)  trackAuthor = 1;
                 else                                                             trackAuthor = 0;
               }
 
@@ -560,7 +554,7 @@ namespace TrigInDetAnalysis {
                                                     ((fabs(eta)<1.5)? CaloCell_ID::EMB2 : CaloCell_ID::EME2),
                                                     0.0, Trk::alongMomentum, Trk::undefined);
 #endif
-              if(!result)  cout << "EF extrapolator failed " << endl;
+              if(!result)  std::cout << "EF extrapolator failed " << std::endl;
               else {
                 phiAtCalo = result->position().phi();
                 etaAtCalo = result->position().eta();
@@ -571,7 +565,7 @@ namespace TrigInDetAnalysis {
               m_phiAtCalo[ int(m_trigTracks.size() - 1) ] = phiAtCalo;
               m_etaAtCalo[ int(m_trigTracks.size() - 1) ] = etaAtCalo; --> see also line w/ delete!!*/
               m_trackRois[ int(m_trigTracks.size() - 1) ] = roi;
-              //cout << "SUTT ID track " << *t << "\t0x" << std::hex << track->HitPattern() << std::dec << endl;
+              //std::cout << "SUTT ID track " << *t << "\t0x" << std::hex << track->HitPattern() << std::dec << std::endl;
               //if( !addTrack( t ) ) delete t;
               //if(result)  delete result;
             } // if(track)
@@ -604,10 +598,10 @@ namespace TrigInDetAnalysis {
         //Trk::VxCandidate* m_beamSpotVxCand;
           
         //TrigJpsiTools
-        string m_stream;
-        string m_tracksName;
-        string m_triggerChainName;
-        string m_muonCollection;
+        std::string m_stream;
+        std::string m_tracksName;
+        std::string m_triggerChainName;
+        std::string m_muonCollection;
         double m_jpsiPDGmass;
         double m_jpsiwidth;
         double m_ptcut;
@@ -634,21 +628,21 @@ namespace TrigInDetAnalysis {
         //ToolHandle<ITrigInDetTrackExtrapolator> m_l2Extrapolator;
 
         ///temp
-        vector<int> testtrackRoIs;
-        vector<int> reftrackRoIs;
+        std::vector<int> m_testtrackRoIs;
+        std::vector<int> m_reftrackRoIs;
         ///temp
         //TFile  *fOut;
         //TH1F   *my_hist;
         bool   /*my_check,*/ m_isMuon, m_isJpsi;
         unsigned int m_trigDefs;
 
-        //map<int, vector<Track*> > m_trigTracks;
-        map<int, int> m_trackRois;
+        //map<int, std::vector<Track*> > m_trigTracks;
+        std::map<int, int> m_trackRois;
         //map<int, double> m_phiAtCalo, m_etaAtCalo;
-        vector<TIDA::Track*> m_trigTracks;
+        std::vector<TIDA::Track*> m_trigTracks;
 
         // SG
-        string m_truthCollection;
+        std::string m_truthCollection;
         
         //selector
         JpsiTrackSelector* m_selectorJ;
@@ -657,7 +651,7 @@ namespace TrigInDetAnalysis {
         Associator_BestDeltaRMatcher* m_associatorJ;
 
         //event info
-        const DataHandle<EventInfo> eventInfo;
+        const DataHandle<EventInfo> m_eventInfo;
 
   };
 }

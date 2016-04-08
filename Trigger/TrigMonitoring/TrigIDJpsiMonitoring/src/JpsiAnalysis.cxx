@@ -13,6 +13,7 @@
 
 #include "TrigIDJpsiMonitoring/JpsiAnalysis.h"
 #include "TrigIDJpsiMonitoring/JpsiTrack.h"
+#include "AthenaKernel/Units.h"
 
 #include "TLorentzVector.h"
 
@@ -25,6 +26,7 @@ using std::string;
 using std::cout;
 using std::endl;
 using std::vector;
+using Athena::Units::GeV;
 
 //#include "Particle/TrackParticle.h"
 
@@ -33,7 +35,6 @@ using std::vector;
 
 void JpsiAnalysis::initialise() { 
 
-  GeV = 1000.;
   //+++ pT ranges
   float tmp_absResPt = 0.0005;
 
@@ -189,92 +190,92 @@ void JpsiAnalysis::initialise() {
   addHistogram(  new TH1F("tagAndProbe_invmass_offline","Tag&probe candidates (with offline electron);Invariant mass [GeV]", invmBins, invmMin, invmMax) );
   addHistogram(  new TH1F(  "Zpt",   "dilepton pt",   pTbins, pTmin, pTmax ) );
   addHistogram(  new TH1F(  "pTmiss",   "pTmiss",   pTbins, pTmin, pTmax ) );
-  pT_eff = new TProfile("pT_eff", "Efficiency versus pT; pT [MeV]", pTbins, pTmin, pTmax, 0., 110.);
-  pT_eff_d0cut = new TProfile("pT_eff_d0cut", "Efficiency versus pT; pT [MeV]", pTbins, pTmin, pTmax, 0., 110.);    
-  invmass_eff = new TProfile("invmass_eff", "Efficiency versus Invariant Mass; Invariant Mass [GeV]", invmBins, invmMin, invmMax, 0., 110.);
-  invmass_eff_d0cut = new TProfile("invmass_eff_d0cut", "Efficiency versus Invariant Mass; Invariant Mass [GeV]", invmBins, invmMin, invmMax, 0., 110.);
-  pT_eff_offline = new TProfile("pT_eff_offline", "Efficiency versus pT; pT [MeV]", pTbins, pTmin, pTmax, 0., 110.);
-  pT_eff_d0cut_offline = new TProfile("pT_eff_d0cut_offline", "Efficiency versus pT; pT [MeV]", pTbins, pTmin, pTmax, 0., 110.);    
-  invmass_eff_offline = new TProfile("invmass_eff_offline", "Efficiency versus Invariant Mass; Invariant Mass [GeV]", invmBins, invmMin, invmMax, 0., 110.);
-  invmass_eff_d0cut_offline = new TProfile("invmass_eff_d0cut_offline", "Efficiency versus Invariant Mass; Invariant Mass [GeV]", invmBins, invmMin, invmMax, 0., 110.);
+  m_pT_eff = new TProfile("pT_eff", "Efficiency versus pT; pT [MeV]", pTbins, pTmin, pTmax, 0., 110.);
+  m_pT_eff_d0cut = new TProfile("pT_eff_d0cut", "Efficiency versus pT; pT [MeV]", pTbins, pTmin, pTmax, 0., 110.);    
+  m_invmass_eff = new TProfile("invmass_eff", "Efficiency versus Invariant Mass; Invariant Mass [GeV]", invmBins, invmMin, invmMax, 0., 110.);
+  m_invmass_eff_d0cut = new TProfile("invmass_eff_d0cut", "Efficiency versus Invariant Mass; Invariant Mass [GeV]", invmBins, invmMin, invmMax, 0., 110.);
+  m_pT_eff_offline = new TProfile("pT_eff_offline", "Efficiency versus pT; pT [MeV]", pTbins, pTmin, pTmax, 0., 110.);
+  m_pT_eff_d0cut_offline = new TProfile("pT_eff_d0cut_offline", "Efficiency versus pT; pT [MeV]", pTbins, pTmin, pTmax, 0., 110.);    
+  m_invmass_eff_offline = new TProfile("invmass_eff_offline", "Efficiency versus Invariant Mass; Invariant Mass [GeV]", invmBins, invmMin, invmMax, 0., 110.);
+  m_invmass_eff_d0cut_offline = new TProfile("invmass_eff_d0cut_offline", "Efficiency versus Invariant Mass; Invariant Mass [GeV]", invmBins, invmMin, invmMax, 0., 110.);
 
-  eta_eff = new TProfile("eta_eff", "Efficiency versus #eta; #eta", 32, -4., 4., 0., 110.);
-  vert_eff = new TProfile("vert_eff", "Efficiency versus nVertices; nvertices", 36, -0.5, 35.5, 0., 110.);
-  z0_eff = new TProfile("z0_eff", "Efficiency versus z0; z0[mm]", 20, 0., 200., 0., 110.);
-  d0_eff = new TProfile("d0_eff", "Efficiency versus d0; d0[mm]", d0Bins, -d0Max, d0Max, 0., 110.);
-  phi_eff = new TProfile("phi_eff", "Efficiency versus #phi; #phi[rads]", 20., -4., 4., 0., 110.);
-  track_eff = new TProfile("track_eff", "Efficiency versus nTracks; ntracks", 80., 0., 800., 0., 110.);
+  m_eta_eff = new TProfile("eta_eff", "Efficiency versus #eta; #eta", 32, -4., 4., 0., 110.);
+  m_vert_eff = new TProfile("vert_eff", "Efficiency versus nVertices; nvertices", 36, -0.5, 35.5, 0., 110.);
+  m_z0_eff = new TProfile("z0_eff", "Efficiency versus z0; z0[mm]", 20, 0., 200., 0., 110.);
+  m_d0_eff = new TProfile("d0_eff", "Efficiency versus d0; d0[mm]", d0Bins, -d0Max, d0Max, 0., 110.);
+  m_phi_eff = new TProfile("phi_eff", "Efficiency versus #phi; #phi[rads]", 20., -4., 4., 0., 110.);
+  m_track_eff = new TProfile("track_eff", "Efficiency versus nTracks; ntracks", 80., 0., 800., 0., 110.);
 
-  eta_eff_d0cut = new TProfile("eta_eff_d0cut", "Efficiency versus #eta; #eta", 32, -4., 4., 0., 110.);
-  vert_eff_d0cut = new TProfile("vert_eff_d0cut", "Efficiency versus nVertices; nvertices", 36, -0.5, 35.5, 0., 110.);
-  z0_eff_d0cut = new TProfile("z0_eff_d0cut", "Efficiency versus z0; z0[mm]", 20, 0., 200., 0., 110.);
-  d0_eff_d0cut = new TProfile("d0_eff_d0cut", "Efficiency versus d0; d0[mm]", d0Bins, -d0Max, d0Max, 0., 110.);
-  phi_eff_d0cut = new TProfile("phi_eff_d0cut", "Efficiency versus #phi; #phi[rads]", 20., -4., 4., 0., 110.);
-  track_eff_d0cut = new TProfile("track_eff_d0cut", "Efficiency versus nTracks; ntracks", 80., 0., 800., 0., 110.);
+  m_eta_eff_d0cut = new TProfile("eta_eff_d0cut", "Efficiency versus #eta; #eta", 32, -4., 4., 0., 110.);
+  m_vert_eff_d0cut = new TProfile("vert_eff_d0cut", "Efficiency versus nVertices; nvertices", 36, -0.5, 35.5, 0., 110.);
+  m_z0_eff_d0cut = new TProfile("z0_eff_d0cut", "Efficiency versus z0; z0[mm]", 20, 0., 200., 0., 110.);
+  m_d0_eff_d0cut = new TProfile("d0_eff_d0cut", "Efficiency versus d0; d0[mm]", d0Bins, -d0Max, d0Max, 0., 110.);
+  m_phi_eff_d0cut = new TProfile("phi_eff_d0cut", "Efficiency versus #phi; #phi[rads]", 20., -4., 4., 0., 110.);
+  m_track_eff_d0cut = new TProfile("track_eff_d0cut", "Efficiency versus nTracks; ntracks", 80., 0., 800., 0., 110.);
 
-  eta_eff_offline = new TProfile("eta_eff_offline", "Efficiency versus #eta; #eta", 32, -4., 4., 0., 110.);
-  vert_eff_offline = new TProfile("vert_eff_offline", "Efficiency versus nVertices; nvertices", 36, -0.5, 35.5, 0., 110.);
-  z0_eff_offline = new TProfile("z0_eff_offline", "Efficiency versus z0; z0[mm]", 20, 0., 200., 0., 110.);
-  d0_eff_offline = new TProfile("d0_eff_offline", "Efficiency versus d0; d0[mm]", d0Bins, -d0Max, d0Max, 0., 110.);
-  phi_eff_offline = new TProfile("phi_eff_offline", "Efficiency versus #phi; #phi[rads]", 20., -4., 4., 0., 110.);
-  track_eff_offline = new TProfile("track_eff_offline", "Efficiency versus nTracks; ntracks", 80., 0., 800., 0., 110.);
+  m_eta_eff_offline = new TProfile("eta_eff_offline", "Efficiency versus #eta; #eta", 32, -4., 4., 0., 110.);
+  m_vert_eff_offline = new TProfile("vert_eff_offline", "Efficiency versus nVertices; nvertices", 36, -0.5, 35.5, 0., 110.);
+  m_z0_eff_offline = new TProfile("z0_eff_offline", "Efficiency versus z0; z0[mm]", 20, 0., 200., 0., 110.);
+  m_d0_eff_offline = new TProfile("d0_eff_offline", "Efficiency versus d0; d0[mm]", d0Bins, -d0Max, d0Max, 0., 110.);
+  m_phi_eff_offline = new TProfile("phi_eff_offline", "Efficiency versus #phi; #phi[rads]", 20., -4., 4., 0., 110.);
+  m_track_eff_offline = new TProfile("track_eff_offline", "Efficiency versus nTracks; ntracks", 80., 0., 800., 0., 110.);
 
-  eta_eff_d0cut_offline = new TProfile("eta_eff_d0cut_offline", "Efficiency versus #eta; #eta", 32, -4., 4., 0., 110.);
-  vert_eff_d0cut_offline = new TProfile("vert_eff_d0cut_offline", "Efficiency versus nVertices; nvertices", 36, -0.5, 35.5, 0., 110.);
-  z0_eff_d0cut_offline = new TProfile("z0_eff_d0cut_offline", "Efficiency versus z0; z0[mm]", 20, 0., 200., 0., 110.);
-  d0_eff_d0cut_offline = new TProfile("d0_eff_d0cut_offline", "Efficiency versus d0; d0[mm]", d0Bins, -d0Max, d0Max, 0., 110.);
-  phi_eff_d0cut_offline = new TProfile("phi_eff_d0cut_offline", "Efficiency versus #phi; #phi[rads]", 20., -4., 4., 0., 110.);
-  track_eff_d0cut_offline = new TProfile("track_eff_d0cut_offline", "Efficiency versus nTracks; ntracks", 40., 0., 400., 0., 110.);
+  m_eta_eff_d0cut_offline = new TProfile("eta_eff_d0cut_offline", "Efficiency versus #eta; #eta", 32, -4., 4., 0., 110.);
+  m_vert_eff_d0cut_offline = new TProfile("vert_eff_d0cut_offline", "Efficiency versus nVertices; nvertices", 36, -0.5, 35.5, 0., 110.);
+  m_z0_eff_d0cut_offline = new TProfile("z0_eff_d0cut_offline", "Efficiency versus z0; z0[mm]", 20, 0., 200., 0., 110.);
+  m_d0_eff_d0cut_offline = new TProfile("d0_eff_d0cut_offline", "Efficiency versus d0; d0[mm]", d0Bins, -d0Max, d0Max, 0., 110.);
+  m_phi_eff_d0cut_offline = new TProfile("phi_eff_d0cut_offline", "Efficiency versus #phi; #phi[rads]", 20., -4., 4., 0., 110.);
+  m_track_eff_d0cut_offline = new TProfile("track_eff_d0cut_offline", "Efficiency versus nTracks; ntracks", 40., 0., 400., 0., 110.);
 
-  /*  pT_pur = new TProfile("pT_pur", "Purity versus pT; pT [MeV]", 100, 0., 100000., 0., 110.);
-  eta_pur = new TProfile("eta_pur", "Purity versus #eta; #eta", 20, -4., 4., 0., 110.);
-  z0_pur = new TProfile("z0_pur", "Purity versus z0; z0[mm]", 20, 0., 200., 0., 110.);
-  d0_pur = new TProfile("d0_pur", "Purity versus d0; d0[mm]", 20, 0., 50., 0., 110.);
-  phi_pur = new TProfile("phi_pur", "Purity versus #phi; #phi[rads]", 20., -4., 4., 0., 110.);*/
+  /*  m_pT_pur = new TProfile("pT_pur", "Purity versus pT; pT [MeV]", 100, 0., 100000., 0., 110.);
+  m_eta_pur = new TProfile("eta_pur", "Purity versus #eta; #eta", 20, -4., 4., 0., 110.);
+  m_z0_pur = new TProfile("z0_pur", "Purity versus z0; z0[mm]", 20, 0., 200., 0., 110.);
+  m_d0_pur = new TProfile("d0_pur", "Purity versus d0; d0[mm]", 20, 0., 50., 0., 110.);
+  m_phi_pur = new TProfile("phi_pur", "Purity versus #phi; #phi[rads]", 20., -4., 4., 0., 110.);*/
 
-  /*  addHistogram( pT_pur );
-  addHistogram( eta_pur );
-  addHistogram( z0_pur );
-  addHistogram( d0_pur);
-  addHistogram( phi_pur );*/
+  /*  addHistogram( m_pT_pur );
+  addHistogram( m_eta_pur );
+  addHistogram( m_z0_pur );
+  addHistogram( m_d0_pur);
+  addHistogram( m_phi_pur );*/
 
-  addHistogram( pT_eff );
-  addHistogram( eta_eff );
-  addHistogram( vert_eff );
-  addHistogram( z0_eff );
-  addHistogram( d0_eff);
-  addHistogram( phi_eff );
-  addHistogram( track_eff );
-  addHistogram( invmass_eff );
-
-  /// |d0| > 1mm cut, to study delayed decays
-  addHistogram( pT_eff_d0cut );
-  addHistogram( eta_eff_d0cut );
-  addHistogram( vert_eff_d0cut );
-  addHistogram( z0_eff_d0cut );
-  addHistogram( d0_eff_d0cut);
-  addHistogram( phi_eff_d0cut );
-  addHistogram( track_eff_d0cut );
-  addHistogram( invmass_eff_d0cut );
-
-  addHistogram( pT_eff_offline );
-  addHistogram( eta_eff_offline );
-  addHistogram( vert_eff_offline );
-  addHistogram( z0_eff_offline );
-  addHistogram( d0_eff_offline);
-  addHistogram( phi_eff_offline );
-  addHistogram( track_eff_offline );
-  addHistogram( invmass_eff_offline );
+  addHistogram( m_pT_eff );
+  addHistogram( m_eta_eff );
+  addHistogram( m_vert_eff );
+  addHistogram( m_z0_eff );
+  addHistogram( m_d0_eff);
+  addHistogram( m_phi_eff );
+  addHistogram( m_track_eff );
+  addHistogram( m_invmass_eff );
 
   /// |d0| > 1mm cut, to study delayed decays
-  addHistogram( pT_eff_d0cut_offline );
-  addHistogram( eta_eff_d0cut_offline );
-  addHistogram( vert_eff_d0cut_offline );
-  addHistogram( z0_eff_d0cut_offline );
-  addHistogram( d0_eff_d0cut_offline);
-  addHistogram( phi_eff_d0cut_offline );
-  addHistogram( track_eff_d0cut_offline );
-  addHistogram( invmass_eff_d0cut_offline );
+  addHistogram( m_pT_eff_d0cut );
+  addHistogram( m_eta_eff_d0cut );
+  addHistogram( m_vert_eff_d0cut );
+  addHistogram( m_z0_eff_d0cut );
+  addHistogram( m_d0_eff_d0cut);
+  addHistogram( m_phi_eff_d0cut );
+  addHistogram( m_track_eff_d0cut );
+  addHistogram( m_invmass_eff_d0cut );
+
+  addHistogram( m_pT_eff_offline );
+  addHistogram( m_eta_eff_offline );
+  addHistogram( m_vert_eff_offline );
+  addHistogram( m_z0_eff_offline );
+  addHistogram( m_d0_eff_offline);
+  addHistogram( m_phi_eff_offline );
+  addHistogram( m_track_eff_offline );
+  addHistogram( m_invmass_eff_offline );
+
+  /// |d0| > 1mm cut, to study delayed decays
+  addHistogram( m_pT_eff_d0cut_offline );
+  addHistogram( m_eta_eff_d0cut_offline );
+  addHistogram( m_vert_eff_d0cut_offline );
+  addHistogram( m_z0_eff_d0cut_offline );
+  addHistogram( m_d0_eff_d0cut_offline);
+  addHistogram( m_phi_eff_d0cut_offline );
+  addHistogram( m_track_eff_d0cut_offline );
+  addHistogram( m_invmass_eff_d0cut_offline );
 
   ///
   addHistogram( new TH1F("tag_offline_invmass", "tag_offline_invmass", invmBins, invmMin, invmMax) );
@@ -553,14 +554,14 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
     float mu_inTime = 0; //, mu_outOfTime = 0;
     
     m_speaker->msg(MSG::DEBUG) << "get event info ..." << endreq;
-    if(m_speaker->evtStore()->retrieve(eventInfo).isFailure())  m_speaker->msg(MSG::DEBUG) << "Failed to get EventInfo " << endreq;
+    if(m_speaker->evtStore()->retrieve(m_eventInfo).isFailure())  m_speaker->msg(MSG::DEBUG) << "Failed to get EventInfo " << endreq;
     else {
-      mu_inTime    = eventInfo->actualInteractionsPerCrossing();
-      //mu_outOfTime = eventInfo->averageInteractionsPerCrossing();
+      mu_inTime    = m_eventInfo->actualInteractionsPerCrossing();
+      //mu_outOfTime = m_eventInfo->averageInteractionsPerCrossing();
     }
 
-    unsigned int runNumber   = eventInfo->event_ID()->run_number();
-    unsigned int eventNumber = eventInfo->event_ID()->event_number();
+    unsigned int runNumber   = m_eventInfo->event_ID()->run_number();
+    unsigned int eventNumber = m_eventInfo->event_ID()->event_number();
 
     ///temp
     float offd0  = 0., offphi0 = 0., offz0 = 0., offpT = 0.,
@@ -957,14 +958,14 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
 
     ///if you don't want to make any matching cut...
     //      isEfficient = 1;
-    pT_eff->Fill(pTt/GeV,      isEfficient, 1.);
-    eta_eff->Fill(etat,        isEfficient, 1.);
-    vert_eff->Fill(nvert,      isEfficient, 1.);
-    z0_eff->Fill(z0t,          isEfficient, 1.);
-    d0_eff->Fill(a0t,          isEfficient, 1.);
-    phi_eff->Fill(phit,        isEfficient, 1.);
-    track_eff->Fill(ntracks,   isEfficient, 1.);
-    invmass_eff->Fill(invmass, isEfficient, 1.);
+    m_pT_eff->Fill(pTt/GeV,      isEfficient, 1.);
+    m_eta_eff->Fill(etat,        isEfficient, 1.);
+    m_vert_eff->Fill(nvert,      isEfficient, 1.);
+    m_z0_eff->Fill(z0t,          isEfficient, 1.);
+    m_d0_eff->Fill(a0t,          isEfficient, 1.);
+    m_phi_eff->Fill(phit,        isEfficient, 1.);
+    m_track_eff->Fill(ntracks,   isEfficient, 1.);
+    m_invmass_eff->Fill(invmass, isEfficient, 1.);
 
 
     hmitr2d = m_histos2d.find("invmass_vs_tinvmass");
@@ -982,14 +983,14 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
       
     ///temp
     if(fabs(offd0) > 1.0) {
-      pT_eff_d0cut->Fill(offpT/GeV,    isEfficient, 1.);
-      eta_eff_d0cut->Fill(offeta,      isEfficient, 1.);
-      vert_eff_d0cut->Fill(nvert,      isEfficient, 1.);
-      z0_eff_d0cut->Fill(offz0,        isEfficient, 1.);
-      d0_eff_d0cut->Fill(offd0,        isEfficient, 1.);
-      phi_eff_d0cut->Fill(offphi0,     isEfficient, 1.);
-      track_eff_d0cut->Fill(ntracks,   isEfficient, 1.);
-      invmass_eff_d0cut->Fill(invmass, isEfficient, 1.);
+      m_pT_eff_d0cut->Fill(offpT/GeV,    isEfficient, 1.);
+      m_eta_eff_d0cut->Fill(offeta,      isEfficient, 1.);
+      m_vert_eff_d0cut->Fill(nvert,      isEfficient, 1.);
+      m_z0_eff_d0cut->Fill(offz0,        isEfficient, 1.);
+      m_d0_eff_d0cut->Fill(offd0,        isEfficient, 1.);
+      m_phi_eff_d0cut->Fill(offphi0,     isEfficient, 1.);
+      m_track_eff_d0cut->Fill(ntracks,   isEfficient, 1.);
+      m_invmass_eff_d0cut->Fill(invmass, isEfficient, 1.);
     }
 
     static const int num = 11;
@@ -1108,25 +1109,25 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
         if(hmitr != m_histos.end())  hmitr->second->Fill( offphi );
       }
 
-      pT_eff_offline->Fill(offpT/GeV,    isEfficient, 1.);
-      eta_eff_offline->Fill(offeta,      isEfficient, 1.);
-      vert_eff_offline->Fill(nvert,      isEfficient, 1.);
-      z0_eff_offline->Fill(offz0,        isEfficient, 1.);
-      d0_eff_offline->Fill(offd0,        isEfficient, 1.);
-      phi_eff_offline->Fill(offphi0,     isEfficient, 1.);
-      track_eff_offline->Fill(ntracks,   isEfficient, 1.);
-      invmass_eff_offline->Fill(invmass, isEfficient, 1.);
+      m_pT_eff_offline->Fill(offpT/GeV,    isEfficient, 1.);
+      m_eta_eff_offline->Fill(offeta,      isEfficient, 1.);
+      m_vert_eff_offline->Fill(nvert,      isEfficient, 1.);
+      m_z0_eff_offline->Fill(offz0,        isEfficient, 1.);
+      m_d0_eff_offline->Fill(offd0,        isEfficient, 1.);
+      m_phi_eff_offline->Fill(offphi0,     isEfficient, 1.);
+      m_track_eff_offline->Fill(ntracks,   isEfficient, 1.);
+      m_invmass_eff_offline->Fill(invmass, isEfficient, 1.);
 
       ///temp
       if(fabs(offd0) > 1.0){
-        pT_eff_d0cut_offline->Fill(offpT/GeV,    isEfficient, 1.);
-        eta_eff_d0cut_offline->Fill(offeta,      isEfficient, 1.);
-        vert_eff_d0cut_offline->Fill(nvert,      isEfficient, 1.);
-        z0_eff_d0cut_offline->Fill(offz0,        isEfficient, 1.);
-        d0_eff_d0cut_offline->Fill(offd0,        isEfficient, 1.);
-        phi_eff_d0cut_offline->Fill(offphi0,     isEfficient, 1.);
-        track_eff_d0cut_offline->Fill(ntracks,   isEfficient, 1.);
-        invmass_eff_d0cut_offline->Fill(invmass, isEfficient, 1.);
+        m_pT_eff_d0cut_offline->Fill(offpT/GeV,    isEfficient, 1.);
+        m_eta_eff_d0cut_offline->Fill(offeta,      isEfficient, 1.);
+        m_vert_eff_d0cut_offline->Fill(nvert,      isEfficient, 1.);
+        m_z0_eff_d0cut_offline->Fill(offz0,        isEfficient, 1.);
+        m_d0_eff_d0cut_offline->Fill(offd0,        isEfficient, 1.);
+        m_phi_eff_d0cut_offline->Fill(offphi0,     isEfficient, 1.);
+        m_track_eff_d0cut_offline->Fill(ntracks,   isEfficient, 1.);
+        m_invmass_eff_d0cut_offline->Fill(invmass, isEfficient, 1.);
       }
 
       if(isEfficient) {

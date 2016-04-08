@@ -131,11 +131,11 @@ void AnalysisConfig_Jpsi::loop() {
         
       m_events++;
       
-      if(m_provider->evtStore()->retrieve(eventInfo).isFailure()) {
+      if(m_provider->evtStore()->retrieve(m_eventInfo).isFailure()) {
         cout << "Failed to get EventInfo." << endl;
       }
-      unsigned int runNumber   = eventInfo->event_ID()->run_number();
-      unsigned int eventNumber = eventInfo->event_ID()->event_number();
+      unsigned int runNumber   = m_eventInfo->event_ID()->run_number();
+      unsigned int eventNumber = m_eventInfo->event_ID()->event_number();
 
       //cout << "NEW EVENT WITH RUN NUMBER: " << runNumber << " AND EVENT NUMBER: " << eventNumber << endl;
 
@@ -172,7 +172,7 @@ void AnalysisConfig_Jpsi::loop() {
       vector<const TrigMuonEFTrack*> muonExtrapolatedTracks;
       vector<const TrigMuonEFCbTrack*> muonCombinedTracks;
       vector<const TrigMuonEFCbTrack*> incCombinedTracks;
-      vector<const egamma*> m_TightElectrons_EF; 
+      vector<const egamma*> tightElectrons_EF; 
       vector<const CaloCluster*> ClusterContainer_EF;
       const Analysis::MuonContainer* Muons = 0;
       vector<const Rec::TrackParticle*> offlineMSOnly;
@@ -293,14 +293,14 @@ void AnalysisConfig_Jpsi::loop() {
               //Trig::Feature< TrigMuonEFInfoContainer > trackFeature1 = tagmuons.at(0);
               const TrigMuonEFInfoContainer* trigMuon = tagmuons.at(0).cptr();
               //TrigMuonEFInfoContainer::const_iterator muItr1  = trigMuon->begin();
-	            TrigMuonEFInfoTrackContainer* tagCon = (*(trigMuon->begin()))->TrackContainer();
+                    const TrigMuonEFInfoTrackContainer* tagCon = (*(trigMuon->begin()))->TrackContainer();
 	            TrigMuonEFInfoTrackContainer::const_iterator trackItr = tagCon->begin();
 	            TrigMuonEFInfoTrackContainer::const_iterator trackItrEnd = tagCon->end();
               //int nCons = int(trackItrEnd - trackItr);
               //cout << "Number of trackcontainer elements: " << nCons << endl;
               TrigMuonEFCbTrack* tagCB = 0;
               for(; trackItr != trackItrEnd; ++trackItr) {
-	              TrigMuonEFInfoTrack* muonInfo = (*trackItr);
+	              const TrigMuonEFInfoTrack* muonInfo = (*trackItr);
                 bool pass = muonInfo->hasCombinedTrack();
                 cout << "hasCombinedTrack: " << pass << endl;
                 if(pass)  tagCB = muonInfo->CombinedTrack();
@@ -337,12 +337,12 @@ void AnalysisConfig_Jpsi::loop() {
                 //cout << "      MC test: compare RoIs: (mu1, mu2) = (" << m1roiID << ", " << m2roiID << ")" << endl;
 
                 const TrigMuonEFInfoContainer* trigMu = combimuons.at(0).cptr();
-                TrigMuonEFInfoTrackContainer* probeCon = (*(trigMu->begin()))->TrackContainer();
+                const TrigMuonEFInfoTrackContainer* probeCon = (*(trigMu->begin()))->TrackContainer();
                 TrigMuonEFInfoTrackContainer::const_iterator trackItr = probeCon->begin();
                 TrigMuonEFInfoTrackContainer::const_iterator trackItrEnd = probeCon->end();
 			          TrigMuonEFTrack* probe = 0; 
                 for(; trackItr != trackItrEnd; ++trackItr) {
-                  TrigMuonEFInfoTrack* muonInfo = (*trackItr);
+                  const TrigMuonEFInfoTrack* muonInfo = (*trackItr);
                   bool pass = muonInfo->hasExtrapolatedTrack();
                   cout << "hasExtrapolatedTrack: " << pass << endl;
                   if(pass)  probe = muonInfo->ExtrapolatedTrack();
@@ -497,7 +497,7 @@ void AnalysisConfig_Jpsi::loop() {
                     for( DataVector<egamma>::const_iterator elecItr = e0; elecItr != eEnd; ++elecItr) {
                       const egamma* tempEl = *elecItr; 
                       //if(TMath::Abs(tempEl->eta())<1.37 ||TMath::Abs(tempEl->eta())>1.52) {
-                        m_TightElectrons_EF.push_back(tempEl);
+                        tightElectrons_EF.push_back(tempEl);
                         tightElecsRoiIDs.push_back(roiId->roiId());
                         m_provider->msg(MSG::DEBUG) << "tight egamma roiId: " << roiId->roiId() << endreq;
                         //egamma_tightEl_EF.push_back(tempEl->trackParticle());
@@ -506,7 +506,7 @@ void AnalysisConfig_Jpsi::loop() {
                   }
                 }
               }
-              m_provider->msg(MSG::DEBUG) << "tightelectrons size: " << m_TightElectrons_EF.size() << endreq;
+              m_provider->msg(MSG::DEBUG) << "tightelectrons size: " << tightElectrons_EF.size() << endreq;
               /*vector< Trig::Feature<Rec::TrackParticleContainer> > feature_EF = my_it->get<Rec::TrackParticleContainer>("InDetTrigParticleCreation_Electron_EFID");
               vector< Trig::Feature<Rec::TrackParticleContainer> >::const_iterator contit    = feature_EF.begin();
               vector< Trig::Feature<Rec::TrackParticleContainer> >::const_iterator contitEnd = feature_EF.end();
@@ -525,8 +525,8 @@ void AnalysisConfig_Jpsi::loop() {
           m_provider->msg(MSG::DEBUG) << "Start offline bit ..." << endreq;
           vector<int> tagRoIs;
           const DataHandle<ElectronContainer> ElectronCollection;
-          string m_ElectronCollection = "ElectronAODCollection";
-          StatusCode sc_electrons = m_provider->evtStore()->retrieve( ElectronCollection, m_ElectronCollection);
+          string electronCollection = "ElectronAODCollection";
+          StatusCode sc_electrons = m_provider->evtStore()->retrieve( ElectronCollection, electronCollection);
           if(!sc_electrons.isFailure())  m_provider->msg(MSG::DEBUG) << "OFFLINE -- number of electrons: " << ElectronCollection->size() << endreq;
           if(ElectronCollection && ElectronCollection->size() != 0) {
             ElectronContainer::const_iterator elecItrEnd = ElectronCollection->end();
@@ -568,7 +568,7 @@ void AnalysisConfig_Jpsi::loop() {
             //m_jpsi->setProbes(muonExtrapolatedTracks, m_remover->getMatches(), m_remover->getRoIs());
           }
           else {
-            m_jpsi->setTags(m_TightElectrons_EF,tightElecsRoiIDs);
+            m_jpsi->setTags(tightElectrons_EF,tightElecsRoiIDs);
             m_jpsi->setProbes(ClusterContainer_EF,clusterRoiIDs);
           }
           cout << "finish off making dilepton pairs..." << endl;
