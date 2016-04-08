@@ -1,7 +1,7 @@
 import re
 
 InFiles = [
-"root://eosatlas//eos/atlas/atlastier0/rucio/data15_13TeV/express_express/00272531/data15_13TeV.00272531.express_express.merge.RAW/data15_13TeV.00272531.express_express.merge.RAW._lb0123._SFO-ALL._0001.1",
+    "/afs/cern.ch/user/l/landon/work/public/raw/data15_hi.00287843.physics_HardProbes.daq.RAW._lb0200._SFO-6._0004.data",
     #"/afs/cern.ch/work/h/hristova/public/M9/256147/data15_cos.00256147.physics_L1Calo.merge.RAW._lb0500._SFO-ALL._0001.1"
     #"/afs/cern.ch/work/v/vkousk/public/L1Calo/data15_cos.00255313.physics_CosmicCalo.merge.RAW._lb0700._SFO-ALL._0001.1"
     #    "/afs/cern.ch/user/t/tcorneli/public/PROC/extractedEvents8.data",
@@ -79,16 +79,16 @@ xaod = [
     (True, "CMXCPHits", "CMXCPHits"),
     (True, "CMXJetTob", "CMXJetTobs"),
     (True, "CMXJetHits", "CMXJetHits"),
-    (True, "CMXEtSum", "CMXEtSums"),
-    (True, "JEMEtSum", "JEMEtSums"),
+    (True, "CMXEtSums", "CMXEtSums"),
+    (True, "JEMEtSums", "JEMEtSums"),
     (True, "CPMTobRoI", "CPMTobRoIs"),
-
     (True, "CPMTobRoI", "CPMTobRoIsRoIB"),
     (True, "JetElement", "JetElements"),
     (True, "JetElement", "JetElementsOverlap"),
     (True, "CMXRoI", "CMXRoIs"),
     (True, "CMXRoI", "CMXRoIsRoIB"),
     (True, "RODHeader", "RODHeaders"),
+    (True, "L1TopoRawData", "L1TopoRawData"),
 ]
 
 for enabled, prefix, key in xaod:
