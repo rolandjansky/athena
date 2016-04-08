@@ -2,7 +2,7 @@ Description of CW
 =================
   VersionCW flag is used to specify CW
 
-  "00_06_0016" is default (for MC15b).
+  "00_06_0016" is default (for MC15c).
   LVL1ConfigSvc is not used to choose CW
 
   For BW-CW,
@@ -16,7 +16,7 @@ Description of CW
   YYYY: CW version number
         See https://twiki.cern.ch/twiki/bin/view/Atlas/TgcSectorLogicLUT
 
-*** FOR OLD CWs ***
+*** FOR OLD CWs (OBSOLETE!!) ***
   "setK" is defaut ("setD" is chosen for old MC with 8-fold cabling ) 	
   LVL1ConfigSvc is not used to chose CW
 
@@ -28,43 +28,34 @@ Description of CW
 
  YYY : threshold set 
   (nothing ) : MU_6  MU_8 MU_10 MU_11 MU_20 MU_40 
-	--> OBSOLETE
+
   LPT        : MU_0  MU_5  MU_6 MU_11 MU_20 MU_40 
-	--> OBSOLETE
 
   setC       : MU_0  MU_6 MU_10 MU_15 MU_20 MU_40 
 	--> used in old MC production before 15.0.0
-	--> OBSOLETE
  
   setD       : MU_0  MU6 MU_10 ----  MU_15 MU_20
 	--> CW same as data in 2009-10
 
   setE       : MU_0  MU_6 MU_10 MU_15 MU_20 MU_40 
 	--> modified CW from setC (wider window in Phi-direction)
-	--> OBSOLETE
 
   setF       : MU_0  MU6 MU_10 ----  MU_15 MU_20
-	--> modified CW from setD (wider window in Phi-direction)
-	    CW same as data after Aug. 2010 
+	--> modified CW from setD (wider window in Phi-direction) CW same as data after Aug. 2010 
             only for 12-fold cabling
-        --> OBSOLETE
 
   setG       : MU_0  MU_6 MU_10 ----  MU_15 MU_20
         -->  MU_0,6,10 use 2-st coincidence in naddition to 3-st coin (i.e HPT) CW same as data after Oct. 2010 (default)
              only for 12-fold cabling
-        --> OBSOLETE
 
   setH       : MU_0  MU_6 ---- MU_10 MU_15 MU_20
        --> same as setF except pt=3 and pt=4 are swapped
-	--> OBSOLETE
 
   setI       : MU_4  MU_6 ---- MU_10 MU_15 MU_20
        --> Mu_4' (MU_0 but 3-st is used partially ) for pt=1 
-	--> OBSOLETE
    
   setJ       : ---- MU_0  MU_6 MU_10 MU_15 MU_20
        --> pt=1 is not used. pt=2 is MU_0 for ion run
-       --> OBSOLETE
 
   setK       : MU_4  MU_6 ---- MU_10 MU_15 MU_20
        --> narrow CW compared to setI (CW for 2012 start)
@@ -74,7 +65,7 @@ Description of CW
 
   setM       : MU_4  MU_6 ---- MU_10 MU_15 MU_20
        --> narrow CW compared to setI (CW for 2015 start)
-           cau use TileMu Coincidence
+           can use TileMu Coincidence
 
 Desrciption of Properties
 =========================

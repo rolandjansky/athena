@@ -5,22 +5,23 @@
 #ifndef TGCNumbering_hh
 #define TGCNumbering_hh
 
-// ====================================================================
-/*
-        TGCNumbering.hh
-                                      QCJP, 1999
-*/
-// ====================================================================
+#include <string>
 
 namespace LVL1TGCTrigger {
 
 enum TGCZDirection {
-  Z_FORWARD=1, Z_BACKWARD, TotalNumTGCZDirection
+  kZ_FORWARD = 0,         // 0
+  kZ_BACKWARD,            // 1
+  kTotalNumTGCZDirection  // 2
 };
+const std::string gkTgcZdirName[kTotalNumTGCZDirection] = {"F", "B"};
 
 enum TGCStationType { 
-  First=1, Second, Third, EI, TotalNumTGCStationType,
-  T1=1,    T2,     T3,    TI 
+  T1=1,
+  T2,
+  T3,
+  TI,
+  TotalNumTGCStationType
 }; 
 
 enum TGCRegionType { 

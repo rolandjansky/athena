@@ -4,6 +4,8 @@
 
 // ref. SOS063V07,S0S061V04 
 #include "TrigT1TGC/TGCWireHighPtBoard.hh"
+#include "TrigT1TGC/TGCHighPtBoardOut.hh"
+
 #include <iostream>
 #include <cstdlib>
 

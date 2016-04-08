@@ -8,6 +8,25 @@
 
 namespace LVL1TGCTrigger {
 
+// default constructor
+TGCConnectionHPBToSL::TGCConnectionHPBToSL()
+{
+  setNumberOfType(NumberOfHighPtBoardType);
+  for(int j=0; j<NumberOfHighPtBoardType; j++) SLPortToHPB[j]=0;
+}
+
+// Copy constructor
+TGCConnectionHPBToSL::TGCConnectionHPBToSL(const TGCConnectionHPBToSL& right)
+ : TGCBoardConnection(right)
+{
+  for(int j=0; j<NumberOfHighPtBoardType; j++) {
+    if(SLPortToHPB[j]!=0) delete [] SLPortToHPB[j];
+    SLPortToHPB[j] = new int [numberOfBoard[j]];
+
+    for(int k=0; k<numberOfBoard[j]; k++) SLPortToHPB[j][k] = right.SLPortToHPB[j][k];
+  }
+}
+
 
 TGCConnectionHPBToSL::~TGCConnectionHPBToSL()
 {
@@ -15,27 +34,6 @@ TGCConnectionHPBToSL::~TGCConnectionHPBToSL()
   for( j=0; j<NumberOfHighPtBoardType; j+=1){
       if(SLPortToHPB[j]!=0) delete [] SLPortToHPB[j];
       SLPortToHPB[j]=0;
-  }
-}
-
-TGCConnectionHPBToSL::TGCConnectionHPBToSL()
-{
-  setNumberOfType(NumberOfHighPtBoardType);
-  int j;
-  for( j=0; j<NumberOfHighPtBoardType; j+=1){
-      SLPortToHPB[j]=0;
-  }
-}
-
-TGCConnectionHPBToSL::TGCConnectionHPBToSL(const TGCConnectionHPBToSL& right)
-  : TGCBoardConnection(right)
-{  
-  int j,k;
-  for( j=0; j<NumberOfHighPtBoardType; j+=1){
-    if(SLPortToHPB[j]!=0) delete [] SLPortToHPB[j];
-    SLPortToHPB[j] = new int [numberOfBoard[j]];
-    for( k=0; k<numberOfBoard[j]; k+=1)
-      SLPortToHPB[j][k] = right.SLPortToHPB[j][k];
   }
 }
 

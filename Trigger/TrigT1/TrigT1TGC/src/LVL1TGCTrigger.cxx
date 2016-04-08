@@ -21,6 +21,7 @@
 #include "TrigT1TGC/TrigT1TGC_ClassDEF.h"
 #include "TrigT1TGC/TGCNumbering.hh"
 #include "TrigT1TGC/TGCCoincidence.hh"
+#include "TrigT1TGC/TGCTMDBOut.h"
 
 // Tile-Muon
 #include "TileEvent/TileMuContainer.h"
@@ -76,11 +77,11 @@ namespace LVL1TGCTrigger {
     m_detectorStore(0), 
     m_cabling(0),
     m_bctagInProcess(0),
-    db(0),
+    m_db(0),
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc",name),
-    TimingManager(0),
-    system(0),
-    nEventInSector(0),
+    m_TimingManager(0),
+    m_system(0),
+    m_nEventInSector(0),
     m_log( msgSvc(), name ),
     m_debuglevel(false)
 {
@@ -112,18 +113,18 @@ namespace LVL1TGCTrigger {
   LVL1TGCTrigger::~LVL1TGCTrigger()
   {
     m_log << MSG::DEBUG << "LVL1TGCTrigger destructor called" << endreq;
-    // delete TimingManager ,ElectronicsSystem and Database
-    if (TimingManager){
-      delete TimingManager;
-      TimingManager =0;
+    // delete m_TimingManager ,ElectronicsSystem and Database
+    if (m_TimingManager){
+      delete m_TimingManager;
+      m_TimingManager =0;
     }
-    if (system) {
-      delete system;
-      system = 0;
+    if (m_system) {
+      delete m_system;
+      m_system = 0;
     }
-    if (db) {
-      delete db;
-      db =0;
+    if (m_db) {
+      delete m_db;
+      m_db =0;
     }
 
   }
@@ -139,7 +140,7 @@ namespace LVL1TGCTrigger {
     g_DEBUGLEVEL          =  m_debuglevel;
 
     m_log << MSG::DEBUG << "LVL1TGCTrigger::initialize() called" << endreq;
- 
+
     g_STRICTWD            = m_STRICTWD.value();
     g_STRICTWT            = m_STRICTWT.value();
     g_STRICTSD            = m_STRICTSD.value();
@@ -221,7 +222,7 @@ namespace LVL1TGCTrigger {
   {
     if (m_debuglevel) {
       m_log << MSG::DEBUG << "LVL1TGCTrigger::finalize() called" 
-	    <<  " nEventInSector = " << nEventInSector << endreq;
+	    <<  " m_nEventInSector = " << m_nEventInSector << endreq;
     }
 
     // clear and delete TGCCOIN
@@ -235,12 +236,12 @@ namespace LVL1TGCTrigger {
     delete g_TGCCOIN;
     g_TGCCOIN = 0;
 
-    if (db) delete db;
-    db = 0 ;
-    if (system) delete system;
-    system = 0;
-    if (TimingManager) delete TimingManager;
-    TimingManager=0;
+    if (m_db) delete m_db;
+    m_db = 0 ;
+    if (m_system) delete m_system;
+    m_system = 0;
+    if (m_TimingManager) delete m_TimingManager;
+    m_TimingManager=0;
 
     return StatusCode::SUCCESS;
   }
@@ -345,8 +346,8 @@ StatusCode LVL1TGCTrigger::processOneBunch(const DataHandle<TgcDigitContainer>& 
   tgcDigitIDs.clear();
 
   // process trigger electronics emulation... 
-  TimingManager->increaseBunchCounter(); 
-  system->distributeSignal(&event);
+  m_TimingManager->increaseBunchCounter(); 
+  m_system->distributeSignal(&event);
 
   // clear TGCCOIN 
   if (g_OUTCOINCIDENCE && (g_TGCCOIN->size() >0 )) { 
@@ -358,14 +359,14 @@ StatusCode LVL1TGCTrigger::processOneBunch(const DataHandle<TgcDigitContainer>& 
   m_innerTrackletSlotHolder.clearTriggerBits();
 
   // PatchPanel, SlaveBoard 
-  for( int i=0; i<system->getNumberOfSide(); i+=1){ // i=0:Z>0(A) , i=1:Z<0(C) 
-    for( int j=0; j<system->getNumberOfOctant(); j+=1){ 
-      for( int k=0; k<system->getNumberOfModule(); k+=1){ 
-        TGCSector* sector = system->getSector(i,j,k); 
+  for( int i=0; i<m_system->getNumberOfSide(); i+=1){ // i=0:Z>0(A) , i=1:Z<0(C) 
+    for( int j=0; j<m_system->getNumberOfOctant(); j+=1){ 
+      for( int k=0; k<m_system->getNumberOfModule(); k+=1){ 
+        TGCSector* sector = m_system->getSector(i,j,k); 
         if((sector!=0)&&(sector->hasHit())){ 
-          nEventInSector++; 
-          TimingManager->startPatchPanel(sector, db); 
-          TimingManager->startSlaveBoard(sector); 
+          m_nEventInSector++; 
+          m_TimingManager->startPatchPanel(sector, m_db); 
+          m_TimingManager->startSlaveBoard(sector); 
           if (m_OutputTgcRDO.value()) recordRdoSLB(sector); 
           // EIFI trigger bits for SL are filled in this method.  
         } 
@@ -376,17 +377,17 @@ StatusCode LVL1TGCTrigger::processOneBunch(const DataHandle<TgcDigitContainer>& 
   // HighPtBoard, SectorLogic 
   const int muctpiBcId_offset =TgcDigit::BC_CURRENT; 
   int   muctpiBcId = m_bctagInProcess - muctpiBcId_offset; 
-  for(int i=0; i<system->getNumberOfSide(); i+=1){ 
+  for(int i=0; i<m_system->getNumberOfSide(); i+=1){ 
     int sectoraddr_endcap = 0; 
     int sectoraddr_forward = 0; 
-    for(int j=0; j<system->getNumberOfOctant(); j+=1){ 
-      for(int k=0; k<system->getNumberOfModule(); k+=1){
+    for(int j=0; j<m_system->getNumberOfOctant(); j+=1){ 
+      for(int k=0; k<m_system->getNumberOfModule(); k+=1){
         if(k>=9) continue;// skip Inner TGC 
-        TGCSector* sector = system->getSector(i,j,k);
+        TGCSector* sector = m_system->getSector(i,j,k);
         if(sector==0) continue; 
 
         if((sector->hasHit())){ 
-          TimingManager->startHighPtBoard(sector); 
+          m_TimingManager->startHighPtBoard(sector); 
           if (m_OutputTgcRDO.value()) recordRdoHPT(sector); 
 
           // EIFI trigger bits are checked if Endcap 
@@ -398,7 +399,7 @@ StatusCode LVL1TGCTrigger::processOneBunch(const DataHandle<TgcDigitContainer>& 
             sector->getSL()->setInnerTrackletSlots(innerTrackletSlots); 
           }
 
-          TimingManager->startSectorLogic(sector); 
+          m_TimingManager->startSectorLogic(sector); 
           sector->clearNumberOfHit(); 
         }
 
@@ -543,7 +544,7 @@ void  LVL1TGCTrigger::fillTGCEvent(std::map<Identifier, int>& tgcDigitIDs,  TGCE
                 << endreq; 
         }
 
-        TGCZDirection zdire = (subsystemNumber==1)? Z_FORWARD : Z_BACKWARD; 
+        TGCZDirection zdire = (subsystemNumber==1)? kZ_FORWARD : kZ_BACKWARD; 
         TGCReadoutIndex index(zdire,octantNumber,moduleNumber,rNumber,layerNumber); 
         TGCSignalType signal = (wireOrStrip==1)? Strip : WireGroup; 
         event.NewASDOut(index, 
@@ -1000,7 +1001,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 
 
     // Tile
-    TGCTMDB* tmdb = system->getTMDB();
+    TGCTMDB* tmdb = m_system->getTMDB();
     int inner_tile = tmdb->getInnerTileBits(sector->getSideId(), sectorId);
     
     if (inner_tile > 0) {    
@@ -1398,13 +1399,8 @@ StatusCode LVL1TGCTrigger::getCabling()
   // Since m_VerCW is set as default value above,
   // Here don't overwrite by any version if proper version number is provided.
   const std::string v00060016 = "00_06_0016";  // default
-  const std::string setM="setM";
-  const std::string setL="setL";
-  const std::string setK="setK";
-  const std::string setD="setD";
   std::string ver=m_VerCW.value();
-  if((ver.size() != 10) &&
-     (ver!=setM) && (ver!= setL) && (ver!= setK) && (ver!= setD)) { 
+  if((ver.size() != 10)) { 
     // default CW is v00060016
     ver= v00060016;
     m_VerCW = ver;
@@ -1416,21 +1412,19 @@ StatusCode LVL1TGCTrigger::getCabling()
   // check Inner /TileMu   
   std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
   if (g_USE_INNER) {
-    g_USE_INNER = (ver==setM) || (ver==setL)|| (ver==setK) ;
     if (vers.size() == 3) g_USE_INNER = (vers[1] != "00");
   } 
   if (g_TILE_MU) {
-    g_TILE_MU = (ver==setM);
     if (vers.size() == 3) g_TILE_MU = (vers[0] != "00");
   } 
     
   // create DataBase and TGCElectronicsSystem
-  db = new TGCDatabaseManager(m_VerCW);
-  system = new TGCElectronicsSystem(db);
+  m_db = new TGCDatabaseManager(m_VerCW);
+  m_system = new TGCElectronicsSystem(m_db);
     
-  TimingManager = new TGCTimingManager;
-  TimingManager->setBunchCounter(0);
-  nEventInSector = 0;
+  m_TimingManager = new TGCTimingManager;
+  m_TimingManager->setBunchCounter(0);
+  m_nEventInSector = 0;
     
   return sc;
 }
@@ -1438,7 +1432,7 @@ StatusCode LVL1TGCTrigger::getCabling()
 StatusCode LVL1TGCTrigger::fillTMDB()
 {
   StatusCode sc =  StatusCode::SUCCESS;
-  TGCTMDB* tmdb = system->getTMDB(); 
+  TGCTMDB* tmdb = m_system->getTMDB(); 
   
   // clear TMDB
   tmdb->eraseOutput();

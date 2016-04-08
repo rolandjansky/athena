@@ -185,7 +185,7 @@ bool TGCTileMuCoincidenceMap::readMap()
         sectorId<0 || sectorId>=N_EndcapSector ||
 	sscId<0    || sscId>=N_Endcap_SSC ) {
       log << MSG::WARNING 
-	  << " illegal parameter in database header : " << header
+	  << " illegal parameter in database header : " << header.str()
 	  << " in file " << dbname
 	  << endreq;
       file.close();

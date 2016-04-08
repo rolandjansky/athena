@@ -114,10 +114,7 @@ bool TGCRPhiCoincidenceMap::checkVersion()
 
   // use full CW (i.e. different maps for each octant and side)
   m_fullCW = g_FULL_CW &&
-             (m_verName == "setK" ||
-              m_verName == "v0014" ||
-              m_verName == "v0016" ||
-              m_verName == "v0017");
+             (m_verName == "v0016" || m_verName == "v0017");
 
   ///////////  
   log << MSG::INFO 
@@ -231,7 +228,7 @@ bool TGCRPhiCoincidenceMap::readMap()
 	if(mod!=ModuleNumber[iModule] || ptLevel>N_PT_THRESH || type<0 ) {
 	  log << MSG::WARNING 
 	      << " illegal parameter in database header : "
-	      << header
+	      << header.str()
 	      << " in file " << fn 
 	      << endreq;
 	  break;

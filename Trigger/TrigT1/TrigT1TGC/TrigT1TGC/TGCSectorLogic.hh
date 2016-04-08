@@ -10,7 +10,6 @@
 #include "TrigT1TGC/TGCReadoutIndex.h"
 #include "TrigT1TGC/TGCInnerCoincidenceMap.hh"
 #include "TrigT1TGC/TGCTileMuCoincidenceMap.hh"
-#include "TrigT1TGC/TGCTMDB.h"
 #include "TrigT1TGC/TGCRPhiCoincidenceMap.hh"
 #include "TrigT1TGC/TGCRPhiCoincidenceMatrix.hh"
 #include "TrigT1TGC/TGCRPhiCoincidenceOut.hh"
@@ -25,9 +24,10 @@
 namespace LVL1TGCTrigger {
 
 const int MaxNumberOfWireHighPtBoard = 2;
-  
+
 class  TGCHighPtBoard;
 class  TGCHighPtChipOut;
+class  TGCTMDB;
 
 class TGCSectorLogic {
 public:

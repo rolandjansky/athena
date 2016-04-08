@@ -84,7 +84,8 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap()
   MsgStream log(msgSvc, "TGCInnerCoincidenceMap::TGCInnerCoincidenceMap");
 
   // use full CW (i.e. different maps for each octant and side)
-  m_fullCW = g_FULL_CW && (m_verName == "setK");
+  // TBI: if the full map EIFI-CW is available.
+  m_fullCW = g_FULL_CW && (m_verName == "xx");  // to be implemented
 
   // read Inner Coincidence Map 
   if (this->readMap()) {
@@ -219,7 +220,7 @@ bool TGCInnerCoincidenceMap::readMap()
     if( sectorId<0 || sectorId>=N_EndcapSector ||
 	sscId<0    || sscId>=N_Endcap_SSC ) {
       log << MSG::WARNING 
-	  << " illegal parameter in database header : " << header
+	  << " illegal parameter in database header : " << header.str()
 	  << " in file " << dbname
 	  << endreq;
       file.close();

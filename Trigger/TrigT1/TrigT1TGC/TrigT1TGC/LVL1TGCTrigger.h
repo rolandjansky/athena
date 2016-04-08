@@ -154,12 +154,12 @@ class LVL1TGCTrigger : public AthAlgorithm
 
   uint16_t          m_bctagInProcess;
 
-  TGCDatabaseManager *db;
+  TGCDatabaseManager *m_db;
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-  TGCTimingManager *TimingManager;
-  TGCElectronicsSystem *system;
+  TGCTimingManager *m_TimingManager;
+  TGCElectronicsSystem *m_system;
   
-  int nEventInSector;
+  int m_nEventInSector;
 
   // EIFI-SL connection
   TGCInnerTrackletSlotHolder m_innerTrackletSlotHolder;
