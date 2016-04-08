@@ -1,7 +1,8 @@
 # Skeleton file for AOD to DAOD (Reduction framework) job
 #
-# $Id: skeleton.AODtoDAOD_tf.py 632134 2014-11-29 12:28:25Z graemes $
+# $Id: skeleton.AODtoDAOD_tf.py 664818 2015-05-04 19:20:22Z blumen $
 #
+from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.Logging import logging
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 msg = logging.getLogger('AODtoDAOD')
@@ -57,9 +58,9 @@ passThroughMode = False
 if hasattr(runArgs,"passThrough"):
     passThroughMode = runArgs.passThrough
 
-if (passThroughMode==True):
-    msg.warning("Pass through mode is ON: decision of derivation kernels will be IGNORED!")
-    rec.doDPD.passThroughMode = True
+#if (passThroughMode==True):
+#    msg.warning("Pass through mode is ON: decision of derivation kernels will be IGNORED!")
+#    rec.doDPD.passThroughMode = True
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
@@ -79,15 +80,17 @@ if hasattr(runArgs,"preInclude"):
 if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
-# Intervene and strip algs from streams if pass through mode requested
-if rec.doDPD.passThroughMode:
+# Intervene and strip SkimmingTools from algs if pass through mode requested
+if passThroughMode:
+    seq = AlgSequence()
     for stream in MSMgr.StreamList:
         evtStream = stream.GetEventStream()
-        evtStream.AcceptAlgs = []
-        evtStream.RequireAlgs = []
-        evtStream.VetoAlgs = []
+        for alg in list( set(evtStream.AcceptAlgs) | set(evtStream.RequireAlgs) | set(evtStream.VetoAlgs) ):
+            for item in seq:
+                if item.name() == alg:
+                    item.SkimmingTools = []
     msgFresh = logging.getLogger('AODtoDAOD')
-    msgFresh.info( 'Pass through mode was requested. Stream definitions have been revised. New stream definitions follow')
+    msgFresh.info( 'Pass through mode was requested. Skimming tools have been removed from all kernels.')
     MSMgr.Print()
 
 
