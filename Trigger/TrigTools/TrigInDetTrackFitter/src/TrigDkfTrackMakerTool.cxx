@@ -269,13 +269,14 @@ bool TrigDkfTrackMakerTool::createDkfTrack(std::vector<const TrigSiSpacePoint*>&
 bool TrigDkfTrackMakerTool::createDkfTrack(const Trk::Track& track, 
 		std::vector<Trk::TrkBaseNode*>& vpTrkNodes,
 		double DChi2) {
-	vpTrkNodes.clear();
 
 	if(track.measurementsOnTrack()->size()==0) 
 	{
 		ATH_MSG_ERROR("Cannot create a DKF track -- Trk::Track has no hits");
 		return false;
 	}
+	vpTrkNodes.clear();
+  vpTrkNodes.reserve(track.measurementsOnTrack()->size());
 	for (auto tMOT = track.measurementsOnTrack()->begin(); tMOT != track.measurementsOnTrack()->end(); ++tMOT) {
 		const Trk::Surface& rSurf=(*tMOT)->associatedSurface();
 		constexpr double radLength=0.022;
