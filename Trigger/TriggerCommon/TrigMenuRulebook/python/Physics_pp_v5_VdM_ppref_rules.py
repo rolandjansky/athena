@@ -6,24 +6,29 @@ tag = 'VdM_pp_v5'
 
 from runOptions import doATLAS     as doATLASscan
 from runOptions import doCMS       as doCMSscan
-from runOptions import doAliceLHCb as doALICEscan
-from runOptions import doOffset    as doOffsetScan
-
+from runOptions import doOffset    as doOffset
+from runOptions import doAliceLHCb       as doAliceLHCb
 # --------------------------------------
 
 errorInOption=False
 
 if doATLASscan:
-    if doCMSscan or doALICEscan:
+    if doCMSscan or doAliceLHCb:
         errorInOption=True
 if doCMSscan:
-    if doATLASscan or doALICEscan:
+    if doATLASscan or doAliceLHCb:
         errorInOption=True
-if doALICEscan:
+if doAliceLHCb:
     if doATLASscan or doCMSscan:
         errorInOption=True
-if doATLASscan==False and doCMSscan==False and doALICEscan==False:
+if doATLASscan==False and doCMSscan==False and doAliceLHCb==False:
     errorInOption=True
+
+if doOffset:
+    if doCMSscan or doAliceLHCb:
+        errorInOption=True
+    doATLASscan = True # needed as basis
+ 
 
 if errorInOption:
     import sys
@@ -48,8 +53,43 @@ else:
     rules.update(Physics_pp_v5_rules.rules)
 
 
+#################################################################################################
+#
+# minbias rules
+#
+# NOTE:
+# For L1 MBTS, fixed to PS=1. 
+# For HLT mbts, tentatively set to PS=1 and comment target rate such that PS values can be adjusted later.
+# Might want do the same for TE and LUCID
+#
+#################################################################################################
+
+
 # --------------------------------------
 # common to all cases
+
+#disable two items
+HLT_list=['HLT_noalg_bkg_L1J12_BGRP12',  'HLT_noalg_bkg_L1J30.31ETA49_BGRP12']
+rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=-1, comment='disabled'), 
+    }])))
+
+HLT_list=['HLT_noalg_mb_L1MBTS_1_1',]
+rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=-1, comment='disabled'), 
+    }])))
+
+HLT_list=['HLT_mb_sptrk']
+rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=-1, comment='disabled'), 
+    }])))
+
+HLT_list=['HLT_mb_sp1500_hmtperf_L1TE10']
+rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=-1, comment='disabled'), 
+    }])))
+
+
 
 # disable BCM_AC/CA except for BGRP0
 
@@ -61,27 +101,25 @@ rules.update(dict(map(None,L1_list,len(L1_list)*[{
 # lowlumi streamer for express stream
 # multi-seed L1 has to be with explict PS rule: 209 KHz @ 2E34 -> 20 Hz @ 2E30
 
-L1_list=['L1_2EM10VH', 'L1_2EM8VH_MU10', 'L1_2J15_XE55', 'L1_2MU6', 'L1_3J25.0ETA23', 'L1_3J40', 'L1_3MU4', 'L1_4J15', 'L1_EM15HI_2TAU12IM', 'L1_EM15HI_2TAU12IM_J25_3J12', 'L1_EM15HI_2TAU12IM_XE35', 'L1_EM15HI_TAU40_2TAU15', 'L1_EM15VH_MU10', 'L1_EM15_MU4', 'L1_EM20VH', 'L1_EM7_MU10', 'L1_J75', 'L1_J75.31ETA49', 'L1_MU10_TAU12IM', 'L1_MU10_TAU12IM_J25_2J12', 'L1_MU10_TAU12IM_XE35', 'L1_MU10_TAU12_J25_2J12', 'L1_MU10_TAU20', 'L1_MU15', 'L1_MU4_3J20', 'L1_MU6_J40', 'L1_TAU20IM_2TAU12IM_J25_2J20_3J12', 'L1_TAU20IM_2TAU12IM_XE35', 'L1_TAU20_2J20_XE45', 'L1_TAU20_2TAU12_XE35', 'L1_TAU60', 'L1_XE50',]
+L1_list=['L1_2EM10VH', 'L1_2EM8VH_MU10', 'L1_2J15_XE55', 'L1_2MU6', 'L1_3J25.0ETA23', 'L1_3J40', 'L1_3MU4', 'L1_4J15', 'L1_EM15HI_2TAU12IM', 'L1_EM15HI_2TAU12IM_J25_3J12', 'L1_EM15HI_2TAU12IM_XE35', 'L1_EM15HI_TAU40_2TAU15', 'L1_EM15VH_MU10', 'L1_EM15I_MU4', 'L1_EM20VH', 'L1_EM7_MU10', 'L1_J75', 'L1_J75.31ETA49', 'L1_MU10_TAU12IM', 'L1_MU10_TAU12IM_J25_2J12', 'L1_MU10_TAU12IM_XE35', 'L1_MU10_TAU12_J25_2J12', 'L1_MU10_TAU20', 'L1_MU15', 'L1_MU4_3J20', 'L1_MU6_J40', 'L1_TAU20IM_2TAU12IM_J25_2J20_3J12', 'L1_TAU20IM_2TAU12IM_XE35', 'L1_TAU20_2J20_XE45', 'L1_TAU20_2TAU12_XE35', 'L1_TAU60', 'L1_XE50',]
 rules.update(dict(map(None,L1_list,len(L1_list)*[{
     1000 : TriggerRule(PS=1, comment='PS=1 for LowLumi streamer'),
     }])))
 HLT_list=['HLT_noalg_L1LowLumi']
 rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=2, comment='target rate 10 Hz, express', ESValue=1), 
+    1000 : TriggerRule(PS=1, comment='target rate 20 Hz, express', ESValue=1), 
     }])))
 
 # --------------------------------------
-# default: overwritten case by case (ATLAS, CMS, Alice)
+# default: overwritten case by case (ATLAS, CMS)
 
 # disable standard PixelBeam
-
 HLT_list=['HLT_lumipeb_L1RD0_FILLED', 'HLT_lumipeb_L1RD0_UNPAIRED_ISO', 'HLT_lumipeb_L1RD0_ABORTGAPNOTCALIB',]
 rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=-1, comment='disabled'), 
     }])))
 
 # disable ALFA
-
 L1_list=['L1_ALFA_ELAST1', 'L1_ALFA_ELAST2', 'L1_ALFA_ELAST11', 'L1_ALFA_ELAST12', 'L1_ALFA_ELAST13', 'L1_ALFA_ELAST14', 'L1_ALFA_ELAST15', 'L1_ALFA_ELAST15_Calib', 'L1_ALFA_ELAST16', 'L1_ALFA_ELAST17', 'L1_ALFA_ELAST18', 'L1_ALFA_ELAST18_Calib', 'L1_BGRP1_ALFA_BGT', 'L1_BGRP4_ALFA_BGT', 'L1_BGRP10_ALFA_BGT', 'L1_ALFA_SHOWSYST5', 'L1_ALFA_SYST9', 'L1_ALFA_SYST10', 'L1_ALFA_SYST11', 'L1_ALFA_SYST12', 'L1_ALFA_SYST17', 'L1_ALFA_SYST18', 'L1_ALFA_ANY', 'L1_ALFA_ANY_EMPTY', 'L1_ALFA_ANY_FIRSTEMPTY', 'L1_ALFA_ANY_UNPAIRED_ISO', 'L1_ALFA_ANY_UNPAIRED_NONISO', 'L1_ALFA_ANY_BGRP10', 'L1_ALFA_ANY_CALIB', 'L1_ALFA_ANY_ABORTGAPNOTCALIB', 'L1_ALFA_B7L1U', 'L1_ALFA_B7L1L', 'L1_ALFA_A7L1U', 'L1_ALFA_A7L1L', 'L1_ALFA_A7R1U', 'L1_ALFA_A7R1L', 'L1_ALFA_B7R1U', 'L1_ALFA_B7R1L', 'L1_ALFA_B1_EMPTY', 'L1_ALFA_B2_EMPTY', 'L1_ALFA_B7L1U_OD', 'L1_ALFA_B7L1L_OD', 'L1_ALFA_A7L1U_OD', 'L1_ALFA_A7L1L_OD', 'L1_ALFA_A7R1U_OD', 'L1_ALFA_A7R1L_OD', 'L1_ALFA_B7R1U_OD', 'L1_ALFA_B7R1L_OD', 'L1_ALFA_B7L1_OD', 'L1_ALFA_A7L1_OD', 'L1_ALFA_A7R1_OD', 'L1_ALFA_B7R1_OD', 'L1_TRT_ALFA_EINE', 'L1_TRT_ALFA_ANY', 'L1_TRT_ALFA_ANY_UNPAIRED_ISO', 'L1_ALFA_ELASTIC_UNPAIRED_ISO', 'L1_ALFA_ANTI_ELASTIC_UNPAIRED_ISO']
 rules.update(dict(map(None,L1_list,len(L1_list)*[{
     1000 : TriggerRule(PS=-1, comment='disabled'),
@@ -93,25 +131,101 @@ rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     }])))
 
 # disable MBTS_2 effi trigger
-
 HLT_list=['HLT_lumipeb_vdm_L1RD0_BGRP9', 'HLT_lumipeb_vdm_L1RD0_FILLED',]
 rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=-1, comment='disabled'), 
     }])))
 
 # disable high stat PixelBeam
-
 HLT_list=['HLT_lumipeb_L1MBTS_2',]
 rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=-1, comment='disabled'), 
     }])))
 
 # disable beamspot
-
-HLT_list=['HLT_beamspot_activeTE_L2StarB_pebTRT', 'HLT_beamspot_activeTE_trkfast_pebTRT', 'HLT_beamspot_allTE_L2StarB_pebTRT', 'HLT_beamspot_allTE_trkfast_pebTRT', 'HLT_beamspot_trkFS_L2StarB', 'HLT_beamspot_trkFS_trkfast',]
+HLT_list=['HLT_beamspot_activeTE_trkfast_pebTRT', 'HLT_beamspot_allTE_trkfast_pebTRT', 'HLT_beamspot_trkFS_trkfast',]
 rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=-1, comment=''), 
     }])))
+
+
+#----------------------------------------
+# ZDC - JIRA ATR-12731, 12732, 12733, 12734
+#----------------------------------------
+# supposed 500Hz/bunch (mu=0.5) 
+L1_list=['L1_ZDC_A','L1_ZDC_C' ]
+rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=55, comment='target 200 Hz'),
+    }])))
+
+if doCMSscan:
+    L1_list=['L1_ZDC_A','L1_ZDC_C' ]
+    rules.update(dict(map(None,L1_list,len(L1_list)*[{
+                        1000 : TriggerRule(PS=3, comment='target 200 Hz'),
+                        }])))
+    
+# supposed 10Hz/bunch (mu=0.5)
+L1_list=['L1_ZDC_AND' ]
+rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=1, comment='target 200 Hz'),
+    }])))
+
+L1_list=['L1_ZDC_A_C' ]
+rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=1, comment='target 200 Hz'),
+    }])))
+
+HLT_list=['HLT_noalg_mb_L1ZDC_A','HLT_noalg_mb_L1ZDC_C']
+rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+                    1000 : TriggerRule(PS=10, comment='target 20 Hz'), 
+                    }])))
+
+HLT_list=['HLT_noalg_mb_L1ZDC_AND',]
+rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+                    1000 : TriggerRule(PS=40, comment='target 5 Hz'), 
+                    }])))
+
+if doCMSscan or doAliceLHCb:
+    HLT_list=['HLT_noalg_mb_L1ZDC_AND',]
+    rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+                    1000 : TriggerRule(PS=2, comment='target 100 Hz'), 
+                    }])))
+
+HLT_list=['HLT_noalg_mb_L1ZDC_A_C',]
+rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+                    1000 : TriggerRule(PS=40, comment='target 5 Hz'), 
+                    }])))
+
+if doCMSscan or doAliceLHCb:
+    HLT_list=['HLT_noalg_mb_L1ZDC_A_C',]
+    rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+                    1000 : TriggerRule(PS=2, comment='target 100 Hz'), 
+                    }])))
+
+
+# supposed rejection 500
+HLT_list=['HLT_mb_sptrk_vetombts2in_L1ZDC_AND',]
+rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+                    1000 : TriggerRule(PS=1, comment=''), 
+                    }])))
+
+HLT_list=['HLT_mb_sptrk_vetombts2in_L1ZDC_A_C',]
+rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+                    1000 : TriggerRule(PS=1, comment=''), 
+                    }])))
+
+
+#-----------------------
+# ZDC calib
+
+HLT_list=['HLT_zdcpeb_L1ZDC_A','HLT_zdcpeb_L1ZDC_C','HLT_zdcpeb_L1ZDC_A_C','HLT_zdcpeb_L1ZDC_AND']
+rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+                    1000 : TriggerRule(PS=1, comment=''),
+                    }])))
+
+
+
+
 
 
 #################################################################################################
@@ -133,7 +247,7 @@ atlasScan_Rules={}
 
 L1_list=['L1_MBTS_2_BGRP9']
 atlasScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=1, comment='L1'),
+    1000 : TriggerRule(PS=5, comment='Very safe. 5 KHz rate. Target should be 18 KHz'),
     }])))
 L1_list=['L1_MBTS_2_BGRP11', 'L1_MBTS_2_UNPAIRED_ISO']
 atlasScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
@@ -144,31 +258,6 @@ atlasScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment='VdM main triggers'), 
     }])))
 
-# --------------------------------------
-# MBTS_2 efficiency
-
-L1_list=['L1_RD0_BGRP9']
-atlasScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(rate=50, scaling='bunches', comment=''),
-    }])))
-HLT_list=['HLT_lumipeb_vdm_L1RD0_BGRP9']
-atlasScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1, comment='efficiency for MBTS_2'), 
-    }])))
-
-# --------------------------------------
-# PixelBeam
-
-if doOffsetScan:
-    # 29 bunches * 0.5 (mu) * 0.9 (MBTS_2 effi) * 11 kHz = 140 kHz
-    L1_list=['L1_MBTS_2']
-    atlasScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-        1000 : TriggerRule(PS=10, comment='corresponds to 15 kHz at mu=0.5'),
-        }])))
-    HLT_list=['HLT_lumipeb_L1MBTS_2',]
-    atlasScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-        1000 : TriggerRule(PS=1, comment=''), 
-        }])))
 
 # --------------------------------------
 # Background stream
@@ -178,50 +267,22 @@ atlasScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
     1000 : TriggerRule(PS=10, comment='target 20 Hz'),
     }])))
 
-# --------------------------------------
-# ALFA
+# PixelBeam
 
-# -- L1: 2 kHz (ATR-11409)
-L1_list=['L1_ALFA_ELAST15', 'L1_ALFA_ELAST18',]
-atlasScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=10, comment=''),
-    }])))
-
-L1_list=['L1_ALFA_ELAST15_Calib', 'L1_ALFA_ELAST18_Calib', 'L1_ALFA_B7L1_OD', 'L1_ALFA_A7L1_OD', 'L1_ALFA_A7R1_OD', 'L1_ALFA_B7R1_OD',]
-atlasScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=1, comment=''),
-    }])))
-L1_list=['L1_BGRP1_ALFA_BGT']
-atlasScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=1000, comment=''),
-    }])))
-L1_list=['L1_ALFA_SYST11', 'L1_ALFA_SYST12', 'L1_ALFA_SYST17', 'L1_ALFA_SYST18', 'L1_ALFA_ANY', 'L1_ALFA_ANY_EMPTY', 'L1_ALFA_ANY_FIRSTEMPTY', 'L1_ALFA_ANY_UNPAIRED_ISO', 'L1_ALFA_ANY_UNPAIRED_NONISO', 'L1_ALFA_ANY_ABORTGAPNOTCALIB',]
-atlasScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=15, comment=''),
-    }])))
-
-# -- minbias: 50 Hz (ATR-11409)
-HLT_list=['HLT_noalg_L1ALFA_Phys', 'HLT_noalg_L1ALFA_SYS']
-atlasScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1, comment=''), 
-    }])))
-HLT_list=['HLT_noalg_L1ALFA_PhysAny']
-atlasScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=100, comment=''), 
-    }])))
-
-# -- alfa calib: 1.5 kHz (ATR-11409)
-HLT_list=['HLT_alfacalib','HLT_alfacalib_L1ALFA_ELAS','HLT_alfacalib_L1ALFA_SYS','HLT_alfacalib_L1ALFA_ANY']
-atlasScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1, comment=''), 
-    }])))
-
-# -- ALFA diffractive: 20 Hz input, 2-3 Hz output (ATR-11409)
-HLT_list=['HLT_mb_sptrk_vetombts2in_L1ALFA_CEP']
-atlasScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1, comment=''), 
-    }])))
-
+#################################################################################################
+# OFFSET SCAN (on top of ATLAS)
+#################################################################################################
+if doOffset:
+    # 29 bunches * 0.5 (mu) * 0.9 (MBTS_2 effi) * 11 kHz = 140 kHz (13 TeV)
+    L1_list=['L1_MBTS_2']
+    atlasScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+                        1000 : TriggerRule(PS=20, comment='corresponds to 8 kHz at mu=0.5. If there is space, increase a bit'),
+                        }])))
+    HLT_list=['HLT_lumipeb_L1MBTS_2',]
+    atlasScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+                        1000 : TriggerRule(PS=1, comment=''), 
+                        }])))
+    
 
 #################################################################################################
 #
@@ -244,14 +305,33 @@ cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
 # --------------------------------------
 # MBTS_2 efficiency
 
-L1_list=['L1_RD0_BGRP9']
+L1_list=['L1_RD0_FILLED']
 cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
     1000 : TriggerRule(rate=3000, scaling='bunches', comment=''),
     }])))
-HLT_list=['HLT_lumipeb_vdm_L1RD0_BGRP9']
+HLT_list=['HLT_lumipeb_vdm_L1RD0_FILLED']
 cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment='efficiency for MBTS_2'), 
     }])))
+
+
+# --------------------------------------
+# PixelBeam
+
+HLT_list=['HLT_lumipeb_L1RD0_FILLED']
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(inputRate=900, comment='PixelBeam',  rerun=0),
+    }])))
+HLT_list=['HLT_lumipeb_L1RD0_UNPAIRED_ISO']
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(inputRate=60, comment='PixelBeam',  rerun=0),
+    }])))
+HLT_list=['HLT_lumipeb_L1RD0_ABORTGAPNOTCALIB']
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(inputRate=40, comment='PixelBeam',  rerun=0),
+    }])))
+
+# for lumipeb MBTS_1 see later down
 
 # --------------------------------------
 # Background stream
@@ -261,134 +341,190 @@ cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
     1000 : TriggerRule(PS=10, comment='target 20 Hz'),
     }])))
 
-# --------------------------------------
-# ALFA
-
-# -- L1: 15 kHz (ATR-12054)
-# if rate is too high, prescale these following 4 items altogether (orginal design was PS=10)
-# and instead, reduce HLT_noalg_L1ALFA_PhysAny prescale from 1000 to 100.
-L1_list=['L1_ALFA_ANY', 'L1_ALFA_ANY_EMPTY', 'L1_ALFA_ANY_FIRSTEMPTY', 'L1_ALFA_ANY_UNPAIRED_ISO',]
-cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=1, comment=''),
-    }])))
-
-L1_list=['L1_ALFA_ELAST15', 'L1_ALFA_ELAST15_Calib', 'L1_ALFA_ELAST18', 'L1_ALFA_ELAST18_Calib', 'L1_ALFA_SYST11', 'L1_ALFA_SYST12', 'L1_ALFA_SYST17', 'L1_ALFA_SYST18', 'L1_ALFA_B7L1_OD', 'L1_ALFA_A7L1_OD', 'L1_ALFA_A7R1_OD', 'L1_ALFA_B7R1_OD',]
-cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=1, comment=''),
-    }])))
-L1_list=['L1_BGRP1_ALFA_BGT']
-cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=200, comment=''),
-    }])))
-L1_list=['L1_ALFA_ANY_UNPAIRED_NONISO', 'L1_ALFA_ANY_ABORTGAPNOTCALIB']
-cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=10, comment=''),
-    }])))
-
-# -- minbias: 600 Hz (ATR-12054)
-HLT_list=['HLT_noalg_L1ALFA_Phys', 'HLT_noalg_L1ALFA_SYS']
-cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1, comment=''), 
-    }])))
-HLT_list=['HLT_noalg_L1ALFA_PhysAny']
-cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1000, comment=''), 
-    }])))
-
-# -- alfa calib: 2000 Hz (ATR-12054)
-HLT_list=['HLT_alfacalib','HLT_alfacalib_L1ALFA_ELAS','HLT_alfacalib_L1ALFA_SYS','HLT_alfacalib_L1ALFA_ANY']
-cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1, comment=''), 
-    }])))
-
-# -- ALFA diffractive
-L1_list=['L1_TRT_ALFA_EINE', 'L1_TRT_ALFA_ANY', 'L1_TRT_ALFA_ANY_UNPAIRED_ISO', 'L1_ALFA_ELASTIC_UNPAIRED_ISO', 'L1_ALFA_ANTI_ELASTIC_UNPAIRED_ISO']
-cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=1, comment=''),
-    }])))
-HLT_list=['HLT_mb_sptrk_vetombts2in_L1ALFA_CEP', 'HLT_mb_sptrk_vetombts2in_peb_L1ALFA_ANY', 'HLT_mb_sptrk_vetombts2in_peb_L1ALFA_ANY_UNPAIRED_ISO', 'HLT_mb_sptrk_vetombts2in_L1TRT_ALFA_EINE', 'HLT_mb_sptrk_vetombts2in_peb_L1TRT_ALFA_ANY', 'HLT_mb_sptrk_vetombts2in_peb_L1TRT_ALFA_ANY_UNPAIRED_ISO',]
-cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1, comment=''), 
-    }])))
 
 # --------------------------------------
 # HMT
 
-# -- Physics
-L1_list=['L1_TE5', 'L1_TE5.0ETA24']
+# -- Physics, L1. mu=0.02, 5 TeV, 22 bunches
+# TE5 = 500Hz, TE10 = 100Hz, TE20=50Hz, TE30=10Hz
+L1_list=['L1_TE5']
+cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=2, comment='250 Hz. If possible unprescale'),
+    }])))
+
+L1_list=['L1_TE10',]
+cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=1, comment='100 Hz'),
+    }])))
+
+#L1_list=['L1_TE20','L1_TE30']
+#cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+#    1000 : TriggerRule(PS=1, comment=''),
+#    }])))
+
+L1_list=['L1_MBTS_1_1']
 cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
     1000 : TriggerRule(PS=1, comment=''),
     }])))
-HLT_list=['HLT_mb_sp1400_trk90_hmt_L1TE5',           'HLT_mb_sp1400_trk90_hmt_L1TE5.0ETA24',
-          'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE5',  'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE5.0ETA24',
-          'HLT_mb_sp1400_trk90_hmt_L1TE10',          'HLT_mb_sp1400_trk90_hmt_L1TE10.0ETA24',
-          'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE10', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE10.0ETA24', ]
+
+HLT_list=['HLT_noalg_mb_L1MBTS_1_1']
 cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1, comment=''), 
+    1000 : TriggerRule(PS=1000, comment='target 1 Hz'),
     }])))
 
-# -- HMT perf: 20 Hz (ATR-12054)
-HLT_list=['HLT_mb_sp1300_hmtperf_L1TE5', 'HLT_mb_sp1300_hmtperf_L1TE5.0ETA24',]
+HLT_list=['HLT_mb_sp400_trk40_hmt_L1MBTS_1_1',
+          'HLT_mb_sp900_trk60_hmt_L1MBTS_1_1',
+          ]
 cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=15, comment=''), 
-    }])))
-HLT_list=['HLT_mb_sp1400_hmtperf_L1TE10', 'HLT_mb_sp1400_hmtperf_L1TE10.0ETA24',]
-cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=10, comment=''), 
+    1000 : TriggerRule(PS=1, comment='hmt trigger'), 
     }])))
 
-# 29 bunches * 0.5 (mu) * 11 kHz = 160 kHz
-L1_list=['L1_MBTS_1']
+# -- HMT : assume rejection 2 for seed TE5, assume rejection 10 for seed TE10
+HLT_list=['HLT_mb_sp2_hmtperf_L1TE5','HLT_mb_sp700_hmtperf_L1TE5',]
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=1, comment='50 Hz, perf trigger'), 
+    }])))
+
+HLT_list=['HLT_mb_sp1500_hmtperf_L1TE10',]
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=1, comment='some 10 Hz, perf trigger'), 
+    }])))
+
+HLT_list=['HLT_mb_sp800_pusup400_trk50_hmt_L1TE5',
+          ]
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=1, comment='some 10 Hz, hmt trigger'), 
+    }])))
+
+
+HLT_list=['HLT_mb_sptrk']
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(inputRate=800, comment='target ~ 10 Hz', ESRate=1), 
+    }])))
+
+
+# --------------------
+# MBTS,LUCID inelastic xsect , ATR-12856
+
+# 20 bunches * 0.02 (mu) * 11 kHz = 4.4 kHz (probably conservative, as number comes from 13 TeV rates)
+# collect both MBTS_1 and LUCID
+
+L1_list=['L1_MBTS_1']  # CATRIN: need to increase to 1kHz (was 100Hz before)
 cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=16000, comment='target 10 Hz'),
+    1000 : TriggerRule(PS=5, comment='target 1000 Hz'),
     }])))
+
+HLT_list=['HLT_lumipeb_L1MBTS_1' ] #ATR-12733 D.Salek
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=10, comment='target 100 Hz'), 
+    }])))
+
+L1_list=['L1_MBTS_1_UNPAIRED_ISO']
+cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=30, comment='target 20 Hz '),
+    }])))
+
+L1_list=['L1_MBTS_1_EMPTY']
+cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=2750, comment='target 20 Hz'),
+    }])))
+
+L1_list=['L1_LUCID'] #CATRIn from alfa elastic target rate is 20Hz.  keep same
+cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=80, comment='target 20 Hz'),
+    }])))
+
+L1_list=['L1_LUCID_UNPAIRED_ISO'] #CATRIn from alfa elastic target rate is 20Hz
+cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=1, comment='target 10 Hz '),
+    }])))
+
+L1_list=['L1_RD0_EMPTY']
+cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(rate=100, scaling='bunches', comment=''),
+    }])))
+
+L1_list=['L1_RD0_UNPAIRED_ISO']
+cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(rate=20, scaling='bunches', comment=''),
+    }])))
+
+
 HLT_list=['HLT_noalg_mb_L1MBTS_1' ]
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=1, comment='target 1000 Hz'), 
+    }])))
+
+HLT_list=['HLT_noalg_mb_L1MBTS_1_UNPAIRED_ISO' ]
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=1, comment='target 10'), 
+    }])))
+
+HLT_list=['HLT_noalg_mb_L1MBTS_1_EMPTY' ]
 cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment='target 10 Hz'), 
     }])))
 
-# sptrk: input * 0.5 (mu)
-# RD0 is used also in physics (jets etc)
-L1_list=['L1_RD0_FILLED']
-cmsScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(rate=500, maxRate=500, scaling='bunches', comment='L1'),
-    }])))
-HLT_list=['HLT_mb_sptrk' ]
+HLT_list=['HLT_noalg_mb_L1LUCID' ] #CATRIn from alfa elastic target rate is 20Hz
 cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(inputRate=60, comment='target 30 Hz (mu=0.5)'), 
+    1000 : TriggerRule(PS=1, comment='target 20 Hz'), 
     }])))
+
+HLT_list=['HLT_noalg_mb_L1LUCID_UNPAIRED_ISO' ]#CATRIn from alfa elastic target rate is 20Hz
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=1, comment='target 10 '), 
+    }])))
+
+HLT_list=['HLT_noalg_mb_L1RD0_EMPTY' ]
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=10, comment='target 10 Hz'), 
+    }])))
+
+HLT_list=['HLT_noalg_mb_L1RD0_FILLED' ]
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=500, comment='target 6 Hz'), 
+    }])))
+
+HLT_list=['HLT_noalg_mb_L1RD0_UNPAIRED_ISO' ]
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=2, comment='target 10 Hz'), 
+    }])))
+
+
+
+HLT_list=['HLT_mb_sptrk_pt4_L1MBTS_1','HLT_mb_sptrk_pt6_L1MBTS_1','HLT_mb_sptrk_pt8_L1MBTS_1']
+cmsScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=50, comment='target few  Hz'), 
+    }])))
+
+
 
 # --------------------------------------
 # Beamspot
 
 beamspot_Rules = {
     'L1_4J15' : { 1 : TriggerRule(PS=1, comment='BeamSpot') },
-
     # online measurement: unPS (ATR-10984)
-    'HLT_beamspot_trkFS_L2StarB'           : { 1 : TriggerRule(PS=1, comment='BeamSpot') },
-    'HLT_beamspot_trkFS_trkfast'           : { 1 : TriggerRule(PS=1, comment='BeamSpot') },
-
+    'HLT_beamspot_trkFS_trkfast'           : { 1000 : TriggerRule(PS=1, comment='BeamSpot') },
     # offline measurement
-    'HLT_beamspot_activeTE_L2StarB_pebTRT' : { 1 : TriggerRule(rate=200, comment='BeamSpot') },
-    'HLT_beamspot_activeTE_trkfast_pebTRT' : { 1 : TriggerRule(rate=200, comment='BeamSpot') },
-    'HLT_beamspot_allTE_L2StarB_pebTRT'    : { 1 : TriggerRule(rate=20, comment='BeamSpot') },
-    'HLT_beamspot_allTE_trkfast_pebTRT'    : { 1 : TriggerRule(rate=20, comment='BeamSpot') },
+    'HLT_beamspot_activeTE_trkfast_pebTRT' : { 1000 : TriggerRule(rate=200, comment='BeamSpot') },
+    'HLT_beamspot_allTE_trkfast_pebTRT'    : { 1000 : TriggerRule(rate=20, comment='BeamSpot') },
     }
 cmsScan_Rules.update(beamspot_Rules)
+
+
 
 
 #################################################################################################
 #
 #
-# ALICE scan (medium mu: ~0.5)
+# ALICELHCb scan
 #
 #
 #################################################################################################
 
 aliceScan_Rules={}
 
-# --------------------------------------
-# VdM main
 
 HLT_list=['HLT_lumipeb_vdm_L1MBTS_2_BGRP9', 'HLT_lumipeb_vdm_L1MBTS_2_BGRP11', 'HLT_lumipeb_vdm_L1MBTS_2_UNPAIRED_ISO',]
 aliceScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
@@ -433,57 +569,75 @@ aliceScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
     }])))
 
 # --------------------------------------
-# ALFA
+# HMT
 
-# -- L1: 8 kHz (ATR-12056)
-# if rate is too high, prescale these following 4 items altogether (orginal design was PS=10)
-# and instead, reduce HLT_noalg_L1ALFA_PhysAny prescale from 1000 to 100.
-L1_list=['L1_ALFA_ANY', 'L1_ALFA_ANY_EMPTY', 'L1_ALFA_ANY_FIRSTEMPTY', 'L1_ALFA_ANY_UNPAIRED_ISO']
+# -- Physics, L1. mu=0.5, 5 TeV, 22 bunches
+# TE5 = 15kHz, TE10 = 3kHz, TE20=1000Hz, TE30=500Hz
+L1_list=['L1_TE5']
 aliceScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=1, comment=''),
-    }])))
-
-L1_list=['L1_ALFA_ELAST15', 'L1_ALFA_ELAST15_Calib', 'L1_ALFA_ELAST18', 'L1_ALFA_ELAST18_Calib', 'L1_ALFA_SYST11', 'L1_ALFA_SYST12', 'L1_ALFA_SYST17', 'L1_ALFA_SYST18', 'L1_ALFA_B7L1_OD', 'L1_ALFA_A7L1_OD', 'L1_ALFA_A7R1_OD', 'L1_ALFA_B7R1_OD',]
-aliceScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=1, comment=''),
-    }])))
-L1_list=['L1_BGRP1_ALFA_BGT']
-aliceScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=200, comment=''),
-    }])))
-L1_list=['L1_ALFA_ANY_UNPAIRED_NONISO']
-aliceScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=100, comment=''),
-    }])))
-L1_list=['L1_ALFA_ANY_ABORTGAPNOTCALIB',]
-aliceScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=15, comment=''),
+    1000 : TriggerRule(PS=10, comment='1500 Hz'),
     }])))
 
-# -- minbias: 400 Hz (ATR-12056)
-HLT_list=['HLT_noalg_L1ALFA_Phys', 'HLT_noalg_L1ALFA_SYS']
+L1_list=['L1_TE10',]
+aliceScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=1, comment='3000 Hz'),
+    }])))
+
+L1_list=['L1_TE20']
+aliceScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=1, comment='1000 Hz'),
+    }])))
+
+L1_list=['L1_TE30']
+aliceScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    1000 : TriggerRule(PS=1, comment='500 Hz'),
+    }])))
+
+#L1_list=['L1_MBTS_1_1']
+#aliceScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+#    1000 : TriggerRule(PS=50, comment=''),
+#    }])))
+
+#HLT_list=['HLT_noalg_mb_L1MBTS_1_1']
+#aliceScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+#    1000 : TriggerRule(PS=1000, comment='target 1 Hz'),
+#    }])))
+
+#HLT_list=['HLT_mb_sp400_trk40_hmt_L1MBTS_1_1',
+#          'HLT_mb_sp900_trk60_hmt_L1MBTS_1_1',
+#          ]
+#aliceScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+#    1000 : TriggerRule(PS=1, comment='hmt trigger'), 
+#    }])))
+
+# -- HMT : rejection 2 for seeded TE5, rejection 10 for seeded TE10
+HLT_list=['HLT_mb_sp700_hmtperf_L1TE5', 'HLT_mb_sp800_pusup400_trk50_hmt_L1TE5']
 aliceScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1, comment=''), 
-    }])))
-HLT_list=['HLT_noalg_L1ALFA_PhysAny']
-aliceScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=100, comment=''), 
+    1000 : TriggerRule(PS=10, comment='~100 Hz, perf trigger'), 
     }])))
 
-# -- alfa calib: 1300 Hz (ATR-12056)
-HLT_list=['HLT_alfacalib','HLT_alfacalib_L1ALFA_ELAS','HLT_alfacalib_L1ALFA_SYS','HLT_alfacalib_L1ALFA_ANY']
+HLT_list=['HLT_mb_sp1500_hmtperf_L1TE10','HLT_mb_sp2100_hmtperf_L1TE10']
 aliceScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1, comment=''), 
+    1000 : TriggerRule(PS=2, comment='~100 Hz, perf trigger'), 
     }])))
 
-# -- ALFA diffractive
-L1_list=['L1_TRT_ALFA_EINE', 'L1_TRT_ALFA_ANY', 'L1_TRT_ALFA_ANY_UNPAIRED_ISO', 'L1_ALFA_ELASTIC_UNPAIRED_ISO', 'L1_ALFA_ANTI_ELASTIC_UNPAIRED_ISO']
-aliceScan_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    1000 : TriggerRule(PS=1, comment=''),
-    }])))
-HLT_list=['HLT_mb_sptrk_vetombts2in_L1ALFA_CEP', 'HLT_mb_sptrk_vetombts2in_peb_L1ALFA_ANY', 'HLT_mb_sptrk_vetombts2in_peb_L1ALFA_ANY_UNPAIRED_ISO', 'HLT_mb_sptrk_vetombts2in_L1TRT_ALFA_EINE', 'HLT_mb_sptrk_vetombts2in_peb_L1TRT_ALFA_ANY', 'HLT_mb_sptrk_vetombts2in_peb_L1TRT_ALFA_ANY_UNPAIRED_ISO',]
+HLT_list=['HLT_mb_sp1200_pusup700_trk70_hmt_L1TE5','HLT_mb_sp1600_pusup1100_trk90_hmt_L1TE10',
+          ]
 aliceScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
-    1000 : TriggerRule(PS=1, comment=''), 
+    1000 : TriggerRule(PS=2, comment='hmt trigger, ~ 100Hz'), 
+    }])))
+
+HLT_list=['HLT_mb_sp2200_pusup1300_trk110_hmt_L1TE20','HLT_mb_sp2400_pusup1400_trk120_hmt_L1TE20',
+          'HLT_mb_sp2200_pusup1300_trk110_hmt_L1TE30','HLT_mb_sp2400_pusup1400_trk120_hmt_L1TE30',
+          ]
+aliceScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=1, comment='hmt trigger, < 100Hz'), 
+    }])))
+
+
+HLT_list=['HLT_mb_sptrk']
+aliceScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(inputRate=800, comment='target some ~10 Hz', ESRate=1), 
     }])))
 
 
@@ -498,9 +652,12 @@ aliceScan_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
 if doATLASscan:
     rules.update(atlasScan_Rules)
 elif doCMSscan:
+#    rules.update(add_elsticRules)
     rules.update(cmsScan_Rules)
-elif doALICEscan:
+elif doAliceLHCb:
     rules.update(aliceScan_Rules)
+
+
 
 #################################################################################################
 #
@@ -555,7 +712,7 @@ disabled_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
 # streamers
 
 HLT_list=[
-'HLT_noalg_L12EM10VH', 'HLT_noalg_L12EM15', 'HLT_noalg_L12EM3', 'HLT_noalg_L12EM7', 'HLT_noalg_L12EM8VH_MU10', 'HLT_noalg_L12J15_XE55', 'HLT_noalg_L12MU4', 'HLT_noalg_L12MU6', 'HLT_noalg_L13J25.0ETA23', 'HLT_noalg_L13J40', 'HLT_noalg_L13MU4', 'HLT_noalg_L14J15', 'HLT_noalg_L14J20.0ETA49', 'HLT_noalg_L1ALFA_Diff', 'HLT_noalg_L1ALFA_TRT_Diff', 'HLT_noalg_L1ALFA_TRT_UNPAIRED_ISO_Diff', 'HLT_noalg_L1All', 'HLT_noalg_L1CALREQ2', 'HLT_noalg_L1Calo_EMPTY', 'HLT_noalg_L1EM12', 'HLT_noalg_L1EM15', 'HLT_noalg_L1EM15HI_2TAU12IM', 'HLT_noalg_L1EM15HI_2TAU12IM_J25_3J12', 'HLT_noalg_L1EM15HI_2TAU12IM_XE35', 'HLT_noalg_L1EM15HI_TAU40_2TAU15', 'HLT_noalg_L1EM15VH_3EM7', 'HLT_noalg_L1EM15VH_MU10', 'HLT_noalg_L1EM15_MU4', 'HLT_noalg_L1EM18VH', 'HLT_noalg_L1EM20VH', 'HLT_noalg_L1EM3', 'HLT_noalg_L1EM7', 'HLT_noalg_L1EM7_MU10', 'HLT_noalg_L1J15_J15.31ETA49', 'HLT_noalg_L1J20_J20.31ETA49', 'HLT_noalg_L1J30.0ETA49_2J20.0ETA49', 'HLT_noalg_L1J50', 'HLT_noalg_L1J75', 'HLT_noalg_L1J75.31ETA49', 'HLT_noalg_L1LHCF', 'HLT_noalg_L1LHCF_EMPTY', 'HLT_noalg_L1LHCF_UNPAIRED_ISO', 'HLT_noalg_L1MBTS_1_BGRP11', 'HLT_noalg_L1MBTS_1_BGRP9', 'HLT_noalg_L1MBTS_2_BGRP11', 'HLT_noalg_L1MBTS_2_BGRP9', 'HLT_noalg_L1MJJ-100', 'HLT_noalg_L1MU10_TAU12IM', 'HLT_noalg_L1MU10_TAU12IM_J25_2J12', 'HLT_noalg_L1MU10_TAU12IM_XE35', 'HLT_noalg_L1MU10_TAU12_J25_2J12', 'HLT_noalg_L1MU10_TAU20', 'HLT_noalg_L1MU4', 'HLT_noalg_L1MU4_3J15', 'HLT_noalg_L1MU4_J12', 'HLT_noalg_L1MU4_J30', 'HLT_noalg_L1MU6', 'HLT_noalg_L1MU6_J20', 'HLT_noalg_L1MU6_J30.0ETA49_2J20.0ETA49', 'HLT_noalg_L1MU6_J40', 'HLT_noalg_L1MinBias', 'HLT_noalg_L1RD0_BGRP11', 'HLT_noalg_L1RD0_BGRP9', 'HLT_noalg_L1TAU12', 'HLT_noalg_L1TAU12IL', 'HLT_noalg_L1TAU12IM', 'HLT_noalg_L1TAU12IT', 'HLT_noalg_L1TAU20', 'HLT_noalg_L1TAU20IL', 'HLT_noalg_L1TAU20IM', 'HLT_noalg_L1TAU20IM_2TAU12IM', 'HLT_noalg_L1TAU20IM_2TAU12IM_J25_2J20_3J12', 'HLT_noalg_L1TAU20IM_2TAU12IM_XE35', 'HLT_noalg_L1TAU20IT', 'HLT_noalg_L1TAU20_2J20_XE45', 'HLT_noalg_L1TAU20_2TAU12', 'HLT_noalg_L1TAU20_2TAU12_XE35', 'HLT_noalg_L1TAU30', 'HLT_noalg_L1TAU60', 'HLT_noalg_L1XE50', 'HLT_noalg_bkg_L1J12_BGRP0', 'HLT_noalg_bkg_L1J30.31ETA49_BGRP0', 'HLT_noalg_cosmiccalo_L1J12_FIRSTEMPTY', 'HLT_noalg_cosmiccalo_L1J30_FIRSTEMPTY', 'HLT_noalg_cosmicmuons_L1MU11_EMPTY', 'HLT_noalg_cosmicmuons_L1MU4_EMPTY', 'HLT_noalg_dcmmon_L1RD2_BGRP12', 'HLT_noalg_dcmmon_L1RD2_EMPTY', 'HLT_noalg_eb_L1ABORTGAPNOTCALIB_noPS', 'HLT_noalg_eb_L1EMPTY_noPS', 'HLT_noalg_eb_L1FIRSTEMPTY_noPS', 'HLT_noalg_eb_L1PhysicsHigh_noPS', 'HLT_noalg_eb_L1PhysicsLow_noPS', 'HLT_noalg_eb_L1RD0_EMPTY', 'HLT_noalg_eb_L1RD3_EMPTY', 'HLT_noalg_eb_L1RD3_FILLED', 'HLT_noalg_eb_L1UNPAIRED_ISO_noPS', 'HLT_noalg_eb_L1UNPAIRED_NONISO_noPS', 'HLT_noalg_idcosmic_L1TRT_EMPTY', 'HLT_noalg_idcosmic_L1TRT_FILLED', 'HLT_noalg_L1ALFA_ANY', 'HLT_noalg_L1BPH-2M-2MU4', 'HLT_noalg_L1BPH-2M-2MU6', 'HLT_noalg_L1BPH-2M-MU6MU4', 'HLT_noalg_L1BPH-4M8-2MU4', 'HLT_noalg_L1BPH-4M8-2MU6', 'HLT_noalg_L1BPH-4M8-MU6MU4', 'HLT_noalg_L1BPH-DR-2MU4', 'HLT_noalg_L1BPH-DR-2MU6', 'HLT_noalg_L1BPH-DR-MU6MU4', 'HLT_noalg_L1DR-MU10TAU12I', 'HLT_noalg_L1DR-TAU20ITAU12I', 'HLT_noalg_L1DY-BOX-2MU4', 'HLT_noalg_L1DY-BOX-2MU6', 'HLT_noalg_L1DY-BOX-MU6MU4', 'HLT_noalg_L1DY-DR-2MU4', 'HLT_noalg_L1EM10', 'HLT_noalg_L1EM10VH', 'HLT_noalg_L1EM13VH', 'HLT_noalg_L1EM15VH', 'HLT_noalg_L1EM20VHI', 'HLT_noalg_L1EM22VHI', 'HLT_noalg_L1EM8VH', 'HLT_noalg_L1J100', 'HLT_noalg_L1J12', 'HLT_noalg_L1J120', 'HLT_noalg_L1J15', 'HLT_noalg_L1J20', 'HLT_noalg_L1J25', 'HLT_noalg_L1J30', 'HLT_noalg_L1J40', 'HLT_noalg_L1J85', 'HLT_noalg_L1LFV-MU', 'HLT_noalg_L1TAU40', 'HLT_noalg_L1TAU8', 'HLT_noalg_L1TE10', 'HLT_noalg_L1TE10.0ETA24', 'HLT_noalg_L1TE20', 'HLT_noalg_L1TE20.0ETA24', 'HLT_noalg_L1TE30', 'HLT_noalg_L1TE30.0ETA24', 'HLT_noalg_L1TE40', 'HLT_noalg_L1TE50', 'HLT_noalg_L1Topo', 'HLT_noalg_L1XE40', 'HLT_noalg_L1XE45', 'HLT_noalg_L1XE55', 'HLT_noalg_L1XE60', 'HLT_noalg_L1XE70', 'HLT_noalg_L1XE80', 'HLT_noalg_L1XS20', 'HLT_noalg_L1XS30', 'HLT_noalg_L1XS40', 'HLT_noalg_L1XS50', 'HLT_noalg_L1XS60', 'HLT_noalg_bkg_L1J12_BGRP12','HLT_noalg_L1J100.31ETA49', 'HLT_noalg_L1J15.28ETA31', 'HLT_noalg_L1J15.31ETA49', 'HLT_noalg_L1J20.28ETA31', 'HLT_noalg_L1J20.31ETA49', 'HLT_noalg_L1J30.31ETA49', 'HLT_noalg_L1J50.31ETA49', 'HLT_noalg_bkg_L1J30.31ETA49_BGRP12', 'HLT_noalg_L1RD1_FILLED', 'HLT_noalg_L1RD2_FILLED', 'HLT_noalg_L1RD2_EMPTY', 'HLT_noalg_L1RD3_FILLED', 'HLT_noalg_L1RD3_EMPTY', 'HLT_noalg_standby_L1RD0_FILLED', 'HLT_noalg_standby_L1RD0_EMPTY',]
+'HLT_noalg_L12EM10VH', 'HLT_noalg_L12EM15', 'HLT_noalg_L12EM3', 'HLT_noalg_L12EM7', 'HLT_noalg_L12EM8VH_MU10', 'HLT_noalg_L12J15_XE55', 'HLT_noalg_L12MU4', 'HLT_noalg_L12MU6', 'HLT_noalg_L13J25.0ETA23', 'HLT_noalg_L13J40', 'HLT_noalg_L13MU4', 'HLT_noalg_L14J15', 'HLT_noalg_L14J20.0ETA49', 'HLT_noalg_L1ALFA_Diff', 'HLT_noalg_L1ALFA_TRT_Diff', 'HLT_noalg_L1ALFA_TRT_UNPAIRED_ISO_Diff', 'HLT_noalg_L1All', 'HLT_noalg_L1CALREQ2', 'HLT_noalg_L1Calo_EMPTY', 'HLT_noalg_L1EM12', 'HLT_noalg_L1EM15', 'HLT_noalg_L1EM15HI_2TAU12IM', 'HLT_noalg_L1EM15HI_2TAU12IM_J25_3J12', 'HLT_noalg_L1EM15HI_2TAU12IM_XE35', 'HLT_noalg_L1EM15HI_TAU40_2TAU15', 'HLT_noalg_L1EM15VH_3EM7', 'HLT_noalg_L1EM15VH_MU10', 'HLT_noalg_L1EM15_MU4', 'HLT_noalg_L1EM18VH', 'HLT_noalg_L1EM20VH', 'HLT_noalg_L1EM3', 'HLT_noalg_L1EM7', 'HLT_noalg_L1EM7_MU10', 'HLT_noalg_L1J15_J15.31ETA49', 'HLT_noalg_L1J20_J20.31ETA49', 'HLT_noalg_L1J30.0ETA49_2J20.0ETA49', 'HLT_noalg_L1J50', 'HLT_noalg_L1J75', 'HLT_noalg_L1J75.31ETA49', 'HLT_noalg_L1LHCF', 'HLT_noalg_L1LHCF_EMPTY', 'HLT_noalg_L1LHCF_UNPAIRED_ISO', 'HLT_noalg_L1MBTS_1_BGRP11', 'HLT_noalg_L1MBTS_1_BGRP9', 'HLT_noalg_L1MBTS_2_BGRP11', 'HLT_noalg_L1MBTS_2_BGRP9', 'HLT_noalg_L1MJJ-100', 'HLT_noalg_L1MU10_TAU12IM', 'HLT_noalg_L1MU10_TAU12IM_J25_2J12', 'HLT_noalg_L1MU10_TAU12IM_XE35', 'HLT_noalg_L1MU10_TAU12_J25_2J12', 'HLT_noalg_L1MU10_TAU20', 'HLT_noalg_L1MU4', 'HLT_noalg_L1MU4_3J15', 'HLT_noalg_L1MU4_J12', 'HLT_noalg_L1MU4_J30', 'HLT_noalg_L1MU6', 'HLT_noalg_L1MU6_J20', 'HLT_noalg_L1MU6_J30.0ETA49_2J20.0ETA49', 'HLT_noalg_L1MU6_J40', 'HLT_noalg_L1MinBias', 'HLT_noalg_L1RD0_BGRP11', 'HLT_noalg_L1RD0_BGRP9', 'HLT_noalg_L1TAU12', 'HLT_noalg_L1TAU12IL', 'HLT_noalg_L1TAU12IM', 'HLT_noalg_L1TAU12IT', 'HLT_noalg_L1TAU20', 'HLT_noalg_L1TAU20IL', 'HLT_noalg_L1TAU20IM', 'HLT_noalg_L1TAU20IM_2TAU12IM', 'HLT_noalg_L1TAU20IM_2TAU12IM_J25_2J20_3J12', 'HLT_noalg_L1TAU20IM_2TAU12IM_XE35', 'HLT_noalg_L1TAU20IT', 'HLT_noalg_L1TAU20_2J20_XE45', 'HLT_noalg_L1TAU20_2TAU12', 'HLT_noalg_L1TAU20_2TAU12_XE35', 'HLT_noalg_L1TAU30', 'HLT_noalg_L1TAU60', 'HLT_noalg_L1XE50', 'HLT_noalg_bkg_L1J12_BGRP0', 'HLT_noalg_bkg_L1J30.31ETA49_BGRP0', 'HLT_noalg_cosmiccalo_L1J12_FIRSTEMPTY', 'HLT_noalg_cosmiccalo_L1J30_FIRSTEMPTY', 'HLT_noalg_cosmicmuons_L1MU11_EMPTY', 'HLT_noalg_cosmicmuons_L1MU4_EMPTY', 'HLT_noalg_dcmmon_L1RD2_BGRP12', 'HLT_noalg_dcmmon_L1RD2_EMPTY', 'HLT_noalg_eb_L1ABORTGAPNOTCALIB_noPS', 'HLT_noalg_eb_L1EMPTY_noPS', 'HLT_noalg_eb_L1FIRSTEMPTY_noPS', 'HLT_noalg_eb_L1PhysicsHigh_noPS', 'HLT_noalg_eb_L1PhysicsLow_noPS', 'HLT_noalg_eb_L1RD0_EMPTY', 'HLT_noalg_eb_L1RD3_EMPTY', 'HLT_noalg_eb_L1RD3_FILLED', 'HLT_noalg_eb_L1UNPAIRED_ISO_noPS', 'HLT_noalg_eb_L1UNPAIRED_NONISO_noPS', 'HLT_noalg_idcosmic_L1TRT_EMPTY', 'HLT_noalg_idcosmic_L1TRT_FILLED', 'HLT_noalg_L1ALFA_ANY', 'HLT_noalg_L1BPH-2M-2MU4', 'HLT_noalg_L1BPH-2M-2MU6', 'HLT_noalg_L1BPH-2M-MU6MU4', 'HLT_noalg_L1BPH-4M8-2MU4', 'HLT_noalg_L1BPH-4M8-2MU6', 'HLT_noalg_L1BPH-4M8-MU6MU4', 'HLT_noalg_L1BPH-DR-2MU4', 'HLT_noalg_L1BPH-DR-2MU6', 'HLT_noalg_L1BPH-DR-MU6MU4', 'HLT_noalg_L1DR-MU10TAU12I', 'HLT_noalg_L1DR-TAU20ITAU12I', 'HLT_noalg_L1DY-BOX-2MU4', 'HLT_noalg_L1DY-BOX-2MU6', 'HLT_noalg_L1DY-BOX-MU6MU4', 'HLT_noalg_L1DY-DR-2MU4', 'HLT_noalg_L1EM10', 'HLT_noalg_L1EM10VH', 'HLT_noalg_L1EM13VH', 'HLT_noalg_L1EM15VH', 'HLT_noalg_L1EM20VHI', 'HLT_noalg_L1EM22VHI', 'HLT_noalg_L1EM8VH', 'HLT_noalg_L1J100', 'HLT_noalg_L1J12', 'HLT_noalg_L1J120', 'HLT_noalg_L1J15', 'HLT_noalg_L1J20', 'HLT_noalg_L1J25', 'HLT_noalg_L1J30', 'HLT_noalg_L1J40', 'HLT_noalg_L1J85', 'HLT_noalg_L1LFV-MU', 'HLT_noalg_L1TAU40', 'HLT_noalg_L1TAU8', 'HLT_noalg_L1TE10', 'HLT_noalg_L1TE10.0ETA24', 'HLT_noalg_L1TE20', 'HLT_noalg_L1TE20.0ETA24', 'HLT_noalg_L1TE30', 'HLT_noalg_L1TE30.0ETA24', 'HLT_noalg_L1TE40', 'HLT_noalg_L1TE50', 'HLT_noalg_L1Topo', 'HLT_noalg_L1XE40', 'HLT_noalg_L1XE45', 'HLT_noalg_L1XE55', 'HLT_noalg_L1XE60', 'HLT_noalg_L1XE70', 'HLT_noalg_L1XE80', 'HLT_noalg_L1XS20', 'HLT_noalg_L1XS30', 'HLT_noalg_L1XS40', 'HLT_noalg_L1XS50', 'HLT_noalg_L1XS60','HLT_noalg_L1J100.31ETA49', 'HLT_noalg_L1J15.28ETA31', 'HLT_noalg_L1J15.31ETA49', 'HLT_noalg_L1J20.28ETA31', 'HLT_noalg_L1J20.31ETA49', 'HLT_noalg_L1J30.31ETA49', 'HLT_noalg_L1J50.31ETA49', 'HLT_noalg_L1RD1_FILLED', 'HLT_noalg_L1RD2_FILLED', 'HLT_noalg_L1RD2_EMPTY', 'HLT_noalg_L1RD3_FILLED', 'HLT_noalg_L1RD3_EMPTY', 'HLT_noalg_standby_L1RD0_FILLED', 'HLT_noalg_standby_L1RD0_EMPTY',]
 disabled_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=-1, comment=''), 
     }])))
@@ -579,7 +736,7 @@ disabled_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
 # --------------------------------------
 # minbias
 
-HLT_list=['HLT_noalg_L1Calo', 'HLT_noalg_L1Standby', 'HLT_noalg_bkg_L1J12', 'HLT_noalg_bkg_L1J30.31ETA49', 'HLT_noalg_mb_L1MBTS_1', 'HLT_noalg_mb_L1MBTS_2', 'HLT_mb_mbts_L1MBTS_1', 'HLT_mb_mbts_L1MBTS_1_1', 'HLT_mb_mbts_L1MBTS_1_1_EMPTY', 'HLT_mb_mbts_L1MBTS_1_1_UNPAIRED_ISO', 'HLT_mb_mbts_L1MBTS_1_EMPTY', 'HLT_mb_mbts_L1MBTS_1_UNPAIRED_ISO', 'HLT_mb_mbts_L1MBTS_2', 'HLT_mb_mbts_L1MBTS_2_EMPTY', 'HLT_mb_mbts_L1MBTS_2_UNPAIRED_ISO', 'HLT_mb_perf_L1LUCID', 'HLT_mb_perf_L1LUCID_EMPTY', 'HLT_mb_perf_L1LUCID_UNPAIRED_ISO', 'HLT_mb_perf_L1MBTS_2', 'HLT_mb_perf_L1RD1_FILLED', 'HLT_mb_sp1000_trk70_hmt_L1MBTS_1_1', 'HLT_mb_sp1200_trk75_hmt_L1MBTS_1_1', 'HLT_mb_sp1400_hmtperf_L1TE10', 'HLT_mb_sp1400_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1400_hmtperf_L1TE20', 'HLT_mb_sp1400_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1400_trk100_hmt_L1TE20', 'HLT_mb_sp1400_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_trk80_hmt_L1MBTS_1_1', 'HLT_mb_sp1400_trk90_hmt_L1TE10', 'HLT_mb_sp1400_trk90_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_hmtperf', 'HLT_mb_sp1800_hmtperf_L1TE20', 'HLT_mb_sp2000_pusup600_trk70_hmt', 'HLT_mb_sp2000_pusup600_trk70_hmt_L1TE30', 'HLT_mb_sp2000_pusup600_trk70_hmt_L1TE40', 'HLT_mb_sp2000_pusup700_trk50_sumet110_hmt_L1TE40', 'HLT_mb_sp2000_pusup700_trk50_sumet150_hmt_L1TE50', 'HLT_mb_sp2000_pusup700_trk50_sumet70_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk60_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk70_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk70_hmt_L1TE40', 'HLT_mb_sp2000_trk70_hmt', 'HLT_mb_sp2500_hmtperf_L1TE20', 'HLT_mb_sp2500_pusup750_trk90_hmt_L1TE40', 'HLT_mb_sp2_hmtperf', 'HLT_mb_sp2_hmtperf_L1MBTS_1_1', 'HLT_mb_sp3000_pusup800_trk120_hmt_L1TE50', 'HLT_mb_sp300_trk10_sumet40_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet50_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet50_hmt_L1RD3_FILLED', 'HLT_mb_sp300_trk10_sumet50_hmt_L1TE10', 'HLT_mb_sp300_trk10_sumet60_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet60_hmt_L1TE20', 'HLT_mb_sp300_trk10_sumet70_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet80_hmt_L1MBTS_1_1', 'HLT_mb_sp400_trk40_hmt_L1MBTS_1_1', 'HLT_mb_sp500_hmtperf', 'HLT_mb_sp600_trk10_sumet40_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet50_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet50_hmt_L1RD3_FILLED', 'HLT_mb_sp600_trk10_sumet50_hmt_L1TE10.0ETA24', 'HLT_mb_sp600_trk10_sumet60_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet60_hmt_L1TE20.0ETA24', 'HLT_mb_sp600_trk10_sumet70_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet80_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk45_hmt_L1MBTS_1_1', 'HLT_mb_sp700_trk50_hmt_L1MBTS_1_1', 'HLT_mb_sp700_trk50_hmt_L1RD3_FILLED', 'HLT_mb_sp700_trk55_hmt_L1MBTS_1_1', 'HLT_mb_sp900_trk60_hmt_L1MBTS_1_1', 'HLT_mb_sp900_trk65_hmt_L1MBTS_1_1', 'HLT_mb_sptrk','HLT_mb_sptrk_L1RD0_EMPTY', 'HLT_mb_sptrk_L1RD0_UNPAIRED_ISO', 'HLT_mb_sptrk_L1RD3_FILLED', 'HLT_mb_sptrk_costr', 'HLT_mb_sptrk_costr_L1RD0_EMPTY', 'HLT_mb_sptrk_noisesup', 'HLT_mb_sptrk_noisesup_L1RD0_EMPTY', 'HLT_mb_sptrk_noisesup_L1RD0_UNPAIRED_ISO', 'HLT_mb_sptrk_noisesup_L1RD3_FILLED', 'HLT_mb_sptrk_pt4_L1MBTS_1', 'HLT_mb_sptrk_pt4_L1MBTS_1_1', 'HLT_mb_sptrk_pt4_L1MBTS_2', 'HLT_mb_sptrk_pt4_L1RD3_FILLED', 'HLT_mb_sptrk_pt6_L1MBTS_1', 'HLT_mb_sptrk_pt6_L1MBTS_1_1', 'HLT_mb_sptrk_pt6_L1MBTS_2', 'HLT_mb_sptrk_pt6_L1RD3_FILLED', 'HLT_mb_sptrk_pt8_L1MBTS_1', 'HLT_mb_sptrk_pt8_L1MBTS_1_1', 'HLT_mb_sptrk_pt8_L1MBTS_2', 'HLT_mb_sptrk_pt8_L1RD3_FILLED', 'HLT_noalg_mb_L1LUCID', 'HLT_noalg_mb_L1LUCID_EMPTY', 'HLT_noalg_mb_L1LUCID_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_1_1', 'HLT_noalg_mb_L1MBTS_1_1_EMPTY', 'HLT_noalg_mb_L1MBTS_1_1_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_1_EMPTY', 'HLT_noalg_mb_L1MBTS_1_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_2_EMPTY', 'HLT_noalg_mb_L1MBTS_2_UNPAIRED_ISO', 'HLT_noalg_mb_L1RD0_EMPTY', 'HLT_noalg_mb_L1RD0_FILLED', 'HLT_noalg_mb_L1RD0_UNPAIRED_ISO', 'HLT_noalg_mb_L1RD1_FILLED', 'HLT_noalg_mb_L1RD2_EMPTY', 'HLT_noalg_mb_L1RD2_FILLED', 'HLT_noalg_mb_L1RD3_EMPTY', 'HLT_noalg_mb_L1RD3_FILLED', 'HLT_noalg_mb_L1TE10', 'HLT_noalg_mb_L1TE10.0ETA24', 'HLT_noalg_mb_L1TE20', 'HLT_noalg_mb_L1TE20.0ETA24', 'HLT_noalg_mb_L1TE30', 'HLT_noalg_mb_L1TE40', 'HLT_noalg_mb_L1TE50','HLT_mb_sp1800_hmtperf_L1TE30.0ETA24','HLT_noalg_mb_L1TE30.0ETA24','HLT_noalg_L1TE0', 'HLT_noalg_L1TE0.0ETA24', 'HLT_noalg_L1TE15', 'HLT_noalg_L1TE5', 'HLT_noalg_L1TE5.0ETA24', 'HLT_noalg_mb_L1TE0', 'HLT_noalg_mb_L1TE0.0ETA24', 'HLT_noalg_mb_L1TE15', 'HLT_noalg_mb_L1TE5', 'HLT_noalg_mb_L1TE5.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE10', 'HLT_mb_sp1300_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE15', 'HLT_mb_sp1300_hmtperf_L1TE20', 'HLT_mb_sp1300_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE5', 'HLT_mb_sp1300_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE10', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE10.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE15', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE20', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE5', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE5.0ETA24', 'HLT_mb_sp1400_trk90_hmt_L1TE15', 'HLT_mb_sp1400_trk90_hmt_L1TE20', 'HLT_mb_sp1400_trk90_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_trk90_hmt_L1TE5', 'HLT_mb_sp1400_trk90_hmt_L1TE5.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE10', 'HLT_mb_sp1500_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE15', 'HLT_mb_sp1500_hmtperf_L1TE20', 'HLT_mb_sp1500_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE5', 'HLT_mb_sp1500_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE10', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE10.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE15', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE20', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE5', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE5.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE10', 'HLT_mb_sp1600_trk100_hmt_L1TE10.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE15', 'HLT_mb_sp1600_trk100_hmt_L1TE20', 'HLT_mb_sp1600_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE5', 'HLT_mb_sp1600_trk100_hmt_L1TE5.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE10', 'HLT_mb_sp1700_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE15', 'HLT_mb_sp1700_hmtperf_L1TE20', 'HLT_mb_sp1700_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE5', 'HLT_mb_sp1700_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE10', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE15', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE20', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE20.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE5', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE5.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE10', 'HLT_mb_sp1800_trk110_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE15', 'HLT_mb_sp1800_trk110_hmt_L1TE20', 'HLT_mb_sp1800_trk110_hmt_L1TE20.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE5', 'HLT_mb_sp1800_trk110_hmt_L1TE5.0ETA24', 'HLT_mb_sp2_hmtperf_L1TE0', 'HLT_mb_sp2_hmtperf_L1TE0.0ETA24', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE10', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE10.0ETA24', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE5', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE5.0ETA24', 'HLT_mb_sp900_trk60_hmt_L1TE10', 'HLT_mb_sp900_trk60_hmt_L1TE10.0ETA24', 'HLT_mb_sp900_trk60_hmt_L1TE5', 'HLT_mb_sp900_trk60_hmt_L1TE5.0ETA24','HLT_lumipeb_vdm_L1RD0_UNPAIRED_ISO',]
+HLT_list=['HLT_noalg_L1Calo', 'HLT_noalg_L1Standby', 'HLT_noalg_bkg_L1J12', 'HLT_noalg_bkg_L1J30.31ETA49', 'HLT_noalg_mb_L1MBTS_1', 'HLT_noalg_mb_L1MBTS_2', 'HLT_mb_mbts_L1MBTS_1', 'HLT_mb_mbts_L1MBTS_1_1', 'HLT_mb_mbts_L1MBTS_1_1_EMPTY', 'HLT_mb_mbts_L1MBTS_1_1_UNPAIRED_ISO', 'HLT_mb_mbts_L1MBTS_1_EMPTY', 'HLT_mb_mbts_L1MBTS_1_UNPAIRED_ISO', 'HLT_mb_mbts_L1MBTS_2', 'HLT_mb_mbts_L1MBTS_2_EMPTY', 'HLT_mb_mbts_L1MBTS_2_UNPAIRED_ISO', 'HLT_mb_perf_L1LUCID', 'HLT_mb_perf_L1LUCID_EMPTY', 'HLT_mb_perf_L1LUCID_UNPAIRED_ISO', 'HLT_mb_perf_L1MBTS_2', 'HLT_mb_perf_L1RD1_FILLED', 'HLT_mb_sp1000_trk70_hmt_L1MBTS_1_1', 'HLT_mb_sp1200_trk75_hmt_L1MBTS_1_1', 'HLT_mb_sp1400_hmtperf_L1TE10', 'HLT_mb_sp1400_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1400_hmtperf_L1TE20', 'HLT_mb_sp1400_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1400_trk100_hmt_L1TE20', 'HLT_mb_sp1400_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_trk80_hmt_L1MBTS_1_1', 'HLT_mb_sp1400_trk90_hmt_L1TE10', 'HLT_mb_sp1400_trk90_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_hmtperf', 'HLT_mb_sp1800_hmtperf_L1TE20', 'HLT_mb_sp2000_pusup600_trk70_hmt', 'HLT_mb_sp2000_pusup600_trk70_hmt_L1TE30', 'HLT_mb_sp2000_pusup600_trk70_hmt_L1TE40', 'HLT_mb_sp2000_pusup700_trk50_sumet110_hmt_L1TE40', 'HLT_mb_sp2000_pusup700_trk50_sumet150_hmt_L1TE50', 'HLT_mb_sp2000_pusup700_trk50_sumet70_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk60_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk70_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk70_hmt_L1TE40', 'HLT_mb_sp2000_trk70_hmt', 'HLT_mb_sp2500_hmtperf_L1TE20', 'HLT_mb_sp2500_pusup750_trk90_hmt_L1TE40', 'HLT_mb_sp2_hmtperf', 'HLT_mb_sp2_hmtperf_L1MBTS_1_1', 'HLT_mb_sp3000_pusup800_trk120_hmt_L1TE50', 'HLT_mb_sp300_trk10_sumet40_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet50_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet50_hmt_L1RD3_FILLED', 'HLT_mb_sp300_trk10_sumet50_hmt_L1TE10', 'HLT_mb_sp300_trk10_sumet60_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet60_hmt_L1TE20', 'HLT_mb_sp300_trk10_sumet70_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet80_hmt_L1MBTS_1_1', 'HLT_mb_sp500_hmtperf', 'HLT_mb_sp600_trk10_sumet40_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet50_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet50_hmt_L1RD3_FILLED', 'HLT_mb_sp600_trk10_sumet50_hmt_L1TE10.0ETA24', 'HLT_mb_sp600_trk10_sumet60_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet60_hmt_L1TE20.0ETA24', 'HLT_mb_sp600_trk10_sumet70_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet80_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk45_hmt_L1MBTS_1_1', 'HLT_mb_sp700_trk50_hmt_L1MBTS_1_1', 'HLT_mb_sp700_trk50_hmt_L1RD3_FILLED', 'HLT_mb_sp700_trk55_hmt_L1MBTS_1_1', 'HLT_mb_sp900_trk65_hmt_L1MBTS_1_1','HLT_mb_sptrk_L1RD0_EMPTY', 'HLT_mb_sptrk_L1RD0_UNPAIRED_ISO', 'HLT_mb_sptrk_L1RD3_FILLED', 'HLT_mb_sptrk_costr', 'HLT_mb_sptrk_costr_L1RD0_EMPTY', 'HLT_mb_sptrk_noisesup', 'HLT_mb_sptrk_noisesup_L1RD0_EMPTY', 'HLT_mb_sptrk_noisesup_L1RD0_UNPAIRED_ISO', 'HLT_mb_sptrk_noisesup_L1RD3_FILLED', 'HLT_mb_sptrk_pt4_L1MBTS_1', 'HLT_mb_sptrk_pt4_L1MBTS_1_1', 'HLT_mb_sptrk_pt4_L1MBTS_2', 'HLT_mb_sptrk_pt4_L1RD3_FILLED', 'HLT_mb_sptrk_pt6_L1MBTS_1', 'HLT_mb_sptrk_pt6_L1MBTS_1_1', 'HLT_mb_sptrk_pt6_L1MBTS_2', 'HLT_mb_sptrk_pt6_L1RD3_FILLED', 'HLT_mb_sptrk_pt8_L1MBTS_1', 'HLT_mb_sptrk_pt8_L1MBTS_1_1', 'HLT_mb_sptrk_pt8_L1MBTS_2', 'HLT_mb_sptrk_pt8_L1RD3_FILLED', 'HLT_noalg_mb_L1LUCID', 'HLT_noalg_mb_L1LUCID_EMPTY', 'HLT_noalg_mb_L1LUCID_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_1_1_EMPTY', 'HLT_noalg_mb_L1MBTS_1_1_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_1_EMPTY', 'HLT_noalg_mb_L1MBTS_1_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_2_EMPTY', 'HLT_noalg_mb_L1MBTS_2_UNPAIRED_ISO', 'HLT_noalg_mb_L1RD0_EMPTY', 'HLT_noalg_mb_L1RD0_FILLED', 'HLT_noalg_mb_L1RD0_UNPAIRED_ISO', 'HLT_noalg_mb_L1RD1_FILLED', 'HLT_noalg_mb_L1RD2_EMPTY', 'HLT_noalg_mb_L1RD2_FILLED', 'HLT_noalg_mb_L1RD3_EMPTY', 'HLT_noalg_mb_L1RD3_FILLED', 'HLT_noalg_mb_L1TE10', 'HLT_noalg_mb_L1TE10.0ETA24', 'HLT_noalg_mb_L1TE20', 'HLT_noalg_mb_L1TE20.0ETA24', 'HLT_noalg_mb_L1TE30', 'HLT_noalg_mb_L1TE40', 'HLT_noalg_mb_L1TE50','HLT_mb_sp1800_hmtperf_L1TE30.0ETA24','HLT_noalg_mb_L1TE30.0ETA24','HLT_noalg_L1TE0', 'HLT_noalg_L1TE0.0ETA24', 'HLT_noalg_L1TE15', 'HLT_noalg_L1TE5', 'HLT_noalg_L1TE5.0ETA24', 'HLT_noalg_mb_L1TE0', 'HLT_noalg_mb_L1TE0.0ETA24', 'HLT_noalg_mb_L1TE15', 'HLT_noalg_mb_L1TE5', 'HLT_noalg_mb_L1TE5.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE10', 'HLT_mb_sp1300_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE15', 'HLT_mb_sp1300_hmtperf_L1TE20', 'HLT_mb_sp1300_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE5', 'HLT_mb_sp1300_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE10', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE10.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE15', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE20', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE5', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE5.0ETA24', 'HLT_mb_sp1400_trk90_hmt_L1TE15', 'HLT_mb_sp1400_trk90_hmt_L1TE20', 'HLT_mb_sp1400_trk90_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_trk90_hmt_L1TE5', 'HLT_mb_sp1400_trk90_hmt_L1TE5.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE15', 'HLT_mb_sp1500_hmtperf_L1TE20', 'HLT_mb_sp1500_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE5', 'HLT_mb_sp1500_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE10', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE10.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE15', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE20', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE5', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE5.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE10', 'HLT_mb_sp1600_trk100_hmt_L1TE10.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE15', 'HLT_mb_sp1600_trk100_hmt_L1TE20', 'HLT_mb_sp1600_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE5', 'HLT_mb_sp1600_trk100_hmt_L1TE5.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE10', 'HLT_mb_sp1700_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE15', 'HLT_mb_sp1700_hmtperf_L1TE20', 'HLT_mb_sp1700_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE5', 'HLT_mb_sp1700_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE10', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE15', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE20', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE20.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE5', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE5.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE10', 'HLT_mb_sp1800_trk110_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE15', 'HLT_mb_sp1800_trk110_hmt_L1TE20', 'HLT_mb_sp1800_trk110_hmt_L1TE20.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE5', 'HLT_mb_sp1800_trk110_hmt_L1TE5.0ETA24', 'HLT_mb_sp2_hmtperf_L1TE0', 'HLT_mb_sp2_hmtperf_L1TE0.0ETA24', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE10', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE10.0ETA24', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE5', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE5.0ETA24', 'HLT_mb_sp900_trk60_hmt_L1TE10', 'HLT_mb_sp900_trk60_hmt_L1TE10.0ETA24', 'HLT_mb_sp900_trk60_hmt_L1TE5', 'HLT_mb_sp900_trk60_hmt_L1TE5.0ETA24','HLT_lumipeb_vdm_L1RD0_UNPAIRED_ISO',]
 disabled_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=-1, comment=''), 
     }])))

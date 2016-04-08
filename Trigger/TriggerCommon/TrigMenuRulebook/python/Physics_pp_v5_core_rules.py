@@ -4,10 +4,48 @@ from RuleClasses import TriggerRule
 
 tag = 'Physics_pp_v5'
 
-forRateEstim=False
+forRateEstim=True
+noSupportingTriggers=True
+cpuOptimized=False
 
-from runOptions import filled_bunches as NumBunches
+#
+# CORE
+# have variations:
+#
+# FULL
+# forRateEstim = True
+# noSupportingTriggers = False
+# cpuOptimized = False
+#
+# FULLOPT
+# forRateEstim = True
+# noSupportingTriggers = False
+# cpuOptimized = True
+#
+# FULLOPTNOSUPP
+# forRateEstim = True
+# noSupportingTriggers = True
+# cpuOptimized = True
+#
+# FULLNOSUPP
+# forRateEstim = True
+# noSupportingTriggers = True
+# cpuOptimized = False
 
+#
+# AOH
+# Core estimate
+# - Single and di-lepton (e,mu,tau)
+# - MET
+# - single and multi jet
+#
+# NO BPHYS, BJETS, VBF, COMBINED
+#
+# V6 "cpuOptimised" :
+# - noL2 disabled
+# - topo bphys chains enabled
+#
+#
 #################################################################################################
 #
 #
@@ -70,7 +108,9 @@ lumi_disable_hlt_2mu10=6501
 ########################################
 # XE L1 evolution
 lumi_disable_l1_xe50=10001
-lumi_disable_l1_xe60=12001
+#lumi_disable_l1_xe50=5001 #AOH changed
+#lumi_disable_l1_xe60=15001
+lumi_disable_l1_xe60=20001 #AOH V5 mv L1_XE60 up to 2e34 
 	
 ########################################
 # e/gamma evolution
@@ -107,7 +147,8 @@ lumi_disable_hlt_j360_a10r=6501
 lumi_disable_l1_3j25_0eta23=10001
 lumi_disable_l1_4j15_0eta25=6501
 
-lumi_disable_mu_j_phys=15001
+# AOH V5 : keep until 20000
+lumi_disable_mu_j_phys=20001
 
 # hlt
 lumi_disable_1b_225=6501
@@ -144,10 +185,13 @@ muon_Rules_2e34.update(dict(map(None,L1_list,len(L1_list)*[{
     }])))
 
 HLT_list=[ 'HLT_mu26_imedium', 'HLT_mu50', 'HLT_mu60_0eta105_msonly',
-           'HLT_mu24_mu8noL1', 'HLT_mu24_2mu4noL1', 'HLT_3mu6_msonly' ]
+           'HLT_mu24_mu8noL1', 'HLT_mu24_2mu4noL1', 'HLT_3mu6_msonly' ]    
+
 muon_Rules_2e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment=''), 
     }])))
+
+
 
 HLT_list=[ 'HLT_2mu14' ]
 muon_Rules_2e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
@@ -327,8 +371,13 @@ muon_Rules_supporting.update({
 
     # For mu24_imedium and mu26_imedium
     # PS=32 gives 10 Hz @ 1.0e34
-    'HLT_mu24'                                 : {  1000 : TriggerRule(PS=32, comment='', rerun=1) },
+    # AOH: change to 10Hz instead of fixed prescale for the moment since cannot apply different fixed PS for different lumi points for now.
+    'HLT_mu24'                                 : {  1000 : TriggerRule(rate=10, comment='', rerun=1) },
+    'HLT_mu26'                                 : {  1501 : TriggerRule(rate=10, comment='', rerun=1) },
 
+
+    
+    
     # ----------------------------------------
     # SM W+nJets
     'HLT_mu26_2j20noL1'                        : {  1000 : TriggerRule(PS=224, comment='1 Hz target at 1.3e34') },
@@ -405,6 +454,9 @@ muon_Rules_supporting.update({
 muon_Rules={}
 
 RulesList=[muon_Rules_2e34, muon_Rules_1p5e34, muon_Rules_1e34, muon_Rules_0p5e34, muon_Rules_supporting] 
+if noSupportingTriggers:
+    RulesList=[muon_Rules_2e34, muon_Rules_1p5e34, muon_Rules_1e34, muon_Rules_0p5e34] 
+
 for Rules in RulesList:
     for newrule in Rules.keys():
         if muon_Rules.has_key(newrule):
@@ -426,12 +478,34 @@ for Rules in RulesList:
 
 bphys_Rules_2e34={}
 
+# L1 TOPO
+HLT_list=[
+ 'HLT_2mu6_bBmumu_L1BPH-DR-2MU6-BPH-2M-2MU6'
+,'HLT_2mu6_bBmumu_L1BPH-DR-2MU6-BPH-4M8-2MU6'
+,'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-DR-2MU6'
+,'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-DR-2MU6-BPH-2M-2MU6'
+,'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-DR-2MU6-BPH-4M8-2MU6'
+,'HLT_2mu6_bBmumuxv2_L1BPH-DR-2MU6-BPH-2M-2MU6'
+,'HLT_2mu6_bBmumuxv2_L1BPH-DR-2MU6-BPH-4M8-2MU6'
+,'HLT_2mu6_bDimu_L1BPH-DR-2MU6-BPH-2M-2MU6'
+,'HLT_2mu6_bDimu_L1BPH-DR-2MU6-BPH-4M8-2MU6'
+,'HLT_2mu6_bDimu_novtx_noos_L1BPH-DR-2MU6-BPH-2M-2MU6'
+,'HLT_2mu6_bDimu_novtx_noos_L1BPH-DR-2MU6-BPH-4M8-2MU6'
+,'HLT_2mu6_bJpsimumu_L1BPH-DR-2MU6-BPH-2M-2MU6'
+]
+bphys_Rules_2e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    1000 : TriggerRule(PS=1, comment=''), 
+    }])))
+
+
 HLT_list=['HLT_2mu10_bBmumu','HLT_2mu10_bBmumuxv2','HLT_2mu10_bBmumux_BcmumuDsloose','HLT_2mu10_bBmumux_BpmumuKp','HLT_2mu10_bJpsimumu','HLT_2mu10_bUpsimumu','HLT_3mu6_bTau','HLT_3mu6_bUpsi']
 bphys_Rules_2e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment=''), 
     }])))
 
 HLT_list=['HLT_2mu10_bBmumuxv2_noL2','HLT_2mu10_bBmumux_BcmumuDsloose_noL2','HLT_2mu10_bBmumux_BpmumuKp_noL2']
+if cpuOptimized:
+    HLT_list=[]
 bphys_Rules_2e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment=''),
     }])))
@@ -443,6 +517,8 @@ bphys_Rules_2e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     }])))
 
 HLT_list=['HLT_2mu10_bJpsimumu_noL2']
+if cpuOptimized:
+    HLT_list=[]
 bphys_Rules_2e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment=''), 
     }])))
@@ -465,6 +541,7 @@ bphys_Rules_1p5e34.update(dict(map(None,L1_list,len(L1_list)*[{
     15001 : TriggerRule(rate=1000, maxRate=1000, comment='Prescaled'),
     }])))
 
+
 HLT_list=['HLT_mu10_mu6_bBmumux_BcmumuDsloose', 'HLT_mu10_mu6_bBmumuxv2', 'HLT_mu10_mu6_bBmumux_BpmumuKp']
 bphys_Rules_1p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
      1000 : TriggerRule(PS=1, comment=''), 
@@ -472,6 +549,8 @@ bphys_Rules_1p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     }])))
 
 HLT_list=['HLT_mu10_mu6_bBmumuxv2_noL2','HLT_mu10_mu6_bBmumux_BcmumuDsloose_noL2','HLT_mu10_mu6_bBmumux_BpmumuKp_noL2']
+if cpuOptimized:
+    HLT_list=[]
 bphys_Rules_1p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
      1000 : TriggerRule(PS=1, comment=''), 
     15001 : TriggerRule(rate=0.5, comment='Prescaled'), 
@@ -495,9 +574,11 @@ bphys_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     }])))
 
 HLT_list=['HLT_2mu6_bBmumuxv2_noL2','HLT_2mu6_bBmumux_BcmumuDsloose_noL2','HLT_2mu6_bBmumux_BpmumuKp_noL2']
+if cpuOptimized:
+    HLT_list=[]
 bphys_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
-	            1000 : TriggerRule(PS=1, comment=''),
-    lumi_disable_l1_2mu6 : TriggerRule(PS=1, comment='l1 2mu6 is pre scaled already '),
+                    1000 : TriggerRule(PS=1, comment='Express', ESRate=0.1),
+    lumi_disable_l1_2mu6 : TriggerRule(PS=1, comment='Prescaled at L1, Express', ESRate=0.1),
     }])))
 
 HLT_list=['HLT_2mu6_bBmumux_BcmumuDsloose', 'HLT_2mu6_bJpsimumu_noL2']
@@ -508,6 +589,8 @@ bphys_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
 
 # l2msonly: disable when L>3E33 (2015.09.26)
 HLT_list=['HLT_2mu6_l2msonly_bJpsimumu_noL2','HLT_mu6_mu6_l2msonly_bJpsimumu_noL2',]
+#if cpuOptimized:
+#    HLT_list=[]
 bphys_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment=''), 
     3001 : TriggerRule(PS=-1, comment='disabled'), 
@@ -521,6 +604,47 @@ bphys_Rules_1e34.update(dict(map(None,L1_list,len(L1_list)*[{
     lumi_disable_l1_mu6_2mu4 : TriggerRule(rate=500, maxRate=500, comment='Prescaled'),
     }])))
 
+# L1 TOPO
+HLT_list=[
+ 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+,'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B'
+,'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+,'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO'
+,'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BPH-2M-2MU4'
+,'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BPH-4M8-2MU4'
+,'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+,'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B'
+,'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+,'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO'
+,'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BPH-2M-2MU4'
+,'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BPH-4M8-2MU4'
+,'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+,'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B'
+,'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+,'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO'
+,'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BPH-2M-2MU4'
+,'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BPH-4M8-2MU4'
+,'HLT_2mu4_bDimu_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+,'HLT_2mu4_bDimu_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B'
+,'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+,'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO'
+,'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BPH-2M-2MU4'
+,'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BPH-4M8-2MU4'
+,'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+,'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B'
+,'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+,'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO'
+,'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BPH-2M-2MU4'
+,'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BPH-4M8-2MU4'
+,'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+,'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+,'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-BPH-2M-2MU4'
+]
+bphys_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
+     1000 : TriggerRule(PS=1, comment=''), 
+    10001 : TriggerRule(rate=0.5, comment='Prescaled'), 
+    }])))
+
 HLT_list=['HLT_mu6_mu4_bBmumu','HLT_mu6_mu4_bBmumuxv2','HLT_mu6_mu4_bBmumux_BcmumuDsloose','HLT_mu6_mu4_bBmumux_BpmumuKp','HLT_mu6_mu4_bJpsimumu','HLT_mu6_mu4_bUpsimumu','HLT_mu6_mu4_bJpsimumu_noL2' ]
 bphys_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
                         1000 : TriggerRule(PS=1, comment=''), 
@@ -529,6 +653,8 @@ bphys_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
 
 # l2msonly: disable when L>3E33 (2015.09.26)
 HLT_list=['HLT_mu6_mu4_l2msonly_bJpsimumu_noL2','HLT_mu6_l2msonly_mu4_bJpsimumu_noL2']
+if cpuOptimized:
+    HLT_list=[]
 bphys_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment=''), 
     3001 : TriggerRule(PS=-1, comment='disabled'), 
@@ -536,6 +662,8 @@ bphys_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
 
 # l2msonly: disabled at 2501 due to its high CPU usage (ATR-11769) 
 HLT_list=['HLT_mu6_l2msonly_mu4_l2msonly_bJpsimumu_noL2']
+if cpuOptimized:
+    HLT_list=[]
 bphys_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment=''), 
     2501 : TriggerRule(PS=-1, comment='disabled'), 
@@ -584,12 +712,6 @@ bphys_Rules_0p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
 # supporting trigger
 
 bphys_Rules_supporting={}
-
-HLT_list=['HLT_2mu4_bDimu_noEFbph', 'HLT_mu6_mu4_bDimu_noEFbph']
-bphys_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
-                    1000 : TriggerRule(rate=1.0, comment=''),
-    }])))
-
 
 HLT_list=['HLT_2mu10_bDimu', 'HLT_2mu10_bDimu_novtx_noos', 'HLT_2mu10_bDimu_noinvm_novtx_ss', 'HLT_2mu10_bDimu_noL2']
 bphys_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
@@ -700,7 +822,10 @@ bphys_Rules_supporting.update({
 
 bphys_Rules={}
 
-RulesList=[bphys_Rules_2e34, bphys_Rules_1p5e34, bphys_Rules_1e34, bphys_Rules_0p5e34, bphys_Rules_supporting] 
+RulesList=[bphys_Rules_2e34, bphys_Rules_1p5e34, bphys_Rules_1e34, bphys_Rules_0p5e34, bphys_Rules_supporting]
+if noSupportingTriggers:
+    RulesList=[bphys_Rules_2e34, bphys_Rules_1p5e34, bphys_Rules_1e34, bphys_Rules_0p5e34]
+ 
 for Rules in RulesList:
     for newrule in Rules.keys():
         if bphys_Rules.has_key(newrule):
@@ -738,79 +863,101 @@ met_Rules_2e34.update(dict(map(None,L1_list,len(L1_list)*[{
     1000 : TriggerRule(PS=-1, comment='Disabled'), 
     }])))
 
-HLT_list=[
-    #
+HLT_list=[ # AOH remove xe90, leave xe100, move to xe120_*
+    # XE_70_xe90, XE80_xe120_*
+
     # XE70
-    'HLT_xe100',      'HLT_xe100_mht',  'HLT_xe100_pueta',
-    'HLT_xe100_pufit','HLT_xe100_tc_em','HLT_xe100_tc_lcw',
-    'HLT_xe100_wEFMu',      'HLT_xe100_mht_wEFMu',  'HLT_xe100_pueta_wEFMu',
-    'HLT_xe100_pufit_wEFMu','HLT_xe100_tc_em_wEFMu','HLT_xe100_tc_lcw_wEFMu',
-    #
+#    'HLT_xe90',      'HLT_xe90_mht',  'HLT_xe90_pueta',
+#    'HLT_xe90_pufit','HLT_xe90_tc_em','HLT_xe90_tc_lcw',
+#    'HLT_xe90_wEFMu',      'HLT_xe90_mht_wEFMu',  'HLT_xe90_pueta_wEFMu',
+#    'HLT_xe90_pufit_wEFMu','HLT_xe90_tc_em_wEFMu','HLT_xe90_tc_lcw_wEFMu',
+    'HLT_xe90',      
     # XE70
-    'HLT_xe90',      'HLT_xe90_mht',  'HLT_xe90_pueta',
-    'HLT_xe90_pufit','HLT_xe90_tc_em','HLT_xe90_tc_lcw',
-    'HLT_xe90_wEFMu',      'HLT_xe90_mht_wEFMu',  'HLT_xe90_pueta_wEFMu',
-    'HLT_xe90_pufit_wEFMu','HLT_xe90_tc_em_wEFMu','HLT_xe90_tc_lcw_wEFMu',
+#    'HLT_xe100',      'HLT_xe100_mht',  'HLT_xe100_pueta',
+#    'HLT_xe100_pufit','HLT_xe100_tc_em','HLT_xe100_tc_lcw',
+#    'HLT_xe100_wEFMu',      'HLT_xe100_mht_wEFMu',  'HLT_xe100_pueta_wEFMu',
+#    'HLT_xe100_pufit_wEFMu','HLT_xe100_tc_em_wEFMu','HLT_xe100_tc_lcw_wEFMu',
+    'HLT_xe100',      
+    #
     # XE80
-    'HLT_xe100_L1XE80',      'HLT_xe100_mht_L1XE80',  'HLT_xe100_pueta_L1XE80',
-    'HLT_xe100_pufit_L1XE80','HLT_xe100_tc_em_L1XE80','HLT_xe100_tc_lcw_L1XE80',
-    'HLT_xe100_wEFMu_L1XE80',      'HLT_xe100_mht_wEFMu_L1XE80',  'HLT_xe100_pueta_wEFMu_L1XE80',
-    'HLT_xe100_pufit_wEFMu_L1XE80','HLT_xe100_tc_em_wEFMu_L1XE80','HLT_xe100_tc_lcw_wEFMu_L1XE80',
+    'HLT_xe100_L1XE80', 
+#    'HLT_xe100_L1XE80',      'HLT_xe100_mht_L1XE80',  'HLT_xe100_pueta_L1XE80',
+#    'HLT_xe100_pufit_L1XE80','HLT_xe100_tc_em_L1XE80','HLT_xe100_tc_lcw_L1XE80',
+#    'HLT_xe100_wEFMu_L1XE80',      'HLT_xe100_mht_wEFMu_L1XE80',  'HLT_xe100_pueta_wEFMu_L1XE80',
+#    'HLT_xe100_pufit_wEFMu_L1XE80','HLT_xe100_tc_em_wEFMu_L1XE80','HLT_xe100_tc_lcw_wEFMu_L1XE80',
     #
     'HLT_xe120',      'HLT_xe120_mht',  'HLT_xe120_pueta',
     'HLT_xe120_pufit','HLT_xe120_tc_em','HLT_xe120_tc_lcw',
     'HLT_xe120_wEFMu',      'HLT_xe120_mht_wEFMu',  'HLT_xe120_pueta_wEFMu',
     'HLT_xe120_pufit_wEFMu','HLT_xe120_tc_em_wEFMu','HLT_xe120_tc_lcw_wEFMu',
     #
-    # XE70_BGRP7
-    'HLT_xe90_L1XE70_BGRP7',      'HLT_xe90_mht_L1XE70_BGRP7',  'HLT_xe90_pueta_L1XE70_BGRP7',
-    'HLT_xe90_pufit_L1XE70_BGRP7','HLT_xe90_tc_em_L1XE70_BGRP7','HLT_xe90_tc_lcw_L1XE70_BGRP7',
-    'HLT_xe90_wEFMu_L1XE70_BGRP7',      'HLT_xe90_mht_wEFMu_L1XE70_BGRP7',  'HLT_xe90_pueta_wEFMu_L1XE70_BGRP7',
-    'HLT_xe90_pufit_wEFMu_L1XE70_BGRP7','HLT_xe90_tc_em_wEFMu_L1XE70_BGRP7','HLT_xe90_tc_lcw_wEFMu_L1XE70_BGRP7',
-    # XE70_BGRP7
-    'HLT_xe100_L1XE70_BGRP7',      'HLT_xe100_mht_L1XE70_BGRP7',  'HLT_xe100_pueta_L1XE70_BGRP7',
-    'HLT_xe100_pufit_L1XE70_BGRP7','HLT_xe100_tc_em_L1XE70_BGRP7','HLT_xe100_tc_lcw_L1XE70_BGRP7',
-    'HLT_xe100_wEFMu_L1XE70_BGRP7',      'HLT_xe100_mht_wEFMu_L1XE70_BGRP7',  'HLT_xe100_pueta_wEFMu_L1XE70_BGRP7',
-    'HLT_xe100_pufit_wEFMu_L1XE70_BGRP7','HLT_xe100_tc_em_wEFMu_L1XE70_BGRP7','HLT_xe100_tc_lcw_wEFMu_L1XE70_BGRP7',
-    #
-    # XE80_BGRP7
-    'HLT_xe100_L1XE80_BGRP7',      'HLT_xe100_mht_L1XE80_BGRP7',  'HLT_xe100_pueta_L1XE80_BGRP7',
-    'HLT_xe100_pufit_L1XE80_BGRP7','HLT_xe100_tc_em_L1XE80_BGRP7','HLT_xe100_tc_lcw_L1XE80_BGRP7',
-    'HLT_xe100_wEFMu_L1XE80_BGRP7',      'HLT_xe100_mht_wEFMu_L1XE80_BGRP7',  'HLT_xe100_pueta_wEFMu_L1XE80_BGRP7',
-    'HLT_xe100_pufit_wEFMu_L1XE80_BGRP7','HLT_xe100_tc_em_wEFMu_L1XE80_BGRP7','HLT_xe100_tc_lcw_wEFMu_L1XE80_BGRP7',
-    #
-    'HLT_xe120_L1XE80_BGRP7',      'HLT_xe120_mht_L1XE80_BGRP7',  'HLT_xe120_pueta_L1XE80_BGRP7', 
-    'HLT_xe120_pufit_L1XE80_BGRP7','HLT_xe120_tc_em_L1XE80_BGRP7','HLT_xe120_tc_lcw_L1XE80_BGRP7',
-    'HLT_xe120_wEFMu_L1XE80_BGRP7',      'HLT_xe120_mht_wEFMu_L1XE80_BGRP7',  'HLT_xe120_pueta_wEFMu_L1XE80_BGRP7',
-    'HLT_xe120_pufit_wEFMu_L1XE80_BGRP7','HLT_xe120_tc_em_wEFMu_L1XE80_BGRP7','HLT_xe120_tc_lcw_wEFMu_L1XE80_BGRP7',
+#    # XE70_BGRP7
+#    'HLT_xe90_L1XE70_BGRP7',      'HLT_xe90_mht_L1XE70_BGRP7',  'HLT_xe90_pueta_L1XE70_BGRP7',
+#    'HLT_xe90_pufit_L1XE70_BGRP7','HLT_xe90_tc_em_L1XE70_BGRP7','HLT_xe90_tc_lcw_L1XE70_BGRP7',
+#    'HLT_xe90_wEFMu_L1XE70_BGRP7',      'HLT_xe90_mht_wEFMu_L1XE70_BGRP7',  'HLT_xe90_pueta_wEFMu_L1XE70_BGRP7',
+#    'HLT_xe90_pufit_wEFMu_L1XE70_BGRP7','HLT_xe90_tc_em_wEFMu_L1XE70_BGRP7','HLT_xe90_tc_lcw_wEFMu_L1XE70_BGRP7',
+#    # XE70_BGRP7
+#    'HLT_xe100_L1XE70_BGRP7',      'HLT_xe100_mht_L1XE70_BGRP7',  'HLT_xe100_pueta_L1XE70_BGRP7',
+#    'HLT_xe100_pufit_L1XE70_BGRP7','HLT_xe100_tc_em_L1XE70_BGRP7','HLT_xe100_tc_lcw_L1XE70_BGRP7',
+#    'HLT_xe100_wEFMu_L1XE70_BGRP7',      'HLT_xe100_mht_wEFMu_L1XE70_BGRP7',  'HLT_xe100_pueta_wEFMu_L1XE70_BGRP7',
+#    'HLT_xe100_pufit_wEFMu_L1XE70_BGRP7','HLT_xe100_tc_em_wEFMu_L1XE70_BGRP7','HLT_xe100_tc_lcw_wEFMu_L1XE70_BGRP7',
+#    #
+#    # XE80_BGRP7
+#    'HLT_xe100_L1XE80_BGRP7',      'HLT_xe100_mht_L1XE80_BGRP7',  'HLT_xe100_pueta_L1XE80_BGRP7',
+#    'HLT_xe100_pufit_L1XE80_BGRP7','HLT_xe100_tc_em_L1XE80_BGRP7','HLT_xe100_tc_lcw_L1XE80_BGRP7',
+#    'HLT_xe100_wEFMu_L1XE80_BGRP7',      'HLT_xe100_mht_wEFMu_L1XE80_BGRP7',  'HLT_xe100_pueta_wEFMu_L1XE80_BGRP7',
+#    'HLT_xe100_pufit_wEFMu_L1XE80_BGRP7','HLT_xe100_tc_em_wEFMu_L1XE80_BGRP7','HLT_xe100_tc_lcw_wEFMu_L1XE80_BGRP7',
+#    #
+#    'HLT_xe120_L1XE80_BGRP7',      'HLT_xe120_mht_L1XE80_BGRP7',  'HLT_xe120_pueta_L1XE80_BGRP7', 
+#    'HLT_xe120_pufit_L1XE80_BGRP7','HLT_xe120_tc_em_L1XE80_BGRP7','HLT_xe120_tc_lcw_L1XE80_BGRP7',
+#    'HLT_xe120_wEFMu_L1XE80_BGRP7',      'HLT_xe120_mht_wEFMu_L1XE80_BGRP7',  'HLT_xe120_pueta_wEFMu_L1XE80_BGRP7',
+#    'HLT_xe120_pufit_wEFMu_L1XE80_BGRP7','HLT_xe120_tc_em_wEFMu_L1XE80_BGRP7','HLT_xe120_tc_lcw_wEFMu_L1XE80_BGRP7',
     ]
 met_Rules_2e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment=''), 
     }])))
 
 ########################################
-# 1.5e34 
+# 1.5e34
 
+# XE60_xe80, XE70_xe100_*
 met_Rules_1p5e34={}
 
 HLT_list=[
+    # AOH, xe80, xe100*
     # XE70
-    'HLT_xe80_L1XE70',      'HLT_xe80_mht_L1XE70',  'HLT_xe80_pueta_L1XE70',
-    'HLT_xe80_pufit_L1XE70','HLT_xe80_tc_em_L1XE70','HLT_xe80_tc_lcw_L1XE70',
-    'HLT_xe80_wEFMu_L1XE70',      'HLT_xe80_mht_wEFMu_L1XE70',  'HLT_xe80_pueta_wEFMu_L1XE70',
-    'HLT_xe80_pufit_wEFMu_L1XE70','HLT_xe80_tc_em_wEFMu_L1XE70','HLT_xe80_tc_lcw_wEFMu_L1XE70',
+#    'HLT_xe80_L1XE70',      'HLT_xe80_mht_L1XE70',  'HLT_xe80_pueta_L1XE70',
+#    'HLT_xe80_pufit_L1XE70','HLT_xe80_tc_em_L1XE70','HLT_xe80_tc_lcw_L1XE70',
+#    'HLT_xe80_wEFMu_L1XE70',      'HLT_xe80_mht_wEFMu_L1XE70',  'HLT_xe80_pueta_wEFMu_L1XE70',
+#    'HLT_xe80_pufit_wEFMu_L1XE70','HLT_xe80_tc_em_wEFMu_L1XE70','HLT_xe80_tc_lcw_wEFMu_L1XE70',
+    # xe80 L1_XE60
+    'HLT_xe80_L1XE70', 'HLT_xe80',
+    # xe90
+    #'HLT_xe90',
+    # xe100_* L1_XE80 
+    'HLT_xe100_mht_L1XE80',  'HLT_xe100_pueta_L1XE80',
+    'HLT_xe100_pufit_L1XE80','HLT_xe100_tc_em_L1XE80','HLT_xe100_tc_lcw_L1XE80',
+    'HLT_xe100_wEFMu_L1XE80',      'HLT_xe100_mht_wEFMu_L1XE80',  'HLT_xe100_pueta_wEFMu_L1XE80',
+    'HLT_xe100_pufit_wEFMu_L1XE80','HLT_xe100_tc_em_wEFMu_L1XE80','HLT_xe100_tc_lcw_wEFMu_L1XE80',
+    # XE70
+    #'HLT_xe100',  #AOH in e234     
+    'HLT_xe100_mht',  'HLT_xe100_pueta',
+    'HLT_xe100_pufit','HLT_xe100_tc_em','HLT_xe100_tc_lcw',
+    'HLT_xe100_wEFMu',      'HLT_xe100_mht_wEFMu',  'HLT_xe100_pueta_wEFMu',
+    'HLT_xe100_pufit_wEFMu','HLT_xe100_tc_em_wEFMu','HLT_xe100_tc_lcw_wEFMu',
     ]
 met_Rules_1p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment=''), 
-   15001 : TriggerRule(rate=0.5, comment='Prescaled'),
+    #AOH changed to run flat to 2e34
+    20001 : TriggerRule(rate=0.5, comment='Prescaled'),
     }])))
 
 HLT_list=[
     # XE70_BGRP7
-    'HLT_xe80_L1XE70_BGRP7',      'HLT_xe80_mht_L1XE70_BGRP7',  'HLT_xe80_pueta_L1XE70_BGRP7',
-    'HLT_xe80_pufit_L1XE70_BGRP7','HLT_xe80_tc_em_L1XE70_BGRP7','HLT_xe80_tc_lcw_L1XE70_BGRP7',
-    'HLT_xe80_wEFMu_L1XE70_BGRP7',      'HLT_xe80_mht_wEFMu_L1XE70_BGRP7',  'HLT_xe80_tc_lcw_wEFMu_L1XE70_BGRP7',
-    'HLT_xe80_pueta_wEFMu_L1XE70_BGRP7','HLT_xe80_pufit_wEFMu_L1XE70_BGRP7','HLT_xe80_tc_em_wEFMu_L1XE70_BGRP7',
+#    'HLT_xe80_L1XE70_BGRP7',      'HLT_xe80_mht_L1XE70_BGRP7',  'HLT_xe80_pueta_L1XE70_BGRP7',
+#    'HLT_xe80_pufit_L1XE70_BGRP7','HLT_xe80_tc_em_L1XE70_BGRP7','HLT_xe80_tc_lcw_L1XE70_BGRP7',
+#    'HLT_xe80_wEFMu_L1XE70_BGRP7',      'HLT_xe80_mht_wEFMu_L1XE70_BGRP7',  'HLT_xe80_tc_lcw_wEFMu_L1XE70_BGRP7',
+#    'HLT_xe80_pueta_wEFMu_L1XE70_BGRP7','HLT_xe80_pufit_wEFMu_L1XE70_BGRP7','HLT_xe80_tc_em_wEFMu_L1XE70_BGRP7',
     ]
 met_Rules_1p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=1, comment=''), 
@@ -819,6 +966,7 @@ met_Rules_1p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
 
 ########################################
 # 1e34 
+# L1 XE50, HLT xe70
 
 met_Rules_1e34={}
 
@@ -836,25 +984,58 @@ met_Rules_1e34.update(dict(map(None,L1_list,len(L1_list)*[{
     }])))
 
 HLT_list=[
-    # XE60
-    'HLT_xe80',      'HLT_xe80_mht',      'HLT_xe80_pueta',      'HLT_xe80_pufit',      'HLT_xe80_tc_em',      'HLT_xe80_tc_lcw',
-    'HLT_xe80_wEFMu','HLT_xe80_mht_wEFMu','HLT_xe80_pueta_wEFMu','HLT_xe80_pufit_wEFMu','HLT_xe80_tc_em_wEFMu','HLT_xe80_tc_lcw_wEFMu',
+    # L1_XE50, HLT_xe70
+    'HLT_xe70', 
+    #'HLT_xe80',
+    'HLT_xe80_L1XE50',
+    # L1_XE70, HLT_xe90_*
+    'HLT_xe90_mht',  'HLT_xe90_pueta',
+    'HLT_xe90_pufit','HLT_xe90_tc_em','HLT_xe90_tc_lcw',
+    'HLT_xe90_wEFMu',      'HLT_xe90_mht_wEFMu',  'HLT_xe90_pueta_wEFMu',
+    'HLT_xe90_pufit_wEFMu','HLT_xe90_tc_em_wEFMu','HLT_xe90_tc_lcw_wEFMu',
+#    'HLT_xe80_mht',      'HLT_xe80_pueta',      'HLT_xe80_pufit',      'HLT_xe80_tc_em',      'HLT_xe80_tc_lcw',
+#    'HLT_xe80_wEFMu','HLT_xe80_mht_wEFMu','HLT_xe80_pueta_wEFMu','HLT_xe80_pufit_wEFMu','HLT_xe80_tc_em_wEFMu','HLT_xe80_tc_lcw_wEFMu',
     ]
 met_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
                     1000 : TriggerRule(PS=1, comment=''), 
-    lumi_disable_l1_xe60 : TriggerRule(rate=0.5, comment='Prescaled'),
+    lumi_disable_l1_xe50 : TriggerRule(rate=0.5, comment='Prescaled'),
+    }])))
+
+
+HLT_list=[
+    # XE50_xe90_*
+    'HLT_xe90_L1XE50',      'HLT_xe90_mht_L1XE50',  'HLT_xe90_pueta_L1XE50',
+    'HLT_xe90_pufit_L1XE50','HLT_xe90_tc_em_L1XE50','HLT_xe90_tc_lcw_L1XE50',
+    'HLT_xe90_wEFMu_L1XE50',      'HLT_xe90_mht_wEFMu_L1XE50',  'HLT_xe90_pueta_wEFMu_L1XE50',
+    'HLT_xe90_pufit_wEFMu_L1XE50','HLT_xe90_tc_em_wEFMu_L1XE50','HLT_xe90_tc_lcw_wEFMu_L1XE50',
+    ]
+met_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
+                    1000 : TriggerRule(PS=1, comment=''), 
+    lumi_disable_l1_xe50 : TriggerRule(rate=0.5, comment='Prescaled'),
+    }])))
+
+HLT_list=[
+    # XE50_xe100_*
+    'HLT_xe100_L1XE50',      'HLT_xe100_mht_L1XE50',  'HLT_xe100_pueta_L1XE50',
+    'HLT_xe100_pufit_L1XE50','HLT_xe100_tc_em_L1XE50','HLT_xe100_tc_lcw_L1XE50',
+    'HLT_xe100_wEFMu_L1XE50',      'HLT_xe100_mht_wEFMu_L1XE50',  'HLT_xe100_pueta_wEFMu_L1XE50',
+    'HLT_xe100_pufit_wEFMu_L1XE50','HLT_xe100_tc_em_wEFMu_L1XE50','HLT_xe100_tc_lcw_wEFMu_L1XE50',
+    ]
+met_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
+                    1000 : TriggerRule(PS=1, comment=''), 
+    lumi_disable_l1_xe50 : TriggerRule(rate=0.5, comment='Prescaled'),
     }])))
 
 HLT_list=[
     # XE60_BGRP7
-    'HLT_xe80_L1XE60_BGRP7',      'HLT_xe80_mht_L1XE60_BGRP7',  'HLT_xe80_pueta_L1XE60_BGRP7',
-    'HLT_xe80_pufit_L1XE60_BGRP7','HLT_xe80_tc_em_L1XE60_BGRP7','HLT_xe80_tc_lcw_L1XE60_BGRP7',
-    'HLT_xe80_wEFMu_L1XE60_BGRP7',      'HLT_xe80_mht_wEFMu_L1XE60_BGRP7',  'HLT_xe80_pueta_wEFMu_L1XE60_BGRP7',
-    'HLT_xe80_pufit_wEFMu_L1XE60_BGRP7','HLT_xe80_tc_em_wEFMu_L1XE60_BGRP7','HLT_xe80_tc_lcw_wEFMu_L1XE60_BGRP7',
+#    'HLT_xe80_L1XE60_BGRP7',      'HLT_xe80_mht_L1XE60_BGRP7',  'HLT_xe80_pueta_L1XE60_BGRP7',
+#    'HLT_xe80_pufit_L1XE60_BGRP7','HLT_xe80_tc_em_L1XE60_BGRP7','HLT_xe80_tc_lcw_L1XE60_BGRP7',
+#    'HLT_xe80_wEFMu_L1XE60_BGRP7',      'HLT_xe80_mht_wEFMu_L1XE60_BGRP7',  'HLT_xe80_pueta_wEFMu_L1XE60_BGRP7',
+#    'HLT_xe80_pufit_wEFMu_L1XE60_BGRP7','HLT_xe80_tc_em_wEFMu_L1XE60_BGRP7','HLT_xe80_tc_lcw_wEFMu_L1XE60_BGRP7',
     ]
 met_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
                     1000 : TriggerRule(PS=1, comment=''), 
-    lumi_disable_l1_xe60 : TriggerRule(rate=0.5/bgrp7_factor, comment='Prescaled'),
+    lumi_disable_l1_xe50 : TriggerRule(rate=0.5/bgrp7_factor, comment='Prescaled'),
     }])))
 
 ########################################
@@ -875,14 +1056,17 @@ met_Rules_0p5e34.update(dict(map(None,L1_list,len(L1_list)*[{
 #    lumi_disable_l1_xe50 : TriggerRule(rate=500/bgrp7_factor, maxRate=500/bgrp7_factor, comment='Prescaled'),
     }])))
 
+
+
 HLT_list=[
-    # XE50
-    'HLT_xe70',      'HLT_xe70_mht',      'HLT_xe70_pueta',      'HLT_xe70_pufit',      'HLT_xe70_tc_em',      'HLT_xe70_tc_lcw',
+# AOH  mv xe70 to 1e34  
+#   'HLT_xe70',      'HLT_xe70_mht',      'HLT_xe70_pueta',      'HLT_xe70_pufit',      'HLT_xe70_tc_em',      'HLT_xe70_tc_lcw',
+    'HLT_xe70_mht',      'HLT_xe70_pueta',      'HLT_xe70_pufit',      'HLT_xe70_tc_em',      'HLT_xe70_tc_lcw',
     'HLT_xe70_wEFMu','HLT_xe70_mht_wEFMu','HLT_xe70_pueta_wEFMu','HLT_xe70_pufit_wEFMu','HLT_xe70_tc_em_wEFMu','HLT_xe70_tc_lcw_wEFMu',
 ]
 met_Rules_0p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
                     1000 : TriggerRule(PS=1, comment=''), 
-    lumi_disable_l1_xe50 : TriggerRule(rate=0.5, comment='Prescaled'),
+                    5001 : TriggerRule(rate=0.5, comment='Prescaled'),
     }])))
 HLT_list=[
     # XE50_BGRP7
@@ -893,44 +1077,45 @@ HLT_list=[
 ]
 met_Rules_0p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
                     1000 : TriggerRule(PS=1, comment=''), 
-    lumi_disable_l1_xe50 : TriggerRule(rate=0.5/bgrp7_factor, comment='Prescaled'),
+                    5001 : TriggerRule(rate=0.5/bgrp7_factor, comment='Prescaled'),
     }])))
 
 HLT_list=[
     # XE50
-    'HLT_xe80_L1XE50',      'HLT_xe80_mht_L1XE50',  'HLT_xe80_pueta_L1XE50',
+    #'HLT_xe80_L1XE50',      
+    'HLT_xe80_mht_L1XE50',  'HLT_xe80_pueta_L1XE50',
     'HLT_xe80_pufit_L1XE50','HLT_xe80_tc_em_L1XE50','HLT_xe80_tc_lcw_L1XE50',
     'HLT_xe80_wEFMu_L1XE50',      'HLT_xe80_mht_wEFMu_L1XE50',  'HLT_xe80_pueta_wEFMu_L1XE50',
     'HLT_xe80_pufit_wEFMu_L1XE50','HLT_xe80_tc_em_wEFMu_L1XE50','HLT_xe80_tc_lcw_wEFMu_L1XE50',
     ]
 met_Rules_0p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
                     1000 : TriggerRule(PS=1, comment=''), 
-    lumi_disable_l1_xe50 : TriggerRule(rate=0.5, comment='Prescaled'),
+                    5001 : TriggerRule(rate=0.5, comment='Prescaled'),
     }])))
 
 
 HLT_list=[
     # XE50
-    'HLT_xe90_L1XE50',      'HLT_xe90_mht_L1XE50',  'HLT_xe90_pueta_L1XE50',
-    'HLT_xe90_pufit_L1XE50','HLT_xe90_tc_em_L1XE50','HLT_xe90_tc_lcw_L1XE50',
-    'HLT_xe90_wEFMu_L1XE50',      'HLT_xe90_mht_wEFMu_L1XE50',  'HLT_xe90_pueta_wEFMu_L1XE50',
-    'HLT_xe90_pufit_wEFMu_L1XE50','HLT_xe90_tc_em_wEFMu_L1XE50','HLT_xe90_tc_lcw_wEFMu_L1XE50',
+#    'HLT_xe90_L1XE50',      'HLT_xe90_mht_L1XE50',  'HLT_xe90_pueta_L1XE50',
+#    'HLT_xe90_pufit_L1XE50','HLT_xe90_tc_em_L1XE50','HLT_xe90_tc_lcw_L1XE50',
+#    'HLT_xe90_wEFMu_L1XE50',      'HLT_xe90_mht_wEFMu_L1XE50',  'HLT_xe90_pueta_wEFMu_L1XE50',
+#    'HLT_xe90_pufit_wEFMu_L1XE50','HLT_xe90_tc_em_wEFMu_L1XE50','HLT_xe90_tc_lcw_wEFMu_L1XE50',
     ]
 met_Rules_0p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
                     1000 : TriggerRule(PS=1, comment=''), 
-    lumi_disable_l1_xe50 : TriggerRule(rate=0.5, comment='Prescaled'),
+                    5001 : TriggerRule(rate=0.5, comment='Prescaled'),
     }])))
 
 HLT_list=[
     # XE50
-    'HLT_xe100_L1XE50',      'HLT_xe100_mht_L1XE50',  'HLT_xe100_pueta_L1XE50',
-    'HLT_xe100_pufit_L1XE50','HLT_xe100_tc_em_L1XE50','HLT_xe100_tc_lcw_L1XE50',
-    'HLT_xe100_wEFMu_L1XE50',      'HLT_xe100_mht_wEFMu_L1XE50',  'HLT_xe100_pueta_wEFMu_L1XE50',
-    'HLT_xe100_pufit_wEFMu_L1XE50','HLT_xe100_tc_em_wEFMu_L1XE50','HLT_xe100_tc_lcw_wEFMu_L1XE50',
+#    'HLT_xe100_L1XE50',      'HLT_xe100_mht_L1XE50',  'HLT_xe100_pueta_L1XE50',
+#    'HLT_xe100_pufit_L1XE50','HLT_xe100_tc_em_L1XE50','HLT_xe100_tc_lcw_L1XE50',
+#    'HLT_xe100_wEFMu_L1XE50',      'HLT_xe100_mht_wEFMu_L1XE50',  'HLT_xe100_pueta_wEFMu_L1XE50',
+#    'HLT_xe100_pufit_wEFMu_L1XE50','HLT_xe100_tc_em_wEFMu_L1XE50','HLT_xe100_tc_lcw_wEFMu_L1XE50',
     ]
 met_Rules_0p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
                     1000 : TriggerRule(PS=1, comment=''), 
-    lumi_disable_l1_xe50 : TriggerRule(rate=0.5, comment='Prescaled'),
+                    5001 : TriggerRule(rate=0.5, comment='Prescaled'),
     }])))
 
 
@@ -944,7 +1129,7 @@ HLT_list=[
     ]
 met_Rules_0p5e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
                     1000 : TriggerRule(PS=1, comment=''), 
-    lumi_disable_l1_xe50 : TriggerRule(rate=0.5/bgrp7_factor, comment='Prescaled'),
+                    5001 : TriggerRule(rate=0.5/bgrp7_factor, comment='Prescaled'),
     }])))
 
 ########################################
@@ -1064,6 +1249,9 @@ met_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
 met_Rules={}
 
 RulesList=[met_Rules_2e34, met_Rules_1p5e34, met_Rules_1e34, met_Rules_0p5e34, met_Rules_supporting] 
+if noSupportingTriggers:
+    RulesList=[met_Rules_2e34, met_Rules_1p5e34, met_Rules_1e34, met_Rules_0p5e34] 
+
 for Rules in RulesList:
     for newrule in Rules.keys():
         if met_Rules.has_key(newrule):
@@ -1156,9 +1344,11 @@ HLT_list=[
     # fat jet
     'HLT_j360_a10_sub_L1J100','HLT_j360_a10_lcw_sub_L1J100',
     ]
+
 jet_Rules_1e34.update(dict(map(None,HLT_list,len(HLT_list)*[{
      1000 : TriggerRule(PS=1, comment=''), 
-    10001 : TriggerRule(PS=-1, comment='Disabled'),
+# AOH V5 mv fat jets and j380 up to 15001
+    15001 : TriggerRule(PS=-1, comment='Disabled'),
      }])))
 
 HLT_list=['HLT_5j70']
@@ -1274,7 +1464,8 @@ HLT_list=[
     #'HLT_j55',
     # J20
     #'HLT_j85',
-    'HLT_j85_jes','HLT_j85_lcw','HLT_j85_lcw_jes','HLT_j85_lcw_nojcalib','HLT_j85_nojcalib',
+#    'HLT_j85_jes','HLT_j85_lcw','HLT_j85_lcw_jes','HLT_j85_lcw_nojcalib','HLT_j85_nojcalib',
+    'HLT_j85_jes',
     # J25
     'HLT_j100',
     # J30
@@ -1282,12 +1473,14 @@ HLT_list=[
     # J40
     'HLT_j150',
     # J50
-    'HLT_j175','HLT_j175_jes','HLT_j175_lcw','HLT_j175_lcw_jes','HLT_j175_lcw_nojcalib','HLT_j175_nojcalib',
+#    'HLT_j175','HLT_j175_jes','HLT_j175_lcw','HLT_j175_lcw_jes','HLT_j175_lcw_nojcalib','HLT_j175_nojcalib',
+    'HLT_j175',
     'HLT_j200',
     # J75
     'HLT_j260',
     # J85
-    'HLT_j300','HLT_j300_lcw_nojcalib',
+#    'HLT_j300','HLT_j300_lcw_nojcalib',
+    'HLT_j300',
     'HLT_j320',
     ]
 jet_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
@@ -1460,6 +1653,8 @@ HLT_list=['HLT_5j45']
 jet_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=6, comment='PS=6 to get 10 Hz at 3e33, only up to 5e33'), 
     5001 : TriggerRule(PS=110, comment='1 Hz @ 5e33'), 
+    10001 : TriggerRule(PS=220, comment='1 Hz @ 10e33'), 
+    15001 : TriggerRule(PS=330, comment='1 Hz @ 15e33'), 
     }])))
 
 ########################################
@@ -1467,6 +1662,9 @@ jet_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
 jet_Rules={}
 
 RulesList=[jet_Rules_2e34, jet_Rules_1e34, jet_Rules_0p5e34, jet_Rules_0p15e34, jet_Rules_supporting] 
+if noSupportingTriggers:
+    RulesList=[jet_Rules_2e34, jet_Rules_1e34, jet_Rules_0p5e34, jet_Rules_0p15e34]
+ 
 for Rules in RulesList:
     for newrule in Rules.keys():
         if jet_Rules.has_key(newrule):
@@ -1855,10 +2053,14 @@ bjet_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
 bjet_Rules={}
 
 RulesList=[bjet_Rules_2e34, bjet_Rules_1e34, bjet_Rules_0p5e34, bjet_Rules_0p3e34, bjet_Rules_0p15e34, bjet_Rules_supporting] 
+if noSupportingTriggers:
+    RulesList=[bjet_Rules_2e34, bjet_Rules_1e34, bjet_Rules_0p5e34, bjet_Rules_0p3e34, bjet_Rules_0p15e34]
+ 
 for Rules in RulesList:
     for newrule in Rules.keys():
         if bjet_Rules.has_key(newrule):
             print 'FATAL     Physics_pp_v5_rules     Duplicated rule inside physics rule. Cannot be added:',newrule
+
     bjet_Rules.update(Rules)
 
 
@@ -2247,6 +2449,9 @@ tau_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
 tau_Rules={}
 
 RulesList=[tau_Rules_2e34, tau_Rules_1e34, tau_Rules_0p7e34, tau_Rules_0p5e34, tau_Rules_0p3e34, tau_Rules_0p15e34, tau_Rules_supporting] 
+if noSupportingTriggers:
+    RulesList=[tau_Rules_2e34, tau_Rules_1e34, tau_Rules_0p7e34, tau_Rules_0p5e34, tau_Rules_0p3e34, tau_Rules_0p15e34] 
+
 for Rules in RulesList:
     for newrule in Rules.keys():
         if tau_Rules.has_key(newrule):
@@ -2275,9 +2480,13 @@ egamma_Rules_2e34.update(dict(map(None,L1_list,len(L1_list)*[{
 
 HLT_list=[
     # 1e
-    'HLT_e26_tight_iloose',
-    'HLT_e26_lhtight_iloose','HLT_e26_lhtight_nod0_iloose','HLT_e26_lhtight_cutd0dphideta_iloose','HLT_e26_lhtight_iloose_HLTCalo',
-    'HLT_e26_lhtight_smooth_iloose',
+    # AOH ONLY LHTIGHT
+#    'HLT_e26_tight_iloose',
+#    'HLT_e26_lhtight_iloose','HLT_e26_lhtight_nod0_iloose','HLT_e26_lhtight_cutd0dphideta_iloose','HLT_e26_lhtight_iloose_HLTCalo',
+#    'HLT_e26_lhtight_smooth_iloose',
+    'HLT_e26_lhtight_iloose',
+#    'HLT_e26_lhtight_iloose','HLT_e26_lhtight_nod0_iloose','HLT_e26_lhtight_cutd0dphideta_iloose','HLT_e26_lhtight_iloose_HLTCalo',
+#    'HLT_e26_lhtight_smooth_iloose',
     #
     'HLT_e60_medium',
     'HLT_e60_lhmedium','HLT_e60_lhmedium_nod0','HLT_e60_lhmedium_cutd0dphideta','HLT_e60_lhmedium_HLTCalo',
@@ -2592,13 +2801,17 @@ egamma_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
 HLT_list=['HLT_e24_tight_L1EM20VH', 'HLT_e24_lhtight_L1EM20VH']
 egamma_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
                       1000 : TriggerRule(PS=1, comment='', ESValue=0),
-      lumi_l1iso_enable_em : TriggerRule(PS=1, comment='L1 is prescaled by 10, Express', ESRate=0.2),
+#      lumi_l1iso_enable_em : TriggerRule(PS=1, comment='L1 is prescaled by 10, Express', ESRate=0.2),
+# AOH PS BY 20
+      lumi_l1iso_enable_em : TriggerRule(PS=20, comment='L1 is prescaled by 10, Express', ESRate=0.2),
     }])))
 
 HLT_list=['HLT_e24_lhtight_nod0_L1EM20VH']
 egamma_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
                     1000 : TriggerRule(PS=10, comment=''),
-    lumi_l1iso_enable_em : TriggerRule(PS=1, comment='L1 is prescaled by 10'),
+#    lumi_l1iso_enable_em : TriggerRule(PS=1, comment='L1 is prescaled by 10'),
+# AOH PS BY 20
+    lumi_l1iso_enable_em : TriggerRule(PS=20, comment='L1 is prescaled by 10'),
     }])))
 
 # ========================================
@@ -3038,6 +3251,9 @@ egamma_Rules_supporting.update(dict(map(None,HLT_list,len(HLT_list)*[{
 egamma_Rules={}
 
 RulesList=[egamma_Rules_2e34, egamma_Rules_1e34, egamma_Rules_0p5e34, egamma_Rules_0p3e34, egamma_Rules_supporting]
+if noSupportingTriggers:
+    RulesList=[egamma_Rules_2e34, egamma_Rules_1e34, egamma_Rules_0p5e34, egamma_Rules_0p3e34]
+
 for Rules in RulesList:
     for newrule in Rules.keys():
         if egamma_Rules.has_key(newrule):
@@ -3161,8 +3377,9 @@ combined_Rules_other={
     'HLT_g45_tight_L1EM22VHI_xe45noL1'   : {  1000 : TriggerRule(PS=1, comment=''),
                                               5001 : TriggerRule(PS=-1, comment='Disabled') },
     # 0.5e34
+    # AOH V5 : keep up to 1.0e34
     'HLT_g45_tight_xe45noL1'             : {  1000 : TriggerRule(PS=1, comment=''),
-                                              5001 : TriggerRule(PS=-1, comment='Disabled') },
+                                              10001 : TriggerRule(PS=-1, comment='Disabled') },
     # 0.3e34
     'HLT_g40_tight_xe40noL1'             : {  1000 : TriggerRule(PS=1, comment=''),
                                               3001 : TriggerRule(PS=-1, comment='Disabled') },
@@ -3338,6 +3555,9 @@ vbf_Rules_supporting.update({
 vbf_Rules={}
 
 RulesList=[vbf_Rules_2e34, vbf_Rules_1e34, vbf_Rules_0p75e34, vbf_Rules_0p5e34, vbf_Rules_0p3e34, vbf_Rules_0p15e34, vbf_Rules_supporting] 
+if noSupportingTriggers:
+    RulesList=[vbf_Rules_2e34, vbf_Rules_1e34, vbf_Rules_0p75e34, vbf_Rules_0p5e34, vbf_Rules_0p3e34, vbf_Rules_0p15e34] 
+
 for Rules in RulesList:
     for newrule in Rules.keys():
         if vbf_Rules.has_key(newrule):
@@ -3587,62 +3807,33 @@ beamspot_Rules = {
     }
 
 topo_Rules = {
-    'L1_LAR-EM':         { 1 : TriggerRule(PS=NumBunches*0.0014, comment='LAREM for testing, request max rate 0.5 Hz')},
-    'L1_MJJ-100':        { 1 : TriggerRule(PS=NumBunches*0.2063, comment='L1Topo commissioning, max rate 0.5 Hz')}  ,#  18.4 kHz
-    'L1_MJJ-200':        { 1 : TriggerRule(PS=NumBunches*0.0550, comment='L1Topo commissioning, max rate 0.5 Hz')}   ,# 7.7 kHz
-    'L1_MJJ-300':        { 1 : TriggerRule(PS=NumBunches*0.0275, comment='L1Topo commissioning, max rate 0.5 Hz')}   ,# 4.2 kHz
-    'L1_MJJ-400':        { 1 : TriggerRule(PS=NumBunches*0.0124, comment='L1Topo commissioning, max rate 0.5 Hz')}   ,# 2.6 kHz
-    'L1_MJJ-700':        { 1 : TriggerRule(PS=NumBunches*0.0028, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   974 Hz
-    'L1_MJJ-800':        { 1 : TriggerRule(PS=NumBunches*0.0028, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   681 Hz
-    'L1_MJJ-900':        { 1 : TriggerRule(PS=NumBunches*0.0014, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   535 Hz
-    'L1_JPSI-1M5':       { 1 : TriggerRule(PS=NumBunches*17.194, comment='L1Topo commissioning, max rate 0.5 Hz')},#    924 kHz
-    'L1_JPSI-1M5-EM7':   { 1 : TriggerRule(PS=NumBunches*1.1692, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   93 kHz
-    'L1_JPSI-1M5-EM12':  { 1 : TriggerRule(PS=NumBunches*0.1926, comment='L1Topo commissioning, max rate 0.5 Hz')}  ,#   34 kHz
-    'L1_W-10DPHI-EMXE-0':{ 1 : TriggerRule(PS=NumBunches*1.1692, comment='L1Topo commissioning, max rate 0.5 Hz')}  ,#  94 kHz
-    'L1_W-15DPHI-EMXE-0':{ 1 : TriggerRule(PS=NumBunches*0.5915, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   121 kHz
-    'L1_EM10_W-MT25'	:{ 1 : TriggerRule(PS=NumBunches*0.0275, comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#6.20E+04
-    'L1_EM10_W-MT30'    :{ 1 : TriggerRule(PS=NumBunches*0.0124, comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#4.70E+04
-    'L1_EM15_W-MT35' 	:{ 1 : TriggerRule(PS=NumBunches*0.0055, comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#18792	   
-    'L1_W-05RO-XEEMHT'	:{ 1 : TriggerRule(PS=NumBunches*0.0083,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#130568	
-    'L1_W-05DPHI-JXE-0'	:{ 1 : TriggerRule(PS=NumBunches*0.7744,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#66144	
-    'L1_W-10DPHI-JXE-0'	:{ 1 : TriggerRule(PS=NumBunches*0.5915,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#43828	
-    'L1_W-15DPHI-JXE-0'	:{ 1 : TriggerRule(PS=NumBunches*0.4553,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#29336	
-    'L1_W-05RO-XEHT-0'	:{ 1 : TriggerRule(PS=NumBunches*0.0646,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#79477	
-    'L1_W-08RO-XEHT-0'	:{ 1 : TriggerRule(PS=NumBunches*0.0092,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#40830	
-    'L1_W-90RO2-XEHT-0'	:{ 1 : TriggerRule(PS=NumBunches*0.0715,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#61779	
-    'L1_W-250RO2-XEHT-0':{ 1 : TriggerRule(PS=NumBunches*0.0124,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#16873	
-
-    'L1_DPHI-CJ20XE50'	:{ 1 : TriggerRule(PS=NumBunches*0.0014,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#10.8	
-    'L1_DPHI-J20s2XE50'	:{ 1 : TriggerRule(PS=NumBunches*0.0014,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#6.5	
-    'L1_DPHI-Js2XE50':   { 1 : TriggerRule(PS=NumBunches*0.0014, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   94 Hz
-
-#    'L1_LAR-EM':         { 1 : TriggerRule(PS=15, comment='LAREM for testing, request max rate 0.5 Hz')},
-#    'L1_MJJ-100':        { 1 : TriggerRule(PS=25200, comment='L1Topo commissioning, max rate 0.5 Hz')}  ,#  18.4 kHz
-#    'L1_MJJ-200':        { 1 : TriggerRule(PS=15332, comment='L1Topo commissioning, max rate 0.5 Hz')}   ,# 7.7 kHz
-#    'L1_MJJ-300':        { 1 : TriggerRule(PS=8400, comment='L1Topo commissioning, max rate 0.5 Hz')}   ,# 4.2 kHz
-#    'L1_MJJ-400':        { 1 : TriggerRule(PS=5240, comment='L1Topo commissioning, max rate 0.5 Hz')}   ,# 2.6 kHz
-#    'L1_MJJ-700':        { 1 : TriggerRule(PS=1948, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   974 Hz
-#    'L1_MJJ-800':        { 1 : TriggerRule(PS=1362, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   681 Hz
-#    'L1_MJJ-900':        { 1 : TriggerRule(PS=1070, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   535 Hz
-#    'L1_DPHI-Js2XE50':   { 1 : TriggerRule(PS=188, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   94 Hz
-#    'L1_JPSI-1M5':       { 1 : TriggerRule(PS=1848000, comment='L1Topo commissioning, max rate 0.5 Hz')},#    924 kHz
-#    'L1_JPSI-1M5-EM7':   { 1 : TriggerRule(PS=186000, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   93 kHz
-#    'L1_JPSI-1M5-EM12':  { 1 : TriggerRule(PS=68000, comment='L1Topo commissioning, max rate 0.5 Hz')}  ,#   34 kHz
-#    'L1_W-10DPHI-EMXE-0':{ 1 : TriggerRule(PS=188000, comment='L1Topo commissioning, max rate 0.5 Hz')}  ,#  94 kHz
-#    'L1_W-15DPHI-EMXE-0':{ 1 : TriggerRule(PS=242000, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   121 kHz
-#    'L1_EM10_W-MT25'	:{ 1: TriggerRule(PS=124000 ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#6.20E+04
-#    'L1_EM10_W-MT30'        :{ 1: TriggerRule(PS=94000  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#4.70E+04
-#    'L1_EM15_W-MT35' 	:{ 1: TriggerRule(PS=37584  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#18792	
-#    'L1_DPHI-J20s2XE50'	:{ 1: TriggerRule(PS=24   ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#6.5	
-#    'L1_W-05RO-XEEMHT'	:{ 1: TriggerRule(PS=506914 ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#130568	
-#    'L1_W-05DPHI-JXE-0'	:{ 1: TriggerRule(PS=132288 ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#66144	
-#    'L1_W-10DPHI-JXE-0'	:{ 1: TriggerRule(PS=87656  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#43828	
-#    'L1_W-15DPHI-JXE-0'	:{ 1: TriggerRule(PS=58672  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#29336	
-#    'L1_DPHI-CJ20XE50'	:{ 1: TriggerRule(PS=21.6   ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#10.8	
-#    'L1_W-05RO-XEHT-0'	:{ 1: TriggerRule(PS=158954 ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#79477	
-#    'L1_W-08RO-XEHT-0'	:{ 1: TriggerRule(PS=81660  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#40830	
-#    'L1_W-90RO2-XEHT-0'	:{ 1: TriggerRule(PS=123558 ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#61779	
-#    'L1_W-250RO2-XEHT-0'	:{ 1: TriggerRule(PS=33746  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#16873	
+    'L1_LAR-EM':         { 1 : TriggerRule(PS=10, comment='LAREM for testing, request max rate 0.5 Hz')},
+    'L1_MJJ-100':        { 1 : TriggerRule(PS=25200, comment='L1Topo commissioning, max rate 0.5 Hz')}  ,#  18.4 kHz
+    'L1_MJJ-200':        { 1 : TriggerRule(PS=15332, comment='L1Topo commissioning, max rate 0.5 Hz')}   ,# 7.7 kHz
+    'L1_MJJ-300':        { 1 : TriggerRule(PS=8400, comment='L1Topo commissioning, max rate 0.5 Hz')}   ,# 4.2 kHz
+    'L1_MJJ-400':        { 1 : TriggerRule(PS=5240, comment='L1Topo commissioning, max rate 0.5 Hz')}   ,# 2.6 kHz
+    'L1_MJJ-700':        { 1 : TriggerRule(PS=1948, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   974 Hz
+    'L1_MJJ-800':        { 1 : TriggerRule(PS=1362, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   681 Hz
+    'L1_MJJ-900':        { 1 : TriggerRule(PS=1070, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   535 Hz
+    'L1_DPHI-Js2XE50':   { 1 : TriggerRule(PS=188, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   94 Hz
+    'L1_JPSI-1M5':       { 1 : TriggerRule(PS=1848000, comment='L1Topo commissioning, max rate 0.5 Hz')},#    924 kHz
+    'L1_JPSI-1M5-EM7':   { 1 : TriggerRule(PS=186000, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   93 kHz
+    'L1_JPSI-1M5-EM12':  { 1 : TriggerRule(PS=68000, comment='L1Topo commissioning, max rate 0.5 Hz')}  ,#   34 kHz
+    'L1_W-10DPHI-EMXE-0':{ 1 : TriggerRule(PS=188000, comment='L1Topo commissioning, max rate 0.5 Hz')}  ,#  94 kHz
+    'L1_W-15DPHI-EMXE-0':{ 1 : TriggerRule(PS=242000, comment='L1Topo commissioning, max rate 0.5 Hz')} ,#   121 kHz
+    'L1_EM10_W-MT25'	:{ 1: TriggerRule(PS=124000 ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#6.20E+04
+    'L1_EM10_W-MT30'        :{ 1: TriggerRule(PS=94000  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#4.70E+04
+    'L1_EM15_W-MT35' 	:{ 1: TriggerRule(PS=37584  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#18792	
+    'L1_DPHI-J20s2XE50'	:{ 1: TriggerRule(PS=24   ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#6.5	
+    'L1_W-05RO-XEEMHT'	:{ 1: TriggerRule(PS=506914 ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#130568	
+    'L1_W-05DPHI-JXE-0'	:{ 1: TriggerRule(PS=132288 ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#66144	
+    'L1_W-10DPHI-JXE-0'	:{ 1: TriggerRule(PS=87656  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#43828	
+    'L1_W-15DPHI-JXE-0'	:{ 1: TriggerRule(PS=58672  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#29336	
+    'L1_DPHI-CJ20XE50'	:{ 1: TriggerRule(PS=21.6   ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#10.8	
+    'L1_W-05RO-XEHT-0'	:{ 1: TriggerRule(PS=158954 ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#79477	
+    'L1_W-08RO-XEHT-0'	:{ 1: TriggerRule(PS=81660  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#40830	
+    'L1_W-90RO2-XEHT-0'	:{ 1: TriggerRule(PS=123558 ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#61779	
+    'L1_W-250RO2-XEHT-0'	:{ 1: TriggerRule(PS=33746  ,comment="L1Topo commissioning, max rate 0.5 Hz")}  ,#16873	
       
     'HLT_noalg_L1Topo' : { 1 : TriggerRule(PS=1, comment='L1Topo for testing')}
 }
@@ -3751,7 +3942,346 @@ disabled_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
 # --------------------------------------
 # L1Topo seeded
 
-HLT_list=['HLT_mu11_2mu4noL1_nscan03_L1MU11_LFV-MU', 'HLT_mu11_L1MU10_2mu4noL1_nscan03', 'HLT_mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25', 'HLT_2j40_0eta490_invm250', 'HLT_2j55_bloose_L13J20_4J20.0ETA49_MJJ-400', 'HLT_2j55_bloose_L13J20_4J20.0ETA49_MJJ-700', 'HLT_2j55_bloose_L13J20_4J20.0ETA49_MJJ-800', 'HLT_2j55_bloose_L13J20_4J20.0ETA49_MJJ-900', 'HLT_2j55_bloose_L1J30_2J20_4J20.0ETA49_MJJ-400', 'HLT_2j55_bloose_L1J30_2J20_4J20.0ETA49_MJJ-700', 'HLT_2j55_bloose_L1J30_2J20_4J20.0ETA49_MJJ-800', 'HLT_2j55_bloose_L1J30_2J20_4J20.0ETA49_MJJ-900', 'HLT_2j55_bmedium_L13J20_4J20.0ETA49_MJJ-400', 'HLT_2j55_bmedium_L13J20_4J20.0ETA49_MJJ-700', 'HLT_2j55_bmedium_L13J20_4J20.0ETA49_MJJ-800', 'HLT_2j55_bmedium_L13J20_4J20.0ETA49_MJJ-900', 'HLT_2j55_bmedium_L1J30_2J20_4J20.0ETA49_MJJ-400', 'HLT_2j55_bmedium_L1J30_2J20_4J20.0ETA49_MJJ-700', 'HLT_2j55_bmedium_L1J30_2J20_4J20.0ETA49_MJJ-800', 'HLT_2j55_bmedium_L1J30_2J20_4J20.0ETA49_MJJ-900', 'HLT_2j55_bperf_L13J20_4J20.0ETA49_MJJ-400', 'HLT_2j55_bperf_L13J20_4J20.0ETA49_MJJ-700', 'HLT_2j55_bperf_L13J20_4J20.0ETA49_MJJ-800', 'HLT_2j55_bperf_L13J20_4J20.0ETA49_MJJ-900', 'HLT_2j55_bperf_L1J30_2J20_4J20.0ETA49_MJJ-400', 'HLT_2j55_bperf_L1J30_2J20_4J20.0ETA49_MJJ-700', 'HLT_2j55_bperf_L1J30_2J20_4J20.0ETA49_MJJ-800', 'HLT_2j55_bperf_L1J30_2J20_4J20.0ETA49_MJJ-900', 'HLT_2mu4_bBmumu_L1BPH-2M-2MU4', 'HLT_2mu4_bBmumu_L1BPH-2M-2MU4-B', 'HLT_2mu4_bBmumu_L1BPH-2M-2MU4-BO', 'HLT_2mu4_bBmumu_L1BPH-4M8-2MU4', 'HLT_2mu4_bBmumu_L1BPH-4M8-2MU4-B', 'HLT_2mu4_bBmumu_L1BPH-4M8-2MU4-BO', 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4', 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-B', 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B', 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B', 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BO', 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO', 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO', 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BPH-2M-2MU4', 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BPH-4M8-2MU4', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-2M-2MU4', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-2M-2MU4-B', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-2M-2MU4-BO', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-4M8-2MU4', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-4M8-2MU4-B', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-4M8-2MU4-BO', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-B', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BO', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BPH-2M-2MU4', 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BPH-4M8-2MU4', 'HLT_2mu4_bBmumuxv2_L1BPH-2M-2MU4', 'HLT_2mu4_bBmumuxv2_L1BPH-2M-2MU4-B', 'HLT_2mu4_bBmumuxv2_L1BPH-2M-2MU4-BO', 'HLT_2mu4_bBmumuxv2_L1BPH-4M8-2MU4', 'HLT_2mu4_bBmumuxv2_L1BPH-4M8-2MU4-B', 'HLT_2mu4_bBmumuxv2_L1BPH-4M8-2MU4-BO', 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4', 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-B', 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B', 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B', 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BO', 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO', 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO', 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BPH-2M-2MU4', 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BPH-4M8-2MU4', 'HLT_2mu4_bDimu_L1BPH-2M-2MU4', 'HLT_2mu4_bDimu_L1BPH-2M-2MU4-B', 'HLT_2mu4_bDimu_L1BPH-2M-2MU4-BO', 'HLT_2mu4_bDimu_L1BPH-4M8-2MU4', 'HLT_2mu4_bDimu_L1BPH-4M8-2MU4-B', 'HLT_2mu4_bDimu_L1BPH-4M8-2MU4-BO', 'HLT_2mu4_bDimu_L1BPH-DR-2MU4', 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-B', 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B', 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B', 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BO', 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO', 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO', 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BPH-2M-2MU4', 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BPH-4M8-2MU4', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-2M-2MU4', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-2M-2MU4-B', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-2M-2MU4-BO', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-4M8-2MU4', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-4M8-2MU4-B', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-4M8-2MU4-BO', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-B', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BO', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BPH-2M-2MU4', 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BPH-4M8-2MU4', 'HLT_2mu4_bJpsimumu_L1BPH-2M-2MU4', 'HLT_2mu4_bJpsimumu_L1BPH-2M-2MU4-B', 'HLT_2mu4_bJpsimumu_L1BPH-2M-2MU4-BO', 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4', 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-B', 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B', 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-BO', 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO', 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-BPH-2M-2MU4', 'HLT_2mu4_bUpsimumu_L1BPH-2M-2MU4', 'HLT_2mu4_bUpsimumu_L1BPH-2M-2MU4-B', 'HLT_2mu4_bUpsimumu_L1BPH-2M-2MU4-BO', 'HLT_2mu6_bBmumu_L1BPH-2M-2MU6', 'HLT_2mu6_bBmumu_L1BPH-4M8-2MU6', 'HLT_2mu6_bBmumu_L1BPH-DR-2MU6', 'HLT_2mu6_bBmumu_L1BPH-DR-2MU6-BPH-2M-2MU6', 'HLT_2mu6_bBmumu_L1BPH-DR-2MU6-BPH-4M8-2MU6', 'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-2M-2MU6', 'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-4M8-2MU6', 'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-DR-2MU6', 'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-DR-2MU6-BPH-2M-2MU6', 'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-DR-2MU6-BPH-4M8-2MU6', 'HLT_2mu6_bBmumuxv2_L1BPH-2M-2MU6', 'HLT_2mu6_bBmumuxv2_L1BPH-4M8-2MU6', 'HLT_2mu6_bBmumuxv2_L1BPH-DR-2MU6', 'HLT_2mu6_bBmumuxv2_L1BPH-DR-2MU6-BPH-2M-2MU6', 'HLT_2mu6_bBmumuxv2_L1BPH-DR-2MU6-BPH-4M8-2MU6', 'HLT_2mu6_bDimu_L1BPH-2M-2MU6', 'HLT_2mu6_bDimu_L1BPH-4M8-2MU6', 'HLT_2mu6_bDimu_L1BPH-DR-2MU6', 'HLT_2mu6_bDimu_L1BPH-DR-2MU6-BPH-2M-2MU6', 'HLT_2mu6_bDimu_L1BPH-DR-2MU6-BPH-4M8-2MU6', 'HLT_2mu6_bDimu_novtx_noos_L1BPH-2M-2MU6', 'HLT_2mu6_bDimu_novtx_noos_L1BPH-4M8-2MU6', 'HLT_2mu6_bDimu_novtx_noos_L1BPH-DR-2MU6', 'HLT_2mu6_bDimu_novtx_noos_L1BPH-DR-2MU6-BPH-2M-2MU6', 'HLT_2mu6_bDimu_novtx_noos_L1BPH-DR-2MU6-BPH-4M8-2MU6', 'HLT_2mu6_bJpsimumu_L1BPH-2M-2MU6', 'HLT_2mu6_bJpsimumu_L1BPH-DR-2MU6', 'HLT_2mu6_bJpsimumu_L1BPH-DR-2MU6-BPH-2M-2MU6', 'HLT_2mu6_bUpsimumu_L1BPH-2M-2MU6', 'HLT_e13_etcut_L1EM10_W-MT25', 'HLT_e13_etcut_L1EM10_W-MT30', 'HLT_e13_etcut_L1W-NOMATCH', 'HLT_e13_etcut_L1W-NOMATCH_W-05RO-XEEMHT', 'HLT_e13_etcut_trkcut', 'HLT_e13_etcut_trkcut_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE', 'HLT_e13_etcut_trkcut_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20_xe20_mt25', 'HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi05_mt25_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0', 'HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi05_mt25_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20', 'HLT_e13_etcut_trkcut_xe20', 'HLT_e13_etcut_trkcut_xe20_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20', 'HLT_e13_etcut_trkcut_xe20_mt25', 'HLT_e13_etcut_trkcut_xs15_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20', 'HLT_e14_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM12', 'HLT_e14_etcut_e5_lhtight_nod0_Jpsiee_L1JPSI-1M5-EM12', 'HLT_e14_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM12', 'HLT_e14_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12', 'HLT_e14_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM12', 'HLT_e14_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12', 'HLT_e17_lhmedium_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25', 'HLT_e17_lhmedium_nod0_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25', 'HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25', 'HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_L1EM15-TAU12I', 'HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_L1EM15TAU12I-J25', 'HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_xe50_L1XE35_EM15-TAU12I', 'HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_xe50_L1XE40_EM15-TAU12I', 'HLT_e17_lhmedium_nod0_tau80_medium1_tracktwo_L1EM15-TAU40', 'HLT_e17_lhmedium_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25', 'HLT_e17_lhmedium_tau25_medium1_tracktwo_L1EM15-TAU12I', 'HLT_e17_lhmedium_tau25_medium1_tracktwo_L1EM15TAU12I-J25', 'HLT_e17_lhmedium_tau25_medium1_tracktwo_xe50_L1XE35_EM15-TAU12I', 'HLT_e17_lhmedium_tau25_medium1_tracktwo_xe50_L1XE40_EM15-TAU12I', 'HLT_e17_lhmedium_tau80_medium1_tracktwo_L1EM15-TAU40', 'HLT_e17_medium_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25', 'HLT_e17_medium_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25', 'HLT_e17_medium_tau25_medium1_tracktwo_L1EM15-TAU12I', 'HLT_e17_medium_tau25_medium1_tracktwo_L1EM15TAU12I-J25', 'HLT_e17_medium_tau25_medium1_tracktwo_xe50_L1XE35_EM15-TAU12I', 'HLT_e17_medium_tau25_medium1_tracktwo_xe50_L1XE40_EM15-TAU12I', 'HLT_e17_medium_tau80_medium1_tracktwo_L1EM15-TAU40', 'HLT_e18_etcut_L1EM15_W-MT35', 'HLT_e18_etcut_trkcut', 'HLT_e18_etcut_trkcut_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE', 'HLT_e18_etcut_trkcut_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_XS30_xe35_mt35', 'HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_W-250RO2-XEHT-0', 'HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_XS30', 'HLT_e18_etcut_trkcut_xe35', 'HLT_e18_etcut_trkcut_xe35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_XS30', 'HLT_e18_etcut_trkcut_xe35_mt35', 'HLT_e5_etcut_L1W-05DPHI-EMXE-1', 'HLT_e5_etcut_L1W-05DPHI-JXE-0', 'HLT_e5_etcut_L1W-05RO-XEHT-0', 'HLT_e5_etcut_L1W-10DPHI-EMXE-0', 'HLT_e5_etcut_L1W-10DPHI-JXE-0', 'HLT_e5_etcut_L1W-15DPHI-EMXE-0', 'HLT_e5_etcut_L1W-15DPHI-JXE-0', 'HLT_e5_etcut_L1W-250RO2-XEHT-0', 'HLT_e5_etcut_L1W-90RO2-XEHT-0', 'HLT_e5_etcut_L1W-HT20-JJ15.ETA49', 'HLT_e5_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5', 'HLT_e5_lhtight_e4_etcut_L1JPSI-1M5', 'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5', 'HLT_e5_lhtight_nod0_e4_etcut_L1JPSI-1M5', 'HLT_e5_tight_e4_etcut_Jpsiee_L1JPSI-1M5', 'HLT_e5_tight_e4_etcut_L1JPSI-1M5', 'HLT_e9_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM7', 'HLT_e9_etcut_e5_lhtight_nod0_Jpsiee_L1JPSI-1M5-EM7', 'HLT_e9_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM7', 'HLT_e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7', 'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM7', 'HLT_e9_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7', 'HLT_g10_etcut_mu10_L1LFV-EM8I', 'HLT_g10_etcut_mu10_iloose_taumass_L1LFV-EM8I', 'HLT_g10_etcut_mu10_taumass', 'HLT_g10_loose_mu10_iloose_taumass_L1LFV-EM8I', 'HLT_g15_loose_2j40_0eta490_3j25_0eta490', 'HLT_g20_etcut_mu4_L1LFV-EM15I', 'HLT_g20_etcut_mu4_iloose_taumass_L1LFV-EM15I', 'HLT_g20_etcut_mu4_taumass', 'HLT_g20_loose_2j40_0eta490_3j25_0eta490', 'HLT_g20_loose_2j40_0eta490_3j25_0eta490_L1MJJ-700', 'HLT_g20_loose_2j40_0eta490_3j25_0eta490_L1MJJ-900', 'HLT_g20_loose_mu4_iloose_taumass_L1LFV-EM15I', 'HLT_ht1000', 'HLT_ht1000_L1HT190-J15.ETA21', 'HLT_ht400', 'HLT_ht400_L1HT150-J20.ETA31', 'HLT_ht550', 'HLT_ht550_L1HT150-J20.ETA31', 'HLT_ht700', 'HLT_ht700_L1HT190-J15.ETA21', 'HLT_ht850', 'HLT_ht850_L1HT190-J15.ETA21', 'HLT_j100_xe80_L1J40_DPHI-CJ20XE50', 'HLT_j100_xe80_L1J40_DPHI-J20XE50', 'HLT_j100_xe80_L1J40_DPHI-J20s2XE50', 'HLT_j100_xe80_L1J40_DPHI-Js2XE50', 'HLT_j360_a10_lcw_nojcalib', 'HLT_j360_a10_lcw_nojcalib_L1HT150-J20.ETA31', 'HLT_j360_a10_lcw_sub', 'HLT_j360_a10_lcw_sub_L1HT150-J20.ETA31', 'HLT_j360_a10_nojcalib', 'HLT_j360_a10_nojcalib_L1HT150-J20.ETA31', 'HLT_j360_a10_sub', 'HLT_j360_a10_sub_L1HT150-J20.ETA31', 'HLT_j360_a10r', 'HLT_j460_a10_lcw_nojcalib', 'HLT_j460_a10_lcw_nojcalib_L1HT190-J15.ETA21', 'HLT_j460_a10_lcw_sub', 'HLT_j460_a10_lcw_sub_L1HT190-J15.ETA21', 'HLT_j460_a10_nojcalib', 'HLT_j460_a10_nojcalib_L1HT190-J15.ETA21', 'HLT_j460_a10_sub', 'HLT_j460_a10_sub_L1HT190-J15.ETA21', 'HLT_j460_a10r', 'HLT_j80_xe80_1dphi10_L1J40_DPHI-CJ20XE50', 'HLT_j80_xe80_1dphi10_L1J40_DPHI-J20XE50', 'HLT_j80_xe80_1dphi10_L1J40_DPHI-J20s2XE50', 'HLT_j80_xe80_1dphi10_L1J40_DPHI-Js2XE50', 'HLT_mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I', 'HLT_mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12-J25', 'HLT_mu14_tau25_medium1_tracktwo_L1MU10_TAU12I-J25', 'HLT_mu4_iloose_mu4_11invm60_noos_L1DY-BOX-2MU4', 'HLT_mu4_iloose_mu4_11invm60_noos_novtx_L1DY-BOX-2MU4', 'HLT_mu4_iloose_mu4_7invm9_noos_L1DY-BOX-2MU4', 'HLT_mu4_iloose_mu4_7invm9_noos_novtx_L1DY-BOX-2MU4', 'HLT_mu4_j60_dr05_2j35_L13J15_BTAG-MU4J30', 'HLT_mu4_j70_dr05_L1BTAG-MU4J30', 'HLT_mu6_2j40_0eta490_invm1000', 'HLT_mu6_2j40_0eta490_invm400', 'HLT_mu6_2j40_0eta490_invm600', 'HLT_mu6_2j40_0eta490_invm800', 'HLT_mu6_iloose_mu6_11invm24_noos_L1DY-BOX-2MU6', 'HLT_mu6_iloose_mu6_11invm24_noos_novtx_L1DY-BOX-2MU6', 'HLT_mu6_iloose_mu6_24invm60_noos_L1DY-BOX-2MU6', 'HLT_mu6_iloose_mu6_24invm60_noos_novtx_L1DY-BOX-2MU6', 'HLT_mu6_j50_dr05_2j35_L13J15_BTAG-MU6J25', 'HLT_mu6_j60_dr05_L1BTAG-MU6J25', 'HLT_mu6_mu4_bBmumu_L1BPH-2M-MU6MU4', 'HLT_mu6_mu4_bBmumu_L1BPH-2M-MU6MU4-BO', 'HLT_mu6_mu4_bBmumu_L1BPH-4M8-MU6MU4', 'HLT_mu6_mu4_bBmumu_L1BPH-4M8-MU6MU4-BO', 'HLT_mu6_mu4_bBmumu_L1BPH-DR-MU6MU4', 'HLT_mu6_mu4_bBmumu_L1BPH-DR-MU6MU4-BO', 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-2M-MU6MU4-B', 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-2M-MU6MU4-BO', 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-4M8-MU6MU4-B', 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-4M8-MU6MU4-BO', 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-DR-MU6MU4-B', 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-DR-MU6MU4-BO', 'HLT_mu6_mu4_bBmumuxv2_L1BPH-2M-MU6MU4', 'HLT_mu6_mu4_bBmumuxv2_L1BPH-2M-MU6MU4-BO', 'HLT_mu6_mu4_bBmumuxv2_L1BPH-4M8-MU6MU4', 'HLT_mu6_mu4_bBmumuxv2_L1BPH-4M8-MU6MU4-BO', 'HLT_mu6_mu4_bBmumuxv2_L1BPH-DR-MU6MU4', 'HLT_mu6_mu4_bBmumuxv2_L1BPH-DR-MU6MU4-BO', 'HLT_mu6_mu4_bDimu_L1BPH-2M-MU6MU4', 'HLT_mu6_mu4_bDimu_L1BPH-2M-MU6MU4-BO', 'HLT_mu6_mu4_bDimu_L1BPH-4M8-MU6MU4', 'HLT_mu6_mu4_bDimu_L1BPH-4M8-MU6MU4-BO', 'HLT_mu6_mu4_bDimu_L1BPH-BPH-DR-MU6MU4', 'HLT_mu6_mu4_bDimu_L1BPH-BPH-DR-MU6MU4-BO', 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-2M-MU6MU4-B', 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-2M-MU6MU4-BO', 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-4M8-MU6MU4-B', 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-4M8-MU6MU4-BO', 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-DR-MU6MU4-B', 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-DR-MU6MU4-BO', 'HLT_mu6_mu4_bJpsimumu_L1BPH-2M-MU6MU4', 'HLT_mu6_mu4_bJpsimumu_L1BPH-2M-MU6MU4-BO', 'HLT_mu6_mu4_bJpsimumu_L1BPH-DR-MU6MU4', 'HLT_mu6_mu4_bJpsimumu_L1BPH-DR-MU6MU4-BO', 'HLT_mu6_mu4_bUpsimumu_L1BPH-2M-MU6MU4', 'HLT_mu6_mu4_bUpsimumu_L1BPH-2M-MU6MU4-BO', 'HLT_mu6_mu4_bUpsimumu_L1BPH-DR-MU6MU4', 'HLT_mu6_mu4_bUpsimumu_L1BPH-DR-MU6MU4-BO', 'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1BOX-TAU20ITAU12I', 'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I', 'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25', 'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20ITAU12I-J25', 'HLT_mu14_iloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I', 'HLT_mu14_iloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25', 'HLT_mu14_iloose_tau25_medium1_tracktwo_L1MU10_TAU12I-J25', 'HLT_mu4_j35_bperf_split_dr05_dz02_L1BTAG-MU4J15', 'HLT_mu4_j55_bperf_split_dr05_dz02_L1BTAG-MU4J15', 'HLT_mu6_j110_bperf_split_dr05_dz02_L1BTAG-MU6J20', 'HLT_mu6_j150_bperf_split_dr05_dz02_L1BTAG-MU6J20', 'HLT_mu6_j175_bperf_split_dr05_dz02_L1BTAG-MU6J20', 'HLT_mu6_j260_bperf_split_dr05_dz02_L1BTAG-MU6J20', 'HLT_mu6_j320_bperf_split_dr05_dz02_L1BTAG-MU6J20', 'HLT_mu6_j400_bperf_split_dr05_dz02_L1BTAG-MU6J20', 'HLT_mu6_j85_bperf_split_dr05_dz02_L1BTAG-MU6J20', 'HLT_e17_lhmedium_iloose_tau25_medium1_tracktwo_L1EM15TAU12I-J25', 'HLT_e17_medium_iloose_tau25_medium1_tracktwo_L1EM15TAU12I-J25', ]
+HLT_list=[
+'HLT_mu11_2mu4noL1_nscan03_L1MU11_LFV-MU'
+ 'HLT_mu11_L1MU10_2mu4noL1_nscan03'
+ 'HLT_mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25'
+ 'HLT_2j40_0eta490_invm250'
+ 'HLT_2j55_bloose_L13J20_4J20.0ETA49_MJJ-400'
+ 'HLT_2j55_bloose_L13J20_4J20.0ETA49_MJJ-700'
+ 'HLT_2j55_bloose_L13J20_4J20.0ETA49_MJJ-800'
+ 'HLT_2j55_bloose_L13J20_4J20.0ETA49_MJJ-900'
+ 'HLT_2j55_bloose_L1J30_2J20_4J20.0ETA49_MJJ-400'
+ 'HLT_2j55_bloose_L1J30_2J20_4J20.0ETA49_MJJ-700'
+ 'HLT_2j55_bloose_L1J30_2J20_4J20.0ETA49_MJJ-800'
+ 'HLT_2j55_bloose_L1J30_2J20_4J20.0ETA49_MJJ-900'
+ 'HLT_2j55_bmedium_L13J20_4J20.0ETA49_MJJ-400'
+ 'HLT_2j55_bmedium_L13J20_4J20.0ETA49_MJJ-700'
+ 'HLT_2j55_bmedium_L13J20_4J20.0ETA49_MJJ-800'
+ 'HLT_2j55_bmedium_L13J20_4J20.0ETA49_MJJ-900'
+ 'HLT_2j55_bmedium_L1J30_2J20_4J20.0ETA49_MJJ-400'
+ 'HLT_2j55_bmedium_L1J30_2J20_4J20.0ETA49_MJJ-700'
+ 'HLT_2j55_bmedium_L1J30_2J20_4J20.0ETA49_MJJ-800'
+ 'HLT_2j55_bmedium_L1J30_2J20_4J20.0ETA49_MJJ-900'
+ 'HLT_2j55_bperf_L13J20_4J20.0ETA49_MJJ-400'
+ 'HLT_2j55_bperf_L13J20_4J20.0ETA49_MJJ-700'
+ 'HLT_2j55_bperf_L13J20_4J20.0ETA49_MJJ-800'
+ 'HLT_2j55_bperf_L13J20_4J20.0ETA49_MJJ-900'
+ 'HLT_2j55_bperf_L1J30_2J20_4J20.0ETA49_MJJ-400'
+ 'HLT_2j55_bperf_L1J30_2J20_4J20.0ETA49_MJJ-700'
+ 'HLT_2j55_bperf_L1J30_2J20_4J20.0ETA49_MJJ-800'
+ 'HLT_2j55_bperf_L1J30_2J20_4J20.0ETA49_MJJ-900'
+ 'HLT_2mu4_bBmumu_L1BPH-2M-2MU4'
+ 'HLT_2mu4_bBmumu_L1BPH-2M-2MU4-B'
+ 'HLT_2mu4_bBmumu_L1BPH-2M-2MU4-BO'
+ 'HLT_2mu4_bBmumu_L1BPH-4M8-2MU4'
+ 'HLT_2mu4_bBmumu_L1BPH-4M8-2MU4-B'
+ 'HLT_2mu4_bBmumu_L1BPH-4M8-2MU4-BO'
+ 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4'
+ 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-B'
+# 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+# 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B'
+ 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BO'
+# 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+# 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO'
+# 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BPH-2M-2MU4'
+# 'HLT_2mu4_bBmumu_L1BPH-DR-2MU4-BPH-4M8-2MU4'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-2M-2MU4'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-2M-2MU4-B'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-2M-2MU4-BO'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-4M8-2MU4'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-4M8-2MU4-B'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-4M8-2MU4-BO'
+ 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4'
+ 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-B'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B'
+ 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BO'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BPH-2M-2MU4'
+# 'HLT_2mu4_bBmumux_BcmumuDsloose_L1BPH-DR-2MU4-BPH-4M8-2MU4'
+ 'HLT_2mu4_bBmumuxv2_L1BPH-2M-2MU4'
+ 'HLT_2mu4_bBmumuxv2_L1BPH-2M-2MU4-B'
+ 'HLT_2mu4_bBmumuxv2_L1BPH-2M-2MU4-BO'
+ 'HLT_2mu4_bBmumuxv2_L1BPH-4M8-2MU4'
+ 'HLT_2mu4_bBmumuxv2_L1BPH-4M8-2MU4-B'
+ 'HLT_2mu4_bBmumuxv2_L1BPH-4M8-2MU4-BO'
+ 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4'
+ 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-B'
+# 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+# 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B'
+ 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BO'
+# 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+# 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO'
+# 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BPH-2M-2MU4'
+# 'HLT_2mu4_bBmumuxv2_L1BPH-DR-2MU4-BPH-4M8-2MU4'
+ 'HLT_2mu4_bDimu_L1BPH-2M-2MU4'
+ 'HLT_2mu4_bDimu_L1BPH-2M-2MU4-B'
+ 'HLT_2mu4_bDimu_L1BPH-2M-2MU4-BO'
+ 'HLT_2mu4_bDimu_L1BPH-4M8-2MU4'
+ 'HLT_2mu4_bDimu_L1BPH-4M8-2MU4-B'
+ 'HLT_2mu4_bDimu_L1BPH-4M8-2MU4-BO'
+ 'HLT_2mu4_bDimu_L1BPH-DR-2MU4'
+ 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-B'
+# 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+# 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B'
+ 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BO'
+# 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+# 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO'
+ 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BPH-2M-2MU4'
+ 'HLT_2mu4_bDimu_L1BPH-DR-2MU4-BPH-4M8-2MU4'
+ 'HLT_2mu4_bDimu_novtx_noos_L1BPH-2M-2MU4'
+ 'HLT_2mu4_bDimu_novtx_noos_L1BPH-2M-2MU4-B'
+ 'HLT_2mu4_bDimu_novtx_noos_L1BPH-2M-2MU4-BO'
+ 'HLT_2mu4_bDimu_novtx_noos_L1BPH-4M8-2MU4'
+ 'HLT_2mu4_bDimu_novtx_noos_L1BPH-4M8-2MU4-B'
+ 'HLT_2mu4_bDimu_novtx_noos_L1BPH-4M8-2MU4-BO'
+ 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4'
+ 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-B'
+# 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+# 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-B-BPH-4M8-2MU4-B'
+ 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BO'
+# 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+# 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BO-BPH-4M8-2MU4-BO'
+# 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BPH-2M-2MU4'
+# 'HLT_2mu4_bDimu_novtx_noos_L1BPH-DR-2MU4-BPH-4M8-2MU4'
+ 'HLT_2mu4_bJpsimumu_L1BPH-2M-2MU4'
+ 'HLT_2mu4_bJpsimumu_L1BPH-2M-2MU4-B'
+ 'HLT_2mu4_bJpsimumu_L1BPH-2M-2MU4-BO'
+ 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4'
+ 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-B'
+# 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-B-BPH-2M-2MU4-B'
+ 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-BO'
+# 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-BO-BPH-2M-2MU4-BO'
+# 'HLT_2mu4_bJpsimumu_L1BPH-DR-2MU4-BPH-2M-2MU4'
+ 'HLT_2mu4_bUpsimumu_L1BPH-2M-2MU4'
+ 'HLT_2mu4_bUpsimumu_L1BPH-2M-2MU4-B'
+ 'HLT_2mu4_bUpsimumu_L1BPH-2M-2MU4-BO'
+ 'HLT_2mu6_bBmumu_L1BPH-2M-2MU6'
+ 'HLT_2mu6_bBmumu_L1BPH-4M8-2MU6'
+ 'HLT_2mu6_bBmumu_L1BPH-DR-2MU6'
+# 'HLT_2mu6_bBmumu_L1BPH-DR-2MU6-BPH-2M-2MU6'
+# 'HLT_2mu6_bBmumu_L1BPH-DR-2MU6-BPH-4M8-2MU6'
+# 'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-2M-2MU6'
+ 'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-4M8-2MU6'
+ 'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-DR-2MU6'
+# 'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-DR-2MU6-BPH-2M-2MU6'
+# 'HLT_2mu6_bBmumux_BcmumuDsloose_L1BPH-DR-2MU6-BPH-4M8-2MU6'
+ 'HLT_2mu6_bBmumuxv2_L1BPH-2M-2MU6'
+ 'HLT_2mu6_bBmumuxv2_L1BPH-4M8-2MU6'
+ 'HLT_2mu6_bBmumuxv2_L1BPH-DR-2MU6'
+# 'HLT_2mu6_bBmumuxv2_L1BPH-DR-2MU6-BPH-2M-2MU6'
+# 'HLT_2mu6_bBmumuxv2_L1BPH-DR-2MU6-BPH-4M8-2MU6'
+ 'HLT_2mu6_bDimu_L1BPH-2M-2MU6'
+ 'HLT_2mu6_bDimu_L1BPH-4M8-2MU6'
+ 'HLT_2mu6_bDimu_L1BPH-DR-2MU6'
+# 'HLT_2mu6_bDimu_L1BPH-DR-2MU6-BPH-2M-2MU6'
+# 'HLT_2mu6_bDimu_L1BPH-DR-2MU6-BPH-4M8-2MU6'
+ 'HLT_2mu6_bDimu_novtx_noos_L1BPH-2M-2MU6'
+ 'HLT_2mu6_bDimu_novtx_noos_L1BPH-4M8-2MU6'
+ 'HLT_2mu6_bDimu_novtx_noos_L1BPH-DR-2MU6'
+# 'HLT_2mu6_bDimu_novtx_noos_L1BPH-DR-2MU6-BPH-2M-2MU6'
+# 'HLT_2mu6_bDimu_novtx_noos_L1BPH-DR-2MU6-BPH-4M8-2MU6'
+ 'HLT_2mu6_bJpsimumu_L1BPH-2M-2MU6'
+ 'HLT_2mu6_bJpsimumu_L1BPH-DR-2MU6'
+# 'HLT_2mu6_bJpsimumu_L1BPH-DR-2MU6-BPH-2M-2MU6'
+ 'HLT_2mu6_bUpsimumu_L1BPH-2M-2MU6'
+ 'HLT_e13_etcut_L1EM10_W-MT25'
+ 'HLT_e13_etcut_L1EM10_W-MT30'
+ 'HLT_e13_etcut_L1W-NOMATCH'
+ 'HLT_e13_etcut_L1W-NOMATCH_W-05RO-XEEMHT'
+ 'HLT_e13_etcut_trkcut'
+ 'HLT_e13_etcut_trkcut_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE'
+ 'HLT_e13_etcut_trkcut_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20_xe20_mt25'
+ 'HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi05_mt25_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0'
+ 'HLT_e13_etcut_trkcut_j20_perf_xe15_6dphi05_mt25_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20'
+ 'HLT_e13_etcut_trkcut_xe20'
+ 'HLT_e13_etcut_trkcut_xe20_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20'
+ 'HLT_e13_etcut_trkcut_xe20_mt25'
+ 'HLT_e13_etcut_trkcut_xs15_L1EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20'
+ 'HLT_e14_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM12'
+ 'HLT_e14_etcut_e5_lhtight_nod0_Jpsiee_L1JPSI-1M5-EM12'
+ 'HLT_e14_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM12'
+ 'HLT_e14_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12'
+ 'HLT_e14_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM12'
+ 'HLT_e14_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12'
+ 'HLT_e17_lhmedium_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25'
+ 'HLT_e17_lhmedium_nod0_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25'
+ 'HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25'
+ 'HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_L1EM15-TAU12I'
+ 'HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_L1EM15TAU12I-J25'
+ 'HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_xe50_L1XE35_EM15-TAU12I'
+ 'HLT_e17_lhmedium_nod0_tau25_medium1_tracktwo_xe50_L1XE40_EM15-TAU12I'
+ 'HLT_e17_lhmedium_nod0_tau80_medium1_tracktwo_L1EM15-TAU40'
+ 'HLT_e17_lhmedium_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25'
+ 'HLT_e17_lhmedium_tau25_medium1_tracktwo_L1EM15-TAU12I'
+ 'HLT_e17_lhmedium_tau25_medium1_tracktwo_L1EM15TAU12I-J25'
+ 'HLT_e17_lhmedium_tau25_medium1_tracktwo_xe50_L1XE35_EM15-TAU12I'
+ 'HLT_e17_lhmedium_tau25_medium1_tracktwo_xe50_L1XE40_EM15-TAU12I'
+ 'HLT_e17_lhmedium_tau80_medium1_tracktwo_L1EM15-TAU40'
+ 'HLT_e17_medium_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25'
+ 'HLT_e17_medium_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25'
+ 'HLT_e17_medium_tau25_medium1_tracktwo_L1EM15-TAU12I'
+ 'HLT_e17_medium_tau25_medium1_tracktwo_L1EM15TAU12I-J25'
+ 'HLT_e17_medium_tau25_medium1_tracktwo_xe50_L1XE35_EM15-TAU12I'
+ 'HLT_e17_medium_tau25_medium1_tracktwo_xe50_L1XE40_EM15-TAU12I'
+ 'HLT_e17_medium_tau80_medium1_tracktwo_L1EM15-TAU40'
+ 'HLT_e18_etcut_L1EM15_W-MT35'
+ 'HLT_e18_etcut_trkcut'
+ 'HLT_e18_etcut_trkcut_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE'
+ 'HLT_e18_etcut_trkcut_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_XS30_xe35_mt35'
+ 'HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_W-250RO2-XEHT-0'
+ 'HLT_e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_XS30'
+ 'HLT_e18_etcut_trkcut_xe35'
+ 'HLT_e18_etcut_trkcut_xe35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_XS30'
+ 'HLT_e18_etcut_trkcut_xe35_mt35'
+ 'HLT_e5_etcut_L1W-05DPHI-EMXE-1'
+ 'HLT_e5_etcut_L1W-05DPHI-JXE-0'
+ 'HLT_e5_etcut_L1W-05RO-XEHT-0'
+ 'HLT_e5_etcut_L1W-10DPHI-EMXE-0'
+ 'HLT_e5_etcut_L1W-10DPHI-JXE-0'
+ 'HLT_e5_etcut_L1W-15DPHI-EMXE-0'
+ 'HLT_e5_etcut_L1W-15DPHI-JXE-0'
+ 'HLT_e5_etcut_L1W-250RO2-XEHT-0'
+ 'HLT_e5_etcut_L1W-90RO2-XEHT-0'
+ 'HLT_e5_etcut_L1W-HT20-JJ15.ETA49'
+ 'HLT_e5_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5'
+ 'HLT_e5_lhtight_e4_etcut_L1JPSI-1M5'
+ 'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5'
+ 'HLT_e5_lhtight_nod0_e4_etcut_L1JPSI-1M5'
+ 'HLT_e5_tight_e4_etcut_Jpsiee_L1JPSI-1M5'
+ 'HLT_e5_tight_e4_etcut_L1JPSI-1M5'
+ 'HLT_e9_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM7'
+ 'HLT_e9_etcut_e5_lhtight_nod0_Jpsiee_L1JPSI-1M5-EM7'
+ 'HLT_e9_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM7'
+ 'HLT_e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7'
+ 'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM7'
+ 'HLT_e9_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7'
+ 'HLT_g10_etcut_mu10_L1LFV-EM8I'
+ 'HLT_g10_etcut_mu10_iloose_taumass_L1LFV-EM8I'
+ 'HLT_g10_etcut_mu10_taumass'
+ 'HLT_g10_loose_mu10_iloose_taumass_L1LFV-EM8I'
+ 'HLT_g15_loose_2j40_0eta490_3j25_0eta490'
+ 'HLT_g20_etcut_mu4_L1LFV-EM15I'
+ 'HLT_g20_etcut_mu4_iloose_taumass_L1LFV-EM15I'
+ 'HLT_g20_etcut_mu4_taumass'
+ 'HLT_g20_loose_2j40_0eta490_3j25_0eta490'
+ 'HLT_g20_loose_2j40_0eta490_3j25_0eta490_L1MJJ-700'
+ 'HLT_g20_loose_2j40_0eta490_3j25_0eta490_L1MJJ-900'
+ 'HLT_g20_loose_mu4_iloose_taumass_L1LFV-EM15I'
+ 'HLT_ht1000'
+ 'HLT_ht1000_L1HT190-J15.ETA21'
+ 'HLT_ht400'
+ 'HLT_ht400_L1HT150-J20.ETA31'
+ 'HLT_ht550'
+ 'HLT_ht550_L1HT150-J20.ETA31'
+ 'HLT_ht700'
+ 'HLT_ht700_L1HT190-J15.ETA21'
+ 'HLT_ht850'
+ 'HLT_ht850_L1HT190-J15.ETA21'
+ 'HLT_j100_xe80_L1J40_DPHI-CJ20XE50'
+ 'HLT_j100_xe80_L1J40_DPHI-J20XE50'
+ 'HLT_j100_xe80_L1J40_DPHI-J20s2XE50'
+ 'HLT_j100_xe80_L1J40_DPHI-Js2XE50'
+ 'HLT_j360_a10_lcw_nojcalib'
+ 'HLT_j360_a10_lcw_nojcalib_L1HT150-J20.ETA31'
+ 'HLT_j360_a10_lcw_sub'
+ 'HLT_j360_a10_lcw_sub_L1HT150-J20.ETA31'
+ 'HLT_j360_a10_nojcalib'
+ 'HLT_j360_a10_nojcalib_L1HT150-J20.ETA31'
+ 'HLT_j360_a10_sub'
+ 'HLT_j360_a10_sub_L1HT150-J20.ETA31'
+ 'HLT_j360_a10r'
+ 'HLT_j460_a10_lcw_nojcalib'
+ 'HLT_j460_a10_lcw_nojcalib_L1HT190-J15.ETA21'
+ 'HLT_j460_a10_lcw_sub'
+ 'HLT_j460_a10_lcw_sub_L1HT190-J15.ETA21'
+ 'HLT_j460_a10_nojcalib'
+ 'HLT_j460_a10_nojcalib_L1HT190-J15.ETA21'
+ 'HLT_j460_a10_sub'
+ 'HLT_j460_a10_sub_L1HT190-J15.ETA21'
+ 'HLT_j460_a10r'
+ 'HLT_j80_xe80_1dphi10_L1J40_DPHI-CJ20XE50'
+ 'HLT_j80_xe80_1dphi10_L1J40_DPHI-J20XE50'
+ 'HLT_j80_xe80_1dphi10_L1J40_DPHI-J20s2XE50'
+ 'HLT_j80_xe80_1dphi10_L1J40_DPHI-Js2XE50'
+ 'HLT_mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I'
+ 'HLT_mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12-J25'
+ 'HLT_mu14_tau25_medium1_tracktwo_L1MU10_TAU12I-J25'
+ 'HLT_mu4_iloose_mu4_11invm60_noos_L1DY-BOX-2MU4'
+ 'HLT_mu4_iloose_mu4_11invm60_noos_novtx_L1DY-BOX-2MU4'
+ 'HLT_mu4_iloose_mu4_7invm9_noos_L1DY-BOX-2MU4'
+ 'HLT_mu4_iloose_mu4_7invm9_noos_novtx_L1DY-BOX-2MU4'
+ 'HLT_mu4_j60_dr05_2j35_L13J15_BTAG-MU4J30'
+ 'HLT_mu4_j70_dr05_L1BTAG-MU4J30'
+ 'HLT_mu6_2j40_0eta490_invm1000'
+ 'HLT_mu6_2j40_0eta490_invm400'
+ 'HLT_mu6_2j40_0eta490_invm600'
+ 'HLT_mu6_2j40_0eta490_invm800'
+ 'HLT_mu6_iloose_mu6_11invm24_noos_L1DY-BOX-2MU6'
+ 'HLT_mu6_iloose_mu6_11invm24_noos_novtx_L1DY-BOX-2MU6'
+ 'HLT_mu6_iloose_mu6_24invm60_noos_L1DY-BOX-2MU6'
+ 'HLT_mu6_iloose_mu6_24invm60_noos_novtx_L1DY-BOX-2MU6'
+ 'HLT_mu6_j50_dr05_2j35_L13J15_BTAG-MU6J25'
+ 'HLT_mu6_j60_dr05_L1BTAG-MU6J25'
+ 'HLT_mu6_mu4_bBmumu_L1BPH-2M-MU6MU4'
+ 'HLT_mu6_mu4_bBmumu_L1BPH-2M-MU6MU4-BO'
+ 'HLT_mu6_mu4_bBmumu_L1BPH-4M8-MU6MU4'
+ 'HLT_mu6_mu4_bBmumu_L1BPH-4M8-MU6MU4-BO'
+ 'HLT_mu6_mu4_bBmumu_L1BPH-DR-MU6MU4'
+ 'HLT_mu6_mu4_bBmumu_L1BPH-DR-MU6MU4-BO'
+ 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-2M-MU6MU4-B'
+ 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-2M-MU6MU4-BO'
+ 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-4M8-MU6MU4-B'
+ 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-4M8-MU6MU4-BO'
+ 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-DR-MU6MU4-B'
+ 'HLT_mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-DR-MU6MU4-BO'
+ 'HLT_mu6_mu4_bBmumuxv2_L1BPH-2M-MU6MU4'
+ 'HLT_mu6_mu4_bBmumuxv2_L1BPH-2M-MU6MU4-BO'
+ 'HLT_mu6_mu4_bBmumuxv2_L1BPH-4M8-MU6MU4'
+ 'HLT_mu6_mu4_bBmumuxv2_L1BPH-4M8-MU6MU4-BO'
+ 'HLT_mu6_mu4_bBmumuxv2_L1BPH-DR-MU6MU4'
+ 'HLT_mu6_mu4_bBmumuxv2_L1BPH-DR-MU6MU4-BO'
+ 'HLT_mu6_mu4_bDimu_L1BPH-2M-MU6MU4'
+ 'HLT_mu6_mu4_bDimu_L1BPH-2M-MU6MU4-BO'
+ 'HLT_mu6_mu4_bDimu_L1BPH-4M8-MU6MU4'
+ 'HLT_mu6_mu4_bDimu_L1BPH-4M8-MU6MU4-BO'
+ 'HLT_mu6_mu4_bDimu_L1BPH-BPH-DR-MU6MU4'
+ 'HLT_mu6_mu4_bDimu_L1BPH-BPH-DR-MU6MU4-BO'
+ 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-2M-MU6MU4-B'
+ 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-2M-MU6MU4-BO'
+ 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-4M8-MU6MU4-B'
+ 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-4M8-MU6MU4-BO'
+ 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-DR-MU6MU4-B'
+ 'HLT_mu6_mu4_bDimu_novtx_noos_L1BPH-DR-MU6MU4-BO'
+ 'HLT_mu6_mu4_bJpsimumu_L1BPH-2M-MU6MU4'
+ 'HLT_mu6_mu4_bJpsimumu_L1BPH-2M-MU6MU4-BO'
+ 'HLT_mu6_mu4_bJpsimumu_L1BPH-DR-MU6MU4'
+ 'HLT_mu6_mu4_bJpsimumu_L1BPH-DR-MU6MU4-BO'
+ 'HLT_mu6_mu4_bUpsimumu_L1BPH-2M-MU6MU4'
+ 'HLT_mu6_mu4_bUpsimumu_L1BPH-2M-MU6MU4-BO'
+ 'HLT_mu6_mu4_bUpsimumu_L1BPH-DR-MU6MU4'
+ 'HLT_mu6_mu4_bUpsimumu_L1BPH-DR-MU6MU4-BO'
+ 'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1BOX-TAU20ITAU12I'
+ 'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I'
+ 'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25'
+ 'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20ITAU12I-J25'
+ 'HLT_mu14_iloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I'
+ 'HLT_mu14_iloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25'
+ 'HLT_mu14_iloose_tau25_medium1_tracktwo_L1MU10_TAU12I-J25'
+ 'HLT_mu4_j35_bperf_split_dr05_dz02_L1BTAG-MU4J15'
+ 'HLT_mu4_j55_bperf_split_dr05_dz02_L1BTAG-MU4J15'
+ 'HLT_mu6_j110_bperf_split_dr05_dz02_L1BTAG-MU6J20'
+ 'HLT_mu6_j150_bperf_split_dr05_dz02_L1BTAG-MU6J20'
+ 'HLT_mu6_j175_bperf_split_dr05_dz02_L1BTAG-MU6J20'
+ 'HLT_mu6_j260_bperf_split_dr05_dz02_L1BTAG-MU6J20'
+ 'HLT_mu6_j320_bperf_split_dr05_dz02_L1BTAG-MU6J20'
+ 'HLT_mu6_j400_bperf_split_dr05_dz02_L1BTAG-MU6J20'
+ 'HLT_mu6_j85_bperf_split_dr05_dz02_L1BTAG-MU6J20'
+ 'HLT_e17_lhmedium_iloose_tau25_medium1_tracktwo_L1EM15TAU12I-J25'
+ 'HLT_e17_medium_iloose_tau25_medium1_tracktwo_L1EM15TAU12I-J25'
+ ]
 disabled_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=-1, comment=''), 
     }])))
@@ -3763,7 +4293,12 @@ disabled_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
 
 rules = {}
 
+# full list
 RulesList=[muon_Rules, bphys_Rules, met_Rules, jet_Rules, bjet_Rules, tau_Rules, egamma_Rules, combined_Rules, vbf_Rules, dedicated_Rules, disabled_Rules]
+
+# AOH core rules
+#if coreTriggers:
+#    RulesList=[muon_Rules, bphys_Rules, met_Rules, jet_Rules, bjet_Rules, tau_Rules, combined_Rules, egamma_Rules, disabled_Rules]
 
 for Rules in RulesList:
     for newrule in Rules.keys():

@@ -32,7 +32,7 @@ def calc_eff(d_node, p_node,list_of_streamers):
 
     output = d_node.signature["rate"] *  d_node.signature["prescale"]  / p_node.signature["rate"]
     
-    #Set my hand the efficiency of streamers to 1
+    #Set by hand the efficiency of streamers to 1
     for streamer in list_of_streamers.split(","):        
         if streamer in d_node.name:
             output = 1
@@ -65,12 +65,12 @@ def find_rule(lumi, rule, use_lowest = False):
     else:
        #If the lumi was a string, but isn't matched, then we have a problem
         try:
-            lumi = int(lumi)
+            lumi = float(lumi)
         except ValueError:
             raise ValueError('Non int lumi specified but not found in lumi keys: %s' % lumi)
             #return None
 
-        #Look for the highest rule which is <= lumi and is an int
+        #Look for the highest rule which is <= lumi
         lowest_key = None
         rule_keys = sorted(rule.keys(), reverse=True)
 
@@ -78,7 +78,7 @@ def find_rule(lumi, rule, use_lowest = False):
         for key in rule_keys:
             lowest_key = key
             try:
-                if int(key) <= lumi:
+                if float(key) <= lumi:
                     output_rule = rule[key]
                     output_rule["lumi"] = key
                     assigned_rule = True 

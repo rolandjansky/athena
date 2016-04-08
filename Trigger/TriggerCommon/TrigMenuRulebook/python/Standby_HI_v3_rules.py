@@ -9,8 +9,10 @@ doALFA = False
 from runOptions import filled_bunches as NumBunches
 mu4_unpairediso_ps=NumBunches*0.1
 if mu4_unpairediso_ps < 1: mu4_unpairediso_ps=1
-ZDC_A_C_ps = NumBunches*30
-ZDC_A_ps   = NumBunches*150
+
+#nominal Standby
+L1ZDC_A_C_ps = NumBunches
+L1ZDC_A_ps   = NumBunches*100
 
 # SX check naming of L1 and HLT jet fwd items everywhere. Is this 'L1_J30.31ETA49' correct ?
 # SX Remember : most important is that rate after L1 (not after HLT) is less than 500 Hz.
@@ -57,8 +59,8 @@ background_Rules = {
     'L1_J50_ABORTGAPNOTCALIB' : { 5000 : TriggerRule(PS=1, comment='L1', rerun=0) },
 
     #managed by the AutpPSer NCB mode
-    'L1_J12_BGRP12'                   : { 5000 : TriggerRule(PS=25000, comment='L1', rerun=0) },
-    'L1_J30.31ETA49_BGRP12'                   : { 5000 : TriggerRule(PS=5000, comment='L1', rerun=0) },
+    #'L1_J12_BGRP12'                   : { 5000 : TriggerRule(PS=25000, comment='L1', rerun=0) },
+    #'L1_J30.31ETA49_BGRP12'                   : { 5000 : TriggerRule(PS=5000, comment='L1', rerun=0) },
 
     'L1_J12'         : { 5000 : TriggerRule(PS=25000, comment='L1', rerun=0) }, 
     'L1_J30.31ETA49' : { 5000 : TriggerRule(PS=5000, comment='L1', rerun=0) }, 
@@ -67,8 +69,10 @@ background_Rules = {
     # HLT
 
     'HLT_noalg_bkg_L1Bkg'     : { 5000 : TriggerRule(PS=1, comment='Background', rerun=0) },
-    'HLT_noalg_bkg_L1J12_BGRP12'         : { 5000 : TriggerRule(PS=1, comment = 'Background', rerun = 0.0) },  
-    'HLT_noalg_bkg_L1J30.31ETA49_BGRP12' : { 5000 : TriggerRule(PS=1, comment = 'Background', rerun = 0.0) }, 
+    'HLT_lumipeb_L1MBTS_1_1'     : { 5000 : TriggerRule(PS=1, comment='Background', rerun=0) },
+    'HLT_lumipeb_L1MBTS_1_1_UNPAIRED_ISO'     : { 5000 : TriggerRule(PS=1, comment='Background', rerun=0) },
+    #'HLT_noalg_bkg_L1J12_BGRP12'         : { 5000 : TriggerRule(PS=1, comment = 'Background', rerun = 0.0) },  
+    #'HLT_noalg_bkg_L1J30.31ETA49_BGRP12' : { 5000 : TriggerRule(PS=1, comment = 'Background', rerun = 0.0) }, 
 }
 
 #################################################################################################
@@ -94,8 +98,7 @@ monitoring_Rules = {
     'L1_RD0_UNPAIRED_ISO'  : { 5000 : TriggerRule(rate=5,    scaling="bunches", comment='L1', rerun=0) },
     'L1_RD0_EMPTY'         : { 5000 : TriggerRule(rate=10,   scaling="bunches", comment='L1', rerun=0) },
     'L1_RD1_EMPTY'         : { 5000 : TriggerRule(rate=5,    scaling="bunches", comment='L1', rerun=0) },
-    'L1_RD2_EMPTY'        : { 5000 : TriggerRule(rate=10, scaling="bunches", comment='L1', rerun=0) },
-    # total ~ 40 Hz
+    #'L1_RD2_EMPTY'        : { 5000 : TriggerRule(rate=10, scaling="bunches", comment='L1', rerun=0) },    # total ~ 40 Hz
     
     'L1_CALREQ2'           : { 5000 : TriggerRule(PS=1, comment='L1', rerun=0) },
 
@@ -108,47 +111,48 @@ monitoring_Rules = {
 
     # This was at 5Hz in Run 1 - L1 Standby input - keep same Run2
     'L1_EM7'         : { 5000 : TriggerRule(PS=700000, comment='L1', rerun=0) }, # unfortunately PS is driven by last 10 LB, after Stable Beam declared and before we move to physics menu, where rates goes up enormously and pixel cannot take more than 500 Hz. Same for other items here. Otheriwse PS could be much smaller, maybe PS=100 would do for all these.
-    'L1_TAU8'        : { 5000 : TriggerRule(PS=700000, comment='L1', rerun=0) },
+    'L1_TAU12'        : { 5000 : TriggerRule(PS=700000, comment='L1', rerun=0) },
     'L1_J30'         : { 5000 : TriggerRule(PS=25000, comment='L1', rerun=0) },
 
     # these feed lar HLT streamers and L1Calo EMPTY. < 1 Hz each
-    'L1_EM3_EMPTY'   : { 5000 : TriggerRule(PS=100, comment='L1', rerun=0) }, # to be revised, probably too high PS. Should be lumi independent.
     'L1_EM7_EMPTY'   : { 5000 : TriggerRule(PS=5, comment='L1', rerun=0) },
     'L1_J12_EMPTY'   : { 5000 : TriggerRule(PS=10, comment='L1', rerun=0) },
     'L1_J30_EMPTY'   : { 5000 : TriggerRule(PS=5, comment='L1', rerun=0) },
-    'L1_TAU8_EMPTY'   : { 5000 : TriggerRule(PS=10, comment='L1', rerun=0) },
+    'L1_TAU12_EMPTY'   : { 5000 : TriggerRule(PS=10, comment='L1', rerun=0) },
     'L1_J30.31ETA49_EMPTY'  : { 5000 : TriggerRule(PS=5, comment='L1', rerun=0) },
 
     #these end up in L1Standby and lar items. < 1 Hz each
     'L1_EM7_FIRSTEMPTY'   : { 5000 : TriggerRule(PS=10, comment='L1', rerun=0) }, # PS driven by last LB. Did not scale up for lumi as they should be lumi independent.
-    'L1_TAU8_FIRSTEMPTY'   : { 5000 : TriggerRule(PS=10, comment='L1', rerun=0) },
+    'L1_TAU12_FIRSTEMPTY'   : { 5000 : TriggerRule(PS=10, comment='L1', rerun=0) },
     'L1_J12_FIRSTEMPTY'   : { 5000 : TriggerRule(PS=100, comment='L1', rerun=0) },
     'L1_J30_FIRSTEMPTY'   : { 5000 : TriggerRule(PS=10, comment='L1', rerun=0) },
 
     # give ~ few Hz each, goes to L1 Standby and LAr items
-    'L1_EM10VH'       : { 5000 : TriggerRule(PS=25000, comment='L1', rerun=0) }, # PS driven by last LB. scaled for lumi 5E33
+    'L1_EM10'         : { 5000 : TriggerRule(PS=25000, comment='L1', rerun=0) }, # PS driven by last LB. scaled for lumi 5E33
     'L1_EM15'         : { 5000 : TriggerRule(PS=7000, comment='L1', rerun=0) }, # this gives 10 Hz at 5E33. feeds larpeb_EM15, which then rjeects 20%.
 
     # This was at 10Hz in Run 1, this ends up in L1Standby and Lar items (where there is also HLT rejection)
-    'L1_EM20VHI'                : { 5000 : TriggerRule(PS=500, comment='L1', rerun=0) }, # feeds g40/60/80_larpeb HLT. rate 20 Hz at 5E33. with 20% HLT reject, gives 4 Hz
+    'L1_EM20'                   : { 5000 : TriggerRule(PS=500, comment='L1', rerun=0) }, # feeds g40/60/80_larpeb HLT. rate 20 Hz at 5E33. with 20% HLT reject, gives 4 Hz
 
 #   give ~ 25Hz  here, feed L1Standby
-    'L1_EM22VHI'   : { 5000 : TriggerRule(PS=1000, comment='L1', rerun=0) }, # should get 8 Hz at 5E33
-    'L1_J75'   : { 5000 : TriggerRule(PS=100, comment='L1', rerun=0) },  # should get 30 Hz at 5E33. larpbej items reduce that by ~ 1/1000 (of course L1Standby remains big)
+    'L1_EM22'   : { 5000 : TriggerRule(PS=1000, comment='L1', rerun=0) }, # should get 8 Hz at 5E33
+    'L1_J75'    : { 5000 : TriggerRule(PS=100, comment='L1', rerun=0) },  # should get 30 Hz at 5E33. larpbej items reduce that by ~ 1/1000 (of course L1Standby remains big)
     'L1_J75.31ETA49'  : { 5000 : TriggerRule(PS=1500, comment='L1', rerun=0) }, # should get 20 Hz at 5E33. larpbej items reduce that by ~ 1/1000 (of course L1Standby remains big)
 
     'L1_XE35'   : { 5000 : TriggerRule(PS=10000, comment='L1', rerun=0) },  # feeds larnoiseburst 
     'L1_XE50'   : { 5000 : TriggerRule(PS=7, comment='L1', rerun=0) },  # feeds larnoiseburst
-    'L1_XE70'   : { 5000 : TriggerRule(PS=5, comment='L1', rerun=0) },  # feeds larnoiseburst 
-    'L1_XE80'   : { 5000 : TriggerRule(PS=5, comment='L1', rerun=0) },  # feeds larnoiseburst 
+    #'L1_XE70'   : { 5000 : TriggerRule(PS=5, comment='L1', rerun=0) },  # feeds larnoiseburst 
+    #'L1_XE80'   : { 5000 : TriggerRule(PS=5, comment='L1', rerun=0) },  # feeds larnoiseburst 
     'L1_J50'   : { 5000 : TriggerRule(PS=3000, comment='L1', rerun=0) },  # feeds larnoiseburst
     'L1_J100'   : { 5000 : TriggerRule(PS=600, comment='L1', rerun=0) },  # feeds larnoiseburst
     'L1_J75_XE40'   : { 5000 : TriggerRule(PS=600, comment='L1', rerun=0) },  # feeds larnoiseburst
     'L1_J40_XE50'   : { 5000 : TriggerRule(PS=600, comment='L1', rerun=0) },  # feeds larnoiseburst
-    
-    
+
+    'L1_MBTS_1_1'        : { 5000 : TriggerRule(PS=100, comment='L1', rerun=0) },
+    'L1_RD1_FILLED'                      : {   2 : TriggerRule(rate=1000, scaling='bunches', comment='monitoring+lumi') },
     #############################################################################################
     # HLT
+    #'HLT_noalg_mb_L1MBTS_1_1'                 : { 5000 : TriggerRule(PS=1, comment="HLT", rerun=0) },
 
     'HLT_noalg_L1Calo'                        : { 5000 : TriggerRule(PS=-1, comment='L1Calo', rerun=0) },    
 
@@ -181,7 +185,7 @@ monitoring_Rules = {
     'HLT_larnoiseburst_L1J75_XE40'            : { 5000 : TriggerRule(PS=1, comment='LArNoiseBurst', rerun=0) },
     'HLT_larnoiseburst_L1J40_XE50'            : { 5000 : TriggerRule(PS=1, comment='LArNoiseBurst', rerun=0) },
     'HLT_larnoiseburst_L1J100'                : { 5000 : TriggerRule(PS=1, comment='LArNoiseBurst', rerun=0) },
-    'HLT_larnoiseburst_L1XE80'                : { 5000 : TriggerRule(PS=1, comment='LArNoiseBurst', rerun=0) },
+    #'HLT_larnoiseburst_L1XE80'                : { 5000 : TriggerRule(PS=1, comment='LArNoiseBurst', rerun=0) },
 
     # prescale out XE items as rate too herratic, dangerous for pixel
     'HLT_larnoiseburst_L1XE35'                : { 5000 : TriggerRule(PS=1,   comment = 'LArNoiseBurst', rerun=0) }, 
@@ -191,7 +195,7 @@ monitoring_Rules = {
 
     #=======================================
     # LArCells
-    'HLT_g3_loose_larpeb'           : { 5000 : TriggerRule(PS=-1, comment = 'LArCells', rerun = 0.0) }, # added explicit PS=-1 rule
+    'HLT_g8_loose_larpeb'           : { 5000 : TriggerRule(PS=-1, comment = 'LArCells', rerun = 0.0) }, # added explicit PS=-1 rule
     'HLT_g12_loose_larpeb'          : { 5000 : TriggerRule(PS=1, comment='LArCells', rerun=0) }, 
     'HLT_g20_loose_larpeb_L1EM15'   : { 5000 : TriggerRule(PS=1, comment='LArCells', rerun=0) },
     'HLT_g40_loose_larpeb'          : { 5000 : TriggerRule(PS=1, comment = 'LArCells', rerun = 0.0) },
@@ -220,15 +224,14 @@ monitoring_Rules = {
 
     #=======================================
     # CosmicCalo
-    'HLT_larps_L1EM3_EMPTY'                   : { 5000 : TriggerRule(PS=-1 , comment='CosmicCalo', rerun=0) }, # added explicit PS=-1 rule
     'HLT_larps_L1EM7_EMPTY'                   : { 5000 : TriggerRule(PS=1, comment='CosmicCalo', rerun=0) },
     'HLT_larps_L1J12_EMPTY'                   : { 5000 : TriggerRule(PS=1, comment='CosmicCalo', rerun=0) },
     'HLT_larps_L1J30_EMPTY'                   : { 5000 : TriggerRule(PS=1, comment='CosmicCalo', rerun=0) },
-    'HLT_larps_L1TAU8_EMPTY'                  : { 5000 : TriggerRule(PS=1, comment='CosmicCalo', rerun=0) },
+    'HLT_larps_L1TAU12_EMPTY'                  : { 5000 : TriggerRule(PS=1, comment='CosmicCalo', rerun=0) },
     'HLT_larps_L1J3031ETA49_EMPTY'            : { 5000 : TriggerRule(PS=1, comment='CosmicCalo', rerun=0) }, 
 
     ### EM chain was not in the original list, go to Express stream 
-    'HLT_noalg_cosmiccalo_L1EM3_EMPTY'        : { 5000 : TriggerRule(PS=1.0, comment = 'CosmicCalo', rerun = 0.0) }, 
+    'HLT_noalg_cosmiccalo_L1EM7_EMPTY'        : { 5000 : TriggerRule(PS=1.0, comment = 'CosmicCalo', rerun = 0.0) }, 
     'HLT_noalg_cosmiccalo_L1J12_EMPTY'        : { 5000 : TriggerRule(PS=1.0, ESValue=0, comment = 'CosmicCalo express', rerun = 0.0) }, 
     'HLT_noalg_cosmiccalo_L1J30_EMPTY'        : { 5000 : TriggerRule(PS=1.0, ESValue=0, comment = 'CosmicCalo express', rerun = 0.0) }, 
     'HLT_noalg_cosmiccalo_L1J3031ETA49_EMPTY' : { 5000 : TriggerRule(PS=1.0, comment = 'CosmicCalo', rerun = 0.0) }, 
@@ -240,16 +243,15 @@ monitoring_Rules = {
     'HLT_larps_L1J12_FIRSTEMPTY'              : { 5000 : TriggerRule(PS=1, comment = 'LArCellsEmpty', rerun=0) }, 
     'HLT_larps_L1J30_FIRSTEMPTY'              : { 5000 : TriggerRule(PS=1, comment = 'LArCellsEmpty', rerun=0) }, 
 
-    'HLT_larcalib_L1EM3_EMPTY'                : { 5000 : TriggerRule(PS=1, comment='LArCellsEmpty', rerun=0) },
     'HLT_larcalib_L1EM7_EMPTY'                : { 5000 : TriggerRule(PS=1, comment='LArCellsEmpty', rerun=0) }, 
-    'HLT_larcalib_L1TAU8_EMPTY'               : { 5000 : TriggerRule(PS=1, comment='LArCellsEmpty', rerun=0) },
+    'HLT_larcalib_L1TAU12_EMPTY'               : { 5000 : TriggerRule(PS=1, comment='LArCellsEmpty', rerun=0) },
     'HLT_larcalib_L1J12_EMPTY'                : { 5000 : TriggerRule(PS=1, comment='LArCellsEmpty', rerun=0) },
     'HLT_larcalib_L1J3031ETA49_EMPTY'         : { 5000 : TriggerRule(PS=1, comment='LArCellsEmpty', rerun=0) },
 
     'HLT_larhec_L1J12_FIRSTEMPTY'             : { 5000 : TriggerRule(PS=1, comment = 'LArCellsEmpty', rerun = 0) },
     'HLT_larhec_L1J30_FIRSTEMPTY'             : { 5000 : TriggerRule(PS=1, comment = 'LArCellsEmpty', rerun = 0) }, 
     'HLT_larhec_L1EM7_FIRSTEMPTY'             : { 5000 : TriggerRule(PS=1, comment = 'LArCellsEmpty', rerun = 0) },
-    'HLT_larhec_L1TAU8_FIRSTEMPTY'            : { 5000 : TriggerRule(PS=1, comment = 'LArCellsEmpty', rerun = 0) },
+    'HLT_larhec_L1TAU12_FIRSTEMPTY'            : { 5000 : TriggerRule(PS=1, comment = 'LArCellsEmpty', rerun = 0) },
 
     #=======================================
     # general monitorings
@@ -258,13 +260,10 @@ monitoring_Rules = {
     'HLT_robrequest'                          : { 5000 : TriggerRule(PS=-1, comment = 'DISCARD', rerun=0) }, 
     'HLT_robrequest_L1RD0_EMPTY'              : { 5000 : TriggerRule(PS=-1, comment = 'DISCARD', rerun=0) }, 
 
-#    'HLT_noalg_dcmmon_L1RD0_EMPTY'            : { 5000 : TriggerRule(rate=10.0, comment = 'monitoring_random', rerun=0) }, 
+    'HLT_noalg_dcmmon_L1RD0_EMPTY'            : { 5000 : TriggerRule(rate=10.0, comment = 'monitoring_random', rerun=0) }, 
     # chain to stress-test ROS
     #'HLT_noalg_dcmmon_L1RD2_EMPTY'            : { 10000 : TriggerRule(rate=10000.0, comment = 'monitoring_random', rerun = 0) },
     }
-
-
-
 
 #################################################################################################
 #
@@ -274,23 +273,43 @@ monitoring_Rules = {
 #
 #################################################################################################
 
-L1_list=['L1_ZDC_A','L1_ZDC_C' ]
-monitoring_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    400 : TriggerRule(PS=ZDC_A_ps, comment=''),
+zdc_Rules={}
+
+L1_list=['L1_ZDC_A','L1_ZDC_C']
+zdc_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    400 : TriggerRule(PS=L1ZDC_A_ps, comment=''),
     }])))
 
 # supposed 10Hz/bunch (mu=0.5)
 L1_list=['L1_ZDC_AND' ]
-monitoring_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    400 : TriggerRule(PS=ZDC_A_C_ps, comment=''),
+zdc_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    400 : TriggerRule(PS=L1ZDC_A_C_ps, comment=''),
     }])))
 
 L1_list=['L1_ZDC_A_C' ]
-monitoring_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
-    400 : TriggerRule(PS=ZDC_A_C_ps, comment=''),
+zdc_Rules.update(dict(map(None,L1_list,len(L1_list)*[{
+    400 : TriggerRule(PS=L1ZDC_A_C_ps, comment=''),
     }])))
 
+#HLT_list=['HLT_noalg_mb_L1ZDC_A','HLT_noalg_mb_L1ZDC_C']
+#zdc_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+#    400 : TriggerRule(PS=HLTZDC_A_ps, comment=''),
+#    }])))
 
+#HLT_list=['HLT_noalg_mb_L1ZDC_AND',]
+#zdc_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+#    400 : TriggerRule(PS=HLTZDC_A_C_ps, comment=''),
+#    }])))
+
+#HLT_list=['HLT_noalg_mb_L1ZDC_A_C',]
+#zdc_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+#    400 : TriggerRule(PS=HLTZDC_A_C_ps, comment=''),
+#    }])))
+
+HLT_list=['HLT_zdcpeb_L1ZDC_A','HLT_zdcpeb_L1ZDC_C','HLT_zdcpeb_L1ZDC_A_C','HLT_zdcpeb_L1ZDC_AND']
+zdc_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
+    400 : TriggerRule(PS=1, comment=''),
+    }])))
 
 
 #################################################################################################
@@ -496,7 +515,7 @@ disabled_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
 # --------------------------------------
 # minbias
 
-HLT_list=['HLT_mb_mbts_L1MBTS_1', 'HLT_mb_mbts_L1MBTS_1_1', 'HLT_mb_mbts_L1MBTS_1_1_EMPTY', 'HLT_mb_mbts_L1MBTS_1_1_UNPAIRED_ISO', 'HLT_mb_mbts_L1MBTS_1_EMPTY', 'HLT_mb_mbts_L1MBTS_1_UNPAIRED_ISO', 'HLT_mb_mbts_L1MBTS_2', 'HLT_mb_mbts_L1MBTS_2_EMPTY', 'HLT_mb_mbts_L1MBTS_2_UNPAIRED_ISO', 'HLT_mb_perf_L1LUCID', 'HLT_mb_perf_L1LUCID_EMPTY', 'HLT_mb_perf_L1LUCID_UNPAIRED_ISO', 'HLT_mb_perf_L1MBTS_2', 'HLT_mb_perf_L1RD1_FILLED', 'HLT_mb_sp1000_trk70_hmt_L1MBTS_1_1', 'HLT_mb_sp1200_trk75_hmt_L1MBTS_1_1', 'HLT_mb_sp1400_hmtperf_L1TE10', 'HLT_mb_sp1400_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1400_hmtperf_L1TE20', 'HLT_mb_sp1400_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1400_trk100_hmt_L1TE20', 'HLT_mb_sp1400_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_trk80_hmt_L1MBTS_1_1', 'HLT_mb_sp1400_trk90_hmt_L1TE10', 'HLT_mb_sp1400_trk90_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_hmtperf', 'HLT_mb_sp1800_hmtperf_L1TE20', 'HLT_mb_sp2000_pusup600_trk70_hmt', 'HLT_mb_sp2000_pusup600_trk70_hmt_L1TE30', 'HLT_mb_sp2000_pusup600_trk70_hmt_L1TE40', 'HLT_mb_sp2000_pusup700_trk50_sumet110_hmt_L1TE40', 'HLT_mb_sp2000_pusup700_trk50_sumet150_hmt_L1TE50', 'HLT_mb_sp2000_pusup700_trk50_sumet70_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk60_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk70_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk70_hmt_L1TE40', 'HLT_mb_sp2000_trk70_hmt', 'HLT_mb_sp2500_hmtperf_L1TE20', 'HLT_mb_sp2500_pusup750_trk90_hmt_L1TE40', 'HLT_mb_sp2_hmtperf', 'HLT_mb_sp2_hmtperf_L1MBTS_1_1', 'HLT_mb_sp3000_pusup800_trk120_hmt_L1TE50', 'HLT_mb_sp300_trk10_sumet40_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet50_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet50_hmt_L1RD3_FILLED', 'HLT_mb_sp300_trk10_sumet50_hmt_L1TE10', 'HLT_mb_sp300_trk10_sumet60_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet60_hmt_L1TE20', 'HLT_mb_sp300_trk10_sumet70_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet80_hmt_L1MBTS_1_1', 'HLT_mb_sp400_trk40_hmt_L1MBTS_1_1', 'HLT_mb_sp500_hmtperf', 'HLT_mb_sp600_trk10_sumet40_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet50_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet50_hmt_L1RD3_FILLED', 'HLT_mb_sp600_trk10_sumet50_hmt_L1TE10.0ETA24', 'HLT_mb_sp600_trk10_sumet60_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet60_hmt_L1TE20.0ETA24', 'HLT_mb_sp600_trk10_sumet70_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet80_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk45_hmt_L1MBTS_1_1', 'HLT_mb_sp700_trk50_hmt_L1MBTS_1_1', 'HLT_mb_sp700_trk50_hmt_L1RD3_FILLED', 'HLT_mb_sp700_trk55_hmt_L1MBTS_1_1', 'HLT_mb_sp900_trk60_hmt_L1MBTS_1_1', 'HLT_mb_sp900_trk65_hmt_L1MBTS_1_1', 'HLT_mb_sptrk','HLT_mb_sptrk_L1RD0_EMPTY', 'HLT_mb_sptrk_L1RD0_UNPAIRED_ISO', 'HLT_mb_sptrk_L1RD3_FILLED', 'HLT_mb_sptrk_costr', 'HLT_mb_sptrk_costr_L1RD0_EMPTY', 'HLT_mb_sptrk_noisesup', 'HLT_mb_sptrk_noisesup_L1RD0_EMPTY', 'HLT_mb_sptrk_noisesup_L1RD0_UNPAIRED_ISO', 'HLT_mb_sptrk_noisesup_L1RD3_FILLED', 'HLT_mb_sptrk_pt4_L1MBTS_1', 'HLT_mb_sptrk_pt4_L1MBTS_1_1', 'HLT_mb_sptrk_pt4_L1MBTS_2', 'HLT_mb_sptrk_pt4_L1RD3_FILLED', 'HLT_mb_sptrk_pt6_L1MBTS_1', 'HLT_mb_sptrk_pt6_L1MBTS_1_1', 'HLT_mb_sptrk_pt6_L1MBTS_2', 'HLT_mb_sptrk_pt6_L1RD3_FILLED', 'HLT_mb_sptrk_pt8_L1MBTS_1', 'HLT_mb_sptrk_pt8_L1MBTS_1_1', 'HLT_mb_sptrk_pt8_L1MBTS_2', 'HLT_mb_sptrk_pt8_L1RD3_FILLED', 'HLT_mb_sptrk_vetombts2in_peb_L1ALFA_ANY_UNPAIRED_ISO', 'HLT_noalg_mb_L1LUCID', 'HLT_noalg_mb_L1LUCID_EMPTY', 'HLT_noalg_mb_L1LUCID_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_1_1', 'HLT_noalg_mb_L1MBTS_1_1_EMPTY', 'HLT_noalg_mb_L1MBTS_1_1_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_1_EMPTY', 'HLT_noalg_mb_L1MBTS_1_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_2_EMPTY', 'HLT_noalg_mb_L1MBTS_2_UNPAIRED_ISO', 'HLT_noalg_mb_L1RD0_EMPTY', 'HLT_noalg_mb_L1RD0_FILLED', 'HLT_noalg_mb_L1RD0_UNPAIRED_ISO', 'HLT_noalg_mb_L1RD1_FILLED', 'HLT_noalg_mb_L1RD2_EMPTY', 'HLT_noalg_mb_L1RD2_FILLED', 'HLT_noalg_mb_L1RD3_EMPTY', 'HLT_noalg_mb_L1RD3_FILLED', 'HLT_noalg_mb_L1TE10', 'HLT_noalg_mb_L1TE10.0ETA24', 'HLT_noalg_mb_L1TE20', 'HLT_noalg_mb_L1TE20.0ETA24', 'HLT_noalg_mb_L1TE30', 'HLT_noalg_mb_L1TE40', 'HLT_noalg_mb_L1TE50','HLT_mb_sp1800_hmtperf_L1TE30.0ETA24','HLT_noalg_mb_L1TE30.0ETA24','HLT_noalg_L1TE0', 'HLT_noalg_L1TE0.0ETA24', 'HLT_noalg_L1TE15', 'HLT_noalg_L1TE5', 'HLT_noalg_L1TE5.0ETA24', 'HLT_noalg_mb_L1TE0', 'HLT_noalg_mb_L1TE0.0ETA24', 'HLT_noalg_mb_L1TE15', 'HLT_noalg_mb_L1TE5', 'HLT_noalg_mb_L1TE5.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE10', 'HLT_mb_sp1300_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE15', 'HLT_mb_sp1300_hmtperf_L1TE20', 'HLT_mb_sp1300_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE5', 'HLT_mb_sp1300_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE10', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE10.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE15', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE20', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE5', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE5.0ETA24', 'HLT_mb_sp1400_trk90_hmt_L1TE15', 'HLT_mb_sp1400_trk90_hmt_L1TE20', 'HLT_mb_sp1400_trk90_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_trk90_hmt_L1TE5', 'HLT_mb_sp1400_trk90_hmt_L1TE5.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE10', 'HLT_mb_sp1500_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE15', 'HLT_mb_sp1500_hmtperf_L1TE20', 'HLT_mb_sp1500_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE5', 'HLT_mb_sp1500_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE10', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE10.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE15', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE20', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE5', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE5.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE10', 'HLT_mb_sp1600_trk100_hmt_L1TE10.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE15', 'HLT_mb_sp1600_trk100_hmt_L1TE20', 'HLT_mb_sp1600_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE5', 'HLT_mb_sp1600_trk100_hmt_L1TE5.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE10', 'HLT_mb_sp1700_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE15', 'HLT_mb_sp1700_hmtperf_L1TE20', 'HLT_mb_sp1700_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE5', 'HLT_mb_sp1700_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE10', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE15', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE20', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE20.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE5', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE5.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE10', 'HLT_mb_sp1800_trk110_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE15', 'HLT_mb_sp1800_trk110_hmt_L1TE20', 'HLT_mb_sp1800_trk110_hmt_L1TE20.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE5', 'HLT_mb_sp1800_trk110_hmt_L1TE5.0ETA24', 'HLT_mb_sp2_hmtperf_L1TE0', 'HLT_mb_sp2_hmtperf_L1TE0.0ETA24', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE10', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE10.0ETA24', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE5', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE5.0ETA24', 'HLT_mb_sp900_trk60_hmt_L1TE10', 'HLT_mb_sp900_trk60_hmt_L1TE10.0ETA24', 'HLT_mb_sp900_trk60_hmt_L1TE5', 'HLT_mb_sp900_trk60_hmt_L1TE5.0ETA24', 'HLT_lumipeb_L1MBTS_2', 'HLT_mb_sptrk_vetombts2in_L1TRT_ALFA_EINE', 'HLT_mb_sptrk_vetombts2in_peb_L1TRT_ALFA_ANY', 'HLT_mb_sptrk_vetombts2in_peb_L1TRT_ALFA_ANY_UNPAIRED_ISO',]
+HLT_list=['HLT_mb_mbts_L1MBTS_1', 'HLT_mb_mbts_L1MBTS_1_1', 'HLT_mb_mbts_L1MBTS_1_1_EMPTY', 'HLT_mb_mbts_L1MBTS_1_1_UNPAIRED_ISO', 'HLT_mb_mbts_L1MBTS_1_EMPTY', 'HLT_mb_mbts_L1MBTS_1_UNPAIRED_ISO', 'HLT_mb_mbts_L1MBTS_2', 'HLT_mb_mbts_L1MBTS_2_EMPTY', 'HLT_mb_mbts_L1MBTS_2_UNPAIRED_ISO', 'HLT_mb_perf_L1LUCID', 'HLT_mb_perf_L1LUCID_EMPTY', 'HLT_mb_perf_L1LUCID_UNPAIRED_ISO', 'HLT_mb_perf_L1MBTS_2', 'HLT_mb_perf_L1RD1_FILLED', 'HLT_mb_sp1000_trk70_hmt_L1MBTS_1_1', 'HLT_mb_sp1200_trk75_hmt_L1MBTS_1_1', 'HLT_mb_sp1400_hmtperf_L1TE10', 'HLT_mb_sp1400_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1400_hmtperf_L1TE20', 'HLT_mb_sp1400_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1400_trk100_hmt_L1TE20', 'HLT_mb_sp1400_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_trk80_hmt_L1MBTS_1_1', 'HLT_mb_sp1400_trk90_hmt_L1TE10', 'HLT_mb_sp1400_trk90_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_hmtperf', 'HLT_mb_sp1800_hmtperf_L1TE20', 'HLT_mb_sp2000_pusup600_trk70_hmt', 'HLT_mb_sp2000_pusup600_trk70_hmt_L1TE30', 'HLT_mb_sp2000_pusup600_trk70_hmt_L1TE40', 'HLT_mb_sp2000_pusup700_trk50_sumet110_hmt_L1TE40', 'HLT_mb_sp2000_pusup700_trk50_sumet150_hmt_L1TE50', 'HLT_mb_sp2000_pusup700_trk50_sumet70_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk60_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk70_hmt_L1TE30', 'HLT_mb_sp2000_pusup700_trk70_hmt_L1TE40', 'HLT_mb_sp2000_trk70_hmt', 'HLT_mb_sp2500_hmtperf_L1TE20', 'HLT_mb_sp2500_pusup750_trk90_hmt_L1TE40', 'HLT_mb_sp2_hmtperf', 'HLT_mb_sp2_hmtperf_L1MBTS_1_1', 'HLT_mb_sp3000_pusup800_trk120_hmt_L1TE50', 'HLT_mb_sp300_trk10_sumet40_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet50_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet50_hmt_L1RD3_FILLED', 'HLT_mb_sp300_trk10_sumet50_hmt_L1TE10', 'HLT_mb_sp300_trk10_sumet60_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet60_hmt_L1TE20', 'HLT_mb_sp300_trk10_sumet70_hmt_L1MBTS_1_1', 'HLT_mb_sp300_trk10_sumet80_hmt_L1MBTS_1_1', 'HLT_mb_sp400_trk40_hmt_L1MBTS_1_1', 'HLT_mb_sp500_hmtperf', 'HLT_mb_sp600_trk10_sumet40_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet50_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet50_hmt_L1RD3_FILLED', 'HLT_mb_sp600_trk10_sumet50_hmt_L1TE10.0ETA24', 'HLT_mb_sp600_trk10_sumet60_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet60_hmt_L1TE20.0ETA24', 'HLT_mb_sp600_trk10_sumet70_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk10_sumet80_hmt_L1MBTS_1_1', 'HLT_mb_sp600_trk45_hmt_L1MBTS_1_1', 'HLT_mb_sp700_trk50_hmt_L1MBTS_1_1', 'HLT_mb_sp700_trk50_hmt_L1RD3_FILLED', 'HLT_mb_sp700_trk55_hmt_L1MBTS_1_1', 'HLT_mb_sp900_trk60_hmt_L1MBTS_1_1', 'HLT_mb_sp900_trk65_hmt_L1MBTS_1_1', 'HLT_mb_sptrk','HLT_mb_sptrk_L1RD0_EMPTY', 'HLT_mb_sptrk_L1RD0_UNPAIRED_ISO', 'HLT_mb_sptrk_L1RD3_FILLED', 'HLT_mb_sptrk_costr', 'HLT_mb_sptrk_costr_L1RD0_EMPTY', 'HLT_mb_sptrk_noisesup', 'HLT_mb_sptrk_noisesup_L1RD0_EMPTY', 'HLT_mb_sptrk_noisesup_L1RD0_UNPAIRED_ISO', 'HLT_mb_sptrk_noisesup_L1RD3_FILLED', 'HLT_mb_sptrk_pt4_L1MBTS_1', 'HLT_mb_sptrk_pt4_L1MBTS_1_1', 'HLT_mb_sptrk_pt4_L1MBTS_2', 'HLT_mb_sptrk_pt4_L1RD3_FILLED', 'HLT_mb_sptrk_pt6_L1MBTS_1', 'HLT_mb_sptrk_pt6_L1MBTS_1_1', 'HLT_mb_sptrk_pt6_L1MBTS_2', 'HLT_mb_sptrk_pt6_L1RD3_FILLED', 'HLT_mb_sptrk_pt8_L1MBTS_1', 'HLT_mb_sptrk_pt8_L1MBTS_1_1', 'HLT_mb_sptrk_pt8_L1MBTS_2', 'HLT_mb_sptrk_pt8_L1RD3_FILLED', 'HLT_mb_sptrk_vetombts2in_peb_L1ALFA_ANY_UNPAIRED_ISO', 'HLT_noalg_mb_L1LUCID', 'HLT_noalg_mb_L1LUCID_EMPTY', 'HLT_noalg_mb_L1LUCID_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_1_1_EMPTY', 'HLT_noalg_mb_L1MBTS_1_1_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_1_EMPTY', 'HLT_noalg_mb_L1MBTS_1_UNPAIRED_ISO', 'HLT_noalg_mb_L1MBTS_2_EMPTY', 'HLT_noalg_mb_L1MBTS_2_UNPAIRED_ISO', 'HLT_noalg_mb_L1RD0_EMPTY', 'HLT_noalg_mb_L1RD0_FILLED', 'HLT_noalg_mb_L1RD0_UNPAIRED_ISO', 'HLT_noalg_mb_L1RD1_FILLED', 'HLT_noalg_mb_L1RD2_EMPTY', 'HLT_noalg_mb_L1RD2_FILLED', 'HLT_noalg_mb_L1RD3_EMPTY', 'HLT_noalg_mb_L1RD3_FILLED', 'HLT_noalg_mb_L1TE10', 'HLT_noalg_mb_L1TE10.0ETA24', 'HLT_noalg_mb_L1TE20', 'HLT_noalg_mb_L1TE20.0ETA24', 'HLT_noalg_mb_L1TE30', 'HLT_noalg_mb_L1TE40', 'HLT_noalg_mb_L1TE50','HLT_mb_sp1800_hmtperf_L1TE30.0ETA24','HLT_noalg_mb_L1TE30.0ETA24','HLT_noalg_L1TE0', 'HLT_noalg_L1TE0.0ETA24', 'HLT_noalg_L1TE15', 'HLT_noalg_L1TE5', 'HLT_noalg_L1TE5.0ETA24', 'HLT_noalg_mb_L1TE0', 'HLT_noalg_mb_L1TE0.0ETA24', 'HLT_noalg_mb_L1TE15', 'HLT_noalg_mb_L1TE5', 'HLT_noalg_mb_L1TE5.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE10', 'HLT_mb_sp1300_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE15', 'HLT_mb_sp1300_hmtperf_L1TE20', 'HLT_mb_sp1300_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1300_hmtperf_L1TE5', 'HLT_mb_sp1300_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE10', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE10.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE15', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE20', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE5', 'HLT_mb_sp1400_pusup550_trk90_hmt_L1TE5.0ETA24', 'HLT_mb_sp1400_trk90_hmt_L1TE15', 'HLT_mb_sp1400_trk90_hmt_L1TE20', 'HLT_mb_sp1400_trk90_hmt_L1TE20.0ETA24', 'HLT_mb_sp1400_trk90_hmt_L1TE5', 'HLT_mb_sp1400_trk90_hmt_L1TE5.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE10', 'HLT_mb_sp1500_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE15', 'HLT_mb_sp1500_hmtperf_L1TE20', 'HLT_mb_sp1500_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1500_hmtperf_L1TE5', 'HLT_mb_sp1500_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE10', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE10.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE15', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE20', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE5', 'HLT_mb_sp1600_pusup550_trk100_hmt_L1TE5.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE10', 'HLT_mb_sp1600_trk100_hmt_L1TE10.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE15', 'HLT_mb_sp1600_trk100_hmt_L1TE20', 'HLT_mb_sp1600_trk100_hmt_L1TE20.0ETA24', 'HLT_mb_sp1600_trk100_hmt_L1TE5', 'HLT_mb_sp1600_trk100_hmt_L1TE5.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE10', 'HLT_mb_sp1700_hmtperf_L1TE10.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE15', 'HLT_mb_sp1700_hmtperf_L1TE20', 'HLT_mb_sp1700_hmtperf_L1TE20.0ETA24', 'HLT_mb_sp1700_hmtperf_L1TE5', 'HLT_mb_sp1700_hmtperf_L1TE5.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE10', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE15', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE20', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE20.0ETA24', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE5', 'HLT_mb_sp1800_pusup600_trk110_hmt_L1TE5.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE10', 'HLT_mb_sp1800_trk110_hmt_L1TE10.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE15', 'HLT_mb_sp1800_trk110_hmt_L1TE20', 'HLT_mb_sp1800_trk110_hmt_L1TE20.0ETA24', 'HLT_mb_sp1800_trk110_hmt_L1TE5', 'HLT_mb_sp1800_trk110_hmt_L1TE5.0ETA24', 'HLT_mb_sp2_hmtperf_L1TE0', 'HLT_mb_sp2_hmtperf_L1TE0.0ETA24', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE10', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE10.0ETA24', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE5', 'HLT_mb_sp900_pusup350_trk60_hmt_L1TE5.0ETA24', 'HLT_mb_sp900_trk60_hmt_L1TE10', 'HLT_mb_sp900_trk60_hmt_L1TE10.0ETA24', 'HLT_mb_sp900_trk60_hmt_L1TE5', 'HLT_mb_sp900_trk60_hmt_L1TE5.0ETA24', 'HLT_lumipeb_L1MBTS_2', 'HLT_mb_sptrk_vetombts2in_L1TRT_ALFA_EINE', 'HLT_mb_sptrk_vetombts2in_peb_L1TRT_ALFA_ANY', 'HLT_mb_sptrk_vetombts2in_peb_L1TRT_ALFA_ANY_UNPAIRED_ISO',]
 disabled_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=-1, comment=''), 
     }])))
@@ -509,7 +528,7 @@ disabled_Rules.update(dict(map(None,HLT_list,len(HLT_list)*[{
     1000 : TriggerRule(PS=-1, comment=''), 
     }])))
 
-RulesList=[background_Rules, monitoring_Rules, disabled_Rules, alfa_Rules]
+RulesList=[background_Rules, monitoring_Rules, disabled_Rules, alfa_Rules, zdc_Rules]
 
 rules = {}
 

@@ -2,7 +2,7 @@
 
 from RuleClasses import TriggerRule
 
-tag = 'Standby_pp_v5'
+tag = 'Standby_pp_v6'
 
 doALFA = False
 
@@ -63,6 +63,16 @@ background_Rules = {
     'L1_J12'         : { 5000 : TriggerRule(PS=25000, comment='L1', rerun=0) }, 
     'L1_J30.31ETA49' : { 5000 : TriggerRule(PS=5000, comment='L1', rerun=0) }, 
 
+    #    # These chains are commented for now since they are not yet active at P1 but need to be un-commented once they are in                          
+    #    'L1_MBTS_4_A_UNPAIRED_ISO'                : {  5000 : TriggerRule(PS=1, comment='L1', rerun=0) }, #Added for ATR-13628                      
+    #    'L1_MBTS_4_C_UNPAIRED_ISO'                : {  5000 : TriggerRule(PS=1, comment='L1', rerun=0) }, #Added for ATR-13628                                               
+    #    #=======================================                                                                                                    
+    #    # HLT                                                                                                                                           
+    #    # These chains are commented for now since they are not yet active at P1 but need to be un-commented once they are in  ATR-13628                                 
+    #    'HLT_noalg_bkg_L1RD0_UNPAIRED_ISO' : {5000 : TriggerRule(PS=1, comment='Background', rerun=0) },
+    #    'HLT_noalg_bkg_L1MBTS_4_A_UNPAIRED_ISO' : {5000 : TriggerRule(PS=1, comment='Background', rerun=0) },
+    #    'HLT_noalg_bkg_L1MBTS_4_C_UNPAIRED_ISO' : {5000 : TriggerRule(PS=1, comment='Background', rerun=0) },
+    
     #############################################################################################
     # HLT
 
@@ -375,7 +385,7 @@ RulesList=[alfa_Rules_physics, alfa_Rules_calibration]
 for Rules in RulesList:
     for newrule in Rules.keys():
         if alfa_Rules.has_key(newrule):
-            print 'FATAL     Standby_pp_v5_rules     Duplicated rule inside ALFA rule. Cannot be added:',newrule
+            print 'FATAL     Standby_pp_v6_rules     Duplicated rule inside ALFA rule. Cannot be added:',newrule
     alfa_Rules.update(Rules)
     
 
@@ -516,7 +526,7 @@ rules = {}
 for Rules in RulesList:
     for newrule in Rules.keys():
         if rules.has_key(newrule):
-            print 'FATAL     Standby_pp_v5_rules     Duplicated rule inside physics rule. Cannot be added:',newrule
+            print 'FATAL     Standby_pp_v6_rules     Duplicated rule inside physics rule. Cannot be added:',newrule
     rules.update(Rules)
 
 #################################################################################################
