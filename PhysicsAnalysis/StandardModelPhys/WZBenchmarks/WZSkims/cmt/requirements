@@ -4,11 +4,11 @@ author Homero Martinez <homero@cern.ch>
 author Bernardo Resende <bernardo.resende@cea.fr>
 
 
-use AtlasPolicy			AtlasPolicy-01-*
+use AtlasPolicy			AtlasPolicy-*
 use AthenaBaseComps 		AthenaBaseComps-*   		Control
 
 
-use GaudiInterface		GaudiInterface-01-*		External
+use GaudiInterface		GaudiInterface-*		External
 
 use StoreGate           	StoreGate-*                     Control
 use AthenaKernel                AthenaKernel-*                  Control  
