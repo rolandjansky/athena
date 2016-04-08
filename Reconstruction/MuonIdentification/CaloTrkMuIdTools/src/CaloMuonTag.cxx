@@ -137,6 +137,10 @@ int CaloMuonTag::caloMuonTag(const std::vector<DepositInCalo>& deposits, double 
     double dep   = it->energyDeposited();
     double eLoss = it->muonEnergyLoss();
     double diff  = dep - eLoss;
+//
+// don't use the difference between measured and expected energy per layer 
+//
+    diff = 0.;
 
     if (sample==CaloCell_ID::EMB1) {
       if (dep>interpolate(m_emb1Veto, pt)) {
@@ -281,7 +285,7 @@ int CaloMuonTag::caloMuonTag(const std::vector<DepositInCalo>& deposits, double 
       }
     }
 
-    if (numVetoesTriggered>=1 || tag == 4) {
+    if (numVetoesTriggered>=1) {
       m_numRejected++;
       return 0;
     }
@@ -290,6 +294,9 @@ int CaloMuonTag::caloMuonTag(const std::vector<DepositInCalo>& deposits, double 
   
   if (tag<3) {
     m_numTagged++;
+  }
+  else if (tag==4){
+    return 0;
   }
   
   return tag;

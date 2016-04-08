@@ -70,7 +70,7 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
     */
     std::vector<DepositInCalo> getDeposits(const Trk::TrackParameters* par, const CaloCellContainer* caloCellCont = nullptr) const;
 
-    std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* ccc) const;
+    std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp) const;
     
     std::vector<DepositInCalo> deposits(const Trk::TrackParameters *par, const double deltaR=0.3, const bool inCell= true) const;
     /**
