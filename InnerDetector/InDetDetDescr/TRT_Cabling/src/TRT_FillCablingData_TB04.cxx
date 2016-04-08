@@ -130,6 +130,11 @@ void TRT_FillCablingData_TB04::defineParameters()
   ncol.push_back(ncol0);
   ncol.push_back(ncol1);
   ncol.push_back(ncol2);
+
+  StrawsByModule[0] = 329;
+  StrawsByModule[1] = 520;
+  StrawsByModule[2] = 793;
+
 }
 
 
@@ -197,6 +202,11 @@ void TRT_FillCablingData_TB04::defineTables()
 	   continue;
 	}
 
+	if ( !(moduleId == 0 || moduleId == 1 || moduleId ==2) )
+	   continue;
+
+	if ( strawNumberInModule > StrawsByModule[moduleId] )
+	   continue;
 
          // Swap of phi sectors for ROD 0: 3S1, 3S2
         if (rod == 0)
@@ -257,8 +267,12 @@ void TRT_FillCablingData_TB04::defineTables()
 
        	  // Construct Hash and put it in the list
         IdLayer = m_TRTHelper->layer_id(strawID);
-        m_TRTHelper->get_hash(IdLayer, hashId, &m_cntx);
-        m_cabling->set_identfierHashForAllStraws(0x310000 + rodSourceId, BufferLocation, hashId);
+        if ( !m_TRTHelper->get_hash(IdLayer, hashId, &m_cntx) )
+	   m_cabling->set_identfierHashForAllStraws(0x310000 + rodSourceId,
+						    BufferLocation, hashId);
+	else
+	   ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << IdLayer );
+
 //	std::cout << "Filling  m_identfierHashForAllStraws " << rodSourceId << " " << BufferLocation << " " << hashId << std::endl;
       }   // end of loop over straw in ROD
       

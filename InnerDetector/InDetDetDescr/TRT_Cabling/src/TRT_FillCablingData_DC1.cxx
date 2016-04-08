@@ -336,8 +336,11 @@ void TRT_FillCablingData_DC1::defineTables()
         Id = defineIdentifier(det_id, phi * 3 + i, straw); 
         m_cabling->set_identfierForAllStraws(Id);	
 	IdLayer = m_id_trt->layer_id(Id);
-	m_id_trt->get_hash(IdLayer, hashId, &m_cntx); 
-        m_cabling->set_identfierHashForAllStraws(hashId);
+	if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
+	   m_cabling->set_identfierHashForAllStraws(hashId);
+	else
+	   ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
+
 	//std::cout << " Creating straw ID " << m_id_trt->show_to_string(IdLayer) 
 	//	    << " in Collection " << hashId << std::endl;
       }
@@ -353,8 +356,10 @@ void TRT_FillCablingData_DC1::defineTables()
       Id = defineIdentifier(det_id, phi, straw);
       m_cabling->set_identfierForAllStraws(Id);
       IdLayer = m_id_trt->layer_id(Id);
-      m_id_trt->get_hash(IdLayer, hashId, &m_cntx); 
-      m_cabling->set_identfierHashForAllStraws(hashId);
+      if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
+	 m_cabling->set_identfierHashForAllStraws(hashId);
+      else
+	 ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
     }
   }
 
@@ -367,8 +372,10 @@ void TRT_FillCablingData_DC1::defineTables()
       Id = defineIdentifier(det_id, phi, straw);
       m_cabling->set_identfierForAllStraws(Id); 
       IdLayer = m_id_trt->layer_id(Id);
-      m_id_trt->get_hash(IdLayer, hashId, &m_cntx);
-      m_cabling->set_identfierHashForAllStraws(hashId);
+      if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
+	 m_cabling->set_identfierHashForAllStraws(hashId);
+      else
+	 ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
     }     
   } 
 
@@ -383,8 +390,10 @@ void TRT_FillCablingData_DC1::defineTables()
         Id = defineIdentifier(det_id, phi * 3 + i, straw);
         m_cabling->set_identfierForAllStraws(Id);
 	IdLayer = m_id_trt->layer_id(Id);
-        m_id_trt->get_hash(IdLayer, hashId, &m_cntx); 
-        m_cabling->set_identfierHashForAllStraws(hashId);
+        if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
+	   m_cabling->set_identfierHashForAllStraws(hashId);
+	else
+	   ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
       }	
     }
   }
