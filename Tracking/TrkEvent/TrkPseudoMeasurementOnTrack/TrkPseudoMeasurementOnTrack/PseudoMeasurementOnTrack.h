@@ -13,6 +13,7 @@
 //#include "TrkEventPrimitives/GlobalPosition.h"
 #include "EventPrimitives/EventPrimitives.h"  
 #include "GeoPrimitives/GeoPrimitives.h" 
+#include "TrkSurfaces/Surface.h"
 #include <ostream>
 
 class MsgStream;
@@ -53,23 +54,29 @@ namespace Trk{
                                 const Amg::MatrixX&     locerr,
                                 const Surface&         assocSurf);
 
+      PseudoMeasurementOnTrack( const LocalParameters& locpars,
+                                const Amg::MatrixX&     locerr,
+                                ConstSurfaceUniquePtr   assocSurf);
+
       //! Destructor 
-      virtual ~PseudoMeasurementOnTrack();
+      virtual ~PseudoMeasurementOnTrack() override;
 
       //! virtual constructor, not absolutely needed but given for EDM symmetry 
-      PseudoMeasurementOnTrack* clone() const;
+      virtual PseudoMeasurementOnTrack* clone() const override;
 
       //! returns the surface for the local to global transformation (interface from MeasurementBase)
-      const Surface& associatedSurface() const;
+      virtual const Surface& associatedSurface() const override;
 
+      //! Test to see if an associated surface exists.
+      bool hasSurface() const;
 
       //! returns the global Position (interface from MeasurementBase)
-      const Amg::Vector3D& globalPosition() const;
+      virtual const Amg::Vector3D& globalPosition() const override;
 
       //! produces logfile output about its content in MsgStream form. 
-      virtual MsgStream&    dump( MsgStream& out ) const;
+      virtual MsgStream&    dump( MsgStream& out ) const override;
       //! produces logfile output about its content in stdout form. 
-      virtual std::ostream& dump( std::ostream& out ) const;
+      virtual std::ostream& dump( std::ostream& out ) const override;
 
     protected:
 
@@ -86,6 +93,9 @@ namespace Trk{
   inline const Surface& PseudoMeasurementOnTrack::associatedSurface() const
   { return *m_associatedSurface; }
 
+  inline
+  bool PseudoMeasurementOnTrack::hasSurface() const
+  { return m_associatedSurface != nullptr; }
 }
 
 #endif // TRKPMONTRACK_PSEUDOMEASUREMENTONTRACK_H
