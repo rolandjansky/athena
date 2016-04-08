@@ -47,6 +47,7 @@
 #define COMMON_TDC2_FRAG 0x014
 #define COMMON_PTN_FRAG  0x015
 #define LASER_OBJ_FRAG   0x016
+#define LASERII_OBJ_FRAG 0x017
 
 #define MAX_PMT 48 /* 48 pmts (channels) in one drawer */
 #define MAX_DIGI_CHAN 96 /* 16*3*2 channels in calibration mode */
