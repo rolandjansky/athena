@@ -24,7 +24,7 @@ use  TrkMaterialOnTrack         TrkMaterialOnTrack-*            Tracking/TrkEven
 #macro_remove componentshr_linkopts "-Wl,-s"
 
 public
-macro_append ROOT_linkopts " -lMinuit -lMatrix -lPhysics"
+apply_tag rootMathLibs
 
 library TrkGlobalChi2AlignTools *.cxx -s=components *.cxx
 apply_pattern component_library 
