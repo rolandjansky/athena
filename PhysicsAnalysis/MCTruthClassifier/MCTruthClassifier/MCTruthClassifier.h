@@ -5,7 +5,6 @@
 #ifndef MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
 #define MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
 /********************************************************************
-
 NAME:     MCTruthClassifier.h 
 PACKAGE:  atlasoff/PhysicsAnalysis/MCTruthClassifier
 AUTHORS:  O. Fedin
