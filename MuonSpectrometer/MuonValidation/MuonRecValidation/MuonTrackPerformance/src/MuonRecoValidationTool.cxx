@@ -13,6 +13,7 @@
 #include "MuonSegmentTaggerToolInterfaces/IMuTagMatchingTool.h"
 #include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
 #include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
+#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 #include "MuonClusterization/TgcHitClustering.h"
 
 #include "MuonSegment/MuonSegment.h"
@@ -20,6 +21,7 @@
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
+#include "MuGirlStau/MuonBetaCalculationUtils.h"
 
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
@@ -30,6 +32,8 @@
 #include "GaudiKernel/IIncidentSvc.h"
 
 #include "TrkPrepRawData/PrepRawData.h"
+#include "TrkTrack/Track.h"
+#include "MuonLayerEvent/MuonCandidate.h"
 
 #define SIG_VEL 4.80000  // ns/m
 #define C_VEL   3.33564  // ns/m
@@ -41,16 +45,25 @@ namespace Muon {
     : AthAlgTool(t,n,p),
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-      m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool"),
+      m_segmentHitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool"),
+      m_hitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
       m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"),
       m_extrapolator("Trk::Extrapolation/AtlasExtrapolator"),
       m_matchingTool("MuTagMatchingTool/MuTagMatchingTool"),
       m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool"),
-      m_incidentSvc("IncidentSvc",n)
+      m_incidentSvc("IncidentSvc",n),
+      m_candidateCounter(0)
   {
     declareInterface<IMuonRecoValidationTool>(this);
+    declareProperty("MuonIdHelperTool",m_idHelper );    
+    declareProperty("MuonEDMHelperTool",m_edmHelper );    
+    declareProperty("MuonSegmentHitSummaryTool",m_segmentHitSummaryTool );    
+    declareProperty("MuonHitSummaryTool",m_hitSummaryTool );    
+    declareProperty("MuonTruthSummaryTool",m_truthSummaryTool );    
     declareProperty("Extrapolator",m_extrapolator );    
     declareProperty("MatchTool",m_matchingTool );    
+    declareProperty("MuonHitTimingTool",m_hitTimingTool );    
+    declareProperty("IncidentSvc",m_incidentSvc );    
   }
     
   MuonRecoValidationTool::~MuonRecoValidationTool() {
@@ -61,11 +74,12 @@ namespace Muon {
 
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_edmHelper.retrieve());
+    ATH_CHECK(m_segmentHitSummaryTool.retrieve());
     ATH_CHECK(m_hitSummaryTool.retrieve());
     ATH_CHECK(m_truthSummaryTool.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
     ATH_CHECK(m_matchingTool.retrieve());
-    ATH_CHECK(m_hitSummaryTool.retrieve());
+    ATH_CHECK(m_hitTimingTool.retrieve());
     ITHistSvc* thistSvc = nullptr;
     ATH_CHECK( service("THistSvc", thistSvc) );
 
@@ -82,6 +96,7 @@ namespace Muon {
   }
 
   void MuonRecoValidationTool::clear() {
+    m_candidateCounter = 0;
     m_ntuple.clear();
     m_trackParticles.clear();
     m_trackParticleIndexLookup.clear();
@@ -110,6 +125,7 @@ namespace Muon {
     m_ntuple.trackParticleBlock.phi->push_back(indetTrackParticle.phi());
     int pdg = 0;
     int barcode = -1;
+    float beta = 1.;
     // set truth
     typedef ElementLink<xAOD::TruthParticleContainer> ElementTruthLink_t;
     if( indetTrackParticle.isAvailable<ElementTruthLink_t>("truthParticleLink") ) {
@@ -117,9 +133,10 @@ namespace Muon {
       if( link.isValid() ){
         pdg = (*link)->pdgId();
         barcode = (*link)->barcode();
+        beta = (*link)->p4().Beta();
       }
     }
-    m_ntuple.trackParticleBlock.truth.fill(pdg,barcode);
+    m_ntuple.trackParticleBlock.truth.fill(pdg,barcode,beta);
 
     // try to find the pointer of the indetTrackParticle
     bool found = false;
@@ -167,6 +184,41 @@ namespace Muon {
     return barcode;
   }
 
+  bool MuonRecoValidationTool::addTimeMeasurements( const xAOD::TrackParticle& indetTrackParticle, const MuGirlNS::StauHits& stauHits  ) {
+
+    Muon::MuonBetaCalculationUtils muonBetaCalculationUtils;
+
+    auto pos = std::find(m_trackParticles.begin(),m_trackParticles.end(),&indetTrackParticle);
+    if( pos == m_trackParticles.end() ) {
+      ATH_MSG_WARNING("addMuonCandidate: indetTrackParticle not found ");
+      return false;
+    }
+    int index = std::distance(m_trackParticles.begin(),pos);
+
+    for( const auto& stauHit : stauHits ){
+      Identifier id = stauHit.id;
+      int type = m_idHelper->technologyIndex(id) + 10;
+      double r = sqrt(stauHit.x*stauHit.x + stauHit.y*stauHit.y);
+      double tof = muonBetaCalculationUtils.calculateTof(1,sqrt(r*r+stauHit.z*stauHit.z));
+      // track index 
+      m_ntuple.timeBlock.track.fill(index);
+    
+      // identifier info
+      m_ntuple.timeBlock.id.fill(m_idHelper->sector(id),m_idHelper->chamberIndex(id));
+
+      // position + time information
+      m_ntuple.timeBlock.fill(type,m_idHelper->gasGapId(id).get_identifier32().get_compact(),r,stauHit.z,stauHit.mToF-tof,stauHit.error,
+                              stauHit.propagationTime, stauHit.e, tof, 0., stauHit.shift, 1000 * m_candidateCounter);
+      
+      // barcode + pdg
+      int barcode = m_truthSummaryTool->getBarcode(id);
+      int pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+      m_ntuple.timeBlock.truth.fill(pdg,barcode);
+    }    
+    ++m_candidateCounter;
+    return true;
+  }
+
   bool MuonRecoValidationTool::addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Identifier& id,
                                                    const Amg::Vector3D& gpos, float time, float errorTime ) {
 
@@ -190,7 +242,7 @@ namespace Muon {
 
   bool MuonRecoValidationTool::addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Trk::MeasurementBase& meas ) {
 
-    float segmentTimeCorrection = 1.4;
+    float segmentTimeCorrection = 0.;
     
     const MuonSegment* seg = dynamic_cast<const MuonSegment*>(&meas);
     if( seg && seg->hasFittedT0() ){
@@ -293,7 +345,7 @@ namespace Muon {
     m_ntuple.segmentBlock.t0TrigError->push_back(t0Error);
 
     // hit counts
-    IMuonSegmentHitSummaryTool::HitCounts hitCounts = m_hitSummaryTool->getHitCounts(segment);
+    IMuonSegmentHitSummaryTool::HitCounts hitCounts = m_segmentHitSummaryTool->getHitCounts(segment);
     m_ntuple.segmentBlock.nmdtHits->push_back(hitCounts.nmdtHitsMl1+hitCounts.nmdtHitsMl2+hitCounts.ncscHitsEta);
     m_ntuple.segmentBlock.ntrigEtaHits->push_back(hitCounts.netaTrigHitLayers);
     m_ntuple.segmentBlock.ntrigPhiHits->push_back(hitCounts.nphiTrigHitLayers);
@@ -336,7 +388,9 @@ namespace Muon {
     m_ntuple.segmentBlock.angleXZ.fillResPull(segmentInfo.dangleXZ,segmentInfo.pullXZ,segmentInfo.segErrorXZ,segmentInfo.exErrorXZ,1);
     m_ntuple.segmentBlock.angleYZ.fillResPull(segmentInfo.dangleYZ,segmentInfo.pullYZ,segmentInfo.segErrorYZ,segmentInfo.exErrorYZ,1);
     m_ntuple.segmentBlock.combinedYZ.fillResPull(segmentInfo.resCY,segmentInfo.pullCY,1);
-    
+ 
+    ATH_MSG_DEBUG(" Adding Segment to ntuple: stage " << stage);
+   
     return true;
   }
 
@@ -375,6 +429,7 @@ namespace Muon {
     int pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
     m_ntuple.houghBlock.truth.fill(pdg,barcode);
 
+    ATH_MSG_DEBUG(" Adding Hough maximum to ntuple ");
 
     return true;
   }
@@ -420,5 +475,30 @@ namespace Muon {
       }
     }
   }
+
+  bool MuonRecoValidationTool::addMuonCandidate( const xAOD::TrackParticle& indetTrackParticle, const MuonCandidate* candidate, 
+                                                 const Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) {
+
+    auto pos = std::find(m_trackParticles.begin(),m_trackParticles.end(),&indetTrackParticle);
+    if( pos == m_trackParticles.end() ) {
+      ATH_MSG_WARNING("addMuonCandidate: indetTrackParticle not found ");
+      return false;
+    }
+    
+    m_ntuple.candidateBlock.track.fill(std::distance(m_trackParticles.begin(),pos));
+    int nprec = 0;
+    int ntrigPhi = 0;
+    int ntrigEta = 0;
+    int nseg = candidate ? candidate->layerIntersections.size() : 0;
+    if( combinedTrack ){
+      IMuonHitSummaryTool::CompactSummary summary = m_hitSummaryTool->summary(*combinedTrack);
+      nprec = summary.nprecisionLayers;;
+      ntrigPhi = summary.nphiLayers;  
+      ntrigEta = summary.ntrigEtaLayers;  
+    }
+    m_ntuple.candidateBlock.fill(ntimes,beta,chi2ndof,nseg,nprec,ntrigPhi,ntrigEta,stage);
+    return true;
+  }
+
 
 } //end of namespace

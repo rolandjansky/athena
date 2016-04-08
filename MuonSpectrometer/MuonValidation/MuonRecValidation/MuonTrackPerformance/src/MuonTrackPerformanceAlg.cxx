@@ -63,6 +63,7 @@ MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLo
   declareProperty("SegmentCombitLocation",m_segmentCombiLocation = "MooreSegmentCombinations");
   declareProperty("DoHistos",m_doHistos = false);
   declareProperty("DoSummary",m_doSummary = 0);
+  declareProperty("DoHitResiduals",m_doHitResiduals = 0);
   declareProperty("DoTrackDebug",m_doTrackDebug = 0);
   declareProperty("DoTruth",m_doTruth = true);
   declareProperty("writeToFile", m_writeToFile = true);
@@ -628,7 +629,12 @@ void MuonTrackPerformanceAlg::doSummary( const TrackCollection& trackCollection 
     TrackCollection::const_iterator tit = trackCollection.begin();
     TrackCollection::const_iterator tit_end = trackCollection.end();
     for( ;tit!=tit_end;++tit ){
-      *m_log << m_printer->print( **tit ) << "  " << m_printer->printStations( **tit );
+      if(m_doHitResiduals>0) {
+        *m_log << m_printer->print( **tit ) << "  " << m_printer->printStations( **tit ) << std::endl;
+        *m_log << m_printer->printMeasurements( **tit );
+      } else {    
+        *m_log << m_printer->print( **tit ) << "  " << m_printer->printStations( **tit );
+      }
       // should finish with an 'endreq' else the buffer does not get flushed.
       if( tit == tit_end-1 ) *m_log << endreq;
       else                   *m_log << std::endl;

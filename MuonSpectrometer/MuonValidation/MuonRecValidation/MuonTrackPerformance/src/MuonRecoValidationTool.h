@@ -18,6 +18,7 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "MuonRecValidationNtuples/MuonInsideOutValidationNtuple.h"
+#include "MuonCombinedEvent/CandidateSummary.h"
 
 #include <vector>
 class TTree;
@@ -27,17 +28,20 @@ class IMuTagMatchingTool;
 
 namespace Trk {
   class IExtrapolator;
+  class Track;
 }
 
 namespace Muon {
 
   class IMuonTruthSummaryTool;
   class IMuonSegmentHitSummaryTool;
+  class IMuonHitSummaryTool;
   class MuonIdHelperTool;
   class MuonEDMHelperTool;
   class IMuonHitTimingTool;
   class MuonSegment;
   class MuonClusterOnTrack;
+  class MuonCandidate;
 
   class MuonRecoValidationTool : public IMuonRecoValidationTool, virtual public IIncidentListener, public AthAlgTool  {
   public:
@@ -72,6 +76,13 @@ namespace Muon {
     bool addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Identifier& id,
                              const Amg::Vector3D& gpos, float time, float errorTime );
 
+    /** add StauHits to ntuple */
+    bool addTimeMeasurements( const xAOD::TrackParticle& indetTrackParticle, const MuGirlNS::StauHits& stauHits );
+
+    /** add a new muon candidate */
+    bool addMuonCandidate( const xAOD::TrackParticle& indetTrackParticle, const MuonCandidate* candidate, 
+                           const Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage );
+
     /**  incident service handle for EndEvent */
     void handle(const Incident& inc);
 
@@ -93,7 +104,8 @@ namespace Muon {
 
     ToolHandle<MuonIdHelperTool>           m_idHelper;
     ToolHandle<MuonEDMHelperTool>          m_edmHelper;
-    ToolHandle<IMuonSegmentHitSummaryTool> m_hitSummaryTool;
+    ToolHandle<IMuonSegmentHitSummaryTool> m_segmentHitSummaryTool;
+    ToolHandle<IMuonHitSummaryTool>        m_hitSummaryTool;
     ToolHandle<IMuonTruthSummaryTool>      m_truthSummaryTool;
     ToolHandle<Trk::IExtrapolator>         m_extrapolator; 
     ToolHandle<IMuTagMatchingTool>         m_matchingTool; 
@@ -106,6 +118,7 @@ namespace Muon {
     MuonInsideOutValidationNtuple m_ntuple;
     TTree* m_tree;
 
+    unsigned int m_candidateCounter;
   };
   
 }

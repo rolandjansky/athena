@@ -40,6 +40,8 @@ use MuonCompetingRIOsOnTrack MuonCompetingRIOsOnTrack-* MuonSpectrometer/MuonRec
 use MuonLayerHough MuonLayerHough-* MuonSpectrometer/MuonReconstruction/MuonRecUtils
 use MuonClusterization *        MuonSpectrometer/MuonReconstruction/MuonDataPrep
 use MuonRecValidationNtuples MuonRecValidationNtuples-* MuonSpectrometer/MuonValidation/MuonRecValidation
+use MuonCombinedEvent   MuonCombinedEvent-*     Reconstruction/MuonIdentification
+use MuGirlStau          MuGirlStau-*            Reconstruction/MuonIdentification
 
 use AtlasHepMC                  AtlasHepMC-*                    External
 use AtlasROOT                   AtlasROOT-*                     External
