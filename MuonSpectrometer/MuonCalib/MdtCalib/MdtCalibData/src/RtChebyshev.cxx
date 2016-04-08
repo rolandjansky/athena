@@ -34,12 +34,12 @@ void RtChebyshev::_init(void) {
 
 // check for consistency //
   if (nPar()<3) {	
-    log<<MSG::ERROR<< "Not enough parameters!"<<endmsg;
+    log<<MSG::ERROR<< "Not enough parameters!"<<endreq;
     exit(1);
   }
   if (parameters()[0]>=parameters()[1]) {
     log<<MSG::ERROR
-       << "Lower time boundary >= upper time boundary!"<<endmsg;
+       << "Lower time boundary >= upper time boundary!"<<endreq;
     exit(1);
   }
 
