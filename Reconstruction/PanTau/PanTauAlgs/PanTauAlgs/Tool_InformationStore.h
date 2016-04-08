@@ -99,7 +99,7 @@ class Tool_InformationStore : public AthAlgTool, virtual public PanTau::ITool_In
         std::string                       m_Name_Container_Tracks;
         
         eflowObjectContainer*                   m_Container_eflowRec;
-        const eflowObjectContainer*             m_Container_eflowRecFromSG;
+        //const eflowObjectContainer*             m_Container_eflowRecFromSG;
 //         const Analysis::TauJetContainer*        m_Container_TauRec;
         const xAOD::TauJetContainer*            m_Container_TauRec;
         const Rec::TrackParticleContainer*      m_Container_TrackParticle;

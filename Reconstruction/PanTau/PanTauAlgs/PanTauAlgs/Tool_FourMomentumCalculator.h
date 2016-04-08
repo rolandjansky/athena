@@ -58,9 +58,6 @@ class Tool_FourMomentumCalculator : public AthAlgTool, virtual public PanTau::IT
         virtual StatusCode calculateFourMomentum(PanTau::PanTauSeed* inSeed) const;
         
     private:
-        
-        StoreGateSvc*   m_sgSvc;
-        
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
         std::string m_varTypeName_Basic;
 

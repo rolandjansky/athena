@@ -35,7 +35,7 @@ PanTau::Tool_InformationStore::Tool_InformationStore(
     const IInterface* pa ) :
         AthAlgTool(ty,na,pa),
         m_Container_eflowRec(0),
-        m_Container_eflowRecFromSG(0),
+        //m_Container_eflowRecFromSG(0),
         m_Container_TauRec(0)
         {
     declareInterface<ITool_InformationStore>(this);
