@@ -56,7 +56,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 // DataModel includes
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 // McParticleUtils includes
 #include "McParticleUtils/McVtxFilter.h"

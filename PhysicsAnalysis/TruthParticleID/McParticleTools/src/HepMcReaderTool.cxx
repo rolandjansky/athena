@@ -178,9 +178,9 @@ void HepMcReaderTool::setupFrontend( Property& /*prop*/ )
 
   } else {
     msg(MSG::WARNING)
-      << "UNKNOWN protocol [" << protocol << "] !!" << endmsg
+      << "UNKNOWN protocol [" << protocol << "] !!" << endreq
       << "Will use [ascii] instead..."
-      << endmsg;
+      << endreq;
     protocol = "ascii";
     m_ioFrontend = new HepMC::IO_GenEvent( fileName.c_str(), std::ios::in );
   }    

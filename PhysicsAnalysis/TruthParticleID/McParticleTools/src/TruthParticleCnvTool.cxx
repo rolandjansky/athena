@@ -42,8 +42,6 @@
 // GeneratorObjects includes
 #include "GeneratorObjects/HepMcParticleLink.h"
 
-#include "SGTools/CurrentEventStore.h"
-
 
 /////////////////////////////////////////////////////////////////// 
 /// Public methods: 
@@ -146,10 +144,10 @@ StatusCode TruthParticleCnvTool::initialize()
 
   ATH_MSG_INFO
     (" DoEtIsolations:       [" << std::boolalpha 
-     << m_doEtIsolation.value() << "]" << endmsg
-     << " McEvents:             [" << m_mcEventsName.value() << "]" << endmsg
+     << m_doEtIsolation.value() << "]" << endreq
+     << " McEvents:             [" << m_mcEventsName.value() << "]" << endreq
      << " TruthParticlesOutput: [" << m_mcPartsOutputName.value() << "]"
-     << endmsg
+     << endreq
      << " SelectSignalType:     [" << m_selectSignalType << "]");
 
   return StatusCode::SUCCESS;
@@ -178,7 +176,7 @@ StatusCode TruthParticleCnvTool::execute()
        0 == mcEvent ) {
     ATH_MSG_WARNING("Could not retrieve McEventCollection at ["
                     << m_mcEventsName.value() << "] !!"
-                    << endmsg
+                    << endreq
                     << "TruthParticleContainer [" << m_mcPartsOutputName.value()
                     << "] will be EMPTY !!");
     return StatusCode::RECOVERABLE;
@@ -252,17 +250,15 @@ TruthParticleCnvTool::convert( const McEventCollection * mcCollection,
 
   if ( mcCollection->size() <= genEventIndex ) {
     ATH_MSG_WARNING("McEventCollection size: " << mcCollection->size() 
-		    << endmsg
+		    << endreq
 		    << "Requested element nbr : " << genEventIndex << " !!");
     return StatusCode::RECOVERABLE;
   }
 
-  IProxyDict* sg = SG::CurrentEventStore::store();
-
   /// Get GenEvent from McEventCollection
   ATH_MSG_DEBUG("Retrieve the GenEvent from given McEventCollection");
   const HepMC::GenEvent * evt = (*mcCollection)[genEventIndex];
-  container->setGenEvent( mcCollection, genEventIndex, sg );
+  container->setGenEvent( mcCollection, genEventIndex );
 
   // reserve enough space for the container so we don't have to relocate it
   container->reserve( container->size() + evt->particles_size() );
@@ -291,7 +287,7 @@ TruthParticleCnvTool::convert( const McEventCollection * mcCollection,
 		    << hepMcPart->barcode() << " !!");
     }
     //bcToMcPart[ hepMcPart->barcoade() ] = mcPart;
-    HepMcParticleLink mcLink( hepMcPart->barcode(), genEventIndex, sg );
+    HepMcParticleLink mcLink( hepMcPart->barcode(), genEventIndex );
     bcToMcPart[ mcLink.compress() ] = mcPart;
 
   }//> end loop over particles

@@ -13,9 +13,9 @@ use AtlasBoost		AtlasBoost-*		External
 use AtlasROOT		AtlasROOT-*		External
 use AtlasHepMC		AtlasHepMC-*		External
 
-use SGTools             SGTools-*               Control
+use CxxUtils		CxxUtils-*		Control
 use StoreGate		StoreGate-*		Control
-use AthContainers	AthContainers-*		Control
+use DataModel		DataModel-*		Control
 use AthenaBaseComps	AthenaBaseComps-*	Control
 
 use EventKernel		EventKernel-*		Event

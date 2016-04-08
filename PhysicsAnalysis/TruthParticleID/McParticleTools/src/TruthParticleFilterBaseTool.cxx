@@ -95,8 +95,8 @@ StatusCode TruthParticleFilterBaseTool::initialize()
 
   ATH_MSG_INFO
     (" DoEtIsolations: [" << std::boolalpha << m_doEtIsolation.value()
-     << "]" << endmsg
-     << " McEvents:       [" << m_mcEventsName.value() << "]" << endmsg
+     << "]" << endreq
+     << " McEvents:       [" << m_mcEventsName.value() << "]" << endreq
      << " McEventsOutput: [" << m_mcEventsOutputName.value() << "]");
   
   // Give the concrete (derived) tool a chance to initialize itself

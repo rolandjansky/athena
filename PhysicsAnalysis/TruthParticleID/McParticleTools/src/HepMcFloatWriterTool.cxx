@@ -296,7 +296,7 @@ void HepMcFloatWriterTool::setupBackend( Property& /*prop*/ )
 				     std::ios::out | std::ios::trunc );
 
   } else {
-    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endmsg
+    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endreq
 		    << "Will use [ascii] instead...");
     protocol = "ascii";
     m_ioBackend = new std::ofstream( fileName.c_str(), 

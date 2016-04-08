@@ -136,10 +136,10 @@ StatusCode McVtxFilterTool::execute()
     msg(MSG::ERROR)
       << "Failed to retrieve McEventCollection at : "
       << m_mcEventsName
-      << endmsg
+      << endreq
       << "because : sc= " << ( sc.isFailure() ? "FAILURE" : "OK" ) 
       << " and mcEvent= " << mcColl
-      << endmsg;
+      << endreq;
     return StatusCode::SUCCESS;
   } 
 
@@ -161,14 +161,14 @@ StatusCode McVtxFilterTool::execute()
 void McVtxFilterTool::displayOptions() const
 {
   msg(MSG::INFO)
-    << "Options for " << name() << " :" << endmsg
+    << "Options for " << name() << " :" << endreq
     << "\tDecay Patterns: [ ";
   for ( std::vector<std::string>::const_iterator itr = m_decayPatterns.value().begin();
 	itr != m_decayPatterns.value().end();
 	++itr ) {
     msg(MSG::INFO) << (*itr) << "; ";
   }
-  msg(MSG::INFO) << "]" << endmsg;
+  msg(MSG::INFO) << "]" << endreq;
 
   msg(MSG::INFO) << "Particles to keep: [";
   for ( std::vector<long>::const_iterator itr = m_particles.value().begin();
@@ -176,18 +176,18 @@ void McVtxFilterTool::displayOptions() const
 	++itr ) {
     msg(MSG::INFO) << (*itr) << ", ";
   }
-  msg(MSG::INFO) << "]" << endmsg;
+  msg(MSG::INFO) << "]" << endreq;
 
   return;
 }
 
 void McVtxFilterTool::stats() const
 {
-  msg(MSG::INFO) << "Statistics for each filter : " << endmsg;
+  msg(MSG::INFO) << "Statistics for each filter : " << endreq;
   for( unsigned int i = 0; i < m_counter.size(); ++i ) {
     msg(MSG::INFO)
       << "\t==> [" << m_decayPatterns.value()[i] << "] accepted " 
-      << m_counter[i] << " vertices" << endmsg;
+      << m_counter[i] << " vertices" << endreq;
   }
   return;
 }
@@ -302,7 +302,7 @@ McVtxFilterTool::filterMcEventCollection( const McEventCollection* mcColl,
     } else {
       //> Original GenEvent has a NO signal process vertex set-up
       ATH_MSG_DEBUG("You asked to record signal_process_vertex but :"
-		    << endmsg
+		    << endreq
 		    << " there is NO signal_process_vertex in this event !!");
     }
   
@@ -438,10 +438,10 @@ bool McVtxFilterTool::keepParticle( const VtxType::Flag vtxType,
     msg(MSG::WARNING)
       << "In keepParticle: Don't know anything about this VtxType ["
       << vtxType << "] !!"
-      << endmsg
+      << endreq
       << "We'll keep this particle [bc= " << part->barcode() 
       << "] but : Check your jobOption !!"
-      << endmsg;
+      << endreq;
     return true;
   }
 }
@@ -475,14 +475,14 @@ void McVtxFilterTool::setupFilters( Property& /*decayPatterns*/ )
     error += "are DIFFERING !!";
     msg(MSG::WARNING)
       << "In setupFilter: " << error 
-      << endmsg
-      << "\t# decayPatterns: " << decayPatterns.size() << endmsg
-      << "\t# matchSigns:    " << matchSigns.size()    << endmsg
-      << "\t# matchBranches: " << matchBranches.size() << endmsg
-      << "Reference size is 'decayPatterns':" << endmsg
-      << "\t==> Will fill holes with default values !" << endmsg
+      << endreq
+      << "\t# decayPatterns: " << decayPatterns.size() << endreq
+      << "\t# matchSigns:    " << matchSigns.size()    << endreq
+      << "\t# matchBranches: " << matchBranches.size() << endreq
+      << "Reference size is 'decayPatterns':" << endreq
+      << "\t==> Will fill holes with default values !" << endreq
       << "\t==> Will drop extra values !"
-      << endmsg;
+      << endreq;
     //throw std::runtime_error(error);
   }
 
