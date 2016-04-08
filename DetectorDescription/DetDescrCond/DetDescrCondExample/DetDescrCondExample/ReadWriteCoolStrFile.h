@@ -10,13 +10,11 @@
 
 #include <string>
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-class StoreGateSvc;
 class ICoolStrFileSvc;
 
-class ReadWriteCoolStrFile: public Algorithm
+class ReadWriteCoolStrFile: public AthAlgorithm
 {
  public:
   ReadWriteCoolStrFile(const std::string& name, ISvcLocator* pSvcLocator);
@@ -26,8 +24,6 @@ class ReadWriteCoolStrFile: public Algorithm
   StatusCode finalize(void);
 
  private:
-  MsgStream m_log;
-  StoreGateSvc* p_detstore;
   ICoolStrFileSvc* p_coolsvc;
   bool m_done;
   // properties

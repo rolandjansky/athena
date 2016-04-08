@@ -8,14 +8,13 @@
 // object TOPTRANS for global geometry
 // Richard Hawkings, started 24/6/05
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-class StoreGateSvc;
 
 
-class ReadTopTrans: public Algorithm, virtual public IIncidentListener
+class ReadTopTrans: public AthAlgorithm, virtual public IIncidentListener
 {
  public:
   ReadTopTrans(const std::string& name, ISvcLocator* pSvcLocator);
@@ -27,9 +26,6 @@ class ReadTopTrans: public Algorithm, virtual public IIncidentListener
 
   StatusCode testCallBack( IOVSVC_CALLBACK_ARGS );
 
- private:
-  MsgStream m_log;
-  StoreGateSvc* p_detstore;
 };
 
 #endif // DETDESCRCONDEXAMPLE_READTOPTRANS_H

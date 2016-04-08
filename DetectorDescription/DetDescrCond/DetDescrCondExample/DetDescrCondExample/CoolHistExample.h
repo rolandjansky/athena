@@ -8,18 +8,16 @@
 // stored/accesed using CoolHistSvc
 // Richard Hawkings, started 09/2/07
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 class ICoolHistSvc;
-class StoreGateSvc;
 class TH1;
 class TObject;
 class TDirectory;
 
-class CoolHistExample: public Algorithm
+class CoolHistExample: public AthAlgorithm
 {
  public:
   CoolHistExample(const std::string& name, ISvcLocator* pSvcLocator);
@@ -31,8 +29,6 @@ class CoolHistExample: public Algorithm
   StatusCode callBack( IOVSVC_CALLBACK_ARGS );
 
  private:
-  MsgStream m_log;
-  StoreGateSvc* p_detstore;
   ICoolHistSvc* p_coolhistsvc;
   const std::string m_histfolder; // COOL folder to access
   const std::string m_dirfolder; // COOL folder to access for TDirectory test

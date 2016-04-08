@@ -10,20 +10,18 @@
 
 #include <vector>
 #include <string>
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
-class StoreGateSvc;
 class IGeoModelTool;
 class IGeoModelSvc;
 namespace InDetDD {
   class SiDetectorManager;
 }
 
-class ReadAlignTrans: public Algorithm
+class ReadAlignTrans: public AthAlgorithm
 {
  public:
   ReadAlignTrans(const std::string& name, ISvcLocator* pSvcLocator);
@@ -37,8 +35,6 @@ class ReadAlignTrans: public Algorithm
 			     std::vector<Amg::Vector3D >&);
 
  private:
-  MsgStream m_log;
-  StoreGateSvc* p_detstore;
   IGeoModelSvc* p_geomodelsvc;
   const InDetDD::SiDetectorManager* p_sidetman[2];
   std::vector<Identifier> m_identcache;
