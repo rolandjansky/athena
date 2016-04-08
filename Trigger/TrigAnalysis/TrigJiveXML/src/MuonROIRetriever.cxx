@@ -33,12 +33,12 @@ namespace JiveXML {
     
     if ( evtStore()->retrieve(roi,m_sgKey).isFailure() ) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No MuonROI found in SG at "
-          << m_sgKey << endmsg;
+          << m_sgKey << endreq;
       return StatusCode::SUCCESS;
     } 
     int noRois = roi->getMuonROIs().size();
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving MuonROIs with size " << noRois << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving MuonROIs with size " << noRois << endreq;
  
     DataVect phi; phi.reserve(noRois);
     DataVect eta; eta.reserve(noRois);
@@ -75,7 +75,7 @@ namespace JiveXML {
     myDataMap["thrValue"] = thrValue;
     myDataMap["energy"] = energy;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endreq;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

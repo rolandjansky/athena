@@ -39,14 +39,14 @@ namespace JiveXML {
         
     if ( evtStore()->retrieve(TTVector,m_sgKey).isFailure() ) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No Level-1 Trigger Towers found in SG at "
-          << m_sgKey << endmsg;
+          << m_sgKey << endreq;
       return StatusCode::SUCCESS;
     } 
     
     //Get number of trigger towers
     int numTrigTowers = TTVector->size();
     int count = 0;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving Level-1 Trigger Towers with size " << numTrigTowers << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving Level-1 Trigger Towers with size " << numTrigTowers << endreq;
 
     DataVect phi; phi.reserve(numTrigTowers);
     DataVect eta; eta.reserve(numTrigTowers);
@@ -70,12 +70,12 @@ namespace JiveXML {
 
       if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<" Lvl1 TriggerTower No " << count++ << " with" 
         << " eta:"<<(*trigTowerIter)->eta() << ", phi:"<<(*trigTowerIter)->phi()
-        << ", EM energy:"<<(*trigTowerIter)->emEnergy()<<", Had Energy:"<<(*trigTowerIter)->hadEnergy() <<endmsg;
+        << ", EM energy:"<<(*trigTowerIter)->emEnergy()<<", Had Energy:"<<(*trigTowerIter)->hadEnergy() <<endreq;
 
       //Be verbose
       //if (msgLvl(MSG::DEBUG)){
-      //   msg(MSG::DEBUG) << " Em ADC size:" << (*trigTowerIter)->emADC().size() << endmsg; 
-      //  msg(MSG::DEBUG) << " Had ADC size:" << (*trigTowerIter)->hadADC().size() << endmsg; 
+      //   msg(MSG::DEBUG) << " Em ADC size:" << (*trigTowerIter)->emADC().size() << endreq; 
+      //  msg(MSG::DEBUG) << " Had ADC size:" << (*trigTowerIter)->hadADC().size() << endreq; 
       //}
 
       int sumEnergy = 0;
@@ -116,7 +116,7 @@ namespace JiveXML {
         if ((*trigTowerIter)->emADC().size() !=  (*trigTowerIter)->hadADC().size()){
           if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Number of EmADC and HadADC values do not match" 
 						      << ",em:"<< (*trigTowerIter)->emADC().size()  
-                                                      << ",had:" << (*trigTowerIter)->hadADC().size() << endmsg;
+                                                      << ",had:" << (*trigTowerIter)->hadADC().size() << endreq;
 	  numADCVec.push_back(DataType( 1 ));
           emADCVec.push_back(DataType( 0 ));
           hadADCVec.push_back(DataType( 0 )); 
@@ -157,7 +157,7 @@ namespace JiveXML {
     myDataMap["isEMSaturated"] = isEMSaturated;
     myDataMap["isHadSaturated"] = isHadSaturated;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endreq;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

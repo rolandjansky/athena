@@ -22,9 +22,7 @@ namespace JiveXML {
 
   TrigSiSpacePointRetriever::TrigSiSpacePointRetriever(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type, name, parent),
-    m_typeName("TrigS3D"),
-    m_pixelHelper(nullptr),
-    m_sctHelper(nullptr)
+    m_typeName("TrigS3D")
   {
 
     declareInterface<IDataRetriever>(this);
@@ -50,11 +48,11 @@ namespace JiveXML {
   
     if ( evtStore()->retrieve(pCont,m_pixelSpContainerName).isFailure() ) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trig SP Pixel container not found at "
-          << m_pixelSpContainerName << endmsg;
+          << m_pixelSpContainerName << endreq;
 //      return StatusCode::SUCCESS; // not exit here (as in original code)
     }else{
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving TrigSPPixel with size " 
-         << pCont->size() << " from " << m_pixelSpContainerName << endmsg;
+         << pCont->size() << " from " << m_pixelSpContainerName << endreq;
  
     int maxHash = m_pixelHelper->wafer_hash_max();
      for(int id=0;id<maxHash;++id){
@@ -72,11 +70,11 @@ namespace JiveXML {
     }
     if ( evtStore()->retrieve(pCont,m_SCT_SpContainerName).isFailure() ) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trig SP Pixel container not found at "
-          << m_SCT_SpContainerName << endmsg;
+          << m_SCT_SpContainerName << endreq;
 //      return StatusCode::SUCCESS; // not exit here (as in original code)
     }else{
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving TrigSPPixel with size " 
-         << pCont->size() << " from " << m_SCT_SpContainerName << endmsg;
+         << pCont->size() << " from " << m_SCT_SpContainerName << endreq;
 
     int maxHash = m_sctHelper->wafer_hash_max();
        for(int id=0;id<maxHash;++id){
@@ -99,7 +97,7 @@ namespace JiveXML {
     myDataMap["layer"] = layer;
     myDataMap[clustersStr] = clustersVec;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endreq;
 
     //forward data to formating tool
     std::string emptyStr="";
@@ -111,24 +109,24 @@ namespace JiveXML {
 
     const InDetDD::PixelDetectorManager* m_pixel_geomanager;
     if (detStore()->retrieve(m_pixel_geomanager, "Pixel").isFailure() ){
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel GeoModel Manager!" << endmsg;
+	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel GeoModel Manager!" << endreq;
 	return StatusCode::RECOVERABLE;
     }
 
     const InDetDD::SCT_DetectorManager* m_sct_geomanager;
     if ( detStore()->retrieve(m_sct_geomanager, "SCT").isFailure() ){
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get SCT GeoModel Manager!" << endmsg;
+	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get SCT GeoModel Manager!" << endreq;
 	return StatusCode::RECOVERABLE;
       } 
 
 //migration: https://twiki.cern.ch/twiki/bin/view/Atlas/InDetPkgFixing 
     if ( detStore()->retrieve(m_pixelHelper, "PixelID").isFailure() ){
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel ID helper" << endmsg;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel ID helper" << endreq;
         return StatusCode::RECOVERABLE;
     }
 
     if ( detStore()->retrieve(m_sctHelper, "SCT_ID").isFailure() ){
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)  << "Could not get SCT ID helper" << endmsg;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)  << "Could not get SCT ID helper" << endreq;
         return StatusCode::RECOVERABLE;
     }
 

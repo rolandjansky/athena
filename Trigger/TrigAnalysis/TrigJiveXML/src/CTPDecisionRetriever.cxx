@@ -70,16 +70,16 @@ namespace JiveXML {
 
      // L1JetObject -not- available
      if ( evtStore()->retrieve(ctpDecision,"CTP_Decision").isFailure() ) {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "CTP_Decision retrieval from Storegate failed" << endmsg;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "CTP_Decision retrieval from Storegate failed" << endreq;
        return StatusCode::SUCCESS;
      } 
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found CTP_Decision in StoreGate !" << endmsg;
+     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found CTP_Decision in StoreGate !" << endreq;
 
      CTP_Decision::items_type::const_iterator itCTP  = (ctpDecision->getItems()).begin();
      CTP_Decision::items_type::const_iterator itCTPe = (ctpDecision->getItems()).end();
 
      for (; itCTP != itCTPe; ++itCTP){
-//  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " CTP item : " << *itCTP << endmsg;
+//  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " CTP item : " << *itCTP << endreq;
        itemListL1 += "-"+*itCTP;
        prescaleListL1 += "-0";
      }
@@ -107,7 +107,7 @@ namespace JiveXML {
     myDataMap["energyEy"] = energyEy;
     myDataMap["energyEtMiss"] = energyEtMiss;
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< itemListL1Vec.size() << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< itemListL1Vec.size() << endreq;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), "CTP_Decision", &myDataMap);
