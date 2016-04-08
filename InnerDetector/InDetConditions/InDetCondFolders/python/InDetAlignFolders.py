@@ -11,7 +11,5 @@ conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status")
 conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent")
 # Pixel module distortions
 conddb.addFolderSplitOnline("INDET","/Indet/Onl/PixelDist","/Indet/PixelDist")
-# IBL stave distortions (protect against Run1 data -> not present)
-from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DatabaseInstance == 'CONDBR2' or not globalflags.DataSource()=='data': 
-    conddb.addFolderSplitOnline("INDET","/Indet/Onl/IBLDist","/Indet/IBLDist")
+# IBL stave distortions 
+conddb.addFolderSplitOnline("INDET","/Indet/Onl/IBLDist","/Indet/IBLDist")
