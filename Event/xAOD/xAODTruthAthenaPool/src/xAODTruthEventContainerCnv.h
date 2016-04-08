@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
+// $Id: xAODTruthEventContainerCnv.h 622196 2014-10-16 16:10:41Z krasznaa $
 #ifndef XAODTRUTHATHENAPOOL_XAODTRUTHEVENTCONTAINERCNV_H
 #define XAODTRUTHATHENAPOOL_XAODTRUTHEVENTCONTAINERCNV_H
 
@@ -28,8 +28,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::TruthEventContainer,
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  * @author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
  *
- * $Revision$
- * $Date$
+ * $Revision: 622196 $
+ * $Date: 2014-10-16 18:10:41 +0200 (Thu, 16 Oct 2014) $
  */
 class xAODTruthEventContainerCnv : public xAODTruthEventContainerCnvBase {
 

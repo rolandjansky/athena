@@ -1,5 +1,5 @@
 package xAODTruthAthenaPool
-# $Id: requirements 621073 2014-10-10 10:42:51Z krasznaa $
+# $Id: requirements 622196 2014-10-16 16:10:41Z krasznaa $
 
 author Andy Buckley <Andy.Buckley@cern.ch>
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
@@ -27,12 +27,16 @@ apply_pattern poolcnv typesWithNamespace="xAOD::TruthParticleContainer \
                                           xAOD::TruthVertexContainer \
                                           xAOD::TruthVertexAuxContainer \
                                           xAOD::TruthEventContainer \
-                                          xAOD::TruthEventAuxContainer" \
+                                          xAOD::TruthEventAuxContainer \
+                                          xAOD::TruthPileupEventContainer \
+                                          xAOD::TruthPileupEventAuxContainer" \
                       files="-s=${xAODTruth_root}/xAODTruth \
                              TruthParticleContainer.h \
-			                    TruthParticleAuxContainer.h \
+                             TruthParticleAuxContainer.h \
                              TruthVertexContainer.h \
                              TruthVertexAuxContainer.h \
                              TruthEventContainer.h \
-                             TruthEventAuxContainer.h" \
+                             TruthEventAuxContainer.h \
+                             TruthPileupEventContainer.h \
+                             TruthPileupEventAuxContainer.h" \
                       cnv_pfx="xAOD"
