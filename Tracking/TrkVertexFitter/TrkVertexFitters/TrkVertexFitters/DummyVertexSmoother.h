@@ -11,6 +11,7 @@
 
 namespace Trk
 {
+  class VxCandidate;
   class IExtrapolator;
   
   /**
@@ -30,13 +31,6 @@ namespace Trk
    *
    * The extrapolated perigee parameters w.r.t the reconstructed vertex
    * are then stored in m_perigeeAtVertex datamembers of VxTrackAtVertex's.
-   *
-   * ---------------------------------------------------------------------
-   * Changes:
-   *
-   * David Shope <david.richard.shope@cern.ch> (2016-04-19)
-   * EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
-   *
    */ 
 
   class DummyVertexSmoother : public AthAlgTool, virtual public IVertexSmoother
@@ -59,7 +53,7 @@ namespace Trk
   /**
    *Actual smooth method 
    */  
-    void smooth(xAOD::Vertex & vtx) const;
+    void smooth(const VxCandidate & vtx) const;  
 
   private:
   

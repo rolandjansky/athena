@@ -33,20 +33,14 @@
  * VertexSmoother and LinearizedTrackFactory 
  *
  * @author Kirill Prokofiev, November 2005
- *
- * ---------------------------------------
- * Changes:
- *
- * David Shope <david.richard.shope@cern.ch> (2016-04-19)
- * EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex, 
- *                         from Trk::RecVertex   to xAOD::Vertex,
- *                         from Trk::Vertex      to Amg::Vector3D
  */
 
 
 namespace Trk
 {
  class Track;
+ class RecVertex;
+ class VxCandidate;
  class VxTrackAtVertex;
  class IVertexUpdator;
  class IVertexSmoother;
@@ -76,41 +70,43 @@ namespace Trk
      * Vertex fit from the vector of the reconstructed tracks
      * and a starting point
      */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::Track*> & vectorTrk,
-			       const Amg::Vector3D& startingPoint);   
+    virtual VxCandidate * fit(const std::vector<const Trk::Track*> & vectorTrk,
+			      const Vertex& startingPoint);   
     
     /**
      * Vertex fit from the vector of reconstructed tracks
      * with a preliminary knowledge (vertex constraint)
      */ 
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::Track*>& vectorTrk,
-			       const xAOD::Vertex& constraint);
-
+    virtual VxCandidate * fit(const std::vector<const Trk::Track*>& vectorTrk,
+			      const RecVertex& constraint);
+    
     /**
      * Vertex fit from the vector of the reconstructed TrackParticleBase
      * and a starting point
      */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-			       const Amg::Vector3D& startingPoint);   
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
+			      const Vertex& startingPoint);   
     
     /**
      * Vertex fit from the vector of reconstructed TrackParticleBase
      * with a preliminary knowledge (vertex constraint)
      */ 
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
-			       const xAOD::Vertex& constraint);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
+			      const RecVertex& constraint);
+    
+    
     
     /** 
      *Interface for xAOD::TrackParticle and xAOD::NeutralParticle with starting point 
      */
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
 			       const std::vector<const xAOD::NeutralParticle*>& vectorNeut,
-			       const Amg::Vector3D& startingPoint);
+			       const Vertex& startingPoint);
     /** 
      *Interface for xAOD::TrackParticle with starting point 
      */
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-			       const Amg::Vector3D& startingPoint) {return fit(vectorTrk, std::vector<const xAOD::NeutralParticle*>(), startingPoint);};
+			       const Vertex& startingPoint) {return fit(vectorTrk, std::vector<const xAOD::NeutralParticle*>(), startingPoint);};
 
     /** 
      * Interface for xAOD::TrackParticle and xAOD::NeutralParticle with vertex constraint 
@@ -118,13 +114,13 @@ namespace Trk
      */
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
 			       const std::vector<const xAOD::NeutralParticle*>& vectorNeut,
-			       const xAOD::Vertex& constraint);
+			       const RecVertex& constraint);
     /** 
      * Interface for xAOD::TrackParticle with vertex constraint 
      * the position of the constraint is ALWAYS the starting point 
      */
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-                                 const xAOD::Vertex& constraint) {return fit(vectorTrk, std::vector<const xAOD::NeutralParticle*>(), constraint);};
+                                 const RecVertex& constraint) {return fit(vectorTrk, std::vector<const xAOD::NeutralParticle*>(), constraint);};
 
     
     
@@ -132,25 +128,25 @@ namespace Trk
      * Vertex fit from list of track and neutral parameters
      * and a starting point
      */   
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
-			       const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
-                               const Amg::Vector3D& startingPoint);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
+			      const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
+                              const Vertex& startingPoint);
     /**
      * Vertex fit from list of track and parameters
      * and a starting point
      */   
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & paramList,
-                               const Amg::Vector3D& startingPoint) {return fit(paramList, std::vector<const Trk::NeutralParameters*>(), startingPoint);};
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & paramList,
+                              const Vertex& startingPoint) {return fit(paramList, std::vector<const Trk::NeutralParameters*>(), startingPoint);};
     
     /**
      * Vertex fit from the vector of track and neutral parameters
      * with a preliminary knowledge (vertex constraint)
      */ 
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
-			       const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
-                               const xAOD::Vertex& constraint);
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
-			       const xAOD::Vertex& constraint){return fit(perigeeList, std::vector<const Trk::NeutralParameters*>(), constraint);};
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
+			      const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
+                              const RecVertex& constraint);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
+			      const RecVertex& constraint){return fit(perigeeList, std::vector<const Trk::NeutralParameters*>(), constraint);};
 
     /**
      * Additional fit methods.
@@ -159,10 +155,10 @@ namespace Trk
      * starting point and "huge" diagonal error matrix
      */
     
-    xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList);
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*>& perigeeList){return fit(perigeeList, std::vector<const Trk::NeutralParameters*>());};
+    VxCandidate * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList);
+    virtual VxCandidate * fit(const std::vector<const Trk::TrackParameters*>& perigeeList){return fit(perigeeList, std::vector<const Trk::NeutralParameters*>());};
     
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::Track*>& vectorTrk);
+    virtual VxCandidate * fit(const std::vector<const Trk::Track*>& vectorTrk);
     
  private:
     
@@ -170,14 +166,14 @@ namespace Trk
     * Internal method related to the linearization of tracks (initial linearization)
     */
 
-   std::vector<Trk::VxTrackAtVertex> linearizeTracks(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList, const xAOD::Vertex & vrt)const;
+   std::vector<Trk::VxTrackAtVertex*>  linearizeTracks(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList, const RecVertex & vrt)const;  
  
    /**
     * Relinearization on iterations
     */
 
-   void reLinearizeTracks(std::vector<Trk::VxTrackAtVertex>& tracks, const Amg::Vector3D & vrt)const;
- 
+   void reLinearizeTracks(std::vector<Trk::VxTrackAtVertex*>& tracks, const Vertex & vrt)const;
+   
    ToolHandle< IVertexUpdator > m_Updator;
    ToolHandle< IVertexSmoother > m_Smoother;
    ToolHandle< Trk::IVertexLinearizedTrackFactory > m_LinTrkFactory;  
