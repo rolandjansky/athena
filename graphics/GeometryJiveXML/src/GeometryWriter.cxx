@@ -45,7 +45,7 @@ namespace JiveXML {
     if ( detStore()->retrieve(m_pixel_manager, "Pixel").isFailure() ){
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve InDetDD::PixelDetectorManager" << endreq;
     } else {
-      if (detStore()->retrieve(pixelIdHelper, "PixelID").isFailure() ){
+      if (detStore()->retrieve(m_pixelIdHelper, "PixelID").isFailure() ){
 	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve PixelIDHelper" << endreq;
       } else {
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved PixelIDHelper" << endreq;
@@ -56,7 +56,7 @@ namespace JiveXML {
     if ( detStore()->retrieve(m_silicon_manager, "SCT").isFailure() ) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve InDetDD::SCT_DetectorManager" << endreq;
     } else {
-      if (detStore()->retrieve(sctIdHelper, "SCT_ID").isFailure() ){
+      if (detStore()->retrieve(m_sctIdHelper, "SCT_ID").isFailure() ){
         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve SCT_IDHelper" << endreq;
       } else {
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved SCT_IDHelper" << endreq;
@@ -68,8 +68,8 @@ namespace JiveXML {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve InDetDD::TRT_DetectorManager" << endreq;
     } else {
 // No SGKey ? As in graphics/VP1/VP1Systems/VP12DGeometrySystems/StoreGateGeometryReader
-//      if (detStore()->retrieve(trtIdHelper, "TRT_ID").isFailure() ){
-      if (detStore()->retrieve(trtIdHelper, "").isFailure() ){
+//      if (detStore()->retrieve(m_trtIdHelper, "TRT_ID").isFailure() ){
+      if (detStore()->retrieve(m_trtIdHelper, "").isFailure() ){
 	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve TRT_IDHelper" << endreq;
       } else {
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved TRT_IDHelper" << endreq;
@@ -288,8 +288,8 @@ namespace JiveXML {
       // Just an extra precaution to avoid crashes.
       if (!element) continue;
 
-      if (element->isBarrel() && pixelIdHelper->phi_module(element->identify()) == 0  
-	  && pixelIdHelper->eta_module(element->identify()) == pixelIdHelper->eta_module_min(element->identify())) {
+      if (element->isBarrel() && m_pixelIdHelper->phi_module(element->identify()) == 0  
+	  && m_pixelIdHelper->eta_module(element->identify()) == m_pixelIdHelper->eta_module_min(element->identify())) {
 
 	double rMin = element->rMin();
 	double rMax = element->rMax();
@@ -304,24 +304,24 @@ namespace JiveXML {
 	zMax += 5;
 
 	out << "<ABarrelSiliconDetector c=\"" << "PIX" << "\" n=\"" << "Pixel" << "\""
-	    << " layer=\"" << pixelIdHelper->layer_disk(element->identify()) << "\""
+	    << " layer=\"" << m_pixelIdHelper->layer_disk(element->identify()) << "\""
 	    << " length=\"" << element->length()/10. << "\""
 	    << " width=\"" << element->width()/10. << "\""
 	    << " thickness=\"" << (rMax - rMin - element->sinTilt()*element->width())/40. << "\""
 	    << " tilt=\"" << 180./M_PI * asin(element->sinTilt()) << "\""
-	    << " nz=\"" << pixelIdHelper->eta_module_max(element->identify()) 
-	  - pixelIdHelper->eta_module_min(element->identify())+1 << "\""
-	    << " nphi=\"" << pixelIdHelper->phi_module_max(element->identify())+1 << "\""
+	    << " nz=\"" << m_pixelIdHelper->eta_module_max(element->identify()) 
+	  - m_pixelIdHelper->eta_module_min(element->identify())+1 << "\""
+	    << " nphi=\"" << m_pixelIdHelper->phi_module_max(element->identify())+1 << "\""
 	    << " r0=\"" << (rMin+rMax)/20. << "\""
 	    << " phi0=\"" << 180./M_PI * (element->phiMin()+element->phiMax())/2. << "\""
 	    << " zMin=\"" << -zMax/10. << "\""
 	    << " zMax=\"" << zMax/10. << "\""
 	    << " />" << std::endl;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel barrel out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel barrel out: " << out << endreq;
       }
 
-      if (element->isEndcap() && element->zMin() > 0 && pixelIdHelper->phi_module(element->identify()) == 0  
-	  && pixelIdHelper->eta_module(element->identify()) == pixelIdHelper->eta_module_min(element->identify())) {
+      if (element->isEndcap() && element->zMin() > 0 && m_pixelIdHelper->phi_module(element->identify()) == 0  
+	  && m_pixelIdHelper->eta_module(element->identify()) == m_pixelIdHelper->eta_module_min(element->identify())) {
 
 	double rMin = element->rMin();
 	double rMax = element->rMax();
@@ -340,20 +340,20 @@ namespace JiveXML {
 	zMax += 5;
 
 	out << "<AEndcapSiliconDetector c=\"" << "PIX" << "\" n=\"" << "Pixel" << "\""
-	    << " layer=\"" << pixelIdHelper->layer_disk(element->identify()) << "\""
+	    << " layer=\"" << m_pixelIdHelper->layer_disk(element->identify()) << "\""
 	    << " length=\"" << element->length()/10. << "\""
 	    << " width=\"" << element->width()/10. << "\""
 	    << " thickness=\"" << (rMax - rMin - element->sinTilt()*element->width())/40. << "\""
-	    << " nz=\"" << pixelIdHelper->eta_module_max(element->identify()) 
-	  - pixelIdHelper->eta_module_min(element->identify())+1 << "\""
-	    << " nphi=\"" << pixelIdHelper->phi_module_max(element->identify())+1 << "\""
+	    << " nz=\"" << m_pixelIdHelper->eta_module_max(element->identify()) 
+	  - m_pixelIdHelper->eta_module_min(element->identify())+1 << "\""
+	    << " nphi=\"" << m_pixelIdHelper->phi_module_max(element->identify())+1 << "\""
 	    << " rMin=\"" << rMin/10. << "\""
 	    << " rMax=\"" << rMax/10. << "\""
 	    << " phi0=\"" << 180./M_PI * (element->phiMin()+element->phiMax())/2. << "\""
 	    << " zMin=\"" << zMin/10. << "\""
 	    << " zMax=\"" << zMax/10. << "\""
 	    << " />" << std::endl;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel endcap out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel endcap out: " << out << endreq;
       }
     }
   }
@@ -369,9 +369,9 @@ namespace JiveXML {
       // Just an extra precaution to avoid crashes.
       if (!element) continue;
 
-      if (element->isBarrel() && element->zMax() > 0 && sctIdHelper->phi_module(element->identify()) == 0  
-	  && sctIdHelper->eta_module(element->identify()) == sctIdHelper->eta_module_min(element->identify())
-	  && sctIdHelper->side(element->identify()) > 0) {
+      if (element->isBarrel() && element->zMax() > 0 && m_sctIdHelper->phi_module(element->identify()) == 0  
+	  && m_sctIdHelper->eta_module(element->identify()) == m_sctIdHelper->eta_module_min(element->identify())
+	  && m_sctIdHelper->side(element->identify()) > 0) {
 
 	double rMin = element->rMin();
 	double rMax = element->rMax();
@@ -393,25 +393,25 @@ namespace JiveXML {
 	zMax += 5;
 
 	out << "<ABarrelSiliconDetector c=\"" << "SIL" << "\" n=\"" << "Silicon" << "\""
-	    << " layer=\"" << sctIdHelper->layer_disk(element->identify()) << "\""
+	    << " layer=\"" << m_sctIdHelper->layer_disk(element->identify()) << "\""
 	    << " length=\"" << element->length()/10. << "\""
 	    << " width=\"" << element->width()/10. << "\""
 	    << " thickness=\"" << 2. * (rMax - rMin - element->sinTilt()*element->width())/10. << "\""
 	    << " tilt=\"" << 180./M_PI * asin(element->sinTilt()) << "\""
-	    << " nz=\"" << sctIdHelper->eta_module_max(element->identify()) 
-	  - sctIdHelper->eta_module_min(element->identify())+1 << "\""
-	    << " nphi=\"" << sctIdHelper->phi_module_max(element->identify())+1 << "\""
+	    << " nz=\"" << m_sctIdHelper->eta_module_max(element->identify()) 
+	  - m_sctIdHelper->eta_module_min(element->identify())+1 << "\""
+	    << " nphi=\"" << m_sctIdHelper->phi_module_max(element->identify())+1 << "\""
 	    << " r0=\"" << (rMin+rMax)/20. << "\""
 	    << " phi0=\"" << 180./M_PI * (element->phiMin()+element->phiMax())/2. << "\""
 	    << " zMin=\"" << -zMax/10. << "\""
 	    << " zMax=\"" << zMax/10. << "\""
 	    << " />" << std::endl;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT barrel out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT barrel out: " << out << endreq;
       }
 
-      if (element->isEndcap() && element->zMin() > 0 && sctIdHelper->phi_module(element->identify()) == 0  
-	  && sctIdHelper->eta_module(element->identify()) == sctIdHelper->eta_module_min(element->identify())
-	  && sctIdHelper->side(element->identify()) > 0) {
+      if (element->isEndcap() && element->zMin() > 0 && m_sctIdHelper->phi_module(element->identify()) == 0  
+	  && m_sctIdHelper->eta_module(element->identify()) == m_sctIdHelper->eta_module_min(element->identify())
+	  && m_sctIdHelper->side(element->identify()) > 0) {
 
 	double rMin = element->rMin();
 	double rMax = element->rMax();
@@ -439,20 +439,20 @@ namespace JiveXML {
 	zMax += 5;
 
 	out << "<AEndcapSiliconDetector c=\"" << "SIL" << "\" n=\"" << "Silicon" << "\""
-	    << " layer=\"" << sctIdHelper->layer_disk(element->identify()) << "\""
+	    << " layer=\"" << m_sctIdHelper->layer_disk(element->identify()) << "\""
 	    << " length=\"" << element->length()/10. << "\""
 	    << " width=\"" << element->width()/10. << "\""
 	    << " thickness=\"" << 2. * (rMax - rMin - element->sinTilt()*element->width())/10. << "\""
-	    << " nz=\"" << sctIdHelper->eta_module_max(element->identify()) 
-	  - sctIdHelper->eta_module_min(element->identify())+1 << "\""
-	    << " nphi=\"" << sctIdHelper->phi_module_max(element->identify())+1 << "\""
+	    << " nz=\"" << m_sctIdHelper->eta_module_max(element->identify()) 
+	  - m_sctIdHelper->eta_module_min(element->identify())+1 << "\""
+	    << " nphi=\"" << m_sctIdHelper->phi_module_max(element->identify())+1 << "\""
 	    << " rMin=\"" << rMin/10. << "\""
 	    << " rMax=\"" << rMax/10. << "\""
 	    << " phi0=\"" << 180./M_PI * (element->phiMin()+element->phiMax())/2. << "\""
 	    << " zMin=\"" << zMin/10. << "\""
 	    << " zMax=\"" << zMax/10. << "\""
 	    << " />" << std::endl;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT endcap out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT endcap out: " << out << endreq;
       }
     }
   }
@@ -464,23 +464,22 @@ namespace JiveXML {
     for (it=m_trt_manager->getDetectorElementBegin(); it<m_trt_manager->getDetectorElementEnd(); it++) {
       
       const InDetDD::TRT_BaseElement *elementIn = *it;
-      Identifier id = elementIn->identify();
-
       // Just an extra precaution to avoid crashes.
       if (!elementIn) continue;
+      Identifier id = elementIn->identify();
       
-      if (trtIdHelper->phi_module(id) != 0) continue;
-      if (trtIdHelper->straw_layer(id) != 0) continue;
+      if (m_trtIdHelper->phi_module(id) != 0) continue;
+      if (m_trtIdHelper->straw_layer(id) != 0) continue;
       Amg::Vector3D posIn = elementIn->strawTransform(0) * Amg::Vector3D(0., 0., 0.);
       if (posIn.z() < 0) continue;
 
       const InDetDD::TRT_BaseElement *elementOut;
 
-      if (trtIdHelper->is_barrel(id)) {
-	elementOut = m_trt_manager->getBarrelElement(trtIdHelper->barrel_ec(id),
-						     trtIdHelper->layer_or_wheel(id),
+      if (m_trtIdHelper->is_barrel(id)) {
+	elementOut = m_trt_manager->getBarrelElement(m_trtIdHelper->barrel_ec(id),
+						     m_trtIdHelper->layer_or_wheel(id),
 						     0,
-						     trtIdHelper->straw_layer_max(id));
+						     m_trtIdHelper->straw_layer_max(id));
 
 	// Just an extra precaution to avoid crashes.
 	if (!elementOut) continue;
@@ -489,12 +488,13 @@ namespace JiveXML {
 	//	HepGeom::Point3D<double> posOut = elementOut->strawTransform(0) * HepGeom::Point3D<double>(0., 0., 0.);
 
 	const InDetDD::TRT_BarrelElement *element = dynamic_cast<const InDetDD::TRT_BarrelElement *>(elementIn);
+        if (!element) continue;
 	int nphi = (int) round(2.*M_PI / fabs(element->nextInPhi()->center().phi() - element->center().phi()));
-	double dphiIn = 2.*M_PI / (nphi * trtIdHelper->straw_max(elementIn->identify()));
-	double dphiOut = 2.*M_PI / (nphi * trtIdHelper->straw_max(elementOut->identify()));
+	double dphiIn = 2.*M_PI / (nphi * m_trtIdHelper->straw_max(elementIn->identify()));
+	double dphiOut = 2.*M_PI / (nphi * m_trtIdHelper->straw_max(elementOut->identify()));
 
 	out << "<ABarrelTRTDetector c=\"TRT\" n=\"TRT\""
-	    << " layer=\"" << trtIdHelper->layer_or_wheel(id) << "\""
+	    << " layer=\"" << m_trtIdHelper->layer_or_wheel(id) << "\""
 	    << " nphi=\"" << nphi << "\""
 	    << " rMin=\"" << posIn.perp()/10. - .4 << "\""
 	    << " rMax=\"" << posOut.perp()/10. + .4 << "\""
@@ -503,24 +503,24 @@ namespace JiveXML {
 	    << " zMin=\"" << -(posIn.z() + elementIn->strawLength()/2.)/10. << "\""
 	    << " zMax=\"" << (posIn.z() + elementIn->strawLength()/2.)/10. << "\""
 	    << " />" << std::endl;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT barrel out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT barrel out: " << out << endreq;
       } else {
-	elementOut = m_trt_manager->getEndcapElement(1,//trtIdHelper->barrel_ec(id),
-						     trtIdHelper->layer_or_wheel(id),
-						     trtIdHelper->straw_layer_max(id),
+	elementOut = m_trt_manager->getEndcapElement(1,//m_trtIdHelper->barrel_ec(id),
+						     m_trtIdHelper->layer_or_wheel(id),
+						     m_trtIdHelper->straw_layer_max(id),
 						     0);
 
 	// Just an extra precaution to avoid crashes.
 	if (!elementOut) continue;
 
-	//HepGeom::Point3D<double> posOut = elementOut->strawTransform(trtIdHelper->straw_max(id)) * HepGeom::Point3D<double>(0., 0., 0.);
-	Amg::Vector3D posOut = elementOut->strawTransform(trtIdHelper->straw_max(id)) * Amg::Vector3D(0.,0.,0.);
+	//HepGeom::Point3D<double> posOut = elementOut->strawTransform(m_trtIdHelper->straw_max(id)) * HepGeom::Point3D<double>(0., 0., 0.);
+	Amg::Vector3D posOut = elementOut->strawTransform(m_trtIdHelper->straw_max(id)) * Amg::Vector3D(0.,0.,0.);
 
 	// floor() instead of round() becuase we are neglecting the space between two modules
  	int nphi = (int) floor(2.*M_PI / fabs(posOut.phi() - posIn.phi()));
 
 	out << "<AEndcapTRTDetector c=\"TRT\" n=\"TRT\""
-	    << " layer=\"" << trtIdHelper->layer_or_wheel(id) << "\""
+	    << " layer=\"" << m_trtIdHelper->layer_or_wheel(id) << "\""
 	    << " nphi=\"" << nphi << "\""
 	    << " rMin=\"" << (posIn.perp()-elementIn->strawLength()/2.)/10. << "\""
 	    << " rMax=\"" << (posIn.perp()+elementIn->strawLength()/2.)/10. << "\""
@@ -528,7 +528,7 @@ namespace JiveXML {
 	    << " zMin=\"" << posIn.z()/10. << "\""
 	    << " zMax=\"" << posOut.z()/10. << "\""
 	    << " />" << std::endl;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT endcap out: " << out << endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT endcap out: " << out << endreq;
       }
 
     }

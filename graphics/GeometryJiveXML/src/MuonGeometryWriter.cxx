@@ -103,11 +103,13 @@ namespace JiveXML {
     const MdtIdHelper *mdtIdHelper = m_muon_manager->mdtIdHelper();
     int snMax = mdtIdHelper->stationNameIndexMax();
 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Station types: " << snMax << endreq;
+
     // Loop over all station types.
     for (int sn=0; sn<=snMax; sn++) {
       std::string stationName = mdtIdHelper->stationNameString(sn);
       // some stationNames no longer exist
-      if (stationName.compare(MuonIdHelper::BAD_NAME)) continue;
+      if (!stationName.compare(MuonIdHelper::BAD_NAME)) continue;
 
       // Determine the type of chamber from the stationName string.
       std::string stationTech;
@@ -156,6 +158,8 @@ namespace JiveXML {
 	  // If station != 0, the station exists and we add it to our vector.
 	  if (station) stations->push_back(station);
 	}
+
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Station size: " << stations->size() << endreq;
 
 	// While there are stations that haven't been written to XML, stay in this loop.
 	while (stations->size() > 0) {
@@ -216,6 +220,8 @@ namespace JiveXML {
 	      // Add the station to the phi sector string and remove it from the 
 	      // to-be-processed list.
 	      phiString += " " + DataType(phi2).toString();
+
+              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " phiString " << phiString << endreq;
 
 	      stations->erase(it, it+1);
 	    }
