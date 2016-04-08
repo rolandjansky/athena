@@ -16,30 +16,24 @@
 
 MdtCalibrationRegionSvc::MdtCalibrationRegionSvc(const std::string& name,ISvcLocator* sl)
   : AthService(name,sl),
-    m_mdtIdHelper(0)
-{
-
+    m_mdtIdHelper(0) {
 }
 
 MdtCalibrationRegionSvc::~MdtCalibrationRegionSvc() {
 }
 
 // queryInterface 
-StatusCode MdtCalibrationRegionSvc::queryInterface(const InterfaceID& riid, void** ppvIF) 
-{ 
-  if( interfaceID().versionMatch(riid) ) 
-    {
-      *ppvIF = dynamic_cast<MdtCalibrationRegionSvc*>(this);
-    } else { 
+StatusCode MdtCalibrationRegionSvc::queryInterface(const InterfaceID& riid, void** ppvIF) { 
+  if( interfaceID().versionMatch(riid) ) {
+    *ppvIF = dynamic_cast<MdtCalibrationRegionSvc*>(this);
+  } else { 
     return AthService::queryInterface(riid, ppvIF);
   }
   addRef();
   return StatusCode::SUCCESS;
 } 
 
-
-StatusCode MdtCalibrationRegionSvc::initialize()
-{ 
+StatusCode MdtCalibrationRegionSvc::initialize() { 
   if( AthService::finalize().isFailure() ) return StatusCode::FAILURE;
 
   // initialize the MdtIdHelper
@@ -64,8 +58,7 @@ StatusCode MdtCalibrationRegionSvc::finalize() {
   return AthService::finalize();
 }
 
-void MdtCalibrationRegionSvc::initializeRegions()
-{
+void MdtCalibrationRegionSvc::initializeRegions() {
 
   remapRtRegions("OneRt");
 
@@ -92,7 +85,7 @@ void MdtCalibrationRegionSvc::initializeRegions()
   
 }
 
-void MdtCalibrationRegionSvc::remapRtRegions(std::string mapName){
+void MdtCalibrationRegionSvc::remapRtRegions(std::string mapName) {
   MdtRegionSet rtset;
 
   if (mapName=="OnePerChamber"){
@@ -127,4 +120,3 @@ void MdtCalibrationRegionSvc::remapRtRegions(std::string mapName){
 
   m_rtRegionTool.initialize( rtset, m_mdtIdHelper );
 }
-

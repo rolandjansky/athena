@@ -20,9 +20,8 @@
 class MdtCalibrationSvcOutput {
  public:
   MdtCalibrationSvcOutput( double t, double dr, double t) :
-    m_radius(r),m_sigmaRadius(dr),m_driftTime(t) 
-    {
-    }  
+  m_radius(r),m_sigmaRadius(dr),m_driftTime(t) {
+  }  
     
   double radius() const { return m_radius; }
   double sigmaRadius() const { return m_sigmaRadius; }
