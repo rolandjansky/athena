@@ -40,6 +40,13 @@ namespace Muon
     m_bcBitMap( RIO.m_bcBitMap )
   { }
 
+  //move constructor:
+  sTgcPrepData::sTgcPrepData(sTgcPrepData&& RIO):
+    MuonCluster(std::move(RIO)),
+    m_detEl( RIO.m_detEl ),
+    m_bcBitMap( RIO.m_bcBitMap )
+  { }
+
   //assignment operator
   sTgcPrepData&
   sTgcPrepData::operator=(const sTgcPrepData& RIO)
@@ -47,6 +54,20 @@ namespace Muon
     if (&RIO !=this)
       {
 	MuonCluster::operator=(RIO);
+	m_detEl =  RIO.m_detEl ;
+	m_bcBitMap = RIO.m_bcBitMap;
+      }
+    return *this;
+
+  }
+
+  //move operator
+  sTgcPrepData&
+  sTgcPrepData::operator=(sTgcPrepData&& RIO)
+  {
+    if (&RIO !=this)
+      {
+	MuonCluster::operator=(std::move(RIO));
 	m_detEl =  RIO.m_detEl ;
 	m_bcBitMap = RIO.m_bcBitMap;
       }

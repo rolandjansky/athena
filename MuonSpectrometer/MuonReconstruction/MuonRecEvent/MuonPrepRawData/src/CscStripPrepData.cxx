@@ -25,7 +25,7 @@ namespace Muon
                       const Amg::Vector2D& locpos,
                       const Amg::MatrixX* locErrMat,
                       const MuonGM::CscReadoutElement* detEl,
-                      std::vector<float> sampleCharges,
+                      const std::vector<float>& sampleCharges,
                       float timeOfFirstSample,
                       unsigned short samplingTime 
                       ):

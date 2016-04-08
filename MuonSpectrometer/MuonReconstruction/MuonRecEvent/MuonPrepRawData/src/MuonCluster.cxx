@@ -50,6 +50,13 @@ namespace Muon
     m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
   }
 
+  MuonCluster::MuonCluster(MuonCluster&& RIO):
+    PrepRawData(std::move(RIO)),
+    m_globalPosition (RIO.m_globalPosition)
+  { 
+    RIO.m_globalPosition = nullptr;
+  }
+
   //assignment operator
   MuonCluster& MuonCluster::operator=(const MuonCluster& RIO)
   {
@@ -58,6 +65,18 @@ namespace Muon
       Trk::PrepRawData::operator=(RIO);
       delete m_globalPosition;
       m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
+    }
+    return *this;
+  }
+  
+  MuonCluster& MuonCluster::operator=(MuonCluster&& RIO)
+  {
+    if (&RIO !=this)
+    {
+      Trk::PrepRawData::operator=(std::move(RIO));
+      delete m_globalPosition;
+      m_globalPosition = RIO.m_globalPosition;
+      RIO.m_globalPosition = nullptr;
     }
     return *this;
   }
