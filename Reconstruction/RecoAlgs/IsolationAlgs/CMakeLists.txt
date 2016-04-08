@@ -15,8 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODPrimitives
-                          Reconstruction/RecoTools/RecoToolInterfaces
-			  PhysicsAnalysis/ElectronPhotonID/IsolationCorrections )
+                          Reconstruction/RecoTools/RecoToolInterfaces )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -26,7 +25,7 @@ atlas_add_component( IsolationAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} GaudiKernel CaloEvent AthContainers AthenaBaseComps xAODEgamma xAODMuon xAODPrimitives RecoToolInterfaces IsolationCorrectionsLib)
+                     LINK_LIBRARIES ${Boost_LIBRARIES} GaudiKernel CaloEvent AthContainers AthenaBaseComps xAODEgamma xAODMuon xAODPrimitives RecoToolInterfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
