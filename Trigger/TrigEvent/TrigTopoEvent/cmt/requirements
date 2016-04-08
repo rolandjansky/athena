@@ -47,7 +47,7 @@ apply_pattern lcgdict dict=TrigTopoEvent selectionfile=selection.xml  headerfile
               dataLinks="ElectronMuonTopoInfo" elementLinks="ElectronMuonTopoInfoContainer"
 
 #the list should be kept in sync with TrigParticleStorageDefinitions.cxx                                                                                                                                                                                                             
-apply_pattern sercnv files="-s=${TrigTopoEvent_root}/TrigTopoEvent ElectronMuonTopoInfo.h ElectronMuonTopoInfoContainer.h \
+apply_pattern sercnv files="-s=${TrigTopoEvent_root}/TrigTopoEvent ElectronMuonTopoInfo.h ElectronMuonTopoInfoContainer.h"
 #Storage has also  DataVector<INavigable4Momentum>                                                                                                                                                                                                                                   
                                                                                                                                                                                                                                                                                      
 end_private  
