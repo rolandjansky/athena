@@ -112,7 +112,7 @@ public:
   void mousePressEvent(QGraphicsSceneMouseEvent *) {
     if (dialog) {
       if (!dialog->isVisible()) {
-	//QPoint point=rect().topLeft().toPoint();
+	QPoint point=rect().topLeft().toPoint();
 	dialog->move(dialog->parentWidget()->pos()+dialog->parentWidget()->rect().bottomRight());
 	dialog->show();
       }
@@ -224,9 +224,7 @@ public:
     xLabelTextItem(NULL),        yLabelTextItem(NULL),        vLabelTextItem(NULL),        titleTextItem(NULL),      statTextItem(NULL),
     g(NULL),gridLinesGroup(NULL),contentsGroup(NULL),xZeroLine(NULL),yZeroLine(NULL),
     xRangeDivider(NULL),yRangeDivider(NULL), xAllocDivider(NULL), yAllocDivider(NULL),
-    xAxisStyle{}, yAxisStyle{},
-    labelWidth(50),
-    popupMenu(nullptr), timer(nullptr)
+    labelWidth(50)
   {
       xAxisFont.setPointSize(18);
       xAxisFont.setFamily("Arial");
@@ -616,7 +614,7 @@ void PlotView::create() {
 	  subdivider->setRange(xValue,xPlusValue);
 	  for (int i=0;i<subdivider->getNumSubdivisions();i++) {
 	    double xValue=subdivider->getSubdivision(i).x(); // Shadows!!
-	    if (toLogX) xValue = (*toLogX)(xValue);
+	    xValue = (*toLogX)(xValue);
 	    if (xValue<c->rect.left() || xValue>c->rect.right()) continue;
 	    {
 	      QPointF X (xValue,yValue);
@@ -746,7 +744,7 @@ void PlotView::create() {
 	  subdivider->setRange(yValue,yPlusValue);
 	  for (int i=0;i<subdivider->getNumSubdivisions();i++) {
 	    double yValue=subdivider->getSubdivision(i).x(); // Shadows!!
-	    if (toLogY) yValue = (*toLogY)(yValue);
+	    yValue = (*toLogY)(yValue);
 	    if (yValue<c->rect.top() || yValue>c->rect.bottom()) continue;
 	    {
 	      QPointF X (xValue,yValue);
@@ -850,22 +848,23 @@ void PlotView::create() {
   c->statTextItem->setZValue(11);    
 
   delete toLogY;
-  delete toLogX;
 
   c->g->setMatrix(m);
   c->g->setPos(c->graphBoxTopLeft);   
 
   setGrid(c->control->ui().gridCheckBox->isChecked());
   setXZero(c->control->ui().xZeroCheckBox->isChecked());
-  setYZero(c->control->ui().yZeroCheckBox->isChecked());  
+  setYZero(c->control->ui().yZeroCheckBox->isChecked());
+
+  
 }
 
 
-void PlotView::resizeEvent (QResizeEvent * /*event*/) { //unused parameter
+void PlotView::resizeEvent (QResizeEvent *event) {
   // This is here to prevent funny sizes appearing during resize:
   create();
 
-  //QSize size=event->size(); // size not used anymore...
+  QSize size=event->size();
   //int h=size.height();
   //int w=size.width();
 
