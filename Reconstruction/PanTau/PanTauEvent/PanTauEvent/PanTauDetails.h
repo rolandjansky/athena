@@ -96,10 +96,12 @@ public:
     * @param[in] seed pointer to TauSeed (PanTauDetails does not take ownership)
     * @param[in] features pointer to TauFeature (PanTauDetails takes ownership, do not delete yourself!)
     */
+    /*
     PanTauDetails(
         const PanTau::TauSeed                               *seed,
         const PanTau::TauFeature                            *features = 0
         );
+    */
 
     /** Destructor */
     virtual ~PanTauDetails();
