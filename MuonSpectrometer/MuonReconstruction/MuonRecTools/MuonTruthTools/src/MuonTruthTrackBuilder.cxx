@@ -100,31 +100,31 @@ namespace Muon {
   {
     ATH_MSG_VERBOSE("Initializing ...");
     if (m_mdtCreator.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_mdtCreator << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_mdtCreator << endreq;
       return StatusCode::FAILURE; 
     }
     if (m_muonClusterCreator.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_muonClusterCreator << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_muonClusterCreator << endreq;
       return StatusCode::FAILURE; 
     }
 
     if (m_idHelper.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_idHelper << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_idHelper << endreq;
       return StatusCode::FAILURE; 
     }
 
     if (m_printer.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_printer << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_printer << endreq;
       return StatusCode::FAILURE; 
     }
 
     if (m_helper.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_helper << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_helper << endreq;
       return StatusCode::FAILURE; 
     }
 
     if (m_muonCompRotCreator.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_muonCompRotCreator << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_muonCompRotCreator << endreq;
       return StatusCode::FAILURE; 
     }
 
@@ -147,11 +147,11 @@ namespace Muon {
     }
 
     if (m_trackExtrapolationTool.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_trackExtrapolationTool << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_trackExtrapolationTool << endreq;
       return StatusCode::FAILURE; 
     }
     if (m_trackCleaner.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_trackCleaner << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_trackCleaner << endreq;
       return StatusCode::FAILURE; 
     }
 
@@ -701,7 +701,7 @@ namespace Muon {
 	msg(MSG::VERBOSE) << " r  " << (*it)->globalPosition().perp() <<  " z  " << (*it)->globalPosition().z() 
 			  << "   " <<  m_idHelper->toString( m_helper->getIdentifier(**it) ) << std::endl;
       }
-      msg(MSG::VERBOSE) << endmsg;
+      msg(MSG::VERBOSE) << endreq;
     }
   }
 
