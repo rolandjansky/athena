@@ -33,7 +33,7 @@ class RpcConditionPar{
 
   
   
-  float m_stripid;
+  //float m_stripid;
   std::string m_info_panel;
   std::string m_info_strip;
   //float m_panel;

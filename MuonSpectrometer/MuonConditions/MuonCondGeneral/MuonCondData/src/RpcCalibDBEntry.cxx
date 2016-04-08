@@ -82,6 +82,28 @@ namespace MuonCalib{
   void  RpcCalibDBEntry::initData(std::string etaRec, std::string etaDet, std::string phiRec1, std::string phiRec2, std::string phiDet1, std::string phiDet2){
 
 
+    unsigned long int pos = 0;
+    std::string::size_type start = etaRec.find_first_not_of(" ",pos);
+    if(start == string::npos) {
+      std::cout << "RpcCalibDBEntry::initData -- problems extracting nRecEta -- crashing." << std::endl;
+      throw;      
+    }
+    std::string::size_type stop = etaRec.find_first_of(" ",start+1);
+    if (stop == std::string::npos) stop = etaRec.size();
+    nRecEta = std::stoi(etaRec.substr(start,stop-start),nullptr);
+    etaRec.erase(pos,stop-pos);
+
+    pos = 0;
+    start = phiRec1.find_first_not_of(" ",pos);
+    if(start == string::npos) {
+      std::cout << "RpcCalibDBEntry::initData -- problems extracting nRecPhi1 -- crashing." << std::endl;
+      throw;      
+    }
+    stop = phiRec1.find_first_of(" ",start+1);
+    if (stop == std::string::npos) stop = phiRec1.size();
+    nRecPhi1 = std::stoi(phiRec1.substr(start,stop-start),nullptr);
+    phiRec1.erase(pos,stop-pos);
+
     istringstream etaRec_str; 
     istringstream etaDet_str; 
     istringstream phiRec1_str;
@@ -96,15 +118,10 @@ namespace MuonCalib{
     phiDet1_str.str(phiDet1);
     phiDet2_str.str(phiDet2);
     
-    
-
-    etaRec_str>>nRecEta;
     etaDet_str>>nDetEta;
-    phiRec1_str>>nRecPhi1;
     phiRec2_str>>nRecPhi2;
     phiDet1_str>>nDetPhi1;
     phiDet2_str>>nDetPhi2;
-
 
     float eff, errEff, res1, res2, resX, errRes1, errRes2, errResX, time, errTime, noise, errNoise, noiseC, errNoiseC, cs, errCs;
     

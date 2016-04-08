@@ -18,7 +18,7 @@
 
 RpcConditionPar::RpcConditionPar()
 { 
-  //  m_panel       = 0;
+  //m_panel        = 0;
   //m_stripid      = 0;
 }
 

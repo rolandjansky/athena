@@ -91,7 +91,7 @@ namespace MuonCalib {
     class CscCondDataCollection :   public CscCondDataCollectionBase, public DataVector< CscCondData<data_type> >  {
       public:
         CscCondDataCollection(SG::OwnershipPolicy own = SG::OWN_ELEMENTS)
-          : DataVector<CscCondData<data_type> >(own) {}
+          : DataVector<CscCondData<data_type> >(own), m_parDefault(data_type()) {}
         virtual ~CscCondDataCollection() {}
 
         //Reinitializes internal DataVector to point to empty entries, but 
