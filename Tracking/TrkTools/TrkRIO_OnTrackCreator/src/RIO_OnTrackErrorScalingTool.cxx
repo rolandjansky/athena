@@ -68,7 +68,7 @@ Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string&
      m_scaling_cscPhi(std::vector<double>(0)),
      m_scaling_cscEta(std::vector<double>(0)),
      m_override_database_id_errors(false),
-     m_doTRTScaling(false),
+     m_doTRTScaling(true),
      m_override_scale_inflation_pix_bar_x(10.),
      m_override_scale_inflation_pix_bar_y(10.),
      m_override_scale_inflation_pix_ecs_x(10.),
