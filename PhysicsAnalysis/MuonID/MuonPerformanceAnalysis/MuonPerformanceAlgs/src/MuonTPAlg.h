@@ -38,6 +38,7 @@ private:
   std::string m_tagContainerName;
   std::string m_probeContainerName;
   std::string m_matchContainerName;
+  std::string m_topLevelOutputFolderName;
 
   /// Athena configured tools
   ServiceHandle<ITHistSvc> m_histSvc;
