@@ -12,11 +12,9 @@ Purpose : create a SUSYPhysTag - a word to encode SUSYPhys specific information 
 
 *****************************************************************************/
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "StoreGate/StoreGateSvc.h"
 
 #include "JetEvent/JetCollection.h"
 
@@ -27,7 +25,7 @@ Purpose : create a SUSYPhysTag - a word to encode SUSYPhys specific information 
 /** the constructor */
 SUSYPhysTagTool::SUSYPhysTagTool (const std::string& type, const 
 std::string& name, const IInterface* parent) : 
-    AlgTool( type, name, parent ) {
+  AthAlgTool( type, name, parent ) {
 
   /** AOD Container Names */
   declareProperty("JetContainer",    m_jetContainerName = "AntiKt4TopoJets");
@@ -40,16 +38,7 @@ std::string& name, const IInterface* parent) :
 
 /** initialization - called once at the begginning */
 StatusCode  SUSYPhysTagTool::initialize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in intialize()" << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-    return sc;
-  }
-
+  ATH_MSG_DEBUG( "in intialize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -57,8 +46,7 @@ StatusCode  SUSYPhysTagTool::initialize() {
 StatusCode SUSYPhysTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap,
                                                    const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
+  ATH_MSG_DEBUG( "in attributeSpecification()" );
 
   /** specifiy the SUSYPhys the attributes */
 
@@ -73,8 +61,7 @@ StatusCode SUSYPhysTagTool::attributeSpecification(std::map<std::string,AthenaAt
 /** execute - called on every event */
 StatusCode SUSYPhysTagTool::execute(TagFragmentCollection& susyTagCol, const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()" );
 
   /** fill the SUSYPhys analysis tag */
 
@@ -89,8 +76,7 @@ StatusCode SUSYPhysTagTool::execute(TagFragmentCollection& susyTagCol, const int
 
 /** finialize - called once at the end */
 StatusCode  SUSYPhysTagTool::finalize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 
