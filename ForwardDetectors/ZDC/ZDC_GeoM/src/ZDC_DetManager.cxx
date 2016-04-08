@@ -9,18 +9,18 @@ ZDC_DetManager::ZDC_DetManager()
   setName("ZDC");
   
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " CONSTRUCTOR OF DETMANAGER :: getNumTreeTops() = "
-					    << getNumTreeTops() << endmsg;
+					    << getNumTreeTops() << endreq;
 }
 
 ZDC_DetManager::~ZDC_DetManager()
 {  
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " DESTRUCTOR OF DETMANAGER start:: getNumTreeTops() = " 
-					    << getNumTreeTops() << endmsg;
+					    << getNumTreeTops() << endreq;
   
   for (unsigned int i=0; i<volume.size(); i++) volume[i]->unref();
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " DESTRUCTOR OF DETMANAGER end:: getNumTreeTops() = " 
-					    << getNumTreeTops() <<endmsg;
+					    << getNumTreeTops() <<endreq;
 }
 
 unsigned int ZDC_DetManager::getNumTreeTops() const
@@ -36,13 +36,13 @@ PVConstLink ZDC_DetManager::getTreeTop(unsigned int i) const
 void  ZDC_DetManager::addTreeTop(PVLink vol)
 {
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " ADDTREETOP OF DETMANAGER start:: getNumTreeTops() = " 
-					    << getNumTreeTops() << endmsg;
+					    << getNumTreeTops() << endreq;
  
   vol->ref();
   
   volume.push_back(vol);
   
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " ADDTREETOP OF DETMANAGER end:: getNumTreeTops() = " 
-					    << getNumTreeTops() << endmsg;
+					    << getNumTreeTops() << endreq;
 }
 

@@ -15,9 +15,9 @@ ZDC_DetTool::ZDC_DetTool(const std::string& type, const std::string& name, const
 {
 
   if (msgLevel(MSG::DEBUG))
-    msg(MSG::DEBUG) << "INSIDE CONSTRUCTOR OF DETTOOL"                            << endmsg
-		    << "INSIDE CONSTRUCTOR OF DETTOOL string& type "      << type << endmsg
-		    << "INSIDE CONSTRUCTOR OF DETTOOL std::string& name " << name << endmsg;
+    msg(MSG::DEBUG) << "INSIDE CONSTRUCTOR OF DETTOOL"                            << endreq
+		    << "INSIDE CONSTRUCTOR OF DETTOOL string& type "      << type << endreq
+		    << "INSIDE CONSTRUCTOR OF DETTOOL std::string& name " << name << endreq;
 }
 
 ZDC_DetTool::~ZDC_DetTool()
@@ -33,14 +33,14 @@ ZDC_DetTool::~ZDC_DetTool()
 
 StatusCode ZDC_DetTool::create( StoreGateSvc* detStore )
 { 
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " Building ZDC geometry " << endmsg;
+  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " Building ZDC geometry " << endreq;
   
   // Locate the top level experiment node  
   DataHandle<GeoModelExperiment> theExpt; 
   
   if (StatusCode::SUCCESS != detStore->retrieve(theExpt, "ATLAS")) {
 
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << " Could not find GeoModelExperiment ATLAS " << endmsg; 
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << " Could not find GeoModelExperiment ATLAS " << endreq; 
     return (StatusCode::FAILURE); 
   } 
   
@@ -55,7 +55,7 @@ StatusCode ZDC_DetTool::create( StoreGateSvc* detStore )
     } 
     catch (std::bad_alloc) {
       
-      if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "Could not create new ZDC DetectorNode!" << endmsg;
+      if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "Could not create new ZDC DetectorNode!" << endreq;
       return StatusCode::FAILURE; 
     }
     
@@ -66,7 +66,7 @@ StatusCode ZDC_DetTool::create( StoreGateSvc* detStore )
     if(detStore->record(theZDCFactory.getDetectorManager(),theZDCFactory.getDetectorManager()->getName())==StatusCode::SUCCESS){
       return StatusCode::SUCCESS;}
     else{
-      msg(MSG::FATAL) << "Could not register ZDC detector manager" << endmsg;}
+      msg(MSG::FATAL) << "Could not register ZDC detector manager" << endreq;}
 
   }
   
