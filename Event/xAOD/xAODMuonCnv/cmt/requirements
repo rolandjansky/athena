@@ -1,6 +1,6 @@
 package xAODMuonCnv
-#
-author Edward.Moyse@cern.ch# 
+
+author Edward.Moyse@cern.ch
 
 # Base package(s):
 use AtlasPolicy     AtlasPolicy-*
@@ -14,12 +14,10 @@ use  AthLinks                   AthLinks-*                      Control
 private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AthenaKernel               AthenaKernel-*                  Control
-use  CxxUtils                   CxxUtils-*                      Control
 use  GaudiInterface             GaudiInterface-*                External
 use  Particle                   Particle-*                      Reconstruction
 use  muonEvent                  muonEvent-*                     Reconstruction/MuonIdentification
 use  xAODPrimitives             xAODPrimitives-*                Event/xAOD
-use  xAODTruth                  xAODTruth-*                     Event/xAOD
 end_private
 
 # Make a component library:
