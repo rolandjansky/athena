@@ -555,52 +555,101 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 
                       ElementLink<xAOD::VertexContainer> v0Link;
                       static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0LinksDecor("V0Link");
+                      ElementLink<xAOD::VertexContainer> ksLink;
+                      static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_ksLinksDecor("KshortLink");
+                      ElementLink<xAOD::VertexContainer> laLink;
+                      static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_laLinksDecor("LambdaLink");
+                      ElementLink<xAOD::VertexContainer> lbLink;
+                      static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_lbLinksDecor("LambdabarLink");
+
                       if (m_doSimpleV0 || (!m_doSimpleV0 && doGamma)) {
                         m_V0s_stored++;
+                        myVxCandidate->clearTracks();
+                        ElementLink<xAOD::TrackParticleContainer> newLink1;
+                        newLink1.setElement(*tpIt1);
+                        newLink1.setStorableObject(*TPC);
+                        newLink1.index();
+                        ElementLink<xAOD::TrackParticleContainer> newLink2;
+                        newLink2.setElement(*tpIt2);
+                        newLink2.setStorableObject(*TPC);
+                        newLink2.index();
+                        myVxCandidate->addTrackAtVertex(newLink1);
+                        myVxCandidate->addTrackAtVertex(newLink2);
                         v0Container->push_back(myVxCandidate);
+
                         if (foundKshort && !m_doSimpleV0) {
                           m_Kshort_stored++;
+                          myKshort->clearTracks();
+                          ElementLink<xAOD::TrackParticleContainer> ksLink1;
+                          ksLink1.setElement(*tpIt1);
+                          ksLink1.setStorableObject(*TPC);
+                          ksLink1.index();
+                          ElementLink<xAOD::TrackParticleContainer> ksLink2;
+                          ksLink2.setElement(*tpIt2);
+                          ksLink2.setStorableObject(*TPC);
+                          ksLink2.index();
+                          myKshort->addTrackAtVertex(ksLink1);
+                          myKshort->addTrackAtVertex(ksLink2);
                           ksContainer->push_back(myKshort);
 
                           v0Link.setElement(myVxCandidate);
                           v0Link.setStorableObject(*v0Container);
                           v0LinksDecor(*myKshort) = v0Link;
 
-                          static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_ksLinksDecor("KshortLink");
-                          v0_ksLinksDecor(*myVxCandidate) = ElementLink<xAOD::VertexContainer>();
-                          ElementLink<xAOD::VertexContainer> ksLink;
                           ksLink.setElement(myKshort);
                           ksLink.setStorableObject(*ksContainer);
+                          v0_ksLinksDecor(*myVxCandidate) = ksLink;
+                        } else {
                           v0_ksLinksDecor(*myVxCandidate) = ksLink;
                         }
                         if (foundLambda && !m_doSimpleV0) {
                           m_Lambda_stored++;
+                          myLambda->clearTracks();
+                          ElementLink<xAOD::TrackParticleContainer> laLink1;
+                          laLink1.setElement(*tpIt1);
+                          laLink1.setStorableObject(*TPC);
+                          laLink1.index();
+                          ElementLink<xAOD::TrackParticleContainer> laLink2;
+                          laLink2.setElement(*tpIt2);
+                          laLink2.setStorableObject(*TPC);
+                          laLink2.index();
+                          myLambda->addTrackAtVertex(laLink1);
+                          myLambda->addTrackAtVertex(laLink2);
                           laContainer->push_back(myLambda);
 
                           v0Link.setElement(myVxCandidate);
                           v0Link.setStorableObject(*v0Container);
                           v0LinksDecor(*myLambda) = v0Link;
 
-                          static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_laLinksDecor("LambdaLink");
-                          v0_laLinksDecor(*myVxCandidate) = ElementLink<xAOD::VertexContainer>();
-                          ElementLink<xAOD::VertexContainer> laLink;
                           laLink.setElement(myLambda);
                           laLink.setStorableObject(*laContainer);
+                          v0_laLinksDecor(*myVxCandidate) = laLink;
+                        } else {
                           v0_laLinksDecor(*myVxCandidate) = laLink;
                         }
                         if (foundLambdabar && !m_doSimpleV0) {
                           m_Lambdabar_stored++;
+                          myLambdabar->clearTracks();
+                          ElementLink<xAOD::TrackParticleContainer> lbLink1;
+                          lbLink1.setElement(*tpIt1);
+                          lbLink1.setStorableObject(*TPC);
+                          lbLink1.index();
+                          ElementLink<xAOD::TrackParticleContainer> lbLink2;
+                          lbLink2.setElement(*tpIt2);
+                          lbLink2.setStorableObject(*TPC);
+                          lbLink2.index();
+                          myLambdabar->addTrackAtVertex(lbLink1);
+                          myLambdabar->addTrackAtVertex(lbLink2);
                           lbContainer->push_back(myLambdabar);
 
                           v0Link.setElement(myVxCandidate);
                           v0Link.setStorableObject(*v0Container);
                           v0LinksDecor(*myLambdabar) = v0Link;
 
-                          static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_lbLinksDecor("LambdabarLink");
-                          v0_lbLinksDecor(*myVxCandidate) = ElementLink<xAOD::VertexContainer>();
-                          ElementLink<xAOD::VertexContainer> lbLink;
                           lbLink.setElement(myLambdabar);
                           lbLink.setStorableObject(*lbContainer);
+                          v0_lbLinksDecor(*myVxCandidate) = lbLink;
+                        } else {
                           v0_lbLinksDecor(*myVxCandidate) = lbLink;
                         }
                         if (doGamma && !m_doSimpleV0) {
@@ -713,8 +762,12 @@ bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::Tr
   {
     const xAOD::Vertex* PV = (*vItr);
     const Trk::Perigee* per1 = m_trackToVertexTool->perigeeAtVertex( *track1, PV->position() );
+    if (per1 == 0) return pass;
     const Trk::Perigee* per2 = m_trackToVertexTool->perigeeAtVertex( *track2, PV->position() );
-    if (per1 == 0 || per2 == 0) return pass;
+    if (per2 == 0) {
+      delete per1;
+      return pass;
+    }
     double d0_1 = per1->parameters()[Trk::d0];
     double sig_d0_1 = sqrt((*per1->covariance())(0,0));
     double d0_2 = per2->parameters()[Trk::d0];
@@ -730,8 +783,12 @@ bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::Tr
 {
   bool pass = false;
   const Trk::Perigee* per1 = m_trackToVertexTool->perigeeAtVertex( *track1, PV->position() );
+  if (per1 == 0) return pass;
   const Trk::Perigee* per2 = m_trackToVertexTool->perigeeAtVertex( *track2, PV->position() );
-  if (per1 == 0 || per2 == 0) return pass;
+  if (per2 == 0) {
+    delete per1;
+    return pass;
+  }
   double d0_1 = per1->parameters()[Trk::d0];
   double sig_d0_1 = sqrt((*per1->covariance())(0,0));
   double d0_2 = per2->parameters()[Trk::d0];
@@ -746,8 +803,12 @@ bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::Tr
 {
   bool pass = false;
   const Trk::Perigee* per1 = m_trackToVertexTool->perigeeAtVertex( *track1, PV );
+  if (per1 == 0) return pass;
   const Trk::Perigee* per2 = m_trackToVertexTool->perigeeAtVertex( *track2, PV );
-  if (per1 == 0 || per2 == 0) return pass;
+  if (per2 == 0) {
+    delete per1;
+    return pass;
+  }
   double d0_1 = per1->parameters()[Trk::d0];
   double sig_d0_1 = sqrt((*per1->covariance())(0,0));
   double d0_2 = per2->parameters()[Trk::d0];
