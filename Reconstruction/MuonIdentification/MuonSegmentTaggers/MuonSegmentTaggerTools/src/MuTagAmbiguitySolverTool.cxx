@@ -55,44 +55,26 @@ MuTagAmbiguitySolverTool::~MuTagAmbiguitySolverTool(){
 
 StatusCode MuTagAmbiguitySolverTool::initialize()
 {
-   StatusCode sc ;
 
-   sc = AthAlgTool::initialize(); 
-   if (sc.isFailure()) return sc;
+  ATH_CHECK( AthAlgTool::initialize() ); 
 
-//Set pointer on StoreGateSvc
-  sc = service("StoreGateSvc", p_StoreGateSvc);
-  if (sc.isFailure()){
-    ATH_MSG_FATAL( "StoreGate service not found" );
-    return( StatusCode::FAILURE );
-  }
+  //Set pointer on StoreGateSvc
+  ATH_CHECK( service("StoreGateSvc", p_StoreGateSvc) );
   
   ATH_MSG_INFO( "================================" );
   ATH_MSG_INFO( "=Proprieties are " );
   ATH_MSG_INFO( "================================" );
 
-//Retrieve IdHelpers
-  StoreGateSvc* detStore = 0;
-  sc = service( "DetectorStore", detStore );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get DetectorStore");
-    return sc;
-  }
-  
   // retrieve MuonDetectorManager
-  std::string managerName="Muon";
-  const MuonGM::MuonDetectorManager*  m_detMgr;
-  sc=detStore->retrieve(m_detMgr);
-  if (sc.isFailure()) {
-    ATH_MSG_INFO( "Could not find the MuonGeoModel Manager: " << managerName << " ! " );
-  } 
+  const MuonGM::MuonDetectorManager* detMgr;
+  ATH_CHECK( detStore()->retrieve(detMgr) );
 
   // initialize MuonIdHelpers
-  if (m_detMgr) {
-    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-    m_cscIdHelper = m_detMgr->cscIdHelper();
-    m_rpcIdHelper = m_detMgr->rpcIdHelper();
-    m_tgcIdHelper = m_detMgr->tgcIdHelper();
+  if (detMgr) {
+    m_mdtIdHelper = detMgr->mdtIdHelper();
+    m_cscIdHelper = detMgr->cscIdHelper();
+    m_rpcIdHelper = detMgr->rpcIdHelper();
+    m_tgcIdHelper = detMgr->tgcIdHelper();
   } else {
     m_mdtIdHelper = 0;
     m_cscIdHelper = 0;
@@ -100,23 +82,10 @@ StatusCode MuTagAmbiguitySolverTool::initialize()
     m_tgcIdHelper = 0;
   }
 
-  if( p_muonHelper.retrieve().isFailure() ){
-    ATH_MSG_WARNING( "Could not retrieve: " << p_muonHelper << " ! " );
-    return StatusCode::FAILURE;
-  }
-  if( p_muonPrinter.retrieve().isFailure() ){
-    ATH_MSG_WARNING( "Could not retrieve: " << p_muonPrinter << " ! " );
-    return StatusCode::FAILURE;
-  }
-  if( p_muonIdHelper.retrieve().isFailure() ){
-    ATH_MSG_WARNING( "Could not retrieve: " << p_muonIdHelper << " ! " );
-    return StatusCode::FAILURE;
-  }
-  if( p_segmentMatchingTool.retrieve().isFailure() ){
-    ATH_MSG_WARNING( "Could not retrieve: " << p_segmentMatchingTool << " ! " );
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( p_muonHelper.retrieve() );
+  ATH_CHECK( p_muonPrinter.retrieve() );
+  ATH_CHECK( p_muonIdHelper.retrieve() );
+  ATH_CHECK( p_segmentMatchingTool.retrieve() );
   
   return StatusCode::SUCCESS;
 
