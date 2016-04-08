@@ -17,14 +17,7 @@
 
 #include <cmath>
 
-static StoppedParticleAction stoppedparticleaction("StoppedParticleAction");
-
-void StoppedParticleAction::BeginOfEventAction(const G4Event*) {;}
-void StoppedParticleAction::EndOfEventAction(const G4Event*) {;}
-void StoppedParticleAction::BeginOfRunAction(const G4Run*) {;}
-void StoppedParticleAction::EndOfRunAction(const G4Run*) {;}
-
-void StoppedParticleAction::SteppingAction(const G4Step* aStep)
+void StoppedParticleAction::Step(const G4Step* aStep)
 {
   // Trigger if the energy is below our threshold or if the time is over 150 ns
   int id = fabs(aStep->GetTrack()->GetDynamicParticle()->GetDefinition()->GetPDGEncoding());
@@ -86,3 +79,20 @@ bool StoppedParticleAction::isSUSYParticle(const int id) const
   return false;
 }
 
+StatusCode StoppedParticleAction::initialize()
+{
+	return StatusCode::SUCCESS;
+}
+
+
+StatusCode StoppedParticleAction::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
+}

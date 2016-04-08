@@ -5,11 +5,12 @@
 #ifndef G4SimMem_H
 #define G4SimMem_H
 
-#include "FadsActions/ActionsBase.h"
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
+
+
 #include <string>
 
-class G4SimMem: public FADS::ActionsBase , public FADS::UserAction {
+class G4SimMem final: public UserActionBase {
 
   private:
    unsigned int nrOfEntries;
@@ -25,15 +26,17 @@ class G4SimMem: public FADS::ActionsBase , public FADS::UserAction {
    double averageMemoryIncreasePerEvent();
 
   public:
-   G4SimMem(std::string s):FADS::ActionsBase(s),FADS::UserAction(s),nrOfEntries(0),runMemory_bor(0),runMemory_eor(0),
+ G4SimMem(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent),nrOfEntries(0),runMemory_bor(0),runMemory_eor(0),
                            event1Memory_eoe(0),event2Memory_eoe(0),event10Memory_eoe(0),
                            eventpreviousMemory_eoe(0), accumulatedEventMemory(0), accumulatedIncrMemory(0)
    {;}
-   void BeginOfEventAction(const G4Event*);
-   void EndOfEventAction(const G4Event*);
-   void BeginOfRunAction(const G4Run*);
-   void EndOfRunAction(const G4Run*);
-   void SteppingAction(const G4Step*);
+   virtual void BeginOfEvent(const G4Event*) override;
+   virtual void EndOfEvent(const G4Event*) override;
+   virtual void BeginOfRun(const G4Run*) override;
+   virtual void EndOfRun(const G4Run*) override;
+
+   virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+
 
 };
 
