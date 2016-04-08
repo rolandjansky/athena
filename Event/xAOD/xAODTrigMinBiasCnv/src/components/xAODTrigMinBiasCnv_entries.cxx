@@ -19,6 +19,9 @@
 #include "../TrigVertexCountsCnvTool.h"
 #include "../TrigVertexCountsCnvAlg.h"
 
+#include "../TrigT2ZdcSignalsCnvTool.h"
+#include "../TrigT2ZdcSignalsCnvAlg.h"
+
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigSpacePointCountsCnvTool )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigSpacePointCountsCnvAlg )
 // DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigHisto2DCnvTool )
@@ -29,6 +32,8 @@ DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigTrackCountsCnvTool )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigTrackCountsCnvAlg )
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigVertexCountsCnvTool )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigVertexCountsCnvAlg )
+DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, TrigT2ZdcSignalsCnvTool )
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( xAODMaker, TrigT2ZdcSignalsCnvAlg )
 
 DECLARE_FACTORY_ENTRIES( xAODTrigMinBiasCnv ) {
 
@@ -42,4 +47,6 @@ DECLARE_FACTORY_ENTRIES( xAODTrigMinBiasCnv ) {
    DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigTrackCountssCnvAlg)
    DECLARE_NAMESPACE_TOOL( xAODMaker, TrigVertexCountsCnvTool )
    DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigVertexCountssCnvAlg)
+   DECLARE_NAMESPACE_TOOL( xAODMaker, TrigT2ZdcSignalsCnvTool )
+   DECLARE_NAMESPACE_ALGORITHM( xAODMaker, TrigT2ZdcSignalssCnvAlg)
 }
