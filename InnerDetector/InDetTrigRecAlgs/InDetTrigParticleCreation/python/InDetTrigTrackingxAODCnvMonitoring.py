@@ -7,7 +7,7 @@ class InDetTrigTrackingxAODCnvMonitorBase(TrigGenericMonitoringToolConfig):
     super (InDetTrigTrackingxAODCnvMonitorBase, self).__init__(name)
 
     d0max=5.
-    z0max=40.
+    z0max=250.
     qoverpmax=4e-3
     ntrkmax=100
     nvertexmax = 25
@@ -72,6 +72,31 @@ class InDetTrigTrackingxAODCnvMonitorBase(TrigGenericMonitoringToolConfig):
                                          type='TH1F',
                                          title="nvertex",
                                          xbins = nvertexbins, xmin=0., xmax=nvertexmax)]
+    self.Histograms += [ defineHistogram('roi_eta',
+                                         type='TH1F',
+                                         title="Eta of the input RoI",
+                                         xbins = 100, xmin=-5, xmax=5)]
+    self.Histograms += [ defineHistogram('roi_phi',
+                                         type='TH1F',
+                                         title="Phi of the input RoI",
+                                         xbins = 100, xmin=-3.2, xmax=3.2)]
+    self.Histograms += [ defineHistogram('roi_z',
+                                         type='TH1F',
+                                         title="z of the input RoI",
+                                         xbins = 200, xmin=-400, xmax=400)]
+    self.Histograms += [ defineHistogram('roi_etaWidth',
+                                         type='TH1F',
+                                         title="Eta width of the input RoI",
+                                         xbins = 100, xmin=0, xmax=5)]
+    self.Histograms += [ defineHistogram('roi_phiWidth',
+                                         type='TH1F',
+                                         title="Phi width of the input RoI",
+                                         xbins = 100, xmin=0, xmax=6.4)]
+    self.Histograms += [ defineHistogram('roi_zWidth',
+                                         type='TH1F',
+                                         title="z width of the input RoI",
+                                         xbins = 100, xmin=0, xmax=500)]                                         
+
     # Slice Specific Histograms
     if (type=="bjet"):
       self.Histograms += [ defineHistogram('roi_nTrkPart, bj_sumPt',

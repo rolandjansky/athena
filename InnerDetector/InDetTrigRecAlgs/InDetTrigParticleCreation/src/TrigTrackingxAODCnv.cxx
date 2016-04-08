@@ -16,10 +16,12 @@
 #include "Particle/TrackParticleContainer.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigSteeringEvent/PhiHelper.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include <cmath>
+#include <algorithm>
 
 namespace InDet
 {
@@ -57,6 +59,12 @@ namespace InDet
     declareMonitoredVariable("roi_nTrkPart",    m_dqm_ntrkpart);
     declareMonitoredVariable("roi_nTracks",        m_dqm_ntrk);
     declareMonitoredVariable("roi_nVertices",     m_dqm_nvertex);
+    declareMonitoredVariable("roi_eta", m_roiEta);
+    declareMonitoredVariable("roi_etaWidth", m_roiEtaWidth);
+    declareMonitoredVariable("roi_phi", m_roiPhi);
+    declareMonitoredVariable("roi_phiWidth", m_roiPhiWidth);
+    declareMonitoredVariable("roi_z", m_roiZ);
+    declareMonitoredVariable("roi_zWidth", m_roiZ_Width);
     // Bjet slice
     declareMonitoredVariable("bj_sumPt",  m_dqm_bj_sumpt);
     // Muon slice
@@ -208,13 +216,30 @@ namespace InDet
         const ElementLink<TrackCollection> trackLink(*m_tracks, idtr);
 
         xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink, tpCont);
+
         if((outputLevel <= MSG::DEBUG) && (tp != 0)){
-  	msg() << MSG::DEBUG << "REGTEST: " << std::setw(5) << idtr
-  	      << "  pT:  " << std::setw(10) << tp->pt()
-  	      << "  eta: " << tp->eta()
-  	      << "  phi: " << tp->phi()
-  	  //<< "\t" << npix << "/" << nsct << "/" << ntrt << "//" << npixh << "/" << nscth
-  	      << endreq;
+  	  int npix, nsct, ntrt, npixh, nscth;
+  	  npix = nsct = ntrt = npixh = nscth = -1;
+  	  const Trk::Track *tr = tp->track();
+  	  if (tr){
+  	    const Trk::TrackSummary *ts = tr->trackSummary();
+  	    if (ts){
+  	      npix = ts->get(Trk::numberOfPixelHits);
+  	      nsct = ts->get(Trk::numberOfSCTHits);
+  	      ntrt = ts->get(Trk::numberOfTRTHits);
+  	      nscth= ts->get(Trk::numberOfSCTHoles);
+  	      npixh= ts->get(Trk::numberOfPixelHoles);
+  	    }
+  	  }
+  
+    	  msg() << MSG::DEBUG << "REGTEST: " << std::setw(5) << idtr
+    	      << "  pT:  " << std::setw(10) << tp->pt()
+    	      << "  eta: " << tp->eta()
+    	      << "  phi: " << tp->phi()
+    	      << "  d0:  " << tp->d0()
+    	      << "  z0:  " << tp->z0()
+    	      << "\t" << npix << "/" << nsct << "/" << ntrt << "//" << npixh << "/" << nscth
+    	      << endreq;
 
         }
       }
@@ -236,59 +261,6 @@ namespace InDet
     }
 
 
-
-    /*
-
-    //
-    //  Attach resolved tracks to the trigger element.
-    //  std::string sgkey;
-    //if ( HLT::OK !=  recordAndAttachFeature(outputTE, m_trackPC, sgkey, "TrackPart") ) {
-    if ( HLT::OK !=  attachFeature(outputTE, m_trackPC, name()) ) {
-      msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
-
-      return HLT::NAV_ERROR;
-    }
-    else {
-      if(outputLevel <= MSG::DEBUG){
-	msg() << MSG::DEBUG << "Stored TrackParticle container " << endreq;
-	msg() << MSG::DEBUG << "REGTEST: TrackParticle container contains "
-	      << m_trackPC->size() << " particles." << endreq;
-
-	//do detailed output of TrackParticles for REGTEST comparison
-	Rec::TrackParticleContainer::const_iterator itrp = m_trackPC->begin();
-	Rec::TrackParticleContainer::const_iterator itrp_last = m_trackPC->end();
-
-	size_t count(0);
-	for (; itrp!= itrp_last; ++itrp){
-	  const Trk::Perigee *mp = (*itrp)->measuredPerigee();
-	  int npix, nsct, ntrt, npixh, nscth;
-	  npix = nsct = ntrt = npixh = nscth = -1;
-	  const Trk::Track *tr = (*itrp)->originalTrack();
-	  if (tr){
-	    const Trk::TrackSummary *ts = tr->trackSummary();
-	    if (ts){
-	      npix = ts->get(Trk::numberOfPixelHits);
-	      nsct = ts->get(Trk::numberOfSCTHits);
-	      ntrt = ts->get(Trk::numberOfTRTHits);
-	      nscth= ts->get(Trk::numberOfSCTHoles);
-	      npixh= ts->get(Trk::numberOfPixelHoles);
-	    }
-	  }
-	  count++;
-	  if (mp){
-	    msg() << MSG::DEBUG << "REGTEST: " << std::setw(5) << count
-		  << "  pT:  " << std::setw(10) << mp->pT()
-		  << "  eta: " << mp->eta()
-		  << "  phi: " << mp->parameters()[Trk::phi]
-		  << "\t" << npix << "/" << nsct << "/" << ntrt << "//" << npixh << "/" << nscth
-		  << endreq;
-	  }
-	}
-      }
-    }
-
-    */
-
     for (xAOD::TrackParticleContainer::iterator itr = tpCont->begin();
      itr != tpCont->end(); ++itr)  {
       FillMonPerTrack(*itr, tmp_eta_roi, tmp_phi_roi);
@@ -296,7 +268,7 @@ namespace InDet
 
     if (runAlg){
       //+++ DQM (SA): per RoI quantities
-      FillMonPerRoi(tmp_eta_roi, tmp_phi_roi);
+      FillMonPerRoi(roi, tmp_eta_roi, tmp_phi_roi);
       ++m_mon_counter;
 
       return HLT::OK;
@@ -382,9 +354,7 @@ namespace InDet
   }
 
 
-  void TrigTrackingxAODCnv::FillMonPerRoi(const double &tmp_eta_roi, const double &tmp_phi_roi) {
-
-    Rec::TrackParticleContainer *m_trackPC = 0;
+  void TrigTrackingxAODCnv::FillMonPerRoi(const TrigRoiDescriptor* roi, const double &tmp_eta_roi, const double &tmp_phi_roi) {
 
     //+++ Prescale
     if (m_mon_counter >= m_mon_prescale) {
@@ -396,17 +366,25 @@ namespace InDet
 
     //+++ Common for all slices
     if (m_tracks) m_dqm_ntrk = m_tracks->size();
-    if (m_trackPC) m_dqm_ntrkpart = m_trackPC->size();
 
+    if (roi)
+    {
+      m_roiEta = roi->eta();
+      m_roiEtaWidth = roi->etaPlus() - roi->etaMinus();
+      m_roiPhi = roi->phi();
+      m_roiPhiWidth = HLT::wrapPhi(roi->phiPlus() - roi->phiMinus());
+      m_roiZ = roi->zed();
+      m_roiZ_Width = roi->zedPlus() - roi->zedMinus();    
+    }
 
     //+++ Slice specific
     if (m_mon_doSliceSpecific) {
       //+++ Bjet
       if (m_slice_name == "Bjet") {
-	const Trk::Perigee * tmpMp = 0;
-	if (m_trackPC) {
-	  for (Rec::TrackParticleContainer::const_iterator tpItr = m_trackPC->begin(); tpItr != m_trackPC->end(); ++tpItr) {
-	    tmpMp = (*tpItr)->measuredPerigee();
+        const Trk::Perigee* tmpMp = 0;
+	if (m_tracks) {
+          for (auto track : *m_tracks) {
+	    tmpMp = track->perigeeParameters();
 	    if (tmpMp) {
 	      m_dqm_bj_sumpt += tmpMp->pT()/1000;
 	    }
@@ -419,16 +397,16 @@ namespace InDet
 	m_dqm_mu_phi_roi = tmp_phi_roi;
 
 	//+++ Find leading track with pT > X
-	const Rec::TrackParticle * tpL = 0;
-	const Trk::Perigee * tmpMp = 0;
+	const Trk::Track* tpL = 0;
+	const Trk::Perigee* tmpMp = 0;
 	float tmp_pt_max = 0;
-	if (m_trackPC) {
-	  for (Rec::TrackParticleContainer::const_iterator tpItr = m_trackPC->begin(); tpItr != m_trackPC->end(); ++tpItr) {
-	    tmpMp = (*tpItr)->measuredPerigee();
+	if (m_tracks) {
+          for (auto track : *m_tracks) {
+	    tmpMp = track->perigeeParameters();
 	    if (tmpMp) {
 	      float tmp_pt = tmpMp->pT()/1000;
 	      if ((tmp_pt > tmp_pt_max) && (tmp_pt > m_mon_ptmin)) {
-		tpL = (*tpItr);
+		tpL = track;
 		tmp_pt_max = tmp_pt;
 	      }
 	    }
@@ -439,7 +417,7 @@ namespace InDet
 	const Trk::TrackSummary * tmpSum = 0;
 	const Trk::FitQuality *   tmpQty = 0;
 	if (tpL) {
-	  tmpMp = tpL->measuredPerigee();
+	  tmpMp = tpL->perigeeParameters();
 	  tmpSum = tpL->trackSummary();
 	  tmpQty = tpL->fitQuality();
 	}
@@ -463,10 +441,10 @@ namespace InDet
       } else if (m_slice_name == "Tau") {
 
 	//+++ Find L and NL pT track and sum charge
-	const Rec::TrackParticle * tpL = 0;
-	const Rec::TrackParticle * tpNL = 0;
-	const Trk::Perigee * tmpLMp = 0;
-	const Trk::Perigee * tmpNLMp = 0;
+	const Trk::Track* tpL = 0;
+	const Trk::Track* tpNL = 0;
+	const Trk::Perigee* tmpLMp = 0;
+	const Trk::Perigee* tmpNLMp = 0;
 	float tmp_pt_max = 0;
 	int tmp_pos_ch = 0;
 	int tmp_neg_ch = 0;
@@ -474,9 +452,9 @@ namespace InDet
 	float tmp_py = 0;
 	float tmp_pz = 0;
 	float tmp_e  = 0;
-	if (m_trackPC) {
-	  for (Rec::TrackParticleContainer::const_iterator tpItr = m_trackPC->begin(); tpItr != m_trackPC->end(); ++tpItr) {
-	    tmpLMp = (*tpItr)->measuredPerigee();
+	if (m_tracks) {
+          for (auto track : *m_tracks) {
+	    tmpLMp = track->perigeeParameters();
 	    if (tmpLMp) {
 	      float tmp_qOverP = tmpLMp->parameters()[Trk::qOverP];
 	      float tmp_p  = 0;
@@ -488,7 +466,7 @@ namespace InDet
 	      tmp_e  += sqrt(tmp_p*tmp_p + 0.140*0.140);  // All tracks get the pi mass
 	      if ((tmp_pt > tmp_pt_max) && (tmp_pt > m_mon_ptmin)) {
 		tpNL = tpL;
-		tpL  = (*tpItr);
+		tpL  = track;
 		tmp_pt_max = tmp_pt;
 	      }
 	      if (tmp_qOverP < 0) {
@@ -504,8 +482,8 @@ namespace InDet
 	float tmp_p2 = tmp_px*tmp_px + tmp_py*tmp_py + tmp_pz*tmp_pz;
 	float tmp_m2 = tmp_e*tmp_e - tmp_p2;
 	if (tmp_m2 >= 0) m_dqm_ta_m = sqrt( tmp_m2 );
-	if (tpL)  tmpLMp = tpL->measuredPerigee();
-	if (tpNL)  tmpNLMp = tpNL->measuredPerigee();
+	if (tpL)  tmpLMp = tpL->perigeeParameters();
+	if (tpNL)  tmpNLMp = tpNL->perigeeParameters();
 	if (tmpLMp){
 	  m_dqm_ta_L_pt = tmpLMp->pT()/1000;
 	  if (tmpNLMp) {
