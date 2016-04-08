@@ -359,7 +359,7 @@ class Muon : public ParticleImpl<
   const ElementLink<Rec::TrackParticleContainer> muonSpectrometerTrackLink() const { return m_muonSpectrometerTrackParticle; }
 
   /*8 Access to the smart pointer to the calo  cluster associated to the muon */
-  const ElementLink<CaloClusterContainer> clusterLink() const { return m_cluster; }
+  const ElementLink<CaloClusterContainer>& clusterLink() const { return m_cluster; }
 
   /** Access to the smart pointer to the calorimeter energy loss objeect associated to the muon */
   const ElementLink<MuonCaloEnergyContainer> caloEnergyLink() const { return m_caloEnergyLoss; }
@@ -563,6 +563,11 @@ class Muon : public ParticleImpl<
   /** set the Calorimeter information */
   void set_cluster( const CaloCluster* cluster) {
      m_cluster.setElement(const_cast<CaloCluster*>(cluster));
+     m_hasCluster = m_cluster.isValid();
+  }
+  /** set the Calorimeter information, by link */
+  void set_cluster( const ElementLink<CaloClusterContainer>& cluster) {
+     m_cluster = cluster;
      m_hasCluster = m_cluster.isValid();
   }
   /** set the Calorimeter information */
