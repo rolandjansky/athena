@@ -108,23 +108,20 @@ namespace InDet{
 
   inline SiDetElementsLayer_xk::SiDetElementsLayer_xk(const SiDetElementsLayer_xk& L)
     {
-      m_z         = L.m_z       ;
-      m_dz        = L.m_dz      ;
-      m_r         = L.m_r       ;
-      m_dr        = L.m_dr      ;
-      m_dfe       = L.m_dfe     ;
-      m_elements  = L.m_elements;
+      *this = L;
     }
   
   inline SiDetElementsLayer_xk& SiDetElementsLayer_xk::operator = 
     (const SiDetElementsLayer_xk& L) 
     {
-      m_z         = L.m_z       ;
-      m_dz        = L.m_dz      ;
-      m_r         = L.m_r       ;
-      m_dr        = L.m_dr      ;
-      m_dfe       = L.m_dfe     ;
-      m_elements  = L.m_elements;
+      if(&L!=this) {
+	m_z         = L.m_z       ;
+	m_dz        = L.m_dz      ;
+	m_r         = L.m_r       ;
+	m_dr        = L.m_dr      ;
+	m_dfe       = L.m_dfe     ;
+	m_elements  = L.m_elements;
+      }
       return(*this);
     }
 

@@ -40,7 +40,7 @@ namespace InDet{
 
       void set (const double*);
       const InDetDD::SiDetectorElement* detElement() const {return m_detelement;}
-      const float&  phi () const {return m_phi;}
+      float phi () const {return m_phi;}
       void intersect(const float*,const float*,float*) const;
       const float&  way () const {return m_way;}
       const bool&   used() const {return m_used;}
@@ -79,7 +79,7 @@ namespace InDet{
       m_used       = false;
     }
 
-  inline SiDetElementLink_xk::SiDetElementLink_xk(const SiDetElementLink_xk& L)
+  inline SiDetElementLink_xk::SiDetElementLink_xk(const SiDetElementLink_xk& L): m_detelement(L.m_detelement)
     {
       *this = L;
     }
@@ -111,6 +111,12 @@ namespace InDet{
     {
       m_used = true; m_way = way;
     }
+
+  inline InDet::SiDetElementLink_xk::SiDetElementLink_xk
+    (InDetDD::SiDetectorElement*& el,const double* P)
+    {
+      m_detelement = el; set(P); m_used = false; m_way = 0.;
+    } 
 
   inline SiDetElementLink_xk::~SiDetElementLink_xk() {}
 
