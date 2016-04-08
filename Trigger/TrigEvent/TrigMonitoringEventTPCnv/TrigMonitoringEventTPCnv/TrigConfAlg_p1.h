@@ -19,7 +19,7 @@ class TrigConfAlg_p1
 {
  public:
   
-  TrigConfAlg_p1() {}
+  TrigConfAlg_p1() : m_index(0), m_position(0), m_name_id(0), m_type_id(0), m_name(), m_type() {}
   ~TrigConfAlg_p1() {}
   
   friend class TrigConfAlgCnv_p1;

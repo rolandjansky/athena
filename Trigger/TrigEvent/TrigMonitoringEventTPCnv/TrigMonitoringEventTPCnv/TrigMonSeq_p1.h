@@ -20,7 +20,11 @@ class TrigMonSeq_p1
 {
  public:
   
-  TrigMonSeq_p1() {}
+  TrigMonSeq_p1() :
+    m_encoded(0),
+    m_alg(),
+    m_var_key(),
+    m_var_val() {}
   ~TrigMonSeq_p1() {} 
 
   friend class TrigMonSeqCnv_p1;

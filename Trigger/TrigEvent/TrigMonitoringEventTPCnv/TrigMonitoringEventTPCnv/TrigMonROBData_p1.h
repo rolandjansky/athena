@@ -18,7 +18,7 @@ class TrigMonROBData_p1
 {
  public:
   
-  TrigMonROBData_p1() {}
+  TrigMonROBData_p1() : m_rob_id(0), m_rob_size(0), m_word(0) {}
   ~TrigMonROBData_p1() {}
   
   friend class TrigMonROBDataCnv_p1;

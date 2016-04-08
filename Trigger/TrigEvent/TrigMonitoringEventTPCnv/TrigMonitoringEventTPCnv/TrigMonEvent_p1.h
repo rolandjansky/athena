@@ -22,7 +22,22 @@ class TrigMonEvent_p1
 {
  public:
     
-  TrigMonEvent_p1() {}
+  TrigMonEvent_p1() :
+    m_event(0),
+    m_lumi(0),
+    m_bxid(0),
+    m_run(0),
+    m_sec(0),
+    m_nsec(0),
+    m_word(),
+    m_rob(),
+    m_roi(),
+    m_seq(),
+    m_te(),
+    m_l1(),
+    m_hlt(),
+    m_var_key(),
+    m_var_val() {}
   ~TrigMonEvent_p1() {}
   
   friend class TrigMonEventCnv_p1;

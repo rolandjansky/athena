@@ -20,7 +20,15 @@ class TrigMonTE_p1
 {
  public:
   
-  TrigMonTE_p1() {}
+  TrigMonTE_p1() :
+    m_id(0),
+    m_encoded(0),
+    m_child(),
+    m_parent(),
+    m_roi(),
+    m_clid(),
+    m_var_key(),
+    m_var_val() {}
   ~TrigMonTE_p1() {}
     
   friend class TrigMonTECnv_p1;

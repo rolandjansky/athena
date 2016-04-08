@@ -22,7 +22,21 @@ class TrigConfChain_p1
 {
  public:
   
-  TrigConfChain_p1() {}
+  TrigConfChain_p1() : 
+    m_chain_name(),
+    m_lower_name(),
+    m_chain_id(0),
+    m_lower_id(0),
+    m_chain_counter(0),
+    m_lower_counter(0),
+    m_level(0),
+    m_prescale(0),
+    m_pass_through(0),
+    m_lower_ids(),
+    m_stream_prescale(),
+    m_signature(),
+    m_stream_name(),
+    m_group() {}
   ~TrigConfChain_p1() {}
   
   friend class TrigConfChainCnv_p1;

@@ -20,7 +20,11 @@ class TrigConfSig_p1
 {
  public:
   
-  TrigConfSig_p1() {}
+  TrigConfSig_p1() :
+    m_counter(0),
+    m_logic(0),
+    m_label(),
+    m_output_te() {}
   ~TrigConfSig_p1() {}
   
   friend class TrigConfSigCnv_p1;

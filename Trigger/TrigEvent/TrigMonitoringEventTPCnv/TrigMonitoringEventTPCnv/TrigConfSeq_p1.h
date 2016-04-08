@@ -22,7 +22,13 @@ class TrigConfSeq_p1
 {
  public:
   
-  TrigConfSeq_p1() {}
+  TrigConfSeq_p1() :
+    m_output_te_name(),
+    m_output_te_index(0),
+    m_output_te_id(0),
+    m_topo_te(0),
+    m_alg(),
+    m_input_te() {}
   ~TrigConfSeq_p1() {}
 
   friend class TrigConfSeqCnv_p1;

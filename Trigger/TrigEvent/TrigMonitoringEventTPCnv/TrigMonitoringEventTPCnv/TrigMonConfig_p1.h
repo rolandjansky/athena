@@ -23,7 +23,21 @@ class TrigMonConfig_p1
 {
  public:
   
-  TrigMonConfig_p1() {}
+  TrigMonConfig_p1() :
+    m_event(0),
+    m_lumi(0),
+    m_run(0),
+    m_sec(0),
+    m_nsec(0),
+    m_master_key(0),
+    m_hlt_ps_key(0),
+    m_lv1_ps_key(0),
+    m_chain(),
+    m_seq(),
+    m_var_name(),
+    m_var_id(),
+    m_pair_key(),
+    m_pair_val() {}
   ~TrigMonConfig_p1() {}
 
   friend class TrigMonConfigCnv_p1;
