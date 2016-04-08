@@ -20,7 +20,7 @@ pattern install_pylib \
     macro lib_python_path "$(CMTINSTALLAREA)/python" ; \
     document install_pylib "<package>install_pylib" install_dir=$(lib_python_path) file=$(TrigConfDBConnection_root)/$(tag)/lib<package>.so target=<target>
 
-macro_append Boost_linkopts " $(Boost_linkopts_python) "
+macro_append TrigConfDBConnection_use_linkopts " $(Boost_linkopts_python) "
 
 #macro hello_shlibflags $(TrigConfDBConnection_shlibflags)
 #library hello *.cxx
