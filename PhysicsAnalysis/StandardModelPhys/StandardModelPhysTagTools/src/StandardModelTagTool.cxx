@@ -12,12 +12,9 @@ Purpose : create a StandardModelPhysTag - a word to encode StandardModelPhys spe
 
 *****************************************************************************/
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/GaudiException.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "JetEvent/JetCollection.h"
 
@@ -28,7 +25,7 @@ Purpose : create a StandardModelPhysTag - a word to encode StandardModelPhys spe
 /** the constructor */
 StandardModelPhysTagTool::StandardModelPhysTagTool (const std::string& type, const 
 std::string& name, const IInterface* parent) : 
-    AlgTool( type, name, parent ) {
+  AthAlgTool( type, name, parent ) {
 
   /** AOD Container Names */
   declareProperty("JetContainer",    m_jetContainerName = "AntiKt4TopoJets");
@@ -41,16 +38,7 @@ std::string& name, const IInterface* parent) :
 
 /** initialization - called once at the begginning */
 StatusCode StandardModelPhysTagTool::initialize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in intialize()" << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-    return sc;
-  }
-
+  ATH_MSG_DEBUG( "in intialize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -58,8 +46,7 @@ StatusCode StandardModelPhysTagTool::initialize() {
 StatusCode StandardModelPhysTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap, 
                                                             const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
+  ATH_MSG_DEBUG( "in attributeSpecification()" );
 
   /** specifiy the StandardModelPhys the attributes */
 
@@ -74,8 +61,7 @@ StatusCode StandardModelPhysTagTool::attributeSpecification(std::map<std::string
 /** execute - called on every event */
 StatusCode StandardModelPhysTagTool::execute(TagFragmentCollection& smTagCol, const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()" );
 
   /** fill the StandardModelPhys analysis tag */
   
@@ -90,8 +76,7 @@ StatusCode StandardModelPhysTagTool::execute(TagFragmentCollection& smTagCol, co
 
 /** finialize - called once at the end */
 StatusCode StandardModelPhysTagTool::finalize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 
