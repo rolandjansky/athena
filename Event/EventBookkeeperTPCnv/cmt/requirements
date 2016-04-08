@@ -13,6 +13,7 @@ apply_pattern tpcnv_library
 
 private
 
+use CxxUtils                CxxUtils-*                Control
 use AthenaKernel            AthenaKernel-*            Control
 use AtlasReflex             AtlasReflex-*             External
 
@@ -22,3 +23,9 @@ apply_pattern lcgdict dict=EventBookkeeperTPCnv selectionfile=selection.xml \
 end_private
 
 
+private
+use TestTools            TestTools-*                AtlasTest
+
+apply_pattern UnitTest_run unit_test=EventBookkeeperCnv_p1
+apply_pattern UnitTest_run unit_test=EventBookkeeperCnv_p2
+apply_pattern UnitTest_run unit_test=SkimDecisionCnv_p1

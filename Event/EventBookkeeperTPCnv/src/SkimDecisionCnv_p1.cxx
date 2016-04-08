@@ -7,11 +7,7 @@
 // Author: David Cote, September 2008. <david.cote@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
-#define private public
-#define protected public
 #include "EventBookkeeperMetaData/SkimDecision.h"
-#undef private
-#undef protected
 
 #include "EventBookkeeperTPCnv/SkimDecisionCnv_p1.h"
 
