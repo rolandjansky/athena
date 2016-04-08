@@ -1,0 +1,31 @@
+#!/bin/bash
+
+BASENAME=`basename $0`
+
+if [ $# != 4 ]; then
+    echo "Usage:"
+    echo
+    echo "${BASENAME} <pmbdomain> <nevents> <preExec flags> <input bs file>"
+    exit 1
+fi
+#Usage example:
+#pmb-rtt-domain-callgrind mucomb 10 "rec.doJetMissingETTag=False,,rec.doEgamma=False,,rec.doTau=False,,rec.doTrigger=False" /afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_JetTauEtmiss.merge.RAW._lb0120._SFO-11._0001.1_1000evts 
+
+DOMAIN="$1"
+NEVENTS="$2"
+PREEXEC="$3"
+INFILE="$4"
+
+DEFAULT_PREEXEC="rec.doPerfMon=True,,rec.doDetailedPerfMon=False,,rec.doSemiDetailedPerfMon=False"
+if [ "x$PREEXEC" == "x" ]; then
+    PREEXEC="${DEFAULT_PREEXEC}"
+else
+    PREEXEC="${DEFAULT_PREEXEC},,${PREEXEC}"
+fi
+
+pmb-callgrind.py delay_instr outid:rawtoesd_${DOMAIN} RAWtoESD_trf.py maxEvents=${NEVENTS} autoConfiguration=everything inputBSFile=${INFILE} outputESDFile=tmpESD.pool.root preExec="${PREEXEC}" postExec="import PmbUtils.ValgrindDomain as vd;vd.setup(domain='${DOMAIN}')" --athenaopts=--stdcmalloc && \
+pmb-callgrind.py delay_instr outid:esdtoaod_${DOMAIN} ESDtoAOD_trf.py maxEvents=${NEVENTS} autoConfiguration=everything inputESDFile=tmpESD.pool.root outputAODFile=tmpAOD.pool.root preExec="${PREEXEC}" postExec="import PmbUtils.ValgrindDomain as vd;vd.setup(domain='${DOMAIN}')" --athenaopts=--stdcmalloc
+EC=$?
+echo "${BASENAME}: Ending with ExitCode=$EC"
+exit $EC
+

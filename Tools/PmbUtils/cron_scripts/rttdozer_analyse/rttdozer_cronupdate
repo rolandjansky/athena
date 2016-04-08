@@ -1,0 +1,255 @@
+#!/bin/bash --norc
+
+################################################################
+##                                                            ##
+##  Script used by CRON to update RTT-based pmb performance   ##
+##  monitoring pages.                                         ##
+##                                                            ##
+##  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  ##
+##  Initial version: September 2009                           ##
+##                                                            ##
+################################################################
+
+####################################
+#  Parse cmdline and acquire lock  #
+####################################
+
+USAGE=""
+if [ $# -gt 3 ]; then
+    echo "Usage:"
+    echo "  [cmdname] outputdirbase [build] [test]"
+    exit 1
+fi
+OUTDIRBASE=$1
+if [ "x$1" == "x" -o ! -d $OUTDIRBASE ]; then
+    echo "Outdir, $OUTDIRBASE, not found"
+    exit 1
+fi
+ONLY_BUILD="$2"
+ONLY_JOBSET="$3"
+
+DEVEL=0
+MAILWARNINGS='defaultlist'
+if [[ "x$OUTDIRBASE" =~ "devel" ]]; then
+    #Make sure that we don't send out email warnings to everyone when
+    #testing the development version of the page:
+    DEVEL=1
+    MAILWARNINGS='thomas.kittelmann@cern.ch'
+fi
+
+LOCKFILE=$OUTDIRBASE/lock
+if [ -f $LOCKFILE ]; then
+    echo "Lockfile $LOCKFILE found. Aborting."
+    exit 1
+fi
+touch $LOCKFILE
+if [ ! -f $LOCKFILE ]; then
+    echo "ERROR: Could not create $LOCKFILE. Aborting."
+    exit 1
+fi
+touch $OUTDIRBASE/update.start
+
+TIME_START=`date +%s`
+TIMESPENT_RECORD=$OUTDIRBASE/runtime.log
+
+###################################################################
+#  Parse various RTT xml files and generate both lists for build  #
+#  order, php menus and the RTT tables for the individual pages   #
+###################################################################
+
+BUILDORDER=$OUTDIRBASE/cronbuildorder.txt
+MENU=$OUTDIRBASE/menu.txt
+
+TABLEDIR=$OUTDIRBASE/tables
+TABLEDIRTMP=$OUTDIRBASE/tables_$RANDOM$RANDOM
+mkdir -p $TABLEDIRTMP
+RTTSUMMARYCACHE=$OUTDIRBASE/rttcache.dat
+
+pmb-domain-rttstatus.py --buildlist=$BUILDORDER --menu=$MENU -j$TABLEDIRTMP --cache=$RTTSUMMARYCACHE
+if [ $? != 0 ];then
+    rm -rf $TABLEDIRTMP
+    echo "ERROR: Problems while executing pmb-domain-rttstatus.py. Aborting."
+    TIME_NOW=`date +%s`
+    ELAPSED=$((TIME_NOW-TIME_START))
+    echo "$TIME_NOW $ELAPSED" >> $TIMESPENT_RECORD
+    rm -f $LOCKFILE
+    exit 1
+fi
+rm -rf $TABLEDIR && mv $TABLEDIRTMP $TABLEDIR
+touch $OUTDIRBASE/update.rttdone
+
+###################################################
+#  Update tables and images on individual pages  ##
+###################################################
+
+BAD=0
+for testline in `cat $BUILDORDER|grep '^TESTANDBUILD:'|tr '\n' ' '`; do
+    TIME_NOW=`date +%s`
+    ELAPSED=$((TIME_NOW-TIME_START))
+    #Abort if running longer than 2 hours (probably a messed up afs
+    #connection or something like that on this server)
+    if [ $ELAPSED -gt 7200 ]; then
+	echo "Total cron update took longer than 2 hours so far ($ELAPSED seconds). Aborting."
+	echo "$TIME_NOW $ELAPSED" >> $TIMESPENT_RECORD
+	rm -rf $LOCKFILE
+	exit 1
+    fi
+
+    jobset=`echo $testline|awk -F':' '{print $2}'`
+    build=`echo $testline|awk -F':' '{print $3}'`
+    cache=`echo $testline|awk -F':' '{print $4}'`
+    cmtconfig=`echo $testline|awk -F':' '{print $5}'`
+
+    STEP="${jobset}-${build}-${cache}-${cmtconfig}"
+    CMD="time pmb-domain-analysertt.py --type=$jobset --cmtconfig=$cmtconfig --build=$build --cache=$cache"
+    THEDATE=`date --rfc-2822`
+
+    if [ "x$ONLY_BUILD" != "x" ]; then
+	if [ "$ONLY_BUILD" != "$build" ]; then
+	    continue
+	fi
+    fi
+    if [ "x$ONLY_JOBSET" != "x" ]; then
+	if [ "$ONLY_JOBSET" != "$jobset" ]; then
+	    continue
+	fi
+    fi
+    if [ "x$ONLY_BUILD$ONLY_JOBSET" != "x" ]; then
+	echo "Processing step $STEP"
+    fi
+
+    OUTDIR="$OUTDIRBASE/$STEP"
+    mkdir -p $OUTDIR
+    if [ ! -d $OUTDIR ]; then
+	echo "Could not create dir: $OUTDIR. Aborting step $STEP."
+	continue
+    fi
+    #Various dirs:
+    LOGDIR=$OUTDIR/logs
+    TMPDIR=$OUTDIR/results.crontmp.$RANDOM
+    FINALDIR=$OUTDIR/results
+    LOGFILE=$LOGDIR/cron.log
+    SENTEMAILBLOCKLIST=$LOGDIR/mailwarnings.log
+    LOGFILE_ACTUALUPDATE=$LOGDIR/cron.actualupdate.log
+    LASTCONTENT=$LOGDIR/lastcontent.txt
+    LASTCONTENT_NEW="${LASTCONTENT}.tmp.${RANDOM}"
+    CLEANUP="rm -rf $TMPDIR $LASTCONTENT_NEW"
+
+    if [ -d $TMPDIR ]; then
+	echo "Tmpdir $TMPDIR found. Aborting step $STEP."
+	continue
+    fi
+    mkdir -p $TMPDIR && mkdir -p $LOGDIR
+    if [ ! -d $LOGDIR -o ! -d $TMPDIR ]; then
+	echo "Problems creating $LOGDIR or $TMPDIR. Aborting step $STEP."
+	$CLEANUP
+	continue
+    fi
+    ##################################################
+    echo "DATE: $THEDATE" > $LOGFILE
+    if [ $DEVEL == 1 ]; then
+	echo "DEVELOPMENT version of page detected!" >> $LOGFILE
+    fi
+    echo "Looking for changes for step $STEP" >> $LOGFILE
+    echo "CMD: $CMD --lastdata=$LASTCONTENT_NEW" >> $LOGFILE
+    $CMD --lastdata=$LASTCONTENT_NEW 2>&1 >> $LOGFILE 2>&1
+    if [ ! -f ${LASTCONTENT_NEW} -o $? != 0 ]; then
+	echo "ERROR: Problems detected (probably connecting to DB)!" | tee -a $LOGFILE
+	cat $LOGFILE
+	$CLEANUP
+	BAD=1
+	continue
+    fi
+    DIFFERENCES=0
+    if [ ! -f ${LASTCONTENT} ]; then
+	echo "Did not find ${LASTCONTENT}" >> $LOGFILE
+	DIFFERENCES=1
+    else
+	diff -q --brief ${LASTCONTENT} ${LASTCONTENT_NEW} > /dev/null
+	DIFFERENCES=$?
+	if [ $DIFFERENCES == 2 ]; then
+	    echo "ERROR: Problems with diff!" | tee -a $LOGFILE
+	    cat $LOGFILE
+	    $CLEANUP
+	    BAD=1
+	    continue
+	fi
+    fi
+    if [ $DIFFERENCES == 0 ]; then
+	echo "No relevant updates in DB detected. Nothing to do." >> $LOGFILE
+	$CLEANUP
+	BAD=1
+	continue
+    fi
+	        #Actually produce new images and tables:
+    echo "Relevant updates in DB detected. Continuing." >> $LOGFILE
+    echo "Attempting actual update. Output will be in $LOGFILE_ACTUALUPDATE" >> $LOGFILE
+    echo "DATE: $THEDATE" > $LOGFILE_ACTUALUPDATE
+    echo "CMD: $CMD --makestdoutput=$TMPDIR" >> $LOGFILE_ACTUALUPDATE
+    $CMD --makestdoutput=$TMPDIR 2>&1 >> $LOGFILE_ACTUALUPDATE 2>&1
+    if [  $? != 0 ]; then
+	echo "ERROR: Problems encountered!" | tee -a $LOGFILE
+	cat $LOGFILE
+	cat $LOGFILE_ACTUALUPDATE
+	$CLEANUP
+	BAD=1
+	continue
+    fi
+	        #And long-term:
+    echo "... And now the long-term plots:" >> $LOGFILE_ACTUALUPDATE
+    echo "CMD: $CMD --stdoutputpostfix=long --numberofdays=999999 --makestdoutput=$TMPDIR" >> $LOGFILE_ACTUALUPDATE
+    $CMD --stdoutputpostfix=long --numberofdays=999999 --makestdoutput=$TMPDIR 2>&1 >> $LOGFILE_ACTUALUPDATE 2>&1
+	        #And the email warnings:
+    if [  $? != 0 ]; then
+	echo "ERROR: Problems encountered while extracting long-history data!" | tee -a $LOGFILE
+	cat $LOGFILE
+	cat $LOGFILE_ACTUALUPDATE
+	$CLEANUP
+	BAD=1
+	continue
+    fi
+    echo "CMD: $CMD --numberofdays=100 --domainvmemwarnings=${MAILWARNINGS} --warnblockfile=${SENTEMAILBLOCKLIST} --nodefaultaction" >> $LOGFILE_ACTUALUPDATE
+    $CMD --numberofdays=100 --domainvmemwarnings=${MAILWARNINGS} --warnblockfile=${SENTEMAILBLOCKLIST} --nodefaultaction 2>&1 >> $LOGFILE_ACTUALUPDATE 2>&1
+    if [  $? != 0 ]; then
+	echo "ERROR: Problems encountered while checking for email warnings!" | tee -a $LOGFILE
+	cat $LOGFILE
+	cat $LOGFILE_ACTUALUPDATE
+	$CLEANUP
+	BAD=1
+	continue
+    fi
+	        #Produce thumbnails:
+    for file in $TMPDIR/*.png; do
+	echo "Producing thumbnail of $file" >> $LOGFILE_ACTUALUPDATE
+	target=`echo $file|sed 's#\.png#_small.jpg#'`
+	cp $file $target 2>&1 >> $LOGFILE_ACTUALUPDATE 2>&1
+	bn=`basename $file`
+		    #thumbnails 400x400 unless for long history or pie-charts:
+	DIM=400x400
+	DIMSMALL=9999x220
+	bn=`basename $file`
+	if [[ $bn =~ '_long.png$' ]]; then
+	    DIM=$DIMSMALL
+	elif [[ $bn =~ '^pie' ]]; then
+	    DIM=$DIMSMALL
+	fi
+	THCMD="mogrify -frame 10x10+5x5 -quality 99 -geometry $DIM $target"
+	echo "Executing '$THCMD'" >> $LOGFILE_ACTUALUPDATE
+	$THCMD 2>&1 >> $LOGFILE_ACTUALUPDATE 2>&1
+    done
+    echo "UPDATEDONE: "`date --rfc-2822`>> $LOGFILE_ACTUALUPDATE
+    mv -f ${LASTCONTENT_NEW} ${LASTCONTENT}
+    rm -rf $FINALDIR && mv $TMPDIR $FINALDIR
+	        ##################################################
+    $CLEANUP
+done
+
+TIME_NOW=`date +%s`
+ELAPSED=$((TIME_NOW-TIME_START))
+echo "$TIME_NOW $ELAPSED" >> $TIMESPENT_RECORD
+
+rm -rf $LOCKFILE
+touch $OUTDIRBASE/update.finish
+
+
+exit $BAD

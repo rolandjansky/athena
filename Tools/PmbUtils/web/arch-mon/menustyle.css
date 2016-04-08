@@ -1,0 +1,82 @@
+
+ul, li
+{
+margin:0;
+padding:0;
+}
+
+/*------------------------------------*\
+	NAV
+\*------------------------------------*/
+#nav{
+	float:left;
+	width:100%;
+	list-style:none;
+	font-weight:bold;
+	margin-bottom:3ex;
+	margin-top:0px;
+	margin-left:0px;
+        font-size:80%;
+}
+#nav li{
+	float:left;
+	margin-right:1px;
+	position:relative;
+	display:block;
+}
+#nav li a{
+	display:block;
+	padding:5px;
+	color:black;
+	background:rgb(200,200,255);
+	text-decoration:none;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
+}
+#nav li a:hover{
+	color:black;
+	background:rgb(200,200,250);
+	text-decoration:underline;
+}
+
+/*--- DROPDOWN ---*/
+#nav ul{
+	list-style:none;
+	position:absolute;
+	left:-9999px; /* Hide off-screen when not needed (this is more accessible than display:none;) */
+	opacity:0; /* Set initial state to transparent */
+	-webkit-transition:0.25s linear opacity; /* Make the dropdown fade-in in Webkit */
+        background-image : url(transp_1x1.png);/*needed for IE*/
+
+}
+#nav ul li{
+	padding-top:1px;  /*Introducing a padding between the li and the a give the illusion spaced items */
+        background: rgba(0,0,0,0);
+	float:none;
+}
+#nav ul a{
+	white-space:nowrap; /* Stop text wrapping and creating multi-line dropdown items */
+	display:block;
+}
+#nav li:hover ul{ /* Display the dropdown on hover */
+	left:0; /* Bring back on-screen when needed */
+	opacity:1; /* Fade to opaque */
+}
+#nav li:hover a{ /* Set styles for top level when dropdown is hovered */
+	background:rgb(150,150,255);
+	text-decoration:underline;
+}
+#nav li:hover ul a{ /* Override some top level styles when dropdown is hovered */
+	text-decoration:none;
+	-webkit-transition:-webkit-transform 0.075s linear;
+}
+#nav li:hover ul li a:hover{ /* Set styles for dropdown when items are hovered */
+	background:rgb(100,100,200);
+	text-decoration:underline;
+}
+#nav li ul li a:hover{ /* Set styles for dropdown when items are hovered */
+	background:rgb(100,100,200);
+	text-decoration:underline;
+}
+
