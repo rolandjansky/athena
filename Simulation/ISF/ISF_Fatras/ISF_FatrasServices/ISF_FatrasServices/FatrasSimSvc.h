@@ -67,6 +67,7 @@ namespace iFatras {
 
       /** Track Creation & transport */
       ToolHandle<ISF::IParticleProcessor>  m_IDsimulationTool;   //!< Pointer to the transport AlgTool
+      bool                                 m_useExtrapolator;  //!< Boolean used to run with the old extrapolator setup
       ToolHandle<ISF::IParticleProcessor>  m_simulationTool;   //!< Pointer to the transport AlgTool
       ToolHandle<ISF::IParticleFilter>     m_particleFilter;   //!< the particle filter concerning kinematic cuts, etc.
 

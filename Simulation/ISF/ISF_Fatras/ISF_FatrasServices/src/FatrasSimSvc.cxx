@@ -22,13 +22,15 @@
 iFatras::FatrasSimSvc::FatrasSimSvc(const std::string& name, ISvcLocator* svc) :
   BaseSimulationSvc(name, svc),
   m_IDsimulationTool(""),
+  m_useExtrapolator(true), // Used to run with the old extrapolator setup
   m_simulationTool(""),
   m_particleFilter("")
 {
   // retrieve the simulation tool and the transport tool
   declareProperty("IDSimulationTool",   m_IDsimulationTool);
-  declareProperty("SimulationTool",   m_simulationTool);
-  declareProperty("ParticleFilter",   m_particleFilter); 
+  declareProperty("UseSimulationTool",  m_useExtrapolator);
+  declareProperty("SimulationTool",     m_simulationTool);
+  declareProperty("ParticleFilter",     m_particleFilter); 
 }
 
 iFatras::FatrasSimSvc::~FatrasSimSvc() 
@@ -39,11 +41,13 @@ StatusCode iFatras::FatrasSimSvc::initialize()
 {
    ATH_MSG_INFO ( m_screenOutputPrefix << "Initializing ...");
    // retrieve simulation tool
-   if ( retrieveTool<ISF::IParticleProcessor>(m_IDsimulationTool).isFailure() )      
+   if ( retrieveTool<ISF::IParticleProcessor>(m_IDsimulationTool).isFailure() ) 
      return StatusCode::FAILURE;
    // retrieve simulation tool
-   if ( retrieveTool<ISF::IParticleProcessor>(m_simulationTool).isFailure() ) 
-     return StatusCode::FAILURE;
+   if ( m_useExtrapolator ) {
+     if ( retrieveTool<ISF::IParticleProcessor>(m_simulationTool).isFailure() ) 
+       return StatusCode::FAILURE;
+   } else ATH_MSG_INFO ( m_screenOutputPrefix << "Using only Extrapolation Engine Tools...");       
    // retrieve particle filter
    if ( !m_particleFilter.empty() && retrieveTool<ISF::IParticleFilter>(m_particleFilter).isFailure())
        return StatusCode::FAILURE;
