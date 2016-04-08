@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+using namespace std;
 
 // EDM include(s):
 #include "GeneratorObjects/McEventCollection.h"

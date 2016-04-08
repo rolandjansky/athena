@@ -51,21 +51,21 @@ namespace D3PD
         unsigned long long* m_pullDCSTriggerSettingsID;
 
         //RawDataContainer
-        std::vector<int>* m_pvecScaler;
+        vector<int>* m_pvecScaler;
         int* m_pnBCId;
         int* m_pnTimeStamp;
         int* m_pnTimeStamp_ns;
-        std::vector<int>* m_pvecTrigPat;
+        vector<int>* m_pvecTrigPat;
 
         //DigitCollection
-        std::vector<int>* m_pvecMDFiberHits;
-        std::vector<int>* m_pvecMDMultiplicity;
+        vector<int>* m_pvecMDFiberHits;
+        vector<int>* m_pvecMDMultiplicity;
 
         //ODDigitCollection
-        std::vector<int>* m_pvecODFiberHitsPos;
-        std::vector<int>* m_pvecODFiberHitsNeg;
-        std::vector<int>* m_pvecODMultiplicityPos;
-        std::vector<int>* m_pvecODMultiplicityNeg;
+        vector<int>* m_pvecODFiberHitsPos;
+        vector<int>* m_pvecODFiberHitsNeg;
+        vector<int>* m_pvecODMultiplicityPos;
+        vector<int>* m_pvecODMultiplicityNeg;
 
     }; // class AlfaEventHeaderFillerTool
 

@@ -14,8 +14,6 @@
 // Local include(s):
 #include "AlfaMetaDataTool.h"
 
-using namespace std;
-
 namespace D3PD
 {
 	AlfaMetaDataTool::AlfaMetaDataTool( const std::string& type,const std::string& name, const IInterface* parent )
@@ -172,14 +170,14 @@ namespace D3PD
 		return StatusCode::SUCCESS;
    }
 
-   StatusCode AlfaMetaDataTool::AddCOOLFolderCallback(const std::string& Folder)
+   StatusCode AlfaMetaDataTool::AddCOOLFolderCallback(const string& Folder)
    {
 	   StatusCode sc=StatusCode::FAILURE;
 
 	   const DataHandle<CondAttrListCollection> DataPtr;
 	   sc=detStore()->regFcn(&AlfaMetaDataTool::COOLUpdate, this, DataPtr, Folder, true);
 	   if(sc!=StatusCode::SUCCESS){
-		   msg(MSG::ERROR) << "Cannot register COOL callback for folder '"<<Folder<<"'" << endmsg;
+		   msg(MSG::ERROR) << "Cannot register COOL callback for folder '"<<Folder<<"'" << endreq;
 	   }
 
 	   return sc;
@@ -196,7 +194,7 @@ namespace D3PD
 
 	   for(iter=keys.begin();iter!=keys.end();iter++){
 		   if((*iter)==DCSCOLLNAME_BLM){
-			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_BLM<<"'" << endmsg;
+			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_BLM<<"'" << endreq;
 			   ClearDCSData(EDCSI_BLM);
 
 			   if(detStore()->retrieve(listAttrColl,DCSCOLLNAME_BLM)==StatusCode::SUCCESS){
@@ -208,19 +206,19 @@ namespace D3PD
 				   }
 
 				   if((sc=m_DCSTreeBLM->capture()).isFailure()){
-					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_BLM<<"' tree" << endmsg;
+					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_BLM<<"' tree" << endreq;
 					   sc=StatusCode::FAILURE;
 					   break;
 				   }
 			   }
 			   else{
-				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_BLM<<"' not found" << endmsg;
+				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_BLM<<"' not found" << endreq;
 				   sc=StatusCode::FAILURE;
 				   break;
 			   }
 		   }
 		   else if((*iter)==DCSCOLLNAME_HVCHANNEL){
-			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_HVCHANNEL<<"'" << endmsg;
+			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_HVCHANNEL<<"'" << endreq;
 			   ClearDCSData(EDCSI_HVCHANNEL);
 
 			   if(detStore()->retrieve(listAttrColl,DCSCOLLNAME_HVCHANNEL)==StatusCode::SUCCESS){
@@ -233,19 +231,19 @@ namespace D3PD
 				   }
 
 				   if((sc=m_DCSTreeHVChannel->capture()).isFailure()){
-					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_HVCHANNEL<<"' tree" << endmsg;
+					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_HVCHANNEL<<"' tree" << endreq;
 					   sc=StatusCode::FAILURE;
 					   break;
 				   }
 			   }
 			   else{
-				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_HVCHANNEL<<"' not found" << endmsg;
+				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_HVCHANNEL<<"' not found" << endreq;
 				   sc=StatusCode::FAILURE;
 				   break;
 			   }
 		   }
 		   else if((*iter)==DCSCOLLNAME_LOCALMONITORING){
-			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_LOCALMONITORING<<"'" << endmsg;
+			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_LOCALMONITORING<<"'" << endreq;
 			   ClearDCSData(EDCSI_LOCALMONITORING);
 
 			   if(detStore()->retrieve(listAttrColl,DCSCOLLNAME_LOCALMONITORING)==StatusCode::SUCCESS){
@@ -261,19 +259,19 @@ namespace D3PD
 				   }
 
 				   if((sc=m_DCSTreeLocalMonitoring->capture()).isFailure()){
-					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_LOCALMONITORING<<"' tree" << endmsg;
+					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_LOCALMONITORING<<"' tree" << endreq;
 					   sc=StatusCode::FAILURE;
 					   break;
 				   }
 			   }
 			   else{
-				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_LOCALMONITORING<<"' not found" << endmsg;
+				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_LOCALMONITORING<<"' not found" << endreq;
 				   sc=StatusCode::FAILURE;
 				   break;
 			   }
 		   }
 		   else if((*iter)==DCSCOLLNAME_MOVEMENT){
-			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_MOVEMENT<<"'" << endmsg;
+			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_MOVEMENT<<"'" << endreq;
 			   ClearDCSData(EDCSI_MOVEMENT);
 
 			   if(detStore()->retrieve(listAttrColl,DCSCOLLNAME_MOVEMENT)==StatusCode::SUCCESS){
@@ -286,19 +284,19 @@ namespace D3PD
 				   }
 
 				   if((sc=m_DCSTreeMovement->capture()).isFailure()){
-					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_MOVEMENT<<"' tree" << endmsg;
+					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_MOVEMENT<<"' tree" << endreq;
 					   sc=StatusCode::FAILURE;
 					   break;
 				   }
 			   }
 			   else{
-				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_MOVEMENT<<"' not found" << endmsg;
+				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_MOVEMENT<<"' not found" << endreq;
 				   sc=StatusCode::FAILURE;
 				   break;
 			   }
 		   }
 		   else if((*iter)==DCSCOLLNAME_RADMON){
-			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_RADMON<<"'" << endmsg;
+			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_RADMON<<"'" << endreq;
 			   ClearDCSData(EDCSI_RADMON);
 
 			   if(detStore()->retrieve(listAttrColl,DCSCOLLNAME_RADMON)==StatusCode::SUCCESS){
@@ -312,19 +310,19 @@ namespace D3PD
 				   }
 
 				   if((sc=m_DCSTreeRadMon->capture()).isFailure()){
-					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_RADMON<<"' tree" << endmsg;
+					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_RADMON<<"' tree" << endreq;
 					   sc=StatusCode::FAILURE;
 					   break;
 				   }
 			   }
 			   else{
-				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_RADMON<<"' not found" << endmsg;
+				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_RADMON<<"' not found" << endreq;
 				   sc=StatusCode::FAILURE;
 				   break;
 			   }
 		   }
 		   else if((*iter)==DCSCOLLNAME_TRIGGERRATES){
-			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_TRIGGERRATES<<"'" << endmsg;
+			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_TRIGGERRATES<<"'" << endreq;
 			   ClearDCSData(EDCSI_TRIGGERRATES);
 
 			   if(detStore()->retrieve(listAttrColl,DCSCOLLNAME_TRIGGERRATES)==StatusCode::SUCCESS){
@@ -336,19 +334,19 @@ namespace D3PD
 				   }
 
 				   if((sc=m_DCSTreeTriggerRates->capture()).isFailure()){
-					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_TRIGGERRATES<<"' tree" << endmsg;
+					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_TRIGGERRATES<<"' tree" << endreq;
 					   sc=StatusCode::FAILURE;
 					   break;
 				   }
 			   }
 			   else{
-				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_TRIGGERRATES<<"' not found" << endmsg;
+				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_TRIGGERRATES<<"' not found" << endreq;
 				   sc=StatusCode::FAILURE;
 				   break;
 			   }
 		   }
 		   else if((*iter)==DCSCOLLNAME_FECONFIGURATION){
-			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_FECONFIGURATION<<"'" << endmsg;
+			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_FECONFIGURATION<<"'" << endreq;
 			   ClearDCSData(EDCSI_FECONFIGURATION);
 
 			   if(detStore()->retrieve(listAttrColl,DCSCOLLNAME_FECONFIGURATION)==StatusCode::SUCCESS){
@@ -370,19 +368,19 @@ namespace D3PD
 				   }
 
 				   if((sc=m_DCSTreeFEConfiguration->capture()).isFailure()){
-					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_FECONFIGURATION<<"' tree" << endmsg;
+					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_FECONFIGURATION<<"' tree" << endreq;
 					   sc=StatusCode::FAILURE;
 					   break;
 				   }
 			   }
 			   else{
-				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_FECONFIGURATION<<"' not found" << endmsg;
+				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_FECONFIGURATION<<"' not found" << endreq;
 				   sc=StatusCode::FAILURE;
 				   break;
 			   }
 		   }
 		   else if((*iter)==DCSCOLLNAME_TRIGGERSETTINGS){
-			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_TRIGGERSETTINGS<<"'" << endmsg;
+			   msg(MSG::INFO) << " IOV/COOL Notification '"<<DCSCOLLNAME_TRIGGERSETTINGS<<"'" << endreq;
 			   ClearDCSData(EDCSI_TRIGGERSETTINGS);
 
 			   if(detStore()->retrieve(listAttrColl,DCSCOLLNAME_TRIGGERSETTINGS)==StatusCode::SUCCESS){
@@ -403,13 +401,13 @@ namespace D3PD
 				   }
 
 				   if((sc=m_DCSTreeTriggerSettings->capture()).isFailure()){
-					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_TRIGGERSETTINGS<<"' tree" << endmsg;
+					   msg(MSG::ERROR) << " Couldn't save '"<<DCSCOLLNAME_TRIGGERSETTINGS<<"' tree" << endreq;
 					   sc=StatusCode::FAILURE;
 					   break;
 				   }
 			   }
 			   else{
-				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_TRIGGERSETTINGS<<"' not found" << endmsg;
+				   msg(MSG::ERROR) << "DCS Folder '"<<DCSCOLLNAME_TRIGGERSETTINGS<<"' not found" << endreq;
 				   sc=StatusCode::FAILURE;
 				   break;
 			   }
@@ -459,7 +457,7 @@ namespace D3PD
 	   }
 
 	   if(!m_iovSvc->getKeyInfo(Folder,Foldername,Tag,Range,bRetrieved,ullBytesRead,fReadTime)) {
-				msg(MSG::ERROR)<<"Couldn't get IOV data about folder: "<<Folder<<endmsg;
+				msg(MSG::ERROR)<<"Couldn't get IOV data about folder: "<<Folder<<endreq;
 				return 0;
 	   }
 

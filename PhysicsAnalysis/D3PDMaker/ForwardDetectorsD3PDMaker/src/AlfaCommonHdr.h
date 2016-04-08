@@ -10,6 +10,8 @@
 #include <string>
 #include <algorithm>
 
+using namespace std;
+
 // EDM include(s):
 #include "ALFA_CLinkEv/ALFA_CLinkEvent.h"
 #include "GeneratorObjects/McEventCollection.h"

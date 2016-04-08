@@ -19,8 +19,6 @@
 #include "AlfaTrackingDataFillerTool.h"
 #include "ALFA_GloRecEv/ALFA_GloRecEvCollection.h"
 
-using namespace std;
-
 namespace D3PD {
 
     /**
@@ -201,7 +199,7 @@ namespace D3PD {
             }
         }
         else{
-            msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_LOCREC <<"' or '"<<EVCOLLNAME_LOCRECOD<<"' collection"<<endmsg;
+            msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_LOCREC <<"' or '"<<EVCOLLNAME_LOCRECOD<<"' collection"<<endreq;
             //			return StatusCode::FAILURE;
         }
 
@@ -258,7 +256,7 @@ namespace D3PD {
             }
         }
         else{
-            msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_LOCREC <<"' or '"<<EVCOLLNAME_LOCRECOD<<"' collection"<<endmsg;
+            msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_LOCREC <<"' or '"<<EVCOLLNAME_LOCRECOD<<"' collection"<<endreq;
             //			return StatusCode::FAILURE;
         }
 
@@ -281,7 +279,7 @@ namespace D3PD {
         // 			}
         // 		}
         // 		else{
-        // 			msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_GLOREC <<"' collection"<<endmsg;
+        // 			msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_GLOREC <<"' collection"<<endreq;
         // 			//return StatusCode::FAILURE;
         // 		}
 

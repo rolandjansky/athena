@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 #include <set>
+using namespace std;
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/IIncidentListener.h"
@@ -51,64 +52,64 @@ namespace D3PD
 	private:
 		void ClearDCSData(eDCSItem eItem);
 		StatusCode COOLUpdate(IOVSVC_CALLBACK_ARGS);
-		StatusCode AddCOOLFolderCallback(const std::string& szFolder);
+		StatusCode AddCOOLFolderCallback(const string& szFolder);
 		unsigned long long CalcDCSId(eDCSItem eItem);
 
 	private:
-		std::string m_COOLDir;
+		string m_COOLDir;
 		ServiceHandle<ID3PDSvc> m_d3pdSvc;
 		ServiceHandle< IIOVDbSvc > m_iovSvc;
 
 		//DCS BLM
 		ID3PD* m_DCSTreeBLM;
 		unsigned long long* m_pullBLMId;
-		std::vector<float>* m_pvecBLM;
+		vector<float>* m_pvecBLM;
 
 		//DCS HVCHANNEL
 		ID3PD* m_DCSTreeHVChannel;
 		unsigned long long* m_pullHVChannelId;
-		std::vector<float>* m_pvecActualVMeas;
-		std::vector<float>* m_pvecActualIMeas;
+		vector<float>* m_pvecActualVMeas;
+		vector<float>* m_pvecActualIMeas;
 
 		//DCS LOCALMONITORING
 		ID3PD* m_DCSTreeLocalMonitoring;
 		unsigned long long* m_pullLocalMonitoringId;
-		std::vector<float>* m_pvecTempSensor1;
-		std::vector<float>* m_pvecTempSensor2;
-		std::vector<float>* m_pvecTempSensor3;
-		std::vector<float>* m_pvecTempSensor4;
-		std::vector<float>* m_pvecTempSensor5;
+		vector<float>* m_pvecTempSensor1;
+		vector<float>* m_pvecTempSensor2;
+		vector<float>* m_pvecTempSensor3;
+		vector<float>* m_pvecTempSensor4;
+		vector<float>* m_pvecTempSensor5;
 
 		//DCS MOVEMENT
 		ID3PD* m_DCSTreeMovement;
 		unsigned long long* m_pullMovementId;
-		std::vector<float>* m_pvecPosLVDT;
-		std::vector<float>* m_pvecPosMotor;
+		vector<float>* m_pvecPosLVDT;
+		vector<float>* m_pvecPosMotor;
 
 		//DCS RADMON
 		ID3PD* m_DCSTreeRadMon;
 		unsigned long long* m_pullRadMonId;
-		std::vector<float>* m_pvecDose;
-		std::vector<float>* m_pvecFluence;
-		std::vector<float>* m_pvecTemp;
+		vector<float>* m_pvecDose;
+		vector<float>* m_pvecFluence;
+		vector<float>* m_pvecTemp;
 
 		//DCS TRIGGERRATES
 		ID3PD* m_DCSTreeTriggerRates;
 		unsigned long long* m_pullTriggerRatesId;
-		std::vector<int>* m_pvecTriggerRates;
+		vector<int>* m_pvecTriggerRates;
 
 		//DCS FECONFIGURATION
 		ID3PD* m_DCSTreeFEConfiguration;
 		unsigned long long* m_pullFEConfigurationId;
-		std::vector<int>* m_pvecThreshold;
-		std::vector<int>* m_pvecGain;
-		std::vector<std::string>* m_pvecMDGainMode;
+		vector<int>* m_pvecThreshold;
+		vector<int>* m_pvecGain;
+		vector<string>* m_pvecMDGainMode;
 
 		//DCS TRIGGERSETTINGS
 		ID3PD* m_DCSTreeTriggerSettings;
 		unsigned long long* m_pullTriggerSettingsId;
-		std::vector<int>* m_pvecTriggerSet;
-		std::vector<int>* m_pvecLatency;
+		vector<int>* m_pvecTriggerSet;
+		vector<int>* m_pvecLatency;
    };
 
 } // namespace D3PD

@@ -18,8 +18,6 @@
 // Local include(s):
 #include "AlfaEventHeaderFillerTool.h"
 
-using namespace std;
-
 namespace D3PD {
 
     /**
@@ -160,7 +158,7 @@ namespace D3PD {
                 }
             }
             else{
-                msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_RAWDATA <<"' collection"<<endmsg;
+                msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_RAWDATA <<"' collection"<<endreq;
                 //			return StatusCode::FAILURE;
             }
         }
@@ -180,13 +178,13 @@ namespace D3PD {
                     (*m_pvecMDMultiplicity)[(nPotID*MDLAYERSCNT*MDPLATESCNT)+nPlateID]++;
                 }
                 else{
-                    msg(MSG::ERROR) << "Index exceed array size for [RPotID, nPlateID, nFiberID]= ["<<nPotID<<", "<<nPlateID<<", "<<nFiberID<<"]"<<endmsg;
+                    msg(MSG::ERROR) << "Index exceed array size for [RPotID, nPlateID, nFiberID]= ["<<nPotID<<", "<<nPlateID<<", "<<nFiberID<<"]"<<endreq;
                     return StatusCode::FAILURE;
                 }
             }
         }
         else{
-            msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_DIGIT <<"' collection"<<endmsg;
+            msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_DIGIT <<"' collection"<<endreq;
             //			return StatusCode::FAILURE;
         }
 
@@ -212,13 +210,13 @@ namespace D3PD {
                     }
                 }
                 else{
-                    msg(MSG::ERROR) << "Index exceed array size for [RPotID, nPlateID, nFiberID, nSideID]= ["<<nPotID<<", "<<nPlateID<<", "<<nFiberID<<", "<<nSideID<<"]"<<endmsg;
+                    msg(MSG::ERROR) << "Index exceed array size for [RPotID, nPlateID, nFiberID, nSideID]= ["<<nPotID<<", "<<nPlateID<<", "<<nFiberID<<", "<<nSideID<<"]"<<endreq;
                     return StatusCode::FAILURE;
                 }
             }
         }
         else{
-            msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_ODDIGIT <<"' collection"<<endmsg;
+            msg(MSG::WARNING) << "Cannot find '"<< EVCOLLNAME_ODDIGIT <<"' collection"<<endreq;
             //			return StatusCode::FAILURE;
         }
 
