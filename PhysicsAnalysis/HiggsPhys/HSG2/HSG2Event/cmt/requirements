@@ -1,0 +1,24 @@
+package HSG2Event
+
+author  Kirill Prokofiev <Kirill.Prokofiev@cern.ch>
+author  Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+manager Kirill Prokofiev <Kirill.Prokofiev@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+
+use VxVertex            VxVertex-*           Tracking/TrkEvent
+use ParticleEvent       ParticleEvent-*      PhysicsAnalysis/AnalysisCommon
+
+use CLIDSvc             CLIDSvc-*            Control
+use DataModel           DataModel-*          Control
+use SGTools             SGTools-*            Control
+
+library HSG2Event *.cxx
+apply_pattern installed_library
+
+private
+
+use AtlasReflex         AtlasReflex-*        External -no_auto_imports
+
+apply_pattern lcgdict dict=HSG2Event selectionfile=selection.xml \
+              headerfiles="../HSG2Event/HSG2EventDict.h"
