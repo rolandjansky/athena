@@ -33,13 +33,8 @@
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
-#ifdef HAVE_NEW_IOSTREAMS
-    #include <iostream>
-    #include <iomanip>
-#else
-    #include <iostream.h>
-    #include <iomanip.h>
-#endif
+#include <iostream>
+#include <iomanip>
 
 static const InterfaceID IID_LArRecoSimpleGeomTool("LArRecoSimpleGeomTool", 1, 0);
 
