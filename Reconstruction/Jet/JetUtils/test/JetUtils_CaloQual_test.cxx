@@ -57,8 +57,13 @@ int main() {
   JetCalcQualityHEC hec2;
 
   /// Read data from reference AOD files
-  ClusterData::fillContainer("/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/MC/AOD/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.simul.AOD.e1728_s1581.19_1_1_5.039772.pool.root.1");
-  ClusterData::fillContainer("/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD/data12_8TeV.00209109.physics_JetTauEtmiss.merge.AOD.19_1_1_5._lb0186._SFO-1._0001.pool.root.1");
+  const char* refdir_s = getenv("D3PDTESTDATA");
+
+  std::string refdir_mc = refdir_s ? refdir_s : "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/MC/AOD";
+  std::string refdir_data = refdir_s ? refdir_s : "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD";
+
+  ClusterData::fillContainer(refdir_mc + "/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.simul.AOD.e1728_s1581.19_1_1_5.039772.pool.root.1");
+  ClusterData::fillContainer(refdir_data + "/data12_8TeV.00209109.physics_JetTauEtmiss.merge.AOD.19_1_1_5._lb0186._SFO-1._0001.pool.root.1");
   //vector<JetCaloCalculator*> &vcalc = calculators.calculators();
 
 
