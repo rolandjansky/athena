@@ -26,6 +26,10 @@
 
 namespace MuonCalib{
 
+  void NTReader_E::setdbgcout(const bool dbglvl){
+    m_debug = dbglvl;
+  }
+
   NTReader_E::~NTReader_E(){
     clearEvent_E();
   }
@@ -64,8 +68,6 @@ namespace MuonCalib{
 
     m_evente->setMuonCalibEventInfo(info);
 
-    bool m_debug = false; 
- 
     if (m_debug) {
       std::cout << "  evente.eventInfo().eventNumber() = " <<  m_evente->eventInfo().eventNumber()  << std::endl;
       std::cout << "  evente.numberOfPatterns = " << pat_nPatterns << std::endl;
@@ -200,7 +202,6 @@ namespace MuonCalib{
 
   MuonCalibTrack_E* NTReader_E::getPhiPattern( int i_pat ){
 
-    bool m_debug = false;  
     //    std::cout << "making a new MuonCalibTrack_E, looping over " << phi_nPhiHits
     //	      << " phiHits, assigning them to its righteous pattern" << std::endl;
 
@@ -233,7 +234,6 @@ namespace MuonCalib{
 
   MuonCalibTrack_E* NTReader_E::getTrack( int i_trk ){
 
-    bool m_debug = false;  
     if (m_debug) { std::cout << "making a new MuonCalibTrack_E, looping over " << trkHit_nHits
 			     << " Hits, assigning them to its righteous track" << std::endl;
     }
