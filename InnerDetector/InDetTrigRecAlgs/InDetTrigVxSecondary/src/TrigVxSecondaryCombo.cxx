@@ -49,7 +49,7 @@ namespace InDet {
     m_nVxSecVertexInfo(0),
     m_nVxSecVertexInfoContainers(0) {
     
-    declareProperty("PriVtxKey",            m_priVtxKey            = "EFHistoPrmVtx");
+    declareProperty("PriVtxKey",            m_priVtxKey            = "xPrimVx"); //"EFHistoPrmVtx"
     declareProperty("SecVtxKey",            m_secVtxKey            = "SecVtxInfo");
     declareProperty("SecVtxFinderList",     m_secVertexFinderToolsHandleArray); //!< Default = InDetVKalVxInJetTool only
     declareProperty("sortSecVxContainer",   m_sortSecVxContainer);
@@ -174,7 +174,7 @@ namespace InDet {
 
     const xAOD::VertexContainer* primaryVxContainer;
 
-    if(HLT::OK != getFeature(prmVtxTE, primaryVxContainer, "EFHistoPrmVtx")) {
+    if(HLT::OK != getFeature(prmVtxTE, primaryVxContainer, m_priVtxKey)) {
       msg() << MSG::ERROR << "Input primary vertex container could not be retreived from input TE" << endreq;
       return HLT::NAV_ERROR;
     }
@@ -494,7 +494,7 @@ namespace InDet {
       msg() << MSG::ERROR << "Could not attach T2PrimaryVertex feature to the TE" << endreq;
       return HLT::NAV_ERROR;
     } 
-
+/*
     // Create new ViewContainer of the jet tracks to attach to the TE
     // Actually, probably this isn't necessary...  
     // at least it doesn't solve the problem I was having before... rubbishness squared
@@ -511,7 +511,7 @@ namespace InDet {
       msg() << MSG::ERROR << "Could not attach bjetTracks feature to the TE" << endreq;
       return HLT::NAV_ERROR;
     } 
-
+*/
     // Create dummy xAOD SV output and attach as feature 
     xAOD::VertexAuxContainer trigSecondaryVertexAuxContainer;
     xAOD::VertexContainer* trigSecondaryVertexContainer = new xAOD::VertexContainer();
@@ -698,7 +698,7 @@ namespace InDet {
     // Navigate from the TriggerElement to get the input primary vertex container
     const xAOD::VertexContainer* primaryVxContainer;
     
-    if(HLT::OK != getFeature(outputTE, primaryVxContainer)) {
+    if(HLT::OK != getFeature(outputTE, primaryVxContainer, m_priVtxKey)) {
       msg() << MSG::ERROR << "Input primary vertex container could not be found" << endreq;
       return HLT::NAV_ERROR;
     }
