@@ -29,6 +29,11 @@ def configureFlagsBase():
     DetFlags.writeBS.all_setOff()
     DetFlags.writeRDOPool.all_setOff()
     DetFlags.writeRIOPool.all_setOff()
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if "G4" in ISF_Flags.Simulator():
+        # Short-cut: if G4 is in the simulator name, then it's a pretty
+        # safe assumption that the configuration uses Geant4.
+        ISF_Flags.UsingGeant4 = True
     return
 
 ## methods for Geant4 only simulators
@@ -77,6 +82,8 @@ def configureFlagsMC12G4_IDCalo():
 def configureFlagsATLFASTII():
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "AtlfastII" # TODO: can we rename this to "ATLFASTII" ?
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
     return
 
 ## methods for simulators which use Fatras + FastCaloSim
@@ -128,6 +135,8 @@ def configureFlagsFastOnly():
 ## methods for simulators which combine Geant4,  Fatras and FastCaloSim
 
 def configureFlagsMultiSimTest():
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
     return
 
 def configureFlagsG4GammaCones():

@@ -125,6 +125,11 @@ from ISF_Example.ISF_Input import ISF_Input
 #                                        OutputLevel=INFO)
 SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
 
+# Temporary work-around - see ATLASSIM-2351
+if ISF_Flags.UsingGeant4():
+    # ADS: moved here from iGeant4.py
+    from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+    topSequence += PyG4AtlasAlg()
 
 #--------------------------------------------------------------
 # Setup the random number streams
