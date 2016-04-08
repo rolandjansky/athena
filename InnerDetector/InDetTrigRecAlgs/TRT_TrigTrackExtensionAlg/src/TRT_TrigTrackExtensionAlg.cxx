@@ -35,18 +35,18 @@ HLT::ErrorCode InDet::TRT_TrigTrackExtensionAlg::hltInitialize() {
 
   // Get tool for track ectension to TRT
   if( m_trtExtension.retrieve().isFailure()) {
-    msg() << MSG::FATAL<< "Failed to retrieve tool " << m_trtExtension << endmsg;
+    msg() << MSG::FATAL<< "Failed to retrieve tool " << m_trtExtension << endreq;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   } 
   else{
-    msg() << MSG::INFO << "Retrieved tool " << m_trtExtension << endmsg;
+    msg() << MSG::INFO << "Retrieved tool " << m_trtExtension << endreq;
   }
 
   // Get output print level
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg()<<MSG::DEBUG<<(*this)<<endmsg;
+    m_nprint=0; msg()<<MSG::DEBUG<<(*this)<<endreq;
     m_nprint=1;
   }
 
@@ -74,14 +74,14 @@ HLT::ErrorCode InDet::TRT_TrigTrackExtensionAlg::hltExecute(const HLT::TriggerEl
   
   //if ( HLT::OK != getFeature(outputTE, inputTracks, "AmbigSolv") ) { //if AmbigSolv doesn't exist, it crashes!!!
   if ( HLT::OK != getFeature(outputTE, inputTracks) ) {
-    msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
+    msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
     
     return HLT::NAV_ERROR;
   }
   
   if(inputTracks->size()==0){
     if(m_outputlevel <= 0)
-      msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endmsg;
+      msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
     
     return HLT::OK; 
   }
@@ -89,7 +89,7 @@ HLT::ErrorCode InDet::TRT_TrigTrackExtensionAlg::hltExecute(const HLT::TriggerEl
   if(m_outputlevel<=0) {
     m_nprint=1; 
     msg() << MSG::DEBUG << "REGTEST: Investigated " << std::setw(5)
-	  << inputTracks->size() << " input tracks " << endmsg;
+	  << inputTracks->size() << " input tracks " << endreq;
   }
 
   m_trtExtension->newEvent();
@@ -124,7 +124,7 @@ HLT::ErrorCode InDet::TRT_TrigTrackExtensionAlg::hltExecute(const HLT::TriggerEl
   //  Attach resolved tracks to the trigger element.
   std::string collKey = "ExtTracks"; 
   if ( HLT::OK !=  attachFeature(outputTE, extendedTracks, collKey) ) {
-    msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
+    msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
     
     return HLT::NAV_ERROR;
   }
@@ -133,13 +133,13 @@ HLT::ErrorCode InDet::TRT_TrigTrackExtensionAlg::hltExecute(const HLT::TriggerEl
   if(m_outputlevel <= 0){ 
     msg() << MSG::DEBUG << "REGTEST: Extended " << std::setw(9)
 	  << extendedTracks->size() << " tracks in SG/"
-	  << collKey << endmsg; 
+	  << collKey << endreq; 
   }
 
   // Print common event information
   //
   //m_nprint=1;
-  //if(m_outputlevel<=0) {msg()<<MSG::DEBUG<<(*this)<<endmsg;}
+  //if(m_outputlevel<=0) {msg()<<MSG::DEBUG<<(*this)<<endreq;}
 
   return HLT::OK;
 }
@@ -150,7 +150,7 @@ HLT::ErrorCode InDet::TRT_TrigTrackExtensionAlg::hltExecute(const HLT::TriggerEl
 HLT::ErrorCode InDet::TRT_TrigTrackExtensionAlg::hltFinalize() {
   
   
-  m_nprint=2; msg()<<MSG::INFO<<(*this)<<endmsg;
+  m_nprint=2; msg()<<MSG::INFO<<(*this)<<endreq;
   
   return HLT::OK;
 }
@@ -182,8 +182,7 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::TRT_TrigTrackExtensionAlg::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out);
-  return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
