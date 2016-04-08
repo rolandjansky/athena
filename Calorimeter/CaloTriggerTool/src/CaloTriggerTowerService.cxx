@@ -14,7 +14,7 @@
 #include "LArIdentifier/LArOnlID_Exception.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -24,11 +24,11 @@ CaloTriggerTowerService::CaloTriggerTowerService( const std::string& type,
 						const std::string& name,
 						const IInterface* parent )
   : AthAlgTool(type,name,parent),
-    m_larcablingSvc(nullptr) ,
-    m_onlineHelper(nullptr) ,
-    m_emHelper(nullptr) ,
-    m_lvl1Helper(nullptr) ,
-    m_ttonlineHelper(nullptr)
+    m_larcablingSvc(0) ,
+    m_onlineHelper(0) ,
+    m_emHelper(0) ,
+    m_lvl1Helper(0) ,
+    m_ttonlineHelper(0)
 {
 
   // Declare additional interface
@@ -46,9 +46,9 @@ CaloTriggerTowerService::CaloTriggerTowerService( const std::string& type,
 StatusCode CaloTriggerTowerService::initialize ()
 {
 
-  msg().setLevel(msgLevel());
+  msg().setLevel(outputLevel());
 
-  msg()<<MSG::INFO<<" => CaloTriggerTowerService::initialize() "<< endmsg;
+  msg()<<MSG::INFO<<" => CaloTriggerTowerService::initialize() "<< endreq;
 
 
   ServiceHandle<StoreGateSvc> detStore("DetectorStore",name());
@@ -58,54 +58,54 @@ StatusCode CaloTriggerTowerService::initialize ()
     const CaloIdManager*	caloMgr;
     status = detStore->retrieve(caloMgr);
     if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endmsg;
+      msg() << MSG::ERROR << "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
       return StatusCode::FAILURE;
     } else {
-      msg() << MSG::DEBUG << "Successfully retrieved CaloIdManager from DetectorStore" << endmsg;
+      msg() << MSG::DEBUG << "Successfully retrieved CaloIdManager from DetectorStore" << endreq;
     }
     m_emHelper = caloMgr->getEM_ID();
     if (!m_emHelper) {
-	msg() << MSG::ERROR << "Could not access LArEM_ID helper" << endmsg;
+	msg() << MSG::ERROR << "Could not access LArEM_ID helper" << endreq;
 	return StatusCode::FAILURE;
     } else {
-	msg() << MSG::DEBUG << "Successfully accessed LArEM_ID helper" << endmsg;
+	msg() << MSG::DEBUG << "Successfully accessed LArEM_ID helper" << endreq;
     }
     m_lvl1Helper = caloMgr->getLVL1_ID();
     if (!m_lvl1Helper) {
-	msg() << MSG::ERROR << "Could not access CaloLVL1_ID helper" << endmsg;
+	msg() << MSG::ERROR << "Could not access CaloLVL1_ID helper" << endreq;
 	return StatusCode::FAILURE;
     } else {
-	msg() << MSG::DEBUG << "Successfully accessed CaloLVL1_ID helper" << endmsg;
+	msg() << MSG::DEBUG << "Successfully accessed CaloLVL1_ID helper" << endreq;
     }
     m_ttonlineHelper = caloMgr->getTTOnlineID();
     if (!m_ttonlineHelper) {
-	msg() << MSG::ERROR << "Could not access TTOnlineID helper" << endmsg;
+	msg() << MSG::ERROR << "Could not access TTOnlineID helper" << endreq;
 	return StatusCode::FAILURE;
     } else {
-	msg() << MSG::DEBUG << "Successfully accessed CaloLVL1_ID helper" << endmsg;
+	msg() << MSG::DEBUG << "Successfully accessed CaloLVL1_ID helper" << endreq;
     }
 
     const LArIdManager*	larMgr;
     status = detStore->retrieve(larMgr);
     if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endmsg;
+      msg() << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endreq;
       return StatusCode::FAILURE;
     } else {
-      msg() << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endmsg;
+      msg() << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endreq;
     }
     m_onlineHelper = larMgr->getOnlineID();
     if (!m_onlineHelper) {
-	msg() << MSG::ERROR << "Could not access LArOnlineID helper" << endmsg;
+	msg() << MSG::ERROR << "Could not access LArOnlineID helper" << endreq;
 	return StatusCode::FAILURE;
     } else {
-	msg() << MSG::DEBUG << "Successfully accessed LArOnlineID helper" << endmsg;
+	msg() << MSG::DEBUG << "Successfully accessed LArOnlineID helper" << endreq;
     }
 
 
     status= detStore->regFcn(&CaloTriggerTowerService::iovCallBack,this,
 			     m_TTCellMap,m_TTCellMapKey);
     if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to regFcn for "<<m_TTCellMapKey << endmsg;
+      msg() << MSG::ERROR << "Unable to regFcn for "<<m_TTCellMapKey << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -113,7 +113,7 @@ StatusCode CaloTriggerTowerService::initialize ()
     status= detStore->regFcn(&CaloTriggerTowerService::iovCallBack,this,
 			     m_caloTTOnOffIdMap,m_caloTTOnOffIdMapKey);
     if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to regFcn for "<<m_caloTTOnOffIdMapKey << endmsg;
+      msg() << MSG::ERROR << "Unable to regFcn for "<<m_caloTTOnOffIdMapKey << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -121,21 +121,21 @@ StatusCode CaloTriggerTowerService::initialize ()
     status= detStore->regFcn(&CaloTriggerTowerService::iovCallBack,this,
 			     m_caloTTOnAttrIdMap,m_caloTTOnAttrIdMapKey);
     if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to regFcn for "<< m_caloTTOnAttrIdMapKey << endmsg;
+      msg() << MSG::ERROR << "Unable to regFcn for "<< m_caloTTOnAttrIdMapKey << endreq;
       return StatusCode::FAILURE;
     }
 
     status= detStore->regFcn(&CaloTriggerTowerService::iovCallBack,this,
 			     m_caloTTPpmRxIdMap,m_caloTTPpmRxIdMapKey);
     if (status.isFailure()) {
-      msg() << MSG::ERROR << "Unable to regFcn for "<< m_caloTTPpmRxIdMapKey << endmsg;
+      msg() << MSG::ERROR << "Unable to regFcn for "<< m_caloTTPpmRxIdMapKey << endreq;
       return StatusCode::FAILURE;
     }
 
   }
   else
     {
-      msg()<<MSG::ERROR<<" => Failed to get DetectorStore "<< endmsg;
+      msg()<<MSG::ERROR<<" => Failed to get DetectorStore "<< endreq;
     }
 
   IToolSvc* toolSvc;
@@ -143,15 +143,15 @@ StatusCode CaloTriggerTowerService::initialize ()
   if(status.isSuccess()) {
     status = toolSvc->retrieveTool("LArCablingService",m_larcablingSvc);
     if(status.isFailure()) {
-      msg() << MSG::ERROR << "Could not retrieve LArCablingService"<< endmsg;
+      msg() << MSG::ERROR << "Could not retrieve LArCablingService"<< endreq;
       return(StatusCode::FAILURE);
     }
   } else    {
-    msg() << MSG::ERROR << "Could not get ToolSvc"<< endmsg;
+    msg() << MSG::ERROR << "Could not get ToolSvc"<< endreq;
     return(StatusCode::FAILURE);
   }
 
-  msg()<<MSG::INFO<<" ====> ...CaloTriggerTowerService::init() OK "<< endmsg;
+  msg()<<MSG::INFO<<" ====> ...CaloTriggerTowerService::init() OK "<< endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -160,7 +160,7 @@ StatusCode CaloTriggerTowerService::initialize ()
 //===========================================================
 StatusCode CaloTriggerTowerService::finalize ()
 {
-  msg()<<MSG::INFO<<" => CaloTriggerTowerService::finalize() "<< endmsg;
+  msg()<<MSG::INFO<<" => CaloTriggerTowerService::finalize() "<< endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -178,9 +178,9 @@ HWIdentifier  CaloTriggerTowerService::createTTChannelID(const Identifier & id, 
 	HWIdentifier invalidId (0);
 
 	if(!m_caloTTOnOffIdMap ) {// no mapping object
-		msg() << MSG::ERROR << " No CaloTTOnOffIdMap !" << endmsg;
-		msg() << MSG::ERROR << " Has the DB folder holding the CaloTTOnOffIdMap been added to IOVDbSvc ? " << endmsg;
-		msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
+		msg() << MSG::ERROR << " No CaloTTOnOffIdMap !" << endreq;
+		msg() << MSG::ERROR << " Has the DB folder holding the CaloTTOnOffIdMap been added to IOVDbSvc ? " << endreq;
+		msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endreq;
 		return invalidId;
 
 	} else {
@@ -209,9 +209,9 @@ Identifier  CaloTriggerTowerService::cnvToIdentifier(const HWIdentifier & id, bo
 	Identifier invalidId (0);
 
 	if(!m_caloTTOnOffIdMap ) {
-		msg() << MSG::ERROR << " No CaloTTOnOffIdMap !" << endmsg;
-		msg() << MSG::ERROR << " Has the DB folder holding the CaloTTOnOffIdMap been added to IOVDbSvc ? " << endmsg;
-		msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
+		msg() << MSG::ERROR << " No CaloTTOnOffIdMap !" << endreq;
+		msg() << MSG::ERROR << " Has the DB folder holding the CaloTTOnOffIdMap been added to IOVDbSvc ? " << endreq;
+		msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endreq;
 		return invalidId;
 
 	} else {
@@ -238,9 +238,9 @@ L1CaloCoolChannelId CaloTriggerTowerService::cnvRxIdToCoolChannelId(const L1Calo
    L1CaloCoolChannelId invalidId;
 
    if(!m_caloTTPpmRxIdMap ) {
-     msg() << MSG::ERROR << " No CaloTTPpmRxIdMap !" << endmsg;
-     msg() << MSG::ERROR << " Has the DB folder holding the CaloTTPpmRxIdMap been added to IOVDbSvc ? " << endmsg;
-     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
+     msg() << MSG::ERROR << " No CaloTTPpmRxIdMap !" << endreq;
+     msg() << MSG::ERROR << " Has the DB folder holding the CaloTTPpmRxIdMap been added to IOVDbSvc ? " << endreq;
+     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endreq;
      return invalidId;
 
    } else {
@@ -259,9 +259,9 @@ L1CaloCoolChannelId CaloTriggerTowerService::cnvRxIdToCoolChannelId(const L1Calo
 std::vector<L1CaloRxCoolChannelId> CaloTriggerTowerService::cnvCoolChannelIdToRxId(const L1CaloCoolChannelId& ppmCoolChannelId) throw(CaloID_Exception) {
 
    if(!m_caloTTPpmRxIdMap ) {
-     msg() << MSG::ERROR << " No CaloTTPpmRxIdMap !" << endmsg;
-     msg() << MSG::ERROR << " Has the DB folder holding the CaloTTPpmRxIdMap been added to IOVDbSvc ? " << endmsg;
-     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
+     msg() << MSG::ERROR << " No CaloTTPpmRxIdMap !" << endreq;
+     msg() << MSG::ERROR << " Has the DB folder holding the CaloTTPpmRxIdMap been added to IOVDbSvc ? " << endreq;
+     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endreq;
      return std::vector<L1CaloRxCoolChannelId>();
 
    } else {
@@ -281,9 +281,9 @@ std::vector<L1CaloRxCoolChannelId> CaloTriggerTowerService::cnvCoolChannelIdToRx
 unsigned int CaloTriggerTowerService::barrel_endcap_fcal(const HWIdentifier & id) throw(CaloID_Exception) {
 
     if(!m_caloTTOnAttrIdMap) {
-     msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endmsg;
-     msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endmsg;
-     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
+     msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endreq;
+     msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endreq;
+     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endreq;
      return (0);
     } else {
         unsigned int barrel_endcap_fcal = m_caloTTOnAttrIdMap->barrel_endcap_fcal(id);
@@ -295,9 +295,9 @@ unsigned int CaloTriggerTowerService::barrel_endcap_fcal(const HWIdentifier & id
 unsigned int CaloTriggerTowerService::em_had(const HWIdentifier & id) throw(CaloID_Exception) {
 
     if(!m_caloTTOnAttrIdMap) {
-     msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endmsg;
-     msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endmsg;
-     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
+     msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endreq;
+     msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endreq;
+     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endreq;
      return (0);
     } else {
         unsigned int em_had = m_caloTTOnAttrIdMap->em_had(id);
@@ -309,9 +309,9 @@ unsigned int CaloTriggerTowerService::em_had(const HWIdentifier & id) throw(Calo
 unsigned int CaloTriggerTowerService::pos_neg(const HWIdentifier & id) throw(CaloID_Exception) {
 
     if(!m_caloTTOnAttrIdMap) {
-     msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endmsg;
-     msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endmsg;
-     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
+     msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endreq;
+     msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endreq;
+     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endreq;
      return (0);
     } else {
         unsigned int pos_neg = m_caloTTOnAttrIdMap->pos_neg(id);
@@ -323,9 +323,9 @@ unsigned int CaloTriggerTowerService::module_type(const HWIdentifier & id) throw
 
 
     if(!m_caloTTOnAttrIdMap) {
-     msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endmsg;
-     msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endmsg;
-     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
+     msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endreq;
+     msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endreq;
+     msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endreq;
      return (0);
     } else {
         unsigned int module_type = m_caloTTOnAttrIdMap->module_type(id);
@@ -351,9 +351,9 @@ L1CaloCoolChannelId CaloTriggerTowerService::createL1CoolChannelId( const HWIden
 
     } else {
 
-        msg() << MSG::ERROR << " No CaloTTOnAttrIdMap !" << endmsg;
-        msg() << MSG::ERROR << " Has the DB folder holding the CaloTTOnAttrIdMap been added to IOVDbSvc ? " << endmsg;
-        msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
+        msg() << MSG::ERROR << " No CaloTTOnAttrIdMap !" << endreq;
+        msg() << MSG::ERROR << " Has the DB folder holding the CaloTTOnAttrIdMap been added to IOVDbSvc ? " << endreq;
+        msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endreq;
         return 0;
     }
 }
@@ -385,7 +385,7 @@ std::vector<HWIdentifier> CaloTriggerTowerService::createChannelIDvec(const HWId
      m_emHelper->dictionaryVersion() == "H8TestBeam") {
 
     if(!m_TTCellMap) {
-      msg() << MSG::ERROR << " No TTCellMap  !" << endmsg;
+      msg() << MSG::ERROR << " No TTCellMap  !" << endreq;
       return channel_id_vec;
     }
 
@@ -425,7 +425,7 @@ HWIdentifier CaloTriggerTowerService::whichTTChannelID(const HWIdentifier & id)
      m_emHelper->dictionaryVersion() == "H8TestBeam") {
 
     if(!m_TTCellMap) {
-      msg() << MSG::ERROR << " No TTCellMap  !" << endmsg;
+      msg() << MSG::ERROR << " No TTCellMap  !" << endreq;
       return triggerTower;
     }
 
@@ -456,7 +456,7 @@ CaloTriggerTowerService::createCellIDvecTT(const Identifier& id)
      m_emHelper->dictionaryVersion() == "H8TestBeam") {
 
     if(!m_TTCellMap) {
-      msg() << MSG::ERROR << " No TTCellMap  !" << endmsg;
+      msg() << MSG::ERROR << " No TTCellMap  !" << endreq;
       return vec;
     }
 
@@ -490,7 +490,7 @@ CaloTriggerTowerService::createCellIDvecLayer(const Identifier& id)
   if(m_emHelper->dictionaryVersion() == "fullAtlas" ||
      m_emHelper->dictionaryVersion() == "H8TestBeam") {
     if(!m_TTCellMap) {
-      msg() << MSG::ERROR << " No TTCellMap  !" << endmsg;
+      msg() << MSG::ERROR << " No TTCellMap  !" << endreq;
       return vec;
     }
     vec = m_TTCellMap->createCellIDvec(id);
@@ -509,7 +509,7 @@ Identifier CaloTriggerTowerService::whichTTID(const Identifier & id)
      m_emHelper->dictionaryVersion() == "H8TestBeam") {
 
     if(!m_TTCellMap) {
-      msg() << MSG::ERROR << " No TTCellMap  !" << endmsg;
+      msg() << MSG::ERROR << " No TTCellMap  !" << endreq;
       return sid;
     }
     sid = m_TTCellMap->whichTTID( id ) ;
@@ -586,7 +586,7 @@ bool CaloTriggerTowerService::is_in_lvl1(const Identifier & id)
 
 StatusCode CaloTriggerTowerService::iovCallBack(IOVSVC_CALLBACK_ARGS) {
 
-  msg()<<MSG::INFO<<" ====> iovCallBack " << endmsg;
+  msg()<<MSG::INFO<<" ====> iovCallBack " << endreq;
 
   return StatusCode::SUCCESS;
 

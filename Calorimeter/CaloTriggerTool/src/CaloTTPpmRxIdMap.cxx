@@ -38,11 +38,11 @@ void CaloTTPpmRxIdMap::set( const CaloTTPpmRxId& m ) {
   if (log.level()<=MSG::DEBUG) dump2=true;
 
 
-  log<<MSG::DEBUG<<" CaloTTPpmRxId size = "<<m.size() <<endmsg;
+  log<<MSG::DEBUG<<" CaloTTPpmRxId size = "<<m.size() <<endreq;
   StoreGateSvc * detStore;
   status = Gaudi::svcLocator()->service("DetectorStore",detStore);
   if(status.isFailure()){
-     log << MSG::ERROR <<  "Cannot locate DetectorStore" << endmsg;
+     log << MSG::ERROR <<  "Cannot locate DetectorStore" << endreq;
   }
 
   CaloTTPpmRxId::const_iterator it  = m.begin();
@@ -64,9 +64,9 @@ void CaloTTPpmRxIdMap::set( const CaloTTPpmRxId& m ) {
             <<" crate="<<t.crate<<" module="<<t.module
             <<" submodule="<<t.submodule
             <<" channel="<<t.channel
-            << endmsg;
+            << endreq;
 */
-            if (dump) log << MSG::VERBOSE << " ppm id = " << ppmChannelId.id() << " rx id =" << rxChannelId.id() <<endmsg;
+            if (dump) log << MSG::VERBOSE << " ppm id = " << ppmChannelId.id() << " rx id =" << rxChannelId.id() <<endreq;
 
 			m_mPpmIdToRx[ppmChannelId].push_back(rxChannelId);
 			m_mRxIdToPpm[rxChannelId] = ppmChannelId;
@@ -74,8 +74,8 @@ void CaloTTPpmRxIdMap::set( const CaloTTPpmRxId& m ) {
         }
         if (dump2) log<<MSG::DEBUG<<" CaloTTPpmRxIdMap::set : number of Ids="<<m_mPpmIdToRx.size()<<std::endl;
     } catch (CaloID_Exception& except) {
-        log<<MSG::ERROR<<" Failed in CaloTTPpmRxIdMap::set " << endmsg;
-        log<<MSG::ERROR<< (std::string) except  << endmsg ;
+        log<<MSG::ERROR<<" Failed in CaloTTPpmRxIdMap::set " << endreq;
+        log<<MSG::ERROR<< (std::string) except  << endreq ;
     }
   return;
 }
@@ -96,7 +96,7 @@ std::vector<L1CaloRxCoolChannelId> CaloTTPpmRxIdMap::ppmToRxId(const L1CaloCoolC
     }
 
     MsgStream log( msgSvc, "CaloTTPpmRxIdMap");
-    log<<MSG::ERROR<<" Ppm channel ID not found, id= "<< ppmChannelId.id()<<" in Ppm to Rx map." <<endmsg;
+    log<<MSG::ERROR<<" Ppm channel ID not found, id= "<< ppmChannelId.id()<<" in Ppm to Rx map." <<endreq;
 
     return std::vector<L1CaloRxCoolChannelId>();
 }
@@ -119,7 +119,7 @@ L1CaloCoolChannelId CaloTTPpmRxIdMap::rxToPpmId(const L1CaloRxCoolChannelId& rxC
     }
 
     MsgStream log( msgSvc, "CaloTTPpmRxIdMap");
-    log<<MSG::ERROR<<" Rx channel ID not found, id = " <<rxChannelId.id()<<" in Rx to Ppm map."<< endmsg;
+    log<<MSG::ERROR<<" Rx channel ID not found, id = " <<rxChannelId.id()<<" in Rx to Ppm map."<< endreq;
 
     return L1CaloCoolChannelId(0) ;
 }

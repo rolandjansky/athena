@@ -16,7 +16,7 @@
 
 #include <iostream>
 
-LArTTCellMap::LArTTCellMap( ): m_msg(nullptr)
+LArTTCellMap::LArTTCellMap( ): m_msg(0)
 {
 
   IMessageSvc *msgSvc;
@@ -41,12 +41,12 @@ void LArTTCellMap::set( const LArTTCell& m )
   convert_to_P(m);
 
   if (m_msg->level() <= MSG::DEBUG) {
-    (*m_msg) <<MSG::DEBUG<<" LArTTCell size = "<<m.size() <<endmsg;
+    (*m_msg) <<MSG::DEBUG<<" LArTTCell size = "<<m.size() <<endreq;
   }
   StoreGateSvc * detStore;
   StatusCode status = Gaudi::svcLocator()->service("DetectorStore",detStore);
   if(status.isFailure()){
-    (*m_msg) << MSG::ERROR <<  "Cannot locate DetectorStore" << endmsg;
+    (*m_msg) << MSG::ERROR <<  "Cannot locate DetectorStore" << endreq;
   }
 
   const LArEM_ID* em_id;
@@ -56,19 +56,19 @@ void LArTTCellMap::set( const LArTTCell& m )
 
   status=detStore->retrieve(em_id);
   if(status.isFailure()){
-    (*m_msg) << MSG::ERROR <<  "Cannot retrieve em_id" << endmsg;
+    (*m_msg) << MSG::ERROR <<  "Cannot retrieve em_id" << endreq;
   }
   status=detStore->retrieve(hec_id);
   if(status.isFailure()){
-    (*m_msg) << MSG::ERROR <<  "Cannot retrieve hec_id" << endmsg;
+    (*m_msg) << MSG::ERROR <<  "Cannot retrieve hec_id" << endreq;
   }
   status=detStore->retrieve(fcal_id);
   if(status.isFailure()){
-    (*m_msg) << MSG::ERROR <<  "Cannot retrieve fcal_id" << endmsg;
+    (*m_msg) << MSG::ERROR <<  "Cannot retrieve fcal_id" << endreq;
   }
   status=detStore->retrieve(lvl1_id);
   if(status.isFailure()){
-    (*m_msg) << MSG::ERROR <<  "Cannot retrieve lvl1_id" << endmsg;
+    (*m_msg) << MSG::ERROR <<  "Cannot retrieve lvl1_id" << endreq;
   }
   LArTTCell::const_iterator it  = m.begin();
   LArTTCell::const_iterator it_e  = m.end();
@@ -90,10 +90,18 @@ void LArTTCellMap::set( const LArTTCell& m )
 	id = hec_id->channel_id(t.pn,t.sample,t.region,t.eta,t.phi);
       } else      if(t.det==2){
 	// FCAL sample==region
-	id = fcal_id->channel_id(t.pn,t.region,t.eta,t.phi);
-
+	// first check that the id will make sense:
+	bool connected = fcal_id->is_connected(t.pn,t.region,t.eta,t.phi);
+	if(!connected) {
+	  (*m_msg) << MSG::ERROR
+	      << "wrong dictionary ? cell not connected ! pn= "
+	      << t.pn << "reg= " << t.region << "eta= " << t.eta << "phi= " << t.phi
+	      << endreq;
+	} else {
+	  id = fcal_id->channel_id(t.pn,t.region,t.eta,t.phi);
+	}
       } else        {
-	(*m_msg) <<MSG::ERROR <<" Wrong input Detector Number " << t.det << endmsg;
+	(*m_msg) <<MSG::ERROR <<" Wrong input Detector Number " << t.det << endreq;
       }
 
       Identifier sid = lvl1_id->layer_id(t.tpn,t.tsample,t.tregion,t.teta,t.tphi,t.layer);
@@ -111,9 +119,9 @@ void LArTTCellMap::set( const LArTTCell& m )
 	   <<" trig sample="<<t.tsample
 	   <<" trig eta="<<t.teta<<" trig phi="<<t.tphi
 	   <<" layer="<<t.layer
-	   << endmsg;
+	   << endreq;
 
-	(*m_msg) <<MSG::VERBOSE<< " lvl1 id = " << sid<<" offline id ="<<id<<endmsg;
+	(*m_msg) <<MSG::VERBOSE<< " lvl1 id = " << sid<<" offline id ="<<id<<endreq;
       }
 
       if(!(cellIdSet.insert(id)).second) {
@@ -121,7 +129,7 @@ void LArTTCellMap::set( const LArTTCell& m )
 	   << lvl1_id->show_to_string(id)
 	   << " in TT= "
 	   << lvl1_id->show_to_string(sid)
-	   << endmsg;
+	   << endreq;
       }
       m_cell2ttIdMap[id] = sid;
 
@@ -167,8 +175,8 @@ void LArTTCellMap::set( const LArTTCell& m )
 
 
   catch (LArID_Exception& except)  {
-    (*m_msg) <<MSG::ERROR<<" Failed in LArTTCellMap::set " << endmsg;
-    (*m_msg) <<MSG::ERROR<< (std::string) except  << endmsg ;
+    (*m_msg) <<MSG::ERROR<<" Failed in LArTTCellMap::set " << endreq;
+    (*m_msg) <<MSG::ERROR<< (std::string) except  << endreq ;
   }
 
   if (m_msg->level() <= MSG::DEBUG) {
@@ -190,7 +198,7 @@ Identifier LArTTCellMap::whichTTID(const Identifier& id) const
 	return (*it).second;
  }
 
- (*m_msg) <<MSG::ERROR<<" Offline TT ID not found for cell "<< id <<endmsg;
+ (*m_msg) <<MSG::ERROR<<" Offline TT ID not found for cell "<< id <<endreq;
 
  return  Identifier();
 
@@ -212,7 +220,7 @@ LArTTCellMap::createCellIDvec(const Identifier & sid) const
  }
 
  if (m_msg->level() <= MSG::VERBOSE) {
-   (*m_msg) <<MSG::VERBOSE<<" vector of offline cell ID not found, TT id = " <<sid.get_compact()<< endmsg;
+   (*m_msg) <<MSG::VERBOSE<<" vector of offline cell ID not found, TT id = " <<sid.get_compact()<< endreq;
  }
 
  static std::vector<Identifier> v;

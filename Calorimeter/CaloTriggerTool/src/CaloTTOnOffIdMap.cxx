@@ -40,11 +40,11 @@ void CaloTTOnOffIdMap::set( const CaloTTOnOffId& m ) {
   if (log.level()<=MSG::DEBUG) dump2=true;
 
 
-  log<<MSG::DEBUG<<" CaloTTOnOffId size = "<<m.size() <<endmsg;
+  log<<MSG::DEBUG<<" CaloTTOnOffId size = "<<m.size() <<endreq;
   StoreGateSvc * detStore;
   status = Gaudi::svcLocator()->service("DetectorStore",detStore);
   if(status.isFailure()){
-     log << MSG::ERROR <<  "Cannot locate DetectorStore" << endmsg;
+     log << MSG::ERROR <<  "Cannot locate DetectorStore" << endreq;
   }
 
   const TTOnlineID* online_id;
@@ -52,11 +52,11 @@ void CaloTTOnOffIdMap::set( const CaloTTOnOffId& m ) {
 
   status=detStore->retrieve(online_id);
   if(status.isFailure()){
-    log << MSG::ERROR <<  "Cannot retrieve online_id" << endmsg;
+    log << MSG::ERROR <<  "Cannot retrieve online_id" << endreq;
   }
   status=detStore->retrieve(offline_id);
   if(status.isFailure()){
-    log << MSG::ERROR <<  "Cannot retrieve offline_id" << endmsg;
+    log << MSG::ERROR <<  "Cannot retrieve offline_id" << endreq;
   }
 
   CaloTTOnOffId::const_iterator it  = m.begin();
@@ -78,9 +78,9 @@ void CaloTTOnOffIdMap::set( const CaloTTOnOffId& m ) {
               <<" crate="<<t.crate<<" module="<<t.module
               <<" submodule="<<t.submodule
               <<" channel="<<t.channel
-              << endmsg;
+              << endreq;
 
-              log<<MSG::VERBOSE<< " onl id = " << sid<<" offline id ="<<id<<endmsg;
+              log<<MSG::VERBOSE<< " onl id = " << sid<<" offline id ="<<id<<endreq;
             }
 
             m_off2onIdMap[id] = sid;
@@ -88,8 +88,8 @@ void CaloTTOnOffIdMap::set( const CaloTTOnOffId& m ) {
         }
         if (dump2) log<<MSG::DEBUG<<" CaloTTOnOffIdMap::set : number of Ids="<<m_on2offIdMap.size()<<std::endl;
     } catch (CaloID_Exception& except) {
-        log<<MSG::ERROR<<" Failed in CaloTTOnOffIdMap::set " << endmsg;
-        log<<MSG::ERROR<< (std::string) except  << endmsg ;
+        log<<MSG::ERROR<<" Failed in CaloTTOnOffIdMap::set " << endreq;
+        log<<MSG::ERROR<< (std::string) except  << endreq ;
     }
   return;
 }
@@ -115,7 +115,7 @@ HWIdentifier CaloTTOnOffIdMap::createSignalChannelID(const Identifier& id, bool 
 		}
 
 		MsgStream log( msgSvc, "CaloTTOnOffIdMap");
-		log<<MSG::ERROR<<" Offline ID not found "<< id <<endmsg;
+		log<<MSG::ERROR<<" Offline ID not found "<< id <<endreq;
 
 		return HWIdentifier(0);
 	}
@@ -144,7 +144,7 @@ Identifier CaloTTOnOffIdMap::cnvToIdentifier(const HWIdentifier & sid, bool bQui
 		}
 
 		MsgStream log( msgSvc, "CaloTTOnOffIdMap");
-		log<<MSG::ERROR<<" Online ID not found, id = " <<sid.get_compact()<< endmsg;
+		log<<MSG::ERROR<<" Online ID not found, id = " <<sid.get_compact()<< endreq;
 
 		return Identifier(0) ;
     }
