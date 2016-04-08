@@ -34,7 +34,7 @@ macro_append  use_pp_cppflags                "" \
 #use AtlasHepMC           AtlasHepMC-*              External
 #use GeneratorObjects     GeneratorObjects-*        Generators
 #use TrkTruthData         TrkTruthData-*            Tracking/TrkEvent
-use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr
+#use InDetIdentifier      InDetIdentifier-*         InnerDetector/InDetDetDescr
 #use InDetPrepRawData     InDetPrepRawData-*        InnerDetector/InDetRecEvent
 
 public
