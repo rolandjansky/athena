@@ -5,13 +5,23 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "FastCaloSim/FSStoregateClean.h"
+
+// Gaudi includes
+#include "GaudiKernel/DataSvc.h"
+#include "GaudiKernel/Chrono.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ListItem.h"
+
+#include "EventKernel/INavigable4Momentum.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
 namespace FastCaloSim {
 
   FSStoregateClean:: FSStoregateClean(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator)
-  {    
+  {
+    
     declareProperty("StoreGateKeys",      m_SG_keys);
   }
   
@@ -22,7 +32,8 @@ namespace FastCaloSim {
 
   //__________________________________________________________________________
   StatusCode FSStoregateClean::initialize()
-  {    
+  {
+    
     ATH_MSG_DEBUG("initialize()");
     return StatusCode::SUCCESS; 
   }
@@ -33,30 +44,31 @@ namespace FastCaloSim {
   }
   
   //_________________________________________________________________________
-  StatusCode FSStoregateClean::execute() {
-  
+  StatusCode FSStoregateClean::execute()
+  {
+    MsgStream m_log( messageService(), name() );
+
     ATH_MSG_DEBUG("execute()");
     
     StatusCode sc;
     
     for(unsigned int i=0;i<m_SG_keys.size();++i) {
-      msg(MSG::INFO) << "deleting : "<<m_SG_keys[i]<<" ..."<<endmsg;
+      msg(MSG::INFO) << "deleting : "<<m_SG_keys[i]<<" ..."<<endreq;
       
       const INavigable4MomentumCollection* p = 0;
       sc = evtStore()->retrieve(p,m_SG_keys[i]);
 
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Unable to retrieve pointer to Object "<<m_SG_keys[i]<< endmsg;
+	msg(MSG::ERROR) << "Unable to retrieve pointer to Object "<<m_SG_keys[i]<< endreq;
       } else {
-        msg(MSG::INFO) <<m_SG_keys[i]<<" at "<<p<<endmsg;
+        msg(MSG::INFO) <<m_SG_keys[i]<<" at "<<p<<endreq;
         sc = evtStore()->remove(p);
         if (sc.isFailure()) {
-	  msg(MSG::ERROR) << "Unable to delete pointer to Object "<<m_SG_keys[i]<< endmsg;
+	  msg(MSG::ERROR) << "Unable to delete pointer to Object "<<m_SG_keys[i]<< endreq;
         } else {
           p=0;
           sc = evtStore()->retrieve(p,m_SG_keys[i]);
-	  sc.ignore();
-          msg(MSG::INFO) << "deleting "<<m_SG_keys[i]<<" done, test p*="<<p<<endmsg;
+          msg(MSG::INFO) << "deleting "<<m_SG_keys[i]<<" done, test p*="<<p<<endreq;
         }
       }
     }

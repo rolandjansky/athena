@@ -3,7 +3,6 @@
 */
 
 #include "FastCaloSim/ParticleEnergyParametrizationInDistbin.h"
-#include "TBuffer.h"
 
 using namespace std;
 

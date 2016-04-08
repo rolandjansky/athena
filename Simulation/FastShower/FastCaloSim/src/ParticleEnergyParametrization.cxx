@@ -4,7 +4,6 @@
 
 #include "FastCaloSim/ParticleEnergyParametrization.h"
 #include "TMath.h"
-#include "TBuffer.h"
 
 #include "FastCaloSimAthenaPool/FastShowerInfo.h"
 #include <exception>
