@@ -21,32 +21,20 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ITHistSvc.h" 
 #include "CLHEP/Units/SystemOfUnits.h"    
-
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrigT1CaloCalibTools/L1CaloPprFineTimePlotManager.h"
-#include "TrigT1CaloCalibTools/L1CaloPprPedestalPlotManager.h"
-#include "TrigT1CaloCalibTools/L1CaloPprPedestalCorrectionPlotManager.h"
-#include "TrigT1CaloCalibTools/L1CaloPprEtCorrelationPlotManager.h"
-#include "TrigT1CaloToolInterfaces/IL1RoITools.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
-#include "TrigT1CaloCalibToolInterfaces/IL1CaloCells2TriggerTowers.h"
-
-#include "TrigT1CaloEvent/TriggerTowerCollection.h"
-#include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
-#include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
-#include "TrigT1Interfaces/TrigT1CaloDefs.h"
-
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
+class CondAttrListCollection;
+class EventInfo;
+class ITHistSvc;
+class L1CaloPprFineTimePlotManager;
+class L1CaloPprPedestalPlotManager;
+class L1CaloPprPedestalCorrectionPlotManager;
+class L1CaloPprEtCorrelationPlotManager;
 namespace LVL1 {
+  class IL1CaloOfflineTriggerTowerTools;
   class IL1TriggerTowerTool;
 }
 
@@ -73,7 +61,7 @@ class L1CaloPprMonitoring : public AthAlgorithm
         const CondAttrListCollection* m_dbPpmDisabledTowers;
 	const CondAttrListCollection* m_dbFineTimeRefsTowers;
         const xAOD::TriggerTowerContainer* m_triggerTowers;
-        ITHistSvc* m_histoSvc;
+        ServiceHandle<ITHistSvc> m_histoSvc;
 	
 	// monitoring plotters
 	L1CaloPprFineTimePlotManager* m_fineTimePlotManager;
@@ -81,7 +69,6 @@ class L1CaloPprMonitoring : public AthAlgorithm
 	L1CaloPprPedestalCorrectionPlotManager* m_pedestalCorrectionPlotManager;
 	L1CaloPprEtCorrelationPlotManager* m_etCorrelationPlotManager;
  
-        ServiceHandle<StoreGateSvc> m_storeGate;
         ToolHandle<LVL1::IL1CaloOfflineTriggerTowerTools> m_offlineTowerTools;
 	ToolHandle<LVL1::IL1TriggerTowerTool> m_towerTools;
 
@@ -112,7 +99,6 @@ class L1CaloPprMonitoring : public AthAlgorithm
 	                                     // Et correlation monitoring
 	double m_EtMinForEtCorrelation;      // threshold of L1Calo and calo cell energies
 	                                     // in Et correlation monitoring
-	
 };
 
 #endif
