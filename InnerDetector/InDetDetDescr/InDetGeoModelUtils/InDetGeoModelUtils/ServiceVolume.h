@@ -64,6 +64,7 @@ namespace InDetDD {
     void setGeoShape(const GeoShape * geoShape, double volume=0);
     void setEnvelopeNum(int num) { m_envNum=num; }
     void setParentEnvelope(int num) { m_envParentNum=num; }
+    void setZShift(double shift) { m_zShift=shift; }
 
     double rmin() const {return m_rmin;}
     double rmax() const {return m_rmax;}
@@ -96,7 +97,8 @@ namespace InDetDD {
     bool splittableInZ() const {return m_splittableZ;}
     int envelopeNum() const {return m_envNum; }
     int envelopeParent() const {return m_envParentNum; }
-   
+    double zShift() const {return m_zShift; }
+
     // For debugging
     void print() const;
     
@@ -133,6 +135,7 @@ namespace InDetDD {
 
     int m_envNum;
     int m_envParentNum; 
+    double m_zShift;
   };
   
 } // End namespace 

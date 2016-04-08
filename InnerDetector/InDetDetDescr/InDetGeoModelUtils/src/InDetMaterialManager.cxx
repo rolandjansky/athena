@@ -998,7 +998,7 @@ InDetMaterialManager::extraScaledMaterial(const std::string & materialName, cons
   double scaleFactor = getExtraScaleFactor(materialName);
   // -1 (or any -ve number) indicates material is not scaled. And if the scale factor
   // is 1 then there is no need to create a new material.
-  if (scaleFactor < 0 || scaleFactor == 1) return origMaterial;
+  if (scaleFactor < 0 || scaleFactor == 1 || materialName.find("Ether")!=std::string::npos) return origMaterial;
   if (scaleFactor == 0) return getMaterialInternal("std::Vacuum");
   
   std::string newName = materialName+"_ExtraScaling";
