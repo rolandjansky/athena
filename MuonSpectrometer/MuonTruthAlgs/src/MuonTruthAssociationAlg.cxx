@@ -88,9 +88,10 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
       //xAOD::TrackParticle* tp = const_cast<xAOD::TrackParticle*>(muon->primaryTrackParticle());
       //// hack: when converting from release 17, these truth links are absent (must fix); use the inDetParticle instead
       const xAOD::TrackParticle* tp(0);
-      if (m_associateWithInDetTP) {
+      if (m_associateWithInDetTP || muon->author()==2) {
 	tp = muon->trackParticle(xAOD::Muon_v1::InnerDetectorTrackParticle);
-      } else {
+      } 
+      else{
 	tp = const_cast<xAOD::TrackParticle*>(muon->primaryTrackParticle());
       }
       
@@ -98,8 +99,7 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
       
       // special case for STACO muons where the combined TP is not truth matched
       if( muon->muonType() == xAOD::Muon::Combined && !tp->track() ){
-	ATH_MSG_VERBOSE("Resetting link for Combined muon ");
-      tp = const_cast<xAOD::TrackParticle*>(*muon->inDetTrackParticleLink());
+	tp = const_cast<xAOD::TrackParticle*>(*muon->inDetTrackParticleLink());
       }
       if( !tp ) continue;
       
@@ -115,7 +115,8 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
 	    const_cast<xAOD::Muon&>(*muon).auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") = muonTruthLink;  	  
 	    break;
 	  }
-      }else{
+	}
+	else{
 	  ATH_MSG_VERBOSE(" Reco muon has no truth association");
 	}
       }      

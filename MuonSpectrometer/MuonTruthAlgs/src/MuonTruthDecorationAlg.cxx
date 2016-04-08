@@ -580,14 +580,14 @@ namespace Muon {
       + nphiHitsPerChamberLayer[Muon::MuonStationIndex::STGC2];
     uint8_t phiLayer2Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::BM2] + nphiHitsPerChamberLayer[Muon::MuonStationIndex::T1];
     uint8_t phiLayer3Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO1] + nphiHitsPerChamberLayer[Muon::MuonStationIndex::T2];
-    uint8_t phiLayer4Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::T4];
+    uint8_t phiLayer4Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO2] + nphiHitsPerChamberLayer[Muon::MuonStationIndex::T3];
 
     uint8_t etaLayer1Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM1] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T4]
       + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::CSC] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::STGC1] 
       + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::STGC2];
     uint8_t etaLayer2Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM2] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T1];
     uint8_t etaLayer3Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO1] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T2];
-    uint8_t etaLayer4Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T4];
+    uint8_t etaLayer4Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO2] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T3];
 
     uint8_t nprecLayers = 0;
     if( nprecHitsPerChamberLayer[Muon::MuonStationIndex::BIS] + nprecHitsPerChamberLayer[Muon::MuonStationIndex::BIL] > 3 ) ++nprecLayers;
@@ -604,6 +604,7 @@ namespace Muon {
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BM1] > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BM2] > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO1] > 0 )  ++nphiLayers;
+    if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO2] > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::T1]  > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::T2]  > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::T3]  > 0 )  ++nphiLayers;
@@ -615,6 +616,7 @@ namespace Muon {
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM1] > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM2] > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO1] > 0 )  ++ntrigEtaLayers;
+    if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO2] > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T1]  > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T2]  > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T3]  > 0 )  ++ntrigEtaLayers;
