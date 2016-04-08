@@ -1,12 +1,13 @@
 # jobOptions fragment to setup writing of LAr affected region
 
 
-from LArAffectedRegion.LArAffectedRegionConf import LArAffectedRegionAlg
-theLArAffectedRegionAlg = LArAffectedRegionAlg()
+if not hasattr(topSequence, 'LArAffectedRegionAlg'):
+    from LArAffectedRegion.LArAffectedRegionConf import LArAffectedRegionAlg
+    theLArAffectedRegionAlg = LArAffectedRegionAlg()
 
-theLArAffectedRegionAlg.ReadingFromBytestream = False
+    theLArAffectedRegionAlg.ReadingFromBytestream = False
 
-topSequence+=theLArAffectedRegionAlg
+    topSequence+=theLArAffectedRegionAlg
 
-from IOVDbSvc.CondDB import conddb
-conddb.addFolder ('', '/LAR/LArAffectedRegionInfo<metaOnly/>')
+    from IOVDbSvc.CondDB import conddb
+    conddb.addFolder ('', '/LAR/LArAffectedRegionInfo<metaOnly/>')
