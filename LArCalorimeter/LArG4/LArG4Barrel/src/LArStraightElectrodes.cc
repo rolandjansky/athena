@@ -8,16 +8,16 @@
 #include "G4Trap.hh"
 #include "LArG4Code/LArVG4DetectorParameters.h"
 
-LArStraightElectrodes* LArStraightElectrodes::m_instance=0;
+LArStraightElectrodes* LArStraightElectrodes::s_instance=0;
 
-PhysicalVolumeAccessor* LArStraightElectrodes::theElectrodes=0;
+PhysicalVolumeAccessor* LArStraightElectrodes::s_theElectrodes=0;
 
 LArStraightElectrodes*  LArStraightElectrodes::GetInstance(std::string strDetector)
 {
-  if (m_instance==0) {
-    m_instance = new LArStraightElectrodes(strDetector);
+  if (s_instance==0) {
+    s_instance = new LArStraightElectrodes(strDetector);
   }
-  return m_instance;
+  return s_instance;
 }
 
 LArStraightElectrodes::LArStraightElectrodes(std::string strDetector) 
@@ -26,15 +26,15 @@ LArStraightElectrodes::LArStraightElectrodes(std::string strDetector)
         if (parameters->GetValue("LArEMBPhiAtCurvature",0)>0.)  m_parity=0;  // first wave goes up 
         else                                                    m_parity=1;  // first wave goes down
 
-	if (theElectrodes==0) {
+	if (s_theElectrodes==0) {
            if (strDetector=="")
-              theElectrodes=new PhysicalVolumeAccessor("LAr::EMB::STAC",
+              s_theElectrodes=new PhysicalVolumeAccessor("LAr::EMB::STAC",
 						   "LAr::EMB::Electrode::Straight");
            else
-              theElectrodes=new PhysicalVolumeAccessor(strDetector+"::LAr::EMB::STAC",
+              s_theElectrodes=new PhysicalVolumeAccessor(strDetector+"::LAr::EMB::STAC",
                                                   strDetector+"::LAr::EMB::Electrode::Straight");
         }
-//        std::cout << "*** List of StraightElectrodes " << theElectrodes << std::endl;
+//        std::cout << "*** List of StraightElectrodes " << s_theElectrodes << std::endl;
         m_filled=false;
         for (int stackid=0; stackid<14; stackid++) {
           for (int cellid=0; cellid<1024; cellid++) {
@@ -64,10 +64,10 @@ double LArStraightElectrodes::XCentEle(int stackid, int cellid)
        } 
        else {
 	int id=cellid+stackid*10000;
-	const G4VPhysicalVolume *pv=theElectrodes->GetPhysicalVolume(id);
+	const G4VPhysicalVolume *pv=s_theElectrodes->GetPhysicalVolume(id);
         if (!pv) return 0.;
 	const G4ThreeVector& tv=pv->GetTranslation();
-        const G4VPhysicalVolume *pv2=theElectrodes->GetPhysicalVolume(1000000+id);
+        const G4VPhysicalVolume *pv2=s_theElectrodes->GetPhysicalVolume(1000000+id);
         if (!pv2) return tv.x();
         else {
           const G4ThreeVector& tv2=pv2->GetTranslation();
@@ -90,10 +90,10 @@ double LArStraightElectrodes::YCentEle(int stackid, int cellid)
        } 
        else {
 	int id=cellid+stackid*10000;
-	const G4VPhysicalVolume *pv=theElectrodes->GetPhysicalVolume(id);
+	const G4VPhysicalVolume *pv=s_theElectrodes->GetPhysicalVolume(id);
         if (!pv) return 0.;
 	const G4ThreeVector& tv=pv->GetTranslation();
-        const G4VPhysicalVolume *pv2=theElectrodes->GetPhysicalVolume(1000000+id);
+        const G4VPhysicalVolume *pv2=s_theElectrodes->GetPhysicalVolume(1000000+id);
         if (!pv2) return tv.y();
         else {
           const G4ThreeVector& tv2=pv2->GetTranslation();
@@ -113,7 +113,7 @@ double LArStraightElectrodes::YCentEle(int stackid, int cellid)
 double LArStraightElectrodes::SlantEle(int stackid, int cellid)
 {
 	int id=cellid+stackid*10000;
-	const G4VPhysicalVolume *pv=theElectrodes->GetPhysicalVolume(id);
+	const G4VPhysicalVolume *pv=s_theElectrodes->GetPhysicalVolume(id);
         if (!pv) return 0.;
 	const G4RotationMatrix *rm=pv->GetRotation();
 	double Slant;
@@ -129,11 +129,11 @@ double LArStraightElectrodes::HalfLength(int stackid, int cellid)
        }
        else {
         int id=cellid+stackid*10000; 
-        const G4VPhysicalVolume *pv=theElectrodes->GetPhysicalVolume(id);
+        const G4VPhysicalVolume *pv=s_theElectrodes->GetPhysicalVolume(id);
         if (!pv) return 0.;
         const G4LogicalVolume* lv = pv->GetLogicalVolume();
         const G4Trap* trap = (G4Trap*) lv->GetSolid();
-        const G4VPhysicalVolume *pv2=theElectrodes->GetPhysicalVolume(1000000+id);
+        const G4VPhysicalVolume *pv2=s_theElectrodes->GetPhysicalVolume(1000000+id);
         if (!pv2) return trap->GetYHalfLength1();
         else {
           const G4LogicalVolume* lv2 = pv2->GetLogicalVolume();

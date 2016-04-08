@@ -53,7 +53,7 @@ Geometry* Geometry::GetInstance()
 Geometry::Geometry()
   : m_testbeam(false),
     m_cellID(0), m_sampling(0), m_region(0), m_etaBin(0), m_phiBin(0), m_zSide(0), m_phiGap(0), m_nstraight(0), m_nfold(0), m_distElec(0), m_distAbs(0), m_xl(0), m_x0(0), m_y0(0), m_sampMap(0), m_etaMap(0),
-    iflSAG(false)
+    m_iflSAG(false)
 {
 // Constructor initializes the geometry.
 // Access source of detector parameters.
@@ -61,42 +61,42 @@ Geometry::Geometry()
   LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
 
 // number of straight sections (should be 14)
-  s_Nbrt = (int) (parameters->GetValue("LArEMBnoOFAccZigs"));
+  m_Nbrt = (int) (parameters->GetValue("LArEMBnoOFAccZigs"));
 // Number of ZIGs + 1  i.e.  15 = number of folds
-  s_Nbrt1 = s_Nbrt + 1;
+  m_Nbrt1 = m_Nbrt + 1;
 // phi of first absorber
-  s_gam0 =  parameters->GetValue("LArEMBAbsPhiFirst");
+  m_gam0 =  parameters->GetValue("LArEMBAbsPhiFirst");
 // radius of curvature of neutral fiber in the folds
-  s_rint_eleFib = parameters->GetValue("LArEMBNeutFiberRadius");
+  m_rint_eleFib = parameters->GetValue("LArEMBNeutFiberRadius");
 
-  s_rc = new double[s_Nbrt1];
-  s_phic = new double[s_Nbrt1];
-  s_delta = new double[s_Nbrt1];
-  s_xc = new double[s_Nbrt1];
-  s_yc = new double[s_Nbrt1];
+  m_rc = new double[m_Nbrt1];
+  m_phic = new double[m_Nbrt1];
+  m_delta = new double[m_Nbrt1];
+  m_xc = new double[m_Nbrt1];
+  m_yc = new double[m_Nbrt1];
 
 // r,phi positions of the centre of the folds (nominal geometry)
-  for (G4int idat = 0; idat < s_Nbrt1 ; idat++) 
+  for (G4int idat = 0; idat < m_Nbrt1 ; idat++) 
   {
-      s_rc[idat] = (double) parameters->GetValue("LArEMBRadiusAtCurvature",idat);
-      s_phic[idat] = (double) parameters->GetValue("LArEMBPhiAtCurvature",idat);
-      s_delta[idat] = (double) parameters->GetValue("LArEMBDeltaZigAngle",idat);
-      s_xc[idat] = s_rc[idat]*cos(s_phic[idat]);
-      s_yc[idat] = s_rc[idat]*sin(s_phic[idat]);
+      m_rc[idat] = (double) parameters->GetValue("LArEMBRadiusAtCurvature",idat);
+      m_phic[idat] = (double) parameters->GetValue("LArEMBPhiAtCurvature",idat);
+      m_delta[idat] = (double) parameters->GetValue("LArEMBDeltaZigAngle",idat);
+      m_xc[idat] = m_rc[idat]*cos(m_phic[idat]);
+      m_yc[idat] = m_rc[idat]*sin(m_phic[idat]);
   }
   // define parity of accordion waves: =0 if first wave goes up, 1 if first wave goes down in the local frame
-  s_parity=0;
-  if (s_phic[0]<0.) s_parity=1;
+  m_parity=0;
+  if (m_phic[0]<0.) m_parity=1;
 //
-  s_rMinAccordion  =   parameters->GetValue("LArEMBRadiusInnerAccordion");
-  s_rMaxAccordion  =   parameters->GetValue("LArEMBFiducialRmax");
-  s_etaMaxBarrel   =   parameters->GetValue("LArEMBMaxEtaAcceptance");
-  s_zMinBarrel     =   parameters->GetValue("LArEMBfiducialMothZmin");
-  s_zMaxBarrel     =   parameters->GetValue("LArEMBfiducialMothZmax");  
+  m_rMinAccordion  =   parameters->GetValue("LArEMBRadiusInnerAccordion");
+  m_rMaxAccordion  =   parameters->GetValue("LArEMBFiducialRmax");
+  m_etaMaxBarrel   =   parameters->GetValue("LArEMBMaxEtaAcceptance");
+  m_zMinBarrel     =   parameters->GetValue("LArEMBfiducialMothZmin");
+  m_zMaxBarrel     =   parameters->GetValue("LArEMBfiducialMothZmax");  
 // === GU 11/06/2003   total number of cells in phi
 // to distinguish 1 module (testbeam case) from full Atlas
-  s_NCellTot = (int) (parameters->GetValue("LArEMBnoOFPhysPhiCell"));
-  s_NCellMax=1024;
+  m_NCellTot = (int) (parameters->GetValue("LArEMBnoOFPhysPhiCell"));
+  m_NCellMax=1024;
 // ===
 
 // Initialize r-phi reference map
@@ -114,11 +114,11 @@ Geometry::Geometry()
 
 Geometry::~Geometry() {
 
-  if (s_rc) delete [] s_rc;
-  if (s_phic) delete [] s_phic;
-  if (s_delta) delete [] s_delta;
-  if (s_xc) delete [] s_xc;
-  if (s_yc) delete [] s_yc;
+  if (m_rc) delete [] m_rc;
+  if (m_phic) delete [] m_phic;
+  if (m_delta) delete [] m_delta;
+  if (m_xc) delete [] m_xc;
+  if (m_yc) delete [] m_yc;
 
 }
 
@@ -187,7 +187,7 @@ double Geometry::Distance_Ele(const double & xhit,
 
 // First compute algebric distance m_hit (2D) the 2D_projection of the
 // m_Hit Vector on this electrode neutral fiber.
-  double m_hit = dx*u[0] + dy*u[1];
+  double hit = dx*u[0] + dy*u[1];
   
 //
 // Flat of Fold Region ?
@@ -195,16 +195,16 @@ double Geometry::Distance_Ele(const double & xhit,
   G4double Half_Elec;
   Half_Elec = m_electrode->HalfLength(Num_Straight,PhiCell); 
 
-  if(fabs(m_hit) < Half_Elec) {
+  if(fabs(hit) < Half_Elec) {
 // Flat Region
     DistEle = u[0]*dy - u[1]*dx;
-    xl=m_hit/Half_Elec;
+    xl=hit/Half_Elec;
   }
   else {
 // Fold region
 // c_Hit Vector components and its length
     dx = xhit - Xc[0];  dy = yhit - Xc[1];  dr = sqrt( dx*dx + dy*dy);
-    DistEle = (Num_Coude%2 == s_parity) ? (s_rint_eleFib-dr) : (dr - s_rint_eleFib);
+    DistEle = (Num_Coude%2 == m_parity) ? (m_rint_eleFib-dr) : (dr - m_rint_eleFib);
     if (Num_Coude==Num_Straight) xl=-1.;
     else xl=+1;
   }      // end of Fold Regions
@@ -250,9 +250,9 @@ double Geometry::Distance_Abs(const double & xhit,
 // m_Hit Vector components
   dx = xhit - Xm[0];  dy = yhit - Xm[1];
 
-// First compute algebric distance m_hit (2D) the 2D_projection of the
+// First compute algebric distance hit (2D) the 2D_projection of the
 // m_Hit Vector on this electrode neutral fiber.
-  double m_hit = dx*u[0] + dy*u[1];
+  double hit = dx*u[0] + dy*u[1];
   
 //
 // Flat of Fold Region ?
@@ -260,7 +260,7 @@ double Geometry::Distance_Abs(const double & xhit,
   G4double Half_Abs;
   Half_Abs = m_absorber->HalfLength(Num_Straight,PhiCell); 
 
-  if(fabs(m_hit) < Half_Abs) {
+  if(fabs(hit) < Half_Abs) {
 // Flat Region
     DistAbs = u[0]*dy - u[1]*dx;
   }
@@ -271,7 +271,7 @@ double Geometry::Distance_Abs(const double & xhit,
     Xc[1] = m_coudeabs->YCentCoude(Num_Coude, PhiCell);
 // c_Hit Vector components and its length
     dx = xhit - Xc[0];  dy = yhit - Xc[1];  dr = sqrt( dx*dx + dy*dy);
-    DistAbs = (Num_Coude%2 == s_parity) ? (s_rint_eleFib-dr) : (dr - s_rint_eleFib);
+    DistAbs = (Num_Coude%2 == m_parity) ? (m_rint_eleFib-dr) : (dr - m_rint_eleFib);
 
   }      // end of Fold Regions
 
@@ -621,28 +621,28 @@ void Geometry::findCell(const double &xPosition,
 
   m_cellID = 0;
 
-  if (aRadius < s_rc[0] || aRadius >= s_rc[s_Nbrt1-1]) {
+  if (aRadius < m_rc[0] || aRadius >= m_rc[m_Nbrt1-1]) {
 #ifdef DEBUGHITS
-    std::cout << " Outside Accordion " << aRadius << " " << s_rc[0] << " " << s_rc[s_Nbrt1-1] << std::endl;
+    std::cout << " Outside Accordion " << aRadius << " " << m_rc[0] << " " << m_rc[m_Nbrt1-1] << std::endl;
 #endif
     return;    // outside accordion
   }
 
 // set the straight section number
   m_nstraight=0;
-  for (int i=1;i<s_Nbrt1;i++) {
-    if (s_rc[i] > aRadius) break;
+  for (int i=1;i<m_Nbrt1;i++) {
+    if (m_rc[i] > aRadius) break;
     m_nstraight++; 
   }
-  if (m_nstraight <0 || m_nstraight >= s_Nbrt) {
+  if (m_nstraight <0 || m_nstraight >= m_Nbrt) {
     std::cout << "Invalid straight number " << m_nstraight << " " << aRadius << std::endl;
     return;
   }
 
 // get the closest fold number
   m_nfold=m_nstraight;
-  if (fabs(aRadius-s_rc[m_nfold]) > fabs(aRadius-s_rc[m_nfold+1]) ) m_nfold +=1;
-  if (m_nfold <0 || m_nfold >= s_Nbrt1) {
+  if (fabs(aRadius-m_rc[m_nfold]) > fabs(aRadius-m_rc[m_nfold+1]) ) m_nfold +=1;
+  if (m_nfold <0 || m_nfold >= m_Nbrt1) {
     std::cout << "Invalid fold number " << m_nfold << std::endl;
     return;
   }
@@ -667,9 +667,9 @@ void Geometry::findCell(const double &xPosition,
   int phicell = PhiGap(aRadius,xPosition,yPosition);
   if (phicell<0) phicell=0;
 // for test beam, some protection
-  if (s_NCellTot !=1024) {
-    if (phicell>=s_NCellTot) {
-      if (phicell<512) phicell=s_NCellTot-1;
+  if (m_NCellTot !=1024) {
+    if (phicell>=m_NCellTot) {
+      if (phicell<512) phicell=m_NCellTot-1;
       else phicell=0;
       m_cellID=0;
     }
@@ -708,9 +708,9 @@ void Geometry::findCell(const double &xPosition,
         if (ii==0) continue;
         int phicellnew = phicell+ii;
 //  for test beam no phi wrapping
-        if (s_NCellTot != 1024 && ( phicellnew<0 || phicellnew >= s_NCellTot)) continue;
-        if (phicellnew < 0) phicellnew += s_NCellTot;
-        if (phicellnew >= s_NCellTot) phicellnew -= s_NCellTot;
+        if (m_NCellTot != 1024 && ( phicellnew<0 || phicellnew >= m_NCellTot)) continue;
+        if (phicellnew < 0) phicellnew += m_NCellTot;
+        if (phicellnew >= m_NCellTot) phicellnew -= m_NCellTot;
         double xln;
         int nstr2=m_nstraight;
         double dElec = Distance_Ele(xPosition,yPosition,phicellnew,nstr2,m_nfold,xln);
@@ -743,7 +743,7 @@ void Geometry::findCell(const double &xPosition,
   G4int nabs;
   if (m_distElec<0) nabs=m_phiGap;
   else nabs=m_phiGap+1;
-  if (nabs >= s_NCellMax) nabs -= s_NCellMax;
+  if (nabs >= m_NCellMax) nabs -= m_NCellMax;
   m_distAbs = Distance_Abs(xPosition,yPosition,nabs,m_nstraight,m_nfold);
 #ifdef DEBUGHITS
   std::cout << "  nabs,distAbs " << nabs << " " << m_distAbs << std::endl;
@@ -758,12 +758,12 @@ void Geometry::findCell(const double &xPosition,
     if (std::fabs(m_distElec)>std::fabs(m_distAbs)) {
         if (m_distAbs>0) m_phiGap += 1;
         if (m_distAbs<0) m_phiGap -= 1;
-        if (s_NCellTot != 1024) {
+        if (m_NCellTot != 1024) {
           if (m_phiGap <0) m_phiGap=0;
-          if (m_phiGap >= s_NCellTot) m_phiGap = s_NCellTot-1;
+          if (m_phiGap >= m_NCellTot) m_phiGap = m_NCellTot-1;
         } else {
-          if (m_phiGap < 0) m_phiGap += s_NCellTot;
-          if (m_phiGap >= s_NCellTot) m_phiGap -= s_NCellTot;
+          if (m_phiGap < 0) m_phiGap += m_NCellTot;
+          if (m_phiGap >= m_NCellTot) m_phiGap -= m_NCellTot;
         }
         m_distElec = Distance_Ele(xPosition,yPosition,m_phiGap,m_nstraight,m_nfold,m_xl);
 //        std::cout << " new phiGap,distElec " << m_phiGap << " " << m_distElec << std::endl;
@@ -780,9 +780,9 @@ void Geometry::findCell(const double &xPosition,
     G4double dy=yPosition-m_coudeelec->YCentCoude(m_nfold,m_phiGap);
     G4double dx1=dx*cos(alpha)-dy*sin(alpha);
     G4double dy1=dx*sin(alpha)+dy*cos(alpha);
-    m_x0 = dx1 + s_xc[m_nfold];
-    m_y0 = dy1 + s_yc[m_nfold];
-    if (s_parity==1) m_y0 = -1*m_y0;
+    m_x0 = dx1 + m_xc[m_nfold];
+    m_y0 = dy1 + m_yc[m_nfold];
+    if (m_parity==1) m_y0 = -1*m_y0;
   }
 
 
@@ -792,7 +792,8 @@ void Geometry::findCell(const double &xPosition,
 //  initialize phi0 vs radius of first absorber (for gam=0)
 void Geometry::GetRphi()
 {
-  G4double dl=0.001;
+  const G4double dl=0.001;
+  const G4double inv_dl = 1. / dl;
   G4double cenx[15],ceny[15];
   G4double xl,xl2;
   G4double sum1[5000],sumx[5000];
@@ -805,15 +806,18 @@ void Geometry::GetRphi()
 
   m_2pi = 2.*M_PI;
 
-  G4double rint= s_rint_eleFib;
+  const G4double rint= m_rint_eleFib;
+  const G4double inv_rint = 1. / rint;
+  const G4double dt=dl * inv_rint;
+  const G4double inv_dt = 1. / dt;
 
   for (G4int i=0;i<m_NRphi;i++) {
      sum1[i]=0.;
      sumx[i]=0.;
    }
   for (G4int i=0;i<15;i++) {
-     cenx[i]=s_rc[i]*cos(s_phic[i]);
-     ceny[i]=s_rc[i]*sin(s_phic[i]);
+     cenx[i]=m_rc[i]*cos(m_phic[i]);
+     ceny[i]=m_rc[i]*sin(m_phic[i]);
   }
 
   for (G4int i=0; i<15; i++) {
@@ -822,39 +826,38 @@ void Geometry::GetRphi()
      G4double phi0,phi1;
      if (i==0) {
         // first fold goes up
-       if (s_parity==0) {   
+       if (m_parity==0) {   
         phi0=-CLHEP::pi/2.;
-        phi1=-s_delta[0];
+        phi1=-m_delta[0];
        }
        // first fold goes down
        else {
-        phi0=s_delta[0];
+        phi0=m_delta[0];
         phi1=CLHEP::pi/2;
        }
      }
      else if (i==14) {
-       if (s_parity==0) {
-        phi0=-CLHEP::pi+s_delta[13];    
+       if (m_parity==0) {
+        phi0=-CLHEP::pi+m_delta[13];    
         phi1=-CLHEP::pi/2.;
        }
        else {
         phi0=CLHEP::pi/2;
-        phi1=CLHEP::pi - s_delta[13];
+        phi1=CLHEP::pi - m_delta[13];
        }
      }
      else {
-        if (i%2==(1-s_parity)) {
-           phi0=s_delta[i];
-           phi1=CLHEP::pi-s_delta[i-1];
+        if (i%2==(1-m_parity)) {
+           phi0=m_delta[i];
+           phi1=CLHEP::pi-m_delta[i-1];
         }
         else {
-           phi0=-CLHEP::pi+s_delta[i-1];
-           phi1=-s_delta[i];
+           phi0=-CLHEP::pi+m_delta[i-1];
+           phi1=-m_delta[i];
         }
      }
      xl2+=rint*fabs(phi1-phi0);
-     G4double dt=dl/rint;
-     G4int nstep=int((phi1-phi0)/dt)+1;
+     G4int nstep=int((phi1-phi0)*inv_dt)+1;
      for (int ii=0;ii<nstep;ii++) {
         xl+=dl;
         G4double phi=phi0+dt*((G4double)ii);
@@ -879,12 +882,12 @@ void Geometry::GetRphi()
         G4double x0=0.5*(cenx[i+1]+cenx[i]);
         G4double y0=0.5*(ceny[i+1]+ceny[i]);
         G4double phi;
-        if (i%2==s_parity) phi=CLHEP::pi/2-s_delta[i];
-        else               phi=-CLHEP::pi/2.+s_delta[i];
+        if (i%2==m_parity) phi=CLHEP::pi/2-m_delta[i];
+        else               phi=-CLHEP::pi/2.+m_delta[i];
         G4double x1=x0-0.5*along*cos(phi);
         G4double y1=y0-0.5*along*sin(phi);
         xl2+=along;
-        int nstep=int(along/dl)+1;
+        int nstep=int(along*inv_dl)+1;
         for (int ii=0;ii<nstep;ii++) {
            xl+=dl;
            G4double x=x1+dl*((G4double)ii)*cos(phi);
@@ -932,7 +935,7 @@ G4double Geometry::Phi0(G4double radius)
 // accordion geometry
 G4int Geometry::PhiGap(const double & radius, const double & xhit, const double &yhit)
 {
-  G4double phi0=Phi0(radius)+s_gam0;   // from -pi to pi
+  G4double phi0=Phi0(radius)+m_gam0;   // from -pi to pi
   G4double phi_hit=atan2(yhit,xhit);  // from -pi to pi
   G4double dphi=phi_hit-phi0;
 // bring back to 0-2pi
@@ -954,7 +957,7 @@ LArG4Identifier Geometry::CalculateIdentifier(const G4Step* a_step,std::string s
 
 // total number of cells in phi to distinguish 1 module (testbeam case) from full Atlas
   m_testbeam=false;
-  if (s_NCellTot != 1024) {
+  if (m_NCellTot != 1024) {
     m_testbeam=true;
   }
   
@@ -1098,8 +1101,8 @@ LArG4Identifier Geometry::CalculateECAMIdentifier(const G4Step* a_step, const G4
 // Check if the hit is in the fiducial range and in the STAC volume
 //  if yes this is active or inactive material
   
-  if (inSTAC && radiusZpos >=s_rMinAccordion && radiusZpos <= s_rMaxAccordion &&
-      zZpos <= s_zMaxBarrel && zZpos >= s_zMinBarrel && etaZpos <= s_etaMaxBarrel) {
+  if (inSTAC && radiusZpos >=m_rMinAccordion && radiusZpos <= m_rMaxAccordion &&
+      zZpos <= m_zMaxBarrel && zZpos >= m_zMinBarrel && etaZpos <= m_etaMaxBarrel) {
 
 #ifdef  DEBUGHITS   
     std::cout << "This hit is in the STAC volume !!!!! " << std::endl;
@@ -1175,7 +1178,7 @@ LArG4Identifier Geometry::CalculateECAMIdentifier(const G4Step* a_step, const G4
     double abs_eta = fabs(etaZpos);
     double DM1EtaWidth = 0.1 ;
     double DM1PhiWidth = 2.*M_PI / numDeadPhiBins ; 
-    m_etaBin = (G4int) ( abs_eta / DM1EtaWidth ) ;
+    m_etaBin = (G4int) ( abs_eta * (1./DM1EtaWidth) ) ;
     m_phiBin = (G4int) (phiZpos/ DM1PhiWidth );
     G4int type=1;
     // protect against rounding error for phi ~2pi
@@ -1189,7 +1192,7 @@ LArG4Identifier Geometry::CalculateECAMIdentifier(const G4Step* a_step, const G4
     }
 
 // material in front of the active accordion
-    if ( radiusZpos < s_rMinAccordion ) {    
+    if ( radiusZpos < m_rMinAccordion ) {    
       sampling =1 ;
       region = 3 ;
       if (m_etaBin > 14) m_etaBin=14;
@@ -1198,7 +1201,7 @@ LArG4Identifier Geometry::CalculateECAMIdentifier(const G4Step* a_step, const G4
     std::cout << "This hit is in the ECAM volume in front of the accordion (DEAD MATERIAL) !!!!! " << std::endl;
 #endif      
 
-    } else if (radiusZpos >= s_rMaxAccordion){  // material behind the active accordion
+    } else if (radiusZpos >= m_rMaxAccordion){  // material behind the active accordion
       sampling = 2;
       
       if (abs_eta < 1.0 ) {
@@ -1218,7 +1221,7 @@ LArG4Identifier Geometry::CalculateECAMIdentifier(const G4Step* a_step, const G4
        m_etaBin = 4;
       }
 
-    } else if (zZpos <= s_zMinBarrel) {   // inactive matter between two EMB halves
+    } else if (zZpos <= m_zMinBarrel) {   // inactive matter between two EMB halves
         type=2;
         region=0;
         G4int phisave=m_phiBin;
@@ -1228,7 +1231,7 @@ LArG4Identifier Geometry::CalculateECAMIdentifier(const G4Step* a_step, const G4
         m_etaBin=0;
         m_phiBin=phisave;
 
-    } else if (zZpos >= s_zMaxBarrel || abs_eta >= 1.40) { // inactive matter between EMB and scintillator
+    } else if (zZpos >= m_zMaxBarrel || abs_eta >= 1.40) { // inactive matter between EMB and scintillator
       if (abs_eta >1.0 && abs_eta < 1.5) {
          sampling=2;
          region=2;

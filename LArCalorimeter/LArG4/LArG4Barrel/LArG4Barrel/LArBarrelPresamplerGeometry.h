@@ -7,7 +7,7 @@
 #ifndef LARBARRELPRESAMPLERGEOMETRY_H
 #define LARBARRELPRESAMPLERGEOMETRY_H
 
-#include "LArG4Code/LArVCalculator.h"
+//#include "LArG4Code/LArVCalculator.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArVG4DetectorParameters.h"
 
@@ -37,22 +37,22 @@ class Geometry {
   static Geometry* m_instance;
 
   // end z of the various modules
-  G4double end_module[8];
-  G4double zminPS;
+  G4double m_end_module[8];
+  G4double m_zminPS;
   G4double m_zpres;
-  G4double cat_th;
+  G4double m_cat_th;
   // z of first cathode in each module
-  G4double first_cathod[8];
+  G4double m_first_cathod[8];
   // tilt of electrodes
-  G4double tilt[8];
+  G4double m_tilt[8];
   // number of gaps per cell
-  G4int ngap_cell[8];
+  G4int m_ngap_cell[8];
   // pitch in z of gaps
-  G4double pitch[8];
+  G4double m_pitch[8];
   // number of cells per modules
-  G4int    ncell_module[8];
+  G4int    m_ncell_module[8];
   // total LAr thickness
-  G4double halfThickLAr;
+  G4double m_halfThickLAr;
 
   // Pointer to detector parameters routine.
   LArVG4DetectorParameters* m_parameters;

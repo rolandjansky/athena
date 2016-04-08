@@ -7,7 +7,7 @@
 #ifndef LARBARRELGEOMETRY_H
 #define LARBARRELGEOMETRY_H
 
-#include "LArG4Code/LArVCalculator.h"
+//#include "LArG4Code/LArVCalculator.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArVG4DetectorParameters.h"
 #include "G4ThreeVector.hh"
@@ -92,29 +92,29 @@ class Geometry {
   bool m_FIRST;
 
   // global EMBarrel dimensions
-  double s_rMinAccordion;
-  double s_rMaxAccordion;
-  double s_zMinBarrel;
-  double s_zMaxBarrel;
-  double s_etaMaxBarrel;
+  double m_rMinAccordion;
+  double m_rMaxAccordion;
+  double m_zMinBarrel;
+  double m_zMaxBarrel;
+  double m_etaMaxBarrel;
 
   // GU 11/06/2003  total number of cells in phi
-  int s_NCellTot;    // either 64 or 1024 for TestBeam or Atlas
-  int s_NCellMax;    // 1024 
+  int m_NCellTot;    // either 64 or 1024 for TestBeam or Atlas
+  int m_NCellMax;    // 1024 
   
   // Accordion parameters
-  int s_Nbrt;         //   number of straight sections (=14)
-  int s_Nbrt1;        //   number of folds (=15)
+  int m_Nbrt;         //   number of straight sections (=14)
+  int m_Nbrt1;        //   number of folds (=15)
   
   // Accordion parameters, refering to the neutral fibre
-  double s_gam0 ;         //phi position for the first absorber  neutral fiber
-  double s_rint_eleFib ; //2.78
-  double *s_rc, *s_phic, *s_xc, *s_yc, *s_delta;// double s_rc[15] ;     // R and
-  int s_parity;
-  //double s_phic[15] ;   // phi positions of center of fold for first absorber 
-  // double s_xc[15];       // corresponding x,y values
-  // double s_yc[15];
-  //double s_delta[15];   // zig-zag angles
+  double m_gam0 ;         //phi position for the first absorber  neutral fiber
+  double m_rint_eleFib ; //2.78
+  double *m_rc, *m_phic, *m_xc, *m_yc, *m_delta;// double m_rc[15] ;     // R and
+  int m_parity;
+  //double m_phic[15] ;   // phi positions of center of fold for first absorber 
+  // double m_xc[15];       // corresponding x,y values
+  // double m_yc[15];
+  //double m_delta[15];   // zig-zag angles
   // to access G4 geometry
   LArCoudeElectrodes* m_coudeelec;
   LArCoudeAbsorbers* m_coudeabs;
@@ -143,7 +143,7 @@ class Geometry {
   G4int m_sampMap;        // sampling number not taking into account readout strips
   G4int m_etaMap;         // eta number not taking into account readout strips
 
-  bool iflSAG;
+  bool m_iflSAG;
 
   // intermediate values for phi cell computation
   G4int m_NRphi;

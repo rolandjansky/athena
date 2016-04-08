@@ -11,7 +11,7 @@
 
 class MapEta {
 private:
-   std::string directory;
+   std::string m_directory;
    int m_init;
    int m_nx,m_ny;
    float m_xmin,m_xmax,m_ymin,m_ymax;

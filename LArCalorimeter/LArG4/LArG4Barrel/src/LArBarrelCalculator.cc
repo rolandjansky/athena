@@ -37,6 +37,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/Units.h"
 #include "CxxUtils/make_unique.h"
 
 #include "LArHV/LArHVManager.h"
@@ -45,6 +46,8 @@
 #include "LArHV/EMBHVModuleConstLink.h"
 #include "LArHV/EMBHVElectrode.h"
 #include "LArHV/EMBHVElectrodeConstLink.h"
+
+namespace Units = Athena::Units;
 
 
 LArBarrelCalculator* LArBarrelCalculator::m_instance = 0;
@@ -64,7 +67,7 @@ LArBarrelCalculator::LArBarrelCalculator()
     , m_dstep(.2*CLHEP::mm)
     , m_birksLaw(NULL)
     , m_doHV(false)
-    , m_detectorName("")
+    , m_detectorName("LArMgr")
     , m_nhits(0)
 {
   std::cout << "LArBarrelCalculator: Beginning initialisation " << std::endl;
@@ -114,15 +117,15 @@ LArBarrelCalculator::LArBarrelCalculator()
 
 // Main Barrel parameters
 // All the UNITS are implicitly the GEANT4 ONES e.g. mm, rad, etc ...
-  s_etaMaxBarrel = m_parameters->GetValue("LArEMBMaxEtaAcceptance");
-  s_zMinBarrel = m_parameters->GetValue("LArEMBfiducialMothZmin");
-  s_zMaxBarrel = m_parameters->GetValue("LArEMBfiducialMothZmax");
-  s_NCellMax   = (int) (m_parameters->GetValue("LArEMBnoOFPhysPhiCell"));
-  s_rMinAccordion  =  m_parameters->GetValue("LArEMBRadiusInnerAccordion");
-  s_rMaxAccordion  = m_parameters->GetValue("LArEMBFiducialRmax"); 
+  m_etaMaxBarrel = m_parameters->GetValue("LArEMBMaxEtaAcceptance");
+  m_zMinBarrel = m_parameters->GetValue("LArEMBfiducialMothZmin");
+  m_zMaxBarrel = m_parameters->GetValue("LArEMBfiducialMothZmax");
+  m_NCellMax   = (int) (m_parameters->GetValue("LArEMBnoOFPhysPhiCell"));
+  m_rMinAccordion  =  m_parameters->GetValue("LArEMBRadiusInnerAccordion");
+  m_rMaxAccordion  = m_parameters->GetValue("LArEMBFiducialRmax"); 
 
 // absorbers and electrodes thickness
-  s_ThickAbs = 0.5*( m_parameters->GetValue("LArEMBThickAbsGlue")
+  m_ThickAbs = 0.5*( m_parameters->GetValue("LArEMBThickAbsGlue")
                     +m_parameters->GetValue("LArEMBThickAbsIron")
                     +m_parameters->GetValue("LArEMBThickAbsLead"));
 
@@ -130,19 +133,19 @@ LArBarrelCalculator::LArBarrelCalculator()
                         +m_parameters->GetValue("LArEMBThinAbsIron")
                         +m_parameters->GetValue("LArEMBThinAbsLead"));
 
-  if (fabs(check-s_ThickAbs)>0.001) {
+  if (fabs(check-m_ThickAbs)>0.001) {
     std::cout << " LArBarrelCalculator: WARNING  THin and Thick Abs have difference thickness !" << std::endl;
   }
 
-  s_ThickEle= 0.5*( m_parameters->GetValue("LArEMBThickElecCopper")
+  m_ThickEle= 0.5*( m_parameters->GetValue("LArEMBThickElecCopper")
                    +m_parameters->GetValue("LArEMBThickElecKapton"));
 
 // === GU 11/06/2003   total number of cells in phi
 // to distinguish 1 module (testbeam case) from full Atlas
   m_testbeam=false;
-  s_NCellTot = (int) (m_parameters->GetValue("LArEMBnoOFPhysPhiCell"));
-  if (s_NCellTot != 1024) {
-   s_NCellMax=1024;
+  m_NCellTot = (int) (m_parameters->GetValue("LArEMBnoOFPhysPhiCell"));
+  if (m_NCellTot != 1024) {
+   m_NCellMax=1024;
    m_testbeam=true;
   }
 // ===
@@ -165,15 +168,15 @@ LArBarrelCalculator::LArBarrelCalculator()
 // Initialize HV values
    InitHV();
 
-   std::cout << " LArBarrelCalculator: s_NCellMax       " << s_NCellMax << std::endl;
-   std::cout << " LArBarrelCalculator: s_NCellTot       " << s_NCellTot << std::endl;
-   std::cout << " LArBarrelCalculator: s_rMinAccordion  " << s_rMinAccordion << std::endl;
-   std::cout << " LArBarrelCalculator: s_rMaxAccordion  " << s_rMaxAccordion << std::endl;
-   std::cout << " LArBarrelCalculator: s_zMinBarrel     " << s_zMinBarrel << std::endl;
-   std::cout << " LArBarrelCalculator: s_zMaxBarrel     " << s_zMaxBarrel << std::endl;
-   std::cout << " LArBarrelCalculator: s_etaMaxBarrel   " << s_etaMaxBarrel << std::endl;
-   std::cout << " LArBarrelCalculator: s_ThickAbs       " << s_ThickAbs << std::endl;
-   std::cout << " LArBarrelCalculator: s_ThickEle       " << s_ThickEle << std::endl;
+   std::cout << " LArBarrelCalculator: m_NCellMax       " << m_NCellMax << std::endl;
+   std::cout << " LArBarrelCalculator: m_NCellTot       " << m_NCellTot << std::endl;
+   std::cout << " LArBarrelCalculator: m_rMinAccordion  " << m_rMinAccordion << std::endl;
+   std::cout << " LArBarrelCalculator: m_rMaxAccordion  " << m_rMaxAccordion << std::endl;
+   std::cout << " LArBarrelCalculator: m_zMinBarrel     " << m_zMinBarrel << std::endl;
+   std::cout << " LArBarrelCalculator: m_zMaxBarrel     " << m_zMaxBarrel << std::endl;
+   std::cout << " LArBarrelCalculator: m_etaMaxBarrel   " << m_etaMaxBarrel << std::endl;
+   std::cout << " LArBarrelCalculator: m_ThickAbs       " << m_ThickAbs << std::endl;
+   std::cout << " LArBarrelCalculator: m_ThickEle       " << m_ThickEle << std::endl;
    if(m_IflCur) std::cout <<" LArBarrelCalculator: Deposited Energy  dE/dX  Corrected ==> CURRENT Option ON"<<std::endl;
    else  std::cout << " LArBarrelCalculator: Crude Deposited Energy  dE/dX  NO CURRENT option"<< std::endl;
    if (m_IflCur && m_IflMapTrans) std::cout<<" LArBarrelCalculator: Compute effect of E field around eta=0.8 " << std::endl;
@@ -194,18 +197,19 @@ LArBarrelCalculator::~LArBarrelCalculator()
 }
 
 // =============================================================================
-G4bool LArBarrelCalculator::Process(const G4Step* step)
+G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>& hdata)
 {
 
   m_nhits = 0;
-  m_identifier.clear();
-  m_energy.clear();
-  m_time.clear();
+  //m_identifier.clear();
+  //m_energy.clear();
+  //m_time.clear();
+  hdata.clear();
   m_isInTime.clear();
 
 //  check the Step content is non trivial
   G4double thisStepEnergyDeposit = step->GetTotalEnergyDeposit();
-  G4double thisStepLength = step->GetStepLength() / CLHEP::mm;
+  G4double thisStepLength = step->GetStepLength() / Units::mm;
 
 #ifdef  DEBUGSTEP
   std::cout << "******  LArBarrelCalculator:  Step energy,length " 
@@ -267,7 +271,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
     
   if (m_birksLaw) {
       const double EField = 10.;         // kV/cm, assume constant for now
-      const double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;
+      const double wholeStepLengthCm = step->GetStepLength() / Units::cm;
       energy = (*m_birksLaw)(energy, wholeStepLengthCm, EField);
   }
 
@@ -357,8 +361,8 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
     std::cout << "    local coordinates " << m_geometry->x0() << " " << m_geometry->y0() << std::endl;
 #endif
 
-    if (std::fabs(m_geometry->distElec())< s_ThickEle ||
-        std::fabs(m_geometry->distAbs()) < s_ThickAbs) {
+    if (std::fabs(m_geometry->distElec())< m_ThickEle ||
+        std::fabs(m_geometry->distAbs()) < m_ThickAbs) {
 #ifdef DEBUGSTEP
       std::cout << "   hit in absorber or electrode radius:" << radloc << std::endl;
 #endif
@@ -383,8 +387,8 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
     else
     {
      G4double tof;
-     tof = thisStepPoint->GetGlobalTime() / CLHEP::ns;
-     time  = tof - ( thisStepPoint->GetPosition().mag()/CLHEP::c_light ) / CLHEP::ns;
+     tof = thisStepPoint->GetGlobalTime() / Units::ns;
+     time  = tof - ( thisStepPoint->GetPosition().mag()/Units::c_light ) / Units::ns;
     }
     
 #ifdef DEBUGSTEP
@@ -461,7 +465,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
 //  get current for elementary charge
        m_accmap->Map()->GetAll(xmap,ymap,&gap,&current0,&current1,&current2);
        G4double gap2=std::fabs(m_geometry->distElec())+std::fabs(m_geometry->distAbs())
-                    -s_ThickEle-s_ThickAbs;
+                    -m_ThickEle-m_ThickAbs;
 
 // in which HV cell are we ?
        int ipm,ielec,ieta,iside;
@@ -472,7 +476,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
           ielec = 511 - ielec; 
           if(ielec < 0 ) ielec += 1024;
        }
-       ieta=((int) (etaloc/0.2));
+       ieta=((int) (etaloc*(1./0.2)));
        if (ieta>6) ieta=6;  //part 1.4 to 1.475 is same HV as 1.2 to 1.4
        iside=0;    // phi lower than electrode 0, 1 for phi higher than electrode
        if ((m_geometry->distElec()>0 && zSide==1)
@@ -596,51 +600,48 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
 //  to an already existing hit
     G4bool found=false;
     for (int i=0; i<m_nhits; i++) {
-        if (m_identifier[i]==m_identifier2) {
-           m_energy[i] += Current;
-           m_time[i] += time*Current;
+        if (hdata[i].id==m_identifier2) {
+           hdata[i].energy += Current;
+           hdata[i].time += time*Current;
            found=true;
            break; 
         }
     }    // loop over hits
     if (!found) {
        m_nhits++;
-       m_identifier.push_back(m_identifier2);
-       m_energy.push_back(Current);
-       m_time.push_back(time*Current);
+       LArHitData newdata = {m_identifier2, time*Current, Current};
+       hdata.push_back(newdata);
        m_isInTime.push_back(true);
     }    // hit was not existing before
 
     if (Xtalk) {
       for (int i=0; i<m_nhits; i++) {
-        if (m_identifier[i]==m_identifier_xt1) {
-           m_energy[i] += Current_xt1;
-           m_time[i] += time*Current_xt1;
+        if (hdata[i].id==m_identifier_xt1) {
+           hdata[i].energy += Current_xt1;
+           hdata[i].time += time*Current_xt1;
            found=true;
            break;
         }
       }    // loop over hits
       if (!found) {
        m_nhits++;
-       m_identifier.push_back(m_identifier_xt1);
-       m_energy.push_back(Current_xt1);
-       m_time.push_back(time*Current_xt1);
+       LArHitData newdata = {m_identifier_xt1, time*Current_xt1, Current_xt1};
+       hdata.push_back(newdata);
        m_isInTime.push_back(true);
       }  
       found=false;
       for (int i=0; i<m_nhits; i++) {
-        if (m_identifier[i]==m_identifier_xt2) {
-           m_energy[i] += Current_xt2;
-           m_time[i] += time*Current_xt2;
+        if (hdata[i].id==m_identifier_xt2) {
+           hdata[i].energy += Current_xt2;
+           hdata[i].time += time*Current_xt2;
            found=true;
            break; 
         }
       }    // loop over hits
       if (!found) {
        m_nhits++;
-       m_identifier.push_back(m_identifier_xt2);
-       m_energy.push_back(Current_xt2);
-       m_time.push_back(time*Current_xt2);
+       LArHitData newdata = {m_identifier_xt2, time*Current_xt2, Current_xt2};
+       hdata.push_back(newdata);
        m_isInTime.push_back(true);
       }
     }    // Xtalk true
@@ -650,17 +651,17 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
 
 #ifdef DEBUGSTEP
     std::cout << "Number of hits for this step " << m_nhits << " " 
-              << m_identifier.size() << " " << m_energy.size() << std::endl;
+              << hdata.size() << std::endl;
 #endif
 
 // finalise time computations
   for (int i=0;i<m_nhits;i++) {
-     if (std::fabs(m_energy[i])>1e-6) m_time[i]=m_time[i]/m_energy[i];
-     else m_time[i]=0.;
-     if (std::fabs(m_time[i])> m_OOTcut) m_isInTime[i]=false;
+     if (std::fabs(hdata[i].energy)>1e-6) hdata[i].time=hdata[i].time/hdata[i].energy;
+     else hdata[i].time=0.;
+     if (std::fabs(hdata[i].time)> m_OOTcut) m_isInTime[i]=false;
 #ifdef DEBUGSTEP
      std::cout << "Hit Energy/Time " 
-               << m_energy[i] << " " << m_time[i] << std::endl;
+               << hdata[i].energy << " " << hdata[i].time << std::endl;
 #endif
   }
 
@@ -677,11 +678,11 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
 
 G4bool LArBarrelCalculator::FiducialCuts(G4double radloc,G4double zloc,G4double etaloc)
 {
-  if (radloc < s_rMinAccordion ||
-      radloc > s_rMaxAccordion ||
-      etaloc > s_etaMaxBarrel ||
-      zloc   < s_zMinBarrel ||
-      zloc   > s_zMaxBarrel)      return false;
+  if (radloc < m_rMinAccordion ||
+      radloc > m_rMaxAccordion ||
+      etaloc > m_etaMaxBarrel ||
+      zloc   < m_zMinBarrel ||
+      zloc   > m_zMaxBarrel)      return false;
    else                           return true;
 }
 
@@ -768,7 +769,7 @@ double LArBarrelCalculator::ScaleHV(double hv, double curr0, double curr1, doubl
    if (std::fabs(curr1)>1e-6) {
       double x=curr0/curr1;
       if (x>1e-6) {
-        b=log(x)/(log(2000.)-log(1000.));
+        b=log(x)*(1./(log(2000.)-log(1000.)));
         resp = curr0*exp(b*(log(hv)-log(2000.)));
       }
    } 
@@ -777,7 +778,7 @@ double LArBarrelCalculator::ScaleHV(double hv, double curr0, double curr1, doubl
    if (std::fabs(curr2)>1e-6) {
       double x=curr1/curr2;
       if (x>1e-6) {
-        b=log(x)/(log(1000.)-log(400.));
+        b=log(x)*(1./(log(1000.)-log(400.)));
         resp = curr1*exp(b*(log(hv)-log(1000.)));
       }
    }

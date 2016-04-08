@@ -73,43 +73,43 @@ Geometry::Geometry()
   // compute positions of end of modules and of first cathode in a module in
   // nominal Atlas coordinates 
   double eps=0.007*CLHEP::mm;
-  zminPS=3.00*CLHEP::mm;   // FIXME this should come from database
-  end_module[0]=(mod[0][0]*cmm+2*eps)+zminPS+eps;
-  for (int i=1;i<8;i++) end_module[i]=end_module[i-1]+(mod[i][0]*cmm+2*eps)+eps;
+  m_zminPS=3.00*CLHEP::mm;   // FIXME this should come from database
+  m_end_module[0]=(m_mod[0][0]*m_cmm+2*eps)+m_zminPS+eps;
+  for (int i=1;i<8;i++) m_end_module[i]=m_end_module[i-1]+(m_mod[i][0]*m_cmm+2*eps)+eps;
 #ifdef DEBUGHITS
   for (int i=0;i<8;i++) {
-   std::cout << "Module lenght " << mod[0][0]*cmm+2*eps << std::endl;
-   std::cout << "End of Module " << end_module[i] << std::endl;
+   std::cout << "Module lenght " << m_mod[0][0]*m_cmm+2*eps << std::endl;
+   std::cout << "End of Module " << m_end_module[i] << std::endl;
   }
 #endif
 
-  cat_th=cathode_th*cmm;
-  first_cathod[0]=zminPS+mod[0][5]*cmm+cat_th/2.+2*eps; 
-  for (int i=1;i<8;i++) first_cathod[i]=end_module[i-1]+mod[i][5]*cmm+cat_th/2.+2*eps;
+  m_cat_th=m_cathode_th*m_cmm;
+  m_first_cathod[0]=m_zminPS+m_mod[0][5]*m_cmm+m_cat_th/2.+2*eps; 
+  for (int i=1;i<8;i++) m_first_cathod[i]=m_end_module[i-1]+m_mod[i][5]*m_cmm+m_cat_th/2.+2*eps;
 
 #ifdef DEBUGHITS
-  for (int i=0;i<8;i++) std::cout << "position of first cathode " << first_cathod[i] << std::endl;
+  for (int i=0;i<8;i++) std::cout << "position of first cathode " << m_first_cathod[i] << std::endl;
 #endif
 
   // number of cells in eta per module
-  for (int i=0;i<7;i++) ncell_module[i]=8;
-  ncell_module[7]=5;
+  for (int i=0;i<7;i++) m_ncell_module[i]=8;
+  m_ncell_module[7]=5;
 
   // electrode tild in rad
-  for (int i=0;i<8;i++) tilt[i]=mod[i][3]*CLHEP::deg;
+  for (int i=0;i<8;i++) m_tilt[i]=m_mod[i][3]*CLHEP::deg;
 
   // number of gaps per cell    module 7 is somewhat pathological (last cell is shorter)
-  for (int i=0;i<7;i++) ngap_cell[i]=(int)((mod[i][1]+0.1)/ncell_module[i]);
-  ngap_cell[7]=18;
+  for (int i=0;i<7;i++) m_ngap_cell[i]=(int)((m_mod[i][1]+0.1)/m_ncell_module[i]);
+  m_ngap_cell[7]=18;
 #ifdef DEBUGHITS
-  for (int i=0;i<8;i++) std::cout << "ngap per cell " << ngap_cell[i] << std::endl;
+  for (int i=0;i<8;i++) std::cout << "ngap per cell " << m_ngap_cell[i] << std::endl;
 #endif
 
   // pitch in z of gaps
-  for (int i=0;i<8;i++) pitch[i]=mod[i][4]*cmm;
+  for (int i=0;i<8;i++) m_pitch[i]=m_mod[i][4]*m_cmm;
 
   // LAr total gap
-  halfThickLAr = 0.5*13.*CLHEP::mm;
+  m_halfThickLAr = 0.5*13.*CLHEP::mm;
 
   m_xElec=0;
   m_sampling=0;
@@ -167,6 +167,8 @@ LArG4Identifier Geometry::CalculateIdentifier(const G4Step* a_step, std::string 
       else if (v1->GetName()==G4String(strDetector+"::LAr::TBBarrel::Cryostat::LAr")) itb=1;  // TB or not ?
       else if (v1->GetName()==G4String(strDetector+"::LAr::Barrel::Presampler::Module")) iactive=1; 
     }
+
+  if (idep < 0) std::abort();
 
   if ( iactive > 0 ) {    
     return CalculatePSActiveIdentifier( a_step , idep , itb );        
@@ -287,7 +289,7 @@ LArG4Identifier Geometry::CalculatePS_DMIdentifier(const G4Step* a_step, const G
   G4double radius=sqrt(ploc.x()*ploc.x() + ploc.y()*ploc.y());
   
 // shift z such that z=0 is eta=0 in Atlas standard frame
-  G4ThreeVector ploc2(ploc.x(),ploc.y(),ploc.z()+m_zpres+zminPS);
+  G4ThreeVector ploc2(ploc.x(),ploc.y(),ploc.z()+m_zpres+m_zminPS);
 
 #ifdef  DEBUGHITS						
   std::cout << "Position of the step after traslation (x,y,z) --> " << ploc2.x() << " " << ploc2.y() << " " << ploc2.z() << std::endl;
@@ -326,10 +328,11 @@ LArG4Identifier Geometry::CalculatePS_DMIdentifier(const G4Step* a_step, const G
   // PSModuleRmean = 1420 is the distance between the middle of the active layer (LAr) of the PS 
   // modules and the interaction point  
 
-  static const G4int numberPhiMod = 32;  
-  static const G4double dphi = ( 2.*M_PI ) / numberPhiMod;
-  static const G4double PSModuleRmean = 1420 ;
-  G4double phicheck = phi - int(phi / dphi) * dphi  - (dphi /2.);
+  const G4int numberPhiMod = 32;  
+  const G4double dphi = ( 2.*M_PI ) / numberPhiMod;
+  const G4double inv_dphi = 1. / dphi;
+  const G4double PSModuleRmean = 1420 ;
+  G4double phicheck = phi - int(phi * inv_dphi) * dphi  - (dphi /2.);
   G4double Rcheck =  PSModuleRmean  / cos(phicheck);
   if (radius > Rcheck) {
     m_region = 3;
@@ -337,11 +340,11 @@ LArG4Identifier Geometry::CalculatePS_DMIdentifier(const G4Step* a_step, const G
     m_region = 2;
   }
   
-  static const G4double detaDM = 0.1 ;
-  static const G4double dphiDM = ( 2 * M_PI ) / 64. ;
+  const G4double detaDM = 0.1 ;
+  const G4double dphiDM = ( 2 * M_PI ) / 64. ;
 
-  m_phiBin = G4int( phi / dphiDM );
-  m_etaBin = G4int( eta / detaDM );
+  m_phiBin = G4int( phi * (1. / dphiDM) );
+  m_etaBin = G4int( eta * (1. / detaDM) );
   
   if( zSide == -1 )
     {
@@ -405,24 +408,25 @@ bool  Geometry::findCell(G4double xloc,G4double yloc,G4double zloc)
   // eta,phi in "local" Atlas like half barrel coordinates
   G4double phi = atan2(yloc,xloc);
   if ( phi < 0. ) phi += 2.*M_PI;
-  G4double z2=fabs(zloc+m_zpres+zminPS);  
+  G4double z2=fabs(zloc+m_zpres+m_zminPS);  
 
   // According to the memo, phi is divided into 64 regions [0..63].
-  static const G4int numberPhiBins = 64;
-  static const G4double dphi = ( 2.*M_PI ) / numberPhiBins;
+  const G4int numberPhiBins = 64;
+  const G4double dphi = ( 2.*M_PI ) / numberPhiBins;
+  const G4double inv_dphi = 1. / dphi;
   // Convert  phi into integer bins.
-  m_phiBin = G4int( phi / dphi );
+  m_phiBin = G4int( phi * inv_dphi );
   if (m_phiBin >63) m_phiBin=63;
   if (m_phiBin <0)  m_phiBin=0;
 
 // if inside LAr but outside a module, returns some etaBin value for
 //  the DM identifier, but function return false to veto this step
 //  in the normal calculator
-  if (z2 < zminPS ) {
+  if (z2 < m_zminPS ) {
      m_etaBin=0;
      return false;
   }
-  if (z2 > end_module[7]) {
+  if (z2 > m_end_module[7]) {
      m_etaBin=60;
      return false;
   }
@@ -430,7 +434,7 @@ bool  Geometry::findCell(G4double xloc,G4double yloc,G4double zloc)
 // find in which module in z the hit is
   m_module=0;
   for (int i=1;i<8;i++) {
-    if (first_cathod[i]>=z2) break;
+    if (m_first_cathod[i]>=z2) break;
     m_module++;
   }
   if (m_module <0 || m_module > 7) 
@@ -442,19 +446,19 @@ bool  Geometry::findCell(G4double xloc,G4double yloc,G4double zloc)
   }
 
 // compute signed distance from middle of active layer along layer height axis
-  G4int isect=G4int(phi*nsectors/(2.*M_PI));
-  G4double phi0= ((double)isect+0.5)*2.*M_PI/((double) nsectors);
+  G4int isect=G4int(phi*m_nsectors/(2.*M_PI));
+  G4double phi0= ((double)isect+0.5)*2.*M_PI/((double) m_nsectors);
   static const G4double r0=1420.4*CLHEP::mm;   // FIXME should be recomputed from database
   m_dist=(xloc*cos(phi0)+yloc*sin(phi0)-r0);
 
 #ifdef DEBUGHITS
      std::cout << "sector number, dist along height " << isect << " " << m_dist << std::endl;
-     std::cout << "z2,module number,first_cathod " << z2 << " " << m_module << " "
-                << first_cathod[m_module] << std::endl;
+     std::cout << "z2,module number,m_first_cathod " << z2 << " " << m_module << " "
+                << m_first_cathod[m_module] << std::endl;
 #endif
 
   bool status=true;
-  if (fabs(m_dist)>halfThickLAr) {
+  if (fabs(m_dist)>m_halfThickLAr) {
 #ifdef DEBUGHITS
      std::cout << "Outside normal LAr 13mm gap " << std::endl,
 #endif
@@ -462,31 +466,31 @@ bool  Geometry::findCell(G4double xloc,G4double yloc,G4double zloc)
   }
 
 // compute z distance from first cathode of module to step, taking into
-//   account the tilt angle of the cathode
-  G4double deltaz=z2-(first_cathod[m_module]+m_dist*tan(tilt[m_module]));
+//   account the m_tilt angle of the cathode
+  G4double deltaz=z2-(m_first_cathod[m_module]+m_dist*tan(m_tilt[m_module]));
   if (deltaz<0 ) {
     if (m_module>0) {
       m_module=m_module-1;
-      deltaz=z2-(first_cathod[m_module]+m_dist*tan(tilt[m_module]));
+      deltaz=z2-(m_first_cathod[m_module]+m_dist*tan(m_tilt[m_module]));
     }
     else deltaz=0;
   }
 
 // compute gap number
-  m_gap = ((int)(deltaz/pitch[m_module]));
+  m_gap = ((int)(deltaz/m_pitch[m_module]));
 
 #ifdef DEBUGHITS
    std::cout << "deltaz from first cathode,gap number " << deltaz << " " << m_gap << std::endl;
 #endif
 
 // compute cell number in eta 
-  m_etaBin= m_gap/ngap_cell[m_module];
+  m_etaBin= m_gap/m_ngap_cell[m_module];
 #ifdef DEBUGHITS
   std::cout << "etaBin inside module " << m_etaBin;
 #endif
-  if (m_etaBin >= ncell_module[m_module]) m_etaBin=ncell_module[m_module]-1;
+  if (m_etaBin >= m_ncell_module[m_module]) m_etaBin=m_ncell_module[m_module]-1;
 
-  for (int i=0;i<m_module;i++) m_etaBin=m_etaBin+ncell_module[i];
+  for (int i=0;i<m_module;i++) m_etaBin=m_etaBin+m_ncell_module[i];
 #ifdef DEBUGHITS
   std::cout << " final etaBin " << m_etaBin << std::endl;
 #endif
@@ -496,13 +500,13 @@ bool  Geometry::findCell(G4double xloc,G4double yloc,G4double zloc)
   }
 
 // z of the centre of the anode of the gap
-  G4double zmiddle=first_cathod[m_module]+((double)(m_gap+0.5))*pitch[m_module];
+  G4double zmiddle=m_first_cathod[m_module]+((double)(m_gap+0.5))*m_pitch[m_module];
 
 // compute step position in electrode reference frame
 //   m_distElec => signed distance to electrode
 //   m_xElec => projection along electrode axis
-  m_xElec=m_dist*cos(tilt[m_module])+(z2-zmiddle)*sin(tilt[m_module]);
-  m_distElec=(z2-zmiddle)*cos(tilt[m_module]) - m_dist*sin(tilt[m_module]);
+  m_xElec=m_dist*cos(m_tilt[m_module])+(z2-zmiddle)*sin(m_tilt[m_module]);
+  m_distElec=(z2-zmiddle)*cos(m_tilt[m_module]) - m_dist*sin(m_tilt[m_module]);
 #ifdef DEBUGHITS
    std::cout << "zmiddle,xloc,yloc " << zmiddle << " " << m_distElec << " " << m_xElec << std::endl;
 #endif
