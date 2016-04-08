@@ -38,34 +38,34 @@ DblQ00Aszt::DblQ00Aszt() : m_d(NULL)
     m_nObj = 0;
 }
     
-DblQ00Aszt::DblQ00Aszt(IRDBQuery* m_aszt)
+DblQ00Aszt::DblQ00Aszt(IRDBQuery* aszt)
  : m_nObj(0)
 {
-  if(m_aszt) {
-    m_aszt->execute();
-    m_nObj = m_aszt->size();
+  if(aszt) {
+    aszt->execute();
+    m_nObj = aszt->size();
     m_d = new ASZT[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Aszt banks in the MuonDD Database"<<std::endl;
 
     int i=0;
-    while(m_aszt->next()) {
-        m_d[i].version        = m_aszt->data<int>("ASZT_DATA.VERS");    
-        m_d[i].line           = m_aszt->data<int>("ASZT_DATA.LINE");          
-        m_d[i].jff            = m_aszt->data<int>("ASZT_DATA.JFF");
-        m_d[i].jzz            = m_aszt->data<int>("ASZT_DATA.JZZ");
-        m_d[i].job            = m_aszt->data<int>("ASZT_DATA.JOB");
-        m_d[i].tras           = m_aszt->data<float>("ASZT_DATA.TRAS");
-        m_d[i].traz           = m_aszt->data<float>("ASZT_DATA.TRAZ");
-        m_d[i].trat           = m_aszt->data<float>("ASZT_DATA.TRAT");
-        m_d[i].rots           = m_aszt->data<float>("ASZT_DATA.ROTS");
-        m_d[i].rotz           = m_aszt->data<float>("ASZT_DATA.ROTZ");
-        m_d[i].rott           = m_aszt->data<float>("ASZT_DATA.ROTT");
-        m_d[i].i              = m_aszt->data<int>("ASZT_DATA.I");
-        sprintf(m_d[i].type,"%s",m_aszt->data<std::string>("ASZT_DATA.TYP").c_str());
+    while(aszt->next()) {
+        m_d[i].version        = aszt->data<int>("ASZT_DATA.VERS");    
+        m_d[i].line           = aszt->data<int>("ASZT_DATA.LINE");          
+        m_d[i].jff            = aszt->data<int>("ASZT_DATA.JFF");
+        m_d[i].jzz            = aszt->data<int>("ASZT_DATA.JZZ");
+        m_d[i].job            = aszt->data<int>("ASZT_DATA.JOB");
+        m_d[i].tras           = aszt->data<float>("ASZT_DATA.TRAS");
+        m_d[i].traz           = aszt->data<float>("ASZT_DATA.TRAZ");
+        m_d[i].trat           = aszt->data<float>("ASZT_DATA.TRAT");
+        m_d[i].rots           = aszt->data<float>("ASZT_DATA.ROTS");
+        m_d[i].rotz           = aszt->data<float>("ASZT_DATA.ROTZ");
+        m_d[i].rott           = aszt->data<float>("ASZT_DATA.ROTT");
+        m_d[i].i              = aszt->data<int>("ASZT_DATA.I");
+        sprintf(m_d[i].type,"%s",aszt->data<std::string>("ASZT_DATA.TYP").c_str());
         //std::cerr<<" Aszt:: version, type, jtyp, nsta "<<m_d[i].version<<" "<<m_d[i].type<<" "<<m_d[i].jtyp<<" "<<m_d[i].nsta  <<std::endl;
         i++;
     }
-    m_aszt->finalize();
+    aszt->finalize();
   }
   else {
     m_d = new ASZT[0];

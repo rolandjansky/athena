@@ -32,26 +32,26 @@
 namespace MuonGM
 {
 
-DblQ00Wded::DblQ00Wded(IRDBQuery* m_wded)
+DblQ00Wded::DblQ00Wded(IRDBQuery* wded)
  : m_nObj(0)
 {
-  if(m_wded) {
-    m_wded->execute();
-    m_nObj = m_wded->size();
+  if(wded) {
+    wded->execute();
+    m_nObj = wded->size();
     m_d = new WDED[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wded banks in the MuonDD Database"<<std::endl;
 
     int i=0;
-    while(m_wded->next()) {
-        m_d[i].version     = m_wded->data<int>("WDED_DATA.VERS");    
-        m_d[i].jsta        = m_wded->data<int>("WDED_DATA.JSTA");
-        m_d[i].nb        = m_wded->data<int>("WDED_DATA.NB");
-        m_d[i].x0          = m_wded->data<float>("WDED_DATA.X0");
-        m_d[i].auphcb      = m_wded->data<float>("WDED_DATA.AUPHCB");
-        m_d[i].tckded      = m_wded->data<float>("WDED_DATA.TCKDED");
+    while(wded->next()) {
+        m_d[i].version     = wded->data<int>("WDED_DATA.VERS");    
+        m_d[i].jsta        = wded->data<int>("WDED_DATA.JSTA");
+        m_d[i].nb        = wded->data<int>("WDED_DATA.NB");
+        m_d[i].x0          = wded->data<float>("WDED_DATA.X0");
+        m_d[i].auphcb      = wded->data<float>("WDED_DATA.AUPHCB");
+        m_d[i].tckded      = wded->data<float>("WDED_DATA.TCKDED");
         i++;
     }
-    m_wded->finalize();
+    wded->finalize();
   }
   else {
     m_d = new WDED[0];

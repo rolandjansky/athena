@@ -31,12 +31,12 @@
 namespace MuonGM
 {
 
-DblQ00Alin::DblQ00Alin(IRDBQuery* m_alin)
+DblQ00Alin::DblQ00Alin(IRDBQuery* alin)
  : m_nObj(0)
 {
-  if(m_alin) {
-    m_alin->execute();
-    m_nObj = m_alin->size();
+  if(alin) {
+    alin->execute();
+    m_nObj = alin->size();
     m_d = new ALIN[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Alin banks in the MuonDD Database"<<std::endl;
 
@@ -55,22 +55,22 @@ DblQ00Alin::DblQ00Alin(IRDBQuery* m_alin)
     unsigned fieldIcut(12);
 
     int i=0;
-    while(m_alin->next()) {
-        m_d[i].version      = m_alin->data<int>(fieldVers);    
-        m_d[i].dx           = m_alin->data<float>(fieldDx);          
-        m_d[i].dy           = m_alin->data<float>(fieldDy);       
-        m_d[i].i            = m_alin->data<int>(fieldI);   
-        m_d[i].width_xs     = m_alin->data<float>(fieldWidth_xs);
-        m_d[i].width_xl     = m_alin->data<float>(fieldWidth_xl);  
-        m_d[i].length_y     = m_alin->data<float>(fieldLength_y);  
-        m_d[i].excent       = m_alin->data<float>(fieldExcent);    
-        m_d[i].dead1        = m_alin->data<float>(fieldDead1);     
-        m_d[i].jtyp         = m_alin->data<int>(fieldJtyp);      
-        m_d[i].indx         = m_alin->data<int>(fieldIndx);     
-        m_d[i].icut         = m_alin->data<int>(fieldIcut);      
+    while(alin->next()) {
+        m_d[i].version      = alin->data<int>(fieldVers);    
+        m_d[i].dx           = alin->data<float>(fieldDx);          
+        m_d[i].dy           = alin->data<float>(fieldDy);       
+        m_d[i].i            = alin->data<int>(fieldI);   
+        m_d[i].width_xs     = alin->data<float>(fieldWidth_xs);
+        m_d[i].width_xl     = alin->data<float>(fieldWidth_xl);  
+        m_d[i].length_y     = alin->data<float>(fieldLength_y);  
+        m_d[i].excent       = alin->data<float>(fieldExcent);    
+        m_d[i].dead1        = alin->data<float>(fieldDead1);     
+        m_d[i].jtyp         = alin->data<int>(fieldJtyp);      
+        m_d[i].indx         = alin->data<int>(fieldIndx);     
+        m_d[i].icut         = alin->data<int>(fieldIcut);      
         i++;
     }
-    m_alin->finalize();
+    alin->finalize();
   }
   else {
     m_d = new ALIN[0];

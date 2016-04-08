@@ -32,25 +32,25 @@
 namespace MuonGM
 {
 
-DblQ00Wspa::DblQ00Wspa(IRDBQuery* m_wspa)
+DblQ00Wspa::DblQ00Wspa(IRDBQuery* wspa)
  : m_nObj(0)
 {
-  if(m_wspa) {
-    m_wspa->execute();
-    m_nObj = m_wspa->size();
+  if(wspa) {
+    wspa->execute();
+    m_nObj = wspa->size();
     m_d = new WSPA[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wspa banks in the MuonDD Database"<<std::endl;
 
     int i=0;
-    while(m_wspa->next()) {
-        m_d[i].version     = m_wspa->data<int>("WSPA_DATA.VERS");    
-        m_d[i].jsta        = m_wspa->data<int>("WSPA_DATA.JSTA");
-        m_d[i].nb        = m_wspa->data<int>("WSPA_DATA.NB");
-        m_d[i].x0          = m_wspa->data<float>("WSPA_DATA.X0");
-        m_d[i].tckspa      = m_wspa->data<float>("WSPA_DATA.TCKSPA");
+    while(wspa->next()) {
+        m_d[i].version     = wspa->data<int>("WSPA_DATA.VERS");    
+        m_d[i].jsta        = wspa->data<int>("WSPA_DATA.JSTA");
+        m_d[i].nb        = wspa->data<int>("WSPA_DATA.NB");
+        m_d[i].x0          = wspa->data<float>("WSPA_DATA.X0");
+        m_d[i].tckspa      = wspa->data<float>("WSPA_DATA.TCKSPA");
         i++;
     }
-    m_wspa->finalize();
+    wspa->finalize();
   }
   else {
     m_d = new WSPA[0];

@@ -31,12 +31,12 @@
 namespace MuonGM
 {
 
-DblQ00Almn::DblQ00Almn(IRDBQuery* m_almn)
+DblQ00Almn::DblQ00Almn(IRDBQuery* almn)
  : m_nObj(0)
 {
-  if(m_almn) {
-    m_almn->execute();
-    m_nObj = m_almn->size();
+  if(almn) {
+    almn->execute();
+    m_nObj = almn->size();
     m_d = new ALMN[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Almn banks in the MuonDD Database"<<std::endl;
 
@@ -62,31 +62,31 @@ DblQ00Almn::DblQ00Almn(IRDBQuery* m_almn)
      unsigned fieldIndx(20);
 
     int i=0;
-    while(m_almn->next()) {
-        m_d[i].version =           m_almn->data<int>(fieldVers);
-        m_d[i].i =                 m_almn->data<int>(fieldI);
-        m_d[i].dx =                m_almn->data<float>(fieldDx);
-        m_d[i].dy =                m_almn->data<float>(fieldDy);
-        m_d[i].dz =                m_almn->data<float>(fieldDz);
-        m_d[i].job =               m_almn->data<int>(fieldJob);
-        sprintf(m_d[i].tec,"%s",m_almn->data<std::string>(fieldTec).c_str());
-        m_d[i].iw =                m_almn->data<int>(fieldIw);
-        m_d[i].isplit_x =          m_almn->data<int>(fieldIsplit_x);
-        m_d[i].isplit_y =          m_almn->data<int>(fieldIsplit_y);
-        m_d[i].ishape =            m_almn->data<int>(fieldIshape);
-        m_d[i].width_xs =          m_almn->data<float>(fieldWidth_xs);
-        m_d[i].width_xl =          m_almn->data<float>(fieldWidth_xl);
-        m_d[i].length_y =          m_almn->data<float>(fieldLength_y);
-        m_d[i].excent =            m_almn->data<float>(fieldExcent);
-        m_d[i].dead1 =             m_almn->data<float>(fieldDead1);
-        m_d[i].dead2 =             m_almn->data<float>(fieldDead2);
-        m_d[i].dead3 =             m_almn->data<float>(fieldDead3);
-        m_d[i].jtyp =              m_almn->data<int>(fieldJtyp);
-        m_d[i].indx =              m_almn->data<int>(fieldIndx);
+    while(almn->next()) {
+        m_d[i].version =           almn->data<int>(fieldVers);
+        m_d[i].i =                 almn->data<int>(fieldI);
+        m_d[i].dx =                almn->data<float>(fieldDx);
+        m_d[i].dy =                almn->data<float>(fieldDy);
+        m_d[i].dz =                almn->data<float>(fieldDz);
+        m_d[i].job =               almn->data<int>(fieldJob);
+        sprintf(m_d[i].tec,"%s",almn->data<std::string>(fieldTec).c_str());
+        m_d[i].iw =                almn->data<int>(fieldIw);
+        m_d[i].isplit_x =          almn->data<int>(fieldIsplit_x);
+        m_d[i].isplit_y =          almn->data<int>(fieldIsplit_y);
+        m_d[i].ishape =            almn->data<int>(fieldIshape);
+        m_d[i].width_xs =          almn->data<float>(fieldWidth_xs);
+        m_d[i].width_xl =          almn->data<float>(fieldWidth_xl);
+        m_d[i].length_y =          almn->data<float>(fieldLength_y);
+        m_d[i].excent =            almn->data<float>(fieldExcent);
+        m_d[i].dead1 =             almn->data<float>(fieldDead1);
+        m_d[i].dead2 =             almn->data<float>(fieldDead2);
+        m_d[i].dead3 =             almn->data<float>(fieldDead3);
+        m_d[i].jtyp =              almn->data<int>(fieldJtyp);
+        m_d[i].indx =              almn->data<int>(fieldIndx);
         //std::cerr<<" here we are i = "<<i<<" dx, dy, dz "<<m_d[i].dx<<" "<<m_d[i].dy<<" "<<m_d[i].dz<<" tec "<<m_d[i].tec<<std::endl;
         i++;
     }
-    m_almn->finalize();
+    almn->finalize();
   }
   else {
     m_d = new ALMN[0];

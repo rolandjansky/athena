@@ -31,24 +31,24 @@
 namespace MuonGM
 {
 
-DblQ00Asmp::DblQ00Asmp(IRDBQuery* m_asmp)
+DblQ00Asmp::DblQ00Asmp(IRDBQuery* asmp)
  : m_nObj(0)
 {
-  if(m_asmp) {
-    m_asmp->execute();
-    m_nObj = m_asmp->size();
+  if(asmp) {
+    asmp->execute();
+    m_nObj = asmp->size();
     m_d = new ASMP[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Asmp banks in the MuonDD Database"<<std::endl;
 
     int i=0;
-    while(m_asmp->next()) {
-        m_d[i].version     = m_asmp->data<int>("ASMP_DATA.VERS");    
-        m_d[i].indx        = m_asmp->data<int>("ASMP_DATA.INDX");
-        m_d[i].n           = m_asmp->data<int>("ASMP_DATA.N");          
-        m_d[i].jtyp        = m_asmp->data<int>("ASMP_DATA.JTYP");       
+    while(asmp->next()) {
+        m_d[i].version     = asmp->data<int>("ASMP_DATA.VERS");    
+        m_d[i].indx        = asmp->data<int>("ASMP_DATA.INDX");
+        m_d[i].n           = asmp->data<int>("ASMP_DATA.N");          
+        m_d[i].jtyp        = asmp->data<int>("ASMP_DATA.JTYP");       
         i++;
     }
-    m_asmp->finalize();    
+    asmp->finalize();    
   }
   else {
     m_d = new ASMP[0];

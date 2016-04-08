@@ -31,12 +31,12 @@
 namespace MuonGM
 {
 
-DblQ00Atln::DblQ00Atln(IRDBQuery* m_atln)
+DblQ00Atln::DblQ00Atln(IRDBQuery* atln)
  : m_nObj(0)
 {
-  if(m_atln) {
-    m_atln->execute();
-    m_nObj = m_atln->size();
+  if(atln) {
+    atln->execute();
+    m_nObj = atln->size();
     m_d = new ATLN[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Atln banks in the MuonDD Database"<<std::endl;
 
@@ -49,17 +49,17 @@ DblQ00Atln::DblQ00Atln(IRDBQuery* m_atln)
      unsigned fieldJsta(7);
 
     int i=0;
-    while(m_atln->next()) {
-        m_d[i].version     = m_atln->data<int>(fieldVers);    
-        m_d[i].i           = m_atln->data<int>(fieldI);          
-        m_d[i].icovol      = m_atln->data<int>(fieldIcovol);
-        m_d[i].zpovol      = m_atln->data<float>(fieldZpovol);
-        m_d[i].widvol      = m_atln->data<float>(fieldWidvol);
-        sprintf(m_d[i].namvol,"%s",m_atln->data<std::string>(fieldNamvol).c_str());
-        m_d[i].jsta        = m_atln->data<int>(fieldJsta);          
+    while(atln->next()) {
+        m_d[i].version     = atln->data<int>(fieldVers);    
+        m_d[i].i           = atln->data<int>(fieldI);          
+        m_d[i].icovol      = atln->data<int>(fieldIcovol);
+        m_d[i].zpovol      = atln->data<float>(fieldZpovol);
+        m_d[i].widvol      = atln->data<float>(fieldWidvol);
+        sprintf(m_d[i].namvol,"%s",atln->data<std::string>(fieldNamvol).c_str());
+        m_d[i].jsta        = atln->data<int>(fieldJsta);          
         i++;
     }
-    m_atln->finalize();
+    atln->finalize();
   }
   else {
     m_d = new ATLN[0];

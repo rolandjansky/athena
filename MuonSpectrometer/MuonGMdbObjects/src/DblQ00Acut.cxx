@@ -31,24 +31,24 @@
 namespace MuonGM
 {
 
-DblQ00Acut::DblQ00Acut(IRDBQuery* m_acut)
+DblQ00Acut::DblQ00Acut(IRDBQuery* acut)
  : m_nObj(0)
 {
-  if(m_acut) {
-    m_acut->execute();
-    m_nObj = m_acut->size();
+  if(acut) {
+    acut->execute();
+    m_nObj = acut->size();
     m_d = new ACUT[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Acut banks in the MuonDD Database"<<std::endl;
 
     int i=0;
-    while(m_acut->next()) {
-	m_d[i].version = m_acut->data<int>("ACUT_DATA.VERS");
-	m_d[i].i       = m_acut->data<int>("ACUT_DATA.I");
-	m_d[i].icut    = m_acut->data<int>("ACUT_DATA.ICUT");
-	m_d[i].n       = m_acut->data<int>("ACUT_DATA.N");
+    while(acut->next()) {
+	m_d[i].version = acut->data<int>("ACUT_DATA.VERS");
+	m_d[i].i       = acut->data<int>("ACUT_DATA.I");
+	m_d[i].icut    = acut->data<int>("ACUT_DATA.ICUT");
+	m_d[i].n       = acut->data<int>("ACUT_DATA.N");
 	i++;
     }
-    m_acut->finalize();
+    acut->finalize();
   }
   else {
     m_d = new ACUT[0];

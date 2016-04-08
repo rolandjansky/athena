@@ -32,12 +32,12 @@
 namespace MuonGM
 {
 
-DblQ00Aptp::DblQ00Aptp(IRDBQuery* m_aptp)
+DblQ00Aptp::DblQ00Aptp(IRDBQuery* aptp)
  : m_nObj(0)
 {
-  if(m_aptp) {
-    m_aptp->execute();
-    m_nObj = m_aptp->size();
+  if(aptp) {
+    aptp->execute();
+    m_nObj = aptp->size();
     m_d = new APTP[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Aptp banks in the MuonDD Database"<<std::endl;
 
@@ -57,33 +57,33 @@ DblQ00Aptp::DblQ00Aptp(IRDBQuery* m_aptp)
      unsigned fieldGamma(21);
 
     int i=0;
-    while(m_aptp->next()) {
-        m_d[i].version     = m_aptp->data<int>(fieldVers);    
-        m_d[i].line        = m_aptp->data<int>(fieldLine);
-        sprintf(m_d[i].type,"%s",m_aptp->data<std::string>(fieldTyp).c_str()); 
-        m_d[i].i           = m_aptp->data<int>(fieldI);
-        m_d[i].icut        = m_aptp->data<int>(fieldIcut);
+    while(aptp->next()) {
+        m_d[i].version     = aptp->data<int>(fieldVers);    
+        m_d[i].line        = aptp->data<int>(fieldLine);
+        sprintf(m_d[i].type,"%s",aptp->data<std::string>(fieldTyp).c_str()); 
+        m_d[i].i           = aptp->data<int>(fieldI);
+        m_d[i].icut        = aptp->data<int>(fieldIcut);
         for (unsigned int j=0; j<8; j++)
         {
  //            std::ostringstream tem;
 //             tem << j;
 //             std::string tag = "APTP_DATA.IPHI_"+tem.str();
-            m_d[i].iphi[j]     = m_aptp->data<int>(fieldIphi+j);        
+            m_d[i].iphi[j]     = aptp->data<int>(fieldIphi+j);        
         }
-        m_d[i].iz          = m_aptp->data<int>(fieldIz);
-        m_d[i].dphi        = m_aptp->data<float>(fieldDphi);  
-        m_d[i].z           = m_aptp->data<float>(fieldZ);  
-        m_d[i].r           = m_aptp->data<float>(fieldR);    
-        m_d[i].s           = m_aptp->data<float>(fieldS);     
-        m_d[i].alfa        = m_aptp->data<float>(fieldAlfa);      
-        m_d[i].beta        = m_aptp->data<float>(fieldBeta);     
-        m_d[i].gamma       = m_aptp->data<float>(fieldGamma);
+        m_d[i].iz          = aptp->data<int>(fieldIz);
+        m_d[i].dphi        = aptp->data<float>(fieldDphi);  
+        m_d[i].z           = aptp->data<float>(fieldZ);  
+        m_d[i].r           = aptp->data<float>(fieldR);    
+        m_d[i].s           = aptp->data<float>(fieldS);     
+        m_d[i].alfa        = aptp->data<float>(fieldAlfa);      
+        m_d[i].beta        = aptp->data<float>(fieldBeta);     
+        m_d[i].gamma       = aptp->data<float>(fieldGamma);
 //         std::cerr<<i<<" type, iz, iphi, z, r, s "<<m_d[i].type<<" "<<m_d[i].iz <<" ";
 //         for(unsigned int j=0; j<8; j++)std::cerr<<m_d[i].iphi[j];
 //         std::cerr<<" "<<m_d[i].z<<" "<<m_d[i].r<<" "<<m_d[i].s    <<std::endl;
         i++;
     }
-    m_aptp->finalize();
+    aptp->finalize();
   }
   else {
     m_d = new APTP[0];
