@@ -74,6 +74,7 @@ class DiTauBuilder(Configured):
         # ---------------------------------------------------------------
         # add DiTauBuilder to Algorithm Sequence
         # ---------------------------------------------------------------
+        from DiTauRec.DiTauRecFlags import diTauFlags
         from DiTauRec.DiTauRecConf import DiTauBuilder
         DiTauBuilder = DiTauBuilder(
             name=self.name,
@@ -81,7 +82,7 @@ class DiTauBuilder(Configured):
             DiTauAuxContainer=_outputAuxKey,
             Tools=tools,
             SeedJetName=_jet_container,
-            minPt=300000,
+            minPt=diTauFlags.diTauRecJetSeedPt(),
             maxEta=2.5,
             OutputLevel=3,
             Rjet=_R_jet,
