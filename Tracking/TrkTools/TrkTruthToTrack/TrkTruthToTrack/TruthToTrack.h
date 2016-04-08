@@ -21,9 +21,8 @@
 #define TRUTHTOTRACK_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/AlgTool.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 namespace HepPDT { class ParticleDataTable; }
 namespace Trk { class IExtrapolator; }
@@ -31,8 +30,7 @@ namespace Trk { class IExtrapolator; }
 namespace Trk {
   
   class TruthToTrack : virtual public ITruthToTrack,
-		       public ::AlgTool,
-		       public ::AthMessaging
+		       public ::AthAlgTool
   {
   public:
     // FIXME: interfaceID() should not be here, but clients that use TruthToTrack directly
