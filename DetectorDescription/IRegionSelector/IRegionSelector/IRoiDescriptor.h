@@ -16,7 +16,7 @@
 #include <iostream> 
 
 /// hmmm - is this actually ever needed ??
-#include "CLIDSvc/CLASS_DEF.h"
+// #include "CLIDSvc/CLASS_DEF.h"
 
 /**
  **   @brief Describes the API of the Region of Ineterest geometry
@@ -132,7 +132,7 @@ std::ostream& operator<<( std::ostream& s, const IRoiDescriptor& d ) {
 
 
 /// is this really needed ??
-CLASS_DEF(IRoiDescriptor,12665988,1)
+// CLASS_DEF(IRoiDescriptor,12665988,1)
 
 #endif // IREGIONSELECTOR_INEWROIDESCRIPTOR_H
 
