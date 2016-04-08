@@ -204,12 +204,18 @@ namespace InDet
 			double * m_hit_derivx_rotx;    //!< derivatives of X-residual wrt. rotation X
 			double * m_hit_derivx_roty;    //!< derivatives of X-residual wrt. rotation Y
 			double * m_hit_derivx_rotz;    //!< derivatives of X-residual wrt. rotation Y
+			double * m_hit_derivx_bowx;    //!< derivatives of X-residual wrt. rotation X
+			double * m_hit_derivx_bowy;    //!< derivatives of X-residual wrt. rotation Y
+			double * m_hit_derivx_bowz;    //!< derivatives of X-residual wrt. rotation Y
 			double * m_hit_derivy_transx;  //!< derivatives of Y-residual wrt. translation X
 			double * m_hit_derivy_transy;  //!< derivatives of Y-residual wrt. translation Y
 			double * m_hit_derivy_transz;  //!< derivatives of Y-residual wrt. translation Y
 			double * m_hit_derivy_rotx;    //!< derivatives of Y-residual wrt. rotation X
 			double * m_hit_derivy_roty;    //!< derivatives of Y-residual wrt. rotation Y
 			double * m_hit_derivy_rotz;    //!< derivatives of Y-residual wrt. rotation Y
+			double * m_hit_derivy_bowx;    //!< derivatives of Y-residual wrt. rotation X
+			double * m_hit_derivy_bowy;    //!< derivatives of Y-residual wrt. rotation Y
+			double * m_hit_derivy_bowz;    //!< derivatives of Y-residual wrt. rotation Y
 
 			int m_totaltrks;
 			int m_totalhits;
