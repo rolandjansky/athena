@@ -49,11 +49,11 @@ ZdcIDDetDescrCnv::initialize()
 {
     // First call parent init
     StatusCode sc = DetDescrConverter::initialize();
-    MsgStream log(msgSvc(), "ZdcIDDetDescrCnv");
-    log << MSG::DEBUG << "in initialize" << endmsg;
+    MsgStream log(messageService(), "ZdcIDDetDescrCnv");
+    log << MSG::DEBUG << "in initialize" << endreq;
 
     if (sc.isFailure()) {
-        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
+        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
 	return sc;
     }
 
@@ -68,7 +68,7 @@ ZdcIDDetDescrCnv::initialize()
 //      // - this is ONLY needed for the manager of each system
 //      sc = addToDetStore(classID(), "PidelID");
 //      if (sc.isFailure()) {
-//  	log << MSG::FATAL << "Unable to add proxy for ZdcID to the Detector Store!" << endmsg;
+//  	log << MSG::FATAL << "Unable to add proxy for ZdcID to the Detector Store!" << endreq;
 //  	return StatusCode::FAILURE;
 //      } else {}
 
@@ -80,8 +80,8 @@ ZdcIDDetDescrCnv::initialize()
 StatusCode 
 ZdcIDDetDescrCnv::finalize()
 {
-    MsgStream log(msgSvc(), "ZdcIDDetDescrCnv");
-    log << MSG::DEBUG << "in finalize" << endmsg;
+    MsgStream log(messageService(), "ZdcIDDetDescrCnv");
+    log << MSG::DEBUG << "in finalize" << endreq;
 
     return StatusCode::SUCCESS; 
 }
@@ -92,32 +92,32 @@ StatusCode
 ZdcIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {
     //StatusCode sc = StatusCode::SUCCESS;
-    MsgStream log(msgSvc(), "ZdcIDDetDescrCnv");
-    log << MSG::INFO << "in createObj: creating a ZdcID helper object in the detector store" << endmsg;
+    MsgStream log(messageService(), "ZdcIDDetDescrCnv");
+    log << MSG::INFO << "in createObj: creating a ZdcID helper object in the detector store" << endreq;
 
     // Create a new ZdcID
 
     DetDescrAddress* ddAddr;
     ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
     if(!ddAddr) {
-	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
+	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
 	return StatusCode::FAILURE;
     }
 
     // Get the StoreGate key of this container.
     std::string helperKey  = *( ddAddr->par() );
     if ("" == helperKey) {
-	log << MSG::DEBUG << "No Helper key " << endmsg;
+	log << MSG::DEBUG << "No Helper key " << endreq;
     }
     else {
-	log << MSG::DEBUG << "Helper key is " << helperKey << endmsg;
+	log << MSG::DEBUG << "Helper key is " << helperKey << endreq;
     }
     
     // get DetectorStore service
     StoreGateSvc * detStore;
     StatusCode status = serviceLocator()->service("DetectorStore", detStore);
     if (status.isFailure()) {
-	log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+	log << MSG::FATAL << "DetectorStore service not found !" << endreq;
 	return StatusCode::FAILURE;
     } else {}
  
@@ -125,11 +125,11 @@ ZdcIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     const DataHandle<IdDictManager> idDictMgr;
     status = detStore->retrieve(idDictMgr, "IdDict");
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get IdDictManager !" << endmsg;
+	log << MSG::FATAL << "Could not get IdDictManager !" << endreq;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Found the IdDictManager. " << endmsg;
+	log << MSG::DEBUG << " Found the IdDictManager. " << endreq;
     }
 
 
@@ -149,7 +149,7 @@ ZdcIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     if (!dict) {
 	log << MSG::ERROR 
 	    << "unable to find idDict for InnerDetector" 
-	    << endmsg;
+	    << endreq;
 	return StatusCode::FAILURE;
     }
 
@@ -168,40 +168,39 @@ ZdcIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 	    // Internal InDet id tag
 	    initHelper = true;
 	    log << MSG::DEBUG << " Changed internal InDet id tag: " 
-		<< inDetIDTag << endmsg;
+		<< inDetIDTag << endreq;
 	}
 	if (inDetIDFileName != m_inDetIDFileName) {
 	    // File to be read for InDet ids
 	    initHelper = true;
 	    log << MSG::DEBUG << " Changed InDetFileName:" 
-		<< inDetIDFileName << endmsg;
+		<< inDetIDFileName << endreq;
 	}
 	if (inDetIdDictTag != m_inDetIdDictTag) {
 	    // Tag of RDB record for InDet ids
 	    initHelper = true;
 	    log << MSG::DEBUG << " Changed InDetIdDictTag: "
 		<< inDetIdDictTag 
-		<< endmsg;
+		<< endreq;
 	}
-	if (doChecks != m_doChecks) {
+	if (doChecks != m_doChecks)
 	    // DoChecks flag
 	    initHelper = true;
 	    log << MSG::DEBUG << " Changed doChecks flag: "
 		<< doChecks
-		<< endmsg;
-        }
+		<< endreq;
     }
     else {
 	// create the helper
 	m_zdcId = new ZdcID;
 	initHelper = true;
         // add in message service for printout
-        m_zdcId->setMessageSvc(msgSvc());
+        m_zdcId->setMessageSvc(messageService());
     }
     
     if (initHelper) {
 	if (idDictMgr->initializeHelper(*m_zdcId)) {
-	    log << MSG::ERROR << "Unable to initialize ZdcID" << endmsg;
+	    log << MSG::ERROR << "Unable to initialize ZdcID" << endreq;
 	    return StatusCode::FAILURE;
 	} 
 	// Save state:
