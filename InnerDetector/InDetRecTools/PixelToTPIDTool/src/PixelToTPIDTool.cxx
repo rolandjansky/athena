@@ -24,6 +24,8 @@
 // Pixels:
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetIdentifier/PixelID.h"
+#include "PixelGeoModel/IBLParameterSvc.h" 
+#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 
 // CLHEP:
 #include "CLHEP/Matrix/Vector.h"
@@ -41,7 +43,10 @@ InDet::PixelToTPIDTool::PixelToTPIDTool(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AthAlgTool(t,n,p)
+  AthAlgTool(t,n,p),
+  m_IBLParameterSvc("IBLParameterSvc",n),
+  m_overflowIBLToT(0),
+  m_offlineCalibSvc("PixelOfflineCalibSvc", n)
 {
   declareInterface<IPixelToTPIDTool>(this);
   declareProperty("CalibrationFile", m_filename = "mcpar_signed_234.txt");
@@ -106,6 +111,27 @@ StatusCode InDet::PixelToTPIDTool::initialize()
     }
     m_mydedx=new dEdxID(file_name.c_str());
   }
+  
+  if ( !m_offlineCalibSvc.empty() ) {
+    StatusCode sc = m_offlineCalibSvc.retrieve();
+    if (sc.isFailure() || !m_offlineCalibSvc ) {
+      ATH_MSG_ERROR( m_offlineCalibSvc.type() << " not found! ");
+      return StatusCode::RECOVERABLE;
+    }
+    else{
+      ATH_MSG_INFO ( "Retrieved tool " <<  m_offlineCalibSvc.type() );
+    }
+  }
+
+  if (m_IBLParameterSvc.retrieve().isFailure()) { 
+      ATH_MSG_FATAL("Could not retrieve IBLParameterSvc"); 
+      return StatusCode::FAILURE; 
+  } else  
+      ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
+ 
+
+  //m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
+
   ATH_MSG_INFO ("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
@@ -219,14 +245,15 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
 	  int iblOverflow=0;
 	  
 	  
-	  if ((bec==0) and (layer==0)){ // check if IBL 
+	  if ( (m_IBLParameterSvc->containsIBL()) and (bec==0) and (layer==0) ){ // check if IBL 
 	  
 	  //loop over ToT and check if anyone is overflow (ToT==14) check for IBL cluster overflow
 	  
+	  m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
 	  const std::vector<int>& ToTs = pixclus->prepRawData()->totList();
 	  
 	    for (int pixToT : ToTs) {
-	      if (pixToT == 14) {
+	      if (pixToT >= m_overflowIBLToT) {
 		//overflow pixel hit -- flag cluster
 		iblOverflow = 1;
 		break; //no need to check other hits of this cluster
@@ -252,7 +279,8 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track)
 	    }//end check which IBL Module
 	    
 	    //PIXEL layer and ENDCAP
-	  }else if(layer !=0 && bec==0 && fabs(locy)<30. &&  (( locx > -8.20 && locx < -0.60 ) || ( locx > 0.50 && locx < 8.10 ) ) ){
+	  //}else if(layer !=0 && bec==0 && fabs(locy)<30. &&  (( locx > -8.20 && locx < -0.60 ) || ( locx > 0.50 && locx < 8.10 ) ) ){
+	  }else if(bec==0 && fabs(locy)<30. &&  (( locx > -8.20 && locx < -0.60 ) || ( locx > 0.50 && locx < 8.10 ) ) ){
 	  
 	  	dEdxValue=charge*m_conversionfactor/Pixel_sensorthickness;
 		dEdxMap.insert(std::pair<float,int>(dEdxValue, iblOverflow));

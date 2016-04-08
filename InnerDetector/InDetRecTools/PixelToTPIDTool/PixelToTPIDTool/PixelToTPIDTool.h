@@ -9,6 +9,7 @@
 #ifndef INDETPIXELTOTPIDTOOL_H
 #define INDETPIXELTOTPIDTOOL_H
 
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"    
 
 #include "TrkToolInterfaces/IPixelToTPIDTool.h"
@@ -18,6 +19,8 @@
 class AtlasDetectorID;
 class Identifier;
 class PixelID;
+class IPixelOfflineCalibSvc;
+class IBLParameterSvc;
 
 namespace Trk {
    class Track;
@@ -59,6 +62,9 @@ namespace InDet
       float getMass(double dedx, double p, int nGoodPixels);
 
     private:
+      ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
+      mutable int                    m_overflowIBLToT;                                                                                          
+      ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
       StatusCode update( IOVSVC_CALLBACK_ARGS );  
       dEdxID *m_mydedx;
       std::string m_filename;
@@ -70,6 +76,7 @@ namespace InDet
       double m_conversionfactor;
       bool m_readfromcool;
       double m_mindedxformass;
+
     }; 
 } // end of namespace
 
