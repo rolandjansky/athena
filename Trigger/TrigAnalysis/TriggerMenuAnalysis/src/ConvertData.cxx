@@ -720,7 +720,7 @@ setInDet(RoIData_Muon& m, const TrigInDetTrackCollection* f)
 
   for (; track != lastTrack; track++) {
 
-    TrigInDetTrack* trk = (*track);
+    const TrigInDetTrack* trk = (*track);
     if( trk==0 ) continue;
 
     //only SiTrack(1) and IDScan(2)
@@ -784,11 +784,11 @@ setMuonEF(RoIData_Muon& m, const TrigMuonEFInfoContainer* c, std::vector<std::st
     m.MuonEF_nTGC = muonInfo->NTgcHits();
     m.MuonEF_nCSC = muonInfo->NCscHits();
 
-    TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
+    const TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
 
     for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {
 
-      TrigMuonEFInfoTrack* t = (*TrackItr);
+      const TrigMuonEFInfoTrack* t = (*TrackItr);
       if( !t )continue;
 
       TrigMuonEFTrack* muonTrack = t->SpectrometerTrack();
@@ -886,11 +886,11 @@ setMuonEF(RoIData_TileMu& m, const TrigMuonEFInfoContainer* c, std::vector<std::
     m.MuonEF_nTGC = muonInfo->NTgcHits();
     m.MuonEF_nCSC = muonInfo->NCscHits();
 
-    TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
+    const TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
 
     for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {
 
-      TrigMuonEFInfoTrack* t = (*TrackItr);
+      const TrigMuonEFInfoTrack* t = (*TrackItr);
       if( !t )continue;
 
       TrigMuonEFTrack* muonTrack = t->SpectrometerTrack();

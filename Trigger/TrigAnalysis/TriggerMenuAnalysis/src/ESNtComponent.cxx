@@ -17,9 +17,9 @@ using namespace std;
 ESNtComponent::ESNtComponent(NtupleAlgorithm* algo, 
 			     const NtComponent::NtComponentParameters& params) : 
   NtComponent::NtupleComponent(algo, params), 
-  mTrigConfigSvc("TrigConf::IHLTConfigSvc/TrigConfigSvc", algo->name()), 
-  mTDT("Trig::TrigDecisionTool/TrigDecisonTool"), 
-  mEventInfoKey("ByteStreamEventInfo"), mChainNames(0), mChainCounters(0) {
+  m_trigConfigSvc("TrigConf::IHLTConfigSvc/TrigConfigSvc", algo->name()), 
+  m_TDT("Trig::TrigDecisionTool/TrigDecisonTool"), 
+  m_eventInfoKey("ByteStreamEventInfo"), m_chainNames(0), m_chainCounters(0) {
 }
 
 ESNtComponent::~ESNtComponent() {
@@ -32,11 +32,11 @@ StatusCode ESNtComponent::setupServices() {
     return StatusCode::FAILURE;
   }
 
-  if (mTrigConfigSvc.retrieve().isFailure()) {
+  if (m_trigConfigSvc.retrieve().isFailure()) {
     (*m_msg) << MSG::DEBUG << "Cannot retrieve TrigConfigSvc" << endreq;
     return StatusCode::FAILURE;
   }
-  if (mTDT.retrieve().isFailure()) {
+  if (m_TDT.retrieve().isFailure()) {
     (*m_msg) << MSG::DEBUG << "Cannot retrieve TrigDecisionTool" << endreq;
     return StatusCode::FAILURE;
   }
@@ -48,16 +48,16 @@ StatusCode ESNtComponent::book() {
   map<string, string>::const_iterator p = 
     m_parameters.containerKeys.find("EventInfo");
   if (p != m_parameters.containerKeys.end()) {
-    mEventInfoKey = p->second;
+    m_eventInfoKey = p->second;
   } else {
     (*m_msg) << MSG::INFO << "No EventInfo key specified, use " 
-	     << mEventInfoKey << endreq;
+	     << m_eventInfoKey << endreq;
   }
 
-  mChainNames = new std::vector<std::string>();
-  mChainCounters = new std::vector<int>();
-  //  m_tree->Branch("ESChains", "std::vector<std::string>", &mChainNames);
-  m_tree->Branch("ESChainCounters", "std::vector<int>", &mChainCounters);
+  m_chainNames = new std::vector<std::string>();
+  m_chainCounters = new std::vector<int>();
+  //  m_tree->Branch("ESChains", "std::vector<std::string>", &m_chainNames);
+  m_tree->Branch("ESChainCounters", "std::vector<int>", &m_chainCounters);
 
   return StatusCode::SUCCESS;
 }
@@ -94,7 +94,7 @@ StatusCode ESNtComponent::fill() {
                   << "Cannot retrieve TrigOperationalInfoCollection: "
                   << k << endreq;
       } else if (coll) {
-         const TrigConf::HLTChainList* chainlist = mTrigConfigSvc->chainList();
+         const TrigConf::HLTChainList* chainlist = m_trigConfigSvc->chainList();
       
          TrigOperationalInfoCollection::const_iterator p1;
          for (p1=coll->begin(); p1!=coll->end(); ++p1) {
@@ -116,8 +116,8 @@ StatusCode ESNtComponent::fill() {
                         }
                      }
                   }
-                  mChainNames->push_back(m.first[j]);
-                  mChainCounters->push_back(counter);
+                  m_chainNames->push_back(m.first[j]);
+                  m_chainCounters->push_back(counter);
                }
             }
          }
@@ -129,7 +129,7 @@ StatusCode ESNtComponent::fill() {
 }
 
 void ESNtComponent::clear() {
-  if (mChainNames) mChainNames->clear();
-  if (mChainCounters) mChainCounters->clear();
+  if (m_chainNames) m_chainNames->clear();
+  if (m_chainCounters) m_chainCounters->clear();
 }
 

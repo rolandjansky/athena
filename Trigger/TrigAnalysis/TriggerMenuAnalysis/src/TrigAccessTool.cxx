@@ -33,11 +33,11 @@ TrigAccessTool::TrigAccessTool(const std::string& type,
 			       const std::string& name, 
 			       const IInterface* p) :
   AthAlgTool(type, name , p), 
-  mTrigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool") {
+  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool") {
   //  mNavigation("Navigation") {
   declareInterface<TrigAccessTool>(this);
 
-  declareProperty("TrigDecisionTool", mTrigDecisionTool, "TrigDecisionTool");
+  declareProperty("TrigDecisionTool", m_trigDecisionTool, "TrigDecisionTool");
   //  declareProperty("Navigation", mNavigation, "HLT::Navigation");
 }
 
@@ -45,7 +45,7 @@ TrigAccessTool::~TrigAccessTool() {
 }
 
 StatusCode TrigAccessTool::initialize() {
-  if (mTrigDecisionTool.retrieve().isFailure()) {
+  if (m_trigDecisionTool.retrieve().isFailure()) {
     ATH_MSG_WARNING ("Cannot retrieve service TrigDecisionTool");
   }
 //   if (mNavigation.retrieve().isFailure()) {
@@ -217,10 +217,10 @@ bool TrigAccessTool::getChainObjects(const std::string& chain_name,
   const Trig::ChainGroup* cg=0;
 
   map<string, const Trig::ChainGroup*>::iterator p_cg = 
-    mChainGroups.find(chain_name);
-  if (p_cg == mChainGroups.end()) {
-    cg = mTrigDecisionTool->getChainGroup(chain_name);
-    mChainGroups[chain_name] = cg;
+    m_chainGroups.find(chain_name);
+  if (p_cg == m_chainGroups.end()) {
+    cg = m_trigDecisionTool->getChainGroup(chain_name);
+    m_chainGroups[chain_name] = cg;
     ATH_MSG_DEBUG ("Creating chain group now");
   } else {
     cg = p_cg->second;
@@ -240,7 +240,7 @@ bool TrigAccessTool::getChainObjects(const std::string& chain_name,
 
   for (p_comb=combs.begin(); p_comb!=combs.end(); ++p_comb) {
     roi = func();
-    roi->setDataFromCombination(*p_comb, chain_name, *mTrigDecisionTool);
+    roi->setDataFromCombination(*p_comb, chain_name, *m_trigDecisionTool);
     ATH_MSG_DEBUG ("dump HLTObjectsInRoI for the tmp");
     roi->dump();
     bool foundit=false;
@@ -249,7 +249,7 @@ bool TrigAccessTool::getChainObjects(const std::string& chain_name,
       ATH_MSG_DEBUG ("dump HLTObjectsInRoI for the comparing one");
       (*p_roi)->dump();
       if ( (*p_roi)->runBySameFex(roi)) {
-	(*p_roi)->setDataFromCombination(*p_comb, chain_name, *mTrigDecisionTool);
+	(*p_roi)->setDataFromCombination(*p_comb, chain_name, *m_trigDecisionTool);
 	delete roi;
 	roi = *p_roi;
 	foundit = true;
@@ -268,19 +268,19 @@ bool TrigAccessTool::getChainObjects(const std::string& chain_name,
 }
 
 void TrigAccessTool::createChainGroup(const std::string& chain_name) {
-  const Trig::ChainGroup* cg = mTrigDecisionTool->getChainGroup(chain_name);
-  if (mChainGroups.find(chain_name) == mChainGroups.end()) {
-    mChainGroups[chain_name] = cg;
+  const Trig::ChainGroup* cg = m_trigDecisionTool->getChainGroup(chain_name);
+  if (m_chainGroups.find(chain_name) == m_chainGroups.end()) {
+    m_chainGroups[chain_name] = cg;
   }
 }
 
 void TrigAccessTool::printL1Results() const {
 //   std::vector<std::string> configured_chains = 
-//     mTrigDecisionTool->getConfiguredChainNames();
+//     m_trigDecisionTool->getConfiguredChainNames();
 
 //   std::vector<std::string>::const_iterator p;
 //   for (p=configured_chains.begin(); p!=configured_chains.end(); ++p) {
-//     bool result = mTrigDecisionTool->isPassed(*p);
+//     bool result = m_trigDecisionTool->isPassed(*p);
 //     log << MSG::INFO << "chain: " << (*p) << " : " << result << endreq;
 //   }
   

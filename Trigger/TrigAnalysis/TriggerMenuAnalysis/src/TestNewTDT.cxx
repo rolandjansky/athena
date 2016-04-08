@@ -25,13 +25,13 @@ using namespace std;
 
 TestNewTDT::TestNewTDT(const std::string& name, ISvcLocator* svcloc) : 
   AthAlgorithm(name, svcloc), 
-  mTrigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
-  mClassIDSvc("ClassIDSvc/ClassIDSvc", this->name()), 
-  mChainGroupNames(), mChainGroups(), mChainCombMap() {
-  declareProperty("ChainGroupNames", mChainGroupNames, 
+  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
+  m_classIDSvc("ClassIDSvc/ClassIDSvc", this->name()), 
+  m_chainGroupNames(), m_chainGroups(), m_chainCombMap() {
+  declareProperty("ChainGroupNames", m_chainGroupNames, 
 		  "List of chain groups to investigate");
-  mChainGroup_L2 = 0;
-  mChainGroup_EF = 0;
+  m_chainGroup_L2 = 0;
+  m_chainGroup_EF = 0;
 }
 
 TestNewTDT::~TestNewTDT() {
@@ -40,20 +40,20 @@ TestNewTDT::~TestNewTDT() {
 StatusCode TestNewTDT::initialize() {
   MsgStream log(msgSvc(), name());
 
-  if (mTrigDecisionTool.retrieve().isFailure()) {
+  if (m_trigDecisionTool.retrieve().isFailure()) {
     log << MSG::WARNING << "Cannot retrieve TrigDecisionTool" << endreq;
     return StatusCode::FAILURE;
   }
-  if (mClassIDSvc.retrieve().isFailure()) {
+  if (m_classIDSvc.retrieve().isFailure()) {
     log << MSG::WARNING << "Cannot retrieve ClassIDSvc" << endreq;
     return StatusCode::FAILURE;
   }
   std::vector<std::string>::const_iterator p;
-  for (p=mChainGroupNames.begin(); p!=mChainGroupNames.end(); ++p) {
-    mChainGroups.push_back(mTrigDecisionTool->getChainGroup(*p));
+  for (p=m_chainGroupNames.begin(); p!=m_chainGroupNames.end(); ++p) {
+    m_chainGroups.push_back(m_trigDecisionTool->getChainGroup(*p));
   }
-  mChainGroup_L2 = mTrigDecisionTool->getChainGroup("L2_.*");
-  mChainGroup_EF = mTrigDecisionTool->getChainGroup("EF_.*");
+  m_chainGroup_L2 = m_trigDecisionTool->getChainGroup("L2_.*");
+  m_chainGroup_EF = m_trigDecisionTool->getChainGroup("EF_.*");
 
   return StatusCode::SUCCESS;
 }
@@ -61,8 +61,8 @@ StatusCode TestNewTDT::initialize() {
 StatusCode TestNewTDT::execute() {
   MsgStream log(msgSvc(), name());
 
-  std::vector<std::string> l2chains = mChainGroup_L2->getListOfTriggers();
-  std::vector<std::string> efchains = mChainGroup_EF->getListOfTriggers();
+  std::vector<std::string> l2chains = m_chainGroup_L2->getListOfTriggers();
+  std::vector<std::string> efchains = m_chainGroup_EF->getListOfTriggers();
 
   log << MSG::INFO << "In execute: N L2 chains " << l2chains.size() 
       << ", N EF chains " << efchains.size() << endreq;
@@ -91,7 +91,7 @@ StatusCode TestNewTDT::execute() {
 	<< endreq;
   }
 
-  for_each(mChainGroups.begin(), mChainGroups.end(), 
+  for_each(m_chainGroups.begin(), m_chainGroups.end(), 
 	   bind1st(mem_fun(&TestNewTDT::printTDT), this));
 
   return StatusCode::SUCCESS;
@@ -100,7 +100,7 @@ StatusCode TestNewTDT::execute() {
 StatusCode TestNewTDT::finalize() {
   MsgStream log(msgSvc(), name());
   std::map<std::string, std::multiset<std::string> >::const_iterator p;
-  for (p=mChainCombMap.begin(); p!=mChainCombMap.end(); ++p) {
+  for (p=m_chainCombMap.begin(); p!=m_chainCombMap.end(); ++p) {
     log << MSG::INFO << "Features in chain: " << p->first << endreq;
     std::set<std::string>::const_iterator s;
     for (s=p->second.begin(); s!=p->second.end(); ++s) {
@@ -149,7 +149,7 @@ void TestNewTDT::inspectChain(const std::string& chain_name) {
   MsgStream log(msgSvc(), name());
   log << MSG::DEBUG << "Inspecting chain: " << chain_name << endreq;
   const Trig::FeatureContainer fc = 
-    mTrigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
+    m_trigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
   std::vector<Trig::Combination> combs = fc.getCombinations();
   std::vector<Trig::Combination>::const_iterator p_comb; 
   log << MSG::DEBUG << "  N combinations: " << combs.size() << endreq;
@@ -177,7 +177,7 @@ void TestNewTDT::inspectCombination(const Trig::Combination& comb,
     for (p=fs.begin(); p!=fs.end(); ++p, ++i) {
       CLID clid = p->getCLID();
       std::string clsname="???";
-      mClassIDSvc->getTypeNameOfID(clid, clsname).ignore();
+      m_classIDSvc->getTypeNameOfID(clid, clsname).ignore();
 //       CLIDRegistry::const_iterator q;
 //       for (q=CLIDRegistry::begin(); q!=CLIDRegistry::end(); ++q) {
 // 	if (boost::get<0>(*q) == clid) {
@@ -207,10 +207,10 @@ void TestNewTDT::inspectCombination(const Trig::Combination& comb,
   clid_string = os.str();
 
   std::map<std::string, std::multiset<std::string> >::iterator p;
-  if ( (p=mChainCombMap.find(chain_name)) == mChainCombMap.end()) {
+  if ( (p=m_chainCombMap.find(chain_name)) == m_chainCombMap.end()) {
     std::multiset<std::string> tmptmp;
     tmptmp.insert(clid_string);
-    mChainCombMap[chain_name] = tmptmp;
+    m_chainCombMap[chain_name] = tmptmp;
   } else {
     if (p->second.find(clid_string) == p->second.end()) {
       p->second.insert(clid_string);

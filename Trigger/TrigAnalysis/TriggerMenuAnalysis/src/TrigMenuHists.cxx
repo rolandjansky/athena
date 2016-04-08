@@ -22,8 +22,8 @@ const InterfaceID& TrigMenuHists::interfaceID() {
 TrigMenuHists::TrigMenuHists(const std::string& type, const std::string& name, 
 			     const IInterface* p) :
   AthAlgTool(type, name, p), 
-  mTHistSvc("THistSvc", this->name()), 
-  mHistMuFastPt(0), mHistMuInDetPt(0), mHistMuCombPt(0) {
+  m_THistSvc("THistSvc", this->name()), 
+  m_histMuFastPt(0), m_histMuInDetPt(0), m_histMuCombPt(0) {
   declareInterface<TrigMenuHists>(this);
 }
 
@@ -33,17 +33,17 @@ TrigMenuHists::~TrigMenuHists() {
 StatusCode TrigMenuHists::initialize() {
   MsgStream log(msgSvc(), name());
 
-  if (mTHistSvc.retrieve().isFailure()) {
+  if (m_THistSvc.retrieve().isFailure()) {
     log << MSG::WARNING << "Cannot retrieve service THistSvc" << endreq;
   }
   
-  mHistMuFastPt = new TH1F("MuFastPt", "MuFast p_{T}", 100, 0, 100);
-  mHistMuInDetPt = new TH1F("MuInDetPt", "MuInDet p_{T}", 100, 0, 100);
-  mHistMuCombPt = new TH1F("MuCombPt", "MuComb p_{T}", 100, 0, 100);
+  m_histMuFastPt = new TH1F("MuFastPt", "MuFast p_{T}", 100, 0, 100);
+  m_histMuInDetPt = new TH1F("MuInDetPt", "MuInDet p_{T}", 100, 0, 100);
+  m_histMuCombPt = new TH1F("MuCombPt", "MuComb p_{T}", 100, 0, 100);
 
-  mTHistSvc->regHist("/MenuHist/TrigMenu/MuFastPt", mHistMuFastPt);
-  mTHistSvc->regHist("/MenuHist/TrigMenu/MuInDetPt", mHistMuInDetPt);
-  mTHistSvc->regHist("/MenuHist/TrigMenu/MuCombPt", mHistMuCombPt);
+  m_THistSvc->regHist("/MenuHist/TrigMenu/MuFastPt", m_histMuFastPt);
+  m_THistSvc->regHist("/MenuHist/TrigMenu/MuInDetPt", m_histMuInDetPt);
+  m_THistSvc->regHist("/MenuHist/TrigMenu/MuCombPt", m_histMuCombPt);
 
   return StatusCode::SUCCESS;
 }
@@ -63,12 +63,12 @@ bool TrigMenuHists::fillMuonObjects(const std::vector<HLTObjectsInRoI*>& objs) {
       if (mu_obj->getMuonFeature()) {
 	log << MSG::INFO << "mufast pt: " 
 	    << mu_obj->getMuonFeature()->pt()*0.001 << endreq;
-	mHistMuFastPt->Fill(mu_obj->getMuonFeature()->pt()*0.001);
+	m_histMuFastPt->Fill(mu_obj->getMuonFeature()->pt()*0.001);
       }
       if (mu_obj->getCombinedMuonFeature()) {
 	log << MSG::INFO << "mufast pt: " 
 	    << mu_obj->getCombinedMuonFeature()->pt()*0.001 << endreq;
-	mHistMuCombPt->Fill(mu_obj->getCombinedMuonFeature()->pt());
+	m_histMuCombPt->Fill(mu_obj->getCombinedMuonFeature()->pt());
       }
     }
   }

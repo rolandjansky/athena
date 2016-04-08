@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __L1RoIObjects_h__
-#define __L1RoIObjects_h__
+#ifndef TRIGGERMENUANALYSIS_L1ROIOBJECTS_H
+#define TRIGGERMENUANALYSIS_L1ROIOBJECTS_H
 /*
   L1RoIObjects.h
 */
@@ -20,25 +20,25 @@ public:
   L1RoIObjects();
   ~L1RoIObjects();
 
-  std::vector<const Muon_ROI*>& getMuonRoIs() { return mMuonRoIs; }
-  const std::vector<const Muon_ROI*>& getMuonRoIs() const { return mMuonRoIs; }
+  std::vector<const Muon_ROI*>& getMuonRoIs() { return m_muonRoIs; }
+  const std::vector<const Muon_ROI*>& getMuonRoIs() const { return m_muonRoIs; }
 
-  std::vector<const EmTau_ROI*>& getEmTauRoIs() { return mEmTauRoIs; }
+  std::vector<const EmTau_ROI*>& getEmTauRoIs() { return m_emTauRoIs; }
   const std::vector<const EmTau_ROI*>& getEmTauRoIs() const {
-    return mEmTauRoIs;
+    return m_emTauRoIs;
   }
 
-  std::vector<const Jet_ROI*>& getJetRoIs() { return mJetRoIs; }
-  const std::vector<const Jet_ROI*>& getJetRoIs() const { return mJetRoIs; }
+  std::vector<const Jet_ROI*>& getJetRoIs() { return m_jetRoIs; }
+  const std::vector<const Jet_ROI*>& getJetRoIs() const { return m_jetRoIs; }
 
-  std::vector<const JetET_ROI*>& getJetEtRoIs() { return mJetEtRoIs; }
+  std::vector<const JetET_ROI*>& getJetEtRoIs() { return m_jetEtRoIs; }
   const std::vector<const JetET_ROI*>& getJetEtRoIs() const {
-    return mJetEtRoIs;
+    return m_jetEtRoIs;
   }
 
-  std::vector<const EnergySum_ROI*>& getEnergyRoIs() { return mEnergyRoIs; }
+  std::vector<const EnergySum_ROI*>& getEnergyRoIs() { return m_energyRoIs; }
   const std::vector<const EnergySum_ROI*>& getEnergyRoIs() const {
-    return mEnergyRoIs;
+    return m_energyRoIs;
   }
 
   void setMuonRoIs(const std::vector<Muon_ROI>& x);
@@ -47,20 +47,20 @@ public:
   void setJetEtRoIs(const std::vector<JetET_ROI>& x);
   void setEnergyRoIs(const std::vector<EnergySum_ROI>& x);
 
-  void addMuonRoI(const Muon_ROI* x) { mMuonRoIs.push_back(x); }
-  void addEmTauRoI(const EmTau_ROI* x) { mEmTauRoIs.push_back(x); }
-  void addJetRoI(const Jet_ROI* x) { mJetRoIs.push_back(x); }
-  void addJetEtRoI(const JetET_ROI* x) { mJetEtRoIs.push_back(x); }
-  void addEnergyRoI(const EnergySum_ROI* x) { mEnergyRoIs.push_back(x); }
+  void addMuonRoI(const Muon_ROI* x) { m_muonRoIs.push_back(x); }
+  void addEmTauRoI(const EmTau_ROI* x) { m_emTauRoIs.push_back(x); }
+  void addJetRoI(const Jet_ROI* x) { m_jetRoIs.push_back(x); }
+  void addJetEtRoI(const JetET_ROI* x) { m_jetEtRoIs.push_back(x); }
+  void addEnergyRoI(const EnergySum_ROI* x) { m_energyRoIs.push_back(x); }
 
 
 protected:
-  std::vector<const Muon_ROI*> mMuonRoIs;
-  std::vector<const EmTau_ROI*> mEmTauRoIs;
-  std::vector<const Jet_ROI*> mJetRoIs;
-  std::vector<const JetET_ROI*> mJetEtRoIs;
-  std::vector<const EnergySum_ROI*> mEnergyRoIs;
+  std::vector<const Muon_ROI*> m_muonRoIs;
+  std::vector<const EmTau_ROI*> m_emTauRoIs;
+  std::vector<const Jet_ROI*> m_jetRoIs;
+  std::vector<const JetET_ROI*> m_jetEtRoIs;
+  std::vector<const EnergySum_ROI*> m_energyRoIs;
 
 };
 
-#endif // __L1RoIObjects_h__
+#endif // TRIGGERMENUANALYSIS_L1ROIOBJECTS_H

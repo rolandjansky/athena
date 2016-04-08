@@ -30,23 +30,23 @@ bool HLTObjectsInRoI::LevelSigId::operator<(const LevelSigId& y) const {
   }
 }
 
-MsgStream* HLTObjectsInRoI::mLog = 0;
+MsgStream* HLTObjectsInRoI::s_log = 0;
 
 MsgStream& HLTObjectsInRoI::log() const {
-  if (mLog==0) {
-    mLog = new MsgStream(Athena::getMessageSvc(), "HLTObjectsInRoI");
+  if (s_log==0) {
+    s_log = new MsgStream(Athena::getMessageSvc(), "HLTObjectsInRoI");
   }
-  return (*mLog);
+  return (*s_log);
 }
 
 HLTObjectsInRoI::HLTObjectsInRoI() {
-  mAssociatedChains.clear();
-  mPassedChains.clear();
+  m_associatedChains.clear();
+  m_passedChains.clear();
 }
 
 HLTObjectsInRoI::~HLTObjectsInRoI() {
   std::map<LevelSigId, std::vector<HltFeature*> >::iterator p;
-  for (p=mHltFeatureDefs.begin(); p!=mHltFeatureDefs.end(); ++p) {
+  for (p=m_hltFeatureDefs.begin(); p!=m_hltFeatureDefs.end(); ++p) {
     std::vector<HltFeature*>::iterator p2;
     for (p2=p->second.begin(); p2!=p->second.end(); ++p2) {
       if (*p2) {
@@ -56,7 +56,7 @@ HLTObjectsInRoI::~HLTObjectsInRoI() {
     }
     p->second.clear();
   }
-  mHltFeatureDefs.clear();
+  m_hltFeatureDefs.clear();
 }
 
 std::vector<std::string> HLTObjectsInRoI::getAssociatedChains(void* feature) const {
@@ -97,8 +97,8 @@ bool HLTObjectsInRoI::isPassed(const std::string& chain_name, void* feature) con
 }
 
 void HLTObjectsInRoI::addRoITE(const HLT::TriggerElement* te) {
-  if (find(mRoITEs.begin(), mRoITEs.end(), te) == mRoITEs.end()) {
-    mRoITEs.push_back(te);
+  if (find(m_RoITEs.begin(), m_RoITEs.end(), te) == m_RoITEs.end()) {
+    m_RoITEs.push_back(te);
   }
 }
 
@@ -111,14 +111,14 @@ void HLTObjectsInRoI::addRoITEs(const std::vector<HLT::TriggerElement*>& tes) {
 }
 
 void HLTObjectsInRoI::addTE(const HLT::TriggerElement* te) {
-  if (find(mTEs.begin(), mTEs.end(), te) == mTEs.end()) {
-    mTEs.push_back(te);
+  if (find(m_TEs.begin(), m_TEs.end(), te) == m_TEs.end()) {
+    m_TEs.push_back(te);
   }
 }
 
 bool HLTObjectsInRoI::isAssociated(const std::string& cname) const {
-  if (std::find(mAssociatedChains.begin(), 
-		mAssociatedChains.end(), cname)==mAssociatedChains.end()) {
+  if (std::find(m_associatedChains.begin(), 
+		m_associatedChains.end(), cname)==m_associatedChains.end()) {
     return false;
   } else {
     return true;
@@ -126,8 +126,8 @@ bool HLTObjectsInRoI::isAssociated(const std::string& cname) const {
 }
 
 bool HLTObjectsInRoI::isPassed(const std::string& cname) const {
-  if (std::find(mPassedChains.begin(), 
-		mPassedChains.end(), cname)==mPassedChains.end()) {
+  if (std::find(m_passedChains.begin(), 
+		m_passedChains.end(), cname)==m_passedChains.end()) {
     return false;
   } else {
     return true;
@@ -136,16 +136,16 @@ bool HLTObjectsInRoI::isPassed(const std::string& cname) const {
 
 
 void HLTObjectsInRoI::addAssociatedChain(const std::string& cname) {
-  if (std::find(mAssociatedChains.begin(), 
-		mAssociatedChains.end(), cname)==mAssociatedChains.end()) {
-    mAssociatedChains.push_back(cname);
+  if (std::find(m_associatedChains.begin(), 
+		m_associatedChains.end(), cname)==m_associatedChains.end()) {
+    m_associatedChains.push_back(cname);
   }
 }
 
 void HLTObjectsInRoI::addPassedChain(const std::string& cname) {
-  if (std::find(mPassedChains.begin(), 
-		mPassedChains.end(), cname)==mPassedChains.end()) {
-    mPassedChains.push_back(cname);
+  if (std::find(m_passedChains.begin(), 
+		m_passedChains.end(), cname)==m_passedChains.end()) {
+    m_passedChains.push_back(cname);
   }
 }
 
@@ -158,9 +158,9 @@ bool HLTObjectsInRoI::runBySameFex(const  HLTObjectsInRoI* x) const {
   const void *o1=0;
   const void *o2=0;
 
-  if (x) xx = x->mHltFeatureDefs;
+  if (x) xx = x->m_hltFeatureDefs;
 
-  for (p=mHltFeatureDefs.begin(); p!=mHltFeatureDefs.end(); ++p) {
+  for (p=m_hltFeatureDefs.begin(); p!=m_hltFeatureDefs.end(); ++p) {
     lsid = p->first;
     if ( (q=xx.find(lsid)) == xx.end()) {
       // Different object definitions
@@ -197,7 +197,7 @@ bool HLTObjectsInRoI::setDataFromTE(int isig, const HLT::TriggerElement* te,
   LevelSigId lsid(level, isig);
   std::map<LevelSigId, std::vector<HltFeature*> >::iterator p;
 
-  if ( (p=mHltFeatureDefs.find(lsid)) != mHltFeatureDefs.end()) {
+  if ( (p=m_hltFeatureDefs.find(lsid)) != m_hltFeatureDefs.end()) {
     std::vector<HltFeature*>::iterator p2;
     for (p2=p->second.begin(); p2!=p->second.end(); ++p2) {
       if ( (*p2)->getObject(te, navitool) == 0) {
@@ -238,7 +238,7 @@ bool HLTObjectsInRoI::isInSameRoI(const HLT::TriggerElement* te,
 
   const vector<HLT::TriggerElement*> rois = HLT::NavigationCore::getRoINodes(te);
   if (rois.size() == 1) {
-    for (p_roi=mRoITEs.begin(); p_roi!=mRoITEs.end(); ++p_roi) {
+    for (p_roi=m_RoITEs.begin(); p_roi!=m_RoITEs.end(); ++p_roi) {
       if ( (*p_roi) == rois[0]) {
 	status = true;
 	break;
@@ -260,7 +260,7 @@ int HLTObjectsInRoI::setDataFromCombination(const Trig::Combination& comb,
   bool foundit=false;
   const HLT::TriggerElement* te1=0;
 
-  for (p=mHltFeatureDefs.begin(); p!=mHltFeatureDefs.end(); ++p) {
+  for (p=m_hltFeatureDefs.begin(); p!=m_hltFeatureDefs.end(); ++p) {
     for (q=p->second.begin(); q!=p->second.end(); ++q) {
       //      if ( (*q)->objectAddress() == 0) {
       if (p->first.sig>0 && (*q)->getObject(comb, passed) == 0) {
@@ -280,7 +280,7 @@ int HLTObjectsInRoI::setDataFromCombination(const Trig::Combination& comb,
     }
   }
   if (te1) {
-    for (p=mHltFeatureDefs.begin(); p!=mHltFeatureDefs.end(); ++p) {
+    for (p=m_hltFeatureDefs.begin(); p!=m_hltFeatureDefs.end(); ++p) {
       if (p->first.sig==0) {
 	for (q=p->second.begin(); q!=p->second.end(); ++q) {
 	  (*q)->getRoIObject(tdt, te1);
@@ -301,7 +301,7 @@ int HLTObjectsInRoI::updateChainStatus(const std::string& chain_name,
 				       const Trig::Combination& comb) {
   std::map<LevelSigId, std::vector<HltFeature*> >::const_iterator p;
   std::vector<HltFeature*>::const_iterator q;
-  for (p=mHltFeatureDefs.begin(); p!=mHltFeatureDefs.end(); ++p) {
+  for (p=m_hltFeatureDefs.begin(); p!=m_hltFeatureDefs.end(); ++p) {
     for (q=p->second.begin(); q!=p->second.end(); ++q) {
       if (*q) {
 	const void* obj = (*q)->objectAddress();
@@ -322,7 +322,7 @@ int HLTObjectsInRoI::updateChainStatus(const std::string& chain_name,
 				       const Trig::FeatureContainer& fc) {
   std::map<LevelSigId, std::vector<HltFeature*> >::const_iterator p;
   std::vector<HltFeature*>::const_iterator q;
-  for (p=mHltFeatureDefs.begin(); p!=mHltFeatureDefs.end(); ++p) {
+  for (p=m_hltFeatureDefs.begin(); p!=m_hltFeatureDefs.end(); ++p) {
     for (q=p->second.begin(); q!=p->second.end(); ++q) {
       if (*q) {
 	const void* obj = (*q)->objectAddress();
@@ -356,18 +356,18 @@ void HLTObjectsInRoI::dump() const {
   log() << MSG::DEBUG << "Dump HLTObjectsInRoI" << endreq;
   std::map<LevelSigId, std::vector<HltFeature*> >::const_iterator p;
   std::vector<HltFeature*>::const_iterator q;
-  for (p=mHltFeatureDefs.begin(); p!=mHltFeatureDefs.end(); ++p) {
+  for (p=m_hltFeatureDefs.begin(); p!=m_hltFeatureDefs.end(); ++p) {
     for (q=p->second.begin(); q!=p->second.end(); ++q) {
       dumpFeature(*q);
     }
   }
 //   std::vector<std::string>::const_iterator p;
 //   log() << MSG::DEBUG << "Associated chains: " << endreq;
-//   for (p=mAssociatedChains.begin(); p!=mAssociatedChains.end(); ++p) {
+//   for (p=m_associatedChains.begin(); p!=m_associatedChains.end(); ++p) {
 //     log() << MSG::DEBUG << "   - " << (*p) << endreq;
 //   }
 //   log() << MSG::DEBUG << "Passed chains: " << endreq;
-//   for (p=mPassedChains.begin(); p!=mPassedChains.end(); ++p) {
+//   for (p=m_passedChains.begin(); p!=m_passedChains.end(); ++p) {
 //     log() << MSG::DEBUG << "   - " << (*p) << endreq;
 //   }
 }
@@ -387,7 +387,7 @@ const HLTObjectsInRoI::HltFeature* HLTObjectsInRoI::findFeature(const void *obj)
   std::map<LevelSigId, std::vector<HltFeature*> >::const_iterator p;
   std::vector<HltFeature*>::const_iterator q;
 
-  for (p=mHltFeatureDefs.begin(); p!=mHltFeatureDefs.end(); ++p) {
+  for (p=m_hltFeatureDefs.begin(); p!=m_hltFeatureDefs.end(); ++p) {
     for (q=p->second.begin(); q!=p->second.end(); ++q) {
       if ( (*q)->objectAddress() == obj) {
 	return *q;
@@ -401,7 +401,7 @@ HLTObjectsInRoI::HltFeature* HLTObjectsInRoI::findFeature(const void *obj) {
   std::map<LevelSigId, std::vector<HltFeature*> >::iterator p;
   std::vector<HltFeature*>::iterator q;
 
-  for (p=mHltFeatureDefs.begin(); p!=mHltFeatureDefs.end(); ++p) {
+  for (p=m_hltFeatureDefs.begin(); p!=m_hltFeatureDefs.end(); ++p) {
     for (q=p->second.begin(); q!=p->second.end(); ++q) {
       if ( (*q)->objectAddress() == obj) {
 	return *q;
@@ -415,7 +415,7 @@ void HLTObjectsInRoI::HltFeature::addChain(const string& chain_name,
 					   bool passed) {
   std::vector<TrigStatus>::iterator p;
   bool foundit = false;
-  for (p=mChains.begin(); p!=mChains.end(); ++p) {
+  for (p=m_chains.begin(); p!=m_chains.end(); ++p) {
     if (p->name() == chain_name) {
       if (passed) {
 	p->setStatus(1);
@@ -428,14 +428,14 @@ void HLTObjectsInRoI::HltFeature::addChain(const string& chain_name,
   }
   if (!foundit) {
     TrigStatus tmp(chain_name, passed);
-    mChains.push_back(tmp);
+    m_chains.push_back(tmp);
   }
 }
 
 vector<std::string> HLTObjectsInRoI::HltFeature::getAssociatedChains() const {
   std::vector<TrigStatus>::const_iterator p;
   std::vector<std::string> tmp;
-  for (p=mChains.begin(); p!=mChains.end(); ++p) {
+  for (p=m_chains.begin(); p!=m_chains.end(); ++p) {
     tmp.push_back(p->name());
   }
   return tmp;
@@ -444,7 +444,7 @@ vector<std::string> HLTObjectsInRoI::HltFeature::getAssociatedChains() const {
 vector<std::string> HLTObjectsInRoI::HltFeature::getPassedChains() const {
   std::vector<TrigStatus>::const_iterator p;
   std::vector<std::string> tmp;
-  for (p=mChains.begin(); p!=mChains.end(); ++p) {
+  for (p=m_chains.begin(); p!=m_chains.end(); ++p) {
     if (p->isPassed()) tmp.push_back(p->name());
   }
   return tmp;

@@ -22,10 +22,10 @@ HLTObjectsInRoI* TauObjectsInRoI::create() {
 }
 
 TauObjectsInRoI::TauObjectsInRoI() :
- HLTObjectsInRoI(), mTauCluster(0), mTau(0), mEFTau(0) {
-  defineHltFeature(mTauCluster, 2, 1);
-  defineHltFeature(mTau, 2, 3);
-  defineHltFeature(mEFTau, 3, 3);
+ HLTObjectsInRoI(), m_tauCluster(0), m_tau(0), m_EFTau(0) {
+  defineHltFeature(m_tauCluster, 2, 1);
+  defineHltFeature(m_tau, 2, 3);
+  defineHltFeature(m_EFTau, 3, 3);
 }
 
 TauObjectsInRoI::~TauObjectsInRoI() {

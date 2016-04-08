@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HltMuonNtComponent_h__
-#define __HltMuonNtComponent_h__
+#ifndef TRIGGERMENUANALYSIS_HLTMUONNTCOMPONENT_H
+#define TRIGGERMENUANALYSIS_HLTMUONNTCOMPONENT_H
 /*
   HltMuonNtComponent.h
 */
@@ -47,27 +47,27 @@ protected:
   void createChainGroups();
   void createChainGroups(const std::vector<std::string>& v);
 
-  std::string mEventInfoName;
+  std::string m_eventInfoName;
 
   MsgStream& log() const;
 
 private:
-  std::vector<RoIData_Muon>* mMuonDataVec;
-  std::vector<RoIData_TileMu>* mTileMuDataVec;
+  std::vector<RoIData_Muon>* m_muonDataVec;
+  std::vector<RoIData_TileMu>* m_tileMuDataVec;
 
-  TrigEventInfo* mTrigEventInfo;
-  std::vector<TgcHpt>* mTgcHptWire;
-  std::vector<TgcHpt>* mTgcHptStrip;
-  std::vector<MSMuon>* mMoore;
-  std::vector<CBMuon>* mMuid;
-  std::vector<TileL2Muon>* mTileL2Muon;
-  std::vector<TileMuon>* mTileMuon;
+  TrigEventInfo* m_trigEventInfo;
+  std::vector<TgcHpt>* m_tgcHptWire;
+  std::vector<TgcHpt>* m_tgcHptStrip;
+  std::vector<MSMuon>* m_moore;
+  std::vector<CBMuon>* m_muid;
+  std::vector<TileL2Muon>* m_tileL2Muon;
+  std::vector<TileMuon>* m_tileMuon;
 
   ActiveStoreSvc* m_activeStore;
-  TrigAccessTool* mTrigAccessTool;
-  TrigMenuEvent* mEvent;
+  TrigAccessTool* m_trigAccessTool;
+  TrigMenuEvent* m_event;
 
-  std::vector<std::string> mMuonChains;
+  std::vector<std::string> m_muonChains;
 
 };
 
@@ -76,4 +76,4 @@ void setMSMuon(MSMuon& m, const Rec::TrackParticle* p);
 void setSAMuon(CBMuon& m, const Rec::TrackParticle* p);
 void setCBMuon(CBMuon& m, const Rec::TrackParticle* p);
 
-#endif // __HltMuonNtComponent_h__
+#endif // TRIGGERMENUANALYSIS_HLTMUONNTCOMPONENT_H

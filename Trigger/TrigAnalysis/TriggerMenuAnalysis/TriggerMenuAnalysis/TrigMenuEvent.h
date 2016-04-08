@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TrigMenuEvent_h__
-#define __TrigMenuEvent_h__
+#ifndef TRIGGERMENUANALYSIS_TRIGMENUEVENT_H
+#define TRIGGERMENUANALYSIS_TRIGMENUEVENT_H
 /*
   TrigMenuEvent.h
 */
@@ -17,7 +17,7 @@ public:
   static TrigMenuEvent* getInstance();
 
 private:
-  static TrigMenuEvent* gEvent;
+  static TrigMenuEvent* s_event;
   TrigMenuEvent();
 
 public:
@@ -54,83 +54,83 @@ protected:
   void clearHLTObjects(std::vector<HLTObjectsInRoI*>& objs);
 
 protected:
-  std::vector<HLTObjectsInRoI*> mMuonChainObjects;
-  std::vector<HLTObjectsInRoI*> mElectronChainObjects;
-  std::vector<HLTObjectsInRoI*> mJetChainObjects;
-  std::vector<HLTObjectsInRoI*> mTauChainObjects;
-  std::vector<HLTObjectsInRoI*> mMissingETChainObjects;
-  std::vector<HLTObjectsInRoI*> mTileMuChainObjects;
+  std::vector<HLTObjectsInRoI*> m_muonChainObjects;
+  std::vector<HLTObjectsInRoI*> m_electronChainObjects;
+  std::vector<HLTObjectsInRoI*> m_jetChainObjects;
+  std::vector<HLTObjectsInRoI*> m_tauChainObjects;
+  std::vector<HLTObjectsInRoI*> m_missingETChainObjects;
+  std::vector<HLTObjectsInRoI*> m_tileMuChainObjects;
 };
 
 void TrigMenuEvent::setMuonChainObjects(std::vector<HLTObjectsInRoI*>& objs) {
-  mMuonChainObjects = objs;
+  m_muonChainObjects = objs;
 }
 void TrigMenuEvent::setElectronChainObjects(std::vector<HLTObjectsInRoI*>& objs) {
-  mElectronChainObjects = objs;
+  m_electronChainObjects = objs;
 }
 void TrigMenuEvent::setJetChainObjects(std::vector<HLTObjectsInRoI*>& objs) {
-  mJetChainObjects = objs;
+  m_jetChainObjects = objs;
 }
 void TrigMenuEvent::setTauChainObjects(std::vector<HLTObjectsInRoI*>& objs) {
-  mTauChainObjects = objs;
+  m_tauChainObjects = objs;
 }
 void TrigMenuEvent::setMissingETChainObjects(std::vector<HLTObjectsInRoI*>& objs) {
-  mMissingETChainObjects = objs;
+  m_missingETChainObjects = objs;
 }
 void TrigMenuEvent::setTileMuChainObjects(std::vector<HLTObjectsInRoI*>& objs) {
-  mTileMuChainObjects = objs;
+  m_tileMuChainObjects = objs;
 }
 
 
 
 std::vector<HLTObjectsInRoI*>& TrigMenuEvent::getMuonChainObjects() {
-  return mMuonChainObjects;
+  return m_muonChainObjects;
 }
 const std::vector<HLTObjectsInRoI*>& 
 TrigMenuEvent::getMuonChainObjects() const {
-  return mMuonChainObjects;
+  return m_muonChainObjects;
 }
 
 std::vector<HLTObjectsInRoI*>& TrigMenuEvent::getTileMuChainObjects() {
-  return mTileMuChainObjects;
+  return m_tileMuChainObjects;
 }
 const std::vector<HLTObjectsInRoI*>& TrigMenuEvent::getTileMuChainObjects() const {
-  return mTileMuChainObjects;
+  return m_tileMuChainObjects;
 }
 
 std::vector<HLTObjectsInRoI*>& TrigMenuEvent::getElectronChainObjects() {
-  return mElectronChainObjects;
+  return m_electronChainObjects;
 }
 const std::vector<HLTObjectsInRoI*>& 
 TrigMenuEvent::getElectronChainObjects() const {
-  return mElectronChainObjects;
+  return m_electronChainObjects;
 }
 
 
 std::vector<HLTObjectsInRoI*>& TrigMenuEvent::getJetChainObjects() {
-  return mJetChainObjects;
+  return m_jetChainObjects;
 }
 const std::vector<HLTObjectsInRoI*>& 
 TrigMenuEvent::getJetChainObjects() const {
-  return mJetChainObjects;
+  return m_jetChainObjects;
 }
 
 
 std::vector<HLTObjectsInRoI*>& TrigMenuEvent::getTauChainObjects() {
-  return mTauChainObjects;
+  return m_tauChainObjects;
 }
 const std::vector<HLTObjectsInRoI*>& 
 TrigMenuEvent::getTauChainObjects() const {
-  return mTauChainObjects;
+  return m_tauChainObjects;
 }
 
 std::vector<HLTObjectsInRoI*>& TrigMenuEvent::getMissingETChainObjects() {
-  return mMissingETChainObjects;
+  return m_missingETChainObjects;
 }
 const std::vector<HLTObjectsInRoI*>& 
 TrigMenuEvent::getMissingETChainObjects() const {
-  return mMissingETChainObjects;
+  return m_missingETChainObjects;
 }
 
 
-#endif // __TrigMenuEvent_h__
+#endif // TRIGGERMENUANALYSIS_TRIGMENUEVENT_H

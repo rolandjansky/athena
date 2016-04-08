@@ -21,9 +21,9 @@ HLTObjectsInRoI* MissingETObjectsInRoI::create() {
 
 MissingETObjectsInRoI::MissingETObjectsInRoI() : 
   HLTObjectsInRoI(),
-  mL2MissingET(0), mEFMissingET(0) {
-  defineHltFeature(mL2MissingET, 2, 2);
-  defineHltFeature(mEFMissingET, 3, 2);
+  m_L2MissingET(0), m_EFMissingET(0) {
+  defineHltFeature(m_L2MissingET, 2, 2);
+  defineHltFeature(m_EFMissingET, 3, 2);
 }
 
 MissingETObjectsInRoI::~MissingETObjectsInRoI() {

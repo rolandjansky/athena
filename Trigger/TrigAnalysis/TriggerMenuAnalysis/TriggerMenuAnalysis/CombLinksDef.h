@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __CombLinksDef_h__
-#define __CombLinksDef_h__
+#ifndef TRIGGERMENUANALYSIS_COMBLINKSDEF_H
+#define TRIGGERMENUANALYSIS_COMBLINKSDEF_H
 /*
   CombLinksDef.h
 */
@@ -30,13 +30,21 @@ public:
   static void buildKnownCombLinksDefs(StoreGateSvc* sgsvc, MsgStream* log);
 
 private:
+  static void buildKnownCombLinksDefs1();
+  static void buildKnownCombLinksDefs2();
+  static void buildKnownCombLinksDefs3();
+  static void buildKnownCombLinksDefs4();
+  static void buildKnownCombLinksDefs5();
+  static void buildKnownCombLinksDefs6();
+  static void buildKnownCombLinksDefs7();
+
   CombLinksDef(ChainEntry::RoIType type);
 
 public:
   ~CombLinksDef();
 
-  ChainEntry::RoIType getRoIType() const { return mRoIType; }
-  const std::vector<std::string>& getL1RoIs() const { return mL1RoIs; }
+  ChainEntry::RoIType getRoIType() const { return m_RoIType; }
+  const std::vector<std::string>& getL1RoIs() const { return m_L1RoIs; }
 
   CombLinks createCombLinks();
   std::vector<std::string> typeLabelNamesInt() const;
@@ -54,26 +62,26 @@ protected:
   void addContFeature(const std::string& cont_key, const std::string& label="");
 
 private:
-  ChainEntry::RoIType mRoIType;
-  mutable std::vector<std::string> mL1RoIs;
-  mutable std::vector<IndexFinderBase*> mSingleFeatures;
-  mutable std::vector<IndexFinderBase*> mMultipleFeatures;
-  mutable std::vector<IndexFinderBase*> mContainerFeatures;
+  ChainEntry::RoIType m_RoIType;
+  mutable std::vector<std::string> m_L1RoIs;
+  mutable std::vector<IndexFinderBase*> m_singleFeatures;
+  mutable std::vector<IndexFinderBase*> m_multipleFeatures;
+  mutable std::vector<IndexFinderBase*> m_containerFeatures;
 
 };
 
 template<class Feature_t, class Cont_t>
 void CombLinksDef::addFeature(const std::string& cont_key, const std::string& label) {
   IndexFinderBase* x = new IndexFinder<Feature_t, Cont_t>(cont_key, label);
-  mSingleFeatures.push_back(x);
+  m_singleFeatures.push_back(x);
 }
 
 template<class Feature_t, class Elem_t>
 void CombLinksDef::addContFeature(const std::string& cont_key, const std::string& label) {
   IndexFinderBase* x = new IndexFinder<Feature_t, Feature_t, Elem_t>(cont_key, label);
-  mContainerFeatures.push_back(x);
+  m_containerFeatures.push_back(x);
 }
 
 
-#endif // __CombLinksDef_h__
+#endif // TRIGGERMENUANALYSIS_COMBLINKSDEF_H
 

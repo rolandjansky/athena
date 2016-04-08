@@ -33,19 +33,19 @@ HLTObjectsInRoI* MuonObjectsInRoI::create() {
 
 MuonObjectsInRoI::MuonObjectsInRoI() :
   HLTObjectsInRoI(), 
-  mMuonRoI(0), 
-  mMuonFeature(0), mMuonFeatureDetails(0), mVertexCollection(0), mInDetTrackCollection(0), 
-  mCombinedMuon(0), mIsoMuonFeature(0), mEFMuon(0), mEFMuonInfo(0) {
+  m_muonRoI(0), 
+  m_muonFeature(0), m_muonFeatureDetails(0), m_vertexCollection(0), m_inDetTrackCollection(0), 
+  m_combinedMuon(0), m_isoMuonFeature(0), m_EFMuon(0), m_EFMuonInfo(0) {
   // defineHltFeature(object, level, step, name)
-  defineL1RoI(mMuonRoI, "Muon_ROI");
-  defineHltFeature(mMuonFeature, 2, 1, "MuonFeature");
-  defineHltFeature(mMuonFeatureDetails, 2, 1, "MuonFeatureDetails");
-  defineHltFeature(mVertexCollection, 2, 2, "VertexCollection");
-  defineHltFeature(mInDetTrackCollection, 2, 2, "InDetTrackCollection");
-  defineHltFeature(mCombinedMuon, 2, 2, "CombinedMuonFeature");
-  defineHltFeature(mIsoMuonFeature, 2, 3, "IsoMuonFeature");
-  defineHltFeature(mEFMuon, 3, 2, "EFMuon");
-  defineHltFeature(mEFMuonInfo, 3, 2, "EFMuonInfo");
+  defineL1RoI(m_muonRoI, "Muon_ROI");
+  defineHltFeature(m_muonFeature, 2, 1, "MuonFeature");
+  defineHltFeature(m_muonFeatureDetails, 2, 1, "MuonFeatureDetails");
+  defineHltFeature(m_vertexCollection, 2, 2, "VertexCollection");
+  defineHltFeature(m_inDetTrackCollection, 2, 2, "InDetTrackCollection");
+  defineHltFeature(m_combinedMuon, 2, 2, "CombinedMuonFeature");
+  defineHltFeature(m_isoMuonFeature, 2, 3, "IsoMuonFeature");
+  defineHltFeature(m_EFMuon, 3, 2, "EFMuon");
+  defineHltFeature(m_EFMuonInfo, 3, 2, "EFMuonInfo");
 }
 
 MuonObjectsInRoI::~MuonObjectsInRoI() {

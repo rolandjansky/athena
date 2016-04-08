@@ -30,21 +30,19 @@ using namespace std;
 
 TrigMenuNtupleAlg::TrigMenuNtupleAlg(const std::string& name, ISvcLocator* svcloc) : 
   NtupleAlgorithm(name, svcloc), 
-  mActiveStoreSvc(0), 
-  mTrigConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name), 
-  mTrigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
-  mTrigAccessTool("TrigAccessTool/TrigAccessTool"), 
-  mRoILinksCnvTool("RoILinksCnvTool/RoILinksCnvTool") {
-  declareProperty("ntupleFile", m_ntupleFile="TrigMenu.root");
-  declareProperty("ntupleDir", m_ntupleDir="Menu");
-  declareProperty("ntupleTreeName", m_ntupleTreeName="TrigMenu");
-  declareProperty("ntupleTreeTitle", m_ntupleTreeTitle="Trigger menu information");
-  declareProperty("ntupleComponents", m_ntupleComponentCommands,
-		  "A definition ntuple components and their parameters");
-  declareProperty("TrigDecisionTool", mTrigDecisionTool, 
+  m_activeStoreSvc(0), 
+  m_trigConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name), 
+  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
+  m_trigAccessTool("TrigAccessTool/TrigAccessTool"), 
+  m_RoILinksCnvTool("RoILinksCnvTool/RoILinksCnvTool") {
+  m_ntupleFile = "TrigMenu.root";
+  m_ntupleDir = "Menu";
+  m_ntupleTreeName = "TrigMenu";
+  m_ntupleTreeTitle = "Trigger menu information";
+  declareProperty("TrigDecisionTool", m_trigDecisionTool, 
 		  "Trig::TrigDecisionTool");
-  declareProperty("TrigAccessTool", mTrigAccessTool, "TrigAccessTool");
-  declareProperty("RoILinksCnvTool", mRoILinksCnvTool, "RoILinksCnvTool");
+  declareProperty("TrigAccessTool", m_trigAccessTool, "TrigAccessTool");
+  declareProperty("RoILinksCnvTool", m_RoILinksCnvTool, "RoILinksCnvTool");
   m_availableComponents.push_back("HltMuon");
   m_availableComponents.push_back("TrigMenu");
   m_availableComponents.push_back("TrigMenuFlat");
@@ -76,13 +74,13 @@ StatusCode TrigMenuNtupleAlg::initialize() {
 //     log << MSG::INFO << "loaded : " << libname << endreq;
 //   }
 
-  if (serviceLocator()->service("ActiveStoreSvc", mActiveStoreSvc).isFailure()) {
+  if (serviceLocator()->service("ActiveStoreSvc", m_activeStoreSvc).isFailure()) {
     msg(MSG::WARNING) << "Cannot retrieve ActiveStoreSvc" << endreq;
   }
-  if (mTrigAccessTool.retrieve().isFailure()) {
+  if (m_trigAccessTool.retrieve().isFailure()) {
     msg(MSG::WARNING) << "Cannot retrieve TrigAccessTool" << endreq;
   }
-  if (mRoILinksCnvTool.retrieve().isFailure()) {
+  if (m_RoILinksCnvTool.retrieve().isFailure()) {
     msg(MSG::WARNING) << "Cannot retrieve RoILinksCnvTool" << endreq;
   }
 
@@ -135,7 +133,7 @@ StatusCode TrigMenuNtupleAlg::initialize() {
 }
 
 StatusCode TrigMenuNtupleAlg::beginRun() {
-  return mRoILinksCnvTool->beginRun();
+  return m_RoILinksCnvTool->beginRun();
 }
 
 StatusCode TrigMenuNtupleAlg::finalize() {
@@ -186,22 +184,22 @@ StatusCode TrigMenuNtupleAlg::finalize() {
 }
 
 ActiveStoreSvc* TrigMenuNtupleAlg::activeStoreSvc() {
-  return mActiveStoreSvc;
+  return m_activeStoreSvc;
 }
 
 TrigConf::ITrigConfigSvc* TrigMenuNtupleAlg::trigConfigSvc() {
-  return &(*mTrigConfigSvc);
+  return &(*m_trigConfigSvc);
 }
 
 Trig::TrigDecisionTool* TrigMenuNtupleAlg::trigDecisionTool() {
-  return &(*mTrigDecisionTool);
+  return &(*m_trigDecisionTool);
 }
 
 TrigAccessTool* TrigMenuNtupleAlg::trigAccessTool() {
-  return &(*mTrigAccessTool);
+  return &(*m_trigAccessTool);
 }
 
 RoILinksCnvTool* TrigMenuNtupleAlg::roILinksCnvTool() {
-  return &(*mRoILinksCnvTool);
+  return &(*m_RoILinksCnvTool);
 }
 

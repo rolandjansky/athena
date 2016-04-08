@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __JetObjectsInRoI_h__
-#define __JetObjectsInRoI_h__
+#ifndef TRIGGERMENUANALYSIS_JETOBJECTSINROI_H
+#define TRIGGERMENUANALYSIS_JETOBJECTSINROI_H
 /*
   JetObjectsInRoI.h
 */
@@ -25,15 +25,15 @@ public:
   JetObjectsInRoI();
   ~JetObjectsInRoI();
 
-  const TrigT2Jet* getL2Jet() const { return mL2Jet; }
-  const JetCollection* getEFJet() const { return mEFJet; }
+  const TrigT2Jet* getL2Jet() const { return m_L2Jet; }
+  const JetCollection* getEFJet() const { return m_EFJet; }
 
-  void setL2Jet(const TrigT2Jet* L2jet) { mL2Jet = L2jet; }
-  void setEFJet(const JetCollection* EFjet) { mEFJet = EFjet; }
+  void setL2Jet(const TrigT2Jet* L2jet) { m_L2Jet = L2jet; }
+  void setEFJet(const JetCollection* EFjet) { m_EFJet = EFjet; }
 
 protected:
-  const TrigT2Jet* mL2Jet;
-  const JetCollection* mEFJet;
+  const TrigT2Jet* m_L2Jet;
+  const JetCollection* m_EFJet;
 };
 
-#endif // __JetObjectsInRoI_h__
+#endif // TRIGGERMENUANALYSIS_JETOBJECTSINROI_H

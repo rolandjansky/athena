@@ -6,12 +6,8 @@
   HltNaviChecker.cxx
 */
 #include <vector>
-#define private public
-#define protected public
 #include "TrigDecisionTool/Combination.h"
 #include "TrigNavigation/NavigationCore.h"
-#undef private
-#undef public
 
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "TriggerMenuNtuple/ChainEntry.h"
@@ -44,11 +40,11 @@ using namespace std;
 
 HltNaviChecker::HltNaviChecker(const std::string& name, ISvcLocator* svcloc) :
   AthAlgorithm(name, svcloc), 
-  mTrigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
-  mRoILinksCnvTool("RoILinksCnvTool/RoILinksCnvTool"), 
-  mChainNames(), 
-  mFile(0), mTree(0), mNPassBits(0), mEFElectronPassBitsIndex(0) {
-  declareProperty("ChainNames", mChainNames, "List of chains to inspect");
+  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
+  m_RoILinksCnvTool("RoILinksCnvTool/RoILinksCnvTool"), 
+  m_chainNames(), 
+  m_file(0), m_tree(0), m_NPassBits(0), m_EFElectronPassBitsIndex(0) {
+  declareProperty("ChainNames", m_chainNames, "List of chains to inspect");
 }
 
 HltNaviChecker::~HltNaviChecker() {
@@ -57,25 +53,25 @@ HltNaviChecker::~HltNaviChecker() {
 StatusCode HltNaviChecker::initialize() {
   AthAlgorithm::initialize().ignore();
 
-  if (mTrigDecisionTool.retrieve().isFailure()) {
+  if (m_trigDecisionTool.retrieve().isFailure()) {
     msg(MSG::WARNING) << "Cannot retrieve TrigDecisionTool" << endreq;
   }
-  if (mRoILinksCnvTool.retrieve().isFailure()) {
+  if (m_RoILinksCnvTool.retrieve().isFailure()) {
     msg(MSG::WARNING) << "Cannot retrieve RoILinksCnvTool" << endreq;
   }
 
-  mFile = TFile::Open("chk_passbit.root", "RECREATE");
-  mTree = new TTree("t", "Tree to check TrigPassBits");
-  mEFElectronPassBitsIndex = new std::vector<unsigned int>();
-  mTree->Branch("NPassBits", &mNPassBits, "NPassBits/I");
-  mTree->Branch("EFElectronPassBitsIndex", "std::vector<unsigned int>", 
-		&mEFElectronPassBitsIndex);
+  m_file = TFile::Open("chk_passbit.root", "RECREATE");
+  m_tree = new TTree("t", "Tree to check TrigPassBits");
+  m_EFElectronPassBitsIndex = new std::vector<unsigned int>();
+  m_tree->Branch("NPassBits", &m_NPassBits, "NPassBits/I");
+  m_tree->Branch("EFElectronPassBitsIndex", "std::vector<unsigned int>", 
+		&m_EFElectronPassBitsIndex);
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode HltNaviChecker::beginRun() {
-  return mRoILinksCnvTool->beginRun();
+  return m_RoILinksCnvTool->beginRun();
 }
 
 StatusCode HltNaviChecker::execute() {
@@ -86,12 +82,12 @@ StatusCode HltNaviChecker::execute() {
   msg(MSG::INFO) << "Event " << ievent << endreq;
   checkPassBits();
 
-  mRoILinksCnvTool->fill(chains, roi_links);
+  m_RoILinksCnvTool->fill(chains, roi_links);
 
   std::vector<std::string>::const_iterator p_chain;
-  for (p_chain=mChainNames.begin(); p_chain!=mChainNames.end(); ++p_chain) {
+  for (p_chain=m_chainNames.begin(); p_chain!=m_chainNames.end(); ++p_chain) {
     msg(MSG::INFO) << "Chain decision for " << (*p_chain) 
-		   << " ==> " << mTrigDecisionTool->isPassed(*p_chain) 
+		   << " ==> " << m_trigDecisionTool->isPassed(*p_chain) 
 		   << endreq;
     checkFeatures(*p_chain);
   }
@@ -119,13 +115,13 @@ void HltNaviChecker::checkPassBits() {
   }
 
   // Reset data
-  mNPassBits = 0;
-  mEFElectronPassBitsIndex->clear();
+  m_NPassBits = 0;
+  m_EFElectronPassBitsIndex->clear();
 
   if (coll) {
-    mNPassBits = coll->size();
+    m_NPassBits = coll->size();
   }
-  const Trig::ChainGroup* cg = mTrigDecisionTool->getChainGroup("EF_.*");
+  const Trig::ChainGroup* cg = m_trigDecisionTool->getChainGroup("EF_.*");
   if (cg) {
     const Trig::FeatureContainer fc = cg->features();
     const std::vector<Trig::Feature<egamma> > v = fc.get<egamma>();
@@ -141,22 +137,22 @@ void HltNaviChecker::checkPassBits() {
 	msg(MSG::INFO) << "Feature clid=" << q->getCLID()
 		       << " " << oi << endreq;
 	for (unsigned int i=oi.objectsBegin(); i!=oi.objectsEnd(); ++i) {
-	  mEFElectronPassBitsIndex->push_back(i);
+	  m_EFElectronPassBitsIndex->push_back(i);
 	}
       }
     }
   }
-  mTree->Fill();
+  m_tree->Fill();
 }
 
 StatusCode HltNaviChecker::finalize() {
   AthAlgorithm::finalize().ignore();
-  if (mFile) {
-    mFile->Write();
-    mFile->Close();
-    delete mFile;
-    mTree = 0;
-    mFile = 0;
+  if (m_file) {
+    m_file->Write();
+    m_file->Close();
+    delete m_file;
+    m_tree = 0;
+    m_file = 0;
   }
   return StatusCode::SUCCESS;
 }
@@ -176,7 +172,7 @@ void getAndDumpFeatures(Trig::FeatureContainer& fc, const std::string& cls,
 void HltNaviChecker::checkFeatures(const std::string& chain_name) {
   msg(MSG::INFO) << "*** Check HLT features in chain: " << chain_name << endreq;
   Trig::FeatureContainer fc = 
-    mTrigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
+    m_trigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
 
   std::vector<Trig::Combination> combs = fc.getCombinations();
   std::vector<Trig::Combination>::const_iterator p_comb;
@@ -196,8 +192,8 @@ void HltNaviChecker::checkFeatures(const std::string& chain_name) {
     for (p_te=tes.begin(); p_te!=tes.end(); ++p_te, ++ite) {
       msg(MSG::INFO) << "    TE[" << ite << "] RoI via TDT ancestor" << endreq;
 
-      const vector<Trig::Feature<Jet_ROI> > xv1 = mTrigDecisionTool->ancestors<Jet_ROI>(*p_te);
-      const vector<Trig::Feature<Muon_ROI> > xv2 = mTrigDecisionTool->ancestors<Muon_ROI>(*p_te);
+      const vector<Trig::Feature<Jet_ROI> > xv1 = m_trigDecisionTool->ancestors<Jet_ROI>(*p_te);
+      const vector<Trig::Feature<Muon_ROI> > xv2 = m_trigDecisionTool->ancestors<Muon_ROI>(*p_te);
       msg(MSG::INFO) << "      N jet RoIs by ancestors(): " << xv1.size() << endreq;
       for (unsigned int j=0; j<xv1.size(); ++j) {
 	msg(MSG::INFO) << "      Jet_ROI[" << j << "] cptr=" << xv1[j].cptr() 
@@ -213,11 +209,11 @@ void HltNaviChecker::checkFeatures(const std::string& chain_name) {
 
       checkFeatures(*p_te, navi, "      ");
       //       const Trig::Feature<Jet_ROI> x = 
-      // 	mTrigDecisionTool->ancestor<Jet_ROI>(*p_te);
+      // 	m_trigDecisionTool->ancestor<Jet_ROI>(*p_te);
       //       msg(MSG::INFO) << "    Jet_ROI via ancestor() cptr=" << x.cptr() << " TE=" << x.te() 
       // 		     << " label=" << x.label() << endreq;
       //       const Trig::Feature<Muon_ROI> x2 = 
-      // 	mTrigDecisionTool->ancestor<Muon_ROI>(*p_te);
+      // 	m_trigDecisionTool->ancestor<Muon_ROI>(*p_te);
       //       msg(MSG::INFO) << "    Muon_ROI via ancestor() cptr=" << x2.cptr() << " TE=" << x2.te() 
       // 		     << " label=" << x2.label() << endreq;
     }

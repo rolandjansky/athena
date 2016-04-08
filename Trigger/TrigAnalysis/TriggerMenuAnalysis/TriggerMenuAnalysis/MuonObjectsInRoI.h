@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __MuonObjectsInRoI_h__
-#define __MuonObjectsInRoI_h__
+#ifndef TRIGGERMENUANALYSIS_MUONOBJECTSINROI_H
+#define TRIGGERMENUANALYSIS_MUONOBJECTSINROI_H
 /*
   MuonObjectsInRoI.h
 */
@@ -34,50 +34,50 @@ public:
   MuonObjectsInRoI();
   ~MuonObjectsInRoI();
 
-  const Muon_ROI* getMuonRoI() const { return mMuonRoI; }
-  const MuonFeature* getMuonFeature() const { return mMuonFeature; }
-  const MuonFeatureDetails* getMuonFeatureDetails() const { return mMuonFeatureDetails; }
+  const Muon_ROI* getMuonRoI() const { return m_muonRoI; }
+  const MuonFeature* getMuonFeature() const { return m_muonFeature; }
+  const MuonFeatureDetails* getMuonFeatureDetails() const { return m_muonFeatureDetails; }
   const TrigVertexCollection* getVertexCollection() const {
-    return mVertexCollection;
+    return m_vertexCollection;
   }
   const TrigInDetTrackCollection* getInDetTrackCollection() const {
-    return mInDetTrackCollection;
+    return m_inDetTrackCollection;
   }
   const CombinedMuonFeature* getCombinedMuonFeature() const {
-    return mCombinedMuon;
+    return m_combinedMuon;
   }
-  const IsoMuonFeature* getIsoMuonFeature() const { return mIsoMuonFeature; }
-  const TrigMuonEFContainer* getEFMuon() const { return mEFMuon; }
-  const TrigMuonEFInfoContainer* getEFMuonInfo() const { return mEFMuonInfo; }
+  const IsoMuonFeature* getIsoMuonFeature() const { return m_isoMuonFeature; }
+  const TrigMuonEFContainer* getEFMuon() const { return m_EFMuon; }
+  const TrigMuonEFInfoContainer* getEFMuonInfo() const { return m_EFMuonInfo; }
 
   inline void setMuonFeature(const MuonFeature* x);
   inline void setCombinedMuonFeature(const CombinedMuonFeature* x);
   inline void setEFMuon(const TrigMuonEFContainer* x);
 
 protected:
-  const Muon_ROI* mMuonRoI;
-  const MuonFeature* mMuonFeature;
-  const MuonFeatureDetails* mMuonFeatureDetails;
-  const TrigVertexCollection* mVertexCollection;
-  const TrigInDetTrackCollection* mInDetTrackCollection;
-  const CombinedMuonFeature* mCombinedMuon;
-  const IsoMuonFeature* mIsoMuonFeature;
+  const Muon_ROI* m_muonRoI;
+  const MuonFeature* m_muonFeature;
+  const MuonFeatureDetails* m_muonFeatureDetails;
+  const TrigVertexCollection* m_vertexCollection;
+  const TrigInDetTrackCollection* m_inDetTrackCollection;
+  const CombinedMuonFeature* m_combinedMuon;
+  const IsoMuonFeature* m_isoMuonFeature;
 
-  const TrigMuonEFContainer* mEFMuon;
-  const TrigMuonEFInfoContainer* mEFMuonInfo;
+  const TrigMuonEFContainer* m_EFMuon;
+  const TrigMuonEFInfoContainer* m_EFMuonInfo;
 };
 
 
 void MuonObjectsInRoI::setMuonFeature(const MuonFeature* x) {
-  mMuonFeature = x;
+  m_muonFeature = x;
 }
 
 void MuonObjectsInRoI::setCombinedMuonFeature(const CombinedMuonFeature* x) {
-  mCombinedMuon = x;
+  m_combinedMuon = x;
 }
 
 void MuonObjectsInRoI::setEFMuon(const TrigMuonEFContainer* x) {
-  mEFMuon = x;
+  m_EFMuon = x;
 }
 
-#endif // __MuonObjectsInRoI_h__
+#endif // TRIGGERMENUANALYSIS_MUONOBJECTSINROI_H

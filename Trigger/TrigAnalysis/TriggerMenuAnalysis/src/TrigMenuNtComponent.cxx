@@ -14,13 +14,13 @@ using namespace std;
 TrigMenuNtComponent::TrigMenuNtComponent(NtupleAlgorithm* mainAlg, 
 					 const NtComponent::NtComponentParameters& params) : 
   NtComponent::NtupleComponent(mainAlg, params), 
-  mTrigDecisionTool(0), mTrigAccessTool(0), mRoILinksCnvTool(0), 
-  mChainEntries(0), mRoILinks(0) {
+  m_trigDecisionTool(0), m_trigAccessTool(0), m_RoILinksCnvTool(0), 
+  m_chainEntries(0), m_RoILinks(0) {
   TrigMenuNtupleAlg* mymainAlg = dynamic_cast<TrigMenuNtupleAlg*>(mainAlg);
   if (mymainAlg) {
-    mTrigDecisionTool = mymainAlg->trigDecisionTool();
-    mTrigAccessTool = mymainAlg->trigAccessTool();
-    mRoILinksCnvTool = mymainAlg->roILinksCnvTool();
+    m_trigDecisionTool = mymainAlg->trigDecisionTool();
+    m_trigAccessTool = mymainAlg->trigAccessTool();
+    m_RoILinksCnvTool = mymainAlg->roILinksCnvTool();
   }
 }
 
@@ -28,11 +28,11 @@ TrigMenuNtComponent::~TrigMenuNtComponent() {
 }
 
 StatusCode TrigMenuNtComponent::book() {
-  mChainEntries = new std::vector<ChainEntry>();
-  mRoILinks = new RoILinks();
+  m_chainEntries = new std::vector<ChainEntry>();
+  m_RoILinks = new RoILinks();
 
-  m_tree->Branch("ChainEntries", &mChainEntries);
-  m_tree->Branch("RoILinks", &mRoILinks);
+  m_tree->Branch("ChainEntries", &m_chainEntries);
+  m_tree->Branch("RoILinks", &m_RoILinks);
 
   return StatusCode::SUCCESS;
 }
@@ -113,7 +113,7 @@ StatusCode TrigMenuNtComponent::fill() {
   fillChain("EF_e12_medium");
   fillChain("EF_e25i_medium1");
 
-  mRoILinksCnvTool->fill(*mChainEntries, *mRoILinks);
+  m_RoILinksCnvTool->fill(*m_chainEntries, *m_RoILinks);
 
   return StatusCode::SUCCESS;
 }
@@ -134,12 +134,12 @@ void TrigMenuNtComponent::fillChain(const std::string& chain_name){
     x1.addRoI(ChainEntry::kElectronRoIType, ElectronRoIIndex[i]);
   }
 
-  mChainEntries->push_back(x1);
+  m_chainEntries->push_back(x1);
 }
 
 std::vector<int> TrigMenuNtComponent::fillL2Muon(const std::string& chain_name) {
   Trig::FeatureContainer fc = 
-    mTrigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
+    m_trigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
 
   int index=-1;
   std::vector<int> RoIIndex(0);
@@ -150,7 +150,7 @@ std::vector<int> TrigMenuNtComponent::fillL2Muon(const std::string& chain_name) 
 	   << ": " << combs.size() << endreq;
   for (p_comb=combs.begin(); p_comb!=combs.end(); ++p_comb) {
     (*m_msg) << MSG::DEBUG << "Getting links" << endreq;
-    if ( (index=mRoILinksCnvTool->setMuonRoILinks(*mRoILinks, *p_comb)) >= 0) {
+    if ( (index=m_RoILinksCnvTool->setMuonRoILinks(*m_RoILinks, *p_comb)) >= 0) {
       RoIIndex.push_back(index);
     }
   }
@@ -159,7 +159,7 @@ std::vector<int> TrigMenuNtComponent::fillL2Muon(const std::string& chain_name) 
 
 std::vector<int> TrigMenuNtComponent::fillL2Electron(const std::string& chain_name) {
   Trig::FeatureContainer fc = 
-    mTrigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
+    m_trigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
 
   int index=-1;
   std::vector<int> RoIIndex(0);
@@ -170,7 +170,7 @@ std::vector<int> TrigMenuNtComponent::fillL2Electron(const std::string& chain_na
 	   << ": " << combs.size() << endreq;
   for (p_comb=combs.begin(); p_comb!=combs.end(); ++p_comb) {
     (*m_msg) << MSG::DEBUG << "Getting links" << endreq;
-    index=mRoILinksCnvTool->setElectronRoILinks(*mRoILinks,*p_comb);
+    index=m_RoILinksCnvTool->setElectronRoILinks(*m_RoILinks,*p_comb);
     if (index >= 0) {
       RoIIndex.push_back(index);
     }
@@ -179,6 +179,6 @@ std::vector<int> TrigMenuNtComponent::fillL2Electron(const std::string& chain_na
 }
 
 void TrigMenuNtComponent::ClearMember(){
-    mChainEntries->clear();
-    mRoILinks->clear();
+    m_chainEntries->clear();
+    m_RoILinks->clear();
 }

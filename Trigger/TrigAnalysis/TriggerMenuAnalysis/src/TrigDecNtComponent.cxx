@@ -20,38 +20,38 @@ using namespace std;
 TrigDecNtComponent::TrigDecNtComponent(NtupleAlgorithm* mainAlg, 
 				       const NtComponent::NtComponentParameters& params) :
   NtComponent::NtupleComponent(mainAlg, params), 
-  mTrigConfigSvc(0), 
-  mTrigDecisionTool(0), 
-  mTrigDecSummary(0) {
+  m_trigConfigSvc(0), 
+  m_trigDecisionTool(0), 
+  m_trigDecSummary(0) {
   TrigMenuNtupleAlg* algo = dynamic_cast<TrigMenuNtupleAlg*>(mainAlg);
   if (algo) {
-    mTrigConfigSvc = algo->trigConfigSvc();
-    mTrigDecisionTool = algo->trigDecisionTool();
+    m_trigConfigSvc = algo->trigConfigSvc();
+    m_trigDecisionTool = algo->trigDecisionTool();
   }
 }
 
 TrigDecNtComponent::~TrigDecNtComponent() {
-  if (mTrigDecSummary) {
-    delete mTrigDecSummary;
-    mTrigDecSummary = 0;
+  if (m_trigDecSummary) {
+    delete m_trigDecSummary;
+    m_trigDecSummary = 0;
   }
 }
 
 
 StatusCode TrigDecNtComponent::book() {
-  mTrigDecSummary = new TrigDecSummary();
+  m_trigDecSummary = new TrigDecSummary();
 
-  m_tree->Branch("TrigDecSummary", &mTrigDecSummary);
+  m_tree->Branch("TrigDecSummary", &m_trigDecSummary);
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode TrigDecNtComponent::fill() {
-   mTrigDecSummary->clear();
+   m_trigDecSummary->clear();
 
-   const TrigConf::CTPConfig* ctpConfig = mTrigConfigSvc->ctpConfig();
+   const TrigConf::CTPConfig* ctpConfig = m_trigConfigSvc->ctpConfig();
    const TrigConf::ItemContainer& items = ctpConfig->menu().items();
-   const TrigConf::HLTChainList* chainList = mTrigConfigSvc->chainList();
+   const TrigConf::HLTChainList* chainList = m_trigConfigSvc->chainList();
 
    std::string item_name;
    std::string chain_name;
@@ -65,12 +65,12 @@ StatusCode TrigDecNtComponent::fill() {
       item_name = items[i]->name();
       ctpid = items[i]->ctpId();
       if (ctpid >= 256) continue;
-      bits = mTrigDecisionTool->isPassedBits(item_name);
-      mTrigDecSummary->setBitStatus(ctpid, TrigDecSummary::kL1_TBP, 
+      bits = m_trigDecisionTool->isPassedBits(item_name);
+      m_trigDecSummary->setBitStatus(ctpid, TrigDecSummary::kL1_TBP, 
                                     bits & TrigDefs::L1_isPassedBeforePrescale);
-      mTrigDecSummary->setBitStatus(ctpid, TrigDecSummary::kL1_TAP, 
+      m_trigDecSummary->setBitStatus(ctpid, TrigDecSummary::kL1_TAP, 
                                     bits & TrigDefs::L1_isPassedAfterPrescale);
-      mTrigDecSummary->setBitStatus(ctpid, TrigDecSummary::kL1_TAV, 
+      m_trigDecSummary->setBitStatus(ctpid, TrigDecSummary::kL1_TAV, 
                                     bits & TrigDefs::L1_isPassedAfterVeto);
    }
 
@@ -79,16 +79,16 @@ StatusCode TrigDecNtComponent::fill() {
       chain_counter = chain->chain_counter();
       level         = chain->level();
       if (chain_counter >= 8192) continue;
-      bits = mTrigDecisionTool->isPassedBits(chain_name);
+      bits = m_trigDecisionTool->isPassedBits(chain_name);
       if (level == "L2") {
-         mTrigDecSummary->setBitStatus(chain_counter, TrigDecSummary::kL2_Raw, 
+         m_trigDecSummary->setBitStatus(chain_counter, TrigDecSummary::kL2_Raw, 
                                        bits & TrigDefs::L2_passedRaw);
-         mTrigDecSummary->setBitStatus(chain_counter, TrigDecSummary::kL2_PT, 
+         m_trigDecSummary->setBitStatus(chain_counter, TrigDecSummary::kL2_PT, 
                                        bits & TrigDefs::L2_passThrough);
       } else if (level == "EF") {
-         mTrigDecSummary->setBitStatus(chain_counter, TrigDecSummary::kEF_Raw, 
+         m_trigDecSummary->setBitStatus(chain_counter, TrigDecSummary::kEF_Raw, 
                                        bits & TrigDefs::EF_passedRaw);
-         mTrigDecSummary->setBitStatus(chain_counter, TrigDecSummary::kEF_PT, 
+         m_trigDecSummary->setBitStatus(chain_counter, TrigDecSummary::kEF_PT, 
                                        bits & TrigDefs::EF_passThrough);
       }
    }

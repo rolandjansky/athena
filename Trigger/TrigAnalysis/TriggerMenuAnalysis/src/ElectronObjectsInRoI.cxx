@@ -21,14 +21,14 @@ HLTObjectsInRoI* ElectronObjectsInRoI::create() {
 
 ElectronObjectsInRoI::ElectronObjectsInRoI() : 
   HLTObjectsInRoI(), 
-  mEMCluster(0), mVertexCollection(0), mInDetTrackCollection(0), 
-  mTrigElectronContainer(0), 
-  mEFegamma(0) {
-  defineHltFeature(mEMCluster, 2, 1, "TrigEMCluster");
-  defineHltFeature(mVertexCollection, 2, 2, "VertexCollection");
-  defineHltFeature(mInDetTrackCollection, 2, 2);
-  defineHltFeature(mTrigElectronContainer, 2, 3);
-  defineHltFeature(mEFegamma, 3, 3);
+  m_EMCluster(0), m_vertexCollection(0), m_inDetTrackCollection(0), 
+  m_trigElectronContainer(0), 
+  m_EFegamma(0) {
+  defineHltFeature(m_EMCluster, 2, 1, "TrigEMCluster");
+  defineHltFeature(m_vertexCollection, 2, 2, "VertexCollection");
+  defineHltFeature(m_inDetTrackCollection, 2, 2);
+  defineHltFeature(m_trigElectronContainer, 2, 3);
+  defineHltFeature(m_EFegamma, 3, 3);
 }
 
 ElectronObjectsInRoI::~ElectronObjectsInRoI() {

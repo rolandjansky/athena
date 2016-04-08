@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __FlatHltNaviMaker_h__
-#define __FlatHltNaviMaker_h__
+#ifndef TRIGGERMENUANAYSIS_FLATHLTNAVIMAKER_H
+#define TRIGGERMENUANAYSIS_FLATHLTNAVIMAKER_H
 /*
   FlatHltNaviMaker.h
 */
@@ -22,7 +22,7 @@ public:
   StatusCode finalize();
 
 private:
-  ToolHandle<RoILinksCnvTool> mRoILinksCnvTool;
+  ToolHandle<RoILinksCnvTool> m_RoILinksCnvTool;
 };
 
-#endif // __FlatHltNaviMaker_h__
+#endif // TRIGGERMENUANAYSIS_FLATHLTNAVIMAKER_H
