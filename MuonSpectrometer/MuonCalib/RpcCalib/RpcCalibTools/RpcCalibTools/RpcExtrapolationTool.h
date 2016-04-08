@@ -5,10 +5,9 @@
 #ifndef RPC_EXTRAPOLATIONTOOL
 #define  RPC_EXTRAPOLATIONTOOL
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "DataModel/DataLink.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -22,7 +21,6 @@
 #include "MuonTGRecTools/MuonHolesOnTrackTool.h"
 
 class RpcIdHelper;
-class IRegSelSvc;
 namespace Muon{
   class MuonIdHelperTool;
   class MuonTGMeasurementTool;
@@ -36,7 +34,7 @@ struct RpcExtrapolationResults{
   const Trk::TrackParameters* params;
 };
 
-class RpcExtrapolationTool: public AlgTool{
+class RpcExtrapolationTool: public AthAlgTool{
 
 
  public:
@@ -55,8 +53,6 @@ class RpcExtrapolationTool: public AlgTool{
  private:
 
   bool m_cosmicMode;
-  StoreGateSvc* m_eventStore;
-  ActiveStoreSvc* m_activeStore;
   const MuonGM::MuonDetectorManager* m_muonMgr;
   ToolHandle<Muon::MuonIdHelperTool>           m_idHelperTool;
   ToolHandle<Trk::IPropagator>                 m_propagator;

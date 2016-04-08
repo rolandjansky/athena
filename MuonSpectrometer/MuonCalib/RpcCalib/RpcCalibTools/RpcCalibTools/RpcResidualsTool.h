@@ -5,10 +5,9 @@
 #ifndef RPC_RESIDUALTOOL
 #define  RPC_RESIDUALTOOL
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "DataModel/DataLink.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -41,7 +40,7 @@ struct RpcResiduals{
 
 };
 
-class RpcResidualsTool: public AlgTool{
+class RpcResidualsTool: public AthAlgTool{
 
 
  public:
@@ -63,7 +62,6 @@ class RpcResidualsTool: public AlgTool{
  private:
 
   std::string m_clusCollection;
-  StoreGateSvc* m_eventStore;
   ActiveStoreSvc* m_activeStore;
   const MuonGM::MuonDetectorManager* m_muonMgr;
   ToolHandle<Muon::MuonIdHelperTool>           m_idHelperTool;
