@@ -352,7 +352,9 @@ bool TruthParticleFilterTool::isBSM(const HepMC::GenParticle* part) const{
        abs(pdg)==41 ||
        abs(pdg)==42 ||
        (1000000<abs(pdg) && abs(pdg)<1000040) || // left-handed SUSY
-       (2000000<abs(pdg) && abs(pdg)<2000040) ) // right-handed SUSY
+       (2000000<abs(pdg) && abs(pdg)<2000040) || // right-handed SUSY
+       abs(pdg)==7 || abs(pdg)==8 || // 4th Generation
+       (abs(pdg)>=9000001 && abs(pdg)<=9000006) ) // Monotop from MadGraph
     return true;
 
   return false;

@@ -20,10 +20,10 @@
 #include "AthenaKernel/errorcheck.h"
 
 #include "Particle/TrackParticle.h"
-#include "egammaEvent/Electron.h"
-#include "egammaEvent/Photon.h"
-#include "muonEvent/Muon.h"
-#include "JetEvent/Jet.h"
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/Photon.h"
+#include "xAODMuon/Muon.h"
+#include "xAODJet/Jet.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
 #include <vector>
