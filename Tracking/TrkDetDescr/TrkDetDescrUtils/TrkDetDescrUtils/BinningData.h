@@ -73,11 +73,11 @@ namespace Trk {
   	    boundaries(bBoundaries),
   	    refphi(0.),
   	    hbounds(std::vector<std::pair<int,float> >()),
-            mixPtr( nullptr )
+            m_mixPtr( nullptr )
 	      {
-	        if (bType == Trk::equidistant) functionPtr = &searchEaquidstantWithBoundary;
-	        else if (bType == Trk::biequidistant) functionPtr = &searchBiequidistantWithBoundary;
-	        else functionPtr = bins < 50 ? &searchInVectorWithBoundary : &binarySearchWithBoundary;
+	        if (bType == Trk::equidistant) m_functionPtr = &searchEaquidstantWithBoundary;
+	        else if (bType == Trk::biequidistant) m_functionPtr = &searchBiequidistantWithBoundary;
+	        else m_functionPtr = bins < 50 ? &searchInVectorWithBoundary : &binarySearchWithBoundary;
 	      }
   
      /** Constructor for binH type : non-equidistant binning assumed */
@@ -95,8 +95,8 @@ namespace Trk {
        boundaries(std::vector<float>()),
        refphi(bRefPhi),
        hbounds(bBoundaries),
-       functionPtr( nullptr ),
-       mixPtr( &searchInVectorWithMixedBoundary )
+       m_functionPtr( nullptr ),
+       m_mixPtr( &searchInVectorWithMixedBoundary )
       {}
   	
      /** take the right float value - assumes the correct local position expression */
@@ -177,10 +177,10 @@ namespace Trk {
      }
   
      /** generic search - forwards to correct function pointer */
-     size_t search(float value) const { assert(functionPtr != nullptr); return (*functionPtr)(value, *this); }
+     size_t search(float value) const { assert(m_functionPtr != nullptr); return (*m_functionPtr)(value, *this); }
      
      /** generic search - forwards to correct function pointer */
-     size_t searchH(std::pair<double,double> value) const { assert(mixPtr != nullptr); return (*mixPtr)(value, *this); }
+     size_t searchH(std::pair<double,double> value) const { assert(m_mixPtr != nullptr); return (*m_mixPtr)(value, *this); }
      
      /** the entry bin */
      size_t entry(const Amg::Vector3D& position ) const {
@@ -268,8 +268,8 @@ namespace Trk {
      
    private:
      /** the pointer to the function to be used */
-     size_t (*functionPtr) (float, const BinningData&);
-     size_t (*mixPtr) (std::pair<float,float>, const BinningData&);
+     size_t (*m_functionPtr) (float, const BinningData&);
+     size_t (*m_mixPtr) (std::pair<float,float>, const BinningData&);
      
      /** Equidistant search : equidist 0 */
      static size_t searchEaquidstantWithBoundary(float value, const BinningData& bData) {
