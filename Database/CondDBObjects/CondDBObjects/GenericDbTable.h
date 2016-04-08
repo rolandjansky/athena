@@ -5,19 +5,16 @@
 #ifndef CONDDBOBJECTS_GENERICDBTABLE_H
 #define CONDDBOBJECTS_GENERICDBTABLE_H
 
-//<<<<<<<<<<< C++ include files
+
 #include <iostream>
 #include <vector>
 #include <string>
 #include <sstream>
 
-//<<<<<<<<<<< Athena include files
+
 #include "GaudiKernel/DataObject.h"
 
 typedef long long int64;
-
-using std::vector;
-using std::string;
 
 
 class GenericDbTable: public DataObject { 
@@ -55,7 +52,7 @@ class GenericDbTable: public DataObject {
  * @param n_columns is the number of columns of the table
  * @param n_rows is the number of rows that must be reserved (OPTIONAL)
 */
-   GenericDbTable(){isInitialized = false; numRows=0;}
+   GenericDbTable(){m_isInitialized = false; m_numRows=0;}
     
 /**
  * Default constructor. 
@@ -76,7 +73,7 @@ class GenericDbTable: public DataObject {
  * @param names is the reference to the vector returned
  * @return an error code 
 */
-   /* virtual */ int getNames(vector<string> &names) const;
+   /* virtual */ int getNames(std::vector<std::string> &names) const;
     
 /**
  * This method gets a vector containing the data types of all columns in the table
@@ -84,7 +81,7 @@ class GenericDbTable: public DataObject {
  * @param types is the reference to the vector returned
  * @return an error code 
 */
-   /* virtual */ int getTypes(vector<dataTypes> &types) const;
+   /* virtual */ int getTypes(std::vector<dataTypes> &types) const;
 
 /**
  * Get Null value for column
@@ -94,7 +91,7 @@ class GenericDbTable: public DataObject {
    /* virtual */ int getNull(unsigned n_column, long int &null) const;
    /* virtual */ int getNull(unsigned n_column, int64 &null) const;
    /* virtual */ int getNull(unsigned n_column, double &null) const;
-   /* virtual */ int getNull(unsigned n_column, string &null) const;   
+   /* virtual */ int getNull(unsigned n_column, std::string &null) const;   
 
 /**
  * This method defines the name for a specified column
@@ -103,7 +100,7 @@ class GenericDbTable: public DataObject {
  * @param name is a string with the name
  * @return an error code 
 */
-   /* virtual */ int setName(unsigned n_column, const string& name);
+   /* virtual */ int setName(unsigned n_column, const std::string& name);
 
 /**
  * This method defines the data type for a specified column
@@ -122,7 +119,7 @@ class GenericDbTable: public DataObject {
    /* virtual */ int setNull(unsigned n_column, const long int &null);
    /* virtual */ int setNull(unsigned n_column, const int64 &null);
    /* virtual */ int setNull(unsigned n_column, const double &null);
-   /* virtual */ int setNull(unsigned n_column, const string &null);
+   /* virtual */ int setNull(unsigned n_column, const std::string &null);
 
 /**
  * This method initializes a table created by the default constructor
@@ -142,7 +139,7 @@ class GenericDbTable: public DataObject {
  * @param values is the string that will be returned with the row elements
  * @return an error code that is to be defined yet
  */
-    /* virtual */ int getRow(unsigned rowNumber, vector<string> &values) const;
+    /* virtual */ int getRow(unsigned rowNumber, std::vector<std::string> &values) const;
 
    /**
     *  This method returns, for a given ID, the row number. In case that this table does not have id's returns -1  
@@ -205,7 +202,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the reference to the valriable where the value will be returned 
  * @return an error code 
 */
-    /* virtual */ int getCell(unsigned n_column, unsigned n_row, string &ndata) const;
+    /* virtual */ int getCell(unsigned n_column, unsigned n_row, std::string &ndata) const;
 
 /**
  * This method gets a value from a cell in a column of doubles
@@ -225,7 +222,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the reference to the valriable where the value will be returned 
  * @return an error code 
 */
-    /* virtual */ int getCell(unsigned n_column, unsigned n_row, vector<short int> &ndata) const;
+    /* virtual */ int getCell(unsigned n_column, unsigned n_row, std::vector<short int> &ndata) const;
 
 /**
  * This method gets a value from a cell in a column of vectors of long ints (int in MySQL - 4bytes)
@@ -235,7 +232,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the reference to the valriable where the value will be returned 
  * @return an error code 
 */
-    /* virtual */ int getCell(unsigned n_column, unsigned n_row, vector<long int> &ndata) const;
+    /* virtual */ int getCell(unsigned n_column, unsigned n_row, std::vector<long int> &ndata) const;
 
 /**
  * This method gets a value from a cell in a column of vectors of long long ints (bigint in MySQL - 8bytes)
@@ -245,7 +242,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the reference to the valriable where the value will be returned 
  * @return an error code 
 */
-    /* virtual */ int getCell(unsigned n_column, unsigned n_row, vector<int64> &ndata) const;
+    /* virtual */ int getCell(unsigned n_column, unsigned n_row, std::vector<int64> &ndata) const;
 
 /**
  * This method gets a value from a cell in a column of vectors of floats
@@ -255,7 +252,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the reference to the valriable where the value will be returned 
  * @return an error code 
 */
-    /* virtual */ int getCell(unsigned n_column, unsigned n_row, vector<float> &ndata) const;
+    /* virtual */ int getCell(unsigned n_column, unsigned n_row, std::vector<float> &ndata) const;
 
 /**
  * This method gets a value from a cell in a column of vector of strings
@@ -265,7 +262,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the reference to the valriable where the value will be returned 
  * @return an error code 
 */
-    /* virtual */ int getCell(unsigned n_column, unsigned n_row, vector<string> &ndata) const;
+    /* virtual */ int getCell(unsigned n_column, unsigned n_row, std::vector<std::string> &ndata) const;
 
 /**
  * This method gets a value from a cell in a column of vector of doubles
@@ -275,7 +272,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the reference to the valriable where the value will be returned 
  * @return an error code 
 */
-    /* virtual */ int getCell(unsigned n_column, unsigned n_row, vector<double> &ndata) const;
+    /* virtual */ int getCell(unsigned n_column, unsigned n_row, std::vector<double> &ndata) const;
 
 
 /**
@@ -297,7 +294,7 @@ class GenericDbTable: public DataObject {
    int getCell(std::string colName, unsigned int n_row, std::vector<int64> &data) const;
    int getCell(std::string colName, unsigned int n_row, std::vector<float> &data) const;
    int getCell(std::string colName, unsigned int n_row, std::vector<double> &data) const;
-   int getCell(std::string colName, unsigned int n_row, std::vector<string> &data) const;
+   int getCell(std::string colName, unsigned int n_row, std::vector<std::string> &data) const;
    
    
 
@@ -355,7 +352,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the new value to be assigned
  * @return an error code 
 */
-    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const string ndata);
+    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const std::string ndata);
 
 /**
  * This method changes a value from a cell in a column of doubles
@@ -375,7 +372,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the new array to be assigned
  * @return an error code 
 */
-    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const vector<short int> &ndata);
+    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const std::vector<short int> &ndata);
 
 /**
  * This method changes a value from a cell in a column of vectors of long ints
@@ -385,7 +382,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the new array to be assigned
  * @return an error code 
 */
-    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const vector<long int> &ndata);
+    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const std::vector<long int> &ndata);
 
 /**
  * This method changes a value from a cell in a column of vectors of long long ints
@@ -395,7 +392,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the new array to be assigned
  * @return an error code 
 */
-    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const vector<int64> &ndata);
+    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const std::vector<int64> &ndata);
 
 /**
  * This method changes a value from a cell in a column of vectors of floats
@@ -405,7 +402,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the new array to be assigned
  * @return an error code 
 */
-    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const vector<float> &ndata);
+    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const std::vector<float> &ndata);
 
 /**
  * This method changes a value from a cell in a column of vectors of strings
@@ -415,7 +412,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the new array to be assigned
  * @return an error code 
 */
-    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const vector<string> &ndata);
+    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const std::vector<std::string> &ndata);
 
 /**
  * This method changes a value from a cell in a column of vectors of doubles
@@ -425,7 +422,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the new array to be assigned
  * @return an error code 
 */
-    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const vector<double> &ndata);
+    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const std::vector<double> &ndata);
 
 
 /**
@@ -444,7 +441,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<short int> &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<short int> &data);
 
 /**
  * Insert a subset in a column of long ints
@@ -454,7 +451,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<long int> &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<long int> &data);
 
 /**
  * Insert a subset in a column of long long ints
@@ -464,7 +461,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<int64> &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<int64> &data);
 
 /**
  * Insert a subset in a column of floats
@@ -474,7 +471,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<float> &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<float> &data);
 
 /**
  * Insert a subset in a column of strings
@@ -484,7 +481,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<string> &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<std::string> &data);
 
 /**
  * Insert a subset in a column of doubles
@@ -494,7 +491,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<double> &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<double> &data);
 
 /**
  * Insert a subset in a column of vectors of bools
@@ -504,7 +501,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<vector<short int> > &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<std::vector<short int> > &data);
 
 /**
  * Insert a subset in a column of vectors of long ints
@@ -514,7 +511,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<vector<long int> > &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<std::vector<long int> > &data);
 
 /**
  * Insert a subset in a column of vectors of long long ints
@@ -524,7 +521,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<vector<int64> > &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<std::vector<int64> > &data);
 
 /**
  * Insert a subset in a column of vectors of floats
@@ -534,7 +531,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<vector<float> > &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<std::vector<float> > &data);
 
 /**
  * Insert a subset in a column of vectors of strings
@@ -544,7 +541,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<vector<string> > &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<std::vector<std::string> > &data);
 
 /**
  * Insert a subset in a column of vectors of doubles
@@ -554,7 +551,7 @@ class GenericDbTable: public DataObject {
  * @return the number of values inserted 
  * @see getNames(); getTypes()
  */
-    /* virtual */ int setColumndata(unsigned n_column, const vector<vector<double> > &data);
+    /* virtual */ int setColumndata(unsigned n_column, const std::vector<std::vector<double> > &data);
 
 
 /**
@@ -571,7 +568,7 @@ class GenericDbTable: public DataObject {
  *
  * @return number of rows reserved.
  */
-    /* virtual */ unsigned getNumRows() const {return numRows;}
+    /* virtual */ unsigned getNumRows() const {return m_numRows;}
 
 /**
  * Returns the number of columns in the table.
@@ -579,13 +576,12 @@ class GenericDbTable: public DataObject {
  *
  * @return number of rows reserved.
  */
-    /* virtual */ unsigned getNumColumns() const  {return conddbtable.size();}
+    /* virtual */ unsigned getNumColumns() const  {return m_conddbtable.size();}
 
 
  private:
 
 
-   //<<<<<<<<<<<<<<< PRIVATE METHODS >>>>>>>>>>>>>>>>>
    
    /**
     * Templated method for handling the null values
@@ -667,76 +663,76 @@ std::string ToString( const TYPE & t ) const {
  struct CondDBColumn{
    virtual ~CondDBColumn() {}
    bool initialized;
-   string name;
+   std::string name;
    dataTypes type;
 
  };
 
  struct CondDBColumnBool:CondDBColumn
  {
-   vector<short int> column;
+   std::vector<short int> column;
  };
 
  struct CondDBColumnLong:CondDBColumn
  {
-   vector<int64> column;
+   std::vector<int64> column;
  };
 
 
  struct CondDBColumnInt:CondDBColumn
  {
-   vector<long int> column;
+   std::vector<long int> column;
  };
 
  struct CondDBColumnFloat:CondDBColumn
  {
-   vector<float> column;
+   std::vector<float> column;
  };
 
  struct CondDBColumnString:CondDBColumn
  {
-   vector<string> column;
+   std::vector<std::string> column;
  };
 
  struct CondDBColumnDouble:CondDBColumn
  {
-   vector<double> column;
+   std::vector<double> column;
  };
 
  struct CondDBColumnArrayBool:CondDBColumn
  {
-   vector<vector<short int> > column;
+   std::vector<std::vector<short int> > column;
  };
 
  struct CondDBColumnArrayLong:CondDBColumn
  {
-   vector<vector<int64> > column;
+   std::vector<std::vector<int64> > column;
  };
 
  struct CondDBColumnArrayInt:CondDBColumn
  {
-   vector<vector<long int> > column;
+   std::vector<std::vector<long int> > column;
  };
 
  struct CondDBColumnArrayFloat:CondDBColumn
  {
-   vector<vector<float> > column;
+   std::vector<std::vector<float> > column;
  };
 
  struct CondDBColumnArrayString:CondDBColumn
  {
-   vector<vector<string> > column;
+   std::vector<std::vector<std::string> > column;
  };
 
  struct CondDBColumnArrayDouble:CondDBColumn
  {
-   vector<vector<double> > column;
+   std::vector<std::vector<double> > column;
  };
 
     
-    bool isInitialized;
-    vector<CondDBColumn*> conddbtable;
-    unsigned numRows;
+    bool m_isInitialized;
+    std::vector<CondDBColumn*> m_conddbtable;
+    unsigned m_numRows;
 
 };
 

@@ -21,21 +21,23 @@
 
 using std::cerr;
 using std::endl;
+using std::string;
+using std::vector;
 
-GenericDbTable::GenericDbTable(unsigned n_columns, int n_rows):numRows(n_rows)
+GenericDbTable::GenericDbTable(unsigned n_columns, int n_rows):m_numRows(n_rows)
 {
   
-  numRows=0;
-  isInitialized = false;
+  m_numRows=0;
+  m_isInitialized = false;
   unsigned i;
   
   for (i=0;i<n_columns; i++)
-    conddbtable.push_back(new CondDBColumn);
+    m_conddbtable.push_back(new CondDBColumn);
   
-  for (i = 0; i<conddbtable.size(); i++ )
+  for (i = 0; i<m_conddbtable.size(); i++ )
     {
-      conddbtable[i]->initialized = false; 
-      conddbtable[i]->type = kNull;
+      m_conddbtable[i]->initialized = false; 
+      m_conddbtable[i]->type = kNull;
     }
   
   if (n_rows)
@@ -49,9 +51,9 @@ GenericDbTable::GenericDbTable(unsigned n_columns, int n_rows):numRows(n_rows)
 
 GenericDbTable::~GenericDbTable()
 {
-    for (unsigned i=0; i< conddbtable.size(); i++)
+    for (unsigned i=0; i< m_conddbtable.size(); i++)
     {
-	delete conddbtable[i];
+	delete m_conddbtable[i];
     }
 }
 
@@ -59,16 +61,16 @@ void GenericDbTable::Initialize(unsigned n_columns, int n_rows)
 {
     unsigned i;
 
-    if (conddbtable.size() > 0 || isInitialized == true)
+    if (m_conddbtable.size() > 0 || m_isInitialized == true)
 	return;
     
     for (i=0;i<n_columns; i++)
-	conddbtable.push_back(new CondDBColumn);
+	m_conddbtable.push_back(new CondDBColumn);
     
-    for (i = 0; i<conddbtable.size(); i++ )
+    for (i = 0; i<m_conddbtable.size(); i++ )
     {
-	conddbtable[i]->initialized = false; 
-	conddbtable[i]->type = kNull;
+	m_conddbtable[i]->initialized = false; 
+	m_conddbtable[i]->type = kNull;
     }
 
     if (n_rows)
@@ -81,12 +83,12 @@ void GenericDbTable::Initialize(unsigned n_columns, int n_rows)
 
 int GenericDbTable::getNames(vector<string> &names) const 
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    for (unsigned i = 0; i < conddbtable.size(); i++)
+    for (unsigned i = 0; i < m_conddbtable.size(); i++)
     {
-	names.push_back(conddbtable[i]->name);
+	names.push_back(m_conddbtable[i]->name);
     }
 
     return 0;
@@ -94,12 +96,12 @@ int GenericDbTable::getNames(vector<string> &names) const
 
 int GenericDbTable::getTypes(vector<dataTypes> &types) const
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    for (unsigned i = 0; i < conddbtable.size(); i++)
+    for (unsigned i = 0; i < m_conddbtable.size(); i++)
     {
-	types.push_back(conddbtable[i]->type);
+	types.push_back(m_conddbtable[i]->type);
     }
     return 0;
 }
@@ -119,7 +121,7 @@ int GenericDbTable::getRowID(std::string &pID) const
     if (ncolumn == names.size())
       return -1;
 
-    CondDBColumnString *dcolumn = static_cast<CondDBColumnString*>(conddbtable[ncolumn]);
+    CondDBColumnString *dcolumn = static_cast<CondDBColumnString*>(m_conddbtable[ncolumn]);
 
     for (unsigned int i = 0; i < dcolumn->column.size(); i++) {
       if (dcolumn->column[i] == pID) {
@@ -135,22 +137,22 @@ int GenericDbTable::getRowID(std::string &pID) const
 // when the argument is a string there must be done a spetial treatment
 int GenericDbTable::getNull(unsigned n_column, string &null) const
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
 
-    if (conddbtable.size() > n_column)
+    if (m_conddbtable.size() > n_column)
     {
-	switch (conddbtable[n_column]->type)
+	switch (m_conddbtable[n_column]->type)
 	{
 	    case kString:
 	    {
-		CondDBColumnString *tmpColumn = static_cast<CondDBColumnString*>(conddbtable[n_column]);
+		CondDBColumnString *tmpColumn = static_cast<CondDBColumnString*>(m_conddbtable[n_column]);
 		return __getNull(null, tmpColumn);
 	    }
 	    case kArrayString:
 	    {
 		vector<string> tmp;
-		CondDBColumnArrayString *tmpColumn = static_cast<CondDBColumnArrayString*>(conddbtable[n_column]);
+		CondDBColumnArrayString *tmpColumn = static_cast<CondDBColumnArrayString*>(m_conddbtable[n_column]);
 		 __getNull(tmp, tmpColumn);
 		 null = tmp[0]; 
 		 return CDB_SUCCESS;
@@ -158,7 +160,7 @@ int GenericDbTable::getNull(unsigned n_column, string &null) const
 	    case kFloat:
 	    {
 		float tmp;
-		CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(conddbtable[n_column]);
+		CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(m_conddbtable[n_column]);
 		__getNull(tmp, tmpColumn);
 		null = ToString<float>(tmp);
 		return CDB_SUCCESS;
@@ -166,7 +168,7 @@ int GenericDbTable::getNull(unsigned n_column, string &null) const
 	    case kArrayFloat:
 	    {
 		vector<float> tmp;
-		CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(conddbtable[n_column]);
+		CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(m_conddbtable[n_column]);
 		__getNull(tmp, tmpColumn);
 		null = ToString<float>(tmp[0]);
 		return CDB_SUCCESS;
@@ -174,7 +176,7 @@ int GenericDbTable::getNull(unsigned n_column, string &null) const
 	    case kInt:
 	    {
 		long int tmp;
-		CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(conddbtable[n_column]);
+		CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(m_conddbtable[n_column]);
 		__getNull(tmp, tmpColumn);
 		null = ToString<float>(tmp);
 		return CDB_SUCCESS;
@@ -182,7 +184,7 @@ int GenericDbTable::getNull(unsigned n_column, string &null) const
 	    case kArrayInt:
 	    {
 		vector<long int> tmp;
-		CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(conddbtable[n_column]);
+		CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(m_conddbtable[n_column]);
 		__getNull(tmp, tmpColumn);
 		null = ToString(tmp[0]);
 		return CDB_SUCCESS;
@@ -190,7 +192,7 @@ int GenericDbTable::getNull(unsigned n_column, string &null) const
 	    case kDouble:
 	    {
 		double tmp;
-		CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(conddbtable[n_column]);
+		CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(m_conddbtable[n_column]);
 		__getNull(tmp, tmpColumn);
 		null = ToString(tmp);
 		return CDB_SUCCESS;
@@ -198,7 +200,7 @@ int GenericDbTable::getNull(unsigned n_column, string &null) const
 	    case kArrayDouble:
 	    {
 		vector<double> tmp;
-		CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(conddbtable[n_column]);
+		CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(m_conddbtable[n_column]);
 		__getNull(tmp, tmpColumn);
 		null = ToString(tmp[0]);
 		return CDB_SUCCESS;
@@ -206,7 +208,7 @@ int GenericDbTable::getNull(unsigned n_column, string &null) const
 	    case kLongLong:
 	    {
 		int64 tmp;
-		CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(conddbtable[n_column]);
+		CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(m_conddbtable[n_column]);
 		__getNull(tmp, tmpColumn);
 		null = ToString(tmp);
 		return CDB_SUCCESS;
@@ -214,7 +216,7 @@ int GenericDbTable::getNull(unsigned n_column, string &null) const
 	    case kArrayLongLong:
 	    {
 		vector<int64> tmp;
-		CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(conddbtable[n_column]);
+		CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(m_conddbtable[n_column]);
 		__getNull(tmp, tmpColumn);
 		null = ToString(tmp[0]);
 		return CDB_SUCCESS;
@@ -235,19 +237,19 @@ int GenericDbTable::getNull(unsigned n_column, string &null) const
 
 int GenericDbTable::getNull(unsigned n_column, float &null) const
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    if (conddbtable.size() > n_column)
-	if (conddbtable[n_column]->type == kFloat)
+    if (m_conddbtable.size() > n_column)
+	if (m_conddbtable[n_column]->type == kFloat)
 	{
-	    CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(conddbtable[n_column]);
+	    CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(m_conddbtable[n_column]);
 	    return __getNull(null, tmpColumn);
 	}
-	else if ( conddbtable[n_column]->type == kArrayFloat)
+	else if ( m_conddbtable[n_column]->type == kArrayFloat)
 	    {
 		vector<float> tmp;
-		CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(conddbtable[n_column]);
+		CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(m_conddbtable[n_column]);
 		__getNull(tmp, tmpColumn);
 		null=tmp[0];
 		return CDB_SUCCESS;
@@ -260,19 +262,19 @@ int GenericDbTable::getNull(unsigned n_column, float &null) const
 
 int GenericDbTable::getNull(unsigned n_column, long int &null) const
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    if (conddbtable.size() > n_column)
-	if (conddbtable[n_column]->type == kInt)
+    if (m_conddbtable.size() > n_column)
+	if (m_conddbtable[n_column]->type == kInt)
 	{
-	    CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(conddbtable[n_column]);
+	    CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(m_conddbtable[n_column]);
 	    return __getNull(null, tmpColumn);
 	}
-	else if (conddbtable[n_column]->type == kArrayInt)
+	else if (m_conddbtable[n_column]->type == kArrayInt)
 	{
 	    vector<long int> tmp; 
-	    CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(conddbtable[n_column]);
+	    CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(m_conddbtable[n_column]);
 	    __getNull(tmp, tmpColumn);
 	    return CDB_SUCCESS;
 	}
@@ -284,19 +286,19 @@ int GenericDbTable::getNull(unsigned n_column, long int &null) const
 
 int GenericDbTable::getNull(unsigned n_column, double &null) const
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    if (conddbtable.size() > n_column)
-	if (conddbtable[n_column]->type == kDouble)
+    if (m_conddbtable.size() > n_column)
+	if (m_conddbtable[n_column]->type == kDouble)
 	{
-	    CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(conddbtable[n_column]);
+	    CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(m_conddbtable[n_column]);
 	    return __getNull(null, tmpColumn);
 	}
-	else if (conddbtable[n_column]->type == kArrayDouble)
+	else if (m_conddbtable[n_column]->type == kArrayDouble)
 	{
 	    vector<double> tmp;
-	    CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(conddbtable[n_column]);
+	    CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(m_conddbtable[n_column]);
 	    __getNull(tmp, tmpColumn);
 	    null = tmp[0];
 	    return CDB_SUCCESS;
@@ -309,19 +311,19 @@ int GenericDbTable::getNull(unsigned n_column, double &null) const
 
 int GenericDbTable::getNull(unsigned n_column, int64 &null) const
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    if (conddbtable.size() > n_column)
-	if (conddbtable[n_column]->type == kLongLong)
+    if (m_conddbtable.size() > n_column)
+	if (m_conddbtable[n_column]->type == kLongLong)
 	{
-	    CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(conddbtable[n_column]);
+	    CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(m_conddbtable[n_column]);
 	    return __getNull(null, tmpColumn);
 	}
-	else if ( conddbtable[n_column]->type == kArrayLongLong)
+	else if ( m_conddbtable[n_column]->type == kArrayLongLong)
 	{
 	    vector<int64> tmp;
-	    CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(conddbtable[n_column]);
+	    CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(m_conddbtable[n_column]);
 	    __getNull(tmp, tmpColumn);
 	    null = tmp[0];
 	    return CDB_SUCCESS;
@@ -335,13 +337,13 @@ int GenericDbTable::getNull(unsigned n_column, int64 &null) const
 
 int GenericDbTable::setName(unsigned n_column, const string& name) 
 {
-    if (conddbtable.size() > n_column)
-	if (conddbtable[n_column]->name.size() == 0)
+    if (m_conddbtable.size() > n_column)
+	if (m_conddbtable[n_column]->name.size() == 0)
 	{
-	    conddbtable[n_column]->name = name;
-	    if (conddbtable[n_column]->type != kNull) 
+	    m_conddbtable[n_column]->name = name;
+	    if (m_conddbtable[n_column]->type != kNull) 
 	    {	
-		conddbtable[n_column]->initialized = true;
+		m_conddbtable[n_column]->initialized = true;
 		verifyInitialization();
 	    }
 	}
@@ -354,167 +356,167 @@ int GenericDbTable::setName(unsigned n_column, const string& name)
 
 int GenericDbTable::setType(unsigned n_column, dataTypes type)
 {
-    if (conddbtable.size() > n_column)
-	if (conddbtable[n_column]->type == kNull)
+    if (m_conddbtable.size() > n_column)
+	if (m_conddbtable[n_column]->type == kNull)
 	{
-	    conddbtable[n_column]->type = type;
+	    m_conddbtable[n_column]->type = type;
 	    
 	    switch (type)
 	    {
 		case kBool:
 		{
 		    CondDBColumnBool * tmpColumn = new CondDBColumnBool;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    tmpColumn->column.push_back(-1);
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
 		    
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}   
 		case kInt:
 		{
 		    CondDBColumnInt * tmpColumn = new CondDBColumnInt;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    tmpColumn->column.push_back(NULLINT);
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}   
 		case kLongLong:
 		{
 		    CondDBColumnLong * tmpColumn = new CondDBColumnLong;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    tmpColumn->column.push_back(NULLLONG);
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}   
 
 		case kFloat:
 		{
 		    CondDBColumnFloat * tmpColumn = new CondDBColumnFloat;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    tmpColumn->column.push_back(NULLFLOAT);
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}
 		case kString:
 		{
 		    CondDBColumnString * tmpColumn = new CondDBColumnString;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    tmpColumn->column.push_back("NULL");
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
 
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}
 		case kDouble:
 		{
 		    CondDBColumnDouble * tmpColumn = new CondDBColumnDouble;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    tmpColumn->column.push_back(NULLDOUBLE);
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
 
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}
 		case kArrayInt:
 		{		 
 		    CondDBColumnArrayInt * tmpColumn = new CondDBColumnArrayInt;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    vector<long int> tmp;
 		    tmp.push_back(NULLINT);
 		    tmpColumn->column.push_back(tmp);
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}
 		case kArrayLongLong:
 		{		 
 		    CondDBColumnArrayLong * tmpColumn = new CondDBColumnArrayLong;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    vector<int64> tmp;
 		    tmp.push_back(NULLLONG);
 		    tmpColumn->column.push_back(tmp);
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}
 		case kArrayBool:
 		{		 
 		    CondDBColumnArrayBool * tmpColumn = new CondDBColumnArrayBool;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    vector<short int> tmp;
 		    tmp.push_back(-1);
 		    tmpColumn->column.push_back(tmp);
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}
 		case kArrayFloat:
 		{
 		    CondDBColumnArrayFloat * tmpColumn = new CondDBColumnArrayFloat;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    vector<float> tmp;
 		    tmp.push_back(NULLFLOAT);
 		    tmpColumn->column.push_back(tmp);
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}
 		case kArrayString:
 		{
 		    CondDBColumnArrayString * tmpColumn = new CondDBColumnArrayString;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    vector<string> tmp;
 		    tmp.push_back("NULL");
 		    tmpColumn->column.push_back(tmp);
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}
 		case kArrayDouble:
 		{
 		    CondDBColumnArrayDouble * tmpColumn = new CondDBColumnArrayDouble;
-		    tmpColumn->type = conddbtable[n_column]->type;
+		    tmpColumn->type = m_conddbtable[n_column]->type;
 		    vector<double> tmp;
 		    tmp.push_back(NULLDOUBLE);
 		    tmpColumn->column.push_back(tmp);
-		    if ((conddbtable[n_column]->name.size()))
-			tmpColumn->name = conddbtable[n_column]->name;
-		    delete(conddbtable[n_column]);
-		    conddbtable[n_column] = tmpColumn;
+		    if ((m_conddbtable[n_column]->name.size()))
+			tmpColumn->name = m_conddbtable[n_column]->name;
+		    delete(m_conddbtable[n_column]);
+		    m_conddbtable[n_column] = tmpColumn;
 		    break;
 		}
 		default : break;
 	    }
 
-	    if (conddbtable[n_column]->name.size() != 0)
+	    if (m_conddbtable[n_column]->name.size() != 0)
 	    {
-		conddbtable[n_column]->initialized = true;
+		m_conddbtable[n_column]->initialized = true;
 		verifyInitialization();
 	    }
 	}
@@ -528,43 +530,43 @@ int GenericDbTable::setType(unsigned n_column, dataTypes type)
 
 int GenericDbTable::setNull(unsigned n_column, const string &null)
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    if (conddbtable.size() > n_column)
-	switch (conddbtable[n_column]->type)
+    if (m_conddbtable.size() > n_column)
+	switch (m_conddbtable[n_column]->type)
 	{
 	    case kString:
 	    {
-		static_cast<CondDBColumnString*>(conddbtable[n_column])->column[0] = null;
+		static_cast<CondDBColumnString*>(m_conddbtable[n_column])->column[0] = null;
 		return CDB_SUCCESS;
 	    }
 	    case kArrayString:
 	    {
 		vector<string> tmp(1,null);
-		static_cast<CondDBColumnArrayString*>(conddbtable[n_column])->column[0] = tmp;
+		static_cast<CondDBColumnArrayString*>(m_conddbtable[n_column])->column[0] = tmp;
 		return CDB_SUCCESS;
 	    }
 	    case kFloat:
 	    {
-		static_cast<CondDBColumnFloat*>(conddbtable[n_column])->column[0] = atof(null.c_str());
+		static_cast<CondDBColumnFloat*>(m_conddbtable[n_column])->column[0] = atof(null.c_str());
 		return CDB_SUCCESS;
 	    }
 	    case kArrayFloat:
 	    {
 		vector<float> tmp(1,atof(null.c_str()));
-		static_cast<CondDBColumnArrayFloat*>(conddbtable[n_column])->column[0] = tmp;
+		static_cast<CondDBColumnArrayFloat*>(m_conddbtable[n_column])->column[0] = tmp;
 		return CDB_SUCCESS;
 	    }
 	    case kInt:
 	    {
-		static_cast<CondDBColumnInt*>(conddbtable[n_column])->column[0] = atol(null.c_str());
+		static_cast<CondDBColumnInt*>(m_conddbtable[n_column])->column[0] = atol(null.c_str());
 		return CDB_SUCCESS;
 	    }
 	    case kArrayInt:
 	    {
 		vector<long int> tmp(1,atol(null.c_str()));
-		static_cast<CondDBColumnArrayInt*>(conddbtable[n_column])->column[0] = tmp;
+		static_cast<CondDBColumnArrayInt*>(m_conddbtable[n_column])->column[0] = tmp;
 		return CDB_SUCCESS;
 	    }
 	    case kBool:
@@ -574,24 +576,24 @@ int GenericDbTable::setNull(unsigned n_column, const string &null)
 	    }
 	    case kLongLong:
 	    {
-		static_cast<CondDBColumnString*>(conddbtable[n_column])->column[0] = atoi64(null.c_str());
+		static_cast<CondDBColumnString*>(m_conddbtable[n_column])->column[0] = atoi64(null.c_str());
 		return CDB_SUCCESS;
 	    }
 	    case kArrayLongLong:
 	    {
 		vector<int64> tmp(1,atoi64(null.c_str()));
-		static_cast<CondDBColumnArrayLong*>(conddbtable[n_column])->column[0] = tmp;
+		static_cast<CondDBColumnArrayLong*>(m_conddbtable[n_column])->column[0] = tmp;
 		return CDB_SUCCESS;
 	    }
 	    case kDouble:
 	    {
-		static_cast<CondDBColumnDouble*>(conddbtable[n_column])->column[0] = atof(null.c_str());
+		static_cast<CondDBColumnDouble*>(m_conddbtable[n_column])->column[0] = atof(null.c_str());
 		return CDB_SUCCESS;
 	    }
 	    case kArrayDouble:
 	    {
 		vector<double> tmp(1,atof(null.c_str()));
-		static_cast<CondDBColumnArrayDouble*>(conddbtable[n_column])->column[0] = tmp;
+		static_cast<CondDBColumnArrayDouble*>(m_conddbtable[n_column])->column[0] = tmp;
 		return CDB_SUCCESS;
 	    }
 	    default:
@@ -603,19 +605,19 @@ int GenericDbTable::setNull(unsigned n_column, const string &null)
 
 int GenericDbTable::setNull(unsigned n_column, const long int &null)
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    if (conddbtable.size() > n_column)
-	if (conddbtable[n_column]->type == kInt)
+    if (m_conddbtable.size() > n_column)
+	if (m_conddbtable[n_column]->type == kInt)
 	{
-	    static_cast<CondDBColumnInt*>(conddbtable[n_column])->column[0] = null;
+	    static_cast<CondDBColumnInt*>(m_conddbtable[n_column])->column[0] = null;
 	    return CDB_SUCCESS;
 	}
-	else if (conddbtable[n_column]->type == kArrayInt)
+	else if (m_conddbtable[n_column]->type == kArrayInt)
 	{
 	    vector<long int> tmp(1,null);
-	    static_cast<CondDBColumnArrayInt*>(conddbtable[n_column])->column[0] = tmp;
+	    static_cast<CondDBColumnArrayInt*>(m_conddbtable[n_column])->column[0] = tmp;
 	    return CDB_SUCCESS;
 	}  
 	else
@@ -626,19 +628,19 @@ int GenericDbTable::setNull(unsigned n_column, const long int &null)
 
 int GenericDbTable::setNull(unsigned n_column, const int64 &null)
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    if (conddbtable.size() > n_column)
-	if (conddbtable[n_column]->type == kLongLong )
+    if (m_conddbtable.size() > n_column)
+	if (m_conddbtable[n_column]->type == kLongLong )
 	{
-	    static_cast<CondDBColumnLong*>(conddbtable[n_column])->column[0] = null;
+	    static_cast<CondDBColumnLong*>(m_conddbtable[n_column])->column[0] = null;
 	    return CDB_SUCCESS;
 	}
-	else if (conddbtable[n_column]->type == kArrayLongLong)
+	else if (m_conddbtable[n_column]->type == kArrayLongLong)
 	{
 	    vector<int64> tmp(1,null);
-	    static_cast<CondDBColumnArrayLong*>(conddbtable[n_column])->column[0] = tmp;
+	    static_cast<CondDBColumnArrayLong*>(m_conddbtable[n_column])->column[0] = tmp;
 	    return CDB_SUCCESS;
 	}
 	else
@@ -649,19 +651,19 @@ int GenericDbTable::setNull(unsigned n_column, const int64 &null)
 
 int GenericDbTable::setNull(unsigned n_column, const float &null)
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    if (conddbtable.size() > n_column)
-	if (conddbtable[n_column]->type == kFloat )
+    if (m_conddbtable.size() > n_column)
+	if (m_conddbtable[n_column]->type == kFloat )
 	{
-	    static_cast<CondDBColumnFloat*>(conddbtable[n_column])->column[0] = null;
+	    static_cast<CondDBColumnFloat*>(m_conddbtable[n_column])->column[0] = null;
 	    return CDB_SUCCESS;
 	}
-	else if (conddbtable[n_column]->type == kArrayFloat)
+	else if (m_conddbtable[n_column]->type == kArrayFloat)
 	{
 	    vector<float>  tmp(1,null);
-	    static_cast<CondDBColumnArrayFloat*>(conddbtable[n_column])->column[0] = tmp;
+	    static_cast<CondDBColumnArrayFloat*>(m_conddbtable[n_column])->column[0] = tmp;
 	    return CDB_SUCCESS;
 	}
 	else
@@ -672,19 +674,19 @@ int GenericDbTable::setNull(unsigned n_column, const float &null)
 
 int GenericDbTable::setNull(unsigned n_column, const double &null)
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    if (conddbtable.size() > n_column)
-	if (conddbtable[n_column]->type == kDouble || conddbtable[n_column]->type == kArrayDouble)
+    if (m_conddbtable.size() > n_column)
+	if (m_conddbtable[n_column]->type == kDouble || m_conddbtable[n_column]->type == kArrayDouble)
 	{
-	    static_cast<CondDBColumnDouble*>(conddbtable[n_column])->column[0] = null;
+	    static_cast<CondDBColumnDouble*>(m_conddbtable[n_column])->column[0] = null;
 	    return CDB_SUCCESS;
 	}
-	else if (conddbtable[n_column]->type == kArrayDouble)
+	else if (m_conddbtable[n_column]->type == kArrayDouble)
 	{
 	    vector<double> tmp(1, null);
-	    static_cast<CondDBColumnArrayDouble*>(conddbtable[n_column])->column[0] = tmp;
+	    static_cast<CondDBColumnArrayDouble*>(m_conddbtable[n_column])->column[0] = tmp;
 	    return CDB_SUCCESS;
 	}
 	else
@@ -698,26 +700,26 @@ int GenericDbTable::setNull(unsigned n_column, const double &null)
 
 int GenericDbTable::getCell(unsigned n_column, unsigned n_row, long int &ndata) const
 {
-    CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(conddbtable[n_column]);
+    CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(m_conddbtable[n_column]);
     return __getCell(n_column, n_row, ndata, kInt, tmpColumn); 
 }
 
 int GenericDbTable::getCell(unsigned n_column, unsigned n_row, short int &ndata) const
 {
-    CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(conddbtable[n_column]);
+    CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(m_conddbtable[n_column]);
     return __getCell(n_column, n_row, ndata, kBool, tmpColumn); 
 }
 
 int GenericDbTable::getCell(unsigned n_column, unsigned n_row, int64 &ndata) const
 {
-    CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(conddbtable[n_column]);
+    CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(m_conddbtable[n_column]);
     return __getCell(n_column, n_row, ndata, kLongLong, tmpColumn); 
 }
 
 
 int GenericDbTable::getCell(unsigned n_column, unsigned n_row, float &ndata) const
 {
-    CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(conddbtable[n_column]);
+    CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(m_conddbtable[n_column]);
     return __getCell(n_column, n_row, ndata, kFloat, tmpColumn); 
 }
 
@@ -726,22 +728,22 @@ int GenericDbTable::getCell(unsigned n_column, unsigned n_row, string &ndata) co
 
   int status;
   
-  if (!isInitialized)
+  if (!m_isInitialized)
     return CDB_NOT_INITIALIZED;
   
-  if ((numRows > n_row) && (conddbtable.size() > n_column))
+  if ((m_numRows > n_row) && (m_conddbtable.size() > n_column))
     {
-      if (conddbtable[n_column]->type == kString) {
-	CondDBColumnString *tmpColumn = static_cast<CondDBColumnString*>(conddbtable[n_column]);
+      if (m_conddbtable[n_column]->type == kString) {
+	CondDBColumnString *tmpColumn = static_cast<CondDBColumnString*>(m_conddbtable[n_column]);
 	return __getCell(n_column, n_row, ndata, kString, tmpColumn); 
       }
       else {
-	switch(conddbtable[n_column]->type)
+	switch(m_conddbtable[n_column]->type)
 	  {
 	  case kInt:
 	    {
 	      long int aux;
-	      CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(conddbtable[n_column]);
+	      CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(m_conddbtable[n_column]);
 	      status = __getCell(n_column, n_row, aux , kInt, tmpColumn);
 	      if (status == CDB_SUCCESS)
 		ndata = ToString(aux);
@@ -750,7 +752,7 @@ int GenericDbTable::getCell(unsigned n_column, unsigned n_row, string &ndata) co
 	  case kBool:
 	    {
 	      short int aux;
-	      CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(conddbtable[n_column]);
+	      CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(m_conddbtable[n_column]);
 	      status =  __getCell(n_column, n_row, aux, kBool, tmpColumn);
 	      if (status == CDB_SUCCESS)
 		ndata = ToString(aux);
@@ -760,7 +762,7 @@ int GenericDbTable::getCell(unsigned n_column, unsigned n_row, string &ndata) co
 	  case kLongLong:
 	    {
 	      long long aux;
-	      CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(conddbtable[n_column]);
+	      CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(m_conddbtable[n_column]);
 	      status = __getCell(n_column,n_row, aux, kLongLong, tmpColumn);
 	      if (status == CDB_SUCCESS)
 		ndata = ToString(aux);
@@ -770,7 +772,7 @@ int GenericDbTable::getCell(unsigned n_column, unsigned n_row, string &ndata) co
 	    {
 	     float aux;
 	     
-	     CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(conddbtable[n_column]);
+	     CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(m_conddbtable[n_column]);
 	     status = __getCell(n_column,n_row, aux, kFloat, tmpColumn);
 	     if (status == CDB_SUCCESS)
 	       ndata = ToString(aux);
@@ -779,7 +781,7 @@ int GenericDbTable::getCell(unsigned n_column, unsigned n_row, string &ndata) co
 	  case kDouble:
 	    {
 	      double aux;
-	      CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(conddbtable[n_column]);
+	      CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(m_conddbtable[n_column]);
 	      status = __getCell(n_column,n_row,aux,kDouble, tmpColumn);
 	      if (status == CDB_SUCCESS)
 		ndata = ToString(aux);
@@ -800,43 +802,43 @@ int GenericDbTable::getCell(unsigned n_column, unsigned n_row, string &ndata) co
     
 int GenericDbTable::getCell(unsigned n_column, unsigned n_row, double &ndata) const
 {
-    CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(conddbtable[n_column]);
+    CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(m_conddbtable[n_column]);
     return __getCell(n_column, n_row, ndata, kDouble, tmpColumn); 
 }
 
 int GenericDbTable::getCell(unsigned n_column, unsigned n_row, vector<long int> &ndata) const 
 {
-    CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(conddbtable[n_column]);
+    CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(m_conddbtable[n_column]);
     return __getCell(n_column, n_row, ndata, kArrayInt, tmpColumn); 
 }
 
 int GenericDbTable::getCell(unsigned n_column, unsigned n_row, vector<short int> &ndata) const
 { 
-    CondDBColumnArrayBool *tmpColumn = static_cast<CondDBColumnArrayBool*>(conddbtable[n_column]);
+    CondDBColumnArrayBool *tmpColumn = static_cast<CondDBColumnArrayBool*>(m_conddbtable[n_column]);
     return __getCell(n_column, n_row, ndata, kArrayBool, tmpColumn); 
 }
 
 int GenericDbTable::getCell(unsigned n_column, unsigned n_row, vector<int64> &ndata) const
 { 
-    CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(conddbtable[n_column]);
+    CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(m_conddbtable[n_column]);
     return __getCell(n_column, n_row, ndata, kArrayLongLong, tmpColumn); 
 }
 
 int GenericDbTable::getCell(unsigned n_column, unsigned n_row, vector<float> &ndata) const
 { 
-    CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(conddbtable[n_column]);
+    CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(m_conddbtable[n_column]);
     return __getCell(n_column, n_row, ndata, kArrayFloat, tmpColumn); 
 }
 
 int GenericDbTable::getCell(unsigned n_column, unsigned n_row, vector<string> &ndata) const
 { 
-    CondDBColumnArrayString *tmpColumn = static_cast<CondDBColumnArrayString*>(conddbtable[n_column]);
+    CondDBColumnArrayString *tmpColumn = static_cast<CondDBColumnArrayString*>(m_conddbtable[n_column]);
     return __getCell(n_column, n_row, ndata, kArrayString, tmpColumn); 
 }
 
 int GenericDbTable::getCell(unsigned n_column, unsigned n_row, vector<double> &ndata) const
 { 
-    CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(conddbtable[n_column]);
+    CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(m_conddbtable[n_column]);
     return __getCell(n_column, n_row, ndata, kArrayDouble, tmpColumn); 
 }
 
@@ -901,55 +903,55 @@ int GenericDbTable::getCell(std::string colName, unsigned int n_row, std::vector
 // public members
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const long int ndata) 
 {
-    CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(conddbtable[n_column]);
+    CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(m_conddbtable[n_column]);
     return __setCell(n_column, n_row, ndata, kInt, tmpColumn);
 }
 
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const short int ndata) 
 {
-    CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(conddbtable[n_column]);
+    CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(m_conddbtable[n_column]);
     return __setCell(n_column, n_row, ndata, kBool, tmpColumn);
 }
 
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const int64 ndata) 
 {
-    CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(conddbtable[n_column]);
+    CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(m_conddbtable[n_column]);
     return __setCell(n_column, n_row, ndata, kLongLong, tmpColumn);
 }
 
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row,const float ndata) 
 {
-    CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(conddbtable[n_column]);
+    CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(m_conddbtable[n_column]);
     return __setCell(n_column, n_row, ndata, kFloat, tmpColumn);
 }
 
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const string ndata) 
 {
 
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    if ((numRows > n_row) && (conddbtable.size() > n_column))
+    if ((m_numRows > n_row) && (m_conddbtable.size() > n_column))
     {
-	if (conddbtable[n_column]->type == kString)
+	if (m_conddbtable[n_column]->type == kString)
 	{
-	    CondDBColumnString *tmpColumn = static_cast<CondDBColumnString*>(conddbtable[n_column]);
+	    CondDBColumnString *tmpColumn = static_cast<CondDBColumnString*>(m_conddbtable[n_column]);
 	    __setCell(n_column, n_row, ndata, kString, tmpColumn);
 	}
 	else
 	{
-	    switch(conddbtable[n_column]->type)
+	    switch(m_conddbtable[n_column]->type)
 	    {
 		case kInt:
 		{
 		    if (ndata=="NULL")
 		    {
-			CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(conddbtable[n_column]);
+			CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(m_conddbtable[n_column]);
 			__setCell(n_column, n_row, tmpColumn->column[0], kInt, tmpColumn);
 		    }
 		    else
 		    {
-			CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(conddbtable[n_column]);
+			CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(m_conddbtable[n_column]);
 			__setCell(n_column, n_row, atol(ndata.c_str()), kInt, tmpColumn);
 		    }
 		    break;
@@ -958,13 +960,13 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const string ndat
 		{
 		    if (ndata=="NULL")
 		    {
-			CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(conddbtable[n_column]);
+			CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(m_conddbtable[n_column]);
 			__setCell(n_column,n_row, tmpColumn->column[0], kBool, tmpColumn);
 			
 		    }
 		    else
 		    {
-			CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(conddbtable[n_column]);
+			CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(m_conddbtable[n_column]);
 			__setCell(n_column, n_row, atoi(ndata.c_str()), kBool, tmpColumn);
 		    }
 		    break;
@@ -973,12 +975,12 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const string ndat
 		{
 		    if (ndata=="NULL")
 		    {
-			CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(conddbtable[n_column]);
+			CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(m_conddbtable[n_column]);
 			__setCell(n_column,n_row, tmpColumn->column[0], kLongLong, tmpColumn);
 		    }
 		    else
 		    {
-			CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(conddbtable[n_column]);
+			CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(m_conddbtable[n_column]);
 			__setCell(n_column,n_row, atoi64(ndata.c_str()), kLongLong, tmpColumn);
 		    }
 		    break;
@@ -987,12 +989,12 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const string ndat
 		{
 		    if (ndata=="NULL")
 		    {
-			CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(conddbtable[n_column]);
+			CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(m_conddbtable[n_column]);
 			__setCell(n_column,n_row, tmpColumn->column[0], kFloat, tmpColumn);
 		    }
 		    else
 		    {
-			CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(conddbtable[n_column]);
+			CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(m_conddbtable[n_column]);
 			__setCell(n_column,n_row, strtod(ndata.c_str(), (char **)NULL), kFloat, tmpColumn);
 		    }
 		    break;
@@ -1001,12 +1003,12 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const string ndat
 		{
 		    if (ndata=="NULL")
 		    {
-			CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(conddbtable[n_column]);
+			CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(m_conddbtable[n_column]);
 			__setCell(n_column,n_row, tmpColumn->column[0],kDouble, tmpColumn);
 		    }
 		    else
 		    {
-			CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(conddbtable[n_column]);
+			CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(m_conddbtable[n_column]);
 			__setCell(n_column,n_row,strtod(ndata.c_str(), (char **)NULL),kDouble, tmpColumn);
 		    }
 		    break;
@@ -1024,37 +1026,37 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const string ndat
 
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const double ndata) 
 {
-    CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(conddbtable[n_column]);
+    CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(m_conddbtable[n_column]);
     return __setCell(n_column, n_row, ndata, kDouble, tmpColumn);
 }
 
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<short int> &ndata) 
 {
-    CondDBColumnArrayBool *tmpColumn = static_cast<CondDBColumnArrayBool*>(conddbtable[n_column]);
+    CondDBColumnArrayBool *tmpColumn = static_cast<CondDBColumnArrayBool*>(m_conddbtable[n_column]);
     return __setCell(n_column, n_row, ndata, kArrayBool, tmpColumn);
 }
 
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<long int> &ndata) 
 {
-    CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(conddbtable[n_column]);
+    CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(m_conddbtable[n_column]);
     return __setCell(n_column, n_row, ndata, kArrayInt, tmpColumn);
 }
 
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<int64> &ndata) 
 {
-    CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(conddbtable[n_column]);
+    CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(m_conddbtable[n_column]);
     return __setCell(n_column, n_row, ndata, kArrayLongLong, tmpColumn);
 }
 
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<float> &ndata) 
 {
-    CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(conddbtable[n_column]);
+    CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(m_conddbtable[n_column]);
     return __setCell(n_column, n_row, ndata, kArrayFloat, tmpColumn);
 }
 
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<double> &ndata) 
 {
-    CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(conddbtable[n_column]);
+    CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(m_conddbtable[n_column]);
     return __setCell(n_column, n_row, ndata, kArrayDouble, tmpColumn);
 }
 
@@ -1063,20 +1065,20 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<doub
 int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<string> &ndata) 
 {
 
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
-    if ((numRows > n_row) && (conddbtable.size() > n_column))
+    if ((m_numRows > n_row) && (m_conddbtable.size() > n_column))
     {
-	if (conddbtable[n_column]->type == kArrayString)
+	if (m_conddbtable[n_column]->type == kArrayString)
 	{
-	    CondDBColumnArrayString *tmpColumn = static_cast<CondDBColumnArrayString*>(conddbtable[n_column]);
+	    CondDBColumnArrayString *tmpColumn = static_cast<CondDBColumnArrayString*>(m_conddbtable[n_column]);
 	    return __setCell(n_column, n_row, ndata, kArrayString, tmpColumn);
-//	    static_cast<CondDBColumnArrayString*>(conddbtable[n_column])->column[n_row+1] = ndata;
+//	    static_cast<CondDBColumnArrayString*>(m_conddbtable[n_column])->column[n_row+1] = ndata;
 	}
 	else
 	{
-	    switch(conddbtable[n_column]->type)
+	    switch(m_conddbtable[n_column]->type)
 	    {
 		case kArrayInt:
 		{
@@ -1092,7 +1094,7 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<stri
 			else
 			    tmp.push_back(atol(ndata[i].c_str()));
 		    }
-		    CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(conddbtable[n_column]);
+		    CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(m_conddbtable[n_column]);
 		    return __setCell(n_column, n_row, tmp, kArrayInt, tmpColumn);
 		    break;
 		}
@@ -1108,7 +1110,7 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<stri
 			else
 			    tmp.push_back(atoi(ndata[i].c_str()));
 		    }
-		    CondDBColumnArrayBool *tmpColumn = static_cast<CondDBColumnArrayBool*>(conddbtable[n_column]);
+		    CondDBColumnArrayBool *tmpColumn = static_cast<CondDBColumnArrayBool*>(m_conddbtable[n_column]);
 		    return __setCell(n_column, n_row, tmp, kArrayBool, tmpColumn);
 		    break;
 		}
@@ -1127,7 +1129,7 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<stri
 
 			    tmp.push_back(atoi64(ndata[i].c_str()));
 		    }
-		    CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(conddbtable[n_column]);
+		    CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(m_conddbtable[n_column]);
 		    return __setCell(n_column, n_row, tmp, kArrayLongLong, tmpColumn);
 		    break;
 		}
@@ -1145,7 +1147,7 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<stri
 			else
 			    tmp.push_back(atof(ndata[i].c_str()));
 		    }
-	 	    CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(conddbtable[n_column]);
+	 	    CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(m_conddbtable[n_column]);
 		    return __setCell(n_column, n_row, tmp, kArrayFloat, tmpColumn);
 		    break;
 		}
@@ -1163,7 +1165,7 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<stri
 			else
 			    tmp.push_back(strtod(ndata[i].c_str(), (char**)NULL));
 		    }
-		    CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(conddbtable[n_column]);
+		    CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(m_conddbtable[n_column]);
 		    return __setCell(n_column, n_row, tmp, kArrayDouble, tmpColumn);
 		    break;
 		}
@@ -1189,41 +1191,41 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const vector<stri
 // data type specific members (public)
 int GenericDbTable::setColumndata(unsigned n_column,const vector<long int> &data) 
 {
-    CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(conddbtable[n_column]);
+    CondDBColumnInt *tmpColumn = static_cast<CondDBColumnInt*>(m_conddbtable[n_column]);
     return __setColumnData(n_column, data, kInt, tmpColumn);
 }
 
 int GenericDbTable::setColumndata(unsigned n_column, const vector<int64> &data) 
 {
-    CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(conddbtable[n_column]);
+    CondDBColumnLong *tmpColumn = static_cast<CondDBColumnLong*>(m_conddbtable[n_column]);
     return __setColumnData(n_column, data, kLongLong, tmpColumn);
 }
 
 int GenericDbTable::setColumndata(unsigned n_column, const vector<short int> &data) 
 {
-    CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(conddbtable[n_column]);
+    CondDBColumnBool *tmpColumn = static_cast<CondDBColumnBool*>(m_conddbtable[n_column]);
     return __setColumnData(n_column, data, kBool, tmpColumn);
 }
 
 int GenericDbTable::setColumndata(unsigned n_column, const vector<float> &data) 
 {
-    CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(conddbtable[n_column]);
+    CondDBColumnFloat *tmpColumn = static_cast<CondDBColumnFloat*>(m_conddbtable[n_column]);
     return __setColumnData(n_column, data, kFloat, tmpColumn);
 }
 
 int GenericDbTable::setColumndata(unsigned n_column, const vector<string> &data) 
 {
 
-  if (!isInitialized)
+  if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
 
     unsigned index = 0;
-    if (n_column < conddbtable.size())
+    if (n_column < m_conddbtable.size())
     {
-	if (conddbtable[n_column]->type == kString)
+	if (m_conddbtable[n_column]->type == kString)
 	{
-	    CondDBColumnString* tmpColumn = static_cast<CondDBColumnString*>(conddbtable[n_column]);
-	    while((tmpColumn->column.size() < numRows+1) && (index < data.size()))
+	    CondDBColumnString* tmpColumn = static_cast<CondDBColumnString*>(m_conddbtable[n_column]);
+	    while((tmpColumn->column.size() < m_numRows+1) && (index < data.size()))
 	    {
 		tmpColumn->column.push_back(data[index]);
 		index++;
@@ -1233,7 +1235,7 @@ int GenericDbTable::setColumndata(unsigned n_column, const vector<string> &data)
 	else
 	{
 // If the data type is not string we can convert the string to the corresponding type
-	    switch(conddbtable[n_column]->type)
+	    switch(m_conddbtable[n_column]->type)
 	    {
 //if the column data type is some kind of array it will be assumed that all values belong to a single cell thus returning 1(cell)
 		case kArrayInt:
@@ -1419,52 +1421,52 @@ int GenericDbTable::setColumndata(unsigned n_column, const vector<string> &data)
 
 int GenericDbTable::setColumndata(unsigned n_column, const vector<double> &data) 
 {
-    CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(conddbtable[n_column]);
+    CondDBColumnDouble *tmpColumn = static_cast<CondDBColumnDouble*>(m_conddbtable[n_column]);
     return __setColumnData(n_column, data, kDouble, tmpColumn);
 }
 
 int GenericDbTable::setColumndata(unsigned n_column, const vector<vector<long int> > &data) 
 {
-    CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(conddbtable[n_column]);
+    CondDBColumnArrayInt *tmpColumn = static_cast<CondDBColumnArrayInt*>(m_conddbtable[n_column]);
     return __setColumnData(n_column, data, kArrayInt, tmpColumn);
 }
 
 int GenericDbTable::setColumndata(unsigned n_column, const vector<vector<int64> > &data) 
 {
-    CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(conddbtable[n_column]);
+    CondDBColumnArrayLong *tmpColumn = static_cast<CondDBColumnArrayLong*>(m_conddbtable[n_column]);
     return __setColumnData(n_column, data, kArrayLongLong, tmpColumn);
 }
 
 int GenericDbTable::setColumndata(unsigned n_column, const vector<vector<short int> > &data) 
 {
-    CondDBColumnArrayBool *tmpColumn = static_cast<CondDBColumnArrayBool*>(conddbtable[n_column]);
+    CondDBColumnArrayBool *tmpColumn = static_cast<CondDBColumnArrayBool*>(m_conddbtable[n_column]);
     return __setColumnData(n_column, data, kArrayBool, tmpColumn);
 }
 
 int GenericDbTable::setColumndata(unsigned n_column, const vector<vector<float> > &data) 
 {
-    CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(conddbtable[n_column]);
+    CondDBColumnArrayFloat *tmpColumn = static_cast<CondDBColumnArrayFloat*>(m_conddbtable[n_column]);
     return __setColumnData(n_column, data, kArrayFloat, tmpColumn);
 }
 
 int GenericDbTable::setColumndata(unsigned n_column, const vector<vector<double> > &data) 
 {
-    CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(conddbtable[n_column]);
+    CondDBColumnArrayDouble *tmpColumn = static_cast<CondDBColumnArrayDouble*>(m_conddbtable[n_column]);
     return __setColumnData(n_column, data, kArrayDouble, tmpColumn);
 }
 
 int GenericDbTable::setColumndata(unsigned n_column, const vector<vector<string> > &data) 
 {
-    if (!isInitialized)
+    if (!m_isInitialized)
 	return CDB_NOT_INITIALIZED;
     
     unsigned index = 0;
-    if (n_column < conddbtable.size())
+    if (n_column < m_conddbtable.size())
     {
-	if (conddbtable[n_column]->type == kArrayString)
+	if (m_conddbtable[n_column]->type == kArrayString)
 	{
-	    CondDBColumnArrayString* tmpColumn = static_cast<CondDBColumnArrayString*>(conddbtable[n_column]);
-	    while((tmpColumn->column.size() < numRows+1) && (index < data.size()))
+	    CondDBColumnArrayString* tmpColumn = static_cast<CondDBColumnArrayString*>(m_conddbtable[n_column]);
+	    while((tmpColumn->column.size() < m_numRows+1) && (index < data.size()))
 	    {
 		tmpColumn->column.push_back(data[index]);
 		index++;
@@ -1474,7 +1476,7 @@ int GenericDbTable::setColumndata(unsigned n_column, const vector<vector<string>
 	else
 	{
 // If the data type is not string we can convert the string to the corresponding type
-	    switch(conddbtable[n_column]->type)
+	    switch(m_conddbtable[n_column]->type)
 	    {
 //if the column data type is an array of any type each inner vector refers to a vector on a cell
 		case kArrayInt:
@@ -1604,7 +1606,7 @@ int GenericDbTable::setColumndata(unsigned n_column, const vector<vector<string>
 
 void GenericDbTable::resize(int num_rows) 
 {
-    numRows += num_rows;
+    m_numRows += num_rows;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -1614,11 +1616,11 @@ void GenericDbTable::resize(int num_rows)
 //////////////////////////////////////////////////////////////////
 int GenericDbTable::getRow(unsigned n_row, vector<string> &values) const  
 {
-    if (n_row < numRows)
+    if (n_row < m_numRows)
     {
-	for (unsigned i =0; i<conddbtable.size(); i++)
+	for (unsigned i =0; i<m_conddbtable.size(); i++)
 	{
-	    switch(conddbtable[i]->type)
+	    switch(m_conddbtable[i]->type)
 	    {
 		case kInt:
 		{
@@ -1763,9 +1765,9 @@ void GenericDbTable::verifyInitialization()
 {
     bool aux = true;
     
-    for (unsigned i=0; i< conddbtable.size(); i++)
+    for (unsigned i=0; i< m_conddbtable.size(); i++)
     {
-	if (!(conddbtable[i]->initialized))
+	if (!(m_conddbtable[i]->initialized))
 	{
 	    aux = false;
 	    break;
@@ -1773,19 +1775,19 @@ void GenericDbTable::verifyInitialization()
     }
 
     if (aux)
-	isInitialized = true;
+	m_isInitialized = true;
 }
 
 template <typename T, typename COLUMN>
   int GenericDbTable::__getCell(unsigned n_column, unsigned n_row, T &ndata, dataTypes type, COLUMN *tmpColumn) const
 {
   
-  if (!isInitialized)
+  if (!m_isInitialized)
     return CDB_NOT_INITIALIZED;
   
-  if ((numRows > n_row) && (conddbtable.size() > n_column))
+  if ((m_numRows > n_row) && (m_conddbtable.size() > n_column))
     {
-      if (conddbtable[n_column]->type == type)
+      if (m_conddbtable[n_column]->type == type)
 	{
 	  if (tmpColumn->column.size() <= n_row)
 	    ndata = tmpColumn->column.back();
@@ -1805,14 +1807,14 @@ template <typename T, typename COLUMN>
 template <typename T, typename COLUMN>
   int GenericDbTable::__setCell(unsigned n_column, unsigned n_row, const T &ndata, dataTypes type, COLUMN *tmpColumn)
   {
-    if (!isInitialized)
+    if (!m_isInitialized)
       return CDB_NOT_INITIALIZED;
     
-    if ((numRows > n_row) && (conddbtable.size() > n_column))
+    if ((m_numRows > n_row) && (m_conddbtable.size() > n_column))
       {
-	if (conddbtable[n_column]->type == type)
+	if (m_conddbtable[n_column]->type == type)
 	  {
-	       //          static_cast<COLUMN*>(conddbtable[n_column])->column[n_row+1] = ndata;
+	       //          static_cast<COLUMN*>(m_conddbtable[n_column])->column[n_row+1] = ndata;
 	    if (tmpColumn->column.size() ==  (n_row+1))
 	      tmpColumn->column.push_back(ndata);
 	    else
@@ -1842,15 +1844,15 @@ template <typename T, typename COLUMN>
 template <typename T, typename COLUMN>
 int GenericDbTable::__setColumnData(unsigned n_column, T &data, dataTypes type, COLUMN *tmpColumn)
 {
-  if (!isInitialized)
+  if (!m_isInitialized)
     return CDB_NOT_INITIALIZED;
   
   unsigned index = 0;
-  if (n_column < conddbtable.size())
+  if (n_column < m_conddbtable.size())
     {
-      if (conddbtable[n_column]->type == type)
+      if (m_conddbtable[n_column]->type == type)
 	{
-	  while((tmpColumn->column.size() < numRows+1) && (index < data.size()))
+	  while((tmpColumn->column.size() < m_numRows+1) && (index < data.size()))
 	    {
 	      tmpColumn->column.push_back(data[index]);
 	      index++;
@@ -1868,8 +1870,8 @@ int GenericDbTable::__setColumnData(unsigned n_column, T &data, dataTypes type, 
 template <typename T>
 int GenericDbTable::__getCellByName(std::string colName, unsigned int n_row, T &data) const
 {
-  for (unsigned int i=0; i< conddbtable.size(); i++) {
-    if (conddbtable[i]->name == colName)
+  for (unsigned int i=0; i< m_conddbtable.size(); i++) {
+    if (m_conddbtable[i]->name == colName)
       {
 	  return getCell(i,n_row,data);
       }
