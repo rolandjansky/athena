@@ -68,7 +68,7 @@ StatusCode SCTRDOFillerTool::fill (const SCT_RDORawData& sctRdo)
   *m_modulePhi = m_sctId->phi_module(SCT_Identifier);
   *m_moduleEta = m_sctId->eta_module(SCT_Identifier);
   *m_moduleSide = m_sctId->side(SCT_Identifier);
-  *m_firstStrip = sctRdo.getStrip();
+  *m_firstStrip = m_sctId->strip(SCT_Identifier);
   *m_nStripsOnWafer = sctRdo.getGroupSize();
   //*m_isOnTrack = 0;
 

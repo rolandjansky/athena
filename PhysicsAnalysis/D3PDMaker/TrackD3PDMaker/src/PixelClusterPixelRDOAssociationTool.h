@@ -129,7 +129,7 @@ private:
   std::vector<const PixelRDORawData* >::const_iterator m_rdoEnd;
 
 
-  std::vector<const PixelRDORawData*> pixelRDOForAssociation;
+  std::vector<const PixelRDORawData*> m_pixelRDOForAssociation;
 
 
 }; // class PixelClusterPixelRDOAssociationTool

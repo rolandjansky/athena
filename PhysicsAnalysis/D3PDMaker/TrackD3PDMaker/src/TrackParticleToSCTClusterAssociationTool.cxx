@@ -152,16 +152,16 @@ StatusCode TrackParticleToSCTClusterAssociationTool::reset (const  Rec::TrackPar
   m_bec= 0;
   m_layer= 0;
 
-  sctClusterForAssociation.clear();
+  m_sctClusterForAssociation.clear();
 
-  const InDet::SCT_ClusterContainer* m_riocont; 
+  const InDet::SCT_ClusterContainer* riocont; 
   if(!evtStore()->contains<InDet::SCT_ClusterContainer>("SCT_Clusters")){ 
 
 	REPORT_MESSAGE (MSG::WARNING) << "No sct clusters....";
 
   } 
   else {
-    StatusCode sc = evtStore()->retrieve(m_riocont, "SCT_Clusters");
+    StatusCode sc = evtStore()->retrieve(riocont, "SCT_Clusters");
     if(sc.isFailure()) {
       	REPORT_MESSAGE (MSG::WARNING) << "Could not get clusters....";
     }
@@ -208,7 +208,7 @@ StatusCode TrackParticleToSCTClusterAssociationTool::reset (const  Rec::TrackPar
 
           sctClusterIdentifier.push_back(sctClusterID);
 
-          sctClusterForAssociation.push_back(*it);
+          m_sctClusterForAssociation.push_back(*it);
 
           //REPORT_MESSAGE (MSG::DEBUG) << "(2)TESTASSOC TSoS-Type is: "<<   (*it)->types().to_ulong();
 
@@ -217,8 +217,8 @@ StatusCode TrackParticleToSCTClusterAssociationTool::reset (const  Rec::TrackPar
     }
   }
 
-  m_clusItr = sctClusterForAssociation.begin(); //sct::vector<cont InDet::SCT_Cluster>::const_iterator 
-  m_clusEnd = sctClusterForAssociation.end(); 
+  m_clusItr = m_sctClusterForAssociation.begin(); //sct::vector<cont InDet::SCT_Cluster>::const_iterator 
+  m_clusEnd = m_sctClusterForAssociation.end(); 
 
   return StatusCode::SUCCESS;
 }

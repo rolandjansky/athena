@@ -62,7 +62,7 @@ private:
 
   const AtlasDetectorID* m_idHelper;
 
-  std::vector<const Trk::TrackStateOnSurface*> sctClusterForAssociation;
+  std::vector<const Trk::TrackStateOnSurface*> m_sctClusterForAssociation;
 
   std::vector<const Trk::TrackStateOnSurface*>::const_iterator m_clusItr;
   std::vector<const Trk::TrackStateOnSurface*>::const_iterator m_clusEnd;

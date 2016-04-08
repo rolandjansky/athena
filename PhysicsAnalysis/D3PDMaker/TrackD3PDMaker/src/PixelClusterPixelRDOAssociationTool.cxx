@@ -76,7 +76,7 @@ StatusCode PixelClusterPixelRDOAssociationTool::invalidate(StatusCode sc){
 StatusCode PixelClusterPixelRDOAssociationTool::reset (const  InDet::PixelCluster& p)
 {
 
-  pixelRDOForAssociation.clear();
+  m_pixelRDOForAssociation.clear();
 
  
   int clusterModuleID = 0; 
@@ -159,14 +159,14 @@ StatusCode PixelClusterPixelRDOAssociationTool::reset (const  InDet::PixelCluste
       Identifier rdoIdentity = mIt2->first;
       std::vector<Identifier>::iterator posIt =   find(pixelClusterIdentifier.begin(),pixelClusterIdentifier.end(),rdoIdentity);
       if ( posIt != pixelClusterIdentifier.end() ){
-	pixelRDOForAssociation.push_back(mIt2->second);
+	m_pixelRDOForAssociation.push_back(mIt2->second);
       }
     }
     // end of global map loop 
 
 
-  m_rdoItr = pixelRDOForAssociation.begin(); //pixel::vector<cont InDet::PixelCluster>::const_iterator 
-  m_rdoEnd = pixelRDOForAssociation.end(); 
+  m_rdoItr = m_pixelRDOForAssociation.begin(); //pixel::vector<cont InDet::PixelCluster>::const_iterator 
+  m_rdoEnd = m_pixelRDOForAssociation.end(); 
 
 
   return StatusCode::SUCCESS;
