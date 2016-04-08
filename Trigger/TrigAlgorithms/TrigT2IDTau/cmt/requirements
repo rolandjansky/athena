@@ -10,7 +10,6 @@ use     TrigSteeringEvent       TrigSteeringEvent-*     Trigger/TrigEvent
 use     TrigInterfaces          TrigInterfaces-*        Trigger/TrigSteer
 
 private
-use     InDetBeamSpotService    InDetBeamSpotService-*  InnerDetector/InDetConditions
 use     Particle                Particle-*              Reconstruction
 #use     VxVertex                VxVertex-*              Tracking/TrkEvent
 use     TrigParticle            TrigParticle-*          Trigger/TrigEvent
