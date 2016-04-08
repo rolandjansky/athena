@@ -144,11 +144,8 @@ StatusCode TrigEgammaNavBaseTool::executeNavigation( const TrigInfo info ){
   clearList();
   ATH_MSG_DEBUG("Apply navigation selection");
   
-  std::string trigName="";
-  if(info.trigL1) trigName= info.trigName;
-  else trigName="HLT_"+info.trigName;
-  if(info.trigType == "electron") return executeElectronNavigation( trigName,info.trigThrHLT,info.trigPidType );
-  else if(info.trigType=="photon") return executePhotonNavigation( trigName,info.trigThrHLT);
+  if(info.trigType == "electron") return executeElectronNavigation( info.trigName,info.trigThrHLT,info.trigPidType );
+  else if(info.trigType=="photon") return executePhotonNavigation( info.trigName,info.trigThrHLT);
 
   ATH_MSG_DEBUG("BaseTool::TEs " << m_objTEList.size() << " found.");
   return StatusCode::SUCCESS;

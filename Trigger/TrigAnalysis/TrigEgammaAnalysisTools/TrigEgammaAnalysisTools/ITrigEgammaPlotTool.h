@@ -31,6 +31,7 @@ public:
   virtual StatusCode book(std::map<std::string,TrigInfo>)=0;
   virtual StatusCode execute()=0;
   virtual StatusCode finalize()=0;
+  virtual StatusCode finalizeShifterHistos(std::map<std::string,TrigInfo>)=0;
   virtual void setParent(IHLTMonTool *)=0;
   virtual void setDetail(bool)=0;
   virtual void setAltBinning(bool)=0;

@@ -183,12 +183,14 @@ void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std
     } // EFEl Feature
     else ATH_MSG_DEBUG("NULL EFEl Feature");
     // L1 resolutions
-    if (feat) {
-        auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
-        const xAOD::EmTauRoI *l1 = itEmTau.cptr();
-        if (l1) {
-            fillL1CaloResolution(dir7, l1, elOff);
-            fillL1CaloAbsResolution(dir8, l1, elOff);
+    if(m_detailedHists){
+        if (feat) {
+            auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
+            const xAOD::EmTauRoI *l1 = itEmTau.cptr();
+            if (l1) {
+                fillL1CaloResolution(dir7, l1, elOff);
+                fillL1CaloAbsResolution(dir8, l1, elOff);
+            }
         }
     }
     else ATH_MSG_DEBUG("NULL L1 Feature");

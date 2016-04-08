@@ -209,7 +209,6 @@ StatusCode TrigEgammaAnalysisBaseTool::execute() {
 StatusCode TrigEgammaAnalysisBaseTool::finalize() {
 
     ATH_MSG_VERBOSE( "Finalizing tool " << name() );
-
     StatusCode sc;
     for( const auto& tool : m_tools) {
         try {
@@ -879,5 +878,4 @@ void TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex(){
    ATH_MSG_DEBUG("calculatePileupPrimaryVertex(): nPileupPrimaryVtx = " << m_nPileupPrimaryVtx);
 
 }
-
 

@@ -236,5 +236,11 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
 
 StatusCode TrigEgammaNavTPAnalysisTool::childFinalize()
 {
+    ATH_MSG_DEBUG("Processed N events " << m_eventCounter);
+    plot()->setTP(getTP());
+    if(plot()->finalizeShifterHistos(getTrigInfoMap()).isFailure()) {
+        ATH_MSG_ERROR("Unable to book histos for " << m_dir); 
+        return StatusCode::FAILURE;
+    }
     return StatusCode::SUCCESS;
 }

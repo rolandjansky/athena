@@ -21,6 +21,7 @@ class TrigEgammaPlotTool
           StatusCode initialize();
           StatusCode book(std::map<std::string,TrigInfo> trigInfo);
           StatusCode execute();
+          StatusCode finalizeShifterHistos(std::map<std::string,TrigInfo> trigInfo);
           StatusCode finalize();
           void setParent(IHLTMonTool *parent){ m_parent = parent;};
           void setDetail(bool doDetail){ m_detailedHists = doDetail; }

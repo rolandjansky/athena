@@ -640,7 +640,7 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
         if(info.trigL1)
             this->fillEfficiency(dir+"/Efficiency/L1Calo",passedL1Calo,etthr,pidword,pairObj.first);
         else {
-            this->fillEfficiency(dir+"/Efficiency/L1Calo",passedL1Calo,etthr,pidword,pairObj.first);
+            if(m_detailedHists) this->fillEfficiency(dir+"/Efficiency/L1Calo",passedL1Calo,etthr,pidword,pairObj.first);
             this->fillEfficiency(dir+"/Efficiency/HLT",passedEF,etthr,pidword,pairObj.first);
             if(m_detailedHists){
                 this->fillEfficiency(dir+"/Efficiency/L2Calo",passedL2Calo,etthr,pidword,pairObj.first); 

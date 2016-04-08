@@ -200,6 +200,7 @@ StatusCode TrigEgammaPlotTool::book(std::map<std::string,TrigInfo> trigInfo){
             continue;
         }
         m_trigInfo.insert(info);
+        ATH_MSG_INFO("Book " << info.first);
         if(info.second.trigL1)
             bookL1Histos(info.second);
         else if(m_tp) { //For TP triggers just monitor the distributions
@@ -210,6 +211,7 @@ StatusCode TrigEgammaPlotTool::book(std::map<std::string,TrigInfo> trigInfo){
             for (const auto dir:dirnames){
                 ATH_MSG_VERBOSE(dir);
                 addDirectory(dir);
+                bookDistributionHistos(dir);
                 bookEgammaDistributionHistos(dir);
                 if(info.second.trigType=="electron")
                     bookElectronDistributionHistos(dir);
@@ -228,29 +230,56 @@ StatusCode TrigEgammaPlotTool::book(std::map<std::string,TrigInfo> trigInfo){
 void TrigEgammaPlotTool::bookShifterHistos(){
     std::string dirmam;
     std::string dirtrig;
+    std::string fullPath;
     std::string category="";
     std::vector<std::string>::iterator dirItr;
+    std::map<std::string, TH1 *>::iterator histItr; 
     // Book histograms from existing expert plots
     for(const auto info:m_trigInfo){
+        ATH_MSG_INFO(info.first << " ");
         if(getCategoryFromTrigger(info.first,category)){
             dirtrig=m_baseDir+"/Expert/"+info.first;
             dirmam=m_baseDir+"/Shifter/"+category;
             dirItr = std::find(m_dir.begin(), m_dir.end(), dirmam);
             if (dirItr == m_dir.end()){
-                ATH_MSG_INFO("MaM Booking " << category << " " << info.first);
+                ATH_MSG_DEBUG("MaM Booking " << category << " " << info.first);
                 addDirectory(dirmam);
                 //Add contents of the histograms
                 if(m_tp){
-                    for(const auto plot:m_distplots)
-                        addHistogram((TH1*)hist1(plot,dirtrig+"/Distributions/HLT")->Clone());
+                    for(const auto plot:m_distplots){
+                        fullPath = getPath(plot, dirtrig+"/Distributions/HLT");
+                        histItr = m_hist1.find(fullPath);
+                        if (histItr == m_hist1.end())
+                            ATH_MSG_DEBUG("MaM skip " << plot << " " << fullPath);
+                        else
+                            addHistogram((TH1*)hist1(plot,dirtrig+"/Distributions/HLT")->Clone());
+                    }
                 }
                 else {
-                    for(const auto plot:m_effplots)
+                    for(const auto plot:m_effplots){
+                        fullPath = getPath(plot, dirtrig+"/Efficiency/HLT");
+                        histItr = m_hist1.find(fullPath);
+                        if (histItr == m_hist1.end())
+                            ATH_MSG_DEBUG("MaM skip " << plot << " " << fullPath);
+                        else
                         addHistogram((TH1*)hist1(plot,dirtrig+"/Efficiency/HLT")->Clone());
-                    for(const auto plot:m_distplots)
-                        addHistogram((TH1*)hist1(plot,dirtrig+"/Distributions/HLT")->Clone());
-                    for(const auto plot:m_resplots)
-                        addHistogram((TH1*)hist1(plot,dirtrig+"/Resolutions/HLT")->Clone());
+                    }
+                    for(const auto plot:m_distplots){
+                        fullPath = getPath(plot, dirtrig+"/Distributions/HLT");
+                        histItr = m_hist1.find(fullPath);
+                        if (histItr == m_hist1.end())
+                            ATH_MSG_DEBUG("MaM skip " << plot << " " << fullPath);
+                        else
+                            addHistogram((TH1*)hist1(plot,dirtrig+"/Distributions/HLT")->Clone());
+                    }
+                    for(const auto plot:m_resplots){
+                        fullPath = getPath(plot, dirtrig+"/Resolutions/HLT");
+                        histItr = m_hist1.find(fullPath);
+                        if (histItr == m_hist1.end())
+                            ATH_MSG_DEBUG("MaM skip " << plot << " " << fullPath);
+                        else 
+                            addHistogram((TH1*)hist1(plot,dirtrig+"/Resolutions/HLT")->Clone());
+                    }
                 }
             }
         }
@@ -271,27 +300,63 @@ bool TrigEgammaPlotTool::getCategoryFromTrigger(const std::string trigger,std::s
     return false;
 }
 
-StatusCode TrigEgammaPlotTool::finalize(){
-    // Copy contents to shifter plots
-
-    ATH_MSG_INFO("Finalize " << name());
+// Copy contents to shifter plots
+StatusCode TrigEgammaPlotTool::finalizeShifterHistos(std::map<std::string,TrigInfo> trigInfo){
+    ATH_MSG_INFO("Finalize " << name() << " " << m_tp );
     std::string dirmam;
     std::string dirtrig;
     std::string category="";
-    for(const auto info:m_trigInfo){
+    std::string fullPath;
+    std::map<std::string, TH1 *>::iterator histItr; 
+    for(const auto info:trigInfo){
         if(getCategoryFromTrigger(info.first,category)){
             dirtrig=m_baseDir+"/Expert/"+info.first;
             dirmam=m_baseDir+"/Shifter/"+category;
-            //Add contents of the histograms
-            for(const auto plot:m_effplots)
-                hist1(plot,dirmam)->Add(hist1(plot,dirtrig+"/Efficiency/HLT"));
-            for(const auto plot:m_distplots)
-                hist1(plot,dirmam)->Add(hist1(plot,dirtrig+"/Distributions/HLT"));
-            for(const auto plot:m_resplots)
-                hist1(plot,dirmam)->Add(hist1(plot,dirtrig+"/Resolutions/HLT"));
+            if(m_tp){
+                ATH_MSG_INFO("Finalize " << name() << " " << info.first << " " << m_tp );
+                for(const auto plot:m_distplots){
+                    fullPath = getPath(plot, dirtrig+"/Distributions/HLT");
+                    histItr = m_hist1.find(fullPath);
+                    if (histItr == m_hist1.end())
+                        ATH_MSG_DEBUG("MaM skip " << plot << " " << fullPath);
+                    else
+                        hist1(plot,dirmam)->Add(hist1(plot,dirtrig+"/Distributions/HLT"));
+                }
+
+            }
+            else {
+                ATH_MSG_INFO("Finalize " << name() << " " << info.first << " " << m_tp );
+                for(const auto plot:m_effplots){
+                    fullPath = getPath(plot, dirtrig+"/Efficiency/HLT");
+                    histItr = m_hist1.find(fullPath);
+                    if (histItr == m_hist1.end())
+                        ATH_MSG_DEBUG("MaM skip " << plot << " " << fullPath);
+                    else
+                        hist1(plot,dirmam)->Add(hist1(plot,dirtrig+"/Efficiency/HLT"));
+                }
+                for(const auto plot:m_distplots){
+                    fullPath = getPath(plot, dirtrig+"/Distributions/HLT");
+                    histItr = m_hist1.find(fullPath);
+                    if (histItr == m_hist1.end())
+                        ATH_MSG_DEBUG("MaM skip " << plot << " " << fullPath);
+                    else
+                        hist1(plot,dirmam)->Add(hist1(plot,dirtrig+"/Distributions/HLT"));
+                }
+                for(const auto plot:m_resplots){
+                    fullPath = getPath(plot, dirtrig+"/Resolutions/HLT");
+                    histItr = m_hist1.find(fullPath);
+                    if (histItr == m_hist1.end())
+                        ATH_MSG_DEBUG("MaM skip " << plot << " " << fullPath);
+                    else 
+                        hist1(plot,dirmam)->Add(hist1(plot,dirtrig+"/Resolutions/HLT"));
+                }
+            }           
         }
     }
-        
+    return StatusCode::SUCCESS;
+}
+
+StatusCode TrigEgammaPlotTool::finalize(){
     return StatusCode::SUCCESS;
 }
 
@@ -1051,7 +1116,7 @@ void TrigEgammaPlotTool::bookL1Histos(TrigInfo trigInfo){
 
 void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
     const std::string basePath=m_baseDir+"/Expert/"+trigInfo.trigName;
-    bookL1Histos(trigInfo);
+    if(m_detailedHists) bookL1Histos(trigInfo);
     std::vector <std::string> dirnames;
     std::string dirname=basePath + "/Efficiency/HLT";
     addDirectory(dirname);
