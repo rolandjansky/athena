@@ -22,15 +22,7 @@
 
 class TrigInDetTrackTruth_p1 
 {
-  friend class TrigInDetTrackTruthCnv_p1;
-
  public:
-  
-  TrigInDetTrackTruth_p1() {}
-  virtual ~TrigInDetTrackTruth_p1(){}
-  
- private:
-
   int best_match_hits;
   int best_Si_match_hits;
   int best_TRT_match_hits;

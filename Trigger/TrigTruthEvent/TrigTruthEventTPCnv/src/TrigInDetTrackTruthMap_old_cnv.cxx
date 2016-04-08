@@ -5,9 +5,6 @@
 // Converter from TrigInDetTrackTruthMap_old to TrigInDetTrackTruthMap.
 // $Id: TrigInDetTrackTruthMap_old_cnv.cxx,v 1.2 2009-02-11 02:33:13 ssnyder Exp $
 
-#define private public
-#define protected public
-
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_old_cnv.h"
 
 void

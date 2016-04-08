@@ -7,7 +7,7 @@ use RootConversions	   RootConversions-*        Database/AthenaPOOL
 			   
 use AthenaPoolCnvSvc       AthenaPoolCnvSvc-*       Database/AthenaPOOL
 use AthenaPoolUtilities    AthenaPoolUtilities-*    Database/AthenaPOOL
-use DataModel		   DataModel-*		    Control
+use AthLinks               AthLinks-*               Control
 use DataModelAthenaPool    DataModelAthenaPool-*    Control
 			   
 use TrigInDetEvent	   TrigInDetEvent-*	    Trigger/TrigEvent
@@ -18,8 +18,11 @@ use TrigInDetEventTPCnv    TrigInDetEventTPCnv-*    Trigger/TrigEvent
 use GeneratorObjectsTPCnv  GeneratorObjectsTPCnv-*  Generators
 
 private
+use GaudiInterface         GaudiInterface-*         External
 use AtlasReflex            AtlasReflex-*            External
+use CxxUtils               CxxUtils-*               Control
 use AthenaKernel           AthenaKernel-*           Control
+use SGTools                SGTools-*                Control
 end_private
 
 branches TrigTruthEventTPCnv src
@@ -41,3 +44,11 @@ apply_pattern lcgdict dict=OLD_TrigTruthEventTPCnv  \
   headerfiles="../TrigTruthEventTPCnv/TrigTruthEventTPCnvDict.h"
 
 end_private
+
+
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=TrigIDHitStatsCnv_p1
+apply_pattern UnitTest_run unit_test=TrigInDetTrackTruthCnv_p1
+apply_pattern UnitTest_run unit_test=TrigInDetTrackTruthMapCnv_p1
