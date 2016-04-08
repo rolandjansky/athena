@@ -76,6 +76,9 @@ CscRdoValAlg::CscRdoValAlg(const std::string & type, const std::string & name,
   declareProperty("NoiseCutADC", m_cscNoiseCut = 50);
 
   m_cscGenPath = m_cscRDOPath.substr(0,m_cscRDOPath.find("CSC"));
+  
+  initHistograms();
+
 }
 
 
@@ -117,13 +120,79 @@ StatusCode CscRdoValAlg::initialize() {
 
 
 //
-// bookHistograms ----------------------------------------------------------------
+//// initHistograms ----------------------------------------------------------------
+////
+void CscRdoValAlg::initHistograms() {
+
+  m_h2csc_rdo_hitmap = 0;
+  m_h2csc_rdo_hitmap_signal = 0;
+  m_h2csc_rdo_hitmap_noise = 0;
+
+  m_h2csc_rdo_hitmap_norm = 0;
+  m_h2csc_rdo_hitmap_norm_signal = 0;
+  m_h2csc_rdo_hitmap_norm_noise = 0;
+
+  m_h2csc_rdo_hitmap_signal_EA = 0;
+  m_h1csc_rdo_hitmap_signal_EA_count = 0;
+  m_h1csc_rdo_hitmap_signal_EA_occupancy = 0;
+
+  m_h2csc_rdo_hitmap_norm_signal_EA = 0;
+
+  m_h2csc_rdo_hitmap_signal_EC = 0;
+  m_h1csc_rdo_hitmap_signal_EC_count = 0;
+  m_h1csc_rdo_hitmap_signal_EC_occupancy = 0;
+
+  m_h2csc_rdo_hitmap_norm_signal_EC = 0;
+
+  m_h2csc_rdo_phicluswidth = 0;
+  m_h2csc_rdo_phicluswidth_signal = 0;
+  m_h2csc_rdo_phicluswidth_noise = 0;
+
+  m_h2csc_rdo_phicluswidth_signal_EA = 0;
+  m_h1csc_rdo_phicluswidth_signal_EA_count = 0;
+  m_h1csc_rdo_phicluswidth_signal_EA_occupancy = 0;
+
+  m_h2csc_rdo_phicluswidth_signal_EC = 0;
+  m_h1csc_rdo_phicluswidth_signal_EC_count = 0;
+  m_h1csc_rdo_phicluswidth_signal_EC_occupancy = 0;
+
+  m_h2csc_rdo_etacluswidth = 0;
+  m_h2csc_rdo_etacluswidth_signal = 0;
+  m_h2csc_rdo_etacluswidth_noise = 0;
+
+  m_h2csc_rdo_etacluswidth_signal_EA = 0;
+  m_h1csc_rdo_etacluswidth_signal_EA_count = 0;
+  m_h1csc_rdo_etacluswidth_signal_EA_occupancy = 0;
+  m_h2csc_rdo_etacluswidth_signal_EC = 0;
+  m_h1csc_rdo_etacluswidth_signal_EC_count = 0;
+  m_h1csc_rdo_etacluswidth_signal_EC_occupancy = 0;
+
+  m_h2csc_rdo_phicluscount = 0;
+  m_h2csc_rdo_phicluscount_signal = 0;
+  m_h2csc_rdo_phicluscount_noise = 0;
+
+  m_h2csc_rdo_etacluscount = 0;
+  m_h2csc_rdo_etacluscount_signal = 0;
+  m_h2csc_rdo_etacluscount_noise = 0;
+
+
+  m_h1csc_rdo_maxdiffamp = 0;
+
+  // Correlation plots
+  m_h2csc_rdo_eta_vs_phi_cluscount = 0;
+  m_h2csc_rdo_eta_vs_phi_cluscount_signal = 0;
+  m_h2csc_rdo_eta_vs_phi_cluscount_noise = 0;
+
+  m_h2csc_rdo_eta_vs_phi_cluswidth = 0;
+  m_h2csc_rdo_eta_vs_phi_cluswidth_signal = 0;
+
+}
+
 //
-StatusCode CscRdoValAlg::bookHistograms(){
-  ATH_MSG_DEBUG ( "CSCRdoMon : in bookHistograms()"  );
-
-  StatusCode sc = StatusCode::SUCCESS;
-
+// bookRdoHistograms ----------------------------------------------------------------
+//
+void  CscRdoValAlg::bookRdoHistograms(){
+  
   m_regHShift.clear();   
   m_regHExpert.clear();
   m_regHOviewEA.clear();
@@ -147,251 +216,268 @@ StatusCode CscRdoValAlg::bookHistograms(){
   float nymaxEC = 0.;  //
   ///******************** DO NOT MODIFY (end) ***********************************************///
 
+  //if (newEventsBlock){}
+  //if (newLumiBlock){}
+  //if (newRun) {
+  
+  // book histograms
+  m_h1csc_rdo_maxdiffamp = new TH1F("h1csc_rdo_maxdiffamp", "Max Amplitude in ROD Cluster;ADC counts;;",500,0,5000);
+
+  // strip hitmap
+  m_h2csc_rdo_hitmap = new TH2F("h2csc_rdo_hitmap", "Hit Occupancy;channel;[sector] + [0.2 #times layer]",
+      nxbins,nxmin,nxmax,nybins,nymin,nymax);
+  m_h2csc_rdo_hitmap_noise = new TH2F("h2csc_rdo_hitmap_noise", "Noise Occupancy;channel;[sector] + [0.2 #times layer]",
+      nxbins,nxmin,nxmax,nybins,nymin,nymax);
+  m_h2csc_rdo_hitmap_signal = new TH2F("h2csc_rdo_hitmap_signal", "Signal Occupancy;channel;[sector] + [0.2 #times layer]",
+      nxbins,nxmin,nxmax,nybins,nymin,nymax);
+
+  m_h2csc_rdo_hitmap_norm = new TH2F("h2csc_rdo_hitmap_norm", "Hit Occupancy;channel;[sector] + [0.2 #times layer]",
+      nxbins,nxmin,nxmax,nybins,nymin,nymax);
+  m_h2csc_rdo_hitmap_norm_noise = new TH2F("h2csc_rdo_hitmap_norm_noise", "Noise Occupancy;channel;[sector] + [0.2 #times layer]",
+      nxbins,nxmin,nxmax,nybins,nymin,nymax);
+  m_h2csc_rdo_hitmap_norm_signal = new TH2F("h2csc_rdo_hitmap_norm_signal", "Signal Occupancy;channel;[sector] + [0.2 #times layer]",
+      nxbins,nxmin,nxmax,nybins,nymin,nymax);
+
+  m_h2csc_rdo_hitmap_signal_EA = new TH2F("h2csc_rdo_hitmap_signal_EA", "EndCap A: Signal Occupancy;channel;[sector] + [0.2 #times layer]",
+      nxbins,nxmin,nxmax,nybinsEA,nyminEA,nymaxEA);
+  m_h1csc_rdo_hitmap_signal_EA_count = new TH1F("h1csc_rdo_hitmap_signal_EA_count", "EndCap A: Signal Occupancy;channel;entries/channel",
+      nxbins,nxmin,nxmax);
+  m_h1csc_rdo_hitmap_signal_EA_occupancy = new TH1F("h1csc_rdo_hitmap_signal_EA_occupancy", "EndCap A: Signal Occupancy;[sector] + [0.2 #times layer];entries/layer",
+      nybinsEA,nyminEA,nymaxEA);
+  CscRdoBins::RdoBinLabels(m_h1csc_rdo_hitmap_signal_EA_occupancy,1);
+
+  m_h2csc_rdo_hitmap_norm_signal_EA = new TH2F("h2csc_rdo_hitmap_norm_signal_EA", "EndCap A: Signal Occupancy;channel;[sector] + [0.2 #times layer]",
+      nxbins,nxmin,nxmax,nybinsEA,nyminEA,nymaxEA);
+
+  m_h2csc_rdo_hitmap_signal_EC = new TH2F("h2csc_rdo_hitmap_signal_EC", "EndCap C: Signal Occupancy;channel;[sector] + [0.2 #times layer]",
+      nxbins,nxmin,nxmax,nybinsEC,nyminEC,nymaxEC);
+  m_h1csc_rdo_hitmap_signal_EC_count = new TH1F("h1csc_rdo_hitmap_signal_EC_count", "EndCap C: Signal Occupancy;channel;entries/channel",
+      nxbins,nxmin,nxmax);
+  m_h1csc_rdo_hitmap_signal_EC_occupancy = new TH1F("h1csc_rdo_hitmap_signal_EC_occupancy", "EndCap C: Signal Occupancy;[sector] + [0.2 #times layer];entries/layer",
+      nybinsEC,nyminEC,nymaxEC);
+  CscRdoBins::RdoBinLabels(m_h1csc_rdo_hitmap_signal_EC_occupancy,-1);
+
+  m_h2csc_rdo_hitmap_norm_signal_EC = new TH2F("h2csc_rdo_hitmap_norm_signal_EC", "EndCap C: Signal Occupancy;channel;[sector] + [0.2 #times layer]",
+      nxbins,nxmin,nxmax,nybinsEC,nyminEC,nymaxEC);
+
+  // ROD eta-cluster width
+  m_h2csc_rdo_etacluswidth = new TH2F("h2csc_rdo_etacluswidth",
+      "ROD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]",
+      192,0,192,nybins,nymin,nymax);
+  m_h2csc_rdo_etacluswidth_noise = new TH2F("h2csc_rdo_etacluswidth_noise",
+      "ROD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]",
+      192,0,192,nybins,nymin,nymax);
+  m_h2csc_rdo_etacluswidth_signal = new TH2F("h2csc_rdo_etacluswidth_signal",
+      "ROD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]",
+      192,0,192,nybins,nymin,nymax);
+  m_h2csc_rdo_etacluswidth_signal_EA = new TH2F("h2csc_rdo_etacluswidth_signal_EA",
+      "EndCap A: ROD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]",
+      192,0,192,nybinsEA,nyminEA,nymaxEA);
+  m_h1csc_rdo_etacluswidth_signal_EA_count = new TH1F("h1csc_rdo_etacluswidth_signal_EA_count",
+      "EndCap A: ROD precision-cluster width;width(no.of strips);entries;",192,0,192);
+  m_h1csc_rdo_etacluswidth_signal_EA_occupancy = new TH1F("h1csc_rdo_etacluswidth_signal_EA_occupancy",
+      "EndCap A: ROD precision-cluster width;[sector] + [0.2 #times layer];entries/layer",nybinsEA,nyminEA,nymaxEA);
+  CscRdoBins::RdoBinLabels(m_h1csc_rdo_etacluswidth_signal_EA_occupancy,1);
+
+  m_h2csc_rdo_etacluswidth_signal_EC = new TH2F("h2csc_rdo_etacluswidth_signal_EC",
+      "EndCap C: ROD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]",
+      192,0,192,nybinsEC,nyminEC,nymaxEC);
+  m_h1csc_rdo_etacluswidth_signal_EC_count = new TH1F("h1csc_rdo_etacluswidth_signal_EC_count",
+      "EndCap C: ROD precision-cluster width;width(no.of strips);entries",192,0,192);
+  m_h1csc_rdo_etacluswidth_signal_EC_occupancy = new TH1F("h1csc_rdo_etacluswidth_signal_EC_occupancy",
+      "EndCap C: ROD precision-cluster width;[sector] + [0.2 #times layer];entries/layer",nybinsEC,nyminEC,nymaxEC);
+  CscRdoBins::RdoBinLabels(m_h1csc_rdo_etacluswidth_signal_EC_occupancy,-1);
+
+  // ROD phi-cluster width
+  m_h2csc_rdo_phicluswidth = new TH2F("h2csc_rdo_phicluswidth",
+      "ROD transverse-cluster width;width(no.of strips);[sector] + [0.2 #times layer]",
+      48,0,48,nybins,nymin,nymax);
+  m_h2csc_rdo_phicluswidth_noise = new TH2F("h2csc_rdo_phicluswidth_noise",
+      "ROD transverse-cluster width;width(no.of strips);[sector] + [0.2 #times layer]",
+      48,0,48,nybins,nymin,nymax);
+  m_h2csc_rdo_phicluswidth_signal = new TH2F("h2csc_rdo_phicluswidth_signal",
+      "ROD transverse-cluster width;width(no.of strips);[sector] + [0.2 #times layer]",
+      48,0,48,nybins,nymin,nymax);
+
+  m_h2csc_rdo_phicluswidth_signal_EA = new TH2F("h2csc_rdo_phicluswidth_signal_EA",
+      "EndCap A: ROD transverse-cluster width;width(no.of strips);[sector] + [0.2 #times layer]",
+      48,0,48,nybinsEA,nyminEA,nymaxEA);
+  m_h1csc_rdo_phicluswidth_signal_EA_count = new TH1F("h1csc_rdo_phicluswidth_signal_EA_count",
+      "EndCap A: ROD transverse-cluster width;width(no.of strips);entries",48,0,48);
+  m_h1csc_rdo_phicluswidth_signal_EA_occupancy = new TH1F("h1csc_rdo_phicluswidth_signal_EA_occupancy",
+      "EndCap A: ROD transverse-cluster width;[sector] + [0.2 #times layer];entries/layer",nybinsEA,nyminEA,nymaxEA);
+  CscRdoBins::RdoBinLabels(m_h1csc_rdo_phicluswidth_signal_EA_occupancy,1);
+
+  m_h2csc_rdo_phicluswidth_signal_EC = new TH2F("h2csc_rdo_phicluswidth_signal_EC",
+      "EndCap C: ROD transverse-cluster width;width(no.of strips);[sector] + [0.2 #times layer]",
+      48,0,48,nybinsEC,nyminEC,nymaxEC);
+  m_h1csc_rdo_phicluswidth_signal_EC_count = new TH1F("h1csc_rdo_phicluswidth_signal_EC_count",
+      "EndCap C: ROD transverse-cluster width;width(no.of strips);entries",48,0,48);
+  m_h1csc_rdo_phicluswidth_signal_EC_occupancy = new TH1F("h1csc_rdo_phicluswidth_signal_EC_occupancy",
+      "EndCap C: ROD transverse-cluster width;[sector] + [0.2 #times layer];entries/layer",nybinsEC,nyminEC,nymaxEC);
+  CscRdoBins::RdoBinLabels(m_h1csc_rdo_phicluswidth_signal_EC_occupancy,-1);
+
+  // ROD eta-cluster count
+  m_h2csc_rdo_etacluscount = new TH2F("h2csc_rdo_etacluscount",
+      "ROD precision-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
+      20,0,20,nybins,nymin,nymax);
+  m_h2csc_rdo_etacluscount_noise = new TH2F("h2csc_rdo_etacluscount_noise",
+      "ROD precision-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
+      20,0,20,nybins,nymin,nymax);
+  m_h2csc_rdo_etacluscount_signal = new TH2F("h2csc_rdo_etacluscount_signal",
+      "ROD precision-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
+      20,0,20,nybins,nymin,nymax);
+
+  // ROD phi-cluster count
+  m_h2csc_rdo_phicluscount = new TH2F("h2csc_rdo_phicluscount",
+      "ROD transverse-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
+      20,0,20,nybins,nymin,nymax);
+  m_h2csc_rdo_phicluscount_noise = new TH2F("h2csc_rdo_phicluscount_noise",
+      "ROD transverse-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
+      20,0,20,nybins,nymin,nymax);
+  m_h2csc_rdo_phicluscount_signal = new TH2F("h2csc_rdo_phicluscount_signal",
+      "ROD transverse-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
+      20,0,20,nybins,nymin,nymax);
+
+
+  // correlation histograms
+  m_h2csc_rdo_eta_vs_phi_cluscount = new TH2F("h2csc_rdo_eta_vs_phi_cluscount", 
+      "Eta vs. Phi Cluster count correlation;#varphi-cluster count;#eta-cluster count",100,0,100,100,0,100);
+  m_h2csc_rdo_eta_vs_phi_cluscount_noise = new TH2F("h2csc_rdo_eta_vs_phi_cluscount_noise", 
+      "Eta vs. Phi Noise-Cluster count correlation;#varphi-cluster count;#eta-cluster count",100,0,100,100,0,100);
+  m_h2csc_rdo_eta_vs_phi_cluscount_signal = new TH2F("h2csc_rdo_eta_vs_phi_cluscount_signal", 
+      "Eta vs. Phi Signal-Cluster count correlation;#varphi-cluster count;#eta-cluster count",100,0,100,100,0,100);
+
+  m_h2csc_rdo_eta_vs_phi_cluswidth = new TH2F("h2csc_rdo_eta_vs_phi_cluswidth", 
+      "Eta vs. Phi Cluster width correlation;#varphi-cluster width;#eta-cluster width",100,0,100,100,0,100);
+
+  m_regHShift.push_back(m_h1csc_rdo_maxdiffamp);              // shift, overview
+
+  m_regHExpert.push_back(m_h2csc_rdo_hitmap);                 // expert
+  m_regHShift.push_back(m_h2csc_rdo_hitmap_signal);           // shift, overview (dq-flag)
+  m_regHExpert.push_back(m_h2csc_rdo_hitmap_noise);           // expert
+  
+  m_regHExpert.push_back(m_h2csc_rdo_hitmap_norm);                 // expert
+  m_regHShift.push_back(m_h2csc_rdo_hitmap_norm_signal);           // shift, overview (dq-flag)
+  m_regHExpert.push_back(m_h2csc_rdo_hitmap_norm_noise);           // expert
+
+  m_regHOviewEA.push_back(m_h2csc_rdo_hitmap_signal_EA);
+  m_regHOviewEA.push_back(m_h1csc_rdo_hitmap_signal_EA_count);
+  m_regHOviewEA.push_back(m_h1csc_rdo_hitmap_signal_EA_occupancy);
+
+  m_regHOviewEA.push_back(m_h2csc_rdo_hitmap_norm_signal_EA);
+
+  m_regHOviewEC.push_back(m_h2csc_rdo_hitmap_signal_EC);
+  m_regHOviewEC.push_back(m_h1csc_rdo_hitmap_signal_EC_count);
+  m_regHOviewEC.push_back(m_h1csc_rdo_hitmap_signal_EC_occupancy);
+
+  m_regHOviewEC.push_back(m_h2csc_rdo_hitmap_norm_signal_EC);
+
+  m_regHExpert.push_back(m_h2csc_rdo_etacluswidth);           // expert
+  m_regHShift.push_back(m_h2csc_rdo_etacluswidth_signal);     // shift, overview (dq-flags)
+  m_regHExpert.push_back(m_h2csc_rdo_etacluswidth_noise);     // expert
+
+  m_regHOviewEA.push_back(m_h2csc_rdo_etacluswidth_signal_EA);
+  m_regHOviewEA.push_back(m_h1csc_rdo_etacluswidth_signal_EA_count);
+  m_regHOviewEA.push_back(m_h1csc_rdo_etacluswidth_signal_EA_occupancy);
+
+  m_regHOviewEC.push_back(m_h2csc_rdo_etacluswidth_signal_EC);
+  m_regHOviewEC.push_back(m_h1csc_rdo_etacluswidth_signal_EC_count);
+  m_regHOviewEC.push_back(m_h1csc_rdo_etacluswidth_signal_EC_occupancy);
+
+  m_regHExpert.push_back(m_h2csc_rdo_phicluswidth);           // expert
+  m_regHShift.push_back(m_h2csc_rdo_phicluswidth_signal);     // shift, overview (dq-flags)
+  m_regHExpert.push_back(m_h2csc_rdo_phicluswidth_noise);     // expert
+
+  m_regHOviewEA.push_back(m_h2csc_rdo_phicluswidth_signal_EA);
+  m_regHOviewEA.push_back(m_h1csc_rdo_phicluswidth_signal_EA_count);
+  m_regHOviewEA.push_back(m_h1csc_rdo_phicluswidth_signal_EA_occupancy);
+
+  m_regHOviewEC.push_back(m_h2csc_rdo_phicluswidth_signal_EC);
+  m_regHOviewEC.push_back(m_h1csc_rdo_phicluswidth_signal_EC_count);
+  m_regHOviewEC.push_back(m_h1csc_rdo_phicluswidth_signal_EC_occupancy);
+
+  m_regHExpert.push_back(m_h2csc_rdo_etacluscount);           // expert
+  m_regHShift.push_back(m_h2csc_rdo_etacluscount_signal);     // shift
+  m_regHExpert.push_back(m_h2csc_rdo_etacluscount_noise);     // expert
+
+  m_regHExpert.push_back(m_h2csc_rdo_phicluscount);           // expert
+  m_regHShift.push_back(m_h2csc_rdo_phicluscount_signal);     // shift
+  m_regHExpert.push_back(m_h2csc_rdo_phicluscount_noise);     // expert
+
+  m_regHExpert.push_back(m_h2csc_rdo_eta_vs_phi_cluscount);           // expert
+  m_regHExpert.push_back(m_h2csc_rdo_eta_vs_phi_cluscount_signal);    // expert
+  m_regHExpert.push_back(m_h2csc_rdo_eta_vs_phi_cluscount_noise);     // expert
+
+  m_regHExpert.push_back(m_h2csc_rdo_eta_vs_phi_cluswidth);           // expert
+
+  //}
+
+}
+
+//
+// bookHistograms ----------------------------------------------------------------
+//
+StatusCode CscRdoValAlg::bookHistograms(){
+  ATH_MSG_DEBUG ( "CSCRdoMon : in bookHistograms()"  );
+
+  StatusCode sc = StatusCode::SUCCESS;
+
+  bookRdoHistograms();
 
   //if (newEventsBlock){}
   //if (newLumiBlock){}
   //if (newRun) {
 
-    // book histograms
-    m_h1csc_rdo_maxdiffamp = new TH1F("h1csc_rdo_maxdiffamp", "Max Amplitude in ROD Cluster;ADC counts;;",500,0,5000);
+  //declare a group of histograms
+  MonGroup cscrdo_shift( this, m_cscRDOPath+"/Shift", run, ATTRIB_MANAGED );
+  MonGroup cscrdo_expert( this, m_cscRDOPath+"/Expert", run, ATTRIB_MANAGED );
 
-    // strip hitmap
-    m_h2csc_rdo_hitmap = new TH2F("h2csc_rdo_hitmap", "Hit Occupancy;channel;[sector] + [0.2 #times layer]",
-        nxbins,nxmin,nxmax,nybins,nymin,nymax);
-    m_h2csc_rdo_hitmap_noise = new TH2F("h2csc_rdo_hitmap_noise", "Noise Occupancy;channel;[sector] + [0.2 #times layer]",
-        nxbins,nxmin,nxmax,nybins,nymin,nymax);
-    m_h2csc_rdo_hitmap_signal = new TH2F("h2csc_rdo_hitmap_signal", "Signal Occupancy;channel;[sector] + [0.2 #times layer]",
-        nxbins,nxmin,nxmax,nybins,nymin,nymax);
+  // register shift histograms with service
+  for(size_t j = 0; j < m_regHShift.size(); j++) {
+    sc=cscrdo_shift.regHist(m_regHShift[j]);
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR ( "Failed to register shift histogram \"" << m_regHShift[j]->GetName() << "\""  );
+      return sc;
+    } // end if
+  } // end for
 
-    m_h2csc_rdo_hitmap_norm = new TH2F("h2csc_rdo_hitmap_norm", "Hit Occupancy;channel;[sector] + [0.2 #times layer]",
-        nxbins,nxmin,nxmax,nybins,nymin,nymax);
-    m_h2csc_rdo_hitmap_norm_noise = new TH2F("h2csc_rdo_hitmap_norm_noise", "Noise Occupancy;channel;[sector] + [0.2 #times layer]",
-        nxbins,nxmin,nxmax,nybins,nymin,nymax);
-    m_h2csc_rdo_hitmap_norm_signal = new TH2F("h2csc_rdo_hitmap_norm_signal", "Signal Occupancy;channel;[sector] + [0.2 #times layer]",
-        nxbins,nxmin,nxmax,nybins,nymin,nymax);
-
-    m_h2csc_rdo_hitmap_signal_EA = new TH2F("h2csc_rdo_hitmap_signal_EA", "EndCap A: Signal Occupancy;channel;[sector] + [0.2 #times layer]",
-        nxbins,nxmin,nxmax,nybinsEA,nyminEA,nymaxEA);
-    m_h1csc_rdo_hitmap_signal_EA_count = new TH1F("h1csc_rdo_hitmap_signal_EA_count", "EndCap A: Signal Occupancy;channel;entries/channel",
-        nxbins,nxmin,nxmax);
-    m_h1csc_rdo_hitmap_signal_EA_occupancy = new TH1F("h1csc_rdo_hitmap_signal_EA_occupancy", "EndCap A: Signal Occupancy;[sector] + [0.2 #times layer];entries/layer",
-        nybinsEA,nyminEA,nymaxEA);
-    CscRdoBins::RdoBinLabels(m_h1csc_rdo_hitmap_signal_EA_occupancy,1);
-
-    m_h2csc_rdo_hitmap_norm_signal_EA = new TH2F("h2csc_rdo_hitmap_norm_signal_EA", "EndCap A: Signal Occupancy;channel;[sector] + [0.2 #times layer]",
-        nxbins,nxmin,nxmax,nybinsEA,nyminEA,nymaxEA);
-    
-    m_h2csc_rdo_hitmap_signal_EC = new TH2F("h2csc_rdo_hitmap_signal_EC", "EndCap C: Signal Occupancy;channel;[sector] + [0.2 #times layer]",
-        nxbins,nxmin,nxmax,nybinsEC,nyminEC,nymaxEC);
-    m_h1csc_rdo_hitmap_signal_EC_count = new TH1F("h1csc_rdo_hitmap_signal_EC_count", "EndCap C: Signal Occupancy;channel;entries/channel",
-        nxbins,nxmin,nxmax);
-    m_h1csc_rdo_hitmap_signal_EC_occupancy = new TH1F("h1csc_rdo_hitmap_signal_EC_occupancy", "EndCap C: Signal Occupancy;[sector] + [0.2 #times layer];entries/layer",
-        nybinsEC,nyminEC,nymaxEC);
-    CscRdoBins::RdoBinLabels(m_h1csc_rdo_hitmap_signal_EC_occupancy,-1);
-    
-    m_h2csc_rdo_hitmap_norm_signal_EC = new TH2F("h2csc_rdo_hitmap_norm_signal_EC", "EndCap C: Signal Occupancy;channel;[sector] + [0.2 #times layer]",
-        nxbins,nxmin,nxmax,nybinsEC,nyminEC,nymaxEC);
-
-    // ROD eta-cluster width
-    m_h2csc_rdo_etacluswidth = new TH2F("h2csc_rdo_etacluswidth",
-        "ROD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]",
-        192,0,192,nybins,nymin,nymax);
-    m_h2csc_rdo_etacluswidth_noise = new TH2F("h2csc_rdo_etacluswidth_noise",
-        "ROD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]",
-        192,0,192,nybins,nymin,nymax);
-    m_h2csc_rdo_etacluswidth_signal = new TH2F("h2csc_rdo_etacluswidth_signal",
-        "ROD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]",
-        192,0,192,nybins,nymin,nymax);
-    m_h2csc_rdo_etacluswidth_signal_EA = new TH2F("h2csc_rdo_etacluswidth_signal_EA",
-        "EndCap A: ROD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]",
-        192,0,192,nybinsEA,nyminEA,nymaxEA);
-    m_h1csc_rdo_etacluswidth_signal_EA_count = new TH1F("h1csc_rdo_etacluswidth_signal_EA_count",
-        "EndCap A: ROD precision-cluster width;width(no.of strips);entries;",192,0,192);
-    m_h1csc_rdo_etacluswidth_signal_EA_occupancy = new TH1F("h1csc_rdo_etacluswidth_signal_EA_occupancy",
-        "EndCap A: ROD precision-cluster width;[sector] + [0.2 #times layer];entries/layer",nybinsEA,nyminEA,nymaxEA);
-    CscRdoBins::RdoBinLabels(m_h1csc_rdo_etacluswidth_signal_EA_occupancy,1);
-
-    m_h2csc_rdo_etacluswidth_signal_EC = new TH2F("h2csc_rdo_etacluswidth_signal_EC",
-        "EndCap C: ROD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]",
-        192,0,192,nybinsEC,nyminEC,nymaxEC);
-    m_h1csc_rdo_etacluswidth_signal_EC_count = new TH1F("h1csc_rdo_etacluswidth_signal_EC_count",
-        "EndCap C: ROD precision-cluster width;width(no.of strips);entries",192,0,192);
-    m_h1csc_rdo_etacluswidth_signal_EC_occupancy = new TH1F("h1csc_rdo_etacluswidth_signal_EC_occupancy",
-        "EndCap C: ROD precision-cluster width;[sector] + [0.2 #times layer];entries/layer",nybinsEC,nyminEC,nymaxEC);
-    CscRdoBins::RdoBinLabels(m_h1csc_rdo_etacluswidth_signal_EC_occupancy,-1);
-
-    // ROD phi-cluster width
-    m_h2csc_rdo_phicluswidth = new TH2F("h2csc_rdo_phicluswidth",
-        "ROD transverse-cluster width;width(no.of strips);[sector] + [0.2 #times layer]",
-        48,0,48,nybins,nymin,nymax);
-    m_h2csc_rdo_phicluswidth_noise = new TH2F("h2csc_rdo_phicluswidth_noise",
-        "ROD transverse-cluster width;width(no.of strips);[sector] + [0.2 #times layer]",
-        48,0,48,nybins,nymin,nymax);
-    m_h2csc_rdo_phicluswidth_signal = new TH2F("h2csc_rdo_phicluswidth_signal",
-        "ROD transverse-cluster width;width(no.of strips);[sector] + [0.2 #times layer]",
-        48,0,48,nybins,nymin,nymax);
-
-    m_h2csc_rdo_phicluswidth_signal_EA = new TH2F("h2csc_rdo_phicluswidth_signal_EA",
-        "EndCap A: ROD transverse-cluster width;width(no.of strips);[sector] + [0.2 #times layer]",
-        48,0,48,nybinsEA,nyminEA,nymaxEA);
-    m_h1csc_rdo_phicluswidth_signal_EA_count = new TH1F("h1csc_rdo_phicluswidth_signal_EA_count",
-        "EndCap A: ROD transverse-cluster width;width(no.of strips);entries",48,0,48);
-    m_h1csc_rdo_phicluswidth_signal_EA_occupancy = new TH1F("h1csc_rdo_phicluswidth_signal_EA_occupancy",
-        "EndCap A: ROD transverse-cluster width;[sector] + [0.2 #times layer];entries/layer",nybinsEA,nyminEA,nymaxEA);
-    CscRdoBins::RdoBinLabels(m_h1csc_rdo_phicluswidth_signal_EA_occupancy,1);
-
-    m_h2csc_rdo_phicluswidth_signal_EC = new TH2F("h2csc_rdo_phicluswidth_signal_EC",
-        "EndCap C: ROD transverse-cluster width;width(no.of strips);[sector] + [0.2 #times layer]",
-        48,0,48,nybinsEC,nyminEC,nymaxEC);
-    m_h1csc_rdo_phicluswidth_signal_EC_count = new TH1F("h1csc_rdo_phicluswidth_signal_EC_count",
-        "EndCap C: ROD transverse-cluster width;width(no.of strips);entries",48,0,48);
-    m_h1csc_rdo_phicluswidth_signal_EC_occupancy = new TH1F("h1csc_rdo_phicluswidth_signal_EC_occupancy",
-        "EndCap C: ROD transverse-cluster width;[sector] + [0.2 #times layer];entries/layer",nybinsEC,nyminEC,nymaxEC);
-    CscRdoBins::RdoBinLabels(m_h1csc_rdo_phicluswidth_signal_EC_occupancy,-1);
-
-    // ROD eta-cluster count
-    m_h2csc_rdo_etacluscount = new TH2F("h2csc_rdo_etacluscount",
-        "ROD precision-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
-        20,0,20,nybins,nymin,nymax);
-    m_h2csc_rdo_etacluscount_noise = new TH2F("h2csc_rdo_etacluscount_noise",
-        "ROD precision-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
-        20,0,20,nybins,nymin,nymax);
-    m_h2csc_rdo_etacluscount_signal = new TH2F("h2csc_rdo_etacluscount_signal",
-        "ROD precision-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
-        20,0,20,nybins,nymin,nymax);
-
-    // ROD phi-cluster count
-    m_h2csc_rdo_phicluscount = new TH2F("h2csc_rdo_phicluscount",
-        "ROD transverse-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
-        20,0,20,nybins,nymin,nymax);
-    m_h2csc_rdo_phicluscount_noise = new TH2F("h2csc_rdo_phicluscount_noise",
-        "ROD transverse-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
-        20,0,20,nybins,nymin,nymax);
-    m_h2csc_rdo_phicluscount_signal = new TH2F("h2csc_rdo_phicluscount_signal",
-        "ROD transverse-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
-        20,0,20,nybins,nymin,nymax);
+  // register expert histograms with service
+  for(size_t j = 0; j < m_regHExpert.size(); j++) {
+    sc=cscrdo_expert.regHist(m_regHExpert[j]);
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR ( "Failed to register expert histogram \"" << m_regHExpert[j]->GetName() << "\""  );
+      return sc;
+    } // end if
+  } // end for
 
 
-    // correlation histograms
-    m_h2csc_rdo_eta_vs_phi_cluscount = new TH2F("h2csc_rdo_eta_vs_phi_cluscount", 
-        "Eta vs. Phi Cluster count correlation;#varphi-cluster count;#eta-cluster count",100,0,100,100,0,100);
-    m_h2csc_rdo_eta_vs_phi_cluscount_noise = new TH2F("h2csc_rdo_eta_vs_phi_cluscount_noise", 
-        "Eta vs. Phi Noise-Cluster count correlation;#varphi-cluster count;#eta-cluster count",100,0,100,100,0,100);
-    m_h2csc_rdo_eta_vs_phi_cluscount_signal = new TH2F("h2csc_rdo_eta_vs_phi_cluscount_signal", 
-        "Eta vs. Phi Signal-Cluster count correlation;#varphi-cluster count;#eta-cluster count",100,0,100,100,0,100);
-
-    m_h2csc_rdo_eta_vs_phi_cluswidth = new TH2F("h2csc_rdo_eta_vs_phi_cluswidth", 
-        "Eta vs. Phi Cluster width correlation;#varphi-cluster width;#eta-cluster width",100,0,100,100,0,100);
-
-    m_regHShift.push_back(m_h1csc_rdo_maxdiffamp);              // shift, overview
-
-    m_regHExpert.push_back(m_h2csc_rdo_hitmap);                 // expert
-    m_regHShift.push_back(m_h2csc_rdo_hitmap_signal);           // shift, overview (dq-flag)
-    m_regHExpert.push_back(m_h2csc_rdo_hitmap_noise);           // expert
-
-    m_regHExpert.push_back(m_h2csc_rdo_hitmap_norm);                 // expert
-    m_regHShift.push_back(m_h2csc_rdo_hitmap_norm_signal);           // shift, overview (dq-flag)
-    m_regHExpert.push_back(m_h2csc_rdo_hitmap_norm_noise);           // expert
-
-    m_regHOviewEA.push_back(m_h2csc_rdo_hitmap_signal_EA);
-    m_regHOviewEA.push_back(m_h1csc_rdo_hitmap_signal_EA_count);
-    m_regHOviewEA.push_back(m_h1csc_rdo_hitmap_signal_EA_occupancy);
-
-    m_regHOviewEA.push_back(m_h2csc_rdo_hitmap_norm_signal_EA);
-    
-    m_regHOviewEC.push_back(m_h2csc_rdo_hitmap_signal_EC);
-    m_regHOviewEC.push_back(m_h1csc_rdo_hitmap_signal_EC_count);
-    m_regHOviewEC.push_back(m_h1csc_rdo_hitmap_signal_EC_occupancy);
-    
-    m_regHOviewEC.push_back(m_h2csc_rdo_hitmap_norm_signal_EC);
-
-    m_regHExpert.push_back(m_h2csc_rdo_etacluswidth);           // expert
-    m_regHShift.push_back(m_h2csc_rdo_etacluswidth_signal);     // shift, overview (dq-flags)
-    m_regHExpert.push_back(m_h2csc_rdo_etacluswidth_noise);     // expert
-
-    m_regHOviewEA.push_back(m_h2csc_rdo_etacluswidth_signal_EA);
-    m_regHOviewEA.push_back(m_h1csc_rdo_etacluswidth_signal_EA_count);
-    m_regHOviewEA.push_back(m_h1csc_rdo_etacluswidth_signal_EA_occupancy);
-    
-    m_regHOviewEC.push_back(m_h2csc_rdo_etacluswidth_signal_EC);
-    m_regHOviewEC.push_back(m_h1csc_rdo_etacluswidth_signal_EC_count);
-    m_regHOviewEC.push_back(m_h1csc_rdo_etacluswidth_signal_EC_occupancy);
-
-    m_regHExpert.push_back(m_h2csc_rdo_phicluswidth);           // expert
-    m_regHShift.push_back(m_h2csc_rdo_phicluswidth_signal);     // shift, overview (dq-flags)
-    m_regHExpert.push_back(m_h2csc_rdo_phicluswidth_noise);     // expert
-
-    m_regHOviewEA.push_back(m_h2csc_rdo_phicluswidth_signal_EA);
-    m_regHOviewEA.push_back(m_h1csc_rdo_phicluswidth_signal_EA_count);
-    m_regHOviewEA.push_back(m_h1csc_rdo_phicluswidth_signal_EA_occupancy);
-
-    m_regHOviewEC.push_back(m_h2csc_rdo_phicluswidth_signal_EC);
-    m_regHOviewEC.push_back(m_h1csc_rdo_phicluswidth_signal_EC_count);
-    m_regHOviewEC.push_back(m_h1csc_rdo_phicluswidth_signal_EC_occupancy);
-
-    m_regHExpert.push_back(m_h2csc_rdo_etacluscount);           // expert
-    m_regHShift.push_back(m_h2csc_rdo_etacluscount_signal);     // shift
-    m_regHExpert.push_back(m_h2csc_rdo_etacluscount_noise);     // expert
-
-    m_regHExpert.push_back(m_h2csc_rdo_phicluscount);           // expert
-    m_regHShift.push_back(m_h2csc_rdo_phicluscount_signal);     // shift
-    m_regHExpert.push_back(m_h2csc_rdo_phicluscount_noise);     // expert
-
-    m_regHExpert.push_back(m_h2csc_rdo_eta_vs_phi_cluscount);           // expert
-    m_regHExpert.push_back(m_h2csc_rdo_eta_vs_phi_cluscount_signal);    // expert
-    m_regHExpert.push_back(m_h2csc_rdo_eta_vs_phi_cluscount_noise);     // expert
-
-    m_regHExpert.push_back(m_h2csc_rdo_eta_vs_phi_cluswidth);           // expert
-
-    //declare a group of histograms
-    MonGroup cscrdo_shift( this, m_cscRDOPath+"/Shift", run, ATTRIB_MANAGED );
-    MonGroup cscrdo_expert( this, m_cscRDOPath+"/Expert", run, ATTRIB_MANAGED );
-
-    // register shift histograms with service
-    for(size_t j = 0; j < m_regHShift.size(); j++) {
-      sc=cscrdo_shift.regHist(m_regHShift[j]);
-      if(sc.isFailure()) {
-        ATH_MSG_ERROR ( "Failed to register shift histogram \"" << m_regHShift[j]->GetName() << "\""  );
-        return sc;
-      } // end if
-    } // end for
-
-    // register expert histograms with service
-    for(size_t j = 0; j < m_regHExpert.size(); j++) {
-      sc=cscrdo_expert.regHist(m_regHExpert[j]);
-      if(sc.isFailure()) {
-        ATH_MSG_ERROR ( "Failed to register expert histogram \"" << m_regHExpert[j]->GetName() << "\""  );
-        return sc;
-      } // end if
-    } // end for
-
-
-    // register overview histograms for EA
-    std::vector<TH1 *>::iterator m_iT;
-    //MonGroup cscrdo_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
-    cscrdo_oviewEA = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEA/RDO", run, ATTRIB_UNMANAGED );
-    m_iT = m_regHOviewEA.begin();
-    ATH_MSG_DEBUG (  "Found " << m_regHOviewEA.size() << " CSCEA Overview Histograms " );
-    for (; m_iT != m_regHOviewEA.end(); ++m_iT) {
-      sc = cscrdo_oviewEA->regHist(*m_iT);
-      if ( sc.isFailure() ) {
-        ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap A: " << (*m_iT)->GetName() );
-        return sc;
-      }
+  // register overview histograms for EA
+  std::vector<TH1 *>::iterator m_iT;
+  //MonGroup cscrdo_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
+  cscrdo_oviewEA = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEA/RDO", run, ATTRIB_UNMANAGED );
+  m_iT = m_regHOviewEA.begin();
+  ATH_MSG_DEBUG (  "Found " << m_regHOviewEA.size() << " CSCEA Overview Histograms " );
+  for (; m_iT != m_regHOviewEA.end(); ++m_iT) {
+    sc = cscrdo_oviewEA->regHist(*m_iT);
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap A: " << (*m_iT)->GetName() );
+      return sc;
     }
+  }
 
-    // register overview histograms for EC
-    //MonGroup cscrdo_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
-    cscrdo_oviewEC = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEC/RDO", run, ATTRIB_UNMANAGED );
-    m_iT = m_regHOviewEC.begin();
-    ATH_MSG_DEBUG (  "Found " << m_regHOviewEC.size() << " CSCEC Overview Histograms " );
-    for (; m_iT != m_regHOviewEC.end(); ++m_iT) {
-      sc = cscrdo_oviewEC->regHist(*m_iT);
-      if ( sc.isFailure() ) {
-        ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap C: " << (*m_iT)->GetName() );
-        return sc;
-      }
+  // register overview histograms for EC
+  //MonGroup cscrdo_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
+  cscrdo_oviewEC = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEC/RDO", run, ATTRIB_UNMANAGED );
+  m_iT = m_regHOviewEC.begin();
+  ATH_MSG_DEBUG (  "Found " << m_regHOviewEC.size() << " CSCEC Overview Histograms " );
+  for (; m_iT != m_regHOviewEC.end(); ++m_iT) {
+    sc = cscrdo_oviewEC->regHist(*m_iT);
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap C: " << (*m_iT)->GetName() );
+      return sc;
     }
+  }
 
   //} // end if newRun
 
@@ -681,63 +767,63 @@ StatusCode CscRdoValAlg::procHistograms() {
   if(endOfRun){}
   /*if(isEndOfRun){
     std::string m_cscGenPath = m_cscRDOPath.substr(0,m_cscRDOPath.find("CSC"));
-    //MonGroup cscrdo_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
-    for(size_t j = 0; j < m_regHOviewEC.size(); j++ ) {
-      TH1 *m_h(0);
-      m_h = m_regHOviewEC[j];
-      if(m_h != NULL) {
-        bool m_hist2d = m_h->IsA()->InheritsFrom("TH2");
-        if(m_hist2d) {
-          std::string m_hname = m_h->GetName();
-          // Get Y-projection (sec+0.2*lay)
-          TH1D *m_hY = dynamic_cast<TH2F* >(m_h)->ProjectionY(Form("%s_hY",m_hname.c_str()),0,-1,"");
-          // set bin labels
-          CscRdoBins::RdoBinLabels(m_hY,-1);
-          // register histogram with Overview/CSCEC
-          sc = cscrdo_oviewEC->regHist(m_hY);
-          if ( sc.isFailure() ) {
-            ATH_MSG_ERROR (  "Cannot register histogram " << m_hY->GetName() );
-            return sc;
-          }
-          // Get X-projection (counts)
-          TH1D *m_hX = dynamic_cast<TH2F* >(m_h)->ProjectionX(Form("%s_hX",m_hname.c_str()),0,-1,"e");
-          sc = cscrdo_oviewEC->regHist(m_hX);
-          if ( sc.isFailure() ) {
-            ATH_MSG_ERROR (  "Cannot register histogram " << m_hX->GetName() );
-            return sc;
-          }
-        } // end if hist2d
-      } // end if m_h
-    } // end for
+  //MonGroup cscrdo_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
+  for(size_t j = 0; j < m_regHOviewEC.size(); j++ ) {
+  TH1 *m_h(0);
+  m_h = m_regHOviewEC[j];
+  if(m_h != NULL) {
+  bool m_hist2d = m_h->IsA()->InheritsFrom("TH2");
+  if(m_hist2d) {
+  std::string m_hname = m_h->GetName();
+  // Get Y-projection (sec+0.2*lay)
+  TH1D *m_hY = dynamic_cast<TH2F* >(m_h)->ProjectionY(Form("%s_hY",m_hname.c_str()),0,-1,"");
+  // set bin labels
+  CscRdoBins::RdoBinLabels(m_hY,-1);
+  // register histogram with Overview/CSCEC
+  sc = cscrdo_oviewEC->regHist(m_hY);
+  if ( sc.isFailure() ) {
+  ATH_MSG_ERROR (  "Cannot register histogram " << m_hY->GetName() );
+  return sc;
+  }
+  // Get X-projection (counts)
+  TH1D *m_hX = dynamic_cast<TH2F* >(m_h)->ProjectionX(Form("%s_hX",m_hname.c_str()),0,-1,"e");
+  sc = cscrdo_oviewEC->regHist(m_hX);
+  if ( sc.isFailure() ) {
+  ATH_MSG_ERROR (  "Cannot register histogram " << m_hX->GetName() );
+  return sc;
+  }
+  } // end if hist2d
+  } // end if m_h
+  } // end for
 
-    //MonGroup cscrdo_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
-    for(size_t j = 0; j < m_regHOviewEA.size(); j++ ) {
-      TH1 *m_h(0);
-      m_h = m_regHOviewEA[j];
-      if(m_h != NULL) {
-        bool m_hist2d = m_h->IsA()->InheritsFrom("TH2");
-        if(m_hist2d) {
-          std::string m_hname = m_h->GetName();
-          // Get Y-projection (sec+0.2*lay)
-          TH1D *m_hY = dynamic_cast<TH2F* >(m_h)->ProjectionY(Form("%s_hY",m_hname.c_str()),0,-1,"");
-          // set bin labels
-          CscRdoBins::RdoBinLabels(m_hY,1);
-          // register histogram with Overview/CSCEA
-          sc = cscrdo_oviewEA->regHist(m_hY);
-          if ( sc.isFailure() ) {
-            ATH_MSG_ERROR (  "Cannot register histogram " << m_hY->GetName() );
-            return sc;
-          }
-          // Get X-projection (counts)
-          TH1D *m_hX = dynamic_cast<TH2F* >(m_h)->ProjectionX(Form("%s_hX",m_hname.c_str()),0,-1,"e");
-          sc = cscrdo_oviewEA->regHist(m_hX);
-          if ( sc.isFailure() ) {
-            ATH_MSG_ERROR (  "Cannot register histogram " << m_hX->GetName() );
-            return sc;
-          }
-        } // end if hist2d
-      } // end if m_h
-    } // end for
+  //MonGroup cscrdo_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
+  for(size_t j = 0; j < m_regHOviewEA.size(); j++ ) {
+  TH1 *m_h(0);
+  m_h = m_regHOviewEA[j];
+  if(m_h != NULL) {
+  bool m_hist2d = m_h->IsA()->InheritsFrom("TH2");
+  if(m_hist2d) {
+  std::string m_hname = m_h->GetName();
+  // Get Y-projection (sec+0.2*lay)
+  TH1D *m_hY = dynamic_cast<TH2F* >(m_h)->ProjectionY(Form("%s_hY",m_hname.c_str()),0,-1,"");
+  // set bin labels
+  CscRdoBins::RdoBinLabels(m_hY,1);
+  // register histogram with Overview/CSCEA
+  sc = cscrdo_oviewEA->regHist(m_hY);
+  if ( sc.isFailure() ) {
+  ATH_MSG_ERROR (  "Cannot register histogram " << m_hY->GetName() );
+  return sc;
+  }
+  // Get X-projection (counts)
+  TH1D *m_hX = dynamic_cast<TH2F* >(m_h)->ProjectionX(Form("%s_hX",m_hname.c_str()),0,-1,"e");
+  sc = cscrdo_oviewEA->regHist(m_hX);
+  if ( sc.isFailure() ) {
+  ATH_MSG_ERROR (  "Cannot register histogram " << m_hX->GetName() );
+  return sc;
+  }
+  } // end if hist2d
+  } // end if m_h
+  } // end for
 
   } // end isEndOfRun*/
 

@@ -31,6 +31,12 @@ class CscPrdValAlg: public ManagedMonitorToolBase  {
 
  private:
 
+  // initialize histograms
+  void initHistograms();
+
+  // register histograms
+  void bookPrdHistograms();
+
   size_t m_cscNoiseCut;
   std::string m_cscPrdKey, m_cscPRDPath, m_cscGenPath;
   bool m_mapxyrz;
