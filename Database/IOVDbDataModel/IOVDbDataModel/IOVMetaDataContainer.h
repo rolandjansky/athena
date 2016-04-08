@@ -81,6 +81,9 @@ public:
     //@}
 
 private:
+    friend class IOVMetaDataContainerCnv_p1;
+    friend class IOVMetaDataContainerPTCnv_p1;
+    
 
     std::string           m_folderName;
     std::string           m_folderDescription;

@@ -82,6 +82,8 @@ public:
     //@}
 
 private:
+    friend class IOVPayloadContainerCnv_p1;
+    friend class IOVPayloadContainerPTCnv_p1;
 
     class AttrListCollSortStart {
     public:
