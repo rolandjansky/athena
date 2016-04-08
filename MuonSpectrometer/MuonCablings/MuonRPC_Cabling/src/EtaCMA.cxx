@@ -34,7 +34,7 @@ EtaCMA::EtaCMA(int num,int stat,int type,CMAcoverage coverage,
    if(m_debug) log<<MSG::DEBUG
    <<"Building EtaCMA for eta/phi/PAD/Ixx/pivot/lpt/hpt/start_ch/start_st/stop_ch/stop_st "
    <<eta<<" "<<phi<<" "<<PAD<<" "<<Ixx<<" "<<pivot_station<<" "<<lowPt_station<<" "<<highPt_station
-   <<" "<<start_ch<<" "<<start_st<<" "<<stop_ch<<" "<<stop_st << endmsg;
+   <<" "<<start_ch<<" "<<start_st<<" "<<stop_ch<<" "<<stop_st << endreq;
 
     // Set the memory for storing the cabling map
     m_pivot_rpc_read  = 1;
@@ -457,7 +457,7 @@ EtaCMA::setup(SectorLogicSetup& setup)
 	namestr.str().copy(name,namestr.str().length(),0);
 	name[namestr.str().length()] = 0;
         if(m_debug) log<<MSG::DEBUG
-	<<"filename for the trigger roads "<<name<<endmsg;            
+	<<"filename for the trigger roads "<<name<<endreq;            
 
 	CMAprogLow.open(name);
         ++it;
@@ -479,13 +479,13 @@ EtaCMA::setup(SectorLogicSetup& setup)
         if(itc != p_trigroads->end()){
           if(m_debug){
             log<<MSG::DEBUG
-	    << "EtaCMA low: key " << name << "found in the Trigger Road Map --> OK" << endmsg;
+	    << "EtaCMA low: key " << name << "found in the Trigger Road Map --> OK" << endreq;
             log<<MSG::DEBUG
-	    << "EtaCMA low: key " <<  itc->second.c_str()<<endmsg;
+	    << "EtaCMA low: key " <<  itc->second.c_str()<<endreq;
 	  }
           CMAprogLow_COOL.str(itc->second.c_str());
           if(m_debug) log<<MSG::DEBUG
-		      << "Etacma:CMAPROGLOW " << CMAprogLow_COOL.str()<<endmsg;
+		      << "Etacma:CMAPROGLOW " << CMAprogLow_COOL.str()<<endreq;
         }
         ++it;
         namestr.clear();
@@ -507,13 +507,13 @@ EtaCMA::setup(SectorLogicSetup& setup)
 		{
                     if(m_debug) log<<MSG::DEBUG
 		    << s_tag << ": " << id() << ": low-pt: has threshold "
-		    << i << " not programmed."<<endmsg;
+		    << i << " not programmed."<<endreq;
 		}
             }
 	} else delete program;
 	CMAprogLow.close();
         if(m_debug) log<<MSG::DEBUG
-	<<"EtaCMA::setup low_pt program has been read ---- "<<endmsg;
+	<<"EtaCMA::setup low_pt program has been read ---- "<<endreq;
     } 
     else if(!CMAprogLow_COOL.str().empty()){
       CMAprogram* program = new CMAprogram(CMAprogLow_COOL,true);
@@ -530,7 +530,7 @@ EtaCMA::setup(SectorLogicSetup& setup)
 		{
                     if(m_debug) log<<MSG::DEBUG
 		    << s_tag << ": " << id() << ": low-pt: has threshold "
-		    << i << " not programmed."<<endmsg;
+		    << i << " not programmed."<<endreq;
 		}
             }
 	} else delete program;
@@ -540,7 +540,7 @@ EtaCMA::setup(SectorLogicSetup& setup)
     {
 
         if(m_debug) log<<MSG::DEBUG
-	<< name << " not found! Putting a dummy configuration"<<endmsg;
+	<< name << " not found! Putting a dummy configuration"<<endreq;
 	m_lowPt_program = new CMAprogram();
 	m_lowPt_program->open_threshold(0);
     }
@@ -571,7 +571,7 @@ EtaCMA::setup(SectorLogicSetup& setup)
 	namestr.str().copy(name,namestr.str().length(),0);
 	name[namestr.str().length()] = 0;
         if(m_debug) log<<MSG::DEBUG
-		    <<"filename for the trigger roads "<<name<<endmsg;
+		    <<"filename for the trigger roads "<<name<<endreq;
 
         CMAprogHigh.open(name);
         ++it;
@@ -593,13 +593,13 @@ EtaCMA::setup(SectorLogicSetup& setup)
         if(itc != p_trigroads->end()){
           if(m_debug) { 
             log<<MSG::DEBUG
-	    << "EtaCMA high: key " << name << "found in the Trigger Road Map --> OK"<<endmsg;
+	    << "EtaCMA high: key " << name << "found in the Trigger Road Map --> OK"<<endreq;
 	    log<<MSG::DEBUG
-	    << "EtaCMA high: key " <<  itc->second.c_str()<<endmsg;
+	    << "EtaCMA high: key " <<  itc->second.c_str()<<endreq;
 	  }
           CMAprogHigh_COOL.str(itc->second.c_str());
           if(m_debug) log<<MSG::DEBUG
-	  << "EtaCMA:CMAPROGHIGH " << CMAprogHigh_COOL.str()<<endmsg;
+	  << "EtaCMA:CMAPROGHIGH " << CMAprogHigh_COOL.str()<<endreq;
         }
         ++it;
         namestr.clear();
@@ -624,14 +624,14 @@ EtaCMA::setup(SectorLogicSetup& setup)
 
                     if(m_debug) log<<MSG::DEBUG
 		    << s_tag << ": " << id() << ": high-pt: has threshold "
-		    << i << " not programmed."<<endmsg;
+		    << i << " not programmed."<<endreq;
                 }
 	    }
 	}
 	else delete program;
 	CMAprogHigh.close();
         if(m_debug) log<<MSG::DEBUG
-		       <<"EtaCMA::setup high_pt program has been read ---- "<<endmsg;
+		       <<"EtaCMA::setup high_pt program has been read ---- "<<endreq;
     }
     else if(!CMAprogHigh_COOL.str().empty()){
       CMAprogram* program = new CMAprogram(CMAprogHigh_COOL,true);
@@ -648,7 +648,7 @@ EtaCMA::setup(SectorLogicSetup& setup)
 		{
                     if(m_debug) log<<MSG::DEBUG
 		    << s_tag << ": " << id() << ": high-pt: has threshold "
-		    << i << " not programmed."<<endmsg;
+		    << i << " not programmed."<<endreq;
 		}
             }
 	} else delete program;
@@ -657,7 +657,7 @@ EtaCMA::setup(SectorLogicSetup& setup)
     else 
     {
         if(m_debug) log<<MSG::DEBUG
-		    << name << " not found! Putting a dummy configuration"<<endmsg;
+		    << name << " not found! Putting a dummy configuration"<<endreq;
 	m_highPt_program = new CMAprogram();
 	m_highPt_program->open_threshold(0);
     }

@@ -225,24 +225,14 @@ OddPhiCMA::cable_CMA_channels(void)
 		int chs = (this->id().Ixx_index() == 0) ? 40 - max_st/2 : 0;
 		
 		char E = rpc->chamber_name()[2];
-		//E='A';
 		
 		if( E=='E' && this->id().Ixx_index() == 1){
-		  //std::cout<<" attenzione - Odd Phi CM in BME Ixx_index==1 -> resetting chs (now ="<<chs<<") and final_strip (now ="<<final_strip<<"), local_strip="<<local_strip<<std::endl;
-		  //ok for sector 23 (side C [and side A], cm1, ijk=2 and 3) 
-		 chs=8;
+		 chs=0;
 		 local_strip=32;
-		 final_strip=1;
-		 
-		 //std::cout<<" attenzione ODD-                                    reset chs (now ="<<chs<<") and final_strip (now ="<<final_strip<<"), local_strip="<<local_strip<<std::endl;
 		}
 		if( E=='E' &&  this->id().Ixx_index() == 0){
-		  //std::cout<<" attenzione - Odd Phi CM in BME Ixx_index==0 -> resetting chs (now ="<<chs<<") and final_strip (now ="<<final_strip<<"), local_strip="<<local_strip<<std::endl;
-		  //ok for sector 23 (side C [and side A], cm0, ijk=2 and 3) 		  
-		  chs=24;
-		  local_strip=32;
-		  final_strip=1;
-		  //std::cout<<" attenzione ODD-                                    reset chs (now ="<<chs<<") and final_strip (now ="<<final_strip<<"), local_strip="<<local_strip<<std::endl;
+		 chs=0;
+		 final_strip=1;
 		}
 		
                 if (chs <= first_ch_cabled) first_ch_cabled = chs;
@@ -342,20 +332,15 @@ OddPhiCMA::cable_CMA_channels(void)
 		char L = rpc->chamber_name()[2];
 		int  sEta = rpc->stationEta();	
 		
-		bool isBOE = false;
-		if (abs(sEta)==8 && L=='L' ) isBOE=true;
-		if(isBOE && this->id().Ixx_index() == 1){
-		  chs=0;
-		  local_strip=52;
-		  final_strip=1;
+		if(abs(sEta)==8 && L=='L' && this->id().Ixx_index() == 1){
+		 chs=0;
+		 local_strip=64;
 		}
-		
-		if(isBOE && this->id().Ixx_index() == 0){
-		  chs=4;
-		  final_strip=13;
-		  local_strip=64;
-		}
-
+		if(abs(sEta)==8 && L=='L' && this->id().Ixx_index() == 0){
+		 chs=0;
+		 local_strip=64;
+		 final_strip=1;
+		} 
                 if (chs <= first_ch_cabled) first_ch_cabled = chs;
 		do
                 {
@@ -364,37 +349,24 @@ OddPhiCMA::cable_CMA_channels(void)
                         noMoreChannels("High Pt");
 		        return false;
 	            }
-                    
-
-		    bool skipChannel=false;
-		    if (isBOE && this->id().Ixx_index() == 1 && 
-			( (chs>3 && chs<8) || (chs>39 && chs<44) ) ) skipChannel=true;
-		    if (isBOE && this->id().Ixx_index() == 0 && 
-			( (chs>19 && chs<24) || (chs>55 && chs<60) ) ) skipChannel=true;
-		    if (skipChannel)
-		      {++local_strip;}
-		    else 
-		      {
-			if(local_strip > 0 && local_strip <= rpc_st)
-			  {
-			    if(rpc->ijk_phiReadout() == 1)
-			      {
-				m_highPt[r][0][chs]=cham*100 + local_strip - 1;
-				m_highPt[r][1][chs]=10000 + cham*100 + local_strip - 1;
-			      } else
-			      {
-				m_highPt[r][1][chs]=cham*100 + local_strip - 1;
-				m_highPt[r][0][chs]=10000 + cham*100 + local_strip - 1;
-			      }
-			    if(max_st > wor->give_max_phi_strips())
-			      {
-				multiplicity[local_strip - 1] = 1;
-			      } else {
-			      multiplicity[local_strip - 1 + (max_st - rpc_st)] = 1;
-			    }
-			  }
-		      }
-
+                    if(local_strip > 0 && local_strip <= rpc_st)
+	            {
+		        if(rpc->ijk_phiReadout() == 1)
+			{
+	                m_highPt[r][0][chs]=cham*100 + local_strip - 1;
+	                m_highPt[r][1][chs]=10000 + cham*100 + local_strip - 1;
+			} else
+			{
+			m_highPt[r][1][chs]=cham*100 + local_strip - 1;
+	                m_highPt[r][0][chs]=10000 + cham*100 + local_strip - 1;
+			}
+			if(max_st > wor->give_max_phi_strips())
+			{
+			  multiplicity[local_strip - 1] = 1;
+			} else {
+                          multiplicity[local_strip - 1 + (max_st - rpc_st)] = 1;
+			}
+	            }
 	            ++chs;
                 }while(--local_strip >= final_strip);
 
@@ -1045,13 +1017,13 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
           if(itc != p_trigroads->end()){
             if(m_debug) {
               log<<MSG::DEBUG
-  	         << "OddPhiCMA low: key " << name << "found in the Trigger Road Map --> OK" <<endmsg;
+  	         << "OddPhiCMA low: key " << name << "found in the Trigger Road Map --> OK" <<endreq;
               log<<MSG::DEBUG
-		 << "OddPhiCMA low: key " <<  itc->second.c_str()<<endmsg;
+		 << "OddPhiCMA low: key " <<  itc->second.c_str()<<endreq;
 	    }
             CMAprogLow_COOL.str(itc->second.c_str());
             if(m_debug) log<<MSG::DEBUG
-			   << "CMAPROGLOW " << CMAprogLow_COOL.str()<<endmsg;
+			   << "CMAPROGLOW " << CMAprogLow_COOL.str()<<endreq;
           }
 	}
         ++it;
@@ -1074,7 +1046,7 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
 	    {
               if(m_debug) log<<MSG::DEBUG
 	                     << s_tag << ": " << id() << ": low-pt: has threshold "
-			     << i << " not programmed."<<endmsg;
+			     << i << " not programmed."<<endreq;
 	    }
 	}
       } 
@@ -1096,7 +1068,7 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
 	    {
               if(m_debug) log<<MSG::DEBUG
 		<< s_tag << ": " << id() << ": low-pt: has threshold "
-		<< i << " not programmed."<<endmsg;
+		<< i << " not programmed."<<endreq;
 	    }
         }
       } 
@@ -1106,7 +1078,7 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
     else if (name[0] != '\0')
       {
         if(m_debug) log<<MSG::DEBUG
-		       << name << " not found! Putting a dummy configuration"<<endmsg;
+		       << name << " not found! Putting a dummy configuration"<<endreq;
 	m_lowPt_program = new CMAprogram();
 	m_lowPt_program->open_threshold(0);
     }
@@ -1167,13 +1139,13 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
           if(itc != p_trigroads->end()){
             if(m_debug) {
               log<<MSG::DEBUG
-		 << "OddPhiCMA high: key " << name << "found in the Trigger Road Map --> OK" <<endmsg;
+		 << "OddPhiCMA high: key " << name << "found in the Trigger Road Map --> OK" <<endreq;
               log<<MSG::DEBUG
-	         << "OddPhiCMA high: key " <<  itc->second.c_str()<<endmsg;
+	         << "OddPhiCMA high: key " <<  itc->second.c_str()<<endreq;
 	    }
             CMAprogHigh_COOL.str(itc->second.c_str());
             if(m_debug) log<<MSG::DEBUG
-			   << "CMAPROGHIGH " << CMAprogHigh_COOL.str()<<endmsg;
+			   << "CMAPROGHIGH " << CMAprogHigh_COOL.str()<<endreq;
           }
 	}
         ++it;
@@ -1197,7 +1169,7 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
 		{
                   if(m_debug) log<<MSG::DEBUG
 		  << s_tag << ": " << id() << ": high-pt: has threshold "
-		  << i << " not programmed."<<endmsg;
+		  << i << " not programmed."<<endreq;
                 }
 	    }
 	}
@@ -1219,7 +1191,7 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
 		{
                   if(m_debug) log<<MSG::DEBUG
 		              << s_tag << ": " << id() << ": high-pt: has threshold "
-			      << i << " not programmed."<<endmsg;
+			      << i << " not programmed."<<endreq;
 		}
             }
 	} 
@@ -1229,7 +1201,7 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
     else if (name[0] != '\0')
     {
       if(m_debug) log<<MSG::DEBUG
-		  << name << " not found! Putting a dummy configuration"<<endmsg;
+		  << name << " not found! Putting a dummy configuration"<<endreq;
 	m_highPt_program = new CMAprogram();
 	m_highPt_program->open_threshold(0);
     }
