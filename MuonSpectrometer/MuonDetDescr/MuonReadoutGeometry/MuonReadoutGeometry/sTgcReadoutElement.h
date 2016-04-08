@@ -268,7 +268,7 @@ namespace MuonGM {
   inline bool sTgcReadoutElement::padPosition( const Identifier& id, Amg::Vector2D& pos ) const {
 
     const MuonPadDesign* design = getPadDesign(id);
-    if( !design ) return -1;
+    if( !design ) return false;
     
     int padEta = manager()->stgcIdHelper()->padEta(id);
     int padPhi = manager()->stgcIdHelper()->padPhi(id);

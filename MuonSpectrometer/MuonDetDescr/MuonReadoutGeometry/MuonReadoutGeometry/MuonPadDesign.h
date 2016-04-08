@@ -17,6 +17,19 @@
 
 namespace MuonGM {
 
+  /// Parameters defining the design of the readout sTGC pads
+  /**
+     The parameters below are the ones from the parameter book.  The
+     naming convention used here refers to the one explained on p.90
+     ("naming of .xml tags and .h variables") of
+     https://twiki.cern.ch/twiki/bin/view/Atlas/NSWParameterBook#Parameter_book
+
+     Note that the pads do not exist as objects in memory. Instead, a
+     MuonPadDesign is defined for each layer in a module. From the
+     readout parameters one can map position <-> channel:
+     - for each sim hit position identify the pad (channel)
+     - for each channel determine the center position
+  */
   struct MuonPadDesign {
   public:
     int    padEtaMin;
@@ -40,7 +53,7 @@ namespace MuonGM {
     double sWidth;
     double lWidth;
     double thickness;
-    mutable double radialDistance;
+    mutable double radialDistance; ///< DT-2015-11-29 distance from the beamline to the center of the module
 
     double sPadWidth;
     double lPadWidth;
@@ -61,6 +74,15 @@ namespace MuonGM {
 
     /** distance to channel - residual */
     double distanceToChannel( const Amg::Vector2D& pos, bool measPhi, int channel=0 ) const;
+
+    /// whether pos is within the sensitive area of the module
+    bool withinSensitiveArea(const Amg::Vector2D& pos) const;
+    /// lowest y (local) of the sensitive volume
+    double minSensitiveY() const;
+    /// highest y (local) of the sensitive volume
+    double maxSensitiveY() const;
+    /// largest (abs, local) x of the sensitive volume
+    double maxAbsSensitiveX(const double &y) const;
 
     /** calculate local channel number, range 1=nstrips like identifiers. Returns -1 if out of range */
     std::pair<int,int> channelNumber( const Amg::Vector2D& pos) const;
@@ -121,117 +143,6 @@ namespace MuonGM {
     return   (pos.x()-chPos.x());
   }
 
-  inline std::pair<int,int> MuonPadDesign::channelNumber( const Amg::Vector2D& pos) const {
-
-    // perform check of the sensitive area
-    if ( pos.y() > (0.5*Length-ylFrame )|| pos.y() < (-0.5*Length+ysFrame ) ){
-       ATH_MSG_DEBUG("pos.y() out of bounds");
-       return std::pair<int,int>(-1,-1);
-    }
-    if ( pos.y() <= (0.5*Length-ylFrame-yCutout)){
-      if ( fabs(pos.x()) > (0.5*sPadWidth+0.5*(lPadWidth-sPadWidth)*((pos.y()+(0.5*Length-ysFrame))/(Length-ysFrame-ylFrame))) ) {
-         ATH_MSG_DEBUG("pos.x() out of bounds" );
-         return std::pair<int,int>(-1,-1);
-      }
-    }
-    else if ( pos.y() > (0.5*Length-ylFrame-yCutout)) {
-      if ( fabs(pos.x()) > (0.5*sPadWidth+0.5*(lPadWidth-sPadWidth)*(Length-ysFrame-ylFrame-yCutout)/(Length-ysFrame-ylFrame))) {
-         ATH_MSG_DEBUG("pos.x() out of bounds" );
-         return std::pair<int,int>(-1,-1);
-      }
-    }
-
-    // padEta
-    double y1 = 0.5*Length + pos.y(); //distance from small edge to hit
-    double padEtadouble;
-    int padEta = 0;
-    if (y1>ysFrame+firstRowPos) {
-       padEtadouble =((y1-ysFrame-firstRowPos)/inputRowPitch)+2;//+1 for firstRow, +1 because a remainder means another row (3.1=4)
-       padEta=padEtadouble;
-    }
-    else if (y1>ysFrame) {
-       padEta=1;
-    }
-    else if (y1>0 && y1<ysFrame) {
-       ATH_MSG_DEBUG("Hit the ysFrame" );
-       return std::pair<int,int>(-1,-1);
-    }
-    else if (y1<0) {
-       ATH_MSG_ERROR("negative distance to hit" );
-       return std::pair<int,int>(-1,-1);
-    }
-    else {
-       ATH_MSG_ERROR("undefined distance to hit" );
-       return std::pair<int,int>(-1,-1);
-    }
-
-    if (padEta==nPadH+1){
-       padEta-=1;//the top row can be bigger, therefore it is really in the nPadH row.
-    } 
-    else if (padEta>nPadH+1) {
-       ATH_MSG_ERROR("padEta too high" );
-       return std::pair<int,int>(-1,-1);
-    }
-
-   // padPhi
-   double locPhi = 180*atan( pos.x()/( radialDistance + pos.y()))/M_PI;
-   double maxlocPhi = 180*atan( 0.5*sPadWidth/( radialDistance + (-0.5*Length+ysFrame ) ))/M_PI;
-//    double maxlocPhi2 = 180*atan( 0.5*lPadWidth/( radialDistance + (0.5*Length-ylFrame) ))/M_PI;
-   if (std::abs(locPhi)>maxlocPhi) {
-      ATH_MSG_ERROR("locPhi too large" );
-      return std::pair<int,int>(-1,-1);
-   }
-   double fuzziedX = pos.x() - (etasign*PadPhiShift /cos(locPhi*M_PI/180)); //fuzziness for negative z takes negative of PadPhiShift
-   double fuzziedlocPhi = 180*atan( fuzziedX/( radialDistance + pos.y()))/M_PI;
-   if (std::abs(fuzziedlocPhi)>maxlocPhi) {
-      ATH_MSG_DEBUG("close to outer border" );
-      fuzziedlocPhi=locPhi;
-   }
-   double padPhidouble = (fuzziedlocPhi-firstPhiPos)/inputPhiPitch;
-   int padPhi = padPhidouble+2; //(+1 because remainder means next column e.g. 1.1=2, +1 so rightmostcolumn=1)
-
-   if (padPhi == 0) {
-      padPhi=1;
-      ATH_MSG_DEBUG("adjusted rightmost. padPhi="<<padPhi );
-   }
-   else if(padPhi == nPadColumns+1){
-      padPhi=nPadColumns;
-      ATH_MSG_DEBUG("adjusted leftmost. padPhi="<<padPhi );
-   }
-   else if ( padPhi < 0 || padPhi > nPadColumns+1 ){
-      ATH_MSG_ERROR("padPhi out of bounds" );
-      return std::pair<int,int>(-1,-1);
-   }
-   ATH_MSG_DEBUG("padEta,padPhi: " <<padEta<<" , "<<padPhi );
-   return std::pair<int,int>(padEta,padPhi);
-
-  }
-
-
-  inline bool MuonPadDesign::channelPosition( std::pair<int,int> pad, Amg::Vector2D& /*pos*/ ) const {
-
-    if ( pad.first<1 || pad.second<1 ) return false;
-
-
-    /* DT 2/9/2015 The test on the indices for pads on subsequent layers is not implemented in MuonPadDesign,but in TrigT1NSW (IIRC).
-
-    int padEta = pad.first-1+padEtaMin;
-    int padPhi = pad.second-1+padPhiMin;
-
-    if( padEta < padEtaMin || padEta > padEtaMax ) return false;
-    if( padPhi < padPhiMin || padPhi > padPhiMax ) return false;
-
-    pos[1] = firstRowPos + (padEta-0.5)*inputRowPitch - radialDistance;     
-
-    double phi = firstPhiPos + padPhi*inputPhiPitch;
-
-    pos[0] =  tan(phi)*( radialDistance + pos.y() );
-
-    return true; */
-
-    return false;
-
-  }
 
   inline double MuonPadDesign::stereoAngle( /*int st*/) const {
     
