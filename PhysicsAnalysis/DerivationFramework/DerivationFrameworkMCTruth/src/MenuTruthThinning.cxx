@@ -17,7 +17,7 @@
 #include "AthenaKernel/IThinningSvc.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
-#include "EventKernel/PdtPdg.h"
+//#include "EventKernel/PdtPdg.h"
 #include "AthenaKernel/errorcheck.h"
 #include "HepPID/ParticleIDMethods.hh"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -32,7 +32,6 @@ namespace {
     const int NPPDGMIN = 1000000;
     const int NPPDGMAX = 8999999;
     const int PHOTOSMIN = 10000;
-    const int GEANTMIN = 200000;
 
 } // anonymous namespace
 
@@ -47,6 +46,7 @@ m_eventsKey("TruthEvents"),
 m_writeFirstN(-1),
 m_totpart(0),
 m_removedpart(0),
+m_geantOffset(200000),
 m_thinningSvc("ThinningSvc",n)
 {
     declareInterface<DerivationFramework::IThinningTool>(this);
@@ -149,6 +149,14 @@ m_thinningSvc("ThinningSvc",n)
                     m_preserveAncestors = false,
                     "Preserve ancestors of retained particles");
 
+    declareProperty("SimBarcodeOffset",
+                    m_geantOffset = 200000,
+                    "Barcode offset for simulation particles");
+
+    declareProperty ("WritettHFHadrons",
+                     m_writettHFHadrons = false,
+                     "Keep tt+HF hadrons?");
+
     
 }
 
@@ -234,7 +242,7 @@ StatusCode DerivationFramework::MenuTruthThinning::doThinning() const
     // - update the masks including the descendants/ancestors
     // To ensure graph completeness, this  over-rides anything set by the special treatment 
     // of taus in the section above 
-    DerivationFramework::DecayGraphHelper decayHelper;
+    DerivationFramework::DecayGraphHelper decayHelper(m_geantOffset);
     std::unordered_set<int> encounteredBarcodes; // For loop handling
     if (m_preserveDescendants || m_preserveGeneratorDescendants || m_preserveAncestors) {
         for (int i=0; i<nTruthParticles; ++i) {
@@ -272,8 +280,8 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
     int pdg_id = std::abs(p->pdgId());
     int barcode = p->barcode();
     
-    if (barcode > GEANTMIN && !m_writeGeant && !m_writeEverything && !ok) {
-        if (! (pdg_id == PDG::gamma &&
+    if (barcode > m_geantOffset && !m_writeGeant && !m_writeEverything && !ok) {
+        if (! (pdg_id == 22/*PDG::gamma*/ &&
                m_geantPhotonPtThresh >= 0 &&
                p->pt() > m_geantPhotonPtThresh) )
             return false;
@@ -294,17 +302,19 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
         ok = true;
     
     //  OK if we should select hadrons and are in hadron range
-    if( m_writeHadrons && HepPID::isHadron (pdg_id) && barcode < PHOTOSMIN )
+    // JRC: cut changed from PHOTOSMIN to m_geantOffset
+    if( m_writeHadrons && HepPID::isHadron (pdg_id) && barcode < m_geantOffset )
         ok = true;
     
     // OK if we should select b hadrons and are in hadron range
-    if( m_writeBHadrons && barcode < PHOTOSMIN && HepPID::isHadron (pdg_id) && HepPID::hasBottom (pdg_id) )
+    // JRC: cut changed from PHOTOSMIN to m_geantOffset
+    if( m_writeBHadrons &&  barcode < m_geantOffset && HepPID::isHadron (pdg_id) && HepPID::hasBottom (pdg_id) )
         ok= true;
     
     // PHOTOS range: check whether photons come from parton range or
     // hadron range
     int motherPDGID = 999999999;
-    if( barcode > PHOTOSMIN && barcode < GEANTMIN &&
+    if( barcode > PHOTOSMIN && barcode < m_geantOffset &&
        p->hasProdVtx() )
     {
         const xAOD::TruthVertex* vprod = p->prodVtx();
@@ -319,7 +329,7 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
     }
     
     // OK if we should select G4 particles and are in G4 range
-    if( m_writeGeant && barcode > GEANTMIN )
+    if( m_writeGeant && barcode > m_geantOffset )
         ok = true;
     
     if(isLeptonFromTau(p))
@@ -343,6 +353,10 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
     if(m_writeBSM && isBSM(p))
         ok = true;
     
+    // tt+HF hadrons
+    if (m_writettHFHadrons && isttHFHadron(p))
+        ok = true;
+
     // Top quarks
     if(m_writeTopAndDecays && pdg_id==6)
         ok = true;
@@ -352,7 +366,7 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
         ok = true;
    
     // All stable
-    if (m_writeAllStable && p->status()==1 && barcode<GEANTMIN)
+    if (m_writeAllStable && p->status()==1 && barcode<m_geantOffset)
 	ok = true; 
 
     // All leptons not from hadron decays
@@ -609,10 +623,34 @@ bool DerivationFramework::MenuTruthThinning::isBSM(const xAOD::TruthParticle* pa
         abs(pdg)== 7 || // 4th gen beauty
         abs(pdg)== 8 || // 4th gen top
         (1000000<abs(pdg) && abs(pdg)<1000040) || // left-handed SUSY
-        (2000000<abs(pdg) && abs(pdg)<2000040) ) // right-handed SUSY
+        (2000000<abs(pdg) && abs(pdg)<2000040) || // right-handed SUSY
+        abs(pdg)==6000005 || // X5/3 
+        abs(pdg)==6000006 || // T2/3
+        abs(pdg)==6000007 || // B-1/3
+        abs(pdg)==6000008 || // Y-4/3
+        ( (abs(pdg)>=10000100) && (abs(pdg)<=10001000) ) // multi-charged 
+    ) 
         return true;
     
     return false;
+}
+
+
+bool DerivationFramework::MenuTruthThinning::isttHFHadron(const xAOD::TruthParticle* part) const{
+    
+  int ttHFClassification=6;
+  
+  if (part->isAvailable<int>("TopHadronOriginFlag")){
+    ttHFClassification = part->auxdata< int >( "TopHadronOriginFlag" );
+  }
+  else{
+    return false;
+  }
+    
+  if (ttHFClassification < 6 ) // useful Hadrons
+    return true;
+  
+  return false;
 }
 
 bool DerivationFramework::MenuTruthThinning::isBoson(const xAOD::TruthParticle* part) const{
@@ -632,7 +670,7 @@ bool DerivationFramework::MenuTruthThinning::isBoson(const xAOD::TruthParticle* 
 bool DerivationFramework::MenuTruthThinning::isFsrFromLepton(const xAOD::TruthParticle* part) const {
     int pdg = part->pdgId();
     if(abs(pdg) != 22) return false; // photon
-    if(part->barcode() >=  200000) return false; // Geant photon
+    if(part->barcode() >= m_geantOffset) return false; // Geant photon
     const xAOD::TruthVertex* prod = part->prodVtx();
     if(!prod) return false; // no parent.
     // Simple loop check 

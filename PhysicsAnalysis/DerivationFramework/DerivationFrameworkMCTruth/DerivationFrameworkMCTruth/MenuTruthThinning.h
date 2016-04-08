@@ -39,6 +39,7 @@ namespace DerivationFramework {
         bool isLeptonFromTau(const xAOD::TruthParticle*) const;
         bool isFromTau(const xAOD::TruthParticle*) const;
         bool isBSM(const xAOD::TruthParticle*) const;
+	bool isttHFHadron(const xAOD::TruthParticle*) const;
         bool isBoson(const xAOD::TruthParticle*) const;
         bool isFsrFromLepton(const xAOD::TruthParticle*) const;
        
@@ -102,6 +103,9 @@ namespace DerivationFramework {
  
         /// Parameter: Write particles with status code 3
         bool m_writeStatus3;
+
+	/// Parameter: Write particles for tt+HF classification
+        bool m_writettHFHadrons;
         
         /// Parameter: First N particles to write
         int m_writeFirstN;
@@ -110,7 +114,7 @@ namespace DerivationFramework {
         bool m_preserveDescendants;
         bool m_preserveGeneratorDescendants; 
         bool m_preserveAncestors;
-        
+       
         /// for keeping trace of barcodes in order to detect loops
         mutable std::unordered_set<int> m_barcode_trace;
         
@@ -118,7 +122,10 @@ namespace DerivationFramework {
         mutable unsigned int m_totpart;
         mutable unsigned int m_removedpart;
 	mutable int m_particleCountSoFar;	
-        
+       
+        /// Parameter: simulation barcode offset
+        int m_geantOffset;
+ 
         // handle to the thinning service
         ServiceHandle<IThinningSvc> m_thinningSvc;
     }; 

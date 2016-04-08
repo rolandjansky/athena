@@ -22,6 +22,14 @@
 
 namespace DerivationFramework {
     struct DecayGraphHelper {
+        // Geant4 barcode offset
+        int g4BarcodeOffset; 
+        DecayGraphHelper(int init_g4BarcodeOffset) {
+            g4BarcodeOffset = init_g4BarcodeOffset;
+        }
+        DecayGraphHelper(void) {
+            g4BarcodeOffset = 200000;
+        }
         // descendants: starting from particle (simple listing version)
         void descendants(const xAOD::TruthParticle* pHead,
                          std::vector<int> &particleList,
@@ -71,7 +79,7 @@ namespace DerivationFramework {
             else {return;}
             
             // If user doesn't want Geant, check and reject
-            if (!includeGeant && pHead->barcode()>200000) return;  
+            if (!includeGeant && pHead->barcode()>g4BarcodeOffset) return;  
 
             // Save the decay vertex
             int vtxIndex = decayVtx->index();
@@ -137,7 +145,7 @@ namespace DerivationFramework {
             if (!skipPdgCheck && find(pdgId.begin(), pdgId.end(), abs(particle->pdgId())) == pdgId.end()) continue;
 
             //ensure particles are not from GEANT
-            if (particle->barcode() >= 2e5) continue;
+            if (particle->barcode() >= g4BarcodeOffset) continue;
 
             //check if we have a neutral particle (threeCharge returns int)
             if (chargedOnly && HepPID::threeCharge(particle->pdgId()) == 0) continue;

@@ -105,6 +105,7 @@ StatusCode DerivationFramework::TruthIsolationTool::addBranches() const
     decayHelper.constructListOfFinalParticles(importedAllTruthParticles, candidateParticlesList, emptyList, true, m_chargedOnly);
 
     //create the cached conesize^2 vector
+    m_coneSizes2->clear();
     for ( auto csize_itr : *m_coneSizesSort ) {
       m_coneSizes2->push_back(csize_itr * csize_itr);
     }
@@ -160,7 +161,7 @@ float DerivationFramework::TruthIsolationTool::calculateDeltaR2(const xAOD::IPar
   float eta1 = p1->eta();
   float deltaPhi = fabs(phi1-phi2);
   if (deltaPhi>TMath::Pi()) deltaPhi = 2.0*TMath::Pi() - deltaPhi;
-  float deltaPhiSq = (phi1-phi2)*(phi1-phi2);
+  float deltaPhiSq = deltaPhi * deltaPhi;
   float deltaEtaSq = (eta1-eta2)*(eta1-eta2);
   return deltaPhiSq+deltaEtaSq;
 }
