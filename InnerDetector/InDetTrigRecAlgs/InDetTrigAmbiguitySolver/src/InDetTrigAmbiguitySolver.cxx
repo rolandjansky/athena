@@ -23,6 +23,7 @@ InDetTrigAmbiguitySolver::InDetTrigAmbiguitySolver(const std::string& name, ISvc
   : HLT::FexAlgo(name, pSvcLocator),
     m_resolveTracks(true),
     m_oldTracks(0),
+    m_tracks(0),
     m_trackInCount(0),
     m_trackOutCount(0),
     m_TotalTrackInCount(0),
