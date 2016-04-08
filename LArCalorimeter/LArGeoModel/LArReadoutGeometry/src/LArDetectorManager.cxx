@@ -34,10 +34,10 @@
 // Class LArDetectorManager 
 
 LArDetectorManager::LArDetectorManager()
-  : embManager (0),
-    emecManager (0),
-    hecManager (0),
-    fcalManager (0),
+  : m_embManager (0),
+    m_emecManager (0),
+    m_hecManager (0),
+    m_fcalManager (0),
     m_isTestBeam(false)
   //## begin LArDetectorManager::LArDetectorManager%4466058E0231_const.hasinit preserve=no
   //## end LArDetectorManager::LArDetectorManager%4466058E0231_const.hasinit
@@ -52,7 +52,7 @@ LArDetectorManager::LArDetectorManager (const EMBDetectorManager* emb, const EME
   //## begin LArDetectorManager::LArDetectorManager%446607D90148.hasinit preserve=no
   //## end LArDetectorManager::LArDetectorManager%446607D90148.hasinit
   //## begin LArDetectorManager::LArDetectorManager%446607D90148.initialization preserve=yes
-  :embManager(emb),emecManager(emec),hecManager(hec),fcalManager(fcal),m_isTestBeam(true)
+  :m_embManager(emb),m_emecManager(emec),m_hecManager(hec),m_fcalManager(fcal),m_isTestBeam(true)
   //## end LArDetectorManager::LArDetectorManager%446607D90148.initialization
 {
   //## begin LArDetectorManager::LArDetectorManager%446607D90148.body preserve=yes

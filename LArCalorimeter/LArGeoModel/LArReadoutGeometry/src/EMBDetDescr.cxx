@@ -20,42 +20,42 @@ struct Boundary {
  
 
 EMBDetDescr::EMBDetDescr (const EMBDetectorManager *detManager, unsigned int sampling, unsigned int region, const CellBinning &phiBinning)
-  :manager(detManager),samplingIndex(sampling),regionIndex(region),phiBinning(phiBinning),etaBinning(etaBoundariesBarrel[sampling][region].min,
+  :m_manager(detManager),m_samplingIndex(sampling),m_regionIndex(region),m_phiBinning(phiBinning),m_etaBinning(etaBoundariesBarrel[sampling][region].min,
 												     etaBoundariesBarrel[sampling][region].max,
 												     etaBoundariesBarrel[sampling][region].nDiv,
 												     etaBoundariesBarrel[sampling][region].firstDiv)
 {
   
-  for (unsigned int i=0;i<etaBinning.getFirstDivisionNumber()+etaBinning.getNumDivisions();i++) {
-    if (i<etaBinning.getFirstDivisionNumber()) {
-      offset.push_back(0);
-      halfLength.push_back(0);
+  for (unsigned int i=0;i<m_etaBinning.getFirstDivisionNumber()+m_etaBinning.getNumDivisions();i++) {
+    if (i<m_etaBinning.getFirstDivisionNumber()) {
+      m_offset.push_back(0);
+      m_halfLength.push_back(0);
     }
     else {
       double front, back;
       switch (sampling) {
       case 0:
-	front = manager->getBasicReadoutNumbers()->getPresamplerRadius();
-	back  = manager->getBasicReadoutNumbers()->getRinAc();
+	front = m_manager->getBasicReadoutNumbers()->getPresamplerRadius();
+	back  = m_manager->getBasicReadoutNumbers()->getRinAc();
 	break;
       case 1:
-	front  = manager->getBasicReadoutNumbers()->getRinAc();
-	back   = region==0 ? manager->getBasicReadoutNumbers()->getEMBSamplingSepInnerRMax(i) : manager->getBasicReadoutNumbers()->getEMBSamplingSepInnerRMax(447);
+	front  = m_manager->getBasicReadoutNumbers()->getRinAc();
+	back   = region==0 ? m_manager->getBasicReadoutNumbers()->getEMBSamplingSepInnerRMax(i) : m_manager->getBasicReadoutNumbers()->getEMBSamplingSepInnerRMax(447);
 	break;
       case 2:
-	front   = region==0 ? manager->getBasicReadoutNumbers()->getEMBSamplingSepInnerRMax(std::max((unsigned int) 0,8*i+7)) : manager->getBasicReadoutNumbers()->getEMBSamplingSepInnerRMax(447);
-	back  = manager->getBasicReadoutNumbers()->getRMX23(std::min((unsigned int) 52,i));
+	front   = region==0 ? m_manager->getBasicReadoutNumbers()->getEMBSamplingSepInnerRMax(std::max((unsigned int) 0,8*i+7)) : m_manager->getBasicReadoutNumbers()->getEMBSamplingSepInnerRMax(447);
+	back  = m_manager->getBasicReadoutNumbers()->getRMX23(std::min((unsigned int) 52,i));
 	break;
       case 3:
-	front  = (manager->getBasicReadoutNumbers()->getRMX23(std::min((unsigned int)52,2*i))+manager->getBasicReadoutNumbers()->getRMX23(std::min((unsigned int)52,2*i+1)))/2.0;
-	back  = manager->getBasicReadoutNumbers()->getRoutAc();
+	front  = (m_manager->getBasicReadoutNumbers()->getRMX23(std::min((unsigned int)52,2*i))+m_manager->getBasicReadoutNumbers()->getRMX23(std::min((unsigned int)52,2*i+1)))/2.0;
+	back  = m_manager->getBasicReadoutNumbers()->getRoutAc();
 	break;
       default:
 	throw std::range_error("Attempt to construct EMEB DetDescr with illegal sampling index");
 	
       }
-      offset.push_back((front+back)/2.);
-      halfLength.push_back((back-front)/2.);
+      m_offset.push_back((front+back)/2.);
+      m_halfLength.push_back((back-front)/2.);
     }
   }
 }

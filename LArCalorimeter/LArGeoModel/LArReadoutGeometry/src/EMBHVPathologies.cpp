@@ -13,10 +13,10 @@ public:
 // Constructor:
 EMBHVPathologies::EMBHVPathologies(int electrodeNumber,
 				   bool isShorted,
-				   bool isDisconnected) : RCBase(), c(new Clockwork()) {
-  c->electrodeNumber=electrodeNumber;
-  c->isShorted=false;
-  c->isDisconnected=false;
+				   bool isDisconnected) : RCBase(), m_c(new Clockwork()) {
+  m_c->electrodeNumber=electrodeNumber;
+  m_c->isShorted=false;
+  m_c->isDisconnected=false;
 };
 
 // Destructor:
@@ -26,18 +26,18 @@ EMBHVPathologies::~EMBHVPathologies() {
 
 // The electrode number:
 const unsigned int & EMBHVPathologies::electrodeNumber() const{
-  return c->electrodeNumber;
+  return m_c->electrodeNumber;
 }
 
 
 // Is shorted:
 const bool & EMBHVPathologies::isShorted() const {
-  return c->isShorted;
+  return m_c->isShorted;
 }
 
 // Is disconnected();
 const bool & EMBHVPathologies::isDisconnected() const {
-  return c->isDisconnected;
+  return m_c->isDisconnected;
 }
 
 

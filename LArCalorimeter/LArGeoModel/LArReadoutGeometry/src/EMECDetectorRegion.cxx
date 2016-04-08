@@ -38,7 +38,7 @@ EMECDetectorRegion::EMECDetectorRegion (const GeoVFullPhysVol *physVol, const EM
   //## begin EMECDetectorRegion::EMECDetectorRegion%4466280603B3.hasinit preserve=no
   //## end EMECDetectorRegion::EMECDetectorRegion%4466280603B3.hasinit
   //## begin EMECDetectorRegion::EMECDetectorRegion%4466280603B3.initialization preserve=yes
-  :GeoVDetectorElement(physVol),descriptor(emecDescriptor),endcapIndex(endcap),m_projectivityDisplacement(projectivityDisplacement)
+  :GeoVDetectorElement(physVol),m_descriptor(emecDescriptor),m_endcapIndex(endcap),m_projectivityDisplacement(projectivityDisplacement)
   //## end EMECDetectorRegion::EMECDetectorRegion%4466280603B3.initialization
 {
   //## begin EMECDetectorRegion::EMECDetectorRegion%4466280603B3.body preserve=yes
@@ -50,7 +50,7 @@ EMECDetectorRegion::EMECDetectorRegion (const GeoVFullPhysVol *physVol, const EM
 EMECDetectorRegion::~EMECDetectorRegion()
 {
   //## begin EMECDetectorRegion::~EMECDetectorRegion%446626240261_dest.body preserve=yes
-  descriptor->unref();
+  m_descriptor->unref();
   //## end EMECDetectorRegion::~EMECDetectorRegion%446626240261_dest.body
 }
 
@@ -60,7 +60,7 @@ EMECDetectorRegion::~EMECDetectorRegion()
 EMECCellConstLink EMECDetectorRegion::getEMECCell (unsigned int ieta, unsigned int iphi) const
 {
   //## begin EMECDetectorRegion::getEMECCell%446629070190.body preserve=yes
-  return EMECCellConstLink(new EMECCell(endcapIndex,descriptor,ieta,iphi));
+  return EMECCellConstLink(new EMECCell(m_endcapIndex,m_descriptor,ieta,iphi));
   //## end EMECDetectorRegion::getEMECCell%446629070190.body
 }
 
@@ -90,7 +90,7 @@ HepGeom::Point3D<double> EMECDetectorRegion::getRefPlanePos () const
     throw std::runtime_error ("EMECDetectorRegion cannot compute absolute position of reference plane");
   }
   GeoPcon *pcon = (GeoPcon *) shape;
-  HepGeom::Point3D<double> center(0,0,pcon->getZPlane(0)-descriptor->getManager()->getRefToActive());
+  HepGeom::Point3D<double> center(0,0,pcon->getZPlane(0)-m_descriptor->getManager()->getRefToActive());
   return (physVol->getAbsoluteTransform()*center);
   //## end EMECDetectorRegion::getRefPlanePos%45432A27024F.body
 }
@@ -99,8 +99,8 @@ HepGeom::Point3D<double> EMECDetectorRegion::getFocalPointPos () const
 {
   //## begin EMECDetectorRegion::getFocalPointPos%45432A270254.body preserve=yes
   HepGeom::Point3D<double> zRef = getRefPlanePos();
-  int    sgn  = endcapIndex==0 ? -1 : +1;
-  HepGeom::Point3D<double> focalPos = HepGeom::Point3D<double>(0,0,sgn*descriptor->getManager()->getFocalToRef());
+  int    sgn  = m_endcapIndex==0 ? -1 : +1;
+  HepGeom::Point3D<double> focalPos = HepGeom::Point3D<double>(0,0,sgn*m_descriptor->getManager()->getFocalToRef());
   return zRef - focalPos;
   //## end EMECDetectorRegion::getFocalPointPos%45432A270254.body
 }

@@ -45,13 +45,13 @@ HECDetDescr::HECDetDescr (const HECDetectorManager *detManager, unsigned int sam
   //## begin HECDetDescr::HECDetDescr%445A11A300C0.initialization preserve=yes
   // We use here cell width to disambiguate inner HEC and Outer HEC.  Inner HEC has wider cells (0.2) than Outer hec (0.1)
   :
-                          manager(detManager),
-			  samplingIndex(sampling),
-			  regionIndex(region),
-			  phiBinning(phiBinning),
-			  outerRadSegNumber(region==0 ? 9: 3),
-                          etaBinning(0,0,1,0),
-			  numBlocks(sampling==0 ? 1:2),
+                          m_manager(detManager),
+			  m_samplingIndex(sampling),
+			  m_regionIndex(region),
+			  m_phiBinning(phiBinning),
+			  m_outerRadSegNumber(region==0 ? 9: 3),
+                          m_etaBinning(0,0,1,0),
+			  m_numBlocks(sampling==0 ? 1:2),
 			  m_firstBlock(sampling==0 ? 0 : 2*sampling-1)
   
   //## end HECDetDescr::HECDetDescr%445A11A300C0.initialization
@@ -76,30 +76,30 @@ HECDetDescr::HECDetDescr (const HECDetectorManager *detManager, unsigned int sam
   // End of soon-to-be-unnecessary part.
 
   if(!isTestBeam) {
-     etaBinning = CellBinning( region==0 ? (sampling<2 ? 1.5: (sampling<3 ? 1.6: 1.7)) : 2.5, 
+     m_etaBinning = CellBinning( region==0 ? (sampling<2 ? 1.5: (sampling<3 ? 1.6: 1.7)) : 2.5, 
 			      region==0 ? 2.5 : (sampling==0 || sampling==3) ? 3.3 : 3.1, 
 			      region==0 ? (sampling<2 ? 10: (sampling<3 ? 9:8)) : (sampling==0 || sampling==3) ? 4:3,
 			      region==0 ? (sampling<2 ? 0: (sampling<3 ? 1:2)):0);
   } else {
-     etaBinning = CellBinning( region==0 ? (sampling<2 ? 2.1: 2.3) : 2.5, 
+     m_etaBinning = CellBinning( region==0 ? (sampling<2 ? 2.1: 2.3) : 2.5, 
 				      region==0 ? 2.5 : (sampling==0 ) ? 3.3 : 3.1, 
 				      region==0 ? (sampling<2 ? 4: 2) : (sampling==0) ? 4:3,
 				      region==0 ? (sampling<2 ? 6: 8):0);
   }
 
   
-  unsigned int startBlock = samplingIndex <2 ?  0 : 3; 
+  unsigned int startBlock = m_samplingIndex <2 ?  0 : 3; 
   if(isTestBeam) startBlock = 0;
   {
     double pos=0.0;
-    for (unsigned int b=startBlock;b<manager->getNumBlocks();b++) {
-      if (b>=m_firstBlock && b< (m_firstBlock+numBlocks)) {
+    for (unsigned int b=startBlock;b<m_manager->getNumBlocks();b++) {
+      if (b>=m_firstBlock && b< (m_firstBlock+m_numBlocks)) {
 	double front = pos;
-	double back  = pos+manager->getBlock(b)->getDepth();
+	double back  = pos+m_manager->getBlock(b)->getDepth();
 	m_zMin.push_back(front);
 	m_zMax.push_back(back);
       }
-      pos += manager->getBlock(b)->getDepth();
+      pos += m_manager->getBlock(b)->getDepth();
       if(isTestBeam && b==2) pos += (*hadronicEndcap)[0]->getDouble("GAPWHL")*CLHEP::cm;
     }
   }

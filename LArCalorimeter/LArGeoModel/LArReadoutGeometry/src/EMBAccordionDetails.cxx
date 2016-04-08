@@ -72,7 +72,8 @@ public:
 
 void EMBAccordionDetails::Clockwork::getRPhi()
 {
-  double dl=0.001;
+  const double dl=0.001;
+  const double inv_dl = 1 / dl;
   double cenx[15],ceny[15];
   double xl,xl2;
   double sum1[5000],sumx[5000];
@@ -83,7 +84,10 @@ void EMBAccordionDetails::Clockwork::getRPhi()
   dR=0.10;
   Rmax=0.;
 
-  double rint= rint_eleFib;
+  const double rint= rint_eleFib;
+  const double inv_rint = 1. / rint;
+  const double dt=dl * inv_rint;
+  const double inv_dt = 1. / dt;
 
   for (int i=0;i<NRphi;i++) {
      sum1[i]=0.;
@@ -117,8 +121,7 @@ void EMBAccordionDetails::Clockwork::getRPhi()
         }
      }
      xl2+=rint*fabs(phi1-phi0);
-     double dt=dl/rint;
-     int nstep=int((phi1-phi0)/dt)+1;
+     int nstep=int((phi1-phi0) * inv_dt)+1;
 //     std::cout << "fold " << phi0 << " " << phi1 << " " << nstep << std::endl;
      for (int ii=0;ii<nstep;ii++) {
         xl+=dl;
@@ -149,7 +152,7 @@ void EMBAccordionDetails::Clockwork::getRPhi()
         double x1=x0-0.5*along*cos(phi);
         double y1=y0-0.5*along*sin(phi);
         xl2+=along;
-        int nstep=int(along/dl)+1;
+        int nstep=int(along * inv_dl)+1;
 //        std::cout << "straight" << x0 << " " << y0 << along << " " << nstep << std::endl;
         for (int ii=0;ii<nstep;ii++) {
            xl+=dl;
@@ -191,14 +194,14 @@ int EMBAccordionDetails::Clockwork::phiGap(double radius, double xhit, const dou
 // bring back to 0-2pi
   if (dphi<0) dphi=dphi+m2pi;
   if (dphi>=m2pi) dphi=dphi-m2pi;
-  dphi=dphi/(m2pi)*1024;
+  dphi=dphi*(1024/m2pi);
   int ngap=((int) dphi);
   return ngap;
 }
 
 
 
-EMBAccordionDetails::EMBAccordionDetails():c(new Clockwork()) {
+EMBAccordionDetails::EMBAccordionDetails():m_c(new Clockwork()) {
   // Access the GeoModelSvc:
   IGeoModelSvc *geoModel;
   StatusCode status;
@@ -240,46 +243,46 @@ EMBAccordionDetails::EMBAccordionDetails():c(new Clockwork()) {
   pAccessSvc->disconnect();
   
   // number of straight sections (should be 14)
-  c->Nbrt = (*barrelGeometry)[0]->getInt("NBRT");
+  m_c->Nbrt = (*barrelGeometry)[0]->getInt("NBRT");
   // Number of ZIGs + 1  i.e.  15 = number of folds
-  c->Nbrt1 = c->Nbrt + 1;
+  m_c->Nbrt1 = m_c->Nbrt + 1;
   // phi of first absorber
-  c->gam0 = (*barrelGeometry)[0]->getDouble("PHIFIRST");
+  m_c->gam0 = (*barrelGeometry)[0]->getDouble("PHIFIRST");
   // radius of curvature of neutral fiber in the folds
-  c->rint_eleFib = (*barrelGeometry)[0]->getDouble("RINT")*CLHEP::cm;
+  m_c->rint_eleFib = (*barrelGeometry)[0]->getDouble("RINT")*CLHEP::cm;
   
   // r,phi positions of the centre of the folds (nominal geometry)
-  for (int idat = 0; idat < c->Nbrt1 ; idat++) 
+  for (int idat = 0; idat < m_c->Nbrt1 ; idat++) 
     {
-      c->rc[idat]   = (*barrelGeometry)[0]->getDouble("RHOCEN",idat)*CLHEP::cm; 
-      c->phic[idat] = (*barrelGeometry)[0]->getDouble("PHICEN",idat)*CLHEP::deg; 
-      c->delta[idat] = (*barrelGeometry)[0]->getDouble("DELTA",idat)*CLHEP::deg; 
-      c->xc[idat] = c->rc[idat]*cos(c->phic[idat]);
-      c->yc[idat] = c->rc[idat]*sin(c->phic[idat]);
+      m_c->rc[idat]   = (*barrelGeometry)[0]->getDouble("RHOCEN",idat)*CLHEP::cm; 
+      m_c->phic[idat] = (*barrelGeometry)[0]->getDouble("PHICEN",idat)*CLHEP::deg; 
+      m_c->delta[idat] = (*barrelGeometry)[0]->getDouble("DELTA",idat)*CLHEP::deg; 
+      m_c->xc[idat] = m_c->rc[idat]*cos(m_c->phic[idat]);
+      m_c->yc[idat] = m_c->rc[idat]*sin(m_c->phic[idat]);
     }
   //
-  c->rMinAccordion  =   (*barrelGeometry)[0]->getDouble("RIN_AC")*CLHEP::cm;  
-  c->rMaxAccordion  =   (*barrelGeometry)[0]->getDouble("ROUT_AC")*CLHEP::cm;  
-  c->etaMaxBarrel   =   (*barrelGeometry)[0]->getDouble("ETACUT");      
-  c->zMinBarrel     =   (*barrelLongDiv)[0]->getDouble("ZMAXACT")*CLHEP::cm;    
-  c->zMaxBarrel     =   (*barrelLongDiv)[0]->getDouble("ZMINACT")*CLHEP::cm;    
+  m_c->rMinAccordion  =   (*barrelGeometry)[0]->getDouble("RIN_AC")*CLHEP::cm;  
+  m_c->rMaxAccordion  =   (*barrelGeometry)[0]->getDouble("ROUT_AC")*CLHEP::cm;  
+  m_c->etaMaxBarrel   =   (*barrelGeometry)[0]->getDouble("ETACUT");      
+  m_c->zMinBarrel     =   (*barrelLongDiv)[0]->getDouble("ZMAXACT")*CLHEP::cm;    
+  m_c->zMaxBarrel     =   (*barrelLongDiv)[0]->getDouble("ZMINACT")*CLHEP::cm;    
   // === GU 11/06/2003   total number of cells in phi
   // to distinguish 1 module (testbeam case) from full Atlas
-  c->NCellTot =         (*barrelGeometry)[0]->getInt("NCELMX"); 
-  c->NCellMax=1024;
+  m_c->NCellTot =         (*barrelGeometry)[0]->getInt("NCELMX"); 
+  m_c->NCellMax=1024;
 
   //====================================================
 
-  c->getRPhi();
+  m_c->getRPhi();
 
 }
 
 EMBAccordionDetails::~EMBAccordionDetails() {
-  delete c;
+  delete m_c;
 }
 
 double EMBAccordionDetails::phiFirstAbsorber() const {
-  return c->gam0;
+  return m_c->gam0;
 }
 
 
@@ -296,7 +299,7 @@ double EMBAccordionDetails::Clockwork::phi0(double radius) const
 
 
 const GeoStraightAccSection *EMBAccordionDetails::getAbsorberSections() const {
-  if (c->absorberStraightSection==NULL) {
+  if (m_c->absorberStraightSection==NULL) {
     StatusCode status;
     ISvcLocator* svcLocator = Gaudi::svcLocator(); 
     StoreGateSvc *detStore;
@@ -310,16 +313,16 @@ const GeoStraightAccSection *EMBAccordionDetails::getAbsorberSections() const {
     status = detStore->retrieve(sa,"STRAIGHTABSORBERS");
     if (status != StatusCode::SUCCESS) throw std::runtime_error ("Cannot locate Straight Absorbers");
     
-    c->absorberStraightSection = sa;
+    m_c->absorberStraightSection = sa;
 
   }
-  return c->absorberStraightSection;
+  return m_c->absorberStraightSection;
   
 }
   
 
 const GeoStraightAccSection *EMBAccordionDetails::getElectrodeSections() const {
-  if (c->electrodeStraightSection==NULL) {
+  if (m_c->electrodeStraightSection==NULL) {
     StatusCode status;
     ISvcLocator* svcLocator = Gaudi::svcLocator(); 
     StoreGateSvc *detStore;
@@ -332,10 +335,10 @@ const GeoStraightAccSection *EMBAccordionDetails::getElectrodeSections() const {
     status = detStore->retrieve(sa,"STRAIGHTELECTRODES");
     if (status != StatusCode::SUCCESS) throw std::runtime_error ("Cannot locate Straight Electrodes");
     
-    c->electrodeStraightSection=sa;
+    m_c->electrodeStraightSection=sa;
 
   }
-  return c->electrodeStraightSection;
+  return m_c->electrodeStraightSection;
   
 }
 

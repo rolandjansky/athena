@@ -50,27 +50,27 @@ private:
 
 inline const double & GeoStraightAccSection::XCent(int stackid, int cellid)   const
 {
-  if (!c->r1) c->fillFastCache();
-  return c->r1->xcent[stackid][cellid];
+  if (!m_c->r1) m_c->fillFastCache();
+  return m_c->r1->xcent[stackid][cellid];
 }
 inline const double & GeoStraightAccSection::YCent(int stackid, int cellid)   const
 {
-  if (!c->r1) c->fillFastCache();
-  return c->r1->ycent[stackid][cellid];
+  if (!m_c->r1) m_c->fillFastCache();
+  return m_c->r1->ycent[stackid][cellid];
 }
 inline const double & GeoStraightAccSection::Sinu(int stackid, int cellid)       const
 {
-  if (!c->r1) c->fillFastCache();
-  return c->r1->sinu[stackid][cellid];
+  if (!m_c->r1) m_c->fillFastCache();
+  return m_c->r1->sinu[stackid][cellid];
 }
 inline const double & GeoStraightAccSection::Cosu(int stackid, int cellid)       const
 {
-  if (!c->r1) c->fillFastCache();
-  return c->r1->cosu[stackid][cellid];
+  if (!m_c->r1) m_c->fillFastCache();
+  return m_c->r1->cosu[stackid][cellid];
 }
 inline const double & GeoStraightAccSection::HalfLength(int stackid, int cellid)   const
 {
-  if (!c->r1) c->fillFastCache();
-  return c->r1->halfLength[stackid][cellid];
+  if (!m_c->r1) m_c->fillFastCache();
+  return m_c->r1->halfLength[stackid][cellid];
 }
 

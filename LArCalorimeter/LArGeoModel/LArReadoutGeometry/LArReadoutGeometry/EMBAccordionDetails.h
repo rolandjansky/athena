@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _EMBAccordionDetails_h_
-#define _EMBAccordionDetails_h_
+#ifndef EMBAccordionDetails_h
+#define EMBAccordionDetails_h
 class GeoStraightAccSection;
 class EMBAccordionDetails {
   
@@ -44,7 +44,7 @@ class EMBAccordionDetails {
   EMBAccordionDetails & operator = (const EMBAccordionDetails &); 
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
   
 };
 #endif

@@ -142,7 +142,7 @@ class FCALModule : public GeoVDetectorElement
       /**
        * @brief Point to the manager
        */
-      FCALDetectorManager* manager;
+      FCALDetectorManager* m_manager;
       
       /**
        * @brief A vector that holds the list of tile sizes.
@@ -171,7 +171,7 @@ class FCALModule : public GeoVDetectorElement
 
 inline const FCALDetectorManager* FCALModule::getManager () const
 {
-  return manager;
+  return m_manager;
 }
 
 inline double FCALModule::getProjectivityDisplacement() const

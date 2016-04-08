@@ -15,12 +15,12 @@
 // Class FCALTile 
 
 FCALTile::FCALTile(const FCALTile &right)
-  :module(right.module),tile(right.tile)
+  :m_module(right.m_module),m_tile(right.m_tile)
 {
 }
 
 FCALTile::FCALTile (const FCALModule *module, FCALTile::TileConstIterator tIterator)
-  :module(module),tile(tIterator)
+  :m_module(module),m_tile(tIterator)
 {
 }
 
@@ -33,8 +33,8 @@ FCALTile::~FCALTile()
 FCALTile & FCALTile::operator=(const FCALTile &right)
 {
   if (this!=&right) {
-    module=right.module;
-    tile=right.tile;
+    m_module=right.m_module;
+    m_tile=right.m_tile;
   }
   return *this;
 }
@@ -43,36 +43,36 @@ FCALTile & FCALTile::operator=(const FCALTile &right)
 
 double FCALTile::getX () const
 {
-  return (*tile).second.x();
+  return (*m_tile).second.x();
 }
 
 double FCALTile::getY () const
 {
-  return (*tile).second.y();
+  return (*m_tile).second.y();
 }
 
 unsigned int FCALTile::getNumTubes () const
 {
-  return (*tile).second.ntubes();
+  return (*m_tile).second.ntubes();
 }
 
 int FCALTile::getIndexI () const
 {
-  return ((*tile).first & 0X00000FFFF );
+  return ((*m_tile).first & 0X00000FFFF );
 }
 
 int FCALTile::getIndexJ () const
 {
-  return (((*tile).first & 0XFFFF0000 )>> 16);
+  return (((*m_tile).first & 0XFFFF0000 )>> 16);
 }
 
 unsigned int FCALTile::identify () const
 {
-  return (*tile).first;
+  return (*m_tile).first;
 }
 
 const FCALModule *FCALTile::getModule() const {
-  return module;
+  return m_module;
 }
 
 
@@ -113,14 +113,14 @@ FCALTubeConstLink FCALTile::getTube (unsigned int i) const {
       throw std::runtime_error("Error in FCALTile: cannot access Channel Map");
     }
 
-    unsigned int moduleNumber = module->getModuleIndex(); // 1, 2, or 3.
+    unsigned int moduleNumber = m_module->getModuleIndex(); // 1, 2, or 3.
     unsigned int iSampling    = moduleNumber-1;           // by convention.
-    unsigned int iSide        = module->getEndcapIndex(); 
+    unsigned int iSide        = m_module->getEndcapIndex(); 
 
     //std::cout << " side,sampling " << iSide << " " << iSampling << std::endl;
  
     for (FCAL_ChannelMap::tubemap_const_iterator t=channelMap->tubemap_begin(moduleNumber);t!=channelMap->tubemap_end(moduleNumber); t++) {
-      if ((*t).second.get_tileName()==(*tile).first) {
+      if ((*t).second.get_tileName()==(*m_tile).first) {
 	std::string FeedThrough = (*t).second.getHVft();
 	//int         ElectrodeId = (*t).second.getElectrodeDataID();
         //std::cout << "FeedThrough " << FeedThrough << std::endl;

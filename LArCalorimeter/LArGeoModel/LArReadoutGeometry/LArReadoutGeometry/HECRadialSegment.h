@@ -55,8 +55,8 @@ class HECRadialSegment
 
  private: 
 
-  double minVal;
-  double maxVal;
+  double m_minVal;
+  double m_maxVal;
 
 };
 
@@ -68,7 +68,7 @@ inline HECRadialSegment::HECRadialSegment(const HECRadialSegment &right)
   
   
   
-  :minVal(right.minVal),maxVal(right.maxVal)
+  :m_minVal(right.m_minVal),m_maxVal(right.m_maxVal)
   
 {
   
@@ -79,7 +79,7 @@ inline HECRadialSegment::HECRadialSegment (double lower, double upper)
   
   
   
-  :minVal(lower),maxVal(upper)
+  :m_minVal(lower),m_maxVal(upper)
   
 {
   
@@ -98,8 +98,8 @@ inline HECRadialSegment & HECRadialSegment::operator=(const HECRadialSegment &ri
 {
   
   if (this!=&right) {
-    minVal=right.minVal;
-    maxVal=right.maxVal;
+    m_minVal=right.m_minVal;
+    m_maxVal=right.m_maxVal;
   }
   return *this;
   
@@ -111,14 +111,14 @@ inline HECRadialSegment & HECRadialSegment::operator=(const HECRadialSegment &ri
 inline double HECRadialSegment::getMinVal () const
 {
   
-  return minVal;
+  return m_minVal;
   
 }
 
 inline double HECRadialSegment::getMaxVal () const
 {
   
-  return maxVal;
+  return m_maxVal;
   
 }
 

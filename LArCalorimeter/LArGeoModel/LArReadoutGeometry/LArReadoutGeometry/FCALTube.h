@@ -42,10 +42,10 @@ class FCALTube : public RCBase {
 
   virtual ~FCALTube();
 
-  const FCALTile      *tile;        // link to the Tile
-  FCALHVLineConstLink  hvLine;      // link to HVLine
-  double               x;           // nominal x position
-  double               y;           // nominal y position;
+  const FCALTile      *m_tile;        // link to the Tile
+  FCALHVLineConstLink  m_hvLine;      // link to HVLine
+  double               m_x;           // nominal x position
+  double               m_y;           // nominal y position;
   
   friend class ImaginaryFriend;
 

@@ -97,10 +97,10 @@ class LArDetectorManager : public GeoVDetectorManager
     
   LArDetectorManager(const LArDetectorManager &right);
   LArDetectorManager & operator=(const LArDetectorManager &right);
-  const EMBDetectorManager* embManager;
-  const EMECDetectorManager* emecManager;
-  const HECDetectorManager* hecManager;
-  const FCALDetectorManager* fcalManager;
+  const EMBDetectorManager* m_embManager;
+  const EMECDetectorManager* m_emecManager;
+  const HECDetectorManager* m_hecManager;
+  const FCALDetectorManager* m_fcalManager;
   std::vector<PVLink> m_treeTop;
 
   bool m_isTestBeam;
@@ -115,28 +115,28 @@ class LArDetectorManager : public GeoVDetectorManager
 inline const EMBDetectorManager* LArDetectorManager::getEmbManager () const
 {
   
-  return embManager;
+  return m_embManager;
   
 }
 
 inline const EMECDetectorManager* LArDetectorManager::getEmecManager () const
 {
   
-  return emecManager;
+  return m_emecManager;
   
 }
 
 inline const HECDetectorManager* LArDetectorManager::getHecManager () const
 {
   
-  return hecManager;
+  return m_hecManager;
   
 }
 
 inline const FCALDetectorManager* LArDetectorManager::getFcalManager () const
 {
   
-  return fcalManager;
+  return m_fcalManager;
   
 }
 

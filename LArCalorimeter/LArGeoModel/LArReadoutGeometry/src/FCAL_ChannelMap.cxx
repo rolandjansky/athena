@@ -263,7 +263,7 @@ FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig,
       if ( xk > 0.5 ) {
 	xk = 1 - xk;
       }
-      double yn = 0.5-xk/3;
+      double yn = 0.5-xk*(1./3);
       if ( fabs(yc) > fabs(yn) ) {
 	if ( yc > 0 ) 
 	  iy++;
@@ -395,7 +395,8 @@ void FCAL_ChannelMap::tileSize(int sam, int ntubes, float &dx, float &dy) const 
     dy = dy * scale; 
   } 
   else  {
-    float scale = sqrt(ntubes/1.5); 
+    const float inv_1_5 = 1. / 1.5;
+    float scale = sqrt(ntubes * inv_1_5); 
     dx = dx * scale; 
     dy = dy * scale * 1.5 ;               
   }

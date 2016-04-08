@@ -42,7 +42,7 @@ class EMBHVPathologies: public RCBase {
   
   // Internals:
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 

@@ -157,8 +157,8 @@ class HECDetectorManager : public GeoVDetectorManager
    */
   std::vector<const HECDetectorRegion *>  m_DetRegionsIterative;
       
-  double focalToRef1;
-  double focalToRef2;
+  double m_focalToRef1;
+  double m_focalToRef2;
 
   mutable const HECHVManager * m_HVManager;
 
@@ -172,14 +172,14 @@ class HECDetectorManager : public GeoVDetectorManager
 inline double HECDetectorManager::getFocalToRef1 () const
 {
   
-  return focalToRef1;
+  return m_focalToRef1;
   
 }
 
 inline double HECDetectorManager::getFocalToRef2 () const
 {
   
-  return focalToRef2;
+  return m_focalToRef2;
   
 }
 

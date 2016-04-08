@@ -78,7 +78,7 @@ class FCALTile
   /** 
    * @brief For sorting operations:
    */
-  bool operator < (const FCALTile & t) const { return ((*tile).first) < (*t.tile).first; }
+  bool operator < (const FCALTile & t) const { return ((*m_tile).first) < (*t.m_tile).first; }
 
   /**
    * @brief Get the Module
@@ -103,8 +103,8 @@ class FCALTile
  private:
 
   // Iterator to a tile within the FCAL Channel Map.
-  const FCALModule *module;
-  TileConstIterator tile;
+  const FCALModule *m_module;
+  TileConstIterator m_tile;
       
   /**
    * @brief	Cache of subgaps.

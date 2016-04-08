@@ -56,7 +56,7 @@ class GeoStraightAccSection {
  private:
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
   GeoStraightAccSection (const GeoStraightAccSection&);
   GeoStraightAccSection& operator= (const GeoStraightAccSection&);

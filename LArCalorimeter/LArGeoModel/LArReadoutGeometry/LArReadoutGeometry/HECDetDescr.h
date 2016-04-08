@@ -106,13 +106,13 @@ class HECDetDescr : public RCBase
     
       HECDetDescr(const HECDetDescr &right);
       HECDetDescr & operator=(const HECDetDescr &right);
-      const HECDetectorManager *manager;
-      unsigned int samplingIndex;
-      unsigned int regionIndex;
-      CellBinning phiBinning;
-      unsigned int outerRadSegNumber;
-      CellBinning etaBinning;
-      unsigned int numBlocks;
+      const HECDetectorManager *m_manager;
+      unsigned int m_samplingIndex;
+      unsigned int m_regionIndex;
+      CellBinning m_phiBinning;
+      unsigned int m_outerRadSegNumber;
+      CellBinning m_etaBinning;
+      unsigned int m_numBlocks;
       unsigned int m_firstBlock;
       std::vector<double> m_zMin;
       std::vector<double> m_zMax;
@@ -175,7 +175,7 @@ inline const HECRadialSegment * HECDetDescr::getRadialSegment (unsigned int bloc
   if (!bPtr) throw std::range_error("Error in HECDetDescr, nonexistent block.");
 
   // From the block, get the radial segment:
-   unsigned int index = outerRadSegNumber-eta;
+   unsigned int index = m_outerRadSegNumber-eta;
   
   const HECRadialSegment *segment=bPtr->getRadialSegment(index);
   return segment;
@@ -194,42 +194,42 @@ inline unsigned int HECDetDescr::getBlockIndex (unsigned int block) const
 inline const HECDetectorManager * HECDetDescr::getManager () const
 {
   
-  return manager;
+  return m_manager;
   
 }
 
 inline unsigned int HECDetDescr::getSamplingIndex () const
 {
   
-  return samplingIndex;
+  return m_samplingIndex;
   
 }
 
 inline unsigned int HECDetDescr::getRegionIndex () const
 {
   
-  return regionIndex;
+  return m_regionIndex;
   
 }
 
 inline const CellBinning& HECDetDescr::getPhiBinning () const
 {
   
-  return phiBinning;
+  return m_phiBinning;
   
 }
 
 inline const CellBinning& HECDetDescr::getEtaBinning () const
 {
   
-  return etaBinning;
+  return m_etaBinning;
   
 }
 
 inline unsigned int HECDetDescr::getNumBlocks () const
 {
   
-  return numBlocks;
+  return m_numBlocks;
   
 }
 

@@ -37,11 +37,11 @@ EMBDetectorRegion::EMBDetectorRegion (const GeoVFullPhysVol *physVol, const EMBD
   //## begin EMBDetectorRegion::EMBDetectorRegion%4495802702A2.hasinit preserve=no
   //## end EMBDetectorRegion::EMBDetectorRegion%4495802702A2.hasinit
   //## begin EMBDetectorRegion::EMBDetectorRegion%4495802702A2.initialization preserve=yes
-  :GeoVDetectorElement(physVol),descriptor(embDescriptor),endcapIndex(endcap)
+  :GeoVDetectorElement(physVol),m_descriptor(embDescriptor),m_endcapIndex(endcap)
   //## end EMBDetectorRegion::EMBDetectorRegion%4495802702A2.initialization
 {
   //## begin EMBDetectorRegion::EMBDetectorRegion%4495802702A2.body preserve=yes
-  descriptor->ref();
+  m_descriptor->ref();
   //## end EMBDetectorRegion::EMBDetectorRegion%4495802702A2.body
 }
 
@@ -49,7 +49,7 @@ EMBDetectorRegion::EMBDetectorRegion (const GeoVFullPhysVol *physVol, const EMBD
 EMBDetectorRegion::~EMBDetectorRegion()
 {
   //## begin EMBDetectorRegion::~EMBDetectorRegion%44957D640109_dest.body preserve=yes
-  descriptor->unref();
+  m_descriptor->unref();
   //## end EMBDetectorRegion::~EMBDetectorRegion%44957D640109_dest.body
 }
 
@@ -59,7 +59,7 @@ EMBDetectorRegion::~EMBDetectorRegion()
 EMBCellConstLink EMBDetectorRegion::getEMBCell (unsigned int ieta, unsigned int iphi) const
 {
   //## begin EMBDetectorRegion::getEMBCell%449580270257.body preserve=yes
- return EMBCellConstLink(new EMBCell(endcapIndex,descriptor,ieta,iphi));
+ return EMBCellConstLink(new EMBCell(m_endcapIndex,m_descriptor,ieta,iphi));
   //## end EMBDetectorRegion::getEMBCell%449580270257.body
 }
 

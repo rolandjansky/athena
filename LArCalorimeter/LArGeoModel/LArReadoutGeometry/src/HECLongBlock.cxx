@@ -37,13 +37,13 @@ HECLongBlock::HECLongBlock(const HECLongBlock &right)
   //## begin HECLongBlock::HECLongBlock%4457C98D0025_copy.hasinit preserve=no
   //## end HECLongBlock::HECLongBlock%4457C98D0025_copy.hasinit
   //## begin HECLongBlock::HECLongBlock%4457C98D0025_copy.initialization preserve=yes
-  : blockNumber(right.blockNumber),
-    innerRadius(right.innerRadius),
-    outerRadius(right.outerRadius),
-    depth(right.depth),
-    numLArGaps(right.numLArGaps),
-    frontPlateThickness(right.frontPlateThickness),
-    backPlateThickness(right.backPlateThickness)
+  : m_blockNumber(right.m_blockNumber),
+    m_innerRadius(right.m_innerRadius),
+    m_outerRadius(right.m_outerRadius),
+    m_depth(right.m_depth),
+    m_numLArGaps(right.m_numLArGaps),
+    m_frontPlateThickness(right.m_frontPlateThickness),
+    m_backPlateThickness(right.m_backPlateThickness)
   //## end HECLongBlock::HECLongBlock%4457C98D0025_copy.initialization
 {
   //## begin HECLongBlock::HECLongBlock%4457C98D0025_copy.body preserve=yes
@@ -55,13 +55,13 @@ HECLongBlock::HECLongBlock (unsigned int blockNum, double innerRad, double outer
   //## begin HECLongBlock::HECLongBlock%4457DF0A0112.hasinit preserve=no
   //## end HECLongBlock::HECLongBlock%4457DF0A0112.hasinit
   //## begin HECLongBlock::HECLongBlock%4457DF0A0112.initialization preserve=yes
-  : blockNumber(blockNum),
-    innerRadius(innerRad),
-    outerRadius(outerRad),
-    depth(totalDepth),
-    numLArGaps(nLarGaps),
-    frontPlateThickness(frontPlateThick),
-    backPlateThickness(backPlateThick)
+  : m_blockNumber(blockNum),
+    m_innerRadius(innerRad),
+    m_outerRadius(outerRad),
+    m_depth(totalDepth),
+    m_numLArGaps(nLarGaps),
+    m_frontPlateThickness(frontPlateThick),
+    m_backPlateThickness(backPlateThick)
   
   //## end HECLongBlock::HECLongBlock%4457DF0A0112.initialization
 {
@@ -93,13 +93,13 @@ HECLongBlock & HECLongBlock::operator=(const HECLongBlock &right)
 {
   //## begin HECLongBlock::operator=%4457C98D0025_assign.body preserve=yes
   if (this != & right) {
-    blockNumber=right.blockNumber;
-    innerRadius=right.innerRadius;
-    outerRadius=right.outerRadius;
-    depth=right.depth;
-    numLArGaps=right.numLArGaps;
-    frontPlateThickness=right.frontPlateThickness;
-    backPlateThickness=right.backPlateThickness;
+    m_blockNumber=right.m_blockNumber;
+    m_innerRadius=right.m_innerRadius;
+    m_outerRadius=right.m_outerRadius;
+    m_depth=right.m_depth;
+    m_numLArGaps=right.m_numLArGaps;
+    m_frontPlateThickness=right.m_frontPlateThickness;
+    m_backPlateThickness=right.m_backPlateThickness;
     
     for (int i=0;i<14;i++) m_RadialSeg.push_back( right.m_RadialSeg[i] ? (HECRadialSegment *) 0 : new HECRadialSegment(*right.m_RadialSeg[i]));
     

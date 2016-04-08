@@ -59,10 +59,10 @@ HECDetectorManager::HECDetectorManager(bool isTestBeam)
   if (hecPad->size()!=hecLongBlock->size()) throw std::runtime_error("Error.  Hec[LongitudinalBlock,Pad] size discrepancy");
 
   // Get the focal length:
-  focalToRef1 = (*hadronicEndcap)[0]->getDouble("ZORIG")*CLHEP::cm;
-  focalToRef2 = focalToRef1;
+  m_focalToRef1 = (*hadronicEndcap)[0]->getDouble("ZORIG")*CLHEP::cm;
+  m_focalToRef2 = m_focalToRef1;
   double betweenWheel=(*hadronicEndcap)[0]->getDouble("GAPWHL")*CLHEP::cm;
-  if(!m_isTestBeam) focalToRef2 += betweenWheel;
+  if(!m_isTestBeam) m_focalToRef2 += betweenWheel;
 
   for (unsigned int b=0;b<hecLongBlock->size();b++) {
     double etaBoundary[15];
@@ -86,7 +86,7 @@ HECDetectorManager::HECDetectorManager(bool isTestBeam)
 					       backPlateThickness,
 					       etaBoundary);
     m_HecLongBlock.push_back(longBlock);
-    if ((!m_isTestBeam) && b<3) focalToRef2 += depth;
+    if ((!m_isTestBeam) && b<3) m_focalToRef2 += depth;
   }
 
   

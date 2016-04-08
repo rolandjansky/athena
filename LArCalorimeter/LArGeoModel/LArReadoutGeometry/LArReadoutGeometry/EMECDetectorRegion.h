@@ -151,8 +151,8 @@ class EMECDetectorRegion : public GeoVDetectorElement
     
   EMECDetectorRegion(const EMECDetectorRegion &right);
   EMECDetectorRegion & operator=(const EMECDetectorRegion &right);
-  const EMECDetDescr *descriptor;
-  EMECDetectorRegion::DetectorSide endcapIndex;
+  const EMECDetDescr *m_descriptor;
+  EMECDetectorRegion::DetectorSide m_endcapIndex;
   double m_projectivityDisplacement;
 
 };
@@ -162,56 +162,56 @@ class EMECDetectorRegion : public GeoVDetectorElement
 inline const EMECDetDescr * EMECDetectorRegion::getDescriptor () const
 {
   
-  return descriptor;
+  return m_descriptor;
   
 }
 
 inline unsigned int EMECDetectorRegion::getSamplingIndex () const
 {
   
-  return descriptor->getSamplingIndex();
+  return m_descriptor->getSamplingIndex();
   
 }
 
 inline unsigned int EMECDetectorRegion::getRegionIndex () const
 {
   
-  return descriptor->getRegionIndex();
+  return m_descriptor->getRegionIndex();
   
 }
 
 inline unsigned int EMECDetectorRegion::getRadialIndex () const
 {
   
-  return descriptor->getRadialIndex();
+  return m_descriptor->getRadialIndex();
   
 }
 
 inline unsigned int EMECDetectorRegion::beginPhiIndex () const
 {
   
-  return descriptor->getPhiBinning().getFirstDivisionNumber();
+  return m_descriptor->getPhiBinning().getFirstDivisionNumber();
   
 }
 
 inline unsigned int EMECDetectorRegion::endPhiIndex () const
 {
   
-  return descriptor->getPhiBinning().getFirstDivisionNumber() + descriptor->getPhiBinning().getNumDivisions();
+  return m_descriptor->getPhiBinning().getFirstDivisionNumber() + m_descriptor->getPhiBinning().getNumDivisions();
   
 }
 
 inline unsigned int EMECDetectorRegion::beginEtaIndex () const
 {
   
-  return descriptor->getEtaBinning().getFirstDivisionNumber();
+  return m_descriptor->getEtaBinning().getFirstDivisionNumber();
   
 }
 
 inline unsigned int EMECDetectorRegion::endEtaIndex () const
 {
   
-  return descriptor->getEtaBinning().getFirstDivisionNumber() + descriptor->getEtaBinning().getNumDivisions();
+  return m_descriptor->getEtaBinning().getFirstDivisionNumber() + m_descriptor->getEtaBinning().getNumDivisions();
   
 }
 
@@ -219,7 +219,7 @@ inline unsigned int EMECDetectorRegion::endEtaIndex () const
 inline EMECDetectorRegion::DetectorSide EMECDetectorRegion::getEndcapIndex () const
 {
   
-  return endcapIndex;
+  return m_endcapIndex;
   
 }
 

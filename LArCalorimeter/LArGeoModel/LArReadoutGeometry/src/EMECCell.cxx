@@ -74,10 +74,11 @@ void EMECCell::initHV() const {
     unsigned int iSide=getEndcapIndex();
     
     double phi0 = (iSide==1) ? M_PI/N : -(M_PI)/N;      // delta phi between first absorber and electrode at phi=0
-    
-    unsigned int iOffset  = int(N*(phiLower-phiSectorStart + phi0)/2.0/M_PI +0.5);
+
+    const double inv_2pi = M_1_PI/2;
+    unsigned int iOffset  = int(N*(phiLower-phiSectorStart + phi0)*inv_2pi +0.5);
     double dPhi = fabs((phiUpper-phiLower));
-    unsigned int NE      =int(dPhi/(2*M_PI)*N+0.5);
+    unsigned int NE      =int(dPhi*inv_2pi*N+0.5);
     
     //std::cout << " iSide,iEta,iPhi,iSector " << iSide << " " << iEta << " " << iPhi << " " << iSector << std::endl;
     //std::cout << " phi1,phi2 cell, phi1 sector " << phiLower << " " << phiUpper << " " << phiSectorStart << std::endl;

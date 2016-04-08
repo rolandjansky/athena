@@ -103,13 +103,13 @@ class HECLongBlock
  private:
       
   std::vector<HECRadialSegment *> m_RadialSeg;
-  unsigned int blockNumber;
-  double innerRadius;
-  double outerRadius;
-  double depth;
-  unsigned int numLArGaps;
-  double frontPlateThickness;
-  double backPlateThickness;
+  unsigned int m_blockNumber;
+  double m_innerRadius;
+  double m_outerRadius;
+  double m_depth;
+  unsigned int m_numLArGaps;
+  double m_frontPlateThickness;
+  double m_backPlateThickness;
 };
 
 
@@ -135,49 +135,49 @@ inline unsigned int HECLongBlock::getNumRadialSegments () const
 inline unsigned int HECLongBlock::getBlockNumber () const
 {
   
-  return blockNumber;
+  return m_blockNumber;
   
 }
 
 inline double HECLongBlock::getInnerRadius () const
 {
   
-  return innerRadius;
+  return m_innerRadius;
   
 }
 
 inline double HECLongBlock::getOuterRadius () const
 {
   
-  return outerRadius;
+  return m_outerRadius;
   
 }
 
 inline double HECLongBlock::getDepth () const
 {
   
-  return depth;
+  return m_depth;
   
 }
 
 inline unsigned int HECLongBlock::getNumLArGaps () const
 {
   
-  return numLArGaps;
+  return m_numLArGaps;
   
 }
 
 inline double HECLongBlock::getFrontPlateThickness () const
 {
   
-  return frontPlateThickness;
+  return m_frontPlateThickness;
   
 }
 
 inline double HECLongBlock::getBackPlateThickness () const
 {
   
-  return backPlateThickness;
+  return m_backPlateThickness;
   
 }
 

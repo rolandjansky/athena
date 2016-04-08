@@ -127,24 +127,24 @@ class EMBDetectorManager : public GeoVDetectorManager
    *	by this manager.
    */
   EMBDetRegionArray m_DetRegionsRandom;
-  const EMBBasicReadoutNumbers *basicReadoutNumbers;
-  mutable EMBAccordionDetails *accordionDetails;
-  mutable const EMBHVManager           *hvManager;
-  mutable const EMBPresamplerHVManager *presamplerHVManager;
+  const EMBBasicReadoutNumbers *m_basicReadoutNumbers;
+  mutable EMBAccordionDetails *m_accordionDetails;
+  mutable const EMBHVManager           *m_hvManager;
+  mutable const EMBPresamplerHVManager *m_presamplerHVManager;
 };
 
 
 inline const EMBAccordionDetails * EMBDetectorManager::getAccordionDetails () const
 {
 
-  if (!accordionDetails) accordionDetails = new EMBAccordionDetails();
-  return accordionDetails;
+  if (!m_accordionDetails) m_accordionDetails = new EMBAccordionDetails();
+  return m_accordionDetails;
 }
 
 
 inline const EMBBasicReadoutNumbers * EMBDetectorManager::getBasicReadoutNumbers () const
 {
-  return basicReadoutNumbers;
+  return m_basicReadoutNumbers;
 }
 
 

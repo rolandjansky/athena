@@ -6,7 +6,7 @@
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 #include "GeoModelKernel/GeoPcon.h"
 HECDetectorRegion::HECDetectorRegion (const GeoVFullPhysVol *physVol, const HECDetDescr *hecDescriptor, DetectorSide endcap, double projectivityDisplacement)
-  :GeoVDetectorElement(physVol),descriptor(hecDescriptor),endcapIndex(endcap),m_projectivityDisplacement(projectivityDisplacement)
+  :GeoVDetectorElement(physVol),m_descriptor(hecDescriptor),m_endcapIndex(endcap),m_projectivityDisplacement(projectivityDisplacement)
 {
   hecDescriptor->ref();
 }
@@ -14,14 +14,14 @@ HECDetectorRegion::HECDetectorRegion (const GeoVFullPhysVol *physVol, const HECD
 
 HECDetectorRegion::~HECDetectorRegion()
 {
-  descriptor->unref();
+  m_descriptor->unref();
 }
 
 
 
 HECCellConstLink HECDetectorRegion::getHECCell (unsigned int ieta, unsigned int iphi) const
 {
-  HECCell *cell = new HECCell(endcapIndex,descriptor,ieta,iphi);
+  HECCell *cell = new HECCell(m_endcapIndex,m_descriptor,ieta,iphi);
   return HECCellConstLink(cell);
 }
 
@@ -78,11 +78,11 @@ HepGeom::Point3D<double> HECDetectorRegion::getRefPlanePos () const
 HepGeom::Point3D<double> HECDetectorRegion::getFocalPointPos () const
 {
   HepGeom::Point3D<double> zRef = getRefPlanePos();
-  int    sgn  = endcapIndex==0 ? -1 : +1;
-  bool   hec2 = descriptor->getSamplingIndex()>1;
+  int    sgn  = m_endcapIndex==0 ? -1 : +1;
+  bool   hec2 = m_descriptor->getSamplingIndex()>1;
   HepGeom::Point3D<double> focalPos = hec2 ? 
-    HepGeom::Point3D<double>(0,0,sgn*descriptor->getManager()->getFocalToRef2()):
-    HepGeom::Point3D<double>(0,0,sgn*descriptor->getManager()->getFocalToRef1());
+    HepGeom::Point3D<double>(0,0,sgn*m_descriptor->getManager()->getFocalToRef2()):
+    HepGeom::Point3D<double>(0,0,sgn*m_descriptor->getManager()->getFocalToRef1());
   return zRef - focalPos;
 }
 

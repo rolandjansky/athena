@@ -108,8 +108,8 @@ class EMBDetectorRegion : public GeoVDetectorElement
   
   EMBDetectorRegion(const EMBDetectorRegion &right);
   EMBDetectorRegion & operator=(const EMBDetectorRegion &right);
-  const EMBDetDescr *descriptor;
-  EMBDetectorRegion::DetectorSide endcapIndex;
+  const EMBDetDescr *m_descriptor;
+  EMBDetectorRegion::DetectorSide m_endcapIndex;
 };
 
 
@@ -119,49 +119,49 @@ class EMBDetectorRegion : public GeoVDetectorElement
 inline const EMBDetDescr * EMBDetectorRegion::getDescriptor () const
 {
   
-  return descriptor;
+  return m_descriptor;
   
 }
 
 inline unsigned int EMBDetectorRegion::getSamplingIndex () const
 {
   
-  return descriptor->getSamplingIndex();
+  return m_descriptor->getSamplingIndex();
   
 }
 
 inline unsigned int EMBDetectorRegion::getRegionIndex () const
 {
   
-  return descriptor->getRegionIndex();
+  return m_descriptor->getRegionIndex();
   
 }
 
 inline unsigned int EMBDetectorRegion::beginPhiIndex () const
 {
   
-  return descriptor->getPhiBinning().getFirstDivisionNumber();
+  return m_descriptor->getPhiBinning().getFirstDivisionNumber();
   
 }
 
 inline unsigned int EMBDetectorRegion::endPhiIndex () const
 {
   
-  return descriptor->getPhiBinning().getFirstDivisionNumber() + descriptor->getPhiBinning().getNumDivisions();
+  return m_descriptor->getPhiBinning().getFirstDivisionNumber() + m_descriptor->getPhiBinning().getNumDivisions();
   
 }
 
 inline unsigned int EMBDetectorRegion::beginEtaIndex () const
 {
   
-  return descriptor->getEtaBinning().getFirstDivisionNumber();
+  return m_descriptor->getEtaBinning().getFirstDivisionNumber();
   
 }
 
 inline unsigned int EMBDetectorRegion::endEtaIndex () const
 {
   
-  return descriptor->getEtaBinning().getFirstDivisionNumber() + descriptor->getEtaBinning().getNumDivisions();
+  return m_descriptor->getEtaBinning().getFirstDivisionNumber() + m_descriptor->getEtaBinning().getNumDivisions();
   
 }
 
@@ -170,7 +170,7 @@ inline unsigned int EMBDetectorRegion::endEtaIndex () const
 inline EMBDetectorRegion::DetectorSide EMBDetectorRegion::getEndcapIndex () const
 {
   
-  return endcapIndex;
+  return m_endcapIndex;
   
 }
 

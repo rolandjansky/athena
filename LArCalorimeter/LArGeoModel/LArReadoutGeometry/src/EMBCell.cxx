@@ -94,8 +94,8 @@ void EMBCell::initHV() const {
     double dPhi = fabs((phiUpper-phiLower));
     double phi0 = (iSide==1) ? M_PI/1024 : -(M_PI)/1024;      // delta phi between first absorber and electrode at phi=0
     double sPhi = phiLower-hvMod->getPhiMin() + phi0;    
-    unsigned int iOffset=int(sPhi/(2*M_PI)*1024.+0.5);
-    unsigned int N      =int(dPhi/(2*M_PI)*1024.+0.5);
+    unsigned int iOffset=int(sPhi*(M_1_PI/2*1024.)+0.5);
+    unsigned int N      =int(dPhi*(M_1_PI/2*1024.)+0.5);
     //  std::cout << " EMBCell   eta,phi1,phi2 cell, phiMinModule " << eta << " " << phiLower << " " << phiUpper << " " << hvMod->getPhiMin() << std::endl;
     
     for (unsigned int iElectrode=iOffset;iElectrode<iOffset+N;iElectrode++) {

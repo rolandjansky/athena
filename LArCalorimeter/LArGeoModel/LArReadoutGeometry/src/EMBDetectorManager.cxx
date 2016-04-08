@@ -42,10 +42,10 @@ EMBDetectorManager::EMBDetectorManager()
   }
 
 
-  basicReadoutNumbers = new EMBBasicReadoutNumbers();
-  accordionDetails    = NULL;
-  hvManager           = NULL;
-  presamplerHVManager = NULL;
+  m_basicReadoutNumbers = new EMBBasicReadoutNumbers();
+  m_accordionDetails    = NULL;
+  m_hvManager           = NULL;
+  m_presamplerHVManager = NULL;
 }
 
 
@@ -53,8 +53,8 @@ EMBDetectorManager::~EMBDetectorManager()
 {
   for (unsigned int i=0;i<getNumDetectorRegions();i++) delete m_DetRegionsIterative[i];
   for (unsigned int i=0;i<getNumTreeTops();i++) getTreeTop(i)->unref();
-  delete basicReadoutNumbers;
-  delete accordionDetails;
+  delete m_basicReadoutNumbers;
+  delete m_accordionDetails;
 }
 
 
@@ -110,26 +110,26 @@ void EMBDetectorManager::addTreeTop (PVLink treeTop)
 const EMBHVManager * EMBDetectorManager::getHVManager () const
 {
 
-  if (!hvManager) {
+  if (!m_hvManager) {
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
     const LArHVManager *manager = NULL;
     if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
-      hvManager=manager->getEMBHVManager();
+      m_hvManager=manager->getEMBHVManager();
     }
   } 
-  return hvManager;
+  return m_hvManager;
 }
 
 
 const EMBPresamplerHVManager * EMBDetectorManager::getPresamplerHVManager () const
 {
 
-  if (!presamplerHVManager) {
+  if (!m_presamplerHVManager) {
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
     const LArHVManager *manager = NULL;
     if (detStore->retrieve(manager)==StatusCode::SUCCESS) {
-      presamplerHVManager=manager->getEMBPresamplerHVManager();
+      m_presamplerHVManager=manager->getEMBPresamplerHVManager();
     }
   } 
-  return presamplerHVManager;
+  return m_presamplerHVManager;
 }

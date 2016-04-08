@@ -91,11 +91,11 @@ class EMBDetDescr : public RCBase
   EMBDetDescr(const EMBDetDescr &right);
   EMBDetDescr & operator=(const EMBDetDescr &right);
 
-  const EMBDetectorManager *manager;
-  unsigned int samplingIndex;
-  unsigned int regionIndex;
-  CellBinning phiBinning;
-  CellBinning etaBinning;
+  const EMBDetectorManager *m_manager;
+  unsigned int m_samplingIndex;
+  unsigned int m_regionIndex;
+  CellBinning m_phiBinning;
+  CellBinning m_etaBinning;
   
   
   
@@ -103,7 +103,7 @@ class EMBDetDescr : public RCBase
    * @brief	Vector of half-lengths for the cells, one for each eta	index.
    */
   
-  std::vector<double> halfLength;
+  std::vector<double> m_halfLength;
   
       
   /**    
@@ -121,7 +121,7 @@ class EMBDetDescr : public RCBase
    *	 (From the database table EmecSamplingSep and other
    *	 related tables.)
    */
-  std::vector<double> offset;
+  std::vector<double> m_offset;
       
 
       
@@ -138,16 +138,16 @@ class EMBDetDescr : public RCBase
 inline double EMBDetDescr::getOffset (unsigned int etaIndex) const
 {
   
-  if (offset.size()==1) return offset[0];
-  return offset[etaIndex];
+  if (m_offset.size()==1) return m_offset[0];
+  return m_offset[etaIndex];
   
 }
 
 inline double EMBDetDescr::getHalfLength (unsigned int etaIndex) const
 {
   
-  if (halfLength.size()==1) return halfLength[0];
-  return halfLength[etaIndex];
+  if (m_halfLength.size()==1) return m_halfLength[0];
+  return m_halfLength[etaIndex];
   
 }
 
@@ -156,35 +156,35 @@ inline double EMBDetDescr::getHalfLength (unsigned int etaIndex) const
 inline const EMBDetectorManager * EMBDetDescr::getManager () const
 {
   
-  return manager;
+  return m_manager;
   
 }
 
 inline unsigned int EMBDetDescr::getSamplingIndex () const
 {
   
-  return samplingIndex;
+  return m_samplingIndex;
   
 }
 
 inline unsigned int EMBDetDescr::getRegionIndex () const
 {
   
-  return regionIndex;
+  return m_regionIndex;
   
 }
 
 inline const CellBinning& EMBDetDescr::getPhiBinning () const
 {
   
-  return phiBinning;
+  return m_phiBinning;
   
 }
 
 inline const CellBinning& EMBDetDescr::getEtaBinning () const
 {
   
-  return etaBinning;
+  return m_etaBinning;
   
 }
 

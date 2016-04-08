@@ -32,7 +32,7 @@ FCALModule::FCALModule (const GeoVFullPhysVol *physVol, Module module, Endcap en
   :GeoVDetectorElement(physVol),
    m_Mod(module),
    m_EC(endcap),
-   manager(0),
+   m_manager(0),
    m_dz(((const GeoTubs *) physVol->getLogVol()->getShape())->getZHalfLength()*2.0),
    m_projectivityDisplacement(projectivityDisplacement)
 {
@@ -89,7 +89,7 @@ double FCALModule::getFullWidthX (const FCALTile& tile) const
     m_TileSizeY.resize(ntubes,newVal);
   }
   if (m_TileSizeX[ntubes-1]==newVal) {
-    const FCAL_ChannelMap *cMap=manager->getChannelMap();
+    const FCAL_ChannelMap *cMap=m_manager->getChannelMap();
     float dx,dy;
     cMap->tileSize(m_Mod,ntubes,dx,dy);
     m_TileSizeX[ntubes-1]=dx;
@@ -107,7 +107,7 @@ double FCALModule::getFullWidthY (const FCALTile& tile) const
     m_TileSizeY.resize(ntubes,newVal);
   }
   if (m_TileSizeY[ntubes-1]==newVal) {
-    const FCAL_ChannelMap *cMap=manager->getChannelMap();
+    const FCAL_ChannelMap *cMap=m_manager->getChannelMap();
     float dx,dy;
     cMap->tileSize(m_Mod,ntubes,dx,dy);
     m_TileSizeX[ntubes-1]=dx;
@@ -145,8 +145,8 @@ const Amg::Transform3D  FCALModule::getDefAbsoluteTransformAmg () const
 
 void FCALModule::setManager (FCALDetectorManager* fcalManager)
 {
-  manager = fcalManager;
-  const FCAL_ChannelMap *cMap = manager->getChannelMap();
+  m_manager = fcalManager;
+  const FCAL_ChannelMap *cMap = m_manager->getChannelMap();
   FCAL_ChannelMap::tileMap_const_iterator t,begin=cMap->begin(m_Mod),end=cMap->end(m_Mod);
   for (t=begin;t!=end;t++) {
     FCALTile tile(this,t);

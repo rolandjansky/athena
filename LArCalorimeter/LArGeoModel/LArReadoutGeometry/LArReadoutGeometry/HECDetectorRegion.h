@@ -146,8 +146,8 @@ class HECDetectorRegion : public GeoVDetectorElement
     
   HECDetectorRegion(const HECDetectorRegion &right);
   HECDetectorRegion & operator=(const HECDetectorRegion &right);
-  const HECDetDescr *descriptor;
-  HECDetectorRegion::DetectorSide endcapIndex;
+  const HECDetDescr *m_descriptor;
+  HECDetectorRegion::DetectorSide m_endcapIndex;
 
   double m_projectivityDisplacement;
 };
@@ -162,7 +162,7 @@ class HECDetectorRegion : public GeoVDetectorElement
 inline const HECDetDescr * HECDetectorRegion::getDescriptor () const
 {
   
-  return descriptor;
+  return m_descriptor;
   
 }
 
@@ -183,28 +183,28 @@ inline unsigned int HECDetectorRegion::getRegionIndex () const
 inline unsigned int HECDetectorRegion::beginPhiIndex () const
 {
   
-  return descriptor->getPhiBinning().getFirstDivisionNumber();
+  return m_descriptor->getPhiBinning().getFirstDivisionNumber();
   
 }
 
 inline unsigned int HECDetectorRegion::endPhiIndex () const
 {
   
-  return descriptor->getPhiBinning().getFirstDivisionNumber() + descriptor->getPhiBinning().getNumDivisions();
+  return m_descriptor->getPhiBinning().getFirstDivisionNumber() + m_descriptor->getPhiBinning().getNumDivisions();
   
 }
 
 inline unsigned int HECDetectorRegion::beginEtaIndex () const
 {
   
-  return descriptor->getEtaBinning().getFirstDivisionNumber();
+  return m_descriptor->getEtaBinning().getFirstDivisionNumber();
   
 }
 
 inline unsigned int HECDetectorRegion::endEtaIndex () const
 {
   
-  return descriptor->getEtaBinning().getFirstDivisionNumber() + descriptor->getEtaBinning().getNumDivisions();
+  return m_descriptor->getEtaBinning().getFirstDivisionNumber() + m_descriptor->getEtaBinning().getNumDivisions();
   
 }
 
@@ -213,7 +213,7 @@ inline unsigned int HECDetectorRegion::endEtaIndex () const
 inline HECDetectorRegion::DetectorSide HECDetectorRegion::getEndcapIndex () const
 {
   
-  return endcapIndex;
+  return m_endcapIndex;
   
 }
 
