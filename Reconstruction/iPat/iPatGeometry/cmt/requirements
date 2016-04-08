@@ -1,0 +1,33 @@
+package iPatGeometry
+########################################################### 
+## geometry description AlgTools (specific to iPatRec)
+########################################################### 
+
+author			Alan Poppleton <Alan.Poppleton@cern.ch>
+author			Giorgos Stavropoulos <George.Stavropoulos@cern.ch>
+
+private
+use EventPrimitives		EventPrimitives-*		Event
+use GaudiInterface		GaudiInterface-*		External
+
+public
+use AtlasPolicy			AtlasPolicy-*
+use GeoPrimitives		GeoPrimitives-*			DetectorDescription
+use Identifier			Identifier-*			DetectorDescription
+use InDetReadoutGeometry	InDetReadoutGeometry-*		InnerDetector/InDetDetDescr
+use TrkSurfaces			TrkSurfaces-*			Tracking/TrkDetDescr
+
+library iPatGeometry	       DetectorIntersect.cxx	     \
+			       MaterialAllocator.cxx	     \
+			       PixelTrapezoid.cxx	     \
+			       SiliconDetector.cxx	     \
+			       SiliconDetectorBuilder.cxx    \
+			       SiliconLayer.cxx		     \
+			       SiliconRectangle.cxx	     \
+			       SiliconRing.cxx		     \
+			       SiliconTrapezoid.cxx
+			       		       		       
+apply_pattern installed_library
+
+private
+	     
