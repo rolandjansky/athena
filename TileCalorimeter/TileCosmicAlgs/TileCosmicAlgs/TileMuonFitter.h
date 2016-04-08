@@ -92,54 +92,54 @@ class TileMuonFitter: public AthAlgorithm {
     /** Creates an internal cell container (just vectors) from the
      input CaloCellContainer. Throws away cells below threshold
      or flagged from jobOptions.*/
-    void BuildCells();
+    void buildCells();
 
     /** Reset variables.*/
-    void SetEventDefaults();
+    void setEventDefaults();
 
     /** Checks if there are good cells on the top and bottom modules.
      If not, skips event. */
-    bool EventSelection();
+    bool eventSelection();
 
     /** Fits a straight track to the cell centers, using the auxiliary class
      TileMuonTrackDistance. */
-    int FitTrack();
+    int fitTrack();
 
     /** Fits a straight track to the cells centers, using a Hough Transform
      algorithm. */
-    int HoughTrack();
+    int houghTrack();
 
     /** Calculates time in reference plane */
-    void CalculateTime();
+    void calculateTime();
     /** Extrapolates cell time to y=0 */
-    void CalculateTimeAtYequal0();
+    void calculateTimeAtYequal0();
     /** Extrapolates cell time to z=0 */
-    void CalculateTimeAtZequal0();
+    void calculateTimeAtZequal0();
 
     /** Selects between the two next methods. */
-    void BuildTileCosmicMuon(int fitok);
+    void buildTileCosmicMuon(int fitok);
     /** Creates output TileCosmicMuon object in StoreGate. */
-    void BuildTileCosmicMuonAtYequal0(int fitok);
+    void buildTileCosmicMuonAtYequal0(int fitok);
     /** Creates output TileCosmicMuon object in StoreGate. */
-    void BuildTileCosmicMuonAtZequal0(int fitok);
+    void buildTileCosmicMuonAtZequal0(int fitok);
 
     /** Selects between the two next methods. */
-    void BuildComTime(int fitok);
+    void buildComTime(int fitok);
     /** Creates output ComTime object in StoreGate. */
-    void BuildComTimeAtYequal0(int fitok);
+    void buildComTimeAtYequal0(int fitok);
     /** Creates output ComTime object in StoreGate. */
-    void BuildComTimeAtZequal0(int fitok);
+    void buildComTimeAtZequal0(int fitok);
 
   private:
 
     /** Calculates length of track intersection with TileCal (by sampling).*/
-    void TrackIntersection(std::vector<double> & ltop, std::vector<double> & lbot, int index);
+    void trackIntersection(std::vector<double> & ltop, std::vector<double> & lbot, int index);
     /** Calculates length of track intersection with TileCal (by sampling and module).*/
-    void TrackSegmentIntersection(std::vector<double> & segPath, std::vector<int> & segPartition
+    void trackSegmentIntersection(std::vector<double> & segPath, std::vector<int> & segPartition
                                   , std::vector<int> & segModule, std::vector<int> & segSampling, int index);
 
     /** Sums up energy in TileCal cells close to the track (by sampling).*/
-    void EnergyInTrack(std::vector<double> & etop, std::vector<double> & ebot
+    void energyInTrack(std::vector<double> & etop, std::vector<double> & ebot
                       , std::vector<IdentifierHash> & cells, int index);
 
     /** Checks if x1 is within LB z coordinate bounds.*/
@@ -167,19 +167,19 @@ class TileMuonFitter: public AthAlgorithm {
 
     // Hough Transform auxiliar routines ---------------------------------------
 
-    std::vector<CellInfo> ci;
+    std::vector<CellInfo> m_cellInfo;
 
     void cart2hough(float x1, float y1, float x2, float y2, double &raio, double &angu);
     void hough2cart(double r, double a, double offset, double &aa, double &bb);
     float dist2line(CellInfo &ci, float *pos, float *w);
     void points2dir(CellInfo &ci1, CellInfo &ci2, float *w);
     unsigned int CntCells(unsigned int index1, unsigned int index2, double &skew);
-    bool GuessTrack(unsigned int &index1, unsigned int &index2);
-    unsigned int BuildCIVector();
-    float SelectCells(float *p, float *w);
-    bool IsHaloMuon(double azy);
-    void DoHough(double &rxy, double &axy, double &rzy, double &azy);
-    void AddTrack(double aa, double bb, double cc, double dd);
+    bool guessTrack(unsigned int &index1, unsigned int &index2);
+    unsigned int buildCellInfoVector();
+    float selectCells(float *p, float *w);
+    bool isHaloMuon(double azy);
+    void doHough(double &rxy, double &axy, double &rzy, double &azy);
+    void addTrack(double aa, double bb, double cc, double dd);
 
   protected:
 
@@ -198,7 +198,7 @@ class TileMuonFitter: public AthAlgorithm {
 
     /** Auxiliary class representing the function to be minimized - weighted sum of
      squares of orthogonal distances from track to cells)*/
-    TileMuonTrackDistance* theTrack;
+    TileMuonTrackDistance* m_theTrack;
 
     /** Cell energy threshold */
     double m_eThreshold;
@@ -229,17 +229,17 @@ class TileMuonFitter: public AthAlgorithm {
     /** Minimum number of cells needed for fit.*/
     int m_minimumCells;
     /** Position of selected cell's center.*/
-    std::vector<CLHEP::Hep3Vector> m_CellPosition;
+    std::vector<CLHEP::Hep3Vector> m_cellPosition;
     /** Selected cell's energy.*/
-    std::vector<double> m_CellEnergy;
+    std::vector<double> m_cellEnergy;
     /** Selected cell's weight for fit.*/
-    std::vector<double> m_CellWeight;
+    std::vector<double> m_cellWeight;
     /** Selected cell's time.*/
-    std::vector<double> m_CellTime;
+    std::vector<double> m_cellTime;
     /** Selected cell's time difference between two PMTs.*/
-    std::vector<double> m_CellDeltaTime;
+    std::vector<double> m_cellDeltaTime;
     /** Selected cell's identifier hash.*/
-    std::vector<IdentifierHash> m_CellHash;
+    std::vector<IdentifierHash> m_cellHash;
 
     /** Vector with the fitted four track parameters.*/
     std::vector<std::vector<double> > m_linePar;
