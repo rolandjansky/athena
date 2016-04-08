@@ -68,6 +68,8 @@ namespace Muon {
     TTree*         m_wirePositionTree;
 
     MsgStream*     m_log;
+    TgcAlignModule & operator=(const TgcAlignModule &right);
+    TgcAlignModule(const TgcAlignModule&);
 
   }; // end class
   

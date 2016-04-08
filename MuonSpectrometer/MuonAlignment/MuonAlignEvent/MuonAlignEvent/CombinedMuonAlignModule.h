@@ -53,6 +53,8 @@ namespace Muon {
   private:       
 
     MsgStream*     m_log;
+    CombinedMuonAlignModule & operator=(const CombinedMuonAlignModule &right);
+    CombinedMuonAlignModule(const CombinedMuonAlignModule&);
 
   }; // end class
   

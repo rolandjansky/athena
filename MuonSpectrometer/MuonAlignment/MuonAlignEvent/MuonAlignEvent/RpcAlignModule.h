@@ -53,6 +53,8 @@ namespace Muon {
 
 
     MsgStream*     m_log;
+    RpcAlignModule & operator=(const RpcAlignModule &right);
+    RpcAlignModule(const RpcAlignModule&);
 
   }; // end class
   

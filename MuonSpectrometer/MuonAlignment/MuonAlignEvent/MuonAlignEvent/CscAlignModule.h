@@ -65,6 +65,8 @@ namespace Muon {
     TTree*         m_tubePositionTree;
 
     MsgStream*     m_log;
+    CscAlignModule & operator=(const CscAlignModule &right);
+    CscAlignModule(const CscAlignModule&);
 
   }; // end class
   
