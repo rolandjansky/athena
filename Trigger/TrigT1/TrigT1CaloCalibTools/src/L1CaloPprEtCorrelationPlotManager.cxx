@@ -77,7 +77,7 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
       
         sc = m_storeGate->retrieve(caloCellContainer, m_caloCellContainerName);
 	if ( sc.isFailure() || !caloCellContainer) {
-	    *m_log<<MSG::WARNING<<"Could not retrieve calo cell container" << endmsg;
+	    *m_log<<MSG::WARNING<<"Could not retrieve calo cell container" << endreq;
 	}
 	else {
 	    m_ttToolOffline->caloCells(caloCellContainer);
@@ -88,7 +88,7 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
 
         sc = m_caloTool->loadCaloCells();
 	if ( sc.isFailure() ) {
-	    *m_log<<MSG::WARNING<<"Could not load CaloCells" << endmsg;
+	    *m_log<<MSG::WARNING<<"Could not load CaloCells" << endreq;
         }
 
     }
@@ -103,29 +103,19 @@ double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const xAOD::Trigger
 {
     Identifier id;
     std::vector<float> CaloEnergyLayers;
-    std::vector<float> CaloETLayers;
     float caloEnergy = 0.;
-    float ttCpEnergy = trigTower->cpET()*0.5;
-    float absEta = fabs(trigTower->eta() );
+    float ttCpEnergy;
+    ttCpEnergy=trigTower->cpET();
 
     if (ttCpEnergy <= m_EtMin) return -1000.;
-    if (absEta < 3.2){
-      if ( trigTower->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer") ) {
-        CaloEnergyLayers = trigTower->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer");
-        for (std::vector<float>::iterator it = CaloEnergyLayers.begin(); it != CaloEnergyLayers.end(); it++) {
-          caloEnergy += *it;
-        }
-        caloEnergy = caloEnergy / cosh( trigTower->eta() );
+    if ( trigTower->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer") ) {
+      CaloEnergyLayers = trigTower->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer");
+      for (std::vector<float>::iterator it = CaloEnergyLayers.begin(); it != CaloEnergyLayers.end(); it++) {
+        caloEnergy += *it;
       }
-    }//for central region only                                                                                                                                                                      
-    else {
-      if( trigTower->isAvailable< std::vector<float> > ("CaloCellETByLayer") ){
-	CaloETLayers = trigTower->auxdataConst< std::vector<float> > ("CaloCellETByLayer");
-        for (std::vector<float>::iterator it = CaloETLayers.begin(); it != CaloETLayers.end(); it++){
-          caloEnergy += *it;
-        }
-      }
-    }//forward region      
+      caloEnergy = caloEnergy / cosh( trigTower->eta() );
+    }
+
     // round calo energy to nearest GeV in order to compare with L1 energy
     caloEnergy=int(caloEnergy+0.5);
 
@@ -160,13 +150,13 @@ void L1CaloPprEtCorrelationPlotManager::loadTools()
     if (isOnline) {
         sc = m_caloTool.retrieve();
 	if ( sc.isFailure()) {
-	    *m_log<<MSG::WARNING<<"Unable to locate tool L1CaloMonitoringCaloTool" << endmsg;
+	    *m_log<<MSG::WARNING<<"Unable to locate tool L1CaloMonitoringCaloTool" << endreq;
 	}
     }
     else {
         sc = m_storeGate.retrieve();
 	if ( sc.isFailure()) {
-	    *m_log<<MSG::WARNING<<"Unable to retrieve store gate" << endmsg;
+	    *m_log<<MSG::WARNING<<"Unable to retrieve store gate" << endreq;
 	}
     }
     

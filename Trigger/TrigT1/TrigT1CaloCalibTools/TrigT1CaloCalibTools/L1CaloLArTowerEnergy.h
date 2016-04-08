@@ -18,7 +18,7 @@
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "LArRecConditions/ILArBadChanTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 // PABC interface include
