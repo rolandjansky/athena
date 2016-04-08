@@ -126,13 +126,17 @@ if hasattr(runArgs,"outputNTUP_SCTFile"):
 if hasattr(runArgs,"outputNTUP_FASTMONFile"):
     rec.doFastPhysMonitoring.set_Value_and_Lock(True)
     rec.RootFastPhysMonOutput.set_Value_and_Lock(runArgs.outputNTUP_FASTMONFile)
-    
 
+if hasattr(runArgs,"outputNTUP_MCPTPFile"):
+    from MuonPerformanceAlgs import MuonTPAnalysis
+    MuonTPAnalysis.MuonTPConfig(runArgs.outputNTUP_MCPTPFile)
+
+if hasattr(runArgs,"outputNTUP_MCPScaleFile"):
+    from MuonPtCalibNtupleMaker import MuonPtCalibNtupleMaker_Config
+    MuonPtCalibNtupleMaker_Config.MuonScaleConfig(runArgs.outputNTUP_MCPScaleFile)
 
 #Import D3PD flags before preExec, for convenience
 from D3PDMakerConfig.D3PDProdFlags  import oldProdFlags
-from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-from SUSYD3PDMaker.SUSYD3PDFlags    import SUSYD3PDFlags
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
