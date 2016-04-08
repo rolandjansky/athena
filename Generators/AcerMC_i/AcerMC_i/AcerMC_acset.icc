@@ -1,0 +1,13 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//     AcerMC acset common block access
+//     Borut Paul Kersevan (February 2003)
+//     Inline implementations for AcerMC_acset
+//     initialise pointer
+void AcerMC_acset::init(void) {
+  if (!_acermc_acset) _acermc_acset = static_cast<ACERMC_ACSET*>(acermc_acset_address_());
+}
+   
+

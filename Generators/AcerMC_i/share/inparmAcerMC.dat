@@ -1,0 +1,19 @@
+  -----------------------------------------------------------------------------
+      
+        AcerMC 1.0 (February 2002),  B. P. Kersevan, E. Richter-Was
+      
+        Header file for process:
+                    q + q~ ->  (W->) l nu_l t t~ (MG)         ID=    4
+      
+  -----------------------------------------------------------------------------
+      
+                   Beam Code:   2212  2212
+           Beam Energy (GeV):      7000.00
+                  PDF Choice:      4    55
+                  Event File: AcerMC_p004_r000696.events              
+          # of stored events:       100
+          Cross-section (pb):    0.633082E-01 +/-    0.286712E-02
+      
+  -----------------------------------------------------------------------------
+      
+        Please consult the control card output for more info!

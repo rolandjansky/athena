@@ -1,0 +1,24 @@
+package AcerMC_i
+
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy      AtlasPolicy-*
+
+private
+use Herwig                 Herwig-*                 External
+use GeneratorFortranCommon GeneratorFortranCommon-* Generators
+end_private
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in asNeeded mode. Until that time, this package
+# explicitly overrides the asNeeded tag
+private
+apply_tag notAsNeeded
+end_private
+
+library AcerMC_i *.cxx *.F
+
+apply_pattern installed_library
+
+apply_pattern declare_runtime extras="*.events *.dat"
+apply_pattern declare_joboptions files="*.txt *.py"

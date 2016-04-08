@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\textwidth=6.5in
+\textheight=9.0in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}   
+\def\topfraction{1.}
+\def\textfraction{0.}           
+\begin{document}
+\title{Acermc\_i: An interface between Acermc and Athena\\
+Version in release 6.5.0 and later}
+\author{  Borut Kersevan (Borut.Kersevan@cern.ch), Ian Hinchliffe (I\_Hinchliffe@lbl.gov) and Georgios Stavropoulos (George.Stavropoulos@cern.ch) }
+%\today
+
+\maketitle           
+
+This package runs Acermc  from within Athena. \\See the example
+in {\bf Acermc\_i/share/jobOptions.AcermcPythia.py } and {\bf
+  Acermc\_i/share/jobOptions.AcermcHerwig.py }  which show how to
+read Acermc events and hadronize them using Pythia or Herwig
+
+Users must first run 
+Acermc in standalone mode and make a file of events. An athena job
+then takes these events hadronizes them and passes them down the
+Athena event chain. The events must be made with a version of Acermc
+that is compatible, recent versions that support the Les Houches
+interface should be acceptable. There is a compatible version in  /afs/cern.ch/atlas/offline/external/acermc
+
+
+To hadronize {\bf AcerMC} generated events with Herwig, you only need to run athena with the jobOptions
+file jobOptions.AcerMCHerwig.py by typing in the prompt \\
+{\it athena jobOptions.AcerMCHerwig.py}\\
+
+To hadronize {\bf AcerMC} generated events with Pythia, you only need to run athena with the jobOptions
+file jobOptions.AcerMCPythia.py by typing in the prompt \\
+{\it athena jobOptions.AcerMCPythia.py}\\
+
+
+More infomation about ACerMC  here
+
+http://borut.home.cern.ch/borut/
+
+\end{document}
+
+
+
+
+
+
+
