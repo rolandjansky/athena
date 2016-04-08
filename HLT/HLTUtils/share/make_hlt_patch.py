@@ -22,7 +22,7 @@ parser.add_option('-p', '--path', action='store', type='string',
    
 (opt, args) = parser.parse_args()
 
-names = [ 'XMLPATH', 'DATAPATH', 'JOBOPTSEARCHPATH', 'PYTHONPATH' ]
+names = [ 'XMLPATH', 'DATAPATH', 'CALIBPATH', 'JOBOPTSEARCHPATH', 'PYTHONPATH' ]
 rep = pm.project.Project('daq/sw/HLT_SW_Repository.data.xml')
 vars = [ rep.getObject('SW_PackageVariable', name) for name in names ]
 

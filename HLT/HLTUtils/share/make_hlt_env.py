@@ -282,7 +282,10 @@ def main():
 
    parser.add_option('--asetupargs', action='store', type='string',
                      help='Extra arguments passed to asetup')   
-   
+
+   parser.add_option('--asetuphome', action='store', type='string',
+                     help='AtlasSetup location (automatically locate if not provided)')
+      
    parser.add_option('--prefix', action='store', type='string', default='HLT',
                      help='Prefix for OKS variables (default: %default)')
 
@@ -339,8 +342,12 @@ def main():
 
    if opt.asetupargs!=None:
       asetup_opts += ' '+opt.asetupargs
+
+   if opt.asetuphome==None:
+      asetup = getAtlasSetup()
+   else:
+      asetup = opt.asetuphome
       
-   asetup = getAtlasSetup()         
    hltenv = getHltEnv(asetup, asetup_opts)   
 
    # This will point one directory below the project, e.g.: /afs/cern.ch/atlas/software/builds
