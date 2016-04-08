@@ -1076,8 +1076,8 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
     } */
 
     for(unsigned int bc_counter = 0; bc_counter < bc_readout; bc_counter++){
-      double nROD0abortfraction = 100*((nROD0HitLG[bc_counter]*11)+nROD0HitHG[bc_counter])/36;
-      double nROD1abortfraction = 100*((nROD1HitLG[bc_counter]*11)+nROD1HitHG[bc_counter])/36;
+      double nROD0abortfraction = 100*((nROD0HitLG[bc_counter]*11)+nROD0HitHG[bc_counter])/36.0;
+      double nROD1abortfraction = 100*((nROD1HitLG[bc_counter]*11)+nROD1HitHG[bc_counter])/36.0;
       if (nROD0abortfraction != 0 || nROD1abortfraction !=0) {
 	double nabortfraction = (nROD0abortfraction+nROD1abortfraction)/2;
 	AbortFraction->Fill(nabortfraction);

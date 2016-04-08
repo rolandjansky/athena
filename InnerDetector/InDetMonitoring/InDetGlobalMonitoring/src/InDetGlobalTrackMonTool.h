@@ -212,6 +212,10 @@ private:
     std::array<TProfile2D *, 4> m_trk_disabled_eta_phi;
     std::array<TProfile *,4> m_trk_hits_LB;
     
+    TProfile2D * m_trk_shared_pix_eta_phi;
+    TProfile2D * m_trk_split_pix_eta_phi;
+    TProfile2D * m_trk_shared_sct_eta_phi;
+    
     //--- Combined tracks debug histograms-----------------------------------
     TH2F * m_Trk_FORW_FA_eta_phi;
     TH2F * m_Trk_FORW_FC_eta_phi;

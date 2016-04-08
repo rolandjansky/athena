@@ -35,6 +35,12 @@ InDetGlobalErrorMonTool::InDetGlobalErrorMonTool( const std::string & type,
   m_disabledGeoSCT(),
   m_disabledModulesMapPixel( 0 ),
   m_disabledModulesMapSCT( 0 ),
+  m_badModulesMapPixel(nullptr),
+  m_errorModulesMapPixel(nullptr),
+  m_errorModulesMapSCT(nullptr),
+  m_totalModulesMapPixel(nullptr),
+  m_totalModulesMapSCT(nullptr),
+  m_totalModulesMapSi(nullptr),
   c_nBinsEta( 200 ),
   c_rangeEta( 2.5 ),
   c_nBinsPhi( 200 )
@@ -70,6 +76,7 @@ StatusCode InDetGlobalErrorMonTool::bookHistogramsRecurrent()
 {
     MonGroup monGr_shift( this, "InDetGlobal/Track/DeadModules", run, ATTRIB_UNMANAGED );
   
+    bool status = true;
   if ( newRun )
     {
       m_disabledModulesMapPixel = new TH2F( "disabledModulesMapPixel", "Map of disabled modules for Pixel", 
@@ -104,16 +111,16 @@ StatusCode InDetGlobalErrorMonTool::bookHistogramsRecurrent()
 					 c_nBinsEta, -c_rangeEta, c_rangeEta, 
 					 c_nBinsPhi, -M_PI, M_PI );
       
-      monGr_shift.regHist( m_disabledModulesMapPixel ).isSuccess();
-      monGr_shift.regHist( m_errorModulesMapPixel ).isSuccess();
-      monGr_shift.regHist( m_disabledModulesMapSCT ).isSuccess();
-      monGr_shift.regHist( m_errorModulesMapSCT ).isSuccess();
-      monGr_shift.regHist( m_totalModulesMapPixel ).isSuccess();
-      monGr_shift.regHist( m_totalModulesMapSCT ).isSuccess();
-      monGr_shift.regHist( m_totalModulesMapSi ).isSuccess();
+      status &= monGr_shift.regHist( m_disabledModulesMapPixel ).isSuccess();
+      status &= monGr_shift.regHist( m_errorModulesMapPixel ).isSuccess();
+      status &= monGr_shift.regHist( m_disabledModulesMapSCT ).isSuccess();
+      status &= monGr_shift.regHist( m_errorModulesMapSCT ).isSuccess();
+      status &= monGr_shift.regHist( m_totalModulesMapPixel ).isSuccess();
+      status &= monGr_shift.regHist( m_totalModulesMapSCT ).isSuccess();
+      status &= monGr_shift.regHist( m_totalModulesMapSi ).isSuccess();
     }
   
-  return StatusCode::SUCCESS;
+  return ( status ) ? StatusCode::SUCCESS : StatusCode::FAILURE;
 }
 
 /*---------------------------------------------------------*/
