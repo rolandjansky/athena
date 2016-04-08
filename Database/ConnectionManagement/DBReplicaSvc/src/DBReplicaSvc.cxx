@@ -14,22 +14,22 @@
 
 DBReplicaSvc::DBReplicaSvc(const std::string& name, ISvcLocator* svc) :
   AthService(name,svc),
-  par_configfile("dbreplica.config"),
-  par_testhost(""),
-  par_coolsqlitepattern(""),
-  par_usecoolsqlite(true),
-  par_usecoolfrontier(true),
-  par_usegeomsqlite(true),
-  par_nofailover(false),
+  m_configfile("dbreplica.config"),
+  m_testhost(""),
+  m_coolsqlitepattern(""),
+  m_usecoolsqlite(true),
+  m_usecoolfrontier(true),
+  m_usegeomsqlite(true),
+  m_nofailover(false),
   m_frontiergen(false)
 {
-  declareProperty("ConfigFile",par_configfile);
-  declareProperty("TestHost",par_testhost);
-  declareProperty("COOLSQLiteVetoPattern",par_coolsqlitepattern);
-  declareProperty("UseCOOLSQLite",par_usecoolsqlite);
-  declareProperty("UseCOOLFrontier",par_usecoolfrontier);
-  declareProperty("UseGeomSQLite",par_usegeomsqlite);
-  declareProperty("DisableFailover",par_nofailover);
+  declareProperty("ConfigFile",m_configfile);
+  declareProperty("TestHost",m_testhost);
+  declareProperty("COOLSQLiteVetoPattern",m_coolsqlitepattern);
+  declareProperty("UseCOOLSQLite",m_usecoolsqlite);
+  declareProperty("UseCOOLFrontier",m_usecoolfrontier);
+  declareProperty("UseGeomSQLite",m_usegeomsqlite);
+  declareProperty("DisableFailover",m_nofailover);
 }
 
 DBReplicaSvc::~DBReplicaSvc() {}
@@ -53,7 +53,7 @@ StatusCode DBReplicaSvc::initialize() {
   // service initialisation
   if (StatusCode::SUCCESS!=AthService::initialize()) return StatusCode::FAILURE;
   // determine the hostname (or override if from joboption)
-  m_hostname=par_testhost;
+  m_hostname=m_testhost;
   // if nothing set on job-options, try environment variable ATLAS_CONDDB
   if (m_hostname.empty()) {
     const char* chost=getenv("ATLAS_CONDDB");
@@ -86,23 +86,23 @@ StatusCode DBReplicaSvc::initialize() {
   }
   // check if FRONTIER_SERVER is set, if so, allow generic replicas
   const char* cfrontier=getenv("FRONTIER_SERVER");
-  if (par_usecoolfrontier && cfrontier && strcmp(cfrontier,"")!=0) {
+  if (m_usecoolfrontier && cfrontier && strcmp(cfrontier,"")!=0) {
     ATH_MSG_INFO ("Frontier server at " << cfrontier
                   << " will be considered for COOL data");
     m_frontiergen=true;
   }
   StatusCode sc=readConfig();
-  if (!par_usecoolsqlite) {
+  if (!m_usecoolsqlite) {
     ATH_MSG_INFO ("COOL SQLite replicas will be excluded");
-  } else if (par_coolsqlitepattern!="") {
+  } else if (m_coolsqlitepattern!="") {
     ATH_MSG_INFO ("COOL SQLite replicas will be excluded if matching pattern "
-                  << par_coolsqlitepattern);
+                  << m_coolsqlitepattern);
   }
-  if (!par_usecoolfrontier)
+  if (!m_usecoolfrontier)
     ATH_MSG_INFO ("COOL Frontier replicas will be excluded");
-  if (!par_usegeomsqlite)
+  if (!m_usegeomsqlite)
     ATH_MSG_INFO ("Geometry SQLite replicas will be excluded");
-  if (par_nofailover) 
+  if (m_nofailover) 
     ATH_MSG_INFO ("Failover to secondary replicas disabled");
   return sc;
 }
@@ -115,9 +115,9 @@ StatusCode DBReplicaSvc::readConfig() {
 
 
   // try to locate the file using pathresolver
-  std::string file=PathResolver::find_file(par_configfile,"DATAPATH");
+  std::string file=PathResolver::find_file(m_configfile,"DATAPATH");
   if (file.empty()) {
-    ATH_MSG_ERROR ("Cannot locate configuration file " << par_configfile);
+    ATH_MSG_ERROR ("Cannot locate configuration file " << m_configfile);
     return StatusCode::FAILURE;
   }
   // open and read the file
@@ -153,7 +153,7 @@ StatusCode DBReplicaSvc::readConfig() {
 	    domains.push_back(token);
           } else {
   	    // token is a server name
-    	    if (!par_nofailover || servers.size()==0 || token=="atlas_dd") 
+    	    if (!m_nofailover || servers.size()==0 || token=="atlas_dd") 
 	      servers.push_back(token);
           }
 	}
@@ -227,13 +227,13 @@ void DBReplicaSvc::sort(std::vector<const
       // vetoed if use-SQlite flag not set, or pattern is found in 
       // SQLite filename
       // Geometry SQLite files recognised by geomDB in connection string
-      if (!( ((par_usecoolsqlite==false || 
-	     (par_coolsqlitepattern!="" && 
-	      conn.find(par_coolsqlitepattern)!=std::string::npos))
+      if (!( ((m_usecoolsqlite==false || 
+	     (m_coolsqlitepattern!="" && 
+	      conn.find(m_coolsqlitepattern)!=std::string::npos))
 	      && conn.find("ALLP")!=std::string::npos)
-          || ((par_usegeomsqlite==false || 
-             (par_coolsqlitepattern!="" &&
-              conn.find(par_coolsqlitepattern)!=std::string::npos))
+          || ((m_usegeomsqlite==false || 
+             (m_coolsqlitepattern!="" &&
+              conn.find(m_coolsqlitepattern)!=std::string::npos))
                && conn.find("geomDB")!=std::string::npos))) {
 	// local sqlite files get -9999, DB release ones 
 	// (identified with path starting / or containing DBRelease)
@@ -254,7 +254,7 @@ void DBReplicaSvc::sort(std::vector<const
 	// dont use frontier servers if disabled, or generic Frontier server
 	// is specified (via '()' in server definition) and FRONTIER_SERVER
 	// env variable is not set
-	if (!par_usecoolfrontier || 
+	if (!m_usecoolfrontier || 
 	    (conn.find("()")!=std::string::npos && m_frontiergen==false))
 	  veto=true;
       }

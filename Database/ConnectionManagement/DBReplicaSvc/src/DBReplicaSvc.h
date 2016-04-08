@@ -32,13 +32,13 @@ class DBReplicaSvc : public virtual IDBReplicaSvc, public virtual AthService
 
  private:
   StatusCode readConfig();
-  std::string par_configfile;
-  std::string par_testhost;
-  std::string par_coolsqlitepattern;
-  bool par_usecoolsqlite;
-  bool par_usecoolfrontier;
-  bool par_usegeomsqlite;
-  bool par_nofailover;
+  std::string m_configfile;
+  std::string m_testhost;
+  std::string m_coolsqlitepattern;
+  bool m_usecoolsqlite;
+  bool m_usecoolfrontier;
+  bool m_usegeomsqlite;
+  bool m_nofailover;
 
   bool m_frontiergen;
   std::string m_hostname;
