@@ -9,11 +9,13 @@ template<typename T>
 TBProfiler<T>::TBProfiler()
   : m_channelFill(false)
      , m_skipFlag(true)
+     , m_deltaBin()
 { }
 
 template<typename T>
 TBProfiler<T>::TBProfiler(size_t theSize)
   : m_channelFill(true)
+     , m_deltaBin()
 {
   m_skipFlag = ! this->setupAction(theSize);
 }
@@ -21,7 +23,8 @@ TBProfiler<T>::TBProfiler(size_t theSize)
 template<typename T>
 TBProfiler<T>::TBProfiler(size_t storeSize, const T& lowerLimit, 
 		       const T& upperLimit)
-  : m_channelFill(false)
+  : m_channelFill(false),
+    m_deltaBin()
 {
   if ( storeSize > 0 && upperLimit > lowerLimit )
     {
@@ -139,7 +142,7 @@ bool TBProfiler<T>::getStandardDevs(size_t theIndex,T& theVariance) const
   if ( m_skipFlag ) return false;
 
   bool checkOut;
-  if ( checkOut = ( theIndex < m_sum.size() && m_entries[theIndex] > 0 ) )
+  if (( checkOut = ( theIndex < m_sum.size() && m_entries[theIndex] > 0 ) ))
     {
       T theDev = m_sumOfSquares[theIndex] - m_sum[theIndex] * m_sum[theIndex];
       theVariance = theDev > 0 ? sqrt(theDev) : -sqrt(fabs(theDev));
@@ -174,7 +177,7 @@ bool TBProfiler<T>::getErrors(size_t theIndex, T& theError) const
   if ( m_skipFlag ) return false;
 
   bool checkOut;
-  if ( checkOut = this->getStandardDevs(theIndex,theError) )
+  if (( checkOut = this->getStandardDevs(theIndex,theError) ))
     {
       theError /= sqrt((T)m_entries[theIndex]);
     }

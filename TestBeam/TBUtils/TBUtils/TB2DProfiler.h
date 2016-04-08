@@ -19,6 +19,8 @@ class TB2DProfiler
   TB2DProfiler();
   TB2DProfiler(size_t xBins, const T& xLow, const T& xHigh,
 	       size_t yBins, const T& yLow, const T& yHigh);
+  TB2DProfiler(const TB2DProfiler&) = delete;
+  TB2DProfiler& operator=(const TB2DProfiler&) = delete;
 
   virtual ~TB2DProfiler();
 
