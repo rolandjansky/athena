@@ -7,6 +7,7 @@ theApp.EvtMax = 100
 
 import ParticleGun as PG
 pg = PG.ParticleGun()
+pg.randomSeed = 123456
 pg.samplers.append(PG.ParticleSampler()) # add a second sampler
 pg.samplers[0].pid = (-13, 13) # cycle mu+-
 pg.samplers[0].mom = PG.PtEtaMPhiSampler(pt=[4000, 100000], eta=[1.0, 3.2]) # flat in pt and +ve eta
