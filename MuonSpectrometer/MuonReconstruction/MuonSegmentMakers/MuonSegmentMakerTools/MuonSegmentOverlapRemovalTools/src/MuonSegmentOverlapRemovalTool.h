@@ -52,7 +52,7 @@ namespace Muon {
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
 
     bool m_removePartialOverlaps; //!< remove partial overlaps between segments
-    bool m_overlapFractionCut;    //!< cut on overlap fraction for segments 
+    double m_overlapFractionCut;    //!< cut on overlap fraction for segments 
   };
 
 }
