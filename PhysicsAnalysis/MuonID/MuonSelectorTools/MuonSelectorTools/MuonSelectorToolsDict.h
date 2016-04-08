@@ -11,5 +11,6 @@
 
 // Includes for the dictionary generation:
 #include "MuonSelectorTools/MuonSelectionTool.h"
+#include "MuonSelectorTools/MuonLegacySelectionTool.h"
 
 #endif // MUONSELECTORTOOLS_MUONSELECTORTOOLSDICT_H
