@@ -12,19 +12,19 @@ use TestPolicy          TestPolicy-*
 #use RootHistCnv         v*    
 use AtlasROOT           AtlasROOT-*        External  
 
-use RDBAccessSvc RDBAccessSvc-* Database/AthenaPOOL
+#use RDBAccessSvc RDBAccessSvc-* Database/AthenaPOOL
 
 #-----------------------------------------------------
 #for LAr
 #-----------------------------------------------------
-use ByteStreamCnvSvc  ByteStreamCnvSvc-*  Event
-use TBCnv             TBCnv-*             TestBeam
+#use ByteStreamCnvSvc  ByteStreamCnvSvc-*  Event
+#use TBCnv             TBCnv-*             TestBeam
 
 #for rebuilding
-use LArROD LArROD-*	LArCalorimeter
-use CaloRec CaloRec-* Calorimeter
-use CaloTBRec CaloTBRec-* Calorimeter/CaloTestBeam
-use LArTBRec LArTBRec-*  LArCalorimeter/LArTestBeam
+#use LArROD LArROD-*	LArCalorimeter
+#use CaloRec CaloRec-* Calorimeter
+#use CaloTBRec CaloTBRec-* Calorimeter/CaloTestBeam
+#use LArTBRec LArTBRec-*  LArCalorimeter/LArTestBeam
  
 #---------------------------------------------------------------------
 # The following commands aid in the establishment of the run-time environment
