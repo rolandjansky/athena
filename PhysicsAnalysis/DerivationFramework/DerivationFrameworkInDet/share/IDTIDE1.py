@@ -276,6 +276,8 @@ svcMgr += createThinningSvc( svcName="IDTIDE1ThinningSvc", outStreams=[evtStream
 #====================================================================
 IDTIDE1Stream.AddItem("xAOD::EventInfo#*")
 IDTIDE1Stream.AddItem("xAOD::EventAuxInfo#*")
+IDTIDE1Stream.AddItem("xAOD::EventShape#*")
+IDTIDE1Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 IDTIDE1Stream.AddItem("xAOD::TriggerMenuContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TriggerMenuContainer#TriggerMenu")
 IDTIDE1Stream.AddItem("xAOD::TriggerMenuAuxContainer#*")
