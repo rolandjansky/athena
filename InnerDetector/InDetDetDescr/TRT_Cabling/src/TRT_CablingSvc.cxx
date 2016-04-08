@@ -24,8 +24,22 @@ using eformat::helper::SourceIdentifier;
 TRT_CablingSvc::TRT_CablingSvc( const std::string& name, 
 			      ISvcLocator * pSvcLocator)
    : AthService( name, pSvcLocator ),
-     m_manager(0), 
-     m_idHelper(0)
+     m_manager                    ( 0 ), 
+     m_idHelper                   ( 0 ),
+     m_cabling                    ( nullptr ),
+     m_cablingTool_SR1_ECC        ( nullptr ),
+     m_cablingTool_SR1            ( nullptr ),
+     m_cablingTool_TB             ( nullptr ),
+     m_cablingTool_DC1            ( nullptr ),
+     m_cablingTool_DC2            ( nullptr ),
+     m_cablingTool_DC3            ( nullptr ),
+     m_TRTLayout                  ( 0 ),
+     m_numberOfStrawsInROD        ( 0 ),
+     m_numberOfStrawsInBarrelROD  ( 0 ),
+     m_shiftForLeftEndCapStraws   ( 0 ),
+     m_shiftForLeftBarrelStraws   ( 0 ),
+     m_shiftForRightBarrelStraws  ( 0 ),
+     m_shiftForRightEndCapStraws  ( 0 )
 {
   //  declareInterface< ITRT_CablingSvc >( this );   
 }

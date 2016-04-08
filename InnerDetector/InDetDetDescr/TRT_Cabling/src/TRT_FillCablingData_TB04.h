@@ -102,6 +102,8 @@ private:
   // Private version of number of straws in each layer
   std::vector< std::vector<int> > ncol;
 
+  int StrawsByModule[3];
+
 };
 
 #endif     //TRT_FILLCABLINGDATA_TB04_H
