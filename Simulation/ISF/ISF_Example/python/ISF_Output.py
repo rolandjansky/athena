@@ -41,6 +41,10 @@ class ISF_HITSStream:
           stream1.ItemList = ["EventInfo#*",
                               "McEventCollection#TruthEvent",
                               "JetCollection#*"]
+
+          if simFlags.SimulationFlavour() is not None and 'ongLived' in simFlags.SimulationFlavour(): # to catch LongLived and longLived
+              stream1.ItemList += ["McEventCollection#GEN_EVENT"]
+
           from PyJobTransforms.trfUtils import releaseIsOlderThan
           if releaseIsOlderThan(20,0):
             #Hack to maintain compatibility of G4AtlasApps trunk with
@@ -66,7 +70,7 @@ class ISF_HITSStream:
               stream1.ItemList += ["CaloCalibrationHitContainer#*",
                                    "LArHitContainer#*",
                                    "TileHitVector#*",
-                                   "SimpleScintillatorHitCollection#*",
+                                   #"SimpleScintillatorHitCollection#*",
                                    "TrackRecordCollection#MuonEntryLayer"]
           ## Muon
           if DetFlags.Muon_on():
@@ -100,7 +104,7 @@ class ISF_HITSStream:
                  stream1.ItemList += ["AFP_TDSimHitCollection#*","AFP_SIDSimHitCollection#*"]
 
           ## Ancillary scintillators
-          stream1.ItemList += ["ScintillatorHitCollection#*"]
+          #stream1.ItemList += ["ScintillatorHitCollection#*"]
 
           ## TimingAlg
           stream1.ItemList +=["RecoTimingObj#EVNTtoHITS_timings"]
@@ -108,10 +112,10 @@ class ISF_HITSStream:
           ## Add cosmics and test beam configuration hit persistency if required cf. geom tag
           layout = simFlags.SimLayout.get_Value()
 
-          ## add xAOD::TrackParticles output collection Parametric Simulation 
+          ## add xAOD::TrackParticles output collection Parametric Simulation
           if simFlags.SimulationFlavour == "ParametricSimulation":
               stream1.ItemList +=["xAOD::TrackParticleContainer#*",
-                                                  "xAOD::TrackParticleAuxContainer#*"]
+                                  "xAOD::TrackParticleAuxContainer#*"]
           #from AthenaCommon.GlobalFlags import globalflags
           #layout = globalflags.DetDescrVersion.get_Value()
           if "tb" not in layout:
