@@ -12,7 +12,28 @@ class ALFA_ODHit_p1
 {
  public:
   // needed by athenaRoot 
-  ALFA_ODHit_p1(){};
+  ALFA_ODHit_p1()
+  {
+	hitID=-1;
+	trackID=-1;
+
+	particleEncoding=-1;
+	kineticEnergy=-9999.0;
+	energyDeposit=-9999.0;
+	preStepX=-9999.0;
+	preStepY=-9999.0;
+	preStepZ=-9999.0;
+	postStepX=-9999.0;
+	postStepY=-9999.0;
+	postStepZ=-9999.0;
+	globalTime=-9999.0;
+
+	sign_fiber=-1;
+	OD_side=-1;
+	n_plate=-1;
+	n_fiber=-1;
+	n_station=-1;
+  };
   friend class ALFA_ODHitCnv_p1;
   
  private:

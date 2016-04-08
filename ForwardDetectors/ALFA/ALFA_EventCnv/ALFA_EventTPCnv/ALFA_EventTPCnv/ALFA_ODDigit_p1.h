@@ -10,7 +10,13 @@ class ALFA_ODDigit_p1
 {
  public:
   // needed by athenaRoot 
-  ALFA_ODDigit_p1(){};
+  ALFA_ODDigit_p1()
+  {
+	  m_station=0;
+	  m_side=0;  
+	  m_plate=0;
+	  m_fiber=0;
+  };
   friend class ALFA_ODDigitCnv_p1;
   
  private: 

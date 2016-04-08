@@ -8,13 +8,14 @@
 #include "ALFA_CLinkEv/ALFA_CLinkEvent.h"
 #include "DataModelAthenaPool/DataLink_p1.h"
 
-using namespace std;
-
 class ALFA_CLinkEvent_p1
 {
 public:
 	// needed by athenaRoot
-	ALFA_CLinkEvent_p1(){};
+	ALFA_CLinkEvent_p1()
+	{
+		memset(&m_DCSId,0,sizeof(DCSID));
+	};
 	friend class ALFA_CLinkEventCnv_p1;
  
 private:

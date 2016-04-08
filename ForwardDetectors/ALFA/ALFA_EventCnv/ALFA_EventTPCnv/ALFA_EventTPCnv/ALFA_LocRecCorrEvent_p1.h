@@ -10,7 +10,15 @@ class ALFA_LocRecCorrEvent_p1
 {
 public:
 	// needed by athenaRoot
-	ALFA_LocRecCorrEvent_p1(){};
+	ALFA_LocRecCorrEvent_p1()
+	{
+		m_iAlgoNum=-1;
+		m_pot_num=-1;
+		m_xPot=m_yPot=-9999.0;
+		m_xStat=m_yStat=-9999.0;
+		m_xLHC=m_yLHC=m_zLHC=-9999.0;
+		m_xBeam=m_yBeam=-9999.0;
+	};
 	friend class ALFA_LocRecCorrEventCnv_p1;
 
 private:

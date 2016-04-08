@@ -12,7 +12,12 @@ class ALFA_Digit_p1
 {
  public:
   // needed by athenaRoot 
-  ALFA_Digit_p1(){};
+  ALFA_Digit_p1()
+  {
+	m_station=0;
+	m_plate=0;
+	m_fiber=0;
+  };
   friend class ALFA_DigitCnv_p1;
   
  private: 

@@ -11,7 +11,16 @@ class ALFA_LocRecODEvent_p1
 {
  public:
   // needed by athenaRoot 
-  ALFA_LocRecODEvent_p1(){};
+  ALFA_LocRecODEvent_p1()
+  {
+	m_iAlgoNum=-1;
+	m_pot_num=-1;
+	m_side=-1;
+	m_y=-9999.0;
+
+	m_fOverY=-9999.0;
+	m_iNumY=-1;
+  };
   friend class ALFA_LocRecODEventCnv_p1;
   
  private: 

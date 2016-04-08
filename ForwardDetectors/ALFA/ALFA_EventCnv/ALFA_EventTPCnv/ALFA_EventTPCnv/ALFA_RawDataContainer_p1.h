@@ -8,7 +8,8 @@
 #include <vector>
 #include "ALFA_RawDataCollection_p1.h"
 
-class ALFA_RawDataContainer_p1: public std::vector<ALFA_RawDataCollection_p1> {
+class ALFA_RawDataContainer_p1: public std::vector<ALFA_RawDataCollection_p1> 
+{
   
   uint32_t TimeStamp;
   //Time Stamp ns
@@ -26,7 +27,13 @@ class ALFA_RawDataContainer_p1: public std::vector<ALFA_RawDataCollection_p1> {
   
  public:
  
- ALFA_RawDataContainer_p1(){};
+ ALFA_RawDataContainer_p1()
+ {
+	TimeStamp=0;
+	TimeStampns=0;
+	LumiBlock=0;
+	BCId=0;
+ };
  
  friend class ALFA_RawDataContainerCnv_p1;
  

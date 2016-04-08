@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "ALFA_RawEv/ALFA_RawDataCollection.h"
-#undef private
-#undef protected
-
 #include "GaudiKernel/MsgStream.h"
 #include "ALFA_EventTPCnv/ALFA_RawDataCollectionCnv_p1.h"
 
@@ -22,13 +17,13 @@ void ALFA_RawDataCollectionCnv_p1::transToPers(const ALFA_RawDataCollection* tra
   ALFA_RawDataCollection_Cnvp1_base_t::transToPers( transColl, persColl, log );
 
  
-  persColl->MBId_POT  = transColl->MBId_POT;
-  persColl->EventCount_POT  = transColl->EventCount_POT;
-  persColl->patternId  = transColl->patternId;
-  persColl->scalerId  = transColl->scalerId;
-  persColl->ADC1Id  = transColl->ADC1Id;
-  persColl->ADC2Id  = transColl->ADC2Id;
-  persColl->TrigSyncErrId = transColl->TrigSyncErrId;
+  persColl->MBId_POT  = transColl->GetMBId_POT();
+  persColl->EventCount_POT  = transColl->GetEventCount_POT();
+  persColl->patternId  = transColl->Get_pattern_POT();
+  persColl->scalerId  = transColl->Get_scaler_POT();
+  persColl->ADC1Id  = transColl->Get_ADC1_POT();
+  persColl->ADC2Id  = transColl->Get_ADC2_POT();
+  persColl->TrigSyncErrId = transColl->GetTrigSyncErr();
 
 }
 
@@ -40,13 +35,12 @@ void ALFA_RawDataCollectionCnv_p1::persToTrans(const ALFA_RawDataCollection_p1* 
   // Invoke vector converter from the base template
   ALFA_RawDataCollection_Cnvp1_base_t::persToTrans( persColl, transColl, log );
 
-  transColl->MBId_POT  = persColl->MBId_POT;
-  transColl->EventCount_POT  = persColl->EventCount_POT;
-  transColl->patternId  = persColl->patternId;
-  transColl->scalerId  = persColl->scalerId;
-  transColl->ADC1Id  = persColl->ADC1Id;
-  transColl->ADC2Id  = persColl->ADC2Id;
-  transColl->TrigSyncErrId = persColl->TrigSyncErrId;
-
+  transColl->SetMBId_POT   (persColl->MBId_POT);
+  transColl->SetEventCount_POT  (persColl->EventCount_POT);
+  transColl->Set_pattern_POT  (persColl->patternId);
+  transColl->Set_scaler_POT  (persColl->scalerId);
+  transColl->Set_ADC1_POT  (persColl->ADC1Id);
+  transColl->Set_ADC2_POT  (persColl->ADC2Id);
+  transColl->SetTrigSyncErr (persColl->TrigSyncErrId);
 }
 

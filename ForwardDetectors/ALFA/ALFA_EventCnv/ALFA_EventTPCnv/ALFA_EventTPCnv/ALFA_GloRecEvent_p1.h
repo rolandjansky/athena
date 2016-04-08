@@ -9,7 +9,14 @@ class ALFA_GloRecEvent_p1
 {
  public:
   // needed by athenaRoot 
-  ALFA_GloRecEvent_p1(){};
+  ALFA_GloRecEvent_p1()
+  {
+	m_arm=-1;
+	m_x=-9999.0;
+	m_y=-9999.0;
+	m_x_slope=-9999.0;
+	m_y_slope=-9999.0;
+  };
   friend class ALFA_GloRecEventCnv_p1;
   
  private: 
