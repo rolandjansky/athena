@@ -42,15 +42,15 @@ private:
   //ServiceHandle<IIOVRegistrationSvc> regsvc;
   std::vector<std::string> m_objectList; 
   std::string m_streamName;
-  bool par_writeIOV;
-  unsigned int par_run1;
-  unsigned int par_lumib1;
-  unsigned int par_run2;
-  unsigned int par_lumib2;
-  UnsignedLongProperty par_time1;
-  UnsignedLongProperty par_time2;
-  bool par_timestamp;
-  std::vector<std::string> par_iovtags;
+  bool m_par_writeIOV;
+  unsigned int m_par_run1;
+  unsigned int m_par_lumib1;
+  unsigned int m_par_run2;
+  unsigned int m_par_lumib2;
+  UnsignedLongProperty m_par_time1;
+  UnsignedLongProperty m_par_time2;
+  bool m_par_timestamp;
+  std::vector<std::string> m_par_iovtags;
 };
 
 #endif // REGISTRATIONSVC_OUTPUTCONDALG_H

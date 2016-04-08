@@ -22,27 +22,27 @@ OutputConditionsAlg::OutputConditionsAlg(const std::string& name,
   p_clidsvc ( "ClassIDSvc",    name ),
   p_regsvc  ( "IOVRegistrationSvc", name ),
   m_streamName("ConditionsAlgStream"),
-  par_writeIOV(false),
-  par_run1(IOVTime::MINRUN),
-  par_lumib1(IOVTime::MINEVENT),
-  par_run2(IOVTime::MAXRUN),
-  par_lumib2(IOVTime::MAXEVENT),
-  par_time1(IOVTime::MINTIMESTAMP),
-  par_time2(IOVTime::MAXEVENT), // only a 32 bit quantity (in seconds)
-  par_timestamp(false),
-  par_iovtags()
+  m_par_writeIOV(false),
+  m_par_run1(IOVTime::MINRUN),
+  m_par_lumib1(IOVTime::MINEVENT),
+  m_par_run2(IOVTime::MAXRUN),
+  m_par_lumib2(IOVTime::MAXEVENT),
+  m_par_time1(IOVTime::MINTIMESTAMP),
+  m_par_time2(IOVTime::MAXEVENT), // only a 32 bit quantity (in seconds)
+  m_par_timestamp(false),
+  m_par_iovtags()
 {
   declareProperty("StreamName",m_streamName);
   declareProperty("ObjectList",m_objectList);
-  declareProperty("WriteIOV",par_writeIOV);
-  declareProperty("Run1",par_run1);
-  declareProperty("LB1",par_lumib1);
-  declareProperty("Run2",par_run2);
-  declareProperty("LB2",par_lumib2);
-  declareProperty("Time1",par_time1);
-  declareProperty("Time2",par_time2);
-  declareProperty("UseTime",par_timestamp);
-  declareProperty("IOVTagList",par_iovtags);
+  declareProperty("WriteIOV",m_par_writeIOV);
+  declareProperty("Run1",m_par_run1);
+  declareProperty("LB1",m_par_lumib1);
+  declareProperty("Run2",m_par_run2);
+  declareProperty("LB2",m_par_lumib2);
+  declareProperty("Time1",m_par_time1);
+  declareProperty("Time2",m_par_time2);
+  declareProperty("UseTime",m_par_timestamp);
+  declareProperty("IOVTagList",m_par_iovtags);
 }
 
 OutputConditionsAlg::~OutputConditionsAlg() 
@@ -56,7 +56,7 @@ StatusCode OutputConditionsAlg::initialize() {
     ATH_MSG_FATAL ("ClassIDSvc not found");
     return StatusCode::FAILURE;
   }
-  if (par_writeIOV) {
+  if (m_par_writeIOV) {
     // get pointer to IOVRegistrationSvc
     if (StatusCode::SUCCESS!=p_regsvc.retrieve()) {
       ATH_MSG_FATAL ("IOVRegistrationSvc not found");
@@ -108,8 +108,8 @@ StatusCode OutputConditionsAlg::finalize() {
 	  types.push_back(m_objectList[iobj]);
 	  keys.push_back(proxy->name());
 	  folders.push_back(proxy->name());
-	  if (iobj<par_iovtags.size()) {
-	    tags.push_back(par_iovtags[iobj]);
+	  if (iobj<m_par_iovtags.size()) {
+	    tags.push_back(m_par_iovtags[iobj]);
 	  } else {
 	    tags.push_back("");
 	  }
@@ -135,8 +135,8 @@ StatusCode OutputConditionsAlg::finalize() {
 	folders.push_back(m_objectList[iobj].substr(ihash2+1,
 						    std::string::npos));
       }
-      if (iobj<par_iovtags.size()) {
-        tags.push_back(par_iovtags[iobj]);
+      if (iobj<m_par_iovtags.size()) {
+        tags.push_back(m_par_iovtags[iobj]);
       } else {
         tags.push_back("");
       }
@@ -179,16 +179,16 @@ StatusCode OutputConditionsAlg::finalize() {
   }
   ATH_MSG_INFO ("Written " << nObjects << " objects to output stream");
 
-  if (par_writeIOV) {
+  if (m_par_writeIOV) {
     msg() << MSG::INFO <<         
       "Register objects in IOV database, interval of validity ";
-    if (par_timestamp) {
+    if (m_par_timestamp) {
       msg() << "[time] from [" << 
-	  par_time1 << "] to [" << par_time2 << "]" << endreq;
+	  m_par_time1 << "] to [" << m_par_time2 << "]" << endreq;
     } else {
       msg() << "[run,LB] from [" <<
-          par_run1 << "," << par_lumib1 << "] to [" << par_run2 <<
-          "," << par_lumib2 << "]" << endreq;
+          m_par_run1 << "," << m_par_lumib1 << "] to [" << m_par_run2 <<
+          "," << m_par_lumib2 << "]" << endreq;
     }
     int nreg=0;
     for (int iobj=0;iobj<nObjects;++iobj) {
@@ -199,12 +199,12 @@ StatusCode OutputConditionsAlg::finalize() {
       } else {
 	msg() << MSG::INFO << "with tag " << tags[iobj] << endreq;
       }
-      if (par_timestamp) {
+      if (m_par_timestamp) {
 	sc=p_regsvc->registerIOV(types[iobj],keys[iobj],
-         folders[iobj],tags[iobj],timeToNano(par_time1),timeToNano(par_time2));
+         folders[iobj],tags[iobj],timeToNano(m_par_time1),timeToNano(m_par_time2));
       } else {
 	sc=p_regsvc->registerIOV(types[iobj],keys[iobj],
-         folders[iobj],tags[iobj],par_run1,par_run2,par_lumib1,par_lumib2);
+         folders[iobj],tags[iobj],m_par_run1,m_par_run2,m_par_lumib1,m_par_lumib2);
       }
       if (sc==StatusCode::SUCCESS) {
 	++nreg;
