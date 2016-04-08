@@ -16,24 +16,19 @@
 // STL includes
 #include <vector>
 
-// DataModelAthenaPool includes
-#include "DataModelAthenaPool/ElementLink_p1.h"
-#include "DataModelAthenaPool/ElementLinkVector_p1.h"
-
-//#include "JetTagInfo/ITagInfo.h"
-#include "JetEvent/JetTagInfoBase.h"
-
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/P4PxPyPzE_p1.h"
-
-// ParticleEvent includes
-#include "ParticleEvent/IConstituent.h"
-
 
 // ParticleEventTPCnv includes
 #include "ParticleEventTPCnv/ParticleBase_p1.h"
 
 // forward declarations
+class JetTagInfoBase;
+namespace Analysis {
+  class ITagInfo;
+  class IConstituent;
+}
+
 class ParticleJetCnv_p1;
 
 class ParticleJet_p1 

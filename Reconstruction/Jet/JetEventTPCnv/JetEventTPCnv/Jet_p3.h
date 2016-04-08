@@ -23,10 +23,10 @@
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/P4PxPyPzE_p1.h"
 
-#include "JetEvent/JetTagInfoBase.h"
-#include "JetEvent/JetAssociationBase.h"
-
 // forward declarations
+class JetTagInfoBase;
+class JetAssociationBase;
+
 class JetCnv_p3;
 
 class Jet_p3 

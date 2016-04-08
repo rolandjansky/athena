@@ -184,8 +184,8 @@ void JetCnv_p5::persToTrans( const Jet_p5* pers,
      }
    }
     // Translate recoStatus
-   double jetTime = (pers->m_recoStatus >> 16)/100.;
-   double jetQuality = ((pers->m_recoStatus & 65535) >> 3)/8191.;
+   double jetTime = (pers->m_recoStatus >> 16)*0.01;
+   double jetQuality = ((pers->m_recoStatus & 65535) >> 3)*(1./8191.);
    // Store these in the moments?
    
    trans->setMoment("Timing", jetTime);

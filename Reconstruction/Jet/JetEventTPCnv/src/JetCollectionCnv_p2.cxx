@@ -59,8 +59,8 @@ JetCollectionCnv_p2::persToTrans( const JetCollection_p2* pers,
       << endreq;
   
   // make sure to first read the JetKeyDescriptor
-  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > m_JetKeyStoreCnv;
-  m_JetKeyStoreCnv.persToTrans( &pers->m_keyStore, &trans->m_keyStore, msg );
+  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > JetKeyStoreCnv;
+  JetKeyStoreCnv.persToTrans( &pers->m_keyStore, &trans->m_keyStore, msg );
 
   // If the link is null, reset it to a default key.
   if (trans->m_keyStore.isDefault())
@@ -156,8 +156,8 @@ JetCollectionCnv_p2::transToPers( const JetCollection* trans,
   }
   
   // RS now deal with the JetKeyDescriptor
-  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > m_JetKeyStoreCnv;
-  m_JetKeyStoreCnv.transToPers( &trans->m_keyStore, &pers->m_keyStore, msg );
+  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > JetKeyStoreCnv;
+  JetKeyStoreCnv.transToPers( &trans->m_keyStore, &pers->m_keyStore, msg );
   
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection [OK]"
 //       << endreq;

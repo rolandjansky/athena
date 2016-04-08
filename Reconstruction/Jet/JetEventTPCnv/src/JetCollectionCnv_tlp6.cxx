@@ -8,6 +8,8 @@
 
 #include "JetEventTPCnv/JetCollectionCnv_tlp6.h"
 #include "JetEvent/JetCollection.h"
+#include "JetEventTPCnv/JetConverterBase.h"
+
 
 ///
 /// Register all the converters

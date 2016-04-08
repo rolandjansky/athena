@@ -52,9 +52,9 @@ class SignalStateCnv {
   
   SignalStateCnv(){
     m_delta_p =1.0;
-    m_step_p  = m_delta_p/ 127;
+    m_step_p  = 1.0 / 127;
     m_delta_m = 0.4;
-    m_step_m  = m_delta_m/ 127;
+    m_step_m  = 0.4 / 127;
     m_center  = 0.8;
   }
 

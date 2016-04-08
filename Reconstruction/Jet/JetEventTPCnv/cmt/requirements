@@ -8,7 +8,7 @@ use AtlasBoost           AtlasBoost-*               External
 use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 use DataModelAthenaPool  DataModelAthenaPool-*      Control
-use CLIDSvc              CLIDSvc-*                  Control
+#use CLIDSvc              CLIDSvc-*                  Control
 
 
 use EventCommonTPCnv     EventCommonTPCnv-*         Event
@@ -16,7 +16,7 @@ use EventCommonTPCnv     EventCommonTPCnv-*         Event
 use JetEvent             JetEvent-*                 Reconstruction/Jet
 
 
-use ParticleEvent        ParticleEvent-*            PhysicsAnalysis/AnalysisCommon
+#use ParticleEvent        ParticleEvent-*            PhysicsAnalysis/AnalysisCommon
 use ParticleEventTPCnv   ParticleEventTPCnv-*       PhysicsAnalysis/AnalysisCommon
 
 private

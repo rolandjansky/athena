@@ -12,13 +12,9 @@
 // STL includes
 
 // JetEvent includes
-#define private public
-#define protected public
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetTagInfoBase.h"
 #include "JetEvent/JetAssociationBase.h"
-#undef private
-#undef protected
 
 // DataModelAthenaPool includes
 #include "DataModelAthenaPool/NavigableCnv_p1.h"
@@ -130,7 +126,7 @@ void JetCnv_p3::transToPers( const Jet* trans,
                              Jet_p3* pers, 
                              MsgStream& msg ) 
 {
-  msg << MSG::DEBUG << "Creating persistent state of Jet... e="<< trans->e() << "  "<< trans->momentumBase().m_e
+  msg << MSG::DEBUG << "Creating persistent state of Jet... e="<< trans->e() << "  "<< trans->momentumBase().e()
       << endreq;
 
   pers->m_ownPointers = false;
