@@ -161,6 +161,12 @@ StatusCode PPrStabilityMon::finalize()
   return StatusCode::SUCCESS;
 }
 
+StatusCode PPrStabilityMon::bookHistogramsRecurrent()
+{
+  CHECK(ManagedMonitorToolBase::bookHistogramsRecurrent());
+  return m_ttTool->retrieveConditions();
+}
+
 StatusCode PPrStabilityMon::fillHistograms()
 {
   const bool debug = msgLvl(MSG::DEBUG);

@@ -48,7 +48,8 @@ if l1caloRawMon:
 
     # setup l1calo database
     if athenaCommonFlags.isOnline:
-        include('TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py')
+        include(
+            'TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py')
 
     include("CaloConditions/CaloConditions_jobOptions.py")
     if Offline:
@@ -59,18 +60,23 @@ if l1caloRawMon:
     from TrigT1CaloMonitoringTools.LVL1CaloMonFlags import LVL1CaloMonFlags
 
     doFineTime = False
-    if isData and isCalo and ((LVL1CaloMonFlags.doPPrStabilityMon() and
-                               LVL1CaloMonFlags.doFineTimeMonitoring()) or (Offline and rec.triggerStream() == "express")):
+    if isData and isCalo and (
+            (LVL1CaloMonFlags.doPPrStabilityMon()
+             and LVL1CaloMonFlags.doFineTimeMonitoring())
+            or (Offline
+                and (rec.triggerStream() == "express"
+                     or rec.triggerStream() == 'CosmicCalo'))):
         # load the sqlite file for the fine time monitoring
-        dbpath = "/afs/cern.ch/user/l/l1ccalib/w0/DaemonData/reference/calibJuly.sqlite"
-        import os.path
-        if os.path.isfile(dbpath):
-            from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
-            svcMgr += MetaDataSvc("MetaDataSvc")
-            #svcMgr.IOVDbSvc.Folders += ["<dbConnection>sqlite://;schema=../share/calibJuly.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/References/FineTimeReferences"]
-            svcMgr.IOVDbSvc.Folders += ["<dbConnection>sqlite://;schema=" + dbpath +
-                                        ";dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/References/FineTimeReferences"]
-            doFineTime = True
+        #dbpath = "/afs/cern.ch/user/l/l1ccalib/w0/DaemonData/reference/calibJuly.sqlite"
+        #import os.path
+        #if os.path.isfile(dbpath):
+        #from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+        #svcMgr += MetaDataSvc("MetaDataSvc")
+        #svcMgr.IOVDbSvc.Folders += ["<dbConnection>sqlite://;schema=;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/References/FineTimeReferences"]
+                
+        from IOVDbSvc.CondDB import conddb
+        conddb.addFolder("TRIGGER","/TRIGGER/L1Calo/V1/References/FineTimeReferences")
+        doFineTime = True
 
     if LVL1CaloMonFlags.doPPrStabilityMon():
 
@@ -83,7 +89,8 @@ if l1caloRawMon:
             name="L1PPrStabilityMonTool",
             doFineTimeMonitoring=doFineTime,
             doPedestalMonitoring=LVL1CaloMonFlags.doPedestalMonitoring(),
-            doPedestalCorrectionMonitoring=LVL1CaloMonFlags.doPedestalCorrectionMonitoring(),
+            doPedestalCorrectionMonitoring=LVL1CaloMonFlags.doPedestalCorrectionMonitoring(
+            ),
             doEtCorrelationMonitoring=(
                 LVL1CaloMonFlags.doEtCorrelationMonitoring() and isCalo),
             ppmADCMinValue=60,
@@ -165,7 +172,7 @@ if l1caloRawMon:
                 ADCHitMap_Thresh=40,
                 PathInRootFile="L1Calo/PPM/SpareChannels",
                 ErrorPathInRootFile="L1Calo/PPM/SpareChannels/Errors",
-                #OutputLevel = DEBUG
+                #OutputLevel = DEBUG	
             )
             ToolSvc += L1PPrSpareMonTool
             L1CaloMan.AthenaMonTools += [L1PPrSpareMonTool]
@@ -187,12 +194,12 @@ if l1caloRawMon:
         L1CaloMan.AthenaMonTools += [L1JEPCMXMonTool]
 
         if isData:
-	        #--------------------- Transmission and Performance -------------------
-	        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPSimMon
-	        JEPSimMonTool = LVL1__JEPSimMon("JEPSimMonTool")
-	        ToolSvc += JEPSimMonTool
-	        L1CaloMan.AthenaMonTools += [ JEPSimMonTool ]
-	        # ToolSvc.JEPSimBSMonTool.OutputLevel = DEBUG
+            #--------------------- Transmission and Performance ---------------
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPSimMon
+            JEPSimMonTool = LVL1__JEPSimMon("JEPSimMonTool")
+            ToolSvc += JEPSimMonTool
+            L1CaloMan.AthenaMonTools += [JEPSimMonTool]
+            # ToolSvc.JEPSimBSMonTool.OutputLevel = DEBUG
 
         # from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JEPHitsTools
         # L1JEPHitsTools = LVL1__L1JEPHitsTools("L1JEPHitsTools_Mon")

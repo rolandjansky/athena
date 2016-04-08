@@ -313,15 +313,15 @@ if l1caloRawMon:
             trigstring = ['EF_.*']
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JetEfficienciesMonTool
             from JetSelectorTools.ConfiguredJetCleaningTools import *  
-            L1JetEfficienciesMonTool = JLVL1__etEfficienciesMonTool ( name = "JetEfficienciesMonTool",
+            L1JetEfficienciesMonTool = LVL1__JetEfficienciesMonTool ( name = "JetEfficienciesMonTool",
                                                                   TriggerStrings = trigstring
                                                               )
             from AthenaCommon.AppMgr import ToolSvc
             ToolSvc += JetCleaningTool('JetCleaningLooseTool')
-            ToolSvc += JetCleaningTool('JetCleaningMediumTool')
+            # ToolSvc += JetCleaningTool('JetCleaningMediumTool')
             ToolSvc += JetCleaningTool('JetCleaningTightTool')
             L1JetEfficienciesMonTool.JetCleaningLooseTool = ConfiguredJetCleaningTool_Loose("JetCleaningLooseTool")       
-            L1JetEfficienciesMonTool.JetCleaningMediumTool = ConfiguredJetCleaningTool_Medium("JetCleaningMediumTool")
+            # L1JetEfficienciesMonTool.JetCleaningMediumTool = ConfiguredJetCleaningTool_Medium("JetCleaningMediumTool")
             L1JetEfficienciesMonTool.JetCleaningTightTool = ConfiguredJetCleaningTool_Tight("JetCleaningTightTool") 
 
             ToolSvc += L1JetEfficienciesMonTool
