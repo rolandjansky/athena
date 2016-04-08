@@ -4,7 +4,8 @@ package MultiInputExample
 author ATLAS Workbook
 
 use AtlasPolicy AtlasPolicy-*
-use GaudiInterface GaudiInterface-* External
+use GaudiInterface  GaudiInterface-*  External
+use AthenaBaseComps AthenaBaseComps-* Control
 
 private
 use StoreGate           StoreGate-*      Control

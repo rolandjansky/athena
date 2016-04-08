@@ -19,65 +19,31 @@
 /////////////////////////////////////////////////////////////////////////////
 
 MyMultiInputAlg::MyMultiInputAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
-  m_mergeSvc(0)
+  AthAlgorithm(name, pSvcLocator),
+  m_mergeSvc("PileUpMergeSvc", name)
 {
-
-// Part 2: Properties go here
-
-
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode MyMultiInputAlg::initialize(){
-
-  // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize()" << endreq;
-
-  /*
-  // set up the SG service:
-  if ( !(p_overStore.retrieve()).isSuccess() )  {
-    log << MSG::ERROR 
-	<< "Could not locate default store"
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  */
-
-  //locate the PileUpMergeSvc and initialize our local ptr
-  const bool CREATEIF(true);
-  if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() || 
-      0 == m_mergeSvc) {
-    log << MSG::ERROR << "Could not find PileUpMergeSvc" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  
+StatusCode MyMultiInputAlg::initialize()
+{
+  ATH_CHECK( m_mergeSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode MyMultiInputAlg::execute() {
-
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "execute()" << endreq;
-
+StatusCode MyMultiInputAlg::execute()
+{
   //Put all available ExampleClass with key "MyData" in alist
   typedef PileUpMergeSvc::TimedList<ExampleClass>::type ExampleClassList;
   ExampleClassList alist;
 
-  if (!(m_mergeSvc->retrieveSubEvtsData("MyData", alist).isSuccess()) && alist.size()==0) {
-    log << MSG::ERROR << "Could not fill ExampleClassList" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << alist.size() 
-	<< " ExampleClassList with key " << "MyData"
-	<< " found" << endreq;
-  }
+  ATH_CHECK( m_mergeSvc->retrieveSubEvtsData("MyData", alist) );
+  ATH_MSG_INFO( alist.size() 
+                << " ExampleClassList with key " << "MyData"
+                << " found"  );
 
   //Now alist.begin() is the first input "SimpleRootFile1.root"
   //Now alist.end() is the second (in this example only) input "SimpleRootFile2.root"
@@ -88,10 +54,9 @@ StatusCode MyMultiInputAlg::execute() {
   while (icls != endcls) {
     //Get a pointer to access 
     const ExampleClass* pcls(icls->second);
-    log<<MSG::INFO<<"MyData in Input File #"<<k<<" contains getRun()="<<pcls->getRun()<<" getEvent()="
-       <<pcls->getEvent()<<" getText()="
-       <<pcls->getText()<<" "
-       <<endreq;
+    ATH_MSG_INFO("MyData in Input File #"<<k<<" contains getRun()="<<pcls->getRun()<<" getEvent()="
+                 <<pcls->getEvent()<<" getText()="
+                 <<pcls->getText()<<" " );
     ++icls;++k;
   }
 
@@ -100,14 +65,10 @@ StatusCode MyMultiInputAlg::execute() {
   typedef PileUpMergeSvc::TimedList<ExampleHitContainer>::type ExampleHitContainerList;
   ExampleHitContainerList blist;
 
-  if (!(m_mergeSvc->retrieveSubEvtsData("MyHits", blist).isSuccess()) && blist.size()==0) {
-    log << MSG::ERROR << "Could not fill ExampleHitContainerList" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << blist.size() 
-	<< " ExampleHitContainerList with key " << "MyHits"
-	<< " found" << endreq;
-  }
+  ATH_CHECK( m_mergeSvc->retrieveSubEvtsData("MyHits", blist).isSuccess() );
+  ATH_MSG_INFO( blist.size() 
+                << " ExampleHitContainerList with key " << "MyHits"
+                << " found"  );
 
   //Now blist.begin() is the first input "SimpleRootFile1.root"
   //Now blist.end() is the second (in this example only) input "SimpleRootFile2.root"
@@ -118,10 +79,10 @@ StatusCode MyMultiInputAlg::execute() {
   while (ihit != endhit) {
     //Get a pointer to access 
     const ExampleHitContainer* cont(ihit->second);
-    log<<MSG::INFO<<"MyHits in Input File #"<<k<<" contains:"<<endreq;
+    ATH_MSG_INFO("MyHits in Input File #"<<k<<" contains:" );
     
     for (ExampleHitContainer::const_iterator obj = cont->begin(); obj != cont->end(); obj++) {
-      log << MSG::INFO << "Hit x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " detector = " << (*obj)->getDetector() << endreq;
+      ATH_MSG_INFO( "Hit x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " detector = " << (*obj)->getDetector()  );
     }
     
     ++ihit;++k;
@@ -213,12 +174,8 @@ StatusCode MyMultiInputAlg::execute() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode MyMultiInputAlg::finalize() {
-
-// Part 1: Get the messaging service, print where you are
-MsgStream log(msgSvc(), name());
-log << MSG::INFO << "finalize()" << endreq;
-
-return StatusCode::SUCCESS;
+StatusCode MyMultiInputAlg::finalize()
+{
+  ATH_MSG_INFO( "finalize()"  );
+  return StatusCode::SUCCESS;
 }
- 

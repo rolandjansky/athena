@@ -2,27 +2,26 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Data members classes
 #include <list>
-class StoreGateSvc;
 class PileUpMergeSvc;
  
 
 /////////////////////////////////////////////////////////////////////////////
 
-class MyMultiInputAlg:public Algorithm {
+class MyMultiInputAlg
+  : public AthAlgorithm
+{
 public:
-MyMultiInputAlg (const std::string& name, ISvcLocator* pSvcLocator);
-StatusCode initialize();
-StatusCode execute();
-StatusCode finalize();
+  MyMultiInputAlg (const std::string& name, ISvcLocator* pSvcLocator);
+  StatusCode initialize();
+  StatusCode execute();
+  StatusCode finalize();
 
-//ServiceHandle<StoreGateSvc> p_overStore; 
-
- PileUpMergeSvc *m_mergeSvc; // Pile up service
-
+private:
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc; // Pile up service
 };
  
