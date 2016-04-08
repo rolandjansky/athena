@@ -50,12 +50,12 @@ long int CaloMgrDetDescrCnv::repSvcType() const
 StatusCode CaloMgrDetDescrCnv::initialize()
 {
   StatusCode sc = DetDescrConverter::initialize();
-  MsgStream log(msgSvc(), "CaloMgrDetDescrCnv");
-  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "in initialize" << endmsg;
+  MsgStream log(messageService(), "CaloMgrDetDescrCnv");
+  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "in initialize" << endreq;
 
   if (sc.isFailure()) 
   {
-    log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
+    log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
     return sc;
   }
     
@@ -64,23 +64,23 @@ StatusCode CaloMgrDetDescrCnv::initialize()
 
 StatusCode CaloMgrDetDescrCnv::finalize()
 {
-  MsgStream log(msgSvc(), "CaloMgrDetDescrCnv");
-  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "in finalize" << endmsg;
+  MsgStream log(messageService(), "CaloMgrDetDescrCnv");
+  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "in finalize" << endreq;
   
   return StatusCode::SUCCESS; 
 }
 
 StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {
-  MsgStream log(msgSvc(), "CaloMgrDetDescrCnv");
-  log << MSG::INFO << "in createObj: creating a Calo Detector Manager object in the detector store" << endmsg;
+  MsgStream log(messageService(), "CaloMgrDetDescrCnv");
+  log << MSG::INFO << "in createObj: creating a Calo Detector Manager object in the detector store" << endreq;
 
   bool debug = log.level()<=MSG::DEBUG; 
 
   DetDescrAddress* ddAddr;
   ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
   if(!ddAddr) {
-    log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
+    log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -88,9 +88,9 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   if (debug)
   {
   if ("" == mgrKey)
-    log << MSG::DEBUG << "No Manager key " << endmsg;
+    log << MSG::DEBUG << "No Manager key " << endreq;
   else
-    log << MSG::DEBUG << "Manager key is " << mgrKey << endmsg;
+    log << MSG::DEBUG << "Manager key is " << mgrKey << endreq;
   }
 
   // --- --- Get CaloCell_ID and CaloIdManager helpers --- ---
@@ -98,7 +98,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   StatusCode status = serviceLocator()->service("DetectorStore", detStore);
   if (status.isFailure()) 
   {
-    log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -106,21 +106,21 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   status = detStore->retrieve(cell_id, "CaloCell_ID");
   if (status.isFailure()) 
   {
-    log << MSG::FATAL << "Could not get CaloCell_ID helper !" << endmsg;
+    log << MSG::FATAL << "Could not get CaloCell_ID helper !" << endreq;
     return status;
   } 
   else 
-    log << MSG::DEBUG << " Found the CaloCell_ID helper. " << endmsg;
+    log << MSG::DEBUG << " Found the CaloCell_ID helper. " << endreq;
 
   const CaloIdManager* caloId_mgr;
   status = detStore->retrieve(caloId_mgr, "CaloIdManager");
   if (status.isFailure()) 
   {
-    log << MSG::ERROR << "Could not get CaloIdManager helper !" << endmsg;
+    log << MSG::ERROR << "Could not get CaloIdManager helper !" << endreq;
     return status;
   } 
   else 
-    if (debug) log << MSG::DEBUG << " Found the CaloIdManager helper. " << endmsg;	
+    if (debug) log << MSG::DEBUG << " Found the CaloIdManager helper. " << endreq;	
   // --- --- Get CaloCell_ID and CaloIdManager helpers --- ---
   
   // --- --- Create CaloDetDescrManager object --- ---
@@ -155,7 +155,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   const LArDetectorManager* larMgr = 0;
   status = detStore->retrieve(larMgr);
   if(status.isFailure() || larMgr==0)
-    log << MSG::WARNING << "Could not get LArDetectorManager. Assuming TestBeam=false" << endmsg;
+    log << MSG::WARNING << "Could not get LArDetectorManager. Assuming TestBeam=false" << endreq;
   else
     isTestBeam = larMgr->isTestBeam();
 
@@ -168,7 +168,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   status = detStore->retrieve(embManager);
   if(status.isFailure())
   {
-    log << MSG::WARNING << "Could not get the EMBDetectorManager. No Calo Elements will be built for EMB" << endmsg;
+    log << MSG::WARNING << "Could not get the EMBDetectorManager. No Calo Elements will be built for EMB" << endreq;
   }
   else
   {     
@@ -198,7 +198,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	}
       default:
 	{
-	  log << MSG::ERROR << "Wrong Side Index for EMB region " << embRegion->getEndcapIndex() << endmsg;
+	  log << MSG::ERROR << "Wrong Side Index for EMB region " << embRegion->getEndcapIndex() << endreq;
 	  return StatusCode::FAILURE;
 	}
       }
@@ -329,7 +329,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   status = detStore->retrieve(emecManager);
   if(status.isFailure())
   {
-    log << MSG::WARNING << "Could not get the EMECDetectorManager. No Calo Elements will be built for EMEC" << endmsg;
+    log << MSG::WARNING << "Could not get the EMECDetectorManager. No Calo Elements will be built for EMEC" << endreq;
   }
   else
   {
@@ -362,7 +362,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	}
       default:
 	{
-	  log << MSG::ERROR << "Wrong Endcap Index for EMEC region " << endcapInd << endmsg;
+	  log << MSG::ERROR << "Wrong Endcap Index for EMEC region " << endcapInd << endreq;
 	  return StatusCode::FAILURE;
 	}
       }// switch(endcapInd)
@@ -381,7 +381,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	}
       default:
 	{
-	  log << MSG::ERROR << "Wrong Radial Index for  EMEC region " << radialInd << endmsg;
+	  log << MSG::ERROR << "Wrong Radial Index for  EMEC region " << radialInd << endreq;
 	  return StatusCode::FAILURE;
 	}
       }// switch(radialInd)
@@ -500,7 +500,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   status = detStore->retrieve(hecManager);
   if(status.isFailure())
   {
-    log << MSG::WARNING << "Could not get the HECDetectorManager. No Calo Elements will be built for HEC" << endmsg;
+    log << MSG::WARNING << "Could not get the HECDetectorManager. No Calo Elements will be built for HEC" << endreq;
   }
   else
   {
@@ -636,7 +636,7 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   status = detStore->retrieve(fcalManager);
   if(status.isFailure())
   {
-    log << MSG::WARNING << "Could not get the FCALDetectorManager. No Calo Elements will be built for FCAL" << endmsg;
+    log << MSG::WARNING << "Could not get the FCALDetectorManager. No Calo Elements will be built for FCAL" << endreq;
   }
   else
   {
@@ -764,11 +764,11 @@ StatusCode CaloMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   status = detStore->retrieve(tile_mgr);
   if (status.isFailure()) 
   {
-    log << MSG::WARNING << "Could not get the TileDetectorManager. No Calo Elements will be built for Tile" << endmsg;
+    log << MSG::WARNING << "Could not get the TileDetectorManager. No Calo Elements will be built for Tile" << endreq;
   } 
   else 
   {
-    if (debug) log << MSG::DEBUG << " Found the TileDetDescrManager " << endmsg;
+    if (debug) log << MSG::DEBUG << " Found the TileDetDescrManager " << endreq;
     cell_id->calo_cell_hash_range((int)CaloCell_ID::TILE,min,max);
     for(unsigned int idhash=0; idhash < max-min; idhash++)
     {
