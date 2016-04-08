@@ -10,15 +10,18 @@
     <!-- sj: This reference release was chosen until there is a stable release where it is possible to import "evgenConfig" -->
     <refRelease>rel_2, 2012-04-17</refRelease>
 
+    <!--
     <jobList>
       <classification>
         <displayClass>OfflineValidation</displayClass>
         <displayProcess>EvGen</displayProcess>
         <displayComponent>Athena-Core</displayComponent>
       </classification>
+      -->
 
       <!-- Herwigpp_Wenu RTT Test -->
-      <jobTransform userJobId="Herwigpp_Wenu">
+        <!--
+        <jobTransform userJobId="Herwigpp_Wenu">
         <doc>Generator: Herwig++, Process: W->e,nu, Tune: UEEE4, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Herwigpp_Wenu</jobTransformJobName>
         <jobTransformCmd>
@@ -49,10 +52,11 @@
           <keepFilePattern> DCube-RTT_Herwigpp_Wenu_reference.root/RTT_Herwigpp_Wenu.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Herwigpp_Wmunu RTT Test -->
-      <jobTransform userJobId="Herwigpp_Wmunu">
+      <!--
+       <jobTransform userJobId="Herwigpp_Wmunu">
         <doc>Generator: Herwig++, Process: W->mu,nu, Tune: UEEE4, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Herwigpp_Wmunu</jobTransformJobName>
         <jobTransformCmd>
@@ -83,10 +87,11 @@
           <keepFilePattern> DCube-RTT_Herwigpp_Wmunu_reference.root/RTT_Herwigpp_Wmunu.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Herwigpp_Zee RTT Test -->
-      <jobTransform userJobId="Herwigpp_Zee">
+      <!--
+        <jobTransform userJobId="Herwigpp_Zee">
         <doc>Generator: Herwig++, Process: Z->e,e, Tune: UEEE4, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Herwigpp_Zee</jobTransformJobName>
         <jobTransformCmd>
@@ -117,9 +122,10 @@
           <keepFilePattern> DCube-RTT_Herwigpp_Zee_reference.root/RTT_Herwigpp_Zee.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Herwigpp_Zmumu RTT Test -->
+      <!--
       <jobTransform userJobId="Herwigpp_Zmumu">
         <doc>Generator: Herwig++, Process: Z->mu,mu, Tune: UEEE4, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Herwigpp_Zmumu</jobTransformJobName>
@@ -151,10 +157,11 @@
           <keepFilePattern> DCube-RTT_Herwigpp_Zmumu_reference.root/RTT_Herwigpp_Zmumu.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Herwigpp_jetjet_JZ0 RTT Test -->
-      <jobTransform userJobId="Herwigpp_jetjet_JZ0">
+      <!--
+        <jobTransform userJobId="Herwigpp_jetjet_JZ0">
         <doc>Generator: Herwig++, Process: dijet, Tune: EE4, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Herwigpp_jetjet_JZ0</jobTransformJobName>
         <jobTransformCmd>
@@ -185,10 +192,11 @@
           <keepFilePattern> DCube-RTT_Herwigpp_jetjet_JZ0_reference.root/RTT_Herwigpp_jetjet_JZ0.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia6_Wenu RTT Test -->
-      <jobTransform userJobId="Pythia6_Wenu">
+      <!--
+        <jobTransform userJobId="Pythia6_Wenu">
         <doc>Generator: Pythia 6, Process: W->e,nu, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Wenu</jobTransformJobName>
         <jobTransformCmd>
@@ -219,10 +227,11 @@
           <keepFilePattern> DCube-RTT_Pythia6_Wenu_reference.root/RTT_Pythia6_Wenu.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia6_Wmunu RTT Test -->
-      <jobTransform userJobId="Pythia6_Wmunu">
+      <!--
+        <jobTransform userJobId="Pythia6_Wmunu">
         <doc>Generator: Pythia 6, Process: W->mu,nu, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Wmunu</jobTransformJobName>
         <jobTransformCmd>
@@ -253,10 +262,11 @@
           <keepFilePattern> DCube-RTT_Pythia6_Wmunu_reference.root/RTT_Pythia6_Wmunu.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia6_Wtaunu RTT Test -->
-      <jobTransform userJobId="Pythia6_Wtaunu">
+      <!--
+        <jobTransform userJobId="Pythia6_Wtaunu">
         <doc>Generator: Pythia 6, Process: W->tau,nu, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Wtaunu</jobTransformJobName>
         <jobTransformCmd>
@@ -287,10 +297,11 @@
           <keepFilePattern> DCube-RTT_Pythia6_Wtaunu_reference.root/RTT_Pythia6_Wtaunu.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia6_Zee RTT Test -->
-      <jobTransform userJobId="Pythia6_Zee">
+      <!--
+        <jobTransform userJobId="Pythia6_Zee">
         <doc>Generator: Pythia 6, Process: Z->e,e, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Zee</jobTransformJobName>
         <jobTransformCmd>
@@ -321,10 +332,11 @@
           <keepFilePattern> DCube-RTT_Pythia6_Zee_reference.root/RTT_Pythia6_Zee.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia6_Zmumu RTT Test -->
-      <jobTransform userJobId="Pythia6_Zmumu">
+      <!--
+        <jobTransform userJobId="Pythia6_Zmumu">
         <doc>Generator: Pythia 6, Process: Z->mu,mu, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Zmumu</jobTransformJobName>
         <jobTransformCmd>
@@ -355,10 +367,11 @@
           <keepFilePattern> DCube-RTT_Pythia6_Zmumu_reference.root/RTT_Pythia6_Zmumu.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia6_Ztautau RTT Test -->
-      <jobTransform userJobId="Pythia6_Ztautau">
+      <!--
+        <jobTransform userJobId="Pythia6_Ztautau">
         <doc>Generator: Pythia 6, Process: Z->tau,tau, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_Ztautau</jobTransformJobName>
         <jobTransformCmd>
@@ -389,10 +402,11 @@
           <keepFilePattern> DCube-RTT_Pythia6_Ztautau_reference.root/RTT_Pythia6_Ztautau.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia6_jetjet_JZ0 RTT Test -->
-      <jobTransform userJobId="Pythia6_jetjet_JZ0">
+      <!--
+        <jobTransform userJobId="Pythia6_jetjet_JZ0">
         <doc>Generator: Pythia 6, Process: dijet, Tune: AUET2B, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia6_jetjet_JZ0</jobTransformJobName>
         <jobTransformCmd>
@@ -423,10 +437,11 @@
           <keepFilePattern> DCube-RTT_Pythia6_jetjet_JZ0_reference.root/RTT_Pythia6_jetjet_JZ0.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia8_Wenu RTT Test -->
-      <jobTransform userJobId="Pythia8_Wenu">
+      <!--
+        <jobTransform userJobId="Pythia8_Wenu">
         <doc>Generator: Pythia 8, Process: W->e,nu, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Wenu</jobTransformJobName>
         <jobTransformCmd>
@@ -457,10 +472,11 @@
           <keepFilePattern> DCube-RTT_Pythia8_Wenu_reference.root/RTT_Pythia8_Wenu.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia8_Wmunu RTT Test -->
-      <jobTransform userJobId="Pythia8_Wmunu">
+      <!--
+        <jobTransform userJobId="Pythia8_Wmunu">
         <doc>Generator: Pythia 8, Process: W->mu,nu, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Wmunu</jobTransformJobName>
         <jobTransformCmd>
@@ -491,10 +507,11 @@
           <keepFilePattern> DCube-RTT_Pythia8_Wmunu_reference.root/RTT_Pythia8_Wmunu.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia8_Wtaunu RTT Test -->
-      <jobTransform userJobId="Pythia8_Wtaunu">
+      <!--
+        <jobTransform userJobId="Pythia8_Wtaunu">
         <doc>Generator: Pythia 8, Process: W->tau,nu, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Wtaunu</jobTransformJobName>
         <jobTransformCmd>
@@ -525,10 +542,11 @@
           <keepFilePattern> DCube-RTT_Pythia8_Wtaunu_reference.root/RTT_Pythia8_Wtaunu.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia8_Zee RTT Test -->
-      <jobTransform userJobId="Pythia8_Zee">
+      <!--
+        <jobTransform userJobId="Pythia8_Zee">
         <doc>Generator: Pythia 8, Process: Z->e,e, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Zee</jobTransformJobName>
         <jobTransformCmd>
@@ -559,10 +577,11 @@
           <keepFilePattern> DCube-RTT_Pythia8_Zee_reference.root/RTT_Pythia8_Zee.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia8_Zee_lepton_jet RTT Test -->
-      <jobTransform userJobId="Pythia8_Zee_lepton_jet">
+      <!--
+       <jobTransform userJobId="Pythia8_Zee_lepton_jet">
         <doc>Generator: Pythia 8, Process: Z->e,e, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Zee_lepton_jet</jobTransformJobName>
         <jobTransformCmd>
@@ -593,9 +612,10 @@
           <keepFilePattern> DCube-RTT_Pythia8_Zee_lepton_jet_reference.root/RTT_Pythia8_Zee_lepton_jet.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia8_Zmumu RTT Test -->
+      <!--
       <jobTransform userJobId="Pythia8_Zmumu">
         <doc>Generator: Pythia 8, Process: W->mu,mu, Tune: AU2, PDF: CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Zmumu</jobTransformJobName>
@@ -627,9 +647,10 @@
           <keepFilePattern> DCube-RTT_Pythia8_Zmumu_reference.root/RTT_Pythia8_Zmumu.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia8_Ztautau RTT Test -->
+      <!--
       <jobTransform userJobId="Pythia8_Ztautau">
         <doc>Generator: Pythia 8, Process: Z->tau,tau, Tune: AU2, PDF CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Ztautau</jobTransformJobName>
@@ -661,9 +682,10 @@
           <keepFilePattern> DCube-RTT_Pythia8_Ztautau_reference.root/RTT_Pythia8_Ztautau.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia8_Ztautau_particle_content RTT Test -->
+      <!--
       <jobTransform userJobId="Pythia8_Ztautau_particle_content">
         <doc>Generator: Pythia 8, Process: Z->tau,tau, Tune: AU2, PDF CTEQ6L1, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_Ztautau_particle_content</jobTransformJobName>
@@ -695,9 +717,10 @@
           <keepFilePattern> DCube-RTT_Pythia8_Ztautau_particle_content_reference.root/RTT_Pythia8_Ztautau_particle_content.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
 
       <!-- Pythia8_dijet_Jz0 RTT Test -->
+      <!--
       <jobTransform userJobId="Pythia8_dijet_Jz0">
         <doc>Generator: Pythia 8, Process: dijet, Tune: AU2, PDF CT10, sqrt(s): 8 TeV</doc>
         <jobTransformJobName>Pythia8_dijet_Jz0</jobTransformJobName>
@@ -729,16 +752,17 @@
           <keepFilePattern> DCube-RTT_Pythia8_dijet_Jz0_reference.root/RTT_Pythia8_dijet_Jz0.root.dcube.xml.php </keepFilePattern>
         </test>
       </jobTransform>
-
+      -->
     </jobList>
 
+    <!--
     <jobGroups>
-      <jobGroup name="HepMCAnalysis_i" parent="Athena">
+      <jobGroup name="HepMCAnalysis_i" parent="Athena">  -->
 	<!--Files produced by the job and that I want to keep in the results dir-->
-        <keepFilePattern info="xml files" displayColor="blue">*.xml</keepFilePattern>
+<!--        <keepFilePattern info="xml files" displayColor="blue">*.xml</keepFilePattern>
         <keepFilePattern info="python scripts" displayColor="red">*.py</keepFilePattern>
         <keepFilePattern info="txt files" displayColor="blue">*.txt</keepFilePattern>
-        <keepFilePattern info="log files" displayColor="blue">*.log</keepFilePattern>
+        <keepFilePattern info="log files" displayColor="blue">*.log</keepFilePattern>       -->
 <!--        <keepFilePattern info="root scripts" displayColor="green">*.C</keepFilePattern> -->
 <!--        <keepFilePattern info="root files" displayColor="grey">*.root</keepFilePattern> -->
 <!--        <keepFilePattern info="java scripts" displayColor="green">*.jar</keepFilePattern> -->
@@ -749,12 +773,13 @@
         <auxFilePattern>*.xml</auxFilePattern>
         <auxFilePattern>*.txt</auxFilePattern>
 -->        
+<!--
         <testToRemove>
           <jobGroupName>RTT:Top</jobGroupName>
           <testidentifier>CheckFileRunner0</testidentifier>
         </testToRemove>
       </jobGroup>
     </jobGroups>
-  
+  -->
   </rtt> <!-- eof RTT tests -->
 </unifiedTestConfiguration>

@@ -32,7 +32,7 @@ class LeptonJetAnalysis: public baseAnalysis
 
   void InitPlots();
 
-  TString histName;
+  TString m_histName;
 
   TH1D *m_event_weight;
   TH1D *m_event_weight_zoom;

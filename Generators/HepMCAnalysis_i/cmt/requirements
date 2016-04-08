@@ -23,7 +23,7 @@ use HEPUtils              HEPUtils-*              External
 use TruthUtils            TruthUtils-*            Generators
 use TestPolicy            TestPolicy-*
 
-apply_pattern validate_xml
+#apply_pattern validate_xml
 
 
 public
