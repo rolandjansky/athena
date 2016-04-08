@@ -44,8 +44,6 @@ FEevent = FEevent%512;
 FEL1ID  = FEevent;
 CM = 0;
 BS = 0;
-myBoss= 0;
-addressOfWordScanned = 0;
 }//end-of-MatrixReadOut::MatrixReadOut
 //----------------------------------------------------------------------------//
 MatrixReadOut::MatrixReadOut(ubit16 *v, ubit16 numWords, DataVersion ver)
@@ -61,9 +59,6 @@ MatrixReadOut::MatrixReadOut(ubit16 *v, ubit16 numWords, DataVersion ver)
   char field;
   CM = 0;
   BS = v;
-  myBoss= 0;
-  addressOfWordScanned = 0;
-
   //
   numberOfWordsInFrag = numWords;
   ubit16 nWordsMax=100;
@@ -148,14 +143,6 @@ checkFooterPos      = MROOrig.checkFooterPos;
 checkFooterNum      = MROOrig.checkFooterNum;
 checkCR             = MROOrig.checkCR;
 checkUnkown         = MROOrig.checkUnkown;
-myBoss= 0;
-ROOffset = 2;
-NDLLCYC  = 8;
-NBunch = NOBXS;
-nclock = NBunch*NDLLCYC;
-timeSeparation = 8;
-CM = 0;
-BS = 0; 
 //
 // copy CM hit structure
 //
@@ -1200,7 +1187,7 @@ h8output.close();
 const ubit16 maxchan = 100;
 const ubit16 maxtimes= 200;
 ubit16 IJ[maxtimes][4], channels[maxtimes][4][maxchan]; 
-float times[maxtimes]; char plane[4][3];
+float times[maxtimes]; char plane[4][2];
 strcpy(plane[0],"I0");
 strcpy(plane[1],"I1");
 strcpy(plane[2],"J0");
