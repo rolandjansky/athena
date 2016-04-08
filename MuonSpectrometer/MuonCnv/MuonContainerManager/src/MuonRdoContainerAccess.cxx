@@ -11,7 +11,7 @@
 #include "MuonRDO/CscRawDataContainer.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ActiveStoreSvc.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
