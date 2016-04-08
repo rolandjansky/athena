@@ -61,7 +61,7 @@ namespace xAOD {
   }
 
   bool TrackParticlesInConeTool::particlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) {
-
+    
     /// initialize if needed
     if( !m_lookUpTable.isInitialized() ){
       /// retrieve track particles
