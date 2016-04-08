@@ -9,6 +9,9 @@ use AtlasROOT            AtlasROOT-*             External
 private
 apply_tag ROOTMathLibs
 
+# Specify required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Matrix)"
+
 use GaudiInterface       GaudiInterface-*        External
 use AtlasBoost           AtlasBoost-*            External
 end_private
