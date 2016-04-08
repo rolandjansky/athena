@@ -13,4 +13,5 @@ namespace InDetDD{
 			return os << "[INVALID]";
 		}
 	}
-}//namespace InDetDD
+}// namespace InDetDD
+

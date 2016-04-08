@@ -13,6 +13,7 @@
 #include "InDetReadoutGeometry/InDetDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
+#include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "InDetReadoutGeometry/TRT_DetElementCollection.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
@@ -208,6 +209,8 @@ namespace InDetDD {
     /** Call back for alignment updates, DEPRECATED. Now registered in tool. */
     StatusCode alignmentCallback( IOVSVC_CALLBACK_ARGS );
 
+    /** Process new global DB folders for L1 and L2 **/
+    bool processGlobalAlignment(const std::string &, int level, FrameType frame) const;
  
  private:  
   
@@ -251,7 +254,7 @@ namespace InDetDD {
 
     // here temporarily
     virtual const TRT_ID *getIdHelper() const;                                             //
-    virtual bool processSpecialAlignment(const std::string & key) const;
+    virtual bool processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType dummy) const;
 
     //-----------------------------------------------------------------------------//
   };

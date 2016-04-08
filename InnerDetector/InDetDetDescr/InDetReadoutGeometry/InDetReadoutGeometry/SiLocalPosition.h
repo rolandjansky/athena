@@ -13,6 +13,7 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/ParamDefs.h"
+#include <cmath>
 
 namespace Trk {
   enum ExtraLocalPosParam {distDepth = 2}; // These will be defined in Trk soon.
@@ -67,6 +68,12 @@ namespace InDetDD {
     /** position along phi direction:*/
     double xPhi() const;
 
+    /** Cylindrical coordinate r:*/
+    double r() const;
+
+    /** Cylindrical coordinate phi:*/
+    double phi() const;
+
     /** position along depth direction: */
     double xDepth() const;
 
@@ -93,7 +100,6 @@ namespace InDetDD {
   
     // so we can go from SiLocalPosition to Trk::LocalPosition
     operator Amg::Vector2D(void) const;
-
 
     // scaling:
     SiLocalPosition &operator*=(const double factor);
@@ -128,6 +134,16 @@ inline double SiLocalPosition::xPhi() const
 inline double SiLocalPosition::xDepth() const
 {
   return m_xDepth;
+}
+
+inline double SiLocalPosition::r() const
+{
+  return sqrt(m_xEta * m_xEta + m_xPhi * m_xPhi);
+}
+
+inline double SiLocalPosition::phi() const
+{
+  return atan2(m_xPhi, m_xEta);
 }
 
 inline double SiLocalPosition::xColumn() const

@@ -25,6 +25,8 @@
 
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+
 
 #include "InDetReadoutGeometry/SiCommonItems.h"
 
@@ -77,6 +79,10 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_maxR=defaultMax;
   m_minPhi=defaultMin;
   m_maxPhi=defaultMax;
+
+  m_hitEta = m_design->etaAxis();
+  m_hitPhi = m_design->phiAxis();
+  m_hitDepth = m_design->depthAxis();
   ///
   
   commonConstructor();
@@ -150,8 +156,9 @@ SiDetectorElement::updateCache() const
   
   const HepGeom::Transform3D & geoTransform = transformHit();
 
-  m_centerCLHEP = geoTransform * HepGeom::Point3D<double>(0,0,0);
-  
+      
+  HepGeom::Point3D<double> centerGeoModel(0., 0., 0.);
+  m_centerCLHEP = geoTransform * centerGeoModel;
   m_center = Amg::Vector3D(m_centerCLHEP[0],m_centerCLHEP[1],m_centerCLHEP[2]);
   
   //
@@ -169,9 +176,6 @@ SiDetectorElement::updateCache() const
     HepGeom::Vector3D<double>(0,0,1)
   };
 
-  static const HepGeom::Vector3D<double> & localHitPhiAxis = localAxes[hitPhi];     // Defined to be same as y axis
-  static const HepGeom::Vector3D<double> & localHitEtaAxis = localAxes[hitEta];     // Defined to be same as z axis
-  static const HepGeom::Vector3D<double> & localHitDepthAxis = localAxes[hitDepth]; // Defined to be same as x axis
   
   static const HepGeom::Vector3D<double> & localRecoPhiAxis = localAxes[distPhi];     // Defined to be same as x axis
   static const HepGeom::Vector3D<double> & localRecoEtaAxis = localAxes[distEta];     // Defined to be same as y axis
@@ -181,17 +185,99 @@ SiDetectorElement::updateCache() const
   //For it to change would require extreme unrealistic misalignment changes.
   if (firstTimeTmp) {
     // Determine the unit vectors in global frame
-    HepGeom::Vector3D<double> globalDepthAxis(geoTransform * localHitDepthAxis); 
-    HepGeom::Vector3D<double> globalPhiAxis  (geoTransform * localHitPhiAxis); 
-    HepGeom::Vector3D<double> globalEtaAxis  (geoTransform * localHitEtaAxis); 
-    
-    // Set the nominal eta,phi,normal and check the actual ones are close to these and determine the sign.
-  
-    // unit radial vector 
-    HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0);
-    // TODO: Check if r = 0.
-    unitR.setMag(1);
-  
+   
+        
+    	const HepGeom::Vector3D<double> &geoModelPhiAxis = localAxes[m_hitPhi];
+    	const HepGeom::Vector3D<double> &geoModelEtaAxis = localAxes[m_hitEta];
+    	const HepGeom::Vector3D<double> &geoModelDepthAxis = localAxes[m_hitDepth];
+
+    	HepGeom::Vector3D<double> globalDepthAxis(geoTransform * geoModelDepthAxis);
+    	HepGeom::Vector3D<double> globalPhiAxis(geoTransform * geoModelPhiAxis);
+	HepGeom::Vector3D<double> globalEtaAxis(geoTransform * geoModelEtaAxis);
+
+
+
+        // unit radial vector
+        HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0.);
+        if (fabs(m_center.x()) < 0.001 && fabs(m_center.y()) < 0.001) {
+            //
+            //   Sensor local frame is centred on beamline; probably a StereoAnnulus.
+            //   Get a point near the centre of the sensor. We take the two strips in the middle 
+            //   of the allowed range. In StereoAnnulus sensors, these are edge strips, in the 
+            //   centre two rows. Their midpoint is more or less the centre of the sensor.
+            //
+            const SCT_ModuleSideDesign *sctDesign = dynamic_cast<const SCT_ModuleSideDesign *> (m_design);
+            int strip1 = sctDesign->diodes() / 2 - 1;
+            int strip2 = strip1 + 1;
+            SiCellId cellId1(strip1);
+            SiCellId cellId2(strip2);
+            SiLocalPosition p1 = sctDesign->localPositionOfCell(cellId1);
+            SiLocalPosition p2 = sctDesign->localPositionOfCell(cellId2);
+            SiLocalPosition centerSiLocPos = (p1 + p2) / 2.;
+            centerGeoModel[m_hitEta] = centerSiLocPos.xEta();
+            centerGeoModel[m_hitPhi] = centerSiLocPos.xPhi();
+            centerGeoModel[m_hitDepth] = centerSiLocPos.xDepth();
+            unitR = geoTransform * centerGeoModel;
+            unitR[2] = 0.;
+        }
+        if (unitR.mag() < 10.0) { // 10 mm is too close still
+            msg(MSG::FATAL) << "Silicon Detector was centred on beamline. Goodbye." << endreq;
+            std::abort();
+        } 
+        unitR.setMag(1.);
+
+	/*// OK, Jike reverse Nigel's ...
+        if (isBarrel()) {
+            // Strips should be along globalZ
+            if (fabs(globalEtaAxis[2]) < 0.7) {
+                if (isPixel()) {
+                    msg(MSG::WARNING) << "Pixel barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
+                                      globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endreq;
+                }
+                else {
+                    msg(MSG::WARNING) << "SCT/Strip barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
+                                      globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endreq;
+                }
+            }
+            // Depth should be radial
+            if (fabs(globalDepthAxis.dot(unitR)) < 0.7) {
+                if (isPixel()) {
+                    msg(MSG::WARNING) << "Pixel barrel sensor: depth direction far from radial" << endreq;
+                }
+                else {
+                    msg(MSG::WARNING) << "SCT/Strip barrel sensor: depth direction far from radial" << endreq;
+                }
+            } 
+        }
+        else {
+            // Strips should be radial
+            if (fabs(globalEtaAxis.dot(unitR)) < 0.7) {
+                if (isPixel()) {
+                    msg(MSG::WARNING) << "Pixel endcap sensor: eta/strip direction far from radial" << endreq;
+                }
+                else {
+                    msg(MSG::WARNING) << "SCT/Strip endcap sensor: eta/strip direction far from radial" << endreq;
+                }
+            }
+            // Depth should be along z
+            if (fabs(globalDepthAxis[2]) < 0.7) {
+                if (isPixel()) {
+                    msg(MSG::WARNING) << "Pixel endcap sensor: depth direction far from parallel to z\n";
+                }
+                else {
+                    msg(MSG::WARNING) << "SCT/Strip endcap sensor: depth direction far from parallel to z\n";
+                }
+            } 
+        }
+	//
+	//    Should any axes be swapped? Certainly not. Why would you do that?
+	//
+        m_depthDirection = true;
+        m_etaDirection = true;
+        m_phiDirection = true;
+	*/
+
+
     HepGeom::Vector3D<double> nominalEta;
     HepGeom::Vector3D<double> nominalNormal;
     HepGeom::Vector3D<double> nominalPhi(-unitR.y(), unitR.x(), 0);
@@ -280,8 +366,10 @@ SiDetectorElement::updateCache() const
       // throw std::runtime_error("Orientation of local xEta axis does not follow correct convention.");
       m_etaDirection = true; // Don't swap
     }   
+
   } // end if (m_firstTime)
   
+
 
   m_transformCLHEP = geoTransform * recoToHitTransform();
   //m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
@@ -432,7 +520,7 @@ SiDetectorElement::recoToHitTransform() const
     HepGeom::Vector3D<double>(0,0,1)
   };
   static const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0,0,0),localAxes[distPhi],localAxes[distEta],
-					HepGeom::Point3D<double>(0,0,0),localAxes[hitPhi],localAxes[hitEta]);
+					HepGeom::Point3D<double>(0,0,0),localAxes[m_hitPhi],localAxes[m_hitEta]);
   
   // Swap direction of axis as appropriate
   CLHEP::Hep3Vector scale(1,1,1);
@@ -550,9 +638,9 @@ SiDetectorElement::hitLocalToLocal3D(const HepGeom::Point3D<double> & hitPositio
 {
   // Equiv to transform().inverse * transformHit() * hitPosition
   if (!m_cacheValid) updateCache(); 
-  double xDepth = hitPosition[hitDepth];
-  double xPhi = hitPosition[hitPhi];
-  double xEta = hitPosition[hitEta];
+  double xDepth = hitPosition[m_hitDepth];
+  double xPhi = hitPosition[m_hitPhi];
+  double xEta = hitPosition[m_hitEta];
   if (!m_depthDirection) xDepth = -xDepth;
   if (!m_phiDirection) xPhi = -xPhi;
   if (!m_etaDirection) xEta = -xEta;
@@ -788,6 +876,20 @@ SiDetectorElement::surface() const
   if (!m_surface) m_surface = new Trk::PlaneSurface(*this);
   return *m_surface;
 }
+  
+const std::vector<const Trk::Surface*>& SiDetectorElement::surfaces() const 
+{
+    if (!m_surfaces.size()){
+        // get this surface
+        m_surfaces.push_back(&surface());
+        // get the other side surface
+        if (otherSide()){
+            m_surfaces.push_back(&(otherSide()->surface()));
+        }
+    }
+    // return the surfaces
+    return m_surfaces;
+}  
   
 const Trk::SurfaceBounds & 
 SiDetectorElement::bounds() const
