@@ -12,7 +12,7 @@ else:
     msg.error('AOD Reduction job started, but with no "reductionConf" array - aborting')
     raise RuntimeError, "No reductions configured"
 
-include("PATJobTransforms/CommonSkeletonJobOptions.py")
+include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 
 ## Automatically turn ON/OFF and set output file name of each possible DPD
 listOfFlags=[]

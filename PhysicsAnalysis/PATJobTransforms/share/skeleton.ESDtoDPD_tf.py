@@ -6,7 +6,7 @@
 #==============================================================
 
 #Common job options disable most RecExCommon by default. Re-enable below on demand.
-include("PATJobTransforms/CommonSkeletonJobOptions.py")
+include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 rec.doESD=False
 from AthenaCommon.Logging import logging
 recoLog = logging.getLogger('esd_to_dpd')

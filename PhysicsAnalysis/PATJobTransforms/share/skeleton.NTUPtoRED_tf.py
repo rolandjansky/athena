@@ -10,7 +10,7 @@ from AthenaCommon.Logging import logging
 msg = logging.getLogger('NTUP Reduction')
 msg.info( '****************** STARTING NTUP Reduction *****************' )
 
-include("PATJobTransforms/CommonSkeletonJobOptions.py")
+include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 
 ## Automatically turn ON/OFF and set output file name of each possible DPD
 listOfFlags=[]
