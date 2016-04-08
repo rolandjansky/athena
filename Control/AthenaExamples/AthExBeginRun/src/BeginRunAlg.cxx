@@ -151,7 +151,7 @@ StatusCode BeginRunAlg::iovCallback( IOVSVC_CALLBACK_ARGS_P(/*idx*/,keys) )
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     msg() << *itr << " ";
   }
-  msg() << endmsg;
+  msg() << endreq;
   
   return StatusCode::SUCCESS;
 }
