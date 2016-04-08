@@ -6,7 +6,12 @@
 
 namespace PFO {
 
-  PFOEMPlots::PFOEMPlots(PlotBase* pParent, std::string sDir, std::string sPFOContainerName) : PlotBase(pParent, sDir), m_sPFOContainerName(sPFOContainerName){}
+  PFOEMPlots::PFOEMPlots(PlotBase* pParent, std::string sDir, std::string sPFOContainerName) : PlotBase(pParent, sDir), m_sPFOContainerName(sPFOContainerName){
+    m_PFO_ptEM = nullptr;
+    m_PFO_etaEM = nullptr;
+    m_PFO_phiEM = nullptr;
+    m_PFO_mEM = nullptr;
+}
 
   void PFOEMPlots::initializePlots(){
 

@@ -6,7 +6,24 @@
 
 namespace PFO {
 
-  ClusterMomentPlots::ClusterMomentPlots(PlotBase* pParent, std::string sDir, std::string sClusterContainerName) : PlotBase(pParent, sDir), m_sClusterContainerName(sClusterContainerName){}
+  ClusterMomentPlots::ClusterMomentPlots(PlotBase* pParent, std::string sDir, std::string sClusterContainerName) : PlotBase(pParent, sDir), m_sClusterContainerName(sClusterContainerName){
+    m_LATERAL = nullptr;
+    m_LONGITUDINAL = nullptr;
+    m_SECOND_R = nullptr;
+    m_CENTER_LAMBDA = nullptr;
+    m_FIRST_ENG_DENS = nullptr;
+    m_ENG_FRAC_MAX = nullptr;
+    m_ISOLATION = nullptr;
+    m_ENG_BAD_CELLS = nullptr;
+    m_N_BAD_CELLS = nullptr;
+    m_BADLARQ_FRAC = nullptr;
+    m_ENG_POS = nullptr;
+    m_SIGNIFICANCE = nullptr;
+    m_AVG_LAR_Q = nullptr;
+    m_AVG_TILE_Q = nullptr;
+    m_CELL_SIG_SAMPLING = nullptr;
+
+}
 
   void ClusterMomentPlots::initializePlots(){
 

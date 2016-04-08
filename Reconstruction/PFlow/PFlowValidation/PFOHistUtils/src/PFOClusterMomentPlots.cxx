@@ -6,7 +6,22 @@
 
 namespace PFO {
 
-  PFOClusterMomentPlots::PFOClusterMomentPlots(PlotBase* pParent, std::string sDir, std::string sPFOContainerName) : PlotBase(pParent, sDir), m_sPFOContainerName(sPFOContainerName){}
+  PFOClusterMomentPlots::PFOClusterMomentPlots(PlotBase* pParent, std::string sDir, std::string sPFOContainerName) : PlotBase(pParent, sDir), m_sPFOContainerName(sPFOContainerName){
+    m_PFO_LATERAL = nullptr;
+    m_PFO_LONGITUDINAL = nullptr;
+    m_PFO_SECOND_R = nullptr;
+    m_PFO_CENTER_LAMBDA = nullptr;
+    m_PFO_FIRST_ENG_DENS = nullptr;
+    m_PFO_ENG_FRAC_MAX = nullptr;
+    m_PFO_ISOLATION = nullptr;
+    m_PFO_ENG_BAD_CELLS = nullptr;
+    m_PFO_N_BAD_CELLS = nullptr;
+    m_PFO_BADLARQ_FRAC = nullptr;
+    m_PFO_ENG_POS = nullptr;
+    m_PFO_SIGNIFICANCE = nullptr;
+    m_PFO_AVG_LAR_Q = nullptr;
+    m_PFO_AVG_TILE_Q = nullptr;
+}
 
   void PFOClusterMomentPlots::initializePlots(){
 

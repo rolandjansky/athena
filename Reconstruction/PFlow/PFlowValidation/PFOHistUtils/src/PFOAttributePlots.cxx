@@ -6,7 +6,13 @@
 #include <iostream>
 namespace PFO {
 
-  PFOAttributePlots::PFOAttributePlots(PlotBase* pParent, std::string sDir, std::string sPFOContainerName) : PlotBase(pParent, sDir), m_sPFOContainerName(sPFOContainerName){}
+  PFOAttributePlots::PFOAttributePlots(PlotBase* pParent, std::string sDir, std::string sPFOContainerName) : PlotBase(pParent, sDir), m_sPFOContainerName(sPFOContainerName){
+    m_PFO_LAYER_ENERGY_EM3 = nullptr;
+    m_PFO_LAYER_ENERGY_HEC0 = nullptr;
+    m_PFO_LAYER_ENERGY_HEC = nullptr;
+    m_PFO_LAYER_ENERGY_Tile0 = nullptr;
+    m_PFO_TIMING = nullptr;
+}
 
   void PFOAttributePlots::initializePlots(){
 

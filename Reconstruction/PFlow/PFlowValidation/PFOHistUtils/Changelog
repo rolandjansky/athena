@@ -1,3 +1,7 @@
+6 July 2015 Mark Hodgkinson
+Fix Coverity issues 19828, 25016,17411,17009,17168 (all related to unitialised histogram pointers)
+Tag as PFOHistUtils-00-00-10
+	
 18 February 2015 Mark Hodgkinson
 Add CELL_SIG_SAMPLING plot for topoclusters
 Tag as PFOHistUtils-00-00-09    	
