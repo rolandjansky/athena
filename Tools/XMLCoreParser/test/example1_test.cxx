@@ -16,14 +16,9 @@ int main (int argc, char* argv[])
   parser.register_external_entity ("LVL1Calorimeter", "NULL");
   parser.register_external_entity ("MuonSpectrometer", "NULL");
 
-  const char* dir = getenv("XMLCOREPARSER_DATA");
-  if (!dir)
-    dir = "../data";
-  std::string file = dir;
+  const char* file = "../data/ATLAS_AGDD.xml";
   if (argc > 1)
     file = argv[1]; 
-  else
-    file += "/ATLAS_AGDD.xml";
 
   parser.parse (file);
   return (0);

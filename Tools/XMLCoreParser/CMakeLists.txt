@@ -25,15 +25,13 @@ atlas_add_test( example1_test
                 SOURCES
                 test/example1_test.cxx
                 INCLUDE_DIRS ${EXPAT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${EXPAT_LIBRARIES} TestTools XMLCoreParser
-                ENVIRONMENT "XMLCOREPARSER_DATA=${CMAKE_CURRENT_SOURCE_DIR}/data" )
+                LINK_LIBRARIES ${EXPAT_LIBRARIES} TestTools XMLCoreParser )
 
 atlas_add_test( example2_test
                 SOURCES
                 test/example2_test.cxx
                 INCLUDE_DIRS ${EXPAT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${EXPAT_LIBRARIES} TestTools XMLCoreParser
-                ENVIRONMENT "XMLCOREPARSER_DATA=${CMAKE_CURRENT_SOURCE_DIR}/data" )
+                LINK_LIBRARIES ${EXPAT_LIBRARIES} TestTools XMLCoreParser )
 
 atlas_add_executable( example4
                       doc/example4.cxx
