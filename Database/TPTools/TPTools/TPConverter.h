@@ -10,7 +10,7 @@
 /** @file TPConverter.h
  *  @brief This file contains template definitions for Transient/Persistent converters
  *  @author Marcin.Nowak@cern.ch
- *  $Id: TPConverter.h 559168 2013-08-23 14:55:45Z mnowak $
+ *  $Id: TPConverter.h 653708 2015-03-12 15:44:41Z ssnyder $
  **/
 
 #include "AthenaKernel/ITPCnvBase.h"
@@ -395,7 +395,9 @@ public:
   */
   virtual void	pstoreToTrans( unsigned index, TRANS_BASE *trans, MsgStream &log ) {
      assert (index < m_pStorage->size());
-     this->persToTrans( &(*m_pStorage)[index], dynamic_cast<TRANS*>(trans), log );
+     TRANS* trans_der = dynamic_cast<TRANS*>(trans);
+     if (!trans_der) std::abort();
+     this->persToTrans( &(*m_pStorage)[index], trans_der, log );
   }
 
   /** @copydoc ITPConverterFor::virt_toPersistent()
@@ -403,7 +405,9 @@ public:
       transient type pointer to it's actual type
   */
   virtual TPObjRef virt_toPersistent( const TRANS_BASE *trans, MsgStream &log )  {
-     return toPersistent_impl( dynamic_cast<const TRANS*>(trans), log);
+     const TRANS* trans_der = dynamic_cast<const TRANS*>(trans);
+     if (!trans_der) std::abort();
+     return toPersistent_impl( trans_der, log);
   }
 
   /** This method implements a pure virtual base class method, but

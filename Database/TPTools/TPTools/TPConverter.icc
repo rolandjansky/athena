@@ -20,7 +20,7 @@
 template< class TRANS_BASE, class TRANS, class PERS >
 PERS* TPAbstractPolyCnvBase<TRANS_BASE, TRANS, PERS>::
 createPersistent(const TRANS* transObj, MsgStream &log)  {
-   std::auto_ptr<PERS> pers(new PERS());
+   std::unique_ptr<PERS> pers(new PERS());
    transToPers(transObj, pers.get(), log);
    return(pers.release());
 }
@@ -63,7 +63,7 @@ toPersistent_impl( const TRANS *trans, MsgStream &log )
 template< class TRANS_BASE, class TRANS, class PERS >
 TRANS* TPPolyCnvBase<TRANS_BASE, TRANS, PERS>::
 createTransient(const PERS* persObj, MsgStream &log) {
-   std::auto_ptr<TRANS>	trans(new TRANS());
+   std::unique_ptr<TRANS>	trans(new TRANS());
    this->persToTrans(persObj, trans.get(), log);
    return(trans.release());
 }
