@@ -10,6 +10,7 @@ namespace JiveXML{
     * Empty/Default constructor
     */
    DataType::DataType() {
+     m_thing == " ";
    }
 
    /**

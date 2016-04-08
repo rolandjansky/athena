@@ -28,7 +28,7 @@ namespace JiveXML {
     //accessed by more than one thread at the same time. NULL means default
     int retVal = pthread_mutex_init(&m_accessLock,NULL);
     if (retVal != 0){
-      ATH_MSG_ERROR( "Unable to initialize access lock while starting server: " << strerror(retVal)  );
+       log << MSG::ERROR << "Unable to initialize access lock while starting server: " << strerror(retVal) << endreq;
        return StatusCode::FAILURE;
     }
 
@@ -43,7 +43,7 @@ namespace JiveXML {
     if ( ( pthread_create(&m_ServerThreadHandle, NULL , &JiveXML::ONCRPCServerThread, (void *) args )) != 0){
       
       //Create thread failed
-      ATH_MSG_ERROR( "Thread creation failed"  );
+      log << MSG::ERROR << "Thread creation failed" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -59,7 +59,7 @@ namespace JiveXML {
    */
   StatusCode ONCRPCServerSvc::StopServer(){
 
-    ATH_MSG_VERBOSE( "StopServer()"  );
+    log << MSG::VERBOSE << "StopServer()" << endreq;
 
     /**
      * Ping the server which will cause another request
@@ -70,7 +70,7 @@ namespace JiveXML {
     //descriptors on the sockets
     CLIENT* client = clnt_create("localhost", ONCRPCSERVERPROG,ONCRPCSERVERVERS, "tcp");
     if (!client){
-      ATH_MSG_ERROR( "Unable to create shutdown client for local server"  );
+      log << MSG::ERROR << "Unable to create shutdown client for local server" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -86,22 +86,22 @@ namespace JiveXML {
     // A pointer to the return value of the thread
     void* ret;
     // wait till the server thread has finished
-    ATH_MSG_INFO( "Waiting for server thread to terminate ..."  );
+    log << MSG::INFO << "Waiting for server thread to terminate ..." << endreq;
     pthread_join(m_ServerThreadHandle, &ret);
-    ATH_MSG_INFO( " ... finished server thread"  );
+    log << MSG::INFO << " ... finished server thread" << endreq;
 
     //check if there was a return value
     if (ret){
       //Get the return value
       unsigned long NRequests = *(unsigned long*)ret;
-      ATH_MSG_DEBUG( "Server thread stopped after handling " << NRequests << " requests"  );
+      log << MSG::DEBUG << "Server thread stopped after handling " << NRequests << " requests" << endreq;
     } else 
-      ATH_MSG_WARNING( "Server thread had stopped unexpectedly"  );
+      log << MSG::WARNING << "Server thread had stopped unexpectedly" << endreq;
 
     //Destroy the access lock
     int retVal = pthread_mutex_destroy(&m_accessLock);
     if (retVal != 0){
-       ATH_MSG_ERROR( "Unable to destroy access lock after stopping server: " << strerror(retVal)  );
+       log << MSG::ERROR << "Unable to destroy access lock after stopping server: " << strerror(retVal) << endreq;
        return StatusCode::FAILURE;
     }
 
@@ -115,7 +115,7 @@ namespace JiveXML {
     //Check if the thread stopped while the run server flag was set
     if (m_runServerThread){
       //Deliver an error message
-      ATH_MSG_ERROR( "Server thread stopped while run-server-flag is set!"  );
+      log << MSG::ERROR << "Server thread stopped while run-server-flag is set!" << endreq;
       //since we can't return statusCode failure (we're in a different thread!)
       //set the flag to mark the server as dead
       m_runServerThread = false;
@@ -125,13 +125,11 @@ namespace JiveXML {
   /** 
    * Deliver a message - possibly from another thread - to the athena msgSvc;
    */
-  void ONCRPCServerSvc::Message( const MSG::Level level,
-                                 const std::string mesg) const
-  {
+  void ONCRPCServerSvc::Message( const MSG::Level level, const std::string msg) const {
     //Deliver message
-    msg() << level << mesg << endmsg;
+    log << level << msg << endreq;
     //Spit it out immediately
-    msg().flush();
+    log.flush();
   }
 
   /** 
@@ -140,7 +138,7 @@ namespace JiveXML {
    */
   MSG::Level ONCRPCServerSvc::LogLevel() const {
     //return the current logging level
-    return msg().level();
+    return log.level();
   }
 
 
@@ -168,7 +166,7 @@ namespace JiveXML {
     //Obtain an exclusive access lock
     int retVal = pthread_mutex_lock(&m_accessLock);
     if ( retVal != 0 ){
-      ATH_MSG_ERROR( "Unable to obtain access lock to get stream names: " << strerror(retVal)  );
+      log << MSG::ERROR << "Unable to obtain access lock to get stream names: " << strerror(retVal) << endreq;
       return StreamNames;
     }
 
@@ -186,7 +184,7 @@ namespace JiveXML {
     //Release the lock
     retVal = pthread_mutex_unlock(&m_accessLock);
     if ( retVal != 0 )
-      ATH_MSG_ERROR( "Unable to release access lock after getting stream names: " << strerror(retVal)  );
+      log << MSG::ERROR << "Unable to release access lock after getting stream names: " << strerror(retVal) << endreq;
 
     //Return the list of names
     return StreamNames;
@@ -200,7 +198,7 @@ namespace JiveXML {
     //Obtain an exclusive access lock
     int retVal = pthread_mutex_lock(&m_accessLock);
     if ( retVal != 0 ){
-      ATH_MSG_ERROR( "Unable to obtain access lock to get stream ID: " << strerror(retVal)  );
+      log << MSG::ERROR << "Unable to obtain access lock to get stream ID: " << strerror(retVal) << endreq;
       return EventStreamID("");
     }
 
@@ -210,7 +208,7 @@ namespace JiveXML {
     //Release the lock
     retVal = pthread_mutex_unlock(&m_accessLock);
     if ( retVal != 0 )
-      ATH_MSG_ERROR( "Unable to release access lock after getting stream ID: " << strerror(retVal)  );
+      log << MSG::ERROR << "Unable to release access lock after getting stream ID: " << strerror(retVal) << endreq;
 
     //If the element was not found return an invalid ID
     if ( MapItr == m_eventStreamMap.end()) return EventStreamID("");
@@ -227,7 +225,7 @@ namespace JiveXML {
     //Obtain an exclusive access lock
     int retVal = pthread_mutex_lock(&m_accessLock);
     if ( retVal != 0 ){
-      ATH_MSG_ERROR( "Unable to obtain access lock to get event: " << strerror(retVal)  );
+      log << MSG::ERROR << "Unable to obtain access lock to get event: " << strerror(retVal) << endreq;
       return std::string("");
     }
 
@@ -237,7 +235,7 @@ namespace JiveXML {
     //Release the lock
     retVal = pthread_mutex_unlock(&m_accessLock);
     if ( retVal != 0 )
-      ATH_MSG_ERROR( "Unable to release access lock after getting stream event: " << strerror(retVal)  );
+      log << MSG::ERROR << "Unable to release access lock after getting stream event: " << strerror(retVal) << endreq;
 
     //If the element was not found return an empty string
     if ( MapItr == m_eventStreamMap.end()) return std::string("");
@@ -250,7 +248,8 @@ namespace JiveXML {
    * Constructor
    **/
   ONCRPCServerSvc::ONCRPCServerSvc( const std::string& name, ISvcLocator* sl) :
-    base_class( name, sl )
+    base_class( name, sl ),
+    log(msgSvc(),name)
   {
       //declare port number property
       declareProperty("PortNumber",m_portNumber=0,"Port number to bind - assigned dynamically if set to zero [default: 0]");
@@ -258,7 +257,7 @@ namespace JiveXML {
       //Make sure ServerThread does not start unexpectedly
       m_runServerThread = false ;
 
-      ATH_MSG_VERBOSE( "Output level is set to " << (int)msg().level()  );
+      log << MSG::VERBOSE << "Output level is set to " << (int)log.level() << endreq;
 
   }
 
@@ -267,7 +266,7 @@ namespace JiveXML {
    */
   ONCRPCServerSvc::~ONCRPCServerSvc(){
 
-    ATH_MSG_VERBOSE( "Destructor() "  );
+      log << MSG::VERBOSE << "Destructor() " << endreq;
   }
 
   /**
@@ -280,14 +279,18 @@ namespace JiveXML {
     if (Service::initialize().isFailure()) return StatusCode::FAILURE;
     
      //Initialize message stream level
-    msg().setLevel(outputLevel());
-    ATH_MSG_VERBOSE( "Initialize()"  );
-    ATH_MSG_VERBOSE( "Output level is set to " << (int)msg().level()  );
+    log.setLevel(outputLevel());
+    log << MSG::VERBOSE << "Initialize()" << endreq; 
+    log << MSG::VERBOSE << "Output level is set to " << (int)log.level() << endreq;
 
     /**
      * Create the server itself
      */
-    ATH_CHECK( StartServer() );
+    if (StartServer().isFailure()){
+      log << MSG::ERROR << "Unable to start server" << endreq;
+      return StatusCode::FAILURE;
+    }
+    
     return StatusCode::SUCCESS;
   }
 
@@ -297,7 +300,7 @@ namespace JiveXML {
    */
   StatusCode ONCRPCServerSvc::finalize() {
 
-    ATH_MSG_VERBOSE( "Finalize()"  );
+    log << MSG::VERBOSE << "Finalize()" << endreq; 
 
     //Stop the server thread and return status code
     return StopServer();
@@ -309,29 +312,29 @@ namespace JiveXML {
    */
   StatusCode ONCRPCServerSvc::UpdateEventForStream( const EventStreamID evtStreamID, const std::string & event) {
  
-    ATH_MSG_VERBOSE( "UpdateEventForStream()"  );
+    log << MSG::VERBOSE << "UpdateEventForStream()" << endreq;
 
     //Make sure the server is still running
     if (! m_runServerThread ){
-      ATH_MSG_ERROR( "Server thread is not running - refusing to update event"  );
+      log << MSG::ERROR << "Server thread is not running - refusing to update event" << endreq;
       return StatusCode::FAILURE;
     }
 
     //Check that the event stream id is valid
     if (!evtStreamID.isValid()){
-      ATH_MSG_ERROR( "Invalid event stream identifier - cannot add event"  );
+      log << MSG::ERROR << "Invalid event stream identifier - cannot add event" << endreq;
       return StatusCode::FAILURE;
     }
 
     //Make sure we don't have already exceeded the maximum number of streams
     if (m_eventStreamMap.size() > NSTREAMMAX ){
-      ATH_MSG_ERROR( "Reached max. allowed number of streams " << NSTREAMMAX << " - cannot add event"  );
+      log << MSG::ERROR << "Reached max. allowed number of streams " << NSTREAMMAX << " - cannot add event" << endreq;
       return StatusCode::FAILURE;
     }
 
     //Make sure the event is not larger than the allowed maximal size
     if (event.length() > NBYTESMAX ){
-      ATH_MSG_ERROR( "Event is larger than allowed max. of " << NBYTESMAX << " bytes - cannot add event"  );
+      log << MSG::ERROR << "Event is larger than allowed max. of " << NBYTESMAX << " bytes - cannot add event" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -348,7 +351,7 @@ namespace JiveXML {
     int retVal = pthread_mutex_lock(&m_accessLock);
 #endif
     if ( retVal != 0 ){
-      ATH_MSG_ERROR( "Unable to obtain access lock to update event: " << strerror(retVal)  );
+      log << MSG::ERROR << "Unable to obtain access lock to update event: " << strerror(retVal) << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -369,8 +372,8 @@ namespace JiveXML {
       m_eventStreamMap.insert(EventStreamPair(evtStreamID,event));
     
     } catch ( std::exception e ) {
-      ATH_MSG_ERROR( "Exception caught while updating event for stream " << evtStreamID.StreamName()
-                     << ": " << e.what()  );
+      log << MSG::ERROR << "Exception caught while updating event for stream " << evtStreamID.StreamName()
+          << ": " << e.what() << endreq;
       //Also release the lock in this case
       pthread_mutex_unlock(&m_accessLock);
       //before we return
@@ -380,13 +383,13 @@ namespace JiveXML {
     //Finally release the lock again
     retVal = pthread_mutex_unlock(&m_accessLock);
     if ( retVal != 0 ){
-      ATH_MSG_ERROR( "Unable to release access lock after updating event: " << strerror(retVal)  );
+      log << MSG::ERROR << "Unable to release access lock after updating event: " << strerror(retVal) << endreq;
       return StatusCode::FAILURE;
     }
 
-    ATH_MSG_DEBUG( "Updated stream " << evtStreamID.StreamName() 
-                   << " with event Nr. " << evtStreamID.EventNumber() 
-                   << " from run Nr. " << evtStreamID.RunNumber()  );
+    log << MSG::DEBUG << "Updated stream " << evtStreamID.StreamName() 
+                      << " with event Nr. " << evtStreamID.EventNumber() 
+                      << " from run Nr. " << evtStreamID.RunNumber() << endreq;
 
     return StatusCode::SUCCESS;
   }

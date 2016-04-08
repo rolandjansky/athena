@@ -31,7 +31,7 @@ namespace JiveXML {
 
     //Make sure we can get hold of the server
     if (m_ServerSvc.retrieve().isFailure()){
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Unable to initialize server service with name " << m_ServerSvc.name() << endmsg;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Unable to initialize server service with name " << m_ServerSvc.name() << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -57,7 +57,7 @@ namespace JiveXML {
      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Streaming event Nr. " << EventNumber 
                          << " from run Nr. " << RunNumber
                          << " to stream " << m_StreamName
-                         << " on " << m_ServerSvc.name() << " service" << endmsg;
+                         << " on " << m_ServerSvc.name() << " service" << endreq;
 
      /// Create an EventStreamID for this event
      EventStreamID evtStreamID(EventNumber,RunNumber,m_StreamName);
