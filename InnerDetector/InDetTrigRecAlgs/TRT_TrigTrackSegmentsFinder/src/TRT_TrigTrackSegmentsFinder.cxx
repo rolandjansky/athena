@@ -53,7 +53,7 @@ InDet::TRT_TrigTrackSegmentsFinder::TRT_TrigTrackSegmentsFinder
 //----------------------------------------------------------------------------
 HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltBeginRun() {
 
-  msg() << MSG::INFO << "TRT_TrigTrackSegmentsFinder::beginRun()" << endmsg;
+  msg() << MSG::INFO << "TRT_TrigTrackSegmentsFinder::beginRun()" << endreq;
 
   return HLT::OK;
 }
@@ -66,16 +66,16 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltBeginRun() {
 HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltInitialize() {
   
     if(m_segmentsMakerTool.retrieve().isFailure()) {
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_segmentsMakerTool<< endmsg;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_segmentsMakerTool<< endreq;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
-      msg() << MSG::INFO << "Retrieved tool " << m_segmentsMakerTool  << endmsg;
+      msg() << MSG::INFO << "Retrieved tool " << m_segmentsMakerTool  << endreq;
     }
     
     // Get output print level
     if(msgLvl()<=MSG::DEBUG) {
-      m_nprint=0; msg()<<MSG::DEBUG<<(*this)<<endmsg;
+      m_nprint=0; msg()<<MSG::DEBUG<<(*this)<<endreq;
     }
     m_nsegmentsTotal = 0;
     
@@ -85,13 +85,13 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltInitialize() {
 	msg() << MSG::FATAL
 	      << m_regionSelector.propertyName()
 	      << " : Unable to retrieve RegionSelector tool "
-	      << m_regionSelector.type() << endmsg;
+	      << m_regionSelector.type() << endreq;
 	return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       }
     }
     else{
       msg() << MSG::INFO
-            << "RegionSelector tool not needed for FullScan" << endmsg;
+            << "RegionSelector tool not needed for FullScan" << endreq;
     }
 
     // Initialize timers:
@@ -122,12 +122,12 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltExecute(const HLT::Trigger
     // Get RoiDescriptor
     const TrigRoiDescriptor* roi;
     if ( ( HLT::OK != getFeature(outputTE, roi) ) || !roi ) {
-      msg() << MSG::WARNING << "Can't get RoI" << endmsg;
+      msg() << MSG::WARNING << "Can't get RoI" << endreq;
       return HLT::NAV_ERROR;
     }
   
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "REGTEST:" << *roi << endmsg;
+      msg() << MSG::DEBUG << "REGTEST:" << *roi << endreq;
     }
 
     m_RoIPhi = roi->phi();
@@ -177,7 +177,7 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltExecute(const HLT::Trigger
   //  Attach TRT segments to the trigger element.
 
   if ( HLT::OK !=  attachFeature(outputTE, foundSegments, "TRTSegm") ) {
-    msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
+    msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
     
     return HLT::NAV_ERROR;
   }
@@ -186,7 +186,7 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltExecute(const HLT::Trigger
   //
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "REGTEST: Stored " << foundSegments->size() 
-	<< " TRT segments in SG." << endmsg;
+	<< " TRT segments in SG." << endreq;
   }
 
 
@@ -200,7 +200,7 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltExecute(const HLT::Trigger
 ///////////////////////////////////////////////////////////////////
 HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltFinalize() {
 
-  m_nprint=2; msg()<<MSG::INFO<<(*this)<<endmsg;
+  m_nprint=2; msg()<<MSG::INFO<<(*this)<<endreq;
 
   return HLT::OK;
 }
@@ -210,7 +210,7 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltFinalize() {
 //----------------------------------------------------------------------------
 HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltEndRun() {
   
-  msg() << MSG::INFO << "TRT_TrigTrackSegmentsFinder::endRun()" << endmsg;
+  msg() << MSG::INFO << "TRT_TrigTrackSegmentsFinder::endRun()" << endreq;
   
   return HLT::OK;
 }
@@ -242,8 +242,7 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::TRT_TrigTrackSegmentsFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out);
-  return dumptools(out);
+  if(m_nprint)  return dumpevent(out); return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
