@@ -552,9 +552,10 @@ StatusCode CaloCalibClusterMomentsMaker::execute(xAOD::CaloClusterContainer *the
 			hitClusNorm += engCalibTot[iClus];
 		      }
 		      if ( hitClusNorm > 0 ) {
+                        const double inv_hitClusNorm = 1. / hitClusNorm;
 			for(unsigned int i_cls=0; i_cls<(*pClusList)[(jpO+m_n_phi_out)*(2*m_n_eta_out+1)+jeO+m_n_eta_out].size(); i_cls++){
 			  int iClus = (*pClusList)[(jpO+m_n_phi_out)*(2*m_n_eta_out+1)+jeO+m_n_eta_out][i_cls];
-			  double w = engCalibTot[iClus]/hitClusNorm;
+			  double w = engCalibTot[iClus] * inv_hitClusNorm;
 			  engCalibOut[ii][iClus] += w*(*chIter)->energyTotal();
 			  eOut[ii] += w*(*chIter)->energyTotal();
 			}
@@ -618,9 +619,10 @@ StatusCode CaloCalibClusterMomentsMaker::execute(xAOD::CaloClusterContainer *the
 		      hitClusEffEnergy[i_cls]=w;
 		    }
 		    if ( hitClusNorm > 0 ) {
+                      const double inv_hitClusNorm = 1. / hitClusNorm;
 		      for(unsigned int i_cls=0; i_cls<(*pClusList)[(jpO+m_n_phi_out)*(2*m_n_eta_out+1)+jeO+m_n_eta_out].size(); i_cls++){
 			int iClus = (*pClusList)[(jpO+m_n_phi_out)*(2*m_n_eta_out+1)+jeO+m_n_eta_out][i_cls];
-			double w = hitClusEffEnergy[i_cls]/hitClusNorm;
+			double w = hitClusEffEnergy[i_cls] * inv_hitClusNorm;
 			engCalibDead[ii][iClus] += w*(*chIter)->energyTotal();
 			eDead[ii] += w*(*chIter)->energyTotal();
 		      }
@@ -718,9 +720,10 @@ StatusCode CaloCalibClusterMomentsMaker::execute(xAOD::CaloClusterContainer *the
 
                 // now we have to calculate weight for assignment hit energy to cluster
                 if(hitClusNorm > 0.0) {
+                  const double inv_hitClusNorm = 1. / hitClusNorm;
                   for(unsigned int i_cls=0; i_cls<hitClusIndex.size(); i_cls++){
                     int iClus = hitClusIndex[i_cls];
-                    double dm_weight = hitClusEffEnergy[i_cls]/hitClusNorm;
+                    double dm_weight = hitClusEffEnergy[i_cls] * inv_hitClusNorm;
                     if(dm_weight > 1.0 || dm_weight < 0.0 ){
                       std::cout << "CaloCalibClusterMomentsMaker::execute() ->Error! Strange weight " <<  dm_weight<< std::endl;
                       std::cout << hitClusEffEnergy[i_cls] << " " << hitClusNorm << std::endl;
@@ -846,19 +849,7 @@ StatusCode CaloCalibClusterMomentsMaker::execute(xAOD::CaloClusterContainer *the
 	    break;
 	  }
 
-	  std::set<xAOD::CaloCluster::MomentType>::const_iterator mAODIter;
-	  std::set<xAOD::CaloCluster::MomentType>::const_iterator mAODIterEnd = m_momentsAOD.end();
-	  mAODIter = m_momentsAOD.find(vMomentsIter->second);
-	  if ( mAODIter == mAODIterEnd ) {
-	    theCluster->insertMoment(vMomentsIter->second, myMoments[iMoment]);
-	    // log << MSG::DEBUG << "Storing Moment <" << vMomentsIter->first
-	    //     << "> in ESD only" << endreq;
-	  }
-	  else {
-	    theCluster->insertMoment(vMomentsIter->second, myMoments[iMoment]);
-	    // log << MSG::DEBUG << "Storing Moment <" << vMomentsIter->first
-	    //     << "> in AOD" << endreq;
-	  }
+          theCluster->insertMoment(vMomentsIter->second, myMoments[iMoment]);
 	}
       }
     }
@@ -903,6 +894,6 @@ double CaloCalibClusterMomentsMaker::angle_mollier_factor(double x)
   }else{
     ff = atan(5.0*0.95/(505./tanh(eta)));
   }
-  return ff/atan(5.0*1.7/200.0);
+  return ff*(1./atan(5.0*1.7/200.0));
 }
 
