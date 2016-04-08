@@ -29,6 +29,7 @@ MissingETFillerTool::MissingETFillerTool (const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : BlockFillerTool<MissingET> (type, name, parent)
+  ,   mLog(msgSvc(), name )
 {
   book().ignore(); // Avoid coverity warning.
 }
@@ -50,7 +51,11 @@ StatusCode MissingETFillerTool::fill (const MissingET& p)
 {
   *m_etx   = p.etx();
   *m_ety   = p.ety();
-   return StatusCode::SUCCESS;
+ 
+
+  mLog << MSG::DEBUG << "MissingETD3PDMaker::MissingETFillerTool -- MET filled" << endreq;
+
+  return StatusCode::SUCCESS;
 }
 
 

@@ -59,7 +59,11 @@ public:
    */
   virtual StatusCode fill (const MissingEtTruth& p);
 
+protected:
+ MsgStream mLog;
+
 private:
+  
   //interacting met
   float* m_int_etx;/// Variable: x component. 
   float* m_int_ety;/// Variable: y component.

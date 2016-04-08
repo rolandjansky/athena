@@ -27,7 +27,8 @@ namespace D3PD {
 MissingETJetsInfoFillerTool::MissingETJetsInfoFillerTool (const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
-  : BlockFillerTool<JetCollection> (type, name, parent)
+  : BlockFillerTool<JetCollection> (type, name, parent),
+    mLog(msgSvc(), name )
 {
 declareProperty ("TrackParticleContainer",       m_trackContainerKey        = "TrackParticleCandidate");
 book().ignore(); // Avoid coverity warning.
@@ -51,17 +52,26 @@ StatusCode MissingETJetsInfoFillerTool::book()
 
 StatusCode MissingETJetsInfoFillerTool::fill (const JetCollection& jets)
 { 
-  *m_ev_emf = m_jetVariables->JetPtWeightedEventEMfraction(&jets);
-  *m_ev_jetsize = m_jetVariables->JetPtWeightedSize(&jets);
-  *m_leadingJetEt = m_jetVariables->leadingJetEt(&jets);
-  *m_leadingJetEta = m_jetVariables->leadingJetEta(&jets);
+  StatusCode sc = StatusCode::SUCCESS;
+
+  *m_ev_emf = _jetVariables->JetPtWeightedEventEMfraction(&jets);
+  *m_ev_jetsize = _jetVariables->JetPtWeightedSize(&jets);
+  *m_leadingJetEt = _jetVariables->leadingJetEt(&jets);
+  *m_leadingJetEta = _jetVariables->leadingJetEta(&jets);
   
-  m_jetVariables->setJetCollection(&jets);
-  ATH_CHECK( m_jetVariables->retrieveTrackContainer(m_trackContainerKey) );
+  _jetVariables->setJetCollection(&jets);
+  sc = _jetVariables->retrieveTrackContainer(m_trackContainerKey);
+  if ( !sc.isSuccess() ) {
+    mLog << MSG::ERROR << "Can't retrieve track container." << endreq;
+    return sc;
+  }
 
-  *m_ev_numtrks = m_jetVariables->JetPtWeightedNumAssociatedTracks();
+  *m_ev_numtrks = _jetVariables->JetPtWeightedNumAssociatedTracks();
 
-  return StatusCode::SUCCESS;
+  
+  mLog << MSG::DEBUG << "MissingETD3PDMaker::MissingETJetsInfoFillerTool has filled Jets Info" << endreq;
+  
+  return sc;
 }//end of fill tool
 
 

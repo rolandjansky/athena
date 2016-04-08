@@ -56,9 +56,15 @@ public:
    */
   virtual StatusCode fill (const MissingET& p);
 
+protected:
+ MsgStream mLog;
+
 private:
+  
+ 
   /// Variable: total et.
   float* m_sumet;
+
 };
 
 

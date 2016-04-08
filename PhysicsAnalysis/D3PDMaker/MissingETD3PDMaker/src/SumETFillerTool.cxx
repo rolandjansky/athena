@@ -29,6 +29,7 @@ SumETFillerTool::SumETFillerTool (const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : BlockFillerTool<MissingET> (type, name, parent)
+  ,   mLog(msgSvc(), name )
 {
   book().ignore(); // Avoid coverity warning.
 }
@@ -48,7 +49,12 @@ StatusCode SumETFillerTool::book()
 
 StatusCode SumETFillerTool::fill (const MissingET& p)
 {
+  
   *m_sumet = p.sumet();
+ 
+
+  mLog << MSG::DEBUG << "MissingETD3PDMaker::SumETFillerTool -- MET filled" << endreq;
+
   return StatusCode::SUCCESS;
 }
 
