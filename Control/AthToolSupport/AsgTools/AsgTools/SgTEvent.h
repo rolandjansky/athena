@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: SgTEvent.h 613034 2014-08-22 10:56:10Z krasznaa $
+// $Id: SgTEvent.h 669898 2015-05-26 13:49:13Z krasznaa $
 #ifndef ASGTOOLS_SGTEVENT_H
 #define ASGTOOLS_SGTEVENT_H
 
@@ -35,8 +35,8 @@ namespace asg {
    /// @author David Adams <dladams@bnl.gov>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 613034 $
-   /// $Date: 2014-08-22 12:56:10 +0200 (Fri, 22 Aug 2014) $
+   /// $Revision: 669898 $
+   /// $Date: 2015-05-26 15:49:13 +0200 (Tue, 26 May 2015) $
    ///
    class SgTEvent {
 
@@ -74,6 +74,12 @@ namespace asg {
       /// Record an object/container
       template< typename T >
       StatusCode record( T* pobj, const std::string& cname );
+
+      /// Overwrite an object/container in the transient store
+      template< typename T >
+      StatusCode overwrite( T* pobj, const std::string& name,
+                            bool allowMods, bool resetOnly = true,
+                            bool noHist = false );
 
       /// @}
 

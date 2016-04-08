@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgMetadataTool.h 628138 2014-11-13 11:51:41Z krasznaa $
+// $Id: AsgMetadataTool.h 670266 2015-05-27 15:11:30Z krasznaa $
 #ifndef ASGTOOLS_ASGMETADATATOOL_H
 #define ASGTOOLS_ASGMETADATATOOL_H
 
@@ -41,8 +41,8 @@ namespace asg {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 628138 $
-   /// $Date: 2014-11-13 12:51:41 +0100 (Thu, 13 Nov 2014) $
+   /// $Revision: 670266 $
+   /// $Date: 2015-05-27 17:11:30 +0200 (Wed, 27 May 2015) $
    ///
    class AsgMetadataTool : public AsgTool,
                            public virtual IIncidentListener {
@@ -50,6 +50,8 @@ namespace asg {
    public:
       /// Normal ASG tool constructor with a name
       AsgMetadataTool( const std::string& name );
+      /// Destructor
+      ~AsgMetadataTool();
 
       /// @name Definition of the StoreGate-like object's definition
       /// @{
@@ -98,7 +100,7 @@ namespace asg {
                                    T& out ) __attribute__ ((deprecated));
 
    protected:
-      /// @name Callback functions helping in metadata reading
+      /// @name Callback functions helping in metadata reading/writing
       /// @{
 
       /// Function receiving incidents from IncidentSvc/TEvent
@@ -109,6 +111,9 @@ namespace asg {
 
       /// Function called when a new events is loaded
       virtual StatusCode beginEvent();
+
+      /// Function called when the tool should write out its metadata
+      virtual StatusCode metaDataStop();
 
       /// @}
 

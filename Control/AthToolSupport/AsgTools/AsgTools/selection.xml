@@ -1,9 +1,13 @@
-<!-- $Id: selection.xml 628138 2014-11-13 11:51:41Z krasznaa $ -->
+<!-- $Id: selection.xml 649187 2015-02-24 08:46:57Z krasznaa $ -->
 <lcgdict>
 
    <!-- The basic tool types: -->
    <class name="asg::IAsgTool" />
    <class name="asg::AsgTool" />
    <class name="asg::AsgMetadataTool" />
+   <class name="asg::AsgMessaging" />
+
+   <!-- Helper types: -->
+   <class name="asg::ToolStore" />
 
 </lcgdict>

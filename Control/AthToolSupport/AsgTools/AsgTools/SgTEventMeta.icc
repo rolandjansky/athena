@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: SgTEventMeta.icc 612908 2014-08-21 16:19:03Z krasznaa $
+// $Id: SgTEventMeta.icc 670266 2015-05-27 15:11:30Z krasznaa $
 #ifndef ASGTOOLS_SGTEVENTMETA_ICC
 #define ASGTOOLS_SGTEVENTMETA_ICC
 
@@ -26,8 +26,16 @@ namespace asg {
          return false;
       }
 
-      // Forward the call:
-      return m_event->template containsMeta< T >( name );
+      // Decide which function to call:
+      if( m_type == InputStore ) {
+         return m_event->template containsMeta< T >( name );
+      } else if( m_type == OutputStore ) {
+         return m_event->template transientContainsMeta< T >( name );
+      } else {
+         std::cerr << META_ERROR_SOURCE << "Unknown store type (" << m_type
+                   << ") defined" << std::endl;
+         return false;
+      }
    }
 
    template< typename T >
