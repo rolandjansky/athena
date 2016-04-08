@@ -16,6 +16,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // egammaEventTPCnv includes
+#include "egammaEventTPCnv/egammaCnv_p5.h"
 #include "egammaEventTPCnv/Electron_p5.h"
 
 // Forward declaration
@@ -46,19 +47,21 @@ class ElectronCnv_p5 : public T_AthenaPoolTPCnvBase<
    */
   virtual void persToTrans( const Electron_p5* persObj, 
                             Analysis::Electron* transObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) override final;
 
   /** Method creating the persistent representation @c Electron_p5
    *  from its transient representation @c Analysis::Electron
    */
   virtual void transToPers( const Analysis::Electron* transObj, 
                             Electron_p5* persObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) override final;
 
   /////////////////////////////////////////////////////////////////// 
   // Protected method: 
   /////////////////////////////////////////////////////////////////// 
  protected: 
+ private:
+   egammaCnv_p5   m_egammaCnv;
 
 }; 
 

@@ -12,18 +12,10 @@
 // STL includes
 
 // egammaEvent includes
-#define private public
-#define protected public
 #include "egammaEvent/Electron.h"
-#undef private
-#undef protected
 
 // egammaEventTPCnv includes
-#include "egammaEventTPCnv/egammaCnv_p4.h"
 #include "egammaEventTPCnv/ElectronCnv_p4.h"
-
-// pre-allocate converters
-static egammaCnv_p4   egammaCnv;
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -47,7 +39,7 @@ void ElectronCnv_p4::persToTrans( const Electron_p4* pers,
 //       << endreq;
 
   // base class
-  egammaCnv.persToTrans( &pers->m_egamma, trans, msg );
+  m_egammaCnv.persToTrans( &pers->m_egamma, trans, msg );
 
 //   msg << MSG::DEBUG << "Loaded Electron from persistent state [OK]"
 //       << endreq;
@@ -63,7 +55,7 @@ void ElectronCnv_p4::transToPers( const Analysis::Electron* trans,
 //       << endreq;
 
   // base class
-  egammaCnv.transToPers( trans, &pers->m_egamma, msg );
+  m_egammaCnv.transToPers( trans, &pers->m_egamma, msg );
 
 //   msg << MSG::DEBUG << "Created persistent state of Electron [OK]"
 //       << endreq;

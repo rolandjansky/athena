@@ -11,40 +11,10 @@
 
 // STL includes
 
-// egammaEvent includes
-#define private public
-#define protected public
-#include "egammaEvent/egamma.h"
-#undef private
-#undef protected
-
-// DataModelAthenaPool includes
-#include "DataModelAthenaPool/ElementLinkCnv_p3.h"
-#include "DataModelAthenaPool/ElementLinkVectorCnv_p1.h"
-
-// EventCommonTPCnv includes
-#include "EventCommonTPCnv/P4ImplEEtaPhiMCnv_p2.h"
-
-// ParticleEventTPCnv includes
-#include "ParticleEventTPCnv/ParticleBaseCnv_p2.h"
-
 // egammaEventTPCnv includes
 #include "egammaEventTPCnv/egammaCnv_p5.h"
 
-typedef ElementLinkCnv_p3<ElementLink<CaloClusterContainer> > ClusterLinkCnv_t;
-typedef ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > TrackLinkCnv_t;
-typedef ElementLinkVectorCnv_p1<ElementLinkVector<VxContainer> > ConversionLinkCnv_t;
-typedef ElementLinkVectorCnv_p1<ElementLinkVector<egDetailContainer> > EgDetailsCnv_t;
-typedef ElementLinkCnv_p3<ElementLink<CaloRingsContainer> > RingsLinkCnv_t;
 
-// pre-allocate converters
-static P4ImplEEtaPhiMCnv_p2 momCnv;
-static ParticleBaseCnv_p2 partBaseCnv;
-static ClusterLinkCnv_t   clusterCnv;
-static TrackLinkCnv_t     trackCnv;
-static ConversionLinkCnv_t     conversionCnv;
-static EgDetailsCnv_t     egDetailsCnv;
-static RingsLinkCnv_t     ringsCnv;
 
 // some constants used to keep consistency over business of egPID conversion
 // --hack-hack-hack-- (ugly-ugly)
@@ -70,34 +40,45 @@ void egammaCnv_p5::persToTrans( const egamma_p5* pers,
 //   msg << MSG::DEBUG << "Loading egamma from persistent state..."
 //       << endreq;
 
-  trans->m_author = pers->m_author;
+  // Clear
+  *trans = egamma (pers->m_author);
 
-  momCnv.persToTrans (&pers->m_momentum,
+  m_momCnv.persToTrans (&pers->m_momentum,
 		      &trans->momentumBase(), 
 		      msg);
 
-  momCnv.persToTrans (&pers->m_momentumCluster,
-		      &trans->m_momentumCluster, 
+  egamma::momentum_type momentumCluster;
+  m_momCnv.persToTrans (&pers->m_momentumCluster,
+		      &momentumCluster, 
 		      msg);
+  trans->setUncombined4Mom (momentumCluster.hlv());
 
-  partBaseCnv.persToTrans (&pers->m_particleBase, 
+  m_partBaseCnv.persToTrans (&pers->m_particleBase, 
 			   &trans->particleBase(), 
 			   msg);
     
   // element links
-  clusterCnv.persToTrans( &pers->m_cluster, &trans->m_cluster, msg );
+  ElementLink<CaloClusterContainer> cluster;
+  m_clusterCnv.persToTrans( &pers->m_cluster, &cluster, msg );
+  trans->setClusterElementLink (cluster);
 
-  trackCnv.persToTrans( &pers->m_trackParticle,    
-			&trans->m_trackParticle,   
+  ElementLinkVector<Rec::TrackParticleContainer> elv;
+  m_trackCnv.persToTrans( &pers->m_trackParticle,    
+			&elv,
 			msg );
+  trans->setTrackParticleElementLinkVector(elv);
 
-  conversionCnv.persToTrans( &pers->m_conversion,    
-			     &trans->m_conversion,   
+  ElementLinkVector<VxContainer> vx;
+  m_conversionCnv.persToTrans( &pers->m_conversion,    
+			     &vx,
 			     msg );
+  trans->setConversionElementLinkVector(vx);
 
-  egDetailsCnv.persToTrans( &pers->m_egDetails, 
-			    &trans->m_egDetails, 
+  ElementLinkVector<egDetailContainer> egDetails;
+  m_egDetailsCnv.persToTrans( &pers->m_egDetails, 
+			    &egDetails, 
 			    msg );
+  trans->setDetailElementLinkVector (std::move (egDetails));
 
   // egPID filling (doubles)
   {
@@ -112,7 +93,9 @@ void egammaCnv_p5::persToTrans( const egamma_p5* pers,
     }
   }
 
-  ringsCnv.persToTrans( &pers->m_rings, &trans->m_rings, msg);
+  ElementLink<CaloRingsContainer> rings;
+  m_ringsCnv.persToTrans( &pers->m_rings, &rings, msg);
+  trans->setRingsElementLink (rings);
 //   msg << MSG::DEBUG << "Loaded egamma from persistent state [OK]"
 //       << endreq;
   return;
@@ -125,35 +108,35 @@ void egammaCnv_p5::transToPers( const egamma* trans,
 //   msg << MSG::DEBUG << "Creating persistent state of egamma..."
 //       << endreq;
 
-  momCnv.transToPers (&trans->momentumBase(), 
+  m_momCnv.transToPers (&trans->momentumBase(), 
 		      &pers->m_momentum,
 		      msg);
 
-  momCnv.transToPers (&trans->m_momentumCluster,
+  m_momCnv.transToPers (&trans->get4Mom(egamma::Uncombined),
 		      &pers->m_momentumCluster, 
 		      msg);
 
-  partBaseCnv.transToPers (&trans->particleBase(), 
+  m_partBaseCnv.transToPers (&trans->particleBase(), 
 			   &pers->m_particleBase,
 			   msg);
 
   // element links
-  clusterCnv.transToPers( &trans->m_cluster, &pers->m_cluster, msg );
-  
-  trackCnv.transToPers( &trans->m_trackParticle,   
+  m_clusterCnv.transToPers( &trans->clusterElementLink(), &pers->m_cluster, msg );
+
+  m_trackCnv.transToPers( &trans->trackParticleElementLinkVector(),   
 			&pers->m_trackParticle,
 			msg );
 
-  conversionCnv.transToPers( &trans->m_conversion,   
+  m_conversionCnv.transToPers( &trans->conversionElementLinkVector(),
 			     &pers->m_conversion,
 			     msg );
 
-  egDetailsCnv.transToPers( &trans->m_egDetails,  
+  m_egDetailsCnv.transToPers( &trans->detailElementLinkVector(),  
 			    &pers->m_egDetails,
 			    msg );
 
   // author
-  pers->m_author = trans->m_author;
+  pers->m_author = trans->author();
   
   // egPID (ints)
   {
@@ -172,7 +155,7 @@ void egammaCnv_p5::transToPers( const egamma* trans,
     } 
   }
 
-  ringsCnv.transToPers (&trans->m_rings, &pers->m_rings, msg);
+  m_ringsCnv.transToPers (&trans->ringsElementLink(), &pers->m_rings, msg);
 //   msg << MSG::DEBUG << "Created persistent state of egamma [OK]"
 //       << endreq;
   return;
