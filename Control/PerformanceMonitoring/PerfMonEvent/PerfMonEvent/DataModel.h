@@ -29,7 +29,7 @@ namespace PerfMon {
 #if !defined(__APPLE__)
     struct timespec res;
     /*int sc = */::clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &res);
-    return (res.tv_sec*1e3 + res.tv_nsec/1e6); // in milliseconds
+    return (res.tv_sec*1e3 + res.tv_nsec*1e-6); // in milliseconds
 #else
     return -999.;
 #endif
