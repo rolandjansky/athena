@@ -31,7 +31,10 @@ public:
 
 private:    
     Amg::Vector3D		m_centre;
-    Amg::Vector3D		m_width;  
+    Amg::Vector3D		m_width;
+    
+    // assignment operator: no implementation
+    VertexRegion &operator= (const VertexRegion&);
 };
 
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
