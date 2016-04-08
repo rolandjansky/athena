@@ -122,7 +122,7 @@ private:
     double			m_mopSymmetricEnergyLossP2[26];
     // ==================== fractional contribution from em calo === //
     double			m_emMopFraction[26];
-    double			m_em1MopFraction[26];
+    //double			m_em1MopFraction[26];
     // ==================== Material map =========================== //
     double			m_etaGranularity;    // Granularity in eta of material map
     double			m_dead_eta[277];     // eta of bin
