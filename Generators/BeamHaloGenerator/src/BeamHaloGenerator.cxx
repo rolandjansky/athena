@@ -17,39 +17,39 @@ BeamHaloGenerator::BeamHaloGenerator(const HepPDT::ParticleDataTable* particleTa
 				     CLHEP::HepRandomEngine* engine, 
 				     std::string inputFile,
 				     std::vector<std::string> generatorSettings):
-  p_particleTable(particleTable),
-  p_engine(engine),
-  p_inputFile(inputFile),
-  p_interfacePlane(0.),
-  p_enableFlip(false),
-  p_flipProbability(0.),
-  p_enableSampling(false),
-  p_bufferFileName("buffer.bin"),
-  p_beamHaloParticleBuffer(0),
-  p_asciiInput(0),
-  p_beamHaloGeneratorSettings(0),
-  p_eventNumber(0),
-  p_debug(false),
+  m_particleTable(particleTable),
+  m_engine(engine),
+  m_inputFile(inputFile),
+  m_interfacePlane(0.),
+  m_enableFlip(false),
+  m_flipProbability(0.),
+  m_enableSampling(false),
+  m_bufferFileName("buffer.bin"),
+  m_beamHaloParticleBuffer(0),
+  m_asciiInput(0),
+  m_beamHaloGeneratorSettings(0),
+  m_eventNumber(0),
+  m_debug(false),
   m_generatorSettings(generatorSettings) {
   for(int i=0;i<NUM_COUNTERS;i++) {
-    p_counters[i] = 0;
-    p_wsums[i] = 0.;
+    m_counters[i] = 0;
+    m_wsums[i] = 0.;
   }
 }
 
 //------------------------------------------------------------------
 
 BeamHaloGenerator::~BeamHaloGenerator() {
-  if(p_asciiInput) delete p_asciiInput;
-  if(p_beamHaloGeneratorSettings) delete p_beamHaloGeneratorSettings;
-  if(p_beamHaloParticleBuffer) delete p_beamHaloParticleBuffer;
+  if(m_asciiInput) delete m_asciiInput;
+  if(m_beamHaloGeneratorSettings) delete m_beamHaloGeneratorSettings;
+  if(m_beamHaloParticleBuffer) delete m_beamHaloParticleBuffer;
 }
 
 //------------------------------------------------------------------
 
 int BeamHaloGenerator::genInitialize() {
-  p_asciiInput = new AsciiInput(p_inputFile);
-  p_beamHaloGeneratorSettings = new BeamHaloGeneratorSettings(m_generatorSettings);
+  m_asciiInput = new AsciiInput(m_inputFile);
+  m_beamHaloGeneratorSettings = new BeamHaloGeneratorSettings(m_generatorSettings);
 
   return 0;
 }
@@ -62,14 +62,14 @@ int BeamHaloGenerator::genFinalize() {
   std::cout << "|                                 | Total Number | Total Weight |" << std::endl;
   std::cout << "|---------------------------------------------------------------|" << std::endl;
   std::cout << "| Particles read from input file  | ";
-  std::cout << std::setw(12) << p_counters[TOT_READ] << " | ";
-  std::cout << std::setw(12) << std::setprecision(8) << p_wsums[TOT_READ] << " |" << std::endl;
+  std::cout << std::setw(12) << m_counters[TOT_READ] << " | ";
+  std::cout << std::setw(12) << std::setprecision(8) << m_wsums[TOT_READ] << " |" << std::endl;
   std::cout << "| Particles after cuts            | ";
-  std::cout << std::setw(12) << p_counters[TOT_AFTER] << " | ";
-  std::cout << std::setw(12) << std::setprecision(8) << p_wsums[TOT_AFTER] << " |" << std::endl;
+  std::cout << std::setw(12) << m_counters[TOT_AFTER] << " | ";
+  std::cout << std::setw(12) << std::setprecision(8) << m_wsums[TOT_AFTER] << " |" << std::endl;
   std::cout << "| Particles generated             | ";
-  std::cout << std::setw(12) << p_counters[TOT_GEN] << " | ";
-  std::cout << std::setw(12) << std::setprecision(8) << p_wsums[TOT_GEN] << " |" << std::endl;
+  std::cout << std::setw(12) << m_counters[TOT_GEN] << " | ";
+  std::cout << std::setw(12) << std::setprecision(8) << m_wsums[TOT_GEN] << " |" << std::endl;
   std::cout << "=================================================================" << std::endl;
   
   std::cout << std::setprecision(6);
@@ -80,11 +80,11 @@ int BeamHaloGenerator::genFinalize() {
 //------------------------------------------------------------------
 
 bool BeamHaloGenerator::flipEvent() {
-  if(!p_enableFlip) return false;
+  if(!m_enableFlip) return false;
 
   // Check to see if the event should be flipped or not
-  if(CLHEP::RandFlat::shoot(p_engine) <= p_flipProbability) {
-    if(p_debug) std::cout << "Debug: Flipping event" << std::endl;
+  if(CLHEP::RandFlat::shoot(m_engine) <= m_flipProbability) {
+    if(m_debug) std::cout << "Debug: Flipping event" << std::endl;
     return true;
   }
 
@@ -127,8 +127,8 @@ int BeamHaloGenerator::convertEvent(std::vector<BeamHaloParticle>* beamHaloEvent
 
       genVertex = new HepMC::GenVertex(HepMC::FourVector(position.x(),
 							 position.y(),
-							 (position.z() + p_interfacePlane),
-							 c*position.t() -1.0*std::fabs(p_interfacePlane)),
+							 (position.z() + m_interfacePlane),
+							 c*position.t() -1.0*std::fabs(m_interfacePlane)),
 				       1);
     }
     else {
@@ -141,8 +141,8 @@ int BeamHaloGenerator::convertEvent(std::vector<BeamHaloParticle>* beamHaloEvent
 
       genVertex = new HepMC::GenVertex(HepMC::FourVector(position.x(),
 							 position.y(),
-							 -1.0*(position.z() + p_interfacePlane),
-							 c*position.t() -1.0*std::fabs(p_interfacePlane)),
+							 -1.0*(position.z() + m_interfacePlane),
+							 c*position.t() -1.0*std::fabs(m_interfacePlane)),
 				       1);
     }
 

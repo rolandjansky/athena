@@ -210,7 +210,7 @@ StatusCode BeamHaloGeneratorAlg::callGenerator() {
     for (hepmc_part_itr = m_evt.particles_begin();
          hepmc_part_itr != m_evt.particles_end();
          hepmc_part_itr++) {
-      GenVertex* prodVertex = (*hepmc_part_itr)->production_vertex();
+      HepMC::GenVertex* prodVertex = (*hepmc_part_itr)->production_vertex();
       if(!prodVertex) continue;
       
       // Store the values for use in the if conditions that follow
