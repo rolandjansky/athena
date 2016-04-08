@@ -8,7 +8,7 @@ author			Alan Poppleton <Alan.Poppleton@cern.ch>
 author			Roger Clifft <Roger.Clifft@cern.ch>
 
 private
-use GaudiInterface		GaudiInterface-*		External
+use AthenaKernel                AthenaKernel-*                  Control
 
 public
 use AtlasPolicy		        AtlasPolicy-*
