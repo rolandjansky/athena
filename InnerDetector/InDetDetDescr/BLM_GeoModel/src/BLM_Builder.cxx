@@ -6,6 +6,7 @@
 #include "BLM_GeoModel/BLM_GeometryManager.h"
 #include "BLM_GeoModel/BLM_Module.h"
 
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
@@ -121,7 +122,16 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
   StatusCode sc;
   if(m_BDparameters)
     {
-      DecodeVersionKey versionKey("InnerDetector");
+      IGeoModelSvc *geoModel;
+      sc = service ("GeoModelSvc",geoModel);
+      if (sc.isFailure())
+	{
+	  ATH_MSG_FATAL("Could not locate GeoModelSvc");
+	  delete manager;
+	  return StatusCode::FAILURE;
+	}
+
+      DecodeVersionKey versionKey(geoModel, "InnerDetector");
 
       // Issue error if AUTO.
       if (versionKey.tag() == "AUTO")
@@ -155,20 +165,20 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
      	}
 
       accessSvc->connect();
-      IRDBRecordset_ptr DBmodul = accessSvc->getRecordsetPtr("BLMModule", versionKey.tag(), versionKey.node());
-      //DBmodul = accessSvc->getRecordset("BLMModule", "InnerDetector-DC3-Dev", "InnerDetector");
+      IRDBRecordset_ptr m_DBmodul = accessSvc->getRecordsetPtr("BLMModule", versionKey.tag(), versionKey.node());
+      //m_DBmodul = accessSvc->getRecordset("BLMModule", "InnerDetector-DC3-Dev", "InnerDetector");
       accessSvc->disconnect();
 
-      ATH_MSG_DEBUG(" --> Number of records fetched = " << DBmodul->size());
+      ATH_MSG_DEBUG(" --> Number of records fetched = " << m_DBmodul->size());
 
       //loop over all the records and putting them in module_property
 
       unsigned int ind;
       long moduleNo;
       //std::vector<double>* module_property = NULL;
-      for(ind = 0; ind < DBmodul->size(); ind++)
+      for(ind = 0; ind < m_DBmodul->size(); ind++)
       {
-	  const IRDBRecord* rec = (*DBmodul)[ind];
+	  const IRDBRecord* rec = (*m_DBmodul)[ind];
 		//temp
  	  moduleNo = rec->getLong("MODULE_ID");
  	  //check if this module is suposed to be builded
