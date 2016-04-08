@@ -11,8 +11,7 @@ CaloBadChanTool::CaloBadChanTool(const std::string& type, const std::string& nam
 				 const IInterface* parent) :
   AthAlgTool( type, name, parent),
   m_larBCT("LArBadChanTool"),
-  m_tileBCT("TileBadChanTool"),
-  m_caloID(nullptr)
+  m_tileBCT("TileBadChanTool")
 {
   declareInterface<ICaloBadChanTool>(this);
 }
