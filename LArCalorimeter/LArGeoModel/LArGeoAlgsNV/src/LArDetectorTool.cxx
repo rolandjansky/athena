@@ -45,25 +45,24 @@ LArDetectorToolNV::LArDetectorToolNV(const std::string& type,
 				     const std::string& name, 
 				     const IInterface* parent)
   : GeoModelTool(type,name,parent), 
-    _barrelSaggingOn(false),
-    _barrelVisLimit(-1),
-    _fcalVisLimit(-1),
-    _buildBarrel(true),
-    _buildEndcap(true),
-    _newHec(false),
-    _applyAlignments(false),
+    m_barrelSaggingOn(false),
+    m_barrelVisLimit(-1),
+    m_fcalVisLimit(-1),
+    m_buildBarrel(true),
+    m_buildEndcap(true),
+    m_applyAlignments(false),
     m_detStore(0),
     m_geometryConfig("FULL")
 {
-  declareProperty("SaggingBarrelAccordeon",_barrelSaggingOn);
-  declareProperty("BarrelCellVisLimit",    _barrelVisLimit);
-  declareProperty("FCALVisLimit",          _fcalVisLimit);
+  declareProperty("SaggingBarrelAccordeon",m_barrelSaggingOn);
+  declareProperty("BarrelCellVisLimit",    m_barrelVisLimit);
+  declareProperty("FCALVisLimit",          m_fcalVisLimit);
 
-  declareProperty("BuildBarrel",           _buildBarrel);
-  declareProperty("BuildEndcap",           _buildEndcap);
-  declareProperty("ApplyAlignments",       _applyAlignments);
+  declareProperty("BuildBarrel",           m_buildBarrel);
+  declareProperty("BuildEndcap",           m_buildEndcap);
+  declareProperty("ApplyAlignments",       m_applyAlignments);
   declareProperty("GeometryConfig",        m_geometryConfig);
-  _manager = 0;
+  m_manager = 0;
 
 }
 
@@ -139,15 +138,15 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
     if ((*switchSet).size()==0) return StatusCode::FAILURE;
     const IRDBRecord    *switches   = (*switchSet)[0];
     
-    _barrelSaggingOn           = switches->getInt("SAGGING");
+    m_barrelSaggingOn           = switches->getInt("SAGGING");
 
     try
     {
       if (!switches->isFieldNull("BARREL_ON"))
-	_buildBarrel = switches->getInt("BARREL_ON");
+	m_buildBarrel = switches->getInt("BARREL_ON");
       
       if (!switches->isFieldNull("ENDCAP_ON"))
-	_buildEndcap = switches->getInt("ENDCAP_ON");
+	m_buildEndcap = switches->getInt("ENDCAP_ON");
     }
     catch(std::exception& e)
     {
@@ -156,9 +155,9 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
   }
 
   log << MSG::INFO  << "LAr Geometry Options:"   << endreq;
-  log << MSG::INFO  << "  Sagging           = "  << (_barrelSaggingOn ? "true" : "false") << endreq;
-  log << MSG::INFO  << "  Barrel            = "  << (_buildBarrel ? "ON" : "OFF") << endreq;
-  log << MSG::INFO  << "  Endcap            = "  << (_buildEndcap ? "ON" : "OFF") << endreq;
+  log << MSG::INFO  << "  Sagging           = "  << (m_barrelSaggingOn ? "true" : "false") << endreq;
+  log << MSG::INFO  << "  Barrel            = "  << (m_buildBarrel ? "ON" : "OFF") << endreq;
+  log << MSG::INFO  << "  Endcap            = "  << (m_buildEndcap ? "ON" : "OFF") << endreq;
 
   // Locate the top level experiment node 
   DataHandle<GeoModelExperiment> theExpt; 
@@ -191,11 +190,11 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
 
   LArGeo::LArDetectorFactory theLArFactory(testbeam,m_geometryConfig=="FULL");
 
-  theLArFactory.setBarrelSagging       (_barrelSaggingOn);
-  theLArFactory.setBarrelCellVisLimit  (_barrelVisLimit);
-  theLArFactory.setFCALVisLimit        (_fcalVisLimit);
-  theLArFactory.setBuildBarrel(_buildBarrel);
-  theLArFactory.setBuildEndcap(_buildEndcap);
+  theLArFactory.setBarrelSagging       (m_barrelSaggingOn);
+  theLArFactory.setBarrelCellVisLimit  (m_barrelVisLimit);
+  theLArFactory.setFCALVisLimit        (m_fcalVisLimit);
+  theLArFactory.setBuildBarrel(m_buildBarrel);
+  theLArFactory.setBuildEndcap(m_buildEndcap);
 
 
 
@@ -203,7 +202,7 @@ StatusCode LArDetectorToolNV::create(StoreGateSvc* detStore)
   {
     GeoPhysVol *world=&*theExpt->getPhysVol();
     theLArFactory.create(world);
-    _manager = theLArFactory.getDetectorManager();
+    m_manager = theLArFactory.getDetectorManager();
     if (StatusCode::SUCCESS != detStore->record(theLArFactory.getDetectorManager(),
 						theLArFactory.getDetectorManager()->getName())) 
       { 
@@ -260,16 +259,16 @@ StatusCode LArDetectorToolNV::clear(StoreGateSvc* detStore)
   // Release all Stored XF and Stored FPV from the detector store
   std::vector<std::string> sgkeysAXF = detStore->keys<StoredAlignX>();
   for(itStored=sgkeysAXF.begin();itStored!=sgkeysAXF.end();itStored++) {
-    SG::DataProxy* _proxy = detStore->proxy(ClassID_traits<StoredAlignX>::ID(),*itStored);
-    if(_proxy)
-      _proxy->reset();
+    SG::DataProxy* proxy = detStore->proxy(ClassID_traits<StoredAlignX>::ID(),*itStored);
+    if(proxy)
+      proxy->reset();
   }
 
   // Release manager from the detector store
-  SG::DataProxy* _proxy = detStore->proxy(ClassID_traits<LArDetectorManager>::ID(),_manager->getName());
-  if(_proxy) {
-    _proxy->reset();
-    _manager = 0;
+  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<LArDetectorManager>::ID(),m_manager->getName());
+  if(proxy) {
+    proxy->reset();
+    m_manager = 0;
   }
 
   return StatusCode::SUCCESS;
@@ -280,7 +279,7 @@ StatusCode LArDetectorToolNV::registerCallback(StoreGateSvc* detStore)
   // Return FAILURE if no callbacks have been registered
   MsgStream log(msgSvc(), name());
  
-  if(!_applyAlignments)
+  if(!m_applyAlignments)
   {
     log << MSG::DEBUG << "LAr alignments switched OFF" << endreq;
     return false;
@@ -303,7 +302,7 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
 {
   MsgStream log(msgSvc(), name()); 
 
-  if(!_applyAlignments)
+  if(!m_applyAlignments)
   {
     log << MSG::DEBUG << "LAr alignments switched OFF" << endreq;
     return StatusCode::SUCCESS;
@@ -340,7 +339,7 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
 
   // <--- !!! To Do
 
-  if(0 == _manager) 
+  if(0 == m_manager) 
   {
     log << MSG::WARNING << " LArDetDescrManager not created yet, cannot align !" << endreq;
     return StatusCode::FAILURE;

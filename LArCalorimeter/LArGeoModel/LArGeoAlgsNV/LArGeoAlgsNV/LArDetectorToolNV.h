@@ -47,18 +47,16 @@ public:
 	
  private:
 
-    bool _barrelSaggingOn;
-    int  _barrelVisLimit;
-    int  _fcalVisLimit;
+    bool m_barrelSaggingOn;
+    int  m_barrelVisLimit;
+    int  m_fcalVisLimit;
 
-    bool _buildBarrel;
-    bool _buildEndcap;
+    bool m_buildBarrel;
+    bool m_buildEndcap;
 
-    bool _newHec;
+    bool m_applyAlignments;
 
-    bool _applyAlignments;
-
-    const LArDetectorManager *_manager;
+    const LArDetectorManager *m_manager;
 
     // needed within align()
     StoreGateSvc*        m_detStore;

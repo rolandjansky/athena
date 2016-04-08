@@ -41,11 +41,11 @@ namespace LArGeo {
 
     // Set parameters:
 
-    void setBarrelSagging(bool flag)        {_barrelSagging  = flag;}
-    void setBarrelCellVisLimit(int maxCell) {_barrelVisLimit = maxCell;}
-    void setFCALVisLimit(int maxCell)       {_fcalVisLimit   = maxCell;}
-    void setBuildBarrel(bool flag)          {_buildBarrel = flag;}
-    void setBuildEndcap(bool flag)          {_buildEndcap = flag;}
+    void setBarrelSagging(bool flag)        {m_barrelSagging  = flag;}
+    void setBarrelCellVisLimit(int maxCell) {m_barrelVisLimit = maxCell;}
+    void setFCALVisLimit(int maxCell)       {m_fcalVisLimit   = maxCell;}
+    void setBuildBarrel(bool flag)          {m_buildBarrel = flag;}
+    void setBuildEndcap(bool flag)          {m_buildEndcap = flag;}
 
 
   private:  
@@ -56,14 +56,14 @@ namespace LArGeo {
   
     // The manager:
     LArDetectorManager*       m_detectorManager;
-    bool                      _barrelSagging;
-    int                       _barrelVisLimit;
-    int                       _fcalVisLimit;
+    bool                      m_barrelSagging;
+    int                       m_barrelVisLimit;
+    int                       m_fcalVisLimit;
 
-    bool                      _buildBarrel;
-    bool                      _buildEndcap;
+    bool                      m_buildBarrel;
+    bool                      m_buildEndcap;
 
-    int                       _testbeam;
+    int                       m_testbeam;
 
     bool                       m_fullGeo;  // true->FULL, false->RECO
   };

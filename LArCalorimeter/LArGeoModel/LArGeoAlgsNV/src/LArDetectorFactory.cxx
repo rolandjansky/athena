@@ -55,12 +55,12 @@
 
 LArGeo::LArDetectorFactory::LArDetectorFactory(int testbeam,bool fullGeo)
   : m_detectorManager(),
-    _barrelSagging(false),
-    _barrelVisLimit(-1),
-    _fcalVisLimit(-1),
-    _buildBarrel(true),
-    _buildEndcap(true),
-    _testbeam(testbeam),
+    m_barrelSagging(false),
+    m_barrelVisLimit(-1),
+    m_fcalVisLimit(-1),
+    m_buildBarrel(true),
+    m_buildEndcap(true),
+    m_testbeam(testbeam),
     m_fullGeo(fullGeo)
 {}
 
@@ -88,7 +88,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 
   double projectivityDisplacement(0.);
 
-  if(_testbeam==0 || _testbeam==1)
+  if(m_testbeam==0 || m_testbeam==1)
     {
       // 26-Sep-2003 WGS: Get our LAr detector parameters via the NOVA
       // converters.
@@ -153,21 +153,21 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
       LArMaterialManager lArMaterialManager(detStore);
       lArMaterialManager.buildMaterials();
     
-      if (_testbeam==0) {
+      if (m_testbeam==0) {
       
 	BarrelCryostatConstruction barrelCryostatConstruction(m_fullGeo);
-	barrelCryostatConstruction.setBarrelSagging(_barrelSagging);
-	barrelCryostatConstruction.setBarrelCellVisLimit(_barrelVisLimit);
+	barrelCryostatConstruction.setBarrelSagging(m_barrelSagging);
+	barrelCryostatConstruction.setBarrelCellVisLimit(m_barrelVisLimit);
             
 	EndcapCryostatConstruction endcapCryostatConstruction(m_fullGeo);
-	endcapCryostatConstruction.setFCALVisLimit(_fcalVisLimit);
+	endcapCryostatConstruction.setFCALVisLimit(m_fcalVisLimit);
       
 	//const GeoMaterial* matAir = materialManager->getMaterial("std::Air");
       
-	if(_buildBarrel)
+	if(m_buildBarrel)
 	  barrelEnvelope = barrelCryostatConstruction.GetEnvelope();
       
-	if(_buildEndcap)
+	if(m_buildEndcap)
 	  {
 	    endcapEnvelopePos = endcapCryostatConstruction.createEnvelope(true);
 	    endcapEnvelopeNeg = endcapCryostatConstruction.createEnvelope(false);
@@ -177,7 +177,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 
 	a_container->add(new GeoNameTag("LAr"));
     
-	if(_buildBarrel && _buildEndcap)
+	if(m_buildBarrel && m_buildEndcap)
 	  {
 	    // Typical scenario for each of the Tree Tops:
 	    // 1. Construct Alignable Transform from LArPositions
@@ -244,7 +244,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    a_container->add( new GeoTransform(HepGeom::RotateY3D(180.0*CLHEP::deg)));
 	    a_container->add(endcapEnvelopeNeg);
 	  }
-	else if(!_buildEndcap)
+	else if(!m_buildEndcap)
 	  {
 	    // -- Build the Barrel only
 	    const IRDBRecord *barrelRec = GeoDBUtils::getTransformRecord(larPosition,"LARCRYO_B"); 
@@ -267,7 +267,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    a_container->add(barrelEnvelope);
 
 	  }
-	else if(!_buildBarrel)
+	else if(!m_buildBarrel)
 	  {
 	    // --- Endcap Pos
 	    const IRDBRecord *posRec = GeoDBUtils::getTransformRecord(larPosition, "LARCRYO_EC_POS");
@@ -314,8 +314,8 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
       else
 	{
 	  TBBarrelCryostatConstruction tbbarrelCryostatConstruction;
-	  tbbarrelCryostatConstruction.setBarrelSagging(_barrelSagging);
-	  tbbarrelCryostatConstruction.setBarrelCellVisLimit(_barrelVisLimit);
+	  tbbarrelCryostatConstruction.setBarrelSagging(m_barrelSagging);
+	  tbbarrelCryostatConstruction.setBarrelCellVisLimit(m_barrelVisLimit);
 	
 	  barrelEnvelope = tbbarrelCryostatConstruction.GetEnvelope();
 	
@@ -355,8 +355,8 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
       }
     }
   }
-  catch (std::exception & _ex) {
-   log << MSG::WARNING << "Unable to build FCAL detector manager. " << _ex.what() << endreq;
+  catch (std::exception & ex) {
+   log << MSG::WARNING << "Unable to build FCAL detector manager. " << ex.what() << endreq;
   }
 
   try
@@ -391,8 +391,8 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
       }
     }
   }
-  catch (std::exception & _ex) {
-    log << MSG::WARNING << "Unable to build HEC detector manager. " << _ex.what() << endreq;
+  catch (std::exception & ex) {
+    log << MSG::WARNING << "Unable to build HEC detector manager. " << ex.what() << endreq;
   }
   
   
@@ -533,20 +533,20 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
     }
     
   }
-  catch (std::exception & _ex) {
-    log << MSG::WARNING << "Unable to build EMEC detector manager. " << _ex.what() << endreq;
+  catch (std::exception & ex) {
+    log << MSG::WARNING << "Unable to build EMEC detector manager. " << ex.what() << endreq;
   }
 
   try
   { 
     embDetectorManager  = new EMBDetectorManager();
-    int firstEndcap=_testbeam==0 ? 0:1, endEndcap=2;
+    int firstEndcap=m_testbeam==0 ? 0:1, endEndcap=2;
     for (int e= firstEndcap ;e<endEndcap;e++) {
 
       double startPhi =  e==0?  M_PI-2*M_PI/1024/2 : -2*M_PI/1024/2;
       double endPhi   =  e==0? -M_PI-2*M_PI/1024/2 : 2*M_PI-2*M_PI/1024/2 ;
       int    NDIV     = 1;
-      if (_testbeam==1) {
+      if (m_testbeam==1) {
 	startPhi=0*M_PI/180;
 	endPhi  =22.5*M_PI/180;
 	NDIV=16;
@@ -663,8 +663,8 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	}
     }
   }
-  catch (std::exception & _ex) {
-    log << MSG::WARNING << "Unable to build EMB detector manager. " << _ex.what() << endreq;
+  catch (std::exception & ex) {
+    log << MSG::WARNING << "Unable to build EMB detector manager. " << ex.what() << endreq;
   }
 
   m_detectorManager = new LArDetectorManager(embDetectorManager,emecDetectorManager,hecDetectorManager,fcalDetectorManager);
