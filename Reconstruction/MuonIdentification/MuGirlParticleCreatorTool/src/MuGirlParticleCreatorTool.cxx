@@ -77,17 +77,17 @@ MuGirlParticleCreatorTool::~MuGirlParticleCreatorTool()
 
 StatusCode MuGirlParticleCreatorTool::initialize()
 {
-    msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
+    msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
     StatusCode sc = AthAlgTool::initialize();
     if (sc.isFailure())
         return sc;
 
     if (msgLvl(MSG::DEBUG))
-        msg() << "MuGirlParticleCreatorTool::initialize: doTruth=" << m_doTruth << ", doNTuple=" << m_doNTuple << " doFill "<<m_doFill<< endmsg;
+        msg() << "MuGirlParticleCreatorTool::initialize: doTruth=" << m_doTruth << ", doNTuple=" << m_doNTuple << " doFill "<<m_doFill<< endreq;
 
     if (service("NTupleSvc", m_pNTupleSvc, true).isFailure() || m_pNTupleSvc == NULL)
     {
-        msg(MSG::WARNING) << "NTupleSvc service not found" << endmsg;
+        msg(MSG::WARNING) << "NTupleSvc service not found" << endreq;
         return StatusCode::RECOVERABLE;
     }
 /*
@@ -114,13 +114,13 @@ StatusCode MuGirlParticleCreatorTool::initialize()
         m_pRawNTuple = m_pNTupleSvc->book(ntupleName, CLID_ColumnWiseTuple, "Muons in the AOD");
         if (m_pRawNTuple == NULL)
         {
-            msg(MSG::WARNING) << "Could not create NTuple " << ntupleName << endmsg;
+            msg(MSG::WARNING) << "Could not create NTuple " << ntupleName << endreq;
             return StatusCode::RECOVERABLE;
         }
         m_pNTuple = new ParticleCreatorNTuple(msg());
         if (m_pNTuple->book(m_pRawNTuple).isFailure())
         {
-            msg(MSG::WARNING) << "Could not book NTuple " << ntupleName << endmsg;
+            msg(MSG::WARNING) << "Could not book NTuple " << ntupleName << endreq;
             return StatusCode::RECOVERABLE;
         }
 
@@ -134,11 +134,11 @@ StatusCode MuGirlParticleCreatorTool::initialize()
 
     if (retrieve(m_trackQuery).isFailure())
     {
-       msg(MSG::WARNING)<< "Failed to retrieve tool " << m_trackQuery <<endmsg;
+       msg(MSG::WARNING)<< "Failed to retrieve tool " << m_trackQuery <<endreq;
        return StatusCode::RECOVERABLE;
     }
 
-    msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
+    msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
     return StatusCode::SUCCESS;
 }
 
@@ -162,10 +162,10 @@ StatusCode MuGirlParticleCreatorTool::finalize()
 StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* SummaryList, bool onlyNTupleFill)
 {
 
-    if (msgLvl(MSG::DEBUG)) msg() << "fillContainer " << name() << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg() << "fillContainer " << name() << endreq;
     if ( !m_doFill )
     {
-       if (msgLvl(MSG::DEBUG)) msg() << "doFill is false! Will not fill Muon Container " << endmsg;
+       if (msgLvl(MSG::DEBUG)) msg() << "doFill is false! Will not fill Muon Container " << endreq;
        return StatusCode::SUCCESS;  
     }
     Analysis::MuonContainer* pMuonContainer = NULL;
@@ -176,7 +176,7 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
     sc = evtStore()->retrieve(pSegmentContainer, "MuGirlSegments");
     if (sc.isFailure() || pSegmentContainer == NULL)
     {
-        msg(MSG::WARNING) << "Could not get MuGirlSegments" << endmsg;
+        msg(MSG::WARNING) << "Could not get MuGirlSegments" << endreq;
         return sc;
     }
 
@@ -188,7 +188,7 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
       sc = evtStore()->retrieve(inExtrpParticleContainer, "MuGirlRefittedTrackParticles");
       if (sc.isFailure() || inExtrpParticleContainer == NULL)
         {
-  	  msg(MSG::WARNING) << " Could not retrieve RefittedTrackParticleCandidate container " << endmsg;
+  	  msg(MSG::WARNING) << " Could not retrieve RefittedTrackParticleCandidate container " << endreq;
 	  return sc;
         }
     }
@@ -199,7 +199,7 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
     //	sc = evtStore()->retrieve(msParticleContainer, "MuGirlRefittedTrackParticles");
     //	if (sc.isFailure() || msParticleContainer == NULL)
     //	  {
-    //	    msg(MSG::WARNING) << " Could not retrieve MSTrackParticleCandidate container " << endmsg;
+    //	    msg(MSG::WARNING) << " Could not retrieve MSTrackParticleCandidate container " << endreq;
     //	    return sc;
     //	  }
     //  }
@@ -209,7 +209,7 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
       sc = evtStore()->retrieve(inDetParticleContainer, m_inDetParticlesLocation);
       if (sc.isFailure() || inDetParticleContainer == NULL)
       {
-          msg(MSG::WARNING) << " Could not retrieve TrackParticleCandidate container " << endmsg;
+          msg(MSG::WARNING) << " Could not retrieve TrackParticleCandidate container " << endreq;
           return sc;
       }
     }
@@ -266,7 +266,7 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
 	      
                 if (1==saveStau)
                 {   
-                    msg(MSG::DEBUG) << "Candidate is ID STAU"<<endmsg;
+                    msg(MSG::DEBUG) << "Candidate is ID STAU"<<endreq;
 		    pCBMuon = new Analysis::Muon(MuonParameters::MuGirlLowBeta,primaryTP,pSegmentContainer,newSegments);
                     const xAOD::TrackParticle* pTrack = pSummary->pRefittedTrack;
                     if (pTrack ==NULL)
@@ -282,7 +282,7 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
                           double py = pMeasuredPerigee.parameters()[Trk::py];
                           double pz = pMeasuredPerigee.parameters()[Trk::pz];
                           double Mom = sqrt(px*px +py*py+pz*pz);
-                          msg(MSG::DEBUG) << " Filling mass " << Mom << " beta " << b << endmsg;
+                          msg(MSG::DEBUG) << " Filling mass " << Mom << " beta " << b << endreq;
                           if(b<=0. || b>=1.) Mass        = 105.7;
                           else   Mass = Mom *sqrt(1-b*b)/b;
                        //}
@@ -292,7 +292,7 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
                 }
                 else
                 {
-                    msg(MSG::DEBUG) << " Candidate is ID MUON"<<endmsg;
+                    msg(MSG::DEBUG) << " Candidate is ID MUON"<<endreq;
                     pCBMuon = new Analysis::Muon(MuonParameters::MuGirl,primaryTP,pSegmentContainer,newSegments); 
                     pCBMuon->setM(Mass);
                 }
@@ -307,7 +307,7 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
                 const xAOD::TrackParticle* pTrack = pSummary->pRefittedTrack;
                 if (pTrack !=NULL)
                 {
-                    msg(MSG::DEBUG) << " Candidate is MF WITH  REFIT"<<endmsg;
+                    msg(MSG::DEBUG) << " Candidate is MF WITH  REFIT"<<endreq;
                     pCBMuon = new Analysis::Muon(MuonParameters::MuGirlLowBeta,pTrack,true);
                     pCBMuon->set_muonExtrapolatedTrackParticleContainer(inExtrpParticleContainer);
  
@@ -317,7 +317,7 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
                        double py = pCBMuon->py();
                        double pz = pCBMuon->pz();
                        double Mom = sqrt(px*px +py*py+pz*pz);
-                       msg(MSG::DEBUG) << " Filling mass: Mom "<<Mom<<" beta "<<b<< endmsg;
+                       msg(MSG::DEBUG) << " Filling mass: Mom "<<Mom<<" beta "<<b<< endreq;
               
                        if (b>0.2 && b<1.) 
                          Mass= Mom *sqrt(1-b*b)/b;
@@ -326,7 +326,7 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
 
                 else 
                 {
-                    msg(MSG::DEBUG) << " Candidate is MF WITHOUT  REFIT"<<endmsg;
+                    msg(MSG::DEBUG) << " Candidate is MF WITHOUT  REFIT"<<endreq;
                     pCBMuon = new Analysis::Muon(MuonParameters::MuGirlLowBeta);
                     const MuonFeature* muonFeature = pSummary->pMuonFeature;
                     const TrigMuonEFTrack* muonEFTrack = pSummary->pMuonEFTrack;
@@ -420,7 +420,7 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
 
                  if ( sc.isFailure() )
                    {
-                       msg(MSG::WARNING) << "Could not dress muon " << endmsg;
+                       msg(MSG::WARNING) << "Could not dress muon " << endreq;
                    }
                }
                else
@@ -440,34 +440,34 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
 
                    if ( sc.isFailure() )
                    {
-                       msg(MSG::WARNING) << "Could not dress muon " << endmsg;
+                       msg(MSG::WARNING) << "Could not dress muon " << endreq;
                    }
                  }
                  else
-                   msg(MSG::WARNING) << " IsolationTool not available, energy is meaningless " << endmsg;
+                   msg(MSG::WARNING) << " IsolationTool not available, energy is meaningless " << endreq;
                }
             }
 
             //pCBMuon->set_innerExtrapolatedTrackParticleContainer(inExtrpParticleContainer);
             pMuonContainer->push_back(pCBMuon);
-            msg(MSG::DEBUG) << " Muon in MuonContainer has mass "<< (pCBMuon)->m()<<endmsg;
+            msg(MSG::DEBUG) << " Muon in MuonContainer has mass "<< (pCBMuon)->m()<<endreq;
 */
             if (m_doNTuple)
             {
 	        const xAOD::EventInfo* pEventInfo = NULL;
                 if (evtStore()->retrieve(pEventInfo).isFailure() || pEventInfo == NULL)
-                    msg(MSG::WARNING) << "Cannot retrieve EventInfo" << endmsg;
+                    msg(MSG::WARNING) << "Cannot retrieve EventInfo" << endreq;
                 else
                 {
                     if (m_pNTuple->fillEventInfo(pEventInfo->runNumber(), pEventInfo->eventNumber()).isFailure())
-                        msg(MSG::WARNING) << "Cannot fill event info" << endmsg;
+                        msg(MSG::WARNING) << "Cannot fill event info" << endreq;
                 }
                 if (m_pNTuple->fill(pSummary, m_doTruth, m_pTruthTool).isFailure())
-                    msg(MSG::WARNING) << "Cannot fill NTuple" << endmsg;
+                    msg(MSG::WARNING) << "Cannot fill NTuple" << endreq;
 
                 if (m_pRawNTuple->writeRecord().isFailure())
-                    msg(MSG::WARNING) << "Cannot write NTuple" << endmsg;
-                msg(MSG::DEBUG) << " Ntuple entry recorded "<< endmsg;
+                    msg(MSG::WARNING) << "Cannot write NTuple" << endreq;
+                msg(MSG::DEBUG) << " Ntuple entry recorded "<< endreq;
             }
         }
 
@@ -483,10 +483,10 @@ StatusCode MuGirlParticleCreatorTool::fillContainer(CandidateSummaryList* Summar
     }
 
     //if (m_log.level() <= MSG::DEBUG)
-    if (msgLvl(MSG::DEBUG)) msg() << "Muons saved " <<endmsg;
+    if (msgLvl(MSG::DEBUG)) msg() << "Muons saved " <<endreq;
 
     //if (m_log.level() <= MSG::DEBUG)
-    if (msgLvl(MSG::DEBUG)) msg() << "fillContainer " << name() << " ended" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg() << "fillContainer " << name() << " ended" << endreq;
 
     return StatusCode::SUCCESS;
 }
@@ -605,7 +605,7 @@ static std::string summaryToString(const CandidateSummary* pSummary,
 void MuGirlParticleCreatorTool::removeRedundantCandidates(CandidateSummaryList* SummaryList,
         std::vector<bool>& IncludeList)
 {
-    if (msgLvl(MSG::DEBUG)) msg() << "removeRedundantCandidates " << name() << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg() << "removeRedundantCandidates " << name() << endreq;
 
     const double MIN_OVERLAP = 0.5;
     typedef std::vector<size_t> CandList;
@@ -661,17 +661,16 @@ void MuGirlParticleCreatorTool::removeRedundantCandidates(CandidateSummaryList* 
     {
         if (!IncludeList[iCand])
             continue;
-        const int nHits = hitCount[iCand][iCand];
+        int nHits = hitCount[iCand][iCand];
         if (nHits == 0)
             continue;
-        const double inv_nHits = 1. / static_cast<double> (nHits);
         for (size_t jCand = 0; jCand < nCand; jCand++)
         {
             if (jCand == iCand || !IncludeList[jCand])
                 continue;
             const CandidateSummary* iSummary = (*SummaryList)[iCand];
             const CandidateSummary* jSummary = (*SummaryList)[jCand];
-            double overlap = (double)hitCount[iCand][jCand] * inv_nHits;
+            double overlap = (double)hitCount[iCand][jCand] / (double)nHits;
             if (overlap <= MIN_OVERLAP)
             {
                 // there is no enough overlap with iCand, so we don't need to do anything with this jCand
@@ -707,12 +706,12 @@ void MuGirlParticleCreatorTool::removeRedundantCandidates(CandidateSummaryList* 
 	    //else if (iMSTP == NULL && jMSTP != NULL)
 	    //  {
 	    //	removed = iCand;
-	    //	if (msgLvl(MSG::DEBUG)) msg() << "ms req led to removal" << endmsg;
+	    //	if (msgLvl(MSG::DEBUG)) msg() << "ms req led to removal" << endreq;
 	    //  }
 	    //else if (jMSTP == NULL && iMSTP != NULL)
 	    //  {
 	    //	removed = jCand;
-	    //	if (msgLvl(MSG::DEBUG)) msg() << "ms req led to removal" << endmsg;
+	    //	if (msgLvl(MSG::DEBUG)) msg() << "ms req led to removal" << endreq;
 	    //  }
 
             else if (jTP == NULL && iTP == NULL)
@@ -755,12 +754,12 @@ void MuGirlParticleCreatorTool::removeRedundantCandidates(CandidateSummaryList* 
 	    //else if (iMSTP == NULL && jMSTP != NULL)
 	    //  {
 	    //	removed = iCand;
-	    //	if (msgLvl(MSG::DEBUG)) msg() << "ms req led to removal" << endmsg;
+	    //	if (msgLvl(MSG::DEBUG)) msg() << "ms req led to removal" << endreq;
 	    //  }
 	    //else if (jMSTP == NULL && iMSTP != NULL)
 	    //  {
 	    //	removed = jCand;
-	    //	if (msgLvl(MSG::DEBUG)) msg() << "ms req led to removal" << endmsg;
+	    //	if (msgLvl(MSG::DEBUG)) msg() << "ms req led to removal" << endreq;
 	    //  }
             else  //j's chi2/dof is larger
             {
@@ -796,7 +795,7 @@ void MuGirlParticleCreatorTool::removeRedundantCandidates(CandidateSummaryList* 
         } // jCandidate
     } //iCandidate
 
-    if (msgLvl(MSG::DEBUG)) msg() << "removeRedundantCandidates ended" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg() << "removeRedundantCandidates ended" << endreq;
 }
 
 }
