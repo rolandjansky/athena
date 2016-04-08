@@ -14,7 +14,7 @@
 // This needs to be here to work around a reflex dictionary generation problem.
 // Otherwise, you'll get
 // Warning in <TClass::TClass>: no dictionary for class DataVector<ParticleJet,DataVector<ParticleBase,DataVector_detail::NoBase> > is available
-struct dummy {
+struct GCCXML_DUMMY_INSTANTIATION_JETTAGEVENT {
   DataVector<Rec::TrackParticle> m_dummy1;
   DataVector<int> m_dummy2;
 };
