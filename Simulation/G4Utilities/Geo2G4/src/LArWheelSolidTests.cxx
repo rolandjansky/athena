@@ -28,7 +28,8 @@ static double IntPrecision = 0.0001;
 EInside LArWheelSolid::Inside_accordion(const G4ThreeVector &p) const
 {
   G4ThreeVector p1 = p;
-  G4double d = FanHalfThickness - fabs(Calculator->DistanceToTheNearestFan(p1));
+  int p1_fan = 0;
+  G4double d = FanHalfThickness - fabs(GetCalculator()->DistanceToTheNearestFan(p1, p1_fan));
   if(d > Tolerance) return kInside;
   if(d > -Tolerance) return kSurface;
   return kOutside;
@@ -42,7 +43,8 @@ void LArWheelSolid::set_failover_point(G4ThreeVector &p,
 #endif
   {
     p[0] = 0.; p[1] = Rmin; p[2] = Zmin;
-    Calculator->DistanceToTheNearestFan(p);
+    int p_fan = 0;
+    GetCalculator()->DistanceToTheNearestFan(p, p_fan);
 
 #ifdef LOCAL_DEBUG
     if(m) std::cout << m << std::endl;
@@ -105,14 +107,15 @@ void LArWheelSolid::get_point_on_accordion_surface(G4ThreeVector &p) const
   p[1] = rnd->Uniform(rmin, rmax);
   p.setPhi(rnd->Uniform(MinPhi, MaxPhi));
   G4double dphi = p.phi();
-  G4double d = Calculator->DistanceToTheNearestFan(p);
+  int p_fan = 0;
+  G4double d = GetCalculator()->DistanceToTheNearestFan(p, p_fan);
   dphi -= p.phi();
 
   G4int side = 0;
   if(d < 0.) side = -1;
   if(d >= 0.) side = 1;
 
-  G4double a = Calculator->AmplitudeOfSurface(p, side);
+  G4double a = GetCalculator()->AmplitudeOfSurface(p, side, p_fan);
   p[0] = a;
 
   p.rotateZ(dphi);
@@ -132,10 +135,11 @@ void LArWheelSolid::get_point_on_accordion_surface(G4ThreeVector &p) const
 
     G4ThreeVector B = p + D * d1;
     G4double dphi = B.phi();
-    Calculator->DistanceToTheNearestFan(B);
+    int B_fan = 0;
+    GetCalculator()->DistanceToTheNearestFan(B, B_fan);
     dphi -= B.phi();
 
-    B[0] = Calculator->AmplitudeOfSurface(B, side);
+    B[0] = GetCalculator()->AmplitudeOfSurface(B, side, B_fan);
     B.rotateZ(dphi);
     EInside Bi = BoundingPolycone->Inside(B);
     if(Bi == kSurface){
@@ -167,13 +171,14 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
   p[0] = 0.; p[1] = inner? rmin: rmax; p[2] = z;
   p.setPhi(rnd->Uniform(MinPhi, MaxPhi));
   G4double dphi = p.phi();
-  Calculator->DistanceToTheNearestFan(p);
+  int p_fan = 0;
+  GetCalculator()->DistanceToTheNearestFan(p, p_fan);
   dphi -= p.phi();
 
   const G4double r = p[1];
 
   G4ThreeVector A1(0., r, z);
-  A1[0] = Calculator->AmplitudeOfSurface(A1, -1);
+  A1[0] = GetCalculator()->AmplitudeOfSurface(A1, -1, p_fan);
   A1.rotateZ(dphi);
   EInside A1i = BoundingPolycone->Inside(A1);
   //	EInside A1a = Inside_accordion(A1);
@@ -185,7 +190,7 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
   }
 
   G4ThreeVector A2(0., r, z);
-  A2[0] = Calculator->AmplitudeOfSurface(A2, 1);
+  A2[0] = GetCalculator()->AmplitudeOfSurface(A2, 1, p_fan);
   A2.rotateZ(dphi);
   EInside A2i = BoundingPolycone->Inside(A2);
   //	EInside A2a = Inside_accordion(A2);
@@ -225,7 +230,7 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
   }
 
   G4ThreeVector B1(0., r + step, z);
-  B1[0] = Calculator->AmplitudeOfSurface(B1, -1);
+  B1[0] = GetCalculator()->AmplitudeOfSurface(B1, -1, p_fan);
   B1.rotateZ(dphi);
   EInside B1i = BoundingPolycone->Inside(B1);
   //	EInside B1a = Inside_accordion(B1);
@@ -236,7 +241,7 @@ void LArWheelSolid::get_point_on_polycone_surface(G4ThreeVector &p) const
     return;
   }
   G4ThreeVector B2(0., r + step, z);
-  B2[0] = Calculator->AmplitudeOfSurface(B2, 1);
+  B2[0] = GetCalculator()->AmplitudeOfSurface(B2, 1, p_fan);
   B2.rotateZ(dphi);
   EInside B2i = BoundingPolycone->Inside(B2);
   //	EInside B2a = Inside_accordion(B2);
@@ -291,12 +296,13 @@ void LArWheelSolid::get_point_on_flat_surface(G4ThreeVector &p) const
   p[1] = rnd->Uniform(rmin, rmax);
   p.setPhi(rnd->Uniform(MinPhi, MaxPhi));
   G4double dphi = p.phi();
-  Calculator->DistanceToTheNearestFan(p);
+  int p_fan = 0;
+  GetCalculator()->DistanceToTheNearestFan(p, p_fan);
   dphi -= p.phi();
 
   p[0] = rnd->Uniform(
-                      Calculator->AmplitudeOfSurface(p, -1),
-                      Calculator->AmplitudeOfSurface(p, 1)
+                      GetCalculator()->AmplitudeOfSurface(p, -1, p_fan),
+                      GetCalculator()->AmplitudeOfSurface(p, 1, p_fan)
                       );
 
   p.rotateZ(dphi);
@@ -318,7 +324,7 @@ G4double LArWheelSolid::GetCubicVolume(void)
 #endif
 
 #ifndef LOCAL_DEBUG
-    * Calculator->GetNumberOfFans()
+    * GetCalculator()->GetNumberOfFans()
 #endif
     ;
   return result;
@@ -337,7 +343,7 @@ G4double LArWheelSolid::get_area_on_face(void) const
   result += rmax - rmin;
   get_r(BoundingPolycone, Zmax, rmin, rmax);
   result += rmax - rmin;
-  result *= Calculator->GetFanHalfThickness() * 2.;
+  result *= GetCalculator()->GetFanHalfThickness() * 2.;
   return result;
 }
 
@@ -391,7 +397,7 @@ G4double LArWheelSolid::GetSurfaceArea(void)
   // sagging ignored, effect should be negligible
   return result
 #ifndef LOCAL_DEBUG
-    * Calculator->GetNumberOfFans()
+    * GetCalculator()->GetNumberOfFans()
 #endif
     ;
 }
@@ -537,8 +543,8 @@ double LArWheelSolid_fcn_area(double *x, double *p)
   const double &index = p[1];
 
   G4ThreeVector a(0., r, z);
-  double b = solid[index]->Calculator->AmplitudeOfSurface(a, -1)
-    - solid[index]->Calculator->AmplitudeOfSurface(a, 1);
+  double b = solid[index]->GetCalculator()->AmplitudeOfSurface(a, -1, 121) // sagging ignored, effect should be negligible, use arbitrary fan number
+    - solid[index]->GetCalculator()->AmplitudeOfSurface(a, 1, 121);
   return b;
 }
 
@@ -560,11 +566,11 @@ double LArWheelSolid_fcn_area_on_pc(double *x, double *p)
 
   double result = 0.;
   G4ThreeVector a(0., rmin, z);
-  result += solid[index]->Calculator->AmplitudeOfSurface(a, -1)
-    - solid[index]->Calculator->AmplitudeOfSurface(a, 1);
+  result += solid[index]->GetCalculator()->AmplitudeOfSurface(a, -1, 232) // sagging ignored, effect should be negligible, use arbitrary fan number
+    - solid[index]->GetCalculator()->AmplitudeOfSurface(a, 1, 232);
   a[1] = rmax;
-  result += solid[index]->Calculator->AmplitudeOfSurface(a, -1)
-    - solid[index]->Calculator->AmplitudeOfSurface(a, 1);
+  result += solid[index]->GetCalculator()->AmplitudeOfSurface(a, -1, 343)
+    - solid[index]->GetCalculator()->AmplitudeOfSurface(a, 1, 343);
 
   return result;
 }
@@ -580,15 +586,15 @@ double LArWheelSolid_get_dl(double *x, double *par, G4int side)
 
   //check what happens if z+h > Zmax etc
   G4ThreeVector p(0., r, z + h);
-  G4double D1 = solid[index]->Calculator->AmplitudeOfSurface(p, side);
+  G4double D1 = solid[index]->GetCalculator()->AmplitudeOfSurface(p, side, 5665);  // sagging ignored, effect should be negligible, use arbitrary fan number
   p[2] = z - h;
-  D1 -= solid[index]->Calculator->AmplitudeOfSurface(p, side);
+  D1 -= solid[index]->GetCalculator()->AmplitudeOfSurface(p, side, 5665);
   D1 /= 2 * h;
 
   p[2] = z + h / 2;
-  G4double D2 = solid[index]->Calculator->AmplitudeOfSurface(p, side);
+  G4double D2 = solid[index]->GetCalculator()->AmplitudeOfSurface(p, side, 5665);
   p[2] = z - h / 2;
-  D2 -= solid[index]->Calculator->AmplitudeOfSurface(p, side);
+  D2 -= solid[index]->GetCalculator()->AmplitudeOfSurface(p, side, 5665);
   D2 /= h;
 
   G4double D = (D2 * 4 - D1) / 3.;
@@ -662,19 +668,20 @@ G4bool LArWheelSolid::test_dti(
 	                        << std::endl);
 		return false;
 	}
-	static unsigned long counter = 0;
+	unsigned long counter = 0;
 	counter ++;
-	G4ThreeVector p, v;
+	G4ThreeVector p;
 	if(BoundingShape->Inside(inputP) == kOutside){
 		p = inputP + inputV * BoundingShape->DistanceToIn(inputP, inputV);
 	} else p = inputP;
 	const G4double phi0 = p.phi();
-	const G4double d = Calculator->DistanceToTheNearestFan(p);
+	int p_fan = 0;
+	const G4double d = GetCalculator()->DistanceToTheNearestFan(p, p_fan);
 	if(fabs(d) < FHTminusT){
 		std::cout << "DTI test already inside" << MSG_VECTOR(p) << std::endl;
 		return false;
 	}
-	v = inputV;
+	G4ThreeVector v( inputV );
 	v.rotateZ(p.phi() - phi0);
 	const G4double dd = IterationPrecision;
 	LWSDBG(1, std::cout << "Start DTI test, expect "
@@ -685,10 +692,10 @@ G4bool LArWheelSolid::test_dti(
 	Verbose = 0;
 
 	const G4double d1 = distance - IterationPrecision;
-	static bool first = true;
+	bool first = true;
 	for(G4double t = IterationPrecision; t < d1; t += dd){
 		G4ThreeVector p1 = p + v * t;
-		if(fabs(Calculator->DistanceToTheNeutralFibre(p1)) < FHTminusT){
+		if(fabs(GetCalculator()->DistanceToTheNeutralFibre(p1, p_fan)) < FHTminusT){
 			std::cout << "DTI test at " << MSG_VECTOR(inputP) << " -> "
 			          << MSG_VECTOR(inputV) << ", translated to "
 			          << MSG_VECTOR(p) << " - > " << MSG_VECTOR(v)
@@ -707,7 +714,7 @@ G4bool LArWheelSolid::test_dti(
 					fprintf(F, "%10e %10e %10e\n", v.x(), v.y(), v.z());
 					for(G4double e = IterationPrecision; e < d1; e += dd){
 						p1 = p + v * e;
-						G4double f = fabs(Calculator->DistanceToTheNeutralFibre(p1)) - FanHalfThickness;
+						G4double f = fabs(GetCalculator()->DistanceToTheNeutralFibre(p1, p_fan)) - FanHalfThickness;
 						fprintf(F, "%10e %10e\n", e, f);
 					}
 					fclose(F);
@@ -734,17 +741,17 @@ G4bool LArWheelSolid::test_dto(
 	                        << std::endl);
 		return false;
 	}
-	static unsigned long counter = 0;
+	unsigned long counter = 0;
 	counter ++;
-	G4ThreeVector p, v;
-	p = inputP;
+	G4ThreeVector p( inputP );
 	const G4double phi0 = p.phi();
-	const G4double d = Calculator->DistanceToTheNearestFan(p);
+	int p_fan = 0;
+	const G4double d = GetCalculator()->DistanceToTheNearestFan(p, p_fan);
 	if(fabs(d) > FHTplusT){
 		std::cout << "DTO test already outside" << MSG_VECTOR(p) << std::endl;
 		return false;
 	}
-	v = inputV;
+	G4ThreeVector v( inputV );
 	v.rotateZ(p.phi() - phi0);
 	const G4double dd = IterationPrecision;
 	LWSDBG(1, std::cout << "Start DTO test, expect "
@@ -758,7 +765,7 @@ G4bool LArWheelSolid::test_dto(
 	static bool first = true;
 	for(G4double t = IterationPrecision; t < d1; t += dd){
 		G4ThreeVector p1 = p + v * t;
-		if(fabs(Calculator->DistanceToTheNeutralFibre(p1)) > FHTplusT){
+		if(fabs(GetCalculator()->DistanceToTheNeutralFibre(p1, p_fan)) > FHTplusT){
 			std::cout << "DTO test at " << MSG_VECTOR(inputP) << " -> "
 			          << MSG_VECTOR(inputV) << ", translated to "
 			          << MSG_VECTOR(p) << " - > " << MSG_VECTOR(v)
@@ -777,7 +784,7 @@ G4bool LArWheelSolid::test_dto(
 					fprintf(F, "%10e %10e %10e\n", v.x(), v.y(), v.z());
 					for(G4double e = IterationPrecision; e < d1; e += dd){
 						p1 = p + v * e;
-						G4double f = fabs(Calculator->DistanceToTheNeutralFibre(p1)) - FanHalfThickness;
+						G4double f = fabs(GetCalculator()->DistanceToTheNeutralFibre(p1, p_fan)) - FanHalfThickness;
 						fprintf(F, "%10e %10e\n", e, f);
 					}
 					fclose(F);

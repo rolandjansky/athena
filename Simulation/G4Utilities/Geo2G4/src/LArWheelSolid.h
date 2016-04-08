@@ -105,7 +105,7 @@ public:
   virtual std::ostream& StreamInfo(std::ostream& os) const { return os; }
 
   const G4Polycone *GetBoundingPolycone(void) const { return BoundingPolycone; }
-  const LArWheelCalculator *GetCalculator(void) const { return Calculator; }
+  const LArWheelCalculator *GetCalculator(void) const { return m_Calculator; }
   LArWheelSolid_t GetType(void) const { return Type; }
 
   G4ThreeVector GetPointOnSurface(void) const;
@@ -121,7 +121,7 @@ private:
 
   G4bool IsOuter;
   const LArWheelSolid_t Type;
-  LArWheelCalculator *Calculator;
+  LArWheelCalculator *m_Calculator;
   G4double FanHalfThickness, FHTplusT, FHTminusT;
   G4double FanPhiAmplitude;
   G4double MinPhi;
@@ -149,18 +149,18 @@ private:
   void outer_solid_init(const G4String &);
   void set_phi_size(void);
 
-  virtual G4double distance_to_in(G4ThreeVector &, const G4ThreeVector &) const;
+  virtual G4double distance_to_in(G4ThreeVector &, const G4ThreeVector &, int) const;
   G4double in_iteration_process(const G4ThreeVector &,
-                                G4double, G4ThreeVector &) const;
+                                G4double, G4ThreeVector &, int) const;
   G4double search_for_nearest_point(
 	const G4ThreeVector &, const G4double,
-	const G4ThreeVector &
+	const G4ThreeVector &, int
   ) const;
   G4bool search_for_most_remoted_point(const G4ThreeVector &,
                                        const G4ThreeVector &,
-                                       G4ThreeVector &) const;
+                                       G4ThreeVector &, const int) const;
   G4double out_iteration_process(const G4ThreeVector &,
-                                 G4ThreeVector &) const;
+                                 G4ThreeVector &, const int) const;
 
   G4bool fs_cross_lower(const G4ThreeVector &p, const G4ThreeVector &v,
                         G4ThreeVector &q) const;

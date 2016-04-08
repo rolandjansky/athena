@@ -22,7 +22,15 @@ G4double LArWheelSolid::DistanceToIn(const G4ThreeVector &inputP) const
 		return BoundingShape->DistanceToIn(inputP);
 	}
 	G4ThreeVector p(inputP);
-	const G4double d = fabs(Calculator->DistanceToTheNearestFan(p));
+
+	//
+	// DistanceToTheNearestFan:
+	// rotates point p to the localFan coordinates and returns fan number to out_fan_number parameter
+	// returns distance to fan as result
+	//
+
+	int p_fan = 0;
+	const G4double d = fabs(GetCalculator()->DistanceToTheNearestFan(p, p_fan));
 	if(d > FHTplusT) return d - FanHalfThickness;
 	LWSDBG(2, std::cout << "already inside" << MSG_VECTOR(p) << std::endl);
 	return 0.;
@@ -49,7 +57,8 @@ G4double LArWheelSolid::DistanceToIn(const G4ThreeVector &inputP,
 	}
 
 	const G4double phi0 = p.phi();
-	const G4double d = Calculator->DistanceToTheNearestFan(p);
+	int p_fan = 0;
+	const G4double d = GetCalculator()->DistanceToTheNearestFan(p, p_fan);
 	if(fabs(d) < FHTminusT){
 		LWSDBG(2, std::cout << "already inside fan" << MSG_VECTOR(p) << std::endl);
 		// if initial point is on BS surface and inside fan volume it is a real surface
@@ -61,7 +70,7 @@ G4double LArWheelSolid::DistanceToIn(const G4ThreeVector &inputP,
 	}
 	G4ThreeVector v(inputV);
 	v.rotateZ(p.phi() - phi0);
-	const G4double d0 = distance_to_in(p, v);
+	const G4double d0 = distance_to_in(p, v, p_fan);
 	
 #ifdef DEBUG_LARWHEELSOLID
 	if(Verbose > 2){
@@ -106,23 +115,23 @@ G4double LArWheelSolid::DistanceToIn(const G4ThreeVector &inputP,
 // returns distance from point p to absorber surface
 // sets last parameter to the founded point
 G4double LArWheelSolid::in_iteration_process(
-	const G4ThreeVector &p, G4double dist_p, G4ThreeVector &B
+	const G4ThreeVector &p, G4double dist_p, G4ThreeVector &B, int p_fan
 ) const
 {
 	LWSDBG(6, std::cout << "iip from " << p << " to " << B
 	                    << " dir " << (B - p).unit()
 	                    << std::endl);
 
-	static G4ThreeVector A, C, diff;
+	G4ThreeVector A, C, diff;
 	A = p;
 	G4double dist_c;
 	unsigned int niter = 0;
-  //  assert(fabs(Calculator->DistanceToTheNeutralFibre(A)) > FHTplusT);
-  //  assert(Calculator->DistanceToTheNeutralFibre(A) == dist_p);
+  //  assert(fabs(GetCalculator()->DistanceToTheNeutralFibre(A)) > FHTplusT);
+  //  assert(GetCalculator()->DistanceToTheNeutralFibre(A) == dist_p);
 	do {
 		C = A + B;
 		C *= 0.5;
-		dist_c = Calculator->DistanceToTheNeutralFibre(C);
+		dist_c = GetCalculator()->DistanceToTheNeutralFibre(C, p_fan);
 		if(dist_c * dist_p < 0. || fabs(dist_c) < FHTminusT){
 			B = C;
 		} else {
@@ -132,7 +141,7 @@ G4double LArWheelSolid::in_iteration_process(
 		diff = A - B;
 	} while(diff.mag2() > IterationPrecision2 && niter < IterationsLimit);
 	assert(niter < IterationsLimit);
-	assert(fabs(Calculator->DistanceToTheNeutralFibre(B)) < FHTplusT);
+	assert(fabs(GetCalculator()->DistanceToTheNeutralFibre(B, p_fan)) < FHTplusT);
 	diff = p - B;
 	LWSDBG(7, std::cout << "iip result in " << niter << " = " << B
 	                    << " " << diff.mag() << std::endl);
@@ -143,13 +152,13 @@ G4double LArWheelSolid::in_iteration_process(
 // on the segment between p_in and p_out
 G4double LArWheelSolid::search_for_nearest_point(
 	const G4ThreeVector &p_in, const G4double dist_p_in,
-	const G4ThreeVector &p_out
+	const G4ThreeVector &p_out, int p_fan
 ) const
 {
 	LWSDBG(6, std::cout << "sfnp " << MSG_VECTOR(p_in) << " "
 	                    << MSG_VECTOR(p_out) << std::endl);
 
-	static G4ThreeVector A, B, C, l, diff;
+	G4ThreeVector A, B, C, l, diff;
 	A = p_in;
 	B = p_out;
 	diff = B - A;
@@ -162,15 +171,15 @@ G4double LArWheelSolid::search_for_nearest_point(
 	do {
 		C = A + B;
 		C *= 0.5;
-		dist_c = Calculator->DistanceToTheNeutralFibre(C);
+		dist_c = GetCalculator()->DistanceToTheNeutralFibre(C, p_fan);
 		if(dist_c * sign <= 0.){ // we are in coditions for in_iteration_process
 			LWSDBG(7, std::cout << "sfnp0 " << dist_c << std::endl);
-			return in_iteration_process(p_in, dist_p_in, C);
+			return in_iteration_process(p_in, dist_p_in, C, p_fan);
 		}
     // calculate sign of derivative of distance to the neutral fibre
     // hope this substitution is acceptable
 		diff = C - l;
-		d_prime = (dist_c - Calculator->DistanceToTheNeutralFibre(diff)) * sign;
+		d_prime = (dist_c - GetCalculator()->DistanceToTheNeutralFibre(diff, p_fan)) * sign;
 		if(d_prime < 0.) A = C;
 		else B = C;
 		niter ++;
@@ -179,23 +188,23 @@ G4double LArWheelSolid::search_for_nearest_point(
 	assert(niter < IterationsLimit);
 	if(fabs(dist_c) < FHTminusT){
 		LWSDBG(7, std::cout << "sfnp1 " << dist_c << std::endl);
-		return in_iteration_process(p_in, dist_p_in, C);
+		return in_iteration_process(p_in, dist_p_in, C, p_fan);
 	}
   //  let's check at p_in and p_out
 	if(dist_p_in * sign < dist_c * sign){
 		C = p_in;
 		dist_c = dist_p_in;
 	}
-	G4double dist_p_out = Calculator->DistanceToTheNeutralFibre(p_out);
+	G4double dist_p_out = GetCalculator()->DistanceToTheNeutralFibre(p_out, p_fan);
 	if(dist_p_out *sign < dist_c * sign) C = p_out;
 	if(fabs(dist_p_out) < FHTminusT){
 		LWSDBG(7, std::cout << "sfnp2 " << dist_p_out << std::endl);
-		return in_iteration_process(p_in, dist_p_in, C);
+		return in_iteration_process(p_in, dist_p_in, C, p_fan);
 	}
 	return kInfinity;
 }
 
-G4double LArWheelSolid::distance_to_in(G4ThreeVector &p, const G4ThreeVector &v) const
+G4double LArWheelSolid::distance_to_in(G4ThreeVector &p, const G4ThreeVector &v, int p_fan) const
 {
 	LWSDBG(4, std::cout << "dti:           " << MSG_VECTOR(p) << " "
 	                    << MSG_VECTOR(v) << std::endl);
@@ -229,7 +238,7 @@ G4double LArWheelSolid::distance_to_in(G4ThreeVector &p, const G4ThreeVector &v)
 // distance corrected, misses are accounted for
 	LWSDBG(5, std::cout << "dti corrected: " << MSG_VECTOR(p) << std::endl);
 
-	G4double dist_p = Calculator->DistanceToTheNeutralFibre(p);
+	G4double dist_p = GetCalculator()->DistanceToTheNeutralFibre(p, p_fan);
 	if(fabs(dist_p) < FHTminusT) {
 		LWSDBG(5, std::cout << "hit fan dist_p=" << dist_p << ", FHTminusT=" << FHTminusT << std::endl);
 		return distance;
@@ -241,7 +250,7 @@ G4double LArWheelSolid::distance_to_in(G4ThreeVector &p, const G4ThreeVector &v)
 	} else {
 		LWSDBG(5, std::cout << "on fan surface dist_p=" << dist_p << ", FHTplusT=" << FHTplusT << ", FHTminusT=" << FHTminusT << std::endl);
 		
-		const G4ThreeVector d = Calculator->NearestPointOnNeutralFibre(p);
+		const G4ThreeVector d = GetCalculator()->NearestPointOnNeutralFibre(p, p_fan);
 		// check dot product between normal and v
 		if ( (p-d).cosTheta(v) < -AngularTolerance ) {
 			// direction "v" definitely pointing inside
@@ -251,7 +260,7 @@ G4double LArWheelSolid::distance_to_in(G4ThreeVector &p, const G4ThreeVector &v)
 	}
 #endif
 
-	static G4ThreeVector q;
+	G4ThreeVector q;
 #ifdef LARWHEELSOLID_USE_FANBOUND
 	q = p + v * FanBound->DistanceToOut(p, v);
 #else
@@ -264,21 +273,21 @@ G4double LArWheelSolid::distance_to_in(G4ThreeVector &p, const G4ThreeVector &v)
 	if(stop > start) { step = 1;	start ++; stop ++; }
 	LWSDBG(5, std::cout << "dti sections " << start << " " << stop
 	                    << " " << step << std::endl);
-	static G4ThreeVector p1;
+	G4ThreeVector p1;
 	for(G4int i = start; i != stop; i += step){
 // v.z() can't be 0, otherwise start == stop, so the exit point could be only
 // at z border of the fan section
 		const G4double d1 = (Zsect[i] - p.z()) / v.z();
 		const G4double x1 = p.x() + v.x() * d1, y1 = p.y() + v.y() * d1;
 		p1.set(x1, y1, Zsect[i]);
-		G4double dist_p1 = Calculator->DistanceToTheNeutralFibre(p1);
+		G4double dist_p1 = GetCalculator()->DistanceToTheNeutralFibre(p1, p_fan);
 		LWSDBG(5, std::cout << i << ">" << p << " " << dist_p << " "
 		                    << p1 << " " << dist_p1 << std::endl);
 		G4double dd = kInfinity;
 		if(dist_p * dist_p1 < 0.){// it certanly cross current half-wave
-			dd = in_iteration_process(p, dist_p, p1);
+			dd = in_iteration_process(p, dist_p, p1, p_fan);
 		}
-		G4double d2 = search_for_nearest_point(p, dist_p, p1);
+		G4double d2 = search_for_nearest_point(p, dist_p, p1, p_fan);
 		LWSDBG(6, std::cout << i << "> dd=" << dd << ", d2=" << d2 << ", distance=" << distance << std::endl);
 		if(d2 < kInfinity){
 			return distance + d2; // this half-wave is intersected
@@ -290,14 +299,14 @@ G4double LArWheelSolid::distance_to_in(G4ThreeVector &p, const G4ThreeVector &v)
 		dist_p = dist_p1;
 	}
 
-	G4double dist_q = Calculator->DistanceToTheNeutralFibre(q);
+	G4double dist_q = GetCalculator()->DistanceToTheNeutralFibre(q, p_fan);
 	LWSDBG(5, std::cout << "dti exit point: " << MSG_VECTOR(q) << " "
 	                    << dist_q << std::endl);
 	G4double dd = kInfinity;
 	if(dist_p * dist_q < 0.){// it certanly cross current half-wave
-		dd = in_iteration_process(p, dist_p, q);
+		dd = in_iteration_process(p, dist_p, q, p_fan);
 	}
-	G4double d2 = search_for_nearest_point(p, dist_p, q);
+	G4double d2 = search_for_nearest_point(p, dist_p, q, p_fan);
 	if(d2 < kInfinity){
 		return distance + d2; // this half-wave is intersected
 	} else if(dd < kInfinity){
