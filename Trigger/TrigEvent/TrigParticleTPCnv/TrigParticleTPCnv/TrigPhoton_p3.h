@@ -13,20 +13,15 @@
  * @author Francesca Bucci  <F.Bucci@cern.ch>          - U. Geneva
  *
  * File and Version Information:
- * $Id: TrigPhoton_p3.h 359048 2011-04-15 12:07:04Z salvator $
+ * $Id: TrigPhoton_p3.h 724426 2016-02-16 23:38:10Z ssnyder $
  **********************************************************************************/
 #ifndef TRIGPARTICLETPCNV_TRIGPHOTON_P3_H
 #define TRIGPARTICLETPCNV_TRIGPHOTON_P3_H
 
-#include <stdint.h>
-#include <string>
-
 #include "DataModelAthenaPool/ElementLink_p3.h"
 
-//#include "FourMom/P4PtEtaPhiM.h"
 #include "EventCommonTPCnv/P4PtEtaPhiMCnv_p1.h"
-#include "TrigParticle/TrigPhoton.h"
-#include "AthenaPoolUtilities/TPObjRef.h"
+//#include "AthenaPoolUtilities/TPObjRef.h"
 
 
 class TrigPhoton_p3 
@@ -42,7 +37,7 @@ class TrigPhoton_p3
 
   virtual ~TrigPhoton_p3(){}
   
- private:
+  //private:
 
   int   m_roiID;
   float m_allTheFloats[11];

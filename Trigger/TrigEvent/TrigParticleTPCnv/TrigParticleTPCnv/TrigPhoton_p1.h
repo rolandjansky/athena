@@ -18,10 +18,6 @@
 #ifndef TRIGPARTICLETPCNV_TRIGPHOTON_P1_H
 #define TRIGPARTICLETPCNV_TRIGPHOTON_P1_H
 
-#include <stdint.h>
-#include <string>
-#include "FourMom/P4PtEtaPhiM.h"
-#include "TrigParticle/TrigPhoton.h"
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 class TrigPhoton_p1 
@@ -33,15 +29,15 @@ class TrigPhoton_p1
   TrigPhoton_p1() {}
   virtual ~TrigPhoton_p1(){}
   
- private:
+  //private:
 
-  int   m_roiID;
-  float m_HadEt; 
-  float m_energyRatio;
-  float m_rCore;
-  float m_dPhi;
-  float m_dEta;
-  bool  m_valid;
+  int   m_roiID = 0;
+  float m_HadEt = -9999.9; 
+  float m_energyRatio = -9999.9;
+  float m_rCore = -9999.9;
+  float m_dPhi = -9999.9;
+  float m_dEta = -9999.9;
+  bool  m_valid = false;
   TPObjRef  m_cluster;
 
   TPObjRef  m_P4PtEtaPhiM;

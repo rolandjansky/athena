@@ -22,9 +22,6 @@
 #include "AthenaPoolUtilities/TPObjRef.h"
 #include "DataModelAthenaPool/ElementLink_p1.h"
 
-#include "TrigCaloEvent/TrigEMClusterContainer.h"
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-
 #include "TrigInDetEvent/TrigInDetTrack.h"
 
 class TrigElectron_p2 
@@ -55,7 +52,7 @@ class TrigElectron_p2
   virtual ~TrigElectron_p2() {}
   friend class TrigElectronCnv_p2;
   
- private:
+  //private:
 
   unsigned int m_roiWord; 
   bool  m_valid; 

@@ -2,13 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigParticle/TrigL2Bphys.h"
 #include "TrigParticleTPCnv/TrigL2Bphys_p1.h"
-#undef private
-#undef protected
- 
 #include "TrigParticleTPCnv/TrigL2BphysCnv_p1.h"
  
 //-----------------------------------------------------------------------------
@@ -34,23 +29,11 @@ void TrigL2BphysCnv_p1::persToTrans( const TrigL2Bphys_p1 *persObj,
 {
   log << MSG::DEBUG << "TrigL2BphysCnv_p1::persToTrans called " << endreq;
 
-  transObj->m_roiID    = persObj->m_roiID    ;
-  transObj->m_eta      = persObj->m_eta      ;
-  transObj->m_phi      = persObj->m_phi      ;
-  transObj->m_mass     = persObj->m_mass     ;
- 
-  transObj->m_particleType    = static_cast<TrigL2Bphys::pType>(persObj->m_particleType);
-
-  //  transObj->m_pVertex        = createTransFromPStore( &m_VertexCnv, persObj->m_pVertex, log );
-  //  transObj->m_pVertex        = 0;
-
-  //  transObj->m_ownsVertex = true;
-
-  //  transObj->m_secondaryDecay = createTransFromPStore( &m_L2BphysCnv, persObj->m_secondaryDecay, log );
-  transObj->m_secondaryDecay.reset();
-
-  //transObj->m_ownsSecondary = true;
-
+  *transObj = TrigL2Bphys (persObj->m_roiID,
+                           persObj->m_eta,
+                           persObj->m_phi,
+                           static_cast<TrigL2Bphys::pType>(persObj->m_particleType),
+                           persObj->m_mass); 
 }
  
 //-----------------------------------------------------------------------------
@@ -62,19 +45,13 @@ void TrigL2BphysCnv_p1::transToPers( const TrigL2Bphys    *transObj,
 {
   log << MSG::DEBUG << "TrigL2BphysCnv_p1::transToPers called " << endreq;
 
-  persObj->m_roiID    = transObj->m_roiID    ;
-  persObj->m_eta      = transObj->m_eta      ;
-  persObj->m_phi      = transObj->m_phi      ;
+  persObj->m_roiID    = transObj->roiId()    ;
+  persObj->m_eta      = transObj->eta()      ;
+  persObj->m_phi      = transObj->phi()      ;
   persObj->m_valid    = 0    ;
-  persObj->m_mass     = transObj->m_mass     ;
+  persObj->m_mass     = transObj->mass()     ;
   persObj->m_dist     = 0     ;
  
-  persObj->m_particleType   = static_cast<TrigL2Bphys_p1::pType_p1>(transObj->m_particleType);
-  
-  //  persObj->m_pVertex        = NULL;
-  //toPersistent( &m_VertexCnv, transObj->m_pVertex, log );
- 
-  //persObj->m_secondaryDecay  = NULL;
-  //toPersistent( &m_L2BphysCnv, transObj->m_secondaryDecay, log );
+  persObj->m_particleType   = static_cast<TrigL2Bphys_p1::pType_p1>(transObj->particleType());
   
 }

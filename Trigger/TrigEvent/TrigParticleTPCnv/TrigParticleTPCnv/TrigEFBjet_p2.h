@@ -17,8 +17,6 @@
 #ifndef TRIGPARTICLETPCNV_TRIGEFBJET_P2_H
 #define TRIGPARTICLETPCNV_TRIGEFBJET_P2_H
 
-#include <stdint.h>
-#include "TrigParticle/TrigEFBjet.h"
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 class TrigEFBjet_p2 {
@@ -28,7 +26,7 @@ class TrigEFBjet_p2 {
  public:
   
   TrigEFBjet_p2() :
-    m_roiID(0), m_prmVtx(0.0),
+    m_valid(false), m_roiID(0), m_prmVtx(0.0),
     m_xcomb(0.0), m_xIP1d(0.0),
     m_xIP2d(0.0), m_xIP3d(0.0),
     m_xChi2(0.0), m_xSv(0.0),
@@ -36,7 +34,7 @@ class TrigEFBjet_p2 {
     {}
   virtual ~TrigEFBjet_p2(){}
  
- private:
+  //private:
 
   bool m_valid;
   

@@ -22,6 +22,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 #include "TrigParticleTPCnv/TrigL2Bjet_p1.h"
+#include "TrigParticle/TrigL2Bjet.h"
 
 class MsgStream;
 

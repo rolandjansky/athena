@@ -18,13 +18,8 @@
 #ifndef TRIGPARTICLETPCNV_TRIGPHOTON_P2_H
 #define TRIGPARTICLETPCNV_TRIGPHOTON_P2_H
 
-#include <stdint.h>
-#include <string>
-
 #include "DataModelAthenaPool/ElementLink_p1.h"
 
-#include "FourMom/P4PtEtaPhiM.h"
-#include "TrigParticle/TrigPhoton.h"
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 
@@ -52,7 +47,7 @@ class TrigPhoton_p2
 
   virtual ~TrigPhoton_p2(){}
   
- private:
+  //private:
 
   int   m_roiID;
   float m_HadEt; 
