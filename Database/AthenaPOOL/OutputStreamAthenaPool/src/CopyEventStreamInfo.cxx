@@ -70,7 +70,7 @@ void CopyEventStreamInfo::handle(const Incident& inc) {
       if (m_inputMetaDataStore->contains<EventStreamInfo>(m_key)) {
          std::list<SG::ObjectWithVersion<EventStreamInfo> > allVersions;
          if (!m_inputMetaDataStore->retrieveAllVersions(allVersions, m_key).isSuccess()) {
-            ATH_MSG_ERROR("Could not retrieve all versions for PedestalWriteData");
+            ATH_MSG_ERROR("Could not retrieve all versions for EventStreamInfo");
             return;
          }
          EventStreamInfo* evtStrInfo_out = 0;

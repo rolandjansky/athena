@@ -126,6 +126,10 @@ private:
    bool            m_connectionOpen;
    /// Flag as to whether to extend provenance via the DataHeader
    bool            m_extendProvenanceRecord;
+
+   /// set of skipped item keys, because of missing CLID
+   std::set<std::string> m_skippedItems;
+
 };
 
 #endif

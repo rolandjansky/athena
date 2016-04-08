@@ -8,12 +8,13 @@
 
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
 
 def createOutputStream( streamName, fileName = "", asAlg = False ):
    writingTool = AthenaPoolOutputStreamTool( streamName + "Tool" )
    writingTool.DataHeaderSatellites = [ "basic/:EventInfo#*" ]
-   outputStream = AthenaPoolOutputStreamProtect(
+   outputStream = AthenaOutputStream(
       streamName,
       WritingTool = writingTool,
       ItemList    = [ "EventInfo#*" ]
@@ -25,7 +26,6 @@ def createOutputStream( streamName, fileName = "", asAlg = False ):
       topSequence = AlgSequence()
       topSequence += outputStream
    else:
-      from AthenaServices.AthenaServicesConf import AthenaOutputStream
       theApp.OutStreamType = "AthenaOutputStream"
       theApp.addOutputStream( outputStream )
 
@@ -49,21 +49,3 @@ def createOutputConditionStream( streamName, fileName = "" ):
 ## backward compat
 AthenaPoolOutputStream          = createOutputStream
 AthenaPoolOutputConditionStream = createOutputConditionStream
-
-from AthenaCommon import CfgMgr
-class AthenaPoolOutputStreamProtect(CfgMgr.AthenaOutputStream):
-   def __init__(self, name='Stream1', **kw):
-      kw['name'] = kw.get('name', name)
-      super(AthenaPoolOutputStreamProtect, self).__init__(**kw)
-      return
-   def _set_output_file(self, fname):
-      self._properties['OutputFile'].__set__(self, fname)
-      from AthenaServices.AthenaServicesConf import AthenaOutputStream
-      AthenaOutputStream("%s_FH" % (self._name,)).OutputFile = fname
-      return
-
-   def _get_output_file(self):
-      return self._properties['OutputFile'].__get__(self)
-
-   OutputFile = property(_get_output_file, _set_output_file, "fwd doc...")
-   pass
