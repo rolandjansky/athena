@@ -31,35 +31,35 @@ InDetUpdateCaches::InDetUpdateCaches(const std::string& name, ISvcLocator* pSvcL
 
 StatusCode 
 InDetUpdateCaches::initialize(){
-  msg(MSG::INFO) << "initialize()" << endmsg;  
+  msg(MSG::INFO) << "initialize()" << endreq;  
   StatusCode sc;
   // Retrieve GeoModel managers
   const InDetDD::SiDetectorManager * sctManager = 0;
   sc=detStore()->retrieve(sctManager, "SCT");
   if (sc.isFailure() || !sctManager) {
-    msg(MSG::WARNING) << "Could not find the SCT_DetectorManager" << endmsg;
+    msg(MSG::WARNING) << "Could not find the SCT_DetectorManager" << endreq;
   } else {
-    msg(MSG::DEBUG) << "SCT_DetectorManager found" << endmsg;
+    msg(MSG::DEBUG) << "SCT_DetectorManager found" << endreq;
     m_detManagers.push_back(sctManager);
   }
   const InDetDD::SiDetectorManager * pixelManager = 0;
   sc=detStore()->retrieve(pixelManager, "Pixel");
   if (sc.isFailure() || !pixelManager) {
-    msg(MSG::WARNING) << "Could not find the PixelDetectorManager" << endmsg;
+    msg(MSG::WARNING) << "Could not find the PixelDetectorManager" << endreq;
   } else {
-    msg(MSG::DEBUG) << "PixelDetectorManager found" << endmsg;
+    msg(MSG::DEBUG) << "PixelDetectorManager found" << endreq;
     m_detManagers.push_back(pixelManager);
  }
   const InDetDD::TRT_DetectorManager * trtManager = 0;
   sc=detStore()->retrieve(trtManager, "TRT");
   if (sc.isFailure() || !trtManager) {
-    msg(MSG::WARNING) << "Could not find the TRT_DetectorManager" << endmsg;
+    msg(MSG::WARNING) << "Could not find the TRT_DetectorManager" << endreq;
   } else {
-    msg(MSG::DEBUG) << "TRT_DetectorManager found" << endmsg;
+    msg(MSG::DEBUG) << "TRT_DetectorManager found" << endreq;
     m_detManagers.push_back(trtManager);
   }
   if (m_inInit) {
-    msg(MSG::DEBUG) << "Updating caches during initialize" << endmsg;
+    msg(MSG::DEBUG) << "Updating caches during initialize" << endreq;
     updateAll();
   }
   return StatusCode::SUCCESS;
@@ -70,7 +70,7 @@ StatusCode
 InDetUpdateCaches::execute() {
   if (m_first) {
     if (m_inExec) {
-      msg(MSG::DEBUG) << "Updating caches during first execute" << endmsg;
+      msg(MSG::DEBUG) << "Updating caches during first execute" << endreq;
       updateAll();
     }
     m_first = false;
@@ -87,23 +87,23 @@ InDetUpdateCaches::finalize() {
 
 void 
 InDetUpdateCaches::updateAll() {
-  msg(MSG::DEBUG) << "Updating ..." << endmsg;
+  msg(MSG::DEBUG) << "Updating ..." << endreq;
   IChronoStatSvc* chrono = chronoSvc();
   for (unsigned int i = 0; i <  m_detManagers.size(); i++) {
     const InDetDD::InDetDetectorManager * manager =  m_detManagers[i];
-    msg(MSG::DEBUG) << "manager ..." << manager << endmsg;
+    msg(MSG::DEBUG) << "manager ..." << manager << endreq;
     if (manager) {
       std::string chronoTag =  manager->getName() + name();
       float memStart = getMem();
       chrono->chronoStart( chronoTag );
-      msg(MSG::DEBUG) << "Updating " << manager->getName() << " caches ..." << endmsg;
+      msg(MSG::DEBUG) << "Updating " << manager->getName() << " caches ..." << endreq;
       manager->updateAll();
-      msg(MSG::DEBUG) << "... done " << endmsg;
+      msg(MSG::DEBUG) << "... done " << endreq;
       chrono->chronoStop(chronoTag);
       float memUsed = getMem() - memStart;      
       float uTime = chrono->chronoDelta(chronoTag, IChronoStatSvc::USER)/1000.;
-      msg(MSG::DEBUG) << "Memory used by UpdatedCaches for  " << manager->getName() << " = " << memUsed/1024.0 << " MB" << endmsg;
-      msg(MSG::DEBUG) << "Time   used by UpdatedCaches for  " << manager->getName() << " = " << uTime << " ms" << endmsg;
+      msg(MSG::DEBUG) << "Memory used by UpdatedCaches for  " << manager->getName() << " = " << memUsed/1024.0 << " MB" << endreq;
+      msg(MSG::DEBUG) << "Time   used by UpdatedCaches for  " << manager->getName() << " = " << uTime << " ms" << endreq;
     }
   }
 }

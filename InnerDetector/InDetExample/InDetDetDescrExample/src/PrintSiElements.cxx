@@ -14,6 +14,8 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
+//#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+//#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -49,35 +51,52 @@ PrintSiElements::PrintSiElements(const std::string& name, ISvcLocator* pSvcLocat
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode PrintSiElements::initialize(){
+  msg(MSG::INFO) << "initialize()" << endreq;  StatusCode sc;
   // Get GeoModelSvc
   const IGeoModelSvc * geoModel;
-  ATH_CHECK(service("GeoModelSvc",geoModel));
+  sc = service("GeoModelSvc",geoModel);
+  if (sc.isFailure()) {
+    msg(MSG::FATAL) << "GeoModelSvc service not found !" << endreq;
+    return StatusCode::FAILURE;
+  } 
   m_fileout.open(m_outputFileName.c_str());
-  ATH_MSG_DEBUG( "Opening output file " << m_outputFileName );
+  msg(MSG::DEBUG) << "Opening output file " << m_outputFileName << endreq;
   if (!m_fileout) {
-    ATH_MSG_ERROR( "Could not open file " << m_outputFileName );
+    msg(MSG::ERROR) << "Could not open file " << m_outputFileName << endreq;
     return StatusCode::FAILURE;
   }
+
   // Print version infomration
   m_fileout << "# ATLAS tag: " << geoModel->atlasVersion() << std::endl;
   m_fileout << "# InDet tag: " << geoModel->inDetVersionOverride() << std::endl;
   m_fileout << "# Pixel tag: " << geoModel->pixelVersionOverride() << std::endl;
   m_fileout << "# SCT   tag: " << geoModel->SCT_VersionOverride() << std::endl;
   m_fileout << "# TRT   tag: " << geoModel->TRT_VersionOverride() << std::endl;
+
+  //printElements("Pixel");
+  //printElements("SCT");
+
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode 
 PrintSiElements::printElements(const std::string & managerName){
+  StatusCode sc;
   const InDetDD::SiDetectorManager * manager;
-  ATH_CHECK(detStore()->retrieve(manager,managerName));
+  sc=detStore()->retrieve(manager,managerName);
+  if (sc.isFailure() || !manager) {
+    msg(MSG::FATAL) << "Could not find the Manager: "<< managerName << " !" << endreq;
+    return StatusCode::FAILURE;
+  } else {
+    msg(MSG::DEBUG) << "Manager found " << managerName << endreq;
+  }
 
   InDetDD::SiDetectorElementCollection::const_iterator iter;  
   for (iter = manager->getDetectorElementBegin(); iter != manager->getDetectorElementEnd(); ++iter){
     const InDetDD::SiDetectorElement * element = *iter; 
+    Identifier id = element->identify();
     if (element) {
-      Identifier id = element->identify();
       int det = 0;
       int bec = 0;
       int layer_disk = 0;
@@ -88,24 +107,20 @@ PrintSiElements::printElements(const std::string & managerName){
       // Get identifier fields. 
       if (element->isPixel()) {
         const PixelID * pixIdHelper = dynamic_cast<const PixelID *>(element->getIdHelper());
-        if (pixIdHelper) {
-					det = 1;
-					bec = pixIdHelper->barrel_ec(id);
-					layer_disk = pixIdHelper->layer_disk(id);
-					phi_module = pixIdHelper->phi_module(id);
-					eta_module = pixIdHelper->eta_module(id);
-					side = 0;
-        }
+        det = 1;
+        bec = pixIdHelper->barrel_ec(id);
+        layer_disk = pixIdHelper->layer_disk(id);
+        phi_module = pixIdHelper->phi_module(id);
+        eta_module = pixIdHelper->eta_module(id);
+        side = 0;
       } else { // SCT
         const SCT_ID * sctIdHelper = dynamic_cast<const SCT_ID *>(element->getIdHelper());
-        if (sctIdHelper){
-					det = 2;
-					bec = sctIdHelper->barrel_ec(id);
-					layer_disk = sctIdHelper->layer_disk(id);
-					phi_module = sctIdHelper->phi_module(id);
-					eta_module = sctIdHelper->eta_module(id);
-					side = sctIdHelper->side(id);
-        }
+        det = 2;
+        bec = sctIdHelper->barrel_ec(id);
+        layer_disk = sctIdHelper->layer_disk(id);
+        phi_module = sctIdHelper->phi_module(id);
+        eta_module = sctIdHelper->eta_module(id);
+        side = sctIdHelper->side(id);
       }
       
       // skip side=1 elements if only print module transforms
@@ -114,7 +129,7 @@ PrintSiElements::printElements(const std::string & managerName){
       Amg::Transform3D trans;
       Amg::Transform3D defTrans;
       if (m_modulesOnly) {
-	      trans = element->moduleTransform();
+	trans = element->moduleTransform();
         defTrans = element->defModuleTransform();
         //see: https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetDetDescr/InDetReadoutGeometry/trunk/InDetReadoutGeometry/SiDetectorElement.h
         //I dont see appropriate Eigen-returning member
@@ -144,6 +159,7 @@ PrintSiElements::printElements(const std::string & managerName){
 }
 
 StatusCode PrintSiElements::execute() {
+  msg(MSG::INFO) << "execute()" << endreq;
   if (m_firstEvent) {
     m_firstEvent = false;
     printElements("Pixel");
@@ -154,6 +170,7 @@ StatusCode PrintSiElements::execute() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 StatusCode PrintSiElements::finalize() {
+  msg(MSG::INFO) << "finalize()" << endreq;
   m_fileout.close();
   return StatusCode::SUCCESS;
 }

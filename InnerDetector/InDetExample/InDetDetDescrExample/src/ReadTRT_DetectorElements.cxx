@@ -52,31 +52,31 @@ ReadTRT_DetectorElements::ReadTRT_DetectorElements(const std::string& name, ISvc
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode ReadTRT_DetectorElements::initialize(){
-  msg(MSG::INFO) << "initialize()" << endmsg;  
+  msg(MSG::INFO) << "initialize()" << endreq;  
   // GeoModelSvc
   if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
     return StatusCode::FAILURE;
   }
   StatusCode sc;
   if(m_geoModelSvc->geoInitialized()) {
-    msg(MSG::INFO) << "Geometry already initialized. Call geoInitialize."  << endmsg;
+    msg(MSG::INFO) << "Geometry already initialized. Call geoInitialize."  << endreq;
     sc = geoInitialize();
   } else {
-    msg(MSG::INFO) << "Geometry not yet initialized. Registering callback"  << endmsg;
+    msg(MSG::INFO) << "Geometry not yet initialized. Registering callback"  << endreq;
     // Register callback to check when TagInfo has changed
     sc =  detStore()->regFcn(&IGeoModelSvc::geoInit, &*m_geoModelSvc,&ReadTRT_DetectorElements::geoInitCallback, this);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot register geoInitCallback function "  << endmsg;
+      msg(MSG::ERROR) << "Cannot register geoInitCallback function "  << endreq;
     } else {
-      msg(MSG::DEBUG) << "Registered geoInitCallback callback  " << endmsg;
+      msg(MSG::DEBUG) << "Registered geoInitCallback callback  " << endreq;
     }
   }
   return sc;
 }
 
 StatusCode ReadTRT_DetectorElements::geoInitCallback(IOVSVC_CALLBACK_ARGS){
-  msg(MSG::INFO) <<"geoInitCallback is called" << endmsg; 
+  msg(MSG::INFO) <<"geoInitCallback is called" << endreq; 
   return geoInitialize();
 }
 
@@ -84,14 +84,14 @@ StatusCode ReadTRT_DetectorElements::geoInitialize() {
   // Get the manager
   StatusCode sc=detStore()->retrieve(m_manager, m_managerName);
   if (sc.isFailure() || !m_manager) {
-    msg(MSG::FATAL) << "Could not find the Manager: "<< m_managerName << " !" << endmsg;
+    msg(MSG::FATAL) << "Could not find the Manager: "<< m_managerName << " !" << endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::DEBUG) << "Manager found" << endmsg;
+    msg(MSG::DEBUG) << "Manager found" << endreq;
   }
   // Get ID helper
   if (detStore()->retrieve(m_idHelper, "TRT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
+    msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
     return StatusCode::FAILURE;
   }
   if (m_doInit) printAllElements();
@@ -101,7 +101,7 @@ StatusCode ReadTRT_DetectorElements::geoInitialize() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode ReadTRT_DetectorElements::execute() {
-  msg(MSG::INFO) << "execute()" << endmsg;
+  msg(MSG::INFO) << "execute()" << endreq;
   // Only print out on first event
   if (m_first && m_doExec) {
     m_first = false;
@@ -301,7 +301,7 @@ void ReadTRT_DetectorElements::printAllElements(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode ReadTRT_DetectorElements::finalize() {
-  msg(MSG::INFO) << "finalize()" << endmsg;
+  msg(MSG::INFO) << "finalize()" << endreq;
   return StatusCode::SUCCESS;
 }
 

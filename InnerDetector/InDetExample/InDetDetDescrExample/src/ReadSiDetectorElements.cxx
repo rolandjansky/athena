@@ -20,7 +20,8 @@
 #include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
-
+//#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+//#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 
@@ -75,6 +76,7 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode ReadSiDetectorElements::initialize(){
+  msg(MSG::INFO) << "initialize()" << endreq; 
   // Retrieve GeoModel Detector Elements
   // You can either get the SCT or pixel manager or the common base class
   // manager. In this example I get the base class.
@@ -84,19 +86,22 @@ StatusCode ReadSiDetectorElements::initialize(){
   //  const SCT_DetectorManager  * manager;
 
   // GeoModelSvc
-  ATH_CHECK (m_geoModelSvc.retrieve());
+  if (m_geoModelSvc.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    return StatusCode::FAILURE;
+  }
   StatusCode sc;
   if(m_geoModelSvc->geoInitialized()) {
-    ATH_MSG_INFO( "Geometry already initialized. Call geoInitialize."  );
+    msg(MSG::INFO) << "Geometry already initialized. Call geoInitialize."  << endreq;
     sc = geoInitialize();
   } else {
-    ATH_MSG_INFO( "Geometry not yet initialized. Registering callback"  );
+    msg(MSG::INFO) << "Geometry not yet initialized. Registering callback"  << endreq;
     // Register callback to check when TagInfo has changed
     sc =  detStore()->regFcn(&IGeoModelSvc::geoInit, &*m_geoModelSvc,&ReadSiDetectorElements::geoInitCallback, this);
     if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Cannot register geoInitCallback function "  );
+      msg(MSG::ERROR) << "Cannot register geoInitCallback function "  << endreq;
     } else {
-      ATH_MSG_DEBUG( "Registered geoInitCallback callback  " );
+      msg(MSG::DEBUG) << "Registered geoInitCallback callback  " << endreq;
     }
   }
   return sc;
@@ -104,18 +109,28 @@ StatusCode ReadSiDetectorElements::initialize(){
 
 
 StatusCode ReadSiDetectorElements::geoInitCallback(IOVSVC_CALLBACK_ARGS){
-  ATH_MSG_DEBUG("geoInitCallback is called" ); 
+  msg(MSG::INFO) <<"geoInitCallback is called" << endreq; 
   return geoInitialize();
 }
 
 StatusCode ReadSiDetectorElements::geoInitialize() {
-  ATH_CHECK( detStore()->retrieve(m_manager,m_managerName));
+  StatusCode sc = detStore()->retrieve(m_manager,m_managerName);
+  if (sc.isFailure()) {
+    msg(MSG::FATAL) << "Could not find the Manager: "    << m_managerName << " !" << endreq;
+    return StatusCode::FAILURE;
+  } else {
+    msg(MSG::DEBUG) << "Manager found" << endreq;
+  }
+
   if (m_managerName == "Pixel") {
     //
     // Get Pixel ID helper
     //
     // Pixel ID helper: const PixelID * m_pixelIdHelper;
-    ATH_CHECK (detStore()->retrieve(m_pixelIdHelper, "PixelID"));
+    if (detStore()->retrieve(m_pixelIdHelper, "PixelID").isFailure()) {
+      msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+      return StatusCode::FAILURE;
+    }
 
     // If common pixel/SCT code can copy to pointer to AtlasDetectorID
     m_idHelper = m_pixelIdHelper;
@@ -125,22 +140,25 @@ StatusCode ReadSiDetectorElements::geoInitialize() {
     // Get SCT ID helper
     //
     // SCT ID helper: const SCT_ID * m_sctIdHelper;
-    ATH_CHECK (detStore()->retrieve(m_sctIdHelper, "SCT_ID"));
+    if (detStore()->retrieve(m_sctIdHelper, "SCT_ID").isFailure()) {
+      msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+      return StatusCode::FAILURE;
+    }
 
     // If common pixel/SCT code can copy to pointer to AtlasDetectorID
     m_idHelper = m_sctIdHelper;
   }
-  StatusCode sc = m_siLorentzAngleSvc.retrieve();
+  sc = m_siLorentzAngleSvc.retrieve();
   if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve Lorentz Angle Svc: " << m_siLorentzAngleSvc.name() );
+    msg(MSG::ERROR) << "Could not retrieve Lorentz Angle Svc: " << m_siLorentzAngleSvc.name() << endreq;
   }
   sc = m_siPropertiesSvc.retrieve();
   if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve silicon properties svc: " << m_siPropertiesSvc.name() );
+    msg(MSG::ERROR) << "Could not retrieve silicon properties svc: " << m_siPropertiesSvc.name() << endreq;
   }
   sc = m_siConditionsSvc.retrieve();
   if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
+    msg(MSG::ERROR) << "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() << endreq;
   }
   // Print during initialize
   if (m_doInit) {
@@ -152,6 +170,7 @@ StatusCode ReadSiDetectorElements::geoInitialize() {
 
 
 StatusCode ReadSiDetectorElements::execute() {
+  msg(MSG::INFO) << "execute()" << endreq;
   // Only print out on first event
   if (m_first && m_doExec) {
     m_first = false;
@@ -162,6 +181,7 @@ StatusCode ReadSiDetectorElements::execute() {
 }
 
 void ReadSiDetectorElements::printAllElements() {
+  msg(MSG::INFO) << "printAllElements()" << endreq;
   // There are various ways you can access the elements. eg
   // m_manager->getDetectorElement(idHash);
   // m_manager->getDetectorElement(identifier);
@@ -307,9 +327,7 @@ void ReadSiDetectorElements::printAllElements() {
             if (m_pixelIdHelper){
               id = m_pixelIdHelper->wafer_id(iEndcap,iDisk,iPhi,iEta);
             } else {
-              if (m_sctIdHelper){
-                id = m_sctIdHelper->wafer_id(iEndcap,iDisk,iPhi,iEta,iSide);
-              }
+              id = m_sctIdHelper->wafer_id(iEndcap,iDisk,iPhi,iEta,iSide);
             }
             const SiDetectorElement * element = m_manager->getDetectorElement(id);
             endcapCount++;
@@ -344,7 +362,7 @@ void ReadSiDetectorElements::printAllElements() {
 
 
 void ReadSiDetectorElements::printRandomAccess() {
-  msg(MSG::INFO) << "printRandomAccess()" << endmsg;
+  msg(MSG::INFO) << "printRandomAccess()" << endreq;
   // Some random access
   if (m_manager->getName() == "Pixel") {
     //const PixelID * idHelper = dynamic_cast<const PixelID *>(m_manager->getIdHelper());
@@ -662,7 +680,7 @@ ReadSiDetectorElements::printElementId(const SiDetectorElement * element) const{
 
 StatusCode ReadSiDetectorElements::finalize() {
   // Part 1: Get the messaging service, print where you are
-  msg(MSG::INFO) << "finalize()" << endmsg;
+  msg(MSG::INFO) << "finalize()" << endreq;
   return StatusCode::SUCCESS;
 }
 

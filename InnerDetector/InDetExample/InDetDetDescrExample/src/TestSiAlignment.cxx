@@ -45,7 +45,6 @@ using namespace InDetDD;
 
 TestSiAlignment::TestSiAlignment(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_manager(nullptr),
   m_managerName(""),
   m_geoModelSvc("GeoModelSvc", name)
 {  
@@ -61,38 +60,50 @@ TestSiAlignment::TestSiAlignment(const std::string& name, ISvcLocator* pSvcLocat
 
 StatusCode TestSiAlignment::initialize(){
 
-  ATH_MSG_INFO( "Algorithm Properties" );
-  ATH_MSG_INFO( " ManagerName:      " << m_managerName );  
-  ATH_MSG_INFO( " LongPrintOut:     " << (m_longPrintOut ? "true" : "false") );  
-  ATH_MSG_INFO( " ErrorRotation:    " << m_errRot );  
-  ATH_MSG_INFO( " ErrorTranslation: " << m_errTrans );  
+  msg(MSG::INFO) << "initialize()" << endreq; 
+
+  msg(MSG::INFO) << "Algorithm Properties" << endreq;
+  msg(MSG::INFO) << " ManagerName:      " << m_managerName << endreq;  
+  msg(MSG::INFO) << " LongPrintOut:     " << (m_longPrintOut ? "true" : "false") << endreq;  
+  msg(MSG::INFO) << " ErrorRotation:    " << m_errRot << endreq;  
+  msg(MSG::INFO) << " ErrorTranslation: " << m_errTrans << endreq;  
   // GeoModelSvc
-  ATH_CHECK (m_geoModelSvc.retrieve());
+  if (m_geoModelSvc.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    return StatusCode::FAILURE;
+  }
   StatusCode sc;
   if(m_geoModelSvc->geoInitialized()) {
-    ATH_MSG_INFO( "Geometry already initialized. Call geoInitialize." );
+    msg(MSG::INFO) << "Geometry already initialized. Call geoInitialize."  << endreq;
     sc = geoInitialize();
   } else {
-    ATH_MSG_INFO( "Geometry not yet initialized. Registering callback"  );
+    msg(MSG::INFO) << "Geometry not yet initialized. Registering callback"  << endreq;
     // Register callback to check when TagInfo has changed
     sc =  detStore()->regFcn(&IGeoModelSvc::geoInit, &*m_geoModelSvc,&TestSiAlignment::geoInitCallback, this);
     if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Cannot register geoInitCallback function "  );
+      msg(MSG::ERROR) << "Cannot register geoInitCallback function "  << endreq;
     } else {
-      ATH_MSG_DEBUG( "Registered geoInitCallback callback  " );
+      msg(MSG::DEBUG) << "Registered geoInitCallback callback  " << endreq;
     }
   }
   return sc;
 }
 
 StatusCode TestSiAlignment::geoInitCallback(IOVSVC_CALLBACK_ARGS){
+  msg(MSG::INFO) <<"geoInitCallback is called" << endreq; 
   return geoInitialize();
 }
 
 
 StatusCode TestSiAlignment::geoInitialize() {
   // Retrieve Detector Manager
-  ATH_CHECK(detStore()->retrieve(m_manager, m_managerName));
+  StatusCode sc=detStore()->retrieve(m_manager, m_managerName);
+  if (sc.isFailure() || !m_manager) {
+    msg(MSG::FATAL) << "Could not find the Manager: "   << m_managerName << " !" << endreq;
+    return StatusCode::FAILURE;
+  } else {
+    msg(MSG::DEBUG) << "Manager found" << endreq;
+  }
   printAlignmentShifts();
   return StatusCode::SUCCESS;
 }
@@ -111,6 +122,7 @@ TestSiAlignment::printAlignmentShifts() {
     if (element) {
       // The id helper is available either through the manager or the elements
       cout << element->getIdHelper()->show_to_string(element->identify());
+      //cout << "Hash id = " << element->identifyHash() << endl;
       // Get the default transform
       Amg::Transform3D elementDefXF = element->defTransform();
       Amg::Transform3D elementXF = element->transform();
@@ -194,6 +206,7 @@ void  TestSiAlignment::extractAlphaBetaGamma(const Amg::Transform3D & trans, dou
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode TestSiAlignment::execute() {
+  msg(MSG::INFO) << "execute()" << endreq;
   printAlignmentShifts();
   return StatusCode::SUCCESS;
 }
@@ -201,6 +214,7 @@ StatusCode TestSiAlignment::execute() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode TestSiAlignment::finalize() {
+  msg(MSG::INFO) << "finalize()" << endreq;
   return StatusCode::SUCCESS;
 }
 
