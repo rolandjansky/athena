@@ -13,6 +13,7 @@ library TrigSteeringTest *.cxx -s=components *.cxx
 apply_pattern component_library
 
 private
+use xAODTrigger		xAODTrigger-*		     Event/xAOD
 use AthenaKernel 	AthenaKernel-* 		     Control
 use DataModel 		DataModel-* 		     Control
 use TrigNavigation      TrigNavigation-*             Trigger/TrigEvent
