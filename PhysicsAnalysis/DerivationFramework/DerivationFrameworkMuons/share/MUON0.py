@@ -8,6 +8,7 @@
 # include("DerivationFrameworkCore/DerivationFrameworkMaster.py")
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
+# from DerivationFrameworkJetEtMiss.METCommon import *
 #====================================================================
 # AUGMENTATION TOOLS 
 #====================================================================
@@ -15,18 +16,31 @@ from DerivationFrameworkMuons.MuonsCommon import *
 #====================================================================
 # STRING BASED SKIMMING TOOL 
 #====================================================================
-from DerivationFrameworkMuons.MUON0_triggers import get_MUON0_trigs, get_MUON0_trigs_run2
-# triggerList = get_MUON0_trigs()
-triggerList = get_MUON0_trigs_run2()
+MUON0_skimming_tools = []
 
-# expression = 'EventInfo.eventTypeBitmask==1||'+'||'.join(triggerList)
-expression = '||'.join(triggerList)
-expression += '||count(Muons.pt>30*GeV)>0'
-print expression
+### trigger seleciton
+triggerList = ['HLT_.*mu.*', 'L1_.*MU.*', 'HLT_noalg_L1.*MU.*']
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+MUON0SkimmingTool0a = DerivationFramework__TriggerSkimmingTool(name = "MUON0SkimmingTool0a",
+                                                              TriggerListOR = triggerList,
+                                                              TriggerListAND = [])
+ToolSvc += MUON0SkimmingTool0a
+
+### muon selection
+expression = 'count(Muons.pt>30*GeV)>0'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-MUON0SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "MUON0SkimmingTool1",
+MUON0SkimmingTool0b = DerivationFramework__xAODStringSkimmingTool(name = "MUON0SkimmingTool0b",
                                                                  expression = expression)
-ToolSvc += MUON0SkimmingTool1
+ToolSvc += MUON0SkimmingTool0b
+
+### OR combination
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+MUON0SkimmingTool0 = DerivationFramework__FilterCombinationOR(name="MUON0SkimmingTool0",
+                                                              FilterList=[MUON0SkimmingTool0a, MUON0SkimmingTool0b])
+ToolSvc += MUON0SkimmingTool0
+
+### adding the combined tool
+MUON0_skimming_tools.append(MUON0SkimmingTool0)
 #====================================================================
 # THINNING TOOL 
 #====================================================================
@@ -63,7 +77,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON0Kernel",
 # 									AugmentationTools = [],
                                                                         ThinningTools = MUON0_thinning_tools,
-                                                                        SkimmingTools = [MUON0SkimmingTool1]
+                                                                        SkimmingTools = MUON0_skimming_tools
                                                                       )
 #====================================================================
 # SET UP STREAM   

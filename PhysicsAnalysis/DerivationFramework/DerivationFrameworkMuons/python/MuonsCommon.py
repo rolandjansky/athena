@@ -20,6 +20,8 @@ DFCommonMuonToolWrapperTools = []
 
 ### IDHits
 DFCommonMuonsSelector = CP__MuonSelectionTool(name = "DFCommonMuonsSelector")
+DFCommonMuonsSelector.MaxEta = 2.7
+DFCommonMuonsSelector.MuQuality = 3
 ToolSvc += DFCommonMuonsSelector
 print DFCommonMuonsSelector
 
@@ -34,6 +36,7 @@ DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapper)
 
 ### Loose
 DFCommonMuonsSelectorLoose = CP__MuonSelectionTool(name = "DFCommonMuonsSelectorLoose")
+DFCommonMuonsSelectorLoose.MaxEta = 2.7
 DFCommonMuonsSelectorLoose.MuQuality = 2
 ToolSvc += DFCommonMuonsSelectorLoose
 print DFCommonMuonsSelectorLoose
@@ -49,6 +52,7 @@ DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapperLoose)
 
 ### Medium
 DFCommonMuonsSelectorMedium = CP__MuonSelectionTool(name = "DFCommonMuonsSelectorMedium")
+DFCommonMuonsSelectorMedium.MaxEta = 2.7
 DFCommonMuonsSelectorMedium.MuQuality = 1
 ToolSvc += DFCommonMuonsSelectorMedium
 print DFCommonMuonsSelectorMedium
@@ -64,6 +68,7 @@ DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapperMedium)
 
 ### Tight
 DFCommonMuonsSelectorTight = CP__MuonSelectionTool(name = "DFCommonMuonsSelectorTight")
+DFCommonMuonsSelectorTight.MaxEta = 2.7
 DFCommonMuonsSelectorTight.MuQuality = 0
 ToolSvc += DFCommonMuonsSelectorTight
 print DFCommonMuonsSelectorTight

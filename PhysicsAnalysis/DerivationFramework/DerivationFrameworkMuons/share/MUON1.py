@@ -7,6 +7,7 @@
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
+# from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
 
 #====================================================================
@@ -25,7 +26,7 @@ MUON1AugmentTool1 = DerivationFramework__dimuonTaggingTool(name = "MUON1AugmentT
                                                            Mu1Types = [0],
                                                            Mu1Trigs = [],
                                                            Mu1IsoCuts = {},
-                                                           Mu2PtMin = 8*Units.GeV,
+                                                           Mu2PtMin = 4*Units.GeV,
                                                            Mu2AbsEtaMax = 9999.,
                                                            Mu2Types = [],
                                                            Mu2Trigs = [],
@@ -100,11 +101,11 @@ MUON1ThinningTools.append(MUON1ThinningTool2)
 # MUON1ThinningTools.append(MUON1ThinningTool3)
 
 # keep topoclusters around muons
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CaloClusterThinning
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 MUON1ThinningTool4 = DerivationFramework__CaloClusterThinning(name                    = "MUON1ThinningTool4",
                                                               ThinningService         = "MUON1ThinningSvc",
                                                               SGKey                   = "Muons",
-                                                              SelectionString         = "Muons.pt>9*GeV",
+                                                              SelectionString         = "Muons.pt>4*GeV",
                                                               TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                               ConeSize                = 0.5)
 ToolSvc += MUON1ThinningTool4

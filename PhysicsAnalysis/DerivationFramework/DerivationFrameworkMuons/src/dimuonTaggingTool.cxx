@@ -24,8 +24,8 @@ DerivationFramework::dimuonTaggingTool::dimuonTaggingTool(const std::string& t,
 							    const std::string& n,
 							    const IInterface* p):
   AthAlgTool(t, n, p),
-  m_matchTool( "TrigMatchTool/TrigMatchTool" ),
-  m_trigDecisionTool("Trig::TrigDecisionTool")
+  m_matchTool( "Trig::TrigMuonMatching/TrigMuonMatching" ),
+  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("TrigDecisionTool", m_trigDecisionTool, "Tool to access the trigger decision");
@@ -88,9 +88,6 @@ StatusCode DerivationFramework::dimuonTaggingTool::initialize()
      return StatusCode::FAILURE;
   }
 
-  findTrigFns(m_mu1Trigs, m_mu1TrigsFns);
-  findTrigFns(m_mu2Trigs, m_mu2TrigsFns);
-
   m_invariantMassLow2 = m_invariantMassLow*fabs(m_invariantMassLow);
   m_invariantMassHigh2 = m_invariantMassHigh*fabs(m_invariantMassHigh);
   m_thinningConeSize2 = m_thinningConeSize*fabs(m_thinningConeSize);
@@ -98,40 +95,11 @@ StatusCode DerivationFramework::dimuonTaggingTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-void DerivationFramework::dimuonTaggingTool::findTrigFns(const std::vector< std::string >& Trigs, std::vector< TrigMatchFn >& TrigsFns)
-{
-  /// find the trigger functions so do not need to check every event
-  for(unsigned int i=0; i<Trigs.size(); i++)
-   {
-     std::string tag = Trigs[i].substr(0,2);
-     if(tag=="EF") TrigsFns.push_back(&DerivationFramework::dimuonTaggingTool::passEF);
-     else if(tag=="L1") TrigsFns.push_back(&DerivationFramework::dimuonTaggingTool::passL1);
-     else if(tag=="L2") TrigsFns.push_back(&DerivationFramework::dimuonTaggingTool::passL2);
-     else ATH_MSG_FATAL("Trigger requirement error: " << Trigs[i]);
-   }
-}
-
-bool DerivationFramework::dimuonTaggingTool::checkTrigMatch(const xAOD::Muon *mu, const std::vector< std::string >& Trigs, const std::vector< TrigMatchFn >& TrigsFns) const
-{
-  unsigned int n = Trigs.size();
-  for(unsigned int i=0; i<n; i++) {if((this->*TrigsFns[i])(mu, Trigs[i])){return true;}}
-  return n==0;
-}
-
 bool DerivationFramework::dimuonTaggingTool::checkTrigMatch(const xAOD::Muon *mu, const std::vector< std::string >& Trigs) const
 {
-  for(unsigned int i=0; i<Trigs.size(); i++)
-   {
-    std::string tag = Trigs[i].substr(0,2);
-    std::string trig = Trigs[i];
-    if(tag=="EF"){ if(passEF(mu, trig)) return true;}
-    else if(tag=="L1"){ if(passL1(mu, trig)) return true;}
-    else if(tag=="L2"){ if (passL2(mu, trig)) return true;}
-    else ATH_MSG_FATAL("Trigger requirement error: " << Trigs[i]); 
-   }
-  return false;
+  for(auto t: Trigs) {if(m_matchTool->match(mu, t)) return true;}
+  return 0==Trigs.size();
 }
-
 
 StatusCode DerivationFramework::dimuonTaggingTool::finalize()
 {
@@ -183,10 +151,10 @@ StatusCode DerivationFramework::dimuonTaggingTool::fillInfo(int* keepEvent, std:
   const xAOD::MuonContainer *muons(0);
   ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey));
   for(auto mu_itr1: *muons) {
-    if(!passMuonCuts(mu_itr1, m_mu1PtMin, m_mu1AbsEtaMax, m_mu1Types, m_mu1Trigs, m_mu1TrigsFns, m_mu1IsoCuts)) continue;
+    if(!passMuonCuts(mu_itr1, m_mu1PtMin, m_mu1AbsEtaMax, m_mu1Types, m_mu1Trigs, m_mu1IsoCuts)) continue;
     for(auto mu_itr2: *muons) {
       if(mu_itr2==mu_itr1) continue;
-      if(!passMuonCuts(mu_itr2, m_mu2PtMin, m_mu2AbsEtaMax, m_mu2Types, m_mu2Trigs, m_mu2TrigsFns, m_mu2IsoCuts)) continue;
+      if(!passMuonCuts(mu_itr2, m_mu2PtMin, m_mu2AbsEtaMax, m_mu2Types, m_mu2Trigs, m_mu2IsoCuts)) continue;
       if(!muonPairCheck(mu_itr1, mu_itr2->charge(), mu_itr2->p4())) continue;
       (*keepEvent)++;
     }
@@ -256,7 +224,7 @@ bool DerivationFramework::dimuonTaggingTool::muonPairCheck(const xAOD::Muon *mu1
   return true;
 }
 
-bool DerivationFramework::dimuonTaggingTool::passMuonCuts(const xAOD::Muon *mu, const float ptMin, const float absEtaMax, const std::vector< int >& types, const std::vector< std::string >& trigs, const std::vector< TrigMatchFn >& trigfns, const std::map< int, double > muIsoCuts) const
+bool DerivationFramework::dimuonTaggingTool::passMuonCuts(const xAOD::Muon *mu, const float ptMin, const float absEtaMax, const std::vector< int >& types, const std::vector< std::string >& trigs, const std::map< int, double > muIsoCuts) const
 {
   /// the object should exist
   if(!mu) return false;
@@ -281,7 +249,7 @@ bool DerivationFramework::dimuonTaggingTool::passMuonCuts(const xAOD::Muon *mu, 
   }
 
   /// do trigger matching
-  if(trigs.size()>0 && !checkTrigMatch(mu, trigs, trigfns)) return false;
+  if(trigs.size()>0 && !checkTrigMatch(mu, trigs)) return false;
 
   return true;
 }
@@ -302,20 +270,4 @@ bool DerivationFramework::dimuonTaggingTool::passMuonCuts(const xAOD::Muon *mu, 
   if(trigs.size()>0 && !checkTrigMatch(mu, trigs)) return false;
 
   return true;
-}
-
-bool DerivationFramework::dimuonTaggingTool::passL1( const xAOD::Muon *m, std::string l1chainName) const {
-   return m_matchTool->chainPassedByObject< TrigMatch::TrigMuonL1 >( m, l1chainName, m_triggerMatchDeltaR);
-}
-
-// Does the reco'd muon pass L2 of the chain we're interested in?
-bool DerivationFramework::dimuonTaggingTool::passL2( const xAOD::Muon *m, std::string l2chainName) const {
-   if(m) ATH_MSG_FATAL("L2 trigger: " << l2chainName << "is not supported.");
-   return false;
-}
-
-// Does the reco'd muon pass EF of the chain we're interested in?
-bool DerivationFramework::dimuonTaggingTool::passEF( const xAOD::Muon *m, std::string efchainName ) const {
-   std::cout << "checking tigger " << efchainName << " match" << std::endl;
-   return m_matchTool->chainPassedByObject< TrigMatch::TrigMuonEF, xAOD::Muon >( m, efchainName, m_triggerMatchDeltaR);
 }

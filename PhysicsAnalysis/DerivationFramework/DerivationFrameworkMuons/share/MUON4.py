@@ -6,6 +6,7 @@
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
+# from DerivationFrameworkJetEtMiss.METCommon import *
 #====================================================================
 # AUGMENTATION TOOLS 
 #====================================================================
@@ -26,29 +27,19 @@ MUON4TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "MUO
 print MUON4TrackToVertexWrapper
 ToolSvc += MUON4TrackToVertexWrapper
 MUON4_aug_tools.append(MUON4TrackToVertexWrapper)
-
-# ## combined tracks
-# MUON4TrackToVertexWrapper2= DerivationFramework__TrackToVertexWrapper(name = "MUON4TrackToVertexWrapper2",
-#                                                                      TrackToVertexIPEstimator = MUON4IPETool,
-#                                                                      DecorationPrefix = "MUON4",
-#                                                                      ContainerName = "CombinedMuonTrackParticles")
-# print MUON4TrackToVertexWrapper2
-# ToolSvc += MUON4TrackToVertexWrapper2
-# MUON4_aug_tools.append(MUON4TrackToVertexWrapper2)
-# 
-# ## Extraplated tracks
-# MUON4TrackToVertexWrapper3= DerivationFramework__TrackToVertexWrapper(name = "MUON4TrackToVertexWrapper3",
-#                                                                      TrackToVertexIPEstimator = MUON4IPETool,
-#                                                                      DecorationPrefix = "MUON4",
-#                                                                      ContainerName = "ExtrapolatedMuonTrackParticles")
-# print MUON4TrackToVertexWrapper3
-# ToolSvc += MUON4TrackToVertexWrapper3
-# MUON4_aug_tools.append(MUON4TrackToVertexWrapper3)
 #====================================================================
 # STRING BASED SKIMMING TOOL 
 #====================================================================
 MUON4_skimming_tools = []
 
+expression1 = 'count(Muons.pt>0)>0'
+if DerivationFrameworkIsMonteCarlo: expression1 += '||count(MuonTruthParticles.pt>0)>0'
+print expression1
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+MUON4SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "MUON4SkimmingTool1",
+                                                                 expression = expression1)
+ToolSvc += MUON4SkimmingTool1
+MUON4_skimming_tools.append(MUON4SkimmingTool1)
 #====================================================================
 # THINNING TOOL 
 #====================================================================

@@ -13,7 +13,7 @@ use  ExpressionEvaluation       ExpressionEvaluation-*          PhysicsAnalysis/
 use  GaudiInterface             GaudiInterface-*                External
 use  RecoToolInterfaces         RecoToolInterfaces-*            Reconstruction/RecoTools
 use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
-use  TrigObjectMatching         TrigObjectMatching-*            Trigger/TrigAnalysis
+use  TrigMuonMatching           TrigMuonMatching-*              Trigger/TrigAnalysis 
 use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
 use  xAODMuon                   xAODMuon-*                      Event/xAOD
 private

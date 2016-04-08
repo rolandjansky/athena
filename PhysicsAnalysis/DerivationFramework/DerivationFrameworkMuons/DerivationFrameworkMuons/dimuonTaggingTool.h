@@ -15,7 +15,7 @@
 
 // Gaudi & Athena basics
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrigObjectMatching/TrigMatchTool.h"
+#include "TrigMuonMatching/ITrigMuonMatching.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
@@ -28,7 +28,6 @@ namespace DerivationFramework {
      */
   class dimuonTaggingTool : public AthAlgTool, public IAugmentationTool {
     
-  typedef bool (dimuonTaggingTool::*TrigMatchFn)(const xAOD::Muon *m, std::string l1chainName) const;
   public: 
     /** Constructor with parameters */
     dimuonTaggingTool( const std::string& t, const std::string& n, const IInterface* p);
@@ -43,20 +42,15 @@ namespace DerivationFramework {
     virtual StatusCode addBranches() const;
     
   private:
-    bool passMuonCuts(const xAOD::Muon *mu, const float ptMin, const float absEtaMax, const std::vector< int >& types, const std::vector< std::string >& trigs, const std::vector< TrigMatchFn >& trigfns, const std::map< int, double > muIsoCuts) const;
+    bool passMuonCuts(const xAOD::Muon *mu, const float ptMin, const float absEtaMax, const std::vector< int >& types, const std::vector< std::string >& trigs, const std::map< int, double > muIsoCuts) const;
     bool passMuonCuts(const xAOD::Muon *mu, const float ptMin, const float absEtaMax, const std::vector< int >& types, const std::vector< std::string >& trigs) const;
-    bool passL1(const xAOD::Muon *m, std::string l1chainName) const;
-    bool passL2(const xAOD::Muon *m, std::string l2chainName) const;
-    bool passEF(const xAOD::Muon *m, std::string efchainName) const;
-    void findTrigFns(const std::vector< std::string >& trignames, std::vector< TrigMatchFn >& trigfns);
     bool checkTrigMatch(const xAOD::Muon *mu, const std::vector< std::string >& Trigs) const;
-    bool checkTrigMatch(const xAOD::Muon *mu, const std::vector< std::string >& Trigs, const std::vector< TrigMatchFn >& TrigsFns) const;
     bool muonPairCheck(const xAOD::Muon *mu1, float charge2, const TLorentzVector& mu2) const;
     bool passKinematicCuts(const xAOD::IParticle *mu, float ptMin, float absEtaMax) const; 
     StatusCode fillInfo(int* keep, std::vector<int>& trackMask) const;
     void maskNearbyIDtracks(const xAOD::IParticle *mu, std::vector< int >& trackMask, const xAOD::TrackParticleContainer* tracks) const;
 
-    ToolHandle< TrigMatchTool > m_matchTool;
+    ToolHandle< Trig::ITrigMuonMatching > m_matchTool;
     float m_triggerMatchDeltaR;
     ToolHandle< Trig::TrigDecisionTool > m_trigDecisionTool;
     std::vector< std::string > m_orTrigs;
@@ -67,13 +61,11 @@ namespace DerivationFramework {
     float m_mu1AbsEtaMax;
     std::vector< int > m_mu1Types;
     std::vector< std::string > m_mu1Trigs;
-    std::vector< TrigMatchFn > m_mu1TrigsFns;
     std::map< int, double > m_mu1IsoCuts;
     float m_mu2PtMin;
     float m_mu2AbsEtaMax;
     std::vector< int > m_mu2Types;
     std::vector< std::string > m_mu2Trigs;
-    std::vector< TrigMatchFn > m_mu2TrigsFns;
     std::map< int, double > m_mu2IsoCuts;
 
     std::string m_trackSGKey;
