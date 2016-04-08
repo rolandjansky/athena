@@ -12,7 +12,7 @@
  * @author Diego Casadei  <Diego.Casadei@cern.ch>  - NYU
  *
  * File and Version Information:
- * $Id: TrigMissingET_p3.h 363695 2011-05-04 14:46:32Z salvator $
+ * $Id: TrigMissingET_p3.h 722331 2016-02-07 21:58:59Z ssnyder $
  **********************************************************************************/
 #ifndef TRIGMISSINGETEVENTTPCNV_TRIGMISSINGET_p3_H
 #define TRIGMISSINGETEVENTTPCNV_TRIGMISSINGET_p3_H
@@ -31,7 +31,7 @@ class TrigMissingET_p3
   TrigMissingET_p3() : m_flag(0) {}
   virtual ~TrigMissingET_p3(){}
   
- private:
+  //private:
   /** Basic information **/
 
   float m_allTheFloats[5];

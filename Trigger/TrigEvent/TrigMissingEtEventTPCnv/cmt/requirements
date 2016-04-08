@@ -16,7 +16,8 @@ apply_pattern tpcnv_library
 
 private
 
-use AtlasReflex		 AtlasReflex-*		    External
+use GaudiInterface       GaudiInterface-*   External
+use AtlasReflex		 AtlasReflex-*	    External
 use AthenaKernel         AthenaKernel-*     Control
 
 # Create a dictionary for the persistent representation 
@@ -28,3 +29,8 @@ apply_pattern lcgdict dict=TrigMissingEtEventTPCnv \
   headerfiles="../TrigMissingEtEventTPCnv/TrigMissingEtEventTPCnvDict.h"
 
 end_private
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=TrigMissingETCnv_p2
+apply_pattern UnitTest_run unit_test=TrigMissingETCnv_p3

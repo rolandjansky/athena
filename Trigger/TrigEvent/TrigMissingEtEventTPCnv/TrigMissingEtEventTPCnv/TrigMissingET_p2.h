@@ -31,7 +31,7 @@ class TrigMissingET_p2
   TrigMissingET_p2() {}
   virtual ~TrigMissingET_p2(){}
   
- private:
+  //private:
   /** Basic information **/
   float m_ex, m_ey, m_ez;  //<! components of the missing energy vector
   float m_sum_et, m_sum_e; //<! sums of |Et| and |E|

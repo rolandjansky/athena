@@ -31,7 +31,7 @@ class TrigMissingET_p1
   TrigMissingET_p1() {}
   virtual ~TrigMissingET_p1(){}
   
- private:
+  //private:
   double m_ex;
   double m_ey;
   double m_sum_et;
