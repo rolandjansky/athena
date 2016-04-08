@@ -24,3 +24,6 @@
 #include "xAODTrigger/TriggerMenuAuxContainer.h"
 #include "xAODTrigger/TrigPassBitsContainer.h"
 #include "xAODTrigger/TrigPassBitsAuxContainer.h"
+#include "xAODTrigger/RoiDescriptorStore.h"
+#include "xAODTrigger/RoiDescriptorStoreAuxInfo.h"
+

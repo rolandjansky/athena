@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTriggerDict.h 702738 2015-10-23 16:00:51Z krasznaa $
+// $Id: xAODTriggerDict.h 710006 2015-11-23 21:01:29Z sutt $
 #ifndef XAODTRIGGER_XAODTRIGGERDICT_H
 #define XAODTRIGGER_XAODTRIGGERDICT_H
 
@@ -68,6 +68,9 @@
 #include "xAODTrigger/versions/TrigPassBits_v1.h"
 #include "xAODTrigger/versions/TrigPassBitsContainer_v1.h"
 #include "xAODTrigger/versions/TrigPassBitsAuxContainer_v1.h"
+
+#include "xAODTrigger/versions/RoiDescriptorStore_v1.h"
+#include "xAODTrigger/versions/RoiDescriptorStoreAuxInfo_v1.h"
 
 namespace{
   struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGGER {
