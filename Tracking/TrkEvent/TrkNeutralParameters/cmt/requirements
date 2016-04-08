@@ -13,6 +13,10 @@ use TrkSurfaces         TrkSurfaces-*            Tracking/TrkDetDescr
 private
 # use GaudiInterface      GaudiInterface-*         External  
 
+# For cmake, declare this package as having a metalibrary, which causes all the headers and 
+# libraries it depends upon to be available to clients of this package. 
+apply_pattern cmake_add_command command=metalibrary
+
 public
 # library TrkParameters *.cxx
 # apply_pattern installed_library
