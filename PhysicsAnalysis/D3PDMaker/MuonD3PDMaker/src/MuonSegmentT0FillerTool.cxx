@@ -74,7 +74,7 @@ void MuonSegmentT0FillerTool::MuonboyT0CSCSegment(const Muon::MuonSegment* pMuon
    int   Alternative_ThereIsaCscTimeLate   = 0 ;
    float Alternative_LatestEarlyTime  = 0. ;
    float Alternative_EarliestLateTime = 0. ;
-   float Alternative_Kounter = 0. ;
+   float Alternative_counter = 0. ;
    float Alternative_t0      = 0. ;
    float Alternative_t0sqr   = 0. ;
    float Alternative_t0Error = 0. ;
@@ -89,7 +89,7 @@ void MuonSegmentT0FillerTool::MuonboyT0CSCSegment(const Muon::MuonSegment* pMuon
            DoAlternative = 1 ;
            double Time = pPrepData->time() ;
            if (pPrepData->timeStatus() == Muon::CscTimeSuccess){
-             Alternative_Kounter = Alternative_Kounter + 1. ;
+             Alternative_counter = Alternative_counter + 1. ;
              Alternative_t0    = Alternative_t0    + Time      ;
              Alternative_t0sqr = Alternative_t0sqr + Time*Time ;
            }
@@ -109,9 +109,10 @@ void MuonSegmentT0FillerTool::MuonboyT0CSCSegment(const Muon::MuonSegment* pMuon
    }
    
    if (DoAlternative==1){ 
-     if (Alternative_Kounter){
-       Alternative_t0    =  Alternative_t0    / Alternative_Kounter ;
-       Alternative_t0sqr =  Alternative_t0sqr / Alternative_Kounter ;
+     if (Alternative_counter){
+       const float inv_Alternative_counter = 1. / Alternative_counter;
+       Alternative_t0    =  Alternative_t0   * inv_Alternative_counter;
+       Alternative_t0sqr =  Alternative_t0sqr * inv_Alternative_counter;
        Alternative_t0Error =  Alternative_t0sqr - Alternative_t0*Alternative_t0 ;
        if (Alternative_t0Error < 0.){
          Alternative_t0Error = 0. ;

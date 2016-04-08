@@ -20,7 +20,6 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include <vector>
-using namespace std;
 
 namespace D3PD {
 
@@ -53,21 +52,21 @@ private:
   int* m_pattern_nRPC;
   int* m_pattern_nTGC;
   int* m_pattern_nCSC;
-  vector<vector<int> >* m_truth_barcode;
-  vector<int>* m_truth_nMDT;
-  vector<int>* m_truth_nRPC;
-  vector<int>* m_truth_nTGC;
-  vector<int>* m_truth_nCSC;
-  vector<int>* m_noise_nMDT;
-  vector<int>* m_noise_nRPC;
-  vector<int>* m_noise_nTGC;
-  vector<int>* m_noise_nCSC;
-  vector<int>* m_common_nMDT;
-  vector<int>* m_common_nRPC;
-  vector<int>* m_common_nTGC;
-  vector<int>* m_common_nCSC;
+  std::vector<std::vector<int> >* m_truth_barcode;
+  std::vector<int>* m_truth_nMDT;
+  std::vector<int>* m_truth_nRPC;
+  std::vector<int>* m_truth_nTGC;
+  std::vector<int>* m_truth_nCSC;
+  std::vector<int>* m_noise_nMDT;
+  std::vector<int>* m_noise_nRPC;
+  std::vector<int>* m_noise_nTGC;
+  std::vector<int>* m_noise_nCSC;
+  std::vector<int>* m_common_nMDT;
+  std::vector<int>* m_common_nRPC;
+  std::vector<int>* m_common_nTGC;
+  std::vector<int>* m_common_nCSC;
   
-  int m_matchedTruth;
+  //int m_matchedTruth;
   std::string m_truthSGkey;
   std::string m_patternKey;
 

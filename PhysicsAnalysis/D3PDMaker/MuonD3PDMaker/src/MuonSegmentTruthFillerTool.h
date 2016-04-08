@@ -22,7 +22,7 @@
 #include "MuonRecToolInterfaces/IDetailedMuonPatternTruthBuilder.h"
 
 #include <vector>
-using namespace std;
+
 
 namespace D3PD {
 
@@ -32,8 +32,8 @@ class MuonSegmentTruthFillerTool
 {
 public:
   MuonSegmentTruthFillerTool (const std::string& type,
-                        const std::string& name,
-                        const IInterface* parent);
+                              const std::string& name,
+                              const IInterface* parent);
 
   virtual StatusCode book();
   virtual StatusCode initialize();
@@ -43,7 +43,7 @@ public:
 //  virtual SubDetHitStatistics::SubDetType findSubDetType(Identifier id);
 
 private:
-  vector<int>* m_truth_barcode;
+  std::vector<int>* m_truth_barcode;
   float* m_res_x;
   float* m_res_y;
   float* m_dAngleYZ;
@@ -67,7 +67,7 @@ private:
   int* m_common_nTGC;
   int* m_common_nCSC;
   
-  int m_matchedTruth;
+  //int m_matchedTruth;
   std::string m_truthSGkey;
 
   const AtlasDetectorID *m_idHelper;
