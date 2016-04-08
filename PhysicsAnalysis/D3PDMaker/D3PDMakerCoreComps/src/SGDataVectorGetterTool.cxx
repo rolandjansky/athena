@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: SGDataVectorGetterTool.cxx 648782 2015-02-22 14:29:39Z ssnyder $
+// $Id: SGDataVectorGetterTool.cxx 648781 2015-02-22 14:29:36Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/SGDataVectorGetterTool.h
  * @author scott snyder <snyder@bnl.gov>
