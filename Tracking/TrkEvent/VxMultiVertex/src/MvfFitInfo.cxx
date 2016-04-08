@@ -37,8 +37,11 @@ namespace Trk
   {
    if (this!=&rhs)
    {
+    delete m_constraintVertex;
     m_constraintVertex = rhs.m_constraintVertex ? new RecVertex(*rhs.m_constraintVertex) : 0;
+    delete m_seedVertex;
     m_seedVertex = rhs.m_seedVertex? new Vertex(*rhs.m_seedVertex) : 0;
+    delete m_linearizationVertex;
     m_linearizationVertex = rhs.m_linearizationVertex ? new Vertex(*rhs.m_linearizationVertex) : 0;
    }
    return *this;

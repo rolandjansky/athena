@@ -45,6 +45,7 @@ namespace Trk {
   {
     if (this!=&rhs)
       {
+        delete m_vertexes;
 	m_vertexes = m_vertexes ? new std::vector<VxCandidate*>(*rhs.m_vertexes) : 0;
       }
     return *this;
