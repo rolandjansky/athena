@@ -372,6 +372,7 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenProcess", evgenConfig.process]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenTune", evgenConfig.tune]
 if hasattr( evgenConfig, "hardPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["hardPDF", evgenConfig.hardPDF]
 if hasattr( evgenConfig, "softPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["softPDF", evgenConfig.softPDF]
+if hasattr( runArgs, "randomSeed") :  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["randomSeed", str(runArgs.randomSeed)]
 
 ## Handle beam info
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]
@@ -538,12 +539,17 @@ if _checkattr("hardPDF"):
 if _checkattr("softPDF"):
     print "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
 if _checkattr("keywords"):
-    print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())
+    print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())      
 if _checkattr("specialConfig"):
    print "MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig)
 # TODO: Require that a contact / JO author is always set
 if _checkattr("contact"):
     print "MetaData: %s = %s" % ("contactPhysicist", ", ".join(evgenConfig.contact))
+#if _checkattr( "randomSeed") :
+print "MetaData: %s = %s" % ("randomSeed", str(runArgs.randomSeed))
+ 
+    
+    
 
 # Output list of generator filters used
 filterNames = [alg.getType() for alg in acas.iter_algseq(filtSeq)]

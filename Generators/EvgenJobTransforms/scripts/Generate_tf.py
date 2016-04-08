@@ -56,6 +56,7 @@ class EvgenExecutor(athenaExecutor):
                     shutil.rmtree(proxypath)
                 os.mkdir(proxypath)
             os.environ['LOCAL_INSTALL_DIR'] = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
+            os.environ['LOCAL_DATA_DIR'] = (os.environ['DATAPATH']).split(":")[0]
 
             dirlist =  get_immediate_subdirectories(targetbasepath)
             subdirlist=dirlist;
@@ -84,6 +85,7 @@ class EvgenExecutor(athenaExecutor):
                     os.environ["DATAPATH"] =os.path.join(targetbasepath, d)+":"+os.environ["DATAPATH"]
 
             os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
+            os.environ["DATAPATH"] = os.environ['LOCAL_DATA_DIR']+":"+os.environ["DATAPATH"]
         
 
         ## Handle locating of evgen job options / fragments, either from a tarball or CVMFS
