@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonSimEvent/RPCSimHit.h"
-#undef private
-#undef protected
 #include "MuonSimEventTPCnv/RPCSimHitCollectionCnv_p2.h"
 #include "MuonSimEventTPCnv/RPCSimHitCollection_p2.h"
 #include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
@@ -44,21 +40,21 @@ void RPCSimHitCollectionCnv_p2::transToPers(const RPCSimHitCollection* transCont
   // loop through container, filling pers object  
     RPCSimHitCollection::const_iterator it = transCont->begin(), itEnd = transCont->end();
     for (; it != itEnd; ++it) {
-        persCont->m_RPCid.push_back(it->m_RPCid);
-        persCont->m_globalTime.push_back(it->m_globalTime);
-        persCont->m_stX.push_back(it->m_localPosition.x());
-        persCont->m_stY.push_back(it->m_localPosition.y());
-        persCont->m_stZ.push_back(it->m_localPosition.z());
+        persCont->m_RPCid.push_back(it->RPCid());
+        persCont->m_globalTime.push_back(it->globalTime());
+        persCont->m_stX.push_back(it->localPosition().x());
+        persCont->m_stY.push_back(it->localPosition().y());
+        persCont->m_stZ.push_back(it->localPosition().z());
 
-        hepMcPLCnv.transToPers(&(it->m_partLink),&persLink, log);   
+        hepMcPLCnv.transToPers(&it->particleLink(),&persLink, log);   
         persCont->m_partLink.push_back(persLink);
-	persCont->m_stopX.push_back(it->m_localPostStepPosition.x());
-	persCont->m_stopY.push_back(it->m_localPostStepPosition.y());
-	persCont->m_stopZ.push_back(it->m_localPostStepPosition.z());
-	persCont->m_energyDeposit.push_back(it->m_energyDeposit);
-	persCont->m_stepLength.push_back(it->m_stepLength);
-	persCont->m_particleEncoding.push_back(it->m_particleEncoding);
-	persCont->m_kineticEnergy.push_back(it->m_kineticEnergy);
+	persCont->m_stopX.push_back(it->postLocalPosition().x());
+	persCont->m_stopY.push_back(it->postLocalPosition().y());
+	persCont->m_stopZ.push_back(it->postLocalPosition().z());
+	persCont->m_energyDeposit.push_back(it->energyDeposit());
+	persCont->m_stepLength.push_back(it->stepLength());
+	persCont->m_particleEncoding.push_back(it->particleEncoding());
+	persCont->m_kineticEnergy.push_back(it->kineticEnergy());
     }
 }
 
@@ -80,12 +76,13 @@ void RPCSimHitCollectionCnv_p2::persToTrans(const Muon::RPCSimHitCollection_p2* 
       Amg::Vector3D postPosition(persCont->m_stopX[i], persCont->m_stopY[i], persCont->m_stopZ[i]);
       
       
-      RPCSimHit transHit(persCont->m_RPCid[i], persCont->m_globalTime[i], position, 0, postPosition, 
+      HepMcParticleLink link;
+      hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);   
+
+      transCont->Emplace(persCont->m_RPCid[i], persCont->m_globalTime[i], position,
+                         link.barcode(), postPosition, 
 			 persCont->m_energyDeposit[i], persCont->m_stepLength[i], 
 			 persCont->m_particleEncoding[i], persCont->m_kineticEnergy[i]);
-      // No way to pass through HMCPL in ctor! Seems a bit dumb.
-      hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&(transHit.m_partLink), log);   
-      transCont->push_back(transHit);
   }
 }
 

@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonSimEvent/MDTSimHit.h"
-#undef private
-#undef protected
 #include "MuonSimEventTPCnv/MDTSimHitCollectionCnv_p1.h"
 #include "MuonSimEventTPCnv/MDTSimHitCollection_p1.h"
 #include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
@@ -39,15 +35,15 @@ void MDTSimHitCollectionCnv_p1::transToPers(const MDTSimHitCollection* transCont
   // loop through container, filling pers object  
     MDTSimHitCollection::const_iterator it = transCont->begin(), itEnd = transCont->end();
     for (; it != itEnd; ++it) {
-        persCont->m_MDTid.push_back(it->m_MDTid);
-        persCont->m_globalTime.push_back(it->m_globalTime);
-        persCont->m_driftRadius.push_back(it->m_driftRadius);
-        persCont->m_stX.push_back(it->m_localPosition.x());
-        persCont->m_stY.push_back(it->m_localPosition.y());
-        persCont->m_stZ.push_back(it->m_localPosition.z());
+        persCont->m_MDTid.push_back(it->MDTid());
+        persCont->m_globalTime.push_back(it->globalTime());
+        persCont->m_driftRadius.push_back(it->driftRadius());
+        persCont->m_stX.push_back(it->localPosition().x());
+        persCont->m_stY.push_back(it->localPosition().y());
+        persCont->m_stZ.push_back(it->localPosition().z());
         // persCont->m_meanTime.push_back(hit->m_meanTime);
         
-        hepMcPLCnv.transToPers(&(it->m_partLink),&persLink, log);   
+        hepMcPLCnv.transToPers(&it->particleLink(),&persLink, log);   
         persCont->m_partLink.push_back(persLink);
     }
 }
@@ -67,11 +63,12 @@ void MDTSimHitCollectionCnv_p1::persToTrans(const Muon::MDTSimHitCollection_p1* 
     //transCont->reserve(persCont->m_MDTid.size());//done in createTransient
   for (unsigned int i = 0; i < persCont->m_MDTid.size(); i++) {
       Amg::Vector3D position(persCont->m_stX[i], persCont->m_stY[i], persCont->m_stZ[i]);
-      
-      MDTSimHit transHit(persCont->m_MDTid[i], persCont->m_globalTime[i], persCont->m_driftRadius[i], position);
-      // No way to pass through HMCPL in ctor! Seems a bit dumb.
-      hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&(transHit.m_partLink), log);   
-      transCont->push_back(transHit);
+
+      HepMcParticleLink link;
+      hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);   
+
+      transCont->Emplace(persCont->m_MDTid[i], persCont->m_globalTime[i], persCont->m_driftRadius[i], position,
+                         link.barcode());
   }
 }
 

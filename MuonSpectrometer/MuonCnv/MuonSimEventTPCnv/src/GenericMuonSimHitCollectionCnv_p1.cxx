@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonSimEvent/GenericMuonSimHit.h"
-#undef private
-#undef protected
 #include "MuonSimEventTPCnv/GenericMuonSimHitCollectionCnv_p1.h"
 #include "MuonSimEventTPCnv/GenericMuonSimHitCollection_p1.h"
 #include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
@@ -58,34 +54,34 @@ void GenericMuonSimHitCollectionCnv_p1::transToPers(const GenericMuonSimHitColle
   // loop through container, filling pers object  
   GenericMuonSimHitCollection::const_iterator it = transCont->begin(), itEnd = transCont->end();
   for (; it != itEnd; ++it) {
-    persCont->m_GenericId.push_back(it->m_GenericId);
-    persCont->m_globalTime.push_back(it->m_globalTime);
-    persCont->m_globalpreTime.push_back(it->m_globalpreTime);
+    persCont->m_GenericId.push_back(it->GenericId());
+    persCont->m_globalTime.push_back(it->globalTime());
+    persCont->m_globalpreTime.push_back(it->globalpreTime());
     // preStep Global
-    persCont->m_prestX.push_back(it->m_globalPrePosition.x());
-    persCont->m_prestY.push_back(it->m_globalPrePosition.y());
-    persCont->m_prestZ.push_back(it->m_globalPrePosition.z());
+    persCont->m_prestX.push_back(it->globalPrePosition().x());
+    persCont->m_prestY.push_back(it->globalPrePosition().y());
+    persCont->m_prestZ.push_back(it->globalPrePosition().z());
     // preStep Local
-    persCont->m_prelocX.push_back(it->m_localPrePosition.x());
-    persCont->m_prelocY.push_back(it->m_localPrePosition.y());
-    persCont->m_prelocZ.push_back(it->m_localPrePosition.z());
+    persCont->m_prelocX.push_back(it->localPrePosition().x());
+    persCont->m_prelocY.push_back(it->localPrePosition().y());
+    persCont->m_prelocZ.push_back(it->localPrePosition().z());
     // postStep Global
-    persCont->m_stX.push_back(it->m_globalPosition.x());
-    persCont->m_stY.push_back(it->m_globalPosition.y());
-    persCont->m_stZ.push_back(it->m_globalPosition.z());
+    persCont->m_stX.push_back(it->globalPosition().x());
+    persCont->m_stY.push_back(it->globalPosition().y());
+    persCont->m_stZ.push_back(it->globalPosition().z());
     // postStep Local
-    persCont->m_locX.push_back(it->m_localPosition.x());
-    persCont->m_locY.push_back(it->m_localPosition.y());
-    persCont->m_locZ.push_back(it->m_localPosition.z());
-    persCont->m_kineticEnergy.push_back(it->m_kineticEnergy);
-    persCont->m_particleEncoding.push_back(it->m_particleEncoding); 
-    persCont->m_ptX.push_back(it->m_globalDirection.x());
-    persCont->m_ptY.push_back(it->m_globalDirection.y());
-    persCont->m_ptZ.push_back(it->m_globalDirection.z());
-    persCont->m_depositEnergy.push_back(it->m_depositEnergy);
-    persCont->m_StepLength.push_back(it->m_StepLength);
+    persCont->m_locX.push_back(it->localPosition().x());
+    persCont->m_locY.push_back(it->localPosition().y());
+    persCont->m_locZ.push_back(it->localPosition().z());
+    persCont->m_kineticEnergy.push_back(it->kineticEnergy());
+    persCont->m_particleEncoding.push_back(it->particleEncoding()); 
+    persCont->m_ptX.push_back(it->globalDirection().x());
+    persCont->m_ptY.push_back(it->globalDirection().y());
+    persCont->m_ptZ.push_back(it->globalDirection().z());
+    persCont->m_depositEnergy.push_back(it->depositEnergy());
+    persCont->m_StepLength.push_back(it->StepLength());
 		
-    hepMcPLCnv.transToPers(&(it->m_partLink),&persLink, log);   
+    hepMcPLCnv.transToPers(&it->particleLink(),&persLink, log);   
     persCont->m_partLink.push_back(persLink);
 
   }
@@ -112,10 +108,11 @@ void GenericMuonSimHitCollectionCnv_p1::persToTrans(const Muon::GenericMuonSimHi
     Amg::Vector3D position(persCont->m_stX[i], persCont->m_stY[i], persCont->m_stZ[i]);
     Amg::Vector3D loc_position(persCont->m_locX[i], persCont->m_locY[i], persCont->m_locZ[i]);
     Amg::Vector3D direction(persCont->m_ptX[i], persCont->m_ptY[i], persCont->m_ptZ[i]); 
-    GenericMuonSimHit transHit(persCont->m_GenericId[i], persCont->m_globalTime[i], persCont->m_globalpreTime[i], position, loc_position, preposition, loc_preposition, persCont->m_particleEncoding[i], persCont->m_kineticEnergy[i], direction, persCont->m_depositEnergy[i], persCont->m_StepLength[i], 0);
-    hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&(transHit.m_partLink), log);   
-     
-    transCont->push_back(transHit);
+
+    HepMcParticleLink link;
+    hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);   
+
+    transCont->Emplace(persCont->m_GenericId[i], persCont->m_globalTime[i], persCont->m_globalpreTime[i], position, loc_position, preposition, loc_preposition, persCont->m_particleEncoding[i], persCont->m_kineticEnergy[i], direction, persCont->m_depositEnergy[i], persCont->m_StepLength[i], link.barcode());
   }
 }
 
