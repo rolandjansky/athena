@@ -52,7 +52,7 @@ SingleAssociationToolTo<TO_T>::typeinfo () const
  */
 template <typename TO_T>
 void
-SingleAssociationToolTo<TO_T>::releaseObject (const TO_T* /*p*/)
+SingleAssociationToolTo<TO_T>::releaseObject (const typename SelectType<TO_T, 0>::type* /*p*/)
 {
 }
 
@@ -70,7 +70,7 @@ template <typename TO_T>
 void
 SingleAssociationToolTo<TO_T>::releaseObjectUntyped (const void* p)
 {
-  releaseObject (reinterpret_cast<const TO_T*> (p));
+  releaseObject (reinterpret_cast<const typename SelectType<TO_T, 0>::type*> (p));
 }
 
 

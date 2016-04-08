@@ -28,11 +28,11 @@ std::string AddVariable::s_emptyString;
  * @param blockName Reference to the block name for this tool.
  */
 AddVariable::AddVariable (const std::string& prefix,
-                          const std::string& blockName /*= s_emptyString*/)
+                          const std::string& /*blockName*/ /*= s_emptyString*/)
   : m_metadata (),
     m_prefix (prefix),
     m_suffix (s_emptyString),
-    m_blockName (blockName),
+    //m_blockName (blockName),
     m_tree (0)
 {
 }
@@ -44,12 +44,12 @@ AddVariable::AddVariable (const std::string& prefix,
  * @param blockName Reference to the block name for this tool.
  */
 AddVariable::AddVariable (const std::string& prefix,
-                          const std::string& blockName,
+                          const std::string& /*blockName*/,
                           const std::string& suffix)
   : m_metadata (),
     m_prefix (prefix),
     m_suffix (suffix),
-    m_blockName (blockName),
+    //m_blockName (blockName),
     m_tree (0)
 {
 }

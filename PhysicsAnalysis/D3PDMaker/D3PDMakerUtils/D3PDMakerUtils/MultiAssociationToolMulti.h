@@ -159,7 +159,7 @@ public:
    * @brief Start the iteration for a new association.
    * @param p The object from which to associate.
    */
-  virtual StatusCode reset (const T0& p) = 0;
+  virtual StatusCode reset (const T0& p) override = 0;
 
 
   /**
@@ -198,7 +198,7 @@ public:
    * but if the association dynamically allocated the object which
    * it returned, this gives it a chance to free it.
    */
-  virtual void releaseElement (const U0* /*p*/);
+  virtual void releaseElement (const U0* /*p*/) override;
 
 
   /**

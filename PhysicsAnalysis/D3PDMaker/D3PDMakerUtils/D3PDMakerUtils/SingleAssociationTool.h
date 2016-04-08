@@ -18,6 +18,7 @@
 
 
 #include "D3PDMakerUtils/SingleAssociationToolImpl.h"
+#include "D3PDMakerUtils/Types.h"
 
 
 
@@ -60,7 +61,7 @@ public:
    * but if the association dynamically allocated the object which
    * it returned, this gives it a chance to free it.
    */
-  virtual void releaseObject (const TO_T* p);
+  virtual void releaseObject (const typename SelectType<TO_T, 0>::type* p);
 
 
   /**

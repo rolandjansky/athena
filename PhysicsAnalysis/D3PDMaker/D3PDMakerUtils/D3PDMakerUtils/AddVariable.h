@@ -138,7 +138,7 @@ private:
   const std::string& m_suffix;
 
   /// Reference to the block name.
-  const std::string& m_blockName;
+  //const std::string& m_blockName;
 
   /// The parent @c IAddVariable instance.
   IAddVariable* m_tree;
