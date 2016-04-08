@@ -7,8 +7,8 @@
 
 // Access the HEC parameters from the NOVA database.
 
-#ifndef _LArGeo_RALHec_h_
-#define _LArGeo_RALHec_h_
+#ifndef LARGEORAL_RALHEC_H
+#define LARGEORAL_RALHEC_H
 
 #include "LArGeoCode/VDetectorParameters.h"
 
@@ -35,7 +35,7 @@ namespace LArGeo {
 
 
     class Clockwork;
-    Clockwork *c;
+    Clockwork *m_c;
 
     RALHec (const RALHec&);
     RALHec& operator= (const RALHec&);

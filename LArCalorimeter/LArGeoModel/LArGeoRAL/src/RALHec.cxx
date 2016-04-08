@@ -42,7 +42,7 @@ public:
 
 
 LArGeo::RALHec::RALHec():
-  c(new Clockwork())
+  m_c(new Clockwork())
 {
   // First, fetch the Athena services.
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap.h
@@ -70,16 +70,16 @@ LArGeo::RALHec::RALHec():
 
 
 
-  c->hadronicEndcap             = pAccessSvc->getRecordsetPtr("HadronicEndcap",detectorKey, detectorNode); 
-  c->hecGridValues              = pAccessSvc->getRecordsetPtr("HecGridValues",detectorKey, detectorNode); 
-  c->hecLongitudinalBlock       = pAccessSvc->getRecordsetPtr("HecLongitudinalBlock",detectorKey, detectorNode); 
+  m_c->hadronicEndcap             = pAccessSvc->getRecordsetPtr("HadronicEndcap",detectorKey, detectorNode); 
+  m_c->hecGridValues              = pAccessSvc->getRecordsetPtr("HecGridValues",detectorKey, detectorNode); 
+  m_c->hecLongitudinalBlock       = pAccessSvc->getRecordsetPtr("HecLongitudinalBlock",detectorKey, detectorNode); 
 
 }
 
 
 LArGeo::RALHec::~RALHec()
 {
-  delete c;
+  delete m_c;
 }
 
 
@@ -96,27 +96,27 @@ double LArGeo::RALHec::GetValue(const std::string& a_name,
   const std::string A0 = A0STR.str();
 
 
-  if ( a_name == "LArHECmoduleNumber"  ) return (*c->hadronicEndcap)[0]->getInt("NSCT");
-  if ( a_name == "LArHECzStart"        ) return (*c->hadronicEndcap)[0]->getDouble("ZSTART")*CLHEP::cm;
-  if ( a_name == "LArHECgapSize"       ) return (*c->hadronicEndcap)[0]->getDouble("LARG")*CLHEP::cm;
-  if ( a_name == "LArHECbetweenWheel"  ) return (*c->hadronicEndcap)[0]->getDouble("GAPWHL")*CLHEP::cm;
-  if ( a_name == "LArHECcopperPad"     ) return (*c->hadronicEndcap)[0]->getDouble("COPPER")*CLHEP::cm;
-  if ( a_name == "LArHECplateWidth0"   ) return (*c->hadronicEndcap)[0]->getDouble("PLATE_0")*CLHEP::cm;
-  if ( a_name == "LArHECplateWidth1"   ) return (*c->hadronicEndcap)[0]->getDouble("PLATE_1")*CLHEP::cm;
-  if ( a_name == "LArHECkaptonPosition") return (*c->hadronicEndcap)[0]->getDouble("KPTPOS"+A0)*CLHEP::cm;
-  if ( a_name == "LArHECkaptonWidth"   ) return (*c->hadronicEndcap)[0]->getDouble("KPTWID"+A0)*CLHEP::cm;
-  if ( a_name == "LArHECrodPosY"       ) return (*c->hadronicEndcap)[0]->getDouble("RODPOSR"+A0)*CLHEP::cm;
-  if ( a_name == "LArHECrodPosX"       ) return (*c->hadronicEndcap)[0]->getDouble("RODPOSX"+A0)*CLHEP::cm;
-  if ( a_name == "LArHECrodDim"        ) return (*c->hadronicEndcap)[0]->getDouble("RODDIM"+A0)*CLHEP::cm;
-  if ( a_name == "LArHECspcDim"        ) return (*c->hadronicEndcap)[0]->getDouble("SPCDIM"+A0)*CLHEP::cm;
+  if ( a_name == "LArHECmoduleNumber"  ) return (*m_c->hadronicEndcap)[0]->getInt("NSCT");
+  if ( a_name == "LArHECzStart"        ) return (*m_c->hadronicEndcap)[0]->getDouble("ZSTART")*CLHEP::cm;
+  if ( a_name == "LArHECgapSize"       ) return (*m_c->hadronicEndcap)[0]->getDouble("LARG")*CLHEP::cm;
+  if ( a_name == "LArHECbetweenWheel"  ) return (*m_c->hadronicEndcap)[0]->getDouble("GAPWHL")*CLHEP::cm;
+  if ( a_name == "LArHECcopperPad"     ) return (*m_c->hadronicEndcap)[0]->getDouble("COPPER")*CLHEP::cm;
+  if ( a_name == "LArHECplateWidth0"   ) return (*m_c->hadronicEndcap)[0]->getDouble("PLATE_0")*CLHEP::cm;
+  if ( a_name == "LArHECplateWidth1"   ) return (*m_c->hadronicEndcap)[0]->getDouble("PLATE_1")*CLHEP::cm;
+  if ( a_name == "LArHECkaptonPosition") return (*m_c->hadronicEndcap)[0]->getDouble("KPTPOS"+A0)*CLHEP::cm;
+  if ( a_name == "LArHECkaptonWidth"   ) return (*m_c->hadronicEndcap)[0]->getDouble("KPTWID"+A0)*CLHEP::cm;
+  if ( a_name == "LArHECrodPosY"       ) return (*m_c->hadronicEndcap)[0]->getDouble("RODPOSR"+A0)*CLHEP::cm;
+  if ( a_name == "LArHECrodPosX"       ) return (*m_c->hadronicEndcap)[0]->getDouble("RODPOSX"+A0)*CLHEP::cm;
+  if ( a_name == "LArHECrodDim"        ) return (*m_c->hadronicEndcap)[0]->getDouble("RODDIM"+A0)*CLHEP::cm;
+  if ( a_name == "LArHECspcDim"        ) return (*m_c->hadronicEndcap)[0]->getDouble("SPCDIM"+A0)*CLHEP::cm;
 
-  if ( a_name == "LArHECsliceIndex"    ) return (*c->hecLongitudinalBlock)[a0]->getDouble("IBLC");
-  if ( a_name == "LArHECmoduleRinner1" ) return (*c->hecLongitudinalBlock)[0]->getDouble("BLRMN")*CLHEP::cm;
-  if ( a_name == "LArHECmoduleRinner2" ) return (*c->hecLongitudinalBlock)[1]->getDouble("BLRMN")*CLHEP::cm;
-  if ( a_name == "LArHECmoduleRouter"  ) return (*c->hecLongitudinalBlock)[0]->getDouble("BLRMX")*CLHEP::cm;
-  if ( a_name == "LArHECdepthZ"        ) return (*c->hecLongitudinalBlock)[a0]->getDouble("BLDPTH")*CLHEP::cm;
-  if ( a_name == "LArHECfirstAbsorber" ) return (*c->hecLongitudinalBlock)[a0]->getDouble("PLATE0")*CLHEP::cm;
-  if ( a_name == "LArHECgapNumber"     ) return (*c->hecLongitudinalBlock)[a0]->getDouble("BLMOD");
+  if ( a_name == "LArHECsliceIndex"    ) return (*m_c->hecLongitudinalBlock)[a0]->getDouble("IBLC");
+  if ( a_name == "LArHECmoduleRinner1" ) return (*m_c->hecLongitudinalBlock)[0]->getDouble("BLRMN")*CLHEP::cm;
+  if ( a_name == "LArHECmoduleRinner2" ) return (*m_c->hecLongitudinalBlock)[1]->getDouble("BLRMN")*CLHEP::cm;
+  if ( a_name == "LArHECmoduleRouter"  ) return (*m_c->hecLongitudinalBlock)[0]->getDouble("BLRMX")*CLHEP::cm;
+  if ( a_name == "LArHECdepthZ"        ) return (*m_c->hecLongitudinalBlock)[a0]->getDouble("BLDPTH")*CLHEP::cm;
+  if ( a_name == "LArHECfirstAbsorber" ) return (*m_c->hecLongitudinalBlock)[a0]->getDouble("PLATE0")*CLHEP::cm;
+  if ( a_name == "LArHECgapNumber"     ) return (*m_c->hecLongitudinalBlock)[a0]->getDouble("BLMOD");
 
   // We didn't find a match.  
   std::string errMessage = "RALHec::GetValue: could not find a match for the key '" + a_name;

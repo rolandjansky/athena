@@ -45,7 +45,7 @@ public:
 
 
 LArGeo::RALEmec::RALEmec():
-  c(new Clockwork())
+  m_c(new Clockwork())
 {
   // First, fetch the Athena services.
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap.h
@@ -76,20 +76,20 @@ LArGeo::RALEmec::RALEmec():
 
 
 
-  c->emecCylLayer             = pAccessSvc->getRecordsetPtr("EmecCylLayer",detectorKey, detectorNode); 
-  c->emecGeometry             = pAccessSvc->getRecordsetPtr("EmecGeometry",detectorKey, detectorNode); 
-  c->emecRapRegion            = pAccessSvc->getRecordsetPtr("EmecRapRegion",detectorKey, detectorNode); 
-  c->emecSamplingSep          = pAccessSvc->getRecordsetPtr("EmecSamplingSep",detectorKey, detectorNode); 
-  c->emecWheelParameters      = pAccessSvc->getRecordsetPtr("EmecWheelParameters",detectorKey, detectorNode); 
-  c->emecWhlOptParm           = pAccessSvc->getRecordsetPtr("EmecWhlOptParm",detectorKey, detectorNode); 
-  c->presamplerPosition       = pAccessSvc->getRecordsetPtr("PresamplerPosition",AtlasVersion, "ATLAS"); 
+  m_c->emecCylLayer             = pAccessSvc->getRecordsetPtr("EmecCylLayer",detectorKey, detectorNode); 
+  m_c->emecGeometry             = pAccessSvc->getRecordsetPtr("EmecGeometry",detectorKey, detectorNode); 
+  m_c->emecRapRegion            = pAccessSvc->getRecordsetPtr("EmecRapRegion",detectorKey, detectorNode); 
+  m_c->emecSamplingSep          = pAccessSvc->getRecordsetPtr("EmecSamplingSep",detectorKey, detectorNode); 
+  m_c->emecWheelParameters      = pAccessSvc->getRecordsetPtr("EmecWheelParameters",detectorKey, detectorNode); 
+  m_c->emecWhlOptParm           = pAccessSvc->getRecordsetPtr("EmecWhlOptParm",detectorKey, detectorNode); 
+  m_c->presamplerPosition       = pAccessSvc->getRecordsetPtr("PresamplerPosition",AtlasVersion, "ATLAS"); 
 
 }
 
 
 LArGeo::RALEmec::~RALEmec()
 {
-  delete c;
+  delete m_c;
 }
 
 
@@ -112,67 +112,67 @@ double LArGeo::RALEmec::GetValue(const std::string& a_name,
 
 
 
-  if ( a_name == "LArEMECZshift"                 ) return (*c->emecGeometry)[0]->getDouble("ZSHIFT")*CLHEP::cm;
-  if ( a_name == "LArEMECRadiusMin"              ) return (*c->emecGeometry)[0]->getDouble("RMIN")*CLHEP::cm;
-  if ( a_name == "LArEMECRadiusMax"              ) return (*c->emecGeometry)[0]->getDouble("RMAX")*CLHEP::cm;
+  if ( a_name == "LArEMECZshift"                 ) return (*m_c->emecGeometry)[0]->getDouble("ZSHIFT")*CLHEP::cm;
+  if ( a_name == "LArEMECRadiusMin"              ) return (*m_c->emecGeometry)[0]->getDouble("RMIN")*CLHEP::cm;
+  if ( a_name == "LArEMECRadiusMax"              ) return (*m_c->emecGeometry)[0]->getDouble("RMAX")*CLHEP::cm;
 
-  if ( a_name == "LArEMECAverageGap"             ) return (*c->emecGeometry)[0]->getDouble("GAP0")*CLHEP::cm;
-  if ( a_name == "LArEMECStartAbsLength"         ) return (*c->emecGeometry)[0]->getDouble("SABL")*CLHEP::cm;
-  if ( a_name == "LArEMECRefPoint"               ) return (*c->emecGeometry)[0]->getDouble("Z0")*CLHEP::cm;
-  if ( a_name == "LArEMECNomLarOrig"             ) return (*c->emecGeometry)[0]->getDouble("Z1")*CLHEP::cm;
-  if ( a_name == "LArEMECMaxRadiusActivePart"    ) return (*c->emecGeometry)[0]->getDouble("RLIMIT")*CLHEP::cm;
-  if ( a_name == "LArEMECNumberRadialLayer"      ) return (*c->emecGeometry)[0]->getInt("NLAYER");
+  if ( a_name == "LArEMECAverageGap"             ) return (*m_c->emecGeometry)[0]->getDouble("GAP0")*CLHEP::cm;
+  if ( a_name == "LArEMECStartAbsLength"         ) return (*m_c->emecGeometry)[0]->getDouble("SABL")*CLHEP::cm;
+  if ( a_name == "LArEMECRefPoint"               ) return (*m_c->emecGeometry)[0]->getDouble("Z0")*CLHEP::cm;
+  if ( a_name == "LArEMECNomLarOrig"             ) return (*m_c->emecGeometry)[0]->getDouble("Z1")*CLHEP::cm;
+  if ( a_name == "LArEMECMaxRadiusActivePart"    ) return (*m_c->emecGeometry)[0]->getDouble("RLIMIT")*CLHEP::cm;
+  if ( a_name == "LArEMECNumberRadialLayer"      ) return (*m_c->emecGeometry)[0]->getInt("NLAYER");
 
-  if ( a_name == "LArEMECLArThickness"           ) return (*c->emecGeometry)[0]->getDouble("ETOT")*CLHEP::cm;
-  if ( a_name == "LArEMECKaptonThickness"        ) return (*c->emecGeometry)[0]->getDouble("EKAP")*CLHEP::cm;
-  if ( a_name == "LArEMECCopperThickness"        ) return (*c->emecGeometry)[0]->getDouble("ECU")*CLHEP::cm;
+  if ( a_name == "LArEMECLArThickness"           ) return (*m_c->emecGeometry)[0]->getDouble("ETOT")*CLHEP::cm;
+  if ( a_name == "LArEMECKaptonThickness"        ) return (*m_c->emecGeometry)[0]->getDouble("EKAP")*CLHEP::cm;
+  if ( a_name == "LArEMECCopperThickness"        ) return (*m_c->emecGeometry)[0]->getDouble("ECU")*CLHEP::cm;
 
-  if ( a_name == "LArEMECHalfCrack"              ) return (*c->emecGeometry)[0]->getDouble("DCRACK")*CLHEP::cm;
+  if ( a_name == "LArEMECHalfCrack"              ) return (*m_c->emecGeometry)[0]->getDouble("DCRACK")*CLHEP::cm;
 
-  if ( a_name == "LArEMECRegionEtaGranularity"   ) return (*c->emecGeometry)[0]->getDouble("DETA"+A0);
-  if ( a_name == "LArEMECRegionPhiGranularity"   ) return (*c->emecGeometry)[0]->getDouble("DPHI"+A0);
+  if ( a_name == "LArEMECRegionEtaGranularity"   ) return (*m_c->emecGeometry)[0]->getDouble("DETA"+A0);
+  if ( a_name == "LArEMECRegionPhiGranularity"   ) return (*m_c->emecGeometry)[0]->getDouble("DPHI"+A0);
 
 
-  if ( a_name == "LArEMECLayerInnerRadius"       ) return (*c->emecCylLayer)[a0]->getDouble("RADIL")*CLHEP::cm;
-  if ( a_name == "LArEMECLayerOuterRadius"       ) return (*c->emecCylLayer)[a0]->getDouble("RADOL")*CLHEP::cm;
-  if ( a_name == "LArEMECLayerInnerAngle"        ) return (*c->emecCylLayer)[a0]->getDouble("ALFIL")*CLHEP::rad;
-  if ( a_name == "LArEMECLayerOuterAngle"        ) return (*c->emecCylLayer)[a0]->getDouble("ALFOL")*CLHEP::rad;
-  if ( a_name == "LArEMECAbsorberInnerThickness" ) return (*c->emecCylLayer)[a0]->getDouble("TCKIL")*CLHEP::cm;
-  if ( a_name == "LArEMECAbsorberOuterThickness" ) return (*c->emecCylLayer)[a0]->getDouble("TCKOL")*CLHEP::cm;
-  if ( a_name == "LArEMECRegionLowEta"           ) return (*c->emecRapRegion)[a0]->getDouble("ETA1");
-  if ( a_name == "LArEMECRegionHighEta"          ) return (*c->emecRapRegion)[a0]->getDouble("ETA2");
-  if ( a_name == "LArEMECRegionLowEtaDepth"      ) return (*c->emecRapRegion)[a0]->getDouble("ZMN"+A1)*CLHEP::cm;
-  if ( a_name == "LArEMECRegionHighEtaDepth"     ) return (*c->emecRapRegion)[a0]->getDouble("ZMX"+A1)*CLHEP::cm;
+  if ( a_name == "LArEMECLayerInnerRadius"       ) return (*m_c->emecCylLayer)[a0]->getDouble("RADIL")*CLHEP::cm;
+  if ( a_name == "LArEMECLayerOuterRadius"       ) return (*m_c->emecCylLayer)[a0]->getDouble("RADOL")*CLHEP::cm;
+  if ( a_name == "LArEMECLayerInnerAngle"        ) return (*m_c->emecCylLayer)[a0]->getDouble("ALFIL")*CLHEP::rad;
+  if ( a_name == "LArEMECLayerOuterAngle"        ) return (*m_c->emecCylLayer)[a0]->getDouble("ALFOL")*CLHEP::rad;
+  if ( a_name == "LArEMECAbsorberInnerThickness" ) return (*m_c->emecCylLayer)[a0]->getDouble("TCKIL")*CLHEP::cm;
+  if ( a_name == "LArEMECAbsorberOuterThickness" ) return (*m_c->emecCylLayer)[a0]->getDouble("TCKOL")*CLHEP::cm;
+  if ( a_name == "LArEMECRegionLowEta"           ) return (*m_c->emecRapRegion)[a0]->getDouble("ETA1");
+  if ( a_name == "LArEMECRegionHighEta"          ) return (*m_c->emecRapRegion)[a0]->getDouble("ETA2");
+  if ( a_name == "LArEMECRegionLowEtaDepth"      ) return (*m_c->emecRapRegion)[a0]->getDouble("ZMN"+A1)*CLHEP::cm;
+  if ( a_name == "LArEMECRegionHighEtaDepth"     ) return (*m_c->emecRapRegion)[a0]->getDouble("ZMX"+A1)*CLHEP::cm;
 
-  if ( a_name == "LArEMECLengthSeparationArrays" ) return (*c->emecSamplingSep)[0]->getInt("NSEP"+A0);
-  if ( a_name == "LArEMECInnerWheelSeparation"   ) return (*c->emecSamplingSep)[0]->getDouble("ZIW"+A0)*CLHEP::cm;
-  if ( a_name == "LArEMECZSeparation12"          ) return (*c->emecSamplingSep)[0]->getDouble("ZSEP12"+A0)*CLHEP::cm;
-  if ( a_name == "LArEMECZSeparation23"          ) return (*c->emecSamplingSep)[0]->getDouble("ZSEP23"+A0)*CLHEP::cm;
+  if ( a_name == "LArEMECLengthSeparationArrays" ) return (*m_c->emecSamplingSep)[0]->getInt("NSEP"+A0);
+  if ( a_name == "LArEMECInnerWheelSeparation"   ) return (*m_c->emecSamplingSep)[0]->getDouble("ZIW"+A0)*CLHEP::cm;
+  if ( a_name == "LArEMECZSeparation12"          ) return (*m_c->emecSamplingSep)[0]->getDouble("ZSEP12"+A0)*CLHEP::cm;
+  if ( a_name == "LArEMECZSeparation23"          ) return (*m_c->emecSamplingSep)[0]->getDouble("ZSEP23"+A0)*CLHEP::cm;
 
   // In this case (since the number of wheels isn't likely to change), 
   // hard-code the inner versus the outer wheel.
-  if ( a_name == "LArEMECInnerNumberAbsorbers"   ) return (*c->emecWheelParameters)[0]->getInt("NABS");
-  if ( a_name == "LArEMECInnerNumberWaves"       ) return (*c->emecWheelParameters)[0]->getInt("NACC");
-  if ( a_name == "LArEMECInnerMaxEta"            ) return (*c->emecWheelParameters)[0]->getDouble("ETAINT");
-  if ( a_name == "LArEMECInnerMinEta"            ) return (*c->emecWheelParameters)[0]->getDouble("ETAEXT");
-  if ( a_name == "LArEMECOuterNumberAbsorbers"   ) return (*c->emecWheelParameters)[1]->getInt("NABS");
-  if ( a_name == "LArEMECOuterNumberWaves"       ) return (*c->emecWheelParameters)[1]->getInt("NACC");
-  if ( a_name == "LArEMECOuterMaxEta"            ) return (*c->emecWheelParameters)[1]->getDouble("ETAINT");
-  if ( a_name == "LArEMECOuterMinEta"            ) return (*c->emecWheelParameters)[1]->getDouble("ETAEXT");
+  if ( a_name == "LArEMECInnerNumberAbsorbers"   ) return (*m_c->emecWheelParameters)[0]->getInt("NABS");
+  if ( a_name == "LArEMECInnerNumberWaves"       ) return (*m_c->emecWheelParameters)[0]->getInt("NACC");
+  if ( a_name == "LArEMECInnerMaxEta"            ) return (*m_c->emecWheelParameters)[0]->getDouble("ETAINT");
+  if ( a_name == "LArEMECInnerMinEta"            ) return (*m_c->emecWheelParameters)[0]->getDouble("ETAEXT");
+  if ( a_name == "LArEMECOuterNumberAbsorbers"   ) return (*m_c->emecWheelParameters)[1]->getInt("NABS");
+  if ( a_name == "LArEMECOuterNumberWaves"       ) return (*m_c->emecWheelParameters)[1]->getInt("NACC");
+  if ( a_name == "LArEMECOuterMaxEta"            ) return (*m_c->emecWheelParameters)[1]->getDouble("ETAINT");
+  if ( a_name == "LArEMECOuterMinEta"            ) return (*m_c->emecWheelParameters)[1]->getDouble("ETAEXT");
 
-  if ( a_name == "LArEMECInnerBeta"              ) return (*c->emecWhlOptParm)[0]->getDouble("BETX");
-  if ( a_name == "LArEMECInnerLowerAngle"        ) return (*c->emecWhlOptParm)[0]->getDouble("ALFINT")*CLHEP::rad;
-  if ( a_name == "LArEMECInnerUpperAngle"        ) return (*c->emecWhlOptParm)[0]->getDouble("ALFEXT")*CLHEP::rad;
-  if ( a_name == "LArEMECInnerLeadThickness"     ) return (*c->emecWhlOptParm)[0]->getDouble("PBTH")*CLHEP::cm;
-  if ( a_name == "LArEMECOuterBeta"              ) return (*c->emecWhlOptParm)[1]->getDouble("BETX");
-  if ( a_name == "LArEMECOuterLowerAngle"        ) return (*c->emecWhlOptParm)[1]->getDouble("ALFINT")*CLHEP::rad;
-  if ( a_name == "LArEMECOuterUpperAngle"        ) return (*c->emecWhlOptParm)[1]->getDouble("ALFEXT")*CLHEP::rad;
-  if ( a_name == "LArEMECOuterLeadThickness"     ) return (*c->emecWhlOptParm)[1]->getDouble("PBTH")*CLHEP::cm;
+  if ( a_name == "LArEMECInnerBeta"              ) return (*m_c->emecWhlOptParm)[0]->getDouble("BETX");
+  if ( a_name == "LArEMECInnerLowerAngle"        ) return (*m_c->emecWhlOptParm)[0]->getDouble("ALFINT")*CLHEP::rad;
+  if ( a_name == "LArEMECInnerUpperAngle"        ) return (*m_c->emecWhlOptParm)[0]->getDouble("ALFEXT")*CLHEP::rad;
+  if ( a_name == "LArEMECInnerLeadThickness"     ) return (*m_c->emecWhlOptParm)[0]->getDouble("PBTH")*CLHEP::cm;
+  if ( a_name == "LArEMECOuterBeta"              ) return (*m_c->emecWhlOptParm)[1]->getDouble("BETX");
+  if ( a_name == "LArEMECOuterLowerAngle"        ) return (*m_c->emecWhlOptParm)[1]->getDouble("ALFINT")*CLHEP::rad;
+  if ( a_name == "LArEMECOuterUpperAngle"        ) return (*m_c->emecWhlOptParm)[1]->getDouble("ALFEXT")*CLHEP::rad;
+  if ( a_name == "LArEMECOuterLeadThickness"     ) return (*m_c->emecWhlOptParm)[1]->getDouble("PBTH")*CLHEP::cm;
  
-  if ( a_name == "LArEMECPreNomPos"              ) return (*c->presamplerPosition)[0]->getDouble("ZPOS")*CLHEP::cm;
-  if ( a_name == "LArEMECPreThickness"           ) return (*c->presamplerPosition)[0]->getDouble("TCK")*CLHEP::cm;  
-  if ( a_name == "LArEMECPreMinRadius"           ) return (*c->presamplerPosition)[0]->getDouble("RMIN")*CLHEP::cm;
-  if ( a_name == "LArEMECPreMaxRadius"           ) return (*c->presamplerPosition)[0]->getDouble("RMAX")*CLHEP::cm;
+  if ( a_name == "LArEMECPreNomPos"              ) return (*m_c->presamplerPosition)[0]->getDouble("ZPOS")*CLHEP::cm;
+  if ( a_name == "LArEMECPreThickness"           ) return (*m_c->presamplerPosition)[0]->getDouble("TCK")*CLHEP::cm;  
+  if ( a_name == "LArEMECPreMinRadius"           ) return (*m_c->presamplerPosition)[0]->getDouble("RMIN")*CLHEP::cm;
+  if ( a_name == "LArEMECPreMaxRadius"           ) return (*m_c->presamplerPosition)[0]->getDouble("RMAX")*CLHEP::cm;
 
 
 

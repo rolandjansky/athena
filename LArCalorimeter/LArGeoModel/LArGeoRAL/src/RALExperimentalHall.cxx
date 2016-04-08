@@ -39,7 +39,7 @@ public:
 
 
 LArGeo::RALExperimentalHall::RALExperimentalHall():
-  c(new Clockwork())
+  m_c(new Clockwork())
 {
   // First, fetch the Athena services.
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap.h
@@ -58,13 +58,13 @@ LArGeo::RALExperimentalHall::RALExperimentalHall():
   }
   
   std::string AtlasVersion = geoModel->atlasVersion();
-  c->atlasMother             = pAccessSvc->getRecordsetPtr("AtlasMother",AtlasVersion, "ATLAS"); 
+  m_c->atlasMother             = pAccessSvc->getRecordsetPtr("AtlasMother",AtlasVersion, "ATLAS"); 
 }
 
 
 LArGeo::RALExperimentalHall::~RALExperimentalHall()
 {
-  delete c;
+  delete m_c;
 }
 
 
@@ -77,9 +77,9 @@ double LArGeo::RALExperimentalHall::GetValue(const std::string& a_name,
 {
   
   if ( a_name == "LArExpHallOutOfTimeCut"     ) return 2.5*CLHEP::ns;
-  if ( a_name == "LArExpHallInnerRadius"      ) return (*c->atlasMother)[1]->getDouble("RMIN")*CLHEP::cm;
-  if ( a_name == "LArExpHallOuterRadius"      ) return (*c->atlasMother)[1]->getDouble("RMAX")*CLHEP::cm;
-  if ( a_name == "LArExpHallZmax"             ) return (*c->atlasMother)[1]->getDouble("ZMAX")*CLHEP::cm;
+  if ( a_name == "LArExpHallInnerRadius"      ) return (*m_c->atlasMother)[1]->getDouble("RMIN")*CLHEP::cm;
+  if ( a_name == "LArExpHallOuterRadius"      ) return (*m_c->atlasMother)[1]->getDouble("RMAX")*CLHEP::cm;
+  if ( a_name == "LArExpHallZmax"             ) return (*m_c->atlasMother)[1]->getDouble("ZMAX")*CLHEP::cm;
 
   // We didn't find a match.
   std::string errMessage = "RALExperimentalHall::GetValue: could not find a match for the key '" + a_name;
