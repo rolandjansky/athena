@@ -18,10 +18,10 @@ private
 #macro_remove componentshr_linkopts "-Wl,-s"
 
 private
-#use AtlasReflex   AtlasReflex-*   	External -no_auto_imports
+use AtlasReflex   AtlasReflex-*   	External -no_auto_imports
 use TrkRIO_OnTrack TrkRIO_OnTrack-*     Tracking/TrkEvent
 use AtlasBoost     AtlasBoost-*        External
 #use AtlasCLHEP            AtlasCLHEP-*           External
 
 
-#apply_pattern lcgdict dict=TrkCompetingRIOsOnTrack selectionfile=selection.xml headerfiles="../TrkCompetingRIOsOnTrack/TrkCompetingRIOsOnTrackDict.h"
+apply_pattern lcgdict dict=TrkCompetingRIOsOnTrack selectionfile=selection.xml headerfiles="../TrkCompetingRIOsOnTrack/TrkCompetingRIOsOnTrackDict.h"
