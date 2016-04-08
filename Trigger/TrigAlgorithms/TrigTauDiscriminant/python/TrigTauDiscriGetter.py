@@ -58,7 +58,7 @@ class TrigTauDiscriGetter(TrigTauDiscriBuilder):
     def VarCalculatorSet(self):
         from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
         tauVarCalc = TauIDVarCalculator()
-        tauVarCalc.doTrigger = True
+        tauVarCalc.inTrigger = True
         return tauVarCalc
 
 
@@ -89,5 +89,5 @@ class TrigTauDiscriGetter2015(TrigTauDiscriBuilder):
     def VarCalculatorSet(self):
         from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
         tauVarCalc = TauIDVarCalculator()
-        tauVarCalc.doTrigger = True
+        tauVarCalc.inTrigger = True
         return tauVarCalc
