@@ -4,7 +4,7 @@ author Ian Hinchliffe <I_Hinchliffe@lbl.gov>
 author Maria Smizanska <maria.smizanska@cern.ch>
 author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
 
-use AtlasPolicy     AtlasPolicy-01-*
+use AtlasPolicy     AtlasPolicy-*
 use AtlasHepMC      AtlasHepMC-*        External
 
 library GenzModuleEvent *.cxx
