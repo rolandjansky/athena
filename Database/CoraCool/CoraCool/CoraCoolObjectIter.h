@@ -41,14 +41,15 @@ class CoraCoolObjectIter {
   void close();
 
  private:
-  // hide default constructor
+  // hide default and copy constructors, and assignment operator
+  // declared but not implemented
   CoraCoolObjectIter();
+  CoraCoolObjectIter(const CoraCoolObjectIter&);
+  CoraCoolObjectIter& operator=(const CoraCoolObjectIter&);
 
   // implementation class to build queries
   class QueryBuilder {
    public:
-    // hide default constructor
-    QueryBuilder();
     // setup query builder with specified number size of range pairs
     QueryBuilder(const unsigned int size);
     ~QueryBuilder();
@@ -64,6 +65,11 @@ class CoraCoolObjectIter {
        coral::AttributeList& fkeys, const coral::AttributeSpecification& spec);
 
   private:
+    // hide default and copy constructors, and assignment operator
+    QueryBuilder();
+    QueryBuilder(const QueryBuilder&);
+    QueryBuilder& operator=(const QueryBuilder&);
+
     std::string addKey(unsigned int& key,
 	   coral::AttributeList& fkeys,
 	   const coral::AttributeSpecification& spec,

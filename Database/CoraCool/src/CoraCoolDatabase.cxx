@@ -346,7 +346,7 @@ bool CoraCoolDatabase::parseFolderDescription(const std::string folderdesc,
   c1=folderdesc.find(':',p1+10);
   if (c1==std::string::npos) return false;
   c2=folderdesc.find(':',c1+1);
-  if (c1==std::string::npos) return false;
+  if (c2==std::string::npos) return false;
 
   tablename=m_dbname+"_"+folderdesc.substr(p1+10,c1-p1-10);
   keycolcool=folderdesc.substr(c1+1,c2-c1-1);
