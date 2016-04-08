@@ -83,7 +83,7 @@ namespace HI
     for(const auto itr : harmonics)
     {
       CxxUtils::sincos sc (itr*phi);
-      mod+=2.*sc.apply(es->etCos().at(itr),es->etSin().at(itr));
+      mod+=sc.apply(es->etSin().at(itr-1),es->etCos().at(itr-1));
     }
     return mod;
   }

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HIEVENTSHAPEINDEX_H__
-#define __HIEVENTSHAPEINDEX_H__
+#ifndef HIEVENTSHAPEINDEX_H
+#define HIEVENTSHAPEINDEX_H
 
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "HIEventUtils/HIEventDefs.h"
