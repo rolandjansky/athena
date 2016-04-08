@@ -1,0 +1,5 @@
+package TrigDecisionInterface
+# $Id: requirements 582206 2014-02-07 16:47:44Z krasznaa $
+
+use AtlasPolicy      AtlasPolicy-*
+use GaudiInterface   GaudiInterface-*   External
