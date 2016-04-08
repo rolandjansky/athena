@@ -60,7 +60,7 @@ namespace Pythia8_UserHooks{
     
   private:
     
-    static map<string, const ICreator*> &s_creators();
+    static std::map<string, const ICreator*> &s_creators();
     
   };
 }
