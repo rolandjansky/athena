@@ -4,10 +4,15 @@
 
 // Framework includes
 #include "eflowObjectContainerCnv.h"
+#include "eflowEventTPCnv/eflowObjectCnv_p1.h"
 #include "eflowEventTPCnv/eflowObjectContainerCnv_p1.h"
+#include "eflowEventTPCnv/eflowObjectCnv_p2.h"
 #include "eflowEventTPCnv/eflowObjectContainerCnv_p2.h"
+#include "eflowEventTPCnv/eflowObjectCnv_p3.h"
 #include "eflowEventTPCnv/eflowObjectContainerCnv_p3.h"
+#include "eflowEventTPCnv/eflowObjectCnv_p4.h"
 #include "eflowEventTPCnv/eflowObjectContainerCnv_p4.h"
+#include "eflowEventTPCnv/eflowObjectCnv_p5.h"
 #include "eflowEventTPCnv/eflowObjectContainerCnv_p5.h"
 #include "GaudiKernel/MsgStream.h"
 
