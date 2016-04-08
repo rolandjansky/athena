@@ -24,8 +24,8 @@ Released for free under a Creative Commons Attribution 2.5 License
 <?php
   print("<table>\n");  
   tableTitle( "EFres", "Residuals: Event Filter", lowptLink( $efres_dir_lowpt, $lowpt ) );
-  tableRow( $efres_dir, "EF_eta_res", "EF eta residual",    "EF_ipT_res", "EF inverse PT residual" );
-  tableRow( $efres_dir, "EF_phi_res", "EF phi residual",    "EF_z0_res",  "EF z0 residual" ); 
+  tableRow( $efres_dir, "HLT_eta_res", "EF eta residual",    "HLT_ipT_res", "EF inverse PT residual" );
+  tableRow( $efres_dir, "HLT_phi_res", "EF phi residual",    "HLT_z0_res",  "EF z0 residual" ); 
   print("</table>\n");  
 ?>
 
