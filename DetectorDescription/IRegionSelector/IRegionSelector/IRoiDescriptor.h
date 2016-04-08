@@ -9,19 +9,25 @@
 //
 //   $Id: IRoiDescriptor.h, v0.0   Fri 14 Jun 2013 00:52:09 CEST sutt $
 
-#ifndef IREGIONSELECTOR_INEWROIDESCRIPTOR_H
-#define IREGIONSELECTOR_INEWROIDESCRIPTOR_H
+#ifndef IREGIONSELECTOR_IROIDESCRIPTOR_H
+#define IREGIONSELECTOR_IROIDESCRIPTOR_H
 
-#define __newroidescriptor
+#include <vector> 
+#include <iostream> 
 
-/// hmmm
-#include "CLIDSvc/CLASS_DEF.h"
+/// hmmm - is this actually ever needed ??
+// #include "CLIDSvc/CLASS_DEF.h"
 
 /**
  **   @brief Describes the API of the Region of Ineterest geometry
  **/
 
 class IRoiDescriptor {
+
+public:
+
+  // iterator 
+  typedef std::vector<const IRoiDescriptor*>::const_iterator roi_iterator;
 
 public:
 
@@ -66,10 +72,8 @@ public:
   virtual operator std::string() const = 0;  
 
 
-
   /// is this a full detector RoI?
   virtual bool isFullscan() const = 0;
-
 
 
   /// Super RoI access methods 
@@ -82,6 +86,10 @@ public:
 
   /// find an RoiDescriptor constituent
   virtual const IRoiDescriptor* at(int i) const = 0;
+
+  /// const limit iterators
+  virtual roi_iterator  begin() const = 0;
+  virtual roi_iterator  end()   const = 0;
 
 
 
@@ -106,30 +114,13 @@ public:
   virtual double drdzMinus() const = 0;
   virtual double drdzPlus()  const = 0;
 
+  /// zed limits at some outer radius
+  virtual   double zedOuterPlus()  const = 0;
+  virtual   double zedOuterMinus() const = 0;
 
-  /// see whether a segment is contained within the roi in r-z
-  virtual bool contains( double z0, double dzdr )            const = 0;
-  virtual bool contains_internal( double z0, double zouter ) const = 0;
-
-  /// see whether a point is contained within the roi (in phi and r-z)
-  virtual bool contains( double _z, double _r, double _phi ) const = 0;
-  virtual bool containsPhi( double _phi )                    const = 0;
-  virtual bool containsZed( double _z, double _r )           const = 0;
 
 };
 
-
-// inline 
-// bool operator==( const IRoiDescriptor& a, const IRoiDescriptor& b ) { 
-//   double epsilon=0.0001; // arbitrary, but seems to be reasonable
-//   if ( a.roiWord() != b.roiWord() )           return false;
-//   if ( std::fabs(a.phi()-b.phi()) > epsilon ) return false;
-//   if ( std::fabs(a.eta()-b.eta()) > epsilon ) return false;
-//   if ( std::fabs(a.zed()-b.zed()) > epsilon)  return false;
-// }
-
-// inline 
-// bool operator!=( const TrigRoiDescriptor& a, const TrigRoiDescriptor& b ) { return !(a==b); }
 
 //////////////////////////////////////////////////////////////////
 // helper operators
@@ -140,18 +131,8 @@ std::ostream& operator<<( std::ostream& s, const IRoiDescriptor& d ) {
 }
 
 
-// inline
-// std::ostream operator<<( std::ostream& s, const IRoiDescriptor& r ) { 
-//   s << "[ Roi"
-//     << " phi=" << r.phi() << " phiMinus=" << r.phiMinus() << " phiPlus="  << r.phiPlus()
-//     << " eta=" << r.eta() << " etaMinus=" << r.etaMinus() << " etaPlus="  << r.etaPlus()
-//     << " zed=" << r.zed() << " zedMinus=" << r.zedMinus() << " zedPlus="  << r.zedPlus()
-//     << " l1Id=" << r.l1Id() << " roiWord=" << r.roiWord();
-//   return s;
-// } 
-
-
-CLASS_DEF(IRoiDescriptor,12665988,1)
+/// is this really needed ??
+// CLASS_DEF(IRoiDescriptor,12665988,1)
 
 #endif // IREGIONSELECTOR_INEWROIDESCRIPTOR_H
 

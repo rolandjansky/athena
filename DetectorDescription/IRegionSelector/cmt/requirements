@@ -5,7 +5,7 @@ author Mark Sutton <sutt@mail.desy.de>
 use AtlasPolicy AtlasPolicy-*
 use AthenaKernel	AthenaKernel-*	Control
 
-use CLIDSvc CLIDSvc-* Control
+#use CLIDSvc CLIDSvc-* Control
 use GaudiInterface GaudiInterface-* External 
 
 # use StoreGate StoreGate-* Control
