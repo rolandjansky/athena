@@ -1,0 +1,23 @@
+package MuidCaloIsolationTools
+
+author			Kostas Nikolopoulos <Konstantinos.Nikolopoulos@cern.ch>
+author			Alan Poppleton <Alan.Poppleton@cern.ch>
+
+private
+use TrkExInterfaces		TrkExInterfaces-*		Tracking/TrkExtrapolation
+use TrkExUtils			TrkExUtils-*			Tracking/TrkExtrapolation
+use TrkParameters		TrkParameters-*			Tracking/TrkEvent
+use TrkSurfaces			TrkSurfaces-*			Tracking/TrkDetDescr
+
+public
+use AtlasPolicy			AtlasPolicy-*
+use AthenaBaseComps		AthenaBaseComps-*		Control
+use GaudiInterface		GaudiInterface-*		External
+use MuidInterfaces		MuidInterfaces-*		Reconstruction/MuonIdentification
+use TrkTrack			TrkTrack-*			Tracking/TrkEvent
+
+library MuidCaloIsolationTools	MuidTrackIsolation.cxx		\
+				components/*.cxx
+
+apply_pattern component_library								
+
