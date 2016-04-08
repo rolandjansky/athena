@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 634441 2014-12-08 14:38:42Z krasznaa $ -->
+<!-- $Id: selection.xml 705788 2015-11-04 13:06:35Z krasznaa $ -->
 <lcgdict>
 
   <!-- TrigPhoton_v1 dictionaries: -->
@@ -52,6 +52,11 @@
   <class name="ElementLink<xAOD::TrigElectronContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::TrigElectronContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::TrigElectronContainer_v1> > >" />
+
+  <class name="xAOD::ElectronTrigAuxContainer_v1"
+         id="359610D5-3AEA-4DB4-837E-4C93F81014C2" />
+  <class name="xAOD::PhotonTrigAuxContainer_v1"
+         id="863989DB-F18B-4D93-A019-F3CBFF726176" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->
