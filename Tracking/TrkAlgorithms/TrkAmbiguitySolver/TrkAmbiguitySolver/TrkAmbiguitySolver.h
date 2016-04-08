@@ -13,9 +13,8 @@ TrkAmbiguitySolver Algorithm
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "DataModel/DataVector.h"
 #include "TrkTrack/TrackCollection.h"
-#include "AthContainers/DataVector.h"
-#include "AthContainers/ConstDataVector.h"
 #include <string>
 
 namespace Trk 
@@ -50,7 +49,7 @@ namespace Trk
 	  (if not, the tracks are just resaved). 
 	  Default=false.*/
       bool              m_resolveTracks; 
-      ConstDataVector<TrackCollection>   m_oldTracks;
+      TrackCollection   m_oldTracks;
       TrackCollection * m_tracks;
       
       /**Number of tracks input. Useful for debugging*/
