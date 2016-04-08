@@ -10,8 +10,14 @@
 
 // Local
 #include "TrigMonitoringEvent/TrigMonTE.h"
+#include "TrigMonMSG.h"
 
 using namespace std;
+
+namespace MSGService
+{
+  static TrigMonMSG msg("TrigMonTE");
+}
 
 namespace SeqBits
 {
@@ -80,8 +86,7 @@ TrigMonTE::Type TrigMonTE::getType() const
   case 3: return kL1TH;
   default: break;
   }
-
-  cerr << "TrigMonTE::getType error! Bad value: " << val << endl; 
+  MSGService::msg.Log("TrigMonTE::getType error! Bad value", MSG::ERROR);
   return kELEM;
 }
 
