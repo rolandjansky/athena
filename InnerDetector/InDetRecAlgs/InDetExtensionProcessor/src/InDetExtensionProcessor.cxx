@@ -36,6 +36,7 @@ InDet::InDetExtensionProcessor::InDetExtensionProcessor(const std::string &name,
   m_tracks(0),
   m_trackExtensionMap(0),
   m_newtracks(0),
+  m_ParticleHypothesis(Trk::undefined),
   m_Nevents(0),m_Ninput(4),m_Nrecognised(4),m_Nextended(4),m_Nrejected(4),m_Nfailed(4),
   m_NrecoveryBremFits(4),m_NbremFits(4),m_Nfits(4),m_NnotExtended(4),m_NlowScoreBremFits(4),m_NextendedBrem(4)
 {  
@@ -67,14 +68,14 @@ InDet::InDetExtensionProcessor::InDetExtensionProcessor(const std::string &name,
 StatusCode InDet::InDetExtensionProcessor::initialize()
 {
 
-  msg(MSG::INFO) << "InDetExtensionProcessor::initialize()" << endreq;
+  ATH_MSG_INFO( "InDetExtensionProcessor::initialize()"  );
 
   // get track fitter tool
   if ( m_ITrackFitter.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_ITrackFitter << endreq;
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_ITrackFitter  );
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_ITrackFitter << endreq;
+    ATH_MSG_INFO( "Retrieved tool " << m_ITrackFitter  );
   }
   
   // Configuration of the material effects
@@ -83,15 +84,15 @@ StatusCode InDet::InDetExtensionProcessor::initialize()
 
   // get scoring tool
   if ( m_scoringTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_scoringTool << endreq;
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_scoringTool  );
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_scoringTool << endreq;
+    ATH_MSG_INFO( "Retrieved tool " << m_scoringTool  );
   }
   
   // brem fitting enabled ?
   if (m_tryBremFit)
-    msg(MSG::INFO) << "Try brem fit and recovery for electron like tracks." << endreq;
+    ATH_MSG_INFO( "Try brem fit and recovery for electron like tracks."  );
 
   for (int i=0; i<4; i++) {
     m_Ninput[i]     = 0;
@@ -141,8 +142,8 @@ StatusCode InDet::InDetExtensionProcessor::execute()
   if (m_ExtensionMapName != "") {
     sc = sgSvc()->retrieve(m_trackExtensionMap, m_ExtensionMapName);
     if (sc.isFailure()){
-      msg(MSG::ERROR) <<"TrackExtensionMap named " << m_ExtensionMapName 
-		      << " not found, exit InDetExtensionProcessor." << endreq;
+      ATH_MSG_WARNING( "TrackExtensionMap named " << m_ExtensionMapName 
+                     << " not found, exit InDetExtensionProcessor." );
       return StatusCode::SUCCESS;
     }
     else{ 
