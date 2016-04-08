@@ -205,25 +205,35 @@ namespace Trk
     for (const xAOD::TrackParticle* p : vectorTrk)
     {
       if (m_firstMeas) {
-        Amg::Transform3D * CylTrf = new Amg::Transform3D;
-        CylTrf->setIdentity();
-        Trk::CylinderSurface estimationCylinder(CylTrf, p->radiusOfFirstHit(), 10e10);
-        const Trk::TrackParameters* chargeParameters = &p->perigeeParameters();
-        MaterialUpdateMode mode = Trk::removeNoise;
-        const Trk::TrackParameters* extrapolatedPerigee(0);
-        extrapolatedPerigee = m_extrapolator->extrapolate(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion, mode);
-        if (extrapolatedPerigee!=0) {
-          measuredPerigees.push_back (extrapolatedPerigee);
-          measuredPerigees_delete.push_back (extrapolatedPerigee);
+        unsigned int indexFMP;
+        if (p->indexOfParameterAtPosition(indexFMP, xAOD::FirstMeasurement)) {
+          measuredPerigees.push_back(new CurvilinearParameters(p->curvilinearParameters(indexFMP)));
+          msg(MSG::DEBUG) << "first measurement on track exists" << endreq;
+          msg(MSG::DEBUG) << "first measurement " << p->curvilinearParameters(indexFMP) << endreq;
+          msg(MSG::DEBUG) << "first measurement covariance " << *(p->curvilinearParameters(indexFMP)).covariance() << endreq;
         } else {
-          extrapolatedPerigee = m_extrapolator->extrapolateDirectly(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion);
+          Amg::Transform3D * CylTrf = new Amg::Transform3D;
+          CylTrf->setIdentity();
+          Trk::CylinderSurface estimationCylinder(CylTrf, p->radiusOfFirstHit(), 10e10);
+          const Trk::TrackParameters* chargeParameters = &p->perigeeParameters();
+          MaterialUpdateMode mode = Trk::removeNoise;
+          const Trk::TrackParameters* extrapolatedPerigee(0);
+          extrapolatedPerigee = m_extrapolator->extrapolate(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion, mode);
           if (extrapolatedPerigee!=0) {
+            msg(MSG::DEBUG) << "extrapolated to first measurement" << endreq;
             measuredPerigees.push_back (extrapolatedPerigee);
             measuredPerigees_delete.push_back (extrapolatedPerigee);
           } else {
-            msg(MSG::INFO) << "Failed to extrapolate to the first measurement on track, using Perigee parameters" << endreq;
-            measuredPerigees.push_back (&p->perigeeParameters());
-            delete extrapolatedPerigee;
+            extrapolatedPerigee = m_extrapolator->extrapolateDirectly(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion);
+            if (extrapolatedPerigee!=0) {
+              msg(MSG::DEBUG) << "extrapolated (direct) to first measurement" << endreq;
+              measuredPerigees.push_back (extrapolatedPerigee);
+              measuredPerigees_delete.push_back (extrapolatedPerigee);
+            } else {
+              msg(MSG::DEBUG) << "Failed to extrapolate to the first measurement on track, using Perigee parameters" << endreq;
+              measuredPerigees.push_back (&p->perigeeParameters());
+              //delete extrapolatedPerigee;
+            }
           }
         }
       } else {
@@ -235,6 +245,7 @@ namespace Trk
     
     if (fitVxCandidate == 0) return 0;
     const Trk::ExtendedVxCandidate* vxCandidate = dynamic_cast<const Trk::ExtendedVxCandidate*>(fitVxCandidate);
+    if (vxCandidate == 0) return 0;
     const Trk::RecVertex& rv = vxCandidate->recVertex();
 
     xAOD::Vertex* vx = new xAOD::Vertex;
@@ -262,8 +273,9 @@ namespace Trk
       tmpVTAV.push_back( *VTAV );
     }
 
-    int DIM = (*(vxCandidate->fullCovariance())).innerSize();
     std::vector<float> floatErrMtx;
+    int DIM = 0;
+    if (vxCandidate->fullCovariance()) DIM = (*(vxCandidate->fullCovariance())).innerSize();
     floatErrMtx.resize(DIM*(DIM+1)/2);
     int ipnt = 0;
     for (int i=0;i<DIM;i++)
