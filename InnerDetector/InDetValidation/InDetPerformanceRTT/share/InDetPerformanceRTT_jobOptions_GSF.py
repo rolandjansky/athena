@@ -8,19 +8,23 @@ doCaloSeededBrem = True
 # detector description version
 #--------------------------------------------------------------
 #DetDescrVersion = "ATLAS-GEO-16-00-00"
-
+#
 #--------------------------------------------------------------
 # Import config
 #--------------------------------------------------------------
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
+import MagFieldServices.SetupField
 
 #--------------------------------------------------------------
 # Event related parameters and input files
 #--------------------------------------------------------------
 
-# top no pileup (default)
+# 1 GeV electrons no pileup
+#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/57/ea/RDO.07275503._000001.pool.root.1"]
+#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/b6/19/RDO.06718152._000041.pool.root.1"]
+#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366/RDO.197091._000015.pool.root.1"]
 #athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/mc09_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e510_s624_s633_d287_tid112426_00/RDO.112426._000007.pool.root.1"]
 # H-gamgam, 40 pileup
 # athenaCommonFlags.FilesInput = ["root://eosatlas///eos/atlas/atlasdatadisk/mc11_valid/RDO/e850_s1310_s1300_d577/mc11_valid.106384.PythiaH120gamgam.digit.RDO.e850_s1310_s1300_d577_tid512895_00/RDO.512895._000039.pool.root.1"]
@@ -66,8 +70,8 @@ else:
 # --- and switch off Muons
 DetFlags.Muon_setOff()
 
-from AthenaCommon.BeamFlags import jobproperties as BeamFlags
-BeamFlags.Beam.bunchSpacing.set_Value_and_Lock(50)
+#from AthenaCommon.BeamFlags import jobproperties as BeamFlags
+#BeamFlags.Beam.bunchSpacing.set_Value_and_Lock(50)
 
 #--------------------------------------------------------------
 # Control
@@ -84,6 +88,7 @@ rec.doDPD.set_Value_and_Lock             (False)
 rec.doCBNT.set_Value_and_Lock            (False)
 rec.doWriteTAG.set_Value_and_Lock        (False)
 rec.doWritexAOD.set_Value_and_Lock       (False)
+#rec.doMonitoring.set_Value_and_Lock      (True)
 
 # --- turn on InDet
 rec.doInDet.set_Value_and_Lock           (True)
@@ -142,7 +147,7 @@ recAlgs.doTrigger.set_Value_and_Lock         (False)
 
 from AthenaCommon.GlobalFlags import globalflags
 # --- set geometry version
-globalflags.DetDescrVersion = DetDescrVersion
+#globalflags.DetDescrVersion = DetDescrVersion
 
 print "globalflags configuration:"
 print globalflags
@@ -184,7 +189,7 @@ InDetFlags.doMonitoringAlignment.set_Value_and_Lock                (False)
 # activate the print InDetXYZAlgorithm statements
 InDetFlags.doPrintConfigurables.set_Value_and_Lock                 (True)
 
-InDetFlags.doiPatRec.set_Value_and_Lock                            (True)
+#InDetFlags.doiPatRec.set_Value_and_Lock                            (True)
 
 # --- possibility to run tracking on subdetectors separately (and independent from each other)
 # --- Si track segments incompatible with TIDE setup, which is now default
@@ -220,6 +225,10 @@ jtm.addJetFinder("Run2AntiKt4TruthJets", "AntiKt", 0.4, "truth", ghostArea=0.0)
 #--------------------------------------------------------------
 # load master joboptions file
 #--------------------------------------------------------------
+
+#from AthenaMonitoring.DQMonFlags import DQMonFlags
+#DQMonFlags.doTRTElectronMon.set_Value_and_Lock               (False)
+#DQMonFlags.doLArMon.set_Value_and_Lock                       (False)
 
 include ("RecExCommon/RecExCommon_topOptions.py")
 

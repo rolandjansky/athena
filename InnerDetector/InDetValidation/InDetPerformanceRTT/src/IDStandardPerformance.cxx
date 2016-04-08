@@ -65,6 +65,9 @@
 using std::auto_ptr;
 using std::string;
 
+//Should be 100000
+#define MAXBARCODE 100000
+
 // *********************************************************************
 // Public Methods
 // *********************************************************************
@@ -94,6 +97,7 @@ IDStandardPerformance::IDStandardPerformance( const std::string & type, const st
 	      m_minTrackPhi(-999),
 	      m_minProbEff(0.8),
 	      m_minProbEffLow(0.5),
+              m_truthParticleName("TruthEvent"),
 	      m_truthJetCollName("Cone4TruthJets"),
 	      m_doTrackInJet(true),
 	      m_doUpgrade(false),
@@ -143,6 +147,7 @@ IDStandardPerformance::IDStandardPerformance( const std::string & type, const st
 		  "Probability cut for track efficiency and fake rate");
   declareProperty("minProbEffLow"           , m_minProbEffLow,
                   "Probability lower cut for track efficiency and fake rate");
+  declareProperty("TruthParticleContainerName", m_truthParticleName="TruthEvent"); 
   declareProperty("TruthJetCollName"        , m_truthJetCollName,
 		  "Truth Jet Collection");
   declareProperty("doTrackInJet"            , m_doTrackInJet);
@@ -400,14 +405,15 @@ StatusCode IDStandardPerformance::bookHistograms()
   if (newRun) {
     m_ngenevent = create_registeredTH1F(al_expert,"ngenevent","Number of generated MC events; nevent",1000,0,1000);
     m_ntrack = create_registeredTH1F(al_expert, "ntrack","Number of Tracks;Num. tracks",200,0,200);
+    m_mu = create_registeredTH1F(al_expert, "mu","mu; mu",50,0,50);
     m_nparticle = create_registeredTH1F(al_expert, "nparticle","Number of Truth Particles;Num. truth particles",200,0,2000);
     m_ntracksel = create_registeredTH1F(al_expert, "ntracksel","Number of Selected Tracks;Num. tracks",200,0,200);
     m_nparticlesel = create_registeredTH1F(al_expert, "nparticlesel","Number of Selected Truth Particles;Num. truth particles",200,0,200);
     m_nparticleprimary = create_registeredTH1F(al_expert, "nparticleprimary","Number of Selected Truth Particles (prim);Num. prim truth particles",200,0,200);
     m_nbarcode0 = create_registeredTH1F(al_expert,"nbcode0","Number of matched tracks with barcode 0; nbarcode0",1000,0,5000);
     m_nbarcode0match = create_registeredTH1F(al_expert,"nbcode0match","Number of matched tracks with barcode 0 with >50% prob; nbarc0m",1000,0,5000);
-    m_nbarcode100k = create_registeredTH1F(al_expert,"nbcode100k","Number of matched tracks with barcode>100000; nbc100k",1000,0,5000);
-    m_nbarcodegood = create_registeredTH1F(al_expert,"nbcodegood","Number of matched tracks with 0<barcode<100000; nbcnot100k",1000,0,5000);
+    m_nbarcode100k = create_registeredTH1F(al_expert,"nbcode100k","Number of matched tracks with barcode>MAXBARCODE; nbc100k",1000,0,5000);
+    m_nbarcodegood = create_registeredTH1F(al_expert,"nbcodegood","Number of matched tracks with 0<barcode<MAXBARCODE; nbcnot100k",1000,0,5000);
     m_nbadmatch = create_registeredTH1F(al_expert,"nbadmatch","Number of bad match or barcode=0 tracks; nbadmatch",1000,0,5000);
     m_nlowprob = create_registeredTH1F(al_expert,"nlowprob","Number of bad match for barcode!=0 tracks; nbcnot0antlowprob",1000,0,5000);
 
@@ -790,11 +796,11 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_prob = create_registeredTH1F(al_shift, "prob","Truth match probability;Prob.",57,-0.12,1.02);
     m_prob_injet = create_registeredTH1F(al_shift, "prob_injet","Truth match probability (inside jet);Prob.",57,-0.12,1.02);
     m_prob_barcode0 = create_registeredTH1F(al_shift, "prob_barcode0","Truth match probability; prob",57,-0.12,1.02);
-    m_prob_barcode100000 = create_registeredTH1F(al_shift, "prob_barcode100000","Truth match probability; prob",57,-0.12,1.02);
+    m_prob_barcodeMAXBARCODE = create_registeredTH1F(al_shift, "prob_barcodeMAXBARCODE","Truth match probability; prob",57,-0.12,1.02);
     m_prob_barcode_primary = create_registeredTH1F(al_shift, "prob_barcode_primary","Truth match probability; prob",57,-0.12,1.02);
     m_nTrkMatchesSameHmpl = create_registeredTH1F(al_shift, "nTrkMatchesSameHmpl","Number of tracks matching the same truth particle; ntrk",20,0,20);
     m_nTrkMatchesSameHmpl_barcode0 = create_registeredTH1F(al_shift, "nTrkMatchesSameHmpl_barcode0","Number of tracks matching the same truth particle; ntrk",20,0,20);
-    m_nTrkMatchesSameHmpl_barcode100000 = create_registeredTH1F(al_shift, "nTrkMatchesSameHmpl_barcode100000","Number of tracks matching the same truth particle; ntrk",20,0,20);
+    m_nTrkMatchesSameHmpl_barcodeMAXBARCODE = create_registeredTH1F(al_shift, "nTrkMatchesSameHmpl_barcodeMAXBARCODE","Number of tracks matching the same truth particle; ntrk",20,0,20);
     m_nTrkMatchesSameHmpl_barcode_primary = create_registeredTH1F(al_shift, "nTrkMatchesSameHmpl_barcode_primary","Number of tracks matching the same truth particle; ntrk",20,0,20);
 
     // hit map
@@ -1626,7 +1632,7 @@ StatusCode IDStandardPerformance::fillHistograms()
   // get MC event collection
   const McEventCollection* SimTracks = NULL;
   if (haveTruth) {
-    if (evtStore()->retrieve(SimTracks,"TruthEvent").isFailure()) {
+    if (evtStore()->retrieve(SimTracks,m_truthParticleName).isFailure()) {
       std::string key = "G4Truth";
       if (evtStore()->retrieve(SimTracks,key).isFailure()) {
           key = "";
@@ -1636,8 +1642,10 @@ StatusCode IDStandardPerformance::fillHistograms()
             return StatusCode::FAILURE;
           }
       }
+      if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved Truth Collection with name " << key.c_str() << endreq;
     }
-    if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved Truth Collection" << endreq;
+    else
+      if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved Truth Collection with name " << m_truthParticleName.c_str() << endreq;
   }
     
   // get Pixel tracklet collection
@@ -1679,7 +1687,17 @@ StatusCode IDStandardPerformance::fillHistograms()
       if (msgLvl(MSG::DEBUG)) msg() << "storeGate does not contain JetCollection with name " << m_truthJetCollName << endreq;
     }
   }
-
+  // WJM start: Get mu
+  const EventInfo* eventInfo = 0;
+  double mu_val = 0;
+  if (evtStore()->retrieve(eventInfo)) {
+    //  if (evtStore()->retrieve(eventInfo, "EventInfo")) {
+    mu_val = eventInfo->averageInteractionsPerCrossing();
+    //    std::cout<<"wjm: found mu_val = "<<mu_val<<std::endl;
+  }
+  //  std::cout<<"wjm: now mu_val = "<<mu_val<<std::endl;
+  m_mu->Fill(mu_val);
+  // WJM end
   if (haveTruth)
     MakeTrackPlots(trks,RecCollection,TruthMap,SimTracks,jetColl);
   else
@@ -2076,8 +2094,11 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     HepMC::GenParticle * const particle = *it;
     float genPt = particle->momentum().perp()/1000;
     float genEta=particle->momentum().pseudoRapidity();
-    if (!particle->production_vertex() || particle->barcode()<=0 || particle->barcode()>100000 || particle->status()%1000!=1 || fabs(genEta)>m_maxTrackEta || fabs(genEta)<m_minTrackEta || genPt < 0.1) continue;
-    //int   pdgCode         = particle->pdg_id();
+    int   pdgCode         = particle->pdg_id();
+    if (!particle->production_vertex() || particle->barcode()<=0 || particle->barcode()>MAXBARCODE || particle->status()%1000!=1 || fabs(genEta)>m_maxTrackEta || fabs(genEta)<m_minTrackEta || genPt < 0.1) {
+      msg(MSG::DEBUG) << "Skipping GenParticle with production_vertex=" << particle->production_vertex()<<" barcode="<<particle->barcode()<< " status="<< particle->status() << " pdgID=" << pdgCode << ", eta=" << genEta << ", pT=" << genPt << endreq;
+      continue;
+    }
     const Trk::TrackParameters* generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(particle);
     //    auto_ptr<const Trk::TrackParameters> generatedTrackPerigee(m_truthToTrack->makePerigeeParameters(particle));
     //    if (!generatedTrackPerigee.get())   msg(MSG::DEBUG) <<  "Unable to extrapolate genparticle to perigee!" << endreq;
@@ -2089,6 +2110,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     }
   }
   if (nPrimaries>0) zVertex/=float(nPrimaries);
+  msg(MSG::DEBUG) << "Found " << nPrimaries << " primary GenParticles." << endreq;
 
 
   rttMap.clear();
@@ -2116,6 +2138,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
   DataVector<Trk::Track>::const_iterator trksItrE = trks->end();
   DataVector<Trk::Track>::const_iterator trksItr2  = trks->begin();
   DataVector<Trk::Track>::const_iterator trksItrE2 = trks->end();
+  msg(MSG::VERBOSE) << "Will loop over the " << trks->size() << " Trk::Tracks" << endreq;
   for (; trksItr != trksItrE; ++trksItr) {
 
     // ---------------------------------------------
@@ -2238,6 +2261,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       if (found != TruthMap->end()) {
         TrackTruth trtruth=found->second;
         HepMcParticleLink hmpl = trtruth.particleLink();
+	msg(MSG::VERBOSE) << "Adding HMPL=" << hmpl << " with probability=" << trtruth.probability() << endreq;
         rttMap.insert(std::pair<HepMcParticleLink,float>(hmpl,trtruth.probability()));
       }
     } else {
@@ -2408,19 +2432,19 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	      m_bc0_num_eventindex_match->Fill(list_eventIndex.size());
 	      m_bc0_num_truthmatch_match->Fill(number_truthmatches);
 	    }
-	    if (barcode<100000 && barcode !=0 && prob>0.5){
+	    if (barcode<MAXBARCODE && barcode !=0 && prob>0.5){
 	      m_Good_num_eventindex_match->Fill(list_eventIndex.size());
 	      m_Good_num_truthmatch_match->Fill(number_truthmatches);
 	    }
 	  }
 	  if(barcode==0) m_prob_barcode0->Fill(prob);
-	  if(barcode<100000 && barcode !=0) m_prob_barcode_primary->Fill(prob);
-	  if(barcode>100000) m_prob_barcode100000->Fill(prob);
+	  if(barcode<MAXBARCODE && barcode !=0) m_prob_barcode_primary->Fill(prob);
+	  if(barcode>MAXBARCODE) m_prob_barcodeMAXBARCODE->Fill(prob);
 
 
 	  // Do not fill track performance plots for Geant particles, but they will be included in fake rate calculation
-	  if(barcode<100000 && barcode !=0){
-	    //if (barcode>100000 || barcode == 0) continue;
+	  if(barcode<MAXBARCODE && barcode !=0){
+	    //if (barcode>MAXBARCODE || barcode == 0) continue;
 
 	    if ( HMPL.isValid())
 	      {
@@ -2448,7 +2472,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 		    // now make some cuts as made by Andi Salzburger for detector paper
 		    // JFA: Sept. 29, 2008: bug fix, remove the if on prob<0.8 to get a proper fake rate estimate
 		    //if (prob<0.8) continue;
-		    //if (barcode>100000) continue;
+		    //if (barcode>MAXBARCODE) continue;
 		    // calculate d0 w.r.t. beam spot
 
 		    if (msgLvl(MSG::VERBOSE)) msg()<< genparptr->status()<<" mass "<< genparptr->momentum().m() <<" eta "
@@ -2676,9 +2700,9 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       m_track_bcode0rate_vs_eta->Fill(trketa,1);
       if(barcode==0)
         m_track_bcode0rate_matchbc0_vs_eta->Fill(trketa,1);
-      if(barcode>100000)
+      if(barcode>MAXBARCODE)
         m_track_bcode0rate_matchsec_vs_eta->Fill(trketa,1);
-      if(barcode<100000 && barcode!=0)
+      if(barcode<MAXBARCODE && barcode!=0)
         m_track_bcode0rate_matchprim_vs_eta->Fill(trketa,1);
       m_track_bcode0rate_vs_phi->Fill(signed_trkphi*57.296,1);
       m_track_bcode0rate_vs_pt->Fill(trkpt,1);
@@ -2700,9 +2724,9 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       m_track_bcode0rate_vs_eta->Fill(trketa,0);
       if(barcode==0)
         m_track_bcode0rate_matchbc0_vs_eta->Fill(trketa,0);
-      if(barcode>100000)
+      if(barcode>MAXBARCODE)
         m_track_bcode0rate_matchsec_vs_eta->Fill(trketa,0);
-      if(barcode<100000 && barcode !=0)
+      if(barcode<MAXBARCODE && barcode !=0)
         m_track_bcode0rate_matchprim_vs_eta->Fill(trketa,0);
       m_track_bcode0rate_vs_phi->Fill(signed_trkphi*57.296,0);
       m_track_bcode0rate_vs_pt->Fill(trkpt,0);
@@ -2728,10 +2752,10 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
    if (barcode==0) {
      nBarCode0++;
      if (prob>m_minProbEffLow) nBarCode0Match++;
-   } else if (barcode>100000) {
-     // barcode >100000 rate
+   } else if (barcode>MAXBARCODE) {
+     // barcode >MAXBARCODE rate
      nBarCode100k++;
-   } else if (barcode>0 && barcode<100000) {
+   } else if (barcode>0 && barcode<MAXBARCODE) {
      nBarCodeGood++;
    }
    if (barcode==0 || prob < m_minProbEff) {
@@ -2747,7 +2771,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
      m_prob_injet->Fill(prob);
    // } // If: isPion
 
-   if (msgLvl(MSG::VERBOSE)) msg() << " conut tracks associated to same mc particle" << endreq;
+   if (msgLvl(MSG::VERBOSE)) msg() << " count tracks associated to same mc particle" << endreq;
    // Count number of tracks associated to the same hmpl
    for(recoToTruthMap::iterator rtt_it = rttMap.begin(); rtt_it != rttMap.end(); ++rtt_it){
 
@@ -2760,10 +2784,10 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       m_nTrkMatchesSameHmpl->Fill(nTrkMatchesSameHmpl);
       if(barcode==0)
         m_nTrkMatchesSameHmpl_barcode0->Fill(nTrkMatchesSameHmpl);
-      if(barcode<100000 && barcode !=0)
+      if(barcode<MAXBARCODE && barcode !=0)
         m_nTrkMatchesSameHmpl_barcode_primary->Fill(nTrkMatchesSameHmpl);
-      if(barcode>100000)
-        m_nTrkMatchesSameHmpl_barcode100000->Fill(nTrkMatchesSameHmpl);
+      if(barcode>MAXBARCODE)
+        m_nTrkMatchesSameHmpl_barcodeMAXBARCODE->Fill(nTrkMatchesSameHmpl);
     }
         // now also make plotsof the hit content for fake and good tracks
     const Trk::TrackSummary* summary = m_trkSummaryTool->createSummary(**trksItr);
@@ -2805,7 +2829,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
         m_faked0c->Fill(trkd0c);  // currently just -999
         m_fakephi->Fill(trkphi);
         m_fakedeltaz0->Fill((trkz0-zVertex)*sin(trktheta));
-     }  else if (barcode<100000 && barcode !=0) {
+     }  else if (barcode<MAXBARCODE && barcode !=0) {
         m_Good_HitContent_NBlayerHits->Fill(summary->get(Trk::numberOfBLayerHits));
         m_Good_HitContent_NBlayerOutliers->Fill(summary->get(Trk::numberOfBLayerOutliers));
         m_Good_HitContent_NBlayerSharedHits->Fill(summary->get(Trk::numberOfBLayerSharedHits));
@@ -2883,11 +2907,16 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
       HepMC::GenParticle * const particle = *it;
 
-      if (!particle->production_vertex()) continue;
+      if (!particle->production_vertex()) {
+	msg(MSG::VERBOSE) << "Skipping GenParticle without production vertex" << endreq;
+	continue;
+      }
 
       // -----------------------------------------------
       // require the particles to be stable and charged
       // -----------------------------------------------
+      // only consider stable particles
+      if (particle->status()%1000!=1) continue;
       int   pdgCode         = particle->pdg_id();
       const HepPDT::ParticleData* pd =
 	m_particleDataTable->particle(abs(pdgCode));
@@ -2907,21 +2936,19 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       //     if (abs(pdgCode)==211) isPion=true;
       //     if (!isPion) continue;
 
-      // only consider stable particles
-      if (particle->status()%1000!=1) continue;
       nChargedParticle++;
       if (fabs(particle->momentum().pseudoRapidity())<3) nChargedParticleEta++;
-      if (particle->barcode()>100000 || particle->barcode()==0) continue;
+      if (particle->barcode()>MAXBARCODE || particle->barcode()==0) continue;
 
            float genPt=particle->momentum().perp()/1000;
       float genEta=particle->momentum().pseudoRapidity();
       float genPhi=particle->momentum().phi();
 
       if (fabs(genEta)<3) {
-        if (particle->barcode()<100000 && particle->barcode()>0) {
+        if (particle->barcode()<MAXBARCODE && particle->barcode()>0) {
           nprimperevent++;
           if (genPt>0.5) nprimperevent05++;
-        } else if (particle->barcode()>100000) {
+        } else if (particle->barcode()>MAXBARCODE) {
           nsecperevent++;
           if (genPt>0.5) nsecperevent05++;
         }
@@ -2969,7 +2996,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       // JFA (Feb. 2, 2009): Replace cut on difference between IP and startvertex by a cut on truth d0
       //if (genEvent->signal_process_vertex() != 0 && primaryVtx.distance(startVertex) > 2.0) isPrimary=false;
       if (!singPart && fabs(truth_d0corr) > 2.0) isPrimary=false;
-      if (particle->barcode()>100000 || particle->barcode()==0) isPrimary=false;
+      if (particle->barcode()>MAXBARCODE || particle->barcode()==0) isPrimary=false;
       isDetPaperCut=isPrimary;
 
       if (fabs(startVertex.z())>100) isPrimary=false;
@@ -3101,7 +3128,9 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       int nmatched = 0;
       HepMcParticleLink hmpl2(particle, ievt);
       recoToTruthMap::iterator barcode=rttMap.find(hmpl2);
+      if (msgLvl(MSG::VERBOSE)) msg() << "Looking for HMPL=" << hmpl2 << "... " << endreq;
       if (barcode != rttMap.end()){
+	if (msgLvl(MSG::VERBOSE)) msg() << "...found some" << endreq;
 	for(imap = rttMap.lower_bound(hmpl2); imap !=rttMap.upper_bound(hmpl2); ++imap){
 	  if (genPt>30) if (msgLvl(MSG::VERBOSE)) msg() << "track match probability = "<< imap->second<<endreq;
 	  if (imap->second > m_minProbEff){  // 80% match probability
@@ -3113,10 +3142,17 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	  }
 	}
       }
+      /*else {
+	if (msgLvl(MSG::VERBOSE)) msg() << "... not found !!! Will dump the full rttMap here:"<< endreq;
+	for(recoToTruthMap::iterator rtt_it = rttMap.begin(); rtt_it != rttMap.end(); ++rtt_it){
+	      HepMcParticleLink hmpl = rtt_it->first;
+	      if (msgLvl(MSG::VERBOSE)) msg() << "   " << hmpl << endreq;
+	}
+      }*/
 
-      if(particle->barcode()>100000)
+      if(particle->barcode()>MAXBARCODE)
         m_prodvtx_secondaries_RZ->Fill( startVertex.z(),sqrt(pow(startVertex.x(),2)+pow(startVertex.y(),2)) );
-      if(particle->barcode()<100000 && particle->barcode()!=0)
+      if(particle->barcode()<MAXBARCODE && particle->barcode()!=0)
         m_prodvtx_primaries_RZ->Fill( startVertex.z(),sqrt(pow(startVertex.x(),2)+pow(startVertex.y(),2)) );
 
 
