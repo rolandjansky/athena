@@ -1,0 +1,88 @@
+<ui version="4.0" >
+ <class>AnnotationSystemMenu</class>
+ <widget class="QWidget" name="AnnotationSystemMenu" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>118</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy>
+    <hsizetype>13</hsizetype>
+    <vsizetype>13</vsizetype>
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" >
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item>
+    <widget class="QPushButton" name="insertDatePushButton" >
+     <property name="maximumSize" >
+      <size>
+       <width>200</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text" >
+      <string>Insert Date</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="insertImagePushButton" >
+     <property name="text" >
+      <string>Insert Image</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pasteImagePushButton" >
+     <property name="text" >
+      <string>Paste Image</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="printPagePushButton" >
+     <property name="text" >
+      <string>Print Page</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="savePagePushButton" >
+     <property name="text" >
+      <string>Save Page</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>331</width>
+       <height>100</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
