@@ -1,0 +1,128 @@
+digraph DCSC2 {
+
+subgraph cluster_for_each_subdetector {
+    label="For each subdetector";
+    style="rounded, filled"; fillcolor=grey;
+    node [style=filled, fillcolor=white];
+    "DCSC_Subdetector.run()" [shape=rect];
+}
+
+"Read /TRIGGER/LUMI/LBLB for input range" -> 
+"DCSC_Subdetector.run()" -> 
+"Write result to COOL";
+
+"DCSC_Subdetector.run()" -> "start()" [style=dashed];
+//"done()" -> "Run one DCSC_Subdetector";
+
+subgraph cluster_subdetector {
+    label="DCSC_Subdetector.run()";
+    
+    "start()" ->
+    "evaluate_inputs()" ->
+    "merge_input_variables()" ->
+    "map_inputs_to_outputs()" ->
+    "calculate_result()";
+    
+    "start()"
+        [label="start()\ninstrumentation"];
+    "done()"
+        [label="done()\ninstrumentation"];
+    
+    "merge_input_variables()" 
+        [label="merge_input_variables()\nCompute each channel's state using multiple variables"];
+    
+    "map_inputs_to_outputs()"
+        [label="map_inputs_to_outputs()\nConsider which channels belong to each DQ region"];
+    
+    "calculate_result()" ->
+    "done()" [weight=100];
+    
+    "evaluate_inputs()" [shape=rect];
+    "calculate_result()" [shape=rect];
+    
+    subgraph cluster_eval_inputs {
+        label="DCSC_Subdetector.evaluate_inputs()";
+        
+        subgraph cluster_for_each_variable
+        {
+            label="For each 'local' input variable";
+            style="rounded, filled"; fillcolor=grey;
+            node [style=filled, fillcolor=white];
+            subgraph cluster_variable {
+                label="DCSC_Variable.calculate_good_iovs()";
+                style=filled; fillcolor=white;
+                "read()" ->
+                "make_good_iovs()" ->
+                "map_input_channels()" ->
+                "quantize()";
+                
+                "read()"
+                    [label="read()\nFetch IoVs from COOL"];
+                
+                "make_good_iovs()"
+                    [label="make_good_iovs()\nDecide if channels are 'working'"];
+                
+                "map_input_channels()"
+                    [label="map_input_channels()\nRe-number channels\n(if necessary)"];
+                
+                "quantize()"
+                    [label="quantize()\nRewrite channel states\nin terms of Run-LB\n(instead of time)"];
+            }
+        }
+    }
+
+    subgraph cluster_calc_result {
+        label="DCSC_Subdetector.calculate_result()";
+        subgraph cluster_each_dq_region {
+            label="For each DQ region";
+            style="rounded, filled"; fillcolor=grey;
+            node [style=filled, fillcolor=white];
+            "select_globals()" ->
+            "calculate_result_for_output()";
+            
+            "select_globals()"
+                [label="select_globals()\nPick global channels that\nbelong to this DQ region"];
+            
+            subgraph cluster_result_for_output {
+                label="DCSC_Subdetector.calculate_result_for_output()";
+                style=filled; fillcolor=white;
+                
+                "calculate_dead_fraction_all()" -> 
+                "merge_globals()";
+                
+                "calculate_dead_fraction_all()"
+                    [shape=rect];
+                    
+                "merge_globals()"
+                    [label="merge_globals()\nCombine global variables\n(and deadfraction iovs)\nusing majority logic"];
+                    
+                subgraph cluster_for_each_interval {
+                    label="For each unchanged interval";
+                    style="rounded, filled"; fillcolor=grey;
+                    node [style=filled, fillcolor=white];
+                    
+                    "calculate_dead_fraction()";
+                    
+                    "calculate_dead_fraction()"
+                        [label="calculate_dead_fraction()\nCount working modules,\ndecide DQ colour"];
+                }
+            }
+            
+            "calculate_dead_fraction_all()" ->
+            "calculate_dead_fraction()" [style=dashed, weight=0.1];
+            
+            "calculate_result_for_output()" -> 
+            "calculate_dead_fraction_all()" [style=dashed];
+            
+            "calculate_result_for_output()" [shape=rect];
+        }
+    }    
+}
+
+
+
+// Connections from DCSC_Subdetector.run()
+"evaluate_inputs()" -> "read()" [style=dashed];
+"calculate_result()" -> "select_globals()" [style=dashed];
+
+}
