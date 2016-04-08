@@ -381,7 +381,7 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
        else
        {
           if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) << "GlobalFitTool Failed to refit the track" << endreq;
-          delete RefittedTrack;
+          // delete RefittedTrack; -- RefittedTrack is NULL due to the if condition and should therefore not be deleted!
           measurementSet.clear();
           for (size_t i = 0; i < competingRIO.size(); i++)
                 delete competingRIO[i];
@@ -459,7 +459,7 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
        else
        {
           if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) << "GlobalFitTool Failed to refit the track" << endreq;
-          delete RefittedTrack;
+          // delete RefittedTrack; -- RefittedTrack is NULL due to the if condition and should therefore not be deleted!
           measurementSet.clear();
           for (size_t i = 0; i < competingRIO.size(); i++)
                 delete competingRIO[i];
@@ -495,7 +495,9 @@ const Trk::Track* GlobalFitTool::globalFit(const Trk::Track * IDTrack, const Muo
         if (msgLvl(MSG::DEBUG)) msg() << "Measurement set built. Size: " <<measurementSet.size()<< endreq;
         SortMeasurementSet (measurementSet);
         if (msgLvl(MSG::DEBUG)) msg() << "Measurement set sorted " << endreq;
-        const Trk::Track* RefittedTrack=m_trackFitter->indetExtension(*IDTrack,measurementSet);
+        const Trk::Track* RefittedTrack= NULL;
+	if (m_pRefittedTrkMeasurementSetSize > 2)
+	  RefittedTrack=m_trackFitter->indetExtension(*IDTrack,measurementSet);
         if (msgLvl(MSG::DEBUG)) msg() << "Global Fit done" << endreq;
         if (RefittedTrack!=NULL)
         {
@@ -513,7 +515,7 @@ const Trk::Track* GlobalFitTool::globalFit(const Trk::Track * IDTrack, const Muo
         else
         {
            if (msgLvl(MSG::DEBUG))  msg(MSG::WARNING) << "GlobalFitTool Failed to refit the track" << endreq;
-            delete RefittedTrack;
+            // delete RefittedTrack; -- RefittedTrack is NULL due to the if condition and should therefore not be deleted!
             measurementSet.clear();
             for (size_t i = 0; i < competingRIO.size(); i++)
                 delete competingRIO[i];
