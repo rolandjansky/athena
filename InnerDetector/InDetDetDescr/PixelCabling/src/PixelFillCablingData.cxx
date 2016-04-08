@@ -106,13 +106,14 @@ PixelCablingData* PixelFillCablingData::fillMapFromFile(const std::string infile
 ////////////////////////
 // fill from COOL
 ////////////////////////
-PixelCablingData* PixelFillCablingData::fillMapFromCool(const char* data)
+PixelCablingData* PixelFillCablingData::fillMapFromCool(const char* data, unsigned int size, bool dump_map_to_file)
 {
     if (!data) return NULL;
     std::stringstream instr;
-    instr << data;
 
-    return parseAndFill(instr);
+    std::copy(data, data+size, std::ostream_iterator<char>(instr));
+
+    return parseAndFill(instr, dump_map_to_file);
 }
 
 
@@ -120,7 +121,7 @@ PixelCablingData* PixelFillCablingData::fillMapFromCool(const char* data)
 ////////////////////////
 // fill map from stream
 ////////////////////////
-PixelCablingData* PixelFillCablingData::parseAndFill(std::istream &instr)
+PixelCablingData* PixelFillCablingData::parseAndFill(std::istream &instr, bool dump_map_to_file)
 {
     // Get rid of the old map and create a new
     if (m_cabling) delete m_cabling;
@@ -143,9 +144,18 @@ PixelCablingData* PixelFillCablingData::parseAndFill(std::istream &instr)
     std::string DCSname;
     std::string line;
 
+    // For debugging purposes
+    std::ofstream output_mapping_file_raw;
+    if (dump_map_to_file) output_mapping_file_raw.open("pixel_cabling_map_raw.txt");
+    std::ofstream output_mapping_file_interpreted;
+    if (dump_map_to_file) output_mapping_file_interpreted.open("pixel_cabling_map_interpreted.txt");
+
     // Each entry in the mapping is sepated by a newline.
     // Loop over all lines and parse the values
+
     while (instr.good() && getline(instr, line)) {
+
+        if (dump_map_to_file) output_mapping_file_raw << line << std::endl;
 
         // Skip empty lines and comments (i.e. starting with a hash or a space)
         if (line.size() == 0) continue;
@@ -161,6 +171,14 @@ PixelCablingData* PixelFillCablingData::parseAndFill(std::istream &instr)
         parse >> barrel_ec >> layer_disk >> phi_module >> eta_module >> std::hex
               >> robid >> rodid >> sl_40_fmt >> sl_40_link >> sl_80_fmt
               >> sl_80_link >> DCSname;
+
+        // Debug
+        if (dump_map_to_file) {
+            output_mapping_file_interpreted << barrel_ec << "\t" << layer_disk << "\t" << phi_module << "\t"
+                                            << eta_module << "\t" << std::hex << robid << "\t" << rodid << "\t"
+                                            << sl_40_fmt << "\t" << sl_40_link << "\t" << sl_80_fmt << "\t"
+                                            << sl_80_link << "\t" << DCSname << std::dec << std::endl;
+        }
 
 
         // Get the offline ID for this module
@@ -228,6 +246,13 @@ PixelCablingData* PixelFillCablingData::parseAndFill(std::istream &instr)
         ATH_MSG_DEBUG("Mapped offlineID: " << std::hex << offlineId << " to onlineID: 0x" << onlineId
                         << ", robID: 0x" << robid << ", barrel_ec: " << std::dec << barrel_ec << ", layer_disk: " << layer_disk
                         << ", eta_module: " << eta_module << ", phi_module: " << phi_module << ", linknumber: 0x" << std::hex << linknumber);
+
+
+    }
+
+    if (dump_map_to_file) {
+        output_mapping_file_raw.close();
+        output_mapping_file_interpreted.close();
     }
 
     ATH_MSG_DEBUG("Size of ROD readoutspeed map: " << rodReadoutMap.size());
@@ -248,6 +273,3 @@ StatusCode PixelFillCablingData::finalize()
   StatusCode sc = AlgTool::finalize();
   return sc;
 }
-
-
-

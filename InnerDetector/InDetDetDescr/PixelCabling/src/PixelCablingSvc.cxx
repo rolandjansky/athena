@@ -38,7 +38,7 @@
 
 
 using namespace std;
-using eformat::helper::SourceIdentifier; 
+using eformat::helper::SourceIdentifier;
 
 static unsigned int defaultColumnsPerFE_pix     = 18;   // number of columns per FE
 static unsigned int defaultRowsPerFE_pix        = 164;  // number of rows per FE
@@ -66,6 +66,7 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     m_key("/PIXEL/ReadoutSpeed"),
     m_keyFEI4("/PIXEL/HitDiscCnfg"),
     m_keyCabling("/PIXEL/CablingMap"),
+    m_dump_map_to_file(false),
     m_useIBLParameterSvc(true),
     m_IBLpresent(false),
     m_isHybrid(false),
@@ -78,7 +79,7 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     // "Final": use text file, "COOL": read from COOL
     declareProperty("MappingType", m_mappingType = "COOL");
     // Name of mapping file to use, if mappingType == Final
-    declareProperty("MappingFile", m_final_mapping_file = "");
+    declareProperty("MappingFile", m_final_mapping_file = "Pixels_Atlas_IdMapping_2016.dat");
     // NOT USED
     declareProperty("Bandwidth", m_bandwidth = 0);
     // NOT USED
@@ -93,6 +94,8 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     declareProperty("Key", m_key, "Key=/PIXEL/ReadoutSpeed");
     // Folder name for cabling map
     declareProperty("KeyCabling", m_keyCabling, "Key=/PIXEL/CablingMap");
+    // Write out the cabling map to a text file
+    declareProperty("DumpMapToFile", m_dump_map_to_file = false);
 }
 
 
@@ -111,6 +114,7 @@ PixelCablingSvc::PixelCablingSvc(const PixelCablingSvc &other, const std::string
     m_key("/PIXEL/ReadoutSpeed"),
     m_keyFEI4("/PIXEL/HitDiscCnfg"),
     m_keyCabling("/PIXEL/CablingMap"),
+    m_dump_map_to_file(false),
     m_useIBLParameterSvc(true),
     m_IBLpresent(false),
     m_isHybrid(false),
@@ -130,6 +134,7 @@ PixelCablingSvc::PixelCablingSvc(const PixelCablingSvc &other, const std::string
     m_key = other.m_key;
     m_keyFEI4 = other.m_keyFEI4;
     m_keyCabling = other.m_keyCabling;
+    m_dump_map_to_file = other.m_dump_map_to_file;
 }
 
 ////////////////////////
@@ -147,6 +152,7 @@ PixelCablingSvc& PixelCablingSvc::operator= (const PixelCablingSvc &other) {
         m_key = other.m_key;
         m_keyFEI4 = other.m_keyFEI4;
         m_keyCabling = other.m_keyCabling;
+        m_dump_map_to_file = other.m_dump_map_to_file;
     }
     return *this;
 }
@@ -282,20 +288,14 @@ StatusCode PixelCablingSvc::initialize( )
     // Since COOL information is not available yet, fill the map from text
     // file. Then, if mappingType == "COOL", a callback will be registered
     // and the map is re-filled with the correct values. The correct 'fallback'
-    // file to use is set in SelectPixelMap.py, but in case it is for some reason
-    // empty, set a default. The contents of the map is anyways not important
-    // at this step. If mappingType == "Final", use only the provided mapping
-    // file and do not register a callback.
+    // file to use is set in SelectPixelMap.py.  The contents of the map is 
+    // anyways not important at this step. If mappingType == "Final", use 
+    // only the provided mapping file and do not register a callback.
     if (m_mappingType == "COOL") {
-        if (m_final_mapping_file.empty()) m_final_mapping_file = "Pixels_Atlas_IdMapping_2016.dat";
         ATH_MSG_DEBUG("Temporarily filling cabling map from " << m_final_mapping_file);
     }
     else if (m_mappingType == "Final") {
-        if (m_final_mapping_file.empty()) {
-            m_final_mapping_file = "Pixels_Atlas_IdMapping_2016.dat";
-            ATH_MSG_INFO("Cabling map to be read from file, but no filename provided.");
-            ATH_MSG_INFO("Defaulting to " << m_final_mapping_file);
-        }
+        // pass
     }
     else {
         ATH_MSG_FATAL("Unknown PixelCablingSvc configuration: " << m_mappingType);
@@ -331,28 +331,6 @@ StatusCode PixelCablingSvc::initialize( )
                         << " values (all modules at SINGLE_40)");
     }
 
-    // Register callback to HitDiscCnfg
-    if (m_IBLpresent) {
-        const DataHandle<AthenaAttributeList> attrlist_hdc;
-        if (m_detStore->contains<AthenaAttributeList>(m_keyFEI4)) {
-
-            sc = m_detStore->regFcn(&IPixelCablingSvc::IOVCallBack_HitDiscCnfg,
-                                    dynamic_cast<IPixelCablingSvc*>(this),
-                                    attrlist_hdc, m_keyFEI4);
-
-            // If regFcn fails even when folder is present -> abort
-            if (!sc.isSuccess()) {
-                ATH_MSG_FATAL("Unable to register HitDiscCnfg callback");
-                return StatusCode::FAILURE;
-            }
-        }
-        else {
-            ATH_MSG_WARNING("Folder " << m_keyFEI4 << " not found, using default HitDiscCnfg"
-                            << " values (all FEs at HitDiscCnfg = 3)");
-        }
-    }
-
-
     // Register callback to CablingMap
     if (m_mappingType == "COOL") {
 
@@ -372,6 +350,27 @@ StatusCode PixelCablingSvc::initialize( )
             m_mappingType = "Final";
             ATH_MSG_WARNING("Folder " << m_keyCabling << " not found, defaulting to "
                             << "mapping file: " << m_final_mapping_file);
+        }
+    }
+
+    // Register callback to HitDiscCnfg
+    if (m_IBLpresent) {
+        const DataHandle<AthenaAttributeList> attrlist_hdc;
+        if (m_detStore->contains<AthenaAttributeList>(m_keyFEI4)) {
+
+            sc = m_detStore->regFcn(&IPixelCablingSvc::IOVCallBack_HitDiscCnfg,
+                                    dynamic_cast<IPixelCablingSvc*>(this),
+                                    attrlist_hdc, m_keyFEI4);
+
+            // If regFcn fails even when folder is present -> abort
+            if (!sc.isSuccess()) {
+                ATH_MSG_FATAL("Unable to register HitDiscCnfg callback");
+                return StatusCode::FAILURE;
+            }
+        }
+        else {
+            ATH_MSG_WARNING("Folder " << m_keyFEI4 << " not found, using default HitDiscCnfg"
+                            << " values (all FEs at HitDiscCnfg = 3)");
         }
     }
 
@@ -428,7 +427,7 @@ Identifier PixelCablingSvc::getOfflineId(uint64_t onlineId)
 ////////////////////////
 // getOfflineIdHash - get the offlineIdHash from the onlineId
 ////////////////////////
-IdentifierHash 
+IdentifierHash
 PixelCablingSvc::getOfflineIdHash(uint64_t onlineId)
 {
 
@@ -439,7 +438,7 @@ PixelCablingSvc::getOfflineIdHash(uint64_t onlineId)
 ////////////////////////
 // getOfflineIdHashFromOfflineId - get the offlineIdHash from the offlineId
 ////////////////////////
-IdentifierHash 
+IdentifierHash
 PixelCablingSvc::getOfflineIdHashFromOfflineId(Identifier offlineId)
 {
     if (offlineId == 0)
@@ -466,7 +465,7 @@ uint32_t PixelCablingSvc::getRobId(Identifier offlineId)
 
 // For backward compatibility
 uint32_t PixelCablingSvc::getRobID(Identifier offlineId)
-{  
+{
     return m_cabling->find_entry_offrob(offlineId);
 }
 
@@ -499,7 +498,7 @@ uint64_t PixelCablingSvc::getOnlineId(Identifier offlineId)
 ////////////////////////
 // getPixelIdfromHash - get the pixelId from the offlineIdHash, FE, row and column
 ////////////////////////
-Identifier PixelCablingSvc::getPixelIdfromHash(IdentifierHash offlineIdHash, uint32_t FE, uint32_t row, uint32_t column) 
+Identifier PixelCablingSvc::getPixelIdfromHash(IdentifierHash offlineIdHash, uint32_t FE, uint32_t row, uint32_t column)
 {
     return PixelCablingSvc::getPixelId(m_idHelper->wafer_id(offlineIdHash), FE, row, column);
 }
@@ -507,7 +506,7 @@ Identifier PixelCablingSvc::getPixelIdfromHash(IdentifierHash offlineIdHash, uin
 ////////////////////////
 // getPixelId - get the pixelId from the offlineId, FE, row and column
 ////////////////////////
-Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32_t row, uint32_t column) 
+Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32_t row, uint32_t column)
 {
     // Identify the module type
     moduletype thisModule = getModuleType(offlineId);
@@ -662,7 +661,7 @@ uint32_t PixelCablingSvc::getFE(Identifier *pixelId, Identifier offlineId)
     unsigned int FE;
 
     // ---------------------
-    // Set module properties 
+    // Set module properties
     // ---------------------
 
     switch (thisModule) {
@@ -699,11 +698,11 @@ uint32_t PixelCablingSvc::getFE(Identifier *pixelId, Identifier offlineId)
         FEsPerHalfModule = m_layer_FEsPerHalfModule[layer_disk][eta_module];
         break;
     }
-    
+
     // ---------------------
-    // Compute FE number 
+    // Compute FE number
     // ---------------------
-    
+
     if (phi_index >= rowsPerFE) {
         FE = (int)((FEsPerHalfModule-1)-(eta_index/columnsPerFE));
     } else {
@@ -901,9 +900,9 @@ uint32_t PixelCablingSvc::getRow(Identifier *pixelId, Identifier offlineId)
 
 ////////////////////////
 // getFEwrtSlink
-// Function to get the number of an FE-I4 within an Slink, 
-// i.e. pos. value in the range [0,7], corresponding to 
-// the 'nnn' bits of a fragment header. To get the number 
+// Function to get the number of an FE-I4 within an Slink,
+// i.e. pos. value in the range [0,7], corresponding to
+// the 'nnn' bits of a fragment header. To get the number
 // of an FE within a module, use getFE.
 ////////////////////////
 uint32_t PixelCablingSvc::getFEwrtSlink(Identifier *pixelId) {
@@ -1127,7 +1126,10 @@ StatusCode PixelCablingSvc::IOVCallBack_FillCabling(IOVSVC_CALLBACK_ARGS_P(I, ke
     const coral::Blob& blob=(*attrlist)["CablingMapData"].data<coral::Blob>();
     const char* p = static_cast<const char*>(blob.startingAddress());
 
-    m_cablingTool->fillMapFromCool(p);
+    unsigned int len = blob.size()/sizeof(char);
+    ATH_MSG_DEBUG("blob.size() = " << blob.size() << ", len = " << len);
+
+    m_cablingTool->fillMapFromCool(p, blob.size(), m_dump_map_to_file);
 
     if (!m_cablingTool) {
         ATH_MSG_ERROR("Callback to CablingMap failed, map was not filled");
@@ -1232,7 +1234,3 @@ int PixelCablingSvc::getHitDiscCnfg(Identifier* pixelId) {
     int link = getFEwrtSlink(pixelId);
     return getHitDiscCnfg(robId, link);
 }
-
-
-
-

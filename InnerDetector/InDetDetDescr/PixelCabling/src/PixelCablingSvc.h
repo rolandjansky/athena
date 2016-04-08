@@ -220,6 +220,7 @@ private:
   std::string m_coraldbconnstring;
   std::string m_dictTag;
   std::string m_connTag;
+  bool m_dump_map_to_file;
   ///@}
 
   /** @name Geometry-dependent properties */

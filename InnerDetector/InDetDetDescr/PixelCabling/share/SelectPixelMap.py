@@ -1,6 +1,8 @@
 
 ## --postExec='ServiceMgr.PixelCablingSvc.MappingFile='Pixels_Atlas_IdMapping_M5.dat''
 ## will override the below settings
+## To verify the cabling map contents in COOL, on can do
+## --postExec='ServiceMgr.PixelCablingSvc.DumpMapToFile=True'
 
 
 from RecExConfig.AutoConfiguration import *
@@ -34,10 +36,13 @@ if (athenaCommonFlags.isOnline == True):
 
     # Request the CablingMap folder
     # (COOL is the default mapping type)
-    if not conddb.folderRequested("/PIXEL/CablingMap"):
-        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap")
-        logger.debug("Requested CablingMap folder")
-
+    if (conddb.dbdata == "CONDBR2"):
+        if not conddb.folderRequested("/PIXEL/CablingMap"):
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap")
+            logger.debug("Requested CablingMap folder")
+    else:
+        ServiceMgr.PixelCablingSvc.MappingType = "Final"
+        ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_May08.dat"
 
 
 # Offline mode
@@ -100,10 +105,8 @@ else:
             # Even though we are reading from COOL, set the correct fallback map.
             if (runNum >= 289350): # 2016
                 ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_2016.dat"
-            elif (runNum > 265796 and runNum < 289350): # 2015
+            elif (runNum >= 222222 and runNum < 289350): # 2015
                 ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_Run2.dat"
-            elif (runNum > 242841 and runNum <= 265796): # M7 and M8
-                ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_M7.dat"
             else:
                 ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_May08.dat"
 
