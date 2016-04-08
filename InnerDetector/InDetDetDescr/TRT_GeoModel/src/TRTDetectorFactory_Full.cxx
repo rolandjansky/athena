@@ -47,6 +47,8 @@
 #include "CLHEP/Vector/TwoVector.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "DetDescrConditions/AlignableTransformContainer.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include <vector>
@@ -140,8 +142,10 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
   //---------------------- Check if the folder TRT/Cond/StatusHT is in place ------------------------//
   m_strawsvcavailable = false;
-  m_strawsvcavailable = detStore()->contains<TRTCond::StrawStatusMultChanContainer>("/TRT/Cond/StatusHT");
-  m_strawsvcavailable &= (m_sumSvc->getStrawStatusHTContainer() != nullptr);
+  if (m_doArgon || m_doKrypton){
+  	m_strawsvcavailable = detStore()->contains<TRTCond::StrawStatusMultChanContainer>("/TRT/Cond/StatusHT");
+	m_strawsvcavailable &= (m_sumSvc->getStrawStatusHTContainer() != nullptr);
+  }
   msg(MSG::DEBUG) << "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable << endreq ;
   if (!m_strawsvcavailable) msg(MSG::WARNING) << "The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" << endreq;
   if (!m_doArgon  )	msg(MSG::WARNING) << "Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endreq;
@@ -274,51 +278,88 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   const int AlignmentLevelSubWheel  = 1; // Level 2 in endcap. Not used in barrel
   const int AlignmentLevelModule    = 2; // Level 2 in barrel. Deprecated (wheel level) in endcap.
   const int AlignmentLevelTop       = 3; // Level 1
-  if (m_alignable) {
-    m_detectorManager->addFolder("/TRT/Align");
-    m_detectorManager->addChannel("/TRT/Align/TRT", AlignmentLevelTop, InDetDD::global);
 
-    if (barrelPresent) {
-      m_detectorManager->addChannel("/TRT/Align/B0",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/B1",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/B2",  AlignmentLevelModule, InDetDD::global);
+  if (m_alignable) {
+    InDetDD::AlignFolderType AlignFolder = getAlignFolderType();
+    m_detectorManager->addAlignFolderType(AlignFolder);
+
+    if (AlignFolder==InDetDD::static_run1){
+      m_detectorManager->addFolder("/TRT/Align");
+      m_detectorManager->addChannel("/TRT/Align/TRT", AlignmentLevelTop, InDetDD::global);
+
+      if (barrelPresent) {
+        m_detectorManager->addChannel("/TRT/Align/B0",  AlignmentLevelModule, InDetDD::global);
+        m_detectorManager->addChannel("/TRT/Align/B1",  AlignmentLevelModule, InDetDD::global);
+        m_detectorManager->addChannel("/TRT/Align/B2",  AlignmentLevelModule, InDetDD::global);
+      }
+      if (endcapABPlusPresent) { // EndcapA
+        m_detectorManager->addChannel("/TRT/Align/L2A", AlignmentLevelSubWheel, InDetDD::global);
+      }
+      if (endcapABMinusPresent) {// EndcapC
+        m_detectorManager->addChannel("/TRT/Align/L2C", AlignmentLevelSubWheel, InDetDD::global);
+      }
     }
-    if (endcapABPlusPresent) { // EndcapA
+
+    if (AlignFolder==InDetDD::timedependent_run2){
+      m_detectorManager->addGlobalFolder("/TRT/AlignL1/TRT");
+      m_detectorManager->addChannel("/TRT/AlignL1/TRT", AlignmentLevelTop, InDetDD::global);
+      m_detectorManager->addFolder("/TRT/AlignL2");
+
+      if (barrelPresent) {
+        m_detectorManager->addChannel("/TRT/AlignL2/B0",  AlignmentLevelModule, InDetDD::global);
+        m_detectorManager->addChannel("/TRT/AlignL2/B1",  AlignmentLevelModule, InDetDD::global);
+        m_detectorManager->addChannel("/TRT/AlignL2/B2",  AlignmentLevelModule, InDetDD::global);
+      }
+
+      if (endcapABPlusPresent) { // EndcapA 
+        m_detectorManager->addChannel("/TRT/AlignL2/L2A", AlignmentLevelSubWheel, InDetDD::global);
+      }
+      if (endcapABMinusPresent) {// EndcapC 
+        m_detectorManager->addChannel("/TRT/AlignL2/L2C", AlignmentLevelSubWheel, InDetDD::global);
+      }
+    }
+
+    // Matthias: Is this obsolete? No clear answer from alignment group january 2016
+    // Commented for now
+    /*if (endcapABPlusPresent) { // EndcapA
       m_detectorManager->addChannel("/TRT/Align/A0",  AlignmentLevelModule, InDetDD::global);
       m_detectorManager->addChannel("/TRT/Align/A1",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A2",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A3",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A4",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A5",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A6",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A7",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A8",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A9",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A10", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A11", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A12", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/A13", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/L2A", AlignmentLevelSubWheel, InDetDD::global);
-    }
-    if (endcapABMinusPresent) {// EndcapC
-      m_detectorManager->addChannel("/TRT/Align/C0",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C1",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C2",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C3",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C4",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C5",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C6",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C7",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C8",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C9",  AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C10", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C11", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C12", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/C13", AlignmentLevelModule, InDetDD::global);
-      m_detectorManager->addChannel("/TRT/Align/L2C", AlignmentLevelSubWheel, InDetDD::global);
-    }
+      m_detectorManager->addChannel("/TRT/Align/A2",  AlignmentLevelModule, InDetDD::global);   
+      m_detectorManager->addChannel("/TRT/Align/A3",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A4",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A5",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A6",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A7",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A8",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A9",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A10", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A11", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A12", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/A13", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/L2A", AlignmentLevelSubWheel, InDetDD::global);   
+    }                                                                                             
+    if (endcapABMinusPresent) {// EndcapC                                                         
+      m_detectorManager->addChannel("/TRT/Align/C0",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C1",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C2",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C3",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C4",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C5",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C6",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C7",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C8",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C9",  AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C10", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C11", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C12", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/C13", AlignmentLevelModule, InDetDD::global);     
+      m_detectorManager->addChannel("/TRT/Align/L2C", AlignmentLevelSubWheel, InDetDD::global);   
+      }*/
+
+    // Unchanged in Run1 and new Run2 schema                                                     
     m_detectorManager->addSpecialFolder("/TRT/Calib/DX");
   }
+                                               
   
 
   // Interface to conditions
@@ -2518,12 +2559,40 @@ TRTDetectorFactory_Full::ActiveGasMixture TRTDetectorFactory_Full::DecideGasMixt
                                   strawStatusHT != TRTCond::StrawStatus::Good &&
                                   strawStatusHT != TRTCond::StrawStatus::Dead &&
                                   strawStatusHT != TRTCond::StrawStatus::Argon &&
-                                  strawStatusHT != TRTCond::StrawStatus::Krypton)
+                                  strawStatusHT != TRTCond::StrawStatus::Krypton &&
+                                  strawStatusHT != TRTCond::StrawStatus::EmulateArgon &&
+                                  strawStatusHT != TRTCond::StrawStatus::EmulateKrypton)
     {
     msg(MSG::FATAL) << "Unexpected StatusHT value: " << strawStatusHT << endmsg; 
     throw std::runtime_error("Unexpected StatusHT value");
     }
   return return_agm; 
   }
+
+// Determine which alignment folders are loaded to decide if we register old or new folders    
+InDetDD::AlignFolderType TRTDetectorFactory_Full::getAlignFolderType() const
+{
+
+  bool static_folderStruct = false;
+  bool timedep_folderStruct = false;
+  if (detStore()->contains<CondAttrListCollection>("/TRT/AlignL1/TRT") &&
+      detStore()->contains<AlignableTransformContainer>("/TRT/AlignL2") ) timedep_folderStruct = true;
+
+  if (detStore()->contains<AlignableTransformContainer>("/TRT/Align") ) static_folderStruct = true;
+
+  if (static_folderStruct && !timedep_folderStruct){
+    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endreq;
+    return InDetDD::static_run1;
+  }
+  else if (!static_folderStruct && timedep_folderStruct){
+    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endreq;
+    return InDetDD::timedependent_run2;
+  }
+  else if (static_folderStruct && timedep_folderStruct){
+    throw std::runtime_error("Old and new alignment folders are loaded at the same time! This should not happen!");
+  }
+  else return InDetDD::none;
+
+}
 
 //////////////////////////////////////////////////////////////////////////////////
