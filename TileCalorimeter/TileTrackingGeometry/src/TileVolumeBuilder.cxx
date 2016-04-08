@@ -182,7 +182,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   Trk::CylinderVolumeBounds* tileBarrelBounds                        = 0;
   std::unique_ptr<Trk::CylinderVolumeBounds> tileBarrelGirderBounds;
 
-  Trk::CylinderVolumeBounds* tilePositiveExtendedBarrelBounds        = 0;
+  Trk::CylinderVolumeBounds  tilePositiveExtendedBarrelBounds;
   Trk::CylinderVolumeBounds* itcPlug1Bounds                          = 0;
   Trk::CylinderVolumeBounds* itcPlug2Bounds                          = 0;
   Trk::CylinderVolumeBounds* gapBounds                               = 0;
@@ -407,8 +407,8 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	  if (childCylVolBounds->halflengthZ() > 1000.){
 	    if (childZposition > 0.) {
 	      tilePositiveExtendedBarrel             = tileExtendedTrackingVolume;
-	      tilePositiveExtendedBarrelBounds       = tileExtendedBounds;
-              tileExtendedBoundsUsed = true;
+	      tilePositiveExtendedBarrelBounds       = *tileExtendedBounds;
+              // tileExtendedBoundsUsed = true; - this line is not needed, we copy everything from *tileExtendedBounds to tilePositiveExtendedBarrelBounds
 	    } else { 
 	      tileNegativeExtendedBarrel             = tileExtendedTrackingVolume;
 	    }
@@ -427,7 +427,6 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   if (!gapBounds) std::abort();
   if (!tileBarrelGirderBounds) std::abort();
   if (!tilePositiveExtendedBarrel) std::abort();
-  if (!tilePositiveExtendedBarrelBounds) std::abort();
   if (!tileNegativeExtendedBarrel) std::abort();
   
   ATH_MSG_DEBUG( "TileDetDescrManager parsed successfully! " );
@@ -447,7 +446,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   }
 
   // build the gap volumes ( crack done by CaloTG )
-  double tileExtZ = tilePositiveExtendedBarrel->center().z()-tilePositiveExtendedBarrelBounds->halflengthZ();
+  double tileExtZ = tilePositiveExtendedBarrel->center().z()-tilePositiveExtendedBarrelBounds.halflengthZ();
 
   // binned material for ITC : 
   std::vector<const Trk::IdentifiedMaterial*> matITC;
@@ -713,13 +712,13 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
  
   // ------------------------------ ENDCAP SECTION COMPLETION --------------------------------------------------
   
-  double zBE = tilePositiveExtendedBarrel->center().z()+tilePositiveExtendedBarrelBounds->halflengthZ();
+  double zBE = tilePositiveExtendedBarrel->center().z()+tilePositiveExtendedBarrelBounds.halflengthZ();
   zFG = 0.5*(tileZ + zBE);
   hZ  = 0.5*(tileZ - zBE);
 
   Trk::CylinderVolumeBounds* tilePositiveFingerGapBounds = new Trk::CylinderVolumeBounds(  
-                                                                         tilePositiveExtendedBarrelBounds->innerRadius(),
-                                                                         tilePositiveExtendedBarrelBounds->outerRadius(),
+                                                                         tilePositiveExtendedBarrelBounds.innerRadius(),
+                                                                         tilePositiveExtendedBarrelBounds.outerRadius(),
                                                                          hZ);
 
   Amg::Vector3D pEFPos(0.,0.,zFG);
