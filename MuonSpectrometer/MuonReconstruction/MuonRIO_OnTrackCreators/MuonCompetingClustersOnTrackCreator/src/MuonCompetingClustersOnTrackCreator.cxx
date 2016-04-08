@@ -12,8 +12,6 @@
 // Version 1.0 18/07/2004
 ///////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "MuonCompetingClustersOnTrackCreator.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
@@ -30,44 +28,27 @@ namespace Muon {
 
   MuonCompetingClustersOnTrackCreator::MuonCompetingClustersOnTrackCreator
   (const std::string& ty,const std::string& na,const IInterface* pa)
-    : AlgTool(ty,na,pa), m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
+    : AthAlgTool(ty,na,pa), m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
   {
     // algtool interface - necessary!
     declareInterface<IMuonCompetingClustersOnTrackCreator>(this);
     declareInterface<Trk::ICompetingRIOsOnTrackTool>(this);
   }
 
-
   MuonCompetingClustersOnTrackCreator::~MuonCompetingClustersOnTrackCreator(){}
-
 
   StatusCode MuonCompetingClustersOnTrackCreator::initialize()
   {
 
-    StatusCode sc = AlgTool::initialize(); 
+    ATH_MSG_VERBOSE("MuonCompetingClustersOnTrackCreator::Initializing");
+    ATH_CHECK( m_clusterCreator.retrieve() );
 
-    MsgStream log(msgSvc(),name());
-
-    log << MSG::VERBOSE << "MuonCompetingClustersOnTrackCreator::Initializing" << endreq;
-    sc = service("StoreGateSvc", m_storeGate);
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "StoreGate service not found" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc = m_clusterCreator.retrieve();
-    if( sc.isSuccess() ){
-      log<<MSG::INFO << "Retrieved " << m_clusterCreator << endreq;
-    }else{
-      log<<MSG::FATAL<<"Could not get " << m_clusterCreator <<endreq; 
-    }
-
-    return sc;
+    return StatusCode::SUCCESS;
   }
 
   StatusCode MuonCompetingClustersOnTrackCreator::finalize()
   {
-    StatusCode sc = AlgTool::finalize(); 
-    return sc;
+    return StatusCode::SUCCESS;
   }
   
   const CompetingMuonClustersOnTrack* MuonCompetingClustersOnTrackCreator::createBroadCluster(const std::list< const Trk::PrepRawData * > & prds, const double errorScaleFactor ) const

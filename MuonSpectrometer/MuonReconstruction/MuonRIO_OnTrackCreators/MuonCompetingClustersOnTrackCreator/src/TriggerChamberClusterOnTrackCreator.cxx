@@ -8,7 +8,6 @@
 // (c) ATLAS muon software
 ///////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/MsgStream.h"
 #include "TriggerChamberClusterOnTrackCreator.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonIdHelpers/MuonIdHelper.h"
@@ -17,7 +16,6 @@
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkSurfaces/PlaneSurface.h"
@@ -32,12 +30,9 @@ TriggerChamberClusterOnTrackCreator::TriggerChamberClusterOnTrackCreator (
 	const std::string&	type,
 	const std::string&	name, 
 	const IInterface*	parent)
-  :	AlgTool				(type, name, parent),
+  :	AthAlgTool			(type, name, parent),
 	m_clusterCreator		("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-	m_chooseBroadestCluster		(true),
-	m_debug				(false),
-	m_log				(0),
-	m_verbose			(false)	
+	m_chooseBroadestCluster		(true)
 {
     declareInterface<Muon::IMuonCompetingClustersOnTrackCreator>(this);
     declareProperty("ClusterCreator",  		m_clusterCreator);
@@ -51,45 +46,19 @@ TriggerChamberClusterOnTrackCreator::~TriggerChamberClusterOnTrackCreator()
 StatusCode
 TriggerChamberClusterOnTrackCreator::initialize()
 {
-    MsgStream log(msgSvc(),name());
-    if (log.level() < 3) m_debug	= true;
-    if (log.level() < 2) m_verbose	= true;
-    
-    // get the Helpers
-    StoreGateSvc* detStore = 0;
-    if (StatusCode::SUCCESS != service("DetectorStore", detStore))
-    {
-	log << MSG::ERROR << " Can't get DetectorStore " << endreq;
-	return StatusCode::FAILURE;
-    }
 
     const MuonGM::MuonDetectorManager*  muonManager;
-    if (StatusCode::SUCCESS != detStore->retrieve(muonManager))
-    {
-	log << MSG::ERROR << " Cannot retrieve MuonDetectorManager " << endreq;
-	return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve(muonManager) );
     m_rpcIdHelper = muonManager->rpcIdHelper();
     m_tgcIdHelper = muonManager->tgcIdHelper();
 
-    // get the Tools
-    if (m_clusterCreator.retrieve().isFailure())
-    {
-	log << MSG::FATAL << "Failed to retrieve tool " << m_clusterCreator << endreq;
-	return StatusCode::FAILURE;
-    }
-    else
-    {
-	log << MSG::INFO << "Retrieved tool " << m_clusterCreator << endreq;
-    }
-
+    ATH_CHECK( m_clusterCreator.retrieve() );
     return StatusCode::SUCCESS;
 }
 
 StatusCode
 TriggerChamberClusterOnTrackCreator::finalize()
 {
-    delete m_log;
     return StatusCode::SUCCESS;
 }
   
@@ -97,18 +66,12 @@ const CompetingMuonClustersOnTrack*
 TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Trk::PrepRawData*>& prds,
 							const double) const
 {
-    if (m_debug)
-    {
-	delete m_log;
-	m_log = new MsgStream(msgSvc(), name());
-	*m_log << MSG::VERBOSE << "enter createBroadCluster: number of prds " << prds.size() << endreq;
-    }
+    ATH_MSG_VERBOSE("enter createBroadCluster: number of prds " << prds.size() );
 
     // make some PRD consistency checks
     if (! prds.size())
     {
-	MsgStream log(msgSvc(), name());
-	log << MSG::WARNING << "fails: empty PRD list " << endreq;
+	ATH_MSG_WARNING("fails: empty PRD list ");
 	return 0;
     }
 
@@ -124,8 +87,7 @@ TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Tr
 	}
 	else
 	{
-	    MsgStream log(msgSvc(), name());
-	    log << MSG::WARNING << "fails: PRD must be from rpc or tgc " << endreq;
+	    ATH_MSG_WARNING("fails: PRD must be from rpc or tgc ");
 	    return 0;
 	}
     }
@@ -140,14 +102,12 @@ TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Tr
 	if ((m_isRpc		&& m_rpcIdHelper->measuresPhi(channelId)	!= measuresPhi)
 	    || (! m_isRpc	&& m_tgcIdHelper->isStrip(channelId)		!= measuresPhi))
 	{
-	    MsgStream log(msgSvc(), name());
-	    log << MSG::WARNING << "fails: PRDs must measure same coordinate " << endreq;
+	    ATH_MSG_WARNING("fails: PRDs must measure same coordinate ");
 	    return 0;
 	}
 	if ((**p).detectorElement() != detectorElement)
 	{
-	    	MsgStream log(msgSvc(), name());
-		log << MSG::WARNING << "fails: PRDs must be from same detectorElement " << endreq;
+		ATH_MSG_WARNING("fails: PRDs must be from same detectorElement ");
 		return 0;
 	}
     }
@@ -212,7 +172,7 @@ TriggerChamberClusterOnTrackCreator::applyClusterConsistency(
     }
     if (discard == limitingChannels.begin())
     {
-	if (m_verbose) *m_log << MSG::VERBOSE << " discard cluster #" << 1 << endreq;
+	ATH_MSG_VERBOSE(" discard cluster #" << 1 );
 	limitingRots.pop_front();
 	limitingRots.pop_front();
 	limitingChannels.pop_front();
@@ -220,7 +180,7 @@ TriggerChamberClusterOnTrackCreator::applyClusterConsistency(
     }
     else if (discard != limitingChannels.end())
     {
-	if (m_verbose) *m_log << MSG::VERBOSE << " discard cluster #" << numClusters << endreq;
+	ATH_MSG_VERBOSE(" discard cluster #" << numClusters );
 	limitingRots.pop_back();
 	limitingRots.pop_back();
 	limitingChannels.pop_back();
@@ -320,7 +280,7 @@ TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
     }
 
     // debug
-    if (m_verbose)
+    if ( msgLvl(MSG::VERBOSE) )
     {
 	std::list<int>::const_iterator l = limitingChannels.begin();
 	std::list<int>::const_iterator m = limitingChannels.begin();
@@ -334,7 +294,7 @@ TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
 	    if (m_isRpc)
 	    {
 		int stationIndex	= m_rpcIdHelper->stationName(channelId);
-		*m_log << MSG::VERBOSE << " rpc "  
+		ATH_MSG_VERBOSE(" rpc "  
 		       << std::setiosflags(std::ios::fixed)
 		       << " localPosition "
 		       << std::setw(8) << std::setprecision(1) << (**q).localPosition()[Trk::locX]
@@ -345,13 +305,12 @@ TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
 		       << "   gasGap"  << std::setw(2) << m_rpcIdHelper->gasGap(channelId)
 		       << "   strip"   << std::setw(3) << m_rpcIdHelper->strip(channelId)
 		       << "   station " << m_rpcIdHelper->stationNameString(stationIndex)
-		       << "  " << m_rpcIdHelper->show_to_string(channelId)
-		       << endreq;
+		       << "  " << m_rpcIdHelper->show_to_string(channelId) );
 	    }
 	    else
 	    {
 		int stationIndex	= m_tgcIdHelper->stationName(channelId);
-		*m_log << MSG::VERBOSE << " tgc "
+		ATH_MSG_VERBOSE(" tgc "
 		       << std::setiosflags(std::ios::fixed)
 		       << " localPosition "
 		       << std::setw(8) << std::setprecision(1) << (**q).localPosition()[Trk::locX]
@@ -359,13 +318,12 @@ TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
 		       << "   gasGap"  << std::setw(2) << m_tgcIdHelper->gasGap(channelId)
 		       << "   channel" << std::setw(3) << m_tgcIdHelper->channel(channelId)
 		       << "   station " << m_tgcIdHelper->stationNameString(stationIndex)
-		       << "  " << m_tgcIdHelper->show_to_string(channelId)
-		       << endreq;
+		       << "  " << m_tgcIdHelper->show_to_string(channelId) );
 	    }
 	    if (size == 0)
 	    {
-		*m_log << MSG::VERBOSE << " cluster " << ++number
-		       << "  between channels " << *l << " and " << *m << endreq;
+		ATH_MSG_VERBOSE(" cluster " << ++number
+		       << "  between channels " << *l << " and " << *m );
 		if (++m != limitingChannels.end())
 		{
 		    ++l;
@@ -427,48 +385,53 @@ TriggerChamberClusterOnTrackCreator::makeOverallParameters(
     // note the cluster surfaces are assumed to have identical orientation and bounds
     errorMatrix			= new Amg::MatrixX(covariance);
     const Trk::Surface& surf	= (**limitingRots.begin()).associatedSurface();
-    Amg::Transform3D rotation	= surf.transform();
+    Amg::Transform3D rotation  = surf.transform();
     std::string shape		= "";
-    if (dynamic_cast<const Trk::RectangleBounds*>(&surf.bounds()))
+
+    const Trk::RectangleBounds* rectbds = dynamic_cast<const Trk::RectangleBounds*>(&surf.bounds());
+    const Trk::TrapezoidBounds* trapbds = dynamic_cast<const Trk::TrapezoidBounds*>(&surf.bounds());
+    const Trk::RotatedTrapezoidBounds* rottrapbds = dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&surf.bounds());
+
+    if (rectbds)
     {
-	shape = " RPC rectangle ";
-	surface = new Trk::PlaneSurface(
-	    new Amg::Transform3D(rotation),
-	    (dynamic_cast<const Trk::RectangleBounds*>(&surf.bounds()))->clone());
+       shape = " RPC rectangle ";
+       surface = new Trk::PlaneSurface(
+           new Amg::Transform3D(rotation),
+           rectbds->clone());
     }
-    else if (dynamic_cast<const Trk::TrapezoidBounds*>(&surf.bounds()))
+    else if (trapbds)
     {
-	shape = " TGC trapezoid ";
-	surface = new Trk::PlaneSurface(
-	    new Amg::Transform3D(rotation),
-	    (dynamic_cast<const Trk::TrapezoidBounds*>(&surf.bounds()))->clone());
+       shape = " TGC trapezoid ";
+       surface = new Trk::PlaneSurface(
+           new Amg::Transform3D(rotation),
+           trapbds->clone());
     }
-    else if (dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&surf.bounds()))
+    else if (rottrapbds)
     {
-	shape = " TGC rotatedTrapezoid ";
-	surface = new Trk::PlaneSurface(
-	    new Amg::Transform3D(rotation),
-	    (dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&surf.bounds()))->clone());
+       shape = " TGC rotatedTrapezoid ";
+       surface = new Trk::PlaneSurface(
+           new Amg::Transform3D(rotation),
+           rottrapbds->clone());
     }
 
     // debug
-    if (m_debug)
+    if ( msgLvl(MSG::DEBUG) )
     {
-	*m_log << MSG::DEBUG << shape << "  width " << width
+	msg(MSG::DEBUG) << shape << "  width " << width
 	       << "   localParameters " << (*parameters)[Trk::locX];
-	if (covariance.cols() > 1) *m_log << " " << (*parameters)[Trk::locY];
-	*m_log << "   covariance " << sqrt(covariance(Trk::locX,Trk::locX));
-	if (covariance.cols() > 1) *m_log << " " << sqrt(covariance(Trk::locY,Trk::locY));
-	*m_log << "   channel range (cluster) ";
+	if (covariance.cols() > 1) msg(MSG::DEBUG) << " " << (*parameters)[Trk::locY];
+	msg(MSG::DEBUG) << "   covariance " << sqrt(covariance(Trk::locX,Trk::locX));
+	if (covariance.cols() > 1) msg(MSG::DEBUG) << " " << sqrt(covariance(Trk::locY,Trk::locY));
+	msg(MSG::DEBUG) << "   channel range (cluster) ";
 	pair = 2;
 	for (std::list<int>::iterator i = limitingChannels.begin();
 	     i != limitingChannels.end();
 	     ++i, ++pair)
 	{
-	    *m_log << *i << " ";
-	    if (pair%2) *m_log << "(" << pair/2 << ")    ";
+	    msg(MSG::DEBUG) << *i << " ";
+	    if (pair%2) msg(MSG::DEBUG) << "(" << pair/2 << ")    ";
 	}
-	*m_log << endreq;
+	msg(MSG::DEBUG) << endreq;
     }
 }
 

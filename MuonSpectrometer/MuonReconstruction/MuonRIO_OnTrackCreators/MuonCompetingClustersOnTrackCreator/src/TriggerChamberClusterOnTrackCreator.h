@@ -13,14 +13,13 @@
 
 #include <list>
 #include <vector>
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
 
 class Identifier;
 class RpcIdHelper;
 class TgcIdHelper;
-class StoreGateSvc;
 
 namespace MuonGM
 {
@@ -39,7 +38,7 @@ namespace Muon
 /**
    @brief Tool to cluster several trigger measurements in different gas-gaps of the same detector module
 */
-class TriggerChamberClusterOnTrackCreator: public AlgTool,
+class TriggerChamberClusterOnTrackCreator: public AthAlgTool,
 					   virtual public IMuonCompetingClustersOnTrackCreator
 {
 public:
@@ -92,11 +91,6 @@ private:
     // internal communication
     mutable bool					m_isRpc;
     
-    // MsgStream reporting
-    bool						m_debug;
-    mutable MsgStream*	     				m_log;
-    bool						m_verbose;
-
     // private methods 
     void						applyClusterConsistency(
 	std::list<int>&						limitingChannels,

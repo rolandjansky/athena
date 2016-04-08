@@ -14,11 +14,11 @@ private
 use GaudiInterface		 GaudiInterface-*	       External 
 use MuonRecToolInterfaces	 MuonRecToolInterfaces-*       MuonSpectrometer/MuonReconstruction/MuonRecTools
 use TrkEventPrimitives		 TrkEventPrimitives-*	       Tracking/TrkEvent
+use AthenaBaseComps		 AthenaBaseComps-*	       Control
 
 use MuonCompetingRIOsOnTrack	 MuonCompetingRIOsOnTrack-*    MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonIdHelpers		 MuonIdHelpers-*	       MuonSpectrometer
 use MuonRIO_OnTrack		 MuonRIO_OnTrack-*	       MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonReadoutGeometry		 MuonReadoutGeometry-*         MuonSpectrometer/MuonDetDescr
-use StoreGate			 StoreGate-*		       Control
 use TrkPrepRawData		 TrkPrepRawData-*	       Tracking/TrkEvent
 use TrkSurfaces			 TrkSurfaces-*		       Tracking/TrkDetDescr

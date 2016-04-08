@@ -16,7 +16,7 @@
 #ifndef MUON_MUONCOMPETINGCLUSTERSONTRACKCREATOR_H
 #define MUON_MUONCOMPETINGCLUSTERSONTRACKCREATOR_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -25,7 +25,6 @@
 class Identifier;
 class MdtIdHelper;
 class MdtCalibrationSvc;
-class StoreGateSvc;
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -44,7 +43,7 @@ namespace Muon {
   /**
      @brief Tool to create MuonCompetingClustersOnTrack objects 
   */
-  class MuonCompetingClustersOnTrackCreator : public AlgTool, virtual public IMuonCompetingClustersOnTrackCreator
+  class MuonCompetingClustersOnTrackCreator : public AthAlgTool, virtual public IMuonCompetingClustersOnTrackCreator
   {
   public:
 
@@ -82,7 +81,6 @@ namespace Muon {
 
   private:
  
-   StoreGateSvc*       m_storeGate;                //!< Pointer to store gate
    ToolHandle<Muon::IMuonClusterOnTrackCreator>    m_clusterCreator;        //<! pointer to muon cluster rio ontrack creator
 
  
