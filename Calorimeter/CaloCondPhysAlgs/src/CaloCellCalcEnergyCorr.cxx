@@ -34,7 +34,7 @@
 
 #include "LArHV/LArHVManager.h"
 
-#include "LArTools/LArHVCablingTool.h"
+#include "LArCabling/LArHVCablingTool.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
 
@@ -77,29 +77,16 @@ StatusCode CaloCellCalcEnergyCorr::initialize()
      return StatusCode::FAILURE;
   }
 
-  StoreGateSvc* m_detStore;
-  StatusCode sc = service("DetectorStore",m_detStore); 
-  if(sc!=StatusCode::SUCCESS) return sc; 
-  
 // retrieve LArEM id helpers
 
-  sc = m_detStore->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-   msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr " << endreq;
-   return sc;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
 
   m_larem_id   = m_caloIdMgr->getEM_ID();
   m_larhec_id   = m_caloIdMgr->getHEC_ID();
   m_larfcal_id   = m_caloIdMgr->getFCAL_ID();
 
 //  retrieve CaloDetDescrMgr 
-  sc = m_detStore->retrieve(m_calodetdescrmgr);
-  if (sc.isFailure()) {
-     msg(MSG::ERROR) << "Unable to retrieve CaloDetDescrMgr " << endreq;
-     return sc;
-  }
-
+  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 
   return StatusCode::SUCCESS;
 }

@@ -148,6 +148,8 @@ StatusCode CaloRescaleNoise::stop()
           hvonline = m_dd_HVScaleCorr->HVScaleCorr(id);
        }
 
+       const double inv_hvonline = (hvonline != 0) ? 1. / hvonline : 1;
+
       
        for (int igain=0;igain<ngain;igain++) {
 
@@ -178,7 +180,7 @@ StatusCode CaloRescaleNoise::stop()
                                          m_elecNoise << " " << m_elecNoiseRescaled );
                 }
              } else {
-                m_elecNoiseRescaled = m_elecNoise*hvcorr/hvonline;
+                m_elecNoiseRescaled = m_elecNoise*hvcorr*inv_hvonline;
                 if (iCool<48 && m_elecNoise>0. && std::fabs(m_elecNoiseRescaled/m_elecNoise-1.)>0.05) {
                     ATH_MSG_WARNING ( " DifferentNoise  cell " << m_calo_id->show_to_string(id) <<
                                       " layer/eta/phi " << m_layer << " " << m_eta << " " << m_phi << " OldNoise,NewNoise " <<

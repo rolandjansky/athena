@@ -15,6 +15,7 @@ use CaloCondBlobObjs    CaloCondBlobObjs-*              Calorimeter
 use LArElecCalib        LArElecCalib-*                  LArCalorimeter
 use LArIdentifier       LArIdentifier-*                 LArCalorimeter
 use LArRecUtils	        LArRecUtils-*	                LArCalorimeter
+use LArCabling          LArCabling-*                    LArCalorimeter
 use CaloInterface       CaloInterface-*                 Calorimeter
 use CaloGeoHelpers      CaloGeoHelpers-*                Calorimeter
 
@@ -28,11 +29,13 @@ use AtlasCLHEP          AtlasCLHEP-*                    External
 use AthenaPoolUtilities AthenaPoolUtilities-*           Database/AthenaPOOL
 use Identifier          Identifier-*                    DetectorDescription
 use xAODEventInfo       xAODEventInfo-*                 Event/xAOD
+use EventInfo           EventInfo-*                     Event
 use CaloConditions      CaloConditions-*                Calorimeter
 use CaloEvent           CaloEvent-*                     Calorimeter
-use LArTools            LArTools-*                      LArCalorimeter
+use CaloUtils           CaloUtils-*                     Calorimeter
 use LArHV               LArHV-*                         LArCalorimeter/LArGeoModel
 use LArReadoutGeometry  LArReadoutGeometry-*            LArCalorimeter/LArGeoModel
+use LArSimEvent         LArSimEvent-*                   LArCalorimeter
 end_private
 
 

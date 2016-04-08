@@ -1,49 +1,26 @@
 ###############################################################
 #
-# Job options file for CaloRescaleNoise
+# Job options file for CaloNoise2Ntuple
 #
 #==============================================================
 
-
-# write here the run number and lumiblock of a time after the HV has stabilized to the version that has to be corrected offline
-#   and for which we don't do online re-calibration
+# configuration for data, read noise from database through CaloNoiseToolDB
 
 if 'RunNumber' not in dir():
-   RunNumber = 999999
+   RunNumber = 258914
 if 'LumiBlock' not in dir():
    LumiBlock = 1
-
 if 'GlobalTag' not in dir():
-   GlobalTag =  'COMCOND-ES1PT-004-00'
-
+   GlobalTag =  'CONDBR2-BLKPA-2015-09'
 if 'Geometry' not in dir():
-   Geometry = 'ATLAS-GEO-20-00-00'
-
-print "RunNumber ",RunNumber
-print "LumiBlock ",LumiBlock
+   Geometry = 'ATLAS-GEO-21-00-01'
+if 'outputNtuple' not in dir():
+   outputNtuple="cellcorr.root"
+if 'InputDB' not in dir():
+   InputDB="COOLOFL_LAR/CONDBR2"
 
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(RunNumber)
-
-from PyCool import cool
-from CoolConvUtilities.AtlCoolLib import indirectOpen
-
-trigDB=indirectOpen('COOLONL_TRIGGER/CONDBR2',oracle=True)
-trigfolder=trigDB.getFolder('/TRIGGER/LUMI/LBLB')
-runiov=(RunNumber << 32)+ LumiBlock
-print " runiov ", runiov
-obj=trigfolder.findObject(runiov,0)
-payload=obj.payload()
-TimeStamp=payload['StartTime']/1000000000L
-trigDB.closeDatabase()
-
-# this setting is just to get directly pileup noise as b and write back the same in the database...
-from CaloTools.CaloNoiseFlags import jobproperties
-jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.)
-
-#TimeStamp = 1274368420
-
-print " TimeStamp : ",TimeStamp
 
 
 from PerfMonComps.PerfMonFlags import jobproperties
@@ -60,6 +37,9 @@ DetFlags.digitize.all_setOff()
 from AthenaCommon.GlobalFlags  import globalflags
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.DataSource.set_Value_and_Lock('data')
+
+from CaloTools.CaloNoiseFlags import jobproperties
+jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(-1.)
 
 import AthenaCommon.AtlasUnixGeneratorJob
 
@@ -90,26 +70,19 @@ include( "LArDetDescr/LArDetDescr_joboptions.py" )
 include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
+conddb.addFolder("","<db>"+InputDB+"</db>/LAR/CellCorrOfl/EnergyCorr")
+if "folderTag" in dir():
+   conddb.addOverride("/LAR/CellCorrOfl/EnergyCorr",folderTag)
+
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
-
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-theCaloNoiseTool.RescaleForHV=False #Turn automatic rescaling off
-ToolSvc += theCaloNoiseTool
-
-from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
-theLArHVCorrTool=LArHVCorrToolDefault()
-ToolSvc += theLArHVCorrTool
 
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
-from CaloCondPhysAlgs.CaloCondPhysAlgsConf import CaloRescaleNoise
-theCaloRescaleNoise = CaloRescaleNoise("CaloRescaleNoise")
-theCaloRescaleNoise.noiseTool = theCaloNoiseTool
-theCaloRescaleNoise.HVCorrTool=theLArHVCorrTool
-
-topSequence += theCaloRescaleNoise
+from CaloCondPhysAlgs.CaloCondPhysAlgsConf import CaloCellEnergyCorr2Ntuple
+theCalo2Ntuple = CaloCellEnergyCorr2Ntuple("CaloCellEnergyCorr2Ntuple")
+theCalo2Ntuple.InputKey="/LAR/CellCorrOfl/EnergyCorr"
+topSequence += theCalo2Ntuple
 
 #--------------------------------------------------------------
 #--- Dummy event loop parameters
@@ -119,7 +92,7 @@ svcMgr.EventSelector.EventsPerRun      = 1
 svcMgr.EventSelector.FirstEvent        = 0
 svcMgr.EventSelector.EventsPerLB       = 1
 svcMgr.EventSelector.FirstLB           = LumiBlock
-svcMgr.EventSelector.InitialTimeStamp  = TimeStamp
+svcMgr.EventSelector.InitialTimeStamp  = 0
 svcMgr.EventSelector.TimeStampInterval = 5
 svcMgr.EventSelector.OverrideRunNumber=True
 theApp.EvtMax                          = 1
@@ -132,7 +105,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
    from GaudiSvc.GaudiSvcConf import THistSvc
    ServiceMgr += THistSvc()
 
-ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='cellnoise_data.root' OPT='RECREATE'"];
+ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='"+outputNtuple+"' OPT='RECREATE'"];
 
 
 #--------------------------------------------------------------

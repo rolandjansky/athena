@@ -118,7 +118,7 @@ echo "        Look at the file noise.txt for the full list of these channels"
 
 
 echo "Resolving current folder-level tag suffix for /LAR/NoiseOfl/CellNoise"
-fulltag=`getCurrentFolderTag.py "COOLOFL_LAR/COMP200"  /LAR/NoiseOfl/CellNoise | tail -1` 
+fulltag=`getCurrentFolderTag.py "COOLOFL_LAR/CONDBR2"  /LAR/NoiseOfl/CellNoise | tail -1` 
 #upd4TagName=`echo $fulltag | grep -o "UPD4-[0-9][0-9]"` 
 #echo "Found $upd4TagName"
 
@@ -172,5 +172,5 @@ fi
 
 echo "  "
 echo "  After checking that everything is OK, upload the new sqlite file with:"
-echo "  /afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nobackup larnoisesqlite.db  COMP200 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
+echo "  /afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nobackup larnoisesqlite.db  CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
 exit
