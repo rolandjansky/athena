@@ -26,11 +26,14 @@ class ElectronValidationPlots:public PlotBase {
       Egamma::ElectronPlots           m_oCentralElecPlots;
       Egamma::ElectronFrwdPlots       m_oFrwdElecPlots;
       Egamma::KinematicsPlots         m_oTruthAllPlots;
-      Egamma::KinematicsPlots         m_oTruthCentralPlots;
-      Egamma::KinematicsPlots         m_oTruthFrwdPlots;
+      Egamma::KinematicsPlots         m_oTruthAllIsoPlots;
+      Egamma::KinematicsPlots         m_oTruthIsoPlots;
        
       TH1* author;
-      
+      TProfile* res_et;
+      TProfile* res_eta;
+      TH1* pt_ratio;
+      TH2* matrix;
 
  private:
       virtual void initializePlots();

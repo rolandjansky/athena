@@ -38,6 +38,7 @@ class IsolationPlots:public PlotBase {
     private:
       virtual void initializePlots();
       void FillIsolationPlot(TH1* hist, xAOD::Iso::IsolationType isoType, const xAOD::Egamma& egamma);
+//      void FillIsolationPlot(TH1* hist, xAOD::EgammaParameters::IsolationType isoType, const xAOD::Egamma& egamma);//rel19
       
 };
 

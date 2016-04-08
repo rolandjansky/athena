@@ -36,7 +36,21 @@ namespace Egamma{
 												       wtots1vset (0), 
 												       f1vset     (0), 
 												       pos7vset   (0), 
-												       clusisovset(0) 
+												       clusisovset(0),
+												       hadleakvseta(0),
+												       middleevseta(0),
+												       reta37vseta(0),
+												       reta33vseta(0),
+												       weta1vseta(0),
+												       weta2vseta(0),
+												       demax1vseta(0),
+												       demax2vseta(0),
+												       devseta(0),
+												       fracs1vseta(0),
+												       wtots1vseta(0),
+												       f1vseta(0),
+												       pos7vseta(0),
+												       clusisovseta(0)
 
   {}	
 
@@ -71,6 +85,21 @@ namespace Egamma{
     f1vset      = Book2D("f1vset", "f1 vs E_{T} of "+ m_sParticleType+";f1; E_{T} (GeV) " , 100, 0., 1.0, 200, 0., 200);
     pos7vset    = Book2D("pos7vset", "pos7 vs E_{T} of "+ m_sParticleType+";pos7; E_{T} (GeV) ", 80, -4., 4., 200, 0., 200);
     clusisovset = Book2D("clusisovset","Cluster Isolation vs E_{T} of "+ m_sParticleType+"; E_{T}^{cone20}/E_{T}; E_{T} (GeV) ", 100, 0., 1., 200, 0., 200);
+    
+    hadleakvseta = Book2D("hadleakvseta", "Hadronic leakage vs E_{T} of " + m_sParticleType+"; E_{hadleak} (GeV) ; #eta ", 100, -0.07, 0.13, 1000,-5.,5.); 
+    middleevseta = Book2D("middleevseta", "E_{middle} vs E_{T} of "+ m_sParticleType+"; E_{277} (GeV); #eta " , 210,-10.,200., 1000,-5.,5.);
+    reta37vseta  = Book2D("reta37vseta", "R_{#eta37} vs E_{T} of "+ m_sParticleType+";R_{#eta37}; #eta ", 355, 0., 1.1005, 1000,-5.,5.);
+    reta33vseta  = Book2D("reta33vseta", "R_{#eta33} vs E_{T} of "+ m_sParticleType+";R_{#eta33}; #eta ", 355, 0., 1.1005, 1000,-5.,5.);
+    weta1vseta   = Book2D("weta1vseta", "W_{#etas1} vs E_{T} of "+ m_sParticleType+";W_{#etas1}; #eta ", 100, 0., 1., 1000,-5.,5.);
+    weta2vseta   = Book2D("weta2vseta", "W_{#etas2} vs E_{T} of "+ m_sParticleType+";W_{#etas2}; #eta ", 100, 0., 0.03, 1000,-5.,5.);
+    demax1vseta  = Book2D("demax1vseta", "#DeltaE_{maxs1} vs E_{T} of "+ m_sParticleType+";#DeltaE_{maxs1}; #eta " , 100, 0., 1., 1000,-5.,5.);
+    demax2vseta  = Book2D("demax2vseta", "#DeltaE_{maxs2} vs E_{T} of "+ m_sParticleType+";#DeltaE_{maxs2}; #eta " , 80, 0., 0.8, 1000,-5.,5.);
+    devseta      = Book2D("devseta", "#DeltaE vs E_{T} of "+ m_sParticleType+";#DeltaE (GeV); #eta ", 250, 0., 0.5, 1000,-5.,5.);
+    fracs1vseta  = Book2D("fracs1vseta", "Fracs1 vs E_{T} of "+ m_sParticleType+";Fracs1; #eta ", 350, 0., 3.5, 1000,-5.,5.);
+    wtots1vseta  = Book2D("wtots1vseta", "W_{tots1} vsE_{T} of "+ m_sParticleType+";W_{tots1}; #eta ", 100, 0., 10., 1000,-5.,5.);
+    f1vseta      = Book2D("f1vseta", "f1 vs E_{T} of "+ m_sParticleType+";f1; #eta " , 100, 0., 1.0, 1000,-5.,5.);
+    pos7vseta    = Book2D("pos7vseta", "pos7 vs E_{T} of "+ m_sParticleType+";pos7; #eta ", 80, -4., 4., 1000,-5.,5.);
+    clusisovseta = Book2D("clusisovseta","Cluster Isolation vs E_{T} of "+ m_sParticleType+"; E_{T}^{topoEtcone20}/E_{T}; #eta ", 100, 0., 1., 1000,-5.,5.);
 
   }
 
@@ -90,6 +119,7 @@ namespace Egamma{
     float hadrleak = (eta2 >= 0.8 && eta2 < 1.37) ? raphad : raphad1;
     hadleak->Fill(hadrleak);
     hadleakvset->Fill(hadrleak, egamma.pt()*0.001);
+    hadleakvseta->Fill(hadrleak, egamma.eta());
 
     float e277(0),e237(0),e233(0);
 
@@ -99,12 +129,15 @@ namespace Egamma{
 
       middlee->Fill(e277*0.001);
       middleevset->Fill(e277*0.001, egamma.pt()*0.001);
+      middleevseta->Fill(e277*0.001, egamma.eta());
       float rateta37 =   e277!= 0. ? e237/e277:0.;
       float rateta33 =   e277!= 0. ? e233/e277:0.; 
       reta37->Fill(rateta37);
       reta33->Fill(rateta33);
       reta37vset->Fill(rateta37, egamma.pt()*0.001);
       reta33vset->Fill(rateta33, egamma.pt()*0.001);
+      reta37vseta->Fill(rateta37, egamma.eta());
+      reta33vseta->Fill(rateta33, egamma.eta());
     }
 
     float shweta1(0),shweta2(0);
@@ -114,6 +147,8 @@ namespace Egamma{
       weta2->Fill(shweta2);
       weta1vset->Fill(shweta1, egamma.pt()*0.001);
       weta2vset->Fill(shweta2, egamma.pt()*0.001);
+      weta1vseta->Fill(shweta1, egamma.eta());
+      weta2vseta->Fill(shweta2, egamma.eta());
     }
     
     float emax(0),emin(0),emax2(0);
@@ -129,6 +164,9 @@ namespace Egamma{
       demax1vset->Fill(deltemax1, egamma.pt()*0.001);
       demax2vset->Fill(emax2 / (1. + 0.009 * et37*0.001)*0.001, egamma.pt()*0.001); // use more official GeV
       devset->Fill( (emax2 - emin) * 0.001, egamma.pt()*0.001); // use more official GeV
+      demax1vseta->Fill(deltemax1, egamma.eta());
+      demax2vseta->Fill(emax2 / (1. + 0.009 * et37*0.001)*0.001, egamma.eta()); // use more official GeV
+      devseta->Fill( (emax2 - emin) * 0.001, egamma.eta()); // use more official GeV
     }
 
     float shfracs1(0),shwtots1(0),fracf1(0),difpos7(0);
@@ -136,29 +174,35 @@ namespace Egamma{
     if(egamma.showerShapeValue(shfracs1, xAOD::EgammaParameters::fracs1 )){
       fracs1->Fill(shfracs1);
       fracs1vset->Fill(shfracs1, egamma.pt()*0.001);
+      fracs1vseta->Fill(shfracs1, egamma.eta());
     } 
 
     if(egamma.showerShapeValue(shwtots1, xAOD::EgammaParameters::wtots1 )){
       wtots1->Fill(shwtots1);
       wtots1vset->Fill(shwtots1, egamma.pt()*0.001);
+      wtots1vseta->Fill(shwtots1, egamma.eta());
     }
     if(egamma.showerShapeValue(fracf1, xAOD::EgammaParameters::f1 )){
       f1->Fill(fracf1);
       f1vset->Fill(fracf1, egamma.pt()*0.001);
+      f1vseta->Fill(fracf1, egamma.eta());
     }
     
     if(egamma.showerShapeValue(difpos7, xAOD::EgammaParameters:: pos7)){
     
       pos7->Fill(difpos7);
       pos7vset->Fill(difpos7, egamma.pt()*0.001);
+      pos7vseta->Fill(difpos7, egamma.eta());
     }
   
   
-    float EtconeIso(0), shetcone20(0);
-    if(egamma.isolationValue(shetcone20,   xAOD::Iso::etcone20)){
-      EtconeIso = et37!=0. ? shetcone20/et37 : 0.; 
-      clusiso->Fill(EtconeIso);
-      clusisovset->Fill(EtconeIso, egamma.pt()*0.001);
+    float topoEtconeIso(0), shetcone20(0);
+    if(egamma.isolationValue(shetcone20,   xAOD::Iso::topoetcone20)){ //rel20
+//    if(egamma.isolationValue(shetcone20,   xAOD::EgammaParameters::topoetcone20)){//re;19
+      topoEtconeIso = et37!=0. ? shetcone20/et37 : 0.; 
+      clusiso->Fill(topoEtconeIso);
+      clusisovset->Fill(topoEtconeIso, egamma.pt()*0.001);
+      clusisovseta->Fill(topoEtconeIso, egamma.eta());
     }
 
   }

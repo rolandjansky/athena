@@ -39,7 +39,10 @@ class ElectronPlots:public PlotBase {
       Egamma::KinematicsPlots     m_oKinIsoLoosePPPlots;
       Egamma::KinematicsPlots     m_oKinIsoMediumPPPlots;
       Egamma::KinematicsPlots     m_oKinIsoTightPPPlots;
-       
+      Egamma::KinematicsPlots     m_oKinIsoLHLoosePlots;
+      Egamma::KinematicsPlots     m_oKinIsoLHMediumPlots;
+      Egamma::KinematicsPlots     m_oKinIsoLHTightPlots;       
+   
       TH1* nParticles;
       TH1* nTypeParticles;
       std::string m_sParticleType;

@@ -47,6 +47,21 @@ class ShowerShapesPlots:public PlotBase {
       TH2* pos7vset;
       TH2* clusisovset;
 
+      TH2* hadleakvseta;
+      TH2* middleevseta;
+      TH2* reta37vseta;
+      TH2* reta33vseta;
+      TH2* weta1vseta;
+      TH2* weta2vseta;
+      TH2* demax1vseta;
+      TH2* demax2vseta;
+      TH2* devseta;
+      TH2* fracs1vseta;
+      TH2* wtots1vseta;
+      TH2* f1vseta;
+      TH2* pos7vseta;
+      TH2* clusisovseta;
+
     private:
       virtual void initializePlots();
       

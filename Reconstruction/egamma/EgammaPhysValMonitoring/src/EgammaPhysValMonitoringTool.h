@@ -34,6 +34,11 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
+
+
+
 class IMCTruthClassifier;
 namespace EgammaPhysValMonitoring {
 
@@ -61,6 +66,9 @@ class EgammaPhysValMonitoringTool
   virtual StatusCode bookHistograms();
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();
+
+  int m_eventCounter;
+  bool is_MC;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -91,6 +99,7 @@ class EgammaPhysValMonitoringTool
   std::string m_electronContainerName;
   std::string m_electronContainerFrwdName;
   std::string m_truthParticleContainerName;
+  std::string m_egammaTruthContainerName;
 
   // Hists
   ElectronValidationPlots m_oElectronValidationPlots;
@@ -98,6 +107,7 @@ class EgammaPhysValMonitoringTool
   
   ToolHandle<IMCTruthClassifier>        m_truthClassifier;
 
+  const xAOD::TruthParticleContainer* m_truthallParticles;
   const xAOD::TruthParticleContainer* m_truthParticles;
 }; 
 
