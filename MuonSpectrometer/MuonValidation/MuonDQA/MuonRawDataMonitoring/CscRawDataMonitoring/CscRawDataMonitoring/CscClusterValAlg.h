@@ -46,6 +46,9 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
 
   private:
 
+    // initialize histograms
+    void initHistograms();
+    
     // helper to fill histograms
     void FillCSCClusters( const Muon::CscPrepDataContainer& , const Muon::CscStripPrepDataContainer& );
 
@@ -86,6 +89,10 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     TH2F *m_h2csc_clus_r_vs_z_hitmap;
     TH2F *m_h2csc_clus_y_vs_x_hitmap;
 
+    // layer occupancy
+    TH1F *m_h1csc_clus_occupancy_signal_EA;
+    TH1F *m_h1csc_clus_occupancy_signal_EC;
+
     // q_max of cluster
     TH2F *m_h2csc_clus_qmax;
     TH2F *m_h2csc_clus_qmax_noise;
@@ -93,11 +100,11 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     
     TH2F *m_h2csc_clus_qmax_signal_EA;
     TH1F *m_h1csc_clus_qmax_signal_EA_count;
-    TH1F *m_h1csc_clus_qmax_signal_EA_occupancy;
+    //TH1F *m_h1csc_clus_qmax_signal_EA_occupancy;
     
     TH2F *m_h2csc_clus_qmax_signal_EC;
     TH1F *m_h1csc_clus_qmax_signal_EC_count;
-    TH1F *m_h1csc_clus_qmax_signal_EC_occupancy;
+    //TH1F *m_h1csc_clus_qmax_signal_EC_occupancy;
 
     // q_sum = q_max + q_left + q_right of cluster
     TH2F *m_h2csc_clus_qsum;
@@ -106,12 +113,12 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     
     TH2F *m_h2csc_clus_qsum_signal_EA;
     TH1F *m_h1csc_clus_qsum_signal_EA_count;
-    TH1F *m_h1csc_clus_qsum_signal_EA_occupancy;
+    //TH1F *m_h1csc_clus_qsum_signal_EA_occupancy;
     TH1F *m_h1csc_clus_qsum_signal_EA_lfitmean;
     
     TH2F *m_h2csc_clus_qsum_signal_EC;
     TH1F *m_h1csc_clus_qsum_signal_EC_count;
-    TH1F *m_h1csc_clus_qsum_signal_EC_occupancy;
+    //TH1F *m_h1csc_clus_qsum_signal_EC_occupancy;
     TH1F *m_h1csc_clus_qsum_signal_EC_lfitmean;
 
     // sampling time - eta cluster

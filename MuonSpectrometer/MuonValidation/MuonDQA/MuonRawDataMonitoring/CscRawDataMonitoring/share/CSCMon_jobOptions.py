@@ -5,9 +5,10 @@
 ###################################################
 
 doCSCRDO = False
-doCSCPRD = True
+doCSCPRD = False
 doCSCClus = False
 doLocal = True
+doCSCSegm = True
 
 import sys
 
@@ -35,8 +36,9 @@ def getInputFiles(dir, AODHLTP):
 # Input files
 ##############################
 
-AODir = ['/raid01/venkat/dataset/data/csc/2011/mcpskim/data10_7TeV.*.phys*', 'data10_7TeV*DESD_ZMUMU*']
-AODir2 = ['/raid01/jveatch/data/dataset/CSCMon/data11_7TeV.00189751.physics_Muons.recon.DESD_ZMUMU.f405_m716_f405', 'data11_7TeV*DESD_ZMUMU*']
+#AODir = ['/raid01/venkat/dataset/data/csc/2011/mcpskim/data10_7TeV.*.phys*', 'data10_7TeV*DESD_ZMUMU*']
+#AODir2 = ['/raid01/jveatch/data/dataset/CSCMon/data11_7TeV.00189751.physics_Muons.recon.DESD_ZMUMU.f405_m716_f405', 'data11_7TeV*DESD_ZMUMU*']
+AODir2=['/afs/cern.ch/work/p/panagoul/CSC_data', 'data15_13TeV.00280950*']
 
 CSCInputFiles = []
 if doLocal:
@@ -233,9 +235,52 @@ if doCSCClus:
   cscesdRawMonMan.FileKey = "CSCMonitor"
 
 
+#---------------------------------------------------------------
+# CSC Segment Monitoring
+#---------------------------------------------------------------
+if doCSCSegm:
+  cscsegmMonMan = AthenaMonManager(name="CscSegmEsdRawMonManager",
+                                   FileKey             = DQMonFlags.monManFileKey(),
+                                   Environment         = DQMonFlags.monManEnvironment(),
+                                   OutputLevel         = muonOutputLevel)
+
+  from CscRawDataMonitoring.CscRawDataMonitoringConf import CSCSegmValAlg
+  from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
+  MuonDQAFlags.doMuonSegmMon = True
+  
+  ## TDT instance (this should be done already?)
+  from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+  ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+  ToolSvc.TrigDecisionTool.OutputLevel=ERROR
+  ToolSvc.TrigDecisionTool.Navigation.OutputLevel = ERROR
+
+  segmCollections = { "MuonSegments":1 }
+  segmPrefixes = { "MuonSegments":"Muon" }
+  #segmCollections = { "MooreSegments":1, "ConvertedMBoySegments":1 }
+  #segmPrefixes = { "MooreSegments":"Moore", "ConvertedMBoySegments":"MuBoy" }
+  segmSlopeCuts = { "MuonSegments":0.07 }
+  clusStatWords = [ "Unspoiled", "Simple", "Edge", "MultiPeak", "Narrow",
+                        "Wide", "Skewed", "QRatInc", "StripFitFailed",
+                        "SplitUnspoiled", "SplitSimple", "SplitEdge", "SplitMultiPeak",
+                        "SplitNarrow", "SplitWide", "SplitSkewed", "SplitQRatInc",
+                        "SplitStripFitFailed", "Undefined" ]
+  ## trigger-aware monitoring: sample seletion triggers (express stream menu physics_pp_v2)
+  evtSelectionTriggers = [  "L1_MU10", "L1_MU15", "EF_mu20_muCombTag_NoEF", "EF_mu15", "EF_mu15_mu10_EFFS", "EF_2mu10", "EF_2mu10_loose" ]
+
+  CSCSegmValAlg = CSCSegmValAlg ( name = "CSCSegmValAlg", SegmentKeys = segmCollections,
+    TrigDecisionTool = ToolSvc.TrigDecisionTool, DoEventSelection = False, EventSelTriggers = evtSelectionTriggers,
+    SegmentPrefixes = segmPrefixes, SegmentSlopeCuts = segmSlopeCuts, ClusterStatus = clusStatWords)
+
+  ToolSvc += CSCSegmValAlg
+  cscsegmMonMan.AthenaMonTools += [ CSCSegmValAlg ]
+
+  topSequence += cscsegmMonMan
+  cscsegmMonMan.FileKey = "CSCMonitor"
+
 
 # in order to check available detectors
 from RecExConfig.RecFlags  import rec
+
 
 ##########################
 # Events to run over
