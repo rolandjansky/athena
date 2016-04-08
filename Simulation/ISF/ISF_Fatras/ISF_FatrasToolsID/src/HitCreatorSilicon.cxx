@@ -460,37 +460,28 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
    //!< barcode & time from current stack particle
    //  double   energyDeposit = m_siPathToCharge*localDirection.mag()*CLHEP::RandLandau::shoot(m_randomEngine);
    int    barcode       = isp.barcode();
-   int    side          = 0;
-
-   if (isSiDetElement)  {
-	  side = m_pixIdHelper ? 0 : m_sctIdHelper->side(hitId); 
-   } else {
-      if (hitSiDetElement->otherSide()) side = 1;
-   }
    
-   //if (m_sctIdHelper && !m_sctIdHelper->barrel_ec(hitId)) return;
-
-  // create the silicon hit
-  const HepGeom::Point3D<double> localEntryHep( localEntry.x(), localEntry.y(), localEntry.z() );
-  const HepGeom::Point3D<double> localExitHep( localExit.x(), localExit.y(), localExit.z() );
-  
-  SiHit siHit(localEntryHep,
-			  localExitHep,
-			  energyDeposit,
-			  time,
-			  barcode,
-			  m_pixIdHelper ? 0 : 1,
-			  m_pixIdHelper ? m_pixIdHelper->barrel_ec(hitId)  : m_sctIdHelper->barrel_ec(hitId),
-			  m_pixIdHelper ? m_pixIdHelper->layer_disk(hitId) : m_sctIdHelper->layer_disk(hitId),
-			  m_pixIdHelper ? m_pixIdHelper->eta_module(hitId) : m_sctIdHelper->eta_module(hitId),
-			  m_pixIdHelper ? m_pixIdHelper->phi_module(hitId) : m_sctIdHelper->phi_module(hitId),
-			  side); 
-  
-  if ( isSiDetElement )
-    ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit SiDetElement to the SiHitCollection.");
-  else
-    ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit PlanarDetElement to the SiHitCollection.");
-  
-  m_hitColl->Insert(siHit);
+   // create the silicon hit
+   const HepGeom::Point3D<double> localEntryHep( localEntry.x(), localEntry.y(), localEntry.z() );
+   const HepGeom::Point3D<double> localExitHep( localExit.x(), localExit.y(), localExit.z() );
+ 
+   SiHit siHit(localEntryHep,
+	       localExitHep,
+	       energyDeposit,
+	       time,
+	       barcode,
+	       m_pixIdHelper ? 0 : 1,
+	       m_pixIdHelper ? m_pixIdHelper->barrel_ec(hitId)  : m_sctIdHelper->barrel_ec(hitId),
+	       m_pixIdHelper ? m_pixIdHelper->layer_disk(hitId) : m_sctIdHelper->layer_disk(hitId),
+	       m_pixIdHelper ? m_pixIdHelper->eta_module(hitId) : m_sctIdHelper->eta_module(hitId),
+	       m_pixIdHelper ? m_pixIdHelper->phi_module(hitId) : m_sctIdHelper->phi_module(hitId),
+	       m_pixIdHelper ? 0 : m_sctIdHelper->side(hitId)); 
+   
+   if ( isSiDetElement )
+     ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit SiDetElement to the SiHitCollection.");
+   else
+     ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit PlanarDetElement to the SiHitCollection.");
+   
+   m_hitColl->Insert(siHit);
   
 }
