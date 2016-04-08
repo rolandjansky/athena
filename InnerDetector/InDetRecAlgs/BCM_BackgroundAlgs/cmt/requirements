@@ -3,13 +3,14 @@ package BCM_BackgroundAlgs
 author Hendrik Jansen <jansen@cern.ch>
 
 use AtlasPolicy      AtlasPolicy-* 
-use StoreGate        StoreGate-*         Control
-use GaudiInterface   GaudiInterface-*    External
+use GaudiInterface   GaudiInterface-*     External
+use AthenaBaseComps       AthenaBaseComps-*       Control
 
 private
 use BCM_CollisionTime    BCM_CollisionTime-*    InnerDetector/InDetRecEvent
 use InDetBCM_RawData InDetBCM_RawData-* InnerDetector/InDetRawEvent
-use Identifier       Identifier-*        DetectorDescription
+use Identifier       Identifier-*       DetectorDescription
+use AthenaKernel     AthenaKernel-*     Control
 
 library BCM_BackgroundAlgs *.cxx -s=components *.cxx
 
