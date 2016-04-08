@@ -14,10 +14,10 @@ namespace Muon {
   class IMuonTrackFinder;
   class MuonEDMHelperTool;
 }
-class IMuonboyToParticleTool;
-namespace Muon {
-  class IMuonBackTracker;
-}
+//class IMuonboyToParticleTool;
+//namespace Muon {
+//  class IMuonBackTracker;
+//}
 
 class MuPatTrackBuilder : public AthAlgorithm
 {
@@ -40,8 +40,8 @@ class MuPatTrackBuilder : public AthAlgorithm
   std::string m_extrapPartiLocation;  //!< Output location for back-extrapolated particles
 
   ToolHandle<Muon::IMuonTrackFinder> m_trackMaker;  //!< Actual tool to do the track finding
-  ToolHandle<IMuonboyToParticleTool> m_convTool;    //!< Tool for converting from tracks to track particles (acts as a flag)
-  ToolHandle<Muon::IMuonBackTracker> p_IMuonBackTracker;    //!< Tool for extrapolating tracks
+//  ToolHandle<IMuonboyToParticleTool> m_convTool;    //!< Tool for converting from tracks to track particles (acts as a flag)
+//  ToolHandle<Muon::IMuonBackTracker> p_IMuonBackTracker;    //!< Tool for extrapolating tracks
   ToolHandle<Muon::MuonEDMHelperTool> m_helper;    //!< helper Tool 
 };
 

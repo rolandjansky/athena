@@ -17,8 +17,8 @@ use TrkTrack				TrkTrack-*				Tracking/TrkEvent
 use TrkSegment				TrkSegment-*			Tracking/TrkEvent
 #use TrkParameters			TrkParameters-*			Tracking/TrkEvent
 #use TrkEventPrimitives		TrkEventPrimitives-*	Tracking/TrkEvent
-use MboyEDMToolInterfaces   MboyEDMToolInterfaces-* MuonSpectrometer/Muonboy
-use MboyAthToolInterfaces   MboyAthToolInterfaces-* MuonSpectrometer/Muonboy
+#use MboyEDMToolInterfaces   MboyEDMToolInterfaces-* MuonSpectrometer/Muonboy
+#use MboyAthToolInterfaces   MboyAthToolInterfaces-* MuonSpectrometer/Muonboy
 use Particle                Particle-*              Reconstruction
 end_private
 

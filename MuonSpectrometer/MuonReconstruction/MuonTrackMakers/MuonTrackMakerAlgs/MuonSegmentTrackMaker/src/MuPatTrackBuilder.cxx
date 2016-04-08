@@ -14,8 +14,8 @@
 
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "Particle/TrackParticleContainer.h"
-#include "MboyEDMToolInterfaces/IMuonboyToParticleTool.h"
-#include "MboyAthToolInterfaces/IMuonBackTracker.h"
+//#include "MboyEDMToolInterfaces/IMuonboyToParticleTool.h"
+//#include "MboyAthToolInterfaces/IMuonBackTracker.h"
 
 #include <vector>
 
@@ -24,8 +24,8 @@ using namespace Muon;
 MuPatTrackBuilder::MuPatTrackBuilder(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name,pSvcLocator)
    , m_trackMaker("Muon::MuonTrackFinder/MuonTrackSteering")
-   , m_convTool("")
-   , p_IMuonBackTracker("")
+//   , m_convTool("")
+//   , p_IMuonBackTracker("")
    , m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool")
 {
   // MoMu location segments (per chamner)
@@ -36,8 +36,8 @@ MuPatTrackBuilder::MuPatTrackBuilder(const std::string& name, ISvcLocator* pSvcL
   declareProperty("ExtrapolatedTrackOutputLocation",    m_extrapTrackLocation   = "" ); 
   // set to "ExtrapolatedMuonSpectrometerTracks" for muonboy-like convention);
   declareProperty("ExtrapolatedParticleOutputLocation", m_extrapPartiLocation   = "ExtrapolatedMuonSpectrometerParticles");
-  declareProperty("TrackToParticleTool",   m_convTool);
-  declareProperty("MuonBackTracker",   p_IMuonBackTracker);
+//   declareProperty("TrackToParticleTool",   m_convTool);
+//  declareProperty("MuonBackTracker",   p_IMuonBackTracker);
 }
 
 MuPatTrackBuilder::~MuPatTrackBuilder()
@@ -55,7 +55,7 @@ StatusCode MuPatTrackBuilder::initialize()
   }
   if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Retrieved " << m_trackMaker << endreq;
 
-  if (!m_convTool.empty()) {
+/*  if (!m_convTool.empty()) {
     if (m_convTool.retrieve().isFailure()){
       ATH_MSG_FATAL ("Could not get track converter " << m_convTool << ". STACO will have problems.");
       return StatusCode::FAILURE;
@@ -71,7 +71,7 @@ StatusCode MuPatTrackBuilder::initialize()
     } else {
       ATH_MSG_DEBUG ("Retrieved " << p_IMuonBackTracker);
     }
-  }
+  }*/
 
   return StatusCode::SUCCESS; 
 }
@@ -133,7 +133,7 @@ StatusCode MuPatTrackBuilder::execute()
     ATH_MSG_DEBUG ("TrackCollection '" << m_spectroTrackLocation << "' recorded in storegate, ntracks: " << newtracks->size());
 
     // Make track particles out of it and re-record
-    if (!m_convTool.empty()) {
+/*    if (!m_convTool.empty()) {
       Rec::TrackParticleContainer * recpart = new Rec::TrackParticleContainer();
       if (newtracks->empty() || m_convTool->convertCollection( newtracks , recpart ).isSuccess() ){
         ATH_MSG_DEBUG ("Sucessfully converted first track collection to track particles, "<<
@@ -176,7 +176,7 @@ StatusCode MuPatTrackBuilder::execute()
         ATH_MSG_DEBUG ("Could not convert first track collection to track particles!");
         delete BkTk_TrackParticleContainer;
       }
-    }
+    }*/
   }
 
   return StatusCode::SUCCESS;
