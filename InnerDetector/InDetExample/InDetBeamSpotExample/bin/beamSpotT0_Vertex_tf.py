@@ -28,24 +28,29 @@ __version__ = '$Id: beamSpotT0_Vertex_tf.py 487258 2012-03-08 09:53:58Z gwilliam
 import sys
 from InDetBeamSpotExample import TrfUtils
 
-cmd = ' '.join(sys.argv)
+def main():
 
-trf = TrfUtils.JobRunnerTransform('inputDPDFiles', 'outputNtFile', 'histfile', jobDirOutputName='nt.root',
-                                  mandatoryArgs=['_attempt'],
-                                  optionalArgs=['outputCOOLFile', 'taskPostProcSteps', 'taskDb', 'taskDir'])
+    cmd = ' '.join(sys.argv)
 
-taskPostProcSteps = trf.argdict.get('taskPostProcSteps', 'T0VertexDefaultProcessing')
-taskDb =            trf.argdict.get('taskDb',            'auth_file:/afs/cern.ch/user/a/atlidbs/private/beamspotdbinfo_w.dat')
-taskDir =           trf.argdict.get('taskDir',           '/afs/cern.ch/user/a/atlidbs/jobs')
+    trf = TrfUtils.JobRunnerTransform('inputDPDFiles', 'outputNtFile', 'histfile', jobDirOutputName='nt.root',
+                                      mandatoryArgs=['_attempt'],
+                                      optionalArgs=['outputCOOLFile', 'taskPostProcSteps', 'taskDb', 'taskDir'])
 
-trf.setProdTaskDatabase(taskDb)
-trf.setProdDir(taskDir)
+    taskPostProcSteps = trf.argdict.get('taskPostProcSteps', 'T0VertexDefaultProcessing')
+    taskDb =            trf.argdict.get('taskDb',            'auth_file:/afs/cern.ch/user/a/atlidbs/private/beamspotdbinfo_w.dat')
+    taskDir =           trf.argdict.get('taskDir',           '/afs/cern.ch/user/a/atlidbs/jobs')
 
-trf.getJobRunner(joboptionpath='InDetBeamSpotExample/VertexTemplate.py',
-                 autoconfparams='DetDescrVersion',
-                 taskpostprocsteps=taskPostProcSteps,
-                 comment=cmd)
-if 'outputCOOLFile' in trf.argdict:
-    trf.addOutput('outputCOOLFile','outputfile','beamspot.db')
+    trf.setProdTaskDatabase(taskDb)
+    trf.setProdDir(taskDir)
 
-trf.go(cmd)
+    trf.getJobRunner(joboptionpath='InDetBeamSpotExample/VertexTemplate.py',
+                     autoconfparams='DetDescrVersion',
+                     taskpostprocsteps=taskPostProcSteps,
+                     comment=cmd)
+    if 'outputCOOLFile' in trf.argdict:
+        trf.addOutput('outputCOOLFile','outputfile','beamspot.db')
+
+    trf.go(cmd)
+
+if __name__ == '__main__':
+    main()
