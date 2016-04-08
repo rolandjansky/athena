@@ -23,7 +23,8 @@ Trk::TrackCollectionMerger::TrackCollectionMerger
 (const std::string& name, ISvcLocator* pSvcLocator  ) :
   AthAlgorithm(name, pSvcLocator ),
   m_createViewCollection(true),
-  m_updateSharedHitsOnly(true)
+  m_updateSharedHitsOnly(true),
+  m_updateAdditionalInfo(false)
 {
   m_outtracklocation         = "CombinedInDetTracks"    ;
 
@@ -33,7 +34,7 @@ Trk::TrackCollectionMerger::TrackCollectionMerger
   declareProperty("SummaryTool" ,                   m_trkSummaryTool         );
   declareProperty("CreateViewColllection" ,         m_createViewCollection   );
   declareProperty("UpdateSharedHitsOnly" ,          m_updateSharedHitsOnly);
-  
+  declareProperty("UpdateAdditionalInfo" ,          m_updateAdditionalInfo);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -57,6 +58,11 @@ StatusCode Trk::TrackCollectionMerger::initialize()
   } else 
     ATH_MSG_INFO("Retrieved tool " << m_trkSummaryTool);
 
+  if( m_updateSharedHitsOnly &&  m_updateAdditionalInfo){
+    msg(MSG::WARNING) << "Both UpdateAdditionalInfo and UpdateSharedHitsOnly set true - UpdateAdditionalInfo includes a shared hits update. " << endreq;
+    msg(MSG::WARNING) << " If you *only* want to update shared hits, set UpdateAdditionalInfo=False and UpdateSharedHitsOnly=True" << endreq;
+  }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -110,14 +116,16 @@ StatusCode Trk::TrackCollectionMerger::execute()
   TrackCollection::iterator rf  = outputCol->begin();
   TrackCollection::iterator rfE = outputCol->end();
   for(  ; rf != rfE; ++rf){ 
-      if (m_updateSharedHitsOnly) m_trkSummaryTool->updateSharedHitCount(**rf);
-      else m_trkSummaryTool->updateTrack(**rf);
+    if (m_updateAdditionalInfo)  m_trkSummaryTool->updateAdditionalInfo(**rf);
+    else if (m_updateSharedHitsOnly) m_trkSummaryTool->updateSharedHitCount(**rf);
+    else  m_trkSummaryTool->updateTrack(**rf);
   }
 
   //Print common event information
   if(msgLvl(MSG::DEBUG)){
     ATH_MSG_DEBUG((*this));
   }
+
 
   ATH_MSG_DEBUG("Done !");  
   return StatusCode::SUCCESS;
