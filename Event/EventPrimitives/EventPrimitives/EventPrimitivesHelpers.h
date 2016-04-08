@@ -31,7 +31,7 @@ inline double error(const Amg::MatrixX& mat, int index) {
 }
 
 template<int N>
-inline double error(const AmgSymMatrix(N)mat, int index ) {
+inline double error(const AmgSymMatrix(N)& mat, int index ) {
     assert(index<N);
     return sqrt(mat(index,index));
 }
