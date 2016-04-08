@@ -41,7 +41,7 @@ class TrigRNNOutputConverterBase<TrigRNNOutput_p1>  : public T_AthenaPoolTPCnvBa
   void transToPers(const TrigRNNOutput *transObj, TrigRNNOutput_p1 *persObj, MsgStream &log);
 
  protected:
-  ElementLinkCnv_p1< ElementLink<TrigEMClusterContainer> > ELinkTrigEMClusterCnv;
+  ElementLinkCnv_p1< ElementLink<TrigEMClusterContainer> > m_ELinkTrigEMClusterCnv;
 };
 
 typedef TrigRNNOutputConverterBase<TrigRNNOutput_p1> TrigRNNOutputCnv_p1;

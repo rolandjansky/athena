@@ -10,7 +10,7 @@
 #include "TrigCaloEvent/RingerRingsContainer.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
 
-static ElementLinkCnv_p1< ElementLink<RingerRingsContainer> > ELinkRingerRingsCnv;
+//static ElementLinkCnv_p1< ElementLink<RingerRingsContainer> > ELinkRingerRingsCnv;
 
 void TrigEMClusterCnv_p2::transToPers(const TrigEMCluster* trans, 
                                      TrigEMCluster_p2* pers, MsgStream &log )
@@ -39,7 +39,7 @@ void TrigEMClusterCnv_p2::transToPers(const TrigEMCluster* trans,
   pers->m_emaxs1     = trans->m_emaxs1;
   pers->m_e2tsts1    = trans->m_e2tsts1;
 
-  ELinkRingerRingsCnv.transToPers(&trans->m_rings, &pers->m_rings, log);
+  m_ELinkRingerRingsCnv.transToPers(&trans->m_rings, &pers->m_rings, log);
   pers->m_trigCaloCluster = baseToPersistent( &m_trigCaloClusterCnv, trans, log );
 }
 
@@ -70,7 +70,7 @@ void TrigEMClusterCnv_p2::persToTrans(const TrigEMCluster_p2* pers,
   trans->m_emaxs1     = pers->m_emaxs1;
   trans->m_e2tsts1    = pers->m_e2tsts1;
 
-  ELinkRingerRingsCnv.persToTrans(&pers->m_rings, &trans->m_rings, log);
+  m_ELinkRingerRingsCnv.persToTrans(&pers->m_rings, &trans->m_rings, log);
   fillTransFromPStore( &m_trigCaloClusterCnv, pers->m_trigCaloCluster, trans, log );
 
 }

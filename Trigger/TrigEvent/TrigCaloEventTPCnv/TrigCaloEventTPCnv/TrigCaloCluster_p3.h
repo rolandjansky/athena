@@ -12,7 +12,7 @@
  * @author Denis Oliveira Damazio <Denis.Oliveira.Damazio@cern.ch>
  *
  * File and Version Information:
- * $Id: TrigCaloCluster_p3.h 697602 2015-09-30 13:34:36Z damazio $
+ * $Id: TrigCaloCluster_p3.h 697601 2015-09-30 13:34:01Z damazio $
  **********************************************************************************/
 #ifndef TRIGCALOEVENTTPCNV_TRIGCALOCLUSTER_P3_H
 #define TRIGCALOEVENTTPCNV_TRIGCALOCLUSTER_P3_H

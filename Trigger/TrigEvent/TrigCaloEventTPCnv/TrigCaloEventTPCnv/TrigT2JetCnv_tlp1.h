@@ -20,8 +20,8 @@
  
 #include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPConverter.h"
 
+#include "TrigCaloEvent/TrigT2Jet.h"
 #include "TrigCaloEventTPCnv/TrigT2Jet_tlp1.h"
- 
 #include "TrigCaloEventTPCnv/TrigT2JetCnv_p1.h"   
 
  

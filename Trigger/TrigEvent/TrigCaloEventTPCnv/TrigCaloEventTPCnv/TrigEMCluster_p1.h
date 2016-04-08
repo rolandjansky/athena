@@ -23,9 +23,6 @@
 //need this for MAXSIZE, NUMEMSAMP, and NUMHADSAMP
 #include "TrigCaloEvent/TrigEMCluster.h"
 
-// needed to fix a Gaudi problem in SLC3 (should be removed eventually):
-#include <stdint.h>
-
 class TrigEMCluster_p1 {
   friend class TrigEMClusterCnv;
   template <class T>

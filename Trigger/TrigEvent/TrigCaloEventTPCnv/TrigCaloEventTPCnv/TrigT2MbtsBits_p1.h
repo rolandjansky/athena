@@ -15,6 +15,9 @@
 #ifndef TRIGCALOEVENTTPCNV_TRIGT2MBTSBITS_P1_H
 #define TRIGCALOEVENTTPCNV_TRIGT2MBTSBITS_P1_H
 
+#include <vector>
+#include <cstdint>
+
 class TrigT2MbtsBits_p1 {
   friend class TrigT2MbtsBitsCnv_p1;
 
