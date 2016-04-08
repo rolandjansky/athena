@@ -58,13 +58,20 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         if DetFlags.ID_on() :
           # get hand on the ID Tracking Geometry Builder
           if TrkDetFlags.ISF_FatrasCustomGeometry() :
-              from ISF_FatrasDetDescrTools.CustomInDetTrackingGeometryBuilder import CustomInDetTrackingGeometryBuilder as IDGeometryBuilder
-          else :
-              if not TrkDetFlags.SLHC_Geometry() :
+              if hasattr(ToolSvc, TrkDetFlags.ISF_FatrasCustomGeometryBuilderName()):
+                  InDetTrackingGeometryBuilder = getattr(ToolSvc, TrkDetFlags.ISF_FatrasCustomGeometryBuilderName())
+          elif TrkDetFlags.XMLFastCustomGeometry() :
+              if hasattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName()):
+                  InDetTrackingGeometryBuilder = getattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName())
+          else:
+              if not TrkDetFlags.SLHC_Geometry() and not TrkDetFlags.InDetStagedGeometryBuilder():
                   from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
+              elif not TrkDetFlags.SLHC_Geometry() :   
+                  from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilder import ConfiguredStagedTrackingGeometryBuilder as IDGeometryBuilder
               else :
                   from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
-          InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder')
+              InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder')
+                
           InDetTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
           InDetTrackingGeometryBuilder.OutputLevel = TrkDetFlags.InDetBuildingOutputLevel()
           # make a public tool out of it

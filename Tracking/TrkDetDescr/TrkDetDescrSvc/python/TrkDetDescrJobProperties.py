@@ -13,7 +13,6 @@
 __author__ = "A. Salzburger"
 __version__= "$Revision: 1.4 $"
 __doc__    = "TrkDetDescrJobProperties"
-
 __all__    = [ "TrkDetDescrJobProperties" ]
 
 # kindly stolen from AthenaCommonFlags from S. Binet and M. Gallas
@@ -62,13 +61,13 @@ class MaterialVersion(JobProperty) :
     """ Material Steering """
     statusOn     = True
     allowedTypes = ['int']
-    StoredValue = 19
+    StoredValue = 20
 
 class MaterialSubVersion(JobProperty) :          
     """ Material Steering """
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue = 's0'
+    StoredValue = ''
 
 # Magnetic field section
 class MagneticFieldMode(JobProperty) :
@@ -118,7 +117,6 @@ class MaterialValidation(JobProperty) :
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
-
     
 # switch to sLHC version
 class SLHC_Geometry(JobProperty) :
@@ -127,12 +125,33 @@ class SLHC_Geometry(JobProperty) :
     allowedTypes = ['bool']
     StoredValue  = False
 
-# switch to sLHC version
+# switch to FastGeoModel geometry version
+class XMLFastCustomGeometry(JobProperty) :
+    """ Boolean switch to use an XML FastGeoModel custom geometry """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+# for the FastGeoModel geometry builder name
+class InDetTrackingGeometryBuilderName(JobProperty) :
+    """ Name of GeoModel geometry builder """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'InDetTrackingGeometryBuilder'
+
+# switch to ISF_Fatras custom geometry version
 class ISF_FatrasCustomGeometry(JobProperty) :
     """ Boolean switch to a fatras custom geometry """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
+
+# for the ISF_Fatras custom geometry builder name
+class ISF_FatrasCustomGeometryBuilderName(JobProperty) :
+    """ Name of fatras custom geometry builder """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'CustomGeometryBuilder'
 
 # configuration output level
 class ConfigurationOutputLevel(JobProperty) :
@@ -191,6 +210,12 @@ class BeamPipeLayerMaterialBinsZ(JobProperty):
     statusOn     = True
     allowedTypes = ['int']
     StoredValue  = 1
+
+class BeamPipeBuildingOutputLevel(JobProperty):
+    """ OutputLevel for the Beam Pipe Layer Builder """
+    statusOn     = True
+    allowedTypes = ['int']
+    StoredValue  = 3
 
 # PIXEL Detector ---------------------------------------------   
 class PixelBarrelLayerDynamicExtend(JobProperty):
@@ -283,7 +308,18 @@ class PixelEndcapOverlapFractionLocal2(JobProperty):
     allowedTypes = ['float']
     StoredValue  = 0.1
 
-
+class PixelSplitMode(JobProperty):
+    """ Configuring in how many steps the pixel detector is built """
+    statusOn     = True
+    allowedTypes = ['int']
+    StoredValue  = 0
+    
+class PixelRingLayout(JobProperty):
+    """ The ring layout for ITK """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    
 class PixelBuildingOutputLevel(JobProperty):
     """ OutputLevel for the Pixel Layer Builder """
     statusOn     = True
@@ -387,6 +423,13 @@ class SCT_EndcapOverlapFractionLocal2(JobProperty):
     allowedTypes = ['float']
     StoredValue  = 0.1
 
+class SCT_SplitMode(JobProperty):
+    """ Configuring in how many steps the SCT detector is built """
+    statusOn     = True
+    allowedTypes = ['int']
+    StoredValue  = 0
+
+
 class SCT_BuildingOutputLevel(JobProperty):
     """ OutputLevel for the SCT Layer Builder """
     statusOn     = True
@@ -480,12 +523,27 @@ class InDetContainerName(JobProperty) :
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'InDet::Containers::InnerDetector'
-    
+
+
+# use the newly developed StagedGeometruBuilder
+class InDetStagedGeometryBuilder(JobProperty) :
+    """ Boolean switch to a local material database """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class InDetBuildingHelperOutputLevel(JobProperty):
+    """ OutputLevel for the InDet Geometry Builder """
+    statusOn     = True
+    allowedTypes = ['int']
+    StoredValue  = 3
+        
 class InDetBuildingOutputLevel(JobProperty):
     """ OutputLevel for the InDet Geometry Builder """
     statusOn     = True
     allowedTypes = ['int']
     StoredValue  = 3
+
 
 ######################### CALORIMETER SECTION ##################################
 
@@ -702,7 +760,10 @@ jobproperties.TrkDetDescrJobProperties.add_JobProperty(MagneticFieldMode)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(MagneticFieldSynchronisation)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(MagneticFieldCallbackEnforced)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(SLHC_Geometry)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(XMLFastCustomGeometry)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetTrackingGeometryBuilderName)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(ISF_FatrasCustomGeometry)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(ISF_FatrasCustomGeometryBuilderName)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(ConfigurationOutputLevel)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(AssignSurfaceOwnership)
 # the sub detector specifications
@@ -713,6 +774,7 @@ jobproperties.TrkDetDescrJobProperties.add_JobProperty(BeamPipeOffsetY)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(BeamPipeRadius)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(BeamPipeThickness)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(BeamPipeLayerMaterialBinsZ)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(BeamPipeBuildingOutputLevel)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(PixelBarrelLayerDynamicExtend)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(PixelBarrelLayerExtend)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(PixelBarrelLayerMaterialBinsZ)
@@ -728,6 +790,8 @@ jobproperties.TrkDetDescrJobProperties.add_JobProperty(PixelEndcapLayerMaterialB
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(PixelEndcapOverlapLocalCoordsCheck)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(PixelEndcapOverlapFractionLocal1)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(PixelEndcapOverlapFractionLocal2)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(PixelRingLayout)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(PixelSplitMode)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(PixelBuildingOutputLevel)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(SCT_BarrelLayerDynamicExtend)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(SCT_BarrelLayerExtend)
@@ -745,6 +809,7 @@ jobproperties.TrkDetDescrJobProperties.add_JobProperty(SCT_EndcapLayerDynamicRin
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(SCT_EndcapOverlapLocalCoordsCheck)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(SCT_EndcapOverlapFractionLocal1)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(SCT_EndcapOverlapFractionLocal2)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(SCT_SplitMode)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(SCT_BuildingOutputLevel)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(TRT_BuildStrawLayers)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(TRT_BarrelLayerMaterialBinsZ)
@@ -760,6 +825,8 @@ jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetPassiveLayerMaterial
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetBuildMaterialBoundaries)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetBuildJointBoundaries)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetContainerName)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetStagedGeometryBuilder)
+jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetBuildingHelperOutputLevel)
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(InDetBuildingOutputLevel)
 # Calorimeter setting
 jobproperties.TrkDetDescrJobProperties.add_JobProperty(LArUseCaloSurfBuilder)

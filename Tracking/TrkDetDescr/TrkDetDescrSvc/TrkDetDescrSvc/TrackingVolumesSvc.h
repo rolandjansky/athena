@@ -11,9 +11,10 @@
 
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkDetDescrUtils/LayerIndex.h"
-#include "GaudiKernel/Service.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaBaseComps/AthService.h"
 #include <string>
 #include <vector>
 
@@ -35,7 +36,7 @@ namespace Trk {
    
       @author Andreas.Salzburger@cern.ch, Edward.Moyse@cern.ch
    */
-  class TrackingVolumesSvc : public Service, virtual public ITrackingVolumesSvc {
+  class TrackingVolumesSvc : public AthService, virtual public ITrackingVolumesSvc {
   
     public:
   
@@ -74,7 +75,7 @@ namespace Trk {
     
     private:
         
-      StoreGateSvc*                               m_pDetStore;
+      ServiceHandle<StoreGateSvc>                 m_pDetStore;
   
       //!< the cached volumes
       std::vector<const Trk::Volume*>             m_volumes;
