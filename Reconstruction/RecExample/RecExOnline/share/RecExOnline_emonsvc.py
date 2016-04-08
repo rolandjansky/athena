@@ -122,9 +122,10 @@ ByteStreamEmonInputSvc.ClearHistograms = True
 # A regular expression to restrict which histograms are published.
 # Default: no selection - include all, exclude none
 # ####################################################
-if (isGlobalMonitoring):
-    ByteStreamEmonInputSvc.Include = '/SHIFT/.*'
-    ByteStreamEmonInputSvc.Exclude = '/EXPERT/.*'
+# AK: 11-07-2014 in rel.19 SHIFT and EXPERT histogram folders are disabled. This means that no histograms are published, since SHIFT is enabled and EXPERT disabled.
+#if (isGlobalMonitoring):
+#    ByteStreamEmonInputSvc.Include = '/SHIFT/.*'
+#    ByteStreamEmonInputSvc.Exclude = '/EXPERT/.*'
 
 # ###############################################
 # Frequency of updates (in number of events, not secs...)

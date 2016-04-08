@@ -12,7 +12,8 @@ keycount          = 250
 buffersize        = 10
 updateperiod      = 200
 timeout           = 600000
-keyname           = 'CompleteEvent'
+#keyname           = 'CompleteEvent'
+keyname           = 'dcm'
 # keyname           = 'SFI'
 #streamName        ='CosmicCalo_physics'
 streamName        ='express_express'
@@ -23,8 +24,9 @@ evtMax            = 500
 ## ------------------------------------------- flags set in: RecExOnline_emonsvc.py (from RecExOnline_jobOptions.py)                    
 import os
 partitionName   = os.environ.get("TDAQ_PARTITION", "TestDataProvider_TCT")
+#"TestPartitionGlobalMonitoring" 
 
-publishName     = 'GM_test_18.1.2.1'
+publishName     = 'GM_test_19.1.0.1'
 isserverName    = 'Histogramming'
 
 ## ------------------------------------------- flags set in: RecExOnline_globalconfig.py  (from RecExOnline_jobOptions.py)
@@ -49,10 +51,11 @@ IOVDbSvcMessage   = False
 
 abortonuncheckedstatuscode = False
 
+
 ## ------------------------------------------ flags set in: RecExOnline_recoflags.py (from RecExOnline_jobOptions.py)
 doAllReco   = True
 doInDet     = doAllReco
-doMuon      = doAllReco
+doMuon      = doAllReco #False
 doLArg      = doAllReco
 doTile      = doAllReco
 doTrigger   = False
@@ -66,13 +69,23 @@ doEgammaTau = doAllReco
 ## ------------------------------------------ flags set in : RecExOnline_monitoring.py (from from RecExOnline_jobOptions.py)
 doAllMon  = True
 doCaloMon = doAllMon
+doTileMon = doAllMon #AK: new since 09 july 2014 (M4)
 doPhysMon = doAllMon
 doTrigMon = False
 doIDMon   = doAllMon
 doTRTMon  = doAllMon
-doMuonMon = doAllMon
+doMuonMon = False #doAllMon
 
 ## ------------------------------------------ flags set in : RecExOnline_postconfig.py    (called from RecExOnline_jobOptions.py)
+
+#### CHANGES TO GET 19.1.0.1 RECO WORKING (M4)
+from AthenaMonitoring.DQMonFlags import DQMonFlags
+DQMonFlags.doMuonCombinedMon.set_Value_and_Lock(False)
+DQMonFlags.doMuonPhysicsMon.set_Value_and_Lock(False)
+#DQMonFlags.doJetTagMon.set_Value_and_Lock(False)
+#DQMonFlags.doCaloMon.set_Value_and_Lock(False)
+#DQMonFlags.doPixelMon.set_Value_and_Lock(False)
+
 
 ## main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")

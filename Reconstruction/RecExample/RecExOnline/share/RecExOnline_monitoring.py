@@ -44,6 +44,9 @@ if (not 'doLucidMon' in dir()):
 if (not 'isOnline' in dir()):
   isOnline = False
 
+if (not 'doTileMon' in dir()):
+  doTileMon = False #doAllMon
+
 ## if ('isGlobalMonitoring' not in dir()):
 ##     isGlobalMonitoring = False
 
@@ -56,7 +59,8 @@ if isOnline and useEmon:
   DQMonFlags.monManFileKey = 'ourGLOBAL'                                   # must use a different stream w.r.t what sets in DQ steering JO
   DQMonFlags.monManEnvironment.set_Value_and_Lock('online')
 
-DQMonFlags.monManDataType.set_Value_and_Lock('data')
+#DQMonFlags.monManDataType.set_Value_and_Lock('data')
+DQMonFlags.monManDataType.set_Value_and_Lock('cosmics')
 
 orMon = doAllMon or doCaloMon or doPhysMon or doIDMon or doMuonMon or doTRTMon or doCTPMon or doLucidMon or doSCTMon or doPixelOnlyMon or doLVL1CaloMon or doHLTMon
 DQMonFlags.doMonitoring.set_Value_and_Lock(orMon)
@@ -66,7 +70,7 @@ rec.doMonitoring.set_Value_and_Lock(orMon)
 
 # ******************* Calorimeter Monitorings
 DQMonFlags.doLArMon.set_Value_and_Lock(doCaloMon)
-DQMonFlags.doTileMon.set_Value_and_Lock(False)
+DQMonFlags.doTileMon.set_Value_and_Lock(doTileMon) #False)
 
 # ******************* Physics Monitorings
 DQMonFlags.doMissingEtMon.set_Value_and_Lock(doPhysMon)
@@ -103,7 +107,7 @@ MuonDQADetFlags.doTGCMon.set_Value_and_Lock(False)
 MuonDQADetFlags.doTGCL1Mon.set_Value_and_Lock(False)
 MuonDQADetFlags.doMDTTGCL1Mon.set_Value_and_Lock(False)
 
-DQMonFlags.doMuonRawMon.set_Value_and_Lock(doMuonMon)
+DQMonFlags.doMuonRawMon.set_Value_and_Lock(False) #AK - 04/07/2014 doMuonMon)
 DQMonFlags.doMuonSegmentMon.set_Value_and_Lock(doMuonMon)
 DQMonFlags.doMuonTrackMon.set_Value_and_Lock(doMuonMon)
 

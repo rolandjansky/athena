@@ -55,6 +55,11 @@ doMuonMon = doAllMon
 
 ## ------------------------------------------ flags set in : RecExOnline_postconfig.py    (called from RecExOnline_jobOptions.py)
 
+#### CHANGES TO GET 19.1.0.1 RECO WORKING (M4)
+from AthenaMonitoring.DQMonFlags import DQMonFlags
+DQMonFlags.doMuonCombinedMon.set_Value_and_Lock(False)
+DQMonFlags.doMuonPhysicsMon.set_Value_and_Lock(False)
+
 ## main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")
 

@@ -106,6 +106,9 @@ except:
 ### remember flags to set this correctly via default
 from AthenaCommon.BFieldFlags import jobproperties
 
+FirstSample = 3
+NSamples = 5
+
 #if (useEmon and (partitionName == 'ATLAS' or partitionName == 'TDAQ')):
 if (useEmon and (partitionName == 'ATLAS')):
     import ispy
@@ -149,39 +152,27 @@ if (useEmon and (partitionName == 'ATLAS')):
     logRecExOnline_globalconfig.info("solenoidCurrent = %f", solenoidCurrent.value)
     logRecExOnline_globalconfig.info("solenoidInvalid = %f", solenoidInvalid.value)
     
-    
- 
     from BFieldAth.BFieldAthConf import MagFieldAthenaSvc
     svcMgr += MagFieldAthenaSvc(SetupCOOL=True, NameOfTheSource='COOL_HLT', onlineSolCur=solenoidCurrent.value, onlineTorCur=toroidCurrent.value)
 
 ## # ---> AK
 ## # LArMon stuff
 ## # CaloMon problems of setting up FirstSample
-## try:
 ##     import ispy
 ##     from ispy import *
 ##     from ipc import IPCPartition
 ##     from ispy import ISObject
 
-##     p3 = IPCPartition("ATLAS")
-##     x = ISObject(p3, 'LargParams.LArg.RunLogger.GlobalParams', 'GlobalParamsInfo')
-## except:
-##     logRecExOnline_globalconfig.info("Could not find IS Parameters for LargParams.LArg.RunLogger.GlobalParams - Set default flags (FirstSample=3, NSamples=5")
-##     # print "Could not find IS Parameters for LargParams.LArg.RunLogger.GlobalParams - Set default flags (FirstSample=3, NSamples=5) "
-##     FirstSample = 3
-##     NSamples = 5
-## else:
-##     try:
-##         x.checkout()
-##     except:
-##         logRecExOnline_globalconfig.info("Could not find IS Parameters for LargParams.LArg.RunLogger.GlobalParams - Set default flags: FirstSample=3, NSamples=5")
-##         #print Couldn not find IS Parameters - Set default flag"
-##         FirstSample = 3
-##         NSamples = 5
-##     else:
-##         FirstSample = x.firstSample
-##         NSamples = x.nbOfSamples
-## # ---> AK
+    try:
+        p3 = IPCPartition("ATLAS")
+        x = ISObject(p3, 'LargParams.LArg.RunLogger.GlobalParams', 'GlobalParamsInfo')
+        x.checkout()
+        FirstSample = x.firstSample
+        NSamples = x.nbOfSamples
+    except:
+        logRecExOnline_globalconfig.info("Could not find IS Parameters for LargParams.LArg.RunLogger.GlobalParams - Set default flags (FirstSample=3, NSamples=5")
+ 
+# ---> AK
           
 
 # ----------------------------------------------- Set Run configuration
@@ -279,6 +270,18 @@ if (isOnline and not useEmon):
     logRecExOnline_globalconfig.info(" Running with isOnline=True with autoconfiguration = FieldAndGeo, ConditionsTag, BeamType (taken from P1 job)")
 
 
+
+#### CHANGES TO GET 19.1.0.1 RECO WORKING (M4)
+# Default to COMP200 rather than CONDBR2
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DatabaseInstance = "COMP200"
+
+## Another Problem with LAR offline databases
+from LArConditionsCommon.LArCondFlags import larCondFlags
+#larCondFlags.SingleVersion.set_Value_and_Lock(True)
+larCondFlags.OFCShapeFolder.set_Value_and_Lock("")
+larCondFlags.ua2MeVFolder.set_Value_and_Lock("")
+larCondFlags.MphysOverMcalFolder.set_Value_and_Lock("")
 
 
 rec.doESD.set_Value_and_Lock(doESD)

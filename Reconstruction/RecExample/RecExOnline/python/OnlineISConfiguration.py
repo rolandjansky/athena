@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+import ispy
+
 def GetRunType():
   """Get the run type by reading the run-type setting in the partition from IS """
 

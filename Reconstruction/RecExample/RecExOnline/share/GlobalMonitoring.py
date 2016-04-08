@@ -66,11 +66,11 @@ pickleconfigfile  = './ami_recotrf.pickle'
 DataSource        = 'data'
 InputFormat       = 'bytestream'
 fileName          = './0.data'
-#beamType          = 'cosmics'  #AK: 21-05-2014
-beamType          = 'collisions'  #AK: 21-05-2014
+beamType          = 'cosmics'  #AK: 21-05-2014
+#beamType          = 'collisions'  #AK: 21-05-2014
 
 #COND tag and GEO are needed for running over a test partition online
-ConditionsTag     = 'COMCOND-HLTP-004-01'
+ConditionsTag     = 'COMCOND-HLTP-004-03' #AK was -01
 DetDescrVersion   = 'ATLAS-GEO-20-00-01'
 
 doESD             = True
@@ -98,14 +98,31 @@ doEgammaTau = doAllReco
 ## ------------------------------------------ flags set in : RecExOnline_monitoring.py (from from RecExOnline_jobOptions.py)
 doAllMon  = True
 doCaloMon = doAllMon
-doPhysMon = doAllMon
+doTileMon = doAllMon
+doPhysMon = False #doAllMon
 doTrigMon = False
 doIDMon   = doAllMon
 doTRTMon  = doAllMon
-doMuonMon = doAllMon
+doMuonMon = False #doAllMon #AK: 10-07-2014 RpcClusterization errors
 doCTPMon  = False #doAllMon #AK: 25-01-2014
 
 ## ------------------------------------------ flags set in : RecExOnline_postconfig.py    (called from RecExOnline_jobOptions.py)
+
+
+#### CHANGES TO GET 19.1.0.1 RECO WORKING
+from AthenaMonitoring.DQMonFlags import DQMonFlags
+DQMonFlags.doMuonCombinedMon.set_Value_and_Lock(False)
+DQMonFlags.doMuonPhysicsMon.set_Value_and_Lock(False)
+DQMonFlags.doJetTagMon.set_Value_and_Lock(False)
+#DQMonFlags.doCaloMon.set_Value_and_Lock(False)
+#DQMonFlags.doPixelMon.set_Value_and_Lock(False)
+
+from RecExConfig.RecFlags import rec
+rec.doJetMissingETTag.set_Value_and_Lock(False) 
+#from AthenaCommon.AthenaCommonFlags import jobproperties,athenaCommonFlags
+#jobproperties.JetRecFlags.Enabled.set_Value(False)
+from tauRec.tauRecFlags import jobproperties
+jobproperties.tauRecFlags.doTauRec = False 
 
 ## main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")

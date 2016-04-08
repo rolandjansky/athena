@@ -11,19 +11,19 @@ keycount          = 10
 buffersize        = 10
 updateperiod      = 200
 timeout           = 240000
-keyname           = 'SFI'
+keyname           = 'dcm'
 streamName        = 'L1Calo'
 streamLogic       = 'Ignore'
 
 useAtlantisEmon   = False
-evtMax            = 500
+evtMax            = -1
 
 ## ------------------------------------------- flags set in: RecExOnline_emonsvc.py (from RecExOnline_jobOptions.py)                    
 import os
-partitionName = os.environ.get("TDAQ_PARTITION", "TestDataProvider_TCT")
+partitionName = os.environ.get("TDAQ_PARTITION", "TestPartitionGlobalMonitoring")
 
-publishName     = 'Global_PT'
-isserverName    = 'Histogramming'
+publishName     = 'CombinedInDet_rel19'
+isserverName    = 'Histogramming-CombinedInDet-1-iss'
 
 ## ------------------------------------------- flags set in: RecExOnline_globalconfig.py  (from RecExOnline_jobOptions.py)
 #read the pickle file if you want to use the AMI tag info
@@ -35,12 +35,12 @@ InputFormat       = 'bytestream'
 #fileName         = './0.data'
 
 #COND tag and GEO are needed for running over a test partition or against ATLAS cosmics, calib
-ConditionsTag     = 'COMCOND-HLTP-004-01'
+ConditionsTag     = 'COMCOND-HLTP-004-03'
 DetDescrVersion   = 'ATLAS-GEO-20-00-01'
 beamType = 'collisions'
 
 doESD             = True
-writeESD          = True
+writeESD          = False
 doAOD             = False
 writeAOD          = False
 IOVDbSvcMessage   = False
@@ -67,10 +67,15 @@ doCaloMon = doAllMon
 doPhysMon = doAllMon
 doTrigMon = False
 doIDMon   = True
-doTRTMon  = doAllMon
+doTRTMon  = True
 doMuonMon = doAllMon
 
 ## ------------------------------------------ flags set in : RecExOnline_postconfig.py    (called from RecExOnline_jobOptions.py)
+
+# Print out InDet
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doPrintConfigurables.set_Value_and_Lock(True)
+InDetFlags.doTrackSegmentsPixel.set_Value_and_Lock(True)
 
 ## main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")
