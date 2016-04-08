@@ -8,17 +8,13 @@
 #ifndef CALOTOPOCLUSTERISOLATIONTOOLS_ICALOTOPOCLUSTERISOLATIONTOOL_H
 #define CALOTOPOCLUSTERISOLATIONTOOLS_ICALOTOPOCLUSTERISOLATIONTOOL_H
 
-#include "GaudiKernel/IAlgTool.h"
+#include "AsgTools/AsgTool.h"
 #include "xAODPrimitives/IsolationType.h"
 #include "xAODBase/IParticle.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "IsolationCommon.h"
 
-//class CaloClusterContainer;
-
 namespace xAOD {
-
-  static const InterfaceID IID_ICaloTopoClusterIsolationTool("xAOD::ICaloTopoClusterIsolationTool", 1, 0);
 
   /** @class ICaloTopoClusterIsolationTool
       @brief interface for tools calculating topo cluster isolation
@@ -26,13 +22,13 @@ namespace xAOD {
       @author Niels van Eldik, Sandrine Laplace
    */
 
-  class ICaloTopoClusterIsolationTool : virtual public IAlgTool {
+  class ICaloTopoClusterIsolationTool : virtual public asg::IAsgTool {
+    ASG_TOOL_INTERFACE( xAOD::ICaloTopoClusterIsolationTool )
   public:
 
-    static const InterfaceID& interfaceID( ) ;
-
-
     /**ICaloTopoClusterIsolationTool interface for cluster isolation: 
+       The tool expects the cones to be order in decreasing order (topetcone40 -> topoetcone20)
+       Internally it reorders the cones so the output isolation values are also in the same order. 
        @param[in] result    output object to be filled
        @param[in] tp        input iparticle
        @param[in] cones     vector of input cones to be used
@@ -45,16 +41,21 @@ namespace xAOD {
 					  CaloCorrection corrections, 
 					  const CaloClusterContainer* container = 0 ) = 0;
 
+    /**ICaloTopoClusterIsolationTool interface for calculating cluster isolation variables and decorating the particle: 
+       The tool expects the cones to be order in decreasing order (topetcone40 -> topoetcone20)
+       Internally it reorders the cones so the output isolation values are also in the same order. 
+       @param[in] tp        input iparticle
+       @param[in] cones     vector of input cones to be used
+       @param[in] corrections bitset specifying which corrections to apply to isolation
+       @param[in] container topo cluster contrainer (for trigger only)
+       @return true if the calculation and decoration was successfull
+    */
     virtual bool decorateParticle_topoClusterIso(IParticle& tp,
                                                  const std::vector<Iso::IsolationType>& cones,
                                                  CaloCorrection corrections,
                                                  const CaloClusterContainer* TopClusters = 0) =0; 
   };
   
-  inline const InterfaceID& ICaloTopoClusterIsolationTool::interfaceID() { 
-    return IID_ICaloTopoClusterIsolationTool; 
-  }
-
 } // end of namespace
 
 #endif 
