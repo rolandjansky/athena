@@ -71,7 +71,7 @@ LArAutoCorrSubsetCnv_p1::persToTrans(const LArAutoCorrPersType* persObj,
                     log << MSG::ERROR 
                         << "LArAutoCorrSubsetCnv_p1::persToTrans - autocorr index too large: autocorr/size " 
                         << autocorrIndex << " " << persObj->m_vAutoCorr.size() << " " 
-                        << endmsg;
+                        << endreq;
                     return;
                 }
 
@@ -115,7 +115,7 @@ LArAutoCorrSubsetCnv_p1::persToTrans(const LArAutoCorrPersType* persObj,
             log << MSG::ERROR 
                 << "LArAutoCorrSubsetCnv_p1::persToTrans - autocorr index too large: autocorr/size " 
                 << autocorrIndex << " " << persObj->m_vAutoCorr.size() << " " 
-                << endmsg;
+                << endreq;
             return;
         }
         transObj->m_correctionVec[i].first = persObj->m_subset.m_corrChannels[i];
@@ -191,7 +191,7 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
         if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
             log << MSG::ERROR 
                 << "LArAutoCorrSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
-                << endmsg;
+                << endreq;
             return;
         }
         if (nfebChans) ++nsubsetsNotEmpty; // count number of non-empty subsets
@@ -276,7 +276,7 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
                     if (j < chansOffset || (j - chansOffset) > 31) {
                         log << MSG::ERROR 
                             << "LArAutoCorrSubsetCnv_p1::transToPers - incorrect channel indexing: j, chansOffset: " << j << " " << chansOffset
-                            << endmsg;
+                            << endreq;
                     }
                     chansSet |= (1 << (j - chansOffset));
                 }
@@ -303,7 +303,7 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
                 }
 		if (tooSmall)
 		  log << MSG::ERROR << "Feb 0x" << std::hex << febid << std::dec << " channel " << j <<": AutoCorr object too small. Expected " 
-		      << nAutoCorrs << " entries. Padded with 0.0" << endmsg;
+		      << nAutoCorrs << " entries. Padded with 0.0" << endreq;
 	    }
 //             static unsigned int nch = 0;
 //             ++nch;
@@ -332,7 +332,7 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
         }
 	if (tooSmall)
 	  log << MSG::ERROR << "Correction index "<< i <<"(channel 0x" << std::hex << transObj->m_correctionVec[i].first << std::dec <<  
-	    "): AutoCorr object too small. Expected " << nAutoCorrs << " entries. Padded with 0.0" << endmsg;
+	    "): AutoCorr object too small. Expected " << nAutoCorrs << " entries. Padded with 0.0" << endreq;
     }
     // Copy the rest
     persObj->m_subset.m_gain          = transObj->m_gain; 

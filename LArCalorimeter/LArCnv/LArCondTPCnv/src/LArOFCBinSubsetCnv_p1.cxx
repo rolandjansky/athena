@@ -64,7 +64,7 @@ LArOFCBinSubsetCnv_p1::transToPers(const OFCBinTransType* transObj,
     if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
       log << MSG::ERROR 
 	  << "LArOFCBinSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
-	  << endmsg;
+	  << endreq;
       return;
     }
     if (nfebChans) ++nsubsetsNotEmpty; // count number of non-empty subsets
