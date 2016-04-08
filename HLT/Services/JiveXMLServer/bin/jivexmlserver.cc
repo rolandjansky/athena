@@ -46,7 +46,7 @@ int main(int argc, char ** argv)
   cmd.parse(arg_iter);
 
   //Say hello
-  ERS_INFO("Starting JiveXML server in partition: "<< partition_name )
+  ERS_INFO("Starting JiveXML server in partition: "<< partition_name );
   
   //Create the object and start the server
   JiveXML::JiveXMLServer server;
