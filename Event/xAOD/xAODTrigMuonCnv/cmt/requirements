@@ -1,18 +1,21 @@
 package xAODTrigMuonCnv
 
 author Mark Owen (markowen@cern.ch)
+author Stefano Giagu (stefano.giagu@cern.ch)
 
 use  AtlasPolicy		AtlasPolicy-*
+use  GaudiInterface		GaudiInterface-*                External
 
 public
 use  xAODMuon                   xAODMuon-*                      Event/xAOD
 use  xAODTracking               xAODTracking-*                  Event/xAOD
+use  xAODTrigMuon               xAODTrigMuon-*                  Event/xAOD
 
 private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AthenaKernel               AthenaKernel-*                  Control
 use  DataModel       		DataModel-*         		Control
 use  FourMomUtils		FourMomUtils-*			Event
-use  GaudiInterface		GaudiInterface-*                External
 use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
 end_private
 
