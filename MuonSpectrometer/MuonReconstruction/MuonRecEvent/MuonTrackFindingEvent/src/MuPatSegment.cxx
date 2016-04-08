@@ -101,6 +101,7 @@ namespace Muon {
       stIndex = info.stIndex;
       isEndcap = info.isEndcap;
       isMdt = info.isMdt;
+      if(mboyInfo) delete mboyInfo;
       if (!info.mboyInfo){
         mboyInfo = 0;
       } else {
