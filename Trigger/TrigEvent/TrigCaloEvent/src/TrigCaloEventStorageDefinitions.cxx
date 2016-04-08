@@ -19,6 +19,7 @@
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloTopoTowerContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
+#include "xAODTrigCalo/TrigCaloClusterContainer.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODTrigRinger/TrigRNNOutputContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"

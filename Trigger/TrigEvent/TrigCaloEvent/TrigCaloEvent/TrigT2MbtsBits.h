@@ -20,7 +20,8 @@ class TrigT2MbtsBits {
 
  public:
   TrigT2MbtsBits(void);
-  TrigT2MbtsBits(std::vector<float> triggerEnergies, std::vector<float> triggerTimes);
+  TrigT2MbtsBits(const std::vector<float>& triggerEnergies,
+                 const std::vector<float>& triggerTimes);
   ~TrigT2MbtsBits(void);
 
   /** Return the trigger energies of each counter */

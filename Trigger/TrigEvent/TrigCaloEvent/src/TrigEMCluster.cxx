@@ -132,11 +132,21 @@ void TrigEMCluster::setRings(const RingerRingsContainer &ring_con, unsigned int 
 	}
 }
 
+void TrigEMCluster::setRings(const ElementLink<RingerRingsContainer>& ringsLink)
+{
+  m_rings = ringsLink;
+}
+
 const RingerRings *TrigEMCluster::rings() const {
 	if (m_rings.isValid()) {
 		return *m_rings;
 	}
 	return 0;
+}
+
+const ElementLink<RingerRingsContainer>& TrigEMCluster::ringsLink() const
+{
+  return m_rings;
 }
 
 // stream output

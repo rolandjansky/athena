@@ -32,18 +32,18 @@ bool operator== ( const TrigT2Jet& a, const TrigT2Jet& b ) {
 
    const double DELTA=1e-3; // distance used to compare floats
 
-  if ( fabsf(a.e() - b.e()) > DELTA)         return false;
-  if ( fabsf(a.ehad0() - b.ehad0()) > DELTA) return false;
-  if ( fabsf(a.eem0() - b.eem0()) > DELTA)   return false;
-  if ( fabsf(a.eta() - b.eta()) > DELTA)     return false;
-  if ( fabsf(a.phi() - b.phi()) > DELTA)     return false;
+  if ( std::abs(a.e() - b.e()) > DELTA)         return false;
+  if ( std::abs(a.ehad0() - b.ehad0()) > DELTA) return false;
+  if ( std::abs(a.eem0() - b.eem0()) > DELTA)   return false;
+  if ( std::abs(a.eta() - b.eta()) > DELTA)     return false;
+  if ( std::abs(a.phi() - b.phi()) > DELTA)     return false;
   if( a.RoIword() != b.RoIword() )          return false;
 	// Cleaning:
   if( a.nLeadingCells() != b.nLeadingCells() )              return false;
-  if( fabsf(a.hecf() - b.hecf()) > DELTA )                  return false;
-  if( fabsf(a.jetQuality() - b.jetQuality()) > DELTA )      return false;
-  if( fabsf(a.emf() - b.emf()) > DELTA )                    return false;
-  if( fabsf(a.jetTimeCells() - b.jetTimeCells()) > DELTA )  return false;
+  if( std::abs(a.hecf() - b.hecf()) > DELTA )                  return false;
+  if( std::abs(a.jetQuality() - b.jetQuality()) > DELTA )      return false;
+  if( std::abs(a.emf() - b.emf()) > DELTA )                    return false;
+  if( std::abs(a.jetTimeCells() - b.jetTimeCells()) > DELTA )  return false;
    
 
    return true;

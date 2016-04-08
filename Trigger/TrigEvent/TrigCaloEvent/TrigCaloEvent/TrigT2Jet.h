@@ -54,7 +54,8 @@ class TrigT2Jet : public P4EEtaPhiMBase,  public NavigableTerminalNode ,
 
   /** Trig3Momentum entities making part of Jet are
 	stored in a grid */
-  std::vector<Trig3Momentum>* grid()  const {  return m_grid; }
+        std::vector<Trig3Momentum>* grid()        {  return m_grid; }
+  const std::vector<Trig3Momentum>* grid()  const {  return m_grid; }
   
   // Cleaning:
   /** Return nLeadingCells (e.g. n90) */

@@ -21,7 +21,10 @@ class TrigT2ZdcSignals {
 
  public:
   TrigT2ZdcSignals(void);
-  TrigT2ZdcSignals(std::vector<float> triggerEnergies, std::vector<float> triggerTimes);
+  TrigT2ZdcSignals(const std::vector<float>& triggerEnergies,
+                   const std::vector<float>& triggerTimes);
+  TrigT2ZdcSignals(std::vector<float>&& triggerEnergies,
+                   std::vector<float>&& triggerTimes);
   ~TrigT2ZdcSignals(void);
 
   /** Return the trigger energies of each counter */
