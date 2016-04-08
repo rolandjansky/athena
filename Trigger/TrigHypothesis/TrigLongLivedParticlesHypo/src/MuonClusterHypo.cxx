@@ -9,10 +9,9 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigMuonEvent/TrigMuonClusterFeature.h"
 #include "TrigLongLivedParticlesHypo/MuonClusterHypo.h"
-
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "xAODTrigger/TrigComposite.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -55,14 +54,14 @@ HLT::ErrorCode MuonClusterHypo::hltInitialize(){
   if(m_acceptAll) {
    if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG
-            << "Accepting all the events with not cut!"
+            << "Accepting all the events with no cuts!"
             << endreq;
    }
   } else {
     if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG
-            << "Selection of muon RoI clusters in |eta|< " << m_nEta << " with number of RoI >= " << m_nRoIBarrel << " in Barrel and >= " <<m_nRoIEndCap << " in EndCap "  
-            << " and " << m_nJet << " Jets with Log(H/E)<1 and " << m_nTrk << " Tracks in ID" 
+            << "Selecting muon RoI clusters with |eta|< " << m_nEta << ", number of RoIs >= " << m_nRoIBarrel << " if in Barrel and >= " <<m_nRoIEndCap << " if in EndCap "  
+            << " and " << m_nJet << " Jets with Log(H/E)<=0.5 and " << m_nTrk << " Tracks in ID within isolation cone" 
             << endreq; 
     }
   }
@@ -115,31 +114,66 @@ HLT::ErrorCode MuonClusterHypo::hltExecute(const HLT::TriggerElement* outputTE, 
        msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
      }
 
-     // Get TrigMuonClusterFeature linked to the outputTE 
-     const TrigMuonClusterFeature* MuonClust(0);
-     HLT::ErrorCode status = getFeature(outputTE,  MuonClust);
-     if(status!=HLT::OK) {
+     // Get the TrigCompositeContainer linked to the outputTE
+     // it contains the Muon RoI Cluster information
+     
+     const xAOD::TrigCompositeContainer *compCont(0);
+     HLT::ErrorCode status = getFeature(outputTE, compCont);
+     if(status != HLT::OK){
+         if(msgLvl() <= MSG::DEBUG) {
+           msg() << MSG::DEBUG << "no TrigCompositeContainer feature found" << endreq;
+         }
+         return status;
+      } else {
         if(msgLvl() <= MSG::DEBUG) {
-          msg() << MSG::DEBUG << "no TrigMuonClusterFeature found" << endreq;
+          msg() << MSG::DEBUG << "TrigCompositeContainer feature retrieved" << endreq;
         }
-        return status;
-     } else {
-       if(msgLvl() <= MSG::DEBUG) {
-         msg() << MSG::DEBUG << "TrigMuonClusterFeature retrieved" << endreq;
-       }
      }
-
-     //Requirements
-     int numberRoI = MuonClust->getNRoi();
-     int numberJet = MuonClust->getNJet();
-     int numberTrk = MuonClust->getNTRK();
-     double etaClust = MuonClust->getEta();
-     double phiClust = MuonClust->getPhi();
+     if(msgLvl() <= MSG::DEBUG) {
+    	 msg() << MSG::DEBUG << "Found  " << compCont->size() << " TrigComposite objects" << endreq;
+     }
+     int numberRoI = 0;
+     int numberJet = 0;
+     int numberTrk = 0;
+     float etaClust = -99;
+     float phiClust = -99;
+     
+     bool foundMuonRoICluster = false;
+     
+     for(const xAOD::TrigComposite * compObj : *compCont) {
+         if(msgLvl() <= MSG::DEBUG) {
+        	 msg() << MSG::DEBUG << "TrigComposite ptr = " << (void*)compObj << endreq;
+         }
+    	 for(const string & collName : compObj->linkColNames()) {
+    	     if(msgLvl() <= MSG::DEBUG) {
+    	    	 msg() << MSG::DEBUG << "    link to collection " << collName << endreq;
+    	     }
+    	 }         
+         if(msgLvl() <= MSG::DEBUG) {
+             msg() << MSG::DEBUG << "Found object named Cluster : " << (compObj->name()== "Cluster" ? "yes":"no") << endreq;
+         }
+    	 if(compObj->name() == "Cluster" ) {
+    		 foundMuonRoICluster = true; 
+    		 //if we can't access all the variables necessary for the trigger hypothesis, 
+    		 //return MISSING_FEATURE, because it means the variables are missing
+    		 if(!compObj->getDetail("nRoIs", numberRoI)) { return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE); }
+    		 if(!compObj->getDetail("nJets", numberJet)) { return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE); }
+    		 if(!compObj->getDetail("nTrks", numberTrk)) { return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE); }
+    		 if(!compObj->getDetail("ClusterEta", etaClust)) { return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE); }
+    		 if(!compObj->getDetail("ClusterPhi", phiClust)) { return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE); }
+    		 
+    	      /*ATH_MSG_DEBUG("Cluster has " << numberRoI << " muon RoIs, at eta=" << etaClust 
+    		     << " and phi=" << phiClust << " and matches " << numberJet << " Jets with Log(H/E)" 
+    		     << " and " << numberTrk << " tracks in ID");*/
+       	 }
+     }
+     
+     if( !foundMuonRoICluster ) { return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);}
 
      if(msgLvl() <= MSG::DEBUG) {
        msg() << MSG::DEBUG
              << "Cluster has " << numberRoI << " muon RoIs, at eta=" << etaClust 
-	     << " and phi=" << phiClust << " and matches " << numberJet << " Jets with Log(H/E)" 
+	     << " and phi=" << phiClust << " and matches " << numberJet << " Jets with Log(H/E) <= 0.5 " 
 	     << " and " << numberTrk << " tracks in ID" << endreq;
       }
 
@@ -156,7 +190,7 @@ HLT::ErrorCode MuonClusterHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 	       if(msgLvl() <= MSG::DEBUG) {
 	         msg() << MSG::DEBUG
 		       << "Cluster passes barrel selection cuts of > " << m_nRoIBarrel << " RoIs and " 
-		       << m_nJet << " Jets with Log(H/E)<1 and " << m_nTrk << " tracks in ID... event accepted"
+		       << m_nJet << " Jets with Log(H/E)<=0.5 and " << m_nTrk << " tracks in ID... event accepted"
 		       << endreq;
 	       }
 	       
@@ -171,7 +205,7 @@ HLT::ErrorCode MuonClusterHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 	         if(msgLvl() <= MSG::DEBUG) {
 	           msg() << MSG::DEBUG
 	  		       << "Cluster passes endcap selection cuts of > " << m_nRoIEndCap << " RoIs and " 
-	  		       << m_nJet << " Jets with Log(H/E)<1 and " << m_nTrk << " tracks in ID... event accepted"
+	  		       << m_nJet << " Jets with Log(H/E)<=0.5 and " << m_nTrk << " tracks in ID... event accepted"
 	  		       << endreq;
 	       }
 	     
