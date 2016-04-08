@@ -1,0 +1,109 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_cachescan 
+# ----------------------------------------------------------
+
+command=1
+definition=0
+if [ ! -d ${NICOS_WORK_AREA} ]; then mkdir ${NICOS_WORK_AREA}; fi
+if [ -f ${NICOS_WORK_AREA}/cache_scan_result ]; then
+rm ${NICOS_WORK_AREA}/cache_scan_result
+fi
+touch ${NICOS_WORK_AREA}/cache_scan_result
+
+while [ `echo $1 | cut -c1` = "-" ]
+do
+        case $1 in
+            -c) command=1;definition=0;;
+            -d) command=0;definition=1;;
+        esac
+shift
+done
+
+if [ "$#" -ne 2 ]; then
+    echo "nicos_cachescan: two arguments are required, instead $# specified"
+    exit 1
+fi
+
+section=$1
+sect=`echo $section | sed  's/  */ /g'`
+cache=$2
+shift;shift
+if [ ! -f $cache ]; then
+echo "nicos_cachescan: cache file ''$cache'' is not existing"
+exit 1  
+fi
+
+if [ "$command" -eq 1 ]; then
+
+label=0
+label_bypass=0
+cat $cache | while read line
+do
+echo "$line" | grep "^<" | grep -vi "^<bypass" | grep -vi "^</bypass" > /dev/null; stt=$?  
+echo "$line" | grep -i "^<bypass" > /dev/null; sbp=$?
+echo "$line" | grep -i "^</bypass" > /dev/null; sbpend=$?
+#echo $line
+#echo "DDD $stt DDD $sbp DDD $sbpend DDD $label $label_bypass"
+    if [ "$label" -eq 1 -a "$stt" -eq 0 ]; then 
+    if [ "$label_bypass" -eq 1 ]; then
+      label_bypass=0
+      echo "fi" >> ${NICOS_WORK_AREA}/cache_scan_result
+    fi
+    break 
+    fi
+  if [ "$label" -eq 1 ]; then
+  if [ "`echo $line | grep -v source | grep -v cmt |  grep -v echo | grep -v broadcast | grep -v "^if" | grep -v "fi" | grep -v "stat=" |  grep -v "#" | grep =`" ]; then
+  echo "export ${line}" >> ${NICOS_WORK_AREA}/cache_scan_result
+  elif [ "$sbp" -eq 0 ]; then   
+  label_bypass=1
+  echo "if [ \"\${NICOS_BYPASS}\" != \"yes\" ]; then :;" >> ${NICOS_WORK_AREA}/cache_scan_result 
+  elif [ "$sbpend" -eq 0 ]; then
+  label_bypass=0
+  echo "fi" >> ${NICOS_WORK_AREA}/cache_scan_result
+  else
+  lin=`echo "$line" | sed 's/ *//g'` 
+  if [ "$lin" != "" ]; then  
+  echo "${line}" >> ${NICOS_WORK_AREA}/cache_scan_result
+  fi
+  fi
+  fi
+echo "$line" | sed  's/  */ /g' | grep "^<${sect}" > /dev/null; stat=$?  
+  if [ "$stat" -eq 0 ]; then label=1; fi
+done
+
+fi # if [ "$command" -eq 1 ]; then
+
+if [ "$definition" -eq 1 ]; then
+
+cat $cache | while read line
+do
+
+echo "$line" | sed  's/  */ /g' | grep "^<${sect}" > /dev/null; stat=$? 
+if [ "$stat" -eq 0 ]; then 
+lin=`echo "$line" | sed s/"${sect}"//g | sed 's/[<>]//g' | sed 's/  */ /g'` 
+
+if [ "$lin" != "" -a "$lin" != " " ]; then  
+OIFS=$IFS; IFS=" "; set $lin; IFS=$OIFS
+count=$#
+
+while [ "${loop:=0}" -lt "$count" ]
+do
+loop=$(( loop+1 ))
+echo $1 >> ${NICOS_WORK_AREA}/cache_scan_result; shift
+done
+
+exit 0
+fi
+fi
+done
+
+fi # if [ "$definition" -eq 1 ]; then
+ 
+
+
+

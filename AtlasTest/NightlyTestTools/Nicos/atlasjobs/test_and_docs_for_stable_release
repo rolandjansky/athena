@@ -1,0 +1,140 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+#
+# ----------------------------------------------------------
+# test_and_doc_for_stable_release : name says it all
+# ----------------------------------------------------------
+#
+function show_help() {
+    echo "Usage: test_and_docs_for_stable_release \\"
+    echo "-r <relname> <--opt|--dbg> -d <buildDir> -f <logfile>"
+    echo "This script performs the standard task of testing and creation"
+    echo "of documentation for the stable release located in"
+    echo "/afs/cern.ch/atlas/software/dist area (release must be"
+    echo "already built). NICOS web pages are generated in "
+    echo "/afs/cern.ch/atlas/software/dist/www area." 
+    echo "Mandatory options:"
+    echo " -r | --relnum   name of a stable release, e.g. 10.4.0."
+    echo "                 must exist in /afs/cern.ch/atlas/software/dist"
+    echo " <--opt|--dbg>   compiler option (dbg or opt)"
+    echo " -d | --buildDir full path to build area with logfiles "
+    echo "Optional:" 
+    echo " -f | --log      logfile name, if not supplied then the default "
+    echo "                 is build-i686-slc3-gcc323-<dbg|opt>_*.log"
+}
+ 
+export NICOS_HOME="/afs/cern.ch/atlas/software/dist/nightlies/nicos_1_0"
+WWW_AREA="/afs/cern.ch/atlas/software/dist/www"
+release=""
+option=""
+buildDir=""
+log=""
+
+comname=`basename $0`
+if [ "$comname" = "test_and_docs_for_stable_release" ]; then
+exitcomjob="exit"
+else
+exitcomjob="return"
+fi
+
+while [ $# -ne 0 ]; do
+    case $1 in
+         -r | --relnum)    release=$2; shift;;
+         -d | --buildDir)  buildDir=$2; shift;;
+              --opt)       option="opt";;
+              --dbg)       option="dbg";;      
+         -f | --log)       log=$2; shift;;
+         -* | --*)         show_help; eval ${exitcomjob} 1;;
+    esac
+    shift
+done
+ 
+eval $NICOS_HOME/atlasjobs/test_relname.sh $release; stat=$? 
+if [ "$stat" != "0" ]; then
+echo "test_and_doc_for_stable_release:ERROR: invalid name of stable release"
+show_help; eval ${exitcomjob} 1
+fi
+
+if [ ! -d $buildDir ]; then 
+echo "test_and_doc_for_stable_release:ERROR: dir $buildDir does not exist"
+show_help; eval ${exitcomjob} 1
+fi
+
+if [ "$option" = "" ]; then
+echo "test_and_doc_for_stable_release:ERROR: invalid option (must be dbg or opt)"
+show_help; eval ${exitcomjob} 1
+fi
+
+relnum=`echo $release | sed 's/\.//g'`
+option_c="$option"
+if [ "$option" = "opt" ]; then option_c="Opt"; fi
+if [ "$option" = "dbg" ]; then option_c="Dbg"; fi
+
+NICOS_WORK_AREA="/afs/cern.ch/atlas/software/dist/www/work/nicos_work_area${relnum}${option_c}"
+NICOS_CONFIG_AREA="/afs/cern.ch/atlas/software/dist/nightlies/nicos_config_areaAdjustStb"
+export NICOS_WORK_AREA
+export NICOS_CONFIG_AREA
+
+if [ ! -f ${NICOS_CONFIG_AREA}/nicos_cache ]; then
+echo " test_and_doc_for_stable_release:ERROR: nicos_cache does not exist"
+eval ${exitcomjob} 1
+fi  
+
+export NICOS_LOG_SCRATCH="no"
+export CMTCONFIG="i686-slc3-gcc323-${option}"
+export NICOS_ATLAS_RELEASE="$release"
+export NICOS_SUFFIX="${NICOS_ATLAS_RELEASE}${option_c}"
+
+[[ "$log" = "" ]] && log="build-${CMTCONFIG}.log"
+log_base="${log}"
+log_extension=""
+OIFS=$IFS
+IFS="."
+log_a=( $log )
+IFS=$OIFS
+if [ "${#log_a[@]}" -gt 1 ]; then
+log_extension=${log_a[${#log_a[@]}-1]}
+unset log_a[${#log_a[@]}-1]
+log_base=`echo ${log_a[@]} | sed 's/ /./gp'`
+fi
+
+#perform concatenation of logfiles <base>_*.<extension>
+if [ ! -d $NICOS_WORK_AREA ]; then mkdir -p $NICOS_WORK_AREA; fi
+logFile=${NICOS_WORK_AREA}/nicos_build.loglog
+if [ -f $logFile ]; then rm -f $logFile; fi
+numLog=0
+for file in ${buildDir}/${log_base}*.${log_extension}; do
+    let numLog=${numLog}+1
+done
+
+if [ "${numLog}" -ge 2 ]; then
+    echo -e "WARNING: There are ${numLog} ${log_base} log files for release ${release}, \n platform ${CMTCONFIG}.  Concatenating..."
+    touch ${logFile}
+    for file in ${buildDir}/${log_base}*.${log_extension}; do
+        cat ${file} >> ${logFile}
+    done
+elif [[ ${numLog} -eq 1 ]]; then
+    echo -e "There is exactly one ${log_base} log file for release ${release}, platform \n ${CMTCONFIG}.  Copying..."
+    cp ${buildDir}/${log_base}*.${log_extension} ${logFile}
+else
+    echo -e "ERROR: No ${log_base} log files for release ${release}, platform \n ${CMTCONFIG}!"
+    eval ${exitcomjob}
+fi
+
+source $NICOS_HOME/nicos_config
+prevdir=`pwd`
+if [ -f ${logFile} ]; then 
+cp -a ${logFile} ${NICOS_BUILDLOG}
+fi
+cd $prevdir 
+
+if [ -f ${NICOS_LOG}_first ]; then rm -f ${NICOS_LOG}_first; fi
+if [ -f ${NICOS_LOG} ]; then mv ${NICOS_LOG} ${NICOS_LOG}_first; fi 
+#eval ${exitcomjob}
+
+${NICOS_HOME}/nicos_job  --begin "tests" --end 9 >! ${NICOS_WORK_AREA}/log.log 2>&1
+ 
+ 
+

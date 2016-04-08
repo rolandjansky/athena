@@ -1,0 +1,27 @@
+a:link {
+  color: navy
+}
+
+a:visited {
+  color: maroon
+}
+
+a:active {
+  color:tomato
+}
+
+table.frame {
+  background: midnightblue;
+}
+
+tr.dark {
+  background: #cc9966;
+}
+
+tr.light {
+  background: #ffcc99;
+}
+
+td.small {
+  font-size: 8pt;
+}

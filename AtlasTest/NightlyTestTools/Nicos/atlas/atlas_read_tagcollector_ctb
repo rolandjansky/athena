@@ -1,0 +1,134 @@
+#!/bin/sh
+#
+# atlas_read_tagcollector
+# PLUGIN for NICOS to read info from tag collector
+# Author Alex Undrus <undrus@bnl.gov>
+#
+
+echo $CLASSPATH | grep `echo ${NICOS_HOME}/atlas` > /dev/null 2>&1 ; stt=$?
+if [ "$stt" -eq 1 ]; then
+export CLASSPATH=${NICOS_HOME}/atlas:${CLASSPATH}
+fi
+
+ver_taginfo=${NICOS_WORK_AREA}/pkg_versions_taginfo
+if [ -f $ver_taginfo ]; then
+rm $ver_taginfo
+fi
+
+file_combin=${NICOS_WORK_AREA}/atlas_tags.db_gen
+if [ -f $file_combin ]; then
+rm $file_combin
+fi
+
+filename=${NICOS_DBFILE}
+
+java taginfo branch_release -name=9.1.2 package | while read lin
+do
+if [ "$lin" != "" ]; then
+pkgname1=`echo $lin | cut -d";" -f2`
+pkgtyp=`echo $lin | cut -d";" -f1`
+pkgtype=2
+if [ "$pkgtyp" = "topPackage" ]; then pkgtype=0; fi
+if [ "$pkgtyp" = "containerPackage" ]; then pkgtype=1; fi
+if [ "$pkgtyp" = "topContainerPackage" ]; then pkgtype=1; fi
+pkgname=`dirname ${pkgname1}/.`
+pkgg=`basename $pkgname`
+if [ "$pkgg" = "dice" ]; then pkgtype=2; fi
+if [ "$pkgg" = "atutil" ]; then pkgtype=2; fi
+if [ "$pkgg" = "muonbox" ]; then pkgtype=2; fi
+tag_collector=`echo $lin | cut -d";" -f4`
+printf "%-40s%-1s%-30s%-1s%-2s\n" $pkgname " " $tag_collector " "  $pkgtype >> $ver_taginfo
+echo " SSS $pkgname $tag_collector $pkgtype "
+fi
+done
+
+cat $ver_taginfo | while read pkgname1 tag_collect pkgt
+do
+if [ "$pkgname1" != "" ]; then
+
+pkgt_sign=0;
+if [ $pkgt -le 1 ]; then pkgt_sign=1; fi
+
+#echo "$pkgname1" | grep "Calo"; stttt=$?
+#if [ $stttt -eq 0 ]; then break; fi
+
+if [ -f $file_combin ]; then
+c_bef=`wc -l $file_combin`
+else
+c_bef=0
+fi
+
+  line=$pkgname1
+  OIFS=$IFS
+  IFS=" "
+  set $line
+  IFS=$OIFS
+  line1=$1
+
+  line=$line1
+  OIFS=$IFS
+  IFS=/
+  set $line
+  IFS=$OIFS
+  nvar=`expr $# - 1`
+
+pkgnm=$2
+  if [ "$nvar" -eq 1 ]; then pkgnm="${2}";fi
+  if [ "$nvar" -eq 2 ]; then pkgnm="${2}/${3}";fi
+  if [ "$nvar" -eq 3 ]; then pkgnm="${2}/${3}/${4}";fi
+  if [ "$nvar" -eq 3 ]; then pkgnm="${2}/${3}/${4}";fi
+  if [ "$nvar" -eq 4 ]; then pkgnm="${2}/${3}/${4}/${5}";fi
+  if [ "$nvar" -eq 5 ]; then pkgnm="${2}/${3}/${4}/${5}/${6}";fi
+  if [ "$nvar" -eq 6 ]; then pkgnm="${2}/${3}/${4}/${5}/${6}/${7}";fi
+
+bpkgn=$pkgnm
+if [ $bpkgn != "" ]; then bpkgn=`basename $bpkgn`; fi
+amain9=`java taginfo branch_package -name=${bpkgn} -branch_release=9.1.2 -format=manager_mail | cut -d";" -f6 | sed 's/ //g' | sed 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/'`
+
+cat $filename | while read package1 newver addr
+do
+if [ "$package1" != "" ]; then
+
+#echo "===${pkgname1}===${package1}===${newver}=="
+if [ "offline/${package1}" = "${pkgname1}" ]; then
+
+if [ "$newver" = "collector" ]; then
+if [ "$pkgt" ge 1 ]; then printf "%-70s%-1s%-45s%-1s%-1s%-1s%-4s%-1s%-2s\n" $package1 " " $tag_collect " " $pkgt_sign " " $amain9 >> $file_combin; fi
+else
+printf "%-70s%-1s%-45s%-3s%-4s%-1s%-2s\n" $package1 " " $newver " 0 " $addr >> $file_combin
+fi
+
+break
+fi
+fi; done
+
+if [ -f $file_combin ]; then
+c_aft=`wc -l $file_combin`
+else
+c_aft=0
+fi
+
+if [ "$c_bef" = "$c_aft" ]; then
+if [ "$pkgt" -ge 1 ]; then
+  printf "%-70s%-1s%-45s%-1s%-1s%-6s%-1s%-2s\n" $pkgnm " " $tag_collect " " $pkgt_sign " " $amain9 >> $file_combin
+  echo " UUUU  $pkgnm $tag_collect $pkgt_sign $amain9"
+fi
+fi
+
+fi; done # cat $ver_taginfo | 
+
+cat $filename | while read package1 newver addr
+do
+if [ "$package1" != "" ]; then
+
+cat $ver_taginfo | grep $package1 > /dev/null
+stat=$?
+if [ $stat != 0 ]; then
+newver1=$newver
+if [ "$newver1" = "collector" ]; then newver1="official"; fi
+printf "%-70s%-1s%-45s%-1s%-4s%-1s%-2s\n" $package1 " " $newver1 " 0 " $addr >> $file_combin
+fi
+
+fi; done
+
+

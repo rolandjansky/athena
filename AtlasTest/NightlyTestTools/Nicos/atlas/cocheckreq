@@ -1,0 +1,11 @@
+#$HOME/public/kerbcomm 
+#mkdir /tmp/nicos_temporary_area_$$
+#cd /tmp/nicos_temporary_area_$$
+#cvs co -d share offline/Tools/Scripts/share
+#if [ -f $NICOS_WORK_AREA/checkreq.sh ]; then 
+#rm $NICOS_WORK_AREA/checkreq.sh
+#fi 
+#cp -a share/checkreq.sh $NICOS_WORK_AREA/.
+#rm -rf /tmp/nicos_temporary_area_$$
+cp -a /afs/cern.ch/user/h/hans/public/checkreq.sh $NICOS_WORK_AREA/.
+

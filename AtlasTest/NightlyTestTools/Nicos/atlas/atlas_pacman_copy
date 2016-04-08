@@ -1,0 +1,41 @@
+#!/bin/sh
+if [ "$#" -ne 2 ]; then
+echo "NICOS:atlas_pacman_copy: two parameters are required: project and release names"
+exit 1
+fi
+ 
+project=$1
+release=$2
+
+release_base=`echo $release | cut -d"_" -f1`
+source_area=/build/atnight/localbuilds/nightlies/projects/$project
+target_area=/afs/cern.ch/atlas/software/builds/kitrel/$project/$release
+
+echo "NICOS:atlas_pacman_copy:starting creation of pacman kit"
+echo `date`
+
+rm -rf $source_area/cache
+mkdir -p $source_area/cache
+~alibrari/Kit/Deployment/Deployment-00-02-02/scripts/proj-run.sh -c /build/atnight/localbuilds/nightlies/projects/$project/pack-projects.cfg
+sleep 3000
+
+echo "NICOS:atlas_pacman_copy: starting kit installation"
+echo `date`
+
+source /afs/cern.ch/atlas/software/pacman/pacman-latest/setup.sh
+
+if [ ! -d $target_area ]; then mkdir -p $target_area; fi
+cd $target_area; stat=$?
+if [ "$stat" -ne 0 ]; then
+echo "NICOS:atlas_pacman_copy: area for kit installation can not
+be created : $target_area"
+exit 1
+fi
+
+rm -rf $target_area/*
+pacman -allow trust-all-caches -get /build/atnight/localbuilds/nightlies/projects/$project/cache/cache:${project}_${release_base}_0_slc3_ia32_opt.pacman
+
+echo "NICOS:atlas_pacman_copy: kit installation completed"
+echo `date`
+                                                         
+

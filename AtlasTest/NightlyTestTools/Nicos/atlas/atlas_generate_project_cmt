@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# Author Alex Undrus <undrus@bnl.gov>
+#
+for_copy=0
+gaudi_version=0.16.1.11
+while [ $# -ne 0 ]; do
+    case $1 in
+        -c   | --copy)         for_copy=1;;
+        --gaudi)               gaudi_version=$2; shift;;
+        esac
+        shift
+done
+
+reldir=${NICOS_RELHOME}
+relnumb=${NICOS_PROJECT_RELNAME}
+if [ "$for_copy" -eq 1 ]; then
+reldir=${NICOS_COPY_HOME}/${NICOS_PROJECT_RELNAME_COPY}
+relnumb=${NICOS_PROJECT_RELNAME_COPY}
+fi
+
+if [ "${reldir}" = "" ]; then
+echo "NICOS:atlas_generate_project_cmt: error - NICOS_RELHOME is not defined"
+fi
+
+if [ ! -d ${reldir} ]; then
+echo "NICOS:atlas_generate_project_cmt: error - NICOS_RELHOME $NICOS_RELHOME does not exist"
+fi
+                                                                               
+if [ ! -d ${reldir}/cmt ]; then mkdir -p ${reldir}/cmt; fi
+cd  ${reldir}/cmt
+if [ -f project.cmt ]; then rm -f project.cmt; fi
+req_file="project.cmt"
+
+printf "project Atlas${NICOS_ATLAS_PROJECT}\n" >  $req_file
+printf " \n"                    >> $req_file
+
+printf "setup_strategy     no_root no_config\n" >> $req_file
+printf "structure_strategy without_version_directory\n" >> $req_file
+
+if [ "${NICOS_ATLAS_PROJECT}" = "Core" ]; then
+printf "use Gaudi ${gaudi_version}\n" >> $req_file
+elif [ "${NICOS_ATLAS_PROJECT}" = "Conditions" ]; then
+printf "use AtlasCore ${relnumb}\n" >> $req_file
+elif [ "${NICOS_ATLAS_PROJECT}" = "Event" ]; then
+printf "use AtlasConditions ${relnumb}\n" >> $req_file
+elif [ "${NICOS_ATLAS_PROJECT}" = "Reconstruction" ]; then
+printf "use AtlasEvent ${relnumb}\n" >> $req_file
+elif [ "${NICOS_ATLAS_PROJECT}" = "Simulation" ]; then
+printf "use AtlasEvent ${relnumb}\n" >> $req_file
+elif [ "${NICOS_ATLAS_PROJECT}" = "Trigger" ]; then
+printf "use AtlasReconstruction ${relnumb}\n" >> $req_file
+elif [ "${NICOS_ATLAS_PROJECT}" = "Analysis" ]; then
+printf "use AtlasTrigger ${relnumb}\n" >> $req_file
+elif [ "${NICOS_ATLAS_PROJECT}" = "Production" ]; then
+printf "use AtlasSimulation ${relnumb}\n" >> $req_file
+printf "use AtlasAnalysis ${relnumb}\n" >> $req_file
+elif [ "${NICOS_ATLAS_PROJECT}" = "Offline" ]; then
+printf "use AtlasProduction ${relnumb}\n" >> $req_file
+fi 
+
+printf "container Atlas${NICOS_ATLAS_PROJECT}Release Atlas${NICOS_ATLAS_PROJECT}Release-Atlas${NICOS_ATLAS_PROJECT}-*\n" >> $req_file
+ 
+
+
+

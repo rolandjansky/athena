@@ -1,0 +1,59 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_errorhandler
+# ----------------------------------------------------------
+#
+notestmail=0
+nobuildmail=0
+while [ $# -ne 0 ]; do
+    case $1 in
+         --nomail)     notestmail=1; nobuildmail=1;;
+         --notestmail) notestmail=1;;
+         --notestsmail) notestmail=1;;
+         --nobuildmail) nobuildmail=1;;
+    esac
+    shift
+done
+
+DD=`date`
+echo "------------------------------------------------------------"
+echo "   Starting NICOS error analysis $DD"
+echo "------------------------------------------------------------"
+prevdir=`pwd`
+
+cd ${NICOS_RELHOME}/${NICOS_PROJECTBUILD_DIR}
+source ${NICOS_WORK_AREA}/nicos_errorhandler_gen; stat=$?
+if [ "$stat" -ne 0 ]; then exit ${stat}; fi
+cd ${NICOS_RELHOME}/${NICOS_PROJECTBUILD_DIR}
+
+if [ "$NICOS_MAIL_CANCEL" = "yes" ]; then
+export NICOS_MAIL = "no"
+export NICOS_MAIL_UNIT_TESTS = "no"
+export NICOS_MAIL_INT_TESTS = "no"
+export NICOS_MAIL_QA_TESTS = "no"
+fi
+
+if [ "$nobuildmail" -eq 1 ]; then
+export NICOS_MAIL = "no"
+fi
+if [ "$notestmail" -eq 1 ]; then
+export NICOS_MAIL_UNIT_TESTS = "no"
+export NICOS_MAIL_INT_TESTS = "no"
+export NICOS_MAIL_QA_TESTS = "no"
+fi
+
+${NICOS_HOME}/nicos_errorhandler.pl; stat=$?
+
+cd ${prevdir}
+exit $stat
+
+
+
+
+
+
+

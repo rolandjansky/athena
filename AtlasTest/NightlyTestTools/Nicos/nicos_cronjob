@@ -1,0 +1,120 @@
+#!/bin/zsh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_cronjob : this is NICOS startup file, it should be
+# run as a cronjob
+# ----------------------------------------------------------
+#
+
+limit filesize 1500M
+
+option=""
+comp="Opt"
+proj="Core"
+build_only=0
+copy_only=0
+docs_only=0
+
+while [ $# -ne 0 ]; do
+        case $1 in
+            -s) option="--scratch";;
+            -p) proj=$2; shift;;
+            --dbg) comp="Dbg";;
+            --build) build_only=1;;
+            --copy) copy_only=1;;
+            --docs) docs_only=1;;
+        esac
+        shift
+    done
+
+#echo "$option $proj $comp"
+
+if [ "$NICOS_HOME" = "" ]; then
+NICOS_HOME="/afs/cern.ch/atlas/software/dist/nightlies/nicos_1_0"
+fi
+if [ "$NICOS_WORK_AREA" = "" ]; then
+NICOS_WORK_AREA="/afs/cern.ch/atlas/software/dist/nightlies/tst/nicos_work_area${proj}${comp}"
+fi
+if [ "$NICOS_CONFIG_AREA" = "" ]; then
+NICOS_CONFIG_AREA="/afs/cern.ch/atlas/software/dist/nightlies/nicos_config_areaProj${comp}"
+fi
+export NICOS_HOME
+export NICOS_WORK_AREA
+export NICOS_CONFIG_AREA
+ 
+NICOS_LOG_SCRATCH="yes"
+if [ "$copy_only" -eq 1 -o "$docs_only" -eq 1 ]; then NICOS_LOG_SCRATCH="no"; fi
+export NICOS_LOG_SCRATCH
+
+export NICOS_ATLAS_PROJECT=${proj}
+if [ "$proj" = "Cond" ]; then export NICOS_ATLAS_PROJECT="Conditions"; fi
+if [ "$proj" = "Evt" ]; then export NICOS_ATLAS_PROJECT="Event"; fi
+if [ "$proj" = "Rec" ]; then export NICOS_ATLAS_PROJECT="Reconstruction"; fi
+if [ "$proj" = "Sim" ]; then export NICOS_ATLAS_PROJECT="Simulation"; fi
+if [ "$proj" = "Trg" ]; then export NICOS_ATLAS_PROJECT="Trigger"; fi
+if [ "$proj" = "Anl" ]; then export NICOS_ATLAS_PROJECT="Analysis"; fi
+if [ "$proj" = "Offl" ]; then export NICOS_ATLAS_PROJECT="Offline"; fi
+if [ "$proj" = "Prod" ]; then export NICOS_ATLAS_PROJECT="Production"; limit filesize 100M; fi
+
+export NICOS_SUFFIX="${proj}${comp}"
+if [ "$copy_only" -ne 1 -a "$docs_only" -ne 1 ]; then
+if [ "$proj" = "Cond" ]; then
+export NICOS_DOMINANT_PROJECTS="Core${comp}"
+fi
+if [ "$proj" = "Evt" ]; then 
+export NICOS_DOMINANT_PROJECTS="Core${comp} Cond${comp}"
+fi
+if [ "$proj" = "Rec" ]; then 
+export NICOS_DOMINANT_PROJECTS="Core${comp} Cond${comp} Evt${comp}"
+fi
+if [ "$proj" = "Sim" ]; then 
+export NICOS_DOMINANT_PROJECTS="Core${comp} Cond${comp} Evt${comp}"
+fi
+if [ "$proj" = "Trg" ]; then 
+export NICOS_DOMINANT_PROJECTS="Core${comp} Cond${comp} Evt${comp} Rec${comp}"
+fi
+if [ "$proj" = "Anl" ]; then 
+export NICOS_DOMINANT_PROJECTS="Core${comp} Cond${comp} Evt${comp} Rec${comp} Trg${comp}"
+fi
+if [ "$proj" = "Prod" ]; then 
+export NICOS_DOMINANT_PROJECTS="Core${comp} Cond${comp} Evt${comp} Rec${comp} Trg${comp} Anl${comp}"
+fi
+if [ "$proj" = "Offl" ]; then
+export NICOS_DOMINANT_PROJECTS="Core${comp} Cond${comp} Evt${comp} Rec${comp} Trg${comp} Anl${comp} Prod${comp}"
+fi
+  if [ "${comp}" = "Dbg" ]; then
+  dmm=`echo $NICOS_DOMINANT_PROJECTS | sed 's/Dbg/Opt/g'` 
+  dmm1="${proj}Opt"
+  export NICOS_DOMINANT_PROJECTS="${NICOS_DOMINANT_PROJECTS} $dmm $dmm1"
+  fi
+fi
+
+if [ ! -f ${NICOS_HOME}/nicos_job ]; then
+echo " FATAL: nicos_cronjob can not find job executable "
+exit 1
+fi
+
+if [ ! -f ${NICOS_CONFIG_AREA}/nicos_cache ]; then
+echo " FATAL: nicos_cronjob can not find nicos_cache "
+exit 1
+fi
+
+#if [ -d ${NICOS_WORK_AREA} ]; then rm -rf ${NICOS_WORK_AREA}; fi
+if [ ! -d ${NICOS_WORK_AREA} ]; then mkdir ${NICOS_WORK_AREA}; fi
+echo "0" > ${NICOS_WORK_AREA}/nicos_progress_status
+
+if [ "$copy_only" -eq 1 ]; then
+${NICOS_HOME}/nicos_job --copy >! ${NICOS_WORK_AREA}/copylog.log 2>&1
+elif [ "$docs_only" -eq 1 ]; then
+${NICOS_HOME}/nicos_job --begin "docs" --end 9 >! ${NICOS_WORK_AREA}/docs.log 2>&1
+elif [ "$build_only" -eq 1 ]; then
+${NICOS_HOME}/nicos_job $option --begin "build" --end 9 >! ${NICOS_WORK_AREA}/log.log 2>&1
+else
+${NICOS_HOME}/nicos_job $option --begin "full" --end 9 >! ${NICOS_WORK_AREA}/log.log 2>&1 
+fi
+
+exit 
+

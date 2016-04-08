@@ -1,0 +1,78 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+#
+# ----------------------------------------------------------
+# test_and_doc_for_stable_release : name says it all
+# ----------------------------------------------------------
+#
+function show_help() {
+    echo "Usage: test_and_doc_for_stable_release \\"
+    echo "-r <relname> <--opt|--dbg> -l <buildlog>"
+    echo "This script performs the standard task of testing and creation"
+    echo "of documentation for the stable release located in"
+    echo "/afs/cern.ch/atlas/software/dist area (release must be"
+    echo "already built). NICOS web pages are generated in "
+    echo "/afs/cern.ch/atlas/software/dist/www area." 
+    echo "Mandatory options:"
+    echo " -r | --relnum   name of a stable release, e.g. 10.4.0."
+    echo "                 must exist in /afs/cern.ch/atlas/software/dist"
+    echo " <--opt|--dbg>   compiler option (dbg or opt)"
+}
+ 
+export NICOS_HOME="/afs/cern.ch/atlas/software/dist/nightlies/nicos_0_43"
+WWW_AREA="/afs/cern.ch/atlas/software/dist/www"
+release=""
+option=""
+
+while [ $# -ne 0 ]; do
+    case $1 in
+         -r | --relnum)    release=$2; shift;;
+              --opt)       option="opt";;
+              --dbg)       option="dbg";;      
+         -* | --*)         show_help; exit 1;;
+    esac
+    shift
+done
+ 
+if [ "$release" = "" ]; then
+echo "test_and_doc_for_stable_release:ERROR: release not indicated"
+show_help; exit 1
+fi
+
+eval $NICOS_HOME/atlasjobs/test_relname.sh $release; stat=$? 
+if [ "$stat" != "0" ]; then
+echo "test_and_doc_for_stable_release:ERROR: invalid name of stable release"
+show_help; exit 1
+fi
+
+if [ "$option" = "" ]; then
+echo "test_and_doc_for_stable_release:ERROR: must be --dbg or --opt)"
+show_help; exit 1
+fi
+
+relnum=`echo $release | sed 's/\.//g'`
+option_c="$option"
+if [ "$option" = "opt" ]; then option_c="Opt"; fi
+if [ "$option" = "dbg" ]; then option_c="Dbg"; fi
+
+NICOS_WORK_AREA="/afs/cern.ch/atlas/software/dist/www/work/nicos_work_area${relnum}${option_c}"
+NICOS_CONFIG_AREA="/afs/cern.ch/atlas/software/dist/nightlies/nicos_config_areaAdjustStb"
+export NICOS_WORK_AREA
+export NICOS_CONFIG_AREA
+
+if [ ! -f ${NICOS_CONFIG_AREA}/nicos_cache ]; then
+echo " test_and_doc_for_stable_release:ERROR: nicos_cache does not exist"
+exit 1
+fi  
+
+export NICOS_LOG_SCRATCH="yes"
+export CMTCONFIG="i686-slc3-gcc323-${option}"
+export NICOS_ATLAS_RELEASE="$release"
+export NICOS_SUFFIX="${NICOS_ATLAS_RELEASE}${option_c}"
+ 
+${NICOS_HOME}/nicos_job  --begin "full" --end 9 >! ${NICOS_WORK_AREA}/log.log 2>&1
+ 
+ 
+

@@ -1,0 +1,4 @@
+DATE=`date +%w%H%M`
+if [ ! -d /afs/cern.ch/atlas/software/dist/nightlies/stamps ]; then mkdir /afs/cern.ch/atlas/software/dist/nightlies/stamps; fi
+echo "`date`" > /afs/cern.ch/atlas/software/dist/nightlies/stamps/stamp_${DATE}_i686-rh73-gcc32-dbg
+echo "`date`" > /afs/cern.ch/atlas/software/dist/nightlies/stamps/stamp_${DATE}_i686-rh73-gcc32-opt

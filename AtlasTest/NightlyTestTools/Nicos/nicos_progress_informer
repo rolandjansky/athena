@@ -1,0 +1,145 @@
+#!/usr/local/bin/perl
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_progress_informer
+# ----------------------------------------------------------
+#
+sub make_stamp
+{
+my $o="${NICOS_STAMPS_HOME}/nicos_stamp${NICOS_SUFFIX}";
+$_=$_[0];
+SWITCH: {
+/0/ && do { $o= $o . '_CONFIG'; open(W,">$o"); print W "config completed"; close(W); last SWITCH; };
+/1/ && do { $o= $o . '_TOOLINIT'; open(W,">$o"); print W "toolinit completed"; close(W); last SWITCH; };
+/2/ && do { $o= $o . '_CO'; open(W,">$o"); print W "checkout completed"; close(W); last SWITCH; };
+/3/ && do { $o= $o . '_PROJCONF'; open(W,">$o"); print W "projconf completed"; close(W); last SWITCH; };
+/4/ && do { $o= $o . '_BUILD'; open(W,">$o"); print W "build completed"; close(W); last SWITCH; };
+/5/ && do { $o= $o . '_QA'; open(W,">$o"); print W "qatests completed"; close(W); last SWITCH; };
+/6/ && do { $o= $o . '_UNIT'; open(W,">$o"); print W "unittests completed"; close(W); last SWITCH; };
+/7/ && do { $o= $o . '_INT'; open(W,">$o"); print W "inttests completed"; close(W); last SWITCH; };
+/8/ && do { $o= $o . '_ERROR'; open(W,">$o"); print W "error analysis completed"; close(W); last SWITCH; };
+/9/ && do { $o= $o . '_ALL'; open(W,">$o"); print W "all completed"; close(W); last SWITCH; };
+}
+} # enf of make_stamp
+
+use Env;
+my $NICOS_HOME="$NICOS_HOME";
+my $NICOS_WEBDIR="$NICOS_WEBDIR";
+my $NICOS_COMMON_WEBDIR="$NICOS_COMMON_WEBDIR";
+my $NICOS_PROJECT_HOME="$NICOS_PROJECT_HOME";
+my $NICOS_PROJECT_NAME="$NICOS_PROJECT_NAME";
+my $NICOS_PROJECT_RELNAME="$NICOS_PROJECT_RELNAME_COPY";
+my $NICOS_PROJECT_RELNUMB="$NICOS_PROJECT_RELNUMB_COPY";
+my $NICOS_STAMPS_HOME="$NICOS_PROJECT_RELNUMB_COPY";
+
+my $step=0;
+my $suffix="_${NICOS_PROJECT_RELNUMB}"; 
+if ( ${NICOS_PROJECT_RELNUMB} eq "" ) { $suffix=""; }
+
+if ($#ARGV >= 0) {$step=$ARGV[0];}
+
+my $progress_file="${NICOS_WORK_AREA}/nicos_progress_status";
+open(WRITEDATA,">$progress_file");
+print WRITEDATA "$step";
+close(WRITEDATA);
+
+my $outfile_status="${NICOS_WEBDIR}/status_rel${suffix}.js";
+my $outfile_date="${NICOS_WEBDIR}/date_rel${suffix}.js";
+
+open(WRITEDATA,">$outfile_status");
+print WRITEDATA "function status${suffix}()\{return ";
+$_=$step;
+SWITCH: {
+/0/ && do { print WRITEDATA "'nightly started'\}"; make_stamp 0; last SWITCH; };
+/1/ && do { print WRITEDATA "'configuration in progress'\}"; make_stamp 1; last SWITCH; };
+/2/ && do { print WRITEDATA "'checkout completed'\}"; make_stamp 2; last SWITCH; };
+/3/ && do { print WRITEDATA "'make started'\}"; make_stamp 3; last SWITCH; };
+/4/ && do { print WRITEDATA "'make completed, tests started'\}"; make_stamp 4; last SWITCH; };
+/5/ && do { print WRITEDATA "'qa tests completed'\}"; make_stamp 5; last SWITCH; };
+/6/ && do { print WRITEDATA "'unit tests completed'\}"; make_stamp 6; last SWITCH; };
+/7/ && do { print WRITEDATA "'integrated tests completed'\}"; make_stamp 7; last SWITCH; };
+/8/ && do { print WRITEDATA "'error analysis completed'\}"; make_stamp 8; last SWITCH; };
+/9/ && do { print WRITEDATA "'completed'\}"; make_stamp 9; last SWITCH; };
+print WRITEDATA "'UNAVAILABLE'\}";
+}
+close(WRITEDATA);
+
+# only completed releases are reflected on common webpage
+if ( ${NICOS_COMMON_WEBDIR} ne "" && ( $step == 9 || $step == 4 )){
+if ( -d ${NICOS_COMMON_WEBDIR} ){
+my $outfile_status="${NICOS_COMMON_WEBDIR}/nicos_latest_status${NICOS_SUFFIX}";
+open(WRITEDATA,">$outfile_status");
+$_=$step;
+SWITCH: {
+/0/ && do { print WRITEDATA "nightly started"; last SWITCH; };
+/1/ && do { print WRITEDATA "configuration in progress"; last SWITCH; };
+/2/ && do { print WRITEDATA "checkout completed"; last SWITCH; };
+/3/ && do { print WRITEDATA "make started"; last SWITCH; };
+/4/ && do { print WRITEDATA "make completed, copy(if needed) and tests started"; last SWITCH; };
+/5/ && do { print WRITEDATA "qa tests completed"; last SWITCH; };
+/6/ && do { print WRITEDATA "unit tests completed"; last SWITCH; };
+/7/ && do { print WRITEDATA "integrated tests completed"; last SWITCH; };
+/8/ && do { print WRITEDATA "error analysis completed"; last SWITCH; };
+/9/ && do { print WRITEDATA "completed"; last SWITCH; };
+print WRITEDATA "UNAVAILABLE";
+}
+close(WRITEDATA);
+}
+}
+
+open(WRITEDATA,">$outfile_date");
+print WRITEDATA "function dddd${suffix}()\{return '";
+#print $step;
+if ( $step < 9 ) 
+{   
+    my $ddd="";
+    open(FILE,"<${NICOS_WORK_AREA}/start_date");
+    while (<FILE>) { chomp; $ddd="$ddd"."$_";}
+    $ddd="$ddd"."'\}";
+    print WRITEDATA "$ddd";
+}
+else
+{   
+    my $ddd="";
+    open(FILE,"<${NICOS_WORK_AREA}/end_date");
+    while (<FILE>) { chomp; $ddd="$ddd"."$_";}
+    $ddd="$ddd"."'\}";
+    print WRITEDATA "$ddd";
+}
+
+close(WRITEDATA);
+
+opendir(RELEASES, ${NICOS_PROJECT_HOME});
+while (defined (my $relname = readdir RELEASES)) {
+    if (( -d ${NICOS_PROJECT_HOME}."/".$relname ) && $relname =~ /^${NICOS_PROJECT_RELNAME_GEN}/ )
+{
+    my @arr = split("_",$relname);
+    my $lastel = $#arr;
+    my $relnum=$arr[$lastel];
+    my $relnum_suffix = "_$relnum";
+    if ( $relnum eq "" ) { $relnum_suffix = ""; }
+    if ( $#arr eq 0 ) { $relnum_suffix = ""; }
+    if ( $NICOS_PROJECT_RELNUMB eq "" ) { $relnum_suffix = ""; }
+    my $stfile="${NICOS_WEBDIR}/status_rel${relnum_suffix}.js";
+    if ( ! -f $stfile )
+    {
+	open(WRITEDATA,">${stfile}");
+	print WRITEDATA "function status${relnum_suffix}()\{return ";
+	print WRITEDATA "'UNAVAILABLE'\}";
+	close(WRITEDATA);
+    }
+    my $dafile="${NICOS_WEBDIR}/date_rel${relnum_suffix}.js";
+if ( ! -f $dafile )
+ {
+      open(WRITEDATA,">${dafile}");
+           print WRITEDATA "function dddd${relnum_suffix}()\{return ";
+           print WRITEDATA "'UNAVAILABLE'\}";
+           close(WRITEDATA);
+       }
+}}
+closedir(RELEASES);
+
+

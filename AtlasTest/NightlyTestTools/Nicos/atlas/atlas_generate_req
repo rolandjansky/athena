@@ -1,0 +1,67 @@
+#!/bin/sh
+#
+# atlas_generate_req
+# PLUGIN for NICOS to generate requrements file for building ATLAS release
+# Author Alex Undrus <undrus@bnl.gov>
+#
+if [ "$#" -gt 1 ]; then
+echo "NICOS:atlas_generate_req: one parameter can be indicated: 
+the name of AtlasRelease package (default AtlasRelease)"
+exit 1
+fi
+
+proj="AtlasRelease"
+if [ "$#" -gt 1 ]; then
+proj=$1
+fi
+                                                                              
+req_file="requirements"
+ver_gen="${NICOS_DBFILE_GEN}_res"
+pfile=${NICOS_DBFILE}
+
+useword="use"
+
+printf "package AtlasCoreRelease \n" >  $req_file
+printf " \n"                    >> $req_file
+
+              cat $ver_gen | while read package1 newver xxxx
+              do
+              if [ "$package1" = "AtlasPolicy" ]; then
+              printf "%-4s%-27s%-37s\n" $useword $package1 $newver >> $req_file
+              fi
+              done
+
+#printf "use CERNLIB  CERNLIB-01-00-15  External | v2r2002p0 \n" >> $req_file
+#printf "use CLHEP    CLHEP-00-01-14    External | v2r1820p1 \n" >> $req_file
+
+              cat $ver_gen | while read pkg newver xxx
+              do
+              if [ "$package1" = "" ]; then
+              pkgdir=`dirname "$pkg"`
+              pkgbase=`basename "$pkg"`
+              if [ "$newver" = "recent" ]; then
+              newver=`ls ${NICOS_RELHOME}/$pkg | grep $pkgbase | tail -n 1`   
+              fi
+              if [ "$pkgbase" != "ReleaseTest" -a "$pkgbase" != "TestRelease" ]; then
+              if [ "$pkgbase" != "AtlasPolicy" -a "$pkgbase" != "AtlasRelease" ]; then              
+              if [ "$pkgdir" = "." ]; then
+              printf "%-4s%-1s%-27s%-1s%-37s\n" $useword " " $pkgbase " " $newver >> $req_file
+#              echo " A  $useword $pkgbase $newver "
+              else
+              printf "%-4s%-1s%-27s%-1s%-37s%-1s%-16s\n" $useword " " $pkgbase " " $newver " " $pkgdir >> $req_file
+#              echo " B  $useword $pkgbase $newver  $pkgdir"
+              fi; fi; fi; fi  
+              done
+
+
+
+
+
+
+
+
+
+
+
+
+

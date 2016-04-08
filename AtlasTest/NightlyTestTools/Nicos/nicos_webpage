@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_webpage
+# ----------------------------------------------------------
+#
+phase=0
+noerrorhandler=0
+nomail=0
+while [ $# -ne 0 ]; do
+    case $1 in
+         --config)     phase=2;;
+         --clean)      phase=1;;
+         --noerror)    phase=0; noerrorhandler=1;;
+         --nomail)     nomail=1;;
+    esac
+    shift
+done
+
+echo "------------------------------------------------------------"
+echo "   Starting NICOS web pages generation"
+echo "------------------------------------------------------------"
+####
+source ${NICOS_WORK_AREA}/nicos_webpage_gen
+####
+
+##CONFIG
+if [ "$phase" -eq 2 ]; then
+${NICOS_HOME}/nicos_indexgen.pl ${NICOS_WORK_AREA}/nicos_projectpage.html 2>&1
+#
+cp -p ${NICOS_WORK_AREA}/nicos_projectpage.html ${NICOS_WEBDIR}/.
+if [ -e ${NICOS_WEBDIR}/index.html ]; then rm -f ${NICOS_WEBDIR}/index.html; fi
+ln -s nicos_projectpage.html ${NICOS_WEBDIR}/index.html
+cp -p ${NICOS_HOME}/doc/html/unavailable.html ${NICOS_WEBDIR}/.
+touch unavailable.html
+# 
+sffx=""
+if [ "${NICOS_PROJECT_RELNUMB_COPY}" != "" ]; then
+sffx="_${NICOS_PROJECT_RELNUMB_COPY}"
+fi
+if [ -f ${NICOS_WEBDIR}/nicos_buildsummary${sffx}.html ]; then
+   rm -f ${NICOS_WEBDIR}/nicos_buildsummary${sffx}.html
+fi
+if [ -f ${NICOS_WEBDIR}/nicos_buildsummary1${sffx}.html ]; then
+   rm -f ${NICOS_WEBDIR}/nicos_buildsummary1${sffx}.html
+fi
+if [ -f ${NICOS_WEBDIR}/nicos_buildsummary2${sffx}.html ]; then
+   rm -f ${NICOS_WEBDIR}/nicos_buildsummary2${sffx}.html
+fi
+ln -s unavailable.html ${NICOS_WEBDIR}/nicos_buildsummary${sffx}.html
+ln -s unavailable.html ${NICOS_WEBDIR}/nicos_buildsummary1${sffx}.html
+ln -s unavailable.html ${NICOS_WEBDIR}/nicos_buildsummary2${sffx}.html
+##
+elif [ "$phase" -eq 1 ]; then
+##
+##CLEAN
+if [ -f $NICOS_WORK_AREA/nicos_prepage ]; then rm -f $NICOS_WORK_AREA/nicos_prepage; fi
+if [ -f $NICOS_WORK_AREA/nicos_testprepage ]; then rm -f $NICOS_WORK_AREA/nicos_testprepage; fi
+if [ -f $NICOS_WORK_AREA/nicos_qaprepage ]; then rm -f $NICOS_WORK_AREA/nicos_qaprepage; fi
+if [ -f $NICOS_WORK_AREA/nicos_loghandler_report ]; then rm -f $NICOS_WORK_AREA/nicos_loghandler_report; fi
+touch $NICOS_WORK_AREA/nicos_prepage
+touch $NICOS_WORK_AREA/nicos_testprepage
+touch $NICOS_WORK_AREA/nicos_qaprepage
+touch $NICOS_WORK_AREA/nicos_loghandler_report
+${NICOS_HOME}/nicos_pagemaker.pl
+##
+else # if [ "$phase" -eq 1 ]; then
+##
+##REG
+if [ "$noerrorhandler" -eq 0 ]; then 
+   if [ "$nomail" -eq 1 ]; then 
+   ${NICOS_HOME}/nicos_errorhandler --nomail
+   else
+   ${NICOS_HOME}/nicos_errorhandler
+   fi
+fi
+${NICOS_HOME}/nicos_pagemaker.pl 
+##
+fi #[ "$phase"
+
+
+

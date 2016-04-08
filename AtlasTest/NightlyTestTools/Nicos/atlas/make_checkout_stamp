@@ -1,0 +1,4 @@
+DATE=`date +%w%H%M`
+if [ ! -d $NICOS_PROJECT_HOME/stamps ]; then mkdir $NICOS_PROJECT_HOME/stamps; fi
+echo "`date`" > $NICOS_PROJECT_HOME/stamps/stamp_checkout
+

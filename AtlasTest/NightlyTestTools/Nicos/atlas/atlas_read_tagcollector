@@ -1,0 +1,129 @@
+#!/bin/sh
+#
+# atlas_read_tagcollector
+# PLUGIN for NICOS to read info from tag collector
+# Author Alex Undrus <undrus@bnl.gov>
+#
+                                                    
+if [ "$#" -ne 1 -a "$#" -ne 2 ]; then
+echo "NICOS:atlas_read_tagcollector: one parameter is required: release
+name; the second parameter is the project name (default AtlasRelease)"
+exit 1
+fi
+
+release=$1 
+proj="AtlasRelease"
+if [ "$#" -eq 2 ]; then
+proj=$2
+fi
+shift;shift
+echo "NICOS:atlas_read_tagcollector: $release XX $proj"
+if [ "${NICOS_ONDEMAND_BUILD}" != "yes" ]; then 
+
+echo $CLASSPATH | grep `echo ${NICOS_HOME}/atlas` > /dev/null 2>&1 ; stt=$?
+if [ "$stt" -eq 1 ]; then
+export CLASSPATH=${NICOS_HOME}/atlas/taginfo.jar:${CLASSPATH}
+fi
+
+ver_taginfo=${NICOS_WORK_AREA}/pkg_versions_taginfo
+if [ -f $ver_taginfo ]; then
+rm $ver_taginfo
+fi
+
+file_combin=${NICOS_DBFILE_GEN}
+if [ -f $file_combin ]; then
+rm $file_combin
+fi
+
+dbase=`basename ${NICOS_DBFILE}`
+filename="${NICOS_WORK_AREA}/${dbase}_mod"
+
+java taginfo AMI TCFormGetPackageVersionTree -groupName=${proj} -releaseName=${release} -repositoryName="AtlasOfflineRepository" -expandedPackageID="*" -target=_top-project -project=TagCollector -processingStep=production | while read lin
+do
+if [ "$lin" != "" ]; then
+pkgname1=`echo $lin | cut -d";" -f2`
+pkgtyp=`echo $lin | cut -d";" -f1`
+pkgtype=2
+if [ "$pkgtyp" = "container" ]; then pkgtype=1; fi
+pkgname2=`dirname ${pkgname1}/.`
+echo $pkgname2 | grep "^/" > /dev/null 2>&1 
+stat=$?
+if [ "$stat" -eq 0 ]; then
+pkgname=`echo $pkgname2 | sed  's/\///'`
+fi
+pkgg=`basename $pkgname`
+if [ "$pkgg" = "dice" ]; then pkgtype=2; fi
+if [ "$pkgg" = "atutil" ]; then pkgtype=2; fi
+if [ "$pkgg" = "muonbox" ]; then pkgtype=2; fi
+tag_collector=`echo $lin | cut -d";" -f4`
+printf "%-40s%-1s%-30s%-1s%-2s\n" $pkgname " " $tag_collector " "  $pkgtype >> $ver_taginfo
+echo " SSS $pkgname $tag_collector $pkgtype "
+fi
+done
+
+cat $ver_taginfo | while read pkgname1 tag_collect pkgt
+do
+if [ "$pkgname1" != "" ]; then
+
+pkgt_sign=0;
+if [ $pkgt -le 1 ]; then pkgt_sign=1; fi
+
+if [ -f $file_combin ]; then
+c_bef=`wc -l $file_combin`
+else
+c_bef=0
+fi
+
+pkgnm="/${pkgname1}"
+bpkgn=$pkgnm
+#if [ $bpkgn != "" ]; then bpkgn=`basename $bpkgn`; fi
+list_emails=`java taginfo AMI TCGetPackageInfo -project=TagCollector -processingStep=production -repositoryName="AtlasOfflineRepository" -fullPackageName="${pkgnm}" | cut -d";" -f3` 
+emails=`echo $list_emails |  sed  's/ /,/g'`
+
+cat $filename | while read package1 newver code addr
+do
+if [ "$package1" != "" ]; then
+
+#echo "===${pkgname1}===${package1}===${newver}=="
+if [ "${package1}" = "${pkgname1}" ]; then
+
+if [ "$newver" = "collector" ]; then
+if [ "$pkgt" -ge 1 ]; then printf "%-70s%-1s%-45s%-1s%-1s%-1s%-4s%-1s%-2s\n" $package1 " " $tag_collect " " $pkgt_sign " " $emails >> $file_combin; fi
+else
+printf "%-70s%-1s%-45s%-3s%-4s%-1s%-2s\n" $package1 " " $newver " " $code " " $addr >> $file_combin
+fi
+
+break
+fi
+fi; done
+
+if [ -f $file_combin ]; then
+c_aft=`wc -l $file_combin`
+else
+c_aft=0
+fi
+
+if [ "$c_bef" = "$c_aft" ]; then
+if [ "$pkgt" -ge 1 ]; then
+  printf "%-70s%-1s%-45s%-1s%-1s%-6s%-1s%-2s\n" $pkgname1 " " $tag_collect " " $pkgt_sign " " $emails >> $file_combin
+  echo " UUUU  $pkgname1 $tag_collect $pkgt_sign $emails"
+fi
+fi
+
+fi; done # cat $ver_taginfo | 
+
+cat $filename | while read package1 newver code addr
+do
+if [ "$package1" != "" ]; then
+
+cat $ver_taginfo | grep $package1 > /dev/null
+stat=$?
+if [ $stat != 0 ]; then
+newver1=$newver
+if [ "$newver1" = "collector" ]; then newver1="official"; fi
+printf "%-70s%-1s%-45s%-1s%-4s%-1s%-2s\n" $package1 " " $newver1 " " $code " " $addr >> $file_combin
+fi
+
+fi; done
+
+fi # if [ "${NICOS_ONDEMAND_BUILD}" != "yes" -a "${NICOS_STABLE_BUILD}" != 

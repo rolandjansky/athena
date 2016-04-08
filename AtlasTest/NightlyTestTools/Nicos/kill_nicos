@@ -1,0 +1,82 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# kill_nicos : this command terminates processes forked from
+# nicos job
+# ----------------------------------------------------------
+#
+
+# identify nicos_cronjob
+pid_cronjob=`ps -C nicos_job -wo "pid"`
+
+if [ "$pid_cronjob" != "PID" -a "$pid_cronjob" != "" ]; then
+
+for xpid in $pid_cronjob 
+do
+if [ "$xpid" != "PID" -a "$xpid" != "" ]; then
+echo " XXXXXXXXX $xpid"
+
+  ps -ewo "pid,ppid,cmd" | while read apid appid acmd
+  do
+     if [ "$apid" != "PID" -a "$apid" != "" ]; then
+     if [ "$appid" -eq "$xpid" ]; then
+     kill -9 $apid; sleep 3
+     echo " apid $apid"
+      
+        ps -ewo "pid,ppid,cmd" | while read bpid bppid bcmd
+        do        
+          if [ "$bpid" != "PID" -a "$bpid" != "" ]; then
+          if [ "$bppid" -eq "$apid" ]; then
+          kill -9 $bpid; sleep 3       
+          echo " bpid $bpid"
+                       
+             ps -ewo "pid,ppid,cmd" | while read cpid cppid ccmd
+             do        
+               if [ "$cpid" != "PID" -a "$cpid" != "" ]; then
+               if [ "$cppid" -eq "$bpid" ]; then
+               kill -9 $cpid    ; sleep 3   
+               echo " cpid $cpid"
+
+                ps -ewo "pid,ppid,cmd" | while read dpid dppid dcmd
+                do
+                  if [ "$dpid" != "PID" -a "$dpid" != "" ]; then
+                  if [ "$dppid" -eq "$cpid" ]; then
+                  kill -9 $dpid; sleep 3
+                  echo " dpid $dpid"
+
+                   ps -ewo "pid,ppid,cmd" | while read epid eppid ecmd
+                   do
+                     if [ "$epid" != "PID" -a "$epid" != "" ]; then
+                     if [ "$eppid" -eq "$dpid" ]; then
+                     kill -9 $epid; sleep 3
+                     echo " epid $epid"
+             
+                      fi;fi
+                    done
+
+                   fi;fi
+                 done
+
+                 fi;fi
+             done
+
+          fi;fi
+        done
+
+     fi;fi     
+  done
+
+if [ "$1" = "all" ]; then kill -9 $pid_cronjob;fi 
+
+fi
+done
+
+fi
+
+exit 0
+
+
+

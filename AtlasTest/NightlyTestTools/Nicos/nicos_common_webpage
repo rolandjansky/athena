@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+#
+# ----------------------------------------------------------
+# nicos_common_webpage
+# ----------------------------------------------------------
+#
+if [ "${NICOS_COMMON_WEBDIR}" != "" ]; then
+echo "<a href=\"${NICOS_WEBPAGE}\">${NICOS_PROJECT_NAME}</a>" >| ${NICOS_COMMON_WEBDIR}/nicos_project_title${NICOS_SUFFIX}
+cat ${NICOS_WORK_AREA}/end_date >| ${NICOS_COMMON_WEBDIR}/nicos_latest_date${NICOS_SUFFIX}
+if [ "${NICOS_PROJECT_RELNUMB_COPY}" != "" ]; then
+echo "<a href=\"${NICOS_WEBPAGE}/nicos_buildsummary_${NICOS_PROJECT_RELNUMB_COPY}.html\">${NICOS_PROJECT_RELNAME_COPY}</a>" >| ${NICOS_COMMON_WEBDIR}/nicos_latest${NICOS_SUFFIX}
+else
+echo "<a href=\"${NICOS_WEBPAGE}/nicos_buildsummary.html\">${NICOS_PROJECT_RELNAME_COPY}</a>" >| ${NICOS_COMMON_WEBDIR}/nicos_latest${NICOS_SUFFIX}
+fi
+
+[ -f ${NICOS_COMMON_WEBDIR}/index.html ] && rm -f ${NICOS_COMMON_WEBDIR}/index.html
+${NICOS_HOME}/nicos_common_indexpage.pl ${NICOS_COMMON_WEBDIR}/index.html
+
+#
+fi # if [ "${NICOS_COMMON_WEBDIR}" != "" ]; then
+#

@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_toolinit
+# ----------------------------------------------------------
+#
+DD=`date`
+echo "------------------------------------------------------------"
+echo "   Starting NICOS release tool setup $DD"
+echo "------------------------------------------------------------"
+comname=`basename $0`
+if [ "$comname" = "nicos_toolinit" ]; then
+exitcomtool="exit"
+else
+exitcomtool="return"
+fi
+prevdir=`pwd`
+ 
+stat=0
+if [ "${NICOS_DOMINANT_PROJECTS}" != "" -o "${NICOS_DOMINANT_PARALLEL}" != "" ]; then
+${NICOS_HOME}/nicos_sleeper.sh "TOOLINIT"; stat=$?
+fi
+if [ "$stat" -ne 0 ]; then eval ${exitcomtool} ${stat}; fi
+
+start_step=3
+
+if [ "$#" -ge 1 ]; then
+start_step=$1; shift
+fi
+            
+if [ "${start_step}" -le 1 -a "${NICOS_PRESERVE_DB}" != "yes" ]; then
+dbase=`basename ${NICOS_DBFILE}`
+NICOS_DBFILE_MOD="${NICOS_WORK_AREA}/${dbase}_mod"
+cp -a ${NICOS_DBFILE_MOD} ${NICOS_DBFILE_GEN}
+fi                                                                    
+
+cd ${NICOS_PROJECT_HOME}/${NICOS_RELEASETOOLSETUP_DIR}
+
+source ${NICOS_WORK_AREA}/nicos_toolinit_gen; stat=$?
+
+cd $prevdir
+eval ${exitcomtool} ${stat}

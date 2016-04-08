@@ -1,0 +1,82 @@
+#!/usr/local/bin/perl
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_progress_informer
+# ----------------------------------------------------------
+#
+use Env;
+my $NICOS_HOME="$NICOS_HOME";
+my $NICOS_WEBDIR="$NICOS_WEBDIR";
+my $NICOS_WEBDIR_MAIN="$NICOS_WEBDIR_MAIN";
+my $NICOS_PROJECT_HOME="$NICOS_PROJECT_HOME";
+my $NICOS_PROJECT_NAME="$NICOS_PROJECT_NAME";
+my $NICOS_PROJECT_RELNAME="$NICOS_PROJECT_RELNAME";
+my $NICOS_PROJECT_RELNUMB="$NICOS_PROJECT_RELNUMB";
+my $NICOS_PROJECT_RELNAME_COPY="$NICOS_PROJECT_RELNAME_COPY";
+my $NICOS_PROJECT_RELNUMB_COPY="$NICOS_PROJECT_RELNUMB_COPY";
+
+my $step=0;
+my $error=0;
+my $suffix="_${NICOS_PROJECT_RELNUMB_COPY}"; 
+if ( ${NICOS_PROJECT_RELNUMB_COPY} eq "" ) { $suffix=""; }
+
+if ($#ARGV >= 0) {$step=$ARGV[0];}
+if ($#ARGV >= 1) {$error=$ARGV[1];}
+
+my $error_statement="";
+if ($error != 0) { $error_statement="with errors"; } 
+
+
+my $progress_file="${NICOS_WORK_AREA}/nicos_copy_progress_status";
+open(WRITEDATA,">$progress_file");
+print WRITEDATA "$step";
+close(WRITEDATA);
+
+my $outfile_status="${NICOS_WEBDIR}/copy_status_rel${suffix}.js";
+
+open(WRITEDATA,">$outfile_status");
+print WRITEDATA "function copy_status${suffix}()\{return ";
+$_=$step;
+SWITCH: {
+/0/ && do { print WRITEDATA "'N/A'\}"; last SWITCH; };
+/1/ && do { print WRITEDATA "'completed $error_statement; additional copy of test results expected'\}"; last SWITCH; };
+/2/ && do { print WRITEDATA "'completed $error_statement'\}"; last SWITCH; };
+print WRITEDATA "'UNAVAILABLE'\}";
+}
+close(WRITEDATA);
+if ( ${NICOS_WEBDIR_MAIN} ne "" )
+{
+    system("cp -a ${outfile_status} ${NICOS_WEBDIR_MAIN}/.");
+}
+
+opendir(RELEASES, ${NICOS_COPY_HOME});
+while (defined (my $relname = readdir RELEASES)) {
+    if (( -d ${NICOS_COPY_HOME}."/".$relname ) && $relname =~ /^${NICOS_PROJECT_RELNAME_GEN}/ )
+{
+    my @arr = split("_",$relname);
+    my $lastel = $#arr;
+    my $relnum=$arr[$lastel];
+    my $relnum_suffix = "_$relnum";
+    if ( $relnum eq "" ) { $relnum_suffix = ""; }
+    if ( $#arr eq 0 ) { $relnum_suffix = ""; }
+    if ( $NICOS_PROJECT_RELNUMB_COPY eq "" ) { $relnum_suffix = ""; }
+    my $stfile="${NICOS_WEBDIR}/copy_status_rel${relnum_suffix}.js";
+    if ( ! -f $stfile )
+    {
+	open(WRITEDATA,">${stfile}");
+	print WRITEDATA "function copy_status${relnum_suffix}()\{return ";
+	print WRITEDATA "'UNAVAILABLE'\}";
+	close(WRITEDATA);
+    }
+    if ( ${NICOS_WEBDIR_MAIN} ne "" )
+{
+    system("cp -a ${outfile_status} ${NICOS_WEBDIR_MAIN}/.");
+}
+}}
+
+closedir(RELEASES);
+
+

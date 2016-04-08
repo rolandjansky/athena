@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_checkout
+# ----------------------------------------------------------
+#
+DD=`date`
+echo "------------------------------------------------------------"
+echo "   Starting NICOS checkout $DD"
+echo "------------------------------------------------------------"
+
+comname=`basename $0`
+if [ "$comname" = "nicos_checkout" ]; then
+exitcomco="exit"
+else
+exitcomco="return"
+fi
+
+stat=0
+if [ "${NICOS_DOMINANT_PROJECTS}" != "" -o "${NICOS_DOMINANT_PARALLEL}" != "" ]; then
+${NICOS_HOME}/nicos_sleeper.sh "CO"; stat=$?
+fi
+if [ "$stat" -ne 0 ]; then eval ${exitcomco} ${stat}; fi
+
+################################################
+
+if [ -f ${NICOS_WORK_AREA}/nicos_checkout_gen ]; then 
+source ${NICOS_WORK_AREA}/nicos_checkout_gen  
+fi
+
+################################################
+
+if [ ! -d ${NICOS_RELHOME} ]; then
+echo " nicos_checkout: problem: directory for the project is not created: ";
+echo " ${NICOS_RELHOME} ";
+exit 1
+fi
+
+cd ${NICOS_RELHOME} 
+${NICOS_HOME}/nicos_checkout.pl
+
+
+
+
+
+
+

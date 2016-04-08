@@ -1,0 +1,58 @@
+#!/bin/sh
+echo "$NICOS_SUFFIX" | grep "Core"; stat=$?
+echo "$NICOS_SUFFIX" | grep "Dbg"; statd=$?
+
+if [ "$statd" -eq 0 ]; then
+sss=`echo $NICOS_SUFFIX | sed 's/Dbg/Opt/g'`
+cp -a ${NICOS_WORK_AREA}/../nicos_work_area${sss}/pkg_versions_taginfo ${NICOS_WORK_AREA}/.
+cp -a ${NICOS_WORK_AREA}/../nicos_work_area${sss}/tags.db_gen ${NICOS_WORK_AREA}/.
+
+else # [ "$statd" -ne 0 ]; then
+
+if [ "$stat" -eq 0 ]; then
+
+projects=("Core" "Conditions" "Event" "Reconstruction" "Simulation" "Trigger" "Analysis" "Production" "Offline")
+suffixes=("CoreOpt" "CondOpt" "EvtOpt" "RecOpt" "SimOpt" "TrgOpt" "AnlOpt" "ProdOpt" "OfflOpt")
+
+echo "$NICOS_SUFFIX" | grep "Prod"; stat=$?
+if [ "$stat" -eq 0 ]; then
+suffixes=("CoreProdOpt" "CondProdOpt" "EvtProdOpt" "RecProdOpt" "SimProdOpt" "TrgProdOpt" "AnlProdOpt" "ProdProdOpt" "OfflProdOpt")
+fi
+
+echo "$NICOS_SUFFIX" | grep "Distcc"; stat=$?
+if [ "$stat" -eq 0 ]; then
+suffixes=("DistccCoreOpt" "DistccCondOpt" "DistccEvtOpt" "DistccRecOpt" "DistccSimOpt" "DistccTrgOpt" "DistccAnlOpt" "DistccProdOpt" "DistccOfflOpt")
+fi
+
+el_p=${#projects[@]}
+el_s=${#suffixes[@]}
+                                                                              
+old_work=$NICOS_WORK_AREA
+old_dbfilegen=$NICOS_DBFILE_GEN
+ind_p=0
+while [ "$ind_p" -lt $el_p ]
+do
+     NICOS_WORK_AREA="/afs/cern.ch/atlas/software/dist/nightlies/tst/nicos_work_area${suffixes[$ind_p]}"
+     export NICOS_WORK_AREA
+     dbase=`basename ${NICOS_DBFILE}`
+     NICOS_DBFILE_GEN="${NICOS_WORK_AREA}/${dbase}_gen"
+     export NICOS_DBFILE_GEN
+     if [ ! -d $NICOS_WORK_AREA ]; then mkdir -p $NICOS_WORK_AREA; fi
+     echo "reading TC for Atlas${projects[$ind_p]} ${NICOS_ATLAS_RELEASE}, to $NICOS_WORK_AREA"
+     if [ "${projects[$ind_p]}" = "Offline" -o "${projects[$ind_p]}" = "Production" ]; then
+     /afs/cern.ch/atlas/software/dist/nightlies/nicos/atlas/atlas_read_tagcollector 1${NICOS_ATLAS_RELEASE} Atlas${projects[$ind_p]}
+     else
+     /afs/cern.ch/atlas/software/dist/nightlies/nicos/atlas/atlas_read_tagcollector ${NICOS_ATLAS_RELEASE} Atlas${projects[$ind_p]}
+     fi
+let "ind_p+=1"
+done
+
+NICOS_WORK_AREA=$old_work
+export NICOS_WORK_AREA
+NICOS_DBFILE_GEN=$old_dbfilegen
+export NICOS_DBFILE_GEN
+echo "NICOS_WORK_AREA reinstated to $NICOS_WORK_AREA"
+echo "NICOS_DBFILE_GEN reinstated to $NICOS_DBFILE_GEN"
+fi
+
+fi # [ "$statd" -ne 0 ]; then

@@ -1,0 +1,73 @@
+BODY { 
+    margin: 6;
+    font-family: arial, helvetica, sans-serif;
+    color: black;
+    background: cornsilk;
+    font-size: 10pt
+  }
+
+a:link {
+  color: navy
+}
+
+a:visited {
+  color: maroon
+}
+
+a:active {
+  color:tomato
+}
+
+TT {color:brown;
+   font-family: courier;
+}
+
+PRE {color:brown;
+   font-family: courier;
+}
+
+.emphasis { color:red }
+
+LI { font-family: arial, helvetica, sans-serif; font-size: 10pt }
+
+table.header {
+  background: #CCFFFF;
+  color: #CC0000;
+}
+
+table.people {
+  background: #dddddd;
+  color: #CC0000;
+}
+
+table.light {
+  background: #FFFFCC;
+  color: #CC0000;
+}
+
+tr.dark {
+  background: #CCFFFF;
+}
+
+tr.light {
+  background: #FFFFCC;
+}
+
+td.small {
+  font-size: 8pt;
+}
+
+td.title {
+  font-size: 26pt;
+  font-family: arial, helvetica;
+  font-weight: bold;
+  color: #CC0000;
+}
+
+td.smalltitle {
+  font-size: 18pt;
+  font-family: arial, helvetica;
+  font-weight: bold;
+  color: #CC0000;
+}
+

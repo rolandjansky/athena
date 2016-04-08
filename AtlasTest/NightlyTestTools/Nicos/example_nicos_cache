@@ -1,0 +1,50 @@
+# Nicos cache file holds information:
+# 1) on project location and general settings
+# 2) release build tool setup
+# 3) checkout parameters
+# 4) project setup
+# 5) build command
+# 6) unit test command
+# 7) integrated tests procedure
+# 8) parameters for web page
+
+<PROJECT SETTINGS name=POOL relname=POOL_RELEASE prdir=POOL_0_3_1 lifetime=7>
+NICOS_PROJECT_HOME=/afs/cern.ch/sw/lcg/contrib/releases/POOL
+NICOS_BUILD_FROM_SCRATCH="yes"
+NICOS_DBFILE=${NICOS_HOME}/pool_tags.db
+SCRAM_HOME=/afs/cern.ch/sw/lcg/app/spi/scram/V0_19_7
+SCRAM_ARCH=Linux__2.4
+CVSROOT=:pserver:anoncvs@lcgapp.cern.ch:/cvs/POOL
+PATH=/afs/cern.ch/sw/lcg/app/spi/scram:${PATH}
+NICOS_WEBPAGE="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/poolwww"
+NICOS_WEBDIR=/afs/cern.ch/atlas/software/dist/nightlies/poolwww
+NICOS_COORDINATOR="undrus@bnl.gov"
+
+<RELEASE TOOL SETUP dir=${NICOS_PROJECT_RELNAME}>
+cvs co -r POOL_0_3_1 -d config config  
+scram project file:config/BootStrapFile
+
+<CHECKOUT tagstorage=file cvsdir=pool pkgdir=src>
+
+<PROJECT SETUP dir=.>
+
+<PROJECT BUILD dir=src>
+scram b 
+NICOS_BUILDLOG_SEPARATOR="------- Building ----"
+
+<UNIT TESTS>
+#units tests are supposed to be executed by the release tool command
+
+<INTEGRATED TESTS dir=bin/$SCRAM_ARCH script=$SCRAM_HOME/pool_inttests>
+
+<ERROR ANALYSIS>
+NICOS_MAIL="no"
+
+<WEB PAGE>
+
+
+
+
+
+
+

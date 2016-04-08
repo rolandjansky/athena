@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_qa (quality assurance tests)
+# ----------------------------------------------------------
+#
+DD=`date`
+echo "------------------------------------------------------------"
+echo "   Starting NICOS QA tests $DD"
+echo "------------------------------------------------------------"
+
+comname=`basename $0`
+if [ "$comname" = "nicos_qatests" ]; then
+exitcomqa="exit"
+else
+exitcomqa="return"
+fi
+
+stat=0
+if [ "${NICOS_DOMINANT_PROJECTS}" != "" -o "${NICOS_DOMINANT_PARALLEL}" != "" ]; then
+${NICOS_HOME}/nicos_sleeper.sh "BUILD" "PROJCONF"; stat=$?
+fi
+if [ "$stat" -ne 0 ]; then eval ${exitcomqa} ${stat}; fi
+
+prevdir=`pwd`
+
+if [ "${NICOS_QA_TOOL}" != "void" ]; then
+
+cd ${NICOS_RELHOME}/${NICOS_QA_DIR}
+source ${NICOS_WORK_AREA}/nicos_qa_gen >> ${NICOS_QALOG} 2>&1; stat=$?
+if [ "$stat" -ne 0 ]; then exit ${stat}; fi
+
+${NICOS_HOME}/nicos_loghandler.pl -q >> ${NICOS_LOG} 2>&1; stat=$?
+
+cd ${prevdir}
+exit $stat
+fi

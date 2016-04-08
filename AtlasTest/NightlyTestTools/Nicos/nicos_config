@@ -1,0 +1,646 @@
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_config: script that sets nicos environment
+#               supposed to be sourced from Bourne shell 
+# ----------------------------------------------------------
+#
+# 
+
+#echo "------------------------------------------------------------"
+#echo "   Starting NICOS configuration"
+#echo "------------------------------------------------------------"
+NICOS_VERSION=`cat $NICOS_HOME/nicos.version | head -1`
+export NICOS_VERSION
+
+start_step=0
+if [ "$#" -ge 1 ]; then
+start_step=$1; shift
+fi
+	 
+if [ "$NICOS_CONFIG_AREA" = "" ]; then
+echo " FATAL: nicos_config: NICOS_CONFIG_AREA is not defined"
+echo " Define this area with nicos cache file before running nicos" 
+return 1
+fi
+
+if [ ! -d ${NICOS_WORK_AREA} ]; then mkdir -p ${NICOS_WORK_AREA}; fi
+cache=${NICOS_CONFIG_AREA}/nicos_cache
+
+if [ ! -f "$cache" ]; then
+echo " FATAL: nicos_config: nicos_cache is not found"
+return 1
+fi
+
+NICOS_COMMON_CONFIG_AREA=""
+common_cache=""
+# determine if common configuration file is in play
+eval `cat $cache | grep "^NICOS_COMMON_CONFIG_AREA=" | head -1`
+if [ "${NICOS_COMMON_CONFIG_AREA}" != "" ]; then
+if [ -f "${NICOS_COMMON_CONFIG_AREA}/nicos_cache" ]; then
+echo "nicos_config: will take into account common config area ${NICOS_COMMON_CONFIG_AREA}"
+common_cache="${NICOS_COMMON_CONFIG_AREA}/nicos_cache"
+else
+echo "nicos_config: will ignore indicated common config area ${NICOS_COMMON_CONFIG_AREA}:"
+echo "              it does not contain cache file"
+NICOS_COMMON_CONFIG_AREA=""
+fi
+fi
+export NICOS_COMMON_CONFIG_AREA
+
+NICOS_PROJECT_HOME_INI=${NICOS_PROJECT_HOME}
+NICOS_RELHOME_INI=${NICOS_RELHOME}
+NICOS_SUFFIX_INI=${NICOS_SUFFIX}
+NICOS_DOMINANT_PROJECTS_INI=${NICOS_DOMINANT_PROJECTS}
+
+eval `cat $cache | grep "^NICOS_PROJECT_HOME=" | head -1`
+if [ "${NICOS_PROJECT_HOME}" = "" -a "${NICOS_PROJECT_HOME_INI}" = "" ]; then
+  if [ "${common_cache}" != "" ]; then
+  eval `cat $common_cache | grep "^NICOS_PROJECT_HOME=" | head -1`
+  fi
+if [ "${NICOS_PROJECT_HOME}" = "" ]; then
+echo "nicos_config failed: NICOS_PROJECT_HOME is not defined in nicos cache or existing environment" 
+return 1
+fi
+fi
+
+if [ "${NICOS_PROJECT_HOME_INI}" != "" ]; then
+NICOS_PROJECT_HOME=${NICOS_PROJECT_HOME_INI}
+fi
+export NICOS_PROJECT_HOME
+
+export NICOS_HOSTNAME=`hostname`
+ 
+NICOS_DBFILE_SOURCE=""
+export NICOS_DBFILE_SOURCE
+NICOS_DBFILE_SOURCE_LOCATION=""
+export NICOS_DBFILE_SOURCE_LOCATION
+
+# (0) setting project location variables
+sf=""
+NICOS_BUILD_FROM_SCRATCH_EXT=${NICOS_BUILD_FROM_SCRATCH}
+NICOS_WEBPAGE_DEPENDENT=""
+NICOS_WEBPAGE_MAIN=""
+export NICOS_WEBPAGE_DEPENDENT
+export NICOS_WEBPAGE_MAIN 
+NICOS_PROJECT_TYPE="main"
+rm -f ${NICOS_WORK_AREA}/cache_scan_result
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -d "PROJECT SETTINGS" ${common_cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+fi
+${NICOS_HOME}/nicos_cachescan -d "PROJECT SETTINGS" ${cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+export NICOS_PROJECT_NAME="$name"
+name_nospace=`echo "$name" | sed 's/ *//g'`
+NICOS_PROJECT_RELNAME="$name_nospace"
+NICOS_INC_BUILD="no"
+NICOS_ONDEMAND_BUILD="no"
+NICOS_STABLE_BUILD="no"
+NICOS_SUFFIX=""
+if [ "$relname" != "" ]; then NICOS_PROJECT_RELNAME="$relname"; fi
+if [ "$inc" = "yes" ]; then NICOS_INC_BUILD="yes"; fi 
+if [ "$mode" = "ondemand" ]; then NICOS_ONDEMAND_BUILD="yes"; fi
+if [ "$mode" = "stable" ]; then NICOS_STABLE_BUILD="yes"; fi
+if [ "$sf" != "" ]; then NICOS_SUFFIX="$sf"; fi
+if [ "$lifetime" = "" ]; then lifetime=1; fi
+
+if [ "${NICOS_SUFFIX_INI}" != "" ]; then
+NICOS_SUFFIX=${NICOS_SUFFIX_INI}
+fi
+
+#if [ "$lifetime" -ge 365 ]; then
+#echo "nicos_config problem: lifetime parameter is $lifetime in nicos_cache;"
+#echo "                      currently the allowed lifetime value(s): 1 - 365"
+#return 1 
+#fi
+
+rm -f ${NICOS_WORK_AREA}/cache_scan_result
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "PROJECT SETTINGS" ${common_cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+fi
+${NICOS_HOME}/nicos_cachescan -c "PROJECT SETTINGS" ${cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+
+#COPY_HOME can not be empty: it becomes PROJECT_HOME if copy is not needed
+if [ "${NICOS_COPY_HOME}" = "" ]; then
+NICOS_COPY_HOME="${NICOS_PROJECT_HOME}"
+fi
+export NICOS_COPY_HOME
+
+if [ "${NICOS_DOMINANT_PROJECTS_INI}" != "" ]; then
+NICOS_DOMINANT_PROJECTS=${NICOS_DOMINANT_PROJECTS_INI}
+fi
+
+if [ "$NICOS_DOMINANT_PARALLEL" != "" ]; then NICOS_PROJECT_TYPE="parallel"; fi
+
+if [ "${NICOS_ONDEMAND_BUILD}" != "yes" ]; then
+relnum=`${NICOS_HOME}/nicos_relnum_calcul.pl ${lifetime}`; stat=$?
+if [ "$stat" -ne 0 ]; then 
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo "nicos_config: nicos_relnum_calcul exited with non zero value"
+echo " and returned: $relnum "  
+echo "lifetime parameter is set to 0" 
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+lifetime=0;
+relnum=0;
+fi
+else #if [ "${NICOS_ONDEMAND_BUILD}" != "yes" ]; then
+lifetime="";
+relnum="";
+suffix="";
+if [ -e "${NICOS_COPY_HOME}/${NICOS_PROJECT_RELNAME}${suffix}" ]; then
+while [ -e "${NICOS_COPY_HOME}/${NICOS_PROJECT_RELNAME}${suffix}" ]; do
+    suffix="_${relnum}"
+    let relnum=${relnum}+1
+done
+fi # if [ -e
+fi
+
+if [ "$NICOS_BUILD_FROM_SCRATCH_EXT" = "yes" ]; then
+NICOS_BUILD_FROM_SCRATCH="yes"
+fi
+
+if [ "${start_step}" -ne 0 ]; then 
+NICOS_BUILD_FROM_SCRATCH="no"
+export NICOS_BUILD_FROM_SCRATCH
+NICOS_LOG_SCRATCH="no "
+export NICOS_LOG_SCRATCH
+fi
+
+if [ "$NICOS_PROJECT_TYPE" = "parallel" ]; then
+NICOS_BUILD_FROM_SCRATCH="no"
+fi
+
+# create stamp directory if necessary
+if [ "${NICOS_STAMPS_HOME}" = "" ]; then
+NICOS_STAMPS_HOME="${NICOS_PROJECT_HOME}/stamps"
+fi
+export NICOS_STAMPS_HOME
+
+if [ ! -d ${NICOS_STAMPS_HOME} ]; then
+mkdir -p ${NICOS_STAMPS_HOME}
+fi
+
+# stamps removal
+ar=("CONFIG" "TOOLINIT" "CO" "PROJCONF" "BUILD" "QA" "UNIT" "INT" "ERROR" "ALL")
+el_c=${#ar[@]}
+ind=$start_step
+while [ "$ind" -lt $el_c ]
+do
+#  echo YYYY ${ar[$ind]}
+  rm -f ${NICOS_STAMPS_HOME}/nicos_stamp${NICOS_SUFFIX}_${ar[$ind]}
+  if [ "${ar[$ind]}" = "BUILD" ]; then
+  rm -f ${NICOS_STAMPS_HOME}/nicos_stamp${NICOS_SUFFIX}_COPY_BUILD
+  fi
+  if [ "${ar[$ind]}" = "INT" ]; then
+  rm -f ${NICOS_STAMPS_HOME}/nicos_stamp${NICOS_SUFFIX}_COPY_TESTS
+  fi
+  let "ind+=1"
+done
+
+NICOS_PROJECT_RELNAME_GEN=${NICOS_PROJECT_RELNAME}
+
+if [ "$NICOS_PROJECT_RELNUMB_FIXED" != "" ]; then  
+NICOS_PROJECT_RELNAME=${NICOS_PROJECT_RELNAME}_${NICOS_PROJECT_RELNUMB_FIXED}
+NICOS_PROJECT_RELNUMB="${NICOS_PROJECT_RELNUMB_FIXED}"
+else
+NICOS_PROJECT_RELNAME=${NICOS_PROJECT_RELNAME}_${relnum}
+if [ "${relnum}" = "" ]; then
+NICOS_PROJECT_RELNAME=${NICOS_PROJECT_RELNAME_GEN}
+fi
+NICOS_PROJECT_RELNUMB=${relnum}
+fi
+
+NICOS_PROJECT_RELNAME_COPY=${NICOS_PROJECT_RELNAME}
+NICOS_PROJECT_RELNUMB_COPY=${NICOS_PROJECT_RELNUMB}
+
+if [ "${NICOS_INC_BUILD}" = "yes" ]; then
+if [ "${relnum}" != "" ]; then
+NICOS_PROJECT_RELNAME=${NICOS_PROJECT_RELNAME_GEN}_0
+NICOS_PROJECT_RELNUMB=0
+fi
+fi
+
+###if [ "${NICOS_ONDEMAND_BUILD}" = "yes" ]; then
+###if [ "${relnum}" != "" ]; then
+###NICOS_PROJECT_RELNAME=""
+###NICOS_PROJECT_RELNUMB=""
+###fi
+###fi
+
+export NICOS_INC_BUILD
+export NICOS_ONDEMAND_BUILD
+export NICOS_PROJECT_RELNAME_GEN
+export NICOS_PROJECT_RELNAME
+export NICOS_PROJECT_RELNUMB
+export NICOS_PROJECT_RELNAME_COPY
+export NICOS_PROJECT_RELNUMB_COPY
+export NICOS_SUFFIX
+export NICOS_PROJECT_TYPE
+
+if [ "${NICOS_RELHOME_INI}" != "" ]; then
+NICOS_RELHOME=${NICOS_RELHOME_INI}
+else
+NICOS_RELHOME=${NICOS_PROJECT_HOME}/${NICOS_PROJECT_RELNAME}
+if [ "$prdir" != "" -a "$prdir" != "." ]; then
+NICOS_RELHOME=${NICOS_PROJECT_HOME}/${NICOS_PROJECT_RELNAME}/$prdir
+fi
+fi
+export NICOS_RELHOME
+
+if [ "$NICOS_BUILD_FROM_SCRATCH" = "yes" ]; then
+rm -rf ${NICOS_PROJECT_HOME}/${NICOS_PROJECT_RELNAME}/*
+rm -rf ${NICOS_PROJECT_HOME}/${NICOS_PROJECT_RELNAME}/.[A-Z]*
+rm -rf ${NICOS_PROJECT_HOME}/${NICOS_PROJECT_RELNAME}/.[a-z]*
+fi
+ 
+if [ ! -d ${NICOS_RELHOME} ]; then
+mkdir -p ${NICOS_RELHOME}
+fi
+
+if [ ! -d ${NICOS_COPY_HOME}/${NICOS_PROJECT_RELNAME_COPY} ]; then
+mkdir -p ${NICOS_COPY_HOME}/${NICOS_PROJECT_RELNAME_COPY}
+fi
+
+if [ ! -d ${NICOS_RELHOME}/NICOS_Log${NICOS_SUFFIX} ]; then 
+mkdir ${NICOS_RELHOME}/NICOS_Log${NICOS_SUFFIX}
+fi
+if [ ! -d ${NICOS_RELHOME}/NICOS_TestLog${NICOS_SUFFIX} ]; then 
+mkdir ${NICOS_RELHOME}/NICOS_TestLog${NICOS_SUFFIX}
+fi
+if [ ! -d ${NICOS_RELHOME}/NICOS_QALog${NICOS_SUFFIX} ]; then
+mkdir ${NICOS_RELHOME}/NICOS_QALog${NICOS_SUFFIX}
+fi
+
+export NICOS_LOG=${NICOS_RELHOME}/NICOS_Log${NICOS_SUFFIX}/nicos_general.loglog
+export NICOS_BUILDLOG=${NICOS_RELHOME}/NICOS_Log${NICOS_SUFFIX}/nicos_build.loglog
+export NICOS_TESTLOG=${NICOS_RELHOME}/NICOS_TestLog${NICOS_SUFFIX}/nicos_test.loglog
+export NICOS_UNITTESTLOG=${NICOS_RELHOME}/NICOS_TestLog${NICOS_SUFFIX}/nicos_unittest.loglog
+export NICOS_QALOG=${NICOS_RELHOME}/NICOS_QALog${NICOS_SUFFIX}/nicos_qatest.loglog
+
+export NICOS_TEST_FAILURE_PATTERN=""
+export NICOS_TEST_SUCCESS_PATTERN=""
+
+if [ "$NICOS_BUILD_FROM_SCRATCH" = "yes" -o "$NICOS_LOG_SCRATCH" = "yes" ]; then
+rm -rf ${NICOS_RELHOME}/NICOS_Log${NICOS_SUFFIX}/*
+rm -rf ${NICOS_RELHOME}/NICOS_TestLog${NICOS_SUFFIX}/*
+rm -rf ${NICOS_RELHOME}/NICOS_QALog${NICOS_SUFFIX}/*
+if [ -f ${NICOS_LOG} ]; then rm -f ${NICOS_LOG}; fi; touch ${NICOS_LOG}
+if [ -f ${NICOS_BUILDLOG} ]; then rm -f ${NICOS_BUILDLOG}; fi; touch ${NICOS_BUILDLOG}
+if [ -f ${NICOS_TESTLOG} ]; then rm -f ${NICOS_TESTLOG}; fi; touch ${NICOS_TESTLOG}
+if [ -f ${NICOS_UNITTESTLOG} ]; then rm -f ${NICOS_UNITTESTLOG}; fi; touch ${NICOS_UNITTESTLOG}
+if [ -f ${NICOS_QALOG} ]; then rm -f ${NICOS_QALOG}; fi; touch ${NICOS_QALOG}
+fi
+                                                                              
+if [ "${NICOS_DBFILE_SOURCE_LOCATION}" != "" ]; then
+NICOS_DBFILE_SOURCE=${NICOS_PROJECT_HOME}/${NICOS_PROJECT_RELNAME}/${NICOS_DBFILE_SOURCE_LOCATION}
+export NICOS_DBFILE_SOURCE
+fi
+
+if [ "${NICOS_DBFILE}" = "" ]; then
+NICOS_DBFILE="${NICOS_CONFIG_AREA}/tags.db"
+export NICOS_DBFILE
+fi
+if [ "${NICOS_TEST_DBFILE}" = "" ]; then
+NICOS_TEST_DBFILE="${NICOS_CONFIG_AREA}/test.db"
+export NICOS_TEST_DBFILE
+fi
+
+if [ "${NICOS_DBFILE}" != "" ]; then
+dbase=`basename ${NICOS_DBFILE}`
+NICOS_DBFILE_GEN="${NICOS_WORK_AREA}/${dbase}_gen" 
+export NICOS_DBFILE_GEN
+fi
+
+if [ "${start_step}" -lt 2 ]; then
+if [ -f "${NICOS_DBFILE}" ]; then
+dbase=`basename ${NICOS_DBFILE}`
+NICOS_DBFILE_MOD="${NICOS_WORK_AREA}/${dbase}_mod"
+if [ -f "${NICOS_DBFILE_MOD}" ]; then rm -f ${NICOS_DBFILE_MOD}; fi
+touch ${NICOS_DBFILE_MOD}
+cat ${NICOS_DBFILE} | while read pkg ver adr
+do
+if [ "$pkg" != "" ]; then
+printf "%-40s%-1s%-30s%-1s%-2s\n" $pkg " " $ver " 0 "  $adr >> ${NICOS_DBFILE_MOD}
+fi
+done
+fi
+fi # if [ "${start_step}" -ge 2 ]; 
+
+if [ "${NICOS_TEST_DBFILE}" != "" ]; then
+dbase=`basename ${NICOS_TEST_DBFILE}`
+NICOS_TEST_DBFILE_GEN="${NICOS_WORK_AREA}/${dbase}_gen"
+export NICOS_TEST_DBFILE_GEN
+else
+NICOS_TEST_DBFILE_GEN="${NICOS_WORK_AREA}/atlas_test.db_gen"
+export NICOS_TEST_DBFILE_GEN
+fi
+
+#WEBDIR default
+
+if [ "${NICOS_WEBDIR}" = "" ]; then
+NICOS_WEBDIR=${NICOS_COPY_HOME}/nicos_web_area${NICOS_SUFFIX}
+export NICOS_WEBDIR
+fi
+if [ ! -d ${NICOS_WEBDIR} ]; then
+mkdir -p ${NICOS_WEBDIR}
+fi
+
+if [ "${NICOS_COMMON_WEBDIR}" != "" ]; then
+if [ ! -d ${NICOS_COMMON_WEBDIR} ]; then
+mkdir -p ${NICOS_COMMON_WEBDIR}
+fi
+fi
+
+echo "------------------------------------------------------------" >> ${NICOS_LOG}
+echo "   Starting NICOS configuration" >> ${NICOS_LOG}
+echo "------------------------------------------------------------" >> ${NICOS_LOG}
+
+# (1) release build tool setup
+rm -f ${NICOS_WORK_AREA}/cache_scan_result
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -d "RELEASE TOOL SETUP" ${common_cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+fi
+${NICOS_HOME}/nicos_cachescan -d "RELEASE TOOL SETUP" ${cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+if [ "$dir" = "" ]; then dir="."; fi
+if [ "$command" = "source" ]; then 
+export NICOS_RELEASETOOLSETUP_COMMAND=${command}
+fi
+unset command
+export NICOS_RELEASETOOLSETUP_DIR=${dir}
+unset dir
+
+rm -rf ${NICOS_WORK_AREA}/nicos_toolinit_gen
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "RELEASE TOOL SETUP" ${common_cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >| \
+${NICOS_WORK_AREA}/nicos_toolinit_gen
+fi
+${NICOS_HOME}/nicos_cachescan -c "RELEASE TOOL SETUP" ${cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >> \
+${NICOS_WORK_AREA}/nicos_toolinit_gen
+
+# (2) checkout parameters
+rm -f ${NICOS_WORK_AREA}/cache_scan_result
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -d "CHECKOUT" ${common_cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+fi
+${NICOS_HOME}/nicos_cachescan -d "CHECKOUT" ${cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+if [ "$tagstorage" = "" ]; then tagstorage="file"; fi
+if [ "$tagstorage" != "file" ]; then
+echo "nicos_config problem: tagstorage parameter is $tagstorage in nicos_cache;"
+echo "                      currently the allowed value(s): ''file''"
+return 1 
+fi
+export NICOS_TAGSTORAGE_METHOD="file"
+unset tagstorage
+
+if [ "$cvsdir" = "" ]; then cvsdir="."; fi
+export NICOS_CVSDIR=${cvsdir}
+unset cvsdir
+if [ "$pkgdir" = "" ]; then pkgdir="."; fi
+export NICOS_PKGDIR=${pkgdir}
+unset pkgdir
+if [ "$command" = "" ]; then command="cvs"; fi
+export NICOS_CHECKOUT_COMMAND=${command}
+unset command
+if [ "$shell" = "" ]; then shell="/bin/sh"; fi
+export NICOS_CHECKOUT_SHELL=${shell}
+unset shell
+
+rm -f ${NICOS_WORK_AREA}/nicos_checkout_gen
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "CHECKOUT" ${common_cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >| \
+${NICOS_WORK_AREA}/nicos_checkout_gen
+fi
+${NICOS_HOME}/nicos_cachescan -c "CHECKOUT" ${cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >> \
+${NICOS_WORK_AREA}/nicos_checkout_gen
+
+# (3) project setup
+rm -f ${NICOS_WORK_AREA}/cache_scan_result
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -d "PROJECT SETUP" ${common_cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+fi
+${NICOS_HOME}/nicos_cachescan -d "PROJECT SETUP" ${cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+if [ "$dir" = "" ]; then dir="."; fi
+export NICOS_PROJECTSETUP_DIR=${dir}
+unset dir
+
+if [ "$command" = "source" ]; then
+export NICOS_PROJECTSETUP_COMMAND=${command}
+fi
+unset command
+
+rm -f ${NICOS_WORK_AREA}/nicos_projectconf_gen
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "PROJECT SETUP" ${common_cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >| \
+${NICOS_WORK_AREA}/nicos_projectconf_gen
+fi
+${NICOS_HOME}/nicos_cachescan -c "PROJECT SETUP" ${cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >> \
+${NICOS_WORK_AREA}/nicos_projectconf_gen
+
+# (4) build command
+rm -f ${NICOS_WORK_AREA}/cache_scan_result
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -d "PROJECT BUILD" ${common_cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+fi
+${NICOS_HOME}/nicos_cachescan -d "PROJECT BUILD" ${cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+if [ "$dir" = "" ]; then dir="."; fi
+export NICOS_PROJECTBUILD_DIR=${dir}
+unset dir
+if [ "$shell" = "" ]; then shell="/bin/sh"; fi
+export NICOS_BUILD_SHELL=${shell}
+unset shell
+
+rm -f ${NICOS_WORK_AREA}/nicos_build_gen
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "PROJECT BUILD" ${common_cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >| \
+${NICOS_WORK_AREA}/nicos_build_gen
+fi
+${NICOS_HOME}/nicos_cachescan -c "PROJECT BUILD" ${cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >> \
+${NICOS_WORK_AREA}/nicos_build_gen
+
+# (4a) copy after build if any
+rm -f ${NICOS_WORK_AREA}/cache_scan_result
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -d "COPY AFTER BUILD" ${common_cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+fi
+${NICOS_HOME}/nicos_cachescan -d "COPY AFTER BUILD" ${cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+if [ "$dir" = "" ]; then dir="."; fi
+export NICOS_COPY_BUILD_DIR=${dir}
+unset dir
+if [ "$shell" = "" ]; then shell="/bin/sh"; fi
+export NICOS_COPY_BUILD_SHELL=${shell}
+unset shell
+if [ "$type" = "" ]; then type="void"; fi
+export NICOS_COPY_BUILD_TYPE=${type}
+unset type
+
+rm -f ${NICOS_WORK_AREA}/nicos_copy_after_build_gen
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "COPY AFTER BUILD" ${common_cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >| \
+${NICOS_WORK_AREA}/nicos_copy_after_build_gen
+fi
+${NICOS_HOME}/nicos_cachescan -c "COPY AFTER BUILD" ${cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >> \
+${NICOS_WORK_AREA}/nicos_copy_after_build_gen
+
+# (5) qa test command
+rm -f ${NICOS_WORK_AREA}/cache_scan_result
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -d "QA TESTS" ${common_cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+fi
+abcd=0; if [ "$abcd" = "0" ]; then
+${NICOS_HOME}/nicos_cachescan -d "QA TESTS" ${cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+if [ "$dir" = "" ]; then dir="."; fi
+export NICOS_QA_DIR=${dir}
+unset dir
+if [ "$tool" = "" ]; then tool=""; fi
+export NICOS_QA_TOOL=${tool}
+unset tool
+
+rm -f ${NICOS_WORK_AREA}/nicos_qa_gen
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "QA TESTS" ${common_cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >| \
+${NICOS_WORK_AREA}/nicos_qa_gen
+fi
+${NICOS_HOME}/nicos_cachescan -c "QA TESTS" ${cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >> \
+${NICOS_WORK_AREA}/nicos_qa_gen
+
+# (6) unit test command
+rm -f ${NICOS_WORK_AREA}/cache_scan_result
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -d "UNIT TESTS" ${common_cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+fi
+${NICOS_HOME}/nicos_cachescan -d "UNIT TESTS" ${cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+if [ "$dir" = "" ]; then dir="."; fi
+export NICOS_UNITTESTS_DIR=${dir}
+unset dir
+if [ "$tool" = "" ]; then tool=""; fi
+export NICOS_UNITTESTS_TOOL=${tool}
+unset tool
+
+rm -f ${NICOS_WORK_AREA}/nicos_unittests_gen
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "UNIT TESTS" ${common_cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >| \
+${NICOS_WORK_AREA}/nicos_unittests_gen
+fi
+${NICOS_HOME}/nicos_cachescan -c "UNIT TESTS" ${cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >> \
+${NICOS_WORK_AREA}/nicos_unittests_gen
+
+# (7) integrated tests procedure
+rm -f ${NICOS_WORK_AREA}/cache_scan_result
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -d "INTEGRATED TESTS" ${common_cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+fi
+${NICOS_HOME}/nicos_cachescan -d "INTEGRATED TESTS" ${cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+if [ "$dir" = "" ]; then dir="."; fi
+export NICOS_INTTESTS_DIR=${dir}
+unset dir
+if [ "$script" != "" ]; then 
+export NICOS_INTTESTS_SCRIPT=${script}
+unset script
+fi
+if [ "$tool" = "" ]; then tool=""; fi
+export NICOS_INTTESTS_TOOL=${tool}
+unset tool
+
+rm -f ${NICOS_WORK_AREA}/nicos_inttests_gen
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "INTEGRATED TESTS" ${common_cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >| \
+${NICOS_WORK_AREA}/nicos_inttests_gen
+fi
+${NICOS_HOME}/nicos_cachescan -c "INTEGRATED TESTS" ${cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >> \
+${NICOS_WORK_AREA}/nicos_inttests_gen
+
+# (8) error analysis
+rm -f ${NICOS_WORK_AREA}/nicos_errorhandler_gen
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "ERROR ANALYSIS" ${common_cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >| \
+${NICOS_WORK_AREA}/nicos_errorhandler_gen
+fi
+${NICOS_HOME}/nicos_cachescan -c "ERROR ANALYSIS" ${cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >> \
+${NICOS_WORK_AREA}/nicos_errorhandler_gen
+
+# (8a) copy after tests if any
+rm -f ${NICOS_WORK_AREA}/cache_scan_result
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -d "COPY AFTER TESTS" ${common_cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+fi
+${NICOS_HOME}/nicos_cachescan -d "COPY AFTER TESTS" ${cache}
+source ${NICOS_WORK_AREA}/cache_scan_result
+if [ "$dir" = "" ]; then dir="."; fi
+export NICOS_COPY_TESTS_DIR=${dir}
+unset dir
+if [ "$shell" = "" ]; then shell="/bin/sh"; fi
+export NICOS_COPY_TESTS_SHELL=${shell}
+unset shell
+if [ "$type" = "" ]; then type="void"; fi
+export NICOS_COPY_TESTS_TYPE=${type}
+unset type
+
+rm -f ${NICOS_WORK_AREA}/nicos_copy_after_tests_gen
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "COPY AFTER TESTS" ${common_cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >| \
+${NICOS_WORK_AREA}/nicos_copy_after_tests_gen
+fi
+${NICOS_HOME}/nicos_cachescan -c "COPY AFTER TESTS" ${cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >> \
+${NICOS_WORK_AREA}/nicos_copy_after_tests_gen
+
+# (9) parameters for web page
+rm -f ${NICOS_WORK_AREA}/nicos_webpage_gen
+if [ "${common_cache}" != "" ]; then
+${NICOS_HOME}/nicos_cachescan -c "WEB PAGE" ${common_cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >| \
+${NICOS_WORK_AREA}/nicos_webpage_gen
+fi
+${NICOS_HOME}/nicos_cachescan -c "WEB PAGE" ${cache}
+cat ${NICOS_WORK_AREA}/cache_scan_result >> \
+${NICOS_WORK_AREA}/nicos_webpage_gen
+
+echo "------------------------------------------------------------" >> ${NICOS_LOG}
+echo "   The following variables are determined at NICOS configuration" >> ${NICOS_LOG}
+env | grep NICOS >>  ${NICOS_LOG}
+echo $HOST >>  ${NICOS_LOG}
+echo "------------------------------------------------------------" >> ${NICOS_LOG}
+
+
+# (end) -----------------------------
+fi

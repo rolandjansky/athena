@@ -1,0 +1,523 @@
+<html>
+<head><title>
+
+NICOS HOWTO for ATLAS
+
+</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+</head><body> 
+<!-------------------------------- Header ---------------------------->
+<table class=header border=0 cellpadding=5 cellspacing=0 width="100%">
+<tr>
+  <td align=left> <font size="-1"> &nbsp; </font></td>
+  <td align=right> <font size="-1"><a href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/">ATLAS Computing</a></font></td>
+</tr>
+<tr><td colspan=2 align=center class=smalltitle>
+
+NICOS manual for ATLAS use case
+
+</td></tr>
+<tr><td colspan=2 align=right><font size="-1">
+<a href="http://www.usatlas.bnl.gov/computing/software/nicos/index.html">US ATLAS Computing</a>
+</font></td></tr>
+<tr class=light><td colspan=2 align=right colspan=1><font size="-1">
+<script language="JavaScript">
+    <!-- Hide script from old browsers
+    document.write("Last modified "+ document.lastModified)
+    // end of script -->
+    </script>
+</font></td></tr></table>
+
+<!--------------------------- Contents --------------------------->
+<p>
+
+  <b>This document</b> describes how to use
+<a href="http://www.usatlas.bnl.gov/computing/software/nicos">
+the NICOS (NIghtly COntrol MANagement) tool</a> 
+for ATLAS nightly builds. The similar information and additional concrete
+recipes are posted
+on <a href="https://uimon.cern.ch/twiki/bin/view/Atlas/Nicos">
+NICOS wiki page</a>. 
+
+<A NAME="0"></A>
+
+<LI><A HREF="#1">Principles of NICOS design</A>
+<LI><A HREF="#2">NICOS location</A>
+<LI><A HREF="#3">NICOS executable, environment, and files</A>
+<LI><A HREF="#4">NICOS configuration file</A>
+<LI><A HREF="#5">NICOS database file</A>
+<LI><A HREF="#9"><B>NICOS 1.0 new features</B></A>
+
+<P><HR SIZE=6>
+
+<center> <B><A NAME="1">Principles of NICOS design</A></B> </center>
+<H6><A HREF="#0">BACK TO TOP</A></H6>
+<P>NICOS (NIghtly COntrol MANagement) facilitates nightly
+builds of software projects. Nightly builds are common
+in software project involving multiple developers.
+NICOS is the system originally developed for ATLAS nightly
+builds. It was evolved in the independent software package
+that can be applied to more than one experiment or application.
+
+<P>NICOS performs nightly build processes in distinctive steps.
+Each step allows plug-ins and can be configured for 
+particular use case. The compilation itself is one of initial 
+steps followed by tests, analysis of errors, and creating
+web pages with build summaries. Developers are notified about 
+problems with their packages via e-mail. 
+
+<P> NICOS supports the organization when the releases are built
+on a local disk (usually fast and reliable) and then copied to 
+a distributed file system (e.g. AFS). The builds can be incremental, i.e.
+when only new versions of packages are compiled, or from scratch.
+While NICOS is originally developed as the nightly build control system
+it can also build stable and local "personal" releases (in latter case
+the release contents is determined by a developer).
+
+<P> NICOS allows to build the chain of nightly projects. In this case
+the projects are built in the certain order determined by 
+declared projects dependencies.
+
+<P> NICOS core does not contain ATLAS specific features. 
+For convenience of ATLAS software
+infrastructure management the scripts with self-evident (and long) names for 
+typical tasks are added to NICOS distribution.
+These scripts require very few parameters and allow to run NICOS
+without reading manuals.
+
+<P><center> <B><A NAME="2">NICOS location</A></B> </center>
+<P> The most recent version of NICOS is installed in<BR>
+<CODE>/afs/cern.ch/atlas/software/dist/nightlies/nicos</CODE>.<BR>
+ATLAS nightlies use this installation.
+ATLAS software releases (and ATLAS CVS repository)
+contain NICOS in <BR><code>AtlasTest/NightlyTestTools/Nicos</code>.<BR>
+ATLAS plug-ins and extensions are collected in <CODE>atlas</CODE>
+and the scripts for typical atlas tasks in
+<CODE>atlasjobs</CODE> subdirectories.
+
+<BR><BR>
+
+<P><center> <B><A NAME="3">NICOS executable, environment, and files</A></B></CENTER>
+<H6><A HREF="#0">BACK TO TOP</A></H6>
+<P> NICOS executable is <CODE>nicos_job</CODE> (or similar name), a Bourne
+shell script.  
+Before running NICOS the following three variables must be defined:
+
+<UL>
+<LI> <CODE><B>NICOS_HOME</B></CODE> is the location of NICOS
+installation (at CERN 
+<CODE>/afs/cern.ch/atlas/software/dist/nightlies/nicos</CODE>)  
+
+<LI> <CODE><B>NICOS_WORK_AREA</B></CODE> is an area for 
+temporary NICOS files. It can be any empty directory
+(if the directory does not exist then NICOS tries to
+create it) 
+
+<LI> <CODE><B>NICOS_CONFIG_AREA</B></CODE> is an area where
+configuration files are located. For ATLAS nightly builds the 
+configuration areas are located in:
+<CODE>/afs/cern.ch/atlas/software/dist/nightlies/nicos_config_area&lt;suffix&gt;</CODE>
+</UL> 
+
+<P>    NICOS uses three configuration files (see descriptions
+and examples below).
+
+<UL> 
+
+<LI><CODE>nicos_cache</CODE> (fixed name) 
+must be located in <CODE>${NICOS_CONFIG_AREA}</CODE>.
+It contains all definitions needed for nightly 
+builds
+
+<LI>NICOS tags database is a text file with names of packages, tags, 
+and addresses of software developers. The name and location of this
+file is defined in <CODE>nicos_cache</CODE>. In case of ATLAS nightly
+builds NICOS runs a plug-in that retrieves the tags
+from  <a href="http://tc2.in2p3.fr">ATLAS Tag Collector</a>. However the tags
+in NICOS text file override the tags from Tag Collector
+
+<LI>NICOS test database (optional) is a text file with names of tests,
+test suites, locations in the software release,
+and addresses of software developers. The name and location of this
+file is defined in <CODE>nicos_cache</CODE>. In case of ATLAS nightly
+builds NICOS uses <a href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/nicoswww/atnight.html">ATN tool</a> that automatically finds in the release tree and 
+runs integration tests. It reads the NICOS test database for information on
+additional or canceled tests
+
+</UL> 
+
+<P>Once the above-mentioned variables are defined and nicos_cache
+is configured the nicos job can be started with<BR>
+<CODE>${NICOS_HOME}/nicos_job [OPTIONS]</CODE>
+<P>The options are 
+<UL>
+<LI> <B> -b | --begin </B>: starting point of nicos_job; allowed values: all (full), build, tests, inttests, docs (documentation); default <b>full</b>
+<LI> <B> -s | --scratch </B>: release area is cleaned before build. This option works only for full release builds
+<LI> <B>  --copy </B>: repeat copy to the permanent release area
+<LI> <B>  --nocopy </B>: cancel copy to the permanent release area. This option works when the release is build in a local area and then copied to a distributed file system
+<LI> <B> --nowait </B>: when building the chain of projects: do not wait for completion of projects that current project uses 
+<LI> <B> -r | --relnum </B>: release number (not name, just a number in the end of name, e.g. "5"). It overrides automatically generated number
+<LI> <B> -h | --help </B>: show help 
+</UL>
+
+<P><CENTER><B><A NAME="4">NICOS configuration file</A></B></CENTER>
+<H6><A HREF="#0">BACK TO TOP</A></H6>
+<P> This file in XML-like format contains all necessary 
+configuration parameters. Each build step is associated 
+with Markup tag that is followed by environment definitions
+and commands for particular step. Markup tag can contain 
+some name or base directory definitions. Below are the examples
+from ATLAS nightly builds configuration files with commentaries.
+<P>
+<UL>
+<LI> INITIALIZATION STEP: PROJECT SETTINGS. At this step general environment variables
+are defined (valid for all other steps). 
+ATLAS has several nightly projects (~ 20 as of December 2005)
+with similar configuration. The "common" parameters can be specified
+in shared configuration file (its name should be declared in
+<CODE>NICOS_COMMON_CONFIG_AREA</CODE> variable). If a shared configuration is
+specified then NICOS  
+<OL>
+<LI> set environment specified in the project configuration file
+<LI> set environment specified in the shared configuration file. Hence the 
+shared configuration file can use variables from the project configuration file
+<LI> reset environment according the project configuration. Therefore the 
+definitions of project configuration file are dominant.
+</OL> 
+
+<PRE>
+&lt;PROJECT SETTING name=ABCD relname=atlrel lifetime=2 sf=SlcOpt inc=yes&gt;
+NICOS_PROJECT_HOME=/build/atnight/localbuilds/nightlies/rel
+</PRE>
+In Markup tag several names are defined:
+<OL>
+<LI> name of project. This name is used for reference purposes
+on generated web pages only
+<LI> name of directories with nightly releases (<CODE>atlrel</CODE>).
+The suffix with the release number is appended, for instance for
+seven day cycle the releases names are <CODE>atlrel_0</CODE> -
+<CODE>atlrel_6</CODE>, where the number is a day of week
+<LI> <CODE>lifetime</CODE> indicates number of releases in a cycle
+(1 - 365). For instance, if it is equal to 7 then
+seven nightly releases exist ( "0" release is built
+on Sunday, "1" is built by Tuesday etc. )
+<LI> <CODE>sf</CODE> is a suffix added to the names of standard
+NICOS areas. This is useful when several nightlies share one
+code (e.g. optimized and debug ATLAS builds), so their log files
+areas get different suffixes. Stored in variable $NICOS_SUFFIX
+<LI> <CODE>inc</CODE> indicates that the builds are incremental
+(i.e. use the results of previous nightlies)
+</OL>
+
+<P> The tag content example:
+
+<PRE>
+NICOS_PROJECT_HOME=/build/atnight/localbuilds/nightlies/rel
+# Area where nightlies are built
+NICOS_COPY_HOME=/afs/cern.ch/atlas/software/dist/nightlies/rel
+# Area in distributed file system to which nightlies are copied 
+NICOS_STAMPS_HOME=/afs/cern.ch/atlas/software/dist/nightlies/stamps_global
+# Area for NICOS time stamps used for synchronization of dependent projects
+NICOS_BUILD_FROM_SCRATCH="yes"
+# All files are wiped out from the release area before the build if "yes",
+# The sources are updated and release area is not cleaned if "no"
+NICOS_ATLAS_RELEASE="11.1.0"
+# This variable is added for convenience (not genuine NICOS variable)
+NICOS_TITLE_COMMENT="tags for ${NICOS_ATLAS_RELEASE}" 
+# This line is added in the title of NICOS web pages
+NICOS_HOUR=15
+# This variable indicates that the builds started after 15:00 
+# get release name with the suffix for the next day. For example
+# if release starts on Monday at 21:00 then its name gets suffix _2
+NICOS_WEBPAGE="http://atlas.web.cern.ch/*****"
+NICOS_COMMON_WEBPAGE="http://atlas.web.cern.ch/*****"
+NICOS_WEBDIR=/afs/cern.ch/atlas/software/dist/nightlies/nicos_web_area${NICOS_SUFFIX}
+NICOS_COMMON_WEBDIR=/afs/cern.ch/atlas/software/dist/nightlies/global
+# These variables store URL's and locations of directories with
+# NICOS html files. Common web area holds the summary page for
+# all available nightlies  
+NICOS_DBFILE=${NICOS_CONFIG_AREA}/tags.db
+# NICOS database file with names of packages, tags, and addresses of
+# software developers (default shown)
+NICOS_TEST_DBFILE=${NICOS_CONFIG_AREA}/test.db
+# NICOS test database file with names of tests, suites, locations,
+# and addresses of software developers (default shown)
+NICOS_DOMINANT_PARALLEL="SlcDbg"
+NICOS_PROJECT_TYPE="parallel"
+# This indicates that another nightly project with suffix "SlcDbg"
+# uses the same build area and is responsible for checkout (as 
+# "DOMINANT"). Therefore the "SlcOpt" build will be suspended
+# until the checkout in "SlcDbg" is not completed.
+NICOS_COORDINATOR="undrus@bnl.gov"
+NICOS_RELEASE_COORDINATOR="undrus@bnl.gov"
+# NICOS send some notifications to these addresses.
+PATH=/afs/cern.ch/sw/java/i386_redhat73/jdk/sun-1.5.0beta/bin:${PATH}
+LD_LIBRARY_PATH=/usr/local/gcc-alt-3.2/lib:${LD_LIBRARY_PATH}
+CVSROOT=:pserver:aundrus@atlas-sw.cern.ch:/atlascvs
+SITEROOT=/afs/cern.ch
+CMTBASE=/afs/cern.ch/sw/contrib/CMT
+CMTVERS=v1r14p20031027
+CMTCONFIG=i686-rh73-gcc32-opt
+CMTROOT=${CMTBASE}/${CMTVERS}
+CMTSITE=CERN
+CMTCVSOFFSET=offline
+#Variables for CMT setup.
+</PRE>
+
+<LI> STEP 1: RELEASE TOOL SETUP. At this step the release
+tool is initialized. The NICOS database file is generated
+by the external script that connects to Tag Collector. 
+The commands inside <BYPASS> tag are not run for partial builds
+procedures (e.g. when only tests are repeated). In Markup tag the
+work directory (relative to the release directory $NICOS_RELHOME) is defined.
+If <CODE>command=source</CODE> is indicated then the variables
+defined at this step are valid for subsequent steps.  
+<PRE>
+&lt;RELEASE TOOL SETUP dir=. command=source&gt;
+source ${CMTROOT}/mgr/setup.sh
+CMTPATH=${NICOS_RELHOME}
+<BYPASS>
+if [ "$NICOS_PROJECT_TYPE" != "parallel" ]; then
+${NICOS_HOME}/atlas/atlas_read_tagcollector ${NICOS_ATLAS_RELEASE}
+rm -rf ${NICOS_RELHOME}/InstallArea
+fi
+</BYPASS>
+</pre>
+
+<LI> STEP 2: CHECKOUT. At this step the sources are
+checked out.
+In Markup tag the following is defined:
+<OL>
+<LI> method of tag storage; for ATLAS use case it is <CODE>file</CODE>
+that is text database file.
+<LI> directory in which sources are stored in CVS repository
+(could be ".").
+<LI> command for checkout, if different from <CODE>cvs</CODE>.
+<LI> shell for checkout commands. The access to ATLAS CVS repository
+requires TGT kerberos token that can be obtained in
+<CODE>pagsh</CODE>.
+</OL>
+
+<PRE>
+&lt;CHECKOUT tagstorage=file cvsdir=offline command=cmt shell=/usr/bin/pagsh.krb&gt;
+</PRE>
+
+<LI> STEP 3: PROJECT SETUP. At this step additional
+commands for project setup can be performed. In this
+example the external scripts generate cmt/requirements
+file for AtlasRelease package and setup CMT.
+In Markup tag the
+work directory (relative to the release directory $NICOS_RELHOME) is defined.
+If <CODE>command=source</CODE> is indicated then the variables
+defined at this step are valid for subsequent steps.
+<PRE>
+&lt;PROJECT SETUP dir=. command=source&gt;
+<BYPASS>
+if [ "$NICOS_PROJECT_TYPE" != "parallel" ]; then
+cd $NICOS_RELHOME/AtlasRelease/*/cmt
+${NICOS_HOME}/atlas/atlas_generate_req
+cd ${NICOS_PROJECT_HOME}/${NICOS_PROJECTSETUP_DIR}
+</BYPASS>
+source ${NICOS_HOME}/atlas/setup_cmt.sh
+</PRE>
+
+<LI> STEP 4: PROJECT BUILD: Commands for
+release build are listed (example from ATLAS nightlies). NICOS needs 
+<CODE>NICOS_BUILDLOG_SEPARATOR</CODE> be defined.
+It is required that the release build tool prints
+a separating line between builds of different packages.
+This line should contain the name of package to be
+built (preferably with all containers,
+for instance <CODE>Utilities/FileCatalog</CODE>
+if package FileCatalog is in the container Utilities).
+In Markup tag the work directory (relative to the release directory 
+$NICOS_RELHOME) is defined. Also the desirable shell
+can be indicated.
+
+<PRE>
+&lt;PROJECT BUILD dir=AtlasRelease/*/cmt shell=/bin/zsh&gt;
+cmt broadcast - 'rm -f ../i686*/*.so ; rm -rf ../run'
+cmt broadcast - cmt config
+source setup.sh
+cmt broadcast - make
+NICOS_FULLNAME_INSEPARATOR="yes"
+NICOS_BUILDLOG_SEPARATOR="Now trying"
+</PRE>
+
+<LI> STEP 4': COPY AFTER BUILD: Optional tag for copy to
+a distributed file system. The copy is performed with
+<CODE>rsync</CODE>. In the Markup tag the
+work directory (relative to the release directory $NICOS_RELHOME),
+desirable shell and copy type is defined. The possible
+copy types are:
+<OL>
+<LI><B>scratch</B> - the target area is cleaned prior the copy start
+<LI><B>update</B> - the target area is not cleaned prior the copy start. 
+This option is useful when the target area already contains the 
+previous nightly release and the changes in the new release are small.
+<LI><B>merge</B> - the binaries of another platform are added. This job
+must be performed by an external script or command in the tag content. 
+</OL>
+
+<PRE>
+&lt;COPY AFTER BUILD dir=AtlasRelease/*/cmt shell=/bin/sh type=scratch&gt;   
+#the additional commands can be added in the content, for example,
+#for fixing soft links in the copied release (as rsync does not
+#modify soft links automatically).
+</PRE>
+
+<LI> STEP 5: QA TESTS: Command for unit tests are listed. 
+<PRE>
+&lt;QA TESTS dir=AtlasRelease/*/cmt&gt;
+cp -a ${NICOS_RELHOME}/Tools/Scripts/Scripts-*/share/checkreq.sh ~/.
+cmt broadcast - ~/checkreq.sh
+NICOS_FULLNAME_INSEPARATOR="yes"
+NICOS_BUILDLOG_SEPARATOR="Now trying"
+</PRE>
+
+<LI> STEP 6: UNIT TESTS: Command for unit tests are listed. Currently This
+step is not used.
+<PRE>
+&lt;UNIT TESTS dir=.&gt;
+</PRE>
+
+<LI> STEP 7: INTEGRATED TESTS: Commands for the ATN testing tool are listed.
+<PRE>
+&lt;INTEGRATED TESTS dir=qmtest tool=qmtest> &gt;
+ATN_HOME=/afs/cern.ch/atlas/software/dist/nightlies/atn_11
+NICOS_INTTESTS_FILES=".sh$"
+NICOS_INTTESTS_LOCATION="AtlasTest/TestTools/*/scripts/nightlies"
+NIGHTLYAREA=${NICOS_RELHOME}
+cd $NICOS_RELHOME/AtlasRelease/*/cmt
+source setup.sh
+</PRE>
+In Markup tag directory is defined from which this step is performed.
+If tool is <CODE>qmtest</CODE> then the Python based QMTest tool
+is used for running tests.
+
+<LI> STEP 7': COPY AFTER TESTS: Optional tag for copy to
+a distributed file system. The copy is performed with
+<CODE>rsync</CODE>. In the Markup tag the
+work directory (relative to the release directory $NICOS_RELHOME),
+desirable shell and copy type is defined. If the copy after 
+build is performed then the recommended type is <CODE>"update"</CODE>.
+
+<PRE>
+&lt;COPY AFTER TESTS dir=AtlasRelease/*/cmt shell=/bin/sh type=update&gt;
+#the additional commands can be added in the content, for example,
+#for fixing soft links in the copied release (as rsync does not
+#modify soft links automatically).
+</PRE>
+
+<LI> STEP 8: ERROR ANALYSIS: The following options should be 
+specified.
+<OL>
+<LI> <CODE>NICOS_TEST_SUCCESS_PATTERN</CODE>: this pattern
+must be present in output of successful integration test.
+<LI> <CODE>NICOS_TEST_FAILURE_PATTERN</CODE>: this pattern
+must be absent in output of successful integration test.
+<LI> <CODE>NICOS_TEST_WARNING_PATTERN</CODE>: this pattern
+triggers warning level of alarm
+<LI> Similar patterns can be indicated for QA checks
+<LI> <CODE>NICOS_MAIL</CODE>: if "yes" then automatic e-mail 
+notifications about problems are sent (to addresses from 
+NICOS database file). 
+</OL>
+<PRE>
+&lt;ERROR ANALYSIS&gt;
+NICOS_TEST_SUCCESS_PATTERN=" "
+NICOS_TEST_FAILURE_PATTERN="FAILURE "
+NICOS_TEST_WARNING_PATTERN="test warning"
+NICOS_QA_SUCCESS_PATTERN=" "
+NICOS_QA_FAILURE_PATTERN="FAILURE "
+NICOS_QA_WARNING_PATTERN="checkreq warning"
+NICOS_MAIL="no"
+NICOS_MAIL_UNIT_TESTS="no"
+NICOS_MAIL_QA_TESTS="no"
+
+</PRE>
+
+<LI> STEP 9: WEB PAGE. This step at which web pages with build
+summaries are generated does not require additional commands
+or definitions.
+<PRE>
+&lt;WEB PAGE&gt;
+</PRE>
+
+</UL>
+
+<P><CENTER><B><A NAME="5">NICOS database file</A></B></CENTER>
+<H6><A HREF="#0">BACK TO TOP</A></H6>
+<P> NICOS database file is a text file. Each line contains
+name of package, tag of package, and e-mail addresses of developers
+(could be multiple) separated by unlimited number of spaces.
+For example:
+
+<PRE>
+FileCatalog    FileCatalog-0-0-1   developer1@cern.ch developer2@bnl.gov
+Utilities/FileCatalog    Utilites-0-0-1   developer1@cern.ch 
+</PRE>
+
+Note that the second line describes a package inside container,
+so checkout is performed for <CODE>Utilities/FileCatalog</CODE>.
+
+<P> There are several options for tags:
+<P><OL>
+<LI> Exact tag or the first symbols of the tag. In latter case
+the latest tag with indicated symbols will be selected.
+For instance if <CODE>FileCatalog</CODE> is specified as a tag
+then the latest tag with name starting with <CODE>FileCatalog</CODE>
+will be selected (e.g. <CODE>FileCatalog-89-99-99</CODE>).    
+<LI> <CODE>recent</CODE> : the recent CVS submission is selected
+(not necessarily tagged).
+<LI><code>development</code> : the latest tagged CVS version is
+selected, the format of tag name is not restricted.
+<LI> <code> official </code> : the latest tag in the format
+<code>&lt;package name&gt;-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]</code> or
+<code>&lt;package name&gt;-[0-9]-[0-9]-[0-9]</code>
+is selected.
+</OL>
+<P><HR SIZE=6>
+
+<center> <B><A NAME="9">NICOS 1.0 new features</A></B> </center>
+
+<P> <UL>
+    <LI> NICOS "global" page with summary information on various nightly
+builds
+    <LI> Group configuration file with the description of common parameters
+for several projects
+    <LI> Simplified configuration file for individual nightly projects
+    <LI> Hierarchy of projects: dependent projects processes wait for
+the completion of "dominant" projects (on step-by-step basis)
+    <LI> Three modes of NICOS operation suited for building nightly, stable,
+and local releases
+    <LI> Better support for a copy from the local temporary build area to
+permanent release area (e.g. copy can be automatically repeated in case of
+errors)
+</UL>
+
+<BR><BR>
+<hr align=left width="50%">
+
+<ADDRESS><A href="mailto:undrus@bnl.gov">Send comments or questions</A></ADDRESS>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

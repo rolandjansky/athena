@@ -1,0 +1,128 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_inttests
+# ----------------------------------------------------------
+#
+DD=`date`
+echo "------------------------------------------------------------"
+echo "   Starting NICOS integrated tests $DD"
+echo "------------------------------------------------------------"
+
+prevdir=`pwd`
+
+if [ "${NICOS_INTTESTS_TOOL}" != "void" ]; then
+
+if [ "${NICOS_INTTESTS_TOOL}" = "qmtest" -o "${NICOS_INTTESTS_TOOL}" = "atn" ]; then
+if [ ! -d ${NICOS_RELHOME}/${NICOS_INTTESTS_DIR} ]; then
+mkdir -p ${NICOS_RELHOME}/${NICOS_INTTESTS_DIR} 
+fi 
+fi
+
+cd ${NICOS_RELHOME}/${NICOS_INTTESTS_DIR}
+source ${NICOS_WORK_AREA}/nicos_inttests_gen >> ${NICOS_TESTLOG} 2>&1; stat=$?
+if [ "$stat" -ne 0 ]; then exit ${stat}; fi
+
+cd ${NICOS_RELHOME}/${NICOS_INTTESTS_DIR}
+
+#echo "NICOS_INTTESTS_TOOL : ${NICOS_INTTESTS_TOOL}"
+if [ "${NICOS_INTTESTS_TOOL}" = "qmtest" -o "${NICOS_INTTESTS_TOOL}" = "atn" ]; then 
+
+if [ "$ATN_HOME" = "" ]; then
+echo "nicos_inttests: error: ATN_HOME is not defined"
+exit 1
+fi
+
+if [ ! -d "$ATN_HOME" ]; then
+echo "nicos_inttests: error: ATN_HOME does not exist (${ATN_HOME})"
+exit 1
+fi
+ 
+source $ATN_HOME/atn_qmtest_ini; stat=$?
+if [ "$stat" -ne 0 ]; then exit ${stat}; fi
+rm -rf *.qms
+rm -rf *.qmt
+rm -rf *.qmr
+cd ${NICOS_RELHOME}
+qv=`qmtest --version 2>&1`
+qvv=`echo $qv | head -1 | cut -f2 -d" "`
+qn=`echo $qvv | sed 's/\.//g'`
+if [ "$qn" -ge 1000 -o "$qn" -le 9 ]; then qn=221; fi 
+if [ "$qn" -le 99 ]; then qn=`expr $qn \* 10`; fi
+para=221
+if [ "$qn" -le 219 ]; then para=200; fi 
+if [ -f ${ATN_HOME}/atn_qmtest_config.py ]; then
+$ATN_HOME/atn_qmtest_config.py -d ./${NICOS_INTTESTS_DIR} -v ${para}; stat=$?
+if [ "$stat" -ne 0 ]; then exit ${stat}; fi
+else
+$NICOS_HOME/nicos_qmtest_config.py -d ./${NICOS_INTTESTS_DIR} -v ${para}; stat=$?
+if [ "$stat" -ne 0 ]; then exit ${stat}; fi
+fi
+
+cd ${NICOS_RELHOME}/${NICOS_INTTESTS_DIR}
+qmtest run -o nicos_inttest.qmr; stat=$?
+echo "QMTEST finished with exit code $stat"
+if [ "$stat" -ne 0 -a "$stat" -ne 1 ]; then exit ${stat}; fi
+qmtest summarize -f stats nicos_inttest.qmr > stat_summary
+qmtest summarize -f full nicos_inttest.qmr > stat_full
+
+NICOS_TESTLOG_DIR=`dirname $NICOS_TESTLOG`
+filename=${NICOS_TEST_DBFILE_GEN}
+cat $filename | while read testname testname1 dirname dirname1 suite authors
+do
+#echo "$testname xx $dirname"
+if [ "$testname" != "" ]; then
+container=`${NICOS_HOME}/nicos_container_extractor.py $dirname`   
+if [ "${CMTSTRUCTURINGSTYLE}" = without_version_directory ]; then
+container=`${NICOS_HOME}/nicos_container_extractor_noversiondir.py $dirname`
+fi
+container1=`echo $container | sed -n 's/\//_/gp'`
+testname1=`echo $testname | cut -d"." -f1`
+testname2=`echo $testname1 | sed 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/'`
+#echo "X1 $container XX $container1"
+#echo "X2 $testname1 XX $testname2"
+qmtest summarize -f full nicos_inttest.qmr ${testname2} > ${NICOS_TESTLOG_DIR}/${container1}${testname1}.loglog
+fi
+done
+
+else # if [ "${NICOS_INTTESTS_TOOL}" = "qmtest" ]
+
+if [ "${NICOS_INTTESTS_FILES}" != "" ]; then
+
+listfiles=`eval ls -t ${NICOS_INTTESTS_FILES}`
+for listfile in $listfiles 
+do 
+if [ "${listfile}" != "" ]; then
+NICOS_TEST_NAME_BASE=`echo $listfile | cut -f1 -d"."`
+NICOS_TEST_NAME=`echo $listfile`
+export NICOS_TEST_NAME
+NICOS_TESTLOG_DIR=`dirname $NICOS_TESTLOG`
+
+  date > ${NICOS_TESTLOG_DIR}/${NICOS_TEST_NAME_BASE}.loglog
+  if [ "${NICOS_INTTESTS_LOGCOMMAND}" != "" ]; then 
+  eval echo ${NICOS_INTTESTS_LOGCOMMAND} > ${NICOS_WORK_AREA}/nicos_inttests_logcommand 
+  source ${NICOS_WORK_AREA}/nicos_inttests_logcommand >> ${NICOS_TESTLOG_DIR}/${NICOS_TEST_NAME}.loglog 2>&1
+  stat=$?
+  else
+  $NICOS_TEST_NAME >> ${NICOS_TESTLOG_DIR}/${NICOS_TEST_NAME_BASE}.loglog 2>&1
+  stat=$?
+  fi 
+  if [ "$stat" -ne 0 ]; then
+  echo "NICOS noticed that test ${NICOS_TEST_NAME_BASE} returned ${stat}." >> ${NICOS_TESTLOG_DIR}/${NICOS_TEST_NAME_BASE}.loglog
+  echo "This indicates possible FAILURE or Error ." >> ${NICOS_TESTLOG_DIR}/${NICOS_TEST_NAME_BASE}.loglog  
+  fi
+  date >> ${NICOS_TESTLOG_DIR}/${NICOS_TEST_NAME_BASE}.loglog
+
+fi 
+done
+
+fi
+
+fi # if [ "${NICOS_INTTESTS_TOOL}" = "qmtest" ]; then
+
+cd ${prevdir}
+exit $stat
+fi

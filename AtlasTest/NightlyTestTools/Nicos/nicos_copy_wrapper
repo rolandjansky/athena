@@ -1,0 +1,121 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+#
+# ----------------------------------------------------------
+# nicos_copy_wrapper
+# ----------------------------------------------------------
+#
+loops=1
+delay=5
+
+phase=0
+while [ $# -ne 0 ]; do
+    case $1 in
+         --test)       phase=2;;
+         --build)      phase=1;;
+    esac
+    shift
+done
+
+if [ "$phase" -eq 1 ]; then
+stat=0
+if [ "${NICOS_DOMINANT_PROJECTS}" != "" -o "${NICOS_DOMINANT_PARALLEL}" != "" ]; then
+${NICOS_HOME}/nicos_sleeper.sh "BUILD" "COPY_BUILD"; stat=$?
+fi
+if [ "$stat" -ne 0 ]; then exit ${stat}; fi
+fi #if [ "$phase" -eq 1 ]
+
+if [ "$phase" -eq 2 ]; then
+quant=1200
+LIMIT=15
+strng="COPY_BUILD"
+a=1
+while [ "$a" -le $LIMIT ]
+do
+let "a+=1"
+
+not_found=""
+not_found=`(\
+  f_st="${NICOS_STAMPS_HOME}/nicos_stamp${NICOS_SUFFIX}_${strng}"; \
+  if [ ! -f $f_st ]; then echo "$f_st not found"; fi; \
+  df=$(${NICOS_HOME}/nicos_mtime_diff.pl $f_st); \
+  if [ -f $f_st -a "$df" -gt 8 ]; then echo "$f_st mtime $df"; fi;\
+)`
+
+if [ "$not_found" != "" ]; then
+echo "nicos_copy_wrapper (after testing): sleeping $((a-1)): file $not_found"
+sleep $quant
+else
+break
+fi
+
+if [ "$a" -gt "$LIMIT" ]; then
+echo "nicos_copy_wrapper (after testing): error: number of sleep periods reached the limit $LIMIT"
+exit 1
+fi
+
+done  # while [ "$a" -le $LIMIT ]
+
+fi #if [ "$phase" -eq 2 ]
+
+stat_p=1
+echo ${NICOS_COPY_SHELL} | grep pagsh; stat_p=$?
+if [ ! "$stat_p" ]; then eval $NICOS_KERBEROS_SCRIPT; fi
+
+### REPEAT COPY in case of errors ###############
+##if [ "$NICOS_PROJECT_TYPE" != "parallel" ]; then
+rm -f /tmp/nicos_copylog_${NICOS_SUFFIX}_${NICOS_COPY_TYPE}*
+##fi
+tmplog=/tmp/nicos_copylog_${NICOS_SUFFIX}_${NICOS_COPY_TYPE}$$
+a=1
+exitcode=0
+while [ "$a" -le $loops ]
+do
+tmplogg="${tmplog}_${a}"
+let "a+=1"
+
+eval ${NICOS_COPY_SHELL} ${NICOS_HOME}/nicos_copy  2>&1| tee ${tmplogg}
+check=""
+check=`${NICOS_HOME}/nicos_copy_errortester.pl ${tmplogg}`
+if [ "$check" != "" ]; then
+echo "nicos_copy_wrapper: copy log contains problematic string:"
+echo "==================  $check"
+  if [ "$a" -le $loops ]; then
+  echo "nicos_copy_wrapper: restarting copy, attempt $a"   
+  else
+  echo "nicos_copy_wrapper: abandoning: number of restarts reached the limit"
+  exitcode=1
+  break
+  fi                           
+sleep $delay
+else
+echo "nicos_copy_wrapper: copy log looks OK"
+break
+fi
+done
+
+#################################################
+cd ${NICOS_COPY_HOME}
+
+if [ "$phase" -eq 1 ]; then
+if [ -e ${NICOS_COPY_LINK_NAME} ]; then rm -f ${NICOS_COPY_LINK_NAME}; fi
+ln -sf $NICOS_PROJECT_RELNAME_COPY ${NICOS_COPY_LINK_NAME}
+if [ -e latest_copied_release ]; then rm -f latest_copied_release; fi
+ln -sf $NICOS_PROJECT_RELNAME_COPY latest_copied_release
+fi # if [ "$phase" -eq 1 ]
+
+if [ "$phase" -eq 1 ]; then
+touch $NICOS_STAMPS_HOME/nicos_stamp${NICOS_SUFFIX}_COPY_BUILD
+elif [ "$phase" -eq 2 ]; then
+touch $NICOS_STAMPS_HOME/nicos_stamp${NICOS_SUFFIX}_COPY_TESTS
+fi
+
+if [ "${NICOS_COPY_TESTS_TYPE}" = "" -o "${NICOS_COPY_TESTS_TYPE}" = "void" ]; then
+${NICOS_HOME}/nicos_copy_progress_informer 2 $exitcode
+else
+${NICOS_HOME}/nicos_copy_progress_informer $phase $exitcode
+fi
+
+exit $exitcode

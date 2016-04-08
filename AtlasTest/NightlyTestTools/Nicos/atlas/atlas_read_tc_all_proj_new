@@ -1,0 +1,99 @@
+#!/bin/sh
+echo "$NICOS_SUFFIX" | grep "Core"; stat=$?
+echo "$NICOS_SUFFIX" | grep "Dbg"; statd=$?
+
+if [ "$statd" -eq 0 ]; then
+sss=`echo $NICOS_SUFFIX | sed 's/Dbg/Opt/g'`
+cp -a ${NICOS_WORK_AREA}/../nicos_work_area${sss}/pkg_versions_taginfo ${NICOS_WORK_AREA}/.
+cp -a ${NICOS_WORK_AREA}/../nicos_work_area${sss}/tags* ${NICOS_WORK_AREA}/.
+
+else # [ "$statd" -ne 0 ]; then
+
+if [ "$stat" -eq 0 ]; then
+
+projects=("Core" "Conditions" "Event" "Reconstruction" "Simulation" "Trigger" "Analysis" "Production" "Offline")
+suf_roots=("Core" "Cond" "Evt" "Rec" "Sim" "Trg" "Anl" "Prod" "Offl")
+suffixes=("Core" "Cond" "Evt" "Rec" "Sim" "Trg" "Anl" "Prod" "Offl")
+wareas=("Core" "Cond" "Evt" "Rec" "Sim" "Trg" "Anl" "Prod" "Offl")
+el_p=${#projects[@]}
+el_s=${#suf_roots[@]}
+
+ind_p=0
+suf_root_found="."
+while [ "$ind_p" -lt $el_p ]
+do
+echo "$NICOS_SUFFIX" | grep "${suf_roots[$ind_p]}"; stat=$?
+  if [ "$stat" -eq 0 ]; then
+  suf_root_found="${suf_roots[$ind_p]}"
+  break
+  fi 
+let "ind_p+=1"
+done
+
+ind_p=0
+while [ "$ind_p" -lt $el_p ]
+do
+suffixes[$ind_p]=`echo "$NICOS_SUFFIX" | sed "s/${suf_root_found}/${suf_roots[$ind_p]}/"`
+wareas[$ind_p]=`echo "$NICOS_WORK_AREA" | sed "s/${suf_root_found}/${suf_roots[$ind_p]}/"`
+let "ind_p+=1"
+done
+
+echo SUFFIXES: ${suffixes[0]} ${suffixes[1]} ${suffixes[2]} ${suffixes[3]} ${suffixes[4]} ${suffixes[5]} ${suffixes[6]} ${suffixes[7]}
+echo WAREAS: ${wareas[0]} ${wareas[1]} ${wareas[2]} ${wareas[3]} ${wareas[4]} ${wareas[5]} ${wareas[6]} ${wareas[7]}
+
+old_work=$NICOS_WORK_AREA
+old_dbfilegen=$NICOS_DBFILE_GEN
+ind_p=0
+while [ "$ind_p" -lt $el_p ]
+do
+     NICOS_WORK_AREA="${wareas[$ind_p]}"
+     export NICOS_WORK_AREA
+     dbase=`basename ${NICOS_DBFILE}`
+     NICOS_DBFILE_GEN="${NICOS_WORK_AREA}/${dbase}_gen"
+     export NICOS_DBFILE_GEN
+     if [ ! -d $NICOS_WORK_AREA ]; then mkdir -p $NICOS_WORK_AREA; fi
+     echo "reading TC for Atlas${projects[$ind_p]} ${NICOS_ATLAS_RELEASE}, to $NICOS_WORK_AREA"
+     sign_p=0
+     if [ "${projects[$ind_p]}" = "Production" ]; then
+     if [ -f ${NICOS_CONFIG_AREA}/tagsProd.db ]; then
+     echo "USING tagsProd.db"
+     cp  ${NICOS_CONFIG_AREA}/tags.db ${NICOS_CONFIG_AREA}/tags.db_tmp
+     cp -a ${NICOS_CONFIG_AREA}/tagsProd.db ${NICOS_CONFIG_AREA}/tags.db
+     sign_p=1
+     fi
+     fi
+####    MODIFYING NICOS_DBFILE_MOD FILE
+        if [ -f "${NICOS_DBFILE}" ]; then
+        NICOS_DBFILE_MOD="${NICOS_WORK_AREA}/${dbase}_mod"
+        if [ -f "${NICOS_DBFILE_MOD}" ]; then rm -f ${NICOS_DBFILE_MOD}; fi
+        touch ${NICOS_DBFILE_MOD}
+        cat ${NICOS_DBFILE} | while read pkg ver adr
+        do
+        if [ "$pkg" != "" ]; then
+        printf "%-40s%-1s%-30s%-1s%-2s\n" $pkg " " $ver " 0 "  $adr >> ${NICOS_DBFILE_MOD}
+        fi
+        done
+        fi
+     if [ "${projects[$ind_p]}" = "Production" -o "${projects[$ind_p]}" = "Offline" ]; then
+     /afs/cern.ch/atlas/software/dist/nightlies/nicos/atlas/atlas_read_tagcollector 1${NICOS_ATLAS_RELEASE} Atlas${projects[$ind_p]}
+     if [ "$sign_p" -eq 1 ]; then
+     cp -a ${NICOS_CONFIG_AREA}/tags.db_tmp ${NICOS_CONFIG_AREA}/tags.db
+     fi
+     else
+     /afs/cern.ch/atlas/software/dist/nightlies/nicos/atlas/atlas_read_tagcollector ${NICOS_ATLAS_RELEASE} Atlas${projects[$ind_p]}
+     if [ "$sign_p" -eq 1 ]; then
+     cp  ${NICOS_CONFIG_AREA}/tags.db_tmp ${NICOS_CONFIG_AREA}/tags.db
+     fi
+     fi #if [ "${projects[$ind_p]}" = "Production" -o "${projects[$ind_p]}"
+let "ind_p+=1"
+done
+
+NICOS_WORK_AREA=$old_work
+export NICOS_WORK_AREA
+NICOS_DBFILE_GEN=$old_dbfilegen
+export NICOS_DBFILE_GEN
+echo "NICOS_WORK_AREA reinstated to $NICOS_WORK_AREA"
+echo "NICOS_DBFILE_GEN reinstated to $NICOS_DBFILE_GEN"
+fi
+
+fi # [ "$statd" -ne 0 ]; then

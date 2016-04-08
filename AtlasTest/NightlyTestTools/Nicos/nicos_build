@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_build
+# ----------------------------------------------------------
+#
+DD=`date`
+echo "------------------------------------------------------------" >> ${NICOS_LOG} 
+echo "   Starting build of NICOS project $DD" >> ${NICOS_LOG}
+echo "------------------------------------------------------------" >> ${NICOS_LOG}
+
+comname=`basename $0`
+if [ "$comname" = "nicos_build" ]; then
+exitcombuild="exit"
+else
+exitcombuild="return"
+fi
+
+stat=0
+if [ "${NICOS_DOMINANT_PROJECTS}" != "" -o "${NICOS_DOMINANT_PARALLEL}" != "" ]; then
+${NICOS_HOME}/nicos_sleeper.sh "BUILD" "PROJCONF"; stat=$?
+fi
+if [ "$stat" -ne 0 ]; then eval ${exitcombuild} ${stat}; fi
+
+prevdir=`pwd`
+
+eval cd ${NICOS_RELHOME}/${NICOS_PROJECTBUILD_DIR}
+source ${NICOS_WORK_AREA}/nicos_build_gen; stat=$?
+if [ "$stat" -ne 0 ]; then 
+echo "nicos_build: error: build commands returned $stat"
+exit ${stat}
+fi
+
+${NICOS_HOME}/nicos_loghandler.pl >> ${NICOS_LOG} 2>&1; stat=$? 
+
+cd ${prevdir}
+exit $stat
+

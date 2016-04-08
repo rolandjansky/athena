@@ -1,0 +1,200 @@
+<html>
+<head><title>
+
+NICOS manager for nightly builds
+
+</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+</head><body> 
+<!-------------------------------- Header ---------------------------->
+<table class=header border=0 cellpadding=5 cellspacing=0 width="100%">
+<tr>
+  <td align=left> <font size="-1"> &nbsp; </font></td>
+  <td align=right> <font size="-1"><a href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/">ATLAS Computing</a></font></td>
+</tr>
+<tr><td colspan=2 align=center class=smalltitle>
+
+NICOS manager for nightly builds
+
+</td></tr>
+<tr><td colspan=2 align=right><font size="-1">
+<a href="http://www.usatlas.bnl.gov/computing">US ATLAS Computing</a>
+</font></td></tr>
+<tr class=light><td colspan=2 align=right colspan=1><font size="-1">
+<script language="JavaScript">
+    <!-- Hide script from old browsers
+    document.write("Last modified "+ document.lastModified)
+    // end of script -->
+    </script>
+</font></td></tr></table>
+
+<!--------------------------- Contents --------------------------->
+<p>
+
+  <b>This document</b> describes the main features of the NICOS
+(NIghtly COntrol System) tool that facilitates nightly builds of large
+software projects on UNIX-like
+platforms. It is currently used for
+<UL>
+<LI>
+<a href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/global">
+nightly builds of ATLAS software releases at CERN</a>
+<LI>
+<a href="http://www.usatlas.bnl.gov/computing/software/nightlies/www/nightly_builds.html">
+nightly builds of ATLAS software releases at Brookhaven National Lab</a>
+ 
+<!--LI -->
+<!--a href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/poolwww"-->
+<!--nightly builds of POOL (part of LCG project) at CERN</a> (version 0.2-beta)-->
+</UL>
+<BR>
+
+Please refer to 
+<a href="nicos_howto.html">this page</a>
+for short instructions how to download, configure, and use the NICOS tool.
+Other related documents:
+<UL>
+<LI> <a href="nicos_atlas_howto.html"> NICOS manual for ATLAS use case, includes new features of version 1.0 </a>. 
+<LI> <a href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/nicoswww/atnight.html">ATN testing system</A>: for ATLAS nightly builds.
+<LI> <a href="NICOS_talk_CHEP03/NICOS_talk_CHEP03.ppt"> NICOS System of Nightly Builds for Distributed Development</a>, talk from the CHEP03 (PowerPoint). 
+<LI> <a href="NICOS_talk_CHEP03/nicos.ps"> NICOS paper submitted to CHEP03 proceedings</a> (Postscript).
+<LI> <a href="NICOS_talk_May04.ppt"> Nightly Releases and Testing</a>, talk at ATLAS software week, May 2004 (PowerPoint).
+</UL>
+
+<BR><BR>
+<hr align=center width="50%">
+The NICOS tool is a set of PERL and Bourne Shell scripts.
+
+The NICOS tool controls the nightly builds of 
+software products with large number of packages 
+managed by different developers. It monitors
+build processes on multiple platforms trying to 
+identify and compensate short term system problems,
+analyzes the build results, allows to run tests, and 
+sends notifications about problems to responsible developers.
+The NICOS tool uses the CVS repository to get the
+code and imposes virtually no requirements on
+the release build system (can be configured to work with 
+SRT, CMT, or SCRAM). The NICOS code consists of PERL and 
+Bourne Shell scripts. 
+<p>
+The NICOS tool is able to perform build processes on different 
+platforms or with different compiling options in certain order.
+The information about the build progress is reflected on the
+nightly builds web page. There could be one
+nightly release for daily rebuilds, or 
+several nightly releases with lifetimes.
+For instance, in the <B>ATLAS project</B> there  
+are seven nightly releases with a lifetime of one 
+week. The ATLAS nightlies include  
+<B>linked builds</B> that
+produce binaries on different Linux platforms and with
+different compiling options, <B>debug and optimized</B>.
+The linked builds have the separate web pages of build results
+with links pointing to each other.    
+
+<p>
+The NICOS implies the following stages of the build process:
+<BR><BR>
+<UL>
+<LI> The code is <b>updated</b> from a CVS repository. 
+Several options can be used to determine the versions
+of software packages of a project:
+
+<UL>
+<LI> use the latest CVS tag.
+<LI> use the versions defined in some database (MySQL table
+or simple ASCII file). This option is useful for package
+oriented release tools such as CMT.
+<LI> use an external script provided by a user. 
+</UL>
+
+NICOS can read the list of packages and its tags 
+directly from a text or xml file. This list can 
+be created by an external script if the tags are
+stored in a database. NICOS has its own web based tag 
+collection tool, Version Administrator, that allows to handle
+the projects with small number of packages 
+(<A href="https://web13.cern.ch/atlas-php/nicos/nicos_veradmin.php">demo page</A> 
+is available). The Version Administrator is a PHP script
+so it should be installed on web server with a PHP module.
+
+<BR><BR>
+<LI> The project is <b>configured</b> with the set of commands
+relevant for particular release tool (saved in the
+NICOS configuration file).
+
+<BR><BR>
+<LI> The code is <b>compiled</b>. It is assumed that
+the release tool allows to make it with a fixed set of
+commands run from one directory (true for known release tools).
+
+<BR><BR>
+<LI> The build output is <b>checked for errors</b>. 
+The problems are identified if a certain patterns
+are found (such as 'No rule to make target', 
+'Symbol referencing errors'). NICOS contains
+the default set of such patterns, and a user can modify
+it.  
+
+<BR><BR>
+<LI> <B>QA checks</B> are performed.
+They are considered unsuccessful if non-zero value
+is returned or a certain patterns (indicated in
+nicos configuration file) are found.
+
+<BR><BR>
+<LI> If desired, <b> the packages are tested individually </b>
+with <CODE>make &lt;check target&gt;</CODE> or similar command. 
+
+<BR><BR>
+<LI> The <b>integration tests</b> are run.
+In the ATLAS nightlies the 
+<a href="http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/dist/nightlies/nicoswww/atnight.html">
+<B>ATN tool</B></a> is used for
+organization and validation of integration tests.
+ATN determines a success by the exit code of a test, 
+and it can verify that certain patterns are present 
+and/or absent in the output.
+
+<BR><BR>
+<LI> The build results <b>information is posted</b> on the
+build summary web page. This web page shows the build
+and individual test results for each package as well 
+the integration test results in a separate table.
+
+<BR><BR>
+<LI> <b>Developers are notified</b> about problems with their
+packages via e-mail. The list of e-mails addresses for each
+package is stored in NICOS database. Authorized 
+developers can modify these lists with the web interface. 
+Separate address list is used for the integration tests.
+No automatic e-mail notifications about errors are generated
+if <CODE> NICOS </CODE> determines that
+there were hardware or network problems.
+</UL>
+
+<BR><BR>
+<hr align=left width="25%">
+<address><a href="mailto:undrus@bnl.gov">Send comments or questions</a></address>
+<p>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

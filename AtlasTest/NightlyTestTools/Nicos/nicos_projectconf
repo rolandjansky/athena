@@ -1,0 +1,58 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_projectconf
+# ----------------------------------------------------------
+#
+DD=`date`
+echo "------------------------------------------------------------"
+echo "   Starting NICOS project setup $DD"
+echo "------------------------------------------------------------"
+comname=`basename $0`
+if [ "$comname" = "nicos_projectconf" ]; then
+exitcomconf="exit"
+else
+exitcomconf="return"
+fi
+
+stat=0
+if [ "${NICOS_DOMINANT_PROJECTS}" != "" -o "${NICOS_DOMINANT_PARALLEL}" != "" ]; then
+${NICOS_HOME}/nicos_sleeper.sh "PROJCONF"; stat=$?
+fi
+if [ "$stat" -ne 0 ]; then eval ${exitcomconf} ${stat}; fi
+
+prevdir=`pwd`
+
+cd ${NICOS_PROJECT_HOME}/${NICOS_PROJECTSETUP_DIR}
+
+source ${NICOS_WORK_AREA}/nicos_projectconf_gen; stat=$?
+if [ "$stat" -ne 0 ]; then eval ${exitcomconf} ${stat}; fi
+
+# copy db file to webdir
+pfil=`basename ${NICOS_DBFILE_GEN}`
+
+if [ "$NICOS_INC_BUILD" = "yes" ]; then
+
+if [ "${NICOS_PROJECT_RELNUMB}" != "" ]; then
+cp -a $NICOS_WEBDIR/${pfil}_res_${NICOS_PROJECT_RELNUMB} $NICOS_WEBDIR/${pfil}_res_${NICOS_PROJECT_RELNUMB}_prev
+cp -a ${NICOS_DBFILE_GEN}_res $NICOS_WEBDIR/${pfil}_res_${NICOS_PROJECT_RELNUMB}; stat=$?
+else
+cp -a $NICOS_WEBDIR/${pfil}_res $NICOS_WEBDIR/${pfil}_res_prev
+cp -a ${NICOS_DBFILE_GEN}_res $NICOS_WEBDIR/${pfil}_res; stat=$?
+fi
+
+else # if ( $NICOS_INC_BUILD eq "yes" )
+
+if [ "${NICOS_PROJECT_RELNUMB}" != "" ]; then
+cp -a ${NICOS_DBFILE_GEN}_res $NICOS_WEBDIR/${pfil}_res_${NICOS_PROJECT_RELNUMB}; stat=$?
+else
+cp -a ${NICOS_DBFILE_GEN}_res $NICOS_WEBDIR/${pfil}_res; stat=$?
+fi
+
+fi # if ( $NICOS_INC_BUILD eq "yes" )
+
+cd ${prevdir}
+eval ${exitcomconf} ${stat}

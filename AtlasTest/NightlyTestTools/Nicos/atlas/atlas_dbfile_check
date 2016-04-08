@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# atlas_dbfile_check
+# adds AtlasRelease to dbfile (if not existing)
+# Author Alex Undrus <undrus@bnl.gov>
+#
+
+filename=${NICOS_DBFILE_GEN}
+
+if [ -f $filename ]; then
+stat=""
+stat=`(cat $filename | while read package1 xxx; do if [ "$package1" = "AtlasRelease" ]; then echo "1";fi;done)`
+if [ "$stat" != "1" ]; then
+printf "%-40s%-1s%-30s%-2s\n" "AtlasRelease" " " "official" " 0" >> ${filename}
+fi
+fi

@@ -1,0 +1,360 @@
+#!/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# nicos_job : main nicos executable
+# ----------------------------------------------------------
+#
+
+function show_help() {
+    echo "Usage: nicos_job [Options]"
+    echo "  Options:"
+    echo " -b | --begin    Specify starting point of nicos_job; allowed values: "
+    echo "                 all (full), build, tests, inttests, docs (documentation)"
+    echo "                 (DEFAULT is all(full)) "
+    echo " -s | --scratch  The release area is cleaned before build."
+    echo "                 This option effects only full release builds"
+    echo " --nocopy        Do not perform copy to the permanent release area."
+    echo "                 This option works when the release is build in one area "
+    echo " --nowait        Do not wait for completion of other projects have dependencies "
+    echo "                 This option works when the release is build in one area "
+    echo "                 (e.g. on a local disk) and then copied to another area (e.g. on AFS)"
+    echo " --copy          Perform copy step only"
+    echo " -r | --relnum   Disable automatic release number and use the indicated one "
+}
+
+# default parameters
+start_point="full"
+end_step=10
+from_scratch="no"
+copy_steps="yes"
+copy_only="no"
+relnum_fixed="no"
+nowait="no"
+# possible starting points build (3) 
+#                          all tests (4) 
+#                          int tests (6)
+#                          error analysis & documentation (7)
+
+while [ $# -ne 0 ]; do
+    case $1 in
+         -b | --begin)     start_point=$2; shift;;
+              --end)       end_step=$2; shift;;
+         -s | --scratch)   from_scratch="yes";;
+              --nocopy)    copy_steps="no";;  
+              --copy)      copy_only="yes";;
+              --nowait)      nowait="yes";;
+         -r | --relnum)    relnum_fixed=$2; shift;;
+         -* | --*)         show_help; exit 1;;
+    esac
+    shift
+done
+
+step=0
+case $start_point in 
+    all|full)   step=0;;
+    build)      step=4;;
+    tests)      step=5;;
+    inttests)   step=7;;
+    docs|documentation)  step=8;;       
+    *)          show_help; exit 1;;
+esac
+
+if [ "${step}" -ne 0 -a "${from_scratch}" = "yes" ]; then
+    echo "nicos_job: scratch option specified for partial job;"
+    echo ">>>>>>>>>> non-scratch option enforced"
+    from_scratch="no"
+fi 
+
+NICOS_BUILD_FROM_SCRATCH="no"
+if [ "${from_scratch}" = "yes" ]; then
+NICOS_BUILD_FROM_SCRATCH="yes"
+fi
+export NICOS_BUILD_FROM_SCRATCH
+
+if [ "${nowait}" = "yes" ]; then
+export NICOS_NOWAIT="yes"
+fi
+
+if [ "$#" -ge 2 ]; then
+    echo "nicos_job: only one argument is allowed, instead $# specified"
+    exit 1
+fi
+
+if [ "${NICOS_HOME}" = "" ]; then
+echo "nicos_job: NICOS_HOME variable is not defined, "
+echo "           please set before running nicos jobs"
+exit 1
+fi
+
+if [ "${NICOS_WORK_AREA}" = "" ]; then
+echo "nicos_job: NICOS_WORK_AREA variable is not defined, "
+echo "           please set before running nicos jobs"
+exit 1
+fi
+
+if [ ! -d "${NICOS_WORK_AREA}" ]; then mkdir -p ${NICOS_WORK_AREA}; fi
+
+comname=`basename $0`
+if [ "$comname" = "nicos_job" ]; then 
+exitcomjob="exit"
+else
+exitcomjob="return"
+fi
+
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/start_date
+if [ -f ${NICOS_WORK_AREA}/end_date ]; then 
+rm -f ${NICOS_WORK_AREA}/end_date; fi
+touch ${NICOS_WORK_AREA}/end_date
+
+if [ "${relnum_fixed}" != "no" ]; then
+NICOS_PROJECT_RELNUMB_FIXED="${relnum_fixed}"
+export NICOS_PROJECT_RELNUMB_FIXED
+fi  
+
+rm -f /tmp/nicos_log* > /dev/null 2>&1
+tmp_log="/tmp/nicos_log_$$"
+#######STEP 0   CONFIG##########
+NICOS_BYPASS="no"
+if [ "${step}" -gt 0 ]; then NICOS_BYPASS="yes"; fi
+export NICOS_BYPASS
+cd ${NICOS_WORK_AREA}
+source ${NICOS_HOME}/nicos_config $step > ${tmp_log} 2>&1; stat=$?
+if [ "$stat" -ne 0 ]; then 
+echo "nicos_job:  NICOS failed at configuration" >> ${NICOS_LOG}; eval ${exitcomjob} ${stat}  
+fi
+${NICOS_HOME}/nicos_copy_progress_informer 0
+if [ "${copy_only}" != "yes" ]; then
+${NICOS_HOME}/nicos_progress_informer 0 
+${NICOS_HOME}/nicos_webpage --config --nomail >> ${NICOS_LOG} 2>&1; stat=$?
+if [ "$stat" -ne 0 ]; then
+echo "nicos_job:  NICOS failed at configuration (init webpage)" >> ${NICOS_LOG}; eval ${exitcomjob} ${stat}
+fi
+fi # if [ "${copy_only}" != "yes" ]; then
+cat ${tmp_log} >> ${NICOS_LOG} 
+if [ "$end_step" -le 0 ]; then eval ${exitcomjob}; fi
+
+#######STEP 1   TOOL INIT##########
+NICOS_BYPASS="no"
+if [ "${step}" -gt 1 ]; then NICOS_BYPASS="yes"; fi
+export NICOS_BYPASS
+if [ "${copy_only}" != "yes" ]; then
+cd ${NICOS_WORK_AREA}
+if [ "${NICOS_RELEASETOOLSETUP_COMMAND}" = "source" ]; then
+source ${NICOS_HOME}/nicos_toolinit $step >> ${NICOS_LOG} 2>&1; stat=$?
+else
+${NICOS_HOME}/nicos_toolinit $step >> ${NICOS_LOG} 2>&1; stat=$?
+fi
+if [ "$stat" -ne 0 ]; then 
+echo "nicos_job:  NICOS failed at initialization of release tool" >> ${NICOS_LOG}; eval ${exitcomjob} ${stat}
+fi
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/start_date
+${NICOS_HOME}/nicos_progress_informer 1
+fi
+if [ "$end_step" -le 1 ]; then eval ${exitcomjob}; fi
+
+#######STEP 2   CHECKOUT##########
+NICOS_BYPASS="no"
+if [ "${step}" -gt 2 ]; then NICOS_BYPASS="yes"; fi
+export NICOS_BYPASS
+if [ "$step" -le 1 -a "${copy_only}" != "yes" ]; then 
+if [ "$NICOS_DOMINANT_PARALLEL" = "" ]; then
+if [ "$NICOS_PROJECT_TYPE" != "parallel" ]; then
+eval ${NICOS_CHECKOUT_SHELL} ${NICOS_HOME}/nicos_checkout >> ${NICOS_LOG} 2>&1; stat=$? 
+if [ "$stat" -ne 0 ]; then 
+echo "nicos_job:  NICOS failed at project checkout" >> ${NICOS_LOG}; eval ${exitcomjob} 1  
+fi
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/start_date
+${NICOS_HOME}/nicos_progress_informer 2
+fi
+fi
+fi
+if [ "$end_step" -le 2 ]; then eval ${exitcomjob}; fi
+
+#######STEP 3   PROJECT CONF##########
+NICOS_BYPASS="no"
+if [ "${step}" -gt 3 ]; then NICOS_BYPASS="yes"; fi
+export NICOS_BYPASS
+if [ "${copy_only}" != "yes" ]; then
+if [ "${NICOS_PROJECTSETUP_COMMAND}" = "source" ]; then
+source ${NICOS_HOME}/nicos_projectconf >> ${NICOS_LOG}; stat=$?
+else
+${NICOS_HOME}/nicos_projectconf >> ${NICOS_LOG} 2>&1; stat=$?
+fi
+if [ "$stat" -ne 0 ]; then 
+echo "nicos_job:  NICOS failed at project configuration" >> ${NICOS_LOG}; eval ${exitcomjob} 1  
+fi
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/start_date
+${NICOS_HOME}/nicos_progress_informer 3
+
+# page maker
+${NICOS_HOME}/nicos_webpage --clean --nomail >> ${NICOS_LOG} 2>&1;
+
+fi 
+if [ "$end_step" -le 3 ]; then eval ${exitcomjob}; fi
+
+#######STEP 4   BUILD##########
+NICOS_BYPASS="no"
+if [ "${step}" -gt 4 ]; then NICOS_BYPASS="yes"; fi
+export NICOS_BYPASS
+#if [ "$step" -le 4 -a "${copy_only}" != "yes" ]; then 
+if [ "${copy_only}" != "yes" ]; then
+eval ${NICOS_BUILD_SHELL} ${NICOS_HOME}/nicos_build >> ${NICOS_BUILDLOG} 2>&1; stat=$?
+if [ "$stat" -ne 0 ]; then 
+echo "nicos_job:  NICOS failed at project build" >> ${NICOS_LOG}; eval ${exitcomjob} 1  
+fi
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/start_date
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/end_date
+${NICOS_HOME}/nicos_progress_informer 4
+if [ "${NICOS_COMMON_WEBDIR}" != "" ]; then
+${NICOS_HOME}/nicos_common_webpage >> ${NICOS_LOG} 2>&1
+fi
+
+# error handler and page maker
+${NICOS_HOME}/nicos_webpage --notestmail >> ${NICOS_LOG} 2>&1;
+
+fi
+
+#######STEP 4a  COPY AFTER BUILD##########
+
+if [ "${step}" -lt 5 ]; then
+if [ "$copy_steps" != "no" ]; then
+if [ "${NICOS_COPY_BUILD_TYPE}" != "" -a "${NICOS_COPY_BUILD_TYPE}" != "void" ]; then
+export NICOS_COPY_DIR=${NICOS_COPY_BUILD_DIR}
+export NICOS_COPY_SHELL=${NICOS_COPY_BUILD_SHELL}
+export NICOS_COPY_TYPE=${NICOS_COPY_BUILD_TYPE}
+export NICOS_COPY_GEN=nicos_copy_after_build_gen
+NICOS_COPYLOG_NAME="nicos_copy_after_build_1.log"
+NICOS_COPYLOG_DIR="${NICOS_RELHOME}/NICOS_Log${NICOS_SUFFIX}"
+NICOS_COPYLOG=${NICOS_COPYLOG_DIR}/${NICOS_COPYLOG_NAME}
+NICOS_COPY_LINK_NAME="latest_copied_release${NICOS_SUFFIX}"
+export NICOS_COPY_LINK_NAME
+
+if [ "${NICOS_LOG_SCRATCH}" != "yes" ]; then
+pass=1
+while [ -e ${NICOS_COPYLOG} ]; do
+    let pass=${pass}+1
+    NICOS_COPYLOG_NAME="nicos_copy_after_build_${pass}.log"
+    NICOS_COPYLOG=${NICOS_COPYLOG_DIR}/${NICOS_COPYLOG_NAME}
+    if [ "${pass}" -ge 6 ]; then break; fi
+done
+fi # if [ "$NICOS_LOG_SCRATCH" != "yes" ]; then
+ 
+export NICOS_COPYLOG_NAME
+export NICOS_COPYLOG
+if [ -f "${NICOS_COPYLOG}" ]; then rm -f ${NICOS_COPYLOG}; fi
+$NICOS_HOME/nicos_copy_wrapper --build > ${NICOS_COPYLOG} 2>&1 &
+cp -a ${NICOS_COPYLOG} ${NICOS_COPY_HOME}/${NICOS_PROJECT_RELNAME_COPY}/NICOS_Log${NICOS_SUFFIX}/.
+fi # if [ "${NICOS_COPY_BUILD_TYPE}"
+fi # if [ "$copy_steps" != "no"
+fi # if [ "${step}" -lt 5 ]; then
+
+if [ "$end_step" -le 4 ]; then eval ${exitcomjob}; fi
+
+#######STEP 5  QA TESTS##########
+NICOS_BYPASS="no"
+if [ "${step}" -gt 5 ]; then NICOS_BYPASS="yes"; fi
+export NICOS_BYPASS
+if [ "$step" -le 5 -a "${copy_only}" != "yes" ]; then
+${NICOS_HOME}/nicos_qatests >> ${NICOS_TESTLOG} 2>&1; stat=$?
+if [ "$stat" -ne 0 ]; then
+##echo "nicos_job:  NICOS failed at QA tests" >> ${NICOS_LOG}; eval ${exitcomjob} 1
+echo "nicos_job:  NICOS failed at QA tests" >> ${NICOS_LOG}
+fi
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/start_date
+${NICOS_HOME}/nicos_progress_informer 5
+fi
+if [ "$end_step" -le 5 ]; then eval ${exitcomjob}; fi
+
+#######STEP 6  UNIT TESTS##########
+NICOS_BYPASS="no"
+if [ "${step}" -gt 6 ]; then NICOS_BYPASS="yes"; fi
+export NICOS_BYPASS
+if [ "$step" -le 6 -a "${copy_only}" != "yes" ]; then 
+${NICOS_HOME}/nicos_unittests >> ${NICOS_TESTLOG} 2>&1; stat=$? 
+if [ "$stat" -ne 0 ]; then 
+##echo "nicos_job:  NICOS failed at unit tests of project" >> ${NICOS_LOG}; eval ${exitcomjob} 1  
+echo "nicos_job:  NICOS failed at unit tests of project" >> ${NICOS_LOG}
+fi
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/start_date
+${NICOS_HOME}/nicos_progress_informer 6
+fi
+if [ "$end_step" -le 6 ]; then eval ${exitcomjob}; fi
+
+#######STEP 7  INT TESTS##########
+NICOS_BYPASS="no"
+if [ "${step}" -gt 7 ]; then NICOS_BYPASS="yes"; fi
+export NICOS_BYPASS
+if [ "$step" -le 7 -a "${copy_only}" != "yes" ]; then 
+${NICOS_HOME}/nicos_inttests >> ${NICOS_TESTLOG} 2>&1; stat=$?
+if [ "$stat" -ne 0 ]; then 
+##echo "nicos_job:  NICOS failed at integrated tests" >> ${NICOS_LOG}; eval ${exitcomjob} 1
+echo "nicos_job:  NICOS failed at integrated tests" >> ${NICOS_LOG}  
+fi
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/start_date
+${NICOS_HOME}/nicos_progress_informer 7
+fi
+
+#######STEP 7a  COPY AFTER TESTS##########
+if [ "${step}" -lt 8 ]; then
+if [ "$copy_steps" != "no" -a "${copy_only}" != "yes" ]; then
+if [ "${NICOS_COPY_TESTS_TYPE}" != "" -a "${NICOS_COPY_TESTS_TYPE}" != "void" ]; then
+export NICOS_COPY_DIR=${NICOS_COPY_TESTS_DIR}
+export NICOS_COPY_SHELL=${NICOS_COPY_TESTS_SHELL}
+export NICOS_COPY_TYPE=${NICOS_COPY_TESTS_TYPE}
+export NICOS_COPY_GEN=nicos_copy_after_tests_gen
+NICOS_COPYLOG_NAME=nicos_copy_after_tests_1.log
+NICOS_COPYLOG_DIR=${NICOS_RELHOME}/NICOS_Log${NICOS_SUFFIX}
+NICOS_COPYLOG=${NICOS_COPYLOG_DIR}/${NICOS_COPYLOG_NAME}
+NICOS_COPY_LINK_NAME="latest_copied_release${NICOS_SUFFIX}"
+export NICOS_COPY_LINK_NAME
+
+if [ "${NICOS_LOG_SCRATCH}" != "yes" ]; then
+pass=1
+while [ -e ${NICOS_COPYLOG} ]; do
+    let pass=${pass}+1
+    NICOS_COPYLOG_NAME="nicos_copy_after_tests_${pass}.log"
+    NICOS_COPYLOG=${NICOS_COPYLOG_DIR}/${NICOS_COPYLOG_NAME}
+    if [ "${pass}" -ge 6 ]; then break; fi
+done
+fi # if [ "$NICOS_LOG_SCRATCH" != "yes" ]; then
+
+export NICOS_COPYLOG_NAME
+export NICOS_COPYLOG
+if [ -f ${NICOS_COPYLOG} ]; then rm -f ${NICOS_COPYLOG}; fi
+$NICOS_HOME/nicos_copy_wrapper --test > ${NICOS_COPYLOG} 2>&1 &
+cp -a ${NICOS_COPYLOG} ${NICOS_COPY_HOME}/${NICOS_PROJECT_RELNAME_COPY}/NICOS_Log${NICOS_SUFFIX}/.
+fi # if [ "${NICOS_COPY_TESTS_TYPE}"
+fi # if [ "$copy_steps" != "no"
+fi # if [ "${step}" -lt 8 ]; then
+
+if [ "$end_step" -le 7 ]; then eval ${exitcomjob}; fi
+
+#######STEPS 8 and 9   ERROR HANDLING and WEB PAGES ###########
+if [ "$step" -le 8 -a "${copy_only}" != "yes" ]; then 
+${NICOS_HOME}/nicos_webpage --nobuildmail >> ${NICOS_LOG} 2>&1; stat=$?
+if [ "$stat" -ne 0 ]; then 
+echo "nicos_job:  NICOS failed while analysing error or generating web pages"; 
+##eval ${exitcomjob} 1  
+fi
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/end_date
+${NICOS_HOME}/nicos_progress_informer 9
+if [ "${NICOS_COMMON_WEBDIR}" != "" ]; then
+${NICOS_HOME}/nicos_common_webpage >> ${NICOS_LOG} 2>&1
+fi
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,2 @@
+#$HOME/public/kerbcomm 
+cvs co -d scripts offline/AtlasTest/TestTools/scripts

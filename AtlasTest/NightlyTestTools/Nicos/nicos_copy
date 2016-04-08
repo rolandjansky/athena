@@ -1,0 +1,64 @@
+#/bin/sh
+#
+# NICOS - NIghtly COntrol System
+# Author Alex Undrus <undrus@bnl.gov>
+#
+# ----------------------------------------------------------
+# nicos_copy
+# ----------------------------------------------------------
+#
+echo "------------------------------------------------------------"
+echo "   Starting NICOS release copy"
+echo "------------------------------------------------------------"
+prevdir=`pwd`
+dat=`date`
+echo "Starting copy (type $NICOS_COPY_TYPE): $dat"
+ 
+quant=1200
+ 
+df=10
+df1=10
+df2=10
+ 
+#if [ -f $file_st_1 ]; then
+objects="--exclude=*.o --exclude=make.lock"
+if [ "$NICOS_COPY_TYPE" = "update" ]; then 
+cd $NICOS_RELHOME
+export CVSIGNORE="CVS cmt cmz setup.* cleanup.* *.make *.cmtref *.py InstallArea"
+rsync -rCltvz . $NICOS_COPY_HOME/$NICOS_PROJECT_RELNAME_COPY
+stat=$?
+
+dat=`date`
+echo "nicos_copy: finishing rsync job (type $NICOS_COPY_TYPE): $dat"
+if [ "$stat" -ne 0 ]; then
+echo "nicos_copy: problem: rsync return value is $stat"
+cd $prevdir
+exit $stat
+fi 
+
+elif [ "$NICOS_COPY_TYPE" = "scratch" ]; then 
+
+cd $NICOS_RELHOME
+rm -rf $NICOS_COPY_HOME/$NICOS_PROJECT_RELNAME_COPY/*
+rsync -rltvz ${objects} --delete . $NICOS_COPY_HOME/$NICOS_PROJECT_RELNAME_COPY
+stat=$?
+
+dat=`date`
+echo "nicos_copy: finishing rsync job (type $NICOS_COPY_TYPE): $dat"
+if [ "$stat" -ne 0 ]; then
+echo "nicos_copy: problem: rsync return value is $stat"
+cd $prevdir
+#exit $stat
+fi
+
+fi 
+#fi
+
+eval cd $NICOS_COPY_HOME/$NICOS_PROJECT_RELNAME_COPY/$NICOS_COPY_DIR
+source ${NICOS_WORK_AREA}/${NICOS_COPY_GEN}
+stat1=$?
+if [ "$stat1" -ne 0 ]; then
+echo "nicos_copy: problem: block of commands from cache file returned $stat1"
+fi
+cd $prevdir
+exit $stat1
