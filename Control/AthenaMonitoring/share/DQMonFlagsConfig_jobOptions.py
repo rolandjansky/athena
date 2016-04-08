@@ -25,6 +25,7 @@ if globalflags.DataSource.get_Value() == 'geant4':
    DQMonFlags.monManDataType = 'monteCarlo'
 elif rec.doHeavyIon():
    DQMonFlags.monManDataType = 'heavyioncollisions'
+   DQMonFlags.doHIMon = True
 elif jobproperties.Beam.beamType()   == 'cosmics':
    DQMonFlags.monManDataType = 'cosmics'
 elif jobproperties.Beam.beamType() == 'collisions':
@@ -96,9 +97,10 @@ if not DQMonFlags.doMonitoring():
    DQMonFlags.doMuonTrkPhysMon=False
    DQMonFlags.doMuonCombinedMon=False
    DQMonFlags.doLucidMon=False
+   DQMonFlags.doHIMon=False
 else:
    local_logger.info("monitoring environment set to %s", DQMonFlags.monManEnvironment())
-      
+
    # AOD monitoring
    if DQMonFlags.monManEnvironment == 'AOD':
       DQMonFlags.histogramFile='MonitorAOD.root'

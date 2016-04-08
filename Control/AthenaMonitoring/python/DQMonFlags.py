@@ -223,6 +223,13 @@ class doLucidMon(JobProperty):
     StoredValue=True
 list+=[doLucidMon]
 
+class doHIMon(JobProperty):
+    """ Switch for dedicated Heavy Ion monitoring """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+list+=[doHIMon]
+
 class doStreamAwareMon(JobProperty):
     """ Switch for stream-aware monitoring """
     statusOn=True
@@ -390,6 +397,10 @@ list+=[enableLumiAccess]
 class DQMonFlagsCont(JobPropertyContainer):
     """Container for Data Quality Monitoring flags
     """
+    def set_All_Off(self):
+        for j in list:
+            if j.__name__.startswith('do') and j.__name__.endswith('Mon'):
+                j.StoredValue = False
     pass
 
 ##-----------------------------------------------------------------------------

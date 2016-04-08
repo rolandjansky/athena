@@ -34,7 +34,7 @@ class AthenaMon:public AthAlgorithm {
   std::vector<std::string>  m_THistSvc_streamnameMapping;
   
   long m_everyNevents;
-  long m_eventCounter;
+  long m_eventCounter = 0;
   
   bool m_bookHistsinInitialize;
   

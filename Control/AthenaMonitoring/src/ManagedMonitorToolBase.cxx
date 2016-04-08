@@ -182,7 +182,7 @@ ISvcLocator* ManagedMonitorToolBase::Imp::s_svcLocator(0);
 namespace {
 
    std::string strToLower( const std::string& str );
-   std::string strToUpper( const std::string& str );
+   //std::string strToUpper( const std::string& str );
 
 } // unnamed namespace
 
@@ -418,8 +418,8 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    , m_hasRetrievedLumiTool(false)
    , m_bookHistogramsInitial(false)
    , m_useLumi(false)
-   , m_cycleNum(0)
-   , d(new Imp(this))
+    //, m_cycleNum(0)
+   , m_d(new Imp(this))
 {
 //   ManagedMonitorToolBase_resetHistStatistics(this);
    declareInterface<IMonitorToolBase>(this);
@@ -478,7 +478,7 @@ ManagedMonitorToolBase::
          i != mdend; ++i ) {
       delete (i->second);
    }
-   delete d;
+   delete m_d;
 }
 
 
@@ -652,7 +652,7 @@ StatusCode
 ManagedMonitorToolBase::
 initialize()
 {
-   d->m_warnAboutMissingInitialize = false;
+   m_d->m_warnAboutMissingInitialize = false;
 
    StatusCode sc = AthAlgTool::initialize();
    if( !sc.isSuccess() )
@@ -660,7 +660,7 @@ initialize()
 
    ATH_MSG_DEBUG("ManagedMonitorToolBase::initialize():");
    
-   d->m_doResourceMon = msgLvl(AthMonBench::s_resourceMonThreshold);
+   m_d->m_doResourceMon = msgLvl(AthMonBench::s_resourceMonThreshold);
 
    sc = m_THistSvc.retrieve();
    if( !sc.isSuccess() ) {
@@ -707,7 +707,7 @@ initialize()
             m_vTrigGroupNames.clear();
          }
 	 if (!m_trigTranslator.empty()) {
-	   updateTriggersForGroups(m_vTrigChainNames);
+	   updateTriggersForGroups(m_vTrigGroupNames);
 	 }
       }
       else {
@@ -793,8 +793,8 @@ ManagedMonitorToolBase::
 fillHists()
 {
 
-   if (d->m_warnAboutMissingInitialize) {
-       d->m_warnAboutMissingInitialize = false;
+   if (m_d->m_warnAboutMissingInitialize) {
+       m_d->m_warnAboutMissingInitialize = false;
        msg(MSG::WARNING) << "ManagedMonitorToolBase::initialize() never called from reimplementation!" << endreq;
    }
 
@@ -802,10 +802,16 @@ fillHists()
    bool isNewEventsBlock = ( m_procNEventsProp > 0  && ((m_nEvents % m_procNEventsProp) == 1) && m_haveClearedLastEventBlock );
    if (isNewEventsBlock) m_haveClearedLastEventBlock = false;
 
+   m_newLowStat = false;
+   m_newLumiBlock = false;
+   m_newRun = false;
    newLowStat = false;
    newLumiBlock = false;
    newRun = false;
 
+   m_newLowStatInterval = false;
+   m_newMedStatInterval = false;
+   m_newHigStatInterval = false;
    newLowStatInterval = false;
    newMedStatInterval = false;
    newHigStatInterval = false;
@@ -813,17 +819,21 @@ fillHists()
    m_useTrigger = ( (m_triggerChainProp != "" || m_triggerGroupProp != "")  && (!m_trigDecTool.empty()) );
 
    if( m_manager != 0 ) {
-      newLumiBlock = ( m_lastLumiBlock != m_manager->lumiBlockNumber() );
-      newRun = ( m_lastRun != m_manager->runNumber() );
+      m_newLumiBlock = ( m_lastLumiBlock != m_manager->lumiBlockNumber() );
+      m_newRun = ( m_lastRun != m_manager->runNumber() );
+      newLumiBlock = m_newLumiBlock;
+      newRun = m_newRun;
 
-      if(newRun) {
-         newLumiBlock = true;
+      if(m_newRun) {
+         m_newLumiBlock = true;
+         newLumiBlock = m_newLumiBlock;
          isNewEventsBlock = true;
       }
 
-      newEventsBlock = isNewEventsBlock;
+      m_newEventsBlock = isNewEventsBlock;
+      newEventsBlock = m_newEventsBlock;
 
-      if( newLumiBlock ) {
+      if( m_newLumiBlock ) {
          // check if a new LB interval has started
          // lowest lumiBlockNumber() is 1
          // m_lastLowStatInterval is -1 initially
@@ -836,9 +846,12 @@ fillHists()
             msg(MSG::WARNING) << "zero LBs requested for interval" << endreq;
          }
          else {
-            if( ((currentLB-1)/LBsLowStat) != m_lastLowStatInterval ) newLowStatInterval = true;
-            if( ((currentLB-1)/LBsMedStat) != m_lastMedStatInterval ) newMedStatInterval = true;
-            if( ((currentLB-1)/LBsHigStat) != m_lastHigStatInterval ) newHigStatInterval = true;
+            if( ((currentLB-1)/LBsLowStat) != m_lastLowStatInterval ) m_newLowStatInterval = true;
+            if( ((currentLB-1)/LBsMedStat) != m_lastMedStatInterval ) m_newMedStatInterval = true;
+            if( ((currentLB-1)/LBsHigStat) != m_lastHigStatInterval ) m_newHigStatInterval = true;
+            newLowStatInterval = m_newLowStatInterval;
+            newMedStatInterval = m_newHigStatInterval;
+            newHigStatInterval = m_newHigStatInterval;
          }
       }
 
@@ -858,35 +871,40 @@ fillHists()
 
    // Set end of LowStat, LumiBlock and Run variables
    // These are needed to be used in procHistograms().
-   endOfEventsBlock = newEventsBlock;
-   endOfLowStat = newLowStatInterval;
-   endOfLumiBlock = newLumiBlock;
-   endOfRun = newRun;
+   m_endOfEventsBlock = m_newEventsBlock;
+   m_endOfLowStat = m_newLowStatInterval;
+   m_endOfLumiBlock = m_newLumiBlock;
+   m_endOfRun = m_newRun;
+   endOfEventsBlock = m_newEventsBlock;
+   endOfLowStat = m_newLowStatInterval;
+   endOfLumiBlock = m_newLumiBlock;
+   endOfRun = m_newRun;
 
-   // just duplicates newLowStatInterval
-   newLowStat = newLowStatInterval; 
+   // just duplicates m_newLowStatInterval
+   m_newLowStat = m_newLowStatInterval; 
+   newLowStat = m_newLowStatInterval; 
 
-   if( newEventsBlock || newLumiBlock || newRun ) {
+   if( m_newEventsBlock || m_newLumiBlock || m_newRun ) {
 
       // Process histograms from the previous lumiBlock/run
       if( m_nEvents != 1 ) {
-	     d->benchPreProcHistograms();
+	     m_d->benchPreProcHistograms();
          sc0 = procHistograms();
-	     d->benchPostProcHistograms();
+	     m_d->benchPostProcHistograms();
          sc0.setChecked();
       }
       // Re-book new histograms
-      d->benchPreBookHistograms();
+      m_d->benchPreBookHistograms();
 
       if (!m_bookHistogramsInitial) {
           sc1 = bookHistograms();
           m_bookHistogramsInitial = true;
       } else {
           std::vector<Interval_t> intervals_to_process;
-          if (newEventsBlock) intervals_to_process.push_back(eventsBlock);
-          if (newLumiBlock) intervals_to_process.push_back(lumiBlock);
-          if (newLowStatInterval) intervals_to_process.push_back(lowStat);
-          if (newRun) intervals_to_process.push_back(run);
+          if (m_newEventsBlock) intervals_to_process.push_back(eventsBlock);
+          if (m_newLumiBlock) intervals_to_process.push_back(lumiBlock);
+          if (m_newLowStatInterval) intervals_to_process.push_back(lowStat);
+          if (m_newRun) intervals_to_process.push_back(run);
           for (const auto interval: intervals_to_process) {
             sc1 = regManagedHistograms(m_templateHistograms[interval]);     
             sc1 = regManagedGraphs(m_templateGraphs[interval]);
@@ -897,7 +915,7 @@ fillHists()
       
       sc3 = bookHistogramsRecurrent( );
       
-      d->benchPostBookHistograms();
+      m_d->benchPostBookHistograms();
       sc1.setChecked();
       sc3.setChecked();
    }
@@ -919,30 +937,30 @@ fillHists()
        || (m_vTrigChainNames.size()>0 && trigChainsArePassed(m_vTrigChainNames))
        || (m_vTrigGroupNames.size()>0 && trigChainsArePassed(m_vTrigGroupNames))) ) {
      ATH_MSG_DEBUG("Passed trigger, presumably");
-      d->benchPreFillHistograms();
+      m_d->benchPreFillHistograms();
       StatusCode sc3 = fillHistograms();
       m_haveClearedLastEventBlock = true;
-      d->benchPostFillHistograms();
+      m_d->benchPostFillHistograms();
       sc3.setChecked();
       ++m_nEvents;
    } else { ATH_MSG_DEBUG("Failed trigger, presumably"); }
 
    ++m_nEventsIgnoreTrigger;
-   if( newLumiBlock && (m_nEventsIgnoreTrigger != 1) ) {
+   if( m_newLumiBlock && (m_nEventsIgnoreTrigger != 1) ) {
       ++m_nLumiBlocks;
    }
    if( m_manager != 0 ) {
       m_lastRun = m_manager->runNumber();
-      if( newLumiBlock ) {
+      if( m_newLumiBlock ) {
          m_lastLumiBlock = m_manager->lumiBlockNumber();
 
          int LBsLowStat = m_manager->getLBsLowStat();
          int LBsMedStat = m_manager->getLBsMedStat();
          int LBsHigStat = m_manager->getLBsHigStat();
          if( LBsLowStat*LBsMedStat*LBsHigStat > 0) {
-            if( newLowStatInterval ) m_lastLowStatInterval = (m_lastLumiBlock-1)/LBsLowStat;
-            if( newMedStatInterval ) m_lastMedStatInterval = (m_lastLumiBlock-1)/LBsMedStat;
-            if( newHigStatInterval ) m_lastHigStatInterval = (m_lastLumiBlock-1)/LBsHigStat;
+            if( m_newLowStatInterval ) m_lastLowStatInterval = (m_lastLumiBlock-1)/LBsLowStat;
+            if( m_newMedStatInterval ) m_lastMedStatInterval = (m_lastLumiBlock-1)/LBsMedStat;
+            if( m_newHigStatInterval ) m_lastHigStatInterval = (m_lastLumiBlock-1)/LBsHigStat;
          }
       }
    }
@@ -979,7 +997,7 @@ registerMetadata(const std::string& streamName, const std::string& hName,
 
 StatusCode 
 ManagedMonitorToolBase::
-regManagedHistograms(std::vector< MgmtParams<TH1> >& m_templateHistograms)
+regManagedHistograms(std::vector< MgmtParams<TH1> >& templateHistograms)
 {
       // The method registers histograms with the THistSvc and saves them to file.
 
@@ -995,7 +1013,7 @@ regManagedHistograms(std::vector< MgmtParams<TH1> >& m_templateHistograms)
       //     m_manager->writeAndDelete( genericName );
       bool allIsOk = true;  
    
-      for( std::vector< MgmtParams<TH1> >::iterator it = m_templateHistograms.begin(); it != m_templateHistograms.end(); ++it ) {
+      for( std::vector< MgmtParams<TH1> >::iterator it = templateHistograms.begin(); it != templateHistograms.end(); ++it ) {
           MonGroup group = (*it).m_group;
 
           // Get a handle to the histogram
@@ -1052,20 +1070,13 @@ THistSvc_deReg_fixTGraph( TFile* file, TGraph* theGraph, std::string& directoryN
     // The current method fixes this problem by removing the TGraph object manually
     // after THistSvc->deReg(TGraph* obj) is called.
 
-    // Saves and restor gFile and gDirectory
+    // Saves and restores gFile and gDirectory
     GlobalDirectoryRestore restore;
 
     // This check is true when TGraph object is removed successfully
     bool graphRemoved = false;
 
-    // If no file, use gROOT instead
-    if (file != 0) {
-      file->cd("/");
-    } else {
-      ATH_MSG_DEBUG("THistSvc_deReg_fixTGraph: could not recover the output file. Using gROOT as TDirectory!");
-      gROOT->cd();
-    }
-
+    file->cd("/");
     TDirectory* dir = file->GetDirectory(directoryName.c_str());
     if (dir != 0) {
         dir->cd();
@@ -1083,12 +1094,12 @@ THistSvc_deReg_fixTGraph( TFile* file, TGraph* theGraph, std::string& directoryN
 
 StatusCode 
 ManagedMonitorToolBase::
-regManagedGraphs(std::vector< MgmtParams<TGraph> >& m_templateGraphs)
+regManagedGraphs(std::vector< MgmtParams<TGraph> >& templateGraphs)
 {
       // See the description for the regManagedHistograms method
       bool allIsOk = true;  
    
-      for( std::vector< MgmtParams<TGraph> >::iterator it = m_templateGraphs.begin(); it != m_templateGraphs.end(); ++it ) {
+      for( std::vector< MgmtParams<TGraph> >::iterator it = templateGraphs.begin(); it != templateGraphs.end(); ++it ) {
           MonGroup group = (*it).m_group;
 
           // Get a handle to the graph
@@ -1155,12 +1166,12 @@ regManagedGraphs(std::vector< MgmtParams<TGraph> >& m_templateGraphs)
 
 StatusCode 
 ManagedMonitorToolBase::
-regManagedTrees(std::vector< MgmtParams<TTree> >& m_templateTrees)
+regManagedTrees(std::vector< MgmtParams<TTree> >& templateTrees)
 {
       // See the description for the regManagedHistograms method
       bool allIsOk = true;  
    
-      for( std::vector< MgmtParams<TTree> >::iterator it = m_templateTrees.begin(); it != m_templateTrees.end(); ++it ) {
+      for( std::vector< MgmtParams<TTree> >::iterator it = templateTrees.begin(); it != templateTrees.end(); ++it ) {
           MonGroup group = (*it).m_group;
 
           // Get a handle to the original tree
@@ -1209,12 +1220,12 @@ regManagedTrees(std::vector< MgmtParams<TTree> >& m_templateTrees)
 
 StatusCode
 ManagedMonitorToolBase::
-regManagedLWHistograms(std::vector<MgmtParams<LWHist> >& m_templateLWHistograms)
+regManagedLWHistograms(std::vector<MgmtParams<LWHist> >& templateLWHistograms)
 {
     StatusCode sc1;
     sc1.setChecked();
 
-    for( std::vector< MgmtParams<LWHist> >::iterator it = m_templateLWHistograms.begin(); it != m_templateLWHistograms.end(); ++it ) {
+    for( std::vector< MgmtParams<LWHist> >::iterator it = templateLWHistograms.begin(); it != templateLWHistograms.end(); ++it ) {
         // Get histogram group
         MonGroup group = (*it).m_group;
 
@@ -1235,10 +1246,14 @@ finalHists()
    // This assumes that the end of a file will naturally end a run, which is not always true.
    // A merging application run afterwards should be able to put parts of a run together.
    if( m_nEvents != 1 ) {
-     d->benchPreProcHistograms();
+     m_d->benchPreProcHistograms();
 
      // Set end flags for the LowStat, LumiBlock and Run variables.
      // This is needed to be used in the procHistograms method below.
+     m_endOfEventsBlock = true;
+     m_endOfLowStat = true;
+     m_endOfLumiBlock = true;
+     m_endOfRun = true;
      endOfEventsBlock = true;
      endOfLowStat = true;
      endOfLumiBlock = true;
@@ -1249,6 +1264,7 @@ finalHists()
      StatusCode sc1( StatusCode::SUCCESS );
      sc1.setChecked();
 
+#if 0
      for (const auto interval: m_supportedIntervalsForRebooking) {
        //sc1 = regManagedHistograms(m_templateHistograms[interval], false);
        //sc1 = regManagedGraphs(m_templateGraphs[interval], false);
@@ -1258,8 +1274,9 @@ finalHists()
        //sc1 = regManagedLWHistograms(m_templateLWHistograms[interval], false, true);
        sc1.setChecked();
      }
+#endif
 
-     d->benchPostProcHistograms();
+     m_d->benchPostProcHistograms();
      return sc;
    }
    return StatusCode::SUCCESS;
@@ -1287,9 +1304,9 @@ StatusCode
 ManagedMonitorToolBase::
 bookHistogramsRecurrent( )
 {
-   if( newEventsBlock ) { }
-   if( newLumiBlock ) { }
-   if( newRun ) { }
+   if( m_newEventsBlock ) { }
+   if( m_newLumiBlock ) { }
+   if( m_newRun ) { }
 
    return StatusCode::SUCCESS;
 }
@@ -1315,10 +1332,10 @@ StatusCode
 ManagedMonitorToolBase::
 procHistograms( )
 {
-   if( endOfEventsBlock ) { }
-   if( endOfLowStat ) { }
-   if( endOfLumiBlock ) { }
-   if( endOfRun) { }
+   if( m_endOfEventsBlock ) { }
+   if( m_endOfLowStat ) { }
+   if( m_endOfLumiBlock ) { }
+   if( m_endOfRun) { }
 
    return StatusCode::SUCCESS;
 }
@@ -1370,7 +1387,7 @@ regHist( TH1* h, const MonGroup& group )
        MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
 
        if (m_supportedIntervalsForRebooking.count(group.interval())) {
-	       m_templateHistograms[group.interval()].push_back( MgmtParams<TH1>(h, group_unmanaged) );
+         m_templateHistograms[group.interval()].push_back( MgmtParams<TH1>(h, group_unmanaged) );
        } else {
 	       ATH_MSG_ERROR("Attempt to book managed histogram " << h->GetName() << " with invalid interval type " << intervalEnumToString(group.interval()));
 	       return StatusCode::FAILURE;
@@ -1431,9 +1448,6 @@ StatusCode ManagedMonitorToolBase::regHist( LWHist* h, const MonGroup& group )
 	       //return StatusCode::SUCCESS; 
 	   }
    }
-
-    if (!h)
-        return StatusCode::FAILURE;
 
     //FIXME: Code copied more or less verbatim from above. Collect most code (espc. for streamname) in common helpers!!
     std::string hName = h->GetName();
@@ -1782,7 +1796,7 @@ lbAverageInteractionsPerCrossing()
         ATH_MSG_DEBUG("Warning: lbAverageInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 // Instantaneous number of interactions, i.e. mu
@@ -1802,7 +1816,7 @@ lbInteractionsPerCrossing()
         ATH_MSG_DEBUG("Warning: lbInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 // Average luminosity (in ub-1 s-1 => 10^30 cm-2 s-1)
@@ -1817,7 +1831,7 @@ lbAverageLuminosity()
         ATH_MSG_DEBUG("Warning: lbAverageLuminosity() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 // Instantaneous luminosity
@@ -1832,7 +1846,7 @@ lbLuminosityPerBCID()
         ATH_MSG_DEBUG("Warning: lbLuminosityPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 
@@ -1851,7 +1865,7 @@ lbAverageLivefraction()
         ATH_MSG_DEBUG("Warning: lbAverageLivefraction() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 // Live Fraction per Bunch Crossing ID
@@ -1869,7 +1883,7 @@ livefractionPerBCID()
         ATH_MSG_DEBUG("Warning: livefractionPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 // Average Integrated Luminosity Live Fraction
@@ -1884,7 +1898,7 @@ lbLumiWeight()
         ATH_MSG_DEBUG("Warning: lbLumiWeight() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 
@@ -1900,7 +1914,7 @@ lbDuration()
         ATH_MSG_DEBUG("Warning: lbDuration() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 
@@ -1910,7 +1924,7 @@ lbDuration()
 
 ManagedMonitorToolBase::OutputMetadata::
    OutputMetadata( TTree* metadata )
-   : charArrSize(100)
+   : m_charArrSize(100)
    , m_metadata(metadata)
    , m_nameData(0)
    //, m_levelData(0)
@@ -1918,11 +1932,11 @@ ManagedMonitorToolBase::OutputMetadata::
    , m_triggerData(0)
    , m_mergeData(0)
 {
-   m_nameData = new char[charArrSize];
-   //m_levelData = new char[charArrSize];
-   m_intervalData = new char[charArrSize];
-   m_triggerData = new char[charArrSize];
-   m_mergeData = new char[charArrSize];
+   m_nameData = new char[m_charArrSize];
+   //m_levelData = new char[m_charArrSize];
+   m_intervalData = new char[m_charArrSize];
+   m_triggerData = new char[m_charArrSize];
+   m_mergeData = new char[m_charArrSize];
    m_metadata->Branch( "Name", m_nameData, "Name/C" );
    //m_metadata->Branch( "LevelOfDetail", m_levelData, "LevelOfDetail/C" );
    m_metadata->Branch( "Interval", m_intervalData, "Interval/C" );
@@ -1974,8 +1988,8 @@ copyString( char* to, const std::string& from )
 {
    int i = 0;
    const char* f = from.c_str();
-   while( (++i < charArrSize) && ((*to++ = *f++) != 0) ) {};
-   if( i == charArrSize ) {
+   while( (++i < m_charArrSize) && ((*to++ = *f++) != 0) ) {};
+   if( i == m_charArrSize ) {
       *to = 0;
    }
 }
@@ -2302,6 +2316,7 @@ namespace {
    }
 
 
+#if 0
    std::string strToUpper( const std::string& str )
    {
       std::string ustr(str);
@@ -2313,6 +2328,7 @@ namespace {
       }
       return ustr;
    }
+#endif
 
 } // unnamed namespace
 
