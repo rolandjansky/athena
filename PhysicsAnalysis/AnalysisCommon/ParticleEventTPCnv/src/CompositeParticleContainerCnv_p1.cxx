@@ -9,8 +9,7 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
-// DataModel includes
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // ParticleEvent includes
 #define private public
@@ -54,7 +53,7 @@ CompositeParticleContainerCnv_p1::persToTrans( const CompositeParticleContainer_
   // elements are managed by DataPool
   trans->clear(SG::VIEW_ELEMENTS);
 
-  static DataPool<CompositeParticle> pool( 20 );
+  DataPool<CompositeParticle> pool( 20 );
   const std::size_t nElems = pers->size();
   if ( pool.capacity() - pool.allocated() < nElems ) {
     pool.reserve( pool.allocated() + nElems );

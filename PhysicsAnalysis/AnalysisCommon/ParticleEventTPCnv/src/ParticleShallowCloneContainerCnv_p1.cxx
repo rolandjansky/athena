@@ -9,8 +9,7 @@
 // Author: Karsten Koeneke - February 2013
 /////////////////////////////////////////////////////////////////// 
 
-// DataModel includes
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // ParticleEvent includes
 #define private public
@@ -54,7 +53,7 @@ ParticleShallowCloneContainerCnv_p1::persToTrans( const ParticleShallowCloneCont
   // elements are managed by DataPool
   trans->clear(SG::VIEW_ELEMENTS);
 
-  static DataPool<Analysis::ParticleShallowClone> pool( 20 );
+  DataPool<Analysis::ParticleShallowClone> pool( 20 );
   const std::size_t nElems = pers->size();
   if ( pool.capacity() - pool.allocated() < nElems ) {
     pool.reserve( pool.allocated() + nElems );

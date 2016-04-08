@@ -13,11 +13,7 @@
 // STL includes
 
 // ParticleEvent includes
-#define private public
-#define protected public
 #include "ParticleEvent/ParticleShallowClone.h"
-#undef private
-#undef protected
 
 // DataModelAthenaPool includes
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"

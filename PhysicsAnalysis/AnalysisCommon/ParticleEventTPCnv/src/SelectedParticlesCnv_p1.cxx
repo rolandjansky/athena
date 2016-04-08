@@ -13,11 +13,7 @@
 // STL includes
 
 // ParticleEvent includes
-#define private public
-#define protected public
 #include "ParticleEvent/SelectedParticles.h"
-#undef private
-#undef protected
 #include "ParticleEventTPCnv/SelectedParticlesCnv_p1.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -28,7 +24,7 @@ SelectedParticlesCnv_p1::persToTrans( const SelectedParticles_p1* pers,
 {
    msg << MSG::DEBUG << "Creating transient state of SelectedParticles"
        << endreq;
-   trans->m_bits=pers->m_bits;
+   trans->Set (pers->m_bits);
   return;
 }
 
@@ -39,6 +35,6 @@ SelectedParticlesCnv_p1::transToPers( const SelectedParticles* trans,
 {
    msg << MSG::DEBUG << "Creating persistent state of SelectedParticles"
        << endreq;
-   pers->m_bits=trans->m_bits;
+   pers->m_bits=trans->AllBits();
   return;
 }
