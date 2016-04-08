@@ -1,0 +1,15 @@
+package TrkCollectionAliasAlg
+author Martin Siebel <Martin.Siebel@CERN.ch>
+
+private
+use TrkTrack        TrkTrack-*       Tracking/TrkEvent
+
+public
+use AtlasPolicy     AtlasPolicy-* 
+use GaudiInterface  GaudiInterface-*  External
+use AthenaBaseComps AthenaBaseComps-* Control
+
+apply_pattern component_library
+library TrkCollectionAliasAlg *.cxx components/*.cxx
+
+
