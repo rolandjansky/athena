@@ -3,13 +3,15 @@
 */
 
 #include "xAODPFOAuxContainerCnv.h"
+#include "AthContainers/tools/copyThinned.h"
+#include "AthenaKernel/IThinningSvc.h"
 
 xAODPFOAuxContainerCnv::xAODPFOAuxContainerCnv(ISvcLocator* svcLoc) : xAODPFOAuxContainerCnvBase(svcLoc) {}
 
 xAOD::PFOAuxContainer* xAODPFOAuxContainerCnv::createPersistent(xAOD::PFOAuxContainer* trans){
 
-  xAOD::PFOAuxContainer* container = new xAOD::PFOAuxContainer(*trans);
-  return container;
+   // Create a copy of the container:
+   return SG::copyThinned (*trans, IThinningSvc::instance());
 
 }
 

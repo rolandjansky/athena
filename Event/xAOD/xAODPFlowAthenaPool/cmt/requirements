@@ -11,7 +11,9 @@ use AtlasPolicy         AtlasPolicy-*
 private
 
 # Base package(s):
-use GaudiInterface      GaudiInterface-*      External
+#use GaudiInterface      GaudiInterface-*      External
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
 
 # POOL package(s):
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
