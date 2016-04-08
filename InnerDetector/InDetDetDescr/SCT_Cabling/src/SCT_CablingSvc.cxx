@@ -43,34 +43,30 @@ namespace{
   IdentifierHash even(const IdentifierHash &hash){
     return (hash>>1) << 1;
   }
-  
-  //is a number odd?
-  bool isOdd(const IdentifierHash & hash){
-    return hash & 1;
-  }
+ 
 }
 
 // Constructor
 SCT_CablingSvc::SCT_CablingSvc( const std::string & name, ISvcLocator * pSvcLocator):
 AthService(name,pSvcLocator), m_cablingFiller("ISCT_FillCabling",name), m_hashEntries(0),m_idHelper(0),m_usingDatabase(true){
      declareProperty("DataSource", m_cablingDataSource=defaultSource);
-  m_onlineId2HashArray.assign(invalidHash);
-  m_hash2OnlineIdArray.assign(invalidId);
+  m_onlineId2HashArray.fill(invalidHash);
+  m_hash2OnlineIdArray.fill(invalidId);
 }
 
 //
 void 
 SCT_CablingSvc::handle(const Incident& runIncident) {
-  msg(MSG::INFO)<<"Cabling event handler called."<<endreq;
+  ATH_MSG_INFO("Cabling event handler called.");
   if (runIncident.type()==IncidentType::BeginRun){
     if (not empty()) {
-      msg(MSG::INFO)<<"Cabling data was already filled"<<endreq;
+      ATH_MSG_INFO("Cabling data was already filled");
     } else {
       if (m_cablingFiller->fillMaps(this).isFailure()) msg(MSG::FATAL)<<"Callback to fill the cabling FAILED"<<endreq;
     }
   } else if (runIncident.type()==IncidentType::EndRun){
-    m_onlineId2HashArray.assign(invalidHash);
-    m_hash2OnlineIdArray.assign(invalidId);
+    m_onlineId2HashArray.fill(invalidHash);
+    m_hash2OnlineIdArray.fill(invalidId);
     m_sn2HashMap.clear();
     m_rodIdSet.clear();
     m_hashEntries=0;
@@ -83,7 +79,7 @@ SCT_CablingSvc::handle(const Incident& runIncident) {
 StatusCode
 SCT_CablingSvc::initialize(){
   StatusCode sc(StatusCode::FAILURE);
-  msg(MSG::INFO)<<"Initialize SCT cabling "<<PACKAGE_VERSION<<endreq;
+  ATH_MSG_INFO("Initialize SCT cabling "<<PACKAGE_VERSION);
   const std::string cablingDataSource = m_cablingDataSource.value();
   m_usingDatabase=(cablingDataSource == coracool) or (cablingDataSource == coolVectorPayload);
   //select which service name to use
@@ -94,14 +90,14 @@ SCT_CablingSvc::initialize(){
   m_cablingFiller=ServiceHandle<ISCT_FillCabling>(cablingFillerName,name());
   if (m_cablingFiller.retrieve().isSuccess()){
     if (m_cablingFiller->setDataSource(m_cablingDataSource.value()).isFailure()) return msg(MSG::FATAL)<<"Failed to find data"<<endreq,sc;
-    // if the filler can do its job during intialization, then do it...
+    // if the filler can do its job during initialisation, then do it...
     if (m_cablingFiller->canFillDuringInitialize()){
       sc=m_cablingFiller->fillMaps(this);
     } else { //... otherwise, register a handler to fill on the 'BeginRun' incident.
       ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc",name());
       sc = incidentSvc.retrieve();
       if (sc.isFailure() ) {
-        msg(MSG::ERROR)<<"Failed to retrieve the IncidentSvc"<<endreq;
+        ATH_MSG_ERROR("Failed to retrieve the IncidentSvc");
         return StatusCode::FAILURE;
       } else { 
         incidentSvc->addListener( this , IncidentType::BeginRun);
@@ -111,8 +107,8 @@ SCT_CablingSvc::initialize(){
   }
   //
   ServiceHandle<StoreGateSvc> detStore("DetectorStore",name());
-  if (detStore.retrieve().isFailure()) return msg(MSG::FATAL)  << "Detector service  not found !" << endreq, StatusCode::FAILURE;
-  if (detStore->retrieve(m_idHelper,"SCT_ID").isFailure()) return msg(MSG::ERROR)  << "SCT mgr failed to retrieve" << endreq, StatusCode::FAILURE;
+  ATH_CHECK(detStore.retrieve());
+  ATH_CHECK(detStore->retrieve(m_idHelper,"SCT_ID"));
   return sc;
 }
 
@@ -159,7 +155,7 @@ SCT_CablingSvc::getHashFromOnlineId(const SCT_OnlineId & onlineId, const bool wi
     if (withWarnings) msg(MSG::WARNING)<<"Invalid online id ("<<std::hex<<onlineId<<") "<<std::dec<<endreq;
     return invalidHash;
   }
-  //is it specificaly valid for the given datasource?
+  //is it specifically valid for the given datasource?
   if (not onlineId.is_valid(m_usingDatabase)){
     const std::string alternative=m_usingDatabase?"text file cabling":"cabling from database";
     if (withWarnings) msg(MSG::WARNING)<<"Invalid online id ("<<std::hex<<onlineId<<") try using the "<<alternative<<std::dec<<endreq;
@@ -210,7 +206,7 @@ SCT_CablingSvc::getSerialNumberFromHash(const IdentifierHash & hash)  {
 }
 
 void
-SCT_CablingSvc::getHashesForRod(std::vector<IdentifierHash> & usersVector, const boost::uint32_t rodId){
+SCT_CablingSvc::getHashesForRod(std::vector<IdentifierHash> & usersVector, const std::uint32_t rodId){
   if (not SCT_OnlineId::rodIdInRange(rodId)) msg(MSG::WARNING)<<"Invalid rod id asked for associated hashes"<<endreq;
   SCT_OnlineId firstPossibleId(rodId,SCT_OnlineId::FIRST_FIBRE);
   const bool withWarnings(false);
@@ -230,7 +226,7 @@ SCT_CablingSvc::insert(const IdentifierHash & hash, const SCT_OnlineId & onlineI
     return false;
   }
   if (not hash.is_valid()) return  msg(MSG::FATAL)<<"Invalid hash: "<<hash<<endreq, false;
-  m_rodIdSet.insert(onlineId.rod());
+  
   //compute the index for insertion to the onlineId/Hash array
   unsigned int indx(onlineId.index());
   if (m_onlineId2HashArray[indx].is_valid()) return false; //don't insert if theres already a valid hash there
@@ -242,7 +238,10 @@ SCT_CablingSvc::insert(const IdentifierHash & hash, const SCT_OnlineId & onlineI
   IdentifierHash evenHash=even(hash);
   bool successfulInsert(m_sn2HashMap.insert(std::make_pair(sn, evenHash)).second);
   // in this form, the m_hashEntries will be half the number of hashes
-  if ( successfulInsert) ++m_hashEntries;
+  if ( successfulInsert) {
+    m_rodIdSet.insert(onlineId.rod()); //move this here so insertion only happens for valid onlineId, hash
+    ++m_hashEntries;
+  }
   return true;
 }
 

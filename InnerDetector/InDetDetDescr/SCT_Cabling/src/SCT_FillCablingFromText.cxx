@@ -226,6 +226,6 @@ SCT_FillCablingFromText::readDataFromFile(SCT_CablingSvc * cabling){
   }
   msg(MSG::INFO)<<numEntries<<" entries were made to the identifier map."<<endreq;
   m_filled=(numEntries not_eq 0);
-  return (numEntries==0)?StatusCode::FAILURE : StatusCode::SUCCESS;
+  return (numEntries==0)?(StatusCode::FAILURE) : (StatusCode::SUCCESS);
 }
 

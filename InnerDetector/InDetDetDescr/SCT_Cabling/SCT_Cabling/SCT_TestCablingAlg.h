@@ -18,7 +18,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 //package includes
-#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "ISCT_CablingSvc.h"
 
 class ISvcLocator;
 class StatusCode;

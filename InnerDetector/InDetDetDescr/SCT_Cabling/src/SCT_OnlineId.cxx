@@ -23,11 +23,11 @@ SCT_OnlineId::SCT_OnlineId(): m_onlineId(SCT_OnlineId::INVALID_ONLINE_ID){
 }
 
 //
-SCT_OnlineId::SCT_OnlineId(const unsigned int onlineId):m_onlineId(onlineId){
+SCT_OnlineId::SCT_OnlineId(const std::uint32_t onlineId):m_onlineId(onlineId){
   //nop
 }
 
-SCT_OnlineId::SCT_OnlineId(const boost::uint32_t rodId, const boost::uint32_t fibre){
+SCT_OnlineId::SCT_OnlineId(const std::uint32_t rodId, const std::uint32_t fibre){
   //cursory checks on range only
   if (not (fibreInRange(fibre) and rodIdInRange(rodId) )){
     std::cout<<"SCT_OnlineId: Invalid online Id "<<std::hex<<rodId<<std::dec<<" fibre: "<<fibre<<std::endl;
@@ -53,13 +53,13 @@ SCT_OnlineId::operator++(int){
 }
 
 //
-boost::uint32_t
+std::uint32_t
 SCT_OnlineId::rod() const {
   return m_onlineId & 0xFFFFFF;
 }
 
 //
-boost::uint32_t
+std::uint32_t
 SCT_OnlineId::fibre() const {
   return m_onlineId>>24;
 }
@@ -83,25 +83,25 @@ SCT_OnlineId::is_valid() const{
 
   
 //
-bool SCT_OnlineId::fibreInRange(boost::uint32_t f) const{
+bool SCT_OnlineId::fibreInRange(std::uint32_t f) const{
   return (f<NUM_FIBRES);
 }
 
 //
-bool SCT_OnlineId::rodIdInRange(boost::uint32_t r) {
-  const boost::uint32_t lowestRodId(0x210000);
-  const boost::uint32_t highestRodId=0x24010F;
+bool SCT_OnlineId::rodIdInRange(std::uint32_t r) {
+  const std::uint32_t lowestRodId(0x210000);
+  const std::uint32_t highestRodId=0x24010F;
   return ((r >=lowestRodId) and (r<=highestRodId)) ;
 }
 
 //
-bool SCT_OnlineId::rodIdInRange(boost::uint32_t r, const bool usingDbCabling) const{
-  const boost::uint32_t lowestRodId(0x210000);
-  const boost::uint32_t highestRodId=usingDbCabling?0x24010F:0x240014;
+bool SCT_OnlineId::rodIdInRange(std::uint32_t r, const bool usingDbCabling) const{
+  const std::uint32_t lowestRodId(0x210000);
+  const std::uint32_t highestRodId=0x24010F;
   //choose one unique Rod as a signature to check for either database or montecarlo.
   //0x220010 is unique to the text file, 0x220105 is unique to the database
   //as an alternative, more thorough (but slower) check, the SCT_OnlineIdType function should be used
-  const boost::uint32_t uniqueToOppositeCase = usingDbCabling?0x220010:0x220105;
+  const std::uint32_t uniqueToOppositeCase = usingDbCabling?0x220010:0x220105;
   return ((r >=lowestRodId) and (r<=highestRodId) and (r!=uniqueToOppositeCase)) ;
 }
   

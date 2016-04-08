@@ -4,19 +4,21 @@
 
 /**
  * @file SCT_TestCablingAlg.cxx
- * Implementation file for  SCT cabling service
+ * Implementation file for  SCT cabling service test algorithm
  * @author Shaun Roe
  * @date 20 October, 2008
  **/
  
-//STL, boost
+//STL
 #include <set>
-#include "boost/cstdint.hpp"
+#include <cstdint>
 //for o/p to file
 #include <iostream>
 #include <fstream>
 //to access environment
 #include <cstdlib>
+#include <algorithm>
+#include <map>
 
 
 //Gaudi
@@ -26,8 +28,9 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 //Package
-#include "SCT_TestCablingAlg.h"
+#include "SCT_Cabling/SCT_TestCablingAlg.h"
 #include "SCT_CablingUtilities.h"
+#include "SCT_CablingXmlTags.h"
 
 
 
@@ -46,45 +49,45 @@ SCT_TestCablingAlg::~SCT_TestCablingAlg(){
 
 StatusCode
 SCT_TestCablingAlg::initialize(){
-  ServiceHandle<StoreGateSvc> detStore("DetectorStore",name());
-  if (detStore.retrieve().isFailure()) return msg(MSG::FATAL)  << "Detector service  not found !" << endreq, StatusCode::FAILURE;
-  if (detStore->retrieve(m_idHelper,"SCT_ID").isFailure()) return msg(MSG::ERROR)  << "SCT mgr failed to retrieve" << endreq, StatusCode::FAILURE;
-  if(m_cablingSvc.retrieve().isFailure() ) return msg(MSG::FATAL)<<"Unable to get the cabling svc"<<endreq, StatusCode::FAILURE;
-  msg(MSG::INFO)<<"Test algorithm for SCT_Cabling"<<endreq;
+  ATH_CHECK(detStore()->retrieve(m_idHelper,"SCT_ID"));
+  ATH_CHECK(m_cablingSvc.retrieve());
+  ATH_MSG_INFO("Test algorithm for SCT_Cabling");
   return StatusCode::SUCCESS;
 }
 
 std::string
 SCT_TestCablingAlg::coordString(const Identifier & offlineId){
-  std::ostringstream os("");
-  os<<"["<<m_idHelper->barrel_ec(offlineId)<<", ";
-  os<<m_idHelper->layer_disk(offlineId)<<", ";
-  os<<m_idHelper->phi_module(offlineId)<<", ";
-  os<<m_idHelper->eta_module(offlineId)<<", ";
-  os<<m_idHelper->side(offlineId)<<"]";
-  return os.str();
+	using std::to_string;
+  const std::string sep(", ");
+  std::string result=std::string("[") + to_string(m_idHelper->barrel_ec(offlineId)) + sep;
+  result+=to_string(m_idHelper->layer_disk(offlineId)) + sep;
+  result+=to_string(m_idHelper->phi_module(offlineId)) + sep;
+  result+=to_string(m_idHelper->eta_module(offlineId)) + sep;
+  result+=to_string(m_idHelper->side(offlineId)) + "]";
+  return result;
 }
 
 StatusCode
 SCT_TestCablingAlg::execute(){
-  string testAreaPath=CoveritySafe::getenv("TestArea");
+  const string testAreaPath=CoveritySafe::getenv("TestArea");
   string filename=testAreaPath+"/cabling.txt";
-  msg(MSG::INFO)<<"Filename: "<<filename<<endreq;
-  ofstream opFile(filename.c_str(),ios::out);
+  msg(MSG::INFO)<<"Filename: "<<filename<<" will be written to your $TestArea."<<endreq;
+  ofstream opFile1(filename.c_str(),ios::out);
   msg(MSG::INFO)<<"Executing..."<<endreq;
   msg(MSG::INFO)<<"hash, offline Id, online Id(hex), serial number"<<endreq;
-  for (int i(0);i!=8176;++i){
+  const unsigned int nHashesInCabling(2*m_cablingSvc->size());
+  for (unsigned int i(0);i!=nHashesInCabling;++i){
     IdentifierHash hash(i);
     Identifier offlineId(m_idHelper->wafer_id(hash));
     SCT_OnlineId onlineId(m_cablingSvc->getOnlineIdFromHash(hash));
     SCT_SerialNumber sn(m_cablingSvc->getSerialNumberFromHash(hash));
     msg(MSG::INFO)<<i<<" "<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<endreq;
-    opFile<<i<<" "<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<std::endl;
+    opFile1<<i<<" "<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<std::endl;
     if (m_cablingSvc->getHashFromOnlineId(onlineId) != hash){
-      msg(MSG::INFO)<<"?? "<<m_cablingSvc->getHashFromOnlineId(onlineId)<<endreq;
+      msg(MSG::ERROR)<<"?? "<<m_cablingSvc->getHashFromOnlineId(onlineId)<<endreq;
     }
   }
-  
+  opFile1.close();
   msg(MSG::INFO)<<"Size: "<<m_cablingSvc->size()<<endreq;
   std::vector<unsigned int> rods;
   m_cablingSvc->getAllRods(rods);
@@ -103,6 +106,44 @@ SCT_TestCablingAlg::execute(){
   std::vector<IdentifierHash> hashVec;
   m_cablingSvc->getHashesForRod(hashVec, 0x220005);
   msg(MSG::INFO)<<"number of hashes for rod 0x220005: "<<hashVec.size()<<endreq;
+  //new section December 2014
+  
+  //make a 'rodHash'
+  std::sort(rods.begin(),rods.end());
+  std::map<unsigned int, unsigned int> rodHashMap;
+  for (unsigned int i(0);i!=rods.size();++i){
+  	rodHashMap[rods[i]]=i;
+  }
+  //open a file for writing
+  const std::string fullFileName=testAreaPath + "/" + makeCablingFileName();
+  msg(MSG::INFO)<<"Open file for write "<<fullFileName<<endreq;
+  ofstream opFile(fullFileName.c_str(),ios::out);
+  opFile<<XmlHeader<<endl;
+  opFile<<OpenRootTag<<endl;
+  opFile<<OpenRodMappingTag<<endl;
+  for (auto r:rods){
+  	opFile<<formatRodOutput(r)<<endl;
+  }
+  opFile<<CloseRodMappingTag<<endl;
+  opFile<<OpenModuleMappingTag<<endl;
+   for (unsigned int i(0);i!=nHashesInCabling;++i){
+    IdentifierHash hash(i);
+    Identifier offlineId(m_idHelper->wafer_id(hash));
+    SCT_OnlineId onlineId(m_cablingSvc->getOnlineIdFromHash(hash));
+    SCT_SerialNumber sn(m_cablingSvc->getSerialNumberFromHash(hash));
+    //rod, fibre, bec, layerDisk, eta,  phi, side,  robId, sn
+    const int bec(m_idHelper->barrel_ec(offlineId));
+    const int layer(m_idHelper->layer_disk(offlineId));
+    const int eta(m_idHelper->eta_module(offlineId));
+    const int phi(m_idHelper->phi_module(offlineId));
+    const int side(m_idHelper->side(offlineId));
+    const unsigned int rodIndex(rodHashMap[onlineId.rod()]);
+    opFile<<formatModuleOutput(rodIndex, onlineId.fibre(), bec,layer,eta,phi,side,onlineId.rod()  ,sn.str())<<endl;
+    
+  }
+  opFile<<CloseModuleMappingTag<<endl;
+  opFile<<CloseRootTag<<endl;
+  opFile.close();
   return StatusCode::SUCCESS;
 }
 

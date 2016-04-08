@@ -9,8 +9,8 @@
  * Header file for a utility class to hold the online id
  **/
 
-#include "boost/cstdint.hpp"
-
+//#include "boost/cstdint.hpp"
+#include <cstdint>
 
 /**
  * SCT_OnlineId is a class to hold an online id number and 
@@ -26,16 +26,16 @@ public:
   SCT_OnlineId();
   
   /// Construct from uint32
-  SCT_OnlineId(const boost::uint32_t onlineId);
+  SCT_OnlineId(const std::uint32_t onlineId);
   
   /// Construct from robId and fibre; a cursory check is made on validity of the input
-  SCT_OnlineId(const boost::uint32_t rodId, const boost::uint32_t fibre);
+  SCT_OnlineId(const std::uint32_t rodId, const std::uint32_t fibre);
   
   ///return the rod/rob Id
-  boost::uint32_t rod() const;
+  std::uint32_t rod() const;
   
   ///return the fibre
-  boost::uint32_t fibre() const;
+  std::uint32_t fibre() const;
   
   //@name conversions to other forms
   //@{
@@ -58,7 +58,7 @@ public:
   unsigned int index() const;
   
   ///Is the rod in range?
-  static bool rodIdInRange(boost::uint32_t r);
+  static bool rodIdInRange(std::uint32_t r);
   
   ///constants for evaluating hash indices of the online id. The hashing formula is in 'index()'
   enum {
@@ -71,16 +71,16 @@ public:
   
 private:
   /// The underlying number
-  boost::uint32_t m_onlineId;
+  std::uint32_t m_onlineId;
   
   ///simple range check
-  bool fibreInRange(boost::uint32_t f) const;
+  bool fibreInRange(std::uint32_t f) const;
   
   ///rough check on validity
-  bool couldBeValid(boost::uint32_t r);
+  bool couldBeValid(std::uint32_t r);
   
   ///
-  bool rodIdInRange(boost::uint32_t r, const bool usingDbCabling) const;
+  bool rodIdInRange(std::uint32_t r, const bool usingDbCabling) const;
 
 };
 
