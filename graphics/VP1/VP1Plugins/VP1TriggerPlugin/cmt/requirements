@@ -1,0 +1,9 @@
+package VP1TriggerPlugin
+
+author Manuel Proissl <mproissl@cern.ch>
+manager Manuel Proissl <mproissl@cern.ch>
+
+use AtlasPolicy        		AtlasPolicy-*
+use VP1TriggerSystems   	VP1TriggerSystems-*    graphics/VP1/VP1Systems
+
+apply_pattern vp1plugin
