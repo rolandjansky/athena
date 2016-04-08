@@ -31,7 +31,7 @@ namespace JiveXML {
    * - first for favourite key
    * - then for keys in m_otherKeys or for all if this vector is empty
    */
-  StatusCode MissingETRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode MissingETRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "MissingETRetriver::retrieve()" << endreq;
 

@@ -34,7 +34,7 @@ namespace JiveXML {
     ~MissingETRetriever() {}
     
     /// Retrieve all the data
-    virtual StatusCode retrieve(ToolHandle<IFormatTool> FormatTool); 
+    virtual StatusCode retrieve(ToolHandle<IFormatTool> &FormatTool); 
     const DataMap getData(const MissingET*);
 
     /// Return the name of the data type
