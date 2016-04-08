@@ -79,7 +79,6 @@ namespace Muon {
 
   DCMathSegmentMaker::DCMathSegmentMaker( const std::string& t, const std::string& n, const IInterface*  p ) :
     AthAlgTool(t,n,p),
-    m_detMgr(0),
     m_intersectSvc("MuonStationIntersectSvc", name()),
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
     m_mdtCreatorT0("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
@@ -95,10 +94,6 @@ namespace Muon {
     m_dcslFitProvider(""),
     m_multiGeo(0),
     m_dcslFitter(0),
-    m_phimin(0.),
-    m_phimax(0.),
-    m_refit(false),
-    m_isEndcap(false),
     m_nmultipleHitWarnings(0)
   {
     declareInterface<IMuonSegmentMaker>(this);
@@ -787,7 +782,7 @@ namespace Muon {
 	  msg(MSG::DEBUG) << m_idHelperTool->toString( rot->identify() );
 	  const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(rot);
 	  if( mdt ) msg() << std::setprecision(4) << " radius " << std::setw(6) << mdt->driftRadius() << " time " << std::setw(6) << mdt->driftTime();
-	  msg(MSG::DEBUG) << endmsg;
+	  msg(MSG::DEBUG) << endreq;
 	  continue;
 	}
 	const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(*mit);
@@ -897,7 +892,7 @@ namespace Muon {
       if( segmentQuality < 0 ) msg(MSG::DEBUG) << " BAD segment ";
       if( hasFittedT0 )        msg(MSG::DEBUG) << " T0 " << fittedT0;
       if( isCurvedSegment )    msg(MSG::DEBUG) << " Curved " << fittedT0;
-      msg(MSG::DEBUG) << endmsg;
+      msg(MSG::DEBUG) << endreq;
     }
     if( segmentQuality < 0 ){
       delete msegment;
@@ -1350,7 +1345,7 @@ namespace Muon {
       if( error == 0. ){
 	msg(MSG::WARNING) << " Unphysical error assigned for " << m_idHelperTool->toString(etaHit->identify());
 	if( etaHit->prepRawData() ) msg(MSG::WARNING) << " PRD error " << Amg::error(etaHit->prepRawData()->localCovariance(),Trk::locX); 
-	msg(MSG::WARNING) << endmsg;
+	msg(MSG::WARNING) << endreq;
       }
       Amg::Vector2D lspPos(0.,0.);
       if( etaHit->associatedSurface().globalToLocal( gposSp, gposSp,lspPos ) ){
@@ -1573,8 +1568,8 @@ namespace Muon {
       if( msgLvl(MSG::VERBOSE) ) {
 	msg(MSG::VERBOSE) << " new MDT hit " << m_idHelperTool->toString( id )  << " x " << lpos.x() << " y " << lpos.y()
 			  << " time " << rot->driftTime() << " r " << r << " dr " << dr << " phi range " << tubeEnds.phimin << " " << tubeEnds.phimax;
-	if( m_usePreciseError ) msg(MSG::VERBOSE) << " dr(2) " << preciseError << endmsg;
-	else msg(MSG::VERBOSE) << endmsg;
+	if( m_usePreciseError ) msg(MSG::VERBOSE) << " dr(2) " << preciseError << endreq;
+	else msg(MSG::VERBOSE) << endreq;
       }
       dcs.push_back( dc );
       
@@ -2024,9 +2019,9 @@ namespace Muon {
 	    ++netaPhiHits.first;
 
 	    if( msgLvl(MSG::VERBOSE) ){
-	      msg(MSG::VERBOSE) << "    selected cluster:  " << m_idHelperTool->toString( etaClusterVec.front()->identify() ) << endmsg;
+	      msg(MSG::VERBOSE) << "    selected cluster:  " << m_idHelperTool->toString( etaClusterVec.front()->identify() ) << endreq;
 	      for( unsigned int i=0;i<etaCompCluster->containedROTs().size();++i){
-		msg(MSG::VERBOSE) << "               content:  " << m_idHelperTool->toString( etaCompCluster->containedROTs()[i]->identify() ) << endmsg;
+		msg(MSG::VERBOSE) << "               content:  " << m_idHelperTool->toString( etaCompCluster->containedROTs()[i]->identify() ) << endreq;
 	      }
 	    }
 	  }
@@ -2046,9 +2041,9 @@ namespace Muon {
 	    ++netaPhiHits.second;
 
 	    if( msgLvl(MSG::VERBOSE) ){
-	      msg(MSG::VERBOSE) << "    selected cluster:  " << m_idHelperTool->toString( phiClusterVec.front()->identify() ) << endmsg;
+	      msg(MSG::VERBOSE) << "    selected cluster:  " << m_idHelperTool->toString( phiClusterVec.front()->identify() ) << endreq;
 	      for( unsigned int i=0;i<phiCompCluster->containedROTs().size();++i){
-		msg(MSG::VERBOSE) << "               content:  " << m_idHelperTool->toString( phiCompCluster->containedROTs()[i]->identify() ) <<endmsg;
+		msg(MSG::VERBOSE) << "               content:  " << m_idHelperTool->toString( phiCompCluster->containedROTs()[i]->identify() ) <<endreq;
 	      }
 	    }
 	    
@@ -2158,8 +2153,8 @@ namespace Muon {
 	  msg(MSG::DEBUG) << " Unassociated " << m_idHelperTool->toString((*cit)->phiHit->identify()) 
 			  << " pos x " << cl.position().x() << " pos y " << cl.position().y() 
 			  << " : residual " << residual << " strip half length " << 0.5*stripLength << " segment error " << segError;
-	  if( inBounds ) msg(MSG::DEBUG) << " inBounds" << endmsg;
-	  else           msg(MSG::DEBUG) << " outBounds" << endmsg;
+	  if( inBounds ) msg(MSG::DEBUG) << " inBounds" << endreq;
+	  else           msg(MSG::DEBUG) << " outBounds" << endreq;
 	}
 	if( inBounds ){
 	  // can have multiple phi hits per cluster, loop over phi hits and add them
@@ -2197,9 +2192,9 @@ namespace Muon {
 	  ++netaPhiHits.second;
 	  ++addedPhiHits;
 	  if( msgLvl(MSG::VERBOSE) ){
-	    msg(MSG::VERBOSE) << "    selected unassociated cluster:  " << m_idHelperTool->toString( prds.front()->identify() ) << "  distance to segment " << dist << endmsg;
+	    msg(MSG::VERBOSE) << "    selected unassociated cluster:  " << m_idHelperTool->toString( prds.front()->identify() ) << "  distance to segment " << dist << endreq;
 	    for( unsigned int i=0;i<phiCompCluster->containedROTs().size();++i){
-	      msg(MSG::VERBOSE) << "               content:  " << m_idHelperTool->toString( phiCompCluster->containedROTs()[i]->identify() ) <<endmsg;
+	      msg(MSG::VERBOSE) << "               content:  " << m_idHelperTool->toString( phiCompCluster->containedROTs()[i]->identify() ) <<endreq;
 	    }
 	  }
 	}
@@ -2373,7 +2368,7 @@ namespace Muon {
 	m_holeVec.push_back( tint.tubeId );
       }
     }
-    if( msgLvl(MSG::VERBOSE)  ) msg(MSG::VERBOSE) << endmsg;
+    if( msgLvl(MSG::VERBOSE)  ) msg(MSG::VERBOSE) << endreq;
   }
 
   const MdtPrepData* DCMathSegmentMaker::findMdt( const Identifier& id ) const {
@@ -2488,7 +2483,7 @@ namespace Muon {
     if(msgLvl(MSG::VERBOSE) ) {
       if( fabs(dXdZMinRight) < 1e8 ) msg(MSG::VERBOSE) << " selected right bound " << dXdZMinRight;
       if( fabs(dXdZMinLeft)  < 1e8 ) msg(MSG::VERBOSE) << " selected left bound " << dXdZMinLeft;
-      msg(MSG::VERBOSE) << endmsg;
+      msg(MSG::VERBOSE) << endreq;
     }
 
     if( fabs(dXdZMinRight) < 1e8 ) {
@@ -2525,7 +2520,7 @@ namespace Muon {
 			<< ")  ex pos " << std::setw(6) << (int)locExX
 			<< " min " << std::setw(6) << (int)hit->xmin << " max " << std::setw(6) << (int)hit->xmax
 			<< " phimin " << std::setw(6) << hit->phimin << " phimax " << std::setw(6) << hit->phimax
-			<< " outBounds, cross-check" << endmsg;
+			<< " outBounds, cross-check" << endreq;
       }
     }
     return ok;
@@ -2778,7 +2773,7 @@ namespace Muon {
 
     delete firstPhiHit;
     delete lastPhiHit;
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endreq;
     return hasUpdated;
   } 
 

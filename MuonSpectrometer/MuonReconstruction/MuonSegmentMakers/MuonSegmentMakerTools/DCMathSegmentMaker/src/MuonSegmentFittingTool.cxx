@@ -188,9 +188,9 @@ namespace Muon {
 	msg(MSG::DEBUG) << " pos " << std::setprecision(5) << pp->position() 
 			<< " phi " << pp->momentum().phi() << " theta " << pp->momentum().theta() 
 			<< " q*mom " << pp->momentum().mag()*pp->charge() 
-			<< " pt " << pp->momentum().perp()<< endmsg;
+			<< " pt " << pp->momentum().perp()<< endreq;
       }else{
-	msg(MSG::DEBUG) << " no perigee " << endmsg;
+	msg(MSG::DEBUG) << " no perigee " << endreq;
       }
     }
     return newtrack;
