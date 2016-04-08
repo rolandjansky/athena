@@ -62,7 +62,7 @@ private:
 ///////////////////////////////////
 //Data
 
-   std::vector<AmdcAline>  AmdcAlineSet ; //!< Storage vector for line
+   std::vector<AmdcAline>  m_AmdcAlineSet ; //!< Storage vector for line
 
    int m_Active ;
 
