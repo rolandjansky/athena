@@ -65,14 +65,12 @@ namespace Muon {
     MuonStationIndex::TechnologyIndex tech = m_idHelper->technologyIndex(id);
     if( !m_acceptedTechnologies.count(tech) ) return TimingResult();
     
-    ATH_MSG_INFO(" filling timing info for " << m_idHelper->toString(id) << " " << MuonStationIndex::technologyName(tech) );
     // get handle and use it if it is not empty
     const ToolHandle<IMuonHitTimingTool>& toolHandle = m_hitTimingTools[tech];
     if( toolHandle.empty() ) {
       ATH_MSG_WARNING("Unable to fill timing, timing tool missing. Tech = " << MuonStationIndex::technologyName(tech) );
       return TimingResult();
     }
-    ATH_MSG_INFO("About to call tool for tech = " << MuonStationIndex::technologyName(tech) << " " << toolHandle);
     return toolHandle->calculateTimingResult(hits);
   }
 
