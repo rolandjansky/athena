@@ -46,7 +46,7 @@ Created:     July 2014
 // Constructor
 //=============================================================================
 ThinCaloCellsTool::ThinCaloCellsTool( const std::string& type,
-                      						    const std::string& name,
+                                      const std::string& name,
                                       const IInterface* parent ) :
   ::AthAlgTool( type, name, parent ),
   m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
@@ -161,7 +161,7 @@ StatusCode ThinCaloCellsTool::doThinning() const
     //   for ( const auto& cellLink : *inLinkContainer ) {
     //     ATH_CHECK( this->selectFromCaloCellLink( mask, caloCellContainer, cellLink ) );
     //   }
-  	// }
+    // }
 
     else if ( evtStore()->contains< xAOD::IParticleLinkContainer >( inKey ) ) {
       const xAOD::IParticleLinkContainer* inLinkContainer;
@@ -172,7 +172,7 @@ StatusCode ThinCaloCellsTool::doThinning() const
       for ( const xAOD::IParticleLink& partLink : *inLinkContainer ) {
         ATH_CHECK( this->selectFromIParticleLink( mask, caloCellContainer, partLink ) );
       }
-  	}
+    }
 
     else if ( evtStore()->contains< xAOD::EgammaContainer >( inKey ) ) {
       // This file holds an xAOD::EgammaContainer
@@ -511,8 +511,8 @@ ThinCaloCellsTool::selectFromTauJet( std::vector<bool>& mask,
 //=============================================================================
 StatusCode
 ThinCaloCellsTool::selectFromJet( std::vector<bool>& mask,
-                                     const CaloCellContainer* caloCellContainer,
-                                     const xAOD::Jet* part ) const
+                                  const CaloCellContainer* caloCellContainer,
+                                  const xAOD::Jet* part ) const
 {
   ATH_MSG_VERBOSE("In selectFromJet");
   if ( !part ) {
@@ -537,8 +537,8 @@ ThinCaloCellsTool::selectFromJet( std::vector<bool>& mask,
 //=============================================================================
 StatusCode
 ThinCaloCellsTool::selectFromCompositeParticle( std::vector<bool>& mask,
-                                                   const CaloCellContainer* caloCellContainer,
-                                                   const xAOD::CompositeParticle* part ) const
+                                                const CaloCellContainer* caloCellContainer,
+                                                const xAOD::CompositeParticle* part ) const
 {
   if ( !part ) {
     ATH_MSG_WARNING("Got a zero pointer. Continuing...");
@@ -546,7 +546,7 @@ ThinCaloCellsTool::selectFromCompositeParticle( std::vector<bool>& mask,
   }
 
   // Now, get the TrackParticle and check that it points to the given track particle container
-  const auto& partLinks = part->constituentLinks();
+  const auto& partLinks = part->partLinks();
   for ( const xAOD::IParticleLink& partLink : partLinks ) {
     ATH_CHECK( this->selectFromIParticleLink( mask, caloCellContainer, partLink ) );
   } // End: loop over all constituents from this Jet
@@ -556,4 +556,3 @@ ThinCaloCellsTool::selectFromCompositeParticle( std::vector<bool>& mask,
 
 
 #endif
-

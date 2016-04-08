@@ -56,7 +56,7 @@ Created:     July 2013
 // Constructor
 //=============================================================================
 ThinTrackParticlesTool::ThinTrackParticlesTool( const std::string& type,
-                          						          const std::string& name,
+                                                const std::string& name,
                                                 const IInterface* parent ) :
   ::AthAlgTool( type, name, parent ),
 // AthAnalysisBase doesn't currently include the Trigger Service
@@ -82,7 +82,7 @@ ThinTrackParticlesTool::ThinTrackParticlesTool( const std::string& type,
                   "Containers from which to extract the information which xAOD::TrackParticles should be kept" );
 
   declareProperty("Selection",            m_selection="",
-								  "The selection string that defines which xAOD::IParticles to select from the container" );
+                  "The selection string that defines which xAOD::IParticles to select from the container" );
 
   declareProperty("KeepTauConversions",   m_tauConversion=false,
                   "Flag to steer if one should also keep conversion track particles from taus" );
@@ -125,17 +125,17 @@ StatusCode ThinTrackParticlesTool::initialize()
   ATH_CHECK ( m_thinningSvc.retrieve() );
 
   // initialize proxy loaders for expression parsing
-	ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
+  ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
 // AthAnalysisBase doesn't currently include the Trigger Service
 #ifndef XAOD_ANALYSIS
-	proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
+  proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
 #endif
-	proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-	proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
+  proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
+  proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
 
-	// load the expressions
-	m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-	m_parser->loadExpression( m_selection.value() );
+  // load the expressions
+  m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
+  m_parser->loadExpression( m_selection.value() );
 
   // Initialize the counters
   m_nTotalTrackParts = 0;
@@ -156,10 +156,10 @@ StatusCode ThinTrackParticlesTool::finalize()
   ATH_MSG_DEBUG ( "==> finalize " << name() << "..." );
   ATH_MSG_DEBUG ( " Number of processed events:  " << m_nEventsProcessed );
 
-	if (m_parser) {
-		delete m_parser;
-		m_parser = 0;
-	}
+  if (m_parser) {
+    delete m_parser;
+    m_parser = 0;
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -199,7 +199,7 @@ StatusCode ThinTrackParticlesTool::doThinning() const
       for ( const xAOD::IParticleLink& partLink : *inLinkContainer ) {
         ATH_CHECK( this->selectFromIParticleLink( mask, trackParticleContainer, partLink ) );
       }
-  	}
+    }
 
     else if ( evtStore()->contains< xAOD::ElectronContainer >( inKey ) ) {
       // This file holds an xAOD::ElectronContainer
@@ -810,7 +810,7 @@ ThinTrackParticlesTool::selectFromCompositeParticle( std::vector<bool>& mask,
   }
 
   // Now, get the TrackParticle and check that it points to the given track particle container
-  const auto& partLinks = part->constituentLinks();
+  const auto& partLinks = part->partLinks();
   for ( const xAOD::IParticleLink& partLink : partLinks ) {
     ATH_CHECK( this->selectFromIParticleLink( mask, trackParticleContainer, partLink ) );
   } // End: loop over all constituents from this Jet
@@ -878,28 +878,28 @@ ThinTrackParticlesTool::selectFromString( std::vector<bool>& mask,
 {
   ATH_MSG_VERBOSE("In selectFromString");
 
-	ExpressionParsing::StackElement selectionResult = m_parser->evaluate();
+  ExpressionParsing::StackElement selectionResult = m_parser->evaluate();
 
   if ( selectionResult.isScalar() ) {
-		ATH_MSG_ERROR( "We are expecting a vector result such that we can deduct "
-									 << "which xAOD::IParticle inside the container we want to keep and which not. "
-									 << "For example: 'Muons.pt>10*GeV', but NOT 'count(Muons.pt>10*GeV)>1'; here, "
-									 << "the former gives us a boolean answer for every muon while "
-									 << "the later gives us a boolean answer for the whole container of muons." );
-		return StatusCode::FAILURE;
+    ATH_MSG_ERROR( "We are expecting a vector result such that we can deduct "
+                   << "which xAOD::IParticle inside the container we want to keep and which not. "
+                   << "For example: 'Muons.pt>10*GeV', but NOT 'count(Muons.pt>10*GeV)>1'; here, "
+                   << "the former gives us a boolean answer for every muon while "
+                   << "the later gives us a boolean answer for the whole container of muons." );
+    return StatusCode::FAILURE;
   }
 
-	if ( selectionResult.isVector() ) {
+  if ( selectionResult.isVector() ) {
     // We found a vector. Now, we can go ahead and evaluate which object
     // in the input container we want to kee
-		const std::vector<int>& resultVec( selectionResult.vectorValue<int>() );
+    const std::vector<int>& resultVec( selectionResult.vectorValue<int>() );
 
-		// Check that the lengths are the same
-		if ( trackParticleContainer && trackParticleContainer->size() != resultVec.size() ) {
-			ATH_MSG_ERROR("We got an input container to thin, but its size (" << trackParticleContainer->size()
-										<< ") doesn't match the size of the result vector: " << resultVec.size() );
-			return StatusCode::FAILURE;
-		}
+    // Check that the lengths are the same
+    if ( trackParticleContainer && trackParticleContainer->size() != resultVec.size() ) {
+      ATH_MSG_ERROR("We got an input container to thin, but its size (" << trackParticleContainer->size()
+                    << ") doesn't match the size of the result vector: " << resultVec.size() );
+      return StatusCode::FAILURE;
+    }
 
     // Now, loop over the result vector and check which particles to keep
     for ( std::size_t i=0; i<resultVec.size(); ++i ) {
@@ -909,11 +909,11 @@ ThinTrackParticlesTool::selectFromString( std::vector<bool>& mask,
       }
     }
   }
-	else {
+  else {
     // what we found in the event store is neither a scalar nor a vector
     // it must be of some awkward type that can't be used.
     // Therefore, we fail
-		ATH_MSG_ERROR ("Some unexpected format of the expression parser result");
+    ATH_MSG_ERROR ("Some unexpected format of the expression parser result");
     return StatusCode::FAILURE;
   }
 
