@@ -10,10 +10,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "ZDC_SimEvent/ZDC_SimStripHit_Collection.h"
 #include "ZdcEventTPCnv/ZDC_SimStripHit_p1.h"
-
-#define private public
 #include "ZdcEventTPCnv/ZDC_SimStripHit_Collection_p1.h"
-#undef private 
 
 class MsgStream;
 

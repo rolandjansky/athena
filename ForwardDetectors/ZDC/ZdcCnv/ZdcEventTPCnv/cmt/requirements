@@ -12,6 +12,7 @@ use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*      Database/AthenaPOOL
 
 private 
 use GaudiInterface  	 GaudiInterface-*	External
+use CxxUtils             CxxUtils-*             Control
 use Identifier 		 Identifier-*		DetectorDescription
 
 public
@@ -20,3 +21,16 @@ library ZdcEventTPCnv *.cxx
 apply_pattern installed_library
 
 apply_pattern lcgdict dict=ZdcEventTPCnv  selectionfile=selection.xml headerfiles="../ZdcEventTPCnv/ZdcEventTPCnvDict.h"
+
+
+private
+use TestTools            TestTools-*                AtlasTest
+
+apply_pattern UnitTest_run unit_test=ZdcDigitsCnv_p1
+apply_pattern UnitTest_run unit_test=ZdcDigitsCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ZdcRawChannelCnv_p1
+apply_pattern UnitTest_run unit_test=ZdcRawChannelCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ZDC_SimPixelHitCnv_p1
+apply_pattern UnitTest_run unit_test=ZDC_SimPixelHit_CollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ZDC_SimStripHitCnv_p1
+apply_pattern UnitTest_run unit_test=ZDC_SimStripHit_CollectionCnv_p1
