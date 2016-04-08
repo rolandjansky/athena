@@ -15,7 +15,7 @@ apply_pattern lcgdict dict=RoiDescriptor selectionfile=selection.xml \
 # Add cmake support to specify the Boost components that are required. This is transparent to CMT
 apply_pattern cmake_add_command command="find_package(Boost COMPONENTS program_options regex)"
 
-library RoiDescriptor RoiDescriptor.cxx RoiUtil.cxx
+library RoiDescriptor ../Root/RoiDescriptor.cxx ../Root/RoiUtil.cxx
 end_private
 
 apply_pattern installed_library 
