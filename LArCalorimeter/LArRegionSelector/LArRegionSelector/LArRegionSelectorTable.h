@@ -83,7 +83,6 @@ private:
   const CaloTTDescrManager* m_ttman; 
   const CaloLVL1_ID*        m_TT_ID; 
   const LArRoI_Map*         m_roiMap;
-        LArCablingService*  m_cablingSvc; 
 
   /** pointer to lookup table for sub-system EM */
   RegionSelectorLUT * m_emLUT;
