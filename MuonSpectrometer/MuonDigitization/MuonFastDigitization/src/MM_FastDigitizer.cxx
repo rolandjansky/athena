@@ -18,12 +18,12 @@
 #include "MuonSimEvent/GenericMuonSimHitCollection.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 
+#include "MuonReadoutGeometry/NSWenumeration.h"
+#include "MuonReadoutGeometry/NSWgeometry.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "TrkEventPrimitives/LocalDirection.h"
-#include "MuonAGDDDescription/MMDetectorDescription.h"
-#include "MuonAGDDDescription/MMDetectorHelper.h"
 
 #include "Identifier/Identifier.h"
 #include "TH1.h"
@@ -337,15 +337,8 @@ StatusCode MM_FastDigitizer::execute() {
     Amg::Vector3D lpos = gToL*hpos;
     Amg::Vector3D slpos = surf.transform().inverse()*hpos;
 
-    // Get MM_READOUT from MMDetectorDescription
-    char side = ((int)m_idHelper->stationEta(layid)) < 0 ? 'C' : 'A';
-    char sector_l = ((std::string)m_idHelper->stationNameString(m_idHelper->stationName(layid))).substr(2,1)=="L" ? 'L' : 'S';
-    MMDetectorHelper aHelper;
-    MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs((int)m_idHelper->stationEta(layid)), (int)m_idHelper->stationPhi(layid), (int)m_idHelper->multilayer(layid), side);
-    MMReadoutParameters roParam = mm->GetReadoutParameters();
-
     Amg::Vector3D ldir;
-    if ((roParam.stereoAngel).at(m_idHelper->gasGap(layid)-1)==1)
+    if (MM_READOUT[m_idHelper->gasGap(layid)-1]==1)
       ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
     else
       ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), -hit.globalDirection().z());
@@ -553,7 +546,7 @@ StatusCode MM_FastDigitizer::execute() {
     for( ;hit!=hit_end;++hit ){
       msg(MSG::DEBUG) << " " << m_idHelperTool->toString(hit->first) << " ->  " << hit->second << std::endl;
     }
-    msg(MSG::DEBUG) << endmsg;
+    msg(MSG::DEBUG) << endreq;
   }
   return StatusCode::SUCCESS;
 }
