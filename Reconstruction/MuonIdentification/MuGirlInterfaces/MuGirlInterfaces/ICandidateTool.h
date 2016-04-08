@@ -41,7 +41,7 @@ namespace MuGirlNS
 {
 
 typedef std::vector<const Muon::MuonSegment*> MuonSegmentList;
-struct CandidateSummary;
+class CandidateSummary;
 class Candidate;
 class SegmentManager;
 static const InterfaceID IID_ICandidateTool("MuGirlNS::ICandidateTool", 1, 0);
