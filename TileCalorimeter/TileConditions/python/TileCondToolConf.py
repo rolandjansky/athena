@@ -212,7 +212,7 @@ def getTileCondToolMuID(source = 'FILE', name = 'TileCondToolMuID', **kwargs):
 
 #
 #____________________________________________________________________________
-def getTileCondToolTiming(source = 'FILE', runType = 'PHY', name = 'TileCondToolTiming', **kwargs):
+def getTileCondToolTiming(source = 'FILE', runType = 'PHY', online = False, name = 'TileCondToolTiming', **kwargs):
 
 
     if not runType in validRunTypes: raise(Exception("Invalid run type %s"%runType))
@@ -221,18 +221,20 @@ def getTileCondToolTiming(source = 'FILE', runType = 'PHY', name = 'TileCondTool
     #do some check for global flag here: if source='' and flag set, adopt flag
     tool = None
     if source == 'COOL':
+        sourcePrefix = 'onl' if online else 'ofl'
+
         if runType == 'PHY' or runType == 'PED':
             tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt','oflTimeCphy','TileCondProxyCool_AdcOffset'))
+                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCphy','TileCondProxyCool_AdcOffset'))
         if runType == 'LAS':
             tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt','oflTimeClas','TileCondProxyCool_AdcOffset'))
+                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeClas','TileCondProxyCool_AdcOffset'))
         if runType == 'GAPLAS':
             tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt','oflTimeCgapLas','TileCondProxyCool_AdcOffset'))
+                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCgapLas','TileCondProxyCool_AdcOffset'))
         if runType == 'CIS':
             tool = TileCondToolTiming(name
-                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt','oflTimeCcis','TileCondProxyCool_AdcOffset'))
+                                      , ProxyAdcOffset = getTileCondProxy('COOL','Flt', sourcePrefix + 'TimeCcis','TileCondProxyCool_AdcOffset'))
     elif source == 'FILE':
         #=== create tool
         if runType == 'PHY' or runType == 'PED':
@@ -439,14 +441,18 @@ def getTileCondToolNoiseSample(source = 'FILE', name = 'TileCondToolNoiseSample'
     from TileConditions.TileConditionsConf import TileCondToolNoiseSample
     
     #do some check for global flag here: if source='' and flag set, adopt flag
-    
     tool = None
-    if source == 'COOL':
+
+    if isOnline or not isUsedDataBaseRun2: onlNoiseSampleProxy = None
+    else: onlNoiseSampleProxy = getTileCondProxy('COOL','Flt','onlNoiseAdc','TileCondProxyCool_OnlineNoiseSample')
+
+    if source == 'COOL': 
         #====================================================
         #=== Connect COOL TileCondProxies to the tool
         #====================================================
         tool = TileCondToolNoiseSample(name,
-                                       ProxyNoiseSample = getTileCondProxy('COOL','Flt','oflNoiseAdc','TileCondProxyCool_NoiseSample'))
+                                       ProxyNoiseSample = getTileCondProxy('COOL','Flt','oflNoiseAdc','TileCondProxyCool_NoiseSample'),
+                                       ProxyOnlineNoiseSample = onlNoiseSampleProxy)
 #                                       ProxyNoiseAutoCr = getTileCondProxy('COOL','Flt','oflNoiseAcr','TileCondProxyCool_NoiseAutoCr'))
         
     else:
@@ -454,7 +460,8 @@ def getTileCondToolNoiseSample(source = 'FILE', name = 'TileCondToolNoiseSample'
         #=== Connect FILE TileCondProxies to the tool (default)
         #========================================================
         tool = TileCondToolNoiseSample(name,
-                                       ProxyNoiseSample = getTileCondProxy('FILE','Flt','TileDefault.ped','TileCondProxyFile_NoiseSample'))
+                                       ProxyNoiseSample = getTileCondProxy('FILE','Flt','TileDefault.ped','TileCondProxyFile_NoiseSample'),
+                                       ProxyOnlineNoiseSample = None)
 #                                       ProxyNoiseAutoCr = getTileCondProxy('FILE','Flt','TileDefault.acr','TileCondProxyFile_NoiseAutoCr'))
        
     #=== set the arguments passed and return tool
@@ -580,6 +587,9 @@ def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', ofcType = 'OF2', na
 
     tool = None
     if source == 'COOL':
+        # There are OFC for OF1 only in DB used in Run2
+        if ofcType == 'OF1' and not isUsedDataBaseRun2: return None
+
         from TileCoolMgr import GetTileOfcCoolSource, AddTileOfcCoolSource, tileCoolMgr
         
         proxySource = GetTileOfcCoolSource(ofcType, runType)

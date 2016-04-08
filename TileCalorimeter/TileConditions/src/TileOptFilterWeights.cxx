@@ -271,7 +271,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
       if (!openfiles ) log << MSG::FATAL<<"Error opening files!!!!"<<endreq;
       else
 	{ 
-	  if (!openfiles ) log << MSG::ERROR<<"Non-delta weights unavailable"<<endreq;
+	  //if (!openfiles ) log << MSG::ERROR<<"Non-delta weights unavailable"<<endreq;
 	  // 	  log << MSG::DEBUG<<" Weights files opened"<<endreq;
 	  // 	  while(!(ai_lo_phys->eof()||bi_lo_phys->eof()||ai_hi_phys->eof()||bi_hi_phys->eof()||
 	  // 		  ai_lo_cis->eof()||bi_lo_cis->eof()||ai_hi_cis->eof()||bi_hi_cis->eof()))
