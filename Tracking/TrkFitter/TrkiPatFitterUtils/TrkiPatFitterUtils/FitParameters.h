@@ -2,11 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/************************************************************************************
+/***************************************************************************
  local parameter values used during fitter iterations
- note the extra parameters for handling detector misalignment and Coulomb scattering
- for brevity (mis-)named alignment and scatterer
-*************************************************************************************/
+ ***************************************************************************/
 
 #ifndef TRKIPATFITTERUTILS_FITPARAMETERS_H
 # define TRKIPATFITTERUTILS_FITPARAMETERS_H
@@ -48,12 +46,7 @@ public:
     
     ~FitParameters (void);	       			// destructor
 
-    void			addAlignment (bool constrained, double localAngle, double localOffset);
     void			addScatterer (double phi, double theta);
-    double			alignmentAngle (int alignment) const;
-    double			alignmentAngleConstraint (int alignment) const;
-    double			alignmentOffset (int alignment) const;
-    double			alignmentOffsetConstraint (int alignment) const;
     const Surface*		associatedSurface (void) const;	
     double			cosPhi (void) const;
     double			cosTheta (void) const;
@@ -63,29 +56,24 @@ public:
     double			d0 (void) const;
     void			d0 (double value);
     double			difference (int param) const;
-    const Amg::VectorX&  	differences (void) const;
-    const AlVec&		differences***REMOVED*** (void) const;
+    const AlVec&		differences (void) const;
     Amg::Vector3D		direction (void) const;
     bool			extremeMomentum (void) const;
     void			extremeMomentum (bool value);
     const Amg::MatrixX*		finalCovariance (void) const;
-    int				firstAlignmentParameter (void) const;
-    void			firstAlignmentParameter (int value);
     int				firstScatteringParameter (void) const;
     void			firstScatteringParameter (int value);
     bool			fitEnergyDeposit (void) const;
     void			fitEnergyDeposit (double minEnergyDeposit);
     bool			fitMomentum (void) const;
     void			fitMomentum (bool value);
-    const Amg::MatrixX* 	fullCovariance (void) const;
-    TrackSurfaceIntersection*	intersection (void) const;
-    int 			numberAlignments (void) const;
-    void			numberAlignments (int numberAlignments);
-    int 			numberOscillations (void) const;
-    int 			numberParameters (void) const;
+    const Amg::MatrixX*		fullCovariance (void) const;
     void			numberParameters (int numberParameters);
-    int 			numberScatterers (void) const;
     void			numberScatterers (int numberScatterers);
+    TrackSurfaceIntersection*	intersection (void) const;
+    int				numberOscillations (void) const;
+    int				numberParameters (void) const;
+    int				numberScatterers (void) const;
     void			performCutStep (double cutStep);
     bool			phiInstability (void) const;
     double			ptInv0 (void) const;
@@ -113,7 +101,6 @@ public:
 						 const FitMeasurement&	measurement,
 						 bool			withCovariance=false) const;
     void			update (const AlVec&			differences);
-    void			update (const Amg::VectorX&		differences);
     void			update (Amg::Vector3D			position,
 					Amg::Vector3D			direction,
 					double				qOverP,
@@ -124,29 +111,21 @@ public:
 private:
     // assignment: no semantics, no implementation
     FitParameters &operator= (const FitParameters&);
-
-    std::vector<double> 	m_alignmentAngle;
-    std::vector<double> 	m_alignmentAngleConstraint;
-    std::vector<double> 	m_alignmentOffset;
-    std::vector<double> 	m_alignmentOffsetConstraint;
+    
     double			m_cosPhi;
     mutable double		m_cosPhi1;
     double			m_cosTheta;
     mutable double		m_cosTheta1;
     double			m_cotTheta;
     double			m_d0;
-    Amg::VectorX*		m_differences;
-    AlVec*			m_differences***REMOVED***;
-    bool			m_eigen;
+    AlVec*			m_differences;
     bool			m_extremeMomentum;
     Amg::MatrixX*		m_finalCovariance;
-    int				m_firstAlignmentParameter;
     int				m_firstScatteringParameter;
     bool			m_fitEnergyDeposit;
     bool			m_fitMomentum;
     const Amg::MatrixX*		m_fullCovariance;
     double			m_minEnergyDeposit;
-    int				m_numberAlignments;
     int				m_numberOscillations;
     int				m_numberParameters;
     int				m_numberScatterers;
@@ -171,22 +150,6 @@ private:
 //<<<<<< INLINE PUBLIC MEMBER FUNCTIONS                                 >>>>>>
 
 inline double
-FitParameters::alignmentAngle (int alignment) const
-{ return m_alignmentAngle[alignment]; }
-
-inline double
-FitParameters::alignmentAngleConstraint (int alignment) const
-{ return m_alignmentAngleConstraint[alignment]; }
-
-inline double
-FitParameters::alignmentOffset (int alignment) const
-{ return m_alignmentOffset[alignment]; }
-
-inline double
-FitParameters::alignmentOffsetConstraint (int alignment) const
-{ return m_alignmentOffsetConstraint[alignment]; }
-
-inline double
 FitParameters::cosPhi (void) const
 { return m_cosPhi; }
 
@@ -205,25 +168,13 @@ FitParameters::d0 (void) const
 inline double
 FitParameters::difference (int param) const
 {
-    if (m_eigen)
-    {
-	// if (! m_differences)  return 0.;   // surely unnecessary?
-	return (*m_differences)(param);
-    }
-    else
-    {
-	// if (! m_differences***REMOVED***)  return 0.;
-	return (*m_differences***REMOVED***)[param];
-    }	
+    if (! m_differences)  return 0.;
+    return (*m_differences)[param];
 }
 
-inline const Amg::VectorX&
+inline const AlVec&
 FitParameters::differences (void) const
 { return *m_differences; }
-
-inline const AlVec&
-FitParameters::differences***REMOVED*** (void) const
-{ return *m_differences***REMOVED***; }
 
 inline Amg::Vector3D
 FitParameters::direction (void) const
@@ -236,10 +187,6 @@ FitParameters::extremeMomentum (void) const
 inline const Amg::MatrixX*
 FitParameters::finalCovariance (void) const
 { return m_finalCovariance; }
-
-inline int
-FitParameters::firstAlignmentParameter (void) const
-{ return m_firstAlignmentParameter; }
 
 inline int
 FitParameters::firstScatteringParameter (void) const
@@ -256,10 +203,6 @@ FitParameters::fitMomentum (void) const
 inline const Amg::MatrixX*
 FitParameters::fullCovariance (void) const
 { return m_fullCovariance; }
-
-inline int
-FitParameters::numberAlignments (void) const
-{ return m_numberAlignments; }
 
 inline int
 FitParameters::numberOscillations (void) const

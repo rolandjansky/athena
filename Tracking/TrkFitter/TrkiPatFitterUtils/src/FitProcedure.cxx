@@ -24,14 +24,12 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkExInterfaces/IIntersector.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkiPatFitterUtils/FitMatrices.h"
@@ -47,17 +45,11 @@ namespace Trk{
 
 
 // constructor
-FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
-			    bool				extendedDebug,
-			    bool				eigenMatrixTreatment,
-			    bool				lineFit,
-			    ToolHandle<IIntersector>&		rungeKuttaIntersector,
-			    ToolHandle<IIntersector>&		solenoidalIntersector,
-			    ToolHandle<IIntersector>&		straightLineIntersector,
-                            const ToolHandle<IPropagator>&      stepPropagator,
-			    const Volume*			indetVolume,
-			    int					maxIterations,
-                            int                                 useStepPropagator)
+FitProcedure::FitProcedure (bool				lineFit,
+			    const ToolHandle<IIntersector>&	rungeKuttaIntersector,
+			    const ToolHandle<IIntersector>&	solenoidalIntersector,
+			    const ToolHandle<IIntersector>&	straightLineIntersector,
+			    const Volume*			indetVolume)
     :	m_chRatio1			(0.),
 	m_chRatio2			(0.),
 	m_chiSq				(0.),
@@ -71,10 +63,8 @@ FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
 	m_debug				(false),
 	m_driftSum			(0.),
 	m_driftSumLast			(0.),
-	m_extendedDebug 		(extendedDebug),
 	m_extremeOneOverP		(1./(10.*Gaudi::Units::TeV)),
-	m_fitMatrices  			(new FitMatrices(constrainedAlignmentEffects,
-							 eigenMatrixTreatment)),
+	m_fitMatrices  			(new FitMatrices),
 	m_fitProbability		(0.),
 	m_fitQuality			(0),
 	m_indetVolume			(indetVolume),
@@ -82,7 +72,7 @@ FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
 	m_largeRadius			(1000.*Gaudi::Units::mm),
 	m_lineFit			(lineFit),
 	m_log				(0),
- 	m_maxIter			(maxIterations),
+ 	m_maxIter			(25),
  	m_minIter			(0),
 	m_minPt				(0.05*Gaudi::Units::GeV),
 	m_nCuts				(0),
@@ -94,8 +84,6 @@ FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
 	m_scatteringLogCoeff		(0.038),			// Coulomb scattering constant
 	m_solenoidalIntersector 	(solenoidalIntersector),
 	m_straightLineIntersector	(straightLineIntersector),
-	m_stepPropagator 	        (stepPropagator),
-        m_useStepPropagator             (useStepPropagator),
 	m_verbose			(false),
 	m_worstMeasurement		(0)
 {}
@@ -127,13 +115,12 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
     unsigned size = measurements.size() + 1;
     if (leadingTSOS) size += leadingTSOS->size();
     trackStateOnSurfaces->reserve(size);
-    const AlignmentEffectsOnTrack*	alignmentEffects	= 0;
-    const FitMeasurement*		fitMeasurement		= measurements.front();
-    const FitQualityOnSurface*		fitQoS			= 0;
-    const MaterialEffectsBase*		materialEffects		= 0;
-    const MeasurementBase*		measurementBase		= 0;
-    const Surface*			surface			= 0;
-    const TrackParameters*		trackParameters		= 0;
+    const FitMeasurement*	fitMeasurement	= measurements.front();
+    const FitQualityOnSurface*	fitQoS		= 0;
+    const MaterialEffectsBase*	materialEffects	= 0;
+    const MeasurementBase*	measurementBase	= 0;
+    const Surface*		surface		= 0;
+    const TrackParameters*	trackParameters	= 0;
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> defaultPattern;
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern = defaultPattern;
 
@@ -146,8 +133,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 							    perigee,
 							    fitQoS,
 							    materialEffects,
-							    typePattern,
-							    alignmentEffects));
+							    typePattern));
     ++tsos;
 
     // append leading TSOS to perigee
@@ -173,7 +159,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	if ((**m).isMaterialDelimiter()) continue;
 	
 	// push back previous TSOS when fresh surface reached
-	if ((**m).surface() != surface || alignmentEffects || (**m).alignmentEffects())
+	if ((**m).surface() != surface)
 	{
 	    if (surface)
 	    {
@@ -184,7 +170,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 			*m_log << MSG::DEBUG << " skip empty TSOS# " << tsos + 1;
 			if ((**m).materialEffects()) *m_log << " with material";
 			(**m).print(*m_log);
-			*m_log << endmsg;
+			*m_log << endreq;
 		    }
 		}
 		else
@@ -198,7 +184,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 		    {
 			*m_log << MSG::WARNING
 			       << " fail track with incomplete return TSOS: no trackParameters"
-			       << endmsg;
+			       << endreq;
 			delete trackStateOnSurfaces;
 			return 0;
 		    }
@@ -207,8 +193,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 									    trackParameters,
 									    fitQoS,
 									    materialEffects,
-									    typePattern,
-									    alignmentEffects));
+									    typePattern));
 		    ++tsos;
 		}
 	    }
@@ -218,12 +203,11 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	    fitQoS		= 0;
 	    materialEffects	= 0;
 	    typePattern		= defaultPattern;
-	    alignmentEffects	= 0;
 	}
 	else
 	{
 	    fitMeasurement	= *m;
-	    if (m_verbose) *m_log << MSG::VERBOSE << " tsos# " << tsos << " shared surface" << endmsg;
+	    if (m_verbose) *m_log << MSG::VERBOSE << " tsos# " << tsos << " shared surface" << endreq;
 	}
 
 	// it's a measurement
@@ -242,7 +226,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 		{
 		    *m_log << MSG::WARNING
 			   << " fail track with incomplete return TSOS: no trackParameters"
-			   << endmsg;
+			   << endreq;
 		    delete trackStateOnSurfaces;
 		    return 0;
 		}
@@ -251,14 +235,12 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 									trackParameters,
 									fitQoS,
 									materialEffects,
-									typePattern,
-									alignmentEffects));
+									typePattern));
 		++tsos;
-		fitMeasurement		= *m;
-		fitQoS			= 0;
-		materialEffects		= 0;
-		typePattern		= defaultPattern;
-		alignmentEffects	= 0;
+		fitMeasurement	= *m;
+		fitQoS		= 0;
+		materialEffects	= 0;
+		typePattern	= defaultPattern;
 	    }
 	    
 	    measurementBase	= (**m).measurementBase()->clone();
@@ -333,7 +315,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	    }
 	    else
 	    {
-		*m_log << MSG::WARNING <<" deprecated TrackStateOnSurface::InertMaterial" << endmsg;
+		*m_log << MSG::WARNING <<" deprecated TrackStateOnSurface::InertMaterial" << endreq;
 		materialEffects	= (**m).materialEffects()->clone();
 		typePattern.set(TrackStateOnSurface::InertMaterial);
 	    }
@@ -343,23 +325,6 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	if ((**m).isPerigee())
 	{
 	    typePattern.set(TrackStateOnSurface::Perigee);
-	}
-	
-	// or alignment effects
-	else if ((**m).alignmentEffects())
-	{
-	    const AlignmentEffectsOnTrack&	AEOT	= *(**m).alignmentEffects();
-	    unsigned align				= (**m).alignmentParameter() - 1;
-
-            *m_log << MSG::VERBOSE  <<" Fitprocedure AEOT input deltaTranslation " << AEOT.deltaTranslation() << " deltaAngle " << AEOT.deltaAngle() << " output Trans " << parameters.alignmentOffset(align) << " deltaAngle " << parameters.alignmentAngle(align) << endmsg; 
-	    alignmentEffects				=
-		new Trk::AlignmentEffectsOnTrack(parameters.alignmentOffset(align),
-						 AEOT.sigmaDeltaTranslation(),
-						 parameters.alignmentAngle(align),
-						 AEOT.sigmaDeltaAngle(),
-						 AEOT.vectorOfAffectedTSOS(),
-						 (**m).surface());
-	    typePattern.set(TrackStateOnSurface::Alignment);
 	}
 	
 	// passive types: hole for now
@@ -376,7 +341,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
     {
 	*m_log << MSG::WARNING
 	       << " fail track with incomplete return TSOS: no trackParameters"
-	       << endmsg;
+	       << endreq;
 	delete trackStateOnSurfaces;
 	return 0;
     }
@@ -385,8 +350,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 							    trackParameters,
 							    fitQoS,
 							    materialEffects,
-							    typePattern,
-							    alignmentEffects));
+							    typePattern));
     ++tsos;
 
     // construct track
@@ -395,7 +359,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 				    trackStateOnSurfaces,
 				    new FitQuality(chiSquared,m_numberDoF));
 
-    if (m_verbose) *m_log << MSG::VERBOSE << " track with " << tsos << " TSOS " << endmsg;
+    if (m_verbose) *m_log << MSG::VERBOSE << " track with " << tsos << " TSOS " << endreq;
     return track;
 }
 
@@ -420,11 +384,11 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	if (m_log->level() < MSG::DEBUG)  m_verbose = true;
 	*m_log << MSG::DEBUG << "parameter start values:  ";
 	parameters->print(*m_log);
-	*m_log << endmsg;
+	*m_log << endreq;
     }
 	
     // choose appropriate intersector
-    ToolHandle<IIntersector>& intersector = chooseIntersector(measurements,*parameters);
+    const ToolHandle<IIntersector>& intersector = chooseIntersector(measurements,*parameters);
 
     // resize matrices
     int fitCode		= m_fitMatrices->setDimensions(measurements,parameters);
@@ -432,7 +396,6 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
     {
 	delete m_fitQuality;
 	m_fitQuality	= new FitProcedureQuality(fitCode,m_fitMatrices->numberDoF());
-	if (m_debug) reportQuality(measurements,*parameters);
 	return *m_fitQuality;
     }
 
@@ -450,9 +413,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 					      intersector,
 					      measurements,
 					      parameters,
-					      m_rungeKuttaIntersector,
-                                              m_stepPropagator,
-                                              m_useStepPropagator);
+					      m_rungeKuttaIntersector);
 
     // perigee or vertex used as measurements in fit
     if (measurements.front()->isPerigee())
@@ -480,18 +441,11 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	    m_convergence	= true;
 	    m_cutStep		= false;
 	    if (m_verbose)
-		*m_log << MSG::VERBOSE << " convergence problem: accept after max iter " << endmsg;
+		*m_log << MSG::VERBOSE << " convergence problem: accept after max iter " << endreq;
 	}
-	else if (! m_cutStep)
+	else if (! m_cutStep) 
 	{
 	    //  solve equations and update parameters
-	    if (! m_iteration)
-	    {
-		m_fitMatrices->refinePointers();
-		if (m_extendedDebug)	m_fitMatrices->checkPointers(*m_log);
-		if (m_verbose)		m_fitMatrices->printDerivativeMatrix();
-	    }
-	    
 	    if (! m_fitMatrices->solveEquations())
 	    {
 		fitCode			= 11;	// fails matrix inversion
@@ -500,7 +454,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		     && ! parameters->extremeMomentum()
 		     && std::abs(parameters->qOverP()) < m_extremeOneOverP)
 	    {
-		if (m_debug) *m_log << MSG::DEBUG << " extremeMomentum " << endmsg;
+		if (m_debug) *m_log << MSG::DEBUG << " extremeMomentum " << endreq;
 		parameters->extremeMomentum(true);
 		delete bestParameters;
 		fitCode			= m_fitMatrices->setDimensions(measurements,parameters);
@@ -513,7 +467,6 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		m_driftSumLast		= 0.;
 		m_numberParameters	= parameters->numberParameters();
 	    }
-	    if (m_verbose && ! m_iteration) m_fitMatrices->printWeightMatrix();
 	}
 	++m_iteration;
 	
@@ -532,12 +485,8 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	    parameters->printVerbose(*m_log);
 	}
 	
-	//  check for some error conditions (if none found yet)
-	if (fitCode)
-	{
-	    // e.g. fitCode == 11 (singular matrix)
-	}
-	else if (std::abs(parameters->ptInv0()) > ptInvCut)
+	//  check for some error conditions
+	if (std::abs(parameters->ptInv0()) > ptInvCut)
 	{
 	    fitCode = 8;           //  fail with pt below cutoff
 	}
@@ -563,9 +512,8 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	}
 	else if (! fitCode)
 	{
-	    //  extrapolate to each measurement and calculate derivatives
-	    if (! measurementProcessor.calculateFittedTrajectory(m_iteration)
-		|| ! measurementProcessor.calculateDerivatives())
+	    //  extrapolate to each measurement. If OK calculate residual
+	    if (! measurementProcessor.calculateFittedTrajectory(m_iteration))
 	    {
 		fitCode = 5; //  fail as trapped
 		delete bestParameters;
@@ -575,20 +523,17 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 						       m_fitProbability,
 						       fitCode,
 						       m_iteration,
-						       parameters->numberAlignments(),
 						       m_fitMatrices->numberDoF(),
 						       parameters->numberScatterers(),
 						       m_worstMeasurement);
 		
 		if (m_debug)
 		{
-		    if (m_verbose) *m_log << endmsg;
+		    if (m_verbose) *m_log << endreq;
 		    reportQuality(measurements,*parameters);
 		}
 		return *m_fitQuality;
 	    }
-
-	    //  have extrapolation and derivatives, calculate residual
 	    measurementProcessor.calculateResiduals();
 	    
 	    // check for remaining error conditions. If OK then compute chisquared.
@@ -619,7 +564,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 				   << m_iteration
 				   << "  chi2Ratio " << m_chRatio1
 				   << "   driftSum " << m_driftSum << " prev " << m_driftSumLast
-				   << "   " << cutStep << endmsg;
+				   << "   " << cutStep << endreq;
 		    }
 		    else if (parameters->numberOscillations() > 2)
 		    {
@@ -629,7 +574,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 			    *m_log << MSG::VERBOSE
 				   << " take cutStep as oscillating, iteration "
 				   << m_iteration << ", numberOscillations "
-				   << parameters->numberOscillations() << endmsg;
+				   << parameters->numberOscillations() << endreq;
 		    }
 		    
 		    // perform cutstep
@@ -640,13 +585,12 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 			if (m_verbose) parameters->printVerbose(*m_log);
 			if (measurementProcessor.calculateFittedTrajectory(m_iteration))
 			{
-			    // note: derivatives should not be recalculated for cutstep
 			    measurementProcessor.calculateResiduals();
 			    calculateChiSq(measurements);
 			    if (m_verbose) *m_log << "   after cutStep: "
 						  << "  chi2Ratio " << m_chRatio1
 						  << "   driftSum " << m_driftSum
-						  << endmsg;
+						  << endreq;
 			}
 		    }
 		}
@@ -672,17 +616,24 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		    }
 		    if (measurementProcessor.calculateFittedTrajectory(m_iteration))
 		    {
-		        measurementProcessor.calculateDerivatives();
 			measurementProcessor.calculateResiduals();
 			calculateChiSq(measurements);
 			m_convergence = true;
 		    }
 		}
 
+		//  finish the basic iteration loop with a calculation of the
+		//  derivatives for each measurement
 		if (forceIteration) m_convergence = false;
+		if (! m_convergence
+		    && ! m_cutStep
+		    && ! measurementProcessor.calculateDerivatives())
+		{
+		    fitCode = 5; //  fail as trapped
+		}
 	    }
 	}	// if (std::abs(ptInv0) > ptInvCut)
-	if (m_verbose) *m_log << endmsg;
+	if (m_verbose) *m_log << endreq;
 
 	// try to rescue phi instability failures
 	if (fitCode
@@ -691,7 +642,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	    && ! parameters->phiInstability()
 	    && (**(measurements.rbegin())).position().perp() > m_largeRadius)
 	{
-	    if (m_verbose) *m_log << MSG::VERBOSE << " phi instability " << endmsg;
+	    if (m_verbose) *m_log << MSG::VERBOSE << " phi instability " << endreq;
 	    parameters->reset(*bestParameters);
 	    parameters->setPhiInstability();
 	    m_cutStep		= true;
@@ -746,7 +697,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		*m_log << MSG::VERBOSE << " fit converged";
 		if (m_chiSqWorst > 6.25) *m_log << " with possible outlier #" << m_worstMeasurement
 						<< " (residual " << std::sqrt(m_chiSqWorst) << ")";
-		*m_log << endmsg;
+		*m_log << endreq;
 	    }
 	}
 	else
@@ -762,7 +713,6 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 					   m_fitProbability,
 					   fitCode,
 					   m_iteration,
-					   parameters->numberAlignments(),
 					   m_numberDoF,
 					   parameters->numberScatterers(),
 					   m_worstMeasurement);
@@ -792,7 +742,7 @@ void
 FitProcedure::calculateChiSq(std::list<FitMeasurement*>& measurements)
 {
     // convergence criterion
-    const double dChisqConv = 0.025;
+    const double dChisqConv = 0.03;
     
     // compute total chisquared and sum of hit differences
     // flag hit with highest chisquared contribution (on entry if RoadFit)
@@ -965,7 +915,7 @@ FitProcedure::calculateChiSq(std::list<FitMeasurement*>& measurements)
 	else
 	{	    
 	    m_nearConvergence = true;
-	    if (m_verbose) *m_log << MSG::VERBOSE << " near convergence " << endmsg;
+	    if (m_verbose) *m_log << MSG::VERBOSE << " near convergence " << endreq;
 	}
     }
     else
@@ -1005,14 +955,14 @@ FitProcedure::calculateChiSq(std::list<FitMeasurement*>& measurements)
 //     }
 }
 
-ToolHandle<IIntersector>&
+const ToolHandle<IIntersector>&
 FitProcedure::chooseIntersector (std::list<FitMeasurement*>&	measurements,
 				 const FitParameters&		parameters) const
 {
     if (m_lineFit) return m_straightLineIntersector;
     
     // decide which intersector to use for curved tracks (default RungeKutta)
-    // ToolHandle<IIntersector>& intersector = m_rungeKuttaIntersector;
+    //const ToolHandle<IIntersector>& intersector = m_rungeKuttaIntersector;
 
     // solenoidal intersector must start close to origin with last measurement inside valid region
     for (std::list<FitMeasurement*>::reverse_iterator m = measurements.rbegin();
@@ -1084,24 +1034,21 @@ FitProcedure::reportQuality(const std::list<FitMeasurement*>&	measurements,
 	case 11:
 	    *m_log << "  singular matrix fails inversion:"
 		   << "  at iteration# "<< m_fitQuality->iterations();
-	    break;
-	case 12:
-	    *m_log << "  maximum of one calorimeter permitted";
 	    break;	
 	default:
 	    break;
 	};
-	*m_log << std::endl << endmsg;
+	*m_log << std::endl << endreq;
     }
     else
     {
 	*m_log << MSG::DEBUG << "fitted parameter values: ";
 	parameters.print(*m_log);
-	*m_log << endmsg;
+	*m_log << endreq;
 	*m_log << MSG::DEBUG;
 	m_fitQuality->print(*m_log);
 	parameters.printCovariance(*m_log);
-	*m_log << endmsg;
+	*m_log << endreq;
     }
 }
 

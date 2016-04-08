@@ -38,7 +38,6 @@ namespace Trk
     class FitProcedureQuality;
     class FitQuality;
     class IIntersector;
-    class IPropagator;
     class Track;
     class TrackInfo;
     class TrackStateOnSurface;
@@ -47,17 +46,11 @@ namespace Trk
 class FitProcedure
 {
 public:
-    FitProcedure (bool					constrainedAlignmentEffects,
-		  bool					extendedDebug,
-		  bool					eigenMatrixTreatment,
-		  bool					lineFit,
-		  ToolHandle<IIntersector>&		rungeKuttaIntersector,
-		  ToolHandle<IIntersector>&		solenoidalIntersector,
-		  ToolHandle<IIntersector>&		straightLineIntersector,
-		  const ToolHandle<IPropagator>&	stepPropagator, 
-		  const Volume*				indetVolume	= 0,
-		  int					maxIterations	= 25,
-		  int					useStepPropagator = 0);
+    FitProcedure (bool					lineFit,
+		  const ToolHandle<IIntersector>&	rungeKuttaIntersector,
+		  const ToolHandle<IIntersector>&	solenoidalIntersector,
+		  const ToolHandle<IIntersector>&	straightLineIntersector,
+		  const Volume*				indetVolume = 0);
     
     ~FitProcedure (void);	// destructor
     // forbidden copy constructor
@@ -89,7 +82,7 @@ private:
     FitProcedure &operator= (const FitProcedure&);
     
     void				calculateChiSq(std::list<FitMeasurement*>&	measurements);
-    ToolHandle<IIntersector>&		chooseIntersector(std::list<FitMeasurement*>&	measurements,
+    const ToolHandle<IIntersector>&	chooseIntersector(std::list<FitMeasurement*>&	measurements,
 							  const FitParameters&	parameters) const;
     void				reportQuality(const std::list<FitMeasurement*>&	measurements,
 						      const FitParameters&	parameters) const;
@@ -107,7 +100,6 @@ private:
     bool				m_debug;
     double				m_driftSum;
     double				m_driftSumLast;
-    bool				m_extendedDebug;
     double				m_extremeOneOverP;
     FitMatrices*			m_fitMatrices;
     double				m_fitProbability;
@@ -117,20 +109,18 @@ private:
     double				m_largeRadius;
     bool				m_lineFit;
     MsgStream*				m_log;
-    int 				m_maxIter;
+    int					m_maxIter;
     int					m_minIter;
     double				m_minPt;
     int					m_nCuts;
     bool				m_nearConvergence;
-    int 				m_numberDoF;
-    int 				m_numberParameters;
-    ToolHandle<IIntersector>&		m_rungeKuttaIntersector;
+    int					m_numberDoF;
+    int					m_numberParameters;
+    const ToolHandle<IIntersector>&	m_rungeKuttaIntersector;
     double				m_scatteringConstant;
     double				m_scatteringLogCoeff;
-    ToolHandle<IIntersector>&		m_solenoidalIntersector;
-    ToolHandle<IIntersector>&		m_straightLineIntersector;
-    const ToolHandle<IPropagator>&	m_stepPropagator;
-    int                                 m_useStepPropagator;
+    const ToolHandle<IIntersector>&	m_solenoidalIntersector;
+    const ToolHandle<IIntersector>&	m_straightLineIntersector;
     bool				m_verbose;
     int					m_worstMeasurement;
 };

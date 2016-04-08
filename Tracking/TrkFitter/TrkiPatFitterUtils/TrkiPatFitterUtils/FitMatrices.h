@@ -7,18 +7,17 @@
 //  Storage and manipulation of matrices during track fitting
 //  (note the actual matrices are structs (FitMatrix.h) to give faster execution)
 //
-//  Given matrix of measurement derivatives wrt fit parameters (DerivativeMatrix DM)
+//  Given matrix of measurement derivatives wrt fit parameters (D)
 //  and vector of differences between measurements and fitted trajectory,
 //  solve for:
-//   parameter weight matrix = (covariance)-1 = DMtranspose.DM
-//   parameter change        = (DMtranspose.DM)-1 * (DMtranspose.differences)
+//   parameter weight matrix = (covariance)-1 = DT.D
+//   parameter change        = (DT.D)-1 * (DT.differ)
 //
 //  NOTE:
-//  covariances, derivatives etc, use d0, z0, phi, cot(theta), qOverPt as first 5 parameters
-//  distinguish: full covariance with all parameters:
-//			includes misalignments, scattering and energy loss
-//               5*5 final covariance with possible external contribution representing
-//               	leading material and field gradient effects
+//  covariances, derivatives etc, use d0, z0, phi, cot(theta), qOverPt as parameters
+//  distinguish: full covariance with all parameters (incl scattering and energy loss)
+//               5*5 final covariance with external contribution representing
+//               leading material and field gradient effects
 //
 //  (c) ATLAS tracking software
 //////////////////////////////////////////////////////////////////////////////
@@ -45,16 +44,13 @@ namespace Trk
  class FitMatrices
  {
  public:
-     FitMatrices (bool constrainedAlignmentEffects, bool eigenMatrixTreatment);
+     FitMatrices (void);
      
      ~FitMatrices (void);
      
     // implicit copy constructor
     // implicit assignment operator
 
-     // debugging aid: check 'smart' pointers
-     void			checkPointers (MsgStream& log) const;
-     
      // change to chiSquared
      double			chiSquaredChange (void) const;
      
@@ -80,13 +76,6 @@ namespace Trk
      // chiSquared contribution from perigee measurement
      double			perigeeChiSquared (void);
 
-     // debugging aids (n.b. using std::cout)
-     void			printDerivativeMatrix (void);
-     void			printWeightMatrix (void);
-
-     // remove leading+trailing zeroes from smart pointers
-     void			refinePointers (void);
-     
      // initialize matrices - set appropriate dimensions for a given set of measurements 
      int	       		setDimensions (std::list<FitMeasurement*>&	measurements,
 					       FitParameters*			parameters);
@@ -101,36 +90,31 @@ namespace Trk
      // add perigee measurement
      void			addPerigeeMeasurement (void);
      // fix for momentum singularity
-     void			avoidMomentumSingularity (void);  // using Eigen    
-     void			avoidMomentumSingularity***REMOVED*** (void); // using alignment matrix pkg ***REMOVED***     
+     void			avoidMomentumSingularity (void);     
      // implementation of matrix equation solution
-     bool			solveEquationsEigen (void);	// using Eigen
-     bool			solveEquations***REMOVED*** (void);	// using alignment matrix pkg ***REMOVED***
+     bool			solveEquationsAlMat (void);	// using alignment matrix pkg
+     bool			solveEquationsCLHEP (void);	// using CLHEP
     
-     int		       		m_columnsDM;
-     bool				m_constrainedAlignmentEffects;
-     Amg::MatrixX*			m_covariance;
-     bool				m_eigen;
-     Amg::MatrixX*		   	m_finalCovariance;
-     std::vector<int>       		m_firstRowForParameter;
-     double				m_largePhiWeight;
-     std::vector<int>			m_lastRowForParameter;
-     bool				m_matrixFromCLHEP;
-     std::list<FitMeasurement*>*	m_measurements;
-     int			       	m_numberDoF;
-     int		       		m_numberDriftCircles;
-     int		      	 	m_numberPerigee;
-     FitParameters*			m_parameters;
-     const Amg::VectorX*   		m_perigee;
-     Amg::MatrixX	    		m_perigeeDifference;
-     const Amg::MatrixX*		m_perigeeWeight;
-     std::vector<double>*		m_residuals;
-     int				m_rowsDM;
-     bool       			m_usePerigee;
-     Amg::MatrixX*			m_weight;
-     AlSpaMat*				m_weight***REMOVED***;
-     Amg::VectorX*			m_weightedDifference;
-     AlVec*	       			m_weightedDifference***REMOVED***;
+     int		       	m_columns;
+     Amg::MatrixX*		m_covariance;
+     Amg::MatrixX*	   	m_finalCovariance;
+     std::vector<int>       	m_firstRowForParameter;
+     double			m_largePhiWeight;
+     bool			m_matrixFromCLHEP;
+     int		       	m_numberDoF;
+     int		       	m_numberDriftCircles;
+     int		       	m_numberPerigee;
+     FitParameters*		m_parameters;
+     const Amg::VectorX*   	m_perigee;
+     Amg::MatrixX	    	m_perigeeDifference;
+     const Amg::MatrixX*	m_perigeeWeight;
+     std::vector<double>*	m_residuals;
+     int		       	m_rows;
+     bool       	       	m_usePerigee;
+     AlSpaMat*			m_weight;
+     // CLHEP::HepSymMatrix*		m_weightCLHEP;
+     AlVec*	       		m_weightedDifference;
+     // CLHEP::HepVector*	       	m_weightedDifferenceCLHEP;
      
 };   
 

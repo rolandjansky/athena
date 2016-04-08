@@ -28,7 +28,6 @@ public:
 			 double	fitProbability,
 			 int	fitCode,
 			 int	iterations,
-			 int	numberAlignments,
 			 int	numberDoF,
 			 int	numberScatterers,
 			 int	worstMeasurement);
@@ -53,7 +52,6 @@ private:
     double		m_fitProbability;
     int			m_fitCode;
     int			m_iterations;
-    int			m_numberAlignments;
     int			m_numberDoF;
     int			m_numberScatterers;
     int			m_worstMeasurement;
@@ -69,7 +67,6 @@ FitProcedureQuality::FitProcedureQuality (int	fitCode,
 	m_fitProbability	(0.),
 	m_fitCode		(fitCode),
 	m_iterations		(0),
-	m_numberAlignments	(0),
 	m_numberDoF		(numberDoF),
 	m_numberScatterers	(0),
 	m_worstMeasurement	(0)
@@ -79,18 +76,16 @@ inline
 FitProcedureQuality::FitProcedureQuality (double	chiSq,
 					  double	chiSqWorst,
 					  double	fitProbability,
-					  int		fitCode,
-					  int		iterations,
-					  int		numberAlignments,
-					  int		numberDoF,
-					  int		numberScatterers,
-					  int		worstMeasurement)
+					  int	fitCode,
+					  int	iterations,
+					  int	numberDoF,
+					  int	numberScatterers,
+					  int	worstMeasurement)
     :	m_chiSq			(chiSq),
 	m_chiSqWorst		(chiSqWorst),
 	m_fitProbability	(fitProbability),
 	m_fitCode		(fitCode),
 	m_iterations		(iterations),
-	m_numberAlignments	(numberAlignments),
 	m_numberDoF		(numberDoF),
 	m_numberScatterers	(numberScatterers),
 	m_worstMeasurement	(worstMeasurement)

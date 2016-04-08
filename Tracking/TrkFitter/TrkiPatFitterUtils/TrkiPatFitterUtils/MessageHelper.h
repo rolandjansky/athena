@@ -56,14 +56,14 @@ MessageHelper::printSummary (void) const
     
     std::stringstream out;
     out << " summary of WARNING occurences (maximum shown during job: " << m_maxWarnings << "):";
-    m_parent.msg(MSG::INFO) << out.str() << endmsg;
+    m_parent.msg(MSG::INFO) << out.str() << endreq;
 
     for (unsigned int i = 0; i < m_warningCounts.size(); ++i)
     {
 	if (! m_warningCounts[i])	continue;
 	out.str("");
 	out << "   " << m_warningCounts[i] << ":\t" << m_warningText[i];
-	m_parent.msg(MSG::INFO) << out.str() << endmsg;
+	m_parent.msg(MSG::INFO) << out.str() << endreq;
     }
 }
 
@@ -74,10 +74,10 @@ MessageHelper::printWarning (unsigned int messageNumber)
     if (! m_parent.msgLvl(MSG::WARNING)
 	|| m_warningCounts[messageNumber] > m_maxWarnings)	return;
 
-    m_parent.msg(MSG::WARNING) << m_warningText[messageNumber] << endmsg;
+    m_parent.msg(MSG::WARNING) << m_warningText[messageNumber] << endreq;
     if (m_warningCounts[messageNumber] == m_maxWarnings)
 	m_parent.msg(MSG::WARNING) << "Limit reached. No more messages of this type will be printed."
-				   << endmsg;
+				   << endreq;
 }
 
 inline void
@@ -87,10 +87,10 @@ MessageHelper::printWarning (unsigned int messageNumber, const std::string& addi
     if (! m_parent.msgLvl(MSG::WARNING)
 	|| m_warningCounts[messageNumber] > m_maxWarnings)	return;
 
-    m_parent.msg(MSG::WARNING) << m_warningText[messageNumber] << addition << endmsg;
+    m_parent.msg(MSG::WARNING) << m_warningText[messageNumber] << addition << endreq;
     if (m_warningCounts[messageNumber] == m_maxWarnings)
 	m_parent.msg(MSG::WARNING) << "Limit reached. No more messages of this type will be printed."
-				   << endmsg;
+				   << endreq;
 }
 
 inline void

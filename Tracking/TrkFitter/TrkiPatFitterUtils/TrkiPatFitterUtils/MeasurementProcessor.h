@@ -16,7 +16,6 @@
 #include <vector>
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkiPatFitterUtils/ExtrapolationType.h" 
-#include "TrkGeometry/MagneticFieldProperties.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -25,19 +24,17 @@ namespace Trk
     class FitMeasurement;
     class FitParameters;
     class IIntersector;
-    class IPropagator;
     class TrackSurfaceIntersection;
 
 class MeasurementProcessor
 {
 public:
     MeasurementProcessor (bool					asymmetricCaloEnergy,
-			  ToolHandle<IIntersector>&		intersector,
+			  const ToolHandle<IIntersector>&    	intersector,
 			  std::list<FitMeasurement*>&		measurements,
 			  FitParameters*			parameters,
-			  ToolHandle<IIntersector>&    		rungeKuttaIntersector,
-			  const ToolHandle<IPropagator>&    	stepPropagator,
-			  int 					useStepPropagator);    
+			  const ToolHandle<IIntersector>&    	rungeKuttaIntersector);
+    
     ~MeasurementProcessor (void);
 
     // implicit copy constructor
@@ -55,7 +52,6 @@ private:
     void		driftDerivatives(int derivativeFlag, const FitMeasurement& measurement);
     bool		extrapolateToMeasurements(ExtrapolationType type);
 
-    std::vector<FitMeasurement*>	m_alignments;
     bool				m_asymmetricCaloEnergy;
     FitMeasurement*			m_caloEnergyMeasurement;
     double				m_cosPhi0;
@@ -65,32 +61,29 @@ private:
     double				m_derivQOverP1;
     double				m_energyResidual;
     int					m_firstScatteringParameter;
-    //bool				m_havePhiPseudo;
+    bool				m_havePhiPseudo;
     const TrackSurfaceIntersection*	m_intersectStartingValue;
     const ToolHandle<IIntersector>&	m_intersector;
     double				m_largeDeltaD0;
     double				m_largeDeltaPhi0;
     std::list<FitMeasurement*>&		m_measurements;
-    //double				m_minDistanceForAngle;
+    double				m_minDistanceForAngle;
     bool				m_numericDerivatives;
     FitParameters*			m_parameters;
     bool				m_phiInstability;
     double				m_qOverP[ExtrapolationTypes];
     double				m_qOverPbeforeCalo;
     double				m_qOverPafterCalo;
-    const ToolHandle<IIntersector>&	m_rungeKuttaIntersector;
-    const ToolHandle< IPropagator >&    m_stepPropagator;
-    int                                 m_useStepPropagator;
+     const ToolHandle<IIntersector>&	m_rungeKuttaIntersector;
     std::vector<FitMeasurement*>	m_scatterers;
     double				m_sinPhi0;
     double				m_sinTheta0;
-    //double				m_toroidTurn;
+    double				m_toroidTurn;
     const TrackSurfaceIntersection*	m_vertexIntersect;
     double				m_x0;
     double				m_y0;
     double				m_z0;
-    //bool				m_zInstability;
-    Trk::MagneticFieldProperties        m_stepField; 
+    bool				m_zInstability;
 };
 
 }	// end of namespace

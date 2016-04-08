@@ -35,18 +35,12 @@ namespace Trk
 	    return log << " barrelScatterer  ";
 	case endcapScatterer:
 	    return log << " endcapScatterer  ";
-	case calorimeterScatterer:
-	    return log << " calorimeterScatterer  ";
 	case barrelInert:
 	    return log << " barrelInert      ";
 	case endcapInert:
 	    return log << " endcapInert      ";    
 	case energyDeposit:
 	    return log << " energyDeposit    ";
-	case alignment:
-	    return log << " alignment        ";
-	case discontinuity:
-	    return log << " discontinuity    ";
 	case bremPoint:
 	    return log << " bremPoint        ";
 	case hole:

@@ -13,7 +13,7 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
-// #include "EventPrimitives/EventPrimitives.h"
+#include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -32,7 +32,6 @@
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
-#include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
 
@@ -45,15 +44,11 @@ FitMeasurement::FitMeasurement (int		       	hitIndex,
 				HitOnTrack*		hitOnTrack,
 				const MeasurementBase*	measurementBase)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
-      m_alignmentParameter	(0),
-      m_alignmentParameter2	(0),
       m_betaSquared		(1.),
       m_derivative		(0),
       m_derivative2		(0),
       m_d0         		(0.),
       m_energyLoss		(0.),
-      m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(hitIndex),
       m_hitOnTrack		(hitOnTrack),
@@ -78,7 +73,6 @@ FitMeasurement::FitMeasurement (int		       	hitIndex,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
-      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -209,15 +203,11 @@ FitMeasurement::FitMeasurement (const MaterialEffectsBase*	materialEffects,
 				double				qOverP,
 				bool				calo)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
-      m_alignmentParameter	(0),
-      m_alignmentParameter2	(0),
       m_betaSquared		(1.),
       m_derivative		(0),
       m_derivative2		(0),
       m_d0         		(0.),
       m_energyLoss		(0.),
-      m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
       m_hitOnTrack		(0),
@@ -242,7 +232,6 @@ FitMeasurement::FitMeasurement (const MaterialEffectsBase*	materialEffects,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
-      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -257,8 +246,6 @@ FitMeasurement::FitMeasurement (const MaterialEffectsBase*	materialEffects,
 {
     if (dynamic_cast<const CylinderSurface*>(m_surface)
 	|| std::abs(m_surface->normal()(2)) < 0.5) m_type = barrelScatterer;
-
-    if(calo) m_type = calorimeterScatterer;
 
     for (int typ = 0; typ != ExtrapolationTypes; ++typ)
     {
@@ -311,8 +298,6 @@ FitMeasurement::FitMeasurement (const MaterialEffectsBase*	materialEffects,
     {
 	m_scatterPhi	=  scattering->deltaPhi();
 	m_scatterTheta	=  scattering->deltaTheta();
-        if(calo) m_scatteringAngleOffSet = scattering->sigmaDeltaTheta();
-//        if(calo) std::cout << " Calorimeter scaterrer with sigmaDeltaPhi " << scattering->sigmaDeltaPhi() << " sigmaDeltaTheta " << scattering->sigmaDeltaTheta() << std::endl; 
     }
 }
 
@@ -325,15 +310,11 @@ FitMeasurement::FitMeasurement (double				radiationThickness,
 				double				qOverP,
 				const Surface*			surface)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
-      m_alignmentParameter	(0),
-      m_alignmentParameter2	(0),
       m_betaSquared		(1.),
       m_derivative		(0),
       m_derivative2		(0),
       m_d0         		(0.),
       m_energyLoss		(-deltaE),
-      m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
       m_hitOnTrack		(0),
@@ -358,7 +339,6 @@ FitMeasurement::FitMeasurement (double				radiationThickness,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
-      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -401,84 +381,15 @@ FitMeasurement::FitMeasurement (double				radiationThickness,
     m_intersection[FittedTrajectory] = new TrackSurfaceIntersection(position,direction,0.);
 }
 
-// constructor for adding (mis-)alignment effects
-FitMeasurement::FitMeasurement (const AlignmentEffectsOnTrack*	alignmentEffects,
-				const Amg::Vector3D&		direction,
-				const Amg::Vector3D&		position)
-    : m_afterCalo		(false),
-      m_alignmentEffects	(alignmentEffects),
-      m_alignmentParameter	(0),
-      m_alignmentParameter2	(0),
-      m_betaSquared		(1.),
-      m_derivative		(0),
-      m_derivative2		(0),
-      m_d0         		(0.),
-      m_energyLoss		(0.),
-      m_firstParameter		(0),
-      m_flippedDriftDistance	(false),
-      m_hitIndex		(0),
-      m_hitOnTrack		(0),
-      m_lastParameter		(0),
-      m_materialEffects		(0),
-      m_materialEffectsOwner	(false),
-      m_measurementBase		(0),
-      m_minEnergyDeposit	(0.),
-      m_minimizationDirection	(0),
-      m_normal			(0),
-      m_numberDoF		(2),
-      m_numericalDerivative	(false),
-      m_outlier			(false),
-      m_particleMassSquared	(0.),
-      m_perigee			(0),
-      m_perigeeWeight		(0),
-      m_position		(position),
-      m_qOverP			(0.),
-      m_radiationThickness	(0.),
-      m_residual		(0),
-      m_scaleFactor		(0.),
-      m_scatterPhi		(alignmentEffects->deltaAngle()),
-      m_scatterTheta		(alignmentEffects->deltaTranslation()),
-      m_scatteringAngle		(0.),
-      m_scatteringAngleOffSet	(0.),
-      m_secondResidual		(0.),
-      m_sensorDirection		(0),
-      m_sigma			(0.),
-      m_sigmaMinus		(alignmentEffects->sigmaDeltaAngle()),
-      m_sigmaPlus		(alignmentEffects->sigmaDeltaTranslation()),
-      m_signedDriftDistance	(0.),
-      m_status			(0),
-      m_surface			(&alignmentEffects->associatedSurface()),
-      m_type			(alignment),
-      m_weight			(1.),
-      m_weight2			(1.)
-{
-    // set weights
-    if (m_sigmaMinus) m_weight	= 1./m_sigmaMinus;
-    if (m_sigmaPlus)  m_weight2	= 1./m_sigmaPlus;
-				      
-    // initialize intersections
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-    	m_intersection[typ] = 0;
-    }
-    m_intersection[FittedTrajectory] = new TrackSurfaceIntersection(position,
-    								    direction,
-    								    0.);
-}
-    
 // constructor creating placeholder Surface for delimiting material aggregation
 FitMeasurement::FitMeasurement (const TrackSurfaceIntersection&	intersection,
 				double				shift)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
-      m_alignmentParameter	(0),
-      m_alignmentParameter2	(0),
       m_betaSquared		(1.),
       m_derivative		(0),
       m_derivative2		(0),
       m_d0         		(0.),
       m_energyLoss		(0.),
-      m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
       m_hitOnTrack		(0),
@@ -503,7 +414,6 @@ FitMeasurement::FitMeasurement (const TrackSurfaceIntersection&	intersection,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
-      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -535,15 +445,11 @@ FitMeasurement::FitMeasurement (const TrackSurfaceIntersection&	intersection,
 // other TrackStateOnSurface types
 FitMeasurement::FitMeasurement (const TrackStateOnSurface&	TSOS)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
-      m_alignmentParameter	(0),
-      m_alignmentParameter2	(0),
       m_betaSquared		(1.),
       m_derivative		(0),
       m_derivative2		(0),
       m_d0         		(0.),
       m_energyLoss		(0.),
-      m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
       m_hitOnTrack		(0),
@@ -568,7 +474,6 @@ FitMeasurement::FitMeasurement (const TrackStateOnSurface&	TSOS)
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
-      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -609,15 +514,11 @@ FitMeasurement::FitMeasurement (int			hitIndex,
 				const Surface*		surface,
 				MeasurementType		type)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
-      m_alignmentParameter	(0),
-      m_alignmentParameter2	(0),
       m_betaSquared		(1.),
       m_derivative		(0),
       m_derivative2		(0),
       m_d0         		(0.),
       m_energyLoss		(0.),
-      m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(hitIndex),
       m_hitOnTrack		(hitOnTrack),
@@ -640,7 +541,6 @@ FitMeasurement::FitMeasurement (int			hitIndex,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
-      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sigma			(0.),
       m_sigmaMinus		(0.),
@@ -727,15 +627,11 @@ FitMeasurement::FitMeasurement (int	       		hitIndex,
 				double			,
 				const Surface*		surface)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
-      m_alignmentParameter	(0),
-      m_alignmentParameter2	(0),
       m_betaSquared		(1.),
       m_derivative		(0),
       m_derivative2		(0),
       m_d0         		(0.),
       m_energyLoss		(0.),
-      m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(hitIndex),
       m_hitOnTrack		(hitOnTrack),
@@ -760,7 +656,6 @@ FitMeasurement::FitMeasurement (int	       		hitIndex,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
-      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sigma			(0.),
       m_sigmaMinus		(0.),
@@ -795,15 +690,11 @@ FitMeasurement::FitMeasurement (int	       		hitIndex,
 // perigee (TrackParameters) constructor
 FitMeasurement::FitMeasurement (const TrackParameters&	perigee)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
-      m_alignmentParameter	(0),
-      m_alignmentParameter2	(0),
       m_betaSquared		(1.),
       m_derivative		(0),
       m_derivative2		(0),
       m_d0         		(0.),
       m_energyLoss		(0.),
-      m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
       m_hitOnTrack		(0),
@@ -828,7 +719,6 @@ FitMeasurement::FitMeasurement (const TrackParameters&	perigee)
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
-      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(0),
       m_sigma			(0.),
@@ -941,15 +831,11 @@ FitMeasurement::FitMeasurement (double			d0,
 				const Amg::Vector3D&	position,
 				double			sigma)
     : m_afterCalo		(false),
-      m_alignmentEffects	(0),
-      m_alignmentParameter	(0),
-      m_alignmentParameter2	(0),
       m_betaSquared		(1.),
       m_derivative		(0),
       m_derivative2		(0),
       m_d0         		(d0),	// FIXME:: kept for cache tag as d0 is never used anywhere
       m_energyLoss		(0.),
-      m_firstParameter		(0),
       m_flippedDriftDistance	(false),
       m_hitIndex		(0),
       m_hitOnTrack		(0),
@@ -974,7 +860,6 @@ FitMeasurement::FitMeasurement (double			d0,
       m_scatterPhi		(0.),
       m_scatterTheta		(0.),
       m_scatteringAngle		(0.),
-      m_scatteringAngleOffSet	(0.),
       m_secondResidual		(0.),
       m_sensorDirection		(new Amg::Vector3D(0.,0.,1.)),
       m_sigma			(0.),
@@ -1051,15 +936,6 @@ FitMeasurement::print (MsgStream& log) const
 	{
 	    log << std::setw(9) << std::setprecision(3) << *(m_residual+1);
 	}
-	else if (m_alignmentParameter2)
-	{
-	    log << " A" << std::setw(1)	<< m_alignmentParameter
-		<< " A" << std::setw(1) << m_alignmentParameter2 << "   ";
-	}
-	else if (m_alignmentParameter)
-	{
-	    log << " A" << std::setw(1) << m_alignmentParameter << "      ";
-	}
 	else
 	{
 	    log << "         ";
@@ -1101,19 +977,9 @@ FitMeasurement::print (MsgStream& log) const
     {
 	log << std::setw(33) << std::setprecision(3) << 1./std::abs(m_qOverP*Gaudi::Units::GeV)
 	    << std::setw(12) << std::setprecision(4) << m_energyLoss/Gaudi::Units::GeV;
-	if (m_type < barrelInert || m_scatteringAngle > 0.) {
-            double totScat = sqrt(m_scatteringAngle*std::abs(m_qOverP)*m_scatteringAngle*std::abs(m_qOverP)+m_scatteringAngleOffSet*m_scatteringAngleOffSet);
-	    log << std::setw(16) << std::setprecision(6) << totScat
+	if (m_type < barrelInert || m_scatteringAngle > 0.)
+	    log << std::setw(16) << std::setprecision(6) << m_scatteringAngle*std::abs(m_qOverP)
 		<< std::setw(13) << std::setprecision(3) << m_radiationThickness;
-        }
-    }
-    else if (isAlignment())
-    {
-	log << std::setw(13) << std::setprecision(3) << 1./m_weight;
-	if (m_numberDoF == 2)
-	{
-	    log << std::setw(8) << std::setprecision(3) << 1./m_weight2;
-	}
     }
     else if (isEnergyDeposit())
     {
@@ -1137,43 +1003,18 @@ FitMeasurement::qOverP (double value)
     m_qOverP		= value;
     
     // for scatterer measurements: correct the weight for the local momentum value
-    if ((m_type == barrelScatterer || m_type == endcapScatterer || m_type == calorimeterScatterer)
+    if ((m_type == barrelScatterer || m_type == endcapScatterer)
 	&& m_scatteringAngle > 0.)
     {
 	double pSquare	= 1./(value*value);
 	m_betaSquared	= pSquare/(pSquare + m_particleMassSquared);
 	m_weight       	= std::sqrt(m_betaSquared*pSquare) / m_scatteringAngle;
     }
-
-    if( m_type == calorimeterScatterer && m_scatteringAngleOffSet > 0 ) {
-        if( m_weight > 0) {
-          m_weight = sqrt(1./ (1./m_weight/m_weight + m_scatteringAngleOffSet*m_scatteringAngleOffSet));
-        } else {
-          m_weight = 1./m_scatteringAngleOffSet;
-        }
-    }
 }
 
 void
 FitMeasurement::scatteringAngle (double angle, double totalRadiationThickness)
 {
-
-// update the m_scatteringAngleOffSet at initialisation 
-
-    if(m_scatteringAngle==0.&& m_scatteringAngleOffSet>0 && m_qOverP != 0.) {
-// 
-      double angle_iPat = angle*std::abs(m_qOverP);
-
-//      std::cout << " scatteringAngle type " <<  m_type << " angle_iPat " << angle_iPat << " m_scatteringAngleOffSet " << m_scatteringAngleOffSet;
-
-      if(angle_iPat<m_scatteringAngleOffSet) {
-        m_scatteringAngleOffSet = sqrt(m_scatteringAngleOffSet*m_scatteringAngleOffSet-angle_iPat*angle_iPat);
-      } else {
-        m_scatteringAngleOffSet = 0.;
-      } 
-//      std::cout << " corrected m_scatteringAngleOffSet " << m_scatteringAngleOffSet << std::endl;
-    }
-
     m_scatteringAngle		=  angle;
     m_radiationThickness	=  totalRadiationThickness;
     if (m_type == barrelInert)
@@ -1190,14 +1031,6 @@ FitMeasurement::scatteringAngle (double angle, double totalRadiationThickness)
 	double pSquare	= 1./(m_qOverP*m_qOverP);
 	m_betaSquared	= pSquare/(pSquare + m_particleMassSquared);
 	m_weight       	= std::sqrt(m_betaSquared*pSquare) / m_scatteringAngle;
-        if( m_type == calorimeterScatterer && m_scatteringAngleOffSet > 0) {
-          if( m_weight > 0) {
-            m_weight = sqrt(1./ (1./m_weight/m_weight + m_scatteringAngleOffSet*m_scatteringAngleOffSet));
-          } else {
-            m_weight = 1./m_scatteringAngleOffSet;
-          }
-        }
-
     }
 }
 
