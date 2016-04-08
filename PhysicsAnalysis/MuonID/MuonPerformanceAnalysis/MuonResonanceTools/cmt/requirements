@@ -24,6 +24,7 @@ use  GaudiInterface             GaudiInterface-*                External
 end_private
 
 public
-library MuonResonanceTools *.cxx ../Root/*.cxx -s=components *.cxx
-apply_pattern component_library
+#library MuonResonanceTools *.cxx ../Root/*.cxx -s=components *.cxx
+#apply_pattern component_library
+apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
 apply_pattern declare_joboptions files="../share/*.py"

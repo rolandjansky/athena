@@ -155,13 +155,25 @@ int MuonResonanceTool::AuthorBin(const xAOD::Muon& mu1st, const xAOD::Muon& mu2n
 // returns eta region of muons
 int MuonResonanceTool::EtaBin(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd) const{
 
-  float eta1 = TMath::Abs(mu1st.eta());
-  float eta2 = TMath::Abs(mu2nd.eta());
-  ATH_MSG_DEBUG("Eta of muons    : " << eta1 << " | " << eta2 ); 
+//  float eta1 = TMath::Abs(mu1st.eta());
+//  float eta2 = TMath::Abs(mu2nd.eta());
 
-  if(eta1<1. && eta2<1.) return 1;
-  else if((eta1>=1. && eta2>=1.) && (eta1<=2. && eta2<=2.)) return 2;
-  else if(eta1>2. && eta2>2.) return 3; 
+  float eta1 = mu1st.eta();
+  float eta2 = mu2nd.eta();
+
+  ATH_MSG_DEBUG("Eta of muons    : " << eta1 << " | " << eta2 );
+
+//  if(eta1<1. && eta2<1.) return 1;
+//  else if((eta1>=1. && eta2>=1.) && (eta1<=2. && eta2<=2.)) return 2;
+//  else if(eta1>2. && eta2>2.) return 3; 
+//  else return -1;
+
+  if(eta1<-2. && eta2<-2.) return 1;
+  else if((eta1>=-2. && eta2>=-2.) && (eta1<-1. && eta2<-1.)) return 2;
+  else if((eta1>=-1. && eta2>=-1.) && (eta1<0. && eta2<0.)) return 3;
+  else if((eta1>=0. && eta2>=0.) && (eta1<=1. && eta2<=1.)) return 4;
+  else if((eta1>1. && eta2>1.) && (eta1<=2. && eta2<=2.)) return 5;
+  else if(eta1>2. && eta2>2.) return 6;
   else return -1;
 }
 

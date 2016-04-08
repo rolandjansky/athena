@@ -261,7 +261,7 @@ bool MuonResonanceSelectionTool::IDTrk(const xAOD::Muon& mu) const{
     if (nPixHits + nPixDS < 1) return false;
     if (nSCTHits + nSCTDS < 5) return false;
     if (nPixHoles + nSCTHoles >= 3) return false;
-    if( id->eta()>0.1 && id->eta()<1.9 ){
+    if( fabs(id->eta())>0.1 && fabs(id->eta())<1.9 ){
       if(nTRT<=5 || nTRTOut >= ((float)nTRT)*0.9) return false;
     }
     return true;
