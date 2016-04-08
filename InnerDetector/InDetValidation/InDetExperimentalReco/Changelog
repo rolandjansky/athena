@@ -1,3 +1,8 @@
+2015-05-08 Nick Styles
+	* Remove outdated tests
+	* Add test of layer masking
+	* Tagged as InDetExperimentalReco-00-00-14  
+
 2015-03-03 Nick Styles <nicholas.styles -at- cern.ch>
 	* Update test file
 	* Remove material override

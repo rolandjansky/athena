@@ -4,20 +4,11 @@
 
 <unifiedTestConfiguration> 
  <atn>
-   <TEST name="InDetExperimentalReco" type="athena" suite="id">
-     <options_atn>InDetExperimentalReco/jobOptions_RecExCommon_NewConfig.py</options_atn>
+   <TEST name="InDetReco_w_masking" type="athena" suite="id">
+     <options_atn>InDetExperimentalReco/jobOptions_RecExCommon_masking.py</options_atn>
      <timelimit>30</timelimit>
      <author> Atlas Developer </author>
-     <mailto> Markus.Elsing@cern.ch, Andreas.Salzburger@cern.ch, Nicholas.Styles@cern.ch</mailto>
-     <expectations>
-       <returnValue>0</returnValue>
-     </expectations>
-   </TEST>
-   <TEST name="InDetIBLReco" type="athena" suite="id">
-     <options_atn>InDetExperimentalReco/jobOptions_RecExCommon_IBL.py</options_atn>
-     <timelimit>30</timelimit>
-     <author> Atlas Developer </author>
-     <mailto> Markus.Elsing@cern.ch, Andreas.Salzburger@cern.ch, Nicholas.Styles@cern.ch</mailto>
+     <mailto>Nicholas.Styles@cern.ch, goetz.gaycken@cern.ch</mailto>
      <expectations>
        <returnValue>0</returnValue>
      </expectations>
