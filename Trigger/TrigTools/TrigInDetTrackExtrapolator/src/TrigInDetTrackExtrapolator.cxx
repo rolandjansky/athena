@@ -18,7 +18,7 @@
 #include <iostream>
 
 #include "GaudiKernel/ToolFactory.h"
-#include "StoreGate/StoreGate.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
@@ -31,15 +31,10 @@
 #include "TrigInDetToolInterfaces/ITrigInDetTrackExtrapolator.h"
 #include "TrigInDetTrackExtrapolator/TrigInDetTrackExtrapolator.h"
 
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-
-using CLHEP::Hep3Vector;
-
 TrigInDetTrackExtrapolator::TrigInDetTrackExtrapolator(const std::string& t, 
 						       const std::string& n,
 						       const IInterface*  p ): 
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
   m_MagFieldSvc("AtlasFieldSvc",this->name())
 {
   declareInterface< ITrigInDetTrackExtrapolator >( this );
@@ -49,17 +44,10 @@ TrigInDetTrackExtrapolator::TrigInDetTrackExtrapolator(const std::string& t,
 
 StatusCode TrigInDetTrackExtrapolator::initialize()
 {
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
   m_outputLevel=msgSvc()->outputLevel( name() );
   
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    athenaLog << MSG::FATAL << "DetStore service not found" << endreq; 
-    return StatusCode::FAILURE; 
-  }
-
 	athenaLog << MSG::INFO <<"Using Athena magnetic field service"<<endreq;
 	sc = m_MagFieldSvc.retrieve();
 	if(sc.isFailure()) 
@@ -87,7 +75,7 @@ StatusCode TrigInDetTrackExtrapolator::initialize()
 
 StatusCode TrigInDetTrackExtrapolator::finalize()
 {
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -618,7 +606,7 @@ void TrigInDetTrackExtrapolator::m_getMagneticField(double r[3],double* B)
   B[0]=0.0;B[1]=0.0;B[2]=0.0;
 	double field[3];
 	m_MagFieldSvc->getField(r,field);//field is returned in kT
-	for(int i=0;i<3;i++) B[i]=field[i]/CLHEP::kilogauss;//convert to kG
+	for(int i=0;i<3;i++) B[i]=field[i]/Gaudi::Units::kilogauss;//convert to kG
 }
 
 
