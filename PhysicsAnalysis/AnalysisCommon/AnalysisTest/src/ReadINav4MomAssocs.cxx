@@ -12,11 +12,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
-
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 
 // NavFourMom includes
 #include "NavFourMom/INav4MomAssocs.h"
@@ -31,9 +27,8 @@
 /// Constructors
 ////////////////
 ReadINav4MomAssocs::ReadINav4MomAssocs( const std::string& name, 
-			      ISvcLocator* pSvcLocator ) : 
-  Algorithm( name, pSvcLocator ),
-  m_storeGate  ( 0 )
+                                        ISvcLocator* pSvcLocator ) : 
+  AthAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration
@@ -46,55 +41,27 @@ ReadINav4MomAssocs::ReadINav4MomAssocs( const std::string& name,
 ///////////////
 ReadINav4MomAssocs::~ReadINav4MomAssocs()
 { 
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" ) ;
 }
 
 /// Athena Algorithm's Hooks
 ////////////////////////////
 StatusCode ReadINav4MomAssocs::initialize()
 {
-  MsgStream log( msgSvc(), name() );
-
-  log << MSG::INFO 
-      << "Initializing " << name() << "..." 
-      << endreq;
-
-  // Get pointer to StoreGateSvc and cache it :
-  if ( !service( "StoreGateSvc", m_storeGate ).isSuccess() ) {
-    log << MSG::ERROR 	
-	<< "Unable to retrieve pointer to StoreGateSvc"
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   return StatusCode::SUCCESS;
 }
 
 StatusCode ReadINav4MomAssocs::finalize()
 {
-  MsgStream log( msgSvc(), name() );
-  log << MSG::INFO 
-      << "Finalizing " << name() << "..." 
-      << endreq;
-
+  ATH_MSG_INFO ( "Finalizing " << name() << "..." ) ;
   return StatusCode::SUCCESS;
 }
 
 StatusCode ReadINav4MomAssocs::execute()
 {  
-  MsgStream log( msgSvc(), name() );
-
-  log << MSG::DEBUG << "Executing " << name() << "..." 
-      << endreq;
-
-  if ( !readAssocs<INav4MomAssocs>( m_inavAssocsName ).isSuccess() ) {
-    log << MSG::ERROR
-	<< "Could not perform reading test of INav4MomAssocs !!"
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_MSG_DEBUG ( "Executing " << name() << "..." ) ;
+  ATH_CHECK( readAssocs<INav4MomAssocs>( m_inavAssocsName ) );
   return StatusCode::SUCCESS;
 }
 

@@ -9,6 +9,7 @@ use TestTools             *                       AtlasTest
 
 use StoreGate             StoreGate-*             Control
 use DataModel             DataModel-*             Control
+use AthenaBaseComps       AthenaBaseComps-*       Control
 
 use NavFourMom            NavFourMom-*            Event
 
@@ -24,6 +25,7 @@ use McParticleEvent       McParticleEvent-*       PhysicsAnalysis/TruthParticleI
 private
 use AtlasCLHEP            *   External
 use AtlasHepMC            *   External
+use AthenaBaseComps       AthenaBaseComps-* Control
 
 use EventKernel           *   Event
 use FourMom               *   Event

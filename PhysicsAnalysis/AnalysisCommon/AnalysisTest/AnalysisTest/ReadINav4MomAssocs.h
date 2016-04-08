@@ -18,15 +18,12 @@
 // HepMC / CLHEP includes
 
 // FrameWork includes
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 // DataModel includes
 #include "DataModel/ClassName.h"
 
-// Forward declaration
-class StoreGateSvc;
-
-class ReadINav4MomAssocs : public Algorithm
+class ReadINav4MomAssocs : public AthAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -74,10 +71,6 @@ class ReadINav4MomAssocs : public Algorithm
   /// Default constructor: 
   ReadINav4MomAssocs();
 
-  /** Pointer to StoreGate
-   */
-  StoreGateSvc *m_storeGate;
-
   // Containers
   
   /** Input location of INav4MomAssocs container
@@ -95,32 +88,19 @@ class ReadINav4MomAssocs : public Algorithm
 template <typename ASSOCS>
 StatusCode ReadINav4MomAssocs::readAssocs( const std::string assocsName ) const
 {
-  StatusCode sc = StatusCode::SUCCESS;
-  MsgStream log( msgSvc(), name() );
-
-
   const ASSOCS * assocs = 0;
-  if ( m_storeGate->retrieve( assocs, assocsName ).isFailure() ||
-       0 == assocs ) {
-
-    log << MSG::ERROR
-	<< "Could not retrieve " << ClassName<ASSOCS>::name() << " at : "
-	<< assocsName
-	<< endreq;
-    return sc;
-  }
+  ATH_CHECK( evtStore()->retrieve( assocs, assocsName ) );
 
   typename ASSOCS::object_iterator objEnd = assocs->endObject();
   for ( typename ASSOCS::object_iterator objItr = assocs->beginObject();
 	objItr != objEnd;
 	++objItr ) {
-    log << MSG::INFO
-	<< "--> e= " << (*objItr)->e()
-	<< "\tnAssocs= " << assocs->getNumberOfAssociations(objItr)
-	<< endreq;
+    ATH_MSG_INFO
+      ( "--> e= " << (*objItr)->e()
+	<< "\tnAssocs= " << assocs->getNumberOfAssociations(objItr) ) ;
   }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 #endif //> ANALYSISTEST_READINAV4MOMASSOCS_H

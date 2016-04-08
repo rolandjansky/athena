@@ -11,7 +11,6 @@
   @author Tadashi Maeno
 */
 
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/NTuple.h"
 
 #include "AnalysisTest/ReadConstituent.h"

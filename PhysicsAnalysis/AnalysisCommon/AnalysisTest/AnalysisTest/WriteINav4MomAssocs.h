@@ -19,7 +19,7 @@
 // HepMC / CLHEP includes
 
 // FrameWork includes
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 // DataModel includes
 #include "DataModel/ClassName.h"
@@ -27,10 +27,7 @@
 // NqvFourMom includes
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
-// Forward declaration
-class StoreGateSvc;
-
-class WriteINav4MomAssocs : public Algorithm
+class WriteINav4MomAssocs : public AthAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -81,9 +78,6 @@ class WriteINav4MomAssocs : public Algorithm
   /// Default constructor: 
   WriteINav4MomAssocs();
 
-  /// Pointer to StoreGate
-  StoreGateSvc *m_storeGate;
-
   // Containers
   
   /** Input location for ParticleJet container
@@ -111,16 +105,12 @@ template < typename INCOLL, typename OUTCOLL >
 StatusCode WriteINav4MomAssocs::symLink( const std::string& collName ) const
 {
   const INCOLL * inColl = 0;
-  if ( m_storeGate->retrieve( inColl, collName ).isFailure() ) {
-    MsgStream log( msgSvc(), name() );
-    log << MSG::ERROR
-	<< "Could not retrieve input coll [" << ClassName<INCOLL>::name() <<"]"
-	<< " from : " << collName << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK ( evtStore()->retrieve( inColl, collName ) );
 
   const OUTCOLL * outColl = 0;
-  return m_storeGate->symLink( inColl, outColl );
+  ATH_CHECK ( evtStore()->symLink( inColl, outColl ) );
+
+  return StatusCode::SUCCESS;
 }
 
 #endif //> ANALYSISTEST_WRITEINAV4MOMASSOCS_H

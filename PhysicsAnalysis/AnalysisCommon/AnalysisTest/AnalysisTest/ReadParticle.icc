@@ -2,9 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StoreGate/StoreGate.h"
-
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/IDataProviderSvc.h"
@@ -17,7 +14,7 @@ static const int MAX_nParticle = 128;
 
 template <class PARTICLE> inline
 ReadParticle<PARTICLE>::ReadParticle(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_ContainerName("")
 {
   // Declare the properties
@@ -31,38 +28,14 @@ ReadParticle<PARTICLE>::ReadParticle(const std::string& name, ISvcLocator* pSvcL
 template <class PARTICLE> inline
 StatusCode ReadParticle<PARTICLE>::initialize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in initialize()" << endreq;
+  ATH_MSG_DEBUG ( "in initialize()" ) ;
 
-  StatusCode sc;
-
-  // get StoreGate service
-  sc = service("StoreGateSvc",m_storeGate);
-  if (sc.isFailure())
-    {
-      log << MSG::FATAL << "StoreGate service not found !" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  // access Ntuple
-  sc = accessNtuple();
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR << "accessNtuple has failed !" << endreq;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( accessNtuple() );
 
   // add items
-  sc = m_ntuplePtr -> addItem (m_prefix+"/nParticle", m_nParticle, 0, MAX_nParticle);
-  sc = m_ntuplePtr -> addItem (m_prefix+"/pt",        m_nParticle,  m_pt);
+  ATH_CHECK( m_ntuplePtr -> addItem (m_prefix+"/nParticle", m_nParticle, 0, MAX_nParticle) );
+  ATH_CHECK( m_ntuplePtr -> addItem (m_prefix+"/pt",        m_nParticle,  m_pt) );
   
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR 
-	  << "Could not add items to column wise ntuple" << endreq;
-      return StatusCode::FAILURE;
-    }
-
   return StatusCode::SUCCESS;
 }
 
@@ -71,22 +44,13 @@ StatusCode ReadParticle<PARTICLE>::initialize()
 template <class PARTICLE> inline
 StatusCode ReadParticle<PARTICLE>::execute()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute()" << endreq;
-
-  StatusCode sc;
+  ATH_MSG_DEBUG ( "in execute()" ) ;
 
   // Retrieve presistified container
-  const PARTICLE * pCont;
-  sc =m_storeGate->retrieve(pCont,m_ContainerName);
-  if (sc.isFailure())
-    {
-      log << MSG::FATAL << "Container \""+m_ContainerName+"\" could not be retrieved from StoreGate !" << endreq;
-      return StatusCode::FAILURE;
-    }
-
+  const PARTICLE * pCont = nullptr;
+  ATH_CHECK( evtStore()->retrieve(pCont,m_ContainerName) );
  
-  log << MSG::DEBUG << "Container->size() : " << pCont->size() << endreq;
+  ATH_MSG_DEBUG ( "Container->size() : " << pCont->size() ) ;
 
   m_nParticle = 0;
 
@@ -100,16 +64,14 @@ StatusCode ReadParticle<PARTICLE>::execute()
       // fill IParticle attributes
       m_pt      [m_nParticle] = (*itP)->pt();
 
-      log << MSG::DEBUG
-	  << MSG::dec
-	  << "#" << m_nParticle
-	  << " pt:"       << m_pt[m_nParticle]
-	  << endreq;
+      ATH_MSG_DEBUG ( MSG::dec
+                      << "#" << m_nParticle
+                      << " pt:"       << m_pt[m_nParticle] ) ;
       
       ++m_nParticle;
     }
 
- log << MSG::DEBUG << "execute() completed" << endreq;
+  ATH_MSG_DEBUG ( "execute() completed" ) ;
  
  return StatusCode::SUCCESS;
 }
@@ -127,8 +89,6 @@ StatusCode ReadParticle<PARTICLE>::finalize()
 template <class PARTICLE> inline
 StatusCode ReadParticle<PARTICLE>::accessNtuple()
 {
-  MsgStream log(messageService(), name());
-
   m_NtupleLocID = "/NTUPLES" + m_NtupleLocID ;
 
   //try to access it  
@@ -137,12 +97,12 @@ StatusCode ReadParticle<PARTICLE>::accessNtuple()
   if (static_cast<int>(nt))
     {
       m_ntuplePtr=nt;
-      log << MSG::INFO << "Ntuple " << m_NtupleLocID 
-	  << " reaccessed! " << endreq;
+      ATH_MSG_INFO ( "Ntuple " << m_NtupleLocID 
+                     << " reaccessed! " ) ;
     } 
   else
     {
-      log << MSG::FATAL << "Cannot reaccess " << m_NtupleLocID << endreq;
+      ATH_MSG_FATAL ( "Cannot reaccess " << m_NtupleLocID ) ;
       return StatusCode::FAILURE;
     }
 

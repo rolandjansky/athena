@@ -11,14 +11,14 @@
   @author Tadashi Maeno
 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
 
 class StoreGateSvc;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class NavTest : public Algorithm
+class NavTest : public AthAlgorithm
 {
 public:
   NavTest (const std::string& name, ISvcLocator* pSvcLocator);
@@ -26,9 +26,6 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
-
-private:
-  StoreGateSvc * m_storeGate;
 };
 
 #endif

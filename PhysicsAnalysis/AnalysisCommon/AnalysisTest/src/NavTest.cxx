@@ -4,35 +4,20 @@
 
 #include "AnalysisTest/NavTest.h"
 
-#include "StoreGate/StoreGate.h"
-#include "GaudiKernel/MsgStream.h"
-
 #include "egammaEvent/ElectronContainer.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 NavTest::NavTest(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
 {}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode NavTest::initialize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "in initialize()" << endreq;
-
-  StatusCode sc;
-
-  // get StoreGate service
-  sc = service("StoreGateSvc",m_storeGate);
-  if (sc.isFailure())
-    {
-      log << MSG::FATAL << "StoreGate service not found !" << endreq;
-      return StatusCode::FAILURE;
-    }
-
+  ATH_MSG_INFO ( "in initialize()" ) ;
   return StatusCode::SUCCESS;
 }
 
@@ -40,64 +25,48 @@ StatusCode NavTest::initialize()
 
 StatusCode NavTest::execute()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "in execute()" << endreq;
-
-  StatusCode sc;
+  ATH_MSG_INFO ( "in execute()" ) ;
 
   // Retrieve Electron from AOD
-  const ElectronContainer * eCont;
-  sc =m_storeGate->retrieve(eCont, "ElectronCollection");
-  if (sc.isFailure())
-    {
-      log << MSG::FATAL << "Electron could not be retrieved from StoreGate !" << endreq;
-      return StatusCode::FAILURE;
-    }
+  const ElectronContainer * eCont = nullptr;
+  ATH_CHECK( evtStore()->retrieve(eCont, "ElectronCollection") );
 
-  log << MSG::INFO << " --- " << endreq;
-  log << MSG::INFO << "Electron Size : " << eCont->size() << endreq;
+  ATH_MSG_INFO ( " --- " ) ;
+  ATH_MSG_INFO ( "Electron Size : " << eCont->size() ) ;
 
   // loop over all Electron
-  ElectronContainer::const_iterator itE  = eCont->begin();
-  ElectronContainer::const_iterator itEe = eCont->end();
-  for (; itE != itEe; ++itE)
+  for (const Analysis::Electron* ele : *eCont)
     {
-      log << MSG::INFO << "Electron pT : " << (*itE)->pt() << endreq;
+      ATH_MSG_INFO ( "Electron pT : " << ele->pt() ) ;
 
       // get TrackParticle via ElementLink
-      const Rec::TrackParticle *track = (*itE)->trackParticle();
+      const Rec::TrackParticle *track = ele->trackParticle();
       if (track == 0)
-	log << MSG::INFO << "No Track" << endreq;	
+	ATH_MSG_INFO ( "No Track" ) ;	
       else
-	log << MSG::INFO << "Track charge : " << track->charge() << endreq;		
+	ATH_MSG_INFO ( "Track charge : " << track->charge() ) ;		
 
       // get LAr cluster from ESD via ElementLink of egamma
-      const CaloCluster *cls = (*itE)->cluster();
+      const CaloCluster *cls = ele->cluster();
       if (cls == 0)
 	{
-	  log << MSG::INFO << "Null LArCluster" << endreq;
+	  ATH_MSG_INFO ( "Null LArCluster" ) ;
 	  continue;
 	}
-      log << MSG::INFO << "LArCluster eta0 : " << cls->eta0() << endreq;
+      ATH_MSG_INFO ( "LArCluster eta0 : " << cls->eta0() ) ;
     }
 
   // Retrieve G4Truth directly from ESD
-  const McEventCollection * g4Cont;
-  sc =m_storeGate->retrieve(g4Cont, "G4Truth");
-  if (sc.isFailure())
-    {
-      log << MSG::FATAL << "G4Truth could not be retrieved from StoreGate !" << endreq;
-      return StatusCode::FAILURE;
-    }
+  const McEventCollection * g4Cont = nullptr;
+  ATH_CHECK( evtStore()->retrieve(g4Cont, "G4Truth") );
 
-  log << MSG::INFO << " --- " << endreq;
-  log << MSG::INFO << "G4Truth Size : " << g4Cont->size() << endreq;
+  ATH_MSG_INFO ( " --- " ) ;
+  ATH_MSG_INFO ( "G4Truth Size : " << g4Cont->size() ) ;
 
   // loop over all McEvent
-  McEventCollection::const_iterator itG  = g4Cont->begin();
-  McEventCollection::const_iterator itGe = g4Cont->end();
-  for (; itG != itGe; ++itG)
-    log << MSG::INFO << "Size of particles : " << (*itG)->particles_size() << endreq;
+  for (const HepMC::GenEvent* ev : *g4Cont) {
+    ATH_MSG_INFO ( "Size of particles : " << ev->particles_size() ) ;
+  }
 
  return StatusCode::SUCCESS;
 }

@@ -12,7 +12,6 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 
 // StoreGate
@@ -38,8 +37,7 @@
 ////////////////
 WriteINav4MomAssocs::WriteINav4MomAssocs( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) : 
-  Algorithm( name, pSvcLocator ),
-  m_storeGate  ( 0 )
+  AthAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration
@@ -54,85 +52,36 @@ WriteINav4MomAssocs::WriteINav4MomAssocs( const std::string& name,
 ///////////////
 WriteINav4MomAssocs::~WriteINav4MomAssocs()
 { 
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" ) ;
 }
 
 /// Athena Algorithm's Hooks
 ////////////////////////////
 StatusCode WriteINav4MomAssocs::initialize()
 {
-  StatusCode sc;
-  MsgStream log( msgSvc(), name() );
-
-  log << MSG::INFO 
-      << "Initializing " << name() << "..." 
-      << endreq;
-
-  // Get pointer to StoreGateSvc and cache it :
-  sc = service( "StoreGateSvc", m_storeGate );
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR 	
-	<< "Unable to retrieve pointer to StoreGateSvc"
-	<< endreq;
-    return sc;
-  }
-  
-  return sc;
+  ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode WriteINav4MomAssocs::finalize()
 {
-  MsgStream log( msgSvc(), name() );
-  log << MSG::INFO 
-      << "Finalizing " << name() << "..." 
-      << endreq;
-
+  ATH_MSG_INFO ( "Finalizing " << name() << "..." ) ;
   return StatusCode::SUCCESS;
 }
 
 StatusCode WriteINav4MomAssocs::execute()
 {  
-  MsgStream log( msgSvc(), name() );
+  ATH_MSG_DEBUG ( "Executing " << name() << "..." ) ;
 
-  log << MSG::DEBUG << "Executing " << name() << "..." 
-      << endreq;
-
-  if ( this->symLink<ElectronContainer,INavigable4MomentumCollection>(m_electronsName).isFailure() ) {
-    log << MSG::ERROR
-	<< "Could not symLink " << m_electronsName << " to INav4Moms !"
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
-
-  if ( this->symLink<JetCollection,INavigable4MomentumCollection>(m_jetsName).isFailure() ) {
-    log << MSG::ERROR
-	<< "Could not symLink " << m_jetsName << " to INav4Moms !"
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( (this->symLink<ElectronContainer,INavigable4MomentumCollection>(m_electronsName)) );
+  
+  ATH_CHECK( (this->symLink<JetCollection,INavigable4MomentumCollection>(m_jetsName)) );
 
   const INavigable4MomentumCollection * jets = 0;
-  if ( m_storeGate->retrieve( jets, m_jetsName ).isFailure() ||
-       0 == jets ) {
-
-    log << MSG::ERROR
-	<< "Could not retrieve INavigable4MomentumCollection at : "
-	<< m_jetsName
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve( jets, m_jetsName ) );
 
   const INavigable4MomentumCollection * electrons = 0;
-  if ( m_storeGate->retrieve( electrons, m_electronsName ).isFailure() ||
-       0 == electrons ) {
-
-    log << MSG::ERROR
-	<< "Could not retrieve INavigable4MomentumCollection at : "
-	<< m_electronsName
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve( electrons, m_electronsName ) );
 
   return buildAssocs( jets, electrons );
 }
@@ -156,54 +105,28 @@ StatusCode
 WriteINav4MomAssocs::buildAssocs( const INavigable4MomentumCollection * coll1,
 				  const INavigable4MomentumCollection * coll2 ) const
 {
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "in buildINav4MomAssocs..." << endreq;
+  ATH_MSG_DEBUG ( "in buildINav4MomAssocs..." ) ;
 
   INav4MomAssocs * assocs = new INav4MomAssocs;
-  if ( m_storeGate->record( assocs, m_inavAssocsOutputName ).isFailure() ) {
-    log << MSG::ERROR
-	<< "Could not record INav4MomAssocs at : " << m_inavAssocsOutputName
-	<< endreq;
-    return StatusCode::SUCCESS;
-  }
-  if ( m_storeGate->setConst( assocs ).isFailure() ) {
-    log << MSG::ERROR
-	<< "Could not setConst INav4MomAssocs at : " << m_inavAssocsOutputName
-	<< endreq;
-    return StatusCode::SUCCESS;
-  }
+  ATH_CHECK( evtStore()->record( assocs, m_inavAssocsOutputName ) );
+  ATH_CHECK( evtStore()->setConst( assocs ) );
 
-  INavigable4MomentumCollection::const_iterator end1 = coll1->end();
-  INavigable4MomentumCollection::const_iterator end2 = coll2->end();
-
-  for ( INavigable4MomentumCollection::const_iterator itr1 = coll1->begin();
-	itr1 != end1;
-	++itr1 ) {
-    for ( INavigable4MomentumCollection::const_iterator itr2 = coll2->begin();
-	  itr2 != end2;
-	  ++itr2 ) {
-      assocs->addAssociation( coll1, *itr1, coll2, *itr2 );
-      if ( log.level() <= MSG::DEBUG ) {
-	log << MSG::DEBUG
-	    << "Assoc: [jet-ele] ene= " 
-	    << (*itr1)->e() / CLHEP::GeV
-	    << "\t"
-	    << (*itr2)->e() / CLHEP::GeV
-	    << endreq;
-      }
+  for (const INavigable4Momentum* m1 : *coll1) {
+    for (const INavigable4Momentum* m2 : *coll2) {
+      assocs->addAssociation( coll1, m1, coll2, m2 );
+      ATH_MSG_DEBUG ( "Assoc: [jet-ele] ene= " 
+                      << m1->e() / CLHEP::GeV
+                      << "\t"
+                      << m2->e() / CLHEP::GeV ) ;
     }//> end loop over electrons
   }//> end loop over jets
 
-  log << MSG::DEBUG << "Print content of association map: [INav4MomAssocs]" 
-      << endreq;
   INav4MomAssocs::object_iterator objEnd = assocs->endObject();
   for ( INav4MomAssocs::object_iterator objItr = assocs->beginObject();
 	objItr != objEnd;
 	++objItr ) {
-    log << MSG::INFO
-	<< "--> e= " << (*objItr)->e() / CLHEP::GeV
-	<< "\tnAssocs= " << assocs->getNumberOfAssociations(objItr)
-	<< endreq;
+    ATH_MSG_INFO ( "--> e= " << (*objItr)->e() / CLHEP::GeV
+                   << "\tnAssocs= " << assocs->getNumberOfAssociations(objItr) ) ;
   }
 
   return StatusCode::SUCCESS;

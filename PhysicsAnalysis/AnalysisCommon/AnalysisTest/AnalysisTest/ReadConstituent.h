@@ -11,7 +11,7 @@
   @author Tadashi Maeno
 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
 
 class StoreGateSvc;
@@ -19,7 +19,7 @@ class StoreGateSvc;
 /////////////////////////////////////////////////////////////////////////////
 
 template <class CONT>
-class ReadConstituent : public Algorithm
+class ReadConstituent : public AthAlgorithm
 {
 public:
   ReadConstituent (const std::string& name, ISvcLocator* pSvcLocator);
@@ -32,7 +32,6 @@ protected:
 
   StatusCode accessNtuple();
 
-  StoreGateSvc * m_storeGate;
   NTuple::Tuple* m_ntuplePtr;
 
   // Container key

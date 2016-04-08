@@ -13,19 +13,17 @@ StatusCode Readegamma::userInit()
 
 StatusCode Readegamma::userExec(const egamma *val)
 {
-  MsgStream log(msgSvc(), name());
-
   m_e [m_nCon] = val->e();
 
   // get LAr cluster
   const CaloCluster *cls = val->cluster();
   if (cls == 0)
     {
-      log << MSG::INFO << "Null LArCluster" << endreq;
+      ATH_MSG_INFO ( "Null LArCluster" ) ;
     }
   else
     {
-      log << MSG::INFO << "LArCluster eta0: " << cls->eta0() << endreq;
+      ATH_MSG_INFO ( "LArCluster eta0: " << cls->eta0() ) ;
     }
 
   // get TrackParticle
@@ -33,11 +31,11 @@ StatusCode Readegamma::userExec(const egamma *val)
   tp = val->trackParticle();
   if (tp == 0)
     {
-      log << MSG::INFO << "Null TrackParticle" << endreq;
+      ATH_MSG_INFO ( "Null TrackParticle" ) ;
     }
   else
     {
-      log << MSG::INFO << "TrackParticle charge: " << tp->charge() << endreq;
+      ATH_MSG_INFO ( "TrackParticle charge: " << tp->charge() ) ;
     }
 
   return StatusCode::SUCCESS;
