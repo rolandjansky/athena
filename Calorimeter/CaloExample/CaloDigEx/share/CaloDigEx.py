@@ -11,20 +11,20 @@ jobproperties.AthenaCommonFlags.PoolRDOOutput.set_Value_and_Lock('CaloDigEx.pool
 #--------------------------------------------------------------
 # Digitiziation and Pileup configuration
 #--------------------------------------------------------------
-from Digitization.DigitizationFlags import jobproperties
-# jobproperties.Digitization.doMinimumBias=True
-# jobproperties.Digitization.numberOfCollisions=2.3
-# jobproperties.Digitization.minBiasInputCols=["", "", "" ]
-# jobproperties.Digitization.doCavern=True
-# jobproperties.Digitization.cavernInputCols=["",""]
+from Digitization.DigitizationFlags import digitizationFlags
+# digitizationFlags.doMinimumBias=True
+# digitizationFlags.numberOfCollisions=2.3
+# digitizationFlags.minBiasInputCols=["", "", "" ]
+# digitizationFlags.doCavern=True
+# digitizationFlags.cavernInputCols=["",""]
 #
-jobproperties.Digitization.overrideMetadata=['ALL']
-
+digitizationFlags.overrideMetadata=['ALL']
+digitizationFlags.IOVDbGlobalTag='OFLCOND-SDR-BS7T-05-14'
 #--------------------------------------------------------------
 # Global flags. Like eg the DD version:
 #--------------------------------------------------------------
-from G4AtlasApps.SimFlags import SimFlags  
-SimFlags.SimLayout='ATLAS-GEO-16-00-00' 
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetDescrVersion='ATLAS-GEO-16-00-00'
 
 #--------------------------------------------------------------------
 # DetFlags. Use to turn on/off individual subdetector or LVL1 trigger
