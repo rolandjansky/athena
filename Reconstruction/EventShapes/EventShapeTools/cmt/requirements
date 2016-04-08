@@ -11,6 +11,7 @@ use JetInterface        JetInterface-*          Reconstruction/Jet
 private
 use xAODEventShape       xAODEventShape-*       Event/xAOD
 use AtlasReflex          AtlasReflex-*          External
+use AthenaBaseComps      AthenaBaseComps-*      Control
 end_private
 
 apply_pattern dual_use_library files="../Root/*.cxx *.cxx"

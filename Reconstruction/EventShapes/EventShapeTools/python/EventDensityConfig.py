@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from EventShapeTools.EventShapeToolsConf import EventDensityTool, EventShapeCopier
+from EventShapeTools.EventShapeToolsConf import EventDensityTool, EventShapeCopier, EventDensityAthAlg
+import logging
+edLogger = logging.getLogger( "EventDensityConfig" )   
 
 def configEventDensityTool( name, pjGetter, radius, **options ):
     """ options can be used to pass any EventDensityTool properties 
@@ -39,42 +41,50 @@ def configEventShapeCopierAlg( input ):
 
 
 ## EventDensity Alg for Athena
-import AthenaCommon.SystemOfUnits as Units
-import AthenaPython.PyAthena as PyAthena
-from AthenaPython.PyAthena import StatusCode
-class EventDensityAlg (PyAthena.Alg):
-    'put some documentation here'
-    def __init__(self, name='EventDensityAlg', **kw):
-        ## init base class
-        kw['name'] = name
-        super(EventDensityAlg, self).__init__(**kw)
 
-        self.EventDensityTool = kw.get('EventDensityTool', None)
-        ## properties and data members
-        #self.foo = kw.get('foo', 10) # default value
-        return
+def EventDensityAlg(name, EventDensityTool=None, **args):
+    edLogger.warning("When instantiating "+name+" : call of EventDensityAlg is deprecated")
+    edLogger.warning("  please use EventDensityAthAlg (from  EventShapeTools.EventShapeToolsConf import EventDensityAthAlg) ")
+    alg = EventDensityAthAlg(name,EventDensityTool=EventDensityTool, **args)
+    return alg
 
-    def initialize(self):
-        self.msg.info('==> initialize...')
-        tools = self.EventDensityTool
-        if not isinstance( tools, list):
-            tools = [tools]
+                    
+## import AthenaCommon.SystemOfUnits as Units
+## import AthenaPython.PyAthena as PyAthena
+## from AthenaPython.PyAthena import StatusCode
+## class EventDensityAlg (PyAthena.Alg):
+##     'put some documentation here'
+##     def __init__(self, name='EventDensityAlg', **kw):
+##         ## init base class
+##         kw['name'] = name
+##         super(EventDensityAlg, self).__init__(**kw)
 
-        self.edTools = [PyAthena.py_tool(t.getFullName(), iface='IEventShapeTool') for t in  tools ]
-        self.msg.info(" using density tools : %s"%( self.edTools, ) )
+##         self.EventDensityTool = kw.get('EventDensityTool', None)
+##         ## properties and data members
+##         #self.foo = kw.get('foo', 10) # default value
+##         return
 
-        return StatusCode.Success
+##     def initialize(self):
+##         self.msg.info('==> initialize...')
+##         tools = self.EventDensityTool
+##         if not isinstance( tools, list):
+##             tools = [tools]
 
-    def execute(self):
-        self.msg.debug('==> executing ...')
-        for t in self.edTools:
-            sc = t.fillEventShape()
-            if not sc.isSuccess():
-                self.msg.error(" Error while computing density with tool %s "%(t.name(),))
-                return StatusCode.Recoverable
-        return StatusCode.Success
+##         self.edTools = [PyAthena.py_tool(t.getFullName(), iface='IEventShapeTool') for t in  tools ]
+##         self.msg.info(" using density tools : %s"%( self.edTools, ) )
+
+##         return StatusCode.Success
+
+##     def execute(self):
+##         self.msg.debug('==> executing ...')
+##         for t in self.edTools:
+##             sc = t.fillEventShape()
+##             if not sc.isSuccess():
+##                 self.msg.error(" Error while computing density with tool %s "%(t.name(),))
+##                 return StatusCode.Recoverable
+##         return StatusCode.Success
 
 
-    def finalize(self):
-        self.msg.info('==> finalize...')
-        return StatusCode.Success
+##     def finalize(self):
+##         self.msg.info('==> finalize...')
+##         return StatusCode.Success
