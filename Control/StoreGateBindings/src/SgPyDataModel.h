@@ -22,6 +22,7 @@
 extern CLID PyCLID;
 
 // SGTools includes
+#include "CxxUtils/unordered_map.h" // move to STL once available
 #include "SGTools/DataBucketBase.h"
 #include "SGTools/BaseInfo.h"
 
@@ -33,8 +34,6 @@ extern CLID PyCLID;
 
 // PyROOT includes
 #include "AthenaPyRoot.h"
-
-#include <unordered_map>
 
 // fwd declares
 namespace SG { struct PyProxyMgr; }
@@ -196,11 +195,11 @@ namespace SG {
     /// a dictionary of 'typename' -> CLID (and reverse CLID->'typename')
     PyObject* m_clids;
 
-    typedef std::unordered_map<StoreGateSvc*,SG::PyProxyDict*> PyProxyMap_t;
+    typedef SG::unordered_map<StoreGateSvc*,SG::PyProxyDict*> PyProxyMap_t;
     PyProxyMap_t m_proxyMap;
     
     /// a dictionary of CLID -> reflex typename
-    typedef std::unordered_map<CLID, std::string> ClidMap_t;
+    typedef SG::unordered_map<CLID, std::string> ClidMap_t;
     ClidMap_t m_clidMap;
 
     static

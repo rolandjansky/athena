@@ -16,6 +16,7 @@
 #include "AthenaKernel/IThinningSvc.h"
 
 // SGTools includes
+#include "CxxUtils/unordered_map.h" // move to STL once available
 #include "SGTools/DataBucketBase.h"
 #include "SGTools/BaseInfo.h"
 
