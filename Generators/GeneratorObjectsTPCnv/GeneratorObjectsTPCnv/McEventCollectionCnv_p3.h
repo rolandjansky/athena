@@ -4,12 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// McEventCollectionCnv_p3.h 
+// McEventCollectionCnv_p3.h
 // Header file for class McEventCollectionCnv_p3
 // Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-#ifndef GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H 
-#define GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H 
+///////////////////////////////////////////////////////////////////
+#ifndef GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H
+#define GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H
 
 // STL includes
 
@@ -34,24 +34,23 @@
 
 // Forward declaration
 class MsgStream;
-class StoreGateSvc;
 namespace HepMC { struct DataPool; }
 
 class McEventCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
-                                          McEventCollection, 
-			                  McEventCollection_p3
-                                       >  
-{ 
+                                          McEventCollection,
+                                          McEventCollection_p3
+                                       >
+{
 
-  typedef T_AthenaPoolTPCnvBase<McEventCollection, 
-				McEventCollection_p3> Base_t;
+  typedef T_AthenaPoolTPCnvBase<McEventCollection,
+                                McEventCollection_p3> Base_t;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
+  ///////////////////////////////////////////////////////////////////
+  // Public methods:
+  ///////////////////////////////////////////////////////////////////
+ public:
 
-  /** Default constructor: 
+  /** Default constructor:
    */
   McEventCollectionCnv_p3();
 
@@ -67,74 +66,60 @@ class McEventCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
    */
   virtual ~McEventCollectionCnv_p3();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
+  ///////////////////////////////////////////////////////////////////
+  // Const methods:
   ///////////////////////////////////////////////////////////////////
 
   /** Method creating the transient representation of @c McEventCollection
    *  from its persistent representation @c McEventCollection_p3
    */
-  virtual void persToTrans( const McEventCollection_p3* persObj, 
-			    McEventCollection* transObj, 
-			    MsgStream &log ) ;
+  virtual void persToTrans( const McEventCollection_p3* persObj,
+                            McEventCollection* transObj,
+                            MsgStream &log ) ;
 
   /** Method creating the persistent representation @c McEventCollection_p3
    *  from its transient representation @c McEventCollection
    */
-  virtual void transToPers( const McEventCollection* transObj, 
-			    McEventCollection_p3* persObj, 
-			    MsgStream &log ) ;
+  virtual void transToPers( const McEventCollection* transObj,
+                            McEventCollection_p3* persObj,
+                            MsgStream &log ) ;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected method: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
+  ///////////////////////////////////////////////////////////////////
+  // Protected method:
+  ///////////////////////////////////////////////////////////////////
+ protected:
 
   typedef SG::unordered_map<HepMC::GenParticle*,int> ParticlesMap_t;
 
   /** @brief Create a transient @c GenVertex from a persistent one (version 1)
-   *  It returns the new @c GenVertex. 
+   *  It returns the new @c GenVertex.
    *  This method calls @c createGenParticle for each of the out-going
    *  particles and only for the in-going particle which are orphans (no
    *  production vertex): for optimisation purposes.
-   *  Note that the map being passed as an argument is to hold the association 
+   *  Note that the map being passed as an argument is to hold the association
    *  of barcodes to particle so that we can reconnect all the (non-orphan)
    *  particles to their decay vertex (if any).
    */
-  HepMC::GenVertex* 
+  HepMC::GenVertex*
   createGenVertex( const McEventCollection_p3& persEvts,
-		   const GenVertex_p3& vtx,
-		   ParticlesMap_t& bcToPart ) const;
+                   const GenVertex_p3& vtx,
+                   ParticlesMap_t& bcToPart,
+                   HepMC::DataPool* datapools ) const;
 
   /** @brief Create a transient @c GenParticle from a persistent one (vers.1)
    *  It returns the new @c GenParticle. Note that the map being passed as an
    *  argument is to hold the association of barcodes to particle so that
    *  we can reconnect all the particles to their decay vertex (if any).
    */
-  HepMC::GenParticle* 
+  HepMC::GenParticle*
   createGenParticle( const GenParticle_p3& p,
-		     ParticlesMap_t& partToEndVtx ) const;
+                     ParticlesMap_t& partToEndVtx,
+                     HepMC::DataPool* datapools ) const;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
-  /// a PIMPL idiom to hide the DataPools (and their specialized destructors)
-  /// from the outside world
-  HepMC::DataPool* m_pool;
-}; 
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-template<>
-class T_TPCnv<McEventCollection, McEventCollection_p3>
-  : public McEventCollectionCnv_p3
-{
-public:
 };
 
-#endif //> GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H
+///////////////////////////////////////////////////////////////////
+/// Inline methods:
+///////////////////////////////////////////////////////////////////
 
+#endif //> GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H

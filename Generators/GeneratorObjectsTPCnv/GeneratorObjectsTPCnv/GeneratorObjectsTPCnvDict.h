@@ -29,27 +29,16 @@
 #include "GeneratorObjectsTPCnv/GenVertex_p3.h"
 #include "GeneratorObjectsTPCnv/GenEvent_p3.h"
 #include "GeneratorObjectsTPCnv/McEventCollection_p3.h"
-#include "GeneratorObjectsTPCnv/McEventCollectionCnv_p3.h"
 
 #include "GeneratorObjectsTPCnv/GenParticle_p4.h"
 #include "GeneratorObjectsTPCnv/GenVertex_p4.h"
 #include "GeneratorObjectsTPCnv/GenEvent_p4.h"
 #include "GeneratorObjectsTPCnv/McEventCollection_p4.h"
-#include "GeneratorObjectsTPCnv/McEventCollectionCnv_p4.h"
 
 #include "GeneratorObjectsTPCnv/GenParticle_p5.h"
 #include "GeneratorObjectsTPCnv/GenVertex_p5.h"
 #include "GeneratorObjectsTPCnv/GenEvent_p5.h"
 #include "GeneratorObjectsTPCnv/McEventCollection_p5.h"
-#include "GeneratorObjectsTPCnv/McEventCollectionCnv_p5.h"
-
-namespace GeneratorObjectsTPCnvDict_tmp {
-
-struct tmp {
-  T_TPCnv<McEventCollection, McEventCollection_p5> m_mceventcoll_p5;
-};
-
-} // end namespace GeneratorObjectsTPCnvDict_tmp
 
 #endif // GENERATOROBJECTSTPCNV_GENERATOROBJECTSTPCNVDICT_H
 
