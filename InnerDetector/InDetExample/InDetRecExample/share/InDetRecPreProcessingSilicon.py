@@ -210,6 +210,9 @@ if InDetFlags.doSpacePointFormation():
    from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
    InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool")
 
+   if InDetFlags.doSLHC():
+      InDetSiSpacePointMakerTool.SCTGapParameter = 0.0015
+
    if InDetFlags.doCosmics() or InDetFlags.doBeamHalo():
       InDetSiSpacePointMakerTool.StripLengthTolerance       = 0.05
       InDetSiSpacePointMakerTool.UsePerpendicularProjection = True
