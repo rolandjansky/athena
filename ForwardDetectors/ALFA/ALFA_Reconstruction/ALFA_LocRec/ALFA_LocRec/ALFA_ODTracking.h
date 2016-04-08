@@ -21,7 +21,6 @@
 #include "ALFA_LocRec/ALFA_UserObjects.h"
 #include "ALFA_Geometry/ALFA_constants.h"
 
-using namespace std;
 
 class ALFA_ODTracking
 {
@@ -36,18 +35,18 @@ class ALFA_ODTracking
 		Int_t m_iFibSel[ODSIDESCNT][ODPLATESCNT];
 
 	private:
-		list<ODRESULT> m_listResults;
+		std::list<ODRESULT> m_listResults;
 
 	public:
 		StatusCode Initialize(Int_t fMultiplicityCut, Float_t fDistanceCut, Int_t iLayerCut, Int_t iDataType);
-		StatusCode Execute(Int_t iRPot, const list<ODHIT> &ListODHits, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT]);
-		StatusCode Finalize(list<ODRESULT>* pListResults);
+		StatusCode Execute(Int_t iRPot, const std::list<ODHIT> &ListODHits, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT]);
+		StatusCode Finalize(std::list<ODRESULT>* pListResults);
 
 		void GetData(Int_t (&iFibSel)[ODSIDESCNT][ODPLATESCNT]);
 
 	private:
-		void FiberProjection(Int_t iRPot, map<int, FIBERS> &MapLayers, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT]);
-		void FindingPosition(Int_t iRPot, map<int, FIBERS> &MapLayers, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT]);
+		void FiberProjection(Int_t iRPot, std::map<int, FIBERS> &MapLayers, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT]);
+		void FindingPosition(Int_t iRPot, std::map<int, FIBERS> &MapLayers, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT]);
 
 public:
 	/// Log a message using the Athena controlled logging system

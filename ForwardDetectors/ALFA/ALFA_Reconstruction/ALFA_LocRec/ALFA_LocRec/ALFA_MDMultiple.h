@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -30,6 +31,8 @@ class ALFA_MDMultiple
 {
 	public:
 		ALFA_MDMultiple();
+		ALFA_MDMultiple(const ALFA_MDMultiple &obj);
+		ALFA_MDMultiple& operator=(const ALFA_MDMultiple &obj);
 		~ALFA_MDMultiple();
 
 	private:
@@ -39,11 +42,11 @@ class ALFA_MDMultiple
 		Int_t m_iNumLayerCut;
 		Float_t m_fOverlapCut;
 
-		//slope, offset and Z-pos for MD fibers [2*10][64]
+		//slope, offset and Z-pos for MD fibers [8][2*10][64]
 		Float_t m_faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT];
 		Float_t m_fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT];
 
-		//number of hits in the layer
+		//number of hits in the layer [2*10]
 		Int_t m_iNumHitsLayer[ALFALAYERSCNT*ALFAPLATESCNT];
 
 //		Int_t m_iTrackMatch[MAXTRACKNUM][2];
@@ -56,18 +59,18 @@ class ALFA_MDMultiple
 //		Float_t m_fOvU[MAXTRACKNUM];
 //		Float_t m_fOvV[MAXTRACKNUM];
 
-		vector<Float_t> *m_fRecXPos, *m_fRecYPos;
-		vector<Float_t> *m_fOvU, *m_fOvV;
-		vector<Int_t>   *m_iNU, *m_iNV;
-		vector<Int_t>   *m_iFibSel[ALFALAYERSCNT*ALFAPLATESCNT];
-		vector<Int_t>   *m_iTrackMatch[2];
+		std::vector<Float_t> *m_fRecXPos, *m_fRecYPos;
+		std::vector<Float_t> *m_fOvU, *m_fOvV;
+		std::vector<Int_t>   *m_iNU, *m_iNV;
+		std::vector<Int_t>   *m_iFibSel[ALFALAYERSCNT*ALFAPLATESCNT];
+		std::vector<Int_t>   *m_iTrackMatch[2];
 
 	private:
-		map<int, FIBERS> m_MapLayers;
+		std::map<int, FIBERS> m_MapLayers;
 
 	public:
 		StatusCode Initialize(Int_t iRPot, Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Int_t iMultiplicityCut, Int_t iNumLayerCut, Int_t iUVCut, Float_t fOverlapCut);
-		StatusCode Execute(const list<MDHIT> &ListMDHits);
+		StatusCode Execute(const std::list<MDHIT> &ListMDHits);
 		StatusCode Finalize(Float_t (&fRecXPos)[MAXTRACKNUM], Float_t (&fRecYPos)[MAXTRACKNUM]);
 
 		void GetData(Int_t (&iNumU)[MAXTRACKNUM], Int_t (&iNumV)[MAXTRACKNUM], Float_t (&fOvU)[MAXTRACKNUM], Float_t (&fOvV)[MAXTRACKNUM], Int_t (&iFibSel)[MAXTRACKNUM][ALFALAYERSCNT*ALFAPLATESCNT]);
@@ -77,11 +80,11 @@ class ALFA_MDMultiple
 		void Proj_Store(std::vector<Int_t> FiberHit[ALFAPLATESCNT], Int_t (&iOver)[72000], Float_t fbRef, Int_t iSideFlag);
 		void Find_Proj(Int_t iOver[72000], Float_t fbRef, Float_t &fb, Float_t &fOv, Int_t &fNum);
 		void Finding_Fib(Int_t iFiberSide, Float_t fbRef, Float_t fbRec, Int_t (&iFSel)[ALFAPLATESCNT], Int_t iSideFlag);
-		void Reco_Track(vector<double> &b_p, vector<double> &b_n,
-						vector<double> &Ov_p, vector<double> &Ov_n,
-						vector<int> &Num_p, vector<int> &Num_n,
-						vector<int> (&FSel_n)[ALFAPLATESCNT], vector<int> (&FSel_p)[ALFAPLATESCNT],
-						vector<int> (&Track_match)[2]);
+		void Reco_Track(std::vector<double> &b_p, std::vector<double> &b_n,
+						std::vector<double> &Ov_p, std::vector<double> &Ov_n,
+						std::vector<int> &Num_p, std::vector<int> &Num_n,
+						std::vector<int> (&FSel_n)[ALFAPLATESCNT], std::vector<int> (&FSel_p)[ALFAPLATESCNT],
+						std::vector<int> (&Track_match)[2]);
 
 public:
 	/// Log a message using the Athena controlled logging system

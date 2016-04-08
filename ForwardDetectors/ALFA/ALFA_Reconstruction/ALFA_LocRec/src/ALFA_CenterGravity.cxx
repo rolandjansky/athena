@@ -3,6 +3,7 @@
 */
 
 #include "ALFA_LocRec/ALFA_CenterGravity.h"
+using namespace std;
 
 ALFA_CenterGravity::ALFA_CenterGravity()
 {
@@ -35,7 +36,7 @@ ALFA_CenterGravity::~ALFA_CenterGravity()
 
 }
 
-StatusCode ALFA_CenterGravity::Initialize(const eRPotName &eRPName, const list<MDHIT> &ListMDHits, Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fzMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT])
+StatusCode ALFA_CenterGravity::Initialize(const eRPotName &eRPName, const std::list<MDHIT> &ListMDHits, Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fzMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT])
 {
 	m_iRPot = eRPName - 1;
 	m_ListMDHits = ListMDHits;
@@ -137,11 +138,11 @@ StatusCode ALFA_CenterGravity::SelectHitInLayer()
 	Float_t fTheta  = 0;
 
 	FIBERS structFibers;
-	map<int, FIBERS> mapLayers;
+	std::map<int, FIBERS> mapLayers;
 	mapLayers.clear();
-	list<int>::iterator iterFiber;
+	std::list<int>::iterator iterFiber;
 
-	list<MDHIT>::const_iterator iter;
+	std::list<MDHIT>::const_iterator iter;
 	for (iter=m_ListMDHits.begin(); iter!=m_ListMDHits.end(); iter++)
 	{
 		if (m_iRPot == (*iter).iRPot)
@@ -150,7 +151,7 @@ StatusCode ALFA_CenterGravity::SelectHitInLayer()
 			{
 				structFibers.ListFibers.clear();
 
-				mapLayers.insert(pair<int, FIBERS>((*iter).iPlate, structFibers));
+				mapLayers.insert(std::pair<int, FIBERS>((*iter).iPlate, structFibers));
 				mapLayers[(*iter).iPlate].ListFibers.push_back((*iter).iFiber);
 			}
 			else

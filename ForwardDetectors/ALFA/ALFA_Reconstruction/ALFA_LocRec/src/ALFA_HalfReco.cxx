@@ -20,7 +20,7 @@ ALFA_HalfReco::ALFA_HalfReco()
 //	memset(&m_iNumHitsLayer, 0, sizeof(m_iNumHitsLayer));
 
 	memset(&m_fhits, 0, sizeof(m_fhits));
-	fill_n(m_fhits, sizeof(m_fhits)/sizeof(Int_t), -9999);
+	std::fill_n(m_fhits, sizeof(m_fhits)/sizeof(Int_t), -9999);
 
 	m_iNumU = 0;
 	m_iNumV = 0;
@@ -61,7 +61,7 @@ StatusCode ALFA_HalfReco::Initialize(Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPL
 	return StatusCode::SUCCESS;
 }
 
-StatusCode ALFA_HalfReco::Execute(Int_t iRPot, const list<MDHIT> &ListMDHits)
+StatusCode ALFA_HalfReco::Execute(Int_t iRPot, const std::list<MDHIT> &ListMDHits)
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::Execute()");
 	ATH_MSG_DEBUG("ALFA_HalfReco::Execute()");
@@ -73,7 +73,7 @@ StatusCode ALFA_HalfReco::Execute(Int_t iRPot, const list<MDHIT> &ListMDHits)
 	m_iRPot = iRPot;
 	m_MapLayers.clear();
 
-	list<MDHIT>::const_iterator iter;
+	std::list<MDHIT>::const_iterator iter;
 	for (iter=ListMDHits.begin(); iter!=ListMDHits.end(); iter++)
 	{
 		if (iRPot == (*iter).iRPot)
@@ -81,7 +81,7 @@ StatusCode ALFA_HalfReco::Execute(Int_t iRPot, const list<MDHIT> &ListMDHits)
 			if(m_MapLayers.find((*iter).iPlate)==m_MapLayers.end())
 			{
 				structFibers.ListFibers.clear();
-				m_MapLayers.insert(pair<int, FIBERS>((*iter).iPlate, structFibers));
+				m_MapLayers.insert(std::pair<int, FIBERS>((*iter).iPlate, structFibers));
 				m_MapLayers[(*iter).iPlate].ListFibers.push_back((*iter).iFiber);
 			}
 			else
@@ -112,7 +112,7 @@ StatusCode ALFA_HalfReco::Execute(Int_t iRPot, const list<MDHIT> &ListMDHits)
 	m_fOvV      = -9999.0;
 
 	memset(&m_fhits, 0, sizeof(m_fhits));
-	fill_n(m_fhits, sizeof(m_fhits)/sizeof(Int_t), -9999);
+	std::fill_n(m_fhits, sizeof(m_fhits)/sizeof(Int_t), -9999);
 
 	if (iNumUFiberHits>=m_iUVCut && iNumVFiberHits>=m_iUVCut) OverLap();
 
@@ -180,7 +180,7 @@ void ALFA_HalfReco::HistFill(Float_t &b_p, Float_t &b_n, Float_t &Ov_p, Float_t 
 		Over_n[i]=0;
 	}
 
-	list<int>::iterator intIter;
+	std::list<int>::iterator intIter;
 //for(Int_t i=half_ch*10;i<half_ch*10+10;i++)
 	for (Int_t iLayer = ALFAPLATESCNT*m_iHalf; iLayer < m_iHalf*ALFAPLATESCNT+ALFAPLATESCNT; iLayer++)
 	{
@@ -217,8 +217,8 @@ void ALFA_HalfReco::HistFill(Float_t &b_p, Float_t &b_n, Float_t &Ov_p, Float_t 
 	NumU=0;
 	NumV=0;
 
-	vector<int> *max_p = new vector<int>;
-	vector<int> *max_n = new vector<int>;
+	std::vector<int> *max_p = new std::vector<int>;
+	std::vector<int> *max_n = new std::vector<int>;
 
 	for (Int_t i=0;i<72000;i++)
 	{
@@ -380,7 +380,7 @@ void ALFA_HalfReco::OverLap()
 
 	Float_t OL_U, OL_V;
 
-	list<int>::iterator intIter;
+	std::list<int>::iterator intIter;
 	if (b_mean_p!=-9999.0 && b_mean_n!=-9999.0)
 	{
 		m_fRecXPos = (b_mean_n-b_mean_p)/2.0;

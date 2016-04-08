@@ -26,9 +26,6 @@
 #include "ALFA_LocRec/ALFA_UserObjects.h"
 
 
-using namespace std;
-
-
 class ALFA_CenterGravity
 {
 	public:
@@ -73,7 +70,7 @@ class ALFA_CenterGravity
 		TH2D* histV_PT;
 
 	private:
-		list<MDHIT> m_ListMDHits;
+		std::list<MDHIT> m_ListMDHits;
 
 	public:
 
@@ -88,7 +85,7 @@ class ALFA_CenterGravity
 
 
 	public:
-		StatusCode Initialize(const eRPotName &eRPName, const list<MDHIT> &ListMDHits, Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fzMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT]);
+		StatusCode Initialize(const eRPotName &eRPName, const std::list<MDHIT> &ListMDHits, Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fzMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT]);
 		StatusCode Execute();
 		StatusCode Finalize(Float_t &fRecXPos, Float_t &fRecYPos);
 
