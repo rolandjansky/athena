@@ -2,13 +2,13 @@ package AtlasSealCLHEP
 
 author RD Schaffer <R.D.Schaffer@cern.ch>
 
-use AtlasPolicy AtlasPolicy-01-*
-use AtlasCLHEP  AtlasCLHEP-00-* External
-use AthenaPoolServices  AthenaPoolServices-00-*   Database/AthenaPOOL
+use AtlasPolicy AtlasPolicy-*
+use AtlasCLHEP  AtlasCLHEP-* External
+use AthenaPoolServices  AthenaPoolServices-*   Database/AthenaPOOL
 
 
 private
-use AtlasReflex   AtlasReflex-00-*   External -no_auto_imports
+use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 
 
 apply_pattern installed_library
