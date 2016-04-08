@@ -285,20 +285,20 @@ namespace Trk {
 
       const TrackStateOnSurface* tsos = *itsos;
       msg<<"ntsos "<<ntsos<<":"<<", type "<<tsos->dumpType();
-      //msg << " perigee center of this TSOS: "<< tsos->trackParameters()->associatedSurface()->center() << endmsg;
+      //msg << " perigee center of this TSOS: "<< tsos->trackParameters()->associatedSurface()->center() << endreq;
 
       if (tsos->type(TrackStateOnSurface::Perigee)) 
-        msg << ", Perigee"<<endmsg;
+        msg << ", Perigee"<<endreq;
 
       else if (tsos->type(TrackStateOnSurface::Outlier))
-        msg << ", Outlier"<<endmsg;
+        msg << ", Outlier"<<endreq;
 
       else if ( !tsos->type(TrackStateOnSurface::Scatterer) &&
                 !tsos->type(TrackStateOnSurface::InertMaterial)) {
         if ( tsos->fitQualityOnSurface()!=0) 
-          msg << "," << *( tsos->fitQualityOnSurface() )<<endmsg;
+          msg << "," << *( tsos->fitQualityOnSurface() )<<endreq;
         else
-          msg << ", no FitQuality!"<<endmsg;
+          msg << ", no FitQuality!"<<endreq;
       }
 
       else {
@@ -309,14 +309,14 @@ namespace Trk {
         if (meot) {
           msg<<", meot";
           if (meot->scatteringAngles()) 
-            msg<<", have angles"<<endmsg;
+            msg<<", have angles"<<endreq;
           else
-            msg<<", no angles"<<endmsg;
+            msg<<", no angles"<<endreq;
         }
         else if (tsos->type(TrackStateOnSurface::InertMaterial))
-          msg<<", InertMaterial"<<endmsg;
+          msg<<", InertMaterial"<<endreq;
         else
-          msg << ", hmm... no material effects on track!"<<endmsg;
+          msg << ", hmm... no material effects on track!"<<endreq;
       }
     }
   }
@@ -324,7 +324,7 @@ namespace Trk {
   //________________________________________________________________________
   void AlignTrack::dump(MsgStream& msg) 
   {
-    msg<<"dumping AlignTrack"<<endmsg;
+    msg<<"dumping AlignTrack"<<endreq;
     double chi2=0.;
     int imeas(1);
     if (m_alignTSOSCollection) {
@@ -338,12 +338,12 @@ namespace Trk {
           chi2 += resNorm*resNorm;
           //msg<<"resNorm="<<resNorm
           //   <<", errorMat("<<imeas<<")="<<(*m_localErrorMat)(imeas,imeas)
-          //   <<endmsg;
+          //   <<endreq;
         }
-        msg<<"iatsos "<<iatsos<<", chi2="<<chi2<<*atsos<<endmsg;
+        msg<<"iatsos "<<iatsos<<", chi2="<<chi2<<*atsos<<endreq;
       }
     }
-    msg<<"total chi2: "<<m_chi2<<endmsg;
+    msg<<"total chi2: "<<m_chi2<<endreq;
   }
 
   //________________________________________________________________________

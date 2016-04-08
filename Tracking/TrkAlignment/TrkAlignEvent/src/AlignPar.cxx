@@ -10,20 +10,20 @@ namespace Trk {
   MsgStream& operator << (MsgStream& sl, const AlignPar& ap) 
   {
     sl << "alignPar type : " << std::setw(10) << ap.dumpType()
-       << "(" << ap.paramType() << " ) : " << &ap << endmsg;
+       << "(" << ap.paramType() << " ) : " << &ap << endreq;
     sl << "   init par: " << std::setw(6) << std::showpos << std::fixed 
        << ap.initPar()<<" +/- "<<std::noshowpos << ap.initErr() 
-       <<   resetiosflags(std::ios::floatfield) << endmsg;
+       <<   resetiosflags(std::ios::floatfield) << endreq;
     sl << "        par: "<< std::showpos << ap.par() << " +/- "
-       << std::noshowpos << ap.err() << endmsg;
+       << std::noshowpos << ap.err() << endreq;
     sl << "  final par: "<< std::showpos << ap.finalPar() << " +/- "
-       << std::noshowpos << ap.finalErr() << endmsg;
-    sl << "      sigma: "<< ap.sigma() << endmsg; 
-    sl << "   soft-cut: "<< ap.softCut() << endmsg; 
+       << std::noshowpos << ap.finalErr() << endreq;
+    sl << "      sigma: "<< ap.sigma() << endreq; 
+    sl << "   soft-cut: "<< ap.softCut() << endreq; 
     sl << "  first drv: "<< std::showpos << ap.firstDeriv()
-       << std::noshowpos << endmsg;
+       << std::noshowpos << endreq;
     sl << "  secnd drv: "<< std::showpos << ap.secndDeriv()
-       << std::noshowpos << endmsg;
+       << std::noshowpos << endreq;
     return sl; 
   } 
   
