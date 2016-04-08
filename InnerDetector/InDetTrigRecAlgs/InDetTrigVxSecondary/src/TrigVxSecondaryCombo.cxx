@@ -49,7 +49,7 @@ namespace InDet {
     m_nVxSecVertexInfo(0),
     m_nVxSecVertexInfoContainers(0) {
     
-    declareProperty("PriVtxKey",            m_priVtxKey            = "EFHistoPrmVtx");
+    declareProperty("PriVtxKey",            m_priVtxKey            = "xPrimVx"); //"EFHistoPrmVtx"
     declareProperty("SecVtxKey",            m_secVtxKey            = "SecVtxInfo");
     declareProperty("SecVtxFinderList",     m_secVertexFinderToolsHandleArray); //!< Default = InDetVKalVxInJetTool only
     declareProperty("sortSecVxContainer",   m_sortSecVxContainer);
@@ -174,7 +174,7 @@ namespace InDet {
 
     const xAOD::VertexContainer* primaryVxContainer;
 
-    if(HLT::OK != getFeature(prmVtxTE, primaryVxContainer, "EFHistoPrmVtx")) {
+    if(HLT::OK != getFeature(prmVtxTE, primaryVxContainer, m_priVtxKey)) {
       msg() << MSG::ERROR << "Input primary vertex container could not be retreived from input TE" << endreq;
       return HLT::NAV_ERROR;
     }
@@ -698,7 +698,7 @@ namespace InDet {
     // Navigate from the TriggerElement to get the input primary vertex container
     const xAOD::VertexContainer* primaryVxContainer;
     
-    if(HLT::OK != getFeature(outputTE, primaryVxContainer)) {
+    if(HLT::OK != getFeature(outputTE, primaryVxContainer, m_priVtxKey)) {
       msg() << MSG::ERROR << "Input primary vertex container could not be found" << endreq;
       return HLT::NAV_ERROR;
     }
