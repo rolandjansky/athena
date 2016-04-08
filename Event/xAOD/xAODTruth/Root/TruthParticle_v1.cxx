@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TruthParticle_v1.cxx 687313 2015-08-04 12:07:38Z krasznaa $
+// $Id: TruthParticle_v1.cxx 690336 2015-08-20 10:54:57Z abuckley $
 
 // System include(s):
 #include <cmath>
@@ -12,7 +12,7 @@
 #include <stdexcept>
 
 // Utility include(s):
-#include "TruthUtils/PIDUtils.h"
+#include "TruthUtils/PIDHelpers.h"
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
