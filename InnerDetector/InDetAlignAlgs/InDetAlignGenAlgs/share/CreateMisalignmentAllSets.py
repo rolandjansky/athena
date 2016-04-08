@@ -18,5 +18,5 @@ for MisalignmentMode in [12,21,23,31]:
     for file in leftOverFiles:
         os.remove(file)
         
-    os.system("athena.py -c 'MisalignmentMode=%s' jobOptionsCreateMisalignment.py 2>&1 | bzip2 > MisalignmentSet%s.log.bz2" % (MisalignmentMode,MisalignmentMode) )
+    os.system("athena.py -c 'MisalignmentMode=%s' CreateMisalignment.py 2>&1 | bzip2 > MisalignmentSet%s.log.bz2" % (MisalignmentMode,MisalignmentMode) )
     

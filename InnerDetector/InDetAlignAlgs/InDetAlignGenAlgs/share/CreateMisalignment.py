@@ -17,7 +17,7 @@
 ## parameters
 #####################################################################
 
-MisalignmentOnTopOfExistingSet = True
+MisalignmentOnTopOfExistingSet = False
 ReadDBPoolFile = False
 #ReadDBPoolFile = True
 WriteDBPoolFile = True
@@ -26,16 +26,22 @@ ROOToutput = True
 createFreshDB = not(ReadDBPoolFile or MisalignmentOnTopOfExistingSet)
 
 if not 'MisalignmentMode' in dir():
-    MisalignmentMode = 11
+    MisalignmentMode = 3
 
 MaximumShift = 200*micrometer
 if MisalignmentMode in [11, 12,31]:
     MaximumShift = 500*micrometer
 
-InFile = 'NominalAlignment'
+InFile = 'alignment_nominal'
+#InFile = 'NominalAlignment'
 #InFile = 'MisalignmentSet11'
 OutFiles = 'MisalignmentSet%s' % MisalignmentMode
 
+#####################################################################
+
+#from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+#athenaCommonFlags.EvtMax     =  1
+theApp.EvtMax = 2
 #####################################################################
 
 MisalignModeMap = {0:'no Misalignment',
@@ -54,6 +60,31 @@ AlignmentOutFilename = OutFiles + '.pool.root'
 DatabaseFilename     = OutFiles + '.db'
 ASCIIFilename        = OutFiles
 
+
+
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DataSource='geant4'
+from IOVDbSvc.CondDB import conddb
+conddb.setGlobalTag("OFLCOND-RUN12-SDR-14")
+#conddb.addOverride('/Indet/Align','InDetSi_CSCMisaligned_RDeltaPhi_03')
+#conddb.addOverride('/TRT/Align','InDetTRT_CSCMisaligned_RDeltaPhi_03')
+
+# Setup geometry
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.ID_setOn()
+
+# The geometry version does not really matter. Any will do.
+globalflags.DetDescrVersion = 'ATLAS-R2-2015-03-00-00'
+
+
+import AthenaCommon.AtlasUnixGeneratorJob
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+svcMgr.EventSelector.RunNumber         = 222222
+svcMgr.MessageSvc.defaultLimit = 9999999  # all messages
+
+from AtlasGeoModel import GeoModelInit
+from AtlasGeoModel import SetGeometryVersion
+
 from InDetAlignGenTools.InDetAlignGenToolsConf import InDetAlignDBTool
 InDetDBTool = InDetAlignDBTool()
 ToolSvc += InDetDBTool
@@ -65,6 +96,20 @@ print InDetDBTool
 #ToolSvc += TRTDBTool
 #print TRTDBTool
 #FIXME this has moved to the TRTAlignDBService
+
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_AlignDbSvc
+from AthenaCommon.AppMgr import ServiceMgr
+ServiceMgr += TRT_AlignDbSvc(
+    name = "TRT_AlignDbSvc",
+    #StreamTool = TRTCondStream,
+    alignTextFile = "")
+    #alignString = "ALold",
+
+
+## get a handle on the default top-level algorithm sequence
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
 
 print "CreateMisalignAlg: Creation of misalignment mode %s: %s" % (MisalignmentMode,MisalignModeMap.get(MisalignmentMode,'unknown'))
 
@@ -82,14 +127,16 @@ myMisalignAlg = InDetAlignment__CreateMisalignAlg( name = "MyMisalignmentAlg",
                                                     MisalignmentAlpha = 0.,
                                                     MisalignmentBeta = 0.,
                                                     MisalignmentGamma = 0.,
-                                                    ScalePixelBarrel=1.,
-                                                    ScalePixelEndcap=1.,
-                                                    ScaleSCTBarrel=1.,
-                                                    ScaleSCTEndcap=1.,
-                                                    ScaleTRTBarrel=5.,
-                                                    ScaleTRTEndcap=5.,
+                                                    IBLBowingTshift = 1,
+                                                    ScalePixelIBL = 0.1,
+                                                    ScalePixelBarrel=0.1,
+                                                    ScalePixelEndcap=0.1,
+                                                    ScaleSCTBarrel=0.1,
+                                                    ScaleSCTEndcap=0.,
+                                                    ScaleTRTBarrel=0.,
+                                                    ScaleTRTEndcap=0.,
                                                     MaxShift = MaximumShift
-                                                    #, OutputLevel = DEBUG
+                                                    , OutputLevel = DEBUG
                                                  )
 
 topSequence += myMisalignAlg
@@ -144,3 +191,10 @@ if WriteDBPoolFile:
     IOVDbSvc = Service( "IOVDbSvc" )
     #IOVDbSvc.dbConnection = "impl=cool;techno=sqlite;schema=%s;X:COMP200" % DatabaseFilename
     IOVDbSvc.dbConnection = "sqlite://;schema=%s;dbname=COMP200" % (DatabaseFilename)
+
+
+
+# Disable StatusCodeSvc 
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr 
+svcMgr.StatusCodeSvc.SuppressCheck = True
+svcMgr.StatusCodeSvc.AbortOnError = False
