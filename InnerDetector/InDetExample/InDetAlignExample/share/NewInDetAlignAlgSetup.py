@@ -13,6 +13,9 @@
 newInDetAlignAlg_Options = {
     "outputLevel"           : INFO                       #  output level for log messages for all tools and algs
     ,"trackCollection"      : "Tracks"                   #  track collection to process
+    ,"d0significanceCut"    : -1                         #  Cut on d0 significance
+    ,"CorrectD0"            : False                      #  whether to use D0 constraint
+    ,"CorrectZ0"            : False                      #  whether to use Z0 constraint 
     ,"readConstantsFromPool"    : False                  #  whether to read initial alignment constants from pool file
     ,"readSilicon"          : True                       #  whether to read initial Si alignment constants from pool file
     ,"readTRT"          : True                           #  whether to read initial TRT alignment constnats from pool file
@@ -22,9 +25,12 @@ newInDetAlignAlg_Options = {
     ,"writeSilicon"         : True                       #  whether to write final Si constants to pool file
     ,"writeTRT"             : True                           #  whether to write final TRT constants to pool file
     ,"writeTRTL3"           : False                          #  whether to write final TRT L3 constants to pool file    
+    ,"writeIBLDistDB"       : True                          #  whether to write /Indet/IBLDist to db file    
     ,"outputPoolFile"       : "alignment_output.pool.root"       #  pool file to write the final constants
+    ,"outputCoolFile"       : "mycool2.db"               #  cool file to write the final bowing
     ,"tagSi"            : "IndetAlign_test"              #  DB tag to use for final Si constants
     ,"tagTRT"           : "TRTAlign_test"                #  DB tag to use for final TRT constnats
+    ,"tagBow"           : "IndetIBLDist"                 #  DB tag to use for final Bowing constants
     ,"runAccumulate"        : True                       #  whether to run the event/track processing
     ,"runSolving"               : True                           #  whether to run the solving
     ,"runLocal"             : False                          #  whether to runlocal or global Chi2 method
@@ -54,8 +60,8 @@ newInDetAlignAlg_Options = {
     ,"runOutlier"               : True                       #  whether to refit tracks with outlier removal
     ,"particleNumber"           : 3                          #  particle hypothesis to use in the refit
     ,"useTrackSelector"             : True                       #  whether to use track selector
-    ,"writeAlignNtuple"         : False                      #  whether to write an alignment specific ntuple
-    ,"alignNtupleName"              : "newIDalign.root"              #  name of the ntuple file
+    ,"writeAlignNtuple"         : False                       #  whether to write an alignment specific ntuple
+    ,"alignNtupleName"          : "newIDalign.root"          #  name of the ntuple file
     ,"writeDerivatives"             : False                      #  whether to store dr/da in the ntuple
     ,"writeHitmap"              : True                           #  whether to store the hitmap
     ,"writeHitmapTxt"           : True                       #  whether to store the hitmap in a text file
@@ -64,25 +70,38 @@ newInDetAlignAlg_Options = {
     ,"inputHitmapFiles"             : [ "hitmap.bin" ]               #  list of hitmap files when solving only
     ,"readHitmaps"              : True                           #  whether to use the hitmap information when solve only
     ,"doMonitoring"             : True                       #  whether to run the monitoring scripts
+    ,"monitoringName"           : ""                         # apply a monitoring name
     ,"Cosmics"              : False                          #  whether to use special cosmic track selection
     ,"useTRT"               : True                           #  whether to use TRT for track selection
 
-    ,"useOldPreProcessor"           : True                               #  temporary option, new preProcessor with beam-spot constraint is
+    ,"useOldPreProcessor"           : False                               #  temporary option, new preProcessor with beam-spot constraint is
                                                          #  available only from tag TrkAlignGenTools-01-07-08 which didn't
                                                          #  make it into 15.6.9, once in the release, old preProcessor will
                                                          #  be removed
     ,"doBSConstraint"               : False                      #  run with beam-spot constraint
     ,"doPVConstraint"       : False                  #  run with primary vertex constraint
-        ,"doFullVertex"                 : False                              #  run with the full GX vertex constraint
-    ,"doBSTrackSelection"           : True                       #  run BS constraint only for tracks which pass tighter track selection
+    ,"doFullVertex"                 : False                              #  run with the full GX vertex constraint
+    ,"doBSTrackSelection"           : False                       #  run BS constraint only for tracks which pass tighter track selection
     ,"doBSAssociatedToPVSelection"  : False                  #  run BS constraint only for tracks associated to primary vertex
     ,"beamspotScalingFactor"        : 1.                     #  factor to scale the size of the beam spot
+    ,"PtCutForBSConstraint"         : 0.                     #  Max Pt Cut for the BS constraint in order to not clash with the IP constraints
+    ,"MinPtForConstrainedProvider"         : 0.                     #  Max Pt Cut for the BS constraint in order to not clash with the IP constraints
     ,"eoverpmapconstraint"      : ""                                 #  sagitta bias map for momentum constraint(could be E/P or Z->mumu method )
-    ,"z0mapconstraint"      : ""                                 #  z0 bias map for IP constraint
+    ,"eoverpmapconstraintmap"      : ""                                 #  sagitta bias map for momentum constraint(could be E/P or Z->mumu method )
+    ,"z0mapconstraint"      : ""                                 #  z0 bias map file for IP constraint
+    ,"z0mapconstraintmap"      : "z0CorrectionVsEtaPhi"                                 #  z0 bias map name for IP constraint
     ,"d0mapconstraint"      : ""                     #  d0 bias map for IP constraint
-    ,"PtCut"            : 10000                  #  Pt cut for the reconstruction [MeV]
-    ,"BField_AlgSetup"      : True                   #  Used to solve problem reading Bfield with MC cosmics
+    ,"d0mapconstraintmap"      : "d0CorrectionVsEtaPhi"                     #  d0 bias map for IP constraint
+    ,"PtCut"            : 2000                  #  Pt cut for the reconstruction [MeV]
+
+
     ,"doSiHitQualSel"       : False                   #  perform Si hit (pix+sct) quality selection with InDetAlinHitQualSelTool
+    ,"AlignIBLbutNotPixel"  : False		# Set to True to align the IBL but not the Old Pixel (L11).
+    ,"AlignPixelbutNotIBL"  : False		# Set to True to align the Old Pixel but not the IBL (L11).
+    ,"FixMomentum"          : False             # Set to True to remove the QoverP from the track parameters when deriving the residuals.
+    ,"LumiblockSelection"   : False				     #	whether to select events from a list of lumiblocks.
+    ,"LumiblockList"	    : range(400,420,1) 		     #	The list of LBs you want to select
+
 }
 
 ##############################################################################
@@ -93,12 +112,32 @@ for var in newInDetAlignAlg_Options:
         newInDetAlignAlg_Options[var] = eval(var)
 # If Cosmics, switch off Beamspot / Vtx constraint 
 
+print " <NewInDetAlignAlgSetup> set up for cosmics ? ",Cosmics 
+
 if newInDetAlignAlg_Options["Cosmics"]:
     newInDetAlignAlg_Options["doBSConstraint"] = False
     newInDetAlignAlg_Options["doPVConstraint"] = False
     newInDetAlignAlg_Options["doFullVertex"] = False
     newInDetAlignAlg_Options["doBSTrackSelection"] = False
     newInDetAlignAlg_Options["doBSAssociatedToPVSelection"] = False
+else:
+    print " <NewInDetAlignAlgSetup> setup check for BS and Pvx constraints:"
+    print " <NewInDetAlignAlgSetup> doBSConstraint ?: ",newInDetAlignAlg_Options["doBSConstraint"]
+    print " <NewInDetAlignAlgSetup> doPVConstraint ?: ",newInDetAlignAlg_Options["doPVConstraint"] 
+    print " <NewInDetAlignAlgSetup> doFullVertex   ?: ",newInDetAlignAlg_Options["doFullVertex"] 
+    print " <NewInDetAlignAlgSetup> doBSTrackSelec ?: ",newInDetAlignAlg_Options["doBSTrackSelection"] 
+    print " <NewInDetAlignAlgSetup> doBSAssoc2PV   ?: ",newInDetAlignAlg_Options["doBSAssociatedToPVSelection"] 
+
+
+## ===================================================================
+## Preprocessor Check ##
+
+if newInDetAlignAlg_Options["doBSConstraint"] or newInDetAlignAlg_Options["doPVConstraint"] or newInDetAlignAlg_Options["doBSTrackSelection"] or newInDetAlignAlg_Options["doBSAssociatedToPVSelection"]:
+    print "NewInDetAlignAlg: Switching off the OldPreprocessor"
+    newInDetAlignAlg_Options["useOldPreProcessor"] = False
+
+if newInDetAlignAlg_Options["useOldPreProcessor"]:
+    print "WARNING: The BeamSpot constraint and PV Constraint are disabled"
 
 ## ===================================================================
 ## ===================================================================
@@ -183,31 +222,31 @@ include("InDetAlignExample/NewInDetAlignGeometrySetup.py")
 
 ################################
 #TOBE REMOVED # Read in constants from Pool file
-if False:# newInDetAlignAlg_Options["readConstantsFromPool"]:
-    from IOVDbSvc.CondDB import conddb
-
-    if newInDetAlignAlg_Options["readSilicon"]:
-        conddb.blockFolder("/Indet/Align")
-
-    if newInDetAlignAlg_Options["readTRT"]:
-        conddb.blockFolder("/TRT/Align")
-
-    if newInDetAlignAlg_Options["readTRTL3"]:
-        conddb.blockFolder("/TRT/Calib/DX")
-
-    from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
-    from AthenaCommon.AppMgr import ServiceMgr
-    ServiceMgr += CondProxyProvider()
-    ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
-    # set this to the file containing AlignableTransform objects
-    ServiceMgr.CondProxyProvider.InputCollections += newInDetAlignAlg_Options["inputPoolFiles"]
-    ServiceMgr.CondProxyProvider.OutputLevel = DEBUG
-    print ServiceMgr.CondProxyProvider
+#if False:# newInDetAlignAlg_Options["readConstantsFromPool"]:
+#    from IOVDbSvc.CondDB import conddb
+#
+#    if newInDetAlignAlg_Options["readSilicon"]:
+#        conddb.blockFolder("/Indet/Align")
+#
+#    if newInDetAlignAlg_Options["readTRT"]:
+#        conddb.blockFolder("/TRT/Align")
+#
+#    if newInDetAlignAlg_Options["readTRTL3"]:
+#        conddb.blockFolder("/TRT/Calib/DX")
+#
+#    from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
+#    from AthenaCommon.AppMgr import ServiceMgr
+#    ServiceMgr += CondProxyProvider()
+#    ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
+#    # set this to the file containing AlignableTransform objects
+#    ServiceMgr.CondProxyProvider.InputCollections += newInDetAlignAlg_Options["inputPoolFiles"]
+#    ServiceMgr.CondProxyProvider.OutputLevel = DEBUG
+#    print ServiceMgr.CondProxyProvider
 
     # this preload causes callbacks for read in objects to be activated,
     # allowing GeoModel to pick up the transforms
-    ServiceMgr.IOVSvc.preLoadData = True
-    ServiceMgr.IOVSvc.OutputLevel = INFO
+#    ServiceMgr.IOVSvc.preLoadData = True
+#    ServiceMgr.IOVSvc.OutputLevel = INFO
 
 ################################
 # make GlobalChi2AlignTool
@@ -245,6 +284,8 @@ matrixTool.InputHitmapFiles     = newInDetAlignAlg_Options["inputHitmapFiles"]
 matrixTool.SoftEigenmodeCut     = newInDetAlignAlg_Options["softModeCut"]
 matrixTool.ScaleMatrix      = newInDetAlignAlg_Options["scaleMatrix"]
 matrixTool.PathBinName      = newInDetAlignAlg_Options["PathBinName"]
+matrixTool.AlignIBLbutNotPixel = newInDetAlignAlg_Options["AlignIBLbutNotPixel"]
+matrixTool.AlignPixelbutNotIBL = newInDetAlignAlg_Options["AlignPixelbutNotIBL"]
 
 if newInDetAlignAlg_Options["WriteTFile"]:
     matrixTool.WriteTFile   = True
@@ -297,7 +338,11 @@ from InDetAlignGenTools.InDetAlignGenToolsConf import InDetAlignHitQualSelTool
 myHitQualSelTool = InDetAlignHitQualSelTool(
     name = "AlignSiHitQualSelTool",
     OutputLevel = INFO,
-    RejectOutliers = False
+    RejectOutliers = True,
+    RejectEdgeChannels = False,
+    #AcceptIBLHits = True,
+    #AcceptPixelHits = True,
+    #AcceptSCTHits = True,
     )
 ToolSvc += myHitQualSelTool
 print myHitQualSelTool
@@ -309,64 +354,117 @@ print myHitQualSelTool
 if newInDetAlignAlg_Options["runAccumulate"]:
     ################################
     # create AlignTrackSelector
+    #if newInDetAlignAlg_Options["useTrackSelector"]:
+    #    from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrtDriftCircleCutTool
+    #    trtDCtool = InDet__InDetTrtDriftCircleCutTool(
+    #        name = "TrtHitsEtaCutTool",
+    #        OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+    #        UseNewParameterization = True,
+    #        UseActiveFractionSvc = False
+    #    )
+    #    ToolSvc += trtDCtool
+    #    print trtDCtool
+    #    if not newInDetAlignAlg_Options["Cosmics"] :
+    #        from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+    #        trackSelector = InDet__InDetDetailedTrackSelectorTool(
+    #            name = "TrackSelector",
+    #            #OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+    #            OutputLevel = DEBUG,
+    #            TrackSummaryTool = InDetTrackSummaryTool,
+    #            pTMin = float(newInDetAlignAlg_Options["PtCut"]),
+    #            IPd0Max = 500., 
+    #            IPz0Max = 500., 
+    #            #nHitSct = 4,
+    #            nHitPix =  1,
+    #            nHitPixPhysical = 1, 
+    #            nHitBLayerPlusPix = 0,
+    #            nHitBLayer = 0,
+    #            nHitSi = 5, 
+    #            nHitSiPhysical = 7, 
+    #            nHitTrt = 25, 
+    #            useEtaDepententMinHitTrt = True,
+    #            TrtDCCutTool = trtDCtool,
+    #            addToMinHitTrt = -3
+    #        )
+    #        if newInDetAlignAlg_Options["useTRT"]:
+    #            trackSelector.useEtaDepententMinHitTrt = True
+        
+        
+    #    else:
+    #        from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetCosmicTrackSelectorTool
+    #        print " <NewInDetAlignAlgSetup> setting InDetTrackSelectorTool for cosmic ray data"
+    #        trackSelector = InDet__InDetCosmicTrackSelectorTool(
+    #            name = "TrackSelector",
+    #            #OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+    #            OutputLevel = INFO,
+    #            TrackSummaryTool = InDetTrackSummaryTool,
+    #            minPt = float(newInDetAlignAlg_Options["PtCut"]),
+    #            numberOfPixelHits = 1,
+    #            numberOfSCTHits = 8,
+    #            #numberOfSiliconHits = 12,
+    #            numberOfSiliconHitsTop = 2,
+    #            numberOfSiliconHitsBottom = 2,
+    #            numberOfTRTHits = 25,
+    #            maxD0 = 9999.,
+    #            maxZ0 = 9999.,
+    #        )
+    #    ToolSvc += trackSelector
+    #    print trackSelector
+
+
+
+    ###############################
+    # New InDetTrackSelectionTool
     if newInDetAlignAlg_Options["useTrackSelector"]:
-        from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrtDriftCircleCutTool
-        trtDCtool = InDet__InDetTrtDriftCircleCutTool(
-            name = "TrtHitsEtaCutTool",
-            OutputLevel = newInDetAlignAlg_Options["outputLevel"],
-            UseNewParameterization = True,
-            UseActiveFractionSvc = False
-        )
-        ToolSvc += trtDCtool
-        print trtDCtool
+
+        minNTRTHits  = -1 
+        maxEtaForTRTHitCuts = 0 
+        maxTRTEtaAcceptance = 1e+16
+        if newInDetAlignAlg_Options["useTRT"]:
+            print "NewInDetAlignAlgSetup : setting TRT Cuts"
+            minNTRTHits = 20
+            maxEtaForTRTHitCuts = 1.9
+            maxTRTEtaAcceptance = 0.
+
+        from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
         if not newInDetAlignAlg_Options["Cosmics"] :
-            from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-            trackSelector = InDet__InDetDetailedTrackSelectorTool(
-                name = "TrackSelector",
-                OutputLevel = newInDetAlignAlg_Options["outputLevel"],
-                #OutputLevel = DEBUG,
-                TrackSummaryTool = InDetTrackSummaryTool,
-                pTMin = newInDetAlignAlg_Options["PtCut"],
-                IPd0Max = 500.,
-                IPz0Max = 500.,
-                #nHitSct = 4,
-                nHitPix = 1,
-                nHitPixPhysical = 1,
-                nHitBLayerPlusPix = 0,
-                nHitBLayer = 0,
-                nHitSi = 9,
-                nHitSiPhysical = 7,
-                nHitTrt = 0,
-                #useEtaDepententMinHitTrt = True,
-                TrtDCCutTool = trtDCtool,
-                addToMinHitTrt = -3
-            )
-            if newInDetAlignAlg_Options["useTRT"]:
-                trackSelector.useEtaDepententMinHitTrt = True
-        
-        
+            
+            
+            trackSelectorNew = InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectionToolAlignTracks",
+                                                              UseTrkTrackTools = True,
+                                                              minPt = float(newInDetAlignAlg_Options["PtCut"]),
+                                                              maxD0 = 500,
+                                                              maxZ0 = 500,
+                                                              #minNPixelHits = 1,
+                                                              #minNPixelHitsPhysical = 1,
+                                                              #minNSiHits = 5,
+                                                              #minNSiHitsPhysical = 7,
+                                                              minNTrtHits  = minNTRTHits,
+                                                              maxEtaForTrtHitCuts = maxEtaForTRTHitCuts,
+                                                              maxTrtEtaAcceptance = maxTRTEtaAcceptance,
+                                                              CutLevel = "TightPrimary",
+                                                              TrackSummaryTool    = InDetTrackSummaryTool,
+                                                              Extrapolator        = InDetExtrapolator)
+            if newInDetAlignAlg_Options["d0significanceCut"] > 0:
+                trackSelectorNew.maxD0overSigmaD0 = 3
         else:
-            from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetCosmicTrackSelectorTool
-            print " <NewInDetAlignAlgSetup> setting InDetTrackSelectorTool for cosmic ray data"
-            trackSelector = InDet__InDetCosmicTrackSelectorTool(
-                name = "TrackSelector",
-                OutputLevel = newInDetAlignAlg_Options["outputLevel"],
-                #OutputLevel = DEBUG,
-                TrackSummaryTool = InDetTrackSummaryTool,
-                minPt = newInDetAlignAlg_Options["PtCut"],
-                numberOfPixelHits = 1,
-                numberOfSCTHits = 10,
-                numberOfSiliconHits = 12,
-                numberOfSiliconHitsTop = 4,
-                numberOfSiliconHitsBottom = 4,
-                numberOfTRTHits = 25,
-                maxD0 = 9999.,
-                maxZ0 = 9999.,
-                #BField = newInDetAlignAlg_Options["BField_AlgSetup"]
-            )
-        ToolSvc += trackSelector
-        print trackSelector
-        
+            trackSelectorNew= InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectionToolAlignTracks",
+                                                             UseTrkTrackTools = True,
+                                                             minPt = float(newInDetAlignAlg_Options["PtCut"]),
+                                                             maxD0 = 9999.,
+                                                             maxZ0 = 9999.,
+                                                             minNPixelHits = 1,
+                                                             minNSctHits = 8,
+                                                             minNSiHitsModTop = 2,
+                                                             minNSiHitsModBottom = 2,
+                                                             minNTrtHits = minNTRTHits,
+                                                             maxEtaForTrtHitCuts = maxEtaForTRTHitCuts,
+                                                             maxTrtEtaAcceptance = maxTRTEtaAcceptance,
+                                                             CutLevel = "Loose",
+                                                             TrackSummaryTool    = InDetTrackSummaryTool,
+                                                             Extrapolator        = InDetExtrapolator)
+        ToolSvc+=trackSelectorNew
+        print 
     ###############################
     # create AlignTrackPreProcessor
     if newInDetAlignAlg_Options["useOldPreProcessor"] :
@@ -381,50 +479,73 @@ if newInDetAlignAlg_Options["runAccumulate"]:
             UseSingleFitter = True,
             ParticleHypothesis = newInDetAlignAlg_Options["particleNumber"],
             RunOutlierRemoval = newInDetAlignAlg_Options["runOutlier"],
-            SelectHits = newInDetAlignAlg_Options["doSiHitQualSel"], 
             HitQualityTool = myHitQualSelTool
         )
+        if newInDetAlignAlg_Options["doSiHitQualSel"]:
+            preProcessor.SelectHits = newInDetAlignAlg_Options["doSiHitQualSel"]
 
+        if newInDetAlignAlg_Options["FixMomentum"]:
+            preProcessor.FixMomentum = newInDetAlignAlg_Options["FixMomentum"]
+            print "OldProcessor -> Using FixMomentum = ", newInDetAlignAlg_Options["FixMomentum"]
+        
         # don't store matrices when running local
         if newInDetAlignAlg_Options["runLocal"]:
             preProcessor.StoreFitMatricesAfterRefit = False
 
         if newInDetAlignAlg_Options["useTrackSelector"]:
             preProcessor.SelectTracks = True
-            preProcessor.TrackSelectorTool = trackSelector
+            preProcessor.TrackSelectorTool = trackSelectorNew
 
     else :
         # tighter track selection for the beam-spot constraint
-        BStrackSelector = ""
-        if newInDetAlignAlg_Options["doBSTrackSelection"] :
-            from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-            BStrackSelector = InDet__InDetDetailedTrackSelectorTool(
-                name          = "BeamSpotTrackSelector",
-                OutputLevel       = newInDetAlignAlg_Options["outputLevel"],
-                #OutputLevel      = DEBUG,
-                TrackSummaryTool  = InDetTrackSummaryTool,
-                pTMin         = 1000.,
-                IPd0Max       = 500.,
-                IPz0Max       = 500.,
-                #nHitSct      = 4,
-                #nHitPix      = 3,
-                nHitBLayerPlusPix = 0,
-                nHitBLayer    = 0,
-                nHitSi        = 7,
-                nHitSiPhysical    = 7,
-                nHitTrt           = 0,
-                TrtDCCutTool      = trtDCtool,
-                addToMinHitTrt    = -3
-            )
-            if newInDetAlignAlg_Options["useTRT"]:
-                BStrackSelector.useEtaDepententMinHitTrt = True
-            ToolSvc += BStrackSelector
-            print BStrackSelector
+        # -- MD: same selection as of normal collisions Selector for now --> Discuss and update; 
+        #BStrackSelector = ""
+        #if newInDetAlignAlg_Options["doBSTrackSelection"] :
+            #from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+            #BStrackSelector = InDet__InDetDetailedTrackSelectorTool(
+            #    name          = "BeamSpotTrackSelector",
+            #    OutputLevel       = newInDetAlignAlg_Options["outputLevel"],
+            #    #OutputLevel      = DEBUG,
+            #    TrackSummaryTool  = InDetTrackSummaryTool,
+            #    pTMin         = float(newInDetAlignAlg_Options["PtCut"]),
+            #    IPd0Max       = 500.,
+            #    IPz0Max       = 500.,
+            #    #nHitSct      = 4,
+            #    nHitPix      = 1,
+            #    nHitPixPhysical = 1,
+            #    nHitBLayerPlusPix = 0,
+            #    nHitBLayer    = 0,
+            #    nHitSi        = 5,
+            #    nHitSiPhysical    = 7,
+            #    nHitTrt           = 25,
+            #    TrtDCCutTool      = trtDCtool,
+            #    addToMinHitTrt    = -3
+            #)
+            #if newInDetAlignAlg_Options["useTRT"]:
+            #    BStrackSelector.useEtaDepententMinHitTrt = True
+            #from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+            #BStrackSelector = InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectionToolAlignTracks",
+            #                                                UseTrkTrackTools = True,
+            #                                                minPt = float(newInDetAlignAlg_Options["PtCut"]),
+            #                                                maxD0 = 500,
+            #                                                maxZ0 = 500,
+            #                                                #minNPixelHits = 1,
+            #                                                #minNPixelHitsPhysical = 1,
+            #                                                #minNSiHits = 5,
+            #                                                #minNSiHitsPhysical = 7,
+            #                                                minNTrtHits  = 25,
+            #                                                CutLevel = "TightPrimary",
+            #                                                TrackSummaryTool    = InDetTrackSummaryTool,
+            #                                                Extrapolator        = InDetExtrapolator)
+            #ToolSvc += BStrackSelector
+            #print BStrackSelector
 
         from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__BeamspotVertexPreProcessor
+        print "TYPE PtCutForBSConstraint", type(newInDetAlignAlg_Options["PtCutForBSConstraint"])
         preProcessor = Trk__BeamspotVertexPreProcessor(
             name              = "BeamspotVertexPreProcessor",
             OutputLevel           = newInDetAlignAlg_Options["outputLevel"],
+            #OutputLevel           = DEBUG,
             RefitTracks           = newInDetAlignAlg_Options["refitTracks"],
             TrackFitter           = trackFitter,
             AlignModuleTool           = alignModuleTool,
@@ -432,19 +553,29 @@ if newInDetAlignAlg_Options["runAccumulate"]:
             ParticleNumber        = newInDetAlignAlg_Options["particleNumber"],
             RunOutlierRemoval     = newInDetAlignAlg_Options["runOutlier"],
             DoBSConstraint        = newInDetAlignAlg_Options["doBSConstraint"],
-            #DoPVConstraint        = newInDetAlignAlg_Options["doPVConstraint"],
+            #maxPt                 = newInDetAlignAlg_Options["PtCutForBSConstraint"],
+            DoPVConstraint        = newInDetAlignAlg_Options["doPVConstraint"],
             #DoFullVertex              = newInDetAlignAlg_Options["doFullVertex"],
-            #DoAssociatedToPVSelection = newInDetAlignAlg_Options["doBSAssociatedToPVSelection"],
+            DoAssociatedToPVSelection = newInDetAlignAlg_Options["doBSAssociatedToPVSelection"],
             BeamspotScalingFactor     = newInDetAlignAlg_Options["beamspotScalingFactor"],
             DoBSTrackSelection    = newInDetAlignAlg_Options["doBSTrackSelection"],
-            BSConstraintTrackSelector = BStrackSelector
+            BSConstraintTrackSelector = trackSelectorNew
+            #doNormalRefit = True
         )
+
+        if newInDetAlignAlg_Options["doSiHitQualSel"]:
+            preProcessor.SelectHits = newInDetAlignAlg_Options["doSiHitQualSel"]
+
+        if newInDetAlignAlg_Options["FixMomentum"]:
+            preProcessor.FixMomentum = newInDetAlignAlg_Options["FixMomentum"]
+            print "NewProcessor -> Using FixMomentum = ", newInDetAlignAlg_Options["FixMomentum"]
+        
         # don't store matrices when running local
         if newInDetAlignAlg_Options["runLocal"]:
             preProcessor.StoreFitMatrices = False
 
         if newInDetAlignAlg_Options["useTrackSelector"]:
-            preProcessor.TrackSelector = trackSelector
+            preProcessor.TrackSelector = trackSelectorNew
 
     ToolSvc += preProcessor
     print preProcessor
@@ -538,24 +669,25 @@ if newInDetAlignAlg_Options["runAccumulate"]:
     else:
         from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__ConstrainedTrackProvider
         trackCollectionProvider=Trk__ConstrainedTrackProvider("TrackCollectionProvider",
-                                      OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+                                      #OutputLevel = newInDetAlignAlg_Options["outputLevel"],
+                                      OutputLevel = DEBUG,                        
                                       InputTracksCollection= newInDetAlignAlg_Options["trackCollection"],
-                                      MinPt = 9,
+                                      MinPt = newInDetAlignAlg_Options["MinPtForConstrainedProvider"],
                                       MaxPt = 250,
                                       MomentumConstraintFileName = newInDetAlignAlg_Options["eoverpmapconstraint"],
-                                      MomentumConstraintHistName = "LambdaCorrectionVsEtaPhi", #"FinalCorrections",
-                                      DeltaScaling = 1.2,
-                                      ReduceConstraintUncertainty = 10.,
-                                      CorrectZ0 = True,
+                                      MomentumConstraintHistName = newInDetAlignAlg_Options["eoverpmapconstraintmap"],
+                                      CorrectMomentum = True,
+                                      DeltaScaling = 1,
+                                      ReduceConstraintUncertainty = 1.,
+                                      CorrectZ0 = newInDetAlignAlg_Options["CorrectZ0"],
                                       z0ConstraintFileName =  newInDetAlignAlg_Options["z0mapconstraint"],
-                                      z0ConstraintHistName = "z0CorrectionVsEtaPhi",
-                                      CorrectD0 = True,
+                                      z0ConstraintHistName =  newInDetAlignAlg_Options["z0mapconstraintmap"],
+                                      CorrectD0 = newInDetAlignAlg_Options["CorrectD0"],
                                       d0ConstraintFileName =  newInDetAlignAlg_Options["d0mapconstraint"],
-                                      d0ConstraintHistName = "d0CorrectionVsEtaPhi",
+                                      d0ConstraintHistName =  newInDetAlignAlg_Options["d0mapconstraintmap"],
                                       UseConstraintError =  False,
-                                      UseConstrainedTrkOnly= True,
+                                      UseConstrainedTrkOnly= False,
                                       TrackFitter = trackFitter   )
-        print "Z->MUMU SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
         print trackCollectionProvider
     ToolSvc += trackCollectionProvider
 
@@ -622,12 +754,17 @@ if newInDetAlignAlg_Options["runSolving"] and newInDetAlignAlg_Options["writeCon
         tagList += [ newInDetAlignAlg_Options["tagTRT"] ]
     if newInDetAlignAlg_Options["writeTRTL3"]:
         objectList += [ "TRTCond::StrawDxContainer#/TRT/Calib/DX"]
-
+    if newInDetAlignAlg_Options["writeIBLDistDB"]:
+        objectList += ["CondAttrListCollection#/Indet/IBLDist"]    
+        tagList    += [newInDetAlignAlg_Options["tagBow"]]
+    
+        
     from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
     myOCA = OutputConditionsAlg(outputFile = newInDetAlignAlg_Options["outputPoolFile"])
     myOCA.ObjectList = objectList
     myOCA.IOVTagList = tagList
 
+        
 ################################
 # build AlignTrack collection splitter algorithm
 print " <NewInDetAlignAlgSetup> Setting up the AlignTrackCollSplitter "
@@ -647,3 +784,16 @@ print AlignTrackCollSplitter
 if newInDetAlignAlg_Options["doMonitoring"] and newInDetAlignAlg_Options["runAccumulate"]:
     include("InDetAlignExample/NewInDetAlignMonitoring.py")
     
+    
+if newInDetAlignAlg_Options["LumiblockSelection"]:
+	print " ************************** "
+	print " ** Selecting LumiBlocks ** "
+	print " ************************** "
+	print " **  List of LumiBlocks  ** "
+	
+	print str(newInDetAlignAlg_Options["LumiblockList"]).strip('[]')
+	print " **                      ** "	
+	import InDetBeamSpotExample.FilterUtils as FilterUtils
+	FilterUtils.filterSeq += FilterUtils.LBFilter(newInDetAlignAlg_Options["LumiblockList"]) 
+else:
+	print " ** Selecting LumiBlocks is deactivated ** " 

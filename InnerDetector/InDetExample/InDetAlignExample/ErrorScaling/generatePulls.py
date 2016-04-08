@@ -131,9 +131,10 @@ def makePixelBarrelPlots(fp, fs, pulls):
 	c1.Divide(2,2)
 
 	c1.cd(1)
-	h1 = (gDirectory.Get("pix_b0_residualx")).Clone()
-	h1.Add(gDirectory.Get("pix_b1_residualx"))
+	h1 = (gDirectory.Get("pix_b1_residualx")).Clone()
+	h1.SetName("pix_b_residualx")
 	h1.Add(gDirectory.Get("pix_b2_residualx"))
+	h1.Add(gDirectory.Get("pix_b3_residualx"))
 	h1.SetTitle(fs("Pixel Barrel Residual X; Residual; Events"))
 	t = gaussfit(h1, False)
 	h1.UseCurrentStyle()
@@ -141,9 +142,10 @@ def makePixelBarrelPlots(fp, fs, pulls):
 	t[0].Draw("SAME")
 
 	c1.cd(2)
-	h2 = (gDirectory.Get("pix_b0_pullx")).Clone()
-	h2.Add(gDirectory.Get("pix_b1_pullx"))
+	h2 = (gDirectory.Get("pix_b1_pullx")).Clone()
+	h2.SetName("pix_b_pullx")
 	h2.Add(gDirectory.Get("pix_b2_pullx"))
+	h2.Add(gDirectory.Get("pix_b3_pullx"))
 	h2.SetTitle(fs("Pixel Barrel Pull X; Pull; Events"))
 	t = gaussfit(h2, True)
 	h2.UseCurrentStyle()
@@ -154,9 +156,10 @@ def makePixelBarrelPlots(fp, fs, pulls):
 	pulls["pixbarx"] = t[1:]
 
 	c1.cd(3)
-	h3 = (gDirectory.Get("pix_b0_residualy")).Clone()
-	h3.Add(gDirectory.Get("pix_b1_residualy"))
+	h3 = (gDirectory.Get("pix_b1_residualy")).Clone()
+	h3.SetName("pix_b_residualy")
 	h3.Add(gDirectory.Get("pix_b2_residualy"))
+	h3.Add(gDirectory.Get("pix_b3_residualy"))
 	h3.SetTitle(fs("Pixel Barrel Residual Y; Residual; Events"))
 	t = gaussfit(h3, False)
 	h3.UseCurrentStyle()
@@ -164,9 +167,10 @@ def makePixelBarrelPlots(fp, fs, pulls):
 	t[0].Draw("SAME")
 
 	c1.cd(4)
-	h4 = (gDirectory.Get("pix_b0_pully")).Clone()
-	h4.Add(gDirectory.Get("pix_b1_pully"))
+	h4 = (gDirectory.Get("pix_b1_pully")).Clone()
+	h4.SetName("pix_b_pully")
 	h4.Add(gDirectory.Get("pix_b2_pully"))
+	h4.Add(gDirectory.Get("pix_b3_pully"))
 	h4.SetTitle(fs("Pixel Barrel Pull Y; Pull; Events"))
 	t = gaussfit(h4, True)
 	h4.UseCurrentStyle()
@@ -279,12 +283,62 @@ def makePixelECCPlots(fp, fs, pulls):
 	c1.SaveAs(fp("pixelECC.eps"))
 
 #--------------------------------------------------------------------------------------------------
+def makeIBLPlots(fp, fs, pulls):
+
+	c1 = TCanvas("c1", "c1", 971, 600)
+	c1.Divide(2,2)
+
+	c1.cd(1)
+	h1 = (gDirectory.Get("pix_b0_residualx")).Clone()
+	h1.SetTitle(fs("IBL Residual X; Residual; Events"))
+	t = gaussfit(h1, False)
+	h1.UseCurrentStyle()
+	h1.Draw("HIST")
+	t[0].Draw("SAME")
+
+	c1.cd(2)
+	h2 = (gDirectory.Get("pix_b0_pullx")).Clone()
+	h2.SetTitle(fs("IBL Pull X; Pull; Events"))
+	t = gaussfit(h2, True)
+	h2.UseCurrentStyle()
+	h2.Draw("HIST")
+	t[0].SetRange(-2.5, 2.5)
+	t[0].Draw("SAME")
+
+	pulls["iblx"] = t[1:]
+
+	c1.cd(3)
+	h3 = (gDirectory.Get("pix_b0_residualy")).Clone()
+	h3.SetTitle(fs("IBL Residual Y; Residual; Events"))
+	t = gaussfit(h3, False)
+	h3.UseCurrentStyle()
+	h3.Draw("HIST")
+	t[0].Draw("SAME")
+
+	c1.cd(4)
+	h4 = (gDirectory.Get("pix_b0_pully")).Clone()
+	h4.SetTitle(fs("IBL Pull Y; Pull; Events"))
+	t = gaussfit(h4, True)
+	h4.UseCurrentStyle()
+	h4.Draw("HIST")
+	t[0].SetRange(-2.5, 2.5)
+	t[0].Draw("SAME")
+
+	pulls["ibly"] = t[1:]
+
+	c1.SaveAs(fp("IBL.pdf"))
+	c1.SaveAs(fp("IBL.png"))
+	c1.SaveAs(fp("IBL.gif"))
+	c1.SaveAs(fp("IBL.eps"))
+
+#--------------------------------------------------------------------------------------------------
 def makeSCTBarrelPlots(fp, fs, pulls):
 	c1 = TCanvas("c1", "c1", 971, 300)
 	c1.Divide(2,1)
 
 	c1.cd(1)
 	h1 = (gDirectory.Get("sct_b0_residualx")).Clone()
+	h1.SetName("sct_b_residualx")
 	h1.Add(gDirectory.Get("sct_b1_residualx"))
 	h1.Add(gDirectory.Get("sct_b2_residualx"))
 	h1.Add(gDirectory.Get("sct_b3_residualx"))
@@ -296,6 +350,7 @@ def makeSCTBarrelPlots(fp, fs, pulls):
 
 	c1.cd(2)
 	h2 = (gDirectory.Get("sct_b0_pullx")).Clone()
+	h2.SetName("sct_b_pullx")
 	h2.Add(gDirectory.Get("sct_b1_pullx"))
 	h2.Add(gDirectory.Get("sct_b2_pullx"))
 	h2.Add(gDirectory.Get("sct_b3_pullx"))
@@ -484,7 +539,7 @@ def printPulls(p):
 	
 	for detector in sorted(p):
 		vals = p[detector]
-		
+		print detector,vals
 		vals = ["%.6f" % v for v in vals] #convert to strings
 		
 		fh.write(detector + " " + " ".join(vals))
@@ -509,10 +564,12 @@ def main():
 	gROOT.ProcessLine(".x rootlogon.C")
 
 	tf = ROOT.TFile(rootfilename)
-	gDirectory.cd("IDAlignMon/ExtendedTracks_NoTriggerSelection/Residuals")
+	runNumberDirectory=tf.GetListOfKeys()[0].GetName()
+	gDirectory.cd(tf.GetListOfKeys()[0].GetName()+"/IDAlignMon/ExtendedTracks_NoTriggerSelection/Residuals")
 
 	p = {} #dictionary to store the pulls
 
+	makeIBLPlots(fp,fs,p)
 	makePixelBarrelPlots(fp, fs, p)
 	makePixelECAPlots(fp, fs, p)
 	makePixelECCPlots(fp, fs, p)

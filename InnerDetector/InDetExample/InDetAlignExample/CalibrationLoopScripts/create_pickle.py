@@ -8,11 +8,11 @@
 import pickle
 f=open('reco1_01.pickle', 'w')
 dict={
-'inputRAWFiles': [{'dsn': 'data14_cos.00247688.physics_IDCosmic.merge.RAW','lfn': 'data14_cos.00247688.physics_IDCosmic.merge.RAW._lb0013._SFO-ALL._0001.1','pfn': '/castor/cern.ch/grid/atlas/tzero/prod1/perm/data14_cos/physics_IDCosmic/00247688/data14_cos.00247688.physics_IDCosmic.merge.RAW/data14_cos.00247688.physics_IDCosmic.merge.RAW._lb0013._SFO-ALL._0001.1'} ], # has to be a list,
+'inputRAWFiles': [{'dsn': 'data15_cos.00252404.physics_IDCosmic.merge.RAW','lfn': 'data15_cos.00252404.physics_IDCosmic.merge.RAW._lb0112._SFO-ALL._0001.1','pfn': 'root://castoratlas//castor/cern.ch/grid/atlas/tzero/prod1/perm/data15_cos/physics_IDCosmic/00252404/data15_cos.00252404.physics_IDCosmic.merge.RAW/data15_cos.00252404.physics_IDCosmic.merge.RAW._lb0112._SFO-ALL._0001.1'} ], # has to be a list,
 'inputAlignmentConstants': "inputAlignmentConstants#",
-'events':5000,
-'outputTFile': "OutputTFileNumber1#./matrixTFile1.root",
-'outputMonitoringFile': "outputMonitoringFile1#./monitoringFile1.root",
+'events':500,
+'outputTFile': "OutputTFileNumber1#./data15_cos.00252404.physics_IDCosmic.matrix.ROOT.Iter0._lb0112._SFO-ALL._0001.1",
+'outputMonitoringFile': "outputMonitoringFile1#./data15_cos.00252404.physics_IDCosmic.mon.ROOT.Iter0._lb0112._SFO-ALL._0001.1",
 'iteration':0}
 pickle.dump(dict,f)
 f.close()
@@ -31,10 +31,9 @@ f.close()
 import pickle
 f=open('solve1.pickle', 'w')
 dict={
-'inputRAWFiles': [{'dsn': 'data14_cos.00247688.physics_IDCosmic.merge.RAW','lfn': 'data14_cos.00247688.physics_IDCosmic.merge.RAW._lb0013._SFO-ALL._0001.1','pfn': '/castor/cern.ch/grid/atlas/tzero/prod1/perm/data14_cos/physics_IDCosmic/00247688/data14_cos.00247688.physics_IDCosmic.merge.RAW/data14_cos.00247688.physics_IDCosmic.merge.RAW._lb0013._SFO-ALL._0001.1'} ], # has to be a list,
+'inputTFiles': [{'dsn': 'data15_cos.00252404.physics_IDCosmic.matrix.ROOT.Iter0','lfn': 'data15_cos.00252404.physics_IDCosmic.matrix.ROOT.Iter0._lb0112._SFO-ALL._0001.1','pfn':"data15_cos.00252404.physics_IDCosmic.matrix.ROOT.Iter0._lb0112._SFO-ALL._0001.1"}],#, {'pfn':"matrixTFile2.root"}], 
 'inputAlignmentConstants': "inputAlignmentConstants#",
 'iteration':0,
-'inputTFiles': [{'pfn':"matrixTFile1.root"}],#, {'pfn':"matrixTFile2.root"}], 
 'outputAlignmentConstants': "dsname#./outputConstants.root",
 'outputAlignmentConstantsdb': "dsname#./outputConstants.db",
 'outputAlignFiles': "dsname#./outputConstants.txt"}
@@ -60,7 +59,7 @@ f.close()
 
 f=open('merge1.pickle', 'w')
 dict={
-'inputMonitoringFiles': [ "OutputTFileNumber1#monitoringFile1.root"],#, "OutputTFileNumber2#monitoringFile2.root" ], 
+'inputMonitoringFiles': [{'dsn': 'data15_cos.00252404.physics_IDCosmic.mon.ROOT.Iter0','lfn': 'data15_cos.00252404.physics_IDCosmic.mon.ROOT.Iter0._lb0112._SFO-ALL._0001.1','pfn':"data15_cos.00252404.physics_IDCosmic.mon.ROOT.Iter0._lb0112._SFO-ALL._0001.1"}],#, "OutputTFileNumber2#monitoringFile2.root" ], 
 'outputMonitoringMergedFile': "monitoringname#TotalMonitoring.root"
 }
 pickle.dump(dict,f)

@@ -11,17 +11,226 @@
 #
 
 tag = "IndetTrkErrorScaling_nominal"
-dataset=[ ("PixPhi Barrel",1.0,0.2),
-          ("PixEta Barrel",1.0,0.2),
-          ("PixPhi Endcap",1.0,0.2),
-          ("PixEta Endcap",1.0,0.2),
-          ("PixPhi IBL",1.0,1.0),
-          ("PixEta IBL",1.0,1.0), 
-          ("SCT Barrel",1.0,0.1),
-          ("SCT Endcap",1.0,0.2),
-          ("TRT Barrel",1.0,1.0),
-          ("TRT Endcap",1.0,1.0)
+#dataset=[ ("PixPhi Barrel",1.0,0.0),
+#          ("PixEta Barrel",1.0,0.0),
+#          ("PixPhi Endcap",1.0,0.0),
+#          ("PixEta Endcap",1.0,0.0),
+#          ("PixPhi IBL",1.0,0.0),
+#          ("PixEta IBL",1.0,0.0), 
+#          ("SCT Barrel",1.0,0.0),
+#          ("SCT Endcap",1.0,0.0),
+#          ("TRT Barrel",1.0,0.0),
+#          ("TRT Endcap",1.0,0.0)
+#          ]
+
+# PF file for M9 BOFF iter 1
+#dataset=[ ("PixPhi Barrel",1.0,0.010),
+#          ("PixEta Barrel",1.0,0.010),
+#          ("PixPhi Endcap",1.0,0.010),
+#          ("PixEta Endcap",1.0,0.010),
+#          ("PixPhi IBL",1.0,0.25),
+#          ("PixEta IBL",1.0,0.05),
+#          ("SCT Barrel",1.0,0.030),
+#          ("SCT Endcap",1.0,0.060),
+#          ("TRT Barrel",1.0,0.050),
+#          ("TRT Endcap",1.0,0.100)
+#          ]
+# after L1 of M9 BOFF 
+#dataset=[ ("PixPhi Barrel",1.0,0.008), 
+#          ("PixEta Barrel",1.0,0.009), 
+#          ("PixPhi Endcap",1.0,0.009), 
+#          ("PixEta Endcap",1.0,0.009), 
+#          ("PixPhi IBL",   1.0,0.150), 
+#          ("PixEta IBL",   1.0,0.060), 
+#          ("SCT Barrel",   1.0,0.025), 
+#          ("SCT Endcap",   1.0,0.050), 
+#          ("TRT Barrel",   1.0,0.060),
+#          ("TRT Endcap",   1.0,0.100)
+#          ]
+# after L2 of M9 BOFF 
+#dataset=[ ("PixPhi Barrel",1.0,0.007),  
+#          ("PixEta Barrel",1.0,0.008), 
+#          ("PixPhi Endcap",1.0,0.008), 
+#          ("PixEta Endcap",1.0,0.008), 
+#          ("PixPhi IBL",   1.0,0.150), 
+#          ("PixEta IBL",   1.0,0.065), 
+#          ("SCT Barrel",   1.0,0.020), 
+#          ("SCT Endcap",   1.0,0.040), 
+#          ("TRT Barrel",   1.0,0.070),
+#          ("TRT Endcap",   1.0,0.100)
+#          ]
+# after L27 of M9 BOFF 
+#dataset=[ ("PixPhi Barrel",1.0,0.005),   
+#          ("PixEta Barrel",1.0,0.007), 
+#          ("PixPhi Endcap",1.0,0.007), 
+#          ("PixEta Endcap",1.0,0.007), 
+#          ("PixPhi IBL",   1.0,0.100),  
+#          ("PixEta IBL",   1.0,0.050), 
+#          ("SCT Barrel",   1.0,0.018), 
+#          ("SCT Endcap",   1.0,0.035), 
+#          ("TRT Barrel",   1.0,0.070),
+#          ("TRT Endcap",   1.0,0.100)
+#          ]
+# after L11 of M9 BON 
+#dataset=[ ("PixPhi Barrel",1.0,0.005),  
+#          ("PixEta Barrel",1.0,0.007), 
+#          ("PixPhi Endcap",1.0,0.006), 
+#          ("PixEta Endcap",1.0,0.007), 
+#          ("PixPhi IBL",   1.0,0.100),  
+#          ("PixEta IBL",   1.0,0.050), 
+#          ("SCT Barrel",   1.0,0.018), 
+#          ("SCT Endcap",   1.0,0.040), 
+#          ("TRT Barrel",   1.0,0.070),
+#          ("TRT Endcap",   1.0,0.100)
+#          ]
+# after L2 of M9 BON 
+#dataset=[ ("PixPhi Barrel",1.0,0.005),  
+#          ("PixEta Barrel",1.0,0.006), 
+#          ("PixPhi Endcap",1.0,0.005), 
+#          ("PixEta Endcap",1.0,0.006), 
+#          ("PixPhi IBL",   1.0,0.100),  
+#          ("PixEta IBL",   1.0,0.050), 
+#          ("SCT Barrel",   1.0,0.018), 
+#          ("SCT Endcap",   1.0,0.045), 
+#          ("TRT Barrel",   1.0,0.070),
+#          ("TRT Endcap",   1.0,0.110)
+#          ]
+# after L27 of M9 BON 
+#dataset=[ ("PixPhi Barrel",1.0,0.005),  
+#          ("PixEta Barrel",1.0,0.005), 
+#          ("PixPhi Endcap",1.0,0.005), 
+#          ("PixEta Endcap",1.0,0.005), 
+#          ("PixPhi IBL",   1.0,0.095),  
+#          ("PixEta IBL",   1.0,0.050), 
+#          ("SCT Barrel",   1.0,0.018), 
+#          ("SCT Endcap",   1.0,0.050), 
+#          ("TRT Barrel",   1.0,0.070),
+#          ("TRT Endcap",   1.0,0.110)
+#          ]
+# after L3 PIX/IBL of M9 BON 
+#dataset=[ ("PixPhi Barrel",1.0,0.005),  
+#          ("PixEta Barrel",1.0,0.005), 
+#          ("PixPhi Endcap",1.0,0.005), 
+#          ("PixEta Endcap",1.0,0.005), 
+#          ("PixPhi IBL",   1.0,0.030),  
+#          ("PixEta IBL",   1.0,0.030), 
+#          ("SCT Barrel",   1.0,0.018), 
+#          ("SCT Endcap",   1.0,0.050), 
+#          ("TRT Barrel",   1.0,0.070),
+#          ("TRT Endcap",   1.0,0.110)
+#          ]
+# after L3 SCT of M9 BON 
+#dataset=[ ("PixPhi Barrel",1.0,0.005),  
+#          ("PixEta Barrel",1.0,0.005), 
+#          ("PixPhi Endcap",1.0,0.005), 
+#          ("PixEta Endcap",1.0,0.005), 
+#          ("PixPhi IBL",   1.0,0.018),  
+#          ("PixEta IBL",   1.0,0.024), 
+#          ("SCT Barrel",   1.0,0.014), 
+#          ("SCT Endcap",   1.0,0.040), 
+#          ("TRT Barrel",   1.0,0.065),
+#          ("TRT Endcap",   1.0,0.100)
+#          ]
+# WARNING all above pixels in digital clustering
+# after L2 TRT of M9 BON 
+#dataset=[ ("PixPhi Barrel",1.0, 0.010),   
+#          ("PixEta Barrel",1.0, 0.010), 
+#          ("PixPhi Endcap",1.0, 0.010), 
+#          ("PixEta Endcap",1.0, 0.010),  
+#          ("PixPhi IBL",   1.0, 0.025),   
+#          ("PixEta IBL",   1.0, 0.050),  
+#          ("SCT Barrel",   1.0, 0.014), 
+#          ("SCT Endcap",   1.0, 0.025), 
+#          ("TRT Barrel",   1.0, 0.050),
+#          ("TRT Endcap",   1.0, 0.100)
+#          ]
+# after L1 with 13 TeV
+# WARNING now using pixel NN clustering
+
+##50 ns
+#dataset=[ ("PixPhi Barrel",1.0, 0.00519902),   
+#          ("PixEta Barrel",1.0, 0.0285656), 
+#          ("PixPhi Endcap",1.0, 0.00751747), 
+#          ("PixEta Endcap",1.0, 0.00),  
+#          ("PixPhi IBL",   1.0, 0.00636179),   
+#          ("PixEta IBL",   1.0, 0.0435513),  
+#          ("SCT Barrel",   1.0, 0.0108325), 
+#          ("SCT Endcap",   1.0, 0.00860872), 
+#          ("TRT Barrel",   1.01, 0.000,0.0065),
+#          ("TRT Endcap",   1.0, 0.000,0.0061)
+#          ]
+#25ns
+
+#dataset=[ ("PixPhi Barrel",1.0, 0.00519902),   
+#          ("PixEta Barrel",1.0, 0.0285656), 
+#          ("PixPhi Endcap",1.0, 0.00751747), 
+#          ("PixEta Endcap",1.0, 0.00),  
+#          ("PixPhi IBL",   1.0, 0.00636179),   
+#          ("PixEta IBL",   1.0, 0.0435513),  
+#          ("SCT Barrel",   1.0, 0.0108325), 
+#          ("SCT Endcap",   1.0, 0.00860872), 
+#          ("TRT Barrel",   1.02, 0.000,0.0082),
+#          ("TRT Endcap",   1.0, 0.000,0.0085)
+#          ]
+
+## For Jiri 25 ns
+dataset=[ ("PixPhi Barrel",1.0, 0.00519902),   
+          ("PixEta Barrel",1.0, 0.0285656), 
+          ("PixPhi Endcap",1.0, 0.00751747), 
+          ("PixEta Endcap",1.0, 0.00),  
+          ("PixPhi IBL",   1.0, 0.007),   
+          ("PixEta IBL",   1.0, 0.0435513),  
+          ("SCT Barrel",   1.0, 0.0108325), 
+          ("SCT Endcap",   1.0, 0.00860872), 
+          ("TRT Barrel",   1.10, 0.000,0.00),
+          ("TRT Endcap",   1.10, 0.000,0.00)
           ]
+
+
+
+#For Jiri 10um for IBL
+
+## For Jiri 25 ns
+#dataset=[ ("PixPhi Barrel",1.0, 0.00519902),   
+#          ("PixEta Barrel",1.0, 0.0285656), 
+#          ("PixPhi Endcap",1.0, 0.00751747), 
+#          ("PixEta Endcap",1.0, 0.00),  
+#          ("PixPhi IBL",   1.0, 0.010),   
+#          ("PixEta IBL",   1.0, 0.0435513),  
+#          ("SCT Barrel",   1.0, 0.0108325), 
+#          ("SCT Endcap",   1.0, 0.00860872), 
+#          ("TRT Barrel",   1.10, 0.000,0.00),
+#          ("TRT Endcap",   1.10, 0.000,0.00)
+#          ]
+
+
+#Joany request for 20.7
+#dataset=[ ("PixPhi Barrel",1.0, 0.00519902),   
+#          ("PixEta Barrel",1.0, 0.0285656), 
+#          ("PixPhi Endcap",1.0, 0.00751747), 
+#          ("PixEta Endcap",1.0, 0.00),  
+#          ("PixPhi IBL",   1.0, 0.00636179),   
+#          ("PixEta IBL",   1.0, 0.0435513),  
+#          ("SCT Barrel",   1.0, 0.0108325), 
+#          ("SCT Endcap",   1.0, 0.00860872), 
+#          ("TRT Barrel",   1.0, 0.000,0.00),
+#          ("TRT Endcap",   1.0, 0.000,0.00)
+#          ]
+
+
+##For Nominal Run1
+
+#dataset=[ ("PixPhi Barrel",1.0, 0.01),   
+#          ("PixEta Barrel",1.0, 0.02), 
+#          ("PixPhi Endcap",1.0, 0.02), 
+#          ("PixEta Endcap",1.0, 0.00),  
+#          ("PixPhi IBL",   1.0, 0.1),   
+#          ("PixEta IBL",   1.0, 0.1),  
+#          ("SCT Barrel",   1.0, 0.02), 
+#          ("SCT Endcap",   1.0, 0.02), 
+#          ("TRT Barrel",   1.0, 0.000,0.00),
+#          ("TRT Endcap",   1.0, 0.000,0.00)
+#          ]
 
 # database and folder name
 #connect="sqlite://X;schema=mycool.db;dbname=OFLP200"

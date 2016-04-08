@@ -1,5 +1,5 @@
 ## The Following options can be specified seperately in a file that include this one
-print "Starting loadInDet_Rec"
+print " <loadInDetRec> Starting loadInDet_Rec"
 
 if loadInDetRec_Options["realData"]:    
   rec.projectName="Cosm14"

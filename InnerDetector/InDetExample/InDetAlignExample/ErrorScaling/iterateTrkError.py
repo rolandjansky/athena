@@ -53,6 +53,8 @@ entries = [
     ('PixEta Barrel', 'pixbary'),
     ('PixPhi Endcap', 'pixecx'),
     ('PixEta Endcap', 'pixecy'),
+    ('PixPhi IBL'   , 'iblx'),
+    ('PixEta IBL'   , 'ibly'),
     ('SCT Barrel',    'sctbar'),
     ('SCT Endcap',    'sctec'),
     ('TRT Barrel',    'trtbar'),
@@ -68,6 +70,8 @@ micron = 0.001
 # nominal values
 pixX_sigma0 = 14 * micron
 pixY_sigma0 = 115 * micron
+iblX_sigma0 = 14 * micron
+iblY_sigma0 = 72 * micron
 sct_sigma0 = 23 * micron
 trt_sigma0 = 170 * micron
 
@@ -84,12 +88,14 @@ trt_sigma0 = 170 * micron
 # From 200GeV muon residuals with perfect alignment
 pixbarX_sigma0 = 11.1 * micron
 pixbarY_sigma0 = 117 * micron
-pixecX_sigma0 = 13.5 * micron
-pixecY_sigma0 = 118 * micron
-sctbar_sigma0 = 21.0 * micron
-sctec_sigma0 = 24.5 * micron
-trtbar_sigma0 = 163 * micron
-trtec_sigma0 = 145 * micron
+pixecX_sigma0  = 13.5 * micron
+pixecY_sigma0  = 118 * micron
+#iblbarX_sigma0 = 14 * micron
+#iblbarY_sigma0 = 72 * micron
+sctbar_sigma0  = 21.0 * micron
+sctec_sigma0   = 24.5 * micron
+trtbar_sigma0  = 163 * micron
+trtec_sigma0   = 145 * micron
 
 
 sigma0 ={
@@ -97,6 +103,8 @@ sigma0 ={
     'PixEta Barrel':  pixbarY_sigma0,
     'PixPhi Endcap':  pixecX_sigma0,
     'PixEta Endcap':  pixecY_sigma0,
+    'PixPhi IBL'   :  iblX_sigma0,
+    'PixEta IBL'   :  iblY_sigma0,
     'SCT Barrel':     sctbar_sigma0,
     'SCT Endcap':     sctec_sigma0,
     'TRT Barrel':     trtbar_sigma0,
@@ -183,7 +191,7 @@ def addToDatabase(dataset, tag, mc):
     #comp with data, ofl with MC
     
     if not mc:
-        connect="sqlite://X;schema=mycool.db;dbname=COMP200"
+        connect="sqlite://X;schema=mycool.db;dbname=CONDBR2"  #COMP200
     else:
         connect="sqlite://X;schema=mycool.db;dbname=OFLP200"
     TrkErrorScalingDB.make(dataset, tag, foldername, connect)
@@ -218,7 +226,7 @@ def printScaling(outfile, tag, scalingset):
 
 
 #--------------------------------------------------------------
-def runAthena(jobOptions, tag, logfile, batchmode, itertag):
+def runAthena(jobOptions,tag, logfile, batchmode, itertag):
     import os
     import sys
     from subprocess import Popen
@@ -318,7 +326,7 @@ def doIteration(jobOptions, tag, prevDataset, itercount, doAorC, targetpull, rms
 
     if (not usentuple):
         runAthena(jobOptions, tag, logfile, batchmode,
-                  itertag=('iter' + doAorC + iterStr(itercount)) )
+                  itertag=('iter' + doAorC + iterStr(itercount)))
     else:
         print "Athena not run. Using ntuple file:", usentuple
     
@@ -439,6 +447,8 @@ def parseOptions():
     parser.add_option("-k", "",
                       action="store_true", dest="simul", default=False,
                       help="input dataset is simulation")
+    parser.add_option("-q", "--queue", dest="queue", default="atlasb1",
+                      help="queue for job submission")
     
 
    
@@ -475,7 +485,9 @@ def getIterAndParam(s):
 
     return (tuneParam, iter)
 
-####################################################################### 
+############
+##MainBody##
+############ 
 
 (options, args) = parseOptions()
 
@@ -544,6 +556,7 @@ print "Damping factor:",  options.damping
 print "Strategy:",options.strategy
 print "Extra Residual and Pulls options:", options.rpoptions
 print "Is MC : ", options.simul
+print "queue: ",options.queue
 
 
 for i in range(firstIter,firstIter+numIter):
@@ -560,7 +573,9 @@ for i in range(firstIter,firstIter+numIter):
                                            damping = options.damping,
                                            strategy = options.strategy,
                                            extraRPOptions = rpoptions,
-                                           batchmode = options.batch,mc=options.simul)
+                                           batchmode = options.batch,
+                                           mc=options.simul)
+                                           #queue = options.queue)
 
 
     if (not more):
