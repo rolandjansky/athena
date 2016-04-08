@@ -33,7 +33,7 @@ AdjustableT0Tool::AdjustableT0Tool(const std::string& t, const std::string& n, c
 
   m_inverseSpeedOfLight = 1./299.792458;
 
-  mb_Verbose = 0 ;
+  m_Verbose = 0 ;
 
   p_AdjustableT0Map = 0 ;
 
@@ -68,7 +68,7 @@ AdjustableT0Tool::~AdjustableT0Tool(){ delete p_AdjustableT0Map ;}
 StatusCode AdjustableT0Tool::finalize(){return StatusCode::SUCCESS;}
 
 void AdjustableT0Tool::SetVerboset0shift(){ 
- mb_Verbose = 1 ; 
+ m_Verbose = 1 ; 
 }
   
 void AdjustableT0Tool::SetDefaultTShift( double TShift ){ 
@@ -80,7 +80,7 @@ void AdjustableT0Tool::DumpT0Shift(){
 }
 
 void AdjustableT0Tool::ResetSetTShift(double Tshift){
-  mb_Verbose = 0 ;
+  m_Verbose = 0 ;
   p_AdjustableT0Map->ResetSetTShift(Tshift);
 }
 
@@ -105,7 +105,7 @@ double AdjustableT0Tool::timeOfFlight( const Identifier& id, const Amg::Vector3D
   double tof =   p_AdjustableT0Map->GetT0Shift(id)  ;
   if ( m_DoTof == 1 ) tof += pos.mag()*m_inverseSpeedOfLight ;
   
-  if ( mb_Verbose == 1 ) {
+  if ( m_Verbose == 1 ) {
     std::cout << "timeOfFlight " ;
     p_AdjustableT0Map->DumpT0Shift(id) ;
   }
