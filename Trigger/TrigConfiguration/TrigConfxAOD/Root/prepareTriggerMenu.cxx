@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: prepareTriggerMenu.cxx 649237 2015-02-24 12:50:00Z krasznaa $
+// $Id: prepareTriggerMenu.cxx 718020 2016-01-15 15:52:44Z tbold $
 
 // Infrastructure include(s):
 #include "AsgTools/MsgStream.h"
@@ -63,7 +63,7 @@ namespace TrigConf {
          ctpConfig.menu().addTriggerItem( item );
          if( menu->itemPrescalesAvailable() ) {
             ctpConfig.prescaleSet().setPrescale( menu->itemCtpIds()[ i ],
-               static_cast< int >( menu->itemPrescales()[ i ] ) );
+						 static_cast< float >( menu->itemPrescales()[ i ] ) );
          }
       }
 
@@ -155,6 +155,10 @@ namespace TrigConf {
          if( menu->chainPassthroughPrescalesAvailable() ) {
             chain->set_pass_through( menu->chainPassthroughPrescales()[ i ] );
          }
+         if ( menu->chainPrescalesAvailable() ) {
+             chain->set_prescale( menu->chainPrescales()[ i ]);
+         }
+
          // Add it to the list of chains:
          if( ! chainList.addHLTChain( chain ) ) {
             msg << MSG::FATAL << "prepareTriggerMenu(...): "

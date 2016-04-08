@@ -2,11 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigConfReadTest.cxx 646707 2015-02-13 09:51:38Z krasznaa $
+// $Id: xAODTrigConfReadTest.cxx 718020 2016-01-15 15:52:44Z tbold $
+
+// System include(s):
+#include <memory>
 
 // ROOT include(s):
 #ifdef ROOTCORE
-#   include <TChain.h>
+#   include <TFile.h>
 #   include <TError.h>
 #endif // ROOTCORE
 
@@ -38,15 +41,8 @@ int main( int argc, char* argv[] ) {
    // Initialise the application:
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
 
-   // Set up a TChain that will be used to read in the files:
-   ::TChain chain( "CollectionTree" );
-   for( int i = 1; i < argc; ++i ) {
-      chain.Add( argv[ i ] );
-   }
-
    // Create a TEvent object:
    xAOD::TEvent event( xAOD::TEvent::kBranchAccess );
-   RETURN_CHECK( APP_NAME, event.readFrom( &chain ) );
 
    // Create the trigger configuration tool:
    TrigConf::xAODConfigTool configTool( "xAODConfigTool" );
@@ -68,33 +64,50 @@ int main( int argc, char* argv[] ) {
       return 1;
    }
 
-   // Loop over a few events:
-   const ::Long64_t entries = event.getEntries();
-   for( ::Long64_t entry = 0; entry < entries; ++entry ) {
+   // Loop over the files:
+   for( int i = 1; i < argc; ++i ) {
 
-      // Get the current entry:
-      event.getEntry( entry );
-
-      // Print some additional info for the first 10 events:
-      if( entry < 10 ) {
-         ::Info( APP_NAME, "Processing entry %i", static_cast< int >( entry ) );
-
-         // Get some information out of the tested tool:
-         ::Info( APP_NAME, "SMK: %i, L1PSK: %i, HLTPSK: %i",
-                 static_cast< int >( configTool.masterKey() ),
-                 static_cast< int >( configTool.lvl1PrescaleKey() ),
-                 static_cast< int >( configTool.hltPrescaleKey() ) );
-         ::Info( APP_NAME, "  Number of L1 items: %i",
-                 static_cast< int >( configTool.ctpConfig()->menu().items().size() ) );
-         ::Info( APP_NAME, "  Number of HLT chains: %i",
-                 static_cast< int >( configTool.chains().size() ) );
+      // Open the input file:
+      std::unique_ptr< ::TFile > ifile( ::TFile::Open( argv[ i ], "READ" ) );
+      if( ! ifile.get() ) {
+         ::Error( APP_NAME, "Couldn't open file: %s", argv[ i ] );
+         return 1;
       }
+      ::Info( APP_NAME, "Opened file: %s", argv[ i ] );
 
-      // Give some feedback of where we are:
-      if( ! ( entry % 100 ) ) {
-         ::Info( APP_NAME, "Processed %i/%i events",
-                 static_cast< int >( entry ),
-                 static_cast< int >( entries ) );
+      // Connect the TEvent object to it:
+      RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
+
+      // Loop over a few events:
+      const ::Long64_t entries = event.getEntries();
+      for( ::Long64_t entry = 0; entry < entries; ++entry ) {
+
+         // Get the current entry:
+         event.getEntry( entry );
+
+         // Print some additional info for the first 10 events:
+         if( entry < 10 ) {
+            ::Info( APP_NAME, "Processing entry %i", static_cast< int >( entry ) );
+
+            // Get some information out of the tested tool:
+            ::Info( APP_NAME, "SMK: %i, L1PSK: %i, HLTPSK: %i",
+                    static_cast< int >( configTool.masterKey() ),
+                    static_cast< int >( configTool.lvl1PrescaleKey() ),
+                    static_cast< int >( configTool.hltPrescaleKey() ) );
+            ::Info( APP_NAME, "  Number of L1 items: %i",
+                    static_cast< int >( configTool.ctpConfig()->menu().items().size() ) );
+            ::Info( APP_NAME, "  Number of HLT chains: %i",
+                    static_cast< int >( configTool.chains().size() ) );
+            ::Info( APP_NAME, " L1 menu " );
+	   configTool.ctpConfig()->print("", 100);
+         }
+
+         // Give some feedback of where we are:
+         if( ! ( entry % 100 ) ) {
+            ::Info( APP_NAME, "Processed %i/%i events",
+                    static_cast< int >( entry ),
+                    static_cast< int >( entries ) );
+         }
       }
    }
 
