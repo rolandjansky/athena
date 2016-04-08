@@ -1,6 +1,6 @@
 package HIInDetValidation
 
-use AtlasPolicy AtlasPolicy-01-*
+use AtlasPolicy AtlasPolicy-*
 
 
 private
