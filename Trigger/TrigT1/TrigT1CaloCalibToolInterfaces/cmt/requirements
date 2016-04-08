@@ -4,10 +4,12 @@ author John Morris <john.morris@cern.ch>
 
 public
 
-use AtlasPolicy          AtlasPolicy-*
-use GaudiInterface       GaudiInterface-*       External
-use TrigT1CaloEvent             TrigT1CaloEvent-*               Trigger/TrigT1
-use xAODTrigL1Calo		xAODTrigL1Calo-*		Event/xAOD
+use AtlasPolicy                AtlasPolicy-*
+use AsgTools                   AsgTools-*               Control/AthToolSupport
+
+use TrigT1CaloEvent            TrigT1CaloEvent-*        Trigger/TrigT1
+use xAODTrigL1Calo             xAODTrigL1Calo-*         Event/xAOD
+
 
 # Declare that this package acts as a metalibrary for cmake. This ensures that libraries and
 # header files of packages that this one depends on are made available to its clients.

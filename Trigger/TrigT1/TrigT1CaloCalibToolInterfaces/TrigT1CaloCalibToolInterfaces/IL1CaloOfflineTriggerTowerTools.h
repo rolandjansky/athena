@@ -17,15 +17,13 @@
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOOFFLINETRIGGERTOWERTOOLS_H_
 #define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOOFFLINETRIGGERTOWERTOOLS_H_
 
-#include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/IInterface.h"
+// Framework include(s):
+#include "AsgTools/IAsgTool.h"
+
 #include <vector>
 #include <map>
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
-
-#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTower.h"
-#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
 
 class CaloCell;
 class CaloCellContainer;
@@ -42,15 +40,13 @@ namespace coral{
 }
 
 namespace LVL1{
-
-  static const InterfaceID IID_IL1CaloOfflineTriggerTowerTools("LVL1::IL1CaloOfflineTriggerTowerTools",1,0);
-
-  class IL1CaloOfflineTriggerTowerTools : virtual public IAlgTool{
+  
+  class IL1CaloOfflineTriggerTowerTools : virtual public asg::IAsgTool{
+        
+    /// Declare the interface that the class provides
+    ASG_TOOL_INTERFACE( LVL1::IL1CaloOfflineTriggerTowerTools )  
+    
     public:
-      static const InterfaceID& interfaceID();
-
-      virtual ~IL1CaloOfflineTriggerTowerTools(){};
-
       typedef std::map<Identifier, const TileTTL1Cell*> IdTTL1CellMapType;
 
       //   Location, ID and Navigation Information
@@ -59,7 +55,6 @@ namespace LVL1{
       virtual int                                        emPpmSubmodule(const TriggerTower* tt) const = 0;
       virtual int                                        emPpmChannel(const TriggerTower* tt) const = 0;
       virtual unsigned int                               emCoolChannelId(const TriggerTower* tt) const = 0;
-      virtual unsigned int				 CoolChannelId(const xAOD::TriggerTower* tt) const = 0;
       virtual std::vector<int>                           emLocation(const TriggerTower* tt) const = 0;
       virtual std::vector<unsigned int>                  emRxId(const TriggerTower* tt) const = 0;
 
@@ -82,8 +77,7 @@ namespace LVL1{
       virtual std::vector<std::vector<int> >             emTTCellsLayerNamesByReceiver(const TriggerTower* tt) const = 0;
       virtual float                                      emTTCellsEnergy(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         emTTCellsEnergyByLayer(const TriggerTower* tt) const = 0;
-      virtual std::vector<float>                         emTTCellsEnergyByReceiver(const TriggerTower* tt,const int mode=0) const = 0;
-      virtual float                                      TTCellsEt(const xAOD::TriggerTower* tt) const = 0;      
+      virtual std::vector<float>                         emTTCellsEnergyByReceiver(const TriggerTower* tt,const int mode=0) const = 0;    
       virtual float                                      emTTCellsEt(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         emTTCellsEtByLayer(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         emTTCellsEtByReceiver(const TriggerTower* tt,const int mode=0) const = 0;
@@ -127,8 +121,6 @@ namespace LVL1{
       virtual std::vector<std::vector<float> >           hadNonNominalMeanScaleByReceiverByLayer(const TriggerTower* tt) const = 0;
 
       //  Database Attributes
-      virtual const coral::AttributeList*		 DbAttributes(const xAOD::TriggerTower* tt, const CondAttrListCollection* dbAttrList) const = 0;
-      
       virtual const coral::AttributeList*                emDbAttributes(const TriggerTower* tt,const CondAttrListCollection* dbAttrList) const = 0;
       virtual std::vector<const coral::AttributeList*>   emDbRxGainsAttributes(const TriggerTower* tt,const CondAttrListCollection* dbAttrList) const = 0;
 
@@ -212,14 +204,6 @@ namespace LVL1{
 
       virtual float                                      LArCaloQuality(const std::vector<const CaloCell*> &cells) const = 0;
       virtual float                                      TileCaloQuality(const std::vector<const CaloCell*> &cells) const = 0;
-
-      
-
-  };
-
-  inline const InterfaceID& IL1CaloOfflineTriggerTowerTools::interfaceID(){
-    return IID_IL1CaloOfflineTriggerTowerTools;
-  }
-  
+  };  
 } // end of namespace
 #endif

@@ -17,8 +17,9 @@
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOLARTOWERENERGY_H_
 #define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOLARTOWERENERGY_H_
 
-#include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/IInterface.h"
+
+// Framework include(s):
+#include "AsgTools/IAsgTool.h"
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 
@@ -27,14 +28,12 @@ class Identifier;
 
 namespace LVL1{
 
- static const InterfaceID IID_IL1CaloLArTowerEnergy("LVL1::IL1CaloLArTowerEnergy",1,0);
-
-  class IL1CaloLArTowerEnergy : virtual public IAlgTool{
+  class IL1CaloLArTowerEnergy : virtual public asg::IAsgTool
+  {      
+    /// Declare the interface that the class provides
+    ASG_TOOL_INTERFACE( LVL1::IL1CaloLArTowerEnergy )
+    
     public:
-      static const InterfaceID& interfaceID();
-
-      virtual ~IL1CaloLArTowerEnergy(){};
-
       virtual bool initL1CaloLArTowerEnergy(const CaloCellContainer& cellContainer, const TriggerTowerCollection &triggerTowerCollection) = 0;
       virtual float EtLArg(const Identifier& TTid) = 0;
       virtual bool hasMissingFEB(const Identifier& TTid) = 0;
@@ -43,9 +42,5 @@ namespace LVL1{
       virtual void reset() = 0;
       virtual double IDeta(const Identifier& TTid) = 0;
   };
-
-  inline const InterfaceID& IL1CaloLArTowerEnergy::interfaceID(){
-    return IID_IL1CaloLArTowerEnergy;
-  }
 } // end of namespace
 #endif

@@ -17,29 +17,24 @@
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOFCAL23CELLS2RXMAPPINGTOOL_H_
 #define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOFCAL23CELLS2RXMAPPINGTOOL_H_
 
-#include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/IInterface.h"
+// Framework include(s):
+#include "AsgTools/IAsgTool.h"
+
 #include <vector>
 
 namespace LVL1 {
 
-  static const InterfaceID IID_IL1CaloFcal23Cells2RxMappingTool("LVL1::IL1CaloFcal23Cells2RxMappingTool",1,0);
-
-  class IL1CaloFcal23Cells2RxMappingTool : virtual public IAlgTool{
+  class IL1CaloFcal23Cells2RxMappingTool : virtual public asg::IAsgTool{
+    
+    /// Declare the interface that the class provides
+    ASG_TOOL_INTERFACE( LVL1::IL1CaloFcal23Cells2RxMappingTool )  
+    
     public:
-      static const InterfaceID& interfaceID();
-
-      virtual ~IL1CaloFcal23Cells2RxMappingTool(){};
 
       virtual unsigned int offlineCell2RxId(const unsigned int& cellId) const = 0;
       virtual unsigned int onlineCell2RxId(const unsigned int& cellId) const = 0;
 
   };
-
-  inline const InterfaceID& IL1CaloFcal23Cells2RxMappingTool::interfaceID(){
-    return IID_IL1CaloFcal23Cells2RxMappingTool;
-  }  
-
 } // end of namespace
 
 #endif

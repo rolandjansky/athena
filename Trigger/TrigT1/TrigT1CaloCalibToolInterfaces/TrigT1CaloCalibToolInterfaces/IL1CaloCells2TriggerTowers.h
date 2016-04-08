@@ -17,8 +17,8 @@
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOCELLS2TRIGGERTOWERS_H_
 #define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOCELLS2TRIGGERTOWERS_H_
 
-#include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/IInterface.h"
+// Framework include(s):
+#include "AsgTools/IAsgTool.h"
 
 #include <vector>
 
@@ -31,13 +31,13 @@ class LArDigit;
 class TileDigits;
 
 namespace LVL1{
- static const InterfaceID IID_IL1CaloCells2TriggerTowers("LVL1::IL1CaloCells2TriggerTowers",1,0);
 
-  class IL1CaloCells2TriggerTowers : virtual public IAlgTool{
+  class IL1CaloCells2TriggerTowers : virtual public asg::IAsgTool{
+      
+    /// Declare the interface that the class provides
+    ASG_TOOL_INTERFACE( LVL1::IL1CaloCells2TriggerTowers )
+      
     public:
-      static const InterfaceID& interfaceID();
-
-      virtual ~IL1CaloCells2TriggerTowers(){};
 
       virtual bool initCaloCellsTriggerTowers(const CaloCellContainer& cellContainer) = 0;
       virtual bool initLArDigitsTriggerTowers(const LArDigitContainer& larDigitContainer) = 0;
@@ -82,9 +82,5 @@ namespace LVL1{
       virtual void dump(const std::vector<const TileDigits*>& vCells) const = 0;
 
   };
-
-  inline const InterfaceID& IL1CaloCells2TriggerTowers::interfaceID(){
-    return IID_IL1CaloCells2TriggerTowers;
-  }  
 } // end of namespace
 #endif
