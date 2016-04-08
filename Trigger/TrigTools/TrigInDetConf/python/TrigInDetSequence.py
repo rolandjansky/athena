@@ -29,6 +29,11 @@ from InDetTrigRecExample.InDetTrigRecLowPtTracking \
      import SiTrigSpacePointFinderLowPt_EF, SiTrigTrackFinderLowPt_EF, \
      TrigAmbiguitySolverLowPt_EF
 
+try:
+  from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
+except:
+  pass
+
 from TrigInDetConf.RoiManipulators import IDTrigRoiUpdater
 from TrigInDetConf.TrackingAlgCfgble import TrigFastTrackFinder
 
@@ -63,7 +68,8 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                     "TrigVxPrimary",
                     "InDetTrigParticleCreation",
                     "InDetTrigTrackParticleTruthMaker",
-                    "InDetTrigVertexxAODCnv"
+                    "InDetTrigVertexxAODCnv",
+                    "TrigFTK_VxPrimary",
                     ]
 
     clname = algname
@@ -82,8 +88,10 @@ class TrigInDetSequence(TrigInDetSequenceBase):
         _inst = algName+'_%s_FTF'
       elif "L2Star" in seqType:
         _inst = algName+'_%s_L2ID'
-      elif "IDTrig" in seqType or "FTK" in seqType:
+      elif "IDTrig" in seqType:
         _inst = algName+'_%s_IDTrig'
+      elif "FTK" in seqType:
+        _inst = algName+'_%s_FTK'
       else:
         _inst = algName+'_%s_EFID'
     else:
@@ -133,7 +141,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
       #raise Exception
 
-    log.info('%s ' % algseq)  
+    log.debug('%s ' % algseq)  
 
     self.__sequence__.append(algseq)
     pass
@@ -163,7 +171,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
     fullseq = list()
 
-    log.info("TrigInDetSequence  sigName=%s seqFlav=%s sig=%s sequenceType=%s" % (signatureName, sequenceFlavour, signature, sequenceType))
+    log.debug("TrigInDetSequence  sigName=%s seqFlav=%s sig=%s sequenceType=%s" % (signatureName, sequenceFlavour, signature, sequenceType))
 
     dataprep = [
       ("PixelClustering", "PixelClustering_IDTrig"),
@@ -175,10 +183,6 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     roiupdater = ""
     cnvname = "InDetTrigTrackingxAODCnv_%s_FTF"
 
-    if sequenceType=="FTK":
-      ftfname = "TrigFastTrackFinder_FTK";
-      cnvname = "InDetTrigTrackingxAODCnv_%s_FTK";
-      
     if sequenceFlavour=="2step":
       ftfname = "TrigFastTrackFinder_%sCore";  ftf2name = "TrigFastTrackFinder_%sIso"; 
       cnvname = "InDetTrigTrackingxAODCnv_%sCore_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTF";  
@@ -189,17 +193,13 @@ class TrigInDetSequence(TrigInDetSequenceBase):
         roiupdater = "IDTrigRoiUpdater_%sVtx_IDTrig"; roi2updater="";
       elif self.__signature__=="muon":
         if sequenceType=="IDTrig":
-          ftfname = "TrigFastTrackFinder_%s";  ftf2name = "TrigFastTrackFinder_%sIso"; 
+          ftfname = "TrigFastTrackFinder_%s_IDTrig";  ftf2name = "TrigFastTrackFinder_%sIso_IDTrig"; 
           cnvname = "InDetTrigTrackingxAODCnv_%s_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTF";  
-          roiupdater = "IDTrigRoiUpdater_%s_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
-        elif sequenceType=="FTK":
-          ftfname = "TrigFastTrackFinder_FTK"; ftf2name = "TrigFastTrackFinder_FTK"
-          cnvname = "InDetTrigTrackingxAODCnv_%s_FTK"; cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTK"; 
           roiupdater = "IDTrigRoiUpdater_%s_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
           
         
 
-    if sequenceType=="IDTrig"  or sequenceType=="FTK":
+    if sequenceType=="IDTrig":
 
       algos = list()
 
@@ -264,7 +264,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     else:
       pass
 
-    log.info("Full sequence has %d items" % len(fullseq) )
+    log.debug("Full sequence has %d items" % len(fullseq) )
     #print fullseq
     #log.info("generate python now")
 

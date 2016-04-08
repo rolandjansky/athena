@@ -7,13 +7,15 @@
 """
 
 ___author___ = "Jiri Masik"
-___version___ = "$Id: TrigInDetRecCommonTools.py 590759 2014-04-02 03:25:17Z masik $"
+___version___ = "$Id: TrigInDetRecCommonTools.py 724056 2016-02-15 17:44:17Z masik $"
 
 from AthenaCommon.AppMgr import ToolSvc
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
 
-from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool,\
+    InDetTrigTrackSummaryHelperToolSharedHits,InDetTrigTRT_ElectronPidTool
+
 
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrigFastTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigFastTrackSummaryTool",
@@ -25,3 +27,28 @@ InDetTrigFastTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigFastTrack
 ToolSvc += InDetTrigFastTrackSummaryTool
 if (InDetTrigFlags.doPrintConfigurables()):
     print      InDetTrigFastTrackSummaryTool
+
+
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
+InDetTrigTrackSummaryToolWithHoleSearch = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolWithHoleSearch",
+                                                                InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
+                                                                InDetHoleSearchTool    = InDetTrigHoleSearchTool,
+                                                                doSharedHits           = False,
+                                                                TRT_ElectronPidTool    = None
+                                                      )
+ToolSvc += InDetTrigTrackSummaryToolWithHoleSearch
+if (InDetTrigFlags.doPrintConfigurables()):
+    print      InDetTrigTrackSummaryToolWithHoleSearch
+
+
+InDetTrigTrackSummaryToolSharedHitsWithTRTPid = \
+    Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolSharedHitsWithTRT",
+                          InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
+                          doSharedHits           = InDetTrigFlags.doSharedHits(),
+                          InDetHoleSearchTool    = InDetTrigHoleSearchTool,
+                          TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool)
+
+ToolSvc += InDetTrigTrackSummaryToolSharedHitsWithTRTPid
+if (InDetTrigFlags.doPrintConfigurables()):
+    print      InDetTrigTrackSummaryToolSharedHitsWithTRTPid
+
