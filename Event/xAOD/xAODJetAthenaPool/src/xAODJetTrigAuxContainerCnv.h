@@ -7,6 +7,8 @@
 #ifndef XAODJETATHENAPOOL_XAODJETTRIGAUXCONTAINERCNV_H
 #define XAODJETATHENAPOOL_XAODJETTRIGAUXCONTAINERCNV_H
 
+#ifndef SIMULATIONBASE
+
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
@@ -49,5 +51,5 @@ protected:
    virtual xAOD::JetTrigAuxContainer* createTransient();
 
 }; // class xAODJetTrigAuxContainerCnv
-
+#endif // SIMULATIONBASE
 #endif // XAODJETATHENAPOOL_XAODJETAUXCONTAINERCNV_H

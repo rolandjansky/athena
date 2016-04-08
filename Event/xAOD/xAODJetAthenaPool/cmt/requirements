@@ -1,5 +1,5 @@
 package xAODJetAthenaPool
-# $Id: requirements 635124 2014-12-10 17:42:28Z ssnyder $
+# $Id: requirements 676007 2015-06-17 14:30:45Z delsart $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -15,7 +15,7 @@ private
 use AthenaKernel        AthenaKernel-*        Control
 use AthContainers       AthContainers-*       Control
 
-use AtlasROOT           AtlasROOT-*           External           
+use AtlasROOT           AtlasROOT-*           External
 
 # POOL package(s):
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
@@ -25,11 +25,26 @@ use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
 use xAODJet             xAODJet-*             Event/xAOD
 
 # Declare the pool converter(s):
-apply_pattern poolcnv typesWithNamespace="xAOD::JetContainer \
-                                          xAOD::JetAuxContainer \
-                                          xAOD::JetTrigAuxContainer" \
-                      files="-s=${xAODJet_root}/xAODJet \
-                             JetContainer.h \
-                             JetAuxContainer.h \
-                             JetTrigAuxContainer.h" \
+#apply_pattern poolcnv typesWithNamespace="xAOD::JetContainer \
+#                                          xAOD::JetAuxContainer \
+#                                          xAOD::JetTrigAuxContainer" \
+#                      files="-s=${xAODJet_root}/xAODJet \
+#                             JetContainer.h \
+#                             JetAuxContainer.h \
+#                             JetTrigAuxContainer.h" \
+#                      cnv_pfx="xAOD"
+macro xAODJetConvTypes "xAOD::JetContainer \
+                         xAOD::JetAuxContainer \
+                         xAOD::JetTrigAuxContainer" \
+      AthSimulationBase "xAOD::JetContainer \
+                         xAOD::JetAuxContainer"
+macro xAODJetConvFiles "-s=${xAODJet_root}/xAODJet \
+                        JetContainer.h \
+                        JetAuxContainer.h \
+                        JetTrigAuxContainer.h" \
+     AthSimulationBase "-s=${xAODJet_root}/xAODJet \
+                        JetContainer.h \
+                        JetAuxContainer.h"
+apply_pattern poolcnv typesWithNamespace=${xAODJetConvTypes} \
+                      files=${xAODJetConvFiles} \
                       cnv_pfx="xAOD"
