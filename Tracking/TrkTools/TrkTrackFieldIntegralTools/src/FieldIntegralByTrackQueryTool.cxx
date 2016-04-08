@@ -117,13 +117,15 @@ double Trk::FieldIntegralByTrackQueryTool::fieldIntegral(const Trk::Track& track
 	   dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack())==NULL) break;
       parameters = (**s).trackParameters(); // gets us the pars before 1st MS meas't
     }
-    ATH_MSG_VERBOSE ("found starting parameters for MS field calculation at "<<
-                     parameters->associatedSurface() );
   }
   if (!parameters) {
     ATH_MSG_INFO("no MS perigee on track for MS-field integral: convention violation or "<<
 		 "missing code in this tool. Will bail out...");
     return 0.0;
+  }
+  else {
+    ATH_MSG_VERBOSE ("found starting parameters for MS field calculation at "<<
+                     parameters->associatedSurface() );
   }
 
   // loop over TSOS to integrate vector Bdl
