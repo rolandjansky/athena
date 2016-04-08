@@ -66,39 +66,20 @@ StatusCode PixelMainMon::BookStatusMon(void)
    int nbins_LB = 2500; double min_LB = -0.5; double max_LB = min_LB + (1.0*nbins_LB);
    std::string atext_LB = ";lumi block";
    std::string atext_nmod = ";# modules/event";
+   const std::string modlabel[PixLayerIBL2D3D::COUNT] = {"ECA", "ECC", "B0", "B1", "B2", "IBL", "IBL2D", "IBL3D"};
 
-   tmp = "BadModules_per_lumi"; tmp2 = "Number of bad modules (bad+active) per event per LB";
-   sc = statusHistos.regHist(m_badModules_per_lumi     = TProfile_LW::create(tmp.c_str(),           (tmp2+        m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_badModules_per_lumi_ECA = TProfile_LW::create((tmp + "_ECA").c_str(),(tmp2+", ECA"+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_badModules_per_lumi_ECC = TProfile_LW::create((tmp + "_ECC").c_str(),(tmp2+", ECC"+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_badModules_per_lumi_B0  = TProfile_LW::create((tmp + "_B0").c_str(), (tmp2+", B0" +m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_badModules_per_lumi_B1  = TProfile_LW::create((tmp + "_B1").c_str(), (tmp2+", B1" +m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_badModules_per_lumi_B2  = TProfile_LW::create((tmp + "_B2").c_str(), (tmp2+", B2" +m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   if(m_doIBL){
-   sc = statusHistos.regHist(m_badModules_per_lumi_IBL = TProfile_LW::create((tmp + "_IBL").c_str(),(tmp2+", IBL"+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   }
+   for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
+      tmp = makeHistname(("BadModules_per_lumi_"+modlabel[i]), false);
+      tmp2 = makeHisttitle(("Number of bad modules (bad+active) per event per LB, "+modlabel[i]), (atext_LB+atext_nmod), false);
+      sc = statusHistos.regHist(m_badModules_per_lumi_mod[i] = TProfile_LW::create(tmp.c_str(), (tmp2+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
 
-   //tmp = "DisabledModules_per_lumi"; tmp2 = "Number of disabled modules (inactive or bad) per event per LB";
-   tmp = "DisabledModules_per_lumi"; tmp2 = "Number of disabled modules per event per LB";
-   sc = statusHistos.regHist(m_disabledModules_per_lumi     = TProfile_LW::create(tmp.c_str(),            (tmp2+        m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_disabledModules_per_lumi_PIX = TProfile_LW::create((tmp + "_PIX").c_str(), (tmp2+", PIX"+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_disabledModules_per_lumi_ECA = TProfile_LW::create((tmp + "_ECA").c_str(), (tmp2+", ECA"+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_disabledModules_per_lumi_ECC = TProfile_LW::create((tmp + "_ECC").c_str(), (tmp2+", ECC"+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_disabledModules_per_lumi_B0  = TProfile_LW::create((tmp + "_B0").c_str(),  (tmp2+", B0" +m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_disabledModules_per_lumi_B1  = TProfile_LW::create((tmp + "_B1").c_str(),  (tmp2+", B1" +m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_disabledModules_per_lumi_B2  = TProfile_LW::create((tmp + "_B2").c_str(),  (tmp2+", B2" +m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   if(m_doIBL){
-   sc = statusHistos.regHist(m_disabledModules_per_lumi_IBL = TProfile_LW::create((tmp + "_IBL").c_str(), (tmp2+", IBL"+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   }
-
-   tmp = "BadDisabledModules_per_lumi"; tmp2 = "Number of disabled & bad modules per event per LB";
-   sc = statusHistos.regHist(m_baddisabledModules_per_lumi_ECA = TProfile_LW::create((tmp + "_ECA").c_str(), (tmp2+", ECA"+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_baddisabledModules_per_lumi_ECC = TProfile_LW::create((tmp + "_ECC").c_str(), (tmp2+", ECC"+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_baddisabledModules_per_lumi_B0  = TProfile_LW::create((tmp + "_B0").c_str(),  (tmp2+", B0" +m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_baddisabledModules_per_lumi_B1  = TProfile_LW::create((tmp + "_B1").c_str(),  (tmp2+", B1" +m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   sc = statusHistos.regHist(m_baddisabledModules_per_lumi_B2  = TProfile_LW::create((tmp + "_B2").c_str(),  (tmp2+", B2" +m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
-   if(m_doIBL){
-   sc = statusHistos.regHist(m_baddisabledModules_per_lumi_IBL = TProfile_LW::create((tmp + "_IBL").c_str(), (tmp2+", IBL"+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
+      tmp = makeHistname(("DisabledModules_per_lumi_"+modlabel[i]), false);
+      tmp2 = makeHisttitle(("Number of disabled modules per event per LB, "+modlabel[i]), (atext_LB+atext_nmod), false);
+      sc = statusHistos.regHist(m_disabledModules_per_lumi_mod[i] = TProfile_LW::create(tmp.c_str(), (tmp2+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
+     
+      tmp = makeHistname(("BadDisabledModules_per_lumi_"+modlabel[i]), false);
+      tmp2 = makeHisttitle(("Number of disabled & bad modules per event per LB, "+modlabel[i]), (atext_LB+atext_nmod), false);
+      sc = statusHistos.regHist(m_baddisabledModules_per_lumi_mod[i] = TProfile_LW::create(tmp.c_str(), (tmp2+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
    }
 
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
@@ -128,20 +109,10 @@ StatusCode PixelMainMon::FillStatusMon(void)
    PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
 
    int nBad=0;
-   int nBad_ECA=0;
-   int nBad_ECC=0;
-   int nBad_IBL=0;
-   int nBad_B0=0;
-   int nBad_B1=0;
-   int nBad_B2=0;
+   int nBad_mod[PixLayerIBL2D3D::COUNT]={0};
 
    int nDisabled=0;
-   int nDisabled_ECA=0;
-   int nDisabled_ECC=0;
-   int nDisabled_IBL=0;
-   int nDisabled_B0=0;
-   int nDisabled_B1=0;
-   int nDisabled_B2=0;
+   int nDisabled_mod[PixLayerIBL2D3D::COUNT]={0};
 
 
    if(m_isNewLumiBlock && m_Status_modules) m_Status_modules->Reset();
@@ -150,6 +121,12 @@ StatusCode PixelMainMon::FillStatusMon(void)
    {
       Identifier WaferID = *idIt;
       IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID); 
+      int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+      int pixlayeribl2d3d = 0;
+      if( pixlayer == PixLayer::kIBL ){
+         pixlayeribl2d3d = GetPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
+      }
+      if( pixlayer == 99 ) continue;
 
       // check in order of occurrence to reduce number of calls to conditions service
       if      (m_pixelCondSummarySvc->isActive(id_hash) == true && m_pixelCondSummarySvc->isGood(id_hash) == true ) {Index=0;}
@@ -166,14 +143,8 @@ StatusCode PixelMainMon::FillStatusMon(void)
       {
 	      if (Index == 1) {
 	         nBad++;
-	         if(m_pixelid->barrel_ec(WaferID)==2)  nBad_ECA++;
-	         if(m_pixelid->barrel_ec(WaferID)==-2) nBad_ECC++;
-	         if(m_pixelid->barrel_ec(WaferID)==0) {
-	            if(m_pixelid->layer_disk(WaferID)==0 && m_doIBL) nBad_IBL++;
-	            if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nBad_B0++;
-	            if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nBad_B1++;
-	            if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nBad_B2++;
-            }
+            nBad_mod[pixlayer]++;
+            if(pixlayeribl2d3d != 0) nBad_mod[pixlayeribl2d3d]++;
 	      }
 	      // inactive or bad modules
 	      // should maybe use only inactive modules for these, however, since tracking etc use "disabled module" as !(active+good)
@@ -181,14 +152,8 @@ StatusCode PixelMainMon::FillStatusMon(void)
          if(Index == 2)
 	      {
             nDisabled++;
-	         if(m_pixelid->barrel_ec(WaferID)==2)  nDisabled_ECA++;
-	         if(m_pixelid->barrel_ec(WaferID)==-2) nDisabled_ECC++;
-	         if (m_pixelid->barrel_ec(WaferID)==0) {
-	            if(m_pixelid->layer_disk(WaferID)==0 && m_doIBL) nDisabled_IBL++;
-	            if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) nDisabled_B0++;
-	            if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) nDisabled_B1++;
-	            if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) nDisabled_B2++;
-	         }
+            nDisabled_mod[pixlayer]++;
+            if(pixlayeribl2d3d != 0) nDisabled_mod[pixlayeribl2d3d]++;
          }
 
 	      if (m_Status_modules)
@@ -213,31 +178,14 @@ StatusCode PixelMainMon::FillStatusMon(void)
       }
    } // End of loop 
 
-   static float nmod[PixLayer::COUNT] = {144., 144., 286., 494., 676., 280.};
+   //static float nmod[PixLayer::COUNT] = {144., 144., 286., 494., 676., 280.};
+   static float nmod2[PixLayerIBL2D3D::COUNT] = {144., 144., 286., 494., 676., 280., 168., 112.};
 
-   if(m_disabledModules_per_lumi)     m_disabledModules_per_lumi->Fill(m_manager->lumiBlockNumber(),nDisabled); 
-   if(m_disabledModules_per_lumi_PIX) m_disabledModules_per_lumi_PIX->Fill(m_manager->lumiBlockNumber(),nDisabled-nDisabled_IBL);
-   if(m_disabledModules_per_lumi_ECA) m_disabledModules_per_lumi_ECA->Fill(m_manager->lumiBlockNumber(),nDisabled_ECA); 
-   if(m_disabledModules_per_lumi_ECC) m_disabledModules_per_lumi_ECC->Fill(m_manager->lumiBlockNumber(),nDisabled_ECC); 
-   if(m_disabledModules_per_lumi_IBL) m_disabledModules_per_lumi_IBL->Fill(m_manager->lumiBlockNumber(),nDisabled_IBL);
-   if(m_disabledModules_per_lumi_B0)  m_disabledModules_per_lumi_B0->Fill(m_manager->lumiBlockNumber(),nDisabled_B0); 
-   if(m_disabledModules_per_lumi_B1)  m_disabledModules_per_lumi_B1->Fill(m_manager->lumiBlockNumber(),nDisabled_B1); 
-   if(m_disabledModules_per_lumi_B2)  m_disabledModules_per_lumi_B2->Fill(m_manager->lumiBlockNumber(),nDisabled_B2); 
-
-   if(m_badModules_per_lumi)     m_badModules_per_lumi->Fill(m_manager->lumiBlockNumber(),nBad); 
-   if(m_badModules_per_lumi_ECA) m_badModules_per_lumi_ECA->Fill(m_manager->lumiBlockNumber(),nBad_ECA/nmod[PixLayer::kECA]); 
-   if(m_badModules_per_lumi_ECC) m_badModules_per_lumi_ECC->Fill(m_manager->lumiBlockNumber(),nBad_ECC/nmod[PixLayer::kECC]); 
-   if(m_badModules_per_lumi_IBL) m_badModules_per_lumi_IBL->Fill(m_manager->lumiBlockNumber(),nBad_IBL/nmod[PixLayer::kIBL]);
-   if(m_badModules_per_lumi_B0)  m_badModules_per_lumi_B0->Fill(m_manager->lumiBlockNumber(),nBad_B0/nmod[PixLayer::kB0]); 
-   if(m_badModules_per_lumi_B1)  m_badModules_per_lumi_B1->Fill(m_manager->lumiBlockNumber(),nBad_B1/nmod[PixLayer::kB1]); 
-   if(m_badModules_per_lumi_B2)  m_badModules_per_lumi_B2->Fill(m_manager->lumiBlockNumber(),nBad_B2/nmod[PixLayer::kB2]); 
-
-   if(m_baddisabledModules_per_lumi_ECA) m_baddisabledModules_per_lumi_ECA->Fill(m_manager->lumiBlockNumber(),nDisabled_ECA+nBad_ECA); 
-   if(m_baddisabledModules_per_lumi_ECC) m_baddisabledModules_per_lumi_ECC->Fill(m_manager->lumiBlockNumber(),nDisabled_ECC+nBad_ECC); 
-   if(m_baddisabledModules_per_lumi_IBL) m_baddisabledModules_per_lumi_IBL->Fill(m_manager->lumiBlockNumber(),nDisabled_IBL+nBad_IBL);
-   if(m_baddisabledModules_per_lumi_B0)  m_baddisabledModules_per_lumi_B0->Fill(m_manager->lumiBlockNumber(),nDisabled_B0+nBad_B0); 
-   if(m_baddisabledModules_per_lumi_B1)  m_baddisabledModules_per_lumi_B1->Fill(m_manager->lumiBlockNumber(),nDisabled_B1+nBad_B1); 
-   if(m_baddisabledModules_per_lumi_B2)  m_baddisabledModules_per_lumi_B2->Fill(m_manager->lumiBlockNumber(),nDisabled_B2+nBad_B2); 
+   for(int i=0 ; i<PixLayerIBL2D3D::COUNT ; i++){
+     if(m_badModules_per_lumi_mod[i]) m_badModules_per_lumi_mod[i]->Fill( m_manager->lumiBlockNumber(), nBad_mod[i]/nmod2[i] );
+     if(m_disabledModules_per_lumi_mod[i]) m_disabledModules_per_lumi_mod[i]->Fill( m_manager->lumiBlockNumber(), nDisabled_mod[i] );
+     if(m_baddisabledModules_per_lumi_mod[i]) m_baddisabledModules_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(),nDisabled_mod[i]+nBad_mod[i]); 
+   }
 
    if (nDisabled > (1744+280*m_doIBL)*0.50) {
      m_majorityDisabled = true;

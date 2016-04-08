@@ -8,21 +8,30 @@
 
 #include "PixelMonitoring/PixelMonProfiles.h"
 #include "InDetIdentifier/PixelID.h"
-#include "TProfile2D.h"
+//#include "TProfile2D.h"
+#include "LWHists/TProfile2D_LW.h"
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
 PixelMonProfiles::PixelMonProfiles(std::string name, std::string title )
 {
 
-  IBL3D = new TProfile2D((name+"_IBL3D").c_str(),(title + ", IBL 3D module " + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,14,-0.5,13.5);
-  IBL2D = new TProfile2D((name+"_IBL2D").c_str(),(title + ", IBL planar module " + ";eta index of module;phi index of module").c_str(),12,-6.5,5.5,14,-0.5,13.5);
-  IBL   = new TProfile2D((name+"_IBL").c_str(),  (title + ", IBL " + ";eta index of module;phi index of module").c_str(), 32, -16.5, 15.5, 14, -0.5, 13.5);
-  B0    = new TProfile2D((name+"_B0").c_str(),   (title + ", B0 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
-  B1    = new TProfile2D((name+"_B1").c_str(),   (title + ", B1 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
-  B2    = new TProfile2D((name+"_B2").c_str(),   (title + ", B2 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
-  A     = new TProfile2D((name+"_ECA" ).c_str(), (title + ", ECA "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
-  C     = new TProfile2D((name+"_ECC" ).c_str(), (title + ", ECC "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+  //IBL3D = new TProfile2D((name+"_IBL3D").c_str(),(title + ", IBL 3D module " + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,14,-0.5,13.5);
+  //IBL2D = new TProfile2D((name+"_IBL2D").c_str(),(title + ", IBL planar module " + ";eta index of module;phi index of module").c_str(),12,-6.5,5.5,14,-0.5,13.5);
+  //IBL   = new TProfile2D((name+"_IBL").c_str(),  (title + ", IBL " + ";eta index of module;phi index of module").c_str(), 32, -16.5, 15.5, 14, -0.5, 13.5);
+  //B0    = new TProfile2D((name+"_B0").c_str(),   (title + ", B0 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
+  //B1    = new TProfile2D((name+"_B1").c_str(),   (title + ", B1 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
+  //B2    = new TProfile2D((name+"_B2").c_str(),   (title + ", B2 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
+  //A     = new TProfile2D((name+"_ECA" ).c_str(), (title + ", ECA "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+  //C     = new TProfile2D((name+"_ECC" ).c_str(), (title + ", ECC "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+  IBL3D = TProfile2D_LW::create((name+"_IBL3D").c_str(),(title + ", IBL 3D module " + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,14,-0.5,13.5);
+  IBL2D = TProfile2D_LW::create((name+"_IBL2D").c_str(),(title + ", IBL planar module " + ";eta index of module;phi index of module").c_str(),12,-6.5,5.5,14,-0.5,13.5);
+  IBL   = TProfile2D_LW::create((name+"_IBL").c_str(),  (title + ", IBL " + ";eta index of module;phi index of module").c_str(), 32, -16.5, 15.5, 14, -0.5, 13.5);
+  B0    = TProfile2D_LW::create((name+"_B0").c_str(),   (title + ", B0 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
+  B1    = TProfile2D_LW::create((name+"_B1").c_str(),   (title + ", B1 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
+  B2    = TProfile2D_LW::create((name+"_B2").c_str(),   (title + ", B2 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
+  A     = TProfile2D_LW::create((name+"_ECA" ).c_str(), (title + ", ECA "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+  C     = TProfile2D_LW::create((name+"_ECC" ).c_str(), (title + ", ECC "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
 
 
   formatHist();
@@ -31,14 +40,22 @@ PixelMonProfiles::PixelMonProfiles(std::string name, std::string title )
 
 PixelMonProfiles::~PixelMonProfiles()
 {
-   delete IBL3D;
-   delete IBL2D;
-   delete IBL;
-   delete B0;
-   delete B1;
-   delete B2;
-   delete A;
-   delete C;
+   //delete IBL3D;
+   //delete IBL2D;
+   //delete IBL;
+   //delete B0;
+   //delete B1;
+   //delete B2;
+   //delete A;
+   //delete C;
+   LWHist::safeDelete(IBL3D);
+   LWHist::safeDelete(IBL2D);
+   LWHist::safeDelete(IBL);
+   LWHist::safeDelete(B0);
+   LWHist::safeDelete(B1);
+   LWHist::safeDelete(B2);
+   LWHist::safeDelete(A);
+   LWHist::safeDelete(C);
 }
 
 void PixelMonProfiles::SetMaxValue(float max)
@@ -230,14 +247,14 @@ void PixelMonProfiles::formatHist()
    A->GetYaxis()->SetLabelSize(0.02);
    C->GetYaxis()->SetLabelSize(0.02);
    //Move the lable so you can read it
-   IBL2D->GetYaxis()->SetTitleOffset(1.35);
-   IBL3D->GetYaxis()->SetTitleOffset(1.35);
-   IBL->GetYaxis()->SetTitleOffset(1.35);
-   B0->GetYaxis()->SetTitleOffset(1.35);
-   B1->GetYaxis()->SetTitleOffset(1.35);
-   B2->GetYaxis()->SetTitleOffset(1.35);
-   A->GetYaxis()->SetTitleOffset(1.35);
-   C->GetYaxis()->SetTitleOffset(1.35);
+   //IBL2D->GetYaxis()->SetTitleOffset(1.35);
+   //IBL3D->GetYaxis()->SetTitleOffset(1.35);
+   //IBL->GetYaxis()->SetTitleOffset(1.35);
+   //B0->GetYaxis()->SetTitleOffset(1.35);
+   //B1->GetYaxis()->SetTitleOffset(1.35);
+   //B2->GetYaxis()->SetTitleOffset(1.35);
+   //A->GetYaxis()->SetTitleOffset(1.35);
+   //C->GetYaxis()->SetTitleOffset(1.35);
    //put histograms in the easier to read colz format
    IBL->SetOption("colz");
    IBL2D->SetOption("colz");
@@ -257,14 +274,14 @@ void PixelMonProfiles::formatHist()
    A->SetMinimum(0.);     
    C->SetMinimum(0.);    
    //Remvoe the stats box because it's in the way
-   IBL->SetStats(0.);
-   IBL2D->SetStats(0.);
-   IBL3D->SetStats(0.);
-   B0->SetStats(0.);
-   B1->SetStats(0.);
-   B2->SetStats(0.);
-   A->SetStats(0.);
-   C->SetStats(0.);
+   //IBL->SetStats(0.);
+   //IBL2D->SetStats(0.);
+   //IBL3D->SetStats(0.);
+   //B0->SetStats(0.);
+   //B1->SetStats(0.);
+   //B2->SetStats(0.);
+   //A->SetStats(0.);
+   //C->SetStats(0.);
    
 }
 

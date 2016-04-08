@@ -55,10 +55,10 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
   //sc = dcsExpert.regHist(m_hist_coolingPipeTemperatureInlet2D = TH2F_LW::create("cooling Pipe TemperatureInlet_chanNum", "cooling Pipe TempreratureInlet vs Channel Number; Channel Number;Temperature",14,1,15,150,-15,15));
   //sc = dcsExpert.regHist(m_hist_coolingPipeTemperatureOutlet2D = TH2F_LW::create("cooling Pipe TemperatureOutlet_chanNum", "cooling Pipe TempreratureOutlet vs Channel Number; Channel Number;Temperature",14,1,15,150,-15,15));
   //sc = dcsExpert.regHist(m_hist_HV_voltage2D = TH2F_LW::create("HV voltage_chanNum", "HV vs Channel Number; Channel Number;HV",14,1,15,100,-100,0));
-  float min_temperature = -15.; float max_temperature = 5.; int nbins_temperature = 100;
+  float min_temperature = -20.; float max_temperature = 0.; int nbins_temperature = 100;
   float min_LB = 0.;            float max_LB = 1500.;       int nbins_LB = 1500;
   float min_module = -10.;      float max_module = 10.;     int nbins_module = 20;
-  float min_HV = 0.;            float max_HV = 100.;        int nbins_HV = 100;
+  float min_HV = 0.;            float max_HV = 150.;        int nbins_HV = 150;
   float min_HVcurrent = 0.;     float max_HVcurrent = 0.1;  int nbins_HVcurrent = 100;
   float min_LV = 0.;            float max_LV = 5.;          int nbins_LV = 50;
   float min_LVcurrent = 0.;     float max_LVcurrent = 5.;   int nbins_LVcurrent = 50;
@@ -355,7 +355,7 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
   }
   // temperature
   sc = dcsExpert.regHist(m_hist_moduleTemperatureEtaPhi
-      = TProfile2D_LW::create("moduleTemperature_EtaPhi", "moduleTemperature EtaPhi; Module #eta Index;staveID;"+label_moduleTemp,
+      = TProfile2D_LW::create("moduleTemperature_EtaPhi", "Module Temperature EtaPhi; Module #eta Index;staveID;"+label_moduleTemp,
         nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
   //m_hist_moduleTemperatureEtaPhi->SetContour(99);
   xaxis = m_hist_moduleTemperatureEtaPhi->GetXaxis();
@@ -500,7 +500,7 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
   //m_hist_LB_staveID_dT->SetContour(99);
   // LV PC
   sc = dcsExpert.regHist(m_hist_LVPowerConsumptionEtaPhi
-      = TProfile2D_LW::create("LVPowerConsumption_EtaPhi", "LVPowerConsumption EtaPhi; Module #eta Index;staveID;"+label_LVPC,
+      = TProfile2D_LW::create("LVPowerConsumption_EtaPhi", "LV Power Consumption EtaPhi; Module #eta Index;staveID;"+label_LVPC,
         nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
   //m_hist_LVPowerConsumptionEtaPhi->SetContour(99);
   xaxis = m_hist_LVPowerConsumptionEtaPhi->GetXaxis();
@@ -513,7 +513,7 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
   //m_hist_LB_staveID_LVPowerConsumption->SetContour(99);
   // HV PC
   sc = dcsExpert.regHist(m_hist_HVPowerConsumptionEtaPhi
-      = TProfile2D_LW::create("HVPowerConsumption_EtaPhi", "HVPowerConsumption EtaPhi; Module #eta Index;staveID;"+label_HVPC,
+      = TProfile2D_LW::create("HVPowerConsumption_EtaPhi", "HV Power Consumption EtaPhi; Module #eta Index;staveID;"+label_HVPC,
         nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
   //m_hist_HVPowerConsumptionEtaPhi->SetContour(99);
   xaxis = m_hist_HVPowerConsumptionEtaPhi->GetXaxis();
@@ -526,7 +526,7 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
   //m_hist_LB_staveID_HVPowerConsumption->SetContour(99);
   // LVHV PC
   sc = dcsExpert.regHist(m_hist_LVHVPowerConsumptionEtaPhi
-      = TProfile2D_LW::create("LVHVPowerConsumption_EtaPhi", "LVHVPowerConsumption EtaPhi; Module #eta Index;staveID;"+label_LVHVPC,
+      = TProfile2D_LW::create("LVHVPowerConsumption_EtaPhi", "LV+HV Power Consumption EtaPhi; Module #eta Index;staveID;"+label_LVHVPC,
         nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
   //m_hist_LVHVPowerConsumptionEtaPhi->SetContour(99);
   xaxis = m_hist_LVHVPowerConsumptionEtaPhi->GetXaxis();
@@ -539,7 +539,7 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
   //m_hist_LB_staveID_LVHVPowerConsumption->SetContour(99);
   // eff flex temp
   sc = dcsExpert.regHist(m_hist_effFLEXtempEtaPhi
-      = TProfile2D_LW::create("effFLEXtemp_EtaPhi", "effFLEXtemp EtaPhi; Module #eta Index;staveID;"+label_effFLEXtemp,
+      = TProfile2D_LW::create("effFLEXtemp_EtaPhi", "Effective FLEX Temperature EtaPhi; Module #eta Index;staveID;"+label_effFLEXtemp,
         nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
   //m_hist_effFLEXtempEtaPhi->SetContour(99);
   xaxis = m_hist_effFLEXtempEtaPhi->GetXaxis();
@@ -552,7 +552,7 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
   //m_hist_LB_staveID_effFLEXtemp->SetContour(99);
   // thermal figure of merit
   sc = dcsExpert.regHist(m_hist_thermalFigureMeritEtaPhi
-      = TProfile2D_LW::create("thermalFigureMerit_EtaPhi", "thermalFigureMerit EtaPhi; Module #eta Index;staveID;"+label_tfm,
+      = TProfile2D_LW::create("thermalFigureMerit_EtaPhi", "Thermal Figure of Merit EtaPhi; Module #eta Index;staveID;"+label_tfm,
         nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
   //m_hist_thermalFigureMeritEtaPhi->SetContour(99);
   xaxis = m_hist_thermalFigureMeritEtaPhi->GetXaxis();
@@ -1091,12 +1091,12 @@ StatusCode PixelMainMon::ProcPixelDCSMon(void)
          m_hist_LB_staveID_LVHVPowerConsumption->Fill(LB,staveNum,lvpc + hvpc * 0.001);
          m_hist_LB_moduleGroup_LVHVPowerConsumption[staveNum - 1]->Fill(LB, moduleGroup, lvpc + hvpc * 0.001);
          // fill effective FLEX temperature
-         float tempFlex = dT * 0.6 + tempOutlet;
+         float tempFlex = dT * 0.6 + tempOutlet; // 0.6 is measured value
          m_hist_effFLEXtempEtaPhi->Fill(module_eta, staveNum, tempFlex);
          m_hist_LB_staveID_effFLEXtemp->Fill(LB,staveNum,tempFlex);
          m_hist_LB_moduleGroup_effFLEXtemp[staveNum - 1]->Fill(LB, moduleGroup, tempFlex);
          // fill thermal figure of merit
-         if (lvpc + hvpc * 0.001 == 0) {
+         if (lvpc + hvpc * 0.001 != 0) {
            float tfm = dT/(lvpc + hvpc * 0.001);
            m_hist_thermalFigureMeritEtaPhi->Fill(module_eta, staveNum, tfm);
            m_hist_LB_staveID_thermalFigureMerit->Fill(LB,staveNum,tfm);
