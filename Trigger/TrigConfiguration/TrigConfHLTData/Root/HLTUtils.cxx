@@ -34,23 +34,25 @@ using namespace std;
 // \return key for this string (this function never fails)
 //
 namespace HashChecking {
-   static std::map<std::string,  std::map<unsigned int, std::string> > AllHashesByCategory;
-   void checkGeneratedHash (unsigned int hash,  const std::string& s,   const std::string& category) {
-      std::map<unsigned int, std::string>& hashes = AllHashesByCategory[category];
-      if ( hashes[hash] == "" )
-         hashes[hash] = s;
-      else if ( hashes[hash] != s )
-         throw std::domain_error("Hashes the same for category: "+category
-                                 + " and elements "+ hashes[hash] + " "+ s );
-   }
+  typedef std::map<HLTHash, std::string> HashMap;
+  typedef std::map<std::string, HashMap> CategoryMap;
+  static CategoryMap AllHashesByCategory;
+  void checkGeneratedHash (HLTHash hash,  const std::string& s,   const std::string& category) {
+    HashMap& hashes = AllHashesByCategory[category];
+    if ( hashes[hash] == "" )
+      hashes[hash] = s;
+    else if ( hashes[hash] != s )
+      throw std::domain_error("Hashes the same for category: "+category
+			      + " and elements "+ hashes[hash] + " "+ s );
+  }
 }
 
-uint32_t HLTUtils::string2hash( const std::string& s, const std::string& category )
+HLTHash HLTUtils::string2hash( const std::string& s, const std::string& category )
 {
   // hash function (based on available elswhere ELF hash function)
   // uniqueness tested in MC way; contact me for details
   // email: Tomasz.Bold@cern.ch
-  uint32_t hash;
+  HLTHash hash;
   hash = 0xd2d84a61;
   int i;
 
@@ -64,6 +66,17 @@ uint32_t HLTUtils::string2hash( const std::string& s, const std::string& categor
   HashChecking::checkGeneratedHash(hash, s, category);
 
   return hash;
+}
+
+const std::string HLTUtils::hash2string( HLTHash hash, const std::string& category ) {
+  HashChecking::CategoryMap::const_iterator mapForCategoryIt = HashChecking::AllHashesByCategory.find(category);
+  if ( mapForCategoryIt == HashChecking::AllHashesByCategory.end() ) {
+    return "UNKNOWN CATEGORY";
+  }
+  HashChecking::HashMap::const_iterator hashMapIt = mapForCategoryIt->second.find(hash);
+  if ( hashMapIt == mapForCategoryIt->second.end() ) 
+    return "UNKNOWN HASH ID";
+  return hashMapIt->second;
 }
 
 
