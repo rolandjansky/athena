@@ -30,8 +30,6 @@ use InDetIdentifier             InDetIdentifier-*             InnerDetector/InDe
 use TrkPrepRawData		TrkPrepRawData-* 	      Tracking/TrkEvent
 use InDetPrepRawData		InDetPrepRawData-*	      InnerDetector/InDetRecEvent
 use TrkDetElementBase           TrkDetElementBase-*           Tracking/TrkDetDescr 
-use TrkGeometry           	TrkGeometry-*		      Tracking/TrkDetDescr
-use TrkMeasurementBase		TrkMeasurementBase-*	      Tracking/TrkEvent
 use TrkRIO_OnTrack		TrkRIO_OnTrack-*	      Tracking/TrkEvent
 use TrkTrack			TrkTrack-*		      Tracking/TrkEvent
 use AtlasROOT			AtlasROOT-*		      External

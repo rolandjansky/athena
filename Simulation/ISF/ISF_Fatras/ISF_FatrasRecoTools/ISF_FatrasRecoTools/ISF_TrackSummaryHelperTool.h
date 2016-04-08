@@ -87,9 +87,9 @@ namespace iFatras {
     ToolHandle< Trk::IPRD_AssociationTool >   m_assoTool;
     
     bool m_doSharedHits;
-    bool m_doSplitPixelHits;
+    //bool m_doSplitPixelHits;
     bool m_overwriteidsummary;
-    bool m_runningTIDE_Ambi;
+    //bool m_runningTIDE_Ambi;
   };
   
 }
