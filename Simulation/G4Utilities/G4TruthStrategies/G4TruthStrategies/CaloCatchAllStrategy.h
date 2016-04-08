@@ -5,7 +5,7 @@
 #ifndef CaloCatchAllStrategy_H
 #define CaloCatchAllStrategy_H
 
-#include "MCTruth/TruthStrategy.h"
+#include "MCTruthBase/TruthStrategy.h"
 class CaloCatchAllStrategy: public TruthStrategy {
 public:
 	CaloCatchAllStrategy(const std::string);
