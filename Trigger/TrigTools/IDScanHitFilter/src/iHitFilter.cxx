@@ -102,7 +102,7 @@ iHitFilter::~iHitFilter()
  }
 
 
-void iHitFilter::makeIDScanSPs( std::vector<ExternalSpacePoint* > spVec, 
+void iHitFilter::makeIDScanSPs( std::vector<const ExternalSpacePoint* > spVec, 
 				double meanEta, double deltaEta,
 				double meanPhi, double deltaPhi,
 				double zVertex) 
@@ -131,7 +131,7 @@ void iHitFilter::makeIDScanSPs( std::vector<ExternalSpacePoint* > spVec,
 	double roiPhiPosMin( 9.9), roiPhiPosMax(0);
 	double roiPhiNegMin(-9.9), roiPhiNegMax(0);  // least negative and most negative
 	
-	std::vector<ExternalSpacePoint* >::const_iterator SpItr( spVec.begin() );
+	std::vector<const ExternalSpacePoint* >::const_iterator SpItr( spVec.begin() );
 	for(unsigned int i=0; i<spVec.size(); ++i, ++SpItr)
 	  {
 	    double spphi = (*SpItr)->phi();
@@ -210,7 +210,7 @@ void iHitFilter::makeIDScanSPs( std::vector<ExternalSpacePoint* > spVec,
   //  std::cout << "TrigIDSCAN IDScanHitFilter  dEta "     << dEta     << std::endl;
   //  std::cout << "TrigIDSCAN IDScanHitFilter  extraEta " << extraEta << std::endl;
   
-  std::vector<ExternalSpacePoint* >::const_iterator siSpItr( spVec.begin() );
+  std::vector<const ExternalSpacePoint* >::const_iterator siSpItr( spVec.begin() );
   for ( ; siSpItr!=spVec.end(); ++siSpItr ) {
     double eta = (*siSpItr)->eta(zVertex);
 

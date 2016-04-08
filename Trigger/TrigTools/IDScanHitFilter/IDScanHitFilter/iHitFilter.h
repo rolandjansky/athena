@@ -82,7 +82,7 @@ protected:                      // member functions
   
   void cleanInternalSPs();
 
-  void  makeIDScanSPs( std::vector<ExternalSpacePoint* >, double, double, double, double, double );
+  void  makeIDScanSPs( std::vector<const ExternalSpacePoint* >, double, double, double, double, double );
 
 protected:                      // data members
   

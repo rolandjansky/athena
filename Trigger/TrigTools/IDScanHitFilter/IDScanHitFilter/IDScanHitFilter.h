@@ -57,7 +57,7 @@ class IDScanHitFilter: public iHitFilter, public AthAlgTool, virtual public ITri
   virtual StatusCode initialize();
   virtual StatusCode finalize  ();
   
-  void findTracks( std::vector<TrigSiSpacePoint* >, 
+  void findTracks( std::vector<const TrigSiSpacePoint* >, 
 		   TrigInDetTrackCollection&, 
 		   const IRoiDescriptor*, double zvertex,
 		   double shiftx, double shifty,
