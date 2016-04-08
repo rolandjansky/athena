@@ -254,11 +254,12 @@ def getAsetupString(release):
         msg.info('failed to find env variable : $'+eVar)
         AtlasProject='AtlasP1HLT'
 
-    #If TestArea is for tzero (tzero/software/patches), then return None   
+    #If TestArea is for tzero (tzero/software/patches/AtlasP1HLT-Recovery), then return None   
     if eVarDic.get('TestArea') :
         TestArea = eVarDic['TestArea']
-        if  TestArea.find("tzero/software/patches") > 0 :
-            asetupString = None
+        if  TestArea.find("tzero/software/patches/AtlasP1HLT-Recovery") > 0 :
+            TestArea = TestArea.replace("Recovery",release)
+            asetupString = AtlasProject + ',' + release + ',gcc48,cvmfs --testarea '+ TestArea
             return asetupString
     #check if CORAL user env DB is different wrt expected asetup, then use "asetup --useenvironment" option 
     if eVarDic['AtlasPatchArea'] :
