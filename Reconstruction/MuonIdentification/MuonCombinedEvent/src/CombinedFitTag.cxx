@@ -9,7 +9,7 @@
 namespace MuonCombined {
 
   CombinedFitTag::CombinedFitTag( xAOD::Muon::Author author, const MuonCandidate& muonCandidate, 
-				  const Trk::Track& combinedTrack, const Trk::TrackScore& score ) : 
+        const Trk::Track& combinedTrack, const Trk::TrackScore& score ) : 
     TagBase(author,TagBase::Type::Combined), m_muonCandidate(&muonCandidate), 
     m_combinedTrack(&combinedTrack), m_trackScore(score),
     m_updatedExtrapolatedTrack(0),

@@ -27,8 +27,9 @@ namespace MuGirlNS
 //typedef std::vector<const Muon::MuonSegment*> MuonSegmentList;
 class Intersection;
 
-struct CandidateSummary
+class CandidateSummary
 {
+public:
     bool startFromMF;
     bool startFromEF;
     bool startFromBetaRefit;
@@ -161,7 +162,7 @@ struct CandidateSummary
 
 typedef std::vector<const CandidateSummary*> CandidateSummaryList; // sofia: vector of CandidateSummary
 
-enum StauHitTechnology { RPC_STAU_HIT=0, RPCETA_STAU_HIT, MDTT_STAU_HIT, CALO_STAU_HIT };
+enum StauHitTechnology { RPC_STAU_HIT=0, RPCETA_STAU_HIT, MDTT_STAU_HIT, CALO_STAU_HIT, CSC_STAU_HIT };
 
 inline std::string hitTechnologyName(StauHitTechnology eTech)
 {
@@ -170,6 +171,7 @@ inline std::string hitTechnologyName(StauHitTechnology eTech)
         case RPC_STAU_HIT: return "RPC";
         case MDTT_STAU_HIT: return "MDTT";
         case CALO_STAU_HIT: return "CALO";
+        case CSC_STAU_HIT: return "CSC";
         default: return std::string();
     }
 }

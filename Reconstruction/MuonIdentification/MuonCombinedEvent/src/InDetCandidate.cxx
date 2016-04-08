@@ -8,9 +8,9 @@
 
 namespace MuonCombined {
   
-  InDetCandidate::InDetCandidate(const xAOD::TrackParticle& idTrack) : m_idTrackParticle(&idTrack) {}
+  InDetCandidate::InDetCandidate(const xAOD::TrackParticle& idTrack) : m_idTrackParticle(&idTrack), m_siAssociated(false) {}
 
-  InDetCandidate::InDetCandidate( const ElementLink<xAOD::TrackParticleContainer>& idTrackLink ) : m_idTrackParticleLink(idTrackLink), m_idTrackParticle(0) {}
+  InDetCandidate::InDetCandidate( const ElementLink<xAOD::TrackParticleContainer>& idTrackLink ) : m_idTrackParticleLink(idTrackLink), m_idTrackParticle(0),m_siAssociated(false) {}
 
   InDetCandidate::~InDetCandidate() {
     for( auto x : m_tags ) delete x;
@@ -22,6 +22,7 @@ namespace MuonCombined {
 	 << " tags ";
     for( auto x : combinedDataTags() ) sout << " " << x->name();
     if( !combinedDataTags().empty() ) sout << std::endl << " primary tag " << combinedDataTags().front()->toString();
+    if (isSiliconAssociated()) sout<<std::endl << " is SiliconAssociated.";
     return sout.str();
   }
 }
