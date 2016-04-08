@@ -44,52 +44,36 @@ StatusCode TRTOccupancyInclude::execute()
 {
   msg(MSG::DEBUG) << "execute()" << endreq;
 
-  m_LocalOccTool->BeginEvent();
-  //  std::vector<float> TRTOccu = m_LocalOccTool->GlobalOccupancy( );
-  int* TRTOccu = m_LocalOccTool->getOccTotal( );
-
-
   const xAOD::EventInfo* eventInfo = 0;
   if (evtStore()->retrieve(eventInfo).isFailure()) {
-    ATH_MSG_ERROR(" Cannot access to event info.");
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING(" Cannot access to event info.");
+    return StatusCode::SUCCESS;
   } 
 
-  // static SG::AuxElement::Decorator< float >  decEventInfo_occupancy0("TRTOccGlobal"); 
-  // decEventInfo_occupancy0( *eventInfo ) = TRTOccu.at(0); 
-
-  // static SG::AuxElement::Decorator< float >  decEventInfo_occupancy1("TRTOccEndcapC"); 
-  // decEventInfo_occupancy1( *eventInfo ) = TRTOccu.at(1); 
-
-  // static SG::AuxElement::Decorator< float >  decEventInfo_occupancy2("TRTOccBarrelC"); 
-  // decEventInfo_occupancy2( *eventInfo ) = TRTOccu.at(2); 
-
-  // static SG::AuxElement::Decorator< float >  decEventInfo_occupancy3("TRTOccBarrelA"); 
-  // decEventInfo_occupancy3( *eventInfo ) = TRTOccu.at(3); 
-
-  // static SG::AuxElement::Decorator< float >  decEventInfo_occupancy4("TRTOccEndcapA"); 
-  // decEventInfo_occupancy4( *eventInfo ) = TRTOccu.at(4); 
+  std::vector<float> TRTOccu = m_LocalOccTool->GlobalOccupancy( );
+  if (TRTOccu.size() > 6) {
 
   static SG::AuxElement::Decorator< float >  decEventInfo_occupancy0("TRTOccGlobal"); 
-  decEventInfo_occupancy0( *eventInfo ) = TRTOccu[0]; 
+  decEventInfo_occupancy0( *eventInfo ) = TRTOccu.at(0); 
 
   static SG::AuxElement::Decorator< float >  decEventInfo_occupancy1("TRTOccBarrelC"); 
-  decEventInfo_occupancy1( *eventInfo ) = TRTOccu[1]; 
+  decEventInfo_occupancy1( *eventInfo ) = TRTOccu.at(1); 
 
   static SG::AuxElement::Decorator< float >  decEventInfo_occupancy2("TRTOccEndcapAC"); 
-  decEventInfo_occupancy2( *eventInfo ) = TRTOccu[2]; 
+  decEventInfo_occupancy2( *eventInfo ) = TRTOccu.at(2); 
 
   static SG::AuxElement::Decorator< float >  decEventInfo_occupancy3("TRTOccEndcapBC"); 
-  decEventInfo_occupancy3( *eventInfo ) = TRTOccu[3]; 
+  decEventInfo_occupancy3( *eventInfo ) = TRTOccu.at(3); 
 
   static SG::AuxElement::Decorator< float >  decEventInfo_occupancy4("TRTOccBarrelA"); 
-  decEventInfo_occupancy4( *eventInfo ) = TRTOccu[4]; 
+  decEventInfo_occupancy4( *eventInfo ) = TRTOccu.at(4); 
 
   static SG::AuxElement::Decorator< float >  decEventInfo_occupancy5("TRTOccEndcapAA"); 
-  decEventInfo_occupancy5( *eventInfo ) = TRTOccu[5]; 
+  decEventInfo_occupancy5( *eventInfo ) = TRTOccu.at(5); 
 
   static SG::AuxElement::Decorator< float >  decEventInfo_occupancy6("TRTOccEndcapBA"); 
-  decEventInfo_occupancy6( *eventInfo ) = TRTOccu[6]; 
+  decEventInfo_occupancy6( *eventInfo ) = TRTOccu.at(6); 
+  }
 
   return StatusCode::SUCCESS;
 }
