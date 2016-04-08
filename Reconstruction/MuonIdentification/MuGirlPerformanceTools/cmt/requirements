@@ -16,6 +16,9 @@ use  TruthTools               TruthTools-*               Generators/GenAnalysisT
 use  iPatTrackParameters      iPatTrackParameters-*      Reconstruction/iPat
 use  iPatTruthTrajectory      iPatTruthTrajectory-*      Reconstruction/iPat
 
+# Force a dependency on HepPDT for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(HepPDT)"
+
 public
 apply_pattern component_library
 library MuGirlPerformanceTools *.cxx components/*.cxx

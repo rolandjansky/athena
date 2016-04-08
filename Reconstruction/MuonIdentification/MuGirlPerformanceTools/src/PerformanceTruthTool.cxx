@@ -92,10 +92,10 @@ StatusCode PerformanceTruthTool::printParticle(int icode)
             itTrkRec != pRecordCollection->end();
             itTrkRec++)
        {
-           TrackRecord* pTrkRec = *itTrkRec;
+           TrackRecord pTrkRec = *itTrkRec;
 
-           if (fabs(pTrkRec->GetPDGCode()) == icode )
-              std::cout<<" printParticle: found particle at the entrance of MS: PDGID "<<pTrkRec->GetPDGCode()<<" eta "<<pTrkRec->GetMomentum().eta()<<std::endl;
+           if (fabs(pTrkRec.GetPDGCode()) == icode )
+              std::cout<<" printParticle: found particle at the entrance of MS: PDGID "<<pTrkRec.GetPDGCode()<<" eta "<<pTrkRec.GetMomentum().eta()<<std::endl;
        }
 
 
@@ -153,15 +153,15 @@ StatusCode PerformanceTruthTool::getTruthMuons(TruthMuonList& truthMuonList)
             itTrkRec != pRecordCollection->end();
             itTrkRec++)
     {
-        TrackRecord* pTrkRec = *itTrkRec;
+        TrackRecord pTrkRec = *itTrkRec;
 
-        if (fabs(pTrkRec->GetPDGCode()) == 13 || fabs(pTrkRec->GetPDGCode()) > 1000000 )
+        if (fabs(pTrkRec.GetPDGCode()) == 13 || fabs(pTrkRec.GetPDGCode()) > 1000000 )
         {
             TruthMuon* pTruthMuon = new TruthMuon(1,
-                                                  pTrkRec->GetMomentum().phi(),
-                                                  pTrkRec->GetMomentum().eta(),
-                                                  pTrkRec->GetMomentum().perp(),
-                                                  pTrkRec->GetPDGCode(),
+                                                  pTrkRec.GetMomentum().phi(),
+                                                  pTrkRec.GetMomentum().eta(),
+                                                  pTrkRec.GetMomentum().perp(),
+                                                  pTrkRec.GetPDGCode(),
                                                   999);
             truthMuonList.push_back(pTruthMuon);
             nTruthMu++;
@@ -260,21 +260,21 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
             itTrkRec != pRecordCollection->end();
             itTrkRec++)
        {
-           TrackRecord* pTrkRec = *itTrkRec;
+           TrackRecord pTrkRec = *itTrkRec;
 
-           if (fabs(pTrkRec->GetPDGCode())!=13 && fabs(pTrkRec->GetPDGCode())<1000000) continue;
+           if (fabs(pTrkRec.GetPDGCode())!=13 && fabs(pTrkRec.GetPDGCode())<1000000) continue;
 
-           double      charge   = pTrkRec->GetPDGCode() < 0 ? 1. : -1.;
+           double      charge   = pTrkRec.GetPDGCode() < 0 ? 1. : -1.;
  
-           double dpt_pt = (pTrkRec->GetMomentum().perp() -isect_pt) / pTrkRec->GetMomentum().perp();
-           double dp_p = (pTrkRec->GetMomentum().mag() -cand_momentum) / pTrkRec->GetMomentum().mag();
-           double dphi = pTrkRec->GetMomentum().phi() - isect_phi;
-           double deta = pTrkRec->GetMomentum().eta() - isect_eta;
+           double dpt_pt = (pTrkRec.GetMomentum().perp() -isect_pt) / pTrkRec.GetMomentum().perp();
+           double dp_p = (pTrkRec.GetMomentum().mag() -cand_momentum) / pTrkRec.GetMomentum().mag();
+           double dphi = pTrkRec.GetMomentum().phi() - isect_phi;
+           double deta = pTrkRec.GetMomentum().eta() - isect_eta;
            if (dphi < -M_PI) dphi += 2.0 * M_PI;
 
-           if (msgLvl(MSG::DEBUG)) msg() <<" Processing a muon in the TrackRecordCollection: p "<<pTrkRec->GetMomentum().mag()
-                                         <<" pt " <<pTrkRec->GetMomentum().perp()<<" phi "<<pTrkRec->GetMomentum().phi()
-                                         <<" eta "<<pTrkRec->GetMomentum().eta() << endreq;
+           if (msgLvl(MSG::DEBUG)) msg() <<" Processing a muon in the TrackRecordCollection: p "<<pTrkRec.GetMomentum().mag()
+                                         <<" pt " <<pTrkRec.GetMomentum().perp()<<" phi "<<pTrkRec.GetMomentum().phi()
+                                         <<" eta "<<pTrkRec.GetMomentum().eta() << endreq;
            if (msgLvl(MSG::DEBUG)) msg() << "dp_p "<<dp_p<<" dpt_pt " 
                                       <<dpt_pt<<" dphi "<<dphi<<" deta "<<deta << endreq;
         //const HepGeom::Point3D<double> vertex(0.,0.,0.);
@@ -285,22 +285,22 @@ StatusCode PerformanceTruthTool::getTruthTrack(const xAOD::TrackParticle* pParti
                fabs(dphi) < 0.06 ) //&&
                // fabs(dp_p) < 0.2)  remove the check on the muon pt for the time being
            {
-               double x = pTrkRec->GetPosition().x();
-               double y = pTrkRec->GetPosition().y();
-               double z = pTrkRec->GetPosition().z();
+               double x = pTrkRec.GetPosition().x();
+               double y = pTrkRec.GetPosition().y();
+               double z = pTrkRec.GetPosition().z();
                double phi_pos = std::atan2(y,x);
                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackRecordCollection truth Association Found" << endreq;
-               truthTrack.PDG_ID=pTrkRec->GetPDGCode();
+               truthTrack.PDG_ID=pTrkRec.GetPDGCode();
                truthTrack.PDG_Mother=999;
-               truthTrack.Phi = pTrkRec->GetMomentum().phi();
-               truthTrack.Eta = pTrkRec->GetMomentum().eta();
-               truthTrack.Theta =  2*atan(exp(-(pTrkRec->GetMomentum().eta())));
-               truthTrack.Pt = pTrkRec->GetMomentum().perp();
+               truthTrack.Phi = pTrkRec.GetMomentum().phi();
+               truthTrack.Eta = pTrkRec.GetMomentum().eta();
+               truthTrack.Theta =  2*atan(exp(-(pTrkRec.GetMomentum().eta())));
+               truthTrack.Pt = pTrkRec.GetMomentum().perp();
                truthTrack.d0 = std::sqrt( x*x + y*y );
                truthTrack.z0 = z;
                truthTrack.Charge = (int)charge;
-               truthTrack.QOverP = charge/pTrkRec->GetMomentum().perp();
-               truthTrack.DPhi = phi_pos - pTrkRec->GetMomentum().phi(); // dphi;
+               truthTrack.QOverP = charge/pTrkRec.GetMomentum().perp();
+               truthTrack.DPhi = phi_pos - pTrkRec.GetMomentum().phi(); // dphi;
                truthTrack.DEta = deta;
                truthTrack.DPt_Pt = dpt_pt;
                found_match = true;
@@ -469,34 +469,34 @@ StatusCode PerformanceTruthTool::getTruthTrack(const MuonFeature* muonFeature, T
             itTrkRec != pRecordCollection->end();
             itTrkRec++)
        {
-           TrackRecord* pTrkRec = *itTrkRec;
+           TrackRecord pTrkRec = *itTrkRec;
  
-           if (fabs(pTrkRec->GetPDGCode())!= 13 && fabs(pTrkRec->GetPDGCode())<1000000) continue;
+           if (fabs(pTrkRec.GetPDGCode())!= 13 && fabs(pTrkRec.GetPDGCode())<1000000) continue;
 
-          double dpt_pt = (pTrkRec->GetMomentum().perp() - isect_pt) / pTrkRec->GetMomentum().perp();
-          double dphi = pTrkRec->GetMomentum().phi() - isect_phi;
-          double deta = pTrkRec->GetMomentum().eta() - isect_eta;
+          double dpt_pt = (pTrkRec.GetMomentum().perp() - isect_pt) / pTrkRec.GetMomentum().perp();
+          double dphi = pTrkRec.GetMomentum().phi() - isect_phi;
+          double deta = pTrkRec.GetMomentum().eta() - isect_eta;
 
           if (dphi < -M_PI) dphi += 2.0 * M_PI;
 
           const Amg::Vector3D vertex(0.,0.,0.);
           // const PerigeeParameters *pPartPerigeeParameters=m_truthParameters->perigeeParameters(*pPart,vertex);
           double charge = 1.;
-          if (pTrkRec->GetPDGCode()>0) charge = -1.;
+          if (pTrkRec.GetPDGCode()>0) charge = -1.;
           if (fabs(deta) < 0.006*50 &&
               fabs(dphi) < 0.006*50)
           {
               if (msgLvl(MSG::DEBUG)) msg() << "Truth Association Found" << endreq;
-              truthTrack.PDG_ID=pTrkRec->GetPDGCode();
+              truthTrack.PDG_ID=pTrkRec.GetPDGCode();
               truthTrack.PDG_Mother=999;
-              truthTrack.Phi = pTrkRec->GetMomentum().phi();
-              truthTrack.Eta = pTrkRec->GetMomentum().eta();
-              truthTrack.Theta = 1./tan(pTrkRec->GetMomentum().theta());
-              truthTrack.Pt = pTrkRec->GetMomentum().perp();
+              truthTrack.Phi = pTrkRec.GetMomentum().phi();
+              truthTrack.Eta = pTrkRec.GetMomentum().eta();
+              truthTrack.Theta = 1./tan(pTrkRec.GetMomentum().theta());
+              truthTrack.Pt = pTrkRec.GetMomentum().perp();
               // truthTrack.d0=pPartPerigeeParameters->transverse_impact();
               // truthTrack.z0=pPartPerigeeParameters->position().z();
               // truthTrack.Charge = (int)charge;
-              truthTrack.QOverP = charge/pTrkRec->GetMomentum().perp();
+              truthTrack.QOverP = charge/pTrkRec.GetMomentum().perp();
               truthTrack.DPhi = dphi;
               truthTrack.DEta = deta;
               truthTrack.DPt_Pt = dpt_pt;
@@ -658,34 +658,34 @@ StatusCode PerformanceTruthTool::getTruthTrack(const TrigMuonEFTrack* muonEFTrac
             itTrkRec != pRecordCollection->end();
             itTrkRec++)
        {
-           TrackRecord* pTrkRec = *itTrkRec;
+           TrackRecord pTrkRec = *itTrkRec;
  
-           if (fabs(pTrkRec->GetPDGCode())!= 13 && fabs(pTrkRec->GetPDGCode())<1000000) continue;
+           if (fabs(pTrkRec.GetPDGCode())!= 13 && fabs(pTrkRec.GetPDGCode())<1000000) continue;
 
-          double dpt_pt = (pTrkRec->GetMomentum().perp() - isect_pt) / pTrkRec->GetMomentum().perp();
-          double dphi = pTrkRec->GetMomentum().phi() - isect_phi;
-          double deta = pTrkRec->GetMomentum().eta() - isect_eta;
+          double dpt_pt = (pTrkRec.GetMomentum().perp() - isect_pt) / pTrkRec.GetMomentum().perp();
+          double dphi = pTrkRec.GetMomentum().phi() - isect_phi;
+          double deta = pTrkRec.GetMomentum().eta() - isect_eta;
 
           if (dphi < -M_PI) dphi += 2.0 * M_PI;
 
           const Amg::Vector3D vertex(0.,0.,0.);
           // const PerigeeParameters *pPartPerigeeParameters=m_truthParameters->perigeeParameters(*pPart,vertex);
           double charge = 1.;
-          if (pTrkRec->GetPDGCode()>0) charge = -1.;
+          if (pTrkRec.GetPDGCode()>0) charge = -1.;
           if (fabs(deta) < 0.006*50 &&
               fabs(dphi) < 0.006*50)
           {
               if (msgLvl(MSG::DEBUG)) msg() << "Truth Association Found" << endreq;
-              truthTrack.PDG_ID=pTrkRec->GetPDGCode();
+              truthTrack.PDG_ID=pTrkRec.GetPDGCode();
               truthTrack.PDG_Mother=999;
-              truthTrack.Phi = pTrkRec->GetMomentum().phi();
-              truthTrack.Eta = pTrkRec->GetMomentum().eta();
-              truthTrack.Theta = 1./tan(pTrkRec->GetMomentum().theta());
-              truthTrack.Pt = pTrkRec->GetMomentum().perp();
+              truthTrack.Phi = pTrkRec.GetMomentum().phi();
+              truthTrack.Eta = pTrkRec.GetMomentum().eta();
+              truthTrack.Theta = 1./tan(pTrkRec.GetMomentum().theta());
+              truthTrack.Pt = pTrkRec.GetMomentum().perp();
               // truthTrack.d0=pPartPerigeeParameters->transverse_impact();
               // truthTrack.z0=pPartPerigeeParameters->position().z();
               // truthTrack.Charge = (int)charge;
-              truthTrack.QOverP = charge/pTrkRec->GetMomentum().perp();
+              truthTrack.QOverP = charge/pTrkRec.GetMomentum().perp();
               truthTrack.DPhi = dphi;
               truthTrack.DEta = deta;
               truthTrack.DPt_Pt = dpt_pt;
