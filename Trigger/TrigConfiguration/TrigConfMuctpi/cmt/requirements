@@ -18,6 +18,7 @@ apply_pattern detcommon_shared_library
 apply_pattern detcommon_header_installer
 
 apply_pattern trigconf_application name=ReadWriteMuCTPiGeometry
+macro_append TrigConfReadWriteMuCTPiGeometrylinkopts " $(Boost_linkopts_filesystem) "
 
 
 # Install the LUTs:
