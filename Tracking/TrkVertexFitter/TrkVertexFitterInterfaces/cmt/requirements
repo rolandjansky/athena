@@ -1,0 +1,19 @@
+package TrkVertexFitterInterfaces
+
+author Andreas Wildauer <Andreas.Wildauer@cern.ch>
+author Kirill Prokofiev <Kirill.Prokofiev@cern.ch>
+author Maaike Limper <Maaike.Limper@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*          External
+
+use AtlasCLHEP            AtlasCLHEP-*            External
+use TrkParameters	  TrkParameters-*	  Tracking/TrkEvent
+use TrkNeutralParameters  TrkNeutralParameters-*  Tracking/TrkEvent
+use EventPrimitives       EventPrimitives-*       Event
+use GeoPrimitives         GeoPrimitives-*         DetectorDescription
+use xAODTracking          xAODTracking-*          Event/xAOD 
+
+# Declare this package as a cmake metalibrary so that the libraries and header files from
+# packages it depends on are available to its clients. Transparent to CMT
+apply_pattern cmake_add_command command=metalibrary
