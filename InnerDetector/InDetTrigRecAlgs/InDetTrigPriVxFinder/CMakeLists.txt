@@ -14,19 +14,18 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventPrimitives
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           MagneticField/MagFieldInterfaces
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkTrack
-                          Event/xAOD/xAODTracking
+                          Tracking/TrkEvent/VxVertex
                           Trigger/TrigEvent/TrigParticle )
 
 # Component(s) in the package:
 atlas_add_component( InDetTrigPriVxFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel TrigInterfacesLib StoreGateLib SGtests EventPrimitives InDetRecToolInterfaces MagFieldInterfaces TrkEventPrimitives TrkParameters TrkParticleBase TrkTrack VxVertex TrigParticle xAODTracking )
+                     LINK_LIBRARIES GaudiKernel TrigInterfacesLib StoreGateLib SGtests EventPrimitives InDetRecToolInterfaces MagFieldInterfaces TrkEventPrimitives TrkParameters TrkParticleBase TrkTrack VxVertex TrigParticle )
 
 # Install files from the package:
 atlas_install_headers( InDetTrigPriVxFinder )
