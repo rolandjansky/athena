@@ -57,7 +57,6 @@ class TrigFTK_VxPrimary : public HLT::FexAlgo
     ftk::FTK_TrackType m_trackType;
     std::string m_vertexContainerName;
     std::string m_vxContainerName;
-    bool m_useFastVertexTool;
     
 };
 
