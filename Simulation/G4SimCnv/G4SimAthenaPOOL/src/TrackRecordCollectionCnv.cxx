@@ -7,7 +7,7 @@
 #include "TrackRecordCollectionCnv.h"
 #include "G4SimTPCnv/TrackRecord_p0.h"
 
-typedef AthenaHitsVector<TrackRecord> TrackRecordCollection_p0;
+typedef AtlasHitsVector<TrackRecord> TrackRecordCollection_p0;
 
 TrackRecordCollection_PERS* TrackRecordCollectionCnv::createPersistent(TrackRecordCollection* transCont) {
    MsgStream mlog(messageService(), "TrackRecordCollectionConverter" );
