@@ -17,7 +17,8 @@ double LArG4BirksLaw::operator () (double dE, double dX, double EField) const {
 
   double dEdX = dE/dX;
 
-  double dEcorr1 = dE * (1 + m_BirksLawK/EField*1.51) / (1 + m_BirksLawK/EField*dEdX/m_LArDensity);  // original corrections
+  const double kOverField = m_BirksLawK/EField;
+  double dEcorr1 = dE * (1 + kOverField*1.51) / (1 + kOverField*dEdX/m_LArDensity);  // original corrections
 
   if (dEdX > 12000.0) dEdX = 12000.0;   // The experimental data is available only until dE/dX ~ 12000 MeV/cm
 
