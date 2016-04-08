@@ -21,13 +21,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include <iostream>
-#ifndef HAVE_NEW_IOSTREAMS
-#include <strstream>  /*gnu-specific*/
-typedef strstream __sstream;
-#else
-#include <sstream>
-typedef std::ostringstream __sstream;
-#endif
+#include <string>
 #include <iomanip>
 #include <cassert> 
 #include <bitset>
