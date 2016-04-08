@@ -1,0 +1,8 @@
+package InDetAlignGlobalChi2Monitoring
+
+author Carlos Escobar <cescobar@ific.uv.es>
+author Salva Marti <martis@ific.uv.es>
+author Vicente Lacuesta <lacuesta@ific.uv.es>
+
+use AtlasPolicy		AtlasPolicy-*
+use AtlasROOT		AtlasROOT-*         External

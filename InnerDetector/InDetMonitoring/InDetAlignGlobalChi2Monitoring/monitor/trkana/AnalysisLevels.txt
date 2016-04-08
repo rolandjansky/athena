@@ -1,0 +1,11 @@
+AnalysisLevels
+--------------
+
+Level 0  -  All tracks													-- black
+Level 1  -  Tracks used in align											-- red
+Level 2  -  Tracks satisfying level1 plus 2 Pix hits and 4 SCT hits
+//Level 2  -  Tracks satisfying Level 1 plus with 1 hit in layer 3 of SCT				-- green
+Level 3  -  Tracks satisfying Level 2 plus with 1 hit in layer 0 of Pixel				-- blue
+Level 4  -  Tracks satisfying Level 1 plus with 2 or more hits in SCT endcap A		-- yellow
+Level 5  -  Tracks satisfying Level 1 plue with 2 or more hits in SCT endcap C		-- pink
+
