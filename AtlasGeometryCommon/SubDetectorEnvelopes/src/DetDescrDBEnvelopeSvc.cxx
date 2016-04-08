@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "SubDetectorEnvelopes/DetDescrDBEnvelopeSvc.h"
+#include "DetDescrDBEnvelopeSvc.h"
 
 // framework includes
 #include "GaudiKernel/Bootstrap.h"
@@ -123,13 +123,16 @@ StatusCode DetDescrDBEnvelopeSvc::initialize()
 
     // cache the volume definitions locally
     for ( int region = AtlasDetDescr::fFirstAtlasRegion; region < AtlasDetDescr::fNumAtlasRegions; region++) {
-      RZPairVector *curRZ = retrieveRZBoundaryOptionalFallback( m_node[region] , m_fallbackR[region] , m_fallbackZ[region] );
-      if (!curRZ) {
+      StatusCode sc = retrieveRZBoundaryOptionalFallback( m_node[region],
+                                                          m_fallbackR[region],
+                                                          m_fallbackZ[region],
+                                                          m_rposz[region] );
+
+      if (sc.isFailure()) {
         ATH_MSG_ERROR("Unable to retrieve subdetector envelope for detector region '" << 
                       AtlasDetDescr::AtlasRegionHelper::getName(region) << "'");
         return StatusCode::FAILURE;
       }
-      m_rposz[region] = *curRZ;
     }
 
     // disconnect the DB access svc
@@ -140,7 +143,13 @@ StatusCode DetDescrDBEnvelopeSvc::initialize()
   else {
     // cache the volume definitions locally
     for ( int region = AtlasDetDescr::fFirstAtlasRegion; region < AtlasDetDescr::fNumAtlasRegions; region++) {
-      m_rposz[region] = *fallbackRZBoundary( m_fallbackR[region], m_fallbackZ[region] );
+      StatusCode sc = fallbackRZBoundary( m_fallbackR[region], m_fallbackZ[region], m_rposz[region] );
+
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("Unable to retrieve sub-detector envelope in (r,z)-space for detector region '" <<
+                      AtlasDetDescr::AtlasRegionHelper::getName(region) << "'");
+        return StatusCode::FAILURE;
+      }
     }
   }
 
@@ -177,34 +186,42 @@ StatusCode DetDescrDBEnvelopeSvc::finalize()
 /** retrieve and store the (r,z) values locally for the given DB node.
     if there are problems with retrieving this from DDDB,
     try the fallback approach if allowed */
-RZPairVector *DetDescrDBEnvelopeSvc::retrieveRZBoundaryOptionalFallback(
-                                                        std::string &dbNode,
-                                                        FallbackDoubleVector   &r,
-                                                        FallbackDoubleVector   &z)
+StatusCode DetDescrDBEnvelopeSvc::retrieveRZBoundaryOptionalFallback( std::string           &dbNode,
+                                                                      FallbackDoubleVector  &r,
+                                                                      FallbackDoubleVector  &z,
+                                                                      RZPairVector          &rzVec)
 {
-  // try the DB approach to retrieve the (r,z) values
-  RZPairVector *rz = retrieveRZBoundary(dbNode);
+  // clear the output RZPairVector
+  rzVec.clear();
 
-  // if 0 return value -> unsuccessfully read DDDB
-  if (!rz) {
+  // try the DB approach to retrieve the (r,z) values
+  StatusCode sc = retrieveRZBoundary(dbNode, rzVec);
+
+  // if empty vector returned -> unsuccessfully read DDDB
+  if (sc.isFailure()) {
     ATH_MSG_DEBUG("Will try reading Python-based envelope definition for '" << dbNode << "'.");
 
     // try fallback approach
-    rz = enableFallback() ? fallbackRZBoundary(r, z) : 0;
-    if (rz) {
-      ATH_MSG_INFO("Sucessfully read Python-based envelope definition for '" << dbNode << "'.");
-    } else {
+    sc = enableFallback() ? fallbackRZBoundary(r, z, rzVec) : StatusCode::FAILURE;
+    if (sc.isFailure()) {
       ATH_MSG_WARNING("Could not create envelope volume for '" << dbNode << "'.");
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_INFO("Sucessfully read Python-based envelope definition for '" << dbNode << "'.");
     }
   }
 
-  return rz;
+  return StatusCode::SUCCESS;
 }
 
 
 /** retrieve and store the (r,z) values locally for the given DB node */
-RZPairVector *DetDescrDBEnvelopeSvc::retrieveRZBoundary( std::string &node)
+StatusCode DetDescrDBEnvelopeSvc::retrieveRZBoundary( std::string  &node,
+                                                      RZPairVector &rzVec)
 {
+  // clear the output RZPairVector
+  rzVec.clear();
+
   // @TODO: implement checks and do output with the actual child tags taken
   // some output about the used tags
   //const std::string &detVersionTag = m_dbAccess->getChildTag( detNode /* child node */,
@@ -237,11 +254,8 @@ RZPairVector *DetDescrDBEnvelopeSvc::retrieveRZBoundary( std::string &node)
   size_t numEntries = envelopeRec ? envelopeRec->size() : 0;
   if ( !numEntries) {
     ATH_MSG_INFO("No entries for table '" << node << "' in Detector Description Database (DDDB). Maybe you are using Python-based envelope definitions...");
-    return 0;
+    return StatusCode::RECOVERABLE;
   }
-
-  // the current RZPairVector (to be filled in the loop)
-  RZPairVector *rzVec = new RZPairVector();
 
   // retrieve data from the DB 
   IRDBRecordset::const_iterator recIt  = envelopeRec->begin();
@@ -252,33 +266,38 @@ RZPairVector *DetDescrDBEnvelopeSvc::retrieveRZBoundary( std::string &node)
     double curR = (*recIt)->getDouble("R") * CLHEP::mm;
     double curZ = (*recIt)->getDouble("Z") * CLHEP::mm;
     // store (r,z) duplet locally
-    rzVec->push_back( RZPair(curR, curZ) );
+    rzVec.push_back( RZPair(curR, curZ) );
   }
 
-  return rzVec;
+  return StatusCode::SUCCESS;
 }
 
 
 /** retrieve and store the (r,z) values locally for the given DB node */
-RZPairVector *DetDescrDBEnvelopeSvc::fallbackRZBoundary( FallbackDoubleVector   &r,
-                                                       FallbackDoubleVector   &z)
+StatusCode DetDescrDBEnvelopeSvc::fallbackRZBoundary( FallbackDoubleVector &r,
+                                                      FallbackDoubleVector &z,
+                                                      RZPairVector &rzVec)
 {
-  // TODO: check for same length of r and z vectors!
+  unsigned short len = r.size();
 
-  // the current RZPairVector (to be filled in the loop)
-  RZPairVector *rzVec = new RZPairVector();
+  // r and z vectors must have same length
+  if ( len != z.size() ) {
+    ATH_MSG_ERROR("Unable to construct fallback envelope definition in (r,z) space, as the provided r and z vectors have different length");
+    rzVec.clear();
+    return StatusCode::FAILURE;
+  }
 
   // loop over the given pairs of (r,z) values
-  for ( unsigned short pos=0; pos<r.size(); ++pos) {
+  for ( unsigned short pos=0; pos<len; ++pos) {
 
     // read-in (r,z) duplet
     double curR = r[pos];
     double curZ = z[pos];
     // store (r,z) duplet locally
-    rzVec->push_back( RZPair(curR, curZ) );
+    rzVec.push_back( RZPair(curR, curZ) );
   }
 
-  return rzVec;
+  return StatusCode::SUCCESS;
 }
 
 

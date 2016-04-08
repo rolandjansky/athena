@@ -6,12 +6,12 @@ manager Elmar Ritsch <Elmar.Ritsch@cern.ch>
 # public use statements
 use AtlasPolicy                 AtlasPolicy-*
 use GaudiInterface              GaudiInterface-*        External
-use AthenaBaseComps             AthenaBaseComps-*       Control
 use AtlasDetDescr               AtlasDetDescr-*         DetectorDescription
 
 #################################################################
 # private use statements
 private
+use AthenaBaseComps             AthenaBaseComps-*       Control
 use RDBAccessSvc                RDBAccessSvc-*          Database/AthenaPOOL
 use GeoModelInterfaces          GeoModelInterfaces-*    DetectorDescription/GeoModel
 use AtlasCLHEP                  AtlasCLHEP-*            External
