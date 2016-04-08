@@ -39,16 +39,16 @@ StatusCode PixelRawDataProviderTool::initialize()
 {
    StatusCode sc = AthAlgTool::initialize(); 
    if (sc.isFailure()) {
-     msg(MSG::FATAL) << "Failed to init baseclass" << endmsg;
+     msg(MSG::FATAL) << "Failed to init baseclass" << endreq;
      return StatusCode::FAILURE;
    }
 
    // Retrieve decoder
    if (m_decoder.retrieve().isFailure()) {
-     msg(MSG::FATAL) << "Failed to retrieve tool " << m_decoder << endmsg;
+     msg(MSG::FATAL) << "Failed to retrieve tool " << m_decoder << endreq;
      return StatusCode::FAILURE;
    } else 
-     msg(MSG::INFO) << "Retrieved tool " << m_decoder << endmsg;
+     msg(MSG::INFO) << "Retrieved tool " << m_decoder << endreq;
    
    return StatusCode::SUCCESS;
 }
@@ -81,7 +81,7 @@ StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& v
   msg(MSG::DEBUG)
 	  << " New ROD collection found: LVL1=" << (*rob_it)->rod_lvl1_id()
 	  << " Size=" << vecRobs.size()
-	  << endmsg;
+	  << endreq;
 #endif 
 #ifdef PLOTS
   std::cout << " New ROD collection found: LVL1=" << (*rob_it)->rod_lvl1_id() << " Size=" << vecRobs.size() << std::endl;
@@ -97,7 +97,7 @@ StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& v
     m_BCIDCollection->reserve(vecRobs.size());  
 
 #ifdef PIXEL_DEBUG
-    msg(MSG::DEBUG) << " New event, reset the collection set" << endmsg;
+    msg(MSG::DEBUG) << " New event, reset the collection set" << endreq;
 #endif
     // remember last Lvl1ID
     LastLvl1ID = (*rob_it)->rod_lvl1_id();
@@ -113,7 +113,7 @@ StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& v
     uint32_t robid = (*rob_it)->rob_source_id();
 #ifdef PIXEL_DEBUG
     msg(MSG::DEBUG) << "Found ROB " 
-	  << std::hex << robid << std::dec << endmsg;
+	  << std::hex << robid << std::dec << endreq;
 #endif
 
     if (isNewEvent) {
@@ -127,7 +127,7 @@ StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& v
       m_BCIDCollection->push_back(bcidPair);
       
 #ifdef PIXEL_DEBUG
-      msg(MSG::DEBUG) << "Stored LVL1ID "<<lvl1id<<" and BCID "<<bcid<<" in InDetTimeCollections"<<endmsg;
+      msg(MSG::DEBUG) << "Stored LVL1ID "<<lvl1id<<" and BCID "<<bcid<<" in InDetTimeCollections"<<endreq;
 #endif
     }
 
@@ -137,7 +137,7 @@ StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& v
 
 #ifdef PIXEL_DEBUG
       msg(MSG::DEBUG) << " ROB Fragment with ID  "
-	    << std::hex<<robid<<std::dec<< " already decoded, skip" << endmsg; 
+	    << std::hex<<robid<<std::dec<< " already decoded, skip" << endreq; 
 #endif
 
     } else {
@@ -152,14 +152,14 @@ StatusCode PixelRawDataProviderTool::convert( std::vector<const ROBFragment*>& v
 	  if ( DecodeErrCount < 100 )
 	    {
 	      msg(MSG::INFO) << "Problem with Pixel ByteStream Decoding!" 
-		    << endmsg;
+		    << endreq;
 	      DecodeErrCount++;
 	    }
 	  else if ( 100 == DecodeErrCount )
 	    {
 	      msg(MSG::INFO) 
 		    << "Too many Problems with Pixel Decoding messages.  "
-		    << "Turning message off." << endmsg;
+		    << "Turning message off." << endreq;
 	      DecodeErrCount++;
 	    }
 	}

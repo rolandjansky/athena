@@ -58,15 +58,15 @@ StatusCode PixelRawContByteStreamCnv::initialize() {
 
   // Check ByteStreamCnvSvc
   if (StatusCode::SUCCESS != service("ByteStreamCnvSvc", m_ByteStreamEventAccess) || !m_ByteStreamEventAccess) {
-    m_log << MSG::ERROR << "Can't get ByteStreamEventAccess interface" << endmsg;
+    m_log << MSG::ERROR << "Can't get ByteStreamEventAccess interface" << endreq;
     return StatusCode::FAILURE;
   }
-  m_log << MSG::INFO << "ByteStreamCnvSvc retrieved" << endmsg;
+  m_log << MSG::INFO << "ByteStreamCnvSvc retrieved" << endreq;
 
   // retrieve Tool
   IToolSvc* toolSvc;
   if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)) {
-    m_log << MSG::ERROR << "Can't get ToolSvc" << endmsg;
+    m_log << MSG::ERROR << "Can't get ToolSvc" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -74,20 +74,20 @@ StatusCode PixelRawContByteStreamCnv::initialize() {
 
   toolType = "PixelRawContByteStreamTool"; 
   if(StatusCode::SUCCESS != toolSvc->retrieveTool(toolType,m_PixelRawContBSTool)) {
-    m_log << MSG::ERROR << "Can't get PixelRawContByteStreamTool Tool" << endmsg;
+    m_log << MSG::ERROR << "Can't get PixelRawContByteStreamTool Tool" << endreq;
     return StatusCode::FAILURE;
   }
 
   // Get an Identifier helper object
   sc = service("DetectorStore",m_StoreGate);
   if (sc.isFailure()) {
-    m_log << MSG::FATAL << "Detector service not found" << endmsg;
+    m_log << MSG::FATAL << "Detector service not found" << endreq;
     return StatusCode::FAILURE;
   } 
 
   StatusCode scChrono =serviceLocator()->service("ChronoStatSvc",m_ChronoStat );
   if (!scChrono.isSuccess()) {
-    m_log << MSG::ERROR << "Cannot retrieve ChronoStatSvc" << endmsg;
+    m_log << MSG::ERROR << "Cannot retrieve ChronoStatSvc" << endreq;
   }
 
   return StatusCode::SUCCESS; 
@@ -114,7 +114,7 @@ StatusCode PixelRawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress
   StoreGateSvc::fromStorable(pObj,cont); 
 
   if(!cont) {
-    m_log << MSG::ERROR << "Can not cast to PixelRDO_Container" << endmsg; 
+    m_log << MSG::ERROR << "Can not cast to PixelRDO_Container" << endreq; 
     return StatusCode::FAILURE;    
   } 
 
@@ -125,7 +125,7 @@ StatusCode PixelRawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress
 
   StatusCode sc = m_PixelRawContBSTool->convert(cont, re) ;
   if(sc.isFailure()){
-    m_log << MSG::ERROR<< " Could not convert rdo with m_PixelRawContBSTool " << endmsg ;
+    m_log << MSG::ERROR<< " Could not convert rdo with m_PixelRawContBSTool " << endreq ;
     return StatusCode::FAILURE ;
   }
 
