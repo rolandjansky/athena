@@ -272,6 +272,9 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   std::vector<TH1F*> hRPCPhiEtaCoinThr       ;
   std::vector<TH1F*> hRPCPadThr              ;
   std::vector<TH1F*> hRPCMuctpiThr           ;
+  std::vector<TH1F*> hRPCPhiEtaCoinThr_eff   ;
+  std::vector<TH1F*> hRPCPadThr_eff          ;
+  std::vector<TH1F*> hRPCMuctpiThr_eff       ;
    
   std::vector<double> etaminpad   ;
   std::vector<double> etamaxpad   ;
