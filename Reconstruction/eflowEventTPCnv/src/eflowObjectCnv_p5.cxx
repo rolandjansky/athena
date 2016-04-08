@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "eflowEvent/eflowObject.h"
-#undef private
-#undef protected
-
 #include "eflowEventTPCnv/eflowObjectCnv_p5.h"
 #include "Navigation/NavigableVector.h"
 
@@ -16,11 +11,11 @@ void eflowObjectCnv_p5::persToTrans( const eflowObject_p5 *persObj, eflowObject 
 
   //data
 
-  transObj->m_eflowType = persObj->m_eflowType;
-  transObj->m_charge = persObj->m_charge;
-  transObj->m_recoStatus.m_status = persObj->m_recoStatus;
-  transObj->m_pi0MVA = persObj->m_pi0MVA;
-  transObj->m_centerMag = persObj->m_centerMag;
+  transObj->set_type (persObj->m_eflowType);
+  transObj->set_charge (persObj->m_charge);
+  transObj->setCaloRecoStatus (CaloRecoStatus(persObj->m_recoStatus));
+  transObj->setPi0MVA (persObj->m_pi0MVA);
+  transObj->setCenterMag (persObj->m_centerMag);
 
   transObj->set_eta(persObj->m_eta);
   transObj->set_phi(persObj->m_phi);
@@ -31,44 +26,14 @@ void eflowObjectCnv_p5::persToTrans( const eflowObject_p5 *persObj, eflowObject 
   //convert persistent elementlinkvector to transient first and then copy links to navigable vectors
 
   ElementLinkVector<Rec::TrackParticleContainer> dummyTrackVector;
-
   m_navTrackCnv.persToTrans(&persObj->m_eflowTrack,&dummyTrackVector,eflowStream);
-
-  ElementLinkVector<Rec::TrackParticleContainer>::iterator firstTrack = dummyTrackVector.begin();
-  ElementLinkVector<Rec::TrackParticleContainer>::iterator lastTrack = dummyTrackVector.end();
-
-  int i = 0;
-
-  for (; firstTrack != lastTrack; firstTrack++){
-    ElementLink<Rec::TrackParticleContainer> thisTrackElementLink = *firstTrack;
-    if (thisTrackElementLink.isValid()){
-      transObj->m_eflowTrack.addElement(thisTrackElementLink);
-    }
-    else if (eflowStream.level() <= MSG::DEBUG) eflowStream << MSG::DEBUG << "This Track element link is not valid" << endreq;
-    i++;
-
-  }//track loop
+  for (const ElementLink<Rec::TrackParticleContainer>& track : dummyTrackVector)
+    transObj->addTrack(track);
 
   ElementLinkVector<CaloClusterContainer> dummyClusterVector;
-  
   m_navClusCnv.persToTrans(&persObj->m_eflowClus,&dummyClusterVector,eflowStream);
-
-  ElementLinkVector<CaloClusterContainer>::iterator firstClus = dummyClusterVector.begin();
-  ElementLinkVector<CaloClusterContainer>::iterator lastClus = dummyClusterVector.end();
-
-  for (; firstClus != lastClus; firstClus++){
-    //const CaloClusterContainer* clusContainer = (*firstClus).getDataPtr();
-    ElementLink<CaloClusterContainer> thisClusElementLink = *firstClus;
-    if (thisClusElementLink.isValid()) {
-      const CaloCluster* clus = **firstClus;
-      //change this for now...should change back if switch from using VIEW containers
-      //transObj->m_eflowClus.addElement(clusContainer,clus);
-      transObj->addClus(clus);
-    }
-    else if (eflowStream.level() <= MSG::DEBUG) eflowStream << MSG::DEBUG << "This CaloTopoCluster element link is not valid" << endreq;
-
-  }//cluster loop
-
+  for (const ElementLink<CaloClusterContainer>& clus : dummyClusterVector)
+    transObj->addClus (clus);
 }
 
 
@@ -76,11 +41,11 @@ void eflowObjectCnv_p5::transToPers( const eflowObject *transObj,eflowObject_p5 
 
   //data
 
-  persObj->m_eflowType = transObj->m_eflowType;
-  persObj->m_charge = transObj->m_charge;
-  persObj->m_recoStatus = transObj->m_recoStatus.m_status;
-  persObj->m_pi0MVA = transObj->m_pi0MVA;
-  persObj->m_centerMag = transObj->m_centerMag;
+  persObj->m_eflowType = transObj->eflowType();
+  persObj->m_charge = transObj->charge();
+  persObj->m_recoStatus = transObj->getCaloRecoStatus().getStatusWord();
+  persObj->m_pi0MVA = transObj->getPi0MVA();
+  persObj->m_centerMag = transObj->getCenterMag();
 
   persObj->m_eta = transObj->eta();
   persObj->m_phi = transObj->phi();
@@ -96,25 +61,13 @@ void eflowObjectCnv_p5::transToPers( const eflowObject *transObj,eflowObject_p5 
   //navigable vectors
   //there are no converters so we have to make an ElementLinkVector first for which converters exist
 
-  ElementLinkVector<Rec::TrackParticleContainer> *dummyTrackVector = new  ElementLinkVector<Rec::TrackParticleContainer>();
+  ElementLinkVector<Rec::TrackParticleContainer> dummyTrackVector;
+  for (int i = 0; i < transObj->numTrack();i++)
+    dummyTrackVector.push_back(transObj->trackLink(i));
+  m_navTrackCnv.transToPers(&dummyTrackVector, &persObj->m_eflowTrack, eflowStream);
 
-  for (int i = 0; i < transObj->numTrack();i++) {
-    if (transObj->m_eflowTrack.m_store[i].isValid()) dummyTrackVector->push_back(transObj->m_eflowTrack.m_store[i]);
-    else if (eflowStream.level() <= MSG::DEBUG) eflowStream << MSG::DEBUG << "This TrackParticle element link is not valid" << endreq;
-  }
-
-  m_navTrackCnv.transToPers(dummyTrackVector, &persObj->m_eflowTrack, eflowStream);
-
-  ElementLinkVector<CaloClusterContainer> *dummyClusterVector = new ElementLinkVector<CaloClusterContainer>();
-
-  for (int i = 0; i < transObj->numClus(); i++) {
-    if (transObj->m_eflowClus.m_store[i].isValid()) dummyClusterVector->push_back(transObj->m_eflowClus.m_store[i]);
-    else if (eflowStream.level() <= MSG::DEBUG) eflowStream << MSG::DEBUG << "This CaloTopoCluster element link is not valid" << endreq;
-  }
-  
-  m_navClusCnv.transToPers(dummyClusterVector, &persObj->m_eflowClus, eflowStream);
-
-  delete dummyTrackVector;
-  delete dummyClusterVector;
-
+  ElementLinkVector<CaloClusterContainer> dummyClusterVector;
+  for (int i = 0; i < transObj->numClus(); i++)
+    dummyClusterVector.push_back(transObj->clusLink(i));
+  m_navClusCnv.transToPers(&dummyClusterVector, &persObj->m_eflowClus, eflowStream);
 }

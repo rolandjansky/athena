@@ -5,7 +5,7 @@
 #ifndef EFLOWOBJECTCONTAINER_P2_H
 #define EFLOWOBJECTCONTAINER_P2_H
 
-#include "eflowEventTPCnv/eflowObjectCnv_p2.h"
+#include "eflowEventTPCnv/eflowObject_p2.h"
 #include <vector>
 
 class eflowObjectContainer_p2 {
@@ -18,7 +18,7 @@ class eflowObjectContainer_p2 {
 
   friend class eflowObjectContainerCnv_p2;
     
- private:
+  // private:
     
   std::vector<eflowObject_p2> m_myPersVector;
 

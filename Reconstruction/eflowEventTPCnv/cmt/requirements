@@ -5,10 +5,13 @@ use AtlasPolicy  AtlasPolicy-*
 use AthenaPoolCnvSvc AthenaPoolCnvSvc-* Database/AthenaPOOL
 
 private
-use AthenaKernel          AthenaKernel-*          Control
 use AtlasReflex          AtlasReflex-*           External
-use DataModel           DataModel-*           Control
-use Navigation          Navigation-*          Control
+use AtlasCLHEP           AtlasCLHEP-*            External
+use CxxUtils             CxxUtils-*              Control 
+use AthenaKernel         AthenaKernel-*          Control
+use SGTools              SGTools-*               Control
+use AthLinks             AthLinks-*              Control
+use Navigation           Navigation-*            Control
 public
 
 use DataModelAthenaPool   DataModelAthenaPool-*   Control
@@ -35,3 +38,17 @@ apply_pattern lcgdict dict=eflowEventTPCnv  \
               headerfiles="../eflowEventTPCnv/eflowEventTPCnvDict.h"
 end_private
 
+
+private
+use TestTools            TestTools-*                AtlasTest
+
+apply_pattern UnitTest_run unit_test=eflowObjectCnv_p1
+apply_pattern UnitTest_run unit_test=eflowObjectCnv_p2
+apply_pattern UnitTest_run unit_test=eflowObjectCnv_p3
+apply_pattern UnitTest_run unit_test=eflowObjectCnv_p4
+apply_pattern UnitTest_run unit_test=eflowObjectCnv_p5
+apply_pattern UnitTest_run unit_test=eflowObjectContainerCnv_p1
+apply_pattern UnitTest_run unit_test=eflowObjectContainerCnv_p2
+apply_pattern UnitTest_run unit_test=eflowObjectContainerCnv_p3
+apply_pattern UnitTest_run unit_test=eflowObjectContainerCnv_p4
+apply_pattern UnitTest_run unit_test=eflowObjectContainerCnv_p5
