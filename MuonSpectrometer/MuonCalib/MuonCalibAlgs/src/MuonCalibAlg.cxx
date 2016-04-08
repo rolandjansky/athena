@@ -86,7 +86,7 @@
 namespace MuonCalib { 
 
   MuonCalibAlg::MuonCalibAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    Algorithm(name, pSvcLocator), m_detMgr(NULL), p_StoreGateSvc(0), 
+    AthAlgorithm(name, pSvcLocator), m_detMgr(NULL), p_StoreGateSvc(0), 
     m_muonCalibTool("MuonCalib::MdtCalibTool/MdtCalibTool"),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
     m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),

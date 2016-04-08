@@ -2,6 +2,8 @@ package MuonCalibAlgs
 
 manager Niels van Eldik <nveldik@nikhef.nl>
 author  Niels van Eldik <nveldik@nikhef.nl>
+
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 	
 use AtlasPolicy            AtlasPolicy-*
 

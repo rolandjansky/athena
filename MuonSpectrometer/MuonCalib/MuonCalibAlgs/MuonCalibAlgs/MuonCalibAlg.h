@@ -6,7 +6,7 @@
 #ifndef MUONCALIB_MUONCALIBALG_H
 #define MUONCALIB_MUONCALIBALG_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonCalibEventBase/MuonCalibEvent.h"
@@ -47,7 +47,7 @@ namespace MuonCalib {
      
      @author Niels.Van.Eldik@cern.ch, Zdenko.Van.Kesteren@cern.ch
   */   
-  class MuonCalibAlg : public Algorithm {
+  class MuonCalibAlg : public AthAlgorithm {
   public:
     /**
        Algorithm constructor declaring all properties and opening a ROOT file
