@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingsContainer.h 668862 2015-05-20 20:15:30Z wsfreund $ 
+// $Id: CaloRingsContainer.h 707323 2015-11-12 02:45:01Z wsfreund $ 
 #ifndef XAODCALORINGS_CALORINGSCONTAINER_H
 #define XAODCALORINGS_CALORINGSCONTAINER_H
 
@@ -22,12 +22,12 @@ namespace xAOD {
 typedef CaloRingsContainer_v1 CaloRingsContainer;
 /// Declare element links vector
 typedef std::vector< ElementLink< CaloRingsContainer > >
-  CaloRingsELVec;
+  CaloRingsLinks;
 /// The CaloRings element links decorator type:
-typedef SG::AuxElement::Accessor< xAOD::CaloRingsELVec > 
+typedef SG::AuxElement::Accessor< xAOD::CaloRingsLinks > 
   caloRingsDeco_t;
 /// The CaloRings element links reader type:
-typedef SG::AuxElement::ConstAccessor< xAOD::CaloRingsELVec > 
+typedef SG::AuxElement::ConstAccessor< xAOD::CaloRingsLinks > 
   caloRingsReader_t;
 } // namespace xAOD
 

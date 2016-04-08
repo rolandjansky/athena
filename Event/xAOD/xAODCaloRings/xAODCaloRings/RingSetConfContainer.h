@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSetConfContainer.h 659538 2015-04-08 17:29:18Z wsfreund $ 
+// $Id: RingSetConfContainer.h 707323 2015-11-12 02:45:01Z wsfreund $ 
 #ifndef XAODCALORINGS_RINGSETCONFCONTAINER_H
 #define XAODCALORINGS_RINGSETCONFCONTAINER_H
 
@@ -21,7 +21,7 @@ namespace xAOD {
 typedef RingSetConfContainer_v1 RingSetConfContainer;
 /// Declare element links vector
 typedef std::vector< ElementLink< RingSetConfContainer > >
-  RingSetConfELVec;
+  RingSetConfLinks;
 } // namespace xAOD
 
 // Set up a CLID for the container:

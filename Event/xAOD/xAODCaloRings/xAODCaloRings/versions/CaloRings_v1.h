@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRings_v1.h 670601 2015-05-28 14:22:49Z wsfreund $
+// $Id: CaloRings_v1.h 708163 2015-11-16 16:03:55Z ssnyder $
 #ifndef XAODCALORINGS_VERSIONS_CALORINGS_V1_H
 #define XAODCALORINGS_VERSIONS_CALORINGS_V1_H
 
@@ -54,8 +54,8 @@ namespace xAOD {
  * 
  * This package was based on xAODEgamma implementation.
  *
- * $Revision: 670601 $
- * $Date: 2015-05-28 16:22:49 +0200 (Thu, 28 May 2015) $
+ * $Revision: 708163 $
+ * $Date: 2015-11-16 17:03:55 +0100 (Mon, 16 Nov 2015) $
  **/
 class CaloRings_v1 : public SG::AuxElement {
 
@@ -99,19 +99,19 @@ class CaloRings_v1 : public SG::AuxElement {
     /** 
      * @brief returns iterator to the beginning of RingSet Collection.
      **/
-    RingSetELVec_v1::iterator begin(); 
+    RingSetLinks_v1::iterator begin(); 
     /** 
      * @brief returns iterator to the ending of RingSet EL Collection.
      **/
-    RingSetELVec_v1::iterator end(); 
+    RingSetLinks_v1::iterator end(); 
     /** 
      * @brief returns const_iterator to the beginning of RingSet Collection.
      **/
-    RingSetELVec_v1::const_iterator begin() const; 
+    RingSetLinks_v1::const_iterator begin() const; 
     /** 
      * @brief returns const_iterator to the ending of RingSet EL Collection.
      **/
-    RingSetELVec_v1::const_iterator end() const; 
+    RingSetLinks_v1::const_iterator end() const; 
     /** 
      * @brief Return ith RingSet
      **/
@@ -133,13 +133,13 @@ class CaloRings_v1 : public SG::AuxElement {
      *
      * Set via AUXSTORE_OBJECT_SETTER_AND_GETTER marcro.
      **/
-    const RingSetELVec_v1 &ringSetELVec() const;
+    const RingSetLinks_v1 &ringSetLinks() const;
     /** 
      * @brief Set this CaloRings RingSet Collection.
      *
      * Set via AUXSTORE_OBJECT_SETTER_AND_GETTER marcro.
      **/
-    void setRingSetELVec(const RingSetELVec_v1 &ringsets);
+    void setRingSetLinks(const RingSetLinks_v1 &ringsets);
     /// @}
 
     /// @name CaloRings_v1 operators overload:
@@ -215,7 +215,7 @@ class CaloRings_v1 : public SG::AuxElement {
     
   private:
 
-    /// Check if index is within range, otherwise throws overflow_error
+    /// Check if index is within range, otherwise throws overflow_error:
     void checkRingSetIndexWithinRange( unsigned index ) const;
 
 };

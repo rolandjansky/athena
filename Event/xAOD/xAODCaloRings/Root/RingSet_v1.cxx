@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSet_v1.cxx 667903 2015-05-18 18:59:15Z wsfreund $ 
+// $Id: RingSet_v1.cxx 708163 2015-11-16 16:03:55Z ssnyder $ 
 #include "xAODCaloRings/versions/RingSet_v1.h"
 #include "xAODCaloRings/tools/PrintHelperFcns.h"
 
@@ -43,7 +43,8 @@ AUXSTORE_OBJECT_SETTER_AND_GETTER(RingSet_v1,
 // @name RingSet_v1 rings interation:
 //==============================================================================
 unsigned RingSet_v1::size() const { 
-  return constAccRingsE( *this ).size(); 
+  return (constAccRingsE.isAvailable( *this ) )?
+    constAccRingsE( *this ).size() : 0;
 }
 
 //==============================================================================
@@ -58,22 +59,26 @@ void RingSet_v1::addRing(float r) {
 
 //==============================================================================
 RingSet_v1::iterator RingSet_v1::begin() {
-  return accRingsE( *this ).begin();
+  return (accRingsE.isAvailable( *this ) )?
+    accRingsE( *this ).begin() : RingSet_v1::iterator();
 }
 
 //==============================================================================
 RingSet_v1::iterator RingSet_v1::end() {
-  return accRingsE( *this ).end();
+  return (accRingsE.isAvailable( *this ) )?
+    accRingsE( *this ).end() : RingSet_v1::iterator();
 }
 
 //==============================================================================
 RingSet_v1::const_iterator RingSet_v1::begin() const {
-  return constAccRingsE( *this ).begin();
+  return (constAccRingsE.isAvailable( *this ) )?
+    constAccRingsE( *this ).begin() : RingSet_v1::const_iterator();
 }
 
 //==============================================================================
 RingSet_v1::const_iterator RingSet_v1::end() const {
-  return constAccRingsE( *this ).end();
+  return (constAccRingsE.isAvailable( *this ) )?
+    constAccRingsE( *this ).end() : RingSet_v1::const_iterator();
 }
 
 //==============================================================================

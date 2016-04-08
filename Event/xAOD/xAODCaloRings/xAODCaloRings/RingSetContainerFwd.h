@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSetContainerFwd.h 659538 2015-04-08 17:29:18Z wsfreund $ 
+// $Id: RingSetContainerFwd.h 707323 2015-11-12 02:45:01Z wsfreund $ 
 #ifndef XAODCALORINGS_RINGSETCONTAINERFWD_H
 #define XAODCALORINGS_RINGSETCONTAINERFWD_H
 
@@ -22,7 +22,7 @@ namespace xAOD {
 typedef DataVector< RingSet > RingSetContainer;
 /// Declare element links vector
 typedef std::vector< ElementLink< RingSetContainer > >
-  RingSetELVec;
+  RingSetLinks;
 } // namespace xAOD
 
 #endif // XAODCALORINGS_RINGSETCONTAINERFWD_H

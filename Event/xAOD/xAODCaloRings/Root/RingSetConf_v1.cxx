@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSetConf_v1.cxx 695475 2015-09-17 16:54:07Z wsfreund $ 
+// $Id: RingSetConf_v1.cxx 704590 2015-10-29 17:47:12Z wsfreund $ 
 #include "xAODCaloRings/versions/RingSetConf_v1.h"
 
 #include "xAODCaloRings/versions/RingSetConfContainer_v1.h"
@@ -216,8 +216,8 @@ void RingSetConf_v1::print( const RawConf &raw,
       ") Section: " << raw.calJointSection << 
       " (" << raw.sectionStartIdx << " -> " << raw.sectionEndIdx <<
       "), etaWidth = " << raw.etaWidth << ", phiWidth = " << raw.phiWidth <<
-      ", maxCellDEtaDist = " << raw.maxCellDEtaDist <<
-      ", maxCellDPhiDist = " << raw.maxCellDPhiDist <<
+      ", cellMaxDEtaDist = " << raw.cellMaxDEtaDist <<
+      ", cellMaxDPhiDist = " << raw.cellMaxDPhiDist <<
       ", doEtaAxesDivision = " << raw.doEtaAxesDivision <<
       ", doPhiAxesDivision = " << raw.doPhiAxesDivision;
 
@@ -236,8 +236,8 @@ void RingSetConf_v1::print( const RawConf &raw, std::ostream &stream )
     ") Section: " << raw.calJointSection << 
     " (" << raw.sectionStartIdx << " -> " << raw.sectionEndIdx <<
     "), etaWidth = " << raw.etaWidth << ", phiWidth = " << raw.phiWidth <<
-      ", maxCellDEtaDist = " << raw.maxCellDEtaDist <<
-      ", maxCellDPhiDist = " << raw.maxCellDPhiDist <<
+      ", cellMaxDEtaDist = " << raw.cellMaxDEtaDist <<
+      ", cellMaxDPhiDist = " << raw.cellMaxDPhiDist <<
     ", doEtaAxesDivision = " << raw.doEtaAxesDivision <<
     ", doPhiAxesDivision = " << raw.doPhiAxesDivision;
 
@@ -439,7 +439,7 @@ void RingSetConf_v1::getRawConfCol(
 RingSetConf_v1::RingSetConf_v1(const unsigned nRings, 
     const std::vector<CaloSampling::CaloSample> &layers,
     const float etaWidth, const float phiWidth,
-    const float maxCellDEtaDist, const float maxCellDPhiDist,
+    const float cellMaxDEtaDist, const float cellMaxDPhiDist,
     const Ringer::CalJointLayer calJointLayer, 
     const Ringer::CalJointSection calJointSection,
     const bool doEtaAxesDivision, const bool doPhiAxesDivision,
@@ -450,8 +450,8 @@ RingSetConf_v1::RingSetConf_v1(const unsigned nRings,
   setLayers(layers);
   setEtaWidth(etaWidth);
   setPhiWidth(phiWidth);
-  setMaxCellDEtaDist(maxCellDEtaDist);
-  setMaxCellDPhiDist(maxCellDPhiDist);
+  setCellMaxDEtaDist(cellMaxDEtaDist);
+  setCellMaxDPhiDist(cellMaxDPhiDist);
   setCalJointLayer(calJointLayer);
   setCalJointSection(calJointSection);
   setdoEtaAxesDivision(doEtaAxesDivision);
@@ -471,8 +471,8 @@ RingSetConf_v1::RingSetConf_v1(
   setLayers(confStruct.layers);
   setEtaWidth(confStruct.etaWidth);
   setPhiWidth(confStruct.phiWidth);
-  setMaxCellDEtaDist(confStruct.maxCellDEtaDist);
-  setMaxCellDPhiDist(confStruct.maxCellDPhiDist);
+  setCellMaxDEtaDist(confStruct.cellMaxDEtaDist);
+  setCellMaxDPhiDist(confStruct.cellMaxDPhiDist);
   setCalJointLayer(confStruct.calJointLayer);
   setCalJointSection(confStruct.calJointSection);
   setdoEtaAxesDivision(confStruct.doEtaAxesDivision);
@@ -488,7 +488,7 @@ RingSetConf_v1::RawConf::RawConf(
     const unsigned nRings, 
     const std::vector<CaloSampling::CaloSample> &layers,
     const float etaWidth, const float phiWidth,
-    const float maxCellDEtaDist, const float maxCellDPhiDist,
+    const float cellMaxDEtaDist, const float cellMaxDPhiDist,
     const Ringer::CalJointLayer calJointLayer,
     const Ringer::CalJointSection calJointSection,
     const bool doEtaAxesDivision,
@@ -497,8 +497,8 @@ RingSetConf_v1::RawConf::RawConf(
   layers(layers),
   etaWidth(etaWidth),
   phiWidth(phiWidth),
-  maxCellDEtaDist(maxCellDEtaDist),
-  maxCellDPhiDist(maxCellDPhiDist),
+  cellMaxDEtaDist(cellMaxDEtaDist),
+  cellMaxDPhiDist(cellMaxDPhiDist),
   calJointLayer(calJointLayer),
   calJointSection(calJointSection),
   doEtaAxesDivision(doEtaAxesDivision),
@@ -513,7 +513,7 @@ RingSetConf_v1::RawConf::RawConf(
     const unsigned nRings, 
     const std::vector<CaloSampling::CaloSample> &layers,
     const float etaWidth, const float phiWidth,
-    const float maxCellDEtaDist, const float maxCellDPhiDist,
+    const float cellMaxDEtaDist, const float cellMaxDPhiDist,
     const Ringer::CalJointLayer calJointLayer,
     const Ringer::CalJointSection calJointSection,
     const bool doEtaAxesDivision,
@@ -526,8 +526,8 @@ RingSetConf_v1::RawConf::RawConf(
   layers(layers),
   etaWidth(etaWidth),
   phiWidth(phiWidth),
-  maxCellDEtaDist(maxCellDEtaDist),
-  maxCellDPhiDist(maxCellDPhiDist),
+  cellMaxDEtaDist(cellMaxDEtaDist),
+  cellMaxDPhiDist(cellMaxDPhiDist),
   calJointLayer(calJointLayer),
   calJointSection(calJointSection),
   doEtaAxesDivision(doEtaAxesDivision),
@@ -544,8 +544,8 @@ RingSetConf_v1::RawConf::RawConf(
   layers(rsConf.layers()),
   etaWidth(rsConf.etaWidth()),
   phiWidth(rsConf.phiWidth()),
-  maxCellDEtaDist(rsConf.maxCellDEtaDist()),
-  maxCellDPhiDist(rsConf.maxCellDPhiDist()),
+  cellMaxDEtaDist(rsConf.cellMaxDEtaDist()),
+  cellMaxDPhiDist(rsConf.cellMaxDPhiDist()),
   calJointLayer(rsConf.calJointLayer()),
   calJointSection(rsConf.calJointSection()),
   doEtaAxesDivision(rsConf.doEtaAxesDivision()),
@@ -652,14 +652,14 @@ AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(RingSetConf_v1,
 //==============================================================================
 AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(RingSetConf_v1, 
     float, 
-    maxCellDEtaDist, 
-    setMaxCellDEtaDist)
+    cellMaxDEtaDist, 
+    setCellMaxDEtaDist)
 
 //==============================================================================
 AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(RingSetConf_v1, 
     float, 
-    maxCellDPhiDist, 
-    setMaxCellDPhiDist)
+    cellMaxDPhiDist, 
+    setCellMaxDPhiDist)
 
 //==============================================================================
 bool RingSetConf_v1::doEtaAxesDivision() const {
@@ -745,8 +745,8 @@ void RingSetConf_v1::print( MsgStream &stream, MSG::Level level ) const {
       ") Section: " << calJointSection() << 
       " (" << sectionStartIdx() << " -> " << sectionEndIdx() <<
       "), etaWidth = " << etaWidth() << ", phiWidth = " << phiWidth() <<
-      ", maxCellDEtaDist = " << maxCellDEtaDist() <<
-      ", maxCellDPhiDist = " << maxCellDPhiDist() <<
+      ", cellMaxDEtaDist = " << cellMaxDEtaDist() <<
+      ", cellMaxDPhiDist = " << cellMaxDPhiDist() <<
       ", doEtaAxesDivision = " << doEtaAxesDivision() << 
       ", doPhiAxesDivision = " << doPhiAxesDivision();
 
@@ -764,8 +764,8 @@ void RingSetConf_v1::print( std::ostream &stream ) const {
     ") Section: " << calJointSection() << 
     " (" << sectionStartIdx() << " -> " << sectionEndIdx() <<
     "), etaWidth = " << etaWidth() << ", phiWidth = " << phiWidth() <<
-    ", maxCellDEtaDist = " << maxCellDEtaDist() <<
-    ", maxCellDPhiDist = " << maxCellDPhiDist() <<
+    ", cellMaxDEtaDist = " << cellMaxDEtaDist() <<
+    ", cellMaxDPhiDist = " << cellMaxDPhiDist() <<
     ", doEtaAxesDivision = " << doEtaAxesDivision() << 
     ", doPhiAxesDivision = " << doPhiAxesDivision();
 

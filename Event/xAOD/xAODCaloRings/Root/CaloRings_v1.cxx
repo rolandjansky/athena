@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRings_v1.cxx 689815 2015-08-17 15:39:55Z wsfreund $ 
+// $Id: CaloRings_v1.cxx 708163 2015-11-16 16:03:55Z ssnyder $ 
 
 // standard library includes:
 #include <stdexcept>
@@ -22,60 +22,70 @@
 namespace xAOD {
 
 namespace {
-  SG::AuxElement::Accessor< RingSetELVec_v1 >
-     accRingSetELVec( "ringSetELVec" );
-  SG::AuxElement::ConstAccessor< RingSetELVec_v1 >
-     constAccRingSetELVec( "ringSetELVec" );
+  SG::AuxElement::Accessor< RingSetLinks_v1 >
+     accRingSetLinks( "ringSetLinks" );
+  SG::AuxElement::ConstAccessor< RingSetLinks_v1 >
+     constAccRingSetLinks( "ringSetLinks" );
 }
 
 /// @name RingSet Collection direct interation methods:
 /// @{
 //==============================================================================
 AUXSTORE_OBJECT_SETTER_AND_GETTER(CaloRings_v1,
-    RingSetELVec_v1,
-    ringSetELVec,
-    setRingSetELVec)
+    RingSetLinks_v1,
+    ringSetLinks,
+    setRingSetLinks)
 
 //==============================================================================
 unsigned CaloRings_v1::nRingSets() const 
 {
-  return constAccRingSetELVec( *this ).size();
+  return (constAccRingSetLinks.isAvailable( *this ) )?
+              (constAccRingSetLinks( *this ).size()):
+              (0);
 }
 
 
 //==============================================================================
 void CaloRings_v1::addRingSetEL(const ElementLink<RingSetContainer_v1> &rsEL)
 {
-  accRingSetELVec( *this ).push_back(rsEL);
+  accRingSetLinks( *this ).push_back(rsEL);
 }
 //==============================================================================
 void CaloRings_v1::clear()
 {
-  accRingSetELVec( *this ).clear();
+  accRingSetLinks( *this ).clear();
 }
 
 //==============================================================================
-RingSetELVec_v1::iterator CaloRings_v1::begin() 
+RingSetLinks_v1::iterator CaloRings_v1::begin() 
 {
-  return accRingSetELVec( *this ).begin();
+  return (accRingSetLinks.isAvailable( *this ) )?
+              (accRingSetLinks( *this ).begin()):
+              (RingSetLinks_v1::iterator());
 }
 
 //==============================================================================
-RingSetELVec_v1::iterator CaloRings_v1::end() 
+RingSetLinks_v1::iterator CaloRings_v1::end() 
 {
-  return accRingSetELVec( *this ).end();
+  return (accRingSetLinks.isAvailable( *this ) )?
+              (accRingSetLinks( *this ).end()):
+              (RingSetLinks_v1::iterator());
 }
 
 //==============================================================================
-RingSetELVec_v1::const_iterator CaloRings_v1::begin() const 
+RingSetLinks_v1::const_iterator CaloRings_v1::begin() const 
 {
-  return constAccRingSetELVec( *this ).begin();
+  return (constAccRingSetLinks.isAvailable( *this ) )?
+              (constAccRingSetLinks( *this ).begin()):
+              (RingSetLinks_v1::const_iterator());
 }
 
 //==============================================================================
-RingSetELVec_v1::const_iterator CaloRings_v1::end() const 
+RingSetLinks_v1::const_iterator CaloRings_v1::end() const 
 {
-  return constAccRingSetELVec( *this ).end();
+  return (constAccRingSetLinks.isAvailable( *this ) )?
+              (constAccRingSetLinks( *this ).end()):
+              (RingSetLinks_v1::const_iterator());
 }
 
 //==============================================================================
@@ -83,7 +93,7 @@ RingSet_v1 *CaloRings_v1::at(const unsigned int i)
 {
   if ( i > nRingSets() ) 
     return 0;
-  ElementLink<RingSetContainer_v1> &rsEL = accRingSetELVec( *this ).at(i);
+  ElementLink<RingSetContainer_v1> &rsEL = accRingSetLinks( *this ).at(i);
   if ( !rsEL.isValid() ) {
     return 0;
   }
@@ -96,7 +106,7 @@ RingSet_v1 *CaloRings_v1::operator[](const unsigned int i)
 {
   if ( i > nRingSets() ) 
     return 0;
-  ElementLink<RingSetContainer_v1> &rsEL = accRingSetELVec( *this )[i];
+  ElementLink<RingSetContainer_v1> &rsEL = accRingSetLinks( *this )[i];
   if ( !rsEL.isValid() ) {
     return 0;
   }
@@ -110,7 +120,7 @@ const RingSet_v1 *CaloRings_v1::at(const unsigned int i) const
   if ( i > nRingSets() ) 
     return 0;
   const ElementLink<RingSetContainer_v1> &rsEL = 
-    constAccRingSetELVec( *this ).at(i);
+    constAccRingSetLinks( *this ).at(i);
   if ( !rsEL.isValid() ) {
     return 0;
   }
@@ -123,7 +133,7 @@ const RingSet_v1 *CaloRings_v1::operator[](const unsigned int i) const
   if ( i > nRingSets() ) 
     return 0;
   const ElementLink<RingSetContainer_v1> &rsEL = 
-    constAccRingSetELVec( *this )[i];
+    constAccRingSetLinks( *this )[i];
   if ( !rsEL.isValid() ) {
     return 0;
   }

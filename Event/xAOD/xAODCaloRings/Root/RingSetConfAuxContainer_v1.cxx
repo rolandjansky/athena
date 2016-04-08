@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSetConfAuxContainer_v1.cxx 695475 2015-09-17 16:54:07Z wsfreund $ 
+// $Id: RingSetConfAuxContainer_v1.cxx 704590 2015-10-29 17:47:12Z wsfreund $ 
 // Local include(s):
 #include "xAODCaloRings/versions/RingSetConfAuxContainer_v1.h"
 
@@ -20,9 +20,9 @@ RingSetConfAuxContainer_v1::RingSetConfAuxContainer_v1()
   /// Ring width in phi
   AUX_VARIABLE(phiWidth);
   /// Maximun cell distance in eta to seed
-  AUX_VARIABLE(maxCellDEtaDist);
+  AUX_VARIABLE(cellMaxDEtaDist);
   /// Maximun cell distance in phi to seed
-  AUX_VARIABLE(maxCellDPhiDist);
+  AUX_VARIABLE(cellMaxDPhiDist);
   /// The Calorimeter Joint Layer (see CaloRingsDefs.h)
   AUX_VARIABLE(calJointLayer);
   /// The Calorimeter Joint Section (see CaloRingsDefs.h)

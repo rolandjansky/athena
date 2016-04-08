@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSetConfAuxContainer_v1.h 695475 2015-09-17 16:54:07Z wsfreund $
+// $Id: RingSetConfAuxContainer_v1.h 704590 2015-10-29 17:47:12Z wsfreund $
 #ifndef XAODCALORINGS_VERSIONS_RINGSETCONFAUXCONTAINER_V1_H
 #define XAODCALORINGS_VERSIONS_RINGSETCONFAUXCONTAINER_V1_H
 
@@ -21,8 +21,8 @@ namespace xAOD {
 /// configuration EDM. Will be exchanged for a generic auxiliary container type
 /// (AuxStoreInternal) later on. Copied from xAOD::Egamma.
 ///
-/// $Revision: 695475 $
-/// $Date: 2015-09-17 18:54:07 +0200 (Thu, 17 Sep 2015) $
+/// $Revision: 704590 $
+/// $Date: 2015-10-29 18:47:12 +0100 (Thu, 29 Oct 2015) $
 ///
 
 class RingSetConfAuxContainer_v1 : public AuxContainerBase {
@@ -43,10 +43,10 @@ private:
   std::vector<float> etaWidth;   
   /// Ring width in phi
   std::vector<float> phiWidth;
-  /// Maximun cell distance in eta to seed
-  std::vector<float> maxCellDEtaDist;
-  /// Maximun cell distance in phi to seed
-  std::vector<float> maxCellDPhiDist;
+  /// Maximun distance cell in eta to seed
+  std::vector<float> cellMaxDEtaDist;
+  /// Maximun distance cell in phi to seed
+  std::vector<float> cellMaxDPhiDist;
   /// The Calorimeter Joint Layer (see CaloRingsDefs.h)
   std::vector<unsigned/*= Ringer::CalJointLayer*/> calJointLayer;
   /// The Calorimeter Joint Section (see CaloRingsDefs.h)
