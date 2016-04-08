@@ -66,6 +66,10 @@ namespace Barcode {
       virtual void registerLargestGenEvtParticleBC( ParticleBarcode bc) = 0;
       virtual void registerLargestGenEvtVtxBC( VertexBarcode bc) = 0;
 
+      /** Return the secondary particle and vertex offsets */
+      virtual Barcode::ParticleBarcode secondaryParticleBcOffset() const = 0;
+      virtual Barcode::VertexBarcode   secondaryVertexBcOffset()  const = 0;
+
       /** return bit calculator for encoding extra barcode info */
       virtual BitCalculator* getBitCalculator() const { return 0; }
       virtual bool hasBitCalculator() const { return false; }
