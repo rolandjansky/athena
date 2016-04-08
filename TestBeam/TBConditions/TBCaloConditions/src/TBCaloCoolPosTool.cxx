@@ -19,7 +19,7 @@ TBCaloCoolPosTool::TBCaloCoolPosTool(const std::string& type,
 			 const std::string& name, 
 			 const IInterface* parent)
     : 
-    AlgTool(type, name, parent),m_init(0)
+    AthAlgTool(type, name, parent),m_init(0)
 {
 
     // Declare additional interface
@@ -40,31 +40,10 @@ StatusCode TBCaloCoolPosTool::finalize()
 //--------------------------------------------------------------------------
 StatusCode TBCaloCoolPosTool::initialize()
 {
-    MsgStream log(msgSvc(), name());
-    log <<MSG::DEBUG <<"in initialize()" <<endreq;
+    ATH_MSG_DEBUG ("in initialize()" );
 
-
-    // Get the DetectorStore 
-    StatusCode sc = serviceLocator()->service( "DetectorStore", m_detStore );
-    if ( sc.isFailure() )
-	{
-	    log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
-	    return StatusCode::FAILURE;
-    }
-
-
-    // Incident Service:
-    IIncidentSvc* incSvc;
-    sc = serviceLocator()->service("IncidentSvc", incSvc); 
-
-    if (sc.isFailure())
-    {
-     log << MSG::ERROR
-        << "Unable to retrieve pointer to IncidentSvc "
-        << endreq;
-     return sc;
-    }
-
+    IIncidentSvc* incSvc = nullptr;
+    ATH_CHECK( serviceLocator()->service("IncidentSvc", incSvc) );
 
     if( initHandles() ) { 
       m_init = true; 
@@ -76,7 +55,6 @@ StatusCode TBCaloCoolPosTool::initialize()
     } 
 
     return StatusCode::SUCCESS;
-
 }
 
 
@@ -84,45 +62,26 @@ void TBCaloCoolPosTool::handle(const Incident&)
 {
   // This should be the beginning of Run.  EventInfo is available now. 
   
-    MsgStream log(msgSvc(), name());
-    log <<MSG::DEBUG <<"in handle()" <<endreq;
+    ATH_MSG_DEBUG ("in handle()" );
     if(! m_init) { 
       // not yet initialized. 
       if( initHandles() ) { 
         m_init = true; 
       } else  
       {
-	log << MSG::ERROR << " unable initialize DataHandle in BeginRun Incident "
-	<< endreq;
+	ATH_MSG_ERROR ( " unable initialize DataHandle in BeginRun Incident " );
       }
-
     } 
 
     return; 
-
 } 
 
 bool TBCaloCoolPosTool::initHandles() 
 { 
+      ATH_MSG_DEBUG ("in initHandles()" );
 
-      MsgStream log(msgSvc(), name());
-      log <<MSG::DEBUG <<"in initHandles()" <<endreq;
-
-      StoreGateSvc* evtStore; 
-      StatusCode sc = serviceLocator()->service( "StoreGateSvc", evtStore);
-      if ( sc.isFailure() )
-	{
-	    log << MSG::ERROR << "Unable to get the StoreGateSvc" << endreq;
-	    return false ; 
-        }
-
-      const EventInfo* evtInfo;
-      sc = evtStore->retrieve(evtInfo);
-      if ( sc.isFailure() )
-	{
-	    log << MSG::INFO << "Unable to get EventInfo, run probably not begun yet " << endreq;
-	    return false ; 
-        }
+      const EventInfo* evtInfo = nullptr;
+      ATH_CHECK( evtStore()->retrieve(evtInfo) );
 
       int run = evtInfo->event_ID()->run_number(); 
 
@@ -134,7 +93,7 @@ bool TBCaloCoolPosTool::initHandles()
 	etaKey = "/TILE/DCS/SYSTEM1/TABLE/ETA" 	    ;
 	zKey = "/TILE/DCS/SYSTEM1/TABLE/Z" 	    ;
 	deltaKey = "/TILE/DCS/SYSTEM1/TABLE/DELTA"    ;	
-	log << MSG::DEBUG << " runs before 1000454, using Folders with SYSTEM1..." << endreq;
+	ATH_MSG_DEBUG ( " runs before 1000454, using Folders with SYSTEM1..." );
 
       } else
       { // Folder moved under System: 
@@ -142,18 +101,18 @@ bool TBCaloCoolPosTool::initHandles()
 	etaKey = "/TILE/DCS/TILE_LV_62/TABLE/ETA" ;	
 	zKey = "/TILE/DCS/TILE_LV_62/TABLE/Z" ;	
 	deltaKey = "/TILE/DCS/TILE_LV_62/TABLE/DELTA" ;	
-	log << MSG::DEBUG << " runs after 1000454, using Folders with TILE_LV_62..." << endreq;
+	ATH_MSG_DEBUG ( " runs after 1000454, using Folders with TILE_LV_62..." );
       } 
 
-      m_detStore->regHandle(m_deltaTable,deltaKey); 
-      m_detStore->regHandle(m_thetaTable,thetaKey); 
-      m_detStore->regHandle(m_zTable,zKey); 
-      m_detStore->regHandle(m_etaTable,etaKey); 
+      detStore()->regHandle(m_deltaTable,deltaKey); 
+      detStore()->regHandle(m_thetaTable,thetaKey); 
+      detStore()->regHandle(m_zTable,zKey); 
+      detStore()->regHandle(m_etaTable,etaKey); 
 
-      log << MSG::DEBUG << " eta =    " <<   eta() << endreq;
-      log << MSG::DEBUG << " theta =  " << theta() << endreq;
-      log << MSG::DEBUG << " z =      " <<     z() << endreq;
-      log << MSG::DEBUG << " delta =  " << delta() << endreq;
+      ATH_MSG_DEBUG ( " eta =    " <<   eta() );
+      ATH_MSG_DEBUG ( " theta =  " << theta() );
+      ATH_MSG_DEBUG ( " z =      " <<     z() );
+      ATH_MSG_DEBUG ( " delta =  " << delta() );
 
       return true; 
 }
@@ -166,8 +125,7 @@ double TBCaloCoolPosTool::eta()
     e=(* m_etaTable)["eta"].data<float>();
   }
   catch (std::exception ex) {
-     MsgStream  log(msgSvc(),name());
-     log << MSG::ERROR<<"eta AttributeList access failed"<<endreq;
+     ATH_MSG_ERROR("eta AttributeList access failed");
      return 0 ; 
   }
   return e; 
@@ -180,8 +138,7 @@ double TBCaloCoolPosTool::theta()
     t=(* m_thetaTable)["theta"].data<float>();
   }
   catch (std::exception ex) {
-     MsgStream  log(msgSvc(),name());
-     log << MSG::ERROR<<"theta AttributeList access failed"<<endreq;
+     ATH_MSG_ERROR("theta AttributeList access failed");
      return 0 ; 
   }
   return t; 
@@ -194,8 +151,7 @@ double TBCaloCoolPosTool::z()
     z=(* m_zTable)["z"].data<float>();
   }
   catch (std::exception ex) {
-     MsgStream  log(msgSvc(),name());
-     log << MSG::ERROR<<"z AttributeList access failed"<<endreq;
+     ATH_MSG_ERROR("z AttributeList access failed");
      return 0 ; 
   }
   return z; 
@@ -208,8 +164,7 @@ double TBCaloCoolPosTool::delta()
     d=(* m_deltaTable)["delta"].data<float>();
   }
   catch (std::exception ex) {
-     MsgStream  log(msgSvc(),name());
-     log << MSG::ERROR<<"delta AttributeList access failed"<<endreq;
+     ATH_MSG_ERROR("delta AttributeList access failed");
      return 0 ; 
   }
   return d; 

@@ -19,7 +19,7 @@ TBCaloPosTool::TBCaloPosTool(const std::string& type,
 			 const std::string& name, 
 			 const IInterface* parent)
     : 
-    AlgTool(type, name, parent),m_init(0)
+  AthAlgTool(type, name, parent),m_init(0)
 {
 
     // Declare additional interface
@@ -40,31 +40,11 @@ StatusCode TBCaloPosTool::finalize()
 //--------------------------------------------------------------------------
 StatusCode TBCaloPosTool::initialize()
 {
-    MsgStream log(msgSvc(), name());
-    log <<MSG::DEBUG <<"in initialize()" <<endreq;
-
-
-    // Get the DetectorStore 
-    StatusCode sc = serviceLocator()->service( "DetectorStore", m_detStore );
-    if ( sc.isFailure() )
-	{
-	    log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
-	    return StatusCode::FAILURE;
-    }
-
+    ATH_MSG_DEBUG ("in initialize()" );
 
     // Incident Service:
-    IIncidentSvc* incSvc;
-    sc = serviceLocator()->service("IncidentSvc", incSvc); 
-
-    if (sc.isFailure())
-    {
-     log << MSG::ERROR
-        << "Unable to retrieve pointer to IncidentSvc "
-        << endreq;
-     return sc;
-    }
-
+    IIncidentSvc* incSvc = nullptr;
+    ATH_CHECK( serviceLocator()->service("IncidentSvc", incSvc) );
 
     if( initHandles() ) { 
       m_init = true; 
@@ -76,7 +56,6 @@ StatusCode TBCaloPosTool::initialize()
     } 
 
     return StatusCode::SUCCESS;
-
 }
 
 
@@ -84,45 +63,26 @@ void TBCaloPosTool::handle(const Incident&)
 {
   // This should be the beginning of Run.  EventInfo is available now. 
   
-    MsgStream log(msgSvc(), name());
-    log <<MSG::DEBUG <<"in handle()" <<endreq;
+    ATH_MSG_DEBUG ("in handle()" );
     if(! m_init) { 
       // not yet initialized. 
       if( initHandles() ) { 
         m_init = true; 
       } else  
       {
-	log << MSG::ERROR << " unable initialize DataHandle in BeginRun Incident "
-	<< endreq;
+	ATH_MSG_ERROR ( " unable initialize DataHandle in BeginRun Incident " );
       }
-
     } 
 
     return; 
-
 } 
 
 bool TBCaloPosTool::initHandles() 
 { 
+      ATH_MSG_DEBUG ("in initHandles()" );
 
-      MsgStream log(msgSvc(), name());
-      log <<MSG::DEBUG <<"in initHandles()" <<endreq;
-
-      StoreGateSvc* evtStore; 
-      StatusCode sc = serviceLocator()->service( "StoreGateSvc", evtStore);
-      if ( sc.isFailure() )
-	{
-	    log << MSG::ERROR << "Unable to get the StoreGateSvc" << endreq;
-	    return false ; 
-        }
-
-      const EventInfo* evtInfo;
-      sc = evtStore->retrieve(evtInfo);
-      if ( sc.isFailure() )
-	{
-	    log << MSG::INFO << "Unable to get EventInfo, run probably not begun yet " << endreq;
-	    return false ; 
-        }
+      const EventInfo* evtInfo = nullptr;
+      ATH_CHECK( evtStore()->retrieve(evtInfo) );
 
       int run = evtInfo->event_ID()->run_number(); 
 
@@ -134,7 +94,7 @@ bool TBCaloPosTool::initHandles()
 	etaKey = "/tile/dcs/System1:table.eta:online..value" 	    ;
 	zKey = "/tile/dcs/System1:table.z:online..value" 	    ;
 	deltaKey = "/tile/dcs/System1:table.delta:online..value"    ;	
-	log << MSG::DEBUG << " runs before 1000454, using Folders with System1..." << endreq;
+	ATH_MSG_DEBUG ( " runs before 1000454, using Folders with System1..." );
 
       } else
       { // Folder moved under System: 
@@ -142,18 +102,18 @@ bool TBCaloPosTool::initHandles()
 	etaKey = "/tile/dcs/Tile_LV_62:table.eta:online..value"     ;
 	zKey = "/tile/dcs/Tile_LV_62:table.z:online..value" 	    ;
 	deltaKey = "/tile/dcs/Tile_LV_62:table.delta:online..value" ;
-	log << MSG::DEBUG << " runs after 1000454, using Folders with Tile_LV_62..." << endreq;
+	ATH_MSG_DEBUG ( " runs after 1000454, using Folders with Tile_LV_62..." );
       } 
 
-      m_detStore->regHandle(m_deltaTable,deltaKey); 
-      m_detStore->regHandle(m_thetaTable,thetaKey); 
-      m_detStore->regHandle(m_zTable,zKey); 
-      m_detStore->regHandle(m_etaTable,etaKey); 
+      detStore()->regHandle(m_deltaTable,deltaKey); 
+      detStore()->regHandle(m_thetaTable,thetaKey); 
+      detStore()->regHandle(m_zTable,zKey); 
+      detStore()->regHandle(m_etaTable,etaKey); 
 
-      log << MSG::DEBUG << " eta =    " <<   eta() << endreq;
-      log << MSG::DEBUG << " theta =  " << theta() << endreq;
-      log << MSG::DEBUG << " z =      " <<     z() << endreq;
-      log << MSG::DEBUG << " delta =  " << delta() << endreq;
+      ATH_MSG_DEBUG ( " eta =    " <<   eta() );
+      ATH_MSG_DEBUG ( " theta =  " << theta() );
+      ATH_MSG_DEBUG ( " z =      " <<     z() );
+      ATH_MSG_DEBUG ( " delta =  " << delta() );
 
       return true; 
 }
@@ -162,16 +122,12 @@ bool TBCaloPosTool::initHandles()
 double TBCaloPosTool::eta() 
 {
   double e=0; 
-
-  if(m_etaTable->getNumRows() !=1 || m_etaTable->getNumColumns()!=1)
-        {
-              MsgStream  log(msgSvc(),name());
-              log << MSG::ERROR<<" eta GenericDbTable has wrong dimension"<<endreq;
-             return 0 ; 
-        }
+  if(m_etaTable->getNumRows() !=1 || m_etaTable->getNumColumns()!=1) {
+    ATH_MSG_ERROR(" eta GenericDbTable has wrong dimension");
+    return 0 ; 
+  }
 
   m_etaTable->getCell(0,0,e);
-
   return e; 
 }
 
@@ -180,41 +136,27 @@ double TBCaloPosTool::eta()
 double TBCaloPosTool::theta() 
 {
   double t=0; 
-
-  if(m_thetaTable->getNumRows() !=1 || m_thetaTable->getNumColumns()!=1)
-        {
-              MsgStream  log(msgSvc(),name());
-              log << MSG::ERROR<<" theta GenericDbTable has wrong dimension"<<endreq;
-              return 0 ; 
-        }
+  if(m_thetaTable->getNumRows() !=1 || m_thetaTable->getNumColumns()!=1) {
+    ATH_MSG_ERROR(" theta GenericDbTable has wrong dimension");
+    return 0 ; 
+  }
 
   m_thetaTable->getCell(0,0,t);
-
   return t;
-
-
 }
 
 
 
 double TBCaloPosTool::z() 
 {
-
   double zzz=0;
-
-  if(m_zTable->getNumRows() !=1 || m_zTable->getNumColumns()!=1)
-        {
-              MsgStream  log(msgSvc(),name());
-              log << MSG::ERROR<<" z GenericDbTable has wrong dimension"<<endreq;
-             return 0 ; 
-        }
+  if(m_zTable->getNumRows() !=1 || m_zTable->getNumColumns()!=1) {
+    ATH_MSG_ERROR(" z GenericDbTable has wrong dimension");
+    return 0 ; 
+  }
 
   m_zTable->getCell(0,0,zzz);
-
- 
   return zzz;
-	
-
 }
 
 
@@ -222,18 +164,12 @@ double TBCaloPosTool::z()
 double TBCaloPosTool::delta() 
 {
   double d=0;
-
-  if(m_deltaTable->getNumRows() !=1 || m_deltaTable->getNumColumns()!=1)
-        {
-              MsgStream  log(msgSvc(),name());
-              log << MSG::ERROR<<" delta GenericDbTable has wrong dimension"<<endreq;
-             return 0 ; 
-        }
+  if(m_deltaTable->getNumRows() !=1 || m_deltaTable->getNumColumns()!=1) {
+    ATH_MSG_ERROR(" delta GenericDbTable has wrong dimension");
+    return 0 ; 
+  }
 
   m_deltaTable->getCell(0,0,d);
-
   return d;
-	
-
 }
 

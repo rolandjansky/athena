@@ -6,7 +6,7 @@
 # define TBCALOCONDITIONS_TBCALOPOSTOOL
 
 #include "TBCaloConditions/ITBCaloPosTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IIncidentListener.h"
 
 #include "StoreGate/DataHandle.h"
@@ -23,7 +23,7 @@ class StoreGateSvc;
 	
  **/
  
-class TBCaloPosTool : public AlgTool,
+class TBCaloPosTool : public AthAlgTool,
       virtual public ITBCaloPosTool, public IIncidentListener
 {
 public:
@@ -57,7 +57,6 @@ private:
 
     bool initHandles() ; 
 
-    StoreGateSvc* m_detStore; 
     const DataHandle<GenericDbTable> m_etaTable; 
     const DataHandle<GenericDbTable> m_thetaTable; 
     const DataHandle<GenericDbTable> m_zTable; 

@@ -11,6 +11,7 @@ use AthenaPoolUtilities AthenaPoolUtilities-*           Database/AthenaPOOL
 use CondDBObjects       CondDBObjects-* 		Database
 use EventInfo		EventInfo-* 			Event
 use StoreGate 		StoreGate-* 			Control
+use AthenaBaseComps     AthenaBaseComps-*               Control
 
 public
 
