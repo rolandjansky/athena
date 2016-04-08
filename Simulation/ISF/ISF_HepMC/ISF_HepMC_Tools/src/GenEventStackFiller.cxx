@@ -441,7 +441,7 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 							  tBinding );
       
       // MB : need this (for now) to store extra barcode information
-      Barcode::ParticleBarcode extrabc;
+      Barcode::ParticleBarcode extrabc(Barcode::fUndefinedBarcode);
       sParticle->setUserInformation( new ISF::ParticleUserInformation() );
       if ( m_barcodeSvc->hasBitCalculator() ) {
 	// first gen-event in the list is the hard scatter.
