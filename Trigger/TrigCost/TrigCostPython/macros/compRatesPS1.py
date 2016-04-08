@@ -1244,40 +1244,36 @@ levels = ['L1','HLT']
 
 #ComparePS_PT()
 
-
 if options.undo_PS :
-    for result in input_results :        
+    for result in input_results : 
+        print " unprescaling L1"
+        for ch in result.GetChains('L1') : # now L1
+            cut = ch.GetPrescale()
+            if cut != 1 and cut > 0 :
+                ps = 0xFFFFFF / (float)(0x1000000 - cut)
+                print " change PS for L1: ", ch.GetName() , " R:" , ch.GetRate() , " +- " , ch.GetRateErr() , " ps:" , ps
+                ch.SetRate( ch.GetRate()*ps )
+                ch.SetRateErr( ch.GetRateErr()*ps );
+                ch.SetPrescale( 1. )
+                setattr(ch, "undoPSFactor", ps)
+                print " [conv cut ",cut,"to PS",ps,"] ----------> unprescaled rate: ", ch.GetRate() , " +- " , ch.GetRateErr()
+
+        print " unprescaling HLT"
         for ch in result.GetChains('HLT') :
             ps = ch.GetPrescale()
+            psl1 = 1
             lowerchain = ch.GetAttrWithDefault("lowerchain", "none")
-            if lowerchain!='none' :
-                if result.HasChain(lowerchain):
-                    lchain = result.GetChain(ch.lowerchain)
-                    ps *= lchain.GetPrescale()
-                if "L2" in lowerchain :
-                    #lchain.SetPrescale(1.)
-                    #lchain.prescale = 1.
-                    lowerlowerchain = lchain.GetAttrWithDefault("lowerchain", "none")
-                    if lowerlowerchain!='none' :
-                        if result.HasChain(lowerlowerchain):
-                            llchain = result.GetChain(lchain.lowerchain)
-                            ps *= llchain.GetPrescale()
-                
-            if ps > 1 : print " change PS for ", ch.GetName(), ch.GetRate(), ch.GetPrescale(), lchain.GetPrescale(), ps
-            if ps != 1 and ps >0 :
-                ch.SetRate( ch.GetRate()*ps)
+            if lowerchain!='none' and result.HasChain(lowerchain) :
+                lchain = result.GetChain(ch.lowerchain)
+                psl1 = ch.GetAttrWithDefault("undoPSFactor", 1 )
+            pstot = ps * psl1
+            if pstot != 1 and pstot >0 :
+                print " change PS for HLT: ", ch.GetName() , " R:" , ch.GetRate() , " +- " , ch.GetRateErr() , " psL1:" , psl1 , " psHLT:" , ps , " psTot:", pstot
+                ch.SetRate( ch.GetRate()*pstot )
+                ch.SetRateErr( ch.GetRateErr()*pstot )
                 ch.SetPrescale( 1.)
                 ch.prescale = 1
-                if ps > 1 : print "       ----------> ", ch.GetRate(), ch.GetPrescale()
-
-        for ch in result.GetChains('L1') : # now L1
-            ps = ch.GetPrescale()
-            if ps > 1 : print " change PS for ", ch.GetName(), ch.GetRate(), ps
-            if ps != 1 and ps >0 :
-                ch.SetRate( ch.GetRate()*ps)
-                ch.SetPrescale( 1.)
-                if ps > 1: print "       ----------> ", ch.GetRate(), ch.GetPrescale()
-
+                if ps > 1 : print "       ----------> unprescaled rate ", ch.GetRate() , " +- " , ch.GetRateErr()
 
 for level in levels:    
     #CompareAttr(gpath, level, 'rate', 'diff', index_html)

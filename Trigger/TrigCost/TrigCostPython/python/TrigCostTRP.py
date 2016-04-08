@@ -162,13 +162,15 @@ def GetTChains(runnumber, filename):
 def GetStartpoint(tree, lb_beg, entries):
 
     startpoint = 0
-    stepsize = 100
+    stepsize = 1
+    print "Find TRP start point"
 
     for startpoint in xrange(0,entries,stepsize):
         tree.GetEvent(startpoint)
         lb = tree.LumiBlock
         if lb >= lb_beg:
             break
+    print "Found TRP start point"
 
     if startpoint>=stepsize:
         startpoint=startpoint-stepsize
@@ -247,10 +249,10 @@ def GetBranches(tree, lvl, sfx_out):
         #
         if comp.match( branch.GetName() ):
             bname = branch.GetName()
-        if "HLT" in bname :
-            pos   = -(len(br_out)-5)
-        else :
-            pos   = -(len(br_out)-4)
+            if "HLT" in bname :
+                pos   = -(len(br_out)-5)
+            else :
+                pos   = -(len(br_out)-4)
 
             cname = bname[:pos]
             branches.append( cname )
@@ -374,14 +376,15 @@ def IsCPS(bname, tree, sfx_out):
 #
 def GetChain(tree, bname, lb, count, sfx_out, collection):
     ch          = collection.GetCostChain(lb,bname)
-    pastrate    = ch.GetRate()
-    cumulative  = ch.GetRate()*count
-    lbrate      = getattr(tree,bname+'_'+sfx_out)
-    avgrate     = (cumulative+lbrate)/(count+1)
-    err2        = ch.GetRate() / ((count+1)*samplingrate)
+    # TimM - no longer do any rates here
+    #pastrate    = ch.GetRate()
+    #cumulative  = ch.GetRate()*count
+    #lbrate      = getattr(tree,bname+'_'+sfx_out)
+    #avgrate     = (cumulative+lbrate)/(count+1)
+    #err2        = ch.GetRate() / ((count+1)*samplingrate)
 
-    ch.SetRate(avgrate)
-    ch.SetRateErr(math.sqrt(err2))
+    #ch.SetRate(avgrate)
+    #ch.SetRateErr(math.sqrt(err2))
 
 #	  # Debug
 #	  print 'Old lb=', lb, 'lblast=', lblast, 'count=', count, 'pastrate=', pastrate, 'cum=', cumulative, 'lbrate', lbrate, 'avgrate=', avgrate
@@ -391,6 +394,9 @@ def GetChain(tree, bname, lb, count, sfx_out, collection):
 def SetNewChainL1(tree, ch, bname):
     ch.SetPrescale(getattr(tree,bname+'_PS'))
 
+    #if ch.GetName() == 'L1_EM10VH':
+    #    print "DBG NEW L1 " , getattr(tree,bname+'_TBP')
+
     # Reverse-engineer counts -- will be approximate
     ch.SetTBPCnt (getattr(tree,bname+'_TBP')*samplingrate)
     ch.SetTAPCnt (getattr(tree,bname+'_TAP')*samplingrate)
@@ -399,7 +405,7 @@ def SetNewChainL1(tree, ch, bname):
     # Rates are stored in TRP ntuples
     ch.SetTBPRate(getattr(tree,bname+'_TBP'))
     ch.SetTAPRate(getattr(tree,bname+'_TAP'))
-#	  ch.SetTAVRate(getattr(tree,bname+'_TAV')) # Don't uncomment!! Already done in SetRate
+    ch.SetTAVRate(getattr(tree,bname+'_TAV')) # Don't uncomment!! Already done in SetRate
     return
 
 #----------------------------------------------------------------------
@@ -417,27 +423,39 @@ def SetNewChainHLT(tree, ch, bname, sfx_in, sfx_ps, sfx_out):
     # Rates are stored in TRP ntuples
     ch.SetTBPRate(getattr(tree,bname+'_'+sfx_in ))
     ch.SetTAPRate(getattr(tree,bname+'_'+sfx_ps ))
-#	  ch.SetTAVRate(getattr(tree,bname+'_raw'     )) # Don't uncomment!! Already done in SetRate
+    ch.SetTAVRate(getattr(tree,bname+'_raw'     )) # Don't uncomment!! Already done in SetRate
     return
 
 #----------------------------------------------------------------------
 def SetOldChainL1(tree, ch, bname, count):
     ch.SetPrescale(getattr(tree,bname+'_PS'))
 
+
     # Reverse-engineer counts -- will be approximate
-    ch.SetTBPCnt (getattr(tree,bname+'_TBP')*samplingrate+ch.GetTBPCnt())
-    ch.SetTAPCnt (getattr(tree,bname+'_TAP')*samplingrate+ch.GetTAPCnt())
-    ch.SetTAVCnt (getattr(tree,bname+'_TAV')*samplingrate+ch.GetTAVCnt())
+    ch.SetTBPCnt (getattr(tree,bname+'_TBP')*samplingrate + ch.GetTBPCnt())
+    ch.SetTAPCnt (getattr(tree,bname+'_TAP')*samplingrate + ch.GetTAPCnt())
+    ch.SetTAVCnt (getattr(tree,bname+'_TAV')*samplingrate + ch.GetTAVCnt())
 
     # Rates are stored in TRP ntuples
-    ch.SetTBPRate((getattr(tree,bname+'_TBP')*count+ch.GetTBPCnt())/(count+1))
-    ch.SetTAPRate((getattr(tree,bname+'_TAP')*count+ch.GetTAPCnt())/(count+1))
-#	  ch.SetTAVRate((getattr(tree,bname+'_TAV')*count+ch.GetTAVCnt())/(count+1)) # Don't uncomment!! Already done in SetRate
+    # This needs to be a running average over the entries in the LB
+
+    setattr(ch,"ratesCounts", ch.GetAttrWithDefault("ratesCounts",0) + 1.0)
+
+    setattr(ch,"cumulativeTBP", ch.GetAttrWithDefault("cumulativeTBP",0) + getattr(tree,bname+'_TBP'))
+    setattr(ch,"cumulativeTAP", ch.GetAttrWithDefault("cumulativeTAP",0) + getattr(tree,bname+'_TAP'))
+    setattr(ch,"cumulativeTAV", ch.GetAttrWithDefault("cumulativeTAV",0) + getattr(tree,bname+'_TAV'))
+
+    ch.SetTBPRate(getattr(ch,"cumulativeTBP") / getattr(ch,"ratesCounts"))
+    ch.SetTAPRate(getattr(ch,"cumulativeTAP") / getattr(ch,"ratesCounts"))
+    ch.SetTAVRate(getattr(ch,"cumulativeTAV") / getattr(ch,"ratesCounts")) 
+
+    #if ch.GetName() == 'L1_EM10VH':
+    #    print "DBG OLD L1 " , ch.GetAttrWithDefault("cumulativeTBP",0) , " - " , ch.GetTBPRate()
 
     # Rate errors
-    ch.SetTBPRateErr(math.sqrt(ch.GetTBPRate() / ((count+1)*samplingrate)))
-    ch.SetTAPRateErr(math.sqrt(ch.GetTAPRate() / ((count+1)*samplingrate)))
-#	  ch.SetTAVRateErr(math.sqrt(ch.GetTAVRate() / ((count+1)*samplingrate))) # Don't uncomment!! Already done in SetRateErr
+    ch.SetTBPRateErr(math.sqrt( (getattr(ch,"cumulativeTBP")/getattr(ch,"ratesCounts")) / (getattr(ch,"ratesCounts")*samplingrate) ))
+    ch.SetTAPRateErr(math.sqrt( (getattr(ch,"cumulativeTAP")/getattr(ch,"ratesCounts")) / (getattr(ch,"ratesCounts")*samplingrate) ))
+    ch.SetTAVRateErr(math.sqrt( (getattr(ch,"cumulativeTAV")/getattr(ch,"ratesCounts")) / (getattr(ch,"ratesCounts")*samplingrate) )) 
     return
 
 
@@ -451,14 +469,20 @@ def SetOldChainHLT(tree, ch, bname, count, sfx_in, sfx_ps, sfx_out):
     ch.SetTAVCnt (getattr(tree,bname+'_'+sfx_out)*samplingrate+ch.GetTAVCnt())
 
     # Rate are stored in TRP ntuples
-    ch.SetTBPRate((getattr(tree,bname+'_'+sfx_in )*count+ch.GetTBPCnt())/(count+1))
-    ch.SetTAPRate((getattr(tree,bname+'_'+sfx_ps )*count+ch.GetTAPCnt())/(count+1))
-#   ch.SetTAVRate((getattr(tree,bname+'_'+sfx_out)*count+ch.GetTAVCnt())/(count+1)) # Don't uncomment!! Already done in SetRate
+    setattr(ch,"ratesCounts", ch.GetAttrWithDefault("ratesCounts",0) + 1.0)
+
+    setattr(ch,"cumulativeTBP", ch.GetAttrWithDefault("cumulativeTBP",0) + getattr(tree,bname+'_'+sfx_in))
+    setattr(ch,"cumulativeTAP", ch.GetAttrWithDefault("cumulativeTAP",0) + getattr(tree,bname+'_'+sfx_ps))
+    setattr(ch,"cumulativeTAV", ch.GetAttrWithDefault("cumulativeTAV",0) + getattr(tree,bname+'_'+sfx_out))
+
+    ch.SetTBPRate(getattr(ch,"cumulativeTBP") / getattr(ch,"ratesCounts"))
+    ch.SetTAPRate(getattr(ch,"cumulativeTAP") / getattr(ch,"ratesCounts"))
+    ch.SetTAVRate(getattr(ch,"cumulativeTAV") / getattr(ch,"ratesCounts")) 
 
     # Rate errors
-    ch.SetTBPRateErr(math.sqrt(ch.GetTBPRate() / ((count+1)*samplingrate)))
-    ch.SetTAPRateErr(math.sqrt(ch.GetTAPRate() / ((count+1)*samplingrate)))
-#   ch.SetTAVRateErr(math.sqrt(ch.GetTAVRate() / ((count+1)*samplingrate))) # Don't uncomment!! Already done in SetRateErr
+    ch.SetTBPRateErr(math.sqrt( (getattr(ch,"cumulativeTBP")/getattr(ch,"ratesCounts")) / (getattr(ch,"ratesCounts")*samplingrate) ))
+    ch.SetTAPRateErr(math.sqrt( (getattr(ch,"cumulativeTAP")/getattr(ch,"ratesCounts")) / (getattr(ch,"ratesCounts")*samplingrate) ))
+    ch.SetTAVRateErr(math.sqrt( (getattr(ch,"cumulativeTAV")/getattr(ch,"ratesCounts")) / (getattr(ch,"ratesCounts")*samplingrate) )) 
     return
 
 # tmhong: Not used anywhere, so commenting out

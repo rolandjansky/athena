@@ -80,7 +80,13 @@ def sigfig(x, off=4):
     else: d -= off
     return str( int(math.fabs(d)) ) if x != 0 else '0'
 
-
+# TimM
+# Remove . and - 
+def TRPNameStrip(inputStr):
+    outputStr = inputStr.replace("-", "_")
+    outputStr = outputStr.replace(".", "_")
+    outputStr = outputStr.replace(":", "_")
+    return outputStr
 
 class VarNotAvailable(Exception):
     pass
@@ -229,7 +235,7 @@ class CostChain:
 
     def GetTAVRateErr(self) : return self.GetAttrWithCheck("rateerr")
     def GetTAPRateErr(self) : return self.GetAttrWithCheck("taprateerr")
-    def GetTBPRateErr(self) : return self.GetAttrWithCheck("tavrateerr")
+    def GetTBPRateErr(self) : return self.GetAttrWithCheck("tbprateerr")
 
     def SetTAVRate(self,val) : setattr(self,"rate",val) # this is the default rate for L1
     def SetTAPRate(self,val) : setattr(self,"taprate",val)
@@ -237,7 +243,7 @@ class CostChain:
 
     def SetTAVRateErr(self,rateerr) : setattr(self,"rateerr",rateerr)
     def SetTAPRateErr(self,rateerr) : setattr(self,"taprateerr",rateerr)
-    def SetTBPRateErr(self,rateerr) : setattr(self,"tavrateerr",rateerr)
+    def SetTBPRateErr(self,rateerr) : setattr(self,"tbprateerr",rateerr)
 
     # for cross sections
     def GetTAVXsec(self) : return self.GetAttrWithCheck("xsec")

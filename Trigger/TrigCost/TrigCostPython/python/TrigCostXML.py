@@ -10,6 +10,8 @@ import string
 import math
 import traceback
 import sys
+import logging
+log = logging.getLogger('TrigCostXML')
 #print '\tLoaded standard packages'
 
 from TrigCostAnalysis import *              ;
@@ -141,7 +143,7 @@ def ReadXmlFile(filename):
 
                 ch = CostChain()
 
-                ch.SetName(GetData(sig.childNodes, "sig_name"))
+                ch.SetName(TRPNameStrip(GetData(sig.childNodes, "sig_name")))
                 ch.SetLevel(lvl_name)
                 ch.SetPrescale(string.atof(GetPrescaleData(sig.childNodes)))
                 ch.SetPassthrough(string.atof(GetData(sig.childNodes, 'passthrough')))
@@ -152,7 +154,7 @@ def ReadXmlFile(filename):
 
                 # not always there
                 try:
-                    ch.SetLowerChain(GetData(sig.childNodes, "lower_chain_name"))
+                    ch.SetLowerChain(TRPNameStrip(GetData(sig.childNodes, "lower_chain_name")))
                 except:
                     pass
 
@@ -170,7 +172,7 @@ def ReadXmlFile(filename):
                 gtype=GetData(sig.childNodes, 'type')
                 if gtype == 'Group' or gtype == 'Stream' :
                     ch = CostChain()
-                    name=GetData(sig.childNodes, "sig_name")
+                    name=TRPNameStrip(GetData(sig.childNodes, "sig_name"))
 
                     # strip stream type from trp streams
                     if string.count(name,"str"):
@@ -203,7 +205,7 @@ def ReadXmlFile(filename):
 # Function for export rates to xml file
 # rates should be a CostResult
 #
-def WriteXmlFile(filename,rates,lbset=None):
+def WriteXmlFile(filename,rates,lbset=None,ratesnops=False):
 
     #open file / write header
     xout = open(filename, 'w')
@@ -217,6 +219,7 @@ def WriteXmlFile(filename,rates,lbset=None):
 
         for chname in rates.GetChainNames(lvl):
             ch = rates.GetChain(chname)
+            chlower = rates.GetChain( ch.GetAttrWithDefault("lowerchain","") ) 
             # skip groups -- they go in later
             if (string.count(chname,"grp") \
                 or string.count(chname,"str") \
@@ -232,12 +235,33 @@ def WriteXmlFile(filename,rates,lbset=None):
                            +'</evts_passed>\n')
             xout.write('      <evts_passed_weighted>'    +str(0)\
                            +'</evts_passed_weighted>\n')
-            xout.write('      <rate>'                    +str(ch.GetRate())\
-                           +'</rate>\n')
-            xout.write('      <rate_err>'                +str(ch.GetAttrWithDefault("rateerr",0))\
-                           +'</rate_err>\n')
-            xout.write('      <chain_prescale>'                +str(ch.GetAttrWithDefault("prescale",0))\
-                           +'</chain_prescale>\n')
+            if "dbg" in filename:
+                xout.write('      <TBP>'          +str(ch.GetAttrWithDefault("tbprate",0))+'</TBP>\n')
+                xout.write('      <TBP_err>'      +str(ch.GetAttrWithDefault("tbprateerr",0))+'</TBP_err>\n')
+                xout.write('      <TAP>'          +str(ch.GetAttrWithDefault("taprate",0))+'</TAP>\n')
+                xout.write('      <TAP_err>'      +str(ch.GetAttrWithDefault("taprateerr",0))+'</TAP_err>\n')
+                xout.write('      <TAV>'          +str(ch.GetAttrWithDefault("rate",0))+'</TAV>\n')
+                xout.write('      <TAV_err>'      +str(ch.GetAttrWithDefault("rateerr",0))+'</TAV_err>\n')
+            if ratesnops == True and lvl == 'L1': # Unprescaled rate L1
+                xout.write('      <rate>'          +str(ch.GetAttrWithDefault("tbprate",0))+'</rate>\n')
+                xout.write('      <rate_err>'      +str(ch.GetAttrWithDefault("tbprateerr",0))+'</rate_err>\n')
+                xout.write('      <chain_prescale>'+str(1)+'</chain_prescale>\n')
+            elif ratesnops == True and lvl == 'HLT': # Unprescaled rate HLT
+                PS = 1.0
+                if chlower is not None:
+                    PS = chlower.GetAttrWithDefault("prescale",1.0)
+                else:
+                    log.warning("Could not find lower chain '" + ch.GetAttrWithDefault("lowerchain","") + "' for " + chname)
+                PS *= ch.GetAttrWithDefault("prescale",1.0)
+ 
+                xout.write('      <rate>'          +str(PS * ch.GetRate())+'</rate>\n')
+                xout.write('      <rate_err>'      +str(PS * ch.GetAttrWithDefault("rateerr",0))+'</rate_err>\n')
+                xout.write('      <chain_prescale>'+str(1)+'</chain_prescale>\n')
+            else: 
+                xout.write('      <rate>'          +str(ch.GetRate())+'</rate>\n')
+                xout.write('      <rate_err>'      +str(ch.GetAttrWithDefault("rateerr",0))+'</rate_err>\n')
+                xout.write('      <chain_prescale>'+str(ch.GetAttrWithDefault("prescale",0))+'</chain_prescale>\n')
+
             xout.write('      <passthrough>'             +str(ch.GetAttrWithDefault("passthrough",0))\
                            +'</passthrough>\n')
             xout.write('      <lower_chain_name>'        +str(ch.GetAttrWithDefault("lowerchain",""))\

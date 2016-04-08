@@ -887,6 +887,40 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
 
     return lbset
 
+# TimM - Import prescale conversion
+maxPrescaleCut = 0xFFFFFF; #2**24 - 1
+   
+#@brief calculate cut value for hardware configuration
+#   cut = 2*24/prescale - 1
+#   
+#   prescale =     1 --> C = 2*24-1
+#   prescale =     2 --> C = 2*23-1
+#   prescale =    10 --> C = 1677720
+#   prescale =  1024 --> C = 2*14-1
+#   prescale =    50 --> C = 335543
+#   prescale =   500 --> C = 33553
+#   prescale =  5000 --> C = 3354
+#   prescale = 50000 --> C = 334
+def getCutFromPrescale(prescale):
+    sign = -1 if prescale < 0 else 1
+    uprescale = float(abs(prescale))
+    return sign * (  0x1000000 - int( 0xFFFFFF/uprescale )  )
+
+#   prescale = 2*24/(cut+1.)
+#
+#   cut = 2*24-1  --> prescale =     1
+#   cut = 2*23-1  --> prescale =     2
+#   cut = 1677720 --> prescale =    10.000002980233305
+#   cut = 2*14-1  --> prescale =  1024
+#   cut = 335543  --> prescale =    50.0000447035
+#   cut = 33553   --> prescale =   500.006407582 
+#   cut = 3354    --> prescale =  5000.66020864  
+#   cut = 334     --> prescale = 50081.238806    
+def getPrescaleFromCut(cut):
+    sign = -1 if cut < 0 else 1
+    ucut = int(abs(cut))
+    return (sign * 0xFFFFFF ) / float(0x1000000 - ucut)
+
 #------------------------------------------------------------
 #
 # Reads Configuration from COOL
@@ -919,7 +953,7 @@ def GetConfig(runnumber,options=[]):
             lb      = (obj.since() & 0xffff)
             itemNo  = obj.channelId()
             payload = obj.payload()
-            name    = payload['ItemName']
+            name    = TRPNameStrip(payload['ItemName'])
 
             config.L1CtpId2ChainName[itemNo]=name
             config.L1ChainName2CtpId[name]=itemNo
@@ -943,11 +977,11 @@ def GetConfig(runnumber,options=[]):
             payload = obj.payload()
 
             chain = HLTChain()
-            chain.ChainName      = payload['ChainName']
+            chain.ChainName      = TRPNameStrip(payload['ChainName'])
             chain.ChainVersion   = int(payload['ChainVersion'])
             chain.ChainCounter   = int(payload['ChainCounter'])
             chain.TriggerLevel   = payload['TriggerLevel']
-            chain.LowerChainName = payload['LowerChainName']
+            chain.LowerChainName = TRPNameStrip(payload['LowerChainName'])
 
             config.ChainName2HLTChain[chain.ChainName]=chain
 
@@ -958,7 +992,7 @@ def GetConfig(runnumber,options=[]):
             if chain.TriggerLevel=='HLT':
                 config.HLTCounter2ChainName[chain.ChainCounter]  = chain.ChainName
                 config.HLTChainName2Counter[chain.ChainName] = chain.ChainCounter
-                print "Read HLT ", chain.ChainName, " from DB"
+                print "Read HLT ", chain.ChainName, " from DB, counter=", chain.ChainCounter
 
     except Exception,e:
         log.error('Reading data from '+hltmenu_foldername+' failed: '+str(e))
@@ -1055,12 +1089,12 @@ def GetConfig(runnumber,options=[]):
             payload = obj.payload()
 
             prescale     = Prescale()
-            prescale.ps  = payload['Lvl1Prescale']
+            prescale.ps  = getPrescaleFromCut(payload['Lvl1Prescale'])
 
-            #print "itemNo ", itemNo
-            #print  config.L1CtpId2ChainName.has_key(itemNo)
-            #print "name=",config.L1CtpId2ChainName[itemNo]
-            #print " ps=",prescale," PS=",prescale.ps
+            #try: 
+            #    print "GETL1PS: itemNo ", itemNo , " name " ,config.L1CtpId2ChainName[itemNo]," PS ", prescale.ps
+            #except:
+            #    pass
 
             if not l1keymap.has_key(lb):
                 print "Expected new L1 prescales for new L1 prescale key:",lb,
@@ -1093,7 +1127,7 @@ def GetConfig(runnumber,options=[]):
             lvl     = "HLT"
             #if obj.channelId()%2 == 1:
             #    lvl = "EF"
-            chainctr= obj.channelId()/2 # div 2?
+            chainctr= obj.channelId() - 20000 # div 2? No - for run 2 take off 20,000
             payload = obj.payload()
 
             # unpack
@@ -1116,6 +1150,9 @@ def GetConfig(runnumber,options=[]):
                 if config.HLTCounter2HLTChain.has_key(chainctr):
                     chain=config.HLTCounter2HLTChain[chainctr]
                     config.HLTPrescales[pskey][chain.ChainName]=prescale
+                    #print "GETHLTPS: itemNo ", chainctr , " name " ,chain.ChainName, " ps ", prescale.ps
+                else:
+                    log.error('Could not find a chain for HLT counter '+str(chainctr)+" with PS "+str(prescale.ps))
 
     except Exception,e:
         log.error('Reading data from '+hltps_foldername+' failed: '+str(e))
