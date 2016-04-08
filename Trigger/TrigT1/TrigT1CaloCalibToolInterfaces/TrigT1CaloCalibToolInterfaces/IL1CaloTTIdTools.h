@@ -17,8 +17,8 @@
 #ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOTTIDTOOLS_H_
 #define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLINTERFACES_IL1CALOTTIDTOOLS_H_
 
-#include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/IInterface.h"
+// Framework include(s):
+#include "AsgTools/IAsgTool.h"
 
 #include <map>
 
@@ -30,13 +30,12 @@ namespace LVL1{
 
 namespace LVL1{
 
-  static const InterfaceID IID_IL1CaloTTIdTools("LVL1::IL1CaloTTIdTools",1,0);
-
-  class IL1CaloTTIdTools : virtual public IAlgTool{
+  class IL1CaloTTIdTools : virtual public asg::IAsgTool{
+    
+    /// Declare the interface that the class provides
+    ASG_TOOL_INTERFACE( LVL1::IL1CaloTTIdTools )    
+    
     public:
-      static const InterfaceID& interfaceID();
-
-      virtual ~IL1CaloTTIdTools(){};
 
       virtual int side     (const HWIdentifier& id) = 0;
       virtual int sampling (const HWIdentifier& id) = 0;
@@ -64,11 +63,6 @@ namespace LVL1{
       virtual int etaIndex(double eta) const = 0;
       virtual int phiIndex(double eta, double phi) const = 0;
  
-  };
-
-  inline const InterfaceID& IL1CaloTTIdTools::interfaceID(){
-    return IID_IL1CaloTTIdTools;
-  }    
-
+  }; 
 } // end of namespace
 #endif
