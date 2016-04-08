@@ -42,9 +42,9 @@ MsgStream& operator << ( MsgStream& sl, const Trk::SpaceTimePoint& stp)
     default:
       sl << "??? "; break;
     }
-  sl << endmsg << "at "<< stp.globalPosition() << ", time= "<<stp.time()
+  sl << endreq << "at "<< stp.globalPosition() << ", time= "<<stp.time()
      << " +/- "<<stp.errorTime()<<", w=" << stp.weight();
-  sl << endmsg;
+  sl << endreq;
   return sl;
 }
 
