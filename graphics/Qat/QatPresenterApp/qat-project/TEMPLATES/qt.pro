@@ -7,13 +7,9 @@ TARGET = <app>
 DESTDIR = ../local/bin
 DEPENDPATH += .
 INCLUDEPATH += . .. 
-LIBS=-lQatPlotWidgets -lQatPlotting -lQatDataModeling -lgfortran -lQatDataAnalysis -lCLHEP -lgsl -lgslcblas -ldl
+LIBS=-L../local/lib -lQatPlotWidgets -lQatPlotting -lQatDataModeling -lgfortran -lQatDataAnalysis -lCLHEP -lgsl -lgslcblas
 
 CONFIG += qt debug
 
 # Input
 SOURCES += <app>.cpp
-
-mac {
-  CONFIG -= app_bundle
-}
