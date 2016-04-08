@@ -12,11 +12,13 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArTools/LArCablingService.h"
 
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "CaloGeoHelpers/CaloSampling.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -24,9 +26,10 @@
 #include <string>
 
 HLTCaloFEBTool::HLTCaloFEBTool(const std::string & type, const std::string & name, const IInterface* parent) : IHLTMonTool(type,name,parent),
- m_tcrAlgTools(this,""),
+ m_tcrAlgTools(this),
  m_onlineHelper(0),
  m_cablingSvc("LArCablingService"),
+ m_data(NULL),
  m_noisetool("CaloNoiseTool/CaloNoiseToolDefault"),
  m_threshold(100.0),
  m_nsigma(5.0),

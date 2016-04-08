@@ -17,7 +17,10 @@
 #include "TNtuple.h"
 #include <string>
 
-HLTCaloToolL2::HLTCaloToolL2(const std::string & type, const std::string & name, const IInterface* parent) : IHLTMonTool(type,name,parent){
+HLTCaloToolL2::HLTCaloToolL2(const std::string & type, const std::string & name, const IInterface* parent) : IHLTMonTool(type,name,parent),
+        m_onlineHelper(NULL),
+	m_tileID(NULL)
+{
 	declareProperty ("DoNtuple", m_ntuple = false);
 	declareProperty ("ListOfCellsKeys", m_listOfCellsKeys);
 	// Nothing for the moment

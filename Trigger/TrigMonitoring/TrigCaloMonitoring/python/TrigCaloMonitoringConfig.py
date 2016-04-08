@@ -17,6 +17,9 @@ def HLTCaloMonitoringTool():
     if not hasattr(ToolSvc,"CaloNoiseToolDefault"):
       ToolSvc+=theCaloNoiseTool
 
+    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
+    ToolSvc+=TrigDataAccess()
+    
     roilaremcellcontmaker  = RoILArEMCellContMaker()
     roilaremcellcontmaker.CaloNoiseTool = theCaloNoiseTool
     roilarhadcellcontmaker = RoILArHadCellContMaker()
