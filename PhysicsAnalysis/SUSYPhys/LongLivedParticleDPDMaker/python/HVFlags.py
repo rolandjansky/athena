@@ -39,6 +39,6 @@ class HV_jetMETFilterFlags(JobProperty):
   #      "HLT_j80_xe80",
 	"HLT_j100_xe80"
     ]
-    cutMetMin = 100.0*Units.GeV  # MET cut, currently placed on MET_Reference_AntiKt4TopoEM
+    cutMetMin = 120.0*Units.GeV  # MET cut, currently placed on MET_Reference_AntiKt4TopoEM
     pass
 primRPVLLDESDM.add_JobProperty(HV_jetMETFilterFlags)

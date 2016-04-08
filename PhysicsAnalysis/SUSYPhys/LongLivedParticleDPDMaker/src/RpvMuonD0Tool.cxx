@@ -62,23 +62,38 @@ StatusCode DerivationFramework::RpvMuonD0Tool::addBranches() const
      for (xAOD::MuonContainer::const_iterator muIt = muons->begin(); muIt!=muons->end(); ++muIt) {
        
        float d0 = 9e99;
+	 
        // Alternative: (*muIt)->trackParticle( xAOD::Muon::InnerDetectorTrackParticle ) ?
        if (*muIt && (*muIt)->primaryTrackParticle()) d0 = (*muIt)->primaryTrackParticle()->d0();
-       else ATH_MSG_WARNING("Problem accessing muon track!");
+       else ATH_MSG_WARNING("Problem accessing muon track!");	 
        
        d0vec->push_back(d0);
-       //// is it a combined muon?
-       if ((*muIt)->muonType()==xAOD::Muon::Combined) isCombinedVec->push_back(1);
-       else isCombinedVec->push_back(0);
+       //// is it a combined muon?  /// NEW - also see if it has a bad chisq for ID trk match - if so, treat it as standalone (i.e. don't apply d0 cut)
+       bool isGoodCombined = false;
        
-
-     }     
-
+       if ((*muIt)->muonType()==xAOD::Muon::Combined) {
+	 float chi2 = 0.;
+	 if (!(*muIt)->parameter(chi2, xAOD::Muon::msInnerMatchChi2)) ATH_MSG_WARNING("Problem accessing muon chisq!");
+	 int dof = 1;
+	 if (!(*muIt)->parameter(dof,xAOD::Muon::msInnerMatchDOF)) ATH_MSG_WARNING("Problem accessing muon DoF!");
+	 if (dof == 0) dof = 1;
+	 if (chi2/float(dof) < 5.)  isGoodCombined = true;  ///  MS <==> ID match - require good chisq
+       }
+       if (isGoodCombined) {
+	   isCombinedVec->push_back(1); 
+       } else {
+	 isCombinedVec->push_back(0);  /// either not combined, or bad chisq.
+       }     
+     }
+     
      // Write decision to SG for access by downstream algs 
      std::string sgKey(m_sgPrefix+"D0");
 
      if (evtStore()->contains<std::vector<float> >(sgKey)) {
        ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << sgKey << " which already exists. Please use a different key");
+       // avoid mem leak
+       delete d0vec; 
+       delete isCombinedVec;
        return StatusCode::FAILURE;
      }
      CHECK(evtStore()->record(d0vec, sgKey)); 
@@ -87,14 +102,11 @@ StatusCode DerivationFramework::RpvMuonD0Tool::addBranches() const
 
      if (evtStore()->contains<std::vector<int> >(sgKey)) {
        ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << sgKey << " which already exists. Please use a different key");
+       delete isCombinedVec; // avoid mem leak
        return StatusCode::FAILURE;
      }
      CHECK(evtStore()->record(isCombinedVec, sgKey));       
-
-     
-
      
      return StatusCode::SUCCESS;
-
 }
 
