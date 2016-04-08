@@ -1,0 +1,16 @@
+package PanTauExample
+
+author Peter Wienemann <peter.wienemann@cern.ch>
+author Sebastian Fleischmann <Sebastian.Fleischmann@cern.ch>
+
+public
+
+use AtlasPolicy                  AtlasPolicy-*
+
+
+private
+
+apply_pattern declare_joboptions files="*.py"
+
+use AtlasReconstructionRunTime   AtlasReconstructionRunTime-*
+branches run
