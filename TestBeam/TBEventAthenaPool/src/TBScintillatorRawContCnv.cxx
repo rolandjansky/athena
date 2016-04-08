@@ -29,7 +29,7 @@ StatusCode TBScintillatorRawContCnv::initialize()
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBScintillatorRawContCnv");
-  log << MSG::INFO << "initialize()" << endmsg;
+  log << MSG::INFO << "initialize()" << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -40,21 +40,21 @@ StatusCode TBScintillatorRawContCnv::PoolToDataObject(DataObject*& pObj, const T
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
-  MsgStream log(msgSvc(), "TBScintillatorRawContCnv::PoolToDataObject" );
+  MsgStream log(messageService(), "TBScintillatorRawContCnv::PoolToDataObject" );
    
   StatusCode sc = TBScintillatorRawContCnvBase::PoolToDataObject(pObj, token);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Unable to get object from pool" << endmsg;
+    log << MSG::FATAL << "Unable to get object from pool" << endreq;
     return StatusCode::FAILURE;
   } else {
-    log << MSG::DEBUG << " Found DataObject " << endmsg;
+    log << MSG::DEBUG << " Found DataObject " << endreq;
   }
     
   // Convert DataObject pointer to TBScintillatorRawCont*
   TBScintillatorRawCont* obj=0;
   SG::fromStorable(pObj, obj );
   if(!obj) {
-    log << MSG::ERROR << "  failed to cast to TBScintillatorRawCont " << endmsg ; 
+    log << MSG::ERROR << "  failed to cast to TBScintillatorRawCont " << endreq ; 
     return StatusCode::FAILURE; 
   }
 
@@ -63,7 +63,7 @@ StatusCode TBScintillatorRawContCnv::PoolToDataObject(DataObject*& pObj, const T
 
 StatusCode TBScintillatorRawContCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
 {
-  MsgStream log(msgSvc(),"TBScintillatorRawContCnv::DataObjectToPool" );
+  MsgStream log(messageService(),"TBScintillatorRawContCnv::DataObjectToPool" );
   
   return TBScintillatorRawContCnvBase::DataObjectToPool( pObj, tname) ;
 }

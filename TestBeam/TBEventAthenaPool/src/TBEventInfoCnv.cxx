@@ -5,14 +5,14 @@
 #include "TBEventInfoCnv.h"
 
 TBEventInfo_PERS* TBEventInfoCnv::createPersistent(TBEventInfo* transCont) {
-    MsgStream log(msgSvc(), "TBEventInfoConverter" );
+    MsgStream log(messageService(), "TBEventInfoConverter" );
     TBEventInfo_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
-    log << MSG::DEBUG << "Success" << endmsg;
+    log << MSG::DEBUG << "Success" << endreq;
     return persObj; 
 }
     
 TBEventInfo* TBEventInfoCnv::createTransient() {
-   MsgStream log(msgSvc(), "TBEventInfoConverter" );
+   MsgStream log(messageService(), "TBEventInfoConverter" );
    static pool::Guid   p1_guid("1E398439-74B3-457E-BC0B-DD69201AE463");  // GUID of the persistent object
    static pool::Guid   p0_guid("1295BE02-D698-43A8-A2BB-76E5ADCBD228");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {

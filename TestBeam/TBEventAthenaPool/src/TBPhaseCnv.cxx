@@ -5,14 +5,14 @@
 #include "TBPhaseCnv.h"
 
 TBPhase_PERS* TBPhaseCnv::createPersistent(TBPhase* transCont) {
-    MsgStream log(msgSvc(), "TBPhaseConverter" );
+    MsgStream log(messageService(), "TBPhaseConverter" );
     TBPhase_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
-    log << MSG::DEBUG << "Success" << endmsg;
+    log << MSG::DEBUG << "Success" << endreq;
     return persObj; 
 }
     
 TBPhase* TBPhaseCnv::createTransient() {
-   MsgStream log(msgSvc(), "TBPhaseConverter" );
+   MsgStream log(messageService(), "TBPhaseConverter" );
    static pool::Guid   p1_guid("40443E91-053F-41C1-84F8-0A7F03F1DEC4");  // GUID of the persistent object
    static pool::Guid   p0_guid("C044C9BE-E371-4AC3-95ED-CCA05984EDE4");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {

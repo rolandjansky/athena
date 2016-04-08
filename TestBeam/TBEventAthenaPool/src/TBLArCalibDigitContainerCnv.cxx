@@ -29,7 +29,7 @@ StatusCode TBLArCalibDigitContainerCnv::initialize()
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBLArCalibDigitContainerCnv");
-  log << MSG::INFO << "initialize()" << endmsg;
+  log << MSG::INFO << "initialize()" << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -40,21 +40,21 @@ StatusCode TBLArCalibDigitContainerCnv::PoolToDataObject(DataObject*& pObj, cons
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
-  MsgStream log(msgSvc(), "TBLArCalibDigitContainerCnv::PoolToDataObject" );
+  MsgStream log(messageService(), "TBLArCalibDigitContainerCnv::PoolToDataObject" );
    
   StatusCode sc = TBLArCalibDigitContainerCnvBase::PoolToDataObject(pObj, token);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Unable to get object from pool" << endmsg;
+    log << MSG::FATAL << "Unable to get object from pool" << endreq;
     return StatusCode::FAILURE;
   } else {
-    log << MSG::DEBUG << " Found DataObject " << endmsg;
+    log << MSG::DEBUG << " Found DataObject " << endreq;
   }
     
   // Convert DataObject pointer to TBLArCalibDigitContainer*
   TBLArCalibDigitContainer* obj=0;
   SG::fromStorable(pObj, obj );
   if(!obj) {
-    log << MSG::ERROR << "  failed to cast to TBLArCalibDigitContainer " << endmsg ; 
+    log << MSG::ERROR << "  failed to cast to TBLArCalibDigitContainer " << endreq ; 
     return StatusCode::FAILURE; 
   }
 
@@ -63,7 +63,7 @@ StatusCode TBLArCalibDigitContainerCnv::PoolToDataObject(DataObject*& pObj, cons
 
 StatusCode TBLArCalibDigitContainerCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
 {
-  MsgStream log(msgSvc(),"TBLArCalibDigitContainerCnv::DataObjectToPool" );
+  MsgStream log(messageService(),"TBLArCalibDigitContainerCnv::DataObjectToPool" );
   
   return TBLArCalibDigitContainerCnvBase::DataObjectToPool( pObj, tname) ;
 }

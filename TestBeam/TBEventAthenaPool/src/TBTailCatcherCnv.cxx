@@ -5,14 +5,14 @@
 #include "TBTailCatcherCnv.h"
 
 TBTailCatcher_PERS* TBTailCatcherCnv::createPersistent(TBTailCatcher* transCont) {
-    MsgStream log(msgSvc(), "TBTailCatcherConverter" );
+    MsgStream log(messageService(), "TBTailCatcherConverter" );
     TBTailCatcher_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
-    log << MSG::DEBUG << "Success" << endmsg;
+    log << MSG::DEBUG << "Success" << endreq;
     return persObj; 
 }
     
 TBTailCatcher* TBTailCatcherCnv::createTransient() {
-   MsgStream log(msgSvc(), "TBTailCatcherConverter" );
+   MsgStream log(messageService(), "TBTailCatcherConverter" );
    static pool::Guid   p1_guid("B304A3B8-5FC1-415D-AE97-E3E7B6769213");  // GUID of the persistent object
    static pool::Guid   p0_guid("7AA6F3C3-3FF2-4732-B0CB-4ECC32FEF06D");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {
