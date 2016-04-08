@@ -3,6 +3,7 @@
 */
 
  #include "TrkVertexWeightCalculators/TrueVertexDistanceWeightCalculator.h"
+ #include "VxVertex/VxCandidate.h"
  #include "VxVertex/VxTrackAtVertex.h"
  #include "GeneratorObjects/McEventCollection.h"
 
@@ -45,6 +46,12 @@ namespace Trk{
   //destructor
   TrueVertexDistanceWeightCalculator::~TrueVertexDistanceWeightCalculator(){}
    
+  double  TrueVertexDistanceWeightCalculator::estimateSignalCompatibility(const VxCandidate& vertex)
+  { 
+    const Trk::RecVertex & myVertex = vertex.recVertex();
+    return mEstimateSignalCompatibility(myVertex.position());
+  }
+
   double  TrueVertexDistanceWeightCalculator::estimateSignalCompatibility(const xAOD::Vertex& vertex)
   { 
     return mEstimateSignalCompatibility(vertex.position());
