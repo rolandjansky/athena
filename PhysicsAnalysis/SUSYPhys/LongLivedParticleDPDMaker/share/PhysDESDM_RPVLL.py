@@ -68,6 +68,7 @@ if primRPVLLDESDM.doStopped():
     pass
 
 ## Highly ionizing particles search (contact: Avishek Chatterjee)
+### Now has it's own stream.
 if primRPVLLDESDM.doHips():
     include("LongLivedParticleDPDMaker/PhysDESDM_Hips.py")
     pass
