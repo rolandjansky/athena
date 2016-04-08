@@ -1,0 +1,13 @@
+ <?xml version="1.0"?>
+<atn>
+   <TEST name="TestMatchingToolAlg" type="athena" suite="ASGTests">
+      <options_atn>TriggerMatchingTool/TestMatchingToolAlgJobOptions.py</options_atn>
+      <timelimit>5</timelimit>
+      <author> Lukas Heinrich </author>
+      <mailto> lukas.heinrich@cern.ch </mailto>
+      <expectations>
+         <errorMessage>FAILURE (ERROR)</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>
