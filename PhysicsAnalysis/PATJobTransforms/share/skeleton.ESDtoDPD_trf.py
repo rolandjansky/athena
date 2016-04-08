@@ -6,7 +6,7 @@
 #==============================================================
 
 #Common job options disable most RecExCommon by default. Re-enable below on demand.
-include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
+include("PATJobTransforms/CommonSkeletonJobOptions.py")
 rec.doESD=False
 from AthenaCommon.Logging import logging
 recoLog = logging.getLogger('esd_to_dpd')
@@ -62,7 +62,10 @@ if hasattr(runArgs,"inputTAGFile"):
     rec.doWriteAOD.set_Value_and_Lock( False )
     rec.TAGFromRDO.set_Value_and_Lock( False )
     athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputTAGFile )
-    
+
+# Keep track of whether an output format file is requested:
+outputRequested = False
+
 #Outputs
 if hasattr(runArgs,"outputNTUP_PROMPTPHOTFile"):
     from PhotonAnalysisUtils.PhotonAnalysisUtilsFlags import PAUflags
@@ -70,6 +73,7 @@ if hasattr(runArgs,"outputNTUP_PROMPTPHOTFile"):
     #little hack while autoConfiguration=everything is still not the default...
     if hasattr(runArgs,"inputESDFile") and not hasattr(runArgs,"inputFile"):
         athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
+    outputRequested = True
 
 if hasattr(runArgs,"outputNTUP_WZFile"):
     from D3PDMakerConfig.D3PDProdFlags import prodFlags
@@ -77,6 +81,7 @@ if hasattr(runArgs,"outputNTUP_WZFile"):
     #little hack while autoConfiguration=everything is still not the default...
     if hasattr(runArgs,"inputESDFile") and not hasattr(runArgs,"inputFile"):
         athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
+    outputRequested = True
 
 if hasattr(runArgs,"outputNTUP_TRTFile"):
     from ConversionDumper.ConversionDumperFlags import CDflags
@@ -84,6 +89,7 @@ if hasattr(runArgs,"outputNTUP_TRTFile"):
     #little hack while autoConfiguration=everything is still not the default...
     if hasattr(runArgs,"inputESDFile") and not hasattr(runArgs,"inputFile"):
         athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
+    outputRequested = True
 
 if hasattr(runArgs,"outputNTUP_HECNOISEFile"):
     from LArCalibTest.HECNoiseD3PDFlags import HECNoiseflags
@@ -92,22 +98,26 @@ if hasattr(runArgs,"outputNTUP_HECNOISEFile"):
     #little hack while autoConfiguration=everything is still not the default...
     if hasattr(runArgs,"inputESDFile") and not hasattr(runArgs,"inputFile"):
         athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
+    outputRequested = True
 
 if hasattr(runArgs,"outputNTUP_MCPFile"):
     from MuonIDNtupleMakers.MuonIDNtupleMakersFlags import MNMFlags
     MNMFlags.outputFile = runArgs.outputNTUP_MCPFile
     MNMFlags.inputFiles = runArgs.inputESDFile
+    outputRequested = True
 
 if hasattr(runArgs,"outputNTUP_SCTFile"):
     from TrackD3PDMaker.TrackD3PDMakerSCTFlags import TrackD3PDSCTFlags
     TrackD3PDSCTFlags.outputFile = runArgs.outputNTUP_SCTFile
     if hasattr(runArgs,"inputESDFile") and not hasattr(runArgs,"inputFile"):
         athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
+    outputRequested = True
 
 if hasattr(runArgs,"outputESDFile"):
     #for TAG->ESD->skimmedESD
     rec.doWriteESD.set_Value_and_Lock( True )
     athenaCommonFlags.PoolESDOutput.set_Value_and_Lock( runArgs.outputESDFile )
+    outputRequested = True
 if hasattr(runArgs,"outputRDOFile"):
     #for TAG->RDO->skimmedRDO
     rec.doWriteRDO.set_Value_and_Lock( True )
@@ -118,6 +128,7 @@ if hasattr(runArgs,"outputRDOFile"):
         rec.readESD.set_Value_and_Lock( False )
         rec.doWriteAOD.set_Value_and_Lock( False )
         rec.doWriteESD.set_Value_and_Lock( False )
+    outputRequested = True
 
 if hasattr(runArgs,"outputNTUP_ENHBIASFile"):
     from TrigCostAthena.TrigCostAthenaFlags import TrigCostAthenaFlags
@@ -126,6 +137,7 @@ if hasattr(runArgs,"outputNTUP_ENHBIASFile"):
     if hasattr(runArgs,"inputESDFile") and not hasattr(runArgs,"inputFile"):
         athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
     include("TrigCostAthena/ESDtoNTUP_ENHBIAS.py")
+    outputRequested = True
 
 
 if hasattr(runArgs,"outputNTUP_LARNOISEFile"):
@@ -135,23 +147,12 @@ if hasattr(runArgs,"outputNTUP_LARNOISEFile"):
     if hasattr(runArgs,"inputESDFile") and not hasattr(runArgs,"inputFile"):
         athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
     include("LArMonitoring/LArNoiseBursts_prodJO.py")
+    outputRequested = True
 
-## Import D3PD flags before preExec, for convenience
-try:
-    from D3PDMakerConfig.D3PDProdFlags  import oldProdFlags
-except(ImportError):
-    print "WARNING oldProdFlags not available. "
-    pass
-try:
-    from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-except(ImportError):
-    print "WARNING D3PDMakerFlags not available. "
-    pass
-try:
-    from SUSYD3PDMaker.SUSYD3PDFlags    import SUSYD3PDFlags
-except(ImportError):
-    print "WARNING SUSYD3PDFlags not available. "
-    pass
+#Import D3PD flags before preExec, for convenience
+from D3PDMakerConfig.D3PDProdFlags  import oldProdFlags
+from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
+from SUSYD3PDMaker.SUSYD3PDFlags    import SUSYD3PDFlags
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
@@ -164,6 +165,14 @@ if hasattr(runArgs,"preExec"):
 if hasattr(runArgs,"preInclude"): 
     for fragment in runArgs.preInclude:
         include(fragment)
+
+## Pre-includes defined for the DPDs:
+from PATJobTransforms.DPDUtils import SetupDPDPreIncludes
+dpdPreIncludeUsed = SetupDPDPreIncludes(runArgs,listOfFlags)
+if outputRequested and dpdPreIncludeUsed:
+    recoLog.error( "Multiple output types requested with pre-includes present" )
+    recoLog.error( "This will most probably lead to weird output" )
+    pass
 
 # temporary hack (proper fix would be to cleanly protect all DESD building code against missing trigger)
 if not rec.doTrigger:
@@ -178,11 +187,7 @@ elif rec.DPDMakerScripts()!=[]: include("PrimaryDPDMaker/esdtodpd.py")
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
 ## Make "old style" D3PDs.
-try:
-    for c in SetupOutputDPDs(runArgs, [oldProdFlags]): c()
-except NameError:
-    print "WARNING: oldProdFlags not available"
-    pass
+for c in SetupOutputDPDs(runArgs, [oldProdFlags]): c()
 
 ## Offline prescales (has to be *after* the topOptions)
 if hasattr(runArgs,"prescales"):
@@ -196,6 +201,14 @@ if hasattr(runArgs,"prescales"):
 if hasattr(runArgs,"postInclude"): 
     for fragment in runArgs.postInclude:
         include(fragment)
+
+## Post-includes defined for the DPDs:
+from PATJobTransforms.DPDUtils import SetupDPDPostIncludes
+dpdPostIncludeUsed = SetupDPDPostIncludes(runArgs,listOfFlags)
+if outputRequested and dpdPostIncludeUsed:
+    recoLog.error( "Multiple output types requested with post-includes present" )
+    recoLog.error( "This will most probably lead to weird output" )
+    pass
 
 ## Post-exec
 if hasattr(runArgs,"postExec"):
