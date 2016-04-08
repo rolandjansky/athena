@@ -504,13 +504,14 @@ namespace LVL1 {
       addToStrawNumberNext = addToStrawNumber+numberOfStraws[i];
     }
     while(BarrelStrawLayerNumber(strawlayerNumber,LayerNumber)!=i-1);
-
+    /*
     if(BarrelStrawLayerNumber(strawlayerNumber,LayerNumber)%2==-10) {
       strawNumber += addToStrawNumber;
     } else {
       strawNumber = addToStrawNumberNext - strawNumber-1;
     }
-
+    */
+    strawNumber = addToStrawNumberNext - strawNumber-1;
     return strawNumber;
   }
 
