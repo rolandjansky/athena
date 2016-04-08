@@ -15,23 +15,21 @@
 #include "G4Track.hh"
 
 #include "MCTruth/TrackHelper.h"
-#include "FadsActions/ActionsStore.h"
 
-void SteppingValidation::BeginOfEventAction(const G4Event*) {
+
+void SteppingValidation::BeginOfEvent(const G4Event*) {
   m_prim=m_sec=0;
   m_primH=m_primF=0;
   m_dh=m_dh2=m_dp=m_dp2=0;
   m_nsec=0;
 }
-void SteppingValidation::EndOfEventAction(const G4Event*) {
+void SteppingValidation::EndOfEvent(const G4Event*) {
   // Fill lateral energy spread 
   if (m_nsec>0){
     m_latPhi->Fill( std::sqrt( m_dp2/m_nsec - std::pow(m_dp/m_nsec,2) ) );
     m_latEta->Fill( std::sqrt( m_dh2/m_nsec - std::pow(m_dh/m_nsec,2) ) );
   }
 }
-void SteppingValidation::BeginOfRunAction(const G4Run*) {;}
-void SteppingValidation::EndOfRunAction(const G4Run*) {;}
 
 StatusCode SteppingValidation::initialize(){
   m_path += "Stepping/";
@@ -55,20 +53,10 @@ StatusCode SteppingValidation::initialize(){
   _SET_TITLE(m_latPhi,    "Phi energy distribution",                "Energy-weighted #phi RMS",    "Primaries");
   _SET_TITLE(m_latEta,    "Eta energy distribution",                "Energy-weighted #eta RMS",    "Primaries");
 
-  // Be sure to set up the stepping action!
-  FADS::ActionsStore * fas = FADS::ActionsStore::GetActionsStore();
-  fas->Register(this);
-  RegisterFor(FADS::Step);
-  RegisterFor(FADS::EndOfEvent);
-  RegisterFor(FADS::BeginOfEvent);
-
-  return StatusCode::SUCCESS;
-}
-StatusCode SteppingValidation::processEvent(){
   return StatusCode::SUCCESS;
 }
 
-void SteppingValidation::SteppingAction(const G4Step* aStep)
+void SteppingValidation::Step(const G4Step* aStep)
 {
   // Fill process type
   m_stepProc->Fill(aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessType());
@@ -111,3 +99,15 @@ void SteppingValidation::SteppingAction(const G4Step* aStep)
 
 }
 
+
+StatusCode SteppingValidation::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
+}
