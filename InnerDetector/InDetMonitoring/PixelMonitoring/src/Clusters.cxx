@@ -225,8 +225,8 @@ StatusCode PixelMainMon::BookClustersMon(void)
    sc = clusterExpert.regHist(m_3cluster_ToT_ECA   = TH1F_LW::create((tmp + "_ECA").c_str(), (tmp2 + ", ECA" + m_histTitleExt + atext_tot + atext_nclu).c_str(), nbins_tot, min_tot, max_tot));
    sc = clusterExpert.regHist(m_3cluster_ToT_ECC   = TH1F_LW::create((tmp + "_ECC").c_str(), (tmp2 + ", ECC" + m_histTitleExt + atext_tot + atext_nclu).c_str(), nbins_tot, min_tot, max_tot)); 
    
-   if(m_doESD && !m_doOnline){
-      hxbin = 200; hxmin = 0.; hxmax = 200000.;
+   //if(m_doESD && !m_doOnline){
+      hxbin = 50; hxmin = 0.; hxmax = 200000.; // 1bin = 4ke
       tmp = "Big_Cluster_Q"; tmp2 = "Charge for Clusters of size>3";
       //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
       sc = clusterExpert.regHist(m_bigcluster_Q_B0  = TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B0"  + m_histTitleExt + ";Charge" + atext_nclu).c_str(), hxbin, hxmin, hxmax));
@@ -255,7 +255,7 @@ StatusCode PixelMainMon::BookClustersMon(void)
       sc = clusterExpert.regHist(m_3cluster_Q_B2    = TH1F_LW::create((tmp + "_B2").c_str(),  (tmp2 + ", B2"  + m_histTitleExt + ";Charge" + atext_nclu).c_str(), hxbin, hxmin, hxmax));
       sc = clusterExpert.regHist(m_3cluster_Q_ECA   = TH1F_LW::create((tmp + "_ECA").c_str(), (tmp2 + ", ECA" + m_histTitleExt + ";Charge" + atext_nclu).c_str(), hxbin, hxmin, hxmax));
       sc = clusterExpert.regHist(m_3cluster_Q_ECC   = TH1F_LW::create((tmp + "_ECC").c_str(), (tmp2 + ", ECC" + m_histTitleExt + ";Charge" + atext_nclu).c_str(), hxbin, hxmin, hxmax)); 
-   }
+   //}
 
    tmp = "Cluster_LVL1A"; tmp2 = "Cluster Level 1 Accept";
    if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
@@ -269,7 +269,7 @@ StatusCode PixelMainMon::BookClustersMon(void)
    sc = timeExpert.regHist(m_cluster_LVL1A_ECC     = TH1F_LW::create((tmp + "_ECC").c_str(),     (tmp2 + " with ToT>15, ECC"   + m_histTitleExt + ";LVL1A" + atext_nclu).c_str(), 14,-1.5,12.5));
    sc = timeExpert.regHist(m_cluster_LVL1A_highToT = TH1F_LW::create((tmp + "_highToT").c_str(), (tmp2 + " with ToT>15"        + m_histTitleExt + ";LVL1A" + atext_nclu).c_str(), 14,-1.5,12.5));
 
-   hxbin = 200; hxmin = 0.; hxmax = 200000.;
+   hxbin = 50; hxmin = 0.; hxmax = 200000.;
    tmp = "Cluster_charge"; tmp2 = "Cluster total charge";
    //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
    sc = clusterExpert.regHist(m_cluster_charge_B0  = TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B0"  + m_histTitleExt + ";Charge" + atext_nclu).c_str(), hxbin, hxmin, hxmax));
@@ -310,10 +310,10 @@ StatusCode PixelMainMon::BookClustersMon(void)
       //sc = clusterExpert.regHist(m_cluster_col_width_IBL = TH1F_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + atext_cluw + atext_nclu).c_str(), nbins_nwid, min_nwid, max_nwid));
       tmp = "Cluster_row_width"; tmp2 = "Row width of cluster";
       //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
-      sc = clusterExpert.regHist(m_cluster_row_width_IBL = TH1F_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + atext_cluw + atext_nclu).c_str(), nbins_nwid, min_nwid, max_nwid));
+      //sc = clusterExpert.regHist(m_cluster_row_width_IBL = TH1F_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + atext_cluw + atext_nclu).c_str(), nbins_nwid, min_nwid, max_nwid));
     
-      if(m_doESD && ! m_doOnline){
-         hxbin = 200; hxmin = 0.; hxmax = 200000.;
+      //if(m_doESD && ! m_doOnline){
+         hxbin = 50; hxmin = 0.; hxmax = 200000.;
          tmp = "Big_Cluster_Q"; tmp2 = "Charge for Clusters of size>3";
          //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
          sc = clusterExpert.regHist(m_bigcluster_Q_IBL   = TH1F_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + ";Charge" + atext_nclu).c_str(), hxbin, hxmin, hxmax));
@@ -342,7 +342,7 @@ StatusCode PixelMainMon::BookClustersMon(void)
          tmp = "ToT_vs_clussize"; tmp2 = "Cluster ToT vs Size";
          //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
          sc = clusterExpert.regHist(m_ToT_vs_clussize_IBL = TH2F_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + ";Cluster Size" + atext_tot).c_str(),40,-0.5,39.5,300,-0.5,299.5));
-      }
+      //}
    }
    if(m_do2DMaps)
    {
@@ -427,12 +427,12 @@ StatusCode PixelMainMon::BookClustersMon(void)
 
      tmp = "cluster_occupancy_summary"; tmp2 = "Average cluster occupancy";
      //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
-     sc = clusterExpert.regHist(m_ecA_cluster_occupancy_summary     = TH1F_LW::create(("A_" + tmp).c_str(),   (tmp2 + ", ECA" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
-     sc = clusterExpert.regHist(m_ecC_cluster_occupancy_summary     = TH1F_LW::create(("C_" + tmp).c_str(),   (tmp2 + ", ECC" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
-     sc = clusterExpert.regHist(m_bar_layI_cluster_occupancy_summary= TH1F_LW::create(("IBL_" + tmp).c_str(), (tmp2 + ", IBL" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
-     sc = clusterExpert.regHist(m_bar_lay0_cluster_occupancy_summary= TH1F_LW::create(("B0_" + tmp).c_str(),  (tmp2 + ", B0"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
-     sc = clusterExpert.regHist(m_bar_lay1_cluster_occupancy_summary= TH1F_LW::create(("B1_" + tmp).c_str(),  (tmp2 + ", B1"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
-     sc = clusterExpert.regHist(m_bar_lay2_cluster_occupancy_summary= TH1F_LW::create(("B2_" + tmp).c_str(),  (tmp2 + ", B2"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+     sc = clusterExpert.regHist(m_ecA_cluster_occupancy_summary     = TH1F_LW::create((tmp + "_ECA").c_str(), (tmp2 + ", ECA" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+     sc = clusterExpert.regHist(m_ecC_cluster_occupancy_summary     = TH1F_LW::create((tmp + "_ECC").c_str(), (tmp2 + ", ECC" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+     sc = clusterExpert.regHist(m_bar_layI_cluster_occupancy_summary= TH1F_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+     sc = clusterExpert.regHist(m_bar_lay0_cluster_occupancy_summary= TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B0"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+     sc = clusterExpert.regHist(m_bar_lay1_cluster_occupancy_summary= TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B1"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+     sc = clusterExpert.regHist(m_bar_lay2_cluster_occupancy_summary= TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B2"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
    }
    if(m_doLowOccupancy)
    {
@@ -441,12 +441,12 @@ StatusCode PixelMainMon::BookClustersMon(void)
       sc = clusterShift.regHist(m_num_clusters_low                        = TH1I_LW::create(tmp.c_str(),  (tmp2 + m_histTitleExt + ";# pixel clusters/event;# events").c_str(), 200,-0.5,199.5));
       tmp = "cluster_occupancy_summary_low_occupancy"; tmp2 = "Average cluster occupancy";
       //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
-      sc = clusterExpert.regHist(m_ecA_cluster_occupancy_summary_low      = TH1F_LW::create(("A_" + tmp).c_str(),   (tmp2 + ", ECA" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
-      sc = clusterExpert.regHist(m_ecC_cluster_occupancy_summary_low      = TH1F_LW::create(("C_" + tmp).c_str(),   (tmp2 + ", ECC" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
-      sc = clusterExpert.regHist(m_bar_layI_cluster_occupancy_summary_low = TH1F_LW::create(("IBL_" + tmp).c_str(), (tmp2 + ", IBL" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
-      sc = clusterExpert.regHist(m_bar_lay0_cluster_occupancy_summary_low = TH1F_LW::create(("B0_" + tmp).c_str(),  (tmp2 + ", B0"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
-      sc = clusterExpert.regHist(m_bar_lay1_cluster_occupancy_summary_low = TH1F_LW::create(("B1_" + tmp).c_str(),  (tmp2 + ", B1"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
-      sc = clusterExpert.regHist(m_bar_lay2_cluster_occupancy_summary_low = TH1F_LW::create(("B2_" + tmp).c_str(),  (tmp2 + ", B2"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      sc = clusterExpert.regHist(m_ecA_cluster_occupancy_summary_low      = TH1F_LW::create((tmp + "_ECA").c_str(), (tmp2 + ", ECA" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      sc = clusterExpert.regHist(m_ecC_cluster_occupancy_summary_low      = TH1F_LW::create((tmp + "_ECC").c_str(), (tmp2 + ", ECC" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      sc = clusterExpert.regHist(m_bar_layI_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      sc = clusterExpert.regHist(m_bar_lay0_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B0"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      sc = clusterExpert.regHist(m_bar_lay1_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B1"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      sc = clusterExpert.regHist(m_bar_lay2_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B2"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
    }
    //   int max_clusters = 500;
 

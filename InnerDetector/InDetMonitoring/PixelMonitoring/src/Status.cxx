@@ -213,6 +213,8 @@ StatusCode PixelMainMon::FillStatusMon(void)
       }
    } // End of loop 
 
+   static float nmod[PixLayer::COUNT] = {144., 144., 286., 494., 676., 280.};
+
    if(m_disabledModules_per_lumi)     m_disabledModules_per_lumi->Fill(m_manager->lumiBlockNumber(),nDisabled); 
    if(m_disabledModules_per_lumi_PIX) m_disabledModules_per_lumi_PIX->Fill(m_manager->lumiBlockNumber(),nDisabled-nDisabled_IBL);
    if(m_disabledModules_per_lumi_ECA) m_disabledModules_per_lumi_ECA->Fill(m_manager->lumiBlockNumber(),nDisabled_ECA); 
@@ -223,12 +225,12 @@ StatusCode PixelMainMon::FillStatusMon(void)
    if(m_disabledModules_per_lumi_B2)  m_disabledModules_per_lumi_B2->Fill(m_manager->lumiBlockNumber(),nDisabled_B2); 
 
    if(m_badModules_per_lumi)     m_badModules_per_lumi->Fill(m_manager->lumiBlockNumber(),nBad); 
-   if(m_badModules_per_lumi_ECA) m_badModules_per_lumi_ECA->Fill(m_manager->lumiBlockNumber(),nBad_ECA); 
-   if(m_badModules_per_lumi_ECC) m_badModules_per_lumi_ECC->Fill(m_manager->lumiBlockNumber(),nBad_ECC); 
-   if(m_badModules_per_lumi_IBL) m_badModules_per_lumi_IBL->Fill(m_manager->lumiBlockNumber(),nBad_IBL);
-   if(m_badModules_per_lumi_B0)  m_badModules_per_lumi_B0->Fill(m_manager->lumiBlockNumber(),nBad_B0); 
-   if(m_badModules_per_lumi_B1)  m_badModules_per_lumi_B1->Fill(m_manager->lumiBlockNumber(),nBad_B1); 
-   if(m_badModules_per_lumi_B2)  m_badModules_per_lumi_B2->Fill(m_manager->lumiBlockNumber(),nBad_B2); 
+   if(m_badModules_per_lumi_ECA) m_badModules_per_lumi_ECA->Fill(m_manager->lumiBlockNumber(),nBad_ECA/nmod[PixLayer::kECA]); 
+   if(m_badModules_per_lumi_ECC) m_badModules_per_lumi_ECC->Fill(m_manager->lumiBlockNumber(),nBad_ECC/nmod[PixLayer::kECC]); 
+   if(m_badModules_per_lumi_IBL) m_badModules_per_lumi_IBL->Fill(m_manager->lumiBlockNumber(),nBad_IBL/nmod[PixLayer::kIBL]);
+   if(m_badModules_per_lumi_B0)  m_badModules_per_lumi_B0->Fill(m_manager->lumiBlockNumber(),nBad_B0/nmod[PixLayer::kB0]); 
+   if(m_badModules_per_lumi_B1)  m_badModules_per_lumi_B1->Fill(m_manager->lumiBlockNumber(),nBad_B1/nmod[PixLayer::kB1]); 
+   if(m_badModules_per_lumi_B2)  m_badModules_per_lumi_B2->Fill(m_manager->lumiBlockNumber(),nBad_B2/nmod[PixLayer::kB2]); 
 
    if(m_baddisabledModules_per_lumi_ECA) m_baddisabledModules_per_lumi_ECA->Fill(m_manager->lumiBlockNumber(),nDisabled_ECA+nBad_ECA); 
    if(m_baddisabledModules_per_lumi_ECC) m_baddisabledModules_per_lumi_ECC->Fill(m_manager->lumiBlockNumber(),nDisabled_ECC+nBad_ECC); 
