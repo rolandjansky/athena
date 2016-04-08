@@ -121,7 +121,8 @@ public:
    * but if the association dynamically allocated the object which
    * it returned, this gives it a chance to free it.
    */
-  virtual void releaseObject (const typename SelectType<TO_T, 0>::type* /*p*/);
+  virtual void releaseObject (const typename SelectType<TO_T, 0>::type* /*p*/)
+    override;
 
 
   /**
