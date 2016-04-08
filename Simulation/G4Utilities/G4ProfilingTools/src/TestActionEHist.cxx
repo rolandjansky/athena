@@ -37,56 +37,24 @@ using std::vector;
 
 // #define _myDebug
 
-static TestActionEHist ts2("TestActionEHist");
-
-TestActionEHist::TestActionEHist(string s) : 
-     FADS::ActionsBase(s), FADS::UserAction(s), FADS::TrackingAction(),
-	 m_world(0), m_firstStep(false),  m_dCALO(2), m_dBeam(2), m_dIDET(2), m_dMUON(2),
-	 m_dDetail(""), m_maxhists(1000), m_maxdirs(1000), m_p_tag("")
-{}
-
-void TestActionEHist::BeginOfRunAction(const G4Run* /*aRun*/)
+TestActionEHist::TestActionEHist(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent),
+													     m_world(0), m_firstStep(false),  m_name("default.root"),
+													     m_dCALO(2), m_dBeam(2), m_dIDET(2), m_dMUON(2),
+													     m_dDetail(""), m_maxhists(1000), m_maxdirs(1000), m_p_tag("")
 {
-#ifdef _myDebug
-  G4cout << "#########################################" << G4endl
-	 << "##                                     ##" << G4endl
-	 << "##    TestActionEHist - BeginOfRun     ##" << G4endl
-	 << "##                                     ##" << G4endl
-	 << "#########################################" << G4endl;
-#endif
 
-  // get jobOptions properties
-  m_name = theProperties["ROOTFileName"];
-  if (m_name.empty()) { 
-      ATH_MSG_WARNING("No output file name specified, using default.root!");
-      m_name = "default.root";
-  }
- 
-  char * endptr=0;
-  if ( !theProperties["CaloDepth"].empty() ){
-    m_dCALO = strtol(theProperties["CaloDepth"].c_str(),&endptr,0);
-    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["CaloDepth"]));
-  }
-  if ( !theProperties["BeamPipeDepth"].empty() ){
-    m_dBeam = strtol(theProperties["BeamPipeDepth"].c_str(),&endptr,0);
-    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["BeamPipeDepth"]));
-  }
-  if ( !theProperties["InDetDepth"].empty() ){
-    m_dIDET = strtol(theProperties["InDetDepth"].c_str(),&endptr,0);
-    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["InDetDepth"]));
-  }
-  if ( !theProperties["MuonDepth"].empty() ){
-    m_dMUON = strtol(theProperties["MuonDepth"].c_str(),&endptr,0);
-    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["MuonDepth"]));
-  }
-  if ( !theProperties["MaxHists"].empty() ){
-    m_maxhists = strtol(theProperties["MaxHists"].c_str(),&endptr,0);
-    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["MaxHists"]));
-  }
-  if ( !theProperties["DetailDepth"].empty() ) m_dDetail = theProperties["DetailDepth"];
-  m_maxdirs = m_maxhists;
-  ATH_MSG_INFO("Retrieved job properties successfully");
-    
+  declareProperty("ROOTFileName",m_name);
+  declareProperty("CaloDepth",m_dCALO);
+  declareProperty("BeamPipeDepth",m_dBeam);
+  declareProperty("InDetDepth",m_dIDET);
+  declareProperty("MuonDepth",m_dMUON);
+  declareProperty("MaxHists",m_maxhists);
+  declareProperty("DetailDepth",m_dDetail);
+
+}
+
+void TestActionEHist::BeginOfRun(const G4Run* /*aRun*/)
+{
 
   // initialize histogramming file (DON'T USE GAUDI) & directories
   m_world = new TFile(m_name.c_str(), "RECREATE");
@@ -96,15 +64,8 @@ void TestActionEHist::BeginOfRunAction(const G4Run* /*aRun*/)
 }
 
 
-void TestActionEHist::EndOfRunAction(const G4Run* /*aRun*/)
+void TestActionEHist::EndOfRun(const G4Run* /*aRun*/)
 {
-#ifdef _myDebug
-  G4cout << "#########################################" << G4endl
-	 << "##                                     ##" << G4endl
-	 << "##    TestActionEHist - EndOfRun       ##" << G4endl
-	 << "##                                     ##" << G4endl
-	 << "#########################################" << G4endl;
-#endif
 
   m_world->Write();
   m_world->Close();
@@ -115,7 +76,7 @@ void TestActionEHist::EndOfRunAction(const G4Run* /*aRun*/)
 }
 
 
-void TestActionEHist::PreUserTrackingAction(const G4Track* aTrack)
+void TestActionEHist::PreTracking(const G4Track* aTrack)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -139,7 +100,7 @@ if (aTrack) {
 }
 
 
-void TestActionEHist::PostUserTrackingAction(const G4Track* aTrack)
+void TestActionEHist::PostTracking(const G4Track* aTrack)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -155,7 +116,7 @@ if (aTrack) {
 }
 
 
-void TestActionEHist::SteppingAction(const G4Step* aStep)
+void TestActionEHist::Step(const G4Step* aStep)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -267,3 +228,15 @@ bool TestActionEHist::BuildDirs(string vol_tag, string dirTitle, int& dLeft)
   if (enter) ATH_MSG_DEBUG("Current directory: "<<gDirectory->GetPath());
   return enter;
 }
+
+ StatusCode TestActionEHist::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+ {
+   if ( IUserAction::interfaceID().versionMatch(riid) ) {
+     *ppvInterface = dynamic_cast<IUserAction*>(this);
+     addRef();
+   } else {
+     // Interface is not directly available : try out a base class
+     return UserActionBase::queryInterface(riid, ppvInterface);
+   }
+   return StatusCode::SUCCESS;
+ }
