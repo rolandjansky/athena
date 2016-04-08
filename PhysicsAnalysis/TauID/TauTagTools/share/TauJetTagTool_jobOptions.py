@@ -42,20 +42,20 @@ JetBDTSigTightTauSelectionTool.SelectionCuts = 1<<6 # CutJetIDWP
 JetBDTSigTightTauSelectionTool.JetIDWP       = 4    # JETIDBDTTIGHT
 ToolSvc += JetBDTSigTightTauSelectionTool
 
-JetLLHSigLooseTauSelectionTool = TauAnalysisTools__TauSelectionTool("JetLLHSigLooseTauSelectionTool")
-JetLLHSigLooseTauSelectionTool.SelectionCuts = 1<<6 # CutJetIDWP
-JetLLHSigLooseTauSelectionTool.JetIDWP       = 7    # JETIDLLHLOOSE
-ToolSvc += JetLLHSigLooseTauSelectionTool
+# JetLLHSigLooseTauSelectionTool = TauAnalysisTools__TauSelectionTool("JetLLHSigLooseTauSelectionTool")
+# JetLLHSigLooseTauSelectionTool.SelectionCuts = 1<<6 # CutJetIDWP
+# JetLLHSigLooseTauSelectionTool.JetIDWP       = 7    # JETIDLLHLOOSE
+# ToolSvc += JetLLHSigLooseTauSelectionTool
 
-JetLLHSigMediumTauSelectionTool = TauAnalysisTools__TauSelectionTool("JetLLHSigMediumTauSelectionTool")
-JetLLHSigMediumTauSelectionTool.SelectionCuts = 1<<6 # CutJetIDWP
-JetLLHSigMediumTauSelectionTool.JetIDWP       = 8    # JETIDLLHMEDIUM
-ToolSvc += JetLLHSigMediumTauSelectionTool
+# JetLLHSigMediumTauSelectionTool = TauAnalysisTools__TauSelectionTool("JetLLHSigMediumTauSelectionTool")
+# JetLLHSigMediumTauSelectionTool.SelectionCuts = 1<<6 # CutJetIDWP
+# JetLLHSigMediumTauSelectionTool.JetIDWP       = 8    # JETIDLLHMEDIUM
+# ToolSvc += JetLLHSigMediumTauSelectionTool
 
-JetLLHSigTightTauSelectionTool = TauAnalysisTools__TauSelectionTool("JetLLHSigTightTauSelectionTool")
-JetLLHSigTightTauSelectionTool.SelectionCuts = 1<<6 # CutJetIDWP
-JetLLHSigTightTauSelectionTool.JetIDWP       = 9    # JETIDLLHTIGHT
-ToolSvc += JetLLHSigTightTauSelectionTool
+# JetLLHSigTightTauSelectionTool = TauAnalysisTools__TauSelectionTool("JetLLHSigTightTauSelectionTool")
+# JetLLHSigTightTauSelectionTool.SelectionCuts = 1<<6 # CutJetIDWP
+# JetLLHSigTightTauSelectionTool.JetIDWP       = 9    # JETIDLLHTIGHT
+# ToolSvc += JetLLHSigTightTauSelectionTool
 
 EleOLRTauSelectionTool = TauAnalysisTools__TauSelectionTool("EleOLRTauSelectionTool")
 EleOLRTauSelectionTool.SelectionCuts = 1<<10 # CutEleOLR
@@ -74,9 +74,9 @@ TauJetTagTool=ConfiguredTauJetTagTool(
      JetBDTSigLooseTauSelectionTool  = JetBDTSigLooseTauSelectionTool,
      JetBDTSigMediumTauSelectionTool = JetBDTSigMediumTauSelectionTool,
      JetBDTSigTightTauSelectionTool  = JetBDTSigTightTauSelectionTool,
-     JetLLHSigLooseTauSelectionTool  = JetLLHSigLooseTauSelectionTool,
-     JetLLHSigMediumTauSelectionTool = JetLLHSigMediumTauSelectionTool,
-     JetLLHSigTightTauSelectionTool  = JetLLHSigTightTauSelectionTool,
+     # JetLLHSigLooseTauSelectionTool  = JetLLHSigLooseTauSelectionTool,
+     # JetLLHSigMediumTauSelectionTool = JetLLHSigMediumTauSelectionTool,
+     # JetLLHSigTightTauSelectionTool  = JetLLHSigTightTauSelectionTool,
      EleOLRTauSelectionTool          = EleOLRTauSelectionTool
      )
 ToolSvc += TauJetTagTool

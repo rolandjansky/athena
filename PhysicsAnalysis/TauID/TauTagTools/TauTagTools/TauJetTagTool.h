@@ -59,9 +59,9 @@ private:
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetBDTLoose;
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetBDTMedium;
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetBDTTight;
-  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHLoose;
-  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHMedium;
-  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHTight;
+  // ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHLoose;
+  // ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHMedium;
+  // ToolHandle<TauAnalysisTools::ITauSelectionTool> m_jetLLHTight;
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_eleOLR;
 
   double m_tauJetPtCut;
