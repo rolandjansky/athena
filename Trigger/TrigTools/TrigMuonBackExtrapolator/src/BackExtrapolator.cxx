@@ -930,7 +930,10 @@ MuonBackExtrapolator::give_eta_phi_at_vertex(
         param =  data_Endcap_TriggerST_Param;
 	sigmas = data_Endcap_TriggerST_Sigmas;
 	
-	deltaEta = param[etab1][phib][side][sign][0][0]*(1./fabs(pt))+param[etab1][phib][side][sign][0][1];
+        if (aligned) 
+          deltaEta = param[etab1][phib][side][sign][0][0]*(1./fabs(pt))+param[etab1][phib][side][sign][0][1];
+        else 
+          deltaEta = param[etab1][phib][side][sign][0][0]*(1./fabs(pt))+param[etab1][phib][side][sign][0][1];
         deltaPhi = param[etab1][phib][side][sign][1][0]*(1./fabs(pt))+param[etab1][phib][side][sign][1][1];    
 	sigmaEta = sigmas[etab1][phib][side][sign][0][0]*(1./fabs(PT)) + sigmas[etab1][phib][side][sign][0][1];
         sigmaPhi = sigmas[etab1][phib][side][sign][1][0]*(1./fabs(PT)) + sigmas[etab1][phib][side][sign][1][1];
@@ -1053,7 +1056,10 @@ MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
         param =  data_Endcap_TriggerST_Param;
 	sigmas = data_Endcap_TriggerST_Sigmas;
 	
-	deltaEta = param[etab1][phib][side][sign][0][0]*(1./fabs(pt))+param[etab1][phib][side][sign][0][1];
+        if (aligned) 
+          deltaEta = param[etab1][phib][side][sign][0][0]*(1./fabs(pt))+param[etab1][phib][side][sign][0][1];
+        else 
+          deltaEta = param[etab1][phib][side][sign][0][0]*(1./fabs(pt))+param[etab1][phib][side][sign][0][1];
         deltaPhi = param[etab1][phib][side][sign][1][0]*(1./fabs(pt))+param[etab1][phib][side][sign][1][1];    
 	sigmaEta = sigmas[etab1][phib][side][sign][0][0]*(1./fabs(PT)) + sigmas[etab1][phib][side][sign][0][1];
         sigmaPhi = sigmas[etab1][phib][side][sign][1][0]*(1./fabs(PT)) + sigmas[etab1][phib][side][sign][1][1];
@@ -1276,12 +1282,14 @@ MuonBackExtrapolator::retune_pt(double pt, bool dataset)
     
     if(pt < 0.)
     {
-        if(pt <= -40.)  tuned_pt = -40.;
+        if (dataset) {if(pt <= -40.)  tuned_pt = -40.;}
+        else         {if(pt <= -40.)  tuned_pt = -40.;}
 	if(pt >= -4. )  tuned_pt = -4.;
     }
     else
     {
-        if(pt >= 40.)  tuned_pt = 40.;
+        if (dataset) {if(pt >= 40.)  tuned_pt = 40.;}
+        else         {if(pt >= 40.)  tuned_pt = 40.;}
 	if(pt <= 4. )  tuned_pt = 4.;
     }
     
