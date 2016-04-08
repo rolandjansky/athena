@@ -15,6 +15,7 @@ use HitManagement       HitManagement-*         Simulation
 use AFP_DigiEv          AFP_DigiEv-*            ForwardDetectors/AFP
 use AFP_SimEv           AFP_SimEv-*             ForwardDetectors/AFP
 use PileUpTools         PileUpTools-*           Control
+use xAODEventInfo       xAODEventInfo-*    Event/xAOD 
 
 library AFP_Digitization *.cxx components/*.cxx
 apply_pattern component_library

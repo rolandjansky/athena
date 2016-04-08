@@ -86,7 +86,7 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
 
   if (!(m_SignalVect.empty()))
   {
-     for(int i=0; i< abs(m_SignalVect.size()); i++) {
+     for(unsigned long i=0; i< m_SignalVect.size(); i++) { // size is an unsigned long so abs is redundant
        m_SignalVect[i] = SignalFun(2.5+5.*i,m_RiseTime,m_FallTime);
      }
   }
@@ -257,28 +257,21 @@ StatusCode AFP_PileUpTool::prepareEvent(const unsigned int nInputEvents){
 }
 
 StatusCode AFP_PileUpTool::processBunchXing(int bunchXing,
-					    PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-					    PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-  
+                                                 SubEventIterator bSubEvents,
+                                                 SubEventIterator eSubEvents) {
+
   ATH_MSG_DEBUG ( "AFP_PileUpTool::processBunchXing() " << bunchXing );
-  
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
- 
-  for (; iEvt!=eSubEvents; ++iEvt) {
-    
-    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
-    const EventInfo* pEI = 0;
-   
-    if (seStore.retrieve(pEI).isSuccess()) {
-      
-      ATH_MSG_VERBOSE ( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-			<< " bunch crossing : " << bunchXing
-			<< " time offset : "    << iEvt->time()
-			<< " event number : "   << pEI->event_ID()->event_number()
-			<< " run number : "     << pEI->event_ID()->run_number()
-			);
-    }
-    
+  SubEventIterator iEvt = bSubEvents;
+  for (; iEvt!=eSubEvents; iEvt++) {
+    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
+    //PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());   // does not do anything
+    ATH_MSG_VERBOSE ("SubEvt StoreGate " << seStore.name() << " :"
+                     << " bunch crossing : " << bunchXing
+                     << " time offset : " << iEvt->time()
+                     << " event number : " << iEvt->ptr()->eventNumber()
+                     << " run number : " << iEvt->ptr()->runNumber()
+                     );
+
     const AFP_TDSimHitCollection* tmpColl = 0;
    
     if (!seStore.retrieve(tmpColl, m_TDSimHitCollectionName).isSuccess()) {
@@ -499,8 +492,8 @@ void AFP_PileUpTool::createTDDigi(int Station, int Detector, int SensitiveElemen
 
   if (!(m_SignalVect.empty()))
   {
-    for (int i = 0; i < abs(m_SignalVect.size()); i++) {
-        if( i+iStart > m_Signal[Station][Detector][(SensitiveElement-1)/2].GetNbinsX()) break ;
+    for (unsigned long i = 0; i < (m_SignalVect.size()); i++) {
+        if( (int)i+iStart > m_Signal[Station][Detector][(SensitiveElement-1)/2].GetNbinsX()) break ;
         m_Signal[Station][Detector][(SensitiveElement-1)/2].AddBinContent(i+iStart,m_SignalVect[i]*NumberOfSecondaries/m_Gain);     
     }
   }  
