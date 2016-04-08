@@ -63,7 +63,7 @@ namespace Trk {
       CylinderBounds(double radius, double halfphi, double halez);
       
       /**Constructor - cylinder segment with given averagePhi, not supposed for CylinderSurfaces*/
-      CylinderBounds(double radius, double avphi, double halfphi, double halez);
+      CylinderBounds(double radius, double halfphi, double avphi, double halez);
       
       /**Copy Constructor */
       CylinderBounds(const CylinderBounds& cylbo);

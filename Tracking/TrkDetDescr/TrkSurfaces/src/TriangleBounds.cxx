@@ -20,29 +20,29 @@ Trk::TriangleBounds::TriangleBounds() :
 {}
 
 // rectangle constructor - float constructor
-Trk::TriangleBounds::TriangleBounds(std::vector<std::pair<float,float> > vertices) :
+Trk::TriangleBounds::TriangleBounds(const std::vector<std::pair<float,float> >& vertices) :
     m_boundValues(TriangleBounds::bv_length,0.)
 {
-   std::vector< std::pair<float, float> >::iterator vIt  = vertices.begin();
-   std::vector< std::pair<float, float> >::iterator vItE = vertices.end();
-   for (size_t ib = 0 ; vIt != vItE; ++vIt, ++ib){
-       m_boundValues[2*ib]    = (*vIt).first;
-       m_boundValues[2*ib+1]  = (*vIt).second;
+   size_t ib = 0;
+   for (const std::pair<float, float>& p : vertices) {
+       m_boundValues[2*ib]    = p.first;
+       m_boundValues[2*ib+1]  = p.second;
        if (ib==2) break;
+       ++ib;
    }
 }
 
 // rectangle constructor - double constructor
-Trk::TriangleBounds::TriangleBounds(std::vector<std::pair<double,double> > vertices) :
+Trk::TriangleBounds::TriangleBounds(const std::vector<std::pair<double,double> >& vertices) :
     m_boundValues(TriangleBounds::bv_length,0.)
 {
-    std::vector< std::pair<double, double> >::iterator vIt  = vertices.begin();
-    std::vector< std::pair<double, double> >::iterator vItE = vertices.end();
-    for (size_t ib = 0 ; vIt != vItE; ++vIt, ++ib){
-        m_boundValues[2*ib]    = (*vIt).first;
-        m_boundValues[2*ib+1]  = (*vIt).second;
-        if (ib==2) break;
-    }
+   size_t ib = 0;
+   for (const std::pair<double, double>& p : vertices) {
+       m_boundValues[2*ib]    = p.first;
+       m_boundValues[2*ib+1]  = p.second;
+       if (ib==2) break;
+       ++ib;
+   }
 }
 
 // constructor from three points

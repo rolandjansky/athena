@@ -49,8 +49,8 @@ namespace Trk {
       /**Default Constructor - needed for persistency*/
       RectangleBounds();  
 
-      /**Constructor with halflength in phi and halflength in eta*/
-      RectangleBounds(double halephi, double haleta);
+      /**Constructor with halflength in x (phi) and halflength in y (eta)*/
+      RectangleBounds(double halex, double haley);
       
       /**Copy constructor*/
       RectangleBounds(const RectangleBounds& recbo);
