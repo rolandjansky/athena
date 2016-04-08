@@ -5,12 +5,13 @@ author M. Marino      <Massimo_Marino@lbl.gov>
 
 use AtlasPolicy         AtlasPolicy-*
 use AthenaKernel        AthenaKernel-*       Control
-use AthenaBaseComps	AthenaBaseComps-*    Control
+use AthenaBaseComps     AthenaBaseComps-*    Control
 use CLIDSvc             CLIDSvc-*            Control
 use DataModel           DataModel-*          Control
 use SGTools             SGTools-*            Control
 use StoreGate           StoreGate-*          Control
 use EventInfo           EventInfo-*          Event
+use xAODEventInfo       xAODEventInfo-*    Event/xAOD
 use GaudiInterface      GaudiInterface-*     External
 
 apply_pattern dual_use_library files=" *.cxx "

@@ -60,8 +60,8 @@ public:
   virtual unsigned int nStores() const = 0;
 
   static const InterfaceID& interfaceID() {
-    static const InterfaceID _IID( "IBkgStreamsCache", 1, 0 );
-    return _IID;
+    static const InterfaceID IID( "IBkgStreamsCache", 1, 0 );
+    return IID;
   }
 };
 #endif
