@@ -68,7 +68,7 @@ SCT_ForwardModuleParametersOld::SCT_ForwardModuleParametersOld(const SCT_DataBas
       continue;
     }
     //if not a comment, then get the name and the value of the parameter
-    sscanf(line, "%s %f", name, &value);
+    sscanf(line, "%499s %99f", name, &value);
     if(!sct_fwd_moduleParameters){
       if(!strcmp(name, "SCT_FWD_MODULES_PARAMETERS_BEGIN")) sct_fwd_moduleParameters = true;
       continue;
@@ -78,7 +78,7 @@ SCT_ForwardModuleParametersOld::SCT_ForwardModuleParametersOld(const SCT_DataBas
       //put string paramters in a different container
       if(strstr(name, "_STRNG") != NULL){
 	//re-read the second parameter as a string
-	sscanf(line, "%s %s", name, value_strng);
+	sscanf(line, "%499s %4999s", name, value_strng);
 	(*m_SCT_Fwd_Modules_Strng)[std::string(name)] = std::string(value_strng);
       }else{
 	//and fill in the map (the container)

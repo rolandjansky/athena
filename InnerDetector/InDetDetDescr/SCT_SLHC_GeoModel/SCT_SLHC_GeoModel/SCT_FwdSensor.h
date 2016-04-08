@@ -61,6 +61,8 @@ private:
 
   const GeoMaterial* m_materialSensor;
   
+  int m_chargeCarrier; 
+
   InDetDD::SiDetectorDesign * m_design;
 };
 }

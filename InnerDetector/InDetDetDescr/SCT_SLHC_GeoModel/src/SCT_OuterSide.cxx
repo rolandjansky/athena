@@ -84,6 +84,8 @@ const GeoLogVol* SCT_OuterSide::preBuild(){
 
 GeoVPhysVol* SCT_OuterSide::build(SCT_Identifier id) const{
 
+  std::cout<<"SCT OuterSide : "<<id.getPhiModule()<<" "<<id.getEtaModule()<<std::endl;
+
   GeoFullPhysVol* outerSide = new GeoFullPhysVol(m_logVolume);
   // Add Sensor
   //1000 to tell the Sensitive detector that it's a GeoModel geometry

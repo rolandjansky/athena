@@ -51,6 +51,7 @@ SCT_Sensor::getParameters()
   m_segmentGap  = parameters->barrelModelSideSegmentGap(m_moduleType);
   m_stripLength = parameters->barrelModelSideStripLength(m_moduleType);
   m_material    = materials->getMaterial(parameters->sensorMaterial(m_moduleType));
+  m_chargeCarrier = parameters->chargeCarrier(m_moduleType);
 }
 
 const GeoLogVol * 
@@ -104,6 +105,9 @@ SCT_Sensor::makeDesign()
   int diodes             = parameters->barrelModelSideDiodes(m_moduleType);
   int cells              = parameters->barrelModelSideCells(m_moduleType);
   int shift              = parameters->barrelModelSideShift(m_moduleType); 
+  InDetDD::CarrierType carrierType;
+  if (m_chargeCarrier < 0.0) carrierType = InDetDD::electrons;
+  else carrierType = InDetDD::holes;
 
   double xEtaStripPatternCenter = 0;
   double xPhiStripPatternCenter = 0;
@@ -122,7 +126,7 @@ SCT_Sensor::makeDesign()
 					    cells,
 					    shift,
 					    swapStripReadout,
-					    InDetDD::holes,
+					    carrierType,
 					    stripPitch,
 					    stripLength,
 					    xEtaStripPatternCenter,

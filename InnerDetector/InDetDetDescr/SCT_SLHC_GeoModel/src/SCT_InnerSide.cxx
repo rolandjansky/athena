@@ -87,6 +87,10 @@ const GeoLogVol* SCT_InnerSide::preBuild(){
 
 GeoVPhysVol* SCT_InnerSide::build(SCT_Identifier id) const{
 
+  //  std::cout<<"SCT InnerSide : "<<id.getPhiModule()<<" "<<id.getEtaModule()<<"  "<<std::endl;
+
+  //  std::cout<<"InnerSide id: "<<id.getBarrelEC()<<" "<<id.getLayerDisk()<<" "<<id.getEtaModule()<<" "<<id.getPhiModule()<<" "<<id.getSide()<<" "<<id.getWaferId()<<std::endl;
+
   GeoFullPhysVol* innerSide = new GeoFullPhysVol(m_logVolume);
   // Add Sensor
   //1000 to tell the Sensitive detector that it's a GeoModel geometry
