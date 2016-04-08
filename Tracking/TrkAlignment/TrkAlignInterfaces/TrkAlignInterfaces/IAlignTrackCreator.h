@@ -58,7 +58,7 @@ namespace Trk {
     
   }; // end class definition
   
-  inline IAlignTrackCreator::IAlignTrackCreator() : m_doPixel(1), m_doSCT(1), m_doTRT(1), m_doMDT(1) {}
+  inline IAlignTrackCreator::IAlignTrackCreator() : m_doPixel(1), m_doSCT(1), m_doTRT(1), m_doMDT(1), m_logStream(0){}
   inline const InterfaceID& IAlignTrackCreator::interfaceID()
   { return   IID_TRK_IAlignTrackCreator; }
   
