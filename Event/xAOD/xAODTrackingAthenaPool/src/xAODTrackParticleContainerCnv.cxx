@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrackParticleContainerCnv.cxx 614517 2014-09-01 17:35:27Z jchapman $
+// $Id: xAODTrackParticleContainerCnv.cxx 702662 2015-10-23 11:31:50Z nstyles $
 
 // System include(s):
 #include <exception>
@@ -46,9 +46,6 @@ createPersistent( xAOD::TrackParticleContainer* trans ) {
    // Prepare the objects to be written out:
    xAOD::TrackParticleContainer::iterator itr = result->begin();
    xAOD::TrackParticleContainer::iterator end = result->end();
-   for( ; itr != end; ++itr ) {
-      toPersistent( *itr );
-   }
 
    // Return the new container:
    return result;
@@ -86,29 +83,4 @@ xAOD::TrackParticleContainer* xAODTrackParticleContainerCnv::createTransient() {
    throw std::runtime_error( "Unsupported version of "
                              "xAOD::TrackParticleContainer found" );
    return 0;
-}
-
-void xAODTrackParticleContainerCnv::
-toPersistent( xAOD::TrackParticle* tp ) const {
-
-#ifndef XAOD_ANALYSIS
-   try {
-      ElementLink< TrackCollection >& el1 =
-         const_cast<ElementLink< TrackCollection >&>(tp->trackLink());
-      el1.toPersistent();
-   } catch( SG::ExcBadAuxVar& ) { }
-#endif
-   try {
-      ElementLink< xAOD::VertexContainer >& el2 =
-         const_cast< ElementLink< xAOD::VertexContainer >& >( tp->vertexLink() );
-      el2.toPersistent();
-   } catch( SG::ExcBadAuxVar& ) { }
-
-   SG::AuxElement::Accessor< ElementLink< xAOD::TruthParticleContainer > >
-      truthAcc( "truthParticleLink" );
-   if( truthAcc.isAvailableWritable( *tp ) ) {
-      truthAcc( *tp ).toPersistent();
-   }
-
-   return;
 }
