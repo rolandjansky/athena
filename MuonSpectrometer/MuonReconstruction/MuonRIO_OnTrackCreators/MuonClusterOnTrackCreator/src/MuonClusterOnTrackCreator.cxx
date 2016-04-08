@@ -34,6 +34,9 @@
 
 using std::atan2;
 
+#define SIG_VEL 4.80000  // ns/m
+#define C_VEL   3.33564  // ns/m
+
 namespace Muon {
 
   MuonClusterOnTrackCreator::MuonClusterOnTrackCreator
@@ -149,15 +152,17 @@ namespace Muon {
 
     Amg::Vector2D lp;
     double positionAlongStrip = 0;
+    double positionAlongz     = 0;
 
     if( !EL->surface(RIO.identify()).globalToLocal(GP,GP,lp) ){
       Amg::Vector3D lpos = RIO.detectorElement()->surface(RIO.identify()).transform().inverse()*GP;
       ATH_MSG_WARNING ( "Extrapolated GlobalPosition not on detector surface! Distance " << lpos.z() );
-      lp[Trk::locX] = lpos.x();
-      lp[Trk::locY] = lpos.y();
+      lp[Trk::locX]  = lpos.x();
+      lp[Trk::locY]  = lpos.y();
+      positionAlongz = lpos.z();
     }
     positionAlongStrip = lp[Trk::locY];
-
+     
     // Error matrix production - expect more intelligent code here.
     //
     // Amg::MatrixX* cov  = 0;
@@ -182,14 +187,16 @@ namespace Muon {
     ATH_MSG_DEBUG ( "All: new err matrix is " << loce );
   
     if(  m_idHelper->isRpc(RIO.identify()) ){
-    
+      
       // cast to RpcPrepData
       const RpcPrepData* MClus   = dynamic_cast<const RpcPrepData*> (&RIO);
       if (!MClus) {
 	ATH_MSG_WARNING ( "RIO not of type RpcPrepData, cannot create ROT" );
 	return 0;
       }
+        
       bool measphi = m_idHelper->measuresPhi(RIO.identify());
+      
       double fixedError = 1.;
       bool scale = false;
       // check whether to scale eta/phi hit
@@ -205,7 +212,33 @@ namespace Muon {
 	mat(0,0)  = fixedError*fixedError;
 	loce=mat;
       }
-      MClT = new RpcClusterOnTrack(MClus,locpar,loce,positionAlongStrip, MClus->time());
+      
+       
+      const MuonGM::RpcReadoutElement* rpc_readout_element = MClus->detectorElement(); 
+      Amg::Vector3D posi          = rpc_readout_element->stripPos(RIO.identify());
+      
+      //let's correct rpc time subtracting delay due to the induced electric signal propagation along strip   
+      double correct_time_along_strip = 0;
+      if(measphi==0){correct_time_along_strip = rpc_readout_element -> distanceToEtaReadout( GP )/1000.* SIG_VEL;}
+      else {correct_time_along_strip = rpc_readout_element -> distanceToPhiReadout( GP )/1000.* SIG_VEL;}
+      if(positionAlongz)correct_time_along_strip = 0; // no correction if extrapolated GlobalPosition not on detector surface!
+      
+      //let's evaluate the average  delay due to the induced electric signal propagation along strip 
+      double av_correct_time_along_strip = 0;
+      if(measphi==0){av_correct_time_along_strip = rpc_readout_element -> distanceToEtaReadout( posi )/1000.* SIG_VEL;}
+      else {av_correct_time_along_strip = rpc_readout_element -> distanceToPhiReadout( posi )/1000.* SIG_VEL;}
+      
+      //let's evaluate [real TOF - nominal TOF]
+      double real_TOF_onRPCgap    = GP.mag()  /1000.* C_VEL;
+      double nominal_TOF_onRPCgap = posi.mag()/1000.* C_VEL;
+      
+      //let's evaluate the total time correction
+      double correct_time_tot = real_TOF_onRPCgap-nominal_TOF_onRPCgap+correct_time_along_strip-av_correct_time_along_strip;
+    
+      MClT = new RpcClusterOnTrack(MClus,locpar,loce,positionAlongStrip, MClus->time()-correct_time_tot);
+      
+      ATH_MSG_DEBUG (" correct_time_along_strip " << correct_time_along_strip<<" av_correct_time_along_strip " << av_correct_time_along_strip<<" real_TOF_onRPCgap " << real_TOF_onRPCgap<<" nominal_TOF_onRPCgap " << nominal_TOF_onRPCgap<<" MClus->time() " << MClus->time()<<" correct_time_tot " <<correct_time_tot );
+
 
     }else if( m_idHelper->isTgc(RIO.identify()) ){
 
