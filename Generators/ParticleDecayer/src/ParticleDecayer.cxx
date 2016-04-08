@@ -211,7 +211,7 @@ StatusCode ParticleDecayer::setDecayPosition( HepMC::GenParticle* genpart, HepMC
    double pz = genpart->momentum().pz();
    double p  = sqrt(px*px + py*py + pz*pz);
 
-   const CLHEP::HepLorentzVector posLV(((ctg*px/p)+(vtxp->position().x())), ((ctg*py/p)+(vtxp->position().y())), ((ctg*pz/p)+(vtxp->position().z())), ((0.001*ctg/(CLHEP::c_light))+(vtxp->position().t())));
+   const CLHEP::HepLorentzVector posLV(((ctg*px/p)+(vtxp->position().x())), ((ctg*py/p)+(vtxp->position().y())), ((ctg*pz/p)+(vtxp->position().z())), ((ctg)+(vtxp->position().t())));
 
    //set the decay vertex position of the particle
    //Create a HepMC vertex at the decay position of the particle 
