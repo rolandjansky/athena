@@ -58,6 +58,8 @@ ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTri
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/xAODTriggerTowersMuonAux."]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTriggerTowersSpare"]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/xAODTriggerTowersSpareAux."]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/ZdcTriggerTowers"]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/ZdcTriggerTowersAux."]
 
 
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::RODHeader>/RODHeaders" ]

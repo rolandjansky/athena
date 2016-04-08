@@ -14,8 +14,8 @@
 namespace LVL1BS {
 	std::string ToString(const xAOD::TriggerTower& tt);
 	std::string ToString(const xAOD::TriggerTowerContainer& container);
-  std::string ToString(const xAOD::CPMTower& tt);
-  std::string ToString(const xAOD::CPMTowerContainer& container);
+  	std::string ToString(const xAOD::CPMTower& tt);
+  	std::string ToString(const xAOD::CPMTowerContainer& container);
 
 }
 

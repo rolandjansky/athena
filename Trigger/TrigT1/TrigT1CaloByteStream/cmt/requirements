@@ -12,7 +12,7 @@ apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS efo
 # use this line to exclude test algorithms
 library TrigT1CaloByteStream *.cxx xaod/*.cxx components/*.cxx
 # use this line to include test algorithms
-#library TrigT1CaloByteStream *.cxx ../test/*.cxx
+#library TrigT1CaloByteStream  ../test/*.cxx
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
@@ -30,10 +30,10 @@ use ByteStreamData       ByteStreamData-*       Event
 use StoreGate            StoreGate-*            Control
 use SGTools              SGTools-*              Control
 use EventInfo            EventInfo-*            Event
-
 use TrigT1CaloEvent      TrigT1CaloEvent-*      Trigger/TrigT1
 use TrigT1CaloUtils      TrigT1CaloUtils-*      Trigger/TrigT1
 use TrigT1CaloMappingToolInterfaces TrigT1CaloMappingToolInterfaces-* Trigger/TrigT1
+use ZdcByteStream	 ZdcByteStream-*	ForwardDetectors/ZDC/ZdcCnv
 
 use TrigT1Interfaces     TrigT1Interfaces-*     Trigger/TrigT1
 

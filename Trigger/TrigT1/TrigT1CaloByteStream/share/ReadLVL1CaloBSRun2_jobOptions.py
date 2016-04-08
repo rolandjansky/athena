@@ -9,15 +9,17 @@ if not rec.doLArg():
     include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
     include( "LArIdCnv/LArIdCnv_joboptions.py" )
 
+# Topo
+include("L1TopoByteStream/ReadLVL1CaloBSRun2_jobOptions.py")
+
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpmRoiByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepRoiByteStreamV2Tool
-
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__PpmByteStreamReadV1V2Tool
-
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__RodHeaderByteStreamTool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__L1CaloErrorByteStreamTool
+
 ToolSvc = Service("ToolSvc")
 ToolSvc += LVL1BS__CpByteStreamV2Tool("CpByteStreamV2Tool")
 ToolSvc += LVL1BS__CpmRoiByteStreamV2Tool("CpmRoiByteStreamV2Tool")
@@ -40,6 +42,9 @@ ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTri
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/xAODTriggerTowersMuonAux."]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTriggerTowersSpare"]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/xAODTriggerTowersSpareAux."]
+
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/ZdcTriggerTowers"]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/ZdcTriggerTowersAux."]
 
 # Without prefix
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/TriggerTowers"]
@@ -102,7 +107,7 @@ ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTobRoIAuxContainer/CPMTobR
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::JEMTobRoIContainer/JEMTobRoIs" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::JEMTobRoIAuxContainer/JEMTobRoIsAux." ]
 
-ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::JEMTobRoIAuxContainer/JEMTobRoIsRoIB" ]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::JEMTobRoIContainer/JEMTobRoIsRoIB" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::JEMTobRoIAuxContainer/JEMTobRoIsRoIBAux." ]
 
 # =============================================================================

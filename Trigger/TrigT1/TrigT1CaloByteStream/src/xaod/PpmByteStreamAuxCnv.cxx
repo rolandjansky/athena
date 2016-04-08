@@ -29,6 +29,8 @@
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 
+#include "ZdcByteStream/ZdcByteStreamReadV1V2Tool.h"
+
 #include "PpmByteStreamAuxCnv.h"
 #include "../ToString.h"
 #include "PpmByteStreamReadV1V2Tool.h"
@@ -38,7 +40,8 @@ PpmByteStreamAuxCnv::PpmByteStreamAuxCnv(ISvcLocator* svcloc) :
     Converter(ByteStream_StorageType, classID(), svcloc),
     AthMessaging(svcloc != 0 ? msgSvc() : 0, "PpmByteStreamAuxCnv"),
     m_name("PpmByteStreamAuxCnv"),
-    m_readTool("LVL1BS::PpmByteStreamReadV1V2Tool/PpmByteStreamReadV1V2Tool") {
+    m_readTool("LVL1BS::PpmByteStreamReadV1V2Tool/PpmByteStreamReadV1V2Tool"),
+    m_zdcTool("ZdcByteStreamReadV1V2Tool/ZdcByteStreamReadV1V2Tool") {
 
 }
 
@@ -76,12 +79,22 @@ StatusCode PpmByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
   xAOD::TriggerTowerContainer ttCollection;
   ttCollection.setStore(aux);
   // -------------------------------------------------------------------------
-  StatusCode sc = m_readTool->convert(nm, &ttCollection);
-  if (sc.isFailure()) {
-      ATH_MSG_ERROR("Failed to create Objects");
-      delete aux;
-      return sc;
+  StatusCode sc;
+  if (nm.substr(0,3) != "Zdc")
+    {
+      ATH_MSG_DEBUG("converting for L1Calo: " << nm );
+      sc = m_readTool->convert(nm, &ttCollection);
     }
+  else
+    { 
+      ATH_MSG_DEBUG("converting for ZDC: " << nm );
+      sc = m_zdcTool->convert(nm, &ttCollection);      
+    }
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR("Failed to create Objects" << nm);
+    delete aux;
+    return sc;
+  }
   // -------------------------------------------------------------------------
   ATH_MSG_VERBOSE(ToString(ttCollection));
   ATH_MSG_DEBUG("Number of readed objects: " << aux->size());
