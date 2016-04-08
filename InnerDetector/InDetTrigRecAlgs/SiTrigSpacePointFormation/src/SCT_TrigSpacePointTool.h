@@ -120,8 +120,6 @@ namespace InDet {
     std::string m_SiSpacePointMakerToolName;
 
 
-    StoreGateSvc *m_storeGate;
-
     const InDetDD::SCT_DetectorManager *m_manager; 
     const SCT_ID* m_idHelper;
     InDet::SiElementPropertiesTable* m_properties;
