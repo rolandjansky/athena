@@ -20,10 +20,10 @@ import logging
 from array import array
 import numpy
 
-import pyximport
+#import pyximport
 #pyximport.install(pyimport=True)
-from pyximport import pyxbuild
-pyxbuild.DEBUG = 0
+#from pyximport import pyxbuild
+#pyxbuild.DEBUG = 0
 
 import tempfile
 mplconfig_dir = tempfile.mkdtemp(prefix='matplotlib-%s-' % os.getpid())
