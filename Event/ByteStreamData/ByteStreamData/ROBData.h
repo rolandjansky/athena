@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #ifndef BYTESTREAMDATA_ROBDATA_H
 #define BYTESTREAMDATA_ROBDATA_H
 
@@ -223,3 +225,5 @@ bool  ROBData_T<ROBFragment, PointerType>::iterator::operator!=(const typename R
 typedef ROBData_T<OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment, OFFLINE_FRAGMENTS_NAMESPACE::PointerType> ROBData;
 
 #endif //BYTESTREAMDATA_ROBDATA_H
+
+#endif

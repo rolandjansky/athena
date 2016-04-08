@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 #ifndef BYTESTREAMCNVSVC_RAWEVENT_H
 #define BYTESTREAMCNVSVC_RAWEVENT_H
 
@@ -35,5 +37,7 @@ namespace OFFLINE_FRAGMENTS_NAMESPACE_WRITE {
 typedef OFFLINE_FRAGMENTS_NAMESPACE::FullEventFragment       RawEvent;
 /// data type for writing raw event
 typedef OFFLINE_FRAGMENTS_NAMESPACE_WRITE::FullEventFragment RawEventWrite;
+
+#endif
 
 #endif
