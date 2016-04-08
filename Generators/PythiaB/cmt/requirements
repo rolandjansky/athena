@@ -96,4 +96,5 @@ macro_append  PythiaB_shlibflags  "$(HepMC_IO_linkopts)"
 apply_pattern declare_runtime_extras extras="Bdecays0.dat"
 apply_pattern declare_joboptions files="*.txt *.py"
 
-
+# Link the package explicitly against HepMCfio with CMake:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"
