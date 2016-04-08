@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 //
 // ********************************************************************
 // * License and Disclaimer                                           *
@@ -39,9 +35,10 @@
 //            Adapted from G4MonopoleFieldSetup by B. Bozsogi
 // =======================================================================
 
-#ifndef G4mplEquationSetup_H
-#define G4mplEquationSetup_H
+#ifndef MONOPOLE_G4mplEquationSetup_H
+#define MONOPOLE_G4mplEquationSetup_H
 
+// Geant4 headers
 #include "G4MagneticField.hh"
 
 class G4FieldManager;
@@ -74,7 +71,7 @@ private:
   // Invariants - constant during tracking
   // ----------
 
-   // Objects owned
+  // Objects owned
   G4Mag_UsualEqRhs*       fEquation ;
   G4mplEqMagElectricField*     fMonopoleEquation ;
   G4MagIntegratorStepper* fMonopoleStepper ;
@@ -86,7 +83,7 @@ private:
   G4MagIntegratorStepper* fStepper ;
   G4bool                  fCreatedOrdinaryStepper; // If set, created stepper.
 
-   // For Singleton
+  // For Singleton
   static G4mplEquationSetup*  fG4mplEquationSetup;
   G4bool                      fVerbose;
   //

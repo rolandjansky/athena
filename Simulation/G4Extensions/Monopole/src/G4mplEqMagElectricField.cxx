@@ -33,20 +33,22 @@
 //
 // -------------------------------------------------------------------
 
-#include "Monopole/G4mplEqMagElectricField.hh"
-#include "globals.hh"
-#include <iomanip>
-#include "CLHEP/Units/PhysicalConstants.h"
-
+// class header
+#include "G4mplEqMagElectricField.hh"
+// Athena headers
 #include "FadsField/EqOfMotionFactoryBase.h"
 #include "FadsField/EqOfMotionFactory.h"
-
-using namespace std;
+// Geant4 headers
+#include "globals.hh"
+#include "G4Version.hh"
+// CLHEP headers
+#include "CLHEP/Units/PhysicalConstants.h"
+// STL headers
+#include <iomanip>
 
 static FADS::EqOfMotionFactory<G4mplEqMagElectricField> eom("MonopoleEquationOfMotion");
 
 G4mplEqMagElectricField::G4mplEqMagElectricField(G4MagneticField *emField )
-  //      : G4EquationOfMotion( emField ) {
   : G4Mag_EqRhs( emField )
   , fMassCof(100000. )
   , fElCharge( 0 )
@@ -56,8 +58,9 @@ G4mplEqMagElectricField::G4mplEqMagElectricField(G4MagneticField *emField )
   G4cout << "G4mplEqMagElectricField::G4mplEqMagElectricField Constructor " << G4endl;
 }
 
+#if G4VERSION_NUMBER > 1009
 void
-G4mplEqMagElectricField::SetChargeMomentumMass(G4ChargeState particleCharge, // e+ units
+G4mplEqMagElectricField::SetChargeMomentumMass(G4ChargeState particleCharge,
                                                G4double MomentumXc,
                                                G4double particleMass)
 {
@@ -76,6 +79,28 @@ G4mplEqMagElectricField::SetChargeMomentumMass(G4ChargeState particleCharge, // 
   G4Mag_EqRhs::SetChargeMomentumMass(particleCharge, MomentumXc, particleMass); // allows electrically charged particles to use the AtlasRK4 and NystromRK4 propagators (still don't work with magnetic charges)
 
 }
+#else
+void
+G4mplEqMagElectricField::SetChargeMomentumMass(G4double particleElCharge, // e+ units
+                                               G4double particleMagCharge,
+                                               G4double particleMass)
+{
+  //  if (particleMass < 0.0) {
+  //  G4cout << " charge =  " << particleElCharge << " magCharge =  " << particleMagCharge << ";  mass= " << particleMass << G4endl;
+  //  }
+
+  init = true;
+
+  fElCharge =CLHEP::eplus* particleElCharge*CLHEP::c_light;
+  fMagCharge = (particleMass < 0.0) ?  CLHEP::eplus*particleMagCharge*CLHEP::c_light  : 0.0;   // protection against ordinary particles
+
+  //   fElectroMagCof =  eplus*particleCharge*c_light ;
+  fMassCof = particleMass*particleMass ;
+
+  G4Mag_EqRhs::SetChargeMomentumMass( particleElCharge, particleMagCharge, particleMass); // allows electrically charged particles to use the AtlasRK4 and NystromRK4 propagators (still don't work with magnetic charges)
+
+}
+#endif
 
 
 void
@@ -91,17 +116,17 @@ G4mplEqMagElectricField::EvaluateRhsGivenB(const G4double y[],
 
   if (!init)G4Exception("G4mplEqMagElectricField::EvaluateRhsGivenB","NotInitialized",FatalException,"SetChargeMomentumMass has not been called");
 
-  G4double pSquared = y[3]*y[3] + y[4]*y[4] + y[5]*y[5] ;
+  const G4double pSquared = y[3]*y[3] + y[4]*y[4] + y[5]*y[5] ;
 
-  G4double Energy   = std::sqrt( pSquared + fMassCof );
+  const G4double Energy   = std::sqrt( pSquared + fMassCof );
 
-  //   G4double pModuleInverse  = (pSquared <= 0.0) ? 0.0 : 1.0/std::sqrt(pSquared);
-  G4double pModuleInverse  = 1.0/std::sqrt(pSquared);
+  // const G4double pModuleInverse = (pSquared <= 0.0) ? 0.0 : 1.0/std::sqrt(pSquared);
+  const G4double pModuleInverse = 1.0/std::sqrt(pSquared);
 
-  G4double inverse_velocity = Energy * pModuleInverse / CLHEP::c_light;
+  const G4double inverse_velocity = Energy * pModuleInverse / CLHEP::c_light;
 
-  G4double cofEl     = fElCharge * pModuleInverse ;
-  G4double cofMag = fMagCharge * Energy * pModuleInverse;
+  const G4double cofEl  = fElCharge * pModuleInverse ;
+  const G4double cofMag = fMagCharge * Energy * pModuleInverse;
 
 
   dydx[0] = y[3]*pModuleInverse ;
