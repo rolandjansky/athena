@@ -388,7 +388,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	rdo_same_it_end = rdos_sameIBL_offlineId.end();
 #endif
 
-	// Order the RDOs within the vector rdos_sameIBL_offlineId, following the ordering rules of orderRdos
+        // Order the RDOs within the vector rdos_sameIBL_offlineId, following the ordering rules of orderRdos
 	OrderRdos orderRdos(offlineId,m_pixelCabling);
 	std::sort (rdo_same_it, rdo_same_it_end, orderRdos); 
 
@@ -748,6 +748,7 @@ void PixelRodEncoder::packIBLcondensed(std::vector <uint32_t> & v32rod, std::vec
 // It orders the rdos_sameIBL_offlineId by //column (ascending order), row (ascending order, once the column is the same)
 // example: coordinates (col, row): (1,1), (3,6), (1,2), (4,82), (4,81) become:  (1,1), (1,2), (3,6), (4,81), (4,82).
 ////////////////////////
+/*
 bool OrderRdos::operator () (const PixelRDORawData* rdo0, const PixelRDORawData* rdo1) //, const Identifier & offlineId
 {
 
@@ -763,6 +764,111 @@ bool OrderRdos::operator () (const PixelRDORawData* rdo0, const PixelRDORawData*
   }
   else {return false;}
 }
+*/
+
+bool OrderRdos::operator () (const PixelRDORawData* rdo0, const PixelRDORawData* rdo1) //, const Identifier & offlineId
+{
+  //  const uint32_t halfCols = 40; // this is the number of the FE-I4 columns / 2, because the two tokens in the FE-I4 run from the double column 0 to 19, and then from 39 to 20.
+  // This corresponds to column 1 to 40, and 79-80, 77-78, ... to 41-42.
+  Identifier pixelId0 = rdo0->identify();
+  uint32_t col0 = m_pixelCabling->getColumn(&pixelId0, m_offlineId);
+  uint32_t row0 = m_pixelCabling->getRow(&pixelId0, m_offlineId);
+  Identifier pixelId1 = rdo1->identify();
+  uint32_t col1 = m_pixelCabling->getColumn(&pixelId1, m_offlineId);
+  uint32_t row1 = m_pixelCabling->getRow(&pixelId1, m_offlineId);
+
+
+  // Decide if (col0, row0) should be inserted in front of (col1, row1):
+
+  // Check if both hits are in same column
+  if (col0 == col1) return (row0 < row1);
+
+  // If not, check if they are in same double column
+  else if (((col0 == col1-1) && (col1%2 == 0)) || ((col1 == col0-1) && (col0%2 == 0))) {
+
+      // If rows are equal, sort by ascending column
+      if (row0 == row1) return (col0 < col1);
+      // If rows are unequal, sort by ascending row
+      else return (row0 < row1);
+  }
+
+  // Not in same double column: Separate between FE halfs
+  else {
+
+      // If both hits are in second FE half: Sort by descending col
+      if (col0 > 40 && col1 > 40) return (col0 > col1);
+
+      // Otherwise, sort by ascending col
+      else return (col0 < col1);
+  }
+
+
+
+  /*
+  // First FE half
+  if (col0 <= 40 && col1 <= 40) {
+
+      // Check if both hits are in the same double column
+      if (col1 == col0 || ((col1 == col0+1) && (col1%2 == 0))) {
+
+          // If yes, sort by lowest row.
+          // Unless rows are equal, in which case sort on lowest column.
+          if (row0 != row1) return row0 < row1;
+          else return col0 < col1;
+      }
+
+      // If no, sort by lowest column
+      else return col0 < col1;
+  }
+
+  // Second FE half
+  else if (col0 > 40 && col1 > 40) {
+
+      // Check if both hits are in the same double column
+      if (col1 == col0 || ((col1 == col0+1) && (col1%2 == 0))) {
+
+          // If yes, sort by lowest row.
+          // Unless rows are equal, in which case sort on lowest column.
+          if (row0 != row1) return row0 < row1;
+          else return col0 < col1;
+      }
+
+      // If no, sort by highest column
+      else return col0 > col1;
+
+  }
+
+  // Hits are on separate halfs
+  else return col0 < col1;
+  */
+
+}
+
+  /*
+  // all this is done to take into account the token running on the two halves of the FE-I4 and the double column.
+  if (col0 == col1) {
+    //uint32_t row0 = m_pixelCabling->getRow(&pixelId0, m_offlineId);
+    //uint32_t row1 = m_pixelCabling->getRow(&pixelId1, m_offlineId);
+    return (row0<row1);
+  }
+  // first half FE-I4 (columns 1 to 40) normal ordering
+  if (col1 <= 40) {return (col0 < col1);}
+
+  // second half FE-I4 (columns 41 to 80): decreasing order of pairs of columns
+  else { // (col1 > 40)
+    if (col0 <= 40) {return true;}
+    else { // both col0 and col1 > 40
+      if (abs(col0 - col1) > 1) {return (col0 > col1);} // they differ more than 1, so they're simply ordered in decreasing order
+      else { // their difference is == 1
+        if (((col0 % 2) == 1)) {return true; } // col0 is odd:  has to go first
+        else {return false;}  // col0 is even: has to go afterwards
+      }
+    }
+  }
+  return false;
+}
+*/
+
 
 
  bool OrderInitialRdos::operator() (const PixelRDORawData* rdo0, const PixelRDORawData* rdo1)
