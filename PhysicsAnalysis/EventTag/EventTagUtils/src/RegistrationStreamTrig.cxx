@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "EventTagUtils/RegistrationStreamLumiTrig.h"
+#include "EventTagUtils/RegistrationStreamTrig.h"
 
 //#include "SGTools/DataProxy.h"
 
@@ -19,8 +19,6 @@
 
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
-#include "LumiCalc/LumiBlockCollectionConverter.h"
-#include "LumiBlockData/LumiBlockCollection.h"
 #include "DBDataModel/CollectionMetadata.h"
 
 //#include "EventInfo/EventIncident.h"
@@ -41,33 +39,27 @@
 
 
 // Standard Constructor
-RegistrationStreamLumiTrig::RegistrationStreamLumiTrig(const std::string& name,
-                                                     ISvcLocator* pSvcLocator)
+RegistrationStreamTrig::RegistrationStreamTrig(const std::string& name,
+                                               ISvcLocator* pSvcLocator)
     :
     AthAlgorithm(name,pSvcLocator),
     m_pOutputStore("StoreGateSvc/MetaDataStore", name),
     m_pInputStore("StoreGateSvc/InputMetaDataStore", name),
-    m_lumixml(""),
-    m_incompletelumixml(""),
     m_trigConfSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
     m_run(0),
     m_lb(0)
 {
-    declareProperty("LBCollName",m_LBColl_name = "LumiBlocks");
-    declareProperty("incompleteLBCollName",m_incompleteLBColl_name = "IncompleteLumiBlocks");
-    declareProperty("LumiXmlName", m_lumixml="LumiXml",  "Lumi block list (xml)");
-    declareProperty("IncompleteLumiXmlName", m_incompletelumixml="IncompleteLumiXml",  "Incomplete Lumi block list (xml)");
     declareProperty("TrigConfigSvc", m_trigConfSvc);
     declareProperty("GetTriggerConf", m_gettriggerconf=true);
 }
 
 // Standard Destructor
-RegistrationStreamLumiTrig::~RegistrationStreamLumiTrig()   {
+RegistrationStreamTrig::~RegistrationStreamTrig()   {
 }
 
 // initialize data writer
 StatusCode 
-RegistrationStreamLumiTrig::initialize() 
+RegistrationStreamTrig::initialize() 
 {
    ATH_MSG_DEBUG(this->name() << ": In initialize ");
 
@@ -98,7 +90,6 @@ RegistrationStreamLumiTrig::initialize()
       return(sc);
    }
 
-   incSvc->addListener(this, "BeginTagFile", 60); // pri has to be < 100 to be after MetaDataSvc.
    incSvc->addListener(this, "TrigConf");  // trigger config
 
    /** Check the first incidentce */ 
@@ -108,7 +99,7 @@ RegistrationStreamLumiTrig::initialize()
    return AthAlgorithm::initialize();
 }
 
-void RegistrationStreamLumiTrig::handle(const Incident& inc) {
+void RegistrationStreamTrig::handle(const Incident& inc) {
 
   ATH_MSG_DEBUG(this->name() << ": In handle");
 
@@ -120,12 +111,6 @@ void RegistrationStreamLumiTrig::handle(const Incident& inc) {
      ATH_MSG_DEBUG("File undefined");
   }
 
-  if (inc.type() == "BeginTagFile") {
-     handleLumiBlocks( inc );
-  } else {
-     ATH_MSG_DEBUG(inc.type() << " not handled");
-  }
-
   if ( m_gettriggerconf ) { 
     if (inc.type() == "TrigConf") {
       handleTrigConf( inc );
@@ -135,42 +120,7 @@ void RegistrationStreamLumiTrig::handle(const Incident& inc) {
   }
 }
 
-
-void RegistrationStreamLumiTrig::handleLumiBlocks( const Incident& ) {
-
-  ATH_MSG_DEBUG(this->name() << ": In handleLumiBlocks");
-
-  // Complete lumi block
-  if (m_pInputStore->contains<LumiBlockCollection>(m_LBColl_name)) {
-    const DataHandle<LumiBlockCollection> iovc;
-    StatusCode sc = m_pInputStore->retrieve(iovc, m_LBColl_name);
-    if (!sc.isSuccess()) {
-      ATH_MSG_DEBUG("Could not find LumiBlocks in input metatdata store");
-      return;
-    }  else {
-      ATH_MSG_DEBUG(" Found LumiBlocks in input metadata store: ");
-    }
-    const LumiBlockCollection* lbc = iovc.cptr();
-    LumiBlockCollectionConverter m_converter;
-    if (!lbc->empty()) xmlstring = m_converter.GetXMLString(*lbc);
-  } else {
-      ATH_MSG_DEBUG("No DataObject: LumiBlockColl in input metdatastore");
-  }
-
-  // Incomplete lumi block
-  if (m_pInputStore->contains<LumiBlockCollection>(m_incompleteLBColl_name)) {
-    const DataHandle<LumiBlockCollection> iovc;
-    StatusCode sc = m_pInputStore->retrieve(iovc, m_incompleteLBColl_name);
-    if (sc.isSuccess()) {
-      const LumiBlockCollection* lbc = iovc.cptr();
-      LumiBlockCollectionConverter m_converter;
-      if (!lbc->empty()) incompletexmlstring = m_converter.GetXMLString(*lbc);
-    }
-  }
-
-}
-
-void RegistrationStreamLumiTrig::handleTrigConf( const Incident&) {
+void RegistrationStreamTrig::handleTrigConf( const Incident&) {
 
   ATH_MSG_DEBUG(this->name() << ": In handleTrigConf");
 
@@ -193,7 +143,7 @@ void RegistrationStreamLumiTrig::handleTrigConf( const Incident&) {
 
 }
 
-void RegistrationStreamLumiTrig::addkeys( std::string trigKey, int trigValue , std::string iovtype) 
+void RegistrationStreamTrig::addkeys( std::string trigKey, int trigValue , std::string iovtype) 
 {
 
   TagMetadataKey tkey;
@@ -208,7 +158,7 @@ void RegistrationStreamLumiTrig::addkeys( std::string trigKey, int trigValue , s
 
 }
 
-StatusCode RegistrationStreamLumiTrig::stop() {
+StatusCode RegistrationStreamTrig::stop() {
 
   ATH_MSG_INFO(this->name() << " : stop method");
 
@@ -221,19 +171,6 @@ StatusCode RegistrationStreamLumiTrig::stop() {
     addkeys("L1PSK", m_L1PSKStart,"RunLB");
     addkeys("HLTPSK", m_HLTPSKStart,"RunLB");
   } 
-
-  /** Add lumi xml to the list */
-  if (std::string(xmlstring).size() > 0) {
-    std::stringstream used,newkey;  if (!xmlstring.IsNull()) used << xmlstring;
-    TagMetadataKey tkey("OutputLumirange"); tkey.setEncoded(false);
-    m_lumitrig.insert(std::make_pair(tkey.toString(),used.str()));
-  }
-
-  if (std::string(incompletexmlstring).size() > 0) {
-    std::stringstream used,newkey; if (!incompletexmlstring.IsNull()) used << incompletexmlstring;
-    TagMetadataKey tkey("OutputIncompleteLumirange"); tkey.setEncoded(false);
-    m_lumitrig.insert(std::make_pair(tkey.toString(),used.str()));
-  }
 
   ATH_MSG_INFO("Filled a metadata container of size " << m_lumitrig.size());
 
@@ -260,7 +197,7 @@ StatusCode RegistrationStreamLumiTrig::stop() {
 
 // initialize data writer
 StatusCode 
-RegistrationStreamLumiTrig::execute() 
+RegistrationStreamTrig::execute() 
 {
   ATH_MSG_DEBUG(this->name() << ": In execute ");
 
@@ -277,7 +214,7 @@ RegistrationStreamLumiTrig::execute()
 
 // terminate data writer
 StatusCode 
-RegistrationStreamLumiTrig::finalize() 
+RegistrationStreamTrig::finalize() 
 {
     ATH_MSG_DEBUG(this->name() << ": In finalize ");
     return AthAlgorithm::finalize();
