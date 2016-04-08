@@ -44,9 +44,9 @@ private:
   /** a handle on Store Gate for access to the Event Store */
   StoreGateSvc* m_storeGate;
   
-  static MET::Goodies& s_goodies;
+  static MET::Goodies& goodies;
   
-  ToolHandle<JetVarTool> m_JetVariables;
+  ToolHandle<JetVarTool> _JetVariables;
   
   //storegate key names
   std::string m_curdir, m_name;

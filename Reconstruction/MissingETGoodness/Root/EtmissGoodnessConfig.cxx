@@ -5,7 +5,6 @@
 
 #define METCONFIGINST
 #include "MissingETGoodness/EtmissGoodnessConfig.h"
-#include "CxxUtils/unused.h"
 
 
 /*-------------------------------------------------------------------------
@@ -79,7 +78,7 @@ MET::InitConfigMap()
  * this fills the selection map when the library is loaded.
  *-------------------------------------------------------------------------*/
 namespace {
-  const bool UNUSED(dummy) = MET::InitConfigMap();
+  const bool dummy = MET::InitConfigMap();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,8 +95,8 @@ MET::GetEtmissGoodnessConfig(const TString& qualifier)
   std::map< TString, std::vector<TString> >::iterator itr = ConfigMap.find(qualifier);
   if ( itr != ConfigMap.end() ) { parList=ConfigMap[qualifier]; }
   else {
-    MET::TMsgLogger logger("EtmissGoodnessConfig");
-    logger << kWARNING << "Configuration list <" << qualifier << "> not found. Return empty list." << GEndl;
+    MET::TMsgLogger m_logger("EtmissGoodnessConfig");
+    m_logger << kWARNING << "Configuration list <" << qualifier << "> not found. Return empty list." << GEndl;
   }
   return parList;
 }
@@ -117,20 +116,20 @@ MET::AddExistingConfigTo(std::vector<TString>& parList, const TString& qualifier
 void
 MET::SummaryEtmissGoodnessConfig(const TString& qualifier)
 {
-  MET::TMsgLogger logger("EtmissGoodnessConfig");
+  MET::TMsgLogger m_logger("EtmissGoodnessConfig");
 
   if (qualifier.IsNull()) {
-    logger << kINFO << "Number of configured parameter lists : " << MET::ConfigMap.size() << GEndl;
+    m_logger << kINFO << "Number of configured parameter lists : " << MET::ConfigMap.size() << GEndl;
     std::map< TString, std::vector<TString> >::iterator itr = MET::ConfigMap.begin();
     for (; itr!=MET::ConfigMap.end(); ++itr)
-      logger << kINFO << "o) \"" << itr->first << "\" with " << itr->second.size() << " parameters to cut on." << GEndl;
+      m_logger << kINFO << "o) \"" << itr->first << "\" with " << itr->second.size() << " parameters to cut on." << GEndl;
   } else {
     std::vector<TString> parList = MET::GetEtmissGoodnessConfig(qualifier);
-    logger << kINFO << "List <" << qualifier << "> contains " << parList.size() << " parameters." << GEndl;
+    m_logger << kINFO << "List <" << qualifier << "> contains " << parList.size() << " parameters." << GEndl;
     std::vector<TString>::iterator itr = parList.begin();
-    logger << kINFO << "o) ";
-    for (; itr!=parList.end(); ++itr ) { logger << *itr << " "; }
-    logger << GEndl;
+    m_logger << kINFO << "o) ";
+    for (; itr!=parList.end(); ++itr ) { m_logger << *itr << " "; }
+    m_logger << GEndl;
   }
 }
 

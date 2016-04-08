@@ -5,7 +5,6 @@
 
 #include "MissingETGoodness/EtmissGoodness_Medium_20091117.h"
 #include "MissingETGoodness/TSelectionSetArchive.h"
-#include "CxxUtils/unused.h"
 
 ClassImp(MET::EtmissGoodness_Medium_20091117)
 
@@ -41,7 +40,7 @@ MET::EtmissGoodness_Medium_20091117::CreateSelection()
  *-------------------------------------------------------------------------*/
 namespace
 {
-  const bool UNUSED(dummy) =
+  const bool dummy =
     MET::TSelectionSetArchive::instance().RegisterSelectionSetClass(MET::Medium,20091117,"MET::EtmissGoodness_Medium_20091117");
 }
 
