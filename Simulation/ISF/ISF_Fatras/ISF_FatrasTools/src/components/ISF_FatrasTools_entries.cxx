@@ -5,6 +5,7 @@
 #include "ISF_FatrasTools/McMaterialEffectsEngine.h"
 #include "ISF_FatrasTools/HadIntProcessorParametric.h"
 #include "ISF_FatrasTools/McEnergyLossUpdator.h"
+#include "ISF_FatrasTools/EnergyLossSamplerBetheHeitler.h"
 #include "ISF_FatrasTools/PhotonConversionTool.h"
 #include "ISF_FatrasTools/ProcessSamplingTool.h"
 #include "ISF_FatrasTools/PhysicsValidationTool.h"
@@ -19,6 +20,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , McMaterialEffectsUpdator )
 DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , McMaterialEffectsEngine )
 DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , HadIntProcessorParametric )
 DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , McEnergyLossUpdator )
+DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , EnergyLossSamplerBetheHeitler )
 DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , PhotonConversionTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , MultipleScatteringSamplerGaussianMixture )
 DECLARE_NAMESPACE_TOOL_FACTORY( iFatras , MultipleScatteringSamplerGeneralMixture )

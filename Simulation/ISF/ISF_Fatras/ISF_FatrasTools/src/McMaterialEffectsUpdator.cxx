@@ -507,7 +507,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
       }
       m_particleBroker->push(regisp, m_isp);
     }
-    if (isp!=m_isp) delete isp;
+    if (isp!=m_isp) { delete isp; delete parm; }
     return parm; 
   } else {
     if ( pathLim.x0Max>0 && pathLim.process<100 && pathLim.x0Collected+dX0>= pathLim.x0Max) {      // elmg. interaction
@@ -533,23 +533,18 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 
   // radiation and ionization preceed the presampled interaction (if any) 
 
+  // the updatedParameters - first a deep copy
+  AmgVector(5) updatedParameters(parm->parameters());  
+  const Trk::TrackParameters* updated = 0;
+
   if ( m_eLoss && particle==Trk::electron ) {
-    // the updatedParameters - first a deep copy
-    AmgVector(5) updatedParameters(parm->parameters());  
 
     double matTot =  (1-matFraction)*pathCorrection*m_matProp->thicknessInX0();
     Amg::Vector3D edir = parm->momentum().unit(); 
     radiate(isp,updatedParameters,parm->position(),edir,timeLim, dX0, matFraction, matTot, dir, particle); 
-    parm = parm->associatedSurface().createTrackParameters(updatedParameters[0],
-                                                           updatedParameters[1],
-                                                           updatedParameters[2],
-                                                           updatedParameters[3],
-                                                           updatedParameters[4],
-                                                           0);
-    //TODO: here's a memory leak: need to delete the old parameters 'parm'
 
-    if (parm->momentum().mag() < m_minimumMomentum ) {
-      if (isp!=m_isp) { delete isp; delete parm; }
+    if (1./fabs(updatedParameters[4]) < m_minimumMomentum ) {
+      if (isp!=m_isp) delete isp;
       return 0;
     }
   } else {
@@ -557,7 +552,6 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
   }
 
   if ( isp->charge()!=0 ) {
-    AmgVector(5) updatedParameters(parm->parameters());  
     if ( m_eLoss ) ionize(*parm, updatedParameters, dX0, dir, particle );
 
     if ( m_ms ) {
@@ -569,16 +563,19 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     }
     
     // use the manipulator to update the track parameters -------> get rid of 0!
-    parm = parm->associatedSurface().createTrackParameters(updatedParameters[0],
-                                                           updatedParameters[1],
-                                                           updatedParameters[2],
-                                                           updatedParameters[3],
-                                                           updatedParameters[4],
-                                                           0);
-    //TODO: here's a memory leak: need to delete the old parameters 'parm'
+    updated = parm->associatedSurface().createTrackParameters(updatedParameters[0],
+							      updatedParameters[1],
+							      updatedParameters[2],
+							      updatedParameters[3],
+							      updatedParameters[4],
+							      0);
+
+    if (isp!=m_isp) delete parm;
+    parm = updated;
        
     if (parm->momentum().mag() < m_minimumMomentum ) {
       if (isp!=m_isp) { delete isp; delete parm; }
+      else delete updated;
       return 0;
     }
   }
@@ -614,11 +611,13 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 
       // loop back      
       const Trk::TrackParameters* uPar = updateInLay(childs[ic],cparm,remMat,timeLim, pLim, dir, pHypothesis);
-      if (uPar)  delete uPar;
+      if (uPar) ATH_MSG_VERBOSE( "Check this: parameters should be dummy here " << isp->pdgCode()<<","<<uPar->position() );
+
     }
     
     if (childs.size()>0) { // assume that interaction processing failed if no children
       if (isp!=m_isp) { delete isp; delete parm; }
+      else delete updated;   // non-updated parameters registered with the extrapolator
       return 0;
     }
   }
@@ -649,10 +648,8 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     m_particleBroker->push(regisp, m_isp);
   }
 
-  if (isp!=m_isp) delete isp;
+  if (isp!=m_isp) { delete isp; delete parm; }
 
-  //if (parm) std::cout <<"layer "<< parm->position()<< " returns :"<< isp <<" with momentum  "<< parm->momentum().mag()  << std::endl;
-  //else std::cout <<"layer returns :"<<  0  << std::endl;
   return parm; 
   
 }
@@ -1551,7 +1548,6 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
     //std::cout <<"brem photon created:position,mom,gen,barcode:"<< vertex<<","<<gammaE<<","<<bremPhoton->generation()<<","<<bremPhoton->barcode()<< std::endl;
 
     // layer update : don't push into particle stack untill destiny resolved
-    const Trk::CurvilinearParameters*  cparm = new Trk::CurvilinearParameters(bremPhoton->position(),bremPhoton->momentum(),bremPhoton->charge());
     Trk::PathLimit pLim = m_samplingTool->sampleProcess(bremPhoton->momentum().mag(),0.,Trk::photon);
 
     // material fraction : flip if direction of propagation changed
@@ -1562,7 +1558,7 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
 
     // decide if photon leaves the layer
     // amount of material to traverse      
-    double  pathCorrection = m_layer->surfaceRepresentation().pathCorrection(cparm->position(),cparm->momentum());
+    double  pathCorrection = m_layer->surfaceRepresentation().pathCorrection(bremPhoton->position(),bremPhoton->momentum());
     double mTot = m_matProp->thicknessInX0()*pathCorrection*(1.-remMat); 
 
     if (mTot < pLim.x0Max) {  // release 
@@ -1572,9 +1568,9 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
       //std::cout <<"brem photon:"<<bremPhoton<<" registered for extrapolation from "<< vertex << "; presampled pathLim, layer dx:"<< pLim.x0Max<<","<< mTot <<std::endl;
 
     } else {  //  interaction within the layer
+      const Trk::CurvilinearParameters*  cparm = new Trk::CurvilinearParameters(bremPhoton->position(),bremPhoton->momentum(),bremPhoton->charge());
       const Trk::TrackParameters* uPar = updateInLay(bremPhoton,cparm,remMat,timeLim, pLim, dir, Trk::photon);
-      if (uPar)  delete uPar;
-
+      if (uPar) ATH_MSG_VERBOSE( "Check this: parameters should be dummy here (brem.photon) " <<","<<uPar->position() );
     }
 
     // if validation is turned on - go for it 

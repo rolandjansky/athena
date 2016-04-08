@@ -32,7 +32,6 @@ use EventPrimitives          EventPrimitives-*         Event
 use GeoPrimitives            GeoPrimitives-*           DetectorDescription
 use TrkGeometry              TrkGeometry-*             Tracking/TrkDetDescr
 
-
 private
 ########## Control #############################################################
 use StoreGate                StoreGate-*                Control
@@ -50,7 +49,6 @@ use TrkTrack                 TrkTrack-*                Tracking/TrkEvent
 use TrkMaterialOnTrack       TrkMaterialOnTrack-*      Tracking/TrkEvent
 use TrkNeutralParameters     TrkNeutralParameters-*    Tracking/TrkEvent
 use TrkSurfaces              TrkSurfaces-*             Tracking/TrkDetDescr
-use TrkExEngine              TrkExEngine-*             Tracking/TrkExtrapolation
 
 ########## ISF #################################################################
 
