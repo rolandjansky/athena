@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           GaudiKernel
                           PRIVATE
-                          Control/CxxUtils
                           AtlasTest/TestTools )
 
 # External dependencies:
@@ -38,8 +37,7 @@ atlas_add_test( TimerSvc_test
                 test/TimerSvc_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel DataModel SGTools GaudiKernel TestTools TrigTimeAlgsLib
-                EXTRA_PATTERNS ".*" 
-                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+                EXTRA_PATTERNS ".*" )
 
 # Install files from the package:
 atlas_install_joboptions( share/jobOfragment_TrigTimerSvc.py )

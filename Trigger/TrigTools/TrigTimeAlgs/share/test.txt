@@ -6,3 +6,5 @@ ApplicationMgr.DLLs += { "TrigTimeAlgs" };
 //ApplicationMgr.ExtSvc += { "TrigTimerSvc" };
 AuditorSvc.Auditors  += { "AlgContextAuditor"};
 MessageSvc.OutputLevel = 2;
+
+
