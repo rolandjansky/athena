@@ -34,6 +34,29 @@ ALFA_Raw2Digit::ALFA_Raw2Digit(const std::string& name, ISvcLocator* pSvcLocator
 	m_rootOutput = NULL;
 	m_tree = NULL;
 
+	m_nEvents = 0;
+	mbID      = 0;
+	pmfID     = 0;
+	fibID     = 0;
+	MAPMTChan = 0;
+	MapChan   = 0;
+	m_pot     = 0;
+	m_side    = 0;
+	m_plate   = 0;
+	m_fiber   = 0;
+	m_ODpot   = 0;
+	m_ODside  = 0;
+	m_ODplate = 0;
+	m_ODfiber = 0;
+
+	memset(&act_lay_h, 0, sizeof(act_lay_h));
+	memset(&hit_lay_h, 0, sizeof(hit_lay_h));
+	lumi_block     = 0;
+	lumi_block_old = 0;
+	event_no       = 0;
+	WordId_count   = 0;
+	chan_i         = 0;
+	chan_j         = 0;
 }
 
 StatusCode ALFA_Raw2Digit::initialize()
@@ -485,21 +508,19 @@ StatusCode ALFA_Raw2Digit::recordODCollection()
 
 StatusCode ALFA_Raw2Digit::mapping()
 {
-	int MarChan;
-	int MapChan;
-	int FibChan;
-	int iLayer;
-
-	int PMFNum;
-	int LAYNum;
-
-	int OD_PMFNum;
-	int OD_Dieter;
-	int OD_LAYNum;
-	int OD_Side;
-	int OD_MarChan;
-	int OD_FibChan;
-	int OD_MaPmtChan;
+	int MarChan      = 0;
+	int MapChan      = 0;
+	int FibChan      = 0;
+	int iLayer       = 0;
+	int PMFNum       = 0;
+	int LAYNum       = 0;
+	int OD_PMFNum    = 0;
+	int OD_Dieter    = 0;
+	int OD_LAYNum    = 0;
+	int OD_Side      = 0;
+	int OD_MarChan   = 0;
+	int OD_FibChan   = 0;
+	int OD_MaPmtChan = 0;
    
 //	int MBnum, DETnum;
 
@@ -682,11 +703,21 @@ StatusCode ALFA_Raw2Digit::mapping()
 						}
 						
 						
-						OD_pmf2layer[j][OD_PMFNum-1] = OD_LAYNum-1;
+// 						OD_pmf2layer[j][OD_PMFNum-1] = OD_LAYNum-1;
 	//					OD_layer2pmf[j][OD_LAYNum-1] = OD_PMFNum-1;
 						// changed by Petr - 19.12.2012 ---------------------------------
 //						OD_MarChan = mapmt2maroc[j][OD_MaPmtChan-1];
-						OD_MarChan = mapmt2maroc[j][OD_LAYNum-1][OD_MaPmtChan-1];
+// 						OD_MarChan = mapmt2maroc[j][OD_LAYNum-1][OD_MaPmtChan-1];
+						//added to solve ATLAS coverity 13339 (only three OD layers are allowed)
+						if ((OD_LAYNum > 0) && ( OD_LAYNum < 4))
+						{
+							OD_pmf2layer[j][OD_PMFNum-1] = OD_LAYNum-1;
+							OD_MarChan = mapmt2maroc[j][OD_LAYNum-1][OD_MaPmtChan-1];
+						}
+						else
+						{
+							msg(MSG::DEBUG) << "OD_LAYNum out of bounds" << endreq;
+						}
 
 						OD_pmf_maroc2fiber[j][OD_PMFNum-1][OD_MarChan] = OD_FibChan-1;
 						OD_pmf_maroc2side[j][OD_PMFNum-1][OD_MarChan] = OD_Side;
@@ -699,7 +730,7 @@ StatusCode ALFA_Raw2Digit::mapping()
 		else
 		{
 			msg(MSG::WARNING) << "the file " << mapname.c_str() << " was not open" << endreq;
-			return StatusCode::FAILURE;	
+			return StatusCode::FAILURE;
 		}
 	}
 
