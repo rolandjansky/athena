@@ -31,6 +31,8 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
 
+#include "IRegionSelector/RoiUtil.h"
+
 
 class ISpacePointProvider;
 class ITrigInDetTrackFitter;
@@ -50,8 +52,8 @@ namespace Trk {
 
 
 /// just until we can change the TrigRoiDescriptor header
-bool roiContainsZed( const IRoiDescriptor& roi, double _z, double _r ); 
-bool roiContains( const IRoiDescriptor& roi, double z, double r, double phi);
+// bool roiContainsZed( const IRoiDescriptor& roi, double _z, double _r ); 
+// bool roiContains( const IRoiDescriptor& roi, double z, double r, double phi);
 
 
 class TrigL2SiTrackFinder : public HLT::FexAlgo
@@ -112,7 +114,7 @@ class TrigL2SiTrackFinder : public HLT::FexAlgo
     virtual void operator()(const TrigSiSpacePoint* p) {
       /// this is a hack for filtering in phi *and* r-z, but only until  
       /// we are allowed to modify the *RoiDescriptor headers    
-      if( roiContains( *m_roi, p->z(), p->original_r(), p->original_phi() ) ) m_vec.push_back(p);
+      if( RoiUtil::contains( *m_roi, p->z(), p->original_r(), p->original_phi() ) ) m_vec.push_back(p);
       /// filter on phi only for the time being
       // if( m_roi->containsPhi( p->original_phi() ) ) m_vec.push_back(p);
     }
