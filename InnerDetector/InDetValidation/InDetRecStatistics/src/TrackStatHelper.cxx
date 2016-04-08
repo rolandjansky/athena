@@ -54,7 +54,8 @@ static const std::string track_types_string[InDet::N_TRACKTYPES]= {"all",
 								   "matched",
 								   "matchedPrimary",
                                                                    "matchedSecondary",
-                                                                   "multipleMatches"};//LT added 06.21
+                                                                   "multipleMatches"
+								   };//LT added 06.21
  
 InDet::TrackStatHelper::TrackStatHelper(std::string TrackCollectionKey, std::string TrackTruthCollectionKey, bool careAboutTruth):
   m_TrackCollectionKey       (TrackCollectionKey),
@@ -119,10 +120,11 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       if (Eta < m_cuts.maxEtaBarrel) Region = ETA_BARREL;
       else if  (Eta < m_cuts.maxEtaTransition) Region = ETA_TRANSITION;
       else if  (Eta < m_cuts.maxEtaEndcap) Region = ETA_ENDCAP;
+      else if ((Eta > m_cuts.minEtaDBM) && (Eta < m_cuts.maxEtaDBM)) Region = ETA_DBM;
       else Region = ETA_OUTSIDE;
     }
     
-    if ( !(Region==ETA_BARREL || Region==ETA_TRANSITION || Region==ETA_ENDCAP) )
+    if ( !(Region==ETA_BARREL || Region==ETA_TRANSITION || Region==ETA_ENDCAP || Region==ETA_DBM) )
       {
 	continue; // Only want to tally tracks that are within the detector volume.
       }
@@ -176,7 +178,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 	{
 	  for (int stype=0; stype < Trk::numberOfTrackSummaryTypes; stype++) {
 	    int value = summary->get(static_cast<Trk::SummaryType>(stype));
-	      
+
 	    //value is -1 if undefined
 	    if (value>0) { 
 	      m_TrackSummarySum [TRACK_ALL][Region][stype] += value; 
@@ -377,15 +379,30 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 
 	    }
 	    else if (idHelper->is_pixel(id)){
-	      m_hits_rec[HIT_PIXEL_ALL][Region]++;
-	      m_hits_rec[HIT_PIXEL_ALL][ETA_ALL]++;
-	      int HitLayer = HIT_UNKNOWN;
-	      if (pixelID) {
-		switch (pixelID->layer_disk(id)) {
-		case 0:  HitLayer = HIT_PIX1; break;
-		case 1:  HitLayer = HIT_PIX2; break;
-		case 2:  HitLayer = HIT_PIX3; break;
-		default: HitLayer = HIT_UNKNOWN;
+              int HitLayer = HIT_UNKNOWN;
+	      if (pixelID->is_dbm(id)) {
+                m_hits_rec[HIT_DBM_ALL][Region]++;
+                m_hits_rec[HIT_DBM_ALL][ETA_ALL]++;
+                if (pixelID) {
+                  switch (pixelID->layer_disk(id)) {
+                  case 0:  HitLayer = HIT_DBM1; break;
+                  case 1:  HitLayer = HIT_DBM2; break;
+                  case 2:  HitLayer = HIT_DBM3; break;
+                  default: HitLayer = HIT_UNKNOWN;
+		  }
+                }
+	      }
+	      else {
+		m_hits_rec[HIT_PIXEL_ALL][Region]++;
+		m_hits_rec[HIT_PIXEL_ALL][ETA_ALL]++;
+
+		if (pixelID) {
+		  switch (pixelID->layer_disk(id)) {
+		  case 0:  HitLayer = HIT_PIX1; break;
+		  case 1:  HitLayer = HIT_PIX2; break;
+		  case 2:  HitLayer = HIT_PIX3; break;
+		  default: HitLayer = HIT_UNKNOWN;
+		  }
 		}
 	      }
 	      m_hits_rec[HitLayer][Region]++;
@@ -439,8 +456,9 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     if (Eta < m_cuts.maxEtaBarrel) Region = ETA_BARREL;
     else if  (Eta < m_cuts.maxEtaTransition) Region = ETA_TRANSITION;
     else if  (Eta < m_cuts.maxEtaEndcap) Region = ETA_ENDCAP;
+    else if ((Eta > m_cuts.minEtaDBM) && (Eta < m_cuts.maxEtaDBM)) Region = ETA_DBM;
     else Region = ETA_OUTSIDE;
-    if ( !(Region==ETA_BARREL || Region==ETA_TRANSITION || Region==ETA_ENDCAP) )
+    if ( !(Region==ETA_BARREL || Region==ETA_TRANSITION || Region==ETA_ENDCAP || Region==ETA_DBM) )
       {
 	continue; // Only want to tally tracks that are within the detector volume.
       }
@@ -527,8 +545,9 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       if (Eta < m_cuts.maxEtaBarrel) Region = ETA_BARREL;
       else if  (Eta < m_cuts.maxEtaTransition) Region = ETA_TRANSITION;
       else if  (Eta < m_cuts.maxEtaEndcap) Region = ETA_ENDCAP;
+      else if ((Eta > m_cuts.minEtaDBM) && (Eta < m_cuts.maxEtaDBM)) Region = ETA_DBM;
       else Region = ETA_OUTSIDE;
-      if ( !(Region==ETA_BARREL || Region==ETA_TRANSITION || Region==ETA_ENDCAP) )
+      if ( !(Region==ETA_BARREL || Region==ETA_TRANSITION || Region==ETA_ENDCAP || Region==ETA_DBM) )
 	{
 	  continue; // Only want to tally tracks that are within the detector volume.
 	}
@@ -667,6 +686,8 @@ void InDet::TrackStatHelper::print(){
 	std::cout << " in barrel "; printRegion1(ETA_BARREL);
 	std::cout << " in trans. "; printRegion1(ETA_TRANSITION);
 	std::cout << " in endcap "; printRegion1(ETA_ENDCAP);
+	std::cout << " in DBM    "; printRegion1(ETA_DBM);
+
 	      }
     else // no truth
       {
@@ -678,14 +699,18 @@ void InDet::TrackStatHelper::print(){
 	std::cout << "\t\t" << "in trans." << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
 	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks_rec[TRACK_ALL][ETA_TRANSITION]/(float) m_events << std::endl << std::setprecision(-1);
 	std::cout << "\t\t" << "in endcap" << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
-	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks_rec[TRACK_ALL][ETA_ENDCAP]/(float) m_events << std::endl << std::setprecision(-1);;
+	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks_rec[TRACK_ALL][ETA_ENDCAP]/(float) m_events << std::endl << std::setprecision(-1);
+	std::cout << "\t\t" << "in DBM" << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
+          std::setw(7) << std::setprecision(2) << "\t" << m_tracks_rec[TRACK_ALL][ETA_DBM]/(float) m_events << std::endl << std::setprecision(-1);
       }
     std::cout << " \t\t\t ....................................hits/track............................" << std::endl;
-    std::cout << " \t\t\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws" << std::endl;
+    std::cout << " \t\t\t\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws\tDBM\tDBM1\tDBM2\tDBM3" << std::endl;
     std::cout << " total     "; printRegion2(ETA_ALL, (float) m_tracks_rec[TRACK_ALL][ETA_ALL]);
     std::cout << " in barrel "; printRegion2(ETA_BARREL, (float) m_tracks_rec[TRACK_ALL][ETA_BARREL]);
     std::cout << " in trans. "; printRegion2(ETA_TRANSITION, (float) m_tracks_rec[TRACK_ALL][ETA_TRANSITION] );
     std::cout << " in endcap "; printRegion2(ETA_ENDCAP, (float) m_tracks_rec[TRACK_ALL][ETA_ENDCAP] );
+    std::cout << " in DBM    "; printRegion2(ETA_DBM, (float) m_tracks_rec[TRACK_ALL][ETA_DBM] );
+
   }
   else
     std::cout << ": NO EVENTS PROCESSED! " << std::endl;
@@ -767,6 +792,11 @@ void InDet::TrackStatHelper::printRegion2(enum eta_region region, float denomina
 	      << "\t" << float(m_hits_rec[HIT_SCT4   ][region]/denominator)
 	      << "\t" << float(m_hits_rec[HIT_SCT5TO9][region]/denominator)
 	      << "\t" << float(m_hits_rec[HIT_TRT_ALL][region]/denominator)
+              << "\t" << float(m_hits_rec[HIT_DBM_ALL][region]/denominator)
+              << "\t" << float(m_hits_rec[HIT_DBM1][region]/denominator)
+              << "\t" << float(m_hits_rec[HIT_DBM2][region]/denominator)
+              << "\t" << float(m_hits_rec[HIT_DBM3][region]/denominator)
+
 	      << std::endl << std::setprecision(-1);
   }
   else {
@@ -804,7 +834,8 @@ bool InDet::TrackStatHelper::printTrackSummaryRegion(enum track_types track_type
       std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfTRTOutliers );
       std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfTRTHighThresholdHits  );
       std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfTRTHighThresholdOutliers );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfOutliersOnTrack );
+      std::cout << std::setw(9)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfOutliersOnTrack );
+      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfDBMHits );
       std::cout << std::endl << std::setprecision(-1);
       return true; // yes, printed output
     }
@@ -816,6 +847,7 @@ bool InDet::TrackStatHelper::printTrackSummaryRegion(enum track_types track_type
 						      enum eta_region eta_region, int summary_type )
 {
   long denom =  m_n_TrackSummaryOK[track_type][eta_region][summary_type] + m_n_TrackSummaryBAD[track_type][eta_region][summary_type];
+
   if (denom > 0) {
     std::cout << float ( m_TrackSummarySum[track_type][eta_region][summary_type]/ (float) denom);
   }
@@ -846,7 +878,7 @@ void InDet::TrackStatHelper::printSecondary(){
     if (!m_truthMissing)
       {
 	std::cout << " \t\t\t\t      ......................truth mached tracks statistics....................." << std::endl;
-	std::cout << " \t\t\t\tn/event\teff.\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws" << std::endl;
+	std::cout << " \t\t\t\tn/event\teff.\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws\tDBMall\tDBM1\tDBM2\tDBM3" << std::endl;
 	
 	
 	std::cout << " total secondaries    ";
@@ -857,6 +889,8 @@ void InDet::TrackStatHelper::printSecondary(){
 	printRegionSecondary( ETA_TRANSITION, (float) (m_tracks_gen[TRACK_MATCHED_SECONDARY][ETA_TRANSITION]+m_tracks_gen[TRACK_MULTMATCH_SECONDARY][ETA_TRANSITION]) );
 	std::cout << " secondaries in endcap ";
 	printRegionSecondary( ETA_ENDCAP,     (float) (m_tracks_gen[TRACK_MATCHED_SECONDARY][ETA_ENDCAP]    +m_tracks_gen[TRACK_MULTMATCH_SECONDARY][ETA_ENDCAP]) );
+	std::cout << " secondaries in DBM ";
+        printRegionSecondary( ETA_DBM,     (float) (m_tracks_gen[TRACK_MATCHED_SECONDARY][ETA_DBM]    +m_tracks_gen[TRACK_MULTMATCH_SECONDARY][ETA_DBM]) );
       }
   }
   else std::cout << ": NO EVENTS PROCESSED! " << std::endl;
@@ -913,6 +947,10 @@ void InDet::TrackStatHelper::printRegionSecondary(enum eta_region region, float 
 	      << "\t" << float(m_hits_sec[HIT_SCT4   ][region]/denominator)
 	      << "\t" << float(m_hits_sec[HIT_SCT5TO9][region]/denominator)
 	      << "\t" << float(m_hits_sec[HIT_TRT_ALL][region]/denominator)
+	      << "\t" << float(m_hits_sec[HIT_DBM_ALL][region]/denominator)
+	      << "\t" << float(m_hits_sec[HIT_DBM1][region]/denominator)
+	      << "\t" << float(m_hits_sec[HIT_DBM2][region]/denominator)
+	      << "\t" << float(m_hits_sec[HIT_DBM3][region]/denominator)
 	      << std::endl << std::setprecision(-1);
   }
   else {
@@ -924,7 +962,7 @@ void InDet::TrackStatHelper::printRegionSecondary(enum eta_region region, float 
 
 bool InDet::TrackStatHelper::PassTrackCuts(const Trk::TrackParameters *para){
   bool passed = false;
-  if(para->pT() >  m_cuts.minPt && fabs(para->eta()) < m_cuts.maxEtaEndcap)passed = true;
+  if(para->pT() >  m_cuts.minPt && fabs(para->eta()) < m_cuts.maxEtaDBM)passed = true;
 
 
   return passed;
