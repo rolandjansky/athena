@@ -54,7 +54,7 @@ void RDBVersionAccessor::getChildTagData()
 
   if(!m_session)
   {
-    m_msgStream << MSG::ERROR << "VersionAccessor: No connection to database!" << endmsg;
+    m_msgStream << MSG::ERROR << "VersionAccessor: No connection to database!" << endreq;
     return;
   }
 
@@ -63,7 +63,7 @@ void RDBVersionAccessor::getChildTagData()
     if(m_msgStream.level()==MSG::VERBOSE)
       m_msgStream << MSG::VERBOSE << "VersionAccessor:  Version accessor for \n    ChildNode = " << m_childNode 
 		  << "     ParentNode = " << m_parentNode 
-		  << "     ParentTag = " << m_parentTag << endmsg;
+		  << "     ParentTag = " << m_parentTag << endreq;
 
     coral::ITable& tableTag2Node = m_session->nominalSchema().tableHandle("HVS_TAG2NODE");
     coral::ITable& tableNode = m_session->nominalSchema().tableHandle("HVS_NODE");
@@ -104,7 +104,7 @@ void RDBVersionAccessor::getChildTagData()
 
     delete queryTag2Node;
     if(m_msgStream.level()==MSG::VERBOSE)
-      m_msgStream << MSG::VERBOSE << "VersionAccessor:  Parent Tag Id = " << parentTagId << endmsg;
+      m_msgStream << MSG::VERBOSE << "VersionAccessor:  Parent Tag Id = " << parentTagId << endreq;
 
     //
     // STEP 2. Get NodeIDs for parentNode and child 
@@ -153,8 +153,8 @@ void RDBVersionAccessor::getChildTagData()
     }
 
     if(m_msgStream.level()==MSG::VERBOSE) {
-      m_msgStream << MSG::VERBOSE << "VersionAccessor:  Child Node Id = " << childNodeId << endmsg;
-      m_msgStream << MSG::VERBOSE << "VersionAccessor:  Parent Node Id = " << parentNodeId << endmsg;
+      m_msgStream << MSG::VERBOSE << "VersionAccessor:  Child Node Id = " << childNodeId << endreq;
+      m_msgStream << MSG::VERBOSE << "VersionAccessor:  Parent Node Id = " << parentNodeId << endreq;
     }
 
     delete queryNodeIDs;
@@ -232,8 +232,8 @@ void RDBVersionAccessor::getChildTagData()
 
       delete queryNode;
       if(m_msgStream.level()==MSG::VERBOSE) {
-	m_msgStream << MSG::VERBOSE << "VersionAccessor:  Current Child = " << currentChild << endmsg;
-	m_msgStream << MSG::VERBOSE << "VersionAccessor:  Current Parrent = " << currentParrent << endmsg;
+	m_msgStream << MSG::VERBOSE << "VersionAccessor:  Current Child = " << currentChild << endreq;
+	m_msgStream << MSG::VERBOSE << "VersionAccessor:  Current Parrent = " << currentParrent << endreq;
       }
     }
 
@@ -286,7 +286,7 @@ void RDBVersionAccessor::getChildTagData()
       delete queryLtag2Ltag;
 
       if(m_msgStream.level()==MSG::VERBOSE)
-	m_msgStream << MSG::VERBOSE << "VersionAccessor:  Parent Tag Id = " << parentTagId << endmsg;
+	m_msgStream << MSG::VERBOSE << "VersionAccessor:  Parent Tag Id = " << parentTagId << endreq;
 
     }
 
@@ -323,23 +323,23 @@ void RDBVersionAccessor::getChildTagData()
       m_tagID = parentTagId;
 
       if(m_msgStream.level()==MSG::VERBOSE)
-	m_msgStream << MSG::VERBOSE << "VersionAccessor:  Child Tag Name = " << m_tagName << endmsg;
+	m_msgStream << MSG::VERBOSE << "VersionAccessor:  Child Tag Name = " << m_tagName << endreq;
     }
     delete queryTagName;
 
   }
   catch(coral::SchemaException& se) 
   {
-     m_msgStream << MSG::ERROR << "VersionAccessor: Schema Exception : " << se.what() << endmsg;
+     m_msgStream << MSG::ERROR << "VersionAccessor: Schema Exception : " << se.what() << endreq;
   }
   catch(std::exception& e)
   {
     if(m_msgStream.level()<=MSG::DEBUG)
-      m_msgStream << MSG::DEBUG << e.what() << endmsg;
+      m_msgStream << MSG::DEBUG << e.what() << endreq;
   }
   catch(...) 
   {
-    m_msgStream << MSG::ERROR << "VersionAccessor: Exception caught(...)" << endmsg;
+    m_msgStream << MSG::ERROR << "VersionAccessor: Exception caught(...)" << endreq;
   }
 }
 
