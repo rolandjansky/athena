@@ -47,7 +47,7 @@ namespace ROIB {
       : m_trailer() {}
 
     //! constructor which fully specifies the initialiser values
-    Trailer( const std::vector< uint32_t > v)
+    Trailer( const std::vector< uint32_t >& v)
       : m_trailer( v ) {}
 
     //! constructor specifying the number of data words and the error status
