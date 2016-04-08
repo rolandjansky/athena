@@ -53,29 +53,29 @@ namespace {
 
 IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
   : AthService( name, svc ),
-    par_defaultConnection("sqlite://;schema=cooldummy.db;dbname=OFLP200"),
-    par_globalTag(""),par_dbinst(""),
-    par_manageConnections(true),
-    par_managePoolConnections(true),
-    par_dumpkeys(false),
-    par_forceRunNumber(0),            // default no global force run number
-    par_forceLumiblockNumber(0),      // Default no global force LB
-    par_maxNumPoolFiles(5),           // Default=0 means no limit
-    par_timeStampSlop(0.0),           // default of 0 seconds
-    par_cacheRun(0),
-    par_cacheTime(0),
-    par_cacheAlign(0),
-    par_onlineMode(false),
-    par_checklock(false),
-    h_IOVSvc     ("IOVSvc", name),
-    h_sgSvc      ("StoreGateSvc", name),
-    h_detStore   ("DetectorStore", name),
-    h_metaDataStore ("StoreGateSvc/MetaDataStore", name), 
-    h_persSvc    ("EventPersistencySvc", name),
-    h_clidSvc    ("ClassIDSvc", name),
-    h_poolSvc    ("PoolSvc", name),
-    h_metaDataTool("IOVDbMetaDataTool"),
-    h_tagInfoMgr("TagInfoMgr", name),
+    m_par_defaultConnection("sqlite://;schema=cooldummy.db;dbname=OFLP200"),
+    m_par_globalTag(""),m_par_dbinst(""),
+    m_par_manageConnections(true),
+    m_par_managePoolConnections(true),
+    m_par_dumpkeys(false),
+    m_par_forceRunNumber(0),            // default no global force run number
+    m_par_forceLumiblockNumber(0),      // Default no global force LB
+    m_par_maxNumPoolFiles(5),           // Default=0 means no limit
+    m_par_timeStampSlop(0.0),           // default of 0 seconds
+    m_par_cacheRun(0),
+    m_par_cacheTime(0),
+    m_par_cacheAlign(0),
+    m_par_onlineMode(false),
+    m_par_checklock(false),
+    m_h_IOVSvc     ("IOVSvc", name),
+    m_h_sgSvc      ("StoreGateSvc", name),
+    m_h_detStore   ("DetectorStore", name),
+    m_h_metaDataStore ("StoreGateSvc/MetaDataStore", name), 
+    m_h_persSvc    ("EventPersistencySvc", name),
+    m_h_clidSvc    ("ClassIDSvc", name),
+    m_h_poolSvc    ("PoolSvc", name),
+    m_h_metaDataTool("IOVDbMetaDataTool"),
+    m_h_tagInfoMgr("TagInfoMgr", name),
     m_log(0),
     m_poolPayloadRequested(false),
     m_poolSvcContext(0),
@@ -85,25 +85,25 @@ IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
     m_abort(false)
 {
   // declare all properties
-  declareProperty("dbConnection",          par_defaultConnection);
-  declareProperty("GlobalTag",             par_globalTag );
-  declareProperty("DBInstance",            par_dbinst);
-  declareProperty("Folders",               par_folders );
-  declareProperty("overrideTags",          par_overrideTags);
-  declareProperty("forceRunNumber",        par_forceRunNumber );
-  declareProperty("forceLumiblockNumber",  par_forceLumiblockNumber);
-  declareProperty("forceTimestamp",        par_forceTimestamp);
-  declareProperty("ManageConnections",     par_manageConnections );
-  declareProperty("ManagePoolConnections", par_managePoolConnections );
-  declareProperty("DumpKeys",              par_dumpkeys);
-  declareProperty("FoldersToMetaData",     par_foldersToWrite );
-  declareProperty("MaxPoolFilesOpen",      par_maxNumPoolFiles );      // maximum number of pools files allowed to be open at once
-  declareProperty("TimeStampSlop",         par_timeStampSlop);
-  declareProperty("CacheRun",              par_cacheRun);
-  declareProperty("CacheTime",             par_cacheTime);
-  declareProperty("CacheAlign",            par_cacheAlign);
-  declareProperty("OnlineMode",            par_onlineMode);
-  declareProperty("CheckLock",             par_checklock);
+  declareProperty("dbConnection",          m_par_defaultConnection);
+  declareProperty("GlobalTag",             m_par_globalTag );
+  declareProperty("DBInstance",            m_par_dbinst);
+  declareProperty("Folders",               m_par_folders );
+  declareProperty("overrideTags",          m_par_overrideTags);
+  declareProperty("forceRunNumber",        m_par_forceRunNumber );
+  declareProperty("forceLumiblockNumber",  m_par_forceLumiblockNumber);
+  declareProperty("forceTimestamp",        m_par_forceTimestamp);
+  declareProperty("ManageConnections",     m_par_manageConnections );
+  declareProperty("ManagePoolConnections", m_par_managePoolConnections );
+  declareProperty("DumpKeys",              m_par_dumpkeys);
+  declareProperty("FoldersToMetaData",     m_par_foldersToWrite );
+  declareProperty("MaxPoolFilesOpen",      m_par_maxNumPoolFiles );      // maximum number of pools files allowed to be open at once
+  declareProperty("TimeStampSlop",         m_par_timeStampSlop);
+  declareProperty("CacheRun",              m_par_cacheRun);
+  declareProperty("CacheTime",             m_par_cacheTime);
+  declareProperty("CacheAlign",            m_par_cacheAlign);
+  declareProperty("OnlineMode",            m_par_onlineMode);
+  declareProperty("CheckLock",             m_par_checklock);
 }
 
 IOVDbSvc::~IOVDbSvc() {}
@@ -142,14 +142,14 @@ StatusCode IOVDbSvc::initialize() {
   incSvc->addListener( this, "EndOfBeginRun", pri );
 
   // Get context for POOL conditions files, and created an initial connection
-  if (par_managePoolConnections) {
-      m_poolSvcContext=h_poolSvc->getInputContext("Conditions",
-                                                  par_maxNumPoolFiles);
+  if (m_par_managePoolConnections) {
+      m_poolSvcContext=m_h_poolSvc->getInputContext("Conditions",
+                                                  m_par_maxNumPoolFiles);
   } else {
-    m_poolSvcContext=h_poolSvc->getInputContext("Conditions");
+    m_poolSvcContext=m_h_poolSvc->getInputContext("Conditions");
   }
   
-  if (StatusCode::SUCCESS==h_poolSvc->connect(pool::ITransaction::READ,
+  if (StatusCode::SUCCESS==m_h_poolSvc->connect(pool::ITransaction::READ,
 					      m_poolSvcContext)) {
       *m_log << MSG::INFO << "Opened read transaction for POOL PersistencySvc"
       << endreq;
@@ -159,34 +159,34 @@ StatusCode IOVDbSvc::initialize() {
   }
 
   // print warnings/info depending on state of job options
-  if (!par_manageConnections)
+  if (!m_par_manageConnections)
     *m_log << MSG::INFO << "COOL connection management disabled - connections kept open throughout job" << endreq;
-  if (!par_managePoolConnections)
+  if (!m_par_managePoolConnections)
     *m_log << MSG::INFO << "POOL file connection management disabled - files kept open throught job" << endreq;
-  if (par_maxNumPoolFiles.value() > 0)
-    *m_log << MSG::INFO << "Only " << par_maxNumPoolFiles.value() <<  
+  if (m_par_maxNumPoolFiles.value() > 0)
+    *m_log << MSG::INFO << "Only " << m_par_maxNumPoolFiles.value() <<  
       " POOL conditions files will be open at once" << endreq;
-  if (par_forceRunNumber.value() > 0 || par_forceLumiblockNumber.value() > 0)
+  if (m_par_forceRunNumber.value() > 0 || m_par_forceLumiblockNumber.value() > 0)
     *m_log << MSG::WARNING << "Global run/LB number forced to be [" <<
-      par_forceRunNumber.value() << "," << par_forceLumiblockNumber.value()
+      m_par_forceRunNumber.value() << "," << m_par_forceLumiblockNumber.value()
            <<  "]" << endreq;
-  if (par_forceTimestamp.value() > 0) 
+  if (m_par_forceTimestamp.value() > 0) 
     *m_log << MSG::WARNING << "Global timestamp forced to be " <<
-      par_forceTimestamp.value() << endreq;
-  if (par_cacheRun.value() > 0) 
+      m_par_forceTimestamp.value() << endreq;
+  if (m_par_cacheRun.value() > 0) 
     *m_log << MSG::INFO << "Run-LB data will be cached in groups of " << 
-      par_cacheRun.value() << " runs" << endreq;
-  if (par_cacheTime.value() > 0)
+      m_par_cacheRun.value() << " runs" << endreq;
+  if (m_par_cacheTime.value() > 0)
     *m_log << MSG::INFO << "Timestamp data will be cached in groups of "
-           << par_cacheTime.value() << " seconds" << endreq;
-  if (par_cacheAlign > 0) 
+           << m_par_cacheTime.value() << " seconds" << endreq;
+  if (m_par_cacheAlign > 0) 
     *m_log << MSG::INFO << "Cache alignment will be done in " << 
-      par_cacheAlign.value() << " slices" << endreq;
-  if (par_onlineMode) 
+      m_par_cacheAlign.value() << " slices" << endreq;
+  if (m_par_onlineMode) 
     *m_log << MSG::INFO << 
       "Online mode ignoring potential missing channels outside cache" << 
       endreq;
-  if (par_checklock)
+  if (m_par_checklock)
     *m_log << MSG::INFO << "Tags will be required to be locked"
 	   << endreq;
 
@@ -197,20 +197,20 @@ StatusCode IOVDbSvc::initialize() {
   if (StatusCode::SUCCESS!=checkEventSel()) return StatusCode::FAILURE;
 
   // initialise default connection
-  if (par_defaultConnection!="") {
+  if (m_par_defaultConnection!="") {
     // default connection is readonly if no : in name (i.e. logical conn)
-    bool readonly=(par_defaultConnection.find(':')==std::string::npos);
-    m_connections.push_back(new IOVDbConn(par_defaultConnection,readonly,
+    bool readonly=(m_par_defaultConnection.find(':')==std::string::npos);
+    m_connections.push_back(new IOVDbConn(m_par_defaultConnection,readonly,
                                           m_log));
   }
 
   // set time of timestampslop in nanoseconds
-  m_iovslop=static_cast<cool::ValidityKey>(par_timeStampSlop*1.E9);
+  m_iovslop=static_cast<cool::ValidityKey>(m_par_timeStampSlop*1.E9);
 
   // check for global tag in jobopt, which will override anything in input file
-  if (par_globalTag!="") {
-    m_globalTag=par_globalTag;
-    *m_log << MSG::INFO << "Global tag: " << par_globalTag << 
+  if (m_par_globalTag!="") {
+    m_globalTag=m_par_globalTag;
+    *m_log << MSG::INFO << "Global tag: " << m_par_globalTag << 
       " set from joboptions" << endreq;
   }
 
@@ -271,7 +271,7 @@ StatusCode IOVDbSvc::finalize() {
 cool::IDatabasePtr IOVDbSvc::getDatabase(bool readOnly) {
   // get default database connection
   cool::IDatabasePtr dbconn;
-  if (par_defaultConnection=="" || m_connections.size()==0) {
+  if (m_par_defaultConnection=="" || m_connections.size()==0) {
     *m_log << MSG::ERROR << "No default COOL database connection is available"
 	   << endreq;
     dbconn.reset();
@@ -296,7 +296,7 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
   // check FLMD of input, see if any requested folders are available there
   const DataHandle<IOVMetaDataContainer> cont;
   const DataHandle<IOVMetaDataContainer> contEnd;
-  if (StatusCode::SUCCESS==h_metaDataStore->retrieve(cont,contEnd)) {
+  if (StatusCode::SUCCESS==m_h_metaDataStore->retrieve(cont,contEnd)) {
     unsigned int ncontainers=0;
     unsigned int nused=0;
     for (;cont!=contEnd; ++cont) {
@@ -374,11 +374,11 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
         IOVDbFolder* folder=fitr->second;
         if (folder->conn()==*citr || (folder->conn()==0 && doMeta)) {
           std::unique_ptr<SG::TransientAddress> tad =
-            folder->preLoadFolder(&(*h_detStore),par_cacheRun.value(),
-                                  par_cacheTime.value());
+            folder->preLoadFolder(&(*m_h_detStore),m_par_cacheRun.value(),
+                                  m_par_cacheTime.value());
           if (oldconn!=*citr) {
             // close old connection if appropriate
-            if (par_manageConnections && oldconn!=0) oldconn->setInactive();
+            if (m_par_manageConnections && oldconn!=0) oldconn->setInactive();
             oldconn=(*citr);
           }
           if (tad==0) {
@@ -387,7 +387,7 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
           }
           // for write-metadata folder, request data preload
           if (folder->writeMeta()) {
-            if (StatusCode::SUCCESS!=h_IOVSvc->preLoadDataTAD(tad.get(),
+            if (StatusCode::SUCCESS!=m_h_IOVSvc->preLoadDataTAD(tad.get(),
 					   folder->eventStore())) {
               *m_log << MSG::ERROR << 
                 "Could not request IOVSvc to preload metadata for " << 
@@ -396,7 +396,7 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
             }
           } else {
             // for other folders, just preload TAD (not data)
-            if (StatusCode::SUCCESS!=h_IOVSvc->preLoadTAD(tad.get(),
+            if (StatusCode::SUCCESS!=m_h_IOVSvc->preLoadTAD(tad.get(),
 					       folder->eventStore())) {
               *m_log << MSG::ERROR << 
 		"Could not request IOVSvc to preload metadata for " << 
@@ -407,15 +407,15 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
           // Add TAD to Storegate
           tlist.push_back(tad.release());
           // check for IOV override
-          folder->setIOVOverride(par_forceRunNumber.value(),
-	    par_forceLumiblockNumber.value(),par_forceTimestamp.value());
+          folder->setIOVOverride(m_par_forceRunNumber.value(),
+	    m_par_forceLumiblockNumber.value(),m_par_forceTimestamp.value());
         }
       }
     }
     doMeta=false;
   }
   // close last connection
-  if (oldconn!=0 and par_manageConnections) oldconn->setInactive();
+  if (oldconn!=0 and m_par_manageConnections) oldconn->setInactive();
 
   // some folder keys may have changed during preloadFolder due to use of
   // <key> specification in folder description string
@@ -477,7 +477,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
     // determine iovTime from event
     const DataHandle<EventInfo> evt;
     const DataHandle<EventInfo> evtEnd;
-    if (StatusCode::SUCCESS==h_sgSvc->retrieve(evt,evtEnd)) {
+    if (StatusCode::SUCCESS==m_h_sgSvc->retrieve(evt,evtEnd)) {
       m_iovTime.setRunEvent(evt->event_ID()->run_number(),
 			    evt->event_ID()->lumi_block());
       // save both seconds and ns offset for timestamp
@@ -505,16 +505,16 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   // check consistency of global tag and database instance, if set
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
-  if (!par_dbinst.empty() && !m_globalTag.empty()) {
+  if (!m_par_dbinst.empty() && !m_globalTag.empty()) {
     const std::string tagstub=m_globalTag.substr(0,7);
     if (m_log->level()<=MSG::DEBUG)
-      *m_log << MSG::DEBUG << "Checking " << par_dbinst << " against " <<
+      *m_log << MSG::DEBUG << "Checking " << m_par_dbinst << " against " <<
         tagstub << endreq;
-    if (((par_dbinst=="COMP200" || par_dbinst=="CONDBR2") && 
+    if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
 	 (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
-	(par_dbinst=="OFLP200" && (tagstub!="OFLCOND" && tagstub!="CMCCOND"))) {
+	(m_par_dbinst=="OFLP200" && (tagstub!="OFLCOND" && tagstub!="CMCCOND"))) {
       *m_log << MSG::FATAL << "Likely incorrect conditions DB configuration! " 
-	     <<  "Attached to database instance " << par_dbinst <<
+	     <<  "Attached to database instance " << m_par_dbinst <<
 	" but global tag begins " << tagstub << endreq;
       *m_log << MSG::FATAL << "See Atlas/CoolTroubles wiki for details," << 
 	     " or set IOVDbSvc.DBInstance=\"\" to disable check" << endreq;
@@ -545,7 +545,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   {
     Gaudi::Guards::AuditorGuard auditor(std::string("FldrSetup:")+(tad->name().empty() ? "anonymous" : tad->name()),
 					auditorSvc(), "preLoadProxy");
-    if (!folder->getAddress(vkey,&(*h_persSvc),m_poolSvcContext,address,
+    if (!folder->getAddress(vkey,&(*m_h_persSvc),m_poolSvcContext,address,
 			    range,m_poolPayloadRequested)) {
       *m_log << MSG::ERROR << "getAddress failed for folder " << 
 	folder->folderName() << endreq;
@@ -561,7 +561,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   }
 
   // Pass range onto IOVSvc
-  if (StatusCode::SUCCESS!=h_IOVSvc->setRange(tad->clID(),tad->name(),
+  if (StatusCode::SUCCESS!=m_h_IOVSvc->setRange(tad->clID(),tad->name(),
 					      range,folder->eventStore())) {
     *m_log << MSG::ERROR << "setRange failed for folder " << 
       folder->folderName() << endreq;
@@ -595,7 +595,7 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime) {
   if (m_log->level()<<MSG::DEBUG) 
     *m_log << MSG::DEBUG << "signalBeginRun> begin run time " << m_iovTime 
 	   << endreq;
-  if(!par_onlineMode) return StatusCode::SUCCESS;
+  if(!m_par_onlineMode) return StatusCode::SUCCESS;
   static int first=0;
   if (!first) {
     first=1; 
@@ -610,7 +610,7 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime) {
     *m_log << MSG::DEBUG << "First reload PoolCataloge ... " << endreq;
   }
   pool::IFileCatalog* catalog=
-    const_cast<pool::IFileCatalog*>(h_poolSvc->catalog());
+    const_cast<pool::IFileCatalog*>(m_h_poolSvc->catalog());
   catalog->commit();
   catalog->start(); 
 
@@ -632,7 +632,7 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime) {
         cool::ValidityKey vkey=folder->iovTime(m_iovTime);
 	{
 	  Gaudi::Guards::AuditorGuard auditor(std::string("FldrCache:")+folder->folderName(), auditorSvc(), "preLoadProxy");
-	  if (!folder->loadCacheIfDbChanged(vkey, m_globalTag, dbconn, h_IOVSvc)) {
+	  if (!folder->loadCacheIfDbChanged(vkey, m_globalTag, dbconn, m_h_IOVSvc)) {
 	    *m_log << MSG::ERROR << "Problem RELOADING: " << folder->folderName()
 		   << endreq;
 	    return StatusCode::FAILURE;
@@ -641,7 +641,7 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime) {
         folder->printCache();
       }
     }
-    if (par_manageConnections) (*dbi)->setInactive();
+    if (m_par_manageConnections) (*dbi)->setInactive();
   }
   return StatusCode::SUCCESS;
 }
@@ -662,19 +662,19 @@ void IOVDbSvc::handle( const Incident& inc) {
   } else {
     const StoreClearedIncident* sinc= 
       dynamic_cast<const StoreClearedIncident*>(&inc);
-    if ((inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*h_sgSvc)
+    if ((inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*m_h_sgSvc)
 	|| inc.type()=="EndOfBeginRun") {
       if (inc.type()=="StoreCleared") {
         m_state=IOVDbSvc::FINALIZE_ALG;
-        if (par_dumpkeys) {
+        if (m_par_dumpkeys) {
           dumpKeys();
-          par_dumpkeys=false;
+          m_par_dumpkeys=false;
 	}
       }
-      if (par_managePoolConnections && m_poolPayloadRequested) {
+      if (m_par_managePoolConnections && m_poolPayloadRequested) {
         // reset POOL connection to close all open conditions POOL files
         m_poolPayloadRequested=false;
-        if (StatusCode::SUCCESS==h_poolSvc->disconnect(m_poolSvcContext)) {
+        if (StatusCode::SUCCESS==m_h_poolSvc->disconnect(m_poolSvcContext)) {
           if (m_log->level()<=MSG::DEBUG) 
             *m_log << MSG::DEBUG << "Successfully closed input POOL connections"
                    << endreq;
@@ -683,7 +683,7 @@ void IOVDbSvc::handle( const Incident& inc) {
 	    endreq;
 	}
         // reopen transaction
-        if (StatusCode::SUCCESS==h_poolSvc->connect(pool::ITransaction::READ,
+        if (StatusCode::SUCCESS==m_h_poolSvc->connect(pool::ITransaction::READ,
 						  m_poolSvcContext)) {
           if (m_log->level()<=MSG::DEBUG)       	
             *m_log << MSG::DEBUG << 
@@ -718,7 +718,7 @@ StatusCode IOVDbSvc::processTagInfo(IOVSVC_CALLBACK_ARGS) {
   // Processing of taginfo callback
   // Set GlobalTag and any folder-specific overrides if given
   const TagInfo* tagInfo=0;
-  if (StatusCode::SUCCESS!=h_detStore->retrieve(tagInfo)) {
+  if (StatusCode::SUCCESS!=m_h_detStore->retrieve(tagInfo)) {
     *m_log << MSG::ERROR << "No TagInfo in DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
@@ -753,7 +753,7 @@ StatusCode IOVDbSvc::processTagInfo(IOVSVC_CALLBACK_ARGS) {
       // and folder meta-data is not used, and there is no <noover/> spec,
       // and no global tag set in job options
       if (folder->joTag()=="" && !folder->readMeta() && 
-	  !folder->noOverride() && par_globalTag=="") {
+	  !folder->noOverride() && m_par_globalTag=="") {
         folder->setTagOverride(itr->second,false);
         if (m_log->level()<=MSG::INFO) 
             *m_log << MSG::INFO << "TagInfo override for tag " 
@@ -813,9 +813,9 @@ bool IOVDbSvc::dropObject(const std::string& key, const bool resetCache) {
   if (itr!=m_foldermap.end()) {
     IOVDbFolder* folder=itr->second;
     CLID clid=folder->clid();
-    SG::DataProxy* proxy=h_detStore->proxy(clid,key);
+    SG::DataProxy* proxy=m_h_detStore->proxy(clid,key);
     if (proxy!=0) {
-      h_detStore->clearProxyPayload(proxy);
+      m_h_detStore->clearProxyPayload(proxy);
       if (m_log->level()<=MSG::DEBUG) *m_log << MSG::DEBUG << 
 			  "Dropped payload for key " << key << endreq;
       folder->setDropped(true);
@@ -870,8 +870,8 @@ StatusCode IOVDbSvc::checkEventSel() {
       uint32_t run,lumib;
       uint64_t time;
       bool allGood=true;
-      if (par_forceRunNumber.value()!=0 || 
-          par_forceLumiblockNumber.value()!=0)
+      if (m_par_forceRunNumber.value()!=0 || 
+          m_par_forceLumiblockNumber.value()!=0)
         *m_log << MSG::WARNING << "forceRunNumber property also set" << endreq;
       IntegerProperty iprop1("RunNumber",0);
       if (StatusCode::SUCCESS==
@@ -926,8 +926,8 @@ StatusCode IOVDbSvc::setupFolders() {
 
   //1. Loop through folders
   std::list<IOVDbParser> allFolderdata;
-  for (std::vector<std::string>::const_iterator itr=par_folders.begin();
-       itr!=par_folders.end();++itr) {
+  for (std::vector<std::string>::const_iterator itr=m_par_folders.begin();
+       itr!=m_par_folders.end();++itr) {
     if (m_log->level()<=MSG::DEBUG) *m_log << MSG::DEBUG << "Setup folder " << *itr << endreq;
     IOVDbParser folderdata(*itr,m_log);
     if (!folderdata.isValid()) return StatusCode::FAILURE;
@@ -940,8 +940,8 @@ StatusCode IOVDbSvc::setupFolders() {
   // but if partial match, next character must be / so override for /Fred/Ji
   // matches /Fred/Ji/A and /Fred/Ji but not /Fred/Jim
 
- for (std::vector<std::string>::const_iterator titr=par_overrideTags.begin();
-      titr!=par_overrideTags.end();++titr) {
+ for (std::vector<std::string>::const_iterator titr=m_par_overrideTags.begin();
+      titr!=m_par_overrideTags.end();++titr) {
    IOVDbParser keys(*titr,m_log);
    std::string prefix;
    if (!keys.getKey("prefix","",prefix)) { // || !keys.getKey("tag","",tag)) {
@@ -1011,7 +1011,7 @@ StatusCode IOVDbSvc::setupFolders() {
      }
     } else {
      // no connection specified - use default if available
-     if (par_defaultConnection!="") {
+     if (m_par_defaultConnection!="") {
        conn=m_connections[0];
      } else {
        *m_log << MSG::FATAL << "Folder request " << folderdata.folderName() << 
@@ -1021,8 +1021,8 @@ StatusCode IOVDbSvc::setupFolders() {
    }
    // create the new folder, but only if a folder for this SG key has not
    // already been requested
-   IOVDbFolder* folder=new IOVDbFolder(conn,folderdata,m_log,&(*h_clidSvc),
-				       par_checklock);
+   IOVDbFolder* folder=new IOVDbFolder(conn,folderdata,m_log,&(*m_h_clidSvc),
+				       m_par_checklock);
    const std::string& key=folder->key();
    if (m_foldermap.find(key)==m_foldermap.end()) {  //This check is too weak. For POOL-based folders, the SG key is in the folder description (not known at this point).
      m_foldermap[key]=folder;
@@ -1037,7 +1037,7 @@ StatusCode IOVDbSvc::setupFolders() {
  }// end loop over folders
   // check for folders to be written to metadata
  for (std::vector<std::string>::const_iterator 
-	titr=par_foldersToWrite.begin();titr!=par_foldersToWrite.end();++titr) {
+	titr=m_par_foldersToWrite.begin();titr!=m_par_foldersToWrite.end();++titr) {
    // match wildcard * at end of string only (i.e. /A/* matches /A/B, /A/C/D)
      std::string match=*titr;
      std::string::size_type idx=titr->find("*");
@@ -1048,22 +1048,22 @@ StatusCode IOVDbSvc::setupFolders() {
 	  ++fitr) {
        IOVDbFolder* fptr=fitr->second;
        if ((fptr->folderName()).substr(0,match.size())==match) {
-	 fptr->setWriteMeta(&(*h_metaDataTool));
+	 fptr->setWriteMeta(&(*m_h_metaDataTool));
 	 *m_log << MSG::INFO << "Folder " << fptr->folderName() << 
 	   " will be written to file metadata" << endreq;
        }
      }//end loop over FolderMap
- }//end loop over  par_foldersToWrite
+ }//end loop over  m_par_foldersToWrite
  return StatusCode::SUCCESS;
 }
 
 StatusCode IOVDbSvc::fillTagInfo() {
-  if (par_globalTag!="") {
+  if (m_par_globalTag!="") {
     if (m_log->level()<=MSG::DEBUG)     
-      *m_log << MSG::DEBUG << "Adding GlobalTag " << par_globalTag << 
+      *m_log << MSG::DEBUG << "Adding GlobalTag " << m_par_globalTag << 
       " into TagInfo" << endreq;
-    if (StatusCode::SUCCESS!=h_tagInfoMgr->addTag("IOVDbGlobalTag",
-						  par_globalTag))
+    if (StatusCode::SUCCESS!=m_h_tagInfoMgr->addTag("IOVDbGlobalTag",
+						  m_par_globalTag))
       return StatusCode::FAILURE;
   }
   // add all explicit tags specified in folders
@@ -1075,7 +1075,7 @@ StatusCode IOVDbSvc::fillTagInfo() {
       if (m_log->level()<=MSG::DEBUG) 
         *m_log << MSG::DEBUG << "Adding folder " << folder->folderName() <<
         " tag " << folder->joTag() << " into TagInfo" << endreq;
-      if (StatusCode::SUCCESS!=h_tagInfoMgr->addTag(folder->folderName(),
+      if (StatusCode::SUCCESS!=m_h_tagInfoMgr->addTag(folder->folderName(),
                                                     folder->joTag()))
         return StatusCode::FAILURE;
     }
@@ -1084,10 +1084,10 @@ StatusCode IOVDbSvc::fillTagInfo() {
     // Here we do not have access to the TagInfo object, but can put remove
     // requests in for all folders if the global tag is set, or if there is
     // an explict joboption tag, nooverride spec, or data comes from metadata
-    if (par_globalTag!="" || folder->joTag()!="" || folder->noOverride() ||
+    if (m_par_globalTag!="" || folder->joTag()!="" || folder->noOverride() ||
 	folder->readMeta()) {
       if (StatusCode::SUCCESS!=
-       h_tagInfoMgr->removeTagFromInput(folder->folderName())) {
+       m_h_tagInfoMgr->removeTagFromInput(folder->folderName())) {
 	*m_log << MSG::WARNING << "Could not add TagInfo remove request for "
 	       << folder->folderName() << endreq;
       } else {
@@ -1127,7 +1127,7 @@ StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn) {
       access=true;
       {
 	Gaudi::Guards::AuditorGuard auditor(std::string("FldrCache:")+folder->folderName(), auditorSvc(), "preLoadProxy");
-	if (!folder->loadCache(vkey,par_cacheAlign,m_globalTag,par_onlineMode)) {
+	if (!folder->loadCache(vkey,m_par_cacheAlign,m_globalTag,m_par_onlineMode)) {
 	  *m_log << MSG::ERROR << "Cache load (prefetch) failed for folder " << 
 	    folder->folderName() << endreq;
 	  // remember the failure, but also load other folders on this connection
@@ -1138,7 +1138,7 @@ StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn) {
     }
   }
   // disconnect from database if we connected
-  if (access && par_manageConnections) conn->setInactive();
+  if (access && m_par_manageConnections) conn->setInactive();
   // if connection aborted, set overall abort so we do not waste time trying
   // to read data from other schema
   if (conn->aborted()) {
