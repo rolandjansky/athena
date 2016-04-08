@@ -343,10 +343,10 @@ int main(int argc, char * argv[]){
 
   //==========================================================================
   // Set up LumiBlockCollection for the different scenarios
-  std::vector< LumiBlockCollection* > iovcVec;
+  std::vector< xAOD::LumiBlockRangeContainer* > iovcVec;
   std::vector< std::vector<std::string> > m_triggerchainVec;
   Root::TGRLCollection m_grlcollection;
-  LumiBlockCollectionConverter m_converter;
+  LumiBlockRangeContainerConverter m_converter;
   TString m_version("30"); // [0-10): ATLRunQuery, [10-20): ntuple production, [20-30): xml merging, [30-40): LumiCalc
 
   //==========================================================================
@@ -374,8 +374,10 @@ int main(int argc, char * argv[]){
     uint32_t _lbstart;
     uint32_t _lbend;
 
-    LumiBlockCollection* iovc = new LumiBlockCollection();
-    
+    xAOD::LumiBlockRangeContainer* iovc = new xAOD::LumiBlockRangeContainer();
+    xAOD::LumiBlockRangeAuxContainer* iovcAux = new xAOD::LumiBlockRangeAuxContainer();
+    iovc->setStore( iovcAux );
+
     std::vector<uint32_t>::iterator itstart;
     std::vector<uint32_t>::iterator itend;
     std::vector<uint32_t>::iterator itrun;
@@ -392,7 +394,12 @@ int main(int argc, char * argv[]){
 	    m_logger << Root::kERROR << "lbstart > lbend! Should be: lbstart < = lbend" << Root::GEndl;
 	    exit(-1);
 	  } else {
-	    iovc->push_back(new LB_IOVRange(IOVTime(runnumber[0], _lbstart), IOVTime(runnumber[0], _lbend)));
+	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange();
+	    iovr->setStartRunNumber(runnumber[0]);
+	    iovr->setStartLumiBlockNumber(_lbstart);
+	    iovr->setStopRunNumber(runnumber[0]);
+	    iovr->setStopLumiBlockNumber(_lbend);
+	    iovc->push_back(iovr);
 	  }
 	}
 
@@ -403,7 +410,12 @@ int main(int argc, char * argv[]){
 	  ++itrun, ++itstart, ++itend) {
 	m_logger << Root::kINFO << "Runnumbers [" << *itrun <<  "]" << Root::GEndl;
 	m_logger << Root::kINFO << "lbstart-lbend [" << *itstart << "-" << *itend << "]" << Root::GEndl; 
-	iovc->push_back(new LB_IOVRange(IOVTime(*itrun, *itstart), IOVTime(*itrun, *itend)));
+	    xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange();
+	    iovr->setStartRunNumber(*itrun);
+	    iovr->setStartLumiBlockNumber(*itstart);
+	    iovr->setStopRunNumber(*itrun);
+	    iovr->setStopLumiBlockNumber(*itend);
+	    iovc->push_back(iovr);
       }
     }
 
@@ -417,9 +429,9 @@ int main(int argc, char * argv[]){
   
 
   //==========================================================================
-  // Fetch up LumiBlockCollection from input TAG file
+  // Fetch up xAOD::LumiBlockRangeContainer from input TAG file
   if (runtype == 1) {
-    // open TAG files to build LumiBlockCollection
+    // open TAG files to build xAOD::LumiBlockRangeContainer
     m_logger << Root::kINFO << "Being in TAG file mode..." << Root::GEndl;
 
     Root::TGoodRunsListReader m_reader;
@@ -457,7 +469,7 @@ int main(int argc, char * argv[]){
     m_grlcollection = m_reader.GetMergedGRLCollection();
     
     for (unsigned int j=0; j<m_grlcollection.size(); ++j) {
-      iovcVec.push_back( m_converter.GetLumiBlockCollection(m_grlcollection[j]) );
+      iovcVec.push_back( m_converter.GetLumiBlockRangeContainer(m_grlcollection[j]) );
       // default: trigger names taken from xml metadata. Overwrite any existing cmd-line triggers.
       if ( m_grlcollection[j].HasTriggerInfo() ) {
         m_triggerchainVec.push_back(m_grlcollection[j].GetTriggerList()); // use existing trigger names
@@ -473,9 +485,9 @@ int main(int argc, char * argv[]){
   }
 
   //==========================================================================
-  // Fetch up LumiBlockCollection from input XML file
+  // Fetch up xAOD::LumiBlockRangeContainer from input XML file
   if(runtype == 3){
-    // open XML files to build LumiBlockCollection
+    // open XML files to build xAOD::LumiBlockRangeContainer
     m_logger << Root::kINFO << "Being in XML file mode..." << Root::GEndl;
     Root::TGoodRunsListReader m_reader;
     // looping over XML files
@@ -487,7 +499,7 @@ int main(int argc, char * argv[]){
     m_grlcollection = m_reader.GetMergedGRLCollection();
 
     for (unsigned int j=0; j<m_grlcollection.size(); ++j) {
-      iovcVec.push_back( m_converter.GetLumiBlockCollection(m_grlcollection[j]) );
+      iovcVec.push_back( m_converter.GetLumiBlockRangeContainer(m_grlcollection[j]) );
       // default: trigger names taken from xml metadata. Overwrite any existing cmd-line triggers.
       if ( m_grlcollection[j].HasTriggerInfo() ) {
         m_triggerchainVec.push_back(m_grlcollection[j].GetTriggerList()); // use existing trigger names
@@ -504,7 +516,7 @@ int main(int argc, char * argv[]){
 
 
   //==========================================================================
-  // Fetch up LumiBlockCollection from input ROOT files - Tree mode
+  // Fetch up xAOD::LumiBlockRangeContainer from input ROOT files - Tree mode
   if(runtype == 4){
     // open ntuples to fetch xmlstrings
     m_logger << Root::kINFO << "Being in ROOT ntuple file mode..." << Root::GEndl;
@@ -527,7 +539,7 @@ int main(int argc, char * argv[]){
 	// add xml string to TGoodRunsListReader. Sort out strings below
 	for(int j=0; j<list->GetEntries();++j) {
 	  TObjString* objstr = dynamic_cast<TObjString*>(list->At(j));
-	  if ((objstr==0)) continue;
+	  if (objstr==0) continue;
 	  if ( objstr->GetString().BeginsWith("<?xml version=\"1.0\"?") &&
 	       objstr->GetString().Contains("DOCTYPE LumiRangeCollection") ) // xml identifier
 	    m_reader.AddXMLString(objstr->GetString());
@@ -541,7 +553,7 @@ int main(int argc, char * argv[]){
     m_grlcollection = m_reader.GetMergedGRLCollection();
     
     for (unsigned int j=0; j<m_grlcollection.size(); ++j) {
-      iovcVec.push_back( m_converter.GetLumiBlockCollection(m_grlcollection[j]) );
+      iovcVec.push_back( m_converter.GetLumiBlockRangeContainer(m_grlcollection[j]) );
       // default: trigger names taken from xml metadata. Overwrite any existing cmd-line triggers.
       if ( m_grlcollection[j].HasTriggerInfo() ) {
 	m_triggerchainVec.push_back(m_grlcollection[j].GetTriggerList()); // use existing trigger names
@@ -557,7 +569,7 @@ int main(int argc, char * argv[]){
   }
   
   //==========================================================================
-  // Fetch up LumiBlockCollection from input ROOT files - D3PD mode
+  // Fetch up xAOD::LumiBlockRangeContainer from input ROOT files - D3PD mode
   if(runtype == 5){
     // open ntuples to fetch xmlstrings
     m_logger << Root::kINFO << "Being in ROOT D3PD ntuple file mode..." << Root::GEndl;
@@ -607,7 +619,7 @@ int main(int argc, char * argv[]){
     m_reader.Interpret();
     m_grlcollection = m_reader.GetMergedGRLCollection();
     for (unsigned int j=0; j<m_grlcollection.size(); ++j) {
-      iovcVec.push_back( m_converter.GetLumiBlockCollection(m_grlcollection[j]) );
+      iovcVec.push_back( m_converter.GetLumiBlockRangeContainer(m_grlcollection[j]) );
       // default: trigger names taken from xml metadata. Overwrite any existing cmd-line triggers.
       if ( m_grlcollection[j].HasTriggerInfo() ) {
         m_triggerchainVec.push_back(m_grlcollection[j].GetTriggerList()); // use existing trigger names
@@ -630,16 +642,15 @@ int main(int argc, char * argv[]){
     // If runtype != 0 and a run range has been specified, use that to filter runs
     // ===========================================================================
     if (runtype != 0 && runList.size() > 0) {
-      std::vector<LumiBlockCollection*>::iterator iovIt = iovcVec.begin();
+      std::vector<xAOD::LumiBlockRangeContainer*>::iterator iovIt = iovcVec.begin();
       // std::vector<std::vector<std::string> >::iterator trigIt = m_triggerchainVec.begin();
 
       for (;iovIt != iovcVec.end(); iovIt++) {
 
-	LumiBlockCollection::iterator it = (*iovIt)->begin();
+	xAOD::LumiBlockRangeContainer::iterator it = (*iovIt)->begin();
 	while (it != (*iovIt)->end()) {
 
-	  LB_IOVRange * iovr = *it;
-	  unsigned int runnum = iovr->start().run();
+	  unsigned int runnum = (*it)->startRunNumber() ;
 
 	  bool found = false;
 	  std::list<std::pair<unsigned int, unsigned int> >::iterator runIt = runList.begin();
@@ -651,7 +662,7 @@ int main(int argc, char * argv[]){
 	  }
 
 	  if (!found) {
-	    m_logger << Root::kDEBUG << "Skipping run " << iovr->start().run() << " LB [" << iovr->start().event() << "-" << iovr->stop().event() << "] due to command-line run range" << Root::GEndl;
+	    m_logger << Root::kDEBUG << "Skipping run " << (*it)->startRunNumber() << " LB [" << (*it)->startLumiBlockNumber() << "-" << (*it)->stopLumiBlockNumber() << "] due to command-line run range" << Root::GEndl;
 	    (*iovIt)->erase(it);
 
 	    it = (*iovIt)->begin();
@@ -669,7 +680,7 @@ int main(int argc, char * argv[]){
 
     LumiCalculator m_lumicalc;
     for (unsigned int j=0; j<iovcVec.size(); ++j) {
-      LumiBlockCollection* iovc = iovcVec[j];
+      xAOD::LumiBlockRangeContainer* iovc = iovcVec[j];
       m_triggerchain = m_triggerchainVec[j];
       
       for(std::vector<std::string>::iterator it = m_triggerchain.begin(); it != m_triggerchain.end(); ++it){

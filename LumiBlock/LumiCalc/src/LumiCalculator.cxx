@@ -121,10 +121,11 @@ LumiCalculator::LumiCalculator()
   m_laroff="COOLOFL_LAR/"; 
   m_bsonl="COOLONL_INDET/";
 
-  m_data_db="COMP200";
-  m_parofflumiestfolder = "/TRIGGER/OFLLUMI/LBLESTOFL";
-  m_paronllumiestfolder = "/TRIGGER/LUMI/LBLESTOFL";
-  m_parlumiestfolder = "/TRIGGER/OFLLUMI/LBLESTOFL";
+  // These now need to be set after we know the run number (Run1 or Run2)
+  m_data_db="";
+  m_parofflumiestfolder = "";
+  m_paronllumiestfolder = "";
+  m_parlumiestfolder = "";
   m_parlvl1menufolder = "/TRIGGER/LVL1/Menu";
   m_parhltmenufolder = "/TRIGGER/HLT/Menu";// ChainCounter is here for COOLONL_TRIGGER/COMP20
   m_parhltprescalesfolder = "/TRIGGER/HLT/Prescales";// ChainCounter is here for COOLONL_TRIGGER/COMP20
@@ -149,7 +150,7 @@ LumiCalculator::LumiCalculator()
 
   m_lumitag = "OflLumi-8TeV-002";// for offline:  OflLumi_CosmicFake, OflLumi_TopMix
   m_lumichannel = 0;
-  m_lumimethod = "ATLAS_PREFERRED";// offline channels: ATLAS_PREFERRED, OflLumi_Fake0, OflLumi_Fake:, TopMixLumi 
+  m_lumimethod = "";// offline channels: ATLAS_PREFERRED, OflLumi_Fake0, OflLumi_Fake:, TopMixLumi 
   m_State = true;
   m_LumiTree = 0;
   
@@ -253,11 +254,8 @@ void LumiCalculator::UseMC(bool mc){
 
 void LumiCalculator::UseOnlineLumi(bool online){
 
-  if(online == true){
-    m_onlinelumi = true;
-    lumi_database = m_lumionl + m_data_db;
-    m_parlumiestfolder = "/TRIGGER/LUMI/LBLESTONL";
-  }
+  m_onlinelumi = online;
+
 }
 
 void LumiCalculator::UseLumiTag(const std::string& tag){
@@ -295,13 +293,47 @@ TTree * LumiCalculator::getTree(){
 }
 
 //______________________________________________________________________________
-void  LumiCalculator::IntegrateLumi(const LumiBlockCollection * iovc, const std::string& triggerchain){
+void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, const std::string& triggerchain){
 
 
   CoolQuery * cq_lumi = NULL;
   CoolQuery * cq_trigger = NULL;
   CoolQuery* cq_lar = NULL;
   CoolQuery* cq_bs = NULL;
+
+  // Peek at first run in iovc to check if we want Run1 or Run2 data
+  xAOD::LumiBlockRangeContainer::const_iterator it = iovc->begin();
+  //  const IOVRange * iovr = (*it);
+  const IOVRange* iovr = new IOVRange(IOVTime((*it)->startRunNumber(),(*it)->startLumiBlockNumber()), 
+                                      IOVTime((*it)->stopRunNumber(),(*it)->stopLumiBlockNumber()));
+
+  std::string onlfolder;
+  std::string oflfolder;
+  if (iovr->start().run() > 222222) {
+    m_data_db="CONDBR2";
+    onlfolder = "/TRIGGER/LUMI/OnlPrefLumi";
+    oflfolder = "/TRIGGER/OFLLUMI/OflPrefLumi";
+  } else {
+    m_data_db="COMP200";
+    onlfolder = "/TRIGGER/LUMI/LBLESTONL";
+    oflfolder = "/TRIGGER/OFLLUMI/LBLESTOFL";
+  }
+
+  // define all connection strings
+
+  // check for online DB
+  if(m_onlinelumi){
+    lumi_database = m_lumionl + m_data_db;
+    m_parlumiestfolder = onlfolder;
+  } else {
+    lumi_database = m_lumioff + m_data_db;
+    m_parlumiestfolder = oflfolder;
+  }
+
+  trig_database = m_trigger + m_data_db;
+  lar_database = m_laroff + m_data_db;
+  bs_database = m_bsonl + m_data_db;
+
 
   m_logger << Root::kINFO << "Luminosity database: " << lumi_database << Root::GEndl;
   m_logger << Root::kINFO << "Trigger database: " << trig_database << Root::GEndl;
@@ -466,8 +498,10 @@ void  LumiCalculator::IntegrateLumi(const LumiBlockCollection * iovc, const std:
   std::map<cool::ValidityKey, CoolQuery::L1CountFolderData> Livetime_map;
   std::map<cool::ValidityKey, CoolQuery::L1CountFolderData> L1accept_map;
 
-  for(LumiBlockCollection::const_iterator it = iovc->begin(); it != iovc->end(); ++it){
-    const IOVRange * iovr = (*it);
+  for(xAOD::LumiBlockRangeContainer::const_iterator it = iovc->begin(); it != iovc->end(); ++it){
+    //    const IOVRange * iovr = (*it);
+    const IOVRange* iovr = new IOVRange(IOVTime((*it)->startRunNumber(),(*it)->startLumiBlockNumber()), 
+                                        IOVTime((*it)->stopRunNumber(),(*it)->stopLumiBlockNumber()));
     
     // Bookkeeping temporary results
     mt_totalDelL = 0.;
@@ -874,6 +908,9 @@ void  LumiCalculator::IntegrateLumi(const LumiBlockCollection * iovc, const std:
 	  if (it->second == 0) continue;
 	  float dtime = (it->first.stop().re_time() - it->first.start().re_time())/1.E9;
 	  m_lartime += dtime;
+	  if (m_verbose == true) {
+	    m_logger << Root::kINFO << "Found LAr veto from " << it->first.start().re_time() << " to " << it->first.stop().re_time() << " = " << dtime << " seconds" << Root::GEndl;
+	  }
 	}
       }
 
