@@ -1,0 +1,260 @@
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<unifiedTestConfiguration>
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+    <rttContactPerson>Andreas Schaelicke (andreas.schaelicke@cern.ch)</rttContactPerson>
+    <mailto>atlas-simulation-testreports@cern.ch</mailto>
+    <refRelease>16.6.8</refRelease>
+
+    <!--
+        don't forget to check the xml file with
+        python /afs/cern.ch/user/r/rtt/public/validateXML.py SimPerformanceTests_TestConfiguration.xml
+
+        and to update/create the twiki page:
+        https://twiki.cern.ch/twiki/bin/viewauth/Atlas/SimPerformanceTests
+    -->
+
+
+    <jobList>
+
+
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Simul</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+
+
+      <!-- single electrons -->
+
+      <jobTransform userJobId="AtlasG4_electrons_libimf">
+        <doc>Tests AtlasG4 performance using 200 single electrons</doc>
+        <jobTransformJobName>AtlasG4_electrons_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "AtlasG4_tf.py --preInclude=SimulationJobOptions/preInclude.SingleElectronGenerator.py --postInclude=G4AtlasTests/postInclude.StepVal.py --outputHITSFile=test.HITS.pool.root --maxEvents=200 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>long</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="AtlasG4_electrons_libm">
+        <doc>Tests AtlasG4 performance using 200 single electrons</doc>
+        <jobTransformJobName>AtlasG4_electrons_libm</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "AtlasG4_tf.py --preInclude=SimulationJobOptions/preInclude.SingleElectronGenerator.py --postInclude=G4AtlasTests/postInclude.StepVal.py --outputHITSFile=test.HITS.pool.root --maxEvents=200 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current --imf=False"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>long</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="ISF_G4_electrons_libimf">
+        <doc>Tests ISF_G4 performance using 200 single electrons</doc>
+        <jobTransformJobName>ISF_G4_electrons_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "Sim_tf.py --simulator=MC12G4 --preInclude=SimulationJobOptions/preInclude.SingleElectronGenerator.py --postInclude=G4AtlasTests/postInclude.StepVal.py --outputHITSFile=test.HITS.pool.root --maxEvents=200 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>long</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="ISF_ATLFASTII_electrons_libimf">
+        <doc>Tests ISF_ATLFASTII performance using 200 single electrons (try 1000)</doc>
+        <jobTransformJobName>ISF_ATLFASTII_electrons_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "Sim_tf.py --simulator=ATLFASTII --preInclude=SimulationJobOptions/preInclude.SingleElectronGenerator.py --outputHITSFile=test.HITS.pool.root --maxEvents=200 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>short</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="ISF_ATLFASTIIF_electrons_libimf">
+        <doc>Tests ISF_ATLFASTIIF performance using 200 single electrons (try 1000)</doc>
+        <jobTransformJobName>ISF_ATLFASTIIF_electrons_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "Sim_tf.py --simulator=ATLFASTIIF --preInclude=SimulationJobOptions/preInclude.SingleElectronGenerator.py --outputHITSFile=test.HITS.pool.root --maxEvents=200 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>short</queue>
+      </jobTransform>
+
+      <!-- single muons -->
+
+      <jobTransform userJobId="AtlasG4_muons_libimf">
+        <doc>Tests AtlasG4 performance using 2000 single muons</doc>
+        <jobTransformJobName>AtlasG4_muons_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "AtlasG4_tf.py --preInclude=SimulationJobOptions/preInclude.SingleMuonGenerator.py --postInclude=G4AtlasTests/postInclude.StepVal.py --outputHITSFile=test.HITS.pool.root --maxEvents=2000 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>long</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="AtlasG4_muons_libm">
+        <doc>Tests AtlasG4 performance using 2000 single muons</doc>
+        <jobTransformJobName>AtlasG4_muons_libm</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "AtlasG4_tf.py --preInclude=SimulationJobOptions/preInclude.SingleMuonGenerator.py --postInclude=G4AtlasTests/postInclude.StepVal.py --outputHITSFile=test.HITS.pool.root --maxEvents=2000 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current --imf=False"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>long</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="ISF_G4_muons_libimf">
+        <doc>Tests ISF_G4 performance using 2000 single muons</doc>
+        <jobTransformJobName>ISF_G4_muons_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "Sim_tf.py --simulator=MC12G4 --preInclude=SimulationJobOptions/preInclude.SingleMuonGenerator.py --postInclude=G4AtlasTests/postInclude.StepVal.py --outputHITSFile=test.HITS.pool.root --maxEvents=2000 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>long</queue>
+      </jobTransform>
+
+       <jobTransform userJobId="ISF_ATLFASTIIF_muons_libimf">
+        <doc>Tests ISF_ATLFASTIIF performance using 2000 single muons</doc>
+        <jobTransformJobName>ISF_ATLFASTIIF_muons_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "Sim_tf.py --simulator=ATLFASTIIF --preInclude=SimulationJobOptions/preInclude.SingleMuonGenerator.py --outputHITSFile=test.HITS.pool.root --maxEvents=2000 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>medium</queue>
+      </jobTransform>
+
+      <!-- single pions -->
+
+      <jobTransform userJobId="AtlasG4_pions_libimf">
+        <doc>Tests AtlasG4 performance using 150 single pions</doc>
+        <jobTransformJobName>AtlasG4_pions_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "AtlasG4_tf.py --preInclude=SimulationJobOptions/preInclude.SinglePionGenerator.py --postInclude=G4AtlasTests/postInclude.StepVal.py --outputHITSFile=test.HITS.pool.root --maxEvents=150 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>long</queue>
+      </jobTransform>
+
+       <jobTransform userJobId="AtlasG4_pions_libm">
+        <doc>Tests AtlasG4 performance using 150 single pions</doc>
+        <jobTransformJobName>AtlasG4_pions_libm</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "AtlasG4_tf.py --preInclude=SimulationJobOptions/preInclude.SinglePionGenerator.py --postInclude=G4AtlasTests/postInclude.StepVal.py --outputHITSFile=test.HITS.pool.root --maxEvents=150 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current --imf=False"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>long</queue>
+      </jobTransform>
+
+       <jobTransform userJobId="ISF_G4_pions_libimf">
+        <doc>Tests ISF_G4 performance using 150 single pions</doc>
+        <jobTransformJobName>ISF_G4_pions_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "Sim_tf.py --simulator=MC12G4 --preInclude=SimulationJobOptions/preInclude.SinglePionGenerator.py --postInclude=G4AtlasTests/postInclude.StepVal.py --outputHITSFile=test.HITS.pool.root --maxEvents=150 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>long</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="ISF_ATLFASTIIF_pions_libimf">
+        <doc>Tests ISF ATLFASTIIF performance 150 using pions (try 1000)</doc>
+        <jobTransformJobName>ISF_ATLFASTIIF_pions_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "Sim_tf.py --simulator=ATLFASTIIF --preInclude=SimulationJobOptions/preInclude.SinglePionGenerator.py --outputHITSFile=test.HITS.pool.root --maxEvents=150 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>short</queue>
+      </jobTransform>
+
+      <!-- ttbar -->
+
+      <jobTransform userJobId="AtlasG4_TTbarSim_libimf">
+        <doc>Tests AtlasG4 performance using 4 ttbar events</doc>
+        <jobTransformJobName>AtlasG4_TTbarSim_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 2 --profilerOutput test.athena.profile --tf "AtlasG4_tf.py --inputEvgenFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputHITSFile=test.HITS.pool.root --maxEvents=4 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>short</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="AtlasG4_TTbarSim_libm">
+        <doc>Tests AtlasG4 performance using 4 ttbar events</doc>
+        <jobTransformJobName>AtlasG4_TTbarSim_libm</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 2 --profilerOutput test.athena.profile --tf "AtlasG4_tf.py --inputEvgenFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputHITSFile=test.HITS.pool.root --maxEvents=4 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current --imf=False"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>short</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="ISF_G4_TTbarSim_libimf">
+        <doc>Tests ISF_G4 performance using 4 ttbar events</doc>
+        <jobTransformJobName>ISF_G4_TTbarSim_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 2 --profilerOutput test.athena.profile --tf "Sim_tf.py --simulator=MC12G4 --inputEvgenFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputHITSFile=test.HITS.pool.root --maxEvents=4 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>short</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="ISF_ATLFASTII_TTbarSim_libimf">
+        <doc>Tests ATLFASTII performance using 50 ttbar events</doc>
+        <jobTransformJobName>ISF_ATLFASTII_TTbarSim_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "Sim_tf.py --simulator=ATLFASTII --inputEvgenFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputHITSFile=test.HITS.pool.root --maxEvents=50 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>medium</queue>
+      </jobTransform>
+
+      <jobTransform userJobId="ISF_ATLFASTIIF_TTbarSim_libimf">
+        <doc>Tests ATLFASTIIF performance using 500 ttbar events</doc>
+        <jobTransformJobName>ISF_ATLFASTIIF_TTbarSim_libimf</jobTransformJobName>
+        <jobTransformCmd>gathena --profilerMode eventLoop --profilerInitEvent 10 --profilerOutput test.athena.profile --tf "Sim_tf.py --simulator=ATLFASTIIF --inputEvgenFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputHITSFile=test.HITS.pool.root --maxEvents=500 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --DBRelease=current"
+        </jobTransformCmd>
+        <group>SimPerformanceTestJobs</group>
+        <queue>medium</queue>
+      </jobTransform>
+
+<!--***************Old AtlasG4 memory performance jobs***************-->
+
+      <jobTransform trendId="G4AT_Nothing" userJobId="G4AT_Nothing" doMonitoring="True">
+        <doc>Memory benchmarking - nothing defined</doc>
+        <jobTransformJobName>G4AT_Nothing</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEvgenFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.Nothing.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>SimPerformanceMemoryJobs</group>
+        <queue>short</queue>
+      </jobTransform>
+      <jobTransform trendId="G4AT_G4" userJobId="G4AT_G4" doMonitoring="True">
+        <doc>Memory benchmarking - no detectors on</doc>
+        <jobTransformJobName>G4AT_G4</jobTransformJobName>
+        <jobTransformCmd>ATHENA_PYCINTEX_MINVMEM=150 AtlasG4_tf.py --inputEvgenFile=/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/geantino_E5_eta0-25.evgen.pool.root --maxEvents=3 --geometryVersion=ATLAS-R1-2012-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-SIM-00 --preInclude=G4AtlasTests/preInclude.G4.py --athenaopts=--stdcmalloc</jobTransformCmd>
+        <group>SimPerformanceMemoryJobs</group>
+        <queue>short</queue>
+      </jobTransform>
+
+    </jobList>
+
+    <jobGroups>
+      <jobGroup name="SimPerformanceTestJobs" parent="Top">
+        <keepFilePattern>*.root</keepFilePattern>
+        <keepFilePattern>*.txt</keepFilePattern>
+        <keepFilePattern>*.out</keepFilePattern>
+        <keepFilePattern>*.html</keepFilePattern>
+        <keepFilePattern>prof/*.html</keepFilePattern>
+        <keepFilePattern>*.php</keepFilePattern>
+        <keepFilePattern>*log</keepFilePattern>
+        <keepFilePattern>log.*</keepFilePattern>
+        <keepFilePattern>*.diffPool</keepFilePattern>
+        <keepFilePattern>test.athena.profile</keepFilePattern>
+        <test>
+          <modulename>RttLibraryTools</modulename>
+          <testname>ExeRunner</testname>
+          <arg>
+            <argname>exeName</argname>
+            <argvalue>sim_parse_prof.py</argvalue>
+          </arg>
+          <arg>
+            <argname>exeParamString</argname>
+            <argvalue>--all</argvalue>
+          </arg>
+          <keepFilePattern>RttLibraryTools_ExeRunner.postprocessing.log</keepFilePattern>
+          <keepFilePattern>prof/athena.profile.html</keepFilePattern>
+        </test>
+        <testToRemove>
+          <jobGroupName>Top</jobGroupName>
+          <testidentifier>CheckFileRunner0</testidentifier>
+        </testToRemove>
+      </jobGroup>
+
+      <jobGroup name="SimPerformanceMemoryJobs" parent="Top">
+        <!-- no outputs, only performance monitoring -->
+        <testToRemove>
+          <jobGroupName>Top</jobGroupName>
+          <testidentifier>CheckFileRunner0</testidentifier>
+        </testToRemove>
+      </jobGroup>
+
+    </jobGroups>
+
+  </rtt>
+
+</unifiedTestConfiguration>
