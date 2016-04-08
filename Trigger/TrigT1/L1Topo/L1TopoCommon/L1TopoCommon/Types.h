@@ -15,7 +15,9 @@ namespace TCS {
                          JET=1,
                          MET=2,
                          MUON=3, 
-                         TAU=4 };
+                         TAU=4,
+			 LATEMUON=5, 
+			 MUONNEXTBC=6  };
    
 
    std::string inputTypeAsString(inputTOBType_t type);

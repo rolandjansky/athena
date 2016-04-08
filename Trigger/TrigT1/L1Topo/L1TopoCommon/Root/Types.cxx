@@ -13,6 +13,8 @@ TCS::inputTypeAsString(TCS::inputTOBType_t type) {
   else if(type == TCS::JET) return "Jets";
   else if(type == TCS::MET) return "MET";
   else if(type == TCS::MUON) return "Muons";
+  else if(type == TCS::MUONNEXTBC) return "MuonsNextBC";
+  else if(type == TCS::LATEMUON) return "LateMuons";
   else return "None";
 }
 
@@ -28,6 +30,15 @@ TCS::inputType(const std::string& input) {
 
    if ( input == "Muons" || input == "MuonTobArray" )
       return TCS::MUON;
+
+   if ( input == "MuonsNextBC" || input == "MuonNextBCTobArray" )
+      return TCS::MUONNEXTBC;
+          
+   if ( input == "LateMuons" || input == "LateMuonTobArray" )
+      return TCS::LATEMUON;
+
+   if ( input == "MuonsNextBC" || input == "MuonNextBCTobArray" )
+      return TCS::MUONNEXTBC;
           
    if ( input == "Taus" || input == "TauTobArray" )
       return TCS::TAU;
