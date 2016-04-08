@@ -212,7 +212,7 @@ from MuonD3PDMaker.TrackRecordD3PDObject import TrackRecordD3PDObject
 alg += TrackRecordD3PDObject (99, sgkey = 'TrackRecord',
                               exclude = ['TruthHits'])
 
-from AnalysisTools.AnalysisToolsConf import AANTupleStream
+from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
 AANTupleStream('D3PD').ExistDataHeader = False
 
 
