@@ -11,9 +11,9 @@ C...Initialize Information Using Protos
 
 C -----------------------------------------------------------------------------
 
-!     Read and store protos.dat information
+!     Read and store protoslhef.dat information
 
-      OPEN (lun,file='protos.dat')
+      OPEN (lun,file='protoslhef.dat')
 
 !     initialize
       ii=0
@@ -27,10 +27,10 @@ C -----------------------------------------------------------------------------
          in=i-1
          READ (lun,"(A)",IOSTAT=ii) string(i)
          IF (ii .GT. 0)  THEN
-            PRINT *, " ERROR :: ProtosLHEF_i :: FILE *** protos.dat *** READ FAILED "
+            PRINT *, " ERROR :: ProtosLHEF_i :: FILE *** protoslhef.dat *** READ FAILED "
             EXIT
          ELSE IF (ii .LT. 0) THEN
-            ! protos.dat read OK
+            ! protoslhef.dat read OK
             EXIT
          END IF
       END DO
@@ -38,9 +38,9 @@ C -----------------------------------------------------------------------------
       CLOSE(lun)
 C -----------------------------------------------------------------------------
 
-!     Read the ASCII file with process information (named protos.dat)
+!     Read the ASCII file with process information (named protoslhef.dat)
 
-      OPEN (lun,file='protos.dat')
+      OPEN (lun,file='protoslhef.dat')
       READ (lun,*) IHRD
       READ (lun,*) ET
 
@@ -111,9 +111,9 @@ C -----------------------------------------------------------------------------
 
 C -----------------------------------------------------------------------------
 
-!     Open the ASCII event files (named protos.events)
+!     Open the ASCII event files (named protoslhef.events)
 
-      OPEN (lun,file='protos.events')
+      OPEN (lun,file='protoslhef.events')
 
 10001 FORMAT ('Unknown process IHRD = ',I2)
 

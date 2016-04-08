@@ -24,4 +24,4 @@ job.ProtosLHEF_i.OutputLevel = INFO
 
 # Number of events to be processed (default is 10)
 
-theApp.EvtMax = 1
+theApp.EvtMax = 10
