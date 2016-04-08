@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 739093 2016-04-09 15:34:36Z krasznaa $
 ################################################################################
 # Package: TrigDbHltUpload
 ################################################################################
@@ -10,9 +9,7 @@ atlas_subdir( TrigDbHltUpload )
 find_package( Oracle )
 
 # Install files from the package:
-atlas_install_scripts( share/ConvertHLTSetup_txt2xml.py
-  share/prepareOnlineTriggerConfig.py
-  share/oldPrepareOnlineTriggerConfig.py
-  share/menumerge.py share/*.sh )
-atlas_install_python_modules( python/*.py )
+atlas_install_scripts( share/ConvertHLTSetup_txt2xml.py share/prepareOnlineTriggerConfig.py share/oldPrepareOnlineTriggerConfig.py share/menumerge.py share/*.sh )
+atlas_install_xmls( python/*.py )
 atlas_install_xmls( XML/*.dtd )
+
