@@ -57,10 +57,6 @@ namespace Trk
       
       /** If true, the first and last parameters of ID & MS subsystems will be kept on the slimmed track*/
       bool m_keepParameters;
-
-      /** Do not create slimmed tracks but only set hints for the persistifier to drop information while writing.
-       */
-      bool m_setPersistificationHints;
       
       /**atlas id helper*/
       const AtlasDetectorID* m_detID;
@@ -68,7 +64,6 @@ namespace Trk
       void checkForValidMeas(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas, bool& isMSmeas);
       
       void checkIfInDet(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas);
-
     }; 
 } // end of namespace
 
