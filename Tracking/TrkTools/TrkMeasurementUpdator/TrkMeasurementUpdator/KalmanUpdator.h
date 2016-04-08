@@ -149,6 +149,7 @@ private:
     std::vector<double>         m_cov0; //!< job option: initial covariance matrix
     ProjectionMatricesSet       m_projectionMatrices;  //!< get the correct projection matrix
     bool                        m_useFruehwirth8a;     //!< job option: formula for cov update
+    mutable MsgStream           m_log;  //!< class member version of MsgStream
     int                         m_outputlevel; //!< MsgStream output level cached
 };
 
