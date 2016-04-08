@@ -305,12 +305,8 @@ StatusCode ISF::NativeFastCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     return StatusCode::SUCCESS;
   }
   // (c.) individual particle processing
-  else {
-    ATH_MSG_DEBUG("particle is simulated individually");
-    return processOneParticle( isfp);
-  }
-
-  return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG("particle is simulated individually");
+  return processOneParticle( isfp);
 }
 
 

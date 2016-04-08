@@ -2,17 +2,25 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloGeometry.h"
+#include "ISF_FastCaloSimParametrization/CaloGeometry.h"
 #include <TTree.h>
 #include <TVector2.h>
 #include <TRandom.h>
+#include <TCanvas.h>
+#include <TH2D.h>
+#include <TGraphErrors.h>
+#include <TVector3.h>
+#include <TLegend.h>
+
 #include "CaloDetDescr/CaloDetDescrElement.h"
+#include "CaloGeoHelpers/CaloSampling.h"
+#include "ISF_FastCaloSimParametrization/FastCaloSim_CaloCell_ID.h"
 //#include "TMVA/Tools.h"
 //#include "TMVA/Factory.h"
 
 using namespace std;
 
-const int CaloGeometry::MAX_SAMPLING =24; //number of calorimeter layers/samplings
+const int CaloGeometry::MAX_SAMPLING = CaloCell_ID_FCS::MaxSample; //number of calorimeter layers/samplings
 
 Identifier CaloGeometry::m_debug_identify;
 bool CaloGeometry::m_debug=false;
@@ -36,6 +44,11 @@ CaloGeometryLookup::CaloGeometryLookup(int ind):m_xy_grid_adjustment_factor(0.75
   m_maxeta_correction=-10000;
   m_minphi_correction=+10000;
   m_maxphi_correction=-10000;
+
+  m_cell_grid_eta=0.;
+  m_cell_grid_phi=0.;
+  m_deta_double  =0.;
+  m_dphi_double  =0.;
 }
 
 CaloGeometryLookup::~CaloGeometryLookup()
@@ -46,7 +59,7 @@ bool CaloGeometryLookup::has_overlap(CaloGeometryLookup* ref)
 {
   if(m_cells.size()==0) return false;
   for(t_cellmap::iterator ic=m_cells.begin();ic!=m_cells.end();++ic) {
-    CaloDetDescrElement* cell=ic->second;
+    const CaloDetDescrElement* cell=ic->second;
     if(ref->IsCompatible(cell)) return true;
   }
   return false;
@@ -55,17 +68,17 @@ bool CaloGeometryLookup::has_overlap(CaloGeometryLookup* ref)
 void CaloGeometryLookup::merge_into_ref(CaloGeometryLookup* ref)
 {
   for(t_cellmap::iterator ic=m_cells.begin();ic!=m_cells.end();++ic) {
-    CaloDetDescrElement* cell=ic->second;
+    const CaloDetDescrElement* cell=ic->second;
     ref->add(cell);
   }
 }
 
 
-bool CaloGeometryLookup::IsCompatible(CaloDetDescrElement* cell)
+bool CaloGeometryLookup::IsCompatible(const CaloDetDescrElement* cell)
 {
   if(m_cells.size()==0) return true;
   t_cellmap::iterator ic=m_cells.begin();
-  CaloDetDescrElement* refcell=ic->second;
+  const CaloDetDescrElement* refcell=ic->second;
   int sampling=refcell->getSampling();
   if(cell->getSampling()!=sampling) return false;
   if(cell->eta_raw()*refcell->eta_raw()<0) return false;
@@ -111,7 +124,7 @@ bool CaloGeometryLookup::IsCompatible(CaloDetDescrElement* cell)
   return true;  
 }
 
-void CaloGeometryLookup::add(CaloDetDescrElement* cell)
+void CaloGeometryLookup::add(const CaloDetDescrElement* cell)
 {
   if(cell->getSampling()<21) {
     m_deta.add(cell->deta());
@@ -180,7 +193,7 @@ void CaloGeometryLookup::post_process()
 {
   if(size()==0) return;
   t_cellmap::iterator ic=m_cells.begin();
-  CaloDetDescrElement* refcell=ic->second;
+  const CaloDetDescrElement* refcell=ic->second;
   int sampling=refcell->getSampling();
   if(sampling<21) {
     double rneta=neta_double()-neta();
@@ -252,7 +265,7 @@ void CaloGeometryLookup::post_process()
   cout<<"Grid: Sampling "<<sampling<<"_"<<index()<<": "<<ncells<<"/"<<size()<<" cells filled, "<<nempty<<" empty grid positions"<<endl;
 }
 
-float CaloGeometryLookup::calculate_distance_eta_phi(CaloDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0)
+float CaloGeometryLookup::calculate_distance_eta_phi(const CaloDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0)
 {
   dist_eta0=(eta - DDE->eta())/m_deta_double;
   dist_phi0=(TVector2::Phi_mpi_pi(phi - DDE->phi()))/m_dphi_double;
@@ -264,7 +277,7 @@ float CaloGeometryLookup::calculate_distance_eta_phi(CaloDetDescrElement* DDE,fl
 const CaloDetDescrElement* CaloGeometryLookup::getDDE(float eta,float phi,float* distance,int* steps) 
 {
   float dist;
-  CaloDetDescrElement* bestDDE=0;
+  const CaloDetDescrElement* bestDDE=0;
   if(!distance) distance=&dist;
   *distance=+10000000;
   int intsteps=0;
@@ -280,7 +293,7 @@ const CaloDetDescrElement* CaloGeometryLookup::getDDE(float eta,float phi,float*
   int iphi=raw_phi_position_to_index(raw_phi);
   index_range_adjust(ieta,iphi);
   
-  CaloDetDescrElement* newDDE=m_cell_grid[ieta][iphi];
+  const CaloDetDescrElement* newDDE=m_cell_grid[ieta][iphi];
   float bestdist=+10000000;
   ++(*steps);
   int nsearch=0;
@@ -303,7 +316,7 @@ const CaloDetDescrElement* CaloGeometryLookup::getDDE(float eta,float phi,float*
     ieta+=TMath::Nint(dist_eta0);
     iphi+=TMath::Nint(dist_phi0);
     index_range_adjust(ieta,iphi);
-    CaloDetDescrElement* oldDDE=newDDE;
+    const CaloDetDescrElement* oldDDE=newDDE;
     newDDE=m_cell_grid[ieta][iphi];
     ++(*steps);
     ++nsearch;
@@ -424,16 +437,33 @@ void CaloGeometryLookup::CalculateTransformation()
 }
 */
 
-CaloGeometry::CaloGeometry() : m_cells_in_sampling(MAX_SAMPLING),m_cells_in_regions(MAX_SAMPLING)
+CaloGeometry::CaloGeometry() : m_cells_in_sampling(MAX_SAMPLING),m_cells_in_sampling_for_phi0(MAX_SAMPLING),m_cells_in_regions(MAX_SAMPLING),m_isCaloBarrel(MAX_SAMPLING),m_dographs(false)
 {
   //TMVA::Tools::Instance();
+  for(int i=0;i<2;++i) {
+    min_eta_sample[i].resize(MAX_SAMPLING); //[side][calosample]
+    max_eta_sample[i].resize(MAX_SAMPLING); //[side][calosample]
+    rmid_map[i].resize(MAX_SAMPLING); //[side][calosample]
+    zmid_map[i].resize(MAX_SAMPLING); //[side][calosample]
+    rent_map[i].resize(MAX_SAMPLING); //[side][calosample]
+    zent_map[i].resize(MAX_SAMPLING); //[side][calosample]
+    rext_map[i].resize(MAX_SAMPLING); //[side][calosample]
+    zext_map[i].resize(MAX_SAMPLING); //[side][calosample]
+  }
+  m_graph_layers.resize(MAX_SAMPLING);
+  for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
+    m_graph_layers[i]=0;
+    CaloSampling::CaloSample s=static_cast<CaloSampling::CaloSample>(i);
+    m_isCaloBarrel[i]=(CaloSampling::barrelPattern() & CaloSampling::getSamplingPattern(s))!=0;
+  }
+  m_isCaloBarrel[CaloCell_ID_FCS::TileGap3]=false; 
 }
 
 CaloGeometry::~CaloGeometry()
 {
 }
 
-void CaloGeometry::addcell(CaloDetDescrElement* cell) 
+void CaloGeometry::addcell(const CaloDetDescrElement* cell) 
 {
   int sampling=cell->getSampling();
   Identifier identify=cell->identify();
@@ -560,6 +590,262 @@ void CaloGeometry::post_process(int sampling)
   }  
 }
 
+void CaloGeometry::InitRZmaps()
+{
+  int nok=0;
+
+  FSmap< double , double > rz_map_eta [2][MAX_SAMPLING];
+  FSmap< double , double > rz_map_rmid[2][MAX_SAMPLING];
+  FSmap< double , double > rz_map_zmid[2][MAX_SAMPLING];
+  FSmap< double , double > rz_map_rent[2][MAX_SAMPLING];
+  FSmap< double , double > rz_map_zent[2][MAX_SAMPLING];
+  FSmap< double , double > rz_map_rext[2][MAX_SAMPLING];
+  FSmap< double , double > rz_map_zext[2][MAX_SAMPLING];
+  FSmap< double , int    > rz_map_n   [2][MAX_SAMPLING];
+
+
+  for(int side=0;side<=1;++side) for(int sample=0;sample<MAX_SAMPLING;++sample) {
+    min_eta_sample[side][sample]=+1000;
+    max_eta_sample[side][sample]=-1000;
+  }  
+
+  for(t_cellmap::iterator calo_iter=m_cells.begin();calo_iter!=m_cells.end();++calo_iter) {
+    const CaloDetDescrElement* theDDE=(*calo_iter).second;
+    if(theDDE) {
+      ++nok;
+      int sample=theDDE->getSampling();
+
+      int side=0;
+      int sign_side=-1;
+      double eta_raw=theDDE->eta_raw();
+      if(eta_raw>0) {
+        side=1;
+        sign_side=+1;
+      }
+      
+      if(!m_cells_in_sampling_for_phi0[sample][eta_raw]) {
+        m_cells_in_sampling_for_phi0[sample][eta_raw]=theDDE;
+      } else {
+        if(TMath::Abs(theDDE->phi()) < TMath::Abs(m_cells_in_sampling_for_phi0[sample][eta_raw]->phi())) {
+          m_cells_in_sampling_for_phi0[sample][eta_raw]=theDDE;
+        }
+      }  
+      
+      double min_eta=theDDE->eta()-theDDE->deta()/2;
+      double max_eta=theDDE->eta()+theDDE->deta()/2;
+      if(min_eta<min_eta_sample[side][sample]) min_eta_sample[side][sample]=min_eta;
+      if(max_eta>max_eta_sample[side][sample]) max_eta_sample[side][sample]=max_eta;
+      
+      if(rz_map_eta[side][sample].find(eta_raw)==rz_map_eta[side][sample].end()) {
+        rz_map_eta [side][sample][eta_raw]=0;
+        rz_map_rmid[side][sample][eta_raw]=0;
+        rz_map_zmid[side][sample][eta_raw]=0;
+        rz_map_rent[side][sample][eta_raw]=0;
+        rz_map_zent[side][sample][eta_raw]=0;
+        rz_map_rext[side][sample][eta_raw]=0;
+        rz_map_zext[side][sample][eta_raw]=0;
+        rz_map_n   [side][sample][eta_raw]=0;
+      }
+      rz_map_eta [side][sample][eta_raw]+=theDDE->eta();
+      rz_map_rmid[side][sample][eta_raw]+=theDDE->r();
+      rz_map_zmid[side][sample][eta_raw]+=theDDE->z();
+      double drh=theDDE->dr()/2;
+      double dzh=theDDE->dz();
+      if(sample>=CaloSampling::PreSamplerB && sample<=CaloSampling::EMB3) {
+        drh=theDDE->dr();
+      }
+      rz_map_rent[side][sample][eta_raw]+=theDDE->r()-drh;
+      rz_map_zent[side][sample][eta_raw]+=theDDE->z()-dzh*sign_side;
+      rz_map_rext[side][sample][eta_raw]+=theDDE->r()+drh;
+      rz_map_zext[side][sample][eta_raw]+=theDDE->z()+dzh*sign_side;
+      rz_map_n   [side][sample][eta_raw]++;
+      
+    }
+  }
+  for(int side=0;side<=1;++side) for(int sample=0;sample<MAX_SAMPLING;++sample) {
+    if(rz_map_n[side][sample].size()>0) {
+      for(FSmap< double , int >::iterator iter=rz_map_n[side][sample].begin();iter!=rz_map_n[side][sample].end();++iter) {
+        double eta_raw=iter->first;
+        if(iter->second<1) {
+          //ATH_MSG_WARNING("rz-map for side="<<side<<" sample="<<sample<<" eta_raw="<<eta_raw<<" : #cells="<<iter->second<<" !!!");
+        } else {
+          double eta =rz_map_eta[side][sample][eta_raw]/iter->second;
+          double rmid=rz_map_rmid[side][sample][eta_raw]/iter->second;
+          double zmid=rz_map_zmid[side][sample][eta_raw]/iter->second;
+          double rent=rz_map_rent[side][sample][eta_raw]/iter->second;
+          double zent=rz_map_zent[side][sample][eta_raw]/iter->second;
+          double rext=rz_map_rext[side][sample][eta_raw]/iter->second;
+          double zext=rz_map_zext[side][sample][eta_raw]/iter->second;
+          
+          rmid_map[side][sample][eta]=rmid;
+          zmid_map[side][sample][eta]=zmid;
+          rent_map[side][sample][eta]=rent;
+          zent_map[side][sample][eta]=zent;
+          rext_map[side][sample][eta]=rext;
+          zext_map[side][sample][eta]=zext;
+        }
+      }
+      //ATH_MSG_DEBUG("rz-map for side="<<side<<" sample="<<sample<<" #etas="<<rmid_map[side][sample].size());
+    } else {
+      //ATH_MSG_WARNING("rz-map for side="<<side<<" sample="<<sample<<" is empty!!!");
+    }
+  }
+  if(DoGraphs()) {
+    int calocol[24]={1,2,3,4, // LAr barrel
+                     1,2,3,4, // LAr EM endcap
+                     1,2,3,4, // Hadronic end cap cal.
+                     1,2,3,   // Tile barrel
+                     6,28,42, // Tile gap (ITC & scint)
+                     1,2,3,   // Tile extended barrel
+                     1,2,3    // Forward EM endcap
+                    }; 
+                   
+    for(int sample=0;sample<MAX_SAMPLING;++sample) {
+      m_graph_layers[sample]=new TGraphErrors(rz_map_n[0][sample].size()+rz_map_n[1][sample].size());
+      m_graph_layers[sample]->SetMarkerColor(calocol[sample]);
+      m_graph_layers[sample]->SetLineColor(calocol[sample]);
+      int np=0;
+      for(int side=0;side<=1;++side) {
+        for(FSmap< double , int >::iterator iter=rz_map_n[side][sample].begin();iter!=rz_map_n[side][sample].end();++iter) {
+          double eta_raw=iter->first;
+          int sign_side=-1;
+          if(eta_raw>0) sign_side=+1;
+          //double eta =rz_map_eta[side][sample][eta_raw]/iter->second;
+          double rmid=rz_map_rmid[side][sample][eta_raw]/iter->second;
+          double zmid=rz_map_zmid[side][sample][eta_raw]/iter->second;
+          //double rent=rz_map_rent[side][sample][eta_raw]/iter->second;
+          //double zent=rz_map_zent[side][sample][eta_raw]/iter->second;
+          double rext=rz_map_rext[side][sample][eta_raw]/iter->second;
+          double zext=rz_map_zext[side][sample][eta_raw]/iter->second;
+          m_graph_layers[sample]->SetPoint(np,zmid,rmid);
+          /*
+          if(isCaloBarrel(sample)) {
+            m_graph_layers[sample]->SetPointError(np,0,rext-rmid);
+          } else {
+            m_graph_layers[sample]->SetPointError(np,(zext-zent)*sign_side,0);
+          }
+          */
+          m_graph_layers[sample]->SetPointError(np,(zext-zmid)*sign_side,rext-rmid);
+          ++np;
+        }
+      }  
+    }
+  }
+}
+
+TCanvas* CaloGeometry::DrawGeoForPhi0()
+{
+  TCanvas* c=new TCanvas("CaloGeoForPhi0","Calo geometry for #phi~0");
+  TH2D* hcalolayout=new TH2D("hcalolayoutPhi0","Reconstruction geometry: calorimeter layout;z [mm];r [mm]",50,-7000,7000,50,0,4000);
+  hcalolayout->Draw();
+  hcalolayout->SetStats(0);
+  hcalolayout->GetYaxis()->SetTitleOffset(1.4);
+  
+  int calocol[MAX_SAMPLING]={1,2,3,4, // LAr barrel
+                   1,2,3,4, // LAr EM endcap
+                   1,2,3,4, // Hadronic end cap cal.
+                   1,2,3,   // Tile barrel
+                   -42,-28,-6, // Tile gap (ITC & scint)
+                   1,2,3,   // Tile extended barrel
+                   1,2,3    // Forward EM endcap
+                  }; 
+
+  TLegend* leg=new TLegend(0.30,0.13,0.70,0.37);
+  leg->SetFillStyle(0);
+  leg->SetFillColor(10);
+  leg->SetBorderSize(1);
+  leg->SetNColumns(2);
+
+  for(int sample=0;sample<MAX_SAMPLING;++sample) {
+//  for(int sample=21;sample<22;++sample) {
+    cout<<"Start sample "<<sample<<" ("<<SamplingName(sample)<<")"<<endl;
+    int ngr=0;
+    for(t_eta_cellmap::iterator calo_iter=m_cells_in_sampling_for_phi0[sample].begin();calo_iter!=m_cells_in_sampling_for_phi0[sample].end();++calo_iter) {
+      const CaloDetDescrElement* theDDE=(*calo_iter).second;
+      if(theDDE) {
+        TVector3 cv;
+        TGraph* gr=new TGraph(5);
+        gr->SetLineColor(TMath::Abs(calocol[sample]));
+        gr->SetFillColor(TMath::Abs(calocol[sample]));
+        if(calocol[sample]<0) {
+          gr->SetFillStyle(1001);
+        } else {
+          gr->SetFillStyle(0);
+        }
+        gr->SetLineWidth(2);
+        double r=theDDE->r();
+        double dr=theDDE->dr();
+        double x=theDDE->x();
+        double dx=theDDE->dx();
+        double y=theDDE->y();
+        double dy=theDDE->dy();
+        double z=theDDE->z();
+        double dz=theDDE->dz()*2;
+        double eta=theDDE->eta();
+        double deta=theDDE->deta();
+        if(CaloSampling::PreSamplerB<=sample && sample<=CaloSampling::EMB3) {
+         dr*=2;
+        }
+        
+        if(isCaloBarrel(sample)) {
+          cv.SetPtEtaPhi(r-dr/2,eta-deta/2,0);
+          gr->SetPoint(0,cv.Z(),cv.Pt());
+          gr->SetPoint(4,cv.Z(),cv.Pt());
+          cv.SetPtEtaPhi(r-dr/2,eta+deta/2,0);
+          gr->SetPoint(1,cv.Z(),cv.Pt());
+          cv.SetPtEtaPhi(r+dr/2,eta+deta/2,0);
+          gr->SetPoint(2,cv.Z(),cv.Pt());
+          cv.SetPtEtaPhi(r+dr/2,eta-deta/2,0);
+          gr->SetPoint(3,cv.Z(),cv.Pt());
+        } else {
+          if(sample<CaloSampling::FCAL0) {
+            cv.SetPtEtaPhi(1,eta-deta/2,0);cv*=(z-dz/2)/cv.Z();
+            gr->SetPoint(0,cv.Z(),cv.Pt());
+            gr->SetPoint(4,cv.Z(),cv.Pt());
+            cv.SetPtEtaPhi(1,eta+deta/2,0);cv*=(z-dz/2)/cv.Z();
+            gr->SetPoint(1,cv.Z(),cv.Pt());
+            cv.SetPtEtaPhi(1,eta+deta/2,0);cv*=(z+dz/2)/cv.Z();
+            gr->SetPoint(2,cv.Z(),cv.Pt());
+            cv.SetPtEtaPhi(1,eta-deta/2,0);cv*=(z+dz/2)/cv.Z();
+            gr->SetPoint(3,cv.Z(),cv.Pt());
+          } else {
+            double minr=r;
+            double maxr=r;
+            for(double px=x-dx/2;px<=x+dx/2;px+=dx) {
+              for(double py=y-dy/2;py<=y+dy/2;py+=dy) {
+                double pr=TMath::Sqrt(px*px+py*py);
+                minr=TMath::Min(minr,pr);
+                maxr=TMath::Max(maxr,pr);
+              }
+            }
+            cv.SetXYZ(minr,0,z-dz/2);
+            gr->SetPoint(0,cv.Z(),cv.Pt());
+            gr->SetPoint(4,cv.Z(),cv.Pt());
+            cv.SetXYZ(maxr,0,z-dz/2);
+            gr->SetPoint(1,cv.Z(),cv.Pt());
+            cv.SetXYZ(maxr,0,z+dz/2);
+            gr->SetPoint(2,cv.Z(),cv.Pt());
+            cv.SetXYZ(minr,0,z+dz/2);
+            gr->SetPoint(3,cv.Z(),cv.Pt());
+          }  
+        }
+        //if(calocol[sample]>0) gr->Draw("Lsame");
+        // else gr->Draw("LFsame");
+        gr->Draw("LFsame");
+        if(ngr==0) {
+          std::string sname=Form("Sampling %2d : ",sample);
+          sname+=SamplingName(sample);
+          leg->AddEntry(gr,sname.c_str(),"LF");
+        }  
+        ++ngr;
+      }
+    }  
+    cout<<"Done sample "<<sample<<" ("<<SamplingName(sample)<<")="<<ngr<<endl;
+  }
+  leg->Draw();
+  return c;
+}
+
 const CaloDetDescrElement* CaloGeometry::getDDE(Identifier identify) 
 {
   return m_cells[identify];
@@ -647,7 +933,9 @@ bool CaloGeometry::PostProcessGeometry()
       m_cells_in_regions[i][j]->post_process();
     }
     //if(i>=21) break;
-  } 
+  }
+  
+  InitRZmaps(); 
   
   /*
   cout<<"all : "<<m_cells.size()<<endl;
@@ -670,7 +958,7 @@ void CaloGeometry::Validate()
   int ntest=0;
   cout<<"start CaloGeometry::Validate()"<<endl;
   for(t_cellmap::iterator ic=m_cells.begin();ic!=m_cells.end();++ic) {
-    CaloDetDescrElement* cell=ic->second;
+    const CaloDetDescrElement* cell=ic->second;
     int sampling=cell->getSampling();
     if(sampling>=21) continue;
 
@@ -697,9 +985,11 @@ void CaloGeometry::Validate()
         }
       } else {
         if( TMath::Abs( (eta-cell->eta())/cell->deta() )<0.45 && TMath::Abs( (phi-cell->phi())/cell->dphi() )<0.45 ) {
-          cout<<"cell id="<<cell->identify()<<" not found! Found instead id="<<foundcell->identify()<<" in "<<steps<<" steps, dist="<<distance<<" eta="<<eta<<" phi="<<phi<<endl;
+          cout<<"cell id="<<cell->identify()<<" not found! Found instead id=";
+          if (foundcell) cout << foundcell->identify();
+          cout <<" in "<<steps<<" steps, dist="<<distance<<" eta="<<eta<<" phi="<<phi<<endl;
           cout<<"  input sampling="<<sampling<<" eta="<<cell->eta()<<" eta_raw="<<cell->eta_raw()<<" deta="<<cell->deta()<<" ("<<(cell->eta_raw()-cell->eta())/cell->deta()<<") phi="<<cell->phi()<<" phi_raw="<<cell->phi_raw()<<" dphi="<<cell->dphi()<<" ("<<(cell->phi_raw()-cell->phi())/cell->dphi()<<")"<<endl;
-          cout<<" output sampling="<<foundcell->getSampling()<<" eta="<<foundcell->eta()<<" eta_raw="<<foundcell->eta_raw()<<" deta="<<foundcell->deta()<<" ("<<(foundcell->eta_raw()-foundcell->eta())/foundcell->deta()<<") phi="<<foundcell->phi()<<" phi_raw="<<foundcell->phi_raw()<<" dphi="<<foundcell->dphi()<<" ("<<(foundcell->phi_raw()-foundcell->phi())/cell->dphi()<<")"<<endl;
+          cout<<" output sampling="<<(foundcell?(foundcell->getSampling()):-1)<<" eta="<<(foundcell?(foundcell->eta()):0)<<" eta_raw="<<(foundcell?(foundcell->eta_raw()):0)<<" deta="<<(foundcell?(foundcell->deta()):0)<<" ("<<(foundcell?((foundcell->eta_raw()-foundcell->eta())/foundcell->deta()):0)<<") phi="<<(foundcell?(foundcell->phi()):0)<<" phi_raw="<<(foundcell?(foundcell->phi_raw()):0)<<" dphi="<<(foundcell?(foundcell->dphi()):0)<<" ("<<(foundcell?((foundcell->phi_raw()-foundcell->phi())/cell->dphi()):0)<<")"<<endl;
           return;
         }  
         if(!foundcell) {
@@ -715,5 +1005,156 @@ void CaloGeometry::Validate()
     ++ntest;
   }
   cout<<"end CaloGeometry::Validate()"<<endl;
+}
+
+double CaloGeometry::deta(int sample,double eta) const
+{
+  int side=0;
+  if(eta>0) side=1;
+
+  double mineta=min_eta_sample[side][sample];
+  double maxeta=max_eta_sample[side][sample];
+
+  if(eta<mineta)
+  {
+    return fabs(eta-mineta);
+  }
+  else if(eta>maxeta)
+  {
+   return fabs(eta-maxeta);
+	}
+	else
+	{
+   double d1=fabs(eta-mineta);
+   double d2=fabs(eta-maxeta);
+   if(d1<d2) return -d1;
+   else return -d2;
+  }
+}
+
+
+void CaloGeometry::minmaxeta(int sample,double eta,double& mineta,double& maxeta) const 
+{
+  int side=0;
+  if(eta>0) side=1;
+  
+  mineta=min_eta_sample[side][sample];
+  maxeta=max_eta_sample[side][sample];
+}
+
+double CaloGeometry::rmid(int sample,double eta) const 
+{
+  int side=0;
+  if(eta>0) side=1;
+
+  return rmid_map[side][sample].find_closest(eta)->second;
+}
+
+double CaloGeometry::zmid(int sample,double eta) const 
+{
+  int side=0;
+  if(eta>0) side=1;
+
+  return zmid_map[side][sample].find_closest(eta)->second;
+}
+
+double CaloGeometry::rzmid(int sample,double eta) const
+{
+ int side=0;
+ if(eta>0) side=1;
+	
+ if(isCaloBarrel(sample)) return rmid_map[side][sample].find_closest(eta)->second;
+ else                     return zmid_map[side][sample].find_closest(eta)->second;
+}
+
+double CaloGeometry::rent(int sample,double eta) const 
+{
+  int side=0;
+  if(eta>0) side=1;
+
+  return rent_map[side][sample].find_closest(eta)->second;
+}
+
+double CaloGeometry::zent(int sample,double eta) const 
+{
+  int side=0;
+  if(eta>0) side=1;
+
+  return zent_map[side][sample].find_closest(eta)->second;
+}
+
+double CaloGeometry::rzent(int sample,double eta) const
+{
+  int side=0;
+  if(eta>0) side=1;
+
+  if(isCaloBarrel(sample)) return rent_map[side][sample].find_closest(eta)->second;
+   else                    return zent_map[side][sample].find_closest(eta)->second;
+}
+
+double CaloGeometry::rext(int sample,double eta) const 
+{
+  int side=0;
+  if(eta>0) side=1;
+
+  return rext_map[side][sample].find_closest(eta)->second;
+}
+
+double CaloGeometry::zext(int sample,double eta) const 
+{
+  int side=0;
+  if(eta>0) side=1;
+
+  return zext_map[side][sample].find_closest(eta)->second;
+}
+
+double CaloGeometry::rzext(int sample,double eta) const
+{
+  int side=0;
+  if(eta>0) side=1;
+
+  if(isCaloBarrel(sample)) return rext_map[side][sample].find_closest(eta)->second;
+   else                    return zext_map[side][sample].find_closest(eta)->second;
+}
+
+double CaloGeometry::rpos(int sample,double eta,int subpos) const
+{
+  int side=0;
+  if(eta>0) side=1;
+
+  if(subpos==SUBPOS_ENT) return rent_map[side][sample].find_closest(eta)->second;
+  if(subpos==SUBPOS_EXT) return rext_map[side][sample].find_closest(eta)->second;
+  return rmid_map[side][sample].find_closest(eta)->second;
+}
+
+double CaloGeometry::zpos(int sample,double eta,int subpos) const
+{
+  int side=0;
+  if(eta>0) side=1;
+
+  if(subpos==SUBPOS_ENT) return zent_map[side][sample].find_closest(eta)->second;
+  if(subpos==SUBPOS_EXT) return zext_map[side][sample].find_closest(eta)->second;
+  return zmid_map[side][sample].find_closest(eta)->second;
+}
+
+double CaloGeometry::rzpos(int sample,double eta,int subpos) const
+{
+  int side=0;
+  if(eta>0) side=1;
+ 
+  if(isCaloBarrel(sample)) {
+    if(subpos==SUBPOS_ENT) return rent_map[side][sample].find_closest(eta)->second;
+    if(subpos==SUBPOS_EXT) return rext_map[side][sample].find_closest(eta)->second;
+    return rmid_map[side][sample].find_closest(eta)->second;
+  } else {
+    if(subpos==SUBPOS_ENT) return zent_map[side][sample].find_closest(eta)->second;
+    if(subpos==SUBPOS_EXT) return zext_map[side][sample].find_closest(eta)->second;
+    return zmid_map[side][sample].find_closest(eta)->second;
+  }  
+}
+
+std::string CaloGeometry::SamplingName(int sample)
+{
+  return CaloSampling::getSamplingName(sample);
 }
 

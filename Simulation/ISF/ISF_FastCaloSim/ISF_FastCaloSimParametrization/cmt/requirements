@@ -9,50 +9,31 @@ use StoreGate                   StoreGate-*                     Control
 use AthenaKernel                AthenaKernel-*                  Control
 use GaudiInterface              GaudiInterface-*                External
 use AthenaBaseComps             AthenaBaseComps-*               Control
-#use McParticleEvent    	McParticleEvent-*   		PhysicsAnalysis/TruthParticleID
-#use CaloEvent          	CaloEvent-*         		Calorimeter
 use CaloDetDescr                CaloDetDescr-*                  Calorimeter
-#use egammaEvent       		egammaEvent-*       		Reconstruction/egamma
-#use MissingETEvent    		MissingETEvent-*    		Reconstruction
-#use muonEvent         		muonEvent-*         		Reconstruction/MuonIdentification
-#use JetEvent          		JetEvent-*          		Reconstruction/Jet
-#use tauEvent          		tauEvent-*          		Reconstruction
-#use EventKernel       		EventKernel-*       		Event
-#use EventInfo         		EventInfo-*         		Event
-#use GeneratorObjects  		GeneratorObjects-*  		Generators
-#use TrigEventARA      		TrigEventARA-*      		Trigger/TrigEvent
-#use TrigSteeringEvent 		TrigSteeringEvent-* 		Trigger/TrigEvent
-#use TrigDecisionEvent 		TrigDecisionEvent-* 		Trigger/TrigEvent
 use AtlasROOT                   AtlasROOT-*                     External
-#use McParticleUtils     	McParticleUtils-*   		PhysicsAnalysis/TruthParticleID
-#use McParticleKernel    	McParticleKernel-*  		PhysicsAnalysis/TruthParticleID
-#use HepPDT              	v*                  		LCG_Interfaces
-#use TrkTrack                   TrkTrack-*          		Tracking/TrkEvent
-use LArG4Code                   LArG4Code-*                     LArCalorimeter/LArG4
 use Identifier                  Identifier-*                    DetectorDescription
 use AtlasCLHEP                  AtlasCLHEP-*                    External
 use LArElecCalib                LArElecCalib-*                  LArCalorimeter
 
 ######################
-#use FastSimulationEvent        FastSimulationEvent-*           Simulation/FastSimulation
 use TrkParameters               TrkParameters-*                 Tracking/TrkEvent
+use TrkEventPrimitives          TrkEventPrimitives-*   Tracking/TrkEvent
+use TrkExInterfaces             TrkExInterfaces-*               Tracking/TrkExtrapolation
 use AtlasHepMC                  AtlasHepMC-*                    External
 use HepPDT                      v*                              LCG_Interfaces
 ######################
 
 use CaloInterface               CaloInterface-*                 Calorimeter
+use CaloGeoHelpers              CaloGeoHelpers-*                Calorimeter
 use BarcodeInterfaces           BarcodeInterfaces-*             Simulation/Barcode
 use ISF_Interfaces              ISF_Interfaces-*                Simulation/ISF/ISF_Core
 
 private
-#use GaudiInterface             GaudiInterface-*                External
-#use AtlasROOT                  AtlasROOT-*                     External
 use Geant4                      Geant4-*                        External
 use EventInfo                   EventInfo-*                     Event
 use GeoModelInterfaces          GeoModelInterfaces-*            DetectorDescription/GeoModel
 # For reading file/DB metadata
 use AthenaPoolUtilities         AthenaPoolUtilities-*           Database/AthenaPOOL
-#use AtlasCORAL                 AtlasCORAL-*                    External
 
 use GeneratorObjects            GeneratorObjects-*              Generators
 use TileSimEvent                TileSimEvent-*                  TileCalorimeter
@@ -60,46 +41,46 @@ use TileDetDescr                TileDetDescr-*                  TileCalorimeter
 use LArSimEvent                 LArSimEvent-*                   LArCalorimeter
 use GeoAdaptors                 GeoAdaptors-*                   DetectorDescription/GeoModel
 use CaloIdentifier              CaloIdentifier-*                Calorimeter
-#use CaloDetDescr        	CaloDetDescr-*          	Calorimeter
-#use LArElecCalib        	LArElecCalib-*          	LArCalorimeter
 use TileConditions              TileConditions-*                TileCalorimeter
-
-#use LArG4Barrel         	LArG4Barrel-*           	LArCalorimeter/LArG4
-#use LArG4Code           	LArG4Code-*             	LArCalorimeter/LArG4
-#use LArG4EC             	LArG4EC-*               	LArCalorimeter/LArG4
-#use LArG4FCAL           	LArG4FCAL-*             	LArCalorimeter/LArG4
-#use LArG4HEC            	LArG4HEC-*              	LArCalorimeter/LArG4
-#use LArG4ShowerLib      	LArG4ShowerLib-*        	LArCalorimeter/LArG4
-use FadsPhysics                 FadsPhysics-*                   Simulation/G4Sim/FADS
 
 use NavFourMom                  NavFourMom-*                    Event
 use ISF_Event                   ISF_Event-*                     Simulation/ISF/ISF_Core
 use CaloEvent                   CaloEvent-*                     Calorimeter
-use CaloGeoHelpers              CaloGeoHelpers-*                Calorimeter
 use ISF_FastCaloSimEvent        ISF_FastCaloSimEvent-*          Simulation/ISF/ISF_FastCaloSim
 use ISF_FastCaloSimInterfaces   ISF_FastCaloSimInterfaces-*     Simulation/ISF/ISF_FastCaloSim
 use ISF_HepMC_Event             ISF_HepMC_Event-*               Simulation/ISF/ISF_HepMC
 
 ####################
 use CaloTrackingGeometry        CaloTrackingGeometry-*          Calorimeter
-use TrkExInterfaces             TrkExInterfaces-*               Tracking/TrkExtrapolation
-#use TruthHelper                TruthHelper-*           	Generators/GenAnalysisTools
-#use TrackToCalo                TrackToCalo-*           	Reconstruction/RecoTools
 use TrkMaterialOnTrack          TrkMaterialOnTrack-*            Tracking/TrkEvent
 use TrkSurfaces                 TrkSurfaces-*                   Tracking/TrkDetDescr
-#use RecoToolInterfaces          RecoToolInterfaces-*            Reconstruction/RecoTools
-
+use TrkGeometry         TrkGeometry-*          Tracking/TrkDetDescr
 ####################
 
 
 end_private
 
-apply_pattern declare_python_modules files="*.py"
 apply_tag ROOTGraphicsLibs
 apply_tag ROOTMathLibs
 
-#library ISF_FastCaloSimParametrization *.cxx -s=components *.cxx
-library ISF_FastCaloSimParametrization *.cxx components/*.cxx
+# Create a named installed library
+library ISF_FastCaloSimParametrizationLib "../Root/*.cxx"
+apply_pattern named_installed_library library=ISF_FastCaloSimParametrizationLib
 
+# Create the CINT dictionary
+private
+macro_append extra_root_cint_includes " -p -I$(CaloGeoHelpers_root) "
+end_private
+apply_pattern have_root_headers root_headers="MeanAndRMS.h FastCaloSim_CaloCell_ID.h TFCSParametrizationBase.h TFCSParametrization.h TFCSEnergyParametrization.h TFCSPCAEnergyParametrization.h TFCSLateralShapeParametrization.h TFCSNNLateralShapeParametrization.h TFCSSimpleLateralShapeParametrization.h TFCSExtrapolationState.h TFCSTruthState.h TFCSSimulationState.h TFCS1DFunction.h TFCS1DFunctionRegression.h TFCS1DFunctionHistogram.h TFCSFunction.h ../Root/LinkDef.h" \ 
+              headers_lib=ISF_FastCaloSimParametrizationLib 
+
+library ISF_FastCaloSimParametrization *.cxx components/*.cxx
+macro_append ISF_FastCaloSimParametrization_dependencies " ISF_FastCaloSimParametrizationLib"
 apply_pattern component_library
+
 apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+
