@@ -183,6 +183,8 @@ def createxAOD (seq):
               'MET_Core_AntiKt4EMTopo',
               'MET_RefFinal')
 
+    makexAOD (seq, 'xAOD::TrigDecision', 'xTrigDecision', 'TrigDecision')
+
     from xAODTriggerCnv.xAODRoICreator import xAODRoICreator
     if cfgKeyStore.isInInput ('LVL1_ROI', 'LVL1_ROI'):
         xAODRoICreator (seq)
