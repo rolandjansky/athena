@@ -13,7 +13,6 @@ use GaudiInterface      GaudiInterface-*         External
 use StoreGate           StoreGate-*              Control
 use Identifier          Identifier-*             DetectorDescription
 use RPCcablingInterface RPCcablingInterface-*    MuonSpectrometer/MuonCablings
-use MDTcabling          MDTcabling-*             MuonSpectrometer/MuonCablings
 end_private
 
 

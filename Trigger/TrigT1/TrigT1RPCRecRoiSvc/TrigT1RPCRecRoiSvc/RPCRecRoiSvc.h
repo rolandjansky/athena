@@ -20,12 +20,21 @@ namespace LVL1RPC {
 class RPCRecRoiSvc : public LVL1::RecMuonRoiSvc
 {
 public:
-  RPCRecRoiSvc (const std::string& name, ISvcLocator* svc)
-    : LVL1::RecMuonRoiSvc( name, svc ), 
-      m_phi(0),
-      m_eta(0)
-    {};
-
+    RPCRecRoiSvc (const std::string& name, ISvcLocator* svc)
+        : LVL1::RecMuonRoiSvc( name, svc ), 
+          m_phi(0),
+          m_eta(0),
+          m_phiMin(0),
+          m_phiMax(0),
+          m_etaMin(0),
+          m_etaMax(0),
+          m_side(0),
+          m_sector(0),
+          m_roi(0),
+          m_MuonMgr(0),
+          m_rPCcablingSvc(0)
+        {};
+    
   ~RPCRecRoiSvc (void) {};
 
   StatusCode initialize (void); 
@@ -37,21 +46,32 @@ public:
   double phiMax (void) const {return m_phiMax;};
   double etaMin (void) const {return m_etaMin;};
   double etaMax (void) const {return m_etaMax;};
-  
-  bool writeRoiRobMap(const std::string& filename);
+  double side (void) const {return m_side;};
+  double sector (void) const {return m_sector;};
+  double roi (void) const {return m_roi;};
+            
+    
+  bool dumpRoiMap(const std::string& filename);
+    
+  void RoIsize(const unsigned int & roIWord,
+               double & etaMin_lowHigh, double & etaMax_lowHigh, double & phiMin_lowHigh, double & phiMax_lowHigh) const; //!< calculate RoI edges TAKING INTO ACCOUNT BENDING !!!
+    
+    // RoI edges for Low-pt and High-pt confirm planes 
+    bool etaDimLow (double& etaMin, double& etaMax) const;
+    bool etaDimHigh(double& etaMin, double& etaMax) const;
 
 
 private:
-  bool etaDimLow (unsigned short int side,unsigned short int sector,
-                  unsigned short int roi,float& etaMin, float& etaMax) const;
-  bool etaDimHigh(unsigned short int side,unsigned short int sector,
-                  unsigned short int roi,float& etaMin, float& etaMax) const;
-private:
-  mutable double m_phi, m_eta;
-  mutable double m_phiMin, m_phiMax, m_etaMin, m_etaMax;
+        
+    
+
+    mutable double m_phi, m_eta;
+    mutable double m_phiMin, m_phiMax, m_etaMin, m_etaMax;
+    mutable unsigned short int m_side, m_sector, m_roi;
+    
   const MuonGM::MuonDetectorManager * m_MuonMgr;
   const IRPCcablingSvc*   m_rPCcablingSvc;
-  const IMDTcablingSvc*   m_mDTcablingSvc;
+    //  const IMDTcablingSvc*   m_mDTcablingSvc;
 };
 
 } // end of namespace
