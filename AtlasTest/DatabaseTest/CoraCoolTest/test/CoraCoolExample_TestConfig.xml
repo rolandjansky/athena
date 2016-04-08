@@ -2,18 +2,6 @@
 <atn>
 <TEST name="CoraCoolExampleSQLite" type="script" suite="Examples">
 <options_atn>AtlasTest/DatabaseTest/CoraCoolTest/share/CoraCoolExample_SQLite.sh</options_atn>
-<timelimit>2</timelimit>
-<author>Richard Hawkings</author>
-<mailto>richard.hawkings@cern.ch</mailto>
-<expectations>
-<errorMessage>FAILURE</errorMessage>
-<successMessage>SUCCESS</successMessage>
-<returnValue>0</returnValue>
-</expectations>
-</TEST>
-
-<TEST name="CoraCoolExampleOracle" type="script" suite="Examples">
-<options_atn>AtlasTest/DatabaseTest/CoraCoolTest/share/CoraCoolExample_Oracle.sh</options_atn>
 <timelimit>4</timelimit>
 <author>Richard Hawkings</author>
 <mailto>richard.hawkings@cern.ch</mailto>
@@ -23,4 +11,5 @@
 <returnValue>0</returnValue>
 </expectations>
 </TEST>
+
 </atn>
