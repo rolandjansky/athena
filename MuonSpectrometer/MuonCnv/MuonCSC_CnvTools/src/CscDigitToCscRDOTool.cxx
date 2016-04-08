@@ -242,8 +242,8 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
       uint16_t subDetectorId = (eta==-1) ? 0x6A : 0x69;
       uint16_t rodId         = 0xFFFF;
       if(m_cscCablingSvc->nROD()==16){
-         if(stationId==0x33) rodId = (0x10 | (phi-1));
-         if(stationId==0x32) rodId = (0x18 | (phi-1));
+         if(stationId==0x32) rodId = (0x10 | (phi-1));
+         if(stationId==0x33) rodId = (0x18 | (phi-1));
       } else {
          rodId = uint16_t (phi-1);
       }
