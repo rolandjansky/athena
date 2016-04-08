@@ -50,14 +50,21 @@ class EFTauDiKaonHypo : public HLT::HypoAlgo {
   float m_leadTrkPtMin;
   int m_nTrackMax;
   int m_nTrackMin;
+  int m_nWideTrackMax;
   float m_EMPOverTrkSysPMax;
+  float m_dRmaxMax;
+  float m_etOverPtLeadTrkMax;
+  float m_etOverPtLeadTrkMin;
 
   /** variables used for cuts in hypo algorithm */   
   float m_massTrkSys;
   float m_leadTrkPt;
   float m_EtCalib;
   int m_nTrack;
+  int m_nWideTrack;
   float m_EMPOverTrkSysP;
+  float m_dRmax;
+  float m_etOverPtLeadTrk;
 
   /** for monitoring */
   int  m_cutCounter;

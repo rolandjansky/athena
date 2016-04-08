@@ -45,6 +45,10 @@ EFTauDiKaonHypo::EFTauDiKaonHypo(const std::string& name,
   declareProperty("EtCalibMin",    m_EtCalibMin  = 0.);
   declareProperty("nTrackMin",     m_nTrackMin  = 1);
   declareProperty("nTrackMax",     m_nTrackMax  = 2);
+  declareProperty("nWideTrackMax", m_nWideTrackMax  = 10);
+  declareProperty("dRmaxMax",      m_dRmaxMax  = 10.);
+  declareProperty("etOverPtLeadTrkMin",    m_etOverPtLeadTrkMin  = 0.);
+  declareProperty("etOverPtLeadTrkMax",    m_etOverPtLeadTrkMax  = 10.);
   declareProperty("EMPOverTrkSysPMax",     m_EMPOverTrkSysPMax  = 5.);
 
   declareMonitoredVariable("CutCounter",m_cutCounter=0);
@@ -77,11 +81,15 @@ HLT::ErrorCode EFTauDiKaonHypo::hltInitialize()
   msg() << MSG::INFO << " REGTEST: param EtCalibMin " << m_EtCalibMin <<endreq;
   msg() << MSG::INFO << " REGTEST: param nTrackMin (included) " << m_nTrackMin <<endreq;
   msg() << MSG::INFO << " REGTEST: param nTrackMax (included) " << m_nTrackMax <<endreq;
+  msg() << MSG::INFO << " REGTEST: param nWideTrackMax (included) " << m_nWideTrackMax <<endreq;
   msg() << MSG::INFO << " REGTEST: param EMPOverTrkSysPMax " << m_EMPOverTrkSysPMax <<endreq;
+  msg() << MSG::INFO << " REGTEST: param dRmaxMax " << m_dRmaxMax <<endreq;
+  msg() << MSG::INFO << " REGTEST: param etOverPtLeadTrkMin " << m_etOverPtLeadTrkMin <<endreq;
+  msg() << MSG::INFO << " REGTEST: param etOverPtLeadTrkMax " << m_etOverPtLeadTrkMax <<endreq;
 
   msg() << MSG::INFO << " REGTEST: ------ "<<endreq;
   
-  if( ( m_massTrkSysMin >  m_massTrkSysMax ) || ( m_nTrackMin > m_nTrackMax ) )
+  if( ( m_massTrkSysMin >  m_massTrkSysMax ) || ( m_nTrackMin > m_nTrackMax )  || (m_etOverPtLeadTrkMin > m_etOverPtLeadTrkMax) )
     {
       msg() << MSG::ERROR << "EFTauDiKaonHypo is uninitialized! " << endreq;
       return HLT::BAD_JOB_SETUP;
@@ -119,9 +127,12 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   m_massTrkSys = 0.;
   m_leadTrkPt = 0.;
   m_nTrack = 0;
+  m_nWideTrack = 0;
   m_EtCalib = 0.;  
   m_EMPOverTrkSysP = 0.;
- 
+  m_dRmax = 0.;
+  m_etOverPtLeadTrk = 0.;
+
   // get the trigger element and extract the RoI information
   //---------------------------------------------------------
   
@@ -189,11 +200,14 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     if(!( EFet > m_EtCalibMin*1e-3)) continue;
     m_cutCounter++;
     
-    // cut on core tracks:
+    // cut on core and wide tracks:
     m_nTrack = (*tauIt)->nTracks();
+    m_nWideTrack = (*tauIt)->nWideTracks();
     if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: Track size "<< m_nTrack <<endreq;	
-    
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: Wide Track size "<< m_nWideTrack <<endreq;
+ 
     if (!( (m_nTrack >= m_nTrackMin) && (m_nTrack <= m_nTrackMax)))  continue;
+    if (!( m_nWideTrack <= m_nWideTrackMax ))  continue;
     m_cutCounter++;
 
     // cut on leading track pt:     
@@ -217,6 +231,20 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     if ( !(m_EMPOverTrkSysP < m_EMPOverTrkSysPMax) )  continue;
     m_cutCounter++;
 
+    // cut on etOverPtLeadTrk:
+    (*tauIt)->detail(xAOD::TauJetParameters::etOverPtLeadTrk, m_etOverPtLeadTrk);
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: etOverPtLeadTrk "<< m_etOverPtLeadTrk <<endreq;
+
+    if( !( (m_etOverPtLeadTrk > m_etOverPtLeadTrkMin) && (m_etOverPtLeadTrk < m_etOverPtLeadTrkMax)  ) ) continue;
+    m_cutCounter++;
+
+    // cut on dRmax:
+    (*tauIt)->detail(xAOD::TauJetParameters::dRmax, m_dRmax);
+    if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: dRmax "<< m_dRmax <<endreq;
+
+    if( !( m_dRmax < m_dRmaxMax ) ) continue;
+    m_cutCounter++;    
+ 
     //-------------------------------------------------
     // At least one Tau matching passed all cuts.
     // Accept the event!
