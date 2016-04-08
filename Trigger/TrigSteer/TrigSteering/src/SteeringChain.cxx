@@ -254,23 +254,9 @@ HLT::ErrorCode SteeringChain::executeStep() {
    
 
    // collect operational information: create new TrigOperationalInfo 
-   if(m_config -> getSteeringOPILevel() > 0) {
-      size_t attachedCostOPI = m_config->getNavigation()->getDirectSuccessors( m_config->getNavigation()->getInitialNode() ).size();
-      if ( attachedCostOPI >= 4000) { 
-        // Do not attach any more. Default is to stop at 4000, leave room for 96 more features elsewhere
-        m_config -> setSteeringOPI(NULL);
-        if (attachedCostOPI == attachedCostOPI) m_config->getMsgStream() << MSG::WARNING << "Too many sequences run! Will not attach any more to initial node. Monitoring data lost." << endreq;
-      } else {
-        // Create new chain step OPI as before
-        TrigOperationalInfo *steer_opi = new TrigOperationalInfo();
-        steer_opi -> set("CHAIN:"+getChainName(), m_currentStep);
-        std::string key;
-        m_config -> getNavigation() -> attachFeature(m_config -> getNavigation() -> getInitialNode(),
-                                                     steer_opi, HLT::Navigation::ObjectCreatedByNew, key, 
-                                                     "OPI_extended"+m_config->getInstance());
-        m_config -> setSteeringOPI(steer_opi);
-      }
-
+   if(m_config -> getSteeringOPILevel() > 0 && m_config -> getSteeringOPI()) {
+      TrigOperationalInfo *steer_opi = m_config -> getSteeringOPI();
+      steer_opi -> set("CHAIN:"+getChainName(), m_currentStep);
    }
   
    m_config->setPEBI(m_calibrationROBs); // this sets the context of PEB (i.e. al algs executing within this chain will insert their ROB demends into this object) 
