@@ -18,63 +18,96 @@ After the TB simulation job POOL file with hits is created, after digitization j
 
 jobOptions_TileTB_Sim.py:
 
-  - SimFlags.SimLayout
+  - EvtMax
 
-      Three Options: tb_Tile2000_2003_2B2EB for two barrel modules and two extended barrel modules, tb_Tile2000_2003_3B for three barrel modules or tb_Tile2000_2003_5B for five barrel modules. 
-  - SimFlags.Eta
+      Number of events to generate
+  - FileSuffix
+
+    Suffix for output files, default is empty suffix and name of output file is tiletb.HITS.pool.root
+  - Geo
+
+      Three Options: '2B2EB' for two barrel modules and two extended barrel modules, '3B' for three barrel modules or '5B' for five barrel modules. 
+  - Eta
 
        Use only for eta-projective scans. This is the default option with eta set to 0.35. 
-  - SimFlags.Phi
+  - Theta
 
-       To rotate the table to top/bottom module (default is middle). 
-  - SimFlags.Y
-
-       Y is the vertical distance (in mm) from the center of the middle module (above > 0, below < 0). 
-  - SimFlags.Theta
+       Angle between beam axis and symmetry axis of the module (eta=0.0 direction). Can be used instead of Eta. 
+       Positive value of Theta corresponds to negative eta direction.
 
        Set to +/- 90 for beam entering the side of the module (with positive theta beam entering the positive eta side). 
-  - SimFlags.Z
+  - Z
 
-       for +/-90 degrees scan Z is the distance from the center of ATLAS (in mm). The sensitive part of the detector start at Z=2300 and ends at Z = 2300 + 3*100 + 3*130 + 3*150 + 2*190 = 3820.
+       For small Theta angles - coordiate at the front face of the calorimeter where beam eters the module (in mm)
+
+       For +/-90 degrees scan Z is the distance from the center of ATLAS (in mm). The sensitive part of the detector start at Z=2300 and ends at Z = 2300 + 3*100 + 3*130 + 3*150 + 2*190 = 3820.
 
        Center of the 2nd tile is at Z = 2300 + 100 + 100/2 = 2450;
 
        center of the 5th tile is at Z = 2300 + 3*100 + 130 + 130/2 = 2795;
 
        center of the 10th tile is at Z= 2300 + 3*100 + 3*130 + 3*150 + 190/2 = 3535 
+  - Y
 
-  - SimFlags.ParticlePDG
+       Y is the vertical distance (in mm) from the center of the middle module (above > 0, below < 0). 
+  - Phi
+
+       To rotate the table to top/bottom module (default is middle). 
+
+  - PID
 
        Set the particle type according to its PDG code (e.g 11 - electrons, 211 - positive pions). 
-  - SimFlags.Energy
+  - E
 
        Set the beam energy (in MeV). 
+  - Ybeam
+
+       Set the beam coordinates in Y, by default [-20,20] - uniform distribution from -20 to 20 mm
+  - Zbeam
+
+       Set the beam coordinates in Z, by default [-15,15] - uniform distribution from -15 to 15 mm
 
   - TileUshape
       
       Set up U-shape to be used
 
-jobOptions_TileTB_Dig.py
+jobOptions_Tile_Dig.py
+
+  - TileTB
+
+    If True, digitization of testbeam configuration,  otherwise digitization of full ATLAS
+
+  - FileSuffix
+
+    Suffix for input and all output files, default is empty suffix
 
   - PoolHitsInput
 
-    Input file name with hits (by default: HITS.pool.root)
+    Input file name with hits (by default: HITS.pool.root or tiletb.HITS.pool.root if TileTB=True)
 
   - PoolRDOOutput
 
-    Output file name (by default: DIGITS.pool.root)
+    Output file name (by default: DIGITS.pool.root or tiletb.DIGITS.pool.root if TileTB=True)
 
   - D3PDOutput
 
-    Output D3PD file name (by default: tile_d3pd.root)
+    Output D3PD file name (by default: tile.d3pd.root or tiletb.d3pd.root if TileTB=True)
+
+  - AANTOutput
+
+    Output file name for h1000/h2000 ntuple (by default: tile.aant.root or tiletb.aant.root if TileTB=True)
+
+  - NTUPOutput
+
+    Output file name for h32 ntuple with hits (by default: tile.ntup.root or tiletb.ntup.root if TileTB=True)
+
+  - DetGeo
+
+    By default 'atlas' or 'ctbh8' if TileTB=True
 
   - DetDescrVersion
 
     Detector description version
-
-  - DetGeo
-
-    By default 'atlas'
 
   - ConddbTag
 
@@ -116,10 +149,6 @@ jobOptions_TileTB_Dig.py
 
     Create TileCal h2000 ntuple with raw channels
 
-  - TileTB
-
-    Set up digitization for sampling fraction calculation
-
   - doHitNtuple
 
     Create TileCal h32 ntuple with all G4 hits
@@ -127,34 +156,24 @@ jobOptions_TileTB_Dig.py
   - doRawChannelNtuple
 
 
-jobOptions_TileTB_Dig.py
-
-  - jobproperties.Global.DetDescrVersion
-
-      Set the same geometry tag as was used during the simulation (e.g GEO-06-00-00).
-  - doCBNT
-
-      Set doCBNT to True if you would like to store MC truth information in the ntuple. Hits information will be also saved, but the h1000 ntuple will not be created in this case.
-
-
 @section SamplingFraction How to extract the sampling fraction value
 
- - Running simulations in Athena
+ -  Running simulation in Athena
 
- -  Digitization (Ushape), ntuple making in Athena
+ -  Digitization, ntuple making in Athena
 
- -  Calculating sampling fraction in Root
+ -  Calculating sampling fraction in ROOT
 
 
 @subsection SamplingFractionSimulation Simulation:
 
    jobOptions_TileTB_Sim.py:
 
-   - test beam setup with 5 barrels, electrons at 100 GeV, eta = 0.35
+   - test beam setup with 5 barrels, 100 GeV electrons at eta = 0.35
 
-   - FTFP_BERT Physics List
+   - FTFP_BERT Physics List (used by default)
 
-   - 10000 events
+   - 10000 or 20000 events
 
    - TileUshape=1 
     
@@ -162,11 +181,11 @@ jobOptions_TileTB_Dig.py
 
    - Output file with HITS: 
  
-       tile.hits.pool.root
+       tiletb.HITS.pool.root
 
   - Example:
 
-      athena.py -c 'TileUshape=1;' jobOptions_TileTB_Sim.py
+      athena.py -c 'EvtMax=10000; Eta=0.35; TileUshape=1;' TileSimEx/jobOptions_TileTB_Sim.py
 
 @subsection SamplingFractionDigitization Digitization & Ntuple creation
 
@@ -174,37 +193,37 @@ jobOptions_Tile_Dig.py
 
   - Input file (HITS file from simulation step):
   
-     tile.hits.pool.root
+     tiletb.HITS.pool.root
 
   - TileTB = True:
     
     Set up digitization to produce ntuples needed for sampling fraction calculation
 
-  - Output files (both ntuples needed):
+  - Output files (both files needed):
 
-      tile_d3pd.root with tree called "truth" - truth information about particles
+      tiletb.d3pd.root with tree called "truth" - truth information about particles
 
-      tile_ntup.root with tree called "h32" - hit information
+      tiletb.ntup.root with tree called "h32" - hit information
 
   - Example:
 
-      athena.py -c 'TileTB=True;' jobOptions_Tile_Dig.py
+      athena.py -c 'TileTB=True;' TileSimEx/jobOptions_Tile_Dig.py
 
 @subsection SamplingFractionCalculation Sampling fraction calculation
 
-  - sf_eta035.C
+  - tile_sf.C
 
     - Input files (produced in digitization step):
 
-        tile_ntup.root
+        tiletb.ntup.root
 
-        tile_d3pd.root
+        tiletb.d3pd.root
 
     - one should check the file names file_hit and file_truth in ROOT macro
 
   - Example ( 1/SF value on the last line of the print-out):
 
-      root -l sf_eta035.C
+      root -l tile_sf.C("")
 
 
 */

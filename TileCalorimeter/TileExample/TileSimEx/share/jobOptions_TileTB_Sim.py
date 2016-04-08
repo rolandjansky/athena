@@ -1,17 +1,17 @@
 #==============================================================
 #
-# Job options file for Geant4 Simulations
+# Job options file for Geant4 Simulation
 #
-# Standalone Tile TB during 2000-2003 
+# Standalone TileCal Testbeam in 2000-2003 
 #
 #==============================================================
-
 
 ## Algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
-
+from AthenaCommon.AppMgr import theApp
+svcMgr = theApp.serviceMgr()
 
 #---  Output printout level ----------------------------------- 
 #output threshold (1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
@@ -26,48 +26,65 @@ svcMgr.MessageSvc.useColors = False
 if not 'EvtMax' in dir():
     EvtMax = 10
 
-#--- Detector flags -------------------------------------------
-from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-CTB-01"
-jobproperties.Global.DetGeo = "ctbh8"
-
-# - Select detectors 
-DetFlags.Calo_setOn()
-DetFlags.Tile_setOn()
-# - MCTruth
-DetFlags.simulate.Truth_setOn()
-#
-from AtlasGeoModel import SetGeometryVersion
-from AtlasGeoModel import GeoModelInit
+#--- Suffix for output POOL file ------------------------------
+if not 'FileSuffix' in dir():
+    FileSuffix = ''
 
 #--- AthenaCommon flags ---------------------------------------
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.PoolHitsOutput='tile.hits.pool.root'
+athenaCommonFlags.PoolHitsOutput='tiletb%s.HITS.pool.root' % FileSuffix
 athenaCommonFlags.EvtMax=EvtMax
 
+#--- Detector flags -------------------------------------------
+from AthenaCommon.DetFlags import DetFlags
+
+# - Select detectors 
+DetFlags.ID_setOff()
+DetFlags.Calo_setOff()
+DetFlags.Muon_setOff()
+DetFlags.LVL1_setOff()
+#DetFlags.sTGCMicromegas_setOff()
+
+DetFlags.Tile_setOn()
+# - MCTruth
+DetFlags.simulate.Truth_setOn()
+
+#-- Geometry flags --------------------------------------------
+from AthenaCommon.GlobalFlags import jobproperties
+jobproperties.Global.DetDescrVersion = "ATLAS-CTB-01"
+from AtlasGeoModel import SetGeometryVersion
+jobproperties.Global.DetGeo = "ctbh8"
+from AtlasGeoModel import GeoModelInit
 
 #--- Simulation flags -----------------------------------------
 from G4AtlasApps.SimFlags import simFlags
 
-# TileCal standalone setup with 2 barrels and 2 ext.barrels on top
-simFlags.SimLayout='tb_Tile2000_2003_2B2EB'
-# TileCal standalone setup with 3 barrels
-#simFlags.SimLayout='tb_Tile2000_2003_3B'
-# TileCal standalone setup with 5 barrels
-#simFlags.SimLayout='tb_Tile2000_2003_5B'
-
-# Goes with a new version of G4AtlasApps (>= G4AtlasApps-00-04-08), for older releases comment this line!
+if not 'Geo' in dir():
+    # TileCal standalone setup with 2 barrels and 2 ext.barrels on top
+    #Geo = '2B2EB'
+    # TileCal standalone setup with 3 barrels
+    #Geo = '3B'
+    # TileCal standalone setup with 5 barrels - use for sampling fraction calculation
+    Geo = '5B'
+simFlags.SimLayout='tb_Tile2000_2003_%s' % Geo
 simFlags.load_tbtile_flags()
 
 # set eta only if you want eta-projective scan
-simFlags.Eta=0.35
-#
-# put 5.625 or -5.625 if you want to rotate table to up/bottom module
-#simFlags.Phi=5.625
-#
-# put non-zero value here if you want beam above (>0) or below (<0) center
-#simFlags.Y=5.0
+if not 'Eta' in dir() and not 'Theta' in dir() and not 'Z' in dir():
+    Eta = 0.35
+
+if 'Eta' in dir():
+    simFlags.Eta=Eta
+
+else:
+    if not 'Theta' in dir():
+        Theta=-19.656205808169407
+
+    if not 'Z' in dir():
+        Z=817.96448041135261
+
+    simFlags.Theta=Theta
+    simFlags.Z=Z
 
 # these two values Theta and Z can be set instead of eta
 # negative theta corresponds to positive eta values
@@ -84,6 +101,18 @@ simFlags.Eta=0.35
 # sensitive part starts at Z=2300, ends at Z=2300+3*100+3*130+3*150+2*190=3820
 #simFlags.Z=2550.0
 
+#
+# put 5.625 or -5.625 if you want to rotate table to up/bottom module
+#simFlags.Phi=5.625
+#
+# put non-zero value here if you want beam above (>0) or below (<0) center
+#simFlags.Y=5.0
+
+if 'Phi' in dir():
+    simFlags.Phi=Phi
+if 'Y' in dir():
+    simFlags.Y=Y
+
 
 # uncomment this for simulation with calibration hits
 #simFlags.CalibrationRun = 'Tile'
@@ -96,12 +125,13 @@ tileSimInfoConfigurator=TileSimInfoConfigurator()
 # tileSimInfoConfigurator.TileTB = True
 # tileSimInfoConfigurator.PlateToCell = True
 # tileSimInfoConfigurator.DoExpAtt = False
-# tileSimInfoConfigurator.DoBirk = True
 # tileSimInfoConfigurator.DoTileRow = False
 # tileSimInfoConfigurator.DoTOFCorrection = True
+# Birks' law
+if 'DoBirk' in dir():
+    tileSimInfoConfigurator.DoBirk = DoBirk
 # U-shape
 if 'TileUshape' in dir():
-    #tileSimInfoConfigurator.Ushape = 1
     tileSimInfoConfigurator.Ushape = TileUshape
 
 print tileSimInfoConfigurator
@@ -114,15 +144,10 @@ if 'TileUshape' in dir():
     from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
     GeoModelSvc = GeoModelSvc()
     from AtlasGeoModel import TileGM
-    #GeoModelSvc.DetectorTools[ "TileDetectorTool" ].Ushape = 1
     GeoModelSvc.DetectorTools[ "TileDetectorTool" ].Ushape = TileUshape
 
 
 #--- Generator flags ------------------------------------------
-
-#simFlags.PhysicsList.set_Value('QGSP_EMV')
-simFlags.PhysicsList.set_Value('QGSP_BERT')
-#simFlags.PhysicsList.set_Value('QGSP_BERT_EMV')
 
 ## Run ParticleGun
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -130,9 +155,29 @@ athenaCommonFlags.PoolEvgenInput.set_Off()
 import AthenaCommon.AtlasUnixGeneratorJob
 import ParticleGun as PG
 pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="SINGLE")
-pg.sampler.pid = 211
-pg.sampler.pos = PG.PosSampler(x=-27500, y=[-10,15], z=[-15,-15], t=-27500)
-pg.sampler.mom = PG.EEtaMPhiSampler(energy=50000, eta=0, phi=0)
+
+# 50 GeV pions
+#pg.sampler.pid = 211
+#pg.sampler.pos = PG.PosSampler(x=-27500, y=[-10,15], z=[-15,15], t=-27500)
+#pg.sampler.mom = PG.EEtaMPhiSampler(energy=50000, eta=0, phi=0)
+
+# 100 GeV electrons - use for sampling faction calculation
+#pg.sampler.pid = 11
+#pg.sampler.pos = PG.PosSampler(x=-27500, y=[-20,20], z=[-15,15], t=-27500)
+#pg.sampler.mom = PG.EEtaMPhiSampler(energy=100000, eta=0, phi=0)
+
+if not 'PID' in dir():
+    PID=11
+if not 'E' in dir():
+    E=100000
+if not 'Ybeam' in dir():
+    Ybeam=[-20,20]
+if not 'Zbeam' in dir():
+    Zbeam=[-15,15]
+pg.sampler.pid = PID
+pg.sampler.pos = PG.PosSampler(x=-27500, y=Ybeam, z=Zbeam, t=-27500)
+pg.sampler.mom = PG.EEtaMPhiSampler(energy=E, eta=0, phi=0)
+
 topSeq += pg
 
 try:
@@ -145,22 +190,34 @@ except:
         from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
         topSeq += CopyEventWeight()
 
-#==============================================================
-# Job configuration
-# ***>> Do not add flags or simulation options below this line
-#==============================================================
 
-#--- TB-Tile  setup description  -----------------------------
+#--- Geant4 flags ---------------------------------------------
+
+## Select G4 physics list or use the default one
+#simFlags.PhysicsList.set_Value('QGSP_EMV')
+#simFlags.PhysicsList.set_Value('QGSP_BERT_EMV')
+#simFlags.PhysicsList.set_Value('QGSP_BERT')
+#simFlags.PhysicsList.set_Value('FTFP_BERT')
 
 ## Use verbose G4 tracking
-#def use_verbose_tracking():
-#    from G4AtlasApps import AtlasG4Eng
-#    AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(1)
-#simFlags.InitFunctions.add_function("postInit", use_verbose_tracking)
-            
+if 'VerboseTracking' in dir():
+    def use_verbose_tracking():
+        from G4AtlasApps import AtlasG4Eng
+        AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(1)
+    simFlags.InitFunctions.add_function("postInit", use_verbose_tracking)
+
+## Set non-standard range cut
+if 'RangeCut' in dir():
+    def set_general_range_cut():
+        from G4AtlasApps import AtlasG4Eng
+        physics = AtlasG4Eng.G4Eng.Dict.get('physics')
+        physics.Value_gen_cut = RangeCut
+    simFlags.InitFunctions.add_function('preInitPhysics',set_general_range_cut)
+
+#--- Final step -----------------------------------------------
+
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
 
-#--- End jobOptions_TileTB_Sim.py file  ---------------
-
+#--- End of jobOptions_TileTB_Sim.py --------------------------
