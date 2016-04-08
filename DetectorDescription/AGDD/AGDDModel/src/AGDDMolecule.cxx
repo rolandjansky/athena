@@ -11,12 +11,12 @@
 
 std::ostream& operator <<(std::ostream& os, const AGDDMolecule &obj)
 {
-	os<<"- Material "<<obj._name<<" type=Molecule density="<<obj._density<<std::endl;
+	os<<"- Material "<<obj.m_name<<" type=Molecule density="<<obj.m_density<<std::endl;
 	os<<"\tcomponents"<<std::endl;
-	for (unsigned int i=0;i<obj.theElements.size();i++)
+	for (unsigned int i=0;i<obj.m_theElements.size();i++)
 	{
-		const std::string ss=obj.theElements[i]->GetName();
-		const int ii=obj.theComposition[i];
+		const std::string ss=obj.m_theElements[i]->GetName();
+		const int ii=obj.m_theComposition[i];
 		os<<"\t\t element "<<ss<<" natoms="<<ii<<std::endl;
 	}
 	return os;
@@ -25,16 +25,16 @@ std::ostream& operator <<(std::ostream& os, const AGDDMolecule &obj)
 AGDDMolecule::AGDDMolecule(std::string n, double d):
 	AGDDSimpleMaterial(n,d)
 {
-	mType=Molecule;
+        m_mType=Molecule;
 }
 
 void AGDDMolecule::AddElement(std::string el)
 {
 	AGDDMaterialStore* ms=AGDDMaterialStore::GetMaterialStore();
 	AGDDElement* element=ms->GetElement(el);
-	theElements.push_back(element);
+	m_theElements.push_back(element);
 }
 void AGDDMolecule::NAtoms(int i)
 {
-	theComposition.push_back(i);
+	m_theComposition.push_back(i);
 }

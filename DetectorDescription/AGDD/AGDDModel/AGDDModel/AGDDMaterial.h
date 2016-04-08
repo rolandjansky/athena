@@ -16,16 +16,16 @@ class AGDDMaterial: public AGDDSimpleMaterial {
 public:
 	AGDDMaterial(std::string,AGDDElement*, double);
 	AGDDMaterial(std::string,int, double,double);
-	int GetZ() {return _z;}
-	double GetA() {return _a;}
-	AGDDElement* GetElement() {return _element;}
-	void Created(bool b) {_created=b;}
-	bool Extant() {return _created;}
+	int GetZ() {return m_z;}
+	double GetA() {return m_a;}
+	AGDDElement* GetElement() {return m_element;}
+	void Created(bool b) {m_created=b;}
+	bool Extant() {return m_created;}
 private:
-	int _z;
-	double _a;
-	AGDDElement* _element;	
-	bool _created;
+	int m_z;
+	double m_a;
+	AGDDElement* m_element;	
+	bool m_created;
 };
 
 #endif

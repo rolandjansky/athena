@@ -9,7 +9,7 @@
 
 std::ostream& operator <<(std::ostream& os, const AGDDSimpleMaterial &obj)
 {
-	os<<"- Material "<<obj._name<<" type="<<obj.mType<<" density="<<obj._density<<std::endl;
+	os<<"- Material "<<obj.m_name<<" type="<<obj.m_mType<<" density="<<obj.m_density<<std::endl;
 	return os;
 }
 
@@ -21,5 +21,5 @@ void AGDDSimpleMaterial::RegisterToStore(AGDDSimpleMaterial *e)
 
 std::string AGDDSimpleMaterial::GetName()
 {
-	return _name;
+	return m_name;
 }

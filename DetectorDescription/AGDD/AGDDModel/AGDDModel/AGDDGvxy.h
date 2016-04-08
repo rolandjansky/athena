@@ -13,24 +13,24 @@
 
 class AGDDGvxy: public AGDDVolume {
 public:
-	AGDDGvxy(std::string s):AGDDVolume(s),_dz(0) {}
+	AGDDGvxy(std::string s):AGDDVolume(s),m_dz(0) {}
 	void SetDz(double v) 
 	{
-		_dz=v;
+		m_dz=v;
 	}
 	void SetPoint(TwoPoint p)
 	{
 //		std::cout<<" GVXY setting point "<<p.x()<<" "<<p.y()<<std::endl;
-		_points.push_back(p);
+		m_points.push_back(p);
 	}
-	int NrOfPoints() {return _points.size();}
-	TwoPoint GetPoint(int i) {return _points[i];}
-	double GetDz() {return _dz;}
+	int NrOfPoints() {return m_points.size();}
+	TwoPoint GetPoint(int i) {return m_points[i];}
+	double GetDz() {return m_dz;}
 	void CreateVolume();
 	void CreateSolid();
 private:
-	double _dz;
-	std::vector<TwoPoint> _points;
+	double m_dz;
+	std::vector<TwoPoint> m_points;
 };
 
 #endif
