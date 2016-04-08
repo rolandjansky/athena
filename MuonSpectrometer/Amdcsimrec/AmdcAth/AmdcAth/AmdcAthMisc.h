@@ -10,22 +10,11 @@
 #ifndef AmdcAthMisc_H
 #define AmdcAthMisc_H
 
-#if HAVE_NEW_IOSTREAMS
-# include <iostream>
-# include <iomanip>
-# include <fstream>
-#else
-# include <iostream.h>
-# include <iomanip.h>
-# include <fstream.h>
-#endif
-#if HAVE_CXX_STDC_HEADERS
-# include <cstdio>
-# include <cmath>
-#else
-# include <stdio.h>
-# include <math.h>
-#endif
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <cstdio>
+#include <cmath>
 #include <algorithm>
 #include <iterator>
 #include <list>
