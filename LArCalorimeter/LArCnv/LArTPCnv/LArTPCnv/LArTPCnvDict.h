@@ -16,17 +16,13 @@
 #include "LArTPCnv/LArRawChannelContainer_p3.h" 
 #include "LArTPCnv/LArRawChannelContainer_p4.h" 
 
-#include "LArRawEvent/LArDigitContainer.h"
-#include "LArRawEvent/LArRawChannel.h"
-#include "LArRawEvent/LArRawChannelContainer.h"
-
 #include "LArTPCnv/LArFebErrorSummary_p1.h" 
 
-#include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArTPCnv/LArNoisyROSummary_p1.h" 
 #include "LArTPCnv/LArNoisyROSummary_p2.h" 
 #include "LArTPCnv/LArNoisyROSummary_p3.h" 
-#include "LArTPCnv/LArNoisyROSummary_p4.h"
+
+#include "Identifier/HWIdentifier.h"
 
 struct GCCXML_DUMMY_INSTANTIATION_LARTPCNV {
     std::pair<unsigned int, std::vector<int> >  m_pair1;

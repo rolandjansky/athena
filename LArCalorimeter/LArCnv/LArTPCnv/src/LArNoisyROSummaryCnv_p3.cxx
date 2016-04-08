@@ -2,47 +2,42 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "LArRecEvent/LArNoisyROSummary.h"
-#undef private
-#undef protected
-
 #include "LArTPCnv/LArNoisyROSummaryCnv_p3.h"
 
 void LArNoisyROSummaryCnv_p3::transToPers(const LArNoisyROSummary* trans, LArNoisyROSummary_p3* pers, MsgStream & log) 
 {
-  typedef std::vector< std::pair<HWIdentifier, std::vector<int> > > PAcont;
   log << MSG::DEBUG << " in LArNoisyROSummaryCnv_p3::transToPers " << endreq;
 
-  size_t sfebs = trans->m_noisy_febs.size();
-  pers->m_noisy_febs.resize(sfebs);
-  for ( size_t i = 0; i < sfebs; i++ )
+  size_t sfebs = trans->get_noisy_febs().size();
+  pers->m_noisy_febs.reserve(sfebs);
+  for (const HWIdentifier& hwid : trans->get_noisy_febs())
   {
-    pers->m_noisy_febs[i] = trans->m_noisy_febs[i].get_identifier32().get_compact();
+    pers->m_noisy_febs.push_back (hwid.get_identifier32().get_compact());
   }
 
   pers->m_noisy_preamps.clear();
-  pers->m_noisy_preamps.reserve(trans->m_noisy_preamps.size());
-  for ( PAcont::const_iterator it = trans->m_noisy_preamps.begin(); it != trans->m_noisy_preamps.end(); it++)
+  pers->m_noisy_preamps.reserve(trans->get_noisy_preamps().size());
+  for (const std::pair<HWIdentifier, std::vector<int> >& p :
+         trans->get_noisy_preamps())
   {
-    pers->m_noisy_preamps.push_back(std::make_pair(it->first.get_identifier32().get_compact(), it->second));
+    pers->m_noisy_preamps.emplace_back (p.first.get_identifier32().get_compact(),
+                                        p.second);
   }
 
-  pers->m_BadFEBFlaggedPartitions = trans->m_BadFEBFlaggedPartitions;
-  pers->m_SatMediumFlaggedPartitions = trans->m_SatMediumFlaggedPartitions;
-  pers->m_SatTightFlaggedPartitions = trans->m_SatTightFlaggedPartitions;
-  pers->m_BadFEB_WFlaggedPartitions = trans->m_BadFEB_WFlaggedPartitions ;
-  pers->m_MNBLooseFlaggedPartitions = trans->m_MNBLooseFlaggedPartitions;
-  pers->m_MNBTightFlaggedPartitions = trans->m_MNBTightFlaggedPartitions;
+  pers->m_BadFEBFlaggedPartitions = trans->BadFEBFlaggedPartitions();
+  pers->m_SatMediumFlaggedPartitions = trans->SatMediumFlaggedPartitions();
+  pers->m_SatTightFlaggedPartitions = trans->SatTightFlaggedPartitions();
+  pers->m_BadFEB_WFlaggedPartitions = trans->BadFEB_WFlaggedPartitions();  
+  pers->m_MNBLooseFlaggedPartitions = trans->MNBLooseFlaggedPartitions();
+  pers->m_MNBTightFlaggedPartitions = trans->MNBTightFlaggedPartitions();
   
 }
 
 void LArNoisyROSummaryCnv_p3::persToTrans(const LArNoisyROSummary_p3* pers, LArNoisyROSummary* trans, MsgStream & log ) 
 {
   log << MSG::DEBUG << " in  LArNoisyROSummaryCnv_p3::persToTrans " << endreq;
-  trans->m_noisy_febs.clear();
-  trans->m_noisy_preamps.clear();
+  trans->clear();
 
   size_t sfebs =  pers->m_noisy_febs.size();
   for ( size_t i = 0; i < sfebs; i++)
@@ -62,11 +57,11 @@ void LArNoisyROSummaryCnv_p3::persToTrans(const LArNoisyROSummary_p3* pers, LArN
     }
   }
 
-  trans->m_BadFEBFlaggedPartitions = pers->m_BadFEBFlaggedPartitions;
-  trans->m_SatMediumFlaggedPartitions = pers->m_SatMediumFlaggedPartitions;
-  trans->m_SatTightFlaggedPartitions = pers->m_SatTightFlaggedPartitions;
-  trans->m_BadFEB_WFlaggedPartitions = pers->m_BadFEB_WFlaggedPartitions;  
-  trans->m_MNBLooseFlaggedPartitions = pers->m_MNBLooseFlaggedPartitions;
-  trans->m_MNBTightFlaggedPartitions = pers->m_MNBTightFlaggedPartitions;
+  trans->SetBadFEBFlaggedPartitions (pers->m_BadFEBFlaggedPartitions);
+  trans->SetSatMediumFlaggedPartitions (pers->m_SatMediumFlaggedPartitions);
+  trans->SetSatTightFlaggedPartitions (pers->m_SatTightFlaggedPartitions);
+  trans->SetBadFEB_WFlaggedPartitions (pers->m_BadFEB_WFlaggedPartitions);
+  trans->SetMNBLooseFlaggedPartitions (pers->m_MNBLooseFlaggedPartitions);
+  trans->SetMNBTightFlaggedPartitions (pers->m_MNBTightFlaggedPartitions);
 
 }

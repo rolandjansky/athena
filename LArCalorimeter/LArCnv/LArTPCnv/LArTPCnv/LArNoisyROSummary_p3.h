@@ -27,7 +27,7 @@ class LArNoisyROSummary_p3
     m_MNBTightFlaggedPartitions(0)
   {};
 
- private:
+  //private:
   std::vector<unsigned int> m_noisy_febs;
   std::vector< std::pair<unsigned int, std::vector<int> > > m_noisy_preamps;
   uint8_t m_BadFEBFlaggedPartitions;

@@ -15,7 +15,7 @@ class LArNoisyROSummary_p1
 
   LArNoisyROSummary_p1(): m_noisy_febs(), m_noisy_preamps() {};
 
- private:
+  //private:
   std::vector<unsigned int> m_noisy_febs;
   std::vector< std::pair<unsigned int, std::vector<int> > > m_noisy_preamps;
   
