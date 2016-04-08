@@ -50,7 +50,7 @@ class histCollection {
   
 public:
   
-  histCollection(bool debug=false) : m_dbg(debug) {};
+  histCollection(bool debug=false) : dbg(debug) {};
   void addDirectory(TDirectory* dir, std::string dirName);
   size_t size() {return m_data.size();};
   void addFile(TFile* in);
@@ -78,7 +78,7 @@ private:
 private:
   bool isExcluded(const std::string& dir);
   std::map<std::string,histDir_t> m_data;
-  bool m_dbg;
+  bool dbg;
   std::vector<std::string> m_exclusion;
   
 };
@@ -280,7 +280,7 @@ void histCollection::addDirectory(TDirectory* dir, std::string dirName) {
   while((key=(TKey*)next()))  {
     const char* name=key->GetName();
     const char* classname=key->GetClassName();
-    if (m_dbg) std::cout << "Found name " << name << ", classname=" << classname << std::endl;
+    if (dbg) std::cout << "Found name " << name << ", classname=" << classname << std::endl;
 
     const std::string newName=dirName+"/"+name;
 
@@ -297,7 +297,7 @@ void histCollection::addDirectory(TDirectory* dir, std::string dirName) {
 	if (!md) std::cout << "ERROR: Did not find metadata tree in directroy " << dirName << std::endl;
 	mIt=m_data.insert(std::make_pair(dirName,histDir_t(md))).first;
       }
-      histPerDir_t histo(name,key->ReadObj(),mIt->second.md,m_dbg);
+      histPerDir_t histo(name,key->ReadObj(),mIt->second.md,dbg);
       mIt->second.histos.push_back(histo);
     }
     else if (!strncmp(classname,"TDirectory",10)) {

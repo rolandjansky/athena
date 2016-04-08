@@ -63,10 +63,6 @@ using namespace LArSamples;
 LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
   m_count(0),
-  m_nWrongBunchGroup(0),
-  m_nPrescaledAway(0),
-  m_nLArError(0),
-  m_nNoDigits(0),
   m_dumperTool("LArShapeDumperTool"),
   m_larCablingSvc("LArCablingService"),
   m_caloNoiseTool("CaloNoiseToolDefault"),
@@ -75,7 +71,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   m_adc2mevTool("LArADC2MeVTool"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-  m_bcidTool("BunchCrossingTool"),
   m_larPedestal(nullptr),
   m_caloDetDescrMgr(nullptr),
   m_onlineHelper(nullptr),
@@ -100,7 +95,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   declareProperty("BadChannelTool", m_badChannelTool),
   declareProperty("BadChannelMasker", m_badChannelMasker);
   declareProperty("ADC2MeVTool", m_adc2mevTool);
-  declareProperty("BunchCrossingTool",m_bcidTool);
   declareProperty("DoStream", m_doStream = false);
   declareProperty("DoTrigger", m_doTrigger = true);
   declareProperty("DoOFCIter", m_doOFCIter = true);
@@ -110,7 +104,6 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   declareProperty("TrigDecisionTool", m_trigDec, "The tool to access TrigDecision");
   declareProperty("TriggerNames", m_triggerNames);
   declareProperty("DoAllLvl1", m_doAllLvl1 = true);
-  declareProperty("onlyEmptyBC",m_onlyEmptyBC=false);
 }
 
 
@@ -141,6 +134,7 @@ StatusCode LArShapeDumper::initialize()
   ATH_CHECK( m_dumperTool.retrieve() );
 
   if (m_dumperTool->doShape()) {
+    if (m_count == 1) ATH_MSG_INFO ( "Reading LArAutoCorr handle" );
     ATH_CHECK( detStore()->regHandle(m_autoCorr, "LArAutoCorr") );
   }
   
@@ -154,9 +148,6 @@ StatusCode LArShapeDumper::initialize()
   m_gains[CaloGain::LARMEDIUMGAIN] = (m_gainSpec.find("MEDIUM") != std::string::npos);
   m_gains[CaloGain::LARLOWGAIN]    = (m_gainSpec.find("LOW")    != std::string::npos);
   
-  if (m_onlyEmptyBC)
-    ATH_CHECK(m_bcidTool.retrieve());
-
   return StatusCode::SUCCESS; 
 }
 
@@ -250,13 +241,12 @@ StatusCode LArShapeDumper::beginRun()
 
 StatusCode LArShapeDumper::execute()
 {    
-  m_count++;
-
   if ((m_prescale > 1 && m_random.Rndm() > 1.0/m_prescale) || m_prescale <= 0) {
     ATH_MSG_VERBOSE ( "======== prescaling event "<< m_count << " ========" );
-    m_nPrescaledAway++;
     return StatusCode::SUCCESS;
   }
+
+  m_count++;
 
   ATH_MSG_VERBOSE ( "======== executing event "<< m_count << " ========" );
 
@@ -267,22 +257,6 @@ StatusCode LArShapeDumper::execute()
   int run       = eventInfo->runNumber();
   int lumiBlock = eventInfo->lumiBlock();
   int bunchId   = eventInfo->bcid();
-
-  
-  if (m_onlyEmptyBC) {
-    const Trig::IBunchCrossingTool::BunchCrossingType bcType=m_bcidTool->bcType(bunchId);
-    if (bcType!=Trig::IBunchCrossingTool::BunchCrossingType::Empty) {
-      ATH_MSG_DEBUG("Ignoring Event with bunch crossing type " << bcType);
-      m_nWrongBunchGroup++;
-      return StatusCode::SUCCESS;
-    }
-  }
-
-  if (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) {
-    ATH_MSG_DEBUG("Ignoring Event b/c of LAr ERROR");
-    m_nLArError++;
-    return StatusCode::SUCCESS;
-  }
 
   EventData* eventData = 0;
   int eventIndex = -1;
@@ -299,20 +273,22 @@ StatusCode LArShapeDumper::execute()
 
   if (larDigitContainer->size() == 0) {
     ATH_MSG_WARNING ( "LArDigitContainer with key=" << m_digitsKey << " is empty!" );
-    m_nNoDigits++;
     return StatusCode::SUCCESS;
   }
 
   const LArRawChannelContainer* rawChannelContainer = 0;
   ATH_CHECK( evtStore()->retrieve(rawChannelContainer, m_channelsKey) );
   
+  if (m_count == 1) ATH_MSG_INFO ( "Reading pedestal" );
   ATH_CHECK( detStore()->retrieve(m_larPedestal) );
 
   const LArOFIterResultsContainer* ofIterResult = 0;
   if (m_doOFCIter) {
+    if (m_count == 1) ATH_MSG_INFO ( "Reading LArOFIterResult" );
     ATH_CHECK( evtStore()->retrieve(ofIterResult, "LArOFIterResult") );
   }
 
+  if (m_count == 1) ATH_MSG_INFO ( "Reading LArFebErrorSummary" );
   const LArFebErrorSummary* larFebErrorSummary = 0;
   ATH_CHECK( evtStore()->retrieve(larFebErrorSummary, "LArFebErrorSummary") );
   const std::map<unsigned int,uint16_t>& febErrorMap = larFebErrorSummary->get_all_febs();
@@ -456,7 +432,7 @@ StatusCode LArShapeDumper::execute()
 //     }
 //     else
 //       msg() << MSG::INFO << "OFResult for channel 0x" << MSG::hex << channelID << MSG::dec 
-//           << " not found. (size was " << ofcResultPosition.size() << ")" << endmsg;
+//           << " not found. (size was " << ofcResultPosition.size() << ")" << endreq;
     
    
     const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(channelID,gain); //dudu
@@ -466,7 +442,7 @@ StatusCode LArShapeDumper::execute()
     histCont->add(data);
   }
   
-  //msg() << MSG::INFO << "Current footprint = " << m_samples->footprint() << ", size = " << m_samples->size() << endmsg;
+  //msg() << MSG::INFO << "Current footprint = " << m_samples->footprint() << ", size = " << m_samples->size() << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -482,26 +458,21 @@ StatusCode LArShapeDumper::finalize()
 {
   ATH_MSG_DEBUG ("in finalize() ");
 
-  if (m_prescale>1) ATH_MSG_INFO("Prescale dropped " <<  m_nPrescaledAway << "/" << m_count << " events"); 
-  if (m_onlyEmptyBC) ATH_MSG_INFO("Dropped " << m_nWrongBunchGroup << "/" << m_count << " events b/c of wrong bunch group"); 
-  ATH_MSG_INFO("Dropped " << m_nLArError << "/" <<  m_count << " Events b/c of LAr Veto (Noise burst or corruption)");
-
-
   int n = 0;
   for (unsigned int i = 0; i < m_samples->nChannels(); i++)
     if (m_samples->historyContainer(i)) {
       if (m_samples->historyContainer(i)->cellInfo() == 0)
 	ATH_MSG_INFO ( "Cell with no cellInfo at index " << i << " !!" );
       //else if (m_samples->historyContainer(i)->cellInfo()->shape() == 0)
-	//msg() << MSG::INFO << "Cell with no ShapeInfo at index " << i << " !!" << endmsg;
-      //msg() << MSG::INFO << "Non-zero cell at index " << i << " " << m_samples->shape(i)->size() << endmsg;
+	//msg() << MSG::INFO << "Cell with no ShapeInfo at index " << i << " !!" << endreq;
+      //msg() << MSG::INFO << "Non-zero cell at index " << i << " " << m_samples->shape(i)->size() << endreq;
       n++;
     }
 
   //for (unsigned int i = 0; i < m_samples->nEvents(); i++) {
   //   msg() << MSG::INFO << "Event " << i << " = " 
   //            << m_samples->eventData(i)->run() << " " << m_samples->eventData(i)->event()
-  //            << "trigger = " << m_samples->eventData(i)->triggers() << ", nRoIs = " << m_samples->eventData(i)->nRoIs() << endmsg;
+  //            << "trigger = " << m_samples->eventData(i)->triggers() << ", nRoIs = " << m_samples->eventData(i)->nRoIs() << endreq;
   // }
   ATH_MSG_INFO ( "Non-zero cells = " << n << ", footprint = " << m_samples->footprint() );
   ATH_MSG_INFO ( "Writing..." );
@@ -509,13 +480,13 @@ StatusCode LArShapeDumper::finalize()
   if (!m_doStream) {
     m_samples->writeTrees(m_fileName.c_str());
 /*    TFile* f = TFile::Open(m_fileName.c_str(), "RECREATE");
-    msg() << MSG::INFO << "Writing (2)..." << endmsg;
+    msg() << MSG::INFO << "Writing (2)..." << endreq;
     f->WriteObjectAny(m_samples, "Container", "LArSamples");
-    msg() << MSG::INFO << "Closing..." << endmsg;
+    msg() << MSG::INFO << "Closing..." << endreq;
     f->Close();
-    msg() << MSG::INFO << "Deleting..." << endmsg;
+    msg() << MSG::INFO << "Deleting..." << endreq;
     delete m_samples;*/
-    msg() << MSG::INFO << "Done!" << endmsg;
+    msg() << MSG::INFO << "Done!" << endreq;
   }
 
   return StatusCode::SUCCESS;
@@ -542,12 +513,12 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
       while (triggerWords.size() <= bit->second/32) triggerWords.push_back(0);
       if (m_trigDec->isPassed(bit->first.Data())) {
 	triggerWords[bit->second/32] |= (0x1 << (bit->second % 32));
-      //msg() << MSG::INFO << "Trigger line " << bit->first.Data() << " passed" << endmsg;
+      //msg() << MSG::INFO << "Trigger line " << bit->first.Data() << " passed" << endreq;
       }
     }
     //msg() << MSG::INFO << "Trigger words : ";
     //for (unsigned int i = 0; i < triggerWords.size(); i++) msg() << MSG::INFO << triggerWords[i] << " ";
-    //msg() << MSG::INFO << endmsg;
+    //msg() << MSG::INFO << endreq;
   }
   
   eventData = new EventData(event, 0, lumiBlock, bunchXing);
@@ -555,7 +526,7 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
   eventData->setRunData(m_runData);
   eventData->setTriggerData(triggerWords);
   if (m_doRoIs) {
-    //msg() << MSG::INFO << "Filling RoI list" << endmsg;
+    //msg() << MSG::INFO << "Filling RoI list" << endreq;
     for (std::vector<const Trig::ChainGroup*>::const_iterator group = m_triggerGroups.begin();
 	 group != m_triggerGroups.end(); group++) {
       std::vector<Trig::Feature<TrigRoiDescriptor> > roIs = (*group)->features().get<TrigRoiDescriptor>();
@@ -563,9 +534,9 @@ int LArShapeDumper::makeEvent(EventData*& eventData,
 	//msg() << MSG::INFO << "Found an roi for chain ";
         //for (unsigned int i = 0; i < (*group)->getListOfTriggers().size(); i++) cout << (*group)->getListOfTriggers()[i] << " ";
         //cout << "@ " << roI->cptr()->eta() << ", " << roI->cptr()->phi() << ", TE = " 
-	//	 << roI->te()->getId() << " " << Trig::getTEName(*roI->te()) << " with label " << roI->label() << endmsg;
+	//	 << roI->te()->getId() << " " << Trig::getTEName(*roI->te()) << " with label " << roI->label() << endreq;
 	eventData->addRoI(roI->cptr()->eta(), roI->cptr()->phi(), (*group)->getListOfTriggers()[0].c_str(), roI->label().c_str());
-	//msg() << MSG::INFO << "nRoIs so far = " << eventData->nRoIs() << endmsg;
+	//msg() << MSG::INFO << "nRoIs so far = " << eventData->nRoIs() << endreq;
       }
     }
   }

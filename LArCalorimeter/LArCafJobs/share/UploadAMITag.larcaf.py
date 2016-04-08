@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-
-#Exampel command: UploadAMITag.larcaf.py wlampl xxx create_c909 AtlasProduction_20.1.5.6 noisebursts
- 
-
 import sys,pickle
 
 patcharea='/afs/cern.ch/user/l/larcomm/w0/digitMon/LArCAF'
@@ -10,25 +6,6 @@ setupScript='/afs/cern.ch/atlas/tzero/software/setup/setuptrf.sh'
 specialT0Setup='/afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0.sh'
 trfsetuppath='/afs/cern.ch/atlas/tzero/software/setup/'
 processConfigs = {}
-
-processConfigs['noisebursts'] = {
-    'inputs': { 'inputESDFile': {} },
-    'outputs': { 'outputNTUP_LARNOISEFile': {'dstype': 'NTUP_LARNOISE'}, }, 
-    'tasktransinfo': { 'trfpath': 'LArNoiseBursts_tf.py',
-                       'trfsetupcmd': setupScript+ ' '+patcharea+' RELEASE ' + specialT0Setup},
-    'phconfig': {}, 
-    'description': 'Produced LAr noise burst ntuple from ESD files. Uses RELEASE' 
-    }
-
-processConfigs['noiseburstsmerge'] = {
-    'inputs': { 'inputNTUP_LARNOISEFile': {} },
-    'outputs': { 'outputNTUP_LARNOISE_MRGFile': {'dstype': 'NTUP_LARNOISE_MRG'}, }, 
-    'tasktransinfo': { 'trfpath': 'NTUPMerge_tf.py',
-                       'trfsetupcmd': setupScript+ ' '+patcharea+' RELEASE ' + specialT0Setup},
-    'phconfig': {}, 
-    'description': 'Merge LAr noise burst ntuple files. Uses RELEASE' 
-    }
-
 
 processConfigs['reco'] = {
     'inputs': { 'inputBSFile': {} },
@@ -127,8 +104,7 @@ if __name__ == '__main__':
     #------------------------
     #Build final AMI tag info
     s={} #stable values
-    s['amiTag']=amiTag
-    s['tagType']=amiTag[0]
+    s['configTag']=amiTag
     s['AMIUser']=login
     s['AMIPass']=password
 
@@ -136,7 +112,7 @@ if __name__ == '__main__':
     c['inputs']=str(processConfigs[process]['inputs'].__str__())
     c['outputs']=str(processConfigs[process]['outputs'].__str__())
     c['SWReleaseCache']=str(release)
-    if process=='reco' or process=='noisebursts':
+    if process=='reco':
         c['Geometry']='ATLAS-R2-2015-02-00-00'
         c['ConditionsTag']='CURRENT'
     else: #merging case
@@ -151,7 +127,7 @@ if __name__ == '__main__':
 
     #Upload info to AMI
     if doWhat=="create":
-        l=['AddAMITag']
+        l=['AddConfigurationTag']
         for k in s.keys():
             l.append(k+"=\""+s[k]+"\"")
         for k in c.keys():
@@ -169,7 +145,7 @@ if __name__ == '__main__':
 
 
     elif doWhat=="update":
-        l=['UpdateAMITag']
+        l=['UpdateConfigurationTag']
         for k in s.keys():
             l.append(k+'='+s[k])
 
