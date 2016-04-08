@@ -47,7 +47,6 @@ def main():
     if not EDMDetail in serializable_names_no_label:
       print "WARNING: EDMDetail for " + EDMDetail + " does not correspond to any name in TriggerList" 
 
-
 if __name__ == "__main__":
   import sys
   try:
