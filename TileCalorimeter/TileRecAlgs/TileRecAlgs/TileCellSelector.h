@@ -128,8 +128,8 @@ class TileCellSelector: public AthAlgorithm {
 
     std::vector<int> m_drawer;
 
-    int m_max_verbose_cnt;
-    std::vector<int> n_drawer_off;
+    int m_maxVerboseCnt;
+    std::vector<int> m_nDrawerOff;
 };
 
 #endif //

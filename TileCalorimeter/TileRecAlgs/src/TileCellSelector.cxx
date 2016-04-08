@@ -116,7 +116,7 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty( "CheckError",   m_checkError = false);   // select events with error status in TileCal status word
   declareProperty( "PrintOnly",    m_printOnly = false);    // only print acccepted events, but do not accept anything
 
-  declareProperty( "MaxVerboseCnt",m_max_verbose_cnt=20); // max number of verbose output lines about drawer off
+  declareProperty( "MaxVerboseCnt",m_maxVerboseCnt=20); // max number of verbose output lines about drawer off
 
   declareProperty("TileBadChanTool", m_tileBadChanTool);
   declareProperty("BeamInfo", m_beamInfo);
@@ -208,14 +208,14 @@ StatusCode TileCellSelector::initialize() {
       m_maxBadDMU = -1;
       m_minBadMB = 99;
     }
-    ATH_MSG_INFO( "MaxVerboseCnt " << m_max_verbose_cnt);
+    ATH_MSG_INFO( "MaxVerboseCnt " << m_maxVerboseCnt);
   }
 
   ATH_MSG_INFO( "CheckWarning " << (("CheckWarning")? "true" : "false"));
   ATH_MSG_INFO( "CheckError " << (("CheckError") ? "true" : "false"));
   ATH_MSG_INFO( "PrintOnly " << (("PrintOnly") ? "true" : "false"));
 
-  n_drawer_off.resize(TileCalibUtils::getDrawerIdx(4, 63) + 1);
+  m_nDrawerOff.resize(TileCalibUtils::getDrawerIdx(4, 63) + 1);
 
   //ATH_MSG_DEBUG ("initialize() successful");
 
@@ -840,12 +840,12 @@ StatusCode TileCellSelector::execute() {
         uint32_t DoubleStrobeErr = coll->getFragDstrobe();
 
         if (RODBCID!=0 && RODBCID != m_evtBCID ) {
-          if (n_drawer_off[drawerIdx] < m_max_verbose_cnt) {
+          if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
             ATH_MSG_VERBOSE(  evtnum.str()
                 << "  drw " << drwname(coll->identify())
                 << " ROD BCID " << RODBCID << " is wrong - skipping");
 
-            if (++n_drawer_off[drawerIdx] == m_max_verbose_cnt)
+            if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
               ATH_MSG_VERBOSE( nevtnum.str()
                   << "   suppressing further messages about drawer 0x" << std::hex << coll->identify()
                   << std::dec << " being bad");
@@ -867,11 +867,11 @@ StatusCode TileCellSelector::execute() {
             && SingleStrobeErr == 0xFFFF
             && DoubleStrobeErr == 0xFFFF) {
 
-          if (n_drawer_off[drawerIdx] < m_max_verbose_cnt) {
+          if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
             ATH_MSG_VERBOSE( evtnum.str()
                 << "  drw " << drwname(coll->identify()) << " is OFF - skipping");
 
-            if (++n_drawer_off[drawerIdx] == m_max_verbose_cnt)
+            if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
               ATH_MSG_VERBOSE( nevtnum.str()
                   << "   suppressing further messages about drawer 0x" << std::hex << coll->identify()
                   << std::dec << " being bad");
@@ -892,11 +892,11 @@ StatusCode TileCellSelector::execute() {
             && SingleStrobeErr == 0
             && DoubleStrobeErr == 0) {
 
-          if (n_drawer_off[drawerIdx] < m_max_verbose_cnt) {
+          if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
             ATH_MSG_VERBOSE( evtnum.str()
                 << "  drw " << drwname(coll->identify()) << " is MISSING - skipping");
 
-            if (++n_drawer_off[drawerIdx] == m_max_verbose_cnt)
+            if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
               ATH_MSG_VERBOSE( nevtnum.str()
                   << "   suppressing further messages about drawer 0x" << std::hex << coll->identify()
                   << std::dec << " being bad");
@@ -907,12 +907,12 @@ StatusCode TileCellSelector::execute() {
         if (GlobalCRCErr) {
           GlobalCRCErr = 0xFFFF; // global error - all wrong
           if (m_maxBadDMU<16) {
-            if (n_drawer_off[drawerIdx] < m_max_verbose_cnt) {
+            if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
               ATH_MSG_VERBOSE( evtnum.str()
                   << "  drw " << drwname(coll->identify())
                   << " global CRC error - skipping");
 
-              if (++n_drawer_off[drawerIdx] == m_max_verbose_cnt)
+              if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
                 ATH_MSG_VERBOSE( nevtnum.str()
                     << "   suppressing further messages about drawer 0x" << std::hex << coll->identify()
                     << std::dec << " being bad");
@@ -937,12 +937,12 @@ StatusCode TileCellSelector::execute() {
         if (BCIDErr & 0x2) { // DMU1 (second DMU) is bad - can not trust others
           BCIDErr = 0xFFFF;  // assume that all DMUs are bad
           if (m_maxBadDMU < 16) {
-            if (n_drawer_off[drawerIdx] < m_max_verbose_cnt) {
+            if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
               ATH_MSG_VERBOSE( evtnum.str()
                   << "  drw " << drwname(coll->identify())
                   << " BCID in DMU1 is bad - skipping");
 
-              if (++n_drawer_off[drawerIdx] == m_max_verbose_cnt)
+              if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
                 ATH_MSG_VERBOSE( nevtnum.str()
                     << "   suppressing further messages about drawer 0x"
                     << std::hex << coll->identify() << std::dec << " being bad");
@@ -956,12 +956,12 @@ StatusCode TileCellSelector::execute() {
           if ( DSPBCID!=0xDEAD && DSPBCID!=m_evtBCID ) { // DSP BCID doesn't match! all wrong
             BCIDErr = 0xFFFF;
             if (m_maxBadDMU < 16) {
-              if (n_drawer_off[drawerIdx] < m_max_verbose_cnt) {
+              if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
                 ATH_MSG_VERBOSE( evtnum.str()
                     << "  drw " << drwname(coll->identify())
                     << " DSP BCID is wrong - skipping");
 
-                if (++n_drawer_off[drawerIdx] == m_max_verbose_cnt)
+                if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
                   ATH_MSG_VERBOSE(  nevtnum.str()
                       << "   suppressing further messages about drawer 0x"
                       << std::hex << coll->identify() << std::dec << " being bad");
@@ -976,12 +976,12 @@ StatusCode TileCellSelector::execute() {
           HeaderFormatErr | HeaderParityErr | SampleFormatErr | SampleParityErr;
 
         if (error==0xFFFF && m_maxBadDMU<16) {
-          if (n_drawer_off[drawerIdx] < m_max_verbose_cnt) {
+          if (m_nDrawerOff[drawerIdx] < m_maxVerboseCnt) {
             ATH_MSG_VERBOSE( evtnum.str()
                 << "  drw " << drwname(coll->identify())
                 << " whole drawer is bad - skipping");
 
-            if (++n_drawer_off[drawerIdx] == m_max_verbose_cnt)
+            if (++m_nDrawerOff[drawerIdx] == m_maxVerboseCnt)
               ATH_MSG_VERBOSE( nevtnum.str()
                   << "   suppressing further messages about drawer 0x"
                   << std::hex << coll->identify() << std::dec << " being bad");
@@ -991,12 +991,12 @@ StatusCode TileCellSelector::execute() {
         }
 
         // no global error detected - wait m_max_verbose_cnt good events and eventually enable error messages again
-        if (n_drawer_off[drawerIdx]>=m_max_verbose_cnt) {
-          if (++n_drawer_off[drawerIdx] == 2*m_max_verbose_cnt) {
-            n_drawer_off[drawerIdx] = 0;
+        if (m_nDrawerOff[drawerIdx]>=m_maxVerboseCnt) {
+          if (++m_nDrawerOff[drawerIdx] == 2*m_maxVerboseCnt) {
+            m_nDrawerOff[drawerIdx] = 0;
             ATH_MSG_VERBOSE( nevtnum.str()
                 << "   enabling messages about drawer 0x" << std::hex << coll->identify()
-                << std::dec << " being bad after " << m_max_verbose_cnt << " good events");
+                << std::dec << " being bad after " << m_maxVerboseCnt << " good events");
           }
         }
 
