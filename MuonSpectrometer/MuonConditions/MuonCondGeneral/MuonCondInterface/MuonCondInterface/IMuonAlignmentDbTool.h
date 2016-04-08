@@ -35,6 +35,7 @@ class IMuonAlignmentDbTool: virtual public IAlgTool,
    virtual const ALineMapContainer* ALineContainer() const = 0;
    virtual const BLineMapContainer* BLineContainer() const = 0;
    virtual const CscInternalAlignmentMapContainer* ILineContainer() const = 0;
+   virtual const MdtAsBuiltMapContainer* AsBuiltContainer() const = 0;
    
    virtual std::string aLineDataLocation() = 0;
    virtual std::string bLineDataLocation() = 0; 
