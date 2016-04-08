@@ -17,6 +17,8 @@ class ICPJetUncertaintiesTool : virtual public IJetUncertaintiesTool,
     ASG_TOOL_INTERFACE(ICPJetUncertaintiesTool)
 
     public:
+        ICPJetUncertaintiesTool& operator=( ICPJetUncertaintiesTool&& ) { return *this; }
+
         // Apply a systematic variation or get a new copy
         virtual CP::CorrectionCode applyCorrection(xAOD::Jet& input) const = 0;
         virtual CP::CorrectionCode applyCorrection(xAOD::Jet& input, const xAOD::EventInfo& eInfo) const = 0;
