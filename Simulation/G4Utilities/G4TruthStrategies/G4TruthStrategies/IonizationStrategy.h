@@ -5,7 +5,7 @@
 #ifndef IonizationStrategy_H
 #define IonizationStrategy_H
 
-#include "MCTruth/TruthStrategy.h"
+#include "MCTruthBase/TruthStrategy.h"
 class IonizationStrategy: public TruthStrategy {
 public:
 	IonizationStrategy(const std::string);

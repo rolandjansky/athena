@@ -5,7 +5,7 @@
 #ifndef MuonCatchAllStrategy_H
 #define MuonCatchAllStrategy_H
 
-#include "MCTruth/TruthStrategy.h"
+#include "MCTruthBase/TruthStrategy.h"
 class MuonCatchAllStrategy: public TruthStrategy {
 public:
 	MuonCatchAllStrategy(const std::string);

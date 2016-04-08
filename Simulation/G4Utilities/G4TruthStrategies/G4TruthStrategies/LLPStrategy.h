@@ -5,7 +5,7 @@
 #ifndef LLPStrategy_H
 #define LLPStrategy_H
 
-#include "MCTruth/TruthStrategy.h"
+#include "MCTruthBase/TruthStrategy.h"
 
 class LLPStrategy: public TruthStrategy {
   public:

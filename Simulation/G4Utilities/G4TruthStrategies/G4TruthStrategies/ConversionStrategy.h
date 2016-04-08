@@ -5,7 +5,7 @@
 #ifndef ConversionStrategy_H
 #define ConversionStrategy_H
 
-#include "MCTruth/TruthStrategy.h"
+#include "MCTruthBase/TruthStrategy.h"
 class ConversionStrategy: public TruthStrategy {
 public:
 	ConversionStrategy(const std::string);

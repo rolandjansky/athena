@@ -5,7 +5,7 @@
 #ifndef ComptonStrategy_H
 #define ComptonStrategy_H
 
-#include "MCTruth/TruthStrategy.h"
+#include "MCTruthBase/TruthStrategy.h"
 class ComptonStrategy: public TruthStrategy {
 public:
 	ComptonStrategy(const std::string);

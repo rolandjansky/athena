@@ -5,7 +5,7 @@
 #ifndef HadronicInteractionStrategy_H
 #define HadronicInteractionStrategy_H
 
-#include "MCTruth/TruthStrategy.h"
+#include "MCTruthBase/TruthStrategy.h"
 class HadronicInteractionStrategy: public TruthStrategy {
 public:
 	HadronicInteractionStrategy(const std::string);
