@@ -180,10 +180,12 @@ namespace Trk
       float tDeltaZ = (ct != 0)   ? fabs(m_wz/ct)   : FLT_MAX;
 
       //keep track of the next value of t that crosses a boundary during the traversal
-      float tMaxX, tMaxY, tMaxZ;
+      float tMaxX = 0.0;
+      float tMaxY = 0.0;
+      float tMaxZ = 0.0;
       
       //keep track of current value of t -- used to calculate path length in a bin
-      float tcurr;
+      float tcurr = 0.0;
 
       //bin counters
       int xbin, ybin, zbin;
