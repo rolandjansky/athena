@@ -103,20 +103,20 @@ namespace jet {
   bool JetCalcnLeadingCells_fromCells::processCell(const CaloCell *thisCell, weight_t )
   {
 
-    cell_energies.push_back(thisCell->e());
-    sumE_cells+=thisCell->e();
+    m_cell_energies.push_back(thisCell->e());
+    m_sumE_cells+=thisCell->e();
     return true;
   }
 
 
   bool JetCalcOutOfTimeEnergyFraction_fromCells::processCell(const CaloCell *thisCell, weight_t ) {
-    sumE+=thisCell->e();
+    m_sumE+=thisCell->e();
   
     // ensure timing information is defined
     bool timeIsDefined = timeAndQualityDefined(thisCell);  
     if ( timeIsDefined ) {
       double time = thisCell->time();
-      if(fabs(time)>timecut)sumE_OOT+=thisCell->e();
+      if(fabs(time)>timecut)m_sumE_OOT+=thisCell->e();
     }
     return true;
   }
@@ -132,8 +132,8 @@ namespace jet {
         double thisNorm = weight * fabs(weight) * theCell->e() * theCell->e();
         double thisTime = thisNorm * theCell->time();
       
-        time += thisTime;
-        norm += thisNorm;
+        m_time += thisTime;
+        m_norm += thisNorm;
       }
   
     return true;
@@ -145,13 +145,13 @@ namespace jet {
     // ensure timing information is defined ...
     bool timeIsDefined = timeAndQualityDefined(theCell);
     // ... and restrict to LAr cells
-    if ( timeIsDefined 	&& ( theCell->caloDDE()->is_tile() == useTile ) )
+    if ( timeIsDefined 	&& ( theCell->caloDDE()->is_tile() == m_useTile ) )
       {
         double thisNorm = weight * fabs(weight) * theCell->e() * theCell->e();
         double thisQf = thisNorm * theCell->quality();
-      
-        qf += thisQf;
-        norm += thisNorm;
+
+        m_qf += thisQf;
+        m_norm += thisNorm;
       }
   
     return true;
@@ -172,10 +172,10 @@ namespace jet {
           {
             if((theCell->provenance()) & 0x8080)
               {
-                totE += theCell->e();
+                m_totE += theCell->e();
                 int tileQuality = std::max(theTileCell->qual1(), theTileCell->qual2());
                 if(tileQuality > TileQualityCut)
-                  badE += theCell->e();
+                  m_badE += theCell->e();
               }
           }
       }
@@ -186,9 +186,9 @@ namespace jet {
             !(theCell->provenance()  & 0x0800 ) // do not take masked-patched cells into account
             )
           {
-            totE += theCell->e();
+            m_totE += theCell->e();
             if(theCell->quality() > LArQualityCut)
-              badE += theCell->e();
+              m_badE += theCell->e();
           }
       }
   
@@ -203,9 +203,9 @@ namespace jet {
         if( ((theCell->provenance()) & 0x2000) &&
             !(theCell->provenance()  & 0x0800 ) )// do not take masked-patched cells into account
           {
-            totE += theCell->e();
+            m_totE += theCell->e();
             if(theCell->quality() > LArQualityCut)
-              badE += theCell->e();
+              m_badE += theCell->e();
           }
       }
   
@@ -215,9 +215,9 @@ namespace jet {
 
   bool JetCalcNegativeEnergy_fromCells::processCell(const CaloCell *theCell, weight_t)
   {
-    totSig=1;
+    m_totSig=1;
     if(theCell->e()<-2500)
-      totE += theCell->e();
+      m_totE += theCell->e();
     return true;
   }
 
