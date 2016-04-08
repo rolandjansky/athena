@@ -7,7 +7,7 @@
 
 bool GeoMPVEntry::operator ==(const GeoMPVEntry &right) const  
 {
-  if (thePhotonMomentum == right.thePhotonMomentum) 
+  if (m_thePhotonMomentum == right.m_thePhotonMomentum) 
     return true;
   else
     return false; 
@@ -15,7 +15,7 @@ bool GeoMPVEntry::operator ==(const GeoMPVEntry &right) const
 
 bool GeoMPVEntry::operator <(const GeoMPVEntry &right) const  
 {
-  if (thePhotonMomentum < right.thePhotonMomentum) 
+  if (m_thePhotonMomentum < right.m_thePhotonMomentum) 
     return true;
   else
     return false;
@@ -25,21 +25,21 @@ GeoMPVEntry& GeoMPVEntry::operator =(const GeoMPVEntry& right)
 {
   if (this == &right) return *this;
   
-  thePhotonMomentum = right.thePhotonMomentum;
-  theProperty = right.theProperty;
+  m_thePhotonMomentum = right.m_thePhotonMomentum;
+  m_theProperty = right.m_theProperty;
   return *this;
 }
 
 GeoMPVEntry::GeoMPVEntry(double aPhotonMomentum, double aProperty)
 {
-  thePhotonMomentum = aPhotonMomentum;
-  theProperty = aProperty;
+  m_thePhotonMomentum = aPhotonMomentum;
+  m_theProperty = aProperty;
 }
 
 GeoMPVEntry::GeoMPVEntry(const GeoMPVEntry &right)
 {
-  thePhotonMomentum = right.thePhotonMomentum;
-  theProperty = right.theProperty;
+  m_thePhotonMomentum = right.m_thePhotonMomentum;
+  m_theProperty = right.m_theProperty;
 }
 
 GeoMPVEntry::~GeoMPVEntry(){}
@@ -47,8 +47,8 @@ GeoMPVEntry::~GeoMPVEntry(){}
 void GeoMPVEntry::DumpEntry()
 {
   std::cout << "(" 
-	    << thePhotonMomentum 
+	    << m_thePhotonMomentum 
 	    << ", " 
-	    << theProperty
+	    << m_theProperty
 	    << ")\n"; 
 }

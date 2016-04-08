@@ -40,7 +40,7 @@ public:
                                                                                              //
   private:                                                                                   //
                                                                                              //
-    std::string _name;                                                                       //
+    std::string m_name;                                                                      //
                                                                                              //
   };                                                                                         //
                                                                                              //
@@ -86,9 +86,9 @@ public:
   
  private:
   
-  GeoPhysVol                                           *_physVol;
-  collection_type                                       _managers;
-  std::vector<GeoPhysVol*>                              _tmpVolumes;
+  GeoPhysVol                                           *m_physVol;
+  collection_type                                       m_managers;
+  std::vector<GeoPhysVol*>                              m_tmpVolumes;
 
 };
 

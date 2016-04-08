@@ -39,7 +39,7 @@ public:
   
  private:
   
-  GeoAlignableTransform                                           *_alignX;
+  GeoAlignableTransform                                           *m_alignX;
 
 };
 

@@ -12,7 +12,7 @@
  ** Constructor(s)
  **/
 GeoModelExperiment::GeoModelExperiment( GeoPhysVol * physVol )
-  : _physVol(physVol)
+  : m_physVol(physVol)
 {
   physVol->ref();
 }
@@ -22,28 +22,28 @@ GeoModelExperiment::GeoModelExperiment( GeoPhysVol * physVol )
  **/
 GeoModelExperiment::~GeoModelExperiment()  {
   // Unref all temporary volumes
-  std::vector<GeoPhysVol*>::iterator it = _tmpVolumes.begin();
-  for(; it!=_tmpVolumes.end(); it++) 
+  std::vector<GeoPhysVol*>::iterator it = m_tmpVolumes.begin();
+  for(; it!=m_tmpVolumes.end(); it++) 
     (*it)->unref();
 
-  _physVol->unref();
+  m_physVol->unref();
 }
 
 GeoPhysVol * GeoModelExperiment::getPhysVol() {
-  return _physVol;
+  return m_physVol;
 }
 
 
 const GeoPhysVol *GeoModelExperiment::getPhysVol() const{
-  return _physVol;
+  return m_physVol;
 }
 
 GeoModelExperiment::ConstIterator GeoModelExperiment::beginManager() const {
-  return _managers.begin();
+  return m_managers.begin();
 }
 
 GeoModelExperiment::ConstIterator GeoModelExperiment::endManager() const {
-  return _managers.end();
+  return m_managers.end();
 }
 
 void GeoModelExperiment::addManager(const GeoVDetectorManager *mgr) {
@@ -55,13 +55,13 @@ void GeoModelExperiment::addManager(const GeoVDetectorManager *mgr) {
     
     throw std::runtime_error(errorMessage.str());
   }
-  _managers.insert(mgr);
+  m_managers.insert(mgr);
 }
 
 const GeoVDetectorManager *GeoModelExperiment::getManager(const std::string & name) const {
   
-  const_iterator_type m = std::find_if(_managers.begin(),_managers.end(),NameEquals(name));
-  if (m!=_managers.end()) {
+  const_iterator_type m = std::find_if(m_managers.begin(),m_managers.end(),NameEquals(name));
+  if (m!=m_managers.end()) {
     return *m;
   }
   else {
@@ -70,11 +70,11 @@ const GeoVDetectorManager *GeoModelExperiment::getManager(const std::string & na
   
 }
 
-GeoModelExperiment::NameEquals::NameEquals(const std::string & name):_name(name) {
+GeoModelExperiment::NameEquals::NameEquals(const std::string & name):m_name(name) {
 }
 
 bool GeoModelExperiment::NameEquals::operator() (const value_type & m) const {
-  return m->getName()==_name;
+  return m->getName()==m_name;
 }
 
 bool GeoModelExperiment::LexigraphicalOrder::operator () (const value_type & a, const value_type &b) const {
@@ -83,5 +83,5 @@ bool GeoModelExperiment::LexigraphicalOrder::operator () (const value_type & a, 
 
 void GeoModelExperiment::addTmpVolume(GeoPhysVol* volume)
 {
-  _tmpVolumes.push_back(volume);
+  m_tmpVolumes.push_back(volume);
 }

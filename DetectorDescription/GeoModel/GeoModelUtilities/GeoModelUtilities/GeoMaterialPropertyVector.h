@@ -15,10 +15,10 @@ public:
   GeoMaterialPropertyVector&
     operator =(const GeoMaterialPropertyVector &right);
 
-  GeoMaterialPropertyVector(): MPV(0) 
+  GeoMaterialPropertyVector(): m_MPV(0) 
   {
-    CurrentEntry = -1;
-    NumEntries   = 0;
+    m_CurrentEntry = -1;
+    m_NumEntries   = 0;
   };
 
   GeoMaterialPropertyVector(double *PhotonMomenta, 
@@ -44,9 +44,9 @@ public:
 private:
   GeoMPVEntry GetEntry(int i) const;
 
-  std::vector<GeoMPVEntry*> MPV;
-  int NumEntries;
-  int CurrentEntry;
+  std::vector<GeoMPVEntry*> m_MPV;
+  int m_NumEntries;
+  int m_CurrentEntry;
 };
 
 #endif 

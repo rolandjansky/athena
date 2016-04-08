@@ -11,7 +11,7 @@
  ** Constructor(s)
  **/
 StoredAlignX::StoredAlignX( GeoAlignableTransform * alignX )
-  : _alignX(alignX)
+  : m_alignX(alignX)
 {
   alignX->ref();
 }
@@ -20,15 +20,15 @@ StoredAlignX::StoredAlignX( GeoAlignableTransform * alignX )
  ** Destructor
  **/
 StoredAlignX::~StoredAlignX()  {
-  _alignX->unref();
+  m_alignX->unref();
 }
 
 GeoAlignableTransform * StoredAlignX::getAlignX() {
-  return _alignX;
+  return m_alignX;
 }
 
 
 const GeoAlignableTransform *StoredAlignX::getAlignX() const{
-  return _alignX;
+  return m_alignX;
 }
 

@@ -14,18 +14,18 @@ GeoMaterialPropertiesTable::GeoMaterialPropertiesTable()
 GeoMaterialPropertiesTable::~GeoMaterialPropertiesTable()
 {
   MPTiterator i;
-  for(i = MPT.begin(); i!= MPT.end(); i++) 
+  for(i = m_MPT.begin(); i!= m_MPT.end(); i++) 
     delete (*i).second;
 
-  MPT.clear();
-  MPTC.clear();
+  m_MPT.clear();
+  m_MPTC.clear();
 }
 
 
 void GeoMaterialPropertiesTable::AddConstProperty(const char     *key,
 						  double PropertyValue)
 {
-  MPTC [std::string(key)] = PropertyValue;
+  m_MPTC [std::string(key)] = PropertyValue;
 }
 
 void GeoMaterialPropertiesTable::AddProperty(const char     *key,
@@ -37,30 +37,30 @@ void GeoMaterialPropertiesTable::AddProperty(const char     *key,
     new GeoMaterialPropertyVector(PhotonMomenta, 
 				  PropertyValues, 
 				  NumEntries);
-  MPT[std::string(key)] = mpv;
+  m_MPT[std::string(key)] = mpv;
 }
 
 void GeoMaterialPropertiesTable::AddProperty(const char *key,
 					     GeoMaterialPropertyVector *mpv)
 {
-  MPT [std::string(key)] = mpv;
+  m_MPT [std::string(key)] = mpv;
 } 
 
 void GeoMaterialPropertiesTable::RemoveConstProperty(const char *key)
 {
-  MPTC.erase(std::string(key));
+  m_MPTC.erase(std::string(key));
 }
 
 void GeoMaterialPropertiesTable::RemoveProperty(const char *key)
 {
-  MPT.erase(std::string(key));
+  m_MPT.erase(std::string(key));
 }
 
 void GeoMaterialPropertiesTable::AddEntry(const char     *key,
 					  double  aPhotonMomentum,
 					  double  aPropertyValue)
 {
-  GeoMaterialPropertyVector *targetVector=MPT[std::string(key)];
+  GeoMaterialPropertyVector *targetVector=m_MPT[std::string(key)];
   if(targetVector != 0) 
     targetVector->AddElement(aPhotonMomentum, aPropertyValue);
   else 
@@ -69,27 +69,27 @@ void GeoMaterialPropertiesTable::AddEntry(const char     *key,
 
 GeoMaterialPropertiesTable::GeoMatPVMap_ConstIt GeoMaterialPropertiesTable::beginPVMap() const
 {
-  return MPT.begin();
+  return m_MPT.begin();
 }
 
 GeoMaterialPropertiesTable::GeoMatPVMap_ConstIt GeoMaterialPropertiesTable::endPVMap() const
 {
-  return MPT.end();
+  return m_MPT.end();
 }
 
 GeoMaterialPropertiesTable::GeoMatPMap_ConstIt GeoMaterialPropertiesTable::beginPMap() const
 {
-  return MPTC.begin();
+  return m_MPTC.begin();
 }
 
 GeoMaterialPropertiesTable::GeoMatPMap_ConstIt GeoMaterialPropertiesTable::endPMap() const
 {
-  return MPTC.end();
+  return m_MPTC.end();
 }
 
 void GeoMaterialPropertiesTable::DumpTable() const
 {
-  for(GeoMatPVMap_ConstIt i=MPT.begin(); i!=MPT.end(); i++) 
+  for(GeoMatPVMap_ConstIt i=m_MPT.begin(); i!=m_MPT.end(); i++) 
   {
     std::cout << (*i).first << "\n";
     if((*i).second != 0)
@@ -98,7 +98,7 @@ void GeoMaterialPropertiesTable::DumpTable() const
       std::cout << "NULL Material Property Vector Pointer." << "\n";
   }
 
-  for (GeoMatPMap_ConstIt j = MPTC.begin(); j != MPTC.end(); ++j) 
+  for (GeoMatPMap_ConstIt j = m_MPTC.begin(); j != m_MPTC.end(); ++j) 
   {
     std::cout << j->first << "\n";
     if(j->second != 0) 

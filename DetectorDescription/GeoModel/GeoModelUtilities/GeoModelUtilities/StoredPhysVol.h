@@ -40,7 +40,7 @@ public:
   
  private:
   
-  GeoFullPhysVol                                           *_physVol;
+  GeoFullPhysVol                                           *m_physVol;
 
 };
 

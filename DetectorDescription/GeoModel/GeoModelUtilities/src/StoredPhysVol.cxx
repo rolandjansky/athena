@@ -11,7 +11,7 @@
  ** Constructor(s)
  **/
 StoredPhysVol::StoredPhysVol( GeoFullPhysVol * physVol )
-  : _physVol(physVol)
+  : m_physVol(physVol)
 {
   physVol->ref();
 }
@@ -20,15 +20,15 @@ StoredPhysVol::StoredPhysVol( GeoFullPhysVol * physVol )
  ** Destructor
  **/
 StoredPhysVol::~StoredPhysVol()  {
-  _physVol->unref();
+  m_physVol->unref();
 }
 
 GeoFullPhysVol * StoredPhysVol::getPhysVol() {
-  return _physVol;
+  return m_physVol;
 }
 
 
 const GeoFullPhysVol *StoredPhysVol::getPhysVol() const{
-  return _physVol;
+  return m_physVol;
 }
 

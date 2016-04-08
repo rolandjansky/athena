@@ -8,8 +8,8 @@
 
 bool GeoMaterialPropertyVector::operator ++()
 {
-  CurrentEntry++;
-  if(CurrentEntry < NumEntries) 
+  m_CurrentEntry++;
+  if(m_CurrentEntry < m_NumEntries) 
     return true;
   else
     return false; 
@@ -19,18 +19,18 @@ GeoMaterialPropertyVector& GeoMaterialPropertyVector::operator =(const GeoMateri
 {
   if (this == &right) return *this;
 	
-  for(unsigned i=0; i<MPV.size(); ++i)
-    delete MPV[i];
-  MPV.clear();
+  for(unsigned i=0; i<m_MPV.size(); ++i)
+    delete m_MPV[i];
+  m_MPV.clear();
 
-  NumEntries = 0;
-  CurrentEntry = -1;
+  m_NumEntries = 0;
+  m_CurrentEntry = -1;
   
-  for(int i = 0 ; i < right.NumEntries; i++) 
+  for(int i = 0 ; i < right.m_NumEntries; i++) 
   {
     GeoMPVEntry *newElement = new GeoMPVEntry(right.GetEntry(i));
-    MPV.push_back(newElement);
-    NumEntries++;
+    m_MPV.push_back(newElement);
+    m_NumEntries++;
   }
 
   return *this;
@@ -40,8 +40,8 @@ GeoMaterialPropertyVector::GeoMaterialPropertyVector(double *PhotonMomenta,
 						     double *PropertyValues,
 						     int     NumElements)
 {
-  NumEntries = 0;
-  CurrentEntry = -1;
+  m_NumEntries = 0;
+  m_CurrentEntry = -1;
 
   for(int i = 0; i < NumElements; i++) 
     AddElement(PhotonMomenta[i], PropertyValues[i]);
@@ -49,27 +49,27 @@ GeoMaterialPropertyVector::GeoMaterialPropertyVector(double *PhotonMomenta,
 
 GeoMaterialPropertyVector::GeoMaterialPropertyVector(const GeoMaterialPropertyVector &right)
 {
-  NumEntries = 0;
-  CurrentEntry = -1;
+  m_NumEntries = 0;
+  m_CurrentEntry = -1;
   
-  for(int i = 0 ; i < right.NumEntries; i++) 
+  for(int i = 0 ; i < right.m_NumEntries; i++) 
   {
     GeoMPVEntry *newElement = new GeoMPVEntry(right.GetEntry(i));
-    MPV.push_back(newElement);
-    NumEntries++;
+    m_MPV.push_back(newElement);
+    m_NumEntries++;
   }
 }
 
 GeoMaterialPropertyVector::~GeoMaterialPropertyVector()
 {
-  for(unsigned i=0; i<MPV.size(); ++i)
-    delete MPV[i];
-  MPV.clear();
+  for(unsigned i=0; i<m_MPV.size(); ++i)
+    delete m_MPV[i];
+  m_MPV.clear();
 }
 
 void GeoMaterialPropertyVector::ResetIterator()
 {
-  CurrentEntry = -1;
+  m_CurrentEntry = -1;
 }
 
 void GeoMaterialPropertyVector::AddElement(double aPhotonMomentum,
@@ -78,44 +78,44 @@ void GeoMaterialPropertyVector::AddElement(double aPhotonMomentum,
   GeoMPVEntry *newElement;
 
   newElement = new GeoMPVEntry(aPhotonMomentum, aPropertyValue);
-  MPV.push_back(newElement);
-  NumEntries++; 
+  m_MPV.push_back(newElement);
+  m_NumEntries++; 
 }
 
 double GeoMaterialPropertyVector::GetProperty() const
 {
-  if(CurrentEntry == -1 || CurrentEntry >= NumEntries) 
+  if(m_CurrentEntry == -1 || m_CurrentEntry >= m_NumEntries) 
     throw std::runtime_error("GeoMaterialPropertyVector::GetProperty ==>Iterator attempted to Retrieve Property out of range");
   else
-    return MPV[CurrentEntry]->GetProperty();
+    return m_MPV[m_CurrentEntry]->GetProperty();
 }
 
 double GeoMaterialPropertyVector::GetPhotonMomentum() const
 {
-  if(CurrentEntry == -1 || CurrentEntry >= NumEntries) 
+  if(m_CurrentEntry == -1 || m_CurrentEntry >= m_NumEntries) 
     throw std::runtime_error("GeoMaterialPropertyVector::GetPhotonMomentum ==>Iterator attempted to Retrieve Photon Momentum out of range");
   else 
-    return MPV[CurrentEntry]->GetPhotonMomentum();
+    return m_MPV[m_CurrentEntry]->GetPhotonMomentum();
 }
 
 void GeoMaterialPropertyVector::DumpVector()
 {
-  if (MPV.empty())  
+  if (m_MPV.empty())  
   {
     std::cerr << "nothing to dump\n";
     throw std::runtime_error("GeoMaterialPropertyVector::DumpVector ==>Nothing to dump!  Vector is empty");
   }
 
-  for (int i = 0; i < NumEntries; i++) 
+  for (int i = 0; i < m_NumEntries; i++) 
   {
-    std::cout << "MPV["<< i << "]: ";
-    MPV[i]->DumpEntry();
+    std::cout << "m_MPV["<< i << "]: ";
+    m_MPV[i]->DumpEntry();
   }
-  std::cout << " Done DumpVector of " << NumEntries << " entries\n";
+  std::cout << " Done DumpVector of " << m_NumEntries << " entries\n";
 
 } 
 
 GeoMPVEntry GeoMaterialPropertyVector::GetEntry(int i) const
 {
-  return *MPV[i];
+  return *m_MPV[i];
 }

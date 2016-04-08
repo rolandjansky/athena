@@ -66,8 +66,8 @@ class GeoMaterialPropertiesTable : public RCBase
   void DumpTable() const;
 
  private:
-  GeoMatPVMap MPT;
-  GeoMatPMap MPTC;
+  GeoMatPVMap m_MPT;
+  GeoMatPMap m_MPTC;
 
   typedef GeoMatPVMap::iterator MPTiterator;
   typedef GeoMatPMap::iterator MPTCiterator;

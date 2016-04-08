@@ -34,38 +34,38 @@ class GeoExtendedMaterial : public GeoMaterial
   GeoExtendedMaterial(const GeoExtendedMaterial &right);
   GeoExtendedMaterial & operator=(const GeoExtendedMaterial &right);
   
-  GeoMaterialState state;
-  double temperature;
-  double pressure;
+  GeoMaterialState m_state;
+  double m_temperature;
+  double m_pressure;
 
-  GeoMaterialPropertiesTable* properties;
+  GeoMaterialPropertiesTable* m_properties;
 };
 
 
 inline const GeoMaterialState& GeoExtendedMaterial::getState() const
 {
-  return state;
+  return m_state;
 }
 
 inline const double& GeoExtendedMaterial::getTemperature() const
 {
-  return temperature;
+  return m_temperature;
 }
  	  	 
 inline const double& GeoExtendedMaterial::getPressure() const
 {
-  return pressure;
+  return m_pressure;
 }
 
 inline void GeoExtendedMaterial::SetMaterialPropertiesTable(GeoMaterialPropertiesTable* MPT)
 {
-  properties = MPT;
-  properties->ref();
+  m_properties = MPT;
+  m_properties->ref();
 }
 
 inline GeoMaterialPropertiesTable* GeoExtendedMaterial::GetMaterialPropertiesTable() const
 {
-  return properties;
+  return m_properties;
 }
 
 #endif

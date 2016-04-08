@@ -11,15 +11,15 @@ GeoExtendedMaterial::GeoExtendedMaterial(const std::string &Name,
 					 double Temperature,
 					 double Pressure):
   GeoMaterial(Name,Density),
-  state(State),
-  temperature(Temperature),
-  pressure(Pressure),
-  properties(0)
+  m_state(State),
+  m_temperature(Temperature),
+  m_pressure(Pressure),
+  m_properties(0)
 {
 }
 
 GeoExtendedMaterial::~GeoExtendedMaterial()
 {
-  properties->unref();
+  m_properties->unref();
 }
 

@@ -22,18 +22,18 @@ class GeoMPVEntry
   void DumpEntry();
 
  private:
-  double thePhotonMomentum;
-  double theProperty;
+  double m_thePhotonMomentum;
+  double m_theProperty;
 };
 
 inline double GeoMPVEntry::GetPhotonMomentum()
 {
-  return thePhotonMomentum;
+  return m_thePhotonMomentum;
 }
 
 inline double GeoMPVEntry::GetProperty()
 {
-  return theProperty;
+  return m_theProperty;
 }
 
 #endif 
