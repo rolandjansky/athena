@@ -1,0 +1,31 @@
+package PythiaBc_i
+
+author
+
+use AtlasPolicy AtlasPolicy-*
+use AtlasFortranPolicy  AtlasFortranPolicy-*
+#use GeneratorModules GeneratorModules-* Generators
+
+private
+use Pythia           Pythia-*           External
+macro useCernlibPythiaBc_i "" target-darwin "AtlasCERNLIB AtlasCERNLIB-* External"
+use $(useCernlibPythiaBc_i)
+#macro_remove cernlib_linkopts "" target-darwin "-lkernlib"
+#macro_append cernlib_linkopts "" target-darwin "-lpdflib804"
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in full asNeeded/noUndefined mode. Until that time, this 
+# package explicitly sets the allowUndefined tag
+# for production rel. notAsNeeded has to be set
+private
+macro as_needed_tag "notAsNeeded" target-darwin "asNeeded"
+apply_tag $(as_needed_tag)
+end_private
+
+public
+library PythiaBc_i *.cxx *.F PythiaModified/*.F
+apply_pattern installed_library
+
+apply_pattern declare_joboptions files="*.py"
+
+
