@@ -29,14 +29,34 @@
 
 #include "TH2F.h"
 
+
+
 SCT_TestDistortionsTool::SCT_TestDistortionsTool(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_SCTDistoTool("SCT_DistortionsTool"){
+  m_SCTDistoTool("SCT_DistortionsTool"),
+  m_detManager(0),
+  m_storeGate(0),
+  ZvsX(0),ZvsY(0),XYZ(0),
+  outerXedge(0), outerYedge(0),
+  outerX(0),outerY(0){
   //nop
 }
 
 SCT_TestDistortionsTool::~SCT_TestDistortionsTool(){
-  //nop
+  if (ZvsX) delete ZvsX;
+  ZvsX=0;
+  if (ZvsY) delete ZvsY;
+  ZvsY=0;
+  if (XYZ) delete XYZ;
+  XYZ=0;
+  if (outerXedge) delete outerXedge;
+  outerXedge=0;
+  if (outerYedge) delete outerYedge;
+  outerYedge=0;
+  if (outerX) delete outerX;
+  outerX=0;
+  if (outerY) delete outerY;
+  outerY=0;
 }
 
 StatusCode
