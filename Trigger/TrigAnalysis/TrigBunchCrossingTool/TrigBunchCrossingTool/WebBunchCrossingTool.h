@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: WebBunchCrossingTool.h 639543 2015-01-14 17:51:02Z krasznaa $
+// $Id: WebBunchCrossingTool.h 657759 2015-03-30 11:08:15Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_WEBBUNCHCROSSINGTOOL_H
 #define TRIGBUNCHCROSSINGTOOL_WEBBUNCHCROSSINGTOOL_H
 
@@ -33,8 +33,8 @@ namespace Trig {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 639543 $
-    * $Date: 2015-01-14 18:51:02 +0100 (Wed, 14 Jan 2015) $
+    * $Revision: 657759 $
+    * $Date: 2015-03-30 13:08:15 +0200 (Mon, 30 Mar 2015) $
     */
    class WebBunchCrossingTool : public BunchCrossingToolBase {
 
@@ -62,8 +62,8 @@ namespace Trig {
        *
        * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
        *
-       * $Revision: 639543 $
-       * $Date: 2015-01-14 18:51:02 +0100 (Wed, 14 Jan 2015) $
+       * $Revision: 657759 $
+       * $Date: 2015-03-30 13:08:15 +0200 (Mon, 30 Mar 2015) $
        */
       class IOV {
       public:
@@ -98,6 +98,8 @@ namespace Trig {
 
       /// Name of the server to download the information from
       std::string m_serverAddress;
+      /// Timeout allowed on the server to respond
+      int m_serverTimeout;
 
       int m_bgkey; ///< The BG key loaded last
       IOV m_iov; ///< The IOV loaded last

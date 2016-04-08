@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: WebBunchCrossingTool.cxx 625731 2014-11-03 12:41:18Z krasznaa $
+// $Id: WebBunchCrossingTool.cxx 657759 2015-03-30 11:08:15Z krasznaa $
 
 // System include(s):
 #include <sstream>
@@ -30,8 +30,8 @@ namespace Trig {
    static const char* TRIGCONF_BGFOLDER = "bunchgroups";
    /// Port of the trigger configuration web server
    static const Int_t TRIGCONF_PORT = 80;
-   /// Timeout in miliseconds for reading the webpages
-   static const Long_t TRIGCONF_TIMEOUT = 5000;
+   /// Default timeout in miliseconds for reading the webpages
+   static const Long_t TRIGCONF_TIMEOUT = 20000;
    /// Code of the collision bunch crossings
    static const Int_t COLLISION_BUNCHGROUP_INDEX = 1;
    /// First index of the unpaired bunch crossings
@@ -49,6 +49,7 @@ namespace Trig {
         m_configMap() {
 
       declareProperty( "ServerAddress", m_serverAddress = TRIGCONF_ADDRESS );
+      declareProperty( "ServerTimeout", m_serverTimeout = TRIGCONF_TIMEOUT );
    }
 
    /**
@@ -368,9 +369,9 @@ namespace Trig {
       ATH_MSG_VERBOSE( "Request sent for getting the page size" );
 
       // Wait for data to become available on the socket:
-      if( socket.Select( TSocket::kRead, TRIGCONF_TIMEOUT ) != 1 ) {
+      if( socket.Select( TSocket::kRead, m_serverTimeout ) != 1 ) {
          ATH_MSG_ERROR( "Couldn't get answer within the "
-                        << TRIGCONF_TIMEOUT << " ms timeout" );
+                        << m_serverTimeout << " ms timeout" );
          return 0;
       }
 
@@ -442,9 +443,9 @@ namespace Trig {
       ATH_MSG_VERBOSE( "Request sent for getting the page" );
 
       // Wait for data to become available on the socket:
-      if( socket.Select( TSocket::kRead, TRIGCONF_TIMEOUT ) != 1 ) {
+      if( socket.Select( TSocket::kRead, m_serverTimeout ) != 1 ) {
          ATH_MSG_ERROR( "Couldn't get answer within the "
-                        << TRIGCONF_TIMEOUT << " ms timeout" );
+                        << m_serverTimeout << " ms timeout" );
          return "";
       }
 
