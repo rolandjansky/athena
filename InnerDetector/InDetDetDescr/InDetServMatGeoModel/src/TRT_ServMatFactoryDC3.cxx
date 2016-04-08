@@ -47,13 +47,13 @@ TRT_ServMatFactoryDC3::~TRT_ServMatFactoryDC3()
 void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
+  msg(MSG::DEBUG) << "Building TRT Service Material" << endreq;
 
   double epsilon = 0.002;
   
 
-  DecodeVersionKey atlasVersionKey(geoDbTagSvc(),"ATLAS");
-  DecodeVersionKey indetVersionKey(geoDbTagSvc(),"InnerDetector");
+  DecodeVersionKey atlasVersionKey(geoModelSvc(), "ATLAS");
+  DecodeVersionKey indetVersionKey(geoModelSvc(), "InnerDetector");
 
   IRDBRecordset_ptr atls = rdbAccessSvc()->getRecordsetPtr("AtlasMother",  atlasVersionKey.tag(), atlasVersionKey.node());
   IRDBRecordset_ptr ipan = rdbAccessSvc()->getRecordsetPtr("IPAN", indetVersionKey.tag(), indetVersionKey.node());

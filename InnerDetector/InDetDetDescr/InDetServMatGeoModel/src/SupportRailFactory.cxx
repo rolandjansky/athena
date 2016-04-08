@@ -20,7 +20,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBQuery.h"
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include <iostream>
@@ -43,9 +43,9 @@ SupportRailFactory::~SupportRailFactory()
 void SupportRailFactory::create(GeoPhysVol *mother)
 {
 
-  DecodeVersionKey atlasVersionKey(geoDbTagSvc(),"ATLAS");
-  DecodeVersionKey indetVersionKey(geoDbTagSvc(),"InnerDetector");
-  DecodeVersionKey larVersionKey(geoDbTagSvc(),"LAr");
+  DecodeVersionKey atlasVersionKey(geoModelSvc(), "ATLAS");
+  DecodeVersionKey indetVersionKey(geoModelSvc(), "InnerDetector");
+  DecodeVersionKey larVersionKey(geoModelSvc(), "LAr");
 
   std::string railversion =  rdbAccessSvc()->getChildTag("IDDetailedRail",indetVersionKey.tag(),indetVersionKey.node());
   if(!railversion.empty()) {

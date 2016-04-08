@@ -24,7 +24,7 @@
 #include "GeoModelKernel/GeoPcon.h"  
 #include "GeoModelKernel/GeoShapeUnion.h"  
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
 
@@ -133,15 +133,15 @@ const InDetDD::InDetServMatManager* InDetServMatFactorySLHC::getDetectorManager 
 void
 InDetServMatFactorySLHC::fetchTables() 
 {
-  DecodeVersionKey indetVersionKey(geoDbTagSvc(), "InnerDetector");
+  DecodeVersionKey indetVersionKey(geoModelSvc(), "InnerDetector");
 
   msg(MSG::INFO) << "Building InDet Service Material with InDet Version Tag: "  
-		 << indetVersionKey.tag() << " at Node: " << indetVersionKey.node() << endmsg;
+		 << indetVersionKey.tag() << " at Node: " << indetVersionKey.node() << endreq;
   msg(MSG::INFO) << " InDetServices Version " 
-		 << rdbAccessSvc()->getChildTag("InDetServices", indetVersionKey.tag(), indetVersionKey.node(), false) << endmsg;
+		 << rdbAccessSvc()->getChildTag("InDetServices", indetVersionKey.tag(), indetVersionKey.node(), false) << endreq;
  
   InDetServGenEnvelope = rdbAccessSvc()->getRecordsetPtr("InDetServGenEnvelope", indetVersionKey.tag(), indetVersionKey.node());
-  msg(MSG::DEBUG) << "Table InDetServGenEnvelope Fetched" << endmsg;
+  msg(MSG::DEBUG) << "Table InDetServGenEnvelope Fetched" << endreq;
 }
 
 double 
@@ -151,7 +151,7 @@ InDetServMatFactorySLHC::envelopeLength() const
     // The table should contain only +ve z values.
     return 2*envelopeZ(geomDB()->getTableSize(InDetServGenEnvelope) - 1);
   } else {
-    msg(MSG::ERROR) << "Unexpected error. InDetServGenEnvelope has zero size" << endmsg;
+    msg(MSG::ERROR) << "Unexpected error. InDetServGenEnvelope has zero size" << endreq;
     return 0;
   }
 }
@@ -184,7 +184,7 @@ double
 InDetServMatFactorySLHC::envelopeZ(int i) const 
 {
   double zmin =  geomDB()->getDouble(InDetServGenEnvelope,"Z",i) * CLHEP::mm;
-  if (zmin < 0) msg(MSG::ERROR) << "InDetServGenEnvelope table should only contain +ve z values" << endmsg;
+  if (zmin < 0) msg(MSG::ERROR) << "InDetServGenEnvelope table should only contain +ve z values" << endreq;
   return std::abs(zmin);
 }
 

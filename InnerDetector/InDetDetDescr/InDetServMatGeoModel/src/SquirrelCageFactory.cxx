@@ -19,7 +19,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBQuery.h"
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include <iostream>
@@ -42,7 +42,7 @@ SquirrelCageFactory::~SquirrelCageFactory()
 void SquirrelCageFactory::create(GeoPhysVol *mother)
 {
 
-  DecodeVersionKey indetVersionKey(geoDbTagSvc(),"InnerDetector");
+  DecodeVersionKey indetVersionKey(geoModelSvc(), "InnerDetector");
   std::string railversion =  rdbAccessSvc()->getChildTag("IDDetailedRail",indetVersionKey.tag(),indetVersionKey.node());
   if(!railversion.empty()) {
     // ______________________________________________________________________________________________________________________
@@ -61,7 +61,7 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
     std::istringstream tmpStr(sqversionStr.substr(pos+1));
     tmpStr >> sqversion;
   }
-  msg(MSG::DEBUG) << sqversionStr << " : " << sqversion << endmsg;
+  msg(MSG::DEBUG) << sqversionStr << " : " << sqversion << endreq;
   
 
 //----------------------------------------------------------------------------------
@@ -345,7 +345,7 @@ void SquirrelCageFactory::create(GeoPhysVol *mother)
     std::istringstream tmpStr(sqversionStr.substr(pos+1));
     tmpStr >> sqversion;
   }
-  msg(MSG::DEBUG) << sqversionStr << " : " << sqversion << endmsg;
+  msg(MSG::DEBUG) << sqversionStr << " : " << sqversion << endreq;
   
 
 //----------------------------------------------------------------------------------

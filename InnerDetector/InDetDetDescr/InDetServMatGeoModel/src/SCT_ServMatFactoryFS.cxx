@@ -27,6 +27,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
 
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
 
@@ -53,12 +54,18 @@ SCT_ServMatFactoryFS::~SCT_ServMatFactoryFS()
 void SCT_ServMatFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
 {
 
-  msg(MSG::DEBUG) << "Building SCT Service Material" << endmsg;
+  msg(MSG::DEBUG) << "Building SCT Service Material" << endreq;
 
 
-  DecodeVersionKey atlasVersionKey("ATLAS");
-  DecodeVersionKey indetVersionKey("InnerDetector");
-  DecodeVersionKey sctVersionKey("SCT");
+  // Get the SvcLocator 
+  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
+  IGeoModelSvc *geoModel;
+  StatusCode sc = svcLocator->service ("GeoModelSvc",geoModel);
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+ 
+  DecodeVersionKey atlasVersionKey(geoModel, "ATLAS");
+  DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
+  DecodeVersionKey sctVersionKey(geoModel, "SCT");
 
   IRDBRecordset_ptr atls   = m_rdbAccess->getRecordsetPtr("AtlasMother", atlasVersionKey.tag(), atlasVersionKey.node());
   IRDBRecordset_ptr sctGenServices = m_rdbAccess->getRecordsetPtr("SCTGenServices",  indetVersionKey.tag(), indetVersionKey.node());

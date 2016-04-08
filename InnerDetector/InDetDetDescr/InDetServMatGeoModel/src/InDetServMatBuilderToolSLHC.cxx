@@ -9,7 +9,7 @@
 #include "InDetGeoModelUtils/ServiceVolumeMaker.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -23,7 +23,7 @@ InDetServMatBuilderToolSLHC::InDetServMatBuilderToolSLHC(const std::string& t,
 						 const std::string& name,
 						 const IInterface*  p )
   : AthAlgTool(t,name,p),
-    m_geoDbTagSvc("GeoDbTagSvc",name),
+    m_geoModelSvc("GeoModelSvc",name),
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_geometryDBSvc("InDetGeometryDBSvc",name),
     m_init(false),
@@ -34,7 +34,7 @@ InDetServMatBuilderToolSLHC::InDetServMatBuilderToolSLHC(const std::string& t,
  
   declareProperty("RDBAccessSvc", m_rdbAccessSvc);
   declareProperty("GeometryDBSvc", m_geometryDBSvc);
-  declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
+  declareProperty("GeoModelSvc", m_geoModelSvc);
 }
 
 
@@ -56,24 +56,28 @@ StatusCode InDetServMatBuilderToolSLHC::initialize()
   StatusCode sc = AlgTool::initialize();
   if (sc.isFailure()) return sc;
   
+  declareProperty("GeoModelSvc", m_geoModelSvc);
+  declareProperty("RDBAccessSvc", m_rdbAccessSvc);
+  declareProperty("GeometryDBSvc", m_geometryDBSvc);
+
   // Get the detector configuration.
-  sc = m_geoDbTagSvc.retrieve();
+  sc = m_geoModelSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoDbTagSvc" << endmsg;
-    return (StatusCode::FAILURE);
-  }
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    return (StatusCode::FAILURE); 
+  } 
 
   // Get RDBAcessSvc
   sc = m_rdbAccessSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
+    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endreq;
     return (StatusCode::FAILURE); 
   }  
   
   // Retrieve the Geometry DB Interface
   sc = m_geometryDBSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endmsg;
+    msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endreq;
     return (StatusCode::FAILURE); 
   }  
 
@@ -81,11 +85,11 @@ StatusCode InDetServMatBuilderToolSLHC::initialize()
   //m_athenaComps = new InDetDD::AthenaComps(name());
   m_athenaComps = new InDetDD::AthenaComps("InDetServMatGeoModel");
   m_athenaComps->setDetStore(&*(detStore()));
-  m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
+  m_athenaComps->setGeoModelSvc(&*m_geoModelSvc);
   m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
   m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
 
-  msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
+  msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
   return StatusCode::SUCCESS;
 }
 	
@@ -117,35 +121,35 @@ void InDetServMatBuilderToolSLHC::build()
   
   // build the geometry
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "pixelNumLayers: " << m_geoMgr->pixelNumLayers() << endmsg;
+    msg(MSG::DEBUG) << "pixelNumLayers: " << m_geoMgr->pixelNumLayers() << endreq;
     for (int i = 0; i < m_geoMgr->pixelNumLayers(); i++) {
-      msg(MSG::DEBUG) << " pixelLayerRadius(" << i << ")        : " << m_geoMgr->pixelLayerRadius(i) << endmsg;
-      msg(MSG::DEBUG) << " pixelLayerLength(" << i << ")        : " << m_geoMgr->pixelLayerLength(i) << endmsg;
-      msg(MSG::DEBUG) << " pixelNumSectorsForLayer(" << i << ") : " << m_geoMgr->pixelNumSectorsForLayer(i) << endmsg;
+      msg(MSG::DEBUG) << " pixelLayerRadius(" << i << ")        : " << m_geoMgr->pixelLayerRadius(i) << endreq;
+      msg(MSG::DEBUG) << " pixelLayerLength(" << i << ")        : " << m_geoMgr->pixelLayerLength(i) << endreq;
+      msg(MSG::DEBUG) << " pixelNumSectorsForLayer(" << i << ") : " << m_geoMgr->pixelNumSectorsForLayer(i) << endreq;
     }
-    msg(MSG::DEBUG) << "pixelNumDisk: " << m_geoMgr->pixelNumDisks() << endmsg;
+    msg(MSG::DEBUG) << "pixelNumDisk: " << m_geoMgr->pixelNumDisks() << endreq;
     for (int i = 0; i < m_geoMgr->pixelNumDisks(); i++) {
-      msg(MSG::DEBUG) << " pixelDiskZ(" << i << ")    : " << m_geoMgr->pixelDiskZ(i) << endmsg;
-      msg(MSG::DEBUG) << " pixelDiskRMax(" << i << ") : " << m_geoMgr->pixelDiskRMax(i) << endmsg;
-      msg(MSG::DEBUG) << " pixelDiskSectors(" << i << ") : " << m_geoMgr->pixelEndcapNumSectorsForLayer(i) << endmsg;
-      msg(MSG::DEBUG) << " pixelModulesPerSectors(" << i << ") : " << m_geoMgr->pixelModulesPerEndcapSector(i) << endmsg;
-      msg(MSG::DEBUG) << " pixelChipsPerModuleForDisk(" << i << ") : " << m_geoMgr->pixelChipsPerModuleForDisk(i) << endmsg;
+      msg(MSG::DEBUG) << " pixelDiskZ(" << i << ")    : " << m_geoMgr->pixelDiskZ(i) << endreq;
+      msg(MSG::DEBUG) << " pixelDiskRMax(" << i << ") : " << m_geoMgr->pixelDiskRMax(i) << endreq;
+      msg(MSG::DEBUG) << " pixelDiskSectors(" << i << ") : " << m_geoMgr->pixelEndcapNumSectorsForLayer(i) << endreq;
+      msg(MSG::DEBUG) << " pixelModulesPerSectors(" << i << ") : " << m_geoMgr->pixelModulesPerEndcapSector(i) << endreq;
+      msg(MSG::DEBUG) << " pixelChipsPerModuleForDisk(" << i << ") : " << m_geoMgr->pixelChipsPerModuleForDisk(i) << endreq;
     }
-    msg(MSG::DEBUG) << "sctNumLayers: " << m_geoMgr->sctNumLayers() << endmsg;
+    msg(MSG::DEBUG) << "sctNumLayers: " << m_geoMgr->sctNumLayers() << endreq;
     for (int i = 0; i < m_geoMgr->sctNumLayers(); i++) {
-      msg(MSG::DEBUG) << " sctLayerRadius(" << i << ")        : " << m_geoMgr->sctLayerRadius(i) << endmsg;
-      msg(MSG::DEBUG) << " sctLayerLength(" << i << ")        : " << m_geoMgr->sctLayerLength(i) << endmsg;
-      msg(MSG::DEBUG) << " sctLayerType(" << i << ")          : " << m_geoMgr->sctLayerType(i) << endmsg;
-      msg(MSG::DEBUG) << " sctNumSectorsForLayer(" << i << ") : " << m_geoMgr->sctNumSectorsForLayer(i) << endmsg;
+      msg(MSG::DEBUG) << " sctLayerRadius(" << i << ")        : " << m_geoMgr->sctLayerRadius(i) << endreq;
+      msg(MSG::DEBUG) << " sctLayerLength(" << i << ")        : " << m_geoMgr->sctLayerLength(i) << endreq;
+      msg(MSG::DEBUG) << " sctLayerType(" << i << ")          : " << m_geoMgr->sctLayerType(i) << endreq;
+      msg(MSG::DEBUG) << " sctNumSectorsForLayer(" << i << ") : " << m_geoMgr->sctNumSectorsForLayer(i) << endreq;
     }
-    msg(MSG::DEBUG) << "sctNumDisk: " << m_geoMgr->sctNumDisks() << endmsg;
+    msg(MSG::DEBUG) << "sctNumDisk: " << m_geoMgr->sctNumDisks() << endreq;
     for (int i = 0; i < m_geoMgr->sctNumDisks(); i++) {
-      msg(MSG::DEBUG) << " sctDiskZ(" << i << ")    : " << m_geoMgr->sctDiskZ(i) << endmsg;
-      msg(MSG::DEBUG) << " sctDiskRMax(" << i << ") : " << m_geoMgr->sctDiskRMax(i) << endmsg;
+      msg(MSG::DEBUG) << " sctDiskZ(" << i << ")    : " << m_geoMgr->sctDiskZ(i) << endreq;
+      msg(MSG::DEBUG) << " sctDiskRMax(" << i << ") : " << m_geoMgr->sctDiskRMax(i) << endreq;
     }
-    msg(MSG::DEBUG) << "sctInnerSupport radius: " << m_geoMgr->sctInnerSupport() << endmsg;
-    msg(MSG::DEBUG) << "PST inner radius: " << m_geoMgr->SupportTubeRMin("PST") << endmsg;
-    msg(MSG::DEBUG) << "Pixel Envelope radius: " << m_geoMgr->pixelEnvelopeRMax() << endmsg;
+    msg(MSG::DEBUG) << "sctInnerSupport radius: " << m_geoMgr->sctInnerSupport() << endreq;
+    msg(MSG::DEBUG) << "PST inner radius: " << m_geoMgr->SupportTubeRMin("PST") << endreq;
+    msg(MSG::DEBUG) << "Pixel Envelope radius: " << m_geoMgr->pixelEnvelopeRMax() << endreq;
   }
 
   ServicesTracker* tracker = ServicesTrackerBuilder().buildGeometry( *m_geoMgr);
@@ -159,9 +163,9 @@ void InDetServMatBuilderToolSLHC::build()
   typedef  std::vector<ServiceVolume*>::const_iterator iter;
   for (iter i=tracker->serviceVolumes().begin(); i!=tracker->serviceVolumes().end(); i++) {
     /*
-    msg(MSG::INFO) << "Calling ServiceVolume->dump() for the " << n++ << "th time" << endmsg;
+    msg(MSG::INFO) << "Calling ServiceVolume->dump() for the " << n++ << "th time" << endreq;
     (**i).dump();  // for DEBUG only
-    msg(MSG::INFO) << "Call to ServiceVolume->dump() returned" << endmsg;
+    msg(MSG::INFO) << "Call to ServiceVolume->dump() returned" << endreq;
     */
     addServiceVolume( **i);
   }
@@ -201,7 +205,7 @@ void InDetServMatBuilderToolSLHC::addService(InDetDD::ServiceVolume * param)
 void InDetServMatBuilderToolSLHC::addServiceVolume( const ServiceVolume& vol) 
 {
   msg(MSG::DEBUG) << "Entering InDetServMatBuilderToolSLHC::addServiceVolume for volume " << vol.name() 
-		  << " with " << vol.materials().size() << " materials" << endmsg;
+		  << " with " << vol.materials().size() << " materials" << endreq;
 
   InDetDD::ServiceVolume * param = new InDetDD::ServiceVolume;
   //std::unique_ptr<InDetDD::ServiceVolume> param (new InDetDD::ServiceVolume); This doesn't work for some reason...
@@ -221,7 +225,7 @@ void InDetServMatBuilderToolSLHC::addServiceVolume( const ServiceVolume& vol)
 		     << " number " << ient->number 
 		     << " weight " << ient->weight 
 		     << " linear " << ient->linear 
-		     << endmsg;
+		     << endreq;
       */
       //      if (ient->weight*ient->number > 0.00001) {
       //std::string pre = "pix::";
@@ -295,20 +299,20 @@ void InDetServMatBuilderToolSLHC::printNewVolume( const ServiceVolume& vol,
 {
   double dens = mat.getDensity();
   double weight = dens*param.volume();
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Creating service volume with rmin " << vol.rMin()
+  if (msgLvl(MSG::INFO)) {
+    msg(MSG::INFO) << "Creating service volume with rmin " << vol.rMin()
 		   << " rmax " << vol.rMax() 
 		   << " zmin " << vol.zMin() 
-		   << " zmax " << vol.zMax() << endmsg;
+		   << " zmax " << vol.zMax() << endreq;
  
-    msg(MSG::DEBUG) << "name " << vol.name() << " density " << dens * CLHEP::cm3 / CLHEP::g 
-		   << " [g/cm3] weight " << dens*param.volume()/CLHEP::kg  << " [kg]" << endmsg;
+    msg(MSG::INFO) << "name " << vol.name() << " density " << dens * CLHEP::cm3 / CLHEP::g 
+		   << " [g/cm3] weight " << dens*param.volume()/CLHEP::kg  << " [kg]" << endreq;
   } 
   if (msgLvl(MSG::DEBUG)) {   // FIXME: change to VERBOSE when done!
-    msg(MSG::DEBUG) << "Number of elements: " << mat.getNumElements() << endmsg;
+    msg(MSG::DEBUG) << "Number of elements: " << mat.getNumElements() << endreq;
     for (unsigned int i=0; i< mat.getNumElements(); i++) {
       msg(MSG::DEBUG) << "Element " << mat.getElement(i)->getName() 
-		      << " weight " << mat.getFraction(i) * weight / CLHEP::g << endmsg;
+		      << " weight " << mat.getFraction(i) * weight / CLHEP::g << endreq;
     }
   }
 }
@@ -332,28 +336,28 @@ void InDetServMatBuilderToolSLHC::fixMissingMaterials()
   comps[0] = "std::Aluminium"; fracs[0] = 0.731;
   comps[1] = "std::Copper";    fracs[1] = 0.269;
   const GeoMaterial* geomat = m_geoMgr->matMgr()->getMaterial( "indet::CCAW", comps, fracs, 3.33);
-  if (geomat) msg(MSG::INFO) << "Material with name name " << "CCAW" << " added" << endmsg;
-  else        msg(MSG::INFO) << "Material with name name " << "CCAW" << " failed to be added" << endmsg;
+  if (geomat) msg(MSG::INFO) << "Material with name name " << "CCAW" << " added" << endreq;
+  else        msg(MSG::INFO) << "Material with name name " << "CCAW" << " failed to be added" << endreq;
 
   comps[0] = "indet::Polyetherimide"; fracs[0] = 0.409;
   comps[1] = "std::Copper";           fracs[1] = 0.591;
   geomat = m_geoMgr->matMgr()->getMaterial( "indet::TwistedPair_awg36Base", comps, fracs, 1.);
-  if (geomat) msg(MSG::INFO) << "Material with name name " << "TwistedPair_awg36Base" << " added" << endmsg;
-  else        msg(MSG::INFO) << "Material with name name " << "TwistedPair_awg36Base" << " failed to be added" << endmsg;
+  if (geomat) msg(MSG::INFO) << "Material with name name " << "TwistedPair_awg36Base" << " added" << endreq;
+  else        msg(MSG::INFO) << "Material with name name " << "TwistedPair_awg36Base" << " failed to be added" << endreq;
 
   comps[0] = "std::Carbon"; fracs[0] = 0.27;
   comps[1] = "Oxygen"; fracs[1] = 0.73;
   geomat = m_geoMgr->matMgr()->getMaterial( "pix::CO2_Liquid", comps, fracs, 1.);
-  if (geomat) msg(MSG::INFO) << "Material with name name " << "pix::CO2_Liquid" << " added" << endmsg;
-  else        msg(MSG::INFO) << "Material with name name " << "pix::CO2_Liquid" << " failed to be added" << endmsg;
+  if (geomat) msg(MSG::INFO) << "Material with name name " << "pix::CO2_Liquid" << " added" << endreq;
+  else        msg(MSG::INFO) << "Material with name name " << "pix::CO2_Liquid" << " failed to be added" << endreq;
 
   comps.resize(3); fracs.resize(3);
   comps[0] = "indet::Polyetherimide"; fracs[0] = 0.276;
   comps[1] = "std::Copper";           fracs[1] = 0.346;
   comps[2] = "std::Aluminium";        fracs[2] = 0.378;
   geomat = m_geoMgr->matMgr()->getMaterial( "indet::ScreenedTwistP_36Base", comps, fracs, 1.);
-  if (geomat) msg(MSG::INFO) << "Material with name name " << "ScreenedTwistP_36Base" << " added" << endmsg;
-  else        msg(MSG::INFO) << "Material with name name " << "ScreenedTwistP_36Base" << " failed to be added" << endmsg;
+  if (geomat) msg(MSG::INFO) << "Material with name name " << "ScreenedTwistP_36Base" << " added" << endreq;
+  else        msg(MSG::INFO) << "Material with name name " << "ScreenedTwistP_36Base" << " failed to be added" << endreq;
 
   std::vector<std::string> comps(3);
   std::vector<double> fracs(3);
@@ -361,8 +365,8 @@ void InDetServMatBuilderToolSLHC::fixMissingMaterials()
   comps[1] = "std::Aluminium";        fracs[1] = 0.070;
   comps[2] = "indet::Polyetherimide"; fracs[2] = 0.826;
   const GeoMaterial* geomat = m_geoMgr->matMgr()->getMaterial( "indet::TwinaxBase", comps, fracs, 1.);
-  if (geomat) msg(MSG::INFO) << "Material with name name " << "TwinaxBase" << " added" << endmsg;
-  else        msg(MSG::INFO) << "Material with name name " << "TwinaxBase" << " failed to be added" << endmsg;
+  if (geomat) msg(MSG::INFO) << "Material with name name " << "TwinaxBase" << " added" << endreq;
+  else        msg(MSG::INFO) << "Material with name name " << "TwinaxBase" << " failed to be added" << endreq;
 
   std::vector<std::string> comps(1);
   std::vector<double> fracs(1);
@@ -380,8 +384,8 @@ void InDetServMatBuilderToolSLHC::addMissingMaterial( const std::string& name,
 						      const std::vector<double>& fracs, double dens)
 {
   const GeoMaterial* geomat = m_geoMgr->matMgr()->getMaterial( name, comps, fracs, dens);
-  if (geomat) msg(MSG::DEBUG) << "Material with name name " << name << " added" << endmsg;
-  else        msg(MSG::INFO) << "Material with name name " << name << " failed to be added" << endmsg;
+  if (geomat) msg(MSG::INFO) << "Material with name name " << name << " added" << endreq;
+  else        msg(MSG::INFO) << "Material with name name " << name << " failed to be added" << endreq;
 }
 
 /*
@@ -390,14 +394,14 @@ std::string InDetServMatBuilderToolSLHC::getKnownName( const std::string& name, 
   std::string kname = name;
   const GeoMaterial* geomat = matMgr->getMaterial(name);
   if (geomat) {
-    msg(MSG::INFO) << "Material with name name " << name << " found" << endmsg;
+    msg(MSG::INFO) << "Material with name name " << name << " found" << endreq;
     return name;
   }
   else {
     kname = "indet::"; kname += name;
     geomat = matMgr->getMaterial(kname);
     if (geomat) {
-      msg(MSG::INFO) << "Material with name name " << kname << " found" << endmsg;
+      msg(MSG::INFO) << "Material with name name " << kname << " found" << endreq;
       return kname;
     }
     else {
@@ -421,10 +425,10 @@ std::string InDetServMatBuilderToolSLHC::getKnownName( const std::string& name, 
 
       }
       else {
-	msg(MSG::INFO) << "Error: Material with name name " << name << " or " << kname << " not found" << endmsg;
+	msg(MSG::INFO) << "Error: Material with name name " << name << " or " << kname << " not found" << endreq;
 	return "";
       }
-      msg(MSG::INFO) << "Material with name name " << name << " created" << endmsg;
+      msg(MSG::INFO) << "Material with name name " << name << " created" << endreq;
       return name;
     }
   }

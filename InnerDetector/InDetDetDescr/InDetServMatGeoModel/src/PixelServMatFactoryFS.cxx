@@ -26,6 +26,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
 #include <iostream>
@@ -50,10 +51,17 @@ PixelServMatFactoryFS::~PixelServMatFactoryFS()
 //## Other Operations (implementation)
 void PixelServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 {
-  msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg;
+  msg(MSG::DEBUG) << "Building Pixel Service Material" << endreq;
 
-  DecodeVersionKey indetVersionKey("InnerDetector");
-  DecodeVersionKey pixelVersionKey("Pixel");
+  
+ // Get the SvcLocator 
+  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
+  IGeoModelSvc *geoModel;
+  StatusCode sc = svcLocator->service ("GeoModelSvc",geoModel);
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+
+  DecodeVersionKey indetVersionKey(geoModel, "InnerDetector");
+  DecodeVersionKey pixelVersionKey(geoModel, "Pixel");
 
   IRDBRecordset_ptr pixelGenServices = m_rdbAccess->getRecordsetPtr("PixelGenServices",  indetVersionKey.tag(), indetVersionKey.node());
 
