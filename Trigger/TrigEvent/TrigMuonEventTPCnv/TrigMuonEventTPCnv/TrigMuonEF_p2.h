@@ -13,7 +13,7 @@
  * @author Francesca Bucci  <F.Bucci@cern.ch>          - U. Geneva
  *
  * File and Version Information:
- * $Id: TrigMuonEF_p2.h 363411 2011-05-03 15:04:50Z salvator $
+ * $Id: TrigMuonEF_p2.h 723205 2016-02-10 18:16:13Z ssnyder $
  **********************************************************************************/
 #ifndef TRIGMUONEVENTTPCNV_TRIGMUONEF_P2_H
 #define TRIGMUONEVENTTPCNV_TRIGMUONEF_P2_H
@@ -35,7 +35,7 @@ class TrigMuonEF_p2
   TrigMuonEF_p2() : m_muonCode(0), m_charge(0), m_P4IPtCotThPhiM(0) {}
   virtual ~TrigMuonEF_p2(){}
   
- private:
+  // private:
   int m_muonCode;
   std::string m_roi;
   float m_charge;

@@ -2,14 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigMuonEvent/TrigMuonEFInfo.h"
+#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFInfo_p2.h"
-#undef private
-#undef protected
-
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoCnv_p2.h"
+#include "CxxUtils/make_unique.h"
 
 
 void TrigMuonEFInfoCnv_p2::persToTrans(const TrigMuonEFInfo_p2* persObj,
@@ -18,14 +15,18 @@ void TrigMuonEFInfoCnv_p2::persToTrans(const TrigMuonEFInfo_p2* persObj,
 {
   log << MSG::DEBUG << "TrigMuonEFInfoCnv_p2::persToTrans called " << endreq;
 
-  transObj->m_roi               = persObj->m_roi;
-  delete transObj->m_spectrometerTrack;
-  transObj->m_spectrometerTrack = createTransFromPStore( &m_trackCnv, persObj->m_spectrometerTrack, log);
-  delete transObj->m_extrapolatedTrack;
-  transObj->m_extrapolatedTrack = createTransFromPStore( &m_trackCnv, persObj->m_extrapolatedTrack, log);
-  delete transObj->m_combinedTrack;
-  transObj->m_combinedTrack     = createTransFromPStore( &m_cbTrackCnv, persObj->m_combinedTrack, log);
+  std::unique_ptr<TrigMuonEFTrack> spectrometerTrack
+    (createTransFromPStore( &m_trackCnv, persObj->m_spectrometerTrack, log));
+  std::unique_ptr<TrigMuonEFTrack> extrapolatedTrack
+    (createTransFromPStore( &m_trackCnv, persObj->m_extrapolatedTrack, log));
+  std::unique_ptr<TrigMuonEFCbTrack> combinedTrack
+    (createTransFromPStore( &m_cbTrackCnv, persObj->m_combinedTrack, log));
 
+  *transObj = TrigMuonEFInfo (persObj->m_roi,
+                              CxxUtils::make_unique<TrigMuonEFInfoTrackContainer>(),
+                              std::move (spectrometerTrack),
+                              std::move (extrapolatedTrack),
+                              std::move (combinedTrack));
 }
 
 

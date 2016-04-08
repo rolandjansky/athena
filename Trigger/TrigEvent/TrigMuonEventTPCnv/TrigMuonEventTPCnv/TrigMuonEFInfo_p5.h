@@ -31,7 +31,7 @@ public:
 	TrigMuonEFInfo_p5() : m_etaPreviousLevel(0.0), m_phiPreviousLevel(0.0) {}
 	virtual ~TrigMuonEFInfo_p5(){}
 
-private:
+        //private:
     // unsigned short int m_roi;
     // unsigned short int m_nSegments;
     // unsigned short int m_nMdtHits;

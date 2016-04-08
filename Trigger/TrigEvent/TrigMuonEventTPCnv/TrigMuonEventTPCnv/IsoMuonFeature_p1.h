@@ -29,7 +29,7 @@ class IsoMuonFeature_p1 {
 			 m_Tile_w(0.0), m_RoiIdMu(0), m_PtMu(0.0), m_EtaMu(0.0), m_PhiMu(0.0) {}
   virtual ~IsoMuonFeature_p1(){}
 
- private:
+  //private:
 
   float m_EtInnerConeEC;
   float m_EtOuterConeEC;

@@ -2,33 +2,32 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigMuonEvent/TrigMuonEFInfo.h"
+#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFInfo_p1.h"
-#undef private
-#undef protected
-
 #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoCnv_p1.h"
+#include "CxxUtils/make_unique.h"
 
 
 void TrigMuonEFInfoCnv_p1::persToTrans(const TrigMuonEFInfo_p1* persObj, 
-				       TrigMuonEFInfo* transObj, 
+                                       TrigMuonEFInfo* transObj, 
 				       MsgStream &log)
 {
   log << MSG::DEBUG << "TrigMuonEFInfoCnv_p1::persToTrans called " << endreq;
 
-  transObj->m_roi               = persObj->m_roi;
-  delete transObj->m_spectrometerTrack;
-  transObj->m_spectrometerTrack = createTransFromPStore( &m_trackCnv, persObj->m_spectrometerTrack, log);
-  delete transObj->m_extrapolatedTrack;
-  transObj->m_extrapolatedTrack = createTransFromPStore( &m_trackCnv, persObj->m_extrapolatedTrack, log);
-  delete transObj->m_combinedTrack;
-  TrigMuonEFTrack* pers = createTransFromPStore( &m_trackCnv, persObj->m_combinedTrack, log);
-  transObj->m_combinedTrack = new TrigMuonEFCbTrack(*pers);
-  delete pers;
+  std::unique_ptr<TrigMuonEFTrack> spectrometerTrack
+    (createTransFromPStore( &m_trackCnv, persObj->m_spectrometerTrack, log));
+  std::unique_ptr<TrigMuonEFTrack> extrapolatedTrack
+    (createTransFromPStore( &m_trackCnv, persObj->m_extrapolatedTrack, log));
+  std::unique_ptr<TrigMuonEFTrack> tmp
+    (createTransFromPStore( &m_trackCnv, persObj->m_combinedTrack, log));
 
+  *transObj = TrigMuonEFInfo (persObj->m_roi,
+                              CxxUtils::make_unique<TrigMuonEFInfoTrackContainer>(),
+                              std::move (spectrometerTrack),
+                              std::move (extrapolatedTrack),
+                              CxxUtils::make_unique<TrigMuonEFCbTrack>(*tmp));
 }
 
 

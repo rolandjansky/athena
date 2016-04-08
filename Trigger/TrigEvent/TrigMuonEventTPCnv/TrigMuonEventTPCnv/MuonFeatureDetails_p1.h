@@ -18,7 +18,7 @@ class MuonFeatureDetails_p1
   MuonFeatureDetails_p1() {}
   virtual ~MuonFeatureDetails_p1(){}
 
- private:
+  //private:
 
     MuonFeatureDetails::AlgoId   m_id;
     uint32_t m_te_id;

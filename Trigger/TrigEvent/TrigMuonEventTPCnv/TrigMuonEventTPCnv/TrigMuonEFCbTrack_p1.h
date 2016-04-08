@@ -30,7 +30,7 @@ class TrigMuonEFCbTrack_p1
   TrigMuonEFCbTrack_p1() {}
   virtual ~TrigMuonEFCbTrack_p1(){}
   
- private:
+  //private:
   double m_matchChi2;
   TPObjRef m_TrigMuonEFTrack;
   TPObjRef m_P4IPtCotThPhiM;

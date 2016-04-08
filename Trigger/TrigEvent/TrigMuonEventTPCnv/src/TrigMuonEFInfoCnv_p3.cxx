@@ -2,13 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigMuonEvent/TrigMuonEFInfo.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFInfo_p3.h"
-#undef private
-#undef protected
-
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoCnv_p3.h"
 
 
@@ -18,27 +13,28 @@ void TrigMuonEFInfoCnv_p3::persToTrans(const TrigMuonEFInfo_p3* persObj,
 {
 	log << MSG::DEBUG << "TrigMuonEFInfoCnv_p3::persToTrans called " << endreq;
 
-	transObj->m_roi               = persObj->m_roi;
-	transObj->m_nSegments         = persObj->m_nSegments;
-	transObj->m_nMdtHits          = persObj->m_nMdtHits;
-	transObj->m_nRpcHits          = persObj->m_nRpcHits;
-	transObj->m_nTgcHits          = persObj->m_nTgcHits;
-	transObj->m_nCscHits          = persObj->m_nCscHits;
-	transObj->m_etaPreviousLevel  = persObj->m_etaPreviousLevel;
-	transObj->m_phiPreviousLevel  = persObj->m_phiPreviousLevel;
+  std::unique_ptr<TrigMuonEFInfoTrackContainer> tracks
+    (createTransFromPStore( &m_trackContainerCnv, persObj->m_trackContainer, log));
+  std::unique_ptr<TrigMuonEFTrack> spectrometerTrack
+    (createTransFromPStore( &m_trackCnv, persObj->m_spectrometerTrack, log));
+  std::unique_ptr<TrigMuonEFTrack> extrapolatedTrack
+    (createTransFromPStore( &m_trackCnv, persObj->m_extrapolatedTrack, log));
+  std::unique_ptr<TrigMuonEFCbTrack> combinedTrack
+    (createTransFromPStore( &m_cbTrackCnv, persObj->m_combinedTrack, log));
 
-	// legacy to be compatible
-	delete transObj->m_spectrometerTrack;
-	transObj->m_spectrometerTrack = createTransFromPStore( &m_trackCnv, persObj->m_spectrometerTrack, log);
-	delete transObj->m_extrapolatedTrack;
-	transObj->m_extrapolatedTrack = createTransFromPStore( &m_trackCnv, persObj->m_extrapolatedTrack, log);
-	delete transObj->m_combinedTrack;
-	transObj->m_combinedTrack     = createTransFromPStore( &m_cbTrackCnv, persObj->m_combinedTrack, log);
+  *transObj = TrigMuonEFInfo (persObj->m_roi,
+                              std::move (tracks),
+                              std::move (spectrometerTrack),
+                              std::move (extrapolatedTrack),
+                              std::move (combinedTrack));
+  transObj->setNSegments (persObj->m_nSegments);
+  transObj->setNMdtHits (persObj->m_nMdtHits);
+  transObj->setNRpcHits (persObj->m_nRpcHits);
+  transObj->setNTgcHits (persObj->m_nTgcHits);
+  transObj->setNCscHits (persObj->m_nCscHits);
 
-	// track container
-	delete transObj->m_trackContainer;
-	transObj->m_trackContainer = createTransFromPStore( &m_trackContainerCnv, persObj->m_trackContainer, log);
-
+  transObj->setEtaPreviousLevel (persObj->m_etaPreviousLevel);
+  transObj->setPhiPreviousLevel (persObj->m_phiPreviousLevel);
 }
 
 

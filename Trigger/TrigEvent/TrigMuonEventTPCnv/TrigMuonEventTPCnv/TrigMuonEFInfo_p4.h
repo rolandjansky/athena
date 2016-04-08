@@ -35,7 +35,7 @@ public:
           {}
 	virtual ~TrigMuonEFInfo_p4(){}
 
-private:
+        //private:
 	unsigned short int m_roi;
 	unsigned short int m_nSegments;
 	unsigned short int m_nMdtHits;

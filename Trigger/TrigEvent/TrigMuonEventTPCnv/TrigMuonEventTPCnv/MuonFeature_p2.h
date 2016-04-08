@@ -31,8 +31,8 @@ class MuonFeature_p2
       MuonFeature_p2() {}
       virtual ~MuonFeature_p2(){}
   
-   private:
-
+      //private:
+      
       MuonFeature::AlgoId m_algoId;
       int    m_RoIId;
       int    m_saddress;

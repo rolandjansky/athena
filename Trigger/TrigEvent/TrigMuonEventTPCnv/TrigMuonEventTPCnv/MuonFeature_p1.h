@@ -31,7 +31,7 @@ class MuonFeature_p1
   MuonFeature_p1() {}
   virtual ~MuonFeature_p1(){}
   
- private:
+  //private:
 
   int   m_RoIId;
   int   m_saddress;

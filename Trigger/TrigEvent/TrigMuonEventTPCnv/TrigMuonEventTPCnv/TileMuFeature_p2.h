@@ -30,7 +30,7 @@ class TileMuFeature_p2
   TileMuFeature_p2() {}
   virtual ~TileMuFeature_p2(){}
 
- private:
+  //private:
  
   float m_allTheFloats[3];
   // float m_eta;

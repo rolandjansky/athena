@@ -24,8 +24,11 @@ apply_pattern tpcnv_library
 
 private
 
-use AthenaKernel         AthenaKernel-*         Control
+use GaudiInterface       GaudiInterface-*           External
 use AtlasReflex		 AtlasReflex-*		    External
+use AthenaKernel         AthenaKernel-*             Control
+use CxxUtils             CxxUtils-*                 Control
+use SGTools              SGTools-*                  Control
 
 # Create a dictionary for the persistent representation 
 # of transient classes.  If we make a single dictionary,
@@ -40,3 +43,34 @@ apply_pattern lcgdict dict=OLD_TrigMuonEventTPCnv  \
   headerfiles="../TrigMuonEventTPCnv/TrigMuonEventTPCnvDict.h"
 
 end_private
+
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=CombinedMuonFeatureCnv_p2
+apply_pattern UnitTest_run unit_test=CombinedMuonFeatureCnv_p3
+apply_pattern UnitTest_run unit_test=CombinedMuonFeatureCnv_p4
+apply_pattern UnitTest_run unit_test=IsoMuonFeatureCnv_p3
+apply_pattern UnitTest_run unit_test=MuonFeatureCnv_p1
+apply_pattern UnitTest_run unit_test=MuonFeatureCnv_p2
+apply_pattern UnitTest_run unit_test=MuonFeatureCnv_p3
+apply_pattern UnitTest_run unit_test=MuonFeatureDetailsCnv_p1
+apply_pattern UnitTest_run unit_test=MuonFeatureDetailsCnv_p2
+apply_pattern UnitTest_run unit_test=TileMuFeatureCnv_p1
+apply_pattern UnitTest_run unit_test=TileMuFeatureCnv_p2
+apply_pattern UnitTest_run unit_test=TileTrackMuFeatureCnv_p2
+apply_pattern UnitTest_run unit_test=TileTrackMuFeatureCnv_p3
+apply_pattern UnitTest_run unit_test=TrigMuonClusterFeatureCnv_p1
+apply_pattern UnitTest_run unit_test=TrigMuonEFCbTrackCnv_p5
+apply_pattern UnitTest_run unit_test=TrigMuonEFCbTrackCnv_p6
+apply_pattern UnitTest_run unit_test=TrigMuonEFCbTrackCnv_p7
+apply_pattern UnitTest_run unit_test=TrigMuonEFCnv_p1
+apply_pattern UnitTest_run unit_test=TrigMuonEFCnv_p2
+apply_pattern UnitTest_run unit_test=TrigMuonEFInfoCnv_p4
+apply_pattern UnitTest_run unit_test=TrigMuonEFInfoCnv_p5
+apply_pattern UnitTest_run unit_test=TrigMuonEFInfoTrackCnv_p1
+apply_pattern UnitTest_run unit_test=TrigMuonEFIsolationCnv_p1
+apply_pattern UnitTest_run unit_test=TrigMuonEFIsolationCnv_p2
+apply_pattern UnitTest_run unit_test=TrigMuonEFTrackCnv_p5
+apply_pattern UnitTest_run unit_test=TrigMuonEFTrackCnv_p6
+

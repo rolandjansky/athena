@@ -26,7 +26,7 @@ public:
 	TrigMuonEFCbTrack_p7() : m_matchChi2(0.0), m_nIdSctHits(0), m_nIdPixelHits(0), m_nTrtHits(0), m_idTrackLink() {}
 	virtual ~TrigMuonEFCbTrack_p7(){}
 
-private:
+        //private:
 	float m_matchChi2;
 	unsigned short int m_nIdSctHits;
 	unsigned short int m_nIdPixelHits;

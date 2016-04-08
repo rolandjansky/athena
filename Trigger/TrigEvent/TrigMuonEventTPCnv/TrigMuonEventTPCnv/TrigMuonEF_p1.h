@@ -33,7 +33,7 @@ class TrigMuonEF_p1
   TrigMuonEF_p1() {}
   virtual ~TrigMuonEF_p1(){}
   
- private:
+  //private:
   int m_muonCode;
   std::string m_roi;
   float m_charge;

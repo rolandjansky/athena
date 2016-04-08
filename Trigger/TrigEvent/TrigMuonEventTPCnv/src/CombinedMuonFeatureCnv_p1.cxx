@@ -2,13 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "TrigMuonEventTPCnv/CombinedMuonFeature_p1.h"
-#undef private
-#undef protected
- 
 #include "TrigMuonEventTPCnv/CombinedMuonFeatureCnv_p1.h"
  
 //-----------------------------------------------------------------------------
@@ -20,12 +15,16 @@ void CombinedMuonFeatureCnv_p1::persToTrans( const CombinedMuonFeature_p1 *persO
 {
   log << MSG::DEBUG << "CombinedMuonFeatureCnv_p1::persToTrans called " << endreq;
 
-  transObj->m_pt          = persObj->m_pt;
-  transObj->m_sigma_pt    = persObj->m_sigma_pt;
   //need to get the ElementLink from the pointer...
   //  transObj->m_muFastTrack = createTransFromPStore( &m_mfCnv, persObj->m_muFastTrack, log );
   //  transObj->m_IDTrack = createTransFromPStore( &m_IDTkCnv, persObj->m_IDTrack, log );
-     
+
+  *transObj = CombinedMuonFeature (persObj->m_pt,
+                                   persObj->m_sigma_pt,
+                                   0, // m_charge
+                                   0, // m_flag
+                                   ElementLink< MuonFeatureContainer>(),
+                                   ElementLink< TrigInDetTrackCollection>());
 }
  
 //-----------------------------------------------------------------------------

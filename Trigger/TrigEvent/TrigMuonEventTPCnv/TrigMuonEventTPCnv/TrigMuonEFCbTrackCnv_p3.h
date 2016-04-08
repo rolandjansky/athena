@@ -38,7 +38,7 @@ class TrigMuonEFCbTrackCnv_p3 : public T_AthenaPoolTPCnvBase<TrigMuonEFCbTrack, 
   virtual void persToTrans(const TrigMuonEFCbTrack_p3* persObj, TrigMuonEFCbTrack* transObj, MsgStream &log);
   virtual void transToPers(const TrigMuonEFCbTrack* transObj, TrigMuonEFCbTrack_p3* persObj, MsgStream &log);
 
- protected:
+protected:
   P4IPtCotThPhiMCnv_p1      *m_P4IPtCotThPhiMCnv;
   TrigMuonEFTrackCnv_p3     *m_TrigMuonEFTrackCnv;
 

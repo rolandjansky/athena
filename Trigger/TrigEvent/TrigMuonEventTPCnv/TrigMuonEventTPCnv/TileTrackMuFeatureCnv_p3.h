@@ -22,7 +22,7 @@
 
 #include "TrigMuonEventTPCnv/TileMuFeatureCnv_p2.h"
 #include "TrigInDetEventTPCnv/TrigInDetTrackCnv_p1.h"
-#include "TrigMuonEventTPCnv/TileTrackMuFeature_p2.h"
+#include "TrigMuonEventTPCnv/TileTrackMuFeature_p3.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "DataModel/ElementLink.h"
