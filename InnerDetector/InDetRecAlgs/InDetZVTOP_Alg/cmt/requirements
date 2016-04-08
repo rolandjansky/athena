@@ -1,0 +1,25 @@
+package InDetZVTOP_Alg
+author Tatjana Lenz <tatjana.lenz@cern.ch>
+##################################################
+public
+##################################################
+use AthenaBaseComps           AthenaBaseComps-*            Control
+use AtlasPolicy               AtlasPolicy-* 
+use GaudiInterface            GaudiInterface-*             External
+use TrkParticleBase 	      TrkParticleBase-*		   Tracking/TrkEvent
+##################################################
+private
+##################################################
+use TrkTrack                  TrkTrack-*                   Tracking/TrkEvent
+use InDetRecToolInterfaces    InDetRecToolInterfaces-*     InnerDetector/InDetRecTools
+use VxVertex			            VxVertex-*                   Tracking/TrkEvent
+##################################################
+public
+##################################################
+library InDetZVTOP_Alg *.cxx components/*.cxx
+apply_pattern component_library
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
