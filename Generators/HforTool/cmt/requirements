@@ -1,0 +1,29 @@
+package HforTool
+
+## Tools to do heavy-flavour overlap removal in ALPGEN and MadGraph MC samples
+
+author Dominic Hirschbuehl <Dominic.Hirschbuehl@cern.ch>
+author Michiel Sanders <Michiel.Sanders@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-*
+use AthenaBaseComps       AthenaBaseComps-*       Control
+use EventInfo             EventInfo-*             Event
+use AtlasHepMC            AtlasHepMC-*            External
+use GaudiInterface        GaudiInterface-*        External
+use JetEvent              JetEvent-*              Reconstruction/Jet
+
+library HforTool *.cxx -s=components *.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+
+private
+use GeneratorObjects      GeneratorObjects-*      Generators
+use TruthUtils            TruthUtils-*            Generators
+use StoreGate             StoreGate-*             Control
+use AtlasReflex           AtlasReflex-*           External -no_auto_imports
+end_private
+
+private
+apply_pattern lcgdict dict=HforTool selectionfile=selection.xml headerfiles="../HforTool/HforToolDict.h"
+end_private
