@@ -13,11 +13,17 @@
 #include <TFile.h>
 #include <TSystem.h>
 
+#ifndef ROOTCORE
 #include "PathResolver/PathResolver.h"
+#endif
 
 
 corr_HV_EMBPS::corr_HV_EMBPS(){
-  std::string filename = PathResolverFindCalibFile("egammaLayerRecalibTool/v1/HVmaps_embps_2012.root");
+#ifdef ROOTCORE
+  std::string filename = "$(ROOTCOREBIN)/data/egammaLayerRecalibTool/HVmaps_embps_2012.root";
+#else 
+  std::string filename = PathResolver::find_file ("HVmaps_embps_2012.root", "DATAPATH");
+#endif
   m_file = TFile::Open(filename.c_str());
   if (not m_file or m_file->IsZombie()) {
     std::cerr << "FATAL: cannot open " << filename << std::endl;
@@ -25,10 +31,10 @@ corr_HV_EMBPS::corr_HV_EMBPS(){
   else {
     for (int iperiod=0;iperiod<6;iperiod++) {
       for (int igap=0;igap<2;igap++) {
-	char name[12];
-	snprintf(name,sizeof(name),"h%d%d",iperiod+1,igap);
-	m_hHV[iperiod][igap]=(TProfile2D*) (m_file->Get(name));
-	if (not m_hHV[iperiod][igap]) {
+	char name[4];
+	snprintf(name,4,"h%d%d",iperiod+1,igap);
+	hHV[iperiod][igap]=(TProfile2D*) (m_file->Get(name));
+	if (not hHV[iperiod][igap]) {
 	  std::cerr << "FATAL: cannot find " << name << std::endl;
 	}
       }
@@ -57,14 +63,14 @@ float corr_HV_EMBPS::getCorr(int run, float eta,float phi) const
 
    int  ieta=(int)((eta+1.6)/0.4);
    if (ieta<0 || ieta>7) return 1.;
-   if (phi<0.) phi=phi+2*M_PI;
-   int iphi=(int)(phi*(32./(2*M_PI)));
+   if (phi<0.) phi=phi+6.283185;
+   int iphi=(int)((phi/6.283185)*32);
    if (iphi<0) iphi=0;
    if (iphi>31) iphi=31;
    //std::cout << " ieta,iphi " << ieta << " " << iphi << std::endl;
 
-   float hv1 = m_hHV[iperiod][0]->GetBinContent(ieta+1,iphi+1);
-   float hv2 = m_hHV[iperiod][1]->GetBinContent(ieta+1,iphi+1);
+   float hv1 = hHV[iperiod][0]->GetBinContent(ieta+1,iphi+1);
+   float hv2 = hHV[iperiod][1]->GetBinContent(ieta+1,iphi+1);
 
    float c1= getRecoCorrection(hv1,eta);
    float c2= getRecoCorrection(hv2,eta);
@@ -91,7 +97,7 @@ float corr_HV_EMBPS::getCorr(int run, float eta,float phi) const
    //std::cout << " newCorr " << newCorr << std::endl;
 
    return newCorr;
-
+   
 }
 
 //===============================================================================
