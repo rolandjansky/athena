@@ -346,6 +346,7 @@ StatusCode EtaPtFilterTool::addVertex( const HepMC::GenVertex* srcVtx, HepMC::Ge
     if ( 0 == p ) {
       p = new HepMC::GenParticle;
       p->set_momentum( (*parent)->momentum() );
+      p->set_generated_mass( (*parent)->generated_mass() );
       p->set_pdg_id( (*parent)->pdg_id() );
       p->set_status( (*parent)->status() );
       p->set_flow( (*parent)->flow() );
@@ -368,6 +369,7 @@ StatusCode EtaPtFilterTool::addVertex( const HepMC::GenVertex* srcVtx, HepMC::Ge
     if ( 0 == p ) {
       p = new HepMC::GenParticle;
       p->set_momentum( (*child)->momentum() );
+      p->set_generated_mass( (*child)->generated_mass() );
       p->set_pdg_id( (*child)->pdg_id() );
       if ( m_butKeepAllGeneratorStable && !isAccepted(*child) && (*child)->status() == 2 ) 
 	p->set_status( 10902 ) ;
