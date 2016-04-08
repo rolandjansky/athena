@@ -406,11 +406,13 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
        if ( DelRMin < UpperMax ) {
          m_NTrack = NTrack;
          Get_MatchedTrack = true;
+         if ( SeltheTrackColl ) {
          ElementLink<TrigInDetTrackCollection> pTrack(*SeltheTrackColl,SelTrackIndex );
 	 TileTrkMu = new TileTrackMuFeature(
               Match_pt_idtr,
               Match_etaTR_id, Match_phiTR_id, m_Typ_IDTrk, 
               TileMuFeatureEL, pTrack);
+         }
 
 	 ATH_MSG_DEBUG(
 		  "REGTEST for final matched Track:" << m_ID_algo_to_use
