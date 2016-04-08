@@ -19,6 +19,9 @@
 myCppFilterTest::myCppFilterTest(const std::string& name, ISvcLocator* pSvcLocator) :
   // *****************************************************
   AthFilterAlgorithm(name, pSvcLocator),
+  m_filterCutID(),
+  m_cut1ID(),
+  m_cut2ID(),
   m_cut1(0),
   m_cut2(0)
 {

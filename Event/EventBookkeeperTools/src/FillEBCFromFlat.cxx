@@ -21,36 +21,36 @@ void FillEBCFromFlat::initialise()
 {
   //std::cout << "FillEBCFromFlat::initialise()" << std::endl;
 
-  name = m_inputStore->retrieve<std::vector<std::string> >("CutFlowTree/name");
-  inputstream = m_inputStore->retrieve<std::vector<std::string> >("CutFlowTree/inputstream");
-  outputstream = m_inputStore->retrieve<std::vector<std::string> >("CutFlowTree/outputstream");
-  description = m_inputStore->retrieve<std::vector<std::string> >("CutFlowTree/description");
-  logic = m_inputStore->retrieve<std::vector<std::string> >("CutFlowTree/logic");
-  nAcceptedEvents = m_inputStore->retrieve<std::vector<ULong_t> >("CutFlowTree/nAcceptedEvents");
-  nWeightedAcceptedEvents = m_inputStore->retrieve<std::vector<Double_t> >("CutFlowTree/nWeightedAcceptedEvents");
-  isComplete = m_inputStore->retrieve<std::vector<Int_t> >("CutFlowTree/isComplete");
-  cycle = m_inputStore->retrieve<std::vector<Int_t> >("CutFlowTree/cycle");
-  parentIndex = m_inputStore->retrieve<std::vector<Int_t> >("CutFlowTree/parentIndex");
-  nbChildren = m_inputStore->retrieve<std::vector<Int_t> >("CutFlowTree/nbChildren");
-  childrenIndices = m_inputStore->retrieve<std::vector< std::vector<UInt_t> > >("CutFlowTree/childrenIndices");
+  m_name = m_inputStore->retrieve<std::vector<std::string> >("CutFlowTree/name");
+  m_inputstream = m_inputStore->retrieve<std::vector<std::string> >("CutFlowTree/inputstream");
+  m_outputstream = m_inputStore->retrieve<std::vector<std::string> >("CutFlowTree/outputstream");
+  m_description = m_inputStore->retrieve<std::vector<std::string> >("CutFlowTree/description");
+  m_logic = m_inputStore->retrieve<std::vector<std::string> >("CutFlowTree/logic");
+  m_nAcceptedEvents = m_inputStore->retrieve<std::vector<ULong_t> >("CutFlowTree/nAcceptedEvents");
+  m_nWeightedAcceptedEvents = m_inputStore->retrieve<std::vector<Double_t> >("CutFlowTree/nWeightedAcceptedEvents");
+  m_isComplete = m_inputStore->retrieve<std::vector<Int_t> >("CutFlowTree/isComplete");
+  m_cycle = m_inputStore->retrieve<std::vector<Int_t> >("CutFlowTree/cycle");
+  m_parentIndex = m_inputStore->retrieve<std::vector<Int_t> >("CutFlowTree/parentIndex");
+  m_nbChildren = m_inputStore->retrieve<std::vector<Int_t> >("CutFlowTree/nbChildren");
+  m_childrenIndices = m_inputStore->retrieve<std::vector< std::vector<UInt_t> > >("CutFlowTree/childrenIndices");
 }
 
 void FillEBCFromFlat::fill()
 {
   //std::cout << "FillEBCFromFlat::fill()" << std::endl;
 
-  unsigned int nCuts = name->size();
+  unsigned int nCuts = m_name->size();
 
   for (unsigned int i = 0; i < nCuts; ++i) {
-    if (isComplete->at(i) != m_wantIsComplete) continue;
+    if (m_isComplete->at(i) != m_wantIsComplete) continue;
     
     // Only add top level EventBookkeepers here 
-    if (parentIndex->at(i) != -1) continue;
+    if (m_parentIndex->at(i) != -1) continue;
 
     EventBookkeeper *eb = newEventBookkeeper(i);
     m_coll->push_back(eb);
 
-    if (nbChildren->at(i) > 0) {
+    if (m_nbChildren->at(i) > 0) {
       addChildren(eb, i);
     }
   }
@@ -58,16 +58,16 @@ void FillEBCFromFlat::fill()
 
 EventBookkeeper *FillEBCFromFlat::newEventBookkeeper(unsigned int index) const
 {
-  //std::cout << "FillEBCFromFlat::newEventBookkeeper(" << index << ") - " << name->at(index) << std::endl;
+  //std::cout << "FillEBCFromFlat::newEventBookkeeper(" << index << ") - " << m_name->at(index) << std::endl;
 
-  EventBookkeeper *eb = new EventBookkeeper(name->at(index));
-  eb->setInputStream(inputstream->at(index));
-  eb->setOutputStream(outputstream->at(index));
-  eb->setDescription(description->at(index));
-  eb->setLogic(logic->at(index));
-  eb->setNAcceptedEvents(nAcceptedEvents->at(index));
-  eb->setNWeightedAcceptedEvents(nWeightedAcceptedEvents->at(index));
-  eb->setCycle(cycle->at(index));
+  EventBookkeeper *eb = new EventBookkeeper(m_name->at(index));
+  eb->setInputStream(m_inputstream->at(index));
+  eb->setOutputStream(m_outputstream->at(index));
+  eb->setDescription(m_description->at(index));
+  eb->setLogic(m_logic->at(index));
+  eb->setNAcceptedEvents(m_nAcceptedEvents->at(index));
+  eb->setNWeightedAcceptedEvents(m_nWeightedAcceptedEvents->at(index));
+  eb->setCycle(m_cycle->at(index));
   return eb;
 }
 
@@ -75,7 +75,7 @@ void FillEBCFromFlat::addChildren(EventBookkeeper *eb, unsigned int indexOfEb) c
 {
   //std::cout << "FillEBCFromFlat::addChildren(@" << eb << ", " << indexOfEb <<")" << std::endl;
 
-  for (std::vector<UInt_t>::const_iterator childIndex = childrenIndices->at(indexOfEb).begin(); childIndex != childrenIndices->at(indexOfEb).end(); ++childIndex) {
+  for (std::vector<UInt_t>::const_iterator childIndex = m_childrenIndices->at(indexOfEb).begin(); childIndex != m_childrenIndices->at(indexOfEb).end(); ++childIndex) {
     unsigned int corrChildIndex = (*childIndex) + m_offset;
     if (corrChildIndex == indexOfEb) {
       std::cout << "FillEBCFromFlat::addChildren() WARNING - corrChildIndex == indexOfEb == " << indexOfEb << std::endl;
@@ -83,7 +83,7 @@ void FillEBCFromFlat::addChildren(EventBookkeeper *eb, unsigned int indexOfEb) c
     }
 
     EventBookkeeper *ebChild = newEventBookkeeper(corrChildIndex);
-    if (nbChildren->at(corrChildIndex) > 0) {
+    if (m_nbChildren->at(corrChildIndex) > 0) {
       addChildren(ebChild, corrChildIndex);
     }
     eb->AddChild(ebChild);

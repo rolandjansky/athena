@@ -217,7 +217,7 @@ private:
   bool m_alreadyCopiedEventBookkeepers;
 
   /// Internal flag to track if we have already determined the cycle number from the first input file
-  bool m_alreadyDeterminedCycleNumber;
+  //bool m_alreadyDeterminedCycleNumber;
 
 public:
 
