@@ -88,7 +88,7 @@ class EIFile(object):
         nfiles=self._db['Nfiles']
         nevents=[]
         for nf in xrange(nfiles):
-            nevents.append(self._db['Nentries_%d'%nf])
+            nevents.append(self._db['Nentries_{:d}'.format(nf)])
         return nevents
 
 class EIIterator(object):
@@ -319,7 +319,7 @@ class MSG(object):
         # prepare for connection
         self.conn = None
         self.blocks = []
-        self.seqid = uuid.uuid4().hex  # define a new identifier for this connection
+        self.seqid = None
 
 
         if self.dummy:
@@ -375,6 +375,8 @@ class MSG(object):
         
     def sendMSG(self,last=False):
 
+        if self.seq == 0:
+            self.seqid = uuid.uuid4().hex   # define a new identifier for this sequence
 
         ## build message
         tnow=int(time.time() * 1000)
@@ -400,11 +402,20 @@ class MSG(object):
         # send message
         log.debug("Sending message: {}:{:<5d}  len: {:d}".format(self.seqid,self.seq,len(msg)))
 
+        NON_PERSISTENT="1"
+        PERSISTENT="2"
+
         if not self.dummy:
             if self.seq == 0:
                 self.transactionID=self.conn.begin()   # start transaction before first message is sent
-            self.conn.send(message=msg, destination=self.queue, transaction=self.transactionID, 
-                           JMSXGroupID=self.transactionID)
+
+            if last:
+                # close group
+                self.conn.send(message=msg, destination=self.queue, transaction=self.transactionID, 
+                               JMSXGroupID=self.transactionID, JMSXGroupSeq="-1", JMSDeliveryMode=PERSISTENT)
+            else:
+                self.conn.send(message=msg, destination=self.queue, transaction=self.transactionID, 
+                               JMSXGroupID=self.transactionID, JMSDeliveryMode=PERSISTENT)
 
         if self.verbose > 2:
             print >> sys.stderr, msg
@@ -415,11 +426,13 @@ class MSG(object):
             if self.conn is not None:
                 self.conn.commit(transaction=self.transactionID)     # commit transaction
             self.seq = 0                                             # restart sequence 
-            self.seqid = uuid.uuid4().hex                            # define a new identifier for this sequence
 
         self.blocks=[]
 
         return len(msg)
+
+    def getSeqID(self):
+        return self.seqid
 
 ###########################
 # listener 
@@ -451,13 +464,13 @@ def endpointV(endpoint):
         try:
             port=int(port)
         except:
-            log.error("Invalid port {}",port)
+            log.error("Invalid port {}".format(port))
             continue
             #raise Exception("Invalid port {}",port)
         try:
             (h, a, ip)=socket.gethostbyname_ex(host)
         except:
-            log.error("Host can not be resolved {}",host)
+            log.error("Host can not be resolved {}".format(host))
             #raise Exception("Invalid host {}",host)
             continue
         for addr in ip:
@@ -487,6 +500,7 @@ def options(argv):
     parser.add_argument("--ssl", action='store_true', default=False,help="SLL connection")
     parser.add_argument('--keyfile',default=None,help="SSL Private Key file")
     parser.add_argument('--certfile',default=None,help="SSL Cert file")
+    parser.add_argument('-g','--guids', default=[], nargs='+', help="GUID to send")
 
     parser.add_argument('eifile', help="EventIndex file")
 
@@ -515,6 +529,8 @@ def main():
 
     # logger
     logger = logging.getLogger('sendEI.py')
+    global log
+    log = logger 
 
     # analyze options
     opt = options(sys.argv[1:])
@@ -533,7 +549,10 @@ def eimrun(logger,opt):
     # logger
     global log
     log=logger
-        
+
+    # producerID
+    producerID = uuid.uuid4().hex
+
     # open EI file
     fname = opt.eifile
     if not (path.isfile(fname) and access(fname, R_OK)):
@@ -548,6 +567,7 @@ def eimrun(logger,opt):
 
     # grand total stats
     gstats.ntot=0
+    gstats.uniq_ntot=0
     gstats.tot_size=0
     gstats.start_time=0
     gstats.end_time=0
@@ -612,6 +632,8 @@ def eimrun(logger,opt):
 
 
     schema = eif['Schema']
+    run_index = schema.index('RunNumber')
+    evt_index = schema.index('EventNumber')
     ei5=EI5(schema)
 
     #pass options 
@@ -642,15 +664,20 @@ def eimrun(logger,opt):
 
     proc_events_tot = 0                                 # total events procesed
     nEvtFrom = nEvtTo = 0                               # ranges to process
+    fileno = 0                                          # file number sent
 
     for nf in xrange(nFiles):                           # loop over files
-        log.info("Processing file %d"%nf)
+        log.info("Processing file {:d}".format(nf))
 
         # stats
         stats.ntot=0
+        stats.uniq_ntot=0
         stats.tot_size=0
         stats.nmsg=0
         stats.start_time=int(time.time() * 1000)
+        
+        # run-evt, use to calculate unique events
+        runevt={}
 
         # new file, new common values
         evtcommon={}
@@ -662,6 +689,21 @@ def eimrun(logger,opt):
             evtcommon['TrigStream']=eif['TrigStream_{:d}'.format(nf)]
         if "GUID_{:d}".format(nf) in eif:
             evtcommon['GUID']=eif["GUID_{:d}".format(nf)]
+
+        fileStartProcTime = 0
+        fileEndProcTime = 0
+        if 'StartProcTime_{:d}'.format(nf) in eif:
+            fileStartProcTime = eif['StartProcTime_{:d}'.format(nf)]
+        if 'EndProcTime_{:d}'.format(nf) in eif:
+            fileEndProcTime = eif['EndProcTime_{:d}'.format(nf)]
+
+        # send only selected GUIDs if present on arguments 
+        if len(opt.guids) != 0 and evtcommon['GUID'] not in opt.guids:
+            log.info("SKIP FILE {}".format(evtcommon['GUID']))
+            nevt = nEventsPerFile[nf]
+            nEvtTo += nevt
+            nEvtFrom = nEvtTo
+            continue
             
         evtcommon['TaskID']=eif['TaskID']
         evtcommon['JobID']=eif['JobID']
@@ -670,10 +712,17 @@ def eimrun(logger,opt):
 
         nevt = nEventsPerFile[nf]
         nEvtTo += nevt
-        #mbroker.startFile()   # reset seq and transid
+        fileno += 1
 
         for i in xrange(nEvtFrom, nEvtTo):     # loop over events in file
             evt=eif[i]
+
+            # unique events
+            runevtkey="{0:08d}-{1:011d}".format(int(evt[run_index]),int(evt[evt_index]))
+            if runevtkey not in runevt:
+                runevt[runevtkey] = 1
+                stats.uniq_ntot += 1
+
             #print nf, i, evt[0],evt[1]
             sz = ei5.append(evt)    # append event to block
             stats.ntot += 1
@@ -703,18 +752,22 @@ def eimrun(logger,opt):
 
         # send stats to alternate queue
         #     JobID,TaskID,start_time,end_time,#evts,#msg,totsize
-        msgst="EISTATS0;{};{};{};{};{};{};{};{}".format(
+        msgst="EISTATS0;{};{};{};{};{};{};{};{};{};{};{};{};{};{}".format(
+            producerID,
             eif["GUID_{:d}".format(nf)],
             eif['JobID'],eif['TaskID'],
+            mbroker.getSeqID(),
             stats.start_time,stats.end_time,
-            stats.ntot,stats.nmsg,stats.tot_size)
+            fileStartProcTime,fileEndProcTime,fileno,
+            stats.ntot,stats.uniq_ntot,stats.nmsg,stats.tot_size)
         mbroker.sendMSGstats(msgst)
 
-        log.info("Last event in file %d"%nf)
+        log.info("Last event in file {:d}".format(nf))
 
         if opt.verbose > 0:
             log.info("=========== sendEI summary ==========")
             log.info(" number of events:     {:10d}".format(stats.ntot))
+            log.info(" number of unique evt: {:10d}".format(stats.uniq_ntot))
             log.info(" Sun of message sizes: {:10d} bytes".format(stats.tot_size))
             if int(stats.ntot) != 0:
                 log.info(" mean size per evt:    {:10.1f} bytes".format((float(stats.tot_size)/int(stats.ntot))))
@@ -732,11 +785,13 @@ def eimrun(logger,opt):
 
         # grand stats
         gstats.ntot += stats.ntot
+        gstats.uniq_ntot += stats.uniq_ntot
         gstats.tot_size += stats.tot_size
         gstats.nmsg += stats.nmsg
 
         # reset stats
         stats.ntot=0
+        stats.uniq_ntot=0
         stats.tot_size=0
         stats.nmsg=0
         stats.start_time=stats.end_time
@@ -751,14 +806,17 @@ def eimrun(logger,opt):
 
     gstats.end_time=int(time.time() * 1000)
 
-    if nFiles > 1:
+    if fileno > 1:
         # send stats to alternate queue
         #     JobID,TaskID,start_time,end_time,#evts,#msg,totsize
-        msgst="EISTATS1;{};{};{};{};{};{};{};{}".format(
+        msgst="EISTATS1;{};{};{};{};{};{};{};{};{};{};{};{};{};{}".format(
+            producerID,
             '00000000-0000-0000-0000-000000000000',
             eif['JobID'],eif['TaskID'],
+            "00000000000000000000000000000000",
             gstats.start_time,gstats.end_time,
-            gstats.ntot,gstats.nmsg,gstats.tot_size)
+            0,0,fileno,
+            gstats.ntot,gstats.uniq_ntot,gstats.nmsg,gstats.tot_size)
         mbroker.sendMSGstats(msgst)
 
     mbroker.close()
@@ -766,6 +824,7 @@ def eimrun(logger,opt):
     if nFiles > 1 and opt.verbose > 0:
         log.info("=========== sendEI summary grand total ==========")
         log.info(" number of events:     {:10d}".format(gstats.ntot))
+        log.info(" number of unique evt: {:10d}".format(gstats.uniq_ntot))
         log.info(" Sun of message sizes: {:10d} bytes".format(gstats.tot_size))
         if int(gstats.ntot) != 0:
             log.info(" mean size per evt:    {:10.1f} bytes".format((float(gstats.tot_size)/int(gstats.ntot))))
