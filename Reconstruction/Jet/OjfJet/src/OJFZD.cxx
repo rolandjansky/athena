@@ -44,8 +44,8 @@ using CLHEP::RandFlat;
 
 namespace OptimalJetFinder {
 
-  const double eps_sum = 1.0E-8;
-  const double eps_round = 1.0E-6;
+  //const double eps_sum = 1.0E-8;
+  //const double eps_round = 1.0E-6;
 
 
   const double Position::eps_snap = 1.0E-3; 
