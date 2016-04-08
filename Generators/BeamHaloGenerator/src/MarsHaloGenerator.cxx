@@ -33,22 +33,22 @@ int MarsHaloGenerator::genInitialize() {
   // Initialise base class
   if((ret_val = BeamHaloGenerator::genInitialize()) != 0) return ret_val;
 
-  if(p_asciiInput->open()) {
-    std::cout << "Error: Could not open ascii input file " << p_inputFile << std::endl;
+  if(m_asciiInput->open()) {
+    std::cout << "Error: Could not open ascii input file " << m_inputFile << std::endl;
     return 1;
   }
 
   // Check if sampling is required if sampling is required leave 
   // the ASCII file open for the event loop. 
-  if(!p_enableSampling) return 0;
+  if(!m_enableSampling) return 0;
 
-  p_beamHaloParticleBuffer = new BeamHaloParticleBuffer(p_bufferFileName, p_engine);
-  if(p_beamHaloParticleBuffer->openForWriting()) {
-    std::cout << "Error: Could not open binary buffer file " << p_bufferFileName << " for writing." << std::endl;
+  m_beamHaloParticleBuffer = new BeamHaloParticleBuffer(m_bufferFileName, m_engine);
+  if(m_beamHaloParticleBuffer->openForWriting()) {
+    std::cout << "Error: Could not open binary buffer file " << m_bufferFileName << " for writing." << std::endl;
     return 1;
   }
 
-  std::cout << "Info: Reading ascii input file " << p_inputFile << " into buffer" << std::endl;
+  std::cout << "Info: Reading ascii input file " << m_inputFile << " into buffer" << std::endl;
 
   // Loop over all lines in the text file.
   BeamHaloParticle beamHaloParticle;
@@ -59,15 +59,15 @@ int MarsHaloGenerator::genInitialize() {
     else if(ret_val > 0) { continue; }
 
     // Write the BeamHaloParticle into the binary buffer.
-    if(p_beamHaloParticleBuffer->writeParticle(&beamHaloParticle)) {
+    if(m_beamHaloParticleBuffer->writeParticle(&beamHaloParticle)) {
       std::cout << "Warning: writeParticle failed." << std::endl;
     }
   } 
 
-  p_asciiInput->close();
-  p_beamHaloParticleBuffer->close();
+  m_asciiInput->close();
+  m_beamHaloParticleBuffer->close();
 
-  p_beamHaloParticleBuffer->openForReading();
+  m_beamHaloParticleBuffer->openForReading();
 
   return 0;
 }
@@ -86,13 +86,13 @@ int MarsHaloGenerator::fillEvt(HepMC::GenEvent* evt) {
   if((ret_val = BeamHaloGenerator::convertEvent(&beamHaloEvent, evt)) != 0) return ret_val;
 
   // Set the event number
-  evt->set_event_number(p_eventNumber);
+  evt->set_event_number(m_eventNumber);
 
   // Clear the values set by the base class convertEvent method
   evt->weights().clear();
 
   // Check if sampling has been enabled or not.
-  if(!p_enableSampling) {
+  if(!m_enableSampling) {
     evt->set_signal_process_id(BeamHaloGenerator::MARS_READ);
     evt->weights().push_back(beamHaloEvent[0].weight());
   }
@@ -101,7 +101,7 @@ int MarsHaloGenerator::fillEvt(HepMC::GenEvent* evt) {
     evt->weights().push_back(1.0);
   }
 
-  p_eventNumber++;
+  m_eventNumber++;
 
   return 0;
 }
@@ -112,11 +112,11 @@ int MarsHaloGenerator::genFinalize() {
   int ret_val;
 
   // Check if sampling has been enabled or not.
-  if(!p_enableSampling) {
-    p_asciiInput->close();
+  if(!m_enableSampling) {
+    m_asciiInput->close();
   }
   else {
-    p_beamHaloParticleBuffer->close();
+    m_beamHaloParticleBuffer->close();
   }
 
   // Finalise base class
@@ -132,7 +132,7 @@ int MarsHaloGenerator::readParticle(BeamHaloParticle *beamHaloParticle) {
   MarsParticle marsParticle;
 
   // Read one row of the ASCII file.
-  row = p_asciiInput->readRow();
+  row = m_asciiInput->readRow();
   if(row.size() == 0) return -1; // EOF
 
   // Fill a MarsParticle with values from the string vector.
@@ -141,24 +141,24 @@ int MarsHaloGenerator::readParticle(BeamHaloParticle *beamHaloParticle) {
   }
 
   // Fill the BeamHaloParticle with the data in the MarsParticle
-  if(beamHaloParticle->fill(p_particleTable, &marsParticle)) {
+  if(beamHaloParticle->fill(m_particleTable, &marsParticle)) {
     std::cout << "Warning: Conversion from MarsParticle to BeamHaloParticle failed." << std::endl;
     return 1;
   }
 
   // Increment the particles read from file information.
-  p_counters[TOT_READ]++;
-  p_wsums[TOT_READ]+= beamHaloParticle->weight();
+  m_counters[TOT_READ]++;
+  m_wsums[TOT_READ]+= beamHaloParticle->weight();
 
   // Check the generator settings.  If this particle fails skip it.
-  if(!p_beamHaloGeneratorSettings->checkParticle(beamHaloParticle)) {
-    if(p_debug) std::cout << "Debug: Particle fails generator settings cuts." << std::endl;
+  if(!m_beamHaloGeneratorSettings->checkParticle(beamHaloParticle)) {
+    if(m_debug) std::cout << "Debug: Particle fails generator settings cuts." << std::endl;
     return 1;
   }
 
   // Increment the particles after cuts information.
-  p_counters[TOT_AFTER]++;
-  p_wsums[TOT_AFTER]+= beamHaloParticle->weight();
+  m_counters[TOT_AFTER]++;
+  m_wsums[TOT_AFTER]+= beamHaloParticle->weight();
 
   return 0;
 }
@@ -173,7 +173,7 @@ int MarsHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) {
   beamHaloEvent->clear();
 
   // Check if sampling is required  
-  if(!p_enableSampling) {
+  if(!m_enableSampling) {
     beamHaloParticle = new BeamHaloParticle();
     bool eof = false, gotParticle = false; 
     while(!eof && !gotParticle) {
@@ -186,7 +186,7 @@ int MarsHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) {
     // Read one particle at random from the binary buffer.  This uses
     // the particle weights to produce a flat distribution rather than a
     // weighted one, but may generate the same particle twice.
-    beamHaloParticle = p_beamHaloParticleBuffer->readRandomParticle();
+    beamHaloParticle = m_beamHaloParticleBuffer->readRandomParticle();
     if(!beamHaloParticle) {
       std::cout << "Error: readRandomParticle failed." << std::endl;
       return 1;
@@ -194,8 +194,8 @@ int MarsHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) {
   }
 
   // Increment generated particles information.
-  p_counters[TOT_GEN]++;
-  p_wsums[TOT_GEN]+= beamHaloParticle->weight();
+  m_counters[TOT_GEN]++;
+  m_wsums[TOT_GEN]+= beamHaloParticle->weight();
 
 
   // Copy the BeamHaloParticle into this event

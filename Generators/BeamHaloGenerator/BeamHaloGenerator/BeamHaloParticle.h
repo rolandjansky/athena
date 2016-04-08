@@ -53,12 +53,12 @@ class BeamHaloParticle {
 
   /** A function to fill the data members from an input MarsParticle
       object. */
-  int fill(const HepPDT::ParticleDataTable *m_particleDataTable,
+  int fill(const HepPDT::ParticleDataTable *particleDataTable,
 	   MarsParticle *marsParticle);
   
   /** A function to fill the data members from an input FlukaParticle
       object. */
-  int fill(const HepPDT::ParticleDataTable *m_particleDataTable,
+  int fill(const HepPDT::ParticleDataTable *particleDataTable,
 	   FlukaParticle *flukaParticle);
   
   /** A function to print the contents of this particle. */

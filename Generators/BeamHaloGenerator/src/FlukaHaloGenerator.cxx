@@ -39,12 +39,12 @@ int FlukaHaloGenerator::genInitialize() {
   // Initialise base class
   if((ret_val = BeamHaloGenerator::genInitialize()) != 0) return ret_val;
 
-  if(p_asciiInput->open() != 0) {
-    std::cout << "Error: Could not open ascii input file " << p_inputFile << std::endl;
+  if(m_asciiInput->open() != 0) {
+    std::cout << "Error: Could not open ascii input file " << m_inputFile << std::endl;
     return 1;
   }
 
-  std::cout << "Info: Reading ascii input file " << p_inputFile << std::endl;
+  std::cout << "Info: Reading ascii input file " << m_inputFile << std::endl;
 
   return 0;
 }
@@ -64,13 +64,13 @@ int FlukaHaloGenerator::fillEvt(HepMC::GenEvent* evt) {
   if((ret_val = BeamHaloGenerator::convertEvent(&beamHaloEvent, evt)) != 0) return ret_val;
 
   // Set the event number
-  evt->set_event_number(p_eventNumber);
+  evt->set_event_number(m_eventNumber);
 
   // Set the signal process
   evt->set_signal_process_id(BeamHaloGenerator::FLUKA_SHOWER);
 
   // Increment the event number
-  p_eventNumber++;
+  m_eventNumber++;
 
   return 0;
 }
@@ -80,7 +80,7 @@ int FlukaHaloGenerator::fillEvt(HepMC::GenEvent* evt) {
 int FlukaHaloGenerator::genFinalize() {
   int ret_val;
 
-  p_asciiInput->close();
+  m_asciiInput->close();
 
   // Finalise base class
   if((ret_val = BeamHaloGenerator::genFinalize()) != 0) return ret_val;
@@ -111,7 +111,7 @@ int FlukaHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) 
     // copy the last particle into the vector of those in this event.
     if(!m_sameEvent) {
       // Fill the BeamHaloParticle with the data in the FlukaParticle
-      if(beamHaloParticle.fill(p_particleTable, &m_lastFlukaParticle)) {
+      if(beamHaloParticle.fill(m_particleTable, &m_lastFlukaParticle)) {
         std::cout << "Error: Conversion from FlukaParticle to BeamHaloParticle failed." << std::endl;
         return 1;
       }
@@ -129,7 +129,7 @@ int FlukaHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) 
   std::vector<std::string> row;
   bool endOfFile = false;
   while(m_sameEvent && !endOfFile) {
-    row = p_asciiInput->readRow(); // Read one line of the ascii file.11
+    row = m_asciiInput->readRow(); // Read one line of the ascii file.11
 
     if(row.size() == 0) {
       endOfFile = true;
@@ -164,7 +164,7 @@ int FlukaHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) 
     if(m_sameEvent) {
 
       // Fill the BeamHaloParticle with the data in the FlukaParticle
-      if(beamHaloParticle.fill(p_particleTable, &m_flukaParticle)) {
+      if(beamHaloParticle.fill(m_particleTable, &m_flukaParticle)) {
         std::cout << "Error: Conversion from FlukaParticle to BeamHaloParticle failed." << std::endl;
         return 1;
       }
@@ -179,12 +179,12 @@ int FlukaHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) 
   }
 
   if(beamHaloEvent->size() == 0) {
-    std::cout << "Error: No particles read from " << p_inputFile << std::endl;
+    std::cout << "Error: No particles read from " << m_inputFile << std::endl;
     return 1;
   }
 
-  p_counters[TOT_READ]++;
-  p_wsums[TOT_READ]+= 1.0;
+  m_counters[TOT_READ]++;
+  m_wsums[TOT_READ]+= 1.0;
 
   // Check if one of the particles in the event passes the generator settings.
   std::vector<BeamHaloParticle>::iterator itr = beamHaloEvent->begin();
@@ -193,18 +193,18 @@ int FlukaHaloGenerator::readEvent(std::vector<BeamHaloParticle> *beamHaloEvent) 
   for(;itr!=itr_end;++itr) {
     beamHaloParticle = *itr;
     // Check the generator settings for this particle.
-    if(p_beamHaloGeneratorSettings->checkParticle(&beamHaloParticle)) {
+    if(m_beamHaloGeneratorSettings->checkParticle(&beamHaloParticle)) {
       passed = true;
     }
     else {
-      if(p_debug) std::cout << "Debug: Particle fails generator settings cuts." << std::endl;
+      if(m_debug) std::cout << "Debug: Particle fails generator settings cuts." << std::endl;
     }
   }
 
-  p_counters[TOT_AFTER]++;
-  p_wsums[TOT_AFTER]+= 1.0;
-  p_counters[TOT_GEN]++;
-  p_wsums[TOT_GEN]+= 1.0;
+  m_counters[TOT_AFTER]++;
+  m_wsums[TOT_AFTER]+= 1.0;
+  m_counters[TOT_GEN]++;
+  m_wsums[TOT_GEN]+= 1.0;
 
   // If all of the particles from this event fail read another event.
   // If there are no more events this function will exit with a

@@ -40,7 +40,7 @@ public:
   /** Fill the GenEvent pointer with the contents of the GenEvent
       cache.  The GenEvent cache is filled by calling
       callGenerator() */
-  virtual StatusCode fillEvt(GenEvent* evt);
+  virtual StatusCode fillEvt(HepMC::GenEvent* evt);
 
 private:
 

@@ -59,7 +59,7 @@ BeamHaloParticle::BeamHaloParticle(const BeamHaloParticle& beamHaloParticle) {
 
 //---------------------------------------------------------------------
 
-int BeamHaloParticle::fill(const HepPDT::ParticleDataTable *m_particleDataTable,
+int BeamHaloParticle::fill(const HepPDT::ParticleDataTable *particleDataTable,
 			   MarsParticle *marsParticle) {
   double p_sq, mod_p, pz, mass, energy;
   
@@ -70,7 +70,7 @@ int BeamHaloParticle::fill(const HepPDT::ParticleDataTable *m_particleDataTable,
   }
   
   // Read mass from pdg table
-  const HepPDT::ParticleData* particleData = m_particleDataTable->particle(HepPDT::ParticleID(abs(m_pdgId)));
+  const HepPDT::ParticleData* particleData = particleDataTable->particle(HepPDT::ParticleID(abs(m_pdgId)));
   mass = 0;
   if(particleData) {
     mass = particleData->mass().value();
@@ -120,7 +120,7 @@ int BeamHaloParticle::fill(const HepPDT::ParticleDataTable *m_particleDataTable,
 
 //-------------------------------------------------------------------------------------------------
 
-int BeamHaloParticle::fill(const HepPDT::ParticleDataTable *m_particleDataTable,
+int BeamHaloParticle::fill(const HepPDT::ParticleDataTable *particleDataTable,
 			   FlukaParticle *flukaParticle) {
   double p_sq, mod_p, pz, mass, energy;
 
@@ -134,7 +134,7 @@ int BeamHaloParticle::fill(const HepPDT::ParticleDataTable *m_particleDataTable,
   }
 
   // Read mass from pdg table
-  const HepPDT::ParticleData* particleData = m_particleDataTable->particle(HepPDT::ParticleID(abs(m_pdgId)));
+  const HepPDT::ParticleData* particleData = particleDataTable->particle(HepPDT::ParticleID(abs(m_pdgId)));
   mass = 0;
   if(particleData) {
     mass = particleData->mass().value();
