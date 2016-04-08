@@ -13,8 +13,10 @@ apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO Tree)"
 library  MuonDetDescrUtils ../src/*.cxx
 apply_pattern installed_library
 
+use MuonIdHelpers MuonIdHelpers-* MuonSpectrometer
 
 private
+
 
 macro_append MuonSectorMappingTest_dependencies              " MuonDetDescrUtils "
 application MuonSectorMappingTest ../exe/MuonSectorMappingTest.cxx
