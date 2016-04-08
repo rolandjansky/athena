@@ -253,11 +253,11 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     m_L1Calo=true;
 
     if(m_decodeDetMask) { 
-      uint32_t mask0 = pEvent->detectorMask0();
-      uint32_t mask1 = pEvent->detectorMask1();
+      uint64_t mask0 = pEvent->detectorMask0();
+      uint64_t mask1 = pEvent->detectorMask1();
       if(msgLvl() <= MSG::DEBUG){
         char buff[512];
-        snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08x, DetMask_0 = 0x%08x",mask1,mask0);
+        snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08lu, DetMask_0 = 0x%08lu",mask1,mask0);
         msg() << MSG::DEBUG << buff << endreq;
       }
 
