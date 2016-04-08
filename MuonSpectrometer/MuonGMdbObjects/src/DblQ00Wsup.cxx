@@ -32,35 +32,35 @@
 namespace MuonGM
 {
 
-DblQ00Wsup::DblQ00Wsup(IRDBQuery* m_wsup)
+DblQ00Wsup::DblQ00Wsup(IRDBQuery* wsup)
  : m_nObj(0)
 {
-  if(m_wsup) {
-    m_wsup->execute();
-    m_nObj = m_wsup->size();
+  if(wsup) {
+    wsup->execute();
+    m_nObj = wsup->size();
     m_d = new WSUP[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wsup banks in the MuonDD Database"<<std::endl;
 
     int i=0;
-    while(m_wsup->next()) {
-        m_d[i].version     = m_wsup->data<int>("WSUP_DATA.VERS");    
-        m_d[i].jsta        = m_wsup->data<int>("WSUP_DATA.JSTA");
-        m_d[i].nxxsup      = m_wsup->data<int>("WSUP_DATA.NXXSUP");
-        m_d[i].nzzsup      = m_wsup->data<int>("WSUP_DATA.NZZSUP");
-        m_d[i].x0          = m_wsup->data<float>("WSUP_DATA.X0");
-        m_d[i].thickn      = m_wsup->data<float>("WSUP_DATA.THICKN");
+    while(wsup->next()) {
+        m_d[i].version     = wsup->data<int>("WSUP_DATA.VERS");    
+        m_d[i].jsta        = wsup->data<int>("WSUP_DATA.JSTA");
+        m_d[i].nxxsup      = wsup->data<int>("WSUP_DATA.NXXSUP");
+        m_d[i].nzzsup      = wsup->data<int>("WSUP_DATA.NZZSUP");
+        m_d[i].x0          = wsup->data<float>("WSUP_DATA.X0");
+        m_d[i].thickn      = wsup->data<float>("WSUP_DATA.THICKN");
         for (unsigned int j=0; j<4; j++)
         {
             std::ostringstream tem;
             tem << j;
             std::string tagx = "WSUP_DATA.XXSUP_"+tem.str();
             std::string tagy = "WSUP_DATA.ZZSUP_"+tem.str();
-            m_d[i].xxsup[j]     = m_wsup->data<float>(tagx);        
-            m_d[i].zzsup[j]     = m_wsup->data<float>(tagy);        
+            m_d[i].xxsup[j]     = wsup->data<float>(tagx);        
+            m_d[i].zzsup[j]     = wsup->data<float>(tagy);        
         }
         i++;
    }
-    m_wsup->finalize();
+    wsup->finalize();
   }
   else {
     m_d = new WSUP[0];

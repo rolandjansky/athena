@@ -33,24 +33,24 @@
 namespace MuonGM
 {
 
-DblQ00Dbam::DblQ00Dbam(IRDBQuery* m_dbam)
+DblQ00Dbam::DblQ00Dbam(IRDBQuery* dbam)
  : m_nObj(0)
 {
-  if(m_dbam) {
-    m_dbam->execute();
-    m_nObj = m_dbam->size();
+  if(dbam) {
+    dbam->execute();
+    m_nObj = dbam->size();
     m_d = new DBAM[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Dbam banks in the MuonDD Database"<<std::endl;
 
     int i=0;
-    while(m_dbam->next()) {
-        m_d[i].version     = m_dbam->data<int>("DBAM_DATA.VERS");    
-        m_d[i].nvrs        = m_dbam->data<int>("DBAM_DATA.NVRS");
-        m_d[i].mtyp        = m_dbam->data<int>("DBAM_DATA.MTYP");
-        m_d[i].numbox      = m_dbam->data<int>("DBAM_DATA.NUMBOX");
-        sprintf(m_d[i].amdb,"%s",m_dbam->data<std::string>("DBAM_DATA.AMDB").c_str()); 
+    while(dbam->next()) {
+        m_d[i].version     = dbam->data<int>("DBAM_DATA.VERS");    
+        m_d[i].nvrs        = dbam->data<int>("DBAM_DATA.NVRS");
+        m_d[i].mtyp        = dbam->data<int>("DBAM_DATA.MTYP");
+        m_d[i].numbox      = dbam->data<int>("DBAM_DATA.NUMBOX");
+        sprintf(m_d[i].amdb,"%s",dbam->data<std::string>("DBAM_DATA.AMDB").c_str()); 
         try {
-            sprintf(m_d[i].test,"%s",m_dbam->data<std::string>("DBAM_DATA.TEST").c_str());
+            sprintf(m_d[i].test,"%s",dbam->data<std::string>("DBAM_DATA.TEST").c_str());
         }
         catch (std::runtime_error)
         {
@@ -63,7 +63,7 @@ DblQ00Dbam::DblQ00Dbam(IRDBQuery* m_dbam)
             tem << j;
             std::string tag = "DBAM_DATA.NAME_"+tem.str();
             try {
-                sprintf(m_d[i].name[j],"%s",m_dbam->data<std::string>(tag).c_str());
+                sprintf(m_d[i].name[j],"%s",dbam->data<std::string>(tag).c_str());
             }
             catch (std::runtime_error)
             {
@@ -76,7 +76,7 @@ DblQ00Dbam::DblQ00Dbam(IRDBQuery* m_dbam)
 //                  <<" version/nvrs "<<m_d[i].version<<"/"<<m_d[i].nvrs<<std::endl;
         i++;
     }
-    m_dbam->finalize();
+    dbam->finalize();
   }
   else {
     m_d = new DBAM[0];

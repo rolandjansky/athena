@@ -32,34 +32,34 @@
 namespace MuonGM
 {
 
-DblQ00Awln::DblQ00Awln(IRDBQuery* m_awln)
+DblQ00Awln::DblQ00Awln(IRDBQuery* awln)
  : m_nObj(0)
 {
-  if(m_awln) {
-    m_awln->execute();
-    m_nObj = m_awln->size();
+  if(awln) {
+    awln->execute();
+    m_nObj = awln->size();
     m_d = new AWLN[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Awln banks in the MuonDD Database"<<std::endl;
 
     int i=0;
-    while(m_awln->next()) {
-        m_d[i].version       = m_awln->data<int>("AWLN_DATA.VERS");    
-        m_d[i].jsta          = m_awln->data<int>("AWLN_DATA.JSTA");    
-        m_d[i].spitch        = m_awln->data<float>("AWLN_DATA.SPITCH");  
-        m_d[i].zpitch        = m_awln->data<float>("AWLN_DATA.ZPITCH");  
-        m_d[i].dedstr        = m_awln->data<float>("AWLN_DATA.DEDSTR");  
-        m_d[i].nsrest        = m_awln->data<int>("AWLN_DATA.NSREST");  
-        m_d[i].nzrest        = m_awln->data<int>("AWLN_DATA.NZREST");
-        m_d[i].sfirst        = m_awln->data<float>("AWLN_DATA.SFIRST");
-        m_d[i].zfirst        = m_awln->data<float>("AWLN_DATA.ZFIRST");
-        m_d[i].dedsep        = m_awln->data<float>("AWLN_DATA.DEDSEP");
-        m_d[i].nsrost        = m_awln->data<int>("AWLN_DATA.NSROST");  
-        m_d[i].nzrost        = m_awln->data<int>("AWLN_DATA.NZROST");
+    while(awln->next()) {
+        m_d[i].version       = awln->data<int>("AWLN_DATA.VERS");    
+        m_d[i].jsta          = awln->data<int>("AWLN_DATA.JSTA");    
+        m_d[i].spitch        = awln->data<float>("AWLN_DATA.SPITCH");  
+        m_d[i].zpitch        = awln->data<float>("AWLN_DATA.ZPITCH");  
+        m_d[i].dedstr        = awln->data<float>("AWLN_DATA.DEDSTR");  
+        m_d[i].nsrest        = awln->data<int>("AWLN_DATA.NSREST");  
+        m_d[i].nzrest        = awln->data<int>("AWLN_DATA.NZREST");
+        m_d[i].sfirst        = awln->data<float>("AWLN_DATA.SFIRST");
+        m_d[i].zfirst        = awln->data<float>("AWLN_DATA.ZFIRST");
+        m_d[i].dedsep        = awln->data<float>("AWLN_DATA.DEDSEP");
+        m_d[i].nsrost        = awln->data<int>("AWLN_DATA.NSROST");  
+        m_d[i].nzrost        = awln->data<int>("AWLN_DATA.NZROST");
         //        std::cerr<<" wRPC"<<m_d[i].jsta<<" s,zpitch  "<<m_d[i].spitch <<" "<<m_d[i].zpitch
         //         <<" ns,zrest "<<m_d[i].nsrest<<" "<<m_d[i].nzrest<<std::endl;
         i++;
     }
-    m_awln->finalize();
+    awln->finalize();
   }
   else {
     m_d = new AWLN[0];

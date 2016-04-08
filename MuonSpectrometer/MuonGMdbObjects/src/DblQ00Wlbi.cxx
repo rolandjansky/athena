@@ -35,35 +35,35 @@
 namespace MuonGM
 {
 
-DblQ00Wlbi::DblQ00Wlbi(IRDBQuery* m_wlbi)
+DblQ00Wlbi::DblQ00Wlbi(IRDBQuery* wlbi)
  : m_nObj(0)
 {
-  if(m_wlbi) {
-    m_wlbi->execute();
-    m_nObj = m_wlbi->size();
+  if(wlbi) {
+    wlbi->execute();
+    m_nObj = wlbi->size();
     m_d = new WLBI[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wlbi banks in the MuonDD Database"<<std::endl;
 
     int i=0;
-    while(m_wlbi->next()) {
-        m_d[i].version     = m_wlbi->data<int>("WLBI_DATA.VERS");    
-        m_d[i].jsta        = m_wlbi->data<int>("WLBI_DATA.JSTA");
-        m_d[i].num         = m_wlbi->data<int>("WLBI_DATA.NUM");
-        m_d[i].height      = m_wlbi->data<float>("WLBI_DATA.HEIGHT");
-        m_d[i].thickness   = m_wlbi->data<float>("WLBI_DATA.THICKNESS");
-	if (!m_wlbi->isNull("WLBI_DATA.LOWERTHICK"))
+    while(wlbi->next()) {
+        m_d[i].version     = wlbi->data<int>("WLBI_DATA.VERS");    
+        m_d[i].jsta        = wlbi->data<int>("WLBI_DATA.JSTA");
+        m_d[i].num         = wlbi->data<int>("WLBI_DATA.NUM");
+        m_d[i].height      = wlbi->data<float>("WLBI_DATA.HEIGHT");
+        m_d[i].thickness   = wlbi->data<float>("WLBI_DATA.THICKNESS");
+	if (!wlbi->isNull("WLBI_DATA.LOWERTHICK"))
 	  {
-	    m_d[i].lowerThickness   = m_wlbi->data<float>("WLBI_DATA.LOWERTHICK");
+	    m_d[i].lowerThickness   = wlbi->data<float>("WLBI_DATA.LOWERTHICK");
 	  }
 	else m_d[i].lowerThickness   = m_d[i].thickness ;
-	if (!m_wlbi->isNull("WLBI_DATA.SHIFTYSTATION"))
+	if (!wlbi->isNull("WLBI_DATA.SHIFTYSTATION"))
 	  {
-	    m_d[i].yShift   = m_wlbi->data<float>("WLBI_DATA.SHIFTYSTATION");
+	    m_d[i].yShift   = wlbi->data<float>("WLBI_DATA.SHIFTYSTATION");
 	  }
 	else m_d[i].yShift   = 0.;
         i++;
     }
-    m_wlbi->finalize();
+    wlbi->finalize();
   }
   else {
     m_d = new WLBI[0];
