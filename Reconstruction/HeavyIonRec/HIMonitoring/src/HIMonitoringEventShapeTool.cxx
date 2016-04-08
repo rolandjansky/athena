@@ -22,13 +22,13 @@ const IInterface* parent ): ManagedMonitorToolBase( type, name, parent )
 	m_FCalEt=0;  
 	m_FCalEt_A=0; 
 	m_FCalEt_C=0;	
-    m_ZDC_HG=0;
-    m_ZDC_LG=0;
+	m_ZDC_HG=0;
+	m_ZDC_LG=0;
 	h_FCalEt=0;
 	h_FCalEt_vs_eta=0; 	
-	m_FCalEt_nbins=95;
-	m_low_FCalEt=-0.15;
-	m_high_FCalEt=0.8;
+	m_FCalEt_nbins=85; 
+	m_low_FCalEt=-0.5; 
+	m_high_FCalEt=8.0;   	
 	m_nbins_phi=64; 		  
 	m_nbins_eta=c_num_of_eta_bins;
 	m_eta_range=5.0;
@@ -130,12 +130,7 @@ StatusCode HIMonitoringEventShapeTool::procHistograms( )
 
 	if( endOfRun ) 
 	{
-        if(h_FCalEt->GetEntries() > 0) h_FCalEt->Scale(1./h_FCalEt->GetEntries());
-        
-        for(int i=0; i<2; i++)
-        {
-            if(h_FCalEt_sides[i]->GetEntries() > 0) h_FCalEt_sides[i]->Scale(1./h_FCalEt_sides[i]->GetEntries());
-        }
+   
 	}
 
 	return StatusCode::SUCCESS;
@@ -147,7 +142,7 @@ void HIMonitoringEventShapeTool::bookFCalEt_hist()
 {
 	std::string path = "HeavyIon/FCal"; 
 	
-	h_FCalEt = new TH1D( "h_FCalEt", "; FCal #Sigma E_{T} [TeV]; entries", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt);
+	h_FCalEt = TH1D_LW::create( "h_FCalEt", "; FCal #Sigma E_{T} [TeV]; entries", 850000, m_low_FCalEt, m_high_FCalEt); // 100x hihger bining for this one hist
 	regHist(h_FCalEt, path, run).ignore();
 	
 
@@ -161,7 +156,7 @@ void HIMonitoringEventShapeTool::bookFCalEt_hist()
 	{
 		TString hist_name =  "h_FCalEt_side"+side_id[i]; 
 		TString hist_aixis = "; FCal Side "+side_id[i]+ " #Sigma E_{T} [TeV]; entries";
-		h_FCalEt_sides[i] = new TH1D(hist_name, hist_aixis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt);
+		h_FCalEt_sides[i] = TH1D_LW::create(hist_name, hist_aixis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt);
 		regHist(h_FCalEt_sides[i], path, run).ignore();
 	}	
 }

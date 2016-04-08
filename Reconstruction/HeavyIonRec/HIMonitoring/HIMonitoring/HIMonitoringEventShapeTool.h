@@ -100,8 +100,8 @@ class HIMonitoringEventShapeTool : public ManagedMonitorToolBase
 	   
       /// histograms 
     
-      TH1D* h_FCalEt; 
-	  TH1D* h_FCalEt_sides[2];
+      TH1D_LW* h_FCalEt; 
+	  TH1D_LW* h_FCalEt_sides[2];
       TProfile_LW* h_FCalEt_vs_eta; 
 	  TH2D_LW* h_FCalEt_A_vs_C; 
 	  

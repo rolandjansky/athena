@@ -14,8 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigMinBias
-                          ForwardDetectors/ZDC/ZdcAnalysis
-			  GaudiKernel
+                          GaudiKernel
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           PRIVATE
                           Tools/LWHists )
@@ -28,13 +27,13 @@ atlas_add_library( HIMonitoringLib
                    src/*.cxx
                    PUBLIC_HEADERS HIMonitoring
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODForward xAODHIEvent xAODMuon xAODTracking xAODTrigMinBias GaudiKernel AthenaMonitoringLib ZDCAnalysisLib ElectronPhotonSelectorToolsLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODForward xAODHIEvent xAODMuon xAODTracking xAODTrigMinBias GaudiKernel AthenaMonitoringLib ElectronPhotonSelectorToolsLib
                    PRIVATE_LINK_LIBRARIES LWHists )
 
 atlas_add_component( HIMonitoring
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib xAODEgamma xAODForward xAODHIEvent xAODMuon xAODTracking xAODTrigMinBias GaudiKernel ElectronPhotonSelectorToolsLib LWHists ZDCAnalysisLib HIMonitoringLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib xAODEgamma xAODForward xAODHIEvent xAODMuon xAODTracking xAODTrigMinBias GaudiKernel ElectronPhotonSelectorToolsLib LWHists HIMonitoringLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

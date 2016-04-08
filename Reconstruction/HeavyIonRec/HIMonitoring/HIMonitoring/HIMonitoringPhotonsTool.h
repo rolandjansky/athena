@@ -23,7 +23,7 @@ class TH1;
 class TGraph;
 class TTree;
 class TH1D;
-//class TH1D_LW;
+class TH1D_LW;
 class TH2D_LW;
 class TProfile_LW;
 
@@ -117,54 +117,48 @@ class HIMonitoringPhotonsTool : public ManagedMonitorToolBase
 	  // basics 
 	  TH2D_LW* h_photon_pt_eta;
 	  TH2D_LW* h_photon_pt_phi;
-	  TH2D_LW* h_photon_pt_fcal;
 	  TH2D_LW* h_photon_eta_phi_ptCut;
-
-	  TH2D_LW* h_photon_pt_eta_tight;
-	  TH2D_LW* h_photon_pt_phi_tight;
-	  TH2D_LW* h_photon_pt_fcal_tight;
-	  TH2D_LW* h_photon_eta_phi_ptCut_tight;
 
 	  // shower shapes
 	  
 	  
-	  TH1D* h_photon_reta_ptCut_all;
-	  TH1D* h_photon_rphi_ptCut_all;
-	  TH1D* h_photon_weta2_ptCut_all;
+	  TH1D_LW* h_photon_reta_ptCut_all;
+	  TH1D_LW* h_photon_rphi_ptCut_all;
+	  TH1D_LW* h_photon_weta2_ptCut_all;
 
-	  TH1D* h_photon_rhad_ptCut_all;
-	  TH1D* h_photon_wtots1_ptCut_all;
-	  TH1D* h_photon_fracs1_ptCut_all;
+	  TH1D_LW* h_photon_rhad_ptCut_all;
+	  TH1D_LW* h_photon_wtots1_ptCut_all;
+	  TH1D_LW* h_photon_fracs1_ptCut_all;
 
-	  TH1D* h_photon_deltae_ptCut_all;
-	  TH1D* h_photon_eratio_ptCut_all;
-	  TH1D* h_photon_f1_ptCut_all;
-
-	  //
-	  TH1D* h_photon_reta_ptCut_loose;
-	  TH1D* h_photon_rphi_ptCut_loose;
-	  TH1D* h_photon_weta2_ptCut_loose;
-
-	  TH1D* h_photon_rhad_ptCut_loose;
-	  TH1D* h_photon_wtots1_ptCut_loose;
-	  TH1D* h_photon_fracs1_ptCut_loose;
-
-	  TH1D* h_photon_deltae_ptCut_loose;
-	  TH1D* h_photon_eratio_ptCut_loose;
-	  TH1D* h_photon_f1_ptCut_loose;
+	  TH1D_LW* h_photon_deltae_ptCut_all;
+	  TH1D_LW* h_photon_eratio_ptCut_all;
+	  TH1D_LW* h_photon_f1_ptCut_all;
 
 	  //
-	  TH1D* h_photon_reta_ptCut_tight;
-	  TH1D* h_photon_rphi_ptCut_tight;
-	  TH1D* h_photon_weta2_ptCut_tight;
+	  TH1D_LW* h_photon_reta_ptCut_loose;
+	  TH1D_LW* h_photon_rphi_ptCut_loose;
+	  TH1D_LW* h_photon_weta2_ptCut_loose;
 
-	  TH1D* h_photon_rhad_ptCut_tight;
-	  TH1D* h_photon_wtots1_ptCut_tight;
-	  TH1D* h_photon_fracs1_ptCut_tight;
+	  TH1D_LW* h_photon_rhad_ptCut_loose;
+	  TH1D_LW* h_photon_wtots1_ptCut_loose;
+	  TH1D_LW* h_photon_fracs1_ptCut_loose;
 
-	  TH1D* h_photon_deltae_ptCut_tight;
-	  TH1D* h_photon_eratio_ptCut_tight;
-	  TH1D* h_photon_f1_ptCut_tight;
+	  TH1D_LW* h_photon_deltae_ptCut_loose;
+	  TH1D_LW* h_photon_eratio_ptCut_loose;
+	  TH1D_LW* h_photon_f1_ptCut_loose;
+
+	  //
+	  TH1D_LW* h_photon_reta_ptCut_tight;
+	  TH1D_LW* h_photon_rphi_ptCut_tight;
+	  TH1D_LW* h_photon_weta2_ptCut_tight;
+
+	  TH1D_LW* h_photon_rhad_ptCut_tight;
+	  TH1D_LW* h_photon_wtots1_ptCut_tight;
+	  TH1D_LW* h_photon_fracs1_ptCut_tight;
+
+	  TH1D_LW* h_photon_deltae_ptCut_tight;
+	  TH1D_LW* h_photon_eratio_ptCut_tight;
+	  TH1D_LW* h_photon_f1_ptCut_tight;
 
 
 
@@ -209,29 +203,29 @@ class HIMonitoringPhotonsTool : public ManagedMonitorToolBase
 	  TH2D_LW* h_photon_pt_etcone40_fcal1;
 	  TH2D_LW* h_photon_pt_etcone40_fcal2;
 	  
-	  TH1D* h_photon_etcone20_ptCut_fcal0;
-	  TH1D* h_photon_etcone20_ptCut_fcal1;
-	  TH1D* h_photon_etcone20_ptCut_fcal2;
+	  TH1D_LW* h_photon_etcone20_ptCut_fcal0;
+	  TH1D_LW* h_photon_etcone20_ptCut_fcal1;
+	  TH1D_LW* h_photon_etcone20_ptCut_fcal2;
 	  
-	  TH1D* h_photon_etcone30_ptCut_fcal0;
-	  TH1D* h_photon_etcone30_ptCut_fcal1;
-	  TH1D* h_photon_etcone30_ptCut_fcal2;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal0;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal1;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal2;
 	  
-	  TH1D* h_photon_etcone40_ptCut_fcal0;
-	  TH1D* h_photon_etcone40_ptCut_fcal1;
-	  TH1D* h_photon_etcone40_ptCut_fcal2;
+	  TH1D_LW* h_photon_etcone40_ptCut_fcal0;
+	  TH1D_LW* h_photon_etcone40_ptCut_fcal1;
+	  TH1D_LW* h_photon_etcone40_ptCut_fcal2;
 
-	  TH1D* h_photon_etcone30_ptCut_fcal0_all;
-	  TH1D* h_photon_etcone30_ptCut_fcal0_loose;
-	  TH1D* h_photon_etcone30_ptCut_fcal0_tight;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal0_all;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal0_loose;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal0_tight;
 
-	  TH1D* h_photon_etcone30_ptCut_fcal1_all;
-	  TH1D* h_photon_etcone30_ptCut_fcal1_loose;
-	  TH1D* h_photon_etcone30_ptCut_fcal1_tight;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal1_all;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal1_loose;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal1_tight;
 
-	  TH1D* h_photon_etcone30_ptCut_fcal2_all;
-	  TH1D* h_photon_etcone30_ptCut_fcal2_loose;
-	  TH1D* h_photon_etcone30_ptCut_fcal2_tight;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal2_all;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal2_loose;
+	  TH1D_LW* h_photon_etcone30_ptCut_fcal2_tight;
 
 };
 
