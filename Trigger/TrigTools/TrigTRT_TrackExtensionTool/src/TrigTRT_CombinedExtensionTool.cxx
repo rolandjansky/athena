@@ -98,12 +98,12 @@ StatusCode TrigTRT_CombinedExtensionTool::initialize()
   sc = m_regionSelector.retrieve();
   if(sc.isFailure()) 
     {
-      athenaLog<<MSG::FATAL<< "Unable to retrieve RegionSelector Service " << m_regionSelector<< endmsg;
+      athenaLog<<MSG::FATAL<< "Unable to retrieve RegionSelector Service " << m_regionSelector<< endreq;
       return sc;
     }
 
   if (detStore()->retrieve(m_trtId, "TRT_ID").isFailure()) {
-     athenaLog << MSG::FATAL << "Could not get TRT ID helper" << endmsg;
+     athenaLog << MSG::FATAL << "Could not get TRT ID helper" << endreq;
      return StatusCode::FAILURE;
   }
 
@@ -111,7 +111,7 @@ StatusCode TrigTRT_CombinedExtensionTool::initialize()
   sc = m_robDataProvider.retrieve();
   if(sc.isFailure()) 
     {
-      athenaLog << MSG::ERROR << "Unable to retrieve ROBDataProviderSvc" <<m_robDataProvider <<endmsg;
+      athenaLog << MSG::ERROR << "Unable to retrieve ROBDataProviderSvc" <<m_robDataProvider <<endreq;
       return StatusCode::FAILURE;
     }
 
@@ -119,59 +119,59 @@ StatusCode TrigTRT_CombinedExtensionTool::initialize()
   if(sc.isFailure()) 
     {
       athenaLog << MSG::FATAL << "Unable to locate TRT data provider tool " 
-		<<m_trtDataProvider<< endmsg;
+		<<m_trtDataProvider<< endreq;
       return sc;
     } 
 
   sc = m_trtRoadBuilder.retrieve();
   if(sc.isFailure()) 
     {
-      athenaLog << MSG::FATAL << "Unable to locate TRT Road Tool" <<m_trtRoadBuilder<< endmsg;
+      athenaLog << MSG::FATAL << "Unable to locate TRT Road Tool" <<m_trtRoadBuilder<< endreq;
       return sc;
     } 
 
   sc = m_trigFieldTool.retrieve();
   if(sc.isFailure()) 
     {
-      athenaLog << MSG::FATAL << "Unable to locate TrigMagneticField Tool" <<m_trigFieldTool<<endmsg;
+      athenaLog << MSG::FATAL << "Unable to locate TrigMagneticField Tool" <<m_trigFieldTool<<endreq;
       return sc;
     } 
 
   sc = m_trackMaker.retrieve();
   if(sc.isFailure()) 
     {
-      athenaLog << MSG::FATAL << "Unable to locate " <<m_trackMaker<< endmsg;
+      athenaLog << MSG::FATAL << "Unable to locate " <<m_trackMaker<< endreq;
       return sc;
     } 
   sc=m_ROTcreator.retrieve();
   if(sc.isFailure())
     {
-      athenaLog << MSG::ERROR<<"Could not retrieve "<<m_ROTcreator<<endmsg;
+      athenaLog << MSG::ERROR<<"Could not retrieve "<<m_ROTcreator<<endreq;
       return sc;
     }
   else
-    athenaLog << MSG::INFO<<"Successfully retrieved "<<m_extrapolator<<endmsg;
+    athenaLog << MSG::INFO<<"Successfully retrieved "<<m_extrapolator<<endreq;
 
   sc = m_extrapolator.retrieve();
   if( sc.isFailure() )
   {
-    athenaLog << MSG::ERROR<<"Could not retrieve "<<m_extrapolator<<endmsg;
+    athenaLog << MSG::ERROR<<"Could not retrieve "<<m_extrapolator<<endreq;
     return sc;
   }
   else
-    athenaLog << MSG::INFO<<"Successfully retrieved "<<m_extrapolator<<endmsg;
+    athenaLog << MSG::INFO<<"Successfully retrieved "<<m_extrapolator<<endreq;
 
   sc=m_lowPtFitter.retrieve();
   if(sc.isFailure())
     {
-      athenaLog << MSG::ERROR<<"Could not retrieve "<<m_lowPtFitter<<endmsg;
+      athenaLog << MSG::ERROR<<"Could not retrieve "<<m_lowPtFitter<<endreq;
       return sc;
     }
 
   sc=m_fastExtrapolator.retrieve();
   if(sc.isFailure())
     {
-      athenaLog << MSG::ERROR<<"Could not retrieve extrapolation tool"<<m_fastExtrapolator<<endmsg;
+      athenaLog << MSG::ERROR<<"Could not retrieve extrapolation tool"<<m_fastExtrapolator<<endreq;
       return sc;
     }
 
@@ -179,7 +179,7 @@ StatusCode TrigTRT_CombinedExtensionTool::initialize()
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endmsg;
+    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
     m_timers = false;
   } 
   else{
@@ -201,7 +201,7 @@ StatusCode TrigTRT_CombinedExtensionTool::initialize()
     m_timer[6] = timerSvc->addItem("TrackUpdate");
     m_timer[6]->propName("TrackUpdate.nRoads");
   }
-  athenaLog << MSG::INFO << "TrigTRT_CombinedExtensionTool constructed "<< endmsg;
+  athenaLog << MSG::INFO << "TrigTRT_CombinedExtensionTool constructed "<< endreq;
   return sc;
 }
 
@@ -216,7 +216,7 @@ TrigTRT_CombinedExtensionTool::~TrigTRT_CombinedExtensionTool()
 
 }
 
-void TrigTRT_CombinedExtensionTool::getPhiRange(double phi,double d0,double& phiMin,double& phiMax)
+void TrigTRT_CombinedExtensionTool::m_getPhiRange(double phi,double d0,double& phiMin,double& phiMax)
 {
   const double r1=600.0;
   const double r2=1200.0;
@@ -235,7 +235,7 @@ void TrigTRT_CombinedExtensionTool::getPhiRange(double phi,double d0,double& phi
   phiMax=phi2+m_roiPhiSize;
 }
 
-void TrigTRT_CombinedExtensionTool::getEtaRange(double eta,double z0,double& etaMin,double& etaMax)
+void TrigTRT_CombinedExtensionTool::m_getEtaRange(double eta,double z0,double& etaMin,double& etaMax)
 {
   const double r1=600.0;
   const double r2=1200.0;
@@ -262,7 +262,7 @@ void TrigTRT_CombinedExtensionTool::getEtaRange(double eta,double z0,double& eta
   etaMax=eta2+m_roiEtaSize;
 
 }
-int TrigTRT_CombinedExtensionTool::preloadROBs(TrigInDetTrackCollection* recoTracks)
+int TrigTRT_CombinedExtensionTool::m_preloadROBs(TrigInDetTrackCollection* recoTracks)
 {  
 
   std::list<uint32_t> idList;
@@ -282,7 +282,7 @@ int TrigTRT_CombinedExtensionTool::preloadROBs(TrigInDetTrackCollection* recoTra
 	{
 	  if (m_outputLevel <= MSG::ERROR) 
 	    athenaLog << MSG::ERROR << "ROB preloading failed -- TrigInDetTrack has no parameters" 
-		      << endmsg;
+		      << endreq;
 	  continue;
 	}
       m_regionSelector->DetROBIDListUint(TRT,idVec);
@@ -307,7 +307,7 @@ int TrigTRT_CombinedExtensionTool::preloadROBs(TrigInDetTrackCollection* recoTra
 	  for(unsigned int i=0;i<idVec.size();i++)
 	    {
 	      athenaLog << MSG::DEBUG << " Requesting ROB Id : 0x " << MSG::hex << 
-		idVec[i] << MSG::dec << endmsg;
+		idVec[i] << MSG::dec << endreq;
 	    }
 	}
       m_robDataProvider->addROBData(idVec);
@@ -316,12 +316,12 @@ int TrigTRT_CombinedExtensionTool::preloadROBs(TrigInDetTrackCollection* recoTra
   else
     {
       if(m_outputLevel<=MSG::DEBUG)
-	athenaLog << MSG::DEBUG << " ROB id vector is empty - track is beyond TRT acceptance"<<endmsg;
+	athenaLog << MSG::DEBUG << " ROB id vector is empty - track is beyond TRT acceptance"<<endreq;
     }
   return listSize;
 }
 
-void TrigTRT_CombinedExtensionTool::deleteTrajectories()
+void TrigTRT_CombinedExtensionTool::m_deleteTrajectories()
 {
   for(std::vector<TrigTRT_Trajectory*>::iterator ptIt=m_vpTrajectories.begin();
       ptIt!=m_vpTrajectories.end();++ptIt)
@@ -331,7 +331,7 @@ void TrigTRT_CombinedExtensionTool::deleteTrajectories()
   m_vpTrajectories.clear();
 }
 
-TrigTRT_Trajectory* TrigTRT_CombinedExtensionTool::createTRT_Trajectory(TrigInDetTrack* pTrack)
+TrigTRT_Trajectory* TrigTRT_CombinedExtensionTool::m_createTRT_Trajectory(TrigInDetTrack* pTrack)
 {
   TrigTRT_Trajectory* pTRAJ=NULL;
   Trk::TrkTrackState *pInitState;
@@ -342,25 +342,25 @@ TrigTRT_Trajectory* TrigTRT_CombinedExtensionTool::createTRT_Trajectory(TrigInDe
   if(param==NULL)
     {
       if (m_outputLevel <= MSG::ERROR) 
-	athenaLog << MSG::WARNING << "TRT extension failed -- TrigInDetTrack has no parameters" << endmsg;
+	athenaLog << MSG::WARNING << "TRT extension failed -- TrigInDetTrack has no parameters" << endreq;
       return pTRAJ;
     }
   if(pTrack->siSpacePoints()->size()==0) 
     {
       if (m_outputLevel <= MSG::ERROR) 
-	athenaLog << MSG::WARNING << "TRT extension failed -- TrigInDetTrack has no hits" << endmsg;
+	athenaLog << MSG::WARNING << "TRT extension failed -- TrigInDetTrack has no hits" << endreq;
       return pTRAJ;
     }
   if(fabs(param->pT())<500.0)
     {
       if (m_outputLevel <= MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "TrigInDetTrack pT < 500 MeV - skipping TRT extension" << endmsg;
+	athenaLog << MSG::DEBUG << "TrigInDetTrack pT < 500 MeV - skipping TRT extension" << endreq;
       return pTRAJ;
     }
   
   pTRAJ=new TrigTRT_Trajectory(pTrack);
   bool trackResult = m_trackMaker->createDkfTrack(*(pTrack->siSpacePoints()),
-						  *(pTRAJ->getFilteringNodes()),m_DChi2);
+						  *(pTRAJ->m_getFilteringNodes()),m_DChi2);
     
   if(!trackResult) 
     {
@@ -394,11 +394,11 @@ TrigTRT_Trajectory* TrigTRT_CombinedExtensionTool::createTRT_Trajectory(TrigInDe
 
   if (m_outputLevel <= MSG::DEBUG) 
     athenaLog << MSG::DEBUG << "Initial params: locT="<<Rk[0]<<" locL="<<Rk[1]<<" phi="<<Rk[2]
-	      <<" theta="<<Rk[3]<<" Q="<<Rk[4]<<endmsg;
+	      <<" theta="<<Rk[3]<<" Q="<<Rk[4]<<endreq;
 
-  pTRAJ->setStartingTrackState(pInitState);
-  for(std::vector<Trk::TrkBaseNode*>::iterator it=pTRAJ->getFilteringNodes()->begin();
-      it!=pTRAJ->getFilteringNodes()->end();++it)
+  pTRAJ->m_setStartingTrackState(pInitState);
+  for(std::vector<Trk::TrkBaseNode*>::iterator it=pTRAJ->m_getFilteringNodes()->begin();
+      it!=pTRAJ->m_getFilteringNodes()->end();++it)
     {
       pTRAJ->m_vpTrkSurfaces.push_back((*it)->m_getSurface());
     }
@@ -406,28 +406,28 @@ TrigTRT_Trajectory* TrigTRT_CombinedExtensionTool::createTRT_Trajectory(TrigInDe
   return pTRAJ;
 }
 
-bool TrigTRT_CombinedExtensionTool::refitTRT_Trajectory(TrigTRT_Trajectory* pTRAJ)
+bool TrigTRT_CombinedExtensionTool::m_refitTRT_Trajectory(TrigTRT_Trajectory* pTRAJ)
 {
   MsgStream athenaLog(msgSvc(), name());
 
-  Trk::TrkTrackState* pTS=pTRAJ->getStartingTrackState();
+  Trk::TrkTrackState* pTS=pTRAJ->m_getStartingTrackState();
 
   double mom = 1.0/pTS->m_getTrackState(4);
 
-  std::vector<Trk::TrkBaseNode*>& nodes = *(pTRAJ->getFilteringNodes());
+  std::vector<Trk::TrkBaseNode*>& nodes = *(pTRAJ->m_getFilteringNodes());
   if(fabs(mom)<m_momentumThreshold)
     {     
       pTS=m_lowPtFitter->fit(pTS,nodes,false);  
-      pTRAJ->setStartingTrackState(pTS); 
-      pTRAJ->setFast(false);
+      pTRAJ->m_setStartingTrackState(pTS); 
+      pTRAJ->m_setFast(false);
     }
   else
     {
-      pTRAJ->setFast(true);
+      pTRAJ->m_setFast(true);
       std::vector<Trk::TrkBaseNode*>::iterator pnIt(nodes.begin()),pnEnd(nodes.end());
       Trk::TrkPlanarSurface *pSB,*pSE;
       pSB=NULL;
-      pTRAJ->addTrackState(pTS);pTRAJ->setStartingTrackState(NULL);
+      pTRAJ->m_addTrackState(pTS);pTRAJ->m_setStartingTrackState(NULL);
       bool OK=true;
       for(;pnIt!=pnEnd;++pnIt)
 	{
@@ -436,14 +436,14 @@ bool TrigTRT_CombinedExtensionTool::refitTRT_Trajectory(TrigTRT_Trajectory* pTRA
 	  pSB=pSE;
 	  if(pNS!=NULL)
 	    {
-	      pTRAJ->addTrackState(pNS);
+	      pTRAJ->m_addTrackState(pNS);
 	      (*pnIt)->m_validateMeasurement(pNS);
 	      (*pnIt)->m_updateTrackState(pNS);
 	      double Pt=sin(pNS->m_getTrackState(3))/pNS->m_getTrackState(4);
 	      if(fabs(Pt)<500.0)
 		{
 		  if (m_outputLevel <= MSG::DEBUG) 
-		    athenaLog << MSG::DEBUG << "Estimated Pt is too low "<<Pt<<" - skipping TRT extension"<< endmsg;
+		    athenaLog << MSG::DEBUG << "Estimated Pt is too low "<<Pt<<" - skipping TRT extension"<< endreq;
 		  OK=false;break;
 		}
 	      pTS=pNS;
@@ -458,7 +458,7 @@ bool TrigTRT_CombinedExtensionTool::refitTRT_Trajectory(TrigTRT_Trajectory* pTRA
   return (pTS!=NULL);
 }
 
-bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
+bool TrigTRT_CombinedExtensionTool::m_runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
 {
   bool OK=true;
 
@@ -466,15 +466,15 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
 
   std::vector<std::pair<Trk::TrkTrackState*,TrigTRT_DetElementPoint*> > vRT;
    
-  Trk::TrkTrackState* pTS=pTRAJ->getStartingTrackState();
-  TrigTRT_DetElementRoad* pR=pTRAJ->getRoad(); 
+  Trk::TrkTrackState* pTS=pTRAJ->m_getStartingTrackState();
+  TrigTRT_DetElementRoad* pR=pTRAJ->m_getRoad(); 
    
   Trk::TrkPlanarSurface *pSB=pTS->m_getSurface();
 
   TrigTRT_Info* pTI=new TrigTRT_Info();
-  pTRAJ->addTRT_SummaryInfo(pTI);
+  pTRAJ->m_addTRT_SummaryInfo(pTI);
   
-  std::vector<TrigTRT_DetElementPoint*>::iterator ppIt(pR->roadPoints()->begin());
+  std::vector<TrigTRT_DetElementPoint*>::iterator ppIt(pR->m_roadPoints()->begin());
 
   Trk::TrkPlanarSurface* pFirstSurface=NULL;
   
@@ -483,25 +483,25 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
   if(fabs(pT)<500.0)
     {
       if (m_outputLevel <= MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "pT < 500 MeV - skipping TRT extension" << endmsg;
+	athenaLog << MSG::DEBUG << "pT < 500 MeV - skipping TRT extension" << endreq;
       OK=false;
       return OK;
     }
   
   bool first_step=true;
   vRT.clear();
-  for(;ppIt!=pR->roadPoints()->end();++ppIt)
+  for(;ppIt!=pR->m_roadPoints()->end();++ppIt)
     {
-      if(!(*ppIt)->hasHits()) continue;
+      if(!(*ppIt)->m_hasHits()) continue;
       TrigTRT_DetElementPoint* pRP=(*ppIt);
-      Trk::TrkPlanarSurface* pSE=pRP->createSurface();
-      pTRAJ->addSurface(pSE);
+      Trk::TrkPlanarSurface* pSE=pRP->m_createSurface();
+      pTRAJ->m_addSurface(pSE);
       Trk::TrkTrackState* pNS=NULL;
       if(!first_step) pNS=m_fastExtrapolator->extrapolate(pTS,pSB,pSE,false);
       else
 	{
 	  first_step=false;
-	  pNS=extrapolateOffline(pTS,pSB,pSE,1,true);
+	  pNS=m_extrapolateOffline(pTS,pSB,pSE,1,true);
 	  pFirstSurface=pSE;
 	}
       pSB=pSE;
@@ -509,14 +509,14 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
 	{
 	  if(m_outputLevel <= MSG::VERBOSE)
 	    pNS->m_report();
-	  pTRAJ->addTrackState(pNS);	  
+	  pTRAJ->m_addTrackState(pNS);	  
 	  std::pair<Trk::TrkTrackState*,TrigTRT_DetElementPoint*> trackPair(pNS,pRP);
 
 	  vRT.push_back(trackPair);
-	  pRP->updateTrackState(pNS,pTI);
+	  pRP->m_updateTrackState(pNS,pTI);
 	  if(m_outputLevel <= MSG::VERBOSE) 
 	    {
-	      athenaLog<<MSG::VERBOSE<<"Updated tracks state:"<<endmsg;
+	      athenaLog<<MSG::VERBOSE<<"Updated tracks state:"<<endreq;
 	      pNS->m_report();
 	    }
 	  pTS=pNS;
@@ -525,7 +525,7 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
 	{ 
 	  if(m_outputLevel <= MSG::DEBUG) 
 	    {
-	      athenaLog << MSG::DEBUG << "Extrapolation failed - TRT extension skipped "<<endmsg;
+	      athenaLog << MSG::DEBUG << "Extrapolation failed - TRT extension skipped "<<endreq;
 	    }
 	  OK=false;break;
 	}
@@ -533,24 +533,24 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
 
   if(!OK) 
     {
-      delete pTRAJ->getStartingTrackState();pTRAJ->setStartingTrackState(NULL); 
+      delete pTRAJ->m_getStartingTrackState();pTRAJ->m_setStartingTrackState(NULL); 
       return OK;
     }
 
-  int Nhits   = pTRAJ->getNumberOfTRT_Hits();
-  int Nstraw  = pTRAJ->getNumberOfCrossedTRT_Straws();
-  //int NTR     = pTRAJ->getNumberOfHighThresholdTRT_Hits();
-  //int NTime   = pTRAJ->getNumberOfDriftTimeTRT_Hits();
+  int Nhits   = pTRAJ->m_getNumberOfTRT_Hits();
+  int Nstraw  = pTRAJ->m_getNumberOfCrossedTRT_Straws();
+  //int NTR     = pTRAJ->m_getNumberOfHighThresholdTRT_Hits();
+  //int NTime   = pTRAJ->m_getNumberOfDriftTimeTRT_Hits();
 
   if((Nstraw<5)||(Nhits<5))
   {
-    delete pTRAJ->getStartingTrackState();pTRAJ->setStartingTrackState(NULL); 
+    delete pTRAJ->m_getStartingTrackState();pTRAJ->m_setStartingTrackState(NULL); 
     return false;
   }
   
-  pTRAJ->smoothTrajectory();
+  pTRAJ->m_smoothTrajectory();
 
-  pTS=(*(pTRAJ->getTrackStates()->rbegin()));
+  pTS=(*(pTRAJ->m_getTrackStates()->rbegin()));
 
   double Gk[5][5],Rk[5];
   
@@ -584,7 +584,7 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
       delete pUS;
       if(pNS!=NULL)
 	{
-	  pRP->updateTrackState(pTS,NULL,pNS);
+	  pRP->m_updateTrackState(pTS,NULL,pNS);
 	  pUS=pNS;
 	}
       else
@@ -594,27 +594,27 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
     }
   if(!OK)
     {
-      delete pTRAJ->getStartingTrackState();pTRAJ->setStartingTrackState(NULL); 
+      delete pTRAJ->m_getStartingTrackState();pTRAJ->m_setStartingTrackState(NULL); 
       return false;
     }
   pUS->m_attachToSurface(pFirstSurface);
-  delete pTRAJ->getStartingTrackState();
-  pTRAJ->setStartingTrackState(pUS);
+  delete pTRAJ->m_getStartingTrackState();
+  pTRAJ->m_setStartingTrackState(pUS);
   
   return OK; 
 }
 
-bool TrigTRT_CombinedExtensionTool::runBackwardFilter(TrigTRT_Trajectory* pTRAJ)
+bool TrigTRT_CombinedExtensionTool::m_runBackwardFilter(TrigTRT_Trajectory* pTRAJ)
 {
   bool OK=true;
   MsgStream athenaLog(msgSvc(), name());
-  Trk::TrkTrackState* pTS = pTRAJ->getStartingTrackState();
+  Trk::TrkTrackState* pTS = pTRAJ->m_getStartingTrackState();
   Trk::TrkPlanarSurface* pSB=pTS->m_getSurface();
-  pTRAJ->setStartingTrackState(NULL);
+  pTRAJ->m_setStartingTrackState(NULL);
   bool first_step=true;
 
-  std::vector<Trk::TrkBaseNode*>::reverse_iterator pnrIt(pTRAJ->getFilteringNodes()->rbegin()),
-    pnrEnd(pTRAJ->getFilteringNodes()->rend());
+  std::vector<Trk::TrkBaseNode*>::reverse_iterator pnrIt(pTRAJ->m_getFilteringNodes()->rbegin()),
+    pnrEnd(pTRAJ->m_getFilteringNodes()->rend());
 
   for(;pnrIt!=pnrEnd;++pnrIt)
     {
@@ -630,7 +630,7 @@ bool TrigTRT_CombinedExtensionTool::runBackwardFilter(TrigTRT_Trajectory* pTRAJ)
 	{
 	  if(first_step)
 	    {
-	      pNS=extrapolateOffline(pTS,pSB,pSE,-1,true);
+	      pNS=m_extrapolateOffline(pTS,pSB,pSE,-1,true);
 	      /*
 	      printf("Extrapolated to SCT\n");
 	      pNS->m_report();
@@ -639,7 +639,7 @@ bool TrigTRT_CombinedExtensionTool::runBackwardFilter(TrigTRT_Trajectory* pTRAJ)
 	      */  
 	    }
 	  else
-	    pNS=extrapolateOffline(pTS,pSB,pSE,-1,false);
+	    pNS=m_extrapolateOffline(pTS,pSB,pSE,-1,false);
 	}
       else
 	pNS=m_fastExtrapolator->extrapolate(pTS,pSB,pSE,false);	
@@ -656,7 +656,7 @@ bool TrigTRT_CombinedExtensionTool::runBackwardFilter(TrigTRT_Trajectory* pTRAJ)
 	  if(fabs(Pt)<200.0)
 	    {
 	      if (m_outputLevel <= MSG::DEBUG) 
-		athenaLog << MSG::DEBUG << "pT < 200 MeV - skipping backward filter" << endmsg;
+		athenaLog << MSG::DEBUG << "pT < 200 MeV - skipping backward filter" << endreq;
 	      delete pTS;
 	      OK=false;break;
 	    }
@@ -667,23 +667,23 @@ bool TrigTRT_CombinedExtensionTool::runBackwardFilter(TrigTRT_Trajectory* pTRAJ)
 	}
     }
   
-  if(OK) pTRAJ->setStartingTrackState(pTS);
+  if(OK) pTRAJ->m_setStartingTrackState(pTS);
 
   return OK; 
 }
 
-bool TrigTRT_CombinedExtensionTool::updatePerigee(TrigTRT_Trajectory* pTRAJ)
+bool TrigTRT_CombinedExtensionTool::m_updatePerigee(TrigTRT_Trajectory* pTRAJ)
 {
   bool OK=true;
-  Trk::TrkTrackState* pTS = pTRAJ->getStartingTrackState();
+  Trk::TrkTrackState* pTS = pTRAJ->m_getStartingTrackState();
   Trk::TrkPlanarSurface* pSB=pTS->m_getSurface();
   Trk::TrkPlanarSurface* pSE=NULL;
-  Trk::TrkTrackState* pNS=extrapolateOffline(pTS,pSB,pSE,-1);
-  delete pTS;pTRAJ->setStartingTrackState(NULL);
+  Trk::TrkTrackState* pNS=m_extrapolateOffline(pTS,pSB,pSE,-1);
+  delete pTS;pTRAJ->m_setStartingTrackState(NULL);
   if(pNS==NULL)
     OK=false; 
   else 
-    pTRAJ->setStartingTrackState(pNS);
+    pTRAJ->m_setStartingTrackState(pNS);
   return OK; 
 
 }
@@ -695,7 +695,7 @@ const std::vector<int>* TrigTRT_CombinedExtensionTool::fillTRT_DataErrors()
   return &m_trtDataErrors;
 }
 
-Trk::TrkTrackState* TrigTRT_CombinedExtensionTool::extrapolateOffline(Trk::TrkTrackState* pTS, 
+Trk::TrkTrackState* TrigTRT_CombinedExtensionTool::m_extrapolateOffline(Trk::TrkTrackState* pTS, 
 									Trk::TrkPlanarSurface* pSB,
 									Trk::TrkPlanarSurface* pSE,
 									int dir,
@@ -832,7 +832,7 @@ Trk::TrkTrackState* TrigTRT_CombinedExtensionTool::extrapolateOffline(Trk::TrkTr
   return pTE;
 }
 
-void TrigTRT_CombinedExtensionTool::updateFilteringNode(Trk::TrkBaseNode* pN, Trk::TrkTrackState* pTS)
+void TrigTRT_CombinedExtensionTool::m_updateFilteringNode(Trk::TrkBaseNode* pN, Trk::TrkTrackState* pTS)
 {
   if(pTS->m_getSurface()==NULL) return;
 
@@ -877,10 +877,10 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
 
 
   if(m_timers) m_timer[0]->start();
-  if(preloadROBs(recoTracks)==0)
+  if(m_preloadROBs(recoTracks)==0)
   {
     if (m_outputLevel <= MSG::DEBUG) 
-      athenaLog << MSG::DEBUG << "skipping TRT track extension ..." << endmsg;
+      athenaLog << MSG::DEBUG << "skipping TRT track extension ..." << endreq;
     if(m_timers) 
       {
 	m_timer[0]->stop();m_trtRobPreloaderTime=m_timer[0]->elapsed();
@@ -900,17 +900,17 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
   trIt = recoTracks->begin();lastIt = recoTracks->end();
   for(; trIt !=lastIt; trIt++) 
   {
-    TrigTRT_Trajectory* pTRAJ = createTRT_Trajectory((*trIt));
+    TrigTRT_Trajectory* pTRAJ = m_createTRT_Trajectory((*trIt));
     if(pTRAJ==NULL) continue;
 
-    nHits=pTRAJ->getFilteringNodes()->size();      
+    nHits=pTRAJ->m_getFilteringNodes()->size();      
     if (m_outputLevel <= MSG::DEBUG) 
-      athenaLog << MSG::DEBUG << nHits<<" filtering nodes created"<<endmsg;
+      athenaLog << MSG::DEBUG << nHits<<" filtering nodes created"<<endreq;
 
     nFittedTracks++;
     if(m_timers) m_timer[1]->resume();
 
-    bool OK= refitTRT_Trajectory(pTRAJ);
+    bool OK= m_refitTRT_Trajectory(pTRAJ);
 
     if(m_timers) m_timer[1]->pause();
     if(OK)
@@ -940,32 +940,32 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
   for(std::vector<TrigTRT_Trajectory*>::iterator ptrIt=m_vpTrajectories.begin();
       ptrIt!=m_vpTrajectories.end();++ptrIt)
     {
-      if(!(*ptrIt)->isValid()) continue;
+      if(!(*ptrIt)->m_isValid()) continue;
       Trk::TrkTrackState* pTS=NULL;
-      if(!(*ptrIt)->isFast())
+      if(!(*ptrIt)->m_isFast())
 	{
-	  pTS=(*ptrIt)->getStartingTrackState();
+	  pTS=(*ptrIt)->m_getStartingTrackState();
 	}
       else
 	{
-	  pTS=(*((*ptrIt)->getTrackStates()->rbegin()));
+	  pTS=(*((*ptrIt)->m_getTrackStates()->rbegin()));
 	}
       if(m_outputLevel <= MSG::VERBOSE)
 	{
-	  athenaLog<<MSG::VERBOSE<<"Starting Track state for TRT road"<<endmsg;
+	  athenaLog<<MSG::VERBOSE<<"Starting Track state for TRT road"<<endreq;
 	  pTS->m_report();
 	}
-      TrigTRT_DetElementRoad* pR=m_trtRoadBuilder->buildTRT_Road(pTS);
-      (*ptrIt)->addRoad(pR);
+      TrigTRT_DetElementRoad* pR=m_trtRoadBuilder->m_buildTRT_Road(pTS);
+      (*ptrIt)->m_addRoad(pR);
       if(pR!=NULL) 
 	{
-	  pR->collectDetectorElements(&pDEList);nTRT_Roads++;
+	  pR->m_collectDetectorElements(&pDEList);nTRT_Roads++;
 	}
-      else (*ptrIt)->setStatus(false);
+      else (*ptrIt)->m_setStatus(false);
     }
   if(m_outputLevel <= MSG::DEBUG)
     athenaLog<<MSG::DEBUG<<"Total "<<nTRT_Roads<<" roads created with "<<pDEList.size()<<
-      " DEs"<<endmsg;
+      " DEs"<<endreq;
 
   pDEList.sort();
   pDEList.unique();
@@ -976,7 +976,7 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
   for(std::list<TrigTRT_DetElement*>::iterator ldeIt=pDEList.begin();
       ldeIt!=pDEList.end();++ldeIt)
     {
-      vIDs.push_back((*ldeIt)->getHashId());
+      vIDs.push_back((*ldeIt)->m_getHashId());
     }
 
   if(m_timers) 
@@ -995,15 +995,15 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
   if(scData.isRecoverable())
     {
       if(m_outputLevel <= MSG::DEBUG)
-	athenaLog<<MSG::DEBUG<<"Recoverable errors during TRT BS conversion  "<<endmsg;
+	athenaLog<<MSG::DEBUG<<"Recoverable errors during TRT BS conversion  "<<endreq;
       const std::vector<int>* errVect = m_trtDataProvider->fillTRT_DataErrors();
       std::copy(errVect->begin(),errVect->end(),std::back_inserter(m_trtDataErrors));
       
     }
   else if(scData.isFailure())
     {
-      athenaLog << MSG::WARNING << " TRT Data provider failed" << endmsg;
-      deleteTrajectories();
+      athenaLog << MSG::WARNING << " TRT Data provider failed" << endreq;
+      m_deleteTrajectories();
       if(m_timers) m_timer[3]->stop();
       return scData;
     }
@@ -1016,32 +1016,32 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
     {
       athenaLog<<MSG::WARNING<<"TRT DriftCircle container is not found: name "
 	       <<m_trtDataProvider->trtContainerName()<<
-	" pointer="<<trtContainer<< endmsg;
+	" pointer="<<trtContainer<< endreq;
       return sc;
     }
   if(m_outputLevel <= MSG::DEBUG)
-    athenaLog<<MSG::DEBUG<<"TRT DriftCircle container retrieved"<<endmsg;
+    athenaLog<<MSG::DEBUG<<"TRT DriftCircle container retrieved"<<endreq;
   // 4. Add pointers to DC collections to DEs from the list
   for(std::list<TrigTRT_DetElement*>::iterator ldeIt=pDEList.begin();
       ldeIt!=pDEList.end();++ldeIt)
     {
-      unsigned int id=(unsigned int)((*ldeIt)->getHashId());
+      unsigned int id=(unsigned int)((*ldeIt)->m_getHashId());
       InDet::TRT_DriftCircleContainer::const_iterator collIt(trtContainer->indexFind(id));
       if(collIt==trtContainer->end()) 
 	{
-	  (*ldeIt)->addDC_Collection(NULL);
+	  (*ldeIt)->m_addDC_Collection(NULL);
 	  continue;
 	}
       const InDet::TRT_DriftCircleCollection* coll=&(**collIt);
       if(coll->begin()==coll->end()) 
 	{
-	  (*ldeIt)->addDC_Collection(NULL);
+	  (*ldeIt)->m_addDC_Collection(NULL);
 	  continue;
 	}
-      (*ldeIt)->addDC_Collection(coll);
+      (*ldeIt)->m_addDC_Collection(coll);
       if(m_outputLevel <= MSG::VERBOSE)
 	athenaLog<<MSG::VERBOSE<<"Collection with size="<<coll->size()<<" attached to element "<<id<<
-	  endmsg;
+	  endreq;
     }
 
   if(m_timers) 
@@ -1063,34 +1063,34 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
   for(std::vector<TrigTRT_Trajectory*>::iterator ptrIt=m_vpTrajectories.begin();
       ptrIt!=m_vpTrajectories.end();++ptrIt)
   {
-    if(!(*ptrIt)->isValid()) continue;
+    if(!(*ptrIt)->m_isValid()) continue;
     if(m_outputLevel <= MSG::VERBOSE) 
       {
-	athenaLog<<MSG::VERBOSE<<"TRT Road:"<<endmsg;(*ptrIt)->getRoad()->report();
+	athenaLog<<MSG::VERBOSE<<"TRT Road:"<<endreq;(*ptrIt)->m_getRoad()->m_report();
       }
     nTRT_Roads++;
 
-    if(!(*ptrIt)->isFast())
+    if(!(*ptrIt)->m_isFast())
       {
 	if(m_timers) m_timer[4]->resume();
 
-	(*ptrIt)->setStatus(runPDAF_Tracking((*ptrIt)));
+	(*ptrIt)->m_setStatus(m_runPDAF_Tracking((*ptrIt)));
 
 	if(m_timers) m_timer[4]->pause();
 
-	if(!(*ptrIt)->isValid()) continue;
+	if(!(*ptrIt)->m_isValid()) continue;
 
 	if(m_timers) m_timer[5]->resume();
 
-	(*ptrIt)->setStatus(runBackwardFilter((*ptrIt)));
+	(*ptrIt)->m_setStatus(m_runBackwardFilter((*ptrIt)));
 
 	if(m_timers) m_timer[5]->pause();
 
-	if(!(*ptrIt)->isValid()) continue;
+	if(!(*ptrIt)->m_isValid()) continue;
 
 	if(m_timers) m_timer[5]->resume();
 
-	(*ptrIt)->setStatus(updatePerigee((*ptrIt)));
+	(*ptrIt)->m_setStatus(m_updatePerigee((*ptrIt)));
 
 	if(m_timers) m_timer[5]->pause();
       }
@@ -1099,14 +1099,14 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
 	// TRT tracking for fast tracks 
 	if(m_timers) m_timer[4]->resume();
       
-	Trk::TrkTrackState* pTS=(*((*ptrIt)->getTrackStates()->rbegin()));
-	(*ptrIt)->setStartingTrackState(NULL);
-	TrigTRT_DetElementRoad* pR=(*ptrIt)->getRoad();
+	Trk::TrkTrackState* pTS=(*((*ptrIt)->m_getTrackStates()->rbegin()));
+	(*ptrIt)->m_setStartingTrackState(NULL);
+	TrigTRT_DetElementRoad* pR=(*ptrIt)->m_getRoad();
       
 	Trk::TrkPlanarSurface *pSB=pTS->m_getSurface(),*pSE=NULL;
       
 	TrigTRT_Info* pTI=new TrigTRT_Info();
-	(*ptrIt)->addTRT_SummaryInfo(pTI);
+	(*ptrIt)->m_addTRT_SummaryInfo(pTI);
 	TrigTRT_DetElementPoint* pRP=NULL;
 	std::vector<TrigTRT_DetElementPoint*>::iterator ppIt;
 	bool passedOK=true;
@@ -1116,39 +1116,38 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
 	if(fabs(pT)<500.0)
 	  {
 	    if (m_outputLevel <= MSG::DEBUG) 
-	      athenaLog << MSG::DEBUG << "pT < 500 MeV - skipping TRT extension" << endmsg;
+	      athenaLog << MSG::DEBUG << "pT < 500 MeV - skipping TRT extension" << endreq;
 	    passedOK=false;
 	  }
 	else
 	  {
-	    for(ppIt=pR->roadPoints()->begin();ppIt!=pR->roadPoints()->end();++ppIt)
+	    for(ppIt=pR->m_roadPoints()->begin();ppIt!=pR->m_roadPoints()->end();++ppIt)
 	      {
-		if((*ppIt)->hasHits())
+		if((*ppIt)->m_hasHits())
 		  {
 		    pRP=(*ppIt);
-		    pSE=pRP->createSurface();
+		    pSE=pRP->m_createSurface();
 		    Trk::TrkTrackState* pNS=m_fastExtrapolator->extrapolate(pTS,pSB,pSE,true);
 		  
 		    if(pNS!=NULL)
 		      {
 			if(m_outputLevel <= MSG::VERBOSE)
 			  pNS->m_report();
-			(*ptrIt)->addTrackState(pNS);
-			pRP->updateTrackState(pNS,pTI);
+			(*ptrIt)->m_addTrackState(pNS);
+			pRP->m_updateTrackState(pNS,pTI);
 			if(m_outputLevel <= MSG::VERBOSE) 
 			  {
-			    athenaLog<<MSG::VERBOSE<<"Updated tracks state:"<<endmsg;
+			    athenaLog<<MSG::VERBOSE<<"Updated tracks state:"<<endreq;
 			    pNS->m_report();
 			  }
 			pTS=pNS;
 		      }
 		    else
 		      {
-			athenaLog << MSG::DEBUG << "Extrapolation failed - TRT extension skipped "<<endmsg;
+			athenaLog << MSG::DEBUG << "Extrapolation failed - TRT extension skipped "<<endreq;
 			passedOK=false;
 		      }
-		    if(!firstSurf) delete pSB;
-                    firstSurf=false;
+		    if(!firstSurf) delete pSB;firstSurf=false;
 		    pSB=pSE;
 		  }
 		if(!passedOK) break; 
@@ -1162,10 +1161,10 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
 	  }
 	if(passedOK)
 	  {
-	    (*ptrIt)->smoothTrajectory();
-	    (*ptrIt)->setStartingTrackState(new Trk::TrkTrackState(*((*ptrIt)->getTrackStates()->begin())));
+	    (*ptrIt)->m_smoothTrajectory();
+	    (*ptrIt)->m_setStartingTrackState(new Trk::TrkTrackState(*((*ptrIt)->m_getTrackStates()->begin())));
 	  }
-	else (*ptrIt)->setStatus(false);
+	else (*ptrIt)->m_setStatus(false);
 	if(m_timers) m_timer[5]->pause(); 
       }
   }
@@ -1183,11 +1182,11 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
   for(std::vector<TrigTRT_Trajectory*>::iterator ptrIt=m_vpTrajectories.begin();
       ptrIt!=m_vpTrajectories.end();++ptrIt)
     {
-      TrigInDetTrack* pTIDT=(*ptrIt)->getTrigInDetTrack();
-      if((*ptrIt)->isValid())
+      TrigInDetTrack* pTIDT=(*ptrIt)->m_getTrigInDetTrack();
+      if((*ptrIt)->m_isValid())
 	  {
-	    //pTS=(*((*ptrIt)->getTrackStates()->begin()));
-	    Trk::TrkTrackState *pTS=(*ptrIt)->getStartingTrackState();
+	    //pTS=(*((*ptrIt)->m_getTrackStates()->begin()));
+	    Trk::TrkTrackState *pTS=(*ptrIt)->m_getStartingTrackState();
 	    Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
 	    Phi0 = pTS->m_getTrackState(2);
 	    if(Phi0>M_PI) Phi0-=2*M_PI;
@@ -1233,22 +1232,22 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
       
 	    if (m_outputLevel <= MSG::DEBUG) 
 	      athenaLog << MSG::DEBUG << "Updated parameters: d0="<<D0<<" phi0="<<Phi0<<" z0="<<Z0	
-			<<" eta0="<<Eta<<" pt="<<Pt << endmsg;
+			<<" eta0="<<Eta<<" pt="<<Pt << endreq;
 
 	    TrigInDetTrackFitPar* param=const_cast<TrigInDetTrackFitPar*>(pTIDT->param());
 	    delete param;
 	    pTIDT->param(tidtfp);
 	  }
       int nAssociatedHits=0;
-      if((*ptrIt)->getTRT_SummaryInfo()!=NULL)
-	nAssociatedHits=(*ptrIt)->getTRT_SummaryInfo()->getTRT_Hits().size();
+      if((*ptrIt)->m_getTRT_SummaryInfo()!=NULL)
+	nAssociatedHits=(*ptrIt)->m_getTRT_SummaryInfo()->m_getTRT_Hits().size();
       if(nAssociatedHits!=0)
 	{
 	  //int Nhits=0,Nstraw=0,NTR=0,NTime=0;
-	  int Nhits   = (*ptrIt)->getNumberOfTRT_Hits();
-	  int Nstraw  = (*ptrIt)->getNumberOfCrossedTRT_Straws();
-	  int NTR     = (*ptrIt)->getNumberOfHighThresholdTRT_Hits();
-	  int NTime   = (*ptrIt)->getNumberOfDriftTimeTRT_Hits();
+	  int Nhits   = (*ptrIt)->m_getNumberOfTRT_Hits();
+	  int Nstraw  = (*ptrIt)->m_getNumberOfCrossedTRT_Straws();
+	  int NTR     = (*ptrIt)->m_getNumberOfHighThresholdTRT_Hits();
+	  int NTime   = (*ptrIt)->m_getNumberOfDriftTimeTRT_Hits();
 	  pTIDT->StrawHits(Nhits);
 	  pTIDT->Straw(Nstraw);
 	  pTIDT->TRHits(NTR);
@@ -1256,11 +1255,11 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
 	  if(m_outputLevel <= MSG::DEBUG) 
 	    {
 	      athenaLog<<MSG::DEBUG<<"N TR hits="<<NTR<<" N TRT hits="<<Nhits<<" N holes="<<
-		(*ptrIt)->getNumberOfMissedDetection()<<endmsg;
+		(*ptrIt)->m_getNumberOfMissedDetection()<<endreq;
 	    }
 	  std::vector<const InDet::TRT_DriftCircle*>* pDC=new std::vector<const InDet::TRT_DriftCircle*>;
-	  for(std::vector<const InDet::TRT_DriftCircle*>::iterator dcIt=(*ptrIt)->getTRT_SummaryInfo()->getTRT_Hits().begin();
-	      dcIt!=(*ptrIt)->getTRT_SummaryInfo()->getTRT_Hits().end();++dcIt)
+	  for(std::vector<const InDet::TRT_DriftCircle*>::iterator dcIt=(*ptrIt)->m_getTRT_SummaryInfo()->m_getTRT_Hits().begin();
+	      dcIt!=(*ptrIt)->m_getTRT_SummaryInfo()->m_getTRT_Hits().end();++dcIt)
 	    {
 	      pDC->push_back((*dcIt));
 	    }
@@ -1268,8 +1267,8 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
 	}
       if(m_outputLevel <= MSG::DEBUG) 
 	{
-	  if((*ptrIt)->getTRT_SummaryInfo()!=NULL)
-	    athenaLog<<MSG::DEBUG<<nAssociatedHits<<" TRT hits are associated with the track"<<endmsg;
+	  if((*ptrIt)->m_getTRT_SummaryInfo()!=NULL)
+	    athenaLog<<MSG::DEBUG<<nAssociatedHits<<" TRT hits are associated with the track"<<endreq;
 	}
     }
   if(m_timers) 
@@ -1277,7 +1276,7 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
       m_timer[6]->stop();
       m_trtPDAF_TrackingTime=m_timer[6]->elapsed()+m_timer[5]->elapsed()+m_timer[4]->elapsed();
     }
-  deleteTrajectories();
+  m_deleteTrajectories();
 
   return scData;
 }

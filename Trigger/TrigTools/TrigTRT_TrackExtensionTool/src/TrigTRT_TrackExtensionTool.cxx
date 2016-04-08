@@ -92,12 +92,12 @@ StatusCode TrigTRT_TrackExtensionTool::initialize()
   sc = m_regionSelector.retrieve();
   if(sc.isFailure()) 
     {
-      athenaLog<<MSG::FATAL<< "Unable to retrieve RegionSelector Service " << m_regionSelector<< endmsg;
+      athenaLog<<MSG::FATAL<< "Unable to retrieve RegionSelector Service " << m_regionSelector<< endreq;
       return sc;
     }
 
   if (detStore()->retrieve(m_trtId, "TRT_ID").isFailure()) {
-     athenaLog << MSG::FATAL << "Could not get TRT ID helper" << endmsg;
+     athenaLog << MSG::FATAL << "Could not get TRT ID helper" << endreq;
      return StatusCode::FAILURE;
   }
 
@@ -105,7 +105,7 @@ StatusCode TrigTRT_TrackExtensionTool::initialize()
   sc = m_robDataProvider.retrieve();
   if(sc.isFailure()) 
     {
-      athenaLog << MSG::ERROR << "Unable to retrieve ROBDataProviderSvc" <<m_robDataProvider <<endmsg;
+      athenaLog << MSG::ERROR << "Unable to retrieve ROBDataProviderSvc" <<m_robDataProvider <<endreq;
       return StatusCode::FAILURE;
     }
 
@@ -113,21 +113,21 @@ StatusCode TrigTRT_TrackExtensionTool::initialize()
   if(sc.isFailure()) 
     {
       athenaLog << MSG::FATAL << "Unable to locate TRT data provider tool " 
-		<<m_trtDataProvider<< endmsg;
+		<<m_trtDataProvider<< endreq;
       return sc;
     } 
 
   sc = m_trtRoadBuilder.retrieve();
   if(sc.isFailure()) 
     {
-      athenaLog << MSG::FATAL << "Unable to locate TRT Road Tool" <<m_trtRoadBuilder<< endmsg;
+      athenaLog << MSG::FATAL << "Unable to locate TRT Road Tool" <<m_trtRoadBuilder<< endreq;
       return sc;
     } 
 
   sc = m_trigFieldTool.retrieve();
   if(sc.isFailure()) 
     {
-      athenaLog << MSG::FATAL << "Unable to locate TrigMagneticField Tool" <<m_trigFieldTool<<endmsg;
+      athenaLog << MSG::FATAL << "Unable to locate TrigMagneticField Tool" <<m_trigFieldTool<<endreq;
       return sc;
     } 
 
@@ -136,7 +136,7 @@ StatusCode TrigTRT_TrackExtensionTool::initialize()
       sc = m_trigBremTool.retrieve();
       if(sc.isFailure()) 
 	{
-	  athenaLog << MSG::FATAL << "Unable to locate TrigBremTool " <<m_trigBremTool<< endmsg;
+	  athenaLog << MSG::FATAL << "Unable to locate TrigBremTool " <<m_trigBremTool<< endreq;
 	  return sc;
 	} 
     }
@@ -144,14 +144,14 @@ StatusCode TrigTRT_TrackExtensionTool::initialize()
   sc = m_trackMaker.retrieve();
   if(sc.isFailure()) 
     {
-      athenaLog << MSG::FATAL << "Unable to locate " <<m_trackMaker<< endmsg;
+      athenaLog << MSG::FATAL << "Unable to locate " <<m_trackMaker<< endreq;
       return sc;
     } 
 
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endmsg;
+    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
     m_timers = false;
   } 
   else{
@@ -173,7 +173,7 @@ StatusCode TrigTRT_TrackExtensionTool::initialize()
     m_timer[6] = timerSvc->addItem("TrackUpdate");
     m_timer[6]->propName("TrackUpdate.nRoads");
   }
-  athenaLog << MSG::INFO << "TrigTRT_TrackExtensionTool constructed "<< endmsg;
+  athenaLog << MSG::INFO << "TrigTRT_TrackExtensionTool constructed "<< endreq;
   return sc;
 }
 
@@ -188,7 +188,7 @@ TrigTRT_TrackExtensionTool::~TrigTRT_TrackExtensionTool()
 
 }
 
-void TrigTRT_TrackExtensionTool::getPhiRange(double phi,double d0,double& phiMin,double& phiMax)
+void TrigTRT_TrackExtensionTool::m_getPhiRange(double phi,double d0,double& phiMin,double& phiMax)
 {
   const double r1=600.0;
   const double r2=1200.0;
@@ -207,7 +207,7 @@ void TrigTRT_TrackExtensionTool::getPhiRange(double phi,double d0,double& phiMin
   phiMax=phi2+m_roiPhiSize;
 }
 
-void TrigTRT_TrackExtensionTool::getEtaRange(double eta,double z0,double& etaMin,double& etaMax)
+void TrigTRT_TrackExtensionTool::m_getEtaRange(double eta,double z0,double& etaMin,double& etaMax)
 {
   const double r1=600.0;
   const double r2=1200.0;
@@ -234,7 +234,7 @@ void TrigTRT_TrackExtensionTool::getEtaRange(double eta,double z0,double& etaMin
   etaMax=eta2+m_roiEtaSize;
 
 }
-int TrigTRT_TrackExtensionTool::preloadROBs(TrigInDetTrackCollection* recoTracks)
+int TrigTRT_TrackExtensionTool::m_preloadROBs(TrigInDetTrackCollection* recoTracks)
 {  
   const double maxD0=10.0;
   const double maxZ0=200.0;
@@ -258,7 +258,7 @@ int TrigTRT_TrackExtensionTool::preloadROBs(TrigInDetTrackCollection* recoTracks
 	{
 	  if (m_outputLevel <= MSG::ERROR) 
 	    athenaLog << MSG::ERROR << "ROB preloading failed -- TrigInDetTrack has no parameters" 
-		      << endmsg;
+		      << endreq;
 	  continue;
 	}
 
@@ -271,7 +271,7 @@ int TrigTRT_TrackExtensionTool::preloadROBs(TrigInDetTrackCollection* recoTracks
 
       if(fabs(param->a0())>maxD0)
 	{
-	  getPhiRange(phi,param->a0(),phiMin,phiMax);	  
+	  m_getPhiRange(phi,param->a0(),phiMin,phiMax);	  
 	}
       else
 	{
@@ -307,7 +307,7 @@ int TrigTRT_TrackExtensionTool::preloadROBs(TrigInDetTrackCollection* recoTracks
 	  for(unsigned int i=0;i<idVec.size();i++)
 	    {
 	      athenaLog << MSG::DEBUG << " Requesting ROB Id : 0x " << MSG::hex << 
-		idVec[i] << MSG::dec << endmsg;
+		idVec[i] << MSG::dec << endreq;
 	    }
 	}
       m_robDataProvider->addROBData(idVec);
@@ -316,13 +316,13 @@ int TrigTRT_TrackExtensionTool::preloadROBs(TrigInDetTrackCollection* recoTracks
   else
     {
       if(m_outputLevel<=MSG::DEBUG)
-	athenaLog << MSG::DEBUG << " ROB id vector is empty - track is beyond TRT acceptance"<<endmsg;
+	athenaLog << MSG::DEBUG << " ROB id vector is empty - track is beyond TRT acceptance"<<endreq;
     }
   return listSize;
 }
 
 
-void TrigTRT_TrackExtensionTool::deleteNodes()
+void TrigTRT_TrackExtensionTool::m_deleteNodes()
 {
   std::vector<Trk::TrkBaseNode*>::iterator pnIt=m_vpTrkNodes.begin(),
     pnEnd=m_vpTrkNodes.end();
@@ -333,7 +333,7 @@ void TrigTRT_TrackExtensionTool::deleteNodes()
   m_vpTrkNodes.clear();
 }
 
-void TrigTRT_TrackExtensionTool::deleteTrajectories()
+void TrigTRT_TrackExtensionTool::m_deleteTrajectories()
 {
   for(std::vector<TrigTRT_Trajectory*>::iterator ptIt=m_vpTrajectories.begin();
       ptIt!=m_vpTrajectories.end();++ptIt)
@@ -343,22 +343,21 @@ void TrigTRT_TrackExtensionTool::deleteTrajectories()
   m_vpTrajectories.clear();
 }
 
-Trk::TrkTrackState* TrigTRT_TrackExtensionTool::extrapolate(Trk::TrkTrackState* pTS, 
-                                                            Trk::TrkPlanarSurface* pSB,
-                                                            Trk::TrkPlanarSurface* pSE,
-                                                            double J[5][5],
-                                                            double& path)
+Trk::TrkTrackState* TrigTRT_TrackExtensionTool::m_extrapolate(Trk::TrkTrackState* pTS, 
+							      Trk::TrkPlanarSurface* pSB,
+							      Trk::TrkPlanarSurface* pSE,
+							      double J[5][5],
+							      double& path)
 {
   const double C=0.02999975;
   const double minStep=30.0;
 	  
   double sint,cost,sinf,cosf;
   double gP[3],gPi[3],lP[3],gV[3],a,b,c,s,J0[7][5],Rf[5],descr,CQ,Ac,Av,Cc;
-  double P[3],M[3][3],AG[5][5],D[4],Jm[7][7],Gi[5][5],Gf[5][5],
+  double V[3],P[3],M[3][3],AG[5][5],D[4],Jm[7][7],Gi[5][5],Gf[5][5],
     J1[5][7],A[5][5],gB[3],Buf[5][7],DVx,DVy,DVz;
   int i,j,m,nStep,nStepMax;
   double sl,ds;
-  double V[3] = {0};
 
   path=0.0;
 
@@ -402,7 +401,7 @@ Trk::TrkTrackState* TrigTRT_TrackExtensionTool::extrapolate(Trk::TrkTrackState* 
   for(i=0;i<4;i++) D[i]=pSE->m_getPar(i);
   for(i=0;i<3;i++) gPi[i]=gP[i];
 
-  m_trigFieldTool->getMagneticField(gP,gB);
+  m_trigFieldTool->m_getMagneticField(gP,gB);
  
   c=D[0]*gP[0]+D[1]*gP[1]+D[2]*gP[2]+D[3];
   b=D[0]*gV[0]+D[1]*gV[1]+D[2]*gV[2];
@@ -488,7 +487,7 @@ Trk::TrkTrackState* TrigTRT_TrackExtensionTool::extrapolate(Trk::TrkTrackState* 
 	{
 	  gV[i]=V[i];gP[i]=P[i];
 	}
-      m_trigFieldTool->getMagneticField(gP,gB);
+      m_trigFieldTool->m_getMagneticField(gP,gB);
       nStep--;
     }
   pSE->m_transformPointToLocal(gP,lP);
@@ -514,7 +513,7 @@ Trk::TrkTrackState* TrigTRT_TrackExtensionTool::extrapolate(Trk::TrkTrackState* 
       mP[i]=0.5*(gP[i]+P[i]);
     }
 
-  m_trigFieldTool->getMagneticField(mP,gB);
+  m_trigFieldTool->m_getMagneticField(mP,gB);
 
   c=D[0]*gP[0]+D[1]*gP[1]+D[2]*gP[2]+D[3];
   b=D[0]*gV[0]+D[1]*gV[1]+D[2]*gV[2];
@@ -704,7 +703,7 @@ Trk::TrkTrackState* TrigTRT_TrackExtensionTool::extrapolate(Trk::TrkTrackState* 
     {
       Gi[i][j]=pTE->m_getTrackCovariance(i,j);
     }
-  matrixInversion5x5(Gi);
+  m_matrixInversion5x5(Gi);
   for(i=0;i<5;i++) for(j=0;j<5;j++)
     {
       A[i][j]=0.0;
@@ -717,7 +716,7 @@ Trk::TrkTrackState* TrigTRT_TrackExtensionTool::extrapolate(Trk::TrkTrackState* 
 }
 
 
-void TrigTRT_TrackExtensionTool::matrixInversion5x5(double a[5][5])
+void TrigTRT_TrackExtensionTool::m_matrixInversion5x5(double a[5][5])
 {
   /**** 5x5 matrix inversion by Gaussian elimination ****/
   int i,j,k,l;
@@ -803,10 +802,10 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
 
 
   if(m_timers) m_timer[0]->start();
-  if(preloadROBs(recoTracks)==0)
+  if(m_preloadROBs(recoTracks)==0)
     {
       if (m_outputLevel <= MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "skipping TRT track extension ..." << endmsg;
+	athenaLog << MSG::DEBUG << "skipping TRT track extension ..." << endreq;
       if(m_timers) 
 	{
 	  m_timer[0]->stop();
@@ -832,21 +831,21 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
 	{
 	  if (m_outputLevel <= MSG::ERROR) 
 	    athenaLog << MSG::WARNING << "TRT extension failed -- TrigInDetTrack has no parameters" 
-		      << endmsg;
+		      << endreq;
 	  continue;
 	}
       if((*trIt)->siSpacePoints()->size()==0) 
 	{
 	  if (m_outputLevel <= MSG::ERROR) 
 	    athenaLog << MSG::WARNING << "Fit Failed -- TrigInDetTrack has no hits" 
-		      << endmsg;
+		      << endreq;
 	  continue;
 	}
 
       if(fabs(param->pT())<m_minPt)
 	{
 	  if (m_outputLevel <= MSG::DEBUG) 
-	    athenaLog << MSG::DEBUG << "TrigInDetTrack pT < "<<m_minPt<<" MeV - skipping TRT extension" << endmsg;
+	    athenaLog << MSG::DEBUG << "TrigInDetTrack pT < "<<m_minPt<<" MeV - skipping TRT extension" << endreq;
 
 	  (*trIt)->StrawHits(-2);
 	  (*trIt)->Straw(-2);
@@ -882,7 +881,7 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
 
       if (m_outputLevel <= MSG::DEBUG) 
 	athenaLog << MSG::DEBUG << "Initial params: locT="<<Rk[0]<<" locL="<<Rk[1]<<" phi="<<Rk[2]
-		  <<" theta="<<Rk[3]<<" Q="<<Rk[4]<<endmsg;
+		  <<" theta="<<Rk[3]<<" Q="<<Rk[4]<<endreq;
 
       if(m_doBremm)
 	{
@@ -913,7 +912,7 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
       nHits=m_vpTrkNodes.size();      
 
       if (m_outputLevel <= MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << nHits<<" filtering nodes created"<<endmsg;
+	athenaLog << MSG::DEBUG << nHits<<" filtering nodes created"<<endreq;
 
       // 3. Main algorithm: filter and smoother (Rauch-Tung-Striebel)
       
@@ -931,7 +930,7 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
 	  for(;pnIt!=pnEnd;++pnIt)
 	    {
 	      pSE=(*pnIt)->m_getSurface();
-	      Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE,J,path);
+	      Trk::TrkTrackState* pNS=m_extrapolate(pTS,pSB,pSE,J,path);
 	  
 	      pSB=pSE;
 	      if(pNS!=NULL)
@@ -962,23 +961,23 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
 	}
       pTS=new Trk::TrkTrackState(pInitState);
       pSB=NULL;OK=true;
-      pTRAJ->addTrackState(pTS);pnIt=m_vpTrkNodes.begin();
+      pTRAJ->m_addTrackState(pTS);pnIt=m_vpTrkNodes.begin();
       for(;pnIt!=pnEnd;++pnIt)
 	{
 	  pSE=(*pnIt)->m_getSurface();
 	  // pSE->m_report();
-	  Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE,J,path);
+	  Trk::TrkTrackState* pNS=m_extrapolate(pTS,pSB,pSE,J,path);
 	  pSB=pSE;
 	  if(pNS!=NULL)
 	    {
-	      pTRAJ->addTrackState(pNS);
+	      pTRAJ->m_addTrackState(pNS);
 	      (*pnIt)->m_validateMeasurement(pNS);
 	      (*pnIt)->m_updateTrackState(pNS);
 	      Pt=sin(pNS->m_getTrackState(3))/pNS->m_getTrackState(4);
 	      if(fabs(Pt)<m_minPt)
 		{
 		  if (m_outputLevel <= MSG::DEBUG) 
-		    athenaLog << MSG::DEBUG << "Estimated Pt is too low "<<Pt<<" - skipping TRT extension"<< endmsg;
+		    athenaLog << MSG::DEBUG << "Estimated Pt is too low "<<Pt<<" - skipping TRT extension"<< endreq;
 		  (*trIt)->StrawHits(-2);
 		  (*trIt)->Straw(-2);
 		  (*trIt)->TRHits(-2);
@@ -994,9 +993,9 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
 	      OK=false;break;
 	    }
 	}
-      pTRAJ->setStatus(OK);
+      pTRAJ->m_setStatus(OK);
       delete pInitState;
-      deleteNodes();
+      m_deleteNodes();
       m_vpTrajectories.push_back(pTRAJ);
       if(m_timers) m_timer[1]->pause();
     }  
@@ -1022,25 +1021,25 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
   for(std::vector<TrigTRT_Trajectory*>::iterator ptrIt=m_vpTrajectories.begin();
       ptrIt!=m_vpTrajectories.end();++ptrIt)
     {
-      if(!(*ptrIt)->isValid()) continue;
-      Trk::TrkTrackState* pTS=(*((*ptrIt)->getTrackStates()->rbegin()));
+      if(!(*ptrIt)->m_isValid()) continue;
+      Trk::TrkTrackState* pTS=(*((*ptrIt)->m_getTrackStates()->rbegin()));
       if(m_outputLevel <= MSG::VERBOSE)
 	{
-	  athenaLog<<MSG::VERBOSE<<"Starting Track state for TRT road"<<endmsg;
+	  athenaLog<<MSG::VERBOSE<<"Starting Track state for TRT road"<<endreq;
 	  pTS->m_report();
 	}
-      TrigTRT_DetElementRoad* pR=m_trtRoadBuilder->buildTRT_Road(pTS);
-      (*ptrIt)->addRoad(pR);
+      TrigTRT_DetElementRoad* pR=m_trtRoadBuilder->m_buildTRT_Road(pTS);
+      (*ptrIt)->m_addRoad(pR);
       if(pR!=NULL) 
 	{
-	  pR->collectDetectorElements(&pDEList);
+	  pR->m_collectDetectorElements(&pDEList);
 	  nTRT_Roads++;
 	}
-      else (*ptrIt)->setStatus(false);
+      else (*ptrIt)->m_setStatus(false);
     }
   if(m_outputLevel <= MSG::DEBUG)
     athenaLog<<MSG::DEBUG<<"Total "<<nTRT_Roads<<" roads created with "<<pDEList.size()<<
-      " DEs"<<endmsg;
+      " DEs"<<endreq;
 
   pDEList.sort();
   pDEList.unique();
@@ -1051,7 +1050,7 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
   for(std::list<TrigTRT_DetElement*>::iterator ldeIt=pDEList.begin();
       ldeIt!=pDEList.end();++ldeIt)
     {
-      vIDs.push_back((*ldeIt)->getHashId());
+      vIDs.push_back((*ldeIt)->m_getHashId());
     }
 
   if(m_timers) 
@@ -1070,15 +1069,15 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
   if(scData.isRecoverable())
     {
       if(m_outputLevel <= MSG::DEBUG)
-	athenaLog<<MSG::DEBUG<<"Recoverable errors during TRT BS conversion  "<<endmsg;
+	athenaLog<<MSG::DEBUG<<"Recoverable errors during TRT BS conversion  "<<endreq;
       const std::vector<int>* errVect = m_trtDataProvider->fillTRT_DataErrors();
       std::copy(errVect->begin(),errVect->end(),std::back_inserter(m_trtDataErrors));
 
     }
   else if(scData.isFailure())
     {
-      athenaLog << MSG::WARNING << " TRT Data provider failed" << endmsg;
-      deleteTrajectories();
+      athenaLog << MSG::WARNING << " TRT Data provider failed" << endreq;
+      m_deleteTrajectories();
       if(m_timers) m_timer[3]->stop();
       return scData;
     }
@@ -1091,32 +1090,32 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
     {
       athenaLog<<MSG::WARNING<<"TRT DriftCircle container is not found: name "
 	       <<m_trtDataProvider->trtContainerName()<<
-	" pointer="<<trtContainer<< endmsg;
+	" pointer="<<trtContainer<< endreq;
       return sc;
     }
   if(m_outputLevel <= MSG::DEBUG)
-    athenaLog<<MSG::DEBUG<<"TRT DriftCircle container retrieved"<<endmsg;
+    athenaLog<<MSG::DEBUG<<"TRT DriftCircle container retrieved"<<endreq;
   // 4. Add pointers to DC collections to DEs from the list
   for(std::list<TrigTRT_DetElement*>::iterator ldeIt=pDEList.begin();
       ldeIt!=pDEList.end();++ldeIt)
     {
-      unsigned int id=(unsigned int)((*ldeIt)->getHashId());
+      unsigned int id=(unsigned int)((*ldeIt)->m_getHashId());
       InDet::TRT_DriftCircleContainer::const_iterator collIt(trtContainer->indexFind(id));
       if(collIt==trtContainer->end()) 
 	{
-	  (*ldeIt)->addDC_Collection(NULL);
+	  (*ldeIt)->m_addDC_Collection(NULL);
 	  continue;
 	}
       const InDet::TRT_DriftCircleCollection* coll=&(**collIt);
       if(coll->begin()==coll->end()) 
 	{
-	  (*ldeIt)->addDC_Collection(NULL);
+	  (*ldeIt)->m_addDC_Collection(NULL);
 	  continue;
 	}
-      (*ldeIt)->addDC_Collection(coll);
+      (*ldeIt)->m_addDC_Collection(coll);
       if(m_outputLevel <= MSG::VERBOSE)
 	athenaLog<<MSG::VERBOSE<<"Collection with size="<<coll->size()<<" attached to element "<<id<<
-	  endmsg;
+	  endreq;
     }
 
   if(m_timers) 
@@ -1138,22 +1137,22 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
   for(std::vector<TrigTRT_Trajectory*>::iterator ptrIt=m_vpTrajectories.begin();
       ptrIt!=m_vpTrajectories.end();++ptrIt)
     {
-      if(!(*ptrIt)->isValid()) continue;
+      if(!(*ptrIt)->m_isValid()) continue;
       if(m_outputLevel <= MSG::VERBOSE) 
 	{
-	  athenaLog<<MSG::VERBOSE<<"TRT Road:"<<endmsg;
-	  (*ptrIt)->getRoad()->report();
+	  athenaLog<<MSG::VERBOSE<<"TRT Road:"<<endreq;
+	  (*ptrIt)->m_getRoad()->m_report();
 	}
       nTRT_Roads++;
       if(m_timers) m_timer[4]->resume();
       
-      Trk::TrkTrackState* pTS=(*((*ptrIt)->getTrackStates()->rbegin()));
-      TrigTRT_DetElementRoad* pR=(*ptrIt)->getRoad();
+      Trk::TrkTrackState* pTS=(*((*ptrIt)->m_getTrackStates()->rbegin()));
+      TrigTRT_DetElementRoad* pR=(*ptrIt)->m_getRoad();
       
       Trk::TrkPlanarSurface *pSB=pTS->m_getSurface(),*pSE=NULL;
       
       TrigTRT_Info* pTI=new TrigTRT_Info();
-      (*ptrIt)->addTRT_SummaryInfo(pTI);
+      (*ptrIt)->m_addTRT_SummaryInfo(pTI);
       TrigTRT_DetElementPoint* pRP=NULL;
       std::vector<TrigTRT_DetElementPoint*>::iterator ppIt;
       bool passedOK=true;
@@ -1164,39 +1163,38 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
       if(fabs(pT)<m_minPt)
 	{
 	  if (m_outputLevel <= MSG::DEBUG) 
-	    athenaLog << MSG::DEBUG << "pT < "<<m_minPt<<" MeV - skipping TRT extension" << endmsg;
+	    athenaLog << MSG::DEBUG << "pT < "<<m_minPt<<" MeV - skipping TRT extension" << endreq;
 	  passedOK=false;
 	}
       else
 	{
-	  for(ppIt=pR->roadPoints()->begin();ppIt!=pR->roadPoints()->end();++ppIt)
+	  for(ppIt=pR->m_roadPoints()->begin();ppIt!=pR->m_roadPoints()->end();++ppIt)
 	    {
-	      if((*ppIt)->hasHits())
+	      if((*ppIt)->m_hasHits())
 		{
 		  pRP=(*ppIt);
-		  pSE=pRP->createSurface();
-		  Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE,J,path);
+		  pSE=pRP->m_createSurface();
+		  Trk::TrkTrackState* pNS=m_extrapolate(pTS,pSB,pSE,J,path);
 		  
 		  if(pNS!=NULL)
 		    {
 		      if(m_outputLevel <= MSG::VERBOSE)
 			pNS->m_report();
-		      (*ptrIt)->addTrackState(pNS);
-		      pRP->updateTrackState(pNS,pTI);
+		      (*ptrIt)->m_addTrackState(pNS);
+		      pRP->m_updateTrackState(pNS,pTI);
 		      if(m_outputLevel <= MSG::VERBOSE) 
 			{
-			  athenaLog<<MSG::VERBOSE<<"Updated tracks state:"<<endmsg;
+			  athenaLog<<MSG::VERBOSE<<"Updated tracks state:"<<endreq;
 			  pNS->m_report();
 			}
 		      pTS=pNS;
 		    }
 		  else
 		    {
-		      athenaLog << MSG::DEBUG << "Extrapolation failed - TRT extension skipped "<<endmsg;
+		      athenaLog << MSG::DEBUG << "Extrapolation failed - TRT extension skipped "<<endreq;
 		      passedOK=false;
 		    }
-		  if(!firstSurf) delete pSB;
-                  firstSurf=false;
+		  if(!firstSurf) delete pSB;firstSurf=false;
 		  pSB=pSE;
 		}
 	      if(!passedOK) break; 
@@ -1211,9 +1209,9 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
 	}
       if(passedOK)
 	{
-	  (*ptrIt)->smoothTrajectory();
+	  (*ptrIt)->m_smoothTrajectory();
 	}
-      else (*ptrIt)->setStatus(false);
+      else (*ptrIt)->m_setStatus(false);
       if(m_timers) m_timer[5]->pause(); 
     }
   if(m_timers) 
@@ -1229,8 +1227,8 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
   for(std::vector<TrigTRT_Trajectory*>::iterator ptrIt=m_vpTrajectories.begin();
       ptrIt!=m_vpTrajectories.end();++ptrIt)
     {
-      if(!(*ptrIt)->isValid()) continue;
-      pTS=(*((*ptrIt)->getTrackStates()->begin()));
+      if(!(*ptrIt)->m_isValid()) continue;
+      pTS=(*((*ptrIt)->m_getTrackStates()->begin()));
       Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
       Phi0 = pTS->m_getTrackState(2);
       if(Phi0>M_PI) Phi0-=2*M_PI;
@@ -1278,27 +1276,27 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
             
       if (m_outputLevel <= MSG::DEBUG) 
 	athenaLog << MSG::DEBUG << "Updated parameters: d0="<<D0<<" phi0="<<Phi0<<" z0="<<Z0	
-		  <<" eta0="<<Eta<<" pt="<<Pt << endmsg;
+		  <<" eta0="<<Eta<<" pt="<<Pt << endreq;
 
-      TrigInDetTrack* pTIDT=(*ptrIt)->getTrigInDetTrack();
+      TrigInDetTrack* pTIDT=(*ptrIt)->m_getTrigInDetTrack();
 
       TrigInDetTrackFitPar* param=const_cast<TrigInDetTrackFitPar*>(pTIDT->param());
       delete param;
       pTIDT->param(tidtfp);
 
       int Nhits=0,Nstraw=0,NTR=0,NTime=0;
-      Nhits   = (*ptrIt)->getNumberOfTRT_Hits();
-      Nstraw  = (*ptrIt)->getNumberOfCrossedTRT_Straws();
-      NTR     = (*ptrIt)->getNumberOfHighThresholdTRT_Hits();
-      NTime   = (*ptrIt)->getNumberOfDriftTimeTRT_Hits();
+      Nhits   = (*ptrIt)->m_getNumberOfTRT_Hits();
+      Nstraw  = (*ptrIt)->m_getNumberOfCrossedTRT_Straws();
+      NTR     = (*ptrIt)->m_getNumberOfHighThresholdTRT_Hits();
+      NTime   = (*ptrIt)->m_getNumberOfDriftTimeTRT_Hits();
       pTIDT->StrawHits(Nhits);
       pTIDT->Straw(Nstraw);
       pTIDT->TRHits(NTR);
       pTIDT->StrawTime(NTime);
       std::vector<const InDet::TRT_DriftCircle*>* pDC=new std::vector<const InDet::TRT_DriftCircle*>;
       for(std::vector<const InDet::TRT_DriftCircle*>::iterator dcIt=
-	    (*ptrIt)->getTRT_SummaryInfo()->getTRT_Hits().begin();
-	  dcIt!=(*ptrIt)->getTRT_SummaryInfo()->getTRT_Hits().end();++dcIt)
+	    (*ptrIt)->m_getTRT_SummaryInfo()->m_getTRT_Hits().begin();
+	  dcIt!=(*ptrIt)->m_getTRT_SummaryInfo()->m_getTRT_Hits().end();++dcIt)
 	{
 	  pDC->push_back((*dcIt));
 	}
@@ -1306,9 +1304,9 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
       if(m_outputLevel <= MSG::DEBUG) 
 	{
 	  athenaLog<<MSG::DEBUG<<"N TR hits="<<NTR<<" N TRT hits="<<Nhits<<" N holes="<<
-	    (*ptrIt)->getNumberOfMissedDetection()<<endmsg;
-	  athenaLog<<MSG::DEBUG<<(*ptrIt)->getTRT_SummaryInfo()->getTRT_Hits().size()
-		   <<" TRT hits are associated with the track"<<endmsg;
+	    (*ptrIt)->m_getNumberOfMissedDetection()<<endreq;
+	  athenaLog<<MSG::DEBUG<<(*ptrIt)->m_getTRT_SummaryInfo()->m_getTRT_Hits().size()
+		   <<" TRT hits are associated with the track"<<endreq;
 	}
     }
   if(m_timers) 
@@ -1316,7 +1314,7 @@ StatusCode TrigTRT_TrackExtensionTool::propagate(TrigInDetTrackCollection* recoT
       m_timer[6]->stop();
       m_trtPDAF_TrackingTime=m_timer[6]->elapsed()+m_timer[5]->elapsed()+m_timer[4]->elapsed();
     }
-  deleteTrajectories();
+  m_deleteTrajectories();
 
   return scData;
 }
