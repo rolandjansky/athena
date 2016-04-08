@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 679715 2015-07-02 11:28:03Z lerrenst $
+# @version $Id: trfValidation.py 715161 2015-12-17 12:53:17Z lerrenst $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -557,6 +557,9 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
                         raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % fname)
                     elif arg.getSingleMetadata(fname, 'integrity') == 'UNDEFINED':
                         msg.info('No corruption test defined.')
+                    elif arg.getSingleMetadata(fname, 'integrity') is None:
+                        msg.error('Could not check for file integrity')
+                        raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s might be missing' % fname)
                     else:    
                         msg.error('Unknown rc from corruption test.')
                         raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % fname)
@@ -715,7 +718,7 @@ class eventMatch(object):
         self._eventCountConf['HITS'] = {'RDO':"match", "HITS_MRG":"match", 'HITS_FILT': simEventEff, "RDO_FILT": "filter"}
         self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD_*': "filter"}
         self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_TRIG":"match"}
-        self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD_*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}
+        self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD'] = {'AOD_MRG' : "match", 'TAG':"match", "NTUP_*":"filter", "DAOD_*":"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD_MRG'] = {'TAG':"match"}
         self._eventCountConf['DAOD_*'] = {'DAOD_*_MRG' : "match"}

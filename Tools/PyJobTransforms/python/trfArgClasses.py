@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 696789 2015-09-25 09:18:35Z graemes $
+# @version $Id: trfArgClasses.py 725493 2016-02-22 13:07:59Z mavogel $
 
 import argparse
 import bz2
@@ -641,6 +641,13 @@ class argFile(argList):
                 if prodsysGlob and self._splitter is ',':
                     msg.debug('Detected prodsys glob - normal splitting is disabled')
                     self._value = [value]
+                elif value.lower().startswith('lfn'):
+                    # Resolve physical filename using pool file catalog.
+                    import PyUtils.AthFile as af
+                    protocol, pfn = af.fname(value)
+                    self._value = [pfn]
+                    self._getDatasetFromFilename(reset = False)
+                    self._resetMetadata()
                 else:
                     self._value = value.split(self._splitter)
                     self._getDatasetFromFilename(reset = False)
@@ -1209,12 +1216,13 @@ class argFile(argList):
         myargdict['checkEventCount'] = argSubstepBool('False', runarg=False)
         if 'athenaopts' in myargdict:
             # Need to ensure that "nprocs" is not passed to merger
-            newopts = []
-            for opt in myargdict['athenaopts'].value:
-                if opt.startswith('--nprocs'):
-                    continue
-                newopts.append(opt)
-            myargdict['athenaopts'] = argList(newopts, runarg=False)
+            for subStep in myargdict['athenaopts'].value:
+                newopts = []
+                for opt in myargdict['athenaopts'].value[subStep]:
+                    if opt.startswith('--nprocs'):
+                        continue
+                    newopts.append(opt)
+                myargdict['athenaopts'] = argSubstepList(newopts, runarg=False)
         return myargdict
 
 
@@ -1244,8 +1252,8 @@ class argAthenaFile(argFile):
         elif self._type.upper() in ('TAG'):
             aftype = 'TAG'
 
-        # retrieve GUID and nentries without runMiniAthena subprocess for input POOL files
-        if aftype == 'POOL' and self._io == 'input':
+        # retrieve GUID and nentries without runMiniAthena subprocess for input POOL files or temporary files
+        if aftype == 'POOL' and (self._io == 'input' or self._io == 'temporary'):
             retrieveKeys = inpFileInterestingKeys
 
         # get G4Version for HITSFiles
