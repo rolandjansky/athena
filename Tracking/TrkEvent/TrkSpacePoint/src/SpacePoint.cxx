@@ -58,7 +58,11 @@ namespace Trk
   {
     m_elemIdList = SP.m_elemIdList;
     m_position = SP.m_position;
-    m_clusList = new std::pair<const PrepRawData*, const PrepRawData*>(*SP.m_clusList);    
+    if (SP.m_clusList){
+      m_clusList = new std::pair<const PrepRawData*, const PrepRawData*>(*SP.m_clusList);
+    } else {
+      m_clusList=nullptr;
+    }    
     m_globalCovariance = SP.m_globalCovariance; 
 #ifndef NDEBUG
     s_numberOfInstantiations++; // new SpacePoint, so increment total count
@@ -71,14 +75,18 @@ namespace Trk
   SpacePoint& SpacePoint::operator=(const SpacePoint& SP)
   {
     if (&SP !=this) 
-      {
-	Trk::MeasurementBase::operator=(SP);
-	delete m_clusList;
-	m_elemIdList = SP.m_elemIdList;
-	m_position = SP.m_position;
-	m_clusList = new std::pair<const PrepRawData*, const PrepRawData*>(*SP.m_clusList);
-	m_globalCovariance = SP.m_globalCovariance; 
-      }
+    {
+			Trk::MeasurementBase::operator=(SP);
+			delete m_clusList;
+			m_elemIdList = SP.m_elemIdList;
+			m_position = SP.m_position;
+			if (SP.m_clusList){
+			  m_clusList = new std::pair<const PrepRawData*, const PrepRawData*>(*SP.m_clusList);
+			}  else {
+        m_clusList=nullptr;
+      }  
+			m_globalCovariance = SP.m_globalCovariance; 
+    }
     return *this;
   }
   
