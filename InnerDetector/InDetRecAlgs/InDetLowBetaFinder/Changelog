@@ -1,3 +1,7 @@
+2015-10-01 Alex Alonso
+	* Fix a change in the ToTdEdx interface. 
+	* Tagged as InDetLowBetaFinder-02-00-06
+
 2015-02-3 Alex Alonso
 	* Fix Coverity report
 	* Tagged as InDetLowBetaFinder-02-00-05
