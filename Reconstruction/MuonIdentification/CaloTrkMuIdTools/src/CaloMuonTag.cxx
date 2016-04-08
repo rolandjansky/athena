@@ -137,6 +137,10 @@ int CaloMuonTag::caloMuonTag(const std::vector<DepositInCalo>& deposits, double 
     double dep   = it->energyDeposited();
     double eLoss = it->muonEnergyLoss();
     double diff  = dep - eLoss;
+//
+// don't use the difference between measured and expected energy per layer 
+//
+    diff = 0.;
 
     if (sample==CaloCell_ID::EMB1) {
       if (dep>interpolate(m_emb1Veto, pt)) {
