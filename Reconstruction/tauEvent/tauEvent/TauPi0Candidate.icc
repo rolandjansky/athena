@@ -5,7 +5,7 @@
 */
 
 
-using namespace CLHEP;
+//using namespace CLHEP;
 
 namespace Analysis{
   
@@ -36,7 +36,7 @@ namespace Analysis{
     inline CLHEP::HepLorentzVector TauPi0Candidate::hlv() const
     {
       CLHEP::HepLorentzVector cand4Mom(0., 0., 0., 0.);
-      double mPi0 = 134.98*MeV;
+      double mPi0 = 134.98*CLHEP::MeV;
       if(this->nPi0Cluster() == 1){
 
         // Cluster E has been measured in Calo. Cluster Pt has been calculated using a 0 mass hypthesis.
@@ -55,7 +55,7 @@ namespace Analysis{
         double py=std::sin(clusterPhi)*clusterPt;
         double pz=cot*clusterPt;
 
-        cand4Mom = HepLorentzVector(px,py,pz,clusterE);
+        cand4Mom = CLHEP::HepLorentzVector(px,py,pz,clusterE);
       }
       // TODO: Reconsider how to define the hlv for nPi0Cluster!=1. 
       else if(this->nPi0Cluster() != 0){
@@ -71,7 +71,7 @@ namespace Analysis{
         double py=std::sin(cand4Mom.phi())*candidatePt;
         double pz=cot*candidatePt;
         
-        cand4Mom = HepLorentzVector(px,py,pz,cand4Mom.e());
+        cand4Mom = CLHEP::HepLorentzVector(px,py,pz,cand4Mom.e());
       }
       return cand4Mom;
     }

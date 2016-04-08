@@ -104,13 +104,15 @@ namespace Analysis
     const CaloCluster* cluster() const;
 
     /** @brief element link to cluster */
-    ElementLink<CaloClusterContainer> clusterLink() const;
+    const ElementLink<CaloClusterContainer>& clusterLink() const;
+    ElementLink<CaloClusterContainer>& clusterLink();
 
     /** @brief pointer to seed cell */
     const CaloCell* seedCell() const;
     
     /** @brief element link to seed cell */
-    ElementLink<CaloCellContainer> seedCellLink() const;
+    const ElementLink<CaloCellContainer>& seedCellLink() const;
+    ElementLink<CaloCellContainer>& seedCellLink();
 
     /** @brief other custom variable getters */
     int nCellsInEta() const;

@@ -25,6 +25,16 @@ namespace Analysis {
         return (std::fabs(a-b)<epsilon);
     }
 
+    TauPID::TauPID (std::vector<std::pair<TauJetParameters::TauID, double> >&& params,
+                    const std::bitset<32>& isTauFlags,
+                    const std::bitset<32>& vetoFlags)
+      : m_params( std::move (params) ),
+        m_isTauFlags( isTauFlags ),
+        m_vetoFlags( vetoFlags )
+    {
+
+    }
+
     TauPID::TauPID(const TauPID& rhs) :
         m_params( rhs.m_params ),
         m_isTauFlags( rhs.m_isTauFlags ),
@@ -40,6 +50,17 @@ namespace Analysis {
             m_params=rhs.m_params;
             m_isTauFlags=rhs.m_isTauFlags;
             m_vetoFlags=rhs.m_vetoFlags;
+        }
+        return *this;
+    }
+
+    TauPID& TauPID::operator = ( TauPID &&rhs )
+    {
+        if(this != &rhs)
+        {
+          m_params=std::move(rhs.m_params);
+          m_isTauFlags=std::move(rhs.m_isTauFlags);
+          m_vetoFlags=std::move(rhs.m_vetoFlags);
         }
         return *this;
     }
@@ -60,5 +81,18 @@ namespace Analysis {
         if ( m_vetoFlags != rhs.m_vetoFlags )
             return false;
         return true;
+    }
+
+    const std::vector<std::pair<TauJetParameters::TauID, double> >& TauPID::params() const
+    {
+      return m_params;
+    }
+    const std::bitset<32> TauPID::isTauFlags() const
+    {
+      return m_isTauFlags;
+    }
+    const std::bitset<32> TauPID::vetoFlags() const
+    {
+      return m_vetoFlags;
     }
 }

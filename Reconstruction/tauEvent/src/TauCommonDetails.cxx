@@ -441,9 +441,9 @@ namespace Analysis {
             return false;
         if (m_seedTrk_nStrip!=rhs.m_seedTrk_nStrip)
             return false;
-        if (m_seedTrk_nOtherCoreTrk!=m_seedTrk_nOtherCoreTrk)
+        if (m_seedTrk_nOtherCoreTrk!=rhs.m_seedTrk_nOtherCoreTrk)
             return false;
-        if (m_seedTrk_nIsolTrk!=m_seedTrk_nIsolTrk)
+        if (m_seedTrk_nIsolTrk!=rhs.m_seedTrk_nIsolTrk)
             return false;
 
         //Vector comparisons

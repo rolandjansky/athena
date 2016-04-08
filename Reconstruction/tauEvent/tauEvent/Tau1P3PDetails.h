@@ -230,6 +230,7 @@ namespace Analysis
         //-----------------------------------------------------------------
         double etChrgEM01Trk( unsigned tr ) const;
         void setETChrgEM01Trk( unsigned tr, double etChrgEM01Trk );
+        void resizeETChrgEM01Trk( size_t sz );
 
         //! add transverse energy of track for EM layers 0 1 only
         void addETChrgEM01Trk( double etChrgEM01Trk );
@@ -240,6 +241,7 @@ namespace Analysis
         //-----------------------------------------------------------------
         double etResChrgEMTrk( unsigned tr ) const;
         void setETResChrgEMTrk( unsigned tr, double etResChrgEMTrk );
+        void resizeETResChrgEMTrk( size_t sz );
 
         //! add transverse energy of track (for eflow correction) to vector
         void addETResChrgEMTrk( double etResChrgEMTrk );
@@ -605,6 +607,11 @@ namespace Analysis
             m_etChrgEM01Trk[tr] = etChrgEM01Trk;
     }
 
+    inline void Tau1P3PDetails :: resizeETChrgEM01Trk( size_t sz )
+    {
+      m_etChrgEM01Trk.resize (sz);
+    }
+
     inline void Tau1P3PDetails :: addETChrgEM01Trk( double etChrgEM01Trk )
     {
         m_etChrgEM01Trk.push_back( etChrgEM01Trk );
@@ -621,6 +628,11 @@ namespace Analysis
     {
         if( m_etResChrgEMTrk.size() < tr )
             m_etResChrgEMTrk[tr] = etResChrgEMTrk;
+    }
+
+    inline void Tau1P3PDetails :: resizeETResChrgEMTrk( size_t sz )
+    {
+      m_etResChrgEMTrk.resize (sz);
     }
 
     inline void Tau1P3PDetails :: addETResChrgEMTrk( double etResChrgEMTrk )

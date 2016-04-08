@@ -38,7 +38,7 @@ namespace Analysis
     TauRecExtraDetails :: TauRecExtraDetails( const TauRecExtraDetails &rhs ):
         TauDetails(),
         m_analysisHelper(new tauAnalysisHelperObject(*rhs.m_analysisHelper)),
-        m_seedType((TauJetParameters::SeedTypes)m_seedType),
+        m_seedType(rhs.m_seedType),
         m_numEMCells(rhs.m_numEMCells),
         m_stripET(rhs.m_stripET),
         m_emCentralityFraction(rhs.m_emCentralityFraction),

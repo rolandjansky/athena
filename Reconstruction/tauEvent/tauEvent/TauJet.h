@@ -448,8 +448,11 @@ namespace Analysis
             /// Removes extra details and any invalid elementlinks from details list
             void CleanDetailsForAOD();
 
+            ElementLinkVector<TauDetailsContainer>& tauDetailLinkVector();
+            const ElementLinkVector<TauDetailsContainer>& tauDetailLinkVector() const;
+
             //@} ---------------------------------------------------------------
-            ///@name Athour functions
+            ///@name Author functions
             //@{ ---------------------------------------------------------------
 
             /// Author of this object (DO NOT USE! only for backward compatibility)
@@ -560,6 +563,7 @@ namespace Analysis
             //@{ ---------------------------------------------------------------
             void storeHLV( TauJetParameters :: TauCalibType type, CLHEP :: HepLorentzVector hlv );
             CLHEP::HepLorentzVector getHLV( TauJetParameters :: TauCalibType type ) const;
+            void clearHLV();
 
             ///Get the list of links to PanTauSeed objects that were created for this tauJet      
             std::vector<PanTau::PanTauSeed*> getListOfPanTauSeeds() const;                        

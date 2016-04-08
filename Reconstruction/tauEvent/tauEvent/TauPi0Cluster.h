@@ -12,8 +12,8 @@
  * @author Benedict Winter
  */
 
-#ifndef __TAU_Pi0_CLUSTER_H__
-#define __TAU_Pi0_CLUSTER_H__
+#ifndef TAUEVENT_TAUPI0CLUSTER_H
+#define TAUEVENT_TAUPI0CLUSTER_H
 
 #include <iostream>
 
@@ -341,7 +341,7 @@ namespace Analysis {
 
     /// Get (const) cluster link
     /// @return (const) cluster 
-    //const ElementLink<CaloClusterContainer>& clusterLink() const;
+    const ElementLink<CaloClusterContainer>& clusterLink() const;
     
     /// Get cluster link 
     /// @return pi0 clusters vector
@@ -443,4 +443,4 @@ namespace Analysis {
 /// inline member function declarations
 #include "TauPi0Cluster.icc"
 
-#endif // __TAU_Pi0_CLUSTER_H__
+#endif // TAUEVENT_TAUPI0CLUSTER_H
