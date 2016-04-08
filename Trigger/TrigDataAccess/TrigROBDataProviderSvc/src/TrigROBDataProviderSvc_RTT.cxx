@@ -355,14 +355,14 @@ void TrigROBDataProviderSvc_RTT::getROBData(const std::vector<uint32_t>& robIds,
     if (!found_pref) {
       // search if another algorithm has predeclared it:
       CALLER_ROBMAP::const_iterator callit;
-      std::vector <uint32_t> robIds;
+      std::vector <uint32_t> robIds_pre;
       std::string prefetching_caller="";
       for (callit=  m_caller_robmap.begin(); callit!= m_caller_robmap.end(); ++callit){
 	prefetching_caller = (*callit).first;
 	if (prefetching_caller.find("_pref") == std::string::npos) continue;// only prefetching algo
 	//	if (m_callerName == prefetching_caller) continue;//not needed
-	robIds = (*callit).second;
-	if (std::find(robIds.begin(), robIds.end(), (*it))!=robIds.end()) {
+	robIds_pre = (*callit).second;
+	if (std::find(robIds_pre.begin(), robIds_pre.end(), (*it))!=robIds_pre.end()) {
 	  found_another_pref=true;
 	  break;
 	}
