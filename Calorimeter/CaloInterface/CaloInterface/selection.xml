@@ -8,5 +8,6 @@
 <class name="ICaloCellNormalizedQualityTool" />
 <class name="ICaloParticleIDTool" />
 <class name="ICaloAffectedTool" />
+<class name="ICaloLumiBCIDTool" />
 </lcgdict>
 

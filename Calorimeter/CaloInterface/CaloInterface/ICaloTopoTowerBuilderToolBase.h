@@ -53,8 +53,8 @@ class ICaloTopoTowerBuilderToolBase : virtual public IAlgTool
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) = 0;
 
   static const InterfaceID& interfaceID() {
-    static const InterfaceID _IID("ICaloTopoTowerBuilderToolBase", 1 , 0);
-    return _IID;
+    static const InterfaceID IID("ICaloTopoTowerBuilderToolBase", 1 , 0);
+    return IID;
   }
 
 
