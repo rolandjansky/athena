@@ -28,6 +28,17 @@ namespace iFatras {
     m_globalPosition(0),
     m_detEl(detEl) {}
   
+  PlanarCluster::PlanarCluster( const Identifier& RDOId,
+				const Amg::Vector2D& locpos, 
+				std::vector<Identifier>&& rdoList,
+				const InDet::SiWidth& width,
+				const iFatras::PlanarDetElement* detEl,
+				std::unique_ptr<const Amg::MatrixX> locErrMat ) :
+    PrepRawData(RDOId, locpos, std::move(rdoList), std::move(locErrMat)), //call base class constructor
+    m_width(width),
+    m_globalPosition(0),
+    m_detEl(detEl) {}
+  
   // Destructor:
   PlanarCluster::~PlanarCluster()
   {
@@ -56,9 +67,23 @@ namespace iFatras {
   //assignment operator
   PlanarCluster& PlanarCluster::operator=(const PlanarCluster& RIO){
     if (&RIO !=this) {
+      static_cast<Trk::PrepRawData&>(*this) = RIO;
       delete m_globalPosition;
       m_width = RIO.m_width;
       m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
+      m_detEl =  RIO.m_detEl ;
+      }
+    return *this;
+  }
+
+  //move operator
+  PlanarCluster& PlanarCluster::operator=(PlanarCluster&& RIO){
+    if (&RIO !=this) {
+      static_cast<Trk::PrepRawData&>(*this) = std::move(RIO);
+      delete m_globalPosition;
+      m_globalPosition = RIO.m_globalPosition;
+      RIO.m_globalPosition = nullptr;
+      m_width = RIO.m_width;
       m_detEl =  RIO.m_detEl ;
       }
     return *this;
@@ -68,7 +93,7 @@ namespace iFatras {
     
     stream << "PlanarCluster object"<<std::endl;
     // have to do a lot of annoying checking to make sure that PRD is valid.
-    if ( &(this->globalPosition() )!=0 )
+    if ( this->globalPositionPtr() )
       {
 	stream << "at global coordinates (x,y,z) = ("<<this->globalPosition().x()<<", "
 	       <<this->globalPosition().y()<<", "
@@ -86,7 +111,8 @@ namespace iFatras {
 
     stream << "PlanarCluster object"<<std::endl;
     // have to do a lot of annoying checking to make sure that PRD is valid.
-    if ( &(this->globalPosition() )!=0 )
+    this->globalPosition();
+    if ( this->globalPositionPtr() )
       {
 	stream << "at global coordinates (x,y,z) = ("<<this->globalPosition().x()<<", "
 	       <<this->globalPosition().y()<<", "
