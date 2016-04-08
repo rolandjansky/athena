@@ -2,11 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4DetectorEnvelopes/ResizeableBoxEnvelope.h"
-#include "G4DetectorEnvelopes/ResizeableTubsEnvelope.h"
-#include "G4DetectorEnvelopes/GenericPCONEnvelope.h"
-#include "G4DetectorEnvelopes/DefSvcEnvelope.h"
-#include "G4DetectorEnvelopes/GenericPGONEnvelope.h"
 #include "FadsKinematics/ManipulatorBase.h"
 #include "FadsKinematics/VertexManipulator.h"
 #include "FadsKinematics/ParticleManipulator.h"
