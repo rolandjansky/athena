@@ -39,6 +39,7 @@
 #include "MuonAGDDBase/sTGC_TechHandler.h"
 #include "MuonAGDDBase/mmSpacerHandler.h"
 #include "MuonAGDDBase/mmSpacer_TechHandler.h"
+#include "MuonAGDDBase/mm_readoutHandler.h"
 
 #include <fstream>
 
@@ -237,7 +238,7 @@ bool MuonAGDDToolHelper::BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr/*
 	  {
 	  MMReadoutElement* re = new MMReadoutElement((GeoVFullPhysVol*)vol, stName, etaIndex, phiIndex, mLayer, false, mgr);
 	  std::string myVolName = (chTag.substr(0,8)).c_str();
-	  AGDDParameterBagMM* MMparaBag = dynamic_cast<AGDDParameterBagMM*> (AGDDParameterStore::GetParameterStore()->GetParameterBag(myVolName));
+	  /* AGDDParameterBagMM* MMparaBag = dynamic_cast<AGDDParameterBagMM*> (AGDDParameterStore::GetParameterStore()->GetParameterBag(myVolName));
 	  if(!MMparaBag) {
 	    std::cout << " not possible to retrieve parameters for <" << myVolName << ": quitting! >" << std::endl;
 		return false;
@@ -245,7 +246,8 @@ bool MuonAGDDToolHelper::BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr/*
 	  double pitch;
 	  if(iLS==1) pitch = MMparaBag->TechParameters->pitchSS; //small
 	  else pitch = MMparaBag->TechParameters->pitchLS; //large
-	  re->initDesign(MMparaBag->largeX, MMparaBag->smallX, MMparaBag->lengthY, pitch, MMparaBag->TechParameters->thickness);
+	  re->initDesign(MMparaBag->largeX, MMparaBag->smallX, MMparaBag->lengthY, pitch, MMparaBag->TechParameters->thickness); */
+	  re->initDesign(-999., -999., -999., -999., -999.);
 	  re->fillCache();
 	  mgr->addMMReadoutElement_withIdFields(re, iLS, etaIndex, phiIndex, mLayer);
 	  }
@@ -297,4 +299,5 @@ void MuonAGDDToolHelper::SetNSWComponents()
 	agddsvc->addHandler(new sTGC_TechHandler("sTGC_Tech"));
 	agddsvc->addHandler(new mmSpacerHandler("mmSpacer"));
 	agddsvc->addHandler(new mmSpacer_TechHandler("mmSpacer_Tech"));
+	agddsvc->addHandler(new mm_readoutHandler("mm_readout"));
 }	
