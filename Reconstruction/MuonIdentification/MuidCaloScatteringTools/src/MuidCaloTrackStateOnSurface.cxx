@@ -359,6 +359,7 @@ MuidCaloTrackStateOnSurface::caloTSOS(const Trk::TrackParameters& parameters) co
 			const Trk::CylinderSurface* cylinder	=
 			    dynamic_cast<const Trk::CylinderSurface*>(&middleParams->associatedSurface());
                         AmgSymMatrix(5)* cov = middleParams->covariance() ? new AmgSymMatrix(5)(*middleParams->covariance()) : 0;
+                        bool deleteCov = true;
 			if (cylinder)
 			{
 			    params = new const Trk::AtaCylinder(middleParams->position(),
@@ -366,6 +367,7 @@ MuidCaloTrackStateOnSurface::caloTSOS(const Trk::TrackParameters& parameters) co
 								middleParams->charge(),
 								*cylinder,
                                                                 cov);
+                             deleteCov = false;
 			}
 			else
 			{
@@ -378,6 +380,7 @@ MuidCaloTrackStateOnSurface::caloTSOS(const Trk::TrackParameters& parameters) co
 								middleParams->charge(),
 								*disc,
                                                                 cov);
+                                deleteCov = false;
 			    }
 			    else
 			    {
@@ -385,6 +388,7 @@ MuidCaloTrackStateOnSurface::caloTSOS(const Trk::TrackParameters& parameters) co
 			    }
 			}
 			if (params && middleTS) innerTS = innerTSOS(*params);
+                        if(deleteCov) delete cov;
 			delete params;
 		    }
 		}

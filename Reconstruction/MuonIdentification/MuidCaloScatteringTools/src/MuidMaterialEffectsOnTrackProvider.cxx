@@ -142,6 +142,7 @@ Rec::MuidMaterialEffectsOnTrackProvider::extrapolationSurfacesAndEffects (
         }
 	for (int i=0;i< (tsosvec ? (int)tsosvec->size() : 0) ;i++){
 	    const Trk::MaterialEffectsOnTrack *meot=dynamic_cast<const Trk::MaterialEffectsOnTrack *>((*tsosvec)[i]->materialEffectsOnTrack());
+            if(!meot) continue;
             double sintheta=std::sin((*tsosvec)[i]->trackParameters()->parameters()[Trk::theta]);
             double qoverp=(*tsosvec)[i]->trackParameters()->parameters()[Trk::qOverP];
             const CaloEnergy *eloss=0;
