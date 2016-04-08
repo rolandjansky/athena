@@ -6,6 +6,7 @@
 #define ALFA_GloRecEventCnv_p1_h
 
 #include "ALFA_EventTPCnv/ALFA_GloRecEvent_p1.h"
+#include "ALFA_GloRecEv/ALFA_GloRecEvent.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
  

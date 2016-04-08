@@ -29,7 +29,7 @@ public:
    const std::string&  name() const; 
    const HitVector&    getVector() const;
    
-private:
+   //private:
      std::vector<ALFA_ODHit_p1>   m_cont; 
      std::string                  m_name;
 };

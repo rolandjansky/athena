@@ -6,6 +6,7 @@
 #define ALFA_ODDigitCnv_p1_h
 
 #include "ALFA_EventTPCnv/ALFA_ODDigit_p1.h"
+#include "ALFA_RawEv/ALFA_ODDigit.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
  

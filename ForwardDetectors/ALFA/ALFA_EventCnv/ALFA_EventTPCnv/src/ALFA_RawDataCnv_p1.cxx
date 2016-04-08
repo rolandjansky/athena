@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "ALFA_RawEv/ALFA_RawData.h"
-#undef private
-#undef protected
-
 #include "GaudiKernel/MsgStream.h"
 #include "ALFA_EventTPCnv/ALFA_RawDataCnv_p1.h"
 
@@ -16,14 +11,16 @@ ALFA_RawData* transObj, MsgStream &log) {
 
 
   log << MSG::DEBUG << "In ALFA_RawDataCnv_p1:persToTrans called" << endreq;
-  
-  transObj->WordId  = persObj->WordId;
-  transObj->PMFId  = persObj->PMFId;
-  transObj->MBId  = persObj->MBId;
-  transObj->EventCount  = persObj->EventCount;
-  transObj->MarocChan.assign(persObj->m_MarocChan.begin(), persObj->m_MarocChan.end());
-  transObj->p_dataWords->assign (persObj->m_dataWords.begin(), persObj->m_dataWords.end());
-  transObj->m_error_bit17  = persObj->m_error_bit17;
+
+  transObj->SetZero_PMF();
+  transObj->SetWordId_PMF (persObj->WordId);
+  transObj->SetPMFId_PMF (persObj->PMFId);
+  transObj->SetMBId_PMF (persObj->MBId);
+  transObj->SetEventCount_PMF (persObj->EventCount);
+  transObj->SetMarocChan_PMF (persObj->m_MarocChan);
+  for (uint32_t w : persObj->m_dataWords)
+    transObj->addData (w);
+  transObj->Set_error_bit17 (persObj->m_error_bit17);
 
  
   }
@@ -33,24 +30,20 @@ void ALFA_RawDataCnv_p1::transToPers(const ALFA_RawData* transObj, ALFA_RawData_
   
   log << MSG::DEBUG << "In ALFA_RawDataCnv_p1:transToPers called" << endreq;
   
-  persObj->WordId  = transObj->WordId;
-  persObj->PMFId  = transObj->PMFId;
-  persObj->MBId  = transObj->MBId;
-  persObj->EventCount  = transObj->EventCount;
-  persObj->m_error_bit17  = transObj->m_error_bit17;
+  persObj->WordId  = transObj->GetWordId_PMF();
+  persObj->PMFId  = transObj->GetPMFId_PMF();
+  persObj->MBId  = transObj->GetMBId_PMF();
+  persObj->EventCount  = transObj->GetEventCount_PMF();
+  persObj->m_error_bit17  = transObj->Get_error_bit17();
 
   persObj->m_MarocChan.resize(16);
 
+  const std::vector<uint16_t>& v = transObj->HitChan();
   for ( int i = 0; i < 16; i++ ){
-  persObj->m_MarocChan[i] =  transObj->MarocChan[i];
+    persObj->m_MarocChan[i] =  v[i];
   }   
   
 
-     if (transObj->dataWords()!=0){
-      persObj->m_dataWords.reserve(transObj->dataWords()->size());
-      std::vector<uint32_t>::const_iterator it    = transObj->dataWords()->begin();
-      std::vector<uint32_t>::const_iterator itEnd = transObj->dataWords()->end();
-      std::copy(it, itEnd, persObj->m_dataWords.begin() );
-    }
-
- }
+  if (transObj->dataWords()!=0)
+    persObj->m_dataWords = *transObj->dataWords();
+}

@@ -2,12 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
 #include "ALFA_EventTPCnv/ALFA_ODHitCollection_p1.h"
-#undef private
- 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-
 #include "ALFA_SimEv/ALFA_ODHitCollection.h"
 #include "ALFA_EventTPCnv/ALFA_ODHitCnv_p1.h"
  

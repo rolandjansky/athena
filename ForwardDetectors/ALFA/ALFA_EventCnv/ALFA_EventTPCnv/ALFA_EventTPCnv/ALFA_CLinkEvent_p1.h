@@ -8,8 +8,6 @@
 #include "ALFA_CLinkEv/ALFA_CLinkEvent.h"
 #include "DataModelAthenaPool/DataLink_p1.h"
 
-using namespace std;
-
 class ALFA_CLinkEvent_p1
 {
 public:

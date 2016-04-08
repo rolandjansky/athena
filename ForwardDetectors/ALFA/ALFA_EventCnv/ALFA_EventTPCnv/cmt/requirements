@@ -7,7 +7,6 @@ use AtlasPolicy          AtlasPolicy-*
 #use AtlasCLHEP           AtlasCLHEP-*           External
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*     Database/AthenaPOOL
 use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
-#use DataModel            DataModel-*            Control
 use DataModelAthenaPool   DataModelAthenaPool-*   Control
 
 
@@ -32,6 +31,7 @@ apply_pattern lcgdict dict=ALFA_EventTPCnv  selectionfile=selection.xml headerfi
 # end_private
 
 private
+use CxxUtils             CxxUtils-*             Control
 use Identifier           Identifier-*           DetectorDescription
 use GaudiInterface       GaudiInterface-*       External
 end_private
@@ -39,3 +39,33 @@ end_private
 
 library ALFA_EventTPCnv *.cxx
 apply_pattern installed_library
+
+
+private
+use TestTools            TestTools-*                AtlasTest
+
+apply_pattern UnitTest_run unit_test=ALFA_CLinkEventCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_DigitCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_DigitCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_ODDigitCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_ODDigitCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_GloRecEventCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_GloRecEvCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_HitCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_HitCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_ODHitCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_ODHitCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_LocRecCorrEventCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_LocRecCorrEvCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_LocRecCorrODEventCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_LocRecCorrODEvCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_LocRecEventCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_LocRecEvCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_LocRecODEventCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_LocRecODEvCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_RawDataCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_RawDataCnv_charge_p1
+apply_pattern UnitTest_run unit_test=ALFA_RawDataCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_RawDataCollectionCnv_charge_p1
+apply_pattern UnitTest_run unit_test=ALFA_RawDataContainerCnv_p1
+apply_pattern UnitTest_run unit_test=ALFA_RawDataContainerCnv_charge_p1

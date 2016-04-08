@@ -6,6 +6,7 @@
 #define ALFA_LocRecCorrODEventCnv_p1_h
 
 #include "ALFA_EventTPCnv/ALFA_LocRecCorrODEvent_p1.h"
+#include "ALFA_LocRecCorrEv/ALFA_LocRecCorrODEvent.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
  
