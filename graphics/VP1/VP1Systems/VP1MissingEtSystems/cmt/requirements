@@ -1,8 +1,7 @@
 package VP1MissingEtSystems
 
 author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
-manager Riccardo Maria BIANCHI <rbianchi@cern.ch>
-
+manager Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
 
 use AtlasPolicy          AtlasPolicy-*
 use VP1Base              VP1Base-*              graphics/VP1
