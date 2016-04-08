@@ -5,6 +5,9 @@
 #include "InDetGeoModelUtils/ServiceVolumeMaker.h"
 #include "InDetGeoModelUtils/ServiceVolume.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
+
+#include "GeoModelUtilities/DecodeVersionKey.h"
+
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeometryDBSvc/IGeometryDBSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -35,6 +38,7 @@ void ServiceVolumeSchema::setPixelSchema()
   m_radialDiv = "";
   m_phiStep = "";
   m_volId = "FRAMENUM";
+  m_shiftFlag="SHIFT";
 }
 
 void ServiceVolumeSchema::setDefaultSchema()
@@ -56,6 +60,7 @@ void ServiceVolumeSchema::setDefaultSchema()
   m_radialDiv = "RADIAL";
   m_phiStep = "PHISTEP";
   m_volId = "";
+  m_shiftFlag="SHIFT";
 }
 
 void ServiceVolumeSchema::setSimpleSchema()
@@ -77,6 +82,8 @@ void ServiceVolumeSchema::setSimpleSchema()
   m_radialDiv = "";
   m_phiStep = "";
   m_volId = "";
+  m_shiftFlag="SHIFT";
+
 }
 
 ServiceVolumeMakerMgr::ServiceVolumeMakerMgr(IRDBRecordset_ptr table, const ServiceVolumeSchema & schema, 
@@ -207,12 +214,48 @@ int ServiceVolumeMakerMgr::volId(int index) const
   return 0;
 }
 
+int ServiceVolumeMakerMgr::shiftFlag(int index) const
+{
+  if (m_schema.has_shiftFlag()) {  
+    if (db()->testField(m_table, m_schema.shiftFlag(), index)) 
+      return db()->getInt(m_table, m_schema.shiftFlag(), index);
+  }
+  return 0;
+}
+
+std::vector<double> ServiceVolumeMakerMgr::readLayerShift() const
+{
+  std::vector<double> layerShift;
+
+  IRDBAccessSvc *rdbSvc = m_athenaComps->rdbAccessSvc();
+  IGeoModelSvc *geoModel = m_athenaComps->geoModelSvc();
+
+  DecodeVersionKey versionKey(geoModel, "Pixel");
+  std::string detectorKey  = versionKey.tag();
+  std::string detectorNode = versionKey.node();
+
+  IRDBRecordset_ptr PixelBarrelGeneral= rdbSvc->getRecordsetPtr("PixelBarrelGeneral",detectorKey, detectorNode);
+  IRDBRecordset_ptr PixelLayer= rdbSvc->getRecordsetPtr("PixelLayer",detectorKey, detectorNode);
+
+  int numLayers = db()->getInt(PixelBarrelGeneral,"NLAYER");
+  for(int iLayer=0; iLayer<numLayers; iLayer++)
+    {
+      double shift = 0;
+      if (db()->testField(PixelLayer,"GBLSHIFT",iLayer)) shift = db()->getDouble(PixelLayer,"GBLSHIFT",iLayer);
+      layerShift.push_back(shift);
+    }
+  
+  return layerShift;
+}
+
 ServiceVolumeMaker::ServiceVolumeMaker(const std::string & label,
 				       IRDBRecordset_ptr table, const ServiceVolumeSchema & schema, 
 				       const InDetDD::AthenaComps * athenaComps)
   : m_label(label)
 {
   m_mgr = new ServiceVolumeMakerMgr(table, schema, athenaComps);
+  m_layerShift = m_mgr->readLayerShift();
+  //  std::cout<<"LAYER SHIFT "<<m_layerShift[0]<<" "<<m_layerShift[1]<<" "<<m_layerShift[2]<<" "<<m_layerShift[3]<<std::endl;
 }
 
 ServiceVolumeMaker::~ServiceVolumeMaker()
@@ -252,6 +295,10 @@ ServiceVolumeMaker::make(int ii)
   param->setZsymm(m_mgr->zsymm(ii));
   param->setVolName(m_mgr->volName(ii));
   
+  double zShift=0.;           // the famous IBL Z shift
+  if(m_mgr->shiftFlag(ii)>0) zShift=m_layerShift[m_mgr->shiftFlag(ii)-100];
+  param->setZShift(zShift);
+
   int volId = m_mgr->volId(ii);
   if (volId == 0) volId = ii+1;
   
