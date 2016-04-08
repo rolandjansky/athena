@@ -25,8 +25,8 @@ private: // Data
 };
 
 inline const InterfaceID& IMetaDataTool::interfaceID() {
-   static const InterfaceID _IID("IMetaDataTool", 1, 0);
-   return(_IID);
+   static const InterfaceID IID("IMetaDataTool", 1, 0);
+   return(IID);
 }
 
 #endif
