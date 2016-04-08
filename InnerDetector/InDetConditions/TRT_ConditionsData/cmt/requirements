@@ -18,7 +18,7 @@ library TRT_ConditionsData *.cxx
 apply_pattern installed_library
 
 private
-use AtlasReflex                 AtlasReflex-00-*         External -no-auto-imports
+use AtlasReflex                 AtlasReflex-*         External -no-auto-imports
 apply_pattern lcgdict dict=TRT_ConditionsData selectionfile=selection.xml headerfiles="../TRT_ConditionsData/TRT_ConditionsDataDict.h"
 end_private
 

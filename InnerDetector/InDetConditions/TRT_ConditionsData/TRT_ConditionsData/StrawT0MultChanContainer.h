@@ -74,7 +74,7 @@ namespace TRTCond
 
   inline void StrawT0MultChanContainer::setPackingLimits( float t0min, float t0max, float t0errmin, float t0errmax) 
   {
-    CondMultChanCollection<StrawT0ContainerTemplate<ExpandedIdentifier::LAYERWHEEL> >::const_iterator dauit ;
+    CondMultChanCollection<StrawT0ContainerTemplate<ExpandedIdentifier::LAYERWHEEL> >::iterator dauit ;
     for(dauit = this->begin() ; dauit != this->end(); ++dauit) 
       (*dauit)->setPackingLimits( t0min,t0max,t0errmin,t0errmax ) ;
   }
