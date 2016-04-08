@@ -672,9 +672,9 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
     // m_nprint=1; msg()<<MSG::DEBUG<<(*this)<<endreq;
   }
     
-  if (msgLvl() <= MSG::DEBUG){
+  if (msgLvl() <= MSG::VERBOSE){
     for (size_t i=0; i<foundTracks->size() ; i++){
-      msg() << MSG::DEBUG << "REGTEST track " << i << endreq;
+      msg() << MSG::VERBOSE << "REGTEST track " << i << endreq;
       msg() << MSG::VERBOSE << *(foundTracks->at(i)) << endreq;
     }
   }
