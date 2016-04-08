@@ -17,10 +17,8 @@ sTGCDetectorHelper::sTGCDetectorHelper()
 	
 	for ( auto vl_iter: vl)
 	{
-		std::cout<<"detector "<<vl_iter.second->GetName()<<std::endl;
 		sTGCDetectorDescription* st=dynamic_cast<sTGCDetectorDescription*>(vl_iter.second);
 		//AGDDMicromegas* st1=dynamic_cast<AGDDMicromegas*>(st);
-		std::cout<<" st pointer "<<st<<std::endl;
 		if (st) 
 			sTGCList[vl_iter.first]=st;
 	}
@@ -38,7 +36,6 @@ sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetector(char type,int ieta
 		AGDDDetectorPositioner* dp=dynamic_cast<AGDDDetectorPositioner*>((*ps)[i]);
 		if (dp)
 		{
-			std::cout<<"++++++++ detectorType "<<dp->ID.detectorType<<std::endl;
 			if (dp->ID.detectorType != "sTGC") continue;
 			std::string dad=dp->ID.detectorAddress;
 		
@@ -55,7 +52,6 @@ sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetector(char type,int ieta
 			char dside=dad[13];
 			if (dside!=side) continue;
 			
-			std::cout<<" Detector Positioner "<<dp->ID.detectorType<<" "<<dp->ID.detectorAddress<<std::endl;
 			tgc=dynamic_cast<sTGCDetectorDescription*>(dp->theDetector);
 		}
 	}
@@ -75,7 +71,6 @@ AGDDPositionedDetector sTGCDetectorHelper::Get_sTGCPositionedDetector(char type,
 		dp=dynamic_cast<AGDDDetectorPositioner*>((*ps)[i]);
 		if (dp)
 		{
-			std::cout<<"++++++++ detectorType "<<dp->ID.detectorType<<std::endl;
 			if (dp->ID.detectorType != "sTGC") continue;
 			std::string dad=dp->ID.detectorAddress;
 		
@@ -92,7 +87,6 @@ AGDDPositionedDetector sTGCDetectorHelper::Get_sTGCPositionedDetector(char type,
 			char dside=dad[13];
 			if (dside!=side) continue;
 			
-			std::cout<<" Detector Positioner "<<dp->ID.detectorType<<" "<<dp->ID.detectorAddress<<std::endl;
 			tgc=dynamic_cast<sTGCDetectorDescription*>(dp->theDetector);
 		}
 	}

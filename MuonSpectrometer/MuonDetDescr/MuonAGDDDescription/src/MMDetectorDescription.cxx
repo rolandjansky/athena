@@ -14,8 +14,6 @@ MMDetectorDescription* MMDetectorDescription::current=0;
 MMDetectorDescription::MMDetectorDescription(std::string s): 
 	AGDDDetector(s,"Micromegas")
 {
-	current=this;
-	Register();
 }
 
 void MMDetectorDescription::Register()
