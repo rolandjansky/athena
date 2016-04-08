@@ -1238,13 +1238,13 @@ int LArOnlineID_Base::init_hashes(void)
       Range::const_identifier_factory last  = range.factory_end();
       for (; first != last; ++first) {
         const ExpandedIdentifier& exp_id = (*first);
-        HWIdentifier m_feedthroughId = feedthrough_Id( exp_id[m_bec_index],
+        HWIdentifier feedthroughId = feedthrough_Id( exp_id[m_bec_index],
                                                      exp_id[m_side_index],
                                                      exp_id[m_feedthrough_index] );
-        if(!(ids.insert(m_feedthroughId)).second){
+        if(!(ids.insert(feedthroughId)).second){
               strm1 << nids;
               strg1 = " init_hashes: duplicated id for feedthrough nb = "+strm1.str();
-              strm3 << show_to_string(m_feedthroughId);
+              strm3 << show_to_string(feedthroughId);
               strg3 = " expanded Id= "+strm3.str();
               if(m_msgSvc)
                 {
@@ -1306,15 +1306,15 @@ int LArOnlineID_Base::init_hashes(void)
       for (; first != last; ++first) 
         {
           const ExpandedIdentifier& exp_id = (*first);
-          HWIdentifier m_febId = feb_Id( exp_id[m_bec_index],
-                                         exp_id[m_side_index],
-                                         exp_id[m_feedthrough_index],
-                                         exp_id[m_slot_index] );
-          if(!(ids.insert(m_febId)).second)
+          HWIdentifier febId = feb_Id( exp_id[m_bec_index],
+                                       exp_id[m_side_index],
+                                       exp_id[m_feedthrough_index],
+                                       exp_id[m_slot_index] );
+          if(!(ids.insert(febId)).second)
             {
               strm1 << nids;
               strg1 = " init_hashes:  duplicated id for FEB nb = "+strm1.str();
-              strm3 << show_to_string(m_febId);
+              strm3 << show_to_string(febId);
               strg3 = " expanded Id= "+strm3.str();
               if(m_msgSvc)
                 {

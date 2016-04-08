@@ -23,9 +23,9 @@
 namespace LArIdentifierDict
 {
  
-   std::vector<Identifier> m_vIdentifier;
-   std::vector<Identifier>::const_iterator m_Identifier_iter;
-   std::vector<HWIdentifier> m_vHWIdentifier;
+   std::vector<Identifier> vIdentifier;
+   std::vector<Identifier>::const_iterator Identifier_iter;
+   std::vector<HWIdentifier> vHWIdentifier;
 
 }
 
