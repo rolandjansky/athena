@@ -101,36 +101,11 @@
       </expectations>
     </TEST>
 
-    <TEST name="G4BHadrons_FatrasID_FastCalo_2evts" type="script" >
-      <options_atn>export TRF_ECHO=True; Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'G4BHadrons_FatrasID_FastCalo' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.208301.Pythia8B_AU2_CTEQ6L1_bb_m4mu4.evgen.EVNT.e1623_tid01053634_00.__018241.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
-      <timelimit>30</timelimit>
-      <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
-      <mailto>atlas-simulation-testreports@cern.ch</mailto>
-      <expectations>
-        <errorMessage>FAILURE</errorMessage>
-        <successMessage>leaving with code 0</successMessage>
-        <returnValue>0</returnValue>
-      </expectations>
-    </TEST>
-
     <TEST name="G4WLeptonsCone_FatrasID_FastCalo_2evts" type="script" >
       <options_atn>export TRF_ECHO=True; Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'G4WLeptonsCone_FatrasID_FastCalo' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.208301.Pythia8B_AU2_CTEQ6L1_bb_m4mu4.evgen.EVNT.e1623_tid01053634_00.__018241.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
       <timelimit>30</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
-      <expectations>
-        <errorMessage>FAILURE</errorMessage>
-        <successMessage>leaving with code 0</successMessage>
-        <returnValue>0</returnValue>
-      </expectations>
-    </TEST>
-
-    <TEST name="G4ZLeptonsCone_FatrasID_FastCalo_2evts" type="script" >
-      <options_atn>export TRF_ECHO=True; Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'G4ZLeptonsCone_FatrasID_FastCalo' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/ISF/EvGen/mc12_8TeV.129680.PowhegPythia8_AU2CT10_Zee_DiLeptonFilter.evgen.EVNT.01232556._002731.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 2</options_atn>
-      <timelimit>30</timelimit>
-      <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
-      <mailto>atlas-simulation-testreports@cern.ch</mailto>
-      <platform>opt</platform>
       <expectations>
         <errorMessage>FAILURE</errorMessage>
         <successMessage>leaving with code 0</successMessage>
