@@ -1,0 +1,21 @@
+Package:      offline/InnerDetector/InDetExample/InDetDetDescrExample
+
+Responsible:  Grant Gorfine <Grant.Gorfine@nikhef.nl>
+
+Description:  Example and test packages for Inner Detector Detector Description.
+
+Contents:
+
+ ReadSiDetectorElements: Loops over all silicon elements and exercises
+   various methods in the SiDetectorElement class.
+   JobOption: ReadSiDetectorElements_jobOptions.txt
+
+ ReadTRT_DetectorElements: Loops over all TRT elements and exercises
+   various methods in the detector element class.
+   JobOption: ReadTRT_DetectorElements_jobOptions.txt
+
+ TestSiAlignment: Loops over all elements and prints out shifts of elements
+   with respect to there default position.
+   JobOption: TestSiAlignment_jobOptions.txt
+   
+Last modified: April 28, 2004 by Grant Gorfine

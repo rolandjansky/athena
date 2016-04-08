@@ -1,0 +1,26 @@
+package InDetDetDescrExample
+
+author Grant Gorfine <Grant.Gorfine@cern.ch>
+
+use AtlasPolicy    AtlasPolicy-* 
+use AthenaBaseComps  AthenaBaseComps-* Control
+use StoreGate      StoreGate-*       Control
+use GaudiInterface GaudiInterface-*  External 
+use AtlasCLHEP	   AtlasCLHEP-*	     External
+use GeoPrimitives          GeoPrimitives-*        DetectorDescription
+
+use InDetReadoutGeometry InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+use Identifier		 Identifier-*	           DetectorDescription
+use InDetIdentifier	 InDetIdentifier-*	   InnerDetector/InDetDetDescr
+
+use RegionSelector       RegionSelector-*	   DetectorDescription
+use GeoModelInterfaces   GeoModelInterfaces-*	   DetectorDescription/GeoModel
+
+use InDetCondServices    InDetCondServices-*       InnerDetector/InDetConditions
+use SiPropertiesSvc      SiPropertiesSvc-*          InnerDetector/InDetConditions   
+use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
+
+library InDetDetDescrExample *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
