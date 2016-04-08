@@ -32,11 +32,6 @@ namespace InDet {
     
     /** Get intersection point of two track helices.Based on pure geometric arguments.Return error flag if problems. */
     Amg::Vector3D getCirclesIntersectionPoint(const Trk::Perigee*, const Trk::Perigee*, int, int&);
-    /** Get approximate vertex using a fast Billoir implementation.  */
-    Amg::Vector3D estimateVertexPosition(const Trk::Perigee*, const Trk::Perigee*);
-    /** Get intersection point of two track helices.Based on pure geometric arguments.Return error flag if problems. */
-    void   getStartingPoint(const Trk::Perigee *, const Trk::Perigee *, Amg::Vector3D &, int &, int, 
-			    double&, double&, double&, double&, double&, double&, double&, double&, double& );
     /** Return a map with the values calculated for the last pair
       * to decorate the vertex once it is created **/
     std::map<std::string, float> getLastValues();
