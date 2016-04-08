@@ -4,12 +4,12 @@ author Sebastien Binet <binet@cern.ch>
 author RD Schaffer <R.D.Schaffer@cern.ch>
 
 use AtlasPolicy          AtlasPolicy-* 
-use AtlasReflex          AtlasReflex-00-*           External
+use GaudiInterface       GaudiInterface-*           External
 
-use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+private
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 use SGTools              SGTools-*             	    Control
-use GaudiInterface       GaudiInterface-*           External
+end_private
 
 
 library StlAthenaPoolCnv *.cxx

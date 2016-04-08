@@ -28,7 +28,7 @@ public:
       return StatusCode::FAILURE;
     }
     const std::type_info& ti = typeid(T);
-    ROOT::Reflex::Type rflx_type = ROOT::Reflex::Type::ByTypeInfo(ti);
+    RootType rflx_type = RootType(ti);
     if (!rflx_type) {
       msg << MSG::ERROR
 	  << "could not get Reflex::Type from type_info ["
@@ -54,7 +54,7 @@ public:
   template class StlAthenaPoolCnv< N1, N2 >; \
   DECLARE_CONVERTER_FACTORY(TDEF)
 
-#include "SGTools/SGTools/BuiltinsClids.h"
+#include "SGTools/BuiltinsClids.h"
 DECL_CNV(int, AthenaPoolIntCnv)
 DECL_CNV(unsigned int, AthenaPoolUIntCnv)
 DECL_CNV(float, AthenaPoolFloatCnv)
