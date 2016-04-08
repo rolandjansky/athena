@@ -23,16 +23,19 @@ iFatras::McEnergyLossUpdator::McEnergyLossUpdator( const std::string& type, cons
   :
   AthAlgTool( type, name, parent ),
   m_energyLossUpdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator" ),
-  m_energyLossDistribution(2),
+  m_energyLossDistribution(3),
   m_rndGenSvc("AtDSFMTGenSvc", name),
   m_randomEngine(0),
-  m_randomEngineName("FatrasRnd")
+  m_randomEngineName("FatrasRnd"),
+  m_usePDGformula(false)
 {
   declareInterface<IEnergyLossUpdator>(this);
   // heavy particles energy loss
   declareProperty( "EnergyLossUpdator",                 m_energyLossUpdator);
   // random number service
   declareProperty( "RandomNumberService",               m_rndGenSvc);
+  declareProperty( "UsePDG_EnergyLossFormula",          m_usePDGformula);
+  declareProperty( "EnergyLossDistribution",            m_energyLossDistribution);
   declareProperty( "RandomStreamName",                  m_randomEngineName,     "Name of the random number stream");
 }
 
@@ -90,7 +93,7 @@ Trk::EnergyLoss* iFatras::McEnergyLossUpdator::energyLoss(
                    double pathCorrection,
                    Trk::PropDirection direction,
                    Trk::ParticleHypothesis particleHypothesis,
-                   bool) const
+                   bool, bool) const
 {
 
   bool mpvSwitch = m_energyLossDistribution<2 ? false : true;
@@ -102,7 +105,8 @@ Trk::EnergyLoss* iFatras::McEnergyLossUpdator::energyLoss(
                                           pathCorrection,
                                           direction,
                                           particleHypothesis,
-                                          mpvSwitch);     
+                                          mpvSwitch,
+					  m_usePDGformula);     
 
 
   if (!sampledEloss) return 0; 
@@ -110,17 +114,21 @@ Trk::EnergyLoss* iFatras::McEnergyLossUpdator::energyLoss(
   // smear according to preselected distribution
   switch (m_energyLossDistribution) {
     // no straggling
-    case 0 : { } break;
+  case 0 : { } break;
     // gaussian smearing
-    case 1 : { 
-      float deIoni = sampledEloss->sigmaIoni() * CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
-      float deRad  = sampledEloss->sigmaRad() * CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
-      sampledEloss->update(deIoni,0.,deRad,0.,false);
-    } break;
+  case 1 : { 
+    float deIoni = sampledEloss->sigmaIoni() * CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
+    float deRad  = sampledEloss->sigmaRad() * CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
+    sampledEloss->update(deIoni,0.,deRad,0.,false);
+  } break;
+  case 2 : {
+    float deIoni = -sampledEloss->sigmaIoni() * CLHEP::RandLandau::shoot(m_randomEngine);  // TODO :check sign
+    sampledEloss->update(deIoni,0.,0.,0.,false);   
+  } break;
     // landau smearing
     default : {
       float deIoni = -sampledEloss->sigmaIoni() * CLHEP::RandLandau::shoot(m_randomEngine);  // TODO :check sign
-      float deRad  = -sampledEloss->sigmaRad() * CLHEP::RandLandau::shoot(m_randomEngine);   // TODO :check sign
+      float deRad  = -sampledEloss->sigmaRad() * CLHEP::RandLandau::shoot(m_randomEngine);   // TODO :check sign      
       sampledEloss->update(deIoni,0.,deRad,0.,false);   
     } break;
   }

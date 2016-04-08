@@ -36,7 +36,7 @@
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
-#include "TrkExEngine/ExtrapolationMacros.h"
+#include "TrkExInterfaces/ExtrapolationMacros.h"
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 
 // CLHEP
@@ -57,6 +57,8 @@ iFatras::McMaterialEffectsEngine::McMaterialEffectsEngine(const std::string& t, 
   m_samplingTool(""),
   m_eLoss(true),
   m_eLossSampler(""),
+  m_dedicatedElectronSampler(true),
+  m_elEnergyLossSampler("" ),
   m_ms(true),
   m_msSampler(""),
   m_particleDecayHelper(""),  
@@ -90,13 +92,16 @@ iFatras::McMaterialEffectsEngine::McMaterialEffectsEngine(const std::string& t, 
   // Energy Loss Samplers
   declareProperty("EnergyLoss"                          , m_eLoss);
   declareProperty("EnergyLossSampler"                   , m_eLossSampler);
+  // Dedicated electron Energy Loss Samplers
+  declareProperty("UseElectronSampler"                  , m_dedicatedElectronSampler );
+  declareProperty("ElectronEnergyLossSampler"           , m_elEnergyLossSampler);
   // Multiple Scattering Sampler
   declareProperty("MultipleScattering"                  , m_ms);
   declareProperty("MultipleScatteringSampler"           , m_msSampler);
   // tool handle for the particle decayer
-  declareProperty( "ParticleDecayHelper",       m_particleDecayHelper      );  
+  declareProperty( "ParticleDecayHelper"                , m_particleDecayHelper      );  
   // Process sampling
-  declareProperty( "ProcessSamplingTool",                m_samplingTool             );
+  declareProperty( "ProcessSamplingTool"                , m_samplingTool             );
 
   // MC Truth Properties
   declareProperty("BremProcessCode"                     , m_processCode, "MCTruth Physics Process Code");
@@ -130,58 +135,65 @@ iFatras::McMaterialEffectsEngine::~McMaterialEffectsEngine()
 // initialize
 StatusCode iFatras::McMaterialEffectsEngine::initialize()
 {
-
-  ATH_MSG_INFO( ""<<"init"<<""<<"starting initialize()" );
+  EX_MSG_INFO( "", "init", "", "starting initialize()" );
     
   // retrieve the energy loss sampler
   if (m_eLoss){
-    ATH_MSG_VERBOSE(""<<"init"<<""<<"Running WITH EnergyLossSampler ");
-    if (m_eLossSampler.retrieve().isFailure()){
+    EX_MSG_VERBOSE("", "init", "", "Running WITH EnergyLossSampler ");
+    if (m_eLossSampler.retrieve().isFailure()) {
       ATH_MSG_FATAL("Could not retrieve " << m_eLossSampler );
       return StatusCode::FAILURE;
-    } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_eLossSampler );
-  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Running WITHOUT EnergyLossSampler ");
+    } else EX_MSG_VERBOSE("", "init", "", "Successfully retrieved " << m_eLossSampler );
+  } else EX_MSG_VERBOSE("", "init", "", "Running WITHOUT EnergyLossSampler ");
+  
+  // retrieve the dedicated electron energy loss 
+  if (m_dedicatedElectronSampler){
+    EX_MSG_VERBOSE("", "init", "", "Running WITH dedicated electorn EnergyLossSampler ");
+    // Retrieve the energy loss sampler tool for electrons
+    if ( m_elEnergyLossSampler.retrieve().isFailure() ){
+      ATH_MSG_FATAL( "Could not retrieve " << m_elEnergyLossSampler );
+      return StatusCode::FAILURE;
+    } else EX_MSG_VERBOSE("", "init", "", "Successfully retrieved " << m_elEnergyLossSampler );
+  } else EX_MSG_VERBOSE("", "init", "", "Running WITHOUT dedicated electorn EnergyLossSampler ");
   
   // retrieve the multiple scattering sampler tool
   if (m_ms){
-    ATH_MSG_VERBOSE(""<<"init"<<""<<"Running WITH MultipleScatteringSamper ");
+    EX_MSG_VERBOSE("", "init", "", "Running WITH MultipleScatteringSamper ");
     if (m_msSampler.retrieve().isFailure()){
       ATH_MSG_FATAL( "Could not retrieve " << m_msSampler );
       return StatusCode::FAILURE;
-    } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_msSampler );
-  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Running WITHOUT MultipleScatteringSamper ");
+    } else EX_MSG_VERBOSE("", "init", "", "Successfully retrieved " << m_msSampler );
+  } else EX_MSG_VERBOSE("", "init", "", "Running WITHOUT MultipleScatteringSamper ");
 
    // retrieve the process sampling tool
   if (m_samplingTool.retrieve().isFailure()){
     ATH_MSG_FATAL( "Could not retrieve " << m_samplingTool );
     return StatusCode::FAILURE;
-  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_samplingTool );
+  } else EX_MSG_VERBOSE("", "init", "", "Successfully retrieved " << m_samplingTool );
   
    // retrieve the decayHelper
   if (m_particleDecayHelper.retrieve().isFailure()){
     ATH_MSG_FATAL( "Could not retrieve " << m_particleDecayHelper );
     return StatusCode::FAILURE;
-  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_particleDecayHelper );
+  } else EX_MSG_VERBOSE("", "init", "", "Successfully retrieved " << m_particleDecayHelper );
   
   // get the random generator service
   if (m_rndGenSvc.retrieve().isFailure()){
     ATH_MSG_FATAL( "Could not retrieve " << m_rndGenSvc );
     return StatusCode::FAILURE;
-  } else
-    ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_rndGenSvc );
+  } else EX_MSG_VERBOSE("", "init", "", "Successfully retrieved " <<  m_rndGenSvc );
   
   // get own engine with own seeds:
   m_randomEngine = m_rndGenSvc->GetEngine(m_randomEngineName);
   if (!m_randomEngine) {
-    ATH_MSG_FATAL( "Could not get random engine '" << m_randomEngineName << "'" );
+    ATH_MSG_FATAL( "Could not get random engine '" << m_randomEngineName <<  "'" );
     return StatusCode::FAILURE;
-  } else
-    ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully got random engine '" << m_randomEngineName << "'" );
+  } else EX_MSG_VERBOSE("", "init", "", "Successfully got random engine '" << m_randomEngineName << "'" );
   
   // get the tracking geometry for layer lookup     
   // get the TrackingGeometrySvc
   if (m_trackingGeometrySvc.retrieve().isSuccess()){
-    ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_trackingGeometrySvc );
+    EX_MSG_VERBOSE("", "init", "", "Successfully retrieved " << m_trackingGeometrySvc );
     m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
   } else {
     ATH_MSG_WARNING( "Couldn't retrieve " << m_trackingGeometrySvc << ". " );
@@ -190,22 +202,21 @@ StatusCode iFatras::McMaterialEffectsEngine::initialize()
   
   // ISF Services
   if (m_particleBroker.retrieve().isFailure()){
-    ATH_MSG_FATAL( "Could not retrieve " << m_particleBroker );
+    ATH_MSG_FATAL( "Could not retrieve " <<  m_particleBroker );
     return StatusCode::FAILURE;
-  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_particleBroker );
+  } else EX_MSG_VERBOSE("", "init", "", "Successfully retrieved " << m_particleBroker );
   
   if (m_truthRecordSvc.retrieve().isFailure()){
     ATH_MSG_FATAL( "Could not retrieve " << m_truthRecordSvc );
     return StatusCode::FAILURE;
-  } else ATH_MSG_VERBOSE(""<<"init"<<""<<"Successfully retrieved " << m_truthRecordSvc );
+  } else EX_MSG_VERBOSE("", "init", "", "Successfully retrieved " << m_truthRecordSvc );
 
   if (m_validationMode){
     // retrieve the physics validation tool
     if (m_validationTool.retrieve().isFailure()){
-      ATH_MSG_FATAL( "Could not retrieve " << m_validationTool );
+      ATH_MSG_FATAL( "Could not retrieve " <<  m_validationTool );
       return StatusCode::FAILURE;
-    } else
-      ATH_MSG_VERBOSE( "Successfully retrieved " << m_validationTool );
+    } else EX_MSG_VERBOSE("", "init", "", "Successfully retrieved " <<  m_validationTool );
   }
 
   return StatusCode::SUCCESS;
@@ -214,7 +225,7 @@ StatusCode iFatras::McMaterialEffectsEngine::initialize()
 // finalize
 StatusCode iFatras::McMaterialEffectsEngine::finalize()
 {
-  ATH_MSG_INFO(""<<"fini "<<""<<"finalize() successful" );    
+  EX_MSG_INFO("", "fini ", "", "finalize() successful" );    
   return StatusCode::SUCCESS;
 }
 
@@ -222,7 +233,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::handleMaterial(Trk::ExC
 									Trk::PropDirection dir,
 									Trk::MaterialUpdateStage matupstage) const
 { 
-  // ATH_MSG_DEBUG(++ecCharged.navigationStep, "handleMaterial"<<"char"<<"handleMaterial for charge particle called."); 
+  EX_MSG_DEBUG(++ecCharged.navigationStep, "handleMaterial", "char", "handleMaterial for charge particle called."); 
   return handleMaterialT<Trk::TrackParameters> (ecCharged, dir, matupstage);
   
 }
@@ -231,7 +242,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::handleMaterial(Trk::ExC
 									Trk::PropDirection dir,
 									Trk::MaterialUpdateStage matupstage) const
 { 
-  //ATH_MSG_DEBUG(++ecNeutral.navigationStep, "handleMaterial"<<"neut"<<"handleMaterial for neutral particle called."); 
+  EX_MSG_DEBUG(++ecNeutral.navigationStep, "handleMaterial", "neut", "handleMaterial for neutral particle called."); 
   return handleMaterialT<Trk::NeutralParameters> (ecNeutral, dir, matupstage); 
 }
 
@@ -243,7 +254,7 @@ void iFatras::McMaterialEffectsEngine::multipleScatteringUpdate(const Trk::Track
   
   // parametric scattering - independent in x/y 
   if (m_parametricScattering){ 
-    ATH_MSG_VERBOSE("[msupdate]"<<"MultipleScatteringUpdate"<<""<<"Using parametric scattering." );
+    EX_MSG_VERBOSE("[msupdate]", "MultipleScatteringUpdate", "", "Using parametric scattering." );
     // the initial values
     double theta =  parameters[Trk::theta];
     double phi   =  parameters[Trk::phi];
@@ -258,7 +269,7 @@ void iFatras::McMaterialEffectsEngine::multipleScatteringUpdate(const Trk::Track
     else if (phi < -M_PI) phi += M_PI;
     if (theta > M_PI) theta -= M_PI;
     
-    ATH_MSG_VERBOSE("[msupdate]"<<"MultipleScatteringUpdate"<<""<<"deltaPhi / deltaTheta = " << deltaPhi << " / " << deltaTheta );
+    EX_MSG_VERBOSE("[msupdate]", "MultipleScatteringUpdate", "", "deltaPhi / deltaTheta = " << deltaPhi << " / " << deltaTheta );
     
     // assign the new values
     parameters[Trk::phi]   = phi;   
@@ -283,7 +294,7 @@ void iFatras::McMaterialEffectsEngine::multipleScatteringUpdate(const Trk::Track
     // and arbitrarily in psi             
     newDirectionHep.rotate(psi, parsMomHep);
 
-    ATH_MSG_VERBOSE("[msupdate]"<<"MultipleScatteringUpdate"<<""<<"deltaPsi / deltaTheta = " << psi << " / " << thetaMs );
+    EX_MSG_VERBOSE("[msupdate]", "MultipleScatteringUpdate", "", "deltaPsi / deltaTheta = " << psi << " / " << thetaMs );
 
     // assign the new values
     parameters[Trk::phi]   = newDirectionHep.phi();   
@@ -336,6 +347,8 @@ void iFatras::McMaterialEffectsEngine::recordBremPhotonLay(const ISF::ISFParticl
 
   Trk::NeutralCurvilinearParameters  nParm(bremPhot->position(),bremPhot->momentum(),bremPhot->charge());
   Trk::ExtrapolationCell< Trk::NeutralParameters > enc(nParm);
+  enc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);   
+
   enc.leadLayer = m_layer;
        
   if (pLim.x0Max>0) {
@@ -389,7 +402,7 @@ ISF::ISFParticle* iFatras::McMaterialEffectsEngine::bremPhoton(const ISF::ISFPar
     theta *= (r1 < 0.25 ) ? u : u*m_oneOverThree; // 9./(9.+27) = 0.25
   }
   
-  ATH_MSG_VERBOSE("[ brem ]"<<"BremPhoton"<<""<<"Simulated angle to electron    = " << theta << "." );
+  EX_MSG_VERBOSE("[ brem ]", "BremPhoton", "", "Simulated angle to electron    = " << theta << "." );
   
   double th = particleDir.theta()-theta;
   double ph = particleDir.phi();
@@ -469,11 +482,21 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
     if ( l0rem>0 ) dL0 = l0rem;
     iStatus = 2; 
   }
+  
   // material update
-  eCell.materialX0 += dX0;
-  eCell.materialL0 += dL0;
-  eCell.zOaTrX     += m_matProp->zOverAtimesRho()*dX0;
-  eCell.zX         += m_matProp->averageZ()*dX0;
+  // eCell.materialX0 += dX0;
+  // eCell.materialL0 += dL0;
+  // eCell.zOaTrX     += m_matProp->zOverAtimesRho()*dX0;
+  // eCell.zX         += m_matProp->averageZ()*dX0;
+
+  // check if material filling was requested
+  if (eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectMaterial)) {
+     EX_MSG_VERBOSE(eCell.navigationStep, "Update", "char", "collecting material at layer " << m_layer->layerIndex().value() << " of - t/X0 = " << m_matProp->thicknessInX0());
+     eCell.stepMaterial(parm->associatedSurface(), m_layer, parm->position(), (1.-mFraction)*pathCorrection, m_matProp);
+   } else {
+     EX_MSG_VERBOSE(eCell.navigationStep, "Update", "char", "adding material of - t/X0 = " << m_matProp->thicknessInX0());
+     eCell.addMaterial((1.-mFraction)*pathCorrection, m_matProp);
+   }
   
   // get the kinematics
   double p    = parm->momentum().mag();
@@ -482,95 +505,90 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
   
   // radiation and ionization preceed the presampled interaction (if any) 
   
-  if ( m_eLoss ) {
+  if (m_eLoss || m_ms) {
     // the updatedParameters - first a deep copy
     AmgVector(5)      uParameters = parm->parameters();
+    
+    if ( m_eLoss ) {
 
-    // smeared/presampled energy loss
-    Trk::EnergyLoss* eloss = m_eLossSampler->energyLoss(*m_matProp, p, dX0/m_matProp->thicknessInX0(), dir, eCell.pHypothesis);
-
-    if (eCell.pHypothesis==Trk::electron && m_createBremPhoton) { 
-
-      // ionization update
-     
-      double newP = E+eloss->meanIoni()>m ? sqrt((E+eloss->meanIoni())*(E+eloss->meanIoni())-m*m) : 0.5*m_minimumMomentum;
-      uParameters[Trk::qOverP] = parm->charge()/newP;
-
-      // radiation 
-      if (newP>m_minimumMomentum)
-	radiate(isp,uParameters,eCell,dX0,mFraction,dir,pathCorrection*m_thicknessInX0);   // mFraction used to estimate material thickness for brem photons
-
-      // save the actual radiation loss
-      float nqOp = uParameters[Trk::qOverP];
-      float radLoss = fabs(1./nqOp) - newP;
-      eloss->update(0.,0.,radLoss-eloss->meanRad(),eloss->meanRad()-radLoss);
-
-    } else {
+      // smeared/presampled energy loss
+      Trk::EnergyLoss* eloss = (eCell.pHypothesis==Trk::electron && m_dedicatedElectronSampler) ? m_elEnergyLossSampler->energyLoss(*m_matProp, p, dX0/m_matProp->thicknessInX0(), dir, eCell.pHypothesis) : m_eLossSampler->energyLoss(*m_matProp, p, dX0/m_matProp->thicknessInX0(), dir, eCell.pHypothesis);
       
-      // calculate the new momentum
-      double newP = E+eloss->deltaE()>m ? sqrt((E+eloss->deltaE())*(E+eloss->deltaE())-m*m) : 0.5*m_minimumMomentum;
-      uParameters[Trk::qOverP] = parm->charge()/newP;
+      if (eCell.pHypothesis==Trk::electron && m_createBremPhoton) { 
+	
+	// ionization update
+	
+	double newP = E+eloss->meanIoni()>m ? sqrt((E+eloss->meanIoni())*(E+eloss->meanIoni())-m*m) : 0.5*m_minimumMomentum;
+	uParameters[Trk::qOverP] = parm->charge()/newP;
 
-    }
-
-    // TODO straggling 
-
-    if (m_validationMode && eloss) {
-      if (eCell.eLoss) { 
-	eCell.eLoss->update(*eloss);
-	delete eloss;
-      } else 
-        eCell.eLoss=eloss;
-    }
-
-    
-    const Trk::TrackParameters* upd = parm->associatedSurface().createTrackParameters(uParameters[0],
-										      uParameters[1],
-										      uParameters[2],
-										      uParameters[3],
-										      uParameters[4]);
-    //eCell.updateLeadParameters(upd);   
-    eCell.leadParameters = upd;    
-
-    if (upd->momentum().mag() < m_minimumMomentum ) {
-
-      // save info for locally created particle
-      if (m_validationMode && isp!=m_isp) {
-	ATH_MSG_VERBOSE( "  saving interaction info for locally produced particle " << isp->pdgCode() );
-	m_validationTool->saveISFParticleInfo(*isp,eCell,Trk::ExtrapolationCode::SuccessMaterialLimit); 
+	// radiation 
+	if (newP>m_minimumMomentum)
+	  radiate(isp,uParameters,eCell,dX0,mFraction,dir,pathCorrection*m_thicknessInX0);   // mFraction used to estimate material thickness for brem photons
+	
+	// save the actual radiation loss
+	float nqOp = uParameters[Trk::qOverP];
+	float radLoss = fabs(1./nqOp) - newP;
+	eloss->update(0.,0.,radLoss-eloss->meanRad(),eloss->meanRad()-radLoss);
+	
+      } else {
+	
+	// calculate the new momentum
+	double newP = E+eloss->deltaE()>m ? sqrt((E+eloss->deltaE())*(E+eloss->deltaE())-m*m) : 0.5*m_minimumMomentum;
+	uParameters[Trk::qOverP] = parm->charge()/newP;
+	
       }
-
-      if (isp!=m_isp) { delete isp; }      
-      return Trk::ExtrapolationCode::FailureUpdateKill;
+      
+      // TODO straggling 
+      
+      if (m_validationMode) {
+	if (eCell.eLoss) { 
+	  eCell.eLoss->update(*eloss);
+	  delete eloss;
+	} else eCell.eLoss=eloss;
+      } else delete eloss;
+      
+      if ( 1./fabs(uParameters[Trk::qOverP]) < m_minimumMomentum ) {
+	
+	// save info for locally created particle
+	if (m_validationMode && isp!=m_isp) {
+	  EX_MSG_VERBOSE( "[validation]", "processMaterialOnLayer", "char", "saving interaction info for locally produced particle " << isp->pdgCode() );
+	  m_validationTool->saveISFParticleInfo(*isp,eCell,Trk::ExtrapolationCode::SuccessMaterialLimit); 
+	}
+	
+	if (isp!=m_isp) { delete isp; }      
+	return Trk::ExtrapolationCode::SuccessMaterialLimit;
+      }
+      
     }
-  }
-  
-  mFraction += dX0/pathCorrection/m_thicknessInX0;  
-  
-  if ( m_ms ) {
-    AmgVector(5) updatedParameters=eCell.leadParameters->parameters();  
-    
-    double simTheta = m_msSampler->simTheta(*m_matProp, p, dX0/m_thicknessInX0, eCell.pHypothesis);
-    //do the update -> You need 2 evaluation of simTheta. The second one is used to calculate deltaphi in multipleScatteringUpdate
-    multipleScatteringUpdate(*(eCell.leadParameters), updatedParameters, simTheta, 
-			     m_msSampler->simTheta(*m_matProp, p, dX0/m_thicknessInX0, eCell.pHypothesis));
     
     
+    if ( m_ms ) {
+      
+      double simTheta = m_msSampler->simTheta(*m_matProp, p, dX0/m_thicknessInX0, eCell.pHypothesis);
+      //do the update -> You need 2 evaluation of simTheta. The second one is used to calculate deltaphi in multipleScatteringUpdate
+      multipleScatteringUpdate(*(eCell.leadParameters), uParameters, simTheta, 
+			       m_msSampler->simTheta(*m_matProp, p, dX0/m_thicknessInX0, eCell.pHypothesis));
+      
+    }    
     
     // use the manipulator to update the track parameters -------> get rid of 0!
-    const Trk::TrackParameters* upd = eCell.leadParameters->associatedSurface().createTrackParameters(updatedParameters[0],
-												      updatedParameters[1],
-												      updatedParameters[2],
-												      updatedParameters[3],
-												      updatedParameters[4]);
+    const Trk::TrackParameters* upd = eCell.leadParameters->associatedSurface().createTrackParameters(uParameters[0],
+												      uParameters[1],
+												      uParameters[2],
+												      uParameters[3],
+												      uParameters[4]);
     
-    //eCell.updateLeadParameters(upd); 
+    // memory handling for locally created particles ( TODO : add hits for them by collecting active, too)
     eCell.leadParameters=upd; 
+    if (isp!=m_isp) eCell.stepParameters(eCell.leadParameters,Trk::ExtrapolationMode::CollectPassive); 
+
     if (upd->momentum().mag() < m_minimumMomentum ) {
       if (isp!=m_isp) { delete isp;}
-      return Trk::ExtrapolationCode::FailureUpdateKill;
+      return Trk::ExtrapolationCode::SuccessMaterialLimit;
     }
   }
+
+  mFraction += dX0/pathCorrection/m_thicknessInX0;  
   
   if ( iStatus==1 || iStatus==2 ) {   // interaction with particle stopping
     
@@ -578,7 +596,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
           
     // save info for locally created particles
     if (m_validationMode && isp!=m_isp) {
-      ATH_MSG_VERBOSE( "  saving interaction info for locally produced particle " << isp->pdgCode() );
+      EX_MSG_VERBOSE( "[validation]", "processMaterialOnLayer", "char", "saving interaction info for locally produced particle " << isp->pdgCode() );
       m_validationTool->saveISFParticleInfo(*isp,eCell,Trk::ExtrapolationCode::SuccessMaterialLimit); 
     }
     
@@ -612,6 +630,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
       if (childs[ic]->charge()!=0) {
 	Trk::CurvilinearParameters  cParm(childs[ic]->position(),childs[ic]->momentum(),childs[ic]->charge());
 	Trk::ExtrapolationCell< Trk::TrackParameters > ecc(cParm);
+	ecc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);   
 	
 	if (pathLimit>0) {
 	  ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithPathLimit);
@@ -634,13 +653,14 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 	Trk::ExtrapolationCode exitCode=processMaterialOnLayer(childs[ic],ecc,dir,remMat);
   
         if (exitCode == Trk::ExtrapolationCode::SuccessMaterialLimit )
-	  ATH_MSG_VERBOSE(" child particle:"<< ic << "stopped in layer" );
+	  EX_MSG_VERBOSE( "", "processMaterialOnLayer", "", "child particle:"<< ic << "stopped in layer" );
         else 
-	  ATH_MSG_VERBOSE(" child particle:"<< ic << "leaving layer" ); 
+	  EX_MSG_VERBOSE( "", "processMaterialOnLayer", "", "child particle:"<< ic << "leaving layer" );
 
       } else {
 	Trk::NeutralCurvilinearParameters  nParm(childs[ic]->position(),childs[ic]->momentum(),childs[ic]->charge());
 	Trk::ExtrapolationCell< Trk::NeutralParameters > enc(nParm);
+	enc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);   
 	
 	if (pathLimit>0) {
 	  enc.addConfigurationMode(Trk::ExtrapolationMode::StopWithPathLimit);
@@ -663,9 +683,9 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 	Trk::ExtrapolationCode exitCode=processMaterialOnLayer(childs[ic],enc,dir,remMat);	
   
         if (exitCode == Trk::ExtrapolationCode::SuccessMaterialLimit )
-	  ATH_MSG_VERBOSE(" child particle:"<< ic << "stopped in layer" );
+	  EX_MSG_VERBOSE( "", "processMaterialOnLayer", "", "child particle:"<< ic << "stopped in layer" );
         else 
-	  ATH_MSG_VERBOSE(" child particle:"<< ic << "leaving layer" ); 
+	  EX_MSG_VERBOSE( "", "processMaterialOnLayer", "", "child particle:"<< ic << "leaving layer" ); 
       }
     }
     
@@ -673,6 +693,9 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
       if (isp!=m_isp) { delete isp; }
       return Trk::ExtrapolationCode::SuccessMaterialLimit;
     }
+
+   
+  
   }
   
   // register particle if not in the stack already 
@@ -701,6 +724,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
     }
     m_particleBroker->push(regisp, m_isp);
   }
+
   if (isp!=m_isp) delete isp;
 
   return Trk::ExtrapolationCode::InProgress;   
@@ -733,11 +757,21 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
     if ( l0rem>0 ) dL0 = l0rem;
     iStatus = 2; 
   }
+  
   // material update
-  eCell.materialX0 += dX0;
-  eCell.materialL0 += dL0;
-  eCell.zOaTrX     += m_matProp->zOverAtimesRho()*dX0;
-  eCell.zX         += m_matProp->averageZ()*dX0;
+  // eCell.materialX0 += dX0;
+  // eCell.materialL0 += dL0;
+  // eCell.zOaTrX     += m_matProp->zOverAtimesRho()*dX0;
+  // eCell.zX         += m_matProp->averageZ()*dX0;
+
+  // check if material filling was requested
+  if (eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectMaterial)) {
+     EX_MSG_VERBOSE(eCell.navigationStep, "Update", "neut", "collecting material at layer " << m_layer->layerIndex().value() << " of - t/X0 = " << m_matProp->thicknessInX0());
+     eCell.stepMaterial(parm->associatedSurface(), m_layer, parm->position(), (1.-mFraction)*pathCorrection, m_matProp);
+  } else {
+  EX_MSG_VERBOSE(eCell.navigationStep, "Update", "neut", "adding material of - t/X0 = " << m_matProp->thicknessInX0());
+  eCell.addMaterial((1.-mFraction)*pathCorrection, m_matProp);
+  }
   
   // get the kinematics
   //double p    = parm->momentum().mag();
@@ -750,7 +784,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
     
     // save info for locally created particles
     if (m_validationMode && isp!=m_isp) {
-      ATH_MSG_VERBOSE( "  saving interaction info for locally produced particle " << isp->pdgCode() );
+      EX_MSG_VERBOSE( "[validation]", "processMaterialOnLayer", "neut", "saving interaction info for locally produced particle " << isp->pdgCode() );
       m_validationTool->saveISFParticleInfo(*isp,eCell,Trk::ExtrapolationCode::SuccessMaterialLimit); 
     }
     
@@ -783,6 +817,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
       if (childs[ic]->charge()!=0) {
 	Trk::CurvilinearParameters  cParm(childs[ic]->position(),childs[ic]->momentum(),childs[ic]->charge());
 	Trk::ExtrapolationCell< Trk::TrackParameters > ecc(cParm);
+	ecc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);   
 	
 	if (pathLimit>0) {
 	  ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithPathLimit);
@@ -804,13 +839,14 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 	Trk::ExtrapolationCode exitCode = processMaterialOnLayer(childs[ic],ecc,dir,remMat);
   
         if (exitCode == Trk::ExtrapolationCode::SuccessMaterialLimit )
-	  ATH_MSG_VERBOSE(" child particle:"<< ic << "stopped in layer" );
+	  EX_MSG_VERBOSE( "", "processMaterialOnLayer", "", "child particle:"<< ic << "stopped in layer" );
         else 
-	  ATH_MSG_VERBOSE(" child particle:"<< ic << "leaving layer" ); 
+	  EX_MSG_VERBOSE( "", "processMaterialOnLayer", "", "child particle:"<< ic << "leaving layer" ); 
 
       } else {
 	Trk::NeutralCurvilinearParameters  nParm(childs[ic]->position(),childs[ic]->momentum(),childs[ic]->charge());
 	Trk::ExtrapolationCell< Trk::NeutralParameters > enc(nParm);
+	enc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);   
 	
 	if (pathLimit>0) {
 	  enc.addConfigurationMode(Trk::ExtrapolationMode::StopWithPathLimit);
@@ -832,9 +868,9 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 	Trk::ExtrapolationCode exitCode = processMaterialOnLayer(childs[ic],enc,dir,remMat);	
 
         if (exitCode == Trk::ExtrapolationCode::SuccessMaterialLimit )
-	  ATH_MSG_VERBOSE(" child particle:"<< ic << "stopped in layer" );
+	  EX_MSG_VERBOSE( "", "processMaterialOnLayer", "", "child particle:"<< ic << "stopped in layer" );
         else 
-	  ATH_MSG_VERBOSE(" child particle:"<< ic << "leaving layer" ); 
+	  EX_MSG_VERBOSE( "", "processMaterialOnLayer", "", "child particle:"<< ic << "leaving layer" ); 
       }
     }
     

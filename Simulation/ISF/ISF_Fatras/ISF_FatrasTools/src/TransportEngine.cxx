@@ -269,6 +269,8 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
     if (ecc.materialLimitX0 != -1)
       ecc.materialX0 = materialX0;
       ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+      
+    ecc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);   
 
     // do the transport using the new engine 
     Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc);
@@ -288,7 +290,7 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
 					    ecc.pathLength/CLHEP::c_light,
 					    ecc.nextGeometrySignature);
       // memory cleanup  
-      // delete ecc.endParameters;
+      delete ecc.endParameters;
       // no hit creation -> return can be done now
       if (rParticle && m_validationMode) {
 	// save validation info
@@ -329,6 +331,9 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
     if (ecc.materialLimitX0 != -1)
       ecc.materialX0 = materialX0;
       ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+
+    ecc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);   
+
     // do the transport using the new engine 
     // [B - 1] extrapoalte
     Trk::ExtrapolationCode eCode =  m_extrapolationEngine->extrapolate(ecc);	
@@ -361,13 +366,12 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
         // get the parameters
          const Trk::TrackParameters* parameters = es.parameters;
          // transfer into a detector ID (by layer type)
-         int detID = ((parameters->associatedSurface()).associatedLayer())->layerType();
-         hitVector.push_back(Trk::HitInfo(parameters, (parameters->position()).mag()/CLHEP::c_light, detID, 0.));	
+	 hitVector.push_back(Trk::HitInfo(parameters, (parameters->position()).mag()/CLHEP::c_light, 1, 0.));
     }
     // [B - 3] create hits ----------------------------------------------------------------------------------------
     //   
     // create hits 
-    if (hitVector.size()){
+    if (hitVector.size()>0){
        ATH_MSG_INFO( "[ fatras transport ] processing " << hitVector.size() << " hits from charged extrapolation.");
        if (!m_simHitCreatorID.empty()) m_simHitCreatorID->createHits(isp, hitVector);
        ATH_MSG_INFO( "[ fatras transport ] ID hits processed.");

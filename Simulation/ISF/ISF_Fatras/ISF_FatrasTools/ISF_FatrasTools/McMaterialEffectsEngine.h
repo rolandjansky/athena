@@ -140,8 +140,8 @@ namespace iFatras {
 
     /** IEnergyLossSampler */
     bool                                             m_eLoss;
-    //ToolHandle<iFatras::IEnergyLossSampler>          m_eLossSampler;
     ToolHandle<Trk::IEnergyLossUpdator>              m_eLossSampler;
+    
     /** Boolean switch for use of a dedicated eloss updator */
     bool                                             m_dedicatedElectronSampler;     
     /** Pointer to the energy loss sampler - electrons */

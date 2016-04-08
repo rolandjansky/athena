@@ -65,7 +65,7 @@ namespace iFatras{
                                  double pathCorrection,
                                  Trk::PropDirection direction = Trk::alongMomentum,
                                  Trk::ParticleHypothesis particleHypothesis = Trk::pion,
-                                 bool mpv=true) const override;
+                                 bool mpv=true, bool usePDGformula = false) const override;
 
     /** Dummy methodes imposed by public interface - cleanup */
     /** Method to recalculate Eloss values for the fit setting an elossFlag using as an input
@@ -75,17 +75,18 @@ namespace iFatras{
     /** Routine to calculate X0 and Eloss scale factors for the Calorimeter and Muon System */
     void getX0ElossScales(int, double, double, double&, double& ) const override {}
     /** Dummy methods end here */
-     
- private:
-  
-   ToolHandle<IEnergyLossUpdator> m_energyLossUpdator;            //!< Pointer to the energy loss updator
+
+  private:
+    
+    ToolHandle<IEnergyLossUpdator> m_energyLossUpdator;            //!< Pointer to the energy loss updator
    int                            m_energyLossDistribution;       //!< include energy loss straggling or not ( 0 == none, 1 == gauss, 2 == landau)
 
    /** Random Generator service  */
    ServiceHandle<IAtRndmGenSvc>                 m_rndGenSvc;
    /** Random engine  */
-   CLHEP::HepRandomEngine*                             m_randomEngine;
+   CLHEP::HepRandomEngine*                      m_randomEngine;
    std::string                                  m_randomEngineName;         //!< Name of the random number stream
+   bool                                         m_usePDGformula;
 
    static Trk::ParticleMasses    s_particleMasses;         //!< struct of Particle masses                                                        
 
