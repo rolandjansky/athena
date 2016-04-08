@@ -96,6 +96,30 @@
       </jobTransform>
 
 
+      <jobTransform userJobId="timingtest_rdotordotrigger" >
+	<doc>TimingTest_RDOtoRDOTrigger menu on top events see: ATLASRECTS-2408 / ATR-13589</doc>
+	<jobTransformJobName>TimingTest_RDOtoRDOTrigger</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=1; Reco_tf.py --jobNumber 1 --conditionsTag 'OFLCOND-MC15c-SDR-04' --runNumber 110401 --preInclude 'RecExPers/RecoOutputMetadataList_jobOptions.py' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from AthenaCommon.AppMgr import ServiceMgr;import MuonRPC_Cabling.MuonRPC_CablingConfig;ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False' --pileupFinalBunch  6 --geometryVersion  'ATLAS-R2-2015-03-01-00' --digiSeedOffset2  1 --postInclude 'RecJobTransforms/UseFrontier.py' --digiSeedOffset1  1 --numberOfHighPtMinBias  0.12268057 --autoConfiguration 'everything'  --preExec  'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.readHLTconfigFromXML=False;TriggerFlags.triggerMenuSetup.set_Value_and_Lock("MC_pp_v6_tight_mc_prescale")' --numberOfCavernBkg  0 --numberOfLowPtMinBias  39.8773194 --maxEvents  100 --inputRDOFile /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RDOtoRDOTrigger_template/RDO.07222087._000001.pool.root.1 --outputRDO_TRIGFile  my.RDO_TRIG.pool.root | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  checkxAOD.py my.RDO_TRIG.pool.root &gt; my.RDO_TRIG.pool.root.checkfile.txt ; 
+	  export userJobId="timingtest_rdotordotrigger"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
+
+
       <jobTransform userJobId="monitoring_reco_data15_main">
 	<doc>Reco_tf runs on 13TeV collision data from the mainxf stream</doc>
 	<jobTransformJobName>monitoring_reco_data15_main</jobTransformJobName>
@@ -242,81 +266,6 @@
 	<queue>atlasrttperf</queue>
       </jobTransform>
 
-      <jobTransform userJobId="fullchain_mc15_ttbar_valid_13tev_25ns_mu60">
-	<doc>Full chain (MC15 production setup)</doc>
-	<jobTransformJobName>fullchain_mc15_ttbar_valid_13tev_25ns_mu60</jobTransformJobName>
-	<jobTransformCmd>
-	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigitizationTestsCompFile DiffPool_Comp.pool.root; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 HITS.04919495._001041.pool.root.1; LowPtMinbiasHitsFile="/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/"; for file in `eos ls $LowPtMinbiasHitsFile`; do  xrdcp root://eosatlas/$LowPtMinbiasHitsFile/$file $file ; done; HighPtMinbiasHitsFile="/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/"; for file in `eos ls $HighPtMinbiasHitsFile | grep 00067`; do  xrdcp root://eosatlas/$HighPtMinbiasHitsFile/$file $file ; done; Reco_tf.py --inputHITSFile HITS.04919495.*.pool.root.? --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --digiSeedOffset1 170 --digiSeedOffset2 170  --geometryVersion 'default:ATLAS-R2-2015-03-01-00'  --inputHighPtMinbiasHitsFile HITS.05098387.*.pool.root.? --inputLowPtMinbiasHitsFile HITS.05098374.*.pool.root.?  --jobNumber 1 --maxEvents 100 --numberOfCavernBkg="0" --numberOfHighPtMinBias '0.184020854678' --numberOfLowPtMinBias '59.8159791453'  --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputESDFile="myRDO.pool.root"  --pileupFinalBunch '6' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"].OnlySaveSignalTruth=True;job.StandardPileUpToolsAlg.PileUpTools["MdtDigitizationTool"].LastXing=150' 'RDOtoRDOTrigger:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from AthenaCommon.AppMgr import ServiceMgr;import MuonRPC_Cabling.MuonRPC_CablingConfig;ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preExec 'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(40.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(40);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v6_tight_mc_prescale"' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODSLIM"' 'HITtoRDO:userRunLumiOverride={"run":222525, "startmu":60.0, "endmu":61.0, "stepmu":1.0, "startlb":1, "timestamp": 1376703331}'  --numberOfCavernBkg '0' --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_muRange.py'  --mts ESD:0 --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" | tee  __log.txt; 
-	  echo $? &gt;  __exitcode ; 
-	  touch __done ;
-	  grep  -i "Digi_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
-	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
-	  export userJobId="fullchain_mc15_ttbar_valid_13tev_25ns_mu60"; 
-	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
-	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
-	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
-	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
-	  gzip *txt; 
-	  mkdir -p                       ${OutputDestination} ; 
-	  rsync -avz ntuple*             ${OutputDestination}/. ; 
-	  rsync -avz __*                 ${OutputDestination}/. ; 
-	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
-	</jobTransformCmd>
-	<group>TrfRecPerf</group>
-	<queue>atlasrttperf</queue>
-      </jobTransform>
-
-      <jobTransform userJobId="fullchain_mc15_ttbar_valid_13tev_25ns_mu80">
-	<doc>Full chain (MC15 production setup)</doc>
-	<jobTransformJobName>fullchain_mc15_ttbar_valid_13tev_25ns_mu80</jobTransformJobName>
-	<jobTransformCmd>
-	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigitizationTestsCompFile DiffPool_Comp.pool.root; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 HITS.04919495._001041.pool.root.1; LowPtMinbiasHitsFile="/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/"; for file in `eos ls $LowPtMinbiasHitsFile`; do  xrdcp root://eosatlas/$LowPtMinbiasHitsFile/$file $file ; done; HighPtMinbiasHitsFile="/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/"; for file in `eos ls $HighPtMinbiasHitsFile | grep 00067`; do  xrdcp root://eosatlas/$HighPtMinbiasHitsFile/$file $file ; done; Reco_tf.py --inputHITSFile HITS.04919495.*.pool.root.? --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --digiSeedOffset1 170 --digiSeedOffset2 170  --geometryVersion 'default:ATLAS-R2-2015-03-01-00'  --inputHighPtMinbiasHitsFile HITS.05098387.*.pool.root.? --inputLowPtMinbiasHitsFile HITS.05098374.*.pool.root.?  --jobNumber 1 --maxEvents 100 --numberOfCavernBkg="0" --numberOfHighPtMinBias '0.245361139571' --numberOfLowPtMinBias '79.7546388604'  --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputESDFile="myRDO.pool.root"  --pileupFinalBunch '6' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"].OnlySaveSignalTruth=True;job.StandardPileUpToolsAlg.PileUpTools["MdtDigitizationTool"].LastXing=150' 'RDOtoRDOTrigger:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from AthenaCommon.AppMgr import ServiceMgr;import MuonRPC_Cabling.MuonRPC_CablingConfig;ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preExec 'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(40.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(40);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v6_tight_mc_prescale"' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODSLIM"' 'HITtoRDO:userRunLumiOverride={"run":222525, "startmu":80.0, "endmu":81.0, "stepmu":1.0, "startlb":1, "timestamp": 1376703331}'  --numberOfCavernBkg '0' --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_muRange.py'  --mts ESD:0 --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" | tee  __log.txt; 
-	  echo $? &gt;  __exitcode ; 
-	  touch __done ;
-	  grep  -i "Digi_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
-	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
-	  export userJobId="fullchain_mc15_ttbar_valid_13tev_25ns_mu80"; 
-	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
-	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
-	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
-	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
-	  gzip *txt; 
-	  mkdir -p                       ${OutputDestination} ; 
-	  rsync -avz ntuple*             ${OutputDestination}/. ; 
-	  rsync -avz __*                 ${OutputDestination}/. ; 
-	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
-	</jobTransformCmd>
-	<group>TrfRecPerf</group>
-	<queue>atlasrttperf</queue>
-      </jobTransform>
-
-      <jobTransform userJobId="fullchain_mc15_ttbar_valid_13tev_25ns_mu100">
-	<doc>Full chain (MC15 production setup)</doc>
-	<jobTransformJobName>fullchain_mc15_ttbar_valid_13tev_25ns_mu100</jobTransformJobName>
-	<jobTransformCmd>
-	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigitizationTestsCompFile DiffPool_Comp.pool.root; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 HITS.04919495._001041.pool.root.1; LowPtMinbiasHitsFile="/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/"; for file in `eos ls $LowPtMinbiasHitsFile`; do  xrdcp root://eosatlas/$LowPtMinbiasHitsFile/$file $file ; done; HighPtMinbiasHitsFile="/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/"; for file in `eos ls $HighPtMinbiasHitsFile | grep 00067`; do  xrdcp root://eosatlas/$HighPtMinbiasHitsFile/$file $file ; done; Reco_tf.py --inputHITSFile HITS.04919495.*.pool.root.? --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --conditionsTag 'default:OFLCOND-RUN12-SDR-31' --digiSeedOffset1 170 --digiSeedOffset2 170  --geometryVersion 'default:ATLAS-R2-2015-03-01-00'  --inputHighPtMinbiasHitsFile HITS.05098387.*.pool.root.? --inputLowPtMinbiasHitsFile HITS.05098374.*.pool.root.?  --jobNumber 1 --maxEvents 100 --numberOfCavernBkg="0" --numberOfHighPtMinBias '0.306701424463' --numberOfLowPtMinBias '99.6932985755'  --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputESDFile="myRDO.pool.root"  --pileupFinalBunch '6' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"].OnlySaveSignalTruth=True;job.StandardPileUpToolsAlg.PileUpTools["MdtDigitizationTool"].LastXing=150' 'RDOtoRDOTrigger:from AthenaCommon.AlgSequence import AlgSequence;AlgSequence().LVL1TGCTrigger.TILEMU=True;from AthenaCommon.AppMgr import ServiceMgr;import MuonRPC_Cabling.MuonRPC_CablingConfig;ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=False' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preExec 'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(40.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(40);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup="MC_pp_v6_tight_mc_prescale"' 'ESDtoAOD:TriggerFlags.AODEDMSet="AODSLIM"' 'HITtoRDO:userRunLumiOverride={"run":222525, "startmu":100.0, "endmu":101.0, "stepmu":1.0, "startlb":1, "timestamp": 1376703331}'  --numberOfCavernBkg '0' --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_muRange.py'  --mts ESD:0 --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" | tee  __log.txt; 
-	  echo $? &gt;  __exitcode ; 
-	  touch __done ;
-	  grep  -i "Digi_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
-	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
-	  export userJobId="fullchain_mc15_ttbar_valid_13tev_25ns_mu100"; 
-	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
-	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
-	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
-	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
-	  gzip *txt; 
-	  mkdir -p                       ${OutputDestination} ; 
-	  rsync -avz ntuple*             ${OutputDestination}/. ; 
-	  rsync -avz __*                 ${OutputDestination}/. ; 
-	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
-	</jobTransformCmd>
-	<group>TrfRecPerf</group>
-	<queue>atlasrttperf</queue>
-      </jobTransform>
-
 
       <jobTransform userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu40">
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns mu40</doc>
@@ -342,80 +291,6 @@
 	<queue>atlasrttperf</queue>
       </jobTransform>
 
-
-      <jobTransform userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu60">
-	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns mu60</doc>
-	<jobTransformJobName>combined_reco_mc15_ttbar_valid_13tev_25ns_mu60</jobTransformJobName>
-	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7012/RDO.06336732._000003.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;'  --conditionsTag "default:OFLCOND-RUN12-SDR-31" | tee  __log.txt; 
-	  echo $? &gt;  __exitcode ; 
-	  touch __done ;
-	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
-	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
-	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
-	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
-	  export userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu60"; 
-	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
-	  gzip *txt; 
-	  mkdir -p                       ${OutputDestination} ; 
-	  rsync -avz ntuple*             ${OutputDestination}/. ; 
-	  rsync -avz __*                 ${OutputDestination}/. ; 
-	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
-	</jobTransformCmd>
-	<group>TrfRecPerf</group>
-	<queue>atlasrttperf</queue>
-      </jobTransform>
-
-
-      <jobTransform userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu80">
-	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns mu80</doc>
-	<jobTransformJobName>combined_reco_mc15_ttbar_valid_13tev_25ns_mu80</jobTransformJobName>
-	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile  root://eosatlas//eos/atlas/user/a/atlaspmb/mc/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7013/RDO.06336738._000001.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;'  --conditionsTag "default:OFLCOND-RUN12-SDR-31" | tee  __log.txt; 
-	  echo $? &gt;  __exitcode ; 
-	  touch __done ;
-	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
-	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
-	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
-	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
-	  export userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu80"; 
-	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
-	  gzip *txt; 
-	  mkdir -p                       ${OutputDestination} ; 
-	  rsync -avz ntuple*             ${OutputDestination}/. ; 
-	  rsync -avz __*                 ${OutputDestination}/. ; 
-	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
-	</jobTransformCmd>
-	<group>TrfRecPerf</group>
-	<queue>atlasrttperf</queue>
-      </jobTransform>
-
-
-      <jobTransform userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu100">
-	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns mu100</doc>
-	<jobTransformJobName>combined_reco_mc15_ttbar_valid_13tev_25ns_mu100</jobTransformJobName>
-	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7014/RDO.06336745._000002.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;'  --conditionsTag "default:OFLCOND-RUN12-SDR-31" | tee  __log.txt; 
-	  echo $? &gt;  __exitcode ; 
-	  touch __done ;
-	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
-	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
-	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
-	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
-	  export userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu100"; 
-	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
-	  gzip *txt; 
-	  mkdir -p                       ${OutputDestination} ; 
-	  rsync -avz ntuple*             ${OutputDestination}/. ; 
-	  rsync -avz __*                 ${OutputDestination}/. ; 
-	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
-	</jobTransformCmd>
-	<group>TrfRecPerf</group>
-	<queue>atlasrttperf</queue>
-      </jobTransform>
 
 
 
