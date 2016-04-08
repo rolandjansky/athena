@@ -93,7 +93,7 @@ MsgStream& Trk::CaloCluster_OnTrack::dump( MsgStream& sl ) const
   sl << "\t  surface = "<< associatedSurface()<<"\n";
   sl << "\t  position = (" 
      << localParameters() 
-     << endmsg;
+     << endreq;
   sl << "\t  has Error Matrix: "<<"\n";
   sl<<localCovariance()<<"}"<<"\n"; 
 
