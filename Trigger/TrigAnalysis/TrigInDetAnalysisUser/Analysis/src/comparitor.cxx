@@ -896,9 +896,11 @@ int main(int argc, char** argv) {
 	}     
       }
       
-      if(contains(histos[i],"_res"))  {
+      if( contains(histos[i],"_res") || contains(histos[i],"1d") ) { 
 	
 	/// resolutions 
+
+	std::cout << "calculating resolutions : " << histos[i] << " " << htest->GetName() << std::endl;
 
 	TF1* d95 = Resplot::FitNull95( (TH1D*)htest );
 	
@@ -1108,8 +1110,11 @@ int main(int argc, char** argv) {
     */
     
     if ( !nostats && !noplots ) { 
-      if ( (contains(histos[i],"_res") || histos[i]=="pT" || contains(histos[i],"vs_pt") ) && !contains(histos[i],"sigma") ) { 
-	if ( contains(histos[i],"_res") ){
+      if ( (contains(histos[i],"_res") || 
+	    contains(histos[i],"1d")   ||
+	    histos[i]=="pT"            || 
+	    contains(histos[i],"vs_pt") ) && !contains(histos[i],"sigma") ) { 
+	if ( contains(histos[i],"_res") || contains(histos[i],"1d") ){
 	  for ( unsigned j=0 ; j<chains.size() ; j++ ) { 
 	    if ( j<MeanRef.size() ) {
 	      if ( !noref ) DrawLabel( xpos-0.02, (0.6-j*0.035), MeanRef[j], colours[j%6] );

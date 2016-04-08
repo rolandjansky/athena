@@ -25,17 +25,26 @@ histos = {
      "roi_dR_eff",   "Efficiency #DeltaR(RoI)",     "xaxis:lin:0:0.6",      "#Delta R (RoI)",     "yaxis:lin:90:102",   "Efficiency [%]" ,       
 
      /// standard residuals - 5 
-     "ipT_res",   "Residual 1/p_{T}",  "xaxis:lin:-0.15:0.2",     "#Delta 1/p_{T} [GeV^{-1}]",    "yaxis:log:auto",    "Normalised entries" ,       
-     "eta_res",   "Residual #eta",     "xaxis:lin:-0.05:0.05",    "#Delta#eta",                   "yaxis:log:auto",    "Normalised entries" ,       
-     "phi_res",   "Residual #phi",     "xaxis:lin:-0.05:0.05",    "#Delta#phi",                   "yaxis:log:auto",    "Normalised entries" ,
-     "z0_res",    "Residual z0",       "xaxis:lin:-10:10",        "#Delta z_{0} [mm]",            "yaxis:log:auto",    "Normalised entries" ,
-     "a0_res",    "Residual a0",       "xaxis:lin:-1:1",          "#Delta d_{0} [mm]",            "yaxis:log:auto",    "Normalised entries" ,       
+        "ipT_res",   "Residual 1/p_{T}",  "xaxis:lin:-0.15:0.2",     "#Delta 1/p_{T} [GeV^{-1}]",    "yaxis:log:auto",    "Normalised entries" ,       
+        "eta_res",   "Residual #eta",     "xaxis:lin:-0.05:0.05",    "#Delta#eta",                   "yaxis:log:auto",    "Normalised entries" ,       
+        "phi_res",   "Residual #phi",     "xaxis:lin:-0.05:0.05",    "#Delta#phi",                   "yaxis:log:auto",    "Normalised entries" ,
+        "z0_res",    "Residual z0",       "xaxis:lin:-10:10",        "#Delta z_{0} [mm]",            "yaxis:log:auto",    "Normalised entries" ,
+        "a0_res",    "Residual a0",       "xaxis:lin:-1:1",          "#Delta d_{0} [mm]",            "yaxis:log:auto",    "Normalised entries" ,       
  
      /// residuals vs track parameters - 17
      "rd0_vs_pt/sigma",          "Residual d vs p_{T}",          "xaxis:lin:auto",      "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" ,
      "rd0_vs_signed_pt/sigma",   "Residual d vs signed p_{T}",   "xaxis:lin:-100:100",  "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" ,    
      "rd0_vs_eta/sigma",         "Residual d vs #eta",           "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "d_{0} resolution [mm]" ,                    
      "rd0_vs_ipt/sigma",         "Residual d vs 1/p_{T}",        "xaxis:lin",           "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto",  "d_{0} resolution [mm]" ,                       
+
+
+     "rDd0_vs_phi/mean",        "mean dd0 residual vs phi",      "xaxis:lin",            "#phi",                 "yaxis:lin:auto",  "#Delta dd_{0} mean [mm]" ,                       
+     "rDd0_vs_phi/1d",          "residual in dd0",               "xaxis:lin:-0.07:0.07", "#Delta(dd_{0}) [mm]",  "yaxis:log:auto",  "entries" ,
+
+     "rDz0_vs_eta/mean",        "mean dz0 residual vs eta",      "xaxis:lin",            "#eta",                 "yaxis:lin:auto",  "#Delta dz_{0} mean [mm]" ,                       
+     "rDz0_vs_eta/1d",          "residual in dz0",               "xaxis:lin:-0.6:0.6",   "#Delta(dd_{0}) [mm]",  "yaxis:log:auto",  "entries" ,
+
+
      "ript_vs_pt/sigma",         "Residual 1/p_{T} vs p_{T}",    "xaxis:lin:auto",      "Offline p_{T} [GeV]",   "yaxis:log:auto",  "1/p_{T} resolution [GeV^{-1}]" ,
      "ript_vs_eta/sigma",        "Residual 1/p_{T} vs #eta",     "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "1/p_{T} resolution [GeV^{-1}]" ,
      "ript_vs_ipt/sigma",        "Residual 1/p_{T} vs 1/p_{T}",  "xaxis:lin",           "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto",  "1/p_{T} resolution [GeV^{-1}]" ,

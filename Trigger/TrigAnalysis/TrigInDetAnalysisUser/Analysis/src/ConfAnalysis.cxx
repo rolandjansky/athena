@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 707900 2015-11-14 12:55:13Z sutt $
+//   $Id: ConfAnalysis.cxx 718206 2016-01-17 16:16:48Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -450,11 +450,12 @@ void ConfAnalysis::initialiseInternal() {
   int zfactor = 16;
 
 
-  rDd0res.push_back(  new Resplot("rDd0_vs_pt",  ptnbins, ptbinlims, 100, -0.1, 0.1 ) );
-  rDd0res.push_back(  new Resplot("rDd0_vs_eta",  etaBins, -tmp_maxEta, tmp_maxEta, 100, -0.1, 0.1 ) );
-  rDd0res.push_back(  new Resplot("rDd0_vs_zed",  0.2*zBins, -zMax, zMax, 100, -0.1, 0.1 ) );
-  rDd0res.push_back(  new Resplot("rDd0_vs_d0", 20, -1.5, 1.5, 100, -0.1, 0.1 ) );
-  rDd0res.push_back(  new Resplot("rDd0_vs_phi",     int(2*M_PI/0.02), -0.02*int(M_PI/0.02), 0.02*int(M_PI/0.02), 100, -0.1, 0.1 ) );
+  rDd0res.push_back(  new Resplot("rDd0_vs_pt",  ptnbins, ptbinlims, 1200, -0.1, 0.1 ) );
+  rDd0res.push_back(  new Resplot("rDd0_vs_eta",  5*etaBins, -tmp_maxEta, tmp_maxEta, 1200, -0.1, 0.1 ) );
+  rDd0res.push_back(  new Resplot("rDd0_vs_zed",  zBins, -zMax, zMax, 1200, -0.1, 0.1 ) );
+  rDd0res.push_back(  new Resplot("rDd0_vs_d0",   20, -1.5, 1.5, 1200, -0.1, 0.1 ) );
+  //  rDd0res.push_back(  new Resplot("rDd0_vs_phi",  int(2*M_PI/0.1), -0.02*int(M_PI/0.02), 0.02*int(M_PI/0.02), 1200, -0.01, 0.05 ) );
+  rDd0res.push_back(  new Resplot("rDd0_vs_phi",  128, -M_PI, M_PI, 1200, -0.1, 0.1 ) );
 
 
   rDa0res.push_back(  new Resplot("rDa0_vs_pt",  ptnbins, ptbinlims, 100, -0.1, 0.1 ) );
@@ -471,9 +472,10 @@ void ConfAnalysis::initialiseInternal() {
   //  rDz0res.push_back(  new Resplot("rDz0_vs_ipt",  iptnbins, iptbinlims, 100, -1, 1 ) );
 
 
-  rDz0res.push_back(  new Resplot("rDz0_vs_pt",  ptnbins, ptbinlims, 100, -1, 1 ) );
-  rDz0res.push_back(  new Resplot("rDz0_vs_eta",  etaBins, -tmp_maxEta, tmp_maxEta, 100, -1, 1 ) );
-  rDz0res.push_back(  new Resplot("rDz0_vs_zed",  0.2*zBins, -zMax, zMax, 100, -1, 1 ) );
+  rDz0res.push_back(  new Resplot("rDz0_vs_pt",   ptnbins, ptbinlims, 501, -1, 1 ) );
+  rDz0res.push_back(  new Resplot("rDz0_vs_eta",  5*etaBins, -tmp_maxEta, tmp_maxEta, 500, -1, 1 ) );
+  rDz0res.push_back(  new Resplot("rDz0_vs_zed",  zBins, -zMax, zMax, 500, -1, 1 ) );
+  rDz0res.push_back(  new Resplot("rDz0_vs_phi",  128, -M_PI, M_PI, 500, -1, 1 ) );
 
 
 
@@ -1460,11 +1462,13 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 	rDz0res[0]->Fill( std::fabs(pTt), dz0r-dz0t );  
 	rDz0res[1]->Fill( etat, dz0r-dz0t );  
 	rDz0res[2]->Fill( z0t, dz0r-dz0t );  
+	rDz0res[3]->Fill( phit, dz0r-dz0t );  
 
 	if ( dumpflag ) { 
 	  if ( dz0t>0 && std::fabs( dz0r-dz0t )>0.04 ) { 
 	    dump = true;
 	    std::cout << "POOR sigma(z0) agreement \n\trefrack:  " << *reftracks[i] << "\n\ttestrack: " << *matchedreco << std::endl; 
+	    //	    std::cout << "dz0r dz0t" << dz0r << "\t" << dz0t << std::endl;
 	  }  
 	}
 	
