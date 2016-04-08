@@ -36,11 +36,11 @@ namespace xAODMaker {
                             const IInterface* parent );
         
         /// Function initialising the tool
-        virtual StatusCode initialize() override;
+        virtual StatusCode initialize();
         
         /// Function that fills an existing xAOD::TrigBphysContainer
         virtual StatusCode convert(const TrigEFBphysContainer * aod,
-                                   xAOD::TrigBphysContainer* xaod ) const override;
+                                   xAOD::TrigBphysContainer* xaod );
         
     private:
         ToolHandle< ITrigEFBphysCnvTool > m_cnvTool; // does the actual conversions
