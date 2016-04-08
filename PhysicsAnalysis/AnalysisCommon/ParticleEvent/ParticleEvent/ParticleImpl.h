@@ -21,10 +21,7 @@
 // boost
 #include <boost/any.hpp> // for navigable stuff
 
-// Gaudi includes
-
-// DataModel includes
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 // EventKernel includes
 #include "EventKernel/IParticle.h"
@@ -299,6 +296,7 @@ class ParticleImpl : public IParticle
   virtual
   void set_origin( const VxContainer* theContainer,
 		   const Trk::VxCandidate * vertex );
+  void set_origin( const ElementLink<VxContainer>& origin );
 
   ///////////////////////////////////////////////////////////////////
   // Private data:
@@ -950,6 +948,16 @@ ParticleImpl<INavigable_t,
 				       const Trk::VxCandidate * vertex )
 {
   m_part.set_origin(theContainer, vertex);
+}
+
+template< class INavigable_t, class I4Momentum_t, class IParticle_t>
+inline
+void
+ParticleImpl<INavigable_t,
+	     I4Momentum_t,
+	     IParticle_t>::set_origin( const ElementLink<VxContainer>& origin )
+{
+  m_part.set_origin(origin);
 }
 
 template< class INavigable_t, class I4Momentum_t, class IParticle_t>

@@ -13,9 +13,8 @@
 
 // STL includes
  
-// DataModel includes
-#include "DataModel/AssociationMap.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/AssociationMap.h"
+#include "AthLinks/DataLink.h"
   
 // TrackParticleIncludes
 #include "Particle/TrackParticleContainer.h"
@@ -78,6 +77,14 @@ public:
 
   void addAssocStore( const DataLink<TrackParticleAssocs>& assocStore );
   
+
+  /// Look up an associated store.  For testing.
+  DataLink<TrackParticleAssocs>
+  assocStore (const std::string& name) const;
+
+  /// Number of associated stores.
+  size_t nAssocStores() const;
+
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 
   /////////////////////////////////////////////////////////////////// 

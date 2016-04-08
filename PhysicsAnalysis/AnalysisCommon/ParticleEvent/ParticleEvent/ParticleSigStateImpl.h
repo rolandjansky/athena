@@ -22,8 +22,7 @@
 // boost
 #include <boost/any.hpp> // for navigable stuff
 
-// DataModel includes
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 // EventKernel includes
 #include "EventKernel/IParticle.h"

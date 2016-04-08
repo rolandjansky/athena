@@ -13,7 +13,7 @@
 
 #include "ParticleEvent/TrackParticleAssocs.h"
 #include "EventKernel/IParticle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -84,7 +84,25 @@ void TrackParticleAssocs::addAssocStore( const DataLink<TrackParticleAssocs>& as
   {
      const std::string& id = assocStore.dataID();
      const std::map<std::string, DataLink<TrackParticleAssocs> >::const_iterator itr = m_assocStores.find(id);
-     if ( itr != m_assocStores.end() ) {
+     if ( itr == m_assocStores.end() ) {
        m_assocStores[id] = assocStore;
      }
   }
+
+
+DataLink<TrackParticleAssocs>
+TrackParticleAssocs::assocStore (const std::string& name) const
+{
+  std::map<std::string, TrackParticleAssocsLink_t>::const_iterator i =
+    m_assocStores.find (name);
+  if (i != m_assocStores.end())
+    return i->second;
+  return DataLink<TrackParticleAssocs>();
+}
+
+
+size_t TrackParticleAssocs::nAssocStores() const
+{
+  return m_assocStores.size();
+}
+

@@ -22,11 +22,8 @@
 #include <vector>
 #include <algorithm>
 
-// Gaudi includes
-
-// DataModel
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "SGTools/CLASS_DEF.h"
 
 // EventKernel includes

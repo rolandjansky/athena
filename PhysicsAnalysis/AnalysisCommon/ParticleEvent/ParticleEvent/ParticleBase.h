@@ -9,7 +9,9 @@
 
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/VxCandidate.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
+#include "AthContainers/DataVector.h"
+#include "NavFourMom/IParticleContainer.h"
 
 class ParticleBase : public virtual IParticle
 {
@@ -90,9 +92,6 @@ inline bool ParticleBase::hasCharge()  const { return m_hasCharge;}
 inline ChargeType ParticleBase::charge() const { return m_charge ;}
 inline bool ParticleBase::hasPdgId() const {return m_hasPdgId ;}
 inline PDG::pidType ParticleBase::pdgId() const {return m_pdgId;}
-
-#include "DataModel/DataVector.h"
-#include "NavFourMom/IParticleContainer.h"
 
 DATAVECTOR_VIRTBASES1 (ParticleBase, IParticle);
 

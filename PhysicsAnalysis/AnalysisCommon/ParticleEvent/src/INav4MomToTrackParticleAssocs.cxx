@@ -12,7 +12,7 @@
 #include <algorithm>
 
 #include "ParticleEvent/INav4MomToTrackParticleAssocs.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "EventKernel/INavigable4Momentum.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
@@ -177,8 +177,25 @@ void INav4MomToTrackParticleAssocs::addAssocStore( const DataLink<INav4MomToTrac
 {
   const std::string& id = assocStore.dataID();
   const std::map<std::string, DataLink<INav4MomToTrackParticleAssocs> >::const_iterator itr = m_assocStores.find(id);
-  if ( itr != m_assocStores.end() )
+  if ( itr == m_assocStores.end() )
     {
       m_assocStores[id] = assocStore;
     }
 }
+
+DataLink<INav4MomToTrackParticleAssocs>
+INav4MomToTrackParticleAssocs::assocStore (const std::string& name) const
+{
+  std::map<std::string, INav4MomToTrackParticleAssocsLink_t>::const_iterator i =
+    m_assocStores.find (name);
+  if (i != m_assocStores.end())
+    return i->second;
+  return DataLink<INav4MomToTrackParticleAssocs>();
+}
+
+
+size_t INav4MomToTrackParticleAssocs::nAssocStores() const
+{
+  return m_assocStores.size();
+}
+

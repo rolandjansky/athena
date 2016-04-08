@@ -8,9 +8,10 @@ author Sebastien Binet <binet@cern.ch>
 use AtlasPolicy         AtlasPolicy-*
 
 use AtlasBoost          AtlasBoost-*            External
-use SGTools             SGTools-*	            Control
-use Navigation    	   Navigation-*            Control
-use DataModel	         DataModel-*	            Control
+use SGTools             SGTools-*               Control
+use Navigation          Navigation-*            Control
+use AthContainers       AthContainers-*         Control
+use AthLinks            AthLinks-*              Control
 
 use EventKernel	      EventKernel-*	         Event
 use FourMom	            FourMom-*               Event
