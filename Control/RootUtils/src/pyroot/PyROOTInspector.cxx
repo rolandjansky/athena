@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PyROOTInspector.cxx 704738 2015-10-30 03:01:33Z ssnyder $
+// $Id: PyROOTInspector.cxx 708165 2015-11-16 16:11:17Z ssnyder $
 
 //#define PYROOT_INSPECTOR_DBG 1
 #define PYROOT_INSPECTOR_DBG 0
@@ -238,8 +238,8 @@ recurse_pyinspect(PyObject *pyobj,
     // something completely different, so that didn't work.
     // Rewriting in terms of iteration avoids this.
     // .. except that it mysteriously fails (sometimes) for TileCellVec.
+    Py_ssize_t nelems = PySequence_Size(pyobj);
     if (strcmp(tcls->GetName(), "TileCellVec") == 0) {
-      const Py_ssize_t nelems = PySequence_Size(pyobj);
       for (Py_ssize_t i = 0; i < nelems; ++i) {
         PyObject *pyidx = PyLong_FromLong(i);
         PyObject *itr = PySequence_GetItem(pyobj, i);
@@ -254,7 +254,11 @@ recurse_pyinspect(PyObject *pyobj,
       PyObject* iter = PyObject_GetIter(pyobj);
       size_t i = 0;
       if (iter) {
-        while (PyObject* item = PyIter_Next(iter)) {
+        PyObject* item = nullptr;
+        // Sometimes iterator comparison doesn't work correctly in pyroot.
+        // So protect against overrunning by also counting
+        // the number of elements.
+        while (nelems-- && (item = PyIter_Next(iter))) {
           PyObject *pyidx = PyLong_FromLong(i++);
           PyObject *itr_name = ::new_pylist(pyobj_name, pyidx);
           recurse_pyinspect(item, itr_name, pystack, persistentOnly);

@@ -20,7 +20,7 @@
 #include "TTree.h"
 #include "TChain.h"
 #include "TBranch.h"
-#include "TBranchElement.h"
+#include "RootUtils/TBranchElementClang.h"
 #include "TLeaf.h"
 #include "TLeafObject.h"
 #include "TROOT.h"
