@@ -5,10 +5,10 @@
 #include "AraTool/AraToolBase.h"
 
 AraToolBase::AraToolBase(PropertyMgr *pmgr)
-  :m_propertyMgr(pmgr),m_runningARA(false)
+  :m_propertyMgr(pmgr),RunningARA(false)
 {
   if(!m_propertyMgr) {
-    m_runningARA=true;
+    RunningARA=true;
   }
 }
 
