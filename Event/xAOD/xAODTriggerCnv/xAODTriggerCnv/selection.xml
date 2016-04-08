@@ -1,0 +1,12 @@
+<!-- $Id: selection.xml 676276 2015-06-18 09:42:51Z krasznaa $ -->
+<lcgdict>
+
+  <!-- The trigger menu metadata handler tool: -->
+  <class name="xAODMaker::TriggerMenuMetaDataTool">
+    <field name="m_inputKey" transient="true" />
+    <field name="m_outputKey" transient="true" />
+    <field name="m_menu" transient="true" />
+    <field name="m_menuAux" transient="true" />
+  </class>
+
+</lcgdict>
