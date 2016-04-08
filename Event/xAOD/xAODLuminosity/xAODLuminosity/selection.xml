@@ -1,0 +1,17 @@
+<!-- $Id: selection.xml 647501 2015-02-17 14:22:33Z krasznaa $ -->
+<lcgdict>
+
+  <!-- The v1 classes: -->
+  <class name="xAOD::LumiBlockRange_v1" />
+  <class name="xAOD::LumiBlockRangeContainer_v1"
+         id="9BAB09FC-3F1C-49F5-90BE-8FDB804AC8B0" />
+  <class name="xAOD::LumiBlockRangeAuxContainer_v1"
+         id="514696E1-A262-470A-BEB1-FF980CD8827A" />
+
+  <!-- Suppress the unwanted classes found by ROOT 6. -->
+  <!-- Hopefully we can remove these extra lines at one point... -->
+  <exclusion>
+    <class name="SG::IConstAuxStore" />
+    <class name="DataLink<SG::IConstAuxStore>" />
+  </exclusion>
+</lcgdict>
