@@ -14,16 +14,11 @@
 #define RINGERFEX_H
 
 #include <string>
-
-//#include "TrigCaloEvent/RingerRings.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
-//#include "CaloEvent/CaloSampling.h"
 #include "CaloGeoHelpers/CaloSampling.h"
-
 #include "CaloEvent/CaloCell.h"
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
 #include "TrigT2CaloEgamma/T2CaloEgamma.h"
-//#include "TrigT2CaloEgamma/RingerDebugRoI.h"
 
 class MsgStream;
 class TrigEMCluster; // I dont know if put the xAOD prefix here!
@@ -137,6 +132,8 @@ private: // Representation
   std::vector<unsigned int> m_layersRings;
   std::vector<unsigned int> m_nlayersRings;
   std::vector<unsigned int> m_maxCells;
+  std::vector<float> m_etaBins;
+
 
   unsigned int m_maxCellsAccumulated;
   unsigned int m_maxRingsAccumulated;
@@ -171,8 +168,8 @@ protected:
   TrigTimer *m_generateClusterTimer, *m_saveRoITimer; ///< For timing.
   TrigTimer *m_RingerFexExecuteTimer, *m_getRingsTimer; ///< For timing.
   TrigTimer *m_RingerRegSelTimer; ///< For timing.
-  
-  // Helper methods
+  std::string m_histLabel;
+
 public:
 
   const static double PI_THRESHOLD;
@@ -232,5 +229,4 @@ private:
  protected:
 
 };
-
 #endif

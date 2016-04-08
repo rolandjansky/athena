@@ -49,10 +49,7 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
           cluster_in_barrel = m_caloDDE->is_lar_em_barrel();
 
         // MsgStream log(msgSvc(), name());
-#ifndef NDEBUG
-  if ( msg().level() <= MSG::DEBUG ) 
-        msg() << MSG::INFO << "in execute(TrigEMCluster &)" << endreq;
-#endif
+        ATH_MSG_DEBUG( "in execute(TrigEMCluster &)" );
 
         // Time to access RegionSelector
         if (!m_timersvc.empty()) m_timer[1]->start();
@@ -140,9 +137,9 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 #ifndef NDEBUG
 	// This will internaly define normal, narrow and large clusters
-  if ( msg().level() <= MSG::DEBUG ) {
+  if ( msgLvl(MSG::DEBUG) ) {
         if ( m_geometryTool->EtaPhiRange(0,0,energyEta, energyPhi))
-                msg() << MSG::ERROR << "problems with EtaPhiRange" << endreq;
+          ATH_MSG_ERROR( "problems with EtaPhiRange" );
         PrintCluster(totalEnergy,0,0,CaloSampling::PreSamplerB
 		,CaloSampling::PreSamplerE);
   }
@@ -229,9 +226,9 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
 #ifndef NDEBUG
         // This will internaly define normal, narrow and large clusters
-  if ( msg().level() <= MSG::DEBUG ) {
+  if ( msgLvl(MSG::DEBUG) ) {
         if ( m_geometryTool->EtaPhiRange(0,3,energyEta, energyPhi))
-              msg() << MSG::ERROR << "problems with EtaPhiRange" << endreq;
+          ATH_MSG_ERROR( "problems with EtaPhiRange" );
 
         PrintCluster(totalEnergy,0,3,CaloSampling::EMB3,CaloSampling::EME3);
   }

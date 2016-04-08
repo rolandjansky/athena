@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
+#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloSwCluster
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp1Fex,EgammaSamp2Fex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaEmEnFex, EgammaHadEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerFex
@@ -42,9 +43,9 @@ class T2CaloEgamma_eGamma (T2CaloEgamma):
        self.PhiWidthForID = 0.1
        #self.TimerNtuple="T2CaloEgamma.T2CaEgtTot"
        self.TrigEMClusterKey="TrigT2CaloEgamma"
-#       self.Monitoring=False
+       #self.Monitoring=False
        #self.OutputLevel = 1
-	# detailed timing
+	     # detailed timing
        #t2catime=TrigTimeTreeToolConfig("T2CaloEgammaTimer")
        #t2catime=TrigTimeHistToolConfig("T2CaloEgammaTimer")
        #t2catime.Key = ["ESamp2.ESamp2Total","ESamp2.ESamp2RegSel","ESamp2.ESamp2BSCnv","ESamp2.ESamp2Algor","ESamp2.ESamp2SaveEM","ESamp2.ESamp2Eta","ESamp2.ESamp2Total:ESamp2Eta"]
@@ -152,7 +153,10 @@ class T2CaloEgamma_cells (T2CaloEgamma):
        self.PhiWidth = 0.2
        self.EtaWidthForID = 0.1
        self.PhiWidthForID = 0.1
+       #self.TimerNtuple="T2CaloEgamma.T2CaEgtTot"
        self.TrigEMClusterKey="TrigT2CaloEgamma"
+       #t2catime.TimerHistLimits = [0,20]
+       #self.AthenaMonTools += [t2catime]
        self.AthenaMonTools += [ TrigT2CaloEgammaValMonitoring(),
                          TrigT2CaloEgammaCosmicMonitoring(),
                          TrigT2CaloEgammaOnMonitoring(),
@@ -241,7 +245,58 @@ class T2CaloEgamma_MBTSC (T2CaloEgamma):
                          TrigT2CaloEgammaCosmicMonitoring(),
 			 TrigT2CaloEgammaOnMonitoring()]
 
-       
+
+#class T2CaloEgamma_SwSeed (T2CaloSwSeed):
+#   __slots__ = []
+#   def __init__ (self, name="T2CaloEgamma_SwSeed"):
+#       super(T2CaloEgamma_SwSeed, self).__init__(name)
+#       self.NoCut = False
+#       self.EtaWidth = 0.2
+#       self.PhiWidth = 0.2
+#       self.EtaWidthForID = 0.1
+#       self.PhiWidthForID = 0.1
+#       self.NoiseThreshold = 0
+#       self.WindowThreshold = 1500
+#       self.OverlapDistance = 0.1
+#       self.TrigEMClusterKey="T2CaloTrigEMSwCluster"
+#       #self.AthenaMonTools += [t2catime]
+#       self.AthenaMonTools += [
+#         TrigT2CaloEgammaSwValMonitoring(),
+#         TrigT2CaloEgammaSwOnMonitoring(),
+#         TrigT2CaloEgammaSwCosMonitoring()]
+#       self.CalibList=[EgammaSshapeCalibrationEndcapConfig(),
+#                       EgammaSshapeCalibrationBarrelConfig()]
+#
+#class T2CaloEgamma_SwSeed_NoCut (T2CaloEgamma_SwSeed):
+#    __slots__ = []
+#    def __init__(self, name = "T2CaloEgamma_SwSeed_NoCut"):
+#        super( T2CaloEgamma_SwSeed_NoCut, self ).__init__( name )
+#        self.NoCut = True
+#
+
+#class T2CaloEgamma_SwCluster (T2CaloSwCluster):
+#   __slots__ = []
+#   def __init__ (self, name="T2CaloEgamma_SwCluster"):
+#       super(T2CaloEgamma_SwCluster, self).__init__(name)
+#       self.IAlgToolList= [
+#			   EgammaSamp1Fex(),
+#			   EgammaEmEnFex(),
+#			   EgammaHadEnFex()]
+#       self.EtaWidth = 0.2
+#       self.PhiWidth = 0.2
+#       self.EtaWidthForID = 0.1
+#       self.PhiWidthForID = 0.1
+#       #self.TimerNtuple="T2CaloEgamma.T2CaSwCluster"
+#       self.TrigEMClusterKey="T2CaloTrigEMSwCluster"
+#       #self.AthenaMonTools += [t2catime]
+#       self.AthenaMonTools += [
+#         TrigT2CaloEgammaValMonitoring(),
+#         TrigT2CaloEgammaCosmicMonitoring(),
+#			   TrigT2CaloEgammaOnMonitoring()]
+#       self.CalibList = [EgammaHitsCalibrationBarrelConfig(),
+#                         EgammaGapCalibrationConfig()]
+#       self.doTiming=True
+
 class RingerFexConfig( RingerFex ):
   __slots__ = []
   def __init__(self, name = "RingerFexConfig"):
@@ -249,35 +304,68 @@ class RingerFexConfig( RingerFex ):
 
     self.HltFeature = "HLT_TrigT2CaloEgamma"
     self.Feature = "TrigT2CaloEgamma"
-
+    self.EtaBins = [0.0000, 2.5000] # bin pairs: min < eta <= max, PS,barrel,crack,endcap
     self.GlobalCenter = False;
     self.EtaSearchWindowSize = 0.1;
     self.PhiSearchWindowSize = 0.1;
-    self.SaveRoI = False;
 
     from TrigT2CaloEgamma.RingerConstants import Layer
 
-    self.DEtaRings = [0.025, 0.003125, 0.025, 0.05, 0.1, 0.1, 0.2];
+    self.DEtaRings = [0.025, 0.003125, 0.025, 0.05, 0.1, 0.1, 0.1];
     self.DPhiRings = [0.098174770424681, 0.098174770424681, 0.024543692606170, 0.024543692606170, 0.098174770424681, 0.098174770424681, 0.098174770424681];
     self.NRings = [8, 64, 8, 8, 4, 4, 4];
-
-   # Warning: Do not change the lines above, unless you really know what you are doing!!!
-    self.LayersRings = [Layer.PreSamplerB, Layer.PreSamplerE,
-                        Layer.EMB1, Layer.EME1,
-                        Layer.EMB2, Layer.EME2,
-                        Layer.EMB3, Layer.EME3,
-                        Layer.HEC0, Layer.TileBar0, Layer.TileGap2, Layer.TileExt0, 
-                        Layer.HEC1, Layer.HEC2, Layer.TileBar1, Layer.TileGap0, Layer.TileExt1,
-                        Layer.HEC3, Layer.TileBar2, Layer.TileGap1, Layer.TileExt2];
-
+    self.LayersRings = [
+                        Layer.PreSamplerB,Layer.PreSamplerE,
+                        Layer.EMB1,       Layer.EME1,
+                        Layer.EMB2,       Layer.EME2,
+                        Layer.EMB3,       Layer.EME3,
+                        Layer.HEC0,       Layer.TileBar0, Layer.TileGap2, Layer.TileExt0,
+                        Layer.HEC1,       Layer.HEC2,     Layer.TileBar1, Layer.TileGap0, Layer.TileExt1,
+                        Layer.HEC3,       Layer.TileBar2, Layer.TileGap1, Layer.TileExt2
+                        ];
     self.NLayersRings = [2, 2, 2, 2, 4, 5, 4];
     self.NMaxCells = [320, 512, 272, 128, 128, 128, 128];
+
+
+class RingerFexEndCapConfig( RingerFex ):
+  __slots__ = []
+  def __init__(self, name = "RingerFexEndCapConfig"):
+    super(RingerFexEndCapConfig, self).__init__(name)
+
+    self.HltFeature = "HLT_TrigT2CaloEgamma"
+    self.Feature = "TrigT2CaloEgamma"
+    self.EtaBins = [1.54, 2.5] # bin pairs: min < eta <= max
+    self.GlobalCenter = False;
+    self.EtaSearchWindowSize = 0.1;
+    self.PhiSearchWindowSize = 0.1;
+    self.HistLabel = 'EndCap';
+
+    from TrigT2CaloEgamma.RingerConstants import Layer
+
+    # FIXME The EM1 from 1.8->2.5 granularity is 0.025/4=0.006250. However, from 1.57 to
+    # 1.8 it should be 0.025/6
+    # FIXME The HAD3 has segmentation of 0.1 x 0.1 from 1.8->2.5, whereas this is also not true from 1.57 to 1.8, being from 0.2 x 0.1
+    self.DEtaRings = [0.0, 0.006250, 0.025, 0.05, 0.1, 0.1, 0.1];
+    self.DPhiRings = [0.0,  0.098174770424681, 0.024543692606170, 0.024543692606170, 0.098174770424681, 0.098174770424681, 0.098174770424681];
+    self.NRings = [0, 32, 8, 8, 4, 4, 4];
+    self.LayersRings = [
+                        #Layer.PreSamplerB,Layer.PreSamplerE,
+                        Layer.EMB1,       Layer.EME1,
+                        Layer.EMB2,       Layer.EME2,
+                        Layer.EMB3,       Layer.EME3,
+                        Layer.HEC0,       Layer.TileBar0, Layer.TileGap2, Layer.TileExt0,
+                        Layer.HEC1,       Layer.HEC2,     Layer.TileBar1, Layer.TileGap0, Layer.TileExt1,
+                        Layer.HEC3,       Layer.TileBar2, Layer.TileGap1, Layer.TileExt2
+                        ];
+    self.NLayersRings = [0, 2, 2, 2, 4, 5, 4];
+    self.NMaxCells = [0, 272, 128, 128, 128, 128];
+
 
 class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_Ringer"):
        super(T2CaloEgamma_Ringer, self).__init__(name)
-      # here put your customizations
+       # here put your customizations
        self.IAlgToolList += [RingerFexConfig()]
        self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger"
        self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]

@@ -12,6 +12,7 @@ use GaudiInterface      GaudiInterface-*             External
 #use LArRecEvent         LArRecEvent-*                LArCalorimeter
 #use Identifier          Identifier-*                 DetectorDescription
 
+
 use CaloEvent           CaloEvent-*                  Calorimeter
 use CaloGeoHelpers      CaloGeoHelpers-*             Calorimeter
 use xAODTrigCalo        xAODTrigCalo-*               Event/xAOD
@@ -31,7 +32,7 @@ use TrigT1Interfaces    TrigT1Interfaces-*           Trigger/TrigT1
 use CaloIdentifier      CaloIdentifier-*             Calorimeter
 use TrigT2CaloCalibration  TrigT2CaloCalibration-*   Trigger/TrigTools
 use TrigTimeAlgs        TrigTimeAlgs-*               Trigger/TrigTools
-
+use CaloDetDescr    CaloDetDescr-*   Calorimeter 
 
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_runtime
