@@ -45,5 +45,5 @@ void TrackParticleTruthCollectionCnv_p0::transToPers( const TrackParticleTruthCo
 {
   msg<<MSG::DEBUG<<"TrackParticleTruthCollectionCnv_p0::transToPers()"<<endreq;
   throw std::runtime_error("TrackParticleTruthCollectionCnv_p0::transToPers() is not implemented, _p1 or later is meant to be used.");
-  msg<<MSG::DEBUG<<"TrackParticleTruthCollectionCnv_p0::transToPers() DONE"<<endreq;
+  //never reached msg<<MSG::DEBUG<<"TrackParticleTruthCollectionCnv_p0::transToPers() DONE"<<endreq;
 }
