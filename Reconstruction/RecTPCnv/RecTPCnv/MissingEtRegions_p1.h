@@ -15,8 +15,6 @@ CREATED:  Jul 2007
 
 PURPOSE:  Persistent rapresentation of MissingEtRegions class
 ********************************************************************/
-#include "MissingETEvent/MissingET.h"
-#include "MissingETEvent/MissingEtRegions.h"
 
 #include <vector>
 

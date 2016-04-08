@@ -49,13 +49,11 @@ void MissingETCnv_p1::persToTrans(  const MissingET_p1* pers,
   
   delete trans->m_regions;
   trans->m_regions = 0;
-  if( &pers->m_regions != 0 )
   {
     // use the region converter to convert from pers to trans 
     MissingEtRegions *theReg = new MissingEtRegions();
     regCnv.persToTrans(&pers->m_regions, theReg, msg);
     trans->m_regions = theReg;
-          
   }
 	
     // std::cout<<"IN  source: "<<trans->m_source;

@@ -10,8 +10,6 @@ NAME:     MissingEtTruth_p3
 PACKAGE:  offline/Reconstruction/RecTPCnv
 PURPOSE:  Persistent rapresentation of MissingEtTruth class
 ********************************************************************/
-#include "MissingETEvent/MissingET.h"
-// #include "RecTPCnv/MissingET_p3.h" // not needed here
 #include <vector>
 
 // forward declarations

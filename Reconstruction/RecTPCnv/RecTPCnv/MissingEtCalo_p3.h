@@ -9,9 +9,6 @@
 NAME:     MissingETCalo_p3
 PURPOSE:  Persistent rapresentation of MissingEtCalo class
 ********************************************************************/
-
-#include "MissingETEvent/MissingET.h"
-#include "RecTPCnv/MissingET_p3.h"
 #include <vector>
 
 // forward declarations
