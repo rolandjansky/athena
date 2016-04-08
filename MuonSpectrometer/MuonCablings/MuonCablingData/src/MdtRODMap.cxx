@@ -22,7 +22,7 @@ bool MdtRODMap::setCsmMap(uint8_t csmId, MdtCsmMap* csmMap)
   bool csmAdded = addItem(csmId,csmMap);
   if (!csmAdded) {
     *m_log << MSG::ERROR << "Could not add csm " << MSG::hex 
-	   << (int) csmId << MSG::dec << " to the MDT cabling map" << endmsg;
+	   << (int) csmId << MSG::dec << " to the MDT cabling map" << endreq;
   }
   return csmAdded;
 }

@@ -41,7 +41,7 @@ MdtAmtMap::MdtAmtMap(const MdtMezzanineType* mezType, uint8_t tdcId, uint8_t cha
   m_debug = (m_log->level() <= MSG::VERBOSE);
 
   if (m_debug) { 
-    *m_log << MSG::VERBOSE << "Adding Tdc number: " << (int) tdcId << endmsg;
+    *m_log << MSG::VERBOSE << "Adding Tdc number: " << (int) tdcId << endreq;
   }
 
 
@@ -56,13 +56,13 @@ MdtAmtMap::MdtAmtMap(const MdtMezzanineType* mezType, uint8_t tdcId, uint8_t cha
 
     if (m_debug) {
       *m_log << MSG::VERBOSE << "Map initialized successfully for tdc number: " << MSG::hex 
-	     << (int) tdcId << MSG::dec << endmsg;
+	     << (int) tdcId << MSG::dec << endreq;
     }
 
   }
   else {
     if (m_debug) {
-      *m_log << MSG::VERBOSE << "Could not initialize completely the TDC map" << endmsg;
+      *m_log << MSG::VERBOSE << "Could not initialize completely the TDC map" << endreq;
     }
   }
 
@@ -85,7 +85,7 @@ bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int l
   if (m_debug) {
     *m_log << MSG::VERBOSE << "Initializing the map, the mezzanine type is " 
 	   << (int) m_mezType << " with " << (int) mezType->nOfTubesInLayer() << " tubes per layer and " << (int) mezType->nOfLayers() << " layers"  
-	   << endmsg;
+	   << endreq;
   }
 
   for (uint8_t chan=0 ; chan<24 ; ++chan) {
@@ -121,7 +121,7 @@ bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int l
       //      for (int i=0 ; i< chanOrder.size() ; ++i) {
       //	*m_log << MSG::DEBUG << (int) chanOrder[i];
       //      }
-      //      *m_log << MSG::DEBUG << endmsg;
+      //      *m_log << MSG::DEBUG << endreq;
       //    }
       
       // calculate the tube
@@ -132,7 +132,7 @@ bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int l
 							    && localchan%2==0) || (mezType->type()<40 && localchan<3))) continue;
       
       //    *m_log << "the zero channel is: " << (int) chanZero 
-      //	   << " and the local channel is: " << (int) localchan << endmsg;
+      //	   << " and the local channel is: " << (int) localchan << endreq;
       tube=chanOrder[localchan]-chanOrder[chanZero]+tubeZero;
 
     }
@@ -141,7 +141,7 @@ bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int l
     bool setChan = setChannel(chan,layer,tube);
 
     if (!setChan) {
-      *m_log << MSG::ERROR << "Could not set the channel " << (int) chan << endmsg;
+      *m_log << MSG::ERROR << "Could not set the channel " << (int) chan << endreq;
       successful = false;
     }
 
@@ -167,7 +167,7 @@ bool MdtAmtMap::setChannel(uint8_t channel, uint8_t layer, uint8_t tube)
     //if (m_debug) {
     //
     //*m_log << MSG::VERBOSE << "Adding channel: " << (int) channel << " connected to tube: " 
-    //     << (int) tube  << " layer: " << (int) layer << endmsg;
+    //     << (int) tube  << " layer: " << (int) layer << endreq;
     //
     //}    
 
@@ -182,7 +182,7 @@ bool MdtAmtMap::setChannel(uint8_t channel, uint8_t layer, uint8_t tube)
 	
 	if (m_debug) {
 	  *m_log << MSG::VERBOSE << "The tube is invalid (as expected) ! not adding it..." 
-		 << endmsg;
+		 << endreq;
 	}
 
 	return true;
@@ -199,9 +199,9 @@ bool MdtAmtMap::setChannel(uint8_t channel, uint8_t layer, uint8_t tube)
   /** otherwise return an error */
   else {
 
-    *m_log << MSG::ERROR << "Error in TDC number " << m_moduleId << endmsg;
+    *m_log << MSG::ERROR << "Error in TDC number " << m_moduleId << endreq;
     *m_log << MSG::ERROR << "The channel: " << channel << " has been already assigned to tube: "
-	   << m_tube[channel] << " layer: " << m_layer[channel] << endmsg;
+	   << m_tube[channel] << " layer: " << m_layer[channel] << endreq;
 
     channelSet = false;
   }
@@ -216,13 +216,13 @@ bool MdtAmtMap::offlineId(uint8_t channel, int& station, int& eta, int& phi,
 
   if ( channel >= CHANMAX ) {
     *m_log << MSG::WARNING << "Error in tdc " << MSG::hex << (int) m_moduleId << MSG::dec    
-	   << " channel: " << MSG::hex << (int) channel << MSG::dec << " not defined!!" << endmsg;  
+	   << " channel: " << MSG::hex << (int) channel << MSG::dec << " not defined!!" << endreq;  
     return false;
   }
 
   if ( m_layer[channel]==NOTSET || m_tube[channel]==NOTSET ) {
     //    *m_log << MSG::ERROR << "Error in tdc " << MSG::hex << m_moduleId << MSG::dec
-    //   << ". channel: " << MSG::hex << channel << MSG::dec << " not found" << endmsg;
+    //   << ". channel: " << MSG::hex << channel << MSG::dec << " not found" << endreq;
     return false;
   }
 
