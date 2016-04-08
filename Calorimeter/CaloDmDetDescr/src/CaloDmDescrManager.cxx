@@ -479,8 +479,6 @@ StatusCode CaloDmDescrManager::load_regions(std::string DmRegionFileName)
         int shift_reg = m_caloDM_ID->lar_region_hash_max();
         m_DmRegionVector[shift_reg + m_caloDM_ID->tile_region_hash(id_side_neg)] = myRegionNeg;
         m_DmRegionVector[shift_reg + m_caloDM_ID->tile_region_hash(id_side_pos)] = myRegionPos;
-      } else {
-        log << MSG::ERROR << "Wrong subdet " << subdet << endreq;
       }
       // skipping region description
       while(fin.getline(cLine,sizeof(cLine)-1)) {
