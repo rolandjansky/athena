@@ -1,4 +1,4 @@
-# $Id: ReadInDetRecFragment.py 780766 2016-10-27 14:03:02Z amorley $
+# $Id: ReadInDetRecFragment.py 613144 2014-08-22 21:34:29Z btamadio $
 #
 # Job option fragment for JobRunner templates to setup InDet
 # environment following InDetRecExample/ReadInDet_jobOptions.py
@@ -9,7 +9,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: ReadInDetRecFragment.py 780766 2016-10-27 14:03:02Z amorley $"
+print "InDetBeamSpotExample INFO Using $Id: ReadInDetRecFragment.py 613144 2014-08-22 21:34:29Z btamadio $"
 
 
 # Default values (please put a default for EACH jobConfig parameter
@@ -20,7 +20,7 @@ if not 'outputfileprefix' in jobConfig:              jobConfig['outputfileprefix
 if not 'outputfile' in jobConfig:                    jobConfig['outputfile'] = jobConfig['outputfileprefix']+'dpd.root'
 if not 'globalmonfile' in jobConfig:                 jobConfig['globalmonfile'] = jobConfig['outputfileprefix']+'globalmonitoring.root'
 if not 'DataSource' in jobConfig:                    jobConfig['DataSource'] = 'data'   # data or geant4
-if not 'DetDescrVersion' in jobConfig:               jobConfig['DetDescrVersion'] = 'ATLAS-R2-2015-03-01-00'
+if not 'DetDescrVersion' in jobConfig:               jobConfig['DetDescrVersion'] = 'ATLAS-CSC-02-00-00'
 if not 'hasMag' in jobConfig:                        jobConfig['hasMag'] = True
 if not 'hasSCT' in jobConfig:                        jobConfig['hasSCT'] = True
 if not 'hasSCTStandby' in jobConfig:                 jobConfig['hasSCTStandby'] = False
@@ -63,12 +63,7 @@ if not 'griduser' in jobConfig:                      jobConfig['griduser'] = ''
 readESD = jobConfig['doPatternRecoAndTracking'] or jobConfig['doPrimaryVertexing']
 readAOD = not readESD
 doWriteESD = False and readESD
-doWriteAOD = False # jobConfig['doPatternRecoAndTracking'] or jobConfig['doPrimaryVertexing'] or jobConfig['doForceWriteDPD']
-
-
-print jobConfig['inputfiles']
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput = jobConfig['inputfiles']
+doWriteAOD = jobConfig['doPatternRecoAndTracking'] or jobConfig['doPrimaryVertexing'] or jobConfig['doForceWriteDPD']
 
 #--------------------------------------------------------------
 # control algorithms to be rerun
@@ -80,9 +75,9 @@ doRefitTracks = False and readESD
 # --- redo the pattern reco and the tracking (do not use that in conjunction with doRefitTracks above)
 redoPatternRecoAndTracking = jobConfig['doPatternRecoAndTracking'] and not doRefitTracks and readESD
 # --- redo primary vertexing (will be set to true later automatically if you redid the tracking and want to redo the TrackParticle creation)
-reDoPrimaryVertexing = False #jobConfig['doPrimaryVertexing'] or redoPatternRecoAndTracking or jobConfig['doVertexStandalone']
+reDoPrimaryVertexing = jobConfig['doPrimaryVertexing'] or redoPatternRecoAndTracking or jobConfig['doVertexStandalone']
 # --- redo particle creation (recommended after revertexing on ESD, otherwise trackparticles are inconsistent)
-reDoParticleCreation = False #(redoPatternRecoAndTracking or reDoPrimaryVertexing) and not jobConfig['doVertexStandalone']
+reDoParticleCreation = (redoPatternRecoAndTracking or reDoPrimaryVertexing) and not jobConfig['doVertexStandalone']
 # --- redo conversion finding
 reDoConversions = False
 # --- redo V0 finding
@@ -172,8 +167,8 @@ if not jobConfig['hasMag']:
 from AthenaCommon.DetFlags import DetFlags 
 from InDetRecExample.InDetJobProperties import InDetFlags
 # --- switch on InnerDetector
-DetFlags.ID_setOn()
-#DetFlags.ID_setOff()
+#DetFlags.ID_setOn()
+DetFlags.ID_setOff()
 # --- and switch off all the rest
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
@@ -195,8 +190,7 @@ if not jobConfig['hasSCT']:
   else:
     DetFlags.SCT_setOff()
     DetFlags.detdescr.SCT_setOn()
-
-DetFlags.TRT_setOff()
+#DetFlags.TRT_setOff()
 #DetFlags.detdescr.TRT_setOn()
 # --- printout
 if jobConfig['doPrintIndetConfig']:
@@ -248,10 +242,6 @@ InDetFlags.doRefit            = doRefitTracks
 InDetFlags.doLowBetaFinder    = False
 InDetFlags.doPrintConfigurables = jobConfig['doPrintIndetConfig']
 
-### Key flag  -- this will create the unconstrained beamspot collection on the fly from standard xAOD::TrackParticles
-InDetFlags.doVertexFindingForMonitoring = jobConfig['doPrimaryVertexing']
-
-
 # Standard monitoring
 InDetFlags.doMonitoringGlobal    = jobConfig['doMonitoringGlobal']
 
@@ -300,16 +290,6 @@ InDetKeys.lockAllExceptAlias()
 if jobConfig['doPrintIndetConfig']:
   print "Printing InDetKeys"
   InDetKeys.print_JobProperties()
-
-
-if jobConfig['doPrimaryVertexing'] : 
-  jobConfig['VertexContainer'] = InDetKeys.PrimaryVerticesWithoutBeamConstraint()
-  from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-  RefittedVertexStream = MSMgr.NewPoolRootStream( "RefittedVertexStream", "RefittedVertex.pool.root" )
-  RefittedVertexStream.AddItem( 'xAOD::VertexContainer#'+InDetKeys.PrimaryVerticesWithoutBeamConstraint() )
-  RefittedVertexStream.AddItem( 'xAOD::VertexAuxContainer#'+InDetKeys.PrimaryVerticesWithoutBeamConstraint()+'Aux.-vxTrackAtVertex' )
-  RefittedVertexStream.AddItem( 'xAOD::EventInfo#EventInfo' )
-  RefittedVertexStream.AddItem( 'xAOD::EventAuxInfo#EventInfoAux.' )
 
 
 #--------------------------------------------------------------
