@@ -6,9 +6,8 @@
 # define REGISTRATIONSVC_REGSTREAMDEFMETA_H
 
 /**
- * @file RegistrationStreamLumiTrig.h
- * @brief Copy the complete and incomplete lumi blocks from AOD
- * and store them to TAG metadata
+ * @file RegistrationStreamTrig.h
+ * @brief Copy the trigger configuration into the TAG file
  * @author Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>
  */
 
@@ -27,47 +26,41 @@
 class IAddressCreator;
 class StoreGateSvc;
 class CollectionMetadata;
-class LumiBlockCollection;
 
 namespace TrigConf {
    class ITrigConfigSvc;
 }
 
 
-class RegistrationStreamLumiTrig : public AthAlgorithm, virtual public IIncidentListener 
+class RegistrationStreamTrig : public AthAlgorithm, virtual public IIncidentListener 
 {
 public:
 
-  /// Standard RegistrationStreamLumiTrig Constructor
-  RegistrationStreamLumiTrig(const std::string& name,
+  /// Standard RegistrationStreamTrig Constructor
+  RegistrationStreamTrig(const std::string& name,
                             ISvcLocator* pSvcLocator);
 
-  /// Initialize RegistrationStreamLumiTrig
+  /// Initialize RegistrationStreamTrig
   virtual StatusCode initialize();
   void handle(const Incident& incident);
-  void handleLumiBlocks(const Incident& incident);
   void handleTrigConf(const Incident& incident);
   void addkeys(std::string trigKey, int trigValue, std::string iovtype="RunLB");
   virtual StatusCode execute();
 
-  /// Terminate RegistrationStreamLumiTrig
+  /// Terminate RegistrationStreamTrig
   virtual StatusCode stop();
   virtual StatusCode finalize();
 
 protected:
 
   /// Standard Destructor
-  virtual ~RegistrationStreamLumiTrig();
+  virtual ~RegistrationStreamTrig();
 
   ServiceHandle<StoreGateSvc> m_pOutputStore;
   ServiceHandle<StoreGateSvc> m_pInputStore;
   StringProperty  m_LBColl_name;
   StringProperty  m_incompleteLBColl_name;
 
-  TString xmlstring;
-  TString incompletexmlstring;
-  std::string m_lumixml;
-  std::string m_incompletelumixml;
   bool m_gettriggerconf;
 
   std::map<std::string, std::string> m_lumitrig;

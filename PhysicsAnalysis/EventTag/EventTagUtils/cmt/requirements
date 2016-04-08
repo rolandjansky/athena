@@ -32,10 +32,6 @@ use xAODTracking		xAODTracking-*                  Event/xAOD
 
 use xAODCaloEvent               xAODCaloEvent-*                 Event/xAOD
 
-
-use LumiCalc                    LumiCalc-*                      LumiBlock 
-use LumiBlockData   	        LumiBlockData-*                 LumiBlock 
-
 use TrigConfInterfaces         TrigConfInterfaces-*             Trigger/TrigConfiguration
 
 use LumiBlockComps              LumiBlockComps-*                LumiBlock
