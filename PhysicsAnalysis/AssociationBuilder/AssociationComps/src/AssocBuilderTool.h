@@ -14,9 +14,8 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
 
 // AssociationKernel includes
 #include "AssociationKernel/IAssocBuilderTool.h"
@@ -25,7 +24,7 @@
 // Forward declaration
 
 class AssocBuilderTool : virtual public IAssocBuilderTool,
-                                 public AlgTool
+                                 public AthAlgTool
 { 
   using IAssocBuilderTool::buildAssocs;
 
@@ -77,9 +76,6 @@ class AssocBuilderTool : virtual public IAssocBuilderTool,
   /** Default constructor: 
    */
   AssocBuilderTool();
-
-  /// MsgStream instance (a std::cout like with print-out levels)
-  mutable MsgStream m_msg;
 
   typedef ToolHandleArray<IOverlapTool> IOverlapTools_t;
   /** List of private IOverlapTools which will decide if 2 objects are
