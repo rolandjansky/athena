@@ -43,14 +43,11 @@ StatusCode TimingAlg::initialize()
       std::string cpuFamily("none");
       std::string model("none");
       
+      FILE* file;
       unsigned int numProcessors(0);
       char line[1024];
       
-      FILE* file = fopen("/proc/cpuinfo", "r");
-      if (!file) {
-        ATH_MSG_ERROR("Could not open /proc/cpuinfo!");
-        return StatusCode::FAILURE;
-      }
+      file = fopen("/proc/cpuinfo", "r");
       numProcessors = 0;
       while(fgets(line, 1024, file) != NULL){
 	if (strncmp(line, "processor",   9) == 0) numProcessors++;
@@ -90,7 +87,7 @@ StatusCode TimingAlg::initialize()
       int s(0);
       s=0xFF;
       if (stepping.compare("none") != 0)
-	sscanf(stepping.c_str(),"stepping\t: %80d",&s);
+	sscanf(stepping.c_str(),"stepping\t: %d",&s);
       ATH_MSG_VERBOSE( "stepping  : " << s );
       if ( s > 255 )
 	s = 255;
@@ -98,7 +95,7 @@ StatusCode TimingAlg::initialize()
       
       s=0xFF;
       if (cpuFamily.compare("none") != 0)
-	sscanf(cpuFamily.c_str(),"cpu family\t: %80d",&s);
+	sscanf(cpuFamily.c_str(),"cpu family\t: %d",&s);
       ATH_MSG_VERBOSE( "cpuFamily : " << s );
       if ( s > 255 )
 	s = 255;
@@ -106,7 +103,7 @@ StatusCode TimingAlg::initialize()
       
       s=0xFF;
       if (model.compare("none") != 0)
-	sscanf(model.c_str(),"model\t: %80d",&s);
+	sscanf(model.c_str(),"model\t: %d",&s);
       ATH_MSG_VERBOSE( "model     : " << s );
       if ( s > 255 )
 	s = 255;
@@ -146,7 +143,7 @@ StatusCode TimingAlg::execute()
   
   struct rusage r;
   getrusage(RUSAGE_SELF, &r);
-  float f=float(r.ru_utime.tv_sec+r.ru_stime.tv_sec) + float(r.ru_utime.tv_usec+r.ru_stime.tv_usec)*1e-6-f0;
+  float f=float(r.ru_utime.tv_sec+r.ru_stime.tv_sec) + float(r.ru_utime.tv_usec+r.ru_stime.tv_usec)/1000000-f0;
   t->push_back(f);
   ATH_MSG_DEBUG(" CPU time for this event until now is: " << f);
   if ( m_determineCPUID && m_CPUID )
