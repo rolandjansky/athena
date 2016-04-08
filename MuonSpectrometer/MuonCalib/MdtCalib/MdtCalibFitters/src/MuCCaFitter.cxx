@@ -27,7 +27,7 @@ bool MuCCaFitter::fit( MuonCalibSegment& seg ) const
 
 bool MuCCaFitter::fit( MuonCalibSegment& seg, HitSelection selection ) const
 {
-  bool m_debug = false;
+  // bool m_debug = false;
   if(m_debug) std::cout << "New seg: " << std::endl; //<< seg;
 
 
@@ -345,6 +345,7 @@ void MuCCaFitterImplementation::Computelinparnew(double x1, double y1, double r1
    double averagephi,dist,dphiin,dphiex;
    double bpar[4],phi;
    double bfparn[2];
+   bfparn[0]=0; bfparn[1]=0;
    // int segnobfn[2];
    // int segnoc[2][4],ncandid[4],ncand;
    int ncandid[4],ncand;
@@ -454,6 +455,7 @@ void MuCCaFitterImplementation::Computelin(double x1, double y1, double r1, doub
    double bpar[4],phi;
    //   double distfp[4];
    double bfparn[2];
+   bfparn[0]=0; bfparn[1]=0;
    double bcand[2][4];
    // int segnobf[4],segnobfn[2];
    //   double sol[4];
