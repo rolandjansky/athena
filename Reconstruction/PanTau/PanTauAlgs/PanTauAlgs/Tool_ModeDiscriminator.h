@@ -15,23 +15,26 @@
 #ifndef PANTAUALGS_TOOL_MODEDISCRIMINATOR_H
 #define PANTAUALGS_TOOL_MODEDISCRIMINATOR_H
 
-//! ASG
-#include "AsgTools/AsgTool.h"
-#include "AsgTools/ToolHandle.h"
+//! Gaudi
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //! PanTau
-#include "PanTauAlgs/HelperFunctions.h"
-#include "PanTauAlgs/ITool_ModeDiscriminator.h"
-#include "PanTauAlgs/ITool_InformationStore.h"
+#include "PanTauInterfaces/ITool_ModeDiscriminator.h"
+#include "PanTauInterfaces/ITool_InformationStore.h"
+#include "PanTauInterfaces/ITool_HelperFunctions.h"
 
 //! C++
 #include <vector>
 #include <string>
 
-#include "MVAUtils/BDT.h"
+
+namespace TMVA{
+    class Reader;
+}
 
 namespace PanTau {
-    class PanTauSeed2;
+    class PanTauSeed;
 }
 
 
@@ -43,42 +46,37 @@ namespace PanTau {
         @author Sebastian Fleischmann
         @author Christian Limbach <limbach@physik.uni-bonn.de>
     */
-    class Tool_ModeDiscriminator : public asg::AsgTool, virtual public PanTau::ITool_ModeDiscriminator {
-
-    ASG_TOOL_CLASS1(Tool_ModeDiscriminator, PanTau::ITool_ModeDiscriminator)
+    class Tool_ModeDiscriminator : public AthAlgTool, virtual public PanTau::ITool_ModeDiscriminator {
 
     public:
         
-        Tool_ModeDiscriminator(const std::string &name);
+        Tool_ModeDiscriminator(const std::string&,const std::string&,const IInterface*);
         virtual ~Tool_ModeDiscriminator ();
         
         virtual StatusCode initialize();
         virtual StatusCode finalize  ();
 
 
-        virtual double getResponse(PanTau::PanTauSeed2* inSeed, bool& isOK);
+        virtual double getResponse(PanTau::PanTauSeed* inSeed, bool& isOK);
+        virtual double getModeLikeliness(PanTau::PanTauSeed* inSeed, bool& wasSuccessful);
         
     private:
         
-        void                                        updateReaderVariables(PanTau::PanTauSeed2* inSeed);
+        void                                        updateReaderVariables(PanTau::PanTauSeed* inSeed);
         
         std::string                                 m_Name_InputAlg;
         std::string                                 m_Name_ModeCase;
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
-	std::string                                 m_Tool_InformationStoreName;
-        PanTau::HelperFunctions   m_HelperFunctions;
-        std::vector<MVAUtils::BDT*>                  m_MVABDT_List;
+        ToolHandle<PanTau::ITool_HelperFunctions>   m_Tool_HelperFunctions;
+        std::vector<TMVA::Reader*>                  m_TMVA_ReaderList;
         
         std::vector<double>                         m_BinEdges_Pt;
         std::string                                 m_ReaderOption;
         std::string                                 m_MethodName;
+//         std::vector<std::string>                    m_List_WeightFiles;
         std::vector<std::string>                    m_List_BDTVariableNames;
-        std::vector<float*>                         m_List_BDTVariableValues;
+        std::vector<float>                          m_List_BDTVariableValues;
         std::vector<double>                         m_List_BDTVariableDefaultValues;
-
-	bool m_init=false;
-  public:
-	inline bool isInitialized(){return m_init;}
         
     };
 } // end of namespace PanTau

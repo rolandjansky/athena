@@ -21,18 +21,18 @@
 #include <string>
 
 //! Gaudi
-#include "AsgTools/AsgTool.h"
-#include "AsgTools/ToolHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //! PanTau
-#include "PanTauAlgs/ITool_PanTauTools.h"
-#include "PanTauAlgs/ITool_ModeDiscriminator.h"
-#include "PanTauAlgs/ITool_InformationStore.h"
+#include "PanTauInterfaces/ITool_DecayModeDeterminator.h"
+#include "PanTauInterfaces/ITool_ModeDiscriminator.h"
+#include "PanTauInterfaces/ITool_InformationStore.h"
 
 class StoreGateSvc;
 
 namespace PanTau {
-    class PanTauSeed2;
+    class PanTauSeed;
 }
 
 
@@ -42,9 +42,9 @@ namespace PanTau {
     Tool to store information needed in PanTau Algorithms
     @author Christian Limbach (limbach@physik.uni-bonn.de)
 */
-  class Tool_DecayModeDeterminator : public asg::AsgTool, virtual public PanTau::ITool_PanTauTools {
-
-    ASG_TOOL_CLASS1(Tool_DecayModeDeterminator, PanTau::ITool_PanTauTools)
+class Tool_DecayModeDeterminator : public AthAlgTool, virtual public PanTau::ITool_DecayModeDeterminator {
+    
+    
     
     public:
         
@@ -56,13 +56,13 @@ namespace PanTau {
             t_nTests
         };
         
-        Tool_DecayModeDeterminator(const std::string &name);
+        Tool_DecayModeDeterminator(const std::string&,const std::string&,const IInterface*);
         virtual ~Tool_DecayModeDeterminator ();
         
         virtual StatusCode initialize();
 //         virtual StatusCode finalize  ();
         
-        virtual StatusCode execute(PanTau::PanTauSeed2* inSeed);
+        virtual StatusCode determineDecayMode(PanTau::PanTauSeed* inSeed) const;
         
     private:
         
@@ -73,13 +73,6 @@ namespace PanTau {
         ToolHandle<PanTau::ITool_ModeDiscriminator> m_Tool_ModeDiscriminator_1p0n_vs_1p1n;
         ToolHandle<PanTau::ITool_ModeDiscriminator> m_Tool_ModeDiscriminator_1p1n_vs_1pXn;
         ToolHandle<PanTau::ITool_ModeDiscriminator> m_Tool_ModeDiscriminator_3p0n_vs_3pXn;
-
-
-	std::string m_Tool_InformationStoreName;
-
-	std::string m_Tool_ModeDiscriminator_1p0n_vs_1p1nName;
-	std::string m_Tool_ModeDiscriminator_1p1n_vs_1pXnName;
-	std::string m_Tool_ModeDiscriminator_3p0n_vs_3pXnName;
         
         
         //configurables to be retrieved from information store
@@ -94,10 +87,15 @@ namespace PanTau {
         double           m_BDTCutValue_R1XX_CellBased;
         double           m_BDTCutValue_R30X_CellBased;
         double           m_BDTCutValue_R3XX_CellBased;
-
-	bool m_init=false;
-  public:
-	inline bool isInitialized(){return m_init;}
+        
+        //cut values for eflowRec
+        double           m_BDTCutValue_R10X_eflowRec;
+        double           m_BDTCutValue_R11X_eflowRec;
+        double           m_BDTCutValue_R110_eflowRec;
+        double           m_BDTCutValue_R1XX_eflowRec;
+        double           m_BDTCutValue_R30X_eflowRec;
+        double           m_BDTCutValue_R3XX_eflowRec;
+        
 };
 
 

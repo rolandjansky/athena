@@ -3,19 +3,28 @@
 */
 
 
+//! Gaudi includes
+#include "AthenaKernel/errorcheck.h"
+
 //! PanTau includes
-#include "PanTauAlgs/HelperFunctions.h"
-#include "PanTauAlgs/TauConstituent.h"
+#include "PanTauAlgs/Tool_HelperFunctions.h"
+#include "PanTauEvent/TauConstituent.h"
 #include "xAODPFlow/PFO.h"
 #include "xAODTau/TauJet.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 
+#include "CLHEP/Vector/LorentzVector.h"
+// #include "eflowEvent/eflowObject.h"
+
+// #include "GeoPrimitives/GeoPrimitives.h"
+// #include "CLHEP/Geometry/Vector3D.h"
+
 //! ROOT includes
+#include "CLHEP/Vector/ThreeVector.h"
 #include "Math/SpecFuncMathMore.h"
 #include "TMath.h"
 #include "TRandom.h"
-#include "TLorentzVector.h"
 #include "TVector3.h"
 #include "TMatrixDSym.h"
 #include "TVectorD.h"
@@ -25,34 +34,49 @@
 #include <sstream>
 #include <vector>
 #include <cmath>
- 
 
 
-void PanTau::HelperFunctions::dumpFourMomentum(TLorentzVector FourMom) const {
-    ATH_MSG_DEBUG("\t\tFourMomentum: Pt, Eta, Phi, M: " << FourMom.Pt() << " / " << FourMom.Eta() << " / " << FourMom.Phi() << " / " << FourMom.M());
+
+
+PanTau::Tool_HelperFunctions::Tool_HelperFunctions(
+    const std::string& ty,
+    const std::string& na,
+    const IInterface* pa ) :
+        AthAlgTool(ty,na,pa)
+{
+    declareInterface<ITool_HelperFunctions>(this);
+}
+
+PanTau::Tool_HelperFunctions::~Tool_HelperFunctions() {
+}
+
+
+
+void PanTau::Tool_HelperFunctions::dumpFourMomentum(CLHEP::HepLorentzVector FourMom) const {
+    ATH_MSG_DEBUG("\t\tFourMomentum: pT, Eta, Phi, m: " << FourMom.perp() << " / " << FourMom.eta() << " / " << FourMom.phi() << " / " << FourMom.m());
     return;
 }
 
 
-void PanTau::HelperFunctions::dumpTauConstituent2(PanTau::TauConstituent2* tauConstituent) const {
-    TLorentzVector tlv_TauConst = tauConstituent->p4();
-    ATH_MSG_DEBUG("\t\tTauConstituent2 has charge " << tauConstituent->getCharge() << " and types " << tauConstituent->getTypeNameString() << " with BDT Value " << tauConstituent->getBDTValue());
-    ATH_MSG_DEBUG("\t\tTauConstituent2 has pT, Eta, Phi, m: " << tlv_TauConst.Perp() << " / " << tlv_TauConst.Eta() << " / " << tlv_TauConst.Phi() << " / " << tlv_TauConst.M());
+void PanTau::Tool_HelperFunctions::dumpTauConstituent(PanTau::TauConstituent* tauConstituent) const {
+    CLHEP::HepLorentzVector hlv_TauConst = tauConstituent->hlv();
+    ATH_MSG_DEBUG("\t\tTauConstituent has charge " << tauConstituent->getCharge() << " and types " << tauConstituent->getTypeNameString() << " with BDT Value " << tauConstituent->getBDTValue());
+    ATH_MSG_DEBUG("\t\tTauConstituent has pT, Eta, Phi, m: " << hlv_TauConst.perp() << " / " << hlv_TauConst.eta() << " / " << hlv_TauConst.phi() << " / " << hlv_TauConst.m());
     
     return;
 }
 
 
-PanTau::TauConstituent2* PanTau::HelperFunctions::getNeutralConstWithLargestAngle(  TLorentzVector charged, 
-										   std::vector<PanTau::TauConstituent2*> neutral) {
+PanTau::TauConstituent* PanTau::Tool_HelperFunctions::getNeutralConstWithLargestAngle(  CLHEP::HepLorentzVector              charged, 
+                                                                                std::vector<PanTau::TauConstituent*> neutral) {
     ATH_MSG_DEBUG("getNeutralConstWithLargestAngle");
     if(neutral.size() == 0) return 0;
     //loop through neutrals to find the one with largest angle
     unsigned int    idx_Neutral = -1;
     double          angle_Neutral  = -1.;
     for(unsigned int iNeut=0; iNeut<neutral.size(); iNeut++) {
-        TLorentzVector tlv_CurNeut = neutral[iNeut]->p4();
-        double angle = charged.Angle(tlv_CurNeut.Vect());
+        CLHEP::HepLorentzVector hlv_CurNeut = neutral[iNeut]->hlv();
+        double angle = charged.angle(hlv_CurNeut.vect());
         if(angle > angle_Neutral) {
             angle_Neutral = angle;
             idx_Neutral = iNeut;
@@ -64,27 +88,18 @@ PanTau::TauConstituent2* PanTau::HelperFunctions::getNeutralConstWithLargestAngl
 
 
 
-std::string PanTau::HelperFunctions::convertNumberToString(double x) const {
+std::string PanTau::Tool_HelperFunctions::convertNumberToString(double x) const {
     std::stringstream tmpStream;
     tmpStream << x;
     return tmpStream.str();
 }
 
 
-// Will: moved to TauPi0ClusterScaler 
-// void PanTau::HelperFunctions::vertexCorrection_PFOs(const xAOD::TauJet* tauJet, xAOD::PFO* pfo) const{
-//     
-//     const xAOD::Vertex* tauVertex = tauJet->vertexLink().cachedElement();
-//     if(tauVertex == 0) {
-//         ATH_MSG_WARNING("Did not find tau origin. No vertex correction will be applied to neutral PFO");
-//         return;
-//     }
-//     ATH_MSG_DEBUG("Vtx link x/y/z = " << tauVertex->x() << ", " << tauVertex->y() << ", " << tauVertex->z());
-//     ATH_MSG_DEBUG("Old cluster eta/phi: " << pfo->eta() << ", " << pfo->phi() << " CenterMag = " << pfo->centerMag());
-//     
-//     double clusterEta = pfo->eta();
-//     double clusterPhi = pfo->phi();
-//     double centerMag = pfo->centerMag();
+// void PanTau::Tool_HelperFunctions::vertexCorrection_eflowObjects(TVector3 vertexToCorrectTo, eflowObject* efo){
+// 
+//     double clusterEta = efo->eta();
+//     double clusterPhi = efo->phi();
+//     double centerMag = efo->getCenterMag();
 // 
 //     double radius = centerMag/cosh(clusterEta);
 // 
@@ -92,20 +107,51 @@ std::string PanTau::HelperFunctions::convertNumberToString(double x) const {
 //     double PhiVertexCorr = 0.0;
 // 
 //     if (radius > 1.0 && centerMag > 1e-3){
-//         EtaVertexCorr = (-tauVertex->z()/cosh(clusterEta) + (tauVertex->x()*cos(clusterPhi) + tauVertex->y()*sin(clusterPhi))*tanh(clusterEta))/radius;
-//         PhiVertexCorr = (tauVertex->x()*sin(clusterPhi) - tauVertex->y()*cos(clusterPhi))/radius;
+//         EtaVertexCorr = (-vertexToCorrectTo.Z()/cosh(clusterEta) + (vertexToCorrectTo.X()*cos(clusterPhi) + vertexToCorrectTo.Y()*sin(clusterPhi))*tanh(clusterEta))/radius;
+//         PhiVertexCorr = (vertexToCorrectTo.X()*sin(clusterPhi) - vertexToCorrectTo.Y()*cos(clusterPhi))/radius;
 //     }
 // 
 //     clusterEta += EtaVertexCorr;
 //     clusterPhi += PhiVertexCorr;
 //     
-//     pfo->setP4(pfo->pt(), clusterEta, clusterPhi, pfo->m());
-//     ATH_MSG_DEBUG("New cluster eta/phi: " << clusterEta << ", " << clusterPhi);
-// }
+//     efo->set_eta(clusterEta);
+//     efo->set_phi(clusterPhi);
+// 
+
+void PanTau::Tool_HelperFunctions::vertexCorrection_PFOs(const xAOD::TauJet* tauJet, xAOD::PFO* pfo) {
+    
+    const xAOD::Vertex* tauVertex = tauJet->vertexLink().cachedElement();
+    if(tauVertex == 0) {
+        ATH_MSG_WARNING("Did not find tau origin. No vertex correction will be applied to neutral PFO");
+        return;
+    }
+    ATH_MSG_DEBUG("Vtx link x/y/z = " << tauVertex->x() << ", " << tauVertex->y() << ", " << tauVertex->z());
+    ATH_MSG_DEBUG("Old cluster eta/phi: " << pfo->eta() << ", " << pfo->phi() << " CenterMag = " << pfo->centerMag());
+    
+    double clusterEta = pfo->eta();
+    double clusterPhi = pfo->phi();
+    double centerMag = pfo->centerMag();
+
+    double radius = centerMag/cosh(clusterEta);
+
+    double EtaVertexCorr = 0.0;
+    double PhiVertexCorr = 0.0;
+
+    if (radius > 1.0 && centerMag > 1e-3){
+        EtaVertexCorr = (-tauVertex->z()/cosh(clusterEta) + (tauVertex->x()*cos(clusterPhi) + tauVertex->y()*sin(clusterPhi))*tanh(clusterEta))/radius;
+        PhiVertexCorr = (tauVertex->x()*sin(clusterPhi) - tauVertex->y()*cos(clusterPhi))/radius;
+    }
+
+    clusterEta += EtaVertexCorr;
+    clusterPhi += PhiVertexCorr;
+    
+    pfo->setP4(pfo->pt(), clusterEta, clusterPhi, pfo->m());
+    ATH_MSG_DEBUG("New cluster eta/phi: " << clusterEta << ", " << clusterPhi);
+}
 
 
 
-int PanTau::HelperFunctions::getBinIndex(std::vector<double> binEdges, double value) const {
+int PanTau::Tool_HelperFunctions::getBinIndex(std::vector<double> binEdges, double value) const {
     int resBin = -1;
     for(unsigned int i=0; i<binEdges.size()-1; i++) {
         double lowerEdge = binEdges[i];
@@ -121,7 +167,7 @@ int PanTau::HelperFunctions::getBinIndex(std::vector<double> binEdges, double va
 
 
 
-double PanTau::HelperFunctions::stddev(double sumOfSquares, double sumOfValues, int numConsts) const {
+double PanTau::Tool_HelperFunctions::stddev(double sumOfSquares, double sumOfValues, int numConsts) const {
     // calculate standard deviations according to:
     // sigma^2 = (sum_i x_i^2) / N - ((sum_i x_i)/N)^2 (biased maximum-likelihood estimate)
     // directly set sigma^2 to 0 in case of N=1, otherwise numerical effects may yield very small negative sigma^2
@@ -135,16 +181,16 @@ double PanTau::HelperFunctions::stddev(double sumOfSquares, double sumOfValues, 
 
 
 
-double PanTau::HelperFunctions::deltaRprime(const TVector3& vec1, const TVector3& vec2) const {
-    const double a = vec1.DeltaPhi(vec2);
-    const double b = vec1.Theta() - vec2.Theta();
+double PanTau::Tool_HelperFunctions::deltaRprime(const CLHEP::Hep3Vector& vec1, const CLHEP::Hep3Vector& vec2) const {
+    const double a = vec1.deltaPhi(vec2);
+    const double b = vec1.polarAngle(vec2);
     double dRprime = sqrt(a*a + b*b);
     return dRprime;
 }
 
 
 
-int PanTau::HelperFunctions::iPow(int man, int exp) const {
+int PanTau::Tool_HelperFunctions::iPow(int man, int exp) {
     int ans = 1;
     for (int k = 0; k < exp; k++) {
         ans = ans * man;
@@ -154,7 +200,7 @@ int PanTau::HelperFunctions::iPow(int man, int exp) const {
 
 
 
-double PanTau::HelperFunctions::ulAngle(double x, double y) const {
+double PanTau::Tool_HelperFunctions::ulAngle(double x, double y) {
     Double_t ulangl = 0;
     Double_t r = TMath::Sqrt(x * x + y * y);
     if (r < 1.0E-20) {
@@ -175,7 +221,7 @@ double PanTau::HelperFunctions::ulAngle(double x, double y) const {
 
 
 
-double PanTau::HelperFunctions::sign(double a, double b) const {
+double PanTau::Tool_HelperFunctions::sign(double a, double b) {
     if (b < 0) {
         return -TMath::Abs(a);
     } else {
@@ -186,7 +232,7 @@ double PanTau::HelperFunctions::sign(double a, double b) const {
 
 
 // JetProperties Thrust:  code stolen from ftp://ftp.slac.stanford.edu/groups/lcd/Physics_tools/ (by M. Iwasaki)
-std::vector<double> PanTau::HelperFunctions::calcThrust(std::vector<TauConstituent2*>* tauConstituents, bool& calcIsValid) const{
+std::vector<double> PanTau::Tool_HelperFunctions::calcThrust(std::vector<TauConstituent*>* tauConstituents, bool& calcIsValid) {
     TRandom random;
     int maxpart = 1000;
     double dDeltaThPower(0);
@@ -215,18 +261,18 @@ std::vector<double> PanTau::HelperFunctions::calcThrust(std::vector<TauConstitue
 
     Double_t dThrust[4];
 
-    for (std::vector<TauConstituent2*>::iterator p4iter = tauConstituents->begin(); p4iter != tauConstituents->end(); p4iter++) {
-        TVector3 p = (*p4iter)->p4().Vect();
+    for (std::vector<TauConstituent*>::iterator p4iter = tauConstituents->begin(); p4iter != tauConstituents->end(); p4iter++) {
+        CLHEP::Hep3Vector p = (*p4iter)->hlv().vect();
 
         if (np >= maxpart) {
             calcIsValid = false;
             return std::vector<double>(0);
         }
         
-        mom(np, 1) = p.X();
-        mom(np, 2) = p.Y();
-        mom(np, 3) = p.Z();
-        mom(np, 4) = p.Mag();
+        mom(np, 1) = p.x();
+        mom(np, 2) = p.y();
+        mom(np, 3) = p.z();
+        mom(np, 4) = p.mag();
         
         if (TMath::Abs(dDeltaThPower) <= 0.001) {
             mom(np, 5) = 1.0;
@@ -421,8 +467,8 @@ std::vector<double> PanTau::HelperFunctions::calcThrust(std::vector<TauConstitue
             dAxes(i7 + 1, j) = temp(i7, j);
         }
     }
-    TVector3 thrustAxis(dAxes(1, 1), dAxes(1, 2), dAxes(1, 3));
-    TVector3 majorAxis(dAxes(2, 1), dAxes(2, 2), dAxes(2, 3));
+    CLHEP::Hep3Vector thrustAxis(dAxes(1, 1), dAxes(1, 2), dAxes(1, 3));
+    CLHEP::Hep3Vector majorAxis(dAxes(2, 1), dAxes(2, 2), dAxes(2, 3));
     std::vector<double> values(0);
     values.push_back(dThrust[1]);
     values.push_back(dThrust[2]);
@@ -433,12 +479,12 @@ std::vector<double> PanTau::HelperFunctions::calcThrust(std::vector<TauConstitue
 
 
 // JetProperties ludbrb:  This is used in calcThrust
-void PanTau::HelperFunctions::ludbrb(TMatrix* mom,
+void PanTau::Tool_HelperFunctions::ludbrb(TMatrix* mom,
         double the,
         double phi,
         double bx,
         double by,
-        double bz) const {
+        double bz) {
     // Ignore "zeroth" elements in rot,pr,dp.
     // Trying to use physics-like notation.
     TMatrix rot(4, 4);
@@ -495,7 +541,7 @@ void PanTau::HelperFunctions::ludbrb(TMatrix* mom,
 
 
 // JetProperties FoxWolfram Moments:  See here: http://cepa.fnal.gov/psm/simulation/mcgen/lund/pythia_manual/pythia6.3/pythia6301/node215.html
-std::vector<double> PanTau::HelperFunctions::calcFWMoments(std::vector<TauConstituent2*>* tauConstituents, bool& calcIsValid) const{
+std::vector<double> PanTau::Tool_HelperFunctions::calcFWMoments(std::vector<TauConstituent*>* tauConstituents, bool& calcIsValid) {
 
     const unsigned int nMomentsToCalc = 5;
     std::vector<double> fwValues = std::vector<double>(nMomentsToCalc, -9.999);
@@ -507,22 +553,22 @@ std::vector<double> PanTau::HelperFunctions::calcFWMoments(std::vector<TauConsti
     }
     double jetE = 0.;
 
-    for (std::vector<TauConstituent2*>::iterator p4iter1 = tauConstituents->begin(); p4iter1 != tauConstituents->end(); p4iter1++) {
-        TVector3 p1 = (*p4iter1)->p4().Vect();
-        jetE += (*p4iter1)->p4().E();
+    for (std::vector<TauConstituent*>::iterator p4iter1 = tauConstituents->begin(); p4iter1 != tauConstituents->end(); p4iter1++) {
+        CLHEP::Hep3Vector p1 = (*p4iter1)->hlv().vect();
+        jetE += (*p4iter1)->hlv().e();
 
-        for (std::vector<TauConstituent2*>::iterator p4iter2 = tauConstituents->begin(); p4iter2 != tauConstituents->end(); p4iter2++) {
+        for (std::vector<TauConstituent*>::iterator p4iter2 = tauConstituents->begin(); p4iter2 != tauConstituents->end(); p4iter2++) {
 
-            TVector3 p2 = (*p4iter2)->p4().Vect();
+            CLHEP::Hep3Vector p2 = (*p4iter2)->hlv().vect();
 
             //find angle between vectors
-            double angle = (double) p1.Angle(p2) ;
+            double angle = (double) p1.angle(p2) ;
             
             //new calculation
             for(unsigned int iMoment=0; iMoment<nMomentsToCalc; iMoment++) {
-                if(p1.Mag() == 0) continue; //curMoment will be 0 and not change anything in this case
-                if(p2.Mag() == 0) continue; //
-                double curMoment = (p1.Mag() * p2.Mag() * ROOT::Math::legendre(  iMoment, TMath::Cos(angle)));
+                if(p1.mag() == 0) continue; //curMoment will be 0 and not change anything in this case
+                if(p2.mag() == 0) continue; //
+                double curMoment = (p1.mag() * p2.mag() * ROOT::Math::legendre(  iMoment, TMath::Cos(angle)));
                 fwValues[iMoment] += curMoment;
             }//end loop over moments
         }//end loop over second particle
@@ -561,7 +607,7 @@ std::vector<double> PanTau::HelperFunctions::calcFWMoments(std::vector<TauConsti
 //! //////////////////////////////////////////
 /// JetProperties: Sphericity
 //! //////////////////////////////////////////
-std::vector<double> PanTau::HelperFunctions::calcSphericity(std::vector<TauConstituent2*>* tauConstituents, bool& calcIsValid) const{
+std::vector<double> PanTau::Tool_HelperFunctions::calcSphericity(std::vector<TauConstituent*>* tauConstituents, bool& calcIsValid) {
 
     double sphTensor[9];
     double norm = 0.;
@@ -570,19 +616,19 @@ std::vector<double> PanTau::HelperFunctions::calcSphericity(std::vector<TauConst
     }
 
 
-    for (std::vector<TauConstituent2*>::iterator p4iter = tauConstituents->begin(); p4iter != tauConstituents->end(); p4iter++) {
+    for (std::vector<TauConstituent*>::iterator p4iter = tauConstituents->begin(); p4iter != tauConstituents->end(); p4iter++) {
 
-        sphTensor[0] += (*p4iter)->p4().Px() * (*p4iter)->p4().Px();
-        sphTensor[1] += (*p4iter)->p4().Px() * (*p4iter)->p4().Py();
-        sphTensor[2] += (*p4iter)->p4().Px() * (*p4iter)->p4().Pz();
-        sphTensor[3] += (*p4iter)->p4().Py() * (*p4iter)->p4().Px();
-        sphTensor[4] += (*p4iter)->p4().Py() * (*p4iter)->p4().Py();
-        sphTensor[5] += (*p4iter)->p4().Py() * (*p4iter)->p4().Pz();
-        sphTensor[6] += (*p4iter)->p4().Pz() * (*p4iter)->p4().Px();
-        sphTensor[7] += (*p4iter)->p4().Pz() * (*p4iter)->p4().Py();
-        sphTensor[8] += (*p4iter)->p4().Pz() * (*p4iter)->p4().Pz();
+        sphTensor[0] += (*p4iter)->px() * (*p4iter)->px();
+        sphTensor[1] += (*p4iter)->px() * (*p4iter)->py();
+        sphTensor[2] += (*p4iter)->px() * (*p4iter)->pz();
+        sphTensor[3] += (*p4iter)->py() * (*p4iter)->px();
+        sphTensor[4] += (*p4iter)->py() * (*p4iter)->py();
+        sphTensor[5] += (*p4iter)->py() * (*p4iter)->pz();
+        sphTensor[6] += (*p4iter)->pz() * (*p4iter)->px();
+        sphTensor[7] += (*p4iter)->pz() * (*p4iter)->py();
+        sphTensor[8] += (*p4iter)->pz() * (*p4iter)->pz();
 
-        norm += (*p4iter)->p4().Vect() * (*p4iter)->p4().Vect();
+        norm += (*p4iter)->hlv().vect() * (*p4iter)->hlv().vect();
 
     }
     
