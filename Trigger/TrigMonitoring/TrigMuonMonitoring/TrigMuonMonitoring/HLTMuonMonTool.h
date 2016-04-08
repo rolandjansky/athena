@@ -181,6 +181,7 @@ class HLTMuonMonTool : public IHLTMonTool
   std::vector<std::string> m_chainsMI;  // added tomoe
   std::vector<std::string> m_chainsGeneric;  // added YY 21 Feb 2012
   std::vector<std::string> m_chainsEFFS;  
+  bool m_HI_pp_mode;
   std::vector<std::string> m_histChainGeneric;  
   std::vector<std::string> m_histChainEFiso;  
   std::vector<std::string> m_histChainMSonly;  

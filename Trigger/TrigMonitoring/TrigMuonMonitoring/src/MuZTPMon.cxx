@@ -56,7 +56,6 @@
 #include "TH1F.h"
 #include "TH2I.h"
 #include "TH2F.h"
-#include "TGraphAsymmErrors.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -213,31 +212,12 @@ StatusCode HLTMuonMonTool::bookMuZTPDQA()
       var.push_back("_Eta_2bins_");
       var.push_back("_Eta_1bin_cut_");
       var.push_back("_Eta_2bins_cut_");
-      for(unsigned int k=0;k<var.size();k++){
-	for(unsigned int l=0;l<level.size();l++){
-	  TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	  g->SetName(("muZTP_eff_"+level[l]+var[k]+itmap->second).c_str());
-	  g->SetMarkerStyle(22);
-	  g->SetMinimum(0.0);
-	  g->SetMaximum(1.05);
-	  addGraph( g, histdirmuztp );
-	}//level
-      }
       for(int m=0;m<9;m++){
 	std::vector<std::string> ratio;
 	ratio.push_back("EFwrtL2");
 	ratio.push_back("EFwrtL1");
 	ratio.push_back("L2wrtL1");
 	if(isefisochain) ratio.push_back("EFIsowrtEF");
-	for(unsigned int n=0;n<ratio.size();n++){
-	  TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	  g->SetName(("muZTP_eff_"+ratio[n]+var[m]+itmap->second).c_str());
-	  g->SetMarkerStyle(22);
-	  g->SetMinimum(0.0);
-	  g->SetMaximum(1.05);
-	  addGraph( g, histdirmuztp );
-	  ATH_MSG_DEBUG("Made TGraph " << g->GetName());
-	}//ratio
       }//var
     }//trigger vector
     
@@ -959,22 +939,10 @@ StatusCode HLTMuonMonTool::procMuZTPDQA()
 	for(unsigned int j=0;j<level.size();j++){
 	  ATH_MSG_DEBUG(itmap->first << " " << level[j] << " " << var[k]);
 	  //ABSOLUTE
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_"+level[j]+var[k]+itmap->second).c_str(), histdirmuztp)) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_"+level[j]+var[k]+itmap->second).c_str(), histdirmuztp))->BayesDivide(hist(("muZTP"+var[k]+level[j]+"fired_"+itmap->second).c_str(), histdirmuztp), hist(("muZTP"+var[k]+itmap->second).c_str(), histdirmuztp));
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_"+level[j]+"_Eta_1bin_"+itmap->second).c_str(), histdirmuztp)) != 0)dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_"+level[j]+"_Eta_1bin_"+itmap->second).c_str(), histdirmuztp))->BayesDivide(hist(("muZTP_Eta_1bin_"+level[j]+"fired_"+itmap->second).c_str(), histdirmuztp), hist(("muZTP_Eta_1bin_"+itmap->second).c_str(), histdirmuztp));
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_"+level[j]+"_Eta_2bins_"+itmap->second).c_str(), histdirmuztp))!= 0)dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_"+level[j]+"_Eta_2bins_"+itmap->second).c_str(), histdirmuztp))->BayesDivide(hist(("muZTP_Eta_2bins_"+level[j]+"fired_"+itmap->second).c_str(), histdirmuztp), hist(("muZTP_Eta_2bins_"+itmap->second).c_str(), histdirmuztp));
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_"+level[j]+"_Eta_1bin_cut_"+itmap->second).c_str(), histdirmuztp))!= 0)dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_"+level[j]+"_Eta_1bin_cut_"+itmap->second).c_str(), histdirmuztp))->BayesDivide(hist(("muZTP_Eta_1bin_cut_"+level[j]+"fired_"+itmap->second).c_str(), histdirmuztp), hist(("muZTP_Eta_1bin_cut_"+itmap->second).c_str(), histdirmuztp));
-	  if(dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_"+level[j]+"_Eta_2bins_cut_"+itmap->second).c_str(), histdirmuztp))!= 0)dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_"+level[j]+"_Eta_2bins_cut_"+itmap->second).c_str(), histdirmuztp))->BayesDivide(hist(("muZTP_Eta_2bins_cut_"+level[j]+"fired_"+itmap->second).c_str(), histdirmuztp), hist(("muZTP_Eta_2bins_cut_"+itmap->second).c_str(), histdirmuztp));
 	  //2D ETA_PHI
 	  hist2(("muZTP_eff_EtaPhi_"+level[j]+"_" + itmap->second).c_str(), histdirmuztp)->Divide( hist2(("muZTP_EtaPhi_"+level[j]+"_" + itmap->second).c_str(), histdirmuztp), hist2(("muZTP_EtaPhi_all_"+ itmap->second).c_str(), histdirmuztp), 1, 1, "B");
-
 	}//level
 	//RELATIVE
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_EFwrtL2"+var[k]+itmap->second).c_str(), histdirmuztp))!= 0)dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_EFwrtL2"+var[k]+itmap->second).c_str(), histdirmuztp))->BayesDivide(hist(("muZTP"+var[k]+"EFL2fired_"+itmap->second).c_str(), histdirmuztp), hist(("muZTP"+var[k]+"L2fired_"+itmap->second).c_str(), histdirmuztp));
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_EFwrtL1"+var[k]+itmap->second).c_str(), histdirmuztp))!= 0)dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_EFwrtL1"+var[k]+itmap->second).c_str(), histdirmuztp))->BayesDivide(hist(("muZTP"+var[k]+"EFfired_"+itmap->second).c_str(), histdirmuztp), hist(("muZTP"+var[k]+"L1fired_"+itmap->second).c_str(), histdirmuztp));
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_L2wrtL1"+var[k]+itmap->second).c_str(), histdirmuztp))!= 0)dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_L2wrtL1"+var[k]+itmap->second).c_str(), histdirmuztp))->BayesDivide(hist(("muZTP"+var[k]+"L2fired_"+itmap->second).c_str(), histdirmuztp), hist(("muZTP"+var[k]+"L1fired_"+itmap->second).c_str(), histdirmuztp));
-	if(m_ztp_isomap[itmap->first] > 0) { // do isolation vs EF
-	if(dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_EFIsowrtEF"+var[k]+itmap->second).c_str(), histdirmuztp))!= 0)dynamic_cast<TGraphAsymmErrors*>( graph(("muZTP_eff_EFIsowrtEF"+var[k]+itmap->second).c_str(), histdirmuztp))->BayesDivide(hist(("muZTP"+var[k]+"EFIsofired_"+itmap->second).c_str(), histdirmuztp), hist(("muZTP"+var[k]+"EFfired_"+itmap->second).c_str(), histdirmuztp));
-	}
       }//var
     }
     
