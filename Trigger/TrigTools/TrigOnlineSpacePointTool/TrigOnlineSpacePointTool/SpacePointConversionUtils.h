@@ -24,12 +24,12 @@ class IRoiDescriptor;
 /// header for factorised IRoiDescriptor interface
 #include "IRegionSelector/RoiUtil.h"
 
-// bool roiContains( const IRoiDescriptor& roi, double z, double r, double phi);
-// bool roiContainsZed( const IRoiDescriptor& roi, double z, double r);
-
 namespace FTF {//FastTrackFinder
 
   class LayerCalculator {
+
+    friend class BaseSpacePointFilter;
+
   public:
   LayerCalculator(const AtlasDetectorID* aId, const PixelID* pId, const SCT_ID* sId, int offs[3]) :
     m_atlasId(aId), m_pixelId(pId), m_sctId(sId) {
@@ -80,6 +80,15 @@ namespace FTF {//FastTrackFinder
       }
       void setLayer(const Identifier& id) {
 	m_layerId = m_layerCalculator.getLayer(id);
+	setErrors(id);
+      }
+      
+      void setLayer(short layerId, const Identifier& id) {
+	m_layerId = layerId;
+	setErrors(id);
+      }
+      
+      void setErrors(const Identifier& id) {
 	if(m_layerCalculator.isPixel(id)) { 
 	  m_dphi=0.0001;
 	  if(m_layerCalculator.isBarrel(id)) {
@@ -103,6 +112,7 @@ namespace FTF {//FastTrackFinder
 	  }
 	}
       }
+      
       void createSpacePoint(const Trk::SpacePoint* p) {
         m_vec.push_back(TrigSiSpacePointBase(m_layerId, p->globalPosition().perp(), p->globalPosition().phi(), p->globalPosition().z(), 
               m_dr, m_dphi, m_dz, p));
@@ -133,23 +143,31 @@ namespace FTF {//FastTrackFinder
 
   template < typename T> class SpacePointSelector {
   public:
-    SpacePointSelector(T& t) : m_filter(t), m_pIDC(nullptr) {};
+  SpacePointSelector(T& t) : m_filter(t), m_hash2layer(nullptr), m_pIDC(nullptr) {};
     ~SpacePointSelector(){};
     void operator() (const IdentifierHash& id) {
+
       if (m_pIDC) {
         SpacePointContainer::const_iterator collIt = m_pIDC->indexFind(id);
         if(collIt!=m_pIDC->end()) {
-          m_filter.setLayer((*collIt)->identify());
+          if(m_hash2layer ==  nullptr) m_filter.setLayer((*collIt)->identify());
+	  else {
+	    int layerId = m_hash2layer->at((int)(*collIt)->identifyHash());
+	    if(layerId<0) return;
+	    m_filter.setLayer(layerId,(*collIt)->identify());
+	  }
           std::for_each((*collIt)->begin(),(*collIt)->end(),m_filter);
         }
       }
     }
     void operator()(const SpacePointCollection* coll) {
-      m_filter.setLayer(coll->identify());
+      if(m_hash2layer ==  nullptr) m_filter.setLayer(coll->identify());
+      else m_filter.setLayer(m_hash2layer->at((int)coll->identifyHash()),coll->identify());
       std::for_each(coll->begin(),coll->end(),m_filter);
     }
 
-    int select(const SpacePointContainer* p, const std::vector<IdentifierHash>& idVec) {
+    int select(const SpacePointContainer* p, const std::vector<IdentifierHash>& idVec, const std::vector<short>* h2l = nullptr) {
+      m_hash2layer = h2l;
       m_pIDC=p;
       int ret = m_filter.vectorSize();
       std::for_each(idVec.begin(),idVec.end(),*this);
@@ -158,6 +176,7 @@ namespace FTF {//FastTrackFinder
 
   private:
     T& m_filter;
+    const std::vector<short>* m_hash2layer;
     const SpacePointContainer* m_pIDC;
   };
 
