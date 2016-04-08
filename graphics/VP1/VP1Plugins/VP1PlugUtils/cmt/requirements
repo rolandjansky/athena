@@ -4,8 +4,8 @@ author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
 manager Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
 
 use AtlasPolicy          AtlasPolicy-*
-use VP1Base              VP1Base-*              graphics/VP1
 private
+use VP1Base              VP1Base-*              graphics/VP1
 use VP1TrackSystems      VP1TrackSystems-*      graphics/VP1/VP1Systems
 use VP1PRDSystems        VP1PRDSystems-*        graphics/VP1/VP1Systems
 use VP1GeometrySystems   VP1GeometrySystems-*   graphics/VP1/VP1Systems
