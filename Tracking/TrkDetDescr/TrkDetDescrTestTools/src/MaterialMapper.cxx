@@ -166,7 +166,8 @@ void Trk::MaterialMapper::recordMaterialHit(const AssociatedMaterial& amhit, con
     }
     else m_unmappedPathInX0 +=  amhit.steplengthInX0();
     m_mapped[m_materialSteps] = lay ? lay->layerIndex().value() : 0;
-    // the position
+    // the position & step information 
+    m_materialAccumPathInX0[m_materialSteps]    += amhit.steplengthInX0();
     m_materialStepPathInX0[m_materialSteps]      = amhit.steplengthInX0();
     m_materialStepPathInL0[m_materialSteps]      = amhit.steplengthInL0();
     m_materialStepPathTimesRho[m_materialSteps]  = amhit.rho()*amhit.steplength();
@@ -626,6 +627,7 @@ void Trk::MaterialMapper::bookValidationTree()
     m_validationTree->Branch("PathTimesRho",          &m_mappedPathTimesRho,   "pathTimesRho/F");
     m_validationTree->Branch("MaterialSteps",         &m_materialSteps,        "steps/I");
     m_validationTree->Branch("Mapped",                m_mapped,                "mapped[steps]/I");
+    m_validationTree->Branch("MaterialStepPathInX0",  m_materialAccumPathInX0, "materialAccumPinX0[steps]/F");
     m_validationTree->Branch("MaterialStepPathInX0",  m_materialStepPathInX0  ,"materialStepPinX0[steps]/F");
     m_validationTree->Branch("MaterialStepPositionX", m_materialStepPositionX ,"materialStepX[steps]/F");
     m_validationTree->Branch("MaterialStepPositionY", m_materialStepPositionY ,"materialStepY[steps]/F");
