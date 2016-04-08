@@ -6,11 +6,11 @@
 #include "xercesc/sax/ErrorHandler.hpp"
 #include <iostream>
 
-using namespace xercesc;
+//using namespace xercesc;
 
 namespace pool{
 
-class XMLDOMErrorMessanger : public ErrorHandler
+class XMLDOMErrorMessanger : public xercesc::ErrorHandler
 {
 public:
     // -----------------------------------------------------------------------
@@ -26,9 +26,9 @@ public:
     // -----------------------------------------------------------------------
     //  Implementation of the error handler interface
     // -----------------------------------------------------------------------
-    void warning(const SAXParseException& toCatch);
-    void error(const SAXParseException& toCatch);
-    void fatalError(const SAXParseException& toCatch);
+    void warning(const xercesc::SAXParseException& toCatch);
+    void error(const xercesc::SAXParseException& toCatch);
+    void fatalError(const xercesc::SAXParseException& toCatch);
     void resetErrors();
 
     // -----------------------------------------------------------------------

@@ -8,14 +8,14 @@
 #include "xercesc/sax/EntityResolver.hpp"
 #include "xercesc/sax/InputSource.hpp"
 
-using namespace xercesc;
+//using namespace xercesc;
 
-class DTDRedirect : public EntityResolver
+class DTDRedirect : public xercesc::EntityResolver
 {
   public:
   DTDRedirect() {}
   ~DTDRedirect() {}
-  InputSource* resolveEntity
+  xercesc::InputSource* resolveEntity
     (
              const   XMLCh* const    publicId
              , const XMLCh* const    systemId

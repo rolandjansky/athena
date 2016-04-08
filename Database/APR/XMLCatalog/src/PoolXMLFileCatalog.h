@@ -15,8 +15,6 @@
 #include "xercesc/dom/DOMNode.hpp"
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
-using namespace xercesc;
-
 namespace pool {
 
 
@@ -257,6 +255,9 @@ namespace pool {
     std::string getfiletype(const std::string& pfn);
 
   private:
+    typedef xercesc::DOMNode DOMNode;
+    typedef xercesc::DOMDocument DOMDocument;
+    typedef xercesc::XercesDOMParser XercesDOMParser;
     DOMNode*   getNode(const std::string & nodename, 
 		       const std::string & attr,
 		       const std::string & attrname);
