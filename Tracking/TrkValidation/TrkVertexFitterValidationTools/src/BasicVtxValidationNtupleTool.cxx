@@ -27,8 +27,7 @@
 
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //CLHEP
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
@@ -237,6 +236,10 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillVxCandidateData (const Trk::Vx
     {
       Trk::VxTrackAtVertex* trackAtVtx = (*vxCandidate.vxTrackAtVertex())[counter];
       const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*>(trackAtVtx->perigeeAtVertex());
+      if (!perigee) {
+         ATH_MSG_ERROR ("Track parameters are not a perigee");
+         return StatusCode::FAILURE;
+      }
 
       //get perigee at vertex & errors
       m_chi2_per_track->push_back(trackAtVtx->trackQuality().chiSquared());
@@ -254,6 +257,10 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillVxCandidateData (const Trk::Vx
 
       //initial perigee at ATLAS (0,0,0) & errors
       const Trk::Perigee* initialPerigee = dynamic_cast<const Trk::Perigee*>(trackAtVtx->initialPerigee());      
+      if (!initialPerigee) {
+         ATH_MSG_ERROR ("Track parameters are not a perigee");
+         return StatusCode::FAILURE;
+      }
       m_initial_d0->push_back(initialPerigee->parameters()[Trk::d0]);
       m_initial_z0->push_back(initialPerigee->parameters()[Trk::z0]);
       m_initial_phi0->push_back(initialPerigee->parameters()[Trk::phi]);
@@ -321,6 +328,10 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Tr
         ElementLink<TrackCollection> tracklink;
         Trk::ITrackLink* trklink = trackAtVtx->trackOrParticleLink();
         Trk::LinkToTrack* linkToTrack = dynamic_cast<Trk::LinkToTrack*>(trklink);
+        if (!linkToTrack) {
+          ATH_MSG_ERROR ("Not a link to track.");
+          return StatusCode::FAILURE;
+        }
         const Trk::Track* theTrack = linkToTrack->cachedElement(); 
         tracklink.setElement(const_cast<Trk::Track*>(theTrack));
         tracklink.setStorableObject(trk_coll);
@@ -369,14 +380,13 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Tr
 StatusCode Trk::BasicVtxValidationNtupleTool::fillEventInfo(int& numRecVtx) const {
     // ---------------------------------------
     // reset Vtx counter if new event
-   const EventInfo* eventInfo;
+   const xAOD::EventInfo* eventInfo;
    if ((evtStore()->retrieve(eventInfo)).isFailure()) { 
      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve event info" << endreq; }
-   EventID* myEventID=eventInfo->event_ID();
 
-   if (m_lastEventNumber!=myEventID->event_number())  m_lastEventNumber = myEventID->event_number();
-   m_eventNumber = myEventID->event_number();
-   m_runNumber=myEventID->run_number();
+   if (m_lastEventNumber!=eventInfo->eventNumber())  m_lastEventNumber = eventInfo->eventNumber();
+   m_eventNumber = eventInfo->eventNumber();
+   m_runNumber=eventInfo->runNumber();
    m_numVertices = numRecVtx;
    tree->Fill();
    return StatusCode::SUCCESS;
