@@ -16,7 +16,8 @@
 // STL includes
 #include <vector>
 
-#include "AthLinks/ElementLink.h"
+// DataModel includes
+#include "DataModel/ElementLink.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "EventKernel/IParticle.h"
 #include "NavFourMom/IParticleLink.h"
