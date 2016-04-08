@@ -2,7 +2,7 @@ package BFieldData
       
 author  Marc Virchaux <virchaux@hep.saclay.cea.fr>
 
-use AtlasPolicy AtlasPolicy-01-*
+use AtlasPolicy AtlasPolicy-*
 
 apply_pattern declare_runtime_extras extras=" bmagatlas02.data       \
                                               bmagatlas03_test2.data \
