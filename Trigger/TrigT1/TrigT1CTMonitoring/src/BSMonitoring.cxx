@@ -150,291 +150,292 @@ initialize() {
 
 StatusCode TrigT1CTMonitoring::BSMonitoring::
 bookHistograms() {
-  try {
-    ATH_MSG(DEBUG) << "begin bookHistograms()" << endreq;
-    ATH_MSG(DEBUG) << "Clearing HistMap and resetting event counters for new run" << endreq;
+   try {
+      ATH_MSG(DEBUG) << "begin bookHistograms()" << endreq;
+      ATH_MSG(DEBUG) << "Clearing HistMap and resetting event counters for new run" << endreq;
 
-    m_histNames.clear();
-    m_eventCount = 0;
-    m_firstEventTime = 0;
-    m_firstEventBcid = 0;
-    m_firstEventTC = 0;
-    m_lumiBlockOfPreviousEvent = 0;
-    m_filledEventCount = 0;
-    m_maxLumiBlock = 0;
-    m_currentLumiBlock = 0;
-    m_runNumber = 0;
-    m_eventNumber = 0;
+      m_histNames.clear();
+      m_eventCount = 0;
+      m_firstEventTime = 0;
+      m_firstEventBcid = 0;
+      m_firstEventTC = 0;
+      m_lumiBlockOfPreviousEvent = 0;
+      m_filledEventCount = 0;
+      m_maxLumiBlock = 0;
+      m_currentLumiBlock = 0;
+      m_runNumber = 0;
+      m_eventNumber = 0;
 
-    CHECK( initCtpHistograms() );
-    CHECK( initMuctpiHistograms() );
-    CHECK( initCtpMuctpiHistograms() );
-    CHECK( initRoIHistograms() );
+      CHECK( initCtpHistograms() );
+      CHECK( initMuctpiHistograms() );
+      CHECK( initCtpMuctpiHistograms() );
+      CHECK( initRoIHistograms() );
 
-    m_histogramsBooked = true;
+      m_histogramsBooked = true;
 
-    if (m_retrieveCoolData) {
-      ATH_MSG(DEBUG) << "Will now try to access LB times in folder " << m_lbTimeCoolFolderName << endreq;
-      m_lumiBlocks.clear();
-      m_lbStartTimes.clear();
-      m_lbEndTimes.clear();
-      m_lbStartFreqMeasurements.clear();
-      m_freqMeasurements.clear();
-      m_beamMode.clear();
-      const DataHandle<CTP_RIO> theCTP_RIO = 0;
-      if (!(evtStore()->retrieve(theCTP_RIO, "CTP_RIO").isFailure())) {
-	getCoolData(theCTP_RIO->getRunNumber());
-	ATH_MSG(DEBUG) << m_lumiBlocks.size() << " lumi blocks found" << endreq;
-	for ( std::vector<uint32_t>::const_iterator lbIt = m_lumiBlocks.begin(); 
-	      lbIt != m_lumiBlocks.end(); ++lbIt ) {
-	  ATH_MSG(DEBUG) << "LB " << *lbIt << ": start time = " << m_lbStartTimes[*lbIt] 
-			 << ", end time = " << m_lbEndTimes[*lbIt] << endreq;
-	}
-	if (m_lbStartTimes.size() == 0) {
-	  ATH_MSG(WARNING) << "Lumi block timestamps not found!" << endreq;
-	}
-	else {
-	  m_retrievedLumiBlockTimes = true;
-	}
+      if (m_retrieveCoolData) {
+         ATH_MSG(DEBUG) << "Will now try to access LB times in folder " << m_lbTimeCoolFolderName << endreq;
+         m_lumiBlocks.clear();
+         m_lbStartTimes.clear();
+         m_lbEndTimes.clear();
+         m_lbStartFreqMeasurements.clear();
+         m_freqMeasurements.clear();
+         m_beamMode.clear();
+         const DataHandle<CTP_RIO> theCTP_RIO = 0;
+         if (!(evtStore()->retrieve(theCTP_RIO, "CTP_RIO").isFailure())) {
+            getCoolData(theCTP_RIO->getRunNumber());
+            ATH_MSG(DEBUG) << m_lumiBlocks.size() << " lumi blocks found" << endreq;
+            for ( std::vector<uint32_t>::const_iterator lbIt = m_lumiBlocks.begin(); 
+                  lbIt != m_lumiBlocks.end(); ++lbIt ) {
+               ATH_MSG(DEBUG) << "LB " << *lbIt << ": start time = " << m_lbStartTimes[*lbIt] 
+                              << ", end time = " << m_lbEndTimes[*lbIt] << endreq;
+            }
+            if (m_lbStartTimes.size() == 0) {
+               ATH_MSG(WARNING) << "Lumi block timestamps not found!" << endreq;
+            }
+            else {
+               m_retrievedLumiBlockTimes = true;
+            }
+         }
       }
-    }
-    ATH_MSG(DEBUG) << "end bookHistograms()" << endreq;    
-    return StatusCode::SUCCESS;
-  }
-  catch(const std::exception & e) {
-    std::cerr << "Caught standard C++ exception: " << e.what() << " from bookHistograms()" << std::endl;
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
+      ATH_MSG(DEBUG) << "end bookHistograms()" << endreq;    
+      return StatusCode::SUCCESS;
+   }
+   catch(const std::exception & e) {
+      std::cerr << "Caught standard C++ exception: " << e.what() << " from bookHistograms()" << std::endl;
+      return StatusCode::FAILURE;
+   }
+   return StatusCode::SUCCESS;
 }
 
 
 
-StatusCode TrigT1CTMonitoring::BSMonitoring::
-fillHistograms() {
-  try {
-    if (!m_histogramsBooked) {
-      ATH_MSG(ERROR) << "fillHistograms() called before bookHistograms(*,*,1)!" << endreq;
-      ATH_MSG(ERROR) << "calling bookHistograms(1,1,1) manually..." << endreq;
-      CHECK( bookHistograms() );
-    }
+StatusCode
+TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
+   //evtStore()->dump();
+   try {
+      if (!m_histogramsBooked) {
+         ATH_MSG(ERROR) << "fillHistograms() called before bookHistograms(*,*,1)!" << endreq;
+         ATH_MSG(ERROR) << "calling bookHistograms(1,1,1) manually..." << endreq;
+         CHECK( bookHistograms() );
+      }
 
-    ATH_MSG(DEBUG) << "begin fillHistograms()" << endreq;
+      ATH_MSG(DEBUG) << "begin fillHistograms()" << endreq;
 
-    // Now see what exists in StoreGate...
-    const DataHandle<MuCTPI_RDO> theMuCTPI_RDO = 0;
-    const DataHandle<MuCTPI_RIO> theMuCTPI_RIO = 0;
-    const DataHandle<CTP_RDO> theCTP_RDO = 0;
-    const DataHandle<CTP_RIO> theCTP_RIO = 0;
-    const DataHandle<ROIB::RoIBResult> roIBResult = 0;
-    const EventInfo* eventInfo = 0; 
+      // Now see what exists in StoreGate...
+      const DataHandle<MuCTPI_RDO> theMuCTPI_RDO = 0;
+      const DataHandle<MuCTPI_RIO> theMuCTPI_RIO = 0;
+      const DataHandle<CTP_RDO> theCTP_RDO = 0;
+      const DataHandle<CTP_RIO> theCTP_RIO = 0;
+      const DataHandle<ROIB::RoIBResult> roIBResult = 0;
+      const EventInfo* eventInfo = 0; 
 
-    bool validMuCTPI_RIO = true;
-    bool validMuCTPI_RDO = true;
-    bool validCTP_RIO = true;
-    bool validCTP_RDO = true;
-    bool validRoIBResult = true;
-    int numberOfInvalidFragments = 0;
+      bool validMuCTPI_RIO = true;
+      bool validMuCTPI_RDO = true;
+      bool validCTP_RIO = true;
+      bool validCTP_RDO = true;
+      bool validRoIBResult = true;
+      int numberOfInvalidFragments = 0;
 
-    TProfile_LW* errorSummary = getTProfile("errorSummary");
-    TH1F_LW* errorPerLumiBlock = getTH1("errorPerLumiBlock");
-    TH2F_LW* errorSummaryPerLumiBlock = getTH2("errorSummaryPerLumiBlock");
-    TH1F_LW* incompleteFragmentType = getTH1("incompleteFragmentType");
+      TProfile_LW* errorSummary = getTProfile("errorSummary");
+      TH1F_LW* errorPerLumiBlock = getTH1("errorPerLumiBlock");
+      TH2F_LW* errorSummaryPerLumiBlock = getTH2("errorSummaryPerLumiBlock");
+      TH1F_LW* incompleteFragmentType = getTH1("incompleteFragmentType");
 
-    if ( !errorSummary || !errorSummaryPerLumiBlock || !errorPerLumiBlock || !incompleteFragmentType ) {
-      ATH_MSG(FATAL) << "Problems finding error histograms!" << endreq;
-      return StatusCode::FAILURE;
-    }
+      if ( !errorSummary || !errorSummaryPerLumiBlock || !errorPerLumiBlock || !incompleteFragmentType ) {
+         ATH_MSG(FATAL) << "Problems finding error histograms!" << endreq;
+         return StatusCode::FAILURE;
+      }
     
-    StatusCode sc = StatusCode::SUCCESS;
+      StatusCode sc = StatusCode::SUCCESS;
 
-    if (m_processMuctpi) {
-      sc = evtStore()->retrieve(theMuCTPI_RDO, "MUCTPI_RDO");
-      if (sc.isFailure()) {
-        ATH_MSG(WARNING) << "Could not find \"MUCTPI_RDO\" in StoreGate" << endreq;
-        validMuCTPI_RDO = false;
-        ++numberOfInvalidFragments;
+      if (m_processMuctpi) {
+         sc = evtStore()->retrieve(theMuCTPI_RDO, "MUCTPI_RDO");
+         if (sc.isFailure()) {
+            ATH_MSG(WARNING) << "Could not find \"MUCTPI_RDO\" in StoreGate" << endreq;
+            validMuCTPI_RDO = false;
+            ++numberOfInvalidFragments;
+         }
+         if (m_processMuctpiRIO && !m_runOnESD) {
+            sc = evtStore()->retrieve(theMuCTPI_RIO, "MUCTPI_RIO");
+            if (sc.isFailure()) {
+               ATH_MSG(WARNING) << "Could not find \"MUCTPI_RIO\" in StoreGate" << endreq;
+               validMuCTPI_RIO = false;
+               ++numberOfInvalidFragments;
+            }
+         }
       }
-      if (m_processMuctpiRIO && !m_runOnESD) {
-        sc = evtStore()->retrieve(theMuCTPI_RIO, "MUCTPI_RIO");
-        if (sc.isFailure()) {
-          ATH_MSG(WARNING) << "Could not find \"MUCTPI_RIO\" in StoreGate" << endreq;
-          validMuCTPI_RIO = false;
-          ++numberOfInvalidFragments;
-        }
+      if (m_processCTP) {
+         sc = evtStore()->retrieve(theCTP_RDO, "CTP_RDO");
+         if (sc.isFailure()) {
+            ATH_MSG(WARNING) << "Could not find \"CTP_RDO\" in StoreGate" << endreq;
+            validCTP_RDO = false;
+            ++numberOfInvalidFragments;
+         }
+         if (!m_runOnESD) {
+            sc = evtStore()->retrieve(theCTP_RIO, "CTP_RIO");
+            if (sc.isFailure()) {
+               ATH_MSG(WARNING) << "Could not find \"CTP_RIO\" in StoreGate" << endreq;
+               validCTP_RIO = false;
+               ++numberOfInvalidFragments;
+            }
+         }
       }
-    }
-    if (m_processCTP) {
-      sc = evtStore()->retrieve(theCTP_RDO, "CTP_RDO");
-      if (sc.isFailure()) {
-        ATH_MSG(WARNING) << "Could not find \"CTP_RDO\" in StoreGate" << endreq;
-        validCTP_RDO = false;
-        ++numberOfInvalidFragments;
+      if (m_processRoIB && m_processMuctpiRIO) {
+         sc = evtStore()->retrieve(roIBResult, "RoIBResult");
+         if (sc.isFailure()) {
+            ATH_MSG(WARNING) << "Could not find \"RoIBResult\" in StoreGate" << endreq;
+            validRoIBResult = false;
+            ++numberOfInvalidFragments;
+         }
       }
-      if (!m_runOnESD) {
-        sc = evtStore()->retrieve(theCTP_RIO, "CTP_RIO");
-        if (sc.isFailure()) {
-          ATH_MSG(WARNING) << "Could not find \"CTP_RIO\" in StoreGate" << endreq;
-          validCTP_RIO = false;
-          ++numberOfInvalidFragments;
-        }
-      }
-    }
-    if (m_processRoIB && m_processMuctpiRIO) {
-      sc = evtStore()->retrieve(roIBResult, "RoIBResult");
-      if (sc.isFailure()) {
-        ATH_MSG(WARNING) << "Could not find \"RoIBResult\" in StoreGate" << endreq;
-        validRoIBResult = false;
-        ++numberOfInvalidFragments;
-      }
-    }
 
-    bool incompleteEvent = false;
-    sc = evtStore()->retrieve(eventInfo);
-    if (sc.isSuccess()) {
-      m_runNumber = eventInfo->event_ID()->run_number();
-      m_eventNumber = eventInfo->event_ID()->event_number();
-      m_lumiBlockOfPreviousEvent = m_currentLumiBlock;
-      m_currentLumiBlock = eventInfo->event_ID()->lumi_block();
-      if ( eventInfo ) {
-        incompleteEvent = eventInfo->eventFlags(EventInfo::Core) & 0x40000;
-      }
-      ATH_MSG(DEBUG) << "Successfully retrieved EventInfo (run: " 
-                     << m_runNumber << ", event: " << m_eventNumber 
-                     << ")" << endreq;
-    }
-    else {
-      ATH_MSG(WARNING) << "Could not retrieve EventInfo from StoreGate => run# = event# = 0, LB# = 99" << endreq;
-      m_lumiBlockOfPreviousEvent = m_currentLumiBlock;
-      m_currentLumiBlock = 99; // dummy LB in case EventInfo is not available - prevents DQ defect flagging with LB# 0...
-    }
-
-    if ( incompleteEvent ) {
-      ATH_MSG(WARNING) << "Incomplete event according to EventInfo flag" << endreq;
-      incompleteFragmentType->Fill(5,1);
-    }
-    
-    bool l1ctObjectMissingInStoreGate = ( !validCTP_RDO || !validCTP_RIO || !validMuCTPI_RDO || !validMuCTPI_RIO || !validRoIBResult );
-    if ( l1ctObjectMissingInStoreGate ) {
-      ATH_MSG(WARNING) << "At least one L1CT object is missing in SG" << endreq;
-    }
-    
-    dumpData(theCTP_RDO, theCTP_RIO, theMuCTPI_RDO, theMuCTPI_RIO, roIBResult);
-
-    if ( m_processCTP ) {
-      if ( validCTP_RDO ) {
-        const std::vector<uint32_t> &cDataWords = theCTP_RDO->getDataWords();
-        if ( cDataWords.size() == 0 ) {
-          ATH_MSG(WARNING) << "CTP_RDO is empty, ignoring CTP" << endreq;
-          validCTP_RDO = false;
-        }
-      }
-      if ( validCTP_RIO ) {
-        if ( !m_runOnESD && (theCTP_RIO->getDetectorEventType() & 0xffff) == 0 ) {//LB == 0 only if RIO is empty
-          ATH_MSG(WARNING) << "CTP_RIO is not valid, ignoring CTP" << endreq;
-          validCTP_RIO = false;
-        }
-      }
-    }
-
-    if ( m_processMuctpi ) {
-      if ( validMuCTPI_RDO ) {
-        MuCTPI_MultiplicityWord_Decoder multWord(theMuCTPI_RDO->candidateMultiplicity(), m_inclusiveTriggerThresholds);
-        // consider the fragment incomplete if the number of data words is less than
-        // the reported number of candidates (zero words valid for muon-less events!)
-        if (theMuCTPI_RDO->dataWord().size() < multWord.getNCandidates()) {
-          ATH_MSG(INFO) 
-            << "MuCTPI_RDO reports " << multWord.getNCandidates() 
-            << "  candidates, but there are only " << theMuCTPI_RDO->dataWord().size()
-            << " data words, ignoring MuCTPI" << endreq;
-          validMuCTPI_RDO = false;
-        }
-      }
-      // Note: there's no simple way of checking the validity of the MUCTPI_RIO, so we don't for now.
-    }
-    
-    // if at least one fragment is missing/incomplete, print out a summary
-    if (!validCTP_RDO || !validCTP_RIO || !validMuCTPI_RDO || !validMuCTPI_RIO || !validRoIBResult) {
-      ATH_MSG(WARNING) << "At least one missing/invalid L1CT fragment detected" << endreq;
-      ATH_MSG(WARNING) 
-        << "CTP_RDO: " << validCTP_RDO << ", CTP_RIO: " << validCTP_RIO 
-        << ", MuCTPI_RIO: " << validMuCTPI_RIO << ", MuCTPI_RDO: " << validMuCTPI_RDO 
-        << ", RoIBResult: " << validRoIBResult << endreq;
-      //ATH_MSG(WARNING) << getEventInfoString() << endreq;
-      if (validCTP_RIO) {
-        ATH_MSG(WARNING) 
-          << "CTP_RIO says LB: " << (theCTP_RIO->getDetectorEventType() & 0xffff) 
-          << ", L1ID: " << std::dec << theCTP_RIO->getLvl1Id() 
-          << " (HEX: " << std::hex << theCTP_RIO->getLvl1Id() << ")" << std::dec 
-          << ", BCID: " << theCTP_RIO->getBCID() << endreq;
-      }
-      else if (eventInfo) {
-        ATH_MSG(WARNING) << "CTP_RIO missing, EventInfo says LB: " << eventInfo->event_ID()->lumi_block()
-                         << ", BCID: " << eventInfo->event_ID()->bunch_crossing_id() << endreq; // no L1ID available
+      bool incompleteEvent = false;
+      sc = evtStore()->retrieve(eventInfo);
+      if (sc.isSuccess()) {
+         m_runNumber = eventInfo->event_ID()->run_number();
+         m_eventNumber = eventInfo->event_ID()->event_number();
+         m_lumiBlockOfPreviousEvent = m_currentLumiBlock;
+         m_currentLumiBlock = eventInfo->event_ID()->lumi_block();
+         if ( eventInfo ) {
+            incompleteEvent = eventInfo->eventFlags(EventInfo::Core) & 0x40000;
+         }
+         ATH_MSG(DEBUG) << "Successfully retrieved EventInfo (run: " 
+                        << m_runNumber << ", event: " << m_eventNumber 
+                        << ")" << endreq;
       }
       else {
-        ATH_MSG(WARNING) << "Not printing event details since both CTP_RIO and EventInfo objects are missing" << endreq;
+         ATH_MSG(WARNING) << "Could not retrieve EventInfo from StoreGate => run# = event# = 0, LB# = 99" << endreq;
+         m_lumiBlockOfPreviousEvent = m_currentLumiBlock;
+         m_currentLumiBlock = 99; // dummy LB in case EventInfo is not available - prevents DQ defect flagging with LB# 0...
       }
 
-      // only fill error-per-LB histograms if L1CT fragments are missing and global incomplete-event flag 
-      // from EventInfo does not say that the event is incomplete
-      if ( !incompleteEvent ) {
-        errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 15);
-        errorPerLumiBlock->Fill(m_currentLumiBlock);
+      if ( incompleteEvent ) {
+         ATH_MSG(WARNING) << "Incomplete event according to EventInfo flag" << endreq;
+         incompleteFragmentType->Fill(5,1);
       }
-      errorSummary->Fill(15, 1);
-
-      if (!validCTP_RIO) {
-        incompleteFragmentType->Fill(0,1);
-      }
-      if (!validCTP_RDO) {
-        incompleteFragmentType->Fill(1,1);
-      }
-      if (!validMuCTPI_RIO) {
-        incompleteFragmentType->Fill(2,1);
-      }
-      if (!validMuCTPI_RDO) {
-        incompleteFragmentType->Fill(3,1);
-      }
-      if (!validRoIBResult) {
-        incompleteFragmentType->Fill(4,1);
-      }
-    }
-    else { // since errorSummary holds error _rate_, also fill when there are no errors
-      errorSummary->Fill(15, 0);
-    }
-
-    // if the event is incomplete (missing L1CT objects or according to EventInfo), skip filling the rest of the histograms
-    if ( !validCTP_RDO || !validCTP_RIO || !validMuCTPI_RDO || !validMuCTPI_RIO || !validRoIBResult || incompleteEvent ) {
-      ATH_MSG(WARNING) << "Event incomplete, will skip filling of all non-error histograms" << endreq;
-      return StatusCode::SUCCESS;
-    }
-
-    /*
-     * Process and fill data 
-     */
-
-    if (m_processCTP && validCTP_RDO && validCTP_RIO) {
-      doCtp(theCTP_RDO, theCTP_RIO);
-    }
-
-    if (m_processMuctpi && m_processCTP && validCTP_RDO && validCTP_RIO && validMuCTPI_RDO && validMuCTPI_RIO)
-      doCtpMuctpi(theCTP_RDO, theCTP_RIO, theMuCTPI_RDO, theMuCTPI_RIO);
-
-    if (m_processMuctpi && validMuCTPI_RDO && validMuCTPI_RIO) {
-      doMuctpi(theMuCTPI_RDO, theMuCTPI_RIO);
-      if (m_processRoIB && m_processMuctpiRIO) 
-        doMuonRoI(theMuCTPI_RDO, theMuCTPI_RIO, roIBResult);
-    }
-    ++m_eventCount;
     
-    ATH_MSG(DEBUG) << "end fillHistograms()" << endreq;
-    return StatusCode::SUCCESS;
-  }
-  catch(const std::exception & e) {
-    std::cerr << "Caught standard C++ exception: " << e.what() << " from fillHistograms()" << std::endl;
-    return StatusCode::FAILURE;
-  }
+      bool l1ctObjectMissingInStoreGate = ( !validCTP_RDO || !validCTP_RIO || !validMuCTPI_RDO || !validMuCTPI_RIO || !validRoIBResult );
+      if ( l1ctObjectMissingInStoreGate ) {
+         ATH_MSG(WARNING) << "At least one L1CT object is missing in SG" << endreq;
+      }
+    
+      dumpData(theCTP_RDO, theCTP_RIO, theMuCTPI_RDO, theMuCTPI_RIO, roIBResult);
+
+      if ( m_processCTP ) {
+         if ( validCTP_RDO ) {
+            const std::vector<uint32_t> &cDataWords = theCTP_RDO->getDataWords();
+            if ( cDataWords.size() == 0 ) {
+               ATH_MSG(WARNING) << "CTP_RDO is empty, ignoring CTP" << endreq;
+               validCTP_RDO = false;
+            }
+         }
+         if ( validCTP_RIO ) {
+            if ( !m_runOnESD && (theCTP_RIO->getDetectorEventType() & 0xffff) == 0 ) {//LB == 0 only if RIO is empty
+               ATH_MSG(WARNING) << "CTP_RIO is not valid, ignoring CTP" << endreq;
+               validCTP_RIO = false;
+            }
+         }
+      }
+
+      if ( m_processMuctpi ) {
+         if ( validMuCTPI_RDO ) {
+            MuCTPI_MultiplicityWord_Decoder multWord(theMuCTPI_RDO->candidateMultiplicity(), m_inclusiveTriggerThresholds);
+            // consider the fragment incomplete if the number of data words is less than
+            // the reported number of candidates (zero words valid for muon-less events!)
+            if (theMuCTPI_RDO->dataWord().size() < multWord.getNCandidates()) {
+               ATH_MSG(INFO) 
+                  << "MuCTPI_RDO reports " << multWord.getNCandidates() 
+                  << "  candidates, but there are only " << theMuCTPI_RDO->dataWord().size()
+                  << " data words, ignoring MuCTPI" << endreq;
+               validMuCTPI_RDO = false;
+            }
+         }
+         // Note: there's no simple way of checking the validity of the MUCTPI_RIO, so we don't for now.
+      }
+    
+      // if at least one fragment is missing/incomplete, print out a summary
+      if (!validCTP_RDO || !validCTP_RIO || !validMuCTPI_RDO || !validMuCTPI_RIO || !validRoIBResult) {
+         ATH_MSG(WARNING) << "At least one missing/invalid L1CT fragment detected" << endreq;
+         ATH_MSG(WARNING) 
+            << "CTP_RDO: " << validCTP_RDO << ", CTP_RIO: " << validCTP_RIO 
+            << ", MuCTPI_RIO: " << validMuCTPI_RIO << ", MuCTPI_RDO: " << validMuCTPI_RDO 
+            << ", RoIBResult: " << validRoIBResult << endreq;
+         //ATH_MSG(WARNING) << getEventInfoString() << endreq;
+         if (validCTP_RIO) {
+            ATH_MSG(WARNING) 
+               << "CTP_RIO says LB: " << (theCTP_RIO->getDetectorEventType() & 0xffff) 
+               << ", L1ID: " << std::dec << theCTP_RIO->getLvl1Id() 
+               << " (HEX: " << std::hex << theCTP_RIO->getLvl1Id() << ")" << std::dec 
+               << ", BCID: " << theCTP_RIO->getBCID() << endreq;
+         }
+         else if (eventInfo) {
+            ATH_MSG(WARNING) << "CTP_RIO missing, EventInfo says LB: " << eventInfo->event_ID()->lumi_block()
+                             << ", BCID: " << eventInfo->event_ID()->bunch_crossing_id() << endreq; // no L1ID available
+         }
+         else {
+            ATH_MSG(WARNING) << "Not printing event details since both CTP_RIO and EventInfo objects are missing" << endreq;
+         }
+
+         // only fill error-per-LB histograms if L1CT fragments are missing and global incomplete-event flag 
+         // from EventInfo does not say that the event is incomplete
+         if ( !incompleteEvent ) {
+            errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 15);
+            errorPerLumiBlock->Fill(m_currentLumiBlock);
+         }
+         errorSummary->Fill(15, 1);
+
+         if (!validCTP_RIO) {
+            incompleteFragmentType->Fill(0,1);
+         }
+         if (!validCTP_RDO) {
+            incompleteFragmentType->Fill(1,1);
+         }
+         if (!validMuCTPI_RIO) {
+            incompleteFragmentType->Fill(2,1);
+         }
+         if (!validMuCTPI_RDO) {
+            incompleteFragmentType->Fill(3,1);
+         }
+         if (!validRoIBResult) {
+            incompleteFragmentType->Fill(4,1);
+         }
+      }
+      else { // since errorSummary holds error _rate_, also fill when there are no errors
+         errorSummary->Fill(15, 0);
+      }
+
+      // if the event is incomplete (missing L1CT objects or according to EventInfo), skip filling the rest of the histograms
+      if ( !validCTP_RDO || !validCTP_RIO || !validMuCTPI_RDO || !validMuCTPI_RIO || !validRoIBResult || incompleteEvent ) {
+         ATH_MSG(WARNING) << "Event incomplete, will skip filling of all non-error histograms" << endreq;
+         return StatusCode::SUCCESS;
+      }
+
+      /*
+       * Process and fill data 
+       */
+
+      if (m_processCTP && validCTP_RDO && validCTP_RIO) {
+         doCtp(theCTP_RDO, theCTP_RIO);
+      }
+
+      if (m_processMuctpi && m_processCTP && validCTP_RDO && validCTP_RIO && validMuCTPI_RDO && validMuCTPI_RIO)
+         doCtpMuctpi(theCTP_RDO, theCTP_RIO, theMuCTPI_RDO, theMuCTPI_RIO);
+
+      if (m_processMuctpi && validMuCTPI_RDO && validMuCTPI_RIO) {
+         doMuctpi(theMuCTPI_RDO, theMuCTPI_RIO);
+         if (m_processRoIB && m_processMuctpiRIO) 
+            doMuonRoI(theMuCTPI_RDO, theMuCTPI_RIO, roIBResult);
+      }
+      ++m_eventCount;
+    
+      ATH_MSG(DEBUG) << "end fillHistograms()" << endreq;
+      return StatusCode::SUCCESS;
+   }
+   catch(const std::exception & e) {
+      std::cerr << "Caught standard C++ exception: " << e.what() << " from fillHistograms()" << std::endl;
+      return StatusCode::FAILURE;
+   }
 }
 
 
@@ -468,12 +469,12 @@ initCtpHistograms() {
   CHECK( registerTH1("triggerType", "Trigger Type; Trigger Type; Entries", 256, -0.5, 255.5) );
   CHECK( registerTH1("timeSinceLBStart", "Time Since LB Start; Time After New LB (ms); Entries", 1000, -500, 1500) );
   CHECK( registerTH1("timeUntilLBEnd", "Time Until LB End; Time Until Next LB (ms); Entries", 1000, -500, 1500) );
-  CHECK( registerTH1("timeSinceL1A", "Time since last L1A; Time since last L1A (ms); Entries", 1000, -2, 15) );
+  CHECK( registerTH1("timeSinceL1A", "Time since last L1A; Time since last L1A (ms); Entries", 2000, -1, 30) );
   CHECK( registerTH1("turnCounterTimeError", "Error of time based on turn counter and BCID; t_{TC+BCID}-t_{GPS} [#mus]; Entries", 2000, -1000., 1000.) );
   CHECK( registerTProfile("turnCounterTimeErrorVsLb", "Error of (TC+BCID)-based time vs. LB; LB; t_{TC+BCID}-t_{GPS} [#mus]", 2001, -0.5, 2000.5, -1000., 1000.) );
-  CHECK( registerTH2("pitBC", "CTP BC vs. PIT; PIT; BC", 160, -0.5, 159.5, 127, -63.5, 63.5) );
-  CHECK( registerTH2("pitFirstBC", "First CTP BC vs. PIT; PIT; BC", 160, -0.5, 159.5, 127, -63.5, 63.5) );
-  CHECK( registerTH1("tav", "Trigger Items After Veto; CTP TAV; Entries", 256, -0.5, 255.5) );
+  CHECK( registerTH2("pitBC", "CTP BC vs. PIT; PIT; BC", 320, -0.5, 319.5, 127, -63.5, 63.5) );
+  CHECK( registerTH2("pitFirstBC", "First CTP BC vs. PIT; PIT; BC", 320, -0.5, 319.5, 127, -63.5, 63.5) );
+  CHECK( registerTH1("tav", "Trigger Items After Veto; CTP TAV; Entries", 512, -0.5, 511.5) );
   CHECK( registerTH1("ctpStatus1", "CTP Status Word 1; Bit; Number of times ON", 24, -0.5, 23.5) );
   CHECK( registerTH1("ctpStatus2", "CTP Status Word 2; Bit; Number of times ON", 24, -0.5, 23.5) );
 
@@ -926,357 +927,358 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
 void TrigT1CTMonitoring::BSMonitoring::
 doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO) {
 
-  TProfile_LW *errorSummary = getTProfile("errorSummary");
-  TH1F_LW *errorPerLumiBlock = getTH1("errorPerLumiBlock");
-  TH1F_LW *deltaBcid = getTH1("deltaBcid");
-  TH1F_LW *triggerType = getTH1("triggerType");
-  TH1F_LW *timeSinceLBStart = getTH1("timeSinceLBStart");
-  TH1F_LW *timeUntilLBEnd = getTH1("timeUntilLBEnd");
-  TH1F_LW *timeSinceL1A = getTH1("timeSinceL1A");
-  TH1F_LW *tcTimeError = getTH1("turnCounterTimeError");
-  TProfile_LW *tcTimeErrorVsLb = getTProfile("turnCounterTimeErrorVsLb");
-  TH1F_LW *ctpStatus1 = getTH1("ctpStatus1");
-  TH1F_LW *ctpStatus2 = getTH1("ctpStatus2");
-  TH1F_LW *tav = getTH1("tav");
+   TProfile_LW *errorSummary = getTProfile("errorSummary");
+   TH1F_LW *errorPerLumiBlock = getTH1("errorPerLumiBlock");
+   TH1F_LW *deltaBcid = getTH1("deltaBcid");
+   TH1F_LW *triggerType = getTH1("triggerType");
+   TH1F_LW *timeSinceLBStart = getTH1("timeSinceLBStart");
+   TH1F_LW *timeUntilLBEnd = getTH1("timeUntilLBEnd");
+   TH1F_LW *timeSinceL1A = getTH1("timeSinceL1A");
+   TH1F_LW *tcTimeError = getTH1("turnCounterTimeError");
+   TProfile_LW *tcTimeErrorVsLb = getTProfile("turnCounterTimeErrorVsLb");
+   TH1F_LW *ctpStatus1 = getTH1("ctpStatus1");
+   TH1F_LW *ctpStatus2 = getTH1("ctpStatus2");
+   TH1F_LW *tav = getTH1("tav");
 
-  if ( !errorSummary || !errorPerLumiBlock || !deltaBcid || !triggerType || !timeSinceLBStart || 
-       !timeUntilLBEnd || !timeSinceL1A || !tcTimeError || !tcTimeErrorVsLb || !ctpStatus1 || !tav || !ctpStatus2 ) {
-    ATH_MSG(FATAL) << "Problems finding 1D histograms for CTP!" << endreq;
-    return;
-  }
+   if ( !errorSummary || !errorPerLumiBlock || !deltaBcid || !triggerType || !timeSinceLBStart || 
+        !timeUntilLBEnd || !timeSinceL1A || !tcTimeError || !tcTimeErrorVsLb || !ctpStatus1 || !tav || !ctpStatus2 ) {
+      ATH_MSG(FATAL) << "Problems finding 1D histograms for CTP!" << endreq;
+      return;
+   }
 
-  TH2F_LW* errorSummaryPerLumiBlock = getTH2("errorSummaryPerLumiBlock");
-  TH2F_LW *pitBC = getTH2("pitBC");
-  TH2F_LW *pitFirstBC = getTH2("pitFirstBC");
+   TH2F_LW* errorSummaryPerLumiBlock = getTH2("errorSummaryPerLumiBlock");
+   TH2F_LW *pitBC = getTH2("pitBC");
+   TH2F_LW *pitFirstBC = getTH2("pitFirstBC");
   
-  if ( !errorSummaryPerLumiBlock || !pitBC || !pitFirstBC ) {
-    ATH_MSG(FATAL) << "Problems finding 2D histograms for CTP!"
-                   << endreq;
-    return;
-  }
+   if ( !errorSummaryPerLumiBlock || !pitBC || !pitFirstBC ) {
+      ATH_MSG(FATAL) << "Problems finding 2D histograms for CTP!"
+                     << endreq;
+      return;
+   }
 
-  uint32_t evId = 0;
-  uint32_t headerBcid = 0;
-  int ttype=0;
+   uint32_t evId = 0;
+   uint32_t headerBcid = 0;
+   int ttype=0;
 
-  CTP_Decoder ctp;
-  ctp.setRDO(theCTP_RDO);
-  if (theCTP_RIO) {
-    evId = theCTP_RIO->getLvl1Id();
-    ttype = theCTP_RIO->getLvl1TriggerType();
-    triggerType->Fill(ttype);
+   CTP_Decoder ctp;
+   ctp.setRDO(theCTP_RDO);
 
-    headerBcid = (theCTP_RIO->getBCID() & 0xf);
+   if (theCTP_RIO) {
+      evId = theCTP_RIO->getLvl1Id();
+      ttype = theCTP_RIO->getLvl1TriggerType();
+      triggerType->Fill(ttype);
 
-    // check that the LB number is the same in the EventInfo and the CTP_RIO. TODO: add error for this?
-    if (m_currentLumiBlock != (theCTP_RIO->getDetectorEventType() & 0xffff)) {
-      ATH_MSG(WARNING) << "LB number in EventInfo (" << m_currentLumiBlock 
-                       << ") does not match the one in the CTP_RIO object (" 
-                       << (theCTP_RIO->getDetectorEventType() & 0xffff) << ")" << endreq;
-    }
+      headerBcid = (theCTP_RIO->getBCID() & 0xf);
+
+      // check that the LB number is the same in the EventInfo and the CTP_RIO. TODO: add error for this?
+      if (m_currentLumiBlock != (theCTP_RIO->getDetectorEventType() & 0xffff)) {
+         ATH_MSG(WARNING) << "LB number in EventInfo (" << m_currentLumiBlock 
+                          << ") does not match the one in the CTP_RIO object (" 
+                          << (theCTP_RIO->getDetectorEventType() & 0xffff) << ")" << endreq;
+      }
     
-    //ATH_MSG(DEBUG) << getEventInfoString() << endreq;
+      //ATH_MSG(DEBUG) << getEventInfoString() << endreq;
 
-    if (m_currentLumiBlock > m_maxLumiBlock) m_maxLumiBlock = m_currentLumiBlock;
-    if (m_currentLumiBlock < 1 || 
-        (m_retrievedLumiBlockTimes && (find(m_lumiBlocks.begin(), m_lumiBlocks.end(), m_currentLumiBlock) == m_lumiBlocks.end()))) {
-      ATH_MSG(WARNING) << "Invalid lumi block: " << m_currentLumiBlock << endreq;
-      errorSummary->Fill(9,1);
-      errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 9);
+      if (m_currentLumiBlock > m_maxLumiBlock) m_maxLumiBlock = m_currentLumiBlock;
+      if (m_currentLumiBlock < 1 || 
+          (m_retrievedLumiBlockTimes && (find(m_lumiBlocks.begin(), m_lumiBlocks.end(), m_currentLumiBlock) == m_lumiBlocks.end()))) {
+         ATH_MSG(WARNING) << "Invalid lumi block: " << m_currentLumiBlock << endreq;
+         errorSummary->Fill(9,1);
+         errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 9);
+         errorPerLumiBlock->Fill(m_currentLumiBlock);
+      }
+      else {
+         errorSummary->Fill(9,0);
+         if (m_retrievedLumiBlockTimes) {
+            uint64_t eventTime = static_cast<uint64_t>(theCTP_RDO->getTimeSec()*1e09 + theCTP_RDO->getTimeNanoSec());
+            if (eventTime < m_lbStartTimes[m_currentLumiBlock] || eventTime > m_lbEndTimes[m_currentLumiBlock]) {
+               ATH_MSG(WARNING) << "Event time (" << eventTime 
+                                << ") not within time interval for current lumi block (LB: " << m_currentLumiBlock 
+                                << ", start: " <<  m_lbStartTimes[m_currentLumiBlock] 
+                                << ", stop: " << m_lbEndTimes[m_currentLumiBlock] << ")" << endreq;
+               errorSummary->Fill(10,1);
+               errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 10);
+               errorPerLumiBlock->Fill(m_currentLumiBlock);
+            }
+            else {
+               errorSummary->Fill(10,0);
+               timeSinceLBStart->Fill((eventTime-m_lbStartTimes[m_currentLumiBlock])/1e06);
+               timeUntilLBEnd->Fill((m_lbEndTimes[m_currentLumiBlock]-eventTime)/1e06);
+            }
+
+            // turn counter monitoring - first store turn counter, bcid and times for the first processed event
+
+            // use the best available bunch-crossing interval
+            double bcDurationInNs = m_defaultBcIntervalInNs;
+            double freqFromCool = getFrequencyMeasurement(eventTime);
+            if (freqFromCool > 40.078e6 && freqFromCool < 40.079e6) { // f prop. to beta, ok from HI injection to pp @ sqrt(s) = 14 TeV
+               // use average frequency since start of LB
+               double lbStartFreqFromCool = getFrequencyMeasurement(m_lbStartTimes[m_currentLumiBlock]);
+               if (lbStartFreqFromCool > 40.078e6 && lbStartFreqFromCool < 40.079e6) {
+                  bcDurationInNs = 2./(freqFromCool+lbStartFreqFromCool)*1e9;
+               }
+               // or simply use the measurement closest to the event time
+               else {
+                  bcDurationInNs = 1./freqFromCool*1e9;
+               }
+               ATH_MSG(DEBUG) << "Will use BC interval calculated from frequency measurement(s) in COOL: f = " 
+                              << freqFromCool << " Hz => t_BC = " << bcDurationInNs << " ns" << endreq; 
+            }
+            else {
+               ATH_MSG(DEBUG) << "No valid frequency measurements found in COOL, will use hardcoded BC interval: t_BC = " 
+                              << bcDurationInNs << " ns" << endreq; //TODO: make this a WARNING when everything is in place in COOL
+            }
+
+            // set the reference variables for the turn counter monitoring if this is the first processed event of the run/LB
+            if ( !m_eventCount || (m_lumiBlockOfPreviousEvent != 0 && m_lumiBlockOfPreviousEvent != m_currentLumiBlock) ) {
+               m_firstEventTime = eventTime;
+               m_firstEventBcid = static_cast<int64_t>(theCTP_RIO->getBCID());
+               m_firstEventTC = static_cast<int64_t>(theCTP_RDO->getTurnCounter());
+            }
+
+            // calculate the time passed since the first processed event, based on GPS clock and turn counter+bcid
+            int64_t timeDiff_GPS = eventTime - m_firstEventTime; 
+            int64_t firstEventTimeInBc_TC = m_firstEventTC*m_bcsPerTurn+m_firstEventBcid;
+            int64_t eventTimeInBc_TC = static_cast<int64_t>(theCTP_RDO->getTurnCounter())*m_bcsPerTurn+theCTP_RIO->getBCID();
+            int64_t timeDiffInBc_TC = eventTimeInBc_TC-firstEventTimeInBc_TC;
+
+            // fill turn counter monitoring plots if at least one of first and current turn-counter values are non-zero
+            if ( !(m_firstEventTC == 0 && theCTP_RDO->getTurnCounter() == 0) ) {
+               BeamMode bm = getBeamMode(eventTime);
+               double tDiffInNs = timeDiffInBc_TC*bcDurationInNs-timeDiff_GPS;
+               // flag an error if the offset for the timestamp calculated from TC+BCID is off by > half an LHC turn
+               // (if we're in STABLE BEAMS and did not just transition to ATLAS_READY in this LB)
+               if ( (bm == STABLEBEAMS) && 
+                    !((m_dataTakingMode.find(m_currentLumiBlock) != m_dataTakingMode.end()) &&
+                      (m_dataTakingMode[m_currentLumiBlock] == true)) && 
+                    (fabs(tDiffInNs) > 45000) ) { 
+                  ATH_MSG(WARNING) << "Turn-counter based time off by " << tDiffInNs 
+                                   << " ns (> 0.5 LHC turn) during stable beams - missing orbit pulse?" << endreq;
+                  errorSummary->Fill(16,1);
+                  errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 16);
+                  errorPerLumiBlock->Fill(m_currentLumiBlock);
+               }
+               else {
+                  errorSummary->Fill(16,0);
+               }
+               tcTimeError->Fill(tDiffInNs/1e03);
+               tcTimeErrorVsLb->Fill(m_currentLumiBlock, tDiffInNs/1e03);
+            }
+            else {
+               ATH_MSG(DEBUG) << "Turn counter = 0 for both first processed and current event, not filling TC histograms" << endreq;
+            }
+         }
+      }
+   }
+
+   if (theCTP_RDO->getTimeNanoSec() > 1e09) {
+      ATH_MSG(WARNING) << "Nanosecond timestamp too large: " << theCTP_RDO->getTimeNanoSec() << endreq;
+      errorSummary->Fill(11,1);
+      errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 11);
       errorPerLumiBlock->Fill(m_currentLumiBlock);
-    }
-    else {
-      errorSummary->Fill(9,0);
-      if (m_retrievedLumiBlockTimes) {
-        uint64_t eventTime = static_cast<uint64_t>(theCTP_RDO->getTimeSec()*1e09 + theCTP_RDO->getTimeNanoSec());
-        if (eventTime < m_lbStartTimes[m_currentLumiBlock] || eventTime > m_lbEndTimes[m_currentLumiBlock]) {
-          ATH_MSG(WARNING) << "Event time (" << eventTime 
-                           << ") not within time interval for current lumi block (LB: " << m_currentLumiBlock 
-                           << ", start: " <<  m_lbStartTimes[m_currentLumiBlock] 
-                           << ", stop: " << m_lbEndTimes[m_currentLumiBlock] << ")" << endreq;
-          errorSummary->Fill(10,1);
-          errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 10);
-          errorPerLumiBlock->Fill(m_currentLumiBlock);
-        }
-        else {
-          errorSummary->Fill(10,0);
-          timeSinceLBStart->Fill((eventTime-m_lbStartTimes[m_currentLumiBlock])/1e06);
-          timeUntilLBEnd->Fill((m_lbEndTimes[m_currentLumiBlock]-eventTime)/1e06);
-        }
+   } else {
+      errorSummary->Fill(11,0); 
+   }
 
-        // turn counter monitoring - first store turn counter, bcid and times for the first processed event
 
-        // use the best available bunch-crossing interval
-        double bcDurationInNs = m_defaultBcIntervalInNs;
-        double freqFromCool = getFrequencyMeasurement(eventTime);
-        if (freqFromCool > 40.078e6 && freqFromCool < 40.079e6) { // f prop. to beta, ok from HI injection to pp @ sqrt(s) = 14 TeV
-          // use average frequency since start of LB
-          double lbStartFreqFromCool = getFrequencyMeasurement(m_lbStartTimes[m_currentLumiBlock]);
-          if (lbStartFreqFromCool > 40.078e6 && lbStartFreqFromCool < 40.079e6) {
-            bcDurationInNs = 2./(freqFromCool+lbStartFreqFromCool)*1e9;
-          }
-          // or simply use the measurement closest to the event time
-          else {
-            bcDurationInNs = 1./freqFromCool*1e9;
-          }
-          ATH_MSG(DEBUG) << "Will use BC interval calculated from frequency measurement(s) in COOL: f = " 
-                         << freqFromCool << " Hz => t_BC = " << bcDurationInNs << " ns" << endreq; 
-        }
-        else {
-          ATH_MSG(DEBUG) << "No valid frequency measurements found in COOL, will use hardcoded BC interval: t_BC = " 
-                         << bcDurationInNs << " ns" << endreq; //TODO: make this a WARNING when everything is in place in COOL
-        }
+   std::vector<uint32_t> vec=theCTP_RDO->getEXTRAWords();
+   timeSinceL1A->Fill(theCTP_RDO->getTimeSinceLastL1A()*25*10E-6);
 
-        // set the reference variables for the turn counter monitoring if this is the first processed event of the run/LB
-        if ( !m_eventCount || (m_lumiBlockOfPreviousEvent != 0 && m_lumiBlockOfPreviousEvent != m_currentLumiBlock) ) {
-          m_firstEventTime = eventTime;
-          m_firstEventBcid = static_cast<int64_t>(theCTP_RIO->getBCID());
-          m_firstEventTC = static_cast<int64_t>(theCTP_RDO->getTurnCounter());
-        }
+   uint32_t numberBC = theCTP_RDO->getNumberOfBunches();
+   if (numberBC > 0) {
+      unsigned int storeBunch = theCTP_RDO->getL1AcceptBunchPosition();
+      const std::vector<CTP_BC> &BCs = ctp.getBunchCrossings();
+      const CTP_BC & bunch = BCs[storeBunch];
+      unsigned int bcid = bunch.getBCID();
 
-        // calculate the time passed since the first processed event, based on GPS clock and turn counter+bcid
-        int64_t timeDiff_GPS = eventTime - m_firstEventTime; 
-        int64_t firstEventTimeInBc_TC = m_firstEventTC*m_bcsPerTurn+m_firstEventBcid;
-        int64_t eventTimeInBc_TC = static_cast<int64_t>(theCTP_RDO->getTurnCounter())*m_bcsPerTurn+theCTP_RIO->getBCID();
-        int64_t timeDiffInBc_TC = eventTimeInBc_TC-firstEventTimeInBc_TC;
-
-        // fill turn counter monitoring plots if at least one of first and current turn-counter values are non-zero
-        if ( !(m_firstEventTC == 0 && theCTP_RDO->getTurnCounter() == 0) ) {
-          BeamMode bm = getBeamMode(eventTime);
-          double tDiffInNs = timeDiffInBc_TC*bcDurationInNs-timeDiff_GPS;
-          // flag an error if the offset for the timestamp calculated from TC+BCID is off by > half an LHC turn
-          // (if we're in STABLE BEAMS and did not just transition to ATLAS_READY in this LB)
-          if ( (bm == STABLEBEAMS) && 
-               !((m_dataTakingMode.find(m_currentLumiBlock) != m_dataTakingMode.end()) &&
-                 (m_dataTakingMode[m_currentLumiBlock] == true)) && 
-               (fabs(tDiffInNs) > 45000) ) { 
-            ATH_MSG(WARNING) << "Turn-counter based time off by " << tDiffInNs 
-                             << " ns (> 0.5 LHC turn) during stable beams - missing orbit pulse?" << endreq;
-            errorSummary->Fill(16,1);
-            errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 16);
+      double bcid_offset = (static_cast < int >((bcid)&0xf) - static_cast < int >(headerBcid));
+      deltaBcid->Fill(bcid_offset);
+      if (bcid_offset != 0) {
+         if (!m_runOnESD) {
+            ATH_MSG(WARNING) << "Found BCID offset of "<< bcid_offset << " between ROD Header (" 
+                             << headerBcid << ") and data (" << (bcid&0xf) << ")" << endreq;
+            errorSummary->Fill(1,1);
+            errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 1);
             errorPerLumiBlock->Fill(m_currentLumiBlock);
-          }
-          else {
-            errorSummary->Fill(16,0);
-          }
-          tcTimeError->Fill(tDiffInNs/1e03);
-          tcTimeErrorVsLb->Fill(m_currentLumiBlock, tDiffInNs/1e03);
-        }
-        else {
-          ATH_MSG(DEBUG) << "Turn counter = 0 for both first processed and current event, not filling TC histograms" << endreq;
-        }
+         }
       }
-    }
-  }
+      else errorSummary->Fill(1,0);
+      /*
+       * TIP,TBP,TAP,TAV 
+       */
+      short bunchIndex = -storeBunch;
 
-  if (theCTP_RDO->getTimeNanoSec() > 1e09) {
-    ATH_MSG(WARNING) << "Nanosecond timestamp too large: " << theCTP_RDO->getTimeNanoSec() << endreq;
-    errorSummary->Fill(11,1);
-    errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 11);
-    errorPerLumiBlock->Fill(m_currentLumiBlock);
-  }
-  else {
-    errorSummary->Fill(11,0); 
-  }
+      std::bitset<512> TIPfirst;
+      std::bitset<512> TBPfirst;
+      std::bitset<512> TAPfirst;
+      TIPfirst.set();
+      TBPfirst.set();
+      TAPfirst.set();
 
-  std::vector<uint32_t> vec=theCTP_RDO->getEXTRAWords();
-  timeSinceL1A->Fill(theCTP_RDO->getTimeSinceLastL1A()*25*10E-6);
+      m_tbpItems.clear();
+      m_tapItems.clear();
+      m_tavItems.clear();
+      m_tbpBC.clear();
+      m_tapBC.clear();
+      m_tavBC.clear();
 
-  uint32_t numberBC = theCTP_RDO->getNumberOfBunches();
-  if (numberBC > 0) {
-    unsigned int storeBunch = theCTP_RDO->getL1AcceptBunchPosition();
-    const std::vector<CTP_BC> &BCs = ctp.getBunchCrossings();
-    const CTP_BC & bunch = BCs[storeBunch];
-    unsigned int bcid = bunch.getBCID();
+      int minbc=bunchIndex;
+      for ( std::vector<CTP_BC>::const_iterator it = BCs.begin();
+            it != BCs.end(); ++it, ++bunchIndex ) {
+         bcid = it->getBCID();
 
-    double bcid_offset = (static_cast < int >((bcid)&0xf) - static_cast < int >(headerBcid));
-    deltaBcid->Fill(bcid_offset);
-    if (bcid_offset != 0) {
+         const std::bitset<512> currentTIP(it->getTIP());
+      
+         if (currentTIP.any()) {
+            for ( size_t tipNum = 0; tipNum < currentTIP.size(); ++tipNum ) {
+               if (currentTIP.test(tipNum)) {
+                  pitBC->Fill(tipNum, bunchIndex);
+                  if (TIPfirst.test(tipNum)) {
+                     TIPfirst.set(tipNum,0);
+                     pitFirstBC->Fill(tipNum, bunchIndex);
+                  }
+               }
+            }
+         }
+
+         const std::bitset<512> currentTBP(it->getTBP());
+
+         if (currentTBP.any()) {
+            for ( size_t item = 0; item < currentTBP.size(); ++item ) {
+               if (currentTBP.test(item)) {
+                  m_tbpItems.push_back(item);
+                  m_tbpBC.push_back(bunchIndex);
+                  if (TBPfirst.test(item)) {
+                     TBPfirst.set(item,0);
+                  }
+               }
+            }
+         }
+      
+         if ( (!bunchIndex) && (m_compareRerun) ) {//gives position of L1A
+            StatusCode sc = compareRerun(*it);
+            if ( sc.isFailure() ) {
+               ATH_MSG(WARNING) << "compareRerun() returned failure" << endreq;
+            }
+         }
+
+         const std::bitset<512> currentTAP(it->getTAP());
+
+         if (currentTAP.any()) {
+            for ( size_t item = 0; item < currentTAP.size(); ++item ) {
+               if (currentTAP.test(item)) {
+                  m_tapItems.push_back(item);
+                  m_tapBC.push_back(bunchIndex);
+                  if (TAPfirst.test(item)) {
+                     TAPfirst.set(item,0);
+                  }
+               }
+            }
+         }
+
+         const std::bitset<512> currentTAV(it->getTAV());
+
+         if (currentTAV.any()) {
+            for ( size_t item = 0; item < currentTAV.size(); ++item ) {
+               if (currentTAV.test(item)) {
+                  tav->Fill(item);
+                  m_tavItems.push_back(item);
+                  m_tavBC.push_back(bunchIndex);
+               }
+            }
+         }
+      }
+      int maxbc=bunchIndex-1;
+
+      bool allTAPFine=true;
+      bool allTAVFine=true;
+      for ( unsigned int i=0; i<m_tapItems.size(); i++ ) {
+         ATH_MSG(DEBUG) << m_tapItems.at(i) << " TAP fired at BC " << m_tapBC.at(i) << endreq;
+         bool isTBP=false;
+         for ( unsigned int j=0; j<m_tbpItems.size() && isTBP==false; j++ ) {
+            if ( m_tbpItems.at(j)==m_tapItems.at(i) && m_tbpBC.at(j)==m_tapBC.at(i) ) isTBP=true;
+         }
+         if ( isTBP==false ) {
+            allTAPFine=false;
+            ATH_MSG(WARNING) << "TAP item " << m_tapItems.at(i) << " at BC " << m_tapBC.at(i) << " not found in TBP" << endreq;
+         }
+      }
+      for ( unsigned int i=0; i<m_tavItems.size(); i++ ) {
+         ATH_MSG(DEBUG) << m_tavItems.at(i) << " TAV fired at BC " << m_tavBC.at(i) << endreq;
+         bool isTAP=false;
+         for ( unsigned int j=0; j<m_tapItems.size() && isTAP==false; j++ ) {
+            if ( m_tapItems.at(j)==m_tavItems.at(i) && m_tapBC.at(j)==m_tavBC.at(i) ) isTAP=true;
+         }
+         if ( isTAP==false ) {
+            allTAVFine=false;
+            ATH_MSG(WARNING) << "TAV item " << m_tavItems.at(i) << " at BC " << m_tavBC.at(i) << " not found in TAP" << endreq;
+         }
+      }
+
+      //Fill Error Hist
+      if (allTAPFine==false) {
+         errorSummary->Fill(12,1);
+         errorSummary->Fill(m_currentLumiBlock, 12);
+         errorPerLumiBlock->Fill(m_currentLumiBlock);
+      }
+      else errorSummary->Fill(12,0);
+
+      if (allTAVFine==false) {
+         errorSummary->Fill(13,1);
+         errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 13);
+         errorPerLumiBlock->Fill(m_currentLumiBlock);
+      }
+      else errorSummary->Fill(13,0);
+
+      m_lastminbc=minbc;
+      m_lastmaxbc=maxbc;
+
+      // TODO: is this really the check we want to do? Doesn't offline in general have more resources..? /CO
+      if (m_environment==AthenaMonManager::online)
+         updateRangeUser();//Triggers LW->ROOT conversion so should certainly not be done offline
+
+      errorSummary->Fill(2,0);
+
+      std::vector<unsigned int> triggersFired = ctp.getAllTriggers(storeBunch);
+      std::stringstream str;
+      for ( unsigned int i = 0; i < triggersFired.size(); ++i ) {
+         str << triggersFired[i] << " ";
+      }
+      ATH_MSG(DEBUG) << triggersFired.size() << " trigger items fired: " << str.str() << endreq;
+   } 
+   else {
       if (!m_runOnESD) {
-        ATH_MSG(WARNING) << "Found BCID offset of "<< bcid_offset << " between ROD Header (" 
-                         << headerBcid << ") and data (" << (bcid&0xf) << ")" << endreq;
-        errorSummary->Fill(1,1);
-        errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 1);
-        errorPerLumiBlock->Fill(m_currentLumiBlock);
+         ATH_MSG(WARNING) << "Zero bunches in CTP data for ext. LVL1 ID 0x" << MSG::hex << evId << MSG::dec << endreq;
+         errorSummary->Fill(2,1);
+         errorSummary->Fill(m_currentLumiBlock, 2);
+         errorPerLumiBlock->Fill(m_currentLumiBlock);
       }
-    }
-    else errorSummary->Fill(1,0);
-    /*
-     * TIP,TBP,TAP,TAV 
-     */
-    short bunchIndex = -storeBunch;
-
-    std::bitset<512> TIPfirst;
-    std::bitset<512> TBPfirst;
-    std::bitset<512> TAPfirst;
-    TIPfirst.set();
-    TBPfirst.set();
-    TAPfirst.set();
-
-    m_tbpItems.clear();
-    m_tapItems.clear();
-    m_tavItems.clear();
-    m_tbpBC.clear();
-    m_tapBC.clear();
-    m_tavBC.clear();
-
-    int minbc=bunchIndex;
-    for ( std::vector<CTP_BC>::const_iterator it = BCs.begin();
-          it != BCs.end(); ++it, ++bunchIndex ) {
-      bcid = it->getBCID();
-
-      const std::bitset<512> currentTIP(it->getTIP());
-      
-      if (currentTIP.any()) {
-        for ( size_t tipNum = 0; tipNum < currentTIP.size(); ++tipNum ) {
-          if (currentTIP.test(tipNum)) {
-            pitBC->Fill(tipNum, bunchIndex);
-     	    if (TIPfirst.test(tipNum)) {
-              TIPfirst.set(tipNum,0);
-              pitFirstBC->Fill(tipNum, bunchIndex);
-            }
-          }
-        }
-      }
-
-      const std::bitset<512> currentTBP(it->getTBP());
-
-      if (currentTBP.any()) {
-        for ( size_t item = 0; item < currentTBP.size(); ++item ) {
-          if (currentTBP.test(item)) {
-            m_tbpItems.push_back(item);
-            m_tbpBC.push_back(bunchIndex);
-            if (TBPfirst.test(item)) {
-              TBPfirst.set(item,0);
-            }
-          }
-        }
-      }
-      
-      if ( (!bunchIndex) && (m_compareRerun) ) {//gives position of L1A
-      	StatusCode sc = compareRerun(*it);
-        if ( sc.isFailure() ) {
-          ATH_MSG(WARNING) << "compareRerun() returned failure" << endreq;
-        }
-      }
-
-      const std::bitset<512> currentTAP(it->getTAP());
-
-      if (currentTAP.any()) {
-        for ( size_t item = 0; item < currentTAP.size(); ++item ) {
-          if (currentTAP.test(item)) {
-            m_tapItems.push_back(item);
-            m_tapBC.push_back(bunchIndex);
-            if (TAPfirst.test(item)) {
-              TAPfirst.set(item,0);
-            }
-          }
-        }
-      }
-
-      const std::bitset<512> currentTAV(it->getTAV());
-
-      if (currentTAV.any()) {
-        for ( size_t item = 0; item < currentTAV.size(); ++item ) {
-          if (currentTAV.test(item)) {
-            tav->Fill(item);
-            m_tavItems.push_back(item);
-            m_tavBC.push_back(bunchIndex);
-          }
-        }
-      }
-    }
-    int maxbc=bunchIndex-1;
-
-    bool allTAPFine=true;
-    bool allTAVFine=true;
-    for ( unsigned int i=0; i<m_tapItems.size(); i++ ) {
-      ATH_MSG(DEBUG) << m_tapItems.at(i) << " TAP fired at BC " << m_tapBC.at(i) << endreq;
-      bool isTBP=false;
-      for ( unsigned int j=0; j<m_tbpItems.size() && isTBP==false; j++ ) {
-        if ( m_tbpItems.at(j)==m_tapItems.at(i) && m_tbpBC.at(j)==m_tapBC.at(i) ) isTBP=true;
-      }
-      if ( isTBP==false ) {
-        allTAPFine=false;
-        ATH_MSG(WARNING) << "TAP item " << m_tapItems.at(i) << " at BC " << m_tapBC.at(i) << " not found in TBP" << endreq;
-      }
-    }
-    for ( unsigned int i=0; i<m_tavItems.size(); i++ ) {
-      ATH_MSG(DEBUG) << m_tavItems.at(i) << " TAV fired at BC " << m_tavBC.at(i) << endreq;
-      bool isTAP=false;
-      for ( unsigned int j=0; j<m_tapItems.size() && isTAP==false; j++ ) {
-        if ( m_tapItems.at(j)==m_tavItems.at(i) && m_tapBC.at(j)==m_tavBC.at(i) ) isTAP=true;
-      }
-      if ( isTAP==false ) {
-        allTAVFine=false;
-        ATH_MSG(WARNING) << "TAV item " << m_tavItems.at(i) << " at BC " << m_tavBC.at(i) << " not found in TAP" << endreq;
-      }
-    }
-
-    //Fill Error Hist
-    if (allTAPFine==false) {
-      errorSummary->Fill(12,1);
-      errorSummary->Fill(m_currentLumiBlock, 12);
-      errorPerLumiBlock->Fill(m_currentLumiBlock);
-    }
-    else errorSummary->Fill(12,0);
-
-    if (allTAVFine==false) {
-      errorSummary->Fill(13,1);
-      errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 13);
-      errorPerLumiBlock->Fill(m_currentLumiBlock);
-    }
-    else errorSummary->Fill(13,0);
-
-    m_lastminbc=minbc;
-    m_lastmaxbc=maxbc;
-
-    // TODO: is this really the check we want to do? Doesn't offline in general have more resources..? /CO
-    if (m_environment==AthenaMonManager::online)
-      updateRangeUser();//Triggers LW->ROOT conversion so should certainly not be done offline
-
-    errorSummary->Fill(2,0);
-
-    std::vector<unsigned int> triggersFired = ctp.getAllTriggers(storeBunch);
-    std::stringstream str;
-    for ( unsigned int i = 0; i < triggersFired.size(); ++i ) {
-      str << triggersFired[i] << " ";
-    }
-    ATH_MSG(DEBUG) << triggersFired.size() << " trigger items fired: " << str.str() << endreq;
-  } 
-  else {
-    if (!m_runOnESD) {
-      ATH_MSG(WARNING) << "Zero bunches in CTP data for ext. LVL1 ID 0x" << MSG::hex << evId << MSG::dec << endreq;
-      errorSummary->Fill(2,1);
-      errorSummary->Fill(m_currentLumiBlock, 2);
-      errorPerLumiBlock->Fill(m_currentLumiBlock);
-    }
-  }
+   }
   
-  /*
-   * Check the error status words of the ROD Header 
-   */
-  if (theCTP_RIO) {
-    uint32_t num = theCTP_RIO->getNumberStatusWords();
-    std::vector<uint32_t> vStatus = theCTP_RIO->getStatusWords();
-    for ( uint32_t i = 0; i < num; ++i ) {
-      if (vStatus[i] != 0) {
-        TH1F_LW *hist = 0;
-        if (i == 0) {
-          ATH_MSG(DEBUG) << "CTP error status word #" << i << ": 0x" << MSG::hex << vStatus[i] << MSG::dec << endreq;
-          hist = ctpStatus1;
-        } else if (i == 1) {
-          hist = ctpStatus2;
-        } else {
-          continue;
-        }
-        for ( int bit = 0; bit < 24; ++bit ) {
-          if (vStatus[i] & (1 << bit))
-            hist->Fill(bit);
-        }
+   /*
+    * Check the error status words of the ROD Header 
+    */
+   if (theCTP_RIO) {
+      uint32_t num = theCTP_RIO->getNumberStatusWords();
+      std::vector<uint32_t> vStatus = theCTP_RIO->getStatusWords();
+      for ( uint32_t i = 0; i < num; ++i ) {
+         if (vStatus[i] != 0) {
+            TH1F_LW *hist = 0;
+            if (i == 0) {
+               ATH_MSG(DEBUG) << "CTP error status word #" << i << ": 0x" << MSG::hex << vStatus[i] << MSG::dec << endreq;
+               hist = ctpStatus1;
+            } else if (i == 1) {
+               hist = ctpStatus2;
+            } else {
+               continue;
+            }
+            for ( int bit = 0; bit < 24; ++bit ) {
+               if (vStatus[i] & (1 << bit))
+                  hist->Fill(bit);
+            }
+         }
       }
-    }
-  }
+   }
 }
 
 
@@ -1515,6 +1517,7 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
   TH1F_LW *errorPerLumiBlock = getTH1("errorPerLumiBlock");
 
   const CTP_RDO* theCTP_RDO_Rerun = 0;
+  ATH_MSG(DEBUG) << "Retrieving CTP_RDO from SG with key CTP_RDO_Rerun" << endreq;
   CHECK( evtStore()->retrieve(theCTP_RDO_Rerun, "CTP_RDO_Rerun") );
   
   CTP_Decoder ctp_rerun;
@@ -1525,28 +1528,16 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
     ATH_MSG(ERROR) << "Rerun simulation has non unity number of bunch crossings " << endreq;
     return StatusCode::FAILURE;
   }
-  ATH_MSG(DEBUG) << "Dumping data " << endreq;
+
+
+  ATH_MSG(DEBUG) << "In compareRerun: dumping data for BC " << bunchCrossing.getBCID() << endreq;
+  bunchCrossing.dumpData();
+
+  ATH_MSG(DEBUG) << "In compareRerun: dumping rerun data for BC 0" << endreq;
   ctp_bc_rerun.at(0).dumpData();
   
-  ATH_MSG(DEBUG) << "Comparing rerunned CTP simulation to data output " << endreq;
+  ATH_MSG(DEBUG) << "Comparing TBP from CTP_RDO objects with keys CTP_RDO (from data) and CTP_RDO_Rerun (from simulation)" << endreq;
   
-  /*const std::bitset<160> currentPIT(bunchCrossing.getPIT());
-  const std::bitset<160> currentPIT_rerun(ctp_bc_rerun.at(0).getPIT()); 
-  if (currentPIT != currentPIT_rerun) {
-    for ( std::vector< TrigConf::PIT* >::const_iterator pit = m_configSvc->ctpConfig()->menu()->pitVector().begin(); pit != m_configSvc->ctpConfig()->menu()->pitVector().end(); ++pit) {
-      if ( (currentPIT.test((*pit)->pitNumber()))!=(currentPIT_rerun.test((*pit)->pitNumber())) ) {
-	Mismatch=1;
-	std::string string1("not fired ");
-	if ( currentPIT.test((*pit)->pitNumber()) )
-	  string1=(*pit)->thresholdName();
-	std::string string2("not fired ");
-	if ( currentPIT_rerun.test((*pit)->pitNumber()) )
-	  string2=(*pit)->thresholdName();
-	ATH_MSG(DEBUG) << "Mismatch! Print pit fired : rerun pit fired " << (*pit)->pitNumber() << " " << string1 << " : " << string2 << endreq;
-      }
-    }
-    }*/
-
   const std::bitset<512> currentTBP(bunchCrossing.getTBP());
   const std::bitset<512> currentTBP_rerun(ctp_bc_rerun.at(0).getTBP()); 
 
@@ -1554,14 +1545,18 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
 
     for ( TrigConf::TriggerItem* item: m_configSvc->ctpConfig()->menu().items() ) {
 
+      std::vector<unsigned int> randoms;
+      item->topNode()->getAllRandomTriggers(randoms);
+      
       //do not include random and non-simulated triggers in this test, so skip those
-      if( item->name().find("L1_RD") != string::npos ||
-          item->name().find("L1_TRT") != string::npos ) continue;
+      bool skip = randoms.size()>0 || item->name().find("L1_TRT") != string::npos;
+
+      if( skip ) continue;
 
       bool tbp       = currentTBP.test( item->ctpId() );
       bool tbp_rerun = currentTBP_rerun.test( item->ctpId() );
       if ( tbp !=  tbp_rerun ) {
-        ATH_MSG(WARNING) << "CTPSimulation TBP / TPB_rerun mismatch!! For L1Item '" << item->name() << "': data=" 
+         ATH_MSG(WARNING) << "CTPSimulation TBP / TPB_rerun mismatch!! For L1Item '" << item->name() << "' (CTP ID " << item->ctpId() << "): data=" 
                          << (tbp?"pass":"fail") << " != simulation=" << (tbp_rerun?"pass":"fail") << endreq;
         Mismatch=1;
       }
@@ -1592,7 +1587,7 @@ dumpData(const DataHandle<CTP_RDO> theCTP_RDO,
     MuCTPI_MultiplicityWord_Decoder multWord(theMuCTPI_RDO->
 					     candidateMultiplicity(),
 					     m_inclusiveTriggerThresholds);
-    ATH_MSG(DEBUG) << "Multiplicity data :" << endreq;
+    ATH_MSG_DEBUG("MuCTPI_Multiplicity data :");
     multWord.dumpData();
     // MuCTPI candidate data
     MuCTPI_DataWord_Decoder dataWord(0);
@@ -1612,7 +1607,7 @@ dumpData(const DataHandle<CTP_RDO> theCTP_RDO,
     // CTP information
     CTP_Decoder ctp;
     ctp.setRDO(theCTP_RDO);
-    ATH_MSG(DEBUG) << "CTP data :" << endreq;
+    ATH_MSG_DEBUG("CTP data from CTP_RDO:");
     ctp.dumpData();
 
     //Misc. information
