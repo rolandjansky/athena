@@ -10,6 +10,10 @@
 
 #include "CMXRoICnv.h"
 
+
+using namespace LVL1;
+
+
 //createPersistent 
 CMXRoI_PERS * CMXRoICnv::createPersistent( CMXRoI *transObj)
 {

@@ -6,14 +6,17 @@ author Attila Krasznahorkay Jr. <Attila.Krasznahorkay@cern.ch>
 # Gaudi/Athena packages:
 use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*      External
-use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 
 # TrigT1 packages:
+
+private
+use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
 use TrigT1Result        TrigT1Result-*        Trigger/TrigT1
 use TrigT1CaloEvent     TrigT1CaloEvent-*     Trigger/TrigT1
 use TrigT1Interfaces    TrigT1Interfaces-*    Trigger/TrigT1
 use TrigT1EventTPCnv    TrigT1EventTPCnv-*    Trigger/TrigT1
+end_private
 
 # Create all the POOL converters:
 apply_pattern poolcnv typesWithNamespace="ROIB::RoIBResult LVL1::MuCTPICTP LVL1::EmTauCTP \
@@ -66,3 +69,16 @@ apply_pattern poolcnv typesWithNamespace="ROIB::RoIBResult LVL1::MuCTPICTP LVL1:
                                  RecJetRoI.h"
 
 apply_pattern declare_joboptions files="*.py"
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+
+apply_pattern athenarun_test \
+   name="TrigT1EventTPCnv_18.0.0" \
+   options="TrigT1EventAthenaPool/TrigT1EventTPCnv_18.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrigT1EventTPCnv_18.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrigT1EventTPCnv_18.0.0"
+
+
