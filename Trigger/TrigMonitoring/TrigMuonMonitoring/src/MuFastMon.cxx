@@ -54,154 +54,154 @@ StatusCode HLTMuonMonTool::bookMuFastDQA()
   //histograms in each 10LBs 
   if( newRun || newLowStat){
 
-    addHistogram( new TH2F("muFast_eta_vs_phi_in_10LBs",           "muFast eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), histdircoverage );
+    addHistogram( new TH2F("muFast_eta_vs_phi_in_10LBs",           "muFast eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
 
   }
 
   if( newRun ){
 
     // basic EDM variables
-    addHistogram( new TH1F("muFast_pt_all",        "muFast pt (GeV/c); p_{T} [GeV/c]; Entries",           210, -105., 105.), histdirmufast );
-    addHistogram( new TH1F("muFast_pt_all_barrel", "muFast pt barrel (GeV/c); p_{T} [GeV/c]; Entries",    210, -105., 105.), histdirmufast );
-    addHistogram( new TH1F("muFast_pt_all_endcap", "muFast pt endcap (GeV/c); p_{T} [GeV/c]; Entires",    210, -105., 105.), histdirmufast );
-    addHistogram( new TH1F("muFast_pt",            "muFast pt (GeV/c); p_{T} [GeV/c]; Entries",           210, -105., 105.), histdirmufast );
-    addHistogram( new TH1F("muFast_pt_barrel",     "muFast pt barrel (GeV/c); p_{T} [GeV/c]; Entries",    210, -105., 105.), histdirmufast );
-    addHistogram( new TH1F("muFast_pt_endcap",     "muFast pt endcap (GeV/c); p_{T} [GeV/c]; Entires",    210, -105., 105.), histdirmufast );
-    addHistogram( new TH1F("muFast_eta",           "muFast eta; #eta; Entries",                108, -2.7,  2.7), histdirmufast );
-    addHistogram( new TH1F("muFast_phi",           "muFast phi; #phi[rad]; Entries",                96, -CLHEP::pi, CLHEP::pi), histdirmufast );
-    addHistogram( new TH1F("muFast_phi_barrel",    "muFast phi barrel; #phi[rad]; Entries",         96, -CLHEP::pi, CLHEP::pi), histdirmufast );
-    addHistogram( new TH1F("muFast_phi_endcap",    "muFast phi endcap; #phi[rad]; Entries",         96, -CLHEP::pi, CLHEP::pi), histdirmufast );
-    addHistogram( new TH2F("muFast_eta_vs_phi",    "muFast eta vs phi; #eta ; #phi",           108, -2.7,  2.7, 96, -CLHEP::pi, CLHEP::pi), histdirmufast );
+    addHistogram( new TH1F("muFast_pt_all",        "muFast pt (GeV/c); p_{T} [GeV/c]; Entries",           210, -105., 105.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_pt_all_barrel", "muFast pt barrel (GeV/c); p_{T} [GeV/c]; Entries",    210, -105., 105.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_pt_all_endcap", "muFast pt endcap (GeV/c); p_{T} [GeV/c]; Entires",    210, -105., 105.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_pt",            "muFast pt (GeV/c); p_{T} [GeV/c]; Entries",           210, -105., 105.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_pt_barrel",     "muFast pt barrel (GeV/c); p_{T} [GeV/c]; Entries",    210, -105., 105.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_pt_endcap",     "muFast pt endcap (GeV/c); p_{T} [GeV/c]; Entires",    210, -105., 105.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_eta",           "muFast eta; #eta; Entries",                108, -2.7,  2.7), m_histdirmufast );
+    addHistogram( new TH1F("muFast_phi",           "muFast phi; #phi[rad]; Entries",                96, -CLHEP::pi, CLHEP::pi), m_histdirmufast );
+    addHistogram( new TH1F("muFast_phi_barrel",    "muFast phi barrel; #phi[rad]; Entries",         96, -CLHEP::pi, CLHEP::pi), m_histdirmufast );
+    addHistogram( new TH1F("muFast_phi_endcap",    "muFast phi endcap; #phi[rad]; Entries",         96, -CLHEP::pi, CLHEP::pi), m_histdirmufast );
+    addHistogram( new TH2F("muFast_eta_vs_phi",    "muFast eta vs phi; #eta ; #phi",           108, -2.7,  2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmufast );
     
     // position and superpoint
-    addHistogram( new TH1F("muFast_saddr",             "muFast station address; address; Entries",             6, -1, 5), histdirmufast );
-    addHistogram( new TH2F("muFast_MDTpoints_z_vs_r",  "muFast MDT superpoint Z vs R (mm); Z[mm]; R[mm]",  200, -24000, 24000, 200, -14000, 14000), histdirmufast );
+    addHistogram( new TH1F("muFast_saddr",             "muFast station address; address; Entries",             6, -1, 5), m_histdirmufast );
+    addHistogram( new TH2F("muFast_MDTpoints_z_vs_r",  "muFast MDT superpoint Z vs R (mm); Z[mm]; R[mm]",  200, -24000, 24000, 200, -14000, 14000), m_histdirmufast );
 
     // RoI ID in case mF failed
-    addHistogram( new TH1F("muFast_failed_roiId",   "muFast roiId in case of failure; RoIID; Entries",  100, 0, 100000), histdirmufast ); 
+    addHistogram( new TH1F("muFast_failed_roiId",   "muFast roiId in case of failure; RoIID; Entries",  100, 0, 100000), m_histdirmufast ); 
 
     // RoI descriptor
-    addHistogram( new TH1F("muFast_forID_dR_toRecMuonCB_mu6",  "muFast forID RoI, dR to offline CB; dR(forID vs offl CB); Entries",  100, 0, 0.5), histdirmufast ); 
+    addHistogram( new TH1F("muFast_forID_dR_toRecMuonCB_mu6",  "muFast forID RoI, dR to offline CB; dR(forID vs offl CB); Entries",  100, 0, 0.5), m_histdirmufast ); 
     addHistogram( new TH2F("muFast_forID_deta_vs_eta_toRecMuonCB_mu6",  "muFast forID RoI wrt Offline CB muon, d#eta ; offl CB #eta; d#eta(forID vs offl CB)",
-			   54, -2.7, 2.7, 60, -0.3, 0.3),  histdirmufast ); 
+			   54, -2.7, 2.7, 60, -0.3, 0.3),  m_histdirmufast ); 
     addHistogram( new TH2F("muFast_forID_dphi_vs_eta_toRecMuonCB_mu6",  "muFast forID RoI wrt Offline CB muon, d#phi ; offl CB #eta; d#phi(forID vs offl CB)",
-			   54, -2.7, 2.7, 44, -0.02, 0.2), histdirmufast ); 
+			   54, -2.7, 2.7, 44, -0.02, 0.2), m_histdirmufast ); 
 
     // MuonFeatureDetails
-    addHistogram( new TH1F("muFast_proc_flow",   "muFast process flow;; Entries",  6, 1, 7), histdirmufast ); 
-    hist("muFast_proc_flow", histdirmufast)->GetXaxis()->SetBinLabel(1,"input");
-    hist("muFast_proc_flow", histdirmufast)->GetXaxis()->SetBinLabel(2,"n L1 hits > 0");
-    hist("muFast_proc_flow", histdirmufast)->GetXaxis()->SetBinLabel(3,"L1 emu ok at trigger layer");
-    hist("muFast_proc_flow", histdirmufast)->GetXaxis()->SetBinLabel(4,"n MDT hits > 0 at middle layer");
-    hist("muFast_proc_flow", histdirmufast)->GetXaxis()->SetBinLabel(5,"MDT fit ok at middle layer");
-    hist("muFast_proc_flow", histdirmufast)->GetXaxis()->SetBinLabel(6,"MDT fit ok at >= 2 layers");
+    addHistogram( new TH1F("muFast_proc_flow",   "muFast process flow;; Entries",  6, 1, 7), m_histdirmufast ); 
+    hist("muFast_proc_flow", m_histdirmufast)->GetXaxis()->SetBinLabel(1,"input");
+    hist("muFast_proc_flow", m_histdirmufast)->GetXaxis()->SetBinLabel(2,"n L1 hits > 0");
+    hist("muFast_proc_flow", m_histdirmufast)->GetXaxis()->SetBinLabel(3,"L1 emu ok at trigger layer");
+    hist("muFast_proc_flow", m_histdirmufast)->GetXaxis()->SetBinLabel(4,"n MDT hits > 0 at middle layer");
+    hist("muFast_proc_flow", m_histdirmufast)->GetXaxis()->SetBinLabel(5,"MDT fit ok at middle layer");
+    hist("muFast_proc_flow", m_histdirmufast)->GetXaxis()->SetBinLabel(6,"MDT fit ok at >= 2 layers");
     
-    addHistogram( new TH1F("muFast_RPC_Pad_N",   "muFast RPC number of hits; RPC number of hits; Entries",  20, 0, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_RPC_Pad_N",   "muFast RPC number of hits; RPC number of hits; Entries",  20, 0, 20), m_histdirmufast ); 
 
-    addHistogram( new TH1F("muFast_TGC_Mid_rho_chi2",   "muFast TGC big wheel rho fit chi2; chi2; Entries",  100, 0, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_TGC_Mid_phi_chi2",   "muFast TGC big wheel phi fit chi2; chi2; Entries",  100, 0, 10), histdirmufast ); 
+    addHistogram( new TH1F("muFast_TGC_Mid_rho_chi2",   "muFast TGC big wheel rho fit chi2; chi2; Entries",  100, 0, 10), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_TGC_Mid_phi_chi2",   "muFast TGC big wheel phi fit chi2; chi2; Entries",  100, 0, 10), m_histdirmufast ); 
 
-    addHistogram( new TH1F("muFast_TGC_Mid_rho_N",   "muFast TGC big wheel number of hits in rho; TGC BW rho nhits; Entries",  20, 0, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_TGC_Mid_phi_N",   "muFast TGC big wheel number of hits in eta; TGC BW phi nhtis; Entries",  20, 0, 20), histdirmufast ); 
+    addHistogram( new TH1F("muFast_TGC_Mid_rho_N",   "muFast TGC big wheel number of hits in rho; TGC BW rho nhits; Entries",  20, 0, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_TGC_Mid_phi_N",   "muFast TGC big wheel number of hits in eta; TGC BW phi nhtis; Entries",  20, 0, 20), m_histdirmufast ); 
     
-    addHistogram( new TH1F("muFast_TGC_Inn_rho_N",   "muFast TGC small wheel number of hits in rho; TGC SW rho nhits; Entries",  10, 0, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_TGC_Inn_phi_N",   "muFast TGC small wheel number of hits in eta; TGC SW phi nhtis; Entries",  10, 0, 10), histdirmufast ); 
+    addHistogram( new TH1F("muFast_TGC_Inn_rho_N",   "muFast TGC small wheel number of hits in rho; TGC SW rho nhits; Entries",  10, 0, 10), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_TGC_Inn_phi_N",   "muFast TGC small wheel number of hits in eta; TGC SW phi nhtis; Entries",  10, 0, 10), m_histdirmufast ); 
     
-    addHistogram( new TH1F("muFast_MDT_Inn_fit_chi2_barrel",   "muFast barrel MDT Inner station fit chi2; chi2; Entries",  100, 0, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Mid_fit_chi2_barrel",   "muFast barrel MDT Middle station fit chi2; chi2; Entries",  100, 0, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Out_fit_chi2_barrel",   "muFast barrel MDT Outer station fit chi2; chi2; Entries",  100, 0, 10), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Inn_fit_chi2_barrel",   "muFast barrel MDT Inner station fit chi2; chi2; Entries",  100, 0, 10), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_fit_chi2_barrel",   "muFast barrel MDT Middle station fit chi2; chi2; Entries",  100, 0, 10), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Out_fit_chi2_barrel",   "muFast barrel MDT Outer station fit chi2; chi2; Entries",  100, 0, 10), m_histdirmufast ); 
 
-    addHistogram( new TH1F("muFast_MDT_Inn_fit_chi2_endcap",   "muFast endcap MDT Inner station fit chi2; chi2; Entries",  100, 0, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Mid_fit_chi2_endcap",   "muFast endcap MDT Middle station fit chi2; chi2; Entries",  100, 0, 10), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Out_fit_chi2_endcap",   "muFast endcap MDT Outer station fit chi2; chi2; Entries",  100, 0, 10), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Inn_fit_chi2_endcap",   "muFast endcap MDT Inner station fit chi2; chi2; Entries",  100, 0, 10), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_fit_chi2_endcap",   "muFast endcap MDT Middle station fit chi2; chi2; Entries",  100, 0, 10), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Out_fit_chi2_endcap",   "muFast endcap MDT Outer station fit chi2; chi2; Entries",  100, 0, 10), m_histdirmufast ); 
 
-    addHistogram( new TH1F("muFast_MDT_N_barrel",   "muFast barrel MDT number of hits; MDT nhits; Entries",  40, 0, 40), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_N_endcap",   "muFast endcap MDT number of hits; MDT nhits; Entries",  40, 0, 40), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_N_barrel",   "muFast barrel MDT number of hits; MDT nhits; Entries",  40, 0, 40), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_N_endcap",   "muFast endcap MDT number of hits; MDT nhits; Entries",  40, 0, 40), m_histdirmufast ); 
 
-    addHistogram( new TH1F("muFast_MDT_Inn_residual_barrel",   "muFast barrel MDT Inner  station residual; MDT Inner barrel residual [cm]; Entries",  100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Mid_residual_barrel",   "muFast barrel MDT Middle station residual; MDT Middle barrel residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Out_residual_barrel",   "muFast barrel MDT Outer  station residual; MDT Outer barrel residual [cm]; Entries",  100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Inn_residual_barrel_OffMatch",   "muFast barrel MDT Inner  station residual matched with Offline; MDT Inner barrel residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Mid_residual_barrel_OffMatch",   "muFast barrel MDT Middle station residual matched with Offline; MDT Middle barrel residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Out_residual_barrel_OffMatch",   "muFast barrel MDT Outer  station residual matched with Offline; MDT Outer barrel residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Inn_N_barrel",   "muFast barrel MDT Inner  number of hits; MDT nhits Inner; Entries",  40, 0, 40), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Mid_N_barrel",   "muFast barrel MDT Middle number of hits; MDT nhits Middle; Entries",  40, 0, 40), histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Inn_residual_barrel",   "muFast barrel MDT Inner  station residual; MDT Inner barrel residual [cm]; Entries",  100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_residual_barrel",   "muFast barrel MDT Middle station residual; MDT Middle barrel residual [cm]; Entries", 100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Out_residual_barrel",   "muFast barrel MDT Outer  station residual; MDT Outer barrel residual [cm]; Entries",  100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Inn_residual_barrel_OffMatch",   "muFast barrel MDT Inner  station residual matched with Offline; MDT Inner barrel residual [cm]; Entries", 100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_residual_barrel_OffMatch",   "muFast barrel MDT Middle station residual matched with Offline; MDT Middle barrel residual [cm]; Entries", 100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Out_residual_barrel_OffMatch",   "muFast barrel MDT Outer  station residual matched with Offline; MDT Outer barrel residual [cm]; Entries", 100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Inn_N_barrel",   "muFast barrel MDT Inner  number of hits; MDT nhits Inner; Entries",  40, 0, 40), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_N_barrel",   "muFast barrel MDT Middle number of hits; MDT nhits Middle; Entries",  40, 0, 40), m_histdirmufast ); 
 
-    addHistogram( new TH1F("muFast_MDT_Out_N_barrel",   "muFast barrel MDT Outer  number of hits; MDT nhits Outer; Entries",  40, 0, 40), histdirmufast ); 
-    addHistogram( new TH2F("muFast_MDT_Inn_residual_barrel_vs_LB",  "muFast barrel MDT Inner station residual vs LB; LB; MDT Inner barrel residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
-    addHistogram( new TH2F("muFast_MDT_Mid_residual_barrel_vs_LB",  "muFast barrel MDT Middle station residual vs LB; LB; MDT Middle barrel residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
-    addHistogram( new TH2F("muFast_MDT_Out_residual_barrel_vs_LB",  "muFast barrel MDT Outer station residual vs LB; LB; MDT Outer barrel residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
+    addHistogram( new TH1F("muFast_MDT_Out_N_barrel",   "muFast barrel MDT Outer  number of hits; MDT nhits Outer; Entries",  40, 0, 40), m_histdirmufast ); 
+    addHistogram( new TH2F("muFast_MDT_Inn_residual_barrel_vs_LB",  "muFast barrel MDT Inner station residual vs LB; LB; MDT Inner barrel residual [cm]", 750,1.,1501., 80, -20, 20 ), m_histdirmufast );
+    addHistogram( new TH2F("muFast_MDT_Mid_residual_barrel_vs_LB",  "muFast barrel MDT Middle station residual vs LB; LB; MDT Middle barrel residual [cm]", 750,1.,1501., 80, -20, 20 ), m_histdirmufast );
+    addHistogram( new TH2F("muFast_MDT_Out_residual_barrel_vs_LB",  "muFast barrel MDT Outer station residual vs LB; LB; MDT Outer barrel residual [cm]", 750,1.,1501., 80, -20, 20 ), m_histdirmufast );
 
-    addHistogram( new TH1F("muFast_MDT_Inn_residual_endcap",   "muFast endcap MDT Inner  station residual; MDT Inner endcap residual [cm]; Entries",  100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Mid_residual_endcap",   "muFast endcap MDT Middle station residual; MDT Middle endcap residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Out_residual_endcap",   "muFast endcap MDT Outer  station residual; MDT Outer endcap residual [cm]; Entries",  100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Inn_residual_endcap_OffMatch",   "muFast endcap MDT Inner  station residual matched with Offline; MDT Inner endcap residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Mid_residual_endcap_OffMatch",   "muFast endcap MDT Middle station residual matched with Offline; MDT Middle endcap residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Out_residual_endcap_OffMatch",   "muFast endcap MDT Outer  station residual matched with Offline; MDT Outer endcap residual [cm]; Entries", 100, -20, 20), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Inn_N_endcap",   "muFast endcap MDT Inner  number of hits; MDT nhits Inner; Entries",  40, 0, 40), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Mid_N_endcap",   "muFast endcap MDT Middle number of hits; MDT nhits Middle; Entries",  40, 0, 40), histdirmufast ); 
-    addHistogram( new TH1F("muFast_MDT_Out_N_endcap",   "muFast endcap MDT Outer  number of hits; MDT nhits Outer; Entries",  40, 0, 40), histdirmufast ); 
-    addHistogram( new TH2F("muFast_MDT_Inn_residual_endcap_vs_LB",  "muFast endcap MDT Inner station residual vs LB; LB; MDT Inner endcap residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
-    addHistogram( new TH2F("muFast_MDT_Mid_residual_endcap_vs_LB",  "muFast endcap MDT Middle station residual vs LB; LB; MDT Middle endcap residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
-    addHistogram( new TH2F("muFast_MDT_Out_residual_endcap_vs_LB",  "muFast endcap MDT Outer station residual vs LB; LB; MDT Outer endcap residual [cm]", 750,1.,1501., 80, -20, 20 ), histdirmufast );
+    addHistogram( new TH1F("muFast_MDT_Inn_residual_endcap",   "muFast endcap MDT Inner  station residual; MDT Inner endcap residual [cm]; Entries",  100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_residual_endcap",   "muFast endcap MDT Middle station residual; MDT Middle endcap residual [cm]; Entries", 100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Out_residual_endcap",   "muFast endcap MDT Outer  station residual; MDT Outer endcap residual [cm]; Entries",  100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Inn_residual_endcap_OffMatch",   "muFast endcap MDT Inner  station residual matched with Offline; MDT Inner endcap residual [cm]; Entries", 100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_residual_endcap_OffMatch",   "muFast endcap MDT Middle station residual matched with Offline; MDT Middle endcap residual [cm]; Entries", 100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Out_residual_endcap_OffMatch",   "muFast endcap MDT Outer  station residual matched with Offline; MDT Outer endcap residual [cm]; Entries", 100, -20, 20), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Inn_N_endcap",   "muFast endcap MDT Inner  number of hits; MDT nhits Inner; Entries",  40, 0, 40), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Mid_N_endcap",   "muFast endcap MDT Middle number of hits; MDT nhits Middle; Entries",  40, 0, 40), m_histdirmufast ); 
+    addHistogram( new TH1F("muFast_MDT_Out_N_endcap",   "muFast endcap MDT Outer  number of hits; MDT nhits Outer; Entries",  40, 0, 40), m_histdirmufast ); 
+    addHistogram( new TH2F("muFast_MDT_Inn_residual_endcap_vs_LB",  "muFast endcap MDT Inner station residual vs LB; LB; MDT Inner endcap residual [cm]", 750,1.,1501., 80, -20, 20 ), m_histdirmufast );
+    addHistogram( new TH2F("muFast_MDT_Mid_residual_endcap_vs_LB",  "muFast endcap MDT Middle station residual vs LB; LB; MDT Middle endcap residual [cm]", 750,1.,1501., 80, -20, 20 ), m_histdirmufast );
+    addHistogram( new TH2F("muFast_MDT_Out_residual_endcap_vs_LB",  "muFast endcap MDT Outer station residual vs LB; LB; MDT Outer endcap residual [cm]", 750,1.,1501., 80, -20, 20 ), m_histdirmufast );
 
 
 
     // Comparison to Offline
-    addHistogram( new TH1F("muFast_dR_toRecMuonCB",          "dR between muFast and Offline; #DeltaR; Entries",           100,  0,  2), histdirmufast );
-    addHistogram( new TH1F("muFast_ptresol_toRecMuonCB",     "muFast pT resolution wrt Offline; p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos",     "muFast pT resolution wrt Offline positive muons; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg",     "muFast pT resolution wrt Offline negative muons; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_ptresol_toRecMuonCB_BR",  "muFast pT resolution wrt Offline Barrel; p_{T} resol; Entries", 100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_ptresol_toRecMuonCB_EC1", "muFast pT resolution wrt Offline EndCap1; p_{T} resol; Entries",100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_ptresol_toRecMuonCB_EC2", "muFast pT resolution wrt Offline EndCap2; p_{T} resol; Entries",100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_ptresol_toRecMuonCB_EC3", "muFast pT resolution wrt Offline EndCap3; p_{T} resol; Entries",100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_BR_A",     "muFast pT resolution wrt Offline pos muons Barrel A-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_BR_A",     "muFast pT resolution wrt Offline neg muons Barrel A-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC1_A",     "muFast pT resolution wrt Offline pos muons EndCap1 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC1_A",     "muFast pT resolution wrt Offline neg muons EndCap1 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC2_A",     "muFast pT resolution wrt Offline pos muons EndCap2 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC2_A",     "muFast pT resolution wrt Offline neg muons EndCap2 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC3_A",     "muFast pT resolution wrt Offline pos muons EndCap3 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC3_A",     "muFast pT resolution wrt Offline neg muons EndCap3 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_BR_C",     "muFast pT resolution wrt Offline pos muons Barrel C-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_BR_C",     "muFast pT resolution wrt Offline neg muons Barrel C-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC1_C",     "muFast pT resolution wrt Offline pos muons EndCap1 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC1_C",     "muFast pT resolution wrt Offline neg muons EndCap1 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC2_C",     "muFast pT resolution wrt Offline pos muons EndCap2 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC2_C",     "muFast pT resolution wrt Offline neg muons EndCap2 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC3_C",     "muFast pT resolution wrt Offline pos muons EndCap3 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
-    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC3_C",     "muFast pT resolution wrt Offline neg muons EndCap3 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), histdirmufast );
+    addHistogram( new TH1F("muFast_dR_toRecMuonCB",          "dR between muFast and Offline; #DeltaR; Entries",           100,  0,  2), m_histdirmufast );
+    addHistogram( new TH1F("muFast_ptresol_toRecMuonCB",     "muFast pT resolution wrt Offline; p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos",     "muFast pT resolution wrt Offline positive muons; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg",     "muFast pT resolution wrt Offline negative muons; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_ptresol_toRecMuonCB_BR",  "muFast pT resolution wrt Offline Barrel; p_{T} resol; Entries", 100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_ptresol_toRecMuonCB_EC1", "muFast pT resolution wrt Offline EndCap1; p_{T} resol; Entries",100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_ptresol_toRecMuonCB_EC2", "muFast pT resolution wrt Offline EndCap2; p_{T} resol; Entries",100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_ptresol_toRecMuonCB_EC3", "muFast pT resolution wrt Offline EndCap3; p_{T} resol; Entries",100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_BR_A",     "muFast pT resolution wrt Offline pos muons Barrel A-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_BR_A",     "muFast pT resolution wrt Offline neg muons Barrel A-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC1_A",     "muFast pT resolution wrt Offline pos muons EndCap1 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC1_A",     "muFast pT resolution wrt Offline neg muons EndCap1 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC2_A",     "muFast pT resolution wrt Offline pos muons EndCap2 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC2_A",     "muFast pT resolution wrt Offline neg muons EndCap2 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC3_A",     "muFast pT resolution wrt Offline pos muons EndCap3 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC3_A",     "muFast pT resolution wrt Offline neg muons EndCap3 A-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_BR_C",     "muFast pT resolution wrt Offline pos muons Barrel C-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_BR_C",     "muFast pT resolution wrt Offline neg muons Barrel C-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC1_C",     "muFast pT resolution wrt Offline pos muons EndCap1 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC1_C",     "muFast pT resolution wrt Offline neg muons EndCap1 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC2_C",     "muFast pT resolution wrt Offline pos muons EndCap2 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC2_C",     "muFast pT resolution wrt Offline neg muons EndCap2 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_pos_EC3_C",     "muFast pT resolution wrt Offline pos muons EndCap3 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
+    addHistogram( new TH1F("muFast_invptresol_toRecMuonCB_neg_EC3_C",     "muFast pT resolution wrt Offline neg muons EndCap3 C-side; 1/p_{T} resol; Entries",        100, -2., 2.), m_histdirmufast );
     
-	 addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_eta",       "muFast pT resolution wrt Offline in eta; #eta; p_{T} resol", 27, -2.7, 2.7, 100, -2, 2), histdirmufast );
-    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_eta_pT4_6", "muFast pT resolution wrt Offline in eta (pT4GeV-6GeV); #eta; p_{T} resol", 27, -2.7, 2.7, 100, -2, 2), histdirmufast );
-    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_eta_pT6_8", "muFast pT resolution wrt Offline in eta (pT6GeV-8GeV); #eta; p_{T} resol", 27, -2.7, 2.7, 100, -2, 2), histdirmufast );
-    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_eta_pT8_x", "muFast pT resolution wrt Offline in eta (pT over 8GeV); #eta; p_{T} resol", 27, -2.7, 2.7, 100, -2, 2), histdirmufast );
+	 addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_eta",       "muFast pT resolution wrt Offline in eta; #eta; p_{T} resol", 27, -2.7, 2.7, 100, -2, 2), m_histdirmufast );
+    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_eta_pT4_6", "muFast pT resolution wrt Offline in eta (pT4GeV-6GeV); #eta; p_{T} resol", 27, -2.7, 2.7, 100, -2, 2), m_histdirmufast );
+    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_eta_pT6_8", "muFast pT resolution wrt Offline in eta (pT6GeV-8GeV); #eta; p_{T} resol", 27, -2.7, 2.7, 100, -2, 2), m_histdirmufast );
+    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_eta_pT8_x", "muFast pT resolution wrt Offline in eta (pT over 8GeV); #eta; p_{T} resol", 27, -2.7, 2.7, 100, -2, 2), m_histdirmufast );
     
 	 
-	 addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_pt_barrel_A", "muFast barrel A pT resolution wrt Offline in pt; p_{T} [GeV/c]; p_{T} resol", 104, -52., 52., 100, -2, 2), histdirmufast );
-    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_pt_barrel_C", "muFast barrel C pT resolution wrt Offline in pt; p_{T} [GeV/c]; p_{T} resol", 104, -52., 52., 100, -2, 2), histdirmufast );
-    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_pt_endcap_A", "muFast endcap A pT resolution wrt Offline in pt; p_{T} [GeV/c]; p_{T} resol", 104, -52., 52., 100, -2, 2), histdirmufast );
-    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_pt_endcap_C", "muFast endcap C pT resolution wrt Offline in pt; p_{T} [GeV/c]; p_{T} resol", 104, -52., 52., 100, -2, 2), histdirmufast );
+	 addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_pt_barrel_A", "muFast barrel A pT resolution wrt Offline in pt; p_{T} [GeV/c]; p_{T} resol", 104, -52., 52., 100, -2, 2), m_histdirmufast );
+    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_pt_barrel_C", "muFast barrel C pT resolution wrt Offline in pt; p_{T} [GeV/c]; p_{T} resol", 104, -52., 52., 100, -2, 2), m_histdirmufast );
+    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_pt_endcap_A", "muFast endcap A pT resolution wrt Offline in pt; p_{T} [GeV/c]; p_{T} resol", 104, -52., 52., 100, -2, 2), m_histdirmufast );
+    addHistogram( new TH2F("muFast_ptresol_toRecMuonCB_pt_endcap_C", "muFast endcap C pT resolution wrt Offline in pt; p_{T} [GeV/c]; p_{T} resol", 104, -52., 52., 100, -2, 2), m_histdirmufast );
 
     // Efficiency wrt Offline
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt",                "muFast effi pt (GeV/c); p_{T}[GeV/c]; Efficiency",              26, 0, 52), histdireff);
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_numer",          "muFast effi pt (GeV/c) numer; p_{T}[GeV/c]; Entries",        26, 0, 52), histdirmufast);
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_denom",          "muFast effi pt (GeV/c) denom; p_{T}[GeV/c]; Entries",        26, 0, 52), histdirmufast);
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_barrel",         "muFast effi pt (GeV/c) barrel; p_{T}[GeV/c]; Efficiency",       26, 0, 52), histdireff);
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_barrel_numer",   "muFast effi pt (GeV/c) barrel numer; p_{T}[GeV/c]; Entries", 26, 0, 52), histdirmufast);
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_barrel_denom",   "muFast effi pt (GeV/c) barrel denom; p_{T}[GeV/c]; Entries", 26, 0, 52), histdirmufast);
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_endcap",         "muFast effi pt (GeV/c) endcap; p_{T}[GeV/c]; Efficiency",       26, 0, 52), histdireff);
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_endcap_numer",   "muFast effi pt (GeV/c) endcap numer; p_{T}[GeV/c]; Entries", 26, 0, 52), histdirmufast);
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_endcap_denom",   "muFast effi pt (GeV/c) endcap denom; p_{T}[GeV/c]; Entries", 26, 0, 52), histdirmufast);
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt",                "muFast effi pt (GeV/c); p_{T}[GeV/c]; Efficiency",              26, 0, 52), m_histdireff);
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_numer",          "muFast effi pt (GeV/c) numer; p_{T}[GeV/c]; Entries",        26, 0, 52), m_histdirmufast);
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_denom",          "muFast effi pt (GeV/c) denom; p_{T}[GeV/c]; Entries",        26, 0, 52), m_histdirmufast);
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_barrel",         "muFast effi pt (GeV/c) barrel; p_{T}[GeV/c]; Efficiency",       26, 0, 52), m_histdireff);
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_barrel_numer",   "muFast effi pt (GeV/c) barrel numer; p_{T}[GeV/c]; Entries", 26, 0, 52), m_histdirmufast);
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_barrel_denom",   "muFast effi pt (GeV/c) barrel denom; p_{T}[GeV/c]; Entries", 26, 0, 52), m_histdirmufast);
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_endcap",         "muFast effi pt (GeV/c) endcap; p_{T}[GeV/c]; Efficiency",       26, 0, 52), m_histdireff);
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_endcap_numer",   "muFast effi pt (GeV/c) endcap numer; p_{T}[GeV/c]; Entries", 26, 0, 52), m_histdirmufast);
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_pt_endcap_denom",   "muFast effi pt (GeV/c) endcap denom; p_{T}[GeV/c]; Entries", 26, 0, 52), m_histdirmufast);
 
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_eta",           "muFast effi eta; #eta; Efficiency",       32, -3.2, 3.2), histdireff );
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_eta_numer",     "muFast effi eta numer; #eta; Entries", 32, -3.2, 3.2), histdirmufast);
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_eta_denom",     "muFast effi eta denom; #eta; Entries", 32, -3.2, 3.2), histdirmufast);
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_eta",           "muFast effi eta; #eta; Efficiency",       32, -3.2, 3.2), m_histdireff );
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_eta_numer",     "muFast effi eta numer; #eta; Entries", 32, -3.2, 3.2), m_histdirmufast);
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_eta_denom",     "muFast effi eta denom; #eta; Entries", 32, -3.2, 3.2), m_histdirmufast);
 
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_phi",           "muFast effi phi; #phi[rad]; Efficiency",       32, -CLHEP::pi, CLHEP::pi), histdireff );
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_phi_numer",     "muFast effi phi numer; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), histdirmufast );
-    addHistogram( new TH1F("muFast_effi_toRecMuonCB_phi_denom",     "muFast effi phi denom; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), histdirmufast );
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_phi",           "muFast effi phi; #phi[rad]; Efficiency",       32, -CLHEP::pi, CLHEP::pi), m_histdireff );
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_phi_numer",     "muFast effi phi numer; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmufast );
+    addHistogram( new TH1F("muFast_effi_toRecMuonCB_phi_denom",     "muFast effi phi denom; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmufast );
 
 
   }else if( newLumiBlock ){
@@ -212,7 +212,7 @@ StatusCode HLTMuonMonTool::bookMuFastDQA()
 
 StatusCode HLTMuonMonTool::fillMuFastDQA()
 {
-  hist("Common_Counter", histdir )->Fill((float)MUFAST);
+  hist("Common_Counter", m_histdir )->Fill((float)MUFAST);
 
   const float DR_MATCHED      = 0.5;
   const float ETA_OF_BARREL   = 1.05;
@@ -311,34 +311,34 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
       else                    { pt_hist = -PT_OVFL; }
     }
 
-    hist("muFast_pt_all", histdirmufast)->Fill(pt_hist);
-    if( isEndcap ) { hist("muFast_pt_all_endcap", histdirmufast)->Fill(pt_hist); }
-    else           { hist("muFast_pt_all_barrel", histdirmufast)->Fill(pt_hist); }
+    hist("muFast_pt_all", m_histdirmufast)->Fill(pt_hist);
+    if( isEndcap ) { hist("muFast_pt_all_endcap", m_histdirmufast)->Fill(pt_hist); }
+    else           { hist("muFast_pt_all_barrel", m_histdirmufast)->Fill(pt_hist); }
 
     if( ! mf_success ) {
-      hist("muFast_failed_roiId", histdirmufast)->Fill(roiId+0.01);
+      hist("muFast_failed_roiId", m_histdirmufast)->Fill(roiId+0.01);
       continue;
     }
 
     // basic histos
-    hist("muFast_pt",  histdirmufast)->Fill(pt_hist);
-    hist("muFast_eta", histdirmufast)->Fill(eta);
-    hist("muFast_phi", histdirmufast)->Fill(phi);
+    hist("muFast_pt",  m_histdirmufast)->Fill(pt_hist);
+    hist("muFast_eta", m_histdirmufast)->Fill(eta);
+    hist("muFast_phi", m_histdirmufast)->Fill(phi);
     if( mf_success ){
-      hist2("muFast_eta_vs_phi", histdirmufast)->Fill(eta,phi);
-      hist2("muFast_eta_vs_phi_in_10LBs", histdircoverage)->Fill(eta,phi);
+      hist2("muFast_eta_vs_phi", m_histdirmufast)->Fill(eta,phi);
+      hist2("muFast_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
     }
     if( isEndcap ) {
-      hist("muFast_pt_endcap", histdirmufast)->Fill(pt_hist);
-      hist("muFast_phi_endcap", histdirmufast)->Fill(phi);
+      hist("muFast_pt_endcap", m_histdirmufast)->Fill(pt_hist);
+      hist("muFast_phi_endcap", m_histdirmufast)->Fill(phi);
     }
     else {
-      hist("muFast_pt_barrel", histdirmufast)->Fill(pt_hist);
-      hist("muFast_phi_barrel", histdirmufast)->Fill(phi);
+      hist("muFast_pt_barrel", m_histdirmufast)->Fill(pt_hist);
+      hist("muFast_phi_barrel", m_histdirmufast)->Fill(phi);
     }
      
     // position, superpoints
-    hist("muFast_saddr", histdirmufast )->Fill(saddr+0.01);
+    hist("muFast_saddr", m_histdirmufast )->Fill(saddr+0.01);
     std::vector<float> sp_r;
     std::vector<float> sp_z;
     if( fabs((*itMf)->superPointR(inner)) > ZERO_LIMIT ) {
@@ -356,7 +356,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     float sign = 1;
     if( phi < 0 ) sign = -1;
     for(int i=0; i<(int)sp_r.size(); i++) {
-      hist2("muFast_MDTpoints_z_vs_r", histdirmufast)->Fill( sp_z[i], sign*sp_r[i] );
+      hist2("muFast_MDTpoints_z_vs_r", m_histdirmufast)->Fill( sp_z[i], sign*sp_r[i] );
     }
 
   } // loop over vecMuonFeatures
@@ -474,26 +474,26 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 
           if     ( imr == inner ) { 
             n_mdt_hits_inner++;
-            hist("muFast_MDT_Inn_residual_barrel", histdirmufast)->Fill(res);
-            hist2("muFast_MDT_Inn_residual_barrel_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
+            hist("muFast_MDT_Inn_residual_barrel", m_histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Inn_residual_barrel_vs_LB", m_histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
-	      hist("muFast_MDT_Inn_residual_barrel_OffMatch", histdirmufast)->Fill(res);
+	      hist("muFast_MDT_Inn_residual_barrel_OffMatch", m_histdirmufast)->Fill(res);
 	    }
           }
           else if( imr == middle ) {
             n_mdt_hits_middle++;
-            hist("muFast_MDT_Mid_residual_barrel", histdirmufast)->Fill(res);
-            hist2("muFast_MDT_Mid_residual_barrel_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
+            hist("muFast_MDT_Mid_residual_barrel", m_histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Mid_residual_barrel_vs_LB", m_histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
-	      hist("muFast_MDT_Mid_residual_barrel_OffMatch", histdirmufast)->Fill(res);
+	      hist("muFast_MDT_Mid_residual_barrel_OffMatch", m_histdirmufast)->Fill(res);
 	    }
           }
           else if( imr == outer ) {
             n_mdt_hits_outer++;
-            hist("muFast_MDT_Out_residual_barrel", histdirmufast)->Fill(res);
-            hist2("muFast_MDT_Out_residual_barrel_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
+            hist("muFast_MDT_Out_residual_barrel", m_histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Out_residual_barrel_vs_LB", m_histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
-	      hist("muFast_MDT_Out_residual_barrel_OffMatch", histdirmufast)->Fill(res);
+	      hist("muFast_MDT_Out_residual_barrel_OffMatch", m_histdirmufast)->Fill(res);
 	    }
           }
         }
@@ -520,26 +520,26 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 
           if     ( imr == inner ) {
             n_mdt_hits_inner++;
-            hist("muFast_MDT_Inn_residual_endcap", histdirmufast)->Fill(res);
-            hist2("muFast_MDT_Inn_residual_endcap_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
+            hist("muFast_MDT_Inn_residual_endcap", m_histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Inn_residual_endcap_vs_LB", m_histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
-	      hist("muFast_MDT_Inn_residual_endcap_OffMatch", histdirmufast)->Fill(res);
+	      hist("muFast_MDT_Inn_residual_endcap_OffMatch", m_histdirmufast)->Fill(res);
 	    }
           }
           else if( imr == middle ) {
             n_mdt_hits_middle++;
-            hist("muFast_MDT_Mid_residual_endcap", histdirmufast)->Fill(res);
-            hist2("muFast_MDT_Mid_residual_endcap_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
+            hist("muFast_MDT_Mid_residual_endcap", m_histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Mid_residual_endcap_vs_LB", m_histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
-	      hist("muFast_MDT_Mid_residual_endcap_OffMatch", histdirmufast)->Fill(res);
+	      hist("muFast_MDT_Mid_residual_endcap_OffMatch", m_histdirmufast)->Fill(res);
 	    }
           }
           else if( imr == outer ) {
             n_mdt_hits_outer++;
-            hist("muFast_MDT_Out_residual_endcap", histdirmufast)->Fill(res);
-            hist2("muFast_MDT_Out_residual_endcap_vs_LB", histdirmufast)->Fill(m_lumiblock, res);
+            hist("muFast_MDT_Out_residual_endcap", m_histdirmufast)->Fill(res);
+            hist2("muFast_MDT_Out_residual_endcap_vs_LB", m_histdirmufast)->Fill(m_lumiblock, res);
 	    if(off_match){
-	      hist("muFast_MDT_Out_residual_endcap_OffMatch", histdirmufast)->Fill(res);
+	      hist("muFast_MDT_Out_residual_endcap_OffMatch", m_histdirmufast)->Fill(res);
 	    }
           }
         }
@@ -565,46 +565,46 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     ATH_MSG_DEBUG("isMDThitThere/FitOkForTriggerPlane/FitOkFor2Plane=" << isMDThitThereForTriggerPlane << " / "
                   << isMDTFitOkForTriggerPlane << " / " << isMDTFitOkFor2Plane);
 
-    hist("muFast_proc_flow",histdirmufast)->Fill(1+0.01);
-    if( isL1hitThere )                 hist("muFast_proc_flow",histdirmufast)->Fill(2+0.01);
-    if( isL1emuOkForTriggerPlane )     hist("muFast_proc_flow",histdirmufast)->Fill(3+0.01);
-    if( isMDThitThereForTriggerPlane ) hist("muFast_proc_flow",histdirmufast)->Fill(4+0.01);
-    if( isMDTFitOkForTriggerPlane )    hist("muFast_proc_flow",histdirmufast)->Fill(5+0.01);
-    if( isMDTFitOkFor2Plane )          hist("muFast_proc_flow",histdirmufast)->Fill(6+0.01);
+    hist("muFast_proc_flow",m_histdirmufast)->Fill(1+0.01);
+    if( isL1hitThere )                 hist("muFast_proc_flow",m_histdirmufast)->Fill(2+0.01);
+    if( isL1emuOkForTriggerPlane )     hist("muFast_proc_flow",m_histdirmufast)->Fill(3+0.01);
+    if( isMDThitThereForTriggerPlane ) hist("muFast_proc_flow",m_histdirmufast)->Fill(4+0.01);
+    if( isMDTFitOkForTriggerPlane )    hist("muFast_proc_flow",m_histdirmufast)->Fill(5+0.01);
+    if( isMDTFitOkFor2Plane )          hist("muFast_proc_flow",m_histdirmufast)->Fill(6+0.01);
 
     // fill
 
     if( systemID==0 ){//barrel
-      hist("muFast_RPC_Pad_N", histdirmufast)->Fill(nRPC);
+      hist("muFast_RPC_Pad_N", m_histdirmufast)->Fill(nRPC);
 
-      hist("muFast_MDT_Inn_fit_chi2_barrel", histdirmufast)->Fill(MDTInnChi2);
-      hist("muFast_MDT_Mid_fit_chi2_barrel", histdirmufast)->Fill(MDTMidChi2);
-      hist("muFast_MDT_Out_fit_chi2_barrel", histdirmufast)->Fill(MDTOutChi2);
+      hist("muFast_MDT_Inn_fit_chi2_barrel", m_histdirmufast)->Fill(MDTInnChi2);
+      hist("muFast_MDT_Mid_fit_chi2_barrel", m_histdirmufast)->Fill(MDTMidChi2);
+      hist("muFast_MDT_Out_fit_chi2_barrel", m_histdirmufast)->Fill(MDTOutChi2);
 
-      hist("muFast_MDT_N_barrel", histdirmufast)->Fill(n_mdt_hits+0.01);
+      hist("muFast_MDT_N_barrel", m_histdirmufast)->Fill(n_mdt_hits+0.01);
 
-      hist("muFast_MDT_Inn_N_barrel", histdirmufast)->Fill(n_mdt_hits_inner+0.01);
-      hist("muFast_MDT_Mid_N_barrel", histdirmufast)->Fill(n_mdt_hits_middle+0.01);
-      hist("muFast_MDT_Out_N_barrel", histdirmufast)->Fill(n_mdt_hits_outer+0.01);
+      hist("muFast_MDT_Inn_N_barrel", m_histdirmufast)->Fill(n_mdt_hits_inner+0.01);
+      hist("muFast_MDT_Mid_N_barrel", m_histdirmufast)->Fill(n_mdt_hits_middle+0.01);
+      hist("muFast_MDT_Out_N_barrel", m_histdirmufast)->Fill(n_mdt_hits_outer+0.01);
 
     }else{//endcap
-      hist("muFast_TGC_Mid_rho_N", histdirmufast)->Fill(nTGCMidRho+0.01);
-      hist("muFast_TGC_Mid_phi_N", histdirmufast)->Fill(nTGCMidPhi+0.01);
-      hist("muFast_TGC_Inn_rho_N", histdirmufast)->Fill(nTGCInnRho+0.01);
-      hist("muFast_TGC_Inn_phi_N", histdirmufast)->Fill(nTGCInnPhi+0.01);
+      hist("muFast_TGC_Mid_rho_N", m_histdirmufast)->Fill(nTGCMidRho+0.01);
+      hist("muFast_TGC_Mid_phi_N", m_histdirmufast)->Fill(nTGCMidPhi+0.01);
+      hist("muFast_TGC_Inn_rho_N", m_histdirmufast)->Fill(nTGCInnRho+0.01);
+      hist("muFast_TGC_Inn_phi_N", m_histdirmufast)->Fill(nTGCInnPhi+0.01);
 
-      hist("muFast_TGC_Mid_rho_chi2", histdirmufast)->Fill(TGCMidRhoChi2);
-      hist("muFast_TGC_Mid_phi_chi2", histdirmufast)->Fill(TGCMidPhiChi2);
+      hist("muFast_TGC_Mid_rho_chi2", m_histdirmufast)->Fill(TGCMidRhoChi2);
+      hist("muFast_TGC_Mid_phi_chi2", m_histdirmufast)->Fill(TGCMidPhiChi2);
 
-      hist("muFast_MDT_Inn_fit_chi2_endcap", histdirmufast)->Fill(MDTInnChi2);
-      hist("muFast_MDT_Mid_fit_chi2_endcap", histdirmufast)->Fill(MDTMidChi2);
-      hist("muFast_MDT_Out_fit_chi2_endcap", histdirmufast)->Fill(MDTOutChi2);
+      hist("muFast_MDT_Inn_fit_chi2_endcap", m_histdirmufast)->Fill(MDTInnChi2);
+      hist("muFast_MDT_Mid_fit_chi2_endcap", m_histdirmufast)->Fill(MDTMidChi2);
+      hist("muFast_MDT_Out_fit_chi2_endcap", m_histdirmufast)->Fill(MDTOutChi2);
 
-      hist("muFast_MDT_N_endcap", histdirmufast)->Fill(n_mdt_hits);
+      hist("muFast_MDT_N_endcap", m_histdirmufast)->Fill(n_mdt_hits);
 
-      hist("muFast_MDT_Inn_N_endcap", histdirmufast)->Fill(n_mdt_hits_inner+0.01);
-      hist("muFast_MDT_Mid_N_endcap", histdirmufast)->Fill(n_mdt_hits_middle+0.01);
-      hist("muFast_MDT_Out_N_endcap", histdirmufast)->Fill(n_mdt_hits_outer+0.01);
+      hist("muFast_MDT_Inn_N_endcap", m_histdirmufast)->Fill(n_mdt_hits_inner+0.01);
+      hist("muFast_MDT_Mid_N_endcap", m_histdirmufast)->Fill(n_mdt_hits_middle+0.01);
+      hist("muFast_MDT_Out_N_endcap", m_histdirmufast)->Fill(n_mdt_hits_outer+0.01);
     }
     
   } // end of loop MuonFeture
@@ -640,15 +640,15 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     if( signed_pt_offl_hist > EFFI_PT_HISTMAX )  signed_pt_offl_hist = EFFI_PT_OVFL;
     else if( signed_pt_offl_hist < -EFFI_PT_HISTMAX )  signed_pt_offl_hist = -EFFI_PT_OVFL;
     
-    hist("muFast_effi_toRecMuonCB_pt_denom",  histdirmufast)->Fill(pt_offl_hist);
-    hist("muFast_effi_toRecMuonCB_eta_denom", histdirmufast)->Fill(eta_offl);
-    hist("muFast_effi_toRecMuonCB_phi_denom", histdirmufast)->Fill(phi_offl);
+    hist("muFast_effi_toRecMuonCB_pt_denom",  m_histdirmufast)->Fill(pt_offl_hist);
+    hist("muFast_effi_toRecMuonCB_eta_denom", m_histdirmufast)->Fill(eta_offl);
+    hist("muFast_effi_toRecMuonCB_phi_denom", m_histdirmufast)->Fill(phi_offl);
 
     if( fabs(eta_offl) < ETA_OF_BARREL ) {
-      hist("muFast_effi_toRecMuonCB_pt_barrel_denom", histdirmufast)->Fill(pt_offl_hist);
+      hist("muFast_effi_toRecMuonCB_pt_barrel_denom", m_histdirmufast)->Fill(pt_offl_hist);
     }
     else {
-      hist("muFast_effi_toRecMuonCB_pt_endcap_denom", histdirmufast)->Fill(pt_offl_hist);
+      hist("muFast_effi_toRecMuonCB_pt_endcap_denom", m_histdirmufast)->Fill(pt_offl_hist);
     }
 
     // check whether matching muonFeature is there
@@ -668,7 +668,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     }
 
  
-    hist("muFast_dR_toRecMuonCB", histdirmufast)->Fill(dRmin);
+    hist("muFast_dR_toRecMuonCB", m_histdirmufast)->Fill(dRmin);
     if( dRmin > DR_MATCHED ) continue; // not matched to muFast
 
     // efficiencies, resolutions
@@ -682,113 +682,113 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     }
       
     if( fabs(ptresol) > PTRESOL_HISTMAX ) ptresol_hist = ptresol_hist / fabs(ptresol_hist) * PTRESOL_OVFL;
-    hist("muFast_ptresol_toRecMuonCB", histdirmufast)->Fill(ptresol_hist);
+    hist("muFast_ptresol_toRecMuonCB", m_histdirmufast)->Fill(ptresol_hist);
     if (charge_offl > 0) {
-      hist("muFast_invptresol_toRecMuonCB_pos", histdirmufast)->Fill(invptresol_signed);
+      hist("muFast_invptresol_toRecMuonCB_pos", m_histdirmufast)->Fill(invptresol_signed);
     }
     if (charge_offl < 0) {
-      hist("muFast_invptresol_toRecMuonCB_neg", histdirmufast)->Fill(invptresol_signed);
+      hist("muFast_invptresol_toRecMuonCB_neg", m_histdirmufast)->Fill(invptresol_signed);
     }
-    hist2("muFast_ptresol_toRecMuonCB_eta", histdirmufast)->Fill(eta_offl, ptresol_hist);
-    hist("muFast_effi_toRecMuonCB_pt_numer", histdirmufast)->Fill(pt_offl_hist);
-    hist("muFast_effi_toRecMuonCB_eta_numer", histdirmufast)->Fill(eta_offl);
-    hist("muFast_effi_toRecMuonCB_phi_numer", histdirmufast)->Fill(phi_offl);
+    hist2("muFast_ptresol_toRecMuonCB_eta", m_histdirmufast)->Fill(eta_offl, ptresol_hist);
+    hist("muFast_effi_toRecMuonCB_pt_numer", m_histdirmufast)->Fill(pt_offl_hist);
+    hist("muFast_effi_toRecMuonCB_eta_numer", m_histdirmufast)->Fill(eta_offl);
+    hist("muFast_effi_toRecMuonCB_phi_numer", m_histdirmufast)->Fill(phi_offl);
     if( fabs(eta_offl) < ETA_OF_BARREL ) {
-      hist("muFast_effi_toRecMuonCB_pt_barrel_numer", histdirmufast)->Fill(pt_offl_hist);
-      if(eta_offl>0) hist2("muFast_ptresol_toRecMuonCB_pt_barrel_A", histdirmufast)->Fill(signed_pt_offl_hist, ptresol_hist);
-      else           hist2("muFast_ptresol_toRecMuonCB_pt_barrel_C", histdirmufast)->Fill(signed_pt_offl_hist, ptresol_hist);
+      hist("muFast_effi_toRecMuonCB_pt_barrel_numer", m_histdirmufast)->Fill(pt_offl_hist);
+      if(eta_offl>0) hist2("muFast_ptresol_toRecMuonCB_pt_barrel_A", m_histdirmufast)->Fill(signed_pt_offl_hist, ptresol_hist);
+      else           hist2("muFast_ptresol_toRecMuonCB_pt_barrel_C", m_histdirmufast)->Fill(signed_pt_offl_hist, ptresol_hist);
     }
     else {
-      hist("muFast_effi_toRecMuonCB_pt_endcap_numer", histdirmufast)->Fill(pt_offl_hist);
-      if(eta_offl>0) hist2("muFast_ptresol_toRecMuonCB_pt_endcap_A", histdirmufast)->Fill(signed_pt_offl_hist, ptresol_hist);
-      else           hist2("muFast_ptresol_toRecMuonCB_pt_endcap_C", histdirmufast)->Fill(signed_pt_offl_hist, ptresol_hist);
+      hist("muFast_effi_toRecMuonCB_pt_endcap_numer", m_histdirmufast)->Fill(pt_offl_hist);
+      if(eta_offl>0) hist2("muFast_ptresol_toRecMuonCB_pt_endcap_A", m_histdirmufast)->Fill(signed_pt_offl_hist, ptresol_hist);
+      else           hist2("muFast_ptresol_toRecMuonCB_pt_endcap_C", m_histdirmufast)->Fill(signed_pt_offl_hist, ptresol_hist);
     }
 
     if (eta_offl >= 0) {
       if( fabs(eta_offl) < ETA_OF_BARREL ) {
-	hist("muFast_ptresol_toRecMuonCB_BR", histdirmufast)->Fill(ptresol_hist);
+	hist("muFast_ptresol_toRecMuonCB_BR", m_histdirmufast)->Fill(ptresol_hist);
 	if (charge_offl > 0) {
-	  hist("muFast_invptresol_toRecMuonCB_pos_BR_A", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_pos_BR_A", m_histdirmufast)->Fill(invptresol_signed);
 	}
 	if (charge_offl < 0) {
-	  hist("muFast_invptresol_toRecMuonCB_neg_BR_A", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_neg_BR_A", m_histdirmufast)->Fill(invptresol_signed);
 	}
       }
       else if( fabs(eta_offl) < ETA_OF_ENDCAP1){
-	hist("muFast_ptresol_toRecMuonCB_EC1", histdirmufast)->Fill(ptresol_hist);
+	hist("muFast_ptresol_toRecMuonCB_EC1", m_histdirmufast)->Fill(ptresol_hist);
 	if (charge_offl > 0) {
-	  hist("muFast_invptresol_toRecMuonCB_pos_EC1_A", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_pos_EC1_A", m_histdirmufast)->Fill(invptresol_signed);
 	}
 	if (charge_offl < 0) {
-	  hist("muFast_invptresol_toRecMuonCB_neg_EC1_A", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_neg_EC1_A", m_histdirmufast)->Fill(invptresol_signed);
 	}
       }
       else if( fabs(eta_offl) < ETA_OF_ENDCAP2){
-	hist("muFast_ptresol_toRecMuonCB_EC2", histdirmufast)->Fill(ptresol_hist);
+	hist("muFast_ptresol_toRecMuonCB_EC2", m_histdirmufast)->Fill(ptresol_hist);
 	if (charge_offl > 0) {
-	  hist("muFast_invptresol_toRecMuonCB_pos_EC2_A", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_pos_EC2_A", m_histdirmufast)->Fill(invptresol_signed);
 	}
 	if (charge_offl < 0) {
-	  hist("muFast_invptresol_toRecMuonCB_neg_EC2_A", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_neg_EC2_A", m_histdirmufast)->Fill(invptresol_signed);
 	}
       }
       else if( fabs(eta_offl) < ETA_OF_ENDCAP3){
-	hist("muFast_ptresol_toRecMuonCB_EC3", histdirmufast)->Fill(ptresol_hist);
+	hist("muFast_ptresol_toRecMuonCB_EC3", m_histdirmufast)->Fill(ptresol_hist);
 	if (charge_offl > 0) {
-	  hist("muFast_invptresol_toRecMuonCB_pos_EC3_A", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_pos_EC3_A", m_histdirmufast)->Fill(invptresol_signed);
 	}
 	if (charge_offl < 0) {
-	  hist("muFast_invptresol_toRecMuonCB_neg_EC3_A", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_neg_EC3_A", m_histdirmufast)->Fill(invptresol_signed);
 	}
       }
     } else {
       if( fabs(eta_offl) < ETA_OF_BARREL ) {
-	hist("muFast_ptresol_toRecMuonCB_BR", histdirmufast)->Fill(ptresol_hist);
+	hist("muFast_ptresol_toRecMuonCB_BR", m_histdirmufast)->Fill(ptresol_hist);
 	if (charge_offl > 0) {
-	  hist("muFast_invptresol_toRecMuonCB_pos_BR_C", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_pos_BR_C", m_histdirmufast)->Fill(invptresol_signed);
 	}
 	if (charge_offl < 0) {
-	  hist("muFast_invptresol_toRecMuonCB_neg_BR_C", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_neg_BR_C", m_histdirmufast)->Fill(invptresol_signed);
 	}
       }
       else if( fabs(eta_offl) < ETA_OF_ENDCAP1){
-	hist("muFast_ptresol_toRecMuonCB_EC1", histdirmufast)->Fill(ptresol_hist);
+	hist("muFast_ptresol_toRecMuonCB_EC1", m_histdirmufast)->Fill(ptresol_hist);
 	if (charge_offl > 0) {
-	  hist("muFast_invptresol_toRecMuonCB_pos_EC1_C", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_pos_EC1_C", m_histdirmufast)->Fill(invptresol_signed);
 	}
 	if (charge_offl < 0) {
-	  hist("muFast_invptresol_toRecMuonCB_neg_EC1_C", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_neg_EC1_C", m_histdirmufast)->Fill(invptresol_signed);
 	}
       }
       else if( fabs(eta_offl) < ETA_OF_ENDCAP2){
-	hist("muFast_ptresol_toRecMuonCB_EC2", histdirmufast)->Fill(ptresol_hist);
+	hist("muFast_ptresol_toRecMuonCB_EC2", m_histdirmufast)->Fill(ptresol_hist);
 	if (charge_offl > 0) {
-	  hist("muFast_invptresol_toRecMuonCB_pos_EC2_C", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_pos_EC2_C", m_histdirmufast)->Fill(invptresol_signed);
 	}
 	if (charge_offl < 0) {
-	  hist("muFast_invptresol_toRecMuonCB_neg_EC2_C", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_neg_EC2_C", m_histdirmufast)->Fill(invptresol_signed);
 	}
       }
       else if( fabs(eta_offl) < ETA_OF_ENDCAP3){
-	hist("muFast_ptresol_toRecMuonCB_EC3", histdirmufast)->Fill(ptresol_hist);
+	hist("muFast_ptresol_toRecMuonCB_EC3", m_histdirmufast)->Fill(ptresol_hist);
 	if (charge_offl > 0) {
-	  hist("muFast_invptresol_toRecMuonCB_pos_EC3_C", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_pos_EC3_C", m_histdirmufast)->Fill(invptresol_signed);
 	}
 	if (charge_offl < 0) {
-	  hist("muFast_invptresol_toRecMuonCB_neg_EC3_C", histdirmufast)->Fill(invptresol_signed);
+	  hist("muFast_invptresol_toRecMuonCB_neg_EC3_C", m_histdirmufast)->Fill(invptresol_signed);
 	}
       }
     }
     
     if( fabs(pt_offl) > 4 ) {
       if( fabs(pt_offl) < 6 ){
-	hist2("muFast_ptresol_toRecMuonCB_eta_pT4_6", histdirmufast)->Fill(eta_offl, ptresol_hist);
+	hist2("muFast_ptresol_toRecMuonCB_eta_pT4_6", m_histdirmufast)->Fill(eta_offl, ptresol_hist);
       }
       else if( fabs(pt_offl) < 8 ){
-	hist2("muFast_ptresol_toRecMuonCB_eta_pT6_8", histdirmufast)->Fill(eta_offl, ptresol_hist);
+	hist2("muFast_ptresol_toRecMuonCB_eta_pT6_8", m_histdirmufast)->Fill(eta_offl, ptresol_hist);
       }
       else{
-	hist2("muFast_ptresol_toRecMuonCB_eta_pT8_x", histdirmufast)->Fill(eta_offl, ptresol_hist);
+	hist2("muFast_ptresol_toRecMuonCB_eta_pT8_x", m_histdirmufast)->Fill(eta_offl, ptresol_hist);
       }
     }
     
@@ -820,9 +820,9 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
        ATH_MSG_DEBUG("mu6(MF): dR matched=" << dRmin_mu6);
        ATH_MSG_DEBUG("       : forID RoI eta/phi=" << forIDroi_eta_mu6 << " / " << forIDroi_phi_mu6);
        ATH_MSG_DEBUG("       : forID RoI dR/deta/dphi wrt Offl CB=" << dr << " / " << deta << " / " << dphi);
-       hist("muFast_forID_dR_toRecMuonCB_mu6", histdirmufast)->Fill(dr);
-       hist2("muFast_forID_deta_vs_eta_toRecMuonCB_mu6", histdirmufast)->Fill(eta_offl,deta);
-       hist2("muFast_forID_dphi_vs_eta_toRecMuonCB_mu6", histdirmufast)->Fill(eta_offl,dphi);
+       hist("muFast_forID_dR_toRecMuonCB_mu6", m_histdirmufast)->Fill(dr);
+       hist2("muFast_forID_deta_vs_eta_toRecMuonCB_mu6", m_histdirmufast)->Fill(eta_offl,deta);
+       hist2("muFast_forID_dphi_vs_eta_toRecMuonCB_mu6", m_histdirmufast)->Fill(eta_offl,dphi);
     }
 
   } // end of offline muon loop
@@ -831,8 +831,8 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
   // end
   // -----------------------------
 
-  if(nMuFast)hist("Common_Counter", histdir)->Fill((float)MUFASTFOUND);
-  if(nMuFastD)hist("Common_Counter", histdir)->Fill((float)MUFASTDFOUND);
+  if(nMuFast)hist("Common_Counter", m_histdir)->Fill((float)MUFASTFOUND);
+  if(nMuFastD)hist("Common_Counter", m_histdir)->Fill((float)MUFASTDFOUND);
 
   return StatusCode::SUCCESS;
 }
@@ -843,20 +843,20 @@ StatusCode HLTMuonMonTool::procMuFastDQA()
   if( endOfRun ){
 
     // efficiency histograms
-    hist("muFast_effi_toRecMuonCB_pt", histdireff)->Sumw2();
-    hist("muFast_effi_toRecMuonCB_pt", histdireff)->Divide( hist("muFast_effi_toRecMuonCB_pt_numer", histdirmufast), hist("muFast_effi_toRecMuonCB_pt_denom", histdirmufast), 1, 1, "B" );
+    hist("muFast_effi_toRecMuonCB_pt", m_histdireff)->Sumw2();
+    hist("muFast_effi_toRecMuonCB_pt", m_histdireff)->Divide( hist("muFast_effi_toRecMuonCB_pt_numer", m_histdirmufast), hist("muFast_effi_toRecMuonCB_pt_denom", m_histdirmufast), 1, 1, "B" );
 
-    hist("muFast_effi_toRecMuonCB_pt_barrel", histdireff)->Sumw2();
-    hist("muFast_effi_toRecMuonCB_pt_barrel", histdireff)->Divide( hist("muFast_effi_toRecMuonCB_pt_barrel_numer", histdirmufast), hist("muFast_effi_toRecMuonCB_pt_barrel_denom", histdirmufast), 1, 1, "B" );
+    hist("muFast_effi_toRecMuonCB_pt_barrel", m_histdireff)->Sumw2();
+    hist("muFast_effi_toRecMuonCB_pt_barrel", m_histdireff)->Divide( hist("muFast_effi_toRecMuonCB_pt_barrel_numer", m_histdirmufast), hist("muFast_effi_toRecMuonCB_pt_barrel_denom", m_histdirmufast), 1, 1, "B" );
 
-    hist("muFast_effi_toRecMuonCB_pt_endcap", histdireff)->Sumw2();
-    hist("muFast_effi_toRecMuonCB_pt_endcap", histdireff)->Divide( hist("muFast_effi_toRecMuonCB_pt_endcap_numer", histdirmufast), hist("muFast_effi_toRecMuonCB_pt_endcap_denom", histdirmufast), 1, 1, "B" );
+    hist("muFast_effi_toRecMuonCB_pt_endcap", m_histdireff)->Sumw2();
+    hist("muFast_effi_toRecMuonCB_pt_endcap", m_histdireff)->Divide( hist("muFast_effi_toRecMuonCB_pt_endcap_numer", m_histdirmufast), hist("muFast_effi_toRecMuonCB_pt_endcap_denom", m_histdirmufast), 1, 1, "B" );
 
-    hist("muFast_effi_toRecMuonCB_eta", histdireff)->Sumw2();
-    hist("muFast_effi_toRecMuonCB_eta", histdireff)->Divide( hist("muFast_effi_toRecMuonCB_eta_numer", histdirmufast), hist("muFast_effi_toRecMuonCB_eta_denom", histdirmufast), 1, 1, "B" );
+    hist("muFast_effi_toRecMuonCB_eta", m_histdireff)->Sumw2();
+    hist("muFast_effi_toRecMuonCB_eta", m_histdireff)->Divide( hist("muFast_effi_toRecMuonCB_eta_numer", m_histdirmufast), hist("muFast_effi_toRecMuonCB_eta_denom", m_histdirmufast), 1, 1, "B" );
 
-    hist("muFast_effi_toRecMuonCB_phi", histdireff)->Sumw2();
-    hist("muFast_effi_toRecMuonCB_phi", histdireff)->Divide( hist("muFast_effi_toRecMuonCB_phi_numer", histdirmufast), hist("muFast_effi_toRecMuonCB_phi_denom", histdirmufast), 1, 1, "B" );
+    hist("muFast_effi_toRecMuonCB_phi", m_histdireff)->Sumw2();
+    hist("muFast_effi_toRecMuonCB_phi", m_histdireff)->Divide( hist("muFast_effi_toRecMuonCB_phi_numer", m_histdirmufast), hist("muFast_effi_toRecMuonCB_phi_denom", m_histdirmufast), 1, 1, "B" );
 
   }else if( endOfLumiBlock ){
   }
