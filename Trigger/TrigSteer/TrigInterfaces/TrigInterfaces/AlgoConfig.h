@@ -8,7 +8,6 @@
 #include <string>
 #include "TrigSteeringEvent/Enums.h"
 
-class TriggerStore;
 class StoreGateSvc;
 class MsgStream;
 class PartialEventBuildingInfo;
@@ -51,7 +50,6 @@ namespace HLT
       m_lvlConverterStatus(HLT::OK),
       m_hltStatus(HLT::OK),
       m_storeGate(0),
-      m_triggerStore(0),
       m_log(0),
       m_loglvl(0),
       m_navigation(0),
@@ -154,20 +152,10 @@ namespace HLT
      */
     inline StoreGateSvc* getStoreGate() const { return m_storeGate; }
     /**
-     * @brief Getter method for the pointer to the TriggerStore service.
-     * @return pointer to the TriggerStore service.
-     */
-    inline TriggerStore* getTriggerStore() const { return m_triggerStore; }
-    /**
      * @brief Getter method for the pointer to the MsgStream service.
      * @return pointer to the MsgStream service.
      */
     inline MsgStream&    getMsgStream() const { return (*m_log); }
-    /**
-     * @brief Getter method for the pointer to the MsgStream service.
-     * @return pointer to the MsgStream service.
-     */
-    inline MsgStream*    getMsgStreamP() const { return m_log; }
     /**
      * @brief Getter method for the message level flag.
      * @return message level flag for this algorithm.
@@ -249,10 +237,6 @@ namespace HLT
      */
     void setStoreGate(StoreGateSvc* p) { m_storeGate = p; }
     /**
-     * @brief Setter method for the pointer to the TriggerStore service.
-     */
-    void setTriggerStore(TriggerStore* p) { m_triggerStore = p; }
-    /**
      * @brief Setter method for the pointer to the MsgStream service.
      */
     void setMsgStream(MsgStream* p) { m_log = p; }
@@ -333,8 +317,6 @@ namespace HLT
 
     /** @brief Pointer to the StoreGate service. */
     StoreGateSvc* m_storeGate;
-    /** @brief Pointer to the TriggerStore service. */
-    TriggerStore* m_triggerStore;
     /** @brief Pointer to the MsgStream service. */
     MsgStream* m_log;
     /** @brief Message level flag. */
