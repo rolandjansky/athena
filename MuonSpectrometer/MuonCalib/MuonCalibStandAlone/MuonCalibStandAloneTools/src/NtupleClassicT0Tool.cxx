@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-
 //MdtCalibData
 #include "MdtCalibData/MdtTubeFitContainer.h"
 
@@ -19,7 +15,7 @@
 
 namespace MuonCalib{
 
-NtupleClassicT0Tool::NtupleClassicT0Tool(const std::string& t, const std::string& n, const IInterface* p): AlgTool(t, n, p), m_adcBins(100), m_minAdc(0.0), m_maxAdc(300.0), m_timeBins(500), m_minTime(0.0), m_maxTime(1000.0), m_fitTime(true), m_minEntries(1000), m_initParam(1), m_chiMax(5.0)
+NtupleClassicT0Tool::NtupleClassicT0Tool(const std::string& t, const std::string& n, const IInterface* p): AthAlgTool(t, n, p), m_reg_sel_svc("RegionSelectionSvc", n), m_adcBins(100), m_minAdc(0.0), m_maxAdc(300.0), m_timeBins(500), m_minTime(0.0), m_maxTime(1000.0), m_fitTime(true), m_minEntries(1000), m_initParam(1), m_chiMax(5.0)
 	{
 	declareInterface< NtupleCalibrationTool >(this) ;
 	declareProperty("NAdcBins", m_adcBins);
@@ -32,13 +28,13 @@ NtupleClassicT0Tool::NtupleClassicT0Tool(const std::string& t, const std::string
 	declareProperty("MinEntries", m_minEntries);
 	declareProperty("InitParam", m_initParam);
 	declareProperty("MaxChi2", m_chiMax);
+	declareProperty("RegionSelectionSvc", m_reg_sel_svc);
 	}
 
 	
 StatusCode NtupleClassicT0Tool::initialize()
 	{
-	MsgStream log(msgSvc(), name());
-	log<< MSG::INFO << "Initializing MT T0 Tool" <<endreq;
+	ATH_MSG_INFO( "Initializing MT T0 Tool" );
 		double *params = new double[8];
 		params[0] = 0. ;/* initial parameters for spectrum fit */
 		params[1] = 9. ;
@@ -63,22 +59,15 @@ StatusCode NtupleClassicT0Tool::initialize()
 						m_chiMax, 4
 						);
 //get region selection service
-	StatusCode sc=service("RegionSelectionSvc", p_reg_sel_svc);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
-		return sc;
-		}
-	setRegion();
+	ATH_CHECK( m_reg_sel_svc.retrieve() );
 	return StatusCode :: SUCCESS;
 	}
 	
 StatusCode NtupleClassicT0Tool::handleEvent(const MuonCalibEvent &/*event*/, int /*evnt_nr*/, const std::vector<MuonCalibSegment *> &segments, unsigned int position)
 	{
-	MsgStream log(msgSvc(), name());
 	if(p_alg == NULL)
 		{
-		log<< MSG::FATAL << "Not correctly initialized!" << endreq;
+		ATH_MSG_FATAL( "Not correctly initialized!" );
 		return StatusCode :: FAILURE;
 		}
 	for(unsigned int i=position; i<segments.size(); i++)
@@ -91,10 +80,9 @@ StatusCode NtupleClassicT0Tool::handleEvent(const MuonCalibEvent &/*event*/, int
 	
 StatusCode NtupleClassicT0Tool::analyseSegments(const std::vector<MuonCalibSegment *> & /*segments*/)
 	{
-	MsgStream log(msgSvc(), name());
 	if(p_alg == NULL)
 		{
-		log<< MSG::FATAL << "Not correctly initialized!" << endreq;
+		ATH_MSG_FATAL( "Not correctly initialized!" );
 		return StatusCode :: FAILURE;
 		}
 	if(p_alg->analyse()) return StatusCode :: SUCCESS;
@@ -105,15 +93,14 @@ StatusCode NtupleClassicT0Tool::analyseSegments(const std::vector<MuonCalibSegme
 void NtupleClassicT0Tool::setRegion()
 	{
 	p_alg = new T0CalibrationClassic(std::string("Classic_t0_fitter"), m_settings);
-	p_alg->setInput(new T0CalibrationOutput(new MdtTubeFitContainer(p_reg_sel_svc->GetRegionSelection(), 2, 4, 72)));
+	p_alg->setInput(new T0CalibrationOutput(new MdtTubeFitContainer(m_reg_sel_svc->GetRegionSelection(), 2, 4, 72)));
 	}
 	
 const IMdtCalibrationOutput * NtupleClassicT0Tool::getResults() const
 	{
-	MsgStream log(msgSvc(), name());
 	if(p_alg == NULL)
 		{
-		log<< MSG::FATAL << "Not correctly initialized!" << endreq;
+		ATH_MSG_FATAL( "Not correctly initialized!" );
 		return NULL;
 		}
 	return p_alg->getResults();

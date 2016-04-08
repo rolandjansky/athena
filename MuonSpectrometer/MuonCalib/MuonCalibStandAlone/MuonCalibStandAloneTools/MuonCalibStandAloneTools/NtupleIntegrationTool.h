@@ -7,7 +7,7 @@
 
 //this
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
-
+#include "AthenaBaseComps/AthAlgTool.h"
 
 //root
 class TFile;
@@ -23,7 +23,7 @@ class RtCalibrationIntegration;
 */
 
 
-class NtupleIntegrationTool : public AlgTool, virtual public NtupleCalibrationTool
+class NtupleIntegrationTool : public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 	public:
 //==============================================================================

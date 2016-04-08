@@ -22,8 +22,6 @@
 #include <cstdlib>
 
 // Athena //
-//#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 // MuonReadoutGeometry //
@@ -73,9 +71,10 @@ namespace MuonCalib {
 NtupleTubeEfficiencyTool::NtupleTubeEfficiencyTool( const std::string& t, 
                                                     const std::string& n, 
                                                     const IInterface* p) : 
-    AlgTool(t, n, p){
+    AthAlgTool(t, n, p), m_reg_sel_svc("RegionSelectionSvc", n) {
     
     declareInterface< NtupleCalibrationTool >(this);	
+    declareProperty("RegionSelectionSvc", m_reg_sel_svc);
 
     m_nb_hits = 5;
     declareProperty("nSegmentHits", m_nb_hits);
@@ -103,50 +102,24 @@ NtupleTubeEfficiencyTool::NtupleTubeEfficiencyTool( const std::string& t,
 
 StatusCode NtupleTubeEfficiencyTool::initialize() {
 	
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "Initializing NtupleTubeEfficiencyTool" << endreq;
+    ATH_MSG_INFO( "Initializing NtupleTubeEfficiencyTool" );
 
     //-----------------------------//
     //-- Get the StoreGate Stuff --//
     //-----------------------------//
 
-    StoreGateSvc * detStore;
-    StatusCode sc=service("DetectorStore", detStore);
-    if(!sc.isSuccess()){
-        log << MSG::FATAL << "Cannot retrieve Store Gate!" << endreq;
-        return sc;
-    }
+    ATH_CHECK( detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
 
-    sc = detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-    if (!sc.isSuccess()) {
-  	log << MSG::FATAL << "Can't retrieve MdtIdHelper" << endreq;
-  	return sc;
-    }
-
-    sc = detStore->retrieve( m_detMgr );
-    if (!sc.isSuccess()) {
-	log << MSG::FATAL << "Can't retrieve MuonDetectorManager" << endreq;
-	return sc;
-    }
-
+    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 
     //retrieve fixed id tool   
     std::string idToFixedIdToolType("MuonCalib::IdToFixedIdTool");
     std::string idToFixedIdToolName("MuonCalib_IdToFixedIdTool");
     
-    sc = toolSvc()->retrieveTool(idToFixedIdToolType, idToFixedIdToolName, m_id_tool); 
-    if(!sc.isSuccess()) {
-	log << MSG::FATAL << "Can't retrieve IdToFixedIdTool" << endreq;
-	return sc;
-    }
+    ATH_CHECK( toolSvc()->retrieveTool(idToFixedIdToolType, idToFixedIdToolName, m_id_tool) ); 
 
     //get region selection service
-    sc=service("RegionSelectionSvc", p_reg_sel_svc);
-    if(!sc.isSuccess())
-    {
-        log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
-        return sc;
-    }
+    ATH_CHECK( m_reg_sel_svc.retrieve() );
 
     //----------------------------------//
     //-- Create Root Files and Histos --//
@@ -160,7 +133,7 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
         //m_tfile_debug = new TFile(TString(m_file_name).ReplaceAll(".root","_debug.root"), "RECREATE");
         m_tfile_debug = new TFile(TString(m_file_name)+"_debug.root", "RECREATE");
     
-        log << MSG::INFO << "NtupleTubeEfficiencyTool: Debug mode is switched on" << endreq;
+        ATH_MSG_INFO( "NtupleTubeEfficiencyTool: Debug mode is switched on" );
         
         m_hit_ntuple = new TNtuple("hit_ntuple", "MDT HIT NTUPLE",
                                    "event_nb:station:eta:phi:ml:layer:tube:w_x:w_y:w_z:x:t:r:d");
@@ -327,9 +300,7 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
 
 StatusCode NtupleTubeEfficiencyTool::finalize(void) {
 
-
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "Finalizing NtupleTubeEfficiencyTool" << endreq;
+    ATH_MSG_INFO( "Finalizing NtupleTubeEfficiencyTool" );
    
     m_tfile->Write();
     if(m_debug){
@@ -355,10 +326,7 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
     if(segments.size()<=position) return StatusCode::SUCCESS;
 
     MuonCalibSegment segment(*segments[position]);
-    MsgStream log(msgSvc(), name());
-    
 
- 
     //---------------//
     //-- Variables --//
     //---------------//
@@ -553,7 +521,7 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
 	
 		MuonCalibRawMdtHit *hit = *it;
                 
-		if (p_reg_sel_svc->isInRegion(hit->identify()) &&
+		if (m_reg_sel_svc->isInRegion(hit->identify()) &&
 		    (hit->identify()).mdtMultilayer() == multilayer &&
 		    (hit->identify()).mdtTubeLayer()  == layer) {
                     
@@ -693,7 +661,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
                 //fill histos
                 
                 TString title = "Tube Efficiency ";
-                title += TString(p_reg_sel_svc->GetRegionSelection());
+                title += TString(m_reg_sel_svc->GetRegionSelection());
                 title += Form(" (ml%i, ly%i)",k+1,l+1); 
                 
                 h_tube_efficiency[k][l]->SetTitle(title);
@@ -721,7 +689,7 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
                 //entry histos
                 
                 TString entry_title = "Tube Entries (Efficiency) ";
-                entry_title += TString(p_reg_sel_svc->GetRegionSelection());
+                entry_title += TString(m_reg_sel_svc->GetRegionSelection());
                 entry_title += Form(" (ml%i, ly%i)",k+1,l+1); 
  
                 h_tube_entries_efficiency[k][l]->SetTitle(entry_title);
@@ -762,13 +730,13 @@ NtupleTubeEfficiencyTool::analyseSegments(const std::vector<MuonCalibSegment *> 
     //fill summary histos
     
     TString layer_title = "Layer Efficiency ";
-    layer_title += TString(p_reg_sel_svc->GetRegionSelection());
+    layer_title += TString(m_reg_sel_svc->GetRegionSelection());
         
     h_layer_efficiency->SetTitle(layer_title);
     h_layer_efficiency->GetXaxis()->SetRange(1,m_nb_multilayers*m_nb_layers);
 
     TString chamber_title = "Efficiency ";
-    chamber_title += TString(p_reg_sel_svc->GetRegionSelection());
+    chamber_title += TString(m_reg_sel_svc->GetRegionSelection());
    
     h_chamber_efficiency->SetTitle(chamber_title);
     h_chamber_efficiency->GetXaxis()->SetRange(1,m_nb_multilayers+1);

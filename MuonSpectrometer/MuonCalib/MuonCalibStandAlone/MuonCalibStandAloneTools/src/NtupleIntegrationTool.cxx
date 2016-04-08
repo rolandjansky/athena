@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-
-
 //RtCalibrationIntegration
 #include "MdtCalibRt/RtCalibrationIntegration.h"
 
@@ -20,7 +16,7 @@ namespace MuonCalib {
 
   NtupleIntegrationTool::NtupleIntegrationTool(const std::string& t, 
 					       const std::string& n, 
-					       const IInterface* p):AlgTool(t, n, p),
+					       const IInterface* p):AthAlgTool(t, n, p),
 								    m_t_max_int(710.0), 
 								    m_has_close_hits(false),
 								    m_inner_tube_radius(14.6),
@@ -41,8 +37,7 @@ p_file(NULL)
 
 StatusCode NtupleIntegrationTool::initialize()
 	{
-	MsgStream log(msgSvc(), name());
-	log<< MSG::INFO << "Initializing Integration Tool" <<endreq;
+	ATH_MSG_INFO( "Initializing Integration Tool" );
 //create algorithm
 	m_integration = new RtCalibrationIntegration("IM",
 						     m_has_close_hits,
@@ -56,10 +51,9 @@ StatusCode NtupleIntegrationTool::initialize()
 
 StatusCode NtupleIntegrationTool::handleEvent(const MuonCalibEvent &/*event*/, int /*evnt_nr*/, const std::vector<MuonCalibSegment *> &segments, unsigned int position)
 	{
-	MsgStream log(msgSvc(), name());
 	if(m_integration == NULL)
 		{
-		log<< MSG::FATAL << "Not correctly initialized!" << endreq;
+		ATH_MSG_FATAL( "Not correctly initialized!" );
 		return StatusCode :: FAILURE;
 		}
 	for(unsigned int i=position; i<segments.size(); i++)
@@ -73,10 +67,9 @@ StatusCode NtupleIntegrationTool::handleEvent(const MuonCalibEvent &/*event*/, i
 	
 StatusCode NtupleIntegrationTool::analyseSegments(const std::vector<MuonCalibSegment *> & /*segemnts*/)
 	{
-	MsgStream log(msgSvc(), name());
 	if(m_integration == NULL)
 		{
-		log<< MSG::FATAL << "Not correctly initialized!" << endreq;
+		ATH_MSG_FATAL( "Not correctly initialized!" );
 		return StatusCode :: FAILURE;
 		}
 	if(m_integration->analyse())

@@ -8,6 +8,8 @@
 
 //this
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 class RegionSelectionSvc;
 
 //t0 algorithm
@@ -21,7 +23,7 @@ namespace MuonCalib {
 	@author rauscher@cern.ch
 	*/
 	
-class NtupleMTT0Tool: public AlgTool, virtual public NtupleCalibrationTool
+class NtupleMTT0Tool: public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 	public:
 //==============================================================================
@@ -54,7 +56,7 @@ class NtupleMTT0Tool: public AlgTool, virtual public NtupleCalibrationTool
 	//! settings class
 		T0MTSettings m_settings;
 	//! pointe rto region selectin service
-		RegionSelectionSvc *p_reg_sel_svc;
+		ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 	//! number of negative and positive bins
 		int m_n_bins_neg, m_n_bins_pos;
 	//! use top chi2 instead of the normal one

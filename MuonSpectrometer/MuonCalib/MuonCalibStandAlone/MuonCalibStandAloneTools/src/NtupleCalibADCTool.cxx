@@ -67,11 +67,15 @@ using namespace MuonCalib;
 //:::::::::::::::::
 
 NtupleCalibADCTool::NtupleCalibADCTool(const std::string & t, 
-	const std::string & n, const IInterface * p) : AlgTool(t, n, p) {
+	const std::string & n, const IInterface * p) : AthAlgTool(t, n, p),
+	m_reg_sel_svc("RegionSelectionSvc", n), m_input_service("MdtCalibInputSvc", n) {
 
 /////////////////
 // JOB OPTIONS //
 /////////////////
+
+	declareProperty("RegionSelectionSvc", m_reg_sel_svc);
+	declareProperty("MdtCalibInputSvc", m_input_service);
 
 	m_refit_segments = true ; // by default refit the segments
     declareProperty("segmentRefit", m_refit_segments);
@@ -87,9 +91,6 @@ NtupleCalibADCTool::NtupleCalibADCTool(const std::string & t,
 
 	m_road_width = 3.0; // by default road width = 1 mm
 	declareProperty("roadWidth", m_road_width);
-
-	m_detector_store = string("DetectorStore");
-	declareProperty("detectorStore", m_detector_store);
 
 	m_MDT_ID_helper = string("MDTIDHELPER");
 	declareProperty("MDTIdHelper", m_MDT_ID_helper);
@@ -164,7 +165,6 @@ m_MDT_shit_adc.clear();
 
       //  Other parameter
         m_nb_events = 0;
-        m_detStore = 0;
 	m_MdtIdHelper = 0;
 	m_RpcIdHelper = 0;
 	m_detMgr = 0;
@@ -200,66 +200,32 @@ StatusCode NtupleCalibADCTool::initialize(void) {
 // VARIABLES //
 ///////////////
 
-	MsgStream log(msgSvc(), name()); // message service
 
 /////////////
 // MESSAGE //
 /////////////
 
-	log << MSG::INFO << "Initializing tool..." << endreq;
+	ATH_MSG_INFO( "Initializing tool..." );
 
 ////////////////////////////////////////////////////
 // STORE GATE AND GEOMODEL RELATED INITIALIZATION //
 ////////////////////////////////////////////////////
 
-// detector store //
-	StatusCode sc=service(m_detector_store, m_detStore);
-	if (!sc.isSuccess()) {
-		log << MSG::FATAL << "Cannot retrieve " << m_detector_store
-			<< "!" << endreq;
-		return sc;
-	}
-
 // MDT ID helper //
-	sc = m_detStore->retrieve(m_MdtIdHelper, m_MDT_ID_helper);
-	if (!sc.isSuccess()) {
-		log << MSG::FATAL << "Cannot retrieve " << m_MDT_ID_helper
-			<< "!" << endreq;
-		return sc;
-	}
+	ATH_CHECK( detStore()->retrieve(m_MdtIdHelper, m_MDT_ID_helper) );
 
 // RPC ID helper //
-	sc = m_detStore->retrieve(m_RpcIdHelper, m_RPC_ID_helper);
-	if (!sc.isSuccess()) {
-		log << MSG::FATAL << "Cannot retrieve RpcIdHelper" << m_RPC_ID_helper
-			<< "!" << endreq;
-		return sc;
-	}
+	ATH_CHECK( detStore()->retrieve(m_RpcIdHelper, m_RPC_ID_helper) );
 
 // muon detector manager //
-	sc = m_detStore->retrieve(m_detMgr);
-	if (!sc.isSuccess()) {
-		log << MSG::FATAL<< "Can't retrieve MuonDetectorManager!"
-			<< endreq;
-		return sc;
-	}
+	ATH_CHECK( detStore()->retrieve(m_detMgr) );
 
 // muon fixed id tool //
-	sc = toolSvc()->retrieveTool(m_idToFixedIdToolType,
-					m_idToFixedIdToolName, m_id_tool);
-	if(!sc.isSuccess()) {
-		log << MSG::FATAL<< "Can't retrieve "
-			<< m_idToFixedIdToolName << "!" << endreq;
-		return sc;
-	}
-// calibration input service //
- 	sc=service("MdtCalibInputSvc", m_input_service);
-	if (!sc.isSuccess()) {
-		log << MSG::FATAL << "Can't retrieve MdtCalibInputSvc!"
-			<< endreq;
-		return sc;
-	}
+	ATH_CHECK( toolSvc()->retrieveTool(m_idToFixedIdToolType,
+					m_idToFixedIdToolName, m_id_tool) );
 
+// calibration input service //
+ 	ATH_CHECK( m_input_service.retrieve() );
 
 ////////////////////////
 // OPEN THE ROOT FILE //
@@ -298,12 +264,7 @@ low_bin[15] = {48.8971,53.4205,63.7885,74.7095,79.9586,81.4944,81.2939,79.9401,7
 	m_cfitter->setTimeOut(m_time_out);
 
 //get region selection service
-	sc=service("RegionSelectionSvc", p_reg_sel_svc);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
-		return sc;
-		}
+	ATH_CHECK( m_reg_sel_svc.retrieve() );
 
 //
 
@@ -324,13 +285,12 @@ StatusCode NtupleCalibADCTool::finalize(void) {
 // VARIABLES //
 ///////////////
 
-	MsgStream log(msgSvc(), name()); // message service
 
 /////////////
 // MESSAGE //
 /////////////
 
-	log << MSG::INFO << "Finalizing tool..." << endreq;
+	ATH_MSG_INFO( "Finalizing tool..." );
 //the summary tree creation crashes if the refit option is not set -- To be fixed!
 	if (!m_refit_segments) 
 		{
@@ -381,8 +341,6 @@ double ADC0[15] = {73.7515,110.755,103.724,122.37,136.487,195.278,221.442,296.23
 double high_bin[15] = {197.886,212.367,226.685,232.567,236.377,233.817,230.829,225.595,221.07,216.012,210.1,203.221,195.506,188.455,178.88 } ;
 double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80.5007,78.6199,77.3049,75.8061,74.2353,73.0578,72.1533,61.4726 } ;
 	
-	MsgStream log(msgSvc(), name()); // message service
-
 //	const MuonCalibRawHitCollection *raw_hits(event.rawHitCollection());
 //	const MuonCalibSegment *rpcHits(event.rpcHitCollection());
 //	unsigned int ml, ly, tb; // multilayer, layer, tube/
@@ -434,7 +392,7 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 	for (unsigned int k=position; k<segments.size(); k++) {
 
    // get the first hit to check if it is in the calibration region //
-	if(!p_reg_sel_svc->isInRegion(segments[k]->mdtHOT()[0] ->identify())) continue;
+	if(!m_reg_sel_svc->isInRegion(segments[k]->mdtHOT()[0] ->identify())) continue;
 	NtupleStationId station_identifier((segments[k]->mdtHOT()[0])->identify());
 	station_identifier.SetMultilayer(0);
 
@@ -464,7 +422,7 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
     // get the raw hit and check whether it is in the calibration region //
                  MuonCalibRawMdtHit *hit(*it);
                  
-                 if(!p_reg_sel_svc->isInRegion(hit->identify())) continue;
+                 if(!m_reg_sel_svc->isInRegion(hit->identify())) continue;
                  		 ml = (hit->identify()).mdtMultilayer();
 		                 ly = (hit->identify()).mdtTubeLayerIndex()+1;
 		                 tb = (hit->identify()).mdtTubeIndex();
@@ -475,7 +433,7 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 		 for (MuonCalibRawHitCollection::MuonCalibRawMdtHitVecCit it2=raw_hits->rawMdtHitCollectionBegin();
                                  it2!=raw_hits->rawMdtHitCollectionEnd(); ++it2) {
                  MuonCalibRawMdtHit *hit2(*it2);
-		 if(!p_reg_sel_svc->isInRegion(hit2->identify())) continue;
+		 if(!m_reg_sel_svc->isInRegion(hit2->identify())) continue;
 		 bool same_ml(ml==(hit2->identify()).mdtMultilayer());
 		 bool same_ly(ly==(hit2->identify()).mdtTubeLayerIndex());
 		 bool same_tb(tb==(hit2->identify()).mdtTubeIndex());
@@ -562,7 +520,7 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 	                	m_MDT_residual_vs_radius[0][station_identifier]->Fill(r0,fabs(r0)-fabs(d0),1.0);
 										}
 	 
-	if( !(segment_fitter->fit(*(segments[k])) ) ) log << MSG::WARNING << "Segment fit failed. Just going on." << endreq;
+	if( !(segment_fitter->fit(*(segments[k])) ) ) ATH_MSG_WARNING( "Segment fit failed. Just going on." );
 	Double_t oldchi2 =  segments[k]->chi2() ;
         m_MDT_segment_hits[1][station_identifier]->Fill(segment_fitter->numberOfTrackHits(), 1.0);
 	m_MDT_segment_chi2[1][station_identifier]->Fill(segments[k]->chi2(),1.0);

@@ -49,9 +49,6 @@ class TF1;
 class TTree;
 class TProfile;
 
-// AtlasCore //
-#include "StoreGate/StoreGateSvc.h"
-
 namespace MuonGM {
 class MuonDetectorManager;
 class RpcDetectorElement;
@@ -66,15 +63,17 @@ class RpcIdHelper;
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MdtCalibFitters/StraightPatRec.h"
 #include "MdtCalibFitters/CurvedPatRec.h"
-#include "MdtCalibIOSvc/MdtCalibInputSvc.h"
 #include "MuonCalibStandAloneBase/T0Refinement.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 class RegionSelectionSvc;
+class MdtCalibInputSvc;
 
 namespace MuonCalib {
 
 class T0MTHistos;
 
-class NtupleControlHistogramsTool : public AlgTool, 
+class NtupleControlHistogramsTool : public AthAlgTool, 
 					virtual public NtupleCalibrationTool {
 
 public:
@@ -113,7 +112,6 @@ private:
                       // = false otherwise
 	double m_time_out; // time out for pattern finding
 	double m_road_width; // road width for pattern recognition
-	std::string m_detector_store; // name of the detector store
 	std::string m_MDT_ID_helper; // name of the MDT ID helper
 	std::string m_RPC_ID_helper; // name of the RPC ID helper
 	std::string m_idToFixedIdToolType; // type of the muon fixed id tool
@@ -125,9 +123,9 @@ private:
 	                // be stored
 
 // calibration region //
-	RegionSelectionSvc *p_reg_sel_svc;
+	ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 // calibration parameters //
- 	MdtCalibInputSvc *m_input_service; // pointer to the calibration input
+ 	ServiceHandle<MdtCalibInputSvc> m_input_service; // pointer to the calibration input
 	                                   // service
 
 // chamber parameters //
@@ -234,7 +232,6 @@ private:
 //pointer to root tree
 	TTree *m_chamber_tree;
 // helpers //
-	StoreGateSvc *m_detStore; // pointer to the detector store
 	const MdtIdHelper *m_MdtIdHelper; // pointer to the MDT ID helper
 	const RpcIdHelper *m_RpcIdHelper; // pointer to the RPC ID helper
 	

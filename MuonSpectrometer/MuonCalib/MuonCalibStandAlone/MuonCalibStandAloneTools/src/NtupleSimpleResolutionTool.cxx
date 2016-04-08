@@ -18,9 +18,6 @@
 #include <vector>
 #include <cstdlib>
 
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-
 // MuonCalib classes //
 #include "MuonCalibEventBase/MuonCalibPattern.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
@@ -60,9 +57,12 @@ const unsigned int NtupleSimpleResolutionTool::MAXNUMHITS=50;
 /////////////////
 
 NtupleSimpleResolutionTool :: NtupleSimpleResolutionTool(const std::string& t, const std::string&
-n, const IInterface* p) : AlgTool(t, n, p), m_final_resolution(NULL), m_is_initialized(false)
+n, const IInterface* p) : AthAlgTool(t, n, p), m_final_resolution(NULL),
+m_calib_input_svc("MdtCalibInputSvc", n), m_reg_sel_svc("RegionSelectionSvc", n), m_is_initialized(false)
 	{
 	declareInterface< NtupleCalibrationTool >(this);
+	declareProperty("MdtCalibInputSvc", m_calib_input_svc);
+	declareProperty("RegionSelectionSvc", m_reg_sel_svc);
 	m_curved = true;
 	declareProperty("CurvedFit", m_curved);
 	REJ_LOW = 0.1;
@@ -104,23 +104,13 @@ n, const IInterface* p) : AlgTool(t, n, p), m_final_resolution(NULL), m_is_initi
 StatusCode NtupleSimpleResolutionTool::initialize() 
 	{
 
-	MsgStream log(msgSvc(), name());
-	log<< MSG::INFO << "Initializing Simple resolution Tool" <<endreq;
+	ATH_MSG_INFO( "Initializing Simple resolution Tool" );
 	StatusCode sc;
 
 //get pointer to Calibration input service
-	sc=service("MdtCalibInputSvc", p_calib_input_svc);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR <<"Cannot retrieve MdtCalibInputSvc!" <<endreq;
-		return sc;
-		}
+	ATH_CHECK( m_calib_input_svc.retrieve() );
 //get pointer to region selection service
-    sc=service("RegionSelectionSvc", p_reg_sel_svc);
-    if (!sc.isSuccess()) {
-        log<< MSG::ERROR << "Cannot retrieve RegionSelectionSvc!" << endreq;
-        return sc;
-    }
+    ATH_CHECK( m_reg_sel_svc.retrieve() );
 
 /////////////////////
 // OTHER VARIABLES //
@@ -184,11 +174,10 @@ StatusCode NtupleSimpleResolutionTool::initialize()
 void NtupleSimpleResolutionTool :: setRegion()
 	{
 	
-	p_rt_relation = p_calib_input_svc->GetRtRelation();
+	p_rt_relation = m_calib_input_svc->GetRtRelation();
 	if(p_rt_relation == NULL)
 		{
-		MsgStream log(msgSvc(), name());
-		log << MSG::FATAL << "Cannot find rt-relatino for this region" <<endreq;
+		ATH_MSG_FATAL( "Cannot find rt-relatino for this region" );
 		return;
 		}
 	}
@@ -215,10 +204,9 @@ void NtupleSimpleResolutionTool::m_destruct(void) {
 ////////////////////////////
 StatusCode NtupleSimpleResolutionTool::analyseSegments(const std::vector<MuonCalibSegment *> & segments)
 {
-MsgStream log(msgSvc(), name());
 if(segments.size() == 0)
 	{
-	log << MSG::FATAL << "No Segments collected!" << endreq;
+	ATH_MSG_FATAL( "No Segments collected!" );
 	return StatusCode :: FAILURE;
 	}
 
@@ -489,8 +477,7 @@ void NtupleSimpleResolutionTool::end_of_data(const IRtRelation * rt_rel) {
 		m_sprfun_r->Copy(*sprfun_old);
 //		m_sprfun->Copy(*sprfun_old);
 		iteration=it;
-		cout <<"Iteration "<<iteration<<"  conv "<<delta_conv<<"  r_conv "<<r_conv<<endl;
-		cout <<endl;
+		ATH_MSG_INFO( "Iteration "<<iteration<<"  conv "<<delta_conv<<"  r_conv "<<r_conv << "\n" );
 
 	}
 
@@ -498,7 +485,7 @@ void NtupleSimpleResolutionTool::end_of_data(const IRtRelation * rt_rel) {
 	spResCalc(false);
 
 	ofstream outfile("spr.out", ios::app);
-	outfile<<p_reg_sel_svc->GetRegionSelection()<<":  NumIt-s ="<<setw(3)<<iteration<<
+	outfile<<m_reg_sel_svc->GetRegionSelection()<<":  NumIt-s ="<<setw(3)<<iteration<<
 		"  conv ="<<setw(6)<<setprecision(2)<<delta_conv<<
 		"  r_conv ="<<setw(6)<<setprecision(2)<<r_conv<<
 		"  NumOfSegments ="<<setw(6)<<m_refitted_segment.size()<<endl;
@@ -506,9 +493,9 @@ void NtupleSimpleResolutionTool::end_of_data(const IRtRelation * rt_rel) {
 
 	delete sprfun_old;
 
-	cout<<p_reg_sel_svc->GetRegionSelection()<<"  NumOfSegments:  "
-	<<m_refitted_segment.size()<<endl;
-	cout<<"NumOfIts "<<iteration<<"  convergence "<<delta_conv<<"  r_conv "<<r_conv<<endl;
+	ATH_MSG_INFO( m_reg_sel_svc->GetRegionSelection()<<"  NumOfSegments:  "
+	<<m_refitted_segment.size() );
+	ATH_MSG_INFO( "NumOfIts "<<iteration<<"  convergence "<<delta_conv<<"  r_conv "<<r_conv );
 
 ///////////////////////////////////// writing output
 //	m_sfile->Write();

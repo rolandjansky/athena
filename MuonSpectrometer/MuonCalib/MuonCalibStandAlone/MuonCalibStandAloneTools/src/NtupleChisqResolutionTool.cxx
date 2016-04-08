@@ -5,9 +5,6 @@
 //c - c++
 #include "iostream"
 
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-
 //MdtCalibFitters
 #include "MdtCalibFitters/DCSLFitter.h"
 
@@ -60,9 +57,10 @@ namespace MuonCalib {
  
  
  
-  NtupleChisqResolutionTool::NtupleChisqResolutionTool(const std::string& t, const std::string& n, const IInterface* p) : AlgTool(t, n, p), m_final_resolution(NULL) 
+  NtupleChisqResolutionTool::NtupleChisqResolutionTool(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t, n, p), m_calib_input_svc("MdtCalibInputSvc", n), m_final_resolution(NULL) 
   {
     declareInterface< NtupleCalibrationTool >(this) ;	
+    declareProperty("MdtCalibInputSvc", m_calib_input_svc);
   }
   
   //******************************************************************************
@@ -75,14 +73,8 @@ namespace MuonCalib {
 	
   StatusCode NtupleChisqResolutionTool::initialize()
   {
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "initialize()" <<endreq;
-    StatusCode sc=service("MdtCalibInputSvc", p_calib_input_svc);
-    if(!sc.isSuccess())
-      {
-	log << MSG::ERROR <<"Cannot retrieve MdtCalibInputSvc!" <<endreq;
-	return sc;
-      }
+    ATH_MSG_INFO( "initialize()" );
+    ATH_CHECK( m_calib_input_svc.retrieve() );
     return StatusCode :: SUCCESS;	
   }
  
@@ -100,9 +92,8 @@ namespace MuonCalib {
 
   void NtupleChisqResolutionTool :: setRegion()
   {
-    MsgStream log(msgSvc(), name());
     //try to get rt relation
-    p_rt_rel = p_calib_input_svc->GetRtRelation();
+    p_rt_rel = m_calib_input_svc->GetRtRelation();
     //root stuff
     m_resolfile = TFile::Open("resolfile.root","RECREATE");	
     m_prob_dist = new TH1F("egment_probability_distribution" ,"segment probability distribution",50,0.,1.);
@@ -115,8 +106,7 @@ namespace MuonCalib {
   {
     if(p_rt_rel == NULL)
       {
-	MsgStream log(msgSvc(), name());
-	log << MSG::FATAL << "Rt relation not set!" <<endreq;
+	ATH_MSG_FATAL( "Rt relation not set!" );
 	return StatusCode::FAILURE;
       }
     m_seg=&segemnts;
@@ -190,7 +180,7 @@ namespace MuonCalib {
  
   void NtupleChisqResolutionTool::fcn(int&/*npar*/, double * /*gin*/, double &f, double *par, int iflag)
   {
-    std::cout << "entering fcn"<<" iflag ="<<iflag<<std::endl;
+    ATH_MSG_INFO( "entering fcn"<<" iflag ="<<iflag );
     m_prob_dist->Reset("ICE");
     //    m_prob_debg->Reset("ICE");
     f = recalculate(par);
@@ -305,8 +295,7 @@ namespace MuonCalib {
   {
     if(m_final_resolution == 0)
       {
-	MsgStream log(msgSvc(), name());
-	log << MSG::FATAL << "No resolution Calculated!" << endreq;
+	ATH_MSG_FATAL( "No resolution Calculated!" );
       }
     return m_final_resolution;
   }

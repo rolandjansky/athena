@@ -7,6 +7,9 @@
 
 //this
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 class MdtCalibInputSvc;
 
 namespace MuonCalib {
@@ -20,7 +23,7 @@ class RtCalibrationCurved;
 */
 
 
-class NtupleCurvedAutocalibrationTool : public AlgTool, virtual public NtupleCalibrationTool
+class NtupleCurvedAutocalibrationTool : public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 	public:
 //==============================================================================
@@ -63,7 +66,7 @@ class NtupleCurvedAutocalibrationTool : public AlgTool, virtual public NtupleCal
 	//! control histogram output - job option
 		bool m_control_histograms;
 	//! calibratin input service
-		MdtCalibInputSvc *p_calib_input_svc;
+		ServiceHandle<MdtCalibInputSvc> m_calib_input_svc;
 	//! is set to true if the analysis failed
 		bool m_failed;
 	//! is set to true if parabolic extrapolation should be performed for small

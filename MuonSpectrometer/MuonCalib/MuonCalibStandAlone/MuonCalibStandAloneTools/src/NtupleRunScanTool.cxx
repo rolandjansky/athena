@@ -14,10 +14,6 @@
 #include "TTree.h"
 #include "TNtuple.h"
 
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
-
 //MuonCalibEventBase
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibEventBase/MuonCalibEventInfo.h"
@@ -41,7 +37,7 @@
 
 namespace MuonCalib{
 
-NtupleRunScanTool::NtupleRunScanTool(const std::string& t, const std::string& n, const IInterface* p): AlgTool(t, n, p), m_min_hits(2000), m_max_bad_fits(0.1), m_suppress_nofit(false), m_noisy_tube_factor(1), m_time_min(std::numeric_limits<unsigned int>::max()), m_time_max(0), m_run_min(std::numeric_limits<unsigned int>::max()), m_run_max(0) 
+NtupleRunScanTool::NtupleRunScanTool(const std::string& t, const std::string& n, const IInterface* p): AthAlgTool(t, n, p), m_min_hits(2000), m_max_bad_fits(0.1), m_suppress_nofit(false), m_noisy_tube_factor(1), m_time_min(std::numeric_limits<unsigned int>::max()), m_time_max(0), m_run_min(std::numeric_limits<unsigned int>::max()), m_run_max(0) 
 	{
 	declareInterface< NtupleCalibrationTool >(this);
 	declareProperty("MinHits", m_min_hits);
@@ -53,39 +49,16 @@ NtupleRunScanTool::NtupleRunScanTool(const std::string& t, const std::string& n,
 
 StatusCode NtupleRunScanTool::initialize()
 	{
-	MsgStream log(msgSvc(), name());
 	if(m_max_bad_fits<0 || m_max_bad_fits>1)
 		{
-		log << MSG::FATAL << "MaxBadFits must be between 0 and 1!"<<endreq;
+		ATH_MSG_FATAL( "MaxBadFits must be between 0 and 1!" );
 		return StatusCode::FAILURE;
 		}
 //get geometry
-	//retrieve detector store
-		StoreGateSvc* m_detStore;
-		StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-		if ( sc.isSuccess() ) 
-			{
-			log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
-  			}
-		else
-			{
-			log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
-    			return sc;
-			}
 	//retrieve mdt id helper
-		sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-		if (!sc.isSuccess()) 
-			{
-			log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endreq;
-			return sc;
-			}
+		ATH_CHECK( detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
 	//retrieve detector manager
-		sc = m_detStore->retrieve( m_detMgr );
-		if (!sc.isSuccess()) 
-			{
-			log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endreq;
-			return sc;
-  			}
+		ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 	p_outfile = new TFile("RunScan.root", "RECREATE");
 	return StatusCode :: SUCCESS;		
 	}
@@ -125,8 +98,7 @@ StatusCode NtupleRunScanTool::handleEvent(const MuonCalibEvent &event, int /*evn
 				{
 				if(!id.InitializeGeometry(m_mdtIdHelper, m_detMgr))
 					{
-					MsgStream log(msgSvc(), name());
-					log<<MSG::FATAL<<"Cannot initialize Geometry!"<<endreq;
+					ATH_MSG_FATAL( "Cannot initialize Geometry!" );
 					return StatusCode::FAILURE;
 					}
 				p_outfile->cd();
@@ -144,9 +116,8 @@ StatusCode NtupleRunScanTool::analyseSegments(const std::vector<MuonCalibSegment
 	{
 	std::ofstream header_insert_sql("header_insert.sql");
 	header_insert_sql<<"insert into MDT_HEAD (implementation, lowrun, uprun, luminosity, rootfile, lowtime, uptime) values ('xX_IMPLEMENTATION_Xx', "<<m_run_min<<", "<< m_run_max <<", 1, 'xX_ROOT_FILE_Xx', "<< m_time_min <<", "<< m_time_max <<");"<<std::endl;
-	MsgStream log(msgSvc(), name());
 	p_outfile->cd();
-	log<<MSG::INFO<<"Location: "<<gDirectory->GetName()<<endreq;
+	ATH_MSG_INFO( "Location: "<<gDirectory->GetName() );
 	TTree *statistics_tree=new TTree("statistics_tree", "statistics tree");
 	MuonFixedId id;
 //statistics tree

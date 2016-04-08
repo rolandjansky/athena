@@ -11,13 +11,15 @@
 
 //MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 //MdtCalibIoSvc
 class MdtCalibInputSvc;
 
 namespace MuonCalib {
 
 
-class NtupleDbCheckTool : public AlgTool, virtual public NtupleCalibrationTool
+class NtupleDbCheckTool : public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 	public:
 	//contructor
@@ -44,7 +46,7 @@ const std::string & n, const IInterface * p);
 		Double_t m_ntuple_r, m_calib_r;
 		
 	//calibration input service
-		MdtCalibInputSvc *m_input_service;
+		ServiceHandle<MdtCalibInputSvc> m_input_service;
 	}; //class
 
 

@@ -4,16 +4,14 @@ manager Felix Rauscher <rauscher@cern.ch>
 author  Felix Rauscher <rauscher@cern.ch>
 	
 use AtlasPolicy            AtlasPolicy-*
-
+use AthenaBaseComps        AthenaBaseComps-*       Control
 use AtlasROOT              AtlasROOT-*              External
 use AtlasCLHEP AtlasCLHEP-* External
 
 use MdtCalibFitters      MdtCalibFitters-*      MuonSpectrometer/MuonCalib/MdtCalib
 use MuonCalibEventBase   MuonCalibEventBase-*   MuonSpectrometer/MuonCalib
 use MuonCalibIdentifier  MuonCalibIdentifier-*  MuonSpectrometer/MuonCalib
-
 use MuonIdHelpers		MuonIdHelpers-*		MuonSpectrometer
-use StoreGate		StoreGate-*		Control
 
 use MuonCalibStandAloneBase	MuonCalibStandAloneBase-* MuonSpectrometer/MuonCalib/MuonCalibStandAlone
 use MdtCalibIOSvc	MdtCalibIOSvc-* MuonSpectrometer/MuonCalib/MuonCalibStandAlone

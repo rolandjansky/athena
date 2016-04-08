@@ -11,9 +11,6 @@
 #include "TH1.h"
 #include "TF1.h"
 
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-
 // MuonCalibEventBase //
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibEventBase/MdtCalibHitBase.h"
@@ -40,11 +37,12 @@ namespace MuonCalib {
 // Constructor //
 /////////////////
 
-NtupleWireCentricityTool :: NtupleWireCentricityTool(const std::string& t, const std::string& n, const IInterface* p) : AlgTool(t, n, p), m_min_track_slope(0.6), m_region_width(8e8)
+NtupleWireCentricityTool :: NtupleWireCentricityTool(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t, n, p), m_min_track_slope(0.6), m_region_width(8e8), m_calib_input_svc("MdtCalibInputSvc", n)
 	{
 	declareInterface< NtupleCalibrationTool >(this) ;
 	declareProperty("MinTrackSlope", m_min_track_slope);
 	declareProperty("RegionWidth", m_region_width);
+        declareProperty("MdtCalibInputSvc", m_calib_input_svc);
 	}
 
 
@@ -54,8 +52,7 @@ NtupleWireCentricityTool :: NtupleWireCentricityTool(const std::string& t, const
 
 StatusCode NtupleWireCentricityTool :: initialize()
 	{
-	MsgStream log(msgSvc(), name());
-	log<< MSG::INFO << "Initializing NtupleWireCentricityTool" << endreq;
+	ATH_MSG_INFO( "Initializing NtupleWireCentricityTool" );
 
 	
 //create root file and histograms
@@ -69,14 +66,9 @@ StatusCode NtupleWireCentricityTool :: initialize()
 	p_track_slope = new TH1F("track_slope", "", 1000, -3, 3);
 	x_coordinate = new TH1F("x_coordinate", "", 4000, -2000, 2000);
 	
-	log << MSG::INFO << "tool initialized." << endreq;
+	ATH_MSG_INFO( "tool initialized." );
 //get calibration input service
-	StatusCode sc=service("MdtCalibInputSvc", p_calib_input_svc);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR <<"Cannot retrieve MdtCalibInputSvc!" <<endreq;
-		return StatusCode::FAILURE;
-		}
+	ATH_CHECK( m_calib_input_svc.retrieve() );
 	setRegion();
 	return StatusCode::SUCCESS;
 	}
@@ -88,7 +80,6 @@ StatusCode NtupleWireCentricityTool :: initialize()
 
 StatusCode NtupleWireCentricityTool :: handleEvent(const MuonCalibEvent &/*event*/, int /*evnt_nr*/, const std::vector<MuonCalibSegment *> &segments, unsigned int position)
 	{
-	MsgStream log(msgSvc(), name());
 	for(unsigned int i=position; i<segments.size(); i++)
 		{
 	//chaeck for minimal track inclination
@@ -120,7 +111,6 @@ StatusCode NtupleWireCentricityTool :: handleEvent(const MuonCalibEvent &/*event
 
 StatusCode NtupleWireCentricityTool :: analyseSegments(const std::vector<MuonCalibSegment *> & /*segemnts*/)
 	{
-	MsgStream log(msgSvc(), name());
 	T0MTHistos histos;
 	T0MTSettings settings;
 	settings.AddFitfun()=true;
@@ -177,9 +167,9 @@ StatusCode NtupleWireCentricityTool :: analyseSegments(const std::vector<MuonCal
 		if(histos.FitTmax())	
 			l_below=histos.GetTMaxFunction()-> GetParameter(T0MTHistos :: TMAX_PAR_NR_TMAX) - histos.GetT0Function()->GetParameter(T0MTHistos :: T0_PAR_NR_T0);
 		}
-	log << MSG::INFO << "Summary:" <<endreq;
-	log << MSG::INFO << "left/right: "<<l_left - l_right <<" ns " << (l_left - l_right)*m_drift_velocity << "mm: slope is "<<p_track_slope->GetMean()<<endreq;
-	log << MSG::INFO << "above/below: "<<l_above - l_below <<" ns " << (l_above - l_below)*m_drift_velocity << "mm: slope is "<<m_mean_track_slope << endreq;
+	ATH_MSG_INFO( "Summary:" );
+	ATH_MSG_INFO( "left/right: "<<l_left - l_right <<" ns " << (l_left - l_right)*m_drift_velocity << "mm: slope is "<<p_track_slope->GetMean() );
+	ATH_MSG_INFO( "above/below: "<<l_above - l_below <<" ns " << (l_above - l_below)*m_drift_velocity << "mm: slope is "<<m_mean_track_slope );
 	summary_tree->Fill();		
 	p_root_file->Write();
 	
@@ -188,11 +178,10 @@ StatusCode NtupleWireCentricityTool :: analyseSegments(const std::vector<MuonCal
 
 void NtupleWireCentricityTool :: setRegion()
 	{
-	MsgStream log(msgSvc(), name());
-	const IRtRelation *rtrel=p_calib_input_svc->GetRtRelation();
+	const IRtRelation *rtrel=m_calib_input_svc->GetRtRelation();
 	if(rtrel==NULL) return;
 	m_drift_velocity = rtrel->driftvelocity(rtrel->tUpper() - 50);
-	log <<MSG::INFO << "Drift velocity is "<<m_drift_velocity <<endreq;
+	ATH_MSG_INFO( "Drift velocity is "<<m_drift_velocity );
 	}
 
 inline void NtupleWireCentricityTool :: process_hit(const MdtCalibHitBase * hit, const double & track_slope)

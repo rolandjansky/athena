@@ -27,6 +27,8 @@
 
 // this
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 //root 
 #include "TEllipse.h"
@@ -34,7 +36,6 @@ class TCanvas;
 class TControlBar;
 class TApplication;
 
-class StoreGateSvc; 
 class MdtIdHelper;
 
 // STL //
@@ -57,7 +58,7 @@ class MuonCalibEvent;
 
 class TubeCircle;
 
-class NtupleDisplayTool : public AlgTool, virtual public NtupleCalibrationTool
+class NtupleDisplayTool : public AthAlgTool, virtual public NtupleCalibrationTool
 	{
 
     public:
@@ -110,7 +111,7 @@ class NtupleDisplayTool : public AlgTool, virtual public NtupleCalibrationTool
             double m_adc_cut;       //adc cut to define noise hits
 
             // calibration region //
-	    RegionSelectionSvc *p_reg_sel_svc;
+	    ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
             // line reconstruction //
             IMdtPatRecFitter *qfitter;    
             
