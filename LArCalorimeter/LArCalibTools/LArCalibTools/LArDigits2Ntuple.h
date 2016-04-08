@@ -26,10 +26,10 @@ class LArDigits2Ntuple : public LArCond2NtupleBase
   long m_event;
   std::vector<unsigned int> m_FTlist;
 
-  NTuple::Item<long> Nsamples;
-  NTuple::Item<short> gain;
-  NTuple::Item<long> IEvent;
-  NTuple::Array<short>  samples;
+  NTuple::Item<long> m_ntNsamples;
+  NTuple::Item<short> m_gain;
+  NTuple::Item<long> m_IEvent;
+  NTuple::Array<short>  m_samples;
 };
 
 #endif

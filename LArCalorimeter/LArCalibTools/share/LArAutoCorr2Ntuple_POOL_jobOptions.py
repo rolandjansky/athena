@@ -1,20 +1,20 @@
 ###########################################################################
 #
-# jobOptions to dump LAr OFC POOL file content to ROOT ntuple
+# jobOptions to dump LAr AutoCorr POOL file content to ROOT ntuple
 #
 # rewritten in Nov. 2010, P. Strizenec
 ###########################################################################
 
 import commands
 
-OFC2NtupleLog = logging.getLogger( "OFC2NtupleLog" )
+AutoCorr2NtupleLog = logging.getLogger( "AutoCorr2NtupleLog" )
 
 if not 'PoolFileName' in dir():
-   OFC2NtupleLog.fatal("Please setup the input POOL file ('PoolFileName')!")
+   AutoCorr2NtupleLog.fatal("Please setup the input POOL file ('PoolFileName')!")
    theApp.exit(-1)
 
 if not 'RootFileName' in dir():
-   RootFileName = "LArOFC2Ntuple_POOL.root"
+   RootFileName = "LArAutoCorr2Ntuple_POOL.root"
 
 
 if not 'DBConnectionCOOL' in dir():
@@ -70,13 +70,13 @@ svcMgr += getConfigurable( "CondProxyProvider" )()
 svcMgr.CondProxyProvider.InputCollections += [ PoolFileName ]
 
 #
-# Dump OFC folder to a ROOT ntuple
+# Dump AutoCorr folder to a ROOT ntuple
 #
-from LArCalibTools.LArCalibToolsConf import LArOFC2Ntuple
-LArOFC2Ntuple = LArOFC2Ntuple( "LArOFC2Ntuple" )
-LArOFC2Ntuple.OutputLevel = INFO
-LArOFC2Ntuple.AddFEBTempInfo=False
-topSequence += LArOFC2Ntuple
+from LArCalibTools.LArCalibToolsConf import LArAutoCorr2Ntuple
+LArAutoCorr2Ntuple = LArAutoCorr2Ntuple( "LArAutoCorr2Ntuple" )
+LArAutoCorr2Ntuple.OutputLevel = INFO
+LArAutoCorr2Ntuple.AddFEBTempInfo=False
+topSequence += LArAutoCorr2Ntuple
 
 theApp.HistogramPersistency = "ROOT"
 from GaudiSvc.GaudiSvcConf import NTupleSvc

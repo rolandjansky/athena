@@ -6,7 +6,6 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-//#include "LArTools/LArCablingService.h"
 #include "StoreGate/StoreGateSvc.h"
 
 CaloCellGroup2Ntuple::CaloCellGroup2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 

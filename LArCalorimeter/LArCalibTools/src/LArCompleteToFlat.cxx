@@ -53,6 +53,7 @@ LArCompleteToFlat::LArCompleteToFlat( const std::string& name,
   declareProperty("OFCInput",m_OFCInput);//="LArOFC");
   declareProperty("ShapeInput",m_ShapeInput);//="LArShape");
   declareProperty("DSPThresholdsInput",m_DSPThresholdsInput);//="LArDSPThresholds");
+  declareProperty("NameOfSet",m_nameOfSet); // for DSPThreshold
 
   declareProperty("ForceStop",m_forceStop=true);
 
@@ -544,10 +545,12 @@ AthenaAttributeList* LArCompleteToFlat::DSPThresholdsFlat(const LArDSPThresholds
   spec->extend("tQThr", "blob");
   spec->extend("samplesThr", "blob");
   spec->extend("trigSumThr","blob");
-  spec->extend<unsigned>("version");
+  //spec->extend<unsigned>("version");
+  spec->extend("Name","string");
   
   coral::AttributeList* attrList = new coral::AttributeList(*spec);    
-  (*attrList)["version"].setValue(0U);
+  //(*attrList)["version"].setValue(0U);
+  (*attrList)["Name"].setValue(m_nameOfSet);
   coral::Blob& QBlob=(*attrList)["tQThr"].data<coral::Blob>();
   coral::Blob& SamplesBlob=(*attrList)["samplesThr"].data<coral::Blob>();
   coral::Blob& TrigBlob=(*attrList)["trigSumThr"].data<coral::Blob>();

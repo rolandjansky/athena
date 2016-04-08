@@ -42,7 +42,7 @@ class LArWaves2Ntuple : public  LArCond2NtupleBase
   NTuple::Array<double> m_time;
   NTuple::Array<double> m_ampliPulse;
   NTuple::Array<double> m_errorPulse;
-  NTuple::Array<long>   m_triggers;
+  NTuple::Array<int>   m_triggers;
 
   // derived information
   NTuple::Item<double>  m_tmaxAmp;

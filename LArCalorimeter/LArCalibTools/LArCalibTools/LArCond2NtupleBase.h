@@ -12,8 +12,8 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "LArRecConditions/ILArBadChanTool.h"
-#include "LArTools/LArCablingService.h"
-#include "LArTools/LArSuperCellCablingTool.h"
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArElecCalib/ILArFEBTempTool.h"
 
 class HWIdentifier;
@@ -24,6 +24,7 @@ class StoreGateSvc;
 class LArEM_Base_ID;
 class LArHEC_Base_ID;
 class LArFCAL_Base_ID;
+class CaloCell_ID;
 class MsgStream;
 
 class LArCond2NtupleBase : public AthAlgorithm {
@@ -58,7 +59,7 @@ class LArCond2NtupleBase : public AthAlgorithm {
   NTuple::Item<long> m_pos_neg, m_barrel_ec, m_FT, m_slot, m_channel;
   NTuple::Item<long> m_calibLine,m_badChanWord;
   NTuple::Item<long> m_isConnected;
-  NTuple::Item<long> m_chanHash, m_febHash;
+  NTuple::Item<long> m_chanHash, m_febHash, m_oflHash;
   
   NTuple::Item<float> m_FEBTemp1, m_FEBTemp2;
 
@@ -69,6 +70,7 @@ class LArCond2NtupleBase : public AthAlgorithm {
   const LArHEC_Base_ID* m_hecId;
   const LArFCAL_Base_ID* m_fcalId;
   const LArOnlineID_Base* m_onlineId;
+  const CaloCell_ID* m_caloId;
   LArCablingBase* m_larCablingSvc;
   ToolHandle<ILArBadChanTool> m_badChanTool;
   ToolHandle<ILArFEBTempTool> m_FEBTempTool;

@@ -11,7 +11,7 @@ use CaloIdentifier   CaloIdentifier-*     Calorimeter
 use LArElecCalib     LArElecCalib-*       LArCalorimeter
 use LArIdentifier    LArIdentifier-*      LArCalorimeter
 use LArRawConditions LArRawConditions-*   LArCalorimeter
-use LArTools         LArTools*            LArCalorimeter
+use LArCabling       LArCabling-*         LArCalorimeter
 use LArRecConditions LArRecConditions-*   LArCalorimeter
    
 
@@ -20,6 +20,7 @@ use AthenaKernel        AthenaKernel*        Control
 use AtlasROOT           AtlasROOT-*          External
 use LArCondUtils        LArCondUtils-*       LArCalorimeter
 use LArRawEvent         LArRawEvent-*        LArCalorimeter
+use LArTools         LArTools-*           LArCalorimeter
 use CaloCondBlobObjs    CaloCondBlobObjs-*  Calorimeter
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use AtlasCORAL   AtlasCORAL-* External

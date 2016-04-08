@@ -29,13 +29,13 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 
 #include "LArCalibTools/LArParamsProperties.h"
-using namespace LArParamsProperties ;
+//using namespace LArParamsProperties ;
 
 template <class DATA>
 class LArReadParamsFromFile : public AthAlgorithm

@@ -12,7 +12,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawConditions/LArConditionsContainer.h"
 #include "LArRawConditions/LArSingleFloatP.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class LArOnlineID;
@@ -79,6 +79,9 @@ class LArCompleteToFlat: public AthAlgorithm
   std::string m_OFCInput;
   std::string m_ShapeInput;
   std::string m_DSPThresholdsInput;
+
+  // DSPThreshold set name
+  std::string m_nameOfSet;
 
   bool m_forceStop;
   bool m_fakeEMBPSLowGain;

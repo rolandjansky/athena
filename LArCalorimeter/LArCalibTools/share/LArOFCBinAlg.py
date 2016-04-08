@@ -1,5 +1,11 @@
+if 'RunNumber' not in dir():
+   RunNumber=999999
+
 if 'FebMG' not in dir():
-   FebMG=False
+   FebMG=True
+
+if 'FebCorr' not in dir():
+   FebCorr=False
 
 import AthenaCommon.AtlasUnixGeneratorJob #use MC event selector
 from string import split,join
@@ -12,6 +18,7 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.Luminosity.set_Value_and_Lock('zero')
 globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
+globalflags.DatabaseInstance.set_Value_and_Lock("CONDBR2")
 
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
@@ -30,34 +37,37 @@ from AtlasGeoModel import GeoModelInit
 
 #Get identifier mapping (needed by LArConditionsContainer)
                            
-svcMgr.IOVDbSvc.GlobalTag="LARCALIB-000-02"
+svcMgr.IOVDbSvc.GlobalTag="LARCALIB-RUN2-00"
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
 theApp.EvtMax = 1
-svcMgr.EventSelector.RunNumber = 500000
+svcMgr.EventSelector.RunNumber = RunNumber
 
-dbname="<db>COOLOFL_LAR/COMP200</db>"
+dbname="<db>COOLOFL_LAR/CONDBR2</db>"
 
 conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>"+dbname)
 conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>"+dbname)
-conddb.addFolder("","/LAR/ElecCalibOfl/PhysCaliTdiff<key>input</key><tag>LARElecCalibOflPhysCaliTdiff-gaincorr-01</tag>"+dbname)
+#conddb.addFolder("","/LAR/ElecCalibOfl/PhysCaliTdiff<key>input</key><tag>LARElecCalibOflPhysCaliTdiff-gaincorr-01</tag>"+dbname)
+conddb.addFolder("","/LAR/ElecCalibOfl/OFCBin/PhysWaveShifts<key>input</key><tag>LARElecCalibOflOFCBinPhysWaveShifts-UPD3-00</tag>"+dbname)
 
 
-from LArCalibTools.LArCalibToolsConf import LArPhysCaliTDiffAlg
-theLArPhysCaliTDiffAlg=LArPhysCaliTDiffAlg()
-theLArPhysCaliTDiffAlg.OutputLevel=DEBUG
-theLArPhysCaliTDiffAlg.AddFEBTempInfo=False
-theLArPhysCaliTDiffAlg.InputContainer="input"
-theLArPhysCaliTDiffAlg.FileName="FebOffsets_gain.txt"
-theLArPhysCaliTDiffAlg.PerFebMGCorr=FebMG
+from LArCalibTools.LArCalibToolsConf import LArOFCBinAlg
+theLArOFCBinAlg=LArOFCBinAlg()
+theLArOFCBinAlg.OutputLevel=DEBUG
+theLArOFCBinAlg.AddFEBTempInfo=False
+theLArOFCBinAlg.InputContainer="input"
+theLArOFCBinAlg.OutputContainer="LArPhysWaveShift"
+theLArOFCBinAlg.FileName="FebOffsets_gain.txt"
+theLArOFCBinAlg.PerFebMGCorr=FebMG
+theLArOFCBinAlg.PerFebCorr=FebCorr
 
-topSequence+=theLArPhysCaliTDiffAlg
+topSequence+=theLArOFCBinAlg
 
 
 theApp.HistogramPersistency = "ROOT"
 from GaudiSvc.GaudiSvcConf import NTupleSvc
 svcMgr += NTupleSvc()
-svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='timediff.root' OPT='NEW'" ]
+svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='bindiff.root' OPT='NEW'" ]
 
 #svcMgr.DetectorStore.Dump=True
 #svcMgr.MessageSvc.OutputLevel = DEBUG
@@ -71,9 +81,9 @@ svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/afs/cern.ch/user/l/larcalib/w0/
 #svcMgr.MessageSvc.debugLimit = 5000000
 
 
-OutputPoolFile="AdjustedTimeOffsets.pool.root"
-outObject="LArPhysCaliTdiffComplete#LArPhysCaliTdiff#/LAR/ElecCalibOfl/PhysCaliTdiff"
-outTag="LARElecCalibOflPhysCaliTdiff-gaincorr-02"
+OutputPoolFile="AdjustedOFCBin.pool.root"
+outObject="LArOFCBinComplete#LArPhysWaveShift#/LAR/ElecCalibOfl/OFCBin/PhysWaveShifts"
+outTag="LARElecCalibOflOFCBinPhysWaveShifts-UPD3-00"
 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 OutputConditionsAlg = OutputConditionsAlg("OutputConditionsAlg",OutputPoolFile,
@@ -87,4 +97,4 @@ svcMgr.IOVRegistrationSvc.OutputLevel = DEBUG
 svcMgr.IOVRegistrationSvc.RecreateFolders = True
 
 
-svcMgr.IOVDbSvc.dbConnection="sqlite://;schema=tdiff_run2.db;dbname=CONDBR2"
+svcMgr.IOVDbSvc.dbConnection="sqlite://;schema=bindiff_run2.db;dbname=CONDBR2"

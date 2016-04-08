@@ -5,6 +5,8 @@
 #include "LArCalibTools/LArParams2Ntuple.h"
 #include "CaloIdentifier/CaloGain.h"
 
+using namespace LArParamsProperties ;
+
 const unsigned LArParams2Ntuple::m_nClasses = LArParamsProperties::END_OF_LIST ;
 
 LArParams2Ntuple::LArParams2Ntuple(const std::string& name, ISvcLocator* pSvcLocator)

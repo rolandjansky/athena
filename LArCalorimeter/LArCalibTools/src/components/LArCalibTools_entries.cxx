@@ -14,6 +14,8 @@
 #include "LArCalibTools/LArParams2Ntuple.h"
 #include "LArCalibTools/LArPhysWaveFromTuple.h"
 #include "LArCalibTools/LArPhysWaveFromStdNtuple.h"
+#include "LArCalibTools/LArShapeFromStdNtuple.h"
+#include "LArCalibTools/LArAutoCorrFromStdNtuple.h"
 #include "LArCalibTools/LArParamsFromStdNtuple.h"
 #include "LArCalibTools/LArOFCBin_PhysCaliTdiffFromStdNtuple.h"
 #include "LArCalibTools/LArMphysOverMcalFromTuple.h"
@@ -26,12 +28,16 @@
 #include "LArCalibTools/LArFebTimeOffset2Ntuple.h"
 #include "LArCalibTools/LArGainThresholds2Ntuple.h"
 #include "LArCalibTools/LArPhysCaliTDiffAlg.h"
+#include "LArCalibTools/LArOFCBinAlg.h"
 #include "LArCalibTools/LArDSPThresholds2Ntuple.h"
 #include "LArCalibTools/CaloCondBlob2Ntuple.h"
 #include "LArCalibTools/LArCompleteToFlat.h"
 #include "LArCalibTools/LArNoise2Ntuple.h"
 #include "LArCalibTools/LArfSampl2Ntuple.h"
-
+#include "LArCalibTools/LArFillDSPConfig.h"
+#include "LArCalibTools/LArMinBias2Ntuple.h"
+#include "LArCalibTools/LArDSPConfig2Ntuple.h"
+//#include "LArCalibTools/LArSFcalFromFcalFromStdNtuple.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
  
@@ -77,6 +83,8 @@ DECLARE_ALGORITHM_FACTORY( LArWFParams2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArParams2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArPhysWaveFromTuple )
 DECLARE_ALGORITHM_FACTORY( LArPhysWaveFromStdNtuple )
+DECLARE_ALGORITHM_FACTORY( LArShapeFromStdNtuple )
+DECLARE_ALGORITHM_FACTORY( LArAutoCorrFromStdNtuple )
 DECLARE_ALGORITHM_FACTORY( LArParamsFromStdNtuple )
 DECLARE_ALGORITHM_FACTORY( LArOFCBin_PhysCaliTdiffFromStdNtuple )
 DECLARE_ALGORITHM_FACTORY( LArMphysOverMcalFromTuple )
@@ -90,10 +98,15 @@ DECLARE_ALGORITHM_FACTORY( LArFebTimeOffset2Ntuple )
 DECLARE_ALGORITHM_FACTORY(LArGainThresholds2Ntuple)
 DECLARE_ALGORITHM_FACTORY(LArDSPThresholds2Ntuple)
 DECLARE_ALGORITHM_FACTORY( LArPhysCaliTDiffAlg )
+DECLARE_ALGORITHM_FACTORY( LArOFCBinAlg )
 DECLARE_ALGORITHM_FACTORY( CaloCondBlob2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArCompleteToFlat )
 DECLARE_ALGORITHM_FACTORY( LArNoise2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArfSampl2Ntuple )
+DECLARE_ALGORITHM_FACTORY( LArFillDSPConfig )
+DECLARE_ALGORITHM_FACTORY( LArDSPConfig2Ntuple )
+DECLARE_ALGORITHM_FACTORY( LArMinBias2Ntuple )
+//DECLARE_ALGORITHM_FACTORY( LArSFcalFromFcalFromStdNtuple )
 
 
 
@@ -128,6 +141,8 @@ DECLARE_FACTORY_ENTRIES( LArCalibTools ) {
   DECLARE_ALGORITHM( LArParams2Ntuple )
   DECLARE_ALGORITHM( LArPhysWaveFromTuple )
   DECLARE_ALGORITHM( LArPhysWaveFromStdNtuple )
+  DECLARE_ALGORITHM( LArShapeFromStdNtuple )
+  DECLARE_ALGORITHM( LArAutoCorrFromStdNtuple )
   DECLARE_ALGORITHM( LArParamsFromStdNtuple )
   DECLARE_ALGORITHM( LArOFCBin_PhysCaliTdiffFromStdNtuple )
   DECLARE_ALGORITHM( LArMphysOverMcalFromTuple )
@@ -141,8 +156,13 @@ DECLARE_FACTORY_ENTRIES( LArCalibTools ) {
   DECLARE_ALGORITHM ( LArGainThresholds2Ntuple)  
   DECLARE_ALGORITHM ( LArDSPThresholds2Ntuple)  
   DECLARE_ALGORITHM ( LArPhysCaliTDiffAlg ) 
+  DECLARE_ALGORITHM ( LArOFCBinAlg ) 
   DECLARE_ALGORITHM ( CaloCondBlob2Ntuple ) 
   DECLARE_ALGORITHM ( LArCompleteToFlat )
-  DECLARE_ALGORITHM( LArNoise2Ntuple)
-  DECLARE_ALGORITHM( LArfSampl2Ntuple)
+  DECLARE_ALGORITHM ( LArNoise2Ntuple)
+  DECLARE_ALGORITHM ( LArfSampl2Ntuple)
+  DECLARE_ALGORITHM ( LArFillDSPConfig )
+  DECLARE_ALGORITHM ( LArDSPConfig2Ntuple )
+  DECLARE_ALGORITHM( LArMinBias2Ntuple)
+//  DECLARE_ALGORITHM( LArSFcalFromFcalFromStdNtuple )
 }

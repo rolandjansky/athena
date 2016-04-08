@@ -1,11 +1,11 @@
 if 'inputfolder' not in dir():
-   inputfolder="/LAR/Configuration/DSPThreshold/Thresholds"
+   inputfolder="/LAR/Configuration/DSPConfiguration"
 
 if 'inputtag' not in dir():
    inputtag=""
 
 if 'inputdb' not in dir():
-   inputdb="COOLONL_LAR/COMP200"
+   inputdb="COOLONL_LAR/CONDBR2"
 
 import AthenaCommon.AtlasUnixGeneratorJob #use MC event selector
 from string import split,join
@@ -19,7 +19,7 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.Luminosity.set_Value_and_Lock('zero')
 globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
-
+globalflags.DatabaseInstance.set_Value_and_Lock("CONDBR2")
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-00"
 
@@ -37,42 +37,40 @@ from AtlasGeoModel import GeoModelInit
 
 #Get identifier mapping (needed by LArConditionsContainer)
                            
-svcMgr.IOVDbSvc.GlobalTag="LARCALIB-000-02"
+svcMgr.IOVDbSvc.GlobalTag="LARCALIB-RUN2-00"
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
 theApp.EvtMax = 1
 svcMgr.EventSelector.RunNumber = 500000
 svcMgr.EventSelector.InitialTimeStamp=int(time())
-dbname="<db>COOLOFL_LAR/COMP200</db>"
+dbname="<db>COOLOFL_LAR/CONDBR2</db>"
 
 conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>"+dbname)
 conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>"+dbname)
-conddb.addFolder("",inputfolder+"<tag>"+inputtag+"</tag><db>"+inputdb+"</db>")
+conddb.addFolder("",inputfolder+"<db>"+inputdb+"</db>")
 
 
 ## for f in LArFebConfigFolders:
 ##     conddb.addFolder("LAR_ONL",f)
 
 
-from LArCalibTools.LArCalibToolsConf import LArDSPThresholds2Ntuple
-theLArDSPThresholds2Ntuple=LArDSPThresholds2Ntuple()
-theLArDSPThresholds2Ntuple.OutputLevel=DEBUG
-theLArDSPThresholds2Ntuple.AddFEBTempInfo=False
-theLArDSPThresholds2Ntuple.OffId=True
-if "Flat" in inputfolder:
-   theLArDSPThresholds2Ntuple.DumpFlat=True
-   theLArDSPThresholds2Ntuple.FlatFolder=inputfolder
+from LArCalibTools.LArCalibToolsConf import LArDSPConfig2Ntuple
+theLArDSPConfig2Ntuple=LArDSPConfig2Ntuple()
+theLArDSPConfig2Ntuple.OutputLevel=DEBUG
+theLArDSPConfig2Ntuple.AddFEBTempInfo=False
+theLArDSPConfig2Ntuple.OffId=True
+theLArDSPConfig2Ntuple.Folder=inputfolder
 
-topSequence+=theLArDSPThresholds2Ntuple
+topSequence+=theLArDSPConfig2Ntuple
 
 
 theApp.HistogramPersistency = "ROOT"
 from GaudiSvc.GaudiSvcConf import NTupleSvc
 svcMgr += NTupleSvc()
-svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='DSPthresholds.root' OPT='NEW'" ]
+svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='DSPConfig.root' OPT='NEW'" ]
 
 #svcMgr.DetectorStore.Dump=True
-svcMgr.MessageSvc.OutputLevel = DEBUG
+svcMgr.MessageSvc.OutputLevel = INFO
 
 svcMgr.IOVDbSvc.DBInstance=""
 svcMgr.PoolSvc.ReadCatalog += ["xmlcatalog_file:/afs/cern.ch/user/l/larcalib/w0/stableConds/PoolCat_stable.xml",

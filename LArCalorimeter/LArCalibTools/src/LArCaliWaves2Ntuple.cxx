@@ -227,6 +227,7 @@ bool LArCaliWaves2Ntuple::writeEntry(const HWIdentifier chid, const unsigned gai
   if ( !m_isSC ) {
   const std::vector<HWIdentifier>& calibLineV = ((LArCablingService*)m_larCablingSvc)->calibSlotLine(chid);
   if ( calibLineV.size()>0 ) {
+    (*m_log) << MSG::DEBUG << "wave.getIsPulsedInt() " << wave.getIsPulsedInt()<<" : "<< calibLineV.size()<< endreq;
     for(int i=0;i<4;i++)
       m_pulsedCalibLines[i] = NOT_VALID;
     std::vector<HWIdentifier>::const_iterator calibLineIt = calibLineV.begin();
@@ -240,6 +241,7 @@ bool LArCaliWaves2Ntuple::writeEntry(const HWIdentifier chid, const unsigned gai
       }
       iCalibLine++;
     }
+    (*m_log) << MSG::DEBUG << "m_pulsedCalibLines: "<<m_pulsedCalibLines[0]<<"/"<<m_pulsedCalibLines[1]<<"/"<<m_pulsedCalibLines[2]<<"/"<<m_pulsedCalibLines[3]<<endreq;
   }else { 
     m_nPulsedCalibLines = 0 ;
     m_pulsedCalibLines[0] = NOT_VALID;

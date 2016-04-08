@@ -8,7 +8,7 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 LAruA2MeV2Ntuple::LAruA2MeV2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): LArCond2NtupleBase(name, pSvcLocator) { 
   declareProperty("uA2MeVKey",m_uA2MeVKey);
@@ -56,12 +56,11 @@ StatusCode LAruA2MeV2Ntuple::stop() {
 
  const ILArDAC2uA* larDAC2uAComplete;
  sc=m_detStore->retrieve(larDAC2uAComplete,m_DAC2uAKey);
- if (sc!=StatusCode::SUCCESS)
-   {(*m_log) << MSG::ERROR << "Unable to retrieve LArDAC2uAComplete with key " 
-	<< m_DAC2uAKey << " from DetectorStore" << endreq;
+ if (sc!=StatusCode::SUCCESS) {
+   (*m_log) << MSG::ERROR << "Unable to retrieve LArDAC2uAComplete with key " 
+	    << m_DAC2uAKey << " from DetectorStore" << endreq;
    return StatusCode::FAILURE;
-   } 
-
+ } 
 
  std::vector<HWIdentifier>::const_iterator itOnId = m_onlineId->channel_begin();
  std::vector<HWIdentifier>::const_iterator itOnIdEnd = m_onlineId->channel_end();
@@ -70,7 +69,7 @@ StatusCode LAruA2MeV2Ntuple::stop() {
    const HWIdentifier hwid = *itOnId;
    if (m_larCablingSvc->isOnlineConnected(hwid)) {
      uA2MeV=laruA2MeVComplete->UA2MEV(hwid);
-     DAC2uA=larDAC2uAComplete->DAC2UA(hwid);
+     if(m_DAC2uAKey != "") DAC2uA=larDAC2uAComplete->DAC2UA(hwid);
      fillFromIdentifier(hwid);
      cellIndex=cellCounter;
      sc=ntupleSvc()->writeRecord(m_nt);

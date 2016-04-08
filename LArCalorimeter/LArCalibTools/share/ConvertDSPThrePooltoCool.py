@@ -21,6 +21,7 @@ topSequence = AlgSequence()
 from AthenaCommon.GlobalFlags import  globalflags
 globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
+globalflags.DatabaseInstance="COMP200"
 
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-00"
@@ -32,6 +33,7 @@ DetFlags.Muon_setOff()
 DetFlags.Truth_setOff()
 DetFlags.LVL1_setOff()
 DetFlags.digitize.all_setOff()
+
 
 #Set up GeoModel (not really needed but crashes without)
 from AtlasGeoModel import SetGeometryVersion
@@ -54,12 +56,14 @@ conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db
 #conddb.addFolder("","/LAR/ElecCalibOnl/Pedestal<db>COOLONL_LAR/COMP200</db>")
 
 intag=join(inputfolder.split("/"),'')+"-"+inputtag
+#intag=inputtag
 conddb.addFolder("","/LAR/Configuration/DSPThreshold/Templates<db>COOLONL_LAR/COMP200</db><tag>"+intag+"</tag>")
 
 from LArCalibTools.LArCalibToolsConf import LArCompleteToFlat
 theLArCompleteToFlat=LArCompleteToFlat()
 theLArCompleteToFlat.ForceStop=False
-theLArCompleteToFlat.doDSP=True
+theLArCompleteToFlat.DSPThresholdsInput="LArDSPThresholds"
+theLArCompleteToFlat.NameOfSet = outputtag
 topSequence+=theLArCompleteToFlat
 
 
@@ -108,6 +112,6 @@ svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=DSP_test.db;dbname=COMP200"
 
 svcMgr.DetectorStore.Dump=True
 svcMgr.StoreGateSvc.Dump = True
-svcMgr.MessageSvc.OutputLevel = DEBUG
+svcMgr.MessageSvc.OutputLevel = INFO
 svcMgr.IOVDbSvc.DBInstance=""
 

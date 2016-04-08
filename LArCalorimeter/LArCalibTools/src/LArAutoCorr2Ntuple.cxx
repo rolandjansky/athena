@@ -56,6 +56,7 @@ StatusCode LArAutoCorr2Ntuple::stop() {
 
 
  unsigned cellCounter=0;
+ unsigned cellZeroCounter=0;
  for ( unsigned igain=CaloGain::LARHIGHGAIN; 
        igain<CaloGain::LARNGAIN ; ++igain ) {
    std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
@@ -75,12 +76,12 @@ StatusCode LArAutoCorr2Ntuple::stop() {
 	 (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
 	 return StatusCode::FAILURE;
        }
-     }//end if size>0
-    cellCounter++;
+       cellCounter++;
+     } else { ++cellZeroCounter;}//end if size>0
    }//end if loop over cells
  }//end if loop over gains
  
- (*m_log) << MSG::INFO << "LArAutoCorr2Ntuple has finished." << endreq;
+ (*m_log) << MSG::INFO << "LArAutoCorr2Ntuple has finished, " << cellCounter << "records written, " << cellZeroCounter << " zero length vectors" << endreq;
  return StatusCode::SUCCESS;
 }// end finalize-method.
    

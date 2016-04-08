@@ -31,7 +31,7 @@ globalflags.InputFormat="bytestream"
 
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-18-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-GEO-21-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -56,7 +56,7 @@ svcMgr.EventSelector.RunNumber = RunNumber
 
 from LArCalibTools.LArCalibToolsConf import CaloCondBlob2Ntuple
 theCaloCondBlobs2Ntuple=CaloCondBlob2Ntuple()
-theCaloCondBlobs2Ntuple.Folder="/LAR/CellCorrOfl/EnergyCorr"
+theCaloCondBlobs2Ntuple.Folder=Folder
 theCaloCondBlobs2Ntuple.AddFEBTempInfo=False
 theCaloCondBlobs2Ntuple.AddBadChannelInfo=False
 topSequence+=theCaloCondBlobs2Ntuple
@@ -68,7 +68,7 @@ else:
 if 'sqlitefile' in dir():
    conddb.addFolder("",Folder+"<db>sqlite://;schema="+sqlitefile+";dbname=COMP200</db>"+tagstring)
 else:   
-   conddb.addFolder('LAR_OFL',Folder+tagstring)
+   conddb.addFolder('LAR_ONL',Folder+tagstring)
 
 
 theApp.HistogramPersistency = "ROOT"

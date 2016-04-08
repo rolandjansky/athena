@@ -8,16 +8,16 @@
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "LArCondUtils/LArFEBTempTool.h"
-
+#include "CaloIdentifier/CaloCell_ID.h"
 
 LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator), m_initialized(false), m_nt(NULL), m_log(NULL), 
-  m_detStore(NULL), m_emId(NULL), m_hecId(NULL), m_fcalId(NULL),m_onlineId(NULL),
+  m_detStore(NULL), m_emId(NULL), m_hecId(NULL), m_fcalId(NULL),m_onlineId(NULL),m_caloId(NULL),
   m_larCablingSvc(NULL), m_badChanTool("LArBadChanTool"),m_FEBTempTool("LArFEBTempTool"), m_isSC(false)
 {
   declareProperty("BadChannelTool",m_badChanTool);
   declareProperty("AddBadChannelInfo",m_addBC=true);
-  declareProperty("AddFEBTempInfo",m_addFEBTemp=true);
+  declareProperty("AddFEBTempInfo",m_addFEBTemp=false);
   declareProperty("isSC",m_isSC);
   declareProperty("isFlat", m_isFlat=false);
   declareProperty("OffId", m_OffId=false);
@@ -82,6 +82,7 @@ StatusCode LArCond2NtupleBase::initialize() {
   m_emId=caloIdMgr->getEM_ID();
   m_fcalId=caloIdMgr->getFCAL_ID();
   m_hecId=caloIdMgr->getHEC_ID();
+  m_caloId=caloIdMgr->getCaloCell_ID();
   }
 
   if (!m_emId) {
@@ -163,11 +164,11 @@ StatusCode LArCond2NtupleBase::initialize() {
 
   //Offline-identifier variables
   if ( m_OffId ) {
-  sc=nt->addItem("offlineId",m_oflChanId,0x20000000,0x40000000);
-  if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "addItem 'channelId' failed" << endreq;
-    return StatusCode::FAILURE;
-  }
+    sc=nt->addItem("offlineId",m_oflChanId,0x20000000,0x40000000);
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << "addItem 'channelId' failed" << endreq;
+      return StatusCode::FAILURE;
+    }
   }
 
   sc=nt->addItem("barrel_ec",m_barrel_ec,0,1);
@@ -214,6 +215,7 @@ StatusCode LArCond2NtupleBase::initialize() {
     return StatusCode::FAILURE;
   }
 
+  
   if (m_addHash) {
     sc=nt->addItem("channelHash",m_chanHash,0,200000);
     if (sc!=StatusCode::SUCCESS) {
@@ -226,7 +228,15 @@ StatusCode LArCond2NtupleBase::initialize() {
       msg(MSG::ERROR) << "addItem 'febHash' failed" << endreq;
       return StatusCode::FAILURE;
     }
-  }
+
+    if (m_OffId) {
+      sc=m_nt->addItem("oflHash",m_oflHash,0,200000);
+      if (sc!=StatusCode::SUCCESS) {
+	msg(MSG::ERROR) << "addItem 'oflHash' failed" << endreq;
+	return StatusCode::FAILURE;
+      }
+    }
+  }//end-if addHash
 
 
   //Offline-ID related variables
@@ -284,10 +294,7 @@ StatusCode LArCond2NtupleBase::initialize() {
 bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
 
  m_onlChanId = hwid.get_identifier32().get_compact();
- if ( m_OffId ){
- Identifier offId = m_larCablingSvc->cnvToIdentifier(hwid);
- m_oflChanId = offId.get_identifier32().get_compact();
- }
+ 
  m_barrel_ec = m_onlineId->barrel_ec(hwid);
  m_pos_neg   = m_onlineId->pos_neg(hwid);
  m_FT        = m_onlineId->feedthrough(hwid);
@@ -310,18 +317,26 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
  m_layer=NOT_VALID;
  m_eta=NOT_VALID;
  m_phi=NOT_VALID;
+ //m_oflChanId=NOT_VALID;
+ //m_oflHash=NOT_VALID;
  if (m_addBC) m_badChanWord=0;
  bool connected=false;
 
  try {
    if (m_larCablingSvc->isOnlineConnected(hwid)) {
      Identifier id=m_larCablingSvc->cnvToIdentifier(hwid);
+     if ( m_OffId ) {
+       m_oflChanId = id.get_identifier32().get_compact();
+       if (m_addHash) 
+	 m_oflHash=m_caloId->calo_cell_hash(id);
+     }
+   
      if (m_emId->is_lar_em(id)) {
        m_eta       = m_emId->eta(id);
        m_phi       = m_emId->phi(id);
        m_layer     = m_emId->sampling(id);
        m_region    = m_emId->region(id);
-       m_detector  = fabs(m_emId->barrel_ec(id)) - 1; //0-barrel, 1-EMEC-OW, 2-EMEC-IW
+       m_detector  = std::abs(m_emId->barrel_ec(id)) - 1; //0-barrel, 1-EMEC-OW, 2-EMEC-IW
      }
      else if (m_hecId->is_lar_hec(id)) {
        m_eta       = m_hecId->eta(id);

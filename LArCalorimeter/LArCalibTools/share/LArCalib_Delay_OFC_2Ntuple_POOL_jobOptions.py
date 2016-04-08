@@ -67,7 +67,7 @@ include("AthenaPoolCnvSvc/AthenaPool_jobOptions.py")
 include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 
 if not 'DBConnectionCOOL' in dir():
-        DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=COMP200;"
+        DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
         #DBConnectionCOOL = "COOLONL_LAR/COMP200"
 
 ## define the DB Global Tag :
@@ -79,11 +79,11 @@ from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
 # Temperature folder
-conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
+#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
 
 if 'InputBadChannelSQLiteFile' in dir():
    from string import *
-   InputDBConnectionBadChannel = "sqlite://;schema="+InputBadChannelSQLiteFile+";dbname=COMP200"
+   InputDBConnectionBadChannel = "sqlite://;schema="+InputBadChannelSQLiteFile+";dbname=CONDBR2"
 else:
    InputDBConnectionBadChannel = DBConnectionCOOL
 
@@ -111,6 +111,7 @@ if ( WaveType == "Cali" ):
 	LArCaliWaves2Ntuple.DACSaturSkip = DACSaturSkip
 	LArCaliWaves2Ntuple.SaveDerivedInfo = SaveDerivedInfo
 	LArCaliWaves2Ntuple.SaveJitter      = SaveJitter
+	LArCaliWaves2Ntuple.AddFEBTempInfo  = False
 	LArCaliWaves2Ntuple.OutputLevel = INFO
 	LArCaliWaves2Ntuple.NtupleFile = "FILE1"
 
@@ -123,6 +124,7 @@ if ( WaveType == "Phys" ):
 	LArPhysWaves2Ntuple.NtupleName   = "PHYSWAVE" 
 	LArPhysWaves2Ntuple.KeyList      = [ ContainerKey ]
 	LArPhysWaves2Ntuple.SaveDerivedInfo = SaveDerivedInfo
+	LArPhysWaves2Ntuple.AddFEBTempInfo  = False
 	LArPhysWaves2Ntuple.OutputLevel = INFO
 	LArPhysWaves2Ntuple.NtupleFile = "FILE1"
 
