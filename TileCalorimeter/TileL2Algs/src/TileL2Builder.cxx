@@ -386,6 +386,7 @@ void TileL2Builder::MTagLB(int partition
 
   /* Repair for muons splitted */
 
+  if (cand >= 4) std::abort();
   for (int i = 0; i < cand; i++) {
     for (int j = 0; j < i; j++) {
       if ((cquality[i] + cquality[j]) == 0) {
@@ -444,11 +445,11 @@ void TileL2Builder::MTagLB(int partition
 
             // LBC partition
             if (partition == 1)
-              EtaMuons.push_back((eta_LB_D[eta[i]] + eta_LB_BC[k2] + eta_LB_A[k2]) / 3);
+              EtaMuons.push_back((eta_LB_D[eta[i]] + eta_LB_BC[k2] + eta_LB_A[k2]) * (1. / 3));
 
             // LBA partition
             if (partition == 2)
-              EtaMuons.push_back(-(eta_LB_D[eta[i]] + eta_LB_BC[k2] + eta_LB_A[k2]) / 3);
+              EtaMuons.push_back(-(eta_LB_D[eta[i]] + eta_LB_BC[k2] + eta_LB_A[k2]) * (1. / 3));
 
             if (eta[i] == 0 && k2 == 0) pattern = 0;  // D0, BC1, A1
             if (eta[i] == 1 && k2 == 1) pattern = 1;  // D1, BC2, A2
@@ -566,6 +567,7 @@ void TileL2Builder::MTagEB(int partition
 
   /* Repair for muons splitted */
 
+  if (cand >= 4) std::abort();
   for (int i = 0; i < cand; i++) {
     for (int j = 0; j < i; j++) {
       if ((cquality[i] + cquality[j]) == 0) {
@@ -626,11 +628,11 @@ void TileL2Builder::MTagEB(int partition
 
               // EBC partition
               if (partition == 3)
-                EtaMuons.push_back((eta_EB_D[eta[i]] + eta_EB_BC[k2] + eta_EB_A[k1]) / 3);
+                EtaMuons.push_back((eta_EB_D[eta[i]] + eta_EB_BC[k2] + eta_EB_A[k1]) * (1. / 3));
 
               // EBA partition
               if (partition == 4)
-                EtaMuons.push_back(-(eta_EB_D[eta[i]] + eta_EB_BC[k2] + eta_EB_A[k1]) / 3);
+                EtaMuons.push_back(-(eta_EB_D[eta[i]] + eta_EB_BC[k2] + eta_EB_A[k1]) * (1. / 3));
 
               if (eta[i] == 0 && k2 == 0 && k1 == 0) pattern = 0;   // D5, B11, A12
               if (eta[i] == 0 && k2 == 1 && k1 == 0) pattern = 1;   // D5, B12, A12
@@ -681,8 +683,8 @@ void TileL2Builder::SumE(int ros, int /* drawer */, int unit, float *E, int *gai
   }
 
   unit &= 3; // keep last 2 bits, remove online offset
-  float scaleHG = AMPLITUDE_FACTOR_HG[unit];
-  float scaleLG = AMPLITUDE_FACTOR_LG[unit];
+  const float scaleHG = AMPLITUDE_FACTOR_HG[unit];
+  const float scaleLG = AMPLITUDE_FACTOR_LG[unit];
   int ros1 = ros - 1;
   float* wt = m_sinThRound[ros1];
   float* wz = m_cosThRound[ros1];
@@ -711,9 +713,10 @@ void TileL2Builder::SumE(int ros, int /* drawer */, int unit, float *E, int *gai
     ++wz;
   }
 
-  sumE[0] = Et / scaleHG;
-  sumE[1] = Ez / scaleHG;
-  sumE[2] = Es / scaleHG;
+  const float inv_scaleHG = 1. / scaleHG;
+  sumE[0] = Et * inv_scaleHG;
+  sumE[1] = Ez * inv_scaleHG;
+  sumE[2] = Es * inv_scaleHG;
 }
 
 void TileL2Builder::SumE(int ros, int /* drawer */, float *E, std::vector<float> &sumE) {
