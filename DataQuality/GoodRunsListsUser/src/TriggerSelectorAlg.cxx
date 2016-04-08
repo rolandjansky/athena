@@ -15,6 +15,7 @@
 TriggerSelectorAlg::TriggerSelectorAlg(const std::string& name, ISvcLocator* pSvcLocator) 
  : AthAlgorithm(name, pSvcLocator)
  , m_TriggerRegistryTool("TriggerRegistryTool")
+ , m_tdTool("Trig::TrigDecisionTool/TrigDecisionTool")
  , m_trigpar(0)
  , m_counter(0)
  , m_accept(0)
