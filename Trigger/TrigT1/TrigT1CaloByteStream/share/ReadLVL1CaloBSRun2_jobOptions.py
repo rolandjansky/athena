@@ -9,6 +9,9 @@ if not rec.doLArg():
     include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
     include( "LArIdCnv/LArIdCnv_joboptions.py" )
 
+# Topo
+include("L1TopoByteStream/ReadLVL1CaloBSRun2_jobOptions.py")
+
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpmRoiByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepByteStreamV2Tool
