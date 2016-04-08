@@ -13,6 +13,7 @@ private
 
 use AthenaKernel        AthenaKernel-*        Control
 use AthContainers       AthContainers-*       Control
+use CxxUtils            CxxUtils-*            Control
 
 # POOL package(s):
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL

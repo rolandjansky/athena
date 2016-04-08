@@ -2,13 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODL2StandAloneMuonContainerCnv.cxx 592615 2014-04-11 14:36:58Z krasznaa $
+// $Id: xAODL2StandAloneMuonContainerCnv.cxx 706293 2015-11-06 05:34:41Z ssnyder $
 
 // System include(s):
 #include <exception>
 
 // Local include(s):
 #include "xAODL2StandAloneMuonContainerCnv.h"
+#include "xAODL2StandAloneMuonContainerCnv_v1.h"
 
 namespace {
 
@@ -61,13 +62,21 @@ xAODL2StandAloneMuonContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
    static pool::Guid v1_guid( "645BDBC3-44EE-486B-8783-96F93FA2550B" );
+   static pool::Guid v2_guid( "6B02C486-CB3B-4762-89CA-60B210FC5AAF" );
 
    // Check if we're reading the most up to date type:
-   if( compareClassGuid( v1_guid ) ) {
+   if( compareClassGuid( v2_guid ) ) {
       xAOD::L2StandAloneMuonContainer* c =
          poolReadObject< xAOD::L2StandAloneMuonContainer >();
       setStoreLink( c, m_key );
       return c;
+   }
+
+   if( compareClassGuid( v1_guid ) ) {
+     static xAODL2StandAloneMuonContainerCnv_v1 converter;
+     std::unique_ptr<xAOD::L2StandAloneMuonContainer_v1>
+       old (poolReadObject<xAOD::L2StandAloneMuonContainer_v1>());
+     return converter.createTransient (old.get(), msg());
    }
 
    // If we didn't recognise the ID, let's complain:
