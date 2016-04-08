@@ -174,7 +174,8 @@ StatusCode Trk::ReFitTrack::execute()
   }
   
   // constrainVx
-  const Trk::PerigeeSurface* constrainSf = 0;
+  std::unique_ptr<const Trk::PerigeeSurface> constrainSf;
+  std::unique_ptr<const Trk::RecVertex>      cleanup_constrainVx; 
   const Trk::RecVertex*      constrainVx = 0; 
   const VxContainer* 	     vxContainer = 0;
 
@@ -184,7 +185,8 @@ StatusCode Trk::ReFitTrack::execute()
   if (m_constrainFitMode > 0){
       if ( m_constrainFitMode > 1 ){ 
         // get vertex position and uncertainties from BeamCondSvc
-        constrainVx = new Trk::RecVertex(m_iBeamCondSvc->beamVtx());      
+        constrainVx = new Trk::RecVertex(m_iBeamCondSvc->beamVtx());   
+        cleanup_constrainVx.reset( constrainVx );
         ATH_MSG_DEBUG("Track fit with BeamSpot constraint (x/y/z)  = " 
             << constrainVx->position().x() << ", " 
             << constrainVx->position().y() << ", " 
@@ -205,7 +207,9 @@ StatusCode Trk::ReFitTrack::execute()
           }
       }
       // constrain surface (either BS of VTX)
-      constrainSf = constrainVx ? new Trk::PerigeeSurface(constrainVx->position()) : 0;
+      if (constrainVx) {
+        constrainSf.reset( new Trk::PerigeeSurface(constrainVx->position()));
+      }
   }
     
   ParticleHypothesis hypo=m_ParticleHypothesis;
@@ -250,12 +254,12 @@ StatusCode Trk::ReFitTrack::execute()
 	  // create a measurement for the beamspot
 	  if (constrainVx && origPerigee){
          // extrapolate the track to the vertex -- for consistent Measurement frame
-         const Trk::Perigee* tpConstrainedSf = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(**itr,*constrainSf,Trk::anyDirection));
-
+         std::unique_ptr<const Trk::TrackParameters> tp( m_extrapolator->extrapolate(**itr,*constrainSf,Trk::anyDirection) );
+         const Trk::Perigee* tpConstrainedSf = dynamic_cast<const Trk::Perigee*>(tp.get());
          // create the vertex/beamsptOnTrack
-         Trk::VertexOnTrack* bsvxOnTrack = tpConstrainedSf ? new Trk::VertexOnTrack(*constrainVx,*tpConstrainedSf) : 0;
+         std::unique_ptr<Trk::VertexOnTrack> bsvxOnTrack( tpConstrainedSf ? new Trk::VertexOnTrack(*constrainVx,*tpConstrainedSf) : 0 );
          std::vector<const MeasurementBase*> vec;
-         if (bsvxOnTrack) vec.push_back(bsvxOnTrack);
+         if (tpConstrainedSf) vec.push_back(bsvxOnTrack.get() );
          // get the measurmentsOnTrack
          const DataVector<const MeasurementBase>* measurementsOnTracks = (**itr).measurementsOnTrack();  
          // get the outliersOnTrack, needs sorting 
@@ -274,9 +278,6 @@ StatusCode Trk::ReFitTrack::execute()
          // refit with the beamspot / vertex
          newtrack = (trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(vec, *origPerigee, m_runOutlier,hypo);
          // now delete the vsvx
-         delete bsvxOnTrack;
-         if (!vxContainer) delete constrainVx;
-         delete tpConstrainedSf;
         
       } else 
         newtrack = (trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(**itr,m_runOutlier,hypo);
@@ -328,7 +329,6 @@ StatusCode Trk::ReFitTrack::execute()
   }
 
   // cleanup
-  delete constrainSf;
   
 
   return StatusCode::SUCCESS;
