@@ -1,0 +1,83 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file CaloIdCnv/CaloIDHelper_IDDetDescrCnv.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Aug, 2012
+ * @brief Common code for creating calo ID helpers in the detector store.
+ */
+
+
+#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/errorcheck.h"
+
+
+namespace CaloIdCnv {
+
+
+/**
+ * @brief Helper function to actually create a new helper.
+ * @param svcloc Gaudi service locator.
+ * @param helperKey The StoreGate key of the helper being created.
+ * @param idhelper[out] Set to the created helper.
+ *
+ * The default implementation just does @c new with the default constructor;
+ * however, this function may be overridden for specific types.
+ */
+template <class T>
+StatusCode make_CaloIDHelper (ISvcLocator* /*svcloc*/,
+                              const std::string& /*helperKey*/,
+                              T* & idhelper)
+{
+  idhelper = new T;
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Return the CLID of the class we create.
+ * Required by the converter infrastructure.
+ */
+template <class T>
+const CLID& CaloIDHelper_IDDetDescrCnv_T<T>::classID()
+{
+  return ClassID_traits<T>::ID();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param svcloc Gaudi service locator.
+ */
+template <class T>
+CaloIDHelper_IDDetDescrCnv_T<T>::CaloIDHelper_IDDetDescrCnv_T
+  (ISvcLocator* svcloc)
+    : CaloIDHelper_IDDetDescrCnv (classID(), svcloc)
+{
+}
+
+
+/**
+ * @brief Create the helper object.
+ * @param helperKey StoreGate key of the helper.
+ * @param idhelper[out] Set to a pointer to the new helper.
+ * @param pObj[out] Set to a reference to the created helper.
+ */
+template <class T>
+StatusCode
+CaloIDHelper_IDDetDescrCnv_T<T>::createHelper (const std::string& helperKey,
+                                               IdHelper* & idhelper,
+                                               DataObject*& pObj)
+{
+  T* helper = 0;
+  CHECK( make_CaloIDHelper (serviceLocator(), helperKey, helper) );
+  idhelper = helper;
+  pObj = SG::asStorable(helper);
+  return StatusCode::SUCCESS; 
+}
+
+
+} // namespace CaloIdCnv
