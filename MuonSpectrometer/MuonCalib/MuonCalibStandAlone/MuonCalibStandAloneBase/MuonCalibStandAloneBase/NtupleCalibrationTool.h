@@ -6,7 +6,7 @@
 #define _NtupleCalibrationTool_H
 
 // Gaudi
-#include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/IAlgTool.h"
 
 //c - c++
 #include <string>
