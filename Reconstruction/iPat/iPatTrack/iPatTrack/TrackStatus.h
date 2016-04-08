@@ -11,15 +11,7 @@
 #ifndef IPATTRACK_TRACKSTATUS_H
 # define IPATTRACK_TRACKSTATUS_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
-#ifdef HAVE_NEW_IOSTREAMS
-  #include <iostream>
-#else
-  #include <iostream.h>
-#endif
-
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
+#include <iostream>
 
 enum  TrackStatus
 {
