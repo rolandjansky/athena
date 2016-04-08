@@ -1,0 +1,4 @@
+#/bin/sh
+export ATN_HOME=/afs/cern.ch/atlas/software/dist/nightlies/atn
+export NICOS_HOME=/afs/cern.ch/atlas/software/dist/nightlies/nicos_0_42
+$ATN_HOME/atn_job TestRelease

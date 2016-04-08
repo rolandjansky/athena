@@ -1,0 +1,12 @@
+#!/bin/sh
+cd ${NICOS_RELHOME}
+if [ -d qmtest ]; then
+rm -rf qmtest
+fi
+mkdir qmtest
+source ${NICOS_HOME}/nicos_qmtest_ini
+${NICOS_HOME}/nicos_qmtest_config.py -r ${NICOS_PROJECT_RELNAME}
+cd qmtest
+qmtest run -o nicos_inttest.loglog
+qmtest summarize -f stats results-rh73_gcc32.qmr > stat_summary
+qmtest summarize -f full results-rh73_gcc32.qmr > stat_full

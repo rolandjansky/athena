@@ -1,0 +1,197 @@
+#!/bin/sh
+#
+# ATN[ight], ATLAS Testing Nightly
+# Author Alex Undrus <undrus@bnl.gov>
+# 
+# ----------------------------------------------------------
+# atn_job : atn executable
+# ----------------------------------------------------------
+#
+
+if [ "$#" -ne 1 ]; then
+    echo "atn_job: only one argument is allowed, instead $# specified"
+    exit 1
+fi
+
+step=0
+package=$1; shift
+ATN_TEST_PACKAGE=$package
+export ATN_TEST_PACKAGE
+
+#SCRATCH LOGS ALL THE TIME
+NICOS_LOG_SCRATCH="yes"
+export NICOS_LOG_SCRATCH
+
+if [ "${NICOS_HOME}" = "" ]; then
+echo "atn_job: NICOS_HOME variable is not defined, "
+echo "           please set before running ATN jobs"
+exit 1
+fi
+
+if [ "${ATN_HOME}" = "" ]; then
+echo "atn_job: ATN_HOME variable is not defined, "
+echo "           please set before running ATN jobs"
+exit 1
+fi
+
+NICOS_SUFFIX="opt"
+if [ "${CMTCONFIG}" != "" ]; then
+NICOS_SUFFIX=`echo $CMTCONFIG | cut -f4 -d"."`
+fi
+#export NICOS_CONFIG_AREA=${ATN_HOME}/atn_config_area${NICOS_SUFFIX}
+export NICOS_CONFIG_AREA=${ATN_HOME}/atn_config_area
+if [ ! -d "${NICOS_CONFIG_AREA}" ]; then
+echo "atn_job: configuration directory ${NICOS_CONFIG_AREA} "
+echo "           is missing"
+exit 1
+fi
+if [ ! -f "${NICOS_CONFIG_AREA}/nicos_cache" ]; then
+echo "atn_job: nicos_cache is missing from configuration directory"
+echo "           ${NICOS_CONFIG_AREA}"
+exit 1
+fi
+
+if [ "${CMTPATH}" = "" ]; then
+echo "atn_job: CMTPATH is not defined"
+echo "           please set before running ATN jobs"
+exit 1
+fi
+
+export NICOS_RELHOME=`echo $CMTPATH | cut -f1 -d":"`
+if [ "${NICOS_RELHOME}" = "" -o ! -d "${NICOS_RELHOME}" ]; then
+echo "atn_job: first path in $CMTPATH : ${NICOS_RELHOME}"
+echo "            must be existing directory of your work release"
+exit 1
+fi
+NICOS_WORK_AREA=/tmp/atn_work_area_$$
+export NICOS_WORK_AREA
+rm -rf /tmp/atn_work_area* 2>&1 > /dev/null 
+#if [ -d ${NICOS_WORK_AREA} ]; then rm -rf ${NICOS_WORK_AREA}; fi
+mkdir -p ${NICOS_WORK_AREA}
+
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/start_date
+if [ -f ${NICOS_WORK_AREA}/end_date ]; then 
+rm -f ${NICOS_WORK_AREA}/end_date; fi
+touch ${NICOS_WORK_AREA}/end_date
+
+cd ${NICOS_WORK_AREA}
+brbr=3
+if [ "$brbr" -eq 3 ]; then
+source ${NICOS_HOME}/nicos_config; stat=$?
+#if [ "$stat" -ne 0 ]; then 
+#echo "nicos_job:  NICOS failed at configuration"; exit 1  
+#fi
+${NICOS_HOME}/nicos_copy_progress_informer 0
+${NICOS_HOME}/nicos_progress_informer 0 
+${NICOS_HOME}/nicos_indexgen.pl ${NICOS_WORK_AREA}/nicos_projectpage.html > /dev/null 2>&1
+cp -p ${NICOS_WORK_AREA}/nicos_projectpage.html ${NICOS_WEBDIR}/.
+cd ${NICOS_WEBDIR}
+if [ -f index.html ]; then rm -f index.html; fi
+ln -s nicos_projectpage.html index.html
+cp -p ${NICOS_HOME}/doc/html/unavailable.html ${NICOS_WEBDIR}/.
+touch unavailable.html
+
+if [ "${NICOS_PROJECT_RELNUMB_COPY}" = "" ]; then
+
+if [ -f ${NICOS_WEBDIR}/nicos_buildsummary.html ]; then
+   rm -f ${NICOS_WEBDIR}/nicos_buildsummary.html
+fi
+if [ -f ${NICOS_WEBDIR}/nicos_buildsummary1.html ]; then
+   rm -f ${NICOS_WEBDIR}/nicos_buildsummary1.html
+fi
+if [ -f ${NICOS_WEBDIR}/nicos_buildsummary2.html ]; then
+   rm -f ${NICOS_WEBDIR}/nicos_buildsummary2.html
+fi
+
+ln -s unavailable.html ${NICOS_WEBDIR}/nicos_buildsummary.html
+ln -s unavailable.html ${NICOS_WEBDIR}/nicos_buildsummary1.html
+ln -s unavailable.html ${NICOS_WEBDIR}/nicos_buildsummary2.html
+else
+
+if [ -f ${NICOS_WEBDIR}/nicos_buildsummary_${NICOS_PROJECT_RELNUMB_COPY}.html ]; then 
+   rm -f ${NICOS_WEBDIR}/nicos_buildsummary_${NICOS_PROJECT_RELNUMB_COPY}.html
+fi
+if [ -f ${NICOS_WEBDIR}/nicos_buildsummary1_${NICOS_PROJECT_RELNUMB_COPY}.html ]; then
+   rm -f ${NICOS_WEBDIR}/nicos_buildsummary1_${NICOS_PROJECT_RELNUMB_COPY}.html
+fi
+if [ -f ${NICOS_WEBDIR}/nicos_buildsummary2_${NICOS_PROJECT_RELNUMB_COPY}.html ]; then
+   rm -f ${NICOS_WEBDIR}/nicos_buildsummary2_${NICOS_PROJECT_RELNUMB_COPY}.html
+fi
+
+ln -s unavailable.html ${NICOS_WEBDIR}/nicos_buildsummary_${NICOS_PROJECT_RELNUMB_COPY}.html 
+ln -s unavailable.html ${NICOS_WEBDIR}/nicos_buildsummary1_${NICOS_PROJECT_RELNUMB_COPY}.html
+ln -s unavailable.html ${NICOS_WEBDIR}/nicos_buildsummary2_${NICOS_PROJECT_RELNUMB_COPY}.html
+fi
+
+cd ${NICOS_WORK_AREA}
+
+if [ "$step" -le 1 ]; then 
+if [ "${NICOS_RELEASETOOLSETUP_COMMAND}" = "source" ]; then
+source ${NICOS_HOME}/nicos_toolinit >> ${NICOS_WORK_AREA}/nicos_toolinit.loglog; stat=$?
+else
+${NICOS_HOME}/nicos_toolinit >> ${NICOS_WORK_AREA}/nicos_toolinit.loglog  2>&1; stat=$?
+fi
+#stat=0
+if [ "$stat" -ne 0 ]; then 
+echo "nicos_job:  NICOS failed at initialization of release tool"; exit 1  
+fi
+${NICOS_HOME}/nicos_progress_informer 1
+fi
+
+# touch tags db 
+if [ ! -f ${NICOS_WORK_AREA}/atlas_tags.db_gen_res ]; then
+touch ${NICOS_WORK_AREA}/atlas_tags.db_gen_res
+fi
+
+# page maker
+if [ -f $NICOS_WORK_AREA/nicos_prepage ]; then rm -f $NICOS_WORK_AREA/nicos_prepage; fi
+if [ -f $NICOS_WORK_AREA/nicos_testprepage ]; then rm -f $NICOS_WORK_AREA/nicos_testprepage; fi 
+if [ -f $NICOS_WORK_AREA/nicos_qaprepage ]; then rm -f $NICOS_WORK_AREA/nicos_qaprepage; fi
+if [ -f $NICOS_WORK_AREA/nicos_loghandler_report ]; then rm -f $NICOS_WORK_AREA/nicos_loghandler_report; fi
+touch $NICOS_WORK_AREA/nicos_prepage
+touch $NICOS_WORK_AREA/nicos_testprepage
+touch $NICOS_WORK_AREA/nicos_qaprepage
+touch $NICOS_WORK_AREA/nicos_loghandler_report
+${NICOS_HOME}/nicos_pagemaker.pl >> ${NICOS_LOG} 2>&1;
+ 
+if [ "$step" -le 7 ]; then 
+${NICOS_HOME}/nicos_inttests >> ${NICOS_TESTLOG} 2>&1; stat=$?
+#${NICOS_HOME}/nicos_inttests; stat=$?
+if [ "$stat" -ne 0 ]; then 
+echo "nicos_job:  NICOS failed at integrated tests"; exit 1  
+fi
+${NICOS_HOME}/nicos_progress_informer 7
+fi
+
+export NICOS_MAIL="no"
+
+if [ "$step" -le 8 ]; then 
+${NICOS_HOME}/nicos_errorhandler >> ${NICOS_LOG} 2>&1; stat=$? 
+if [ "$stat" -ne 0 ]; then 
+echo "nicos_job:  NICOS failed while handling errors information"; exit 1  
+fi
+${NICOS_HOME}/nicos_progress_informer 8
+fi
+
+if [ "$step" -le 9 ]; then 
+${NICOS_HOME}/nicos_pagemaker.pl >> ${NICOS_LOG} 2>&1; stat=$?
+if [ "$stat" -ne 0 ]; then 
+echo "nicos_job:  NICOS failed while generating web pages with results"; 
+exit 1  
+fi
+fi
+date +"%m/%d %H:%M" > ${NICOS_WORK_AREA}/end_date
+${NICOS_HOME}/nicos_progress_informer 9
+rm -rf /tmp/atn_work_area* 2>&1 > /dev/null
+
+fi
+
+
+
+
+
+
+
+
+
+

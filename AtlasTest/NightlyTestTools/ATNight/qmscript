@@ -1,0 +1,12 @@
+#!/bin/sh
+release=$1
+shift
+cd /afs/cern.ch/atlas/software/dist/nightlies/rel/$release
+if [ -d qmtest ]; then
+rm -rf qmtest
+fi
+mkdir qmtest
+source /afs/cern.ch/atlas/software/dist/nightlies/nicos/atlas/lcgspi.sh
+/afs/cern.ch/atlas/software/dist/nightlies/nicos/atlas/atlas-qmtest-config.py -r $release 
+cd qmtest
+qmtest run -o test_results.log

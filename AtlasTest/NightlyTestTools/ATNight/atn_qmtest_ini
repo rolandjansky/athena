@@ -1,0 +1,82 @@
+#!/bin/sh
+# set environment for LCG qmtest tool
+#
+# usage: ./nicos_qmtest_ini
+#
+
+prevdir=`pwd`
+DIR_FOR_REQ=/tmp/tmp_req
+if [ "$NICOS_SUFFIX" != "" ]; then
+DIR_FOR_REQ=/tmp/tmpdir_req_${NICOS_SUFFIX}
+fi
+
+if [ ! -d "$DIR_FOR_REQ" ]; then
+mkdir -p $DIR_FOR_REQ
+fi
+
+# Setup CMT if needed
+
+which cmt 2>&1 | grep "no cmt" > /dev/null ; statc=$?
+
+if [ "$statc" -eq 0 -o "$CMTROOT" = "" ]; then
+if [ "${ATLAS_BASE_RELEASE}" = "" ]; then
+export ATLAS_BASE_RELEASE="latest"
+fi
+
+echo ${ATLAS_BASE_RELEASE} | grep 'atlrel_[0-9]$' > /dev/null 2>&1; statn=$?
+
+cd $DIR_FOR_REQ
+
+if [ "$statn" -ne 0 ]; then
+cat > requirements <<EOF
+set CMTSITE CERN
+macro ATLAS_DIST_AREA "/afs/cern.ch/atlas/software/dist"
+macro ATLAS_RELEASE ${ATLAS_BASE_RELEASE}
+use AtlasSettings v* /afs/cern.ch/atlas/software/dist
+EOF
+else
+cat > requirements <<EOF
+set CMTSITE CERN
+macro ATLAS_DIST_AREA "/afs/cern.ch/atlas/software/dist"
+macro ATLAS_RELEASE nightlies/rel/${ATLAS_BASE_RELEASE}
+use AtlasSettings v* /afs/cern.ch/atlas/software/dist
+EOF
+fi
+
+source /afs/cern.ch/atlas/scripts/setup_cmt_cern.sh -a ${ATLAS_BASE_RELEASE} opt
+
+fi # if [ "$statc" -eq 0 -o "$CMTROOT" = "" ]; then
+
+rm -rf $DIR_FOR_REQ
+
+pyth_path=`$NICOS_HOME/nicos_path_cleaner.pl $PYTHONPATH PyXML`
+export PYTHONPATH="$pyth_path"
+
+cd $prevdir
+
+if [ "$SITEROOT" = "" ]; then SITEROOT="/afs/cern.ch"; fi
+LCG_ROOT="${SITEROOT}/sw/lcg"
+if [ "CMTSITE" = "BNL" ]; then LCG_ROOT="${SITEROOT}/cernsw/lcg"; fi
+
+echo $CMTCONFIG | grep slc > /dev/null 2>&1; stat=$?
+
+if [ "$stat" = "1" ]; then 
+export PATH=/usr/bin:${LCG_ROOT}/external/Python/2.2.2/rh73_gcc32/bin:${LCG_ROOT}/external/QMtest/2.0.3/rh73_gcc32/bin:/usr/local/gcc-alt-3.2/bin:$PATH
+export LD_LIBRARY_PATH=/usr/lib:${LCG_ROOT}/external/Python/2.2.2/rh73_gcc32/lib:/usr/local/gcc-alt-3.2/lib:$LD_LIBRARY_PATH
+else
+export PATH=/usr/bin:${LCG_ROOT}/external/Python/2.3.4/slc3_gcc323/bin:${LCG_ROOT}/external/QMtest/2.2.1/slc3_gcc323/bin:$PATH
+export LD_LIBRARY_PATH=/usr/lib:${LCG_ROOT}/external/Python/2.3.4/slc3_gcc323/lib:$LD_LIBRARY_PATH
+fi
+#export SCRAM_ARCH=rh73_gcc32
+
+# the string 0.3.1 is modified automatically by the release script
+export LCGSPI_VERSION=0.3.1
+
+export LCGSPI_TOP=${LCG_ROOT}/app/spi
+export LCGSPI_RELDIR=${LCGSPI_TOP}/tools/${LCGSPI_VERSION}
+
+export PATH=${LCGSPI_RELDIR}/scripts:${PATH}
+
+export PYTHONPATH=${LCGSPI_RELDIR}/python:${PYTHONPATH}
+unset PYTHONHOME
+ 

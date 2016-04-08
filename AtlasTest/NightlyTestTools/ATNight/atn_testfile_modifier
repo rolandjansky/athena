@@ -1,0 +1,13 @@
+#!/bin/sh
+testfile=$1
+shift
+#echo "atn_testfile_modifier: file $testfile"
+chmod +x $testfile
+cat $testfile | grep "AtlasRelease/\*/cmt" > /dev/null 2>&1 ; stat=$? 
+cat $testfile | grep "AthenaCommon/\*/share" > /dev/null 2>&1 ; stat1=$?
+#echo "SSSS $stat"
+if [ "$stat" -eq 0 -o "$stat1" -eq 0 ]; then
+mv ${testfile} ${testfile}_orig 
+${ATN_HOME}/atn_placeholder.pl ${testfile}_orig ${testfile}
+chmod +x $testfile
+fi
