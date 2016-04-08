@@ -2,24 +2,20 @@
 #
 #
 #
-MAGH = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"mag_vs_LB","noFit",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(MAGH, outputDir+"/"+"MagnitudeVsLB."+oFext, "Distortion magnitude", "Magnitude [#mu m]", "LumiBlock", 0.15, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)
-
-
 PIXX0 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXX0, outputDir+"/"+"PIXIBL_X."+oFext, "Pixel Barrel IBL", "Number of hits on tracks",
-          "Local x residual [mm]", 0.15, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)
+DrawPlots(PIXX0, outputDir+"/"+"PIXIBL_X."+oFext, "Pixel Barrel IBL", "#hits on track",
+          "Local x residual [mm]", 0.17, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)
 
 DrawEvolutionPlot(PIXX0, outputDir+"/"+"Evol_PIXIBL_X."+oFext, "Pixel Barrel IBL", "Mean local x residual [mm]", 0.15, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)
 
 PIXY0 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXY0, outputDir+"/"+"PIXIBL_Y."+oFext, "Pixel Barrel IBL", "Number of hits on tracks",
-          "Local y residual [mm]", 0.15, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)
+DrawPlots(PIXY0, outputDir+"/"+"PIXIBL_Y."+oFext, "Pixel Barrel IBL", "#hits on track",
+          "Local y residual [mm]", 0.17, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)
 
 #
 
 IBL_xRESvsETA =  MakeProfPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b0_xresvsmodetaphi_3d", "noFit", rootFiles, nFiles, True)
-DrawPlots(IBL_xRESvsETA, outputDir+"/"+"IBL_xRESvsETA."+oFext, "IBL", "Average local x residual",
+DrawPlots(IBL_xRESvsETA, outputDir+"/"+"IBL_xRESvsETA."+oFext, "IBL", "Average local x residual [mm]",
           "ring along stave [#eta-index]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.60,0.88, False) # 0.41, 0.40
 
 IBL_yRESvsETA =  MakeProfPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b0_yresvsmodetaphi_3d", "noFit", rootFiles, nFiles, True)
@@ -66,21 +62,21 @@ DrawPlots(PIXIBL_Planar_yRES, outputDir+"/"+"PIXIBL_Planar_yRES."+oFext, "IBL Pl
 
 for stave in range(14): 
     IBLStave = MakeProfPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b0_xresvsmodetaphi_3d", "noFit", rootFiles, nFiles, True, stave+1, stave+1) 
-    DrawPlots(IBLStave, outputDir+"/"+"IBL_xRESvsETA_stave"+str(stave)+"."+oFext, "IBL stave "+str(stave), "Average local x residual [mm]",
+    DrawPlots(IBLStave, outputDir+"/"+"IBL_xRESvsETA_stave"+str(stave+1)+"."+oFext, "IBL stave "+str(stave+1), "Average local x residual [mm]",
               "ring along stave [#eta-index]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.60, 0.88, False)
 
     IBLStave = MakeModuleResPlotsFrom3D  (residualsDir,legendTitles,markerColors,markerStyles, "pix_b0_xresvsmodetaphi_3d", 
                                          "noFitWithStats", rootFiles, nFiles, True, stave+1)
-    DrawPlots(IBLStave, outputDir+"/"+"IBL_xRES_stave"+str(stave)+"."+oFext, "IBL stave "+str(stave), "Hits", "Local x residual [#mum]",
+    DrawPlots(IBLStave, outputDir+"/"+"IBL_xRES_stave"+str(stave+1)+"."+oFext, "IBL stave "+str(stave), "Hits", "Local x residual [#mum]",
               0.18, 0.88, "#mum", canvasText, makeOutput, 0.65, 0.89, True)
 
     IBLStave = MakeProfPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b0_yresvsmodetaphi_3d", "noFit", rootFiles, nFiles, True, stave+1, stave+1) 
-    DrawPlots(IBLStave, outputDir+"/"+"IBL_yRESvsETA_stave"+str(stave)+"."+oFext, "IBL stave "+str(stave), "Average local y residual [mm]",
+    DrawPlots(IBLStave, outputDir+"/"+"IBL_yRESvsETA_stave"+str(stave+1)+"."+oFext, "IBL stave "+str(stave+1), "Average local y residual [mm]",
               "ring along stave [#eta]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.65,0.89, False)
 
     IBLStave = MakeModuleResPlotsFrom3D  (residualsDir,legendTitles,markerColors,markerStyles, "pix_b0_yresvsmodetaphi_3d", 
                                          "noFitWithStats", rootFiles, nFiles, True, stave+1)
-    DrawPlots(IBLStave, outputDir+"/"+"IBL_yRES_stave"+str(stave)+"."+oFext, "IBL stave "+str(stave), "Hits", "Local y residual [#mum]",
+    DrawPlots(IBLStave, outputDir+"/"+"IBL_yRES_stave"+str(stave+1)+"."+oFext, "IBL stave "+str(stave+1), "Hits", "Local y residual [#mum]",
               0.18, 0.88, "#mum", canvasText, makeOutput, 0.65, 0.89, True)
 
 # stave bending plot for upper staves
@@ -95,13 +91,17 @@ DrawPlots(IBLStave, outputDir+"/"+"IBL_xRESvsETA_stave_lower."+oFext, "Lower IBL
 IBL_xSagitta =  MakexResSagittaPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b0_xresvsmodetaphi_3d", "noFit", rootFiles, nFiles, False)
 DrawPlots(IBL_xSagitta, outputDir+"/IBL_xSagitta."+oFext, "IBL", "Local x residual Sagitta [#mum]",
           "sector [#stave]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.60, 0.88, False)
+
+
+MAGH = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"mag_vs_LB","noFit",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(MAGH, outputDir+"/"+"MagnitudeVsLB."+oFext, "Distortion magnitude", "Magnitude [#mu m]", "LumiBlock", 0.15, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)
+
+if (userExtended):
+    IBLvsLB = MakePlots2D(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_resXvsetaLumiBlock",rootFiles,nFiles)
+    DrawPlots2D(IBLvsLB,outputDir+"/","IBL_resXvsetaLumiBlock."+oFext,"LumiBlock","Local X residual",0.18,0.88,"[mm]",canvasText,True)
     
-IBLvsLB = MakePlots2D(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_resXvsetaLumiBlock",rootFiles,nFiles)
-DrawPlots2D(IBLvsLB,outputDir+"/","IBL_resXvsetaLumiBlock."+oFext,"LumiBlock","Local X residual",0.18,0.88,"[mm]",canvasText,True)
-
-
-IBLvsLB_planars = MakePlots2D(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_resXvsetaLumiBlock_planars",rootFiles,nFiles)
-DrawPlots2D(IBLvsLB,outputDir+"/","IBL_resXvsetaLumiBlock_planars."+oFext,"LumiBlock","Local X residual",0.18,0.88,"[mm]",canvasText,True)
+    IBLvsLB_planars = MakePlots2D(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_resXvsetaLumiBlock_planars",rootFiles,nFiles)
+    DrawPlots2D(IBLvsLB,outputDir+"/","IBL_resXvsetaLumiBlock_planars."+oFext,"LumiBlock","Local X residual",0.18,0.88,"[mm]",canvasText,True)
 
 
 if (userExtended):

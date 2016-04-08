@@ -4,25 +4,75 @@
 # in this file the user configures the input files, the directories from where the histograms are imported and the kind of output
 #
 
-outputDir = "../plots_Wills" # this sets the output directory where plot gifs will be saved
+outputDir = "../plots" # this sets the output directory where plot gifs will be saved
 
 # output type
 oFext="png" # output file extention without the dot
 if (userPDF): oFext="pdf"
 
-# specify the ROOT histogram files containing the monitoring plots here
-
-### NEW METHODIn
-
-SetNextInputFile("/afs/cern.ch/work/p/pbutti/public/20.1.6.4/run_L3/ResolvedTracks/AlignedL2/collisions/TotalMonitoring.root", "afterL2", kFullCircle, kRed+2,"ResolvedTracks_alignSelection","run_279169")
-SetNextInputFile("/afs/cern.ch/work/p/pbutti/public/20.1.6.4/run_L3/ResolvedTracks/AlignedL3/collisions/TotalMonitoring.root", "afterL3", kOpenSquare, kAzure+1,"ResolvedTracks_alignSelection","run_279169")
-#SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runLB/Iter0_281411_0018/collisions/TotalMonitoring.root", "281411_0018", kFullCircle, kAzure,"Tracks_alignSelection","run_281411")
-
 ####
-canvasText   = ["Align Tracks", "","",""] #specifies additional canvas text
+canvasText   = ["Run 284285", "After L11", "AlignTracks",""] #specifies additional canvas text
     
 normaliseHistos = True # set to true if you want to normalise to same area
 unitArea = False # set to true if you want to draw residual histos to unit area
+
+    
+# specify the ROOT histogram files containing the monitoring plots here
+
+SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/Nov15Align/runAlign/Run_284484/Iter0_284484_L11/collisions/TotalMonitoring.root", "Initial 25NS", kFullCircle, kRed+1,"AlignTracks_all","run_284484")
+SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/Nov15Align/runAlign/Run_284484/Iter1_284484_L11/collisions/TotalMonitoring.root", "After L11", kOpenSquare, kGray+3,"AlignTracks_all","run_284484")
+
+
+# when arguments are passed from command line
+print "Number of input files = ", len(userInputFiles)
+if (len(userInputFiles)>0):
+    # clean current list
+    theInputFileList[:]= []
+    theMarkerList[:] = []
+    theColorList[:] = []
+    theLegendList[:] = []
+    thePrefix[:] = []
+    
+    # define parameters
+    basicTrackCollection = "AlignTracks_all"
+    if (len(userInputTrackCollection)>0): basicTrackCollection = userInputTrackCollection[0]
+
+    if (len(userInputFolder)==0):
+        print " ** ERROR ** no input folder given. Please provide an input folder ** "
+        exit()
+    else:
+        print " --> userInputFolder:", userInputFolder
+        basicInputFolder = userInputFolder[0]
+        
+    for i in range(len(userInputFiles)):
+        defaultLabel = "File_"+str(i+1)
+        defaultMarker = kOpenCircle
+        defaultColor = kGray+3
+        defaultTrackCollection = basicTrackCollection
+        defaultInputFolder = basicInputFolder
+        
+        thisLabel = defaultLabel
+        if (i+1<len(userInputLabels)): thisLabel = userInputLabels[i]
+
+        thisMarker = defaultMarker
+        if (i+1<len(userInputMarkers)): thisMarker = userInputMarkers[i]
+
+        thisTrackCollection = defaultTrackCollection 
+        if (i+1<len(userInputTrackCollection)): thisTrackCollection = userInputTrackCollection[i]   
+
+        thisInputFolder = defaultInputFolder
+        if (i+1<len(userInputFolder)): thisInputFolder = userInputFolder[i]   
+
+        if (False):    
+            print " file ", i, " --> ", userInputFiles[i]
+            print "         label  --> ", thisLabel
+            print "         marker --> ", thisMarker
+            print "         color  --> ", defaultColor
+            print "         trks   --> ", thisTrackCollection
+            print "         folder --> ", thisInputFolder
+        
+        SetNextInputFile(userInputFiles[i], thisLabel, thisMarker, defaultColor, thisTrackCollection, thisInputFolder)
+
 
 #following array determines ROOT file folders. 
 # Silicon (IBL, PIX & SCT residuals)

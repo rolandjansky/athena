@@ -886,7 +886,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   float z_axis[20] = {-322.8975, -301.7925, -280.6875,-259.5825,-228.2775,-186.7725,-145.2675,-103.7625,-62.2575,-20.7525,20.7525,62.2575,103.7625,145.2675,186.7725,228.2775,259.5825,280.6875,301.7925,322.8975};
   float m_z_fix;
   int m_minIBLhits;
-  
+  bool m_doIBLLBPlots;
 };
 
 #endif

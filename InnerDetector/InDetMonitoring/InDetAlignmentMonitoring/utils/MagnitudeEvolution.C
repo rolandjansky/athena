@@ -52,6 +52,7 @@ void ME_finalize()
   ME_plotEvolutionHistos();
   ME_plotHistosPerStave();
   ME_writeOutputTextFile();
+  ME_plotDeltaBx();
   ME_goodbye();
   return;
 }
@@ -109,7 +110,42 @@ void ME_getMonitoringFileList()
   // me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281411/data15_13TeV.00281411.calibration_IDTracks.idalignmerge.ROOT_MON.Iter2.c0/data15_13TeV.00281411.calibration_IDTracks.idalignmerge.ROOT_MON.Iter2.c0._0001.1"); me_runNumber.push_back(281411);
   // me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281411/data15_13TeV.00281411.calibration_IDTracks.idalignmerge.ROOT_MON.Iter3.c0/data15_13TeV.00281411.calibration_IDTracks.idalignmerge.ROOT_MON.Iter3.c0._0001.1"); me_runNumber.push_back(281411);
   //
-  // me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281411/data15_13TeV.00281411.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00281411.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(281411);
+  
+  /*
+  // Runs with no run number in the heading
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00279598/data15_13TeV.00279598.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00279598.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(279598);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00279685/data15_13TeV.00279685.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00279685.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(279685);
+ me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00279764/data15_13TeV.00279764.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00279764.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(279764);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00279813/data15_13TeV.00279813.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00279813.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(279813);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00279867/data15_13TeV.00279867.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00279867.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(279867);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00279932/data15_13TeV.00279932.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00279932.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(279932);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00279984/data15_13TeV.00279984.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00279984.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(279984);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280231/data15_13TeV.00280231.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280231.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280231);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280319/data15_13TeV.00280319.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280319.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280319);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280368/data15_13TeV.00280368.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280368.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280368);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280423/data15_13TeV.00280423.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280423.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280423);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280464/data15_13TeV.00280464.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280464.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280464);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280500/data15_13TeV.00280500.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280500.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280500);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280520/data15_13TeV.00280520.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280520.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280520);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280614/data15_13TeV.00280614.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280614.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280614);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280673/data15_13TeV.00280673.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280673.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280673);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280753/data15_13TeV.00280753.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280753.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280753);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280853/data15_13TeV.00280853.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280853.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280853);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280862/data15_13TeV.00280862.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280862.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280862);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280950/data15_13TeV.00280950.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280950.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280950);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00280977/data15_13TeV.00280977.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00280977.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(280977);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281070/data15_13TeV.00281070.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00281070.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(281070);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281074/data15_13TeV.00281074.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00281074.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(281074);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281075/data15_13TeV.00281075.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00281075.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(281075);
+  // end of list of runs without run number in the heading 
+
+ me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281130/data15_13TeV.00281130.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00281130.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(281130);
+ me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281143/data15_13TeV.00281143.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00281143.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(281143);
+ me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281317/data15_13TeV.00281317.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00281317.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(281317);
+ me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281381/data15_13TeV.00281381.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00281381.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(281381);
+ me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281385/data15_13TeV.00281385.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00281385.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(281385);
+ me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281411/data15_13TeV.00281411.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00281411.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(281411);
+  
   me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00282625/data15_13TeV.00282625.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00282625.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(282625);
   me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00282631/data15_13TeV.00282631.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00282631.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(282631);
   me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00282712/data15_13TeV.00282712.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00282712.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(282712);
@@ -118,6 +154,18 @@ void ME_getMonitoringFileList()
   me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00283074/data15_13TeV.00283074.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00283074.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(283074);
   me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00283155/data15_13TeV.00283155.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00283155.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(283155);
   me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00283270/data15_13TeV.00283270.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00283270.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(283270);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00283429/data15_13TeV.00283429.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00283429.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(283429);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00283608/data15_13TeV.00283608.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00283608.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(283608);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00283780/data15_13TeV.00283780.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00283780.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(283780);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00284006/data15_13TeV.00284006.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00284006.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(284006);
+ 
+ me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00284154/data15_13TeV.00284154.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00284154.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(284154);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00284213/data15_13TeV.00284213.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00284213.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(284213);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00284285/data15_13TeV.00284285.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00284285.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(284285);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00284420/data15_13TeV.00284420.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00284420.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(284420);
+ me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00284427/data15_13TeV.00284427.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00284427.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(284427);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00284484/data15_13TeV.00284484.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0/data15_13TeV.00284484.calibration_IDTracks.idalignmerge.ROOT_MON.Iter0.c0._0001.1"); me_runNumber.push_back(284484);
+  */
   //
   //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280319_Part11/collisions/TotalMonitoring.root");
   //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280319_Part12/collisions/TotalMonitoring.root");
@@ -125,6 +173,16 @@ void ME_getMonitoringFileList()
   //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280319_Part14/collisions/TotalMonitoring.root");
   //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280319_Part15/collisions/TotalMonitoring.root");
   //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280319_Part06/collisions/TotalMonitoring.root");
+
+  //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/BowTest/runTest/Iter0_284213_BX_25NS/collisions/TotalMonitoring.root"); me_runNumber.push_back(284213);
+  //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/BowTest/runTest/Iter2_284213_BX_25NS/collisions/TotalMonitoring.root"); me_runNumber.push_back(284213);
+  //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/BowTest/runTest/Iter1_L16_284213_LB_301_400/collisions/TotalMonitoring.root"); me_runNumber.push_back(284213);  
+  //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/BowTest/runTest/Iter1_L16_284213_LB_301_400/collisions/TotalMonitoring.root"); me_runNumber.push_back(284213); 
+  //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/BowTest/runTest/Iter0_284213_GEO15/collisions/TotalMonitoring.root"); me_runNumber.push_back(284213);
+
+  /* INPUT from L11 & L16 IDAlignment for 2015 data reprocessing */ 
+  me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/BowTest/runTest/Iter0_280423_L11/collisions/TotalMonitoring.root"); me_runNumber.push_back(280423);
+
 
   /*
   // now, for all files, extract run number... this method will depend on the way the file name is given  
@@ -225,15 +283,22 @@ void ME_processFile(int fileid)
   // retrieve the IBL 3D residuals histo: residuals (z) vs module phi (y) and module eta (x)
   TString h_path = "run_"; 
   h_path += me_runNumber.at(fileid); // add run number
+
+  h_path.Clear(); // --> for monitoring files without run number in the path 
+
   //h_path.Append("/IDAlignMon/InDetTrackParticles_AlignSel/Residuals/pix_b0_xresvsmodetaphi_3d");
   //h_path.Append("/IDAlignMon/AlignTracks_all/Residuals/pix_b0_xresvsmodetaphi_3d");
   h_path.Append("/IDAlignMon/");
   h_path += me_trackCollection;
   h_path.Append("/Residuals/pix_b0_xresvsmodetaphi_3d");
   if (debug) std::cout << " ** going to fetch TH3 histo: " << h_path.Data() << std::endl;
-  TH3F* h_xresiduals3d = (TH3F*) me_currentMonitoringFile->Get(h_path.Data());
+  //TH3F* h_xresiduals3d = (TH3F*) me_currentMonitoringFile->Get(h_path.Data());
+
+  TH3F* h_xresiduals3d = ME_getIBLResiduals3DHisto (fileid);
+
   
-  if (debug) std::cout << " ** 3D histogram with residuals captured: " << h_xresiduals3d->GetName() << std::endl; 
+  if (h_xresiduals3d == NULL) std::cout << " ** WARNING ** " << h_path.Data() << " not found !!!" << std::endl;   
+  if (debug && h_xresiduals3d != NULL) std::cout << " ** 3D histogram with residuals captured: " << h_xresiduals3d->GetName() << std::endl; 
 
   if (FULLOUTPUT) {
     TString cname("IBLXres_Run_");
@@ -302,9 +367,71 @@ void ME_processFile(int fileid)
 }
 
 //////////////////////////////////////////
-TH1F* ME_getIBLMeanResPerRing(TH3F* h_residuals3d, int staveid, int fileid) 
+TH3F* ME_getIBLResiduals3DHisto (int fileid)
 {
   bool debug = false;
+
+  TH3F* h_xresiduals3d = NULL;
+
+  TString h_path = "run_"; 
+  h_path += me_runNumber.at(fileid); // add run number
+
+  h_path.Clear(); // --> for monitoring files without run number in the path 
+  //h_path.Append("/IDAlignMon/InDetTrackParticles_AlignSel/Residuals/pix_b0_xresvsmodetaphi_3d");
+  //h_path.Append("/IDAlignMon/AlignTracks_all/Residuals/pix_b0_xresvsmodetaphi_3d");
+  h_path.Append("/IDAlignMon/");
+  h_path += me_trackCollection;
+  h_path.Append("/Residuals/pix_b0_xresvsmodetaphi_3d");
+  if (debug) std::cout << " ** going to fetch TH3 histo: " << h_path.Data() << std::endl;
+  h_xresiduals3d = (TH3F*) me_currentMonitoringFile->Get(h_path.Data());
+  
+  if (debug && h_xresiduals3d == NULL) std::cout << " ** WARNING ** method 1 fails for " << h_path.Data() << " not found !!!" << std::endl;   
+  if (debug && h_xresiduals3d != NULL) std::cout << " ** 3D histogram with residuals captured: " << h_xresiduals3d->GetName() << std::endl; 
+  if (h_xresiduals3d != NULL) std::cout << " ** method 1 works ** 3D histogram with residuals captured: " << h_xresiduals3d->GetName() << std::endl; 
+
+  if (h_xresiduals3d == NULL) { // try another method
+    h_path.Clear();
+    h_path.Append("run_");
+    h_path += me_runNumber.at(fileid);
+    h_path.Append("/IDAlignMon/");
+    h_path.Append("InDetTrackParticles_AlignSel");
+    h_path.Append("/Residuals/pix_b0_xresvsmodetaphi_3d");
+    h_xresiduals3d = (TH3F*) me_currentMonitoringFile->Get(h_path.Data());  
+    if (h_xresiduals3d != NULL) std::cout << " ** method 2 works ** 3D histogram with residuals captured: " << h_xresiduals3d->GetName() << std::endl; 
+    if (debug && h_xresiduals3d == NULL) std::cout << " ** WARNING ** method 2 fails for " << h_path.Data() << " not found !!!" << std::endl;   
+  }
+
+  if (h_xresiduals3d == NULL) { // and yet another folder
+    h_path.Clear();
+    h_path.Append("run_");
+    h_path += me_runNumber.at(fileid);
+    h_path.Append("/IDAlignMon/");
+    h_path.Append("AlignTracks_all");
+    h_path.Append("/Residuals/pix_b0_xresvsmodetaphi_3d");
+    h_xresiduals3d = (TH3F*) me_currentMonitoringFile->Get(h_path.Data());  
+    if (h_xresiduals3d != NULL) std::cout << " ** method 3 works ** 3D histogram with residuals captured: " << h_xresiduals3d->GetName() << std::endl; 
+    if (debug && h_xresiduals3d == NULL) std::cout << " ** WARNING ** method 3 fails for " << h_path.Data() << " not found !!!" << std::endl;   
+  }
+
+  if (h_xresiduals3d == NULL) { // and yet another folder
+    h_path.Clear();
+    h_path.Append("run_");
+    h_path += me_runNumber.at(fileid);
+    h_path.Append("/IDAlignMon/");
+    h_path.Append("AlignTracks_all");
+    h_path.Append("/Residuals/pix_b0_xresvsmodetaphi_3d");
+    h_xresiduals3d = (TH3F*) me_currentMonitoringFile->Get(h_path.Data());  
+    if (h_xresiduals3d != NULL) std::cout << " ** method 4 works ** 3D histogram with residuals captured: " << h_xresiduals3d->GetName() << std::endl; 
+  }
+  if (h_xresiduals3d == NULL) std::cout << " **  ME_getIBLResiduals3DHisto ** WARNING **  /Residuals/pix_b0_xresvsmodetaphi_3d was not found !!!" << std::endl;   
+
+  return h_xresiduals3d;
+}
+
+//////////////////////////////////////////
+TH1F* ME_getIBLMeanResPerRing(TH3F* h_residuals3d, int staveid, int fileid) 
+{ 
+ bool debug = false;
   // beware staveid = 0 --> whole IBL
   int lowerStave = 0;
   int upperStave = -1;
@@ -447,7 +574,7 @@ bool ME_fitBowingMagnitude (TH1F* h_input, int staveid, int fileid, int lumibloc
   // but first make some basic checks, about number of entries 
   
   bool distributionGoodForFit = true;
-  bool debug = true;
+  bool debug = false;
 
   if (h_input->GetEntries() < MINGOODPOINTS) {
     distributionGoodForFit = false;
@@ -525,7 +652,7 @@ bool ME_fitBowingMagnitude (TH1F* h_input, int staveid, int fileid, int lumibloc
 	aText.SetTextSize(0.04);
 	aText.SetTextAlign(22);
 	aText.SetTextColor(kGray+2);
-	aText.DrawTextNDC(0.5,0.82,textWithResult.Data());
+	aText.DrawTextNDC(0.5,0.86,textWithResult.Data());
 
 	if (baseLineValue != 0) {
 	  textWithResult.Clear();
@@ -534,7 +661,7 @@ bool ME_fitBowingMagnitude (TH1F* h_input, int staveid, int fileid, int lumibloc
 	  textWithResult.Append(" +- ");
 	  textWithResult += TString::Format("%4.3f",baseLineError);
 	  textWithResult.Append(" microns ");
-	aText.DrawTextNDC(0.5,0.75,textWithResult.Data());
+	aText.DrawTextNDC(0.5,0.80,textWithResult.Data());
 	}
 	aLine.DrawLine(-365.,baseLineValue, 365., baseLineValue);
 	anArrow.DrawArrow(0., baseLineValue, 0., baseLineValue+magValue);
@@ -601,10 +728,10 @@ TGraphErrors* ConvertHistoInGraph(const TH1F* histo)
   // --> SMG xmin=-0.4;
   // --> SMG xmax=0.3;
   xmin = -me_bowingRangeInPlots;
-  xmax =  me_bowingRangeInPlots;
+  xmax =  me_bowingRangeInPlots/3;
   graph->GetYaxis()->SetRangeUser(xmin,xmax);
   graph->GetXaxis()->SetRangeUser(-z_fix,z_fix);
-  graph->GetYaxis()->SetTitle("Local X Residual mean [  #mu m]");
+  graph->GetYaxis()->SetTitle("Local X Residual mean [   #mu m]");
   // --> SMG // if (getYresiduals) graph->GetYaxis()->SetTitle("Local Y Residual mean [mm]");
   /*
   graph->Draw();
@@ -1004,7 +1131,7 @@ void ME_plotEvolutionHistos()
     TCanvas* thisCanvas = new TCanvas (cname.Data(), ctitle.Data());
     thisCanvas->cd();
     gPad->SetTicks(1,1);
-    me_h_bowingMagnitudeEvolution[stave]->SetMaximum( me_bowingRangeInPlots);
+    me_h_bowingMagnitudeEvolution[stave]->SetMaximum( me_bowingRangeInPlots/3);
     me_h_bowingMagnitudeEvolution[stave]->SetMinimum(-me_bowingRangeInPlots);
     me_h_bowingMagnitudeEvolution[stave]->Draw("");
     aLine.DrawLine(me_h_bowingMagnitudeEvolution[stave]->GetXaxis()->GetXmin(),0.,
@@ -1012,17 +1139,17 @@ void ME_plotEvolutionHistos()
     //    legend.DrawText(0.15*me_monitoringFileList.size(),17.,"Period E");
     //legend.DrawText(0.56*me_monitoringFileList.size(),17.,"Period F");
     //legend.DrawText(0.77*me_monitoringFileList.size(),17.,"Period G");
-    aLine.DrawLine(16.5, -me_bowingRangeInPlots, 16.5, 15.0);
-    aLine.DrawLine(20.5, -me_bowingRangeInPlots, 20.5, 15.0);
+    //aLine.DrawLine(16.5, -me_bowingRangeInPlots, 16.5, 15.0);
+    //aLine.DrawLine(20.5, -me_bowingRangeInPlots, 20.5, 15.0);
     
     // 278748
-    legend_2.DrawText( 0.4,-12., "7/Sep/2015");
+    // legend_2.DrawText( 0.4,-12., "7/Sep/2015");
     // 279984
-    legend_2.DrawText(16.0,-12., "21/Sep/2015");
+    // legend_2.DrawText(16.0,-12., "21/Sep/2015");
     // 280319
-    legend_2.DrawText(20.,-12.,"26/Sep/2015");
+    // legend_2.DrawText(20.,-12.,"26/Sep/2015");
     // 280319
-    legend_2.DrawText(23.,-12.,"29/Sep/2015");
+    // legend_2.DrawText(23.,-12.,"29/Sep/2015");
    
     /*
     //legend_2.DrawText( 0.0,-5., "Run 280319");
@@ -1061,13 +1188,13 @@ void ME_plotEvolutionHistos()
     thisCanvas2->cd();
     gPad->SetTicks(1,1);
 
-    me_h_bowingBaseLineEvolution[stave]->SetMaximum( me_bowingRangeInPlots/2);
-    me_h_bowingBaseLineEvolution[stave]->SetMinimum(-me_bowingRangeInPlots/2);
+    me_h_bowingBaseLineEvolution[stave]->SetMaximum( me_bowingRangeInPlots/3);
+    me_h_bowingBaseLineEvolution[stave]->SetMinimum(-me_bowingRangeInPlots);
     me_h_bowingBaseLineEvolution[stave]->Draw("");
     aLine.DrawLine(me_h_bowingBaseLineEvolution[stave]->GetXaxis()->GetXmin(),0.,
 		   me_h_bowingBaseLineEvolution[stave]->GetXaxis()->GetXmax(),0.);
-    aLine.DrawLine(16.5, -me_bowingRangeInPlots/2, 16.5, me_bowingRangeInPlots/2);
-    aLine.DrawLine(20.5, -me_bowingRangeInPlots/2, 20.5, me_bowingRangeInPlots/2);
+    aLine.DrawLine(16.5, -me_bowingRangeInPlots, 16.5, me_bowingRangeInPlots/3);
+    aLine.DrawLine(20.5, -me_bowingRangeInPlots, 20.5, me_bowingRangeInPlots/3);
     thisCanvas2->Print(fname.Data());
 
   }
@@ -1104,6 +1231,9 @@ void ME_plotHistosPerStave()
       canvasBM->cd();
       gPad->SetTicks(1,1);
 
+      // check range
+      if (me_h_bowingMagnitudePerStave.at(fileid)->GetMaximum() < 0) me_h_bowingMagnitudePerStave.at(fileid)->SetMaximum(1.); // 1 micron
+
       me_h_bowingMagnitudePerStave.at(fileid)->Draw();
       aLine.DrawLine(me_h_bowingMagnitudePerStave.at(fileid)->GetXaxis()->GetXmin(),0.,
 		     me_h_bowingMagnitudePerStave.at(fileid)->GetXaxis()->GetXmax(),0.);
@@ -1131,7 +1261,6 @@ void ME_plotHistosPerStave()
 
       canvasBL->Print(fname.Data());
 
-
     }
   }
 
@@ -1143,13 +1272,16 @@ void ME_writeOutputTextFile()
 {
   if (WRITETEXTOUTPUT) {
     // loop on the histogram and extract the values
-    int stave=0; // entire IBL
-    for (int i=0; i < (int) me_monitoringFileList.size(); i++) {
-      if (me_h_bowingMagnitudeEvolution[stave]->GetBinContent(i+1) != 0) { // this bin/run was filled
-	me_outputTextFile << me_runNumber.at(i) <<","
-			  << me_h_bowingMagnitudeEvolution[stave]->GetBinContent(i+1) <<","
-			  << me_h_bowingMagnitudeEvolution[stave]->GetBinError(i+1)
-			  << "\n";
+    //int stave=1; // entire IBL
+    for (int stave=0; stave <= NIBLSTAVES; stave++) {
+      me_outputTextFile << " Stave " << stave << "\n";
+      for (int i=0; i < (int) me_monitoringFileList.size(); i++) {
+	if (me_h_bowingMagnitudeEvolution[stave]->GetBinContent(i+1) != 0) { // this bin/run was filled
+	  me_outputTextFile << me_runNumber.at(i) <<","
+			    << me_h_bowingMagnitudeEvolution[stave]->GetBinContent(i+1) <<","
+			    << me_h_bowingMagnitudeEvolution[stave]->GetBinError(i+1)
+			    << "\n";
+	}
       }
     }
     me_outputTextFile.close();
@@ -1284,6 +1416,7 @@ void ME_performLumiBlockAnalysis(int fileid)
 	  cname += lumiblockid;
 	  
 	  TCanvas thisCanvas(cname.Data(), cname.Data());
+	  gPad->SetTicks(1,1);
 	  h_residualsAtEta->Draw();
 	  // text with result
 	  if (distributionFitted) {
@@ -1351,6 +1484,9 @@ void ME_performLumiBlockAnalysis(int fileid)
     TCanvas thisCanvas(cname.Data(), cname.Data());
     
     // draw
+    gPad->SetTicks(1,1);
+    me_h_bowingMagnitudePerLB[stave].at(fileid)->SetMaximum( me_bowingRangeInPlots/3);
+    me_h_bowingMagnitudePerLB[stave].at(fileid)->SetMinimum(-me_bowingRangeInPlots);
     me_h_bowingMagnitudePerLB[stave].at(fileid)->Draw();
     TLine aLine;
     aLine.SetLineColor(kGray+2);
@@ -1441,6 +1577,23 @@ TH3F*  ME_get3DHistoResidualsVsEtaAndLB (int fileid, int stave)
 			 << std::endl;
     h_xresiduals3dLB = (TH3F*) me_currentMonitoringFile->Get(h_path.Data());
 
+    // WARNING 
+    // depending on the InDetAlignMonitoring version h_xresiduals3dLB could be a TProfile2D or a TH3.
+    // we are interested in the TH3, so the following check is to verify the histogram is really a TH3
+    if (debug && false) std::cout << " ** " << h_xresiduals3dLB->GetName() << " Nbins XYZ "<< h_xresiduals3dLB->GetNbinsX() 
+				  << " " <<   h_xresiduals3dLB->GetNbinsY() 
+				  << " " <<   h_xresiduals3dLB->GetNbinsZ()
+				  << std::endl;
+    if (h_xresiduals3dLB->GetNbinsZ() == 1) { // this is not the TH3, so replace it by the TH3
+      h_path.Append("_3d");
+      if (debug) std::cout << " ** ME_getHistoResidualsVsEtaAndLB ** checking for TH3 " << h_path.Data() << std::endl; 
+      h_xresiduals3dLB = NULL;
+      h_xresiduals3dLB = (TH3F*) me_currentMonitoringFile->Get(h_path.Data());
+      if (debug) std::cout << " ** ME_getHistoResidualsVsEtaAndLB ** replace  h_xresiduals3dLB for the TH3: " << h_xresiduals3dLB->GetName() << std::endl; 
+    }
+
+    if (h_xresiduals3dLB == NULL) std::cout << " **  ** ME_getHistoResidualsVsEtaAndLB ** residuals vs LB 3D histo: " << h_path.Data() << " not found" << endl;
+
     if (h_xresiduals3dLB != NULL) {
       if (debug) std::cout << " **  ** ME_getHistoResidualsVsEtaAndLB ** residuals vs LB 3D histo: " << h_xresiduals3dLB->GetName() << std::endl;
       h_xresiduals3dLB->RebinX(REBINFACTOR);
@@ -1461,6 +1614,7 @@ TH1F*  ME_getHistoResidualsVsEtaAtLB (TH3F* h_xresiduals3dLB, int fileid, int st
 		       << "   stave " << stave 
 		       << "   ring " << ring 
 		       << "   lb " << lumiblock 
+		       << "  on histo: " << h_xresiduals3dLB->GetName() 
 		       << std::endl;
 
   // prepare name
@@ -1478,6 +1632,7 @@ TH1F*  ME_getHistoResidualsVsEtaAtLB (TH3F* h_xresiduals3dLB, int fileid, int st
   
   TH1F* thisHisto = (TH1F*) h_xresiduals3dLB->ProjectionZ(hname.Data(), lumiblock, lumiblock, ring, ring, ""); 
 
+  if (thisHisto == NULL) std::cout << " ** ME_getHistoResidualsVsEtaAtLB ** WARNING ** file id: " << fileid << " histo with name: " << hname.Data() << " NOT FOUND " << std::endl;
   return thisHisto;
 }
 
@@ -1534,5 +1689,104 @@ void ME_preparePalette ()
   TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
   gStyle->SetNumberContours(NCont);
 
+  return;
+}
+
+//////////////////////////////////////////
+void ME_plotDeltaBx ()
+{
+  TString cname, ctitle, fname;
+  TText legend; 
+  legend.SetTextColor(kGray+3);
+  TText legend_2;
+  legend_2.SetTextColor(kGray+2);
+  legend_2.SetTextAlign(30);
+  legend_2.SetTextAngle(90.);
+  legend_2.SetTextSize(0.03);
+  TLine aLine;
+  aLine.SetLineColor(kGray+2);
+  aLine.SetLineStyle(2);
+  
+
+  cname.Clear();
+  cname.Append("CanDeltaBx");
+  ctitle.Clear();
+  ctitle.Append("IBL stave ");
+  fname.Clear();
+  fname.Append("DeltaBxPerStave");
+  fname.Append(".png");
+  TCanvas* thisCanvas = new TCanvas (cname.Data(), ctitle.Data());
+  thisCanvas->cd();
+  gPad->SetTicks(1,1);
+
+  // book the histogram
+  me_h_deltaBxPerStave = new TH1F ("hDeltaBxPerStave","#Delta Bowing magnitude per IBL stave", NIBLSTAVES, 0.5, NIBLSTAVES+0.5);
+  me_h_deltaBxPerStave->SetYTitle("#Delta Bowing magnitude [ #mum]");
+  me_h_deltaBxPerStave->SetXTitle("Stave number");
+  me_h_deltaBxPerStave->SetStats(kFALSE);
+  me_h_deltaBxPerStave->SetMarkerStyle(kFullCircle);
+  me_h_deltaBxPerStave->SetLineWidth(2);
+  me_h_deltaBxPerStave->SetMarkerColor(me_colorForStaves);
+  me_h_deltaBxPerStave->SetLineColor(me_colorForStaves);
+
+
+  for (int stave=0; stave <= NIBLSTAVES; stave++) {
+    ME_computeDeltaBx(stave);
+  }
+
+  me_h_deltaBxPerStave->Draw();
+  thisCanvas->Print(fname.Data());
+  return;
+}
+
+//////////////////////////////////////////
+void ME_computeDeltaBx (int stave)
+{
+  if (me_runNumber.size() > 2) { // request at least 2 points
+    // computes the DeltaBx between some points and fills the point in the histogram
+    int firstPoint = 1; 
+    int firstRange = 5; // how many points to use
+    int firstPointMax = firstPoint + firstRange;
+    if (firstPointMax > (int) me_runNumber.size()) firstPointMax = (int) me_runNumber.size()+1;
+    
+    int lastPoint = (int) me_runNumber.size();
+    int lastRange = 1; // how many points to use
+    
+    // calculation of initial value
+    float initialBx = 0;
+    float initialWeight = 0;
+    for (int i=firstPoint; i < firstPointMax; i++) {
+      //for (int i=firstPoint; i < firstPoint + firstRange; i++) {
+      std::cout << " initial use: " << i << std::endl;
+      initialBx += me_h_bowingMagnitudeEvolution[stave]->GetBinContent(i);
+      initialWeight += pow(1./me_h_bowingMagnitudeEvolution[stave]->GetBinError(i),2);
+    }
+    initialBx = initialBx / firstRange; // average
+    float initialUncertainty = 1./sqrt(initialWeight);
+    
+    
+    float finalBx = 0;
+    float finalWeight = 0;
+    
+    for (int i=lastPoint; i > lastPoint - lastRange; i--) {
+      std::cout << " final use: " << i << std::endl;
+      finalBx += me_h_bowingMagnitudeEvolution[stave]->GetBinContent(i);
+      finalWeight += pow(1./me_h_bowingMagnitudeEvolution[stave]->GetBinError(i),2);
+    }
+    finalBx = finalBx / lastRange; // average
+    float finalUncertainty = 1./sqrt(finalWeight);
+    
+    float deltaBxVal = finalBx - initialBx; 
+    float deltaBxErr = sqrt(pow(initialUncertainty,2)+pow(finalUncertainty,2));
+    
+    std::cout << " --> initial: " << initialBx << "+-" << initialUncertainty 
+	      << "       final: " << finalBx << "+-" << finalUncertainty 
+	      << "   DeltaBx: " << deltaBxVal << "+-" << deltaBxErr  << std::endl;
+    
+    if (stave>0 && me_h_deltaBxPerStave != NULL) {
+      me_h_deltaBxPerStave->SetBinContent(stave, deltaBxVal);
+      me_h_deltaBxPerStave->SetBinError(stave, deltaBxErr);
+    } 
+  }
   return;
 }

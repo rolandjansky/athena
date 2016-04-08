@@ -99,12 +99,13 @@ DrawPlots(TRTB2HitEff, outputDir+"/"+"TRTB2HitEff."+oFext, "TRT Barrel Layer 2 H
 #          canvasText,makeOutput,0.60,0.41,False)
 
 
-PIXHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"PIXHitsvEta","noFit",rootFiles,nFiles, False)
-DrawPlots(PIXHits,outputDir+"/"+"NPIXvsETA.png","","Average PIX hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
-SCTHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"SCTHitsvEta","noFit",rootFiles,nFiles, False)
-DrawPlots(SCTHits,outputDir+"/"+"NSCTvsETA.png","","Average SCT hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
-TRTHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"TRTHitsvEta","noFit",rootFiles,nFiles, False)
-DrawPlots(TRTHits,outputDir+"/"+"NTRTvsETA.png","","Average TRT hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
+if (userExtended):
+    PIXHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"PIXHitsvEta","noFit",rootFiles,nFiles, False)
+    DrawPlots(PIXHits,outputDir+"/"+"NPIXvsETA.png","","Average PIX hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
+    SCTHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"SCTHitsvEta","noFit",rootFiles,nFiles, False)
+    DrawPlots(SCTHits,outputDir+"/"+"NSCTvsETA.png","","Average SCT hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
+    TRTHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"TRTHitsvEta","noFit",rootFiles,nFiles, False)
+    DrawPlots(TRTHits,outputDir+"/"+"NTRTvsETA.png","","Average TRT hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
 
 
 # SivsTRT
@@ -120,6 +121,13 @@ if siTRTDir[0] != "":
               canvasText,makeOutput,0.60,0.41,False)
 
 
+NTracks = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"NPixPerLumiBlock","noFit",rootFiles,nFiles,False)
+DrawPlots(NTracks, outputDir+"/"+"NPixPerLumiBlock.png", "", "# pixel hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
 
+NTracks = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"NSCTPerLumiBlock","noFit",rootFiles,nFiles,False)
+DrawPlots(NTracks, outputDir+"/"+"NSCTPerLumiBlock.png", "", "#SCT hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
+
+NTracks = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"NTRTPerLumiBlock","noFit",rootFiles,nFiles,False)
+DrawPlots(NTracks, outputDir+"/"+"NTRTPerLumiBlock.png", "", "#TRT hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
 
 

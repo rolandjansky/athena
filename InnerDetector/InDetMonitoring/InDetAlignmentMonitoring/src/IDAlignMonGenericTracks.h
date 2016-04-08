@@ -419,8 +419,10 @@ protected:
   bool m_doHitQuality;
   bool m_extendedPlots;
   float m_d0Range;
+  float m_d0BsRange;
   float m_pTRange;
   float m_z0Range;
+  float m_etaRange;
   int   m_NTracksRange;
 
   bool m_doIP;
