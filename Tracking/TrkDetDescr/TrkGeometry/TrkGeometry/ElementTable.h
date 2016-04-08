@@ -13,6 +13,7 @@
 #include "TrkGeometry/Material.h"
 #include <vector>
 #include <climits>
+#include <memory>
 #include "CLIDSvc/CLASS_DEF.h"
 
 class MsgStream;
@@ -70,6 +71,9 @@ namespace Trk {
       /** Add material to the Table - if the elment is already filled ignore*/
       void addElement(const Material& mat, std::string mname="") const;
       
+      /** Version that takes ownership of a pointer. */
+      void addElement(std::unique_ptr<Material> mat, const std::string& mname);
+      
       /** quick check */
       bool contains(unsigned int Z) const { return bool(element(Z)); }
       
@@ -103,6 +107,16 @@ namespace Trk {
       unsigned int Zint = (unsigned int)mat.Z;
       if (!m_table[Zint]){
           m_table[Zint] = new Material(mat);
+          m_names[Zint] = mname;
+      }
+  }
+
+  inline void ElementTable::addElement(std::unique_ptr<Material> mat,
+                                       const std::string& mname)
+  {
+      unsigned int Zint = (unsigned int)mat->Z;
+      if (!m_table[Zint]){
+          m_table[Zint] = mat.release();
           m_names[Zint] = mname;
       }
   }

@@ -17,6 +17,8 @@
 //Gaudi
 #include "GaudiKernel/MsgStream.h"
 
+class BinnedLayerMaterialCnv_p1;
+
 namespace Trk {
 
 
@@ -76,19 +78,19 @@ namespace Trk {
       BinnedLayerMaterial& operator=(const BinnedLayerMaterial& lmp);
 
       /** Scale operator */
-      BinnedLayerMaterial& operator*=(double scale);
+      virtual BinnedLayerMaterial& operator*=(double scale) override;
 
       /** Return the BinUtility */
       const BinUtility* binUtility() const override;
        
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
-      void updateBinning(BinUtility* bu) const; 
+      virtual void updateBinning(BinUtility* bu) const override;
        
       /**Return method for full material description of the Layer - for all bins*/
       const MaterialPropertiesMatrix& fullMaterial() const;
  
       /**Return method for full material description of the Layer */
-      const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const;
+      virtual const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const override;
             
       /** Access the single bin */
      const MaterialProperties* material(size_t bin0, size_t bin1 ) const override;
@@ -100,6 +102,7 @@ namespace Trk {
       std::ostream& dump(std::ostream& sl) const override;      
 
     private:
+      friend class ::BinnedLayerMaterialCnv_p1;
 
       mutable BinUtility*       m_binUtility; //!< the helper for the bin finding
  
