@@ -44,7 +44,7 @@ namespace PMonUtils {
 
   private:
     struct Data {
-      Data() {}
+      Data() { init(); }
       void init() { time_spent = 0; time_at_begin = 0; count = 0; }
       int64_t time_spent;
       int64_t time_at_begin;
