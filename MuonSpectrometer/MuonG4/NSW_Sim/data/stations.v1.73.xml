@@ -188,7 +188,6 @@
 
 <section name="NSW_MM_Parameters" version="1" top_volume="useless" date="December 16 2014" author="S.Chen" >
 
-<array name="NSW_MM_ReadoutSide" values="-1;1;-1;1"/>
 <!-- Frames. "f1": frame width close to the trapezium large side. "f2": frame width close to the trapezium small side. "f3": frame width close to the trapezium oblique side  -->
 <var name="NSW_MM_f1" value="30"/>
 <var name="NSW_MM_f2" value="30"/>
@@ -243,16 +242,16 @@
 
 <!-- large wheel -->
 <micromegas type="sMD1-1-1" tech="MM_1" subType="M1L1" sWidth="NSW_MM_LM1_baseWidth" lWidth="NSW_MM_LM1_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_LM1_Length">
-<mm_readout stripPitch="0.445" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" />
+<mm_readout stripPitch="0.445" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1"/>
 </micromegas>
 <micromegas type="sMD1-2-1" tech="MM_1" subType="M2L1" sWidth="NSW_MM_LM2_baseWidth" lWidth="NSW_MM_LM2_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_LM2_Length">
-<mm_readout stripPitch="0.445" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" />
+<mm_readout stripPitch="0.445" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1"/>
 </micromegas>
 <micromegas type="sMD1-1-2" tech="MM_1" subType="M1L2" sWidth="NSW_MM_LM1_baseWidth" lWidth="NSW_MM_LM1_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_LM1_Length">
-<mm_readout stripPitch="0.445" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." />
+<mm_readout stripPitch="0.445" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1"/>
 </micromegas>
 <micromegas type="sMD1-2-2" tech="MM_1" subType="M2L2" sWidth="NSW_MM_LM2_baseWidth" lWidth="NSW_MM_LM2_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_LM2_Length">
-<mm_readout stripPitch="0.445" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." />
+<mm_readout stripPitch="0.445" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1"/>
 </micromegas>
 
 <mmSpacer type="spa1-1" tech="Spa_1" sWidth="NSW_MM_LM1_baseWidth" lWidth="NSW_MM_LM1_topWidth" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_LM1_Length" />
@@ -261,16 +260,16 @@
 
 <!-- small wheel -->
 <micromegas type="sMD3-1-1" tech="MM_1" subType="M1S1" sWidth="NSW_MM_SM1_baseWidth" lWidth="NSW_MM_SM1_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_SM1_Length">
-<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" />
+<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1"/>
 </micromegas>
 <micromegas type="sMD3-2-1" tech="MM_1" subType="M2S1" sWidth="NSW_MM_SM2_baseWidth" lWidth="NSW_MM_SM2_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_SM2_Length">
-<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" />
+<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.; 0.; 0.02618; -0.02618" readoutSide="-1; 1; -1; 1"/>
 </micromegas>
 <micromegas type="sMD3-1-2" tech="MM_1" subType="M1S2" sWidth="NSW_MM_SM1_baseWidth" lWidth="NSW_MM_SM1_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_SM1_Length">
-<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." />
+<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1"/>
 </micromegas>
 <micromegas type="sMD3-2-2" tech="MM_1" subType="M2S2" sWidth="NSW_MM_SM2_baseWidth" lWidth="NSW_MM_SM2_topWidth" Tck="NSW_MM_MultilayerTck" Length="NSW_MM_SM2_Length">
-<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." />
+<mm_readout stripPitch="0.425" gasThickness="NSW_MM_GasTck" pcbThickness="NSW_MM_ROPcbTck" stereoAngle="0.02618; -0.02618; 0.; 0." readoutSide="-1; 1; -1; 1"/>
 </micromegas>
 <mmSpacer type="spa3-1" tech="Spa_1" sWidth="NSW_MM_SM1_baseWidth" lWidth="NSW_MM_SM1_topWidth" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_SM1_Length" />
 <mmSpacer type="spa3-2" tech="Spa_1" sWidth="NSW_MM_SM2_baseWidth" lWidth="NSW_MM_SM2_topWidth" Tck="NSW_MM_SpacerThickness" Length="NSW_MM_SM2_Length" />
