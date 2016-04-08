@@ -10,41 +10,37 @@
 // Date:   March 2007
 /////////////////////////////////////////////////////////////////// 
 
-#define private public
-#define protected public
 #include "TileSimEvent/TileHit.h"
-#undef private
-#undef protected
-
 #include "TileSimEventTPCnv/TileHitCnv_p1.h"
+#include <stdexcept>
 
 
-void TileHitCnv_p1::persToTrans(const TileHit_p1* persObj, TileHit* transObj, MsgStream &/*log*/) {
+void
+TileHitCnv_p1::persToTrans(const TileHit_p1* persObj, TileHit* transObj, MsgStream &/*log*/)
+{
+  size_t sz = persObj->m_energy.size();
+   if (sz != persObj->m_time.size())
+     throw std::runtime_error ("TileHit_p1 vector size mismatch");
 
-   transObj->m_pmt_id = Identifier(Identifier32(persObj->m_channelID));
-   transObj->m_energy.reserve(persObj->m_energy.size());
+   *transObj = TileHit (Identifier(Identifier32(persObj->m_channelID)));
+   transObj->resize (sz);
 
-   for (const float energy : persObj->m_energy) {
-     transObj->m_energy.push_back( energy );
+   for (size_t i = 0; i < sz; i++) {
+     transObj->setEnergy (persObj->m_energy[i], i);
+     transObj->setTime (persObj->m_time[i], i);
    }
-
-   for (const float time : persObj->m_time) {
-     transObj->m_time.push_back( time );
-   }
-
 }
 
-void TileHitCnv_p1::transToPers(const TileHit* transObj, TileHit_p1* persObj, MsgStream &/*log*/) {
+void
+TileHitCnv_p1::transToPers(const TileHit* transObj, TileHit_p1* persObj, MsgStream &/*log*/)
+{
+   persObj->m_channelID         = transObj->identify().get_identifier32().get_compact();
 
-   persObj->m_channelID = transObj->m_pmt_id.get_identifier32().get_compact();
-
-
-   for (const float energy : transObj->m_energy) {
-     persObj->m_energy.push_back( energy );
+   size_t sz = transObj->size();
+   persObj->m_energy.resize (sz);
+   persObj->m_time.resize (sz);
+   for (size_t i = 0; i < sz; i++) {
+     persObj->m_energy[i] = transObj->energy(i);
+     persObj->m_time[i] = transObj->time(i);
    }
-
-   for (const float time : transObj->m_time) {
-     persObj->m_time.push_back( time );
-   }
-
 }
