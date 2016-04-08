@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<unifiedTestConfiguration>
+
+  <atn/>
+  <kv/>
+
+   <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+      <mailto>Andrea.Coccaro@ge.infn.it, Fabrizio.Parodi@ge.infn.it</mailto>
+      <refRelease>15.4.0</refRelease>
+
+      <jobList>
+
+      <classification>
+         <displayClass>OfflineValidation</displayClass>
+         <displayProcess>Reco</displayProcess>
+         <displayComponent>Trig-Other</displayComponent>
+      </classification>
+
+         <athena userJobId='TrigBjetValidation_5200'>
+            <doc>Tests Bjet slice using ttbar misaligned data</doc>
+            <displayName>BjetSlice</displayName>
+	    <commandLineFlags>DetDescrVersion="ATLAS-GEO-06-00-00";EventMax=2000;</commandLineFlags>
+            <options>TrigBjetValidation_RTT_topOptions</options>
+            <package>Trigger/TrigValidation/TrigBjetValidation</package>
+            <group>TrigBjetValidation</group>
+            <queue>medium</queue>
+	    <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/proj-sit/coccaro/RTT/RTTdata/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e380_s553_tid068538/RDO.068538._00049.pool.root.3</dataset>
+	    <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/proj-sit/coccaro/RTT/RTTdata/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e380_s553_tid068538/RDO.068538._00056.pool.root.3</dataset>
+	    <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/proj-sit/coccaro/RTT/RTTdata/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e380_s553_tid068538/RDO.068538._00142.pool.root.4</dataset>
+	    <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/proj-sit/coccaro/RTT/RTTdata/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e380_s553_tid068538/RDO.068538._00316.pool.root.4</dataset>
+	    <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/proj-sit/coccaro/RTT/RTTdata/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e380_s553_tid068538/RDO.068538._00453.pool.root.2</dataset>
+	    <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/proj-sit/coccaro/RTT/RTTdata/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e380_s553_tid068538/RDO.068538._00574.pool.root.3</dataset>
+	    <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/proj-sit/coccaro/RTT/RTTdata/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e380_s553_tid068538/RDO.068538._00587.pool.root.1</dataset>
+	    <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/proj-sit/coccaro/RTT/RTTdata/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e380_s553_tid068538/RDO.068538._00758.pool.root.3</dataset>
+	    <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/proj-sit/coccaro/RTT/RTTdata/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e380_s553_tid068538/RDO.068538._00761.pool.root.3</dataset>
+	    <dataset>/castor/cern.ch/atlas/atlascerngroupdisk/proj-sit/coccaro/RTT/RTTdata/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e380_s553_tid068538/RDO.068538._00956.pool.root.1</dataset>
+
+            <test>
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TrigBjetValidation_Histos</argvalue>
+                </arg>
+            </test>
+
+	 </athena>
+
+      </jobList>
+
+      <jobGroups>
+
+         <jobGroup name="AthenaTrigBjetValidation" parent="Athena">
+
+            <keepFilePattern displayColor="blue" info="CBNTAA">ntuple*.root</keepFilePattern>
+            <keepFilePattern displayColor="blue">TrigBjetValidation_Histograms*.root</keepFilePattern>
+            <keepFilePattern displayColor="blue">expert-monitoring.root</keepFilePattern>
+            <keepFilePattern displayColor="blue">*.png</keepFilePattern>
+            <keepFilePattern>*.pool.root</keepFilePattern>
+
+	    <auxFilePattern>TrigBjetValidation_Histos.cpp</auxFilePattern>
+
+         </jobGroup>
+      </jobGroups>
+   </rtt>
+
+</unifiedTestConfiguration>
