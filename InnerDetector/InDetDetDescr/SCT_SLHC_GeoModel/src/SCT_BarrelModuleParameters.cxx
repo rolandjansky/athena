@@ -65,6 +65,15 @@ SCT_BarrelModuleParameters::sensorMaterial(int moduleType) const
   return sensorMaterial;
 }
 
+int 
+SCT_BarrelModuleParameters::chargeCarrier(int moduleType) const 
+{
+  if (!db()->testField(SctBrlSensor, "CARRIER", moduleType)) return 1;
+  int chargeCarrier = db()->getDouble(SctBrlSensor, "CARRIER", moduleType);
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Barrel Carge Carrier CARRIER mod_type("<<moduleType<<") = "<<chargeCarrier <<endreq;
+  return chargeCarrier;
+}
+
 //
 // Barrel BaseBoard
 //
@@ -98,11 +107,11 @@ SCT_BarrelModuleParameters::baseBoardMaterial(int moduleType) const
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Barrel BASEBOARDMATERIAL_STRNG("<<moduleType<<") = "<<baseboardMaterial <<endreq;
   return baseboardMaterial;
 }
-double SCT_BarrelModuleParameters::baseBoardOffsetY(int moduleType) const{
-  if(moduleType == 1)
+double SCT_BarrelModuleParameters::baseBoardOffsetY(int /*moduleType*/) const{
+  //if(moduleType == 1)
     return -5.7*CLHEP::mm;
-  else
-    return -5.7*CLHEP::mm;
+  //else
+  //  return -5.7*CLHEP::mm;
 }
 
 double SCT_BarrelModuleParameters::baseBoardOffsetZ(int moduleType) const{

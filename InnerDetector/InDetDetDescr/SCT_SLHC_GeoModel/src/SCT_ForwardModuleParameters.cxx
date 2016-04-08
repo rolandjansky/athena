@@ -123,6 +123,15 @@ SCT_ForwardModuleParameters::fwdModuleStereoAngle(int iModuleType) const
   return db()->getDouble(SctFwdModule,"STEREOANGLE",iModuleType) * CLHEP::milliradian;
 }
 
+int 
+SCT_ForwardModuleParameters::fwdSensorChargeCarrier(int iModuleType) const 
+{
+  if (!db()->testField(SctFwdSensor, "CARRIER", iModuleType)) return 1;
+  int chargeCarrier = db()->getDouble(SctFwdSensor, "CARRIER", iModuleType);
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Fwd Charge Carrier CARRIER mod_type("<<iModuleType<<") = "<<chargeCarrier <<endreq;
+  return chargeCarrier;
+}
+
 //
 // Forward Spine
 //
