@@ -46,6 +46,19 @@ TileRawChannel::TileRawChannel( const HWIdentifier& HWid,
 {
 }
 
+TileRawChannel::TileRawChannel(const HWIdentifier& HWid, 
+                               std::vector<float>&& amplitude,
+                               std::vector<float>&& time,
+                               std::vector<float>&& quality,
+                               float ped /*= 0.0*/)
+  : TileRawData( HWid ),
+    m_amplitude (std::move(amplitude)),
+    m_time (std::move(time)),
+    m_quality (std::move(quality)),
+    m_pedestal (ped)
+{
+}
+
 int TileRawChannel::add(float amplitude, float time, float quality) {
   m_amplitude.push_back(amplitude);
   m_time.push_back(time);

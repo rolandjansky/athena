@@ -56,15 +56,44 @@ class TileCosmicMuon
   inline void SetDirectionTheta(double theta)                     {m_directionTheta   = theta;}
   inline void SetFitQuality(double quality)                       {m_fitQuality	      = quality;}
   inline void SetFitNCells(int ncells)                            {m_fitNCells 	      = ncells;}
-  inline void SetPathTop(std::vector<double> path)                {m_pathTop          = path;}
-  inline void SetPathBottom(std::vector<double> path)             {m_pathBottom       = path;}
-  inline void SetEnergyTop(std::vector<double> energy)            {m_energyTop        = energy;}
-  inline void SetEnergyBottom(std::vector<double> energy)         {m_energyBottom     = energy;}
-  inline void SetTrackCellHash(std::vector<IdentifierHash> cells) {m_trackCellHash    = cells;}
-  inline void SetSegmentPath(std::vector<double> path)            {m_segmentPath      = path;}
-  inline void SetSegmentPartition(std::vector<int> partition)     {m_segmentPartition = partition;}
-  inline void SetSegmentModule(std::vector<int> module)           {m_segmentModule    = module;}
-  inline void SetSegmentSampling(std::vector<int> sampling)       {m_segmentSampling  = sampling;}
+
+  inline void SetPathTop(const std::vector<double>& path)
+  {m_pathTop          = path;}
+  inline void SetPathBottom(const std::vector<double>& path)
+  {m_pathBottom       = path;}
+  inline void SetEnergyTop(const std::vector<double>& energy)
+  {m_energyTop        = energy;}
+  inline void SetEnergyBottom(const std::vector<double>& energy)
+  {m_energyBottom     = energy;}
+  inline void SetTrackCellHash(const std::vector<IdentifierHash>& cells)
+  {m_trackCellHash    = cells;}
+  inline void SetSegmentPath(const std::vector<double>& path)
+  {m_segmentPath      = path;}
+  inline void SetSegmentPartition(const std::vector<int>& partition)
+  {m_segmentPartition = partition;}
+  inline void SetSegmentModule(const std::vector<int>& module)
+  {m_segmentModule    = module;}
+  inline void SetSegmentSampling(const std::vector<int>& sampling)
+  {m_segmentSampling  = sampling;}
+
+  inline void SetPathTop(std::vector<double>&& path)
+  {m_pathTop          = std::move(path);}
+  inline void SetPathBottom(std::vector<double>&& path)
+  {m_pathBottom       = std::move(path);}
+  inline void SetEnergyTop(std::vector<double>&& energy)
+  {m_energyTop        = std::move(energy);}
+  inline void SetEnergyBottom(std::vector<double>&& energy)
+  {m_energyBottom     = std::move(energy);}
+  inline void SetTrackCellHash(std::vector<IdentifierHash>&& cells)
+  {m_trackCellHash    = std::move(cells);}
+  inline void SetSegmentPath(std::vector<double>&& path)
+  {m_segmentPath      = std::move(path);}
+  inline void SetSegmentPartition(std::vector<int>&& partition)
+  {m_segmentPartition = std::move(partition);}
+  inline void SetSegmentModule(std::vector<int>&& module)
+  {m_segmentModule    = std::move(module);}
+  inline void SetSegmentSampling(std::vector<int>&& sampling)
+  {m_segmentSampling  = std::move(sampling);}
 
  
   /** Getters. See class members description. */

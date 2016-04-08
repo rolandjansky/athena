@@ -42,6 +42,14 @@ TileBeamElem::TileBeamElem( const HWIdentifier& HWid,
 }
 
 TileBeamElem::TileBeamElem( const HWIdentifier& HWid,
+                            std::vector<uint32_t>&& digits )
+
+  : TileRawData( HWid )
+  , m_digits ( std::move(digits) )
+{
+}
+
+TileBeamElem::TileBeamElem( const HWIdentifier& HWid,
                             uint32_t digit )
 
   : TileRawData( HWid )
