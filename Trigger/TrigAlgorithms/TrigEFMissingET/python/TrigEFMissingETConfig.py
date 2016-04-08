@@ -27,16 +27,6 @@ class EFMissingETBase (EFMissingET):
     def __init__(self, name):
         super( EFMissingETBase, self ).__init__(name)
 
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring, TrigEFMissingETOnlineMonitoring, TrigEFMissingETCosmicMonitoring
-        validation = TrigEFMissingETValidationMonitoring()
-        online = TrigEFMissingETOnlineMonitoring()
-        cosmic = TrigEFMissingETCosmicMonitoring()
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("EFMissingET_Time")
-        time.TimerHistLimits = [0, 250]
-
-        self.AthenaMonTools = [ validation, online, cosmic, time]
 
 
 ##### loop over cells, no noise suppression #####
@@ -216,6 +206,15 @@ class EFMissingET_Fex_allCells (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
+
+
+        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
+        validation = TrigEFMissingETValidationMonitoring_other()
+        online = TrigEFMissingETOnlineMonitoring_other()
+        cosmic = TrigEFMissingETCosmicMonitoring_other()
+
+        self.AthenaMonTools = [ validation, online, cosmic]
+
 
 
 ##### loop over cells with noise suppression #####
@@ -398,6 +397,16 @@ class EFMissingET_Fex_noiseSupp (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
 
+
+        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
+        validation = TrigEFMissingETValidationMonitoring_other()
+        online = TrigEFMissingETOnlineMonitoring_other()
+        cosmic = TrigEFMissingETCosmicMonitoring_other()
+
+        self.AthenaMonTools = [ validation, online, cosmic]
+
+
+
 ##### loop over cells with noise suppression #####
 class EFMissingET_Fex_2sidednoiseSupp (EFMissingETBase):
     __slots__ = []
@@ -577,6 +586,20 @@ class EFMissingET_Fex_2sidednoiseSupp (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
 
+        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring, TrigEFMissingETOnlineMonitoring, TrigEFMissingETCosmicMonitoring
+        validation = TrigEFMissingETValidationMonitoring()
+        online = TrigEFMissingETOnlineMonitoring()
+        cosmic = TrigEFMissingETCosmicMonitoring()
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("EFMissingET_Time")
+        time.TimerHistLimits = [0, 250]
+
+        self.AthenaMonTools = [ validation, online, cosmic, time]
+
+
+
+
 ##### loop over LAR FEBs and Tile cells (with noise suppression) #####
 class EFMissingET_Fex_FEB (EFMissingETBase):
     __slots__ = []
@@ -755,6 +778,16 @@ class EFMissingET_Fex_FEB (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
 
+
+        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
+        validation = TrigEFMissingETValidationMonitoring_alt()
+        online = TrigEFMissingETOnlineMonitoring_alt()
+        cosmic = TrigEFMissingETCosmicMonitoring_alt()
+
+        self.AthenaMonTools = [ validation, online, cosmic]
+
+
+
 ##### Use topo. clusters for noise suppression #####
 class EFMissingET_Fex_topoClusters (EFMissingETBase):
     __slots__ = []
@@ -925,6 +958,14 @@ class EFMissingET_Fex_topoClusters (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00 ]                # Muons
 
 
+        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
+        validation = TrigEFMissingETValidationMonitoring_alt()
+        online = TrigEFMissingETOnlineMonitoring_alt()
+        cosmic = TrigEFMissingETCosmicMonitoring_alt()
+
+        self.AthenaMonTools = [ validation, online, cosmic]
+
+
 ##### Use topo. clusters for noise suppression -- w/ pileup subtraction #####
 class EFMissingET_Fex_topoClustersPS (EFMissingETBase):
     __slots__ = []
@@ -1093,6 +1134,15 @@ class EFMissingET_Fex_topoClustersPS (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
+
+
+        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
+        validation = TrigEFMissingETValidationMonitoring_other()
+        online = TrigEFMissingETOnlineMonitoring_other()
+        cosmic = TrigEFMissingETCosmicMonitoring_other()
+
+        self.AthenaMonTools = [ validation, online, cosmic]
+
 
 
 ##### Use topo. clusters for noise suppression #####
@@ -1267,6 +1317,14 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00 ]                # Muons
 
 
+        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
+        validation = TrigEFMissingETValidationMonitoring_other()
+        online = TrigEFMissingETOnlineMonitoring_other()
+        cosmic = TrigEFMissingETCosmicMonitoring_other()
+
+        self.AthenaMonTools = [ validation, online, cosmic]
+
+
 
 ##### loop over jets #####
 class EFMissingET_Fex_Jets (EFMissingETBase):
@@ -1296,6 +1354,15 @@ class EFMissingET_Fex_Jets (EFMissingETBase):
         self.Tools += [ jetTool ]
         self.Tools += [ flagTool ]
         self.Tools += [ helperTool ]
+
+
+        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
+        validation = TrigEFMissingETValidationMonitoring_alt()
+        online = TrigEFMissingETOnlineMonitoring_alt()
+        cosmic = TrigEFMissingETCosmicMonitoring_alt()
+
+        self.AthenaMonTools = [ validation, online, cosmic]
+
 
 ##### THE DEFAULT FEX #####
 class EFMissingET_Fex (EFMissingET_Fex_2sidednoiseSupp):

@@ -151,7 +151,7 @@ StatusCode EFMissingETFlags::start()
    "TileBar0", "TileBar1", "TileBar2",    // Tile barrel
    "TileGap1", "TileGap2", "TileGap3",    // Tile gap (ITC & scint)
    "TileExt0", "TileExt1", "TileExt2",    // Tile extended barrel
-   "FCalEM",   "FCalHad1", "FCalHad2",    // Forward cal endcap
+   "FCalEM",   "FCalHad2", "FCalHad3",    // Forward cal endcap
    "Muons"                                // Muons
  }; 
  std::string bitName[bits] = { // see EFMissingETBaseTool
