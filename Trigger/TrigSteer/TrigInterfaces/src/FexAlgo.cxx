@@ -107,8 +107,7 @@ FexAlgo::processRobRequests(const std::vector< unsigned int >& inputs ) {
 
   // FEX has exactly one input type
   if (inputs.size() != 1) {
-    if ( msgLvl() <= MSG::DEBUG )
-      ATH_MSG_DEBUG ( "The size of the input to FexAlgo::processRobRequests(v<uint> input) is " << inputs.size() << ", needs to be 1! Returning ABORT CHAIN!");
+    ATH_MSG_DEBUG ( "The size of the input to FexAlgo::processRobRequests(v<uint> input) is " << inputs.size() << ", needs to be 1! Returning ABORT CHAIN!");
     return HLT::ErrorCode( Action::ABORT_CHAIN, Reason::BAD_JOB_SETUP );  
   }
 

@@ -5,7 +5,6 @@
 #ifndef TRIGINTERFACES_Algo_H
 #define TRIGINTERFACES_Algo_H
 
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigSteeringEvent/Enums.h"
@@ -15,27 +14,16 @@
 #include "TrigStorageDefinitions/EDM_TypeInfo.h"
 
 #include "TrigNavigation/Holder.h"
-//#include "TrigNavigation/Holder.icc"
 #include "TrigNavigation/Navigation.h"
-//#include "TrigNavigation/Navigation.icc"
 #include "TrigNavigation/NavigationCore.h"
-//#include "TrigNavigation/NavigationCore.icc"
-//#include "TrigNavigation/AccessProxy.h"
-//#include "TrigNavigation/AccessProxy.icc"
 
-
-
-#include "StoreGate/StoreGateSvc.h"
 #include "DataModel/ElementLink.h"
 #include "DataModel/ElementLinkVector.h"
 
-//#include "AthenaBaseComps/AthMessaging.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
 class ISvcLocator;
-class MsgStream;
 class ITrigTimerSvc;
 class TrigTimer;
+class StoreGateSvc;
 #include "AthenaMonitoring/IMonitorToolBase.h"
 
 #include <map>
@@ -172,8 +160,6 @@ namespace HLT
      */
     virtual HLT::ErrorCode hltStop() { return HLT::OK; }
 
-
-
     
     /**
      * @brief Method to be redefined by the user to implement the actions performed
@@ -183,7 +169,6 @@ namespace HLT
      * This method is called from within finalize() in the base class.
      */
     virtual HLT::ErrorCode hltFinalize() = 0;
-
 
 
     /**
@@ -250,6 +235,12 @@ namespace HLT
     TrigTimer* timer(std::string label) const; 
     TrigTimer* totalTimeTimer() const; 
 
+    /**
+     * @brief Accessor method for the message level variable.
+     * @return value of the message level for this algorithm.
+     */
+    inline unsigned int msgLvl() const { return msg().level(); }
+    using AthAlgorithm::msgLvl;   // import the msgLvl(MSG::Level) version
 
     friend class TrigSteer;
     friend class Sequence;
@@ -368,20 +359,6 @@ namespace HLT
     void setConfig(AlgoConfig* cfg) { m_config = cfg; }
 
     AlgoConfig* m_config;
-
-    /**
-     * @brief Accessor method for the MsgStream.
-     * @return handle to the MsgStream.
-     */
-    inline MsgStream& msg() const { return *m_msg; }
-    inline MsgStream& msg( const MSG::Level lvl) const { return *m_msg << lvl; }
-
-    /**
-     * @brief Accessor method for the message level variable.
-     * @return value of the message level for this algorithm.
-     */
-    inline unsigned int msgLvl() const { return m_msgLvl; }
-    inline bool msgLvl(const MSG::Level lvl) const { return m_msg->level() <= lvl; }
 
     /**
      * @brief Method used to retrieve single features attached to a TE.
@@ -520,8 +497,6 @@ namespace HLT
      */
     StoreGateSvc* store() { return evtStore().operator->(); }
 
-    
-
     /**
      * @brief Method performing monitoring operations associated to the Initialize transition.
      * @return StatusCode for the monitoring Initialize process.
@@ -632,11 +607,11 @@ namespace HLT
   protected:
 
     /** @brief ErrorCode map inputs **/
-    map<string, string>   m_errorCodeMap;
-     //     map<int, int> m_mapCodeInt;
+    std::map<std::string, std::string>   m_errorCodeMap;
+     //     std::map<int, int> m_mapCodeInt;
  
     /** @brief Actual ErrorCode map **/
-    map<ErrorCode, ErrorCode> m_ecMap;
+    std::map<ErrorCode, ErrorCode> m_ecMap;
     unsigned                  m_ecMapSize;
  
     /** @brief Find the mapped return ErrorCode */
@@ -655,12 +630,6 @@ namespace HLT
     /** @brief Gaudi auditor enable/disable flag.*/
     bool m_doAuditors;
     
-    /** @brief Pointer to MsgStream.*/
-    MsgStream* m_msg;
-
-    /** @brief Message level for this algorithm.*/
-    unsigned int m_msgLvl;
- 
     /** @brief Pointer to TrigTimerSvc service.*/
     ITrigTimerSvc* m_timerSvc;
 
