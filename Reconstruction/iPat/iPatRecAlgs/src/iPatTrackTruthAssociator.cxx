@@ -39,6 +39,7 @@ iPatTrackTruthAssociator::iPatTrackTruthAssociator(const std::string&	name,
 	m_eventCount		(0),
 	m_fakeCount		(0),
 	m_haveTruth		(false),
+	m_tracks		(0),
 	m_wrongCount		(0)
 {
     declareProperty("DetectorSelection",m_detectorSelection);

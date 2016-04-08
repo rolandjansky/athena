@@ -39,6 +39,7 @@ iPatStatistics::iPatStatistics(const std::string& name, ISvcLocator* pSvcLocator
 	m_pixelSpacePointsLocation	("PixelSpacePoints"),
 	m_sctSpacePointsLocation	("SCT_SpacePoints"),
 	m_tracksLocation		("iPatTracks"),
+	m_tracks			(0),
 	m_countPixelBroad		(0),
 	m_countPixelHits		(0),
 	m_countPixelXXX			(0),
@@ -698,6 +699,7 @@ StatusCode
 iPatStatistics::finalize()
 {
     ATH_MSG_INFO( m_eventCount << " events processed" );
+    int prec	= std::cout.precision();
     if (m_eventCount > 0)
     {
 	double	norm	= 1./static_cast<double> (m_eventCount);
@@ -928,6 +930,7 @@ iPatStatistics::finalize()
     }
 
     std::cout << std::endl;
+    std::cout.precision(prec);
     return StatusCode::SUCCESS;
 }
 

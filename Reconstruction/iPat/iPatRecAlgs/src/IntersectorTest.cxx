@@ -35,10 +35,20 @@ IntersectorTest::IntersectorTest(const std::string& name, ISvcLocator* pSvcLocat
 	// m_intersector	("Trk::StraightLineIntersector/StraightLineIntersector"),
 	m_preciseIntersector	("Trk::RungeKuttaIntersector/PreciseIntersector"),
 	m_trackFitter		("TrackFitter/TrackFitter"),
+	m_cotThetaMax		(0.),
+	m_etaScale		(0.),
 	m_fixedPt		(false),
+	m_maxOffset		(0.),
+	m_maxRotation		(0.),
+	m_zLimit		(0.),
+	m_backwardsSurface     	(0),
+	m_barrelSurface     	(0),
+	m_forwardsSurface     	(0),
+	m_perigeeSurface     	(0),
 	m_momentum		(5000.*Gaudi::Units::GeV),
 	m_region		(""),
 	m_tracksName		("iPatTracks"),
+	m_tracks		(0),
 	m_failCount		(0),
 	m_offsetCount		(0),
 	m_rotationCount		(0),
@@ -190,6 +200,7 @@ IntersectorTest::initialize()
     // m_barrelSurface			= new Trk::CylinderSurface(transformF, rlimit, zlimit);
     Amg::Transform3D* transformB	= new Amg::Transform3D;
     (*transformB)			= Amg::Translation3D(0.,0.,-zlimit);
+     m_backwardsSurface			= new Trk::DiscSurface(transformB, 0., rlimit);
     m_barrelSurface			= new Trk::CylinderSurface(rlimit, zlimit);
     Amg::Transform3D* transformF	= new Amg::Transform3D;
     (*transformF)			= Amg::Translation3D(0.,0.,+zlimit);
@@ -320,11 +331,25 @@ void
 IntersectorTest::compareWithPrecise(const Trk::TrackSurfaceIntersection*	intersection,
 				    double					qOverP)
 {
+    // just in case
+    if (! intersection)
+    {
+	++m_failCount;
+	ATH_MSG_WARNING(" compareWithPrecise: invalid argument" );
+	return;
+    }
+    
     // put on perigee surface
      const Trk::TrackSurfaceIntersection* originalIntersection =
 	 m_intersector->intersectSurface(*m_perigeeSurface,
 					 intersection,
 					 qOverP);
+     if (! originalIntersection)
+    {
+	++m_failCount;
+	ATH_MSG_WARNING(" compareWithPrecise: fails to intersect perigee" );
+	return;
+    }
     
     // for debug
     double eta		= intersection->direction().eta();
@@ -529,7 +554,6 @@ IntersectorTest::compareWithPrecise(const Trk::TrackSurfaceIntersection*	interse
 	++m_failCount;
 	ATH_MSG_WARNING(" missing backTrack solution" );
 	delete originalIntersection;
-	delete backIntersection;
     }
     
 
