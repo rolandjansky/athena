@@ -41,6 +41,9 @@ using namespace std;
 #define MAXNUMGENPARTICLES 100
 #define MAXPILEUP 500
 
+#define UNDEFFLOATVALUE (-9999.0)
+#define UNDEFINTVALUE (-1)
+
 namespace D3PD
 {
 
