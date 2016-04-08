@@ -634,19 +634,19 @@ void diff(const Jet& rJet1, const Jet& rJet2, std::map<std::string,double> varDi
 {
   // Since this isn't part of the Jet Class, we need to re-define it here
   // not very elegant
-  double m_ignoreWeight = 1.0e-06;
+  double ignoreWeight = 1.0e-06;
   // Compare sizes
   if(rJet1.size() != rJet2.size())
     varDiff["NConstituents"] = rJet1.size() - rJet2.size();
 
   // Compare 4 momenta
-  if(fabs(rJet1.e() - rJet2.e()) > m_ignoreWeight)
+  if(fabs(rJet1.e() - rJet2.e()) > ignoreWeight)
     varDiff["e"] = rJet1.e() - rJet2.e();
-  if(fabs(rJet1.px() - rJet2.px()) > m_ignoreWeight)
+  if(fabs(rJet1.px() - rJet2.px()) > ignoreWeight)
     varDiff["px"] = rJet1.px() - rJet2.px();
-  if(fabs(rJet1.py() - rJet2.py()) > m_ignoreWeight)
+  if(fabs(rJet1.py() - rJet2.py()) > ignoreWeight)
     varDiff["py"] = rJet1.py() - rJet2.py();
-  if(fabs(rJet1.pz() - rJet2.pz()) > m_ignoreWeight)
+  if(fabs(rJet1.pz() - rJet2.pz()) > ignoreWeight)
     varDiff["pz"] = rJet1.pz() - rJet2.pz();
 }
 
