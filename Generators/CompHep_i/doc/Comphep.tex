@@ -1,0 +1,48 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\textwidth=6.5in
+\textheight=9.0in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}   
+\def\topfraction{1.}
+\def\textfraction{0.}           
+\begin{document}
+\title{Comphep\_i: An interface between Comphep and Athena}
+\author{  Ian Hinchliffe (I\_Hinchliffe@lbl.gov) and Georgios Stavropoulos (George.Stavropoulos@cern.ch) }
+%\today
+
+\maketitle           
+
+This package runs Comphep  from within Athena. \\See the example
+in {\bf Comphep\_i/share/jobOptions.comphep.py } which shows how to
+read Comphep events and hadronize them using Pythia. 
+
+Users must first run 
+Comphep in standalone mode and make a file of events. An athena job
+then takes these events hadronizes them and passes them down the
+Athena event chain. The events must be made with a version of Comphep
+that is compatible, recent versions that support the Les Houches
+interface should be acceptable. CompHep version 4.4.3 is currently
+interfaced.
+
+Modify the file inparmCompHep.dat that
+you will find in your run area. You specify the name of your event
+file here. No Athena recompilation is needed is needed to process the events.
+
+Comphep information can be found here
+
+http://theory.sinp.msu.ru/parser/parser.php?file=/phpcms/comphep
+
+
+\end{document}
+
+
+
+
+
+
+
