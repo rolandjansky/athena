@@ -803,8 +803,11 @@ void IOVDbFolder::specialCacheUpdate(const cool::IObject& ref,
     //          }
     // use the shared specification in storing the payload
     m_cacheattr.push_back(coral::AttributeList(*m_cachespec,true));// maybe needs to be cleared before
-    if (m_log->level()<=MSG::DEBUG) 
-      *m_log << MSG::DEBUG << "AttributeList: " <<atrlist.toOutputStream(std::cout)<< endreq;;
+    if (m_log->level()<=MSG::DEBUG) {
+      std::ostringstream os;
+      atrlist.toOutputStream(os);
+      *m_log << MSG::DEBUG << "AttributeList: " << os.str() << endreq;
+    }
     m_cacheattr.back().fastCopyData(atrlist);
     countSize(atrlist);
 }
@@ -969,7 +972,7 @@ bool IOVDbFolder::getAddress(const cool::ValidityKey reftime,
       // set range
       range=attrListColl->minRange();
       strAddress="POOLContainer_CondAttrListCollection][CLID=x";
-    } else if (m_foldertype==CoraCool) {
+    } else if (m_foldertype==CoraCool || m_foldertype==CoolVector) {
       range=attrListVec->minRange();
       strAddress="POOLContainer_CondAttrListVec][CLID=x";
     } else if (m_foldertype==AttrList || m_foldertype==PoolRef) {

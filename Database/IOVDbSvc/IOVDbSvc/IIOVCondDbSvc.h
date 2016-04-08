@@ -53,8 +53,8 @@ public:
 inline
 const InterfaceID& 
 IIOVCondDbSvc::interfaceID() {
-    static const InterfaceID m_IID("IOVCondDbSvc", 1, 0);
-    return m_IID;
+    static const InterfaceID IID("IOVCondDbSvc", 1, 0);
+    return IID;
 }
 
 #endif
