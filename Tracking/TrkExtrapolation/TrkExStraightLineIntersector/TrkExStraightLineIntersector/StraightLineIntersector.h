@@ -85,7 +85,7 @@ private:
     double			m_transverseLength;
 
     // counters
-    int				m_countExtrapolations;
+    unsigned long long		m_countExtrapolations;
     
 };
 
