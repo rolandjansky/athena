@@ -41,6 +41,32 @@ MdtPrepData::MdtPrepData(
 }
     
     
+MdtPrepData::MdtPrepData(
+                         const Identifier &id,
+                         const IdentifierHash& /*collectionHash*/, // FIXME! (Should be removed)
+                         const Amg::Vector2D& driftRadius,
+                         std::unique_ptr<const Amg::MatrixX> errDriftRadius,
+                         std::vector<Identifier>&& rdoList,
+                         const MuonGM::MdtReadoutElement* detEl,
+                         const int tdc,
+                         const int adc,
+                         const MdtDriftCircleStatus status
+                         )
+    :
+    PrepRawData(id, driftRadius, 
+                std::move(rdoList),
+                std::move(errDriftRadius)),
+    m_detEl(detEl),
+    m_tdc(tdc), 
+    m_adc(adc), 
+    m_status(status),
+    m_globalPosition(0)
+{
+//    assert(rdoList.size()==1); 
+//    assert( rdoList[0]==id);
+}
+    
+    
     // Destructor:
     MdtPrepData::~MdtPrepData()
 {
@@ -70,12 +96,38 @@ MdtPrepData::MdtPrepData(const MdtPrepData & RIO)
     m_globalPosition(0)
 {}
 
+//Move constructor:
+MdtPrepData::MdtPrepData(MdtPrepData && RIO)
+    :
+    PrepRawData( std::move(RIO) ),
+    m_detEl(RIO.m_detEl),
+    m_tdc(RIO.m_tdc),
+    m_adc(RIO.m_adc),
+    m_status(RIO.m_status),
+    m_globalPosition(0)
+{}
+
 //assignment operator
 MdtPrepData& MdtPrepData::operator=(const MdtPrepData& RIO)
 {
     if (&RIO !=this)
     {
       Trk::PrepRawData::operator=(RIO);
+        m_detEl           = RIO.m_detEl;
+        m_tdc             = RIO.m_tdc;
+        m_adc             = RIO.m_adc;
+        m_status          = RIO.m_status;
+        m_globalPosition  = 0;
+    }
+    return *this;
+}
+
+//assignment operator
+MdtPrepData& MdtPrepData::operator=(MdtPrepData&& RIO)
+{
+    if (&RIO !=this)
+    {
+      Trk::PrepRawData::operator=(std::move(RIO));
         m_detEl           = RIO.m_detEl;
         m_tdc             = RIO.m_tdc;
         m_adc             = RIO.m_adc;

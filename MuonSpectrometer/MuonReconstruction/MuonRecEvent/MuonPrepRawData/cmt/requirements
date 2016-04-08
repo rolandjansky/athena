@@ -23,4 +23,4 @@ apply_pattern installed_library
 private
 use AtlasReflex      AtlasReflex-*      External -no_auto_imports
 
-#apply_pattern lcgdict dict=MuonPrepRawData selectionfile=selection.xml headerfiles=" ../MuonPrepRawData/MuonPrepDataDict.h"
+apply_pattern lcgdict dict=MuonPrepRawData selectionfile=selection.xml headerfiles=" ../MuonPrepRawData/MuonPrepDataDict.h"

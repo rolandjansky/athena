@@ -27,6 +27,8 @@ namespace Muon
 {
 
     class RpcRdoToPrepDataTool;
+    class RpcPrepDataContainerCnv_p1;
+    class RpcPrepDataContainerCnv_p2;
     
 /** @brief Class to represent RPC measurements. */
 class RpcPrepData :   public MuonCluster
@@ -40,10 +42,14 @@ class RpcPrepData :   public MuonCluster
 public:
 
     friend class ::RpcPrepDataContainerCnv;
+    friend class Muon::RpcPrepDataContainerCnv_p1;
+    friend class Muon::RpcPrepDataContainerCnv_p2;
 
     RpcPrepData();
     RpcPrepData(const RpcPrepData &);
+    RpcPrepData(RpcPrepData &&);
     RpcPrepData &operator=(const RpcPrepData &);
+    RpcPrepData &operator=(RpcPrepData &&);
 
 
     /** @brief Constructor.

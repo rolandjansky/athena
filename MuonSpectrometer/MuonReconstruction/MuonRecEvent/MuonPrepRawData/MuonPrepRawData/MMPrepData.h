@@ -32,7 +32,9 @@ namespace Muon
 
     MMPrepData();
     MMPrepData(const MMPrepData &);
+    MMPrepData(MMPrepData &&);
     MMPrepData &operator=(const MMPrepData &);
+    MMPrepData &operator=(MMPrepData &&);
 
 
     /** @brief Constructor.

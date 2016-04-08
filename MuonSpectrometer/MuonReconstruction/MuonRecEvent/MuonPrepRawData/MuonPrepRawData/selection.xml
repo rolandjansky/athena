@@ -23,7 +23,10 @@
   <class name="DataVector<Muon::MuonPrepDataCollection<Muon::CscStripPrepData> >" id="A41C9D99-F977-43B5-8DFC-819F057A9136"/>
   <class name="std::vector<Muon::MuonPrepDataCollection<Muon::CscStripPrepData>*>" />
 
+  <class name="ElementLink<Muon::CscPrepDataContainer>"/>
+  <class name="ElementLink<Muon::CscPrepDataContainer>::Base"/>
 
+  
   <!-- RPC -->
   <class name="Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::RpcPrepData> >" />
   <class name="Muon::MuonPrepDataCollection<Muon::RpcPrepData>" />
@@ -46,6 +49,9 @@
 
   <class name="std::vector<DataLinkVector<Muon::MuonPrepDataCollection<Muon::RpcPrepData> >::Entry>" />
 
+  <class name="ElementLink<Muon::RpcPrepDataContainer>"/>
+  <class name="ElementLink<Muon::RpcPrepDataContainer>::Base"/>
+  
 
   <!-- TGC -->
 
@@ -69,6 +75,8 @@
 
   <class name="std::vector<DataLinkVector<Muon::MuonPrepDataCollection<Muon::TgcPrepData> >::Entry>" />
 
+  <class name="ElementLink<Muon::TgcPrepDataContainer>"/>
+  <class name="ElementLink<Muon::TgcPrepDataContainer>::Base"/>
 
   <!-- MDT -->
 
@@ -94,7 +102,10 @@
 
   <class name="std::vector<DataLinkVector<Muon::MuonPrepDataCollection<Muon::MdtPrepData> >::Entry>" />
 
+  <class name="ElementLink<Muon::MdtPrepDataContainer>"/>
+  <class name="ElementLink<Muon::MdtPrepDataContainer>::Base"/>
 
+  
   <!-- sTGC -->
   <class name="Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::sTgcPrepData> >" />
   <class name="Muon::MuonPrepDataCollection<Muon::sTgcPrepData>" />
@@ -116,6 +127,9 @@
   <class name="DataLinkVector<Muon::MuonPrepDataCollection<Muon::sTgcPrepData> >::iterator" />
 
   <class name="std::vector<DataLinkVector<Muon::MuonPrepDataCollection<Muon::sTgcPrepData> >::Entry>" />
+
+  <class name="ElementLink<Muon::sTgcPrepDataContainer>"/>
+  <class name="ElementLink<Muon::sTgcPrepDataContainer>::Base"/>
 
   <!-- MM -->
   <class name="Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::MMPrepData> >" />
@@ -139,6 +153,8 @@
 
   <class name="std::vector<DataLinkVector<Muon::MuonPrepDataCollection<Muon::MMPrepData> >::Entry>" />
 
+  <class name="ElementLink<Muon::MMPrepDataContainer>"/>
+  <class name="ElementLink<Muon::MMPrepDataContainer>::Base"/>
 
 
 </lcgdict>
