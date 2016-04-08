@@ -67,7 +67,8 @@
 #define N_SAMPLES 7
 #define N_RODS 65
 #define N_CISPAR 110
-#define N_TMDBCHANS 4 // 4 in EB and 7 in B
+#define N_TMDBCHANS 8 // 4 in EB and 8 in B
+#define N_TMDBDECISIONS 4
 
 class TTree;
 
@@ -274,6 +275,11 @@ class TileAANtuple : public AthAlgorithm {
     float m_pedOpt[N_ROS2][N_MODULES][N_CHANS];
     float m_chi2Opt[N_ROS2][N_MODULES][N_CHANS];
 
+    float m_eQIE[N_ROS2][N_MODULES][N_CHANS];
+    float m_tQIE[N_ROS2][N_MODULES][N_CHANS];
+    float m_pedQIE[N_ROS2][N_MODULES][N_CHANS];
+    float m_chi2QIE[N_ROS2][N_MODULES][N_CHANS];
+
     float m_eOF1[N_ROS2][N_MODULES][N_CHANS];
     float m_tOF1[N_ROS2][N_MODULES][N_CHANS];
     float m_pedOF1[N_ROS2][N_MODULES][N_CHANS];
@@ -305,7 +311,7 @@ class TileAANtuple : public AthAlgorithm {
 
     float m_eTMDB[N_ROS][N_MODULES][N_TMDBCHANS]; // TMDB
     unsigned char m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES]; // TMDB
-    unsigned char m_decisionTMDB[N_ROS][N_MODULES][N_TMDBCHANS]; // TMDB
+    unsigned char m_decisionTMDB[N_ROS][N_MODULES][N_TMDBDECISIONS]; // TMDB
  
     float m_TEMP[4][64][7];
     float m_HV[4][64][48];
@@ -328,6 +334,7 @@ class TileAANtuple : public AthAlgorithm {
     std::string m_fitRawChannelContainer;
     std::string m_fitcRawChannelContainer;
     std::string m_optRawChannelContainer;
+    std::string m_qieRawChannelContainer;
     std::string m_dspRawChannelContainer;
     std::string m_mfRawChannelContainer;
     std::string m_of1RawChannelContainer;
