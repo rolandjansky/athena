@@ -119,17 +119,22 @@ namespace Trk
       virtual ~VxTrackAtVertex();
       
     /**
-     * Copy constructor, assignement operator, clone method
+     * Copy constructor
      */  
       VxTrackAtVertex(const VxTrackAtVertex& rhs);
     
     /**
-     * Copy constructor, assignement operator, clone method
+     * Assignment operator
      */
       VxTrackAtVertex &operator= (const VxTrackAtVertex &);  
      
     /**
-     * Copy constructor, assignement operator, clone method
+     * Move assignment operator
+     */
+      VxTrackAtVertex &operator= (VxTrackAtVertex &&);  
+     
+    /**
+     * Clone method
      */
       virtual VxTrackAtVertex* clone() const;                
          
@@ -189,6 +194,13 @@ namespace Trk
      * Setting up the initial track.
      */ 
       void setOrigTrack(ITrackLink * trk);
+
+
+    /**
+     * Setting up the initial track, without caching parameters.
+     */ 
+      void setOrigTrackNoCache(ITrackLink * trk);
+
 
     /**
      * Setting up the linearized track.
@@ -505,6 +517,15 @@ namespace Trk
       m_initialNeutralPerigee = 0;
     }
   }//end of setOrigTrack method
+  
+  inline void VxTrackAtVertex::setOrigTrackNoCache(ITrackLink* trk)
+  {
+    delete m_trackOrParticleLink;
+    m_trackOrParticleLink = trk;    
+
+    m_initialPerigee = nullptr;
+    m_initialNeutralPerigee = nullptr;
+  }//end of setOrigTrackNocache method
   
   inline void VxTrackAtVertex::setInitialPerigee(const TrackParameters * perigee)
   {

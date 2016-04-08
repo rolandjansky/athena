@@ -35,6 +35,16 @@ namespace Trk {
 #endif
   }
 
+  VxCandidate::VxCandidate(
+    Trk::RecVertex&& recVertex,
+    std::vector<Trk::VxTrackAtVertex*>&& vxTrackAtVertex)
+    : m_vertexType(Trk::NotSpecified), m_recVertex(std::move(recVertex)), m_vxTrackAtVertex(std::move(vxTrackAtVertex))
+  {
+#ifndef NDEBUG
+    s_numberOfInstantiations++;
+#endif
+  }
+
   VxCandidate::VxCandidate(const VxCandidate& rhs) :
       m_vertexType(rhs.m_vertexType),
       m_recVertex(rhs.m_recVertex),
@@ -70,6 +80,19 @@ namespace Trk {
       {
           m_vxTrackAtVertex.push_back((*itr)->clone());
       }
+    }
+    return *this;
+  }
+
+  VxCandidate &VxCandidate::operator= (VxCandidate&& rhs)
+  {
+    if (this!=&rhs)
+    {
+      m_recVertex = std::move(rhs.m_recVertex);
+      m_vertexType = rhs.m_vertexType;
+      for (Trk::VxTrackAtVertex* tav : m_vxTrackAtVertex)
+        delete tav;
+      m_vxTrackAtVertex = std::move(rhs.m_vxTrackAtVertex);
     }
     return *this;
   }

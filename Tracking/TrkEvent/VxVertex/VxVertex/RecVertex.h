@@ -28,6 +28,7 @@
 
 
 class MsgStream;
+class RecVertexCnv_p1;
  
 namespace Trk 
 {
@@ -102,6 +103,7 @@ namespace Trk
   void scaleError(float factor); 
 
   private:
+    friend class ::RecVertexCnv_p1;
     AmgSymMatrix(3) m_positionCovariance; //!< covariance matrix on vertex position
     Trk::FitQuality m_fitQuality; //chi2 and number of degrees of freedom of the fit
     
