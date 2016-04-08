@@ -145,7 +145,6 @@ StatusCode TBEMECXTalkToyModel::process(CaloCellContainer * theCont )
 
 StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::iterator &  itrCellBeg, const CaloCellContainer::iterator & itrCellEnd )
 {
-  CaloCell_ID::SUBCALO mySubDet;
   unsigned int myCellHashOffset[CaloCell_ID::NSUBCALO];
   std::set<int> m_validCalos;
   m_validCalos.insert(CaloCell_ID::LAREM);
@@ -153,7 +152,6 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
   std::set<int>::const_iterator vCaloIterEnd = m_validCalos.end(); 
   for(; vCaloIter!=vCaloIterEnd; vCaloIter++) {
     IdentifierHash myHashMin,myHashMax;
-    mySubDet=(CaloCell_ID::SUBCALO)(*vCaloIter);
     m_calo_id->calo_cell_hash_range ((*vCaloIter),myHashMin,myHashMax);
     myCellHashOffset[(*vCaloIter)] = myHashMin;
   }
@@ -182,7 +180,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	}
 	double e = (*cellItEng).second;
 
-	mySubDet = element->getSubCalo();
+        const CaloCell_ID::SUBCALO mySubDet = element->getSubCalo();
 	std::vector<IdentifierHash> theNeighbors;
 
 	int otherSubDet;
@@ -195,11 +193,15 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	IdentifierHash nId = theNeighbors.at(0)-myCellHashOffset[mySubDet];
 	myId = m_calo_id->cell_id(mySubDet,nId);
 	std::map<Identifier,CaloCell*>::iterator cellIt = cellMap.find(myId);
-	CaloCell * theCellN1 = (*cellIt).second;
 	if (cellIt==cellMap.end()) {
 	  ATH_MSG_ERROR ("neighbor CaloCell object not found in cellMap");
 	  return StatusCode::FAILURE;
 	}
+	CaloCell * theCellN1 = (*cellIt).second;
+        if (!theCellN1) {
+	  ATH_MSG_ERROR ("neighbor CaloCell object not found in cellMap");
+	  return StatusCode::FAILURE;
+        }
 	cellItEng = energyMap.find(theCellN1->ID());
 	if (cellItEng==energyMap.end()) {
 	  ATH_MSG_ERROR ( "Identifier not found in energyMap" );
@@ -298,7 +300,8 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	double rescaled_e   = (1.-m_xtalkScaleLong-EMEC3neighbors*m_xtalkScaleEta-EMEC2neighbors*m_xtalkScaleEMEC2Eta)*e
 	  + m_xtalkScaleLong*eN1 + m_xtalkScaleEta*(eN2+eN3) + m_xtalkScaleEMEC2Eta*(eN4+eN5)
 	  + (theCell->energy()-e);
-	double rescaled_eN1 = (1.-m_xtalkScaleLong)*eN1 + m_xtalkScaleLong*e + (theCellN1->energy()-eN1);
+	double rescaled_eN1 = 0;
+        if (theCellN1) rescaled_eN1 = (1.-m_xtalkScaleLong)*eN1 + m_xtalkScaleLong*e + (theCellN1->energy()-eN1);
 	double rescaled_eN2 = 0.;
 	if (theCellN2) rescaled_eN2 = (1.-m_xtalkScaleEta)*eN2 + m_xtalkScaleEta*e + (theCellN2->energy()-eN2);
 	double rescaled_eN3 = 0.;
@@ -356,7 +359,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	}
 	*/
 	theCell  ->setEnergy(rescaled_e);
-	theCellN1->setEnergy(rescaled_eN1);
+	if (theCellN1) theCellN1->setEnergy(rescaled_eN1);
 	if (theCellN2) theCellN2->setEnergy(rescaled_eN2);
 	if (theCellN3) theCellN3->setEnergy(rescaled_eN3);
 	//if (theCellN4) theCellN4->setEnergy(rescaled_eN4);

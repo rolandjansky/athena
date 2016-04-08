@@ -4,14 +4,7 @@
 
 
 #include "TBRec/ImpactInCalo.h"
-
-#ifdef HAVE_NEW_IOSTREAMS
 #include <iostream>
-#else
-#include <iostream.h>
-#define std
-#endif
-
 
 
 void ImpactInCalo::print() const {

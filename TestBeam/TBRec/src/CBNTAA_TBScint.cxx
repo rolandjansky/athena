@@ -73,10 +73,10 @@ StatusCode CBNTAA_TBScint::CBNT_execute() {
 
   sc = evtStore()->retrieve(movecoll,"Movable::Hits");
   if (sc.isSuccess()){
-     LArG4H6FrontHitConstIterator m_it = movecoll->begin();
-     LArG4H6FrontHitConstIterator m_end = movecoll->end();
-     for ( ; m_it!=m_end; ++m_it) {
-       LArG4H6FrontHit* hit = (*m_it);
+     LArG4H6FrontHitConstIterator it = movecoll->begin();
+     LArG4H6FrontHitConstIterator end = movecoll->end();
+     for ( ; it!=end; ++it) {
+       LArG4H6FrontHit* hit = (*it);
        scnum = hit->GetSC();
        if(scnum  <= 0) continue; // not a scintilator hit
        edep = hit->GetEdep();
