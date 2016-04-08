@@ -68,22 +68,22 @@ TGC_RegionSelectorTable::~TGC_RegionSelectorTable() {
 
 
 StatusCode TGC_RegionSelectorTable::initialize() { 
-  msg(MSG::INFO) << "initialize() TGC_RegionSelectorTable" << endmsg;
+  msg(MSG::INFO) << "initialize() TGC_RegionSelectorTable" << endreq;
 
    // locate new cabling service    
   StatusCode sc = service("MuonTGC_CablingSvc",m_tgcCabling);
   if (sc.isFailure() ){
-    msg() << MSG::ERROR << "Could not retrieve " << m_tgcCabling << endmsg;
+    msg() << MSG::ERROR << "Could not retrieve " << m_tgcCabling << endreq;
     return sc;
   }
-  msg() << MSG::DEBUG << "Retrieved service " << m_tgcCabling << endmsg;
+  msg() << MSG::DEBUG << "Retrieved service " << m_tgcCabling << endreq;
   
   return createTable();
 }
 
 
 StatusCode TGC_RegionSelectorTable::finalize() { 
-  msg(MSG::INFO) << "finalize()" << endmsg;
+  msg(MSG::INFO) << "finalize()" << endreq;
   return StatusCode::SUCCESS;
 }
 
