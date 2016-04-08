@@ -26,7 +26,7 @@
  */
 
 
-class L1CaloPprDisabledChannelContainerRun2 : private virtual L1CaloPprDisabledChannelContainer,
+class L1CaloPprDisabledChannelContainerRun2 : public virtual L1CaloPprDisabledChannelContainer,
                                               public virtual DataObject,
                                               public virtual AbstractL1CaloPersistentCondition
 {
