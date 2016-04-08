@@ -76,7 +76,7 @@ class HLTTauMonTool : public IHLTMonTool {
   /// Method filling the L1 RoI  histograms
   //StatusCode fillL1ForItem(const std::string & trigItem);
   StatusCode fillL1Tau(const xAOD::EmTauRoI * aL1Tau);
-
+  StatusCode fillL1Jet(const xAOD::JetRoI * aL1Jet);
   /// Method filling the efficiency histograms
 //  StatusCode fillEfficiency(const std::string & trigItem);
 
@@ -88,6 +88,7 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode fillPreselTauVsOffline(const xAOD::TauJet *aEFTau);
   StatusCode fillL1TauVsOffline(const xAOD::EmTauRoI *aEFTau);
   StatusCode fillEFTauVsTruth(const xAOD::TauJet *aEFTau, const std::string & trigItem);  
+  StatusCode fillTopoValidation(const std::string & trigItem_topo, const std::string & trigItem_support);
 
   /// Method finds  LVL1_ROI object corresponding to  given TrigRoiDescriptor
   const xAOD::EmTauRoI * findLVL1_ROI(const TrigRoiDescriptor * roiDesc);
@@ -97,13 +98,14 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type);
   StatusCode RecoTauEfficiency(const std::string & trigItem);
   StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom);
-  StatusCode TauEfficiencyCombo(const std::string & trigItem);
+//  StatusCode TauEfficiencyCombo(const std::string & trigItem);
 
   StatusCode RealZTauTauEfficiency();
 
   //Methods for HLT and L1 Matching
   bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
   bool L1TauMatching(const std::string & trigItem, const TLorentzVector & TLV, double DR);
+  bool  emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min);
   StatusCode test2StepTracking();
   void testClusterNavigation(const xAOD::TauJet *aEFTau);
   void testL1TopoNavigation(const std::string & trigItem);
@@ -146,6 +148,7 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doTestTracking;
   bool m_emulation;
   bool m_RealZtautauEff;
+  bool m_doTopoValidation;
   std::vector<std::string> CutItems;
   std::vector<std::string> TauCutFlow;
   std::vector<std::string> MuCutFlow;
@@ -172,6 +175,8 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_prescaled_tau;
   std::vector<std::string> m_emulation_l1_tau;
   std::vector<std::string> m_emulation_hlt_tau;
+  std::vector<std::string> m_topo_chains;
+  std::vector<std::string> m_topo_support_chains;
   std::string m_lowest_singletau;
   //std::string m_lowest_ditau;
   //std::string m_lowest_etau;

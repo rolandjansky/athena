@@ -198,31 +198,31 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
                 plotUnderOverFlow(hist("hTruthRecoHLTNTrackNum"));
                 plotUnderOverFlow(hist("hTruthRecoHLTNVtxNum"));
                 plotUnderOverFlow(hist("hTruthRecoHLTMuNum"));
-                setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TauComboEfficiency");
-                plotUnderOverFlow(hist("hCombTauPtDenom"));
-                plotUnderOverFlow(hist("hCombL1TauPtNum"));
-                plotUnderOverFlow(hist("hCombHLTTauPtNum"));
-                plotUnderOverFlow(hist("hCombelPtDenom"));
-                plotUnderOverFlow(hist("hCombL1elPtNum"));
-                plotUnderOverFlow(hist("hCombHLTelPtNum"));
-                plotUnderOverFlow(hist("hCombmuPtDenom"));
-                plotUnderOverFlow(hist("hCombL1muPtNum"));
-                plotUnderOverFlow(hist("hCombHLTmuPtNum"));
-                plotUnderOverFlow(hist("hCombOffjetPtDenom"));
-                plotUnderOverFlow(hist("hCombL1OffjetPtNum"));
-                plotUnderOverFlow(hist("hCombHLTOffjetPtNum"));
-                plotUnderOverFlow(hist("hCombMETDenom"));
-                plotUnderOverFlow(hist("hCombL1METNum"));
-                plotUnderOverFlow(hist("hCombHLTMETNum"));
-                plotUnderOverFlow(hist("hCombdRDenom"));
-                plotUnderOverFlow(hist("hCombL1dRNum"));
-                plotUnderOverFlow(hist("hCombHLTdRNum"));
-                plotUnderOverFlow(hist("hCombdEtaDenom"));
-                plotUnderOverFlow(hist("hCombL1dEtaNum"));
-                plotUnderOverFlow(hist("hCombHLTdEtaNum"));
-                plotUnderOverFlow(hist("hCombdPhiDenom"));
-                plotUnderOverFlow(hist("hCombL1dPhiNum"));
-                plotUnderOverFlow(hist("hCombHLTdPhiNum"));
+//                setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TauComboEfficiency");
+//                plotUnderOverFlow(hist("hCombTauPtDenom"));
+//                plotUnderOverFlow(hist("hCombL1TauPtNum"));
+//                plotUnderOverFlow(hist("hCombHLTTauPtNum"));
+//                plotUnderOverFlow(hist("hCombelPtDenom"));
+//                plotUnderOverFlow(hist("hCombL1elPtNum"));
+//                plotUnderOverFlow(hist("hCombHLTelPtNum"));
+//                plotUnderOverFlow(hist("hCombmuPtDenom"));
+//                plotUnderOverFlow(hist("hCombL1muPtNum"));
+//                plotUnderOverFlow(hist("hCombHLTmuPtNum"));
+//                plotUnderOverFlow(hist("hCombOffjetPtDenom"));
+//                plotUnderOverFlow(hist("hCombL1OffjetPtNum"));
+//                plotUnderOverFlow(hist("hCombHLTOffjetPtNum"));
+//                plotUnderOverFlow(hist("hCombMETDenom"));
+//                plotUnderOverFlow(hist("hCombL1METNum"));
+//                plotUnderOverFlow(hist("hCombHLTMETNum"));
+//                plotUnderOverFlow(hist("hCombdRDenom"));
+//                plotUnderOverFlow(hist("hCombL1dRNum"));
+//                plotUnderOverFlow(hist("hCombHLTdRNum"));
+//                plotUnderOverFlow(hist("hCombdEtaDenom"));
+//                plotUnderOverFlow(hist("hCombL1dEtaNum"));
+//                plotUnderOverFlow(hist("hCombHLTdEtaNum"));
+//                plotUnderOverFlow(hist("hCombdPhiDenom"));
+//                plotUnderOverFlow(hist("hCombL1dPhiNum"));
+//                plotUnderOverFlow(hist("hCombHLTdPhiNum"));
             }
             if(m_turnOnCurves)
             {
@@ -264,8 +264,10 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
             plotUnderOverFlow(hist("hL1RoIEMIso"));
             plotUnderOverFlow(hist("hL1RoIHadCore"));
             plotUnderOverFlow(hist("hL1RoIHadIsol"));
-            
-            
+            plotUnderOverFlow(hist("hL1JetRoIEta"));            
+            plotUnderOverFlow(hist("hL1JetRoIPhi"));
+            plotUnderOverFlow(hist("hL1JetRoIeT"));
+
             setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/PreselectionTau");
             plotUnderOverFlow(hist("hEFEt"));
             plotUnderOverFlow(hist("hEFEt2"));
@@ -550,6 +552,22 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
                 divide("hRecoHLT25MuNum_2","hRecoTau25MuDenom_2","hRecoHLT25MuEfficiency_2","HLT/TauMon/Expert/HLTefficiency");
                 
 
+	}
+
+	if(m_doTopoValidation){
+		for(unsigned int topo=0;topo<m_topo_chains.size();topo++){
+			setCurrentMonGroup("HLT/TauMon/Expert/TopoValidation/"+m_topo_chains.at(topo));
+			plotUnderOverFlow(hist("hDR"));	
+			plotUnderOverFlow(hist("hDRjets"));
+			plotUnderOverFlow(hist("hDRnoJets"));
+		        plotUnderOverFlow(hist("hDR_noTopo"));
+                        plotUnderOverFlow(hist("hDRjets_noTopo"));
+                        plotUnderOverFlow(hist("hDRnoJets_noTopo"));
+		}
+	}
+
+	if(m_doTestTracking){
+		setCurrentMonGroup("HLT/TauMon/Expert/FTF_track_comparison");
 	}
 
         // clone shifter histograms
