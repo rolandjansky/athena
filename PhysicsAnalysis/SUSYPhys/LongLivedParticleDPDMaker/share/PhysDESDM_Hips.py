@@ -1,12 +1,21 @@
+
+#############################################################################################
+##### NOTE!! this file is the one called when using the HIPs filter as part of the DESDM_RPVLL.
+#####  This has been superseded by PhysDPD_HIPs.py which makes a standalone DESD_HIPS format.
+##############################################################################################
+
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool as skimtool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel as kernel
+from LongLivedParticleDPDMaker.HipsFlags import primHIPsDESD
 
 # ##########################################################################################
 # HIP trigger filter
 # ##########################################################################################
 
 HipTriggerFilterTool = skimtool( name = "HipTriggerFilterTool",
-                                 expression = 'HLT_g0_hiptrt_L1EM18VH || HLT_g0_hiptrt_L1EM20VH || HLT_g0_hiptrt_L1EM20VHI || HLT_g0_hiptrt_L1EM22VHI' )
+                                 expression = primHIPsDESD.HipsTriggerFilterExpression())
+
 
 ToolSvc += HipTriggerFilterTool
 topSequence += kernel( "RPVLL_HipTriggerFilterKernel",

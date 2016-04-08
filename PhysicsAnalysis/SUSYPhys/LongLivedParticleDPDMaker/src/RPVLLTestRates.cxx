@@ -15,7 +15,11 @@
 
 RPVLLTestRates::RPVLLTestRates(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
+  m_EventCounter(0),
   m_tHistSvc("THistSvc",name),
+  m_myTree(0),
+  m_skimPassHist(0),
+  m_twoDskimHist(0),
   m_runNum(0),
   m_lumiBlock(0),
   m_evtNum(0)
@@ -34,11 +38,9 @@ RPVLLTestRates::~RPVLLTestRates() {}
 
 StatusCode RPVLLTestRates::initialize() {
 
-  StatusCode sc = service("StoreGateSvc/InputMetaDataStore", m_MetaDataStore);
-  if(sc.isFailure()) return StatusCode::FAILURE;
   m_EventCounter=0;
 
-  sc = m_tHistSvc.retrieve();
+  StatusCode sc = m_tHistSvc.retrieve();
   if (sc.isFailure()) return StatusCode::FAILURE;
 
   m_myTree= new TTree("myTree","myTree");
