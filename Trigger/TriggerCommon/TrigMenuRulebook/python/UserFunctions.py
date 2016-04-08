@@ -186,3 +186,20 @@ def modifyPrescales(prescales, userArgs=None):
           item.parents[0].ps=-1
           if item.parents[0].nparents()==1 and item.parents[0].parents[0].ps!=1:
              item.parents[0].parents[0].ps=-1
+
+import sys
+def updateWithCheck(refdict, newdict, tag=None):
+	for key in newdict.iterkeys():
+		if refdict.has_key(key):
+			print 'FATAL	Duplicated rule in {}, cannot be added {}:{}'.format(tag,key,newdict[key])
+			print 'FATAL	Would overwrite {}:{}'.format(tag,key,refdict[key])
+			sys.exit(0)
+		else:
+			refdict[key] = newdict[key]
+
+def updateNoCheck(refdict, newdict, tag=None):
+	for key in newdict.iterkeys():
+		if refdict.has_key(key):
+			print 'INFO 	Known duplicated rule in {}, will be added {}:{}'.format(tag,key,newdict[key])
+			print 'INFO 	Will overwrite {}:{}'.format(key,refdict[key])
+	refdict.update(newdict)

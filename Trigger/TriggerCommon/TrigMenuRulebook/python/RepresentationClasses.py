@@ -13,7 +13,8 @@ class TriggerNode:
         self.es = 0
         self.daughters = []
         self.parents = []
-
+        self.comment = ""
+        
     def add_daughter(self, node):
         """Append a daughter element to the node"""
         if type(node) == type([]):
@@ -99,6 +100,12 @@ class TriggerNode:
         """Check if a node or any of its parents scale with unpaired,
         non-isolated bunches"""
         return self.is_type("UNPAIRED_NONISO")
+
+    def is_bgrp10(self):
+        """Check if a node or any of its parents scale with unpaired,
+        non-isolated bunches"""
+        return self.is_type("BGRP10")
+
     #*#**
                                           
     def __str__(self):

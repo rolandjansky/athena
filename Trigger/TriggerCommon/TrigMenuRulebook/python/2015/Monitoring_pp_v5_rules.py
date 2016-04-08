@@ -411,7 +411,7 @@ common_monitoring_Rules = {
     'HLT_robrequest'                      : {  1 : TriggerRule(PS=-1, comment='DISCARD', rerun=0) }, 
     'HLT_robrequest_L1RD0_EMPTY'          : {  1 : TriggerRule(PS=-1, comment='DISCARD', rerun=0) }, 
 
-    #'HLT_noalg_dcmmon_L1RD0_EMPTY'        : {  1 : TriggerRule(rate=10.0, comment='monitoring_random', rerun=0) }, 
+    'HLT_noalg_dcmmon_L1RD0_EMPTY'        : {  1 : TriggerRule(rate=10.0, comment='monitoring_random', rerun=0) }, 
     # Chain to stress-test ROS
     #'HLT_noalg_dcmmon_L1RD2_EMPTY'       : {  1 : TriggerRule(rate=10000.0, comment='monitoring_random', rerun=0) }, 
 

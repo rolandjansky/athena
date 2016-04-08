@@ -27,6 +27,7 @@ p.add_option( '--hlt_id',  type="int", default=0, dest="hlt_id",  help="HLT menu
 
 p.add_option('-d', '--debug',        action="store_true", default=False, dest="debug", help="print debug messages")
 
+p.add_option( '--store-comments',    action = "store_true", default=False, dest = "store_comments", help = "Store comments (in rule definitions) in HLTPS xml")
 
 (options, args) = p.parse_args()
 
@@ -68,7 +69,8 @@ def readPsFile(fname):
                            x.findtext('chain_prescale'),
                            x.findtext('passthrough'),
                            x.findtext('express_prescale'),
-                           x.findtext('rerun_prescale')],)
+                           x.findtext('rerun_prescale'),
+                           x.findtext('comment')] )
         print 'N items: %d (%s)' % (len(items), level.findtext('lvl_name'))
         return items
 
@@ -197,12 +199,22 @@ def writeXmlPS(ps_l1xml, ps_hltxml, l1_items, hlt_chains, name2id, ps_name):
         if id == None:
             log.debug('Won t do anything with trigger not in P1 menu: %s' %item[0])
             continue
-        
-        if (item[3] == None):
-            f.write('    <CHAIN chain_counter="%s" chain_name="%s" level="%s" prescale="%s" pass_through="%s" rerun_prescale="%s:1"></CHAIN>\n' % (id, item[0], level, item[1], item[2], item[4]))
-        else:
-            f.write('    <CHAIN chain_counter="%s" chain_name="%s" level="%s" prescale="%s" pass_through="%s" express_stream="%s" rerun_prescale="%s:1"></CHAIN>\n' % (id, item[0], level, item[1], item[2], item[3], item[4]))
+        if len(item) > 5:
+          for x in range (1,5):
+            if len(item[x]) > 10:
+              sys.exit("ERROR! HLT prescale or express_stream %s exceeds 10 digits, can not create prescale xmls, please fix this!" % item[0] )
 
+        if (item[3] == None):
+            if options.store_comments:
+                f.write('    <CHAIN chain_counter="%s" chain_name="%s" level="%s" prescale="%s" pass_through="%s" rerun_prescale="%s:1" comment="%s"></CHAIN>\n' % (id, item[0], level, item[1], item[2], item[4], item[5]))
+            else:
+                f.write('    <CHAIN chain_counter="%s" chain_name="%s" level="%s" prescale="%s" pass_through="%s" rerun_prescale="%s:1"></CHAIN>\n' % (id, item[0], level, item[1], item[2], item[4]))
+        else:
+            if options.store_comments:
+                f.write('    <CHAIN chain_counter="%s" chain_name="%s" level="%s" prescale="%s" pass_through="%s" express_stream="%s" rerun_prescale="%s:1" comment="%s"></CHAIN>\n' % (id, item[0], level, item[1], item[2], item[3], item[4], item[5]))
+            else:
+                f.write('    <CHAIN chain_counter="%s" chain_name="%s" level="%s" prescale="%s" pass_through="%s" express_stream="%s" rerun_prescale="%s:1"></CHAIN>\n' % (id, item[0], level, item[1], item[2], item[3], item[4]))
+                
     f.write('  </CHAIN_LIST>\n')
     f.write('</HLT_MENU>\n')
     f.close()

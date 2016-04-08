@@ -24,7 +24,7 @@ Variables to edit by hand
    Default is to use files from release, so should only need to change if menu at P1 doesn't match release
 2) rulebook
    The name of your rulebook file (removing the trailing '.py').
-   Typically this will be 'Physics_pp_v6_rules', but you may
+   Typically this will be 'Physics_pp_v4_rules', but you may
    want to use the Standby keys.
 3) filled_bunches, empty_bunches, unpaired_isolated, unpaired_nonisolated, abortgap, bgrp9, bgrp11, bgrp12
    The number of bunches in each of the bunch groups, check the bunch group ID key in the
@@ -52,15 +52,10 @@ from runOptions import *
 l1_xml = "l1.xml"
 hlt_xml = "hlt.xml"
 
-# Download cost xml from https://atlas-trig-cost.cern.ch/RateProcessings-2016/
-#cost_xml="/afs/cern.ch/user/i/igrabows/public/TrigRate_hiv3-20.2.3.8.1-data11-nops-L3.7e27_HLT_SMK_225_L1_61_HLT_159.xml" #2015HIv3 
-#cost_xml="/afs/cern.ch/user/t/tamartin/public/TrigRate_ppv5-20.2.3.9.1-5TeV-nops-L4.0e32_HLT_SMK_230_L1_62_HLT_161.xml" #2015ppv5
-#cost_xml="/afs/cern.ch/work/n/nakahama/public/v6menu/TrigRate_rate-prediction-ATR-13260-noPS_HLT_SMK_273_L1_86_HLT_198.xml" #2016ppv6 20.7.4.1
-#cost_xml="/afs/cern.ch/work/n/nakahama/public/v6menu/TrigRate_rate-prediction-ATR-13315-noPS_HLT_SMK_279_L1_86_HLT_202.xml" #2016ppv6 20.7.4.2
-#cost_xml="/afs/cern.ch/work/n/nakahama/public/v6menu/TrigRate_rate-prediction-ATR-13374-noPS_HLT_SMK_281_L1_86_HLT_204.xml" #2016ppv6 20.7.4.2 tightperf #TM-00-15-93
-#cost_xml="/afs/cern.ch/work/x/xella/public/TrigRate_rate-prediction-ATR-13473-noPS_HLT_SMK_294_L1_91_HLT_227.xml" #2016ppv6 20.11.0.2 tightperf #TM-00-16-21-01
-#cost_xml="/afs/cern.ch/work/n/nakahama/public/v6menu/TrigRate_rate-prediction-ATR-13514-noPS_HLT_SMK_296_L1_91_HLT_230.xml" #2016ppv6 20.11.0.2.1 tightperf #TM-00-16-30
-cost_xml="/afs/cern.ch/work/n/nakahama/public/v6menu/TrigRate_rate-prediction-ATR-13536-noPS_HLT_SMK_300_L1_91_HLT_232.xml" #2016ppv6 20.11.0.2.1 tightperf #TM-00-16-40 
+#HI old data
+#cost_xml="/afs/cern.ch/user/i/igrabows/public/TrigRate_hiv3-20.2.3.8.1-data11-nops-L3.7e27_HLT_SMK_225_L1_61_HLT_159.xml"
+#cost_xml="/afs/cern.ch/user/t/tamartin/public/TrigRate_ppv5-20.2.3.9.1-5TeV-nops-L4.0e32_HLT_SMK_230_L1_62_HLT_161.xml"
+cost_xml="/afs/cern.ch/work/n/nakahama/public/v6menu/TrigRate_rate-prediction-ATR-13260-noPS_HLT_SMK_273_L1_86_HLT_198.xml"
 
 #--------------------------
 # List of identifier in HLT streamers name, for which efficiency is 1, has to be set by hand 
@@ -157,8 +152,8 @@ if doDBRuleBookDownload:
         command="python download_rulebook_from_DB.py %s" % (ii[0])
         os.system(command)
 else:
-    rulebook =  ["Physics_pp_v6_rules", "Cosmic_pp_v6_rules", "Standby_pp_v6_rules"]
-#    rulebook =  ["Physics_HI_v3_rules", "Cosmic_pp_v5_rules","Standby_HI_v3_rules"]    
+#    rulebook =  ["Physics_pp_v6_rules", "Cosmic_pp_v5_rules", "Standby_HI_v3_rules"]
+    rulebook =  ["Physics_HI_v3_rules", "Cosmic_pp_v5_rules","Standby_HI_v3_rules"]    
     if doVdM == True:
         #if dolowmu == True:
         #    rulebook =  ["Physics_pp_v5_rules", "Cosmic_pp_v5_rules","Standby_pp_v5_LossMap_rules","Physics_pp_v5_VdM_LowMu_rules"]
@@ -218,33 +213,6 @@ PrescaleSetSummary['PHYSICS'] = []
 
 #---------------------------------------------
 if doPhysics:
-    if doEB == True:
-        print "enabled EB"
-        from TrigMenuRulebook.RuleTools import read_online_metadata
-        metadata_mapping = {1: "filled_bunches",
-                            3: "empty_bunches",
-                            4: "unp_iso_bunches",
-                            5: "unp_noniso_bunches",
-                            6: "empty_after_filled_bunches",
-                            8: "abortgapnotcalib_bunches",
-                            9: "bgrp9_bunches",
-                           10: "bgrp10_bunches",
-                           11: "bgrp11_bunches",
-                           12: "bgrp12_bunches",
-        } 
-        online_metadata = read_online_metadata(ET.parse(cost_xml).getroot(), metadata_mapping)
-        filled_bunches = int(online_metadata["filled_bunches"]) 
-        empty_bunches = int(online_metadata["empty_bunches"]) 
-        empty_after_filled_bunches = int(online_metadata["empty_after_filled_bunches"]) 
-        unp_iso_bunches = int(online_metadata["unp_iso_bunches"])
-        unp_noniso_bunches = int(online_metadata["unp_noniso_bunches"]) 
-        abortgapnotcalib_bunches = int(online_metadata["abortgapnotcalib_bunches"]) 
-        bgrp9_bunches = int(online_metadata["bgrp9_bunches"])
-        bgrp10_bunches = int(online_metadata["bgrp10_bunches"]) 
-        bgrp11_bunches = int(online_metadata["bgrp11_bunches"]) 
-        bgrp12_bunches = int(online_metadata["bgrp12_bunches"]) 
-
- 
     for (lower_lumi_point, lumi_point) in lumi_list:
 
         print "*** Running:", lumi_point
@@ -269,15 +237,7 @@ if doPhysics:
         print " *** Converting XMLs to uploadable XMLs"
         print lower_lumi_point, lumi_point
         short_rulebookname = rulebook[0].split('.')[1].split('_rules')[0]
-        prescale_name = "%s_%04.1f_%04.1fe32"%(short_rulebookname, (float(lower_lumi_point)/100.),float(lumi_point)/100.)
-        lowlumi_name = '%.1fe32' % (float(lower_lumi_point)/100.)
-        highlumi_name = '%.1fe32' % (float(lumi_point)/100.)
-
-        if lumi_point < 0.01: 
-           prescale_name = "%s_%04.1f_%04.1fe26"%(short_rulebookname, (float(lower_lumi_point)*1e4),float(lumi_point)*1e4)
-           lowlumi_name = '%.1fe26' % (float(lower_lumi_point)*1e4)
-           highlumi_name = '%.1fe26' % (float(lumi_point)*1e4)
-
+        prescale_name = "%s_%04.10f_%04.10fe32"%(short_rulebookname, (float(lower_lumi_point)/100.),float(lumi_point)/100.)
         prescale_name += "_%sb" % filled_bunches
         if prescale_name.startswith('TrigMenuRulebook.'):
             prescale_name = prescale_name[17:]
@@ -292,10 +252,11 @@ if doPhysics:
             if status != 0:
                 sys.exit("Move failed") 
 
+
         PrescaleSetSummary['PHYSICS'] += [SummaryEntry(l1file='RuleBook_LV1PS_%s.xml' % prescale_name,
                                                        hltfile='RuleBook_HLTPS_%s.xml' % prescale_name,
-                                                       lowlumi=lowlumi_name,
-                                                       highlumi=highlumi_name,
+                                                       lowlumi='%.10fe32' % (float(lower_lumi_point)/100.),
+                                                       highlumi='%.10fe32' % (float(lumi_point)/100.),
                                                        comment='Physics')]
 
         if len(sys.argv)>2:
@@ -336,8 +297,8 @@ def doCosmicStandbyPrescales(what):
     if ignoreErrors:
         command += "  --ignore-errors"
     if what == "Cosmic":
-        print "*** Cosmic Run ***"        
-        command +=  " --target_filled=%s --target_empty=%s --target_empty_after_filled=%s --target_unp_iso=%s --target_unp_noniso=%s --target_abortgapnotcalib=%s --target_BGRP9=%s --target_BGRP10=%s --target_BGRP11=%s --target_BGRP12=%s" % (filled_bunches,empty_bunches, empty_after_filled_bunches, unp_iso_bunches,unp_noniso_bunches,abortgapnotcalib_bunches, bgrp9_bunches,bgrp10_bunches,bgrp11_bunches,bgrp12_bunches)
+        print "*** Cosmic Run, set target_empty to 3000 ***"        
+        command +=  " --target_filled=%s --target_empty=%s --target_empty_after_filled=%s --target_unp_iso=%s --target_unp_noniso=%s --target_abortgapnotcalib=%s --target_BGRP9=%s --target_BGRP10=%s --target_BGRP11=%s --target_BGRP12=%s" % (filled_bunches,3000, empty_after_filled_bunches, unp_iso_bunches,unp_noniso_bunches,abortgapnotcalib_bunches, bgrp9_bunches,bgrp10_bunches,bgrp11_bunches,bgrp12_bunches)
 
     elif what == "Standby" or what=="VdM":
         command +=  " --target_filled=%s --target_empty=%s --target_empty_after_filled=%s --target_unp_iso=%s --target_unp_noniso=%s --target_abortgapnotcalib=%s --target_BGRP9=%s --target_BGRP10=%s --target_BGRP11=%s --target_BGRP12=%s" % (filled_bunches,empty_bunches, empty_after_filled_bunches, unp_iso_bunches,unp_noniso_bunches,abortgapnotcalib_bunches, bgrp9_bunches, bgrp10_bunches,  bgrp11_bunches,bgrp12_bunches)

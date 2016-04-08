@@ -37,7 +37,8 @@ list_of_l1 = {
 # primary triggers, PS = 1
 #
 list_of_primaries = [
-        'HLT_3mu6_msonly',
+#        'HLT_3mu6_msonly',
+#        'HLT_e15_etcut',
 ]
 
 rulebook_filename = "%s_rules.py" %(tag)
@@ -89,8 +90,8 @@ for chain, stream in list:
         ps = 1
     chain_name = "'%s'" % chain
     if ps_es > 0. :
-        rulebookfile.writelines("%60s : { 10000 : TriggerRule(PS=%.1f, comment = '%s', rerun = %.1f, ESValue = %.1f) }, \n" % (chain_name, ps, stream, rerun, ps_es))
+        rulebookfile.writelines("%60s : { 100 : TriggerRule(PS=%.1f, comment = '%s', rerun = %.1f, ESValue = %.1f) }, \n" % (chain_name, ps, stream, rerun, ps_es))
     else :
-        rulebookfile.writelines("%60s : { 10000 : TriggerRule(PS=%.1f, comment = '%s', rerun = %.1f) }, \n" % (chain_name, ps, stream, rerun))
+        rulebookfile.writelines("%60s : { 100 : TriggerRule(PS=%.1f, comment = '%s', rerun = %.1f) }, \n" % (chain_name, ps, stream, rerun))
 
 rulebookfile.writelines("        }\n")

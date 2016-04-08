@@ -2,7 +2,7 @@
 
 from RuleClasses import TriggerRule
 
-tag = 'Monitoring_pp_v5'
+tag = 'Monitoring_pp_v6'
 
 
 #################################################################################################
@@ -264,9 +264,9 @@ stream_CosmicCalo_Rules = {
 
     'HLT_noalg_cosmiccalo_L1EM3_EMPTY'       : {  1 : TriggerRule(PS=1, comment='CosmicCalo', rerun=0),
                                                   2 : TriggerRule(inputRate=0.5, scaling="bunches", comment='CosmicCalo', rerun=0) }, 
-    'HLT_noalg_cosmiccalo_L1J12_EMPTY'       : {  1 : TriggerRule(PS=1, comment='CosmicCalo, Express', rerun=0, ESValue=1), 
+    'HLT_noalg_cosmiccalo_L1J12_EMPTY'       : {  1 : TriggerRule(PS=1, comment='CosmicCalo', rerun=0, ESValue=0), 
                                                   2 : TriggerRule(inputRate=0.5, comment='CosmicCalo', rerun=0, ESValue=0) }, 
-    'HLT_noalg_cosmiccalo_L1J30_EMPTY'       : {  1 : TriggerRule(PS=1, comment='CosmicCalo, Express', rerun=0, ESValue=1), 
+    'HLT_noalg_cosmiccalo_L1J30_EMPTY'       : {  1 : TriggerRule(PS=1, comment='CosmicCalo', rerun=0, ESValue=0), 
                                                   2 : TriggerRule(inputRate=0.5, comment='CosmicCalo', rerun=0, ESValue=0) }, 
     'HLT_noalg_cosmiccalo_L1J3031ETA49_EMPTY': {  1 : TriggerRule(PS=1, comment='CosmicCalo', rerun=0),
                                                   2 : TriggerRule(inputRate=0.5, comment='CosmicCalo', rerun=0) }, 
@@ -370,9 +370,22 @@ background_Rules = {
     'L1_J12_BGRP12'                      : { 1 : TriggerRule(PS=-1, comment='L1', rerun=0) },  # changed upon Mika's update (ATR-12179)
     'L1_J30.31ETA49_BGRP12'              : { 1 : TriggerRule(PS=-1, comment='L1', rerun=0) },  # changed upon Mika's update (ATR-12179)
 
-
-
-    #=======================================
+    #    # These chains are commented for now since they are not yet active at P1 but need to be un-commented once they are in 
+    #    'L1_MBTS_4_A_UNPAIRED_ISO'                : {  1 : TriggerRule(PS=1, comment='L1', rerun=0) }, #Added for ATR-13628
+    #    'L1_MBTS_4_C_UNPAIRED_ISO'                : {  1 : TriggerRule(PS=1, comment='L1', rerun=0) }, #Added for ATR-13628
+    #    'L1_RD0_UNPAIRED_ISO'                : {  1 : TriggerRule(PS=1, comment='L1', rerun=0) }, #Added for ATR-13628
+    #
+    #    # These chains are commented for now since they are not yet active at P1 but need to be un-commented once they are in  ATR-13628   
+    #    'HLT_noalg_bkg_L1RD0_UNPAIRED_ISO' : { 1 : TriggerRule(PS=-1, comment = 'Background disabled in cosmics', rerun = 0.0),
+    #                                 2 : TriggerRule(PS=1, comment='Background', rerun=0) },
+    #    
+    #    'HLT_noalg_bkg_L1MBTS_4_A_UNPAIRED_ISO' : { 1 : TriggerRule(PS=-1, comment = 'Background disabled in cosmics', rerun = 0.0),
+    #                                      2 : TriggerRule(PS=1, comment='Background', rerun=0) },
+    #    
+    #    'HLT_noalg_bkg_L1MBTS_4_C_UNPAIRED_ISO' : { 1 : TriggerRule(PS=-1, comment = 'Background disabled in cosmics', rerun = 0.0),
+    #                                      2 : TriggerRule(PS=1, comment='Background', rerun=0) },
+    #    =======================================
+    
     # HLT
     'HLT_noalg_bkg_L1Bkg'                : {  1 : TriggerRule(PS=-1, comment='Background disabled in cosmic', rerun=0),
                                               2 : TriggerRule(PS=1, comment='Background', rerun=0) },
@@ -382,6 +395,12 @@ background_Rules = {
 
     'HLT_noalg_bkg_L1J30.31ETA49_BGRP12' : { 1 : TriggerRule(PS=-1, comment = 'Background disabled in cosmics', rerun = 0.0),
                                              2 : TriggerRule(PS=1, comment='Background', rerun=0) }, 
+
+
+    
+
+
+
 
 }
 

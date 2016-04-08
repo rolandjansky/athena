@@ -59,7 +59,7 @@ def main():
     p.add_option('-x', '--rates-xml',      type  = "str",         default = "../share/TriggerCosts_1e33.xml", dest = "online_xml",    help = "rates xml"                                                                               )
     p.add_option(      '--online_lumi',    type  = "int",                                            dest = "online_lumi",            help = "rates xml lumi (the online_lumi, target_lumi, and breakpoints in the rules file must all"\
                                                                                                                                              " be in the same units, typically 1e30)"                                                  )
-    p.add_option('-l', '--target_lumi',    type  = "int",         default = 1,                       dest = "target_lumi",            help = "target lumi (the online_lumi, target_lumi, and breakpoints in the rules file must all be"\
+    p.add_option('-l', '--target_lumi',    type  = "float",         default = 1,                     dest = "target_lumi",            help = "target lumi (the online_lumi, target_lumi, and breakpoints in the rules file must all be"\
                                                                                                                                              " in the same units, typically 1e30)"                                                     )
     p.add_option('-s', '--scale_lumi',     type  = "str",         default = "1/1.15",                dest = "scale_lumi",             help = "scale lumi (1.15 for online data taking based on Brian's proposal)"                      )
     p.add_option('-m', '--trigMenu',       type  = "str",         default = "Physics_pp_v2",         dest = "trigMenu",                                                                                                                )
@@ -77,6 +77,7 @@ def main():
     p.add_option('--online_unp_noniso',    type  = "int",                                            dest = "online_unpaired_noniso", help = "# unpaired_noniso bunches in rates xml"                                                  )
     p.add_option('--online_abortgapnotcalib',    type  = "int",                                      dest = "online_abortgapnotcalib", help = "# bunches in abortgapnotcalib rates xml"                                                  )
     p.add_option('--online_BGRP9',           type  = "int",                                          dest = "online_bgrp9", help = "# bunches in BGRP9 rates xml"                                                  )
+    p.add_option('--online_BGRP10',           type  = "int",                                          dest = "online_bgrp10", help = "# bunches in BGRP10 rates xml"                                                  )
     p.add_option('--online_BGRP11',           type  = "int",                                          dest = "online_bgrp11", help = "# bunches in BGRP11 rates xml"                                                  )
     p.add_option('--online_BGRP12',           type  = "int",                                          dest = "online_bgrp12", help = "# bunches in BGRP12 rates xml"                                                  )
     p.add_option('--target_filled',        type  = "int",         default = 700,                     dest = "target_filled",          help = "# target filled bunches"                                                                 )
@@ -86,18 +87,20 @@ def main():
     p.add_option('--target_unp_noniso',    type  = "int",         default = 10,                      dest = "target_unpaired_noniso", help = "# target unpaired_noniso bunches"                                                        )
     p.add_option('--target_abortgapnotcalib',    type  = "int",                                      dest = "target_abortgapnotcalib", help = "# bunches in abortgapnotcalib rates xml"                                                  )
     p.add_option('--target_BGRP9',           type  = "int",                                          dest = "target_bgrp9", help = "# bunches in BGRP9 rates xml"                                                  )
+    p.add_option('--target_BGRP10',           type  = "int",                                          dest = "target_bgrp10", help = "# bunches in BGRP10 rates xml"                                                  )
     p.add_option('--target_BGRP11',           type  = "int",                                          dest = "target_bgrp11", help = "# bunches in BGRP11 rates xml"                                                  )
     p.add_option('--target_BGRP12',           type  = "int",                                          dest = "target_bgrp12", help = "# bunches in BGRP12 rates xml"                                                  )
     p.add_option('--use_lowest_rule',      action = "store_true", default = True,                    dest = "use_lowest_rule",        help = "optionally use the lowest available rule when none has been defined for the target lumi" )
     p.add_option('--log',                  type  = "str",         default = "",                      dest = "log",                    help = "optionally print the final state of the trigger tree to a log file"                      )
     p.add_option('--debug',                action = "store_true",                                    dest = "debug",                  help = "enable debug output"                                                                     )
     p.add_option('-q', '--quiet',          action = "store_true",                                    dest = "quiet",                  help = "disable most output"                                                                     )
-    p.add_option('-v', '--verbosity',      type  = "int",         default = 2,                       dest = "verbosity",              help = "set level of detail on the output (values from 0 to 5)"   
-                               )
+    p.add_option('-v', '--verbosity',      type  = "int",         default = 2,                       dest = "verbosity",              help = "set level of detail on the output (values from 0 to 5)"                                                           )
     p.add_option( '--streamers',      type  = "str",         default = "noalg,",   dest = "list_of_streamers",      help = "List of streamers for which the efficiency is set to 1"
                  )
-
-
+    p.add_option( '--ignore-errors',      action = "store_true",         default = False,   dest = "ignore_errors",      help = "Do not terminate on ERROR/FATAL"
+                 )
+    p.add_option( '--store-comments',     action = "store_true",         default = False,   dest = "store_comments",     help = "Store comments (in rule definitions) in ps xmls")
+    
     #*#** Note2: we should make it read the xml from a release too. 
     
     (options, args) = p.parse_args()
@@ -130,6 +133,8 @@ def main():
                         5: "unpaired_noniso",
                         6: "empty_after_filled",
                         7: "bgrp7",
+                        10: "bgrp10",
+
                         }
 
     if not options.no_online_metadata:
@@ -137,12 +142,11 @@ def main():
         online_metadata = read_online_metadata(ET.parse(options.online_xml).getroot(),
                                                metadata_mapping
                                                )
-
     for key, val in online_metadata.items():
         key = "online_%s" % key
         if getattr(options, key, None) == None or options.force_online_metadata:
             setattr(options, key, val)
-
+            print "Setting: "+str(key)+"="+str(val)
 
     #online_empty           = options.online_empty #*#** this could be calculated from the rest
     #target_lumi_unscaled   = options.target_lumi
@@ -226,7 +230,6 @@ def main():
     check_rulebook_for_duplicates(rulelocation, logger) 
 
     UserFunctions.modifyRules(rules, userArgs)
-
     configuration = {"l1_xml"                    : options.l1_xml, 
                      "hlt_xml"                   : options.hlt_xml,
                      "scale_lumi"                : options.scale_lumi,
@@ -239,6 +242,7 @@ def main():
                      "target_unpaired_noniso"    : options.target_unpaired_noniso,
                      "target_abortgapnotcalib"   : options.target_abortgapnotcalib,
                      "target_BGRP9"              : options.target_bgrp9,
+                     "target_BGRP10"             : options.target_bgrp10,
                      "target_BGRP11"             : options.target_bgrp11,
                      "target_BGRP12"             : options.target_bgrp12,
                      "online_xml"                : options.online_xml,
@@ -250,12 +254,15 @@ def main():
                      "online_unpaired_noniso"    : options.online_unpaired_noniso,                     
                      "online_abortgapnotcalib"   : options.online_abortgapnotcalib,
                      "online_BGRP9"              : options.online_bgrp9,
+                     "online_BGRP10"             : options.online_bgrp10,
                      "online_BGRP11"             : options.online_bgrp11,
                      "online_BGRP12"             : options.online_bgrp12,
                      "use_lowest_rule"           : options.use_lowest_rule,
                      "log"                       : options.log,
                      "verbosity"                 : options.verbosity,
                      "list_of_streamers"         : options.list_of_streamers, 
+                     "ignore_errors"             : options.ignore_errors,
+                     "store_comments"            : options.store_comments,
         }
 
     reader = RuleReader(configuration, rules, logger)
