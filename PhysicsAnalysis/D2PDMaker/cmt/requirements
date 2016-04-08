@@ -29,7 +29,6 @@ use muonEvent                   muonEvent-*             Reconstruction/MuonIdent
 use JetEvent                    JetEvent-*              Reconstruction/Jet
 use tauEvent                    tauEvent-*              Reconstruction
 use Particle                    Particle-*              Reconstruction
-use MissingETEvent              MissingETEvent-*        Reconstruction
 use CaloEvent                   CaloEvent-*             Calorimeter
 
 # to use TrackParticles
@@ -47,10 +46,8 @@ use PATCore                     PATCore-*               PhysicsAnalysis/Analysis
 
 private
 use  AtlasBoost                 AtlasBoost-*                    External
-use  CxxUtils                   CxxUtils-*                      Control
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
 use  MissingETPerformance       MissingETPerformance-*          Reconstruction
-use  SpecialUtils               SpecialUtils-*                  PhysicsAnalysis/AnalysisCommon
 use  TrkTrackSummary            TrkTrackSummary-*               Tracking/TrkEvent
 use  TruthHelper                TruthHelper-*                   Generators/GenAnalysisTools
 end_private

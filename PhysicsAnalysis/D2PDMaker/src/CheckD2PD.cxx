@@ -39,8 +39,10 @@
 #include <math.h>
 #include <functional>
 
+#include "AthenaKernel/Units.h"
+
 using namespace Analysis;
-using CLHEP::GeV;
+using Athena::Units::GeV;
 
 
 //===========================================================================

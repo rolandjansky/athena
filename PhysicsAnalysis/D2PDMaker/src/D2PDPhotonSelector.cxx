@@ -1304,9 +1304,10 @@ StatusCode D2PDPhotonSelector::processObject( const Analysis::Photon* photon,
                     {
                       if ( cluster && trackParticle->et() != 0.0 )
                         {
-                          double clusEt = cluster->et();
-                          isPassed = ( ( conePt/clusEt <= m_relTrackPtIsoMax ) 
-                                       && ( m_relTrackPtIsoMin  <= conePt/clusEt ) ); 
+                          const double clusEt = cluster->et();
+                          const double relcone = conePt / clusEt;
+                          isPassed = ( ( relcone <= m_relTrackPtIsoMax ) 
+                                       && ( m_relTrackPtIsoMin  <= relcone ) ); 
                         }
                       if ( isPassed && m_printInternalCutflow ) { m_objCutFlow[m_idxTrackPtIso] += 1; }
                     }
