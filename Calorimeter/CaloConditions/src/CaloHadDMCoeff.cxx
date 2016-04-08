@@ -160,7 +160,7 @@ void CaloHadDMCoeff::PrintData(FILE *fout) const
    "# indx   ifrac iener ieta   frac ener eta   pars[]\n"
    "#\n\n"};
    fprintf(fout,"%s",comments);
-   int m_indx = 0;
+   int indx = 0;
    for(int i_zone=0; i_zone < (int)m_DMAreaSet.size(); i_zone++){
       const HadDMArea *area = &m_DMAreaSet[i_zone];
       fprintf(fout," %d %d %s\n",area->m_indx, area->m_is_on, area->m_title.data());
@@ -176,7 +176,7 @@ void CaloHadDMCoeff::PrintData(FILE *fout) const
                float cls_eta = area->m_EtaBins[i_eta]+0.01;
                const HadDMCoeff *vv = getHadDMCoeff(i_zone, cls_emfrac, cls_ener, cls_eta);
                fprintf(fout,"%4d   %2d %2d %2d   %6.3f %6.3g %6.3f    ",
-               m_indx, i_frac,i_ener, i_eta, area->m_FracBins[i_frac], area->m_EnerBins[i_ener], area->m_EtaBins[i_eta]);
+               indx, i_frac,i_ener, i_eta, area->m_FracBins[i_frac], area->m_EnerBins[i_ener], area->m_EtaBins[i_eta]);
                for(int i_par=0; i_par<area->m_nPars; i_par++){
                   if(area->m_indx!=10) {
                      fprintf(fout,"%10.4f ",(*vv)[i_par]);
@@ -184,7 +184,7 @@ void CaloHadDMCoeff::PrintData(FILE *fout) const
                      fprintf(fout,"%10.7f ",(*vv)[i_par]);                  
                   }
                } // i_par
-               m_indx++;
+               indx++;
                fprintf(fout,"\n");
             } // i_eta
          } // i_ener

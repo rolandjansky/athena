@@ -5,6 +5,24 @@
 #include "CaloConditions/CaloHadWeight.h"
 
 
+//** Default Constructor
+CaloHadWeight::CaloHadWeight()
+  : m_nBinEta(0),
+    m_nBinSampling(0),
+    m_nBinLogEClus(0),
+    m_nBinLogEDensCell(0),
+    m_MinEta(0),
+    m_MinSampling(0),
+    m_MinLogEClus(0),
+    m_MinLogEDensCell(0),
+    m_MaxEta(0),
+    m_MaxSampling(0),
+    m_MaxLogEClus(0),
+    m_MaxLogEDensCell(0)
+{
+}
+
+
 CaloHadWeight::CaloHadWeight(
 			     const int   & nBinEta, 
 			     const float & MinEta, 
