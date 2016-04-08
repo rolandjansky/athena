@@ -37,7 +37,6 @@ LArRegionSelectorTable::LArRegionSelectorTable(const std::string& type,
   m_ttman(0),
   m_TT_ID(0),
   m_roiMap(0),
-  m_cablingSvc(0),
   m_emLUT(0),
   m_hecLUT(0),
   m_fcalemLUT(0),
@@ -280,6 +279,25 @@ LArRegionSelectorTable::fillMaps()
     IdContext IdCntx = m_TT_ID->layer_context(); 
     m_TT_ID->get_hash(lay_id, hashid, &IdCntx ) ; 
 
+    // quite special treatment for FCALHAD
+    if ( isFcal && ( sam != 0 ) ){
+    if ( m_TT_ID->pos_neg_z(lay_id) ==+1 ) { e1=3.6; e2=5.2;}
+            else { e1=-5.2;e2=-3.6;};
+    int pseudolayer = m_TT_ID->eta(lay_id);
+    if ( layer == 0 ) {
+            if ( pseudolayer < 2 ) layer=0; else layer = 1;
+            if ( layer == 0 ){
+                    if ( m_TT_ID->pos_neg_z(lay_id) ==+1 ) { e1=3.2; e2=3.6;}
+                    else { e1=-3.6;e2=-3.2;};
+            }
+    } else {
+            if ( pseudolayer < 2 ) layer=2; else layer = 3;
+            if ( layer == 2 ){
+                    if ( m_TT_ID->pos_neg_z(lay_id) ==+1 ) { e1=3.2; e2=3.6;}
+                    else { e1=-3.6;e2=-3.2;};
+            }
+    }
+    } // end of isFcal hadronic
 
     // get the RODID for this TT	
     const std::vector<HWIdentifier>& vROBID = m_roiMap->CollectionID((unsigned int)hashid);
