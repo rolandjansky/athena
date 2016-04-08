@@ -21,7 +21,7 @@ void OverlayAlgBase::removeAllObjectsOfType(StoreGateSvc* sg) {
     for( ; data != dataEnd; data++ ) {
       ATH_MSG_DEBUG("removeAllObjectsOfType<"<<templateClassName<<">(): Working on p="<<data.cptr()<<", key="<<sg->proxy(data.cptr())->name());
       if(!sg->removeDataAndProxy(data.cptr()).isSuccess()) {
-	ATH_MSG_WARNING("removeAllObjectsOfType<"<<templateClassName<<">(): problem removing object p="<<data.cptr()<<", key="<<sg->proxy(data.cptr())->name());
+        ATH_MSG_WARNING("removeAllObjectsOfType<"<<templateClassName<<">(): problem removing object p="<<data.cptr()<<", key="<<sg->proxy(data.cptr())->name());
       }
     }
   }
