@@ -120,6 +120,42 @@ MuonMatch::MuonMatch (MuonMatch& match)
     if (match.m_extrapolatedRefit)	match.m_extrapolatedRefit	= 0;
 }
 
+// assign and steal operator
+MuonMatch& MuonMatch::operator= (MuonMatch& match)
+{
+    if (this!=&match){
+	m_extrapolatedTrack			=match.m_extrapolatedTrack;
+	m_indetParticle                         =match.m_indetParticle;
+	m_indetTrack				=match.m_indetTrack;
+	m_spectrometerParticle                  =match.m_spectrometerParticle;
+	m_spectrometerTrack			=match.m_spectrometerTrack;
+	m_vertex				=match.m_vertex;
+
+	m_bestMatch				=match.m_bestMatch;
+	m_fieldIntegral				=match.m_fieldIntegral;
+	m_innerMatchChi2			=match.m_innerMatchChi2;
+	m_innerMatchDoF				=match.m_innerMatchDoF;
+	m_innerMatchProb			=match.m_innerMatchProb;
+	m_matchType				=match.m_matchType;
+	m_momentumBalanceSignificance		=match.m_momentumBalanceSignificance;
+	m_outerMatchChi2			=match.m_outerMatchChi2;
+	m_outerMatchDoF				=match.m_outerMatchDoF;
+	m_outerMatchProb			=match.m_outerMatchProb;
+	m_scatteringAngleSignificance		=match.m_scatteringAngleSignificance;
+	m_looseMatch				=match.m_looseMatch;
+	m_simpleMatch				=match.m_simpleMatch;
+
+	if(m_combinedTrack)			delete m_combinedTrack;
+	m_combinedTrack				=match.m_combinedTrack;
+	if (match.m_combinedTrack)		match.m_combinedTrack		= 0;
+
+	if(m_extrapolatedRefit)			delete m_extrapolatedRefit;
+	m_extrapolatedRefit			=match.m_extrapolatedRefit;
+	if (match.m_extrapolatedRefit)		match.m_extrapolatedRefit	= 0;
+    }
+    return *this;
+}
+
 MuonMatch::~MuonMatch (void)
 {
     delete m_combinedTrack;

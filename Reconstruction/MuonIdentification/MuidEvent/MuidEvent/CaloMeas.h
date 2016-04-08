@@ -17,6 +17,7 @@ namespace Rec
     public:
 	CaloMeas	(void);
 	CaloMeas	(const CaloMeas& caloMeas);
+	CaloMeas&	operator=(const CaloMeas& caloMeas);
     
 	double	Tile_EnergyMeasured(void) const;
 	void	Tile_EnergyMeasured(double value);

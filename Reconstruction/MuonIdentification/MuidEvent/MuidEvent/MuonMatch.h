@@ -87,6 +87,9 @@ public:
        
     // "copy" constructor with steal of combined track 
     MuonMatch (MuonMatch&);
+
+    // "assign" operator with steal of combined track 
+    MuonMatch& operator=(MuonMatch&);
     
     // destructor
     virtual ~MuonMatch();

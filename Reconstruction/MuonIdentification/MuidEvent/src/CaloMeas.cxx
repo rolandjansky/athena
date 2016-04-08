@@ -38,6 +38,24 @@ namespace Rec
 		m_LArEM_SamplingFraction	(caloMeas.m_LArEM_SamplingFraction)
     {}
 
+    CaloMeas&
+    CaloMeas::operator=(const CaloMeas& caloMeas)
+    {
+		if (this!=&caloMeas) {
+			m_Tile_EnergyMeasured		=caloMeas.m_Tile_EnergyMeasured;
+			m_Tile_Isolation		=caloMeas.m_Tile_Isolation;
+			m_Tile_SamplingFraction		=caloMeas.m_Tile_SamplingFraction;
+			m_LArHEC_EnergyMeasured		=caloMeas.m_LArHEC_EnergyMeasured;
+			m_LArHEC_Isolation		=caloMeas.m_LArHEC_Isolation;
+			m_LArHEC_SamplingFraction	=caloMeas.m_LArHEC_SamplingFraction;
+			m_LArEM_EnergyMeasured		=caloMeas.m_LArEM_EnergyMeasured;
+			m_LArEM_FirstCompartmentEnergy	=caloMeas.m_LArEM_FirstCompartmentEnergy;
+			m_LArEM_Isolation		=caloMeas.m_LArEM_Isolation;
+			m_LArEM_SamplingFraction	=caloMeas.m_LArEM_SamplingFraction;
+		}
+		return *this;
+    }
+
     void 
     CaloMeas:: Tile_EnergyMeasured(double value)
     { m_Tile_EnergyMeasured = value; }
