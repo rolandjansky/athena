@@ -144,7 +144,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Fraction pb,fe,gl: "<<Fracpb<<","<<Fracfe<<"," <<Fracgl<< endreq;
     msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ," <<Totalthick<< endreq;
     msg << MSG::DEBUG<<" Contraction " << contract << endreq;
-    msg << MSG::DEBUG <<"  Thinabs Density =  "<< density/(CLHEP::g/CLHEP::cm3) << endreq;
+    msg << MSG::DEBUG <<"  Thinabs Density =  "<< density*(CLHEP::cm3/CLHEP::g) << endreq;
 
     GeoMaterial* Thin_abs = new GeoMaterial("Thinabs",density);
     Thin_abs->add(Lead,Fracpb);
@@ -172,7 +172,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"---- THICK absorber characteristics: ----" << endreq;
     msg << MSG::DEBUG <<"  Fraction pb,fe,gl: "<<Fracpb<<","<<Fracfe<<","<<Fracgl << endreq;
     msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick << endreq;
-    msg << MSG::DEBUG <<"  Thickabs Density =  " << density/(CLHEP::g/CLHEP::cm3) << endreq;
+    msg << MSG::DEBUG <<"  Thickabs Density =  " << density*(CLHEP::cm3/CLHEP::g) << endreq;
 
     GeoMaterial* Thick_abs = new GeoMaterial("Thickabs",density);
     Thick_abs->add(Lead,Fracpb);
@@ -199,7 +199,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"---- Electrode characteristics: ----" << endreq;
     msg << MSG::DEBUG <<"  Fraction Cu, Kapton: " << FracCu << ","<< FracKap << endreq;
     msg << MSG::DEBUG <<"  Total mass, Thickness:"<<Totalmasse<<" ,"<<Totalthicke<< endreq;
-    msg << MSG::DEBUG <<"  Electrode Density =  " << density/(CLHEP::g/CLHEP::cm3) << endreq;
+    msg << MSG::DEBUG <<"  Electrode Density =  " << density*(CLHEP::cm3/CLHEP::g) << endreq;
 
     GeoMaterial* Kapton_Cu = new GeoMaterial("KaptonC",density);
     Kapton_Cu->add(Copper,FracCu);
@@ -215,8 +215,9 @@ void LArMaterialManager::buildMaterials()
     double frmassCu = dB.getDouble("BarrelAccordionCables","BarrelAccordionCables-00","PERCU");  // LArEMBmasspercentCu
     double frmassKap= dB.getDouble("BarrelAccordionCables","BarrelAccordionCables-00","PERKAP"); // LArEMBmasspercentKap
 //GU 28 July 2005 recompute correctly density
-    density = Copper->getDensity()*(1.+frmassKap/frmassCu)
-             /(1.+frmassKap/frmassCu*Copper->getDensity()/Kapton->getDensity());
+    const double frmassKapOverCu = frmassKap / frmassCu;
+    density = Copper->getDensity()*(1.+frmassKapOverCu)
+             /(1.+frmassKapOverCu*Copper->getDensity()/Kapton->getDensity());
     GeoMaterial* Cable_elect = new GeoMaterial("Cables",density);
     double fractionmass;
     Cable_elect->add(Copper, fractionmass=frmassCu*CLHEP::perCent);
@@ -240,7 +241,7 @@ void LArMaterialManager::buildMaterials()
 	             << FracMBG10 << endreq;
     msg << MSG::DEBUG <<"  Total mass, Thickness:"
 	             << TotalmassMBe <<" ," <<TotalthickMBe<< endreq;
-    msg << MSG::DEBUG <<"  M_board Density =  "<<density/(CLHEP::g/CLHEP::cm3) << endreq;
+    msg << MSG::DEBUG <<"  M_board Density =  "<<density*(CLHEP::cm3/CLHEP::g) << endreq;
     GeoMaterial*  Moth_elect = new GeoMaterial("MBoards",density);
     // ****GU:   use fraction per masses of G10 and Cu
     Moth_elect->add(G10,FracMBG10);
@@ -255,7 +256,7 @@ void LArMaterialManager::buildMaterials()
     GeoElement* Si = m_storedManager->getElement("Silicon");
     GeoElement *O = m_storedManager->getElement("Oxygen");
 
-    density = dB.getDouble("BarrelMotherboards", "BarrelMotherboards-00", "DG10")*CLHEP::g/CLHEP::cm3;   //LArEMBEpoxyVolumicMass
+    density = dB.getDouble("BarrelMotherboards", "BarrelMotherboards-00", "DG10")*(CLHEP::g/CLHEP::cm3);   //LArEMBEpoxyVolumicMass
     GeoMaterial* SiO2 = new GeoMaterial("SiO2",density);
     double fractionSi=28.09/(28.09+2*16.0);
     SiO2->add(Si,fractionSi);
@@ -281,9 +282,10 @@ void LArMaterialManager::buildMaterials()
     double TotalThickSB = ThSBCu+ThSBAr;
     double dcu = Copper->getDensity();
     double dar = LAr->getDensity();
-    double TotalMassSB = ThSBCu*dcu + ThSBAr*dar;
-    double fracSBCu = ThSBCu*dcu/TotalMassSB;
-    double fracSBAr = ThSBAr*dar/TotalMassSB;
+    const double TotalMassSB = ThSBCu*dcu + ThSBAr*dar;
+    const double inv_TotalMassSB = 1. /TotalMassSB;
+    double fracSBCu = ThSBCu*dcu*inv_TotalMassSB;
+    double fracSBAr = ThSBAr*dar*inv_TotalMassSB;
     density = TotalMassSB/TotalThickSB;
     GeoMaterial* Summing_board = new GeoMaterial("SBoard",density);
     Summing_board->add(LAr,fracSBAr);
@@ -353,13 +355,13 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Thickness pb,fe,gl,[mm]="<<Tgpb<<" "<<Tgfe<<" "<<Tggl << endreq;
     msg << MSG::DEBUG <<"  Fraction  pb,fe,gl     ="<<Fracpb<<","<<Fracfe<<"," <<Fracgl << endreq;
     msg << MSG::DEBUG <<"  Total mass, Thickness  ="<<Totalmass<<" ," <<Totalthick << endreq;
-    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density/(CLHEP::g/CLHEP::cm3) << endreq;
+    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density*(CLHEP::cm3/CLHEP::g) << endreq;
 
     msg << MSG::DEBUG << "---- EMEC THIN absorber characteristics: ----" << endreq;
     msg << MSG::DEBUG <<"  Thickness pb,fe,gl,[mm]="<<Tgpb<<" "<<Tgfe<<" "<<Tggl  << endreq;
     msg << MSG::DEBUG <<"  Fraction  pb,fe,gl     ="<<Fracpb<<","<<Fracfe<<"," <<Fracgl  << endreq;
     msg << MSG::DEBUG <<"  Total mass, Thickness  ="<<Totalmass<<" ," <<Totalthick  << endreq;
-    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density/(CLHEP::g/CLHEP::cm3)  << endreq;
+    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density*(CLHEP::cm3/CLHEP::g)  << endreq;
 
 
     GeoMaterial* Thin_abs = new GeoMaterial("EMEC_Thinabs",density);
@@ -396,7 +398,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Thickness pb,fe,gl[mm]="<<Thpb<<" "<<Thfe<<" "<<Thgl<<endreq;
     msg << MSG::DEBUG <<"  Fraction  pb,fe,gl:    "<<Fracpb<<","<<Fracfe<<","<<Fracgl<<endreq;
     msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick<<endreq;
-    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density/(CLHEP::g/CLHEP::cm3) <<endreq;
+    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(CLHEP::cm3/CLHEP::g) <<endreq;
 
     GeoMaterial* Thick_abs = new GeoMaterial("EMEC_Thickabs",density);
     Thick_abs->add(Lead,Fracpb);
@@ -424,7 +426,7 @@ void LArMaterialManager::buildMaterials()
     msg << MSG::DEBUG <<"  Thickness fe,gl[mm]="<<Thfe<<" "<<Thgl<<endreq;
     msg << MSG::DEBUG <<"  Fraction  fe,gl:    "<<Fracfe<<","<<Fracgl<<endreq;
     msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick<<endreq;
-    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density/(CLHEP::g/CLHEP::cm3) <<endreq;
+    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(CLHEP::cm3/CLHEP::g) <<endreq;
 
     GeoMaterial* EMEC_shell = new GeoMaterial("EMEC_shell",density);
     EMEC_shell->add(Iron,Fracfe);

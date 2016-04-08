@@ -23,7 +23,7 @@ public:
 
 
 DatabaseAccessTool::DatabaseAccessTool ()
-  :cw(new Clockwork())
+  :m_cw(new Clockwork())
 {
   IGeoModelSvc *geoModel;
   ISvcLocator  *svcLocator=Gaudi::svcLocator();
@@ -31,7 +31,7 @@ DatabaseAccessTool::DatabaseAccessTool ()
     throw std::runtime_error ("Cannot locate GeoModelSvc!!");
   }
  
-  if (svcLocator->service("RDBAccessSvc",cw->pAccessSvc)!=StatusCode::SUCCESS) {
+  if (svcLocator->service("RDBAccessSvc",m_cw->pAccessSvc)!=StatusCode::SUCCESS) {
     throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
   }
  
@@ -40,35 +40,35 @@ DatabaseAccessTool::DatabaseAccessTool ()
   std::string AtlasVersion = geoModel->atlasVersion();
   std::string LArVersion = geoModel->LAr_VersionOverride();
   
-  cw->detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-  cw->detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+  m_cw->detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
+  m_cw->detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
   
-  cw->pAccessSvc->connect();
+  m_cw->pAccessSvc->connect();
 
 }
 
 DatabaseAccessTool::~DatabaseAccessTool () 
 {
-  cw->pAccessSvc->disconnect();
-  delete cw;
+  m_cw->pAccessSvc->disconnect();
+  delete m_cw;
 }
 
 double DatabaseAccessTool::getDouble(const std::string & TableName,  
 				     const std::string & FallbackVersion, 
 				     const std::string & ColumnName) const  {
 
-  std::map<std::string, IRDBRecordset_ptr>::iterator m=cw->recMap.find(TableName);
+  std::map<std::string, IRDBRecordset_ptr>::iterator m=m_cw->recMap.find(TableName);
   
-  IRDBRecordset_ptr rec = (m==cw->recMap.end()) ? cw->pAccessSvc->getRecordsetPtr(TableName,cw->detectorKey,cw->detectorNode): (*m).second;
+  IRDBRecordset_ptr rec = (m==m_cw->recMap.end()) ? m_cw->pAccessSvc->getRecordsetPtr(TableName,m_cw->detectorKey,m_cw->detectorNode): (*m).second;
   if (rec->size()==0) {
-    rec = cw->pAccessSvc->getRecordsetPtr(TableName,FallbackVersion);
+    rec = m_cw->pAccessSvc->getRecordsetPtr(TableName,FallbackVersion);
     if (rec->size()==0) {
       throw std::runtime_error((std::string("Cannot find the Table: ") + TableName).c_str());
     }
   }
   double retval = (*rec)[0]->getDouble(ColumnName);
-  if (m==cw->recMap.end()) {
-    cw->recMap[TableName]=rec;
+  if (m==m_cw->recMap.end()) {
+    m_cw->recMap[TableName]=rec;
   }
   return retval;
 }

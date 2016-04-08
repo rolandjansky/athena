@@ -38,7 +38,7 @@ class DatabaseAccessTool {
   // Internals:
 
   class Clockwork;
-  Clockwork *cw;
+  Clockwork *m_cw;
 
   
 
