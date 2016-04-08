@@ -102,6 +102,8 @@ else:
 #----------------------#
 # Muon raw monitoring  #
 #----------------------#
+MuonRawMon=False
+MuonESDMon=False
 if DQMonFlags.monManEnvironment() == 'online':
     MuonRawMon=True
     MuonESDMon=True
