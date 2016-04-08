@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODRingerRNNOutputContainerCnv.h
+// $Id: xAODTrigRNNOutputContainerCnv.h 707590 2015-11-12 19:09:03Z krasznaa $
 #ifndef XAODTRIGRINGERATHENAPOOL_XAODTRIGRNNOUTPUTCONTAINERCNV_H
 #define XAODTRIGRINGERATHENAPOOL_XAODTRIGRNNOUTPUTCONTAINERCNV_H
 
@@ -15,7 +15,10 @@
 #include "xAODTrigRinger/TrigRNNOutputContainer.h"
 
 /// Type definition for the converter's base
-typedef T_AthenaPoolCustomCnv< xAOD::TrigRNNOutputContainer, xAOD::TrigRNNOutputContainer > xAODTrigRNNOutputContainerCnvBase;
+typedef T_AthenaPoolCustomCnv< xAOD::TrigRNNOutputContainer,
+                               xAOD::TrigRNNOutputContainer >
+   xAODTrigRNNOutputContainerCnvBase;
+
 /**
  *  @short POOL converter for the xAOD::TrigRNNOutputContainer class
  *
@@ -23,7 +26,9 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrigRNNOutputContainer, xAOD::TrigRNNOutput
  *         class known to POOL.
  *
  * @author Joao Victor da Fonseca Pinto <joao.victor.da.fonseca.pinto@cern.ch>
- * $Date: $
+ *
+ * $Revision: 707590 $
+ * $Date: 2015-11-12 20:09:03 +0100 (Thu, 12 Nov 2015) $
  */
 class xAODTrigRNNOutputContainerCnv : public xAODTrigRNNOutputContainerCnvBase {
 
@@ -38,7 +43,8 @@ public:
    virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );
 
    /// Function preparing the container to be written out
-   virtual xAOD::TrigRNNOutputContainer* createPersistent( xAOD::TrigRNNOutputContainer* trans );
+   virtual xAOD::TrigRNNOutputContainer*
+   createPersistent( xAOD::TrigRNNOutputContainer* trans );
    /// Function reading in the persistent object
    virtual xAOD::TrigRNNOutputContainer* createTransient();
 
@@ -48,4 +54,4 @@ private:
 
 }; // class xAODRingerRingsContainerCnv
 
-#endif // XAOD
+#endif // XAODTRIGRINGERATHENAPOOL_XAODTRIGRNNOUTPUTCONTAINERCNV_H

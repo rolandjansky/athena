@@ -24,7 +24,7 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrigRingerRingsContainer, xAOD::TrigRingerR
  *         class known to POOL.
  *
  * @author Joao Victor da Fonseca Pinto <joao.victor.da.fonseca.pinto@cern.ch>
- * $Date: $
+ * $Date: 2015-11-12 20:09:03 +0100 (Thu, 12 Nov 2015) $
  */
 class xAODTrigRingerRingsContainerCnv : public xAODTrigRingerRingsContainerCnvBase {
 

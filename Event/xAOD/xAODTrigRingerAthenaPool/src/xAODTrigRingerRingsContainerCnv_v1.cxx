@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
+// $Id: xAODTrigRingerRingsContainerCnv_v1.cxx 707590 2015-11-12 19:09:03Z krasznaa $
 
 // System include(s):
 #include <stdexcept>

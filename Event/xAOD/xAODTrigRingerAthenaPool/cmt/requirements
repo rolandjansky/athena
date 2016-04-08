@@ -10,16 +10,12 @@ use AtlasPolicy        AtlasPolicy-*
 private
 
 use AthenaKernel            AthenaKernel-*            Control
-#use AthContainersInterfaces AthContainersInterfaces-* Control
 use AthContainers           AthContainers-*           Control
-use AthLinks                AthLinks-*                Control
-
 
 private
 
 # Base package(s):
 use GaudiInterface          GaudiInterface-*      External
-#use AthLinks                AthLinks-*            Control
 
 # POOL package(s):
 use AthenaPoolUtilities    AthenaPoolUtilities-*    Database/AthenaPOOL
@@ -27,7 +23,6 @@ use AthenaPoolCnvSvc       AthenaPoolCnvSvc-*       Database/AthenaPOOL
 
 # EDM package(s):
 use xAODTrigRinger        xAODTrigRinger-*        Event/xAOD
-use xAODTrigCalo          xAODTrigCalo-*          Event/xAOD
 
 # Declare the pool converter(s):
 apply_pattern poolcnv typesWithNamespace="xAOD::TrigRingerRingsContainer\
