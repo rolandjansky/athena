@@ -17,7 +17,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include <vector>
 #include <stdexcept>
@@ -93,34 +92,18 @@ StatusCode VP1Alg::initialize()
       *it = file;
   }
 
-  // OLD CODE
   // use the incident service to register a handler
-  //  IIncidentSvc* incsvc = 0;
-  //  status = service("IncidentSvc", incsvc, true);
-  //
-  //  if(status.isFailure() || incsvc==0) {
-  //	  msg(MSG::WARNING) << "Unable to get IncidentSvc! MF mechanism is disabled" << endreq;
-  //	  return StatusCode::SUCCESS;
-  //  }
-  //
-  //  std::string endfilekey("EndTagFile");
-  //  incsvc->addListener(this, endfilekey, 0);
-  //  msg(MSG::DEBUG) << "Added listener on "<<endfilekey << endreq;
+  IIncidentSvc* incsvc = 0;
+  status = service("IncidentSvc", incsvc, true);
 
-  // NEW CODE
-  // Use the incident service to register a handler
-  // Set to be listener for begin/end of event
-  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-  status = incSvc.retrieve();
-  if (!status.isSuccess()) {
-	  msg(MSG::ERROR) << "Unable to get the IncidentSvc" << endreq;
-	  return(status);
+  if(status.isFailure() || incsvc==0) {
+    msg(MSG::WARNING) << "Unable to get IncidentSvc! MF mechanism is disabled" << endreq;
+    return StatusCode::SUCCESS;
   }
-  // example:  incsvc->addListener( this, "IncidentName", priority);
-//  incSvc->addListener(this, "BeginInputFile", 60); // priority has to be < 100 to be after MetaDataSvc.
-  incSvc->addListener(this, "EndInputFile", 50); // priority has to be > 10 to be before MetaDataSvc.
-  incSvc->addListener(this, "LastInputFile", 50); // priority has to be > 20 to be before MetaDataSvc and AthenaOutputStream.
 
+  std::string endfilekey("EndTagFile");
+  incsvc->addListener(this, endfilekey, 0);
+  msg(MSG::DEBUG) << "Added listener on "<<endfilekey << endreq;
   
   //Create VP1 gui object and see if it considers settings to be valid.
   m_vp1gui = new VP1Gui(&(*evtStore()),&(*detStore()),serviceLocator(),m_toolSvc,
@@ -139,8 +122,6 @@ StatusCode VP1Alg::initialize()
   return StatusCode::SUCCESS;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-/// Execute - called by the event loop on event by event
 //____________________________________________________________________
 StatusCode VP1Alg::execute()
 {
@@ -156,26 +137,23 @@ StatusCode VP1Alg::execute()
   const EventInfo*  evt;
   StatusCode status = evtStore()->retrieve(evt);
   if(status.isSuccess()) {
-
-	// Get run/event number:
+    // Get run/event number:
     int eventNumber = evt->event_ID()->event_number();
     int runNumber = evt->event_ID()->run_number();
     msg(MSG::DEBUG) << " Got run number = " << runNumber
-	                << ", event number = " << eventNumber << endreq;
-
+	<< ", event number = " << eventNumber << endreq;
     // Get time stamp:
     unsigned time = evt->event_ID()->time_stamp();//0 means no info.
-
 
     // Get L1 trigger type
     TriggerInfo* _trig = evt->trigger_info();
     unsigned int trigType = _trig ? _trig->level1TriggerType() : 0;
 
-    if ( m_noGui || m_vp1gui->executeNewEvent(runNumber,eventNumber,trigType,time) ) {
+    if (m_noGui||m_vp1gui->executeNewEvent(runNumber,eventNumber,trigType,time)) {
       return StatusCode::SUCCESS;
     } else {
-      msg(MSG::INFO) << "Closing VP1 - Ending application gracefully. (sending FAILURE)" << endreq;
-      return StatusCode::FAILURE; // we send FAILURE, otherwise the Athena algo VP1Alg does not exit
+      msg(MSG::INFO) << " Ending application gracefully." << endreq;
+      return StatusCode::FAILURE;
     }
   };
 
@@ -189,48 +167,25 @@ StatusCode VP1Alg::finalize()
 {
   msg(MSG::INFO) <<" in finalize() " << endreq;
 
-  if (!m_vp1gui) {
-	  msg(MSG::INFO) << "no vp1gui --> returning FAILURE" << endreq;
+  if (!m_vp1gui)
     return StatusCode::FAILURE;
-  }
 
   if (!m_noGui)
-    m_vp1gui->cleanup(); // eventually calls cleanup() in VP1Gui::ExecutionScheduler
+    m_vp1gui->cleanup();
   delete m_vp1gui;
 
   return StatusCode::SUCCESS;
 }
-
 
 //____________________________________________________________________
 void VP1Alg::handle(const Incident& inc)
 {
   msg(MSG::INFO) << "Handling incident '" << inc.type() << "'" << endreq;
 
-
   if (!m_vp1gui) {
     msg(MSG::INFO) << "Aborting due to null VP1Gui pointer." << endreq;
     return;
   }
-
-
-  if(inc.type() == "EndInputFile") {
-  	  // ***************************************************************************************************
-  	  // We've hit EndInputFile, so we know that we have finished reading all the events in the input file
-  	  // ***************************************************************************************************
-  	  msg(MSG::DEBUG) << "EndInputFile incident detected" << endreq;
-  	  msg(MSG::DEBUG) << "Returning..." << endreq;
-  	  return;
-    }
-    else if(inc.type() == "LastInputFile") {
-  	  //finishUp();
-  	  msg(MSG::DEBUG) << "LastInputFile incident detected. Nothing to do in VP1 so far." << endreq;
-    }
-    else {
-  	  msg(MSG::INFO) << "Unknown Incident: " << inc.type() << endreq;
-    }
-
-
 
   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
   if(fileInc == 0) {
@@ -290,18 +245,14 @@ void VP1Alg::handle(const Incident& inc)
   } 
   else {
     std::vector<std::string> strNewFileNames = m_vp1gui->userRequestedFiles();
-
     for(unsigned i=0; i<strNewFileNames.size(); ++i) {
       const std::string& strNewFileName = strNewFileNames[i];
-
       if (strNewFileName.empty())
-    	  continue;
-
+	continue;
       if (!VP1FileUtilities::fileExistsAndReadable(strNewFileName)) {
-    	  msg(MSG::WARNING) << " File requested by VP1 does not exists or is not readable: " << strNewFileName << endreq;
-    	  continue;
+	msg(MSG::WARNING) << " File requested by VP1 does not exists or is not readable: " << strNewFileName << endreq;
+	continue;
       }
-
       vect.push_back(strNewFileName);
       msg(MSG::INFO) << " Setting next event file: " << strNewFileName<< endreq;
     }
@@ -313,10 +264,5 @@ void VP1Alg::handle(const Incident& inc)
     msg(MSG::WARNING) << "Could not set new InputCollections property" << endreq;
   else
     msg(MSG::DEBUG) << " InputCollections property set" << endreq;
-
-
-
-
-
 }
 

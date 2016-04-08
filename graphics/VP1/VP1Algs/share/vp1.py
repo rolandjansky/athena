@@ -20,8 +20,6 @@ if not 'vp1Multinpsrc' in dir(): vp1Multinpsrc=""
 if not 'vp1Multinpcpy' in dir(): vp1Multinpcpy=""
 if not 'vp1MultiAvailableSrcDirs' in dir(): vp1MultiAvailableSrcDirs = []
 if not 'vp1TrigDecXML' in dir(): vp1TrigDecXML=""
-if not 'vp1Batch' in dir(): vp1Batch=False
-if not 'vp1BatchAllEvents' in dir(): vp1BatchAllEvents=False
 if not 'vp1LarHvData' in dir(): vp1LarHvData=False
 # if not 'vp1FullToroids' in dir(): vp1FullToroids=False
 if not 'vp1CruiseTime' in dir(): vp1CruiseTime=0
@@ -30,9 +28,13 @@ if not 'vp1FilterEvents' in dir(): vp1FilterEvents=""
 if not 'vp1NoGui' in dir(): vp1NoGui=False
 if not 'vp1SpacePoints' in dir(): vp1SpacePoints=False
 if not 'vp1Cavern' in dir(): vp1Cavern=False
+if not 'vp1ToyDetector' in dir(): vp1ToyDetector=False
+if not 'vp1GeoModelStats' in dir(): vp1GeoModelStats=False
 if not 'vp1NoAutoConf' in dir(): vp1NoAutoConf=False
 if not 'vp1Trig' in dir(): vp1Trig=False
 if not 'vp1NSW' in dir(): vp1NSW=False
+if not 'vp1CustomGeometry' in dir(): vp1CustomGeometry=False
+if not 'vp1SLHC' in dir(): vp1SLHC=False
 
 def vp1CfgErr(s): print "VP1 CONFIGURATION ERROR: %s" % s
 
@@ -58,9 +60,6 @@ if ( vp1FatrasTruthKey != "" and not vp1Fatras ):
 if (vp1NSW and not vp1Muon):
     vp1CfgErr("Muon New Small Wheel (NSW) turned on, but no Muon geometry. Disabling NSW.")
     vp1NSW=False
-
-
-
 
 print "*** VP1 NOTE *** setting COIN_GLXGLUE env vars to make screenshots working remotely..."
 print "*** VP1 NOTE *** COIN_GLXGLUE_NO_GLX13_PBUFFERS=1 - " + "COIN_GLXGLUE_NO_PBUFFERS=1"
@@ -159,23 +158,6 @@ if vp1FilterEvents:
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-
-#BATCH-MODE
-# If "vp1Batch" is TRUE, then set the corresponding env var. 
-# The GUI of VP1 will not be shown, but the config file will be taken
-# and in the end a render of the 3D window will be saved as PNG file.
-#
-# Moreover, if "vp1BatchAllEvents" is TRUE, then all the events 
-# in the provided data file will be processed with the same configuration
-# file provided by the user.
-# 
-if vp1Batch:
-    os.putenv("VP1_BATCHMODE","1")
-if vp1BatchAllEvents:
-    os.putenv("VP1_BATCHMODE_ALLEVENTS","1")
-
-
-
 #Detector setup:
 from AthenaCommon.DetFlags import DetFlags
 if (vp1ID): DetFlags.ID_setOn()
@@ -194,6 +176,33 @@ if (vp1ZDC): DetFlags.ZDC_setOn()
 else:          DetFlags.ZDC_setOff()
 if (vp1NSW): DetFlags.Micromegas_setOn() #FIXME - sTGC?
 DetFlags.Print()
+if (vp1CustomGeometry):
+    print "Configuring Custom geometry."
+if (vp1SLHC):
+  print "Setting up SLHC configuration"
+  rec.doTrigger.set_Value_and_Lock(False)  
+  from AthenaCommon.GlobalFlags import globalflags
+  from AthenaCommon.GlobalFlags import jobproperties
+  from InDetRecExample.InDetJobProperties import InDetFlags
+  
+  #include("InDetSLHC_Example/preInclude.SLHC.py")
+  #include("InDetSLHC_Example/preInclude.NoTRT.py")
+  #include("InDetSLHC_Example/preInclude.SLHC_Rec.py")
+  # The above don't work for dev (20.9.0) so copied modified versions below:
+  from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
+  SLHC_Flags.SLHC_Version = ''
+  DetFlags.ID_setOn()
+  DetFlags.TRT_setOff()
+  DetFlags.detdescr.TRT_setOff()
+  DetFlags.makeRIO.TRT_setOff()
+  DetFlags.Calo_setOn()
+  DetFlags.Muon_setOn()
+  DetFlags.Truth_setOn()
+  from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
+  TrkDetFlags.SLHC_Geometry                   = True
+  TrkDetFlags.MagneticFieldCallbackEnforced   = False
+  TrkDetFlags.TRT_BuildStrawLayers            = False
+  TrkDetFlags.MaterialSource = 'None'
 
 # --- GeoModel
 from AtlasGeoModel import SetGeometryVersion
@@ -201,9 +210,22 @@ from AtlasGeoModel import GeoModelInit
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
+if vp1GeoModelStats:
+  print "printing GeoModel stats to file (Svc.StatisticsToFile=TRUE)..."
+  svcMgr.GeoModelSvc.StatisticsToFile = True
+  	
 if vp1Cavern:
+  print "vp1.py - Initializing the visualization of the Cavern Infrastructure..."
   from CavernInfraGeoModel.CavernInfraGeoModelConf import CavernInfraDetectorTool
   svcMgr.GeoModelSvc.DetectorTools += [ CavernInfraDetectorTool() ]
+ 
+if vp1ToyDetector:
+  print "vp1.py - Initializing the visualization of the GeoModelExamples 'ToyDetector'..."
+  from GeoModelExamples.GeoModelExamplesConf import ToyDetectorTool
+  svcMgr.GeoModelSvc.DetectorTools += [ ToyDetectorTool() ]
+
+
+
 
 # --- AGDD2Geo
 # Switch it on if
@@ -318,7 +340,7 @@ if (vp1InputFiles != []):
         svcMgr.EventSelector.SkipEvents=skipEvents
 else:
     vp1Extrapolator = False
-    
+
 #watch LAr HV:
 if ( vp1LarHvData ):
     from time import time
@@ -375,6 +397,11 @@ if vp1Extrapolator and (vp1ID or vp1Muon):
     print VP1Extrapolator
     #We should append to variable instead:
     os.putenv("VP1_JOBCFG_EXTRA_VP1_EXTRAPOLATORS","Trk::Extrapolator/"+VP1ExtraPolatorName)
+    
+    from TrkExEngine.AtlasExtrapolationEngine import AtlasExtrapolationEngine
+    ExtrapolationEngine = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas')
+    ToolSvc += ExtrapolationEngine
+    print ExtrapolationEngine
 
 #Fitter:
 if vp1Fitter and vp1Extrapolator and (vp1ID or vp1Muon):

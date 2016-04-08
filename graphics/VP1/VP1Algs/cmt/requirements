@@ -5,7 +5,7 @@ manager Riccardo Maria BIANCHI <rbianchi@cern.ch>
 use AtlasPolicy         AtlasPolicy-*
 use AthenaBaseComps     AthenaBaseComps-*      Control
 use GaudiInterface      GaudiInterface-*       External
-use PoolSvc             PoolSvc-*              Database/AthenaPOOL
+#use PoolSvc             PoolSvc-*              Database/AthenaPOOL
 
 library VP1Algs *.cxx  components/*.cxx
 
@@ -34,6 +34,6 @@ use VP1UtilsBase         VP1UtilsBase-*         graphics/VP1
 
 use EventInfo            EventInfo-*            Event
 use PathResolver         PathResolver-*         Tools
-use AtlasPOOL            AtlasPOOL-*            External
+#use AtlasPOOL            AtlasPOOL-*            External
 
 
