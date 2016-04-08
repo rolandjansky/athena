@@ -80,7 +80,7 @@ def TrigIDtrkMonitoringTool():
 		tidaegamma.UseHighestPT = True
 		tidaegamma.ntupleChainNames += [
 			"Offline",
-			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
+#			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
 			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
 			"HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
 			]
@@ -143,7 +143,7 @@ def TrigIDtrkMonitoringTool():
 		# tidabase.OutputLevel = DEBUG
 		tidamuon.ntupleChainNames += [
 			"Offline",
-			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_EFID",
+#			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_EFID",
 			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig",
 			"HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF"
 			]
@@ -266,9 +266,10 @@ def TrigIDtrkMonitoringTool():
 			# jet based chains
 			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
 			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
-			"HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-			"HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_FTF"
+			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF"
+                        # non split chains
+			# "HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			# "HLT_j.*bperf:key=InDetTrigTrackingxAODCnv_Bjet_FTF"
 			# muon based chains
 			# "HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
 			# "HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
@@ -351,10 +352,10 @@ def TrigIDtrkMonitoringTool():
 			"Offline",
 			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_FTF",
 			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
-			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_EFID",
-			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_EFID",
-			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
-			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
+#			"HLT_mu.*_mu.*idperf.*noid:InDetTrigTrackingxAODCnv_Bphysics_EFID"
+#			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_EFID",
+#			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
+#			"HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
 			]
 		ToolSvc += tidabphys;
 		list += [ "TrigTestBase/IDBphysTool" ]
