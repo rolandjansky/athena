@@ -3,10 +3,7 @@ package TrkAmbiguityProcessor
 author Edward Moyse <edward.moyse@cern.ch>
 
 public
-use  AtlasPolicy                AtlasPolicy-*
-use  SGTools                    SGTools-*                       Control
-use  InDetPrepRawData           InDetPrepRawData-*              InnerDetector/InDetRecEvent
-
+use  AtlasPolicy                AtlasPolicy-*                   
 private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
@@ -16,7 +13,6 @@ use  GaudiInterface             GaudiInterface-*                External
 use  InDetPrepRawData           InDetPrepRawData-*              InnerDetector/InDetRecEvent
 use  TrkDetElementBase          TrkDetElementBase-*             Tracking/TrkDetDescr
 use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
-use  TrkExInterfaces            TrkExInterfaces-*               Tracking/TrkExtrapolation
 use  TrkFitterInterfaces        TrkFitterInterfaces-*           Tracking/TrkFitter
 use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
 use  TrkRIO_OnTrack             TrkRIO_OnTrack-*                Tracking/TrkEvent
@@ -24,8 +20,6 @@ use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTool
 use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
 use  TrkTrackSummary            TrkTrackSummary-*               Tracking/TrkEvent
 use  InDetRecToolInterfaces     InDetRecToolInterfaces-*        InnerDetector/InDetRecTools  
-use  TrkValInterfaces           TrkValInterfaces-*              Tracking/TrkValidation
-
 
 # uncomment this line if you do want to build the ntuple writing code in
 # apply_tag  use_trkambproc_ntuple
@@ -45,7 +39,6 @@ macro_append  use_pp_cppflags                "" \
 
 public
 
-# @TODO is a dual_use_library necessary here ?
 library TrkAmbiguityProcessor *.cxx components/*.cxx
 apply_pattern component_library 
 
