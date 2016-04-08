@@ -2,57 +2,37 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ALFA_G4_SD/ALFA_SensitiveDetector.h"
+// Class header
+#include "ALFA_SensitiveDetector.h"
 
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
-#include "Randomize.hh" 
-#include "G4HCofThisEvent.hh"
-#include "G4TouchableHistory.hh"
-#include "G4Step.hh"
-#include "G4Track.hh"
-#include "G4VProcess.hh"
+// Athena headers
+#include "CxxUtils/make_unique.h" // For make unique
+
+// Geant4 headers
 #include "G4ParticleDefinition.hh"
+#include "G4Step.hh"
 #include "G4StepPoint.hh"
+#include "G4TouchableHistory.hh"
 #include "G4ThreeVector.hh"
+#include "G4Track.hh"
 
+// STL header
 #include <sstream>
-#include <iostream>
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include <limits>
 
-// Called by FADS/Goofy, where is, to the hell, a documentation?
-  
-static FADS::SensitiveDetectorEntryT<ALFA_SensitiveDetector> sd("ALFA_SensitiveDetector");
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+ALFA_SensitiveDetector::ALFA_SensitiveDetector(const std::string& name, const std::string& hitCollectionName, const std::string& ODhitCollectionName)
+  : G4VSensitiveDetector( name ),
+    m_HitCollection(hitCollectionName),
+    m_ODHitCollection(ODhitCollectionName)
+{
 
-ALFA_SensitiveDetector::ALFA_SensitiveDetector(std::string name): FADS::FadsSensitiveDetector(name) {
-  
-  ATH_MSG_VERBOSE(" ALFA_SensitiveDetector::Constructor ");
-  
-  pHitCollection = 0;
-  pODHitCollection = 0;
-  
-  hitID = -1;
-  trackID = -1;
-  particleEncoding = 0;
-  kineticEnergy = 0;
-  energyDeposit = 0;
-  preStepX = 0;
-  preStepY = 0;
-  preStepZ = 0;
-  postStepX = 0;
-  postStepY = 0;
-  postStepZ = 0;
-  globalTime = 0;
+  m_hitID = -1;
 
-  sign_fiber = 0;
-  OD_side = 0;
-  n_plate = 0;
-  n_fiber = 0;
-  n_station = 0;
-
-  eventNumber = 0;
-  numberOfHits = 0;
-  numberOfODHits = 0;
+  m_eventNumber = 0;
+  m_numberOfHits = 0;
+  m_numberOfODHits = 0;
 
   pos1 = 0;
   pos2 = 0;
@@ -60,225 +40,260 @@ ALFA_SensitiveDetector::ALFA_SensitiveDetector(std::string name): FADS::FadsSens
   num[0] = 0;
   num[1] = 0;
   num[2] = 0;
+
 }
 
-ALFA_SensitiveDetector::~ALFA_SensitiveDetector() {
-  
-  ATH_MSG_VERBOSE(" ALFA_SensitiveDetector::Destructor ");
+void ALFA_SensitiveDetector::StartOfAthenaEvent()
+{
+  m_numberOfHits = 0;
+  m_numberOfODHits = 0;
 }
-  
-void ALFA_SensitiveDetector::Initialize(G4HCofThisEvent*) {
-  
-  pHitCollection = new ALFA_HitCollection("ALFA_HitCollection"); 
-  pODHitCollection = new ALFA_ODHitCollection("ALFA_ODHitCollection");
-    
-  eventNumber = 0;
-  numberOfHits = 0;
-  numberOfODHits = 0;
+
+// Initialize from G4 - necessary to new the write handle for now
+void ALFA_SensitiveDetector::Initialize(G4HCofThisEvent *)
+{
+  if (!m_HitCollection.isValid()) m_HitCollection = CxxUtils::make_unique<ALFA_HitCollection>(m_HitCollection.name());
+  if (!m_ODHitCollection.isValid()) m_ODHitCollection = CxxUtils::make_unique<ALFA_ODHitCollection>(m_ODHitCollection.name());
 }
 
 bool ALFA_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
 {
-  ATH_MSG_DEBUG("ALFA_SensitiveDetector::ProcessHits" );
- 
-  energyDeposit = pStep->GetTotalEnergyDeposit();  
-  
-  if (energyDeposit==0.) return true; 
-  
+  //////ATH_MSG_DEBUG("ALFA_SensitiveDetector::ProcessHits" );
+
+  const double energyDeposit(pStep->GetTotalEnergyDeposit());
+
   // Get kinetic energy of depositing particle
-  
-  G4StepPoint* pPreStepPoint = pStep->GetPreStepPoint();  
-  G4StepPoint* pPostStepPoint = pStep->GetPostStepPoint();
-   
-  kineticEnergy = pPreStepPoint->GetKineticEnergy();
-  
-  G4ThreeVector preStepPoint = pPreStepPoint->GetPosition();
-  G4ThreeVector postStepPoint = pPostStepPoint->GetPosition();
- 
-  // Get name of physical volume   
-  G4TouchableHandle touch1 = pPreStepPoint->GetTouchableHandle();
-  G4VPhysicalVolume* volume = touch1->GetVolume();
-  G4String vol_name = volume->GetName(); 
-  //  G4LogicalVolume* lVolume = volume->GetLogicalVolume();
 
-  preStepX = preStepPoint.x();
-  preStepY = preStepPoint.y();  
-  preStepZ = preStepPoint.z();  
-  
-  postStepX = postStepPoint.x();
-  postStepY = postStepPoint.y();  
-  postStepZ = postStepPoint.z();   
-  
-  hitID++;  
-  
+  const G4StepPoint *pPreStepPoint(pStep->GetPreStepPoint());
+  const G4StepPoint *pPostStepPoint(pStep->GetPostStepPoint());
+
+  const double kineticEnergy(pPreStepPoint->GetKineticEnergy());
+
+  const G4ThreeVector preStepPoint(pPreStepPoint->GetPosition());
+  const G4ThreeVector postStepPoint(pPostStepPoint->GetPosition());
+
+  // Get name of physical volume
+  const G4String vol_name(pPreStepPoint->GetTouchableHandle()->GetVolume()->GetName());
+
+  const double preStepX(preStepPoint.x());
+  const double preStepY(preStepPoint.y());
+  const double preStepZ(preStepPoint.z());
+
+  const double postStepX(postStepPoint.x());
+  const double postStepY(postStepPoint.y());
+  const double postStepZ(postStepPoint.z());
+
+  int n_plate(0);
+  int n_fiber(0);
+  int n_station(0);
+
+  m_hitID++;
+
   // particle encoding
-  G4Track* pTrack = pStep->GetTrack();
-  G4ParticleDefinition* pParticleDefinition = pTrack->GetDefinition();
-  particleEncoding = pParticleDefinition->GetPDGEncoding();
+  const G4Track *pTrack(pStep->GetTrack());
+  const int particleEncoding(pTrack->GetDefinition()->GetPDGEncoding());
 
-  globalTime = pTrack->GetGlobalTime(); 
-  trackID=pTrack->GetTrackID();
-  
+  const double globalTime(pTrack->GetGlobalTime());
+  const int trackID(pTrack->GetTrackID()); //DC 2-29-04 use it as barcode
+
   std::string vol_test_str ("aaaaaaa");
-  vol_test_str = vol_name.substr(0,7);    
+  vol_test_str = vol_name.substr(0,7);
 
-  ATH_MSG_DEBUG("test volume name is " << vol_test_str  );
-    
+  ////ATH_MSG_DEBUG("test volume name is " << vol_test_str  );
+
+  if(vol_name.find("GVS") != std::string::npos)
+    {
+
+      if(vol_name.find("B7L1") != std::string::npos) n_station=0;
+      else if(vol_name.find("A7L1") != std::string::npos) n_station=1;
+      else if(vol_name.find("A7R1") != std::string::npos) n_station=2;
+      else if(vol_name.find("B7R1") != std::string::npos) n_station=3;
+      else n_station=-1;
+      if(m_HitCollection.isValid())
+        {
+          m_HitCollection->Emplace(m_hitID, trackID, particleEncoding, (float) kineticEnergy,
+                                   (float) energyDeposit,(float) preStepX, (float) preStepY, (float) preStepZ,
+                                   (float) postStepX, (float) postStepY, (float) postStepZ,(float) globalTime,
+                                   -1, 100, -1, (int) n_station);
+          m_numberOfHits++;
+        }
+      else
+        {
+          G4ExceptionDescription description;
+          description << "ProcessHits: Can't access HitCollection with key " << m_HitCollection.key() << " from store " << m_HitCollection.store();
+          G4Exception("ALFA_SensitiveDetector", "InvalidHitColl1", FatalException, description);
+          return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+        }
+    }
+
   if (vol_test_str.compare("ALFA_Fi") == 0)
     {
-       
+      if (std::abs(energyDeposit)<std::numeric_limits<double>::epsilon()) { return true; }
       pos2 = 10;
       std::string substring (vol_name);
       std::string num_string (vol_name);
-  
-      ATH_MSG_DEBUG(" volume name is " << vol_test_str  );
-      ATH_MSG_DEBUG("string slope is " << substring.substr(pos2,1)  );
-  
-      std::string test_str ("A");  
+
+      ////ATH_MSG_DEBUG(" volume name is " << vol_test_str  );
+      ////ATH_MSG_DEBUG("string slope is " << substring.substr(pos2,1)  );
+
+      std::string test_str ("A");
       test_str = substring.substr(pos2,1);
-  
+      int sign_fiber(0);
       if (test_str.compare("U") == 0)
-	{
-	  sign_fiber = 1;
-	  ATH_MSG_DEBUG("slope is "  << sign_fiber  );
-	}
-  
+        {
+          sign_fiber = 1;
+          ////ATH_MSG_DEBUG("slope is "  << sign_fiber  );
+        }
+
       if (test_str.compare("V") == 0)
-	{
-	  sign_fiber = -1;
-	  ATH_MSG_DEBUG("slope is "  << sign_fiber  );
-	}    
-  
-      
+        {
+          sign_fiber = -1;
+          ////ATH_MSG_DEBUG("slope is "  << sign_fiber  );
+        }
+
+
       for ( int k = 0; k < 3; k++ )
-	{
-	  substring = substring.substr(pos2+1);
-	  ATH_MSG_DEBUG("remaining string is " << substring  );
-	  pos1 = int(substring.find("["));
-	  ATH_MSG_DEBUG("position 1 is " << pos1  );
-	  pos2 = int(substring.find("]"));
-	  ATH_MSG_DEBUG("position 2 is " << pos1  );	          
-	  num_string = substring.substr(pos1+1,pos2-1);
-	  ATH_MSG_DEBUG("num_string is " << substring );	     
-	  std::istringstream is(num_string);
-	  is >> num[k];
-	  ATH_MSG_DEBUG("number got is " << num[k] );	
-	}
-  
-      n_station = num[0];  
+        {
+          substring = substring.substr(pos2+1);
+          ////ATH_MSG_DEBUG("remaining string is " << substring  );
+          pos1 = int(substring.find("["));
+          ////ATH_MSG_DEBUG("position 1 is " << pos1  );
+          pos2 = int(substring.find("]"));
+          ////ATH_MSG_DEBUG("position 2 is " << pos1  );
+          num_string = substring.substr(pos1+1,pos2-1);
+          ////ATH_MSG_DEBUG("num_string is " << substring );
+          std::istringstream is(num_string);
+          is >> num[k];
+          ////ATH_MSG_DEBUG("number got is " << num[k] );
+        }
+
+      n_station = num[0];
       n_plate   = num[1];
       n_fiber   = num[2];
 
-      ATH_MSG_DEBUG("station=" << n_station << ", plate=" << n_plate << ", fiber=" << n_fiber << ", sign=" << sign_fiber );
-     
-      ALFA_Hit* pHit = new ALFA_Hit(hitID,
-				    trackID, 
-				    particleEncoding,  
-				    (float) kineticEnergy,
-				    (float) energyDeposit, 
-				    (float) preStepX, (float) preStepY, (float) preStepZ, 
-				    (float) postStepX, (float) postStepY, (float) postStepZ, 
-				    (float) globalTime, 
-				    (int) sign_fiber, (int) n_plate, (int) n_fiber, (int) n_station
-				    );
-      
-      pHitCollection->Insert(*pHit);
-      ++numberOfHits;
+      ////ATH_MSG_DEBUG("station=" << n_station << ", plate=" << n_plate << ", fiber=" << n_fiber << ", sign=" << sign_fiber );
+
+      if(m_HitCollection.isValid())
+        {
+          m_HitCollection->Emplace(m_hitID,
+                                   trackID,
+                                   particleEncoding,
+                                   (float) kineticEnergy,
+                                   (float) energyDeposit,
+                                   (float) preStepX, (float) preStepY, (float) preStepZ,
+                                   (float) postStepX, (float) postStepY, (float) postStepZ,
+                                   (float) globalTime,
+                                   (int) sign_fiber, (int) n_plate, (int) n_fiber, (int) n_station
+                                   );
+          ++m_numberOfHits;
+        }
+      else
+        {
+          G4ExceptionDescription description;
+          description << "ProcessHits: Can't access HitCollection with key " << m_HitCollection.key() << " from store " << m_HitCollection.store();
+          G4Exception("ALFA_SensitiveDetector", "InvalidHitColl2", FatalException, description);
+          return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+        }
     }
 
   if (vol_test_str.compare("ODFiber") == 0)
     {
-
+      if (std::abs(energyDeposit)<std::numeric_limits<double>::epsilon()) { return true; }
       pos2 = 7;
       std::string substring (vol_name);
       std::string num_string (vol_name);
-  
-      ATH_MSG_DEBUG(" volume name is " << vol_test_str  );
-      ATH_MSG_DEBUG("string slope is " << substring.substr(pos2,1)  );  
-     
-      std::string test_str ("A");  
-      test_str = substring.substr(pos2,1);
-  
-      if (test_str.compare("U") == 0)
-	{
-	  sign_fiber = 1;
-	  ATH_MSG_DEBUG("slope is "  << sign_fiber  );      
-	}
-  
-      if (test_str.compare("V") == 0)
-	{
-	  sign_fiber = -1;
-	  ATH_MSG_DEBUG("slope is "  << sign_fiber  );          
-	}    
 
-      std::string test_str_side ("A");  
+      //////ATH_MSG_DEBUG(" volume name is " << vol_test_str  );
+      //////ATH_MSG_DEBUG("string slope is " << substring.substr(pos2,1)  );
+
+      std::string test_str ("A");
+      test_str = substring.substr(pos2,1);
+      int sign_fiber(0);
+      if (test_str.compare("U") == 0)
+        {
+          sign_fiber = 1;
+          //////ATH_MSG_DEBUG("slope is "  << sign_fiber  );
+        }
+
+      if (test_str.compare("V") == 0)
+        {
+          sign_fiber = -1;
+          //////ATH_MSG_DEBUG("slope is "  << sign_fiber  );
+        }
+
+      std::string test_str_side ("A");
       test_str_side = substring.substr(pos2+1,1);
-            
-      ATH_MSG_DEBUG("remaining string is " << test_str_side );   
-	     
+
+      //////ATH_MSG_DEBUG("remaining string is " << test_str_side );
+      int OD_side(0);
       if (test_str_side.compare("0") == 0)
-	{
-	  OD_side = 0;
-	  ATH_MSG_DEBUG("OD_side is "  << OD_side  ); 	      
-	}
-  
+        {
+          OD_side = 0;
+          //////ATH_MSG_DEBUG("OD_side is "  << OD_side  );
+        }
+
       if (test_str_side.compare("1") == 0)
-	{
-	  OD_side = 1;
-	  ATH_MSG_DEBUG("OD_side is "  << OD_side  ); 	          
-	}         
-      
+        {
+          OD_side = 1;
+          //////ATH_MSG_DEBUG("OD_side is "  << OD_side  );
+        }
+
       for ( int k = 0; k < 3; k++ )
-	{
-	  substring = substring.substr(pos2+1);
-	  ATH_MSG_DEBUG("OD: remaining string is " << substring  );        
-	  pos1 = int(substring.find("["));
-	  ATH_MSG_DEBUG("OD: position 1 is " << pos1  );        
-	  pos2 = int(substring.find("]"));
-	  ATH_MSG_DEBUG("OD: position 2 is " << pos1  );        
-	  num_string = substring.substr(pos1+1,pos2-1);
-	  ATH_MSG_DEBUG("OD: num_string is " << substring );	        
-	  std::istringstream is(num_string);
-	  is >> num[k];
-	  ATH_MSG_DEBUG("OD: number got is " << num[k] );       
-	}
-  
-      n_station = num[0];  
+        {
+          substring = substring.substr(pos2+1);
+          ////ATH_MSG_DEBUG("OD: remaining string is " << substring  );
+          pos1 = int(substring.find("["));
+          ////ATH_MSG_DEBUG("OD: position 1 is " << pos1  );
+          pos2 = int(substring.find("]"));
+          ////ATH_MSG_DEBUG("OD: position 2 is " << pos1  );
+          num_string = substring.substr(pos1+1,pos2-1);
+          ////ATH_MSG_DEBUG("OD: num_string is " << substring );
+          std::istringstream is(num_string);
+          is >> num[k];
+          ////ATH_MSG_DEBUG("OD: number got is " << num[k] );
+        }
+
+      n_station = num[0];
       n_plate   = num[1];
       n_fiber   = num[2];
-    
-      ATH_MSG_DEBUG("station=" << n_station << ", side=" << OD_side << ", plate= "<< n_plate << ", fiber=" << n_fiber << ", sign=" << sign_fiber );
-           
-      ALFA_ODHit* pODHit = new ALFA_ODHit(hitID,
-					  trackID, 
-					  particleEncoding,  
-					  (float) kineticEnergy,
-					  (float) energyDeposit, 
-					  (float) preStepX, (float) preStepY, (float) preStepZ, 
-					  (float) postStepX, (float) postStepY, (float) postStepZ, 
-					  (float) globalTime, 
-					  (int) sign_fiber, (int) OD_side, (int) n_plate, (int) n_fiber, (int) n_station
-					  );
-      
-      pODHitCollection->Insert(*pODHit);
-      ++numberOfODHits;
+
+      ////ATH_MSG_DEBUG("station=" << n_station << ", side=" << OD_side << ", plate= "<< n_plate << ", fiber=" << n_fiber << ", sign=" << sign_fiber );
+      if(m_ODHitCollection.isValid())
+        {
+          m_ODHitCollection->Emplace(m_hitID,
+                                     trackID,
+                                     particleEncoding,
+                                     (float) kineticEnergy,
+                                     (float) energyDeposit,
+                                     (float) preStepX, (float) preStepY, (float) preStepZ,
+                                     (float) postStepX, (float) postStepY, (float) postStepZ,
+                                     (float) globalTime,
+                                     (int) sign_fiber, (int) OD_side, (int) n_plate, (int) n_fiber, (int) n_station
+                                     );
+          ++m_numberOfODHits;
+        }
+      else
+        {
+          G4ExceptionDescription description;
+          description << "ProcessHits: Can't access HitCollection with key " << m_ODHitCollection.key() << " from store " << m_ODHitCollection.store();
+          G4Exception("ALFA_SensitiveDetector", "InvalidHitColl3", FatalException, description);
+          return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+        }
+
     }
-  
+
+
   return true;
 }
 
-void ALFA_SensitiveDetector::EndOfEvent(G4HCofThisEvent* ) {  
-     
-  ATH_MSG_DEBUG(" Total number of hits in MD: " << numberOfHits  );  
-  ATH_MSG_DEBUG(" Total number of hits in OD: " << numberOfODHits );  
-  ATH_MSG_DEBUG("*************************************************************" );  
-  
-  m_hitCollHelp.ExportCollection<ALFA_HitCollection>(pHitCollection); 
-  m_hitCollHelp.ExportCollection<ALFA_ODHitCollection>(pODHitCollection);   
-   
-  ++eventNumber;
-    
-  numberOfHits = 0;
-  numberOfODHits = 0;
-}
+void ALFA_SensitiveDetector::EndOfAthenaEvent()
+{
+  G4cout << " Total number of hits in MD: " << m_numberOfHits << G4endl;
+  G4cout << " Total number of hits in OD: " << m_numberOfODHits << G4endl;
+  G4cout << "*************************************************************" << G4endl;
 
+  ++m_eventNumber;
+
+  m_numberOfHits = 0;
+  m_numberOfODHits = 0;
+}
