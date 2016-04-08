@@ -10,7 +10,6 @@
 
 // Local include(s):
 #include "versions/CutBookkeeperContainer_v1.h"
-#include "xAODCutFlow/CutBookkeeper.h"
 
 /// Namespace holding all the xAOD EDM classes
 namespace xAOD {
