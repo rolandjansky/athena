@@ -1,0 +1,9 @@
+<lcgdict>
+
+  <!-- this library is optimized by ilija@vukotic.me    it takes 436 kb   -->
+
+  <class name="ByteStreamMetadata_p1" id="2DED41DC-E2FF-4562-AD58-53BEF1612619" />
+  <class name="std::vector<ByteStreamMetadata_p1>" id="2DED41DC-E2FF-4562-AD58-53BEF1612619" />
+  <class name="ByteStreamMetadataContainer_p1" id="E0A5F063-F07D-4D2E-8D3B-49205CD712C1" />
+
+</lcgdict>
