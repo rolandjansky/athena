@@ -12,6 +12,8 @@ use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 
 public
 
+use SGTools	       SGTools-*          Control
+use StoreGate	       StoreGate-*          Control
 use AtlasPolicy	       AtlasPolicy-*
 use AtlasCLHEP	       AtlasCLHEP-*         External 
 use GaudiInterface     GaudiInterface-*     External

@@ -96,6 +96,18 @@ namespace InDetDD {
         return *surfacePtr;
     }
 
+
+    const std::vector<const Trk::Surface*>& TRT_BaseElement::surfaces() const 
+    {
+        if (!m_surfaces.size()){
+            m_surfaces.reserve(nStraws());
+            for (unsigned is = 0; is<nStraws(); ++is)
+                m_surfaces.push_back(&strawSurface(is));
+        }
+        return m_surfaces;
+    }
+
+
     const Trk::SurfaceBounds& TRT_BaseElement::bounds(const Identifier&) const 
     {
         return strawBounds();

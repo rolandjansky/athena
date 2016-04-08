@@ -84,15 +84,7 @@ private:
 
 };
 
-
-
-
-// Global 
 std::ostream & operator << (std::ostream & os, const SiCellId & cellId);
-
-
-
-
 
 ///////////////////////////////////////////////////////////////////
 // Inline methods:

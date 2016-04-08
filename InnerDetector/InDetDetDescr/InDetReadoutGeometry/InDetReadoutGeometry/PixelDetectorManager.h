@@ -125,8 +125,10 @@ namespace InDetDD {
       virtual const PixelModuleDesign * getPixelDesign(int i) const;
 
       /** Process new IBLDist DB folder **/
-      bool processSpecialAlignment(const std::string &) const;
+      bool processSpecialAlignment(const std::string &, InDetDD::AlignFolderType) const;
 
+      /** Process new global DB folders for L1 and L2 **/
+      bool processGlobalAlignment(const std::string &, int level, FrameType frame) const;
     
      private:  
     
@@ -162,7 +164,7 @@ namespace InDetDD {
           If true they will be calcualted on top  of all of other corrections but in the default reference frame
           If false they will be calcualted  on top  of all of other corrections but in the globally aligned reference frame    
       */
-      //bool                                                          m_isLogical;    
+      bool                                                          m_isLogical;    
 
     };
 

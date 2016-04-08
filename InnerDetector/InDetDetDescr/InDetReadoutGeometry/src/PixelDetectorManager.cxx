@@ -23,8 +23,8 @@ namespace InDetDD {
 
   PixelDetectorManager::PixelDetectorManager(StoreGateSvc* detStore) 
     : SiDetectorManager(detStore, "Pixel"),
-    m_idHelper(0)
-//        m_isLogical(false) // Change to true to change the definition of local module corrections
+      m_idHelper(0),
+      m_isLogical(false) // Change to true to change the definition of local module corrections
   {
 
     //  
@@ -227,13 +227,13 @@ namespace InDetDD {
 
         // Its a local transform
         //See header file for definition of m_isLogical          
-        //if( m_isLogical ){
-        //    //Ensure cache is up to date and use the alignment corrected local to global transform
-        //    element->updateCache();
-        //return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta);
-        //} else 
-        //Use default local to global transform
-        return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->defTransform(), delta);
+        if( m_isLogical ){
+	  //Ensure cache is up to date and use the alignment corrected local to global transform
+	  element->updateCache();
+	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta);
+        } else 
+	  //Use default local to global transform
+	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->defTransform(), delta);
       } else {
         // other not supported
         msg(MSG::WARNING) << "Frames other than global or local are not supported." << endreq;
@@ -315,23 +315,28 @@ namespace InDetDD {
 
   // The implementation of the new IBLDist DB; 
   // Specific for IBL -> maybe make it different function in future to be more general 
-  bool PixelDetectorManager::processSpecialAlignment(const std::string & key) const
+  bool PixelDetectorManager::processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType alignfolderType) const
   {
 
   bool alignmentChange = false;
 
+  std::string alignfolder;
+  if (alignfolderType == InDetDD::static_run1) alignfolder = "/Indet/Align";
+  if (alignfolderType == InDetDD::timedependent_run2) alignfolder = "/Indet/AlignL3";
+
   if(msgLvl(MSG::INFO))
-    msg(MSG::INFO) << "Processing IBLDist alignment container." << endreq;
+    msg(MSG::INFO) << "Processing IBLDist alignment container with key (" <<
+      key << ") and alignment folder pointing to " << alignfolder << endreq;
 
   int nstaves = 0;
   if (numerology().numPhiModulesForLayer(0)<14) nstaves = 14;
   else nstaves = numerology().numPhiModulesForLayer(0);
-
-  std::vector<float> ibldist; 
+  
+  std::vector<float> ibldist;
   std::vector<float> iblbaseline;
   ibldist.resize(nstaves);
   iblbaseline.resize(nstaves);
- 
+
   const CondAttrListCollection* atrlistcol=0;
   if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
     // loop over objects in collection
@@ -366,7 +371,7 @@ namespace InDetDD {
   **/
 
   const AlignableTransformContainer* container;
-  if (StatusCode::SUCCESS!=m_detStore->retrieve(container, "/Indet/Align")) {      
+  if (StatusCode::SUCCESS!=m_detStore->retrieve(container, alignfolder)) {      
     msg(MSG::ERROR) << "Cannot find AlignableTransformContainer for key " 
         << key << " - no misalignment" << endreq;
     // This should not occur in normal situations so we force job to abort.
@@ -380,14 +385,15 @@ namespace InDetDD {
     throw std::runtime_error("Unable to apply Inner Detector alignments.");
   }
   // loop over all the AlignableTransform objects in the collection
+  std::string IBLalignfolder = alignfolder;
+  IBLalignfolder.append("/PIXB1");// "/Indet/Align/PIXB1"   
   for (DataVector<AlignableTransform>::const_iterator pat=container->begin();
-   pat!=container->end();++pat) {
-
-    if (!( (*pat)->tag()=="/Indet/Align/PIXB1" && 
+       pat!=container->end();++pat) {
+    if (!( (*pat)->tag()==IBLalignfolder && 
 	   numerology().numPhiModulesForLayer(0)==14 &&
 	   numerology().numLayers()==4) ){  // hard-coded to IBL for now; no other geometry should really apply this!
       msg(MSG::DEBUG) << "IBLDist; ignoring collections " << (*pat)->tag() << endreq;
-    }
+    }  
     else{
       const AlignableTransform* transformCollection = *pat;
       for (AlignableTransform::AlignTransMem_citr trans_iter = transformCollection->begin(); 
@@ -399,13 +405,13 @@ namespace InDetDD {
         }
   
         IdentifierHash idHash = getIdHelper()->wafer_hash(trans_iter->identify());
-	if (!idHash.is_valid()){
+        if (!idHash.is_valid()){
 	  msg(MSG::WARNING) << "Invalid HashID for identifier "
-			 << getIdHelper()->show_to_string(trans_iter->identify())   << endreq;
+			    << getIdHelper()->show_to_string(trans_iter->identify())   << endreq;
 	  msg(MSG::WARNING) << "No IBLDist corrections can be applied for invalid HashID's - exiting " << endreq;
 	  return false;
 	}
-        SiDetectorElement * sielem = m_elementCollection[idHash];
+	SiDetectorElement * sielem = m_elementCollection[idHash];
         //This should work as Bowing is in L3 frame, i.e. local module frame                 
         double z = sielem->center()[2];
         const double  y0y0  = 366.5*366.5;
@@ -453,9 +459,87 @@ namespace InDetDD {
       }
     }
   }
-  
 
   return alignmentChange;
+  }
+
+  // New global alignment folders
+  bool PixelDetectorManager::processGlobalAlignment(const std::string & key, int level, FrameType frame) const
+  {
+
+    bool alignmentChange = false;
+
+    if(msgLvl(MSG::INFO))
+      msg(MSG::INFO) << "Processing new global alignment containers with key " << key << " in the " << frame << " frame at level " << level << endreq;
+
+    Identifier ident=Identifier();
+    const CondAttrListCollection* atrlistcol=0;
+    if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
+      // loop over objects in collection
+      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
+	const coral::AttributeList& atrlist=citr->second;
+	// We are in the Pixel manager, therefore ignore all that is not Pixel Identifier
+	if (atrlist["det"].data<int>()!=1) continue;
+
+	ident = getIdHelper()->wafer_id(atrlist["bec"].data<int>(),
+					atrlist["layer"].data<int>(),
+					atrlist["ring"].data<int>(),
+					atrlist["sector"].data<int>());
+
+	// Make sure we have valid HashID (This ONLY works here as the 0-modules exist)
+	// Precaution which does not work for e.g. SCT
+	if (!(getIdHelper()->wafer_hash(ident)).is_valid()){
+	  msg(MSG::WARNING) << "Invalid HashID for identifier "
+			    << getIdHelper()->show_to_string(ident)   << endreq;
+	  msg(MSG::WARNING) << "No global alignment corrections can be applied for invalid HashID's - exiting " << endreq;
+	  return false;
+	}
+
+	// construct new transform                                                                                                                
+	// Order of rotations is defined as around z, then y, then x.
+	Amg::Translation3D  newtranslation(atrlist["Tx"].data<float>(),atrlist["Ty"].data<float>(),atrlist["Tz"].data<float>());
+	Amg::Transform3D newtrans = newtranslation * Amg::RotationMatrix3D::Identity();
+	newtrans *= Amg::AngleAxis3D(atrlist["Rz"].data<float>()*CLHEP::mrad, Amg::Vector3D(0.,0.,1.));
+	newtrans *= Amg::AngleAxis3D(atrlist["Ry"].data<float>()*CLHEP::mrad, Amg::Vector3D(0.,1.,0.));
+	newtrans *= Amg::AngleAxis3D(atrlist["Rx"].data<float>()*CLHEP::mrad, Amg::Vector3D(1.,0.,0.));
+
+	msg(MSG::DEBUG) << "New global DB -- channel: " << citr->first
+			  << " ,det: "    << atrlist["det"].data<int>()
+			  << " ,bec: "    << atrlist["bec"].data<int>()
+			  << " ,layer: "  << atrlist["layer"].data<int>()
+			  << " ,ring: "   << atrlist["ring"].data<int>()
+			  << " ,sector: " << atrlist["sector"].data<int>()
+			  << " ,Tx: "     << atrlist["Tx"].data<float>()
+			  << " ,Ty: "     << atrlist["Ty"].data<float>()
+			  << " ,Tz: "     << atrlist["Tz"].data<float>()
+			  << " ,Rx: "     << atrlist["Rx"].data<float>()
+			  << " ,Ry: "     << atrlist["Ry"].data<float>()
+			  << " ,Rz: "     << atrlist["Rz"].data<float>() << endreq;
+      
+        // Set the new transform; Will replace existing one with updated transform                                                                 
+	bool status = setAlignableTransformDelta(level,
+						 ident,
+						 newtrans,
+						 frame);
+
+        if (!status) {
+          if (msgLvl(MSG::DEBUG)) {
+            msg(MSG::DEBUG) << "Cannot set AlignableTransform for identifier."
+			    << getIdHelper()->show_to_string(ident)
+			    << " at level " << level << " for new global DB " << endreq;
+          }
+        }
+
+        alignmentChange = (alignmentChange || status);
+      }
+    }
+    else {
+      if (msgLvl(MSG::INFO))
+	msg(MSG::INFO) << "Cannot find new global align Container for key "
+		       << key << " - no new global alignment " << endreq;
+      return alignmentChange;
+    }
+    return alignmentChange;
   }
 
 

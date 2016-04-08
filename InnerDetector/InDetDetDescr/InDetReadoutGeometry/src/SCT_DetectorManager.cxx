@@ -2,6 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+//#include "DetDescrConditions/AlignableTransformContainer.h"
+//#include "DetDescrConditions/AlignableTransform.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
@@ -21,8 +25,8 @@ namespace InDetDD {
 
   SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore )
     : SiDetectorManager(detStore, "SCT"),
-    m_idHelper(0)
-//        m_isLogical(false) // Change to true to change the definition of local module corrections
+      m_idHelper(0),
+      m_isLogical(false) // Change to true to change the definition of local module corrections
   {
     //  
     // Initialized the Identifier helper.
@@ -200,13 +204,13 @@ namespace InDetDD {
 
         // Its a local transform
         //See header file for definition of m_isLogical          
-        //if( m_isLogical ){
-        //    //Ensure cache is up to date and use the alignment corrected local to global transform
-        //    element->updateCache();
-        //return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta);
-        //} else 
-        //Use default local to global transform
-        return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->defTransform(), delta);
+        if( m_isLogical ){
+	  //Ensure cache is up to date and use the alignment corrected local to global transform
+	  element->updateCache();
+	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta);
+        } else 
+	  //Use default local to global transform
+	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->defTransform(), delta);
 
       } else {   
         // other not supported
@@ -233,16 +237,16 @@ namespace InDetDD {
       } else if (frame == InDetDD::local) { // local shift
         const SiDetectorElement * element =  m_elementCollection[idHash];
         if (!element) return false;
-        // Its a local transform
+       
         // Its a local transform
         //See header file for definition of m_isLogical          
-        //if( m_isLogical ){
-        //    //Ensure cache is up to date and use the alignment corrected local to global transform
-        //    element->updateCache();
-        //return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash], element->moduleTransform(), delta);
-        //} else 
-        //Use default local to global transform
-        return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash],element->defModuleTransform(), delta);
+        if( m_isLogical ){
+	  //Ensure cache is up to date and use the alignment corrected local to global transform
+	  element->updateCache();
+	  return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash], element->moduleTransform(), delta);
+        } else 
+	  //Use default local to global transform
+	  return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash],element->defModuleTransform(), delta);
 
       } else {
         // other not supported
@@ -329,6 +333,76 @@ namespace InDetDD {
     return dynamic_cast<const SCT_ModuleSideDesign *>(getDesign(i));
   }
 
+  // New global alignment folders
+  bool SCT_DetectorManager::processGlobalAlignment(const std::string & key, int level, FrameType frame) const
+  {
+
+    bool alignmentChange = false;
+
+    if(msgLvl(MSG::INFO))
+      msg(MSG::INFO) << "Processing new global alignment containers with key " << key << " in the " << frame << " frame at level " << level << endreq;
+
+    Identifier ident=Identifier();
+    const CondAttrListCollection* atrlistcol=0;
+    if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
+      // loop over objects in collection
+      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
+        const coral::AttributeList& atrlist=citr->second;
+        // SCT manager, therefore ignore all that is not a SCT Identifier
+        if (atrlist["det"].data<int>()!=2) continue;
+
+        ident = getIdHelper()->wafer_id(atrlist["bec"].data<int>(),
+                                        atrlist["layer"].data<int>(),
+                                        atrlist["ring"].data<int>(),
+                                        atrlist["sector"].data<int>(),
+					0); // The last is the module side which is at this ident-level always the 0-side
+
+        // construct new transform
+        // Order of rotations is defined as around z, then y, then x.
+	Amg::Translation3D  newtranslation(atrlist["Tx"].data<float>(),atrlist["Ty"].data<float>(),atrlist["Tz"].data<float>());
+	Amg::Transform3D newtrans = newtranslation * Amg::RotationMatrix3D::Identity();
+        newtrans *= Amg::AngleAxis3D(atrlist["Rz"].data<float>()*CLHEP::mrad, Amg::Vector3D(0.,0.,1.));
+        newtrans *= Amg::AngleAxis3D(atrlist["Ry"].data<float>()*CLHEP::mrad, Amg::Vector3D(0.,1.,0.));
+        newtrans *= Amg::AngleAxis3D(atrlist["Rx"].data<float>()*CLHEP::mrad, Amg::Vector3D(1.,0.,0.));
+
+	msg(MSG::DEBUG) << "New global DB -- channel: " << citr->first
+			<< " ,det: "    << atrlist["det"].data<int>()
+			<< " ,bec: "    << atrlist["bec"].data<int>()
+			<< " ,layer: "  << atrlist["layer"].data<int>()
+			<< " ,ring: "   << atrlist["ring"].data<int>()
+			<< " ,sector: " << atrlist["sector"].data<int>()
+			<< " ,Tx: "     << atrlist["Tx"].data<float>()
+			<< " ,Ty: "     << atrlist["Ty"].data<float>()
+			<< " ,Tz: "     << atrlist["Tz"].data<float>()
+			<< " ,Rx: "     << atrlist["Rx"].data<float>()
+			<< " ,Ry: "     << atrlist["Ry"].data<float>()
+			<< " ,Rz: "     << atrlist["Rz"].data<float>() << endreq;
+
+        // Set the new transform; Will replace existing one with updated transform
+        bool status = setAlignableTransformDelta(level,
+                                                 ident,
+                                                 newtrans,
+                                                 frame);
+
+        if (!status) {
+          if (msgLvl(MSG::DEBUG)) {
+            msg(MSG::DEBUG) << "Cannot set AlignableTransform for identifier."
+                            << getIdHelper()->show_to_string(ident)
+                            << " at level " << level << " for new global DB " << endreq;
+          }
+        }
+
+        alignmentChange = (alignmentChange || status);
+      }
+    }
+    else {
+      if (msgLvl(MSG::INFO))
+        msg(MSG::INFO) << "Cannot find new global align Container for key "
+                       << key << " - no new global alignment " << endreq;
+      return alignmentChange;
+    }
+    return alignmentChange;
+  }
 
 
 } // namespace InDetDD
