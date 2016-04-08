@@ -37,7 +37,7 @@ namespace JiveXML {
    * For each jet collections retrieve basic parameters.
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode CompositeParticleRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode CompositeParticleRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     

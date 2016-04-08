@@ -31,7 +31,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode TruthParticleRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode TruthParticleRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     const TruthParticleContainer *truthCont = NULL;
     

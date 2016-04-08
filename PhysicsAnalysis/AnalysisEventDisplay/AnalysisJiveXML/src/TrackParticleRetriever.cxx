@@ -98,7 +98,7 @@ namespace JiveXML {
    * - for each track get basic parameters
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode TrackParticleRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode TrackParticleRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving AOD TrackParticle" << endreq; 

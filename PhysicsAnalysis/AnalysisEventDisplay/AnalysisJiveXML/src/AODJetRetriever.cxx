@@ -36,7 +36,7 @@ namespace JiveXML {
    * For each jet collections retrieve basic parameters.
    * 'Favourite' jet collection first, then 'Other' jet collections.
    */
-  StatusCode AODJetRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode AODJetRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     

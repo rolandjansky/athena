@@ -27,7 +27,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode TrigEMClusterRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode TrigEMClusterRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     const TrigEMClusterContainer* tec;
     

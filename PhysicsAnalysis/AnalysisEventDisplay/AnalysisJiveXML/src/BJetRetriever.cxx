@@ -37,7 +37,7 @@ namespace JiveXML {
    * 'Favourite' jet collection first, then 'Other' jet collections.
    * @param FormatTool the tool that will create formated output from the DataMap
    */
-  StatusCode BJetRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode BJetRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     
