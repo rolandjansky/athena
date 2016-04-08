@@ -1,0 +1,17 @@
+package MadCUP_i
+
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+
+private
+use GeneratorFortranCommon GeneratorFortranCommon-* Generators
+use Pythia           Pythia-*           External
+use Herwig           Herwig-*           External
+end_private
+
+library MadCUP_i *.cxx *.F
+apply_pattern installed_library
+
+apply_pattern declare_runtime_extras extras="event_input.dat"
+apply_pattern declare_joboptions files="*.py"

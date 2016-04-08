@@ -1,0 +1,53 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\textwidth=6.5in
+\textheight=9.0in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}   
+\def\topfraction{1.}
+\def\textfraction{0.}           
+\begin{document}
+\title{MadCUP\_i: An interface between MadCUP and Athena\\
+Version in release 7.0.0 and later}
+\author{  Georgios Stavropoulos (George.Stavropoulos@cern.ch) }
+
+\maketitle           
+
+This package runs MadCUP  from within Athena. \\See the example
+in {\bf MadCUP\_i/share/jobOptions.MadCupPythia.py } and {\bf
+  MadCUP\_i/share/jobOptions.MadCupHerwig.py }  which show how to
+read MadCUP events and hadronize them using Pythia or Herwig
+
+Users must first run 
+MadCUP in standalone mode and make a file of events. An athena job
+then takes these events hadronizes them and passes them down the
+Athena event chain. The events must be made with a version of MadCUP
+that is compatible, recent versions that support the Les Houches
+interface should be acceptable.
+
+
+To hadronize {\bf MadCUP} generated events with Herwig, you only need to run athena with the jobOptions
+file jobOptions.MadCupHerwig.py by typing in the prompt \\
+{\it athena jobOptions.MadCupHerwig.py}\\
+
+To hadronize {\bf MadCUP} generated events with Pythia, you only need to run athena with the jobOptions
+file jobOptions.MadCupPythia.py by typing in the prompt \\
+{\it athena jobOptions.MadCupPythia.py}\\
+
+
+More infomation about MadCUP  here
+
+http://pheno.physics.wisc.edu/Software/MadCUP/
+
+\end{document}
+
+
+
+
+
+
+
