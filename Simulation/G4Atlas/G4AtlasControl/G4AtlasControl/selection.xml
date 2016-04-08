@@ -1,16 +1,9 @@
 <lcgdict>
-   <class name="ActionMenu"/>
    <class name="SimControl"/>
-   <class name="GeometryMenu"/>
    <class name="FieldMenu"/>
    <class name="FieldIntegrationMenu"/>
-   <class name="SenDetectorMenu"/>
    <class name="PhysicsMenu"/>
    <class name="MCTruthMenu"/>
-   <class name="RandomNrMenu"/>
-   <class name="FADS::DetectorFacility"/>
-   <class name="GenericDetectorFacility"/>
-   <class name="PhysicsRegionProxy"/>
    <class name="ParticleDataModifier"/>
    <class name="Control"/>
    <class name="Units"/>
@@ -28,7 +21,4 @@
    <class name="Process"/>
    <class name="Physics_engine"/>
    <class name="G4Commands"/>
-   <class name="Element"/>
-   <class name="Material"/>
-   <class name="CompositeMaterial"/>
 </lcgdict>

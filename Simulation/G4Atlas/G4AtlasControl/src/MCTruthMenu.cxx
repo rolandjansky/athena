@@ -6,8 +6,8 @@
 
 #include "G4AtlasControl/MCTruthMenu.h"
 
-#include "MCTruth/TruthStrategyManager.h"
-#include "MCTruth/TruthStrategy.h"
+#include "MCTruthBase/TruthStrategyManager.h"
+#include "MCTruthBase/TruthStrategy.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 

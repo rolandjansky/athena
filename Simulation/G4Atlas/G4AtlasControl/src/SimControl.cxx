@@ -20,13 +20,18 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-#include "G4AtlasAlg/G4AtlasRunManager.h"
 #include "G4AtlasControl/DataCardSvc.h"
+
+#ifdef ATHENAHIVE
+#  include "G4AtlasAlg/G4AtlasMTRunManager.h"
+#else
+#  include "G4AtlasAlg/G4AtlasRunManager.h"
+#endif
 
 SimControl::SimControl()
 {
-//	std::cout<<" Creating the SimControl "<<std::endl;
-	dCard=DataCardSvc::GetDataCardSvc();
+  // std::cout<<" Creating the SimControl "<<std::endl;
+  dCard=DataCardSvc::GetDataCardSvc();
 }
 
 SimControl::~SimControl()
@@ -35,127 +40,112 @@ SimControl::~SimControl()
 
 void SimControl::G4Command(const std::string& comm) const
 {
-	G4UImanager *ui=G4UImanager::GetUIpointer();
-	ui->ApplyCommand(comm);
+  G4UImanager *ui=G4UImanager::GetUIpointer();
+  ui->ApplyCommand(comm);
 }
 
-void SimControl::UIsession() const 
+void SimControl::UIsession() const
 {
-	std::cout<<" Starting a G4 terminal "<<std::endl;
-	G4UIsession * ses = new G4UIterminal(new G4UItcsh);
-	ses->SessionStart();
-	
-	delete ses;
+  std::cout<<" Starting a G4 terminal "<<std::endl;
+  G4UIsession * ses = new G4UIterminal(new G4UItcsh);
+  ses->SessionStart();
+
+  delete ses;
 }
 
 void SimControl::load(const std::string& lib) const
 {
-	FADS::PackageLoader a(lib.c_str());
+  FADS::PackageLoader a(lib.c_str());
 }
 
 void SimControl::ReadXML(const std::string& fileName) const
 {
 
-	const std::string filename=fileName;
-	std::string file=PathResolver::find_file(filename,"DATAPATH");
-	if (!file.empty()) 
-	{       
-		FADS::XMLReader *temp=FADS::XMLReader::GetXMLReader();
-		temp->Process(file);
-	}
-	else std::cout<<"file "<<filename<<" not found"<<std::endl;
+  const std::string filename=fileName;
+  std::string file=PathResolver::find_file(filename,"DATAPATH");
+  if (!file.empty())
+    {
+      FADS::XMLReader *temp=FADS::XMLReader::GetXMLReader();
+      temp->Process(file);
+    }
+  else std::cout<<"file "<<filename<<" not found"<<std::endl;
 
 }
 
-const GeometryMenu& SimControl::geomMenu() const
+const PhysicsMenu& SimControl::physMenu() const
 {
-	static const GeometryMenu& temp=geometryMenu;
-	return temp;
+  static const PhysicsMenu& temp=physicsMenu;
+  return temp;
 }
 
-const SenDetectorMenu& SimControl::sdMenu() const 
+const MCTruthMenu& SimControl::mcMenu() const
 {
-	static const SenDetectorMenu& temp=sendetectorMenu;
-	return temp;
-}
-const PhysicsMenu& SimControl::physMenu() const 
-{
-	static const PhysicsMenu& temp=physicsMenu;
-	return temp;
-}
-const MCTruthMenu& SimControl::mcMenu() const 
-{
-	static const MCTruthMenu& temp=mctruthMenu;
-	return temp;
-}
-
-const ActionMenu& SimControl::actionMenu() const
-{
-	static const ActionMenu& temp=actMenu;
-	return temp;
+  static const MCTruthMenu& temp=mctruthMenu;
+  return temp;
 }
 
 const FieldMenu& SimControl::fieldMenu() const
 {
-	static const FieldMenu& temp=fldMenu;
-	return temp;
-}
-
-const RandomNrMenu& SimControl::randomMenu() const
-{
-	static const RandomNrMenu& temp=rndMenu;
-	return temp;
+  static const FieldMenu& temp=fldMenu;
+  return temp;
 }
 
 void SimControl::initializeG4() const
 {
-	G4AtlasRunManager* rm = dynamic_cast<G4AtlasRunManager*>(G4RunManager::GetRunManager());
+#ifdef ATHENAHIVE
+  G4AtlasMTRunManager* rm = dynamic_cast<G4AtlasMTRunManager*>(G4RunManager::GetRunManager());
+#else
+  G4AtlasRunManager* rm = dynamic_cast<G4AtlasRunManager*>(G4RunManager::GetRunManager());
+#endif
 
-	if (rm)
-	{
-		rm->Initialize();
-		if (rm->ConfirmBeamOnCondition()) rm->RunInitialization();
-	}
+  if (rm)
+    {
+      rm->Initialize();
+#ifndef ATHENAHIVE
+      if (rm->ConfirmBeamOnCondition()) rm->RunInitialization();
+#endif
+    }
+  else std::cerr << "Run manager retrieval has failed" << std::endl;
 }
-void SimControl::initializeGraphics() const 
+void SimControl::initializeGraphics() const
 {
-//	G4VisManager* visManager=new G4SvcVisManager();
-//	visManager->Initialize();
+  // G4VisManager* visManager=new G4SvcVisManager();
+  // visManager->Initialize();
 }
 
 void SimControl::DefineCard(const std::string name, const std::string type, int defValue)
 {
-	std::cout<<" calling the int version of DefineCard "<<std::endl;
-	dCard->DefineCard(name,type,defValue);
+  std::cout<<" calling the int version of DefineCard "<<std::endl;
+  dCard->DefineCard(name,type,defValue);
 }
 void SimControl::DefineCard(const std::string name, const std::string type, double defValue)
 {
-	std::cout<<" calling the double version of DefineCard "<<std::endl;
-	dCard->DefineCard(name,type,defValue);
+  std::cout<<" calling the double version of DefineCard "<<std::endl;
+  dCard->DefineCard(name,type,defValue);
 }
 void SimControl::DefineCard(const std::string name, const std::string type, const std::string defValue)
 {
-	std::cout<<" calling the string version of DefineCard "<<std::endl;
-	dCard->DefineCard(name,type,defValue);
-}	
+  std::cout<<" calling the string version of DefineCard "<<std::endl;
+  dCard->DefineCard(name,type,defValue);
+}
 void SimControl::SetCard(const std::string name, int Value)
 {
-	std::cout<<" calling the int version of SetCard "<<std::endl;
-	dCard->SetCard(name,Value);
+  std::cout<<" calling the int version of SetCard "<<std::endl;
+  dCard->SetCard(name,Value);
 }
 void SimControl::SetCard(const std::string name, double Value)
 {
-	std::cout<<" calling the double version of SetCard "<<std::endl;
-	dCard->SetCard(name,Value);
+  std::cout<<" calling the double version of SetCard "<<std::endl;
+  dCard->SetCard(name,Value);
 }
 void SimControl::SetCard(const std::string name, const std::string Value)
 {
-	std::cout<<" calling the string version of SetCard "<<std::endl;
-	dCard->SetCard(name,Value);
+  std::cout<<" calling the string version of SetCard "<<std::endl;
+  dCard->SetCard(name,Value);
 }
 
 const FieldIntegrationMenu& SimControl::fieldIntegrationMenu() const
 {
-	static const FieldIntegrationMenu& temp=fldIntMenu;
- 	return temp;
+  static const FieldIntegrationMenu& temp=fldIntMenu;
+  return temp;
 }
