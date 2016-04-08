@@ -104,10 +104,12 @@ StatusCode LArBadChannelHunter::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_lowNoiseTh>=m_highNoiseTh) {
-    ATH_MSG_ERROR ( "Low noise threshold (" << m_lowNoiseTh << ") is supposed to lower than the high noise threshold (" 
-                    << m_highNoiseTh << ")" ) ;
-    return StatusCode::FAILURE;
+  for (int i=0; i < CaloGain::LARNGAIN; i++) {
+    if (m_lowNoiseTh[i]>=m_highNoiseTh[i]) {
+      ATH_MSG_ERROR ( "Low noise threshold (" << m_lowNoiseTh << ") is supposed to lower than the high noise threshold (" 
+                      << m_highNoiseTh << ")" ) ;
+      return StatusCode::FAILURE;
+    }
   }
   return StatusCode::SUCCESS;
 }
