@@ -68,7 +68,7 @@ class RPCchamber : public CablingObject
     RPCchamber(const RPCchamber&);
     ~RPCchamber();
 
-    RPCchamber operator=(const RPCchamber&);
+    RPCchamber& operator=(const RPCchamber&);
     
     void set_eta_st_global(int);
     void set_eta_co_global(int);

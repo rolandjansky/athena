@@ -47,31 +47,33 @@ SectorLogicSetup::SectorLogicSetup(const SectorLogicSetup& sec) :
 SectorLogicSetup&
 SectorLogicSetup::operator=(const SectorLogicSetup& sec)
 {
-    m_positive_sector = sec.positive_sector();
-    m_negative_sector = sec.negative_sector();    
-    m_sector_type = sec.sector_type();
+    if (this!=&sec) {
+      m_positive_sector = sec.positive_sector();
+      m_negative_sector = sec.negative_sector();    
+      m_sector_type = sec.sector_type();
 
-    m_stations.clear();
-    m_stations = sec.giveStations();
+      m_stations.clear();
+      m_stations = sec.giveStations();
 
-    m_sectors.clear();
-    m_sectors = sec.sectors();
+      m_sectors.clear();
+      m_sectors = sec.sectors();
 
-    RPCs.clear(); 
-    RPCs = sec.giveRPC();
-    WORs.clear();
-    WORs = sec.giveWOR();
+      RPCs.clear(); 
+      RPCs = sec.giveRPC();
+      WORs.clear();
+      WORs = sec.giveWOR();
 
-    etaCMAs.clear();
-    etaCMAs = sec.giveEtaCMA();
-    evenphiCMAs.clear();
-    evenphiCMAs = sec.giveEvenPhiCMA();
-    oddphiCMAs.clear();
-    oddphiCMAs = sec.giveOddPhiCMA();
+      etaCMAs.clear();
+      etaCMAs = sec.giveEtaCMA();
+      evenphiCMAs.clear();
+      evenphiCMAs = sec.giveEvenPhiCMA();
+      oddphiCMAs.clear();
+      oddphiCMAs = sec.giveOddPhiCMA();
      
-    m_online_database = sec.online_database();
-    m_layout = sec.layout();
-    m_cosmic = sec.cosmic();
+      m_online_database = sec.online_database();
+      m_layout = sec.layout();
+      m_cosmic = sec.cosmic();
+    }
 
     return*this;
 }
@@ -90,15 +92,7 @@ SectorLogicSetup::~SectorLogicSetup()
 void
 SectorLogicSetup::no_elements(std::string tech,int stat)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream disp;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000];
-    for(int i=0;i<5000;++i) buffer[i] = '\0';
-    __osstream disp(buffer,5000);
-#endif
 
     disp << "No " << tech << " elements for Sector Type " << m_sector_type;
     if (stat) disp << ", station " << stat << "!" << std::endl;
@@ -868,7 +862,6 @@ SectorLogicSetup::operator<<(int sector)
 {    
     m_sectors.push_back(sector);
 
-#if (__GNUC__) && (__GNUC__ > 2) 
     __osstream str; 
     if (sector < 32 )
     {
@@ -880,20 +873,6 @@ SectorLogicSetup::operator<<(int sector)
         str << std::setw(3) << sector - 32 << std::ends;
 	m_positive_sector += str.str();
     }
-#else
-    char buffer[4];
-    __osstream str(buffer,4);
-    if (sector < 32 )
-    {
-        str << std::setw(3) << sector << std::ends;
-	m_negative_sector += buffer;
-    }
-    else
-    {
-        str << std::setw(3) << sector - 32 << std::ends;
-	m_positive_sector += buffer;
-    }
-#endif
 
     return *this;
 }

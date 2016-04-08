@@ -107,7 +107,11 @@ OddPhiCMA::cable_CMA_channels(void)
 	    
             int chs = (this->id().Ixx_index() == 0) ?
 	                       pivot_channels - abs(stop - start) -1 : 0;
-			       
+            if(chs >= pivot_channels)
+            {
+                noMoreChannels("Pivot");
+                return false;
+            }
             if (chs <= first_ch_cabled) first_ch_cabled = chs;
             
 	    do
@@ -141,7 +145,17 @@ OddPhiCMA::cable_CMA_channels(void)
 	// Set first and last connectors code
 	int code = m_pivot_station*100000 + 1*100000000;
 	int ch = 0;
-	
+
+	// first_ch_cabled and last_ch_cabled are initialized with "out-of-bound" values
+	// of the m_pivot array; proper values should be assigned during the loop;
+	// the init values though are "misused" for certain conditions, too, therefore
+	// they cannot be changed; but the following if should NEVER fire.
+	if( first_ch_cabled >= pivot_channels || last_ch_cabled < 0 ) {
+	  std::cout << "MuonRPC_Cabling: OddPhiCMA::cable_CMA_channels - out of bound array indices!" <<std::endl;
+	  std::cout << "\t\tValues:" << first_ch_cabled << ", " << last_ch_cabled << " . Taking emergency exit!"<< std::endl;
+	  throw;
+	}
+
 	// get LowPhi code
 	for (ch=0; ch < m_pivot_rpc_read;++ch) 
 	    if(m_pivot[ch][0][last_ch_cabled] >= 0) break;

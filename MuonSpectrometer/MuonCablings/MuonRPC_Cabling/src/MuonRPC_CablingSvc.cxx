@@ -525,15 +525,7 @@ MuonRPC_CablingSvc::printType(int type,int station,std::string element,bool deta
 
     MsgStream log(msgSvc(), name());
     
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[500000];
-    for (int i=0;i<500000;++i) buffer[i] = '\0';
-    __osstream display(buffer,500000);
-#endif
     
     log << MSG::DEBUG << name() << " is demanding a cabling printout" <<endreq;
     
@@ -548,15 +540,7 @@ MuonRPC_CablingSvc::printSector(int sector,int station,std::string element,bool 
 {
     MsgStream log(msgSvc(), name());
     
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[500000];
-    for (int i=0;i<500000;++i) buffer[i] = '\0';
-    __osstream display(buffer,500000);
-#endif
  
     log << MSG::DEBUG << name() << " is demanding a cabling printout" <<endreq;
 

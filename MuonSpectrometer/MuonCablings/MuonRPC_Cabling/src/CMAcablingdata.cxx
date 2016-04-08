@@ -22,7 +22,9 @@ CMAcablingdata::CMAcablingdata(DBline& data, int type) :
     BaseObject(Logic,"CMA Cabling Data") 
 {
     m_type = type;
-    m_station = 0; 
+    m_station = 0;
+    m_number = -1;
+    m_coverage = AllSectors;
 
     (++data)("{");
     do
@@ -70,17 +72,7 @@ CMAcablingdata::confirm_data(ViewType side)
     unsigned int div = 247;
     std::string view = (side == Phi)? "phi" : "eta";
 
-
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream disp;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000];
-    for (int i=0;i<5000;++i) buffer[i] = '\0';
-    __osstream disp(buffer,5000);
-#endif
-
 
     bool have_low_Pt_input  = (m_lowPt_number_co != -1)? true : false;
     bool have_high_Pt_input = (m_highPt_number_co != -1)? true : false;

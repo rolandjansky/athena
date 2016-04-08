@@ -19,7 +19,7 @@ using namespace MuonRPC_Cabling;
 
 EvenPhiCMA::EvenPhiCMA(int num,int stat,int type,CMAcoverage coverage,
                        int eta,int phi,int PAD,int Ixx,
-	               int pivot_station,int lowPt_station,int highPt_station,
+                       int pivot_station,int lowPt_station,int highPt_station,
                        int start_ch,int start_st,int stop_ch,int stop_st) :
                        CMAparameters(num,stat,type,coverage,eta,phi,PAD,Ixx,
                                     pivot_station,lowPt_station,highPt_station,
@@ -108,17 +108,21 @@ EvenPhiCMA::cable_CMA_channels(void)
 	    int chs = (this->id().Ixx_index() == 0) ?
 	                       pivot_channels - abs(stop - start) -1 : 0;
             chs += (local_strip >=0 )? 0 : abs(local_strip) + 1;
-	    
+            if(chs >= pivot_channels)
+            {
+                noMoreChannels("Pivot");
+                return false;
+            }
 	    if (chs <= first_ch_cabled) first_ch_cabled = chs;
 	    
 	    if (local_strip <= 0) local_strip = 1;
             do
             {
-	        if(chs == pivot_channels)
+                if(chs == pivot_channels)
                 {
                     noMoreChannels("Pivot");
-		    return false;
-	        }
+                    return false;
+                }
                 if(local_strip > 0 && local_strip <= rpc_st)
 	        {
 		    if(rpc->ijk_phiReadout() ==1)
@@ -143,17 +147,22 @@ EvenPhiCMA::cable_CMA_channels(void)
 	// Set first and last connectors code
 	int code = m_pivot_station*100000 + 1*100000000;
 	int ch = 0;
+
+	// first_ch_cabled and last_ch_cabled are initialized with "out-of-bound" values
+	// of the m_pivot array; proper values should be assigned during the loop;
+	// the init values though are "misused" for certain conditions, too, therefore
+	// they cannot be changed; but the following if should NEVER fire.
+	if( first_ch_cabled >= pivot_channels || last_ch_cabled < 0 ) {
+	  std::cout << "MuonRPC_Cabling: EvenPhiCMA::cable_CMA_channels - out of bound array indices (m_pivot)!" <<std::endl;
+	  std::cout << "\t\tValues:" << first_ch_cabled << ", " << last_ch_cabled << " . Taking emergency exit!"<< std::endl;
+	  throw;
+	}
 	
 	for(ch=0;ch < m_pivot_rpc_read; ++ch) 
 	    if(m_pivot[ch][0][first_ch_cabled] >= 0) break;
         if(ch == m_pivot_rpc_read) --ch;	
         m_first_pivot_code = code + m_pivot[ch][0][first_ch_cabled];
 
-	if(last_ch_cabled < 0) {
-	  std::cout << "MuonRPC_Cabling: EvenPhiCMA - neg. array idx - taking emergency exit!." <<std::endl;
-	  throw;
-	}
-	
 	for(ch=0;ch < m_pivot_rpc_read; ++ch)
 	    if(m_pivot[ch][0][last_ch_cabled] >= 0) break;
         if(ch == m_pivot_rpc_read) --ch;
@@ -209,6 +218,11 @@ EvenPhiCMA::cable_CMA_channels(void)
 		}
 		
 		chs += (local_strip >=0 )? 0 : abs(local_strip) + 1;
+                if(chs >= confirm_channels)
+                {
+                    noMoreChannels("Low Pt");
+                    return false;
+                }
 	        if (chs <= first_ch_cabled) first_ch_cabled = chs;
 		
 		if (local_strip <= 0) local_strip = 1;
@@ -252,17 +266,22 @@ EvenPhiCMA::cable_CMA_channels(void)
 	    // Set first and last connectors code
 	    int code = m_lowPt_station*100000 +1*100000000;
 	    int ch = 0;
-	
+
+	    // first_ch_cabled and last_ch_cabled are initialized with "out-of-bound" values
+	    // of the m_lowPt array; proper values should be assigned during the loop;
+	    // the init values though are "misused" for certain conditions, too, therefore
+	    // they cannot be changed; but the following if should NEVER fire.
+	    if( first_ch_cabled >= confirm_channels || last_ch_cabled < 0 ) {
+	      std::cout << "MuonRPC_Cabling: EvenPhiCMA::cable_CMA_channels - out of bound array indices (m_lowPt)!" <<std::endl;
+	      std::cout << "\t\tValues:" << first_ch_cabled << ", " << last_ch_cabled << " . Taking emergency exit!"<< std::endl;
+	      throw;
+	    }
+
 	    for(ch=0;ch < m_lowPt_rpc_read; ++ch) 
 	        if(m_lowPt[ch][0][first_ch_cabled] >= 0) break;
 	    if(ch == m_lowPt_rpc_read) --ch;
 	    m_first_lowPt_code = code + m_lowPt[ch][0][first_ch_cabled];
 
-	    if(last_ch_cabled < 0) {
-	      std::cout << "MuonRPC_Cabling: EvenPhiCMA - neg. array idx - taking emergency exit!." <<std::endl;
-	      throw;
-	    }
-	
 	    for(ch=0;ch < m_lowPt_rpc_read; ++ch)
 	        if(m_lowPt[ch][0][last_ch_cabled] >= 0) break;
             if(ch == m_lowPt_rpc_read) --ch; 
@@ -322,6 +341,11 @@ EvenPhiCMA::cable_CMA_channels(void)
 		}
 		
 		chs += (local_strip >=0 )? 0 : abs(local_strip) + 1;
+                if(chs >= confirm_channels)
+                {
+                    noMoreChannels("High Pt");
+                    return false;
+                }
 	        if (chs <= first_ch_cabled) first_ch_cabled = chs;
 		
 		if (local_strip <= 0) local_strip = 1;
@@ -364,17 +388,22 @@ EvenPhiCMA::cable_CMA_channels(void)
 	    // Set first and last connectors code
 	    int code = m_highPt_station*100000 + 1*100000000;
 	    int ch = 0;
-	
+
+	    // first_ch_cabled and last_ch_cabled are initialized with "out-of-bound" values
+	    // of the m_highPt array; proper values should be assigned during the loop;
+	    // the init values though are "misused" for certain conditions, too, therefore
+	    // they cannot be changed; but the following if should NEVER fire.
+	    if( first_ch_cabled >= confirm_channels || last_ch_cabled < 0 ) {
+	      std::cout << "MuonRPC_Cabling: EvenPhiCMA::cable_CMA_channels - out of bound array indices (m_highPt)!" <<std::endl;
+	      std::cout << "\t\tValues:" << first_ch_cabled << ", " << last_ch_cabled << " . Taking emergency exit!"<< std::endl;
+	      throw;
+	    }
+
 	    for(ch=0;ch < m_highPt_rpc_read; ++ch) 
 	        if(m_highPt[ch][0][first_ch_cabled] >= 0) break;
 	    if(ch == m_highPt_rpc_read) --ch;
 	    m_first_highPt_code = code + m_highPt[ch][0][first_ch_cabled];
 
-	    if(last_ch_cabled < 0) {
-	      std::cout << "MuonRPC_Cabling: EvenPhiCMA - neg. array idx - taking emergency exit!." <<std::endl;
-	      throw;
-	    }
-	
 	    for(ch=0;ch < m_highPt_rpc_read; ++ch)
 	        if(m_highPt[ch][0][last_ch_cabled] >= 0) break;
             if(ch == m_highPt_rpc_read) --ch;

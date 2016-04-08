@@ -66,7 +66,7 @@ CablingObject(cham.number(),cham.station(),cham.sector_type(),cham.name())
      m_readoutCMAs        = cham.readoutCMAs();
 }
 
-RPCchamber RPCchamber::operator=(const RPCchamber& cham)
+RPCchamber& RPCchamber::operator=(const RPCchamber& cham)
 {
      if(this!=&cham){
        m_strips_in_Eta_Conn = cham.strips_in_Eta_Conn();
@@ -501,15 +501,7 @@ RPCchamber::extendedName (int sector) const
 	default: return ""; 
     }
     
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream out;
-#else
-    // put your gcc 2.95 specific code here
-    char stringa[80];
-    for (int i=0;i<80;++i) stringa[i]='\0';
-    __osstream out = __osstream(stringa,80);
-#endif    
     
     int physicsSector = (((sector+1)%32)/2 + 1)%16;
     if (!physicsSector) physicsSector = 16;
@@ -530,13 +522,7 @@ RPCchamber::extendedName (int sector) const
     }
     
     std::string outstr;
- #if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     outstr = out.str();
-#else
-    // put your gcc 2.95 specific code here
-    outstr += stringa;
-#endif     
 
     return outstr;
 }

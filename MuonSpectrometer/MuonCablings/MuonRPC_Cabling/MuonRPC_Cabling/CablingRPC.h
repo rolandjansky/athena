@@ -247,15 +247,7 @@ std::list<RPCofflineId> give_strip_id      (unsigned short int SubsystemId,
 inline std::ostream& 
 operator<<(std::ostream& stream,const CablingRPC& logic)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[1000];
-    for (int i=0;i<1000;++i) buffer[i] = '\0';
-    __osstream display(buffer,1000);
-#endif
 
     logic.PrintMap(display);
     stream << display.str();
@@ -299,15 +291,7 @@ class ShowCabling
 inline std::ostream& 
 operator<<(std::ostream& stream,const ShowCabling& request)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000000];
-    for (int i=0;i<5000000;++i) buffer[i] = '\0';
-    __osstream display(buffer,5000000);
-#endif
 
     const CablingRPCBase* cabling = CablingRPC::instance();
 

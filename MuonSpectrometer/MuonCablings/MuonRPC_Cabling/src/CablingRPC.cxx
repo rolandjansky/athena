@@ -1731,6 +1731,7 @@ RPCofflineId CablingRPC::strip_id_fromCode(unsigned long int strip_code)
 {
   RPCdecoder decode(strip_code);
   RPCofflineId rpcId;
+  rpcId.init();
   if (!decode) {
     //    DISP << "strip_id_fromCode error: cannot decode the following LVL1 Id"
     //	 << " " << decode.code();

@@ -21,13 +21,17 @@ RPCchamberdata::RPCchamberdata(DBline& data, int type) :
 {
     int chams;
     m_type = type;
-    m_fail = true;
+    m_station = -1;
+    m_strips_in_Eta_Conn = -1;
+    m_strips_in_Phi_Conn = -1;
+    reset_data();
+
+    m_fail = false;
     if(!(data("station") >> m_station)) return;
     if(!(data("made of") >> chams >> "chamber. Strips in connectors:")) return;
     if(!(data("eta") >> m_strips_in_Eta_Conn)) return;
     if(!(data("phi") >> m_strips_in_Phi_Conn)) return;
 
-    m_fail = false;
     //--m_station;
 
     (++data)("{");
@@ -90,15 +94,7 @@ RPCchamberdata::confirm_connectors(ViewType side)
     float str = (float)strips/(float)connectors;
     std::string view = (side == Phi)? "phi" : "eta";
 
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream disp;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000];
-    for (int i=0;i<5000;++i) buffer[i] = '\0';
-    __osstream disp(buffer,5000);
-#endif
 
     if(str > strips_in_conn)
     {
@@ -140,15 +136,7 @@ RPCchamberdata::confirm_ijk(ViewType side)
     int ijk = (side == Phi)? m_ijk_phiReadout : m_ijk_etaReadout;
     std::string view = (side == Phi)? "phi" : "eta";
 
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream disp;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000];
-    for (int i=0;i<5000;++i) buffer[i] = '\0';
-    __osstream disp(buffer,5000);
-#endif
 
     if(ijk != 1 && ijk != 10)
     {

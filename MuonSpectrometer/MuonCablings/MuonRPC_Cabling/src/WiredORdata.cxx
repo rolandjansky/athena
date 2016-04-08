@@ -18,7 +18,8 @@ WiredORdata::WiredORdata(DBline& data, int type) :
     BaseObject(Logic,"Wired OR Data")
 {
     m_type = type;
-    m_fail = true;    
+    m_station = -1;
+    reset_data();
     if(!(data("station") >> m_station)) return;
 
     //--m_station;
@@ -57,15 +58,7 @@ WiredORdata::confirm_boundary() const
 {
     if(m_start > m_stop )
     {
-#if (__GNUC__) && (__GNUC__ > 2) 
-        // put your gcc 3.2 specific code here
         __osstream display;
-#else
-        // put your gcc 2.95 specific code here
-        char buffer[5000];
-        for (int i=0;i<5000;++i) buffer[i] = '\0';
-        __osstream display(buffer,5000);
-#endif
 
         display << "WORdata error in configuration for Sector Type " << m_type
                 << ", station " <<  m_station << ", WOR number "
