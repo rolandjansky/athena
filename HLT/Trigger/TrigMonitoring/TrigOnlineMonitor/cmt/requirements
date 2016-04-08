@@ -20,7 +20,6 @@ use EventInfo             EventInfo-*              Event
 use ByteStreamCnvSvcBase  ByteStreamCnvSvcBase-*   Event
 use TrigT1ResultByteStream TrigT1ResultByteStream-* Trigger/TrigT1
 use TrigT1Interfaces	  TrigT1Interfaces-*	   Trigger/TrigT1
-use StoreGate             StoreGate-*              Control
 use TrigMonitorBase       TrigMonitorBase-*        Trigger/TrigMonitoring
 use L1TopoRDO		  L1TopoRDO-*		   Trigger/TrigT1/L1Topo
 use L1TopoConfig	  L1TopoConfig-*	   Trigger/TrigT1/L1Topo

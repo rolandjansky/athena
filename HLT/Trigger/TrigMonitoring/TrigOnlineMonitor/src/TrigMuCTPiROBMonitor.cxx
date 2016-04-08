@@ -22,15 +22,6 @@
 #include "eformat/index.h"
 
 #include <algorithm>
-#include <iostream>
-#ifndef HAVE_NEW_IOSTREAMS
-#include <strstream>  /*gnu-specific*/
-typedef strstream __sstream;
-#else
-#include <sstream>
-typedef std::ostringstream __sstream;
-#endif
-#include <iomanip>
 #include <cassert>
 #include <bitset>
 #include <TH1F.h>
@@ -191,11 +182,7 @@ StatusCode TrigMuCTPiROBMonitor::initialize(){
     return sc;
   } else {
     // Setup the L2 ROB Data Provider Service when configured
-#ifdef ATLAS_GAUDI_V21
     m_trigROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
-#else
-    m_trigROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( IID_ITrigROBDataProviderSvc, &*m_robDataProviderSvc );
-#endif
     if (m_trigROBDataProviderSvc.isValid()) {
       ATH_MSG_DEBUG( "A ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found."
           );
@@ -523,9 +510,7 @@ StatusCode TrigMuCTPiROBMonitor::finalize() {
     m_daqmuCTPIResult=0;
   }
 
-#ifdef ATLAS_GAUDI_V21
   m_trigROBDataProviderSvc.reset();
-#endif
 
   return StatusCode::SUCCESS;
 }

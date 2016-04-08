@@ -5,7 +5,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SmartIF.h"
-#include "GaudiKernel/MsgStream.h"
 #include "ByteStreamData/RawEvent.h"
 #include "GaudiKernel/HistoProperty.h"
 #include "eformat/Status.h"
@@ -24,7 +23,6 @@ namespace ROIB {
 }
 
 class MuCTPI_RDO;
-class StoreGateSvc;
 class IROBDataProviderSvc;
 class ITrigROBDataProviderSvc;
 
@@ -43,27 +41,15 @@ public:
   StatusCode endRun();
 
 private:
-  /** @brief Pointer to MsgStream.*/
-  MsgStream* m_msg;
-
-  /**
-  * @brief Accessor method for the MsgStream.
-  * @return handle to the MsgStream.
-  */
-  inline MsgStream& logStream() const { return *m_msg; }
 	
   /**
    * @brief Accessor method for the message level variable.
    * @return value of the message level for this algorithm.
    */
-  inline MSG::Level logLevel() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
 
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
   typedef ServiceHandle<TrigConf::ITrigConfigSvc> TrigConfigSvc_t;
   typedef ServiceHandle<TrigConf::ILVL1ConfigSvc> Lvl1ConfigSvc_t;
 
-  /// Reference to StoreGateSvc;
-  StoreGateSvc_t                   m_storeGateSvc;
   TrigConfigSvc_t		   m_configSvc;
   Lvl1ConfigSvc_t		   m_lvl1ConfSvc;
   std::string                      m_keyRBResult;      // Key to retrieve the RoIBResult from SG
@@ -188,16 +174,16 @@ bool m_sFiberHitsODPos[8][3][30],  m_sFiberHitsODNeg[8][3][30];
 
   /// Helper for checksum test
   /// returns true if a ROB checksum failed
-  bool verifyROBChecksum(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  bool verifyROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
 
-  bool verifyALFAROBChecksum(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  bool verifyALFAROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
 
   /// Helper for status bits test
-  void verifyROBStatusBits(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  void verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
 
   /// Helper for decoding the ALFA ROB 
-  void decodeALFA(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
-  void decodeRealPMT (MsgStream& log, uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf);
+  void decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  void decodeRealPMT (uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf);
   uint32_t  decodePMT0 (uint32_t dataWord);
 
   /// find tacks in ALFA detectors
@@ -210,5 +196,5 @@ bool m_sFiberHitsODPos[8][3][30],  m_sFiberHitsODNeg[8][3][30];
   bool getLvl1Result(LVL1CTP::Lvl1Result &resultL1);
 
   /// Helper to print contents of a muCTPi RoIB data word 
-  void dumpRoIBDataWord(MsgStream& log, uint32_t data_word );
+  void dumpRoIBDataWord(uint32_t data_word );
 };

@@ -93,6 +93,7 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   m_histTopoSimResult(0),
   m_histTopoHdwResult(0),
   m_histTopoProblems(0),
+  m_histInputLinkCRCfromROIConv(0),
   m_setTopoSimResult(false)
 {
   m_scaler = new HLT::PeriodicScaler();
@@ -268,18 +269,24 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwResult, "HdwResults", "L1Topo hardware accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   unsigned int nProblems=m_problems.size();
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoProblems, "Problems", "Counts of various problems", nProblems, 0, nProblems) ) ;
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histInputLinkCRCfromROIConv, "InputLinkCRCs","CRC flags for input links, from ROI via converter", 5, 0, 5) );
+
   // Next, apply x-bin labels to some histograms
 
   for (unsigned int i=0; i<nProblems; ++i){
     m_histTopoProblems->GetXaxis()->SetBinLabel(i+1,m_problems.at(i).c_str());
   }
 
+  std::vector<std::string> tobLabels = {"EM","TAU","MU","0x3","JETc1","JETc2","ENERGY","0x7","L1TOPO","0x9","0xa","0xb","HEADER","FIBRE","STATUS","0xf"};  
+  for (unsigned int i=0; i<tobLabels.size(); ++i){
+    //ATH_MSG_VERBOSE ("bin " << i+1 << " " << tobLabels.at(i));
+    m_histTOBCountsFromROIROB->GetXaxis()->SetBinLabel(i+1,tobLabels.at(i).c_str());
+    m_histTOBCountsFromDAQROB->GetXaxis()->SetBinLabel(i+1,tobLabels.at(i).c_str());
+  }
 
-  std::vector<std::string> labels = {"EM","TAU","MU","0x3","JETc1","JETc2","ENERGY","0x7","L1TOPO","0x9","0xa","0xb","HEADER","FIBRE","STATUS","0xf"};  
-  for (unsigned int i=0; i<labels.size(); ++i){
-    //ATH_MSG_VERBOSE ("bin " << i+1 << " " << labels.at(i));
-    m_histTOBCountsFromROIROB->GetXaxis()->SetBinLabel(i+1,labels.at(i).c_str());
-    m_histTOBCountsFromDAQROB->GetXaxis()->SetBinLabel(i+1,labels.at(i).c_str());
+  std::vector<std::string> crcLabels = {"EM", "Tau", "Muon", "Jet", "Energy"};
+  for (unsigned int i=0; i<crcLabels.size(); ++i){
+    m_histInputLinkCRCfromROIConv->GetXaxis()->SetBinLabel(i+1,crcLabels.at(i).c_str());
   }
 
   for( const auto & it : m_allSIDLabelsToInts){
@@ -441,11 +448,19 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
 	  ATH_MSG_DEBUG( tob );
 	  roiTobs.push_back(tob);
 	  m_histCTPSignalPartFromROIConv->Fill(tob.ctp_signal());
+	  // Check for CRC errors on input links which are flagged in header
+	  int ibin(1);
+	  for (bool crc: {tob.crc_EM(), tob.crc_Tau(), tob.crc_Muon(), tob.crc_Jet(), tob.crc_Energy()}){
+	    if (crc){
+	      m_histInputLinkCRCfromROIConv->Fill(ibin++);
+	    }
+	  }
 	  // collect trigger and overflow bits in bitsets
 	  for (unsigned int i=0; i<8; ++i){
             unsigned int index = L1Topo::triggerBitIndexNew(rdo.getSourceID(),tob,i);
             //m_histTriggerBitsFromROIConv->Fill(index+i,(tob.trigger_bits()>>i)&1);
             //m_histOverflowBitsFromROIConv->Fill(index+i,(tob.overflow_bits()>>i)&1);
+            ATH_MSG_VERBOSE( "filling index " << index << " with value " << ((tob.trigger_bits()>>i)&1) << " sourceID " << L1Topo::formatHex8(rdo.getSourceID()) << " tob: idx clk fpga " << tob.index() << " " << tob.clock() << " " << tob.fpga() << " bit " << i);
             m_triggerBits[index]  = (tob.trigger_bits()>>i)&1;
             m_overflowBits[index] = (tob.overflow_bits()>>i)&1;
 	  }
@@ -585,7 +600,7 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
     
   // Compare ROI and DAQ L1Topo TOBS
 
-  // need to sort them first? Assume sorted.
+  // need to sort them first? Note zero supression possible
 
       if (roiTobs.empty() and daqTobsBC0.empty()){
 	ATH_MSG_DEBUG( "L1Topo TOBs from both ROI and DAQ via converters are empty: zero supression or problem?" );

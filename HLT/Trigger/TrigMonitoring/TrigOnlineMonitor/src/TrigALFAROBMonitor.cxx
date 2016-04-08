@@ -16,7 +16,6 @@
 #include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
@@ -30,14 +29,7 @@
 #include "eformat/SourceIdentifier.h"
 
 #include <algorithm>
-#include <iostream>
-#ifndef HAVE_NEW_IOSTREAMS
-#include <strstream>  /*gnu-specific*/
-typedef strstream __sstream;
-#else
 #include <sstream>
-typedef std::ostringstream __sstream;
-#endif
 #include <iomanip>
 #include <cassert>
 #include <bitset>
@@ -66,8 +58,6 @@ const InterfaceID& RoIBResultByteStreamTool::interfaceID() {
 
 TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), 
-  m_msg(0),
-  m_storeGateSvc( "StoreGateSvc", name ),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
   m_lvl1ConfSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
   m_robDataProviderSvc( "ROBDataProviderSvc", name ),
@@ -190,25 +180,14 @@ StatusCode TrigALFAROBMonitor::initialize(){
   ATH_MSG_INFO( " Do ALFA Monitoring Timing                = " << m_doTiming );
   ATH_MSG_INFO( "        Hist:TimeALFAMonitor              = " << m_histProp_timeALFA );
 
-  // Locate the StoreGateSvc
-  StatusCode sc =  m_storeGateSvc.retrieve();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR( "Could not find StoreGateSvc" );
-    return sc;
-  }
-
   // Locate the ROBDataProviderSvc
-  sc = m_robDataProviderSvc.retrieve();
+  StatusCode sc = m_robDataProviderSvc.retrieve();
   if (!sc.isSuccess()) {
     ATH_MSG_ERROR( "Could not find ROBDataProviderSvc" );
     return sc;
   } else {
     // Setup the L2 ROB Data Provider Service when configured
-#ifdef ATLAS_GAUDI_V21
     m_trigROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
-#else
-    m_trigROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( IID_ITrigROBDataProviderSvc, &*m_robDataProviderSvc );
-#endif
     if (m_trigROBDataProviderSvc.isValid()) {
       ATH_MSG_DEBUG( "A ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found."
           );
@@ -260,13 +239,13 @@ StatusCode TrigALFAROBMonitor::execute() {
     gettimeofday(&time_start, 0);
   }
 
-  if (outputLevel() <= MSG::DEBUG)  logStream() << MSG::DEBUG << "execute()" <<endreq;
+  ATH_MSG_DEBUG("execute()");
 
   //--------------------------------------------------------------------------
   // check that there is still time left
   //--------------------------------------------------------------------------
   if (Athena::Timeout::instance().reached()) {
-    logStream() << MSG::DEBUG << " Time out reached in entry to execute." <<endreq;
+    ATH_MSG_DEBUG(" Time out reached in entry to execute.");
     return StatusCode::SUCCESS;
   }
 
@@ -276,33 +255,31 @@ StatusCode TrigALFAROBMonitor::execute() {
   bool event_with_checksum_failure(false);
 
   // first read Lvl1Result from SG
-  if(m_storeGateSvc->contains<LVL1CTP::Lvl1Result>(m_keyL1Result)) {
+  if(evtStore()->contains<LVL1CTP::Lvl1Result>(m_keyL1Result)) {
      const LVL1CTP::Lvl1Result* l1ptr = 0;
-     if(m_storeGateSvc->retrieve<LVL1CTP::Lvl1Result>(l1ptr, m_keyL1Result).isSuccess() && l1ptr) {
+     if(evtStore()->retrieve<LVL1CTP::Lvl1Result>(l1ptr, m_keyL1Result).isSuccess() && l1ptr) {
           LVL1CTP::Lvl1Result resultL1 = *l1ptr;
      }
   } else {
-     if(outputLevel() <= MSG::DEBUG)
-       logStream() << MSG::DEBUG << "Lvl1Result does not exist with key: " << m_keyL1Result << endreq;
+    ATH_MSG_DEBUG("Lvl1Result does not exist with key: ");
  }
 
   // Now try to extract L1 decisons from ROIB fragment
-  if(!m_storeGateSvc->contains<ROIB::RoIBResult>(m_keyRBResult)) {
-     if(outputLevel() <= MSG::DEBUG)
-       logStream() << MSG::DEBUG << "RoIBResult does not exist with key: " << m_keyRBResult << endreq;
+  if(!evtStore()->contains<ROIB::RoIBResult>(m_keyRBResult)) {
+       ATH_MSG_DEBUG("RoIBResult does not exist with key: " << m_keyRBResult);
   }
 
   const ROIB::RoIBResult* roIBResult=0;
-  StatusCode sc = m_storeGateSvc->retrieve(roIBResult,m_keyRBResult);
+  StatusCode sc = evtStore()->retrieve(roIBResult,m_keyRBResult);
 
   if(sc.isFailure()){
-    if (outputLevel() <= MSG::DEBUG) logStream() << MSG::DEBUG << " Unable to retrieve RoIBResult from storeGate!" ;
+    ATH_MSG_DEBUG(" Unable to retrieve RoIBResult from storeGate!");
                return StatusCode::SUCCESS; //HLT::NO_LVL1_RESULT;
   } else {
     const std::vector<ROIB::CTPRoI> ctpRoIVecAV = roIBResult->cTPResult().TAV();
     for (unsigned int iWord = 0; iWord < ctpRoIVecAV.size(); ++iWord) {
           uint32_t roIWord = ctpRoIVecAV[iWord].roIWord();
-          if (outputLevel() <= MSG::DEBUG) logStream() << MSG::DEBUG << " roiAV "<<std::hex<<roIWord<<std::dec;
+          ATH_MSG_DEBUG(" roiAV "<<std::hex<<roIWord<<std::dec);
     }
  }
   
@@ -311,7 +288,7 @@ StatusCode TrigALFAROBMonitor::execute() {
   ALFARobFragmentVec.reserve(m_ALFARobIds.size());
   m_robDataProviderSvc->getROBData(m_ALFARobIds,ALFARobFragmentVec);
   if (ALFARobFragmentVec.size()==0) {
-    if (outputLevel() <= MSG::DEBUG) logStream() << MSG::DEBUG << " No ALFA ROB found." <<endreq;
+    ATH_MSG_DEBUG(" No ALFA ROB found.");
     if ( m_doTiming.value() ) {
       gettimeofday(&time_stop, 0);
       int secs = 0 ;
@@ -329,14 +306,14 @@ StatusCode TrigALFAROBMonitor::execute() {
  
     // get EventInfo
     const EventInfo* p_EventInfo(0);
-    sc = m_storeGateSvc->retrieve(p_EventInfo);
+    sc = evtStore()->retrieve(p_EventInfo);
     if(sc.isFailure()){
-      logStream() << MSG::ERROR << "Can't get EventIinfo object" <<endreq;
+      ATH_MSG_ERROR("Can't get EventIinfo object");
     } else {
        // get EventID
        const EventID* p_EventID = p_EventInfo->event_ID();
        m_LB = p_EventID->lumi_block();
-       //logStream() << MSG::INFO << "Got EventID object with LB: " <<m_LB<<endreq;
+       //ATH_MSG_INFO << "Got EventID object with LB: " <<m_LB<<endreq;
     }
 
   // initialize to positive values arrays which will be used in distance measurements with ODs - data needed accross both ROBs (RODs).
@@ -348,17 +325,17 @@ StatusCode TrigALFAROBMonitor::execute() {
   for (std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::iterator it = ALFARobFragmentVec.begin();
        it != ALFARobFragmentVec.end();++it) {
     // verify checksum
-    if (verifyALFAROBChecksum(logStream(), **it )) event_with_checksum_failure=true ; 
+    if (verifyALFAROBChecksum(**it )) event_with_checksum_failure=true ; 
 
     // verify status bits
-    verifyROBStatusBits(logStream(), **it );
+    verifyROBStatusBits(**it);
 
     // decode the muCTPi ROB
-    //decodeMuCTPi(logStream(), **it );
+    //decodeMuCTPi(**it);
 
     // decode ALFA ROBs
     if (! event_with_checksum_failure) {
-       decodeALFA(logStream(), **it );
+       decodeALFA(**it );
 
        LVL1CTP::Lvl1Result resultL1(true);
        if (getLvl1Result(resultL1)) {
@@ -383,9 +360,9 @@ StatusCode TrigALFAROBMonitor::execute() {
   if ((m_setDebugStream.value()) && (event_with_checksum_failure)) {
     // get EventInfo
     const EventInfo* p_EventInfo(0);
-    StatusCode sc = m_storeGateSvc->retrieve(p_EventInfo);
+    StatusCode sc = evtStore()->retrieve(p_EventInfo);
     if(sc.isFailure()){
-      logStream() << MSG::ERROR << "Can't get EventInfo object for updating the StreamTag" <<endreq;
+      ATH_MSG_ERROR("Can't get EventInfo object for updating the StreamTag");
       if ( m_doTiming.value() ) {
 	gettimeofday(&time_stop, 0);
 	int secs = 0 ;
@@ -418,7 +395,7 @@ StatusCode TrigALFAROBMonitor::execute() {
     int usecs = time_stop.tv_usec - time_start.tv_usec;
     float mtime = static_cast<float>(secs)*1000 + static_cast<float>(usecs)/1000;
 
-    if (outputLevel() <= MSG::DEBUG) logStream() << MSG::DEBUG << " ---> Time used [ms] = " << mtime <<endreq; 
+    ATH_MSG_DEBUG(" ---> Time used [ms] = " << mtime); 
 	      
     //* timing histogram
     if (m_hist_timeALFA) m_hist_timeALFA->Fill(mtime,1.);	
@@ -432,14 +409,11 @@ StatusCode TrigALFAROBMonitor::execute() {
 StatusCode TrigALFAROBMonitor::finalize() {
 
   // Get the messaging service
-  MsgStream log(msgSvc(), name());
   ATH_MSG_INFO( "finalize()" );
 
   // delete decoded objects
 
-//#ifdef ATLAS_GAUDI_V21
 //  m_trigROBDataProviderSvc.reset();
-// #endif
 
   return StatusCode::SUCCESS;
 }
@@ -449,21 +423,19 @@ StatusCode TrigALFAROBMonitor::finalize() {
 StatusCode TrigALFAROBMonitor::beginRun() {
 
   // Get a message stream instance
-  m_msg = new MsgStream( msgSvc(), name() );
-
-  logStream() << MSG::INFO << "beginRun()" <<endreq;
+  ATH_MSG_INFO("beginRun()");
 
   const TrigConf::CTPConfig *ctp_confg = m_configSvc->ctpConfig();
   if(!ctp_confg) {
-     logStream() << MSG::INFO << "Failed to get CTPConfig" << endreq;
+     ATH_MSG_INFO("Failed to get CTPConfig");
      return StatusCode::SUCCESS;
   }
   for(TrigConf::TriggerItem *item : ctp_confg->menu().items()) {
      if(!item) {
-       logStream() << MSG::INFO << "Null TriggerItem pointer" << endreq;
+       ATH_MSG_INFO("Null TriggerItem pointer");
        continue;
      }
-     logStream() << MSG::INFO << " triggerItem "<<item->name().c_str()<< "ctpId "<<item->ctpId()<<endreq;
+     ATH_MSG_INFO(" triggerItem "<<item->name().c_str()<< "ctpId "<<item->ctpId());
      std::map<std::string, int>::iterator it = m_map_TrgNamesToHistGroups.find(item->name());
      if (it != m_map_TrgNamesToHistGroups.end()) {
        m_map_TrgItemNumbersToHistGroups[item->ctpId()] = it->second;
@@ -473,7 +445,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
      if (item->name().compare("L1_ALFA_ELAST18") == 0) m_elast18 = item->ctpId();
   }
   for (std::map<int, int>::iterator it=m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
-          logStream() << MSG::INFO << " triggerItem number: "<<it->first<< " histo group: "<<it->second<<endreq;
+          ATH_MSG_INFO(" triggerItem number: "<<it->first<< " histo group: "<<it->second);
   }
  
   // Define histograms only when checks are requested
@@ -482,7 +454,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
   // find histogramming service
   ServiceHandle<ITHistSvc> rootHistSvc("THistSvc", name());
   if ((rootHistSvc.retrieve()).isFailure()) {
-    logStream() << MSG::ERROR << "Unable to locate THistSvc" <<endreq;
+    ATH_MSG_ERROR("Unable to locate THistSvc");
     rootHistSvc.release().ignore();
     return StatusCode::FAILURE;
   }
@@ -505,7 +477,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
     if (m_hist_failedChecksumForALFAROB) {
       CAN_REBIN(m_hist_failedChecksumForALFAROB);
       if( rootHistSvc->regHist(path + "common/" + m_hist_failedChecksumForALFAROB->GetName(), m_hist_failedChecksumForALFAROB).isFailure() ) {
-	logStream() << MSG::WARNING << "Can not register ALFA ROB checksum monitoring histogram: " << m_hist_failedChecksumForALFAROB->GetName() <<endreq;
+	ATH_MSG_WARNING("Can not register ALFA ROB checksum monitoring histogram: " << m_hist_failedChecksumForALFAROB->GetName());
       }
     }
   }
@@ -517,18 +489,18 @@ StatusCode TrigALFAROBMonitor::beginRun() {
     if (m_hist_goodData) {
       CAN_REBIN(m_hist_goodData);
       if( rootHistSvc->regHist(path + "common/" + m_hist_goodData->GetName(), m_hist_goodData).isFailure() ) {
-	logStream() << MSG::WARNING << "Can not register ALFA ROB good data elastic monitoring histogram: " << m_hist_goodData->GetName() <<endreq;
+	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic monitoring histogram: " << m_hist_goodData->GetName());
       }
     }
     histTitle = "goodDataAssessmentLB15";
     m_hist_goodDataLB15 = new TH2F (histTitle.c_str(), (histTitle + " elasticsLB").c_str(), 1000, -0.5, 999.5, 2, 0.5, 2.5);
     if( rootHistSvc->regHist(path + "common/" + m_hist_goodDataLB15->GetName(), m_hist_goodDataLB15).isFailure() ) {
-	logStream() << MSG::WARNING << "Can not register ALFA ROB good data elastic LB 15 monitoring histogram: " << m_hist_goodDataLB15->GetName() <<endreq;
+	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic LB 15 monitoring histogram: " << m_hist_goodDataLB15->GetName());
     }
     histTitle = "goodDataAssessmentLB18";
     m_hist_goodDataLB18 = new TH2F (histTitle.c_str(), (histTitle + " elasticsLB").c_str(), 1000, -0.5, 999.5, 2, 0.5, 2.5);
     if( rootHistSvc->regHist(path + "common/" + m_hist_goodDataLB18->GetName(), m_hist_goodDataLB18).isFailure() ) {
-	logStream() << MSG::WARNING << "Can not register ALFA ROB good data elastic LB 18 monitoring histogram: " << m_hist_goodDataLB18->GetName() <<endreq;
+	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic LB 18 monitoring histogram: " << m_hist_goodDataLB18->GetName());
     }
   }
 
@@ -571,8 +543,8 @@ StatusCode TrigALFAROBMonitor::beginRun() {
               if (m_hist_ALFA_trig_validated_tracks[trgCond][station]) {
                  if( rootHistSvc->regHist(path + "tracking/" + trigConditions[trgCond] + "/" + stationNames[station] , 
                         m_hist_ALFA_trig_validated_tracks[trgCond][station]).isFailure() ) {
-                       logStream() << MSG::WARNING << "Can not register ALFA tracking histogram: " 
-                                   << (m_hist_ALFA_trig_validated_tracks[trgCond][station])->GetName() <<endreq;
+                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
+                                   << (m_hist_ALFA_trig_validated_tracks[trgCond][station])->GetName());
                  }
               }
          }
@@ -589,8 +561,8 @@ StatusCode TrigALFAROBMonitor::beginRun() {
               if (m_hist_pmfMonitoring[station]) {
                  if( rootHistSvc->regHist(path + "detectors/"+ stationNames[station] + "/" + (m_hist_pmfMonitoring[station])->GetName(), 
                        m_hist_pmfMonitoring[station]).isFailure() ) {
-                       logStream() << MSG::WARNING << "Can not register ALFA PMT monitoring histogram: " 
-                                   << (m_hist_pmfMonitoring[station])->GetName() <<endreq;
+                       ATH_MSG_WARNING("Can not register ALFA PMT monitoring histogram: " 
+                                   << (m_hist_pmfMonitoring[station])->GetName());
                  }
               }
      }
@@ -607,8 +579,8 @@ StatusCode TrigALFAROBMonitor::beginRun() {
          if (m_hist_PosDetector[iDet][iSide]) {
              if( rootHistSvc->regHist(path + "OD/"+ stationNames[iDet] + "/" + (m_hist_PosDetector[iDet][iSide])->GetName(), 
                      m_hist_PosDetector[iDet][iSide]).isFailure() ) {
-                     logStream() << MSG::WARNING << "Can not register ALFA PMT monitoring histogram: " 
-                                 << (m_hist_PosDetector[iDet][iSide])->GetName() <<endreq;
+                     ATH_MSG_WARNING("Can not register ALFA PMT monitoring histogram: " 
+                                 << (m_hist_PosDetector[iDet][iSide])->GetName());
              }
          }
        }
@@ -620,8 +592,8 @@ StatusCode TrigALFAROBMonitor::beginRun() {
          if (m_hist_DistStation[iStation][iSide]) {
              if( rootHistSvc->regHist(path + "OD/"+ stationNames[iStation] + "/" + (m_hist_DistStation[iStation][iSide])->GetName(),                   
                      m_hist_DistStation[iStation][iSide]).isFailure() ) {
-                     logStream() << MSG::WARNING << "Can not register ALFA PMT monitoring histogram: "  
-                                 << (m_hist_DistStation[iStation][iSide])->GetName() <<endreq;
+                     ATH_MSG_WARNING("Can not register ALFA PMT monitoring histogram: "  
+                                 << (m_hist_DistStation[iStation][iSide])->GetName());
              }
          }
   
@@ -640,7 +612,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
     if (m_hist_timeALFA) {
       //      m_hist_timeMuCTPi->SetBit(TH1::kCanRebin);
       if( rootHistSvc->regHist(path + m_hist_timeALFA->GetName(), m_hist_timeALFA).isFailure() ) {
-	logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_timeALFA->GetName() <<endreq;
+	ATH_MSG_WARNING("Can not register monitoring histogram: " << m_hist_timeALFA->GetName());
       }
     }
   }
@@ -655,33 +627,29 @@ StatusCode TrigALFAROBMonitor::beginRun() {
 
 StatusCode TrigALFAROBMonitor::endRun() {
 
-  logStream() << MSG::INFO << "endRun()" <<endreq;
-
-  // delete message stream
-  if ( m_msg ) delete m_msg;
+  ATH_MSG_INFO("endRun()");
 
   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-bool TrigALFAROBMonitor::verifyALFAROBChecksum(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
+bool TrigALFAROBMonitor::verifyALFAROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
 
   bool failed_checksum(false);
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType it(0); 
   uint32_t current_value(0);
 
   // print check for received ROB
-  if (log.level() <= MSG::VERBOSE) {
+  if(msgLvl(MSG::VERBOSE)) {
     robFrag.payload(it);
     current_value = eformat::helper::checksum(robFrag.checksum_type(), it, robFrag.payload_size_word());
 
-    logStream() << MSG::DEBUG
-	<< " ALFA ROB id = 0x"             << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec 
+    ATH_MSG_DEBUG(
+     " ALFA ROB id = 0x"             << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec 
 	<< " checksum: type = "            << std::setw(2)  << robFrag.checksum_type()
 	<< " value = "                     << std::setw(12) << robFrag.checksum_value()
 	<< " value (recalculated) = "      << std::setw(12) << current_value
-	<< " check = "                     << std::setw(2)  << robFrag.checksum()
-	<<endreq;
+	<< " check = "                     << std::setw(2)  << robFrag.checksum());
   }
 
   // checksum test failed
@@ -693,14 +661,13 @@ bool TrigALFAROBMonitor::verifyALFAROBChecksum(MsgStream& log, OFFLINE_FRAGMENTS
     current_value = eformat::helper::checksum(robFrag.checksum_type(), it, robFrag.payload_size_word());
 
     // print warning
-    log << MSG::WARNING 
-	<< " ALFA ROB checksum verification failed." 
+    ATH_MSG_WARNING(
+	   " ALFA ROB checksum verification failed." 
 	<< " ALFA ROB id = 0x"             << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec 
 	<< " checksum type = "             << std::setw(2)  << robFrag.checksum_type()
 	<< " value = "                     << std::setw(12) << robFrag.checksum_value()
 	<< " value (recalculated) = "      << std::setw(12) << current_value
-	<< " check = "                     << std::setw(2)  << robFrag.checksum()
-	<<endreq;
+	<< " check = "                     << std::setw(2)  << robFrag.checksum());
 
     // fill the histograms
     std::ostringstream ost;
@@ -718,14 +685,10 @@ bool TrigALFAROBMonitor::verifyALFAROBChecksum(MsgStream& log, OFFLINE_FRAGMENTS
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-void TrigALFAROBMonitor::verifyROBStatusBits(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
+void TrigALFAROBMonitor::verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
 
   // print check for received ROB
-  if (log.level() <= MSG::VERBOSE) {
-    log << MSG::VERBOSE
-	<< " verifyROBStatusBits: ROB id = 0x" << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec 
-	<<endreq;
-  }
+	ATH_MSG_VERBOSE(" verifyROBStatusBits: ROB id = 0x" << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec);
 
   // fill monitoring histogram for ROB generic status
   if ( ( m_hist_genericStatusForROB ) && ( robFrag.nstatus() != 0 ) ) {
@@ -750,15 +713,9 @@ void TrigALFAROBMonitor::verifyROBStatusBits(MsgStream& log, OFFLINE_FRAGMENTS_N
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-void TrigALFAROBMonitor::decodeALFA(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
-  // save input stream flags
-  //std::ios_base::fmtflags log_flags_save = (log.stream()).flags();
-  //char log_fill_char_save = (log.stream()).fill();
+void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
 
-  // print check for received ROB
-  if (log.level() <= MSG::DEBUG) {
-    ATH_MSG_DEBUG(" decodeALFA: ROB id = 0x" << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec);
-  }
+  ATH_MSG_DEBUG(" decodeALFA: ROB id = 0x" << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec);
 
   uint32_t formatVersion = robFrag.rod_version();
   uint32_t evtNum        = robFrag.rod_lvl1_id();
@@ -775,7 +732,7 @@ void TrigALFAROBMonitor::decodeALFA(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE:
   //uint32_t errorStat( 0 );
   //if( nstatus > 0 ) errorStat = static_cast< uint32_t >( *status );
 
-  if (log.level() <= MSG::DEBUG)  ATH_MSG_DEBUG( "ALFA ROB ID 0x" << MSG::hex << robId <<  " ROD ID 0x"
+  ATH_MSG_DEBUG( "ALFA ROB ID 0x" << MSG::hex << robId <<  " ROD ID 0x"
 				     << rodId << MSG::dec << " ROB fragment size "
 				     << robFragSize << " ROD fragment size " << rodFragSize << " evtNum " <<evtNum );
 
@@ -783,10 +740,8 @@ void TrigALFAROBMonitor::decodeALFA(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE:
   if (robFragSize != 0x1e1) return;
 
   if ((rodId == (uint32_t)m_lvl1ALFA1ROBid.value()) || (rodId == (uint32_t)m_lvl1ALFA2ROBid.value())) {
-    if (log.level() <= MSG::DEBUG) {
-      ATH_MSG_DEBUG( "   Found ALFA ROB " << std::to_string(rodId) );
-      ATH_MSG_DEBUG( "   Dumping ALFA ROB header - data - trailer words:" );
-    }
+    ATH_MSG_DEBUG( "   Found ALFA ROB " << std::to_string(rodId) );
+    ATH_MSG_DEBUG( "   Dumping ALFA ROB header - data - trailer words:" );
     /* Create header */
     ROIB::Header ALFAHead( rodId, evtNum, formatVersion);
     /* Create content body */
@@ -799,10 +754,8 @@ void TrigALFAROBMonitor::decodeALFA(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE:
      
     uint32_t ndata = robFrag.rod_ndata();
     for( uint32_t i = 0; i < ndata; ++i, ++data ) {
-      if (log.level() <= MSG::DEBUG)  {
-	ATH_MSG_DEBUG( "       0x" << MSG::hex << std::setw( 8 )
+      ATH_MSG_DEBUG( "       0x" << MSG::hex << std::setw( 8 )
 	    << static_cast< uint32_t >( *data ) );
-      }
     } 
     /* Create trailer */
     /*
@@ -883,7 +836,7 @@ void TrigALFAROBMonitor::decodeALFA(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE:
                         //AlfaEventObj->synchMBvsPMF[mbNb-1] |= (0x1)<<(pmf-1);
                     } else {
                         if (data16channels & 0xffff) {
-                              decodeRealPMT (log, data16channels, quarter, mbNb-1, pmf);
+                              decodeRealPMT (data16channels, quarter, mbNb-1, pmf);
                         }
                     }
                   }
@@ -943,11 +896,9 @@ void TrigALFAROBMonitor::decodeALFA(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE:
  }
 }
 
-void TrigALFAROBMonitor::decodeRealPMT (MsgStream& log, uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf) {
+void TrigALFAROBMonitor::decodeRealPMT (uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf) {
 
   // save input stream flags
-  std::ios_base::fmtflags log_flags_save = (log.stream()).flags();
-  //char log_fill_char_save = (log.stream()).fill();
 
     int layerNb = pmf2layer[pmf];
     int RPNumber = mbNb2RP[mbNb];
@@ -992,8 +943,6 @@ void TrigALFAROBMonitor::decodeRealPMT (MsgStream& log, uint32_t dataWord, uint3
        }
        mask <<= 1;
     }
-  // reset log stream flags to original values
-  log.flags(log_flags_save);
     return;
  }
 
@@ -1012,9 +961,9 @@ uint32_t  TrigALFAROBMonitor::decodePMT0 (uint32_t dataWord) {
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-void TrigALFAROBMonitor::dumpRoIBDataWord( MsgStream& log, uint32_t data_word ) {
+void TrigALFAROBMonitor::dumpRoIBDataWord(uint32_t data_word) {
 
-  if (log.level() <= MSG::DEBUG) {
+  if (msgLvl(MSG::DEBUG)) {
     ROIB::MuCTPIRoI roI(data_word);
 
     std::string loc = "UNDEFINED"; 
@@ -1048,10 +997,10 @@ void TrigALFAROBMonitor::dumpRoIBDataWord( MsgStream& log, uint32_t data_word ) 
 
 bool TrigALFAROBMonitor::getLvl1Result(LVL1CTP::Lvl1Result &resultL1) {
 
-   if(m_storeGateSvc->contains<LVL1CTP::Lvl1Result>("Lvl1Result")) {
+   if(evtStore()->contains<LVL1CTP::Lvl1Result>("Lvl1Result")) {
 
 	const LVL1CTP::Lvl1Result* l1ptr = 0;    
-	if(m_storeGateSvc->retrieve<LVL1CTP::Lvl1Result>(l1ptr, "Lvl1Result").isSuccess() && l1ptr) {
+	if(evtStore()->retrieve<LVL1CTP::Lvl1Result>(l1ptr, "Lvl1Result").isSuccess() && l1ptr) {
 		resultL1 = *l1ptr;
                 //ATH_MSG_INFO ("Success in retrieving Lvl1Result from StoreGate");
 		return true;
