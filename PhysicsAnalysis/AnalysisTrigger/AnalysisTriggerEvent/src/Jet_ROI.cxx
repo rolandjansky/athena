@@ -13,7 +13,11 @@
  */
 Jet_ROI::Jet_ROI( uint32_t roiWord, float eta, float phi, uint32_t thrPattern )
    : m_roiWord( roiWord ), m_eta( eta ), m_phi( phi ), m_thrPattern( thrPattern ),
-     m_thresholdNames( 0 ), m_thresholdValues( 0 ), m_highestThreshold( -1. ) {
+     m_thresholdNames( 0 ), m_thresholdValues( 0 ),
+     m_ET4x4(0),
+     m_ET6x6(0),
+     m_ET8x8(0),
+     m_highestThreshold( -1. ) {
 
 }
 
@@ -22,7 +26,11 @@ Jet_ROI::Jet_ROI( uint32_t roiWord, float eta, float phi, uint32_t thrPattern )
  */
 Jet_ROI::Jet_ROI()
    : m_roiWord( 0 ), m_eta( 0. ), m_phi( 0. ), m_thrPattern( 0 ),
-     m_thresholdNames( 0 ), m_thresholdValues( 0 ), m_highestThreshold( -1. ) {
+     m_thresholdNames( 0 ), m_thresholdValues( 0 ),
+     m_ET4x4(0),
+     m_ET6x6(0),
+     m_ET8x8(0),
+     m_highestThreshold( -1. ) {
 
 }
 

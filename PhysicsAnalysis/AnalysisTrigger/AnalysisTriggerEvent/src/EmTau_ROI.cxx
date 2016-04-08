@@ -13,7 +13,14 @@
  */
 EmTau_ROI::EmTau_ROI( uint32_t roiWord, float eta, float phi, uint32_t thrPattern )
    : m_roiWord( roiWord ), m_eta( eta ), m_phi( phi ), m_thrPattern( thrPattern ),
-     m_thresholdNames( 0 ), m_thresholdValues( 0 ), m_highestThreshold( -1. ) {
+     m_thresholdNames( 0 ), m_thresholdValues( 0 ),
+     m_Core(0),
+     m_EMClus(0),
+     m_TauClus(0),
+     m_EMIsol(0),
+     m_HadIsol(0),
+     m_HadCore(0),
+     m_highestThreshold( -1. ) {
 
 }
 
@@ -22,7 +29,14 @@ EmTau_ROI::EmTau_ROI( uint32_t roiWord, float eta, float phi, uint32_t thrPatter
  */
 EmTau_ROI::EmTau_ROI()
    : m_roiWord( 0 ), m_eta( 0. ), m_phi( 0. ), m_thrPattern( 0 ),
-     m_thresholdNames( 0 ), m_thresholdValues( 0 ), m_highestThreshold( -1. ) {
+     m_thresholdNames( 0 ), m_thresholdValues( 0 ),
+     m_Core(0),
+     m_EMClus(0),
+     m_TauClus(0),
+     m_EMIsol(0),
+     m_HadIsol(0),
+     m_HadCore(0),
+     m_highestThreshold( -1. ) {
 
 }
 

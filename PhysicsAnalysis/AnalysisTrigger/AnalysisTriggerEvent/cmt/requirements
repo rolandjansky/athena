@@ -6,8 +6,7 @@ author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
 use AtlasPolicy         AtlasPolicy-*
 
-use CLIDSvc             CLIDSvc-00-*          Control
-use DataModel           DataModel-00-*        Control
+use CLIDSvc             CLIDSvc-*            Control
 use EventKernel         EventKernel-*         Event
 use FourMom             FourMom-*             Event
 use Navigation          Navigation-*          Control
@@ -21,7 +20,7 @@ private
 macro DOXYGEN_QT_AUTOBRIEF "" Doxygen "NO"
 macro DOXYGEN_JAVADOC_AUTOBRIEF "" Doxygen "NO"
 
-use AtlasReflex  AtlasReflex-00-*  External -no_auto_imports
+use AtlasReflex  AtlasReflex-*  External -no_auto_imports
 
 apply_pattern lcgdict dict=AnalysisTriggerEvent selectionfile=selection.xml \
         headerfiles="../AnalysisTriggerEvent/AnalysisTriggerEventDict.h"
