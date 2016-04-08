@@ -50,7 +50,7 @@ using namespace GeoXF;
 
 
 LArGeo::HECConstructionH62002::HECConstructionH62002()
-   :h6Phys(0)
+   :m_h6Phys(0)
 {
  // access source of detector parameters
   // m_parameters = LArGeo::VDetectorParameters::GetInstance();
@@ -65,7 +65,7 @@ LArGeo::HECConstructionH62002::~HECConstructionH62002()
 GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
 {
 
-  if (h6Phys) return (h6Phys);
+  if (m_h6Phys) return (m_h6Phys);
 
 
   ISvcLocator *svcLocator = Gaudi::svcLocator();
@@ -172,12 +172,12 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
     }
 
   const GeoLogVol   *h6Log    = new GeoLogVol("HECMother", HECMotherShape, LAr); 
-  h6Phys   = new GeoFullPhysVol(h6Log);                          
+  m_h6Phys   = new GeoFullPhysVol(h6Log);                          
 
   std::string tag = std::string("HEC1_POS");
   StatusCode status;
   
-  StoredPhysVol *sPhysVol = new StoredPhysVol(h6Phys);
+  StoredPhysVol *sPhysVol = new StoredPhysVol(m_h6Phys);
   status=detectorStore->record(sPhysVol,tag);
   if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store")+tag).c_str());
   
@@ -387,7 +387,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
      }
   const GeoLogVol* logicFrontHEC = new GeoLogVol(hecFrontName, solidFrontHEC , LAr);
   GeoPhysVol*  physiFrontHEC = new GeoPhysVol(logicFrontHEC);
-  h6Phys->add(physiFrontHEC);
+  m_h6Phys->add(physiFrontHEC);
   
 
   //----------------------------------------------------------------
@@ -404,7 +404,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
 
   const GeoLogVol* logicRearHEC = new GeoLogVol(hecRearName, solidRearHEC , LAr);
   GeoPhysVol* physiRearHEC = new GeoPhysVol(logicRearHEC);
-  h6Phys->add(physiRearHEC);
+  m_h6Phys->add(physiRearHEC);
   
 
 
@@ -824,7 +824,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
     
      
 
-  return h6Phys;
+  return m_h6Phys;
 
 }
 
