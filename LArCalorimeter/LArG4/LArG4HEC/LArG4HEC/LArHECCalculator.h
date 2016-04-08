@@ -15,8 +15,8 @@
 
 #include "globals.hh"
 #include "G4ThreeVector.hh"
-#include "LArG4Code/LArVCalculator.h"
 #include "LArG4Code/LArG4Identifier.h"
+#include "LArG4Code/LArVCalculator.h"
 #include "LArG4Code/LArVG4DetectorParameters.h"
 #include <stdexcept>
 // Forward declarations.
@@ -42,20 +42,24 @@ public:
 
   virtual G4float OOTcut() const { return m_OOTcut; }
 
-  virtual G4bool Process(const G4Step*);
+  virtual G4bool Process(const G4Step* a_step){return Process(a_step, m_hdata);}
+  virtual G4bool Process(const G4Step* a_step, std::vector<LArHitData>& hdata);
 
   virtual const LArG4Identifier& identifier(int i=0) const { 
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_identifier; 
+    if(m_hdata.size()<1) throw std::range_error("No hit yet");
+    return  m_hdata[0].id; 
   }
 
   virtual G4double time(int i=0) const { 
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_time; 
+    if(m_hdata.size()<1) throw std::range_error("No hit yet");
+    return m_hdata[0].time; 
   }
   virtual G4double energy(int i=0) const { 
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_energy; 
+    if(m_hdata.size()<1) throw std::range_error("No hit yet");
+    return m_hdata[0].energy; 
   };
   virtual G4bool isInTime(int i=0) const    { 
     if (i!=0) throw std::range_error("Multiple hits not yet implemented");
@@ -81,10 +85,12 @@ private:
 
   G4float m_zShift;
   G4float m_OOTcut;
-  LArG4Identifier m_identifier;
+//  LArG4Identifier m_identifier;
 
-  G4double m_time;
-  G4double m_energy;
+//  G4double m_time;
+//  G4double m_energy;
+  std::vector<LArHitData> m_hdata;
+
   G4bool m_isInTime;
 
   // Class for calculating the identifier.
