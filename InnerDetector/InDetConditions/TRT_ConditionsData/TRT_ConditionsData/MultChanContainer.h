@@ -100,7 +100,7 @@ namespace TRTCond
     /** channel identifier for the container with the 'default' value */
     static const size_t m_defaultschannelid = 0 ;
     /** cached table for fast access from channel to layercontainer */
-    mutable std::vector<DaughterContainer*> m_channelmap ;
+    mutable std::vector<const DaughterContainer*> m_channelmap ;
     /** dummy value to return when DaughterContainer is empty */
     const typename DaughterContainer::value_type& dummyVal() const;
   } ;
