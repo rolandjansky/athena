@@ -31,6 +31,14 @@ class doDiTauRec(JobProperty):
     def get_Value(self):
         return self.statusOn and self.StoredValue and jobproperties.DiTauRecFlags.Enabled()
 
+class diTauRecJetSeedPt(JobProperty):
+    """ configure inpute jet seed
+    """
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=300000
+    
+
 
 class doRunDiTauDiscriminant(JobProperty):
     """ switch for DiTauDiscriminant running
@@ -48,7 +56,7 @@ class DiTauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(DiTauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doDiTauRec,doRunDiTauDiscriminant]
+_list_tau=[Enabled,doDiTauRec,diTauRecJetSeedPt,doRunDiTauDiscriminant]
 for j in _list_tau: 
     jobproperties.DiTauRecFlags.add_JobProperty(j)
 del _list_tau
