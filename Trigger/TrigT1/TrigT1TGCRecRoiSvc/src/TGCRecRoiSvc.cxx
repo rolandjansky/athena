@@ -89,11 +89,13 @@ void TGCRecRoiSvc::reconstruct (const unsigned int & roIWord) const
   int wireSLBId, block;  
 
   if (! this->getSLBparameters(roIWord,sideType,regionType,sectorID,roiNumber,r,phi,wireSLBId,block)){
-    ATH_MSG_WARNING( "TGCRecRoiSvc::reconstruct  : " << "BAD roiWord " );
+    ATH_MSG_ERROR( "TGCRecRoiSvc::reconstruct  : BAD roiWord. " 
+                     << "Can not get SLBparameters "
+                     << " roi word = " << std::hex << roIWord  );
     return;
   }
   if (sideType == TGCIdBase::NoSideType) {
-    ATH_MSG_WARNING( "TGCRecRoiSvc::reconstruct  : "
+    ATH_MSG_ERROR( "TGCRecRoiSvc::reconstruct  : "
                      << "This roiWord is not of TGC" );
     return;
   } 
