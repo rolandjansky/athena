@@ -13,6 +13,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 
 #include <vector>
 
@@ -20,6 +21,7 @@
 
 ExtrapolateMuonToIPTool::ExtrapolateMuonToIPTool(const std::string& t, const std::string& n,const IInterface* p)  :  
   AthAlgTool(t,n,p),
+  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
   m_nextrapolations(0),
@@ -41,13 +43,10 @@ ExtrapolateMuonToIPTool::~ExtrapolateMuonToIPTool() {
 StatusCode ExtrapolateMuonToIPTool::initialize()
 {
 
-  if( AthAlgTool::initialize().isFailure() ){
-    ATH_MSG_WARNING( "AthAlgTool::initialize failed" );
+  if( m_extrapolator.retrieve().isFailure() ){
+    ATH_MSG_ERROR( "failed to retrieve " << m_extrapolator );
     return StatusCode::FAILURE;
   }
-
-  ATH_MSG_DEBUG("ExtrapolateMuonToIPTool::initialize()");
-
 
   if(!m_helper.empty()) {
     if(m_helper.retrieve().isFailure()) {
@@ -113,9 +112,127 @@ TrackCollection* ExtrapolateMuonToIPTool::extrapolate(const TrackCollection& muo
   return extrapolateTracks;
 }
 
-Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& ) const {
-  ATH_MSG_WARNING("This function is no longer supported");
-  return 0;
+
+Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const {
+	
+  
+  const Trk::TrackInfo& trackInfo = track.info();
+  auto particleType = trackInfo.trackProperties(Trk::TrackInfo::StraightTrack) ? Trk::nonInteracting : Trk::muon; 
+  const Trk::TrackParameters* closestPars = findMeasuredParametersClosestToIP(track);
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " extrapolating track " << m_printer->print(track) << " type " << particleType << std::endl
+                                          << m_printer->printStations(track) << endreq;
+	
+  if( !closestPars ){
+    msg(MSG::WARNING) <<MSG::WARNING <<"Failed to find closest parameters " <<endreq;       
+    ++m_failedClosestPars;
+    return 0;
+  }
+	
+  if (msgLvl(MSG::DEBUG)) {
+    // get perigee parameters
+    const Trk::Perigee* perigee = track.perigeeParameters();
+	
+    if( !perigee ){
+      msg(MSG::WARNING) << "Muon Track without perigee, skipping " << endreq;       
+    }else{
+      msg(MSG::DEBUG) << " closest parameters " << m_printer->print(*closestPars) << endreq
+                      << " perigee            " << m_printer->print(*perigee) << endreq;
+    }
+  }
+	 
+  double dirPosProduct = closestPars->position().dot(closestPars->momentum());
+  Trk::PropDirection propDir = dirPosProduct < 0. ? Trk::alongMomentum : Trk::oppositeMomentum;
+	 
+  if (msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG) << " scalar product " << dirPosProduct << "  extrapolating ";
+    if( propDir == Trk::alongMomentum ) msg(MSG::DEBUG) << " along momentum" << endreq;
+    else                                msg(MSG::DEBUG) << " opposite momentum" << endreq;
+  }
+  Trk::PerigeeSurface perigeeSurface(Amg::Vector3D(0.,0.,0.));
+  // extrapolate back to IP
+  const Trk::TrackParameters* ipPars = m_extrapolator->extrapolate(*closestPars,perigeeSurface,propDir,false);
+  if( !ipPars ){
+	
+    // if extrapolation failed go in other direction
+    propDir = (propDir == Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
+    ipPars = m_extrapolator->extrapolate(*closestPars,perigeeSurface,propDir,false,particleType);
+    if (msgLvl(MSG::DEBUG)) {
+      msg(MSG::DEBUG) << " retrying opposite momentum extrapolating ";
+      if( propDir == Trk::alongMomentum ) msg(MSG::DEBUG) << " along momentum" << endreq;
+      else                                msg(MSG::DEBUG) << " opposite momentum" << endreq;
+    }
+    if( !ipPars){
+      if( closestPars->momentum().mag() > 5000. ) ++m_failedExtrapolationLowMom;
+      else                                        ++m_failedExtrapolationHighMom;
+      return 0;
+    }
+  }
+	
+  // create the new track
+  // create new perigee
+  const Trk::Perigee* ipPerigee = dynamic_cast<const Trk::Perigee*>(ipPars);
+  if( !ipPerigee ){
+    ipPerigee = m_helper->createPerigee(*ipPars);
+    delete ipPars;
+  }
+	
+  if( !ipPerigee ){
+    msg(MSG::WARNING) <<"Failed to create perigee for extrapolate track, skipping " <<endreq;       
+    ++m_failedPerigeeCreation;
+    return 0;
+  }
+	
+	   
+  // create new TSOS DataVector and reserve enough space to fit all old TSOS + one new TSOS
+  const DataVector<const Trk::TrackStateOnSurface>* oldTSOT = track.trackStateOnSurfaces();
+  DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
+  unsigned int newSize = oldTSOT->size() + 1;
+  trackStateOnSurfaces->reserve( newSize );
+	   
+  bool perigeeWasInserted = false;
+  Amg::Vector3D perDir = ipPerigee->momentum().unit();
+	
+  // if we didn't start from a parameter in the muon system add perigee to the front
+  //trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee,0,0,Trk::TrackStateOnSurface::Perigee) );
+	   
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = oldTSOT->begin();
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = oldTSOT->end();
+  for( ;tsit!=tsit_end;++tsit ){
+	
+    // remove old perigee if we didn't start from a parameter in the muon system
+    if( (*tsit)->type(Trk::TrackStateOnSurface::Perigee) ) continue;
+	   
+    const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+    if( !pars ) continue;
+	
+    double distanceOfPerigeeToCurrent = perDir.dot(pars->position() - ipPerigee->position());
+	     
+    if( !perigeeWasInserted && distanceOfPerigeeToCurrent > 0. ){
+      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
+      typePattern.set(Trk::TrackStateOnSurface::Perigee);
+      trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee,0,0,typePattern) );
+      perigeeWasInserted = true;
+    }
+	
+    // copy remainging TSOS
+    trackStateOnSurfaces->push_back( (*tsit)->clone() );
+  }
+	
+  if( !perigeeWasInserted ) {
+    std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
+    typePattern.set(Trk::TrackStateOnSurface::Perigee);
+    trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee,0,0,typePattern) );
+  }
+  if (msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG) << " creating new track " << endreq;
+  }
+	
+  Trk::TrackInfo info(track.info().trackFitter(),track.info().particleHypothesis());
+  info.setPatternRecognitionInfo( Trk::TrackInfo::MuidStandAlone );
+  // create new track
+  Trk::Track* extrapolateTrack = new Trk::Track( info, trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0);
+	
+  return extrapolateTrack;
 }
 
 
