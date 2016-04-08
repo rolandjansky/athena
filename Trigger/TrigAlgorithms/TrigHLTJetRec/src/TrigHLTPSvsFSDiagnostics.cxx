@@ -305,11 +305,6 @@ bool TrigHLTPSvsFSDiagnostics::loadContainers(const HLT::TriggerElement* inputTE
   }
   //----------------------------------------------------------------------------
 
-
-  if (!evtStore()->contains<xAOD::JetContainer>(PSjetCollKey)) {
-    ATH_MSG_DEBUG("TEST::Container - Didn't found any xAOD::JetContainer with Key"<<PSjetCollKey);
-    return false;
-  }
   if (!evtStore()->contains<xAOD::JetContainer>(FSjetCollKey)) {
     ATH_MSG_DEBUG("TEST::Container - Didn't found any xAOD::JetContainer with Key"<<PSjetCollKey);
     return false;

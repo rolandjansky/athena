@@ -43,6 +43,7 @@ def _getEventShapeSGKey(radius, pseudoJetGetterLabel):
 
 def configHLTEventDensityTool(name,
                               pjGetter,
+                              OutputContainer,
                               JetAlgorithm='Kt',
                               radius=0.4,
                               AbsRapidityMin=0.0,
@@ -62,7 +63,7 @@ def configHLTEventDensityTool(name,
         AbsRapidityMax      = AbsRapidityMax,
         AreaDefinition      = AreaDefinition,
         VoronoiRfact        = VoronoiRfact,
-        OutputContainer     = _getEventShapeSGKey(radius,pjGetter.Label)
+        OutputContainer     = OutputContainer,
     )
 
     # Build the tool :
@@ -233,7 +234,7 @@ def _getTriggerPseudoJetGetter(cluster_calib):
     return triggerPseudoJetGetter
 
     
-def _getEnergyDensityTool(name, **options):
+def _getEnergyDensityTool(toolname, **options):
 
     # declare jtm as global as this function body may modify it
     # with the += operator
@@ -241,23 +242,23 @@ def _getEnergyDensityTool(name, **options):
     
     # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
     try:
-        energyDensityTool = getattr(jtm, name)
+        energyDensityTool = getattr(jtm, toolname)
     except AttributeError:
         # Add the EnergyDensity to the JetTool Manager,
         # which pushes it to the ToolSvc in __iadd__
         # This is done in the same as PseudoJetGetter is added in
         # JetRecStandardTools.py.
         # The 'Label' must be one of the values found in JetContainerInfo.h
-        energyDensityTool = configHLTEventDensityTool(name, **options)
+        energyDensityTool = configHLTEventDensityTool(toolname, **options)
         jtm += energyDensityTool
-        energyDensityTool = getattr(jtm, name)
+        energyDensityTool = getattr(jtm, toolname)
         print 'TrigHLTJetRecConfig._getEnergyDensityTool '\
-            'Added energyDensity tools "%s" to jtm' % name
+            'Added energyDensity tools "%s" to jtm' % toolname
 
     return energyDensityTool
 
     
-def _getPseudoJetSelectorAll(name, **options):
+def _getIParticleSelectorAll(toolname, **options):
 
     # set up a tool to select all pseudo jets
     # declare jtm as global as this function body may modify it
@@ -266,75 +267,23 @@ def _getPseudoJetSelectorAll(name, **options):
     
     # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
     try:
-        selector = getattr(jtm, name)
-    except AttributeError:
-        # Add the PseudoJetSelectorAll to the JetTool Manager,
-        # which pushes it to the ToolSvc in __iadd__
-        # This is done in the same as PseudoJetGetter is added in
-        # JetRecStandardTools.py.
-        # The 'Label' must be one of the values found in JetContainerInfo.h
-        selector = TrigHLTJetRecConf.PseudoJetSelectorAll(name=name)
-        jtm += selector
-        selector = getattr(jtm, name)
-        print 'TrigHLTJetRecConfig._getPseudoJetSelectorAll '\
-            'Added selector "%s" to jtm' % name
-
-    return selector
-
-
-def _getPseudoJetSelectorEtaPt(name, etaMax, ptMin):
-
-    # set up a tool to select all pseudo jets
-    # declare jtm as global as this function body may modify it
-    # with the += operator
-    global jtm
-    
-    # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
-    try:
-        selector = getattr(jtm, name)
-    except AttributeError:
-        # Add the PseudoJetSelectorEtaPt to the JetTool Manager,
-        # which pushes it to the ToolSvc in __iadd__
-        # This is done in the same as PseudoJetGetter is added in
-        # JetRecStandardTools.py.
-        # The 'Label' must be one of the values found in JetContainerInfo.h
-        selector = PseudoJetSelectorEtaPt(name, etaMax, ptMin)
-
-        jtm += selector
-        selector = getattr(jtm, name)
-        print 'TrigHLTJetRecConfig._getPseudoJetSelectorEtaPt '\
-            'Added selector "%s" to jtm' % name
-
-    return selector
-
-    
-    
-def _getIParticleSelectorAll(name, **options):
-
-    # set up a tool to select all pseudo jets
-    # declare jtm as global as this function body may modify it
-    # with the += operator
-    global jtm
-    
-    # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
-    try:
-        selector = getattr(jtm, name)
+        selector = getattr(jtm, toolname)
     except AttributeError:
         # Add the IParticleSelectorAll to the JetTool Manager,
         # which pushes it to the ToolSvc in __iadd__
         # This is done in the same as PseudoJetGetter is added in
         # JetRecStandardTools.py.
         # The 'Label' must be one of the values found in JetContainerInfo.h
-        selector = TrigHLTJetRecConf.IParticleSelectorAll(name=name)
+        selector = TrigHLTJetRecConf.IParticleSelectorAll(name=toolname)
         jtm += selector
-        selector = getattr(jtm, name)
+        selector = getattr(jtm, toolname)
         print 'TrigHLTJetRecConfig._getIParticleSelectorAll '\
-            'Added selector "%s" to jtm' % name
+            'Added selector "%s" to jtm' % toolname
 
     return selector
 
 
-def _getIParticleSelectorEtaPt(name, **kwds):
+def _getIParticleSelectorEtaPt(toolname, **kwds):
 
     # set up a tool to select all pseudo jets
     # declare jtm as global as this function body may modify it
@@ -343,19 +292,19 @@ def _getIParticleSelectorEtaPt(name, **kwds):
     
     # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
     try:
-        selector = getattr(jtm, name)
+        selector = getattr(jtm, toolname)
     except AttributeError:
         # Add the IParticleSelectorEtaPt to the JetTool Manager,
         # which pushes it to the ToolSvc in __iadd__
         # This is done in the same as PseudoJetGetter is added in
         # JetRecStandardTools.py.
         # The 'Label' must be one of the values found in JetContainerInfo.h
-        selector = IParticleSelectorEtaPt(name, **kwds)
+        selector = IParticleSelectorEtaPt(toolname, **kwds)
 
         jtm += selector
-        selector = getattr(jtm, name)
+        selector = getattr(jtm, toolname)
         print 'TrigHLTJetRecConfig._getIParticleSelectorEtaPt '\
-            'Added selector "%s" to jtm' % name
+            'Added selector "%s" to jtm' % toolname
 
     return selector
 
@@ -588,9 +537,15 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
                  JetAlgorithm='Kt',
                  AreaDefinition='Voronoi',
                  VoronoiRfact=0.9,
+                 toolname_stub='jetTriggerEnergyDensityTool',
+                 caloClusterContainerSGKey='',
+                 eventShapeSGKey=None,
              ): 
 
-        TrigHLTJetRecConf.TrigHLTEnergyDensity.__init__(self, name=name)
+        TrigHLTJetRecConf.TrigHLTEnergyDensity.__init__(
+            self,
+            name=name,
+            caloClusterContainerSGKey=caloClusterContainerSGKey)
 
         from TrigHLTJetRec.TrigHLTEnergyDensityMonitoring import(
             TrigHLTEnergyDensityValidationMonitoring,
@@ -623,12 +578,22 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
                        )
 
         # ed_merge_param is a float e.g. 0.4
-        name='jetTriggerEnergyDensityTool_%s' % cluster_calib
+        # name='jetTriggerEnergyDensityTool_%s' % cluster_calib
+        toolname='%s_%s' % (toolname_stub, cluster_calib)
+        options.update(toolname=toolname)
 
-        self.energyDensityTool = _getEnergyDensityTool(name, **options)
+        OutputContainer = None
+        if eventShapeSGKey is None:
+            # jets: eventShapeSGKey is calculated here
+            self.eventShapeSGKey = _getEventShapeSGKey(ed_merge_param,
+                                                       pseudoJetGetter.Label)
+        else:
+            # other: eventShapeSGKey is passed in
+            self.eventShapeSGKey = eventShapeSGKey
+            
+        options.update(OutputContainer=self.eventShapeSGKey)
+        self.energyDensityTool = _getEnergyDensityTool(**options)
 
-        self.eventShapeSGKey = _getEventShapeSGKey(ed_merge_param,
-                                                   pseudoJetGetter.Label)
         self.energyDensity = 0
 
 # Data scouting algorithm

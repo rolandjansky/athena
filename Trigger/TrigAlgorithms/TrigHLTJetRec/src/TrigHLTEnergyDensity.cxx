@@ -12,7 +12,7 @@
 #include "TrigHLTJetRec/ITriggerPseudoJetGetter.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "JetEDM/LabelIndex.h"
-#include "./ClusterToPseudoJet.h"
+#include "TrigHLTJetRec/AnyToPseudoJet.h"
 #include "xAODEventShape/EventShape.h"
 
 using jet::LabelIndex;
@@ -23,6 +23,7 @@ TrigHLTEnergyDensity::TrigHLTEnergyDensity(const std::string& name,
   declareProperty("energyDensityTool", m_energyDensityTool);
   declareProperty("pseudoJetGetter", m_pseudoJetGetter);
   declareProperty("eventShapeSGKey", m_eventShapeSGKey);
+  declareProperty("caloClusterContainerSGKey", m_caloClusterContainerSGKey="");
 
   declareMonitoredVariable("energyDensity", m_energyDensity);
 
@@ -89,7 +90,7 @@ TrigHLTEnergyDensity::hltExecute(const HLT::TriggerElement* inputTE,
      Upstream Algorithms write to this trigger element */
   const xAOD::CaloClusterContainer* clusterContainer = 0;
   HLT::ErrorCode hltStatus;
-  hltStatus = getFeature(outputTE, clusterContainer);  
+  hltStatus = getFeature(outputTE, clusterContainer, m_caloClusterContainerSGKey);  
   
   if (hltStatus == HLT::OK) {
     ATH_MSG_DEBUG("Retrieved CaloClusterContainer, address"
@@ -114,7 +115,7 @@ TrigHLTEnergyDensity::hltExecute(const HLT::TriggerElement* inputTE,
   indexMap->addLabel("Topo");
   
   // setup CaloCluster to PseudoJet convertor
-  ClusterToPseudoJet ctpj(indexMap);
+  AnyToPseudoJet<const xAOD::CaloCluster*> ctpj(indexMap);
 
   // convert incoming calo clusters to the pseudo jets needed by jetrec
   pjv.resize(clusterContainer -> size());

@@ -32,6 +32,7 @@ private:
   ToolHandle<ITriggerPseudoJetGetter>  m_pseudoJetGetter;
 
   std::string m_eventShapeSGKey;  // allow fetching and monitoring.
+  std::string m_caloClusterContainerSGKey;  // allow different calo cluster sources
   float m_energyDensity;  // allow monitoring.
 }; 
 #endif
