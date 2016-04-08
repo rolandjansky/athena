@@ -56,7 +56,7 @@ class MuonBackgroundConverter : public GenModule
     virtual StatusCode genInitialize();
     virtual StatusCode callGenerator();
     virtual StatusCode genFinalize();
-    virtual StatusCode fillEvt( GenEvent* evt );
+    virtual StatusCode fillEvt( HepMC::GenEvent* evt );
 
     ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
     CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used 
