@@ -3,110 +3,98 @@
 */
 
 #include "G4CosmicFilter/G4CosmicFilter.h"
-#include <stdexcept>
+
 #include "MCTruth/TrackHelper.h"
-#include "MCTruth/TrackRecorderSD.h"
 #include "TrackRecord/TrackRecordCollection.h"
+
 #include "G4RunManager.hh"
 #include "G4Event.hh"
 
-static G4CosmicFilter ts1("G4CosmicFilter");
-
-void G4CosmicFilter::BeginOfEventAction(const G4Event*)
+G4CosmicFilter::G4CosmicFilter(const std::string& type, const std::string& name, const IInterface* parent)
+  : UserActionBase(type,name,parent)
+  , m_ntot(0)
+  , m_npass(0)
+  , m_PDGId(0)
+  , m_volumeName("CaloEntryLayer")
+  , m_ptMin(-1)
+  , m_ptMax(-1)
 {
-  if (!m_init) ParseProperties();
+  declareProperty("VolumeName",m_volumeName);
+  declareProperty("PDGId",m_PDGId);
+  declareProperty("PtMin",m_ptMin);
+  declareProperty("PtMax",m_ptMax);
 }
-void G4CosmicFilter::EndOfEventAction(const G4Event*)
+
+
+void G4CosmicFilter::EndOfEvent(const G4Event*)
 {
   int counter(0);
 
   m_ntot++;
 
   const DataHandle <TrackRecordCollection> coll;
+  if (evtStore()->retrieve(coll,m_collectionName).isFailure() || !coll)
+    {
+      ATH_MSG_WARNING( "Cannot retrieve TrackRecordCollection " << m_collectionName );
+      G4RunManager::GetRunManager()->AbortEvent();
+      return;
+    }
 
-  StatusCode sc = m_storeGate->retrieve(coll,m_collectionName);
-
-  if (sc.isFailure() || !coll) {
-    ATH_MSG_WARNING( "Cannot retrieve TrackRecordCollection " << m_collectionName );
-    counter = 0;
-    G4RunManager::GetRunManager()->AbortEvent();
-    return;
-  }
   counter = coll->size();
 
-  if (m_magicID!=0 || m_ptMin>0 || m_ptMax>0){
-    counter=0;
-    for (const auto& a_tr : *coll){
-      if (m_magicID!=0 && m_magicID != fabs(a_tr.GetPDGCode())) continue;
-      if (m_ptMin>0 && m_ptMin > a_tr.GetMomentum().perp() ) continue;
-      if (m_ptMax>0 && m_ptMax < a_tr.GetMomentum().perp() ) continue;
-      counter++;
+  if (m_PDGId!=0 || m_ptMin>0 || m_ptMax>0)
+    {
+      counter=0;
+      for (const auto& a_tr : *coll)
+        {
+          if (m_PDGId!=0 && m_PDGId != fabs(a_tr.GetPDGCode())) continue;
+          if (m_ptMin>0 && m_ptMin > a_tr.GetMomentum().perp() ) continue;
+          if (m_ptMax>0 && m_ptMax < a_tr.GetMomentum().perp() ) continue;
+          counter++;
+        }
     }
-  }
 
   //std::cout << "EndOfEventAction counter is "<<counter<<std::endl;
-  if (counter==0){
-    G4RunManager::GetRunManager()->AbortEvent();
-  } else {m_npass++;}
+  if (counter==0)
+    {
+      ATH_MSG_INFO("aborting event due to failing filter");
+      G4RunManager::GetRunManager()->AbortEvent();
+      return;
+    }
 
+  m_npass++;
+  return;
 }
-void G4CosmicFilter::BeginOfRunAction(const G4Run*)
+
+StatusCode G4CosmicFilter::initialize()
 {
-  if (!m_init) ParseProperties();
-}
 
-void G4CosmicFilter::ParseProperties(){
-  if(theProperties.find("VolumeName")==theProperties.end()){
-    ATH_MSG_INFO( "no VolumeName specified, setting to default (=CaloEntryLayer)" );
-    theProperties["VolumeName"]="CaloEntryLayer";
-  }
-  m_collectionName = theProperties["VolumeName"].c_str();
+  m_collectionName=m_volumeName;
+
   ATH_MSG_INFO( "using collectionName "<<m_collectionName );
-
-  if(theProperties.find("PDG_ID")==theProperties.end()){
-    ATH_MSG_INFO( "G4CosmicFilter: no PDG ID specified, setting to default (=none)" );
-    theProperties["PDG_ID"]="0";
-  }
-  char *endptr; 
-  m_magicID = strtol(theProperties["PDG_ID"].c_str(), &endptr, 0);
-  if (endptr[0] != '\0') {  
-    throw std::invalid_argument("Could not convert string to int: " + theProperties["PDG_ID"]);
-  }
-  ATH_MSG_INFO( "using PDG ID "<<m_magicID );
-
-  if(theProperties.find("pTmin")==theProperties.end()){
-    ATH_MSG_INFO( "no pTmin specified, setting to default (=-1)" );
-    theProperties["pTmin"]="-1";
-  }
-  m_ptMin = strtol(theProperties["pTmin"].c_str(), &endptr, 0);
-  if (endptr[0] != '\0') {  
-    throw std::invalid_argument("Could not convert string to int: " + theProperties["pTmin"]);
-  }
-
+  ATH_MSG_INFO( "using PDG ID "<<m_PDGId );
   ATH_MSG_INFO( "using pTmin "<<m_ptMin );
-
-  if(theProperties.find("pTmax")==theProperties.end()){
-    ATH_MSG_INFO( "G4CosmicFilter: no pTmax specified, setting to default (=-1)" );
-    theProperties["pTmax"]="-1";
-  }
-  m_ptMax = strtol(theProperties["pTmax"].c_str(), &endptr, 0);
-  if (endptr[0] != '\0') {  
-    throw std::invalid_argument("Could not convert string to int: " + theProperties["pTmax"]);
-  }
   ATH_MSG_INFO( "using pTmax "<<m_ptMax );
 
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  StatusCode status = svcLocator->service("StoreGateSvc", m_storeGate);
-  if (status.isFailure()){
-      ATH_MSG_WARNING( "Could not access StoreGateSvc!" );
-  }
-
-  m_init=true;
+  return StatusCode::SUCCESS;
 }
-void G4CosmicFilter::EndOfRunAction(const G4Run*)
+
+void G4CosmicFilter::EndOfRun(const G4Run*)
 {
   ATH_MSG_INFO( "processed "<< m_ntot <<" events, "<< m_npass<<" events passed filter" );
 }
 
-void G4CosmicFilter::SteppingAction(const G4Step*){;}
-
+StatusCode G4CosmicFilter::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) )
+    {
+      *ppvInterface = dynamic_cast<IUserAction*>(this);
+      addRef();
+    }
+  else
+    {
+      // Interface is not directly available : try out a base class
+      return UserActionBase::queryInterface(riid, ppvInterface);
+    }
+  return StatusCode::SUCCESS;
+}
