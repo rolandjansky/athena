@@ -16,16 +16,20 @@
 #include "TrkExUnitTests/TrkExUnitTestBase.h"
 #include "TrkExInterfaces/IExtrapolationEngine.h"
 #include "TString.h"
+#include "TRandom.h"
 
 class TTree;
 
 namespace Trk {
     
     class IExtrapolationEngine;
+    class IPositionMomentumWriter;
              
     /** @class ExtrapolationEngineTest
                
-        @author Andreas.Salzburger@cern.ch       
+        Test Algorithm to run test extrapolations with the new IExtrapolationEngine           
+               
+        @author Andreas.Salzburger@cern.ch, Noemi.Calace@cern.ch       
       */
       
     class ExtrapolationEngineTest : public TrkExUnitTestBase  {
@@ -40,7 +44,10 @@ namespace Trk {
 
        /* specify the test here */
        StatusCode runTest();
-       
+
+       /* specify the scan here */
+       StatusCode runScan();
+
        /** initialize the test, i.e. retrieve the TrackingGeometry Svc */
        StatusCode initializeTest();
        
@@ -50,13 +57,23 @@ namespace Trk {
      private:
        template <class T, class P> StatusCode runTestT(); 
          
-       template <class T, class P> StatusCode fillStepInformationT(ExtrapolationCell<T>& eCell, int fwbw);
+       template <class T, class P> StatusCode fillStepInformationT(ExtrapolationCell<T>& eCell, int fwbw, std::vector<const Trk::Surface*>& stepSurfaces);
          
        /** retrieve it */
        ToolHandle<IExtrapolationEngine>             m_extrapolationEngine;     
        
        bool                                         m_parametersMode; // 0 - neutral, 1 - charged, 2 - multi
-       
+       int                                          m_particleHypothesis;
+     
+       bool                                         m_smearProductionVertex;
+       bool                                         m_smearFlatOriginT;
+       bool                                         m_smearFlatOriginZ;
+       double                                       m_sigmaOriginT;
+       double                                       m_sigmaOriginZ;
+       double                                       m_d0Min;
+       double                                       m_d0Max;
+       double                                       m_z0Min;
+       double                                       m_z0Max;
      
        double                                       m_etaMin;
        double                                       m_etaMax;
@@ -74,12 +91,29 @@ namespace Trk {
        bool                                         m_collectMaterial;
        
        bool                                         m_backExtrapolation;
+       bool                                         m_stepwiseExtrapolation;
+       
+       
+       /** scanning parameters */
+       int                                          m_stepsPhi;
+       int                                          m_currentPhiStep;
+       std::vector< float >                         m_etaScans;
+       double                                       m_currentEta;
+       std::vector< float >                         m_phiScans;
+       double                                       m_currentPhi;
+       bool                                         m_splitCharge;
+
+       //!< the tree
          
        bool                                         m_writeTTree;
+       ToolHandle<IPositionMomentumWriter>          m_posmomWriter;
+       
        std::string                                  m_treeName;
        std::string                                  m_treeFolder;  
        std::string                                  m_treeDescription;
        TTree*                                       m_tree;
+       TRandom                                      m_tRandom;        
+                                                    
                                                     
        float                                        m_startPositionX;
        float                                        m_startPositionY;
@@ -101,7 +135,8 @@ namespace Trk {
        float                                        m_endTheta;                                                    
        float                                        m_endEta;                                                    
        float                                        m_endP;                                                    
-       float                                        m_endPt; 
+       float                                        m_endPt;        
+       float                                        m_endPathLength;
        
        int                                          m_backSuccessful;
        float                                        m_backPositionX;
@@ -124,9 +159,15 @@ namespace Trk {
        std::vector< std::vector< float >* >         m_pEta;                                                    
        std::vector< std::vector< float >* >         m_pP;                                              
        std::vector< std::vector< float >* >         m_pPt;
+
+       std::vector< int >*                          m_sensitiveLayerIndex;
+       std::vector< float >*                        m_sensitiveLocalPosX;
+       std::vector< float >*                        m_sensitiveLocalPosY;
        
        float                                        m_materialThicknessInX0;
        float                                        m_materialThicknessInL0;
+       float                                        m_materialThicknessZARho;
+       float                                        m_materialEmulatedIonizationLoss;
 
        float                                        m_materialThicknessInX0Bwd;
        float                                        m_materialThicknessInL0Bwd;
@@ -139,14 +180,30 @@ namespace Trk {
        float                                        m_materialThicknessInX0Disc;
        float                                        m_materialThicknessInX0Plane;
        
+       std::vector< float >*                        m_materialThicknessInX0Accumulated;
        std::vector< float >*                        m_materialThicknessInX0Steps;
        std::vector< float >*                        m_materialThicknessInL0Steps;
        std::vector< float >*                        m_materialPositionX;
        std::vector< float >*                        m_materialPositionY;
        std::vector< float >*                        m_materialPositionZ;
        std::vector< float >*                        m_materialPositionR;
+       std::vector< float >*                        m_materialPositionP;
+       std::vector< float >*                        m_materialPositionPt;
        std::vector< float >*                        m_materialScaling;
        std::vector< int   >*                        m_stepDirection;
+       
+       int                                          m_endStepSuccessful;
+       float                                        m_endStepPositionX;
+       float                                        m_endStepPositionY;
+       float                                        m_endStepPositionZ;
+       float                                        m_endStepPositionR;
+       float                                        m_endStepPhi;
+       float                                        m_endStepTheta;                                                    
+       float                                        m_endStepEta;                                                    
+       float                                        m_endStepP;                                                    
+       float                                        m_endStepPt;        
+       float                                        m_endStepPathLength;
+       float                                        m_endStepThicknessInX0;
 
    };
 }

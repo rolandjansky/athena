@@ -1,4 +1,4 @@
-###############################################################
+##############################################################
 #
 # Job options 
 #
@@ -22,6 +22,7 @@ import AthenaCommon.AtlasUnixGeneratorJob
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
+#DetFlags.TRT_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 
@@ -30,7 +31,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
 # build GeoModel
-DetDescrVersion = 'ATLAS-R1-2012-02-01-00'
+DetDescrVersion = 'ATLAS-R2-2015-02-01-00'
+#DetDescrVersion = 'ATLAS-PX-ITK-00-00-00'
 from AtlasGeoModel import SetGeometryVersion 
 from AtlasGeoModel import GeoModelInit 
 
@@ -48,7 +50,30 @@ TrkDetFlags.PixelBuildingOutputLevel = INFO
 TrkDetFlags.SCT_BuildingOutputLevel  = INFO
 TrkDetFlags.TRT_BuildingOutputLevel  = INFO
 TrkDetFlags.ConfigurationOutputLevel = INFO
-TrkDetFlags.TRT_BuildStrawLayers     = True
+TrkDetFlags.TRT_BuildStrawLayers     = False
+#TrkDetFlags.TRT_BuildStrawLayers     = True
+
+# switch the material loading off
+from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
+TrkDetFlags.MaterialSource              = 'COOL'
+#TrkDetFlags.MaterialSource              = 'Input'
+TrkDetFlags.MaterialVersion             = 20
+TrkDetFlags.MaterialSubVersion          = ''
+#TrkDetFlags.MaterialSubVersion          = 'f'
+TrkDetFlags.ConfigurationOutputLevel    = VERBOSE
+
+TrkDetFlags.MaterialDatabaseLocal       = False
+if TrkDetFlags.MaterialDatabaseLocal() is True :
+    # prepare the magic tag
+    splitGeo = DetDescrVersion.split('-')
+    MaterialMagicTag = splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2]
+    # now say where the file is
+    TrkDetFlags.MaterialStoreGateKey        = '/GLOBAL/TrackingGeo/BinnedLayerMaterial'
+    TrkDetFlags.MaterialDatabaseLocalPath    = '' # '/tmp/wlukas/'
+    TrkDetFlags.MaterialDatabaseLocalName    = 'AtlasLayerMaterial-'+DetDescrVersion+'.db'
+    TrkDetFlags.MaterialMagicTag             = MaterialMagicTag
+    TrkDetFlags.MaterialSubVersion           = ''
+TrkDetFlags.MagneticFieldCallbackEnforced    = False
 
 # load the tracking geometry service
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
@@ -60,9 +85,9 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 # Number of events to be processed (default is until the end of
 # input, or -1, however, since we have no input, a limit needs
 # to be set explicitly, here, choose 10)
-theApp.EvtMax           = 1 # 100
-ExToolOutputLevel       = VERBOSE # INFO #
-ExAlgorithmOutputLevel  = INFO #
+theApp.EvtMax           = 1000
+ExToolOutputLevel       = INFO # VERBOSE # INFO #
+ExAlgorithmOutputLevel  = INFO # VERBOSE #
 
 from AthenaCommon.AppMgr import ServiceMgr
 # output level
@@ -85,6 +110,11 @@ from TrkExEngine.AtlasExtrapolationEngine import AtlasExtrapolationEngine
 ExtrapolationEninge = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas', ToolOutputLevel=ExToolOutputLevel)
 ToolSvc += ExtrapolationEninge
 
+from TrkValTools.TrkValToolsConf import Trk__PositionMomentumWriter as PmWriter
+PmWriter = PmWriter()
+ToolSvc += PmWriter
+
+
 #--------------------------------------------------------------
 # Algorithm setup
 #--------------------------------------------------------------
@@ -92,26 +122,35 @@ ToolSvc += ExtrapolationEninge
 # Add top algorithms to be run
 from TrkExUnitTests.TrkExUnitTestsConf import Trk__ExtrapolationEngineTest
 ExtrapolationEngineTest = Trk__ExtrapolationEngineTest('ExtrapolationEngineTest')
+# how many tests you want per event 
+ExtrapolationEngineTest.NumberOfTestsPerEvent   = 100
 # parameters mode: 0 - neutral tracks, 1 - charged particles 
-ExtrapolationEngineTest.ParametersMode      = 1
-# do the full test backwards as well
-ExtrapolationEngineTest.BackExtrapolation   = False
-# pT range for testing
-ExtrapolationEngineTest.PtMin               = 100000
-ExtrapolationEngineTest.PtMax               = 100000
-# The test range in Eta
-ExtrapolationEngineTest.EtaMin              =  -0.5
-ExtrapolationEngineTest.EtaMax              =   0.5
-# Configure how you wanna run
-ExtrapolationEngineTest.CollectSensitive    = True
-ExtrapolationEngineTest.CollectPassive      = True 
-ExtrapolationEngineTest.CollectBoundary     = True
-# the path limit to test
-ExtrapolationEngineTest.PathLimit           = -1.
+ExtrapolationEngineTest.ParametersMode          = 1
+# do the full test backwards as well            
+ExtrapolationEngineTest.BackExtrapolation       = True
+# Smear the production vertex - standard primary vertex paramters
+ExtrapolationEngineTest.SmearOrigin             = False   
+ExtrapolationEngineTest.SimgaOriginD0           = 0.015 
+ExtrapolationEngineTest.SimgaOriginZ0           = 55.6
+# pT range for testing                        
+ExtrapolationEngineTest.PtMin                   = 1000
+ExtrapolationEngineTest.PtMax                   = 1000
+# The test range in Eta                      
+ExtrapolationEngineTest.EtaMin                  =  -3.5
+ExtrapolationEngineTest.EtaMax                  =   3.5
+# Configure how you wanna run                  
+ExtrapolationEngineTest.CollectSensitive        = True
+ExtrapolationEngineTest.CollectPassive          = True
+ExtrapolationEngineTest.CollectBoundary         = True
+ExtrapolationEngineTest.CollectMaterial         = True
+# the path limit to test                        
+ExtrapolationEngineTest.PathLimit               = -1.
 # give it the engine
-ExtrapolationEngineTest.ExtrapolationEngine = ExtrapolationEninge
+ExtrapolationEngineTest.ExtrapolationEngine     = ExtrapolationEninge
+# validation tool 
+ExtrapolationEngineTest.PositionMomentumWriter  = PmWriter
 # output formatting
-ExtrapolationEngineTest.OutputLevel         = ExAlgorithmOutputLevel
+ExtrapolationEngineTest.OutputLevel             = ExAlgorithmOutputLevel
 job += ExtrapolationEngineTest   # 1 alg, named 'ExtrapolationEngineTest'
 
 
