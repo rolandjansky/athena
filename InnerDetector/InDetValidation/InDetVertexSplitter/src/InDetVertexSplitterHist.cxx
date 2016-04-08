@@ -31,7 +31,10 @@
 /// Constructor
 
 InDet::InDetVertexSplitterHist::InDetVertexSplitterHist(const std::string& name,
-  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_thistSvc("THistSvc",name)
+  ISvcLocator* pSvcLocator) : 
+  AthAlgorithm(name, pSvcLocator), 
+  m_thistSvc("THistSvc",name),
+  m_ntuple(0)
 {
   declareProperty("SpitVxContainer",m_splitVxName = "SplitVxCandidates");
   declareProperty("HistService",m_thistSvc);

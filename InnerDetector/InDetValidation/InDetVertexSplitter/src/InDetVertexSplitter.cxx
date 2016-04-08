@@ -38,7 +38,13 @@
 /// Constructor
 
 InDet::InDetVertexSplitter::InDetVertexSplitter(const std::string& name,
-  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator){
+  ISvcLocator* pSvcLocator) : 
+  AthAlgorithm(name, pSvcLocator),
+  isMatchedOdd(false),
+  isUnmatchOdd(false),
+  addToVxMatched(0),
+  addToVxUnmatch(0),
+  eventN(0){
 
   /// switches to control the analysis through job options
   declareProperty("TPBContainerName", m_tpbContainerName = "TrackParticleCandidate");
