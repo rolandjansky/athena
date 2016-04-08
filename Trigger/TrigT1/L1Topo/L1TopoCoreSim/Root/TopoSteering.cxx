@@ -68,6 +68,8 @@ TopoSteering::reset() {
    ClusterTOB::clearHeap();
    JetTOB::clearHeap();
    MuonTOB::clearHeap();
+   LateMuonTOB::clearHeap();
+   MuonNextBCTOB::clearHeap();
    MetTOB::clearHeap();
    GenericTOB::clearHeap();
    CompositeTOB::clearHeap();
@@ -129,6 +131,7 @@ TopoSteering::executeEvent() {
       TCS_EXCEPTION("L1Topo Steering has not been configured, can't run");
    }
 
+   TRG_MSG_INFO("LateMuonTOB::heap().size = "<<LateMuonTOB::heap().size());
    inputEvent().print();
          
    // execute all connectors
@@ -172,6 +175,10 @@ TopoSteering::executeTrigger(const std::string & TrigName) {
 StatusCode
 TopoSteering::executeConnector(TCS::Connector *conn) {
 
+   if (conn == NULL) {
+     return StatusCode::FAILURE;
+   }
+
    // caching
    if(conn->isExecuted())
       return conn->executionStatusCode();
@@ -200,6 +207,10 @@ TopoSteering::executeConnector(TCS::Connector *conn) {
 StatusCode
 TopoSteering::executeInputConnector(TCS::InputConnector *conn) {
 
+   if (conn == NULL) {
+     return StatusCode::FAILURE;
+   }
+
    StatusCode sc(StatusCode::SUCCESS);
 
    // attaching data from inputEvent to input connector, depending on the configured input type
@@ -217,6 +228,10 @@ TopoSteering::executeInputConnector(TCS::InputConnector *conn) {
 
 StatusCode
 TopoSteering::executeSortingConnector(TCS::SortingConnector *conn) {
+
+   if (conn == NULL) {
+     return StatusCode::FAILURE;
+   }
 
    StatusCode sc = StatusCode::SUCCESS;
   
@@ -241,6 +256,10 @@ TopoSteering::executeSortingConnector(TCS::SortingConnector *conn) {
 
 StatusCode
 TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
+
+   if (conn == NULL) {
+     return StatusCode::FAILURE;
+   }
 
    StatusCode sc = StatusCode::SUCCESS;
   
@@ -308,8 +327,11 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
    for(const Connector* inConn: inputConnectors)
    {
       const SortingConnector * sc = dynamic_cast<const SortingConnector *>(inConn);
+      if (sc==NULL) {
+	 TCS_EXCEPTION("L1Topo Steering: Decision algorithm " << alg->name() << " could not cast as SortingConnector* the input connector " << inConn->name());
+      }
       const TOBArray * tobA = dynamic_cast<const TOBArray *>( sc->outputData());
-      if(tobA==0) {
+      if(tobA==NULL) {
          TCS_EXCEPTION("L1Topo Steering: Decision algorithm " << alg->name() << " expects TOBArray(s) as input, but did not get it from connector " << inConn->name());
       }
       input.push_back( tobA );
@@ -330,6 +352,8 @@ TopoSteering::printDebugInfo() {
    TRG_MSG_INFO("Number of JetTOB      : " << JetTOB::instances() <<  " (" << JetTOB::heap().size() << " on the heap)");
    TRG_MSG_INFO("Number of GenericTOB  : " << GenericTOB::instances() <<  " (" << GenericTOB::heap().size() << " on the heap)");
    TRG_MSG_INFO("Number of CompositeTOB: " << CompositeTOB::instances() <<  " (" << CompositeTOB::heap().size() << " on the heap)");
+   TRG_MSG_INFO("Number of MuonTOB     : " << MuonTOB::instances() <<  " (" << MuonTOB::heap().size() << " on the heap)");
+   TRG_MSG_INFO("Number of LateMuonTOB : " << LateMuonTOB::instances() <<  " (" << LateMuonTOB::heap().size() << " on the heap)");
 }
 
 
