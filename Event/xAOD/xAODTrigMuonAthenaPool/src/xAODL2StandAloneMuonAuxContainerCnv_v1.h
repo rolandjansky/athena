@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
+// $Id: xAODL2StandAloneMuonAuxContainerCnv_v1.h 707606 2015-11-12 19:59:49Z krasznaa $
 #ifndef XAODTRIGMUONATHENAPOOL_XAODL2STANDALONEMUONAUXCONTAINERCNV_V1_H
 #define XAODTRIGMUONATHENAPOOL_XAODL2STANDALONEMUONAUXCONTAINERCNV_V1_H
 
@@ -23,8 +23,8 @@
 ///
 /// @author sss
 ///
-/// $Revision:$
-/// $Date: $
+/// $Revision: 707606 $
+/// $Date: 2015-11-12 20:59:49 +0100 (Thu, 12 Nov 2015) $
 ///
 class xAODL2StandAloneMuonAuxContainerCnv_v1 :
    public T_AthenaPoolTPCnvBase< xAOD::L2StandAloneMuonAuxContainer,
