@@ -5,7 +5,7 @@
 Dumps the beam spot parameters to a text (ascii) file
 """
 __author__  = 'Peter Loscutoff'
-__version__ = '$Id$'
+__version__ = '$Id $'
 __usage__   = 'plotBeamSpotVxVal.py [options] bs.nt.root split.nt.root'
 
 import sys, os
@@ -157,7 +157,7 @@ for entry in xrange(entries):
 bsfile.cd()
 if gDirectory.Get('Vertices'):
     vxtree = gDirectory.Get('Vertices')
-elif gDirecotry.Get('Beamspot/Vertices'):
+elif gDirectory.Get('Beamspot/Vertices'):
     vxtree = gDirectory.Get('Beamspot/Vertices')
 entries = vxtree.GetEntriesFast()
 for entry in xrange(entries):
@@ -257,7 +257,7 @@ sumwx=0
 bsfile.cd()
 if gDirectory.Get('BeamSpotNt'):
     bstree = gDirecotry.Get('BeamSpotNt')
-elif gDirecotry.Get('Beamspot/Beamspots'):
+elif gDirectory.Get('Beamspot/Beamspots'):
     bstree = gDirectory.Get('Beamspot/Beamspots')
 #bstree = gDirectory.Get("BeamSpotNt")
 entries = bstree.GetEntriesFast()

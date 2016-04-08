@@ -8,4 +8,4 @@ touch $log
 source /afs/cern.ch/user/a/atlidbs/cron/cronsetup.sh   >> $log 2>&1
 cd /afs/cern.ch/user/a/atlidbs/jobs
 
-beamspotman.py -b -t IndetBeampos-ES1-UPD2 --runtaskname DB_BEAMSPOT runMonJobs 86400    >> $log 2>&1
+beamspotman.py -b -t IndetBeampos-RUN2-ES1-UPD2 --runtaskname DB_BEAMSPOT runMonJobs 86400    >> $log 2>&1

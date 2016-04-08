@@ -5,7 +5,7 @@
 This module defines miscellaneous utility functions.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id$'
+__version__ = '$Id $'
 
 import os, re
 

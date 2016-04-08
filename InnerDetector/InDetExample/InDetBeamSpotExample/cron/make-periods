@@ -21,6 +21,8 @@ echo "" >> $log 2>&1
 echo "Making plot for last week" >> $log 2>&1
 plotdir=/afs/cern.ch/user/a/atlidbs/nt/webplots/
 plotname=$plotdir/summary-weekly-tmp
+echo "Running command:" >> $log
+echo "beamspotnt.py -b -f /afs/cern.ch/user/a/atlidbs/nt/cool/beamspotnt-COOL-Current.root -o $plotname.eps,$plotname.pdf,$plotname.gif --perioddef /afs/cern.ch/user/a/atlidbs/nt/DataPeriods --period data_latest.LastWeek --timeaxis summary" >> $log
 beamspotnt.py -b -f /afs/cern.ch/user/a/atlidbs/nt/cool/beamspotnt-COOL-Current.root -o $plotname.eps,$plotname.pdf,$plotname.gif --perioddef /afs/cern.ch/user/a/atlidbs/nt/DataPeriods --period data_latest.LastWeek --timeaxis summary >> $log 2>&1
 mv $plotname.eps $plotdir/summary-weekly.eps >> $log 2>&1
 mv $plotname.pdf $plotdir/summary-weekly.pdf >> $log 2>&1

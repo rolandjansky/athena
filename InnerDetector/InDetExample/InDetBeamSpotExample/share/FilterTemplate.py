@@ -1,10 +1,10 @@
-# $Id$
+# $Id $
 #
 # JobRunner templates to filter AOD files and write out the selected events.
 #
 # Written by Juerg Beringer in December 2010.
 #
-print "InDetBeamSpotExample INFO Using $Id$"
+print "InDetBeamSpotExample INFO Using $Id $"
 
 
 # Default values (please put a default for EACH jobConfig parameter

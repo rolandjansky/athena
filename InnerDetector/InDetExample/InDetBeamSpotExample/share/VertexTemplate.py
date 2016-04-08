@@ -1,11 +1,11 @@
-# $Id: VertexTemplate.py 654065 2015-03-13 20:50:56Z btamadio $
+# $Id: VertexTemplate.py 676524 2015-06-18 22:35:05Z mhance $
 #
 # Top-level job options file to run the vertex-based beamspot algorithm
 # from AOD files using a JobRunner.
 #
 # Written by Juerg Beringer in July 2008.
 #
-print "InDetBeamSpotExample INFO Using $Id: VertexTemplate.py 654065 2015-03-13 20:50:56Z btamadio $"
+print "InDetBeamSpotExample INFO Using $Id: VertexTemplate.py 676524 2015-06-18 22:35:05Z mhance $"
 
 # Default values (please put a default for EACH jobConfig parameter
 # so that the template can be used easily without JobRunner)
@@ -18,8 +18,8 @@ if not 'outputfileprefix' in jobConfig:              jobConfig['outputfileprefix
 if not 'outputfile' in jobConfig:                    jobConfig['outputfile'] = jobConfig['outputfileprefix']+'beamspot.db'
 if not 'histfile' in jobConfig:                      jobConfig['histfile'] = jobConfig['outputfileprefix']+'nt.root'
 if not 'jobpostprocsteps' in jobConfig:              jobConfig['jobpostprocsteps'] = 'MergeNt PlotBeamSpot LinkResults AveBeamSpot DQBeamSpot'
-if not 'doMonitoring' in jobConfig:                  jobConfig['doMonitoring'] = False
-if not 'VertexNtuple' in jobConfig:             jobConfig['VertexNtuple'] = True
+if not 'doMonitoring' in jobConfig:                  jobConfig['doMonitoring'] = True
+if not 'VertexNtuple' in jobConfig:                  jobConfig['VertexNtuple'] = True
 if not 'WriteAllVertices' in jobConfig:              jobConfig['WriteAllVertices'] = False
 if not 'VertexTreeName' in jobConfig:                jobConfig['VertexTreeName'] = 'Vertices'
 if not 'BeamSpotToolList' in jobConfig:              jobConfig['BeamSpotToolList'] = ['InDetBeamSpotRooFit','InDetBeamSpotVertex']
@@ -58,17 +58,20 @@ if not 'SetInitialRMS' in jobConfig:                 jobConfig['SetInitialRMS'] 
 if not 'OutlierChi2Tr' in jobConfig:                 jobConfig['OutlierChi2Tr'] = 20.
 if not 'BeamSpotToolList' in jobConfig:              jobConfig['BeamSpotToolList'] = ['InDetBeamSpotRooFit','InDetBeamSpotVertex']
 
+#Fit Options for RooFit only
+if not 'RooFitMaxTransverseErr' in jobConfig:        jobConfig['RooFitMaxTransverseErr'] = 0.05
+
 # General job setup
 include("InDetBeamSpotExample/AutoConfFragment.py")
 include("InDetBeamSpotExample/ReadInDetRecFragment.py")
 include("InDetBeamSpotExample/JobSetupFragment.py")
 
-#if 'UseBCID' in jobConfig:
+# if 'UseBCID' in jobConfig:
 #     import InDetBeamSpotExample.FilterUtils as FilterUtils
 #     FilterUtils.filterSeq += FilterUtils.BCIDFilter(jobConfig['bcidList'])
-# if 'lbList' in jobConfig:
-#     import InDetBeamSpotExample.FilterUtils as FilterUtils
-#     FilterUtils.filterSeq += FilterUtils.LBFilter(jobConfig['lbList'])
+if 'lbList' in jobConfig:
+    import InDetBeamSpotExample.FilterUtils as FilterUtils
+    FilterUtils.filterSeq += FilterUtils.LBFilter(jobConfig['lbList'])
 # if 'lbData' in jobConfig:
 #     import InDetBeamSpotExample.FilterUtils as FilterUtils
 #     FilterUtils.filterSeq += FilterUtils.LumiBlockFilter(jobConfig['lbData'])
@@ -94,7 +97,8 @@ ToolSvc += CfgMgr.InDet__InDetBeamSpotVertex(name            = 'InDetBeamSpotVer
 ToolSvc += CfgMgr.InDet__InDetBeamSpotRooFit(name            = 'InDetBeamSpotRooFit',
                                              OutputLevel     = min(INFO,jobConfig['outputlevel']),
                                              InitialKFactor  = jobConfig['InitialKFactor'],
-                                             ConstantKFactor = jobConfig['ConstantKFactor'])
+                                             ConstantKFactor = jobConfig['ConstantKFactor'],
+                                             vtxResCut       = jobConfig['RooFitMaxTransverseErr'])
 
 
 topSequence += CfgMgr.InDet__InDetBeamSpotFinder(name                = 'InDetBeamSpotFinder',
@@ -130,6 +134,9 @@ if jobConfig['UseFilledBCIDsOnly']:
      from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
      bunchCrossingTool =  BunchCrossingTool()
      #bunchCrossingTool.FilledBunchNames=[] 
+
+     # This tool is throwing tons of warnings for no good reason, make it quieter.
+     bunchCrossingTool.OutputLevel=ERROR
      topSequence.InDetBeamSpotFinder.BCTool = bunchCrossingTool
 
 print topSequence.InDetBeamSpotFinder
@@ -143,7 +150,7 @@ if jobConfig['doMonitoring']:
     include("InDetBeamSpotExample/MonitoringFragment.py")
 
 # Default postprocessing step(s)
-jobConfig['jobpostprocsteps'] += ' MergeNt PlotBeamSpot LinkResults AveBeamSpot DQBeamSpot'
+jobConfig['jobpostprocsteps'] += ' MergeNt BeamSpotNt PlotBeamSpot LinkResults AveBeamSpot DQBeamSpot'
 
 # Print jobConfig parameters
-#include("InDetBeamSpotExample/PrintConfFragment.py")
+include("InDetBeamSpotExample/PrintConfFragment.py")

@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
+# $Id $
 """
 Miscellaneous utilities related to get LHC-related information.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id$'
+__version__ = '$Id $'
 
 
 #

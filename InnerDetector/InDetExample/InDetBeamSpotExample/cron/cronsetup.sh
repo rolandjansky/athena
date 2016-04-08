@@ -4,7 +4,7 @@
 
 export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
 alias asetup='source $AtlasSetup/scripts/asetup.sh'
-source /afs/cern.ch/atlas/software/dist/AtlasSetup/scripts/asetup.sh --input  /afs/cern.ch/user/a/atlidbs/cron/asetup.cron slc5 
+source /afs/cern.ch/atlas/software/dist/AtlasSetup/scripts/asetup.sh --input  /afs/cern.ch/user/a/atlidbs/cron/asetup.cron
 export CMDSETUP='source /afs/cern.ch/atlas/software/dist/AtlasSetup/scripts/asetup.sh --input  /afs/cern.ch/user/a/atlidbs/cron/asetup.cron'
 
 export TASKDB='auth_file:/afs/cern.ch/user/a/atlidbs/private/beamspotdbinfo_w.dat'

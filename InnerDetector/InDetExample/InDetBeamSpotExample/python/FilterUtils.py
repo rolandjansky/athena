@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
+# $Id $
 """
 This library defines different classes for filtering events in athena.
 Intended for use in JobRunner templates.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id$'
+__version__ = '$Id $'
 
 
 # General setup

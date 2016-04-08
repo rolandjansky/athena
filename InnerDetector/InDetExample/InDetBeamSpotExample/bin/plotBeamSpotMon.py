@@ -5,7 +5,7 @@
 Plot histograms from beam spot monitoring file.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id$'
+__version__ = '$Id $'
 __usage__   = '%prog [options] beamspotmonitoring.root'
 
 import os
@@ -86,7 +86,10 @@ for hname in ['trkDPhi', 'trkDPhiCorr',
     print 'Processing histogram',hname
     ROOT.gStyle.SetOptStat(hDef[hname].get('stats',0))
     h = mon.Get(mondir+hname)
-    h.Draw(hDef[hname].get('opts',''))
+    if h != None:
+        h.Draw(hDef[hname].get('opts',''))
+    else:
+        print "... no histogram with name %s" % hname
     c.Modified()
     c.Update()
     nc += 1

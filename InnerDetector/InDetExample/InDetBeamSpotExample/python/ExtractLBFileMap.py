@@ -136,7 +136,8 @@ def extract(dirs, filter, prefix = True):
                 sc = 1
                 pass
 
-            f.Close()
+            if not "eos" in arg and not "eos" in fileName:
+                f.Close()
         
         except Exception, e:
             print "## Caught exception [%s] !!" % str(e.__class__)

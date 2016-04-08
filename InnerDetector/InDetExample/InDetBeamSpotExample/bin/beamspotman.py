@@ -5,7 +5,7 @@
 beamspotman is a command line utility to do typical beam spot related tasks.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotman.py 622207 2014-10-16 17:54:05Z mhance $'
+__version__ = '$Id: beamspotman.py 676234 2015-06-18 00:29:52Z mhance $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -70,12 +70,13 @@ from optparse import OptionParser
 parser = OptionParser(usage=__usage__, version=__version__)
 parser.add_option('-t', '--beamspottag', dest='beamspottag', default=beamspottag, help='beam spot tag')
 parser.add_option('-c', '--castorpath', dest='castorpath', default='/castor/cern.ch/grid/atlas/tzero/prod1/perm', help='castor path (excluding project and stream name)')
+parser.add_option('-e', '--eospath', dest='eospath', default='/eos/atlas/atlastier0/rucio', help='eos path (excluding project and stream name)')
 parser.add_option('-p', '--project', dest='project', default='data10_7TeV', help='project name')
 parser.add_option('-s', '--stream', dest='stream', default='expres_express', help='stream name')
 parser.add_option('-f', '--filter', dest='filter', default='.*\.ESD\..*', help='regular expression to filter input files')
 parser.add_option('-d', '--dbconn', dest='dbconn', default='', help='task manager database connection string (default: check TASKDB, otherwise use sqlite_file:taskdata.db)')
 parser.add_option('', '--proddir', dest='proddir', default=proddir, help='production directory (default: %s' % proddir)
-parser.add_option('', '--destdbname', dest='destdbname', default='COMP200', help='destination database instance name (default: COMP200)')
+parser.add_option('', '--destdbname', dest='destdbname', default='CONDBR2', help='destination database instance name (default: CONDBR2)')
 parser.add_option('', '--srcdbname', dest='srcdbname', default='BEAMSPOT', help='source database instance name (default: BEAMSPOT)')
 parser.add_option('', '--srctag', dest='srctag', default='nominal', help='source tag (default: nominal)')
 parser.add_option('-r', '--runjoboptions', dest='runjoboptions', default='InDetBeamSpotExample/VertexTemplate.py', help='template to run beam spot jobs')
@@ -99,7 +100,7 @@ parser.add_option('', '--params', dest='params', default='', help='job option pa
 parser.add_option('-z', '--postprocsteps', dest='postprocsteps', default='JobPostProcessing', help='Task-level postprocessing steps (Default: JobPostProcessing)')
 parser.add_option('', '--srcdqtag', dest='srcdqtag', default='nominal', help='source DQ tag (default: nominal)')
 parser.add_option('', '--dqtag', dest='dqtag', default='HEAD', help='beam spot DQ tag')
-parser.add_option('', '--destdqdbname', dest='destdqdbname', default='COMP200', help='DQ destination database instance name (default: COMP200)')
+parser.add_option('', '--destdqdbname', dest='destdqdbname', default='CONDBR2', help='DQ destination database instance name (default: CONDBR2)')
 parser.add_option('', '--srcdqdbname', dest='srcdqdbname', default='IDBSDQ', help='DQ source database instance name (default: IDBSDQT)')
 parser.add_option('', '--dslist', dest='dslist', default='', help='Exclude running cmd with runCmd if the dataset is not in this file')
 parser.add_option('', '--nominbias', dest='nominbias', action='store_true', default=False, help='overwrite MinBias_physics in DSNAME with express_express')
@@ -136,8 +137,14 @@ else:
 #
 # Utilities
 #
+def getFullEosPath(run):
+    eosPath = '/'.join([options.eospath,options.project,options.stream])
+    return os.path.normpath('/'.join([eosPath,'%08i' % int(run)])) + '/'
+
 def getFullCastorPath(run):
     """Return full castor path given a run number."""
+    if run>240000:
+        return getFullEosPath(run)
     castorPath = '/'.join([options.castorpath,options.project,options.stream])
     return os.path.normpath('/'.join([castorPath,'%08i' % int(run)])) + '/'   # Run numbers are now 8 digits in castor paths
     #return '/'.join([castorPath,'%07i' % int(run)])   # For now, run numbers are 7 digits in castor paths
@@ -228,18 +235,24 @@ if cmd=='run' and len(args)==3:
 if cmd=='runMon' and len(args)==3:
     run = args[1]
     tag = args[2]
-    c = getFullCastorPath(run)
 
     datasets = []
-    pattern = re.compile(options.filter+tag+'.*')
-    for p in DiskUtils.filelist(c):
-        f = p.split('/')[-1]
-        if pattern.search(f):
-            datasets.append(f)
-    if len(datasets)!=1:
-        print 'ERROR: %i datasets found (if ambiguous, use full TAG to uniquely identify dataset)' % len(datasets)
-        sys.exit(1)
-    dsname = '.'.join(datasets[0].split('.')[:3])
+    c=''
+    if options.filelist == None:
+        c = getFullCastorPath(run)
+
+        pattern = re.compile(options.filter+tag+'.*')
+        for p in DiskUtils.filelist(c):
+            f = p.split('/')[-1]
+            if pattern.search(f) and ('.TMP.log' not in f):
+                datasets.append(f)
+        if len(datasets)!=1:
+            print 'ERROR: %i datasets found (if ambiguous, use full TAG to uniquely identify dataset)' % len(datasets)
+            sys.exit(1)
+        dsname = '.'.join(datasets[0].split('.')[:3])
+    else:
+        datasets.append(options.filelist.rstrip())
+        dsname=options.project+'.'+run+'.'+options.stream
 
     if not options.beamspottag:
         sys.exit('ERROR: No beam spot tag specified')
@@ -249,10 +262,19 @@ if cmd=='runMon' and len(args)==3:
         # NOTE: We pass along the filter setting, but currently we can do --lbperjob only for ESD since for
         #       other data sets we have only the merged files.
         os.system('runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,datasets[0]])))
+    elif options.filelist != None:
+        lbinfoinfiles=True
+        for line in open(options.filelist,'r'):
+            if "lb" not in line: 
+                lbinfoinfiles=False
+                break
+        lboptions='--lbperjob 10' if lbinfoinfiles else '-n 10'
+        cmd = 'runJobs.py %s -f \'%s\' -p "useBeamSpot=True, beamspottag=\'%s\', tracksAlreadyOnBeamLine=True" %s %s %s.%s %s' % (lboptions,options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,datasets[0])
+        print cmd
+        os.system(cmd)
     else:
-        # Before we could use --lbperjob on AOD:
-        #os.system('runJobs.py -n 2 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,datasets[0]])))
-        os.system('runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,datasets[0]])))
+        cmd = 'runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,datasets[0]]))
+        os.system(cmd)
         
     sys.exit(0)
 
@@ -534,7 +556,7 @@ if cmd=='queryT0' and len(args)==3:
     cur = oracle.cursor()
     try:
         #sql = str("SELECT status FROM etask WHERE taskname='%s' AND creationtime>sysdate-10" % t0TaskName)  # Oracle doesn't want unicode
-        sql = str("SELECT status FROM etask WHERE taskname='%s' AND tasktype='beamspotproc'" % t0TaskName)  # Oracle doesn't want unicode
+        sql = str("SELECT status FROM tasks WHERE taskname='%s' AND tasktype='beamspotproc'" % t0TaskName)  # Oracle doesn't want unicode
         cur.execute(sql)
         r = cur.fetchall()
     except Exception,e:
@@ -703,8 +725,9 @@ if cmd=='runMonJobs' and len(args)<3:
         ptag = dsname.split('.')[0]
         stream = dsname.split('.')[2]
         taskName = t['TASKNAME']
-        datatag = taskName.split('.')[-1].split('_')[0]
-        monTaskName = 'MON.%s.%s' % (taskName,datatag)
+        fulldatatag = taskName.split('.')[-1]
+        datatag = fulldatatag.split('_')[0]
+        monTaskName = 'MON.%s' % (taskName)
 
         # Now that beamspot folder tag can change, the tag to be monitored must be the one the parent task uploaded to.
         # If more than one tag (might be case if upload to current/next) then take first (should be same)
@@ -720,16 +743,40 @@ if cmd=='runMonJobs' and len(args)<3:
             t0dsname = '%s.recon.ESD.%s' % (dsname,datatag)   # For running over ESD
         print '\nRunning monitoring job for run %s:' % runnr
 
-        print '... Querying T0 database for replication of %s' % t0dsname
-        cur = oracle.cursor()
-        cur.execute("select DATASETNAME,PSTATES from DATASET where DATASETNAME like '%s' and PSTATES like '%%replicate:done%%'" % t0dsname)
-        r = cur.fetchall()
-        if not r:
-            print '    WARNING: input data not yet replicated - please retry later'
+        submitjob=True
+        eospath=options.eospath
+        # for old runs we would need to check if the dataset had been replicated at Tier-0.  
+        # with EOS this is no longer necessary.
+        r=[]
+        if int(runnr)<240000:
+            print '... Querying T0 database for replication of %s' % t0dsname
+            cur = oracle.cursor()
+            cur.execute("select DATASETNAME,PSTATES from DATASET where DATASETNAME like '%s' and PSTATES like '%%replicate:done%%'" % t0dsname)
+            r = cur.fetchall()
+            if not r:
+                print '    WARNING: input data not yet replicated - please retry later'
+                submitjob=False
         else:
-            print '   ',r
+            print '... Querying T0 database for completion of merging jobs of %s' % t0dsname
+            cur = oracle.cursor()
+            origt0TaskName='%s.recon.AOD.%s%%.aodmerge.task' % (dsname,datatag)
+            cur.execute("select status from tasks where taskname like '%s' and tasktype='aodmerge'" % origt0TaskName)
+            r = cur.fetchall()
+            if not r:
+                print '    WARNING: can\'t get status of merge job for %s, running on un-merged samples instead' % origt0TaskName
+                eospath='/eos/atlas/atlastier0/tzero/prod'
+            elif not (r[0][0]=='FINISHED' or r[0][0]=='TRUNCATED'):
+                print '    Merge job for taskname %s is not finished yet, has status %s, running on un-merged samples instead.' % (origt0TaskName, r[0][0])
+                eospath='/eos/atlas/atlastier0/tzero/prod'
+            else:
+                print '    Merge job is finished, launching jobs.'
+            submitjob=True
+
+        if submitjob:
+            if int(runnr)<240000:
+                print '   ',r
             print '... Submitting monitoring task'
-            cmd = 'beamspotman.py -p %s -s %s -f \'.*\\.%s\\..*\' -t %s --montaskname %s runMon %i %s' % (ptag,stream,filter,bstag,'MON.'+taskName,int(runnr),datatag)
+            cmd = 'beamspotman.py --eospath=%s -p %s -s %s -f \'.*\\.%s\\..*\' -t %s --montaskname %s runMon %i %s' % (eospath,ptag,stream,filter,bstag,'MON.'+taskName,int(runnr),datatag)
             print '    %s' % cmd
             sys.stdout.flush()
             status = os.system(cmd) >> 8   # Convert to standard Unix exit code
@@ -1146,7 +1193,7 @@ if cmd=='runaod' and len(args)==5:
                                            inputfiles=files,
                                            joboptionpath=jobopts,
                                            filesperjob=len(files),
-                                           batchqueue='atlasb1_long', #'2nd' if options.pseudoLbFile else 'atlasb1', # run on different queue for VdM scans to avoid cloggin up normal queue # '1nw'
+                                           batchqueue='atlasb1', #'2nd' if options.pseudoLbFile else 'atlasb1', # run on different queue for VdM scans to avoid cloggin up normal queue # '1nw'
                                            addinputtopoolcatalog=True,
                                            taskpostprocsteps=options.postprocsteps,
                                            autoconfparams='DetDescrVersion',
@@ -1194,8 +1241,10 @@ if cmd=='dqflag' and len(args)==2:
         batchmode = ''
 
     print
+    cmd = 'dq_defect_copy_defect_database.py --intag %s --outtag %s "sqlite://;schema=%s;dbname=%s" "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=%s;"' %(options.srcdqtag, options.dqtag, dbfile[0], options.srcdqdbname, options.destdqdbname) 
+    print cmd
 
-    stat = os.system('dq_defect_copy_defect_database.py --intag %s --outtag %s "sqlite://;schema=%s;dbname=%s" "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=%s;"' %(options.srcdqtag, options.dqtag, dbfile[0], options.srcdqdbname, options.destdqdbname) )
+    stat = os.system(cmd)
 
     # Old DQ flags
     #stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s %s --folder /GLOBAL/DETSTATUS/SHIFTOFL --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_GLOBAL_W %s' % (batchmode,ignoremode,options.srcdqtag,options.dqtag,options.destdqdbname,dbfile,options.srcdqdbname,passwd))
@@ -1241,7 +1290,9 @@ if cmd=='dqflag' and len(args)==3:
     else:
         batchmode = ''
 
-    stat = os.system('dq_defect_copy_defect_database.py --intag %s --outtag %s "sqlite://;schema=%s;dbname=%s" "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=%s;"' %(options.srcdqtag, options.dqtag, dbfile[0], options.srcdqdbname, options.destdqdbname) )
+    cmd = 'dq_defect_copy_defect_database.py --intag %s --outtag %s "sqlite://;schema=%s;dbname=%s" "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=%s;"' %(options.srcdqtag, options.dqtag, dbfile[0], options.srcdqdbname, options.destdqdbname) 
+    print "Running %s" % cmd
+    stat = os.system(cmd)
 
     # Old DQ flags
     #stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail  %s %s --folder /GLOBAL/DETSTATUS/SHIFTOFL --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_GLOBAL_W %s' % (batchmode,ignoremode,options.srcdqtag,options.dqtag,options.destdqdbname,dbfile[0],options.srcdqdbname,passwd))
