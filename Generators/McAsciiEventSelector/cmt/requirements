@@ -7,10 +7,14 @@ use AtlasPolicy 	AtlasPolicy-*
 ## For Gaudi tools, services and objects
 use GaudiInterface 	GaudiInterface-* 	External
 
-use SGTools	   	SGTools-* 		Control
-use EventInfo		EventInfo-*		Event
 
+private
+use SGTools	   	SGTools-* 		Control
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use EventInfo		EventInfo-*		Event
 use McParticleKernel	McParticleKernel-*	PhysicsAnalysis/TruthParticleID
+end_private
+
 
 branches src src/components doc python share
 
