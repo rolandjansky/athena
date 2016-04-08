@@ -11,6 +11,7 @@
 
 class TH1F_LW;
 class TH2F_LW;
+class TProfile_LW;
 
 namespace Trk {
   class VxCandidate;
@@ -37,6 +38,10 @@ protected:
         TH1F_LW* m_hPvNPriVtx;
         TH1F_LW* m_hPvNPileupVtx;
 
+        TProfile_LW* m_hPvN_LB;
+    
+        TH2F_LW* m_hPvNaveMu;
+    
         TH1F_LW* m_hPvX;
         TH1F_LW* m_hPvY;
         TH1F_LW* m_hPvZ;

@@ -35,31 +35,32 @@ InDetGlobalBeamSpotMonTool::InDetGlobalBeamSpotMonTool( const std::string & type
   :InDetGlobalMotherMonTool( type, name, parent ),
    m_beamCondSvc("BeamCondSvc",name),
    m_hasBeamCondSvc(false),
-   m_hTrNPt(0),
-   m_hTrPt(0),
-   m_hTrDPhi(0),
-   m_hBsX(0),
-   m_hBsY(0),
-   m_hBsZ(0),
-   m_hBsTiltX(0),
-   m_hBsTiltY(0),
-   m_hPvN(0),
-   m_hPvNPriVtx(0),
-   m_hPvNPileupVtx(0),
-   m_hPvX(0),
-   m_hPvY(0),
-   m_hPvZ(0),
-   m_hPvErrX(0),
-   m_hPvErrY(0),
-   m_hPvErrZ(0),
-   m_hPvChiSqDoF(0),
-   m_hPvXZ(0),
-   m_hPvYZ(0),
-   m_hPvYX(0),
-   m_hPvNTracksAll(0),
-   m_hPvNTracks(0),
-   m_hPvTrackPt(0),
-   m_hPvTrackEta(0)
+   m_hTrNPt(nullptr),
+   m_hTrPt(nullptr),
+   m_hTrDPhi(nullptr),
+   m_hTrDPhiCorr(nullptr),
+   m_hBsX(nullptr),
+   m_hBsY(nullptr),
+   m_hBsZ(nullptr),
+   m_hBsTiltX(nullptr),
+   m_hBsTiltY(nullptr),
+   m_hPvN(nullptr),
+   m_hPvNPriVtx(nullptr),
+   m_hPvNPileupVtx(nullptr),
+   m_hPvX(nullptr),
+   m_hPvY(nullptr),
+   m_hPvZ(nullptr),
+   m_hPvErrX(nullptr),
+   m_hPvErrY(nullptr),
+   m_hPvErrZ(nullptr),
+   m_hPvChiSqDoF(nullptr),
+   m_hPvXZ(nullptr),
+   m_hPvYZ(nullptr),
+   m_hPvYX(nullptr),
+   m_hPvNTracksAll(nullptr),
+   m_hPvNTracks(nullptr),
+   m_hPvTrackPt(nullptr),
+   m_hPvTrackEta(nullptr)
 {
   declareProperty("beamCondSvc",m_beamCondSvc);
   declareProperty("useBeamspot",m_useBeamspot=true);
@@ -112,7 +113,7 @@ StatusCode InDetGlobalBeamSpotMonTool::bookHistogramsRecurrent() {
   if( newRun ) {
 
     // Histograms for track-based beam spot monitoring
-    m_hTrDPhi       = makeAndRegisterTH2F(al_beamspot_shift,"trkDPhi","DCA vs Phi;#varphi (rad);d_{0} (mm)",100,-3.5,3.5,100,-10,10);
+    m_hTrDPhi       = makeAndRegisterTH2F(al_beamspot_shift,"trkDPhi","DCA vs Phi;#varphi (rad);d_{0} (#mum)",100,-3.5,3.5,100,-1000,1000);
 
     m_hTrPt         = makeAndRegisterTH1F(al_beamspot_expert,"trkPt","Track Pt;P_{t} (GeV)",100,0,20);
     m_hTrNPt        = makeAndRegisterTH1F(al_beamspot_expert,"trkNPt","Number of Tracks per event (after Pt cut);Number of tracks",100,0,1000);
@@ -229,7 +230,7 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
     }
 
     nTracks++;
-    m_hTrDPhi->Fill(phi0,d0);
+    m_hTrDPhi->Fill(phi0,d0*1e3);
 
     // Currently we do the direct calculation of d0corr. We could
     // also use an extrapolator to calculate d0 wrt a
