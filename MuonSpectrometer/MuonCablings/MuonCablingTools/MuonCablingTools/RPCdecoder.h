@@ -16,8 +16,8 @@ class RPCdecoder
     enum value_type {Strip_Type,Logic_Sector,LVL1_Station,RPC_Layer};
 
     private:
-    static const int value_boundaries[4][2];
-    static const char value_descriptions[4][15];
+    static const int s_value_boundaries[4][2];
+    static const char s_value_descriptions[4][15];
 
     private:
     bool m_fail;

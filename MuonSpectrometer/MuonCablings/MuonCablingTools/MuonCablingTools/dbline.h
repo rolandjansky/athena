@@ -322,17 +322,17 @@ class DBline: virtual public std::ios
     bool check_data(void);
 
     // Private member to manage the I/O format
-    DBfmt* dbfmt_hex;
-    DBfmt* dbfmt_oct;
-    DBfmt* dbfmt_dec;
-    bool del_dbfmt;
+    DBfmt* m_dbfmt_hex;
+    DBfmt* m_dbfmt_oct;
+    DBfmt* m_dbfmt_dec;
+    bool m_del_dbfmt;
 
     public:
 
     DBline();
     DBline(std::ifstream& file);
     DBline(std::istream& stream);
-    ~DBline() {delete dbfmt_hex; delete dbfmt_oct; delete dbfmt_dec;}
+    ~DBline() {delete m_dbfmt_hex; delete m_dbfmt_oct; delete m_dbfmt_dec;}
     
     // Function to connect input file/stream
     void connect(std::ifstream& file);

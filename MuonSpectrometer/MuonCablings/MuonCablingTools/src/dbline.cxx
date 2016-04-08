@@ -318,7 +318,7 @@ DBline& DBline::operator>> (DBfmt* f) {
   if (fmt == std::ios::hex) m_base = 16;
   else if (fmt == std::ios::oct) m_base = 8;
   else m_base = 10;
-  if(del_dbfmt)delete f;
+  if(m_del_dbfmt)delete f;
   return*this;
 }
 
@@ -415,13 +415,13 @@ DBline::DBline():
 	       std::ios::showpos   |
 	       std::ios::boolalpha  );
   m_default = flags();
-  dbfmt_hex = new DBfmt();
-  dbfmt_hex->setf(std::ios::hex,std::ios::basefield);
-  dbfmt_oct = new DBfmt();
-  dbfmt_oct->setf(std::ios::oct,std::ios::basefield);
-  dbfmt_dec = new DBfmt();
-  dbfmt_dec->setf(std::ios::dec,std::ios::basefield);
-  del_dbfmt = true;
+  m_dbfmt_hex = new DBfmt();
+  m_dbfmt_hex->setf(std::ios::hex,std::ios::basefield);
+  m_dbfmt_oct = new DBfmt();
+  m_dbfmt_oct->setf(std::ios::oct,std::ios::basefield);
+  m_dbfmt_dec = new DBfmt();
+  m_dbfmt_dec->setf(std::ios::dec,std::ios::basefield);
+  m_del_dbfmt = true;
 }
 
 DBline::DBline(ifstream& file): 
@@ -447,13 +447,13 @@ DBline::DBline(ifstream& file):
 	       std::ios::boolalpha  );
 	       
   m_default = flags();
-  dbfmt_hex = new DBfmt();
-  dbfmt_hex->setf(std::ios::hex,std::ios::basefield);
-  dbfmt_oct = new DBfmt();
-  dbfmt_oct->setf(std::ios::oct,std::ios::basefield);
-  dbfmt_dec = new DBfmt();
-  dbfmt_dec->setf(std::ios::dec,std::ios::basefield);
-  del_dbfmt = true;
+  m_dbfmt_hex = new DBfmt();
+  m_dbfmt_hex->setf(std::ios::hex,std::ios::basefield);
+  m_dbfmt_oct = new DBfmt();
+  m_dbfmt_oct->setf(std::ios::oct,std::ios::basefield);
+  m_dbfmt_dec = new DBfmt();
+  m_dbfmt_dec->setf(std::ios::dec,std::ios::basefield);
+  m_del_dbfmt = true;
 }
 
 DBline::DBline(istream& stream): 
@@ -479,13 +479,13 @@ DBline::DBline(istream& stream):
 	       std::ios::boolalpha  );
 	       
   m_default = flags();
-  dbfmt_hex = new DBfmt();
-  dbfmt_hex->setf(std::ios::hex,std::ios::basefield);
-  dbfmt_oct = new DBfmt();
-  dbfmt_oct->setf(std::ios::oct,std::ios::basefield);
-  dbfmt_dec = new DBfmt();
-  dbfmt_dec->setf(std::ios::dec,std::ios::basefield);
-  del_dbfmt = true;
+  m_dbfmt_hex = new DBfmt();
+  m_dbfmt_hex->setf(std::ios::hex,std::ios::basefield);
+  m_dbfmt_oct = new DBfmt();
+  m_dbfmt_oct->setf(std::ios::oct,std::ios::basefield);
+  m_dbfmt_dec = new DBfmt();
+  m_dbfmt_dec->setf(std::ios::dec,std::ios::basefield);
+  m_del_dbfmt = true;
 }
 
 DBline&
@@ -509,23 +509,23 @@ DBline::operator <<(istream &input)
 
 DBfmt* DBline::dbhex()
 {
-  return dbfmt_hex;
+  return m_dbfmt_hex;
 }
 
 DBfmt* DBline::dboct()
 {
-  return dbfmt_oct;
+  return m_dbfmt_oct;
 }
 
 DBfmt* DBline::dbdec()
 {
-  return dbfmt_dec;
+  return m_dbfmt_dec;
 }
 
 void DBline::setdbfmtflag(int delfl)
 {
-  if(delfl==0)del_dbfmt = false;
-  else del_dbfmt = true;
+  if(delfl==0)m_del_dbfmt = false;
+  else m_del_dbfmt = true;
   return; 
 }
 

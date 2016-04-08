@@ -10,13 +10,13 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const int RPCdecoder::value_boundaries[4][2] = {
+const int RPCdecoder::s_value_boundaries[4][2] = {
         {  1 ,  2 },  // Min-Max of strip_type value
         {  0 , 63 },  // Min-Max of logic_sector value
         {  1 ,  3 },  // Min-Max of station value
         {  0 ,  1 }   // Min_max of rpc_layer value
     };
-const char RPCdecoder::value_descriptions[4][15] =
+const char RPCdecoder::s_value_descriptions[4][15] =
         {{"strip_type"},{"logic_sector"},{"lvl1_station"},{"rpc_layer"}};
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,9 +90,9 @@ void
 RPCdecoder::fault_decoding(int value,value_type type)
 {
     __osstream disp;
-    disp << " RPC decoder error: received " << value_descriptions[type]
-         << " = " << value << "  (min = " << value_boundaries[type][0]
-         << ", max = " << value_boundaries[type][1] << ")"<< endl;
+    disp << " RPC decoder error: received " << s_value_descriptions[type]
+         << " = " << value << "  (min = " << s_value_boundaries[type][0]
+         << ", max = " << s_value_boundaries[type][1] << ")"<< endl;
 #ifdef LVL1_STANDALONE
     cout << disp.str();
 #else
@@ -103,8 +103,8 @@ RPCdecoder::fault_decoding(int value,value_type type)
 bool
 RPCdecoder::OK(int value,value_type type) const
 {
-    if(value >= value_boundaries[type][0] &&
-       value <= value_boundaries[type][1]   ) return true; 
+    if(value >= s_value_boundaries[type][0] &&
+       value <= s_value_boundaries[type][1]   ) return true; 
     return false;
 }
 
