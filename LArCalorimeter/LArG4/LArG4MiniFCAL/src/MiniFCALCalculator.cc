@@ -41,7 +41,7 @@ MiniFCALCalculator* MiniFCALCalculator::GetCalculator()
 //MiniFCALCalculator::~MiniFCALCalculator() {}
 
 MiniFCALCalculator::MiniFCALCalculator()
-  :m_identifier(),m_time(0),m_energy(0),m_isInTime(false)
+  :m_isInTime(false)
 {
    StoreGateSvc* detStore;
    LArG4GlobalOptions *globalOptions=NULL;
@@ -69,13 +69,15 @@ MiniFCALCalculator::MiniFCALCalculator()
 }
 
 
-G4bool MiniFCALCalculator::Process(const G4Step* a_step)
+G4bool MiniFCALCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
 {
+  // make sure hdata is reset
+  hdata.resize(1);
 
   // First, get the energy.
-  m_energy = a_step->GetTotalEnergyDeposit();
+  hdata[0].energy = a_step->GetTotalEnergyDeposit();
 
-  if(m_energy <= 0.)  return false;
+  if(hdata[0].energy <= 0.)  return false;
 
   // Find out how long it took the energy to get here.
   G4double timeOfFlight        = 0.5* (  a_step->GetPreStepPoint()->GetGlobalTime()
@@ -83,16 +85,15 @@ G4bool MiniFCALCalculator::Process(const G4Step* a_step)
   G4ThreeVector point          = 0.5* (  a_step->GetPreStepPoint()->GetPosition()
 				       + a_step->GetPostStepPoint()->GetPosition() );
 
-  m_time = timeOfFlight/CLHEP::ns - point.mag()/CLHEP::c_light/CLHEP::ns;
+  hdata[0].time = timeOfFlight/CLHEP::ns - point.mag()/CLHEP::c_light/CLHEP::ns;
 
-  if (m_time > m_OOTcut)
+  if (hdata[0].time > m_OOTcut)
     m_isInTime = false;
   else
     m_isInTime = true;
 
   // Calculate the identifier.
-  m_identifier = m_Geometry->CalculateIdentifier( a_step, LArG4::MiniFCAL::kActive);
-
+  hdata[0].id = m_Geometry->CalculateIdentifier( a_step, LArG4::MiniFCAL::kActive);
 
   return true;
 }
