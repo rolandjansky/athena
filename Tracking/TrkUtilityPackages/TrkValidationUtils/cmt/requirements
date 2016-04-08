@@ -1,0 +1,21 @@
+package TrkValidationUtils
+
+manager Niels van Eldik
+author  Niels van Eldik
+
+use AtlasPolicy           AtlasPolicy-*
+use GeoPrimitives         GeoPrimitives-*         DetectorDescription
+use EventPrimitives       EventPrimitives-*       Event
+use AtlasCLHEP            AtlasCLHEP-*            External
+
+private
+use AtlasROOT             AtlasROOT-*             External
+use TrkSurfaces           TrkSurfaces-*           Tracking/TrkDetDescr
+
+public
+library  TrkValidationUtils ../src/*.cxx
+apply_pattern installed_library
+	              
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
