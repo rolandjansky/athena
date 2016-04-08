@@ -44,13 +44,13 @@ TriggerFlags.readLVL1configFromXML=False
 #if  ('menu' in dir()):
    # TiriggerFlags.triggerMenuSetup=menu 
 
-include("TrigEgammaValidation/TrigEgammaValidation_RTT_Chains.py")
+#include("TrigEgammaValidation/TrigEgammaValidation_RTT_Chains.py") # uncomment to get used-defined trigger list
 
-egammatrigChainlist=electronChains() #Retrieve trigger menu to run from TrigEgammaValidation_RTT_Chains.py
+#egammatrigChainlist=electronChains() #Retrieve trigger menu to run from TrigEgammaValidation_RTT_Chains.py
 #TriggerFlags.triggerMenuSetup="MC_pp_v5"
 TriggerFlags.Slices_all_setOff()
 TriggerFlags.EgammaSlice.setAll()
-TriggerFlags.EgammaSlice.signatures = egammatrigChainlist
+#TriggerFlags.EgammaSlice.signatures = egammatrigChainlist
 
 
 TriggerFlags.doHLT=True
