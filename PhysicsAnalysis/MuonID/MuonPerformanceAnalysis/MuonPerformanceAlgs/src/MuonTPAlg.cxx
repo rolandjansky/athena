@@ -25,6 +25,7 @@ MuonTPAlg::MuonTPAlg(const std::string& name, ISvcLocator* pSvcLocator ) :
   declareProperty("TagContainerName",   m_tagContainerName   = "Muons");
   declareProperty("ProbeContainerName", m_probeContainerName = "InDetTrackParticles");
   declareProperty("MatchContainerName", m_matchContainerName = "Muons");
+  declareProperty("TopLevelFolderName", m_topLevelOutputFolderName = "UndefinedTagAndProbe");
 }
 
 //**********************************************************************
@@ -45,21 +46,21 @@ StatusCode MuonTPAlg::initialize() {
     for(auto hd : histData) {
       
       std::string histPath = hd.second+"/"+hd.first->GetName();
-      m_histSvc->regHist("/MUONTP/"+histPath, hd.first).ignore(); //or check the statuscode
+      m_histSvc->regHist("/MUONTP/"+m_topLevelOutputFolderName+"/"+histPath, hd.first).ignore(); //or check the statuscode
     }
 
     std::vector<std::pair <TTree*, std::string> > treeData = tool->retrieveBookedTrees();
     for(auto hd : treeData) {
 
       std::string treePath = hd.second+"/"+hd.first->GetName();
-      m_histSvc->regTree("/MUONTP/"+treePath, hd.first).ignore(); //or check the statuscode
+      m_histSvc->regTree("/MUONTP/"+m_topLevelOutputFolderName+"/"+treePath, hd.first).ignore(); //or check the statuscode
       ATH_MSG_DEBUG(std::string(" registered tree ")+"/MUONTP/"+treePath);
     }
     std::vector<std::pair <TGraph*, std::string> > graphData = tool->retrieveBookedGraphs();
     for(auto hd : graphData) {
 
       std::string graphPath = hd.second+"/"+hd.first->GetName();
-      m_histSvc->regGraph("/MUONTP/"+graphPath, hd.first).ignore(); //or check the statuscode
+      m_histSvc->regGraph("/MUONTP/"+m_topLevelOutputFolderName+"/"+graphPath, hd.first).ignore(); //or check the statuscode
       ATH_MSG_DEBUG(std::string(" registered graph ")+"/MUONTP/"+graphPath);
     }
   }
