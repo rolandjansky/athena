@@ -16,6 +16,8 @@
 #include "AthenaROOTAccess/DataBucketVoid.h"
 #include "AthenaROOTAccess/ISetSGKey.h"
 #include "AthenaROOTAccess/branchSeek.h"
+#include "AthenaROOTAccess/TBranchAlias.h"
+#include "AthenaROOTAccess/TBranchTPConvert.h"
 #include "PersistentDataModelTPCnv/DataHeader_p3.h"
 #include "PersistentDataModelTPCnv/DataHeader_p4.h"
 #include "PersistentDataModelTPCnv/DataHeader_p5.h"
@@ -23,9 +25,9 @@
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p5.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/BaseInfo.h"
+#include "RootUtils/TBranchElementClang.h"
 #include "TError.h"
 #include "TBranch.h"
-#include "TBranchElement.h"
 #include "TBranchObject.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -196,7 +198,12 @@ ProxyMap::getProxy (sgkey_t sgkey, Long64_t entry)
   }
 
   // Seek in the branch to the proper entry.
-  branchSeek (br, local_entry);
+  {
+    Long64_t ent = local_entry;
+    if (dynamic_cast<TBranchAlias*>(br) || dynamic_cast<TBranchTPConvert*>(br))
+      ent = entry;
+    branchSeek (br, ent);
+  }
 
   // Skip out if there was a recoverable error while reading.
   ISetSGKey* set_sgkey = dynamic_cast<ISetSGKey*> (br);
@@ -390,6 +397,10 @@ SG::DataProxy* ProxyMap::makeProxy (SG::DataProxy* proxy,
       addr = reinterpret_cast<void**> (br->GetAddress());
     }
     else if (TBranchObject* be = dynamic_cast<TBranchObject*> (br)) {
+      be->SetAddress(0);
+      addr = reinterpret_cast<void**> (br->GetAddress());
+    }
+    else if (TBranchAlias* be = dynamic_cast<TBranchAlias*> (br)) {
       be->SetAddress(0);
       addr = reinterpret_cast<void**> (br->GetAddress());
     }

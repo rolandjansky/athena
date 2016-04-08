@@ -70,7 +70,16 @@ int main()
   ROOT::Cintex::Cintex::Enable();
 #endif
   gInterpreter->EnableAutoLoading();
+
   TClass::GetClass("DataVector<AthenaROOTAccess::DVCollectionProxyDummy>");
   test1();
+
+  // root6 will crash if a *Dict.so file gets unloaded before libCling.
+  // However, that's sometimes happening here for some reason.
+  // For now, just take a big hammer to it and exit without
+  // running global dtors.
+  std::cout.flush();
+  std::cerr.flush();
+  _exit(0);
   return 0;
 }

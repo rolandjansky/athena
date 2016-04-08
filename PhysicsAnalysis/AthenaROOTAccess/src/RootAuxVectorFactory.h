@@ -144,7 +144,7 @@ public:
    * The container should then be shrunk by @c -offs elements
    * (running destructors as appropriate).
    */
-  virtual void shift (size_t pos, ptrdiff_t offs);
+  virtual void shift (size_t pos, ptrdiff_t offs) override;
 
 
   /**

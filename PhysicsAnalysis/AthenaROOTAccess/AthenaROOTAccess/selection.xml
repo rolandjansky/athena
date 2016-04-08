@@ -47,4 +47,8 @@
     <class name="AthenaROOTAccess::addDVProxy"/>
     <class name="AthenaROOTAccess::TPCnv::Registry"/>
     <class name="TChainROOTAccess"/>
+    <class name="AthenaROOTAccess::IARAFixup"/>
+    <class name="AthenaROOTAccess::HIEventShapeContainer_v1_fixup"/>
+    <class name="AthenaROOTAccess::MuonAuxContainer_v1_fixup"/>
+    <class name="AthenaROOTAccess::VertexAuxContainer_v1_fixup"/>
 </lcgdict>

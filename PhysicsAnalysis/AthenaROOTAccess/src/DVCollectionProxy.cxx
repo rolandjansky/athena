@@ -329,7 +329,7 @@ DVCollectionProxy::DVCollectionProxy (const char* elttype,
   Initialize(false);
 
   // Need to override what that set up for fValue and fVal.
-  delete fValue;
+  delete static_cast<TGenCollectionProxy::Value*>(fValue);
   delete fVal;
   fValue = new TGenCollectionProxy::Value (elttype, false);
   fVal = new TGenCollectionProxy::Value (*fValue);

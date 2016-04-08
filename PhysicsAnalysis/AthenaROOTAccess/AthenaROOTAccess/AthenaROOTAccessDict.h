@@ -23,6 +23,10 @@
 #include "AthenaROOTAccess/addDVProxy.h"
 #include "AthenaROOTAccess/ISetSGKey.h"
 #include "AthenaROOTAccess/tpcnvLoad.h"
+#include "AthenaROOTAccess/IARAFixup.h"
+#include "AthenaROOTAccess/MuonAuxContainer_v1_fixup.h"
+#include "AthenaROOTAccess/VertexAuxContainer_v1_fixup.h"
+#include "AthenaROOTAccess/HIEventShapeContainer_v1_fixup.h"
 #include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPCnvBase.h"
 
 #include "AthContainers/DataVector.h"

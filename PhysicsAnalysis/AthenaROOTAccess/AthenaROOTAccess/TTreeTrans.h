@@ -98,7 +98,7 @@ public:
   /**
    * @brief Destructor.
    */
-  ~TTreeTrans();
+  virtual ~TTreeTrans() override;
 
 
   /**
@@ -165,6 +165,12 @@ public:
   bool sawFile (TFile* file);
 
 
+  /**
+   * @brief Return the associated persistent tree.
+   */
+  TTree* getPersTree() const;
+
+
   //@}
   //========================================================================
   /** @name TTree interface. */
@@ -177,7 +183,7 @@ public:
    * @param getall If true, ignore branch disable flags.
    * @return The number of bytes read.
    */
-  virtual Int_t  GetEntry(Long64_t entry, Int_t getall = 0);
+  virtual Int_t  GetEntry(Long64_t entry, Int_t getall = 0) override;
 
 
   /**
@@ -185,13 +191,19 @@ public:
    *
    * This will be called when the persistent tree changes files.
    */
-  virtual Bool_t Notify();
+  virtual Bool_t Notify() override;
 
 
   /**
    * @brief Clear references to all persistent branches.
    */
   void resetBranches();
+
+
+  /**
+   * @brief Set current entry; return local entry.
+   */
+  virtual Long64_t LoadTree(Long64_t entry) override;
 
 
   //@}
@@ -206,17 +218,8 @@ public:
    * @param key The StoreGate key of the object to find.
    * @return The proxy, or 0 on failure.
    */
-  virtual SG::DataProxy* proxy(const CLID& id, const std::string& key) const;
-
-
-  /**
-   * @brief Get proxy with given id. Returns 0 to flag failure.
-   * @param id The class ID of the object to find.
-   * @return The proxy, or 0 on failure.
-   *
-   * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
-   */
-  virtual SG::DataProxy* proxy(const CLID& id) const;
+  virtual
+  SG::DataProxy* proxy(const CLID& id, const std::string& key) const override;
 
 
   /**
@@ -224,19 +227,7 @@ public:
    * @param pTransient Pointer to the object.
    * @return The proxy, or 0 on failure.
    */
-  virtual SG::DataProxy* proxy(const void* const pTransient) const;
-
-
-  /**
-   * @brief Get proxy for an object at a given address.
-   * @param pTransient Pointer to the object.
-   * @return The proxy, or 0 on failure.
-   *
-   * Performs a deep search among all possible 'symlinked' containers.
-   *
-   * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
-   */
-  virtual SG::DataProxy* deep_proxy(const void* const pTransient) const;
+  virtual SG::DataProxy* proxy(const void* const pTransient) const override;
 
 
   /**
@@ -244,7 +235,7 @@ public:
    * @param sgkey Hashed key to look up.
    * @return The proxy, or 0 on failure.
    */
-  virtual SG::DataProxy* proxy_exact (SG::sgkey_t sgkey) const;
+  virtual SG::DataProxy* proxy_exact (SG::sgkey_t sgkey) const override;
 
 
   /**
@@ -253,7 +244,7 @@ public:
    *
    * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
    */
-  std::vector<const SG::DataProxy*> proxies() const;
+  std::vector<const SG::DataProxy*> proxies() const override;
 
 
   /**
@@ -261,7 +252,33 @@ public:
    * @param id CLID of object being added.
    * @param proxy proxy to add.
    */
-  virtual StatusCode addToStore (CLID id, SG::DataProxy* proxy);
+  virtual StatusCode addToStore (CLID id, SG::DataProxy* proxy) override;
+
+
+  /**
+   * @brief Record an object in the store.
+   * @param obj The data object to store.
+   * @param key The key as which it should be stored.
+   * @param allowMods If false, the object will be recorded as const.
+   * @param returnExisting If true, return proxy if this key already exists.
+   *
+   * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
+   */
+  virtual SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+                                       const std::string& key,
+                                       bool allowMods,
+                                       bool returnExisting) override;
+
+
+  /**
+   * @brief Inform HIVE that an object has been updated.
+   * @param id The CLID of the object.
+   * @param key The key of the object.
+   *
+   * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
+   */
+  virtual
+  StatusCode updatedObject (CLID id, const std::string& key) override;
 
 
   /**
@@ -273,7 +290,7 @@ public:
    *         Will abort in case of a hash collision!
    */
   virtual
-  sgkey_t stringToKey (const std::string& str, CLID clid);
+  sgkey_t stringToKey (const std::string& str, CLID clid) override;
 
 
   /**
@@ -284,7 +301,7 @@ public:
    *         was given to either @c stringToKey() or @c registerKey().
    */
   virtual
-  const std::string* keyToString (sgkey_t key) const;
+  const std::string* keyToString (sgkey_t key) const override;
 
 
   /**
@@ -297,7 +314,7 @@ public:
    */
   virtual
   const std::string* keyToString (sgkey_t key,
-                                  CLID& clid) const;
+                                  CLID& clid) const override;
 
 
   /**
@@ -315,7 +332,7 @@ public:
   virtual
   void registerKey (sgkey_t key,
                     const std::string& str,
-                    CLID clid);
+                    CLID clid) override;
 
 
   //@}
@@ -388,17 +405,17 @@ public:
 
 private:
   /// Boilerplate to fill out @c INamedInterface interface.
-  virtual const std::string& name() const;
+  virtual const std::string& name() const override;
   /// Boilerplate to fill out @c INamedInterface interface.
   virtual StatusCode queryInterface(const InterfaceID& riid,
-                                    void** ppvInterface);
+                                    void** ppvInterface) override;
   /// Boilerplate to fill out @c INamedInterface interface.
-  virtual unsigned long addRef();
+  virtual unsigned long addRef() override;
   /// Boilerplate to fill out @c INamedInterface interface.
-  virtual unsigned long release();
+  virtual unsigned long release() override;
   
 
-  ClassDef (AthenaROOTAccess::TTreeTrans, 1);
+  ClassDefOverride (AthenaROOTAccess::TTreeTrans, 1);
 
 
 private:

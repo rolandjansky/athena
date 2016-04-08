@@ -100,6 +100,15 @@ void* DataBucketVoid::object()
 
 
 /**
+ * @brief Return the @c type_info for the stored object.
+ */
+const std::type_info& DataBucketVoid::tinfo() const
+{
+  return *m_cl->GetTypeInfo();
+}
+
+
+/**
  * @brief Return the contents of the @c DataBucket,
  *        converted to type given by @a clid.  Note that only
  *        derived->base conversions are allowed here.

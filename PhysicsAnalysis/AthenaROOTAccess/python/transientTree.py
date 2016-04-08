@@ -102,7 +102,8 @@ def _fix_vec_proxy (clname):
     cl = ROOT.gROOT.GetClass(clname)
     if not cl: return None
     vecname = _get_vec_base (cl)
-    if vecname == None: return None
+    if vecname == None or vecname == clname:
+       return
     clv = ROOT.gROOT.GetClass(vecname)
     if not clv: return None
     cl.GetStreamerInfo(0)
@@ -256,21 +257,17 @@ def _book_trans_tree (pers_tree, name_in = None):
     olddir.cd()
 
     # Add the persistent tree as a friend.
-    trans_tree.AddFriend (pers_tree, "")
+    #trans_tree.AddFriend (pers_tree, "")
+    # This is problematic; for xAOD types, we need to read the pers
+    # tree before the trans tree; otherwise, the dv proxy code
+    # in xAOD core will clobber the aux store.  So just have
+    # TTreeTrans::GetEntry explicitly read the pers tree.
 
     # Set the number of entries in the tree.
     # ??? FIXME: GetEntries can be slow if pers_tree is a chain.
     trans_tree.SetEntries (pers_tree.GetEntries())
 
     ROOT.SetOwnership (trans_tree, False)
-
-    # HepMcParticleLink may have already cached a pointer to a StoreGateSvc
-    # since one of these objects gets constructed during dictionary
-    # loading.  That's wrong, though.  Clear the cached pointer so that
-    # it will look up the dictionary again (and should now get the
-    # correct one that the transient tree sets up).
-    if hasattr(ROOT, 'HepMcParticleLink'):
-        ROOT.HepMcParticleLink.resetCachedDictionary()
 
     return trans_tree
 
@@ -466,6 +463,11 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
     # Find the transient type.
     trans_type = persTypeToTransType (pers_type)
 
+    # Exclude offline -> trigger rules for xaod aux containers.
+    if pers_type.startswith ('xAOD::') and pers_type.find ('AuxContainer') >= 0:
+       if pers_type.find ('Trig') < 0 and trans_type.find ('Trig') >= 0:
+          trans_type = pers_type
+
     # Look for schema evolution of an xAOD interface class.
     trans_branch_name_suffix = ''
     if pers_type == trans_type and pers_type.startswith ('DataVector<xAOD::'):
@@ -478,6 +480,9 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
                 pers_type = pers_type2
                 trans_type = trans_type2
                 trans_branch_name_suffix = '_auxcnv'
+    elif pers_type != trans_type and pers_type.startswith ('DataVector<xAOD::'):
+       trans_branch_name_suffix = '_auxcnv'
+       
 
     if not ROOT.gROOT.GetClass (trans_type):
         print "Warning: Can't find transient class", trans_type, "for persistent type", pers_type
@@ -488,46 +493,6 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
         pers_branch_name = key
     else:
         pers_branch_name =  pers_type + '_' + key
-
-    if trans_type == pers_type:
-        # No conversion required/available.
-        if pers_type.find ('_p') >= 0 or pers_type.find ('_tlp') >= 0:
-            # But there should have been one --- give up.
-            if pers_type not in _skipPers:
-                print "Warning: Cannot find transient class for", pers_type
-            return
-
-        # Persistent branch should be used directly.
-        # Root fixes.
-        _fix_vec_proxy (pers_type)
-
-        # Allow branch remapping.
-        name = branch_names.get (key, key)
-
-        # Test for excluded branches.
-        if name in _skipBranches:
-            #print "Warning: branch", trans_branch_name, "not working yet; skipped"
-            return
-
-        # Make a branch using the SG key name, for ease of use.
-        pers_pytype = getattr (ROOT, pers_type, None)
-        if not trans_tree.GetBranch (key) or hasattr (pers_pytype, 'setStore'):
-            aux_branch_name = aux_stores.get (key + 'Aux.', '')
-            ROOT.AthenaROOTAccess.TBranchAlias.addToTree\
-                    (trans_tree,
-                     name,
-                     key,
-                     elem.pClid(),
-                     pers_tree,
-                     pers_branch_name,
-                     aux_branch_name)
-
-            cl = ROOT.gROOT.GetClass (pers_type)
-            if cl and not hasattr (pers_pytype, 'setStore'):
-                ROOT.AthenaROOTAccess.addDVProxy.add (cl)
-        return
-
-    # Set up for P->T conversion.
 
     # Find the name for the transient branch.
     # Start with the SG key.
@@ -544,6 +509,60 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
     # Test for a user-supplied remap.
     if branch_names.has_key (trans_branch_name):
         trans_branch_name = branch_names[trans_branch_name]
+
+    if trans_type == pers_type:
+        # No conversion required/available.
+        if pers_type.find ('_p') >= 0 or pers_type.find ('_tlp') >= 0:
+            # But there should have been one --- give up.
+            if pers_type not in _skipPers:
+               print "Warning: Cannot find transient class for", pers_type
+            else:
+               br = pers_tree.GetBranch (pers_branch_name)
+               if not br.GetClass().HasInterpreterInfo():
+                  pers_tree.SetBranchStatus (pers_branch_name, 0)
+            return
+
+        # Persistent branch should be used directly.
+        # Root fixes.
+        _fix_vec_proxy (pers_type)
+
+        # Allow branch remapping.
+        name = trans_branch_name
+
+        # Test for excluded branches.
+        if name in _skipBranches:
+            #print "Warning: branch", trans_branch_name, "not working yet; skipped"
+            return
+
+        # Make a branch using the SG key name, for ease of use.
+        pers_pytype = getattr (ROOT, pers_type, None)
+        if not trans_tree.GetBranch (key) or hasattr (pers_pytype, 'setStore'):
+            aux_branch_name = aux_stores.get (key + 'Aux.', '')
+            trans_br = \
+                     ROOT.AthenaROOTAccess.TBranchAlias.addToTree\
+                     (trans_tree,
+                      name,
+                      key,
+                      elem.pClid(),
+                      pers_tree,
+                      pers_branch_name,
+                      aux_branch_name)
+
+            cl = ROOT.gROOT.GetClass (pers_type)
+            if cl and not hasattr (pers_pytype, 'setStore'):
+                ROOT.AthenaROOTAccess.addDVProxy.add (cl)
+
+            # Install other fixups.
+            fixup_cl = _fixups.get (trans_type)
+            if fixup_cl:
+               fixup_cl = getattr (ROOT, fixup_cl)
+               fixup = fixup_cl()
+               trans_br.setFixup (fixup)
+               ROOT.SetOwnership (fixup, False)
+
+        return
+
+    # Set up for P->T conversion.
 
     # Test for excluded branches.
     if trans_branch_name in _skipBranches:
@@ -600,6 +619,8 @@ _skipPers = ["Trk::TrackCollection_tlp1",
              "Trk::SegmentCollection_tlp1",
              "Trk::SegmentCollection_tlp2",
              "BCM_RDO_Container_p0",
+             'CosmicMuonCollection_tlp1',
+             'MdtTrackSegmentCollection_p2',
              ]
 
 # External converters that we need to add for some types.
@@ -613,6 +634,17 @@ _extCnv = { 'JetCollection' : {'977E2E76-4DA6-4A4B-87A8-2E41353DB9F4' :
                                '8A57BABD-C361-4796-93CD-E8171EF06BC7' :
                                'Analysis.JetTagInfoCnv_tlp3',
                                } }
+
+# Additional fixups to add.
+_fixups = { 'DataVector<xAOD::HIEventShape_v1>' :
+            'AthenaROOTAccess::HIEventShapeContainer_v1_fixup',
+
+            'xAOD::MuonAuxContainer_v1' :
+            'AthenaROOTAccess::MuonAuxContainer_v1_fixup',
+
+            'xAOD::VertexAuxContainer_v1' :
+            'AthenaROOTAccess::VertexAuxContainer_v1_fixup',
+            }
 
 # List of types to skip if no detector description is available.
 _skipNoDD = ["CaloCellContainer",

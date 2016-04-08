@@ -14,6 +14,7 @@
 
 #include "AthenaROOTAccess/TTreeBranchMap.h"
 #include <utility>
+#include <iostream>
 
 
 namespace AthenaROOTAccess {
@@ -38,7 +39,19 @@ TTreeBranchMap::TTreeBranchMap (const char* name, const char* title)
 void TTreeBranchMap::addBranch (TBranch* br, const std::string& mapped_name)
 {
   m_map[mapped_name] = br->GetName();
-  this->GetListOfBranches()->Add (br);
+
+  TObjArray* branches = this->GetListOfBranches();
+  Int_t nb = branches->GetEntriesFast();
+  for (Int_t i = 0; i < nb; i++) {
+    TBranch* branch = (TBranch*) branches->UncheckedAt(i);
+    if (!strcmp(branch->GetName(), br->GetName())) {
+      if (br == branch)
+        return;
+      break;
+    }
+  }
+  
+  branches->Add (br);
 }
 
 
@@ -55,6 +68,16 @@ TTreeBranchMap::findBranch (const std::string& mapped_name) const
     return i->second;
   static std::string dum;
   return dum;
+}
+
+
+/**
+ * @brief Dump out the branch map.  For debugging.
+ */
+void TTreeBranchMap::dumpBranchMap() const
+{
+  for (const map_t::value_type& p : m_map)
+    std::cout << p.first << " -> " << p.second <<"\n";
 }
 
 

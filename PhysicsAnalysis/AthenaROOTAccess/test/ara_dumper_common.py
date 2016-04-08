@@ -16,7 +16,7 @@ import ROOT
 import cppyy
 import AthenaROOTAccess.transientTree
 import sys
-from dumpers import Evdump, try_autokey
+from AthenaROOTAccess.dumpers import Evdump, try_autokey
 
 if not globals().has_key ('onlykeys'):
     onlykeys = []

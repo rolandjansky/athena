@@ -23,6 +23,7 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
 
+#include "TROOT.h"
 #include "TBranch.h"
 #include "TLeaf.h"
 #include "TClass.h"
@@ -108,6 +109,23 @@ const std::type_info* getElementType (TBranch* br,
 }
 
 
+// Convert from class name to TClass; try to avoid autoparsing.
+TClass* getClassIfDictionaryExists (const std::string& cname)
+{
+  if (TClass* cl = (TClass*)gROOT->GetListOfClasses()->FindObject(cname.c_str())) {
+    if (cl->IsLoaded() && cl->HasDictionary()) return cl;
+    return nullptr;
+  }
+
+  if (gInterpreter->GetClassSharedLibs (cname.c_str())) {
+    TClass* cl = TClass::GetClass (cname.c_str());
+    if (cl->HasDictionary())
+      return cl;
+  }
+  return nullptr;
+}
+
+
 } // Anonymous namespace
 
 
@@ -136,9 +154,10 @@ AuxStoreARA::AuxStoreARA(IAuxBranches &container, long long entry, bool standalo
           if (fac_class_name[fac_class_name.size()-1] == '>')
             fac_class_name += ' ';
           fac_class_name += '>';
-          TClass* fac_class = TClass::GetClass (fac_class_name.c_str());
-          if (fac_class) {
-            TClass* base_class = TClass::GetClass ("SG::IAuxTypeVectorFactory");
+          TClass* fac_class = getClassIfDictionaryExists (fac_class_name);
+          if (fac_class)
+          {
+            TClass* base_class = getClassIfDictionaryExists ("SG::IAuxTypeVectorFactory");
             if (base_class) {
               int offs = fac_class->GetBaseClassOffset (base_class);
               if (offs >= 0) {
@@ -154,6 +173,13 @@ AuxStoreARA::AuxStoreARA(IAuxBranches &container, long long entry, bool standalo
         }
 
         if (auxid == SG::null_auxid) {
+          std::string vec_name = branch_type_name;
+          if (standalone) {
+            vec_name = "std::vector<" + branch_type_name;
+            if (vec_name[vec_name.size()-1] == '>')
+              vec_name += " ";
+            vec_name += ">";
+          }
           TClass* vec_class = TClass::GetClass (branch_type_name.c_str());
 
           if (vec_class) {
@@ -165,10 +191,19 @@ AuxStoreARA::AuxStoreARA(IAuxBranches &container, long long entry, bool standalo
 
       }
       // add AuxID to the list
-      addAuxID (auxid);
+      // May still be null if we don't have a dictionary for the branch.
+      if (auxid != SG::null_auxid)
+        addAuxID (auxid);
    }
 
    //lock();
+}
+
+
+AuxStoreARA::~AuxStoreARA()
+{
+  for (TBranch* br : m_branches)
+    br->SetAddress(nullptr);
 }
 
 

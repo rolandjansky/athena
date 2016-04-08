@@ -68,6 +68,12 @@ public:
 
 
   /**
+   * @brief Dump out the branch map.  For debugging.
+   */
+  void dumpBranchMap() const;
+
+
+  /**
    * @brief Add an alias for a branch.
    * @param br An existing branch.
    * @param alias_name An alternate name for the branch.
@@ -97,7 +103,7 @@ public:
   std::vector<CLID> getCLIDAliases (CLID clid) const;
 
 
-  ClassDef (AthenaROOTAccess::TTreeBranchMap, 1);
+  ClassDefOverride (AthenaROOTAccess::TTreeBranchMap, 1);
 
 
 private:

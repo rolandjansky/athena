@@ -1,7 +1,10 @@
 #!/bin/sh
 
-athena.py -c 'vers="'$1'"' athena_dumper.py
-python ara_dumper1.py $1
-python ara_dumper2.py $1
-python ara_dumper3.py $1
+athena.py -c 'vers="'$1'"' athena_dumper.py 2>&1 > dump-a.log &
+python ara_dumper1.py $1 2>&1 > dump-1.log &
+python ara_dumper2.py $1 2>&1 > dump-2.log &
+python ara_dumper3.py $1 2>&1 > dump-3.log &
+wait
+
+cat dump-a.log dump-1.log dump-2.log dump-3.log
 

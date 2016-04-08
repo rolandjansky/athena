@@ -60,13 +60,19 @@ public:
   /**
    * @brief Destructor.
    */
-  ~DataBucketVoid();
+  virtual ~DataBucketVoid() override;
 
 
   /**
    * @brief Return the held object.
    */
-  virtual void* object();
+  virtual void* object() override;
+
+
+  /**
+   * @brief Return the @c type_info for the stored object.
+   */
+  virtual const std::type_info& tinfo() const override;
 
 
   /**
@@ -81,7 +87,7 @@ public:
    */
   virtual void* cast (CLID clid,
                       SG::IRegisterTransient* itr = 0,
-                      bool isConst =true) const;
+                      bool isConst =true) const override;
 
 
   /**
@@ -94,13 +100,13 @@ public:
    */
   virtual void* cast (const std::type_info& tinfo,
                       SG::IRegisterTransient* itr = 0,
-                      bool isConst = true) const;
+                      bool isConst = true) const override;
 
   /**
    * @brief Return a new @c DataBucket whose payload has been cloned from the
    *        original one.
    */
-  virtual DataBucketVoid* clone() const;
+  virtual DataBucketVoid* clone() const override;
 
 
   /**
@@ -116,7 +122,7 @@ public:
    *        This is a no-op for @c DataBucketVoid (which doesn't own
    *        its target).
    */
-  virtual void relinquish();
+  virtual void relinquish() override;
 
 
   /**
@@ -124,7 +130,7 @@ public:
    *
    * This is a no-op for ARA.
    */
-  virtual void lock();
+  virtual void lock() override;
 
 
 private:

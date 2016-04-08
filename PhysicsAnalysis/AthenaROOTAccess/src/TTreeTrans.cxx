@@ -12,15 +12,15 @@
 
 #include "AthenaROOTAccess/TTreeTrans.h"
 #include "AthenaROOTAccess/ProxyMap.h"
-#include "AthLinks/tools/SGgetDataSource.h"
+#include "SGTools/CurrentEventStore.h"
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "PersistentDataModel/Token.h"
+#include "RootUtils/TBranchElementClang.h"
 #include "TError.h"
 #include "TTree.h"
 #include "TDirectory.h"
 #include "TPython.h"
 #include "TFile.h"
-#include "TBranchElement.h"
 #include "TVirtualCollectionProxy.h"
 
 
@@ -96,23 +96,6 @@ TreeCleaner::~TreeCleaner ()
 //*************************************************************************
 
 
-/// The current tree.
-IProxyDictWithPool* curTree = 0;
-
-
-/**
- * @brief Return pointer to the current data source.
- *
- * We give this to SG; this will be called to find the data source
- * to fill in for newly-created @c ElementLink's.
- */
-IProxyDictWithPool**
-getRootTreeDataSourcePointer(const std::string& /*storeName*/)
-{
-  return &curTree;
-}
-
-
 /**
  * @brief Constructor.
  * @param pers_tree The tree containing the persistent data.
@@ -136,10 +119,6 @@ TTreeTrans::TTreeTrans (TTree* pers_tree,
   // Receive notifications from the persistent tree.
   pers_tree->SetNotify (this);
 
-  // Register the data source function with SG.
-  SG::getDataSourcePointerFunc = getRootTreeDataSourcePointer;
-  SG::DataProxyHolder::resetCachedSource();
-
   // Set up to clean up proxies on the persistent tree when it gets deleted.
   m_pers_tree->GetUserInfo()->Add (new TreeCleaner (m_pers_tree) );
 }
@@ -153,8 +132,8 @@ TTreeTrans::~TTreeTrans()
   if (!m_primary_tree)
     delete m_proxyMap;
 
-  if (curTree == this)
-    curTree = 0;
+  if (SG::CurrentEventStore::store() == this)
+    SG::CurrentEventStore::setStore(0);
 }
 
 
@@ -202,9 +181,7 @@ void TTreeTrans::resetBranch (sgkey_t sgkey)
  */
 IProxyDictWithPool* TTreeTrans::setCurTree (IProxyDictWithPool* tree)
 {
-  IProxyDictWithPool* ret = curTree;
-  curTree = tree;
-  return ret;
+  return SG::CurrentEventStore::setStore (tree);
 }
 
 
@@ -247,6 +224,15 @@ bool TTreeTrans::sawFile (TFile* file)
 }
 
 
+/**
+ * @brief Return the associated persistent tree.
+ */
+TTree* TTreeTrans::getPersTree() const
+{
+  return m_pers_tree;
+}
+
+
 
 /**
  * @brief Standard Root method to read a new entry.
@@ -256,10 +242,15 @@ bool TTreeTrans::sawFile (TFile* file)
  */
 Int_t TTreeTrans::GetEntry (Long64_t entry, Int_t getall /*= 0*/)
 {
-  // We just need to make sure that this instance is set as the current tree.
-  // Then just do the standard stuff.
+  // We need to make sure that this instance is set as the current tree.
   Push save_tree (this);
-  return TTree::GetEntry (entry, getall);
+
+  setEntry (entry);
+
+  // Read pers tree first.
+  Int_t nbytes = m_pers_tree->GetEntry (entry);
+  nbytes += TTree::GetEntry (entry, getall);
+  return nbytes;
 }
 
 
@@ -328,6 +319,16 @@ void TTreeTrans::resetBranches()
 
 
 /**
+ * @brief Set current entry; return local entry.
+ */
+Long64_t TTreeTrans::LoadTree(Long64_t entry)
+{
+  TTree::LoadTree(entry);
+  return m_pers_tree->LoadTree(entry);
+}
+
+
+/**
  * @brief Get proxy with given id and key. Returns 0 to flag failure.
  * @param id The class ID of the object to find.
  * @param key The StoreGate key of the object to find.
@@ -355,17 +356,6 @@ TTreeTrans::proxy_exact (SG::sgkey_t sgkey) const
 
 
 /**
- * @brief Get proxy with given id. Returns 0 to flag failure.
- * @param id The class ID of the object to find.
- * @return The proxy, or 0 on failure.
- */
-SG::DataProxy* TTreeTrans::proxy(const CLID& /*id*/) const
-{
-  std::abort();
-}
-
-
-/**
  * @brief Get proxy for an object at a given address.
  * @param pTransient Pointer to the object.
  * @return The proxy, or 0 on failure.
@@ -376,22 +366,6 @@ SG::DataProxy*
 TTreeTrans::proxy(const void* const pTransient) const
 {
   return m_proxyMap->proxy (pTransient);
-}
-
-
-/**
- * @brief Get proxy for an object at a given address.
- * @param pTransient Pointer to the object.
- * @return The proxy, or 0 on failure.
- *
- * Performs a deep search among all possible 'symlinked' containers.
- *
- * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
- */
-SG::DataProxy*
-TTreeTrans::deep_proxy(const void* const /*pTransient*/) const
-{
-  std::abort();
 }
 
 
@@ -417,6 +391,38 @@ StatusCode
 TTreeTrans::addToStore (CLID id, SG::DataProxy* proxy)
 {
   return m_proxyMap->addToStore (id, proxy);
+}
+
+
+/**
+ * @brief Record an object in the store.
+ * @param obj The data object to store.
+ * @param key The key as which it should be stored.
+ * @param allowMods If false, the object will be recorded as const.
+ * @param returnExisting If true, return proxy if this key already exists.
+ *
+ * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
+ */
+SG::DataProxy*
+TTreeTrans::recordObject (SG::DataObjectSharedPtr<DataObject> /*obj*/,
+                          const std::string& /*key*/,
+                          bool /*allowMods*/,
+                          bool /*returnExisting*/)
+{
+  std::abort();
+}
+
+
+/**
+ * @brief Inform HIVE that an object has been updated.
+ * @param id The CLID of the object.
+ * @param key The key of the object.
+ *
+ * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
+ */
+StatusCode TTreeTrans::updatedObject (CLID /*id*/, const std::string& /*key*/)
+{
+  std::abort();
 }
 
 

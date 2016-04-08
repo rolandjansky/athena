@@ -106,9 +106,6 @@ public:
 
   /**
    * @brief Standard Root notify routine.
-   *
-   * This will be called when we're part of an aux tree,
-   * and the primary tree has switched files.
    */
   virtual Bool_t      Notify();
 

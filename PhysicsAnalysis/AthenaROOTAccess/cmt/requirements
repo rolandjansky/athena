@@ -24,6 +24,9 @@ use AthAllocators    AthAllocators-*    Control
 use AthLinks         AthLinks-*         Control
 use AthContainers    AthContainers-*    Control
 use RootUtils        RootUtils-*        Control
+use xAODMuon         xAODMuon-*         Event/xAOD
+use xAODTracking     xAODTracking-*     Event/xAOD
+use xAODHIEvent      xAODHIEvent-*      Event/xAOD
 end_private
 
 apply_pattern declare_python_modules files="*.py"
@@ -54,3 +57,8 @@ apply_pattern lcgdict dict=AthenaROOTAccess selectionfile=selection.xml headerfi
 apply_pattern lcgdict dict=AthenaROOTAccessTest selectionfile=test_selection.xml headerfiles="../AthenaROOTAccess/AthenaROOTAccessTestDict.h"
 
 macro_append AthenaROOTAccess_shlibflags " -lPyROOT"
+
+# Add the PyROOT dependency for CMake as well:
+apply_pattern cmake_add_command command="find_package( ROOT COMPONENTS PyROOT )"
+
+#macro_append DVCollectionProxy_test_use_linkopts "  -ldl -Wl,--no-as-needed  -lCling  -ldl -Wl,--as-needed  "
