@@ -39,6 +39,8 @@ apply_pattern poolcnv typesWithNamespace="xAOD::MuonRoIContainer \
                                           xAOD::TrigDecisionAuxInfo \
                                           xAOD::TrigNavigation \
                                           xAOD::TrigNavigationAuxInfo \
+                                          xAOD::RoiDescriptorStore \
+                                          xAOD::RoiDescriptorStoreAuxInfo \
                                           xAOD::BunchConfKey \
                                           xAOD::BunchConfContainer \
                                           xAOD::BunchConfAuxContainer \
@@ -64,6 +66,8 @@ apply_pattern poolcnv typesWithNamespace="xAOD::MuonRoIContainer \
                              TrigDecisionAuxInfo.h \
                              TrigNavigation.h \
                              TrigNavigationAuxInfo.h \
+                             RoiDescriptorStore.h \
+                             RoiDescriptorStoreAuxInfo.h \
                              BunchConfKey.h \
                              BunchConfContainer.h \
                              BunchConfAuxContainer.h \
