@@ -13,9 +13,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 ReadWriteCoolStrFile::ReadWriteCoolStrFile(const std::string& name, 
-  ISvcLocator* pSvcLocator) :Algorithm(name,pSvcLocator),
-   m_log(msgSvc(),name),
-   p_detstore(0),
+  ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),
    p_coolsvc(0),
    m_done(false),
    par_read(false),
@@ -43,14 +41,10 @@ ReadWriteCoolStrFile::~ReadWriteCoolStrFile() {}
 
 StatusCode ReadWriteCoolStrFile::initialize()
 {
-  m_log << MSG::INFO << "ReadWriteCoolStrFile::initialize() called" << endreq;
+  ATH_MSG_INFO("ReadWriteCoolStrFile::initialize() called");
 
-  if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    m_log << MSG::FATAL << "Detector store not found" << endreq;
-    return StatusCode::FAILURE;
-  }
   if (StatusCode::SUCCESS!=service("CoolStrFileSvc",p_coolsvc)) {
-    m_log << MSG::ERROR << "Cannot get CoolStrFileSvc" << endreq;
+    ATH_MSG_ERROR("Cannot get CoolStrFileSvc");
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -71,35 +65,33 @@ StatusCode ReadWriteCoolStrFile::finalize() {
 }
 
 void ReadWriteCoolStrFile::writeData() {
-  m_log << MSG::INFO << "Write data from file " << par_wfile << " to folder "
-	<< par_folder << " at channel " << par_chan << endreq;
+  ATH_MSG_INFO("Write data from file "+par_wfile+" to folder "+
+	       par_folder+" at channel " << par_chan);
 
   if (StatusCode::SUCCESS!=p_coolsvc->putFile(par_folder,par_wfile,par_chan,
        par_tech))
-    m_log << MSG::ERROR << "putFile failed" << endreq;
+    ATH_MSG_ERROR("putFile failed");
 }
 
 void ReadWriteCoolStrFile::readData() {
-  m_log << MSG::INFO << "Read data from folder " << par_folder << " channel "
-	<< par_chan << endreq;
+  ATH_MSG_INFO("Read data from folder "+par_folder+" channel " << par_chan);
   std::string data;
   if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
-    m_log << MSG::INFO << "CoolStrFileSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endreq;
+    ATH_MSG_INFO("CoolStrFileSvc getString fails for folder " << 
+		 par_folder << " channel " << par_chan);
   } else {
-    m_log << MSG::INFO << "Data read is " << data << endreq;
+    ATH_MSG_INFO("Data read is " << data);
   }
   // interpret as string stream
   std::istringstream istr(data.c_str());
   std::string a,b,c;
   istr >> a >> b >> c;
-  m_log << "Read string1:" << a << " string2:" << b << " string3:" << c 
-	<< endreq;
+  ATH_MSG_INFO("Read string1:" << a << " string2:" << b << " string3:" << c);
 
   // do read of data into file if requested on first event
   if (par_extract && !m_done) {
     if (StatusCode::SUCCESS!=p_coolsvc->getFile(par_folder,par_chan,par_rfile))
-      m_log << MSG::ERROR << "CoolStrFileSvc getFile fails for folder " << 
-       par_folder << " channel " << par_chan << endreq;
+      ATH_MSG_ERROR("CoolStrFileSvc getFile fails for folder "+
+		    par_folder+" channel " << par_chan);
   }
 }

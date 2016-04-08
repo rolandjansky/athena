@@ -17,9 +17,7 @@
 #include "DetDescrCondExample/ReadAlignTrans.h"
 
 ReadAlignTrans::ReadAlignTrans(const std::string& name, 
-  ISvcLocator* pSvcLocator) :Algorithm(name,pSvcLocator),
-   m_log(msgSvc(),name),
-   p_detstore(0),
+  ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),
    p_geomodelsvc(0)
 {}
 
@@ -28,36 +26,32 @@ ReadAlignTrans::~ReadAlignTrans(void)
 
 StatusCode ReadAlignTrans::initialize()
 {
-  m_log << MSG::INFO << "ReadAlignTrans::initialize() called" << endreq;
+  ATH_MSG_INFO("ReadAlignTrans::initialize() called");
 
-  if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    m_log << MSG::FATAL << "Detector store not found" << endreq;
-    return StatusCode::FAILURE;
-  }
   // get ptr to GeoModelSvc to be able to register callback
   if (StatusCode::SUCCESS!=service("GeoModelSvc",p_geomodelsvc)) {
-    m_log << MSG::ERROR << "Cannot get ptr to GeoModelSvc" << endreq;
+    ATH_MSG_ERROR("Cannot get ptr to GeoModelSvc");
     return StatusCode::FAILURE;
   }
 
   // get SiDetectorManagers for checking module positions
-  if (StatusCode::SUCCESS!=p_detstore->retrieve(p_sidetman[0],"Pixel")) {
-    m_log << MSG::ERROR << "Cannot get Pixel SiDetectorManager" << endreq;
+  if (StatusCode::SUCCESS!=detStore()->retrieve(p_sidetman[0],"Pixel")) {
+    ATH_MSG_ERROR("Cannot get Pixel SiDetectorManager");
     return StatusCode::FAILURE;
   }
-  if (StatusCode::SUCCESS!=p_detstore->retrieve(p_sidetman[1],"SCT")) {
-    m_log << MSG::ERROR << "Cannot get SCT SiDetectorManager" << endreq;
+  if (StatusCode::SUCCESS!=detStore()->retrieve(p_sidetman[1],"SCT")) {
+    ATH_MSG_ERROR("Cannot get SCT SiDetectorManager");
     return StatusCode::FAILURE;
   }
 
   // register callbacks on IGeoModelSvc::align to be called back after
   // alignment has been recalculated
 
-  if (StatusCode::SUCCESS==p_detstore->regFcn(&IGeoModelSvc::align,
+  if (StatusCode::SUCCESS==detStore()->regFcn(&IGeoModelSvc::align,
 	    p_geomodelsvc,&ReadAlignTrans::testCallBack,this)) {
-    m_log << MSG::INFO << "Registered callback for IGeoModelSvc" << endreq;
+    ATH_MSG_INFO("Registered callback for IGeoModelSvc");
   } else {
-    m_log << MSG::ERROR << "Register callback failed" << endreq;
+    ATH_MSG_ERROR("Register callback failed");
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -65,20 +59,18 @@ StatusCode ReadAlignTrans::initialize()
 
 
 StatusCode ReadAlignTrans::execute() {
-  m_log << MSG::INFO << "In ReadAlignTrans::execute" << endreq;
+  ATH_MSG_INFO("In ReadAlignTrans::execute");
   std::vector<Identifier> ev_ident;
   std::vector<Amg::Vector3D > ev_pos;
   if (StatusCode::SUCCESS!=readSiPositions(ev_ident,ev_pos)) {
-    m_log << "Cannot read silicon detector posiitons from GeoModel"
-	  << endreq;
+    ATH_MSG_ERROR("Cannot read silicon detector posiitons from GeoModel");
     return StatusCode::FAILURE;
   }
   // loop over positions, compare event and cache
   std::vector<Amg::Vector3D >::const_iterator iposcache=m_poscache.begin();
   std::vector<Amg::Vector3D >::const_iterator iposev=ev_pos.begin();
   int iseq=0;
-  m_log << "Printing positions of first 10 from cache and event lookup"
-	<< endreq;
+  ATH_MSG_INFO("Printing positions of first 10 from cache and event lookup");
   for (std::vector<Identifier>::const_iterator itr=m_identcache.begin();
        itr!=m_identcache.end();++itr,++iposcache,++iposev,++iseq) {
     // print out the first 10 modules unless positions differ
@@ -102,7 +94,7 @@ StatusCode ReadAlignTrans::execute() {
 }
 
 StatusCode ReadAlignTrans::finalize() {
-  m_log << MSG::INFO << "In ReadAlignTrans::finalize" << endreq;
+  ATH_MSG_INFO("In ReadAlignTrans::finalize");
   return StatusCode::SUCCESS;
 }
 
@@ -110,12 +102,10 @@ StatusCode ReadAlignTrans::testCallBack( IOVSVC_CALLBACK_ARGS_P( /* I */ ,
 								 keys ) ) {
   // print out the keys we were given (for info)
   // could do nothing if key is not /Indet/Align to save time
-  m_log << MSG::INFO << "ReadAlignTrans callback invoked for keys:";
+  std::string keylist;
   for (std::list<std::string>::const_iterator itr=keys.begin();
-       itr!=keys.end(); ++itr) {
-    m_log << *itr << " ";
-  }
-  m_log << endreq;
+       itr!=keys.end(); ++itr) keylist+=" "+*itr;
+  ATH_MSG_INFO("ReadAlignTrans callback invoked for keys:"+keylist);
   return readSiPositions(m_identcache,m_poscache);
 }
 
@@ -135,6 +125,6 @@ StatusCode ReadAlignTrans::readSiPositions(std::vector<Identifier>& idvec,
       ++nmod;
     }
   }
-  m_log << "readSiPositions sees " << nmod << " Si modules" << endreq;
+  ATH_MSG_INFO("readSiPositions sees " << nmod << " Si modules");
   return StatusCode::SUCCESS;
 }

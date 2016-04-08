@@ -19,37 +19,27 @@
 #include "StoreGate/StoreGateSvc.h"
 
 ReadTopTrans::ReadTopTrans(const std::string& name, 
-  ISvcLocator* pSvcLocator) :Algorithm(name,pSvcLocator),
-   m_log(msgSvc(),name),
-   p_detstore(0)
-{
-  // declare properties
-}
+  ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator) {}
 
 ReadTopTrans::~ReadTopTrans() {}
 
 StatusCode ReadTopTrans::initialize()
 {
-  m_log << MSG::INFO << "ReadTopTrans::initialize() called" << endreq;
+  ATH_MSG_INFO("ReadTopTrans::initialize() called");
 
-  if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    m_log << MSG::FATAL << "Detector store not found" << endreq;
-    return StatusCode::FAILURE;
-  }
   // register IOV callback function
   const DataHandle<DetCondKeyTrans> aptr;
-  if (StatusCode::SUCCESS==p_detstore->regFcn(&ReadTopTrans::testCallBack,
+  if (StatusCode::SUCCESS==detStore()->regFcn(&ReadTopTrans::testCallBack,
       this,aptr,"/GLOBAL/GEOM/TOPTRANS")) {
-    m_log << MSG::INFO << "Registered IOV callback from ReadTopTrans" <<
-      endreq;
+    ATH_MSG_INFO("Registered IOV callback from ReadTopTrans");
   } else {
-    m_log << MSG::ERROR << "Registration of IOV callback failed" << endreq;
+    ATH_MSG_INFO("Registration of IOV callback failed");
   }
 
   // register incident handler for begin run
   IIncidentSvc* incsvc;
   if (StatusCode::SUCCESS!=service("IncidentSvc",incsvc))
-    m_log << MSG::FATAL << "Incident service not found" << endreq;
+    ATH_MSG_FATAL("Incident service not found");
   long int pri=100;
   incsvc->addListener(this,"BeginRun",pri);
 
@@ -57,44 +47,41 @@ StatusCode ReadTopTrans::initialize()
 }
 
 StatusCode ReadTopTrans::execute() {
-  m_log << MSG::INFO << 
-    "In ReadTopTrans::execute - retrieve TOPTRANS from algorithm" << endreq;
+  ATH_MSG_INFO( "In ReadTopTrans::execute - retrieve TOPTRANS from algorithm");
   const DetCondKeyTrans* dtp;
-  if (StatusCode::SUCCESS==p_detstore->retrieve(dtp,"/GLOBAL/GEOM/TOPTRANS")) {
-    m_log << MSG::INFO << "Retrieve of TOPTRANS succeeded" << endreq;
+  if (StatusCode::SUCCESS==detStore()->retrieve(dtp,"/GLOBAL/GEOM/TOPTRANS")) {
+    ATH_MSG_INFO("Retrieve of TOPTRANS succeeded");
     dtp->print();
     // get a specific transform
     HepGeom::Transform3D mytrans;
     if (dtp->getTransform("test1",mytrans)) {
       CLHEP::Hep3Vector transl=mytrans.getTranslation();
-      m_log << MSG::INFO <<" X Y Z of test1 are " << transl.x() << "," <<
-	transl.y() << "," << transl.z() << endreq;
+      ATH_MSG_INFO(" X Y Z of test1 are " << transl.x() << "," <<
+		   transl.y() << "," << transl.z());
     } else {
-      m_log << MSG::ERROR << "Key test1 not found!" << endreq;
+      ATH_MSG_ERROR("Key test1 not found!");
     }
   } else {
-    m_log << MSG::ERROR << "Retrieve of TOPTRANS failed" << endreq;
+    ATH_MSG_ERROR("Retrieve of TOPTRANS failed");
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode ReadTopTrans::finalize() {
-  m_log << MSG::INFO << "In ReadTopTrans::finalize" << endreq;
+  ATH_MSG_INFO("In ReadTopTrans::finalize");
   return StatusCode::SUCCESS;
 }
 
 StatusCode ReadTopTrans::testCallBack( IOVSVC_CALLBACK_ARGS_P( /* I */, 
 							       /* keys */ ) ) {
-  m_log << MSG::INFO << "ReadTopTrans callback invoked for keys:";
+  ATH_MSG_INFO("ReadTopTrans callback invoked");
   // find and print the object
-  m_log << MSG::INFO << "Attempting to retrieve TOPTRANS from IOV callback" <<
-    endreq;
+  ATH_MSG_INFO("Attempting to retrieve TOPTRANS from IOV callback");
   const DetCondKeyTrans* dtp;
-  if (StatusCode::SUCCESS==p_detstore->retrieve(dtp,"/GLOBAL/GEOM/TOPTRANS")) {
+  if (StatusCode::SUCCESS==detStore()->retrieve(dtp,"/GLOBAL/GEOM/TOPTRANS")) {
     dtp->print();
   } else {
-    m_log << MSG::ERROR << "Retrieve of TOPTRANS in IOV callback failed" 
-	  << endreq;
+    ATH_MSG_ERROR("Retrieve of TOPTRANS in IOV callback failed");
   }
 
   return StatusCode::SUCCESS;
@@ -102,13 +89,13 @@ StatusCode ReadTopTrans::testCallBack( IOVSVC_CALLBACK_ARGS_P( /* I */,
 
 void ReadTopTrans::handle(const Incident& inc) {
   if (inc.type()!="BeginRun") return;
-  m_log << MSG::INFO << "In beginrun incident" << endreq;
+  ATH_MSG_INFO("In beginrun incident");
   // find TOPTRANS object from begin run incident
   const DetCondKeyTrans* dtp;
-  if (StatusCode::SUCCESS==p_detstore->retrieve(dtp,"/GLOBAL/GEOM/TOPTRANS")) {
-    m_log << MSG::INFO << "Retrieve of TOPTRANS succeeded" << endreq;
+  if (StatusCode::SUCCESS==detStore()->retrieve(dtp,"/GLOBAL/GEOM/TOPTRANS")) {
+    ATH_MSG_INFO("Retrieve of TOPTRANS succeeded");
     dtp->print();
   } else {
-    m_log << MSG::ERROR << "Retrieve of TOPTRANS failed" << endreq;
+    ATH_MSG_ERROR("Retrieve of TOPTRANS failed");
   }
 }
