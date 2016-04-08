@@ -171,8 +171,10 @@ MultilayerRtDifference :: MultilayerRtDifference( const MultilayerRtDifference &
 MultilayerRtDifference& MultilayerRtDifference::operator=( const MultilayerRtDifference& MLRTD ) {
   if(this!=&MLRTD){
     m_min_number_of_hits = MLRTD.m_min_number_of_hits;
-    m_polfun = MLRTD.m_polfun;
-    m_histograms = MLRTD.m_histograms;
+    delete m_polfun;
+    m_polfun = new TF1( *MLRTD.m_polfun);
+    delete m_histograms;
+    m_histograms = new MultilayerRtDifference_Histograms( *MLRTD.m_histograms);
   }
   return *this;
 }

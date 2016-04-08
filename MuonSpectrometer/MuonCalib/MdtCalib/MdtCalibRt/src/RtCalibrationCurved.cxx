@@ -1558,7 +1558,7 @@ RtRelationLookUp * RtCalibrationCurved::performParabolicExtrapolation(
     return rt_low;
   }
   if(rt_low) delete rt_low;
-  if(in_rt.HasTmaxDiff()) {
+  if(in_rt.HasTmaxDiff() && rt_high) {
     rt_high->SetTmaxDiff(in_rt.GetTmaxDiff());
   }
   return rt_high;
