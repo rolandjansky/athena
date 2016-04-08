@@ -29,6 +29,7 @@ def getmodule(modname):
     # Does it match a pattern?
     if (modname.endswith('_900GeV')
         or modname.endswith('_2p76TeV')
+        or modname.endswith('_5TeV')
         or modname.endswith('_7TeV')
         or modname.endswith('_8TeV')
         or modname.endswith('_13TeV')
