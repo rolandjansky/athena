@@ -11,7 +11,8 @@ namespace HSG5 {
 //________________________________________________________________________
 LeptonFilter::LeptonFilter( const std::string& name,
 			    ISvcLocator* pSvcLocator ) 
-  : AthFilterAlgorithm(name,pSvcLocator)
+  : AthFilterAlgorithm(name,pSvcLocator),
+    m_electronFilter(0)
 {
 
   declareProperty("ElectronFilterNameAndType", m_electronFilterNameAndType="D2PDElectronSelector/ElectronSelector");
