@@ -20,8 +20,11 @@ class TrigPrimaryVertexFitter: public AthAlgTool, virtual public ITrigPrimaryVer
 
   virtual TrigVertex* fit(const TrigInDetTrackCollection*, double z=0.0);
   virtual TrigVertex* fit(const TrigInDetTrackCollection*, std::vector<double>&, double z=0.0);
+
+  virtual TrigVertex* fit(const TrackCollection*, TrackCollection&, double z=0.0);
+  virtual TrigVertex* fit(const TrackCollection*, std::vector<double>&, double z=0.0);
 private:
-  bool m_checkTracks(const TrigInDetTrackCollection*);
+  bool checkTracks(const TrigInDetTrackCollection*);
   int m_numIter;
   double m_zVariance,m_maxChi2Increase, m_chi2cut, m_chi2cut_loose;
   bool m_createTrackLists;

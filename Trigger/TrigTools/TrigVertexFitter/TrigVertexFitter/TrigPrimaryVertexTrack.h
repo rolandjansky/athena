@@ -51,4 +51,4 @@ class TrigPrimaryVertexTrack : public TrigVertexFittingNode
 };
 
 
-#endif
+#endif // not TRIGVERTEXFITTER_TRIGPRIMARYVERTEXTRACK_H
