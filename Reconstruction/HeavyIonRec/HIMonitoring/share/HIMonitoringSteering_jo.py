@@ -8,9 +8,9 @@ ZDCmon = True,
 ESmon = True,
 )
 
-HIEventShapeMonTool.TriggerChain = "HLT_noalg_mb_L1ZDC_A_C,HLT_noalg_mb_L1MBTS_1_1,HLT_noalg_mb_L1TE5"
-if DQMonFlags.useTrigger():
-   HIEventShapeMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
+#HIEventShapeMonTool.TriggerChain = "HLT_noalg_mb_L1ZDC_A_C,HLT_noalg_mb_L1MBTS_1_1,HLT_noalg_mb_L1TE5"
+#if DQMonFlags.useTrigger():
+#   HIEventShapeMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
 
 ## Photons 
 from HIMonitoring.HIMonitoringConf import HIMonitoringPhotonsTool
@@ -18,9 +18,9 @@ HIPhotonsMonTool = HIMonitoringPhotonsTool (
 name           = "HIPhotonsMonTool",
 )
 
-HIPhotonsMonTool.TriggerChain = "HLT_g15_loose"
-if DQMonFlags.useTrigger():
-    HIPhotonsMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
+#HIPhotonsMonTool.TriggerChain = "HLT_g15_loose"
+#if DQMonFlags.useTrigger():
+#    HIPhotonsMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
 
 ## Muons 
 from HIMonitoring.HIMonitoringConf import HIMonitoringMuonsTool
@@ -28,9 +28,9 @@ HIMuonsMonTool = HIMonitoringMuonsTool (
 name           = "HIMuonsMonTool",
 )
 
-HIMuonsMonTool.TriggerChain = "HLT_mu4,HLT_mu10,HLT_mu14"
-if DQMonFlags.useTrigger():
-    HIMuonsMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
+#HIMuonsMonTool.TriggerChain = "HLT_mu4,HLT_mu10,HLT_mu14"
+#if DQMonFlags.useTrigger():
+#    HIMuonsMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
 
 ## ZDC  
 from HIMonitoring.HIMonitoringConf import HIMonitoringZdcTool
@@ -38,9 +38,9 @@ HIZdcMonTool = HIMonitoringZdcTool (
 name           = "HIZdcMonTool",
 )
 
-HIZdcMonTool.TriggerChain = "HLT_noalg_mb_L1ZDC_A_C"
-if DQMonFlags.useTrigger():
-    HIZdcMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
+#HIZdcMonTool.TriggerChain = "HLT_noalg_mb_L1ZDC_A_C"
+#if DQMonFlags.useTrigger():
+#    HIZdcMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
 
 ## Electrons  
 from HIMonitoring.HIMonitoringConf import HIMonitoringElectronsTool
@@ -48,9 +48,9 @@ HIElectronsMonTool = HIMonitoringElectronsTool (
 name           = "HIElectronsMonTool",
 )
                                       
-HIElectronsMonTool.TriggerChain = "HLT_e15_etcut_ion,HLT_e15_loose_ion,HLT_e15_medium_ion"
-if DQMonFlags.useTrigger():
-    HIElectronsMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
+#HIElectronsMonTool.TriggerChain = "HLT_e15_etcut_ion,HLT_e15_loose_ion,HLT_e15_medium_ion"
+#if DQMonFlags.useTrigger():
+#    HIElectronsMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
 
 
 
