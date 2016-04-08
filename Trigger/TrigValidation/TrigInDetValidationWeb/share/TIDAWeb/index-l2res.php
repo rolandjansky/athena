@@ -24,8 +24,8 @@ Released for free under a Creative Commons Attribution 2.5 License
 <?php
   print("<table>\n");  
   tableTitle( "L2res", "Residuals: Level 2", lowptLink( $l2res_dir_lowpt, $lowpt ) );
-  tableRow( $l2res_dir, "L2_eta_res", "L2 eta residual",    "L2_ipT_res", "L2 inverse PT residual" );
-  tableRow( $l2res_dir, "L2_phi_res", "L2 phi residual",    "L2_z0_res",  "L2 z0 residual" ); 
+  tableRow( $l2res_dir, "HLT_eta_res", "L2 eta residual",    "HLT_ipT_res", "L2 inverse PT residual" );
+  tableRow( $l2res_dir, "HLT_phi_res", "L2 phi residual",    "HLT_z0_res",  "L2 z0 residual" ); 
   print("</table>\n");  
 ?>
 

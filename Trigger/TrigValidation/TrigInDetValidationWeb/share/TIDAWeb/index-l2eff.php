@@ -24,8 +24,8 @@ Released for free under a Creative Commons Attribution 2.5 License
 <?php
   print("<table>\n");  
   tableTitle( "L2eff", "Efficiencies: Level 2", lowptLink( $l2eff_dir_lowpt, $lowpt ) );    
-  tableRow( $l2eff_dir, L2_eta_eff, "L2 eta efficiency", L2_pT_eff, "L2 PT efficiency"); 
-  tableRow( $l2eff_dir, L2_phi_eff, "L2 phi efficiency", L2_d0_eff, "L2 d0 efficiency"); 
+  tableRow( $l2eff_dir, HLT_eta_eff, "L2 eta efficiency", HLT_pT_eff, "L2 PT efficiency"); 
+  tableRow( $l2eff_dir, HLT_phi_eff, "L2 phi efficiency", HLT_a0_eff, "L2 d0 efficiency"); 
   print("</table>\n");  
 ?>
 

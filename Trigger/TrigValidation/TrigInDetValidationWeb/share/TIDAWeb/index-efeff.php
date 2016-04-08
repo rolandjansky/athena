@@ -25,8 +25,8 @@ Released for free under a Creative Commons Attribution 2.5 License
 <?php
   print("<table>\n");
   tableTitle( "EFeff", "Efficiencies: Event Filter", lowptLink( $efeff_dir_lowpt, $lowpt ) );    
-  tableRow( $efeff_dir, EF_eta_eff, "EF eta efficiency", EF_pT_eff, "EF PT efficiency"); 
-  tableRow( $efeff_dir, EF_phi_eff, "EF phi efficiency", EF_d0_eff, "EF d0 efficiency"); 
+  tableRow( $efeff_dir, HLT_eta_eff, "EF eta efficiency", HLT_pT_eff, "EF PT efficiency"); 
+  tableRow( $efeff_dir, HLT_phi_eff, "EF phi efficiency", HLT_a0_eff, "EF d0 efficiency"); 
   print("</table>\n");  
 ?>
 
