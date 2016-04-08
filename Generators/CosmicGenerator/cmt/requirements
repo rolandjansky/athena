@@ -12,7 +12,6 @@ use AtlasHepMC          AtlasHepMC-*            External
 
 private
 use GaudiInterface      GaudiInterface-*        External
-use TrackRecord         TrackRecord-*           Simulation/G4Sim
 end_private
 
 public
