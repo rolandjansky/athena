@@ -85,6 +85,10 @@ namespace iFatras {
 	- fullfills Trk::MeasurementBase interface */
     const Amg::Vector3D& globalPosition() const;
 
+    /** returns global position (gathered through Surface constraint)
+	- fullfills Trk::MeasurementBase interface */
+    const Amg::Vector3D* globalPositionPtr() const;
+
     /** returns the DE hashID* 
 	- fullfills Trk::RIO_OnTrack interface */
     IdentifierHash idDE() const;
@@ -119,9 +123,12 @@ namespace iFatras {
   inline const Trk::Surface& PlanarClusterOnTrack::associatedSurface() const
   { return ( detectorElement()->surface()); }
 
-  inline const Amg::Vector3D& PlanarClusterOnTrack::globalPosition() const {
+  inline const Amg::Vector3D* PlanarClusterOnTrack::globalPositionPtr() const {
     if (!m_globalPosition) m_globalPosition = associatedSurface().localToGlobal(localParameters());
-    return (*m_globalPosition); }
+    return m_globalPosition; }
+  
+  inline const Amg::Vector3D& PlanarClusterOnTrack::globalPosition() const {
+    return *globalPositionPtr(); }
   
   inline PlanarClusterOnTrack* PlanarClusterOnTrack::clone() const {
     return new PlanarClusterOnTrack(*this); }
