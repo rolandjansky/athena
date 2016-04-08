@@ -9,10 +9,6 @@
 
 class TRT_Hit_p1 {
  public:
-  TRT_Hit_p1()  {};
-  friend class TRT_HitCnv_p1;
-  
- private:
   int hitID; // To identify the hit
   HepMcParticleLink_p1 m_partLink; // link to the particle generating the hit
   int particleEncoding;         // PDG id 

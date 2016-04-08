@@ -20,7 +20,7 @@ class TRT_HitCollection_p3
   /// Default constructor
   TRT_HitCollection_p3 ();
 
- private:
+  // private:
 
   //
   //  1 element per string (a string resides in one straw; there may be more than one string in a straw)

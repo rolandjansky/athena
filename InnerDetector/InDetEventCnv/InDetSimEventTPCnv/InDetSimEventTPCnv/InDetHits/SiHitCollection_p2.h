@@ -19,7 +19,7 @@ class SiHitCollection_p2
  public:
 /// Default constructor
   SiHitCollection_p2 ();
- private:
+  // private:
 
   std::vector<float>          m_hit1_meanTime;   //  1 element per string
   std::vector<float>          m_hit1_x0;         //

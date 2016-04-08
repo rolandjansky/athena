@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetSimEvent/SiHit.h"
-#undef private
-#undef protected
 #include "Identifier/Identifier.h"
 #include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
 
@@ -18,21 +14,21 @@ void
 SiHitCnv_p1::persToTrans(const SiHit_p1* persObj, SiHit* transObj, 
 MsgStream &log)
 {
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SiHitCnv_p1::persToTrans called " << endreq;
-   HepMcParticleLinkCnv_p1 HepMcPLCnv;
+  HepMcParticleLinkCnv_p1 HepMcPLCnv;
+  HepMcParticleLink link;
+  HepMcPLCnv.persToTrans(&(persObj->m_partLink),&link, log);
 
-   transObj->m_stX         = persObj->m_stX;
-   transObj->m_stY         = persObj->m_stY;
-   transObj->m_stZ         = persObj->m_stZ;
-
-   transObj->m_enX         = persObj->m_enX;
-   transObj->m_enY         = persObj->m_enY;
-   transObj->m_enZ         = persObj->m_enZ;
-
-   transObj->m_energyLoss  = persObj->m_energyLoss;
-   transObj->m_meanTime    = persObj->m_meanTime;
-   transObj->m_ID          = persObj->m_ID;
-   HepMcPLCnv.persToTrans(&(persObj->m_partLink),&(transObj->m_partLink), log);   
+   *transObj = SiHit (HepGeom::Point3D<double> (persObj->m_stX,
+                                                persObj->m_stY,
+                                                persObj->m_stZ),
+                      HepGeom::Point3D<double> (persObj->m_enX,
+                                                persObj->m_enY,
+                                                persObj->m_enZ),
+                      persObj->m_energyLoss,
+                      persObj->m_meanTime,
+                      link.barcode(),
+                      persObj->m_ID
+                      );
 }
 
 
@@ -43,16 +39,18 @@ MsgStream &log)
 //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SiHitCnv_p1::transToPers called " << endreq;
    HepMcParticleLinkCnv_p1 HepMcPLCnv;
 
-   persObj->m_stX         = transObj->m_stX;
-   persObj->m_stY         = transObj->m_stY;
-   persObj->m_stZ         = transObj->m_stZ;
+   HepGeom::Point3D<double> st = transObj->localStartPosition();
+   persObj->m_stX         = st.x();
+   persObj->m_stY         = st.y();
+   persObj->m_stZ         = st.z();
 
-   persObj->m_enX         = transObj->m_enX;
-   persObj->m_enY         = transObj->m_enY;
-   persObj->m_enZ         = transObj->m_enZ;
+   HepGeom::Point3D<double> en = transObj->localEndPosition();
+   persObj->m_enX         = en.x();
+   persObj->m_enY         = en.y();
+   persObj->m_enZ         = en.z();
 
-   persObj->m_energyLoss  = transObj->m_energyLoss;
-   persObj->m_meanTime    = transObj->m_meanTime;
-   persObj->m_ID          = transObj->m_ID;
-   HepMcPLCnv.transToPers(&(transObj->m_partLink),&(persObj->m_partLink), log);   
+   persObj->m_energyLoss  = transObj->energyLoss();
+   persObj->m_meanTime    = transObj->meanTime();
+   persObj->m_ID          = transObj->identify();
+   HepMcPLCnv.transToPers(&(transObj->particleLink()),&(persObj->m_partLink), log);   
 }

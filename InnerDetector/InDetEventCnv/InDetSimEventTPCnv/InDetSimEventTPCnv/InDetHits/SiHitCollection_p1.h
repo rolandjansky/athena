@@ -32,7 +32,7 @@ public:
     // Accessors
     const std::string&  name() const; 
     const HitVector&    getVector() const;
-private:
+    //private:
     std::vector<SiHit_p1>   m_cont; 
     std::string              m_name;
 };

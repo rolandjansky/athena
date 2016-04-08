@@ -19,7 +19,7 @@ class TRT_HitCollection_p2
  public:
   /// Default constructor
   TRT_HitCollection_p2 ();
- private:
+  // private:
 
   std::vector<float>          m_hit1_startX;    //  1 element per string
   std::vector<float>          m_hit1_startY;    //
