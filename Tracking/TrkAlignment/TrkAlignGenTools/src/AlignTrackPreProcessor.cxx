@@ -22,6 +22,7 @@
 
 
 #include "TrkAlignEvent/AlignTrack.h"
+#include "EventPrimitives/EventPrimitives.h"
 
 namespace Trk {
 
@@ -37,6 +38,7 @@ namespace Trk {
     , m_particleHypothesis(Trk::nonInteracting)
     , m_useSingleFitter(false)
     , m_selectHits(false)
+    , m_fixMomentum(false)
   {
     declareInterface<IAlignTrackPreProcessor>(this);
 
@@ -56,6 +58,7 @@ namespace Trk {
 
     declareProperty("HitQualityTool", m_hitQualityTool);
     declareProperty("SelectHits", m_selectHits);
+    declareProperty("FixMomentum", m_fixMomentum);
 
     m_logStream = 0;
   }
@@ -203,13 +206,20 @@ namespace Trk {
     at->setFullCovarianceMatrix(fitter->FullCovarianceMatrix());
     at->setDerivativeMatrix(fitter->DerivMatrix());
   }
-  
+  if (m_fixMomentum)
+    {
+       at->AlignTrack::setRefitQovP(false);
+    }
   // delete newTrack since it's copied in AlignTrack
   delete newTrack;
       }
       else { // in case no selection is performed, keep all tracks
         at=new AlignTrack(*newTrack);
       }
+  	if (m_fixMomentum)
+ 	   {
+  	     at->AlignTrack::setRefitQovP(false);
+ 	   }
       
       newTracks->push_back(at);
     } 

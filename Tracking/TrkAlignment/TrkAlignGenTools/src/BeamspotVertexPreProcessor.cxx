@@ -67,6 +67,7 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   , m_doBeamspotConstraint(true)
   , m_doPrimaryVertexConstraint(false) 
   , m_doFullVertexConstraint(false)
+  , m_doNormalRefit(true)
   , m_refitTracks(true)
   , m_storeFitMatrices(true)
   , m_useSingleFitter(false)
@@ -102,6 +103,8 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   declareProperty("BeamspotScalingFactor",     m_BSScalingFactor          );
   declareProperty("PrimaryVertexScalingFactor",m_PVScalingFactor          );
   declareProperty("MinTrksInVtx",              m_minTrksInVtx             );
+  declareProperty("doNormalRefit"             ,m_doNormalRefit            );
+  
 
   std::vector<std::string> defaultInterestedVertexContainers;
   defaultInterestedVertexContainers.push_back("PrimaryVertices");       // MD: Maybe only the first container?
@@ -691,8 +694,8 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
   
   if(m_doPrimaryVertexConstraint){
     vot = provideVotFromVertex(track, vtx);
-    if( !vot )  ATH_MSG_DEBUG( "VoT not found for this track! ");
-    if( !vtx )  ATH_MSG_DEBUG( "VTX pointer not found for this track! ");
+    if( !vot )  ATH_MSG_INFO( "VoT not found for this track! ");
+    if( !vtx )  ATH_MSG_INFO( "VTX pointer not found for this track! ");
     if(vot){
       newTrack = doConstraintRefit(fitter, track, vot, particleHypothesis);       
       type = AlignTrack::VertexConstrained;
@@ -717,7 +720,8 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
       }
   }
 
-  if(!newTrack){
+  
+  if(!newTrack && m_doNormalRefit){
       newTrack = fitter->fit(*track,m_runOutlierRemoval,particleHypothesis);
       type = AlignTrack::NormalRefitted;
       // this track failed the normal reift
