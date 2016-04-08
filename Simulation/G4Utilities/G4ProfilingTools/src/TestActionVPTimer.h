@@ -25,9 +25,8 @@
 #define TestActionVPTimer_H
 
 #include "VolumeTreeNavigator.h"
-#include "FadsActions/ActionsBase.h"
-#include "FadsActions/UserAction.h"
-#include "FadsActions/FadsTrackingAction.h"
+
+#include "G4AtlasTools/UserActionBase.h"
 
 #include "G4Timer.hh"
 #include "G4VPhysicalVolume.hh"
@@ -80,17 +79,17 @@ volData volData::operator+= (const volData& acc)
 typedef std::map<VolTree, volData> VolMap;
 typedef VolMap::const_iterator VolIt;
 
-class TestActionVPTimer: public FADS::ActionsBase , public FADS::UserAction
+class TestActionVPTimer final: public UserActionBase
 {  
  public:
 
-  TestActionVPTimer(std::string s);
-  void BeginOfEventAction(const G4Event*);	//!< Action that starts the new event timers
-  void EndOfEventAction(const G4Event*);	//!< Action that prints all available information at the end of each event
-  void BeginOfRunAction(const G4Run*);		//!< Action that starts the timers at the beginning of the run
-  void EndOfRunAction(const G4Run*);		//!< Action that prints all information at the end of the run
-  void SteppingAction(const G4Step*);		//!< Stepping action that increments the appropriate timer
-
+  TestActionVPTimer(const std::string& type, const std::string& name, const IInterface* parent);
+  virtual void BeginOfEvent(const G4Event*) override;	//!< Action that starts the new event timers
+  virtual void EndOfEvent(const G4Event*) override;	//!< Action that prints all available information at the end of each event
+  virtual void EndOfRun(const G4Run*) override;		//!< Action that prints all information at the end of the run
+  virtual void Step(const G4Step*) override;		//!< Stepping action that increments the appropriate timer
+  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+ 
  private:
 
   //std::string fName;			//!< Name of output csv file

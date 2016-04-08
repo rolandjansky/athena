@@ -37,15 +37,21 @@ using std::pair;	using std::find;	using std::vector;
 
 // #define _myDebug
 
-static TestActionVPTimer ts1("TestActionVPTimer");
-
-TestActionVPTimer::TestActionVPTimer(std::string s): 
-    FADS::ActionsBase(s),FADS::UserAction(s),
+TestActionVPTimer::TestActionVPTimer(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent),
     m_runTimer(0), m_eventTimer(0),
     m_runTime(0.), m_eventTime(0.),
     dCALO(2), dBeam(2), dIDET(2), dMUON(2), dDetail(""),
     m_nev(0)
 {
+
+  declareProperty("CaloDepth",dCALO);
+  declareProperty("BeamPipeDepth",dBeam);
+  declareProperty("InDetDepth",dIDET);
+  declareProperty("MuonDepth",dMUON);
+  declareProperty("DetailDepth",dDetail);
+
+
+
   // create event & run timers
   m_runTimer = new G4Timer();
   m_runTimer->Start();
@@ -64,7 +70,7 @@ TestActionVPTimer::TestActionVPTimer(std::string s):
 #endif
 }
 
-void TestActionVPTimer::BeginOfEventAction(const G4Event* /*anEvent*/)
+void TestActionVPTimer::BeginOfEvent(const G4Event* /*anEvent*/)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -81,7 +87,7 @@ void TestActionVPTimer::BeginOfEventAction(const G4Event* /*anEvent*/)
 }
 
 
-void TestActionVPTimer::EndOfEventAction(const G4Event* /*anEvent*/)
+void TestActionVPTimer::EndOfEvent(const G4Event* /*anEvent*/)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -97,48 +103,7 @@ void TestActionVPTimer::EndOfEventAction(const G4Event* /*anEvent*/)
 }
 
 
-void TestActionVPTimer::BeginOfRunAction(const G4Run* /*aRun*/)
-{
-#ifdef _myDebug
-  G4cout << "#########################################" << G4endl
-	 << "##                                     ##" << G4endl
-	 << "##    TestActionVPTimer - BeginOfRun     ##" << G4endl
-	 << "##                                     ##" << G4endl
-	 << "#########################################" << G4endl;
-#endif
-
-  // get jobOptions properties
-  //fName = theProperties["CSVFileName"];
-  //if (fName.empty()) {
-  //    ATH_MSG_WARNING("No output file name specified, using default.csv!");
-  //    fName = "default.csv";
-  //}
-
-  char * endptr=0;
-  if ( !theProperties["CaloDepth"].empty() ){     
-    dCALO = strtol(theProperties["CaloDepth"].c_str(),&endptr,0);
-    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["CaloDepth"]));
-  }
-  if ( !theProperties["BeamPipeDepth"].empty() ){
-    dBeam = strtol(theProperties["BeamPipeDepth"].c_str(),&endptr,0);
-    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["BeamPipeDepth"]));
-  }
-  if ( !theProperties["InDetDepth"].empty() ){
-    dIDET = strtol(theProperties["InDetDepth"].c_str(),&endptr,0);
-    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["InDetDepth"]));
-  }
-  if ( !theProperties["MuonDepth"].empty() ){
-    dMUON = strtol(theProperties["MuonDepth"].c_str(),&endptr,0);
-    if (endptr[0] != '\0') throw std::invalid_argument("Could not convert string to int: " + std::string(theProperties["MuonDepth"]));
-  }
-  if (!theProperties["DetailDepth"].empty())    dDetail = theProperties["DetailDepth"];
-  ATH_MSG_INFO("Retrieved job properties successfully!");
-  if (!m_runTimer->IsValid()) { m_runTimer->Start(); }
-  return;
-}
-
-
-void TestActionVPTimer::EndOfRunAction(const G4Run* /*aRun*/)
+void TestActionVPTimer::EndOfRun(const G4Run* /*aRun*/)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -194,7 +159,7 @@ void TestActionVPTimer::EndOfRunAction(const G4Run* /*aRun*/)
 }
 
 
-void TestActionVPTimer::SteppingAction(const G4Step* aStep)
+void TestActionVPTimer::Step(const G4Step* aStep)
 {
 #ifdef _myDebug
   G4cout << "#########################################" << G4endl
@@ -263,4 +228,17 @@ void TestActionVPTimer::TreeOut(VolTree id, const double tAtlas, int depth)
       TimerPrint(*v, tAtlas, depth);
   }
   return;
+}
+
+
+StatusCode TestActionVPTimer::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }
