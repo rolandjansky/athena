@@ -408,7 +408,7 @@ int BosonTag::result(const xAOD::Jet& jet, std::string algorithm_name) const {
     return -5;
   }
   if(jet.pt()/1.e3 > 2000.0){
-    printf("<%s>: Warning, jet has pT > 2 TeV!\r\nJet Pt: %0.6f GeV", APP_NAME, jet.pt()/1.e3);
+    if(m_verbose) printf("<%s>: Warning, jet has pT > 2 TeV!\r\nJet Pt: %0.6f GeV", APP_NAME, jet.pt()/1.e3);
     return -5;
   }
 

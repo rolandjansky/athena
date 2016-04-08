@@ -53,6 +53,14 @@ namespace JetSubStructureUtils {
                                      const xAOD::JetInput::Type jet_input,
                                      const xAOD::JetTransform::Type jet_transform) const;
 
+      // return a vector of track jets which are btagged by the tool
+      std::vector<const xAOD::Jet*> get_bTagged_trackJets(const xAOD::Jet& jet) const;
+      // return the matched muon object (nullptr if there is not one)
+      std::vector<const xAOD::Muon*> get_matched_muons(const xAOD::Jet& jet) const;
+      TLorentzVector get_correctedJet_TLV(const xAOD::Jet& jet) const;
+      std::pair<float, float> get_mass_window(const xAOD::Jet& jet) const;
+      std::pair<float, std::string> get_D2_pivot(const xAOD::Jet& jet) const;
+
     private:
       std::string m_working_point;
       std::string m_recommendations_file;
@@ -100,6 +108,16 @@ namespace JetSubStructureUtils {
       static SG::AuxElement::ConstAccessor<float> ECF1;
       static SG::AuxElement::ConstAccessor<float> ECF2;
       static SG::AuxElement::ConstAccessor<float> ECF3;
+
+      // generic accessors used
+      static SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> parent;
+
+      // generic decorations used
+      const SG::AuxElement::Decorator<int> isB;
+      const SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > > matchedMuonsLink;
+      const SG::AuxElement::Decorator<TLorentzVector> correctedJetDecor;
+      const SG::AuxElement::Decorator<std::pair<float, float>> massWindow;
+      const SG::AuxElement::Decorator<std::pair<float, std::string>> D2Pivot;
   };
 }
 

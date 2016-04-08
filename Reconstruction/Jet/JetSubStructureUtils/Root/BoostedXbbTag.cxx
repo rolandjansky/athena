@@ -38,6 +38,7 @@ SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::D2 ("D2");
 SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::ECF1 ("ECF1");
 SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::ECF2 ("ECF2");
 SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::ECF3 ("ECF3");
+SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> BoostedXbbTag::parent("Parent");
 
 BoostedXbbTag::BoostedXbbTag( std::string working_point,
                               std::string recommendations_file,
@@ -61,7 +62,12 @@ BoostedXbbTag::BoostedXbbTag( std::string working_point,
   m_D2_params(5, FLT_MIN),
   m_D2_cut_direction("None"),
   m_muonSelectionTool(new CP::MuonSelectionTool("JSSU_MuonSelection")),
-  m_bad_configuration(false)
+  m_bad_configuration(false),
+  isB(SG::AuxElement::Decorator<int>(m_decor_prefix+"isB")),
+  matchedMuonsLink(SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >(m_decor_prefix+"MatchedMuonsLink")),
+  correctedJetDecor(SG::AuxElement::Decorator<TLorentzVector>(m_decor_prefix+"CorrectedJetP4")),
+  massWindow(SG::AuxElement::Decorator<std::pair<float, float>>(m_decor_prefix+"MassWindow")),
+  D2Pivot(SG::AuxElement::Decorator<std::pair<float, std::string>>(m_decor_prefix+"D2Pivot"))
 {
 
   /* check configurations passed in, use m_bad_configuration as flag:
@@ -372,9 +378,13 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
       6. Cut on the D2 of the fat-jet (D2 from calorimeter constituents only)
   */
 
+  // global pass variables, set to false by default
+  bool pass_mass = false,
+       pass_d2   = false,
+       pass_btag = false;
+
   // Step 1
   std::vector<const xAOD::Jet*> associated_trackJets;
-  static SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> parent("Parent");
   // get the track jets from the parent
   bool problemWithParent = false;
   ElementLink<xAOD::JetContainer> parentEL;
@@ -403,8 +413,14 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
     if(m_verbose) printf("<%s>: Got track jets from parent jet.\r\n", APP_NAME);
   }
 
+  // decorate all trackjets by default
+  for(const auto& trackJet: associated_trackJets)
+    isB(*trackJet) = 0;
+
   // filter out the track jets we do not want (pT > 10 GeV and |eta| < 2.5 and at least 2 constituents)
-  std::remove_if(associated_trackJets.begin(), associated_trackJets.end(),  [](const xAOD::Jet* jet) -> bool { return (jet->pt()/1.e3 < 10.0 || abs(jet->eta()) > 2.5 || jet->numConstituents() < 2); });
+  associated_trackJets.erase(
+    std::remove_if(associated_trackJets.begin(), associated_trackJets.end(),  [this](const xAOD::Jet* jet) -> bool { return (jet->pt()/1.e3 < 10.0 || fabs(jet->eta()) > 2.5 || jet->numConstituents() < 2); }),
+    associated_trackJets.end());
   if(associated_trackJets.size() < 2){
     if(m_verbose) printf("<%s>: We need at least two associated track jets.\r\n", APP_NAME);
     return -2;
@@ -412,25 +428,27 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
 
   // Step 2
   std::sort(associated_trackJets.begin(), associated_trackJets.end(), [](const xAOD::IParticle* lhs, const xAOD::IParticle* rhs) -> bool { return (lhs->pt() > rhs->pt()); });
-  static SG::AuxElement::Decorator<int> isB(m_decor_prefix+"isB");
   int num_bTags(0);
   for(int i=0; i<2; i++){
+    auto& trackJet = associated_trackJets.at(i);
     double mv2c20(FLT_MIN);
-    if(!associated_trackJets.at(i)->btagging()->MVx_discriminant("MV2c20", mv2c20)){
+    if(!trackJet->btagging()->MVx_discriminant("MV2c20", mv2c20)){
       if(m_verbose) printf("<%s>: Could not retrieve the MV2c20 discriminant.\r\n", APP_NAME);
       return -9;
     }
     int isBTagged = static_cast<int>(mv2c20 > m_bTagCut);
-    isB(*(associated_trackJets.at(i))) = isBTagged;
+    isB(*trackJet) = isBTagged;
     num_bTags += isBTagged;
   }
   if( num_bTags < m_num_bTags ){
     if(m_verbose) printf("<%s>: We require the %d leading track jet%s b-tagged. %d %s b-tagged.\r\n", APP_NAME, m_num_bTags, (m_num_bTags == 1)?"":"s", num_bTags, (num_bTags == 1)?"was":"were");
-    return -2;
+    //return -2;
+  } else {
+    pass_btag = true;
   }
 
   // Step 3
-  const xAOD::Muon* matched_muon(nullptr);
+  std::vector<const xAOD::Muon*> matched_muons;
   // first select the muons: Combined, Medium, pT > 10 GeV, |eta| < 2.5
   std::vector<const xAOD::Muon*> preselected_muons(muons->size(), nullptr);
   auto it = std::copy_if(muons->begin(), muons->end(), preselected_muons.begin(), [this](const xAOD::Muon* muon) -> bool { return (muon->pt()/1.e3 > 10.0 && m_muonSelectionTool->getQuality(*muon) <= xAOD::Muon::Medium && fabs(muon->eta()) < 2.5); });
@@ -440,54 +458,58 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
     //return -3;
   } else {
     for(int i=0; i<2; i++){
+      auto& trackJet = associated_trackJets.at(i);
+      // only match muon to b-tagged track jets
+      if(isB(*trackJet) == 0) continue;
+      // it's b-tagged, try to match it
       float maxDR(0.2);
-      associated_trackJets.at(i)->getAttribute("SizeParameter", maxDR);
+      trackJet->getAttribute("SizeParameter", maxDR);
+      const xAOD::Muon *closest_muon(nullptr);
       for(const auto muon: preselected_muons){
-        float DR( associated_trackJets.at(i)->p4().DeltaR(muon->p4()) );
+        float DR( trackJet->p4().DeltaR(muon->p4()) );
         if(DR > maxDR) continue;
         maxDR = DR;
-        matched_muon = muon;
+        closest_muon = muon;
+      }
+      if(closest_muon) {
+        matched_muons.push_back(closest_muon);
       }
     }
   }
 
   // Step 4
-  static SG::AuxElement::Decorator<ElementLink<xAOD::IParticleContainer> > matchedMuonLink(m_decor_prefix+"MatchedMuonLink");
-  TLorentzVector corrected_jet;
-  if(!matched_muon){
-    if(m_verbose) printf("<%s>: There is no matched muon.\r\n", APP_NAME);
-    //return -3;
-    corrected_jet = jet.p4();
-    matchedMuonLink(jet) = ElementLink<xAOD::IParticleContainer>(); // null constructor
-  } else {
-    // super optimized version, need to know name of Muons collection
-    // ElementLink< xAOD::IParticleContainer > el_muon( "Muons", matched_muon->index() );
-    ElementLink<xAOD::IParticleContainer> el_muon( *muons, matched_muon->index() );
-    matchedMuonLink(jet) = el_muon;
-
+  TLorentzVector corrected_jet = jet.p4(); 
+  if(m_verbose) printf("<%s>: There are %d matched muons.\r\n", APP_NAME, (int)matched_muons.size());
+  std::vector<ElementLink<xAOD::IParticleContainer> > matched_muons_links;
+  for(auto muon : matched_muons) {
     float eLoss(0.0);
-    matched_muon->parameter(eLoss,xAOD::Muon::EnergyLoss);
+    muon->parameter(eLoss,xAOD::Muon::EnergyLoss);
     if(m_debug) printf("<%s>: getELossTLV xAOD::Muon eLoss= %0.2f\r\n", APP_NAME, eLoss);
-    auto mTLV = matched_muon->p4();
+    auto mTLV = muon->p4();
     double eLossX = eLoss*sin(mTLV.Theta())*cos(mTLV.Phi());
     double eLossY = eLoss*sin(mTLV.Theta())*sin(mTLV.Phi());
     double eLossZ = eLoss*cos(mTLV.Theta());
     auto mLoss = TLorentzVector(eLossX,eLossY,eLossZ,eLoss);
-    corrected_jet = jet.p4() + mTLV - mLoss;
+    corrected_jet = corrected_jet + mTLV - mLoss;
+
+    ElementLink<xAOD::IParticleContainer> el_muon( *muons, muon->index() );
+    matched_muons_links.push_back(el_muon);
   }
   // may not always be the corrected jet, but always contains what is used to cut against
-  static SG::AuxElement::Decorator<TLorentzVector> correctedJetDecor(m_decor_prefix+"CorrectedJetP4");
   correctedJetDecor(jet) = corrected_jet;
+  matchedMuonsLink(jet) = matched_muons_links;
 
   std::string buffer;
 
   // Step 5
+  massWindow(jet) = std::pair<float, float>(m_massMin, m_massMax);
   buffer = "<%s>: Jet %s the mass window cut.\r\n\tMass: %0.6f GeV\r\n\tMass Window: [ %0.6f, %0.6f ]\r\n";
   if(corrected_jet.M()/1.e3 < m_massMin || corrected_jet.M()/1.e3 > m_massMax){
     if(m_verbose) printf(buffer.c_str(), APP_NAME, "failed", corrected_jet.M()/1.e3, m_massMin, m_massMax);
-    return 0;
+    //return 0;
   } else {
     if(m_verbose) printf(buffer.c_str(), APP_NAME, "passed", corrected_jet.M()/1.e3, m_massMin, m_massMax);
+    pass_mass = true;
   }
 
   // Step 6
@@ -505,17 +527,61 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
     buffer = "<%s>: Jet %s the D2 cut from %s\r\n\tD2: %0.6f\r\n\tCut: %0.6f\r\n";
     // then calculate d2 and check that
     float D2Cut = m_D2_params[0] + m_D2_params[1] * jet.pt()/1.e3 + m_D2_params[2] * pow(jet.pt()/1.e3, 2) + m_D2_params[3] * pow(jet.pt()/1.e3, 3) + m_D2_params[4] * pow(jet.pt()/1.e3, 4);
+    D2Pivot(jet) = std::pair<float, std::string>(D2Cut, m_D2_cut_direction);
     if((d2 > D2Cut && m_D2_cut_direction == "RIGHT") || (d2 < D2Cut && m_D2_cut_direction == "LEFT")){
       if(m_verbose) printf(buffer.c_str(), APP_NAME, "failed", (m_D2_cut_direction == "RIGHT")?"above":"below", d2, D2Cut);
-      return 0;
+      //return 0;
     } else {
       if(m_verbose) printf(buffer.c_str(), APP_NAME, "passed", (m_D2_cut_direction == "RIGHT")?"above":"below", d2, D2Cut);
+      pass_d2 = true;
     }
   } else {
     if(m_verbose) printf("<%s>: No D2 cut has been requested here. The cut direction specified was %s which is not 'LEFT' or 'RIGHT'.\r\n", APP_NAME, m_D2_cut_direction.c_str());
   }
 
   if(m_verbose) printf("<%s>: Jet is tagged as %s.\r\n", APP_NAME, m_boson_type.c_str());
-  return 1;
+  //return 1;
+  return static_cast<int>((pass_mass << 2)|(pass_d2 << 1)|(pass_btag << 0));
 
+}
+
+std::vector<const xAOD::Jet*> BoostedXbbTag::get_bTagged_trackJets(const xAOD::Jet& jet) const {
+  std::vector<const xAOD::Jet*> associated_trackJets;
+  // get the track jets from the parent
+  (*parent(jet))->getAssociatedObjects<xAOD::Jet>("GhostAntiKt2TrackJet", associated_trackJets);
+  std::vector<const xAOD::Jet*> bTagged_trackJets;
+  for(const auto& jet: associated_trackJets){
+    if(isB(*jet) == 0) continue;
+    bTagged_trackJets.push_back(jet);
+  }
+  return bTagged_trackJets;
+}
+
+std::vector<const xAOD::Muon*> BoostedXbbTag::get_matched_muons(const xAOD::Jet& jet) const {
+  std::vector<const xAOD::Muon*> muons;
+
+  auto muonsLink = matchedMuonsLink(jet);
+  for(auto muonLink : muonsLink) {
+    if(!muonLink.isValid()) {
+      muons.push_back(nullptr);
+    }
+    else {
+      muons.push_back(static_cast<const xAOD::Muon*>(*muonLink));
+    }
+  }
+	
+  return muons;
+}
+
+
+TLorentzVector BoostedXbbTag::get_correctedJet_TLV(const xAOD::Jet& jet) const {
+  return correctedJetDecor(jet);
+}
+
+std::pair<float, float> BoostedXbbTag::get_mass_window(const xAOD::Jet& jet) const {
+  return massWindow(jet);
+}
+
+std::pair<float, std::string> BoostedXbbTag::get_D2_pivot(const xAOD::Jet& jet) const {
+  return D2Pivot(jet);
 }
