@@ -19,15 +19,11 @@
 TBADCRawMonTool::TBADCRawMonTool(const std::string & type, 
 				 const std::string & name,
 				 const IInterface* parent)
-  : MonitorToolBase(type, name, parent),
-    m_isBooked(false),
-    m_histo_adc(nullptr),
-    m_adcNum(0)
+  : MonitorToolBase(type, name, parent)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
-  //declareProperty("histoPathBase",m_path = "/stat"); 
-  m_path = "/stat";
+  declareProperty("histoPathBase",m_path = "/stat"); 
   
   //ADC histogram properties
   declareProperty("ADCNames",m_adcNames);

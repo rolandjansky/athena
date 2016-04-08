@@ -40,8 +40,7 @@ class TBBPCAlignmentMonTool: public MonitorToolBase
   StatusCode getnewcalib();
 
   // private members
-  //std::string m_path;
-  std::string m_SGkeybpc, m_SGkeytrack;
+  std::string m_path, m_SGkeybpc, m_SGkeytrack;
   std::vector<std::string> m_bpc_names;
   std::vector<float> xmean;
   std::vector<float> xrms;

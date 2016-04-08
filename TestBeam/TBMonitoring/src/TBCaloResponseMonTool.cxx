@@ -56,10 +56,8 @@ TBCaloResponseMonTool::TBCaloResponseMonTool(const std::string& type,
     , m_phiBins(64),   m_phiLow(-180.*CLHEP::deg), m_phiHigh(180.*CLHEP::deg) 
     , m_eUnit(CLHEP::GeV),    m_lUnit(CLHEP::mm),         m_aUnit(CLHEP::rad)
     , m_minEventsInBin(10)
-    , m_caloCellHelper(nullptr)
     , m_pi(2.*asin(1.))
     , m_twoPi(4.*asin(1.))
-    , m_totalE(nullptr)
 {
   declareInterface<IMonitorToolBase>(this);
   // default lists
@@ -110,6 +108,16 @@ StatusCode TBCaloResponseMonTool::initialize()
   // messaging
   MsgStream report(msgSvc(),name());
 
+  // allocate StoreGate
+  StatusCode checkOut = service("StoreGateSvc",m_storeGate);
+  if ( checkOut.isFailure() )
+    {
+      report << MSG::ERROR
+	     << "cannot allocate StoreGate service"
+	     << endreq;
+      return checkOut;
+    }
+
   // unit synchs
   m_eLow   /= m_eUnit; m_eHigh   /= m_eUnit;
   m_xLow   /= m_lUnit; m_xHigh   /= m_lUnit;
@@ -139,12 +147,29 @@ StatusCode TBCaloResponseMonTool::fillHists()
   /////////////////
 
   // CaloCells
-  const CaloCellContainer* cellContainer = nullptr;
-  ATH_CHECK( evtStore()->retrieve(cellContainer,m_caloCellName) );
+  const CaloCellContainer* cellContainer;
+  StatusCode checkOut = m_storeGate->retrieve(cellContainer,m_caloCellName);
+  if ( checkOut.isFailure() )
+    {
+      report << MSG::ERROR
+	     << "cannot allocate CaloCellContainer with key <"
+	     << m_caloCellName
+	     << ">"
+	     << endreq;
+      return checkOut;
+    }
 
   // BPC data
-  const TBBPCCont* bpcContainer = nullptr;
-  ATH_CHECK( evtStore()->retrieve(bpcContainer,m_bpcContainerName) );
+  const TBBPCCont* bpcContainer;
+  checkOut = m_storeGate->retrieve(bpcContainer,m_bpcContainerName);
+  if ( checkOut.isFailure() )
+    {
+      report << MSG::ERROR
+	     << "cannot allocate TBBPContainer with key <"
+	     << ">"
+	     << endreq;
+      return StatusCode::FAILURE;
+    }
   
   ////////////////////////
   // First Event Action //
@@ -162,14 +187,14 @@ StatusCode TBCaloResponseMonTool::fillHists()
 		 << "BPC <"
 		 << (*firstBPC)->getDetectorName()
 		 << "> found in event"
-		 << endmsg;
+		 << endreq;
 	}
       // perform setup action
       if ( (this->setupAction()).isFailure() )
 	{
 	  report << MSG::ERROR
 		 << "problems performing setup action"
-		 << endmsg;
+		 << endreq;
 	  return StatusCode::FAILURE;
 	}
     }
@@ -195,7 +220,7 @@ StatusCode TBCaloResponseMonTool::fillHists()
 	     << bpcContainer->size()
 	     << " does not fit internal collection size "
 	     << bpcPos.size()
-	     << endmsg;
+	     << endreq;
     }
 
   ////////////////////////////////
@@ -315,7 +340,7 @@ StatusCode TBCaloResponseMonTool::setupAction()
     {
       report << MSG::ERROR
 	     << "cannot allocate CaloCell Id manager object"
-	     << endmsg;
+	     << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -326,7 +351,7 @@ StatusCode TBCaloResponseMonTool::setupAction()
     {
       report << MSG::ERROR
 	     << "cannot allocate CaloCell_ID helper"
-	     << endmsg;
+	     << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -360,7 +385,7 @@ StatusCode TBCaloResponseMonTool::setupAction()
 	  report << MSG::INFO << "\042TILE\042 ";
 	}
     }
-  report << MSG::INFO << endmsg;
+  report << MSG::INFO << endreq;
 
   // get calorimeter samplings
   std::vector<std::string>::const_iterator firstSampling =
@@ -380,7 +405,7 @@ StatusCode TBCaloResponseMonTool::setupAction()
 		 << "\042 ";
 	}
     }
-  report << MSG::INFO << endmsg;
+  report << MSG::INFO << endreq;
   
   // book "static" histograms
   this->SetBookStatus( this->bookMyHists() == StatusCode::SUCCESS );
@@ -388,7 +413,7 @@ StatusCode TBCaloResponseMonTool::setupAction()
     {
       report << MSG::ERROR
 	     << "cannot book common histograms"
-	     << endmsg;
+	     << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -404,7 +429,7 @@ StatusCode TBCaloResponseMonTool::bookHists()
   MsgStream report(msgSvc(),name());
   report << MSG::INFO
 	 << "no event independent histograms to book"
-	 << endmsg;
+	 << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -415,23 +440,23 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
   report << MSG::INFO
 	 << "Energy distributions         min/max/#bins "
 	 << m_eLow << "/" << m_eHigh << "/" << m_eBins
-	 << endmsg;
+	 << endreq;
   report << MSG::INFO
 	 << "Beam width (x) distributions min/max/#bins "
 	 << m_xLow << "/" << m_xHigh << "/" << m_xBins
-	 << endmsg;
+	 << endreq;
   report << MSG::INFO
 	 << "Beam width (y) distributions min/max/#bins "
 	 << m_yLow << "/" << m_yHigh << "/" << m_yBins
-	 << endmsg;
+	 << endreq;
   report << MSG::INFO
 	 << "Eta distributions            min/max/#bins "
 	 << m_etaLow << "/" << m_etaHigh << "/" << m_etaBins
-	 << endmsg;
+	 << endreq;
   report << MSG::INFO
 	 << "Phi distributions            min/max/#bins "
 	 << m_phiLow << "/" << m_phiHigh << "/" << m_phiBins
-	 << endmsg;
+	 << endreq;
 
   // booking
   std::string pName;
@@ -446,7 +471,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 	 << ">, title \042"
 	 << tName
 	 << "\042"
-	 << endmsg;
+	 << endreq;
   // cell energy
   //  tName = "CellE";
   //  pName = m_path + "/" + tName;
@@ -457,7 +482,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
   //	 << ">, title \042"
   //	 << tName
   //	 << "\042"
-  //	 << endmsg;
+  //	 << endreq;
 
   // cell energy in eta/phi
   //  tName = "CellEinEtaPhi";
@@ -502,7 +527,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 	     << ">, title \042"
 	     << tName << " Energy"
 	     << "\042"
-	     << endmsg;
+	     << endreq;
       m_caloE[*firstModule] = ToolHistoSvc()->book(pName,tName+" Energy",
 						   m_eBins,m_eLow,m_eHigh);
     }
@@ -524,7 +549,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 	     << ">, title \042"
 	     << tName
 	     << "\042"
-	     << endmsg;
+	     << endreq;
       m_layerE[*firstSampling] = ToolHistoSvc()->book(pName,tName,
 						      m_eBins,m_eLow,m_eHigh);
       //      pName             = m_path + "/" + lName + "_CellE";
@@ -535,7 +560,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
       //	     << ">, title \042"
       //	     << tName
       //	     << "\042"
-      //	     << endmsg;
+      //	     << endreq;
       //      m_layerCellE[*firstSampling] = ToolHistoSvc()->book(pName,tName,
       //							  m_eBins,
       //							  m_eLow,m_eHigh);
@@ -547,7 +572,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
       //	     << ">, title \042"
       //	     << tName
       //	     << "\042"
-      //	     << endmsg;
+      //	     << endreq;
       //      m_layerCellEinEtaVsPhi[*firstSampling] = 
       //	ToolHistoSvc()->book(pName,tName,
       //			     m_etaBins,m_etaLow,m_etaHigh,
@@ -574,7 +599,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 	     << ">, title \042"
 	     << tName
 	     << "\042"
-	     << endmsg;
+	     << endreq;
       m_totalEvsBPCx[m_bpcNames[i]] = ToolHistoSvc()->book(pName,tName,
 							   m_xBins,
 							   m_xLow,m_xHigh);
@@ -586,7 +611,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 	     << ">, title \042"
 	     << tName
 	     << "\042"
-	     << endmsg;
+	     << endreq;
       m_totalEvsBPCy[m_bpcNames[i]] = ToolHistoSvc()->book(pName,tName,
 							   m_yBins,
 							   m_yLow,m_yHigh);
@@ -598,7 +623,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 	     << ">, title \042"
 	     << tName
 	     << "\042"
-	     << endmsg;
+	     << endreq;
       m_totalEinBPCxVsBPCy[m_bpcNames[i]] = 
 	ToolHistoSvc()->book(pName,tName,
 			     m_xBins,m_xLow,m_xHigh,
@@ -619,7 +644,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << ">, title \042"
 		 << tName
 		 << "\042"
-		 << endmsg;
+		 << endreq;
 	  (m_caloEvsBPCx[m_bpcNames[i]])[*firstM] = 
 	    ToolHistoSvc()->book(pName,tName,m_xBins,m_xLow,m_xHigh);
 	  (m_caloEProfileX[m_bpcNames[i]])[*firstM] =
@@ -632,7 +657,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << ">, title \042"
 		 << tName
 		 << "\042"
-		 << endmsg;
+		 << endreq;
 	  (m_caloEvsBPCy[m_bpcNames[i]])[*firstM] = 
 	    ToolHistoSvc()->book(pName,tName,m_yBins,m_yLow,m_yHigh);
 	  (m_caloEProfileY[m_bpcNames[i]])[*firstM] = 
@@ -645,7 +670,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << ">, title \042"
 		 << tName
 		 << "\042"
-		 << endmsg;
+		 << endreq;
 	  (m_caloEinBPCxVsBPCy[m_bpcNames[i]])[*firstM] = 
 	    ToolHistoSvc()->book(pName,tName,
 			     m_xBins,m_xLow,m_xHigh,
@@ -671,7 +696,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << ">, title \042"
 		 << tName
 		 << "\042"
-		 << endmsg;
+		 << endreq;
 	  (m_layerEvsBPCx[m_bpcNames[i]])[*firstS] = 
 	    ToolHistoSvc()->book(pName,tName,m_xBins,m_xLow,m_xHigh);
 	  (m_layerEProfileX[m_bpcNames[i]])[*firstS] =
@@ -684,7 +709,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << ">, title \042"
 		 << tName
 		 << "\042"
-		 << endmsg;
+		 << endreq;
 	  (m_layerEvsBPCy[m_bpcNames[i]])[*firstS] = 
 	    ToolHistoSvc()->book(pName,tName,m_yBins,m_yLow,m_yHigh);
 	  (m_layerEProfileY[m_bpcNames[i]])[*firstS] = 
@@ -697,7 +722,7 @@ StatusCode TBCaloResponseMonTool::bookMyHists()
 		 << ">, title \042"
 		 << tName
 		 << "\042"
-		 << endmsg;
+		 << endreq;
 	  (m_layerEinBPCxVsBPCy[m_bpcNames[i]])[*firstS] = 
 	    ToolHistoSvc()->book(pName,tName,
 			     m_xBins,m_xLow,m_xHigh,
@@ -821,7 +846,7 @@ bool TBCaloResponseMonTool::fillProfile1D(const TBProfiler<double>&
 	  //		 << theEntries << " in bin ["
 	  //		 << x << "," << x+dx << "[, data "
 	  //		 << theData[i]
-	  //		 << endmsg;
+	  //		 << endreq;
 	  if ( theProfile.getBinEntries(i,theEntries) && 
 	       theEntries >= m_minEventsInBin )
 	    {

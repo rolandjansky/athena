@@ -46,8 +46,7 @@ class TBTriggerPatternUnitMonTool: public MonitorToolBase
   //StatusCode execute();
 
  private:
-  //std::string m_path;
-  std::string m_SGkey;
+  std::string m_path,m_SGkey;
   
   bool m_monitor_triggpat;
 

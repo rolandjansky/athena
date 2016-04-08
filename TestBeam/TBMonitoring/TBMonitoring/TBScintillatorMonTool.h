@@ -50,8 +50,7 @@ class TBScintillatorMonTool: public MonitorToolBase
   //StatusCode execute();
 
  private:
-  //std::string m_path;
-  std::string m_SGkeyscint;
+  std::string m_path,m_SGkeyscint;
   std::vector<std::string> m_scint_names;
   std::vector<short> m_scint_map;
   std::string m_histoPath;

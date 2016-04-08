@@ -95,6 +95,8 @@ class TBCaloResponseMonTool: public MonitorToolBase
 
  protected:
 
+  StoreGateSvc* m_storeGate;
+
   /*! \brief properties */
   // in base class !!!  std::string m_path;
   std::string m_bpcContainerName;
