@@ -11,15 +11,11 @@
 // Source file for CreateMisalignAlg
 //
 // Namespace LocalChi2Align
-//
-
-
 // Header include
 
 // Gaudi & StoreGate
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"  //NTupleFilePtr
-
 #include "GaudiKernel/RndmGenerators.h"
 #include "GaudiKernel/IRndmGenSvc.h"
 
@@ -44,8 +40,8 @@
 #include "AthenaKernel/IOVRange.h"
 #include "InDetAlignGenAlgs/CreateMisalignAlg.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
-
 #include "AthenaBaseComps/AthCheckMacros.h"
+#include <math.h>
 
 namespace InDetAlignment
 {
@@ -76,6 +72,9 @@ namespace InDetAlignment
 	m_Misalign_gamma(0),
 	m_Misalign_maxShift(1*CLHEP::mm),
         m_Misalign_maxShift_Inner(50*CLHEP::micrometer),
+        m_ScalePixelIBL(1.),
+        m_ScalePixelDBM(1.),
+	m_IBLBowingTshift(0.),
 	m_ScalePixelBarrel(1.),
 	m_ScalePixelEndcap(1.),
 	m_ScaleSCTBarrel(1.),
@@ -100,6 +99,9 @@ namespace InDetAlignment
 		declareProperty("CreateFreshDB"                 ,     m_createFreshDB);
 		declareProperty("IDAlignDBTool"                 ,     m_IDAlignDBTool);
 		declareProperty("TRTAlignDBService"             ,     m_trtaligndbservice);
+                declareProperty("ScalePixelIBL"                 ,     m_ScalePixelIBL);
+                declareProperty("ScalePixelDBM"                 ,     m_ScalePixelDBM);
+		declareProperty("IBLBowingTshift"               ,     m_IBLBowingTshift);
 		declareProperty("ScalePixelBarrel"              ,     m_ScalePixelBarrel);
 		declareProperty("ScalePixelEndcap"              ,     m_ScalePixelEndcap);
 		declareProperty("ScaleSCTBarrel"                ,     m_ScaleSCTBarrel);
@@ -370,9 +372,9 @@ namespace InDetAlignment
 			if (Pixel_ModuleID.is_valid()) {
 				if (m_ModuleList.find(Pixel_ModuleID) == m_ModuleList.end()) {
 					const InDetDD::SiDetectorElement *module = m_pixelManager->getDetectorElement(Pixel_ModuleID);
-          m_ModuleList[Pixel_ModuleID][0] = module->center()[0];
-          m_ModuleList[Pixel_ModuleID][1] = module->center()[1];
-          m_ModuleList[Pixel_ModuleID][2] = module->center()[2];
+					m_ModuleList[Pixel_ModuleID][0] = module->center()[0];
+					m_ModuleList[Pixel_ModuleID][1] = module->center()[1];
+					m_ModuleList[Pixel_ModuleID][2] = module->center()[2];
 					
 					++nPixel;
 					msg(MSG::INFO) << "Pixel module " << nPixel << endreq;
@@ -517,7 +519,8 @@ namespace InDetAlignment
 		 0: nothing, no misalignments are generated
 		 1: Misalignment of whole InDet by 6 parameters
 		 2: random misalignment
-		 
+                 3: IBL-stave temperature dependent bowing		 
+
 		 ====================================================
 		 Global Distortions according to David Brown (LHC Detector Alignment Workshop 2006-09-04, slides page 11)
 		 ====================================================
@@ -584,6 +587,48 @@ namespace InDetAlignment
 			HepGeom::Transform3D parameterizedTrafo;
 			HepGeom::Transform3D alignmentTrafo;
 			
+
+			// prepare scale factor for different subsystems:
+                        double ScaleFactor = 1.;
+
+                        if (m_idHelper->is_pixel(ModuleID))
+                          {
+                            if (m_pixelIdHelper->is_barrel(ModuleID))   {
+                              ScaleFactor=m_ScalePixelBarrel;
+                            }
+                            else {
+                              ScaleFactor=m_ScalePixelEndcap;
+                            }
+                            if (m_pixelIdHelper->is_blayer(ModuleID))   {  // IBL
+                              ScaleFactor=m_ScalePixelIBL;
+                            }
+                            if (m_pixelIdHelper->is_dbm(ModuleID))   {    // DBM
+                              ScaleFactor=m_ScalePixelDBM;
+                            }
+
+                          } else if (m_idHelper->is_sct(ModuleID))
+                          {
+                            if (m_sctIdHelper->is_barrel(ModuleID)) {
+                              ScaleFactor=m_ScaleSCTBarrel;
+                            }
+                            else {
+                              ScaleFactor=m_ScaleSCTEndcap;
+                            }
+
+                          } else if (m_idHelper->is_trt(ModuleID))
+                          {
+                            if (m_trtIdHelper->is_barrel(ModuleID)) {
+                              ScaleFactor=m_ScaleTRTBarrel;
+                            }
+                            else {
+                              ScaleFactor=m_ScaleTRTEndcap;
+                            }
+                          } else {
+                          msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endreq;
+                        }
+
+
+
 			ATH_MSG_INFO(  "ID Module " << i << " with ID " << m_idHelper->show_to_string(ModuleID,0,'/') );
 			if (msgLvl(MSG::DEBUG)) {
 				msg() << "radius "  << r / CLHEP::cm << " centimeter" << endreq;
@@ -606,48 +651,22 @@ namespace InDetAlignment
 			
 			else if (m_MisalignmentMode==1) {
 				//shift whole detector
-				HepGeom::Vector3D<double> shift(m_Misalign_x, m_Misalign_y, m_Misalign_z);
-				
+				HepGeom::Vector3D<double> shift(ScaleFactor*m_Misalign_x, ScaleFactor*m_Misalign_y, ScaleFactor*m_Misalign_z);
+
 				CLHEP::HepRotation rot;
-				rot = CLHEP::HepRotationX(m_Misalign_alpha) * CLHEP::HepRotationY(m_Misalign_beta) * CLHEP::HepRotationZ(m_Misalign_gamma);
-				
-				parameterizedTrafo = HepGeom::Transform3D(rot, shift);
+                                rot = CLHEP::HepRotationX(ScaleFactor*m_Misalign_alpha) * CLHEP::HepRotationY(ScaleFactor*m_Misalign_beta) * CLHEP::HepRotationZ(ScaleFactor*m_Misalign_gamma);
+
+                                if (ScaleFactor == 0.0)  {
+                                  parameterizedTrafo = HepGeom::Transform3D(); // initialized as identity transformation
+                                } else {
+                                  parameterizedTrafo = HepGeom::Transform3D(rot, shift);
+                                }
+
 			}
 			
 			else if (m_MisalignmentMode == 2) {
 				// randomly misalign modules at L3
 				
-				double ScaleFactor = 1.;
-				
-				if (m_idHelper->is_pixel(ModuleID))
-				{
-					if (m_pixelIdHelper->is_barrel(ModuleID))   {
-						ScaleFactor=m_ScalePixelBarrel;
-					}
-					else {
-						ScaleFactor=m_ScalePixelEndcap;
-					}
-					
-				} else if (m_idHelper->is_sct(ModuleID))
-				{
-					if (m_sctIdHelper->is_barrel(ModuleID)) {
-						ScaleFactor=m_ScaleSCTBarrel;
-					}
-					else {
-						ScaleFactor=m_ScaleSCTEndcap;
-					}
-					
-				} else if (m_idHelper->is_trt(ModuleID))
-				{
-					if (m_trtIdHelper->is_barrel(ModuleID)) {
-						ScaleFactor=m_ScaleTRTBarrel;
-					}
-					else {
-						ScaleFactor=m_ScaleTRTEndcap;
-					}
-				} else {
-					msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endreq;
-				}
 				/*
 				 double RandMisX=ScaleFactor*((1.*rand()/RAND_MAX*2.)-1.);
 				 double RandMisY=ScaleFactor*((1.*rand()/RAND_MAX*2.)-1.);
@@ -691,8 +710,31 @@ namespace InDetAlignment
 				CLHEP::HepRotation rot;
 				rot = CLHEP::HepRotationX(RandMisalpha()) * CLHEP::HepRotationY(RandMisbeta()) * CLHEP::HepRotationZ(RandMisgamma());
 				
-				parameterizedTrafo = HepGeom::Transform3D(rot, shift);
+
+				if (ScaleFactor == 0.0)  {
+                                  parameterizedTrafo = HepGeom::Transform3D(); // initialized as identity transformation
+                                } else {
+                                  parameterizedTrafo = HepGeom::Transform3D(rot, shift);
+                                }
+
 			}
+
+                        else if (m_MisalignmentMode==3) {
+                          //shift whole detector                                                                                                        
+                          double deltaX;
+                          if ( m_idHelper->is_pixel(ModuleID) && m_pixelIdHelper->is_blayer(ModuleID) )   {
+                            //function is parameterized in global z                                                                                     
+			    deltaX = getBowingTx( getBowingMagParam(m_IBLBowingTshift), z);
+                                                  
+                          } else {
+                            //IBL-stave temperature distortion not applied to anything but IBL                             
+                            deltaX = 0.;
+                            if (msgLvl(MSG::DEBUG)) msg() << "will not move this module for IBL temp distortion " << endreq;
+                          }
+
+                          if (msgLvl(MSG::DEBUG)) msg() << "deltaX for this module: "  << deltaX/CLHEP::micrometer << " um" << endreq;
+                          parameterizedTrafo = HepGeom::Translate3D(deltaX,0,0); // translation in x direction                                          
+                        }
 			
 			else { // systematic misalignments
 				if (m_MisalignmentMode/10==1) {
@@ -846,7 +888,7 @@ namespace InDetAlignment
 				
 				
 				
-			} else if (m_MisalignmentMode==2) //random misalignment in local frame
+			} else if (m_MisalignmentMode==2 || m_MisalignmentMode==3) //random misalignment in local frame
 			{
 				alignmentTrafo = parameterizedTrafo;
 			}
@@ -1049,7 +1091,28 @@ namespace InDetAlignment
 		Identifier id= m_trtIdHelper->module_id(hash);
 		return reduceTRTID(id);
 	}
-	
-	
-	//__________________________________________________________________________
+
+        //__________________________________________________________________________                                                            
+        double CreateMisalignAlg::getBowingMagParam(double temp_shift)
+	{
+	  // IBL staves are straight at a set point of 15 degrees.                                                                                            
+	  // Get set point value to use for magnitude parameter from temp_shift starting at 15 degrees                                                        
+	  double T = 15 + temp_shift;
+	  return 1.53e-12 - 1.02e-13*T;
+	}
+
+        //__________________________________________________________________________                                                                          
+        double CreateMisalignAlg::getBowingTx(double p1, double z)
+	{
+	  // Bowing fit function has the following form                                                                                                       
+	  // [0]-[1]*(x+[2]) * (4.0*[2]*(x+[2])**2 - (x+[2])**3 - (2.0*[2])**3)                                                                               
+	  // param 0 : is the baseline shift (fixed at 0 for MC)                                                                                              
+	  // param 1 : is the magnitude fit param (temp dependent input param)                                                                                
+	  // param 2 : is the stave fix pointat both ends (fixed at 366.5)                                                                                    
+	  double p0 = 0;
+	  double p2 = 366.5;
+	  double Tx = p0 - p1*(z+p2) * (4.*p2*pow((z+p2),2)  - pow((z+p2),3) - pow((2.*p2),3));
+	  return Tx;
+	}
+		
 } // end of namespace bracket

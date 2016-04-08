@@ -157,9 +157,6 @@ StatusCode InDetAlignWrt::initialize() {
 }
 
 StatusCode InDetAlignWrt::execute() {
-  // get event for run/event number access
-  if (StatusCode::SUCCESS!=evtStore()->retrieve(p_eventinfo))
-    msg(MSG::ERROR) << "Could not get event" << endreq;
 
   if (!m_setup) {
     m_setup=true;
@@ -170,18 +167,23 @@ StatusCode InDetAlignWrt::execute() {
     }
     if (par_rfile!="") {
       if (par_ntuple) {
-  p_iddbtool->readNtuple(par_rfile);
+	p_iddbtool->readNtuple(par_rfile);
       } else {
-  p_iddbtool->readTextFile(par_rfile);
+	p_iddbtool->readTextFile(par_rfile);
       }
     }
     if (par_dispmode>0 || par_dispcsc>0) DispDB();
     if (par_dispfile!="") dispFile();
     if (par_print) p_iddbtool->printDB(2);
   }
-
-  int run=p_eventinfo->runNumber();
-  int event=p_eventinfo->eventNumber();
+  // make a fall back solution in case event info not available to prevent crash
+  int run = -1;
+  int event = 0;
+  if (evtStore()->contains< xAOD::EventInfo >( "EventInfo" ) && 
+		  StatusCode::SUCCESS==evtStore()->retrieve(p_eventinfo)) {
+    run=p_eventinfo->runNumber();
+    event=p_eventinfo->eventNumber();
+  }
 
   ATH_MSG_DEBUG(  "In AlignWrt::execute for run/event " << run << 
       "," << event );

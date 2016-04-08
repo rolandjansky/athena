@@ -85,9 +85,7 @@ private:
     bool                                   m_createFreshDB;      ///< Flag to call the createDB method of DBTool
                                                                  ///< (to be switched off when adding misalignments to a given geometry)
     int                                    m_MisalignmentMode;   //!< Flag which Misalignment mode is to be generated
-
     long int                               m_nEvents;
-
     double                                 m_Misalign_x;         //!< x Misalignment for the "22" chosen modules
     double                                 m_Misalign_y;         //!< y Misalignment for the "22" chosen modules
     double                                 m_Misalign_z;         //!< z Misalignment for the "22" chosen modules
@@ -96,7 +94,9 @@ private:
     double                                 m_Misalign_gamma;     //!< gamma Misalignment for the "22" chosen modules
     double                                 m_Misalign_maxShift;  //!< Maximum shift for global modes
     double                                 m_Misalign_maxShift_Inner;  //!< Maximum shift of the Pixel B-layer in curl (d0 bias!)
-
+    double                                 m_ScalePixelIBL;
+    double                                 m_ScalePixelDBM;
+    double                                 m_IBLBowingTshift;    //!< The relative temp shift of set point that intriduces bowing (sign is important)
     double                                 m_ScalePixelBarrel;
     double                                 m_ScalePixelEndcap;
     double                                 m_ScaleSCTBarrel;
@@ -142,6 +142,10 @@ private:
     const Identifier reduceTRTID(Identifier id);
     const Identifier reduceTRTID(IdentifierHash &hash);
 
+    // IBL bowing functions
+    double getBowingMagParam(double temp_shift);
+    double getBowingTx(double p1, double z);
+  
     /// the main function which calculates and applies a transformation to each detector element
     StatusCode GenerateMisaligment();
     
