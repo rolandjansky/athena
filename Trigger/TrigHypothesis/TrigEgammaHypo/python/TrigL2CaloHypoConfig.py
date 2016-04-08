@@ -83,7 +83,7 @@ class L2CaloHypo_EtCut (TrigL2CaloHypoBase):
         self.AcceptAll = False
 
 	#L2 Threshold
-        self.ETthr          = [float(threshold)*GeV]*9
+        self.ETthr          = [(float(threshold) -  5)*GeV]*9
         # No other cuts applied
         self.dETACLUSTERthr = 9999.
         self.dPHICLUSTERthr = 9999.

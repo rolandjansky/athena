@@ -33,6 +33,8 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
+#include "PATCore/TAccept.h"            // for TAccept
+#include "PATCore/TResult.h"            // for TResult
 
 class ISvcLocator;
 

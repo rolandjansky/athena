@@ -36,9 +36,10 @@
 #include "VxVertex/RecVertex.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "PATCore/TAccept.h"            // for TAccept
+#include "PATCore/TResult.h"            // for TResult
 
 #include "TrigSteeringEvent/TrigPassBits.h"
-
 #include "TrigSteeringEvent/TrigPassFlags.h"
 
 using std::string;

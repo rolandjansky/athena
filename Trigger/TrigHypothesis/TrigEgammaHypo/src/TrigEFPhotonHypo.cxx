@@ -45,6 +45,8 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgammaCnv/xAODPhotonMonFuncs.h"
+#include "PATCore/TAccept.h"            // for TAccept
+#include "PATCore/TResult.h"            // for TResult
 // to add TrigPassBits 
 #include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigSteeringEvent/TrigPassFlags.h"
