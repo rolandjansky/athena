@@ -61,6 +61,7 @@ class MuonTagTool : public AthAlgTool {
   
   /** Properties */
   std::vector<std::string> m_containerNames;
+  std::string m_muon_met_container_name;
   double m_cut_Et;
   double m_DRcut;
   std::vector<float> m_etconeisocutvalues;
@@ -93,6 +94,7 @@ class MuonTagTool : public AthAlgTool {
   ToolHandle<CP::IIsolationSelectionTool> m_tight_isolation;
   ToolHandle<CP::IIsolationSelectionTool> m_gradient_loose_isolation;
   ToolHandle<CP::IIsolationSelectionTool> m_gradient_isolation;
+
 
   /** PV StoreGate key */
   std::string m_vxCandidate;

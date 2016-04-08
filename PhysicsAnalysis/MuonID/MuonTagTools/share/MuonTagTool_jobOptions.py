@@ -6,6 +6,7 @@ import EventKernel.ParticleDataType
 
 CosmicsCommissioning = False
 theMuonCollection = [ "Muons" ]
+MuonMETContainerName = "Muons_TAG_skim"
 from AthenaCommon import CfgMgr
 from AthenaCommon.BeamFlags import jobproperties
 
@@ -40,6 +41,7 @@ ToolSvc += GradientLooseIsoTool
 from RecExConfig.RecFlags import rec
 from MuonTagTools.MuonTagToolsConf import MuonTagTool as ConfiguredMuonTagTool
 MuonTagTool = ConfiguredMuonTagTool(Container         = theMuonCollection,
+                                    MuonMETContainerName = MuonMETContainerName,
                                     EtCut             = 6.0*GeV,
                                     EtconeIsoCutValues  = [3.0*GeV, 5.0*GeV],
                                     PtconeIsoCutValues = [3.0*GeV, 5.0*GeV],
@@ -52,6 +54,6 @@ MuonTagTool = ConfiguredMuonTagTool(Container         = theMuonCollection,
                                     LooseIsolation    = LooseIsoTool      ,
                                     TightIsolation    = TightIsoTool      ,
                                     GradientIsolation = GradientIsoTool   ,
-                                    GradientLooseIsolation= GradientLooseIsoTool  
+                                    GradientLooseIsolation= GradientLooseIsoTool
                                     )
 ToolSvc += MuonTagTool
