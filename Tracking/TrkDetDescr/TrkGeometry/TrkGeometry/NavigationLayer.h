@@ -60,10 +60,10 @@ namespace Trk {
         NavigationLayer& operator=(const NavigationLayer& lay);
                     
         /** Transforms the layer into a Surface representation for extrapolation */
-        const Surface& surfaceRepresentation() const;
+        virtual const Surface& surfaceRepresentation() const override;
         
         /** isOnLayer() method, using isOnSurface() with Layer specific tolerance */
-        bool isOnLayer(const Amg::Vector3D& gp, const BoundaryCheck& bcheck = BoundaryCheck(true)) const override;
+        virtual bool isOnLayer(const Amg::Vector3D& gp, const BoundaryCheck& bcheck = BoundaryCheck(true)) const override;
         
         /** getting the MaterialProperties back - for full update*/ 
         const MaterialProperties* fullUpdateMaterialProperties() const;

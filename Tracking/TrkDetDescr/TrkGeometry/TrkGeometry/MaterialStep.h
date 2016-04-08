@@ -15,6 +15,8 @@
 
 class MsgStream;
 
+class MaterialStepCnv_p1;
+
 namespace Trk {
 
    /** @class MaterialStep 
@@ -96,6 +98,7 @@ namespace Trk {
 
 
     protected:
+      friend class ::MaterialStepCnv_p1;
       float                         m_steplength;
                                     
       float                         m_hitX;

@@ -29,6 +29,16 @@ Trk::CompressedLayerMaterial::CompressedLayerMaterial(const Trk::BinUtility& bin
   m_materialBins(materialIndices)
 {}
 
+Trk::CompressedLayerMaterial::CompressedLayerMaterial(std::unique_ptr<Trk::BinUtility> binutility,
+                                                      const MaterialPropertiesVector&& fullProperties,
+                                                      const std::vector<unsigned short int>& materialIndices,
+                                                      double splitFactor) :
+  Trk::LayerMaterialProperties(splitFactor),
+  m_binUtility(binutility.release()),
+  m_fullMaterial(std::move(fullProperties)),
+  m_materialBins(materialIndices)
+{}
+
 Trk::CompressedLayerMaterial::~CompressedLayerMaterial()
 {
   delete m_binUtility;

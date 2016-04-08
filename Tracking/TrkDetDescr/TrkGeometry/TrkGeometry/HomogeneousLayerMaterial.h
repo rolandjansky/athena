@@ -19,6 +19,8 @@
 //STD
 #include <vector>
 
+class HomogeneousLayerMaterialCnv_p1;
+
 namespace Trk {
 
 
@@ -66,10 +68,10 @@ namespace Trk {
       HomogeneousLayerMaterial& operator=(const HomogeneousLayerMaterial& lmp);
 
       /** Scale operator */
-      HomogeneousLayerMaterial& operator*=(double scale);
+      virtual HomogeneousLayerMaterial& operator*=(double scale) override;
 
       /**Return method for full material description of the Layer */
-      virtual const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const;
+      virtual const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const override;
 
       /**Direct access via bins to the MaterialProperties */
       virtual const MaterialProperties* material(size_t ib0, size_t ib1) const override;
@@ -78,7 +80,7 @@ namespace Trk {
       const BinUtility* binUtility() const  override { return 0; }
       
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
-      void updateBinning(BinUtility*) const { }
+      virtual void updateBinning(BinUtility*) const override { }
           
       /** Output Method for MsgStream, to be overloaded by child classes */
       MsgStream& dump(MsgStream& sl) const override;
@@ -86,6 +88,8 @@ namespace Trk {
       std::ostream& dump(std::ostream& sl) const override;      
 
     private:
+      friend class ::HomogeneousLayerMaterialCnv_p1;
+
       /** The five different MaterialProperties */
       MaterialProperties*           m_fullMaterial;
                                             
