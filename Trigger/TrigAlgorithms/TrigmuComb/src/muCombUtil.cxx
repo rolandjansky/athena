@@ -395,5 +395,31 @@ int whichECRegion( const float eta, const float phi ) {
 	if (ndof == 0) return 1.0e30;
 	else           return chi2;
   }
+
+
+  double getStdChi2(int& ndof,
+                    double eta1, double seta1, double phi1, double sphi1, double qOvpt1, double sqOvpt1,
+                    double eta2, double seta2, double phi2, double sphi2, double qOvpt2, double sqOvpt2, bool useAbsPt) {
+
+        double deta    = getDeltaEta(eta1,eta2);
+        double sdeta   = seta1*seta1+seta2*seta2;
+        double dphi    = getDeltaPhi(phi1,phi2);
+        double sdphi   = sphi1*sphi1+sphi2*sphi2;
+        double dipt    = qOvpt1 - qOvpt2;
+        if (useAbsPt)  dipt = fabs(qOvpt1) - fabs(qOvpt2);
+        double sdipt   = sqOvpt1*sqOvpt1+sqOvpt2*sqOvpt2;
+
+        double chi2  = 0.0;
+        ndof         = 0;
+        if (sdeta != 0) { chi2 += deta*deta/sdeta; ndof++; }
+        if (sdphi != 0) { chi2 += dphi*dphi/sdphi; ndof++; }
+        if (sdipt != 0) { chi2 += dipt*dipt/sdipt; ndof++; }
+
+        if (ndof == 0) return 1.0e30;
+        else           return chi2;
+  }
+
+
+
   
 }//muCombUtil
