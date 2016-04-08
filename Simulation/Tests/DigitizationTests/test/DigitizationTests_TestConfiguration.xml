@@ -101,7 +101,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2011_ttbar_no_pileup.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2011_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -152,7 +152,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2012_ttbar_no_pileup.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2012_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -203,7 +203,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_no_pileup.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -254,7 +254,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_noNoise.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -304,7 +304,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_50ns_pileup.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -356,7 +356,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_50ns_pileup_lowMu.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -408,7 +408,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_50ns_pileup_noNoise.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -462,7 +462,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_50ns_algs_pileup.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -513,7 +513,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_25ns_pileup.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -565,7 +565,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_25ns_pileup_noNoise.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -617,7 +617,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_ttbar_25ns_algs_pileup.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -669,7 +669,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_2015_cosmics.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_cosmics.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -722,7 +722,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_ttbar_LVL1_on.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -775,7 +775,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_ttbar_LVL1_on_noNoise.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -827,7 +827,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_ttbar_LVL1_on_50ns_pileup.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
@@ -881,7 +881,7 @@
                                     <argname>refFileName</argname>
                                     <argvalue>DiffPool_Comp.pool.root     <!--root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/dev/CMTCONFIG/mc15_ttbar_LVL1_on_25ns_pileup.RDO.pool.root--></argvalue>
                                 </arg>
-                                <keepFilePattern>mc15_2010_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
+                                <keepFilePattern>mc15_2015_ttbar.RDO.pool.root_DiffPool_Comp.pool.root.diffPool</keepFilePattern>
                             </test>
                         </jobTransform>
                     </chainElement>
