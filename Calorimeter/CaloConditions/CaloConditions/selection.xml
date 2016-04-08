@@ -3,6 +3,7 @@
   <class name="CaloRec::ToolConstants" id="5A73ABF8-5095-405B-A296-3435BB52A5FD" />
   <class name="CaloRec::Arrayrep" />  
   <class name="std::map<std::string, CaloRec::Arrayrep>" />
+  <class name="std::pair<std::string, CaloRec::Arrayrep>" />
 
 
   <class name="CaloRec::CaloCellFactor" id="F2906C3B-DB35-4026-8AA4-D57E4B41288D" />
