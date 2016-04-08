@@ -8,6 +8,8 @@
 using namespace std;
 
 CMAprogram::CMAprogram() :
+    m_isnewcab(false), m_overlap1(0xff), m_overlap2(0xff000000),
+    m_trig_local_direc_i(0x1), m_trig_local_direc_j(0x1), m_trig_k_readout(0x0),
 
     m_main_control(0x60), m_main_count(0x0), m_main_status(0x0),
     
@@ -511,7 +513,8 @@ CMAprogram::CMAprogram(const CMAprogram& program)
     
     m_l1c_pre = program.l1c_pre();
     m_bcc_pre = program.bcc_pre();
-    
+    m_isnewcab = program.m_isnewcab;
+
     copy_threshold(program.registers());
     copy_program(program.bytes());
  }
@@ -519,7 +522,7 @@ CMAprogram::CMAprogram(const CMAprogram& program)
 CMAprogram::~CMAprogram()
 {}
 
-CMAprogram
+CMAprogram&
 CMAprogram::operator=(const CMAprogram& program)
 {
     if (this!=&program) {
@@ -678,6 +681,7 @@ CMAprogram::read(DBline& data)
 	        while (data("th") >> th >> "thr_reg" >> ch >> data.dbhex() 
 		       >> first_word >> second_word >> data.dbdec())
 		  {
+		    if(th < 1) return false;
 		    m_program_bytes[th-1][ch][1] = first_word;
 		    m_program_bytes[th-1][ch][0] = second_word;
 		    
@@ -935,6 +939,7 @@ CMAprogram::read_v02(DBline& data)
 	      while (data("th") >> th >> "thr_reg" >> ch >> data.dbhex() 
 		     >> first_word >> second_word >> data.dbdec())
 		{
+		  if(th < 1) return false;
 		  m_program_bytes[th-1][ch][1] = first_word;
 		  m_program_bytes[th-1][ch][0] = second_word;
 		  

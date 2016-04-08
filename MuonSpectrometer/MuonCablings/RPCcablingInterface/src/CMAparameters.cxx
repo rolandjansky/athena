@@ -491,15 +491,7 @@ CMAparameters::showMt(char display[][90],int ln, TrigType type) const
     // Set input for the display
     __osstream** disp = new __osstream*[ln];
 
-
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     for(int i=0;i<ln;++i) disp[i] = new __osstream;
-#else
-    // put your gcc 2.95 specific code here
-    for(int i=0;i<ln;++i) disp[i] = new __osstream(display[i],90);
-#endif
-
 
     int pivot_loop = (m_pivot_rpc_read < 4)? m_pivot_rpc_read : 3;
     int conf_loop  = 0;
@@ -595,8 +587,6 @@ CMAparameters::showMt(char display[][90],int ln, TrigType type) const
 	 }
     }
 
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     for(int i=0;i<ln;++i) 
     {
         std::string tmp = (*disp[i]).str();
@@ -604,10 +594,8 @@ CMAparameters::showMt(char display[][90],int ln, TrigType type) const
         display[i][tmp.length()] = 0;
         delete disp[i];
     }
-#else
-    // put your gcc 2.95 specific code here
-    for(int i=0;i<ln;++i) {*disp[i] << ends;delete disp[i];}
-#endif
+
+    delete[] disp;
 }
 
 

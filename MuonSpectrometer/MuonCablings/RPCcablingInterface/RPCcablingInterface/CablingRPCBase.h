@@ -163,16 +163,8 @@ virtual std::list<RPCofflineId> give_strip_id      (unsigned short int Subsystem
 inline std::ostream& 
 operator<<(std::ostream& stream,const CablingRPCBase& logic)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[1000];
-    for (int i=0;i<1000;++i) buffer[i] = '\0';
-    __osstream display(buffer,1000);
-#endif
 
+    __osstream display;
     (&logic)->PrintMap(display);
     stream << display.str();
     return stream;

@@ -180,7 +180,7 @@ ostream& operator<<(ostream& stream, const CMAidentity& id)
 
     std::string covtag(exttag);    
 
-    std::string type = (id.type())?" phi cma " + covtag : " eta cma " + covtag;
+    std::string type = (id.type() == Phi )?" phi cma " + covtag : " eta cma " + covtag;
     if(covtag != "" ) type = type + " ";
     stream << type << setw(2) << id.number() << ": Eta ";
     stream << setw(2) << id.eta_index();

@@ -120,7 +120,7 @@ class CMAprogram
     CMAprogram(const CMAprogram&);
     ~CMAprogram();
 
-    CMAprogram operator=(const CMAprogram&);
+    CMAprogram& operator=(const CMAprogram&);
 
     const bool* registers(void) const 
         {return reinterpret_cast<const bool*>(m_threshold_registers);}

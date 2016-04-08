@@ -21,7 +21,7 @@ CablingObject::CablingObject(const CablingObject& obj) :
     m_sector_type = obj.sector_type();
 }
 
-CablingObject
+CablingObject&
 CablingObject::operator=(const CablingObject& obj)
 {
     if (this!=&obj) {
@@ -45,16 +45,7 @@ void
 CablingObject::error_header(void) const
 {
 
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream disp;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[5000];
-    for(int i=0;i<5000;++i) buffer[i] = '\0';
-    __osstream disp(buffer,5000);
-#endif
-
     disp << "Error in Sector Type " << m_sector_type;
     if( m_station >0 ) disp << ", station " << m_station << ":" << endl;
     else disp << ":" << endl;

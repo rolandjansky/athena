@@ -130,7 +130,7 @@ class RDOindex
     RDOindex(const RDOindex&);
     ~RDOindex();
 
-    RDOindex operator=(const RDOindex&);
+    RDOindex& operator=(const RDOindex&);
     operator bool();
     bool operator !();
     

@@ -15,6 +15,16 @@ struct RPCofflineId {
    	   int gasGap;
    	   int measuresPhi;
    	   int strip;
+   void init() {
+     stationEta = -99;
+     stationPhi = -99;
+     doubletR = -99;
+     doubletZ = -99;
+     doubletPhi = -99;
+     gasGap = -99;
+     measuresPhi = -99;
+     strip = -99;
+   }
 };
 
 #endif

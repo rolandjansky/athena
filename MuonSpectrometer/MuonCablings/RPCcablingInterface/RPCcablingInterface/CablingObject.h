@@ -20,7 +20,7 @@ class CablingObject : public BaseObject
     CablingObject (const CablingObject&);
     ~CablingObject(){}
 
-    CablingObject operator = (const CablingObject&);
+    CablingObject& operator = (const CablingObject&);
 
     int number(void)         const {return m_number;}
     int station(void)        const {return m_station;}

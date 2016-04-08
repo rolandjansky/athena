@@ -1,3 +1,15 @@
+2015-05-24 Jochen Meyer <jomeyer@mail.cern.ch>
+	* tagged as RPCcablingInterface-00-00-44
+	* removing gcc 2.95 specific code
+
+2015-05-11 Jochen Meyer <jomeyer@mail.cern.ch>
+	* tagged as RPCcablingInterface-00-00-43
+	* addressing coverity defects 17501, 30010
+
+2015-04-05 Jochen Meyer <jomeyer@mail.cern.ch>
+	* tagged as RPCcablingInterface-00-00-42
+	* addressing coverity defects 11190, 11192, 11196-7, 11347, 11735, 11841, 11863, 11924-5
+
 2015-02-23 Rafal Bielski <rafal.bielski@cern.ch>
 	* tagged as RPCcablingInterface-00-00-41
 	* IRPCcablingSvc.h: added interfaces for mapping RDO->ROB and ROB->RDO

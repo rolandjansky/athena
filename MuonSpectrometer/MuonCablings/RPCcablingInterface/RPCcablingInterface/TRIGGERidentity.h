@@ -9,18 +9,8 @@
 #define TRIGGERIDENTITY_H
 
 #include <iostream>
-
-// for compatibility between gcc2.95 and gcc3.2
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
-    #include <sstream>
-    typedef std::ostringstream __osstream;
-#else
-    // put your gcc 2.95 specific code here
-    #include <strstream>
-    typedef ostrstream __osstream;
-#endif
-
+#include <sstream>
+typedef std::ostringstream __osstream;
 
 #define NTYPE 3
 #define NTHRESHOLD 3
@@ -46,7 +36,7 @@ class TRIGGERidentity
     TRIGGERidentity(TrigType,Threshold,bool);
     TRIGGERidentity(const TRIGGERidentity&);
 
-    TRIGGERidentity operator=(const TRIGGERidentity&);
+    TRIGGERidentity& operator=(const TRIGGERidentity&);
     bool operator==(const TRIGGERidentity&) const;
     bool operator!=(const TRIGGERidentity&) const;
     bool operator< (const TRIGGERidentity&) const;
@@ -68,15 +58,7 @@ class TRIGGERidentity
 
 template <class X> X& operator<<(X& stream,const TRIGGERidentity& data)
 {
-#if (__GNUC__) && (__GNUC__ > 2) 
-    // put your gcc 3.2 specific code here
     __osstream display;
-#else
-    // put your gcc 2.95 specific code here
-    char buffer[10000];
-    for (int i=0;i<10000;++i) buffer[i] = '\0';
-    __osstream display(buffer,10000);
-#endif
 
     data.Print(display,false);
     stream << display.str();

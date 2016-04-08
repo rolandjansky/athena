@@ -36,7 +36,7 @@ TRIGGERidentity::TRIGGERidentity(TrigType type,Threshold threshold,bool flag) :
 TRIGGERidentity::TRIGGERidentity(const TRIGGERidentity& id) :
     m_type(id.type()),m_threshold(id.threshold()),m_overlap(id.overlap()) {}
 
-TRIGGERidentity
+TRIGGERidentity&
 TRIGGERidentity::operator=(const TRIGGERidentity& id)
 {
     if (this!=&id) { 

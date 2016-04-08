@@ -106,7 +106,7 @@ RDOindex::operator !()
     return !m_status;
 }
 
-RDOindex
+RDOindex&
 RDOindex::operator=(const RDOindex& index)
 {
     if (this!=&index) {
