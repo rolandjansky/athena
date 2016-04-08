@@ -37,11 +37,15 @@ namespace xAOD {
 
       AUX_VARIABLE( waveformTime );
       AUX_VARIABLE( waveformADC );
+      AUX_VARIABLE( waveformTimeG0 );
+      AUX_VARIABLE( waveformADCG0 );
+      AUX_VARIABLE( waveformTimeG1 );
+      AUX_VARIABLE( waveformADCG1 );
 
-      AUX_VARIABLE( tt_g0d0 );
-      AUX_VARIABLE( tt_g0d1 );
-      AUX_VARIABLE( tt_g1d0 );
-      AUX_VARIABLE( tt_g1d1 );
+      AUX_VARIABLE( TTg0d0Link );
+      AUX_VARIABLE( TTg0d1Link );
+      AUX_VARIABLE( TTg1d0Link );
+      AUX_VARIABLE( TTg1d1Link );
 
    }
 
