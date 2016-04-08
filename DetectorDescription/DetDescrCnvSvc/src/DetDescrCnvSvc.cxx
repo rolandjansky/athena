@@ -103,24 +103,24 @@ DetDescrCnvSvc::initialize()     {
     MsgStream log(msgSvc(),name());
     StatusCode status = ConversionSvc::initialize();
     if (status.isFailure()) {
-	log << MSG::FATAL << "Unable to initialize ConversionSvc !" << endmsg;
+	log << MSG::FATAL << "Unable to initialize ConversionSvc !" << endreq;
 	return StatusCode::FAILURE;
     }
 
-    log << MSG::INFO << " initializing " <<endmsg ;
+    log << MSG::INFO << " initializing " <<endreq ;
 
     // get DetectorStore service
     status = service("DetectorStore", m_detStore);
     if (status.isFailure()) {
-	log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+	log << MSG::FATAL << "DetectorStore service not found !" << endreq;
 	return StatusCode::FAILURE;
     } else {
-	log << MSG::INFO << "Found DetectorStore service" << endmsg;
+	log << MSG::INFO << "Found DetectorStore service" << endreq;
     }
 
     // fill in the Addresses for Transient Detector Store objects
 
-    log << MSG::INFO << " filling proxies for detector managers " <<endmsg ;
+    log << MSG::INFO << " filling proxies for detector managers " <<endreq ;
 
     // Obsolete --- this CLID no longer exists
     //status = addToDetStore(2512, "InDetMgr");
@@ -255,7 +255,7 @@ StatusCode DetDescrCnvSvc::createAddress( long /* svc_type */,
 	ddAddr = dynamic_cast<DetDescrAddress*> (refpAddress);
 	if(!ddAddr) {
 	    MsgStream log(msgSvc(),name());
-	    log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
+	    log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
 	    return StatusCode::FAILURE;
 	}
 	ddAddr->fromString(refAddress);
@@ -283,7 +283,7 @@ StatusCode
 DetDescrCnvSvc::addToDetStore(const CLID& clid, const std::string& name) const
 {
 
-    MsgStream log(msgSvc(), "DetDescrCnvSvc");
+    MsgStream log(messageService(), "DetDescrCnvSvc");
 
     // Based on input parameters, create StoreGate proxies with
     // DetDescrAddresses in the detector store for the different
@@ -299,7 +299,7 @@ DetDescrCnvSvc::addToDetStore(const CLID& clid, const std::string& name) const
 	    << " unable to fill address for " << (*addr->par())
 	    << " with CLID " << addr->clID()
 	    << " and storage type " << addr->svcType()
-	    << " to detector store " <<endmsg ;
+	    << " to detector store " <<endreq ;
 	return StatusCode::FAILURE;
     }
     else {
@@ -308,7 +308,7 @@ DetDescrCnvSvc::addToDetStore(const CLID& clid, const std::string& name) const
 	    << " filling address for " << (*addr->par())
 	    << " with CLID " << addr->clID()
 	    << " and storage type " << st
-	    << " to detector store " <<endmsg ;
+	    << " to detector store " <<endreq ;
     }
     return status;
 }
