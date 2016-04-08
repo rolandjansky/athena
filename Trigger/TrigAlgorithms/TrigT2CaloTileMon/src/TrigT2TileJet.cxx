@@ -9,7 +9,16 @@
 
 TrigT2TileJet::TrigT2TileJet()
 {
-   m_towercollection = new std::vector<TrigT2Tower>;
+   if ( !m_towercollection ) m_towercollection = new std::vector<TrigT2Tower>;
+   else m_towercollection->clear();
+}
+
+TrigT2TileJet::TrigT2TileJet(TrigT2TileJet& p)
+{
+   std::vector<TrigT2Tower>* vec = p.towercollection();
+   if ( !m_towercollection ) m_towercollection = new std::vector<TrigT2Tower>;
+   m_towercollection->clear();
+   m_towercollection->insert(m_towercollection->end(),vec->begin(),vec->end() );
 }
 
 void TrigT2TileJet::clearTowerCollection()
@@ -17,11 +26,9 @@ void TrigT2TileJet::clearTowerCollection()
   std::vector<TrigT2Tower>::iterator i_begin;
   std::vector<TrigT2Tower>::iterator i_end;
   std::vector<TrigT2Tower>::iterator i_it;
-  m_towercollection->begin() = i_begin;
-  m_towercollection->end() = i_end;
-  for( i_it = i_begin; i_it!=i_end; ++i_it){
-     m_towercollection->erase(i_it);
-  }
+  i_begin = m_towercollection->begin();
+  i_end = m_towercollection->end();
+  m_towercollection->erase(i_begin,i_end);
   m_towercollection->clear();
   delete m_towercollection;
   m_towercollection = 0;
@@ -29,8 +36,7 @@ void TrigT2TileJet::clearTowerCollection()
 
 TrigT2TileJet::~TrigT2TileJet()
 {
-   m_towercollection->clear();
-   delete m_towercollection;
+  if ( m_towercollection ) clearTowerCollection();
 }
 
 
@@ -114,7 +120,7 @@ void TrigT2TileJet::searchTowerAndInsert( Trig3Momentum cell, MsgStream& log, do
    // tower not in collection yet, so create one
    if ( !flag )
    {
-     if ( log.level() )
+     if ( log.level() <= MSG::DEBUG )
      log << MSG::DEBUG << " REGTEST:     CELL:          insert in NEW tower" << endreq;
       m_towercollection->push_back( TrigT2Tower(cell, log, etaShift) );
 

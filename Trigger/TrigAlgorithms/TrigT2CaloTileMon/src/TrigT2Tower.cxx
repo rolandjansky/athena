@@ -16,7 +16,7 @@
 /// #include "TrigT2Tower.h"
 
 
-TrigT2Tower::TrigT2Tower()
+TrigT2Tower::TrigT2Tower(): m_eta(0.0), m_phi(0.0)
 {
    // flush tower
    setComplete( 0 );
@@ -31,7 +31,7 @@ TrigT2Tower::TrigT2Tower()
 }
 
 /** insert first Cell everytime new tower is build */
-TrigT2Tower::TrigT2Tower(Trig3Momentum newCell, MsgStream& log, double etaShift)
+TrigT2Tower::TrigT2Tower(Trig3Momentum newCell, MsgStream& log, double etaShift): m_eta(0.0), m_phi(0.0)
 {
    // flush tower
    setComplete( 0 );

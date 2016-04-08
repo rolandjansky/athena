@@ -33,6 +33,8 @@ class TrigT2TileJet /* : public TrigEMCluster */
    public:
       /** Constructor */
       TrigT2TileJet();
+      /** copy constructor */
+      TrigT2TileJet(TrigT2TileJet&p);
       /** Destructor */
       ~TrigT2TileJet();
 

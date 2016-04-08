@@ -30,7 +30,16 @@ TileMonHadEnFex::TileMonHadEnFex(const std::string & type, const std::string & n
                IAlgToolCalo(type, name, parent),
                thistSvc("THistSvc/THistSvc","TileMonHadEnFex"),
                m_THR_1(400),
-               m_THR_2(100)
+               m_THR_2(100),
+	       m_hists(NULL),
+	       m_hist_TB0(NULL),
+	       m_hist_TB1(NULL),
+	       m_hist_TB2(NULL),
+	       m_2dhists(NULL),
+	       m_2dhists_TB0(NULL),
+	       m_2dhists_TB1(NULL),
+	       m_2dhists_TB2(NULL),
+	       m_mainHist(NULL)
 {
    declareProperty("THistSvc",thistSvc,"THistSvc output");
    declareProperty("HistogramsPath",m_histPath="/EXPERT/T2CaloTileMon");
@@ -316,9 +325,11 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
         if (!m_timersvc.empty()) m_timer[2]->resume();
 	// For the first sample you will create the containers
 	// For the others no
-        if ( m_data->LoadCollections(m_itBegin,m_itEnd,iR,!iR).isFailure() )
-                return StatusCode::FAILURE;
-        // Finished to access Collection
+        if ( m_data->LoadCollections(m_itBegin,m_itEnd,iR,!iR).isFailure() ) {
+	  delete jet;
+	  return StatusCode::FAILURE;
+	}
+	// Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->pause();
         // Algorithmic time
         if (!m_timersvc.empty()) m_timer[3]->resume();
