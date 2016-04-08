@@ -31,26 +31,31 @@ class G4HCofThisEvent;
 class G4Step;
 class G4String;
 
-class TileGeoG4SD : public G4VSensitiveDetector
-{
-public:
-    TileGeoG4SD (G4String name, const std::string& hitCollectionName, const TileSDOptions opts);
-   ~TileGeoG4SD ();
+class TileGeoG4SD: public G4VSensitiveDetector {
+  public:
+    TileGeoG4SD(G4String name, const std::string& hitCollectionName, const TileSDOptions opts);
+    ~TileGeoG4SD();
 
-    void   Initialize  (G4HCofThisEvent*) override final;
-    G4bool ProcessHits (G4Step*, G4TouchableHistory*) override final;
-    void   EndOfAthenaEvent  ();
+    void Initialize(G4HCofThisEvent*) override final;
+    G4bool ProcessHits(G4Step*, G4TouchableHistory*) override final;
+    void EndOfAthenaEvent();
 
-    TileGeoG4SDCalc* GetCalculator() { return m_calc; }
+    TileGeoG4SDCalc* GetCalculator() {
+      return m_calc;
+    }
 
-private:
+    // Don't leave copy constructors or assignment operators around
+    TileGeoG4SD(const TileGeoG4SD&) = delete;
+    TileGeoG4SD& operator=(const TileGeoG4SD&) = delete;
 
-    TileGeoG4SDCalc*          m_calc;
-    TileGeoG4LookupBuilder*   m_lookup;
-    const TileSDOptions       m_options;
+  private:
+
+    TileGeoG4SDCalc* m_calc;
+    TileGeoG4LookupBuilder* m_lookup;
+    const TileSDOptions m_options;
 
     SG::WriteHandle<TileHitVector> m_HitColl;
 };
 
-#endif
+#endif // TILEGEOG4SD_TILEGEOG4SD_H
 
