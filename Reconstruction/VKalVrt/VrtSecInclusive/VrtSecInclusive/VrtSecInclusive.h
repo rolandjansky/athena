@@ -407,12 +407,15 @@ namespace VKalVrtAthena {
                                std::vector< std::deque<long int> > *,
 			       long int & ,long int & );
  
+   int   nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2) const;
    double minVrtVrtDist( vector<WrkVrt> *WrkVrtSet, int & V1, int & V2);
    double minVrtVrtDistNext( vector<WrkVrt> *WrkVrtSet, int & V1, int & V2);
    void MergeVertices( vector<WrkVrt> *WrkVrtSet, int & V1, int & V2);
    double VrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>  & VrtErr1,
                      const Amg::Vector3D & Vrt2, const std::vector<double>  & VrtErr2);
 
+   double improveVertexChi2( std::vector<WrkVrt> *WrkVrtSet, int V, 
+                             std::vector<const Trk::TrackParticleBase*> & AllTrackList);
 
    void  SelGoodTrkParticle( const vector<const Trk::TrackParticleBase*>& InpTrk,
                               const Trk::RecVertex                        & PrimVrt,

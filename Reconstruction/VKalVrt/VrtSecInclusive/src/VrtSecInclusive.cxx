@@ -22,10 +22,7 @@
 #include "TMath.h"
 
 // Event Info
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //----
 #include <new>
@@ -121,6 +118,26 @@ namespace VKalVrtAthena{
 //    declareProperty("TrackSummaryTool", m_sumSvc, " Public InDet TrackSummaryTool" );
     declareProperty("VertexFitterTool", m_fitSvc, " Private TrkVKalVrtFitter" );
     declareProperty("Extrapolator", m_extrapolator);
+    m_importedTrkTruthColl =0;
+    m_importedFullTruthColl =0;
+    m_truthAllRefitStatus=0;
+    m_truthAllRefitChi2=0;
+    m_truthAllRefitMass=0;
+    m_truthAllRefitSVX=0;
+    m_truthAllRefitSVY=0;
+    m_truthAllRefitSVZ=0;
+    m_truthAllVtxType=0;
+    m_truthAllVtxTrk1Pt=0;
+    m_truthAllVtxTrk2Pt=0;
+    m_truthAllVtxTrk3Pt=0;
+    m_truthAllVtxTrk4Pt=0;
+    m_truthAllVtxTrk5Pt=0;
+    m_truthAllVtxHasLifetime=0;
+    m_truthAllVtxStrangeBaryon=0;
+    m_truthAllVtxIncomingPID=0;
+    m_truthAllVtxNumIncident=0;
+    m_truthAllVtxPtIncident=0;
+    m_truthAllVtxPzIncident=0;
 //
 //-- Conversion units  
     m_cnv_xyz=0.1;     /* conversion units for distance mm*/ 
@@ -907,16 +924,36 @@ StatusCode VrtSecInclusive::initEvent()
        ATH_MSG_DEBUG("FoundAppVrt="<<NPTR<<", "<<newvrt.vertex[0]<<", "<<newvrt.vertex[1]<<
 		     ", "<<newvrt.vertex[2]<<", "<<newvrt.Chi2);
        if( sc.isFailure() )  continue;   /* Bad fit - goto next solution */
+       newvrt.Good         = true;
        newvrt.nCloseVrt    = 0;
        newvrt.dCloseVrt    = 1000000.;
        WrkVrtSet->push_back(newvrt);
     } 
 
+//-Remove worst track from vertices with very bad Chi2
     int NSoluI=(*WrkVrtSet).size();
     for(int iv=0; iv<NSoluI; iv++){
        if( (*WrkVrtSet)[iv].Chi2 > (4.*(*WrkVrtSet)[iv].SelTrk.size()) )
           DisassembleVertex(WrkVrtSet,iv,SelectedBaseTracks);
     }
+//-Remove vertices fully contained in other vertices 
+    while( (*WrkVrtSet).size()>1 ){
+      int tmpN=(*WrkVrtSet).size();  int iv=0;
+      for(; iv<tmpN-1; iv++){        int jv=iv+1;
+        for(; jv<tmpN; jv++){
+          int nTCom=nTrkCommon( WrkVrtSet, iv, jv);
+          if(      nTCom==(int)(*WrkVrtSet)[iv].SelTrk.size()){  (*WrkVrtSet).erase((*WrkVrtSet).begin()+iv); break; }
+          else if( nTCom==(int)(*WrkVrtSet)[jv].SelTrk.size()){  (*WrkVrtSet).erase((*WrkVrtSet).begin()+jv); break; }
+        }   if(jv!=tmpN)   break;  // One vertex is erased. Restart check
+      }     if(iv==tmpN-1) break;  // No vertex deleted
+    }
+//-Identify remaining 2-track vertices with very bad Chi2 and mass (b-tagging)
+    for(int iv=0; iv<(int)(*WrkVrtSet).size(); iv++ ){
+       if( (*WrkVrtSet)[iv].SelTrk.size()!=2)continue;
+       if( (*WrkVrtSet)[iv].Chi2 > 15.) (*WrkVrtSet)[iv].Good=false;
+     }      
+//-Remove all bad vertices from the working set    
+    int tmpV=0; while( tmpV<(int)(*WrkVrtSet).size() )if( !(*WrkVrtSet)[tmpV].Good ) { (*WrkVrtSet).erase((*WrkVrtSet).begin()+tmpV);} else {tmpV++;}
 
     ATH_MSG_DEBUG("Found Initial Solution Set");
     m_InitialSVsize=WrkVrtSet->size();
@@ -951,7 +988,7 @@ StatusCode VrtSecInclusive::initEvent()
                 sc = RefitVertex( WrkVrtSet, foundV1, SelectedBaseTracks);
                 if( sc.isFailure() )  break;                            /* Bad fit - goto next solution */
              }
-             TrkInVrt->~vector();
+             delete TrkInVrt;
              TrkInVrt  =new vector< deque<long int> >(NTracks);  
              TrackClassification( WrkVrtSet, TrkInVrt);
           }else{
@@ -960,6 +997,17 @@ StatusCode VrtSecInclusive::initEvent()
              if( sc.isFailure() )  continue;                            /* Bad fit - goto next solution */
           }
   
+    }
+//
+// Try to improve vertices with big Chi2
+    for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
+       if(!(*WrkVrtSet)[iv].Good )                 continue;  //don't work on vertex which is already bad
+       if( (*WrkVrtSet)[iv].SelTrk.size()<3 )      continue;
+       double tmpProb=TMath::Prob( (*WrkVrtSet)[iv].Chi2, 2*(*WrkVrtSet)[iv].SelTrk.size()-3 ); //Chi2 of the original vertex
+       if(tmpProb<0.001){
+         tmpProb=improveVertexChi2( WrkVrtSet, iv, SelectedBaseTracks);
+         if(tmpProb<0.001)(*WrkVrtSet)[iv].Good=false;
+       }
     }
 //
 //-----------------------------------------------------------------------------------------------
@@ -1124,10 +1172,10 @@ StatusCode VrtSecInclusive::initEvent()
 	  double p1=0;
 	  double p2=0;
 	  for (int it1=0; it1<ii; ++it1) {
-	    if(it1>10) continue;
+	    if(it1>=10) continue;
 	    p1 = sqrt(trkpx[it1]*trkpx[it1] + trkpy[it1]*trkpy[it1] + trkpz[it1]*trkpz[it1]);
 	    for (int it2=0; it2<ii; ++it2) {
-	      if(it2>10) continue;
+	      if(it2>=10) continue;
 	      if(it1==it2) continue;
 	      //
 	      p2 = sqrt(trkpx[it2]*trkpx[it2] + trkpy[it2]*trkpy[it2] + trkpz[it2]*trkpz[it2]);
@@ -1156,7 +1204,7 @@ StatusCode VrtSecInclusive::initEvent()
 //  Memory cleaning
 //
     Incomp.clear();
-    delete[] weit; delete[] Solution; TrkInVrt->~vector(); WrkVrtSet->~vector();
+    delete[] weit; delete[] Solution; delete TrkInVrt; delete WrkVrtSet;
 
     
     if(sc.isFailure()) ATH_MSG_INFO("Why is sc still failure here");
@@ -1209,6 +1257,30 @@ StatusCode VrtSecInclusive::initEvent()
       if( sc.isFailure() )  ATH_MSG_INFO(" Wrong vertex");
    }
 
+//
+//  Iterate track removal until vertex get good Chi2
+//
+   double  VrtSecInclusive::improveVertexChi2( std::vector<WrkVrt> *WrkVrtSet, int V, 
+                              std::vector<const Trk::TrackParticleBase*> & AllTrackList)
+   {
+
+      int NTrk=(*WrkVrtSet)[V].SelTrk.size();
+      if( NTrk<2 )return 0.;
+      double Prob=TMath::Prob( (*WrkVrtSet)[V].Chi2, 2*NTrk-3);
+      //
+      //----Start track removal iterations
+      while(Prob<0.01){
+        NTrk=(*WrkVrtSet)[V].SelTrk.size();
+        if(NTrk==2)return Prob;
+        int SelT=-1; double Chi2Max=0.;
+        for(int i=0; i<NTrk; i++){ if( (*WrkVrtSet)[V].Chi2PerTrk[i]>Chi2Max) { Chi2Max=(*WrkVrtSet)[V].Chi2PerTrk[i];  SelT=i;}}	    
+        (*WrkVrtSet)[V].SelTrk.erase( (*WrkVrtSet)[V].SelTrk.begin() + SelT ); //remove track
+        StatusCode sc = RefitVertex( WrkVrtSet, V, AllTrackList);
+        if(sc.isFailure())return 0.;
+        Prob=TMath::Prob( (*WrkVrtSet)[V].Chi2, 2*(NTrk-1)-3);
+      }
+      return Prob;
+   }
 
    void VrtSecInclusive::TrackClassification(std::vector<WrkVrt> *WrkVrtSet, 
                                              std::vector< std::deque<long int> > *TrkInVrt)
@@ -1365,8 +1437,10 @@ StatusCode VrtSecInclusive::initEvent()
       (*WrkVrtSet)[V2].SelTrk.clear();     //Clean dropped vertex
       (*WrkVrtSet)[V2].dCloseVrt=1000000.; //Clean dropped vertex
       (*WrkVrtSet)[V2].nCloseVrt=0;        //Clean dropped vertex
+      (*WrkVrtSet)[V2].Good=false;        //Clean dropped vertex
       (*WrkVrtSet)[V1].dCloseVrt=1000000.; //Clean new vertex
       (*WrkVrtSet)[V1].nCloseVrt=0;        //Clean new vertex
+      (*WrkVrtSet)[V2].Good=true;          //Clean new vertex
 
    }
  
@@ -1425,6 +1499,28 @@ StatusCode VrtSecInclusive::initEvent()
      CovMtx(3,4) = CovMtx(4,3) =Matrix[pnt+1];
      CovMtx(4,4)               =Matrix[pnt+2];
      return;
+   }
+//
+//  Number of common tracks for 2 vertices
+//
+   int VrtSecInclusive::nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2)
+   const
+   {
+      int NTrk_V1 = (*WrkVrtSet).at(V1).SelTrk.size(); if( NTrk_V1< 2) return 0;   /* Bad vertex */
+      int NTrk_V2 = (*WrkVrtSet).at(V2).SelTrk.size(); if( NTrk_V2< 2) return 0;   /* Bad vertex */
+      int nTrkCom=0;
+      if(NTrk_V1 < NTrk_V2){
+        for(int i=0; i<NTrk_V1; i++){
+          int trk=(*WrkVrtSet)[V1].SelTrk[i];
+          if( std::find((*WrkVrtSet)[V2].SelTrk.begin(),(*WrkVrtSet)[V2].SelTrk.end(),trk) != (*WrkVrtSet)[V2].SelTrk.end()) nTrkCom++;
+        }
+      }else{
+        for(int i=0; i<NTrk_V2; i++){
+          int trk=(*WrkVrtSet)[V2].SelTrk[i];
+          if( std::find((*WrkVrtSet)[V1].SelTrk.begin(),(*WrkVrtSet)[V1].SelTrk.end(),trk) != (*WrkVrtSet)[V1].SelTrk.end()) nTrkCom++;
+        }
+      }
+      return nTrkCom;
    }
 
   ///////////////////////////////
@@ -1879,10 +1975,10 @@ StatusCode VrtSecInclusive::initEvent()
        double p1=0;
        double p2=0;
        for (int it1=0; it1<numOutP; ++it1) {
-         if(it1>m_maxTrks) continue;
+         if(it1>=m_maxTrks) continue;
          p1 = sqrt(Trkpx[it1]*Trkpx[it1] + Trkpy[it1]*Trkpy[it1] + Trkpz[it1]*Trkpz[it1]);
          for (int it2=0; it2<numOutP; ++it2) {
-           if(it2>m_maxTrks) continue;
+           if(it2>=m_maxTrks) continue;
            if(it1==it2) continue;
 	   //
            p2 = sqrt(Trkpx[it2]*Trkpx[it2] + Trkpy[it2]*Trkpy[it2] + Trkpz[it2]*Trkpz[it2]);
@@ -2343,8 +2439,10 @@ StatusCode VrtSecInclusive::getTruthInfo(vector<const Trk::TrackParticleBase*> &
 
 	  if( m_RecoTrk_barcode->at(ilist) == ((*outP)->barcode()) ) {
             numReco++;
-            if(numReco<10) bcodeOfRecoTrks[numReco-1]=m_RecoTrk_barcode->at(ilist);
-            mlog<<MSG::VERBOSE<<"---- numReco/bcodeOf/ilist/m_RecoTrk "<<numReco<<","<<bcodeOfRecoTrks[numReco-1]<<","<<ilist<<","<<m_RecoTrk_barcode->at(ilist)<<endreq;
+            if(numReco<10) { bcodeOfRecoTrks[numReco-1]=m_RecoTrk_barcode->at(ilist);
+               mlog<<MSG::VERBOSE<<"---- numReco/bcodeOf/ilist/m_RecoTrk "<<numReco<<","<<bcodeOfRecoTrks[numReco-1]<<","
+	                         <<ilist<<","<<m_RecoTrk_barcode->at(ilist)<<endreq;
+            }
             break;
 	  }
 
@@ -2469,10 +2567,10 @@ StatusCode VrtSecInclusive::getTruthInfo(vector<const Trk::TrackParticleBase*> &
        double p1=0;
        double p2=0;
        for (int it1=0; it1<numOutP; ++it1) {
-         if(it1>m_maxTrks) continue;
+         if(it1>=m_maxTrks) continue;
          p1 = sqrt(Trkpx[it1]*Trkpx[it1] + Trkpy[it1]*Trkpy[it1] + Trkpz[it1]*Trkpz[it1]);
          for (int it2=0; it2<numOutP; ++it2) {
-           if(it2>m_maxTrks) continue;
+           if(it2>=m_maxTrks) continue;
            if(it1==it2) continue;
 	   //
            p2 = sqrt(Trkpx[it2]*Trkpx[it2] + Trkpy[it2]*Trkpy[it2] + Trkpz[it2]*Trkpz[it2]);
@@ -2945,7 +3043,7 @@ StatusCode VrtSecInclusive::getTruthInfo(vector<const Trk::TrackParticleBase*> &
     // 
     //get EventInfo for run and event number
 
-    const EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo;
     StatusCode sc = evtStore()->retrieve(eventInfo);
   
     if (sc.isFailure())
@@ -2954,15 +3052,14 @@ StatusCode VrtSecInclusive::getTruthInfo(vector<const Trk::TrackParticleBase*> &
 	return sc;
       }
   
-    const EventID* myEventID=eventInfo->event_ID();
     //
-    m_runNumber=myEventID->run_number();
-    m_eventNumber=myEventID->event_number();
+    m_runNumber=eventInfo->runNumber();
+    m_eventNumber=eventInfo->eventNumber();
     ATH_MSG_DEBUG( "event "<<m_eventNumber);
 
-    m_eventTime= myEventID->time_stamp() ; 
-    m_lumiBlock=myEventID->lumi_block() ;
-    m_bCID=myEventID->bunch_crossing_id() ;
+    m_eventTime= eventInfo->timeStamp() ; 
+    m_lumiBlock=eventInfo->lumiBlock() ;
+    m_bCID=eventInfo->bcid();
 
     return StatusCode::SUCCESS;
   }

@@ -47,7 +47,7 @@ use AtlasHepMC                  AtlasHepMC-*                     External
 
 #use EventKernel			EventKernel-*			Event
 #use NavFourMom   		NavFourMom-*  			Event
-use EventInfo			EventInfo-*			    Event
+use xAODEventInfo			xAODEventInfo-*			    Event/xAOD
 
 
 
