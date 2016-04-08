@@ -1,0 +1,14 @@
+package ParticleCaloExtension
+
+author Niels van Eldik
+
+use AtlasPolicy         AtlasPolicy-* 
+use AthContainers       AthContainers-*                 Control
+use xAODCore            xAODCore-*                      Event/xAOD
+use xAODCaloEvent       xAODCaloEvent-*                 Event/xAOD
+use CaloEvent           CaloEvent-*                     Calorimeter
+
+apply_pattern installed_library
+library ParticleCaloExtension *.cxx
+
+
