@@ -5,9 +5,8 @@
 #ifndef MUONCOMBINEPATTERNTOOLS_MUONCOMBINEPATTERNTOOL_H
 #define MUONCOMBINEPATTERNTOOLS_MUONCOMBINEPATTERNTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
 #include "MuonRecToolInterfaces/IMuonCombinePatternTool.h"
 
 #include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
@@ -22,7 +21,7 @@ namespace MuonGM {
 }
 
 
-class MuonCombinePatternTool : public AlgTool, virtual public Muon::IMuonCombinePatternTool 
+class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonCombinePatternTool 
 {
  private:
   struct ChamberInfo {
@@ -122,13 +121,6 @@ class MuonCombinePatternTool : public AlgTool, virtual public Muon::IMuonCombine
 
   /** print out pattern hits */
   void printPattern(const Muon::MuonPrdPattern* muonpattern)const;
-
-  /** class member version of retrieving MsgStream */
-  mutable MsgStream m_log;
-  /** check for msgstream messages */
-  bool m_debug;
-  /** check for msgstream messages */
-  bool m_verbose;
 
   /** object for use of mathematical formulas for trackmodels */
   MuonHoughMathUtils m_muonHoughMathUtils;
