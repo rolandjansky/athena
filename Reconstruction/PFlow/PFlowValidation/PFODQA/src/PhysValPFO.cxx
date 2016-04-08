@@ -58,7 +58,7 @@ StatusCode PhysValPFO::fillHistograms(){
   }
 
   if (!thePFOContainer){
-    if (msgLvl(MSG::WARNING))  msg(MSG::WARNING) << " Have NULL pointer to xAOD::PFOContainer " << endmsg;
+    if (msgLvl(MSG::WARNING))  msg(MSG::WARNING) << " Have NULL pointer to xAOD::PFOContainer " << endreq;
     return StatusCode::SUCCESS;
   }
   
