@@ -125,8 +125,10 @@ StatusCode TGC_RegionSelectorTable::createTable() {
       p_IdHelper->get_hash( Id,hashId,&ModuleContext);
    
       ExpandedIdentifier exp_id;
-
-      p_IdHelper->get_expanded_id( Id, exp_id, &ModuleContext);
+      if (p_IdHelper->get_expanded_id( Id, exp_id, &ModuleContext)) {
+        ATH_MSG_DEBUG("Failed retrieving ExpandedIdentifier for PRD Identifier = " << Id.getString() << ". Skipping to the next PRD.");
+        continue;
+      }
       
       int detid   = ( exp_id[2]<0 ? -1 : 1 );
       int layerid = exp_id[1]+1;

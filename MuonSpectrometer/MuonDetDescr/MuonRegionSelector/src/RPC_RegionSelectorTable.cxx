@@ -59,7 +59,15 @@ StatusCode RPC_RegionSelectorTable::initialize() {
   
   //get RPC CablingSvc from the server
   CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
-  ATH_MSG_VERBOSE("RPC CablingSvc obtained: " << (dynamic_cast<const Service*>(m_rpcCabling))->name());
+  if (msgLvl(MSG::VERBOSE)) {
+    const Service* castedRpcCabling = dynamic_cast<const Service*>(m_rpcCabling);
+    if (castedRpcCabling) 
+      ATH_MSG_VERBOSE("RPC CablingSvc obtained: " << castedRpcCabling->name());
+    else {
+      ATH_MSG_ERROR("Failed dynamic casting of m_rpcCabling to (const Service*)");
+      return StatusCode::FAILURE;
+    }
+  }
 
   return createTable();
 }
@@ -105,7 +113,12 @@ StatusCode RPC_RegionSelectorTable::createTable() {
     }
     
     std::vector<uint32_t> robIds;
-    CHECK( m_rpcCabling->giveROB_fromPRD(prdHashId, robIds) );
+    StatusCode sc = m_rpcCabling->giveROB_fromPRD(prdHashId, robIds);
+    if ( !sc.isSuccess() ) {
+      REPORT_ERROR(sc);
+      delete rpclut;
+      return sc;
+    };
     
     if (robIds.size() < 1) {
       ATH_MSG_DEBUG("There is no ROB associated with the PRD HashId = " << (unsigned int)prdHashId << ". Skipping to the next PRD.");
@@ -117,8 +130,10 @@ StatusCode RPC_RegionSelectorTable::createTable() {
     }
     
     ExpandedIdentifier exp_id;
-    //int expid = 
-    p_IdHelper->get_expanded_id( prdId, exp_id, &ModuleContext);
+    if (p_IdHelper->get_expanded_id( prdId, exp_id, &ModuleContext)) {
+      ATH_MSG_DEBUG("Failed retrieving ExpandedIdentifier for PRD Identifier = " << prdId.getString() << ". Skipping to the next PRD.");
+      continue;
+    }
        	
     int detid   = ( exp_id[2]<0 ? -1 : 1 );
     int layerid = exp_id[1];
