@@ -43,6 +43,8 @@ class V0Candidate
  * Constructor, using a vector of Trk::V0Hypothesis
  */
    V0Candidate(const std::vector<Trk::V0Hypothesis *>& v0Hyp);
+
+   V0Candidate(std::vector<Trk::V0Hypothesis *>&& v0Hyp);
 	      
 	      
 /**
@@ -53,6 +55,7 @@ class V0Candidate
    * Assignement constructor
    */	  
   V0Candidate &operator= (const V0Candidate & rhs);  
+  V0Candidate &operator= (V0Candidate && rhs);  
   /**
      * Clone method
       */ 

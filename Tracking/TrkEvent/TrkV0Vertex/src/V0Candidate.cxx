@@ -23,6 +23,10 @@ namespace Trk {
 
   V0Candidate::V0Candidate(const std::vector<Trk::V0Hypothesis *>& v0Hyp) : m_v0Hyp(v0Hyp) {}
 
+  V0Candidate::V0Candidate(std::vector<Trk::V0Hypothesis *>&& v0Hyp)
+    : m_v0Hyp(std::move(v0Hyp))
+  {}
+
   V0Candidate::V0Candidate(const V0Candidate& rhs) : m_v0Hyp(std::vector<Trk::V0Hypothesis *>())
   {
    std::vector<Trk::V0Hypothesis *>::const_iterator itr = rhs.m_v0Hyp.begin(); 
@@ -62,6 +66,15 @@ namespace Trk {
     std::vector<Trk::V0Hypothesis *>::const_iterator itr = rhs.m_v0Hyp.begin(); 
     std::vector<Trk::V0Hypothesis *>::const_iterator itre = rhs.m_v0Hyp.end();
     for(;itr!=itre;++itr) m_v0Hyp.push_back((*itr)->clone()); 
+   }
+   return *this;    
+  }
+
+  V0Candidate & V0Candidate::operator= (V0Candidate && rhs)
+  {
+   if (this!=&rhs)
+   {
+     m_v0Hyp = std::move (rhs.m_v0Hyp);
    }
    return *this;    
   }
