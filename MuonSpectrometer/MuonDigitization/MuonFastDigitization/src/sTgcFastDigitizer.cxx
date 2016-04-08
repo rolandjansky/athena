@@ -33,10 +33,18 @@
 using namespace Muon;
 
 sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator) , m_detManager(NULL) ,  m_idHelper(NULL) ,  m_channelTypes(0)
+  , m_file(NULL) , m_ntuple(NULL) , slx(0.) , sly(0.) , slz(0.) , dlx(0.) , dly(0.) , dlz(0.)
+  , sulx(0.) , suly(0.) , tsulx(0.) , tsuly(0.) , tsulz(0.) , resx(0.) , resy(0.) , resz(0.)
+  , suresx(0.) , suresy(0.) , errx(0.) , erry(0.) , res(0.) , pull(0.) , is(0) , seta(0) , sphi(0)
+  , sml(0) , sl(0) , ss(0) , stype(0) , ieta(0) , iphi(0) , iml(0) , il(0) , ich(0) , istr(0) , itype(0)
+  , ipadeta(0) , ipadphi(0) , exitcode(0) , mode(0) , pdg(0) , trkid(0) , bct(0) , tb(0.) , tj(0.)
+  , tg4(0.) , ttof(0.) , gpx(0.) , gpy(0.) , gpz(0.) , gpr(0.) , gpp(0.) , dgpx(0.) , dgpy(0.) , dgpz(0.)
+  , dgpr(0.) , dgpp(0.) , edep(0.) , e(0.) , as(0.) , at(0.) , surfcentx(0.) , surfcenty(0.) , surfcentz(0.)
   , m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool" )
   , m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
   , m_rndmSvc("AtRndmGenSvc", name )
+  , m_rndmEngine(0)
   , m_timeWindowOffsetWire(0.)
   , m_timeWindowOffsetStrip(0.)
   , m_timeWindowWire(24.95) // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
@@ -618,7 +626,7 @@ float sTgcFastDigitizer::timeJitter(float inAngle_time) const
     jthAngle = ithAngle+1;
   }
 
-  float jitter;
+  float jitter = 0.;
   float prob = 1.;
   float probRef = 0.;
 
