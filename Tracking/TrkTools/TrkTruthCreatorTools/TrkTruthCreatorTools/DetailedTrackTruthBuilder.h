@@ -49,8 +49,10 @@ namespace Trk {
 		  const std::vector<const PRD_MultiTruthCollection*>& orderedPRD_Truth,
 		  const PRD_InverseTruth& inverseTruth);
 
+    void makeTruthToRecMap( PRD_InverseTruth& result, const PRD_MultiTruthCollection& rec2truth);
+
     SubDetHitStatistics countPRDsOnTruth(const TruthTrajectory& traj,
-					 const PRD_InverseTruth& inverseTruth);
+                                         const PRD_InverseTruth& inverseTruth);
 
   };
   
