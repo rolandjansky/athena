@@ -10,6 +10,7 @@
 #include "TrkSurfaces/DistanceSolution.h"
 #include "TrkParametersBase/ParametersBase.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include <cstdlib>//for "abort"
 
 namespace Trk
 {
@@ -28,9 +29,9 @@ template<int DIM, class T, class S> class ParametersT;
 
 class DetElementSurface : public Surface
 {
-    public:
-      DetElementSurface() : Surface() {}
-      DetElementSurface(Identifier id) : Surface(), m_id(id) {}
+  public:
+    DetElementSurface() : Surface() {}
+    DetElementSurface(Identifier id) : Surface(), m_id(id) {}
     DetElementSurface( const Surface& rhs) : Surface(rhs), m_id(rhs.associatedDetectorElementIdentifier()) {}
 // Normally the Surface copy ctor sets the Identifier to be invalid. Store it, to get around this.
     bool                        operator==(const  Trk::Surface&) const { return false;}
@@ -41,7 +42,7 @@ class DetElementSurface : public Surface
     const Amg::Vector3D *       localToGlobal (const LocalParameters &) const { return nullptr; }
     const Amg::Vector2D *       globalToLocal (const Amg::Vector3D &, const double) const { return nullptr; }
     virtual DistanceSolution    straightLineDistanceEstimate (const Amg::Vector3D &, const Amg::Vector3D &) const { return DistanceSolution(); }
-    const SurfaceBounds &       bounds () const { return *((RectangleBounds*)0); }
+    const SurfaceBounds &       bounds () const { std::abort();/*should never be called*/ }
     MsgStream &                 dump (MsgStream &sl) const { return sl;}
     std::ostream &              dump (std::ostream &sl) const { return sl;};
     const Identifier            associatedDetectorElementIdentifier() const {return m_id;}
