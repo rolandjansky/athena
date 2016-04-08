@@ -33,13 +33,13 @@ void HistHandler::fill( const MuonCalib::MuonFixedId& Id, Float_t entry ) {
   std::string histName = histStream.str();
   TString ThistName(histName);
 
-  std::map<std::string, TH1F*>::iterator position = myMap.find( histName );
-  if(position == myMap.end() ){
+  std::map<std::string, TH1F*>::iterator position = m_myMap.find( histName );
+  if(position == m_myMap.end() ){
     TH1F* h = new TH1F(ThistName, ThistName, m_bin, m_min, m_max);
     if( m_setting ) m_setting->applySetting( h );
-    myMap[ histName ] = h;
+    m_myMap[ histName ] = h;
   }
-  myMap[ histName ]->Fill(entry);
+  m_myMap[ histName ]->Fill(entry);
 
 }
 
@@ -56,18 +56,18 @@ void HistHandler::fill( const MuonCalib::MuonFixedId& Id, Float_t entryX, Float_
   std::string histName = histStream.str();
   TString ThistName(histName);
 
-  std::map<std::string, TH2F*>::iterator position = my2Map.find( histName );
-  if(position == my2Map.end() ){
+  std::map<std::string, TH2F*>::iterator position = m_my2Map.find( histName );
+  if(position == m_my2Map.end() ){
     TH2F* h  = new TH2F(ThistName, ThistName, m_bin, m_min, m_max, m_binY, m_minY, m_maxY);
     if( m_setting ) m_setting->applySetting( h );
-    my2Map[ histName ] = h;
+    m_my2Map[ histName ] = h;
   }
-  my2Map[ histName ]->Fill(entryX, entryY);
+  m_my2Map[ histName ]->Fill(entryX, entryY);
 
 }
 
 void HistHandler::write(){
-  for( std::map<std::string, TH1F*>::const_iterator CI = myMap.begin(); CI != myMap.end(); ++ CI ){
+  for( std::map<std::string, TH1F*>::const_iterator CI = m_myMap.begin(); CI != m_myMap.end(); ++ CI ){
     TString name( CI->first ) ;
     (CI->second)->Write(name);
     std::cout << " writing " <<name << std::endl;
@@ -85,8 +85,8 @@ TH1F* HistHandler::Hist( const MuonCalib::MuonFixedId& Id ) const {
   std::ostringstream histStream("");
   histStream << m_title << "_" << stationName << abseta << side << phi ;
   std::string histName = histStream.str();
-  std::map< std::string, TH1F*>::const_iterator position = myMap.find(histName);
-  if( position != myMap.end() ) {
+  std::map< std::string, TH1F*>::const_iterator position = m_myMap.find(histName);
+  if( position != m_myMap.end() ) {
     return position->second;
   } else std::cout << " This ID (" << histName << ") has no TH1F* assigned in the map" << std::endl;
   return 0;
@@ -97,8 +97,8 @@ TH1F* HistHandler::Hist(  const std::string tag  ) const {
   std::ostringstream histStream("");
   histStream << m_title << "_" << tag ;
   std::string histName = histStream.str();
-  std::map< std::string, TH1F*>::const_iterator position = myMap.find( histName );
-  if( position != myMap.end() ) {
+  std::map< std::string, TH1F*>::const_iterator position = m_myMap.find( histName );
+  if( position != m_myMap.end() ) {
     return position->second;
   } else std::cout << " This ID (" << histName << ") has no TH1F* assigned in the map" << std::endl;
   return 0;
@@ -117,8 +117,8 @@ TH2F* HistHandler::Hist2( const MuonCalib::MuonFixedId& Id ) const {
   histStream << m_title << "_" << stationName << abseta << side << phi ;
   std::string histName = histStream.str();
    
-  std::map< std::string, TH2F*>::const_iterator position2 = my2Map.find(histName);
-  if( position2 != my2Map.end() ){ 
+  std::map< std::string, TH2F*>::const_iterator position2 = m_my2Map.find(histName);
+  if( position2 != m_my2Map.end() ){ 
     return position2->second;
   } else std::cout << " This ID (" << histName << ") has no TH2F* assigned in the map" << std::endl;
   
@@ -129,8 +129,8 @@ TH2F* HistHandler::Hist2(  const std::string tag  ) const {
   std::ostringstream histStream("");
   histStream << m_title << "_" << tag ;
   std::string histName = histStream.str();
-  std::map< std::string, TH2F*>::const_iterator position = my2Map.find( histName );
-  if( position != my2Map.end() ) {
+  std::map< std::string, TH2F*>::const_iterator position = m_my2Map.find( histName );
+  if( position != m_my2Map.end() ) {
     return position->second;
   } else std::cout << " This ID (" << histName << ") has no TH2F* assigned in the map" << std::endl;
   return 0;
@@ -142,11 +142,11 @@ void HistHandler::fill(std::string tag , Float_t entry ) {
   std::string histName = histStream.str();
   TString ThistName(histName);
 
-  std::map<std::string, TH1F*>::iterator position = myMap.find( histName );
-  if(position == myMap.end() ){
-    myMap[ histName ] = new TH1F(ThistName, ThistName, m_bin, m_min, m_max);
+  std::map<std::string, TH1F*>::iterator position = m_myMap.find( histName );
+  if(position == m_myMap.end() ){
+    m_myMap[ histName ] = new TH1F(ThistName, ThistName, m_bin, m_min, m_max);
   }
-  myMap[ histName ]->Fill(entry);
+  m_myMap[ histName ]->Fill(entry);
 
 }
 
@@ -157,11 +157,11 @@ void HistHandler::fill(std::string tag , Float_t entryX, Float_t entryY ) {
   std::string histName = histStream.str();
   TString ThistName(histName);
 
-  std::map<std::string, TH2F*>::iterator position = my2Map.find( histName );
-  if(position == my2Map.end() ){
-    my2Map[ histName ] = new TH2F(ThistName, ThistName, m_bin, m_min, m_max, m_binY, m_minY, m_maxY);
+  std::map<std::string, TH2F*>::iterator position = m_my2Map.find( histName );
+  if(position == m_my2Map.end() ){
+    m_my2Map[ histName ] = new TH2F(ThistName, ThistName, m_bin, m_min, m_max, m_binY, m_minY, m_maxY);
   }
-  my2Map[ histName ]->Fill(entryX, entryY);
+  m_my2Map[ histName ]->Fill(entryX, entryY);
 }
   
 void HistHandler::fill(std::string tag , Float_t entryX, Float_t entryY, Float_t weight ) {
@@ -170,11 +170,11 @@ void HistHandler::fill(std::string tag , Float_t entryX, Float_t entryY, Float_t
   std::string histName = histStream.str();
   TString ThistName(histName);
 
-  std::map<std::string, TH2F*>::iterator position = my2Map.find( histName );
-  if(position == my2Map.end() ){
-    my2Map[ histName ] = new TH2F(ThistName, ThistName, m_bin, m_min, m_max, m_binY, m_minY, m_maxY);
+  std::map<std::string, TH2F*>::iterator position = m_my2Map.find( histName );
+  if(position == m_my2Map.end() ){
+    m_my2Map[ histName ] = new TH2F(ThistName, ThistName, m_bin, m_min, m_max, m_binY, m_minY, m_maxY);
   }
-  my2Map[ histName ]->Fill(entryX, entryY, weight);
+  m_my2Map[ histName ]->Fill(entryX, entryY, weight);
 }
   
 double  HistHandler::maximum( std::string tag ) {
@@ -183,10 +183,10 @@ double  HistHandler::maximum( std::string tag ) {
   std::string histName = histStream.str();
   TString ThistName(histName);
 
-  std::map<std::string, TH2F*>::iterator position = my2Map.find( histName );
-  if(position == my2Map.end() ){
+  std::map<std::string, TH2F*>::iterator position = m_my2Map.find( histName );
+  if(position == m_my2Map.end() ){
    return 0.;
   }
-  return my2Map[ histName ]->GetMaximum();
+  return m_my2Map[ histName ]->GetMaximum();
   
 }
