@@ -31,9 +31,13 @@ namespace TrkDriftCircleMath {
   class SegmentFinder{
   public:
     SegmentFinder();
+    /// copy c'tor deleted to prevent ownership/leak issues 
+    SegmentFinder(const SegmentFinder &) = delete;
+    /// assignment deleted to prevent ownership/leak issues 
+		SegmentFinder & operator=(const SegmentFinder &) = delete;
+		//
     SegmentFinder(double roadWidth, double deltaCut, bool fullScan);
     virtual ~SegmentFinder();
-    
     virtual void handleHits(  const DCVec& dcs, const CLVec& clusters ) const;
 
     SegVec findSegments( const DCVec& dcs ) const;
@@ -103,6 +107,10 @@ namespace TrkDriftCircleMath {
 
     /** print settings */
     void printSettings() const;
+
+    double tubeRadius() const {
+      return m_mdtGeometry ? m_mdtGeometry->tubeRadius() : 14.6;
+    }
 
     double m_deltaCut;
     double m_roadWidth;

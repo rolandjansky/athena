@@ -21,7 +21,7 @@ namespace TrkDriftCircleMath {
 	@param pos local position of cluster 
 	@param err error on cluster position */
     Cluster (const LocPos& pos, double err)
-      : m_pos (pos), m_err (err) {}
+      : m_pos (pos), m_err (err),m_id{},m_index{} {}
             
     /** full constructor:
 	@param pos local position of cluster 

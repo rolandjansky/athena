@@ -6,10 +6,22 @@
 #include "TrkDriftCircleMath/SortDcsByY.h"
 
 #include <iostream>
+#include <algorithm>
 
 namespace TrkDriftCircleMath {
 
-  MdtChamberGeometry::MdtChamberGeometry() : m_cachedPos(0.,0.)
+  MdtChamberGeometry::MdtChamberGeometry() : 
+		m_id{},
+		m_nml{},
+		m_nlay{},
+		m_tubeStage{},
+		m_stationTheta{},
+		m_allTubes{},
+		m_crossedTubes{},
+		m_cachedPos(0.,0.),
+		m_validGeometry{},
+		m_isSecondMultiLayer{},
+		m_resLine{}
   {
     init();
   }
@@ -28,7 +40,7 @@ namespace TrkDriftCircleMath {
     {
       m_validGeometry = true;
       m_tubeDist = 30.035;
-      m_tubeRad =  m_id.stName() == 53 ? 7.1 : 14.6; // BME chambers are small tubes
+      m_tubeRad  = m_id.stName() == 53 ? 7.1 : 14.6; // BME chambers are small tubes
       m_layDist  = 26.011;
       // initialize first tubes to zero
       m_ntubesml.push_back(0);

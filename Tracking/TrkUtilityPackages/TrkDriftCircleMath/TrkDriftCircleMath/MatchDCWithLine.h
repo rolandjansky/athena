@@ -17,16 +17,53 @@ namespace TrkDriftCircleMath {
   public:
     enum MatchStrategy { Road, Pull };
   public:
-    MatchDCWithLine() {}
+    MatchDCWithLine():m_resWithLine{},
+			m_tubeRadius{},
+			m_closeByCut{},
+			m_showerCut{},
+			m_deltaCut{},
+			m_strategy{},
+			m_deltas{},
+			m_outOfTimes{},
+			m_onTracks{},
+			m_passedTubes{},
+			m_ml1{},
+			m_ml2{},
+			m_closeHits{},
+			m_showerHits{},
+			m_matchDifference{},
+			m_dcOnTrackVec{}
+    {/**nop **/}
 
-    MatchDCWithLine( const Line& l, double deltaCut, MatchStrategy strategy ) 
-      : m_resWithLine(l), m_deltaCut(deltaCut), m_strategy(strategy) { m_dcOnTrackVec.reserve(50); }
+    MatchDCWithLine( const Line& l, double deltaCut, MatchStrategy strategy, double tubeRadius ) 
+      : m_resWithLine(l), m_deltaCut(deltaCut), m_strategy(strategy),
+      m_deltas{},
+      m_outOfTimes{},
+      m_onTracks{},
+      m_passedTubes{},
+      m_ml1{},
+      m_ml2{},
+      m_closeHits{},
+      m_showerHits{},
+      m_matchDifference{},
+      m_dcOnTrackVec{}
+  	{ 
+      m_dcOnTrackVec.reserve(50);
+      setTubeRadius(tubeRadius);    
+    }
 
     
-    void set( const Line& l, double deltaCut, MatchStrategy strategy ) {
+    void set( const Line& l, double deltaCut, MatchStrategy strategy, double tubeRadius ) {
       m_resWithLine.set(l);
       m_deltaCut = deltaCut;
       m_strategy = strategy;
+      setTubeRadius(tubeRadius);
+    }
+    
+    void setTubeRadius( double radius ){
+      m_tubeRadius = radius;
+      m_closeByCut = 2*radius;
+      m_showerCut  = 4* radius;
     }
 
     const DCOnTrackVec& match( const DCVec& dcs );
@@ -46,11 +83,13 @@ namespace TrkDriftCircleMath {
   private:
     
     void reset();
-    
     void matchDC( DCOnTrack& dc, double& res, double& dline, bool forceOnTrack = false, bool forceOffTrack = false, bool usePreciseErrors = false );
     bool select( double residual, double error ) const;
 
     ResidualWithLine m_resWithLine;
+    double       m_tubeRadius;
+    double       m_closeByCut;
+    double       m_showerCut;
     double       m_deltaCut;
     MatchStrategy m_strategy;
     unsigned int m_deltas;

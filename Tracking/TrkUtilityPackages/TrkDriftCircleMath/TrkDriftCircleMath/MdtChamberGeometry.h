@@ -11,7 +11,6 @@
 #include "TrkDriftCircleMath/ChamberGeometry.h"
 #include "TrkDriftCircleMath/ResidualWithLine.h"
 #include <cassert>
-#include <ostream>
 #include <vector>
 
 namespace TrkDriftCircleMath {
@@ -50,6 +49,8 @@ namespace TrkDriftCircleMath {
 
     double stationTheta() const { return m_stationTheta; }
 
+    double tubeRadius() const { return m_tubeRad; } 
+
     const std::vector<LocPos>& allTubes() const;
     
     const LocPos& tubePosition(unsigned int ml, unsigned int lay, unsigned int tube) const;
@@ -74,7 +75,7 @@ namespace TrkDriftCircleMath {
     double xPosTube(unsigned int ml, unsigned int lay, unsigned int tube) const;
     double yPosTube(unsigned int ml,unsigned int lay) const;
 
-    MdtStationId m_id;
+    MdtStationId  m_id;
     unsigned int  m_nml;
     unsigned int  m_nlay;
     std::vector<unsigned int>  m_ntubesml;
@@ -113,10 +114,8 @@ namespace TrkDriftCircleMath {
     if( lay%2 == 1 ){
       if( m_nlay == 4 && ml == 1 ) xpos -= m_tubeStage;
       else xpos += m_tubeStage;
-      
     }
 
-//    std::cout << " xPosTube " << xpos << " ml " << ml << " lay " << lay << " tube " << tube << std::endl;
     return xpos;
   }
 

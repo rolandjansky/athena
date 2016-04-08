@@ -30,8 +30,9 @@ namespace TrkDriftCircleMath {
     virtual const MdtStationId& stationId() const = 0; 
 
     virtual const LocPos& tubePosition(unsigned int ml, unsigned int lay, unsigned int tube) const = 0;
-
-  };
+ 
+    virtual double tubeRadius() const = 0;
+ };
 
 }
 

@@ -13,7 +13,10 @@ namespace TrkDriftCircleMath {
   
   struct SharedHitsSegments : public std::binary_function<class Segment, class Segment, unsigned int> {
 
-    SharedHitsSegments( bool onlyOnTrack=false ) : m_mode(onlyOnTrack) {}
+    SharedHitsSegments( bool onlyOnTrack=false ) : m_mode(onlyOnTrack),m_shared{},
+			m_onlySeg1{},
+			m_onlySeg2{}
+ 			{/*nop **/}
 
     unsigned int operator()( const Segment& seg1, const Segment& seg2 ){
     
