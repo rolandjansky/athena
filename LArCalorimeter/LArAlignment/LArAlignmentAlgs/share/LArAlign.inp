@@ -1,0 +1,28 @@
+###########################################################################
+#                                                                         #
+#    This is a sample input file used by LArAlignDbAlg in order to        #
+#    write a new set of LAr alignment constaints to COOL                  #
+#                                                                         #
+###########################################################################
+
+# Transform key		Theta	Phi	Rotation angle	X	Y	Z
+# --------------------------------------------------------------------------
+LARCRYO_EC_POS		1	0	0		0	0	0
+LARCRYO_EC_NEG		0	1	0		0	0	0
+EMB_POS			0	0	1		0	0	0
+EMB_NEG			0	0	0		1	0	0
+SOLENOID		0	0	0		0	1	0
+EMEC_POS		0	0	0		0	0	1
+EMEC_NEG		0	0	0		0	-.1	0
+FCAL1_POS		0	0	0		-.1	0	0
+FCAL1_NEG		0	0	.1		0	0	0
+FCAL2_POS		0	.1	0		0	0	0
+FCAL2_NEG		.1	0	0		0	0	0
+FCAL3_POS		0	.1	0		0	0	0
+FCAL3_NEG		0	0	.1		0	0	0
+LARCRYO_B		0	0	0		.1	0	0
+HEC1_POS		0	0	0		0	.1	0
+HEC1_NEG		0	0	0		0	0	.1
+HEC2_POS		0	0	0		0	1	0
+HEC2_NEG		0	0	0		1	0	0
+# --------------------------------------------------------------------------
