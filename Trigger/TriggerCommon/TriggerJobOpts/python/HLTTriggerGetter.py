@@ -192,6 +192,11 @@ class HLTSimulationGetter(Configured):
             if hasattr(TrigSteer_HLT.LvlTopoConverter, 'MuonInputProvider'):
                 print "TrigSteer_HLT.LvlTopoConverter has attribute MuonInputProvider"
 
+                from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+                from AthenaCommon.AppMgr import ToolSvc
+                ToolSvc += L1MuctpiTool()
+                TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+
                 from AthenaCommon.GlobalFlags  import globalflags
                 if globalflags.DataSource()!='data':
                     log.info("Muon eta/phi encoding with reduced granularity for MC (L1Topo emulation for HLT seeding)")
