@@ -7,12 +7,12 @@
 
     @author Rob Roy Fletcher (robflet@sas.upenn.edu)
     @version 0.1
-*/    
+*/
 
 /*! \mainpage Instructions for the MC Shifting Tool.
 
     This tool is used to shift Monte Carlo distributions to correct against some
-    of the known problems in the simulation. These distributions are shifted by 
+    of the known problems in the simulation. These distributions are shifted by
     comparing them to data distributions that are well understood (Z->ee in this case).
     Not all of the variables are shifted by this tool. Currently the shifted variable are:
         - el_reta
@@ -25,6 +25,8 @@
     all other variable will just have their unshifted value returned. Currently the shift values are common for a
     given eta bin. In otherwords variable are shifted by the same amount for all Et bins in a given eta bin. Functionality
     for shifting in both Et and eta bins is already included and may be revisited.
+
+    Note that ws3=w3strips=weta1=w1=weta1c, and fside=fracm=fracs1, so these names may be used interchangably at times.
 
     Documentation (which includes this) can be found at http://hn.hep.upenn.edu/Analysis/robflet/html/index.html
 
@@ -46,12 +48,15 @@
                                output test.
         </ul>
     </ul>
-    
+
 
 */
 
 #ifndef TELECTRONMCSHIFTERTOOL_H
 #define TELECTRONMCSHIFTERTOOL_H
+
+#include <map>
+#include <vector>
 
 
 /*! @namespace ElePIDNames
@@ -60,8 +65,8 @@
 */
 namespace ElePIDNames{
   /*! @enum Var
-      
-      Enum used to hold names of variables used in the shifter tool. This is 
+
+      Enum used to hold names of variables used in the shifter tool. This is
       so the tool may select the correct shift value.
   */
   enum Var {
@@ -81,25 +86,27 @@ namespace ElePIDNames{
     ,trackd0pvunbiased
     ,weta2
     ,ws3
-    ,wstot                 
+    ,wstot
+    ,e277
+    ,DeltaE
   };
 }
 
   //! The base class for the Shifter tool. Holds all shift values.
   /*!
-     
+
   */
 class TElectronMCShifterTool{
 public:
   //! Default constructor.
   TElectronMCShifterTool();
-  
+
   //! Default destructor.
   ~TElectronMCShifterTool();
 
  //!Get the shift amount
  /*!
-	Returns only the shift amount. This is the number in the Shifts table that is added to the 
+	Returns only the shift amount. This is the number in the Shifts table that is added to the
 	variable to obtain the shifted result.
 
 	@param eT The eT value of the electron.
@@ -109,31 +116,31 @@ public:
 	@sa getShiftDeltaByBin()
  */
  double getShiftDelta(double eT, double eta, ElePIDNames::Var var){
-   int ibin_combined = getShifterEtBin(eT)*6+getShifterEtaBin(eta); //Convert the 2d 
-   return Shifts[var][ibin_combined];
+   int ibin_combined = getShifterEtBin(eT)*6+getShifterEtaBin(eta); //Convert the 2d
+   return Shifts[var].at(ibin_combined);
  };
 
  //! Get the shift value from bin numbers.
  /*!
 	@param eT The eT bin number [0-5].
-	@param eta The eta bin number [0-8]. 
+	@param eta The eta bin number [0-8].
 	@param var enum member corresponding to the variable. Type is ElePIDNames::Var
 	@return The shift value for the current electron/variable.
 	@sa getShiftDelta()
  */
  double getShiftDeltaByBin(int eT, int eta, ElePIDNames::Var var){
-   int ibin_combined = getShifterEtBin(eT)*6+getShifterEtaBin(eta); //Convert the 2d 
-   return Shifts[var][ibin_combined];
+   int ibin_combined = getShifterEtBin(eT)*6+getShifterEtaBin(eta); //Convert the 2d
+   return Shifts[var].at(ibin_combined);
  };
 
  //! Shift a variable.
  /*!
-	Retuns the value of the variable given plus the shift amount as defined in the 
+	Retuns the value of the variable given plus the shift amount as defined in the
 	table of shifts. Variables shifted are reta, f1, f3, wstot, ws3, and weta2. All
 	other variable will just return the input value.
 
 	@param eT The eT value of the electron.
-	@param eta The eta value of the electron. 
+	@param eta The eta value of the electron.
 	@param var enum member corresponding to the variable. Type is ElePIDNames::Var
 	@param val The unshifted value of the variable.
 	@return The shift value for the current electron/variable.
@@ -144,7 +151,7 @@ public:
  //! Shift a variable by the eT and eta bins.
  /*!
 	@param eT The eT bin of the electron [0-5].
-	@param eta The eta bin of the electron[0-8]. 
+	@param eta The eta bin of the electron[0-8].
 	@param var enum member corresponding to the variable. Type is ElePIDNames::Var
 	@param val The unshifted value of the variable.
 	@return The shift value for the current electron/variable.
@@ -162,28 +169,36 @@ public:
 	@param eta The eta value of the electron.
 	@return None
   */
-  void shiftAll( float eT,
-				 float eta,
-				 float& rhad1  ,
-				 float& rhad   ,
-				 float& reta   ,
-				 float& rphi   ,
-				 float& weta2  ,
-				 float& f1     ,
-				 float& f3     ,
-				 float& fside  ,
-				 float& ws3     ,
-				 float& eratio 
-				 );
- 
+ void shiftAll( float eT,
+                float eta,
+                float& rhad1  ,
+                float& rhad   ,
+                float& reta   ,
+                float& rphi   ,
+                float& weta2  ,
+                float& f1     ,
+                float& f3     ,
+                float& fside  ,
+                float& ws3   ,
+                float& eratio ,
+                float& e277   ,
+                float& DeltaE ,
+                float& deltaeta1,
+                float& deltaphiRescaled
+              );
+
+ //static const double Shifts[17][54]; // 17 variables x 9 eta bins x 6 et bins
+ std::map<ElePIDNames::Var, std::vector<float> > Shifts;
+ /** @brief vector to hold the widths to be applied */
+ std::map<ElePIDNames::Var, std::vector<float> > Widths;
+
 private :
  //! Matrix of shift values.
  /*!
 	2D array holding all of the shift values. Dimensions are [17][54] for 17 variables x (9 eta bins x 6 et bins).
 	The eT and eta bins are combined into one dimension of length [54]
  */
- static const double Shifts[17][54]; // 17 variables x 9 eta bins x 6 et bins
-																				  
+
  //! Convert the eT value to eT bin.
  /*!
 	@param eT The value of eT.
@@ -197,8 +212,7 @@ private :
 	@return The bin associated with the given eta value.
  */
  unsigned int getShifterEtaBin(double eta) const;
-																					  
+
 };
 
 #endif
-

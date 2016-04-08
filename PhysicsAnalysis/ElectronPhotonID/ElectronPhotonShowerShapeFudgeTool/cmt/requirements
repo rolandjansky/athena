@@ -12,6 +12,7 @@ use PATInterfaces               PATInterfaces-*         PhysicsAnalysis/Analysis
 
 private
 use  GaudiInterface             GaudiInterface-*           External
+use  PathResolver               PathResolver-*             Tools
 # in AtlasEvent, even if in PhysicsAnalysis directory   
 end_private
 

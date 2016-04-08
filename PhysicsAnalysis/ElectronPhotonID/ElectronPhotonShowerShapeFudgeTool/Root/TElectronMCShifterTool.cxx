@@ -4,9 +4,15 @@
 
 #include "ElectronPhotonShowerShapeFudgeTool/TElectronMCShifterTool.h"
 #include <cmath>
+#include <iostream>
 
 // Default constructor.
-TElectronMCShifterTool::TElectronMCShifterTool(){}
+TElectronMCShifterTool::TElectronMCShifterTool():
+  Shifts(),
+  Widths()
+  {
+    //Intentionally empty
+  }
 
 //Default Destructor
 TElectronMCShifterTool::~TElectronMCShifterTool(){}
@@ -15,13 +21,13 @@ TElectronMCShifterTool::~TElectronMCShifterTool(){}
 unsigned int TElectronMCShifterTool::getShifterEtBin(double eT) const {
   const unsigned int nEtBins = 6;
   const double GeV = 1000;
-  const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,30*GeV,40*GeV,50*GeV};  
-            
+  const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,30*GeV,40*GeV,50*GeV};
+
   for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
     if(eT < eTBins[eTBin])
       return eTBin;
   }
-                                
+
   return 5;  // Return the last bin if > the last bin.
 }
 
@@ -30,66 +36,44 @@ unsigned int TElectronMCShifterTool::getShifterEtBin(double eT) const {
 unsigned int TElectronMCShifterTool::getShifterEtaBin(double eta) const{
   const unsigned int nEtaBins = 9;
   const double etaBins[nEtaBins] = {0.6,0.8,1.15,1.37,1.52,1.81,2.01,2.37,2.47};
-            
+
   for(unsigned int etaBin = 0; etaBin < nEtaBins; ++etaBin){
     if(fabs(eta) < etaBins[etaBin])
       return etaBin;
   }
-                                
+
   return 8;
 }
 
 //----------------------------------------------------------------------
-// Shift individual variables. User decides which to shift. Do not call for 
-// variable you do not wish to shift. 
+// Shift individual variables. User decides which to shift. Do not call for
+// variable you do not wish to shift.
 //----------------------------------------------------------------------
 double TElectronMCShifterTool::shiftVar(double eT,double eta,ElePIDNames::Var var,double val){
-  if (var == ElePIDNames::DeltaPoverP                       ) {return val;}
-  if (var == ElePIDNames::TRTHighTOutliersRatio             ) {return val;}
-  if (var == ElePIDNames::d0significance)                     {return val;} //Not Shifted!!
-  if (var == ElePIDNames::deltaeta1)                          {return val;} //Not Shifted!!
-  if (var == ElePIDNames::deltaphi2)                          {return val;} //Not Shifted!!
-  if (var == ElePIDNames::deltaphiRescaled)                   {return val;} //Not Shifted!!
-  if (var == ElePIDNames::eratio                            ) {return val;}
+  if (var == ElePIDNames::DeltaPoverP           && val == 0.) {return val;}
+  if (var == ElePIDNames::eratio                && val == 1.) {return val;}
   if (var == ElePIDNames::f1                    && val == 0.) {return val;}
   if (var == ElePIDNames::f3                    && val == 0.) {return val;}
-  if (var == ElePIDNames::fside)                              {return val;} //Not Shifted!!
-  if (var == ElePIDNames::reta                  && val == 0.) {return val;}
-  if (var == ElePIDNames::rhad                              ) {return val;}
-  if (var == ElePIDNames::rphi                              ) {return val;}
-  if (var == ElePIDNames::trackd0pvunbiased)                  {return val;} //Not Shifted!!
-  if (var == ElePIDNames::weta2                 && val == 0.) {return val;}
-  if (var == ElePIDNames::ws3                   && val == 0.) {return val;}
-  if (var == ElePIDNames::wstot                 && val == 0.) {return val;}
-                                                          
-  int ibin_combined = getShifterEtBin(eT)*9+getShifterEtaBin(eta); //Convert the 2d 
-  return val + Shifts[var][ibin_combined];
+  if (var == ElePIDNames::fside                 && val == 0.) {return val;}
+
+  int ibin_combined = getShifterEtBin(eT)*9+getShifterEtaBin(eta); //Convert the 2d
+  if(Shifts.size() == 0) return val;
+  return val + Shifts[var].at(ibin_combined);
 }
 
 //------------------------------------------------------------------------------
-// Shift variables. Shift by the et and eta bin numbers.
+// Shift variables. Shift by the et and eta bin numbers. Needs fixin'. Dont use
 //------------------------------------------------------------------------------
 double TElectronMCShifterTool::shiftVarByBin(int eTBin,int etaBin,ElePIDNames::Var var,double val){
-  if (var == ElePIDNames::DeltaPoverP                       ) {return val;}
-  if (var == ElePIDNames::TRTHighTOutliersRatio             ) {return val;}
-  if (var == ElePIDNames::d0significance)                     {return val;} //Not Shifted!!!!
-  if (var == ElePIDNames::deltaeta1)                          {return val;} //Not Shifted!!!!
-  if (var == ElePIDNames::deltaphi2)                          {return val;} //Not Shifted!!!!
-  if (var == ElePIDNames::deltaphiRescaled)                   {return val;} //Not Shifted!!!!
-  if (var == ElePIDNames::eratio                            ) {return val;}
+  if (var == ElePIDNames::DeltaPoverP           && val == 0.) {return val;}
+  if (var == ElePIDNames::eratio                && val == 1.) {return val;}
   if (var == ElePIDNames::f1                    && val == 0.) {return val;}
   if (var == ElePIDNames::f3                    && val == 0.) {return val;}
-  if (var == ElePIDNames::fside)                              {return val;} //Not Shifted!!!!
-  if (var == ElePIDNames::reta                  && val == 0.) {return val;}
-  if (var == ElePIDNames::rhad                              ) {return val;}
-  if (var == ElePIDNames::rphi                              ) {return val;}
-  if (var == ElePIDNames::trackd0pvunbiased)                  {return val;} //Not Shifted!!!!
-  if (var == ElePIDNames::weta2                 && val == 0.) {return val;}
-  if (var == ElePIDNames::ws3                   && val == 0.) {return val;}
-  if (var == ElePIDNames::wstot                 && val == 0.) {return val;}
-                                                          
-  int ibin_combined = eTBin*9+etaBin; //Convert the 2d 
-  return val + Shifts[var][ibin_combined];
+  if (var == ElePIDNames::fside                 && val == 0.) {return val;}
+
+  int ibin_combined = eTBin*9+etaBin; //Convert the 2d
+  if(Shifts.size() == 0) return val;
+  return val + Shifts[var].at(ibin_combined);
 }
 
 //-----------------------------------------------------------------------------
@@ -97,153 +81,71 @@ double TElectronMCShifterTool::shiftVarByBin(int eTBin,int etaBin,ElePIDNames::V
 // if thats how you roll.
 // ----------------------------------------------------------------------------
 void TElectronMCShifterTool::shiftAll( float eT,
-                                             float eta,
-                                             float& rhad1  ,
-                                             float& rhad   ,
-                                             float& reta   ,
-                                             float& rphi   ,
-                                             float& weta2  ,
-                                             float& f1     ,
-                                             float& f3     ,
-                                             float& fside  ,
-                                             float& ws3     ,
-                                             float& eratio 
-                                             ) {
-  int ibin_combined = getShifterEtBin(eT)*9+getShifterEtaBin(eta); //Convert the 2d 
+                                       float eta,
+                                       float& rhad1  ,
+                                       float& rhad   ,
+                                       float& reta   ,
+                                       float& rphi   ,
+                                       float& weta2  ,
+                                       float& f1     ,
+                                       float& f3     ,
+                                       float& fside  ,
+                                       float& ws3    ,
+                                       float& eratio ,
+                                       float& e277   ,
+                                       float& DeltaE ,
+                                       float& deltaeta1,
+                                       float& deltaphiRescaled
+                                     ) {
+  int ibin_combined = getShifterEtBin(eT)*9+getShifterEtaBin(eta); //Convert the 2d
 
-  if ( f1 != 0){ f1 = f1 + Shifts[ElePIDNames::Var::f1][ibin_combined]; }
-  if ( f3 != 0){ f3 = f3 + Shifts[ElePIDNames::Var::f3][ibin_combined]; }
-  if ( f1 != 0){ reta = reta + Shifts[ElePIDNames::Var::reta][ibin_combined]; }
-  if ( f1 != 0){ weta2 = weta2 + Shifts[ElePIDNames::Var::weta2][ibin_combined]; }
-  if ( f1 != 0){ eratio = eratio + Shifts[ElePIDNames::Var::eratio][ibin_combined]; }
-  if ( f1 != 0){ rhad = rhad + Shifts[ElePIDNames::Var::rhad][ibin_combined]; }
-  if ( f1 != 0){ rhad1 = rhad1 + Shifts[ElePIDNames::Var::rhad][ibin_combined]; }
-  if ( f1 != 0){ rphi = rphi + Shifts[ElePIDNames::Var::rphi][ibin_combined]; }
-  if ( f1 != 0){ fside = fside + Shifts[ElePIDNames::Var::fside][ibin_combined]; }
-  if ( f1 != 0){ ws3 = ws3 + Shifts[ElePIDNames::Var::ws3][ibin_combined]; }
+  if(Widths[ElePIDNames::Var::deltaeta1].size() != 0){
+    deltaeta1 = deltaeta1 * Widths[ElePIDNames::Var::deltaeta1].at(ibin_combined);
+  }
+  if(Widths[ElePIDNames::Var::deltaphiRescaled].size() != 0){
+    deltaphiRescaled = deltaphiRescaled * Widths[ElePIDNames::Var::deltaphiRescaled].at(ibin_combined);
+  }
+  if(Widths[ElePIDNames::Var::rhad].size() != 0){
+    rhad = rhad * Widths[ElePIDNames::Var::rhad].at(ibin_combined);
+    rhad1 = rhad1 * Widths[ElePIDNames::Var::rhad].at(ibin_combined);
+  }
+  if(Widths[ElePIDNames::Var::f1].size() != 0){
+    f1 = f1 * Widths[ElePIDNames::Var::f1].at(ibin_combined);
+  }
+
+  if(Shifts[ElePIDNames::Var::f1].size() != 0){
+    if ( f1 != 0){ f1 = f1 + Shifts[ElePIDNames::Var::f1].at(ibin_combined); }
+  }
+  if(Shifts[ElePIDNames::Var::f3].size() != 0){
+    if ( f3 != 0){ f3 = f3 + Shifts[ElePIDNames::Var::f3].at(ibin_combined); }
+  }
+  if(Shifts[ElePIDNames::Var::reta].size() != 0){
+    reta = reta + Shifts[ElePIDNames::Var::reta].at(ibin_combined);
+  }
+  if(Shifts[ElePIDNames::Var::weta2].size() != 0){
+    weta2 = weta2 + Shifts[ElePIDNames::Var::weta2].at(ibin_combined);
+  }
+  if(Shifts[ElePIDNames::Var::eratio].size() != 0){
+    if ( eratio != 1){ eratio = eratio + Shifts[ElePIDNames::Var::eratio].at(ibin_combined); }
+  }
+  if(Shifts[ElePIDNames::Var::rhad].size() != 0){
+    rhad = rhad + Shifts[ElePIDNames::Var::rhad].at(ibin_combined);
+    rhad1 = rhad1 + Shifts[ElePIDNames::Var::rhad].at(ibin_combined);
+  }
+  if(Shifts[ElePIDNames::Var::rphi].size() != 0){
+    rphi = rphi + Shifts[ElePIDNames::Var::rphi].at(ibin_combined);
+  }
+  if(Shifts[ElePIDNames::Var::fside].size() != 0){
+    if( fside!=0){ fside = fside + Shifts[ElePIDNames::Var::fside].at(ibin_combined); };
+  }
+  if(Shifts[ElePIDNames::Var::ws3].size() != 0){
+    ws3 = ws3 + Shifts[ElePIDNames::Var::ws3].at(ibin_combined);
+  }
+  if(Shifts[ElePIDNames::Var::e277].size() != 0){
+    e277 = e277 + Shifts[ElePIDNames::Var::e277].at(ibin_combined);
+  }
+  if(Shifts[ElePIDNames::Var::DeltaE].size() != 0){
+    DeltaE = DeltaE + Shifts[ElePIDNames::Var::DeltaE].at(ibin_combined);
+  }
 
 }
-
-
-const double TElectronMCShifterTool::Shifts[17][54] = {
-              //el_DeltaPoverP
-              {0.00000,-0.00280, 0.00000,-0.00840,-0.05880,-0.01400, 0.00000,-0.00560, -0.07560, //Et 7
-						   0.00000, 0.00000,-0.01120, 0.00000,-0.02240,-0.00840,-0.00840,-0.00280, -0.03920, //Et 10
-						   0.00000, 0.00000,-0.00280, 0.00000,-0.01120, 0.00000, 0.00000,-0.00280, -0.04200, //Et 15
-						   0.00000, 0.00000,-0.00560, 0.00000,-0.00280, 0.00000, 0.00000, 0.00000, -0.03080, //Et 20
-						   0.00000, 0.00000,-0.00280, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, -0.02800, //Et 30
-						   0.00000, 0.00000,-0.00280, 0.00000,-0.00280, 0.00000, 0.00000, 0.00000, -0.02520}, //Et 40
-						  //el_TRTHighTOutliersRatio
-						  {-0.02490, 0.00000, 0.00000, 0.00000,-0.00830, 0.00000, 0.00000,0.00000,0.00000, //Et 7
-						   -0.02490, 0.00000,-0.00830, 0.00000, 0.00000, 0.00000, 0.00000,0.00000,0.00000, //Et 10
-						   -0.02490, 0.00000, 0.00000, 0.00830, 0.01660, 0.00000, 0.00000,0.00000,0.00000, //Et 15
-						   -0.03320, 0.00000, 0.00000, 0.00000, 0.00830, 0.00830, 0.00000,0.00000,0.00000, //Et 20
-						   -0.03320, 0.00000, 0.00000, 0.00000, 0.00830, 0.00000, 0.00000,0.00000,0.00000, //Et 30
-						   -0.03320, 0.00000, 0.00000, 0.00000, 0.00830, 0.00000, 0.00000,0.00000,0.00000}, //Et 40
-						  //el_d0significance
-						  {-0.44000,-0.12000, 0.04000, 0.00000,-2.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 7
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, -0.20000, //Et 10
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, -0.08000, //Et 15
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, -0.16000, //Et 20
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, -0.12000, //Et 30
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, -0.08000}, //Et 40
-						  //el_deltaeta1
-						  {-0.00040, 0.00000, 0.00000, 0.00000,-0.00040, 0.00000, 0.00000, 0.00000,  0.00000, //Et 7
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00040,  0.00040, //Et 10
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00040,  0.00040, //Et 15
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00040,  0.00040, //Et 20
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00040,  0.00040, //Et 30
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00040,  0.00040}, //Et 40
-						  //el_deltaphi2
-						  {0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 7
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 10
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 15
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 20
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 30
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000}, //Et 40
-						  //el_deltaphiRescaled
-						  {0.00000,-0.00120,-0.00180,-0.00180,-0.00300,-0.00060, 0.00000, 0.00000, -0.00120, //Et 7
-						   0.00000,-0.00060, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, -0.00060, //Et 10
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, -0.00060, //Et 15
-						   0.00000, 0.00000, 0.00000, 0.00000,-0.00060, 0.00000, 0.00000, 0.00000,  0.00000, //Et 20
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 30
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000}, //Et 40
-						  //el_eratio
-						  {-0.00200,-0.01600, 0.00400,-0.00200, 0.00000,-0.00800,-0.00500,-0.00280,  0.00000, //Et 7
-						   0.00000,-0.00800,-0.00400,-0.00400, 0.00000,-0.00600,-0.00300,-0.00200,  0.00000, //Et 10
-						   0.00000,-0.00200,-0.00400,-0.00400, 0.00000,-0.00400,-0.00200,-0.00160,  0.00000, //Et 15
-						   0.00000,-0.00200,-0.00200,-0.00400, 0.00000,-0.00200,-0.00120,-0.00120,  0.00000, //Et 20
-						   0.00000,-0.00200,-0.00200,-0.00200, 0.00000,-0.00200,-0.00080,-0.00090,  0.00000, //Et 30
-						   0.00000, 0.00000, 0.00000,-0.00200, 0.00000,-0.00200,-0.00080,-0.00060,  0.00000}, //Et 40
-						  //el_f1
-						  {-0.00392,-0.00494,-0.00308,-0.00396, 0.00000, 0.01392, 0.02064, 0.01316,  0.00000, //Et 7
-						   -0.00392,-0.00494,-0.00308,-0.00396, 0.00000, 0.01392, 0.02064, 0.01316,  0.00000, //Et 10
-						   -0.00392,-0.00494,-0.00308,-0.00396, 0.00000, 0.01392, 0.02064, 0.01316,  0.00000, //Et 15
-						   -0.00392,-0.00494,-0.00308,-0.00396, 0.00000, 0.01392, 0.02064, 0.01316,  0.00000, //Et 20
-						   -0.00392,-0.00494,-0.00308,-0.00396, 0.00000, 0.01392, 0.02064, 0.01316,  0.00000, //Et 30
-						   -0.00392,-0.00494,-0.00308,-0.00396, 0.00000, 0.01392, 0.02064, 0.01316,  0.00000}, //Et 40
-						  //el_f3
-						  {0.00102, 0.00163, 0.00200, 0.00136, 0.00000, 0.00153, 0.00238, 0.00476,  0.01640, //Et 7
-						   0.00102, 0.00163, 0.00200, 0.00136, 0.00000, 0.00153, 0.00238, 0.00476,  0.01640, //Et 10
-						   0.00102, 0.00163, 0.00200, 0.00136, 0.00000, 0.00153, 0.00238, 0.00476,  0.01640, //Et 15
-						   0.00102, 0.00163, 0.00200, 0.00136, 0.00000, 0.00153, 0.00238, 0.00476,  0.01640, //Et 20
-						   0.00102, 0.00163, 0.00200, 0.00136, 0.00000, 0.00153, 0.00238, 0.00476,  0.01640, //Et 30
-						   0.00102, 0.00163, 0.00200, 0.00136, 0.00000, 0.00153, 0.00238, 0.00476,  0.01640}, //Et 40
-						  //el_fside
-						  {0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 7
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 10
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 15
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 20
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 30
-						   0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000}, //Et 40
-						  //el_reta
-						  {-0.00200,-0.00360,-0.00440,-0.00600,-0.00200,-0.00720,-0.00800,-0.00800, -0.02000, //Et 7
-						   -0.00200,-0.00360,-0.00440,-0.00600,-0.00200,-0.00720,-0.00800,-0.00800, -0.02000, //Et 10
-						   -0.00200,-0.00360,-0.00440,-0.00600,-0.00200,-0.00720,-0.00800,-0.00800, -0.02000, //Et 15
-						   -0.00200,-0.00360,-0.00440,-0.00600,-0.00200,-0.00720,-0.00800,-0.00800, -0.02000, //Et 20
-						   -0.00200,-0.00360,-0.00440,-0.00600,-0.00200,-0.00720,-0.00800,-0.00800, -0.02000, //Et 30
-						   -0.00200,-0.00360,-0.00440,-0.00600,-0.00200,-0.00720,-0.00800,-0.00800, -0.02000}, //Et 40
-						  //el_rhad
-						  {0.00055, 0.00110, 0.00165, 0.00055,-0.00055, 0.00000, 0.00000, 0.00220,  0.00000, //Et 7
-						   0.00055, 0.00000, 0.00110, 0.00055, 0.00000,-0.00055, 0.00055, 0.00055,  0.00000, //Et 10
-						   0.00000, 0.00000, 0.00055, 0.00055, 0.00000, 0.00000, 0.00000, 0.00055,  0.00000, //Et 15
-						   0.00000, 0.00000, 0.00055, 0.00055, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 20
-						   0.00000, 0.00000, 0.00055, 0.00055, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000, //Et 30
-						   0.00000, 0.00000, 0.00055, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,  0.00000}, //Et 40
-						  //el_rphi
-						  {-0.00360, 0.02040,-0.00600,-0.00600, 0.00000, 0.00000, 0.00120, 0.00000,  0.00600, //Et 7
-						   0.00000,-0.00120, 0.00120,-0.00480, 0.00000,-0.00120, 0.00000, 0.00000,  0.00120, //Et 10
-						   0.00000,-0.00120, 0.00360,-0.00120,-0.00480,-0.00120, 0.00000, 0.00120,  0.00000, //Et 15
-						   0.00120,-0.00120, 0.00240,-0.00120,-0.00240,-0.00120, 0.00120, 0.00120,  0.00000, //Et 20
-						   0.00120, 0.00000, 0.00240, 0.00000, 0.00000, 0.00000, 0.00120, 0.00120,  0.00000, //Et 30
-						   0.00120, 0.00000, 0.00240, 0.00000, 0.00120, 0.00120, 0.00120, 0.00240,  0.00120}, //Et 40
-						  //el_trackd0pvunbiased
-						  {0.00000,-0.00400, 0.00000, 0.00000,-0.00400, 0.00000,-0.00800, 0.00000,  0.00000, //Et 7
-						   0.00000, 0.00000,-0.00400, 0.00000, 0.00000,-0.00400, 0.00000, 0.00000,  0.00000, //Et 10
-						   -0.00400, 0.00000, 0.00000,-0.00400,-0.00400, 0.00000, 0.00000,-0.00400, -0.00400, //Et 15
-						   0.00000,-0.00400, 0.00000,-0.00400,-0.00400,-0.00400, 0.00000, 0.00000, -0.00400, //Et 20
-						   0.00000, 0.00000,-0.00400,-0.00400,-0.00400,-0.00400,-0.00400, 0.00000, -0.00400, //Et 30
-						   0.00000,-0.00400,-0.00400,-0.00400,-0.00400,-0.00400, 0.00000, 0.00000, -0.00400}, //Et 40
-						  //el_weta2
-						  {0.00011, 0.00017, 0.00005, 0.00010, 0.00000, 0.00034, 0.00041, 0.00036,  0.00058, //Et 7
-						   0.00011, 0.00017, 0.00005, 0.00010, 0.00000, 0.00034, 0.00041, 0.00036,  0.00058, //Et 10
-						   0.00011, 0.00017, 0.00005, 0.00010, 0.00000, 0.00034, 0.00041, 0.00036,  0.00058, //Et 15
-						   0.00011, 0.00017, 0.00005, 0.00010, 0.00000, 0.00034, 0.00041, 0.00036,  0.00058, //Et 20
-						   0.00011, 0.00017, 0.00005, 0.00010, 0.00000, 0.00034, 0.00041, 0.00036,  0.00058, //Et 30
-						   0.00011, 0.00017, 0.00005, 0.00010, 0.00000, 0.00034, 0.00041, 0.00036,  0.00058}, //Et 40
-						  //el_ws3
-						  {0.00420, 0.01120, 0.01120, 0.01120, 0.00000, 0.01932, 0.03360, 0.03220,  0.00000, //Et 7
-						   0.00420, 0.01120, 0.01120, 0.01120, 0.00000, 0.01932, 0.03360, 0.03220,  0.00000, //Et 10
-						   0.00420, 0.01120, 0.01120, 0.01120, 0.00000, 0.01932, 0.03360, 0.03220,  0.00000, //Et 15
-						   0.00420, 0.01120, 0.01120, 0.01120, 0.00000, 0.01932, 0.03360, 0.03220,  0.00000, //Et 20
-						   0.00420, 0.01120, 0.01120, 0.01120, 0.00000, 0.01932, 0.03360, 0.03220,  0.00000, //Et 30
-						   0.00420, 0.01120, 0.01120, 0.01120, 0.00000, 0.01932, 0.03360, 0.03220,  0.00000}, //Et 40
-						  //el_wstot
-						  {0.06400, 0.09600, 0.09600, 0.11200, 0.00000, 0.17900, 0.16000, 0.11200,  0.00000, //Et 7
-						   0.06400, 0.09600, 0.09600, 0.11200, 0.00000, 0.17900, 0.16000, 0.11200,  0.00000, //Et 10
-						   0.06400, 0.09600, 0.09600, 0.11200, 0.00000, 0.17900, 0.16000, 0.11200,  0.00000, //Et 15
-						   0.06400, 0.09600, 0.09600, 0.11200, 0.00000, 0.17900, 0.16000, 0.11200,  0.00000, //Et 20
-						   0.06400, 0.09600, 0.09600, 0.11200, 0.00000, 0.17900, 0.16000, 0.11200,  0.00000, //Et 30
-						   0.06400, 0.09600, 0.09600, 0.11200, 0.00000, 0.17900, 0.16000, 0.11200,  0.00000} //Et 40
-          }; 
-

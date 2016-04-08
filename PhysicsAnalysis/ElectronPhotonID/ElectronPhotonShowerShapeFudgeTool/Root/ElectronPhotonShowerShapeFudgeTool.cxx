@@ -19,16 +19,19 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include <string>
+#include "PathResolver/PathResolver.h"
 
 
 //Standard Constructor
 ElectronPhotonShowerShapeFudgeTool::ElectronPhotonShowerShapeFudgeTool(std::string myname) :
   AsgTool(myname),
   m_ph_rootTool(0),
-  m_el_rootTool(0)
+  m_el_rootTool(0),
+  m_configFile("")
 {
 
   declareProperty("Preselection",m_preselection=-999);
+  declareProperty("ConfigFile",m_configFile="","The config file to use for the Electron Shifter");
 
   // Create an instance of the underlying ROOT tool
   m_ph_rootTool = new FudgeMCTool();
@@ -47,13 +50,61 @@ ElectronPhotonShowerShapeFudgeTool::~ElectronPhotonShowerShapeFudgeTool()
 }
 
 
-StatusCode ElectronPhotonShowerShapeFudgeTool::initialize() 
+StatusCode ElectronPhotonShowerShapeFudgeTool::initialize()
 {
+  if(m_configFile.empty()){
+    ATH_MSG_INFO("No config file set! Using default shift values for the electron shifter.");
+    m_configFile = "ElectronPhotonShowerShapeFudgeTool/DefaultShifts.conf";
+  }
+  std::string configFile = PathResolverFindCalibFile(m_configFile);
+  TEnv env(configFile.c_str());
+
+  m_el_rootTool->Shifts[ElePIDNames::Var::DeltaPoverP] = GetFloatVector("shift_DeltaPoverP", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::TRTHighTOutliersRatio] = GetFloatVector("shift_TRTHighTOutliersRatio", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::d0significance] = GetFloatVector("shift_d0significance", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::deltaeta1] = GetFloatVector("shift_deltaeta1", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::deltaphi2] = GetFloatVector("shift_deltaphi2", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::deltaphiRescaled] = GetFloatVector("shift_deltaphiRescaled", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::eratio] = GetFloatVector("shift_eratio", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::f1] = GetFloatVector("shift_f1", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::f3] = GetFloatVector("shift_f3", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::fside] = GetFloatVector("shift_fside", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::reta] = GetFloatVector("shift_reta", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::rhad] = GetFloatVector("shift_rhad", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::rphi] = GetFloatVector("shift_rphi", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::trackd0pvunbiased] = GetFloatVector("shift_trackd0pvunbiased", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::weta2] = GetFloatVector("shift_weta2", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::ws3] = GetFloatVector("shift_ws3", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::wstot] = GetFloatVector("shift_wstot", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::e277] = GetFloatVector("shift_e277", env);
+  m_el_rootTool->Shifts[ElePIDNames::Var::DeltaE] = GetFloatVector("shift_DeltaE", env);
+
+  //Not all of these are width adjusted but Im putting them in for the future.
+  m_el_rootTool->Widths[ElePIDNames::Var::DeltaPoverP] = GetFloatVector("width_DeltaPoverP", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::TRTHighTOutliersRatio] = GetFloatVector("width_TRTHighTOutliersRatio", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::d0significance] = GetFloatVector("width_d0significance", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::deltaeta1] = GetFloatVector("width_deltaeta1", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::deltaphi2] = GetFloatVector("width_deltaphi2", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::deltaphiRescaled] = GetFloatVector("width_deltaphiRescaled", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::eratio] = GetFloatVector("width_eratio", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::f1] = GetFloatVector("width_f1", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::f3] = GetFloatVector("width_f3", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::fside] = GetFloatVector("width_fside", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::reta] = GetFloatVector("width_reta", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::rhad] = GetFloatVector("width_rhad", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::rphi] = GetFloatVector("width_rphi", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::trackd0pvunbiased] = GetFloatVector("width_trackd0pvunbiased", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::weta2] = GetFloatVector("width_weta2", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::ws3] = GetFloatVector("width_ws3", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::wstot] = GetFloatVector("width_wstot", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::e277] = GetFloatVector("width_e277", env);
+  m_el_rootTool->Widths[ElePIDNames::Var::DeltaE] = GetFloatVector("width_DeltaE", env);
+
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode ElectronPhotonShowerShapeFudgeTool::finalize() 
+StatusCode ElectronPhotonShowerShapeFudgeTool::finalize()
 {
   return StatusCode::SUCCESS;
 }
@@ -101,7 +152,7 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
   }
 
   // protection against bad clusters
-  const xAOD::CaloCluster* cluster  = ph.caloCluster(); 
+  const xAOD::CaloCluster* cluster  = ph.caloCluster();
   if ( cluster == 0 ) {
     ATH_MSG_ERROR("cluster == " << cluster);
     return CP::CorrectionCode::Error;
@@ -119,25 +170,22 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
 
   //pass the root tool the variables to be fudged.
   //returns nothing, just modifies references.
-  m_ph_rootTool->FudgeShowers( 
-			      //ph.pt(),
-			      //ph.eta(),
-			      et,
-			      eta2,
-			      Rhad1,
-			      Rhad,
-			      e277,
-			      Reta,
-			      Rphi,
-			      weta2,
-			      f1,
-			      fracs1,
-			      wtot,
-			      w1,
-			      DeltaE,
-			      Eratio,
-			      xAOD::EgammaHelpers::isConvertedPhoton(&ph),
-			      m_preselection);
+  m_ph_rootTool->FudgeShowers( et,
+                               eta2,
+                               Rhad1,
+                               Rhad,
+                               e277,
+                               Reta,
+                               Rphi,
+                               weta2,
+                               f1,
+                               fracs1,
+                               wtot,
+                               w1,
+                               DeltaE,
+                               Eratio,
+                               xAOD::EgammaHelpers::isConvertedPhoton(&ph),
+                               m_preselection);
 
 
 
@@ -181,6 +229,10 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
   float ws3;
   float fside;
   float Eratio;
+  float deltaEta;
+  float deltaPhiRescaled2;
+  float e277;
+  float DeltaE;
 
   bool allFound = true;
 
@@ -195,26 +247,51 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
   allFound = allFound && el.showerShapeValue( f3, xAOD::EgammaParameters::f3);
   allFound = allFound && el.showerShapeValue( fside, xAOD::EgammaParameters::fracs1);
   allFound = allFound && el.showerShapeValue( Eratio, xAOD::EgammaParameters::Eratio);
+  allFound = allFound && el.showerShapeValue( e277, xAOD::EgammaParameters::e277);
+  allFound = allFound && el.showerShapeValue( DeltaE, xAOD::EgammaParameters::DeltaE);
+
+  allFound = allFound && el.trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
+  allFound = allFound && el.trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2);
 
   if (!allFound) {
     ATH_MSG_ERROR("Could not retrieve all shower shapes");
     return CP::CorrectionCode::Error;
   }
 
+  // protection against bad clusters
+  const xAOD::CaloCluster* cluster  = el.caloCluster();
+  if ( cluster == 0 ) {
+    ATH_MSG_ERROR("cluster == " << cluster);
+    return CP::CorrectionCode::Error;
+  }
 
-  m_el_rootTool->shiftAll( el.pt(),
-			   el.eta(),
-			   Rhad1  ,
-			   Rhad   ,
-			   Reta   ,
-			   Rphi   ,
-			   weta2  ,
-			   f1     ,
-			   f3     ,
-			   fside  ,
-			   ws3     ,
-			   Eratio 
-			   );
+  // eta position in second sampling
+  const float eta2   = fabsf(cluster->etaBE(2));
+  // transverse energy in calorimeter (using eta position in second sampling)
+  const double energy =  cluster->e();
+  double et = 0.;
+  if (eta2<999.) {
+    const double cosheta = cosh(eta2);
+    et = (cosheta != 0.) ? energy/cosheta : 0.;
+  }
+
+  m_el_rootTool->shiftAll( et     ,
+                           eta2   ,
+                           Rhad1  ,
+                           Rhad   ,
+                           Reta   ,
+                           Rphi   ,
+                           weta2  ,
+                           f1     ,
+                           f3     ,
+                           fside  ,
+                           ws3    ,
+                           Eratio ,
+                           e277   ,
+                           DeltaE ,
+                           deltaEta ,
+                           deltaPhiRescaled2
+                         );
 
   bool allSet = true;
   allSet = allSet && el.setShowerShapeValue( Rhad1, xAOD::EgammaParameters::Rhad1);
@@ -228,6 +305,11 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
   allSet = allSet && el.setShowerShapeValue( ws3, xAOD::EgammaParameters::weta1);
   allSet = allSet && el.setShowerShapeValue( fside, xAOD::EgammaParameters::fracs1);
   allSet = allSet && el.setShowerShapeValue( Eratio, xAOD::EgammaParameters::Eratio);
+  allSet = allSet && el.setShowerShapeValue( e277, xAOD::EgammaParameters::e277);
+  allSet = allSet && el.setShowerShapeValue( DeltaE, xAOD::EgammaParameters::DeltaE);
+
+  allSet = allSet && el.setTrackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
+  allSet = allSet && el.setTrackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2);
 
   if (!allSet) {
     ATH_MSG_ERROR("Could not set all shower shapes");
@@ -248,4 +330,49 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::correctedCopy( cons
   output = new xAOD::Electron(el);
   applyCorrection(*output);
   return CP::CorrectionCode::Ok;
+}
+
+
+std::vector<float> ElectronPhotonShowerShapeFudgeTool::GetFloatVector(const std::string& input,  TEnv& env){
+	  std::vector<float> CutVector;
+	  std::string env_input(env.GetValue(input.c_str(), ""));
+	  if (env_input.size() > 0) {
+	    std::string::size_type end;
+	    do {
+	      end = env_input.find(";");
+	      float myValue(0);
+	      if(ElectronPhotonShowerShapeFudgeTool::strtof(env_input.substr(0,end),myValue)){
+	        CutVector.push_back(myValue);
+	      }
+	      if (end != std::string::npos)     env_input= env_input.substr(end+1);
+	    } while (end != std::string::npos);
+	  }
+	  return CutVector;
+}
+
+bool ElectronPhotonShowerShapeFudgeTool::strtof(const std::string& input, float& f){
+
+  int diff = 0 ;
+  std::string tmp = input;
+  std::string::size_type first(0);
+  std::string::size_type last(0);
+
+  first = ( input.find("#") ) ;
+  if (first == std::string::npos) {
+    f = ( atof (input.c_str() ) ) ;
+    return true;
+  }
+  else {
+    last = (input.find("#",first+1) );
+    if (last == std::string::npos) {
+      static asg::AsgMessaging m_msg("Egamma::ElectronPhotonShowerShapeFudgeTool");
+      m_msg.msg(MSG::WARNING)<<" Improper comment format , inline comment should be enclosed between two #  "<<endmsg;
+      return false;
+    }
+    diff = last - first ;
+    tmp= tmp.erase(first,diff+1);
+    std::istringstream buffer (tmp);
+    buffer>>f;
+    return true;
+  }
 }
