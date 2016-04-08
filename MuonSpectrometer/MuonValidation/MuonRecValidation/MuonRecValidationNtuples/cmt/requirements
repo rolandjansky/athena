@@ -5,6 +5,7 @@ use EventPrimitives EventPrimitives-* Event
 use TrkMeasurementBase TrkMeasurementBase-* Tracking/TrkEvent
 use MuonLayerEvent  MuonLayerEvent-*  MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use AtlasROOT AtlasROOT-* External
+use MuGirlStau MuGirlStau-* Reconstruction/MuonIdentification
 
 private
 

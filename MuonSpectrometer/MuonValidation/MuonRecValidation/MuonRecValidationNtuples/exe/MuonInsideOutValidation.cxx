@@ -32,7 +32,7 @@ int main( int argc, char *argv[] ) {
   }
   TString outName = "MuonRecoAnalysis.root";
   TFile* output = new TFile(outName,"RECREATE");
-  std::cout << " creating analysis " << outName << std::endl;
+  //std::cout << " creating analysis " << outName << std::endl;
   Muon::MuonInsideOutAnalysis analysis(output);
   analysis.analyse(*ntupleToRead);
   std::cout << " done, closing file " << std::endl;
@@ -40,3 +40,4 @@ int main( int argc, char *argv[] ) {
   output->Write();
   output->Close();
 }
+ 

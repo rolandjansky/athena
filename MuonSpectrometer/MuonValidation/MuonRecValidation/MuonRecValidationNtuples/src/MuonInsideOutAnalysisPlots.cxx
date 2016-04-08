@@ -3,7 +3,7 @@
 */
 
 #include "MuonRecValidationNtuples/MuonInsideOutAnalysisPlots.h"
-#include "MuonRecValidationNtuples/MuonBetaCalculationUtils.h"
+#include "MuGirlStau/MuonBetaCalculationUtils.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -77,31 +77,114 @@ namespace Muon {
     chamber.fill(chIndex_,res_,pull_,exerr_,p_);
   }
 
-  void TimePlots::book( TDirectory*, TString prefix ) {
+  void TimePlots::book( TDirectory*, TString prefix, int type ) {
+    type = type % 1000; // truncate anything above 1000
+    bool isMDT = (type == 1 || type == 10);
+    float tmin = -15;
+    float tmax =  15;
+    float timeRange = 5;
+    if( isMDT ){
+      tmin = -30;
+      tmax =  30;
+      if( type == 10 ) timeRange = 800;
+    }
     time = new TH1F(prefix+"time","time",100,-20.,100.);
-    error = new TH1F(prefix+"error","error",100,-20.,100.);
-    timeRes = new TH1F(prefix+"timeRes","timeRes",200,-15,15);
+    error = new TH1F(prefix+"error","error",100,0.,15.);
+    timeRes = new TH1F(prefix+"timeRes","timeRes",200,tmin,tmax);
     timePull = new TH1F(prefix+"pullRes","pullRes",200,-7,7);
     beta = new TH1F(prefix+"beta","beta",100,.0,2.);
     betaRes = new TH1F(prefix+"betaRes","betaRes",200,-1.2,1.2);
+    betaPull = new TH1F(prefix+"betaPull","betaPull",200,-7,7);
+    invBetaRes = new TH1F(prefix+"invBetaRes","invBetaRes",200,-1.2,1.2);
+    invBetaPull = new TH1F(prefix+"invBetaPull","invBetaPull",200,-7,7);
+
+
+    if( type == 10 ){
+      timeResScat = new TH2F(prefix+"timeResScat","timeResScat",100,tmin,timeRange,100,tmin,tmax);
+      timePullScat = new TH2F(prefix+"pullResScat","pullResScat",100,tmin,timeRange,100,-7.,7.);
+
+      error_time = new TH2F(prefix+"error_time","error_time",100,tmin,timeRange,100,0.,15.);
+      errorRT = new TH1F(prefix+"errorRT","errorRT",100,-20.,100.);
+      errorTrack = new TH1F(prefix+"errorTrack","errorTrack",100,-20.,100.);
+      errorRT_Track = new TH2F(prefix+"errorRT_Track","errorRT_Track",100,-20.,100.,100,-20.,100.);
+      timeResCor = new TH1F(prefix+"timeResCor","timeResCor",200,tmin,tmax);
+      timePullCor  = new TH1F(prefix+"timePullCor","timePullCor",200,-7,7);
+      timeRes0_10 = new TH1F(prefix+"timeRes0_10","timeRes0_10",200,tmin,tmax);
+      timeRes10_70 = new TH1F(prefix+"timeRes10_70","timeRes10_70",200,tmin,tmax);
+      timeRes70_150 = new TH1F(prefix+"timeRes70_150","timeRes70_150",200,tmin,tmax);
+      timeRes150_350 = new TH1F(prefix+"timeRes150_350","timeRes150_350",200,tmin,tmax);
+      timeRes350_800 = new TH1F(prefix+"timeRes350_800","timeRes350_800",200,tmin,tmax);
+
+      timePull0_10 = new TH1F(prefix+"timePull0_10","timePull0_10",200,-7,7);
+      timePull10_70 = new TH1F(prefix+"timePull10_70","timePull10_70",200,-7,7);
+      timePull70_150 = new TH1F(prefix+"timePull70_150","timePull70_150",200,-7,7);
+      timePull150_350 = new TH1F(prefix+"timePull150_350","timePull150_350",200,-7,7);
+      timePull350_800 = new TH1F(prefix+"timePull350_800","timePull350_800",200,-7,7);
+    }else if( type == 1 ){
+      timeResCor = new TH1F(prefix+"timeResLargeError","timeResLargeError",200,tmin,tmax);
+      timePullCor  = new TH1F(prefix+"timePullLargError","timePullLargError",200,-7,7);
+    } 
   }
 
-  void TimePlots::fill( const MuonValidationTimeBlock& times, int index, float p_, int pdg ) {
+  void TimePlots::fill( const MuonValidationTimeBlock& times, int index, float betaTrack ) {
     float dist = (*times.d)[index];
-    float m2 = std::abs(pdg) == 1000015 ? mstau : 0.;
-    MuonBetaCalculationUtils betaUtils(m2);
+    int type = (*times.type)[index];
+    float err = (*times.err)[index];
+    float t = (*times.time)[index];
+    MuonBetaCalculationUtils betaUtils(0.);
     float tof       = betaUtils.calculateTof(1.,dist);
-    float betaTrack = betaUtils.calculateBetaTrack(1000.*p_);
     float timeTrack = betaUtils.calculateTof(betaTrack,dist);
     float t0_       = (*times.time)[index]+tof;
-    float betaSeg   = betaUtils.calculateBeta(t0_,dist);
+    float betaMeas   = betaUtils.calculateBeta(t0_,dist);
+    float betaError  = betaUtils.calculateBetaError(t0_,err,dist);
+    float invBetaMeas   = betaUtils.calculateInverseBeta(t0_,dist);
+    float invBetaError  = betaUtils.calculateInverseBetaError(err,dist);
+    time->Fill(t);
+    error->Fill(err);
+    beta->Fill(betaMeas);
+    float res = t0_-timeTrack;
+    float pull = res/err;
+    if( type != 1 || err < 7 ){
+      timeRes->Fill(res);
+      timePull->Fill(pull);
+    }
+    float betaResidual = betaMeas-betaTrack;
+    betaRes->Fill(betaResidual);
+    betaPull->Fill(betaResidual/betaError);
+    float invBetaResidual = invBetaMeas-1./betaTrack;
+    invBetaRes->Fill(invBetaResidual);
+    invBetaPull->Fill(invBetaResidual/invBetaError);
+    
+    float fullTime = (*times.timeProp)[index];
+    if( type == 10 ){
+      error_time->Fill(fullTime,err);
+      timeResScat->Fill(fullTime,res);
+      timePullScat->Fill(fullTime,pull);
+      float errTrk = (*times.avTimeProp)[index];;
+      errorTrack->Fill(errTrk);
+      float errRT = sqrt(err*err-errTrk*errTrk);
+      errorRT->Fill(errRT);
+      errorRT_Track->Fill(errRT,errTrk);
+      float rescor = res-(*times.timeCor)[index];
+      float pullcor = rescor/err;
+      timeResCor->Fill(rescor);
+      timePullCor->Fill(pullcor);
+      if( fullTime < 10 )       timeRes0_10->Fill(res);
+      else if( fullTime < 50 )  timeRes10_70->Fill(res);
+      else if( fullTime < 150 ) timeRes70_150->Fill(res);
+      else if( fullTime < 350 ) timeRes150_350->Fill(res);
+      else timeRes350_800->Fill(res);
 
-    time->Fill((*times.time)[index]);
-    error->Fill((*times.err)[index]);
-    beta->Fill(betaSeg);
-    timeRes->Fill(t0_-timeTrack);
-    timePull->Fill( (t0_-timeTrack)/(*times.err)[index] );
-    betaRes->Fill(betaSeg-betaTrack);
+      if( fullTime < 10 )       timePull0_10->Fill(pull);
+      else if( fullTime < 50 )  timePull10_70->Fill(pull);
+      else if( fullTime < 150 ) timePull70_150->Fill(pull);
+      else if( fullTime < 350 ) timePull150_350->Fill(pull);
+      else timePull350_800->Fill(pull);
+
+    }else if( type == 1 && err > 7 ){
+      timeResCor->Fill(res);
+      timePullCor->Fill(pull);
+    }
   }
 
   void HoughPlots::book( TDirectory* dir, TString prefix ) {
@@ -155,7 +238,7 @@ namespace Muon {
   }
 
 
-  void SegmentPlots::fill( const MuonValidationSegmentBlock& segments, int index, float p_ ) {
+  void SegmentPlots::fill( const MuonValidationSegmentBlock& segments, int index, float p_, float betaTrack ) {
 
     allx.fill( (*segments.xresiduals.residual)[index], 
                (*segments.xresiduals.pull)[index], (*segments.xresiduals.expos_err)[index]);
@@ -185,17 +268,13 @@ namespace Muon {
     fill( (*segments.id.chIndex)[index], (*segments.id.sector)[index], (*segments.quality)[index] );
 
     float dist = sqrt( (*segments.r)[index]*(*segments.r)[index] + (*segments.z)[index]*(*segments.z)[index] );
-    float m2 = std::abs((*segments.truth.pdg)[index]) == 1000015 ? mstau : 0.;
-    MuonBetaCalculationUtils betaUtils(m2);
-    float betaTrack = betaUtils.calculateBetaTrack(1000.*p_);
+    MuonBetaCalculationUtils betaUtils(0.);
     float tof       = betaUtils.calculateTof(1.,dist);
     float t0_       = (*segments.t0)[index]+tof;
     float t0Trig_   = (*segments.t0Trig)[index]+tof;
     float t0Track   = betaUtils.calculateTof(betaTrack,dist);
     float betaSeg   = betaUtils.calculateBeta(t0_,dist);
     float betaSegTrig = betaUtils.calculateBeta(t0Trig_,dist);
-    std::cout << " pdg " << (*segments.truth.pdg)[index] << " index " << index << " beta " << betaTrack << " segBeta " << betaSeg 
-              << " t0Seg " << (*segments.t0)[index] << " tof " << tof << " t0 " << t0_ << " track " << t0Track << std::endl;
     t0->Fill((*segments.t0)[index]);
     t0Trig->Fill((*segments.t0Trig)[index]);
     beta->Fill(betaSeg);
@@ -217,7 +296,7 @@ namespace Muon {
     beta = new TH1F(prefix+"beta","beta",100,0,1.5);
     chi2Ndof = new TH1F(prefix+"chi2Ndof","chi2Ndof",100,0,50.);
     ndof = new TH1F(prefix+"ndof","ndof",51,-0.5,50.5);
-    res = new TH1F(prefix+"res","res",100,-1.,1.);
+    res = new TH1F(prefix+"res","res",500,-1.,1.);
   }
 
   void BetaFitPlots::fill( float beta_, float betaTruth_, float chi2_, int ndof_  ) {
@@ -225,6 +304,53 @@ namespace Muon {
     if( ndof_ > 0 ) chi2Ndof->Fill(chi2_/ndof_);
     ndof->Fill(ndof_);
     res->Fill(beta_-betaTruth_);
+  }
+
+  void BetaFitRegionPlots::book( TDirectory* dir, TString prefix, bool isBarrel ) {
+    mdt.book(dir,prefix+"mdt_");
+    mdtt.book(dir,prefix+"mdtt_");
+    mdtt_good.book(dir,prefix+"mdtt_good_");
+    if( isBarrel ){
+      rpc.book(dir,prefix+"rpc_");
+      rpct.book(dir,prefix+"rpcr_");
+      all.book(dir,prefix+"all_");
+      allt.book(dir,prefix+"allt_");
+      allt_good.book(dir,prefix+"allt_good_");
+    }
+  }
+
+  /** candidate based plots */
+  void CandidatePlots::book( TDirectory* dir, TString prefix ) {
+    pt = new TH1F(prefix+"pt","pt",100,0,300.);
+    eta = new TH1F(prefix+"eta","eta",100,-3,3);
+    phi = new TH1F(prefix+"phi","phi",100,-3,3);
+    beta = new TH1F(prefix+"beta","beta",100,0,1);
+    nseg = new TH1F(prefix+"nseg","nseg",10,-0.5,9.5);
+
+    betaCandidates.book(dir,prefix+"all_");
+    betaBestCandidate.book(dir,prefix+"best_");
+  }
+
+  void CandidatePlots::fill( const MuonValidationTrackParticleBlock& tracks, int index ) {
+    pt->Fill( (*tracks.pt)[index]*0.001 );
+    eta->Fill( (*tracks.eta)[index] );
+    phi->Fill( (*tracks.phi)[index] );
+    beta->Fill( (*tracks.truth.beta)[index] );
+  }
+
+
+  /** candidates based plots */
+  void StageSummaryPlots::book( TDirectory* dir, TString prefix ) {
+    etaMissed = new TH1F(prefix+"etaMissed","etaMissed",100,-3,3);
+    etaMissedCombined = new TH1F(prefix+"etaMissedCombined","etaMissedCombined",100,-3,3);
+    etaBetaMissed = new TH2F(prefix+"etaBetaMissed","etaBetaMissed",100,-3,3,100,0.,1.);
+    betaMissed = new TH1F(prefix+"betaMissed","betaMissed",100,0.,1.);
+    betaMissedCombined = new TH1F(prefix+"betaMissedCombined","betaMissedCombined",100,0.,1.);
+    ncandidates = new TH1F(prefix+"ncandidates","ncandidates",10,-0.5,9.5);
+    ncombinedCandidates = new TH1F(prefix+"ncombinedCandidates","ncombinedCandidates",10,-0.5,9.5);
+    allCandidates.book(dir,prefix+"allCandidates_");
+    tagCandidates.book(dir,prefix+"tagCandidates_");
+    combinedCandidates.book(dir,prefix+"combinedCandidates_");
   }
 
   void TrackPlots::book( TDirectory* dir, TString prefix ) {
@@ -236,37 +362,71 @@ namespace Muon {
     ntruth = new TH1F(prefix+"ntruth","ntruth",10,-0.5,9.5);
     nseg = new TH1F(prefix+"nseg","nseg",10,-0.5,9.5);
     nseg1 = new TH1F(prefix+"nseg1","nseg",10,-0.5,9.5);
+    nseg2 = new TH1F(prefix+"nseg2","nseg",10,-0.5,9.5);
+    nseg3 = new TH1F(prefix+"nseg3","nseg",10,-0.5,9.5);
     nhough = new TH1F(prefix+"nhough","nhough",10,-0.5,9.5);
     ntruth_seg = new TH2F(prefix+"ntruth_seg","ntruth_seg",10,-0.5,9.5,10,-0.5,9.5);
     ntruth_seg1 = new TH2F(prefix+"ntruth_seg1","ntruth_seg",10,-0.5,9.5,10,-0.5,9.5);
     ntruth_hough = new TH2F(prefix+"ntruth_hough","ntruth_hough",10,-0.5,9.5,10,-0.5,9.5);
 
-    hits.book(dir,prefix+"h_");
-    hough.book(dir,prefix+"ho_");
-    segments.book(dir,prefix+"s0_");
-    segments1.book(dir,prefix+"s1_");
-    rpcTimes.book(dir,prefix+"trpc_");
-    segmentTimes.book(dir,prefix+"tseg_");
-    betaAll.book(dir,prefix+"betaAll_");
-    betaType0.book(dir,prefix+"betaType0_");
-    betaType1.book(dir,prefix+"betaType1_");
+    TDirectory* ldir = dir->mkdir("hits");
+    ldir->cd();
+    hits.book(ldir,prefix+"h_");
+    
+    ldir = dir->mkdir("hough");
+    ldir->cd();
+    hough.book(ldir,prefix+"ho_");
 
+    ldir = dir->mkdir("segments");
+    ldir->cd();
+    segments.book(ldir,prefix+"s0_");
+    segments1.book(ldir,prefix+"s1_");
+    segments2.book(ldir,prefix+"s2_");
+    segments3.book(ldir,prefix+"s3_");
+    
+    ldir = dir->mkdir("times");
+    ldir->cd();
+    std::vector<int> types = { 1,2,10,12,1001,1010};
+    std::vector<std::string> typeNames = { "BarrelMDT","BarrelRPC","BarrelMDTT","BarrelRPCT","EndcapMDT","EndcapMDTT"};
+    for( unsigned int i=0;i<types.size();++i ){
+      auto type = types[i];
+      TString name = typeNames[i].c_str();
+      name += "_";
+      timePlots.push_back(TimePlots());
+      timePlots.back().book(ldir,name,type);
+      timePlots.back().typeIndex = type;
+    }
+
+
+    ldir = dir->mkdir("betaFits");
+    ldir->cd();
+    barrel.book(ldir,prefix+"barrel_",true);
+    endcap.book(ldir,prefix+"endcap_",false);
+
+    ldir = dir->mkdir("candidates");
+    ldir->cd();
+    for( unsigned int i=0;i<4;++i ){
+      TString name = "stage";
+      name += i;
+      candidateStages.push_back(StageSummaryPlots());
+      candidateStages.back().book(ldir,name);
+    }
+    dir->cd();
   }
 
   void TrackPlots::fill( const MuonValidationTrackParticleBlock& tracks, int index ) {
     pt->Fill( (*tracks.pt)[index]*0.001 );
     eta->Fill( (*tracks.eta)[index] );
     phi->Fill( (*tracks.phi)[index] );
-    float m2 = std::abs((*tracks.truth.pdg)[index]) == 1000015 ? mstau : 0.;
-    MuonBetaCalculationUtils betaUtils(m2);
-    float betaTruth_ = betaUtils.calculateBetaTrack((*tracks.p)[index]);
-    beta->Fill( betaTruth_ );
+    beta->Fill( (*tracks.truth.beta)[index] );
   }
 
-  void TrackPlots::fill( int ntruth_, int nseg_, int nseg1_, int nhough_ ) {
+  void TrackPlots::fill( int ntruth_, int nseg_, int nseg1_, int nseg2_, int nseg3_, int nhough_ ) {
     ntruth->Fill(ntruth_);
     nseg->Fill(nseg_);
     nseg1->Fill(nseg1_);
+    nseg2->Fill(nseg2_);
+    nseg3->Fill(nseg3_);
     nhough->Fill(nhough_);
     ntruth_seg->Fill(ntruth_,nseg_);
     ntruth_seg1->Fill(ntruth_,nseg1_);
@@ -278,6 +438,9 @@ namespace Muon {
     TDirectory* ndir = dir->mkdir("Muon");
     ndir->cd();
     muon.book(ndir,prefix);
+    ndir = dir->mkdir("Stau");
+    ndir->cd();
+    stau.book(ndir,prefix);
     ndir = dir->mkdir("Rest");
     ndir->cd();
     rest.book(ndir,prefix);
