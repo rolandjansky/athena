@@ -226,10 +226,16 @@ bool AFP_SiDSensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
                 G4cout << "AFP_SiDSensitiveDetector::ProcessHits: local, x_det: " << x_det << ", y_det: " << y_det  << ", z_det: " << z_det << G4endl;
                 G4cout << "AFP_SiDSensitiveDetector::ProcessHits: local, x_det_post: " << x_det_post << ", y_det_post: " << y_det_post << ", z_det_post: " << z_det_post << G4endl;
                 G4cout << "AFP_SiDSensitiveDetector::ProcessHits:  angle_phi_global in -pi:pi = "  << angle_phi_global << G4endl;
-                if (angle_phi < 0.) angle_phi = 2.*M_PI + angle_phi;
+              }
+            if (angle_phi < 0.) angle_phi = 2.*M_PI + angle_phi;
+            if(verboseLevel>5)
+              {
                 G4cout << "AFP_SiDSensitiveDetector::ProcessHits: angle_phi_global in 0:2pi = "  << angle_phi << G4endl;
                 G4cout << "AFP_SiDSensitiveDetector::ProcessHits: angle_phi in -pi:pi = "  << angle_phi << G4endl;
-                if (angle_phi < 0.) angle_phi = 2.*M_PI + angle_phi;
+              }
+            if (angle_phi < 0.) angle_phi = 2.*M_PI + angle_phi;
+                if(verboseLevel>5)
+              {
                 G4cout << "AFP_SiDSensitiveDetector::ProcessHits: angle_phi in 0:2pi = "  << angle_phi << G4endl;
               }
             signed int pre_pixel_x = (signed int)(x_det / m_delta_pixel_x);
