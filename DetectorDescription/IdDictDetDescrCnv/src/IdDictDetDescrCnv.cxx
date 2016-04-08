@@ -459,8 +459,8 @@ IdDictDetDescrCnv::IdDictDetDescrCnv(ISvcLocator* svcloc)
     m_parser(0),
     m_doChecks(false),
     m_doNeighbours(true),
-    m_idDictFromRDB(false)
-
+    m_idDictFromRDB(false),
+    m_doParsing(false)
 {}
 
 //--------------------------------------------------------------------
@@ -494,18 +494,15 @@ IdDictDetDescrCnv::getTag(std::string& tag)
         log << MSG::ERROR << "unable to get IdDictGlobalTag: found " 
             << tagProperty.value()
             << endreq;
-        return sc;
     }
     else {
         tag = tagProperty.value();
         log << MSG::DEBUG << "Found IdDictGlobalTag:  " 
             << tag
             << endreq;
-        return StatusCode::SUCCESS ;
     }
 
-
-    return StatusCode::FAILURE ;
+    return sc;
 }
     
 //--------------------------------------------------------------------

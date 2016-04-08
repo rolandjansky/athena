@@ -14,16 +14,7 @@
 #ifndef SRC_IDDICTCNVTEST_H
 # define SRC_IDDICTCNVTEST_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
-#include "GaudiKernel/Algorithm.h"
-
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 /********************************************************************
 
@@ -31,7 +22,7 @@ Algorithm for testing the loading of the Identifier dictionaries
 
 ********************************************************************/
 
-class IdDictCnvTest : public Algorithm
+class IdDictCnvTest : public AthAlgorithm
 {
 
 public:
@@ -47,8 +38,5 @@ private:
 
     void        tab(size_t level) const;
 };
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // SRC_IDDICTCNVTEST_H

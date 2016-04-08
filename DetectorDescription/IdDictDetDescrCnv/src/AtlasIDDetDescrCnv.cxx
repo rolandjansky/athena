@@ -24,6 +24,7 @@
 
 #include "IdDictDetDescr/IdDictManager.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "CxxUtils/make_unique.h"
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -136,7 +137,7 @@ AtlasIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 
 
     // create the helper
-    AtlasDetectorID* atlas_id = new AtlasDetectorID;
+    auto atlas_id = CxxUtils::make_unique<AtlasDetectorID>();
     atlas_id->setMessageSvc(messageService());
 
     if (idDictMgr->initializeHelper(*atlas_id)) {
@@ -145,7 +146,7 @@ AtlasIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     } 
 
     // Pass a pointer to the container to the Persistency service by reference.
-    pObj = SG::asStorable(atlas_id);
+    pObj = SG::asStorable(std::move(atlas_id));
 
     return StatusCode::SUCCESS; 
 

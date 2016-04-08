@@ -19,6 +19,8 @@ use AtlasDetDescr         AtlasDetDescr-*            DetectorDescription
 use GeoModelInterfaces    GeoModelInterfaces-*       DetectorDescription/GeoModel
 use GeoModelUtilities     GeoModelUtilities-*        DetectorDescription/GeoModel
 use RDBAccessSvc          RDBAccessSvc-*             Database/AthenaPOOL
+use CxxUtils              CxxUtils-*                 Control
 use StoreGate             StoreGate-*                Control
 use SGTools               SGTools-*                  Control
+use AthenaBaseComps       AthenaBaseComps-*          Control
 use GaudiInterface        GaudiInterface-*           External

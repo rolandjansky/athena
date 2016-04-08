@@ -11,8 +11,6 @@
 //<doc><file>	$Id: IdDictCnvTest.cxx,v 1.6 2004-10-12 16:45:36 schaffer Exp $
 //<version>	$Name: not supported by cvs2svn $
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "IdDictCnvTest.h"
 
 // Id-related includes
@@ -29,23 +27,12 @@
 #include "GaudiKernel/IChronoStatSvc.h"
 
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
 /////////////////////////////////////////////////////////////////////
 
 void 	
 IdDictCnvTest::tab 		(size_t level) const
 { 
-    MsgStream  log(msgSvc(),name());
-    for (size_t i = 0; i < level; ++i) log << " "; 
+  for (size_t i = 0; i < level; ++i) msg() << " "; 
 } 
 
 /////////////////////////////////////////////////////////////////////
@@ -54,7 +41,7 @@ IdDictCnvTest::tab 		(size_t level) const
 
 IdDictCnvTest::IdDictCnvTest(const std::string& name, ISvcLocator* pSvcLocator) 
     :
-    Algorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {}
 
 /////////////////////////////////////////////////////////////////////
@@ -74,33 +61,12 @@ IdDictCnvTest::~IdDictCnvTest()
 StatusCode 
 IdDictCnvTest::initialize()
 {
-    MsgStream  log(msgSvc(),name());
+    ATH_MSG_INFO ( "Start initialization" );
 
-    log << MSG::INFO 
-	<< "Start initialization" 
-	<< endreq;
-
-    // Access InDet_DetDescrManager from detector store
-    StoreGateSvc* detStore = 0;
-    const IdDictManager* idDictMgr;
-    StatusCode sc = service( "DetectorStore", detStore );
-    if ( sc.isSuccess( ) ) {
-	// Get the dictionary manager from the detector store
-	sc = detStore->retrieve(idDictMgr, "IdDict");
-	if (sc.isFailure()) {
-	    log << MSG::FATAL << "Could not get IdDictManager !" << endreq;
-	    return StatusCode::FAILURE;
-	} 
-	else {
-	    log << MSG::DEBUG << " Found the IdDictManager. " << endreq;
-	    log << MSG::DEBUG << " Tag is " << idDictMgr->manager()->tag() << endreq;
-	}
-    } 
-    else {
-	log << MSG::ERROR << "Could not locate DetectorStore" << endreq;
-	return StatusCode::FAILURE;
-    }
-
+    const IdDictManager* idDictMgr = nullptr;
+    ATH_CHECK( detStore()->retrieve(idDictMgr, "IdDict") );
+    ATH_MSG_DEBUG ( " Found the IdDictManager. " );
+    ATH_MSG_DEBUG ( " Tag is " << idDictMgr->manager()->tag() );
 
     const IdDictMgr::dictionary_map& dm = idDictMgr->manager()->get_dictionary_map (); 
     IdDictMgr::dictionary_map::const_iterator it;  
@@ -109,7 +75,7 @@ IdDictCnvTest::initialize()
 
     if (dm.begin () == dm.end ()) {
  	// No dicts found
- 	log << MSG::ERROR << "No dictionaries found!" << endreq;
+        ATH_MSG_ERROR ( "No dictionaries found!" );
  	return StatusCode::FAILURE;
     }
     
@@ -118,26 +84,18 @@ IdDictCnvTest::initialize()
  	const IdDictDictionary& dictionary = *((*it).second); 
  
  
- 	log << MSG::INFO 
- 	    << "---- " << n << " ----------------------------" 
- 	    << endreq;
+ 	ATH_MSG_INFO( "---- " << n << " ----------------------------" );
  	std::string version = ("" != dictionary.m_version) ? dictionary.m_version : "default";
- 	log << MSG::INFO 
- 	    << "Dictionary " << dictionary.m_name 
- 	    << " version " << version
- 	    << endreq;
+ 	ATH_MSG_INFO ( "Dictionary " << dictionary.m_name 
+                       << " version " << version );
 
  	if(dictionary.verify()) {
- 	    log << MSG::INFO
-		<< "Dictionary verification is OK"
- 		<< endreq;
+          ATH_MSG_INFO( "Dictionary verification is OK" );
  	}
  	else {
- 	    log << MSG::FATAL
- 		<< "Dictionary verification has failed: "
- 		<< dictionary.m_name << " multirange: "
- 		<< (std::string)dictionary.build_multirange()
- 		<< endreq;
+          ATH_MSG_FATAL( "Dictionary verification has failed: "
+                         << dictionary.m_name << " multirange: "
+                         << (std::string)dictionary.build_multirange() );
  	    return StatusCode::FAILURE;
  	}
 	
@@ -203,53 +161,35 @@ IdDictCnvTest::initialize()
     }
      
 
-    log << MSG::DEBUG << " Get AtlasDetectorID. " << endreq;
+    ATH_MSG_DEBUG ( " Get AtlasDetectorID. " );
     const AtlasDetectorID* atlasID;
     // Access AtlasID from detector store
-    sc = detStore->retrieve(atlasID, "AtlasID");
-    if (sc.isFailure()) {
-	log << MSG::FATAL << "Could not get AtlasDetectorID !" << endreq;
-	return StatusCode::FAILURE;
-    } 
-    else {
-	log << MSG::DEBUG << " Found the AtlasDetectorID. " << endreq;
-    }
+    ATH_CHECK(  detStore()->retrieve(atlasID, "AtlasID") );
+    ATH_MSG_DEBUG ( " Found the AtlasDetectorID. " );
 
-
-    log << MSG::DEBUG << " Begin tests for AtlasDetectorID. " << endreq;
+    ATH_MSG_DEBUG ( " Begin tests for AtlasDetectorID. " );
     Identifier id = atlasID->indet();
-    log << MSG::DEBUG << " is indet " << atlasID->show_to_string(id) 
-	<< " " << atlasID->is_indet(id)
-	<< endreq;
-    log << MSG::DEBUG << " is sct " << atlasID->show_to_string(id) 
-	<< " " << atlasID->is_sct(id)
-	<< endreq;
-    log << MSG::DEBUG << " is lar " << atlasID->show_to_string(id) 
-	<< " " << atlasID->is_lar(id)
-	<< endreq;
-    log << MSG::DEBUG << " is muon " << atlasID->show_to_string(id) 
-	<< " " << atlasID->is_muon(id)
-	<< endreq;
+    ATH_MSG_DEBUG ( " is indet " << atlasID->show_to_string(id) 
+                    << " " << atlasID->is_indet(id) );
+    ATH_MSG_DEBUG ( " is sct " << atlasID->show_to_string(id) 
+                    << " " << atlasID->is_sct(id) );
+    ATH_MSG_DEBUG ( " is lar " << atlasID->show_to_string(id) 
+                    << " " << atlasID->is_lar(id) );
+    ATH_MSG_DEBUG ( " is muon " << atlasID->show_to_string(id) 
+                    << " " << atlasID->is_muon(id) );
     id = atlasID->trt();
-    log << MSG::DEBUG << " is indet " << atlasID->show_to_string(id) 
-	<< " " << atlasID->is_indet(id)
-	<< endreq;
-    log << MSG::DEBUG << " is sct " << atlasID->show_to_string(id) 
-	<< " " << atlasID->is_sct(id)
-	<< endreq;
-    log << MSG::DEBUG << " is trt " << atlasID->show_to_string(id) 
-	<< " " << atlasID->is_trt(id)
-	<< endreq;
-    log << MSG::DEBUG << " is lar " << atlasID->show_to_string(id) 
-	<< " " << atlasID->is_lar(id)
-	<< endreq;
-    log << MSG::DEBUG << " is muon " << atlasID->show_to_string(id) 
-	<< " " << atlasID->is_muon(id)
-	<< endreq;
+    ATH_MSG_DEBUG ( " is indet " << atlasID->show_to_string(id) 
+                    << " " << atlasID->is_indet(id) );
+    ATH_MSG_DEBUG ( " is sct " << atlasID->show_to_string(id) 
+                    << " " << atlasID->is_sct(id) );
+    ATH_MSG_DEBUG ( " is trt " << atlasID->show_to_string(id) 
+                    << " " << atlasID->is_trt(id) );
+    ATH_MSG_DEBUG ( " is lar " << atlasID->show_to_string(id) 
+                    << " " << atlasID->is_lar(id) );
+    ATH_MSG_DEBUG ( " is muon " << atlasID->show_to_string(id) 
+                    << " " << atlasID->is_muon(id) );
 
-    log << MSG::INFO
-	<< "Initialization completed successfully"
-	<< endreq;
+    ATH_MSG_INFO( "Initialization completed successfully" );
 
     return StatusCode::SUCCESS;
 
@@ -271,14 +211,8 @@ IdDictCnvTest::execute()
 StatusCode 
 IdDictCnvTest::finalize()
 {
-
-    MsgStream  log(msgSvc(),name());
-    log << MSG::DEBUG 
-	<< "finalize completed successfully" 
-	<< endreq;
-
-    return StatusCode::SUCCESS;
-
+  ATH_MSG_DEBUG ( "finalize completed successfully" );
+  return StatusCode::SUCCESS;
 }
 
 
