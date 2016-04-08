@@ -12,6 +12,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
 
 namespace CP {
 
@@ -29,11 +30,13 @@ public:
     virtual StatusCode execute();
 
 private:
-    /// muon container
-    std::string m_sgKey;
-
-    /// Scale factor tool
-    ToolHandle< IMuonEfficiencyScaleFactors > m_sf_Tool;
+  /// muon container
+  std::string m_sgKey;
+  
+  /// Scale factor tool
+  ToolHandle< IMuonEfficiencyScaleFactors > m_sf_Tool;
+  ToolHandle< IMuonEfficiencyScaleFactors > m_isosf_Tool;
+  ToolHandle< IMuonTriggerScaleFactors > m_trigsf_Tool;
 
 }; // class MuonEfficiencyCorrections_TestAlg
 

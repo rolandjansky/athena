@@ -35,7 +35,7 @@ public:
             std::map<std::string,double> lumis_central,
             std::map<std::string,double> lumis_calo,
             std::map<std::string,double> lumis_forward,
-            SystematicSet sys);
+            SystematicSet sys, std::string effType="EFF");
 
     EffiCollection (const EffiCollection & other);
     EffiCollection & operator = (const EffiCollection & other);
@@ -57,6 +57,9 @@ protected:
     EfficiencyScaleFactor* m_central_eff;
     EfficiencyScaleFactor* m_forward_eff;
     EfficiencyScaleFactor* m_calo_eff;
+
+private:
+    std::string m_effType;
 };
 }
 #endif /* EFFICOLLECTION_H_ */

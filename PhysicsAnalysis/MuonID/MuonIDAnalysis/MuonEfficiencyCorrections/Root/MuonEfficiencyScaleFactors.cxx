@@ -11,14 +11,13 @@
 
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
 #include "PATInterfaces/SystematicCode.h"
-#include "PATInterfaces/SystematicList.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PathResolver/PathResolver.h"
 
 namespace CP {
 
-static std::string CURRENT_MEC_VERSION = "MuonEfficiencyCorrections-03-00-11";
+static std::string CURRENT_MEC_VERSION = "MuonEfficiencyCorrections-03-01-16";
 
 MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors( const std::string& name):
                                             asg::AsgTool( name ),
@@ -32,12 +31,14 @@ MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors( const std::string& name)
                                             m_audit_processed(),
                                             m_version_string(CURRENT_MEC_VERSION),
                                             m_sys_string(""),
-                                            m_audit_last_evt(-1){
+                                            m_audit_last_evt(-1),
+                                            m_effType(""),m_effDec(0),m_sfDec(0),m_sfrDec(0){
 
-    declareProperty( "WorkingPoint", m_wp = "CB" );
-    declareProperty( "DataPeriod", m_year = "2012");
+    declareProperty( "WorkingPoint", m_wp = "Medium" );
+    declareProperty( "DataPeriod", m_year = "2015");
     declareProperty( "doAudit", m_doAudit = false);
     declareProperty( "LumiWeights", m_user_lumi_weights = lumimap());
+    declareProperty( "Use50nsForD5", m_D5_with_50ns = false);
 
     // these are for debugging / testing, *not* for general use!
     declareProperty( "CustomInputFolder", m_custom_dir = "");
@@ -45,9 +46,11 @@ MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors( const std::string& name)
     declareProperty( "CustomFileCombined", m_custom_file_Combined = "");
     declareProperty( "CustomFileHighPt", m_custom_file_HighEta = "");
 
-    declareProperty( "EfficiencyDecorationName", m_efficiency_decoration_name = "Efficiency");
-    declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "EfficiencyScaleFactor");
-    declareProperty( "ScaleFactorReplicaDecorationName", m_sf_replica_decoration_name = "EfficiencyScaleFactorReplicas");
+    declareProperty( "EfficiencyDecorationName", m_efficiency_decoration_name = "");
+    declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "");
+    declareProperty( "ScaleFactorReplicaDecorationName", m_sf_replica_decoration_name = "");
+    declareProperty( "CalibrationRelease", m_calibration_version = "Data15_ACD_150903");
+    declareProperty( "EfficiencyType", m_effType = "");
 }
 
 MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors(){
@@ -56,10 +59,36 @@ MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors(){
     for (boost::unordered_map<SystematicSet,EffiCollection*>::iterator it = m_sf_sets.begin(); it != m_sf_sets.end();++it){
         if (it->second) delete it->second;
     }
+    if(m_effDec) delete m_effDec;
+    if(m_sfDec) delete m_sfDec;
+    if(m_sfrDec) delete m_sfrDec;
 }
 
 StatusCode MuonEfficiencyScaleFactors::initialize(){
     Info(classname,"Trying to initialize, with working point %s and data period %s ",m_wp.c_str(),m_year.c_str());
+
+    /// so the decoration will work with other Efficiency types
+    if(m_effType=="") m_effType = (m_wp.find("Iso")==std::string::npos)?"EFF":"ISO";
+    Info(classname, "m_effType = %s", m_effType.c_str());
+    if(m_efficiency_decoration_name == "") m_efficiency_decoration_name = (m_effType=="EFF")?"Efficiency":m_effType+"Efficiency";
+    Info(classname, "m_efficiency_decoration_name = %s", m_efficiency_decoration_name.c_str());
+    if(m_effDec) delete m_effDec;
+    m_effDec = new SG::AuxElement::Decorator< float>(m_efficiency_decoration_name);
+ 
+    if(m_sf_decoration_name == "") m_sf_decoration_name = (m_effType=="EFF")?"EfficiencyScaleFactor":m_effType+"EfficiencyScaleFactor";
+    Info(classname, "m_sf_decoration_name = %s", m_sf_decoration_name.c_str());
+    if(m_sfDec) delete m_sfDec;
+    m_sfDec = new SG::AuxElement::Decorator< float>(m_sf_decoration_name);
+
+    if(m_sf_replica_decoration_name == "") m_sf_replica_decoration_name = (m_effType=="EFF")?"EfficiencyScaleFactorReplicas":m_effType+"EfficiencyScaleFactorReplicas";
+    Info(classname, "m_sf_replica_decoration_name = %s", m_sf_replica_decoration_name.c_str());
+    if(m_sfrDec) delete m_sfrDec;
+    m_sfrDec = new SG::AuxElement::Decorator< std::vector<float> >(m_sf_replica_decoration_name);
+
+    /// other
+    m_affectingSys = affectingSystematics();
+
+    /// continue with the orignal code
     if (!m_user_lumi_weights.empty()) Info(classname,"Note: setting up with user specified Luminosities");
     if (m_custom_dir!="") Info(classname,"Note: setting up with user specified input file location %s - this is not encouraged!",m_custom_dir.c_str());
     if (m_custom_file_Calo!="") Info(classname,"Note: setting up with user specified CaloTag input file %s - this is not encouraged!",m_custom_file_Calo.c_str());
@@ -101,8 +130,7 @@ CorrectionCode MuonEfficiencyScaleFactors::applyEfficiencyScaleFactor( const xAO
     float sf = 0;
     CorrectionCode result = this->getEfficiencyScaleFactor(mu,sf);
     // Decorate the muon
-    static SG::AuxElement::Decorator< float > sfDec( m_sf_decoration_name );
-    sfDec(mu) = sf;
+    (*m_sfDec)(mu) = sf;
     return result;
 }
 
@@ -116,8 +144,7 @@ CorrectionCode MuonEfficiencyScaleFactors::applyEfficiencyScaleFactorReplicas( c
     std::vector<float> replicas (nreplicas);
     CorrectionCode result =this->getEfficiencyScaleFactorReplicas(mu,replicas);
     // Decorate the muon
-    static SG::AuxElement::Decorator< std::vector<float> > sfrDec( m_sf_replica_decoration_name );
-    sfrDec(mu) = replicas;
+    (*m_sfrDec)(mu) = replicas;
     return result;
 }
 CorrectionCode MuonEfficiencyScaleFactors::getRecoEfficiency( const xAOD::Muon& mu,
@@ -129,8 +156,7 @@ CorrectionCode MuonEfficiencyScaleFactors::applyRecoEfficiency( const xAOD::Muon
     float eff = 0;
     CorrectionCode result = this->getRecoEfficiency(mu,eff);
     // Decorate the muon
-    static SG::AuxElement::Decorator< float> effDec( m_efficiency_decoration_name );
-    effDec(mu) = eff;
+    (*m_effDec)(mu) = eff;
     if (m_doAudit) ApplyAuditInfo(mu);
     return result;
 }
@@ -138,10 +164,10 @@ CorrectionCode MuonEfficiencyScaleFactors::applyRecoEfficiency( const xAOD::Muon
 std::string MuonEfficiencyScaleFactors::resolve_file_location(std::string filename){
 
     // can be overridden by user defined directory - mainly for development, not for everyday use!
-    if (m_custom_dir != "") return m_custom_dir;
-    std::string fullPathToFile = PathResolverFindCalibFile(Form("MuonEfficiencyCorrections/%s",filename.c_str()));
+    if (m_custom_dir != "") return m_custom_dir+"/"+filename;
+    std::string fullPathToFile = PathResolverFindCalibFile(Form("MuonEfficiencyCorrections/%s/%s",m_calibration_version.c_str(),filename.c_str()));
     if (fullPathToFile==""){
-        Error(classname, "Unable to resolve the input file %s via the PathResolver!",filename.c_str());
+        Error(classname, "Unable to resolve the input file %s/%s via the PathResolver!",m_calibration_version.c_str(),filename.c_str());
     }
     return fullPathToFile;
 }
@@ -149,17 +175,20 @@ std::string MuonEfficiencyScaleFactors::resolve_file_location(std::string filena
 std::string MuonEfficiencyScaleFactors::filename_Central(){
 
     if (m_custom_file_Combined!="") return (resolve_file_location(m_custom_file_Combined));
+    else if(m_wp.find("Iso")!=std::string::npos) return resolve_file_location(Form("Muons_%s_%s_SF.root",m_wp.c_str(),m_year.c_str()));
     else return resolve_file_location(Form("MuonsChain_%s_%s_SF.root",m_wp.c_str(),m_year.c_str()));
 }
 std::string MuonEfficiencyScaleFactors::filename_Calo(){
 
     if (m_custom_file_Calo!="") return resolve_file_location(m_custom_file_Calo);
+    else if(m_wp.find("Iso")!=std::string::npos) return resolve_file_location(Form("Muons_%s_%s_SF.root",m_wp.c_str(),m_year.c_str()));
     else return resolve_file_location(Form("CaloTag_%s_SF.root",m_year.c_str()));
 }
 
 std::string MuonEfficiencyScaleFactors::filename_HighEta(){
 
     if (m_custom_file_HighEta!="") return resolve_file_location(m_custom_file_HighEta);
+    else if(m_wp.find("Iso")!=std::string::npos) return resolve_file_location(Form("Muons_%s_%s_SF.root",m_wp.c_str(),m_year.c_str()));
     else return resolve_file_location("SF_higheta_MUON.root");
 }
 
@@ -167,7 +196,7 @@ std::string MuonEfficiencyScaleFactors::filename_HighEta(){
 // load the SF histos
 // and perform the weighted average
 bool MuonEfficiencyScaleFactors::LoadInputs (){
-
+    
     std::set<SystematicVariation>::iterator it;
     CP::SystematicSet sys = affectingSystematics();
     bool success = LoadEffiSet(SystematicSet());
@@ -186,6 +215,11 @@ bool MuonEfficiencyScaleFactors::LoadEffiSet (SystematicSet sys){
     if (m_sf_sets.find(sys)!= m_sf_sets.end()){
         delete m_sf_sets[sys];
     }
+    
+    ATH_MSG_DEBUG("Running with the following lumi weights:");
+    for (auto k :  m_lumi_weights_central) {
+        ATH_MSG_DEBUG("\t" << k.first << ":\t" << k.second);
+    }
 
     EffiCollection* ec = new EffiCollection(
             filename_Central(),
@@ -194,7 +228,7 @@ bool MuonEfficiencyScaleFactors::LoadEffiSet (SystematicSet sys){
             m_lumi_weights_central,
             m_lumi_weights_calo,
             m_lumi_weights_forward,
-            sys);
+            sys, m_effType);
 
     m_sf_sets.insert (std::make_pair(sys,ec));
 
@@ -206,9 +240,9 @@ bool MuonEfficiencyScaleFactors::LoadLumiFromInput(){
     // tell the lumi handler what the user requested
     m_lumi_handler.SetLumiWeights(m_user_lumi_weights);
     // and have it read the weights for us
-    return  (m_lumi_handler.LoadLumiFromInput(m_lumi_weights_central,filename_Central())
-            && m_lumi_handler.LoadLumiFromInput(m_lumi_weights_calo,filename_Calo())
-            && m_lumi_handler.LoadLumiFromInput(m_lumi_weights_forward,filename_HighEta()));
+    return  (m_lumi_handler.LoadLumiFromInput(m_lumi_weights_central,filename_Central(), m_D5_with_50ns )
+            && m_lumi_handler.LoadLumiFromInput(m_lumi_weights_calo,filename_Calo(), m_D5_with_50ns)
+            && m_lumi_handler.LoadLumiFromInput(m_lumi_weights_forward,filename_HighEta(), m_D5_with_50ns));
 
 }
 
@@ -224,15 +258,15 @@ MuonEfficiencyScaleFactors::isAffectedBySystematic( const SystematicVariation& s
 SystematicSet
 MuonEfficiencyScaleFactors::affectingSystematics() const{
     SystematicSet result;
-    result.insert (SystematicVariation ("MUONSFSTAT", 1));
-    result.insert (SystematicVariation ("MUONSFSTAT", -1));
+    result.insert (SystematicVariation ("MUON_"+m_effType+"_STAT", 1));
+    result.insert (SystematicVariation ("MUON_"+m_effType+"_STAT", -1));
 
-    result.insert (SystematicVariation ("MUONSFSYS", 1));
-    result.insert (SystematicVariation ("MUONSFSYS", -1));
+    result.insert (SystematicVariation ("MUON_"+m_effType+"_SYS", 1));
+    result.insert (SystematicVariation ("MUON_"+m_effType+"_SYS", -1));
     return result;
 }
 
-/// returns: the list of al l systematics this tool recommends to use
+/// returns: the list of all systematics this tool recommends to use
 SystematicSet
 MuonEfficiencyScaleFactors::recommendedSystematics() const{
     return affectingSystematics();
@@ -240,9 +274,8 @@ MuonEfficiencyScaleFactors::recommendedSystematics() const{
 
 SystematicCode MuonEfficiencyScaleFactors::applySystematicVariation (const SystematicSet& systConfig){
     SystematicSet mySysConf;
-    static CP::SystematicSet affectingSys = affectingSystematics();
     if (m_filtered_sys_sets.find(systConfig) == m_filtered_sys_sets.end()){
-        if (!SystematicSet::filterForAffectingSystematics(systConfig,affectingSys, mySysConf)){
+        if (!SystematicSet::filterForAffectingSystematics(systConfig,m_affectingSys, mySysConf)){
             Error(classname, "Unsupported combination of systematics passed to the tool! ");
             return SystematicCode::Unsupported;
         }
@@ -287,6 +320,7 @@ void MuonEfficiencyScaleFactors::ApplyAuditInfo (const xAOD::Muon& mu){
     versionDec(mu) = m_version_string+"_"+m_sys_string;
     static SG::AuxElement::Decorator <std::string > appliedDec("AppliedCorrections");
     appliedDec(mu) += " MuonEfficiencyCorrections";
+    if(m_effType!="EFF") appliedDec(mu) += m_effType;
 }
 
 void MuonEfficiencyScaleFactors::CheckAuditEvent(){
@@ -315,12 +349,14 @@ MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors( const MuonEfficiencyScal
                         m_audit_processed(toCopy.m_audit_processed),
                         m_version_string(toCopy.m_version_string),
                         m_sys_string(toCopy.m_sys_string),
-                        m_audit_last_evt(toCopy.m_audit_last_evt) {
+                        m_audit_last_evt(toCopy.m_audit_last_evt),
+                        m_effType(toCopy.m_effType),m_effDec(0),m_sfDec(0),m_sfrDec(0){
 
-    declareProperty( "WorkingPoint", m_wp = "CB" );
-    declareProperty( "DataPeriod", m_year = "2012");
+    declareProperty( "WorkingPoint", m_wp = "Medium" );
+    declareProperty( "DataPeriod", m_year = "2015");
     declareProperty( "doAudit", m_doAudit = false);
     declareProperty( "LumiWeights", m_user_lumi_weights = lumimap());
+    declareProperty( "50ns_MC_for_D5", m_D5_with_50ns = false);
 
     // these are for debugging / testing, *not* for general use!
     declareProperty( "CustomInputFolder", m_custom_dir = "");
@@ -328,9 +364,11 @@ MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors( const MuonEfficiencyScal
     declareProperty( "CustomFileCombined", m_custom_file_Combined = "");
     declareProperty( "CustomFileHighPt", m_custom_file_HighEta = "");
 
-    declareProperty( "EfficiencyDecorationName", m_efficiency_decoration_name = "Efficiency");
-    declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "EfficiencyScaleFactor");
-    declareProperty( "ScaleFactorReplicaDecorationName", m_sf_replica_decoration_name = "EfficiencyScaleFactorReplicas");
+    declareProperty( "EfficiencyDecorationName", m_efficiency_decoration_name = "");
+    declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "");
+    declareProperty( "ScaleFactorReplicaDecorationName", m_sf_replica_decoration_name = "");
+    declareProperty( "CalibrationRelease", m_calibration_version = "Data15_ACD_150903");
+    declareProperty( "EfficiencyType", m_effType = "");
 }
 
 MuonEfficiencyScaleFactors & MuonEfficiencyScaleFactors::operator = (const MuonEfficiencyScaleFactors & tocopy){
@@ -350,6 +388,7 @@ MuonEfficiencyScaleFactors & MuonEfficiencyScaleFactors::operator = (const MuonE
     m_version_string= tocopy.m_version_string;
     m_sys_string= tocopy.m_sys_string;
     m_audit_last_evt= tocopy.m_audit_last_evt;
+    m_D5_with_50ns = tocopy.m_D5_with_50ns;
 
     m_wp = tocopy.m_wp;
     m_year = tocopy.m_year;
@@ -363,6 +402,12 @@ MuonEfficiencyScaleFactors & MuonEfficiencyScaleFactors::operator = (const MuonE
     m_efficiency_decoration_name = tocopy.m_efficiency_decoration_name;
     m_sf_decoration_name = tocopy.m_sf_decoration_name;
     m_sf_replica_decoration_name= tocopy.m_sf_replica_decoration_name;
+
+    m_calibration_version= tocopy.m_calibration_version;
+    m_effType = tocopy.m_effType;
+    m_effDec = 0;
+    m_sfDec = 0;
+    m_sfrDec = 0;
 
     return *this;
 

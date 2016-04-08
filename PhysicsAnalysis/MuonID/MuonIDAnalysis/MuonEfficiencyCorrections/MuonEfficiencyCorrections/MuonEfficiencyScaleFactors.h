@@ -101,6 +101,10 @@ private:
     lumimap m_lumi_weights_forward;
     /// allow the user to specify the lumi composition
     lumimap m_user_lumi_weights;
+    
+    
+    ///  flag if the user is treating D5 (50ns run) with 50ns instead of 25ns MC
+    bool m_D5_with_50ns;    
 
     std::string m_custom_dir;
     std::string m_custom_file_Combined;
@@ -152,8 +156,15 @@ private:
     std::string m_sf_decoration_name;
     std::string m_sf_replica_decoration_name;
 
+    // subfolder to load from the calibration db
+    std::string m_calibration_version;
 
+    std::string m_effType;
+    SG::AuxElement::Decorator< float >* m_effDec;
+    SG::AuxElement::Decorator< float >* m_sfDec;
+    SG::AuxElement::Decorator< std::vector<float> >* m_sfrDec;
 
+    CP::SystematicSet m_affectingSys;
 };
 
 } /* namespace CP */

@@ -237,6 +237,14 @@ AxisHandler* AxisHandlerProvider::GetAxisHandler (TAxis* axisptr){
         else if (axis.find("etaphi") != std::string::npos){
             return new FineEtaPhiAxisHandler;
         }
+        else if (axis.find("region") != std::string::npos){
+            if (axis.find("signed") != std::string::npos || axis.find("Signed") != std::string::npos ){
+                return new SignedDetRegionAxisHandler;
+            }
+            else {
+                return new DetRegionAxisHandler;
+            }
+        }
         else if (axis.find("phi") != std::string::npos){
             return new PhiAxisHandler;
         }

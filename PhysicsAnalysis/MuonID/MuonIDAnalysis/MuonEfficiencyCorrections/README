@@ -1,13 +1,30 @@
-This package provides Efficiency values and Scale Factors for Muons.
+
+This package provides Reconstruction/Isolation/Trigger Efficiency values and Scale Factors for Muons.
 It is intended for use with CMT/Athena or RootCore within the xAOD framework. 
 
 Contents of this Readme:
-   1 - Some source files possibly interesting for reference
-   2 - Supported working points
-   3 - Supported data periods
-   4 - Detailed instructions for ROOTCore use 
-   5 - Evaluation of Systematics 
+   -- Reconstruction efficiencies - MuonEfficiencyScaleFactors
+      1 - Some source files possibly interesting for reference
+      2 - Supported working points
+      3 - Supported data periods
+      4 - Detailed instructions for ROOTCore use 
+      5 - Evaluation of Systematics 
+   -- for the isolation scale factors
+      1 - Some source files possibly interesting for reference
+      2 - Supported working points
+      3 - Supported data periods
+      4 - Detailed instructions for ROOTCore use
+      5 - Evaluation of Systematics
+   -- Trigger Efficiencies - MuonTriggerScaleFactors
+      1 - Some source files possibly interesting for reference
+      2 - Supported triggers
+      3 - Supported data periods
+      4 - Detailed instructions for ROOTCore use
+      5 - Ecaluation of Systematics
 
+////////////////////////////////////////////////////    
+Reconstruction efficiencies - MuonEfficiencyScaleFactors
+////////////////////////////////////////////////////    
 
 1) Reference material:
 - The IMuonEfficiencyScaleFactor interface class provides an overview of user methods
@@ -15,18 +32,11 @@ Contents of this Readme:
 - share/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py (using src/MuonEfficiencyCorrections_TestAlg.cxx) is an example when running in athena
 
 2) Supported working points:
-So far, there is support for the following muon working points:
-   - "CB": Combined muons only. 
-   - "CBandST": Combined or Segment-tagged muons. Equivalent to Medium+
-   - "HighPt" : Special cuts applied in some high-mass resonance searches. 
-   - "SMT" : Muons used for the soft lepton tagger
+There is support for the three official MCP working points -  "Loose","Medium" and "Tight".
 
 3) Supported data periods:
-So far, there is support for the following data taking periods:
-   - "2011": 2011 7TeV pp data
-   - "2012": 2012 8TeV pp data
-   The future 13 TeV data will be added when available, using the period tag
-   - "2015" 
+   Starting with the pre-recommendations in MuonEfficiencyCorrections-03-00-17, the only supported data period is "2015".
+   The tool will default to this value, so there really is no need to change this. 
    
 4) Detailed Instructions (RootCore)
 - include the header: 
@@ -38,16 +48,9 @@ So far, there is support for the following data taking periods:
     
         CP::MuonEfficiencyScaleFactors m_effi_corr("SomeNameYouLike");
     
-- configure it:
-    * provide a Working point - if you only use Combined Muons, this should be "CB". 
-      If you use Combined and segment Tagged muons (i.e. Medium+), use "CBandST"
-
-        m_effi_corr.setProperty("WorkingPoint","CB");
+- configure it by providing the working point you are running with
+        m_effi_corr.setProperty("WorkingPoint","Medium");   // Or "Loose" or "Tight"...
     
-    * provide a data taking period
-        
-        m_effi_corr.setProperty("DataPeriod","2012");
-        
     * OPTIONAL: You can override the tool's default lumi information (taken from the AllGood GRLs).
       The Lumis are provided as a map<std::string, double>, containing pairs of periods/runs and lumis.
       Only necessary if your desired lumi setup deviates significantly from the one in AllGood, or if 
@@ -79,52 +82,113 @@ So far, there is support for the following data taking periods:
      * direct access: 
      
          float sf = 0.0;
-         CHECK( m_effi_corr.getScaleFactor( my_muon, sf ) );
+         CHECK( m_effi_corr.getEfficiencyScaleFactor( my_muon, sf ) );
          // sf will now contain the scale factor for my_muon
             
      * decorating mode: 
      
-         CHECK( m_effi_corr.applyFullInformation(mu) );
+         CHECK( m_effi_corr.applyEfficiencyScaleFactor(mu) );
          
-         // now, the muon aux data will contain Efficieny, EfficiencyScaleFactor, 
-         // EfficiencyScaleFactorStatError and EfficiencyScaleFactorSysError entries
          double my_sf = my_muon.auxdata< float >( "EfficiencyScaleFactor" )
 
 5) Evaluating Uncertainties:
-There are two contributions to the SF uncertainties, systematic and statistical ones.
-- The systematic uncertainty is retrieved via 
-        getScaleFactorSysUnc( const xAOD::Muon& mu,float& sf_err )
-  or added to the muon object as "EfficiencyScaleFactorSysError" with 
-        applyScaleFactorSysUnc( xAOD::Muon& mu )
-  or as part of 
-        applyFullInformation( xAOD::Muon& mu )
-  The SF should be varied by the systematic uncertainty to evaluate the effect of this uncertainty.
-  
-  
-- The statistical uncertainty of the SF can be estimated in two ways:
+    Two nuisance parameters, MUON_EFF_STAT and MUON_EFF_SYS, are provided within the standard ASG systematics framework
 
-    * overconservative, easy to use:
-       Simply retrieve the stat error via 
-         getScaleFactorStatUnc( const xAOD::Muon& mu,float& sf_err )
-       or decorate the Muon with an "EfficiencyScaleFactorStatError" using 
-        applyScaleFactorStatUnc( xAOD::Muon& mu ) / applyFullInformation( xAOD::Muon& mu )
-      Vary the SF by the error to get an overconservative estimate of the uncertainty from SF statistics
-      
-    * more correct, some additional effort required:
-       A more correct approach takes into account the fact that the stat uncertainties of the different histogram bins 
-       are fully uncorrelated.
-       This is why the above approach is overconservative.
-       For a better estimate, the tool can automatically generate 'Replicas', Scale factor maps that are randomly varied based on 
-       their statistical uncertainties.
-       The method 
-         getScaleFactorReplicas( const xAOD::Muon& mu, std::vector<float> & sf_err ) // here, you get sf_err.size() replicas! 
-          or 
-         applyScaleFactorReplicas( xAOD::Muon& mu, int nreplicas=50 )   // here, you get nreplicas replicas! 
-       will retrieve / decorate the muon with a vector of scale factors drawn from Replicas generated in the tool. 
-       If you compute your final observable for each of the replicas, the width of the resulting distribution can be used
-       as a more accurate measure of the systematic from SF statistics. 
-- finally, add the statistical and systematic SF uncertainty components in quadrature for the full muon efficiency systematic.        
-       
+////////////////////////////////////////////////////    
+Isolation efficiencies - MuonEfficiencyScaleFactors
+////////////////////////////////////////////////////    
+It uses the same class as MuonEfficiencyScaleFactor. Isolation Configuration is needed.
+1) Reference material:
+   - The IMuonEfficiencyScaleFactor interface class provides an overview of user methods
+   - utils/MuonIsolationEfficiencyCorrectionsRootCoreTest.cxx is an example application within ROOTCore
+   - share/MuonIsolationEfficiencyCorrections_xAOD_Testing_jobOptions.py (using src/MuonEfficiencyCorrections_TestAlg.cxx) is an example when running in athena
+
+2) Supported working points:
+There is support for the five official MCP working points -  "TightIso", "LooseIso", "VeryLooseIso", "VeryLooseTrackOnlyIso", "GradientIso" and "GradientLooseIso".
+
+3) Supported data periods:
+   Starting with the pre-recommendations in MuonEfficiencyCorrections-03-00-21, the only supported data period is "run1".
+   The tool will default to this value, so there really is no need to change this.
    
- 
-         
+4) Detailed Instructions (RootCore)
+   Same as "MuonEfficiencyScaleFactor". Make sure to use the isolation working points and period.
+
+5) Evaluating Uncertainties:
+   Two nuisance parameters, MUON_ISO_STAT and MUON_ISO_SYS, are provided within the standard ASG systematics framework
+        
+////////////////////////////////////////////////////        
+Trigger Efficiencies - MuonTriggerScaleFactors
+////////////////////////////////////////////////////    
+1) Reference material:
+   - The IMuonTriggerScaleFactor interface class provides an overview of user methods
+   - utils/MuonEfficiencyCorrectionsRootCoreTest.cxx is an example application within ROOTCore
+   - share/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py (using src/MuonEfficiencyCorrections_TestAlg.cxx) is an example when running in athena
+
+2) Supported triggers
+   - for single muon triggers
+     - HLT_mu20_iloose_L1MU15 || HLT_mu50
+
+     
+3) Supported data periods
+So far, this tool supports for the following data taking periods:
+   - "2015": The future 13 TeV data will be added when available. Currently, it is filled the Run-1 trigger scale factors.
+If you need to use 2011 7TeV pp data or 2012 8TeV pp data, please use TrigMuonEfficiency(see https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TrigMuonEfficiency).
+
+4) Detailed instructions for ROOTCore use
+- include the header :
+
+    #include "MuonEfficiencyCorrections/MuonTriggerScaleFactors.h"
+
+- create your tool :
+
+    CP::MuonTriggerScaleFactors m_trig_sf("SomeNameYouLike");
+
+- configure it :
+  * provide a data taking period
+    
+    m_trig_sf.setProperty("year", 2015);	
+
+  * probide a run number
+
+    m_trig_sf.setProperty("runNumber",220000);
+
+- initialize the tool
+
+    CHECK(!m_trig_sf.initialize().isFailure());
+
+- How to get a trigger scale factor 
+  * for the single muon trigger
+    
+    Double_t sf = 0;
+    CHECK(m_trig_sf.getTriggerScaleFactor(selectedmuons, sf));
+
+    * Currently, the trigger scale factor tool is only HLT_mu20_iloose_L1MU15 || HLT_mu50, no need to fill the trigger chain name.
+    * selectedmuons should be defined as xAOD::MuonContainer.
+          
+  * for the dimuon triggers
+    
+    Double_t sf = 0;
+    std::string dimuon_trig = "2mu14"; // or mu18_mu8noL1
+    CHECK(m_trig_sf.getTriggerScaleFactor(selectedmuons, sf, dimuon_trig));
+
+  * for the single + dimuon triggers
+
+    Double_t sf = 0;
+    std::string trigger = "mu20_iloose_L1MU15_or_mu50_or_2mu14"
+    CHECK(m_trig_sf.getTriggerScaleFactor(selectedmuons, sf, trigger));
+
+5) Evaluating Uncertainties :
+If you want to consider the systematic uncertainties, you need to type as follows :
+
+    CP::SystematicSet trigsfsys;
+    trigsfsys.insert(CP::SystematicVariation("MUON_EFF_TrigUncertainty", 1));
+    if(m_trig_sf.applySystematicVariation(trigsfSys)==CP::SystematicCode::Unsupported){
+	ATH_MSG_ERROR("Unsuppoted");
+    }
+    Double_t sf = 0;
+    CHECK(m_trig_sf.getTriggerScaleFactor(selectedmuons, sf));
+    
+You can use the following systematic options via Property "SystematicOption".
+    m_trig_sf.setProperty("SystematicOption", 0) : systematic uncertainty and statistical uncertainty
+    m_trig_sf.setProperty("SystematicOption", 1) : systematic uncertainty
+    m_trig_sf.setProperty("SystematicOption", 2) : statistical uncertainty
