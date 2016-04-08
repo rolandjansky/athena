@@ -18,6 +18,7 @@ PURPOSE:  provide example to play with the H8 CTB geometry.
 ********************************************************************/
 // INCLUDE HEADER FILES:
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class CaloDetDescrManager;
 class ICaloCoordinateTool;
@@ -40,16 +41,9 @@ class TestCaloGeom : public AthAlgorithm
 
  protected:
   const CaloDetDescrManager*  m_calo_dd_man;
-  ICaloCoordinateTool* m_coord;
+  ToolHandle<ICaloCoordinateTool> m_coord;
 };
 
 #endif
 
 //end of TESTLARDETDESCR_TESTCALOGEOM 
-
-
-
-
-
-
-

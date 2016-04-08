@@ -34,7 +34,7 @@ TestCaloGeom::TestCaloGeom(const std::string& name,
 				   ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
   m_calo_dd_man(0),
-  m_coord(0)
+  m_coord("TBCaloCoordinate")
 {}
 
 // DESTRUCTOR:
@@ -45,6 +45,7 @@ TestCaloGeom::~TestCaloGeom()
 StatusCode TestCaloGeom::initialize()
 {
   m_calo_dd_man = CaloDetDescrManager::instance();
+  ATH_CHECK( m_coord.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -63,20 +64,7 @@ StatusCode TestCaloGeom::execute()
   CaloPhiRange toto;  
   toto.print(); 
 
-  // General access to Tools :
-  IToolSvc* p_toolSvc = nullptr;
-  ATH_CHECK( service("ToolSvc", p_toolSvc) );
-
-  // This tool handles the conversion between local and ctb coordinates
-  IAlgTool* tool = nullptr;
-  ATH_CHECK( p_toolSvc->retrieveTool("TBCaloCoordinate",tool) );
-  m_coord = dynamic_cast<ICaloCoordinateTool*>(tool);
-  ATH_MSG_INFO ( "Found TBCaloCoordinate tool");
-  
-  // Now play with it :
   print_beam();
-
-  //print_elt( true, false, false, false);
 
   return StatusCode::SUCCESS;
 }
