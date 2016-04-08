@@ -13,10 +13,12 @@
  *  Inherits from Pythia8_i by James Monk
  **/
 
+using std::string;
+
 class Pythia8B_i: public Pythia8_i {
     
 public:
-    Pythia8B_i(const std::string &name, ISvcLocator *pSvcLocator);
+    Pythia8B_i(const string &name, ISvcLocator *pSvcLocator);
     
     ~Pythia8B_i();
     
@@ -24,7 +26,7 @@ public:
     virtual StatusCode genuserInitialize();
     virtual StatusCode callGenerator();
     virtual StatusCode genFinalize();
-    virtual StatusCode fillEvt(HepMC::GenEvent*);
+    virtual StatusCode fillEvt(GenEvent*);
     
     bool leptonSelect(Pythia8::Event&, std::vector<double>, double, std::vector<int>, int, double, bool);
     bool cleanUndecayed(Pythia8::Event&, std::vector<int>);
