@@ -26,12 +26,14 @@ use xAODTruth          xAODTruth-*          Event/xAOD
 apply_pattern poolcnv typesWithNamespace="xAOD::TrackParticleContainer xAOD::TrackParticleAuxContainer \
                                           xAOD::NeutralParticleContainer xAOD::NeutralParticleAuxContainer \
                                           xAOD::VertexContainer xAOD::VertexAuxContainer \
+                                          xAOD::SCTRawHitValidationContainer xAOD::SCTRawHitValidationAuxContainer \
                                           xAOD::TrackMeasurementValidationContainer xAOD::TrackMeasurementValidationAuxContainer \
-																					xAOD::TrackStateValidationContainer  xAOD::TrackStateValidationAuxContainer "\
+                                          xAOD::TrackStateValidationContainer xAOD::TrackStateValidationAuxContainer "\
                       files="-s=${xAODTracking_root}/xAODTracking \
                         TrackParticleContainer.h TrackParticleAuxContainer.h \
                         NeutralParticleContainer.h NeutralParticleAuxContainer.h \
                         VertexContainer.h VertexAuxContainer.h \
+                        SCTRawHitValidationContainer.h SCTRawHitValidationAuxContainer.h \
                         TrackMeasurementValidationContainer.h TrackMeasurementValidationAuxContainer.h \
-												TrackStateValidationContainer.h  TrackStateValidationAuxContainer.h" \
+                        TrackStateValidationContainer.h  TrackStateValidationAuxContainer.h" \
                       cnv_pfx="xAOD"
