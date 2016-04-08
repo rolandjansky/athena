@@ -17,7 +17,7 @@
 
 // Base class
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
@@ -38,7 +38,7 @@ class IPixelRawDataProviderTool;
 
 namespace InDet {
   class TrigPixRawDataProvider : virtual public ITrigRawDataProviderTool,
-				 public AlgTool {
+				 public AthAlgTool {
   public:
 
     TrigPixRawDataProvider(const std::string& type, const std::string& name,
@@ -69,7 +69,6 @@ namespace InDet {
     std::string                           m_RDO_Key;
 
     //
-    MsgStream                             *m_log;
   };
 
 }

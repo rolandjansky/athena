@@ -3,7 +3,7 @@ author Jiri Masik
 
 use  AtlasPolicy          AtlasPolicy-* 
 use  GaudiInterface        GaudiInterface-*           External
-
+use  AthenaBaseComps       AthenaBaseComps-*          Control
 
 #
 use InDetRawData          InDetRawData-*             InnerDetector/InDetRawEvent
