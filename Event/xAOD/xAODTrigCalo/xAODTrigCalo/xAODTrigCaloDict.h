@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigCaloDict.h 631117 2014-11-26 08:48:22Z gwatts $
+// $Id: xAODTrigCaloDict.h 692011 2015-08-28 17:19:22Z wigleswt $
 #ifndef XAODTRIGCALO_XAODTRIGCALODICT_H
 #define XAODTRIGCALO_XAODTRIGCALODICT_H
 
@@ -17,13 +17,17 @@
 
 // Local include(s):
 #include "xAODTrigCalo/TrigCaloClusterContainer.h"
-#include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/versions/TrigCaloCluster_v1.h"
 #include "xAODTrigCalo/versions/TrigCaloClusterContainer_v1.h"
 #include "xAODTrigCalo/versions/TrigCaloClusterAuxContainer_v1.h"
+
+#include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/versions/TrigEMCluster_v1.h"
 #include "xAODTrigCalo/versions/TrigEMClusterContainer_v1.h"
 #include "xAODTrigCalo/versions/TrigEMClusterAuxContainer_v1.h"
+#include "xAODTrigCalo/versions/TrigEMClusterAuxContainer_v2.h"
+
+#include "xAODTrigCalo/versions/CaloClusterTrigAuxContainer_v1.h"
 
 namespace{
   struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGCALO {

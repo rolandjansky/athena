@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigCaloClusterAuxContainer_v1.h 631412 2014-11-26 21:59:17Z gwatts $
+// $Id: TrigCaloClusterAuxContainer_v1.h 639154 2015-01-13 14:35:02Z wigleswt $
 #ifndef XAODTRIGCALO_VERSIONS_TRIGCALOCLUSTERAUXCONTAINER_V1_H
 #define XAODTRIGCALO_VERSIONS_TRIGCALOCLUSTERAUXCONTAINER_V1_H
 
@@ -26,7 +26,7 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
    /// $Revsision$
-   /// $Date: 2014-11-26 22:59:17 +0100 (Wed, 26 Nov 2014) $
+   /// $Date: 2015-01-13 15:35:02 +0100 (Tue, 13 Jan 2015) $
    ///
    class TrigCaloClusterAuxContainer_v1 : public AuxContainerBase {
 
@@ -35,14 +35,10 @@ namespace xAOD {
       TrigCaloClusterAuxContainer_v1();
 
    private:
-      std::vector< float > rawEnergy;
-      std::vector< std::vector< float > > rawEnergySample;
-      std::vector< float > rawEt;
-      std::vector< float > rawEta;
-      std::vector< float > rawPhi;
-      std::vector< long > RoIword;
-      std::vector< int > nCells;
-      std::vector< unsigned int > clusterQuality;
+     /// Include the TrigCaloCluster variables:
+#define TRIGCALOCLUSTER_AUX_VARIABLE( TYPE, NAME ) TYPE NAME
+#include "xAODTrigCalo/versions/TrigCaloClusterAuxVariables_v1.def"
+#undef TRIGCALOCLUSTER_AUX_VARIABLE
 
    }; // class TrigCaloClusterAuxContainer_v1
 
