@@ -9,9 +9,7 @@
 #ifndef TrigTIMERSVC_H_
 #define TrigTIMERSVC_H_
 #include <vector>
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IInterface.h"
 #include "AthenaBaseComps/AthService.h"
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
 #include "TrigTimeAlgs/TrigTimer.h"
@@ -25,7 +23,8 @@
  * given with addTimer are in dummy state. This properties are plain regular expressions.
  */
 
-class TrigTimerSvc : public AthService, virtual public ITrigTimerSvc {
+class TrigTimerSvc : public extends1<AthService, ITrigTimerSvc>
+{
 public:
 
   TrigTimerSvc( const std::string& name, ISvcLocator* svcloc );

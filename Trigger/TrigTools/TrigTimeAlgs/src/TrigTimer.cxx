@@ -88,7 +88,7 @@ void TrigTimer::stop ( void ) {
 	    secs = m_stopTime.tv_sec - m_startTime.tv_sec + SecsInDay;
 	}
 	usecs = m_stopTime.tv_usec - m_startTime.tv_usec;
-	mtime = static_cast<float>(secs)*1000. + static_cast<float>(usecs)/1000.;
+	mtime = static_cast<float>(secs)*1000. + static_cast<float>(usecs)*1e-3;
 	
 	// elapsed time
 	m_elapsed += mtime;
@@ -96,14 +96,15 @@ void TrigTimer::stop ( void ) {
     }
 
     // statistics - mean, rms
-    double denom = static_cast <double> (++m_numberOfMeasurements);
+    const double denom = static_cast <double> (++m_numberOfMeasurements);
+    const double inv_denom = 1. / denom;
     double d = m_elapsed - m_mean;
-    m_mean += d / denom;
+    m_mean += d * inv_denom;
     double dd = m_elapsed*m_elapsed - m_ms;
-    m_ms += dd / denom;
+    m_ms += dd * inv_denom;
 
     // mean property 
-    m_meanVal += static_cast <double> (m_propVal - m_meanVal) / denom;
+    m_meanVal += static_cast <double> (m_propVal - m_meanVal) * inv_denom;
     if (m_propVal !=0) {
 	double timePerObject = m_elapsed/static_cast <double>(m_propVal);
 	m_meanTimePerObject += static_cast <double> (timePerObject - m_meanTimePerObject) / 
@@ -144,7 +145,7 @@ void TrigTimer::pause ( void ) {
 	secs = m_stopTime.tv_sec - m_startTime.tv_sec + SecsInDay;
     }
     usecs = m_stopTime.tv_usec - m_startTime.tv_usec;
-    mtime = static_cast<float>(secs)*1000. + static_cast<float>(usecs)/1000.;
+    mtime = static_cast<float>(secs)*1000. + static_cast<float>(usecs)*1e-3;
 
     m_elapsed += mtime; // time so far
     m_lastElapsed = mtime;

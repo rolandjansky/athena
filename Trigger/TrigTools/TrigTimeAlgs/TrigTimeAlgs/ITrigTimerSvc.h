@@ -32,6 +32,7 @@ class ITrigTimerSvc : virtual public IInterface  {
 
 public:
 
+  //DeclareInterface(ITrigTimerSvc, 1, 3);
   static const InterfaceID& interfaceID() { return IID_ITrigTimerSvc; }
   
   /**
