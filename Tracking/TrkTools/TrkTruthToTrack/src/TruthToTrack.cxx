@@ -29,8 +29,7 @@
 
 //================================================================
 Trk::TruthToTrack::TruthToTrack(const std::string& type, const std::string& name, const IInterface* parent)
-  : ::AlgTool(type,name,parent)
-  , ::AthMessaging(msgSvc(), name)
+  : ::AthAlgTool(type,name,parent)
   , m_particleDataTable(0)
   , m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
 {
