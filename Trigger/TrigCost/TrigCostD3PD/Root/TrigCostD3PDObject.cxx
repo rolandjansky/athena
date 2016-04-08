@@ -574,9 +574,15 @@ namespace D3PDReader {
       } else {
          roi_isTypeJetEt()->clear();
       }
+      if( parent.roi_isTau.IsAvailable() && roi_isTau.IsActive() ) {
+         *( roi_isTau() ) = *( parent.roi_isTau() );
+      } else {
+         roi_isTau()->clear();
+      }
       if( parent.roi_isTypeMuon.IsAvailable() && roi_isTypeMuon.IsActive() ) {
          *( roi_isTypeMuon() ) = *( parent.roi_isTypeMuon() );
-      } else {
+      }
+       else {
          roi_isTypeMuon()->clear();
       }
       if( parent.roi_isTypeNone.IsAvailable() && roi_isTypeNone.IsActive() ) {
@@ -598,6 +604,51 @@ namespace D3PDReader {
          *( roi_phi() ) = *( parent.roi_phi() );
       } else {
          roi_phi()->clear();
+      }
+      if( parent.roi_et.IsAvailable() && roi_et.IsActive() ) {
+         *( roi_et() ) = *( parent.roi_et() );
+      } else {
+         roi_et()->clear();
+      }       
+      if( parent.roi_etLarge.IsAvailable() && roi_etLarge.IsActive() ) {
+         *( roi_etLarge() ) = *( parent.roi_etLarge() );
+      } else {
+         roi_etLarge()->clear();
+      }       
+      if( parent.roi_muCharge.IsAvailable() && roi_muCharge.IsActive() ) {
+         *( roi_muCharge() ) = *( parent.roi_muCharge() );
+      } else {
+         roi_muCharge()->clear();
+      }       
+      if( parent.roi_isoBits.IsAvailable() && roi_isoBits.IsActive() ) {
+         *( roi_isoBits() ) = *( parent.roi_isoBits() );
+      } else {
+         roi_isoBits()->clear();
+      }       
+      if( parent.roi_vectorEX.IsAvailable() && roi_vectorEX.IsActive() ) {
+         *( roi_vectorEX() ) = *( parent.roi_vectorEX() );
+      } else {
+         roi_vectorEX()->clear();
+      }       
+      if( parent.roi_vectorEY.IsAvailable() && roi_vectorEY.IsActive() ) {
+         *( roi_vectorEY() ) = *( parent.roi_vectorEY() );
+      } else {
+         roi_vectorEY()->clear();
+      }       
+      if( parent.roi_overflowEX.IsAvailable() && roi_overflowEX.IsActive() ) {
+         *( roi_overflowEX() ) = *( parent.roi_overflowEX() );
+      } else {
+         roi_overflowEX()->clear();
+      }       
+      if( parent.roi_overflowEY.IsAvailable() && roi_overflowEY.IsActive() ) {
+         *( roi_overflowEY() ) = *( parent.roi_overflowEY() );
+      } else {
+         roi_overflowEY()->clear();
+      }       
+      if( parent.roi_overflowET.IsAvailable() && roi_overflowET.IsActive() ) {
+         *( roi_overflowET() ) = *( parent.roi_overflowET() );
+      } else {
+         roi_overflowET()->clear();
       }
       if( parent.runNumber.IsAvailable() && runNumber.IsActive() ) {
          runNumber() = parent.runNumber();
@@ -1041,6 +1092,9 @@ namespace D3PDReader {
       else if( ! ::strcmp( name, "roi_isTypeEmTau" ) ) {
          return &roi_isTypeEmTau;
       }
+      else if( ! ::strcmp( name, "roi_isTau" ) ) {
+         return &roi_isTau;
+      }
       else if( ! ::strcmp( name, "roi_isTypeEnergy" ) ) {
          return &roi_isTypeEnergy;
       }
@@ -1062,8 +1116,35 @@ namespace D3PDReader {
       else if( ! ::strcmp( name, "roi_nL1Thresholds" ) ) {
          return &roi_nL1Thresholds;
       }
-      else if( ! ::strcmp( name, "roi_phi" ) ) {
+       else if( ! ::strcmp( name, "roi_phi" ) ) {
          return &roi_phi;
+      }
+      else if( ! ::strcmp( name, "roi_et" ) ) {
+         return &roi_et;
+      }
+      else if( ! ::strcmp( name, "roi_etLarge" ) ) {
+         return &roi_etLarge;
+      }
+      else if( ! ::strcmp( name, "roi_muCharge" ) ) {
+         return &roi_muCharge;
+      }
+      else if( ! ::strcmp( name, "roi_isoBits" ) ) {
+         return &roi_isoBits;
+      }
+      else if( ! ::strcmp( name, "roi_vectorEX" ) ) {
+         return &roi_vectorEX;
+      }
+      else if( ! ::strcmp( name, "roi_vectorEY" ) ) {
+         return &roi_vectorEY;
+      }
+      else if( ! ::strcmp( name, "roi_overflowEX" ) ) {
+         return &roi_overflowEX;
+      }
+      else if( ! ::strcmp( name, "roi_overflowEY" ) ) {
+         return &roi_overflowEY;
+      }
+      else if( ! ::strcmp( name, "roi_overflowET" ) ) {
+         return &roi_overflowET;
       }
       else if( ! ::strcmp( name, "runNumber" ) ) {
          return &runNumber;
@@ -1222,7 +1303,7 @@ namespace D3PDReader {
    void TrigCostD3PDObject::SetVarHandles( const ::Long64_t* master ) {
 
       // Create a list of variable-branch name pairs:
-      static const Int_t NVARNAMES = 119;
+      static const Int_t NVARNAMES = 129;
       static const char* VARNAMES[ NVARNAMES ][ 2 ] = {
          { "appId", "appId" },
          { "ebWeight", "ebWeight" },
@@ -1288,6 +1369,7 @@ namespace D3PDReader {
          { "roi_eta", "roi_eta" },
          { "roi_id", "roi_id" },
          { "roi_isTypeEmTau", "roi_isTypeEmTau" },
+         { "roi_isTau", "roi_isTau" },         
          { "roi_isTypeEnergy", "roi_isTypeEnergy" },
          { "roi_isTypeJet", "roi_isTypeJet" },
          { "roi_isTypeJetEt", "roi_isTypeJetEt" },
@@ -1296,6 +1378,15 @@ namespace D3PDReader {
          { "roi_n", "roi_n" },
          { "roi_nL1Thresholds", "roi_nL1Thresholds" },
          { "roi_phi", "roi_phi" },
+         { "roi_et", "roi_et" },
+         { "roi_etLarge", "roi_etLarge" },
+         { "roi_muCharge", "roi_muCharge" },
+         { "roi_isoBits", "roi_isoBits" },
+         { "roi_vectorEX", "roi_vectorEX" },
+         { "roi_vectorEY", "roi_vectorEY" },
+         { "roi_overflowEX", "roi_overflowEX" },
+         { "roi_overflowEY", "roi_overflowEY" },
+         { "roi_overflowET", "roi_overflowET" },
          { "runNumber", "runNumber" },
          { "seconds", "seconds" },
          { "seq_algTotalTime", "seq_algTotalTime" },
