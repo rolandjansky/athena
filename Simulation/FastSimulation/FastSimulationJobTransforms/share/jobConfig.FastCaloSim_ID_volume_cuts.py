@@ -1,0 +1,6 @@
+from FastCaloSim.FastCaloSimConf import FastShowerCellBuilderTool
+theFastShowerCellBuilderTool=FastShowerCellBuilderTool()
+
+theFastShowerCellBuilderTool.DoSimulWithInnerDetectorTruthOnly=True
+theFastShowerCellBuilderTool.ID_cut_off_r=[1150]
+theFastShowerCellBuilderTool.ID_cut_off_z=[3490]
