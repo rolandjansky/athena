@@ -260,7 +260,7 @@ IntersectorWrapper::findIntersection (const TrackParameters&	parameters,
 		   << std::setw(9)  << std::setprecision(4) << m_intersection->position().phi()
 		   << std::setw(10) << std::setprecision(1) << m_intersection->position().z()
 		   << " momentum "
-		   << std::setw(9) << std::setprecision(3) << 1./fabs(m_qOverP*CLHEP::GeV) );
+		   << std::setw(9) << std::setprecision(3) << 1./fabs(m_qOverP*Gaudi::Units::GeV) );
 }
 
 } // end of namespace
