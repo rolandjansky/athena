@@ -102,9 +102,8 @@ excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 
 include ( "RecExCond/RecExCommon_flags.py" )
 
-if (rec.doRecoTiming() and
-    ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
-      rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
+if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
+
     from RecAlgs.RecAlgsConf import TimingAlg
     topSequence+=TimingAlg("RecoTimerBegin")
     topSequence.RecoTimerBegin.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
@@ -641,9 +640,7 @@ if rec.doTrigger:
 AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
-    if (rec.doRecoTiming() and
-        ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
-         rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
+    if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
         topSequence+=TimingAlg("RecoTimerAfterTrigger")
         topSequence.RecoTimerAfterTrigger.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
         try:
@@ -818,9 +815,7 @@ if len(rec.UserExecs())>0:
         exec(uExec)
     del allExecs
 
-if (rec.doRecoTiming() and
-    ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
-      rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
+if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
     topSequence+=TimingAlg("RecoTimerBeforeOutput")
     topSequence.RecoTimerBeforeOutput.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
     try:
@@ -1049,6 +1044,10 @@ if rec.doFileMetaData():
         # EventFormat tool
         ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
+
+        # Set up the filemetadata tool:
+        ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",OutputLevel = 2 )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
 
     else:
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD
