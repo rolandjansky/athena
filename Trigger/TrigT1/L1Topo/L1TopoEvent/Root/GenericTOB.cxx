@@ -91,6 +91,36 @@ TCS::GenericTOB::GenericTOB(const MuonTOB & muon) :
     ++fg_instances;
 }
 
+// constructor for latemuon
+TCS::GenericTOB::GenericTOB(const LateMuonTOB & lateMuon) :
+   BaseTOB(lateMuon)
+   , m_Et(lateMuon.Et())
+   , m_eta(lateMuon.eta())
+   , m_phi(lateMuon.phi())
+   , m_EtDouble((double)lateMuon.Et())
+   , m_etaDouble(((double)lateMuon.eta())/10.)
+   , m_phiDouble(((double)lateMuon.phi())/10.)
+   , m_tobType(LATEMUON) 
+{
+    ++fg_instances;
+}
+
+// constructor for muonNextBC
+TCS::GenericTOB::GenericTOB(const MuonNextBCTOB & muonNextBC) :
+   BaseTOB(muonNextBC)
+   , m_Et(muonNextBC.Et())
+   , m_eta(muonNextBC.eta())
+   , m_phi(muonNextBC.phi())
+   , m_EtDouble((double)muonNextBC.Et())
+   , m_etaDouble(((double)muonNextBC.eta())/10.)
+   , m_phiDouble(((double)muonNextBC.phi())/10.)
+   , m_tobType(MUONNEXTBC) 
+{
+    ++fg_instances;
+}
+
+
+
 // constr from met
 TCS::GenericTOB::GenericTOB(const MetTOB & met) :
    BaseTOB(met)
