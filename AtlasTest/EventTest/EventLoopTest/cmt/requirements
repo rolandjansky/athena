@@ -2,9 +2,8 @@ package EventLoopTest
 
 author Paolo Calafiura <pcalafiura@lbl.gov>
 
-use AtlasPolicy         AtlasPolicy-01-*
+use AtlasPolicy         AtlasPolicy-*
 use MinimalRunTime      MinimalRunTime-*         Control  -no_auto_imports
-use EventAthenaPool     EventAthenaPool-*        Event
 
 #integration tests
 apply_pattern install_applications
