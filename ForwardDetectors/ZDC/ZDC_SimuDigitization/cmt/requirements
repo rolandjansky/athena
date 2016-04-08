@@ -12,6 +12,7 @@ use HitManagement       HitManagement-*         Simulation
 use ZdcEvent            ZdcEvent-*              ForwardDetectors/ZDC
 use ZDC_SimEvent        ZDC_SimEvent-*          ForwardDetectors/ZDC
 use PileUpTools         PileUpTools-*           Control
+# use xAODEventInfo       xAODEventInfo-*    Event/xAOD 
 
 library ZDC_SimuDigitization *.cxx components/*.cxx
 apply_pattern component_library
