@@ -30,12 +30,12 @@ GeoXPEngine::GeoXPEngine (const Genfun::AbsFunction & Bx,
 
 
   if (m<100*CLHEP::keV) { 
-    _x= (Genfun::FixedConstant(x0.x()) + (CLHEP::c_light*p0.x()/p0.vect().mag())*t).clone();
-    _y= (Genfun::FixedConstant(x0.y()) + (CLHEP::c_light*p0.y()/p0.vect().mag())*t).clone();
-    _z= (Genfun::FixedConstant(x0.z()) + (CLHEP::c_light*p0.z()/p0.vect().mag())*t).clone();
-    _px  = Genfun::FixedConstant(p0.x()).clone();
-    _py  = Genfun::FixedConstant(p0.y()).clone();
-    _pz  = Genfun::FixedConstant(p0.z()).clone();
+    m_x= (Genfun::FixedConstant(x0.x()) + (CLHEP::c_light*p0.x()/p0.vect().mag())*t).clone();
+    m_y= (Genfun::FixedConstant(x0.y()) + (CLHEP::c_light*p0.y()/p0.vect().mag())*t).clone();
+    m_z= (Genfun::FixedConstant(x0.z()) + (CLHEP::c_light*p0.z()/p0.vect().mag())*t).clone();
+    m_px  = Genfun::FixedConstant(p0.x()).clone();
+    m_py  = Genfun::FixedConstant(p0.y()).clone();
+    m_pz  = Genfun::FixedConstant(p0.z()).clone();
     
 
   }
@@ -62,39 +62,39 @@ GeoXPEngine::GeoXPEngine (const Genfun::AbsFunction & Bx,
     
    
 
-    _px = (*rkIntegrator.getFunction(0))(CLHEP::c_light*t).clone();
-    _py = (*rkIntegrator.getFunction(1))(CLHEP::c_light*t).clone();
-    _pz = (*rkIntegrator.getFunction(2))(CLHEP::c_light*t).clone();
-    _x  = (*rkIntegrator.getFunction(3))(CLHEP::c_light*t).clone();
-    _y  = (*rkIntegrator.getFunction(4))(CLHEP::c_light*t).clone();
-    _z  = (*rkIntegrator.getFunction(5))(CLHEP::c_light*t).clone();
+    m_px = (*rkIntegrator.getFunction(0))(CLHEP::c_light*t).clone();
+    m_py = (*rkIntegrator.getFunction(1))(CLHEP::c_light*t).clone();
+    m_pz = (*rkIntegrator.getFunction(2))(CLHEP::c_light*t).clone();
+    m_x  = (*rkIntegrator.getFunction(3))(CLHEP::c_light*t).clone();
+    m_y  = (*rkIntegrator.getFunction(4))(CLHEP::c_light*t).clone();
+    m_z  = (*rkIntegrator.getFunction(5))(CLHEP::c_light*t).clone();
   }
 }
 
 GeoXPEngine::~GeoXPEngine() {
-  delete _x;
-  delete _y;
-  delete _z;
-  delete _px;
-  delete _py;
-  delete _pz;
+  delete m_x;
+  delete m_y;
+  delete m_z;
+  delete m_px;
+  delete m_py;
+  delete m_pz;
 }
 
 const Genfun::AbsFunction &  GeoXPEngine::x() const {
-  return *_x;
+  return *m_x;
 }
 const Genfun::AbsFunction &  GeoXPEngine::y() const {
-  return *_y;
+  return *m_y;
 }
 const Genfun::AbsFunction &  GeoXPEngine::z() const {
-  return *_z;
+  return *m_z;
 }
 const Genfun::AbsFunction &  GeoXPEngine::px() const {
-  return *_px;
+  return *m_px;
 }
 const Genfun::AbsFunction &  GeoXPEngine::py() const {
-  return *_py;
+  return *m_py;
 }
 const Genfun::AbsFunction &  GeoXPEngine::pz() const {
-  return *_pz;
+  return *m_pz;
 }

@@ -33,8 +33,8 @@
 
 GeoVolumeAction::GeoVolumeAction (Type type)
   //## begin GeoVolumeAction::GeoVolumeAction%3CE234DF02D0.hasinit preserve=no
-      : _type(type),
-        _terminate(false)
+      : m_type(type),
+        m_terminate(false)
   //## end GeoVolumeAction::GeoVolumeAction%3CE234DF02D0.hasinit
   //## begin GeoVolumeAction::GeoVolumeAction%3CE234DF02D0.initialization preserve=yes
   //## end GeoVolumeAction::GeoVolumeAction%3CE234DF02D0.initialization
@@ -64,35 +64,35 @@ void GeoVolumeAction::handleVPhysVol (const GeoVPhysVol *)
 void GeoVolumeAction::terminate ()
 {
   //## begin GeoVolumeAction::terminate%3CE2046003DA.body preserve=yes
-  _terminate = true;
+  m_terminate = true;
   //## end GeoVolumeAction::terminate%3CE2046003DA.body
 }
 
 bool GeoVolumeAction::shouldTerminate () const
 {
   //## begin GeoVolumeAction::shouldTerminate%3CE20461001A.body preserve=yes
-  return _terminate;
+  return m_terminate;
   //## end GeoVolumeAction::shouldTerminate%3CE20461001A.body
 }
 
 const GeoTraversalState* GeoVolumeAction::getState () const
 {
   //## begin GeoVolumeAction::getState%3CE23D830046.body preserve=yes
-  return &traversalState;
+  return &m_traversalState;
   //## end GeoVolumeAction::getState%3CE23D830046.body
 }
 
 GeoTraversalState* GeoVolumeAction::getState ()
 {
   //## begin GeoVolumeAction::getState%3CE204D803A0.body preserve=yes
-  return &traversalState;
+  return &m_traversalState;
   //## end GeoVolumeAction::getState%3CE204D803A0.body
 }
 
 GeoVolumeAction::Type GeoVolumeAction::getType () const
 {
   //## begin GeoVolumeAction::getType%3CE23408014B.body preserve=yes
-  return _type;
+  return m_type;
   //## end GeoVolumeAction::getType%3CE23408014B.body
 }
 

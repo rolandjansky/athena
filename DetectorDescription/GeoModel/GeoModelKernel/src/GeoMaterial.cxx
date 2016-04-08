@@ -47,7 +47,7 @@
 
 
 const double
-  GeoMaterial::_ionizationPotential[93] = {
+  GeoMaterial::s_ionizationPotential[93] = {
   0.0 *
     CLHEP::eV,
   19.2 *
@@ -242,20 +242,20 @@ const double
 
 // Class GeoMaterial 
 
-//## begin GeoMaterial::_lastID%3CD8833A01EB.attr preserve=no  private: static unsigned int {U} 0
-unsigned int GeoMaterial::_lastID = 0;
-//## end GeoMaterial::_lastID%3CD8833A01EB.attr
+//## begin GeoMaterial::s_lastID%3CD8833A01EB.attr preserve=no  private: static unsigned int {U} 0
+unsigned int GeoMaterial::s_lastID = 0;
+//## end GeoMaterial::s_lastID%3CD8833A01EB.attr
 
 GeoMaterial::GeoMaterial (const std::string &Name, double Density):
   //## begin GeoMaterial::GeoMaterial%3CDA10C001E4.hasinit preserve=no
-  name(Name),
-  density(Density),
-  iD(_lastID++),
-  _radLength(0),
-  _intLength(0),
-  _deDxConst(0),
-  _deDxI0(0),
-  _locked(false)
+  m_name(Name),
+  m_density(Density),
+  m_iD(s_lastID++),
+  m_radLength(0),
+  m_intLength(0),
+  m_dedDxConst(0),
+  m_deDxI0(0),
+  m_locked(false)
   //## end GeoMaterial::GeoMaterial%3CDA10C001E4.hasinit
   //## begin GeoMaterial::GeoMaterial%3CDA10C001E4.initialization preserve=yes
   //## end GeoMaterial::GeoMaterial%3CDA10C001E4.initialization
@@ -268,9 +268,9 @@ GeoMaterial::GeoMaterial (const std::string &Name, double Density):
 GeoMaterial::~GeoMaterial()
 {
   //## begin GeoMaterial::~GeoMaterial%3CD878BB0006_dest.body preserve=yes
-  for (size_t i = 0; i < _element.size (); i++)
+  for (size_t i = 0; i < m_element.size (); i++)
     {
-      _element[i]->unref ();
+      m_element[i]->unref ();
     }
   //## end GeoMaterial::~GeoMaterial%3CD878BB0006_dest.body
 }
@@ -282,17 +282,17 @@ void GeoMaterial::add (GeoElement* element, double fraction)
 {
   //## begin GeoMaterial::add%3CDA0E1D02A2.body preserve=yes
   // You can only add materials until you call "lock"...     
-  if (!_locked)
+  if (!m_locked)
     {
-      std::vector <GeoElement *>::iterator e = std::find(_element.begin(),_element.end(),element);
-      if (e==_element.end()) {
-	_element.push_back (element);
-	_fraction.push_back (fraction);
+      std::vector <GeoElement *>::iterator e = std::find(m_element.begin(),m_element.end(),element);
+      if (e==m_element.end()) {
+	m_element.push_back (element);
+	m_fraction.push_back (fraction);
 	element->ref ();
       }
       else {
-	int n = e-_element.begin();
-	_fraction[n]+=fraction;
+	int n = e-m_element.begin();
+	m_fraction[n]+=fraction;
       }
     }
   else
@@ -305,11 +305,11 @@ void GeoMaterial::add (GeoElement* element, double fraction)
 void GeoMaterial::add (GeoMaterial* material, double fraction)
 {
   //## begin GeoMaterial::add%3CDA0E2003E7.body preserve=yes
-  if (!_locked)
+  if (!m_locked)
     {
       for (size_t e = 0; e < material->getNumElements (); e++)
 	{
-	  add(material->_element[e],fraction * material->_fraction[e]);
+	  add(material->m_element[e],fraction * material->m_fraction[e]);
 	}
     }
   else
@@ -322,9 +322,9 @@ void GeoMaterial::add (GeoMaterial* material, double fraction)
 void GeoMaterial::lock ()
 {
   //## begin GeoMaterial::lock%3CDA0E250362.body preserve=yes
-  if(_locked) return;
+  if(m_locked) return;
 
-  _locked = true;
+  m_locked = true;
 
   // -------------------------------------------//     
   // Now compute some quantities:               //     
@@ -356,57 +356,57 @@ void GeoMaterial::lock ()
   double dEDxConstant = 0, dEDxI0 = 0, NILinv = 0.0, radInv = 0.0;
 
   { // ===============Renormalization================================
-    double wSum=std::accumulate(_fraction.begin(),_fraction.end(),0.0);
+    double wSum=std::accumulate(m_fraction.begin(),m_fraction.end(),0.0);
     if (fabs(wSum-1.0)>FLT_EPSILON) { 
       std::cerr << "Warning in material " 
-		<< name 
+		<< m_name 
 		<< ". Mass fractions sum to "      
 	        << wSum << "; renormalizing to 1.0" << std::endl;
     }
     double inv_wSum = 1. / wSum;
-    for (size_t e=0;e<getNumElements();e++) {_fraction[e]*=inv_wSum;}
+    for (size_t e=0;e<getNumElements();e++) {m_fraction[e]*=inv_wSum;}
   } // ==============================================================
 
   const double inv_lambda0 = 1. / lambda0;
   for (size_t e = 0; e < getNumElements (); e++)
     {
       double w = getFraction (e);	// Weight fraction.     
-      double Z = _element[e]->getZ ();	// Atomic number     
-      double A = _element[e]->getA ();	// Atomic mass.     
-      double N = _element[e]->getN ();	// Number of nucleons.     
-      double dovera = density ? density / A : 0; // don't crash if both are 0
-      double n = _fraction[e] * CLHEP::Avogadro * dovera;	// Number density.
-      int iZ = (int) (_element[e]->getZ () + 0.5) - 1;	// Atomic number index     
+      double Z = m_element[e]->getZ ();	// Atomic number     
+      double A = m_element[e]->getA ();	// Atomic mass.     
+      double N = m_element[e]->getN ();	// Number of nucleons.     
+      double dovera = m_density ? m_density / A : 0; // don't crash if both are 0
+      double n = m_fraction[e] * CLHEP::Avogadro * dovera;	// Number density.
+      int iZ = (int) (m_element[e]->getZ () + 0.5) - 1;	// Atomic number index     
 
       dEDxConstant += w * C0 * dovera * Z;
-      dEDxI0 += w * _ionizationPotential[iZ];
+      dEDxI0 += w * s_ionizationPotential[iZ];
       NILinv += n * pow (N, 2.0 / 3.0) * CLHEP::amu * inv_lambda0;
 
-      double nAtomsPerVolume = A ? CLHEP::Avogadro*density*_fraction[e]/A : 0.;
-      radInv += (nAtomsPerVolume*_element[e]->getRadTsai());
+      double nAtomsPerVolume = A ? CLHEP::Avogadro*m_density*m_fraction[e]/A : 0.;
+      radInv += (nAtomsPerVolume*m_element[e]->getRadTsai());
     }
-  _deDxConst = dEDxConstant;
-  _deDxI0    = dEDxI0 ;
-  _intLength = NILinv ? 1.0 / NILinv : 0;
-  _radLength = radInv ? 1.0 / radInv : 0;
+  m_dedDxConst = dEDxConstant;
+  m_deDxI0    = dEDxI0 ;
+  m_intLength = NILinv ? 1.0 / NILinv : 0;
+  m_radLength = radInv ? 1.0 / radInv : 0;
   //## end GeoMaterial::lock%3CDA0E250362.body
 }
 
 double GeoMaterial::getDeDxConstant () const
 {
   //## begin GeoMaterial::getDeDxConstant%3CDA0E3F026F.body preserve=yes
-  if (!_locked)
+  if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
-  return _deDxConst;
+  return m_dedDxConst;
   //## end GeoMaterial::getDeDxConstant%3CDA0E3F026F.body
 }
 
 double GeoMaterial::getDeDxI0 () const
 {
   //## begin GeoMaterial::getDeDxI0%3CDA0E4A021B.body preserve=yes
-  if (!_locked)
+  if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
-  return _deDxI0;
+  return m_deDxI0;
   //## end GeoMaterial::getDeDxI0%3CDA0E4A021B.body
 }
 
@@ -418,7 +418,7 @@ double GeoMaterial::getDeDxMin () const
   static const double ConstToMin = 11.528;	//     
   //------------------------------------------------------------//     
 
-  if (!_locked)
+  if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
 
   // -----------------------------------------------------------//     
@@ -426,7 +426,7 @@ double GeoMaterial::getDeDxMin () const
   // Good for typical materials                                 //     
   // -----------------------------------------------------------//     
 
-  return _deDxConst * ConstToMin;
+  return m_dedDxConst * ConstToMin;
 
 
   //## end GeoMaterial::getDeDxMin%3CDA0E5801D5.body
@@ -435,18 +435,18 @@ double GeoMaterial::getDeDxMin () const
 double GeoMaterial::getRadLength () const
 {
   //## begin GeoMaterial::getRadLength%3CDAF57E03B0.body preserve=yes
-  if (!_locked)
+  if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
-  return _radLength;
+  return m_radLength;
   //## end GeoMaterial::getRadLength%3CDAF57E03B0.body
 }
 
 double GeoMaterial::getIntLength () const
 {
   //## begin GeoMaterial::getIntLength%3CDAF58501C6.body preserve=yes
-  if (!_locked)
+  if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
-  return _intLength;
+  return m_intLength;
 
   //## end GeoMaterial::getIntLength%3CDAF58501C6.body
 }
@@ -454,27 +454,27 @@ double GeoMaterial::getIntLength () const
 unsigned int GeoMaterial::getNumElements () const
 {
   //## begin GeoMaterial::getNumElements%3CDA103F00DA.body preserve=yes
-  if (!_locked)
+  if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
-  return _element.size ();
+  return m_element.size ();
   //## end GeoMaterial::getNumElements%3CDA103F00DA.body
 }
 
 const GeoElement* GeoMaterial::getElement (unsigned int i) const
 {
   //## begin GeoMaterial::getElement%3CDA104F0304.body preserve=yes
-  if (!_locked)
+  if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
-  return _element[i];
+  return m_element[i];
   //## end GeoMaterial::getElement%3CDA104F0304.body
 }
 
 double GeoMaterial::getFraction (int i) const
 {
   //## begin GeoMaterial::getFraction%3CDB2237001D.body preserve=yes
-  if (!_locked)
+  if (!m_locked)
     throw std::out_of_range ("Material accessed before lock");
-  return _fraction[i];
+  return m_fraction[i];
   //## end GeoMaterial::getFraction%3CDB2237001D.body
 }
 

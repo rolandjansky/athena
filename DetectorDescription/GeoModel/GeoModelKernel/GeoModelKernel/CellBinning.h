@@ -69,51 +69,51 @@ class CellBinning
   
  private: 
   
-  double start;
-  double end;
-  unsigned int numDivisions;
-  double delta;
-  unsigned int firstDivisionNumber;
+  double m_start;
+  double m_end;
+  unsigned int m_numDivisions;
+  double m_delta;
+  unsigned int m_firstDivisionNumber;
 };
 
 inline double CellBinning::binLower (unsigned int i) const
 {
-  return start + (i-firstDivisionNumber)*delta;
+  return m_start + (i-m_firstDivisionNumber)*m_delta;
 }
 
 inline double CellBinning::binUpper (unsigned int i) const
 {
-  return start + (i-firstDivisionNumber+1)*delta;
+  return m_start + (i-m_firstDivisionNumber+1)*m_delta;
 }
 
 inline double CellBinning::binCenter (unsigned int i) const
 {
-  return start + (i-firstDivisionNumber+0.5)*delta;
+  return m_start + (i-m_firstDivisionNumber+0.5)*m_delta;
 }
 
 inline double CellBinning::getStart () const
 {
-  return start;
+  return m_start;
 }
 
 inline double CellBinning::getEnd () const
 {
-  return end;
+  return m_end;
 }
 
 inline unsigned int CellBinning::getNumDivisions () const
 {
-  return numDivisions;
+  return m_numDivisions;
 }
 
 inline double CellBinning::getDelta () const
 {
-  return delta;
+  return m_delta;
 }
 
 inline unsigned int CellBinning::getFirstDivisionNumber () const
 {
-  return firstDivisionNumber;
+  return m_firstDivisionNumber;
 }
 
 #endif

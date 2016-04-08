@@ -150,43 +150,43 @@ class GeoPgon : public GeoShape  //## Inherits: <unnamed>%3CD2A40B022F
 
     // Data Members for Class Attributes
 
-      //## begin GeoPgon::classType%3CD2A40B022D.attr preserve=no  public: static const std::string {U} "Pgon"
-      static const std::string classType;
-      //## end GeoPgon::classType%3CD2A40B022D.attr
+      //## begin GeoPgon::s_classType%3CD2A40B022D.attr preserve=no  public: static const std::string {U} "Pgon"
+      static const std::string s_classType;
+      //## end GeoPgon::s_classType%3CD2A40B022D.attr
 
-      //## begin GeoPgon::classTypeID%3CD2A40B022E.attr preserve=no  public: static const ShapeType {U} 0x14
-      static const ShapeType classTypeID;
-      //## end GeoPgon::classTypeID%3CD2A40B022E.attr
+      //## begin GeoPgon::s_classTypeID%3CD2A40B022E.attr preserve=no  public: static const ShapeType {U} 0x14
+      static const ShapeType s_classTypeID;
+      //## end GeoPgon::s_classTypeID%3CD2A40B022E.attr
 
-      //## begin GeoPgon::sPhi%3CD5AC050360.attr preserve=no  public: double {U} 
-      double sPhi;
-      //## end GeoPgon::sPhi%3CD5AC050360.attr
+      //## begin GeoPgon::m_sPhi%3CD5AC050360.attr preserve=no  public: double {U} 
+      double m_sPhi;
+      //## end GeoPgon::m_sPhi%3CD5AC050360.attr
 
-      //## begin GeoPgon::dPhi%3CD5AC05036A.attr preserve=no  public: double {U} 
-      double dPhi;
-      //## end GeoPgon::dPhi%3CD5AC05036A.attr
+      //## begin GeoPgon::m_dPhi%3CD5AC05036A.attr preserve=no  public: double {U} 
+      double m_dPhi;
+      //## end GeoPgon::m_dPhi%3CD5AC05036A.attr
 
-      //## begin GeoPgon::nSides%3CD5AC9100AE.attr preserve=no  public: unsigned int {U} 
-      unsigned int nSides;
-      //## end GeoPgon::nSides%3CD5AC9100AE.attr
+      //## begin GeoPgon::m_nSides%3CD5AC9100AE.attr preserve=no  public: unsigned int {U} 
+      unsigned int m_nSides;
+      //## end GeoPgon::m_nSides%3CD5AC9100AE.attr
 
-      //## Attribute: zPlane%3CD5AC050374
+      //## Attribute: m_zPlane%3CD5AC050374
       //	Z Position of polygon planes.
-      //## begin GeoPgon::zPlane%3CD5AC050374.attr preserve=no  private: std::vector<double> {U} 
-      std::vector<double> zPlane;
-      //## end GeoPgon::zPlane%3CD5AC050374.attr
+      //## begin GeoPgon::m_zPlane%3CD5AC050374.attr preserve=no  private: std::vector<double> {U} 
+      std::vector<double> m_zPlane;
+      //## end GeoPgon::m_zPlane%3CD5AC050374.attr
 
-      //## Attribute: rMinPlane%3CD5AC05037E
+      //## Attribute: m_rMinPlane%3CD5AC05037E
       //	Minimum radius of polygon planes.
-      //## begin GeoPgon::rMinPlane%3CD5AC05037E.attr preserve=no  private: std::vector<double> {U} 
-      std::vector<double> rMinPlane;
-      //## end GeoPgon::rMinPlane%3CD5AC05037E.attr
+      //## begin GeoPgon::m_rMinPlane%3CD5AC05037E.attr preserve=no  private: std::vector<double> {U} 
+      std::vector<double> m_rMinPlane;
+      //## end GeoPgon::m_rMinPlane%3CD5AC05037E.attr
 
-      //## Attribute: rMaxPlane%3CD5AC05037F
+      //## Attribute: m_rMaxPlane%3CD5AC05037F
       //	Maximum radius of polygon planes.
-      //## begin GeoPgon::rMaxPlane%3CD5AC05037F.attr preserve=no  private: std::vector<double> {U} 
-      std::vector<double> rMaxPlane;
-      //## end GeoPgon::rMaxPlane%3CD5AC05037F.attr
+      //## begin GeoPgon::m_rMaxPlane%3CD5AC05037F.attr preserve=no  private: std::vector<double> {U} 
+      std::vector<double> m_rMaxPlane;
+      //## end GeoPgon::m_rMaxPlane%3CD5AC05037F.attr
 
     // Additional Private Declarations
       //## begin GeoPgon%3CD2A40B0223.private preserve=yes
@@ -209,35 +209,35 @@ class GeoPgon : public GeoShape  //## Inherits: <unnamed>%3CD2A40B022F
 inline unsigned int GeoPgon::getNPlanes () const
 {
   //## begin GeoPgon::getNPlanes%3CD5AA3E024D.body preserve=yes
-  return zPlane.size ();
+  return m_zPlane.size ();
   //## end GeoPgon::getNPlanes%3CD5AA3E024D.body
 }
 
 inline bool GeoPgon::isValid () const
 {
   //## begin GeoPgon::isValid%3CD5AA3E0261.body preserve=yes
-  return zPlane.size () >= 2;
+  return m_zPlane.size () >= 2;
   //## end GeoPgon::isValid%3CD5AA3E0261.body
 }
 
 inline const double & GeoPgon::getZPlane (unsigned int i) const
 {
   //## begin GeoPgon::getZPlane%3CD5AA3E026B.body preserve=yes
-  return zPlane[i];
+  return m_zPlane[i];
   //## end GeoPgon::getZPlane%3CD5AA3E026B.body
 }
 
 inline const double & GeoPgon::getRMinPlane (unsigned int i) const
 {
   //## begin GeoPgon::getRMinPlane%3CD5AA3E027F.body preserve=yes
-  return rMinPlane[i];
+  return m_rMinPlane[i];
   //## end GeoPgon::getRMinPlane%3CD5AA3E027F.body
 }
 
 inline const double & GeoPgon::getRMaxPlane (unsigned int i) const
 {
   //## begin GeoPgon::getRMaxPlane%3CD5AA3E0293.body preserve=yes
-  return rMaxPlane[i];
+  return m_rMaxPlane[i];
   //## end GeoPgon::getRMaxPlane%3CD5AA3E0293.body
 }
 
@@ -246,35 +246,35 @@ inline const double & GeoPgon::getRMaxPlane (unsigned int i) const
 inline const std::string& GeoPgon::getClassType ()
 {
   //## begin GeoPgon::getClassType%3CD2A40B022D.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoPgon::getClassType%3CD2A40B022D.get
 }
 
 inline ShapeType GeoPgon::getClassTypeID ()
 {
   //## begin GeoPgon::getClassTypeID%3CD2A40B022E.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoPgon::getClassTypeID%3CD2A40B022E.get
 }
 
 inline const double& GeoPgon::getSPhi () const
 {
   //## begin GeoPgon::getSPhi%3CD5AC050360.get preserve=no
-  return sPhi;
+  return m_sPhi;
   //## end GeoPgon::getSPhi%3CD5AC050360.get
 }
 
 inline const double& GeoPgon::getDPhi () const
 {
   //## begin GeoPgon::getDPhi%3CD5AC05036A.get preserve=no
-  return dPhi;
+  return m_dPhi;
   //## end GeoPgon::getDPhi%3CD5AC05036A.get
 }
 
 inline const unsigned int& GeoPgon::getNSides () const
 {
   //## begin GeoPgon::getNSides%3CD5AC9100AE.get preserve=no
-  return nSides;
+  return m_nSides;
   //## end GeoPgon::getNSides%3CD5AC9100AE.get
 }
 

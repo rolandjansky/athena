@@ -54,82 +54,82 @@ GeoTraversalState::~GeoTraversalState()
 const HepGeom::Transform3D & GeoTraversalState::getTransform () const
 {
   //## begin GeoTraversalState::getTransform%3CE20A810113.body preserve=yes
-  return _transform;
+  return m_transform;
   //## end GeoTraversalState::getTransform%3CE20A810113.body
 }
 
 const std::string & GeoTraversalState::getName () const
 {
   //## begin GeoTraversalState::getName%3CEB1B1C0365.body preserve=yes
-  return _name;
+  return m_name;
   //## end GeoTraversalState::getName%3CEB1B1C0365.body
 }
 
 const HepGeom::Transform3D & GeoTraversalState::getDefTransform () const
 {
   //## begin GeoTraversalState::getDefTransform%3CE20C070218.body preserve=yes
-  return _defTransform;
+  return m_defTransform;
   //## end GeoTraversalState::getDefTransform%3CE20C070218.body
 }
 
 const std::string & GeoTraversalState::getAbsoluteName () const
 {
   //## begin GeoTraversalState::getAbsoluteName%3CEB1B4E017C.body preserve=yes
-  return _absName;
+  return m_absName;
   //## end GeoTraversalState::getAbsoluteName%3CEB1B4E017C.body
 }
 
 const HepGeom::Transform3D & GeoTraversalState::getDefAbsoluteTransform () const
 {
   //## begin GeoTraversalState::getDefAbsoluteTransform%3CE20A9001B5.body preserve=yes
-  return _defAbsTransform;
+  return m_defAbsTransform;
   //## end GeoTraversalState::getDefAbsoluteTransform%3CE20A9001B5.body
 }
 
 const HepGeom::Transform3D & GeoTraversalState::getAbsoluteTransform () const
 {
   //## begin GeoTraversalState::getAbsoluteTransform%3CE20C0701F0.body preserve=yes
-  return _absTransform;
+  return m_absTransform;
   //## end GeoTraversalState::getAbsoluteTransform%3CE20C0701F0.body
 }
 
 void GeoTraversalState::setTransform (const HepGeom::Transform3D &transform)
 {
   //## begin GeoTraversalState::setTransform%3CE21D9601BC.body preserve=yes
-  _transform = transform;
-  _absTransform = _absTransformList.top () * transform;
+  m_transform = transform;
+  m_absTransform = m_absTransformList.top () * transform;
   //## end GeoTraversalState::setTransform%3CE21D9601BC.body
 }
 
 void GeoTraversalState::setName (const std::string &name)
 {
   //## begin GeoTraversalState::setName%3CEB1D6300B2.body preserve=yes
-  _name = name;
-  _absName = _absNameList.top () + "/" + name;
+  m_name = name;
+  m_absName = m_absNameList.top () + "/" + name;
   //## end GeoTraversalState::setName%3CEB1D6300B2.body
 }
 
 void GeoTraversalState::setDefTransform (const HepGeom::Transform3D &transform)
 {
   //## begin GeoTraversalState::setDefTransform%3CE21DC501E2.body preserve=yes
-  _defTransform = transform;
-  _defAbsTransform = _defAbsTransformList.top () * transform;
+  m_defTransform = transform;
+  m_defAbsTransform = m_defAbsTransformList.top () * transform;
   //## end GeoTraversalState::setDefTransform%3CE21DC501E2.body
 }
 
 void GeoTraversalState::nextLevel (const GeoVPhysVol* pv)
 {
   //## begin GeoTraversalState::nextLevel%3CE21DDB0392.body preserve=yes
-  _absNameList.push (_absName);
-  _absTransformList.push (_absTransform);
-  _defAbsTransformList.push (_defAbsTransform);
+  m_absNameList.push (m_absName);
+  m_absTransformList.push (m_absTransform);
+  m_defAbsTransformList.push (m_defAbsTransform);
 
-  path.push(pv);
+  m_path.push(pv);
   //      
   // Reinitialize to identity.     
   //     
 
-  _absTransform = _defAbsTransform = _transform = _defTransform =
+  m_absTransform = m_defAbsTransform = m_transform = m_defTransform =
     HepGeom::Transform3D ();
 
 
@@ -139,34 +139,34 @@ void GeoTraversalState::nextLevel (const GeoVPhysVol* pv)
 void GeoTraversalState::previousLevel ()
 {
   //## begin GeoTraversalState::previousLevel%3CE21F1C011D.body preserve=yes
-  _absTransform = _absTransformList.top ();
-  _defAbsTransform = _defAbsTransformList.top ();
-  _absTransformList.pop ();
-  _defAbsTransformList.pop ();
-  _absNameList.pop ();
-  path.pop();
-  _transform = _defTransform = HepGeom::Transform3D ();
+  m_absTransform = m_absTransformList.top ();
+  m_defAbsTransform = m_defAbsTransformList.top ();
+  m_absTransformList.pop ();
+  m_defAbsTransformList.pop ();
+  m_absNameList.pop ();
+  m_path.pop();
+  m_transform = m_defTransform = HepGeom::Transform3D ();
   //## end GeoTraversalState::previousLevel%3CE21F1C011D.body
 }
 
 const GeoNodePath * GeoTraversalState::getPath () const
 {
   //## begin GeoTraversalState::getPath%3CE22E2F0120.body preserve=yes
-  return &path;
+  return &m_path;
   //## end GeoTraversalState::getPath%3CE22E2F0120.body
 }
 
 void GeoTraversalState::setId (const Query<int> &id)
 {
   //## begin GeoTraversalState::setId%3E2AD91A0290.body preserve=yes
-	_id=id;
+	m_id=id;
   //## end GeoTraversalState::setId%3E2AD91A0290.body
 }
 
 const Query<int> GeoTraversalState::getId () const
 {
   //## begin GeoTraversalState::getId%3E2AD9380289.body preserve=yes
-	return _id;
+	return m_id;
   //## end GeoTraversalState::getId%3E2AD9380289.body
 }
 

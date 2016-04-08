@@ -36,14 +36,14 @@ GeoLogVol::GeoLogVol (const std::string &Name, const GeoShape *Shape, const GeoM
   //## end GeoLogVol::GeoLogVol%3CDD2AB7008D.hasinit
   //## begin GeoLogVol::GeoLogVol%3CDD2AB7008D.initialization preserve=yes
   :
-_name (Name),
-material (Material),
-shape (Shape)
+m_name (Name),
+m_material (Material),
+m_shape (Shape)
   //## end GeoLogVol::GeoLogVol%3CDD2AB7008D.initialization
 {
   //## begin GeoLogVol::GeoLogVol%3CDD2AB7008D.body preserve=yes
-  material->ref ();
-  shape->ref ();
+  m_material->ref ();
+  m_shape->ref ();
   //## end GeoLogVol::GeoLogVol%3CDD2AB7008D.body
 }
 
@@ -51,8 +51,8 @@ shape (Shape)
 GeoLogVol::~GeoLogVol()
 {
   //## begin GeoLogVol::~GeoLogVol%3CDD25BA0113_dest.body preserve=yes
-  material->unref ();
-  shape->unref ();
+  m_material->unref ();
+  m_shape->unref ();
   //## end GeoLogVol::~GeoLogVol%3CDD25BA0113_dest.body
 }
 

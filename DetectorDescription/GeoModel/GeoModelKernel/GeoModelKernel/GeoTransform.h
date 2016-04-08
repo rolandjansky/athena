@@ -103,11 +103,11 @@ class GeoTransform : public GeoGraphNode  //## Inherits: <unnamed>%3CDDBCB3010A
 
     // Data Members for Class Attributes
 
-      //## Attribute: _transform%3CDE1BF802B5
+      //## Attribute: m_transform%3CDE1BF802B5
       //	The Euclidean (Rigid Body) transform.
-      //## begin GeoTransform::_transform%3CDE1BF802B5.attr preserve=no  private: HepGeom::Transform3D {U} 
-      HepGeom::Transform3D _transform;
-      //## end GeoTransform::_transform%3CDE1BF802B5.attr
+      //## begin GeoTransform::m_transform%3CDE1BF802B5.attr preserve=no  private: HepGeom::Transform3D {U} 
+      HepGeom::Transform3D m_transform;
+      //## end GeoTransform::m_transform%3CDE1BF802B5.attr
 
     // Additional Private Declarations
       //## begin GeoTransform%3CDDBC1B00ED.private preserve=yes

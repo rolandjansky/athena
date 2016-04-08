@@ -120,25 +120,25 @@ class GeoTube : public GeoShape  //## Inherits: <unnamed>%3CD2A5E301FC
 
     // Data Members for Class Attributes
 
-      //## begin GeoTube::classType%3CD2A5E301FA.attr preserve=no  public: static const std::string {U} "Tube"
-      static const std::string classType;
-      //## end GeoTube::classType%3CD2A5E301FA.attr
+      //## begin GeoTube::s_classType%3CD2A5E301FA.attr preserve=no  public: static const std::string {U} "Tube"
+      static const std::string s_classType;
+      //## end GeoTube::s_classType%3CD2A5E301FA.attr
 
-      //## begin GeoTube::classTypeID%3CD2A5E301FB.attr preserve=no  public: static const ShapeType {U} 0x17
-      static const ShapeType classTypeID;
-      //## end GeoTube::classTypeID%3CD2A5E301FB.attr
+      //## begin GeoTube::s_classTypeID%3CD2A5E301FB.attr preserve=no  public: static const ShapeType {U} 0x17
+      static const ShapeType s_classTypeID;
+      //## end GeoTube::s_classTypeID%3CD2A5E301FB.attr
 
-      //## begin GeoTube::rMin%3CD5AEED028B.attr preserve=no  public: double {U} 
-      double rMin;
-      //## end GeoTube::rMin%3CD5AEED028B.attr
+      //## begin GeoTube::m_rMin%3CD5AEED028B.attr preserve=no  public: double {U} 
+      double m_rMin;
+      //## end GeoTube::m_rMin%3CD5AEED028B.attr
 
-      //## begin GeoTube::rMax%3CD5AEED0295.attr preserve=no  public: double {U} 
-      double rMax;
-      //## end GeoTube::rMax%3CD5AEED0295.attr
+      //## begin GeoTube::m_rMax%3CD5AEED0295.attr preserve=no  public: double {U} 
+      double m_rMax;
+      //## end GeoTube::m_rMax%3CD5AEED0295.attr
 
-      //## begin GeoTube::zHalfLength%3CD5AEED0296.attr preserve=no  public: double {U} 
-      double zHalfLength;
-      //## end GeoTube::zHalfLength%3CD5AEED0296.attr
+      //## begin GeoTube::m_zHalfLength%3CD5AEED0296.attr preserve=no  public: double {U} 
+      double m_zHalfLength;
+      //## end GeoTube::m_zHalfLength%3CD5AEED0296.attr
 
     // Additional Private Declarations
       //## begin GeoTube%3CD2A5E301F0.private preserve=yes
@@ -161,35 +161,35 @@ class GeoTube : public GeoShape  //## Inherits: <unnamed>%3CD2A5E301FC
 inline const std::string& GeoTube::getClassType ()
 {
   //## begin GeoTube::getClassType%3CD2A5E301FA.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoTube::getClassType%3CD2A5E301FA.get
 }
 
 inline ShapeType GeoTube::getClassTypeID ()
 {
   //## begin GeoTube::getClassTypeID%3CD2A5E301FB.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoTube::getClassTypeID%3CD2A5E301FB.get
 }
 
 inline const double& GeoTube::getRMin () const
 {
   //## begin GeoTube::getRMin%3CD5AEED028B.get preserve=no
-  return rMin;
+  return m_rMin;
   //## end GeoTube::getRMin%3CD5AEED028B.get
 }
 
 inline const double& GeoTube::getRMax () const
 {
   //## begin GeoTube::getRMax%3CD5AEED0295.get preserve=no
-  return rMax;
+  return m_rMax;
   //## end GeoTube::getRMax%3CD5AEED0295.get
 }
 
 inline const double& GeoTube::getZHalfLength () const
 {
   //## begin GeoTube::getZHalfLength%3CD5AEED0296.get preserve=no
-  return zHalfLength;
+  return m_zHalfLength;
   //## end GeoTube::getZHalfLength%3CD5AEED0296.get
 }
 

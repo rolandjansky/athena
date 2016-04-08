@@ -37,7 +37,7 @@ class GeometryMap {
  private:
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
   
 };
 #endif

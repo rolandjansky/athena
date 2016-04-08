@@ -37,7 +37,7 @@ GeoSerialDenominator::GeoSerialDenominator (const std::string &BaseName)
   //## end GeoSerialDenominator::GeoSerialDenominator%3CEA45B1016D.hasinit
   //## begin GeoSerialDenominator::GeoSerialDenominator%3CEA45B1016D.initialization preserve=yes
 :
-baseName (BaseName)
+m_baseName (BaseName)
   //## end GeoSerialDenominator::GeoSerialDenominator%3CEA45B1016D.initialization
 {
   //## begin GeoSerialDenominator::GeoSerialDenominator%3CEA45B1016D.body preserve=yes

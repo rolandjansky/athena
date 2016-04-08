@@ -40,38 +40,38 @@ class GeoEllipticalTube : public GeoShape
   GeoEllipticalTube(const GeoEllipticalTube &right);
   GeoEllipticalTube & operator=(const GeoEllipticalTube &right);
 
-  static const std::string classType;
-  static const ShapeType classTypeID;
+  static const std::string s_classType;
+  static const ShapeType s_classTypeID;
 
-  double xHalfLength;
-  double yHalfLength;
-  double zHalfLength;
+  double m_xHalfLength;
+  double m_yHalfLength;
+  double m_zHalfLength;
 };
 
 
 inline const std::string& GeoEllipticalTube::getClassType ()
 {
-  return classType;
+  return s_classType;
 }
 
 inline ShapeType GeoEllipticalTube::getClassTypeID ()
 {
-  return classTypeID;
+  return s_classTypeID;
 }
 
 inline const double& GeoEllipticalTube::getXHalfLength() const
 {
-  return xHalfLength;
+  return m_xHalfLength;
 }
 
 inline const double& GeoEllipticalTube::getYHalfLength() const
 {
-  return yHalfLength;
+  return m_yHalfLength;
 }
 
 inline const double& GeoEllipticalTube::getZHalfLength() const
 {
-  return zHalfLength;
+  return m_zHalfLength;
 }
 
 

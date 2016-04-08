@@ -133,37 +133,37 @@ class GeoPara : public GeoShape  //## Inherits: <unnamed>%3CD26D7503D3
 
     // Data Members for Class Attributes
 
-      //## begin GeoPara::classType%3CD26D7503D1.attr preserve=no  public: static const std::string {U} "Para"
-      static const std::string classType;
-      //## end GeoPara::classType%3CD26D7503D1.attr
+      //## begin GeoPara::s_classType%3CD26D7503D1.attr preserve=no  public: static const std::string {U} "Para"
+      static const std::string s_classType;
+      //## end GeoPara::s_classType%3CD26D7503D1.attr
 
-      //## begin GeoPara::classTypeID%3CD26D7503D2.attr preserve=no  public: static const ShapeType {U} 0x12
-      static const ShapeType classTypeID;
-      //## end GeoPara::classTypeID%3CD26D7503D2.attr
+      //## begin GeoPara::s_classTypeID%3CD26D7503D2.attr preserve=no  public: static const ShapeType {U} 0x12
+      static const ShapeType s_classTypeID;
+      //## end GeoPara::s_classTypeID%3CD26D7503D2.attr
 
-      //## begin GeoPara::xHalfLength%3CD5A83B0262.attr preserve=no  public: double {U} 
-      double xHalfLength;
-      //## end GeoPara::xHalfLength%3CD5A83B0262.attr
+      //## begin GeoPara::m_xHalfLength%3CD5A83B0262.attr preserve=no  public: double {U} 
+      double m_xHalfLength;
+      //## end GeoPara::m_xHalfLength%3CD5A83B0262.attr
 
-      //## begin GeoPara::yHalfLength%3CD5A83B026C.attr preserve=no  public: double {U} 
-      double yHalfLength;
-      //## end GeoPara::yHalfLength%3CD5A83B026C.attr
+      //## begin GeoPara::m_yHalfLength%3CD5A83B026C.attr preserve=no  public: double {U} 
+      double m_yHalfLength;
+      //## end GeoPara::m_yHalfLength%3CD5A83B026C.attr
 
-      //## begin GeoPara::zHalfLength%3CD5A83B0276.attr preserve=no  public: double {U} 
-      double zHalfLength;
-      //## end GeoPara::zHalfLength%3CD5A83B0276.attr
+      //## begin GeoPara::m_zHalfLength%3CD5A83B0276.attr preserve=no  public: double {U} 
+      double m_zHalfLength;
+      //## end GeoPara::m_zHalfLength%3CD5A83B0276.attr
 
-      //## begin GeoPara::theta%3CD5A87A0095.attr preserve=no  public: double {U} 
-      double theta;
-      //## end GeoPara::theta%3CD5A87A0095.attr
+      //## begin GeoPara::m_theta%3CD5A87A0095.attr preserve=no  public: double {U} 
+      double m_theta;
+      //## end GeoPara::m_theta%3CD5A87A0095.attr
 
-      //## begin GeoPara::alpha%3CDBEBAF01D4.attr preserve=no  public: double {U} 
-      double alpha;
-      //## end GeoPara::alpha%3CDBEBAF01D4.attr
+      //## begin GeoPara::m_alpha%3CDBEBAF01D4.attr preserve=no  public: double {U} 
+      double m_alpha;
+      //## end GeoPara::m_alpha%3CDBEBAF01D4.attr
 
-      //## begin GeoPara::phi%3CD5A87B0231.attr preserve=no  public: double {U} 
-      double phi;
-      //## end GeoPara::phi%3CD5A87B0231.attr
+      //## begin GeoPara::m_phi%3CD5A87B0231.attr preserve=no  public: double {U} 
+      double m_phi;
+      //## end GeoPara::m_phi%3CD5A87B0231.attr
 
     // Additional Private Declarations
       //## begin GeoPara%3CD26D7503D0.private preserve=yes
@@ -186,56 +186,56 @@ class GeoPara : public GeoShape  //## Inherits: <unnamed>%3CD26D7503D3
 inline const std::string& GeoPara::getClassType ()
 {
   //## begin GeoPara::getClassType%3CD26D7503D1.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoPara::getClassType%3CD26D7503D1.get
 }
 
 inline ShapeType GeoPara::getClassTypeID ()
 {
   //## begin GeoPara::getClassTypeID%3CD26D7503D2.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoPara::getClassTypeID%3CD26D7503D2.get
 }
 
 inline const double& GeoPara::getXHalfLength () const
 {
   //## begin GeoPara::getXHalfLength%3CD5A83B0262.get preserve=no
-  return xHalfLength;
+  return m_xHalfLength;
   //## end GeoPara::getXHalfLength%3CD5A83B0262.get
 }
 
 inline const double& GeoPara::getYHalfLength () const
 {
   //## begin GeoPara::getYHalfLength%3CD5A83B026C.get preserve=no
-  return yHalfLength;
+  return m_yHalfLength;
   //## end GeoPara::getYHalfLength%3CD5A83B026C.get
 }
 
 inline const double& GeoPara::getZHalfLength () const
 {
   //## begin GeoPara::getZHalfLength%3CD5A83B0276.get preserve=no
-  return zHalfLength;
+  return m_zHalfLength;
   //## end GeoPara::getZHalfLength%3CD5A83B0276.get
 }
 
 inline const double& GeoPara::getTheta () const
 {
   //## begin GeoPara::getTheta%3CD5A87A0095.get preserve=no
-  return theta;
+  return m_theta;
   //## end GeoPara::getTheta%3CD5A87A0095.get
 }
 
 inline const double& GeoPara::getAlpha () const
 {
   //## begin GeoPara::getAlpha%3CDBEBAF01D4.get preserve=no
-  return alpha;
+  return m_alpha;
   //## end GeoPara::getAlpha%3CDBEBAF01D4.get
 }
 
 inline const double& GeoPara::getPhi () const
 {
   //## begin GeoPara::getPhi%3CD5A87B0231.get preserve=no
-  return phi;
+  return m_phi;
   //## end GeoPara::getPhi%3CD5A87B0231.get
 }
 

@@ -116,25 +116,25 @@ class GeoShapeUnion : public GeoShape  //## Inherits: <unnamed>%3CD2596A0199
 
     // Data Members for Class Attributes
 
-      //## Attribute: opA%3CD2596A01A4
+      //## Attribute: m_opA%3CD2596A01A4
       //	The first shape operand in the OR operation.
-      //## begin GeoShapeUnion::opA%3CD2596A01A4.attr preserve=no  private: const GeoShape* {U} 
-      const GeoShape* opA;
-      //## end GeoShapeUnion::opA%3CD2596A01A4.attr
+      //## begin GeoShapeUnion::m_opA%3CD2596A01A4.attr preserve=no  private: const GeoShape* {U} 
+      const GeoShape* m_opA;
+      //## end GeoShapeUnion::m_opA%3CD2596A01A4.attr
 
-      //## Attribute: opB%3CD2596A01A5
+      //## Attribute: m_opB%3CD2596A01A5
       //	The second shape operand in the OR operation.
-      //## begin GeoShapeUnion::opB%3CD2596A01A5.attr preserve=no  private: const GeoShape* {U} 
-      const GeoShape* opB;
-      //## end GeoShapeUnion::opB%3CD2596A01A5.attr
+      //## begin GeoShapeUnion::m_opB%3CD2596A01A5.attr preserve=no  private: const GeoShape* {U} 
+      const GeoShape* m_opB;
+      //## end GeoShapeUnion::m_opB%3CD2596A01A5.attr
 
-      //## begin GeoShapeUnion::classType%3CD2596A01A6.attr preserve=no  public: static const std::string {U} "Union"
-      static const std::string classType;
-      //## end GeoShapeUnion::classType%3CD2596A01A6.attr
+      //## begin GeoShapeUnion::s_classType%3CD2596A01A6.attr preserve=no  public: static const std::string {U} "Union"
+      static const std::string s_classType;
+      //## end GeoShapeUnion::s_classType%3CD2596A01A6.attr
 
-      //## begin GeoShapeUnion::classTypeID%3CD2596A01A7.attr preserve=no  public: static const ShapeType {U} 0x01
-      static const ShapeType classTypeID;
-      //## end GeoShapeUnion::classTypeID%3CD2596A01A7.attr
+      //## begin GeoShapeUnion::s_classTypeID%3CD2596A01A7.attr preserve=no  public: static const ShapeType {U} 0x01
+      static const ShapeType s_classTypeID;
+      //## end GeoShapeUnion::s_classTypeID%3CD2596A01A7.attr
 
     // Additional Private Declarations
       //## begin GeoShapeUnion%3CD2596A0198.private preserve=yes
@@ -157,14 +157,14 @@ class GeoShapeUnion : public GeoShape  //## Inherits: <unnamed>%3CD2596A0199
 inline const std::string& GeoShapeUnion::getClassType ()
 {
   //## begin GeoShapeUnion::getClassType%3CD2596A01A6.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoShapeUnion::getClassType%3CD2596A01A6.get
 }
 
 inline ShapeType GeoShapeUnion::getClassTypeID ()
 {
   //## begin GeoShapeUnion::getClassTypeID%3CD2596A01A7.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoShapeUnion::getClassTypeID%3CD2596A01A7.get
 }
 

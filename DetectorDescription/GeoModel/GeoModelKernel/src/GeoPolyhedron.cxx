@@ -27,7 +27,6 @@ ffabs (float a)
 // infrastructure:                                                    //
 //--------------------------------------------------------------------//
 
-using std::vector;
 //
 // ********************************************************************
 // * DISCLAIMER                                                       *
@@ -90,7 +89,7 @@ std::ostream & operator<< (std::ostream & ostr, const GeoFacet & facet)
 {
   for (int k = 0; k < 4; k++)
     {
-      ostr << " " << facet.edge[k].v << "/" << facet.edge[k].f;
+      ostr << " " << facet.m_edge[k].v << "/" << facet.m_edge[k].f;
     }
   return ostr;
 }
@@ -98,17 +97,17 @@ std::ostream & operator<< (std::ostream & ostr, const GeoFacet & facet)
 std::ostream & operator<< (std::ostream & ostr, const GeoPolyhedron & ph)
 {
   ostr << std::endl;
-  ostr << "Nverteces=" << ph.nvert << ", Nfacets=" << ph.nface << std::endl;
+  ostr << "Nverteces=" << ph.m_nvert << ", Nfacets=" << ph.m_nface << std::endl;
   int i;
-  for (i = 1; i <= ph.nvert; i++)
+  for (i = 1; i <= ph.m_nvert; i++)
     {
       ostr << "xyz(" << i << ")="
-	<< ph.pV[i][0] << ' ' << ph.pV[i][1] << ' ' << ph.pV[i][2]
+        << ph.m_pV[i][0] << ' ' << ph.m_pV[i][1] << ' ' << ph.m_pV[i][2]
 	<< std::endl;
     }
-  for (i = 1; i <= ph.nface; i++)
+  for (i = 1; i <= ph.m_nface; i++)
     {
-      ostr << "face(" << i << ")=" << ph.pF[i] << std::endl;
+      ostr << "face(" << i << ")=" << ph.m_pF[i] << std::endl;
     }
   return ostr;
 }
@@ -121,24 +120,24 @@ GeoPolyhedron::GeoPolyhedron (const GeoPolyhedron & from)
  *                                                                     *
  ***********************************************************************/
 {
-  if (from.nvert > 0 && from.nface > 0)
+  if (from.m_nvert > 0 && from.m_nface > 0)
     {
-      nvert = from.nvert;
-      nface = from.nface;
-      pV = new HVPoint3D[nvert + 1];
-      pF = new GeoFacet[nface + 1];
+      m_nvert = from.m_nvert;
+      m_nface = from.m_nface;
+      m_pV = new HVPoint3D[m_nvert + 1];
+      m_pF = new GeoFacet[m_nface + 1];
       int i;
-      for (i = 0; i <= nvert; i++)
-	pV[i] = from.pV[i];
-      for (i = 0; i <= nface; i++)
-	pF[i] = from.pF[i];
+      for (i = 0; i <= m_nvert; i++)
+	m_pV[i] = from.m_pV[i];
+      for (i = 0; i <= m_nface; i++)
+	m_pF[i] = from.m_pF[i];
     }
   else
     {
-      nvert = 0;
-      nface = 0;
-      pV = 0;
-      pF = 0;
+      m_nvert = 0;
+      m_nface = 0;
+      m_pV = 0;
+      m_pF = 0;
     }
 }
 
@@ -154,27 +153,27 @@ GeoPolyhedron & GeoPolyhedron::operator= (const GeoPolyhedron & from)
 {
   if (this == &from)
     return *this;
-  delete[]pV;
-  delete[]pF;
-  if (from.nvert > 0 && from.nface > 0)
+  delete[]m_pV;
+  delete[]m_pF;
+  if (from.m_nvert > 0 && from.m_nface > 0)
     {
-      nvert = from.nvert;
-      nface = from.nface;
-      pV = new HVPoint3D[nvert + 1];
-      pF = new GeoFacet[nface + 1];
+      m_nvert = from.m_nvert;
+      m_nface = from.m_nface;
+      m_pV = new HVPoint3D[m_nvert + 1];
+      m_pF = new GeoFacet[m_nface + 1];
       int
 	i;
-      for (i = 1; i <= nvert; i++)
-	pV[i] = from.pV[i];
-      for (i = 1; i <= nface; i++)
-	pF[i] = from.pF[i];
+      for (i = 1; i <= m_nvert; i++)
+	m_pV[i] = from.m_pV[i];
+      for (i = 1; i <= m_nface; i++)
+	m_pF[i] = from.m_pF[i];
     }
   else
     {
-      nvert = 0;
-      nface = 0;
-      pV = 0;
-      pF = 0;
+      m_nvert = 0;
+      m_nface = 0;
+      m_pV = 0;
+      m_pF = 0;
     }
   return *this;
 }
@@ -193,7 +192,7 @@ GeoPolyhedron::FindNeighbour (int iFace, int iNode, int iOrder) const
   int i;
   for (i = 0; i < 4; i++)
     {
-      if (iNode == iabs (pF[iFace].edge[i].v))
+      if (iNode == iabs (m_pF[iFace].m_edge[i].v))
 	break;
     }
   if (i == 4)
@@ -207,10 +206,10 @@ GeoPolyhedron::FindNeighbour (int iFace, int iNode, int iOrder) const
     {
       if (--i < 0)
 	i = 3;
-      if (pF[iFace].edge[i].v == 0)
+      if (m_pF[iFace].m_edge[i].v == 0)
 	i = 2;
     }
-  return (pF[iFace].edge[i].v > 0) ? 0 : pF[iFace].edge[i].f;
+  return (m_pF[iFace].m_edge[i].v > 0) ? 0 : m_pF[iFace].m_edge[i].f;
 }
 
 HVNormal3D GeoPolyhedron::FindNodeNormal (int iFace, int iNode) const
@@ -274,11 +273,11 @@ GeoPolyhedron::SetNumberOfRotationSteps (int n)
 	<< "GeoPolyhedron::SetNumberOfRotationSteps: attempt to set the\n"
 	<< "number of steps per circle < " << nMin << "; forced to " << nMin
 	<< std::endl;
-      fNumberOfRotationSteps = nMin;
+      s_fNumberOfRotationSteps = nMin;
     }
   else
     {
-      fNumberOfRotationSteps = n;
+      s_fNumberOfRotationSteps = n;
     }
 }
 
@@ -296,10 +295,10 @@ GeoPolyhedron::AllocateMemory (int Nvert, int Nface)
  *                                                                     *
  ***********************************************************************/
 {
-  nvert = Nvert;
-  nface = Nface;
-  pV = new HVPoint3D[nvert + 1];
-  pF = new GeoFacet[nface + 1];
+  m_nvert = Nvert;
+  m_nface = Nface;
+  m_pV = new HVPoint3D[m_nvert + 1];
+  m_pF = new GeoFacet[m_nface + 1];
 }
 
 void
@@ -316,12 +315,12 @@ GeoPolyhedron::CreatePrism ()
   enum
   { DUMMY, BOTTOM, LEFT, BACK, RIGHT, FRONT, TOP };
 
-  pF[1] = GeoFacet (1, LEFT, 4, BACK, 3, RIGHT, 2, FRONT);
-  pF[2] = GeoFacet (5, TOP, 8, BACK, 4, BOTTOM, 1, FRONT);
-  pF[3] = GeoFacet (8, TOP, 7, RIGHT, 3, BOTTOM, 4, LEFT);
-  pF[4] = GeoFacet (7, TOP, 6, FRONT, 2, BOTTOM, 3, BACK);
-  pF[5] = GeoFacet (6, TOP, 5, LEFT, 1, BOTTOM, 2, RIGHT);
-  pF[6] = GeoFacet (5, FRONT, 6, RIGHT, 7, BACK, 8, LEFT);
+  m_pF[1] = GeoFacet (1, LEFT, 4, BACK, 3, RIGHT, 2, FRONT);
+  m_pF[2] = GeoFacet (5, TOP, 8, BACK, 4, BOTTOM, 1, FRONT);
+  m_pF[3] = GeoFacet (8, TOP, 7, RIGHT, 3, BOTTOM, 4, LEFT);
+  m_pF[4] = GeoFacet (7, TOP, 6, FRONT, 2, BOTTOM, 3, BACK);
+  m_pF[5] = GeoFacet (6, TOP, 5, LEFT, 1, BOTTOM, 2, RIGHT);
+  m_pF[6] = GeoFacet (5, FRONT, 6, RIGHT, 7, BACK, 8, LEFT);
 }
 
 void
@@ -343,7 +342,7 @@ GeoPolyhedron::RotateEdge (int k1, int k2, double r1, double r2,
  *        ifWholeCircle - is true in case of whole circle rotation     *
  *        ns     - number of discrete steps                            *
  *        r[]    - r-coordinates                                       *
- *        kface  - current free cell in the pF array                   *
+ *        kface  - current free cell in the m_pF array                 *
  *                                                                     *
  ***********************************************************************/
 {
@@ -361,15 +360,15 @@ GeoPolyhedron::RotateEdge (int k1, int k2, double r1, double r2,
     {
       if (r1 == 0.)
 	{
-	  pF[kface++] = GeoFacet (i1, 0, v2 * i2, 0, (i2 + 1), 0);
+	  m_pF[kface++] = GeoFacet (i1, 0, v2 * i2, 0, (i2 + 1), 0);
 	}
       else if (r2 == 0.)
 	{
-	  pF[kface++] = GeoFacet (i1, 0, i2, 0, v1 * (i1 + 1), 0);
+	  m_pF[kface++] = GeoFacet (i1, 0, i2, 0, v1 * (i1 + 1), 0);
 	}
       else
 	{
-	  pF[kface++] =
+	  m_pF[kface++] =
 	    GeoFacet (i1, 0, v2 * i2, 0, (i2 + 1), 0, v1 * (i1 + 1), 0);
 	}
     }
@@ -377,38 +376,38 @@ GeoPolyhedron::RotateEdge (int k1, int k2, double r1, double r2,
     {
       if (r1 == 0.)
 	{
-	  pF[kface++] =
+	  m_pF[kface++] =
 	    GeoFacet (vv * i1, 0, v2 * i2, 0, vEdge * (i2 + 1), 0);
 	  for (i2++, i = 1; i < ns - 1; i2++, i++)
 	    {
-	      pF[kface++] =
+	      m_pF[kface++] =
 		GeoFacet (vEdge * i1, 0, v2 * i2, 0, vEdge * (i2 + 1), 0);
 	    }
-	  pF[kface++] = GeoFacet (vEdge * i1, 0, v2 * i2, 0, vv * ii2, 0);
+	  m_pF[kface++] = GeoFacet (vEdge * i1, 0, v2 * i2, 0, vv * ii2, 0);
 	}
       else if (r2 == 0.)
 	{
-	  pF[kface++] =
+	  m_pF[kface++] =
 	    GeoFacet (vv * i1, 0, vEdge * i2, 0, v1 * (i1 + 1), 0);
 	  for (i1++, i = 1; i < ns - 1; i1++, i++)
 	    {
-	      pF[kface++] =
+	      m_pF[kface++] =
 		GeoFacet (vEdge * i1, 0, vEdge * i2, 0, v1 * (i1 + 1), 0);
 	    }
-	  pF[kface++] = GeoFacet (vEdge * i1, 0, vv * i2, 0, v1 * ii1, 0);
+	  m_pF[kface++] = GeoFacet (vEdge * i1, 0, vv * i2, 0, v1 * ii1, 0);
 	}
       else
 	{
-	  pF[kface++] =
+	  m_pF[kface++] =
 	    GeoFacet (vv * i1, 0, v2 * i2, 0, vEdge * (i2 + 1), 0,
 		      v1 * (i1 + 1), 0);
 	  for (i1++, i2++, i = 1; i < ns - 1; i1++, i2++, i++)
 	    {
-	      pF[kface++] =
+	      m_pF[kface++] =
 		GeoFacet (vEdge * i1, 0, v2 * i2, 0, vEdge * (i2 + 1), 0,
 			  v1 * (i1 + 1), 0);
 	    }
-	  pF[kface++] =
+	  m_pF[kface++] =
 	    GeoFacet (vEdge * i1, 0, v2 * i2, 0, vv * ii2, 0, v1 * ii1, 0);
 	}
     }
@@ -452,42 +451,42 @@ GeoPolyhedron::SetSideFacets (int ii[4], int vv[4],
       k1 = kk[ii[0]];
       k2 = kk[ii[2]];
       k3 = kk[ii[3]];
-      pF[kface++] = GeoFacet (vv[0] * k1, 0, vv[2] * k2, 0, vv[3] * k3, 0);
+      m_pF[kface++] = GeoFacet (vv[0] * k1, 0, vv[2] * k2, 0, vv[3] * k3, 0);
       if (r[ii[0]] != 0.)
 	k1 += ns;
       if (r[ii[2]] != 0.)
 	k2 += ns;
       if (r[ii[3]] != 0.)
 	k3 += ns;
-      pF[kface++] = GeoFacet (vv[2] * k3, 0, vv[0] * k2, 0, vv[3] * k1, 0);
+      m_pF[kface++] = GeoFacet (vv[2] * k3, 0, vv[0] * k2, 0, vv[3] * k1, 0);
     }
   else if (kk[ii[0]] == kk[ii[1]])
     {
       k1 = kk[ii[0]];
       k2 = kk[ii[2]];
       k3 = kk[ii[3]];
-      pF[kface++] = GeoFacet (vv[1] * k1, 0, vv[2] * k2, 0, vv[3] * k3, 0);
+      m_pF[kface++] = GeoFacet (vv[1] * k1, 0, vv[2] * k2, 0, vv[3] * k3, 0);
       if (r[ii[0]] != 0.)
 	k1 += ns;
       if (r[ii[2]] != 0.)
 	k2 += ns;
       if (r[ii[3]] != 0.)
 	k3 += ns;
-      pF[kface++] = GeoFacet (vv[2] * k3, 0, vv[1] * k2, 0, vv[3] * k1, 0);
+      m_pF[kface++] = GeoFacet (vv[2] * k3, 0, vv[1] * k2, 0, vv[3] * k1, 0);
     }
   else if (kk[ii[2]] == kk[ii[3]])
     {
       k1 = kk[ii[0]];
       k2 = kk[ii[1]];
       k3 = kk[ii[2]];
-      pF[kface++] = GeoFacet (vv[0] * k1, 0, vv[1] * k2, 0, vv[3] * k3, 0);
+      m_pF[kface++] = GeoFacet (vv[0] * k1, 0, vv[1] * k2, 0, vv[3] * k3, 0);
       if (r[ii[0]] != 0.)
 	k1 += ns;
       if (r[ii[1]] != 0.)
 	k2 += ns;
       if (r[ii[2]] != 0.)
 	k3 += ns;
-      pF[kface++] = GeoFacet (vv[1] * k3, 0, vv[0] * k2, 0, vv[3] * k1, 0);
+      m_pF[kface++] = GeoFacet (vv[1] * k3, 0, vv[0] * k2, 0, vv[3] * k1, 0);
     }
   else
     {
@@ -495,7 +494,7 @@ GeoPolyhedron::SetSideFacets (int ii[4], int vv[4],
       k2 = kk[ii[1]];
       k3 = kk[ii[2]];
       k4 = kk[ii[3]];
-      pF[kface++] =
+      m_pF[kface++] =
 	GeoFacet (vv[0] * k1, 0, vv[1] * k2, 0, vv[2] * k3, 0, vv[3] * k4, 0);
       if (r[ii[0]] != 0.)
 	k1 += ns;
@@ -505,7 +504,7 @@ GeoPolyhedron::SetSideFacets (int ii[4], int vv[4],
 	k3 += ns;
       if (r[ii[3]] != 0.)
 	k4 += ns;
-      pF[kface++] =
+      m_pF[kface++] =
 	GeoFacet (vv[2] * k4, 0, vv[1] * k3, 0, vv[0] * k2, 0, vv[3] * k1, 0);
     }
 }
@@ -641,7 +640,7 @@ GeoPolyhedron::RotateAroundZ (int nstep, double phi, double dphi,
       kk[i] = k;
       if (r[i] == 0.)
 	{
-	  pV[k++] = HVPoint3D (0, 0, z[i]);
+	  m_pV[k++] = HVPoint3D (0, 0, z[i]);
 	}
       else
 	{
@@ -655,7 +654,7 @@ GeoPolyhedron::RotateAroundZ (int nstep, double phi, double dphi,
       kk[i] = k;
       if (r[i] == 0.)
 	{
-	  pV[k++] = HVPoint3D (0, 0, z[i]);
+	  m_pV[k++] = HVPoint3D (0, 0, z[i]);
 	}
       else
 	{
@@ -672,7 +671,7 @@ GeoPolyhedron::RotateAroundZ (int nstep, double phi, double dphi,
       kk[i] = k;
       if (r[i] == 0.)
 	{
-	  pV[k++] = HVPoint3D (0, 0, z[i]);
+	  m_pV[k++] = HVPoint3D (0, 0, z[i]);
 	}
       else
 	{
@@ -687,7 +686,7 @@ GeoPolyhedron::RotateAroundZ (int nstep, double phi, double dphi,
 	{
 	  kk[i] = k;
 	  if (r[i] == 0.)
-	    pV[k] = HVPoint3D (0, 0, z[i]);
+	    m_pV[k] = HVPoint3D (0, 0, z[i]);
 	}
       else
 	{
@@ -705,7 +704,7 @@ GeoPolyhedron::RotateAroundZ (int nstep, double phi, double dphi,
       for (i = i1beg; i <= i2end; i++)
 	{
 	  if (r[i] != 0.)
-	    pV[kk[i] + j] = HVPoint3D (r[i] * cosPhi, r[i] * sinPhi, z[i]);
+	    m_pV[kk[i] + j] = HVPoint3D (r[i] * cosPhi, r[i] * sinPhi, z[i]);
 	}
     }
 
@@ -818,12 +817,12 @@ GeoPolyhedron::RotateAroundZ (int nstep, double phi, double dphi,
 
   delete[]kk;
 
-  if (k - 1 != nface)
+  if (k - 1 != m_nface)
     {
       std::cerr
 	<< "Polyhedron::RotateAroundZ: number of generated faces ("
 	<< k - 1 << ") is not equal to the number of allocated faces ("
-	<< nface << ")" << std::endl;
+	<< m_nface << ")" << std::endl;
     }
 }
 
@@ -838,7 +837,7 @@ GeoPolyhedron::SetReferences ()
  *                                                                     *
  ***********************************************************************/
 {
-  if (nface <= 0)
+  if (m_nface <= 0)
     return;
 
   struct edgeListMember
@@ -853,35 +852,35 @@ GeoPolyhedron::SetReferences ()
 
   //   A L L O C A T E   A N D   I N I T I A T E   L I S T S
 
-  edgeList = new edgeListMember[2 * nface];
-  headList = new edgeListMember *[nvert];
+  edgeList = new edgeListMember[2 * m_nface];
+  headList = new edgeListMember *[m_nvert];
 
   int i;
-  for (i = 0; i < nvert; i++)
+  for (i = 0; i < m_nvert; i++)
     {
       headList[i] = 0;
     }
   freeList = edgeList;
-  for (i = 0; i < 2 * nface - 1; i++)
+  for (i = 0; i < 2 * m_nface - 1; i++)
     {
       edgeList[i].next = &edgeList[i + 1];
     }
-  edgeList[2 * nface - 1].next = 0;
+  edgeList[2 * m_nface - 1].next = 0;
 
   //   L O O P   A L O N G   E D G E S
 
   int iface, iedge, nedge, i1, i2, k1, k2;
   edgeListMember *prev, *cur;
 
-  for (iface = 1; iface <= nface; iface++)
+  for (iface = 1; iface <= m_nface; iface++)
     {
-      nedge = (pF[iface].edge[3].v == 0) ? 3 : 4;
+      nedge = (m_pF[iface].m_edge[3].v == 0) ? 3 : 4;
       for (iedge = 0; iedge < nedge; iedge++)
 	{
 	  i1 = iedge;
 	  i2 = (iedge < nedge - 1) ? iedge + 1 : 0;
-	  i1 = iabs (pF[iface].edge[i1].v);
-	  i2 = iabs (pF[iface].edge[i2].v);
+	  i1 = iabs (m_pF[iface].m_edge[i1].v);
+	  i2 = iabs (m_pF[iface].m_edge[i2].v);
 	  k1 = (i1 < i2) ? i1 : i2;	// k1 = ::min(i1,i2);
 	  k2 = (i1 > i2) ? i1 : i2;	// k2 = ::max(i1,i2);
 
@@ -904,18 +903,18 @@ GeoPolyhedron::SetReferences ()
 	      headList[k1] = cur->next;
 	      cur->next = freeList;
 	      freeList = cur;
-	      pF[iface].edge[iedge].f = cur->iface;
-	      pF[cur->iface].edge[cur->iedge].f = iface;
-	      i1 = (pF[iface].edge[iedge].v < 0) ? -1 : 1;
-	      i2 = (pF[cur->iface].edge[cur->iedge].v < 0) ? -1 : 1;
+	      m_pF[iface].m_edge[iedge].f = cur->iface;
+	      m_pF[cur->iface].m_edge[cur->iedge].f = iface;
+	      i1 = (m_pF[iface].m_edge[iedge].v < 0) ? -1 : 1;
+	      i2 = (m_pF[cur->iface].m_edge[cur->iedge].v < 0) ? -1 : 1;
 	      if (i1 != i2)
 		{
 		  std::cerr
 		    << "Polyhedron::SetReferences: different edge visibility "
 		    << iface << "/" << iedge << "/"
-		    << pF[iface].edge[iedge].v << " and "
+		    << m_pF[iface].m_edge[iedge].v << " and "
 		    << cur->iface << "/" << cur->iedge << "/"
-		    << pF[cur->iface].edge[cur->iedge].v << std::endl;
+		    << m_pF[cur->iface].m_edge[cur->iedge].v << std::endl;
 		}
 	      continue;
 	    }
@@ -942,18 +941,18 @@ GeoPolyhedron::SetReferences ()
 		  prev->next = cur->next;
 		  cur->next = freeList;
 		  freeList = cur;
-		  pF[iface].edge[iedge].f = cur->iface;
-		  pF[cur->iface].edge[cur->iedge].f = iface;
-		  i1 = (pF[iface].edge[iedge].v < 0) ? -1 : 1;
-		  i2 = (pF[cur->iface].edge[cur->iedge].v < 0) ? -1 : 1;
+		  m_pF[iface].m_edge[iedge].f = cur->iface;
+		  m_pF[cur->iface].m_edge[cur->iedge].f = iface;
+		  i1 = (m_pF[iface].m_edge[iedge].v < 0) ? -1 : 1;
+		  i2 = (m_pF[cur->iface].m_edge[cur->iedge].v < 0) ? -1 : 1;
 		  if (i1 != i2)
 		    {
 		      std::cerr
 			<<
 			"Polyhedron::SetReferences: different edge visibility "
-			<< iface << "/" << iedge << "/" << pF[iface].
-			edge[iedge].v << " and " << cur->iface << "/" << cur->
-			iedge << "/" << pF[cur->iface].edge[cur->iedge].
+			<< iface << "/" << iedge << "/" << m_pF[iface].
+			m_edge[iedge].v << " and " << cur->iface << "/" << cur->
+			iedge << "/" << m_pF[cur->iface].m_edge[cur->iedge].
 			v << std::endl;
 		    }
 		  break;
@@ -964,7 +963,7 @@ GeoPolyhedron::SetReferences ()
 
   //  C H E C K   T H A T   A L L   L I S T S   A R E   E M P T Y
 
-  for (i = 0; i < nvert; i++)
+  for (i = 0; i < m_nvert; i++)
     {
       if (headList[i] != 0)
 	{
@@ -991,23 +990,23 @@ GeoPolyhedron::InvertFacets ()
  *                                                                     *
  ***********************************************************************/
 {
-  if (nface <= 0)
+  if (m_nface <= 0)
     return;
   int i, k, nnode, v[4]={0}, f[4]={0};
-  for (i = 1; i <= nface; i++)
+  for (i = 1; i <= m_nface; i++)
     {
-      nnode = (pF[i].edge[3].v == 0) ? 3 : 4;
+      nnode = (m_pF[i].m_edge[3].v == 0) ? 3 : 4;
       for (k = 0; k < nnode; k++)
 	{
-	  v[k] = (k + 1 == nnode) ? pF[i].edge[0].v : pF[i].edge[k + 1].v;
-	  if (v[k] * pF[i].edge[k].v < 0)
+	  v[k] = (k + 1 == nnode) ? m_pF[i].m_edge[0].v : m_pF[i].m_edge[k + 1].v;
+	  if (v[k] * m_pF[i].m_edge[k].v < 0)
 	    v[k] = -v[k];
-	  f[k] = pF[i].edge[k].f;
+	  f[k] = m_pF[i].m_edge[k].f;
 	}
       for (k = 0; k < nnode; k++)
 	{
-	  pF[i].edge[nnode - 1 - k].v = v[k];
-	  pF[i].edge[nnode - 1 - k].f = f[k];
+	  m_pF[i].m_edge[nnode - 1 - k].v = v[k];
+	  m_pF[i].m_edge[nnode - 1 - k].f = f[k];
 	}
     }
 }
@@ -1023,11 +1022,11 @@ GeoPolyhedron & GeoPolyhedron::Transform (const HVRotation & rotation,
  *                                                                     *
  ***********************************************************************/
 {
-  if (nvert > 0)
+  if (m_nvert > 0)
     {
-      for (int i = 1; i <= nvert; i++)
+      for (int i = 1; i <= m_nvert; i++)
 	{
-	  pV[i] = rotation * pV[i] + translation;
+	  m_pV[i] = rotation * m_pV[i] + translation;
 	}
 
       //  C H E C K   D E T E R M I N A N T   A N D
@@ -1060,17 +1059,17 @@ bool GeoPolyhedron::GetNextVertexIndex (int &index, int &edgeFlag) const
     0;
   int
     vIndex =
-    pF[iFace].
-    edge[iQVertex].
+    m_pF[iFace].
+    m_edge[iQVertex].
     v;
 
   edgeFlag = (vIndex > 0) ? 1 : 0;
   index = iabs (vIndex);
 
-  if (iQVertex >= 3 || pF[iFace].edge[iQVertex + 1].v == 0)
+  if (iQVertex >= 3 || m_pF[iFace].m_edge[iQVertex + 1].v == 0)
     {
       iQVertex = 0;
-      if (++iFace > nface)
+      if (++iFace > m_nface)
 	iFace = 1;
       return false;		// Last Edge
     }
@@ -1091,14 +1090,14 @@ HVPoint3D GeoPolyhedron::GetVertex (int index) const
  *                                                                     *
  ***********************************************************************/
 {
-  if (index <= 0 || index > nvert)
+  if (index <= 0 || index > m_nvert)
     {
       std::cerr
 	<< "GeoPolyhedron::GetVertex: irrelevant index " << index
 	<< std::endl;
       return HVPoint3D ();
     }
-  return pV[index];
+  return m_pV[index];
 }
 
 bool
@@ -1116,7 +1115,7 @@ GeoPolyhedron::GetNextVertex (HVPoint3D & vertex, int &edgeFlag) const
 {
   int index;
   bool rep = GetNextVertexIndex (index, edgeFlag);
-  vertex = pV[index];
+  vertex = m_pV[index];
   return rep;
 }
 
@@ -1137,10 +1136,10 @@ bool
   static int iFace = 1;
   static int iNode = 0;
 
-  if (nface == 0)
+  if (m_nface == 0)
     return false;		// empty polyhedron
 
-  int k = pF[iFace].edge[iNode].v;
+  int k = m_pF[iFace].m_edge[iNode].v;
   if (k > 0)
     {
       edgeFlag = 1;
@@ -1150,12 +1149,12 @@ bool
       edgeFlag = -1;
       k = -k;
     }
-  vertex = pV[k];
+  vertex = m_pV[k];
   normal = FindNodeNormal (iFace, k);
-  if (iNode >= 3 || pF[iFace].edge[iNode + 1].v == 0)
+  if (iNode >= 3 || m_pF[iFace].m_edge[iNode + 1].v == 0)
     {
       iNode = 0;
-      if (++iFace > nface)
+      if (++iFace > m_nface)
 	iFace = 1;
       return false;		// last node
     }
@@ -1187,31 +1186,31 @@ bool
 
   if (iFace == 1 && iQVertex == 0)
     {
-      k2 = pF[nface].edge[0].v;
-      k1 = pF[nface].edge[3].v;
+      k2 = m_pF[m_nface].m_edge[0].v;
+      k1 = m_pF[m_nface].m_edge[3].v;
       if (k1 == 0)
-	k1 = pF[nface].edge[2].v;
+	k1 = m_pF[m_nface].m_edge[2].v;
       if (iabs (k1) > iabs (k2))
 	iOrder = -1;
     }
 
   do
     {
-      k1 = pF[iFace].edge[iQVertex].v;
+      k1 = m_pF[iFace].m_edge[iQVertex].v;
       kflag = k1;
       k1 = iabs (k1);
       kface1 = iFace;
-      kface2 = pF[iFace].edge[iQVertex].f;
-      if (iQVertex >= 3 || pF[iFace].edge[iQVertex + 1].v == 0)
+      kface2 = m_pF[iFace].m_edge[iQVertex].f;
+      if (iQVertex >= 3 || m_pF[iFace].m_edge[iQVertex + 1].v == 0)
 	{
 	  iQVertex = 0;
-	  k2 = iabs (pF[iFace].edge[iQVertex].v);
+	  k2 = iabs (m_pF[iFace].m_edge[iQVertex].v);
 	  iFace++;
 	}
       else
 	{
 	  iQVertex++;
-	  k2 = iabs (pF[iFace].edge[iQVertex].v);
+	  k2 = iabs (m_pF[iFace].m_edge[iQVertex].v);
 	}
     }
   while (iOrder * k1 > iOrder * k2);
@@ -1222,7 +1221,7 @@ bool
   iface1 = kface1;
   iface2 = kface2;
 
-  if (iFace > nface)
+  if (iFace > m_nface)
     {
       iFace = 1;
       iOrder = 1;
@@ -1265,8 +1264,8 @@ bool
 {
   int i1, i2;
   bool rep = GetNextEdgeIndeces (i1, i2, edgeFlag);
-  p1 = pV[i1];
-  p2 = pV[i2];
+  p1 = m_pV[i1];
+  p2 = m_pV[i2];
   return rep;
 }
 
@@ -1286,8 +1285,8 @@ bool
 {
   int i1, i2;
   bool rep = GetNextEdgeIndeces (i1, i2, edgeFlag, iface1, iface2);
-  p1 = pV[i1];
-  p2 = pV[i2];
+  p1 = m_pV[i1];
+  p2 = m_pV[i2];
   return rep;
 }
 
@@ -1303,7 +1302,7 @@ GeoPolyhedron::GetFacet (int iFace, int &n, int *iNodes,
  *                                                                     *
  ***********************************************************************/
 {
-  if (iFace < 1 || iFace > nface)
+  if (iFace < 1 || iFace > m_nface)
     {
       std::cerr
 	<< "GeoPolyhedron::GetFacet: irrelevant index " << iFace << std::endl;
@@ -1314,11 +1313,11 @@ GeoPolyhedron::GetFacet (int iFace, int &n, int *iNodes,
       int i, k;
       for (i = 0; i < 4; i++)
 	{
-	  k = pF[iFace].edge[i].v;
+	  k = m_pF[iFace].m_edge[i].v;
 	  if (k == 0)
 	    break;
 	  if (iFaces != 0)
-	    iFaces[i] = pF[iFace].edge[i].f;
+	    iFaces[i] = m_pF[iFace].m_edge[i].f;
 	  if (k > 0)
 	    {
 	      iNodes[i] = k;
@@ -1354,7 +1353,7 @@ GeoPolyhedron::GetFacet (int index, int &n, HVPoint3D * nodes,
     {
       for (int i = 0; i < 4; i++)
 	{
-	  nodes[i] = pV[iNodes[i]];
+	  nodes[i] = m_pV[iNodes[i]];
 	  if (normals != 0)
 	    normals[i] = FindNodeNormal (index, iNodes[i]);
 	}
@@ -1389,7 +1388,7 @@ bool
       GetFacet (iFace, n, nodes, edgeFlags, normals);
     }
 
-  if (++iFace > nface)
+  if (++iFace > m_nface)
     {
       iFace = 1;
       return false;
@@ -1410,7 +1409,7 @@ HVNormal3D GeoPolyhedron::GetNormal (int iFace) const
  *                                                                     *
  ***********************************************************************/
 {
-  if (iFace < 1 || iFace > nface)
+  if (iFace < 1 || iFace > m_nface)
     {
       std::cerr
 	<< "GeoPolyhedron::GetNormal: irrelevant index " << iFace
@@ -1420,19 +1419,19 @@ HVNormal3D GeoPolyhedron::GetNormal (int iFace) const
 
   int
     i0 =
-    iabs (pF[iFace].edge[0].v);
+    iabs (m_pF[iFace].m_edge[0].v);
   int
     i1 =
-    iabs (pF[iFace].edge[1].v);
+    iabs (m_pF[iFace].m_edge[1].v);
   int
     i2 =
-    iabs (pF[iFace].edge[2].v);
+    iabs (m_pF[iFace].m_edge[2].v);
   int
     i3 =
-    iabs (pF[iFace].edge[3].v);
+    iabs (m_pF[iFace].m_edge[3].v);
   if (i3 == 0)
     i3 = i0;
-  return (pV[i2] - pV[i0]).cross (pV[i3] - pV[i1]);
+  return (m_pV[i2] - m_pV[i0]).cross (m_pV[i3] - m_pV[i1]);
 }
 
 HVNormal3D GeoPolyhedron::GetUnitNormal (int iFace) const
@@ -1445,7 +1444,7 @@ HVNormal3D GeoPolyhedron::GetUnitNormal (int iFace) const
  *                                                                     *
  ***********************************************************************/
 {
-  if (iFace < 1 || iFace > nface)
+  if (iFace < 1 || iFace > m_nface)
     {
       std::cerr
 	<< "GeoPolyhedron::GetUnitNormal: irrelevant index " << iFace
@@ -1455,21 +1454,21 @@ HVNormal3D GeoPolyhedron::GetUnitNormal (int iFace) const
 
   int
     i0 =
-    iabs (pF[iFace].edge[0].v);
+    iabs (m_pF[iFace].m_edge[0].v);
   int
     i1 =
-    iabs (pF[iFace].edge[1].v);
+    iabs (m_pF[iFace].m_edge[1].v);
   int
     i2 =
-    iabs (pF[iFace].edge[2].v);
+    iabs (m_pF[iFace].m_edge[2].v);
   int
     i3 =
-    iabs (pF[iFace].edge[3].v);
+    iabs (m_pF[iFace].m_edge[3].v);
   if (i3 == 0)
     i3 = i0;
   HVNormal3D
-    nm = (pV[i2] - pV[i0]).
-    cross (pV[i3] - pV[i1]);
+    nm = (m_pV[i2] - m_pV[i0]).
+    cross (m_pV[i3] - m_pV[i1]);
   nm.setMag (1.0);
   return nm;
 }
@@ -1489,7 +1488,7 @@ bool GeoPolyhedron::GetNextNormal (HVNormal3D & normal) const
     iFace =
     1;
   normal = GetNormal (iFace);
-  if (++iFace > nface)
+  if (++iFace > m_nface)
     {
       iFace = 1;
       return false;
@@ -1530,15 +1529,15 @@ GeoPolyhedron::GetSurfaceArea () const
  ***********************************************************************/
 {
   double s = 0.;
-  for (int iFace = 1; iFace <= nface; iFace++)
+  for (int iFace = 1; iFace <= m_nface; iFace++)
     {
-      int i0 = iabs (pF[iFace].edge[0].v);
-      int i1 = iabs (pF[iFace].edge[1].v);
-      int i2 = iabs (pF[iFace].edge[2].v);
-      int i3 = iabs (pF[iFace].edge[3].v);
+      int i0 = iabs (m_pF[iFace].m_edge[0].v);
+      int i1 = iabs (m_pF[iFace].m_edge[1].v);
+      int i2 = iabs (m_pF[iFace].m_edge[2].v);
+      int i3 = iabs (m_pF[iFace].m_edge[3].v);
       if (i3 == 0)
 	i3 = i0;
-      s += ((pV[i2] - pV[i0]).cross (pV[i3] - pV[i1])).mag ();
+      s += ((m_pV[i2] - m_pV[i0]).cross (m_pV[i3] - m_pV[i1])).mag ();
     }
   return s / 2.;
 }
@@ -1555,23 +1554,23 @@ GeoPolyhedron::GetVolume () const
  ***********************************************************************/
 {
   double v = 0.;
-  for (int iFace = 1; iFace <= nface; iFace++)
+  for (int iFace = 1; iFace <= m_nface; iFace++)
     {
-      int i0 = iabs (pF[iFace].edge[0].v);
-      int i1 = iabs (pF[iFace].edge[1].v);
-      int i2 = iabs (pF[iFace].edge[2].v);
-      int i3 = iabs (pF[iFace].edge[3].v);
+      int i0 = iabs (m_pF[iFace].m_edge[0].v);
+      int i1 = iabs (m_pF[iFace].m_edge[1].v);
+      int i2 = iabs (m_pF[iFace].m_edge[2].v);
+      int i3 = iabs (m_pF[iFace].m_edge[3].v);
       HVPoint3D g;
       if (i3 == 0)
 	{
 	  i3 = i0;
-	  g = (pV[i0] + pV[i1] + pV[i2]) * (1.0f / 3.0f);
+	  g = (m_pV[i0] + m_pV[i1] + m_pV[i2]) * (1.0f / 3.0f);
 	}
       else
 	{
-	  g = (pV[i0] + pV[i1] + pV[i2] + pV[i3]) * 0.25f;
+	  g = (m_pV[i0] + m_pV[i1] + m_pV[i2] + m_pV[i3]) * 0.25f;
 	}
-      v += ((pV[i2] - pV[i0]).cross (pV[i3] - pV[i1])).dot (g);
+      v += ((m_pV[i2] - m_pV[i0]).cross (m_pV[i3] - m_pV[i1])).dot (g);
     }
   return v * (1./6);
 }
@@ -1595,14 +1594,14 @@ GeoPolyhedronTrd2::GeoPolyhedronTrd2 (double Dx1, double Dx2,
 {
   AllocateMemory (8, 6);
 
-  pV[1] = HVPoint3D (-Dx1, -Dy1, -Dz);
-  pV[2] = HVPoint3D (Dx1, -Dy1, -Dz);
-  pV[3] = HVPoint3D (Dx1, Dy1, -Dz);
-  pV[4] = HVPoint3D (-Dx1, Dy1, -Dz);
-  pV[5] = HVPoint3D (-Dx2, -Dy2, Dz);
-  pV[6] = HVPoint3D (Dx2, -Dy2, Dz);
-  pV[7] = HVPoint3D (Dx2, Dy2, Dz);
-  pV[8] = HVPoint3D (-Dx2, Dy2, Dz);
+  m_pV[1] = HVPoint3D (-Dx1, -Dy1, -Dz);
+  m_pV[2] = HVPoint3D (Dx1, -Dy1, -Dz);
+  m_pV[3] = HVPoint3D (Dx1, Dy1, -Dz);
+  m_pV[4] = HVPoint3D (-Dx1, Dy1, -Dz);
+  m_pV[5] = HVPoint3D (-Dx2, -Dy2, Dz);
+  m_pV[6] = HVPoint3D (Dx2, -Dy2, Dz);
+  m_pV[7] = HVPoint3D (Dx2, Dy2, Dz);
+  m_pV[8] = HVPoint3D (-Dx2, Dy2, Dz);
 
   CreatePrism ();
 }
@@ -1669,18 +1668,18 @@ GeoPolyhedronTrap::GeoPolyhedronTrap (double Dz,
 
   AllocateMemory (8, 6);
 
-  pV[1] =
+  m_pV[1] =
     HVPoint3D (-DzTthetaCphi - Dy1Talp1 - Dx1, -DzTthetaSphi - Dy1, -Dz);
-  pV[2] =
+  m_pV[2] =
     HVPoint3D (-DzTthetaCphi - Dy1Talp1 + Dx1, -DzTthetaSphi - Dy1, -Dz);
-  pV[3] =
+  m_pV[3] =
     HVPoint3D (-DzTthetaCphi + Dy1Talp1 + Dx2, -DzTthetaSphi + Dy1, -Dz);
-  pV[4] =
+  m_pV[4] =
     HVPoint3D (-DzTthetaCphi + Dy1Talp1 - Dx2, -DzTthetaSphi + Dy1, -Dz);
-  pV[5] = HVPoint3D (DzTthetaCphi - Dy2Talp2 - Dx3, DzTthetaSphi - Dy2, Dz);
-  pV[6] = HVPoint3D (DzTthetaCphi - Dy2Talp2 + Dx3, DzTthetaSphi - Dy2, Dz);
-  pV[7] = HVPoint3D (DzTthetaCphi + Dy2Talp2 + Dx4, DzTthetaSphi + Dy2, Dz);
-  pV[8] = HVPoint3D (DzTthetaCphi + Dy2Talp2 - Dx4, DzTthetaSphi + Dy2, Dz);
+  m_pV[5] = HVPoint3D (DzTthetaCphi - Dy2Talp2 - Dx3, DzTthetaSphi - Dy2, Dz);
+  m_pV[6] = HVPoint3D (DzTthetaCphi - Dy2Talp2 + Dx3, DzTthetaSphi - Dy2, Dz);
+  m_pV[7] = HVPoint3D (DzTthetaCphi + Dy2Talp2 + Dx4, DzTthetaSphi + Dy2, Dz);
+  m_pV[8] = HVPoint3D (DzTthetaCphi + Dy2Talp2 - Dx4, DzTthetaSphi + Dy2, Dz);
 
   CreatePrism ();
 }
@@ -2081,9 +2080,8 @@ GeoPolyhedronTorus::GeoPolyhedronTorus (double rmin,
   int np1 = GetNumberOfRotationSteps ();
   int np2 = rmin < perMillion ? 1 : np1;
 
-  double *zz, *rr;
-  zz = new double[np1 + np2];
-  rr = new double[np1 + np2];
+  std::vector<double> rr (np1+np2, 0);
+  std::vector<double> zz (np1+np2, 0);
 
   double a = 2 * M_PI / np1;
   double cosa, sina;
@@ -2108,11 +2106,8 @@ GeoPolyhedronTorus::GeoPolyhedronTorus (double rmin,
 
   //   R O T A T E    P O L Y L I N E S
 
-  RotateAroundZ (0, phi, dphi, -np1, -np2, zz, rr, -1, -1);
+  RotateAroundZ (0, phi, dphi, -np1, -np2, zz.data(), rr.data(), -1, -1);
   SetReferences ();
-
-  delete[]zz;
-  delete[]rr;
 }
 
 GeoPolyhedronTorus::~GeoPolyhedronTorus ()
@@ -2120,11 +2115,11 @@ GeoPolyhedronTorus::~GeoPolyhedronTorus ()
 }
 
 int
-  GeoPolyhedron::fNumberOfRotationSteps =
+  GeoPolyhedron::s_fNumberOfRotationSteps =
   DEFAULT_NUMBER_OF_STEPS;
 /***********************************************************************
  *                                                                     *
- * Name: GeoPolyhedron::fNumberOfRotationSteps       Date:    24.06.97 *
+ * Name: GeoPolyhedron::s_fNumberOfRotationSteps     Date:    24.06.97 *
  * Author: J.Allison (Manchester University)         Revised:          *
  *                                                                     *
  * Function: Number of steps for whole circle                          *

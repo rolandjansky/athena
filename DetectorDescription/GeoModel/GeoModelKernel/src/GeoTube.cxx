@@ -34,22 +34,22 @@
 
 // Class GeoTube 
 
-//## begin GeoTube::classType%3CD2A5E301FA.attr preserve=no  public: static const std::string {U} "Tube"
-const std::string GeoTube::classType = "Tube";
-//## end GeoTube::classType%3CD2A5E301FA.attr
+//## begin GeoTube::s_classType%3CD2A5E301FA.attr preserve=no  public: static const std::string {U} "Tube"
+const std::string GeoTube::s_classType = "Tube";
+//## end GeoTube::s_classType%3CD2A5E301FA.attr
 
-//## begin GeoTube::classTypeID%3CD2A5E301FB.attr preserve=no  public: static const ShapeType {U} 0x17
-const ShapeType GeoTube::classTypeID = 0x17;
-//## end GeoTube::classTypeID%3CD2A5E301FB.attr
+//## begin GeoTube::s_classTypeID%3CD2A5E301FB.attr preserve=no  public: static const ShapeType {U} 0x17
+const ShapeType GeoTube::s_classTypeID = 0x17;
+//## end GeoTube::s_classTypeID%3CD2A5E301FB.attr
 
 GeoTube::GeoTube (double RMin, double RMax, double ZHalfLength)
   //## begin GeoTube::GeoTube%3CD5AF79016A.hasinit preserve=no
   //## end GeoTube::GeoTube%3CD5AF79016A.hasinit
   //## begin GeoTube::GeoTube%3CD5AF79016A.initialization preserve=yes
   :
-rMin (RMin),
-rMax (RMax),
-zHalfLength (ZHalfLength)
+m_rMin (RMin),
+m_rMax (RMax),
+m_zHalfLength (ZHalfLength)
   //## end GeoTube::GeoTube%3CD5AF79016A.initialization
 {
   //## begin GeoTube::GeoTube%3CD5AF79016A.body preserve=yes
@@ -72,21 +72,21 @@ double GeoTube::volume () const
 #ifndef M_PI
   double M_PI = acos (-1.0);
 #endif
-  return 2 * M_PI * (rMax * rMax - rMin * rMin) * zHalfLength;
+  return 2 * M_PI * (m_rMax * m_rMax - m_rMin * m_rMin) * m_zHalfLength;
   //## end GeoTube::volume%3CD2A7130369.body
 }
 
 const std::string & GeoTube::type () const
 {
   //## begin GeoTube::type%3CD2A868007B.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoTube::type%3CD2A868007B.body
 }
 
 ShapeType GeoTube::typeID () const
 {
   //## begin GeoTube::typeID%3CD2A8680099.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoTube::typeID%3CD2A8680099.body
 }
 

@@ -12,19 +12,19 @@
 GeoVolumeCursor::GeoVolumeCursor (PVConstLink parent)
 
   :
-  _parent(parent),
-  _majorIndex(0),
-  _minorIndex(0),
-  _minorLimit(0),
-  _serialTransformer(NULL),
-  _nameTag (NULL),
-  _serialDenominator (NULL),
-  _idTag(NULL),
-  _serialDenomPosition (0),
-  _serialIdentifier(NULL),
-  _serialIdentPosition(0),
-  _volCount(0),
-  _hasAlignTrans(false)
+  m_parent(parent),
+  m_majorIndex(0),
+  m_minorIndex(0),
+  m_minorLimit(0),
+  m_serialTransformer(NULL),
+  m_nameTag (NULL),
+  m_serialDenominator (NULL),
+  m_idTag(NULL),
+  m_serialDenomPosition (0),
+  m_serialIdentifier(NULL),
+  m_serialIdentPosition(0),
+  m_volCount(0),
+  m_hasAlignTrans(false)
 {
   setDepthLimit(0);
   next();
@@ -36,43 +36,43 @@ void GeoVolumeCursor::next() {
   resuscitate();
   
   
-  if (_minorLimit) { // We are doing a serial transformer
-    _minorIndex++;
-    if (_minorIndex==_minorLimit) {  
-      _minorIndex=0;
-      _minorLimit=0;
-      _majorIndex++;
+  if (m_minorLimit) { // We are doing a serial transformer
+    m_minorIndex++;
+    if (m_minorIndex==m_minorLimit) {  
+      m_minorIndex=0;
+      m_minorLimit=0;
+      m_majorIndex++;
       next();
     }
     else {
-      _volCount++;
+      m_volCount++;
     }              
   }
   else {           // We are not doing a serial transformer
     
-    _idTag             = NULL;
-    _nameTag           = NULL;
-    _serialTransformer = NULL;
-    _pendingTransformList.erase (_pendingTransformList.begin (),
-				 _pendingTransformList.end ());
-    _hasAlignTrans = false;
-    _volume=NULL;
+    m_idTag             = NULL;
+    m_nameTag           = NULL;
+    m_serialTransformer = NULL;
+    m_pendingTransformList.erase (m_pendingTransformList.begin (),
+				 m_pendingTransformList.end ());
+    m_hasAlignTrans = false;
+    m_volume=NULL;
     
-    int N = _parent->getNChildNodes();
+    int N = m_parent->getNChildNodes();
     if(N==0) return;
-    const GeoGraphNode * const *node  = _parent->getChildNode(_majorIndex);
-    const GeoGraphNode * const *back  = _parent->getChildNode(N-1);
+    const GeoGraphNode * const *node  = m_parent->getChildNode(m_majorIndex);
+    const GeoGraphNode * const *back  = m_parent->getChildNode(N-1);
     const GeoGraphNode * const *end   = back+1;
     while (node!=end) {
       (*node)->exec(this);
-      if (_minorLimit) { // We have stepped into ST
+      if (m_minorLimit) { // We have stepped into ST
       }
       else {            // We have not stepped into ST.
 	node++;
-	_majorIndex++;
+	m_majorIndex++;
       }
-      if (_terminate) {
-	_volCount++;
+      if (m_terminate) {
+	m_volCount++;
 	break;
       }
     }
@@ -80,13 +80,13 @@ void GeoVolumeCursor::next() {
 }
 
 void GeoVolumeCursor::resuscitate() {
-  _terminate = false;
+  m_terminate = false;
 }
 
 
 
 bool GeoVolumeCursor::atEnd() const {
-  return !_volume;
+  return !m_volume;
 }
 
 GeoVolumeCursor::~GeoVolumeCursor()
@@ -97,26 +97,26 @@ GeoVolumeCursor::~GeoVolumeCursor()
 
 void GeoVolumeCursor::handleTransform (const GeoTransform *xform)
 {
-  _pendingTransformList.push_back (xform);
+  m_pendingTransformList.push_back (xform);
   if(dynamic_cast<const GeoAlignableTransform*>(xform))
-    _hasAlignTrans = true;
+    m_hasAlignTrans = true;
 }
 
 void GeoVolumeCursor::handlePhysVol (const GeoPhysVol *vol)
 {
 
-  _volume = vol;
-  unsigned int listSize = _pendingTransformList.size ();
+  m_volume = vol;
+  unsigned int listSize = m_pendingTransformList.size ();
   if (listSize == 0) {
-      _transform    = HepGeom::Transform3D();
-      _defTransform = HepGeom::Transform3D();
+      m_transform    = HepGeom::Transform3D();
+      m_defTransform = HepGeom::Transform3D();
   }
   else {
-    _transform = _pendingTransformList[0]->getTransform ();
-    _defTransform = _pendingTransformList[0]->getDefTransform ();
-    for (unsigned int t = 1; t < _pendingTransformList.size (); t++) {
-      _transform    = _transform    * _pendingTransformList[t]->getTransform ();
-      _defTransform = _defTransform * _pendingTransformList[t]->getDefTransform ();
+    m_transform = m_pendingTransformList[0]->getTransform ();
+    m_defTransform = m_pendingTransformList[0]->getDefTransform ();
+    for (unsigned int t = 1; t < m_pendingTransformList.size (); t++) {
+      m_transform    = m_transform    * m_pendingTransformList[t]->getTransform ();
+      m_defTransform = m_defTransform * m_pendingTransformList[t]->getDefTransform ();
     }
   }
   terminate ();
@@ -124,18 +124,18 @@ void GeoVolumeCursor::handlePhysVol (const GeoPhysVol *vol)
 
 void GeoVolumeCursor::handleFullPhysVol (const GeoFullPhysVol *vol)
 {
-  _volume = vol;
-  unsigned int listSize = _pendingTransformList.size ();
+  m_volume = vol;
+  unsigned int listSize = m_pendingTransformList.size ();
   if (listSize == 0) {
-      _transform    = HepGeom::Transform3D();
-      _defTransform = HepGeom::Transform3D();
+      m_transform    = HepGeom::Transform3D();
+      m_defTransform = HepGeom::Transform3D();
   }
   else {
-    _transform = _pendingTransformList[0]->getTransform ();
-    _defTransform = _pendingTransformList[0]->getDefTransform ();
-    for (unsigned int t = 1; t < _pendingTransformList.size (); t++) {
-      _transform    = _transform    * _pendingTransformList[t]->getTransform ();
-      _defTransform = _defTransform * _pendingTransformList[t]->getDefTransform ();
+    m_transform = m_pendingTransformList[0]->getTransform ();
+    m_defTransform = m_pendingTransformList[0]->getDefTransform ();
+    for (unsigned int t = 1; t < m_pendingTransformList.size (); t++) {
+      m_transform    = m_transform    * m_pendingTransformList[t]->getTransform ();
+      m_defTransform = m_defTransform * m_pendingTransformList[t]->getDefTransform ();
     }
   }
   terminate ();
@@ -144,22 +144,22 @@ void GeoVolumeCursor::handleFullPhysVol (const GeoFullPhysVol *vol)
 void GeoVolumeCursor::handleSerialTransformer (const GeoSerialTransformer  *sT)
 {
   
-  _minorLimit = sT->getNCopies();
-  _minorIndex = 0;
-  _serialTransformer = sT;
-  _volume = sT->getVolume();
+  m_minorLimit = sT->getNCopies();
+  m_minorIndex = 0;
+  m_serialTransformer = sT;
+  m_volume = sT->getVolume();
 
-  unsigned int listSize = _pendingTransformList.size ();
+  unsigned int listSize = m_pendingTransformList.size ();
   if (listSize == 0) {
-      _transform    = HepGeom::Transform3D();
-      _defTransform = HepGeom::Transform3D();
+      m_transform    = HepGeom::Transform3D();
+      m_defTransform = HepGeom::Transform3D();
   }
   else {
-    _transform = _pendingTransformList[0]->getTransform ();
-    _defTransform = _pendingTransformList[0]->getDefTransform ();
-    for (unsigned int t = 1; t < _pendingTransformList.size (); t++) {
-      _transform    = _transform    * _pendingTransformList[t]->getTransform ();
-      _defTransform = _defTransform * _pendingTransformList[t]->getDefTransform ();
+    m_transform = m_pendingTransformList[0]->getTransform ();
+    m_defTransform = m_pendingTransformList[0]->getDefTransform ();
+    for (unsigned int t = 1; t < m_pendingTransformList.size (); t++) {
+      m_transform    = m_transform    * m_pendingTransformList[t]->getTransform ();
+      m_defTransform = m_defTransform * m_pendingTransformList[t]->getDefTransform ();
     }
   }
   terminate ();
@@ -167,54 +167,54 @@ void GeoVolumeCursor::handleSerialTransformer (const GeoSerialTransformer  *sT)
 
 void GeoVolumeCursor::handleNameTag (const GeoNameTag *nameTag)
 {
-  _nameTag = nameTag;
-  _serialDenominator = NULL;
-  _serialDenomPosition = 0;
+  m_nameTag = nameTag;
+  m_serialDenominator = NULL;
+  m_serialDenomPosition = 0;
 }
 
 void GeoVolumeCursor::handleSerialDenominator (const GeoSerialDenominator *sD)
 {
-  _serialDenominator = sD;
-  _serialDenomPosition = _volCount;
+  m_serialDenominator = sD;
+  m_serialDenomPosition = m_volCount;
 }
 
 
 void GeoVolumeCursor::handleIdentifierTag (const GeoIdentifierTag *idTag)
 {
-    _idTag = idTag;
-    _serialIdentifier = NULL;
-    _serialIdentPosition = _volCount;
+    m_idTag = idTag;
+    m_serialIdentifier = NULL;
+    m_serialIdentPosition = m_volCount;
 }
 
 void GeoVolumeCursor::handleSerialIdentifier(const GeoSerialIdentifier *sI)
 {
-  _serialIdentifier = sI;
-  _serialIdentPosition =_volCount;
+  m_serialIdentifier = sI;
+  m_serialIdentPosition =m_volCount;
 }
 
 
 PVConstLink GeoVolumeCursor::getVolume () const
 {
-  return _volume;
+  return m_volume;
 }
 
 HepGeom::Transform3D GeoVolumeCursor::getTransform () const
 {
-  if (_minorLimit) {
-    return _transform*_serialTransformer->getTransform(_minorIndex);
+  if (m_minorLimit) {
+    return m_transform*m_serialTransformer->getTransform(m_minorIndex);
   }
   else {
-    return _transform;
+    return m_transform;
   }
 }
 
 HepGeom::Transform3D GeoVolumeCursor::getDefTransform () const
 {
-  if (_minorLimit) {
-    return _transform*_serialTransformer->getTransform(_minorIndex);
+  if (m_minorLimit) {
+    return m_transform*m_serialTransformer->getTransform(m_minorIndex);
   }
   else {
-    return _defTransform;
+    return m_defTransform;
   }
 }
 
@@ -223,14 +223,14 @@ HepGeom::Transform3D GeoVolumeCursor::getDefTransform () const
 std::string  GeoVolumeCursor::getName () const
 {
   std::string name;
-  if (_nameTag)
+  if (m_nameTag)
     {
-      name = _nameTag->getName ();
+      name = m_nameTag->getName ();
     }
-  else if (_serialDenominator)
+  else if (m_serialDenominator)
     {
       std::ostringstream o;
-      o << _serialDenominator->getBaseName() << (int) (_volCount - _serialDenomPosition -1) ;   
+      o << m_serialDenominator->getBaseName() << (int) (m_volCount - m_serialDenomPosition -1) ;   
       name = o.str();  
     }
   else
@@ -244,18 +244,18 @@ std::string  GeoVolumeCursor::getName () const
 Query<int> GeoVolumeCursor::getId () const
 {
   Query<int> id;
-  if (_idTag)
+  if (m_idTag)
     {
-      id = Query<int> (_idTag->getIdentifier ());
+      id = Query<int> (m_idTag->getIdentifier ());
     }
-  else if (_serialIdentifier)
+  else if (m_serialIdentifier)
     {
-      id = Query<int> (_volCount - _serialIdentPosition - 1 + _serialIdentifier->getBaseId());
+      id = Query<int> (m_volCount - m_serialIdentPosition - 1 + m_serialIdentifier->getBaseId());
     }
   return id;
 }
 
 bool GeoVolumeCursor::hasAlignableTransform() const
 {
-  return _hasAlignTrans;
+  return m_hasAlignTrans;
 }

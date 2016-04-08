@@ -37,13 +37,13 @@ GeoSerialTransformer::GeoSerialTransformer (const GeoVPhysVol *volume, const Geo
   //## end GeoSerialTransformer::GeoSerialTransformer%3D1F75650201.hasinit
   //## begin GeoSerialTransformer::GeoSerialTransformer%3D1F75650201.initialization preserve=yes
   :
-nCopies (copies),
-function (func->clone ()),
-physVol (volume)
+m_nCopies (copies),
+m_function (func->clone ()),
+m_physVol (volume)
   //## end GeoSerialTransformer::GeoSerialTransformer%3D1F75650201.initialization
 {
   //## begin GeoSerialTransformer::GeoSerialTransformer%3D1F75650201.body preserve=yes
-  physVol->ref ();
+  m_physVol->ref ();
   //## end GeoSerialTransformer::GeoSerialTransformer%3D1F75650201.body
 }
 
@@ -51,8 +51,8 @@ physVol (volume)
 GeoSerialTransformer::~GeoSerialTransformer()
 {
   //## begin GeoSerialTransformer::~GeoSerialTransformer%3D1F73570100_dest.body preserve=yes
-  physVol->unref ();
-  delete function;
+  m_physVol->unref ();
+  delete m_function;
   //## end GeoSerialTransformer::~GeoSerialTransformer%3D1F73570100_dest.body
 }
 
@@ -69,7 +69,7 @@ void GeoSerialTransformer::exec (GeoNodeAction *action) const
 const GeoXF::Function * GeoSerialTransformer::getFunction () const
 {
   //## begin GeoSerialTransformer::getFunction%3FD60E350091.body preserve=yes
-  return function;
+  return m_function;
   //## end GeoSerialTransformer::getFunction%3FD60E350091.body
 }
 

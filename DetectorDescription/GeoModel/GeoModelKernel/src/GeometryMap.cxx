@@ -25,12 +25,12 @@ public:
 
 
 GeometryMap::GeometryMap():
-  c(new Clockwork()) {
+  m_c(new Clockwork()) {
 }
 
 
 GeometryMap::~GeometryMap() {
-  delete c;
+  delete m_c;
 }
 
 void GeometryMap::add(const std::string & Path) {
@@ -50,7 +50,7 @@ void GeometryMap::add(const std::string & Path) {
     pos=0;
   }
   // Then look for wild cards:
-  c->pathList.push_back(pathList);
+  m_c->pathList.push_back(pathList);
 
   std::string regex="^";
   //size_t pos=0;
@@ -64,18 +64,18 @@ void GeometryMap::add(const std::string & Path) {
     if (pos==path.npos) break;
   }
   regex+="$";
-  c->geometryRegex.push_back(regex);
+  m_c->geometryRegex.push_back(regex);
   regex_t *preg = new regex_t;
   regcomp(preg,regex.c_str(),REG_EXTENDED);
-  c->geometryPreg.push_back(preg);
+  m_c->geometryPreg.push_back(preg);
 
 }
 
 void GeometryMap::finalize( PVConstLink v) {
 
-  for (size_t i=0;i<c->pathList.size();i++) {
-    c->lV=0;
-    c->finalize(i,v);
+  for (size_t i=0;i<m_c->pathList.size();i++) {
+    m_c->lV=0;
+    m_c->finalize(i,v);
   }
 }
 
@@ -112,9 +112,9 @@ void GeometryMap::Clockwork::finalize(unsigned int i, PVConstLink v) {
 
 
 GeometryMap::Iterator GeometryMap::begin() const {
-  return c->physicalVolumes.begin();
+  return m_c->physicalVolumes.begin();
 }
 
 GeometryMap::Iterator GeometryMap::end() const {
-  return c->physicalVolumes.end();
+  return m_c->physicalVolumes.end();
 }

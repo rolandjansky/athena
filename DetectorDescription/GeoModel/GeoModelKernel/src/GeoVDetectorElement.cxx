@@ -35,7 +35,7 @@ GeoVDetectorElement::GeoVDetectorElement (const GeoVFullPhysVol* fullPhysVol)
   //## begin GeoVDetectorElement::GeoVDetectorElement%3CDDB11202FE.hasinit preserve=no
   //## end GeoVDetectorElement::GeoVDetectorElement%3CDDB11202FE.hasinit
   //## begin GeoVDetectorElement::GeoVDetectorElement%3CDDB11202FE.initialization preserve=yes
-  :materialGeom(fullPhysVol)
+  :m_materialGeom(fullPhysVol)
   //## end GeoVDetectorElement::GeoVDetectorElement%3CDDB11202FE.initialization
 {
   //## begin GeoVDetectorElement::GeoVDetectorElement%3CDDB11202FE.body preserve=yes

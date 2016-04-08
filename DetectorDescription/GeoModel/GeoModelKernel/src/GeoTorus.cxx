@@ -7,15 +7,15 @@
 
 #include "GeoModelKernel/GeoTorus.h"
 
-const std::string GeoTorus::classType = "Torus";
-const ShapeType GeoTorus::classTypeID = 0x24;
+const std::string GeoTorus::s_classType = "Torus";
+const ShapeType GeoTorus::s_classTypeID = 0x24;
 
 GeoTorus::GeoTorus (double Rmin, double Rmax, double Rtor, double SPhi, double DPhi):
-  rMin (Rmin),
-  rMax (Rmax),
-  rTor(Rtor),
-  sPhi (SPhi),
-  dPhi (DPhi)
+  m_rMin (Rmin),
+  m_rMax (Rmax),
+  m_rTor(Rtor),
+  m_sPhi (SPhi),
+  m_dPhi (DPhi)
 {
 }
 
@@ -32,12 +32,12 @@ double GeoTorus::volume () const
 
 const std::string & GeoTorus::type () const
 {
-  return classType;
+  return s_classType;
 }
 
 ShapeType GeoTorus::typeID () const
 {
-  return classTypeID;
+  return s_classTypeID;
 }
 
 void GeoTorus::exec (GeoShapeAction *action) const

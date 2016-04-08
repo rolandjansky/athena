@@ -5,7 +5,7 @@
 #include "GeoModelKernel/GeoCountVolAndSTAction.h"
 
 GeoCountVolAndSTAction::GeoCountVolAndSTAction()
-  :count (0)
+  :m_count (0)
 {
   setDepthLimit (1);
 }
@@ -20,7 +20,7 @@ void GeoCountVolAndSTAction::handlePhysVol(const GeoPhysVol*)
   // Do not count the top volume, this action counts only children!   
   //   
   if (getPath ()->getLength () > 1)
-    count++;
+    m_count++;
 }
 
 void GeoCountVolAndSTAction::handleFullPhysVol(const GeoFullPhysVol*)
@@ -29,12 +29,12 @@ void GeoCountVolAndSTAction::handleFullPhysVol(const GeoFullPhysVol*)
   // Do not count the top volume, this action counts only children!   
   //   
   if (getPath ()->getLength () > 1)
-    count++;
+    m_count++;
 }
 
 void GeoCountVolAndSTAction::handleSerialTransformer(const GeoSerialTransformer *)
 {
-  count ++;
+  m_count ++;
 }
 
 

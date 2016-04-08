@@ -154,20 +154,20 @@ public:
 
     // Data Members for Class Attributes
 
-      //## Attribute: _depth%3CE100F2009B
+      //## Attribute: m_depth%3CE100F2009B
       //	A limit may be placed upon the depth to which the action
       //	descends.  0 = self.  1 = self and children.
-      //## begin GeoNodeAction::_depth%3CE100F2009B.attr preserve=no  private: Query<unsigned int> {U} 
-      Query<unsigned int> _depth;
-      //## end GeoNodeAction::_depth%3CE100F2009B.attr
+      //## begin GeoNodeAction::m_depth%3CE100F2009B.attr preserve=no  private: Query<unsigned int> {U} 
+      Query<unsigned int> m_depth;
+      //## end GeoNodeAction::m_depth%3CE100F2009B.attr
 
-      //## Attribute: _terminate%3CE12AC4016E
+      //## Attribute: m_terminate%3CE12AC4016E
       //	Termination flag; causes an abortion of action execution.
-      //## begin GeoNodeAction::_terminate%3CE12AC4016E.attr preserve=no  private: bool {U} 
+      //## begin GeoNodeAction::m_terminate%3CE12AC4016E.attr preserve=no  private: bool {U} 
  protected:
-      bool _terminate;
+      bool m_terminate;
  private:
-      //## end GeoNodeAction::_terminate%3CE12AC4016E.attr
+      //## end GeoNodeAction::m_terminate%3CE12AC4016E.attr
 
     // Additional Private Declarations
       //## begin GeoNodeAction%3CDF50A901F3.private preserve=yes
@@ -177,10 +177,10 @@ public:
     // Data Members for Associations
 
       //## Association: GeoModelKernel::Actions::Path management%3CE1095C0031
-      //## Role: GeoNodeAction::path%3CE1095C026B
-      //## begin GeoNodeAction::path%3CE1095C026B.role preserve=no  public: GeoNodePath {1 -> 1VHgN}
-      GeoNodePath path;
-      //## end GeoNodeAction::path%3CE1095C026B.role
+      //## Role: GeoNodeAction::m_path%3CE1095C026B
+      //## begin GeoNodeAction::m_path%3CE1095C026B.role preserve=no  public: GeoNodePath {1 -> 1VHgN}
+      GeoNodePath m_path;
+      //## end GeoNodeAction::m_path%3CE1095C026B.role
 
     // Additional Implementation Declarations
       //## begin GeoNodeAction%3CDF50A901F3.implementation preserve=yes

@@ -29,12 +29,12 @@ class GeoCountVolAndSTAction : public GeoNodeAction
   GeoCountVolAndSTAction(const GeoCountVolAndSTAction &right);
   const GeoCountVolAndSTAction & operator=(const GeoCountVolAndSTAction &right);
 
-  unsigned int count;
+  unsigned int m_count;
 };
 
 inline unsigned int GeoCountVolAndSTAction::getCount() const
 {
-  return count;
+  return m_count;
 }
 
 #endif

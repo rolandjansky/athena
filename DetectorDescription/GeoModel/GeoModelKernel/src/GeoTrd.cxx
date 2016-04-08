@@ -33,24 +33,24 @@
 
 // Class GeoTrd 
 
-//## begin GeoTrd::classType%3CD2A59100F9.attr preserve=no  public: static const std::string {U} "Trd"
-const std::string GeoTrd::classType = "Trd";
-//## end GeoTrd::classType%3CD2A59100F9.attr
+//## begin GeoTrd::s_classType%3CD2A59100F9.attr preserve=no  public: static const std::string {U} "Trd"
+const std::string GeoTrd::s_classType = "Trd";
+//## end GeoTrd::s_classType%3CD2A59100F9.attr
 
-//## begin GeoTrd::classTypeID%3CD2A59100FA.attr preserve=no  public: static const ShapeType {U} 0x16
-const ShapeType GeoTrd::classTypeID = 0x16;
-//## end GeoTrd::classTypeID%3CD2A59100FA.attr
+//## begin GeoTrd::s_classTypeID%3CD2A59100FA.attr preserve=no  public: static const ShapeType {U} 0x16
+const ShapeType GeoTrd::s_classTypeID = 0x16;
+//## end GeoTrd::s_classTypeID%3CD2A59100FA.attr
 
 GeoTrd::GeoTrd (double XHalfLength1, double XHalfLength2, double YHalfLength1, double YHalfLength2, double ZHalfLength)
   //## begin GeoTrd::GeoTrd%3CD5B5110183.hasinit preserve=no
   //## end GeoTrd::GeoTrd%3CD5B5110183.hasinit
   //## begin GeoTrd::GeoTrd%3CD5B5110183.initialization preserve=yes
   :
-xHalfLength1 (XHalfLength1),
-xHalfLength2 (XHalfLength2),
-yHalfLength1 (YHalfLength1),
-yHalfLength2 (YHalfLength2),
-zHalfLength (ZHalfLength)
+m_xHalfLength1 (XHalfLength1),
+m_xHalfLength2 (XHalfLength2),
+m_yHalfLength1 (YHalfLength1),
+m_yHalfLength2 (YHalfLength2),
+m_zHalfLength (ZHalfLength)
   //## end GeoTrd::GeoTrd%3CD5B5110183.initialization
 {
   //## begin GeoTrd::GeoTrd%3CD5B5110183.body preserve=yes
@@ -70,11 +70,11 @@ GeoTrd::~GeoTrd()
 double GeoTrd::volume () const
 {
   //## begin GeoTrd::volume%3CD2A6F6026D.body preserve=yes
-  double fDz = zHalfLength;
-  double fDy1 = yHalfLength1;
-  double fDx1 = xHalfLength1;
-  double fDx2 = xHalfLength2;
-  double fDy2 = yHalfLength2;
+  double fDz = m_zHalfLength;
+  double fDy1 = m_yHalfLength1;
+  double fDx1 = m_xHalfLength1;
+  double fDx2 = m_xHalfLength2;
+  double fDy2 = m_yHalfLength2;
   return 4.0 * ((fDx1 + fDx2) * (fDy1 + fDy2) * (fDz * 0.5) +
 		(fDx2 - fDx1) * (fDy2 - fDy1) * (fDz * (1./6)));
 
@@ -84,14 +84,14 @@ double GeoTrd::volume () const
 const std::string & GeoTrd::type () const
 {
   //## begin GeoTrd::type%3CD2A8610279.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoTrd::type%3CD2A8610279.body
 }
 
 ShapeType GeoTrd::typeID () const
 {
   //## begin GeoTrd::typeID%3CD2A861028D.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoTrd::typeID%3CD2A861028D.body
 }
 

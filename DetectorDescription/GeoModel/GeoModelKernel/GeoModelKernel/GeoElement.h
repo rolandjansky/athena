@@ -116,21 +116,21 @@ class GeoElement : public RCBase  //## Inherits: <unnamed>%3CD86EC600C9
 
     // Data Members for Class Attributes
 
-      //## begin GeoElement::name%3CD8701C0252.attr preserve=no  public: std::string {U} 
-      std::string name;
-      //## end GeoElement::name%3CD8701C0252.attr
+      //## begin GeoElement::m_name%3CD8701C0252.attr preserve=no  public: std::string {U} 
+      std::string m_name;
+      //## end GeoElement::m_name%3CD8701C0252.attr
 
-      //## begin GeoElement::symbol%3CD870230125.attr preserve=no  public: std::string {U} 
-      std::string symbol;
-      //## end GeoElement::symbol%3CD870230125.attr
+      //## begin GeoElement::m_symbol%3CD870230125.attr preserve=no  public: std::string {U} 
+      std::string m_symbol;
+      //## end GeoElement::m_symbol%3CD870230125.attr
 
-      //## begin GeoElement::z%3CD870290051.attr preserve=no  public: double {U} 
-      double z;
-      //## end GeoElement::z%3CD870290051.attr
+      //## begin GeoElement::m_z%3CD870290051.attr preserve=no  public: double {U} 
+      double m_z;
+      //## end GeoElement::m_z%3CD870290051.attr
 
-      //## begin GeoElement::a%3CD8703000CA.attr preserve=no  public: double {U} 
-      double a;
-      //## end GeoElement::a%3CD8703000CA.attr
+      //## begin GeoElement::m_a%3CD8703000CA.attr preserve=no  public: double {U} 
+      double m_a;
+      //## end GeoElement::m_a%3CD8703000CA.attr
 
     // Additional Private Declarations
       //## begin GeoElement%3CD86EAF030B.private preserve=yes
@@ -152,16 +152,16 @@ inline int GeoElement::operator==(const GeoElement &right) const
 {
   //## begin GeoElement::operator==%3CD86EAF030B_eq.body preserve=yes
   return
-    name ==
-    right.name && symbol == right.symbol && z == right.z && a == right.a;
+    m_name ==
+    right.m_name && m_symbol == right.m_symbol && m_z == right.m_z && m_a == right.m_a;
   //## end GeoElement::operator==%3CD86EAF030B_eq.body
 }
 
 inline int GeoElement::operator!=(const GeoElement &right) const
 {
   //## begin GeoElement::operator!=%3CD86EAF030B_neq.body preserve=yes
-  return name != right.name ||
-    symbol != right.symbol || z != right.z || a != right.a;
+  return m_name != right.m_name ||
+    m_symbol != right.m_symbol || m_z != right.m_z || m_a != right.m_a;
   //## end GeoElement::operator!=%3CD86EAF030B_neq.body
 }
 
@@ -171,7 +171,7 @@ inline int GeoElement::operator!=(const GeoElement &right) const
 inline double GeoElement::getN () const
 {
   //## begin GeoElement::getN%3CDBB41F0065.body preserve=yes
-  return a * (CLHEP::mole / CLHEP::gram);
+  return m_a * (CLHEP::mole / CLHEP::gram);
   //## end GeoElement::getN%3CDBB41F0065.body
 }
 
@@ -180,28 +180,28 @@ inline double GeoElement::getN () const
 inline const std::string& GeoElement::getName () const
 {
   //## begin GeoElement::getName%3CD8701C0252.get preserve=no
-  return name;
+  return m_name;
   //## end GeoElement::getName%3CD8701C0252.get
 }
 
 inline const std::string& GeoElement::getSymbol () const
 {
   //## begin GeoElement::getSymbol%3CD870230125.get preserve=no
-  return symbol;
+  return m_symbol;
   //## end GeoElement::getSymbol%3CD870230125.get
 }
 
 inline const double& GeoElement::getZ () const
 {
   //## begin GeoElement::getZ%3CD870290051.get preserve=no
-  return z;
+  return m_z;
   //## end GeoElement::getZ%3CD870290051.get
 }
 
 inline const double& GeoElement::getA () const
 {
   //## begin GeoElement::getA%3CD8703000CA.get preserve=no
-  return a;
+  return m_a;
   //## end GeoElement::getA%3CD8703000CA.get
 }
 

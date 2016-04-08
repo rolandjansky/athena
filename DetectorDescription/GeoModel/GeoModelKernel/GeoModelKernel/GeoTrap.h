@@ -150,57 +150,57 @@ class GeoTrap : public GeoShape  //## Inherits: <unnamed>%3CD2A51701E5
 
     // Data Members for Class Attributes
 
-      //## begin GeoTrap::classType%3CD2A51701E3.attr preserve=no  public: static const std::string {U} "Trap"
-      static const std::string classType;
-      //## end GeoTrap::classType%3CD2A51701E3.attr
+      //## begin GeoTrap::s_classType%3CD2A51701E3.attr preserve=no  public: static const std::string {U} "Trap"
+      static const std::string s_classType;
+      //## end GeoTrap::s_classType%3CD2A51701E3.attr
 
-      //## begin GeoTrap::classTypeID%3CD2A51701E4.attr preserve=no  public: static const ShapeType {U} 0x15
-      static const ShapeType classTypeID;
-      //## end GeoTrap::classTypeID%3CD2A51701E4.attr
+      //## begin GeoTrap::s_classTypeID%3CD2A51701E4.attr preserve=no  public: static const ShapeType {U} 0x15
+      static const ShapeType s_classTypeID;
+      //## end GeoTrap::s_classTypeID%3CD2A51701E4.attr
 
-      //## begin GeoTrap::zHalfLength%3CD5BD6000A1.attr preserve=no  public: double {U} 
-      double zHalfLength;
-      //## end GeoTrap::zHalfLength%3CD5BD6000A1.attr
+      //## begin GeoTrap::m_zHalfLength%3CD5BD6000A1.attr preserve=no  public: double {U} 
+      double m_zHalfLength;
+      //## end GeoTrap::m_zHalfLength%3CD5BD6000A1.attr
 
-      //## begin GeoTrap::theta%3CD5BD6000AB.attr preserve=no  public: double {U} 
-      double theta;
-      //## end GeoTrap::theta%3CD5BD6000AB.attr
+      //## begin GeoTrap::m_theta%3CD5BD6000AB.attr preserve=no  public: double {U} 
+      double m_theta;
+      //## end GeoTrap::m_theta%3CD5BD6000AB.attr
 
-      //## begin GeoTrap::phi%3CD5BD6000BF.attr preserve=no  public: double {U} 
-      double phi;
-      //## end GeoTrap::phi%3CD5BD6000BF.attr
+      //## begin GeoTrap::m_phi%3CD5BD6000BF.attr preserve=no  public: double {U} 
+      double m_phi;
+      //## end GeoTrap::m_phi%3CD5BD6000BF.attr
 
-      //## begin GeoTrap::dydzn%3CD5BD8B01DA.attr preserve=no  public: double {U} 
-      double dydzn;
-      //## end GeoTrap::dydzn%3CD5BD8B01DA.attr
+      //## begin GeoTrap::m_dydzn%3CD5BD8B01DA.attr preserve=no  public: double {U} 
+      double m_dydzn;
+      //## end GeoTrap::m_dydzn%3CD5BD8B01DA.attr
 
-      //## begin GeoTrap::dxdyndzn%3CD5BD9800E8.attr preserve=no  public: double {U} 
-      double dxdyndzn;
-      //## end GeoTrap::dxdyndzn%3CD5BD9800E8.attr
+      //## begin GeoTrap::m_dxdyndzn%3CD5BD9800E8.attr preserve=no  public: double {U} 
+      double m_dxdyndzn;
+      //## end GeoTrap::m_dxdyndzn%3CD5BD9800E8.attr
 
-      //## begin GeoTrap::dxdypdzn%3CD5BD9B0164.attr preserve=no  public: double {U} 
-      double dxdypdzn;
-      //## end GeoTrap::dxdypdzn%3CD5BD9B0164.attr
+      //## begin GeoTrap::m_dxdypdzn%3CD5BD9B0164.attr preserve=no  public: double {U} 
+      double m_dxdypdzn;
+      //## end GeoTrap::m_dxdypdzn%3CD5BD9B0164.attr
 
-      //## begin GeoTrap::angleydzn%3CD5BDA002DE.attr preserve=no  public: double {U} 
-      double angleydzn;
-      //## end GeoTrap::angleydzn%3CD5BDA002DE.attr
+      //## begin GeoTrap::m_angleydzn%3CD5BDA002DE.attr preserve=no  public: double {U} 
+      double m_angleydzn;
+      //## end GeoTrap::m_angleydzn%3CD5BDA002DE.attr
 
-      //## begin GeoTrap::dydzp%3CD5BDA30007.attr preserve=no  public: double {U} 
-      double dydzp;
-      //## end GeoTrap::dydzp%3CD5BDA30007.attr
+      //## begin GeoTrap::m_dydzp%3CD5BDA30007.attr preserve=no  public: double {U} 
+      double m_dydzp;
+      //## end GeoTrap::m_dydzp%3CD5BDA30007.attr
 
-      //## begin GeoTrap::dxdyndzp%3CD5BDA5010F.attr preserve=no  public: double {U} 
-      double dxdyndzp;
-      //## end GeoTrap::dxdyndzp%3CD5BDA5010F.attr
+      //## begin GeoTrap::m_dxdyndzp%3CD5BDA5010F.attr preserve=no  public: double {U} 
+      double m_dxdyndzp;
+      //## end GeoTrap::m_dxdyndzp%3CD5BDA5010F.attr
 
-      //## begin GeoTrap::dxdypdzp%3CD5BDA80235.attr preserve=no  public: double {U} 
-      double dxdypdzp;
-      //## end GeoTrap::dxdypdzp%3CD5BDA80235.attr
+      //## begin GeoTrap::m_dxdypdzp%3CD5BDA80235.attr preserve=no  public: double {U} 
+      double m_dxdypdzp;
+      //## end GeoTrap::m_dxdypdzp%3CD5BDA80235.attr
 
-      //## begin GeoTrap::angleydzp%3CD5BDAA03BF.attr preserve=no  public: double {U} 
-      double angleydzp;
-      //## end GeoTrap::angleydzp%3CD5BDAA03BF.attr
+      //## begin GeoTrap::m_angleydzp%3CD5BDAA03BF.attr preserve=no  public: double {U} 
+      double m_angleydzp;
+      //## end GeoTrap::m_angleydzp%3CD5BDAA03BF.attr
 
     // Additional Private Declarations
       //## begin GeoTrap%3CD2A51701E2.private preserve=yes
@@ -223,91 +223,91 @@ class GeoTrap : public GeoShape  //## Inherits: <unnamed>%3CD2A51701E5
 inline const std::string& GeoTrap::getClassType ()
 {
   //## begin GeoTrap::getClassType%3CD2A51701E3.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoTrap::getClassType%3CD2A51701E3.get
 }
 
 inline ShapeType GeoTrap::getClassTypeID ()
 {
   //## begin GeoTrap::getClassTypeID%3CD2A51701E4.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoTrap::getClassTypeID%3CD2A51701E4.get
 }
 
 inline const double& GeoTrap::getZHalfLength () const
 {
   //## begin GeoTrap::getZHalfLength%3CD5BD6000A1.get preserve=no
-  return zHalfLength;
+  return m_zHalfLength;
   //## end GeoTrap::getZHalfLength%3CD5BD6000A1.get
 }
 
 inline const double& GeoTrap::getTheta () const
 {
   //## begin GeoTrap::getTheta%3CD5BD6000AB.get preserve=no
-  return theta;
+  return m_theta;
   //## end GeoTrap::getTheta%3CD5BD6000AB.get
 }
 
 inline const double& GeoTrap::getPhi () const
 {
   //## begin GeoTrap::getPhi%3CD5BD6000BF.get preserve=no
-  return phi;
+  return m_phi;
   //## end GeoTrap::getPhi%3CD5BD6000BF.get
 }
 
 inline const double& GeoTrap::getDydzn () const
 {
   //## begin GeoTrap::getDydzn%3CD5BD8B01DA.get preserve=no
-  return dydzn;
+  return m_dydzn;
   //## end GeoTrap::getDydzn%3CD5BD8B01DA.get
 }
 
 inline const double& GeoTrap::getDxdyndzn () const
 {
   //## begin GeoTrap::getDxdyndzn%3CD5BD9800E8.get preserve=no
-  return dxdyndzn;
+  return m_dxdyndzn;
   //## end GeoTrap::getDxdyndzn%3CD5BD9800E8.get
 }
 
 inline const double& GeoTrap::getDxdypdzn () const
 {
   //## begin GeoTrap::getDxdypdzn%3CD5BD9B0164.get preserve=no
-  return dxdypdzn;
+  return m_dxdypdzn;
   //## end GeoTrap::getDxdypdzn%3CD5BD9B0164.get
 }
 
 inline const double& GeoTrap::getAngleydzn () const
 {
   //## begin GeoTrap::getAngleydzn%3CD5BDA002DE.get preserve=no
-  return angleydzn;
+  return m_angleydzn;
   //## end GeoTrap::getAngleydzn%3CD5BDA002DE.get
 }
 
 inline const double& GeoTrap::getDydzp () const
 {
   //## begin GeoTrap::getDydzp%3CD5BDA30007.get preserve=no
-  return dydzp;
+  return m_dydzp;
   //## end GeoTrap::getDydzp%3CD5BDA30007.get
 }
 
 inline const double& GeoTrap::getDxdyndzp () const
 {
   //## begin GeoTrap::getDxdyndzp%3CD5BDA5010F.get preserve=no
-  return dxdyndzp;
+  return m_dxdyndzp;
   //## end GeoTrap::getDxdyndzp%3CD5BDA5010F.get
 }
 
 inline const double& GeoTrap::getDxdypdzp () const
 {
   //## begin GeoTrap::getDxdypdzp%3CD5BDA80235.get preserve=no
-  return dxdypdzp;
+  return m_dxdypdzp;
   //## end GeoTrap::getDxdypdzp%3CD5BDA80235.get
 }
 
 inline const double& GeoTrap::getAngleydzp () const
 {
   //## begin GeoTrap::getAngleydzp%3CD5BDAA03BF.get preserve=no
-  return angleydzp;
+  return m_angleydzp;
   //## end GeoTrap::getAngleydzp%3CD5BDAA03BF.get
 }
 

@@ -7,14 +7,14 @@
 #include "GeoModelKernel/GeoShapeAction.h"
 
 #include "GeoModelKernel/GeoEllipticalTube.h"
-const std::string GeoEllipticalTube::classType = "EllipticalTube";
-const ShapeType GeoEllipticalTube::classTypeID = 0x22;
+const std::string GeoEllipticalTube::s_classType = "EllipticalTube";
+const ShapeType GeoEllipticalTube::s_classTypeID = 0x22;
 
 
 GeoEllipticalTube::GeoEllipticalTube(double XHalfLength, double YHalfLength, double ZHalfLength)
-  : xHalfLength(XHalfLength)
-  , yHalfLength(YHalfLength)
-  , zHalfLength(ZHalfLength)
+  : m_xHalfLength(XHalfLength)
+  , m_yHalfLength(YHalfLength)
+  , m_zHalfLength(ZHalfLength)
 {
 }
 
@@ -28,17 +28,17 @@ double GeoEllipticalTube::volume () const
 #ifndef M_PI
   double M_PI = acos (-1.0);
 #endif
-  return 2 * M_PI * xHalfLength * yHalfLength * zHalfLength;
+  return 2 * M_PI * m_xHalfLength * m_yHalfLength * m_zHalfLength;
 }
 
 const std::string & GeoEllipticalTube::type () const
 {
-  return classType;
+  return s_classType;
 }
 
 ShapeType GeoEllipticalTube::typeID () const
 {
-  return classTypeID;
+  return s_classTypeID;
 }
 
 void GeoEllipticalTube::exec (GeoShapeAction *action) const

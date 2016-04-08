@@ -54,7 +54,7 @@ GeoShapeAction::GeoShapeAction()
   //## begin GeoShapeAction::GeoShapeAction%3DCD269E0092_const.hasinit preserve=no
   //## end GeoShapeAction::GeoShapeAction%3DCD269E0092_const.hasinit
   //## begin GeoShapeAction::GeoShapeAction%3DCD269E0092_const.initialization preserve=yes
-  :_terminate(false)
+  :m_terminate(false)
   //## end GeoShapeAction::GeoShapeAction%3DCD269E0092_const.initialization
 {
   //## begin GeoShapeAction::GeoShapeAction%3DCD269E0092_const.body preserve=yes
@@ -74,35 +74,35 @@ GeoShapeAction::~GeoShapeAction()
 Query<unsigned int>  GeoShapeAction::getDepthLimit ()
 {
   //## begin GeoShapeAction::getDepthLimit%3DCD27C70049.body preserve=yes
-    return _depth;
+    return m_depth;
   //## end GeoShapeAction::getDepthLimit%3DCD27C70049.body
 }
 
 void GeoShapeAction::setDepthLimit (unsigned int limit)
 {
   //## begin GeoShapeAction::setDepthLimit%3DCD27F9033A.body preserve=yes
-    _depth=limit;
+    m_depth=limit;
   //## end GeoShapeAction::setDepthLimit%3DCD27F9033A.body
 }
 
 void GeoShapeAction::clearDepthLimit ()
 {
   //## begin GeoShapeAction::clearDepthLimit%3DCD27FE0084.body preserve=yes
-	_depth=Query<unsigned int> ();
+	m_depth=Query<unsigned int> ();
   //## end GeoShapeAction::clearDepthLimit%3DCD27FE0084.body
 }
 
 void GeoShapeAction::terminate ()
 {
   //## begin GeoShapeAction::terminate%3DCD27ED015C.body preserve=yes
-    _terminate=true;
+    m_terminate=true;
   //## end GeoShapeAction::terminate%3DCD27ED015C.body
 }
 
 bool GeoShapeAction::shouldTerminate () const
 {
   //## begin GeoShapeAction::shouldTerminate%3DCD27F400BC.body preserve=yes
-    return _terminate;
+    return m_terminate;
   //## end GeoShapeAction::shouldTerminate%3DCD27F400BC.body
 }
 
@@ -206,7 +206,7 @@ void GeoShapeAction::handleTubs (const GeoTubs *tubs)
 GeoShapePath * GeoShapeAction::getPath ()
 {
   //## begin GeoShapeAction::getPath%3DCE8FD30175.body preserve=yes
-	return &path;
+	return &m_path;
   //## end GeoShapeAction::getPath%3DCE8FD30175.body
 }
 

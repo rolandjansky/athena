@@ -119,22 +119,22 @@ class GeoShapeShift : public GeoShape  //## Inherits: <unnamed>%3D150E4B02C8
       //## Attribute: op%3D150E9F0084
       //	The shape operand in the NOT operation.
       //## begin GeoShapeShift::op%3D150E9F0084.attr preserve=no  private: const GeoShape* {U} 
-      const GeoShape* op;
+      const GeoShape* m_op;
       //## end GeoShapeShift::op%3D150E9F0084.attr
 
       //## Attribute: shift%3D150EEF00B1
       //	Gives the amount by which the volume is shifted.
       //## begin GeoShapeShift::shift%3D150EEF00B1.attr preserve=no  private: HepGeom::Transform3D {U} 
-      HepGeom::Transform3D shift;
+      HepGeom::Transform3D m_shift;
       //## end GeoShapeShift::shift%3D150EEF00B1.attr
 
-      //## begin GeoShapeShift::classType%3D150E9F008E.attr preserve=no  public: static const std::string {U} "Shift"
-      static const std::string classType;
-      //## end GeoShapeShift::classType%3D150E9F008E.attr
+      //## begin GeoShapeShift::s_classType%3D150E9F008E.attr preserve=no  public: static const std::string {U} "Shift"
+      static const std::string s_classType;
+      //## end GeoShapeShift::s_classType%3D150E9F008E.attr
 
-      //## begin GeoShapeShift::classTypeID%3D150E9F0098.attr preserve=no  public: static const ShapeType {U} 0x03
-      static const ShapeType classTypeID;
-      //## end GeoShapeShift::classTypeID%3D150E9F0098.attr
+      //## begin GeoShapeShift::s_classTypeID%3D150E9F0098.attr preserve=no  public: static const ShapeType {U} 0x03
+      static const ShapeType s_classTypeID;
+      //## end GeoShapeShift::s_classTypeID%3D150E9F0098.attr
 
     // Additional Private Declarations
       //## begin GeoShapeShift%3D150E4703DA.private preserve=yes
@@ -157,14 +157,14 @@ class GeoShapeShift : public GeoShape  //## Inherits: <unnamed>%3D150E4B02C8
 inline const std::string& GeoShapeShift::getClassType ()
 {
   //## begin GeoShapeShift::getClassType%3D150E9F008E.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoShapeShift::getClassType%3D150E9F008E.get
 }
 
 inline ShapeType GeoShapeShift::getClassTypeID ()
 {
   //## begin GeoShapeShift::getClassTypeID%3D150E9F0098.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoShapeShift::getClassTypeID%3D150E9F0098.get
 }
 

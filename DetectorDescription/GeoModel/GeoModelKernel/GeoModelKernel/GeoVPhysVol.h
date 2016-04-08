@@ -171,13 +171,13 @@ class GeoVPhysVol : public GeoGraphNode  //## Inherits: <unnamed>%3CDD39620209
 
     // Data Members for Class Attributes
 
-      //## Attribute: parentPtr%3CDE6ECC02B4
+      //## Attribute: m_parentPtr%3CDE6ECC02B4
       //	If one parent                ...pointer=PARENT;
       //	If no parent                  ...pointer=NULL.
       //	If more than one parent...pointer=this;
-      //## begin GeoVPhysVol::parentPtr%3CDE6ECC02B4.attr preserve=no  private: const GeoVPhysVol* {U} 
-      const GeoVPhysVol* parentPtr;
-      //## end GeoVPhysVol::parentPtr%3CDE6ECC02B4.attr
+      //## begin GeoVPhysVol::m_parentPtr%3CDE6ECC02B4.attr preserve=no  private: const GeoVPhysVol* {U} 
+      const GeoVPhysVol* m_parentPtr;
+      //## end GeoVPhysVol::m_parentPtr%3CDE6ECC02B4.attr
 
     // Additional Private Declarations
       //## begin GeoVPhysVol%3CD3E93F00F9.private preserve=yes
@@ -187,10 +187,10 @@ class GeoVPhysVol : public GeoGraphNode  //## Inherits: <unnamed>%3CDD39620209
     // Data Members for Associations
 
       //## Association: GeoModelKernel::GraphNodes::Volume Component%3CDDA98A0002
-      //## Role: GeoVPhysVol::logVol%3CDDA98A0324
-      //## begin GeoVPhysVol::logVol%3CDDA98A0324.role preserve=no  public: GeoLogVol {1 -> 1RHgN}
-      const GeoLogVol *logVol;
-      //## end GeoVPhysVol::logVol%3CDDA98A0324.role
+      //## Role: GeoVPhysVol::m_logVol%3CDDA98A0324
+      //## begin GeoVPhysVol::m_logVol%3CDDA98A0324.role preserve=no  public: GeoLogVol {1 -> 1RHgN}
+      const GeoLogVol *m_logVol;
+      //## end GeoVPhysVol::m_logVol%3CDDA98A0324.role
 
     // Additional Implementation Declarations
       //## begin GeoVPhysVol%3CD3E93F00F9.implementation preserve=yes
@@ -208,7 +208,7 @@ class GeoVPhysVol : public GeoGraphNode  //## Inherits: <unnamed>%3CDD39620209
 inline bool GeoVPhysVol::isShared () const
 {
   //## begin GeoVPhysVol::isShared%3CDE971D0381.body preserve=yes
-  return parentPtr == this;
+  return m_parentPtr == this;
   //## end GeoVPhysVol::isShared%3CDE971D0381.body
 }
 

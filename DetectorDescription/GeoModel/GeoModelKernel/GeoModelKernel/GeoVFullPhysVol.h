@@ -109,18 +109,18 @@ class GeoVFullPhysVol : public GeoVPhysVol  //## Inherits: <unnamed>%3CDD8FB600D
 
     // Data Members for Class Attributes
 
-      //## Attribute: _absName%3CEB2197011E
+      //## Attribute: m_absName%3CEB2197011E
       //	The absolute name of this volume.
-      //## begin GeoVFullPhysVol::_absName%3CEB2197011E.attr preserve=no  private: std::string {U} 
-      std::string _absName;
-      //## end GeoVFullPhysVol::_absName%3CEB2197011E.attr
+      //## begin GeoVFullPhysVol::m_absName%3CEB2197011E.attr preserve=no  private: std::string {U} 
+      std::string m_absName;
+      //## end GeoVFullPhysVol::m_absName%3CEB2197011E.attr
 
-      //## Attribute: _id%3CEB246401FB
+      //## Attribute: m_id%3CEB246401FB
       //	An identifier.  This is locally cached in a full
       //	physical volume.
-      //## begin GeoVFullPhysVol::_id%3CEB246401FB.attr preserve=no  private: mutable Query<int> * {U} 
-      mutable Query<int> *_id;
-      //## end GeoVFullPhysVol::_id%3CEB246401FB.attr
+      //## begin GeoVFullPhysVol::m_id%3CEB246401FB.attr preserve=no  private: mutable Query<int> * {U} 
+      mutable Query<int> *m_id;
+      //## end GeoVFullPhysVol::m_id%3CEB246401FB.attr
 
     // Additional Private Declarations
       //## begin GeoVFullPhysVol%3CDD8F7603CA.private preserve=yes
@@ -130,12 +130,12 @@ class GeoVFullPhysVol : public GeoVPhysVol  //## Inherits: <unnamed>%3CDD8FB600D
     // Data Members for Associations
 
       //## Association: GeoModelKernel::GraphNodes::Absolute Position%3CDD9595003E
-      //## Role: GeoVFullPhysVol::absPosInfo%3CDD95950248
+      //## Role: GeoVFullPhysVol::m_absPosInfo%3CDD95950248
       //	Information on the where this volume is, by default and
       //	after alignment corrections.
-      //## begin GeoVFullPhysVol::absPosInfo%3CDD95950248.role preserve=no  private: GeoAbsPositionInfo {1 -> 1RHgN}
-      mutable GeoAbsPositionInfo *absPosInfo;
-      //## end GeoVFullPhysVol::absPosInfo%3CDD95950248.role
+      //## begin GeoVFullPhysVol::m_absPosInfo%3CDD95950248.role preserve=no  private: GeoAbsPositionInfo {1 -> 1RHgN}
+      mutable GeoAbsPositionInfo *m_absPosInfo;
+      //## end GeoVFullPhysVol::m_absPosInfo%3CDD95950248.role
 
     // Additional Implementation Declarations
       //## begin GeoVFullPhysVol%3CDD8F7603CA.implementation preserve=yes

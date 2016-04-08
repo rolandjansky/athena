@@ -116,25 +116,25 @@ class GeoShapeSubtraction : public GeoShape  //## Inherits: <unnamed>%3CD2595103
 
     // Data Members for Class Attributes
 
-      //## Attribute: opA%3CD2595103EB
+      //## Attribute: m_opA%3CD2595103EB
       //	The shape operand in the Subtraction operation
-      //## begin GeoShapeSubtraction::opA%3CD2595103EB.attr preserve=no  private: const GeoShape* {U} 
-      const GeoShape* opA;
-      //## end GeoShapeSubtraction::opA%3CD2595103EB.attr
+      //## begin GeoShapeSubtraction::m_opA%3CD2595103EB.attr preserve=no  private: const GeoShape* {U} 
+      const GeoShape* m_opA;
+      //## end GeoShapeSubtraction::m_opA%3CD2595103EB.attr
 
-      //## Attribute: opB%3D1DD1980319
+      //## Attribute: m_opB%3D1DD1980319
       //	The shape operand in the Subtraction operation
-      //## begin GeoShapeSubtraction::opB%3D1DD1980319.attr preserve=no  private: const GeoShape* {U} 
-      const GeoShape* opB;
-      //## end GeoShapeSubtraction::opB%3D1DD1980319.attr
+      //## begin GeoShapeSubtraction::m_opB%3D1DD1980319.attr preserve=no  private: const GeoShape* {U} 
+      const GeoShape* m_opB;
+      //## end GeoShapeSubtraction::m_opB%3D1DD1980319.attr
 
-      //## begin GeoShapeSubtraction::classType%3CD2595103EC.attr preserve=no  public: static const std::string {U} "Subtraction"
-      static const std::string classType;
-      //## end GeoShapeSubtraction::classType%3CD2595103EC.attr
+      //## begin GeoShapeSubtraction::s_classType%3CD2595103EC.attr preserve=no  public: static const std::string {U} "Subtraction"
+      static const std::string s_classType;
+      //## end GeoShapeSubtraction::s_classType%3CD2595103EC.attr
 
-      //## begin GeoShapeSubtraction::classTypeID%3CD2595103ED.attr preserve=no  public: static const ShapeType {U} 0x02
-      static const ShapeType classTypeID;
-      //## end GeoShapeSubtraction::classTypeID%3CD2595103ED.attr
+      //## begin GeoShapeSubtraction::s_classTypeID%3CD2595103ED.attr preserve=no  public: static const ShapeType {U} 0x02
+      static const ShapeType s_classTypeID;
+      //## end GeoShapeSubtraction::s_classTypeID%3CD2595103ED.attr
 
     // Additional Private Declarations
       //## begin GeoShapeSubtraction%3CD2595103E1.private preserve=yes
@@ -157,14 +157,14 @@ class GeoShapeSubtraction : public GeoShape  //## Inherits: <unnamed>%3CD2595103
 inline const std::string& GeoShapeSubtraction::getClassType ()
 {
   //## begin GeoShapeSubtraction::getClassType%3CD2595103EC.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoShapeSubtraction::getClassType%3CD2595103EC.get
 }
 
 inline ShapeType GeoShapeSubtraction::getClassTypeID ()
 {
   //## begin GeoShapeSubtraction::getClassTypeID%3CD2595103ED.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoShapeSubtraction::getClassTypeID%3CD2595103ED.get
 }
 

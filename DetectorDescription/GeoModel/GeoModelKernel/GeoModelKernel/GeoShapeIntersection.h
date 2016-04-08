@@ -116,25 +116,25 @@ class GeoShapeIntersection : public GeoShape  //## Inherits: <unnamed>%3CD259190
 
     // Data Members for Class Attributes
 
-      //## Attribute: opA%3CD25919032E
+      //## Attribute: m_opA%3CD25919032E
       //	The first shape operand in the AND operation.
-      //## begin GeoShapeIntersection::opA%3CD25919032E.attr preserve=no  private: const GeoShape* {U} 
-      const GeoShape* opA;
-      //## end GeoShapeIntersection::opA%3CD25919032E.attr
+      //## begin GeoShapeIntersection::m_opA%3CD25919032E.attr preserve=no  private: const GeoShape* {U} 
+      const GeoShape* m_opA;
+      //## end GeoShapeIntersection::m_opA%3CD25919032E.attr
 
-      //## Attribute: opB%3CD25919032F
+      //## Attribute: m_opB%3CD25919032F
       //	The second shape operand in the AND operation.
-      //## begin GeoShapeIntersection::opB%3CD25919032F.attr preserve=no  private: const GeoShape* {U} 
-      const GeoShape* opB;
-      //## end GeoShapeIntersection::opB%3CD25919032F.attr
+      //## begin GeoShapeIntersection::m_opB%3CD25919032F.attr preserve=no  private: const GeoShape* {U} 
+      const GeoShape* m_opB;
+      //## end GeoShapeIntersection::m_opB%3CD25919032F.attr
 
-      //## begin GeoShapeIntersection::classType%3CD259190330.attr preserve=no  public: static const std::string {U} "Intersection"
-      static const std::string classType;
-      //## end GeoShapeIntersection::classType%3CD259190330.attr
+      //## begin GeoShapeIntersection::s_classType%3CD259190330.attr preserve=no  public: static const std::string {U} "Intersection"
+      static const std::string s_classType;
+      //## end GeoShapeIntersection::s_classType%3CD259190330.attr
 
-      //## begin GeoShapeIntersection::classTypeID%3CD259190331.attr preserve=no  public: static const ShapeType {U} 0x00
-      static const ShapeType classTypeID;
-      //## end GeoShapeIntersection::classTypeID%3CD259190331.attr
+      //## begin GeoShapeIntersection::s_classTypeID%3CD259190331.attr preserve=no  public: static const ShapeType {U} 0x00
+      static const ShapeType s_classTypeID;
+      //## end GeoShapeIntersection::s_classTypeID%3CD259190331.attr
 
     // Additional Private Declarations
       //## begin GeoShapeIntersection%3CD259190322.private preserve=yes
@@ -157,14 +157,14 @@ class GeoShapeIntersection : public GeoShape  //## Inherits: <unnamed>%3CD259190
 inline const std::string& GeoShapeIntersection::getClassType ()
 {
   //## begin GeoShapeIntersection::getClassType%3CD259190330.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoShapeIntersection::getClassType%3CD259190330.get
 }
 
 inline ShapeType GeoShapeIntersection::getClassTypeID ()
 {
   //## begin GeoShapeIntersection::getClassTypeID%3CD259190331.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoShapeIntersection::getClassTypeID%3CD259190331.get
 }
 

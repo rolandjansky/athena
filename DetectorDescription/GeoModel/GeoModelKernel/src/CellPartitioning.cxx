@@ -6,15 +6,15 @@
 
 //##ModelId=47A79C30000C
 CellPartitioning::CellPartitioning(unsigned int firstDivisionNumber):
-  firstDivisionNumber(firstDivisionNumber)
+  m_firstDivisionNumber(firstDivisionNumber)
 {
 }
 
 
 //##ModelId=47A79C30001C
 CellPartitioning::CellPartitioning(const CellPartitioning& right):
-  partition(right.partition),
-  firstDivisionNumber(right.firstDivisionNumber)
+  m_partition(right.m_partition),
+  m_firstDivisionNumber(right.m_firstDivisionNumber)
 {
 }
 
@@ -27,8 +27,8 @@ CellPartitioning::~CellPartitioning()
 CellPartitioning& CellPartitioning::operator=(const CellPartitioning& right)
 {
   if (this!=&right) {
-    partition=right.partition;
-    firstDivisionNumber = right.firstDivisionNumber;
+    m_partition=right.m_partition;
+    m_firstDivisionNumber = right.m_firstDivisionNumber;
   }
   return *this;
 }
@@ -36,6 +36,6 @@ CellPartitioning& CellPartitioning::operator=(const CellPartitioning& right)
 //##ModelId=47A79D8C032E
 void CellPartitioning::addValue(double xVal)
 {
-  partition.push_back(xVal);
+  m_partition.push_back(xVal);
 }
 

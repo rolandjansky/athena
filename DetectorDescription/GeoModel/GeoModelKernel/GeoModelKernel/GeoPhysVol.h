@@ -139,9 +139,9 @@ class GeoPhysVol : public GeoVPhysVol  //## Inherits: <unnamed>%3CD3E9B50315
 
       //## Attribute: _daughters%3CDD8A84033D
       //	Hold the list of children.
-      //## begin GeoPhysVol::_daughters%3CDD8A84033D.attr preserve=no  private: std::vector<const GeoGraphNode *> {U} 
-      std::vector<const GeoGraphNode *> _daughters;
-      //## end GeoPhysVol::_daughters%3CDD8A84033D.attr
+      //## begin GeoPhysVol::m_daughters%3CDD8A84033D.attr preserve=no  private: std::vector<const GeoGraphNode *> {U} 
+      std::vector<const GeoGraphNode *> m_daughters;
+      //## end GeoPhysVol::m_daughters%3CDD8A84033D.attr
 
     // Additional Private Declarations
       //## begin GeoPhysVol%3CD3E9AB0054.private preserve=yes

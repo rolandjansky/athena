@@ -36,49 +36,49 @@ class GeoTorus : public GeoShape
   GeoTorus(const GeoTorus &right);
   GeoTorus & operator=(const GeoTorus &right);
 
-  static const std::string classType;
-  static const ShapeType classTypeID;
+  static const std::string s_classType;
+  static const ShapeType s_classTypeID;
 
-  double rMin;
-  double rMax;
-  double rTor;
-  double sPhi;
-  double dPhi;
+  double m_rMin;
+  double m_rMax;
+  double m_rTor;
+  double m_sPhi;
+  double m_dPhi;
 };
 
 inline const std::string& GeoTorus::getClassType ()
 {
-  return classType;
+  return s_classType;
 }
 
 inline ShapeType GeoTorus::getClassTypeID ()
 {
-  return classTypeID;
+  return s_classTypeID;
 }
 
 inline const double& GeoTorus::getRMin () const
 {
-  return rMin;
+  return m_rMin;
 }
 
 inline const double& GeoTorus::getRMax () const
 {
-  return rMax;
+  return m_rMax;
 }
 
 inline const double& GeoTorus::getRTor () const
 {
-  return rTor;
+  return m_rTor;
 }
 
 inline const double& GeoTorus::getSPhi () const
 {
-  return sPhi;
+  return m_sPhi;
 }
 
 inline const double& GeoTorus::getDPhi () const
 {
-  return dPhi;
+  return m_dPhi;
 }
 
 

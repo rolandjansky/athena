@@ -120,25 +120,25 @@ class GeoBox : public GeoShape  //## Inherits: <unnamed>%3CD2696E0180
 
     // Data Members for Class Attributes
 
-      //## begin GeoBox::classType%3CD26A64002E.attr preserve=no  public: static const std::string {U} "Box"
-      static const std::string classType;
-      //## end GeoBox::classType%3CD26A64002E.attr
+      //## begin GeoBox::s_classType%3CD26A64002E.attr preserve=no  public: static const std::string {U} "Box"
+      static const std::string s_classType;
+      //## end GeoBox::s_classType%3CD26A64002E.attr
 
-      //## begin GeoBox::classTypeID%3CD26A640038.attr preserve=no  public: static const ShapeType {U} 0x10
-      static const ShapeType classTypeID;
-      //## end GeoBox::classTypeID%3CD26A640038.attr
+      //## begin GeoBox::s_classTypeID%3CD26A640038.attr preserve=no  public: static const ShapeType {U} 0x10
+      static const ShapeType s_classTypeID;
+      //## end GeoBox::s_classTypeID%3CD26A640038.attr
 
-      //## begin GeoBox::xHalfLength%3CD2A8C400CD.attr preserve=no  public: double {U} 
-      double xHalfLength;
-      //## end GeoBox::xHalfLength%3CD2A8C400CD.attr
+      //## begin GeoBox::m_xHalfLength%3CD2A8C400CD.attr preserve=no  public: double {U} 
+      double m_xHalfLength;
+      //## end GeoBox::m_xHalfLength%3CD2A8C400CD.attr
 
-      //## begin GeoBox::yHalfLength%3CD2A8DE02BF.attr preserve=no  public: double {U} 
-      double yHalfLength;
-      //## end GeoBox::yHalfLength%3CD2A8DE02BF.attr
+      //## begin GeoBox::m_yHalfLength%3CD2A8DE02BF.attr preserve=no  public: double {U} 
+      double m_yHalfLength;
+      //## end GeoBox::m_yHalfLength%3CD2A8DE02BF.attr
 
-      //## begin GeoBox::zHalfLength%3CD2A8E00146.attr preserve=no  public: double {U} 
-      double zHalfLength;
-      //## end GeoBox::zHalfLength%3CD2A8E00146.attr
+      //## begin GeoBox::m_zHalfLength%3CD2A8E00146.attr preserve=no  public: double {U} 
+      double m_zHalfLength;
+      //## end GeoBox::m_zHalfLength%3CD2A8E00146.attr
 
     // Additional Private Declarations
       //## begin GeoBox%3CD2696E017F.private preserve=yes
@@ -161,35 +161,35 @@ class GeoBox : public GeoShape  //## Inherits: <unnamed>%3CD2696E0180
 inline const std::string& GeoBox::getClassType ()
 {
   //## begin GeoBox::getClassType%3CD26A64002E.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoBox::getClassType%3CD26A64002E.get
 }
 
 inline ShapeType GeoBox::getClassTypeID ()
 {
   //## begin GeoBox::getClassTypeID%3CD26A640038.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoBox::getClassTypeID%3CD26A640038.get
 }
 
 inline const double& GeoBox::getXHalfLength () const
 {
   //## begin GeoBox::getXHalfLength%3CD2A8C400CD.get preserve=no
-  return xHalfLength;
+  return m_xHalfLength;
   //## end GeoBox::getXHalfLength%3CD2A8C400CD.get
 }
 
 inline const double& GeoBox::getYHalfLength () const
 {
   //## begin GeoBox::getYHalfLength%3CD2A8DE02BF.get preserve=no
-  return yHalfLength;
+  return m_yHalfLength;
   //## end GeoBox::getYHalfLength%3CD2A8DE02BF.get
 }
 
 inline const double& GeoBox::getZHalfLength () const
 {
   //## begin GeoBox::getZHalfLength%3CD2A8E00146.get preserve=no
-  return zHalfLength;
+  return m_zHalfLength;
   //## end GeoBox::getZHalfLength%3CD2A8E00146.get
 }
 

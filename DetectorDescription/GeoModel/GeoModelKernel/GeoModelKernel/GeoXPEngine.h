@@ -9,8 +9,8 @@
 // This class does a Runge-Kutta integration of a particle in a magnetic     //
 // field, without any slowing due to interactions with matter.               //
 // --------------------------------------------------------------------------//
-#ifndef _GeoXPEngine_h_
-#define _GeoXPEngine_h_
+#ifndef GEOMODELKERNEL_GEOXPENGINE_H
+#define GEOMODELKERNEL_GEOXPENGINE_H
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Vector/LorentzVector.h>
 ////class HepGeom::Point3D<double>;
@@ -53,12 +53,12 @@ class GeoXPEngine {
  private:
 
   // Outputs:
-  const Genfun::AbsFunction       *_x;
-  const Genfun::AbsFunction       *_y;
-  const Genfun::AbsFunction       *_z;
-  const Genfun::AbsFunction       *_px;
-  const Genfun::AbsFunction       *_py;
-  const Genfun::AbsFunction       *_pz;
+  const Genfun::AbsFunction       *m_x;
+  const Genfun::AbsFunction       *m_y;
+  const Genfun::AbsFunction       *m_z;
+  const Genfun::AbsFunction       *m_px;
+  const Genfun::AbsFunction       *m_py;
+  const Genfun::AbsFunction       *m_pz;
 
   
 

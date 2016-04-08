@@ -124,7 +124,7 @@ class GeoPcon : public GeoShape  //## Inherits: <unnamed>%3CD26DBC00BE
       //	For type identification.
       static ShapeType getClassTypeID ();
 
-      //## Attribute: sPhi%3CD59E1403D7
+      //## Attribute: m_sPhi%3CD59E1403D7
       //	Starting angle of the segment in radians.
       const double& getSPhi () const;
 
@@ -153,39 +153,39 @@ class GeoPcon : public GeoShape  //## Inherits: <unnamed>%3CD26DBC00BE
 
     // Data Members for Class Attributes
 
-      //## begin GeoPcon::classType%3CD26DBC00BC.attr preserve=no  public: static const std::string {U} "Pcon"
-      static const std::string classType;
-      //## end GeoPcon::classType%3CD26DBC00BC.attr
+      //## begin GeoPcon::s_classType%3CD26DBC00BC.attr preserve=no  public: static const std::string {U} "Pcon"
+      static const std::string s_classType;
+      //## end GeoPcon::s_classType%3CD26DBC00BC.attr
 
-      //## begin GeoPcon::classTypeID%3CD26DBC00BD.attr preserve=no  public: static const ShapeType {U} 0x13
-      static const ShapeType classTypeID;
-      //## end GeoPcon::classTypeID%3CD26DBC00BD.attr
+      //## begin GeoPcon::s_classTypeID%3CD26DBC00BD.attr preserve=no  public: static const ShapeType {U} 0x13
+      static const ShapeType s_classTypeID;
+      //## end GeoPcon::s_classTypeID%3CD26DBC00BD.attr
 
-      //## begin GeoPcon::sPhi%3CD59E1403D7.attr preserve=no  public: double {U} 
-      double sPhi;
-      //## end GeoPcon::sPhi%3CD59E1403D7.attr
+      //## begin GeoPcon::m_sPhi%3CD59E1403D7.attr preserve=no  public: double {U} 
+      double m_sPhi;
+      //## end GeoPcon::m_sPhi%3CD59E1403D7.attr
 
-      //## begin GeoPcon::dPhi%3CD59E4002B8.attr preserve=no  public: double {U} 
-      double dPhi;
-      //## end GeoPcon::dPhi%3CD59E4002B8.attr
+      //## begin GeoPcon::m_dPhi%3CD59E4002B8.attr preserve=no  public: double {U} 
+      double m_dPhi;
+      //## end GeoPcon::m_dPhi%3CD59E4002B8.attr
 
-      //## Attribute: zPlane%3CD59F2103CA
+      //## Attribute: m_zPlane%3CD59F2103CA
       //	Z Position of poly-cone planes.
-      //## begin GeoPcon::zPlane%3CD59F2103CA.attr preserve=no  private: std::vector<double> {U} 
-      std::vector<double> zPlane;
-      //## end GeoPcon::zPlane%3CD59F2103CA.attr
+      //## begin GeoPcon::m_zPlane%3CD59F2103CA.attr preserve=no  private: std::vector<double> {U} 
+      std::vector<double> m_zPlane;
+      //## end GeoPcon::m_zPlane%3CD59F2103CA.attr
 
-      //## Attribute: rMinPlane%3CD59F690098
+      //## Attribute: m_rMinPlane%3CD59F690098
       //	Minimum radius of poly-cone planes.
-      //## begin GeoPcon::rMinPlane%3CD59F690098.attr preserve=no  private: std::vector<double> {U} 
-      std::vector<double> rMinPlane;
-      //## end GeoPcon::rMinPlane%3CD59F690098.attr
+      //## begin GeoPcon::m_rMinPlane%3CD59F690098.attr preserve=no  private: std::vector<double> {U} 
+      std::vector<double> m_rMinPlane;
+      //## end GeoPcon::m_rMinPlane%3CD59F690098.attr
 
-      //## Attribute: rMaxPlane%3CD59F6B00A5
+      //## Attribute: m_rMaxPlane%3CD59F6B00A5
       //	Maximum radius of poly-cone planes.
-      //## begin GeoPcon::rMaxPlane%3CD59F6B00A5.attr preserve=no  private: std::vector<double> {U} 
-      std::vector<double> rMaxPlane;
-      //## end GeoPcon::rMaxPlane%3CD59F6B00A5.attr
+      //## begin GeoPcon::m_rMaxPlane%3CD59F6B00A5.attr preserve=no  private: std::vector<double> {U} 
+      std::vector<double> m_rMaxPlane;
+      //## end GeoPcon::m_rMaxPlane%3CD59F6B00A5.attr
 
     // Additional Private Declarations
       //## begin GeoPcon%3CD26DBC00BB.private preserve=yes
@@ -208,7 +208,7 @@ class GeoPcon : public GeoShape  //## Inherits: <unnamed>%3CD26DBC00BE
 inline unsigned int GeoPcon::getNPlanes () const
 {
   //## begin GeoPcon::getNPlanes%3CD59FFD03E4.body preserve=yes
-  return zPlane.size ();
+  return m_zPlane.size ();
   //## end GeoPcon::getNPlanes%3CD59FFD03E4.body
 }
 
@@ -222,21 +222,21 @@ inline bool GeoPcon::isValid () const
 inline const double & GeoPcon::getZPlane (unsigned int i) const
 {
   //## begin GeoPcon::getZPlane%3CD5A16B0282.body preserve=yes
-  return zPlane[i];
+  return m_zPlane[i];
   //## end GeoPcon::getZPlane%3CD5A16B0282.body
 }
 
 inline const double & GeoPcon::getRMinPlane (unsigned int i) const
 {
   //## begin GeoPcon::getRMinPlane%3CD5A1C30207.body preserve=yes
-  return rMinPlane[i];
+  return m_rMinPlane[i];
   //## end GeoPcon::getRMinPlane%3CD5A1C30207.body
 }
 
 inline const double & GeoPcon::getRMaxPlane (unsigned int i) const
 {
   //## begin GeoPcon::getRMaxPlane%3CD5A1C600F2.body preserve=yes
-  return rMaxPlane[i];
+  return m_rMaxPlane[i];
   //## end GeoPcon::getRMaxPlane%3CD5A1C600F2.body
 }
 
@@ -245,28 +245,28 @@ inline const double & GeoPcon::getRMaxPlane (unsigned int i) const
 inline const std::string& GeoPcon::getClassType ()
 {
   //## begin GeoPcon::getClassType%3CD26DBC00BC.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoPcon::getClassType%3CD26DBC00BC.get
 }
 
 inline ShapeType GeoPcon::getClassTypeID ()
 {
   //## begin GeoPcon::getClassTypeID%3CD26DBC00BD.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoPcon::getClassTypeID%3CD26DBC00BD.get
 }
 
 inline const double& GeoPcon::getSPhi () const
 {
   //## begin GeoPcon::getSPhi%3CD59E1403D7.get preserve=no
-  return sPhi;
+  return m_sPhi;
   //## end GeoPcon::getSPhi%3CD59E1403D7.get
 }
 
 inline const double& GeoPcon::getDPhi () const
 {
   //## begin GeoPcon::getDPhi%3CD59E4002B8.get preserve=no
-  return dPhi;
+  return m_dPhi;
   //## end GeoPcon::getDPhi%3CD59E4002B8.get
 }
 

@@ -33,22 +33,22 @@
 
 // Class GeoBox 
 
-//## begin GeoBox::classType%3CD26A64002E.attr preserve=no  public: static const std::string {U} "Box"
-const std::string GeoBox::classType = "Box";
-//## end GeoBox::classType%3CD26A64002E.attr
+//## begin GeoBox::s_classType%3CD26A64002E.attr preserve=no  public: static const std::string {U} "Box"
+const std::string GeoBox::s_classType = "Box";
+//## end GeoBox::s_classType%3CD26A64002E.attr
 
-//## begin GeoBox::classTypeID%3CD26A640038.attr preserve=no  public: static const ShapeType {U} 0x10
-const ShapeType GeoBox::classTypeID = 0x10;
-//## end GeoBox::classTypeID%3CD26A640038.attr
+//## begin GeoBox::s_classTypeID%3CD26A640038.attr preserve=no  public: static const ShapeType {U} 0x10
+const ShapeType GeoBox::s_classTypeID = 0x10;
+//## end GeoBox::s_classTypeID%3CD26A640038.attr
 
 GeoBox::GeoBox (double XHalfLength, double YHalfLength, double ZHalfLength)
   //## begin GeoBox::GeoBox%3CD58E8B01CE.hasinit preserve=no
   //## end GeoBox::GeoBox%3CD58E8B01CE.hasinit
   //## begin GeoBox::GeoBox%3CD58E8B01CE.initialization preserve=yes
   :
-xHalfLength (XHalfLength),
-yHalfLength (YHalfLength),
-zHalfLength (ZHalfLength)
+m_xHalfLength (XHalfLength),
+m_yHalfLength (YHalfLength),
+m_zHalfLength (ZHalfLength)
   //## end GeoBox::GeoBox%3CD58E8B01CE.initialization
 {
   //## begin GeoBox::GeoBox%3CD58E8B01CE.body preserve=yes
@@ -68,7 +68,7 @@ GeoBox::~GeoBox()
 double GeoBox::volume () const
 {
   //## begin GeoBox::volume%3CD2A69A0008.body preserve=yes
-  return 8.0 * xHalfLength * yHalfLength * zHalfLength;
+  return 8.0 * m_xHalfLength * m_yHalfLength * m_zHalfLength;
 
   //## end GeoBox::volume%3CD2A69A0008.body
 }
@@ -76,14 +76,14 @@ double GeoBox::volume () const
 const std::string & GeoBox::type () const
 {
   //## begin GeoBox::type%3CD2A7FB011E.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoBox::type%3CD2A7FB011E.body
 }
 
 ShapeType GeoBox::typeID () const
 {
   //## begin GeoBox::typeID%3CD2A7FB0132.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoBox::typeID%3CD2A7FB0132.body
 }
 

@@ -33,24 +33,24 @@
 
 // Class GeoTubs 
 
-//## begin GeoTubs::classType%3CD2A64B01BE.attr preserve=no  public: static const std::string {U} "Tubs"
-const std::string GeoTubs::classType = "Tubs";
-//## end GeoTubs::classType%3CD2A64B01BE.attr
+//## begin GeoTubs::s_classType%3CD2A64B01BE.attr preserve=no  public: static const std::string {U} "Tubs"
+const std::string GeoTubs::s_classType = "Tubs";
+//## end GeoTubs::s_classType%3CD2A64B01BE.attr
 
-//## begin GeoTubs::classTypeID%3CD2A64B01BF.attr preserve=no  public: static const ShapeType {U} 0x18
-const ShapeType GeoTubs::classTypeID = 0x18;
-//## end GeoTubs::classTypeID%3CD2A64B01BF.attr
+//## begin GeoTubs::s_classTypeID%3CD2A64B01BF.attr preserve=no  public: static const ShapeType {U} 0x18
+const ShapeType GeoTubs::s_classTypeID = 0x18;
+//## end GeoTubs::s_classTypeID%3CD2A64B01BF.attr
 
 GeoTubs::GeoTubs (double RMin, double RMax, double ZHalfLength, double SPhi, double DPhi)
   //## begin GeoTubs::GeoTubs%3CD5B1E402BD.hasinit preserve=no
   //## end GeoTubs::GeoTubs%3CD5B1E402BD.hasinit
   //## begin GeoTubs::GeoTubs%3CD5B1E402BD.initialization preserve=yes
   :
-rMin (RMin),
-rMax (RMax),
-zHalfLength (ZHalfLength),
-sPhi (SPhi),
-dPhi (DPhi)
+m_rMin (RMin),
+m_rMax (RMax),
+m_zHalfLength (ZHalfLength),
+m_sPhi (SPhi),
+m_dPhi (DPhi)
   //## end GeoTubs::GeoTubs%3CD5B1E402BD.initialization
 {
   //## begin GeoTubs::GeoTubs%3CD5B1E402BD.body preserve=yes
@@ -70,21 +70,21 @@ GeoTubs::~GeoTubs()
 double GeoTubs::volume () const
 {
   //## begin GeoTubs::volume%3CD2A71A00FD.body preserve=yes
-  return dPhi * (rMax * rMax - rMin * rMin) * zHalfLength;
+  return m_dPhi * (m_rMax * m_rMax - m_rMin * m_rMin) * m_zHalfLength;
   //## end GeoTubs::volume%3CD2A71A00FD.body
 }
 
 const std::string & GeoTubs::type () const
 {
   //## begin GeoTubs::type%3CD2A86F0099.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoTubs::type%3CD2A86F0099.body
 }
 
 ShapeType GeoTubs::typeID () const
 {
   //## begin GeoTubs::typeID%3CD2A86F00B7.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoTubs::typeID%3CD2A86F00B7.body
 }
 

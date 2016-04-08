@@ -32,26 +32,26 @@
 
 // Class GeoCons 
 
-//## begin GeoCons::classType%3CD26BFA00BF.attr preserve=no  public: static const std::string {U} "Cons"
-const std::string GeoCons::classType = "Cons";
-//## end GeoCons::classType%3CD26BFA00BF.attr
+//## begin GeoCons::s_classType%3CD26BFA00BF.attr preserve=no  public: static const std::string {U} "Cons"
+const std::string GeoCons::s_classType = "Cons";
+//## end GeoCons::s_classType%3CD26BFA00BF.attr
 
-//## begin GeoCons::classTypeID%3CD26BFA00C0.attr preserve=no  public: static const ShapeType {U} 0x11
-const ShapeType GeoCons::classTypeID = 0x11;
-//## end GeoCons::classTypeID%3CD26BFA00C0.attr
+//## begin GeoCons::s_classTypeID%3CD26BFA00C0.attr preserve=no  public: static const ShapeType {U} 0x11
+const ShapeType GeoCons::s_classTypeID = 0x11;
+//## end GeoCons::s_classTypeID%3CD26BFA00C0.attr
 
 GeoCons::GeoCons (double RMin1, double RMin2, double RMax1, double RMax2, double DZ, double SPhi, double DPhi)
   //## begin GeoCons::GeoCons%3CD58C08006B.hasinit preserve=no
   //## end GeoCons::GeoCons%3CD58C08006B.hasinit
   //## begin GeoCons::GeoCons%3CD58C08006B.initialization preserve=yes
   :
-rMin1 (RMin1),
-rMin2 (RMin2),
-rMax1 (RMax1),
-rMax2 (RMax2),
-dZ (DZ),
-sPhi (SPhi),
-dPhi (DPhi)
+m_rMin1 (RMin1),
+m_rMin2 (RMin2),
+m_rMax1 (RMax1),
+m_rMax2 (RMax2),
+m_dZ (DZ),
+m_sPhi (SPhi),
+m_dPhi (DPhi)
   //## end GeoCons::GeoCons%3CD58C08006B.initialization
 {
   //## begin GeoCons::GeoCons%3CD58C08006B.body preserve=yes
@@ -71,9 +71,9 @@ GeoCons::~GeoCons()
 double GeoCons::volume () const
 {
   //## begin GeoCons::volume%3CD2A6BC0134.body preserve=yes
-  return (dPhi * (1./3)) * dZ * (rMax1 * rMax1 + rMax2 * rMax2 + rMax1 * rMax2
-                                 - rMin1 * rMin1 - rMin2 * rMin2 -
-                                 rMin1 * rMin2);
+  return (m_dPhi * (1./3)) * m_dZ * (m_rMax1 * m_rMax1 + m_rMax2 * m_rMax2 + m_rMax1 * m_rMax2
+                                 - m_rMin1 * m_rMin1 - m_rMin2 * m_rMin2 -
+                                 m_rMin1 * m_rMin2);
 
   //## end GeoCons::volume%3CD2A6BC0134.body
 }
@@ -81,14 +81,14 @@ double GeoCons::volume () const
 const std::string & GeoCons::type () const
 {
   //## begin GeoCons::type%3CD2A83400A8.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoCons::type%3CD2A83400A8.body
 }
 
 ShapeType GeoCons::typeID () const
 {
   //## begin GeoCons::typeID%3CD2A83400BC.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoCons::typeID%3CD2A83400BC.body
 }
 

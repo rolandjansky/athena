@@ -36,7 +36,7 @@ GeoIdentifierTag::GeoIdentifierTag (int id)
   //## begin GeoIdentifierTag::GeoIdentifierTag%3E21795602D9.hasinit preserve=no
   //## end GeoIdentifierTag::GeoIdentifierTag%3E21795602D9.hasinit
   //## begin GeoIdentifierTag::GeoIdentifierTag%3E21795602D9.initialization preserve=yes
-  :identifier(id)
+  :m_identifier(id)
   //## end GeoIdentifierTag::GeoIdentifierTag%3E21795602D9.initialization
 {
   //## begin GeoIdentifierTag::GeoIdentifierTag%3E21795602D9.body preserve=yes

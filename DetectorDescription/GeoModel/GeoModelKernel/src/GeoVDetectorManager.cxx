@@ -54,11 +54,11 @@ GeoVDetectorManager::~GeoVDetectorManager()
 // Additional Declarations
   //## begin GeoVDetectorManager%3E33EC600353.declarations preserve=yes
 void GeoVDetectorManager::setName(const std::string & name) {
-  _name=name;
+  m_name=name;
 }
 
 const std::string & GeoVDetectorManager::getName() const {
-  return _name;
+  return m_name;
 }
   //## end GeoVDetectorManager%3E33EC600353.declarations
 //## begin module%3E33EC600353.epilog preserve=yes

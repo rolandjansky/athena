@@ -34,22 +34,22 @@
 
 // Class GeoPgon 
 
-//## begin GeoPgon::classType%3CD2A40B022D.attr preserve=no  public: static const std::string {U} "Pgon"
-const std::string GeoPgon::classType = "Pgon";
-//## end GeoPgon::classType%3CD2A40B022D.attr
+//## begin GeoPgon::s_classType%3CD2A40B022D.attr preserve=no  public: static const std::string {U} "Pgon"
+const std::string GeoPgon::s_classType = "Pgon";
+//## end GeoPgon::s_classType%3CD2A40B022D.attr
 
-//## begin GeoPgon::classTypeID%3CD2A40B022E.attr preserve=no  public: static const ShapeType {U} 0x14
-const ShapeType GeoPgon::classTypeID = 0x14;
-//## end GeoPgon::classTypeID%3CD2A40B022E.attr
+//## begin GeoPgon::s_classTypeID%3CD2A40B022E.attr preserve=no  public: static const ShapeType {U} 0x14
+const ShapeType GeoPgon::s_classTypeID = 0x14;
+//## end GeoPgon::s_classTypeID%3CD2A40B022E.attr
 
 GeoPgon::GeoPgon (double SPhi, double DPhi, unsigned int NSides)
   //## begin GeoPgon::GeoPgon%3CD5AA3E029D.hasinit preserve=no
   //## end GeoPgon::GeoPgon%3CD5AA3E029D.hasinit
   //## begin GeoPgon::GeoPgon%3CD5AA3E029D.initialization preserve=yes
   :
-sPhi (SPhi),
-dPhi (DPhi),
-nSides (NSides)
+m_sPhi (SPhi),
+m_dPhi (DPhi),
+m_nSides (NSides)
   //## end GeoPgon::GeoPgon%3CD5AA3E029D.initialization
 {
   //## begin GeoPgon::GeoPgon%3CD5AA3E029D.body preserve=yes
@@ -73,7 +73,7 @@ double GeoPgon::volume () const
     throw std::runtime_error ("Volume requested for incomplete polygon");
   double v = 0;
   int sides = getNSides ();
-  double alpha = dPhi/sides;
+  double alpha = m_dPhi/sides;
   double sinAlpha = sin(alpha);
   
   for (size_t s = 0; s < getNPlanes () - 1; s++) {
@@ -104,23 +104,23 @@ double GeoPgon::volume () const
 const std::string & GeoPgon::type () const
 {
   //## begin GeoPgon::type%3CD2A8480219.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoPgon::type%3CD2A8480219.body
 }
 
 ShapeType GeoPgon::typeID () const
 {
   //## begin GeoPgon::typeID%3CD2A8480237.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoPgon::typeID%3CD2A8480237.body
 }
 
 void GeoPgon::addPlane (double ZPlane, double RMinPlane, double RMaxPlane)
 {
   //## begin GeoPgon::addPlane%3CD5AA3E0243.body preserve=yes
-  zPlane.push_back (ZPlane);
-  rMinPlane.push_back (RMinPlane);
-  rMaxPlane.push_back (RMaxPlane);
+  m_zPlane.push_back (ZPlane);
+  m_rMinPlane.push_back (RMinPlane);
+  m_rMaxPlane.push_back (RMaxPlane);
   //## end GeoPgon::addPlane%3CD5AA3E0243.body
 }
 

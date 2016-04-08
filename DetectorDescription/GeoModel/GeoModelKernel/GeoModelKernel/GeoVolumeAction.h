@@ -117,18 +117,18 @@ public:
 
     // Data Members for Class Attributes
 
-      //## Attribute: _type%3CE202D10046
+      //## Attribute: m_type%3CE202D10046
       //	This type specifies that the action should be carried
       //	out from the bottom up or from the top down.
-      //## begin GeoVolumeAction::_type%3CE202D10046.attr preserve=no  private: Type {U} type
-      Type _type;
-      //## end GeoVolumeAction::_type%3CE202D10046.attr
+      //## begin GeoVolumeAction::m_type%3CE202D10046.attr preserve=no  private: Type {U} type
+      Type m_type;
+      //## end GeoVolumeAction::m_type%3CE202D10046.attr
 
-      //## Attribute: _terminate%3CE236D401E0
+      //## Attribute: m_terminate%3CE236D401E0
       //	Termination flag; causes an abortion of action execution.
-      //## begin GeoVolumeAction::_terminate%3CE236D401E0.attr preserve=no  private: bool {U} false
-      bool _terminate;
-      //## end GeoVolumeAction::_terminate%3CE236D401E0.attr
+      //## begin GeoVolumeAction::m_terminate%3CE236D401E0.attr preserve=no  private: bool {U} false
+      bool m_terminate;
+      //## end GeoVolumeAction::m_terminate%3CE236D401E0.attr
 
     // Additional Private Declarations
       //## begin GeoVolumeAction%3CDF51210227.private preserve=yes
@@ -138,10 +138,10 @@ public:
     // Data Members for Associations
 
       //## Association: GeoModelKernel::Actions::State management%3CDF52ED0335
-      //## Role: GeoVolumeAction::traversalState%3CDF52EE028C
-      //## begin GeoVolumeAction::traversalState%3CDF52EE028C.role preserve=no  public: GeoTraversalState {1 -> 1VHgN}
-      GeoTraversalState traversalState;
-      //## end GeoVolumeAction::traversalState%3CDF52EE028C.role
+      //## Role: GeoVolumeAction::m_traversalState%3CDF52EE028C
+      //## begin GeoVolumeAction::m_traversalState%3CDF52EE028C.role preserve=no  public: GeoTraversalState {1 -> 1VHgN}
+      GeoTraversalState m_traversalState;
+      //## end GeoVolumeAction::m_traversalState%3CDF52EE028C.role
 
     // Additional Implementation Declarations
       //## begin GeoVolumeAction%3CDF51210227.implementation preserve=yes

@@ -5,8 +5,8 @@
 #include "GeoModelKernel/GeoTessellatedSolid.h"
 #include "GeoModelKernel/GeoShapeAction.h"
 
-const std::string GeoTessellatedSolid::classType = "TessellatedSolid";
-const ShapeType GeoTessellatedSolid::classTypeID = 0x21;
+const std::string GeoTessellatedSolid::s_classType = "TessellatedSolid";
+const ShapeType GeoTessellatedSolid::s_classTypeID = 0x21;
 
 GeoTessellatedSolid::GeoTessellatedSolid()
 {
@@ -26,12 +26,12 @@ double GeoTessellatedSolid::volume() const
 
 const std::string& GeoTessellatedSolid::type() const
 {
-  return classType;
+  return s_classType;
 }
 
 ShapeType GeoTessellatedSolid::typeID() const
 {
-  return classTypeID;
+  return s_classTypeID;
 }
 
 void GeoTessellatedSolid::exec(GeoShapeAction *action) const

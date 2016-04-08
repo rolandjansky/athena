@@ -50,31 +50,31 @@ class GeoAccessVolAndSTAction : public GeoNodeAction
   const GeoAccessVolAndSTAction & operator=(const GeoAccessVolAndSTAction &right);
 
   // A pointer to the ith physical volume under this one.
-  PVConstLink volume;
+  PVConstLink m_volume;
 
   // A pointer to the Serial Transformer
-  const GeoSerialTransformer* serialTransformer;
+  const GeoSerialTransformer* m_serialTransformer;
  
   // The transformation and default transformation to the ith volume.
-  HepGeom::Transform3D transform;
-  HepGeom::Transform3D defTransform;
+  HepGeom::Transform3D m_transform;
+  HepGeom::Transform3D m_defTransform;
 
-  unsigned int _index;
-  unsigned int _counter;
+  unsigned int m_index;
+  unsigned int m_counter;
 
   // The name of the volume.  From a nametag or a serial denominator
-  mutable std::string _name;
+  mutable std::string m_name;
 
   // The identifier of the volume.  From an identifier tag.
-  mutable Query<unsigned int> _id;
+  mutable Query<unsigned int> m_id;
 
   // A pointer to a name tag.  If the volume is named.
-  const GeoNameTag *_nameTag;
-  const GeoSerialDenominator *_serialDenominator;
-  const GeoIdentifierTag *_idTag;
+  const GeoNameTag *m_nameTag;
+  const GeoSerialDenominator *m_serialDenominator;
+  const GeoIdentifierTag *m_idTag;
 
-  std::vector<const GeoTransform *>  _pendingTransformList;
-  unsigned int _serialDenomPosition;
+  std::vector<const GeoTransform *>  m_pendingTransformList;
+  unsigned int m_serialDenomPosition;
 };
 
 #endif

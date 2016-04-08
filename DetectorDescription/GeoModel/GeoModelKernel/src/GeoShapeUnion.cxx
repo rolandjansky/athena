@@ -35,26 +35,26 @@
 
 // Class GeoShapeUnion 
 
-//## begin GeoShapeUnion::classType%3CD2596A01A6.attr preserve=no  public: static const std::string {U} "Union"
-const std::string GeoShapeUnion::classType = "Union";
-//## end GeoShapeUnion::classType%3CD2596A01A6.attr
+//## begin GeoShapeUnion::s_classType%3CD2596A01A6.attr preserve=no  public: static const std::string {U} "Union"
+const std::string GeoShapeUnion::s_classType = "Union";
+//## end GeoShapeUnion::s_classType%3CD2596A01A6.attr
 
-//## begin GeoShapeUnion::classTypeID%3CD2596A01A7.attr preserve=no  public: static const ShapeType {U} 0x01
-const ShapeType GeoShapeUnion::classTypeID = 0x01;
-//## end GeoShapeUnion::classTypeID%3CD2596A01A7.attr
+//## begin GeoShapeUnion::s_classTypeID%3CD2596A01A7.attr preserve=no  public: static const ShapeType {U} 0x01
+const ShapeType GeoShapeUnion::s_classTypeID = 0x01;
+//## end GeoShapeUnion::s_classTypeID%3CD2596A01A7.attr
 
 GeoShapeUnion::GeoShapeUnion (const GeoShape* A, const GeoShape* B)
   //## begin GeoShapeUnion::GeoShapeUnion%3CD2596A019D.hasinit preserve=no
   //## end GeoShapeUnion::GeoShapeUnion%3CD2596A019D.hasinit
   //## begin GeoShapeUnion::GeoShapeUnion%3CD2596A019D.initialization preserve=yes
   :
-opA (A),
-opB (B)
+m_opA (A),
+m_opB (B)
   //## end GeoShapeUnion::GeoShapeUnion%3CD2596A019D.initialization
 {
   //## begin GeoShapeUnion::GeoShapeUnion%3CD2596A019D.body preserve=yes
-  opA->ref ();
-  opB->ref ();
+  m_opA->ref ();
+  m_opB->ref ();
   //## end GeoShapeUnion::GeoShapeUnion%3CD2596A019D.body
 }
 
@@ -62,8 +62,8 @@ opB (B)
 GeoShapeUnion::~GeoShapeUnion()
 {
   //## begin GeoShapeUnion::~GeoShapeUnion%3CD2596A0198_dest.body preserve=yes
-  opA->unref ();
-  opB->unref ();
+  m_opA->unref ();
+  m_opB->unref ();
   //## end GeoShapeUnion::~GeoShapeUnion%3CD2596A0198_dest.body
 }
 
@@ -84,28 +84,28 @@ double GeoShapeUnion::volume () const
 const std::string & GeoShapeUnion::type () const
 {
   //## begin GeoShapeUnion::type%3CD2596A01A0.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoShapeUnion::type%3CD2596A01A0.body
 }
 
 ShapeType GeoShapeUnion::typeID () const
 {
   //## begin GeoShapeUnion::typeID%3CD2596A01A1.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoShapeUnion::typeID%3CD2596A01A1.body
 }
 
 const GeoShape* GeoShapeUnion::getOpA () const
 {
   //## begin GeoShapeUnion::getOpA%3CE7F18900AB.body preserve=yes
-  return opA;
+  return m_opA;
   //## end GeoShapeUnion::getOpA%3CE7F18900AB.body
 }
 
 const GeoShape* GeoShapeUnion::getOpB () const
 {
   //## begin GeoShapeUnion::getOpB%3CE7F18900BF.body preserve=yes
-  return opB;
+  return m_opB;
   //## end GeoShapeUnion::getOpB%3CE7F18900BF.body
 }
 
@@ -128,13 +128,13 @@ void GeoShapeUnion::exec (GeoShapeAction *action) const
 
   else 
 	{
-    opA->exec(action);
+    m_opA->exec(action);
     if (action->shouldTerminate ())
 	{
       action->getPath ()->pop ();
       return;
 	}
-    opB->exec(action);
+    m_opB->exec(action);
     if (action->shouldTerminate ())
 	{
       action->getPath ()->pop ();

@@ -106,7 +106,7 @@ class GeoVDetectorManager
 
     // Additional Private Declarations
       //## begin GeoVDetectorManager%3E33EC600353.private preserve=yes
-      std::string _name;
+      std::string m_name;
       //## end GeoVDetectorManager%3E33EC600353.private
   private: //## implementation
     // Additional Implementation Declarations

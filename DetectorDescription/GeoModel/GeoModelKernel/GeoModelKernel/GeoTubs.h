@@ -128,33 +128,33 @@ class GeoTubs : public GeoShape  //## Inherits: <unnamed>%3CD2A64B01C0
 
     // Data Members for Class Attributes
 
-      //## begin GeoTubs::classType%3CD2A64B01BE.attr preserve=no  public: static const std::string {U} "Tubs"
-      static const std::string classType;
-      //## end GeoTubs::classType%3CD2A64B01BE.attr
+      //## begin GeoTubs::s_classType%3CD2A64B01BE.attr preserve=no  public: static const std::string {U} "Tubs"
+      static const std::string s_classType;
+      //## end GeoTubs::s_classType%3CD2A64B01BE.attr
 
-      //## begin GeoTubs::classTypeID%3CD2A64B01BF.attr preserve=no  public: static const ShapeType {U} 0x18
-      static const ShapeType classTypeID;
-      //## end GeoTubs::classTypeID%3CD2A64B01BF.attr
+      //## begin GeoTubs::s_classTypeID%3CD2A64B01BF.attr preserve=no  public: static const ShapeType {U} 0x18
+      static const ShapeType s_classTypeID;
+      //## end GeoTubs::s_classTypeID%3CD2A64B01BF.attr
 
-      //## begin GeoTubs::rMin%3CD5B13B004E.attr preserve=no  public: double {U} 
-      double rMin;
-      //## end GeoTubs::rMin%3CD5B13B004E.attr
+      //## begin GeoTubs::m_rMin%3CD5B13B004E.attr preserve=no  public: double {U} 
+      double m_rMin;
+      //## end GeoTubs::m_rMin%3CD5B13B004E.attr
 
-      //## begin GeoTubs::rMax%3CD5B13B0058.attr preserve=no  public: double {U} 
-      double rMax;
-      //## end GeoTubs::rMax%3CD5B13B0058.attr
+      //## begin GeoTubs::m_rMax%3CD5B13B0058.attr preserve=no  public: double {U} 
+      double m_rMax;
+      //## end GeoTubs::m_rMax%3CD5B13B0058.attr
 
-      //## begin GeoTubs::zHalfLength%3CD5B13B0062.attr preserve=no  public: double {U} 
-      double zHalfLength;
-      //## end GeoTubs::zHalfLength%3CD5B13B0062.attr
+      //## begin GeoTubs::m_zHalfLength%3CD5B13B0062.attr preserve=no  public: double {U} 
+      double m_zHalfLength;
+      //## end GeoTubs::m_zHalfLength%3CD5B13B0062.attr
 
-      //## begin GeoTubs::sPhi%3CD5B1670318.attr preserve=no  public: double {U} 
-      double sPhi;
-      //## end GeoTubs::sPhi%3CD5B1670318.attr
+      //## begin GeoTubs::m_sPhi%3CD5B1670318.attr preserve=no  public: double {U} 
+      double m_sPhi;
+      //## end GeoTubs::m_sPhi%3CD5B1670318.attr
 
-      //## begin GeoTubs::dPhi%3CD5B16901E4.attr preserve=no  public: double {U} 
-      double dPhi;
-      //## end GeoTubs::dPhi%3CD5B16901E4.attr
+      //## begin GeoTubs::m_dPhi%3CD5B16901E4.attr preserve=no  public: double {U} 
+      double m_dPhi;
+      //## end GeoTubs::m_dPhi%3CD5B16901E4.attr
 
     // Additional Private Declarations
       //## begin GeoTubs%3CD2A64B01BD.private preserve=yes
@@ -177,49 +177,49 @@ class GeoTubs : public GeoShape  //## Inherits: <unnamed>%3CD2A64B01C0
 inline const std::string& GeoTubs::getClassType ()
 {
   //## begin GeoTubs::getClassType%3CD2A64B01BE.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoTubs::getClassType%3CD2A64B01BE.get
 }
 
 inline ShapeType GeoTubs::getClassTypeID ()
 {
   //## begin GeoTubs::getClassTypeID%3CD2A64B01BF.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoTubs::getClassTypeID%3CD2A64B01BF.get
 }
 
 inline const double& GeoTubs::getRMin () const
 {
   //## begin GeoTubs::getRMin%3CD5B13B004E.get preserve=no
-  return rMin;
+  return m_rMin;
   //## end GeoTubs::getRMin%3CD5B13B004E.get
 }
 
 inline const double& GeoTubs::getRMax () const
 {
   //## begin GeoTubs::getRMax%3CD5B13B0058.get preserve=no
-  return rMax;
+  return m_rMax;
   //## end GeoTubs::getRMax%3CD5B13B0058.get
 }
 
 inline const double& GeoTubs::getZHalfLength () const
 {
   //## begin GeoTubs::getZHalfLength%3CD5B13B0062.get preserve=no
-  return zHalfLength;
+  return m_zHalfLength;
   //## end GeoTubs::getZHalfLength%3CD5B13B0062.get
 }
 
 inline const double& GeoTubs::getSPhi () const
 {
   //## begin GeoTubs::getSPhi%3CD5B1670318.get preserve=no
-  return sPhi;
+  return m_sPhi;
   //## end GeoTubs::getSPhi%3CD5B1670318.get
 }
 
 inline const double& GeoTubs::getDPhi () const
 {
   //## begin GeoTubs::getDPhi%3CD5B16901E4.get preserve=no
-  return dPhi;
+  return m_dPhi;
   //## end GeoTubs::getDPhi%3CD5B16901E4.get
 }
 

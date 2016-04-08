@@ -34,21 +34,21 @@
 
 // Class GeoPcon 
 
-//## begin GeoPcon::classType%3CD26DBC00BC.attr preserve=no  public: static const std::string {U} "Pcon"
-const std::string GeoPcon::classType = "Pcon";
-//## end GeoPcon::classType%3CD26DBC00BC.attr
+//## begin GeoPcon::s_classType%3CD26DBC00BC.attr preserve=no  public: static const std::string {U} "Pcon"
+const std::string GeoPcon::s_classType = "Pcon";
+//## end GeoPcon::s_classType%3CD26DBC00BC.attr
 
-//## begin GeoPcon::classTypeID%3CD26DBC00BD.attr preserve=no  public: static const ShapeType {U} 0x13
-const ShapeType GeoPcon::classTypeID = 0x13;
-//## end GeoPcon::classTypeID%3CD26DBC00BD.attr
+//## begin GeoPcon::s_classTypeID%3CD26DBC00BD.attr preserve=no  public: static const ShapeType {U} 0x13
+const ShapeType GeoPcon::s_classTypeID = 0x13;
+//## end GeoPcon::s_classTypeID%3CD26DBC00BD.attr
 
 GeoPcon::GeoPcon (double SPhi, double DPhi)
   //## begin GeoPcon::GeoPcon%3CD5A48D037F.hasinit preserve=no
   //## end GeoPcon::GeoPcon%3CD5A48D037F.hasinit
   //## begin GeoPcon::GeoPcon%3CD5A48D037F.initialization preserve=yes
   :
-sPhi (SPhi),
-dPhi (DPhi)
+m_sPhi (SPhi),
+m_dPhi (DPhi)
   //## end GeoPcon::GeoPcon%3CD5A48D037F.initialization
 {
   //## begin GeoPcon::GeoPcon%3CD5A48D037F.body preserve=yes
@@ -79,9 +79,9 @@ double GeoPcon::volume () const
       double fRmax1 = getRMaxPlane (s + 1);
       double fRmax2 = getRMaxPlane (s);
       v +=
-	(dPhi * (1./3)) * fDz * (fRmax1 * fRmax1 + fRmax2 * fRmax2 +
-                                 fRmax1 * fRmax2 - fRmin1 * fRmin1 -
-                                 fRmin2 * fRmin2 - fRmin1 * fRmin2);
+	(m_dPhi * (1./3)) * fDz * (fRmax1 * fRmax1 + fRmax2 * fRmax2 +
+                                   fRmax1 * fRmax2 - fRmin1 * fRmin1 -
+                                   fRmin2 * fRmin2 - fRmin1 * fRmin2);
     }
   return v;
 
@@ -91,23 +91,23 @@ double GeoPcon::volume () const
 const std::string & GeoPcon::type () const
 {
   //## begin GeoPcon::type%3CD2A842029D.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoPcon::type%3CD2A842029D.body
 }
 
 ShapeType GeoPcon::typeID () const
 {
   //## begin GeoPcon::typeID%3CD2A84202BB.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoPcon::typeID%3CD2A84202BB.body
 }
 
 void GeoPcon::addPlane (double ZPlane, double RMinPlane, double RMaxPlane)
 {
   //## begin GeoPcon::addPlane%3CD59FF902C6.body preserve=yes
-  zPlane.push_back (ZPlane);
-  rMinPlane.push_back (RMinPlane);
-  rMaxPlane.push_back (RMaxPlane);
+  m_zPlane.push_back (ZPlane);
+  m_rMinPlane.push_back (RMinPlane);
+  m_rMaxPlane.push_back (RMaxPlane);
   //## end GeoPcon::addPlane%3CD59FF902C6.body
 }
 

@@ -33,17 +33,17 @@
 
 GeoPrintGraphAction::GeoPrintGraphAction (std::ostream &o)
   //## begin GeoPrintGraphAction::GeoPrintGraphAction%3FB027EA0056.hasinit preserve=no
-      : _nameTag(NULL),
-        _serialDenominator(NULL),
-        _idTag(NULL),
-        _transformState(true),
-        _volumeState(true),
-        _nametagState(true),
-        _serialDenominatorState(true),
-        _serialTransformerState(true),
-        _identifierState(true),
-        _o(o),
-        _indented(false)
+      : m_nameTag(NULL),
+        m_serialDenominator(NULL),
+        m_idTag(NULL),
+        m_transformState(true),
+        m_volumeState(true),
+        m_nametagState(true),
+        m_serialDenominatorState(true),
+        m_serialTransformerState(true),
+        m_identifierState(true),
+        m_o(o),
+        m_indented(false)
   //## end GeoPrintGraphAction::GeoPrintGraphAction%3FB027EA0056.hasinit
   //## begin GeoPrintGraphAction::GeoPrintGraphAction%3FB027EA0056.initialization preserve=yes
   //## end GeoPrintGraphAction::GeoPrintGraphAction%3FB027EA0056.initialization
@@ -65,10 +65,10 @@ GeoPrintGraphAction::~GeoPrintGraphAction()
 void GeoPrintGraphAction::handleTransform (const GeoTransform *xform)
 {
   //## begin GeoPrintGraphAction::handleTransform%3FB027E903A8.body preserve=yes
-  _pendingTransformList.push_back(xform);
-  if (_transformState) {
+  m_pendingTransformList.push_back(xform);
+  if (m_transformState) {
     indent();
-    _o << "TRANSFORM+";
+    m_o << "TRANSFORM+";
   }
   //## end GeoPrintGraphAction::handleTransform%3FB027E903A8.body
 }
@@ -76,33 +76,33 @@ void GeoPrintGraphAction::handleTransform (const GeoTransform *xform)
 void GeoPrintGraphAction::handlePhysVol (const GeoPhysVol *vol)
 {
   //## begin GeoPrintGraphAction::handlePhysVol%3FB027E903DA.body preserve=yes
-  if (_volumeState) {
+  if (m_volumeState) {
     indent();
-    _o << "VOLUME(" << vol->getLogVol()->getName() <<")" << std::endl;
+    m_o << "VOLUME(" << vol->getLogVol()->getName() <<")" << std::endl;
   }
-  _pendingTransformList.erase(_pendingTransformList.begin(),_pendingTransformList.end());
-  _indented=false;
+  m_pendingTransformList.erase(m_pendingTransformList.begin(),m_pendingTransformList.end());
+  m_indented=false;
   //## end GeoPrintGraphAction::handlePhysVol%3FB027E903DA.body
 }
 
 void GeoPrintGraphAction::handleFullPhysVol (const GeoFullPhysVol *vol)
 {
   //## begin GeoPrintGraphAction::handleFullPhysVol%3FB027EA0024.body preserve=yes
-  if (_volumeState) {
+  if (m_volumeState) {
     indent();
-    _o << "VOLUME(" << vol->getLogVol()->getName() <<")" << std::endl;
+    m_o << "VOLUME(" << vol->getLogVol()->getName() <<")" << std::endl;
   }
-  _pendingTransformList.erase(_pendingTransformList.begin(),_pendingTransformList.end());
-  _indented=false;
+  m_pendingTransformList.erase(m_pendingTransformList.begin(),m_pendingTransformList.end());
+  m_indented=false;
   //## end GeoPrintGraphAction::handleFullPhysVol%3FB027EA0024.body
 }
 
 void GeoPrintGraphAction::handleNameTag (const GeoNameTag *nameTag)
 {
   //## begin GeoPrintGraphAction::handleNameTag%3FB027EA0129.body preserve=yes
-  if (_nametagState) {
+  if (m_nametagState) {
     indent();
-    _o << "NAMETAG: " << nameTag->getName() << "+";
+    m_o << "NAMETAG: " << nameTag->getName() << "+";
   }
   //## end GeoPrintGraphAction::handleNameTag%3FB027EA0129.body
 }
@@ -110,9 +110,9 @@ void GeoPrintGraphAction::handleNameTag (const GeoNameTag *nameTag)
 void GeoPrintGraphAction::handleSerialDenominator (const GeoSerialDenominator *sD)
 {
   //## begin GeoPrintGraphAction::handleSerialDenominator%3FB027EA0151.body preserve=yes
-  if (_nametagState) {
+  if (m_nametagState) {
     indent();
-    _o << "SERIAL DENOMINATOR:: " << sD->getBaseName() << "+";
+    m_o << "SERIAL DENOMINATOR:: " << sD->getBaseName() << "+";
   }
   //## end GeoPrintGraphAction::handleSerialDenominator%3FB027EA0151.body
 }
@@ -120,21 +120,21 @@ void GeoPrintGraphAction::handleSerialDenominator (const GeoSerialDenominator *s
 void GeoPrintGraphAction::handleSerialTransformer (const GeoSerialTransformer  *sT)
 {
   //## begin GeoPrintGraphAction::handleSerialTransformer%3FB027EA016F.body preserve=yes
-  if (_volumeState) {
+  if (m_volumeState) {
     indent();
-    _o << sT->getNCopies() << " PARAMETERIZED VOLUMES(" << sT->getVolume()->getLogVol()->getName() << ")" << std::endl;
+    m_o << sT->getNCopies() << " PARAMETERIZED VOLUMES(" << sT->getVolume()->getLogVol()->getName() << ")" << std::endl;
   }
-  _pendingTransformList.erase(_pendingTransformList.begin(),_pendingTransformList.end());
-  _indented=false;
+  m_pendingTransformList.erase(m_pendingTransformList.begin(),m_pendingTransformList.end());
+  m_indented=false;
   //## end GeoPrintGraphAction::handleSerialTransformer%3FB027EA016F.body
 }
 
 void GeoPrintGraphAction::handleIdentifierTag (const GeoIdentifierTag *idTag)
 {
   //## begin GeoPrintGraphAction::handleIdentifierTag%3FB027EA0197.body preserve=yes
-  if (_identifierState) {
+  if (m_identifierState) {
     indent();
-    _o << "NAME: " << idTag->getIdentifier() << "+";
+    m_o << "NAME: " << idTag->getIdentifier() << "+";
   }
   //## end GeoPrintGraphAction::handleIdentifierTag%3FB027EA0197.body
 }
@@ -143,16 +143,16 @@ void GeoPrintGraphAction::setNotification (Type type, bool state)
 {
   //## begin GeoPrintGraphAction::setNotification%3FB029F700BF.body preserve=yes
   if (type==TRANSFORM) {
-    _transformState=state;
+    m_transformState=state;
   }
   else if (type==VOLUME) {
-    _volumeState=state; 
+    m_volumeState=state; 
   }
   else if (type==NAMETAG) {
-    _nametagState=state;
+    m_nametagState=state;
   }
   else if (type==IDENTIFIERTAG) {
-    _identifierState=state;
+    m_identifierState=state;
   }
  
   //## end GeoPrintGraphAction::setNotification%3FB029F700BF.body
@@ -161,10 +161,10 @@ void GeoPrintGraphAction::setNotification (Type type, bool state)
 void GeoPrintGraphAction::indent ()
 {
   //## begin GeoPrintGraphAction::indent%3FD385CE0289.body preserve=yes
-  if (!_indented) {
-    _indented=true;
+  if (!m_indented) {
+    m_indented=true;
     for (size_t i=0;i<getPath()->getLength(); i++) {
-      _o << "   ";
+      m_o << "   ";
     }
   }
 

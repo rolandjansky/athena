@@ -101,7 +101,7 @@ class GeoCountVolAction : public GeoNodeAction  //## Inherits: <unnamed>%3CDF5A0
     // Data Members for Class Attributes
 
       //## begin GeoCountVolAction::count%3CDF5A150375.attr preserve=no  public: unsigned int {U} 
-      unsigned int count;
+      unsigned int m_count;
       //## end GeoCountVolAction::count%3CDF5A150375.attr
 
     // Additional Private Declarations
@@ -125,7 +125,7 @@ class GeoCountVolAction : public GeoNodeAction  //## Inherits: <unnamed>%3CDF5A0
 inline unsigned int GeoCountVolAction::getCount () const
 {
   //## begin GeoCountVolAction::getCount%3CDF5A150375.get preserve=no
-  return count;
+  return m_count;
   //## end GeoCountVolAction::getCount%3CDF5A150375.get
 }
 

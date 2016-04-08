@@ -101,11 +101,11 @@ class GeoLogVol : public RCBase  //## Inherits: <unnamed>%3CDD263D036A
 
     // Data Members for Class Attributes
 
-      //## Attribute: _name%3CDD2B9F0358
+      //## Attribute: m_name%3CDD2B9F0358
       //	The name of the logical volume.
-      //## begin GeoLogVol::_name%3CDD2B9F0358.attr preserve=no  private: std::string {U} 
-      std::string _name;
-      //## end GeoLogVol::_name%3CDD2B9F0358.attr
+      //## begin GeoLogVol::m_name%3CDD2B9F0358.attr preserve=no  private: std::string {U} 
+      std::string m_name;
+      //## end GeoLogVol::m_name%3CDD2B9F0358.attr
 
     // Additional Private Declarations
       //## begin GeoLogVol%3CDD25BA0113.private preserve=yes
@@ -115,18 +115,18 @@ class GeoLogVol : public RCBase  //## Inherits: <unnamed>%3CDD263D036A
     // Data Members for Associations
 
       //## Association: GeoModelKernel::Material specification%3CDD26580337
-      //## Role: GeoLogVol::material%3CDD265B0039
+      //## Role: GeoLogVol::m_material%3CDD265B0039
       //	Material composition of this volume.
-      //## begin GeoLogVol::material%3CDD265B0039.role preserve=no  public: GeoMaterial {1 -> 1RHgN}
-      const GeoMaterial *material;
-      //## end GeoLogVol::material%3CDD265B0039.role
+      //## begin GeoLogVol::m_material%3CDD265B0039.role preserve=no  public: GeoMaterial {1 -> 1RHgN}
+      const GeoMaterial *m_material;
+      //## end GeoLogVol::m_material%3CDD265B0039.role
 
       //## Association: GeoModelKernel::Shape Specification%3CDD277402EF
-      //## Role: GeoLogVol::shape%3CDD277502FC
+      //## Role: GeoLogVol::m_shape%3CDD277502FC
       //	Shape of this volume.
-      //## begin GeoLogVol::shape%3CDD277502FC.role preserve=no  public: GeoShape {1 -> 1RHgN}
-      const GeoShape *shape;
-      //## end GeoLogVol::shape%3CDD277502FC.role
+      //## begin GeoLogVol::m_shape%3CDD277502FC.role preserve=no  public: GeoShape {1 -> 1RHgN}
+      const GeoShape *m_shape;
+      //## end GeoLogVol::m_shape%3CDD277502FC.role
 
     // Additional Implementation Declarations
       //## begin GeoLogVol%3CDD25BA0113.implementation preserve=yes
@@ -144,21 +144,21 @@ class GeoLogVol : public RCBase  //## Inherits: <unnamed>%3CDD263D036A
 inline const std::string & GeoLogVol::getName () const
 {
   //## begin GeoLogVol::getName%3CE7DD8A026D.body preserve=yes
-  return _name;
+  return m_name;
   //## end GeoLogVol::getName%3CE7DD8A026D.body
 }
 
 inline const GeoShape * GeoLogVol::getShape () const
 {
   //## begin GeoLogVol::getShape%3CE7DE4F0342.body preserve=yes
-  return shape;
+  return m_shape;
   //## end GeoLogVol::getShape%3CE7DE4F0342.body
 }
 
 inline const GeoMaterial * GeoLogVol::getMaterial () const
 {
   //## begin GeoLogVol::getMaterial%3CE7DE5101D3.body preserve=yes
-  return material;
+  return m_material;
   //## end GeoLogVol::getMaterial%3CE7DE5101D3.body
 }
 

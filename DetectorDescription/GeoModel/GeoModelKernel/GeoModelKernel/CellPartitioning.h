@@ -29,13 +29,13 @@ class CellPartitioning
     //##ModelId=47A79DAB0286
     double binLower(unsigned int i) const
     {
-      return partition[i-getFirstDivisionNumber()];
+      return m_partition[i-getFirstDivisionNumber()];
     }
 
     //##ModelId=47A79DD5004E
     double binUpper(unsigned int i) const
     {
-      return partition[i-getFirstDivisionNumber()+1];
+      return m_partition[i-getFirstDivisionNumber()+1];
     }
 
     //##ModelId=47A79EA6012E
@@ -47,34 +47,34 @@ class CellPartitioning
     //##ModelId=47A79EC2021E
     unsigned int getNumDivisions() const
     {
-      return partition.size()-1;
+      return m_partition.size()-1;
     }
 
     //##ModelId=47A79EF100D0
     unsigned int getFirstDivisionNumber() const
     {
-      return firstDivisionNumber;
+      return m_firstDivisionNumber;
     }
 
     //##ModelId=47A79F0F03B6
     double getStart() const
     {
-      return partition[0];
+      return m_partition[0];
     }
 
     //##ModelId=47A79F220320
     double getEnd() const
     {
-      return partition[partition.size()-1];
+      return m_partition[m_partition.size()-1];
     }
 
   private:
 
     //##ModelId=47A7A0990065
-    std::vector<double> partition;
+    std::vector<double> m_partition;
 
     //##ModelId=47A7A20C024D
-    unsigned int firstDivisionNumber;
+    unsigned int m_firstDivisionNumber;
 };
 
 

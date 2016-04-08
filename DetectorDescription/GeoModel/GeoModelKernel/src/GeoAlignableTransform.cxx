@@ -40,7 +40,7 @@ GeoAlignableTransform::GeoAlignableTransform (const HepGeom::Transform3D &Transf
   //## begin GeoAlignableTransform::GeoAlignableTransform%3CDE1FCE0285.initialization preserve=yes
   :
 GeoTransform (Transform),
-_delta (NULL)
+m_delta (NULL)
   //## end GeoAlignableTransform::GeoAlignableTransform%3CDE1FCE0285.initialization
 {
   //## begin GeoAlignableTransform::GeoAlignableTransform%3CDE1FCE0285.body preserve=yes
@@ -51,7 +51,7 @@ _delta (NULL)
 GeoAlignableTransform::~GeoAlignableTransform()
 {
   //## begin GeoAlignableTransform::~GeoAlignableTransform%3CDDBC2403CB_dest.body preserve=yes
-  delete _delta;
+  delete m_delta;
   //## end GeoAlignableTransform::~GeoAlignableTransform%3CDDBC2403CB_dest.body
 }
 
@@ -61,9 +61,9 @@ GeoAlignableTransform::~GeoAlignableTransform()
 HepGeom::Transform3D GeoAlignableTransform::getTransform () const
 {
   //## begin GeoAlignableTransform::getTransform%3CDE250E00CF.body preserve=yes
-  if (_delta)
+  if (m_delta)
     {
-      return GeoTransform::getTransform () * (*_delta);
+      return GeoTransform::getTransform () * (*m_delta);
     }
   else
     {
@@ -75,32 +75,32 @@ HepGeom::Transform3D GeoAlignableTransform::getTransform () const
 const HepGeom::Transform3D * GeoAlignableTransform::getDelta () const
 {
   //## begin GeoAlignableTransform::getDelta%3CDE1FCE0253.body preserve=yes
-  return _delta;
+  return m_delta;
   //## end GeoAlignableTransform::getDelta%3CDE1FCE0253.body
 }
 
 void GeoAlignableTransform::setDelta (const HepGeom::Transform3D &Delta)
 {
   //## begin GeoAlignableTransform::setDelta%3CDE23E70157.body preserve=yes
-  if(_delta && (*_delta == Delta)) return;
+  if(m_delta && (*m_delta == Delta)) return;
 
   std::set<GeoGraphNode*> uniqueParents;
 
-  if (!_delta)
+  if (!m_delta)
     {
-      _delta = new HepGeom::Transform3D (Delta);
+      m_delta = new HepGeom::Transform3D (Delta);
     }
   else
     {
-      (*_delta) = Delta;
+      (*m_delta) = Delta;
     }
-  for (size_t p = 0; p < _parentList.size (); p++)
+  for (size_t p = 0; p < m_parentList.size (); p++)
     {
-      GeoGraphNode* _parent = _parentList[p];
-      if(uniqueParents.find(_parent)==uniqueParents.end()) {
+      GeoGraphNode* parent = m_parentList[p];
+      if(uniqueParents.find(parent)==uniqueParents.end()) {
 	GeoSelClearAbsPosAction cc(this);
-	_parent->exec (&cc);
-	uniqueParents.insert(_parent);
+	parent->exec (&cc);
+	uniqueParents.insert(parent);
       }
     }
   //## end GeoAlignableTransform::setDelta%3CDE23E70157.body
@@ -111,15 +111,15 @@ void GeoAlignableTransform::clearDelta ()
   //## begin GeoAlignableTransform::clearDelta%3CDE23ED014C.body preserve=yes
   std::set<GeoGraphNode*> uniqueParents;
 
-  delete _delta;
-  _delta = NULL;
-  for (size_t p = 0; p < _parentList.size (); p++)
+  delete m_delta;
+  m_delta = NULL;
+  for (size_t p = 0; p < m_parentList.size (); p++)
     {
-      GeoGraphNode* _parent = _parentList[p];
-      if(uniqueParents.find(_parent)==uniqueParents.end()) {
+      GeoGraphNode* parent = m_parentList[p];
+      if(uniqueParents.find(parent)==uniqueParents.end()) {
 	GeoSelClearAbsPosAction cc(this);
-	_parent->exec (&cc);
-	uniqueParents.insert(_parent);
+	parent->exec (&cc);
+	uniqueParents.insert(parent);
       }
     }
   //## end GeoAlignableTransform::clearDelta%3CDE23ED014C.body
@@ -128,7 +128,7 @@ void GeoAlignableTransform::clearDelta ()
 void GeoAlignableTransform::dockTo (GeoVPhysVol* parent)
 {
   //## begin GeoAlignableTransform::dockTo%3CE3DA4700CE.body preserve=yes
-  _parentList.push_back (parent);
+  m_parentList.push_back (parent);
   //## end GeoAlignableTransform::dockTo%3CE3DA4700CE.body
 }
 

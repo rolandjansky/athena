@@ -10,14 +10,14 @@
 #include <stdio.h>
 
 GeoAccessVolAndSTAction::GeoAccessVolAndSTAction(unsigned int Index)
-  :volume(0),
-   serialTransformer(0),
-   _index (Index),
-   _counter (0),
-   _nameTag (0),
-   _serialDenominator (0),
-   _idTag(0),
-   _serialDenomPosition (0)
+  :m_volume(0),
+   m_serialTransformer(0),
+   m_index (Index),
+   m_counter (0),
+   m_nameTag (0),
+   m_serialDenominator (0),
+   m_idTag(0),
+   m_serialDenomPosition (0)
 {
   setDepthLimit(1);
 }
@@ -28,7 +28,7 @@ GeoAccessVolAndSTAction::~GeoAccessVolAndSTAction()
 
 void GeoAccessVolAndSTAction::handleTransform(const GeoTransform *xform)
 {
-  _pendingTransformList.push_back (xform);
+  m_pendingTransformList.push_back (xform);
 }
 
 void GeoAccessVolAndSTAction::handlePhysVol(const GeoPhysVol *vol)
@@ -38,11 +38,11 @@ void GeoAccessVolAndSTAction::handlePhysVol(const GeoPhysVol *vol)
     return;
 
   // Otherwise check if the index equals the counter:     
-  if(_index == _counter)
+  if(m_index == m_counter)
   {
-    volume = vol;
-    serialTransformer = 0;
-    unsigned int listSize = _pendingTransformList.size();
+    m_volume = vol;
+    m_serialTransformer = 0;
+    unsigned int listSize = m_pendingTransformList.size();
 
     if(listSize == 0)
     {
@@ -50,26 +50,26 @@ void GeoAccessVolAndSTAction::handlePhysVol(const GeoPhysVol *vol)
     }
     else if(listSize == 1)
     {
-      transform = _pendingTransformList[0]->getTransform();
-      defTransform = _pendingTransformList[0]->getDefTransform();
+      m_transform = m_pendingTransformList[0]->getTransform();
+      m_defTransform = m_pendingTransformList[0]->getDefTransform();
     }
     else
-      for (unsigned int t=0; t<_pendingTransformList.size(); t++)
+      for (unsigned int t=0; t<m_pendingTransformList.size(); t++)
       {
-	transform = transform * _pendingTransformList[t]->getTransform();
-	defTransform = defTransform * _pendingTransformList[t]->getDefTransform();
+	m_transform = m_transform * m_pendingTransformList[t]->getTransform();
+	m_defTransform = m_defTransform * m_pendingTransformList[t]->getDefTransform();
       }
     terminate ();
   }
   else
   {
-    _idTag   = 0;
-    _nameTag = 0;
-    _pendingTransformList.erase(_pendingTransformList.begin(),
-				 _pendingTransformList.end());
+    m_idTag   = 0;
+    m_nameTag = 0;
+    m_pendingTransformList.erase(m_pendingTransformList.begin(),
+				 m_pendingTransformList.end());
   }
 
-  _counter++;
+  m_counter++;
 }
 
 void GeoAccessVolAndSTAction::handleFullPhysVol(const GeoFullPhysVol *vol)
@@ -79,125 +79,125 @@ void GeoAccessVolAndSTAction::handleFullPhysVol(const GeoFullPhysVol *vol)
     return;
 
   // Otherwise check if the index equals the counter:     
-  if(_index == _counter)
+  if(m_index == m_counter)
   {
-    volume = vol;
-    serialTransformer = 0;
+    m_volume = vol;
+    m_serialTransformer = 0;
 
-    unsigned int listSize = _pendingTransformList.size();
+    unsigned int listSize = m_pendingTransformList.size();
     if(listSize == 0)
     {
       // do nothing.... 
     }
     else if(listSize == 1)
     {
-      transform = _pendingTransformList[0]->getTransform();
-      defTransform = _pendingTransformList[0]->getDefTransform();
+      m_transform = m_pendingTransformList[0]->getTransform();
+      m_defTransform = m_pendingTransformList[0]->getDefTransform();
     }
     else
-      for (unsigned int t = 0; t < _pendingTransformList.size (); t++)
+      for (unsigned int t = 0; t < m_pendingTransformList.size (); t++)
       {
-	transform =
-	  transform * _pendingTransformList[t]->getTransform ();
-	defTransform =
-	  defTransform * _pendingTransformList[t]->getDefTransform ();
+	m_transform =
+	  m_transform * m_pendingTransformList[t]->getTransform ();
+	m_defTransform =
+	  m_defTransform * m_pendingTransformList[t]->getDefTransform ();
       }
     terminate ();
   }
   else
   {
-    _pendingTransformList.erase (_pendingTransformList.begin (),
-				 _pendingTransformList.end ()); 
-    _nameTag = 0;
-    _idTag   = 0;
+    m_pendingTransformList.erase (m_pendingTransformList.begin (),
+				 m_pendingTransformList.end ()); 
+    m_nameTag = 0;
+    m_idTag   = 0;
   }
 
-  _counter++;
+  m_counter++;
 }
 
 PVConstLink GeoAccessVolAndSTAction::getVolume() const
 {
-  return volume;
+  return m_volume;
 }
 
 const HepGeom::Transform3D & GeoAccessVolAndSTAction::getTransform() const
 {
-  return transform;
+  return m_transform;
 }
 
 const HepGeom::Transform3D & GeoAccessVolAndSTAction::getDefTransform() const
 {
-  return defTransform;
+  return m_defTransform;
 }
 
 const std::string & GeoAccessVolAndSTAction::getName() const
 {
-  if(_name.empty()) {
-    if (_nameTag)
-      _name = _nameTag->getName ();
-    else if(_serialDenominator)
+  if(m_name.empty()) {
+    if (m_nameTag)
+      m_name = m_nameTag->getName ();
+    else if(m_serialDenominator)
     {
       // Yes this is totally stupid but the ostringstream classes in the gnu 
       // compiler are broken....it seems: 
       // gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110) 
 
       char Buff[500];
-      snprintf (Buff, 500, "%d", _index - _serialDenomPosition);
-      _name = _serialDenominator->getBaseName () + std::string (Buff);
+      snprintf (Buff, 500, "%d", m_index - m_serialDenomPosition);
+      m_name = m_serialDenominator->getBaseName () + std::string (Buff);
     }
   }
   else
-    _name = "ANON";
+    m_name = "ANON";
 
-  return _name;
+  return m_name;
 }
 
 void GeoAccessVolAndSTAction::handleNameTag(const GeoNameTag *nameTag)
 {
-  _nameTag = nameTag;
-  _serialDenominator = 0;
-  _serialDenomPosition = 0;
+  m_nameTag = nameTag;
+  m_serialDenominator = 0;
+  m_serialDenomPosition = 0;
 }
 
 void GeoAccessVolAndSTAction::handleSerialDenominator(const GeoSerialDenominator *sD)
 {
-  _serialDenominator = sD;
-  _serialDenomPosition = _counter;
+  m_serialDenominator = sD;
+  m_serialDenomPosition = m_counter;
 }
 
 void GeoAccessVolAndSTAction::handleSerialTransformer(const GeoSerialTransformer  *sT)
 {
-  _pendingTransformList.erase(_pendingTransformList.begin(),
-			      _pendingTransformList.end());
+  m_pendingTransformList.erase(m_pendingTransformList.begin(),
+			      m_pendingTransformList.end());
 
-  if(_index == _counter)
+  if(m_index == m_counter)
   {
-    volume = 0;
-    serialTransformer = sT;
+    m_volume = 0;
+    m_serialTransformer = sT;
     terminate ();
   }
   else
   {
-    _idTag   = 0;
-    _nameTag = 0;
-    _counter++;
+    m_idTag   = 0;
+    m_nameTag = 0;
+    m_counter++;
   }
 }
 
 const GeoSerialTransformer* GeoAccessVolAndSTAction::getSerialTransformer() const
 {
-  return serialTransformer;
+  return m_serialTransformer;
 }
 
 void GeoAccessVolAndSTAction::handleIdentifierTag(const GeoIdentifierTag *idTag)
 {
-  _idTag = idTag;
+  m_idTag = idTag;
 }
 
 Query<unsigned int> GeoAccessVolAndSTAction::getId() const
 {
-  if(_idTag) 
-    return Query<unsigned int>(_idTag->getIdentifier());
+  if(m_idTag) 
+    return Query<unsigned int>(m_idTag->getIdentifier());
   else
     return Query<unsigned int>();
 }

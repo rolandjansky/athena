@@ -160,76 +160,76 @@ class GeoMaterial : public RCBase  //## Inherits: <unnamed>%3CD878BF02A1
 
     // Data Members for Class Attributes
 
-      //## begin GeoMaterial::name%3CD87BD10157.attr preserve=no  public: std::string {U} Name
-      std::string name;
-      //## end GeoMaterial::name%3CD87BD10157.attr
+      //## begin GeoMaterial::m_name%3CD87BD10157.attr preserve=no  public: std::string {U} Name
+      std::string m_name;
+      //## end GeoMaterial::m_name%3CD87BD10157.attr
 
-      //## begin GeoMaterial::density%3CD87BD70246.attr preserve=no  public: double {U} Density
-      double density;
-      //## end GeoMaterial::density%3CD87BD70246.attr
+      //## begin GeoMaterial::m_density%3CD87BD70246.attr preserve=no  public: double {U} M_Density
+      double m_density;
+      //## end GeoMaterial::m_density%3CD87BD70246.attr
 
-      //## begin GeoMaterial::iD%3CD882E40010.attr preserve=no  public: unsigned int {U} _lastID++
-      unsigned int iD;
-      //## end GeoMaterial::iD%3CD882E40010.attr
+      //## begin GeoMaterial::m_iD%3CD882E40010.attr preserve=no  public: unsigned int {U} _lastID++
+      unsigned int m_iD;
+      //## end GeoMaterial::m_iD%3CD882E40010.attr
 
-      //## Attribute: _fraction%3CD882410016
+      //## Attribute: m_fraction%3CD882410016
       //	A list of the fractional composition of each material.
       //	Fraction is by mass.
-      //## begin GeoMaterial::_fraction%3CD882410016.attr preserve=no  private: std::vector<double> {U} 
-      std::vector<double> _fraction;
-      //## end GeoMaterial::_fraction%3CD882410016.attr
+      //## begin GeoMaterial::m_fraction%3CD882410016.attr preserve=no  private: std::vector<double> {U} 
+      std::vector<double> m_fraction;
+      //## end GeoMaterial::m_fraction%3CD882410016.attr
 
-      //## Attribute: _radLength%3CD87BD9007C
+      //## Attribute: m_radLength%3CD87BD9007C
       //	The radiation length of the material.
-      //## begin GeoMaterial::_radLength%3CD87BD9007C.attr preserve=no  private: double {U} 0
-      double _radLength;
-      //## end GeoMaterial::_radLength%3CD87BD9007C.attr
+      //## begin GeoMaterial::m_radLength%3CD87BD9007C.attr preserve=no  private: double {U} 0
+      double m_radLength;
+      //## end GeoMaterial::m_radLength%3CD87BD9007C.attr
 
-      //## Attribute: _intLength%3CD87BDB01BF
+      //## Attribute: m_intLength%3CD87BDB01BF
       //	The interaction length of the material.
-      //## begin GeoMaterial::_intLength%3CD87BDB01BF.attr preserve=no  private: double {U} 0
-      double _intLength;
-      //## end GeoMaterial::_intLength%3CD87BDB01BF.attr
+      //## begin GeoMaterial::m_intLength%3CD87BDB01BF.attr preserve=no  private: double {U} 0
+      double m_intLength;
+      //## end GeoMaterial::m_intLength%3CD87BDB01BF.attr
 
-      //## Attribute: _lastID%3CD8833A01EB
+      //## Attribute: s_lastID%3CD8833A01EB
       //	A static used to assign unique identifiers to new
       //	materials.
-      //## begin GeoMaterial::_lastID%3CD8833A01EB.attr preserve=no  private: static unsigned int {U} 0
-      static unsigned int _lastID;
-      //## end GeoMaterial::_lastID%3CD8833A01EB.attr
+      //## begin GeoMaterial::s_lastID%3CD8833A01EB.attr preserve=no  private: static unsigned int {U} 0
+      static unsigned int s_lastID;
+      //## end GeoMaterial::s_lastID%3CD8833A01EB.attr
 
-      //## Attribute: _deDxConst%3CDB1FDD0144
+      //## Attribute: m_dedDxConst%3CDB1FDD0144
       //	The constant term in the formula governing dE/dx.
-      //## begin GeoMaterial::_deDxConst%3CDB1FDD0144.attr preserve=no  private: double {U} 0
-      double _deDxConst;
-      //## end GeoMaterial::_deDxConst%3CDB1FDD0144.attr
+      //## begin GeoMaterial::m_dedDxConst%3CDB1FDD0144.attr preserve=no  private: double {U} 0
+      double m_dedDxConst;
+      //## end GeoMaterial::m_dedDxConst%3CDB1FDD0144.attr
 
-      //## Attribute: _deDxI0%3CDB2028016A
+      //## Attribute: m_deDxI0%3CDB2028016A
       //	The ionization potential in the formula governing dE/dx.
-      //## begin GeoMaterial::_deDxI0%3CDB2028016A.attr preserve=no  private: double {U} 0
-      double _deDxI0;
-      //## end GeoMaterial::_deDxI0%3CDB2028016A.attr
+      //## begin GeoMaterial::m_deDxI0%3CDB2028016A.attr preserve=no  private: double {U} 0
+      double m_deDxI0;
+      //## end GeoMaterial::m_deDxI0%3CDB2028016A.attr
 
-      //## Attribute: _locked%3CDA09700200
+      //## Attribute: m_locked%3CDA09700200
       //	A flag used to lock the material from further addition
       //	of elements or other constituents.
-      //## begin GeoMaterial::_locked%3CDA09700200.attr preserve=no  private: bool {U} false
-      bool _locked;
-      //## end GeoMaterial::_locked%3CDA09700200.attr
+      //## begin GeoMaterial::m_locked%3CDA09700200.attr preserve=no  private: bool {U} false
+      bool m_locked;
+      //## end GeoMaterial::m_locked%3CDA09700200.attr
 
     // Additional Private Declarations
       //## begin GeoMaterial%3CD878BB0006.private preserve=yes
-  static const double _ionizationPotential[93];
+  static const double s_ionizationPotential[93];
       //## end GeoMaterial%3CD878BB0006.private
   private: //## implementation
     // Data Members for Associations
 
       //## Association: GeoModelKernel::material composition%3CD87CC503CE
-      //## Role: GeoMaterial::_element%3CD87CC60312
+      //## Role: GeoMaterial::m_element%3CD87CC60312
       //	The list of GeoElements composing a GeoMaterial.
-      //## begin GeoMaterial::_element%3CD87CC60312.role preserve=no  public: GeoElement {1 -> nRHgN}
-      std::vector<GeoElement *> _element;
-      //## end GeoMaterial::_element%3CD87CC60312.role
+      //## begin GeoMaterial::m_element%3CD87CC60312.role preserve=no  public: GeoElement {1 -> nRHgN}
+      std::vector<GeoElement *> m_element;
+      //## end GeoMaterial::m_element%3CD87CC60312.role
 
     // Additional Implementation Declarations
       //## begin GeoMaterial%3CD878BB0006.implementation preserve=yes
@@ -247,21 +247,21 @@ class GeoMaterial : public RCBase  //## Inherits: <unnamed>%3CD878BF02A1
 inline const std::string& GeoMaterial::getName () const
 {
   //## begin GeoMaterial::getName%3CD87BD10157.get preserve=no
-  return name;
+  return m_name;
   //## end GeoMaterial::getName%3CD87BD10157.get
 }
 
 inline const double& GeoMaterial::getDensity () const
 {
   //## begin GeoMaterial::getDensity%3CD87BD70246.get preserve=no
-  return density;
+  return m_density;
   //## end GeoMaterial::getDensity%3CD87BD70246.get
 }
 
 inline const unsigned int& GeoMaterial::getID () const
 {
   //## begin GeoMaterial::getID%3CD882E40010.get preserve=no
-  return iD;
+  return m_iD;
   //## end GeoMaterial::getID%3CD882E40010.get
 }
 

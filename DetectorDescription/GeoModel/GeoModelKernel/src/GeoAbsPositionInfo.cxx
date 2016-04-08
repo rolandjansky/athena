@@ -35,8 +35,8 @@
 
 GeoAbsPositionInfo::GeoAbsPositionInfo()
   //## begin GeoAbsPositionInfo::GeoAbsPositionInfo%3CDD8B7801FE_const.hasinit preserve=no
-      : _absTransform(NULL),
-        _defAbsTransform(NULL)
+      : m_absTransform(NULL),
+        m_defAbsTransform(NULL)
   //## end GeoAbsPositionInfo::GeoAbsPositionInfo%3CDD8B7801FE_const.hasinit
   //## begin GeoAbsPositionInfo::GeoAbsPositionInfo%3CDD8B7801FE_const.initialization preserve=yes
   //## end GeoAbsPositionInfo::GeoAbsPositionInfo%3CDD8B7801FE_const.initialization
@@ -49,8 +49,8 @@ GeoAbsPositionInfo::GeoAbsPositionInfo()
 GeoAbsPositionInfo::~GeoAbsPositionInfo()
 {
   //## begin GeoAbsPositionInfo::~GeoAbsPositionInfo%3CDD8B7801FE_dest.body preserve=yes
-  delete _absTransform;
-  delete _defAbsTransform;
+  delete m_absTransform;
+  delete m_defAbsTransform;
   //## end GeoAbsPositionInfo::~GeoAbsPositionInfo%3CDD8B7801FE_dest.body
 }
 
@@ -60,29 +60,29 @@ GeoAbsPositionInfo::~GeoAbsPositionInfo()
 void GeoAbsPositionInfo::clearAbsTransform ()
 {
   //## begin GeoAbsPositionInfo::clearAbsTransform%3CDE5FCD02C8.body preserve=yes
-  delete _absTransform;
-  _absTransform = NULL;
+  delete m_absTransform;
+  m_absTransform = NULL;
   //## end GeoAbsPositionInfo::clearAbsTransform%3CDE5FCD02C8.body
 }
 
 void GeoAbsPositionInfo::clearDefAbsTransform ()
 {
   //## begin GeoAbsPositionInfo::clearDefAbsTransform%3CDE5FD8006B.body preserve=yes
-  delete _defAbsTransform;
-  _defAbsTransform = NULL;
+  delete m_defAbsTransform;
+  m_defAbsTransform = NULL;
   //## end GeoAbsPositionInfo::clearDefAbsTransform%3CDE5FD8006B.body
 }
 
 void GeoAbsPositionInfo::setAbsTransform (const HepGeom::Transform3D &  xform)
 {
   //## begin GeoAbsPositionInfo::setAbsTransform%3CDE60550300.body preserve=yes
-  if (_absTransform)
+  if (m_absTransform)
     {
-      (*_absTransform) = xform;
+      (*m_absTransform) = xform;
     }
   else
     {
-      _absTransform = new HepGeom::Transform3D (xform);
+      m_absTransform = new HepGeom::Transform3D (xform);
     }
   //## end GeoAbsPositionInfo::setAbsTransform%3CDE60550300.body
 }
@@ -90,13 +90,13 @@ void GeoAbsPositionInfo::setAbsTransform (const HepGeom::Transform3D &  xform)
 void GeoAbsPositionInfo::setDefAbsTransform (const HepGeom::Transform3D &  xform)
 {
   //## begin GeoAbsPositionInfo::setDefAbsTransform%3CDE60B902F0.body preserve=yes
-  if (_defAbsTransform)
+  if (m_defAbsTransform)
     {
-      (*_defAbsTransform) = xform;
+      (*m_defAbsTransform) = xform;
     }
   else
     {
-      _defAbsTransform = new HepGeom::Transform3D (xform);
+      m_defAbsTransform = new HepGeom::Transform3D (xform);
     }
   //## end GeoAbsPositionInfo::setDefAbsTransform%3CDE60B902F0.body
 }

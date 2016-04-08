@@ -41,19 +41,19 @@ GeoAccessVolumeAction::GeoAccessVolumeAction (unsigned int Index)
   //## end GeoAccessVolumeAction::GeoAccessVolumeAction%3CE1249902FE.hasinit
   //## begin GeoAccessVolumeAction::GeoAccessVolumeAction%3CE1249902FE.initialization preserve=yes
   :
-_index (Index),
-_counter (0),
-_nameTag (NULL),
-_serialDenominator (NULL),
-_idTag(NULL),
-_serialDenomPosition (0),
-_serialIdentifier(NULL),
-_serialIdentPosition(0)
+m_index (Index),
+m_counter (0),
+m_nameTag (NULL),
+m_serialDenominator (NULL),
+m_idTag(NULL),
+m_serialDenomPosition (0),
+m_serialIdentifier(NULL),
+m_serialIdentPosition(0)
   //## end GeoAccessVolumeAction::GeoAccessVolumeAction%3CE1249902FE.initialization
 {
   //## begin GeoAccessVolumeAction::GeoAccessVolumeAction%3CE1249902FE.body preserve=yes
   setDepthLimit (1);
-  _pendingTransformList.reserve(1);
+  m_pendingTransformList.reserve(1);
   //## end GeoAccessVolumeAction::GeoAccessVolumeAction%3CE1249902FE.body
 }
 
@@ -70,7 +70,7 @@ GeoAccessVolumeAction::~GeoAccessVolumeAction()
 void GeoAccessVolumeAction::handleTransform (const GeoTransform *xform)
 {
   //## begin GeoAccessVolumeAction::handleTransform%3CE121B602D4.body preserve=yes
-  _pendingTransformList.push_back (xform);
+  m_pendingTransformList.push_back (xform);
   //## end GeoAccessVolumeAction::handleTransform%3CE121B602D4.body
 }
 
@@ -85,42 +85,42 @@ void GeoAccessVolumeAction::handlePhysVol (const GeoPhysVol *vol)
   //     
   // Otherwise check if the index equals the counter:     
   //     
-  if (_index == _counter)
+  if (m_index == m_counter)
     {
-      volume = vol;
-      unsigned int listSize = _pendingTransformList.size ();
+      m_volume = vol;
+      unsigned int listSize = m_pendingTransformList.size ();
       if (listSize == 0)
 	{
 	  // do nothing.... 
 	}
       else if (listSize == 1)
 	{
-	  transform = _pendingTransformList[0]->getTransform ();
-	  defTransform = _pendingTransformList[0]->getDefTransform ();
+	  m_transform = m_pendingTransformList[0]->getTransform ();
+	  m_defTransform = m_pendingTransformList[0]->getDefTransform ();
 	}
       else
 	{
-	  for (unsigned int t = 0; t < _pendingTransformList.size (); t++)
+	  for (unsigned int t = 0; t < m_pendingTransformList.size (); t++)
 	    {
-	      transform =
-		transform * _pendingTransformList[t]->getTransform ();
-	      defTransform =
-		defTransform * _pendingTransformList[t]->getDefTransform ();
+	      m_transform =
+		m_transform * m_pendingTransformList[t]->getTransform ();
+	      m_defTransform =
+		m_defTransform * m_pendingTransformList[t]->getDefTransform ();
 	    }
 	}
       terminate ();
     }
   else
     {
-	  _idTag   = NULL;
-      _nameTag = NULL;
-      _pendingTransformList.erase (_pendingTransformList.begin (),
-				  _pendingTransformList.end ());
+	  m_idTag   = NULL;
+      m_nameTag = NULL;
+      m_pendingTransformList.erase (m_pendingTransformList.begin (),
+				  m_pendingTransformList.end ());
     }
   //     
   // Increment the counter:     
   //     
-  _counter++;
+  m_counter++;
   //## end GeoAccessVolumeAction::handlePhysVol%3CE12437022B.body
 }
 
@@ -136,76 +136,76 @@ void GeoAccessVolumeAction::handleFullPhysVol (const GeoFullPhysVol *vol)
   //     
   // Otherwise check if the index equals the counter:     
   //     
-  if (_index == _counter)
+  if (m_index == m_counter)
     {
-      volume = vol;
-      unsigned int listSize = _pendingTransformList.size ();
+      m_volume = vol;
+      unsigned int listSize = m_pendingTransformList.size ();
       if (listSize == 0)
 	{
 	  // do nothing.... 
 	}
       else if (listSize == 1)
 	{
-	  transform = _pendingTransformList[0]->getTransform ();
-	  defTransform = _pendingTransformList[0]->getDefTransform ();
+	  m_transform = m_pendingTransformList[0]->getTransform ();
+	  m_defTransform = m_pendingTransformList[0]->getDefTransform ();
 	}
       else
 	{
-	  for (unsigned int t = 0; t < _pendingTransformList.size (); t++)
+	  for (unsigned int t = 0; t < m_pendingTransformList.size (); t++)
 	    {
-	      transform =
-		transform * _pendingTransformList[t]->getTransform ();
-	      defTransform =
-		defTransform * _pendingTransformList[t]->getDefTransform ();
+	      m_transform =
+		m_transform * m_pendingTransformList[t]->getTransform ();
+	      m_defTransform =
+		m_defTransform * m_pendingTransformList[t]->getDefTransform ();
 	    }
 	}
       terminate ();
     }
   else
     {
-      _pendingTransformList.erase (_pendingTransformList.begin (),
-				  _pendingTransformList.end ()); 
-	  _nameTag = NULL;
-      _idTag   = NULL;
+      m_pendingTransformList.erase (m_pendingTransformList.begin (),
+				  m_pendingTransformList.end ()); 
+	  m_nameTag = NULL;
+      m_idTag   = NULL;
     }
   //     
   // Increment the counter:     
   //     
-  _counter++;
+  m_counter++;
   //## end GeoAccessVolumeAction::handleFullPhysVol%3CE12437023F.body
 }
 
 PVConstLink GeoAccessVolumeAction::getVolume () const
 {
   //## begin GeoAccessVolumeAction::getVolume%3CE124F50044.body preserve=yes
-  return volume;
+  return m_volume;
   //## end GeoAccessVolumeAction::getVolume%3CE124F50044.body
 }
 
 const HepGeom::Transform3D & GeoAccessVolumeAction::getTransform () const
 {
   //## begin GeoAccessVolumeAction::getTransform%3CE1257A02B2.body preserve=yes
-  return transform;
+  return m_transform;
   //## end GeoAccessVolumeAction::getTransform%3CE1257A02B2.body
 }
 
 const HepGeom::Transform3D & GeoAccessVolumeAction::getDefTransform () const
 {
   //## begin GeoAccessVolumeAction::getDefTransform%3CE1317A0331.body preserve=yes
-  return defTransform;
+  return m_defTransform;
   //## end GeoAccessVolumeAction::getDefTransform%3CE1317A0331.body
 }
 
 const std::string & GeoAccessVolumeAction::getName () const
 {
   //## begin GeoAccessVolumeAction::getName%3CEB0CE5029B.body preserve=yes
-  if (_name.empty ())
+  if (m_name.empty ())
     {
-      if (_nameTag)
+      if (m_nameTag)
 	{
-	  _name = _nameTag->getName ();
+	  m_name = m_nameTag->getName ();
 	}
-      else if (_serialDenominator)
+      else if (m_serialDenominator)
 	{
 
 	  // Yes this is totally stupid but the ostringstream classes in the gnu 
@@ -213,34 +213,34 @@ const std::string & GeoAccessVolumeAction::getName () const
 	  // gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110) 
 
 	  char Buff[500];
-	  snprintf (Buff, 500, "%d", _index - _serialDenomPosition);
-	  _name = _serialDenominator->getBaseName () + std::string (Buff);
-	  //      o << _serialDenominator->getBaseName() << (int) _index;   
-	  //      _name = o.str();  
+	  snprintf (Buff, 500, "%d", m_index - m_serialDenomPosition);
+	  m_name = m_serialDenominator->getBaseName () + std::string (Buff);
+	  //      o << m_serialDenominator->getBaseName() << (int) m_index;   
+	  //      m_name = o.str();  
 	}
       else
 	{
-	  _name = "ANON";
+	  m_name = "ANON";
 	}
     }
-  return _name;
+  return m_name;
   //## end GeoAccessVolumeAction::getName%3CEB0CE5029B.body
 }
 
 void GeoAccessVolumeAction::handleNameTag (const GeoNameTag *nameTag)
 {
   //## begin GeoAccessVolumeAction::handleNameTag%3CEB0D370018.body preserve=yes
-  _nameTag = nameTag;
-  _serialDenominator = NULL;
-  _serialDenomPosition = 0;
+  m_nameTag = nameTag;
+  m_serialDenominator = NULL;
+  m_serialDenomPosition = 0;
   //## end GeoAccessVolumeAction::handleNameTag%3CEB0D370018.body
 }
 
 void GeoAccessVolumeAction::handleSerialDenominator (const GeoSerialDenominator *sD)
 {
   //## begin GeoAccessVolumeAction::handleSerialDenominator%3CEB0D370040.body preserve=yes
-  _serialDenominator = sD;
-  _serialDenomPosition = _counter;
+  m_serialDenominator = sD;
+  m_serialDenomPosition = m_counter;
   //## end GeoAccessVolumeAction::handleSerialDenominator%3CEB0D370040.body
 }
 
@@ -251,28 +251,28 @@ void GeoAccessVolumeAction::handleSerialTransformer (const GeoSerialTransformer 
   //     
   // Otherwise check if the index equals the counter:     
   //     
-  if (_index < _counter + sT->getNCopies ())
+  if (m_index < m_counter + sT->getNCopies ())
     {
-      unsigned int copy = _index - _counter;
-      volume = sT->getVolume ();
-      for (unsigned int t = 0; t < _pendingTransformList.size (); t++)
+      unsigned int copy = m_index - m_counter;
+      m_volume = sT->getVolume ();
+      for (unsigned int t = 0; t < m_pendingTransformList.size (); t++)
 	{
-	  transform = transform * _pendingTransformList[t]->getTransform ();
-	  defTransform =
-	    defTransform * _pendingTransformList[t]->getDefTransform ();
+	  m_transform = m_transform * m_pendingTransformList[t]->getTransform ();
+	  m_defTransform =
+	    m_defTransform * m_pendingTransformList[t]->getDefTransform ();
 	}
-      transform    = transform    * sT->getTransform (copy);
-      defTransform = defTransform * sT->getTransform (copy);
-      _counter += (copy + 1);
+      m_transform    = m_transform    * sT->getTransform (copy);
+      m_defTransform = m_defTransform * sT->getTransform (copy);
+      m_counter += (copy + 1);
       terminate ();
     }
   else
     {
-      _idTag   = NULL;
-      _nameTag = NULL;
-      _pendingTransformList.erase (_pendingTransformList.begin (),
-				  _pendingTransformList.end ());
-      _counter += sT->getNCopies ();
+      m_idTag   = NULL;
+      m_nameTag = NULL;
+      m_pendingTransformList.erase (m_pendingTransformList.begin (),
+				  m_pendingTransformList.end ());
+      m_counter += sT->getNCopies ();
     }
   //## end GeoAccessVolumeAction::handleSerialTransformer%3D208CCE030A.body
 }
@@ -280,9 +280,9 @@ void GeoAccessVolumeAction::handleSerialTransformer (const GeoSerialTransformer 
 void GeoAccessVolumeAction::handleIdentifierTag (const GeoIdentifierTag *idTag)
 {
   //## begin GeoAccessVolumeAction::handleIdentifierTag%3E217F0E0298.body preserve=yes
-    _idTag = idTag;
-    _serialIdentifier = NULL;
-    _serialIdentPosition = 0;
+    m_idTag = idTag;
+    m_serialIdentifier = NULL;
+    m_serialIdentPosition = 0;
   //## end GeoAccessVolumeAction::handleIdentifierTag%3E217F0E0298.body
 }
 
@@ -290,13 +290,13 @@ Query<int> GeoAccessVolumeAction::getId () const
 {
   //## begin GeoAccessVolumeAction::getId%3E217F5C0268.body preserve=yes
   Query<int> id;
-  if (_idTag)
+  if (m_idTag)
     {
-      id = Query<int> (_idTag->getIdentifier ());
+      id = Query<int> (m_idTag->getIdentifier ());
     }
-  else if (_serialIdentifier)
+  else if (m_serialIdentifier)
     {
-      id = Query<int> (_index - _serialIdentPosition + _serialIdentifier->getBaseId());
+      id = Query<int> (m_index - m_serialIdentPosition + m_serialIdentifier->getBaseId());
     }
   return id;
   //## end GeoAccessVolumeAction::getId%3E217F5C0268.body
@@ -306,8 +306,8 @@ Query<int> GeoAccessVolumeAction::getId () const
   //## begin GeoAccessVolumeAction%3CE11DD8028A.declarations preserve=yes
 void GeoAccessVolumeAction::handleSerialIdentifier(const GeoSerialIdentifier *sI)
 {
-  _serialIdentifier = sI;
-  _serialIdentPosition = _counter;
+  m_serialIdentifier = sI;
+  m_serialIdentPosition = m_counter;
 }
   //## end GeoAccessVolumeAction%3CE11DD8028A.declarations
 //## begin module%3CE11DD8028A.epilog preserve=yes

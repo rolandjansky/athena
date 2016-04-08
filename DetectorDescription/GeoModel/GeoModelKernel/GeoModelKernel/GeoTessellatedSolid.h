@@ -34,20 +34,20 @@ class GeoTessellatedSolid : public GeoShape
   GeoTessellatedSolid(const GeoTessellatedSolid &right);
   GeoTessellatedSolid& operator=(const GeoTessellatedSolid &right);
 
-  static const std::string classType;
-  static const ShapeType classTypeID;
+  static const std::string s_classType;
+  static const ShapeType s_classTypeID;
 
   std::vector<GeoFacet*> m_facets;
 };
 
 inline const std::string& GeoTessellatedSolid::getClassType()
 {
-  return classType;
+  return s_classType;
 }
 
 inline ShapeType GeoTessellatedSolid::getClassTypeID()
 {
-  return classTypeID;
+  return s_classTypeID;
 }
 
 #endif

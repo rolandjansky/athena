@@ -158,67 +158,67 @@ class GeoTraversalState
 
     // Data Members for Class Attributes
 
-      //## Attribute: _absTransformList%3CE20A5803BD
+      //## Attribute: m_absTransformList%3CE20A5803BD
       //	A list of tranformations for all nodes visited at all
       //	previous levels of traversal.
-      //## begin GeoTraversalState::_absTransformList%3CE20A5803BD.attr preserve=no  private: std::stack<HepGeom::Transform3D> {U} 
-      std::stack<HepGeom::Transform3D> _absTransformList;
-      //## end GeoTraversalState::_absTransformList%3CE20A5803BD.attr
+      //## begin GeoTraversalState::m_absTransformList%3CE20A5803BD.attr preserve=no  private: std::stack<HepGeom::Transform3D> {U} 
+      std::stack<HepGeom::Transform3D> m_absTransformList;
+      //## end GeoTraversalState::m_absTransformList%3CE20A5803BD.attr
 
-      //## Attribute: _defAbsTransformList%3CE20A5E039E
+      //## Attribute: m_defAbsTransformList%3CE20A5E039E
       //	A list of default tranformations for all nodes visited
       //	at all previous levels of traversal.
-      //## begin GeoTraversalState::_defAbsTransformList%3CE20A5E039E.attr preserve=no  private: std::stack<HepGeom::Transform3D> {U} 
-      std::stack<HepGeom::Transform3D> _defAbsTransformList;
-      //## end GeoTraversalState::_defAbsTransformList%3CE20A5E039E.attr
+      //## begin GeoTraversalState::m_defAbsTransformList%3CE20A5E039E.attr preserve=no  private: std::stack<HepGeom::Transform3D> {U} 
+      std::stack<HepGeom::Transform3D> m_defAbsTransformList;
+      //## end GeoTraversalState::m_defAbsTransformList%3CE20A5E039E.attr
 
-      //## Attribute: _absNameList%3CEB1A08019B
+      //## Attribute: m_absNameList%3CEB1A08019B
       //	List of volume names.
-      //## begin GeoTraversalState::_absNameList%3CEB1A08019B.attr preserve=no  private: std::stack<std::string> {U} 
-      std::stack<std::string> _absNameList;
-      //## end GeoTraversalState::_absNameList%3CEB1A08019B.attr
+      //## begin GeoTraversalState::m_absNameList%3CEB1A08019B.attr preserve=no  private: std::stack<std::string> {U} 
+      std::stack<std::string> m_absNameList;
+      //## end GeoTraversalState::m_absNameList%3CEB1A08019B.attr
 
-      //## Attribute: _absTransform%3CE21EAF004E
+      //## Attribute: m_absTransform%3CE21EAF004E
       //	The absolute transform for the present volume.
-      //## begin GeoTraversalState::_absTransform%3CE21EAF004E.attr preserve=no  private: HepGeom::Transform3D {U} 
-      HepGeom::Transform3D _absTransform;
-      //## end GeoTraversalState::_absTransform%3CE21EAF004E.attr
+      //## begin GeoTraversalState::m_absTransform%3CE21EAF004E.attr preserve=no  private: HepGeom::Transform3D {U} 
+      HepGeom::Transform3D m_absTransform;
+      //## end GeoTraversalState::m_absTransform%3CE21EAF004E.attr
 
-      //## Attribute: _defAbsTransform%3CE21EB60044
+      //## Attribute: m_defAbsTransform%3CE21EB60044
       //	The default absolute transform.
-      //## begin GeoTraversalState::_defAbsTransform%3CE21EB60044.attr preserve=no  private: HepGeom::Transform3D {U} 
-      HepGeom::Transform3D _defAbsTransform;
-      //## end GeoTraversalState::_defAbsTransform%3CE21EB60044.attr
+      //## begin GeoTraversalState::m_defAbsTransform%3CE21EB60044.attr preserve=no  private: HepGeom::Transform3D {U} 
+      HepGeom::Transform3D m_defAbsTransform;
+      //## end GeoTraversalState::m_defAbsTransform%3CE21EB60044.attr
 
-      //## Attribute: _absName%3CEB1AA90279
+      //## Attribute: m_absName%3CEB1AA90279
       //	The absolute name.
-      //## begin GeoTraversalState::_absName%3CEB1AA90279.attr preserve=no  private: std::string {U} 
-      std::string _absName;
-      //## end GeoTraversalState::_absName%3CEB1AA90279.attr
+      //## begin GeoTraversalState::m_absName%3CEB1AA90279.attr preserve=no  private: std::string {U} 
+      std::string m_absName;
+      //## end GeoTraversalState::m_absName%3CEB1AA90279.attr
 
-      //## Attribute: _transform%3CE2309B030C
+      //## Attribute: m_transform%3CE2309B030C
       //	The transform from parent to current.
-      //## begin GeoTraversalState::_transform%3CE2309B030C.attr preserve=no  private: HepGeom::Transform3D {U} 
-      HepGeom::Transform3D _transform;
-      //## end GeoTraversalState::_transform%3CE2309B030C.attr
+      //## begin GeoTraversalState::m_transform%3CE2309B030C.attr preserve=no  private: HepGeom::Transform3D {U} 
+      HepGeom::Transform3D m_transform;
+      //## end GeoTraversalState::m_transform%3CE2309B030C.attr
 
-      //## Attribute: _defTransform%3CE230BA0126
+      //## Attribute: m_defTransform%3CE230BA0126
       //	The default transform from parent to current.
-      //## begin GeoTraversalState::_defTransform%3CE230BA0126.attr preserve=no  private: HepGeom::Transform3D {U} 
-      HepGeom::Transform3D _defTransform;
-      //## end GeoTraversalState::_defTransform%3CE230BA0126.attr
+      //## begin GeoTraversalState::m_defTransform%3CE230BA0126.attr preserve=no  private: HepGeom::Transform3D {U} 
+      HepGeom::Transform3D m_defTransform;
+      //## end GeoTraversalState::m_defTransform%3CE230BA0126.attr
 
-      //## Attribute: _name%3CEB1ACE0005
+      //## Attribute: m_name%3CEB1ACE0005
       //	The relative name.
-      //## begin GeoTraversalState::_name%3CEB1ACE0005.attr preserve=no  private: std::string {U} 
-      std::string _name;
-      //## end GeoTraversalState::_name%3CEB1ACE0005.attr
+      //## begin GeoTraversalState::m_name%3CEB1ACE0005.attr preserve=no  private: std::string {U} 
+      std::string m_name;
+      //## end GeoTraversalState::m_name%3CEB1ACE0005.attr
 
-      //## Attribute: _id%3E2AD8EB02EC
+      //## Attribute: m_id%3E2AD8EB02EC
       //	And identifier for this volume.
-      //## begin GeoTraversalState::_id%3E2AD8EB02EC.attr preserve=no  private: Query<int> {U} 
-      Query<int> _id;
-      //## end GeoTraversalState::_id%3E2AD8EB02EC.attr
+      //## begin GeoTraversalState::m_id%3E2AD8EB02EC.attr preserve=no  private: Query<int> {U} 
+      Query<int> m_id;
+      //## end GeoTraversalState::m_id%3E2AD8EB02EC.attr
 
     // Additional Private Declarations
       //## begin GeoTraversalState%3CDF52C70131.private preserve=yes
@@ -232,7 +232,7 @@ class GeoTraversalState
       //	The path from the point at which the action started, to
       //	the current node.
       //## begin GeoTraversalState::path%3CE204AF03AC.role preserve=no  public: GeoNodePath {1 -> 1VHgN}
-      GeoNodePath path;
+      GeoNodePath m_path;
       //## end GeoTraversalState::path%3CE204AF03AC.role
 
     // Additional Implementation Declarations

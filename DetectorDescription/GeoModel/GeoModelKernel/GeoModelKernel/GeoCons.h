@@ -136,41 +136,41 @@ class GeoCons : public GeoShape  //## Inherits: <unnamed>%3CD26BFA00C1
 
     // Data Members for Class Attributes
 
-      //## begin GeoCons::classType%3CD26BFA00BF.attr preserve=no  public: static const std::string {U} "Cons"
-      static const std::string classType;
-      //## end GeoCons::classType%3CD26BFA00BF.attr
+      //## begin GeoCons::s_classType%3CD26BFA00BF.attr preserve=no  public: static const std::string {U} "Cons"
+      static const std::string s_classType;
+      //## end GeoCons::s_classType%3CD26BFA00BF.attr
 
-      //## begin GeoCons::classTypeID%3CD26BFA00C0.attr preserve=no  public: static const ShapeType {U} 0x11
-      static const ShapeType classTypeID;
-      //## end GeoCons::classTypeID%3CD26BFA00C0.attr
+      //## begin GeoCons::s_classTypeID%3CD26BFA00C0.attr preserve=no  public: static const ShapeType {U} 0x11
+      static const ShapeType s_classTypeID;
+      //## end GeoCons::s_classTypeID%3CD26BFA00C0.attr
 
-      //## begin GeoCons::rMin1%3CD589870359.attr preserve=no  public: double {U} 
-      double rMin1;
-      //## end GeoCons::rMin1%3CD589870359.attr
+      //## begin GeoCons::m_rMin1%3CD589870359.attr preserve=no  public: double {U} 
+      double m_rMin1;
+      //## end GeoCons::m_rMin1%3CD589870359.attr
 
-      //## begin GeoCons::rMin2%3CD589B803C7.attr preserve=no  public: double {U} 
-      double rMin2;
-      //## end GeoCons::rMin2%3CD589B803C7.attr
+      //## begin GeoCons::m_rMin2%3CD589B803C7.attr preserve=no  public: double {U} 
+      double m_rMin2;
+      //## end GeoCons::m_rMin2%3CD589B803C7.attr
 
-      //## begin GeoCons::rMax1%3CD589CD015B.attr preserve=no  public: double {U} 
-      double rMax1;
-      //## end GeoCons::rMax1%3CD589CD015B.attr
+      //## begin GeoCons::m_rMax1%3CD589CD015B.attr preserve=no  public: double {U} 
+      double m_rMax1;
+      //## end GeoCons::m_rMax1%3CD589CD015B.attr
 
-      //## begin GeoCons::rMax2%3CD589E503B8.attr preserve=no  public: double {U} 
-      double rMax2;
-      //## end GeoCons::rMax2%3CD589E503B8.attr
+      //## begin GeoCons::m_rMax2%3CD589E503B8.attr preserve=no  public: double {U} 
+      double m_rMax2;
+      //## end GeoCons::m_rMax2%3CD589E503B8.attr
 
-      //## begin GeoCons::dZ%3CD58A02020B.attr preserve=no  public: double {U} 
-      double dZ;
-      //## end GeoCons::dZ%3CD58A02020B.attr
+      //## begin GeoCons::m_dZ%3CD58A02020B.attr preserve=no  public: double {U} 
+      double m_dZ;
+      //## end GeoCons::m_dZ%3CD58A02020B.attr
 
-      //## begin GeoCons::sPhi%3CD58A280274.attr preserve=no  public: double {U} 
-      double sPhi;
-      //## end GeoCons::sPhi%3CD58A280274.attr
+      //## begin GeoCons::m_sPhi%3CD58A280274.attr preserve=no  public: double {U} 
+      double m_sPhi;
+      //## end GeoCons::m_sPhi%3CD58A280274.attr
 
-      //## begin GeoCons::dPhi%3CD58A2A01E1.attr preserve=no  public: double {U} 
-      double dPhi;
-      //## end GeoCons::dPhi%3CD58A2A01E1.attr
+      //## begin GeoCons::m_dPhi%3CD58A2A01E1.attr preserve=no  public: double {U} 
+      double m_dPhi;
+      //## end GeoCons::m_dPhi%3CD58A2A01E1.attr
 
     // Additional Private Declarations
       //## begin GeoCons%3CD26BFA00BE.private preserve=yes
@@ -193,63 +193,63 @@ class GeoCons : public GeoShape  //## Inherits: <unnamed>%3CD26BFA00C1
 inline const std::string& GeoCons::getClassType ()
 {
   //## begin GeoCons::getClassType%3CD26BFA00BF.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoCons::getClassType%3CD26BFA00BF.get
 }
 
 inline ShapeType GeoCons::getClassTypeID ()
 {
   //## begin GeoCons::getClassTypeID%3CD26BFA00C0.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoCons::getClassTypeID%3CD26BFA00C0.get
 }
 
 inline const double& GeoCons::getRMin1 () const
 {
   //## begin GeoCons::getRMin1%3CD589870359.get preserve=no
-  return rMin1;
+  return m_rMin1;
   //## end GeoCons::getRMin1%3CD589870359.get
 }
 
 inline const double& GeoCons::getRMin2 () const
 {
   //## begin GeoCons::getRMin2%3CD589B803C7.get preserve=no
-  return rMin2;
+  return m_rMin2;
   //## end GeoCons::getRMin2%3CD589B803C7.get
 }
 
 inline const double& GeoCons::getRMax1 () const
 {
   //## begin GeoCons::getRMax1%3CD589CD015B.get preserve=no
-  return rMax1;
+  return m_rMax1;
   //## end GeoCons::getRMax1%3CD589CD015B.get
 }
 
 inline const double& GeoCons::getRMax2 () const
 {
   //## begin GeoCons::getRMax2%3CD589E503B8.get preserve=no
-  return rMax2;
+  return m_rMax2;
   //## end GeoCons::getRMax2%3CD589E503B8.get
 }
 
 inline const double& GeoCons::getDZ () const
 {
   //## begin GeoCons::getDZ%3CD58A02020B.get preserve=no
-  return dZ;
+  return m_dZ;
   //## end GeoCons::getDZ%3CD58A02020B.get
 }
 
 inline const double& GeoCons::getSPhi () const
 {
   //## begin GeoCons::getSPhi%3CD58A280274.get preserve=no
-  return sPhi;
+  return m_sPhi;
   //## end GeoCons::getSPhi%3CD58A280274.get
 }
 
 inline const double& GeoCons::getDPhi () const
 {
   //## begin GeoCons::getDPhi%3CD58A2A01E1.get preserve=no
-  return dPhi;
+  return m_dPhi;
   //## end GeoCons::getDPhi%3CD58A2A01E1.get
 }
 

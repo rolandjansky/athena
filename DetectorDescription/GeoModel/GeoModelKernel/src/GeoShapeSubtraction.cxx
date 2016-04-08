@@ -35,26 +35,26 @@
 
 // Class GeoShapeSubtraction 
 
-//## begin GeoShapeSubtraction::classType%3CD2595103EC.attr preserve=no  public: static const std::string {U} "Subtraction"
-const std::string GeoShapeSubtraction::classType = "Subtraction";
-//## end GeoShapeSubtraction::classType%3CD2595103EC.attr
+//## begin GeoShapeSubtraction::s_classType%3CD2595103EC.attr preserve=no  public: static const std::string {U} "Subtraction"
+const std::string GeoShapeSubtraction::s_classType = "Subtraction";
+//## end GeoShapeSubtraction::s_classType%3CD2595103EC.attr
 
-//## begin GeoShapeSubtraction::classTypeID%3CD2595103ED.attr preserve=no  public: static const ShapeType {U} 0x02
-const ShapeType GeoShapeSubtraction::classTypeID = 0x02;
-//## end GeoShapeSubtraction::classTypeID%3CD2595103ED.attr
+//## begin GeoShapeSubtraction::s_classTypeID%3CD2595103ED.attr preserve=no  public: static const ShapeType {U} 0x02
+const ShapeType GeoShapeSubtraction::s_classTypeID = 0x02;
+//## end GeoShapeSubtraction::s_classTypeID%3CD2595103ED.attr
 
 GeoShapeSubtraction::GeoShapeSubtraction (const GeoShape* A, const GeoShape* B)
   //## begin GeoShapeSubtraction::GeoShapeSubtraction%3CD2595103E5.hasinit preserve=no
   //## end GeoShapeSubtraction::GeoShapeSubtraction%3CD2595103E5.hasinit
   //## begin GeoShapeSubtraction::GeoShapeSubtraction%3CD2595103E5.initialization preserve=yes
   :
-opA (A),
-opB (B)
+m_opA (A),
+m_opB (B)
   //## end GeoShapeSubtraction::GeoShapeSubtraction%3CD2595103E5.initialization
 {
   //## begin GeoShapeSubtraction::GeoShapeSubtraction%3CD2595103E5.body preserve=yes
-  opA->ref ();
-  opB->ref ();
+  m_opA->ref ();
+  m_opB->ref ();
   //## end GeoShapeSubtraction::GeoShapeSubtraction%3CD2595103E5.body
 }
 
@@ -62,8 +62,8 @@ opB (B)
 GeoShapeSubtraction::~GeoShapeSubtraction()
 {
   //## begin GeoShapeSubtraction::~GeoShapeSubtraction%3CD2595103E1_dest.body preserve=yes
-  opA->unref ();
-  opB->unref ();
+  m_opA->unref ();
+  m_opB->unref ();
   //## end GeoShapeSubtraction::~GeoShapeSubtraction%3CD2595103E1_dest.body
 }
 
@@ -84,28 +84,28 @@ double GeoShapeSubtraction::volume () const
 const std::string & GeoShapeSubtraction::type () const
 {
   //## begin GeoShapeSubtraction::type%3CD2595103E7.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoShapeSubtraction::type%3CD2595103E7.body
 }
 
 ShapeType GeoShapeSubtraction::typeID () const
 {
   //## begin GeoShapeSubtraction::typeID%3CD2595103E8.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoShapeSubtraction::typeID%3CD2595103E8.body
 }
 
 const GeoShape* GeoShapeSubtraction::getOpA () const
 {
   //## begin GeoShapeSubtraction::getOpA%3CE7F07603D1.body preserve=yes
-  return opA;
+  return m_opA;
   //## end GeoShapeSubtraction::getOpA%3CE7F07603D1.body
 }
 
 const GeoShape* GeoShapeSubtraction::getOpB () const
 {
   //## begin GeoShapeSubtraction::getOpB%3D1DD1E7025E.body preserve=yes
-  return opB;
+  return m_opB;
   //## end GeoShapeSubtraction::getOpB%3D1DD1E7025E.body
 }
 
@@ -127,13 +127,13 @@ void GeoShapeSubtraction::exec (GeoShapeAction *action) const
 
   else 
 	{
-    opA->exec(action);
+    m_opA->exec(action);
     if (action->shouldTerminate ())
 	{
       action->getPath ()->pop ();
       return;
 	}
-    opB->exec(action);
+    m_opB->exec(action);
     if (action->shouldTerminate ())
 	{
       action->getPath ()->pop ();

@@ -115,20 +115,20 @@ class GeoAlignableTransform : public GeoTransform  //## Inherits: <unnamed>%3CDD
 
     // Data Members for Class Attributes
 
-      //## Attribute: _delta%3CDE208E0390
+      //## Attribute: m_delta%3CDE208E0390
       //	Pointer to an alignment correction.  Until some
       //	alignment correction is set, this pointer is NULL and
       //	the memory is unallocated.
-      //## begin GeoAlignableTransform::_delta%3CDE208E0390.attr preserve=no  private: HepGeom::Transform3D * {U} 
-      HepGeom::Transform3D *_delta;
-      //## end GeoAlignableTransform::_delta%3CDE208E0390.attr
+      //## begin GeoAlignableTransform::m_delta%3CDE208E0390.attr preserve=no  private: HepGeom::Transform3D * {U} 
+      HepGeom::Transform3D *m_delta;
+      //## end GeoAlignableTransform::m_delta%3CDE208E0390.attr
 
-      //## Attribute: _parentList%3CE3E84300E6
+      //## Attribute: m_parentList%3CE3E84300E6
       //	A list of parents who use this alignable target.  They
       //	must all be notified when the alignment changes!
-      //## begin GeoAlignableTransform::_parentList%3CE3E84300E6.attr preserve=no  private: std::vector<GeoGraphNode *>  {U} 
-      std::vector<GeoGraphNode *>  _parentList;
-      //## end GeoAlignableTransform::_parentList%3CE3E84300E6.attr
+      //## begin GeoAlignableTransform::m_parentList%3CE3E84300E6.attr preserve=no  private: std::vector<GeoGraphNode *>  {U} 
+      std::vector<GeoGraphNode *>  m_parentList;
+      //## end GeoAlignableTransform::m_parentList%3CE3E84300E6.attr
 
     // Additional Private Declarations
       //## begin GeoAlignableTransform%3CDDBC2403CB.private preserve=yes

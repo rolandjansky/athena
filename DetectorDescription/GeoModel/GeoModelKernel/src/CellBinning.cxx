@@ -8,7 +8,7 @@ CellBinning::CellBinning (double startVal, double endVal, unsigned int nBins, un
   //## begin CellBinning::CellBinning%445A13F30367.hasinit preserve=no
   //## end CellBinning::CellBinning%445A13F30367.hasinit
   //## begin CellBinning::CellBinning%445A13F30367.initialization preserve=yes
-  :start(startVal),end(endVal),numDivisions(nBins),delta((endVal-startVal)/numDivisions),firstDivisionNumber(firstDivisionNumber)
+  :m_start(startVal),m_end(endVal),m_numDivisions(nBins),m_delta((endVal-startVal)/m_numDivisions),m_firstDivisionNumber(firstDivisionNumber)
   //## end CellBinning::CellBinning%445A13F30367.initialization
 {
   //## begin CellBinning::CellBinning%445A13F30367.body preserve=yes

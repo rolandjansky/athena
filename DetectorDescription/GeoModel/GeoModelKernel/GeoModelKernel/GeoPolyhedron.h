@@ -181,20 +181,20 @@ private:
   {
     int v, f;
   }
-  edge[4];
+  m_edge[4];
 
 public:
     GeoFacet (int v1 = 0, int f1 = 0, int v2 = 0, int f2 = 0,
 	      int v3 = 0, int f3 = 0, int v4 = 0, int f4 = 0)
   {
-    edge[0].v = v1;
-    edge[0].f = f1;
-    edge[1].v = v2;
-    edge[1].f = f2;
-    edge[2].v = v3;
-    edge[2].f = f3;
-    edge[3].v = v4;
-    edge[3].f = f4;
+    m_edge[0].v = v1;
+    m_edge[0].f = f1;
+    m_edge[1].v = v2;
+    m_edge[1].f = f2;
+    m_edge[2].v = v3;
+    m_edge[2].f = f3;
+    m_edge[3].v = v4;
+    m_edge[3].f = f4;
   }
 };
 
@@ -203,12 +203,12 @@ class GeoPolyhedron
   friend std::ostream & operator<< (std::ostream &, const GeoPolyhedron & ph);
 
 private:
-  static int fNumberOfRotationSteps;
+  static int s_fNumberOfRotationSteps;
 
 protected:
-  int nvert, nface;
-  HVPoint3D *pV;
-  GeoFacet *pF;
+  int m_nvert, m_nface;
+  HVPoint3D *m_pV;
+  GeoFacet *m_pF;
 
   // Allocate memory for GeoPolyhedron
   void AllocateMemory (int Nvert, int Nface);
@@ -244,9 +244,9 @@ protected:
 
 public:
   // Constructor
-    GeoPolyhedron (int Nvert = 0, int Nface = 0):nvert (Nvert), nface (Nface),
-    pV (Nvert ? new HVPoint3D[Nvert + 1] : 0),
-    pF (Nface ? new GeoFacet[Nface + 1] : 0)
+    GeoPolyhedron (int Nvert = 0, int Nface = 0):m_nvert (Nvert), m_nface (Nface),
+    m_pV (Nvert ? new HVPoint3D[Nvert + 1] : 0),
+    m_pF (Nface ? new GeoFacet[Nface + 1] : 0)
   {
   }
 
@@ -256,8 +256,8 @@ public:
   // Destructor
   virtual ~ GeoPolyhedron ()
   {
-    delete[]pV;
-    delete[]pF;
+    delete[]m_pV;
+    delete[]m_pF;
   }
 
   // Assignment
@@ -266,13 +266,13 @@ public:
   // Get number of vertices
   int GetNoVertices () const
   {
-    return nvert;
+    return m_nvert;
   }
 
   // Get number of facets
   int GetNoFacets () const
   {
-    return nface;
+    return m_nface;
   }
 
   // Transform the polyhedron
@@ -344,7 +344,7 @@ public:
   // Get number of steps for whole circle
   static int GetNumberOfRotationSteps ()
   {
-    return fNumberOfRotationSteps;
+    return s_fNumberOfRotationSteps;
   }
 
   // Set number of steps for whole circle
@@ -353,7 +353,7 @@ public:
   // Reset number of steps for whole circle to default value
   static void ResetNumberOfRotationSteps ()
   {
-    fNumberOfRotationSteps = DEFAULT_NUMBER_OF_STEPS;
+    s_fNumberOfRotationSteps = DEFAULT_NUMBER_OF_STEPS;
   }
 
 

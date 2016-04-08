@@ -32,30 +32,30 @@
 
 // Class GeoTrap 
 
-//## begin GeoTrap::classType%3CD2A51701E3.attr preserve=no  public: static const std::string {U} "Trap"
-const std::string GeoTrap::classType = "Trap";
-//## end GeoTrap::classType%3CD2A51701E3.attr
+//## begin GeoTrap::s_classType%3CD2A51701E3.attr preserve=no  public: static const std::string {U} "Trap"
+const std::string GeoTrap::s_classType = "Trap";
+//## end GeoTrap::s_classType%3CD2A51701E3.attr
 
-//## begin GeoTrap::classTypeID%3CD2A51701E4.attr preserve=no  public: static const ShapeType {U} 0x15
-const ShapeType GeoTrap::classTypeID = 0x15;
-//## end GeoTrap::classTypeID%3CD2A51701E4.attr
+//## begin GeoTrap::s_classTypeID%3CD2A51701E4.attr preserve=no  public: static const ShapeType {U} 0x15
+const ShapeType GeoTrap::s_classTypeID = 0x15;
+//## end GeoTrap::s_classTypeID%3CD2A51701E4.attr
 
 GeoTrap::GeoTrap (double ZHalfLength, double Theta, double Phi, double Dydzn, double Dxdyndzn, double Dxdypdzn, double Angleydzn, double Dydzp, double Dxdyndzp, double Dxdypdzp, double Angleydzp)
   //## begin GeoTrap::GeoTrap%3CD5BEDD0276.hasinit preserve=no
   //## end GeoTrap::GeoTrap%3CD5BEDD0276.hasinit
   //## begin GeoTrap::GeoTrap%3CD5BEDD0276.initialization preserve=yes
   :
-zHalfLength (ZHalfLength),
-theta (Theta),
-phi (Phi),
-dydzn (Dydzn),
-dxdyndzn (Dxdyndzn),
-dxdypdzn (Dxdypdzn),
-angleydzn (Angleydzn),
-dydzp (Dydzp),
-dxdyndzp (Dxdyndzp),
-dxdypdzp (Dxdypdzp),
-angleydzp (Angleydzp)
+m_zHalfLength (ZHalfLength),
+m_theta (Theta),
+m_phi (Phi),
+m_dydzn (Dydzn),
+m_dxdyndzn (Dxdyndzn),
+m_dxdypdzn (Dxdypdzn),
+m_angleydzn (Angleydzn),
+m_dydzp (Dydzp),
+m_dxdyndzp (Dxdyndzp),
+m_dxdypdzp (Dxdypdzp),
+m_angleydzp (Angleydzp)
   //## end GeoTrap::GeoTrap%3CD5BEDD0276.initialization
 {
   //## begin GeoTrap::GeoTrap%3CD5BEDD0276.body preserve=yes
@@ -75,13 +75,13 @@ GeoTrap::~GeoTrap()
 double GeoTrap::volume () const
 {
   //## begin GeoTrap::volume%3CD2A6EF014B.body preserve=yes
-  double fDz = zHalfLength;
-  double fDy1 = dydzn;		//              
-  double pDx1 = dxdyndzn;	//              
-  double pDx2 = dxdypdzn;	//              
-  double fDy2 = dydzp;		//              
-  double pDx3 = dxdyndzp;	//              
-  double pDx4 = dxdypdzp;	//                  
+  double fDz = m_zHalfLength;
+  double fDy1 = m_dydzn;		//              
+  double pDx1 = m_dxdyndzn;	//              
+  double pDx2 = m_dxdypdzn;	//              
+  double fDy2 = m_dydzp;		//              
+  double pDx3 = m_dxdyndzp;	//              
+  double pDx4 = m_dxdypdzp;	//                  
 
 
   double fDx1 = 0.5 * (pDx1 + pDx2);
@@ -96,14 +96,14 @@ double GeoTrap::volume () const
 const std::string & GeoTrap::type () const
 {
   //## begin GeoTrap::type%3CD2A8570149.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoTrap::type%3CD2A8570149.body
 }
 
 ShapeType GeoTrap::typeID () const
 {
   //## begin GeoTrap::typeID%3CD2A8570167.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoTrap::typeID%3CD2A8570167.body
 }
 

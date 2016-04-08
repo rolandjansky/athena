@@ -102,10 +102,10 @@ class GeoVDetectorElement
     // Data Members for Associations
 
       //## Association: GeoModelKernel::Subsystem::Material/Readout Synch%3CDDB2A7015C
-      //## Role: GeoVDetectorElement::materialGeom%3CDDB2A80095
-      //## begin GeoVDetectorElement::materialGeom%3CDDB2A80095.role preserve=no  public: GeoVFullPhysVol {1 -> 1RHgN}
-      const GeoVFullPhysVol *materialGeom;
-      //## end GeoVDetectorElement::materialGeom%3CDDB2A80095.role
+      //## Role: GeoVDetectorElement::m_materialGeom%3CDDB2A80095
+      //## begin GeoVDetectorElement::m_materialGeom%3CDDB2A80095.role preserve=no  public: GeoVFullPhysVol {1 -> 1RHgN}
+      const GeoVFullPhysVol *m_materialGeom;
+      //## end GeoVDetectorElement::m_materialGeom%3CDDB2A80095.role
 
     // Additional Implementation Declarations
       //## begin GeoVDetectorElement%3CDDAEF8001F.implementation preserve=yes
@@ -123,7 +123,7 @@ class GeoVDetectorElement
 inline const GeoVFullPhysVol* GeoVDetectorElement::getMaterialGeom () const
 {
   //## begin GeoVDetectorElement::getMaterialGeom%3CE7FDA50076.body preserve=yes
-  return materialGeom;
+  return m_materialGeom;
   //## end GeoVDetectorElement::getMaterialGeom%3CE7FDA50076.body
 }
 

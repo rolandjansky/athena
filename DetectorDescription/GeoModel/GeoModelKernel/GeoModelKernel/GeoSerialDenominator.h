@@ -100,9 +100,9 @@ class GeoSerialDenominator : public GeoGraphNode  //## Inherits: <unnamed>%3CEA3
 
     // Data Members for Class Attributes
 
-      //## begin GeoSerialDenominator::baseName%3CEA4485022A.attr preserve=no  public: std::string {U} 
-      std::string baseName;
-      //## end GeoSerialDenominator::baseName%3CEA4485022A.attr
+      //## begin GeoSerialDenominator::m_baseName%3CEA4485022A.attr preserve=no  public: std::string {U} 
+      std::string m_baseName;
+      //## end GeoSerialDenominator::m_baseName%3CEA4485022A.attr
 
     // Additional Private Declarations
       //## begin GeoSerialDenominator%3CEA349303CC.private preserve=yes
@@ -125,7 +125,7 @@ class GeoSerialDenominator : public GeoGraphNode  //## Inherits: <unnamed>%3CEA3
 inline const std::string& GeoSerialDenominator::getBaseName () const
 {
   //## begin GeoSerialDenominator::getBaseName%3CEA4485022A.get preserve=no
-  return baseName;
+  return m_baseName;
   //## end GeoSerialDenominator::getBaseName%3CEA4485022A.get
 }
 

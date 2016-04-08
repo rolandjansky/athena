@@ -69,12 +69,12 @@ class GeoCutVolAction : public GeoVolumeAction
   GeoPhysVol* getPV();
 
  private: 
-  GeoPhysVol*               _physVol;
+  GeoPhysVol*               m_physVol;
 
-  const GeoShape&           _shape;
-  HepGeom::Transform3D            _transform;
+  const GeoShape&           m_shape;
+  HepGeom::Transform3D            m_transform;
 
-  std::stack<GeoPhysVol*>*  _copyStack;
+  std::stack<GeoPhysVol*>*  m_copyStack;
 };
 
 #endif

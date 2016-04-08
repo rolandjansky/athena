@@ -128,33 +128,33 @@ class GeoTrd : public GeoShape  //## Inherits: <unnamed>%3CD2A59100FB
 
     // Data Members for Class Attributes
 
-      //## begin GeoTrd::classType%3CD2A59100F9.attr preserve=no  public: static const std::string {U} "Trd"
-      static const std::string classType;
-      //## end GeoTrd::classType%3CD2A59100F9.attr
+      //## begin GeoTrd::s_classType%3CD2A59100F9.attr preserve=no  public: static const std::string {U} "Trd"
+      static const std::string s_classType;
+      //## end GeoTrd::s_classType%3CD2A59100F9.attr
 
-      //## begin GeoTrd::classTypeID%3CD2A59100FA.attr preserve=no  public: static const ShapeType {U} 0x16
-      static const ShapeType classTypeID;
-      //## end GeoTrd::classTypeID%3CD2A59100FA.attr
+      //## begin GeoTrd::s_classTypeID%3CD2A59100FA.attr preserve=no  public: static const ShapeType {U} 0x16
+      static const ShapeType s_classTypeID;
+      //## end GeoTrd::s_classTypeID%3CD2A59100FA.attr
 
-      //## begin GeoTrd::xHalfLength1%3CD5B49B031E.attr preserve=no  public: double {U} 
-      double xHalfLength1;
-      //## end GeoTrd::xHalfLength1%3CD5B49B031E.attr
+      //## begin GeoTrd::m_xHalfLength1%3CD5B49B031E.attr preserve=no  public: double {U} 
+      double m_xHalfLength1;
+      //## end GeoTrd::m_xHalfLength1%3CD5B49B031E.attr
 
-      //## begin GeoTrd::xHalfLength2%3CD5B4A500FB.attr preserve=no  public: double {U} 
-      double xHalfLength2;
-      //## end GeoTrd::xHalfLength2%3CD5B4A500FB.attr
+      //## begin GeoTrd::m_xHalfLength2%3CD5B4A500FB.attr preserve=no  public: double {U} 
+      double m_xHalfLength2;
+      //## end GeoTrd::m_xHalfLength2%3CD5B4A500FB.attr
 
-      //## begin GeoTrd::yHalfLength1%3CD5B49B0332.attr preserve=no  public: double {U} 
-      double yHalfLength1;
-      //## end GeoTrd::yHalfLength1%3CD5B49B0332.attr
+      //## begin GeoTrd::m_yHalfLength1%3CD5B49B0332.attr preserve=no  public: double {U} 
+      double m_yHalfLength1;
+      //## end GeoTrd::m_yHalfLength1%3CD5B49B0332.attr
 
-      //## begin GeoTrd::yHalfLength2%3CD5B4A50105.attr preserve=no  public: double {U} 
-      double yHalfLength2;
-      //## end GeoTrd::yHalfLength2%3CD5B4A50105.attr
+      //## begin GeoTrd::m_yHalfLength2%3CD5B4A50105.attr preserve=no  public: double {U} 
+      double m_yHalfLength2;
+      //## end GeoTrd::m_yHalfLength2%3CD5B4A50105.attr
 
-      //## begin GeoTrd::zHalfLength%3CD5B49B033C.attr preserve=no  public: double {U} 
-      double zHalfLength;
-      //## end GeoTrd::zHalfLength%3CD5B49B033C.attr
+      //## begin GeoTrd::m_zHalfLength%3CD5B49B033C.attr preserve=no  public: double {U} 
+      double m_zHalfLength;
+      //## end GeoTrd::m_zHalfLength%3CD5B49B033C.attr
 
     // Additional Private Declarations
       //## begin GeoTrd%3CD2A59100F8.private preserve=yes
@@ -177,49 +177,49 @@ class GeoTrd : public GeoShape  //## Inherits: <unnamed>%3CD2A59100FB
 inline const std::string& GeoTrd::getClassType ()
 {
   //## begin GeoTrd::getClassType%3CD2A59100F9.get preserve=no
-  return classType;
+  return s_classType;
   //## end GeoTrd::getClassType%3CD2A59100F9.get
 }
 
 inline ShapeType GeoTrd::getClassTypeID ()
 {
   //## begin GeoTrd::getClassTypeID%3CD2A59100FA.get preserve=no
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoTrd::getClassTypeID%3CD2A59100FA.get
 }
 
 inline const double& GeoTrd::getXHalfLength1 () const
 {
   //## begin GeoTrd::getXHalfLength1%3CD5B49B031E.get preserve=no
-  return xHalfLength1;
+  return m_xHalfLength1;
   //## end GeoTrd::getXHalfLength1%3CD5B49B031E.get
 }
 
 inline const double& GeoTrd::getXHalfLength2 () const
 {
   //## begin GeoTrd::getXHalfLength2%3CD5B4A500FB.get preserve=no
-  return xHalfLength2;
+  return m_xHalfLength2;
   //## end GeoTrd::getXHalfLength2%3CD5B4A500FB.get
 }
 
 inline const double& GeoTrd::getYHalfLength1 () const
 {
   //## begin GeoTrd::getYHalfLength1%3CD5B49B0332.get preserve=no
-  return yHalfLength1;
+  return m_yHalfLength1;
   //## end GeoTrd::getYHalfLength1%3CD5B49B0332.get
 }
 
 inline const double& GeoTrd::getYHalfLength2 () const
 {
   //## begin GeoTrd::getYHalfLength2%3CD5B4A50105.get preserve=no
-  return yHalfLength2;
+  return m_yHalfLength2;
   //## end GeoTrd::getYHalfLength2%3CD5B4A50105.get
 }
 
 inline const double& GeoTrd::getZHalfLength () const
 {
   //## begin GeoTrd::getZHalfLength%3CD5B49B033C.get preserve=no
-  return zHalfLength;
+  return m_zHalfLength;
   //## end GeoTrd::getZHalfLength%3CD5B49B033C.get
 }
 

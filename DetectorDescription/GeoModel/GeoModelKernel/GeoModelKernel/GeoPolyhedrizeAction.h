@@ -143,11 +143,11 @@ class GeoPolyhedrizeAction : public GeoShapeAction  //## Inherits: <unnamed>%3DC
 
     // Data Members for Class Attributes
 
-      //## Attribute: _polyhedron%3DCD2DA00060
+      //## Attribute: m_polyhedron%3DCD2DA00060
       //	This polyhedral representation of the shape.
-      //## begin GeoPolyhedrizeAction::_polyhedron%3DCD2DA00060.attr preserve=no  private: GeoPolyhedron * {U} NULL
-      GeoPolyhedron *_polyhedron;
-      //## end GeoPolyhedrizeAction::_polyhedron%3DCD2DA00060.attr
+      //## begin GeoPolyhedrizeAction::m_polyhedron%3DCD2DA00060.attr preserve=no  private: GeoPolyhedron * {U} NULL
+      GeoPolyhedron *m_polyhedron;
+      //## end GeoPolyhedrizeAction::m_polyhedron%3DCD2DA00060.attr
 
     // Additional Private Declarations
       //## begin GeoPolyhedrizeAction%3DCD28730322.private preserve=yes

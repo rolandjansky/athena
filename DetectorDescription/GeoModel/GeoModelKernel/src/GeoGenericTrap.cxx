@@ -5,8 +5,8 @@
 #include "GeoModelKernel/GeoGenericTrap.h"
 #include "GeoModelKernel/GeoShapeAction.h"
 
-const std::string GeoGenericTrap::classType = "GenericTrap";
-const ShapeType GeoGenericTrap::classTypeID = 0x23;
+const std::string GeoGenericTrap::s_classType = "GenericTrap";
+const ShapeType GeoGenericTrap::s_classTypeID = 0x23;
 
 GeoGenericTrap::GeoGenericTrap(double ZHalfLength, const GeoGenericTrapVertices& Vertices):
   m_zHalfLength(ZHalfLength),
@@ -26,12 +26,12 @@ double GeoGenericTrap::volume() const
 
 const std::string& GeoGenericTrap::type() const
 {
-  return classType;
+  return s_classType;
 }
 
 ShapeType GeoGenericTrap::typeID() const
 {
-  return classTypeID;
+  return s_classTypeID;
 }
 
 void GeoGenericTrap::exec(GeoShapeAction *action) const

@@ -36,7 +36,7 @@ GeoNameTag::GeoNameTag (const std::string &BaseName)
   //## begin GeoNameTag::GeoNameTag%3CEA467D013E.hasinit preserve=no
   //## end GeoNameTag::GeoNameTag%3CEA467D013E.hasinit
   //## begin GeoNameTag::GeoNameTag%3CEA467D013E.initialization preserve=yes
-:name (BaseName)
+:m_name (BaseName)
   //## end GeoNameTag::GeoNameTag%3CEA467D013E.initialization
 {
   //## begin GeoNameTag::GeoNameTag%3CEA467D013E.body preserve=yes

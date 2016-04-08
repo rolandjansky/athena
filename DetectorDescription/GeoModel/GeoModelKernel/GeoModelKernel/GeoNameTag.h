@@ -94,9 +94,9 @@ class GeoNameTag : public GeoGraphNode  //## Inherits: <unnamed>%3CEA34A70118
 
     // Data Members for Class Attributes
 
-      //## begin GeoNameTag::name%3CEA34C5032E.attr preserve=no  public: std::string {U} 
-      std::string name;
-      //## end GeoNameTag::name%3CEA34C5032E.attr
+      //## begin GeoNameTag::m_name%3CEA34C5032E.attr preserve=no  public: std::string {U} 
+      std::string m_name;
+      //## end GeoNameTag::m_name%3CEA34C5032E.attr
 
     // Additional Private Declarations
       //## begin GeoNameTag%3CEA34860084.private preserve=yes
@@ -119,7 +119,7 @@ class GeoNameTag : public GeoGraphNode  //## Inherits: <unnamed>%3CEA34A70118
 inline const std::string& GeoNameTag::getName () const
 {
   //## begin GeoNameTag::getName%3CEA34C5032E.get preserve=no
-  return name;
+  return m_name;
   //## end GeoNameTag::getName%3CEA34C5032E.get
 }
 

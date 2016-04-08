@@ -35,7 +35,7 @@ GeoNodeAction::GeoNodeAction()
   //## begin GeoNodeAction::GeoNodeAction%3CDF50A901F3_const.hasinit preserve=no
   //## end GeoNodeAction::GeoNodeAction%3CDF50A901F3_const.hasinit
   //## begin GeoNodeAction::GeoNodeAction%3CDF50A901F3_const.initialization preserve=yes
-:_terminate (false)
+:m_terminate (false)
   //## end GeoNodeAction::GeoNodeAction%3CDF50A901F3_const.initialization
 {
   //## begin GeoNodeAction::GeoNodeAction%3CDF50A901F3_const.body preserve=yes
@@ -81,28 +81,28 @@ void GeoNodeAction::handleFullPhysVol (const GeoFullPhysVol *)
 GeoNodePath* GeoNodeAction::getPath ()
 {
   //## begin GeoNodeAction::getPath%3CE10FA40340.body preserve=yes
-  return &path;
+  return &m_path;
   //## end GeoNodeAction::getPath%3CE10FA40340.body
 }
 
 Query<unsigned int>  GeoNodeAction::getDepthLimit ()
 {
   //## begin GeoNodeAction::getDepthLimit%3CE1111F024B.body preserve=yes
-  return _depth;
+  return m_depth;
   //## end GeoNodeAction::getDepthLimit%3CE1111F024B.body
 }
 
 void GeoNodeAction::terminate ()
 {
   //## begin GeoNodeAction::terminate%3CE12B130348.body preserve=yes
-  _terminate = true;
+  m_terminate = true;
   //## end GeoNodeAction::terminate%3CE12B130348.body
 }
 
 bool GeoNodeAction::shouldTerminate () const
 {
   //## begin GeoNodeAction::shouldTerminate%3CE12B1C00AC.body preserve=yes
-  return _terminate;
+  return m_terminate;
   //## end GeoNodeAction::shouldTerminate%3CE12B1C00AC.body
 }
 
@@ -121,14 +121,14 @@ void GeoNodeAction::handleSerialDenominator (const GeoSerialDenominator *)
 void GeoNodeAction::setDepthLimit (unsigned int limit)
 {
   //## begin GeoNodeAction::setDepthLimit%3CFB2BE301B2.body preserve=yes
-  _depth = limit;
+  m_depth = limit;
   //## end GeoNodeAction::setDepthLimit%3CFB2BE301B2.body
 }
 
 void GeoNodeAction::clearDepthLimit ()
 {
   //## begin GeoNodeAction::clearDepthLimit%3CFB2C2A02A5.body preserve=yes
-  _depth = Query < unsigned int >();
+  m_depth = Query < unsigned int >();
   //## end GeoNodeAction::clearDepthLimit%3CFB2C2A02A5.body
 }
 

@@ -99,11 +99,11 @@ class RCBase
 
     // Data Members for Class Attributes
 
-      //## Attribute: _count%3CD12A9F013D
+      //## Attribute: m_count%3CD12A9F013D
       //	The reference count
-      //## begin RCBase::_count%3CD12A9F013D.attr preserve=no  private: mutable unsigned short int {V} 0
-      mutable unsigned short int _count;
-      //## end RCBase::_count%3CD12A9F013D.attr
+      //## begin RCBase::m_count%3CD12A9F013D.attr preserve=no  private: mutable unsigned short int {V} 0
+      mutable unsigned short int m_count;
+      //## end RCBase::m_count%3CD12A9F013D.attr
 
     // Additional Private Declarations
       //## begin RCBase%3CD1266D02D3.private preserve=yes

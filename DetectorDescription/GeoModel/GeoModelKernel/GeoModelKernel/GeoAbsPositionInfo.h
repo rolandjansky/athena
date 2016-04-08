@@ -105,19 +105,19 @@ class GeoAbsPositionInfo
 
     // Data Members for Class Attributes
 
-      //## Attribute: _absTransform%3CDE5D7E0001
+      //## Attribute: m_absTransform%3CDE5D7E0001
       //	The absolute transform from the world coord down to this
       //	positioned object.
-      //## begin GeoAbsPositionInfo::_absTransform%3CDE5D7E0001.attr preserve=no  private: HepGeom::Transform3D * {U} NULL
-      HepGeom::Transform3D *_absTransform;
-      //## end GeoAbsPositionInfo::_absTransform%3CDE5D7E0001.attr
+      //## begin GeoAbsPositionInfo::m_absTransform%3CDE5D7E0001.attr preserve=no  private: HepGeom::Transform3D * {U} NULL
+      HepGeom::Transform3D *m_absTransform;
+      //## end GeoAbsPositionInfo::m_absTransform%3CDE5D7E0001.attr
 
-      //## Attribute: _defAbsTransform%3CDE5D9202D1
+      //## Attribute: m_defAbsTransform%3CDE5D9202D1
       //	The default absolute transform from the world coord down
       //	to this positioned object.
-      //## begin GeoAbsPositionInfo::_defAbsTransform%3CDE5D9202D1.attr preserve=no  private: HepGeom::Transform3D * {U} NULL
-      HepGeom::Transform3D *_defAbsTransform;
-      //## end GeoAbsPositionInfo::_defAbsTransform%3CDE5D9202D1.attr
+      //## begin GeoAbsPositionInfo::m_defAbsTransform%3CDE5D9202D1.attr preserve=no  private: HepGeom::Transform3D * {U} NULL
+      HepGeom::Transform3D *m_defAbsTransform;
+      //## end GeoAbsPositionInfo::m_defAbsTransform%3CDE5D9202D1.attr
 
     // Additional Private Declarations
       //## begin GeoAbsPositionInfo%3CDD8B7801FE.private preserve=yes
@@ -140,14 +140,14 @@ class GeoAbsPositionInfo
 inline const HepGeom::Transform3D * GeoAbsPositionInfo::getAbsTransform () const
 {
   //## begin GeoAbsPositionInfo::getAbsTransform%3CDD8CF402F5.body preserve=yes
-  return _absTransform;
+  return m_absTransform;
   //## end GeoAbsPositionInfo::getAbsTransform%3CDD8CF402F5.body
 }
 
 inline const HepGeom::Transform3D * GeoAbsPositionInfo::getDefAbsTransform () const
 {
   //## begin GeoAbsPositionInfo::getDefAbsTransform%3CDD8D7F00E2.body preserve=yes
-  return _defAbsTransform;
+  return m_defAbsTransform;
   //## end GeoAbsPositionInfo::getDefAbsTransform%3CDD8D7F00E2.body
 }
 

@@ -37,8 +37,8 @@ class GeoGenericTrap : public GeoShape
   GeoGenericTrap(const GeoGenericTrap &right);
   GeoGenericTrap& operator=(const GeoGenericTrap &right);
 
-  static const std::string classType;
-  static const ShapeType classTypeID;
+  static const std::string s_classType;
+  static const ShapeType s_classTypeID;
 
   double m_zHalfLength;
   GeoGenericTrapVertices m_vertices;
@@ -46,12 +46,12 @@ class GeoGenericTrap : public GeoShape
 
 inline const std::string& GeoGenericTrap::getClassType()
 {
-  return classType;
+  return s_classType;
 }
 
 inline ShapeType GeoGenericTrap::getClassTypeID()
 {
-  return classTypeID;
+  return s_classTypeID;
 }
 
 #endif

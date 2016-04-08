@@ -32,25 +32,25 @@
 
 // Class GeoShapeShift 
 
-//## begin GeoShapeShift::classType%3D150E9F008E.attr preserve=no  public: static const std::string {U} "Shift"
-const std::string GeoShapeShift::classType = "Shift";
-//## end GeoShapeShift::classType%3D150E9F008E.attr
+//## begin GeoShapeShift::s_classType%3D150E9F008E.attr preserve=no  public: static const std::string {U} "Shift"
+const std::string GeoShapeShift::s_classType = "Shift";
+//## end GeoShapeShift::s_classType%3D150E9F008E.attr
 
-//## begin GeoShapeShift::classTypeID%3D150E9F0098.attr preserve=no  public: static const ShapeType {U} 0x03
-const ShapeType GeoShapeShift::classTypeID = 0x03;
-//## end GeoShapeShift::classTypeID%3D150E9F0098.attr
+//## begin GeoShapeShift::s_classTypeID%3D150E9F0098.attr preserve=no  public: static const ShapeType {U} 0x03
+const ShapeType GeoShapeShift::s_classTypeID = 0x03;
+//## end GeoShapeShift::s_classTypeID%3D150E9F0098.attr
 
 GeoShapeShift::GeoShapeShift (const GeoShape* A, const HepGeom::Transform3D &X)
   //## begin GeoShapeShift::GeoShapeShift%3D150F480131.hasinit preserve=no
   //## end GeoShapeShift::GeoShapeShift%3D150F480131.hasinit
   //## begin GeoShapeShift::GeoShapeShift%3D150F480131.initialization preserve=yes
   :
-op (A),
-shift (X)
+m_op (A),
+m_shift (X)
   //## end GeoShapeShift::GeoShapeShift%3D150F480131.initialization
 {
   //## begin GeoShapeShift::GeoShapeShift%3D150F480131.body preserve=yes
-  op->ref ();
+  m_op->ref ();
   //## end GeoShapeShift::GeoShapeShift%3D150F480131.body
 }
 
@@ -58,7 +58,7 @@ shift (X)
 GeoShapeShift::~GeoShapeShift()
 {
   //## begin GeoShapeShift::~GeoShapeShift%3D150E4703DA_dest.body preserve=yes
-  op->unref ();
+  m_op->unref ();
   //## end GeoShapeShift::~GeoShapeShift%3D150E4703DA_dest.body
 }
 
@@ -68,35 +68,35 @@ GeoShapeShift::~GeoShapeShift()
 double GeoShapeShift::volume () const
 {
   //## begin GeoShapeShift::volume%3D150F48011D.body preserve=yes
-  return op->volume ();
+  return m_op->volume ();
   //## end GeoShapeShift::volume%3D150F48011D.body
 }
 
 const std::string & GeoShapeShift::type () const
 {
   //## begin GeoShapeShift::type%3D150F48014F.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoShapeShift::type%3D150F48014F.body
 }
 
 ShapeType GeoShapeShift::typeID () const
 {
   //## begin GeoShapeShift::typeID%3D150F480163.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoShapeShift::typeID%3D150F480163.body
 }
 
 const GeoShape* GeoShapeShift::getOp () const
 {
   //## begin GeoShapeShift::getOp%3D150F480181.body preserve=yes
-  return op;
+  return m_op;
   //## end GeoShapeShift::getOp%3D150F480181.body
 }
 
 const HepGeom::Transform3D & GeoShapeShift::getX () const
 {
   //## begin GeoShapeShift::getX%3D150F480195.body preserve=yes
-  return shift;
+  return m_shift;
   //## end GeoShapeShift::getX%3D150F480195.body
 }
 
@@ -118,7 +118,7 @@ void GeoShapeShift::exec (GeoShapeAction *action) const
 
   else 
 	{
-    op->exec(action);
+    m_op->exec(action);
     if (action->shouldTerminate ())
 	{
       action->getPath ()->pop ();

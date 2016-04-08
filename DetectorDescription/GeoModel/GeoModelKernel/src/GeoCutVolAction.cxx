@@ -13,18 +13,18 @@
 GeoCutVolAction::GeoCutVolAction(const GeoShape& Shape,
 				 const HepGeom::Transform3D& Transform)
   :GeoVolumeAction (GeoVolumeAction::TOP_DOWN),
-   _physVol(0),
-   _shape(Shape),
-   _transform(Transform),
-   _copyStack(new std::stack<GeoPhysVol*>)
+   m_physVol(0),
+   m_shape(Shape),
+   m_transform(Transform),
+   m_copyStack(new std::stack<GeoPhysVol*>)
 {
 }
 
 GeoCutVolAction::~GeoCutVolAction()
 {
-  while(_copyStack->size()>0)
-    _copyStack->pop();
-  delete _copyStack;
+  while(m_copyStack->size()>0)
+    m_copyStack->pop();
+  delete m_copyStack;
 }
 
 void GeoCutVolAction::handleVPhysVol(const GeoVPhysVol *pv)
@@ -43,26 +43,26 @@ void GeoCutVolAction::handleVPhysVol(const GeoVPhysVol *pv)
   if(pathLen==0)
   {
     // We are at the first PV. Create the resulting PV
-    const GeoShape& cutShape = (*lvShapeOriginal).subtract(_shape << _transform);
+    const GeoShape& cutShape = (*lvShapeOriginal).subtract(m_shape << m_transform);
     GeoLogVol* lvNew = new GeoLogVol(lvNameOriginal,&cutShape,lvMatOriginal);
 
-    _physVol = new GeoPhysVol(lvNew);
+    m_physVol = new GeoPhysVol(lvNew);
 
     // Save the new PV in the copy stack
-    _copyStack->push(_physVol);
+    m_copyStack->push(m_physVol);
   }
   else
   {
     // determine the parent PV in the copy tree
-    while(_copyStack->size()>pathLen)
-      _copyStack->pop();
-    GeoPhysVol* copyParent = _copyStack->top();
+    while(m_copyStack->size()>pathLen)
+      m_copyStack->pop();
+    GeoPhysVol* copyParent = m_copyStack->top();
 
     // Calculate cut transform to the reference frame of current PV
-    HepGeom::Transform3D cutTransform = (this->getState()->getAbsoluteTransform()).inverse()*_transform;
+    HepGeom::Transform3D cutTransform = (this->getState()->getAbsoluteTransform()).inverse()*m_transform;
 
     // Construct new PV
-    const GeoShape& cutShape = (*lvShapeOriginal).subtract(_shape << cutTransform);
+    const GeoShape& cutShape = (*lvShapeOriginal).subtract(m_shape << cutTransform);
     GeoLogVol* lvNew = new GeoLogVol(lvNameOriginal,&cutShape,lvMatOriginal);
     GeoPhysVol* pvNew = new GeoPhysVol(lvNew);
 
@@ -79,11 +79,11 @@ void GeoCutVolAction::handleVPhysVol(const GeoVPhysVol *pv)
     copyParent->add(pvNew);
 
     // Save new PV in the copy stack
-    _copyStack->push(pvNew);
+    m_copyStack->push(pvNew);
   }
 }
 
 GeoPhysVol* GeoCutVolAction::getPV()
 {
-  return _physVol;
+  return m_physVol;
 }

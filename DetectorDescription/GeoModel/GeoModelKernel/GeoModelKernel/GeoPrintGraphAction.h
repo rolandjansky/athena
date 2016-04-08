@@ -136,77 +136,77 @@ class GeoPrintGraphAction : public GeoNodeAction  //## Inherits: <unnamed>%3FB01
 
     // Data Members for Class Attributes
 
-      //## Attribute: _nameTag%3FB027D0026C
+      //## Attribute: m_nameTag%3FB027D0026C
       //	A pointer to a name tag.  If the volume is named.
-      //## begin GeoPrintGraphAction::_nameTag%3FB027D0026C.attr preserve=no  private: const GeoNameTag * {U} NULL
-      const GeoNameTag *_nameTag;
-      //## end GeoPrintGraphAction::_nameTag%3FB027D0026C.attr
+      //## begin GeoPrintGraphAction::m_nameTag%3FB027D0026C.attr preserve=no  private: const GeoNameTag * {U} NULL
+      const GeoNameTag *m_nameTag;
+      //## end GeoPrintGraphAction::m_nameTag%3FB027D0026C.attr
 
-      //## Attribute: _serialDenominator%3FB027D00280
+      //## Attribute: m_serialDenominator%3FB027D00280
       //	A pointer to a serial denominator.  If one exists.
-      //## begin GeoPrintGraphAction::_serialDenominator%3FB027D00280.attr preserve=no  private: const GeoSerialDenominator * {U} NULL
-      const GeoSerialDenominator *_serialDenominator;
-      //## end GeoPrintGraphAction::_serialDenominator%3FB027D00280.attr
+      //## begin GeoPrintGraphAction::m_serialDenominator%3FB027D00280.attr preserve=no  private: const GeoSerialDenominator * {U} NULL
+      const GeoSerialDenominator *m_serialDenominator;
+      //## end GeoPrintGraphAction::m_serialDenominator%3FB027D00280.attr
 
-      //## Attribute: _idTag%3FB027D00294
+      //## Attribute: m_idTag%3FB027D00294
       //	A pointer to an identifier tag.  If the volume is
       //	identified.
-      //## begin GeoPrintGraphAction::_idTag%3FB027D00294.attr preserve=no  private: const GeoIdentifierTag * {U} NULL
-      const GeoIdentifierTag *_idTag;
-      //## end GeoPrintGraphAction::_idTag%3FB027D00294.attr
+      //## begin GeoPrintGraphAction::m_idTag%3FB027D00294.attr preserve=no  private: const GeoIdentifierTag * {U} NULL
+      const GeoIdentifierTag *m_idTag;
+      //## end GeoPrintGraphAction::m_idTag%3FB027D00294.attr
 
-      //## Attribute: _pendingTransformList%3FB027D002A8
+      //## Attribute: m_pendingTransformList%3FB027D002A8
       //	List of Pending Transformations.
-      //## begin GeoPrintGraphAction::_pendingTransformList%3FB027D002A8.attr preserve=no  private: std::vector<const GeoTransform *>  {U} 
-      std::vector<const GeoTransform *>  _pendingTransformList;
-      //## end GeoPrintGraphAction::_pendingTransformList%3FB027D002A8.attr
+      //## begin GeoPrintGraphAction::m_pendingTransformList%3FB027D002A8.attr preserve=no  private: std::vector<const GeoTransform *>  {U} 
+      std::vector<const GeoTransform *>  m_pendingTransformList;
+      //## end GeoPrintGraphAction::m_pendingTransformList%3FB027D002A8.attr
 
-      //## Attribute: _transformState%3FB02A5E0294
+      //## Attribute: m_transformState%3FB02A5E0294
       //	On/off flag for transforms.
-      //## begin GeoPrintGraphAction::_transformState%3FB02A5E0294.attr preserve=no  private: bool {U} true
-      bool _transformState;
-      //## end GeoPrintGraphAction::_transformState%3FB02A5E0294.attr
+      //## begin GeoPrintGraphAction::m_transformState%3FB02A5E0294.attr preserve=no  private: bool {U} true
+      bool m_transformState;
+      //## end GeoPrintGraphAction::m_transformState%3FB02A5E0294.attr
 
-      //## Attribute: _volumeState%3FB02A81021C
+      //## Attribute: m_volumeState%3FB02A81021C
       //	On/off flag for physical volumes.
-      //## begin GeoPrintGraphAction::_volumeState%3FB02A81021C.attr preserve=no  private: bool {U} true
-      bool _volumeState;
-      //## end GeoPrintGraphAction::_volumeState%3FB02A81021C.attr
+      //## begin GeoPrintGraphAction::m_volumeState%3FB02A81021C.attr preserve=no  private: bool {U} true
+      bool m_volumeState;
+      //## end GeoPrintGraphAction::m_volumeState%3FB02A81021C.attr
 
-      //## Attribute: _nametagState%3FB02AAA033E
+      //## Attribute: m_nametagState%3FB02AAA033E
       //	On/off flag for name tags.
-      //## begin GeoPrintGraphAction::_nametagState%3FB02AAA033E.attr preserve=no  private: bool {U} true
-      bool _nametagState;
-      //## end GeoPrintGraphAction::_nametagState%3FB02AAA033E.attr
+      //## begin GeoPrintGraphAction::m_nametagState%3FB02AAA033E.attr preserve=no  private: bool {U} true
+      bool m_nametagState;
+      //## end GeoPrintGraphAction::m_nametagState%3FB02AAA033E.attr
 
-      //## Attribute: _serialDenominatorState%3FB02ACB0377
+      //## Attribute: m_serialDenominatorState%3FB02ACB0377
       //	On/off flag for serial denominators.
-      //## begin GeoPrintGraphAction::_serialDenominatorState%3FB02ACB0377.attr preserve=no  private: bool {U} true
-      bool _serialDenominatorState;
-      //## end GeoPrintGraphAction::_serialDenominatorState%3FB02ACB0377.attr
+      //## begin GeoPrintGraphAction::m_serialDenominatorState%3FB02ACB0377.attr preserve=no  private: bool {U} true
+      bool m_serialDenominatorState;
+      //## end GeoPrintGraphAction::m_serialDenominatorState%3FB02ACB0377.attr
 
-      //## Attribute: _serialTransformerState%3FB02AE30277
+      //## Attribute: m_serialTransformerState%3FB02AE30277
       //	On/off flag for serial transformers.
-      //## begin GeoPrintGraphAction::_serialTransformerState%3FB02AE30277.attr preserve=no  private: bool {U} true
-      bool _serialTransformerState;
-      //## end GeoPrintGraphAction::_serialTransformerState%3FB02AE30277.attr
+      //## begin GeoPrintGraphAction::m_serialTransformerState%3FB02AE30277.attr preserve=no  private: bool {U} true
+      bool m_serialTransformerState;
+      //## end GeoPrintGraphAction::m_serialTransformerState%3FB02AE30277.attr
 
-      //## Attribute: _identifierState%3FB02AFC018D
+      //## Attribute: m_identifierState%3FB02AFC018D
       //	On/off flag for identifier tags.
-      //## begin GeoPrintGraphAction::_identifierState%3FB02AFC018D.attr preserve=no  private: bool {U} true
-      bool _identifierState;
-      //## end GeoPrintGraphAction::_identifierState%3FB02AFC018D.attr
+      //## begin GeoPrintGraphAction::m_identifierState%3FB02AFC018D.attr preserve=no  private: bool {U} true
+      bool m_identifierState;
+      //## end GeoPrintGraphAction::m_identifierState%3FB02AFC018D.attr
 
-      //## Attribute: _o%3FD3842802EA
-      //## begin GeoPrintGraphAction::_o%3FD3842802EA.attr preserve=no  private: std::ostream & {U} o
-      std::ostream &_o;
-      //## end GeoPrintGraphAction::_o%3FD3842802EA.attr
+      //## Attribute: m_o%3FD3842802EA
+      //## begin GeoPrintGraphAction::m_o%3FD3842802EA.attr preserve=no  private: std::ostream & {U} o
+      std::ostream &m_o;
+      //## end GeoPrintGraphAction::m_o%3FD3842802EA.attr
 
-      //## Attribute: _indented%3FD384420057
+      //## Attribute: m_indented%3FD384420057
       //	Flag for indent (intially 0)
-      //## begin GeoPrintGraphAction::_indented%3FD384420057.attr preserve=no  private: mutable bool {U} false
-      mutable bool _indented;
-      //## end GeoPrintGraphAction::_indented%3FD384420057.attr
+      //## begin GeoPrintGraphAction::m_indented%3FD384420057.attr preserve=no  private: mutable bool {U} false
+      mutable bool m_indented;
+      //## end GeoPrintGraphAction::m_indented%3FD384420057.attr
 
     // Additional Private Declarations
       //## begin GeoPrintGraphAction%3FB018ED0310.private preserve=yes

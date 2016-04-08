@@ -97,9 +97,9 @@ class GeoIdentifierTag : public GeoGraphNode  //## Inherits: <unnamed>%3E21775E0
 
     // Data Members for Class Attributes
 
-      //## begin GeoIdentifierTag::identifier%3E2178DF0075.attr preserve=no  public: int {U} 
-      int identifier;
-      //## end GeoIdentifierTag::identifier%3E2178DF0075.attr
+      //## begin GeoM_IdentifierTag::m_identifier%3E2178DF0075.attr preserve=no  public: int {U} 
+      int m_identifier;
+      //## end GeoM_IdentifierTag::m_identifier%3E2178DF0075.attr
 
     // Additional Private Declarations
       //## begin GeoIdentifierTag%3E21775800E1.private preserve=yes
@@ -122,7 +122,7 @@ class GeoIdentifierTag : public GeoGraphNode  //## Inherits: <unnamed>%3E21775E0
 inline int GeoIdentifierTag::getIdentifier () const
 {
   //## begin GeoIdentifierTag::getIdentifier%3E2178DF0075.get preserve=no
-  return identifier;
+  return m_identifier;
   //## end GeoIdentifierTag::getIdentifier%3E2178DF0075.get
 }
 

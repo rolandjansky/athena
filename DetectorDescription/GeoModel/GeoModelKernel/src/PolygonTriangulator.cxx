@@ -339,12 +339,12 @@ namespace internal_poltrig {
   /*   unrolled versions of Expansion_Sum().                                   */
 
 #define Two_One_Diff(a1, a0, b, x2, x1, x0) \
-  Two_Diff(a0, b , _i, x0); \
-  Two_Sum( a1, _i, x2, x1)
+  Two_Diff(a0, b , i, x0); \
+  Two_Sum( a1, i, x2, x1)
 
 #define Two_Two_Diff(a1, a0, b1, b0, x3, x2, x1, x0) \
-  Two_One_Diff(a1, a0, b0, _j, _0, x0); \
-  Two_One_Diff(_j, _0, b1, x3, x2, x1)
+  Two_One_Diff(a1, a0, b0, j, zero, x0); \
+  Two_One_Diff(j, zero, b1, x3, x2, x1)
 
 
   //TK: weird globals, never initialised. Just replaced with 1.0 everywhere...
@@ -508,8 +508,8 @@ namespace internal_poltrig {
     INEXACT REAL abig;
     REAL ahi, alo, bhi, blo;
     REAL err1, err2, err3;
-    INEXACT REAL _i, _j;
-    REAL _0;
+    INEXACT REAL i, j;
+    REAL zero;
 
     acx = (REAL) (pa[0] - pc[0]);
     bcx = (REAL) (pb[0] - pc[0]);
@@ -1008,12 +1008,12 @@ namespace internal_poltrig {
   template <class T, class KeyType>
   void SplayTree<T, KeyType>::splay( const KeyType& keys, BTreeNode<T, KeyType> * & t ) const
   {
-    BTreeNode<T, KeyType> *_leftTreeMax, *_rightTreeMin;
+    BTreeNode<T, KeyType> *leftTreeMax, *rightTreeMin;
     //    static BTreeNode<T, KeyType> header;
     BTreeNode<T, KeyType> header;//TK: Removed static keyword. Rather a bit slower than thread problems...
 
     header._left = header._right = NULL;
-    _leftTreeMax = _rightTreeMin = &header;
+    leftTreeMax = rightTreeMin = &header;
 
     for( ; ; )
       {
@@ -1025,8 +1025,8 @@ namespace internal_poltrig {
 	    if( t->_left == NULL ) break;
 
 	    // Link Right
-	    _rightTreeMin->_left = t;
-	    _rightTreeMin = t;
+	    rightTreeMin->_left = t;
+	    rightTreeMin = t;
 	    t = t->_left;
 	  }
 	else if( keys > rkey )
@@ -1036,15 +1036,15 @@ namespace internal_poltrig {
 	    if( t->_right == NULL ) break;
 
 	    // Link Left
-	    _leftTreeMax->_right = t;
-	    _leftTreeMax = t;
+	    leftTreeMax->_right = t;
+	    leftTreeMax = t;
 	    t = t->_right;
 	  }
 	else  break;
       }
 
-    _leftTreeMax->_right = t->_left;
-    _rightTreeMin->_left = t->_right;
+    leftTreeMax->_right = t->_left;
+    rightTreeMin->_left = t->_right;
     t->_left = header._right;
     t->_right = header._left;
 
@@ -1192,7 +1192,7 @@ namespace internal_poltrig {
   //Belgium
   //-------------------------------------------------------------------------/
   //
-  //Name:         geometry.h (all geometry premitives related polygon triang-
+  //Name:         geometry.h (all geometry primitives related polygon triang-
   //              ulation by sweep line algorithm)
   //Author:       Liang, Wu (wu@mema.ucl.ac.be, wuliang@femagsoft.com)
   //Created:      03/2001
@@ -1257,39 +1257,39 @@ namespace internal_poltrig {
     Linebase(const Linebase& line);
     ~Linebase() {};
 
-    unsigned int id() const { return _id; }
+    unsigned int id() const { return m_id; }
 
     //two end points
-    Pointbase*   endPoint(const int& i) const { return _endp[i]; }
-    Type         type() const { return _type; }
-    double       keyValue() const { return _key; }
+    Pointbase*   endPoint(const int& i) const { return m_endp[i]; }
+    Type         type() const { return m_type; }
+    double       keyValue() const { return m_key; }
     void         setKeyValue(const double& y);
     //slightly increased the key to avoid duplicated key for searching tree.
-    void         increaseKeyValue(const double& diff) { _key+=diff; }
+    void         increaseKeyValue(const double& diff) { m_key+=diff; }
     //reverse a directed line segment; reversable only for inserted diagonals
     void         reverse();
 
     //set and return helper of a directed line segment;
-    void         setHelper(const unsigned int& i) { _helper=i; }
-    unsigned int helper() { return _helper; }
+    void         setHelper(const unsigned int& i) { m_helper=i; }
+    unsigned int helper() { return m_helper; }
 
   protected:
-    unsigned int _id;           //id of a line segment;
-    Pointbase*   _endp[2];      //two end points;
+    unsigned int m_id;           //id of a line segment;
+    Pointbase*   m_endp[2];      //two end points;
 
-    Type         _type;         //type of a line segement, input/insert
-    double       _key;          //key of a line segment for splay tree searching
-    unsigned int _helper;       //helper of a line segemnt
+    Type         m_type;         //type of a line segement, input/insert
+    double       m_key;          //key of a line segment for splay tree searching
+    unsigned int m_helper;       //helper of a line segemnt
   public:
     Linebase & operator= ( const Linebase & line )
     {
       if (this != &line) {
-        this->_id=line._id;
-        this->_endp[0]=line._endp[0];
-        this->_endp[1]=line._endp[1];
-        this->_type=line._type;
-        this->_key=line._key;
-        this->_helper=line._helper;
+        this->m_id=line.m_id;
+        this->m_endp[0]=line.m_endp[0];
+        this->m_endp[1]=line.m_endp[1];
+        this->m_type=line.m_type;
+        this->m_key=line.m_key;
+        this->m_helper=line.m_helper;
       }
       return *this;
     }
@@ -1310,7 +1310,7 @@ namespace internal_poltrig {
   //Belgium
   //-------------------------------------------------------------------------/
   //
-  //Name:         geometry.cc (all geometry premitive implementations related
+  //Name:         geometry.cc (all geometry primitive implementations related
   //              to polygon triangulation by sweep line algorithm)
   //Author:       Liang, Wu (wu@mema.ucl.ac.be, wuliang@femagsoft.com)
   //Created:      03/2001
@@ -1384,20 +1384,20 @@ namespace internal_poltrig {
   //----------------------------------------------------------------------------
   //Linebase construct
   //----------------------------------------------------------------------------
-  Linebase::Linebase():_type(UNKNOWN),_key(0.),_helper(0)
+  Linebase::Linebase():m_type(UNKNOWN),m_key(0.),m_helper(0)
   {
-    for(int i=0; i<2; ++i) _endp[i]=0;
-    _id=0;
+    for(int i=0; i<2; ++i) m_endp[i]=0;
+    m_id=0;
   }
 
   //-----------------------------------------------------------------------------
   //Linebase construct
   //-----------------------------------------------------------------------------
-  Linebase::Linebase(Pointbase* sp, Pointbase* ep, const Type& type, long int & l_id):_type(type),_key(0.),_helper(0)
+  Linebase::Linebase(Pointbase* sp, Pointbase* ep, const Type& type, long int & l_id):m_type(type),m_key(0.),m_helper(0)
   {
-    _endp[0]=sp;
-    _endp[1]=ep;
-    _id=++l_id;
+    m_endp[0]=sp;
+    m_endp[1]=ep;
+    m_id=++l_id;
   }
 
   //----------------------------------------------------------------------------
@@ -1405,12 +1405,12 @@ namespace internal_poltrig {
   //----------------------------------------------------------------------------
   Linebase::Linebase(const Linebase& line)
   {
-    this->_id=line._id;
-    this->_endp[0]=line._endp[0];
-    this->_endp[1]=line._endp[1];
-    this->_type=line._type;
-    this->_key=line._key;
-    this->_helper=line._helper;
+    this->m_id=line.m_id;
+    this->m_endp[0]=line.m_endp[0];
+    this->m_endp[1]=line.m_endp[1];
+    this->m_type=line.m_type;
+    this->m_key=line.m_key;
+    this->m_helper=line.m_helper;
   }
 
 
@@ -1419,17 +1419,17 @@ namespace internal_poltrig {
   //----------------------------------------------------------------------------
   void Linebase::reverse()
   {
-    assert(_type==INSERT);
-    Pointbase* tmp=_endp[0];
-    _endp[0]=_endp[1];
-    _endp[1]=tmp;
+    assert(m_type==INSERT);
+    Pointbase* tmp=m_endp[0];
+    m_endp[0]=m_endp[1];
+    m_endp[1]=tmp;
   }
 
   void Linebase::setKeyValue(const double& y)
   {
-    if( _endp[1]->y==_endp[0]->y )
-      _key=_endp[0]->x < _endp[1]->x ? _endp[0]->x:_endp[1]->x;
-    else    _key=( y - _endp[0]->y ) * ( _endp[1]->x - _endp[0]->x ) / (_endp[1]->y - _endp[0]->y ) + _endp[0]->x;
+    if( m_endp[1]->y==m_endp[0]->y )
+      m_key=m_endp[0]->x < m_endp[1]->x ? m_endp[0]->x:m_endp[1]->x;
+    else    m_key=( y - m_endp[0]->y ) * ( m_endp[1]->x - m_endp[0]->x ) / (m_endp[1]->y - m_endp[0]->y ) + m_endp[0]->x;
   }
 
 }//end namespace internal_poltrig
@@ -1447,14 +1447,14 @@ public:
   void         triangulation();
 
   //return all triangles
-  const Triangles*    triangles() { return &_triangles; }
+  const Triangles*    triangles() { return &m_triangles; }
 
-  internal_poltrig::PointbaseMap& points()    { return _points; }
-  internal_poltrig::LineMap&      edges()     { return _edges; }
+  internal_poltrig::PointbaseMap& points()    { return m_points; }
+  internal_poltrig::LineMap&      edges()     { return m_edges; }
 
   //private member functions.
 private:
-  long int l_id;//previous a global, but that gives mem. crashes. Must be reinitted for every polygon.
+  long int m_l_id;//previous a global, but that gives mem. crashes. Must be reinitted for every polygon.
 
   void set_contour (const std::vector<double>& x,const std::vector<double>& y);
   void         initializate();
@@ -1484,22 +1484,22 @@ private:
   void         triangulateMonotone(internal_poltrig::Monopoly& mpoly);
 
   //private data memebers
-  internal_poltrig::PQueue      _qpoints;                            //priority queue for event points
-  internal_poltrig::EdgeBST     _edgebst;                            //edge binary searching tree (splaytree)
-  internal_poltrig::Monopolys   _mpolys;                             //all monotone polygon piece list;
-  Triangles   _triangles;                          //all triangle list;
+  internal_poltrig::PQueue      m_qpoints;                            //priority queue for event points
+  internal_poltrig::EdgeBST     m_edgebst;                            //edge binary searching tree (splaytree)
+  internal_poltrig::Monopolys   m_mpolys;                             //all monotone polygon piece list;
+  Triangles   m_triangles;                          //all triangle list;
 
   //data for monotone piece searching purpose;
-  internal_poltrig::AdjEdgeMap  _startAdjEdgeMap;                    //all edges starting from given points (map)
-  internal_poltrig::LineMap     _diagonals;                          //added diagonals to partition polygon to
+  internal_poltrig::AdjEdgeMap  m_startAdjEdgeMap;                    //all edges starting from given points (map)
+  internal_poltrig::LineMap     m_diagonals;                          //added diagonals to partition polygon to
   //monotont pieces, not all diagonals of
 
   void init_vertices_and_lines();
-  unsigned int            _ncontours;   //number of contours
-  std::vector<unsigned int>    _nVertices;   //
-  internal_poltrig::PointbaseMap            _points;      //all vertices
-  internal_poltrig::LineMap                 _edges;       //all edges
-  double                  _xmin,_xmax, _ymin,_ymax; //boundary box for polygon
+  unsigned int            m_ncontours;   //number of contours
+  std::vector<unsigned int>    m_nVertices;   //
+  internal_poltrig::PointbaseMap            m_points;      //all vertices
+  internal_poltrig::LineMap                 m_edges;       //all edges
+  double                  m_xmin,m_xmax, m_ymin,m_ymax; //boundary box for polygon
 
 };
 
@@ -1511,24 +1511,24 @@ void PolygonTriangulator::Polygon::init_vertices_and_lines()
 
   internal_poltrig::Type type;
 
-  for(unsigned j=0; j<_ncontours; ++j)
+  for(unsigned j=0; j<m_ncontours; ++j)
     {
-      for(unsigned i=1; i<=_nVertices[j]; ++i)//fixme: 0-based?
+      for(unsigned i=1; i<=m_nVertices[j]; ++i)//fixme: 0-based?
 	{
           sid=num+i;
-          eid=(i==_nVertices[j])?num+1:num+i+1;
+          eid=(i==m_nVertices[j])?num+1:num+i+1;
 	  type = internal_poltrig::INPUT;
-          internal_poltrig::Linebase* line=new internal_poltrig::Linebase(_points[sid], _points[eid], type,l_id);
-	  _edges[l_id]=line;
+          internal_poltrig::Linebase* line=new internal_poltrig::Linebase(m_points[sid], m_points[eid], type,m_l_id);
+	  m_edges[m_l_id]=line;
         }
-      num+=_nVertices[j];
+      num+=m_nVertices[j];
     }
 
   int sum=0;
-  for(unsigned int i=0; i<_ncontours; ++i)
+  for(unsigned int i=0; i<m_ncontours; ++i)
     {
-      sum+= _nVertices[i];
-      _nVertices[i]=sum;
+      sum+= m_nVertices[i];
+      m_nVertices[i]=sum;
     }
 
 }
@@ -1541,24 +1541,24 @@ void PolygonTriangulator::Polygon::set_contour(const std::vector<double>& x,cons
 {
   assert(x.size()==y.size());
 
-  _nVertices.push_back( x.size() );
-  unsigned int i = _points.size()+1/*1*/;//fixme: get rid of the +1 ?
+  m_nVertices.push_back( x.size() );
+  unsigned int i = m_points.size()+1/*1*/;//fixme: get rid of the +1 ?
   double xx,yy;
   internal_poltrig::Type type;
-  for (unsigned int j = 0; j < _nVertices[_ncontours]; ++j, ++i)
+  for (unsigned int j = 0; j < m_nVertices[m_ncontours]; ++j, ++i)
     {
       xx=x.at(j);
       yy=y.at(j);
       type=internal_poltrig::INPUT;
       internal_poltrig::Pointbase* point=new internal_poltrig::Pointbase(i,xx,yy,type);
-      if(xx > _xmax ) _xmax=xx;
-      if(xx < _xmin ) _xmin=xx;
-      if(yy > _ymax ) _ymax=yy;
-      if(yy < _ymin ) _ymin=yy;
-      _points[i]=point;
+      if(xx > m_xmax ) m_xmax=xx;
+      if(xx < m_xmin ) m_xmin=xx;
+      if(yy > m_ymax ) m_ymax=yy;
+      if(yy < m_ymin ) m_ymin=yy;
+      m_points[i]=point;
     }
 
-  ++_ncontours;
+  ++m_ncontours;
 
 }
 
@@ -1570,11 +1570,11 @@ void PolygonTriangulator::Polygon::set_contour(const std::vector<double>& x,cons
 //----------------------------------------------------------------------------
 PolygonTriangulator::Polygon::Polygon(const std::vector<double>& x,const std::vector<double>& y)
 {
-  l_id = 0;
-  _ncontours=0;
+  m_l_id = 0;
+  m_ncontours=0;
 
-  _xmin = _ymin = std::numeric_limits<double>::infinity();
-  _xmax = _ymax = - std::numeric_limits<double>::infinity();
+  m_xmin = m_ymin = std::numeric_limits<double>::infinity();
+  m_xmax = m_ymax = - std::numeric_limits<double>::infinity();
 
 
   set_contour(x,y);
@@ -1588,14 +1588,14 @@ PolygonTriangulator::Polygon::Polygon(const std::vector<double>& x,const std::ve
 PolygonTriangulator::Polygon::~Polygon()
 {
   //clear all dynamic allocated memory
-  internal_poltrig::PointbaseMap::iterator itp=_points.begin();
-  for(; itp!=_points.end(); ++itp)
+  internal_poltrig::PointbaseMap::iterator itp=m_points.begin();
+  for(; itp!=m_points.end(); ++itp)
     {
       delete itp->second;
     }
 
-  internal_poltrig::LineMap::iterator itl=_edges.begin();
-  for(; itl!=_edges.end(); ++itl)
+  internal_poltrig::LineMap::iterator itl=m_edges.begin();
+  for(; itl!=m_edges.end(); ++itl)
     {
       delete itl->second;
     }
@@ -1609,14 +1609,14 @@ unsigned int PolygonTriangulator::Polygon::prev(const unsigned int&  i)
 {
   unsigned int j(0),prevLoop(0),currentLoop(0);
 
-  while ( i > _nVertices[currentLoop] )
+  while ( i > m_nVertices[currentLoop] )
     {
       prevLoop=currentLoop;
       ++currentLoop;
     }
 
-  if( i==1 || (i==_nVertices[prevLoop]+1) ) j=_nVertices[currentLoop];
-  else if( i <= _nVertices[currentLoop] ) j=i-1;
+  if( i==1 || (i==m_nVertices[prevLoop]+1) ) j=m_nVertices[currentLoop];
+  else if( i <= m_nVertices[currentLoop] ) j=i-1;
 
   return j;
 }
@@ -1628,17 +1628,17 @@ unsigned int PolygonTriangulator::Polygon::next(const unsigned int&  i)
 {
   unsigned int j(0),prevLoop(0),currentLoop(0);
 
-  while ( i > _nVertices[currentLoop] )
+  while ( i > m_nVertices[currentLoop] )
     {
       prevLoop=currentLoop;
       ++currentLoop;
     }
 
-  if( i < _nVertices[currentLoop] ) j=i+1;
-  else if ( i==_nVertices[currentLoop] )
+  if( i < m_nVertices[currentLoop] ) j=i+1;
+  else if ( i==m_nVertices[currentLoop] )
     {
       if( currentLoop==0) j=1;
-      else j=_nVertices[prevLoop]+1;
+      else j=m_nVertices[prevLoop]+1;
     }
 
   return j;
@@ -1653,41 +1653,41 @@ unsigned int PolygonTriangulator::Polygon::next(const unsigned int&  i)
 //----------------------------------------------------------------------------
 void PolygonTriangulator::Polygon::initializate()
 {
-  internal_poltrig::PointbaseMap::iterator it=_points.begin();
-  for(; it!=_points.end(); ++it)
+  internal_poltrig::PointbaseMap::iterator it=m_points.begin();
+  for(; it!=m_points.end(); ++it)
     {
       int id=it->first;
       int idp=prev(id);
       int idn=next(id);
-      internal_poltrig::Pointbase p=*_points[id], pnext=*_points[idn], pprev=*_points[idp];
+      internal_poltrig::Pointbase p=*m_points[id], pnext=*m_points[idn], pprev=*m_points[idp];
 
       if( p > pnext && pprev > p )
-	_points[id]->type=internal_poltrig::REGULAR_DOWN;
+	m_points[id]->type=internal_poltrig::REGULAR_DOWN;
       else if (p > pprev && pnext > p)
-	_points[id]->type=internal_poltrig::REGULAR_UP;
+	m_points[id]->type=internal_poltrig::REGULAR_UP;
       else
 	{
 	  double pa[2], pb[2], pc[2];
 
-	  pa[0]=_points[idp]->x;
-	  pa[1]=_points[idp]->y;
+	  pa[0]=m_points[idp]->x;
+	  pa[1]=m_points[idp]->y;
 
-	  pb[0]=_points[id]->x;
-	  pb[1]=_points[id]->y;
+	  pb[0]=m_points[id]->x;
+	  pb[1]=m_points[id]->y;
 
-	  pc[0]=_points[idn]->x;
-	  pc[1]=_points[idn]->y;
+	  pc[0]=m_points[idn]->x;
+	  pc[1]=m_points[idn]->y;
 
 	  double area=internal_poltrig::orient2d(pa,pb,pc);
 
-	  if( pprev > p && pnext > p ) _points[id]->type=(area >0) ? internal_poltrig::END: internal_poltrig::MERGE ;
-	  if( pprev < p && pnext < p ) _points[id]->type=(area >0) ? internal_poltrig::START : internal_poltrig::SPLIT;
+	  if( pprev > p && pnext > p ) m_points[id]->type=(area >0) ? internal_poltrig::END: internal_poltrig::MERGE ;
+	  if( pprev < p && pnext < p ) m_points[id]->type=(area >0) ? internal_poltrig::START : internal_poltrig::SPLIT;
 
 	}
 
-      _qpoints.push(*(it->second));
+      m_qpoints.push(*(it->second));
 
-      _startAdjEdgeMap[id].insert(id);
+      m_startAdjEdgeMap[id].insert(id);
 
     }
 }
@@ -1698,13 +1698,13 @@ void PolygonTriangulator::Polygon::initializate()
 void PolygonTriangulator::Polygon::addDiagonal(const unsigned int&  i, const unsigned int&  j)
 {
   internal_poltrig::Type type=internal_poltrig::INSERT;
-  internal_poltrig::Linebase* diag=new internal_poltrig::Linebase(_points[i], _points[j], type,l_id);
-  _edges[diag->id()]=diag;
+  internal_poltrig::Linebase* diag=new internal_poltrig::Linebase(m_points[i], m_points[j], type,m_l_id);
+  m_edges[diag->id()]=diag;
 
-  _startAdjEdgeMap[i].insert(diag->id());
-  _startAdjEdgeMap[j].insert(diag->id());
+  m_startAdjEdgeMap[i].insert(diag->id());
+  m_startAdjEdgeMap[j].insert(diag->id());
 
-  _diagonals[diag->id()]=diag;
+  m_diagonals[diag->id()]=diag;
 
 }
 
@@ -1713,12 +1713,12 @@ void PolygonTriangulator::Polygon::addDiagonal(const unsigned int&  i, const uns
 //----------------------------------------------------------------------------
 void PolygonTriangulator::Polygon::handleStartVertex(const unsigned int&  i)
 {
-  double y=_points[i]->y;
-  _edgebst.InOrder(internal_poltrig::UpdateKey, y);
+  double y=m_points[i]->y;
+  m_edgebst.InOrder(internal_poltrig::UpdateKey, y);
 
-  _edges[i]->setHelper(i);
-  _edges[i]->setKeyValue(y);
-  _edgebst.Insert(_edges[i]);
+  m_edges[i]->setHelper(i);
+  m_edges[i]->setKeyValue(y);
+  m_edgebst.Insert(m_edges[i]);
 
 }
 
@@ -1727,16 +1727,16 @@ void PolygonTriangulator::Polygon::handleStartVertex(const unsigned int&  i)
 //----------------------------------------------------------------------------
 void PolygonTriangulator::Polygon::handleEndVertex(const unsigned int&  i)
 {
-  double y=_points[i]->y;
-  _edgebst.InOrder(internal_poltrig::UpdateKey, y);
+  double y=m_points[i]->y;
+  m_edgebst.InOrder(internal_poltrig::UpdateKey, y);
 
   unsigned int previ=prev(i);
-  internal_poltrig::Linebase* edge=_edges[previ];
-  unsigned int helper=_edges[previ]->helper();
+  internal_poltrig::Linebase* edge=m_edges[previ];
+  unsigned int helper=m_edges[previ]->helper();
 
 
-  if(_points[helper]->type==internal_poltrig::MERGE) addDiagonal(i, helper);
-  _edgebst.Delete(edge->keyValue());
+  if(m_points[helper]->type==internal_poltrig::MERGE) addDiagonal(i, helper);
+  m_edgebst.Delete(edge->keyValue());
 
 }
 
@@ -1745,20 +1745,20 @@ void PolygonTriangulator::Polygon::handleEndVertex(const unsigned int&  i)
 //----------------------------------------------------------------------------
 void PolygonTriangulator::Polygon::handleSplitVertex(const unsigned int&  i)
 {
-  double x=_points[i]->x, y=_points[i]->y;
-  _edgebst.InOrder(internal_poltrig::UpdateKey, y);
+  double x=m_points[i]->x, y=m_points[i]->y;
+  m_edgebst.InOrder(internal_poltrig::UpdateKey, y);
 
   internal_poltrig::BTreeNode<internal_poltrig::Linebase*, double>*  leftnode;
-  _edgebst.FindMaxSmallerThan(x, leftnode);
+  m_edgebst.FindMaxSmallerThan(x, leftnode);
   internal_poltrig::Linebase* leftedge=leftnode->data();
 
   unsigned int helper=leftedge->helper();
   addDiagonal(i, helper);
 
   leftedge->setHelper(i);
-  _edges[i]->setHelper(i);
-  _edges[i]->setKeyValue(y);
-  _edgebst.Insert(_edges[i]);
+  m_edges[i]->setHelper(i);
+  m_edges[i]->setKeyValue(y);
+  m_edgebst.Insert(m_edges[i]);
 }
 
 //----------------------------------------------------------------------------
@@ -1766,20 +1766,20 @@ void PolygonTriangulator::Polygon::handleSplitVertex(const unsigned int&  i)
 //----------------------------------------------------------------------------
 void PolygonTriangulator::Polygon::handleMergeVertex(const unsigned int&  i)
 {
-  double x=_points[i]->x, y=_points[i]->y;
-  _edgebst.InOrder(internal_poltrig::UpdateKey, y);
+  double x=m_points[i]->x, y=m_points[i]->y;
+  m_edgebst.InOrder(internal_poltrig::UpdateKey, y);
 
   unsigned int previ=prev(i);
-  unsigned int helper=_edges[previ]->helper();
-  if (_points[helper]->type==internal_poltrig::MERGE) addDiagonal(i, helper);
-  _edgebst.Delete(_edges[previ]->keyValue());
+  unsigned int helper=m_edges[previ]->helper();
+  if (m_points[helper]->type==internal_poltrig::MERGE) addDiagonal(i, helper);
+  m_edgebst.Delete(m_edges[previ]->keyValue());
 
   internal_poltrig::BTreeNode<internal_poltrig::Linebase*, double>*  leftnode;
-  _edgebst.FindMaxSmallerThan(x, leftnode);
+  m_edgebst.FindMaxSmallerThan(x, leftnode);
   internal_poltrig::Linebase* leftedge=leftnode->data();
 
   helper=leftedge->helper();
-  if(_points[helper]->type==internal_poltrig::MERGE) addDiagonal(i, helper);
+  if(m_points[helper]->type==internal_poltrig::MERGE) addDiagonal(i, helper);
 
   leftedge->setHelper(i);
 }
@@ -1789,17 +1789,17 @@ void PolygonTriangulator::Polygon::handleMergeVertex(const unsigned int&  i)
 //----------------------------------------------------------------------------
 void PolygonTriangulator::Polygon::handleRegularVertexDown(const unsigned int&  i)
 {
-  double y=_points[i]->y;
-  _edgebst.InOrder(internal_poltrig::UpdateKey, y);
+  double y=m_points[i]->y;
+  m_edgebst.InOrder(internal_poltrig::UpdateKey, y);
 
   unsigned int previ=prev(i);
-  unsigned int helper=_edges[previ]->helper();
-  if(_points[helper]->type==internal_poltrig::MERGE) addDiagonal(i, helper);
+  unsigned int helper=m_edges[previ]->helper();
+  if(m_points[helper]->type==internal_poltrig::MERGE) addDiagonal(i, helper);
 
-  _edgebst.Delete(_edges[previ]->keyValue());
-  _edges[i]->setHelper(i);
-  _edges[i]->setKeyValue(y);
-  _edgebst.Insert(_edges[i]);
+  m_edgebst.Delete(m_edges[previ]->keyValue());
+  m_edges[i]->setHelper(i);
+  m_edges[i]->setKeyValue(y);
+  m_edgebst.Insert(m_edges[i]);
 
 }
 
@@ -1808,16 +1808,16 @@ void PolygonTriangulator::Polygon::handleRegularVertexDown(const unsigned int&  
 //----------------------------------------------------------------------------
 void PolygonTriangulator::Polygon::handleRegularVertexUp(const unsigned int&  i)
 {
-  double x=_points[i]->x, y=_points[i]->y;
-  _edgebst.InOrder(internal_poltrig::UpdateKey, y);
+  double x=m_points[i]->x, y=m_points[i]->y;
+  m_edgebst.InOrder(internal_poltrig::UpdateKey, y);
 
   internal_poltrig::BTreeNode<internal_poltrig::Linebase*, double>*  leftnode;
-  _edgebst.FindMaxSmallerThan(x, leftnode);
+  m_edgebst.FindMaxSmallerThan(x, leftnode);
 
   internal_poltrig::Linebase* leftedge=leftnode->data();
 
   unsigned int helper=leftedge->helper();
-  if(_points[helper]->type==internal_poltrig::MERGE) addDiagonal(i, helper);
+  if(m_points[helper]->type==internal_poltrig::MERGE) addDiagonal(i, helper);
   leftedge->setHelper(i);
 
 }
@@ -1828,16 +1828,16 @@ void PolygonTriangulator::Polygon::handleRegularVertexUp(const unsigned int&  i)
 void PolygonTriangulator::Polygon::partition2Monotone()
 {
 
-  if(_qpoints.top().type!=internal_poltrig::START)
+  if(m_qpoints.top().type!=internal_poltrig::START)
     {
       std::cout<<"Please check your input polygon:\n1)orientations?\n2)duplicated points?\n";
       exit(1);
     }
 
-  while(!_qpoints.empty())
+  while(!m_qpoints.empty())
     {
-      internal_poltrig::Pointbase vertex=_qpoints.top();
-      _qpoints.pop();
+      internal_poltrig::Pointbase vertex=m_qpoints.top();
+      m_qpoints.pop();
       unsigned int id=vertex.id;
 
       switch(vertex.type)
@@ -1894,7 +1894,7 @@ unsigned int PolygonTriangulator::Polygon::selectNextEdge(internal_poltrig::Line
 {
 
   unsigned int eid= edge->endPoint(1)->id;
-  std::set<unsigned int> edges=_startAdjEdgeMap[eid];
+  std::set<unsigned int> edges=m_startAdjEdgeMap[eid];
   assert(!edges.empty());
 
   unsigned int nexte=0;
@@ -1913,8 +1913,8 @@ unsigned int PolygonTriangulator::Polygon::selectNextEdge(internal_poltrig::Line
 	  A[0]=edge->endPoint(0)->x;        A[1]=edge->endPoint(0)->y;
 	  B[0]=edge->endPoint(1)->x;        B[1]=edge->endPoint(1)->y;
 
-	  if(edge->endPoint(1)!=_edges[*it]->endPoint(0)) _edges[*it]->reverse();
-	  C[0]=_edges[*it]->endPoint(1)->x; C[1]=_edges[*it]->endPoint(1)->y;
+	  if(edge->endPoint(1)!=m_edges[*it]->endPoint(0)) m_edges[*it]->reverse();
+	  C[0]=m_edges[*it]->endPoint(1)->x; C[1]=m_edges[*it]->endPoint(1)->y;
 
 	  double area=internal_poltrig::orient2d(A, B, C);
 	  double cosb=angleCosb(A, B, C);
@@ -1936,9 +1936,9 @@ void PolygonTriangulator::Polygon::searchMonotones()
 {
   int loop=0;
 
-  internal_poltrig::LineMap edges=_edges;
+  internal_poltrig::LineMap edges=m_edges;
 
-  while( edges.size() > _diagonals.size() )
+  while( edges.size() > m_diagonals.size() )
     {
       ++loop;
       internal_poltrig::Monopoly poly;
@@ -1955,7 +1955,7 @@ void PolygonTriangulator::Polygon::searchMonotones()
 	  if(next->type()!=internal_poltrig::INSERT)
 	    {
 	      edges.erase(next->id());
-	      _startAdjEdgeMap[next->endPoint(0)->id].erase(next->id());
+	      m_startAdjEdgeMap[next->endPoint(0)->id].erase(next->id());
 	    }
 	  if(endp==startp) break;
 	  poly.push_back(endp->id);
@@ -1973,7 +1973,7 @@ void PolygonTriangulator::Polygon::searchMonotones()
 	  if(next->endPoint(0) !=endp ) next->reverse();
 	}
 
-      _mpolys.push_back(poly);
+      m_mpolys.push_back(poly);
     }
 }
 
@@ -1989,7 +1989,7 @@ void  PolygonTriangulator::Polygon::triangulateMonotone(internal_poltrig::Monopo
     {
       ++itnext;
       if(itnext==mpoly.end()) itnext=mpoly.begin();
-      internal_poltrig::Pointbase point=*_points[*it], pointnext=*_points[*itnext];
+      internal_poltrig::Pointbase point=*m_points[*it], pointnext=*m_points[*itnext];
       point.left=(point > pointnext)? true:false;
       qvertex.push(point);
     }
@@ -2014,7 +2014,7 @@ void  PolygonTriangulator::Polygon::triangulateMonotone(internal_poltrig::Monopo
 	      v[1]=p1.id;
 	      v[2]=p2.id;
 	      sort(v.begin(),v.end());//TK
-	      _triangles.push_back(v);
+	      m_triangles.push_back(v);
 
 	    }
 	  spoint.pop();
@@ -2043,7 +2043,7 @@ void  PolygonTriangulator::Polygon::triangulateMonotone(internal_poltrig::Monopo
 		  v[1]=stack2Point.id;
 		  v[2]=stack1Point.id;
 		  sort(v.begin(),v.end());//TK
-		  _triangles.push_back(v);
+		  m_triangles.push_back(v);
 		  spoint.pop();
 	    	} else break;
 	    }
@@ -2068,7 +2068,7 @@ void  PolygonTriangulator::Polygon::triangulateMonotone(internal_poltrig::Monopo
       v[1]=topPoint.id;
       v[2]=top2Point.id;
       sort(v.begin(),v.end());//TK
-      _triangles.push_back(v);
+      m_triangles.push_back(v);
     }
 }
 
@@ -2079,8 +2079,8 @@ void PolygonTriangulator::Polygon::triangulation()
 {
   partition2Monotone();
   searchMonotones();
-  internal_poltrig::Monopolys::iterator it=_mpolys.begin();
-  for(; it!=_mpolys.end(); ++it)
+  internal_poltrig::Monopolys::iterator it=m_mpolys.begin();
+  for(; it!=m_mpolys.end(); ++it)
     triangulateMonotone(*it);
 }
 
@@ -2093,16 +2093,16 @@ void PolygonTriangulator::Polygon::triangulation()
 
 PolygonTriangulator::PolygonTriangulator(const std::vector<double>& polygon_xcoords,
 					 const std::vector<double>& polygon_ycoords)
-  : polygon(new Polygon(polygon_xcoords,polygon_ycoords))
+  : m_polygon(new Polygon(polygon_xcoords,polygon_ycoords))
 {
-  polygon->triangulation();
+  m_polygon->triangulation();
 }
 
-PolygonTriangulator::~PolygonTriangulator() { delete polygon; }
+PolygonTriangulator::~PolygonTriangulator() { delete m_polygon; }
 
 const PolygonTriangulator::Triangles* PolygonTriangulator::triangles() const
 {
-  return polygon->triangles();
+  return m_polygon->triangles();
 }
 
 

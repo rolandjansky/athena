@@ -36,7 +36,7 @@ GeoTransform::GeoTransform (const HepGeom::Transform3D &Transform)
   //## begin GeoTransform::GeoTransform%3CDE1F350127.hasinit preserve=no
   //## end GeoTransform::GeoTransform%3CDE1F350127.hasinit
   //## begin GeoTransform::GeoTransform%3CDE1F350127.initialization preserve=yes
-:_transform (Transform)
+:m_transform (Transform)
   //## end GeoTransform::GeoTransform%3CDE1F350127.initialization
 {
   //## begin GeoTransform::GeoTransform%3CDE1F350127.body preserve=yes
@@ -56,14 +56,14 @@ GeoTransform::~GeoTransform()
 HepGeom::Transform3D GeoTransform::getTransform () const
 {
   //## begin GeoTransform::getTransform%3CDE1C3B01CB.body preserve=yes
-  return _transform;
+  return m_transform;
   //## end GeoTransform::getTransform%3CDE1C3B01CB.body
 }
 
 HepGeom::Transform3D GeoTransform::getDefTransform () const
 {
   //## begin GeoTransform::getDefTransform%3CDE1D0E014D.body preserve=yes
-  return _transform;
+  return m_transform;
   //## end GeoTransform::getDefTransform%3CDE1D0E014D.body
 }
 

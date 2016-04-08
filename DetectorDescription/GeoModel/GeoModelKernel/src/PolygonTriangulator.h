@@ -56,7 +56,7 @@ private:
   PolygonTriangulator & operator= ( const PolygonTriangulator & );
 
   class Polygon;
-  Polygon * polygon;
+  Polygon * m_polygon;
 };
 
 #endif

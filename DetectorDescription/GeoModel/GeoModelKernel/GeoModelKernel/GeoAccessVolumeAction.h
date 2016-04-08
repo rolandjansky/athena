@@ -137,86 +137,86 @@ class GeoAccessVolumeAction : public GeoNodeAction  //## Inherits: <unnamed>%3CE
 
     // Data Members for Class Attributes
 
-      //## Attribute: volume%3CE11F8900CA
+      //## Attribute: m_volume%3CE11F8900CA
       //	Returns a pointer to the ith physical volume under this
       //	one.
-      //## begin GeoAccessVolumeAction::volume%3CE11F8900CA.attr preserve=no  private: PVConstLink {U} 
-      PVConstLink volume;
-      //## end GeoAccessVolumeAction::volume%3CE11F8900CA.attr
+      //## begin GeoAccessVolumeAction::m_volume%3CE11F8900CA.attr preserve=no  private: PVConstLink {U} 
+      PVConstLink m_volume;
+      //## end GeoAccessVolumeAction::m_volume%3CE11F8900CA.attr
 
-      //## Attribute: transform%3CE1204D0216
+      //## Attribute: m_transform%3CE1204D0216
       //	The transformation to the ith volume.
-      //## begin GeoAccessVolumeAction::transform%3CE1204D0216.attr preserve=no  private: HepGeom::Transform3D {U} 
-      HepGeom::Transform3D transform;
-      //## end GeoAccessVolumeAction::transform%3CE1204D0216.attr
+      //## begin GeoAccessVolumeAction::m_transform%3CE1204D0216.attr preserve=no  private: HepGeom::Transform3D {U} 
+      HepGeom::Transform3D m_transform;
+      //## end GeoAccessVolumeAction::m_transform%3CE1204D0216.attr
 
-      //## Attribute: defTransform%3CE1315700E2
+      //## Attribute: m_defTransform%3CE1315700E2
       //	The default transformation to the ith volume.
-      //## begin GeoAccessVolumeAction::defTransform%3CE1315700E2.attr preserve=no  private: HepGeom::Transform3D {U} 
-      HepGeom::Transform3D defTransform;
-      //## end GeoAccessVolumeAction::defTransform%3CE1315700E2.attr
+      //## begin GeoAccessVolumeAction::m_defTransform%3CE1315700E2.attr preserve=no  private: HepGeom::Transform3D {U} 
+      HepGeom::Transform3D m_defTransform;
+      //## end GeoAccessVolumeAction::m_defTransform%3CE1315700E2.attr
 
-      //## Attribute: _index%3CE124570082
+      //## Attribute: m_index%3CE124570082
       //	The volume which we are interested in seeking.
-      //## begin GeoAccessVolumeAction::_index%3CE124570082.attr preserve=no  private: unsigned int {U} 
-      unsigned int _index;
-      //## end GeoAccessVolumeAction::_index%3CE124570082.attr
+      //## begin GeoAccessVolumeAction::m_index%3CE124570082.attr preserve=no  private: unsigned int {U} 
+      unsigned int m_index;
+      //## end GeoAccessVolumeAction::m_index%3CE124570082.attr
 
-      //## Attribute: _counter%3CE12AAE005E
+      //## Attribute: m_counter%3CE12AAE005E
       //	The volume which we are interested in seeking.
-      //## begin GeoAccessVolumeAction::_counter%3CE12AAE005E.attr preserve=no  private: unsigned int {U} 
-      unsigned int _counter;
-      //## end GeoAccessVolumeAction::_counter%3CE12AAE005E.attr
+      //## begin GeoAccessVolumeAction::m_counter%3CE12AAE005E.attr preserve=no  private: unsigned int {U} 
+      unsigned int m_counter;
+      //## end GeoAccessVolumeAction::m_counter%3CE12AAE005E.attr
 
-      //## Attribute: _name%3CEB0C910038
+      //## Attribute: m_name%3CEB0C910038
       //	The name of the volume.  From a nametag or a serial
       //	denominator.
-      //## begin GeoAccessVolumeAction::_name%3CEB0C910038.attr preserve=no  private: mutable std::string {U} 
-      mutable std::string _name;
-      //## end GeoAccessVolumeAction::_name%3CEB0C910038.attr
+      //## begin GeoAccessVolumeAction::m_name%3CEB0C910038.attr preserve=no  private: mutable std::string {U} 
+      mutable std::string m_name;
+      //## end GeoAccessVolumeAction::m_name%3CEB0C910038.attr
 
       //## Attribute: _id%3E217FA3027E
       //	The identifier of the volume.  From an identifier tag.
       //## begin GeoAccessVolumeAction::_id%3E217FA3027E.attr preserve=no  private: mutable Query<int> {U} 
-      mutable Query<int> _id;
+      mutable Query<int> m_id;
       //## end GeoAccessVolumeAction::_id%3E217FA3027E.attr
 
-      //## Attribute: _nameTag%3CEB0F5A02DC
+      //## Attribute: m_nameTag%3CEB0F5A02DC
       //	A pointer to a name tag.  If the volume is named.
-      //## begin GeoAccessVolumeAction::_nameTag%3CEB0F5A02DC.attr preserve=no  private: const GeoNameTag * {U} 
-      const GeoNameTag *_nameTag;
-      //## end GeoAccessVolumeAction::_nameTag%3CEB0F5A02DC.attr
+      //## begin GeoAccessVolumeAction::m_nameTag%3CEB0F5A02DC.attr preserve=no  private: const GeoNameTag * {U} 
+      const GeoNameTag *m_nameTag;
+      //## end GeoAccessVolumeAction::m_nameTag%3CEB0F5A02DC.attr
 
-      //## Attribute: _serialDenominator%3CEB0F6300E0
+      //## Attribute: m_serialDenominator%3CEB0F6300E0
       //	A pointer to a serial denominator.  If one exists.
-      //## begin GeoAccessVolumeAction::_serialDenominator%3CEB0F6300E0.attr preserve=no  private: const GeoSerialDenominator * {U} 
-      const GeoSerialDenominator *_serialDenominator;
-      //## end GeoAccessVolumeAction::_serialDenominator%3CEB0F6300E0.attr
+      //## begin GeoAccessVolumeAction::m_serialDenominator%3CEB0F6300E0.attr preserve=no  private: const GeoSerialDenominator * {U} 
+      const GeoSerialDenominator *m_serialDenominator;
+      //## end GeoAccessVolumeAction::m_serialDenominator%3CEB0F6300E0.attr
 
-      //## Attribute: _idTag%3E217FEC0297
+      //## Attribute: m_idTag%3E217FEC0297
       //	A pointer to an identifier tag.  If the volume is
       //	identified.
-      //## begin GeoAccessVolumeAction::_idTag%3E217FEC0297.attr preserve=no  private: const GeoIdentifierTag * {U} 
-      const GeoIdentifierTag *_idTag;
-      //## end GeoAccessVolumeAction::_idTag%3E217FEC0297.attr
+      //## begin GeoAccessVolumeAction::m_idTag%3E217FEC0297.attr preserve=no  private: const GeoIdentifierTag * {U} 
+      const GeoIdentifierTag *m_idTag;
+      //## end GeoAccessVolumeAction::m_idTag%3E217FEC0297.attr
 
-      //## Attribute: _pendingTransformList%3E2ACE98035A
+      //## Attribute: m_pendingTransformList%3E2ACE98035A
       //	List of Pending Transformations.
-      //## begin GeoAccessVolumeAction::_pendingTransformList%3E2ACE98035A.attr preserve=no  private: std::vector<const GeoTransform *>  {U} 
-      std::vector<const GeoTransform *>  _pendingTransformList;
-      //## end GeoAccessVolumeAction::_pendingTransformList%3E2ACE98035A.attr
+      //## begin GeoAccessVolumeAction::m_pendingTransformList%3E2ACE98035A.attr preserve=no  private: std::vector<const GeoTransform *>  {U} 
+      std::vector<const GeoTransform *>  m_pendingTransformList;
+      //## end GeoAccessVolumeAction::m_pendingTransformList%3E2ACE98035A.attr
 
-      //## Attribute: _serialDenomPosition%3E2ACF380274
+      //## Attribute: m_serialDenomPosition%3E2ACF380274
       //	Position of the serial denominator.  Used to assign a
       //	numeric suffix to the name, eg BaseName+99
-      //## begin GeoAccessVolumeAction::_serialDenomPosition%3E2ACF380274.attr preserve=no  private: unsigned int {U} 
-      unsigned int _serialDenomPosition;
-      //## end GeoAccessVolumeAction::_serialDenomPosition%3E2ACF380274.attr
+      //## begin GeoAccessVolumeAction::m_serialDenomPosition%3E2ACF380274.attr preserve=no  private: unsigned int {U} 
+      unsigned int m_serialDenomPosition;
+      //## end GeoAccessVolumeAction::m_serialDenomPosition%3E2ACF380274.attr
 
     // Additional Private Declarations
       //## begin GeoAccessVolumeAction%3CE11DD8028A.private preserve=yes
-      const GeoSerialIdentifier *_serialIdentifier;
-      unsigned int _serialIdentPosition;
+      const GeoSerialIdentifier *m_serialIdentifier;
+      unsigned int m_serialIdentPosition;
       //## end GeoAccessVolumeAction%3CE11DD8028A.private
   private: //## implementation
     // Additional Implementation Declarations

@@ -49,17 +49,17 @@ class GeoSimplePolygonBrep : public GeoShape
   GeoSimplePolygonBrep(const GeoSimplePolygonBrep &right);
   GeoSimplePolygonBrep & operator=(const GeoSimplePolygonBrep &right);
 
-  static const std::string classType;
-  static const ShapeType classTypeID;
+  static const std::string s_classType;
+  static const ShapeType s_classTypeID;
 
-  double dZ;
-  std::vector<double> xVertices;
-  std::vector<double> yVertices;
+  double m_dZ;
+  std::vector<double> m_xVertices;
+  std::vector<double> m_yVertices;
 };
 
 inline unsigned int GeoSimplePolygonBrep::getNVertices() const
 {
-  return xVertices.size();
+  return m_xVertices.size();
 }
 
 inline bool GeoSimplePolygonBrep::isValid() const
@@ -69,27 +69,27 @@ inline bool GeoSimplePolygonBrep::isValid() const
 
 inline const double& GeoSimplePolygonBrep::getXVertex(unsigned int i) const
 {
-  return xVertices[i];
+  return m_xVertices[i];
 }
 
 inline const double& GeoSimplePolygonBrep::getYVertex(unsigned int i) const
 {
-  return yVertices[i];
+  return m_yVertices[i];
 }
 
 inline const std::string& GeoSimplePolygonBrep::getClassType()
 {
-  return classType;
+  return s_classType;
 }
 
 inline ShapeType GeoSimplePolygonBrep::getClassTypeID()
 {
-  return classTypeID;
+  return s_classTypeID;
 }
 
 inline const double& GeoSimplePolygonBrep::getDZ() const
 {
-  return dZ;
+  return m_dZ;
 }
 
 #endif

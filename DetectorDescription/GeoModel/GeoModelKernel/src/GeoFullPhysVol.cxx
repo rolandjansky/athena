@@ -43,7 +43,7 @@ GeoFullPhysVol::GeoFullPhysVol (const GeoLogVol* LogVol)
   //## begin GeoFullPhysVol::GeoFullPhysVol%3CDD899100DB.initialization preserve=yes
   :
 GeoVFullPhysVol (LogVol),
-_cloneOrigin(0)
+m_cloneOrigin(0)
   //## end GeoFullPhysVol::GeoFullPhysVol%3CDD899100DB.initialization
 {
   //## begin GeoFullPhysVol::GeoFullPhysVol%3CDD899100DB.body preserve=yes
@@ -54,10 +54,10 @@ _cloneOrigin(0)
 GeoFullPhysVol::~GeoFullPhysVol()
 {
   //## begin GeoFullPhysVol::~GeoFullPhysVol%3CDD87550219_dest.body preserve=yes
-  for (size_t i = 0; i < _daughters.size (); i++)
-    _daughters[i]->unref ();
-  if(_cloneOrigin && _cloneOrigin!=this) 
-    _cloneOrigin->unref();
+  for (size_t i = 0; i < m_daughters.size (); i++)
+    m_daughters[i]->unref ();
+  if(m_cloneOrigin && m_cloneOrigin!=this) 
+    m_cloneOrigin->unref();
   //## end GeoFullPhysVol::~GeoFullPhysVol%3CDD87550219_dest.body
 }
 
@@ -67,10 +67,10 @@ GeoFullPhysVol::~GeoFullPhysVol()
 void GeoFullPhysVol::add (GeoGraphNode* graphNode)
 {
   //## begin GeoFullPhysVol::add%3CDD8ADA0138.body preserve=yes
-  if(_cloneOrigin)
+  if(m_cloneOrigin)
     throw std::runtime_error("Attempt to modify contents of a cloned FPV");
 
-  _daughters.push_back (graphNode);
+  m_daughters.push_back (graphNode);
   graphNode->ref ();
   graphNode->dockTo (this);
   //## end GeoFullPhysVol::add%3CDD8ADA0138.body
@@ -148,9 +148,9 @@ void GeoFullPhysVol::exec (GeoNodeAction *action) const
     }
   else
     {
-      for (size_t c = 0; c < _daughters.size (); c++)
+      for (size_t c = 0; c < m_daughters.size (); c++)
 	{
-	  _daughters[c]->exec (action);
+	  m_daughters[c]->exec (action);
 	  if (action->shouldTerminate ())
 	    {
 	      action->getPath ()->pop ();
@@ -206,26 +206,26 @@ unsigned int GeoFullPhysVol::getNChildVolAndST () const
   //        the time of cloning, further identity is not guaranteed
 GeoFullPhysVol* GeoFullPhysVol::clone(bool attached)
 {
-  GeoFullPhysVol* _clone = new GeoFullPhysVol(this->getLogVol());
-  for(unsigned int ind = 0; ind < this->_daughters.size(); ind++) {
-    GeoGraphNode* _daughter =(GeoGraphNode*) _daughters[ind];
-    _clone->add(_daughter);
+  GeoFullPhysVol* clone = new GeoFullPhysVol(this->getLogVol());
+  for(unsigned int ind = 0; ind < this->m_daughters.size(); ind++) {
+    GeoGraphNode* daughter =(GeoGraphNode*) m_daughters[ind];
+    clone->add(daughter);
   }
 
   if(attached) {
-    if(this->_cloneOrigin==0) {
-      this->_cloneOrigin = this;
+    if(this->m_cloneOrigin==0) {
+      this->m_cloneOrigin = this;
     }
-    _clone->_cloneOrigin = this->_cloneOrigin;
-    this->_cloneOrigin->ref();
+    clone->m_cloneOrigin = this->m_cloneOrigin;
+    this->m_cloneOrigin->ref();
   }
 
-  return _clone;
+  return clone;
 }
 
 const GeoFullPhysVol* GeoFullPhysVol::cloneOrigin() const
 {
-  return _cloneOrigin;
+  return m_cloneOrigin;
 }
 
 // Breaks the consistency of cloned volumes!
@@ -233,9 +233,9 @@ const GeoFullPhysVol* GeoFullPhysVol::cloneOrigin() const
 // Don't call it until geometry has been completely translated to G4
 void GeoFullPhysVol::clear()
 {
-  for(size_t i=0; i<_daughters.size(); i++)
-    _daughters[i]->unref();
-  _daughters.clear();
+  for(size_t i=0; i<m_daughters.size(); i++)
+    m_daughters[i]->unref();
+  m_daughters.clear();
 }
 
 HepGeom::Transform3D GeoFullPhysVol::getX    () const {
@@ -323,15 +323,15 @@ HepGeom::Transform3D GeoFullPhysVol::getDefX    () const {
   
 
 unsigned int GeoFullPhysVol::getNChildNodes() const {
-  return _daughters.size();
+  return m_daughters.size();
 }
 
 const GeoGraphNode * const * GeoFullPhysVol::getChildNode(unsigned int i) const {
-  return &(_daughters[i]);
+  return &(m_daughters[i]);
 }
 const GeoGraphNode * const * GeoFullPhysVol::findChildNode(const GeoGraphNode * n) const {
-  std::vector<const GeoGraphNode *>::const_iterator i = std::find(_daughters.begin(),_daughters.end(),n);
-  if (i==_daughters.end()) return NULL;
+  std::vector<const GeoGraphNode *>::const_iterator i = std::find(m_daughters.begin(),m_daughters.end(),n);
+  if (i==m_daughters.end()) return NULL;
   else return &*i;
 }
 

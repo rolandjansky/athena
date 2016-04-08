@@ -34,13 +34,13 @@ class GeoSerialIdentifier : public GeoGraphNode
 
       const GeoSerialIdentifier & operator=(const GeoSerialIdentifier &right);
 
-      int  _baseId;
+      int  m_baseId;
 
 };
 
 inline int GeoSerialIdentifier::getBaseId() const
 {
-  return _baseId;
+  return m_baseId;
 }
 
 

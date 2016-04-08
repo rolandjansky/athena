@@ -35,7 +35,7 @@ GeoCountVolAction::GeoCountVolAction ()
   //## begin GeoCountVolAction::GeoCountVolAction%3CDF5B0F031A.hasinit preserve=no
   //## end GeoCountVolAction::GeoCountVolAction%3CDF5B0F031A.hasinit
   //## begin GeoCountVolAction::GeoCountVolAction%3CDF5B0F031A.initialization preserve=yes
-:count (0)
+:m_count (0)
   //## end GeoCountVolAction::GeoCountVolAction%3CDF5B0F031A.initialization
 {
   //## begin GeoCountVolAction::GeoCountVolAction%3CDF5B0F031A.body preserve=yes
@@ -60,7 +60,7 @@ void GeoCountVolAction::handlePhysVol (const GeoPhysVol *)
   // Do not count the top volume, this action counts only children!   
   //   
   if (getPath ()->getLength () > 1)
-    count++;
+    m_count++;
   //## end GeoCountVolAction::handlePhysVol%3CE0CFC4014A.body
 }
 
@@ -71,14 +71,14 @@ void GeoCountVolAction::handleFullPhysVol (const GeoFullPhysVol *)
   // Do not count the top volume, this action counts only children!   
   //   
   if (getPath ()->getLength () > 1)
-    count++;
+    m_count++;
   //## end GeoCountVolAction::handleFullPhysVol%3CE0CFC4015E.body
 }
 
 void GeoCountVolAction::handleSerialTransformer (const GeoSerialTransformer  *st)
 {
   //## begin GeoCountVolAction::handleSerialTransformer%3D208CA50301.body preserve=yes
-  count += st->getNCopies ();
+  m_count += st->getNCopies ();
   //## end GeoCountVolAction::handleSerialTransformer%3D208CA50301.body
 }
 

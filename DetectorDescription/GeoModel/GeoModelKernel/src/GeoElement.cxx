@@ -37,10 +37,10 @@ GeoElement::GeoElement (const std::string &Name, const std::string &Symbol, doub
   //## begin GeoElement::GeoElement%3CD87237027F.hasinit preserve=no
   //## end GeoElement::GeoElement%3CD87237027F.hasinit
   //## begin GeoElement::GeoElement%3CD87237027F.initialization preserve=yes
-  name (Name),
-  symbol (Symbol),
-  z (Z),
-  a (A)
+  m_name (Name),
+  m_symbol (Symbol),
+  m_z (Z),
+  m_a (A)
   //## end GeoElement::GeoElement%3CD87237027F.initialization
 {
   //## begin GeoElement::GeoElement%3CD87237027F.body preserve=yes
@@ -59,7 +59,7 @@ double GeoElement::getRadTsai() const
 {
   // Compute Coulomb correction factor (Phys Rev. D50 3-1 (1994) page 1254)
   const double k1 = 0.0083, k2 = 0.20206, k3 = 0.0020, k4 = 0.0369;
-  double az2 = (CLHEP::fine_structure_const*z)*(CLHEP::fine_structure_const*z);
+  double az2 = (CLHEP::fine_structure_const*m_z)*(CLHEP::fine_structure_const*m_z);
   double az4 = az2 * az2;
 
   double coulomb = (k1*az4 + k2 + 1./(1.+az2))*az2 - (k3*az4 + k4)*az4;
@@ -68,10 +68,10 @@ double GeoElement::getRadTsai() const
   const double Lrad_light[]  = {5.31,  4.79,  4.74,  4.71};
   const double Lprad_light[] = {6.144, 5.621, 5.805, 5.924};
 
-  const double logZ3 = std::log(z) * (1./3);
+  const double logZ3 = std::log(m_z) * (1./3);
 
   double Lrad, Lprad;
-  int iz = (int)(z+0.5) - 1 ;
+  int iz = (int)(m_z+0.5) - 1 ;
   if (iz<=3) {
     Lrad = Lrad_light[iz];  
     Lprad = Lprad_light[iz]; 
@@ -80,7 +80,7 @@ double GeoElement::getRadTsai() const
     Lprad = std::log(1194.) - 2*logZ3;
   }
 
-  double radTsai = 4*CLHEP::alpha_rcl2*z*(z*(Lrad-coulomb) + Lprad);
+  double radTsai = 4*CLHEP::alpha_rcl2*m_z*(m_z*(Lrad-coulomb) + Lprad);
   return radTsai;
 }
 

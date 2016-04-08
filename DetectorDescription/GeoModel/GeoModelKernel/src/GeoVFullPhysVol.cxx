@@ -36,7 +36,7 @@ GeoVFullPhysVol::GeoVFullPhysVol (const GeoLogVol* LogVol)
   //## begin GeoVFullPhysVol::GeoVFullPhysVol%3CDDA7F301DE.hasinit preserve=no
   //## end GeoVFullPhysVol::GeoVFullPhysVol%3CDDA7F301DE.hasinit
   //## begin GeoVFullPhysVol::GeoVFullPhysVol%3CDDA7F301DE.initialization preserve=yes
-:GeoVPhysVol (LogVol), _id(NULL), absPosInfo (NULL)
+:GeoVPhysVol (LogVol), m_id(NULL), m_absPosInfo (NULL)
   //## end GeoVFullPhysVol::GeoVFullPhysVol%3CDDA7F301DE.initialization
 {
   //## begin GeoVFullPhysVol::GeoVFullPhysVol%3CDDA7F301DE.body preserve=yes
@@ -47,8 +47,8 @@ GeoVFullPhysVol::GeoVFullPhysVol (const GeoLogVol* LogVol)
 GeoVFullPhysVol::~GeoVFullPhysVol()
 {
   //## begin GeoVFullPhysVol::~GeoVFullPhysVol%3CDD8F7603CA_dest.body preserve=yes
-  delete absPosInfo;
-  delete _id;
+  delete m_absPosInfo;
+  delete m_id;
   //## end GeoVFullPhysVol::~GeoVFullPhysVol%3CDD8F7603CA_dest.body
 }
 
@@ -67,10 +67,10 @@ const HepGeom::Transform3D & GeoVFullPhysVol::getAbsoluteTransform () const
     std::string ("Name of shared volume:  ");	//     
   //                                                                                                //     
   //------------------------------------------------------------------------------------------------//     
-  if (!absPosInfo)
-    absPosInfo = new GeoAbsPositionInfo ();
+  if (!m_absPosInfo)
+    m_absPosInfo = new GeoAbsPositionInfo ();
 
-  if (!absPosInfo->getAbsTransform ())
+  if (!m_absPosInfo->getAbsTransform ())
     {
 
 
@@ -124,10 +124,10 @@ const HepGeom::Transform3D & GeoVFullPhysVol::getAbsoluteTransform () const
 	    }
 #endif
 	}
-      absPosInfo->setAbsTransform (tProd);
+      m_absPosInfo->setAbsTransform (tProd);
 
     }
-  return *absPosInfo->getAbsTransform ();
+  return *m_absPosInfo->getAbsTransform ();
 
   //## end GeoVFullPhysVol::getAbsoluteTransform%3CDE70FB0196.body
 }
@@ -136,8 +136,8 @@ void GeoVFullPhysVol::clearPositionInfo () const
 {
   //## begin GeoVFullPhysVol::clearPositionInfo%3CDE9AB9033A.body preserve=yes
 
-  delete absPosInfo;
-  absPosInfo = NULL;
+  delete m_absPosInfo;
+  m_absPosInfo = NULL;
   //## end GeoVFullPhysVol::clearPositionInfo%3CDE9AB9033A.body
 }
 
@@ -153,9 +153,9 @@ const HepGeom::Transform3D & GeoVFullPhysVol::getDefAbsoluteTransform () const
     std::string ("Name of shared volume:  ");	                                                    //     
   //                                                                                                //     
   //------------------------------------------------------------------------------------------------//     
-  if (!absPosInfo)
-    absPosInfo = new GeoAbsPositionInfo ();
-    if (!absPosInfo->getDefAbsTransform ())
+  if (!m_absPosInfo)
+    m_absPosInfo = new GeoAbsPositionInfo ();
+  if (!m_absPosInfo->getDefAbsTransform ())
     {
 
 
@@ -208,9 +208,9 @@ const HepGeom::Transform3D & GeoVFullPhysVol::getDefAbsoluteTransform () const
 	    }
 #endif
 	}
-      absPosInfo->setDefAbsTransform (tProd);
+      m_absPosInfo->setDefAbsTransform (tProd);
     }
-    return *absPosInfo->getDefAbsTransform ();
+    return *m_absPosInfo->getDefAbsTransform ();
   //## end GeoVFullPhysVol::getDefAbsoluteTransform%3CDE9CDF0359.body
 }
 
@@ -227,7 +227,7 @@ const std::string &  GeoVFullPhysVol::getAbsoluteName ()
   //                                                                                                //     
   //------------------------------------------------------------------------------------------------//     
 
-  if (_absName == "")
+  if (m_absName == "")
     {
 
 
@@ -267,11 +267,11 @@ const std::string &  GeoVFullPhysVol::getAbsoluteName ()
 	      parent = child->getParent ();
 	    }
 	}
-      _absName = tProd;
+      m_absName = tProd;
 
     }
 
-  return _absName;
+  return m_absName;
   //## end GeoVFullPhysVol::getAbsoluteName%3CEB216903A2.body
 }
 
@@ -288,7 +288,7 @@ unsigned int GeoVFullPhysVol::getId () const
   //                                                                                                //     
   //------------------------------------------------------------------------------------------------//     
 
-  if (_id==NULL) {
+  if (m_id==NULL) {
      if (isShared ()) throw std::runtime_error (errorMessage);
 
      //     
@@ -304,9 +304,9 @@ unsigned int GeoVFullPhysVol::getId () const
 	 }
 
 	 int index = parent->indexOf(child);
-	 _id = new Query<int>(parent->getIdOfChildVol(index));
+	 m_id = new Query<int>(parent->getIdOfChildVol(index));
   }
-  return *_id;
+  return *m_id;
   //## end GeoVFullPhysVol::getId%3CEB24B3033F.body
 }
 

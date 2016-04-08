@@ -198,18 +198,18 @@ class GeoShapeAction
 
     // Data Members for Class Attributes
 
-      //## Attribute: _depth%3DCD278F0310
+      //## Attribute: m_depth%3DCD278F0310
       //	A limit may be placed upon the depth to which the action
       //	descends.  0 = self.  1 = self and children.
-      //## begin GeoShapeAction::_depth%3DCD278F0310.attr preserve=no  private: Query<unsigned int> {U} 
-      Query<unsigned int> _depth;
-      //## end GeoShapeAction::_depth%3DCD278F0310.attr
+      //## begin GeoShapeAction::m_depth%3DCD278F0310.attr preserve=no  private: Query<unsigned int> {U} 
+      Query<unsigned int> m_depth;
+      //## end GeoShapeAction::m_depth%3DCD278F0310.attr
 
-      //## Attribute: _terminate%3DCD278F031A
+      //## Attribute: m_terminate%3DCD278F031A
       //	Termination flag; causes an abortion of action execution.
-      //## begin GeoShapeAction::_terminate%3DCD278F031A.attr preserve=no  private: bool {U} 
-      bool _terminate;
-      //## end GeoShapeAction::_terminate%3DCD278F031A.attr
+      //## begin GeoShapeAction::m_terminate%3DCD278F031A.attr preserve=no  private: bool {U} 
+      bool m_terminate;
+      //## end GeoShapeAction::m_terminate%3DCD278F031A.attr
 
     // Additional Private Declarations
       //## begin GeoShapeAction%3DCD269E0092.private preserve=yes
@@ -219,10 +219,10 @@ class GeoShapeAction
     // Data Members for Associations
 
       //## Association: GeoModelKernel::Actions::Path management%3DCE8D810009
-      //## Role: GeoShapeAction::path%3DCE8D8203AE
-      //## begin GeoShapeAction::path%3DCE8D8203AE.role preserve=no  public: GeoShapePath {1 -> 1VHgN}
-      GeoShapePath path;
-      //## end GeoShapeAction::path%3DCE8D8203AE.role
+      //## Role: GeoShapeAction::m_path%3DCE8D8203AE
+      //## begin GeoShapeAction::m_path%3DCE8D8203AE.role preserve=no  public: GeoShapePath {1 -> 1VHgN}
+      GeoShapePath m_path;
+      //## end GeoShapeAction::m_path%3DCE8D8203AE.role
 
     // Additional Implementation Declarations
       //## begin GeoShapeAction%3DCD269E0092.implementation preserve=yes

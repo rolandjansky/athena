@@ -80,26 +80,26 @@ class GeoVolumeCursor:public GeoNodeAction
       //## Assignment Operation (generated)
       GeoVolumeCursor & operator=(const GeoVolumeCursor &right);
 
-      PVConstLink                           _parent;
-      PVConstLink                           _volume;
-      HepGeom::Transform3D                        _transform;
-      HepGeom::Transform3D                        _defTransform;
+      PVConstLink                           m_parent;
+      PVConstLink                           m_volume;
+      HepGeom::Transform3D                        m_transform;
+      HepGeom::Transform3D                        m_defTransform;
 
-      unsigned int                          _majorIndex;
-      unsigned int                          _minorIndex;
-      unsigned int                          _minorLimit;
-      const GeoSerialTransformer           *_serialTransformer;
+      unsigned int                          m_majorIndex;
+      unsigned int                          m_minorIndex;
+      unsigned int                          m_minorLimit;
+      const GeoSerialTransformer           *m_serialTransformer;
 
-      const GeoNameTag                     *_nameTag;
-      const GeoSerialDenominator           *_serialDenominator;
-      const GeoIdentifierTag               *_idTag;
-      std::vector<const GeoTransform *>     _pendingTransformList;
-      unsigned int                          _serialDenomPosition;
-      const GeoSerialIdentifier            *_serialIdentifier;
-      unsigned int                          _serialIdentPosition;
-      unsigned int                          _volCount;
+      const GeoNameTag                     *m_nameTag;
+      const GeoSerialDenominator           *m_serialDenominator;
+      const GeoIdentifierTag               *m_idTag;
+      std::vector<const GeoTransform *>     m_pendingTransformList;
+      unsigned int                          m_serialDenomPosition;
+      const GeoSerialIdentifier            *m_serialIdentifier;
+      unsigned int                          m_serialIdentPosition;
+      unsigned int                          m_volCount;
 
-      bool                                  _hasAlignTrans;
+      bool                                  m_hasAlignTrans;
 };
 
 #endif

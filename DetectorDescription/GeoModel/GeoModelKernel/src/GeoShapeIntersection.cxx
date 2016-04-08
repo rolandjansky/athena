@@ -35,26 +35,26 @@
 
 // Class GeoShapeIntersection 
 
-//## begin GeoShapeIntersection::classType%3CD259190330.attr preserve=no  public: static const std::string {U} "Intersection"
-const std::string GeoShapeIntersection::classType = "Intersection";
-//## end GeoShapeIntersection::classType%3CD259190330.attr
+//## begin GeoShapeIntersection::s_classType%3CD259190330.attr preserve=no  public: static const std::string {U} "Intersection"
+const std::string GeoShapeIntersection::s_classType = "Intersection";
+//## end GeoShapeIntersection::s_classType%3CD259190330.attr
 
-//## begin GeoShapeIntersection::classTypeID%3CD259190331.attr preserve=no  public: static const ShapeType {U} 0x00
-const ShapeType GeoShapeIntersection::classTypeID = 0x00;
-//## end GeoShapeIntersection::classTypeID%3CD259190331.attr
+//## begin GeoShapeIntersection::s_classTypeID%3CD259190331.attr preserve=no  public: static const ShapeType {U} 0x00
+const ShapeType GeoShapeIntersection::s_classTypeID = 0x00;
+//## end GeoShapeIntersection::s_classTypeID%3CD259190331.attr
 
 GeoShapeIntersection::GeoShapeIntersection (const GeoShape* A, const GeoShape* B)
   //## begin GeoShapeIntersection::GeoShapeIntersection%3CD259190327.hasinit preserve=no
   //## end GeoShapeIntersection::GeoShapeIntersection%3CD259190327.hasinit
   //## begin GeoShapeIntersection::GeoShapeIntersection%3CD259190327.initialization preserve=yes
   :
-opA (A),
-opB (B)
+m_opA (A),
+m_opB (B)
   //## end GeoShapeIntersection::GeoShapeIntersection%3CD259190327.initialization
 {
   //## begin GeoShapeIntersection::GeoShapeIntersection%3CD259190327.body preserve=yes
-  opA->ref ();
-  opB->ref ();
+  m_opA->ref ();
+  m_opB->ref ();
   //## end GeoShapeIntersection::GeoShapeIntersection%3CD259190327.body
 }
 
@@ -62,8 +62,8 @@ opB (B)
 GeoShapeIntersection::~GeoShapeIntersection()
 {
   //## begin GeoShapeIntersection::~GeoShapeIntersection%3CD259190322_dest.body preserve=yes
-  opA->unref ();
-  opB->unref ();
+  m_opA->unref ();
+  m_opB->unref ();
   //## end GeoShapeIntersection::~GeoShapeIntersection%3CD259190322_dest.body
 }
 
@@ -84,28 +84,28 @@ double GeoShapeIntersection::volume () const
 const std::string & GeoShapeIntersection::type () const
 {
   //## begin GeoShapeIntersection::type%3CD25919032A.body preserve=yes
-  return classType;
+  return s_classType;
   //## end GeoShapeIntersection::type%3CD25919032A.body
 }
 
 ShapeType GeoShapeIntersection::typeID () const
 {
   //## begin GeoShapeIntersection::typeID%3CD25919032B.body preserve=yes
-  return classTypeID;
+  return s_classTypeID;
   //## end GeoShapeIntersection::typeID%3CD25919032B.body
 }
 
 const GeoShape* GeoShapeIntersection::getOpA () const
 {
   //## begin GeoShapeIntersection::getOpA%3CE7F14F02C4.body preserve=yes
-  return opA;
+  return m_opA;
   //## end GeoShapeIntersection::getOpA%3CE7F14F02C4.body
 }
 
 const GeoShape* GeoShapeIntersection::getOpB () const
 {
   //## begin GeoShapeIntersection::getOpB%3CE7F1510317.body preserve=yes
-  return opB;
+  return m_opB;
   //## end GeoShapeIntersection::getOpB%3CE7F1510317.body
 }
 
@@ -127,13 +127,13 @@ void GeoShapeIntersection::exec (GeoShapeAction *action) const
 
   else 
 	{
-    opA->exec(action);
+    m_opA->exec(action);
     if (action->shouldTerminate ())
 	{
       action->getPath ()->pop ();
       return;
 	}
-    opB->exec(action);
+    m_opB->exec(action);
     if (action->shouldTerminate ())
 	{
       action->getPath ()->pop ();

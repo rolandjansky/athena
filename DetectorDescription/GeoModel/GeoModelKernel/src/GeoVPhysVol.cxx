@@ -37,11 +37,11 @@ GeoVPhysVol::GeoVPhysVol (const GeoLogVol* LogVol)
   //## begin GeoVPhysVol::GeoVPhysVol%3CD403D2012C.hasinit preserve=no
   //## end GeoVPhysVol::GeoVPhysVol%3CD403D2012C.hasinit
   //## begin GeoVPhysVol::GeoVPhysVol%3CD403D2012C.initialization preserve=yes
-:parentPtr (NULL), logVol (LogVol)
+:m_parentPtr (NULL), m_logVol (LogVol)
   //## end GeoVPhysVol::GeoVPhysVol%3CD403D2012C.initialization
 {
   //## begin GeoVPhysVol::GeoVPhysVol%3CD403D2012C.body preserve=yes
-  if(logVol) logVol->ref();
+  if(m_logVol) m_logVol->ref();
   //## end GeoVPhysVol::GeoVPhysVol%3CD403D2012C.body
 }
 
@@ -49,7 +49,7 @@ GeoVPhysVol::GeoVPhysVol (const GeoLogVol* LogVol)
 GeoVPhysVol::~GeoVPhysVol()
 {
   //## begin GeoVPhysVol::~GeoVPhysVol%3CD3E93F00F9_dest.body preserve=yes
-  if(logVol) logVol->unref();
+  if(m_logVol) m_logVol->unref();
   //## end GeoVPhysVol::~GeoVPhysVol%3CD3E93F00F9_dest.body
 }
 
@@ -72,8 +72,8 @@ Query<unsigned int> GeoVPhysVol::indexOf (PVConstLink daughter) const
 PVConstLink GeoVPhysVol::getParent () const
 {
   //## begin GeoVPhysVol::getParent%3CDE6F5903B1.body preserve=yes
-  if (parentPtr && parentPtr != this)
-    return parentPtr;
+  if (m_parentPtr && m_parentPtr != this)
+    return m_parentPtr;
   return NULL;
   //## end GeoVPhysVol::getParent%3CDE6F5903B1.body
 }
@@ -81,7 +81,7 @@ PVConstLink GeoVPhysVol::getParent () const
 const GeoLogVol* GeoVPhysVol::getLogVol () const
 {
   //## begin GeoVPhysVol::getLogVol%3CDE67950290.body preserve=yes
-  return logVol;
+  return m_logVol;
   //## end GeoVPhysVol::getLogVol%3CDE67950290.body
 }
 
@@ -149,10 +149,10 @@ void GeoVPhysVol::apply (GeoVolumeAction *action) const
 void GeoVPhysVol::dockTo (GeoVPhysVol* parent)
 {
   //## begin GeoVPhysVol::dockTo%3DB85BC00025.body preserve=yes
-  if(parentPtr)
-    parentPtr = this;
+  if(m_parentPtr)
+    m_parentPtr = this;
   else
-    parentPtr = parent;
+    m_parentPtr = parent;
   //## end GeoVPhysVol::dockTo%3DB85BC00025.body
 }
 

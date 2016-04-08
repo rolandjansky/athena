@@ -34,7 +34,7 @@
 
 RCBase::RCBase()
   //## begin RCBase::RCBase%3CD1266D02D3_const.hasinit preserve=no
-      : _count(0)
+      : m_count(0)
   //## end RCBase::RCBase%3CD1266D02D3_const.hasinit
   //## begin RCBase::RCBase%3CD1266D02D3_const.initialization preserve=yes
   //## end RCBase::RCBase%3CD1266D02D3_const.initialization
@@ -56,21 +56,21 @@ RCBase::~RCBase()
 void RCBase::ref () const
 {
   //## begin RCBase::ref%3CD12A80000C.body preserve=yes
-  _count++;
+  m_count++;
   //## end RCBase::ref%3CD12A80000C.body
 }
 
 void RCBase::unref () const
 {
   //## begin RCBase::unref%3CD12A840120.body preserve=yes
-  if (!_count)
+  if (!m_count)
     {
 
     }
   else
     {
-      _count--;
-      if (!_count)
+      m_count--;
+      if (!m_count)
 	delete this;
     }
   //## end RCBase::unref%3CD12A840120.body
@@ -79,7 +79,7 @@ void RCBase::unref () const
 unsigned int RCBase::refCount () const
 {
   //## begin RCBase::refCount%3CD523F40158.body preserve=yes
-  return _count;
+  return m_count;
   //## end RCBase::refCount%3CD523F40158.body
 }
 

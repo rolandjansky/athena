@@ -53,9 +53,9 @@ GeoVPhysVol (LogVol)
 GeoPhysVol::~GeoPhysVol()
 {
   //## begin GeoPhysVol::~GeoPhysVol%3CD3E9AB0054_dest.body preserve=yes
-  for (size_t i = 0; i < _daughters.size (); i++)
+  for (size_t i = 0; i < m_daughters.size (); i++)
     {
-      _daughters[i]->unref ();
+      m_daughters[i]->unref ();
     }
   //## end GeoPhysVol::~GeoPhysVol%3CD3E9AB0054_dest.body
 }
@@ -66,7 +66,7 @@ GeoPhysVol::~GeoPhysVol()
 void GeoPhysVol::add (GeoGraphNode* graphNode)
 {
   //## begin GeoPhysVol::add%3CDD8AD20263.body preserve=yes
-  _daughters.push_back (graphNode);
+  m_daughters.push_back (graphNode);
   graphNode->ref ();
   graphNode->dockTo (this);
   //## end GeoPhysVol::add%3CDD8AD20263.body
@@ -142,9 +142,9 @@ void GeoPhysVol::exec (GeoNodeAction *action) const
     }
   else
     {
-      for (size_t c = 0; c < _daughters.size (); c++)
+      for (size_t c = 0; c < m_daughters.size (); c++)
 	{
-	  _daughters[c]->exec (action);
+	  m_daughters[c]->exec (action);
 	  if (action->shouldTerminate ())
 	    {
 	      action->getPath ()->pop ();
@@ -279,15 +279,15 @@ HepGeom::Transform3D GeoPhysVol::getDefX    () const {
   
 
 unsigned int GeoPhysVol::getNChildNodes() const {
-  return _daughters.size();
+  return m_daughters.size();
 }
 
 const GeoGraphNode * const * GeoPhysVol::getChildNode(unsigned int i) const {
-  return &(_daughters[i]);
+  return &(m_daughters[i]);
 }
 const GeoGraphNode * const * GeoPhysVol::findChildNode(const GeoGraphNode * n) const {
-  std::vector<const GeoGraphNode *>::const_iterator i = std::find(_daughters.begin(),_daughters.end(),n);
-  if (i==_daughters.end()) return NULL;
+  std::vector<const GeoGraphNode *>::const_iterator i = std::find(m_daughters.begin(),m_daughters.end(),n);
+  if (i==m_daughters.end()) return NULL;
   else return &*i;
 }
 

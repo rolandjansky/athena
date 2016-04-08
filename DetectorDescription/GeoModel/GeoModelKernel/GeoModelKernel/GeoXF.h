@@ -89,8 +89,8 @@ namespace GeoXF
     // Assignment operator
     const Pow & operator = (const Pow & right);
 
-    const HepGeom::Transform3D xf;
-    const Genfun::AbsFunction * function;
+    const HepGeom::Transform3D m_xf;
+    const Genfun::AbsFunction * m_function;
 
   };
 
@@ -131,8 +131,8 @@ namespace GeoXF
 
   private:
 
-    const Function *_arg1;
-    const Function *_arg2;
+    const Function *m_arg1;
+    const Function *m_arg2;
 
   };
 
@@ -164,8 +164,8 @@ namespace GeoXF
 
   private:
 
-    const HepGeom::Transform3D _arg1;
-    const Function *_arg2;
+    const HepGeom::Transform3D m_arg1;
+    const Function *m_arg2;
 
   };
 
@@ -197,8 +197,8 @@ namespace GeoXF
 
   private:
 
-    const Function *_arg1;
-    const HepGeom::Transform3D _arg2;
+    const Function *m_arg1;
+    const HepGeom::Transform3D m_arg2;
 
   };
 

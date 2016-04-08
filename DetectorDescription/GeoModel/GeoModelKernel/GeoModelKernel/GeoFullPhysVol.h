@@ -146,15 +146,15 @@ class GeoFullPhysVol : public GeoVFullPhysVol  //## Inherits: <unnamed>%3CDD8F95
 
     // Data Members for Class Attributes
 
-      //## Attribute: _daughters%3CDD8A9F02CE
+      //## Attribute: m_daughters%3CDD8A9F02CE
       //	Hold the list of children.
-      //## begin GeoFullPhysVol::_daughters%3CDD8A9F02CE.attr preserve=no  private: std::vector<const GeoGraphNode *> {U} 
-      std::vector<const GeoGraphNode *> _daughters;
-      //## end GeoFullPhysVol::_daughters%3CDD8A9F02CE.attr
+      //## begin GeoFullPhysVol::m_daughters%3CDD8A9F02CE.attr preserve=no  private: std::vector<const GeoGraphNode *> {U} 
+      std::vector<const GeoGraphNode *> m_daughters;
+      //## end GeoFullPhysVol::m_daughters%3CDD8A9F02CE.attr
 
     // Additional Private Declarations
       //## begin GeoFullPhysVol%3CDD87550219.private preserve=yes
-      const GeoFullPhysVol* _cloneOrigin;
+      const GeoFullPhysVol* m_cloneOrigin;
       //## end GeoFullPhysVol%3CDD87550219.private
 
   private: //## implementation

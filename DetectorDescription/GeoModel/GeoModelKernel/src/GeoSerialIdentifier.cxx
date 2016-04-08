@@ -7,7 +7,7 @@
 
 GeoSerialIdentifier::GeoSerialIdentifier(int BaseId)
 :
-_baseId (BaseId)
+m_baseId (BaseId)
 {
 }
 

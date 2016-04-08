@@ -77,19 +77,19 @@ class GeoSerialTransformer : public GeoGraphNode  //## Inherits: <unnamed>%3D1F7
   // Returns the volume:
   PVConstLink getVolume () const
   {
-    return physVol;
+    return m_physVol;
   }
 
   // Returns the number of copies:
   unsigned int getNCopies () const
   {
-    return nCopies;
+    return m_nCopies;
   }
 
   // Returns the transformation to the ith copy:
   HepGeom::Transform3D getTransform (int i) const
   {
-    return (*function) (i);
+    return (*m_function) (i);
   }
       //## end GeoSerialTransformer%3D1F73570100.public
   protected:
@@ -109,24 +109,24 @@ class GeoSerialTransformer : public GeoGraphNode  //## Inherits: <unnamed>%3D1F7
 
     // Data Members for Class Attributes
 
-      //## Attribute: nCopies%3D1F73CB039C
+      //## Attribute: m_nCopies%3D1F73CB039C
       //	Number of copies of a physical volume to generate.
-      //## begin GeoSerialTransformer::nCopies%3D1F73CB039C.attr preserve=no  private: unsigned int {U} 
-      unsigned int nCopies;
-      //## end GeoSerialTransformer::nCopies%3D1F73CB039C.attr
+      //## begin GeoSerialTransformer::m_nCopies%3D1F73CB039C.attr preserve=no  private: unsigned int {U} 
+      unsigned int m_nCopies;
+      //## end GeoSerialTransformer::m_nCopies%3D1F73CB039C.attr
 
-      //## Attribute: function%3D1F748300D0
+      //## Attribute: m_function%3D1F748300D0
       //	Recipe for the transformation; specifically, a
-      //	Transform-valued function of a single variable.
-      //## begin GeoSerialTransformer::function%3D1F748300D0.attr preserve=no  private: const GeoXF::Function * {U} 
-      const GeoXF::Function *function;
-      //## end GeoSerialTransformer::function%3D1F748300D0.attr
+      //	Transform-valued m_function of a single variable.
+      //## begin GeoSerialTransformer::m_function%3D1F748300D0.attr preserve=no  private: const GeoXF::Function * {U} 
+      const GeoXF::Function *m_function;
+      //## end GeoSerialTransformer::m_function%3D1F748300D0.attr
 
-      //## Attribute: physVol%3D2089F9009A
+      //## Attribute: m_physVol%3D2089F9009A
       //	The physical volume to be multiply placed.
-      //## begin GeoSerialTransformer::physVol%3D2089F9009A.attr preserve=no  private: const GeoVPhysVol * {U} 
-      const GeoVPhysVol *physVol;
-      //## end GeoSerialTransformer::physVol%3D2089F9009A.attr
+      //## begin GeoSerialTransformer::m_physVol%3D2089F9009A.attr preserve=no  private: const GeoVPhysVol * {U} 
+      const GeoVPhysVol *m_physVol;
+      //## end GeoSerialTransformer::m_physVol%3D2089F9009A.attr
 
     // Additional Private Declarations
       //## begin GeoSerialTransformer%3D1F73570100.private preserve=yes

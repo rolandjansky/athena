@@ -50,8 +50,8 @@ namespace GeoXF
   //------------------------------------------------------------------//
 
   Product::Product (const Function * arg1,
-		    const Function * arg2):_arg1 (arg1->clone ()),
-    _arg2 (arg2->clone ())
+		    const Function * arg2):m_arg1 (arg1->clone ()),
+    m_arg2 (arg2->clone ())
   {
     if (arg1->dimensionality () != arg2->dimensionality ())
       {
@@ -69,30 +69,30 @@ namespace GeoXF
 
   // Copy constructor:
   Product::Product (const Product & right):Function (),
-    _arg1 (right._arg1->clone ()), _arg2 (right._arg2->clone ())
+    m_arg1 (right.m_arg1->clone ()), m_arg2 (right.m_arg2->clone ())
   {
   }
 
 
   Product::~Product ()
   {
-    delete _arg1;
-    delete _arg2;
+    delete m_arg1;
+    delete m_arg2;
   }
 
   unsigned int Product::dimensionality () const
   {
-    return _arg1->dimensionality ();
+    return m_arg1->dimensionality ();
   }
 
   HepGeom::Transform3D Product::operator        () (double x) const
   {
-    return (*_arg1) (x) * (*_arg2) (x);
+    return (*m_arg1) (x) * (*m_arg2) (x);
   }
 
   HepGeom::Transform3D Product::operator        () (const Genfun::Argument & x) const
   {
-    return (*_arg1) (x) * (*_arg2) (x);
+    return (*m_arg1) (x) * (*m_arg2) (x);
   }
 
 
@@ -104,8 +104,8 @@ namespace GeoXF
   //------------------------------------------------------------------//
 
   PreMult::PreMult (const HepGeom::Transform3D & arg1,
-		    const Function * arg2):_arg1 (arg1),
-    _arg2 (arg2->clone ())
+		    const Function * arg2):m_arg1 (arg1),
+    m_arg2 (arg2->clone ())
   {
   }
 
@@ -117,30 +117,30 @@ namespace GeoXF
   }
 
   // Copy constructor:
-  PreMult::PreMult (const PreMult & right):Function (), _arg1 (right._arg1),
-    _arg2 (right._arg2->clone ())
+  PreMult::PreMult (const PreMult & right):Function (), m_arg1 (right.m_arg1),
+    m_arg2 (right.m_arg2->clone ())
   {
   }
 
 
   PreMult::~PreMult ()
   {
-    delete _arg2;
+    delete m_arg2;
   }
 
   unsigned int PreMult::dimensionality () const
   {
-    return _arg2->dimensionality ();
+    return m_arg2->dimensionality ();
   }
 
   HepGeom::Transform3D PreMult::operator        () (double x) const
   {
-    return _arg1 * (*_arg2) (x);
+    return m_arg1 * (*m_arg2) (x);
   }
 
   HepGeom::Transform3D PreMult::operator        () (const Genfun::Argument & x) const
   {
-    return _arg1 * (*_arg2) (x);
+    return m_arg1 * (*m_arg2) (x);
   }
 
 
@@ -151,8 +151,8 @@ namespace GeoXF
   //------------------------------------------------------------------//
 
   PostMult::PostMult (const Function * arg1,
-		      const HepGeom::Transform3D & arg2):_arg1 (arg1->clone ()),
-    _arg2 (arg2)
+		      const HepGeom::Transform3D & arg2):m_arg1 (arg1->clone ()),
+    m_arg2 (arg2)
   {
   }
 
@@ -165,40 +165,40 @@ namespace GeoXF
 
   // Copy constructor:
   PostMult::PostMult (const PostMult & right):Function (),
-    _arg1 (right._arg1->clone ()), _arg2 (right._arg2)
+    m_arg1 (right.m_arg1->clone ()), m_arg2 (right.m_arg2)
   {
   }
 
 
   PostMult::~PostMult ()
   {
-    delete _arg1;
+    delete m_arg1;
   }
 
   unsigned int PostMult::dimensionality () const
   {
-    return _arg1->dimensionality ();
+    return m_arg1->dimensionality ();
   }
 
   HepGeom::Transform3D PostMult::operator        () (double x) const
   {
-    return (*_arg1) (x) * _arg2;
+    return (*m_arg1) (x) * m_arg2;
   }
 
   HepGeom::Transform3D PostMult::operator        () (const Genfun::Argument & x) const
   {
-    return (*_arg1) (x) * _arg2;
+    return (*m_arg1) (x) * m_arg2;
   }
 
 
-  Pow::Pow (const HepGeom::Transform3D & xform, Genfun::GENFUNCTION f):xf (xform),
-    function (f.clone ())
+  Pow::Pow (const HepGeom::Transform3D & xform, Genfun::GENFUNCTION f):m_xf (xform),
+    m_function (f.clone ())
   {
   }
 
   Pow::~Pow ()
   {
-    delete function;
+    delete m_function;
   }
 
   HepGeom::Transform3D Pow::operator        () (double x) const
@@ -206,13 +206,13 @@ namespace GeoXF
     //
     // Get the translation part and the rotation part:
     //
-    CLHEP::HepRotation rotate = xf.getRotation ();
-    CLHEP::Hep3Vector translate = xf.getTranslation ();
+    CLHEP::HepRotation rotate = m_xf.getRotation ();
+    CLHEP::Hep3Vector translate = m_xf.getTranslation ();
     CLHEP::HepAxisAngle aa = rotate.axisAngle ();
     //
     // Evaluate the function
     //
-    double nTimes = (*function) (x);
+    double nTimes = (*m_function) (x);
     //
     // Modify:
     //
@@ -235,8 +235,8 @@ namespace GeoXF
     return new Pow (*this);
   }
 
-  Pow::Pow (const Pow & right):Function (), xf (right.xf),
-    function (right.function->clone ())
+  Pow::Pow (const Pow & right):Function (), m_xf (right.m_xf),
+    m_function (right.m_function->clone ())
   {
   }
 

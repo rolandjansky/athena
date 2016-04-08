@@ -48,7 +48,7 @@
 
 GeoPolyhedrizeAction::GeoPolyhedrizeAction()
   //## begin GeoPolyhedrizeAction::GeoPolyhedrizeAction%3DCD28730322_const.hasinit preserve=no
-      : _polyhedron(NULL)
+      : m_polyhedron(NULL)
   //## end GeoPolyhedrizeAction::GeoPolyhedrizeAction%3DCD28730322_const.hasinit
   //## begin GeoPolyhedrizeAction::GeoPolyhedrizeAction%3DCD28730322_const.initialization preserve=yes
   //## end GeoPolyhedrizeAction::GeoPolyhedrizeAction%3DCD28730322_const.initialization
@@ -62,7 +62,7 @@ GeoPolyhedrizeAction::GeoPolyhedrizeAction()
 GeoPolyhedrizeAction::~GeoPolyhedrizeAction()
 {
   //## begin GeoPolyhedrizeAction::~GeoPolyhedrizeAction%3DCD28730322_dest.body preserve=yes
-    delete _polyhedron;
+    delete m_polyhedron;
   //## end GeoPolyhedrizeAction::~GeoPolyhedrizeAction%3DCD28730322_dest.body
 }
 
@@ -73,7 +73,7 @@ void GeoPolyhedrizeAction::handleShift (const GeoShapeShift *shift)
 {
   //## begin GeoPolyhedrizeAction::handleShift%3DCD2D500015.body preserve=yes
   shift->getOp()->exec(this); 
-  _polyhedron->Transform (shift->getX().getRotation (), shift->getX().getTranslation());
+  m_polyhedron->Transform (shift->getX().getRotation (), shift->getX().getTranslation());
   //## end GeoPolyhedrizeAction::handleShift%3DCD2D500015.body
 }
 
@@ -83,7 +83,7 @@ void GeoPolyhedrizeAction::handleUnion (const GeoShapeUnion *unio)
   GeoPolyhedrizeAction auxA,auxB;
   unio->getOpA()->exec(&auxA);
   unio->getOpB()->exec(&auxB);
-  _polyhedron = new GeoPolyhedron(auxA.getPolyhedron()->add(*auxB.getPolyhedron()));
+  m_polyhedron = new GeoPolyhedron(auxA.getPolyhedron()->add(*auxB.getPolyhedron()));
   //## end GeoPolyhedrizeAction::handleUnion%3DCD2D500033.body
 }
 
@@ -93,7 +93,7 @@ void GeoPolyhedrizeAction::handleIntersection (const GeoShapeIntersection *isect
 	GeoPolyhedrizeAction auxA,auxB;
 	isect->getOpA()->exec(&auxA);
 	isect->getOpB()->exec(&auxB);
-	_polyhedron=new GeoPolyhedron(auxA.getPolyhedron()->intersect(*auxB.getPolyhedron()));
+	m_polyhedron=new GeoPolyhedron(auxA.getPolyhedron()->intersect(*auxB.getPolyhedron()));
   //## end GeoPolyhedrizeAction::handleIntersection%3DCD2D50005B.body
 }
 
@@ -103,14 +103,14 @@ void GeoPolyhedrizeAction::handleSubtraction (const GeoShapeSubtraction *subtrac
     GeoPolyhedrizeAction auxA,auxB;
 	subtract->getOpA()->exec(&auxA);
 	subtract->getOpB()->exec(&auxB);
-	_polyhedron=new GeoPolyhedron(auxA.getPolyhedron()->subtract(*auxB.getPolyhedron()));
+	m_polyhedron=new GeoPolyhedron(auxA.getPolyhedron()->subtract(*auxB.getPolyhedron()));
   //## end GeoPolyhedrizeAction::handleSubtraction%3DCD2D500079.body
 }
 
 void GeoPolyhedrizeAction::handleBox (const GeoBox *box)
 {
   //## begin GeoPolyhedrizeAction::handleBox%3DCD2D500097.body preserve=yes
-	 _polyhedron=new GeoPolyhedronBox (box->getXHalfLength(),
+	 m_polyhedron=new GeoPolyhedronBox (box->getXHalfLength(),
 									   box->getYHalfLength(),
 									   box->getZHalfLength());
   //## end GeoPolyhedrizeAction::handleBox%3DCD2D500097.body
@@ -119,7 +119,7 @@ void GeoPolyhedrizeAction::handleBox (const GeoBox *box)
 void GeoPolyhedrizeAction::handleCons (const GeoCons *cons)
 {
   //## begin GeoPolyhedrizeAction::handleCons%3DCD2D5000B5.body preserve=yes
-	  _polyhedron = new GeoPolyhedronCons (cons->getRMin1(), 
+	  m_polyhedron = new GeoPolyhedronCons (cons->getRMin1(), 
 										   cons->getRMax1(), 
 										   cons->getRMin2(), 
 										   cons->getRMax2(), 
@@ -132,7 +132,7 @@ void GeoPolyhedrizeAction::handleCons (const GeoCons *cons)
 void GeoPolyhedrizeAction::handlePara (const GeoPara *para)
 {
   //## begin GeoPolyhedrizeAction::handlePara%3DCD2D5000DD.body preserve=yes
-    _polyhedron=new GeoPolyhedronPara(para->getXHalfLength(),
+    m_polyhedron=new GeoPolyhedronPara(para->getXHalfLength(),
 									  para->getYHalfLength(),
 									  para->getZHalfLength(),
 									  para->getAlpha(),
@@ -154,7 +154,7 @@ void GeoPolyhedrizeAction::handlePcon (const GeoPcon *pcon)
       rmn[s] = pcon->getRMinPlane (s);
       rmx[s] = pcon->getRMaxPlane (s);
     }
-  _polyhedron = new GeoPolyhedronPcon (pcon->getSPhi(), pcon->getDPhi(), pcon->getNPlanes (), z, rmn, rmx);
+  m_polyhedron = new GeoPolyhedronPcon (pcon->getSPhi(), pcon->getDPhi(), pcon->getNPlanes (), z, rmn, rmx);
 
   delete[]z;
   delete[]rmn;
@@ -175,7 +175,7 @@ void GeoPolyhedrizeAction::handlePgon (const GeoPgon *pgon)
       rmn[s] = pgon->getRMinPlane (s);
       rmx[s] = pgon->getRMaxPlane (s);
     }
-  _polyhedron = new GeoPolyhedronPgon (pgon->getSPhi(), pgon->getDPhi(), pgon->getNSides(), pgon->getNPlanes (), z, rmn, rmx);
+  m_polyhedron = new GeoPolyhedronPgon (pgon->getSPhi(), pgon->getDPhi(), pgon->getNSides(), pgon->getNPlanes (), z, rmn, rmx);
 
   delete[]z;
   delete[]rmn;
@@ -186,7 +186,7 @@ void GeoPolyhedrizeAction::handlePgon (const GeoPgon *pgon)
 void GeoPolyhedrizeAction::handleTrap (const GeoTrap *trap)
 {
   //## begin GeoPolyhedrizeAction::handleTrap%3DCD2D500137.body preserve=yes
-	_polyhedron = new GeoPolyhedronTrap (trap->getZHalfLength(),
+	m_polyhedron = new GeoPolyhedronTrap (trap->getZHalfLength(),
 					                     trap->getTheta(),
 					                     trap->getPhi(),
 					                     trap->getDydzn(),
@@ -201,7 +201,7 @@ void GeoPolyhedrizeAction::handleTrap (const GeoTrap *trap)
 void GeoPolyhedrizeAction::handleTrd (const GeoTrd *trd)
 {
   //## begin GeoPolyhedrizeAction::handleTrd%3DCD2D50015F.body preserve=yes
-	_polyhedron = new GeoPolyhedronTrd2 (trd->getXHalfLength1(),
+	m_polyhedron = new GeoPolyhedronTrd2 (trd->getXHalfLength1(),
 										 trd->getXHalfLength2(),
 					                     trd->getYHalfLength1(),
 										 trd->getYHalfLength2(),
@@ -212,7 +212,7 @@ void GeoPolyhedrizeAction::handleTrd (const GeoTrd *trd)
 void GeoPolyhedrizeAction::handleTube (const GeoTube *tube)
 {
   //## begin GeoPolyhedrizeAction::handleTube%3DCD2D50017D.body preserve=yes
-	_polyhedron = new GeoPolyhedronTube (tube->getRMin(),
+	m_polyhedron = new GeoPolyhedronTube (tube->getRMin(),
 		                                 tube->getRMax(),
 										 tube->getZHalfLength());
   //## end GeoPolyhedrizeAction::handleTube%3DCD2D50017D.body
@@ -221,7 +221,7 @@ void GeoPolyhedrizeAction::handleTube (const GeoTube *tube)
 void GeoPolyhedrizeAction::handleTubs (const GeoTubs *tubs)
 {
   //## begin GeoPolyhedrizeAction::handleTubs%3DCD2D50019B.body preserve=yes
-	_polyhedron=
+	m_polyhedron=
     new GeoPolyhedronTubs (tubs->getRMin(), 
 	                       tubs->getRMax(), 
 						   tubs->getZHalfLength(),
@@ -233,7 +233,7 @@ void GeoPolyhedrizeAction::handleTubs (const GeoTubs *tubs)
 const GeoPolyhedron * GeoPolyhedrizeAction::getPolyhedron () const
 {
   //## begin GeoPolyhedrizeAction::getPolyhedron%3DCD2E3C00E6.body preserve=yes
-	return _polyhedron;
+	return m_polyhedron;
   //## end GeoPolyhedrizeAction::getPolyhedron%3DCD2E3C00E6.body
 }
 
