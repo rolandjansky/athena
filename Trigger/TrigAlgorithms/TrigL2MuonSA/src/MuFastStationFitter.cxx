@@ -1248,7 +1248,7 @@ double TrigL2MuonSA::MuFastStationFitter::fromAlphaPtToInn(TrigL2MuonSA::TgcFitR
     mdtpT = alpha_pt;
   }
 
-  mdtpT = mdtpT*(tgcFitResult.tgcPT/fabs(tgcFitResult.tgcPT));
+  mdtpT = (fabs(tgcFitResult.tgcPT)>1e-5)? mdtpT*(tgcFitResult.tgcPT/fabs(tgcFitResult.tgcPT)) : 0;
   double etaMiddle = (tgcFitResult.tgcMid1[3])? tgcFitResult.tgcMid1[0] : tgcFitResult.tgcMid2[0];
   double phiMiddle = (tgcFitResult.tgcMid1[3])? tgcFitResult.tgcMid1[1] : tgcFitResult.tgcMid2[1];
   double eta;

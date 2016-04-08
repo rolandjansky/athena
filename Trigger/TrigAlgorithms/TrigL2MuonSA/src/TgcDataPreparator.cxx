@@ -236,7 +236,7 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
          if (stationNumWi<3 && fabs(prepDataWi.globalPosition().eta() - roi_eta) < mid_eta_test ) {
            float dphi = acos(cos(prepDataWi.globalPosition().phi()-roi_phi));
            bool overlap=false;
-           for (int ov=0;ov<ov_dphi.size();ov++)
+           for (unsigned int ov=0;ov<ov_dphi.size();ov++)
              if (fabs(dphi-ov_dphi[ov])<1e-5) overlap=true;
            if (overlap) continue;
            ov_dphi.push_back(dphi);
