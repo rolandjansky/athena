@@ -92,11 +92,11 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  
  virtual VxContainer* getVxContainer(const ftk::FTK_TrackType trackType);
  virtual xAOD::VertexContainer* getVertexContainer(const bool withRefit);
-
+ StatusCode getVertexContainer(xAOD::VertexContainer* vertex, const bool withRefit);
 
  virtual void handle( const Incident &incident );
 
- StatusCode getFTK_RawTracksFromSG();
+ void getFTK_RawTracksFromSG();
  Trk::Track* ConvertTrack(const unsigned int track);
  Trk::Track* getCachedTrack(const unsigned int track, const bool do_refit);
  StatusCode initTrackCache(bool do_refit);
@@ -214,6 +214,13 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   bool m_rejectBadTracks;
   float m_dPhiCut;
   float m_dEtaCut;
+  bool m_useViewContainers;
+  bool m_barrelOnly;
+  float m_barrelMaxCotTheta;
+  std::vector<float> m_pixelBarrelPhiOffsets;
+  std::vector<float>  m_pixelBarrelEtaOffsets;
+  std::vector<float>  m_pixelEndCapPhiOffsets;
+  std::vector<float> m_pixelEndCapEtaOffsets;
 
 };
 

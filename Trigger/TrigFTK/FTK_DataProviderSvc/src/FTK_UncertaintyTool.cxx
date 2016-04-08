@@ -79,7 +79,7 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
   if(outputLevel <= MSG::DEBUG)
     athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: has BL " << hasIBL << endreq; 
   
-  double trkIpt (0.5*trk.getInvPt());  // NOTE: this is 1./(2xpt)
+  double trkIpt = trk.getInvPt();  
   double trkTheta = atan2(1.0,trk.getCotTh());
   double trkEta = -log(tan(trkTheta/2));
 

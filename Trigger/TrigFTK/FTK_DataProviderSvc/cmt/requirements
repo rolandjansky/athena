@@ -17,7 +17,6 @@ use AtlasPolicy                AtlasPolicy-*
 use GaudiInterface             GaudiInterface-*             External
 use TrigFTK_RawData	       TrigFTK_RawData-*            Trigger/TrigFTK
 use FTK_DataProviderInterfaces FTK_DataProviderInterfaces-* Trigger/TrigFTK
-use FTK_RecToolInterfaces     FTK_RecToolInterfaces-*     Trigger/TrigFTK
 #TrkTrack and VxVertec need to be public for Collection typedef 
 use TrkTrack		       TrkTrack-*		    Tracking/TrkEvent
 use VxVertex            VxVertex-*       Tracking/TrkEvent
@@ -37,7 +36,6 @@ use TrkParameters              TrkParameters-*            Tracking/TrkEvent
 use TrkRIO_OnTrack             TrkRIO_OnTrack-*           Tracking/TrkEvent
 use PixelConditionsServices    PixelConditionsServices-*  InnerDetector/InDetConditions
 use TrkFitterInterfaces        TrkFitterInterfaces-*      Tracking/TrkFitter 
-use IRegionSelector            IRegionSelector-*          DetectorDescription
 use TrkFitterUtils             TrkFitterUtils-*           Tracking/TrkFitter 
 use TrkToolInterfaces		TrkToolInterfaces-*        Tracking/TrkTools
 use TrkTrackSummary            TrkTrackSummary-*          Tracking/TrkEvent
@@ -45,6 +43,9 @@ use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
 use TrkTruthData                TrkTruthData-*               Tracking/TrkEvent
 use GeneratorObjects            GeneratorObjects-*           Generators 
 use AtlasHepMC                  AtlasHepMC-*                 External 
+use FTK_RecToolInterfaces      FTK_RecToolInterfaces-*     Trigger/TrigFTK
+use IRegionSelector            IRegionSelector-*           DetectorDescription 
+use RoiDescriptor              RoiDescriptor-*             DetectorDescription 
 
 # Add transform
 apply_pattern declare_job_transforms tfs='*_tf.py' jo='skeleton.*.py'
