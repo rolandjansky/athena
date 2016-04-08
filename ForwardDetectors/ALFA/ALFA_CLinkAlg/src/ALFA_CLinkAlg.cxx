@@ -19,6 +19,9 @@ ALFA_CLinkAlg::ALFA_CLinkAlg(const std::string& name, ISvcLocator* pSvcLocator)
 	declareProperty("DataType", m_nDataType=1, "data type using in the local reconstruction");
 	declareProperty("ProcessingMode", m_nProcessingMode=2, "Processing mode, 1=offline, 2=online");
 
+	m_nMaxTrackCnt=0;
+	memset(&m_CurrentDCSId,0,sizeof(DCSID));
+
 }
 
 
@@ -32,7 +35,8 @@ StatusCode ALFA_CLinkAlg::initialize()
 	ATH_MSG_DEBUG ("ALFA_CLinkAlg::initialize()");
 	StatusCode sc=StatusCode::FAILURE;
 
-	if((sc=m_iovSvc.retrieve())!=StatusCode::SUCCESS){
+	if((sc=m_iovSvc.retrieve())!=StatusCode::SUCCESS)
+	{
 		return sc;
 	}
 
@@ -58,14 +62,40 @@ StatusCode ALFA_CLinkAlg::execute()
 {
 	ATH_MSG_DEBUG ("ALFA_CLinkAlg::execute()");
 
+	StatusCode sc=StatusCode::SUCCESS;
+
 	ALFA_CLinkEvent* pDataEvent=new ALFA_CLinkEvent();
-	CHECK(LoadAllEventData(pDataEvent));
-	if (m_nDataType==1) pDataEvent->SetDCSFolderIDs(&m_CurrentDCSId);
-	CHECK(evtStore()->record(pDataEvent, "ALFA_CLinkEvent"));
 
-	CHECK(GenerateXAOD());
+	if(pDataEvent)
+	{
+		sc=LoadAllEventData(pDataEvent);
+		if(sc!=StatusCode::SUCCESS)
+		{
+			delete pDataEvent;
+			sc=StatusCode::FAILURE;
+		}
+		else
+		{
+			if (m_nDataType==1) pDataEvent->SetDCSFolderIDs(&m_CurrentDCSId);
+			sc=evtStore()->record(pDataEvent, "ALFA_CLinkEvent");
 
-	return StatusCode::SUCCESS;
+			if(sc!=StatusCode::SUCCESS)
+			{
+				delete pDataEvent;
+				sc=StatusCode::FAILURE;
+			}
+			else
+			{
+				sc=GenerateXAOD();
+			}
+		}
+	}
+	else
+	{
+		sc=StatusCode::FAILURE;
+	}
+
+	return sc;
 }
 
 StatusCode ALFA_CLinkAlg::finalize()
