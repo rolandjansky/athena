@@ -135,7 +135,7 @@ class JpsiVal : public AthAlgorithm  {
    ITHistSvc * m_thistSvc;
 
    /** a handle on Store Gate for access to the Event Store */
-   StoreGateSvc* m_storeGate;
+   //StoreGateSvc* m_storeGate;
 
    /** the key of the Electron Container to retrieve from the AOD */
    //std::string m_electronContainerName; 
@@ -180,7 +180,7 @@ class JpsiVal : public AthAlgorithm  {
    //bool m_isAtlFastData;
 
    /** truth input? */
-   bool m_doTruth;
+   //bool m_doTruth;
 
    /** min Jet ET cut for SUSY studies */
    //double m_SusyJetMinEt;
