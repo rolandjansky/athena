@@ -133,7 +133,7 @@ namespace LVL1
       bool disabledChannel(const L1CaloCoolChannelId& channelId, unsigned int& noiseCut);
 
       bool              m_debug;
-
+    
       /// Id managers
       const CaloIdManager* m_caloMgr;
       
@@ -148,9 +148,6 @@ namespace LVL1
 
       /// L1Calo conditions
       ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
-
-      /// Trig configurations
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
       // one of L1CaloPprConditionsContainer{,Run2}*
       bool m_isRun2;

@@ -58,7 +58,6 @@ L1TriggerTowerTool::L1TriggerTowerTool(const std::string& t,
   m_ttSvc("CaloTriggerTowerService/CaloTriggerTowerService"),
   m_mappingTool("LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool"),
   m_l1CondSvc("L1CaloCondSvc", n),
-  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n),
   m_isRun2(false),
   m_dbFineTimeRefsTowers(0),
   m_correctFir(false)
@@ -67,7 +66,6 @@ L1TriggerTowerTool::L1TriggerTowerTool(const std::string& t,
 
   declareProperty( "BaselineCorrection", m_correctFir );
   declareProperty( "L1DynamicPedestalProvider", m_dynamicPedestalProvider );
-  declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
 }
 
 //================ Destructor =================================================
@@ -84,7 +82,6 @@ StatusCode L1TriggerTowerTool::initialize()
 
 
   CHECK(m_l1CondSvc.retrieve());
-  CHECK(m_configSvc.retrieve());
   CHECK(m_l1CaloTTIdTools.retrieve());
 
   if(!m_ttSvc.retrieve().isSuccess()) {
@@ -845,7 +842,7 @@ void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolCha
       offset   = settings->lutJepOffset();
       slope    = settings->lutJepSlope();
       cut      = settings->lutJepNoiseCut();
-      scale    = m_configSvc->thresholdConfig()->caloInfo().globalScale(); // Retrieve scale param from menu instead of coolDB
+      scale    = settings->lutJepScale();
       ped      = settings->pedValue();
     } else ATH_MSG_WARNING( "::jepLut: No L1CaloPprConditions found" );
   } else ATH_MSG_WARNING( "::jepLut: No Conditions Container retrieved" );
