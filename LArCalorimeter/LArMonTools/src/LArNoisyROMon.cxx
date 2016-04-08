@@ -197,6 +197,15 @@ StatusCode LArNoisyROMon::fillHistograms()
   {
     m_NoiseTime.algo |= 0x8;
   }
+  if (eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::MININOISEBURSTLOOSE))
+  {
+    m_NoiseTime.algo |= 0x10;
+  }
+  if (eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT))
+  {
+    m_NoiseTime.algo |= 0x20;
+  }
+
   if ( m_NoiseTime.algo != 0 ) 
   {
     if ( burstveto ) m_NoiseTime.algo |= 0x4;
