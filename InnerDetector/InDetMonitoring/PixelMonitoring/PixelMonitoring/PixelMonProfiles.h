@@ -7,7 +7,8 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include <string.h>
 
-class TProfile2D;
+//class TProfile2D;
+class TProfile2D_LW;
 class Identifier;
 class PixelID;
 class StatusCode;
@@ -22,14 +23,14 @@ class PixelMonProfiles
    public:
       PixelMonProfiles(std::string name, std::string title);
       ~PixelMonProfiles();
-      TProfile2D* IBL2D;
-      TProfile2D* IBL3D;
-      TProfile2D* IBL;
-      TProfile2D* B0;
-      TProfile2D* B1;
-      TProfile2D* B2;
-      TProfile2D* A;
-      TProfile2D* C;
+      TProfile2D_LW* IBL2D;
+      TProfile2D_LW* IBL3D;
+      TProfile2D_LW* IBL;
+      TProfile2D_LW* B0;
+      TProfile2D_LW* B1;
+      TProfile2D_LW* B2;
+      TProfile2D_LW* A;
+      TProfile2D_LW* C;
       void Fill(Identifier &id, const PixelID* pixID, float Index, bool doIBL);
       void SetMaxValue(float max);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
