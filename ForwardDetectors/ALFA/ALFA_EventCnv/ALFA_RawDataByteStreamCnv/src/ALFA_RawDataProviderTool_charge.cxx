@@ -36,19 +36,19 @@ StatusCode ALFA_RawDataProviderTool_charge::initialize() {
 
   StatusCode sc = AthAlgTool::initialize(); 
   
-  msg(MSG::DEBUG) << "INITIALIZE ALFA_RawDataProviderTool_charge" << endmsg;
+  msg(MSG::DEBUG) << "INITIALIZE ALFA_RawDataProviderTool_charge" << endreq;
   
   if (sc.isFailure()) {
-     msg(MSG::FATAL) << " Failed to init baseclass" << endmsg;
+     msg(MSG::FATAL) << " Failed to init baseclass" << endreq;
      return StatusCode::FAILURE;
    }
 
    // Retrieve decoder
    if (m_decoder_charge.retrieve().isFailure()) {
-     msg(MSG::FATAL) << " Failed to retrieve tool " << m_decoder_charge << endmsg;
+     msg(MSG::FATAL) << " Failed to retrieve tool " << m_decoder_charge << endreq;
      return StatusCode::FAILURE;
    } else {
-   msg(MSG::DEBUG) << "Retrieved tool m_decoder_charge " << m_decoder_charge << endmsg;
+   msg(MSG::DEBUG) << "Retrieved tool m_decoder_charge " << m_decoder_charge << endreq;
    }
 
    return StatusCode::SUCCESS;
@@ -65,24 +65,24 @@ StatusCode ALFA_RawDataProviderTool_charge::initialize() {
 StatusCode ALFA_RawDataProviderTool_charge::convert_charge( std::vector<const ROBFragment*>& vecRobs, ALFA_RawDataContainer_charge* rdoCont)
 
 {
-  msg(MSG::DEBUG) << "CONVERT ALFA_RawDataProviderTool_charge" << endmsg;
+  msg(MSG::DEBUG) << "CONVERT ALFA_RawDataProviderTool_charge" << endreq;
   
    static uint32_t LastLvl1ID = 0xffffffff;
    
-  msg(MSG::DEBUG) << "Number of ROB fragments is " << vecRobs.size() << endmsg;
+  msg(MSG::DEBUG) << "Number of ROB fragments is " << vecRobs.size() << endreq;
 
   if(vecRobs.size() == 0) return StatusCode::SUCCESS;
 
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
 
-  msg(MSG::DEBUG) << "(*rob_it)->rod_lvl1_id() " << (*rob_it)->rod_lvl1_id() << " LastLvl1ID " << LastLvl1ID << endmsg;
+  msg(MSG::DEBUG) << "(*rob_it)->rod_lvl1_id() " << (*rob_it)->rod_lvl1_id() << " LastLvl1ID " << LastLvl1ID << endreq;
  
   // are we working on a new event ?
   if ( ((*rob_it)->rod_lvl1_id())!= LastLvl1ID ) {
 
-msg(MSG::DEBUG) << "**********************" <<  endmsg;
-    msg(MSG::DEBUG) << "New event, reset the collection set" << endmsg;
-  msg(MSG::DEBUG) << "**********************" <<  endmsg;
+msg(MSG::DEBUG) << "**********************" <<  endreq;
+    msg(MSG::DEBUG) << "New event, reset the collection set" << endreq;
+  msg(MSG::DEBUG) << "**********************" <<  endreq;
   
     
     // remember last Lvl1ID
@@ -94,7 +94,7 @@ msg(MSG::DEBUG) << "**********************" <<  endmsg;
     rdoCont->clear();
   }
   else{
-  msg(MSG::DEBUG) << "Same event!!!!!!!!!!!!!!" << endmsg;
+  msg(MSG::DEBUG) << "Same event!!!!!!!!!!!!!!" << endreq;
   }
 
 
@@ -106,10 +106,10 @@ msg(MSG::DEBUG) << "**********************" <<  endmsg;
     
     // check if this ROBFragment was already decoded
     if (!m_robIdSet.insert(robid).second) {
-     msg(MSG::DEBUG) << " ROB Fragment with ID " << std::hex<<robid<<std::dec << " already decoded, skip" << endmsg;
+     msg(MSG::DEBUG) << " ROB Fragment with ID " << std::hex<<robid<<std::dec << " already decoded, skip" << endreq;
    } else {
       StatusCode sc = m_decoder_charge->fillCollection(&**rob_it, rdoCont);
-      msg(MSG::DEBUG) << " ROB Fragment with ID " << std::hex<<robid<<std::dec << " fill Container" << endmsg;
+      msg(MSG::DEBUG) << " ROB Fragment with ID " << std::hex<<robid<<std::dec << " fill Container" << endreq;
     }
   }// loop over the ROB fragments
 
@@ -124,7 +124,7 @@ StatusCode ALFA_RawDataProviderTool_charge::finalize() {
 
  StatusCode sc = AthAlgTool::finalize();
 
-msg(MSG::DEBUG) << "FINALIZE ALFA_RawDataProviderTool_charge" << endmsg;
+msg(MSG::DEBUG) << "FINALIZE ALFA_RawDataProviderTool_charge" << endreq;
 
    return sc;
 }

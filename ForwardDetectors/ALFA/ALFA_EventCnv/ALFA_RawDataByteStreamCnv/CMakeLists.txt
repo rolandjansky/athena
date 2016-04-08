@@ -13,19 +13,17 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
                           ForwardDetectors/ALFA/ALFA_RawEv
-                          GaudiKernel
-                          PRIVATE
-                          Event/xAOD/xAODEventInfo)
+                          GaudiKernel )
 
 # External dependencies:
-find_package( tdaq-common COMPONENTS eformat )
+find_package( tdaq-common )
 
 # Component(s) in the package:
 atlas_add_component( ALFA_RawDataByteStreamCnv
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps DataModel StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test ALFA_RawEv GaudiKernel xAODEventInfo)
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps DataModel StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test ALFA_RawEv GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( ALFA_RawDataByteStreamCnv )
