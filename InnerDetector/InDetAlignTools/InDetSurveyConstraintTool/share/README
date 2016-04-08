@@ -1,0 +1,40 @@
+Author:
+Tobias Golling <TFGolling@lbl.gov>
+
+This package incorporates the SCT and Pixel survey data into the
+alignment as survey constraints, given the statistical and systematic
+uncertainties associated with the survey data.
+
+The package is implemented as a tool. The actual tool is called
+SurveyConstraint and can be retrieved using the ToolService.
+
+This Tool can be called from any alignment algorithm (e.g. which uses
+track residual information). The main routine is called
+computeConstraint, it returns the mean vector, the weight matrix, the
+alignment parameters and chi^2 per module. This allows a
+straightforward combination of the survey constraints with any
+other alignment algorithm.
+
+The test algorithm SurveyConstraintTestAlg shows how to implement the
+tool.
+
+Two instances of the conditions DB will be used to access the current
+(to be aligned) and the survey conditions data, the latter is being
+put in place by Richard Hawkings. In the default version of the tool
+the current and the survey data are identical (nominal values) and
+trivially all alignment parameters are zero.
+
+At the moment only the survey constraint for Pixel endcap modules is
+implemented.
+
+More detailed information:
+The SurveyConstraint tool makes use of three additional 
+classes:
+- SurveyConstraintModule: Provides bookkeeping of the 
+  survey constraints, it represents the survey data for
+  a single module.
+- SurveyConstraintPoint: represents the actual survey
+  points in global coordinates of the current and the 
+  survey alignment. 
+- SimpleConstraintPointMinimizer: Simple algorithm to 
+  minimize the distance between two sets of points.
