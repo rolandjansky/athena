@@ -35,9 +35,9 @@ class CaloCellLinkContainerCnv : public CaloCellLinkContainerCnvBase
  private:
   CaloCellLinkContainerCnv_p1 m_converter_p1;
   CaloCellLinkContainerCnv_p2 m_converter_p2;
-  pool::Guid   p0_guid;
-  pool::Guid   p1_guid;
-  pool::Guid   p2_guid;
+  pool::Guid   m_p0_guid;
+  pool::Guid   m_p1_guid;
+  pool::Guid   m_p2_guid;
 
 
 };

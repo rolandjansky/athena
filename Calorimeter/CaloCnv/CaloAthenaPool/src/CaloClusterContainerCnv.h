@@ -48,14 +48,14 @@ class CaloClusterContainerCnv : public CaloClusterContainerCnvBase
   CaloClusterContainerCnv_p5 m_converter_p5;
   CaloClusterContainerCnv_p6 m_converter_p6;
   CaloClusterContainerCnv_p7 m_converter_p7;
-  pool::Guid   p0_guid;
-  pool::Guid   p1_guid;
-  pool::Guid   p2_guid;
-  pool::Guid   p3_guid;
-  pool::Guid   p4_guid;
-  pool::Guid   p5_guid;
-  pool::Guid   p6_guid;
-  pool::Guid   p7_guid;
+  pool::Guid   m_p0_guid;
+  pool::Guid   m_p1_guid;
+  pool::Guid   m_p2_guid;
+  pool::Guid   m_p3_guid;
+  pool::Guid   m_p4_guid;
+  pool::Guid   m_p5_guid;
+  pool::Guid   m_p6_guid;
+  pool::Guid   m_p7_guid;
 };
 
 #endif
