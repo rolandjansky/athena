@@ -20,7 +20,7 @@ include( "CaloConditions/CaloConditions_jobOptions.py" )
 include( "LArConditionsCommon/LArIdMap_H6_jobOptions.py")
 
 from AthenaCommon.AppMgr import ToolSvc
-from LArTools.LArToolsConf import LArCablingService
+from LArCabling.LArCablingConf import LArCablingService
 LArCablingService = LArCablingService("LArCablingService")
 LArCablingService.LArFebRodMapKey = "LArFebRodMapH6"
 LArCablingService.LArOnOffIdMapKey = "LArOnOffIdMapH6"
