@@ -5,21 +5,11 @@
 #include "G4AtlasAlg/G4AtlasAlg.h"
 
 #include "G4AtlasAlg/PreEventActionManager.h"
-#include "G4AtlasAlg/AthenaTrackingAction.h"
-#include "G4AtlasAlg/AthenaStackingAction.h"
 #include "G4AtlasAlg/G4AtlasRunManager.h"
 
-#include "GaudiKernel/AlgFactory.h"
+#include "GaudiKernel/AlgFactory.h" //FIXME safe to remove?
 
-#include "FadsActions/FadsEventAction.h"
-#include "FadsActions/FadsSteppingAction.h"
-#include "FadsActions/FadsRunAction.h"
-#include "FadsActions/FadsTrackingAction.h"
-#include "FadsActions/FadsStackingAction.h"
 #include "FadsKinematics/GeneratorCenter.h"
-#include "FadsPhysics/PhysicsListCatalog.h"
-#include "FadsPhysics/PhysicsListSteering.h"
-#include "FadsGeometry/FadsDetectorConstruction.h"
 
 #include "G4TransportationManager.hh"
 #include "G4RunManagerKernel.hh"
@@ -29,47 +19,38 @@
 #include "G4TrackingManager.hh"
 #include "G4StackManager.hh"
 #include "G4UImanager.hh"
+#include "G4ScoringManager.hh"
 
-#include "EventInfo/EventInfo.h" 
+#include "EventInfo/EventInfo.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
 
 G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_rndmGenSvc("AtDSFMTGenSvc", name)
+    m_rndmGenSvc("AtDSFMTGenSvc", name),m_UASvc("UserActionSvc",name), m_physListTool("PhysicsListToolBase")
 {
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg created  ++++++++++++" << std::endl << std::endl);
-  declareProperty( "Dll", libList="");
-  declareProperty( "Physics", physList="");
-  declareProperty( "Generator", generator="");
-  declareProperty( "FieldMap", fieldMap="");
-  declareProperty( "RandomGenerator", rndmGen="athena");
-  declareProperty( "KillAllNeutrinos",m_KillAllNeutrinos=true);
-  declareProperty( "KillLowEPhotons",m_KillLowEPhotons=-1.);
+  declareProperty( "Dll", m_libList="");
+  declareProperty( "Physics", m_physList="");
+  declareProperty( "Generator", m_generator="");
+  declareProperty( "FieldMap", m_fieldMap="");
+  declareProperty( "RandomGenerator", m_rndmNumberSource="athena");
   declareProperty( "ReleaseGeoModel",m_releaseGeoModel=true);
+  declareProperty( "RecordFlux",m_recordFlux=false);
   declareProperty( "IncludeParentsInG4Event",m_IncludeParentsInG4Event=false);
-  declareProperty( "KillAbortedEvents", m_killAbortedEvents=true); 
-  declareProperty( "FlagAbortedEvents", m_flagAbortedEvents=false); 
+  declareProperty( "KillAbortedEvents", m_killAbortedEvents=true);
+  declareProperty( "FlagAbortedEvents", m_flagAbortedEvents=false);
 
-  // Service instantiation
+  // Tool and Service instantiation
   declareProperty("AtRndmGenSvc", m_rndmGenSvc);
+  declareProperty("UserActionSvc", m_UASvc);
+  declareProperty("PhysicsListTool", m_physListTool);
+
 
   p_runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
   // if (m_noGeomInit) p_runMgr->NoGeomInit();
-
-  G4VUserPhysicsList *thePL=FADS::PhysicsListCatalog::GetInstance()->GetMainPhysicsList();
-  p_runMgr->SetPhysicsList(thePL);
-  p_runMgr->SetUserInitialization(thePL);
-  p_runMgr->SetUserInitialization(new FADS::FadsDetectorConstruction);
-  trackingAction =new AthenaTrackingAction;
-  stackingAction =new AthenaStackingAction;
-  p_runMgr->SetUserAction(FADS::FadsRunAction::GetRunAction());
-  p_runMgr->SetUserAction(FADS::FadsEventAction::GetEventAction());
-  p_runMgr->SetUserAction(FADS::FadsSteppingAction::GetSteppingAction());
-  p_runMgr->SetUserAction(FADS::FadsTrackingAction::GetTrackingAction());
-  p_runMgr->SetUserAction(FADS::FadsStackingAction::GetStackingAction());
 
   // Verbosities
   m_verbosities.clear();
@@ -81,41 +62,46 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
 StatusCode G4AtlasAlg::initialize()
 {
+  if (m_recordFlux) G4ScoringManager::GetScoringManager();
+
+  CHECK(m_physListTool.retrieve());
+  m_physListTool->SetPhysicsList();
+
+  CHECK(m_UASvc.retrieve());
+
   G4UImanager *ui = G4UImanager::GetUIpointer();
 
-  if (!libList.empty())
+  if (!m_libList.empty())
     {
       ATH_MSG_INFO("G4AtlasAlg specific libraries requested ") ;
-      std::string temp="/load "+libList;
+      std::string temp="/load "+m_libList;
       ui->ApplyCommand(temp);
     }
-  if (!physList.empty())
+  if (!m_physList.empty())
     {
-      ATH_MSG_INFO("requesting a specific physics list "<< physList) ;
-      std::string temp="/Physics/GetPhysicsList "+physList;
+      ATH_MSG_INFO("requesting a specific physics list "<< m_physList) ;
+      std::string temp="/Physics/GetPhysicsList "+m_physList;
       ui->ApplyCommand(temp);
     }
   FADS::GeneratorCenter * gc = FADS::GeneratorCenter::GetGeneratorCenter();
   gc->SetIncludeParentsInG4Event( m_IncludeParentsInG4Event );
-  if (!generator.empty())
+  if (!m_generator.empty())
     {
-      ATH_MSG_INFO("requesting a specific generator "<< generator) ;
-      gc->SelectGenerator(generator);
+      ATH_MSG_INFO("requesting a specific generator "<< m_generator) ;
+      gc->SelectGenerator(m_generator);
     } else {
     // make sure that there is a default generator (i.e. HepMC interface)
     gc->SelectGenerator("AthenaHepMCInterface");
   }
-  if (!fieldMap.empty())
+  if (!m_fieldMap.empty())
     {
-      ATH_MSG_INFO("requesting a specific field map "<< fieldMap) ;
+      ATH_MSG_INFO("requesting a specific field map "<< m_fieldMap) ;
       ATH_MSG_INFO("the field is initialized straight away") ;
-      std::string temp="/MagneticField/Select "+fieldMap;
+      std::string temp="/MagneticField/Select "+m_fieldMap;
       ui->ApplyCommand(temp);
       ui->ApplyCommand("/MagneticField/Initialize");
     }
 
-  stackingAction->KillAllNeutrinos(m_KillAllNeutrinos);
-  stackingAction->KillLowEPhotons(m_KillLowEPhotons);
   p_runMgr->SetReleaseGeo( m_releaseGeoModel );
   p_runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
 
@@ -125,7 +111,9 @@ StatusCode G4AtlasAlg::initialize()
   ATH_MSG_INFO("Setting checkmode to true");
   ui->ApplyCommand("/geometry/navigator/check_mode true");
 
-  if (rndmGen=="athena" || rndmGen=="ranecu")	{
+
+
+  if (m_rndmNumberSource=="athena" || m_rndmNumberSource=="ranecu") {
     // Set the random number generator to AtRndmGen
     if (m_rndmGenSvc.retrieve().isFailure()) {
       ATH_MSG_ERROR("Could not initialize ATLAS Random Generator Service");
@@ -135,7 +123,7 @@ StatusCode G4AtlasAlg::initialize()
     CLHEP::HepRandom::setTheEngine(engine);
     ATH_MSG_INFO("Random nr. generator is set to Athena");
   }
-  else if (rndmGen=="geant4" || rndmGen.empty()) {
+  else if (m_rndmNumberSource=="geant4" || m_rndmNumberSource.empty()) {
     ATH_MSG_INFO("Random nr. generator is set to Geant4");
   }
 
@@ -216,21 +204,21 @@ StatusCode G4AtlasAlg::execute()
   if (abort) {
     ATH_MSG_WARNING("Event was aborted !! ");
     ATH_MSG_WARNING("Simulation will now go on to the next event ");
-    if (m_killAbortedEvents){ 
+    if (m_killAbortedEvents){
       ATH_MSG_WARNING("setFilterPassed is now False");
       setFilterPassed(false);
     }
-    if (m_flagAbortedEvents){ 
-      const DataHandle<EventInfo> eic = 0; 
-      if ( sgSvc()->retrieve( eic ).isFailure() || !eic ){ 
-	ATH_MSG_WARNING( "Failed to retrieve EventInfo" ); 
-      } else { 
-	// Gotta cast away the const... sadface 
-	EventInfo *ei = const_cast< EventInfo * > (&(*eic)); 
-	ei->setErrorState(EventInfo::Core,EventInfo::Error); 
-	ATH_MSG_WARNING( "Set error state in event info!" ); 
-      } 
-    } 
+    if (m_flagAbortedEvents){
+      const DataHandle<EventInfo> eic = 0;
+      if ( sgSvc()->retrieve( eic ).isFailure() || !eic ){
+        ATH_MSG_WARNING( "Failed to retrieve EventInfo" );
+      } else {
+        // Gotta cast away the const... sadface
+        EventInfo *ei = const_cast< EventInfo * > (&(*eic));
+        ei->setErrorState(EventInfo::Core,EventInfo::Error);
+        ATH_MSG_WARNING( "Set error state in event info!" );
+      }
+    }
   }
 
   return StatusCode::SUCCESS;

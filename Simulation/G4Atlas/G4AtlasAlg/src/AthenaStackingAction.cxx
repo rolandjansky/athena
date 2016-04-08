@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
 
 #include "G4AtlasAlg/AthenaStackingAction.h"
 #include "MCTruth/PrimaryParticleInformation.h"
@@ -28,7 +26,13 @@
 
 // static AthenaStackingAction stacking;
 
-AthenaStackingAction::AthenaStackingAction(): ApplicationStackingAction(), p_killAllNeutrinos(false), p_stackEnergyCut(-1){}
+AthenaStackingAction::AthenaStackingAction(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent), p_killAllNeutrinos(false), p_stackEnergyCut(-1){
+
+  declareProperty("KillAllNeutrinos",p_killAllNeutrinos);
+  declareProperty("KillLowEPhotons",p_stackEnergyCut);
+
+
+}
 
 G4ClassificationOfNewTrack AthenaStackingAction::ClassifyNewTrack(const G4Track* aTrack)
 {
@@ -100,6 +104,16 @@ G4ClassificationOfNewTrack AthenaStackingAction::ClassifyNewTrack(const G4Track*
  	}
         return fUrgent;
 }
-void AthenaStackingAction::NewStage() {;}
-void AthenaStackingAction::PrepareNewEvent() {;}
 
+
+StatusCode AthenaStackingAction::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
+}
