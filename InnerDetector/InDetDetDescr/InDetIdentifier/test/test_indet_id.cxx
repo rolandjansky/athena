@@ -40,7 +40,6 @@ typedef Identifier::size_type  size_type ;
 //}
 
 
-#ifndef __IDENTIFIER_NOACCESSORS__
 static void
 check_pixel_timing(IdDictMgr& idd)
 {
@@ -82,7 +81,7 @@ check_pixel_timing(IdDictMgr& idd)
 
     int nloops = 1000000;
     float num     = hash_max*nloops;
-    int n = 0;
+    Identifier::value_type n = 0;
 
 
     /// Empty loop
@@ -144,13 +143,8 @@ check_pixel_timing(IdDictMgr& idd)
     n = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<hash_max; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-            n |= j;
-            n &= pixel_id.wafer_id(i);
-#else
 	    ++n;
-	    n += pixel_id.wafer_id(i);
-#endif
+	    n += pixel_id.wafer_id(i).get_compact();
 	}
     }
 
@@ -187,15 +181,9 @@ check_pixel_timing(IdDictMgr& idd)
 
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<hash_max; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-            n |= j;
-	    wafer_id = pixel_id.wafer_id(i);
-	    n &= pixel_id.barrel_ec(wafer_id);
-#else
 	    ++n;
-	    wafer_id = pixel_id.wafer_id(i);
+	    wafer_id = pixel_id.wafer_id(i).get_compact();
 	    n += pixel_id.barrel_ec(wafer_id);
-#endif
 	}
     }
 
@@ -233,16 +221,10 @@ check_pixel_timing(IdDictMgr& idd)
     n = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<hash_max; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n |= j;
-	    wafer_id = pixel_id.wafer_id(i);
-	    n &= pixel_id.layer_disk(wafer_id);
-#else
 	    ++n;
 //		pixel_id.get_id(i, wafer_id, &channelContext);
-	    wafer_id = pixel_id.wafer_id(i);
+	    wafer_id = pixel_id.wafer_id(i).get_compact();
 	    n += pixel_id.layer_disk(wafer_id);
-#endif
 	}
     }
 
@@ -280,15 +262,9 @@ check_pixel_timing(IdDictMgr& idd)
     n = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<hash_max; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n |= j;
-	    wafer_id = pixel_id.wafer_id(i);
-	    n &= pixel_id.phi_module(wafer_id);
-#else
 	    ++n;
-	    wafer_id = pixel_id.wafer_id(i);
+	    wafer_id = pixel_id.wafer_id(i).get_compact();
 	    n += pixel_id.phi_module(wafer_id);
-#endif
 	}
     }
 
@@ -326,15 +302,9 @@ check_pixel_timing(IdDictMgr& idd)
     n = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<hash_max; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n |= j;
-	    wafer_id = pixel_id.wafer_id(i);
-	    n &= pixel_id.eta_module(wafer_id);
-#else
 	    ++n;
-	    wafer_id = pixel_id.wafer_id(i);
+	    wafer_id = pixel_id.wafer_id(i).get_compact();
 	    n += pixel_id.eta_module(wafer_id);
-#endif
 	}
     }
 
@@ -374,16 +344,10 @@ check_pixel_timing(IdDictMgr& idd)
     n = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<hash_max; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n |= j;
-	    wafer_id = pixel_id.wafer_id(i);
-	    n &= pixel_id.wafer_hash(wafer_id);
-#else
 	    ++n;
 //		pixel_id.get_id(i, wafer_id, &channelContext);
-	    wafer_id = pixel_id.wafer_id(i);
+	    wafer_id = pixel_id.wafer_id(i).get_compact();
 	    n += pixel_id.wafer_hash(wafer_id);
-#endif
 	}
     }
 
@@ -431,21 +395,13 @@ check_pixel_timing(IdDictMgr& idd)
     n = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<hash_max; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-            n |= j;
-#else
 	    ++n;
-#endif
 	    wafer_id   = pixel_id.wafer_id(i);
 	    barrel_ec  = pixel_id.barrel_ec(wafer_id);
 	    layer_disk = pixel_id.layer_disk(wafer_id);
 	    phi_module = pixel_id.phi_module(wafer_id);
 	    eta_module = pixel_id.eta_module(wafer_id);
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n         &= barrel_ec + layer_disk + eta_module + phi_module;
-#else
 	    n         += barrel_ec + layer_disk + eta_module + phi_module;
-#endif
 	}
     }
 
@@ -484,24 +440,15 @@ check_pixel_timing(IdDictMgr& idd)
     n = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<hash_max; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-            n |= j;
-#else
 	    ++n;
-#endif
 //		pixel_id.get_id(i, wafer_id, &channelContext);
 	    wafer_id = pixel_id.wafer_id(i);
 	    barrel_ec  = pixel_id.barrel_ec(wafer_id);
 	    layer_disk = pixel_id.layer_disk(wafer_id);
 	    phi_module = pixel_id.phi_module(wafer_id);
 	    eta_module = pixel_id.eta_module(wafer_id);
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n         &= barrel_ec + layer_disk + eta_module + phi_module +
-		pixel_id.wafer_id(barrel_ec, layer_disk, phi_module, eta_module);
-#else
 	    n         += barrel_ec + layer_disk + eta_module + phi_module +
-		pixel_id.wafer_id(barrel_ec, layer_disk, phi_module, eta_module);
-#endif
+              pixel_id.wafer_id(barrel_ec, layer_disk, phi_module, eta_module).get_compact();
 	}
     }
 
@@ -574,13 +521,8 @@ check_pixel_timing(IdDictMgr& idd)
     n = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<npixids; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-            n |= j;
-            n &= i;
-#else
 	    ++n;
 	    n += i;
-#endif
 	}
     }
 
@@ -621,17 +563,11 @@ check_pixel_timing(IdDictMgr& idd)
     n = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<npixids; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n |= j;
-	    pixid = pixids[i];
-	    n &= pixid;
-#else
 	    ++n;
 	    pixid = pixids[i];
-	    n += pixid;
+	    n += pixid.get_compact();
 //  	    pixid1 = pixids[npixids - i + 1];
 //  	    n += pixid1;
-#endif
 	}
     }
 
@@ -676,11 +612,7 @@ check_pixel_timing(IdDictMgr& idd)
     nids = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<npixids; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-            n |= j;
-#else
 	    ++n;
-#endif
 	    pixid = pixids[i];
 	    barrel_ec  = pixel_id.barrel_ec(pixid);
 	    layer_disk = pixel_id.layer_disk(pixid);
@@ -688,13 +620,8 @@ check_pixel_timing(IdDictMgr& idd)
 	    eta_module = pixel_id.eta_module(pixid);
 	    phi_index  = pixel_id.phi_index(pixid);
 	    eta_index  = pixel_id.eta_index(pixid);
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n         &= barrel_ec + layer_disk + eta_module + phi_module + 
-		eta_index + phi_index + pixid;
-#else
 	    n         += barrel_ec + layer_disk + eta_module + phi_module + 
-		eta_index + phi_index + pixid;
-#endif
+              eta_index + phi_index + pixid.get_compact();
 	}
     }
 
@@ -735,11 +662,7 @@ check_pixel_timing(IdDictMgr& idd)
     nids = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<npixids; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-            n |= j;
-#else
 	    ++n;
-#endif
 	    pixid = pixids[i];
 	    barrel_ec  = pixel_id.barrel_ec(pixid);
 	    layer_disk = pixel_id.layer_disk(pixid);
@@ -747,25 +670,14 @@ check_pixel_timing(IdDictMgr& idd)
 	    eta_module = pixel_id.eta_module(pixid);
 	    phi_index  = pixel_id.phi_index(pixid);
 	    eta_index  = pixel_id.eta_index(pixid);
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n         &= barrel_ec + layer_disk + eta_module + phi_module + 
-		eta_index + phi_index + pixid +
-		pixel_id.pixel_id(barrel_ec, 
-				  layer_disk,
-				  phi_module,
-				  eta_module,
-				  phi_index,
-				  eta_index);
-#else
 	    n         += barrel_ec + layer_disk + eta_module + phi_module + 
-		eta_index + phi_index + pixid +
-		pixel_id.pixel_id(barrel_ec, 
-				  layer_disk,
-				  phi_module,
-				  eta_module,
-				  phi_index,
-				  eta_index);
-#endif
+              eta_index + phi_index + pixid.get_compact() +
+              pixel_id.pixel_id(barrel_ec, 
+                                layer_disk,
+                                phi_module,
+                                eta_module,
+                                phi_index,
+                                eta_index).get_compact();
 	}
     }
 
@@ -807,15 +719,9 @@ check_pixel_timing(IdDictMgr& idd)
     nids = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<npixids; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n |= j;
-	    pixid = pixids[i];
-	    n         &=  pixid + pixel_id.wafer_id(pixid);
-#else
 	    ++n;
 	    pixid = pixids[i];
-	    n         +=  pixid + pixel_id.wafer_id(pixid);
-#endif
+	    n         +=  pixid.get_compact() + pixel_id.wafer_id(pixid).get_compact();
 	}
     }
 
@@ -855,21 +761,12 @@ check_pixel_timing(IdDictMgr& idd)
     nids = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<npixids; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-            n |= j;
-#else
 	    ++n;
-#endif
 	    pixid = pixids[i];
 	    phi_index  = pixel_id.phi_index(pixid);
 	    eta_index  = pixel_id.eta_index(pixid);
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n         &= eta_index + phi_index + pixid +
-		pixel_id.wafer_id(pixid);
-#else
-	    n         += eta_index + phi_index + pixid +
-		pixel_id.wafer_id(pixid);
-#endif
+	    n         += eta_index + phi_index + pixid.get_compact() +
+              pixel_id.wafer_id(pixid).get_compact();
 	}
     }
 
@@ -909,22 +806,13 @@ check_pixel_timing(IdDictMgr& idd)
     nids = 0;
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<npixids; ++i) {
-#ifdef __IDENTIFIER_NOACCESSORS__
-            n |= j;
-#else
 	    ++n;
-#endif
 	    pixid = pixids[i];
 	    phi_index  = pixel_id.phi_index(pixid);
 	    eta_index  = pixel_id.eta_index(pixid);
 	    wafer_id   = pixel_id.wafer_id(pixid);
-#ifdef __IDENTIFIER_NOACCESSORS__
-	    n         &= eta_index + phi_index + pixid + wafer_id +
-		pixel_id.pixel_id(wafer_id, eta_index, phi_index);
-#else
-	    n         += eta_index + phi_index + pixid + wafer_id +
-		pixel_id.pixel_id(wafer_id, eta_index, phi_index);
-#endif
+	    n         += eta_index + phi_index + pixid.get_compact() + wafer_id.get_compact() +
+              pixel_id.pixel_id(wafer_id, eta_index, phi_index).get_compact();
 	}
     }
 
@@ -995,7 +883,7 @@ check_sct_timing(IdDictMgr& idd)
 
     int nloops = 10000;
     float num  = hash_max*nloops;
-    int n = 0;
+    Identifier::value_type n = 0;
 
 
     /// Empty loop
@@ -1054,7 +942,7 @@ check_sct_timing(IdDictMgr& idd)
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<hash_max; ++i) {
 	    ++n;
-	    n += sct_id.wafer_id(i);
+	    n += sct_id.wafer_id(i).get_compact();
 	}
     }
 
@@ -1403,7 +1291,7 @@ check_sct_timing(IdDictMgr& idd)
 	    eta_module = sct_id.eta_module(wafer_id);
 	    side       = sct_id.side(wafer_id);
 	    n         += barrel_ec + layer_disk + eta_module + phi_module + side +
-		sct_id.wafer_id(barrel_ec, layer_disk, phi_module, eta_module, side);
+              sct_id.wafer_id(barrel_ec, layer_disk, phi_module, eta_module, side).get_compact();
 	}
     }
 
@@ -1511,7 +1399,7 @@ check_sct_timing(IdDictMgr& idd)
 	for (size_type i=0; i<nstripids; ++i) {
 	    ++n;
 	    stripid = stripids[i];
-	    n += stripid;
+	    n += stripid.get_compact();
 	}
     }
 
@@ -1563,7 +1451,7 @@ check_sct_timing(IdDictMgr& idd)
 	    side       = sct_id.side(stripid);
 	    strip      = sct_id.strip(stripid);
 	    n         += barrel_ec + layer_disk + eta_module + phi_module + 
-		side + strip + stripid;
+              side + strip + stripid.get_compact();
 	}
     }
 
@@ -1613,13 +1501,13 @@ check_sct_timing(IdDictMgr& idd)
 	    side       = sct_id.side(stripid);
 	    strip      = sct_id.strip(stripid);
 	    n         += barrel_ec + layer_disk + eta_module + phi_module + 
-		side + strip + stripid + 
-		sct_id.strip_id(barrel_ec, 
-				layer_disk,
-				phi_module,
-				eta_module,
-				side,
-				strip);
+              side + strip + stripid .get_compact()+ 
+              sct_id.strip_id(barrel_ec, 
+                              layer_disk,
+                              phi_module,
+                              eta_module,
+                              side,
+                              strip).get_compact();
 	}
     }
 
@@ -1661,7 +1549,7 @@ check_sct_timing(IdDictMgr& idd)
 	for (size_type i=0; i<nstripids; ++i) {
 	    ++n;
 	    stripid = stripids[i];
-	    n         +=  stripid + sct_id.wafer_id(stripid);
+	    n         +=  stripid.get_compact() + sct_id.wafer_id(stripid).get_compact();
 	}
     }
 
@@ -1704,8 +1592,8 @@ check_sct_timing(IdDictMgr& idd)
 	    ++n;
 	    stripid = stripids[i];
 	    strip      = sct_id.strip(stripid);
-	    n         += strip + stripid +
-		sct_id.wafer_id(stripid);
+	    n         += strip + stripid.get_compact() +
+              sct_id.wafer_id(stripid).get_compact();
 	}
     }
 
@@ -1749,8 +1637,8 @@ check_sct_timing(IdDictMgr& idd)
 	    stripid = stripids[i];
 	    strip      = sct_id.strip(stripid);
 	    wafer_id   = sct_id.wafer_id(stripid);
-	    n         += strip + stripid + wafer_id +
-		sct_id.strip_id(wafer_id, strip);
+	    n         += strip + stripid.get_compact() + wafer_id.get_compact() +
+              sct_id.strip_id(wafer_id, strip).get_compact();
 	}
     }
 
@@ -1821,7 +1709,7 @@ check_trt_timing(IdDictMgr& idd)
 
     int nloops = 3000;
     float num  = hash_max*nloops;
-    int n = 0;
+    Identifier::value_type n = 0;
 
 
     /// Empty loop
@@ -1880,7 +1768,7 @@ check_trt_timing(IdDictMgr& idd)
     for (int j = 0; j < nloops; ++j) {
 	for (size_type i=0; i<hash_max; ++i) {
 	    ++n;
-	    n += trt_id.layer_id(i);
+	    n += trt_id.layer_id(i).get_compact();
 	}
     }
 
@@ -2182,7 +2070,7 @@ check_trt_timing(IdDictMgr& idd)
 	    phi_module     = trt_id.phi_module(layer_id);
 	    straw_layer    = trt_id.straw_layer(layer_id);
 	    n         += barrel_ec + layer_or_wheel + straw_layer + phi_module +
-		trt_id.layer_id(barrel_ec, layer_or_wheel, phi_module, straw_layer);
+              trt_id.layer_id(barrel_ec, layer_or_wheel, phi_module, straw_layer).get_compact();
 	}
     }
 
@@ -2292,7 +2180,7 @@ check_trt_timing(IdDictMgr& idd)
 	for (size_type i=0; i<nstrawids; ++i) {
 	    ++n;
 	    strawid = strawids[i];
-	    n += strawid;
+	    n += strawid.get_compact();
 	}
     }
 
@@ -2343,7 +2231,7 @@ check_trt_timing(IdDictMgr& idd)
 	    straw_layer    = trt_id.straw_layer(strawid);
 	    straw          = trt_id.straw(strawid);
 	    n         += barrel_ec + layer_or_wheel + straw_layer + phi_module + 
-		straw + strawid;
+              straw + strawid.get_compact();
 	}
     }
 
@@ -2394,12 +2282,12 @@ check_trt_timing(IdDictMgr& idd)
 	    straw_layer = trt_id.straw_layer(strawid);
 	    straw          = trt_id.straw(strawid);
 	    n         += barrel_ec + layer_or_wheel + straw_layer + phi_module + 
-		straw + strawid +
+              straw + strawid.get_compact() +
 		trt_id.straw_id(barrel_ec, 
 				layer_or_wheel,
 				phi_module,
 				straw_layer,
-				straw);
+				straw).get_compact();
 	}
     }
 
@@ -2443,7 +2331,7 @@ check_trt_timing(IdDictMgr& idd)
 	for (size_type i=0; i<nstrawids; ++i) {
 	    ++n;
 	    strawid = strawids[i];
-	    n         +=  strawid + trt_id.layer_id(strawid);
+	    n         +=  strawid.get_compact() + trt_id.layer_id(strawid).get_compact();
 	}
     }
 
@@ -2486,8 +2374,8 @@ check_trt_timing(IdDictMgr& idd)
 	    ++n;
 	    strawid = strawids[i];
 	    straw   = trt_id.straw(strawid);
-	    n         += straw + strawid +
-		trt_id.layer_id(strawid);
+	    n         += straw + strawid.get_compact() +
+              trt_id.layer_id(strawid).get_compact();
 	}
     }
 
@@ -2533,8 +2421,8 @@ check_trt_timing(IdDictMgr& idd)
 	    strawid = strawids[i];
 	    straw      = trt_id.straw(strawid);
 	    layer_id   = trt_id.layer_id(strawid);
-	    n         += straw + strawid + layer_id +
-		trt_id.straw_id(layer_id, straw);
+	    n         += straw + strawid.get_compact() + layer_id.get_compact() +
+              trt_id.straw_id(layer_id, straw).get_compact();
 	}
     }
 
@@ -2563,7 +2451,6 @@ check_trt_timing(IdDictMgr& idd)
     
 
 }
-#endif /* __IDENTIFIER_NOACCESSORS__ */
 
 
 static void
@@ -2724,37 +2611,14 @@ int main (int argc, char* argv[])
 
 
     check_sct_decoding(idd);
-
     check_trt_decoding(idd);
-
-
-
-
     check_silicon_decoding(idd);
-
     check_pixel_decoding(idd);
-     
-#ifndef __IDENTIFIER_NOACCESSORS__
     check_pixel_timing(idd);
-#endif
-
     check_sct_decoding(idd);
-     
-#ifndef __IDENTIFIER_NOACCESSORS__
     check_sct_timing(idd);
-#endif
-
     check_trt_decoding(idd);
-     
-#ifndef __IDENTIFIER_NOACCESSORS__
     check_trt_timing(idd);
-#endif
 
     return 0;  
 }  
-  
- 
- 
- 
- 
- 
