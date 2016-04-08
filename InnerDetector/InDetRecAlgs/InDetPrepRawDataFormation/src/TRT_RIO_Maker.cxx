@@ -17,8 +17,6 @@
 //
 #include "GaudiKernel/ISvcLocator.h"
 #include "StoreGate/DataHandle.h"
-#include "CxxUtils/make_unique.h"
-
 
 namespace InDet {
   
@@ -28,24 +26,22 @@ namespace InDet {
   TRT_RIO_Maker::TRT_RIO_Maker
   (const std::string& name,ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name,pSvcLocator),
-  pTRTHelper(nullptr),
-  m_rdoContainerKey("TRT_RDOs"),
-  m_driftcircle_tool("InDet::TRT_DriftCircleTool", this), //made private
-  m_rioContainerKey("TRT_DriftCircles"),
+  m_trt_rdo_location("TRT_RDOs"),
+  m_trt_rio_location("TRT_DriftCircles"),
+  m_trt_mgr_location("TRT"),
+  m_driftcircle_tool("InDet::TRT_DriftCircleTool"),
+  p_riocontainer(0),
   m_mode_rio_production(0),
-  m_trtBadChannels(0),
-  m_roiSeeded(false),
-  m_roiCollectionKey(""),
-  m_regionSelector("RegSelSvc", name)
+  m_trtBadChannels(0)
   {
     // Read TRT_RIO_Maker steering parameters
-    declareProperty("TRTRDOLocation"      ,m_rdoContainerKey  );
-    declareProperty("TrtDescrManageLocation",m_trt_mgr_location   );//Remove later
+    declareProperty("TRTRIOLocation"      ,m_trt_rio_location   );
+    declareProperty("TRTRDOLocation"      ,m_trt_rdo_location   );
+    declareProperty("TrtDescrManageLocation",m_trt_mgr_location   );
     declareProperty("ModeRIOProduction"   ,m_mode_rio_production);
     //selection of the TRT bad channels(true/false)
     declareProperty("TRTBadChannels"    ,m_trtBadChannels = true );
     declareProperty("TRT_DriftCircleTool", m_driftcircle_tool);
-    declareProperty("TRTRIOLocation",  m_rioContainerKey);    
   }
   
   ///////////////////////////////////////////////////////////////////
@@ -53,12 +49,24 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
   StatusCode TRT_RIO_Maker::initialize() {
     // Get TRT_DriftCircle tool
-    ATH_CHECK(m_driftcircle_tool.retrieve());
-    ATH_CHECK(detStore()->retrieve(pTRTHelper,"TRT_ID"));
-
-    ATH_CHECK( m_rdoContainerKey.initialize() );
-    ATH_CHECK( m_rioContainerKey.initialize() );
-    msg(MSG::DEBUG) << "getTRTBadChannels on or off (1/0)" <<m_trtBadChannels<< endmsg;
+    if ( m_driftcircle_tool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << m_driftcircle_tool.propertyName() << ": Failed to retrieve tool " << m_driftcircle_tool << endreq;
+      return StatusCode::FAILURE;
+    } else {
+      msg(MSG::INFO) << m_driftcircle_tool.propertyName() << ": Retrieved tool " << m_driftcircle_tool << endreq;
+    }
+    const TRT_ID* pTRTHelper;
+    if (detStore()->retrieve(pTRTHelper,"TRT_ID").isFailure()) return msg(MSG::ERROR)<<"Could not retrieve the TRT helper"<< endreq, StatusCode::FAILURE;
+    
+    // Create TRT RIO container
+    p_riocontainer= new InDet::TRT_DriftCircleContainer(pTRTHelper->straw_layer_hash_max());
+    if(!p_riocontainer) {
+      msg(MSG::FATAL)<<"Could not creat TRT_DriftCircleContainer"<<endreq; 
+      return StatusCode::FAILURE;
+    }
+    p_riocontainer->addRef();
+    
+    msg(MSG::DEBUG) << "getTRTBadChannels on or off (1/0)" <<m_trtBadChannels<< endreq;
     return StatusCode::SUCCESS;
   }
   
@@ -70,61 +78,45 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
   StatusCode TRT_RIO_Maker::execute() { 
     // TRT_DriftCircle container registration
-
-
-    SG::WriteHandle<InDet::TRT_DriftCircleContainer> rioContainer(m_rioContainerKey);
-    rioContainer = CxxUtils::make_unique<InDet::TRT_DriftCircleContainer>(pTRTHelper->straw_layer_hash_max());
-
-    ATH_CHECK(rioContainer.isValid());
-    ATH_MSG_DEBUG( "Container "<< rioContainer.name() << " initialised" );
-    SG::ReadHandle<TRT_RDO_Container> rdoContainer(m_rdoContainerKey);
-    ATH_CHECK(rdoContainer.isValid());    
-    
+    p_riocontainer->cleanup();
+    StatusCode s=evtStore()->record(p_riocontainer,m_trt_rio_location);
+    if(s.isFailure())   {
+      msg(MSG::ERROR)<<"Error while registering TRT_DriftCircle container"<<endreq; 
+      return s;
+    }
     // Get TRT_RDO and produce TRT_RIO collections
-    if (!m_roiSeeded) {//Full-scan mode
-
-      for(auto& rdoCollections : *rdoContainer) {
-        const InDetRawDataCollection<TRT_RDORawData>* currentCollection(rdoCollections);
-        std::unique_ptr<TRT_DriftCircleCollection> p_rio(m_driftcircle_tool->convert(m_mode_rio_production,
-          currentCollection , m_trtBadChannels));
-        if(p_rio && !p_rio->empty()) {
-           ATH_CHECK(rioContainer->addCollection(p_rio.get(), p_rio->identifyHash()));
-           p_rio.release();//Release ownership if sucessfully added to collection
-        }
-     }
+    const DataHandle<TRT_RDO_Container> rdo_container;
+    StatusCode st = evtStore()->retrieve(rdo_container,m_trt_rdo_location);
+    if(st.isFailure() || !rdo_container.isValid()) {
+      if (msgLvl(MSG::DEBUG)) msg()<<"Could not retrieve "<<m_trt_rdo_location<<endreq; 
     }else{
-      SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
-      ATH_CHECK(roiCollection.isValid());
-      std::vector<IdentifierHash> listOfTRTIds;
-      for(auto &roi : *roiCollection){
-         
-         listOfTRTIds.clear(); //Prevents needless memory reallocations
-         m_regionSelector->DetHashIDList( TRT, *roi, listOfTRTIds);
-#ifndef NDEBUG
-          ATH_MSG_VERBOSE(*roi);
-          ATH_MSG_VERBOSE( "REGTEST: SCT : Roi contains " 
-		     << listOfTRTIds.size() << " det. Elements" );
-#endif   
-         for(auto &id : listOfTRTIds){
-            TRT_RDO_Container::const_iterator RDO_collection_iter = rdoContainer->indexFind(id);
-            if (RDO_collection_iter == rdoContainer->end()) continue;
-            const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection (*RDO_collection_iter);
-            if (!RDO_Collection) continue;
-            // Use one of the specific clustering AlgTools to make clusters
-            std::unique_ptr<TRT_DriftCircleCollection> p_rio(m_driftcircle_tool->convert(m_mode_rio_production,
-                RDO_Collection , m_trtBadChannels));    
-            if (p_rio && !p_rio->empty()){
-#ifndef NDEBUG               
-                 ATH_MSG_VERBOSE( "REGTEST: TRT : DriftCircleCollection contains "
-                 << p_rio->size() << " clusters" );
-#endif
-                 ATH_CHECK(rioContainer->addCollection(p_rio.get(), p_rio->identifyHash()));
-                 p_rio.release();//Release ownership if sucessfully added to collection
+      rdo_container->clID();
+      TRT_RDO_Container::const_iterator rdoCollections    = rdo_container->begin();
+      TRT_RDO_Container::const_iterator rdoCollectionsEnd = rdo_container->end();
+      for(; rdoCollections!=rdoCollectionsEnd; ++rdoCollections) {
+        const InDetRawDataCollection<TRT_RDORawData>* currentCollection(*rdoCollections);
+        const InDet::TRT_DriftCircleCollection* p_rio=
+        m_driftcircle_tool->convert(m_mode_rio_production, currentCollection , m_trtBadChannels);
+        if(p_rio) {
+          if (p_rio->size() != 0) {
+            s = p_riocontainer->addCollection(p_rio, p_rio->identifyHash()); 
+            if(s.isFailure()) {
+              msg(MSG::ERROR)<<"Error while registering TRT_DriftCircle collection"<<endreq; 
+              return s;
             }
-         }
+          } else {
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Don't write empty collections" << endreq;
+            // -me- cleanup memory
+            delete (p_rio);
+          }
+        }
       }
     }
-    ATH_CHECK(rioContainer.setConst());
+    s = evtStore()->setConst(p_riocontainer);
+    if(s.isFailure()) {
+      msg(MSG::ERROR)<<" ??? "<<endreq; 
+      return s;
+    }
     return StatusCode::SUCCESS;
   }
   
@@ -132,6 +124,8 @@ namespace InDet {
   // Finalize
   ///////////////////////////////////////////////////////////////////
   StatusCode TRT_RIO_Maker::finalize() {
+    p_riocontainer->cleanup();
+    p_riocontainer->release();
     return StatusCode::SUCCESS;
   }
 }

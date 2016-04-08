@@ -16,27 +16,23 @@
 
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
 
 //InDet
 //can't fwd declare this, needed for typedef to Pixel_RDO_Container
-#include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 #include "InDetRawData/InDetRawDataCollection.h"
-#include "InDetRawData/PixelRDO_Container.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "IRegionSelector/IRegSelSvc.h"
+//
 
 
 
 // Fwd declarations
 class ISvcLocator;
 class StatusCode;
+class Incident;
 class PixelRDORawData;
 class PixelID;
 
@@ -56,7 +52,8 @@ namespace InDet {
  * The clustering algorithm is actually a private Tool in the
  * SiClusterizationTool package
  **/
-class PixelClusterization : public AthAlgorithm {
+class PixelClusterization : public AthAlgorithm, 
+                            public IIncidentListener {
 public:
   typedef InDetRawDataCollection<PixelRDORawData> COLLECTION;
   typedef InDetDD::SiDetectorManager SiDetectorManager;
@@ -69,27 +66,31 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode execute();
   virtual StatusCode finalize();
-  /**    @name Disallow default instantiation, copy, assignment */
-  //@{
-  //@}
-  PixelClusterization() = delete;
-  PixelClusterization(const PixelClusterization&) = delete;
-  PixelClusterization &operator=(const PixelClusterization&) = delete;
    //@}
                               
+  /// Incident listener method re-declared
+  virtual void handle( const Incident& incident );
+
 private:
+  /**    @name Disallow default instantiation, copy, assignment */
+  //@{
+  PixelClusterization();
+  PixelClusterization(const PixelClusterization&);
+  PixelClusterization &operator=(const PixelClusterization&);
+  //@}
+                              
   ToolHandle< IPixelClusteringTool > m_clusteringTool;
   /// class to find out which clusters shares ganged pixels
   ToolHandle< PixelGangedAmbiguitiesFinder > m_gangedAmbiguitiesFinder; 
-  SG::ReadHandleKey<PixelRDO_Container> m_rdoContainerKey;
-  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
+  std::string m_dataObjectName;	           //!< RDO container name in StoreGate
+  std::string m_elementsObjectName;        //!< element collection name in StoreGate
   std::string m_managerName; 		           //!< detector manager name in StoreGate
-  bool m_roiSeeded; 		                   //!< detector manager name in StoreGate
+  std::string m_clustersName; 
+  int m_page; 				                     //!< page number for hash function
   const PixelID* m_idHelper;
-  SG::WriteHandleKey<PixelClusterContainer> m_clusterContainerKey;
-  SG::WriteHandleKey<PixelGangedClusterAmbiguities> m_ambiguitiesMapKey;
+  PixelClusterContainer* m_clusterContainer;
   const SiDetectorManager* m_manager;
+  ServiceHandle<IIncidentSvc> m_incSvc;
 };
 
 }//end of ns
