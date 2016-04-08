@@ -43,14 +43,14 @@ class ALFA_RawDataContainer_charge : public DataVector<ALFA_RawDataCollection_ch
   // Data words in the ROD header
   
   // Full Event marker
-  static const uint32_t FullEVmarker = 0xaa1234aa;
+  static const uint32_t s_FullEVmarker = 0xaa1234aa;
   // ROB marker
-  static const uint32_t ROBmarker = 0xdd1234dd;
+  static const uint32_t s_ROBmarker = 0xdd1234dd;
   // ROD marker
-  static const uint32_t RODmarker = 0xee1234ee;
+  static const uint32_t s_RODmarker = 0xee1234ee;
 
-  static const uint32_t RODheadersize = 0x00000009; 
-  static const uint32_t RODversion  = 0x03010000;      
+  static const uint32_t s_RODheadersize = 0x00000009; 
+  static const uint32_t s_RODversion  = 0x03010000;      
 
  public:  
 
@@ -61,20 +61,20 @@ class ALFA_RawDataContainer_charge : public DataVector<ALFA_RawDataCollection_ch
  
   size_type digit_size() const ; 
 
-  bool is_FullEVmarker() {return m_wordMarker == FullEVmarker;};
-  bool is_ROBmarker() {return m_wordMarker == ROBmarker;};  	
-  bool is_RODmarker() {return m_wordMarker == RODmarker;};  	
+  bool is_FullEVmarker() const {return m_wordMarker == s_FullEVmarker;};
+  bool is_ROBmarker()    const {return m_wordMarker == s_ROBmarker;};  	
+  bool is_RODmarker()    const {return m_wordMarker == s_RODmarker;};  	
 
   // Retrieve decoded results
-  uint16_t subdetId()   {return m_subdetId;}
-  uint16_t mrodId()     {return m_mrodId;}
-  uint32_t runNum()     {return m_runNum;}
-  uint16_t runType()    {return m_runType;}
-  uint32_t lvl1Id()     {return m_lvl1Id;}
-  uint16_t ecrId()      {return m_ecrId;}
-  uint16_t bcId()       {return m_bcId;}
-  uint16_t trigtypeId() {return m_triggerTypeId;}
-  uint32_t DetEventType()     {return m_DetEventType;}
+  uint16_t subdetId()   const {return m_subdetId;}
+  uint16_t mrodId()     const {return m_mrodId;}
+  uint32_t runNum()     const {return m_runNum;}
+  uint16_t runType()    const {return m_runType;}
+  uint32_t lvl1Id()     const {return m_lvl1Id;}
+  uint16_t ecrId()      const {return m_ecrId;}
+  uint16_t bcId()       const {return m_bcId;}
+  uint16_t trigtypeId() const {return m_triggerTypeId;}
+  uint32_t DetEventType() const {return m_DetEventType;}
   
  private:
   

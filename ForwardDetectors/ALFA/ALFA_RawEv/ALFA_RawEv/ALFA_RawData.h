@@ -35,7 +35,7 @@ class ALFA_RawData
   void SetPMFId_PMF(uint16_t PMF_number);
   void SetMBId_PMF(uint16_t MB_number);
   void SetEventCount_PMF(uint32_t Event_number);
-  void SetMarocChan_PMF(std::vector<uint16_t> MarocChan);
+  void SetMarocChan_PMF(const std::vector<uint16_t>& MarocChan);
   void PushBack_PMF(uint16_t fiber_hit);
   void Set_error_bit17(bool bit);
 
@@ -47,33 +47,33 @@ class ALFA_RawData
     
   // Methods to retrieve the decoded word content
 
-  uint16_t GetWordId_PMF() {return WordId;};
-  uint16_t GetPMFId_PMF() {return PMFId;};
-  uint16_t GetMBId_PMF() {return MBId;};
-  uint32_t GetEventCount_PMF() {return EventCount;};
-  std::vector<uint16_t> GetMarocHit() {return MarocChan;};
-  uint32_t Get_Chan(uint16_t Numchan) {return MarocChan[Numchan];}; // used in SaraPkg
-  uint32_t GetSize() {return MarocChan.size();};
-  uint16_t Get_bit26_27() {return m_bit26_27;};
-  uint16_t Get_bit24_27()   {return m_bit24_27;};	
-  bool Get_bit16() {return m_bit16;};
-  bool Get_bit18() {return m_bit18;};
-  bool Get_error_bit17() {return m_error_bit17;};
+  uint16_t GetWordId_PMF() const {return m_WordId;};
+  uint16_t GetPMFId_PMF() const {return m_PMFId;};
+  uint16_t GetMBId_PMF() const {return m_MBId;};
+  uint32_t GetEventCount_PMF() const {return m_EventCount;};
+  const std::vector<uint16_t>& GetMarocHit() const {return m_MarocChan;};
+  uint32_t Get_Chan(uint16_t Numchan) const {return m_MarocChan[Numchan];}; // used in SaraPkg
+  uint32_t GetSize() const {return m_MarocChan.size();};
+  uint16_t Get_bit26_27() const {return m_bit26_27;};
+  uint16_t Get_bit24_27() const  {return m_bit24_27;};	
+  bool Get_bit16() const {return m_bit16;};
+  bool Get_bit18() const {return m_bit18;};
+  bool Get_error_bit17() const {return m_error_bit17;};
 
   // Vector containing all 16 bits data words (undecoded) 
-  std::vector<uint16_t> HitChan() const {return MarocChan;}
+  const std::vector<uint16_t>& HitChan() const {return m_MarocChan;}
 
   // Vector containing all 32 bits data words (undecoded) : from the Muon BSC-> to test the structure
-  std::vector<uint32_t>* dataWords() const {return p_dataWords;}
+  const std::vector<uint32_t>* dataWords() const {return &m_dataWords;}
 
  private:
     
   // Data info TSM: 
-  uint16_t WordId;
-  uint16_t PMFId;  
-  uint16_t MBId; 
-  uint32_t EventCount;
-  std::vector<uint16_t> MarocChan; // sostituisce il p_hit di prima
+  uint16_t m_WordId;
+  uint16_t m_PMFId;  
+  uint16_t m_MBId; 
+  uint32_t m_EventCount;
+  std::vector<uint16_t> m_MarocChan; // sostituisce il p_hit di prima
   bool     m_bit16;
   bool     m_bit18;
   bool     m_error_bit17;
@@ -82,7 +82,7 @@ class ALFA_RawData
 
   // All the datawords (no headers and footers) coming from this channel 
   // to be decoded on demand using ALFA_ReadOut methods
-  std::vector<uint32_t>* p_dataWords;
+  std::vector<uint32_t> m_dataWords;
 
 };
 #endif // ALFA_RAWDATA_H

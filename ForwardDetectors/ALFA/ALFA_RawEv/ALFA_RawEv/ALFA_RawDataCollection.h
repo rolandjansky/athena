@@ -22,24 +22,24 @@ class ALFA_RawDataCollection : public DataVector<ALFA_RawData>
  private:
  
   //Motherboard id
-  uint16_t MBId_POT;
+  uint16_t m_MBId_POT;
   //Mrod id
-  uint16_t MrodId_POT;
+  uint16_t m_MrodId_POT;
   //Event counter
-  uint32_t EventCount_POT;
+  uint32_t m_EventCount_POT;
   //Hit store for one PMF
-  std::vector<ALFA_RawData> POT_DATA;
+  std::vector<ALFA_RawData> m_POT_DATA;
 
   //pattern id
-  std::vector<bool> patternId;
+  std::vector<bool> m_patternId;
   //scaler id
-  uint16_t scalerId;
+  uint16_t m_scalerId;
   //ADC1 id Chan0
-  uint16_t ADC1Id;
+  uint16_t m_ADC1Id;
   //ADC1 id Chan1
-  uint16_t ADC2Id;
+  uint16_t m_ADC2Id;
   //syncronization error of PMF 24 (trigger info)
-  bool TrigSyncErrId;
+  bool m_TrigSyncErrId;
 
  public:
   //typedef 
@@ -63,9 +63,9 @@ class ALFA_RawDataCollection : public DataVector<ALFA_RawData>
   void SetMBId_POT(uint16_t MB_number);
   void SetMrodId_POT(uint16_t Mrod_number);
   void SetEventCount_POT(uint32_t Event_number);
-  void PushBack_POT(ALFA_RawData PMF_HIT);
+  void PushBack_POT(const ALFA_RawData& PMF_HIT);
   
-  void Set_pattern_POT(std::vector<bool> pattern_number);
+  void Set_pattern_POT(const std::vector<bool>& pattern_number);
   void Set_scaler_POT(uint16_t scaler_number);
   void Set_ADC1_POT(uint16_t ADC1_number);
   void Set_ADC2_POT(uint16_t ADC2_number);
@@ -78,17 +78,17 @@ class ALFA_RawDataCollection : public DataVector<ALFA_RawData>
   // Methods to access the decoded information
  
 
-  uint16_t GetMBId_POT() const {return MBId_POT;};
-  uint16_t GetMrodId_POT() const {return MrodId_POT;};
-  uint32_t GetEventCount_POT()  const {return EventCount_POT;};
-  std::vector<bool> Get_pattern_POT()  const {return patternId;};
-  uint16_t Get_scaler_POT()  const {return scalerId;};
-  uint16_t Get_ADC1_POT()  const {return ADC1Id;};
-  uint16_t Get_ADC2_POT()  const {return ADC2Id;};
-  bool GetTrigSyncErr()  const {return TrigSyncErrId;};
+  uint16_t GetMBId_POT() const {return m_MBId_POT;};
+  uint16_t GetMrodId_POT() const {return m_MrodId_POT;};
+  uint32_t GetEventCount_POT()  const {return m_EventCount_POT;};
+  const std::vector<bool>& Get_pattern_POT()  const {return m_patternId;};
+  uint16_t Get_scaler_POT()  const {return m_scalerId;};
+  uint16_t Get_ADC1_POT()  const {return m_ADC1Id;};
+  uint16_t Get_ADC2_POT()  const {return m_ADC2Id;};
+  bool GetTrigSyncErr()  const {return m_TrigSyncErrId;};
 
-  std::vector<ALFA_RawData> Get_POT_DATA()  const {return POT_DATA;};
-  ALFA_RawData Get_POT_PMF_DATA(uint32_t Numpmf)  const {return POT_DATA[Numpmf];};
+  const std::vector<ALFA_RawData>& Get_POT_DATA()  const {return m_POT_DATA;};
+  ALFA_RawData Get_POT_PMF_DATA(uint32_t Numpmf)  const {return m_POT_DATA[Numpmf];};
 
 
 };

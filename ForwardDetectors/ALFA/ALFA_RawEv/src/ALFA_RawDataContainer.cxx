@@ -41,11 +41,11 @@ ALFA_RawDataContainer::ALFA_RawDataContainer():
   m_runType(0),
   m_triggerTypeId(0),
   m_DetEventType(0),
-  TimeStamp(0),
-  TimeStampns(0),
-  BCId(0),
-  LumiBlock(0),
-  lvl1Pattern()
+  m_TimeStamp(0),
+  m_TimeStampns(0),
+  m_BCId(0),
+  m_LumiBlock(0),
+  m_lvl1Pattern()
 {
 }
 
@@ -77,37 +77,37 @@ ALFA_RawDataContainer::size_type ALFA_RawDataContainer::digit_size() const {
 
 void ALFA_RawDataContainer::SetTimeStamp(uint32_t tmpTimeStamp)
 {
-  TimeStamp=tmpTimeStamp;
+  m_TimeStamp=tmpTimeStamp;
 }
 
 void ALFA_RawDataContainer::SetTimeStampns(uint32_t tmpTimeStampns)
 {
-  TimeStampns=tmpTimeStampns;
+  m_TimeStampns=tmpTimeStampns;
 }
 
 void ALFA_RawDataContainer::SetLumiBlock(uint32_t tmpLumiBlock)
 {
-  LumiBlock=tmpLumiBlock;
+  m_LumiBlock=tmpLumiBlock;
 }
 
 void ALFA_RawDataContainer::SetBCId(uint32_t tmpBCId)
 {
-  BCId=tmpBCId;
+  m_BCId=tmpBCId;
 }
 
-void ALFA_RawDataContainer::SetLvl1Pattern(std::vector<bool> tmplvl1_pattern)
+void ALFA_RawDataContainer::SetLvl1Pattern(const std::vector<bool>& tmplvl1_pattern)
 {
-  lvl1Pattern = tmplvl1_pattern;
+  m_lvl1Pattern = tmplvl1_pattern;
 }
 
-void ALFA_RawDataContainer::SetLvl2Pattern(std::vector<bool> tmplvl2_pattern)
+void ALFA_RawDataContainer::SetLvl2Pattern(const std::vector<bool>& tmplvl2_pattern)
 {
-  lvl2Pattern = tmplvl2_pattern;
+  m_lvl2Pattern = tmplvl2_pattern;
 }
 
-void ALFA_RawDataContainer::SetEFPattern(std::vector<bool> tmpef_pattern)
+void ALFA_RawDataContainer::SetEFPattern(const std::vector<bool>& tmpef_pattern)
 {
-  efPattern = tmpef_pattern;
+  m_efPattern = tmpef_pattern;
 }
 
 
@@ -124,13 +124,13 @@ void ALFA_RawDataContainer::setZero()
   m_triggerTypeId = 0;
   m_DetEventType = 0;
 
-  TimeStamp=0; 
-  TimeStampns=0;
-  LumiBlock=0;
-  BCId=0;
-  lvl1Pattern.clear();
-  lvl2Pattern.clear();
-  efPattern.clear();
+  m_TimeStamp=0; 
+  m_TimeStampns=0;
+  m_LumiBlock=0;
+  m_BCId=0;
+  m_lvl1Pattern.clear();
+  m_lvl2Pattern.clear();
+  m_efPattern.clear();
 
 }
 
