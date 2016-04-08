@@ -9,7 +9,7 @@
 #include "AsgTools/AsgTool.h"
 
 // ROOT include(s)
-#include "TRandom.h"
+#include "TRandom3.h"
 
 // C++ include(s)
 #include <boost/unordered_map.hpp>
@@ -21,6 +21,7 @@
 // Local include(s):
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 
+#define EPSILON 1.0E-6
 #define DEFAULT_INIT_VAL -999
 #define MCAST_MAX_PT 100000000
 
@@ -29,9 +30,9 @@ namespace CP {
 
 namespace MCAST {
 
-  namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3 }; }
+  namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4 }; }
   namespace AlgoType { enum { Muid = 1, Staco = 2, Muons = 3 }; }
-  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5 }; }
+  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8 }; }
   namespace SmearingType { enum { Pt = 1, QoverPt = 2 }; }
   namespace DetectorType { enum { MS = 1, ID = 2, CB = 3 }; }
   namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
@@ -67,6 +68,8 @@ public:
   virtual SystematicSet recommendedSystematics() const;
   //::: Use specific systematic
   virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
+  // Set seed for the random number generator
+  void setRandomSeed( unsigned seed = 0 ) { m_random3.SetSeed( seed ); m_useExternalSeed = true;}
 
 protected:
   //::: Regions helpers 
@@ -84,11 +87,13 @@ protected:
   double CalculatePt( const int DetType, const double inSmearID = DEFAULT_INIT_VAL, const double inSmearMS = DEFAULT_INIT_VAL, const double scaleVar = 0. ) const;
   StatusCode FillValues();
   void Clean();
-  double ScaleApply( const double pt, const double S1, const double S2, double S = 1.0, const double S_EnLoss = 0. ) const;
+  double ScaleApply( const double pt, double S = 1.0, const double S_EnLoss = 0. ) const;
+  //double ScaleApply( const double pt, const double S1, const double S2, double S = 1.0, const double S_EnLoss = 0. ) const;
   void CleanScales();
   void CollectMacroRegionsSL();//Small and large regions are collected together
   void CollectMacroRegionsSL_UpDn();//Small,Large,Up,Down regions are collected together
   void CollectMacroRegionsSL_SplitBAR();//Large,Small sectors split plus Feet(12+14) and 11+15 sector split in Barrel
+  void CollectSectors();
   double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
   double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
 
@@ -98,13 +103,19 @@ protected:
   StatusCode SetType( std::string );
 
 private:
+  //::: fake assignment operator missing actual implementation
+  MuonCalibrationAndSmearingTool& operator=(const MuonCalibrationAndSmearingTool& );
   struct ParameterSet { 
     double SmearTypeID; 
     double SmearTypeMS; 
     double Scale; 
   };
+  mutable TRandom3   m_random3;
+  bool               m_useExternalSeed;
   double m_smearDeltaMS, m_smearDeltaID, m_smearDeltaCB;
   std::string m_year, m_algo, m_type, m_release;
+  std::string m_FilesPath;
+  bool m_toroidOff;
   int m_Tsmear;
   int m_Tdet;
   int m_Tdata;

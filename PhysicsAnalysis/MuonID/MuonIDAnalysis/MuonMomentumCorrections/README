@@ -10,15 +10,10 @@
 
   - If you are running in Athena:
     - please look at src/TestMCASTTool.cxx how to use the tool
-    - the recommended configurations can be found in share/MCAST_jobOptions.py and are:
-      alg.MuonCalibrationAndSmearingTool.Year = 'Data12'
-      alg.MuonCalibrationAndSmearingTool.Release = 'Rel17.2Sum13'
+    - the recommended configurations are loaded by default (no need to set anything on the user's side) 
 
   - If you are running in RootCore:
     - please look at util/MCAST_Tester.cxx how to use the tool
     - the recommended configurations are the same as the previous case:
       CP::MuonCalibrationAndSmearingTool corrTool( "MuonCorrector" );
-      corrTool.msg().setLevel( MSG::INFO );
-      corrTool.setProperty( "Year", "Data12" );
-      corrTool.setProperty( "Release", "Rel17.2Sum13" );
       corrTool.initialize();

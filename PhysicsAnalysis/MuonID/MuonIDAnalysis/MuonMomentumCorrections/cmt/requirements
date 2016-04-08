@@ -23,9 +23,10 @@ use xAODCore          xAODCore-*          Event/xAOD
 use MuonSelectorTools MuonSelectorTools-* PhysicsAnalysis/MuonID
 end_private
 
-# Declare the library:
-library MuonMomentumCorrections *.cxx ../Root/*.cxx components/*.cxx
-apply_pattern component_library
+# Declare the library (this is dual_use since the lcgdict pattern doesn't work with a pure component
+# library when cmake is used for the build)
+apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
+
 apply_pattern lcgdict dict=MuonMomentumCorrections selectionfile=selection.xml headerfiles="../MuonMomentumCorrections/MuonMomentumCorrectionsDict.h"
 
 # Install the jobOptions:

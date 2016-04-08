@@ -15,7 +15,6 @@
 #include "PATInterfaces/CorrectionCode.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicCode.h"     
-#include "PATInterfaces/SystematicList.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicSet.h"
 #include "PATInterfaces/SystematicVariation.h"
@@ -40,6 +39,8 @@ public:
   virtual SystematicSet recommendedSystematics() const = 0;
   //::: Use specific systematic
   virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig ) = 0;
+  //::: External setting of random seed
+  virtual void setRandomSeed( unsigned seed ) = 0;
 
 }; // class IMuonCalibrationAndSmearingTool
 

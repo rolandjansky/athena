@@ -25,6 +25,7 @@ class Regions{
     void m_collectMacroRegionsSL();//Small and large regions are collected together
     void m_collectMacroRegionsSL_UpDn();//Small,Large,Up,Down regions are collected together
     void m_collectMacroRegionsSL_SplitBAR();//Large,Small sectors split plus Feet(12+14) and 11+15 sector split in Barrel
+    void m_useSectors();
     //This maps the standard regions indexes into the indexes of the macroRegions.
     std::map<int, int> m_macroRegionIdxMap; 
     // The macro regions themselves are stored in a vector with their name

@@ -21,14 +21,16 @@
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODCore/ShallowAuxContainer.h"
+#include "xAODCore/ShallowCopy.h"
+#include "PATInterfaces/SystematicVariation.h"
+#include "PATInterfaces/SystematicRegistry.h"
+#include "PATInterfaces/SystematicCode.h"
 
 // Local include(s):
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
 
-#include "PATInterfaces/SystematicVariation.h"
-#include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicCode.h"
 #include "boost/unordered_map.hpp"
 
 // Framework include(s):
@@ -36,6 +38,7 @@
 
 int main( int argc, char* argv[] ) {
 
+  bool do_it_the_right_way = false;
   //::: The application's name:
   const char* APP_NAME = argv[ 0 ];
 
@@ -76,8 +79,9 @@ int main( int argc, char* argv[] ) {
 
   //::: Muon Calibration and Smearing
   CP::MuonCalibrationAndSmearingTool corrTool( "MuonCorrectionTool" );
-  corrTool.msg().setLevel( MSG::DEBUG );
+  corrTool.msg().setLevel( MSG::INFO );
   //ATH_CHECK( corrTool.initialize() );
+  corrTool.setProperty( "Release", "PreRecs" );
   corrTool.initialize();
 
   //::: Muon Selection
@@ -138,51 +142,74 @@ int main( int argc, char* argv[] ) {
     event.retrieve( muons, "Muons" );
     Info( APP_NAME, "Number of muons: %i", static_cast< int >( muons->size() ) );
 
+    // create a shallow copy of the muons container
+    std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
+
+    // iterate over our shallow copy
+    xAOD::MuonContainer::iterator muonSC_itr = ( muons_shallowCopy.first)->begin();
+    xAOD::MuonContainer::iterator muonSC_end = ( muons_shallowCopy.first)->end();
+
+    xAOD::MuonContainer* muonsCorr = muons_shallowCopy.first;
+
     //::: Loop over systematics
     for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
       
+      Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
+
       //::: Check if systematic is applicable
       if( corrTool.applySystematicVariation( *sysListItr ) != CP::SystematicCode::Ok ) { 
         Error( APP_NAME, "Cannot configure muon calibration tool for systematic" );
       }
 
-      //::: Print their properties, using the tools:
-      xAOD::MuonContainer::const_iterator mu_itr = muons->begin();
-      xAOD::MuonContainer::const_iterator mu_end = muons->end();
-
       //::: Loop over muon container
-      for( ; mu_itr != mu_end; ++mu_itr ) {
+      for( auto muon: *muonsCorr ) {
 
         //::: Select "good" muons:
-        if( ! selTool.passedIDCuts( **mu_itr ) ) {
-          Info( APP_NAME, "This muon doesn't pass the ID hits quality cuts");
-          continue;
-        }
-        InitPtCB = ( *mu_itr )->pt();
-        InitPtID = ( *mu_itr )->isAvailable< float >( "InnerDetectorPt" ) ? ( *mu_itr )->auxdata< float >( "InnerDetectorPt" ) : -999;
-        InitPtMS = ( *mu_itr )->isAvailable< float >( "MuonSpectrometerPt" ) ? ( *mu_itr )->auxdata< float >( "MuonSpectrometerPt" ) : -999;
-        Eta = ( *mu_itr )->eta();
-        Phi = ( *mu_itr )->phi();
-        Charge = ( *mu_itr )->charge();
+        // if( ! selTool.passedIDCuts( **mu_itr ) ) {
+        //   Info( APP_NAME, "This muon doesn't pass the ID hits quality cuts");
+        //   continue;
+        // }
+        //::: Should be using correctedCopy here, thesting behaviour of applyCorrection though
+        InitPtCB = muon->pt();
+        InitPtID = muon->isAvailable< float >( "InnerDetectorPt" ) ? muon->auxdata< float >( "InnerDetectorPt" ) : -999;
+        InitPtMS = muon->isAvailable< float >( "MuonSpectrometerPt" ) ? muon->auxdata< float >( "MuonSpectrometerPt" ) : -999;
+        Eta = muon->eta();
+        Phi = muon->phi();
+        Charge = muon->charge();
         //::: Print some info about the selected muon:
-        Info( APP_NAME, "  Selected muon: eta = %g, phi = %g, pt = %g", ( *mu_itr )->eta(), ( *mu_itr )->phi(), ( *mu_itr )->pt() );
-        //::: Create a calibrated muon:
-        xAOD::Muon* mu = 0;
-        if( !corrTool.correctedCopy( **mu_itr, mu ) ) {
-          Error(APP_NAME, "Cannot really apply calibration nor smearing");
-          continue;
+        Info( APP_NAME, "Selected muon: eta = %g, phi = %g, pt = %g", muon->eta(), muon->phi(), muon->pt() );
+        //:::
+        if( do_it_the_right_way ) {
+          //::: Create a calibrated muon:
+          xAOD::Muon* mu = 0;
+          if( !corrTool.correctedCopy( *muon, mu ) ) {
+            Error( APP_NAME, "Cannot really apply calibration nor smearing" );
+            continue;
+          }
+          CorrPtCB = mu->pt();
+          CorrPtID = mu->auxdata< float >( "InnerDetectorPt" );
+          CorrPtMS = mu->auxdata< float >( "MuonSpectrometerPt" );
+
+          Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(), mu->pt(), mu->auxdata< float >( "InnerDetectorPt" ), mu->auxdata< float >( "MuonSpectrometerPt" ) );
+
+          sysTreeMap[ *sysListItr ]->Fill();
+
+          //::: Delete the calibrated muon:
+          delete mu;
         }
-        CorrPtCB = mu->pt();
-        CorrPtID = mu->auxdata< float >( "InnerDetectorPt" );
-        CorrPtMS = mu->auxdata< float >( "MuonSpectrometerPt" );
+        else {
+          if( !corrTool.applyCorrection( *muon ) ) {
+            Error( APP_NAME, "Cannot really apply calibration nor smearing" );
+            continue;
+          }
+          CorrPtCB = muon->pt();
+          CorrPtID = muon->auxdata< float >( "InnerDetectorPt" );
+          CorrPtMS = muon->auxdata< float >( "MuonSpectrometerPt" );
 
-        Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(), mu->pt(), mu->auxdata< float >( "InnerDetectorPt" ), mu->auxdata< float >( "MuonSpectrometerPt" ) );
+          Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt(), muon->auxdata< float >( "InnerDetectorPt" ), muon->auxdata< float >( "MuonSpectrometerPt" ) );
 
-        sysTreeMap[ *sysListItr ]->Fill();
-
-        //::: Delete the calibrated muon:
-        delete mu;
-
+          sysTreeMap[ *sysListItr ]->Fill();
+        }
       }
     }
 

@@ -13,7 +13,9 @@ namespace CP {
 
 TestMCASTTool::TestMCASTTool( const std::string& name, ISvcLocator* svcLoc ) :
   AthAlgorithm( name, svcLoc ),
-  m_Tool( "CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this ) {
+  m_Tool( "CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this ),
+  m_eta(-99.), m_phi(-99.), m_pt(-99.), m_ptcorr(-99.), m_ptdiff(-99.), m_ptdiffabs(-99.), m_ptid(-99.), m_ptms(-99.)
+{
 
   declareProperty( "SGKey", m_sgKey = "Muons" );
   declareProperty( "MuonCalibrationAndSmearingTool", m_Tool );
@@ -82,6 +84,8 @@ StatusCode TestMCASTTool::execute() {
 
     ATH_MSG_INFO( std::setw( 30 ) << "Calibrated muon: eta = " << std::setw( 8 ) << mu->eta() << ", phi = " << std::setw( 8 ) << mu->phi() << ", pt = " << std::setw( 8 ) << mu->pt() );
     ATH_MSG_INFO( "Calibration result: original pt = " << ( *mu_itr )->pt() << " / corrected pt = " << mu->pt() );
+    ATH_MSG_INFO( "Calibration result: ID pt = " << mu->auxdata< float >( "InnerDetectorPt" ) );
+    ATH_MSG_INFO( "Calibration result: ME pt = " << mu->auxdata< float >( "MuonSpectrometerPt" ) );
     //---\\---// Remove calibrated muon
     m_ptcorr = mu->pt();
     m_ptdiff = m_pt - m_ptcorr;
