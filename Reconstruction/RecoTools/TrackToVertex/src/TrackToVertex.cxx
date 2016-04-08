@@ -65,7 +65,7 @@ StatusCode Reco::TrackToVertex::initialize()
     if ( m_beamConditionsService.retrieve().isFailure() )
       ATH_MSG_WARNING( "Failed to retrieve service " << m_beamConditionsService << " - extrapolations will be performed to (0,0,0)." );
      else 
-      ATH_MSG_INFO( "Retrieved service  "+m_beamConditionsService);
+       ATH_MSG_INFO( "Retrieved service  " << m_beamConditionsService);
 
 
   if (m_incidentSvc.retrieve().isFailure()){
