@@ -9,13 +9,15 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 
+#include <unordered_map>
+
 namespace Trk
 {
 
   class Vertex;
   class Track;
   class IMode1dFinder;
-  
+  class ITrackToVertexIPEstimator;
 
   // @author N. Giacinto Piacquadio (Albert-Ludwigs-Universitaet Freiburg - Germany)
   //
@@ -54,19 +56,52 @@ namespace Trk
   private:
     ToolHandle< IMode1dFinder > m_mode1dfinder;
 
-   /**
-    * Estimate Z and D0 given a certain track parameters and beam spot center position
-    * ONLY TEMPORARY 15-08-2009: common tool needed to collect this method
-    */
-    
-  std::pair<double,double> estimateZandD0(const Trk::Perigee& myPerigee, const Trk::Vertex& myTransvVertex);
+    ToolHandle< ITrackToVertexIPEstimator > m_IPEstimator;
 
     bool m_disableAllWeights;
     float m_constraintcutoff;
     float m_constrainttemp;
-    bool m_usept;
-    double m_exppt;
-    double m_zBfieldApprox;
+    bool m_useLogPt;
+    double m_minPt;
+    bool m_usePt;
+    double m_expPt;
+    bool m_cacheWeights;
+
+    // functor to hash key for unordered_map
+    struct hash_perigee {
+      size_t operator()(const Trk::Perigee& perigee) const
+      {
+	return 
+	  std::hash<double>()(perigee.parameters()[Trk::d0]) ^
+	  std::hash<double>()(perigee.parameters()[Trk::z0]) ^
+	  std::hash<double>()(perigee.parameters()[Trk::phi]) ^
+	  std::hash<double>()(perigee.parameters()[Trk::theta]) ^
+	  std::hash<double>()(perigee.parameters()[Trk::qOverP]); 
+      }
+    };
+
+    // functor to compare two unordered_map Key values for equality
+    struct pred_perigee {
+      bool operator()(const Trk::Perigee& left, const Trk::Perigee& right) const
+      {
+	return 
+	  (left.parameters()[Trk::d0] == right.parameters()[Trk::d0]) &&
+	  (left.parameters()[Trk::z0] == right.parameters()[Trk::z0]) &&
+	  (left.parameters()[Trk::phi] == right.parameters()[Trk::phi]) &&
+	  (left.parameters()[Trk::theta] == right.parameters()[Trk::theta]) &&
+	  (left.parameters()[Trk::qOverP] == right.parameters()[Trk::qOverP]);
+      }
+    };
+
+    // hashtable to avoid computing perigee more than once per track
+    std::unordered_map< Trk::Perigee , std::pair<double, double>, hash_perigee, pred_perigee> m_weightMap;
+
+    // record of last seen values; if any of these change, the cached perigees are invalidated
+    uint32_t m_cachedRunNumber;
+    unsigned long long m_cachedEventNumber;
+    double m_cachedConstraintX;
+    double m_cachedConstraintY;
+
   };
 }
 #endif
