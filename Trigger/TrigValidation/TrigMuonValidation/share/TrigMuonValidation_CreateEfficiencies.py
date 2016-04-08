@@ -62,8 +62,8 @@ def main( argv ):
  except:
      print( 'Cannot open file: {0}'.format( filename ) )
 
- muonTypes = [ 'All', 'Prompt', 'InFlight', 'Rest' ]
- Authors = [ 'MuidCombined', 'MuTagIMO', 'MuidStandalone', 'MuGirl', 'CaloTag', 'CaloLikelihood', 'AllAuthors' ]
+ muonTypes = [ 'All']# 'Prompt', 'InFlight', 'Rest' ]
+ Authors = [ 'AllMuons' ]#[ 'MuidCombined', 'MuTagIMO', 'MuidStandalone', 'MuGirl', 'CaloTag', 'CaloLikelihood', 'AllAuthors' ]
 
  for muType, author in itertools.product( muonTypes, Authors ):
      truthDir = infile.GetDirectory( 'Muons/{0}/truth/all'.format( muType ) )

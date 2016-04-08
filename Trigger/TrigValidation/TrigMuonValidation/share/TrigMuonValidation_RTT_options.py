@@ -2,13 +2,13 @@
 
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000001.pool.root.1","root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000003.pool.root.1"]
+athenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.117050.PowhegPythia_P2011C_ttbar.merge.HITS.e2658_s1967_s1964/RDO.0119996._000032.pool.root.1"]
 
 jp.AthenaCommonFlags.PoolESDOutput="theoutput.ESD.pool.root"
 if not 'rec.doWriteESD' in dir():
     rec.doWriteESD=True
 
-jp.AthenaCommonFlags.EvtMax=-1
+jp.AthenaCommonFlags.EvtMax=1000
 
 rec.doWriteRDO=False
 rec.doWriteAOD=False 
@@ -20,8 +20,8 @@ rec.doTrigger=True
 def muonOnly():
     TriggerFlags.Slices_all_setOff()
 #    TriggerFlags.MuonSlice.setAll()
-    TriggerFlags.MuonSlice.signatures=[['mu24',                816, 'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'], 1]]
-
+#    TriggerFlags.MuonSlice.signatures=[['mu24',                816, 'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'], 1]]
+    TriggerFlags.MuonSlice.signatures=[['mu26_imedium',          'L1_MU20',           [], ['Muon'], ['RATE:SingleMuon', 'BW:Muon'], -1]]
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.doHLT=True
 
