@@ -26,8 +26,7 @@ CosmicHadEnFex::CosmicHadEnFex(const std::string & type, const std::string & nam
 		   {
 	declareProperty("THR_1",m_THR_1);
         declareProperty("THR_2",m_THR_2);
-#ifndef NDEBUG
-
+	//#ifndef NDEBUG
 /*
 	// 1 -> CaloType HAD, 0 -> First Layer
         m_geometry[0] = new T2Geometry(1,0);
@@ -36,7 +35,7 @@ CosmicHadEnFex::CosmicHadEnFex(const std::string & type, const std::string & nam
         // 1 -> CaloType HAD, 2 -> Third Layer
         m_geometry[2] = new T2Geometry(1,2);
 */
-#endif
+//#endif
 }
 
 CosmicHadEnFex::~CosmicHadEnFex(){
@@ -51,9 +50,7 @@ StatusCode CosmicHadEnFex::execute(TrigEMCluster &rtrigEmCluster,double etamin,
         if (!m_timersvc.empty()) m_timer[0]->start();
 
         // MsgStream log(msgSvc(), name());
-#ifndef NDEBUG
-        (*m_log) << MSG::INFO << "in execute(TrigEMCluster &)" << endreq;
-#endif
+	if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("in execute(TrigEMCluster &)");
 
   double deta = 0.;           // eta difference current cell - seed
   double dphi = 0.;           // phi difference current cell - seed
