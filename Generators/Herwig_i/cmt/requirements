@@ -27,6 +27,11 @@ use Lhef_i                  Lhef_i-*           Generators
 use McAtNlo_i               McAtNlo_i-*        Generators
 end_private
 
+# Set the -DHWVERSION macro for cmake (transparent to CMT)
+apply_pattern cmake_add_command command='add_definitions(-DHWVERSION="${HERWIG_VERSION}")'
+# Explicitly link the package against HepMCfio
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"
+
 private
 macro_append  fflags "" Linux "  -fno-automatic "
 apply_tag notAsNeeded
