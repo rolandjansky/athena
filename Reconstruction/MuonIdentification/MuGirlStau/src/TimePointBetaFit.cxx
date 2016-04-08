@@ -28,11 +28,27 @@ namespace Muon {
     // loop over hits and calculate beta
     float sum1 = 0.;
     float sum2 = 0.;
-    for( HitVec::const_iterator it=hits.begin(); it!=hits.end(); ++it ){
+    float maxInvBeta = 5; // cut at a beta of 0.2
+    float pullCut = 2.5;
+    for( HitVec::iterator it=hits.begin(); it!=hits.end(); ++it ){
+      float a = it->distance*m_invSpeedOfLight;
+      float invBeta = it->time/a;
+      float invBetaError = it->error/a;
+      if( m_debugLevel > 5 ) {
+        const char* text = it->useInFit ? "    hit " : " outlier ";
+        float beta = it->distance*m_invSpeedOfLight/it->time;
+        float dbeta = it->distance*m_invSpeedOfLight/(it->time*it->time)*it->error;
+        std::cout << " TimePointBetaFit:" << text << ", d " << it->distance << " tof " << it->distance*m_invSpeedOfLight << " time " << it->time
+                  << " error " << it->error << " beta " <<  beta << " error " << dbeta 
+                  << " 1./beta " << invBeta << " error " << invBetaError << " use " << it->useInFit << std::endl;
+      }
+      if( it->useInFit && (invBeta - pullCut*invBetaError > maxInvBeta || invBeta + pullCut*invBetaError < 1) ) {
+        if( m_debugLevel > 5 ) std::cout << " removing hit outside beta range " << std::endl;
+        it->useInFit = false;
+      }
       if( !it->useInFit ) continue;
       sum1 += it->distance*it->distance*m_invSpeedOfLight*it->weight2;
       sum2 += it->distance*it->time*it->weight2;
-      if( m_debugLevel > 5 ) std::cout << " TimePointBetaFit: hit, tof " << it->distance*m_invSpeedOfLight << " time " << it->time << " error " << it->error << std::endl;
     } 
     // check if sum2 is none zero
     if( sum2 == 0 ) return FitResult();
@@ -43,18 +59,25 @@ namespace Muon {
     if( m_debugLevel > 1 ) std::cout << " TimePointBetaFit: beta " << beta << " sum1 " << sum1 << " sum2 " << sum2 << std::endl;
     
     float chi2 = 0;
-    int ndof = hits.size()-1;
+    int ndof = 0;
     for( HitVec::iterator it=hits.begin(); it!=hits.end(); ++it ){
       float res = it->time - it->distance*m_invSpeedOfLight*invBeta;
       it->residual = res;
-      if( m_debugLevel > 4 ) std::cout << " TimePointBetaFit: hit residual " << res << " pull " << res/it->error << " chi2 " << res*res*it->weight2 << std::endl;
+      if( m_debugLevel > 4 ){
+        const char* text = it->useInFit ? "    hit " : " outlier ";
+        std::cout << " TimePointBetaFit:" << text << "residual " << res << " pull " << res/it->error << " chi2 " << res*res*it->weight2 << std::endl;
+      }
+      if( !it->useInFit ) continue;
+      ++ndof;
       chi2 += res*res*it->weight2;
     } 
+    if( ndof == 0 ) return FitResult();
 
-    if( m_debugLevel > 0 ) std::cout << " TimePointBetaFit: beta " << beta << " chi2 " << chi2 << " ndof " <<  ndof << " chi2/ndof " << chi2/ndof << std::endl;
-    
-    return FitResult(1,beta,chi2,ndof);
-    
+    FitResult result(1,beta,chi2,ndof);
+    if( m_debugLevel > 0 ) {
+      std::cout << " TimePointBetaFit: beta " << beta << " chi2 " << chi2 << " ndof " <<  ndof << " chi2/ndof " << result.chi2PerDOF() << std::endl;
+    }    
+    return result;
   }
 
 
@@ -65,31 +88,33 @@ namespace Muon {
     TimePointBetaFit::FitResult result = fit( hits );
     
     // return result if the fit failed, there were less than three hits or we are happy with the chi2
-    if( result.status == 0 || hits.size() < 3 || result.chi2/result.ndof < 5 ) {
+    if( result.status == 0 || hits.size() < 3 || result.chi2PerDOF() < 5 ) {
       if( m_debugLevel > 0 ) std::cout << " TimePointBetaFit: no outlier logic applied: hits " << hits.size() 
-                                       << " chi2/ndof " << result.chi2/result.ndof << std::endl;
+                                       << " chi2/ndof " << result.chi2PerDOF() << std::endl;
       return result;
     }
     // if we get here, run the outlier logic
     // strategy: refit all combinations removing one of the hits, select the combination with the best chi2
     
     int worstHit = -1;
-    float bestChi2Ndof = result.chi2/result.ndof;
+    float bestChi2Ndof = result.chi2PerDOF();
     for( unsigned int i=0;i<hits.size();++i ){
+      
+      // skip hits that are already flagged as outlier
+      if( !hits[i].useInFit ) continue;
+
       // flag hit so it is not used in fit
       hits[i].useInFit = false;
-      
       // fit and select if fit is ok and better that the best
       TimePointBetaFit::FitResult resultNew = fit( hits );      
       if( resultNew.status != 0 ){
-        float chi2Ndof = resultNew.chi2/resultNew.ndof;
+        float chi2Ndof = resultNew.chi2PerDOF();
         if( chi2Ndof < bestChi2Ndof ){
           bestChi2Ndof = chi2Ndof;
           worstHit = i;
         }
       }
-
-      // put hit back
+      // add back hit unless it is really bad
       hits[i].useInFit = true;
     }
     

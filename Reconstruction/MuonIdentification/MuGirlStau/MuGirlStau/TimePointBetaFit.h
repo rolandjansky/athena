@@ -14,7 +14,7 @@ namespace Muon {
   public:
     /** simple struct holding the input to the fit */
     struct Hit {
-      /** constructor */
+      /** constructor, takes the distance of the point to the IP, the measured time with tof subtracted and the error on the measurement */
       Hit(float distance_, float time_, float error_ ) : distance(distance_), time(time_+distance*m_invSpeedOfLight), error(error_), useInFit(true), residual(0.) { weight2 = 1./(error*error); }
 
       /** data memebers */
@@ -31,8 +31,10 @@ namespace Muon {
     struct FitResult {
       /** constructors */
       FitResult() : status(0), beta(0), chi2(0), ndof(1) {}
-
       FitResult(int status_, float beta_, float chi2_, int ndof_) : status(status_), beta(beta_), chi2(chi2_), ndof(ndof_) {}
+      
+      /** chi2/ndof, return 0 if ndof == 0 or status == 0 */
+      float chi2PerDOF() const { return (status == 0 || ndof == 0) ? 0 : chi2/ndof; }
 
       /** data members */
       int status;  /// status flag (0 = failed, 1 = ok)
