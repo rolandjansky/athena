@@ -66,20 +66,18 @@ VxCandidateXAODVertex::~VxCandidateXAODVertex()
 ////////////////////////////
 StatusCode VxCandidateXAODVertex::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_MSG_VERBOSE ("Initializing " << name() << "...");
 
   // initialize Linearized Track Factory for VxTrackAtVertex creation
   if ( m_LinearizedTrackFactory.retrieve().isFailure() ) {
     ATH_MSG_WARNING("Failed to retrieve tool " << m_LinearizedTrackFactory << ". Creation of VxCandidate from xAOD::Vertex only partially possible.");
   }
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode VxCandidateXAODVertex::finalize()
 {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
-
+  ATH_MSG_VERBOSE ("Finalizing " << name() << "...");
   return StatusCode::SUCCESS;
 }
 
@@ -92,16 +90,13 @@ StatusCode VxCandidateXAODVertex::finalize()
 // Protected methods: 
 /////////////////////////////////////////////////////////////////// 
 
-  StatusCode VxCandidateXAODVertex::createVxCandidate(xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex)
+  StatusCode VxCandidateXAODVertex::createVxCandidate(const xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex)
   {
     if (vxVertex) {
       ATH_MSG_WARNING("Passed a valid pointer as return object. It will be overwritten: potential memory leak!");
     }
-
     //create vxTrackAtVertex linearizing with respect to vertex
     std::vector <Trk::VxTrackAtVertex*> tavCollection;
-    
-   
     bool xaod_no_tracks = true;
 //check whether there are already VxTracksAtVertex here   
 #ifndef XAOD_STANDALONE
@@ -115,7 +110,6 @@ StatusCode VxCandidateXAODVertex::finalize()
       for(unsigned int i = 0;i<vtv_size;++i) tavCollection.push_back(vtv.at(i).clone());
       xaod_no_tracks = false;
      }//end of the VxTrackAtVertex conversion
-
 
 #endif   
     
@@ -173,7 +167,7 @@ StatusCode VxCandidateXAODVertex::finalize()
     return StatusCode::SUCCESS;
   }
 
-  StatusCode VxCandidateXAODVertex::createXAODVertex(Trk::VxCandidate &vxVertex, xAOD::Vertex* &xAODVx)
+  StatusCode VxCandidateXAODVertex::createXAODVertex(const Trk::VxCandidate &vxVertex, xAOD::Vertex* &xAODVx)
   {
 
     ATH_MSG_DEBUG("Creating new xAOD vertex from VxCandidate ");
@@ -195,25 +189,27 @@ StatusCode VxCandidateXAODVertex::finalize()
     for (unsigned int i = 0 ; i < VTAVsize ; ++i) 
     {
       Trk::VxTrackAtVertex* VTAV = vxVertex.vxTrackAtVertex()->at(i);
- 
+      if (not VTAV){ //added check on VTAV here, instead of inside the ifndef sroe 4 March 2015
+        ATH_MSG_WARNING (" Trying to convert to xAOD::Vertex a Trk::VxCandidate. The VxTrackAtVertex is not found");
+        continue;
+      }
 #ifndef XAOD_STANDALONE      
-      if(VTAV) xAODVx->vxTrackAtVertex().push_back(*VTAV);
-      else ATH_MSG_WARNING (" Trying to convert to xAOD::Vertex a Trk::VxCandidate. The VxTrackAtVertex is not found");
+      xAODVx->vxTrackAtVertex().push_back(*VTAV); 
 #endif
       
       Trk::ITrackLink*      trklink = VTAV->trackOrParticleLink();
       Trk::LinkToXAODTrackParticle* linkToXAODTP = dynamic_cast<Trk::LinkToXAODTrackParticle*>(trklink);
       if (linkToXAODTP) 
       {
-	//Now set the newlink to the new xAOD vertex
-	xAODVx->addTrackAtVertex(*linkToXAODTP, VTAV->weight());
+				//Now set the newlink to the new xAOD vertex
+				xAODVx->addTrackAtVertex(*linkToXAODTP, VTAV->weight());
       } else {
-	Trk::LinkToXAODNeutralParticle* linkToXAODTPneutral = dynamic_cast<Trk::LinkToXAODNeutralParticle*>(trklink);
-	if (!linkToXAODTPneutral)
-	  ATH_MSG_WARNING ("Skipping track. Trying to convert to xAOD::Vertex a Trk::VxCandidate with links to something else than xAOD::TrackParticle or xAOD::NeutralParticle.");
-	else
-	  //Now set the newlink to the new xAOD vertex
-	  xAODVx->addNeutralAtVertex(*linkToXAODTPneutral, VTAV->weight());
+				Trk::LinkToXAODNeutralParticle* linkToXAODTPneutral = dynamic_cast<Trk::LinkToXAODNeutralParticle*>(trklink);
+				if (!linkToXAODTPneutral)
+					ATH_MSG_WARNING ("Skipping track. Trying to convert to xAOD::Vertex a Trk::VxCandidate with links to something else than xAOD::TrackParticle or xAOD::NeutralParticle.");
+				else
+					//Now set the newlink to the new xAOD vertex
+					xAODVx->addNeutralAtVertex(*linkToXAODTPneutral, VTAV->weight());
       }
     }//end of loop
 
@@ -221,7 +217,7 @@ StatusCode VxCandidateXAODVertex::finalize()
     return StatusCode::SUCCESS;
   }
 
-  StatusCode VxCandidateXAODVertex::createXAODVertexContainer(VxContainer &vxContainer, 
+  StatusCode VxCandidateXAODVertex::createXAODVertexContainer(const VxContainer &vxContainer, 
 							      xAOD::VertexContainer* &xAODVxContainer, xAOD::VertexAuxContainer* &xAODVxAuxContainer, 
 							      std::string xAODContainerName)
   {
@@ -234,7 +230,20 @@ StatusCode VxCandidateXAODVertex::finalize()
     xAODVxContainer = new xAOD::VertexContainer();
     xAODVxAuxContainer = new xAOD::VertexAuxContainer();
     xAODVxContainer->setStore( xAODVxAuxContainer );
-
+    
+    if (not xAODContainerName.empty()) {
+      if (evtStore()->contains<xAOD::VertexContainer>(xAODContainerName)) {   
+	CHECK( evtStore()->overwrite( xAODVxAuxContainer, xAODContainerName + "Aux.",true,false) );
+	CHECK( evtStore()->overwrite( xAODVxContainer, xAODContainerName,true,false) );	
+	ATH_MSG_DEBUG( "Overwrote Vertices with key: " << xAODContainerName);
+      }
+      else{
+	CHECK( evtStore()->record( xAODVxAuxContainer, xAODContainerName + "Aux." ) );
+	CHECK( evtStore()->record( xAODVxContainer,xAODContainerName  ) );
+	ATH_MSG_DEBUG( "Recorded Vertices with key: " << xAODContainerName );
+      }
+    }
+    
     ATH_MSG_VERBOSE("Filling new xAOD container");
     VxContainer::const_iterator vxCand;
     for (vxCand = vxContainer.begin(); vxCand != vxContainer.end(); ++vxCand) {
@@ -247,16 +256,11 @@ StatusCode VxCandidateXAODVertex::finalize()
     //if (msgLvl(MSG::DEBUG)) {
     //  xAODVxAuxContainer->dump();
     //}
-
-    if (not xAODContainerName.empty()) {
-      ATH_MSG_DEBUG("Storing new xAOD containers to StoreGate with name prefix: " << xAODContainerName);
-      CHECK( evtStore()->record( xAODVxContainer, xAODContainerName ) );
-      CHECK( evtStore()->record( xAODVxAuxContainer, xAODContainerName + "Aux." ) );
-    }
+    
     return StatusCode::SUCCESS;
   }
 
-  StatusCode VxCandidateXAODVertex::createVxContainer(xAOD::VertexContainer &xAODVxContainer, VxContainer* &vxContainer, std::string vxCandidateContainerName)
+  StatusCode VxCandidateXAODVertex::createVxContainer(const xAOD::VertexContainer &xAODVxContainer, VxContainer* &vxContainer, std::string vxCandidateContainerName)
   {
     ATH_MSG_DEBUG("Creating new VxCandidate container from xAOD vertex container.");
     if (vxContainer) {
