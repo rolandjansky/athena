@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# Author: Ben Smart (bsmart@cern.ch)
+# Authors: Ben Smart (Ben.Smart@cern.ch), Xanthe Hoad (Xanthe.Hoad@cern.ch) 
 #
 
-import sys
+import sys,os
 # import oracle interaction class
 from TrigHLTMonitoring.OracleInterface import OracleInterface
 # import tool interrogator
@@ -19,6 +19,8 @@ import subprocess
 import hashlib
 # import json for converting configuration dictionaries into strings for hashing
 import json
+# for getting connection details
+from xml.dom import minidom
 
 # all Menu-Aware Monitoring stuff in one class
 # it uses OracleInterface to talk to the Oracle database
@@ -29,14 +31,14 @@ class MenuAwareMonitoring:
     as well as reading in of configurations from locally running tools, and application of configurations to these tools."""
 
 
-    def __init__(self):
+    def __init__(self,database_username="",database_password="",database_name="",database_directory=""):
         """Setup Menu-aware Monitoring,
         find locally running trigger-monitoring tools,
         connect to the Oracle database,
         and get the current default from the database (if it exists)."""
 
         # MaM code version
-        self.version = 1.1
+        self.version = '1.2.8'
 
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
@@ -58,6 +60,10 @@ class MenuAwareMonitoring:
         self.current_user = ""
         self.__get_current_user__()
 
+        # holder for stream (bulk or express)
+        self.stream = ""
+        self.__get_stream__()
+
         # holder for default global_info
         self.default_global_info = {}
 
@@ -73,12 +79,16 @@ class MenuAwareMonitoring:
 
         # flag to record if we have connected to Oracle
         self.connected_to_oracle = False
+        
+        # flag to indicate if we are connected to the replica database with a readonly connection
+        self.replica_db_connection = False
 
         # now connect to oracle
-        self.__connect_to_oracle__()
+        self.__connect_to_oracle__(database_username,database_password,database_name,database_directory)
 
         # fill default global info (if available)
-        self.get_default_from_db()
+        if self.connected_to_oracle == True:
+            self.get_default_from_db()
 
         # print guide for user if this is an interactive session
         if self.__is_session_interactive__():
@@ -86,12 +96,15 @@ class MenuAwareMonitoring:
             # print guide for user
             # TODO
             print ""
-            print "Author of this code: Ben Smart (bsmart@cern.ch)"
+            print "Authors of this code: Ben Smart (Ben.Smart@cern.ch), Xanthe Hoad (Xanthe.Hoad@cern.ch)"
             print "This is Menu-aware monitoring version",self.version
+            print "Running in Athena release",self.current_athena_version
+            print "You are",self.current_user
+            print "Stream detected:",self.stream
             print ""
 
 
-    def __connect_to_oracle__(self):
+    def __connect_to_oracle__(self,database_username="",database_password="",database_name="",database_directory=""):
         "Connect to the Oracle server."
 
         # if we are already connected
@@ -104,24 +117,115 @@ class MenuAwareMonitoring:
         else:
         
             # info for user
-            print "We are now connecting to the Oracle database"
-
+            print "We are now attempting to connect to the Oracle database"
+ 
             # try catch
             try:
-
-                # connect to oracle
-                self.oi.connect_to_oracle()
-
-                # flag to record that we have connected
-                self.connected_to_oracle = True
+                
+                if not database_username and not database_password and not database_name and not database_directory:
+                    print "Connecting to the replica database (read only)"
+                    # get the connection from authentication.xml
+                    connectionSvc = MenuAwareMonitoring._getConnectionServicesForAlias("TRIGGERDB")[0]
+                    print "Connection Service %s" % connectionSvc
+                    user,pw = MenuAwareMonitoring._readAuthentication()[connectionSvc]
+                    server = connectionSvc.split('/')[2]
+                    directory = "ATLAS_CONF_TRIGGER_RUN2"
+                    #print "User %s, pw %s, server %s" % (user,pw,server)
+                    # connect to oracle
+                    #self.oi.connect_to_oracle(database_username,database_password,database_name)
+                    self.oi.connect_to_oracle(user,pw,server,directory)
+                    #print "Got here"
+                    # flag to record that we have connected
+                    self.connected_to_oracle = True
+                    self.replica_db_connection = True
+                else:
+                    print "Connecting to database",database_name,"with provided username, password and directory"
+                    self.oi.connect_to_oracle(database_username,database_password,database_name)
+                    self.connected_to_oracle = True
 
             except:
 
                 # info for user
-                print "Error while connecting to Oracle database. Exiting."
-            
-                # exit, otherwise the program will crash later when Oracle database features are required
-                sys.exit(1)
+                print "Error while connecting to Oracle database. Some functionality will not be available to you."
+                # just to be sure 
+                self.connected_to_oracle = False
+                    
+                    
+    @staticmethod
+    def _getConnectionServicesForAlias(alias):
+        connectionServices = None # list of services
+        
+        dblookupfilename = MenuAwareMonitoring._getFileLocalOrPath('dblookup.xml','CORAL_DBLOOKUP_PATH')
+        if dblookupfilename == None: 
+            return None
+
+        doc = minidom.parse(dblookupfilename)
+        for ls in doc.getElementsByTagName('logicalservice'):
+            if ls.attributes['name'].value != alias: continue
+            connectionServices = [str(s.attributes['name'].value) for s in ls.getElementsByTagName('service')]
+        doc.unlink()
+        
+        print( "For alias '%s' found list of connections %r" % (alias,connectionServices) )
+        if connectionServices == None:
+            print("Trigger connection alias '%s' is not defined in %s" % (alias,dblookupfilename))
+        return connectionServices
+    
+    @staticmethod
+    def _readAuthentication():
+        """ read authentication.xml, first from local directory, then from all paths specified in CORAL_AUTH_PATH
+            returns dictionary d with d[connection] -> (user,pw)
+            """
+        
+        authDict = {}
+        
+        dbauthfilename = MenuAwareMonitoring._getFileLocalOrPath('authentication.xml','CORAL_AUTH_PATH')
+        if dbauthfilename == None: return authDict
+        
+        doc = minidom.parse(dbauthfilename)
+        for cn in doc.getElementsByTagName('connection'):
+            user = ""
+            pw = ""
+            svc = cn.attributes['name'].value
+            for p in cn.getElementsByTagName('parameter'):
+                if p.attributes['name'].value == 'user': user = p.attributes['value'].value
+                if p.attributes['name'].value == 'password': pw = p.attributes['value'].value
+            authDict[cn.attributes['name'].value] = (user,pw)
+        doc.unlink()
+        return authDict
+    
+    @staticmethod
+    def FindFile( filename, pathlist, access ):
+        """Find <filename> with rights <access> through <pathlist>."""
+        
+        # special case for those filenames that already contain a path
+        if os.path.dirname( filename ):
+            if os.access( filename, access ):
+                return filename
+        
+        # test the file name in all possible paths until first found
+        for path in pathlist:
+            f = os.path.join( path, filename )
+            if os.access( f, access ):
+                return f
+        
+        return None
+    
+    @staticmethod
+    def _getFileLocalOrPath(filename, pathenv):
+        """looks for filename in local directory and then in all paths specified in environment variable 'pathenv'
+            returns path/filename if existing, otherwise None """
+        
+        if os.path.exists(filename):
+            print( "Using local file %s" % filename)
+            return filename
+        
+        pathlist = os.getenv(pathenv,'').split(os.pathsep)
+        resolvedfilename = MenuAwareMonitoring.FindFile(filename, pathlist, os.R_OK)
+        if resolvedfilename:
+            return resolvedfilename
+        
+        print("No file %s found locally nor in %s" % (filename, os.getenv('CORAL_DBLOOKUP_PATH')) )
+        return None
 
 
     def __disconnect_from_oracle__(self):
@@ -134,7 +238,7 @@ class MenuAwareMonitoring:
             print "We are now disconnecting from the Oracle database"
 
             # disconnect from oracle
-            self.oi.disconnect_from_oracle()
+            self.oi.disconnect_from_oracle()       
 
 
     def __quiet_output__(self):
@@ -153,6 +257,50 @@ class MenuAwareMonitoring:
         self.print_output = True
 
 
+    def __get_stream__(self):
+        """Determine stream (express or bulk) currently being used.
+        The local variable <ThisVariable>.stream is set to the result."""
+
+        # set self.stream to the output of rec.triggerStream()
+        # this will equal 'EXPRESS' in the case of express stream, and 'BULK' in the case of the bulk stream. 
+        # rec.triggerStream() seems to be able to take on many other values.
+        # 
+        # if extra options are desired as valid user input to match this variable, 
+        # then thy just need to be added to the list of valid inputs in the function
+        # __ask_for_processing_stream__()
+        # in the list valid_input
+        #
+        self.stream = str(rec.triggerStream()).upper()
+
+
+    def __get_tag__(self,package=""):
+        """Get the tag of the input package.
+        If the trunk/HEAD of this package is being used, the svn revision number will also be returned."""
+
+        # if the input is empty, return an empty result
+        if package == "":
+            return ""
+
+        # if the package is checked out locally, then find it
+        bash_command = "echo $(if [ -e $TestArea/InstallArea/include/"+package+"/"+package+"/ ] ; then cat $(cat $TestArea/InstallArea/include/"+package+"/"+package+".cmtref )/../.svn/entries | grep -m 1 -B 1 \"svn+ssh\"; fi) | sed \"s@ @ URL: @\" "
+        local_version = subprocess.check_output( bash_command , shell=True).replace("\n","")
+
+        # get the tag (only valid if a non-local package is being used!)
+        bash_command = "for d in $(echo $JOBOPTSEARCHPATH | sed \"s@:@ @g\"); do if [ -e $d/../include/"+package+"/"+package+"/ ]; then cat $d/../../Trigger/TrigMonitoring/"+package+"/cmt/version.cmt; fi; done | grep -m 1 \""+package+"\" "
+        package_tag = subprocess.check_output( bash_command , shell=True).replace("\n","")
+
+        # if something local has been found and it is the trunk, then return that, otherwise return the package_tag
+        if local_version != "":
+            if local_version.__contains__("trunk"):
+                # string to return
+                return_str = "Revision: "+local_version
+                return return_str
+        if package_tag != "":
+            return package_tag
+        else:
+            return ""
+
+
     def __get_current_user__(self):
         "Get the current user."
 
@@ -165,6 +313,13 @@ class MenuAwareMonitoring:
 
         # get the current local Athena version (there must be a better way!)
         self.current_athena_version = subprocess.check_output("echo $AtlasVersion", shell=True).replace("\n","")
+
+
+    def __update_local_pointer__(self):
+        """update self.local to point to self.local_global_info['MONITORING_TOOL_DICT']
+        Needed if self.local_global_info has been overwritten."""
+
+        self.local = self.local_global_info['MONITORING_TOOL_DICT']
 
 
     def __unicode_to_str__(self,input1=""):
@@ -221,8 +376,8 @@ class MenuAwareMonitoring:
         # info for user
         print "The following local tools have had their configurations extracted by the ToolInterrogator:"
 
-        # list the tools in self.local
-        for tool in self.local.keys():
+        # list the tools in self.local_global_info['MONITORING_TOOL_DICT']
+        for tool in self.local_global_info['MONITORING_TOOL_DICT'].keys():
             print tool
 
 
@@ -257,9 +412,43 @@ class MenuAwareMonitoring:
             print "The processing step",input1,"has not been recognised. Valid options are ALL, ESD, and AOD."
 
 
+    def __is_input_a_valid_current_processing_stream_to_use__(self,input1="",print_output_here=""):
+        "Is input1 ('ALL', 'BULK', 'EXPRESS', or other) valid for the current stream."
+
+        # if extra options are desired, then thy just need to be added to the list of valid inputs in the function
+        # __ask_for_processing_stream__()
+        # in the list valid_input
+
+        # check for empty print_output_here
+        # if it is found, use self.print_output
+        if print_output_here == "":
+            print_output_here = self.print_output
+
+        # returns True or False depending on whether the input is valid to be used in the current stream
+
+        # if no input, then return false
+        if input1 == "":
+            return False
+
+        # if input is ALL, then return true
+        if input1 == "ALL":
+            return True
+
+        # if input equals self.stream, then return true
+        if input1 == self.stream:
+            return True
+
+        # if we have reached this far, then the input is not valid for the current stream
+        return False
+
+
     def get_default_mck_id_from_db(self,input_athena_version=""):
         """Get the MCK number (MCK_ID) of the default for this Athena version.
         If input_athena_version=='', the current Athena version is used."""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # if no input Athena version is provided, then use the current version
         if input_athena_version == "":
@@ -269,9 +458,14 @@ class MenuAwareMonitoring:
         return self.oi.read_default_mck_id_from_db(input_athena_version)
 
 
-    def get_default_from_db(self,print_output_here=""):
-        """Prints default MCK number (MCK_ID) for this Athena version.
+    def get_default_from_db(self,input_athena_version="",print_output_here=""):
+        """Prints default MCK number (MCK_ID) for an Athena version.
+        If no Athena version is specified, the current Athena version being run in is used.
         All default information is made available in the <ThisVariable>.default_global_info dictionary."""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -282,15 +476,19 @@ class MenuAwareMonitoring:
         if print_output_here:
             print "Attempting to get default tool configuration from database"
 
+        # if no input Athena version is provided, then use the current version
+        if input_athena_version == "":
+            input_athena_version = self.current_athena_version
+
         # search for default mck
-        default_mck = self.get_default_mck_id_from_db()
+        default_mck = self.get_default_mck_id_from_db(input_athena_version)
 
         # if a valid default mck exists
         if default_mck >= 0:
 
             # info for user
             if print_output_here:
-                print "Default mck for this Athena version ("+self.current_athena_version+") is",default_mck
+                print "Default mck for Athena version "+input_athena_version+" is",default_mck
 
             # fill self.default_global_info
             self.default_global_info = self.get_global_info_from_db(default_mck)
@@ -300,13 +498,17 @@ class MenuAwareMonitoring:
 
             # info for user
             if print_output_here:
-                print "No default for this Athena version ("+self.current_athena_version+") has been uploaded"
+                print "No default for Athena version "+self.current_athena_version+" has been uploaded"
                 print "If you are not running with any local changes to the default, then consider running the command \"<ThisVariable>.upload_default()\""
 
 
     def get_global_info_from_db(self,mck_id):
         "For an input MCK number (MCK_ID), get all related MCK and SMCK info, and return it as a dictionary."
 
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+        
         # get mck_info for this mck
         global_info = {}
         global_info['MONITORING_TOOL_DICT'] = {}
@@ -321,10 +523,14 @@ class MenuAwareMonitoring:
             # get smck_info
             smck_info = self.oi.read_smck_info_from_db(smck_id)
 
-            # generate monitoring_tool_dict key, a combination of the tool name and the processing step (if not ALL)
+            # generate monitoring_tool_dict key, a combination of the tool name, 
+            # the processing step (if not ALL),
+            # and the processing stream (if not ALL)
             smck_key = smck_info['SMCK_TOOL_TYPE']
             if smck_info['SMCK_PROCESSING_STEP'] != "ALL":
                 smck_key += "_"+smck_info['SMCK_PROCESSING_STEP']
+            if smck_info['SMCK_PROCESSING_STREAM'] != "ALL":
+                smck_key += "_"+smck_info['SMCK_PROCESSING_STREAM']
 
             # add this smck_info to monitoring_tool_dict
             global_info['MONITORING_TOOL_DICT'][smck_key] = smck_info
@@ -335,6 +541,10 @@ class MenuAwareMonitoring:
 
     def __get_smck_id_from_smck_identifier__(self,smck_identifier,print_output_here=""):
         "Input can either be an SMCK_ID or an SMCK_TOOL_PATCH_VERSION. Output will be the the correct SMCK_ID."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -388,6 +598,10 @@ class MenuAwareMonitoring:
 
     def get_smck_info_from_db(self,smck_identifier,print_output_here=""):
         "Get an SMCK configuration from the Oracle database."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -452,6 +666,7 @@ class MenuAwareMonitoring:
             smck_info['SMCK_SLICE_TYPE'] = smck_config['SliceType']
             smck_info['SMCK_TOOL_TYPE'] = tool
             smck_info['SMCK_ATHENA_VERSION'] = self.current_athena_version
+            smck_info['SMCK_SVN_TAG'] = self.__get_tag__(str(smck_config['PackageName']).split(".")[0])
 
             # add this info to the local_global_info
             self.local_global_info['MONITORING_TOOL_DICT'][tool] = smck_info
@@ -462,6 +677,9 @@ class MenuAwareMonitoring:
                 print "ToolSvc."+tool
                 print "The extracted data of this tool is stored in <ThisVariable>.local['"+tool+"']"
                 print "This can be passed to MaM methods with the string '"+tool+"'"
+
+        # update self.local
+        self.__update_local_pointer__()
 
         # add nice spacing if we have been printing tool info
         if len(mon_tools) > 0:
@@ -482,29 +700,47 @@ class MenuAwareMonitoring:
         self.get_current_local_info()
 
 
-    def upload_default(self,comment="",print_output_here=""):
+    def upload_default(self,comment="",athena_version="",user="",print_output_here=""):
         "Upload all current trigger-monitoring tool configurations as default for this Athena version."
-
+        
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+        
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
+        
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
             print_output_here = self.print_output
-        
+
+        # check for empty athena_version
+        # if it is found, use self.current_athena_version
+        if athena_version == "":
+            athena_version=self.current_athena_version
+
+        # check for empty user
+        # if it is found, use self.current_user
+        if user == "":
+            user=self.current_user
+
         # search for default mck
-        default_mck = self.get_default_mck_id_from_db()
+        default_mck = self.get_default_mck_id_from_db(athena_version)
 
         # if it already exists
         if default_mck >= 0:
 
             if print_output_here:
                 print "There already exists a default mck for this Athena version:"
-                print "Athena version: "+self.current_athena_version
+                print "Athena version: "+athena_version
                 print "Default MCK:",default_mck
 
         else:
 
             # ensure that all tools are loaded
-            self.setup_all_local_tools()
+            #self.setup_all_local_tools()
 
             # get current local info
             # this is now done inside self.setup_all_local_tools() so no need to repeat it
@@ -517,17 +753,21 @@ class MenuAwareMonitoring:
             # fill mck_info
             self.local_global_info['MCK'] = {}
             self.local_global_info['MCK']['MCK_DEFAULT'] = 1
-            self.local_global_info['MCK']['MCK_ATHENA_VERSION'] = self.current_athena_version
-            self.local_global_info['MCK']['MCK_CREATOR'] = self.current_user
+            self.local_global_info['MCK']['MCK_ATHENA_VERSION'] = athena_version
+            self.local_global_info['MCK']['MCK_CREATOR'] = user
             self.local_global_info['MCK']['MCK_COMMENT'] = comment
 
+            # update self.local
+            self.__update_local_pointer__()
+
             # for each local tool
-            for tool, smck_info in self.local.iteritems():
+            for tool, smck_info in self.local_global_info['MONITORING_TOOL_DICT'].iteritems():
 
                 # fill smck_info
                 smck_info['SMCK_PROCESSING_STEP'] = "ALL"
+                smck_info['SMCK_PROCESSING_STREAM'] = "ALL"
                 smck_info['SMCK_DEFAULT'] = 1
-                smck_info['SMCK_CREATOR'] = self.current_user
+                smck_info['SMCK_CREATOR'] = user
                 smck_info['SMCK_COMMENT'] = comment
 
             # upload this self.local_global_info to the database, and get the new mck_id and smck_ids
@@ -535,7 +775,7 @@ class MenuAwareMonitoring:
 
             # info for user
             if print_output_here:
-                print "The default for this Athena version ("+self.current_athena_version+") has been uploaded"
+                print "The default for this Athena version ("+athena_version+") has been uploaded"
                 print "It has been given the MCK",mck_id
                 print ""
                 print "The following tools have had their current configurations uploaded as defaults:"
@@ -553,6 +793,14 @@ class MenuAwareMonitoring:
         If input1=='local', then all local configuration changes wrt the default will be uploaded.
         Optional processing step and comment can be provided."""
 
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
+        
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
@@ -622,18 +870,45 @@ class MenuAwareMonitoring:
         if processing_step=="":
             processing_step = self.__ask_for_processing_step__()
 
+        # if no processing_stream is provided, then ask for one
+        if processing_stream=="":
+            processing_stream = self.__ask_for_processing_stream__()
+
         # if no comment is provided, then ask for one
         if comment=="":
             comment = self.__ask_for_comment__()
 
         # fill extra smck_info
         diffed_smck_info2['SMCK_PROCESSING_STEP'] = processing_step
+        diffed_smck_info2['SMCK_PROCESSING_STREAM'] = processing_stream
+        if not diffed_smck_info2.__contains__('SMCK_CONFIG'):
+            diffed_smck_info2['SMCK_CONFIG'] = {}
+        diffed_smck_info2['SMCK_CONFIG']['PackageName'] = local_smck_info['SMCK_CONFIG']['PackageName']
+        diffed_smck_info2['SMCK_CONFIG']['ToolName'] = local_smck_info['SMCK_CONFIG']['ToolName']
+        diffed_smck_info2['SMCK_CONFIG']['ToolSvcName'] = local_smck_info['SMCK_CONFIG']['ToolSvcName']
+        if not diffed_smck_info2['SMCK_CONFIG'].__contains__('ToolInfo'):
+            diffed_smck_info2['SMCK_CONFIG']['ToolInfo'] = {}
+        diffed_smck_info2['SMCK_CONFIG']['SliceType'] = local_smck_info['SMCK_CONFIG']['SliceType']
+        diffed_smck_info2['SMCK_CONFIG']['MonitCategoryName'] = local_smck_info['SMCK_CONFIG']['MonitCategoryName']
+        if not diffed_smck_info2['SMCK_CONFIG'].__contains__('MonitCategoryInfo'):
+            diffed_smck_info2['SMCK_CONFIG']['MonitCategoryInfo'] = {}
+        diffed_smck_info2['SMCK_CONFIG_HASH'] = self.__get_config_hash__(diffed_smck_info2['SMCK_CONFIG'])
         diffed_smck_info2['SMCK_TOOL_TYPE'] = input1
         diffed_smck_info2['SMCK_SLICE_TYPE'] = local_smck_info['SMCK_SLICE_TYPE']
         diffed_smck_info2['SMCK_DEFAULT'] = 0
         diffed_smck_info2['SMCK_ATHENA_VERSION'] = self.current_athena_version
+        diffed_smck_info2['SMCK_SVN_TAG'] = local_smck_info['SMCK_SVN_TAG']
         diffed_smck_info2['SMCK_CREATOR'] = self.current_user
         diffed_smck_info2['SMCK_COMMENT'] = comment
+
+        # if tool_value['SMCK_CONFIG']['ToolInfo'] and tool_value['SMCK_CONFIG']['MonitCategoryInfo'] are both empty, then we don't want to include this as a new SMCK
+        if diffed_smck_info2['SMCK_CONFIG']['ToolInfo'] == {} and diffed_smck_info2['SMCK_CONFIG']['MonitCategoryInfo'] == {}:
+
+            # info for user
+            if print_output_here:
+                print "No local differences have been found with respect to the default SMCK (SMCK_ID="+str(default_smck_info['SMCK_ID'])+") for this tool ("+str(input1)+"), for this Athena version ("+self.current_athena_version+")."
+                print "Nothing shall be uploaded to the Oracle database as a result."
+            return
 
         # upload smck_info (diffed_smck_info2)
         new_smck_id = self.oi.upload_smck(diffed_smck_info2)
@@ -651,24 +926,42 @@ class MenuAwareMonitoring:
             return new_smck_id, diffed_smck_info2['SMCK_TOOL_PATCH_VERSION']
 
 
-    def upload_all_local_changes_as_smck(self,processing_step="",comment="",print_output_here=""):
+    def upload_all_local_changes_as_smck(self,processing_step="",processing_stream="",comment="",athena_version="",user="",print_output_here=""):
         """Upload all local configuration changes wrt the default.
-        Optional processing step and comment can be provided."""
+        Optional processing step, stream, and comment can be provided."""
 
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
+        
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
             print_output_here = self.print_output
 
+        # check for empty athena_version
+        # if it is found, use self.current_athena_version
+        if athena_version == "":
+            athena_version=self.current_athena_version
+
+        # check for empty user
+        # if it is found, use self.current_user
+        if user == "":
+            user=self.current_user
+
         # search for default mck
-        default_mck = self.get_default_mck_id_from_db()
+        default_mck = self.get_default_mck_id_from_db(athena_version)
 
         # if the default does not exist
         if default_mck < 0:
 
             # info for user
             if print_output_here:
-                print "No default for this Athena version ("+self.current_athena_version+") has been uploaded"
+                print "No default for Athena version "+athena_version+" has been uploaded"
                 print "If you are not running with any local changes to the default, then consider running the command \"<ThisVariable>.upload_default()\""
             return
 
@@ -690,7 +983,7 @@ class MenuAwareMonitoring:
         # get default from database
         # (should already have been done during __init__, 
         # but in case the default has only been uploaded in this session then we check again)
-        self.get_default_from_db()
+        self.get_default_from_db(athena_version)
 
         # create diff of global_info
         # we want diffed_global_info2, 
@@ -699,16 +992,19 @@ class MenuAwareMonitoring:
 
         # if there are no local differences wrt the default, then we upload nothing and exit
         if diffed_global_info2 == {}:
-            
             # info for user
             if print_output_here:
-                print "No local differences have been found with respect to the default MCK ("+str(default_mck)+") for this Athena version ("+self.current_athena_version+")."
+                print "No local differences have been found with respect to the default MCK ("+str(default_mck)+") for Athena version "+athena_version+"."
                 print "Nothing shall be uploaded to the Oracle database as a result."
             return
 
         # if no processing_step is provided, then ask for one
         if processing_step=="":
             processing_step = self.__ask_for_processing_step__()
+
+        # if no processing_step is provided, then ask for one
+        if processing_stream=="":
+            processing_stream = self.__ask_for_processing_stream__()
 
         # if no comment is provided, then ask for one
         if comment=="":
@@ -717,21 +1013,57 @@ class MenuAwareMonitoring:
         # fill extra mck_info
         diffed_global_info2['MCK'] = {}
         diffed_global_info2['MCK']['MCK_DEFAULT'] = 0
-        diffed_global_info2['MCK']['MCK_ATHENA_VERSION'] = self.current_athena_version
-        diffed_global_info2['MCK']['MCK_CREATOR'] = self.current_user
+        diffed_global_info2['MCK']['MCK_ATHENA_VERSION'] = athena_version
+        diffed_global_info2['MCK']['MCK_CREATOR'] = user
         diffed_global_info2['MCK']['MCK_COMMENT'] = comment
 
+        # in case we want to remove any diffed_global_info2['MONITORING_TOOL_DICT'] items, we must make a list of the keys, 
+        # and then delete these keys after we have finished iterating over diffed_global_info2['MONITORING_TOOL_DICT']
+        # It is not possible to delete elements while iterating over a list or dict
+        keys_to_delete = []
+        
         # fill extra smck_info for all tools
         for tool_key, tool_value in diffed_global_info2['MONITORING_TOOL_DICT'].iteritems():
 
             # fill extra smck_info
             tool_value['SMCK_PROCESSING_STEP'] = processing_step
+            tool_value['SMCK_PROCESSING_STREAM'] = processing_stream
+            if not tool_value.__contains__('SMCK_CONFIG'):
+                tool_value['SMCK_CONFIG'] = {}
+            tool_value['SMCK_CONFIG']['PackageName'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['PackageName']
+            tool_value['SMCK_CONFIG']['ToolName'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['ToolName']
+            tool_value['SMCK_CONFIG']['ToolSvcName'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['ToolSvcName']
+            if not tool_value['SMCK_CONFIG'].__contains__('ToolInfo'):
+                tool_value['SMCK_CONFIG']['ToolInfo'] = {}
+            tool_value['SMCK_CONFIG']['SliceType'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['SliceType']
+            tool_value['SMCK_CONFIG']['MonitCategoryName'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_CONFIG']['MonitCategoryName']
+            if not tool_value['SMCK_CONFIG'].__contains__('MonitCategoryInfo'):
+                tool_value['SMCK_CONFIG']['MonitCategoryInfo'] = {}
+            tool_value['SMCK_CONFIG_HASH'] = self.__get_config_hash__(tool_value['SMCK_CONFIG'])
             tool_value['SMCK_TOOL_TYPE'] = tool_key
             tool_value['SMCK_SLICE_TYPE'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_SLICE_TYPE']
             tool_value['SMCK_DEFAULT'] = 0
-            tool_value['SMCK_ATHENA_VERSION'] = self.current_athena_version
-            tool_value['SMCK_CREATOR'] = self.current_user
+            tool_value['SMCK_ATHENA_VERSION'] = athena_version
+            tool_value['SMCK_SVN_TAG'] = self.local_global_info['MONITORING_TOOL_DICT'][tool_key]['SMCK_SVN_TAG']
+            tool_value['SMCK_CREATOR'] = user
             tool_value['SMCK_COMMENT'] = comment
+
+            # if tool_value['SMCK_CONFIG']['ToolInfo'] and tool_value['SMCK_CONFIG']['MonitCategoryInfo'] are both empty, then we don't want to include this as a new SMCK
+            if tool_value['SMCK_CONFIG']['ToolInfo'] == {} and tool_value['SMCK_CONFIG']['MonitCategoryInfo'] == {}:
+                keys_to_delete.append(tool_key)
+
+        # if there are any items in keys_to_delete to be deleted from diffed_global_info2['MONITORING_TOOL_DICT'] then delete them now
+        for tool_key in keys_to_delete:
+            diffed_global_info2['MONITORING_TOOL_DICT'].__delitem__(tool_key)
+
+        # if there are no items in diffed_global_info2['MONITORING_TOOL_DICT'] then we do not want to upload anything
+        if len(diffed_global_info2['MONITORING_TOOL_DICT']) == 0:
+
+            # info for user
+            if print_output_here:
+                print "No local differences have been found with respect to the default MCK ("+str(default_mck)+") for Athena version "+athena_version+"."
+                print "Nothing shall be uploaded to the Oracle database as a result."
+            return
 
         # upload global_info (diffed_global_info2)
         new_mck_id, new_smck_ids = self.oi.upload_mck_and_smck(diffed_global_info2)
@@ -773,6 +1105,14 @@ class MenuAwareMonitoring:
         An MCK will be uploaded, linking to these SMCK.
         Optional comment can be provided."""
 
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
+        
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
@@ -883,6 +1223,59 @@ class MenuAwareMonitoring:
             return ""
 
 
+    def __ask_for_default__(self):
+        """If running interactively, ask user whether this upload is to be a default for an Athena release, or a patch."""
+        
+        # is this session interactive? If not, return "ALL"
+        if self.__is_session_interactive__():
+
+            # info for user
+            print "Please specify whether this upload is to be a default for an Athena release, or a patch."
+            print "valid inputs are 'default' or 'patch'."
+
+            # now get user input
+            user_input = raw_input("default or patch?: ").upper()
+
+            # if input is blank, interpret this as 'PATCH'
+            if user_input == "":
+                user_input = "PATCH"
+
+                # confirmation to user
+                print "You have selected",user_input
+
+            # valid input
+            # if need be, then this list can be extended at a later date
+            valid_input = ['DEFAULT','PATCH']
+
+            # check for valid input
+            # if input is not valid, ask for it again
+            while not valid_input.__contains__(user_input):
+
+                # warning to user that input was not understood
+                print "The input",user_input,"was not recognised. Please specify a valid option."
+
+                # get user input
+                user_input = raw_input("default or patch?: ").upper()
+
+                # if input is blank, interpret this as 'PATCH'
+                if user_input == "":
+                    user_input = "PATCH"
+
+                    # confirmation to user
+                    print "You have selected",user_input
+
+            # return selected user choice
+            if user_input == 'DEFAULT':
+                return 1
+            else:
+                return 0
+
+        else:
+
+            # this is not an interactive session, so we can not ask for input
+            return 0
+
+
     def __ask_for_processing_step__(self):
         """If running interactively, ask user for the processing step(s) an upload will be valid for.
         'ALL' is the default."""
@@ -934,6 +1327,60 @@ class MenuAwareMonitoring:
 
             # this is not an interactive session, so we can not ask for input
             return "ALL"
+
+
+    def __ask_for_processing_stream__(self):
+        """If running interactively, ask user for the processing stream(s) an upload will be valid for.
+        'ALL' is the default."""
+        
+        # is this session interactive? If not, return "ALL"
+        if self.__is_session_interactive__():
+
+            # info for user
+            print "Please specify which processing stream(s) you wish this input to be for."
+            print "The default is 'ALL' for all processing streams."
+            print "Valid options are 'BULK', 'EXPRESS', and 'ALL'."
+            print "Hit <enter> without any input to select the default option (ALL)"
+
+            # now get user input
+            user_input = raw_input("processing stream: ").upper()
+
+            # if input is blank, interpret this as 'ALL'
+            if user_input == "":
+                user_input = "ALL"
+
+                # confirmation to user
+                print "You have selected",user_input
+
+            # valid input
+            # if need be, then this list can be extended at a later date
+            valid_input = ['ALL','BULK','EXPRESS']
+
+            # check for valid input
+            # if input is not valid, ask for it again
+            while not valid_input.__contains__(user_input):
+
+                # warning to user that input was not understood
+                print "The input",user_input,"was not recognised. Please specify a valid option."
+
+                # get user input
+                user_input = raw_input("processing stream: ")
+
+                # if input is blank, interpret this as 'ALL'
+                if user_input == "":
+                    user_input = "ALL"
+
+                    # confirmation to user
+                    print "You have selected",user_input
+
+            # return selected processing stream
+            return user_input
+
+        else:
+
+            # this is not an interactive session, so we can not ask for input
+            return "ALL"
+
 
     def __is_session_interactive__(self):
         "Is this an interactive Athena session."
@@ -1164,21 +1611,16 @@ class MenuAwareMonitoring:
     def __is_input_a_local_tool__(self,input1=""):
         "Is input1 a locally running trigger-monitoring tool that has been read by the Tool Interrogator."
 
-        # loop over loaded local tools
-        for tool_key in self.local.keys():
-
-            # if this tool matches the input
-            if tool_key == input1:
-
-                # then yes, this input is a local tool, so return True
-                return True
-
-        # if we've reached this point, then we've not found the input locally, so return False
-        return False
+        # is the input a key in self.local_global_info['MONITORING_TOOL_DICT']
+        return self.local_global_info['MONITORING_TOOL_DICT'].keys().__contains__(input1)
 
 
     def __is_input_an_mck__(self,input1=""):
         "Is input1 a valid MCK_ID."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # if the input is blank, then no, it's not an mck
         if input1 == "":
@@ -1198,6 +1640,10 @@ class MenuAwareMonitoring:
 
     def __is_input_an_smck__(self,input1="",print_output_here=""):
         "Is input1 a valid SMCK_ID or SMCK_TOOL_PATCH_VERSION."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -1226,6 +1672,10 @@ class MenuAwareMonitoring:
         If diff_all==False (default), only items that are in both inputs, and different, will be returned.
         The inputs specify what things are to be diffed.
         The flags specify what kind of inputs the inputs are."""
+
+        if self.connected_to_oracle == False and ( input1.upper() != "LOCAL" or input2.upper() != "LOCAL" ):
+            print "You are not connected to the database, so this function is only available for use on local tools not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -1420,7 +1870,7 @@ class MenuAwareMonitoring:
                 tool_name1 = input1
 
                 # get the tool from the locally stored config
-                diff_input1_dict['MONITORING_TOOL_DICT'][tool_name1] = self.local[tool_name1]
+                diff_input1_dict['MONITORING_TOOL_DICT'][tool_name1] = self.local_global_info['MONITORING_TOOL_DICT'][tool_name1]
 
             # else the input is an smck in the database
             else:
@@ -1467,7 +1917,7 @@ class MenuAwareMonitoring:
                 tool_name2 = input2
 
                 # get the tool from the locally stored config
-                diff_input2_dict['MONITORING_TOOL_DICT'][tool_name2] = self.local[tool_name2]
+                diff_input2_dict['MONITORING_TOOL_DICT'][tool_name2] = self.local_global_info['MONITORING_TOOL_DICT'][tool_name2]
 
             # else the input is an smck in the database
             else:
@@ -1508,6 +1958,10 @@ class MenuAwareMonitoring:
 
     def print_database_schema(self):
         "Print the tables and entries in the current Oracle database."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # get SQL table and column names
         database_column_list = self.oi.get_db_tables_and_columns()
@@ -1552,6 +2006,10 @@ class MenuAwareMonitoring:
         """Search the Oracle database for something.
         input1 is is what is to be searched for.
         flag1 specifies what kind of input input1 is."""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -1775,6 +2233,10 @@ class MenuAwareMonitoring:
     def apply_mck(self,input1="",print_output_here=""):
         "Apply an MCK to locally running tools."
 
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
@@ -1800,6 +2262,10 @@ class MenuAwareMonitoring:
 
     def apply_smck(self,input1="",print_output_here=""):
         "Apply an SMCK to a locally running tool."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -1829,6 +2295,17 @@ class MenuAwareMonitoring:
             # info for user
             if print_output_here:
                 print "SMCK",input1,"is for the Athena processing stage '"+processing_step+"', which we are not currently in. This SMCK will therefore not be applied as a config patch at this time."
+            return
+
+        # get the processing stream this smck should be used for
+        processing_stream = smck_info['SMCK_PROCESSING_STREAM']
+
+        # are we running in an appropriate processing stream?
+        if not self.__is_input_a_valid_current_processing_stream_to_use__(processing_stream):
+
+            # info for user
+            if print_output_here:
+                print "SMCK",input1,"is for the Athena processing stream '"+processing_stream+"', which we are not currently using. This SMCK will therefore not be applied as a config patch at this time."
             return
 
         # get the ToolSvc_tool_name
@@ -1924,9 +2401,111 @@ class MenuAwareMonitoring:
                         if print_output_here:
                             print "conversion failed. This tool variable will not be set."
 
+        # get the MonitCategory patch
+        monitCategory_patch_config = self.__unicode_to_str__(smck_info['SMCK_CONFIG']['MonitCategoryInfo'] )
+
+        # if monitCategory_patch_config is not empty, then we must apply this patch
+        if not monitCategory_patch_config == {}:
+
+            # get the MonitCategory name
+            monitCategory_name = self.__unicode_to_str__(smck_info['SMCK_CONFIG']['MonitCategoryName'] )
+
+            # first we must import the relevant MonitCategory
+            # we import it as monitCategory_object so that we have a handle on it
+            monitCategory_object = ""
+            exec "import %s as monitCategory_object" % (monitCategory_name)
+
+            # we then need to apply each variable in monitCategory_patch_config to monitCategory_object
+            for key, value in monitCategory_patch_config.iteritems():
+
+                # test if the monitCategory_object has this variable
+                monitCategory_object_contains_variable = False
+                monitCategory_object_contains_variable = hasattr(monitCategory_object,key)
+            
+                # if the monitCategory_object has this variable
+                if monitCategory_object_contains_variable:            
+
+                    # get the type of the value
+                    type_to_set_to = type
+                    exec "type_to_set_to = type(monitCategory_object.%s)" % (key)
+
+                    # test that the value to be applied is of the same type as the existing value
+                    if type_to_set_to is type(value):
+
+                        # if this is a list, make it blank first
+                        # this is to avoid overzealous Athena type limiting
+                        # TODO Write this in a more generic way, ie. not just for lists
+                        if type_to_set_to is list:
+                            exec "monitCategory_object.%s = []" % (key)
+
+                        # apply the config for this variable
+                        exec "monitCategory_object.%s = value" % (key)
+
+                    # if they are not the same type
+                    else:
+
+                        # info for user
+                        if print_output_here:
+                            print str(monitCategory_name)+"."+str(key)+" is of type "+str(type_to_set_to)+", however in SMCK",input1,str(monitCategory_name)+"."+str(key),"is of type",type(value)
+                            #print "Athena will only allow ToolSvc."+str(ToolSvc_tool_name)+"."+str(tool_key)+" to be set to values of type",type_to_set_to
+                            print "Attempting conversion...",
+
+                        # get the type_to_set_to as a str
+                        type_to_set_to_str = str(type_to_set_to).split("'")[1]
+
+                        # try to convert
+                        try:
+
+                            # try the conversion
+                            exec "new_value = %s(tool_value)" % (type_to_set_to_str)
+
+                            # if we've got this far then the conversion was a success
+                            # info for user
+                            if print_output_here:
+                                print "conversion successful.",
+
+                            # check that the values are equal
+                            if new_value == tool_value:
+                            
+                                # apply the config for this variable
+                                exec "ToolSvc.%s.%s = new_value" % (ToolSvc_tool_name,tool_key)
+
+                                # nice formatting for user
+                                if print_output_here:
+                                    print ""
+
+                            # if the values are not equal
+                            else:
+
+                                # info for user
+                                if print_output_here:
+                                    print "However the values do not match. This MonitCategory variable will not be set."
+                                    print "(",str(new_value),"!=",str(tool_value),")"
+
+                        # if the conversion has failed
+                        except:
+
+                            # info for user
+                            if print_output_here:
+                                print "conversion failed. This MonitCategory variable will not be set."
+
+            # finally we should refresh HLTMonTriggerList
+            self.__refresh_HLTMonTriggerList__()
+
         # info for user
         if print_output_here:
             print "SMCK",input1,"has been applied as a config patch to tool",ToolSvc_tool_name
+
+
+    def __refresh_HLTMonTriggerList__(self):
+        """If a slice MonitCategory has been updated,
+        then this function can be used to update HLTMonTriggerList."""
+
+        # import HLTMonTriggerList
+        from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
+
+        # now we rerun hltmonList.config() to update it with all the latest info from all slices
+        hltmonList.config()
 
 
     def get_mck_id_from_smk(self,input_smk):
@@ -1934,7 +2513,11 @@ class MenuAwareMonitoring:
         If no MCK is found, -1 is returned.
         If an MCK of 0 is returned, this is intended to signify 
         that the default tool configurations should be used."""
-        
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+
         # get list of all mck_to_smk links
         mck_to_smk_links = []
         mck_to_smk_links = self.oi.get_all_mck_to_smk_links()
@@ -1942,12 +2525,15 @@ class MenuAwareMonitoring:
         # loop over the list
         for link in mck_to_smk_links:
 
-            # the list should be ordered in smk, from largest to smallest
-            # check if this link's smk is equal to or less than the input_smk
-            if link['SMK'] <= input_smk:
+            # only consider active links
+            if link['ACTIVE'] == '1':
+
+                # the list should be ordered in smk, from largest to smallest
+                # check if this link's smk is equal to or less than the input_smk
+                if link['SMK'] <= input_smk:
             
-                # then this is the link we want, so return the mck
-                return link['MCK']
+                    # then this is the link we want, so return the mck
+                    return link['MCK']
 
         # if we've made it this far, then an mck has not been found, so return -1
         return -1
@@ -1955,6 +2541,10 @@ class MenuAwareMonitoring:
 
     def print_all_mck_to_smk_links(self):
         "Print all MCK to SMK links."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # get list of all mck_to_smk links
         mck_to_smk_links = []
@@ -1970,16 +2560,39 @@ class MenuAwareMonitoring:
             start_smk = link['SMK']
             end_smk = -1
             mck_id = link['MCK']
+
+            # if this in an active link, then we want to print this information
+            print_active = ""
+            if link['ACTIVE'] == '1':
+                print_active = "ACTIVE"
             
             # if this is not the last element in the list, then get one less than the next smk
             if n+1 < len(mck_to_smk_links):
-                end_smk = mck_to_smk_links[n+1]['SMK'] - 1
+                
+                # variables for looping over SMKs (since the list will include deactivated links
+                found_next_smk = False
+                i = 1
+                
+                # loop over links
+                while not_found_next_smk:
+                    
+                    # next SMK in list
+                    next_smk = mck_to_smk_links[n+i]['SMK']
+
+                    # if it's still the same SMK
+                    if next_smk == start_smk:
+                        # go to the next one
+                        i = i+1
+                    # else we've actually found the next SMK
+                    else:
+                        end_smk = next_smk - 1
+                        found_next_smk = True
 
             # print the results
             if end_smk != -1:
-                print "SMK",start_smk,"to SMK",end_smk,"= MCK",mck_id
+                print "SMK",start_smk,"to SMK",end_smk,"= MCK",mck_id,print_active
             else:
-                print "SMK",start_smk,"and greater = MCK",mck_id
+                print "SMK",start_smk,"and greater = MCK",mck_id,print_active
 
 
     def upload_mck_to_smk_link(self,input_mck_id="",input_smk="",comment=""):
@@ -1995,7 +2608,18 @@ class MenuAwareMonitoring:
         linking an SMK to MCK=0 is intended to signify 
         that the default tool configurations should be used. 
         ie. no MCK should be applied for this SMK.
-        An optional comment can be attached to the upload."""
+        An optional comment can be attached to the upload.
+        If you upload a link for an SMK, and a link already exists for that SMK,
+        then a new link will be created and made active.
+        The origional link will be deactivated (but will remain in the database for posterity)."""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+        
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
 
         # is this session interactive?
         if self.__is_session_interactive__():
@@ -2014,15 +2638,6 @@ class MenuAwareMonitoring:
                     input_smk = int(input_str)
                 except:
                     print input_str,"could not be converted to an int."
-
-            # check if this SMK has already been linked to
-            existing_mck = self.oi.check_if_smk_link_exists(input_smk)
-            if existing_mck is not -1:
-
-                # info for user, and return
-                print "SMK",input_smk,"has alread been linked to MCK",existing_mck
-                print "In Menu-aware monitoring version",self.version,"once an SMK has been linked to an MCK, the user is prevented from changing which MCK this SMK links to."
-                return
 
             # if type(input_mck_id) is not int, then ask the user to input an MCK
             while type(input_mck_id) is not int:
@@ -2050,24 +2665,33 @@ class MenuAwareMonitoring:
                 print "Menu-aware monitoring: upload_mck_to_smk_link(",input_mck_id,",",input_smk,",",comment,") inputs not valid. MCK and SMK must be integers."
                 print "No MCK to SMK link created."
                 return
-
-                # check if this SMK has already been linked to
-                existing_mck = self.oi.check_if_smk_link_exists(input_smk)
-                if existing_mck is not -1:
-
-                    # info for user, and return
-                    print "SMK",input_smk,"has alread been linked to MCK",existing_mck
-                    print "In Menu-aware monitoring version",self.version,"once an SMK has been linked to an MCK, the user is prevented from changing which MCK this SMK links to."
-                    return
+            
+        if (not self.oi.check_if_mck_id_exists(input_mck_id)) and (input_mck_id is not 0):
+            print "MCK",input_mck_id,"does not exist in database."
+            print "No MCK to SMK link created."                
+            return
 
         # if we've got this far, then the input MCK and SMK should be valid
 
-        # # check if this link already exists
-        # if self.oi.check_if_mck_to_smk_link_exists(input_mck_id,input_smk):
+        # check if this link already exists as the active link
+        if self.oi.check_if_mck_to_smk_link_exists_and_is_active(input_mck_id,input_smk):
 
-        #     # info for user, and return
-        #     print "SMK",input_smk,"has alread been linked to MCK",input_mck_id
-        #     return
+            # ensure all other links for this smk are deactivated
+            self.oi.deactivate_all_links_for_given_smk_except_for_given_mck(input_smk,input_mck_id)
+
+            # info for user, and return
+            print "SMK",input_smk,"linked to MCK",input_mck_id,"is already the active link for this SMK."
+            return
+
+        # check if there are any other active links for this smk
+        active_smk_to_mck_link_search_results = self.oi.find_active_smk_to_mck_link(input_smk)
+
+        if len(active_smk_to_mck_link_search_results) > 0:
+            # we have found an active link. Upload should not proceed for safety.
+            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0],". Will now print full link details."
+            print active_smk_to_mck_link_search_results
+            print "Deactivate this link first if you want to create a new link. You can use force_deactivate_all_links_for_smk(smk) (or tick the force upload box if using the GUI), but be sure this is what you want to do."
+            return        
 
         # get the current user for the creator
         creator = self.current_user
@@ -2079,15 +2703,218 @@ class MenuAwareMonitoring:
         # try to upload the link
         try:
 
+            # info for user
+            print "Now attempting to link MCK",input_mck_id,"to SMK",input_smk
+
             # upload the link
             self.oi.upload_mck_to_smk_link(input_mck_id,input_smk,creator,comment)
 
             # info for user
             print "MCK",input_mck_id,"has been linked to SMK",input_smk
 
-        # if the upload fails
+            # info for user
+            print "Now attempting to deactivate all other links for SMK",input_smk
+
+            # ensure all other links for this smk are deactivated
+            self.oi.deactivate_all_links_for_given_smk_except_for_given_mck(input_smk,input_mck_id)
+
+            # info for user
+            print "All other links for SMK",input_smk,"have been deactivated."
+
+        # if the upload fails in some way
         except:
 
             # info for user
             print "An exception occurred:",sys.exc_info()[0],sys.exc_info()[1]
-            print "No link was uploaded."
+            print "Error in link upload."
+
+    def force_deactivate_all_links_for_smk(self,input_smk,GUI=False):
+        """Allows the user to clear all links for an smk, so that a new link can be created"""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+        
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
+        
+        # check if there are any other active links for this smk
+        active_smk_to_mck_link_search_results = self.oi.find_active_smk_to_mck_link(input_smk)
+
+        if len(active_smk_to_mck_link_search_results) > 0:
+            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0],". Will now print full link details."
+            print active_smk_to_mck_link_search_results
+        else:
+            print "SMK",input_smk,"is not linked to any MCK."
+            return
+        
+        print "Will force deactivate all links for SMK",input_smk,". Do you really want to do this?"
+        user_input = raw_input("y/n: ")
+        
+        if user_input != 'y':
+            print "Aborted."
+            return
+
+        print "Force deactivating all links for SMK",input_smk,"..."
+        self.oi.deactivate_all_links_for_given_smk(input_smk)
+        print "All links deactivated."
+
+    def dump_local_config_to_json(self,output_json_filename="mam_configs.json",processing_step="",processing_stream="",comment="",default="",print_output_here=""):
+        "All locally read-in trigger monitoring tool configurations are output to a json file."
+        
+        # create a file-like-object to write the json to
+        output_file = open( output_json_filename , "w" )
+
+        # if no default option is provided, then ask for one
+        if default=="":
+            default = self.__ask_for_default__()
+
+        # if this is a default...
+        if default==1:
+
+            # then set the processing_step and processing_stream accordingly
+            processing_step="ALL"
+            processing_stream="ALL"
+
+        # else if it's a patch...
+        else:
+
+            # if no processing_step is provided, then ask for one
+            if processing_step=="":
+                processing_step = self.__ask_for_processing_step__()
+
+            # if no processing_step is provided, then ask for one
+            if processing_stream=="":
+                processing_stream = self.__ask_for_processing_stream__()
+
+        # if no comment is provided, then ask for one
+        if comment=="":
+            comment = self.__ask_for_comment__()
+
+        # fill extra mck_info
+        self.local_global_info['MCK'] = {}
+        self.local_global_info['MCK']['MCK_DEFAULT'] = default
+        self.local_global_info['MCK']['MCK_ATHENA_VERSION'] = self.current_athena_version
+        self.local_global_info['MCK']['MCK_CREATOR'] = self.current_user
+        self.local_global_info['MCK']['MCK_COMMENT'] = comment
+
+        # fill extra smck_info for all tools
+        for tool_key, tool_value in self.local_global_info['MONITORING_TOOL_DICT'].iteritems():
+
+            # fill extra smck_info
+            tool_value['SMCK_PROCESSING_STEP'] = processing_step
+            tool_value['SMCK_PROCESSING_STREAM'] = processing_stream
+            tool_value['SMCK_DEFAULT'] = default
+            tool_value['SMCK_ATHENA_VERSION'] = self.current_athena_version
+            tool_value['SMCK_CREATOR'] = self.current_user
+            tool_value['SMCK_COMMENT'] = comment
+
+        # json encode the local global info, and dump it to the output file
+        json.dump(self.local_global_info, output_file, ensure_ascii=True, sort_keys=True) 
+
+        # close the output file
+        output_file.close()
+
+
+    def load_local_config_from_json(self,input_json_filename="mam_configs.json"):
+        """Load all trigger monitoring tool configurations from an input json file.
+        Note: this does not apply the json config to running trigger-monitoring tools.
+        It only loads the json config into <ThisVariable>.local_global_info 
+        to allow for upload to the MaM database, or testing.
+        Existing <ThisVariable>.local_global_info will be overwritten.
+        Once loaded, this json config can be uploaded to the MaM database by calling 
+        <ThisVariable>.upload_default() if this is a default config, or
+        <ThisVariable>.upload_all_local_changes_as_smck() if this is a patch config.
+        However to upload to the database from a json file, you probably want to instead use 
+        <ThisVariable>.upload_config_from_json(input_json_filename)"""
+        
+        # create a file-like-object to read the json from
+        input_file = open( input_json_filename , "r" )
+
+        # json decode the local global info, and pass it to self.local_global_info, converting unicode to str
+        self.local_global_info = self.__unicode_to_str__( json.load(input_file) )
+
+        # update self.local
+        self.__update_local_pointer__()
+
+        # close the input file
+        input_file.close()
+
+
+    def upload_config_from_json(self,input_json_filename="mam_configs.json",print_output_here=""):
+        """Load all trigger monitoring tool configurations from an input json file, 
+        and upload these configurations to the database.
+        If you only want to load configurations from a json file, 
+        but not immediately upload to the database, then consider instead calling 
+        <ThisVariable>.load_local_config_from_json(input_json_filename)"""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+        
+        if self.replica_db_connection == True:
+            print "You are connected to the replica database and your connection is read only, so this function is not available to you."
+            return
+        
+        # check for empty print_output_here
+        # if it is found, use self.print_output
+        if print_output_here == "":
+            print_output_here = self.print_output
+
+        # first we load the json file
+        self.load_local_config_from_json(input_json_filename)
+
+        # check that there are SMCK in this upload
+        if len(self.local_global_info['MONITORING_TOOL_DICT']) == 0:
+            
+            # info for user
+            print "The file",input_json_filename,"contains no tool configurations to be uploaded."
+            return
+
+        # then we extract whether this is a default configuration or not
+        default = self.local_global_info['MCK']['MCK_DEFAULT']
+
+        # and we extract the comment, athena version, stream, step, and user
+        comment = self.local_global_info['MCK']['MCK_COMMENT']
+        athena_version = self.local_global_info['MCK']['MCK_ATHENA_VERSION']
+        user = self.local_global_info['MCK']['MCK_CREATOR']
+        for value in self.local_global_info['MONITORING_TOOL_DICT'].values():
+            processing_stream = value['SMCK_PROCESSING_STREAM']
+            processing_step = value['SMCK_PROCESSING_STEP']
+            break
+
+        # if this is a default config, then use upload_default
+        if default == 1:
+            self.upload_default(comment,athena_version,user,print_output_here)
+        # else we use upload_all_local_changes_as_smck
+        else:
+            self.upload_all_local_changes_as_smck(processing_step,processing_stream,comment,athena_version,user,print_output_here)
+
+
+    def diff_json_files(self,input_default_config_file="mam_default_configs.json",input_config_file="mam_configs.json",output_json_filename="mam_patch_configs.json"):
+        """Input a default config, and an alternative config. A diff will be performed. 
+        The parts of the alternative config that are different to the default config 
+        will be returned as a new json file."""
+
+        # open all file-like-objects
+        input_default_file = open( input_default_config_file , "r" )
+        input_alt_file = open( input_config_file , "r" )
+        output_file = open( output_json_filename , "w" )
+
+        # get the input dictionaries
+        input_default_dict = self.__unicode_to_str__( json.load(input_default_file) )
+        input_alt_dict = self.__unicode_to_str__( json.load(input_alt_file) )
+
+        # perform a diff of these dicts
+        # we want diffed_info2, 
+        # which is the 'patch' to apply to the default to get the current local configuration
+        diffed_info1, diffed_info2 = self.__calculate_diff__(input_default_dict,input_alt_dict,False)
+
+        # json encode the diffed 'patch' info, and dump it to the output file
+        json.dump(diffed_info2, output_file, ensure_ascii=True, sort_keys=True)
+
+        # close all files
+        input_default_file.close()
+        input_alt_file.close()
+        output_file.close()

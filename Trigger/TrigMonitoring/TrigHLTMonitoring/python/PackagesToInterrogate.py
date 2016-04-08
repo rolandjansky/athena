@@ -8,21 +8,23 @@
 class PackagesToInterrogate:
 
     PackagesToInterrogate_test = {
-        "Muon"        : { "PackageName" : "TrigMuonMonitoring.TrigMuonMonitoringConfig",       "ToolName" : "TrigMuonMonitoringTool",      "Dll" : "TrigMuonMonitoring"}
+        "Muon"        : { "PackageName" : "TrigMuonMonitoring.TrigMuonMonitoringConfig",       "ToolName" : "TrigMuonMonitoringTool",      "MonitCategoryName" : "TrigMuonMonitoring.TrigMuonMonitCategory",       "Dll" : "TrigMuonMonitoring"}
     }
 
     PackagesToInterrogate = {
-        "General"     : { "PackageName" : "TrigHLTMonitoring.TrigHLTMonitoringConfig",         "ToolName" : "HLTGeneralTool",              "Dll" : "TrigHLTMonitoring"},
-        "Bjet"        : { "PackageName" : "TrigBjetMonitoring.TrigBjetMonitoringConfig",       "ToolName" : "TrigBjetMonitoringConfig",    "Dll" : "TrigBjetMonitoring"},
-        "Bphys"       : { "PackageName" : "TrigBphysMonitoring.TrigBphysMonitoringConfig",     "ToolName" : "TrigBphysMonitoringTool",     "Dll" : "TrigBphysMonitoring"}, 
-        "Calo"        : { "PackageName" : "TrigCaloMonitoring.TrigCaloMonitoringConfig",       "ToolName" : "HLTCaloMonitoringTool",       "Dll" : "TrigCaloMonitoring"}, 
-        "Egamma"      : { "PackageName" : "TrigEgammaMonitoring.TrigEgammaMonitoringConfig",   "ToolName" : "HLTEgammaMonitoringTool",     "Dll" : "TrigEgammaMonitoring"}, 
-        "IDJpsi"      : { "PackageName" : "TrigIDJpsiMonitoring.TrigIDJpsiMonitoringConfig",   "ToolName" : "TrigIDJpsiMonitoringTool",    "Dll" : "TrigIDJpsiMonitoring"}, 
-        "IDtrk"       : { "PackageName" : "TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig",     "ToolName" : "TrigIDtrkMonitoringTool",     "Dll" : "TrigInDetAnalysisExample"}, 
-        "Jet"         : { "PackageName" : "TrigJetMonitoring.TrigJetMonitoringConfig",         "ToolName" : "TrigJetMonitoringTool",       "Dll" : "TrigJetMonitoring"}, 
-        "MET"         : { "PackageName" : "TrigMETMonitoring.TrigMETMonitoringConfig",         "ToolName" : "HLTMETMonitoringTool",        "Dll" : "TrigMETMonitoring"}, 
-        "MinBias"     : { "PackageName" : "TrigMinBiasMonitoring.TrigMinBiasMonitoringConfig", "ToolName" : "TrigMinBiasMonitoringTool",   "Dll" : "TrigMinBiasMonitoring"}, 
-        "Muon"        : { "PackageName" : "TrigMuonMonitoring.TrigMuonMonitoringConfig",       "ToolName" : "TrigMuonMonitoringTool",      "Dll" : "TrigMuonMonitoring"}, 
-        "Tau"         : { "PackageName" : "TrigTauMonitoring.TrigTauMonitoringConfig",         "ToolName" : "TrigTauMonitoringTool",       "Dll" : "TrigTauMonitoring"},
-        "Egamma_Dump" : { "PackageName" : "TrigEgammaMonitoring.TrigEgammaMonitoringConfig",   "ToolName" : "HLTEgammaMonitoringDumpTool", "Dll" : "TrigEgammaMonitoring"}
+        "General"     : { "PackageName" : "TrigHLTMonitoring.TrigHLTMonitoringConfig",         "ToolName" : "HLTGeneralTool",              "MonitCategoryName" : "",                                               "Dll" : "TrigHLTMonitoring"},
+        "Bjet"        : { "PackageName" : "TrigBjetMonitoring.TrigBjetMonitoringConfig",       "ToolName" : "TrigBjetMonitoringConfig",    "MonitCategoryName" : "TrigBjetMonitoring.TrigBjetMonitCategory",       "Dll" : "TrigBjetMonitoring"},
+        "Bphys"       : { "PackageName" : "TrigBphysMonitoring.TrigBphysMonitoringConfig",     "ToolName" : "TrigBphysMonitoringTool",     "MonitCategoryName" : "TrigBphysMonitoring.TrigBphysMonitCategory",     "Dll" : "TrigBphysMonitoring"}, 
+        "Calo"        : { "PackageName" : "TrigCaloMonitoring.TrigCaloMonitoringConfig",       "ToolName" : "HLTCaloMonitoringTool",       "MonitCategoryName" : "",                                               "Dll" : "TrigCaloMonitoring"}, 
+        "Egamma"      : { "PackageName" : "TrigEgammaMonitoring.TrigEgammaMonitoringConfig",   "ToolName" : "TrigEgammaMonitoringTool",    "MonitCategoryName" : "TrigEgammaMonitoring.TrigEgammaMonitCategory",   "Dll" : "TrigEgammaAnalysisTools"}, 
+        "IDJpsi"      : { "PackageName" : "TrigIDJpsiMonitoring.TrigIDJpsiMonitoringConfig",   "ToolName" : "TrigIDJpsiMonitoringTool",    "MonitCategoryName" : "",                                               "Dll" : "TrigIDJpsiMonitoring"}, 
+        "IDtrk"       : { "PackageName" : "TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig",     "ToolName" : "TrigIDtrkMonitoringTool",     "MonitCategoryName" : "",                                               "Dll" : "TrigInDetAnalysisExample"}, 
+        "Jet"         : { "PackageName" : "TrigJetMonitoring.TrigJetMonitoringConfig",         "ToolName" : "TrigJetMonitoringTool",       "MonitCategoryName" : "TrigJetMonitoring.TrigJetMonitCategory",         "Dll" : "TrigJetMonitoring"}, 
+        "MET"         : { "PackageName" : "TrigMETMonitoring.TrigMETMonitoringConfig",         "ToolName" : "HLTMETMonitoringTool",        "MonitCategoryName" : "TrigMETMonitoring.TrigMETMonitCategory",         "Dll" : "TrigMETMonitoring"}, 
+        "MinBias"     : { "PackageName" : "TrigMinBiasMonitoring.TrigMinBiasMonitoringConfig", "ToolName" : "TrigMinBiasMonitoringTool",   "MonitCategoryName" : "TrigMinBiasMonitoring.TrigMinBiasMonitCategory", "Dll" : "TrigMinBiasMonitoring"}, 
+        "Muon"        : { "PackageName" : "TrigMuonMonitoring.TrigMuonMonitoringConfig",       "ToolName" : "TrigMuonMonitoringTool",      "MonitCategoryName" : "TrigMuonMonitoring.TrigMuonMonitCategory",       "Dll" : "TrigMuonMonitoring"}, 
+        "Tau"         : { "PackageName" : "TrigTauMonitoring.TrigTauMonitoringConfig",         "ToolName" : "TrigTauMonitoringTool",       "MonitCategoryName" : "TrigTauMonitoring.TrigTauMonitCategory",         "Dll" : "TrigTauMonitoring"}
     }
+    #    "Egamma"      : { "PackageName" : "TrigEgammaMonitoring.TrigEgammaMonitoringConfig",   "ToolName" : "HLTEgammaMonitoringTool",     "MonitCategoryName" : "TrigEgammaMonitoring.TrigEgammaMonitCategory",   "Dll" : "TrigEgammaMonitoring"}, 
+    #    "Egamma_Dump" : { "PackageName" : "TrigEgammaMonitoring.TrigEgammaMonitoringConfig",   "ToolName" : "HLTEgammaMonitoringDumpTool", "MonitCategoryName" : "TrigEgammaMonitoring.TrigEgammaMonitCategory",   "Dll" : "TrigEgammaMonitoring"}
+    #}
