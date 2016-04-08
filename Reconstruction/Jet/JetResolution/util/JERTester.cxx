@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPToolTester.cxx 300804 2014-06-04 16:49:29Z krasznaa $
-
 // System include(s)
 #include <memory>
 #include <cstdlib>
@@ -28,6 +26,7 @@
 #include "JetResolution/JERSmearingTool.h"
 
 // Other includes
+#include "PATInterfaces/SystematicsUtil.h"
 //#include "PATInterfaces/CorrectionCode.h"
 
 // Error checking macro
@@ -57,9 +56,11 @@ int main( int argc, char* argv[] ) {
   // Initialise the application
   CHECK( xAOD::Init(APP_NAME) );
   StatusCode::enableFailure();
+  CP::CorrectionCode::enableFailure();
+  CP::SystematicCode::enableFailure();
 
   // Open the input file
-  const TString fileName = argv[ 1 ];
+  const TString fileName = argv[1];
   Info(APP_NAME, "Opening file: %s", fileName.Data());
   std::auto_ptr<TFile> ifile(TFile::Open(fileName, "READ"));
   CHECK( ifile.get() );
@@ -87,27 +88,27 @@ int main( int argc, char* argv[] ) {
   // I am demonstrating all the defaults here, so behavior
   // is the same as not specifying any configuration
   jerTool.msg().setLevel(MSG::DEBUG);
-  CHECK( jerTool.setProperty("PlotFileName", "JetResolution/JERProviderPlots_2012.root") );
-  CHECK( jerTool.setProperty("CollectionName", "AntiKt4LCTopoJets") );
-  CHECK( jerTool.setProperty("BeamEnergy", "8TeV") );
-  CHECK( jerTool.setProperty("SimulationType", "FullSim") );
+  CHECK( jerTool.setProperty("PlotFileName",
+			     "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root") );
+  //CHECK( jerTool.setProperty("JetAlg", JER::AKt4EM) );
+  CHECK( jerTool.setProperty("CollectionName", "AntiKt4EMTopoJets") );
+
 
   // Configure the JERSmearingTool
   smearTool.msg().setLevel(MSG::DEBUG);
-  smearTool.setJERTool(&jerTool);
-  smearTool.setNominalSmearing(true);
+  ToolHandle<IJERTool> jerHandle(jerTool.name());
+  CHECK( smearTool.setProperty("JERTool", jerHandle) );
+  CHECK( smearTool.setProperty("ApplyNominalSmearing", false) );
+  CHECK( smearTool.setProperty("isMC", true) );
+  CHECK( smearTool.setProperty("SystematicMode", "Full") );
 
   // Initialize the tools
   CHECK( jerTool.initialize() );
   CHECK( smearTool.initialize() );
 
-  // Test systematics
-  std::vector<CP::SystematicSet> sysList;
-  // Nominal
-  sysList.push_back(CP::SystematicSet());
-  // JER systematic
-  sysList.push_back(CP::SystematicSet());
-  sysList.back().insert(CP::SystematicVariation("JER", 1));
+  // Build a simple list of systematics
+  const std::vector<CP::SystematicSet> sysList =
+    CP::make_systematics_vector( smearTool.recommendedSystematics() );
 
   // Loop over the events
   for(Long64_t entry = 0; entry < entries; ++entry) {
@@ -143,7 +144,9 @@ int main( int argc, char* argv[] ) {
       double resMC = jerTool.getRelResolutionMC(jet);
       double resData = jerTool.getRelResolutionData(jet);
       // Get the resolution uncertainty
-      double uncert = jerTool.getUncertainty(jet);
+      double uncert = jerTool.getUncertainty(jet, JER::JER_NP_ALL);
+
+      //DV
 
       // Print the resolution information
       Info(APP_NAME, "  Resolution MC   = %g", resMC);

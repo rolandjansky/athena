@@ -17,5 +17,6 @@
 // Tool headers
 #include "JetResolution/JERTool.h"
 #include "JetResolution/JERSmearingTool.h"
+#include "JetResolution/JERDefs.h"
 
 #endif

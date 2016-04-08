@@ -7,14 +7,15 @@
 
 // Framework includes
 #include "AsgTools/IAsgTool.h"
+#include "PATInterfaces/CorrectionCode.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
 
 // Local includes
-#include "PATInterfaces/CorrectionCode.h"
+#include "JetResolution/JERDefs.h"
 
-/// Interface class for accessing the jet energy resolution
+/// Tool interface class for accessing the jet energy resolution
 ///
 /// @author Steve Farrell <steven.farrell@cern.ch>
 ///
@@ -36,7 +37,8 @@ class IJERTool : public virtual asg::IAsgTool
     virtual double getRelResolutionData(const xAOD::Jet* jet) = 0;
 
     /// Calculate resolution uncertainty
-    virtual double getUncertainty(const xAOD::Jet* jet) = 0;
+    virtual double getUncertainty(const xAOD::Jet* jet,
+                                  JER::Uncert errType = JER::JER_NP_ALL) = 0;
 
 }; // class IJERTool
 

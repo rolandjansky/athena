@@ -1,15 +1,16 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 # Test the reflex dictionary usage in PyROOT to 
 # instantiate and configure the JER tools.
 
+import sys
+
 # Setup libs
-import PyCintex
 from ROOT import gROOT
 gROOT.SetBatch()
-gROOT.ProcessLine('.x $ROOTCOREDIR/scripts/load_packages.C')
+gROOT.Macro('$ROOTCOREDIR/scripts/load_packages.C')
 
 # Import using the PyROOT bindings and reflex dictionary
 from ROOT import xAOD
@@ -20,9 +21,11 @@ evt = xAOD.TEvent()
 # Configure the tools
 jerTool = JERTool('JERTool')
 smearTool = JERSmearingTool('JERSmearingTool')
-smearTool.setProperty(bool)('ApplyNominalSmearing', True)
-smearTool.setProperty('JERToolName', jerTool.name())
+if smearTool.setProperty('JERToolName', jerTool.name()).isFailure():
+    sys.exit(1)
 
 # Initialize the tools
-jerTool.initialize()
-smearTool.initialize()
+if jerTool.initialize().isFailure():
+    sys.exit(1)
+if smearTool.initialize().isFailure():
+    sys.exit(1)

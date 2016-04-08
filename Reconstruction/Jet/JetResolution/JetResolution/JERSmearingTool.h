@@ -8,7 +8,6 @@
 // Framework includes
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/CorrectionTool.h"
 
 // EDM includes
@@ -26,38 +25,18 @@
 ///
 /// This tool allows to smear the energy of jets either to correct
 /// the jet energy resolution or to evaluate systematic uncertainties.
-/// For information on the run-1 tool, see the Twiki:
-/// https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetResolutionSmearing
-/// The documentation for this specific xAOD-based tool is not yet completed.
-///
-/// Configuration
-///
-/// The user must provide an IJERTool via either python JO or in standlone via
-/// the setJERTool method.
-///
-/// The tool will apply nominal smearing unless the property
-/// 'ApplyNominalSmearing' is set to false, which can be done in standalone
-/// via the setApplyNominalSmearing method.
-///
-/// Interface
-///
-/// Objects are smeared via either the applyCorrection or correctedCopy
-/// methods.
-///
-/// Systematic behavior is set in the usual way via the
-/// applySystematicVariation method.
+/// For information, see the Twiki:
+/// https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetEnergyResolutionXAODTools
 ///
 /// @author Steve Farrell <steven.farrell@cern.ch>
 ///
-class JERSmearingTool : public virtual IJERSmearingTool,
-                        public virtual CP::ISystematicsTool,
-                        public virtual CP::CorrectionTool<xAOD::JetContainer>,
+class JERSmearingTool : public IJERSmearingTool,
+                        public CP::CorrectionTool<xAOD::JetContainer>,
                         public asg::AsgTool
 {
 
     /// Proper constructor for Athena
-    ASG_TOOL_CLASS2( JERSmearingTool, CP::ISystematicsTool,
-                     IJERSmearingTool )
+    ASG_TOOL_CLASS( JERSmearingTool, IJERSmearingTool )
 
   public:
 
@@ -65,6 +44,9 @@ class JERSmearingTool : public virtual IJERSmearingTool,
     JERSmearingTool(const std::string& name);
     /// Copy constructor for reflex in Athena
     JERSmearingTool(const JERSmearingTool& other);
+
+    /// We shouldn't need assignment; regardless, it's not implemented
+    JERSmearingTool& operator=(const JERSmearingTool&) = delete;
 
     /// @name Methods implementing the asg::IAsgTool interface
     /// @{
@@ -114,18 +96,6 @@ class JERSmearingTool : public virtual IJERSmearingTool,
 
     /// @}
 
-    /// @name Configuration methods
-    /// @{
-
-    /// Set the JER provider to use
-    void setJERTool(IJERTool* jerTool) { m_jerTool = jerTool; }
-
-    /// Toggle nominal smearing. If set to false, smearing
-    /// will only be applied for the JER systematic evaluation.
-    void setNominalSmearing(bool applyIt) { m_applyNominalSmearing = applyIt; }
-
-    /// @}
-
   protected:
 
     /// Get nominal smearing factor
@@ -137,6 +107,8 @@ class JERSmearingTool : public virtual IJERSmearingTool,
     /// Calculate the random gaussian smear factor for a requested sigma
     double getSmearingFactor(const xAOD::Jet* jet, double sigma);
 
+  private:
+
     /// Handle to the associated JERTool
     ToolHandle<IJERTool> m_jerTool;
     /// Workaround to set the JERTool tool handle in PyROOT
@@ -145,18 +117,26 @@ class JERSmearingTool : public virtual IJERSmearingTool,
     /// Configuration flag for toggling nominal smearing
     bool m_applyNominalSmearing;
 
-  private:
+    /// isMC flag
+    bool m_isMC;
+
+    /// Systematic breakdown configuration: "Simple" or "Full"
+    std::string m_sysMode;
 
     /// Random number generator
     TRandom3 m_rand;
     /// Optional user seed
     long int m_userSeed;
 
-    /// JER systematic variation
-    const CP::SystematicVariation m_jerSys;
+    /// Systematic filtering map.
+    /// Note that the output of the map could be something other than
+    /// SystematicSet. We could use pair<SysEnum, value>, for example, which
+    /// actually might make the applyCorrection method cleaner.
+    typedef std::unordered_map<CP::SystematicSet, CP::SystematicSet> SysFiterMap_t;
+    SysFiterMap_t m_sysFilterMap;
 
-    /// Simple flag to specify application of systematic uncertainty
-    bool m_applyJERSyst;
+    /// Points to the current systematic configuration
+    const CP::SystematicSet* m_sysConfig;
 
 }; // class JERSmearingTool
 

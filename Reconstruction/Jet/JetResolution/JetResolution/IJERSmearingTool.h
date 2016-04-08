@@ -5,9 +5,6 @@
 #ifndef JETRESOLUTION_IJERSMEARINGTOOL_H
 #define JETRESOLUTION_IJERSMEARINGTOOL_H
 
-// Framework includes
-#include "AsgTools/IAsgTool.h"
-
 // EDM includes
 #include "xAODJet/Jet.h"
 
@@ -18,10 +15,9 @@
 
 /// Interface class for smearing the jet energy resolution
 ///
-/// @author Steve Faarrell <steven.farrell@cern.ch>
+/// @author Steve Farrell <steven.farrell@cern.ch>
 ///
-class IJERSmearingTool : public virtual asg::IAsgTool,
-                         public virtual CP::ISystematicsTool
+class IJERSmearingTool : public virtual CP::ISystematicsTool
 {
 
     // Declare the interface that the class provides
@@ -37,7 +33,7 @@ class IJERSmearingTool : public virtual asg::IAsgTool,
 
     /// Create a JER-corrected copy from a const jet
     virtual CP::CorrectionCode correctedCopy( const xAOD::Jet& input,
-                                          xAOD::Jet*& output ) = 0;
+                                              xAOD::Jet*& output ) = 0;
 
     /// Optional method to set random seed. Note that the tool
     /// already has a deterministic way to do this using the jet phi.
