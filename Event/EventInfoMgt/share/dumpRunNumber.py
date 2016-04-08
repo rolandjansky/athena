@@ -119,7 +119,7 @@ if __name__ == "__main__":
                     eiP3 = False
                     isPileupEI = False
                     for br in eitree.GetListOfBranches():
-                        print br.GetName()
+                        # print br.GetName()
                         if re.match(r'EventInfo_p3_.*?', br.GetName()):
                             eibr = br
                             eiP3 = True
@@ -134,8 +134,7 @@ if __name__ == "__main__":
                         elif re.match(r'PileUpEventInfo_p5_.*?', br.GetName()):
                             eibr = br
                             isPileupEI = True
-
-                            print "match PileUpEventInfo_p5"
+                            # print "match PileUpEventInfo_p5"
                             break
                         pass
                     # read events
@@ -186,6 +185,8 @@ if __name__ == "__main__":
                                     print "run, lb, evt, mcChan, mcEvt, act/ave int: ", i, eid.m_run_number, eid.m_lumiBlock, eid.m_event_number, etyp.m_mc_channel_number, etyp.m_mc_event_number, actInt, aveInt
                                     pass
                             else:
+                                # print "Found pileUpEventInfo1"
+                                eid    = ei.m_event_ID
                                 print "run number: ", eid.m_run_number
                         else:
                             eid  = ei.m_event_ID
