@@ -1,0 +1,119 @@
+<ui version="4.0" >
+ <class>VP1VertexControllerForm</class>
+ <widget class="QWidget" name="VP1VertexControllerForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>232</width>
+    <height>42</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="leftMargin" >
+    <number>6</number>
+   </property>
+   <property name="topMargin" >
+    <number>6</number>
+   </property>
+   <property name="rightMargin" >
+    <number>0</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>4</number>
+   </property>
+   <property name="horizontalSpacing" >
+    <number>0</number>
+   </property>
+   <item row="0" column="0" >
+    <widget class="QWidget" native="1" name="widget_settingsButtonsPlaceholder" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QHBoxLayout" >
+      <property name="spacing" >
+       <number>0</number>
+      </property>
+      <property name="leftMargin" >
+       <number>0</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="pushButton_settings_cuts" >
+        <property name="toolTip" >
+         <string>Configure track cuts on quantities such as eta, phi and momentum</string>
+        </property>
+        <property name="text" >
+         <string>Cuts</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_settings_display" >
+        <property name="toolTip" >
+         <string>Configure track colours</string>
+        </property>
+        <property name="text" >
+         <string>Display</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_settings_interactions" >
+        <property name="toolTip" >
+         <string>Settings for what happens in response to selections (printout, zooms, ...)</string>
+        </property>
+        <property name="text" >
+         <string>Interactions</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Preferred</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>1</width>
+       <height>3</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0" colspan="2" >
+    <widget class="QScrollArea" native="1" name="collWidgetScrollArea" />
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QScrollArea</class>
+   <extends>QWidget</extends>
+   <header>QtGui/QScrollArea</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
