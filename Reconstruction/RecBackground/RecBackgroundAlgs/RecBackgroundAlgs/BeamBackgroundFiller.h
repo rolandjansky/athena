@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BeamBackgroundFiller.h 592353 2014-04-10 12:32:35Z wlampl $
+// $Id: BeamBackgroundFiller.h 693118 2015-09-04 07:27:46Z salekd $
 #ifndef RECBACKGROUNDALGS_BEAMBACKGROUNDFILLER
 #define RECBACKGROUNDALGS_BEAMBACKGROUNDFILLER
 
@@ -12,6 +12,7 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "TrkSegment/Segment.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -31,8 +32,8 @@
  *
  * @author David Salek <David.Salek@cern.ch>
  *
- * $Revision: 592353 $
- * $Date: 2014-04-10 14:32:35 +0200 (Thu, 10 Apr 2014) $
+ * $Revision: 693118 $
+ * $Date: 2015-09-04 09:27:46 +0200 (Fri, 04 Sep 2015) $
  */
 class BeamBackgroundFiller : public AthAlgorithm
 {
@@ -66,13 +67,15 @@ private:
   void PrintMatchMatrix() {};
 
   // containers
-  std::string m_muonSegmentContainerKey;
+  std::string m_cscSegmentContainerKey;
+  std::string m_mdtSegmentContainerKey;
   std::string m_caloClusterContainerKey;
   std::string m_jetContainerKey;
   std::string m_beamBackgroundDataKey;
 
   const xAOD::CaloClusterContainer* p_clusContainer;
-  const Trk::SegmentCollection* p_muonSegmentContainer;
+  const Trk::SegmentCollection* p_cscSegmentContainer;
+  const Trk::SegmentCollection* p_mdtSegmentContainer;
   const xAOD::JetContainer* p_jetContainer;
 
 

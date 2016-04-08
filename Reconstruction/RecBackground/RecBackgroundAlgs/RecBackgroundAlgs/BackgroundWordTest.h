@@ -6,12 +6,10 @@
 #define RECBACKGROUNDALGS_CHBACKGROUNDWORDTEST
 
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 
-class StoreGateSvc;
-
-class BackgroundWordTest : public Algorithm
+class BackgroundWordTest : public AthAlgorithm
 {
 
  public:
@@ -22,10 +20,6 @@ class BackgroundWordTest : public Algorithm
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
-
- private:
-  StoreGateSvc* m_storeGate;
-
 };
 
 #endif

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BeamBackgroundFiller.cxx 635588 2014-12-12 13:32:15Z wlampl $
+// $Id: BeamBackgroundFiller.cxx 693118 2015-09-04 07:27:46Z salekd $
 #include "RecBackgroundAlgs/BeamBackgroundFiller.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -15,9 +15,31 @@
 BeamBackgroundFiller::BeamBackgroundFiller(const std::string& name,
                                  ISvcLocator* pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
+  p_clusContainer(nullptr),
+  p_cscSegmentContainer(nullptr),
+  p_mdtSegmentContainer(nullptr),
+  p_jetContainer(nullptr),
+  p_beamBackgroundData(nullptr),
+  m_numSegment(0),
+  m_numSegmentEarly(0),
+  m_numSegmentACNoTime(0),
+  m_numSegmentAC(0),
+  m_numMatched(0),
+  m_numNoTimeLoose(0),
+  m_numNoTimeMedium(0),
+  m_numNoTimeTight(0),
+  m_numOneSidedLoose(0),
+  m_numOneSidedMedium(0),
+  m_numOneSidedTight(0),
+  m_numTwoSidedNoTime(0),
+  m_numTwoSided(0),
+  m_numClusterShape(0),
+  m_numJet(0),
+  m_direction(0),
   m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
 {
-  declareProperty("muonSegmentContainerKey", m_muonSegmentContainerKey="MuonSegments");
+  declareProperty("cscSegmentContainerKey", m_cscSegmentContainerKey="NCB_MuonSegments");
+  declareProperty("mdtSegmentContainerKey", m_mdtSegmentContainerKey="MuonSegments");
   declareProperty("caloClusterContainerKey", m_caloClusterContainerKey="CaloCalTopoClusters");
   declareProperty("jetContainerKey", m_jetContainerKey="AntiKt4EMTopoJets");
   declareProperty("BeamBackgroundKey", m_beamBackgroundDataKey="BeamBackgroundData", "SG key for output object.");
@@ -67,13 +89,22 @@ StatusCode BeamBackgroundFiller::initialize() {
 //------------------------------------------------------------------------------
 StatusCode BeamBackgroundFiller::execute() {
 
-  p_muonSegmentContainer=evtStore()->tryConstRetrieve<Trk::SegmentCollection>(m_muonSegmentContainerKey);
-  if(!p_muonSegmentContainer ) {
-    msg(MSG::WARNING) << "Could not retrieve const Trk::SegmentCollection " << m_muonSegmentContainerKey << endreq;
+  p_cscSegmentContainer=evtStore()->tryConstRetrieve<Trk::SegmentCollection>(m_cscSegmentContainerKey);
+  if(!p_cscSegmentContainer ) {
+    msg(MSG::WARNING) << "Could not retrieve const Trk::SegmentCollection " << m_cscSegmentContainerKey << endreq;
     return StatusCode::SUCCESS;
   }
   else {
-    ATH_MSG_DEBUG( m_muonSegmentContainerKey << " retrieved from StoreGate");
+    ATH_MSG_DEBUG( m_cscSegmentContainerKey << " retrieved from StoreGate");
+  }
+
+  p_mdtSegmentContainer=evtStore()->tryConstRetrieve<Trk::SegmentCollection>(m_mdtSegmentContainerKey);
+  if(!p_mdtSegmentContainer ) {
+    msg(MSG::WARNING) << "Could not retrieve const Trk::SegmentCollection " << m_mdtSegmentContainerKey << endreq;
+    return StatusCode::SUCCESS;
+  }
+  else {
+    ATH_MSG_DEBUG( m_mdtSegmentContainerKey << " retrieved from StoreGate");
   }
 
   p_clusContainer=evtStore()->tryConstRetrieve<xAOD::CaloClusterContainer>(m_caloClusterContainerKey);
@@ -143,35 +174,53 @@ void BeamBackgroundFiller::FillMatchMatrix()
   m_matchMatrix.clear();
   m_resultClus.clear();
 
-  // select only the muon segments with the global direction parallel to the beam pipe
-  for(unsigned int i=0; i<p_muonSegmentContainer->size(); i++) {
-    const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (p_muonSegmentContainer->at(i));
+  // select only the CSC segments with the global direction parallel to the beam pipe
+  for(unsigned int i=0; i<p_cscSegmentContainer->size(); i++) {
+    const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (p_cscSegmentContainer->at(i));
+    if (!seg) std::abort();
 
     Identifier id = m_helperTool->chamberId(*seg);
-    if ( !id.is_valid() ) continue;  
+    if ( !id.is_valid() ) continue;
     if ( !m_idHelperTool->isMuon(id) ) continue;
 
-    MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
-    int stationName = fid.stationName();
+    if ( !m_idHelperTool->isCsc(id) ) continue;
 
-    if( !(stationName==33 || stationName==34 ||
-          stationName==15 || stationName==24 )) continue;
-
-    //const HepGeom::Point3D<double>&  globalPos = seg->globalPosition();
     const Amg::Vector3D& globalPos = seg->globalPosition();
-    //const HepGeom::Vector3D<double>& globalDir = seg->globalDirection();
     const Amg::Vector3D& globalDir = seg->globalDirection();
     double thetaPos = globalPos.theta();
     double thetaDir = globalDir.theta();
 
     double d2r = TMath::Pi()/180.;
-    if( TMath::Cos(2.*(thetaPos-thetaDir)) > TMath::Cos(2.*m_cutThetaCsc*d2r) &&
-        (stationName==33 || stationName==34) ) continue;
-    if( TMath::Cos(2.*(thetaPos-thetaDir)) > TMath::Cos(2.*m_cutThetaMdtI*d2r) &&
-        (stationName==15 || stationName==24) ) continue;
+    if( TMath::Cos(2.*(thetaPos-thetaDir)) > TMath::Cos(2.*m_cutThetaCsc*d2r) ) continue;
     
     ElementLink<Trk::SegmentCollection> segLink;
-    segLink.toIndexedElement(*p_muonSegmentContainer, i);
+    segLink.toIndexedElement(*p_cscSegmentContainer, i);
+    m_indexSeg.push_back(segLink);
+  }
+  
+  // select only the MDT segments with the global direction parallel to the beam pipe
+  for(unsigned int i=0; i<p_mdtSegmentContainer->size(); i++) {
+    const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (p_mdtSegmentContainer->at(i));
+    if (!seg) std::abort();
+
+    Identifier id = m_helperTool->chamberId(*seg);
+    if ( !id.is_valid() ) continue;  
+    if ( !m_idHelperTool->isMuon(id) ) continue;
+
+    Muon::MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(id);
+
+    if(!( chIndex == Muon::MuonStationIndex::EIL || chIndex == Muon::MuonStationIndex::EIS )) continue;
+
+    const Amg::Vector3D& globalPos = seg->globalPosition();
+    const Amg::Vector3D& globalDir = seg->globalDirection();
+    double thetaPos = globalPos.theta();
+    double thetaDir = globalDir.theta();
+
+    double d2r = TMath::Pi()/180.;
+    if( TMath::Cos(2.*(thetaPos-thetaDir)) > TMath::Cos(2.*m_cutThetaMdtI*d2r) ) continue;
+    
+    ElementLink<Trk::SegmentCollection> segLink;
+    segLink.toIndexedElement(*p_mdtSegmentContainer, i);
     m_indexSeg.push_back(segLink);
   }
   
@@ -214,7 +263,8 @@ void BeamBackgroundFiller::FillMatchMatrix()
     if( eClus < m_cutEnergy ) continue;
 
     double rClus(0.);
-    clus->retrieveMoment(xAOD::CaloCluster_v1::CENTER_MAG,rClus);
+    if (!clus->retrieveMoment(xAOD::CaloCluster_v1::CENTER_MAG,rClus))
+      rClus = 0;
     rClus = rClus/cosh(clus->eta());
     
     //double xClus = rClus * cos( clus->phi());
@@ -233,28 +283,23 @@ void BeamBackgroundFiller::FillMatchMatrix()
     
     for(unsigned int j=0; j<m_indexSeg.size(); j++) {
       const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (*m_indexSeg[j]);
+      if (!seg) std::abort();
 
       Identifier id = m_helperTool->chamberId(*seg);
-      MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
-      int stationName = fid.stationName();
+      bool isCsc = m_idHelperTool->isCsc(id);
 
-      //const HepGeom::Point3D<double>&  globalPos = seg->globalPosition();
       const Amg::Vector3D& globalPos = seg->globalPosition();
       double phiSeg = globalPos.phi();
       double rSeg = globalPos.perp();
 
       // match in phi
       double d2r = TMath::Pi()/180.;
-      if( TMath::Cos(phiClus-phiSeg) < TMath::Cos(m_cutPhiCsc*d2r) &&
-          (stationName==33 || stationName==34) ) continue;
-      if( TMath::Cos(phiClus-phiSeg) < TMath::Cos(m_cutPhiMdtI*d2r) &&
-          (stationName==15 || stationName==24) ) continue;
+      if( TMath::Cos(phiClus-phiSeg) < TMath::Cos(m_cutPhiCsc*d2r) && isCsc ) continue;
+      if( TMath::Cos(phiClus-phiSeg) < TMath::Cos(m_cutPhiMdtI*d2r) && !isCsc ) continue;
 
       // match in radius
-      if( TMath::Abs(rClus-rSeg) > m_cutRadiusCsc &&
-          (stationName==33 || stationName==34) ) continue;
-      if( TMath::Abs(rClus-rSeg) > m_cutRadiusMdtI &&
-          (stationName==15 || stationName==24) ) continue;
+      if( TMath::Abs(rClus-rSeg) > m_cutRadiusCsc && isCsc ) continue;
+      if( TMath::Abs(rClus-rSeg) > m_cutRadiusMdtI && !isCsc ) continue;
 
       matchedSegmentsPerCluster[j] = 1;
       matched = true;
@@ -294,14 +339,13 @@ void BeamBackgroundFiller::SegmentMethod()
 
   for(unsigned int segIndex=0; segIndex<m_indexSeg.size(); segIndex++) {
 
-    //const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (p_muonSegmentContainer->at(m_indexSeg[segIndex]));
     const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (*m_indexSeg[segIndex]);
+    if (!seg) std::abort();
 
     const Amg::Vector3D&  globalPos = seg->globalPosition();
     double zSeg = globalPos.z();
 
-    //double tSeg = seg->time();
-    double tSeg = GetSegmentTime(seg);
+    double tSeg = seg->time();
 
     m_numSegment++;
     m_resultSeg[segIndex] = m_resultSeg[segIndex] | BeamBackgroundData::Segment;
@@ -312,14 +356,14 @@ void BeamBackgroundFiller::SegmentMethod()
     double early  = -( TMath::Abs(zSeg) + globalPos.mag())*1e-3/3e8/1e-9;
     if( TMath::Abs(tSeg - inTime) < m_cutMuonTime ) timeStatus = 1;
     if( TMath::Abs(tSeg - early ) < m_cutMuonTime ) timeStatus = 2;
-
+/*
     // also take the CSC segments that fall outside of the time readout window on the early side
     // CscTimeStatus::CscTimeEarly could be used here
     Identifier id = m_helperTool->chamberId(*seg);
     MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
     int stationName = fid.stationName();
     if( tSeg < early && (stationName==33 || stationName==34) ) timeStatus = 2;
-
+*/
     if( timeStatus == 2 ) {
       m_numSegmentEarly++;
       m_resultSeg[segIndex] = m_resultSeg[segIndex] | BeamBackgroundData::SegmentEarly;
@@ -339,14 +383,13 @@ void BeamBackgroundFiller::SegmentMethod()
 
     for(unsigned int segIndexC=0; segIndexC<m_indexSeg.size(); segIndexC++) {
 
-      //const Muon::MuonSegment* segC = dynamic_cast<const Muon::MuonSegment*> (p_muonSegmentContainer->at(m_indexSeg[segIndexC]));
       const Muon::MuonSegment* segC = dynamic_cast<const Muon::MuonSegment*> (*m_indexSeg[segIndexC]);
+      if (!segC) std::abort();
 
       const Amg::Vector3D&  globalPos = segC->globalPosition();
       double zSegC = globalPos.z();
 
-      //double tSeg = seg->time();
-      double tSegC = GetSegmentTime(segC);
+      double tSegC = seg->time();
 
       // take only the segments on side C (z < 0)
       if( zSegC > 0. ) continue;
@@ -357,14 +400,14 @@ void BeamBackgroundFiller::SegmentMethod()
       double early  = -( TMath::Abs(zSegC) + globalPos.mag())*1e-3/3e8/1e-9;
       if( TMath::Abs(tSegC - inTime) < m_cutMuonTime ) timeStatusC = 1;
       if( TMath::Abs(tSegC - early ) < m_cutMuonTime ) timeStatusC = 2;
-
+/*
       // also take the CSC segments that fall outside of the time readout window on the early side
       // CscTimeStatus::CscTimeEarly could be used here
       Identifier id = m_helperTool->chamberId(*seg);
       MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
       int stationName = fid.stationName();
       if( tSegC < early && (stationName==33 || stationName==34) ) timeStatus = 2;
-
+*/
       double phiSegC = globalPos.phi();
 
       // match in phi
@@ -417,7 +460,8 @@ void BeamBackgroundFiller::OneSidedMethod()
     const xAOD::CaloCluster* clus = *m_indexClus[clusIndex];
 
     double rClus(0.);
-    clus->retrieveMoment(xAOD::CaloCluster_v1::CENTER_MAG,rClus);
+    if (!clus->retrieveMoment(xAOD::CaloCluster_v1::CENTER_MAG,rClus))
+      rClus = 0;
     rClus = rClus/cosh(clus->eta());
     double zClus = rClus * sinh(clus->eta());
     double tClus = clus->time();
@@ -431,12 +475,12 @@ void BeamBackgroundFiller::OneSidedMethod()
       if( !(m_matchMatrix[clusIndex][segIndex]&1) ) continue;
 
       const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (*m_indexSeg[segIndex]);
+      if (!seg) std::abort();
 
       const Amg::Vector3D&  globalPos = seg->globalPosition();
       double zSeg = globalPos.z();
 
-      //double tSeg = seg->time();
-      double tSeg = GetSegmentTime(seg);
+      double tSeg = seg->time();
 
       // muon segment: in-time (1), early (2), ambiguous (0)
       int timeStatus = 0;
@@ -444,14 +488,14 @@ void BeamBackgroundFiller::OneSidedMethod()
       double early  = -( TMath::Abs(zSeg) + globalPos.mag())*1e-3/3e8/1e-9;
       if( TMath::Abs(tSeg - inTime) < m_cutMuonTime ) timeStatus = 1;
       if( TMath::Abs(tSeg - early ) < m_cutMuonTime ) timeStatus = 2;
-
+/*
       // also take the CSC segments that fall outside of the time readout window on the early side
       // CscTimeStatus::CscTimeEarly could be used here
       Identifier id = m_helperTool->chamberId(*seg);
       MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
       int stationName = fid.stationName();
       if( tSeg < early && (stationName==33 || stationName==34) ) timeStatus = 2;
-
+*/
       // reconstruct beam background direction: A->C (1), C->A (-1)
       int direction = 0;
       if( (zSeg>0 && timeStatus==2) || (zSeg<0 && timeStatus==1) ) direction = 1;
@@ -533,12 +577,12 @@ void BeamBackgroundFiller::TwoSidedMethod()
       if( !(m_matchMatrix[clusIndex][segIndexA]&1) ) continue;
 
       const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (*m_indexSeg[segIndexA]);
+      if (!seg) std::abort();
 
       const Amg::Vector3D&  globalPos = seg->globalPosition();
       double zSegA = globalPos.z();
 
-      //double tSegA = seg->time();
-      double tSegA = GetSegmentTime(seg);
+      double tSegA = seg->time();
 
 
       // muon segment: in-time (1), early (2), ambiguous (0)
@@ -547,29 +591,28 @@ void BeamBackgroundFiller::TwoSidedMethod()
       double early  = -( TMath::Abs(zSegA) + globalPos.mag())*1e-3/3e8/1e-9;
       if( TMath::Abs(tSegA - inTime) < m_cutMuonTime ) timeStatusA = 1;
       if( TMath::Abs(tSegA - early ) < m_cutMuonTime ) timeStatusA = 2;
-
+/*
       // also take the CSC segments that fall outside of the time readout window on the early side
       // CscTimeStatus::CscTimeEarly could be used here
       Identifier id = m_helperTool->chamberId(*seg);
       MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
       int stationName = fid.stationName();
       if( tSegA < early && (stationName==33 || stationName==34) ) timeStatusA = 2;
-
+*/
       // take only the segments on side A (z > 0)
       if( zSegA < 0. ) continue;
-      //if( !timeStatusA ) continue;
 
       for(unsigned int segIndexC=0; segIndexC<m_indexSeg.size(); segIndexC++) {
 
         if( !(m_matchMatrix[clusIndex][segIndexC]&1) ) continue;
 
         const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (*m_indexSeg[segIndexC]);
+        if (!seg) std::abort();
 
         const Amg::Vector3D&  globalPos = seg->globalPosition();
         double zSegC = globalPos.z();
 
-        //double tSegC = seg->time();
-        double tSegC = GetSegmentTime(seg);
+        double tSegC = seg->time();
 
 
         // muon segment: in-time (1), early (2), ambiguous (0)
@@ -578,17 +621,16 @@ void BeamBackgroundFiller::TwoSidedMethod()
         double early  = -( TMath::Abs(zSegC) + globalPos.mag())*1e-3/3e8/1e-9;
         if( TMath::Abs(tSegC - inTime) < m_cutMuonTime ) timeStatusC = 1;
         if( TMath::Abs(tSegC - early ) < m_cutMuonTime ) timeStatusC = 2;
-
+/*
         // also take the CSC segments that fall outside of the time readout window on the early side
         // CscTimeStatus::CscTimeEarly could be used here
         Identifier id = m_helperTool->chamberId(*seg);
         MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
         int stationName = fid.stationName();
         if( tSegC < early && (stationName==33 || stationName==34) ) timeStatusC = 2;
-
+*/
         // take only the segments on side C (z < 0)
         if( zSegC > 0. ) continue;
-        //if( !timeStatusC ) continue;
 
 
         m_matchMatrix[clusIndex][segIndexA] = m_matchMatrix[clusIndex][segIndexA] | BeamBackgroundData::TwoSidedNoTime;
@@ -641,7 +683,8 @@ void BeamBackgroundFiller::ClusterShapeMethod()
     const xAOD::CaloCluster* clus = *m_indexClus[clusIndex];
 
     double rClus(0.);
-    clus->retrieveMoment(xAOD::CaloCluster_v1::CENTER_MAG,rClus);
+    if (!clus->retrieveMoment(xAOD::CaloCluster_v1::CENTER_MAG,rClus))
+      rClus = 0;
     rClus = rClus/cosh(clus->eta());
     double zClus = rClus * sinh(clus->eta());
 
@@ -818,89 +861,4 @@ void BeamBackgroundFiller::FillBeamBackgroundData()
 //------------------------------------------------------------------------------
 StatusCode BeamBackgroundFiller::finalize() {
   return StatusCode::SUCCESS;
-}
-
-
-//------------------------------------------------------------------------------
-/**
- * Function calculating time for mboy CSC segments.
- * Needed until release 17.1.0, does not work on AOD.
- * Provided by Jean-Francois Laporte and Woochun Park.
- */
-double BeamBackgroundFiller::GetSegmentTime(const Muon::MuonSegment* pMuonSegment)
-{
-  double t0 = pMuonSegment->time();
-
-  if ( !m_doMuonBoyCSCTiming ) return t0;
-
-
-  Identifier id = m_helperTool->chamberId(*pMuonSegment); 
-  if ( !m_idHelperTool->isCsc(id) ) return t0;
-
-  if ( pMuonSegment->author() != Trk::Segment::Muonboy ) return t0;
-
-
-  int   DoAlternative = 0 ;
-  int   Alternative_ThereIsaCscTimeEarly  = 0 ;
-  int   Alternative_ThereIsaCscTimeLate   = 0 ;
-  float Alternative_LatestEarlyTime  = 0. ;
-  float Alternative_EarliestLateTime = 0. ;
-  float Alternative_Counter = 0. ;
-  float Alternative_t0      = 0. ;
-  float Alternative_t0sqr   = 0. ;
-  float Alternative_t0Error = 0. ;
-  const std::vector<const Trk::RIO_OnTrack*> pRIOSet = pMuonSegment->containedROTs();
-  std::vector<const Trk::RIO_OnTrack*>::const_iterator pRIO_OnTrackIter = pRIOSet.begin();
-  for (; pRIO_OnTrackIter!=pRIOSet.end(); ++pRIO_OnTrackIter){
-    if ( (*pRIO_OnTrackIter) ){
-      const Trk::PrepRawData* pPrepRawData =(*pRIO_OnTrackIter)->prepRawData () ;
-      if ( pPrepRawData ){
-        const Muon::CscPrepData* pPrepData = dynamic_cast<const Muon::CscPrepData*>(pPrepRawData);
-        if ( pPrepData ){
-          DoAlternative = 1 ;
-          double Time = pPrepData->time() ;
-          if (pPrepData->timeStatus() == Muon::CscTimeSuccess){
-            Alternative_Counter = Alternative_Counter + 1. ;
-            Alternative_t0    = Alternative_t0    + Time      ;
-            Alternative_t0sqr = Alternative_t0sqr + Time*Time ;
-          }
-          if (pPrepData->timeStatus() == Muon::CscTimeEarly) {
-            if ( Alternative_ThereIsaCscTimeEarly == 0 ) Alternative_LatestEarlyTime = Time ;
-            if ( Time >= Alternative_LatestEarlyTime   ) Alternative_LatestEarlyTime = Time ; 
-            Alternative_ThereIsaCscTimeEarly = 1 ;
-          }
-          if (pPrepData->timeStatus() == Muon::CscTimeLate ) {
-            if ( Alternative_ThereIsaCscTimeLate == 0 ) Alternative_EarliestLateTime = Time ;
-            if ( Time <= Alternative_EarliestLateTime ) Alternative_EarliestLateTime = Time ; 
-            Alternative_ThereIsaCscTimeLate  = 1 ;
-          }
-        }
-      }
-    }
-  }
-  
-  if (DoAlternative==1){ 
-    if (Alternative_Counter){
-      Alternative_t0    =  Alternative_t0    / Alternative_Counter ;
-      Alternative_t0sqr =  Alternative_t0sqr / Alternative_Counter ;
-      Alternative_t0Error =  Alternative_t0sqr - Alternative_t0*Alternative_t0 ;
-      if (Alternative_t0Error < 0.){
-        Alternative_t0Error = 0. ;
-      }else{
-        Alternative_t0Error = sqrt(Alternative_t0Error) ;
-      }
-    }else if (Alternative_ThereIsaCscTimeEarly == 1 && Alternative_ThereIsaCscTimeLate == 0){
-      Alternative_t0      = Alternative_LatestEarlyTime       ;
-      Alternative_t0Error = fabs(Alternative_LatestEarlyTime) ;
-    }else if (Alternative_ThereIsaCscTimeEarly == 0 && Alternative_ThereIsaCscTimeLate == 1){
-      Alternative_t0      = Alternative_EarliestLateTime ;
-      Alternative_t0Error = Alternative_EarliestLateTime ;
-    }else{
-      Alternative_t0      = 99999. ;
-      Alternative_t0Error = 99999. ;
-    }
-    t0      = Alternative_t0      ;
-  }
-
-  return t0;
 }
