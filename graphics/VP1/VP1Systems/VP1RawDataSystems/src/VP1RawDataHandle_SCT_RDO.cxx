@@ -22,10 +22,7 @@
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-
-//#include "InDetReadoutGeometry/InDetReadoutGeometry/SCT_ModuleSideDesign.h" // old CMT
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"   // new CMake
-
+#include "InDetReadoutGeometry/InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "InDetRawData/SCT_RDORawData.h"
 #include "InDetIdentifier/SCT_ID.h"
 
@@ -61,12 +58,13 @@ QStringList VP1RawDataHandle_SCT_RDO::clicked(bool verbose) const
       l << "   Phi module: "+QString::number(idhelper->phi_module(id));
       l << "   Eta module: "+QString::number(idhelper->eta_module(id));
       l << "   Side: "+QString(idhelper->side(id)==0 ? "Inner":"Outer");
-      l << "   Group Size: "+QString::number(m_data->getGroupSize());
-      if (m_data->getGroupSize()>1)
-        l << "  Strips: "+QString::number(idhelper->strip(id))+".."+QString::number(idhelper->strip(id)+m_data->getGroupSize()-1);
-      else
-        l << "  Strip: "+QString::number(idhelper->strip(id));
+      l << "   Strip (from identifier): "+QString::number(idhelper->strip(id));
     }
+    l << "  Group Size: "+QString::number(m_data->getGroupSize());
+    if (m_data->getGroupSize()>1)
+      l << "  Strips: "+QString::number(m_data->getStrip())+".."+QString::number(m_data->getStrip()+m_data->getGroupSize()-1);
+    else
+      l << "  Strip: "+QString::number(m_data->getStrip());
     //Fixme: Try dynamic cast to SCT3_RawData, and print more information if it succeeds.
   }
   return l;
@@ -75,7 +73,6 @@ QStringList VP1RawDataHandle_SCT_RDO::clicked(bool verbose) const
 //____________________________________________________________________
 SoNode * VP1RawDataHandle_SCT_RDO::buildShape()
 {
-  static const SCT_ID * idhelper = VP1DetInfo::sctIDHelper();
   const InDetDD::SiDetectorElement * elem = element();
   const int ngroup = m_data->getGroupSize();
   if (!elem||ngroup<1)
@@ -88,7 +85,7 @@ SoNode * VP1RawDataHandle_SCT_RDO::buildShape()
   line->vertexProperty = vertices;
 
   Amg::Transform3D invTransform(elem->transform().inverse());
-  const int ifirststrip(idhelper ? idhelper->strip(m_data->identify()) : 0);
+  const int ifirststrip(m_data->getStrip());
   int iver(0);
   std::pair<InDetDD::SiLocalPosition,InDetDD::SiLocalPosition> localEnds;
   for (int i=0;i<ngroup;++i) {
