@@ -41,7 +41,7 @@ class TrigT2HistoPrmVtxBase {
   TrigT2HistoPrmVtxBase(const TrigT2HistoPrmVtxBase&);
   ~TrigT2HistoPrmVtxBase();
 
-  TrigT2HistoPrmVtxBase operator=(const TrigT2HistoPrmVtxBase&);
+  TrigT2HistoPrmVtxBase& operator=(const TrigT2HistoPrmVtxBase&);
 
   /** @brief To check if phi RoI is in [-Pi;Pi] range. */
   float phiCorr(float);

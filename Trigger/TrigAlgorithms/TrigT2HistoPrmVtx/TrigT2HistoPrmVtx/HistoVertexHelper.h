@@ -35,7 +35,7 @@ class HistoVertexHelper
   HistoVertexHelper(const HistoVertexHelper&);
   ~HistoVertexHelper();
 
-  HistoVertexHelper operator=(const HistoVertexHelper&);
+  HistoVertexHelper& operator=(const HistoVertexHelper&);
 
   /** @brief To fill the bin, with unitary weight, corresponding to a certain longitudinal impact parameter, watchin out for underflow and overflow. */
   bool fill(float);
