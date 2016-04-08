@@ -24,25 +24,6 @@ class MuonCnv(JobPropertyContainer):
         # check on problematic global tags with no association of cabling map folders exist; in this case we use the old cabling  
         problematic_tags_mdtrpc = ['COMCOND-00[0-6]','COMCOND-HLT[A-C]-00[0-1]','COMCOND-MONC-00[0-1]', 'COMCOND-ES1C-00[0-1]', 'COMCOND-REPC-00[0-4]', 'OFLCOND-CSC','OFLCOND-FDR']
         problematic_tags_tgc = ['COMCOND-00[0-5]','COMCOND-006-00','CMCCOND-CSC','OFLCOND-FDR-02-0[4-6]','OFLCOND-FDR-02-10']
-        #
-        # import trigger flags if possible
-        #
-        doTrigger = recFlags.doTrigger()
-        if doTrigger:
-            logMuon.info("trigger ON from reconstruction flags / check for LVL1 or HLT algorithms")   
-            try:
-                from TriggerJobOpts.TriggerFlags import TriggerFlags
-                doTrigger = TriggerFlags.doLVL1() or TriggerFlags.doLVL2() or TriggerFlags.doEF()
-                if doTrigger: 
-                    logMuon.info("trigger: LVL1 or HLT algorithms ON ")
-                else:
-                    logMuon.info("trigger: LVL1 and HLT algorithms OFF ")
-            except ImportError:
-                doTrigger=False
-                logMuon.info("triggerFlags cannot be imported; doTrigger = False")
-            else:
-                logMuon.info("trigger OFF from reconstruction flags")
-
 
         # MDT
 #        if globalflags.InputFormat.is_bytestream() and globalflags.DataSource() == 'geant4':
