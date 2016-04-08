@@ -18,43 +18,32 @@ class MuonCalibHit_EBranch;
 class MuonCalibTrackSegmentBranch;
 class ISegmentOnTrackSelector;
 
-
-class IExtraTreeFillerTool: virtual public IAlgTool 
-	{
-	public:
+class IExtraTreeFillerTool: virtual public IAlgTool {
+ public:	
+  inline IExtraTreeFillerTool(): m_trackBranch(NULL), m_hitBranch(NULL),  m_trackSegmentBranch(NULL), m_segmentOnTrackSelector(NULL) {
+  }
 		
-		inline IExtraTreeFillerTool(): m_trackBranch(NULL), m_hitBranch(NULL),  m_trackSegmentBranch(NULL), m_segmentOnTrackSelector(NULL)
-			{
-			}
+  virtual ~IExtraTreeFillerTool() {};
 		
-		virtual ~IExtraTreeFillerTool() {};
+  inline static const InterfaceID& interfaceID() {
+    return IID_MuonCalibExtraTreeAlg_IExtraTreeFillerTool;
+  }
 		
-		inline static const InterfaceID& interfaceID()
-			{
-			return IID_MuonCalibExtraTreeAlg_IExtraTreeFillerTool;
-			}
+  virtual StatusCode writeTracks(unsigned int &index)=0;
 		
-		virtual StatusCode writeTracks(unsigned int &index)=0;
+  inline void SetBranches(MuonCalibTrack_EBranch *trackBranch, MuonCalibHit_EBranch *hitBranch, MuonCalibTrackSegmentBranch *trackSegmentBranch, ToolHandle<ISegmentOnTrackSelector> &segment_on_track_selector) {
+    m_trackBranch = trackBranch;
+    m_hitBranch = hitBranch;
+    m_trackSegmentBranch = trackSegmentBranch;
+    m_segmentOnTrackSelector = &segment_on_track_selector;
+  }
 	
-		
-		inline void SetBranches(MuonCalibTrack_EBranch * trackBranch, MuonCalibHit_EBranch * hitBranch, MuonCalibTrackSegmentBranch * trackSegmentBranch, ToolHandle<ISegmentOnTrackSelector> & sement_on_track_selector)
-			{
-			m_trackBranch = trackBranch;
-			m_hitBranch = hitBranch;
-			m_trackSegmentBranch = trackSegmentBranch;
-			m_segmentOnTrackSelector = &sement_on_track_selector;
-			}
-	
-	
-	protected:
-		MuonCalibTrack_EBranch      *m_trackBranch;
-		MuonCalibHit_EBranch        *m_hitBranch;
-		MuonCalibTrackSegmentBranch *m_trackSegmentBranch;
-		ToolHandle<ISegmentOnTrackSelector> *m_segmentOnTrackSelector;
-	
-	};
+ protected:
+  MuonCalibTrack_EBranch      *m_trackBranch;
+  MuonCalibHit_EBranch        *m_hitBranch;
+  MuonCalibTrackSegmentBranch *m_trackSegmentBranch;
+  ToolHandle<ISegmentOnTrackSelector> *m_segmentOnTrackSelector;
+};
 
 } //namespace MuonCalib
-
-
 #endif

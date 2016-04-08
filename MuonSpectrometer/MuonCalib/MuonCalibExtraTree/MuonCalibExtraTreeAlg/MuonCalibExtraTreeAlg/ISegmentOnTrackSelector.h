@@ -10,24 +10,21 @@
 #include "set"
 
 namespace Trk {
-class Track;
+  class Track;
 }
 
 namespace MuonCalib {
 
-static const InterfaceID IID_ISegmentOnTrackSelector(
-	                            "MuonCalib::ISegmentOnTrackSelector", 1, 0);
-class ISegmentOnTrackSelector: virtual public IAlgTool
-	{
-	public:
-		virtual std::vector<unsigned int> SegmentIndices(const Trk::Track &track, const std::set<int> segment_authors) const=0;
-		
-		virtual StatusCode beginEvent()=0;
-static const InterfaceID & interfaceID(void) {
-	                                     return IID_ISegmentOnTrackSelector; };	
-	};
+static const InterfaceID IID_ISegmentOnTrackSelector("MuonCalib::ISegmentOnTrackSelector", 1, 0);
+class ISegmentOnTrackSelector: virtual public IAlgTool {
+ public:
+  virtual std::vector<unsigned int> SegmentIndices(const Trk::Track &track, const std::set<int> segment_authors) const=0;
+  virtual StatusCode beginEvent()=0;
+  static const InterfaceID &interfaceID(void) {
+    return IID_ISegmentOnTrackSelector;
+  };	
+};
 
-
-}
+}  //namespace MuonCalib
 
 #endif
