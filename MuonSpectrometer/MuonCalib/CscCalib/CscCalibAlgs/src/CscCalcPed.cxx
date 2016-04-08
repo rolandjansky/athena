@@ -59,7 +59,7 @@ namespace MuonCalib {
     m_f001s(NULL),
     m_onlineTHoldBreaches(NULL),
     m_eventCnt(0),
-    crossTalkFix(NULL),
+    m_crossTalkFix(NULL),
     m_debug(0),
     m_verbose(0)
   {
@@ -231,7 +231,7 @@ namespace MuonCalib {
 
         int stationName = m_cscId->stationName(stripId);		
         //Amplitude histogram
-        sprintf(name, "ampHist%d",stripItr);
+        sprintf(name, "ampHist%u",stripItr);
         sprintf(titleSeed, "Amplitude Histogram for eta %d, sector %d, layer %d%c, strip %d",
             stationEta,(2*stationPhi+50 - stationName),wireLayer,orientation,stripNumber);
         string title = m_titlePrefix + titleSeed + m_titlePostfix;
@@ -245,7 +245,7 @@ namespace MuonCalib {
         if(m_doSampleHists) {
           DataVector<TH1I>* tempVect  = new DataVector<TH1I>(SG::VIEW_ELEMENTS);
           for(int cnt = 0; cnt < m_numSamplesExpected ; cnt++) {
-            sprintf(name, "sampHist%d_%d",stripItr,cnt);
+            sprintf(name, "sampHist%u_%d",stripItr,cnt);
             sprintf(titleSeed, "Amplitude Histogram for eta %d, sector %d, layer %d%c, strip %d, sample %d",
                 stationEta,(2*stationPhi+50 - stationName),wireLayer,orientation,stripNumber,cnt);
 
@@ -260,7 +260,7 @@ namespace MuonCalib {
         if(m_bitHists)
         {
           //Bit histogram (for looking for stuck-bits)
-          sprintf(name, "bitHist%d",stripItr);
+          sprintf(name, "bitHist%u",stripItr);
           sprintf(titleSeed, "Bit histogram for eta %d, sector %d, layer %d%c strip %d", 
               stationEta,(2*stationPhi+50 - stationName),wireLayer,orientation,stripNumber);
           title = m_titlePrefix + titleSeed + m_titlePostfix;
