@@ -26,10 +26,6 @@ namespace D3PD {
 class ID3PD;
 
 
-/// Interface definition.
-static const InterfaceID IID_ID3PDSvc ("D3PD::ID3PDSvc", 1, 0);
-
-
 /**
  * @brief Abstract interface for service to create D3PD trees.
  */
@@ -38,7 +34,7 @@ class ID3PDSvc
 {
 public:
   /// Gaudi interface definition.
-  static const InterfaceID& interfaceID() { return IID_ID3PDSvc; }
+  DeclareInterfaceID(ID3PDSvc, 1, 0);
 
 
   /**

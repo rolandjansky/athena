@@ -25,11 +25,6 @@ namespace D3PD {
 class ICollectionGetterTool;
 
 
-/// Interface definition.
-static const InterfaceID IID_ICollectionGetterRegistryTool
-  ("D3PD::ICollectionGetterRegistryTool", 1, 0);
-
-
 /**
  * @brief Abstract interface to keep a registry of collection getter tools.
  *
@@ -46,8 +41,7 @@ class ICollectionGetterRegistryTool
 {
 public:
   /// Gaudi interface definition.
-  static const InterfaceID& interfaceID()
-  { return IID_ICollectionGetterRegistryTool; }
+  DeclareInterfaceID(ICollectionGetterRegistryTool, 1, 0);
 
 
   /**

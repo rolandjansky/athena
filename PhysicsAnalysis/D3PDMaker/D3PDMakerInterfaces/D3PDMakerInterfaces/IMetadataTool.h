@@ -27,11 +27,6 @@ namespace D3PD {
 class ID3PD;
 
 
-/// Interface definition.
-static const
-InterfaceID IID_IMetadataTool ("D3PD::IMetadataTool", 1, 0);
-
-
 /**
  * @brief Write metadata to a D3PD.
  */
@@ -40,7 +35,7 @@ class IMetadataTool
 {
 public:
   /// Gaudi interface definition.
-  static const InterfaceID& interfaceID() { return IID_IMetadataTool; }
+  DeclareInterfaceID(IMetadataTool, 1, 0);
 
 
   /**

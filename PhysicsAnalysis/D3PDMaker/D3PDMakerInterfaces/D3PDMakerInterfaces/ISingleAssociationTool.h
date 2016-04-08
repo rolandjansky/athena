@@ -24,11 +24,6 @@
 namespace D3PD {
 
 
-/// Interface definition.
-static const InterfaceID
-IID_ISingleAssociationTool ("D3PD::ISingleAssociationTool", 1, 0);
-
-
 /**
  * @brief Abstract interface to form a single association.
  *
@@ -46,8 +41,7 @@ class ISingleAssociationTool
 {
 public:
   /// Gaudi interface definition.
-  static const InterfaceID& interfaceID()
-  { return IID_ISingleAssociationTool; }
+  DeclareInterfaceID(ISingleAssociationTool, 1, 0);
 
 
   /**

@@ -27,11 +27,6 @@ namespace D3PD {
 class IAddVariable;
 
 
-/// Interface definition.
-static const
-InterfaceID IID_IBlockFillerTool ("D3PD::IBlockFillerTool", 1, 0);
-
-
 /**
  * @brief Abstract interface for tool to fill a block in the D3PD.
  *
@@ -66,7 +61,7 @@ class IBlockFillerTool
 {
 public:
   /// Gaudi interface definition.
-  static const InterfaceID& interfaceID() { return IID_IBlockFillerTool; }
+  DeclareInterfaceID(IBlockFillerTool, 1, 0);
 
 
   /// Special status code to indicate that we want @c fillAgainUntyped

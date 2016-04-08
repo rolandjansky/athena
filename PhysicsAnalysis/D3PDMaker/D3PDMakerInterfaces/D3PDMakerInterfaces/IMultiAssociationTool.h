@@ -27,11 +27,6 @@ namespace D3PD {
 class IAddVariable;
 
 
-/// Interface definition.
-static const InterfaceID
-IID_IMultiAssociationTool ("D3PD::IMultiAssociationTool", 1, 0);
-
-
 /**
  * @brief Abstract interface to form a multi-way association.
  *
@@ -47,8 +42,7 @@ class IMultiAssociationTool
 {
 public:
   /// Gaudi interface definition.
-  static const InterfaceID& interfaceID()
-  { return IID_IMultiAssociationTool; }
+  DeclareInterfaceID(IMultiAssociationTool, 1, 0);
 
 
   /**

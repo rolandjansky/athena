@@ -22,10 +22,6 @@
 namespace D3PD {
 
 
-/// Interface definition.
-static const InterfaceID IID_IObjGetterTool ("D3PD::IObjGetterTool", 1, 0);
-
-
 /**
  * @brief Abstract interface to get an object to put in the tuple.
  *
@@ -51,7 +47,7 @@ class IObjGetterTool
 {
 public:
   /// Gaudi interface definition.
-  static const InterfaceID& interfaceID() { return IID_IObjGetterTool; }
+  DeclareInterfaceID(IObjGetterTool, 1, 0);
 
 
   /**

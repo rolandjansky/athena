@@ -24,11 +24,6 @@
 namespace D3PD {
 
 
-/// Interface definition.
-static const InterfaceID
-IID_ICollectionGetterTool ("D3PD::ICollectionGetterTool", 1, 0);
-
-
 /**
  * @brief Abstract interface to get a collection of objects and iterate over it.
  *
@@ -44,8 +39,7 @@ class ICollectionGetterTool
 {
 public:
   /// Gaudi interface definition.
-  static const InterfaceID& interfaceID()
-  { return IID_ICollectionGetterTool; }
+  DeclareInterfaceID(ICollectionGetterTool, 1, 0);
 
 
   /**

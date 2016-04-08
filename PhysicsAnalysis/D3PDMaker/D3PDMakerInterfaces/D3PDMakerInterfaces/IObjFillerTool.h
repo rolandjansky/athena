@@ -25,10 +25,6 @@ namespace D3PD {
 class IAddVariable;
 
 
-/// Interface definition.
-static const InterfaceID IID_IObjFillerTool ("D3PD::IObjFillerTool", 1, 0);
-
-
 /**
  * @brief Abstract interface for tool to fill an object in the D3PD.
  *
@@ -49,7 +45,7 @@ class IObjFillerTool
 {
 public:
   /// Gaudi interface definition.
-  static const InterfaceID& interfaceID() { return IID_IObjFillerTool; }
+  DeclareInterfaceID(IObjFillerTool, 1, 0);
 
 
   /**
