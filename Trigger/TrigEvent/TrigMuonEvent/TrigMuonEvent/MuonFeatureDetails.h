@@ -287,6 +287,7 @@ public:
     void setPhiPivot(uint32_t ly0, uint32_t ly1);
     void setPhiLow (uint32_t ly00, uint32_t ly01, uint32_t ly10, uint32_t ly11);
     void setPhiHigh(uint32_t ly00, uint32_t ly01, uint32_t ly10, uint32_t ly11);
+    void setLvl1Emulation (const std::vector<uint32_t>& v);
     
     void setTgcMid1(float Mid1_eta, float Mid1_phi, float Mid1_r,   float Mid1_z);
     void setTgcMid2(float Mid2_eta, float Mid2_phi, float Mid2_r,   float Mid2_z);
@@ -320,11 +321,25 @@ public:
     void setSt_phi (int tr, int st, float phi);
     void setSt_roads(int tr, int st, float road);
 
+    void setChamber_type_1(const std::vector< std::vector<int> >& v);
+    void setChamber_type_2(const std::vector< std::vector<int> >& v);
+    void setPos(const std::vector< std::vector<int> >& v);
+    void setAw(const std::vector< std::vector<float> >& v);
+    void setBw(const std::vector< std::vector<float> >& v);
+    void setZetaMin(const std::vector< std::vector<float> >& v);
+    void setZetaMax(const std::vector< std::vector<float> >& v);
+    void setRadMin (const std::vector< std::vector<float> >& v);
+    void setRadMax (const std::vector< std::vector<float> >& v);
+    void setEtaMin (const std::vector< std::vector<float> >& v);
+    void setEtaMax (const std::vector< std::vector<float> >& v);
+    void setSt_phi (const std::vector< std::vector<float> >& v);
+    void setSt_roads(const std::vector< std::vector<float> >& v);
+
     void setPadHit(uint32_t onlineId, uint32_t code, float x, float y, float z,
                    float r, float p);
     
     void setTgcMidRhoHit(float phi,float r,float z,float width,uint32_t in_seg);
-    void setTgcMidPhihit(float phi,float r,float z,float width,uint32_t in_seg);
+    void setTgcMidPhiHit(float phi,float r,float z,float width,uint32_t in_seg);
     void setTgcInnRhoHit(float phi,float r,float z,float width,uint32_t in_seg);
     void setTgcInnPhiHit(float phi,float r,float z,float width,uint32_t in_seg);
     
@@ -362,11 +377,29 @@ public:
     void setExtension8(uint32_t);
     void setExtension9(uint32_t);
     
+    void setExtension0(const std::vector<uint32_t>& v);
+    void setExtension1(const std::vector<uint32_t>& v);
+    void setExtension2(const std::vector<uint32_t>& v);
+    void setExtension3(const std::vector<uint32_t>& v);
+    void setExtension4(const std::vector<uint32_t>& v);
+    void setExtension5(const std::vector<uint32_t>& v);
+    void setExtension6(const std::vector<uint32_t>& v);
+    void setExtension7(const std::vector<uint32_t>& v);
+    void setExtension8(const std::vector<uint32_t>& v);
+    void setExtension9(const std::vector<uint32_t>& v);
+    
     void setRequestedRob(uint32_t);
     void setConvertedCsm(uint32_t,uint32_t);
     void setCsmError(uint32_t);
     void setRemovedRob(uint32_t);
     void setRemovedCsm(uint32_t);
+
+    void setRequestedRob(const std::vector<uint32_t>& v);
+    void setConvertedCsm(const std::vector<uint32_t>& v);
+    void setConvertedCsmSize(const std::vector<uint32_t>& v);
+    void setCsmError(const std::vector<uint32_t>& v);
+    void setRemovedRob(const std::vector<uint32_t>& v);
+    void setRemovedCsm(const std::vector<uint32_t>& v);
     
     
 private:
@@ -558,167 +591,96 @@ private:
     template <class T> void copy_vector(std::vector<T>& d,
                                        const std::vector<T>& s,  
                                        int resize=0);
+
+    uint32_t lvl1_emulation(size_t i)  const;
 };
 
 
+inline uint32_t MuonFeatureDetails::lvl1_emulation(size_t i)  const {
+  if (m_lvl1_emulation.size() > i)
+    return m_lvl1_emulation[i];
+  return 0;
+}
+
+
 inline uint32_t MuonFeatureDetails::eta_pivot_lay0(void)  const {
-  try {
-    return m_lvl1_emulation.at(0);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(0);
 }
 
 inline uint32_t MuonFeatureDetails::eta_pivot_lay1(void)  const {
-  try {
-    return m_lvl1_emulation.at(1);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(1);
 }
   
 inline uint32_t MuonFeatureDetails::eta_low_0_lay0(void)  const {
-  try {
-    return m_lvl1_emulation.at(2);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(2);
 }
 
 inline uint32_t MuonFeatureDetails::eta_low_1_lay0(void)  const {
-  try {
-    return m_lvl1_emulation.at(3);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(3);
 }
 
 inline uint32_t MuonFeatureDetails::eta_low_0_lay1(void)  const {
-  try {
-    return m_lvl1_emulation.at(4);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(4);
 }
 
 inline uint32_t MuonFeatureDetails::eta_low_1_lay1(void)  const {
-  try {
-    return m_lvl1_emulation.at(5);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(5);
 }
 
 inline uint32_t MuonFeatureDetails::eta_high_0_lay0(void) const {
-  try {
-    return m_lvl1_emulation.at(6);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(6);
 }
 
 inline uint32_t MuonFeatureDetails::eta_high_1_lay0(void) const {
-  try {
-    return m_lvl1_emulation.at(7);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(7);
 }
 
 inline uint32_t MuonFeatureDetails::eta_high_0_lay1(void) const {
-  try {
-    return m_lvl1_emulation.at(8);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(8);
 }
 
 inline uint32_t MuonFeatureDetails::eta_high_1_lay1(void) const {
-  try {
-    return m_lvl1_emulation.at(9);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(9);
 }
 
 inline uint32_t MuonFeatureDetails::phi_pivot_lay0(void)  const {
-  try {
-    return m_lvl1_emulation.at(10);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(10);
 }
 
 inline uint32_t MuonFeatureDetails::phi_pivot_lay1(void)  const {
-  try {
-    return m_lvl1_emulation.at(11);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(11);
 }
 
 inline uint32_t MuonFeatureDetails::phi_low_0_lay0(void)  const {
-  try {
-    return m_lvl1_emulation.at(12);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(12);
 }
 
 inline uint32_t MuonFeatureDetails::phi_low_1_lay0(void)  const {
-  try {
-    return m_lvl1_emulation.at(13);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(13);
 }
 
 inline uint32_t MuonFeatureDetails::phi_low_0_lay1(void)  const {
-  try {
-    return m_lvl1_emulation.at(14);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(14);
 }
 
 inline uint32_t MuonFeatureDetails::phi_low_1_lay1(void)  const {
-  try {
-    return m_lvl1_emulation.at(15);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(15);
 }
 
 inline uint32_t MuonFeatureDetails::phi_high_0_lay0(void) const {
-  try {
-    return m_lvl1_emulation.at(16);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(16);
 }
 
 inline uint32_t MuonFeatureDetails::phi_high_1_lay0(void) const {
-  try {
-    return m_lvl1_emulation.at(17);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(17);
 }
 
 inline uint32_t MuonFeatureDetails::phi_high_0_lay1(void) const {
-  try {
-    return m_lvl1_emulation.at(18);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(18);
 }
 
 inline uint32_t MuonFeatureDetails::phi_high_1_lay1(void) const {
-  try {
-    return m_lvl1_emulation.at(19);
-  } catch (...) {
-    return 0x0;
-  }
+  return lvl1_emulation(19);
 }
 
 

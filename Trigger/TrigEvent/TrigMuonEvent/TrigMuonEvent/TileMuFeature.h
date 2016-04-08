@@ -34,7 +34,8 @@ class TileMuFeature
 
   TileMuFeature();
 
-  TileMuFeature ( float eta, float phi, std::vector<float> & ener, float qual );
+  TileMuFeature ( float eta, float phi, const std::vector<float> & ener, float qual );
+  TileMuFeature ( float eta, float phi, std::vector<float> && ener, float qual );
 
   /** Destructor **/
   //virtual ~TileMuFeature() {}
@@ -50,11 +51,12 @@ class TileMuFeature
 
   /** Assignement operator */
   TileMuFeature& operator=(const TileMuFeature& muon_feature); 
+  TileMuFeature& operator=(TileMuFeature&& muon_feature); 
 
   /** Accessor */
   float eta()                 const { return m_eta; }
   float phi()                 const { return m_phi; }
-  std::vector<float> enedep() const { return m_energy_deposited; }
+  const std::vector<float>& enedep() const { return m_energy_deposited; }
   float quality()             const { return m_quality_factor; }
 
   //void        print    (void) const;

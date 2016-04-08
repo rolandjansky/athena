@@ -39,10 +39,18 @@ TileMuFeature::TileMuFeature ()
   m_quality_factor = -999.9;
 }
 
-TileMuFeature::TileMuFeature ( float eta, float phi, std::vector<float> & ener, float qual )
+TileMuFeature::TileMuFeature ( float eta, float phi, const std::vector<float> & ener, float qual )
   : m_eta(eta)
   , m_phi(phi)
   , m_energy_deposited(ener)
+  , m_quality_factor(qual)
+{ 
+}
+
+TileMuFeature::TileMuFeature ( float eta, float phi, std::vector<float> && ener, float qual )
+  : m_eta(eta)
+  , m_phi(phi)
+  , m_energy_deposited(std::move(ener))
   , m_quality_factor(qual)
 { 
 }
@@ -62,11 +70,27 @@ TileMuFeature::TileMuFeature (const TileMuFeature& muon_feature) {
 }
 
 TileMuFeature&
-TileMuFeature::operator=(const TileMuFeature& muon_feature) {
-  m_eta              = muon_feature.eta();
-  m_phi              = muon_feature.phi();  
-  m_energy_deposited = muon_feature.enedep();  
-  m_quality_factor   = muon_feature.quality();
+TileMuFeature::operator=(const TileMuFeature& muon_feature)
+{
+  if (this != &muon_feature) {
+    m_eta              = muon_feature.eta();
+    m_phi              = muon_feature.phi();  
+    m_energy_deposited = muon_feature.enedep();  
+    m_quality_factor   = muon_feature.quality();
+  }
+
+  return *this;
+}
+
+TileMuFeature&
+TileMuFeature::operator=(TileMuFeature&& muon_feature)
+{
+  if (this != &muon_feature) {
+    m_eta              = muon_feature.eta();
+    m_phi              = muon_feature.phi();  
+    m_energy_deposited = std::move(muon_feature.m_energy_deposited);
+    m_quality_factor   = muon_feature.quality();
+  }
 
   return *this;
 }

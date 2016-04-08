@@ -16,13 +16,8 @@
  // INCLUDE HEADER FILES:
  
 #include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-#ifdef HAVE_NEW_IOSTREAMS
 #include <iomanip>
 #include <iostream>
-#else
-#include <iomanip.h>
-#include <iostream.h>
-#endif
  
 // print objects found in container
 void TrigMuonEFInfoContainer::print()

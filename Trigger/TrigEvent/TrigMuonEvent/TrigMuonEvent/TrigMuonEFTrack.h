@@ -61,9 +61,9 @@ public:
 		return m_d0;
 	}
 
-	void setD0(double m_d0)
+	void setD0(double d0)
 	{
-		this->m_d0 = m_d0;
+		this->m_d0 = d0;
 	}
 
 	double z0() const
@@ -71,9 +71,9 @@ public:
 		return m_z0;
 	}
 
-	void setZ0(double m_z0)
+	void setZ0(double z0)
 	{
-		this->m_z0 = m_z0;
+		this->m_z0 = z0;
 	}
 
 	double chi2() const
@@ -81,9 +81,9 @@ public:
 		return m_chi2;
 	}
 
-	void setChi2(double m_chi2)
+	void setChi2(double chi2)
 	{
-		this->m_chi2 = m_chi2;
+		this->m_chi2 = chi2;
 	}
 
 	double chi2prob() const
@@ -91,18 +91,18 @@ public:
 		return m_chi2prob;
 	}
 
-	void setChi2prob(double m_chi2prob)
+	void setChi2prob(double chi2prob)
 	{
-		this->m_chi2prob = m_chi2prob;
+		this->m_chi2prob = chi2prob;
 	}
 	double posX() const
 	{
 		return m_posx;
 	}
 
-	void setPosX(double m_posx)
+	void setPosX(double posx)
 	{
-		this->m_posx = m_posx;
+		this->m_posx = posx;
 	}
 
 	double posY() const
@@ -110,9 +110,9 @@ public:
 		return m_posy;
 	}
 
-	void setPosY(double m_posy)
+	void setPosY(double posy)
 	{
-		this->m_posy = m_posy;
+		this->m_posy = posy;
 	}
 
 	double posZ() const
@@ -120,9 +120,9 @@ public:
 		return m_posz;
 	}
 
-	void setPosZ(double m_posz)
+	void setPosZ(double posz)
 	{
-		this->m_posz = m_posz;
+		this->m_posz = posz;
 	}
 
 
@@ -131,9 +131,9 @@ public:
 		return m_nRpcHitsPhi;
 	}
 
-	void setNRpcHitsPhi(unsigned short int m_nRpcHitsPhi)
+	void setNRpcHitsPhi(unsigned short int nRpcHitsPhi)
 	{
-		this->m_nRpcHitsPhi = m_nRpcHitsPhi;
+		this->m_nRpcHitsPhi = nRpcHitsPhi;
 	}
 
 	unsigned short int NTgcHitsPhi() const
@@ -141,9 +141,9 @@ public:
 		return m_nTgcHitsPhi;
 	}
 
-	void setNTgcHitsPhi(unsigned short int m_nTgcHitsPhi)
+	void setNTgcHitsPhi(unsigned short int nTgcHitsPhi)
 	{
-		this->m_nTgcHitsPhi = m_nTgcHitsPhi;
+		this->m_nTgcHitsPhi = nTgcHitsPhi;
 	}
 
 	unsigned short int NCscHitsPhi() const
@@ -151,9 +151,9 @@ public:
 		return m_nCscHitsPhi;
 	}
 
-	void setNCscHitsPhi(unsigned short int m_nCscHitsPhi)
+	void setNCscHitsPhi(unsigned short int nCscHitsPhi)
 	{
-		this->m_nCscHitsPhi = m_nCscHitsPhi;
+		this->m_nCscHitsPhi = nCscHitsPhi;
 	}
 
 	unsigned short int NRpcHitsEta() const
@@ -161,9 +161,9 @@ public:
 		return m_nRpcHitsEta;
 	}
 
-	void setNRpcHitsEta(unsigned short int m_nRpcHitsEta)
+	void setNRpcHitsEta(unsigned short int nRpcHitsEta)
 	{
-		this->m_nRpcHitsEta = m_nRpcHitsEta;
+		this->m_nRpcHitsEta = nRpcHitsEta;
 	}
 
 	unsigned short int NTgcHitsEta() const
@@ -171,9 +171,9 @@ public:
 		return m_nTgcHitsEta;
 	}
 
-	void setNTgcHitsEta(unsigned short int m_nTgcHitsEta)
+	void setNTgcHitsEta(unsigned short int nTgcHitsEta)
 	{
-		this->m_nTgcHitsEta = m_nTgcHitsEta;
+		this->m_nTgcHitsEta = nTgcHitsEta;
 	}
 
 	unsigned short int NCscHitsEta() const
@@ -181,9 +181,9 @@ public:
 		return m_nCscHitsEta;
 	}
 
-	void setNCscHitsEta(unsigned short int m_nCscHitsEta)
+	void setNCscHitsEta(unsigned short int nCscHitsEta)
 	{
-		this->m_nCscHitsEta = m_nCscHitsEta;
+		this->m_nCscHitsEta = nCscHitsEta;
 	}
 
 
@@ -192,9 +192,9 @@ public:
 		return m_nMdtHits;
 	}
 
-	void setNMdtHits(unsigned short int m_nMdtHits)
+	void setNMdtHits(unsigned short int nMdtHits)
 	{
-		this->m_nMdtHits = m_nMdtHits;
+		this->m_nMdtHits =nMdtHits;
 	}
 
 private:

@@ -46,7 +46,7 @@ public:
    /* set methods */
    void setMatchChi2( double theMatchChi2 );
    void setIDTrack(const Rec::TrackParticleContainer* cont, unsigned int itrk);
-   void setIDTrackElementLink(const ElementLink<Rec::TrackParticleContainer> link);
+   void setIDTrackElementLink(const ElementLink<Rec::TrackParticleContainer>& link);
 
    /** Get associated ID track */
    const Rec::TrackParticle* getIDTrackParticle() const;
@@ -60,9 +60,9 @@ public:
 		return m_nIdSctHits;
 	}
 
-	void setNIdSctHits(unsigned short int m_nIdSctHits)
+	void setNIdSctHits(unsigned short int nIdSctHits)
 	{
-		this->m_nIdSctHits = m_nIdSctHits;
+		this->m_nIdSctHits = nIdSctHits;
 	}
 
 	unsigned short int NIdPixelHits() const
@@ -70,9 +70,9 @@ public:
 		return m_nIdPixelHits;
 	}
 
-	void setNIdPixelHits(unsigned short int m_nIdPixelHits)
+	void setNIdPixelHits(unsigned short int nIdPixelHits)
 	{
-		this->m_nIdPixelHits = m_nIdPixelHits;
+		this->m_nIdPixelHits = nIdPixelHits;
 	}
 
 	unsigned short int NTrtHits() const
@@ -80,9 +80,9 @@ public:
 		return m_nTrtHits;
 	}
 
-	void setNTrtHits(unsigned short int m_nTrtHits)
+	void setNTrtHits(unsigned short int nTrtHits)
 	{
-		this->m_nTrtHits = m_nTrtHits;
+		this->m_nTrtHits = nTrtHits;
 	}
 
 

@@ -120,7 +120,7 @@ void TrigMuonEFCbTrack::setIDTrack(const Rec::TrackParticleContainer* cont, unsi
  *
  * Just pass directly an element link pointing to the correct ID track.
  */
-void TrigMuonEFCbTrack::setIDTrackElementLink(const ElementLink<Rec::TrackParticleContainer> link) {
+void TrigMuonEFCbTrack::setIDTrackElementLink(const ElementLink<Rec::TrackParticleContainer>& link) {
   m_idTrackLink = link;
 }
 

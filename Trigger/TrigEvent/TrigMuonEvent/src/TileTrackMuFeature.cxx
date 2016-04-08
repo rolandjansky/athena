@@ -21,8 +21,8 @@ TileTrackMuFeature::~TileTrackMuFeature() {}
 TileTrackMuFeature::TileTrackMuFeature(
         float PtTR_Trk,
         float EtaTR_Trk, float PhiTR_Trk, int Typ_IDTrk,
-        const ElementLink< TileMuFeatureContainer> TileMuOutput,
-        const ElementLink< TrigInDetTrackCollection> IDScanOutput) 
+        const ElementLink< TileMuFeatureContainer>& TileMuOutput,
+        const ElementLink< TrigInDetTrackCollection>& IDScanOutput) 
   :  P4PtEtaPhiMBase()
   , m_PtTR_Trk(PtTR_Trk)
   , m_EtaTR_Trk(EtaTR_Trk)

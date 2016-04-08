@@ -645,76 +645,141 @@ void MuonFeatureDetails::copy_vector(std::vector<T>& dest,
    m_chamber_type_1[tr][st] = ty;
  }
  
+ void MuonFeatureDetails::setChamber_type_1(const std::vector< std::vector<int> >& v)
+ {
+   m_chamber_type_1 = v;
+ }
+
  void MuonFeatureDetails::setChamber_type_2(int tr, int st, int ty){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_chamber_type_2[tr][st] = ty; 
  }
  
+ void MuonFeatureDetails::setChamber_type_2(const std::vector< std::vector<int> >& v)
+ {
+   m_chamber_type_2 = v;
+ }
+
  void MuonFeatureDetails::setPos(int tr, int st, int pos){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_pos[tr][st] = pos; 
  }
  
+ void MuonFeatureDetails::setPos(const std::vector< std::vector<int> >& v)
+ {
+   m_pos = v;
+ }
+
  void MuonFeatureDetails::setAw(int tr, int st, float aw){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_aw[tr][st] = aw;
  }
  
+ void MuonFeatureDetails::setAw(const std::vector< std::vector<float> >& v)
+ {
+   m_aw = v;
+ }
+
  void MuonFeatureDetails::setBw(int tr, int st, float bw){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_bw[tr][st] = bw;
  }
  
+ void MuonFeatureDetails::setBw(const std::vector< std::vector<float> >& v)
+ {
+   m_bw = v;
+ }
+
  void MuonFeatureDetails::setZetaMin(int tr, int st, float min){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_zetaMin[tr][st] = min;
  }
   
+ void MuonFeatureDetails::setZetaMin(const std::vector< std::vector<float> >& v)
+ {
+   m_zetaMin = v;
+ }
+
  void MuonFeatureDetails::setZetaMax(int tr, int st, float max){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_zetaMax[tr][st] = max;
  }
  
+ void MuonFeatureDetails::setZetaMax(const std::vector< std::vector<float> >& v)
+ {
+   m_zetaMax = v;
+ }
+
  void MuonFeatureDetails::setRadMin (int tr, int st, float min){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_radMin[tr][st] = min;
  }
  
+ void MuonFeatureDetails::setRadMin(const std::vector< std::vector<float> >& v)
+ {
+   m_radMin = v;
+ }
+
  void MuonFeatureDetails::setRadMax (int tr, int st, float max){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_radMax[tr][st] = max;
  }
  
+ void MuonFeatureDetails::setRadMax(const std::vector< std::vector<float> >& v)
+ {
+   m_radMax = v;
+ }
+
  void MuonFeatureDetails::setEtaMin (int tr, int st, float min){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_etaMin[tr][st] = min;
  }
  
+ void MuonFeatureDetails::setEtaMin(const std::vector< std::vector<float> >& v)
+ {
+   m_etaMin = v;
+ }
+
  void MuonFeatureDetails::setEtaMax (int tr, int st, float max){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_etaMax[tr][st] = max;
  }
  
+ void MuonFeatureDetails::setEtaMax(const std::vector< std::vector<float> >& v)
+ {
+   m_etaMax = v;
+ }
+
  void MuonFeatureDetails::setSt_phi (int tr, int st, float phi){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_st_phi[tr][st] = phi;
  }
  
+ void MuonFeatureDetails::setSt_phi(const std::vector< std::vector<float> >& v)
+ {
+   m_st_phi = v;
+ }
+
  void MuonFeatureDetails::setSt_roads(int tr, int st, float road){
    if (tr<0 || tr>1) return;
    if (st<0 || st>3) return;
    m_st_roads[tr][st] = road;
+ }
+
+ void MuonFeatureDetails::setSt_roads(const std::vector< std::vector<float> >& v)
+ {
+   m_st_roads = v;
  }
 
  void MuonFeatureDetails::setEtaPivot(uint32_t ly0, uint32_t ly1) {
@@ -764,6 +829,11 @@ void MuonFeatureDetails::copy_vector(std::vector<T>& dest,
   m_lvl1_emulation.insert(m_lvl1_emulation.begin()+16,myarray,myarray+4);
 }
     
+ void MuonFeatureDetails::setLvl1Emulation (const std::vector<uint32_t>& v)
+ {
+   m_lvl1_emulation = v;
+ }
+
  void MuonFeatureDetails::setSP1(float slope,float intercept,float z,float r,float chisquare){
   m_mdt_Inner_slope = slope;
   m_mdt_Inner_intercept = intercept;
@@ -814,7 +884,7 @@ void MuonFeatureDetails::copy_vector(std::vector<T>& dest,
   m_tgc_Mid_rho_hit_in_seg.push_back(in_seg);
 }
 
- void MuonFeatureDetails::setTgcMidPhihit(float phi,float r,float z,
+ void MuonFeatureDetails::setTgcMidPhiHit(float phi,float r,float z,
                                                 float width, uint32_t in_seg) {
   if(m_max_tgc_hits_capacity>=0)
     if(m_tgc_Mid_rho_hit_phi.size() == (unsigned int)m_max_tgc_hits_capacity) return;
@@ -873,6 +943,11 @@ void MuonFeatureDetails::copy_vector(std::vector<T>& dest,
   m_rob_id.push_back(rob);
 }
 
+ void MuonFeatureDetails::setRequestedRob(const std::vector<uint32_t>& v)
+ {
+   m_rob_id = v;
+ }
+
  void MuonFeatureDetails::setConvertedCsm(uint32_t csm, uint32_t sz) {
   if (m_max_csm_capacity >= 0)
     if(m_csm_id.size() == (unsigned int)m_max_csm_capacity) return;
@@ -880,6 +955,16 @@ void MuonFeatureDetails::copy_vector(std::vector<T>& dest,
   m_csm_id.push_back(csm);
   m_csm_size.push_back(sz);
 }
+
+ void MuonFeatureDetails::setConvertedCsm(const std::vector<uint32_t>& v)
+ {
+   m_csm_id = v;
+ }
+
+ void MuonFeatureDetails::setConvertedCsmSize(const std::vector<uint32_t>& v)
+ {
+   m_csm_size = v;
+ }
 
  void MuonFeatureDetails::setCsmError(uint32_t err) {
   if (m_max_csm_capacity >= 0)
@@ -889,6 +974,11 @@ void MuonFeatureDetails::copy_vector(std::vector<T>& dest,
 }
 
 
+ void MuonFeatureDetails::setCsmError(const std::vector<uint32_t>& v)
+ {
+   m_csm_error = v;
+ }
+
  void MuonFeatureDetails::setRemovedRob(uint32_t rob) {
   if (m_max_rob_capacity >= 0)
     if(m_removed_rob_id.size() == (unsigned int)m_max_rob_capacity) return;
@@ -896,6 +986,11 @@ void MuonFeatureDetails::copy_vector(std::vector<T>& dest,
   m_removed_rob_id.push_back(rob);
 }
  
+ void MuonFeatureDetails::setRemovedRob(const std::vector<uint32_t>& v)
+ {
+   m_removed_rob_id = v;
+ }
+
  void MuonFeatureDetails::setRemovedCsm(uint32_t csm) {
   if (m_max_csm_capacity >= 0)
     if(m_removed_csm_id.size() == (unsigned int)m_max_csm_capacity) return;
@@ -903,57 +998,120 @@ void MuonFeatureDetails::copy_vector(std::vector<T>& dest,
   m_removed_csm_id.push_back(csm);
 }
 
+ void MuonFeatureDetails::setRemovedCsm(const std::vector<uint32_t>& v)
+ {
+   m_removed_csm_id = v;
+ }
+
  void MuonFeatureDetails::setExtension0(uint32_t ext) {
   if (m_extension_capacity >= 0)
     if(m_extension0.size() == (unsigned int)m_extension_capacity) return;
   m_extension0.push_back(ext);
 }
 
+ void MuonFeatureDetails::setExtension0(const std::vector<uint32_t>& v)
+ {
+   m_extension0 = v;
+ }
+
  void MuonFeatureDetails::setExtension1(uint32_t ext) {  
   if (m_extension_capacity >= 0)
     if(m_extension1.size() == (unsigned int)m_extension_capacity) return;
   m_extension1.push_back(ext);
 }
+
+ void MuonFeatureDetails::setExtension1(const std::vector<uint32_t>& v)
+ {
+   m_extension1 = v;
+ }
+
  void MuonFeatureDetails::setExtension2(uint32_t ext) {
   if (m_extension_capacity >= 0)
     if(m_extension2.size() == (unsigned int)m_extension_capacity) return;
   m_extension2.push_back(ext);
 }
+
+ void MuonFeatureDetails::setExtension2(const std::vector<uint32_t>& v)
+ {
+   m_extension2 = v;
+ }
+
  void MuonFeatureDetails::setExtension3(uint32_t ext) {
   if (m_extension_capacity >= 0)
     if(m_extension3.size() == (unsigned int)m_extension_capacity) return;
   m_extension3.push_back(ext);
 }
+
+ void MuonFeatureDetails::setExtension3(const std::vector<uint32_t>& v)
+ {
+   m_extension3 = v;
+ }
+
  void MuonFeatureDetails::setExtension4(uint32_t ext) {
   if (m_extension_capacity >= 0)
     if(m_extension4.size() == (unsigned int)m_extension_capacity) return;
   m_extension4.push_back(ext);
 }
+
+ void MuonFeatureDetails::setExtension4(const std::vector<uint32_t>& v)
+ {
+   m_extension4 = v;
+ }
+
  void MuonFeatureDetails::setExtension5(uint32_t ext) {
   if (m_extension_capacity >= 0)
     if(m_extension5.size() == (unsigned int)m_extension_capacity) return;
   m_extension5.push_back(ext);
 }
+
+ void MuonFeatureDetails::setExtension5(const std::vector<uint32_t>& v)
+ {
+   m_extension5 = v;
+ }
+
  void MuonFeatureDetails::setExtension6(uint32_t ext) {
   if (m_extension_capacity >= 0)
     if(m_extension6.size() == (unsigned int)m_extension_capacity) return;
   m_extension6.push_back(ext);
 }
+
+ void MuonFeatureDetails::setExtension6(const std::vector<uint32_t>& v)
+ {
+   m_extension6 = v;
+ }
+
  void MuonFeatureDetails::setExtension7(uint32_t ext) {
   if (m_extension_capacity >= 0)
     if(m_extension7.size() == (unsigned int)m_extension_capacity) return;
   m_extension7.push_back(ext);
 }
+
+ void MuonFeatureDetails::setExtension7(const std::vector<uint32_t>& v)
+ {
+   m_extension7 = v;
+ }
+
  void MuonFeatureDetails::setExtension8(uint32_t ext) {
   if (m_extension_capacity >= 0)
     if(m_extension8.size() == (unsigned int)m_extension_capacity) return;
   m_extension8.push_back(ext);
 }
+
+ void MuonFeatureDetails::setExtension8(const std::vector<uint32_t>& v)
+ {
+   m_extension8 = v;
+ }
+
  void MuonFeatureDetails::setExtension9(uint32_t ext) {
   if (m_extension_capacity >= 0)
     if(m_extension9.size() == (unsigned int)m_extension_capacity) return;
   m_extension9.push_back(ext);
 }
+
+ void MuonFeatureDetails::setExtension9(const std::vector<uint32_t>& v)
+ {
+   m_extension9 = v;
+ }
 
 bool MuonFeatureDetails::hasSameTrackReco(const MuonFeatureDetails& d) const {
   bool result = true;

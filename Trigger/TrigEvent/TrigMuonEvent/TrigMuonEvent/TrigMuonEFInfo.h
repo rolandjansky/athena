@@ -33,11 +33,24 @@ public:
 
    TrigMuonEFInfo( unsigned short int theRoI );
 
+   TrigMuonEFInfo( unsigned short int theRoI,
+                   std::unique_ptr<TrigMuonEFInfoTrackContainer> tracks);
+
+   /** Constuctor setting legacy variables. */
+   TrigMuonEFInfo( unsigned short int theRoI,
+                   std::unique_ptr<TrigMuonEFInfoTrackContainer> tracks,
+                   std::unique_ptr<TrigMuonEFTrack> spectrometerTrack,
+                   std::unique_ptr<TrigMuonEFTrack> extrapolatedTrack,
+                   std::unique_ptr<TrigMuonEFCbTrack> combinedTrack);
+
    /** Copy constructor */
    TrigMuonEFInfo( const TrigMuonEFInfo& rhs );
 
    /** Assignment operator */
    TrigMuonEFInfo& operator=( const TrigMuonEFInfo& rhs );
+
+   /** Move assignment operator */
+   TrigMuonEFInfo& operator=( TrigMuonEFInfo&& rhs );
 
    /** Destructor */
    ~TrigMuonEFInfo();
@@ -78,15 +91,15 @@ public:
    unsigned short int NCscHits() const { return m_nCscHits; }
    double EtaPreviousLevel() const { return m_etaPreviousLevel; }
    double PhiPreviousLevel() const { return m_phiPreviousLevel; }
-   TrigMuonEFInfoTrackContainer* TrackContainer() const { return m_trackContainer; }
+   const TrigMuonEFInfoTrackContainer* TrackContainer() const { return m_trackContainer; }
    // legacy methods
    TrigMuonEFTrack* SpectrometerTrack()  ;
    TrigMuonEFTrack* ExtrapolatedTrack()  ;
    TrigMuonEFCbTrack* CombinedTrack()    ;
    // legacy methods with const correctness for comparison operator
-   TrigMuonEFTrack* legacySpectrometerTrack() const {return m_spectrometerTrack;}
-   TrigMuonEFTrack* legacyExtrapolatedTrack() const {return m_extrapolatedTrack;}
-   TrigMuonEFCbTrack* legacyCombinedTrack()   const {return m_combinedTrack;}
+   const TrigMuonEFTrack* legacySpectrometerTrack() const {return m_spectrometerTrack;}
+   const TrigMuonEFTrack* legacyExtrapolatedTrack() const {return m_extrapolatedTrack;}
+   const TrigMuonEFCbTrack* legacyCombinedTrack()   const {return m_combinedTrack;}
 
    // checks existence of legacy track
    bool hasLegacyTrack() const;
