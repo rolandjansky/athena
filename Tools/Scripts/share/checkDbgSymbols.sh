@@ -13,7 +13,7 @@ fi
 
 # Ignore these libraries (regexp)
 filter='HepMC|libfastjet|libCDFConesPlugin|libSISConePlugin|libsiscone|libulxmlrpcpp|libG4processes|libModelInteractions|libCascade_i|libMCTester_i|
-|libColMan|libATLASConePlugin|libCMSIterativeConePlugin|libD0RunIIConePlugin|libEECambridgePlugin|libJadePlugin|libNestedDefsPlugin|libPxConePlugin|libTrackJetPlugin|libtbb'
+|libColMan|libATLASConePlugin|libCMSIterativeConePlugin|libD0RunIIConePlugin|libEECambridgePlugin|libJadePlugin|libNestedDefsPlugin|libPxConePlugin|libTrackJetPlugin|libtbb|libtcmalloc|libfftw3f|libprofiler|libgmock|libgtest'
 
 ignored=''
 dbglibs=''

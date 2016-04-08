@@ -94,7 +94,7 @@ if [ "${DO_EXT_ATHENA_TAB_COMPLETION:-}" = 1 ]; then
     complete -C lookup_joboptions.sh -X '!&*' athena athena.py
 else
 #    echo "do only local completion for athena"
-    complete -C lookup_local_joboptions.sh -X '!&*' athena athena.py
+    complete -C lookup_local_joboptions.sh -X '!&*' -o dirnames athena athena.py
 fi
 complete -F f_get_txtjoboptions check_joboptions
 #complete -F f_get_pyjoboptions athena.py
