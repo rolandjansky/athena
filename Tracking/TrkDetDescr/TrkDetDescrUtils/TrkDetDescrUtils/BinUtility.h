@@ -241,6 +241,9 @@ namespace Trk {
                 throw GaudiException("BinUtility", "dimension out of bounds", StatusCode::FAILURE); 
             return (m_binningData[ba].binPosition( bin, pos ));
 	}
+
+        /** Clear the data. */
+        void clear() { m_binningData.clear(); }
                   
         /** Output Method for MsgStream, to be overloaded by child classes */
         MsgStream& dump(MsgStream& sl) const {
