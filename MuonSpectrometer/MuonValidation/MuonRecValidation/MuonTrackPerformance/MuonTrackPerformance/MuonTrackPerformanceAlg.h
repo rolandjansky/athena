@@ -274,6 +274,7 @@ private:
 
   // member set by Joboptions 
   int  m_doSummary;
+  int  m_doHitResiduals;
   int  m_doTrackDebug;
   bool m_doTruth;
   bool m_doHistos;
