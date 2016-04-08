@@ -9,7 +9,7 @@
 #include "TileIdentifier/TileFragHash.h"
 #include "CaloIdentifier/TileID_Exception.h" 
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include <string> 
 #include <vector> 
 #include <map> 
@@ -29,7 +29,7 @@ class TileCablingService;
  */
 
 
-class TileRoI_Map : public AlgTool { 
+class TileRoI_Map : public AthAlgTool { 
 
  public:
   /** constructor 
@@ -128,9 +128,7 @@ class TileRoI_Map : public AlgTool {
 
   TileFragHash m_idhash; 
   bool m_print; 
-
 };
-
   
 
 #endif

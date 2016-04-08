@@ -5,9 +5,7 @@
 #ifndef TileRegionSelector_TileRegionSelectorTable_h
 #define TileRegionSelector_TileRegionSelectorTable_h
 
-//#include "GaudiKernel/Algorithm.h"
-//#include "GaudiKernel/Service.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include <map> 
 #include <vector> 
 #include <string>
@@ -15,7 +13,6 @@
 //#include "RegionSelector/IRegionLUT_Creator.h"
 #include "IRegionLUT_Creator.h"
 
-class StoreGateSvc;
 class RegionSelectorLUT;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -39,9 +36,7 @@ class RegionSelectorLUT;
 */
 
 
-//class TileRegionSelectorTable : public Algorithm {
-//class TileRegionSelectorTable : public Service {
-class TileRegionSelectorTable : public AlgTool, virtual public IRegionLUT_Creator {
+class TileRegionSelectorTable : public AthAlgTool, virtual public IRegionLUT_Creator {
 public:
 
   //TileRegionSelectorTable (const std::string& name, ISvcLocator* pSvcLocator);
@@ -69,11 +64,8 @@ private:
   bool m_printTable;
   bool m_testTable;
 
-  StoreGateSvc*             m_detStore;
-
   // Names for ascii files
   std::string m_roiFileNameTile;
-
 };
 
 #endif // TileRegionSelector_TileRegionSelectorTable_h

@@ -4,6 +4,7 @@ author Alexandre Solodkov <Sanya.Solodkov@cern.ch>
 
 use AtlasPolicy		AtlasPolicy-*
 use GaudiInterface	GaudiInterface-*	External
+use AthenaBaseComps     AthenaBaseComps-*       Control
 
 use Identifier          Identifier-*            DetectorDescription
 

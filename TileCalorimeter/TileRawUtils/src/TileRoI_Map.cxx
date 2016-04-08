@@ -23,7 +23,7 @@ const InterfaceID& TileRoI_Map::interfaceID( )
 // default contructor 
 TileRoI_Map::TileRoI_Map( const std::string& type, const std::string& name,
         const IInterface* parent ) 
-:  AlgTool(type,name,parent), m_print(false)
+:  AthAlgTool(type,name,parent), m_print(false)
 {
   declareInterface<TileRoI_Map>( this );
 
@@ -35,40 +35,9 @@ TileRoI_Map::TileRoI_Map( const std::string& type, const std::string& name,
 
 StatusCode TileRoI_Map::initialize()
 { 
-  StoreGateSvc* detStore;
-  StatusCode sc = service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    std::cout << "TileROD_Decoder::initialize(): "
-              << "Unable to get pointer to Detector Store Service"
-              << std::endl;
-    return sc;
-  }
-
-  // retrieve Tile detector manager and TileID helper from det store
-
-  sc = detStore->retrieve(m_tileMgr);
-  if (sc.isFailure()) {
-    std::cout << "TileRoI_Map::initialize(): " 
-              << "Unable to retrieve TileDetDescrManager from DetectorStore"
-              << std::endl;
-    return sc;
-  }
-
-  sc = detStore->retrieve(m_tileID, "TileID");
-  if (sc.isFailure()) {
-    std::cout << "TileRoI_Map::initialize(): " 
-              << "Unable to retrieve TileID helper from DetectorStore"
-              << std::endl;
-    return sc;
-  } 
-
-  sc = detStore->retrieve(m_tileHWID, "TileHWID");
-  if (sc.isFailure()) {
-    std::cout << "TileRoI_Map::initialize(): " 
-              << "Unable to retrieve TileHWID helper from DetectorStore"
-              << std::endl;
-    return sc;
-  } 
+  ATH_CHECK( detStore()->retrieve(m_tileMgr) );
+  ATH_CHECK( detStore()->retrieve(m_tileID, "TileID") );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
   // get the pointer to CablingSvc
   m_cablingSvc = TileCablingService::getInstance();
@@ -93,13 +62,10 @@ StatusCode TileRoI_Map::initialize()
   if(m_print) printEtaPhiRegions(); 
 
   return StatusCode::SUCCESS; 
-
 }
 
 TileRoI_Map::~TileRoI_Map( ) 
 {
-
-
 }
 
 

@@ -29,11 +29,10 @@
 TileRegionSelectorTable::TileRegionSelectorTable (const std::string& type,
 						  const std::string& name,
 						  const IInterface* parent)
-  :  AlgTool(type,name,parent),  
-  m_printTable(false),
-  m_testTable(false),
-  m_detStore(0),
-  m_roiFileNameTile("TileMapIdAndHash.txt")
+  :  AthAlgTool(type,name,parent),  
+     m_printTable(false),
+     m_testTable(false),
+     m_roiFileNameTile("TileMapIdAndHash.txt")
 {
   declareInterface<IRegionLUT_Creator>(this);
   declareProperty("OutputFileTile", m_roiFileNameTile);
@@ -45,30 +44,20 @@ TileRegionSelectorTable::TileRegionSelectorTable (const std::string& type,
 
 StatusCode TileRegionSelectorTable::initialize(){
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize()" << endreq;
+  ATH_MSG_INFO ( "initialize()" );
 
-  log << MSG::INFO << "Algorithm Properties" << endreq;
-  log << MSG::INFO << " Print Table:      " 
-      << ((m_printTable) ? "true" : "false") <<endreq;
-  log << MSG::INFO << " Test Table:      " 
-      << ((m_testTable) ? "true" : "false") <<endreq;
+  ATH_MSG_INFO ( "Algorithm Properties" );
+  ATH_MSG_INFO ( " Print Table:      " 
+                 << ((m_printTable) ? "true" : "false") );
+  ATH_MSG_INFO ( " Test Table:      " 
+                 << ((m_testTable) ? "true" : "false") );
 
   if (m_printTable) 
-    log << MSG::INFO << " Output File:  " << m_roiFileNameTile <<endreq;
+    ATH_MSG_INFO ( " Output File:  " << m_roiFileNameTile );
   
-  StatusCode sc;
-
-  // Get DetectorStore service
-  sc = service("DetectorStore",m_detStore);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
   fillMaps();
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -76,21 +65,15 @@ StatusCode TileRegionSelectorTable::initialize(){
 
 StatusCode TileRegionSelectorTable::execute() {
 
-  StatusCode sc;
-
-  if (m_testTable) sc = testMaps();
-  else sc = StatusCode::SUCCESS;
-
-  return sc;
+  if (m_testTable) ATH_CHECK( testMaps() );
+  return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode TileRegionSelectorTable::finalize() {
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize()" << endreq;
-
+  ATH_MSG_INFO ( "finalize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -100,14 +83,12 @@ StatusCode TileRegionSelectorTable::finalize() {
 const RegionSelectorLUT *
 TileRegionSelectorTable::getLUT(std::string subSyst) const
 {
-  MsgStream log(msgSvc(), name());
-
   if(subSyst=="TILE") {
       return m_tileLUT;
   }
   else {
-    log << MSG::WARNING << "getLUT called with wrong argument, returning Tile by default" << endreq;
-    log << MSG::WARNING << "valid list of arguments is TILE" << endreq;
+    ATH_MSG_WARNING ( "getLUT called with wrong argument, returning Tile by default" );
+    ATH_MSG_WARNING ( "valid list of arguments is TILE" );
     return m_tileLUT;
   }
 
@@ -117,15 +98,12 @@ TileRegionSelectorTable::getLUT(std::string subSyst) const
 void
 TileRegionSelectorTable::fillMaps()
 {
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-
   // check on the map if job not already done by s.o. else
   std::string tileKey = "TileRegionSelectorLUT";
-  sc = m_detStore->contains< RegionSelectorLUT >(tileKey);
+  StatusCode sc = detStore()->contains< RegionSelectorLUT >(tileKey);
   if (sc == StatusCode::SUCCESS ) {
-    log << MSG::ERROR << " RegionSelectorLUT " << tileKey 
-	<< " already exists => do nothing " << endreq;
+    ATH_MSG_ERROR ( " RegionSelectorLUT " << tileKey 
+                    << " already exists => do nothing " );
     return;
   }
 
@@ -184,7 +162,7 @@ TileRegionSelectorTable::fillMaps()
 
   m_tileLUT = ttLut;
 
-  sc = recordMap(ttLut,tileKey);
+  recordMap(ttLut,tileKey).ignore();
 
   if (m_printTable) 
     delete ttmap;
@@ -195,49 +173,27 @@ TileRegionSelectorTable::fillMaps()
 StatusCode 
 TileRegionSelectorTable::recordMap(RegionSelectorLUT* RSlut, std::string key) 
 {
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-
   static const bool SETCONST(false);
-  sc = m_detStore->contains< RegionSelectorLUT >(key);
+  StatusCode sc = detStore()->contains< RegionSelectorLUT >(key);
   if (sc == StatusCode::SUCCESS ) {
-    log << MSG::ERROR << " RegionSelectorLUT " << key 
-	<< " already exists " << endreq;
+    ATH_MSG_ERROR ( " RegionSelectorLUT " << key 
+                    << " already exists " );
   } else {
-    sc = m_detStore->record(RSlut, key,SETCONST);
-    if ( sc.isFailure() ) {
-      log << MSG::ERROR 
-	  << " could not register RegionSelectorLUT " 
-	   << key << endreq;
-    } else {
-      log << MSG::INFO 
-	  << "TileRegionSelectorLUT successfully saved in detector Store" 
-	  << key << endreq;
-    }
+    ATH_CHECK( detStore()->record(RSlut, key,SETCONST) );
+    ATH_MSG_INFO( "TileRegionSelectorLUT successfully saved in detector Store" 
+                  << key );
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 StatusCode 
 TileRegionSelectorTable::testMaps() {
 
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-  
   std::string tileKey = "TileRegionSelectorLUT";
   const RegionSelectorLUT* ttLutTile;
-  sc=m_detStore->retrieve(ttLutTile, tileKey);
-  if (sc != StatusCode::SUCCESS ) {
-    log << MSG::ERROR << " did not find RegionSelectorLUT for Tile" << tileKey 
-	<< endreq;
-  } 
-  else {
-    log << MSG::DEBUG << " Found RegionSelectorLUT for Tile" << tileKey 
-	<< endreq;
-    // do something
-  }
-
-  return sc;
+  ATH_CHECK( detStore()->retrieve(ttLutTile, tileKey) );
+  ATH_MSG_DEBUG ( " Found RegionSelectorLUT for Tile" << tileKey );
+  return StatusCode::SUCCESS;
 }
 
