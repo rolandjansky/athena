@@ -1,0 +1,23 @@
+package xAODMetaDataAthenaPool
+# $Id: requirements 670166 2015-05-27 12:05:55Z krasznaa $
+
+public
+
+# Base package(s):
+use AtlasPolicy         AtlasPolicy-*
+
+private
+
+# POOL package(s):
+use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
+
+# EDM package(s):
+use xAODMetaData        xAODMetaData-*        Event/xAOD
+
+# Declare the POOL converter(s):
+apply_pattern poolcnv typesWithNamespace="xAOD::FileMetaData \
+                                          xAOD::FileMetaDataAuxInfo" \
+                      files="-s=${xAODMetaData_root}/xAODMetaData \
+                             FileMetaData.h \
+                             FileMetaDataAuxInfo.h" \
+                      cnv_pfx="xAOD"
