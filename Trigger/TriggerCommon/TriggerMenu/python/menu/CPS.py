@@ -4,24 +4,14 @@
 
 __doc__="Addition of coherent prescales to the list of chains"
 
-from TriggerJobOpts.TriggerFlags  import TriggerFlags
-from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from AthenaCommon.Logging import logging
+log = logging.getLogger(__name__)
 
-log = logging.getLogger('TriggerMenu.CPS.py')
 
+def genericCPSAdder(groups, signatures, chains, level, signatureOverwritten):
 
-def hackedCPSAdder(groups, signatures, chains, level,signatureOverwritten):
-#     Emanuel: This is an ugly, ugly hack to deal with mutliple
-#     instances of the same chain, corresponding to a signature. A
-#     proper fix will require re-imagining the filling of
-#     triggerPythonConfig's theL2HLTChains and theEFHLTChains (which
-#     I'll do after I get back from vacation. See Savannah #84711 for
-#     more details.
-    
-    has_rate=[]
-    has_no_rate=[]
     for cpsGroup, chainNames in groups.iteritems():
         if "RATE" not in cpsGroup:
             log.error('Following group do not start for RATE [%s]' %cpsGroup)
@@ -36,55 +26,27 @@ def hackedCPSAdder(groups, signatures, chains, level,signatureOverwritten):
             if level == 'HLT':
                 chain_name = signatures[chainName][-1].chain_name
             else:
-                log.error("Level of chain not defined")
+                log.error("Level of %s not defined", chainName)
                 
             for c in chains:
                 if c.chain_name == chain_name:
-                    log.info(' ===> Now in my CPS.py : level=%s, chainName=%s, cpsGroup=%s, chain_name=%s' % (level, chainName, cpsGroup, chain_name))
-                    log.info('                       : signatures: [0]=%s, [-1]=%s' % (signatures[chainName][0].chain_name, signatures[chainName][-1].chain_name))
-                    log.info('                       : chain: c.chain_name=%s, c.groups=%s, cpsGroup=%s' % (c.chain_name, c.groups, cpsGroup))
+                    log.debug('chain: c.chain_name=%s, c.groups=%s, cpsGroup=%s', c.chain_name, c.groups, cpsGroup)
                     cpsFound = None
                     for g in c.groups:
                         if g.find('CPS') == 5:
                             cpsFound = g
                     if cpsFound == None:
-                        log.info('                       : no CPS group found. group=%s added' % cpsGroup)
+                        log.info('CPS group %s added to %s', cpsGroup, chain_name)
                         c.addGroup(cpsGroup)
                     elif cpsFound == cpsGroup:
-                        log.info('                       : CPS group with same name already exists (%s). Nothing added' % cpsGroup)
+                        log.debug('CPS group %s already assigned to %s. Nothing added', cpsGroup, chain_name)
                     else:
-                        log.warning('                       : CPS group with different name already exists (%s). Group =%s not added' % (cpsFound, cpsGroup))
+                        log.warning('CPS group with different name (%s) already exists for %s. Group %s not added', cpsFound, chain_name, cpsGroup)
 
             #[c.addGroup(cpsGroup) for c in chains if c.chain_name == chain_name]
             
 
 
-
-
-
-def genericCPSAdder(groups, chains, level):
-    #levelMap = {"L2": 0,
-    #            "EF": 1,
-    #            }
-    #level = levelMap[level]
-    #print 'igb level', level
-    
-    for cpsGroup, chainNames in groups.iteritems():
-        for chainName in chainNames:
-            if chainName not in chains.keys():
-                log.error('Signature %s not registered to TriggerPythonConfig' % chainName)
-                continue
-
-            if level=='L2':
-                l2chain = chains[chainName][0]
-                l2chain.addGroup(cpsGroup)
-            elif level=='EF':
-                if  len(chains[chainName]) ==2:
-                    efchain = chains[chainName][1]
-                    efchain.addGroup(cpsGroup)
-                elif len(chains[chainName]) ==1:
-                    efchain = chains[chainName][0]
-                    efchain.addGroup(cpsGroup)
 
 def defineCPSGroups():
     HLT_CPS_Groups = {				       
@@ -294,8 +256,10 @@ def defineCPSGroups():
                                                'tau25_perf_tracktwo',
                                                'tau25_idperf_tracktwo',
                                                'tau25_medium1_tracktwo',],  
-        'RATE:CPS:HLT_tau160'				         :['tau160_idperf_track',
-                                               'tau160_idperf_tracktwo',],  
+        'RATE:CPS:HLT_tau160'		     :['tau160_idperf_track',
+                                               'tau160_idperf_tracktwo',
+                                               'tau160_perf_track',
+                                               'tau160_perf_tracktwo',],  
         #Jet chains
         'RATE:CPS:HLT_j35' : ['j35',
                               'j35_jes',
@@ -322,35 +286,12 @@ def defineCPSGroups():
                                'j175_nojcalib',
                               ],
 
-        'RATE:CPS:HLT_j380' : ['j380',
-                               'j380_jes',
-                               'j380_lcw',
-                               'j380_lcw_jes',
-                               'j380_lcw_nojcalib',
-                               'j380_nojcalib',
-                              ],
-
         'RATE:CPS:HLT_j85_280eta320' : ['j85_280eta320',
                                         'j85_280eta320_jes',
                                         'j85_280eta320_lcw',
                                         'j85_280eta320_lcw_jes',
                                         'j85_280eta320_lcw_nojcalib',
                                         'j85_280eta320_nojcalib',
-                                        ],
-
-        'RATE:CPS:HLT_j175_320eta490' : ['j175_320eta490',
-                                         'j175_320eta490_jes',
-                                         'j175_320eta490_lcw',
-                                         'j175_320eta490_lcw_jes',
-                                         'j175_320eta490_lcw_nojcalib',
-                                         'j175_320eta490_nojcalib',
-                                        ],
-        'RATE:CPS:HLT_j260_320eta490' : ['j260_320eta490',
-                                         'j260_320eta490_jes',
-                                         'j260_320eta490_lcw',
-                                         'j260_320eta490_lcw_jes',
-                                         'j260_320eta490_lcw_nojcalib',
-                                         'j260_320eta490_nojcalib',
                                         ],
 
         'RATE:CPS:HLT_j360_320eta490' : ['j360_320eta490',
@@ -584,14 +525,14 @@ def defineCPSGroups():
                                        'xe100_tc_lcw_L1XE50', 
                                        'xe100_tc_em_L1XE50',  
                                        'xe100_mht_L1XE50',    
-                                       'xe100_pueta_L1XE50',  
-                                       'xe100_pufit_L1XE50',  
+   #                                    'xe100_pueta_L1XE50',  
+   #                                    'xe100_pufit_L1XE50',  
                                        'xe100_wEFMu_L1XE50',  
                                        'xe100_tc_lcw_wEFMu_L1XE50',
                                        'xe100_tc_em_wEFMu_L1XE50', 
                                        'xe100_mht_wEFMu_L1XE50',   
-                                       'xe100_pueta_wEFMu_L1XE50', 
-                                       'xe100_pufit_wEFMu_L1XE50', 
+   #                                    'xe100_pueta_wEFMu_L1XE50', 
+   #                                    'xe100_pufit_wEFMu_L1XE50', 
                                        ],         
  
         'RATE:CPS:HLT_xe90' : ['xe90',
@@ -615,13 +556,11 @@ def defineCPSGroups():
                                       '2mu4_bBmumuxv2_noL2',
                                       '2mu4_bBmumux_BcmumuDsloose_noL2',
                                       '2mu4_bBmumux_BpmumuKp_noL2',
-                                      ],     
-				      
-        "RATE:CPS:HLT_2mu4_bJpsimumu" : ['2mu4_bJpsimumu',
-	                                 '2mu4_bJpsimumu_noL2',
-                                         '2mu4_l2msonly_bJpsimumu_noL2',
-                                         'mu4_mu4_l2msonly_bJpsimumu_noL2',
-				        ],
+                                      '2mu4_bJpsimumu',
+	                              '2mu4_bJpsimumu_noL2',
+                                      '2mu4_l2msonly_bJpsimumu_noL2',
+                                      'mu4_mu4_l2msonly_bJpsimumu_noL2',
+				      ],
 
         'RATE:CPS:HLT_2mu4_bDimu' : ['2mu4_bDimu',                
                                      '2mu4_bDimu_novtx_noos',   
@@ -657,13 +596,23 @@ def defineCPSGroups():
                                           'mu6_mu4_bBmumuxv2_noL2',
                                           'mu6_mu4_bBmumux_BcmumuDsloose_noL2',
                                           'mu6_mu4_bBmumux_BpmumuKp_noL2',
+                                          'mu6_mu4_bJpsimumu', 
+                                          'mu6_mu4_bJpsimumu_noL2',
+					  'mu6_mu4_l2msonly_bJpsimumu_noL2',
                                           ],
+						  
+        'RATE:CPS:HLT_mu6_mu4_bBmumu'   : ['mu6_mu4_bBmumu',],
+				 
         'RATE:CPS:HLT_2mu6_bBmumuX'   :  ['2mu6_bBmumuxv2_noL2',
                                           '2mu6_bBmumux_BcmumuDsloose_noL2',
                                           '2mu6_bBmumux_BpmumuKp_noL2',
                                           '2mu6_bBmumuxv2',
                                           '2mu6_bBmumux_BcmumuDsloose',
                                           '2mu6_bBmumux_BpmumuKp',
+                                          '2mu6_bJpsimumu',
+                                          '2mu6_bJpsimumu_noL2',
+                                          '2mu6_l2msonly_bJpsimumu_noL2',
+                                          'mu6_mu6_l2msonly_bJpsimumu_noL2',
                                          ],
 
         'RATE:CPS:HLT_mu6_mu4_bDimu' : ['mu6_mu4_bDimu',                
@@ -731,8 +680,7 @@ def defineCPSGroups():
 						'mu6_j260_bperf_split_dr05_dz02',
 						'mu6_j320_bperf_split_dr05_dz02',
 						'mu6_j400_bperf_split_dr05_dz02',     
-				       ],
-
+				       ],			    
         }
     if "v5" in TriggerFlags.triggerMenuSetup():
      HLT_CPS_Groups.update({
@@ -837,14 +785,62 @@ def defineCPSGroups():
                                             'xe90_pueta_wEFMu_L1XE70_BGRP7',
                                             'xe90_pufit_wEFMu_L1XE70_BGRP7',
                                             ],}) 
+
     if "v6" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
-
-            "RATE:CPS:HLT_e10_vloose_L1EM7" : ['e10_vloose_L1EM7',
+	
+         "RATE:CPS:HLT_mu6_mu4_bBmumu"   : ['mu6_mu4_bBmumu',
+	                                    'mu6_mu4_bBmumu_noL2',
+	                                    'mu6_mu4_bBmumu_Lxy0',],
+	 "RATE:CPS:HLT_mu6_2mu4"         : ['mu6_2mu4_bJpsi',
+                                           'mu6_2mu4_bTau_noL2',
+					   'mu6_2mu4_bUpsi',
+                                            ],
+         "RATE:CPS:HLT_2mu6_mu4"         : ['2mu6_mu4_bJpsi',
+                                            '2mu6_mu4_bTau_noL2',
+                                            '2mu6_mu4_bUpsi',
+					    ],
+        'RATE:CPS:HLT_2mu4_bBmumuX' : ['2mu4_bBmumuxv2',             
+                                      '2mu4_bBmumux_BcmumuDsloose', 
+                                      '2mu4_bBmumux_BpmumuKp',
+                                      '2mu4_bBmumuxv2_noL2',
+                                      '2mu4_bBmumux_BcmumuDsloose_noL2',
+                                      '2mu4_bBmumux_BpmumuKp_noL2',
+                                      '2mu4_bJpsimumu',
+	                              '2mu4_bJpsimumu_noL2',
+                                      '2mu4_l2msonly_bJpsimumu_noL2',
+                                      'mu4_mu4_l2msonly_bJpsimumu_noL2',
+                                      '2mu4_bJpsimumu_Lxy0',
+				      ],
+        'RATE:CPS:HLT_2mu6_bBmumuX'   :  ['2mu6_bBmumuxv2_noL2',
+                                          '2mu6_bBmumux_BcmumuDsloose_noL2',
+                                          '2mu6_bBmumux_BpmumuKp_noL2',
+                                          '2mu6_bBmumuxv2',
+                                          '2mu6_bBmumux_BcmumuDsloose',
+                                          '2mu6_bBmumux_BpmumuKp',
+                                          '2mu6_bJpsimumu',
+                                          '2mu6_bJpsimumu_noL2',
+                                          '2mu6_l2msonly_bJpsimumu_noL2',
+                                          'mu6_mu6_l2msonly_bJpsimumu_noL2',
+                                          '2mu6_bJpsimumu_Lxy0',
+                                         ],
+        'RATE:CPS:HLT_mu6_mu4_bBmumuX' : ['mu6_mu4_bBmumuxv2',            
+                                          'mu6_mu4_bBmumux_BcmumuDsloose',
+                                          'mu6_mu4_bBmumux_BpmumuKp',
+                                          'mu6_mu4_bBmumuxv2_noL2',
+                                          'mu6_mu4_bBmumux_BcmumuDsloose_noL2',
+                                          'mu6_mu4_bBmumux_BpmumuKp_noL2',
+                                          'mu6_mu4_bJpsimumu', 
+                                          'mu6_mu4_bJpsimumu_noL2',
+                                          'mu6_mu4_bJpsimumu_Lxy0',
+					  'mu6_mu4_l2msonly_bJpsimumu_noL2',
+                                          ],
+					  					 
+         "RATE:CPS:HLT_e10_vloose_L1EM7" : ['e10_vloose_L1EM7',
                                            'e10_lhvloose_L1EM7',
                                            'e10_lhvloose_nod0_L1EM7',
                                            'e15_lhvloose_nod0_L1EM7',
-        ],
+                                            ],
                                            
         
         "RATE:CPS:HLT_e15_vloose_L1EM7" : ['e15_vloose_L1EM7',          
@@ -893,16 +889,19 @@ def defineCPSGroups():
 
        'RATE:CPS:HLT_j260_a10_sub_L1J75':[ 'j260_a10_sub_L1J75',
                                            'j260_a10_lcw_sub_L1J75',
+                                           'j260_a10_lcw_nojcalib_L1J75',
+                                           'j260_a10_nojcalib_L1J75',
                                           # 'j260_a10_lcw_sub_L1SC85'  ## can this work??
-       ],
-       'RATE:CPS:HLT_j300_a10_sub_L1J75':[ 'j300_a10_sub_L1J75',
-                                           'j300_a10_lcw_sub_L1J75',
-                                          # 'j300_a10_lcw_sub_L1SC85'  ## can this work??
+                                          # 'j260_a10_lcw_L1SC85'  ## can this work??
        ],
             
         'RATE:CPS:HLT_j360_a10L1J100' : [ 'j360_a10_sub_L1J100' ,            
-                                          'j360_a10_lcw_sub_L1J100'         ,
                                           'j360_a10_lcw_L1J100',],
+        'RATE:CPS:HLT_j460_a10L1J100' : [	'j460_a10_sub_L1J100',
+        																	'j460_a10_nojcalib_L1J100',
+        																	'j460_a10_lcw_nojcalib_L1J100',
+        																	'j460_a10_lcw_sub_L1J100',
+        																	'j460_a10_lcw_L1J100',],
                 
         'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_3j20noL1' : ['e28_lhvloose_L1EM20VH_3j20noL1',
                                                          'e28_lhvloose_nod0_L1EM20VH_3j20noL1',],
@@ -920,19 +919,6 @@ def defineCPSGroups():
                               'j85_cleanL',
         ],
 
-            
-        "RATE:CPS:HLT_2mu6_bJpsimumu" :  ['2mu6_bJpsimumu',
-                                          '2mu6_bJpsimumu_noL2',
-                                          '2mu6_l2msonly_bJpsimumu_noL2',
-                                          'mu6_mu6_l2msonly_bJpsimumu_noL2',
-                                          '2mu6_bJpsimumu_Lxy0',
-					  ],
-
-        'RATE:CPS:HLT_mu6_mu4_bJpsimumu' : ['mu6_mu4_bJpsimumu', 
-                                            'mu6_mu4_bJpsimumu_noL2',
-                                            'mu6_mu4_bJpsimumu_Lxy0',
-					    'mu6_mu4_l2msonly_bJpsimumu_noL2',
-                                           ],
         
         'RATE:CPS:HLT_3mu6_bDimu' : ['3mu6_bDimu',
                                      '3mu6_bJpsi',
@@ -940,9 +926,10 @@ def defineCPSGroups():
                                      '3mu6_bUpsi',
                                      ],
 
-#        'RATE:CPS:HLT_2mu6_bBmumu' :  ['2mu6_bBmumu',
-#                                       '2mu6_bBmumu_noL2',
-#                                       ],
+       'RATE:CPS:HLT_2mu6_bBmumu' :  ['2mu6_bBmumu',
+                                      '2mu6_bBmumu_Lxy0',
+				      '2mu6_bBmumu_noL2',
+                                       ],
         
         'RATE:CPS:HLT_2mu4_bBmumuX_L1BPH-1M19-0DR34' : ['2mu4_bBmumuxv2_L1BPH-1M19-2MU4-B_BPH-0DR34-2MU4',
                                                                          '2mu4_bBmumuxv2_noL2_L1BPH-1M19-2MU4-B_BPH-0DR34-2MU4',
@@ -984,4 +971,4 @@ def defineCPSGroups():
 
 def addCPS(triggerPythonConfig,signatureOverwritten):
     HLT_CPS_Groups = defineCPSGroups()
-    hackedCPSAdder(HLT_CPS_Groups, triggerPythonConfig.allChains, triggerPythonConfig.theHLTChains, "HLT",signatureOverwritten)
+    genericCPSAdder(HLT_CPS_Groups, triggerPythonConfig.allChains, triggerPythonConfig.theHLTChains, "HLT",signatureOverwritten)

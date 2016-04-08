@@ -1,3 +1,18 @@
+2016-03-16   Peter Sherwood  <peter@MacBook-Pro-7.fritz.box>
+
+	* JetDef.py (_check_input): removed the constraint that there be
+	a maximum of 2 chain parts. This check was put in place when
+	it was not clear why multiple chainparts were needed.
+
+	One use of the chainpart is to supply the threshold for
+	the Eta-Et hypo: one part is supplied for each threshold.
+
+
+	With multiple chain parts it is in principle possible to
+	make the nonsense request for > 1 hypo type. No explicit
+	protection has been put in place for this as the current
+	checks are sufficient to stop this kind of misconfiguration.
+
 2015-12-14  Peter Sherwood  <sherwood@lxplus0065.cern.ch>
 
 	* AlgFactory.py (AlgFactory.hlt_hypo_tla):

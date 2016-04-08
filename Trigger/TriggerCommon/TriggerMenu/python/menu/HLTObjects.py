@@ -5,8 +5,7 @@ import time
 import re
 import string
 from sys import settrace
-import xml.dom.minidom
-
+import xml.etree.cElementTree as etree
 
 from AthenaCommon.Logging import logging  # loads logger
 
@@ -42,16 +41,13 @@ class HLTChain:
 
         def xml(self, xlist):
             if len(self.tes) != 0:
-                xSignature = xml.dom.minidom.Document().createElement('SIGNATURE')
-                xlist.appendChild(xSignature)
-                xSignature.setAttribute('logic','1')
-                xSignature.setAttribute('signature_counter', str(self.sigcounter))
+                xSignature = etree.SubElement(xlist,'SIGNATURE',
+                                              logic='1', signature_counter=str(self.sigcounter))
                 for te in self.tes:
                     if type(te) != type(''): # check if this is a string
-                        raise Exception("The trigger element: " + str(te) + " in the signature: " + self.sigcaounter + "is not a plain string" )
-                    xTriggerElement = xml.dom.minidom.Document().createElement('TRIGGERELEMENT')
-                    xTriggerElement.setAttribute('te_name', str(te))
-                    xSignature.appendChild(xTriggerElement)
+                        raise Exception("The trigger element: " + str(te) + " in the signature: " + self.sigcounter + "is not a plain string" )
+                    xTriggerElement = etree.SubElement(xSignature, 'TRIGGERELEMENT', te_name=str(te))
+                    
     # construction
     def __init__(self, chain_name, chain_counter,
                  lower_chain_name, level, prescale='1', pass_through='0', rerun_prescale='-1',stream_tag=[], groups=[], EBstep="-1"):
@@ -283,55 +279,40 @@ class HLTChain:
 
     def xml(self, xChainList):
         """ Returns XML representation of this chain """
-        xChain = xml.dom.minidom.Document().createElement('CHAIN')
-        xChainList.appendChild(xChain)
-
-        xChain.setAttribute('chain_name', self.chain_name)
-        xChain.setAttribute('chain_counter', str(self.chain_counter))
-        xChain.setAttribute('lower_chain_name', self.lower_chain_name)
-        xChain.setAttribute('level', str(self.level))
-        xChain.setAttribute('prescale', str(self.prescale))
-        xChain.setAttribute('pass_through', str(self.pass_through))
-        xChain.setAttribute('rerun_prescale', str(self.rerun_prescale))
-        xChain.setAttribute('EBstep', str(self.EBstep))
+        xChain = etree.SubElement(xChainList, 'CHAIN',                                
+                                  chain_name = self.chain_name,
+                                  chain_counter = str(self.chain_counter),
+                                  lower_chain_name = self.lower_chain_name,
+                                  level = str(self.level),
+                                  prescale = str(self.prescale),
+                                  pass_through = str(self.pass_through),
+                                  rerun_prescale = str(self.rerun_prescale),
+                                  EBstep = str(self.EBstep))
 
 
-        xTriggerTypeList = xml.dom.minidom.Document().createElement('TRIGGERTYPE_LIST')
-        xChain.appendChild(xTriggerTypeList)
-
-
+        xTriggerTypeList = etree.SubElement(xChain, 'TRIGGERTYPE_LIST')
         for bit in self.trigger_type_bits:
-            xTriggerType = xml.dom.minidom.Document().createElement('TRIGGERTYPE')
-            xTriggerType.setAttribute('bit', str(bit))
-            xTriggerTypeList.appendChild(xTriggerType)
+            xTriggerType = etree.SubElement(xTriggerTypeList, 'TRIGGERTYPE', bit = str(bit))
 
-        xStreamTagList =  xml.dom.minidom.Document().createElement('STREAMTAG_LIST')
-        xChain.appendChild(xStreamTagList)
-
+        xStreamTagList = etree.SubElement(xChain, 'STREAMTAG_LIST')
         for stream in self.stream_tag:
-            xStreamTag = xml.dom.minidom.Document().createElement('STREAMTAG')
-            xStreamTag.setAttribute('stream', stream[0])
-            xStreamTag.setAttribute('type', stream[1])
-            xStreamTag.setAttribute('obeyLB', stream[2])
-            xStreamTag.setAttribute('prescale', str(stream[3]))
-            xStreamTagList.appendChild(xStreamTag)
-
-
+            xStreamTag = etree.SubElement(xStreamTagList, 'STREAMTAG',
+                                          stream = stream[0],
+                                          type = stream[1],
+                                          obeyLB = stream[2],
+                                          prescale = str(stream[3]))
+            
 #         ## remove the CPS group from the EF chain    
 #         if self.chain_name.startwith("EF_"):
 #             for g in self.groups:
 #                 if "CPS" in g:
 #                     self.groups.remove(g)
 
-        xGroupList = xml.dom.minidom.Document().createElement('GROUP_LIST')
-        xChain.appendChild(xGroupList)
+        xGroupList = etree.SubElement(xChain, 'GROUP_LIST')
         for g in self.groups:
-            xGroup = xml.dom.minidom.Document().createElement('GROUP')
-            xGroup.setAttribute('name', g)
-            xGroupList.appendChild(xGroup)
+            xGroup = etree.SubElement(xGroupList, 'GROUP', name = g)
             
-        xSignatureList = xml.dom.minidom.Document().createElement('SIGNATURE_LIST')
-        xChain.appendChild(xSignatureList)
+        xSignatureList = etree.SubElement(xChain, 'SIGNATURE_LIST')
         for sig in self.siglist:
             sig.xml(xSignatureList)
 
@@ -393,18 +374,13 @@ class HLTSequence:
         if not self.used():
             return
         
-        #logger().info('doing seq: ' + self.output)
-        #print 'doing seq: ' + self.output + str(self.input)
-        xSequence = xml.dom.minidom.Document().createElement('SEQUENCE')
-        xSequence.setAttribute('input', reduce(lambda x,y: x+' '+y, self.input))
-        #print "input" , reduce(lambda x,y: x+' '+y, self.input)
-        xSequence.setAttribute('output', self.output)
-        #print "output", self.output
-        xSequence.setAttribute('algorithm', reduce(lambda x,y: x+' '+y, self.algs))
-        #print "algorithm", reduce(lambda x,y: x+' '+y, self.algs)
+        xSequence = etree.SubElement(xlist, 'SEQUENCE',
+                                     input = reduce(lambda x,y: x+' '+y, self.input),
+                                     output = self.output,
+                                     algorithm = reduce(lambda x,y: x+' '+y, self.algs))
+                                     
         if self.topo_start_from!= None:
-            xSequence.setAttribute('topo_start_from', self.topo_start_from)  
-        xlist.appendChild(xSequence)
+            xSequence.set('topo_start_from', self.topo_start_from)
 
     def dot(self, algs=True):
         if not self.used():

@@ -72,6 +72,11 @@ class TauHypoProvider:
                         theVars = ['massTrkSysMin', 'massTrkSysMax', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax']
                         theThresh = self.thresholdsEF_dikaon[(criteria, int(threshold))]
                         currentHypo = EFTauDiKaonHypo(currentHypoKey, theVars, theThresh)
+                    elif criteria=='singlepion' or criteria=='singlepiontight':
+                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
+                        theVars = ['leadTrkPtMin','EtCalibMin','nTrackMax','nWideTrackMax','dRmaxMax','etOverPtLeadTrkMin','etOverPtLeadTrkMax']
+                        theThresh = self.thresholdsEF_singlepion[(criteria, int(threshold))]
+                        currentHypo = EFTauDiKaonHypo(currentHypoKey, theVars, theThresh)
                     elif criteria=='medium1HighptL' or criteria=='medium1HighptM' or criteria=='medium1HighptH':
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_highpt
                         theVars = ['NTrackMax', 'EtCalibMin', 'Level','HighptTrkThr','HighptIDThr','HighptJetThr']
@@ -293,3 +298,9 @@ class TauHypoProvider:
         ('dikaontight', 25): [0.2*GeV, 0.45*GeV, 15.0*GeV, 25.0*GeV, 1.0],
         ('dikaontight', 35): [0.2*GeV, 0.45*GeV, 25.0*GeV, 35.0*GeV, 1.0]
         }
+
+    thresholdsEF_singlepion = {
+        ('singlepion', 25): [30.0*GeV, 25.0*GeV, 1, 0, 0.06, 0.4, 0.85],
+        ('singlepiontight', 25): [30.0*GeV, 25.0*GeV, 1, 0, 0.06, 0.4, 0.80]
+        }
+

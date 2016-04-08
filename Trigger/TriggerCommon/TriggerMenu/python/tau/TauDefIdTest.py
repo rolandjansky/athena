@@ -8,11 +8,9 @@ __doc__="Implementation of Tau slice in new TM framework "
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-logTauDef = logging.getLogger("TriggerMenu.tau.TauDef")
-
+log = logging.getLogger("TriggerMenu.tau.TauDef")
 
 from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
-from AthenaCommon.SystemOfUnits import GeV
 
 ##########################################################
 #
@@ -22,21 +20,11 @@ from AthenaCommon.SystemOfUnits import GeV
 
 
 
-def retrieve_tau_hypo(level, threshold, criteria, part =''):
-    levelDict = { 'L2': 'l2', 'EF': 'ef' }
-
-    hypoName = levelDict[level] + part + "_tau" + str(threshold) + "_" + criteria
-    #if part != 'None':
-    #    hypoName += "_"+part
-    assert hasattr(hypos, hypoName), 'unable to find hypothesis algorithm '+hypoName
-    return getattr(hypos, hypoName)
-
-
 def L1InputTE(name):
     tmpte = name.split('_')[1]
     #tmpte = 'HA'+tmpte.strip('TAU')
     tmpte = tmpte.replace("TAU", "HA");
-    logTauDef.debug('L1 input TE : %s'%tmpte)
+    log.debug('L1 input TE : %s', tmpte)
     return tmpte
 
 
@@ -192,8 +180,8 @@ class L2EFChain_tau(L2EFChainDef):
 
         if preselection == 'calo' or preselection == 'ptonly' or preselection == 'mvonly' or preselection == 'caloonly' or preselection == 'track' or preselection == 'trackonly':
             # Test 2015 approach
-            logTauDef.info("Calo-based pre-selection configuration is not quite ready yet!")
-            logTauDef.info("Very preliminary version!!")
+            log.info("Calo-based pre-selection configuration is not quite ready yet!")
+            log.info("Very preliminary version!!")
 
             theHLTPre   = self.hypoProvider.GetHypo('L2', threshold, selection, 'calo', preselection)
 

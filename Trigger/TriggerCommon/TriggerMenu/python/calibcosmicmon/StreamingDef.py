@@ -7,10 +7,9 @@
 #########################################################################
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger('TriggerMenu.calibcosmon.StreamingDef')
+log = logging.getLogger(__name__)
 
-from TriggerMenu.menu.HltConfig import *
-from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+from TriggerMenu.menu.HltConfig import L2EFChainDef
 
 #########################################################################
 class L2EFChain_SeededStreamerTemplate(L2EFChainDef):

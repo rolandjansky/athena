@@ -89,13 +89,13 @@ def defineMenu():
         'TE5', 'TE10', 'TE20', 'TE30', 'TE40', 'TE50', 'TE60', 'TE70',
 
         # 8 x XE (for standard XE)
-        'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
+        #'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
         # 8 x XE (for restricted ETA XE: check ATR-13234 for any further change)
-        'XE10', 'XE20', 'XE25', 'XE30', 'XE65', 'XE75', 'XE150', 'XE300',
+        #'XE10', 'XE20', 'XE25', 'XE30', 'XE65', 'XE75', 'XE150', 'XE300',
 
-        #'XE10', 'XE20', 'XE25', 'XE30', 'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE65', 'XE70', 'XE75', 'XE80', 'XE150', 'XE300',
-        #'XE35.0ETA24', 'XE40.0ETA24', 'XE45.0ETA24', 'XE50.0ETA24', 'XE55.0ETA24', 'XE60.0ETA24', 'XE70.0ETA24', 'XE80.0ETA24',
-
+        'XE10', 'XE20', 'XE25', 'XE30', 'XE35', 'XE40', 'XE45', 'XE50',
+        'XE55', 'XE60', 'XE65', 'XE70', 'XE75', 'XE80', 'XE150', 'XE300',
+        
         # 8 x XS
         'XS20', 'XS30', 'XS40', 'XS45', 'XS50', 'XS55', 'XS60', 'XS65', 
 
@@ -176,6 +176,9 @@ def defineMenu():
         
         # TRT
         'NIMTRT',
+
+        # AFP
+        'AFP_NSR', 'AFP_FSR',
 
 
         #-------------------------------------------------------------------
@@ -468,6 +471,7 @@ def defineMenu():
         # XE
         "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", 
         "L1_XE55", "L1_XE60", "L1_XE70", "L1_XE80",
+        'L1_XE10', 'L1_XE20', 'L1_XE25', 'L1_XE30', 'L1_XE65', 'L1_XE75', 'L1_XE150', 'L1_XE300',
         
         #XS
         'L1_XS20', 'L1_XS30', 'L1_XS40', 'L1_XS50', 'L1_XS60',
@@ -486,7 +490,7 @@ def defineMenu():
         "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
         "L1_MBTS_1_EMPTY", "L1_MBTS_1_UNPAIRED_ISO", 
         "L1_MBTS_2_EMPTY", "L1_MBTS_2_UNPAIRED_ISO",
-        "L1_MBTS_1_1_EMPTY", "L1_MBTS_1_1_UNPAIRED_ISO",
+        "L1_MBTS_1_1_EMPTY", "L1_MBTS_1_1_UNPAIRED_ISO","L1_MBTS_4_A_UNPAIRED_ISO","L1_MBTS_4_C_UNPAIRED_ISO",
 #        'L1_MBTSA0' ,'L1_MBTSA1' ,'L1_MBTSA2' ,'L1_MBTSA3' ,'L1_MBTSA4' ,
 #        'L1_MBTSA5' ,'L1_MBTSA6' ,'L1_MBTSA7' ,'L1_MBTSA8' ,
 #        'L1_MBTSA10','L1_MBTSA12','L1_MBTSA14',
@@ -549,6 +553,8 @@ def defineMenu():
         'L1_BCM_AC_ABORTGAPNOTCALIB', 'L1_BCM_CA_ABORTGAPNOTCALIB','L1_BCM_Wide_ABORTGAPNOTCALIB',
         'L1_BCM_AC_CALIB', 'L1_BCM_CA_CALIB','L1_BCM_Wide_CALIB',
 
+        #AFP
+        #'L1_AFP_NSR', 'L1_AFP_FSR', 
 
         #--------------------------------
         # TOPO items
@@ -941,6 +947,16 @@ def defineMenu():
         'L1_J40_XE50' : 142,
         'L1_J75_XE40' : 143,
         'L1_J75_XE50' : 133,
+
+        'L1_XE10': 68,
+        'L1_XE20': 76,
+        'L1_XE25': 82,
+        'L1_XE30': 85,
+        'L1_XE65': 108,
+        'L1_XE75': 134,
+        'L1_XE150': 156,
+        'L1_XE300': 187,
+        
         'L1_XE35' : 144,
         'L1_XE40' : 145,
         'L1_XE45' : 146,
@@ -1012,7 +1028,8 @@ def defineMenu():
         
         'L1_EM8I' : 183,
         'L1_EM15I': 184,
-        
+        'L1_MBTS_4_A_UNPAIRED_ISO' : 185,
+        'L1_MBTS_4_C_UNPAIRED_ISO' : 186,        
         'L1_MBTS_4_A' : 194,
         'L1_MBTS_4_C' : 195,
         'L1_MBTS_1_BGRP9' : 196,

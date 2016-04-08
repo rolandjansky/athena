@@ -7,7 +7,7 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger( 'TriggerMenu.calibcosmon.MonitorDef' )
 
-from TriggerMenu.menu.HltConfig import *
+from TriggerMenu.menu.HltConfig import L2EFChainDef
 
 
 ###########################################################################
@@ -33,6 +33,8 @@ class L2EFChain_Monitoring(L2EFChainDef):
 
         if ('robrequest' in self.monType):
             self.setupROBRequestMonChains()
+        elif ('mistimemonl1bccorr' in self.monType or 'mistimemonl1bccorrnomu' in self.monType):
+            self.setupL1BCCorrMonChains(self.chainName)
         elif ('timeburner' in self.monType):
             self.setupTimeBurnerChain()
         elif ('idmon' in self.monType):
@@ -74,6 +76,54 @@ class L2EFChain_Monitoring(L2EFChainDef):
         self.L2sequenceList += [[ '' , [ROBRequester],  'L2_DummyROBRequest']]
         self.L2signatureList += [ [['L2_DummyROBRequest']] ]
 
+    ####################################
+    ####################################
+    def setupL1BCCorrMonChains(self,chainname):
+        from TrigGenericAlgs.TrigGenericAlgsConfig import L1CorrelationAlgoConfig
+
+        
+        
+        if "nomu" in chainname:
+            L1CorrAlgo = L1CorrelationAlgoConfig("L1CorrAlgoNoMuon")
+            L1CorrAlgo.noMuon = True
+            L1CorrAlgo.m_l1itemlist = ["L1_EM22VHI","L1_J120","L1_J400"]
+            self.EFsequenceList += [[ '' , [L1CorrAlgo],  'EF_DummyL1CorrAlgoNoMuon']]
+            self.EFsignatureList += [ [['EF_DummyL1CorrAlgoNoMuon']] ]
+        else:
+            L1CorrAlgo = L1CorrelationAlgoConfig("L1CorrAlgo")
+            L1CorrAlgo.noMuon = False
+            L1CorrAlgo.m_l1itemlist = ["L1_EM22VHI","L1_MU20","L1_J120","L1_J400"]
+            self.EFsequenceList += [[ '' , [L1CorrAlgo],  'EF_DummyL1CorrAlgo']]
+            self.EFsignatureList += [ [['EF_DummyL1CorrAlgo']] ]
+            
+        ## Afterwards set up caloclustering to access timing information
+        ###  Stole that one here from MissingETDef.py it prepares the caloclustering
+
+        # chain = ['j0', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
+        
+        # from TriggerMenu.menu import DictFromChainName
+        # theDictFromChainName = DictFromChainName.DictFromChainName()
+        # jetChainDict = theDictFromChainName.getChainDict(chain)
+        
+        # from TriggerMenu.jet.JetDef import generateHLTChainDef
+        # jetChainDict['chainCounter'] = 9151
+        # jetChainDef = generateHLTChainDef(jetChainDict)
+
+        # #obtaining DummyUnseededAllTEAlgo/RoiCreator
+        # input0=jetChainDef.sequenceList[0]['input']
+        # output0 =jetChainDef.sequenceList[0]['output']
+        # algo0 =jetChainDef.sequenceList[0]['algorithm']
+
+        # #obtaining TrigCaloCellMaker/FS, TrigCaloClusterMaker, TrigHLTEnergyDensity
+        # input1=jetChainDef.sequenceList[1]['input']
+        # output1 =jetChainDef.sequenceList[1]['output']
+        # algo1 =jetChainDef.sequenceList[1]['algorithm']
+        # print 
+        # self.EFsequenceList +=[[ input0,algo0,  output0 ]]      ## Why two times??
+        # self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
+        # self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
+        
+        # self.EFsignatureList += [ [[output1]] ]
 
     ####################################
     ####################################

@@ -47,15 +47,7 @@ def _check_input(in_data):
                 in_data.keys())
             raise RuntimeError(msg)
 
-    # expect two chain parts for bjets: these sepecify different
-    # multiplicities and thresholds for the jet hypo.
-    # all remaining dictionaries should be the same.
-
     chain_parts = in_data['chainParts']
-    if len(chain_parts) > 2:
-        msg = '%s Unexpected input data: no of chain' \
-            ' parts %s: max: 2' % (err_hdr, len(chain_parts))
-        raise RuntimeError(msg)
 
     # if there are more than one chain part, the differences should
     # only refer to the jet hypo. If this is not the case, we do

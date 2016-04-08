@@ -366,6 +366,13 @@ class ThresholdDef:
         tc.registerThr('LUCID_05', 'LUCID').addThrValue(650)
         tc.registerThr('LUCID_06', 'LUCID').addThrValue(650)
 
+        ## AFP
+        tc.registerThr('AFP_NSR', 'NIM', mapping=2).addThrValue(50)
+        tc.registerThr('AFP_FSR', 'NIM', mapping=3).addThrValue(50)
+        tc.registerThr('AFP_NSL', 'NIM', mapping=4).addThrValue(50)
+        tc.registerThr('AFP_FSL', 'NIM', mapping=5).addThrValue(50)
+        
+
         # Diamond beam monitors
         #for i in range(8):
         #    tc.registerThr('DBM%i'    % i, 'DBM')

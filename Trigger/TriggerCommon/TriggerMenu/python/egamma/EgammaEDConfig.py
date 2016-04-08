@@ -8,7 +8,7 @@ class TrigHLTEnergyDensityCentral(TrigHLTEnergyDensity):
                             toolname_stub="jetTriggerEnergyDensityTool_Central",
                             ed_merge_param=0.5, AbsRapidityMax=1.5,
                             caloClusterContainerSGKey="TrigCaloClusterMaker_topo_fullscan_egamma",
-                            eventShapeSGKey="TopoClusterIsoCentralEventShape") :
+                            eventShapeSGKey="HLTTopoClusterIsoCentralEventShape") :
           super(TrigHLTEnergyDensityCentral, self).__init__(name=name,
                             toolname_stub=toolname_stub,
                             ed_merge_param=ed_merge_param,AbsRapidityMax=AbsRapidityMax,
@@ -23,7 +23,7 @@ class TrigHLTEnergyDensityForward(TrigHLTEnergyDensity):
                             toolname_stub="jetTriggerEnergyDensityTool_Forward",
                             ed_merge_param=0.5, AbsRapidityMin=1.5, AbsRapidityMax=3.0,
                             caloClusterContainerSGKey="TrigCaloClusterMaker_topo_fullscan_egamma",
-                            eventShapeSGKey="TopoClusterIsoForwardEventShape") :
+                            eventShapeSGKey="HLTTopoClusterIsoForwardEventShape") :
           super(TrigHLTEnergyDensityForward, self).__init__(name=name,
                             toolname_stub=toolname_stub,
                             ed_merge_param=ed_merge_param, AbsRapidityMin=AbsRapidityMin,
