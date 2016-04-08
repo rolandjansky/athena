@@ -23,6 +23,8 @@
  *
  */
 
+class Property;
+
 class TestGaudiProperty {
 
 public:

@@ -19,9 +19,8 @@
 #include <string>
 #include <set>
 
-class TrigPath
+struct TrigPath
 {
-public:
 	TrigPath() : pathID(-1), l1bit(-1), l2bit(0) {}
 	TrigPath(int l1, int l2, int p) : 
 		pathID(p), l1bit(l1), l2bit(l2) {}
